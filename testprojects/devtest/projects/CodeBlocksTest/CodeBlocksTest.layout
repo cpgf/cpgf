@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Debug" />
+	<File name="..\..\..\..\framework\SimpleCallback_autogen.h" open="0" top="0" tabpos="10">
+		<Cursor position="17187" topLine="585" />
+	</File>
+	<File name="..\..\..\..\framework\g2d\gcomponents2d.cpp" open="1" top="0" tabpos="3">
+		<Cursor position="3383" topLine="95" />
+	</File>
+	<File name="..\..\..\..\framework\g2d\gcomponents2d.h" open="0" top="0" tabpos="5">
+		<Cursor position="5606" topLine="264" />
+	</File>
+	<File name="..\..\..\..\framework\g2d\grenderengine2d.cpp" open="0" top="0" tabpos="13">
+		<Cursor position="2143" topLine="84" />
+	</File>
+	<File name="..\..\..\..\framework\g2d\grenderengine2d.h" open="1" top="0" tabpos="14">
+		<Cursor position="3241" topLine="137" />
+	</File>
+	<File name="..\..\..\..\framework\g2d\gsubsystems2d.cpp" open="0" top="0" tabpos="3">
+		<Cursor position="92" topLine="0" />
+	</File>
+	<File name="..\..\..\..\framework\g2d\gsubsystems2d.h" open="0" top="0" tabpos="0">
+		<Cursor position="102" topLine="0" />
+	</File>
+	<File name="..\..\..\..\framework\gapplication.h" open="0" top="0" tabpos="0">
+		<Cursor position="79" topLine="0" />
+	</File>
+	<File name="..\..\..\..\framework\gcallback.h" open="1" top="0" tabpos="1">
+		<Cursor position="18328" topLine="573" />
+	</File>
+	<File name="..\..\..\..\framework\gcomponent.cpp" open="1" top="0" tabpos="7">
+		<Cursor position="436" topLine="0" />
+	</File>
+	<File name="..\..\..\..\framework\gcomponent.h" open="1" top="0" tabpos="8">
+		<Cursor position="0" topLine="0" />
+	</File>
+	<File name="..\..\..\..\framework\gcomposite.h" open="0" top="0" tabpos="6">
+		<Cursor position="2043" topLine="55" />
+	</File>
+	<File name="..\..\..\..\framework\gconfig.h" open="0" top="0" tabpos="0">
+		<Cursor position="250" topLine="0" />
+	</File>
+	<File name="..\..\..\..\framework\gcontainer.h" open="1" top="0" tabpos="3">
+		<Cursor position="34434" topLine="1502" />
+	</File>
+	<File name="..\..\..\..\framework\gcore.h" open="0" top="0" tabpos="11">
+		<Cursor position="1968" topLine="78" />
+	</File>
+	<File name="..\..\..\..\framework\gdebug.cpp" open="0" top="0" tabpos="4">
+		<Cursor position="215" topLine="6" />
+	</File>
+	<File name="..\..\..\..\framework\gdebug.h" open="1" top="0" tabpos="6">
+		<Cursor position="497" topLine="0" />
+	</File>
+	<File name="..\..\..\..\framework\gentity.cpp" open="1" top="0" tabpos="9">
+		<Cursor position="0" topLine="0" />
+	</File>
+	<File name="..\..\..\..\framework\gentity.h" open="1" top="0" tabpos="10">
+		<Cursor position="314" topLine="0" />
+	</File>
+	<File name="..\..\..\..\framework\gevent.cpp" open="1" top="0" tabpos="11">
+		<Cursor position="706" topLine="21" />
+	</File>
+	<File name="..\..\..\..\framework\gevent.h" open="1" top="0" tabpos="12">
+		<Cursor position="3279" topLine="87" />
+	</File>
+	<File name="..\..\..\..\framework\ginput.h" open="1" top="0" tabpos="3">
+		<Cursor position="5187" topLine="186" />
+	</File>
+	<File name="..\..\..\..\framework\gio.cpp" open="0" top="0" tabpos="17">
+		<Cursor position="2813" topLine="127" />
+	</File>
+	<File name="..\..\..\..\framework\gio.h" open="0" top="0" tabpos="16">
+		<Cursor position="1462" topLine="34" />
+	</File>
+	<File name="..\..\..\..\framework\gmath.h" open="0" top="0" tabpos="14">
+		<Cursor position="1318" topLine="48" />
+	</File>
+	<File name="..\..\..\..\framework\gpprepeat.h" open="1" top="0" tabpos="3">
+		<Cursor position="1524" topLine="0" />
+	</File>
+	<File name="..\..\..\..\framework\grenderengine.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="1995" topLine="76" />
+	</File>
+	<File name="..\..\..\..\framework\grenderengine.h" open="0" top="0" tabpos="0">
+		<Cursor position="8148" topLine="384" />
+	</File>
+	<File name="..\..\..\..\framework\gscene.cpp" open="1" top="0" tabpos="15">
+		<Cursor position="2016" topLine="88" />
+	</File>
+	<File name="..\..\..\..\framework\gscene.h" open="0" top="0" tabpos="3">
+		<Cursor position="334" topLine="0" />
+	</File>
+	<File name="..\..\..\..\framework\gsubsystem.cpp" open="0" top="0" tabpos="6">
+		<Cursor position="547" topLine="0" />
+	</File>
+	<File name="..\..\..\..\framework\gsubsystem.h" open="0" top="0" tabpos="4">
+		<Cursor position="4638" topLine="192" />
+	</File>
+	<File name="..\..\..\..\framework\gutility.h" open="0" top="0" tabpos="1">
+		<Cursor position="2955" topLine="132" />
+	</File>
+	<File name="..\..\..\..\framework\thirdparty\vmmlib\enable_if.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="455" topLine="0" />
+	</File>
+	<File name="..\..\..\..\framework\thirdparty\vmmlib\matrix.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="14028" topLine="394" />
+	</File>
+	<File name="main.cpp" open="0" top="0" tabpos="2">
+		<Cursor position="622" topLine="9" />
+	</File>
+	<File name="..\..\source\DoTest.cpp" open="1" top="0" tabpos="13">
+		<Cursor position="7077" topLine="357" />
+	</File>
+	<File name="..\..\source\TestApplication.cpp" open="0" top="0" tabpos="15">
+		<Cursor position="225" topLine="0" />
+	</File>
+	<File name="..\..\source\TestApplication.h" open="0" top="0" tabpos="3">
+		<Cursor position="153" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>

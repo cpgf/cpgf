@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Debug" />
+	<File name="..\..\..\..\..\..\cxxtest\cxxtest\Descriptions.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="165" topLine="0" />
+	</File>
+	<File name="..\..\..\..\..\..\cxxtest\cxxtest\LinkedList.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="144" topLine="0" />
+	</File>
+	<File name="..\..\..\..\..\..\cxxtest\cxxtest\RealDescriptions.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="1580" topLine="29" />
+	</File>
+	<File name="..\..\..\..\..\..\cxxtest\cxxtest\TestTracker.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="168" topLine="0" />
+	</File>
+	<File name="..\..\..\..\..\..\cxxtest\cxxtest\ValueTraits.h" open="0" top="0" tabpos="0">
+		<Cursor position="4521" topLine="94" />
+	</File>
+	<File name="..\..\..\..\src\gevent.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="427" topLine="0" />
+	</File>
+	<File name="..\..\..\..\src\gmetaannotation.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="2938" topLine="124" />
+	</File>
+	<File name="..\..\..\..\src\gmetaapiservice.cpp" open="0" top="0" tabpos="5">
+		<Cursor position="0" topLine="0" />
+	</File>
+	<File name="..\..\..\..\src\testcase\benchmark\benchmarkcallback.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="215" topLine="0" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\annotation.cpp" open="0" top="0" tabpos="3">
+		<Cursor position="4345" topLine="133" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\constructor.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="3963" topLine="136" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\enum.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="1698" topLine="50" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\field.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="4157" topLine="173" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\global.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="527" topLine="0" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\inheritance_multiple.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="301" topLine="0" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\inheritance_single.cpp" open="0" top="0" tabpos="2">
+		<Cursor position="1751" topLine="71" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\method.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="2729" topLine="103" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\operator_arithmetic.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="5742" topLine="152" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\operator_arithmetic_assign.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="3465" topLine="106" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\operator_bitwise.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="4754" topLine="125" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\operator_bitwise_assign.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="5026" topLine="140" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\operator_logic.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="5460" topLine="135" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\operator_other.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="6719" topLine="192" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\operator_unary.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="2324" topLine="69" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\template.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="987" topLine="0" />
+	</File>
+	<File name="..\..\..\..\src\testcase\reflection\test_common.h" open="0" top="0" tabpos="0">
+		<Cursor position="2769" topLine="124" />
+	</File>
+	<File name="..\..\..\..\src\testcase\testreflection_main.cpp" open="0" top="0" tabpos="2">
+		<Cursor position="1986" topLine="60" />
+	</File>
+	<File name="main.cpp" open="0" top="0" tabpos="1">
+		<Cursor position="60" topLine="0" />
+	</File>
+	<File name="..\..\testsource\TestEvent.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="287" topLine="0" />
+	</File>
+	<File name="..\..\testsource\TestMain.cpp" open="1" top="1" tabpos="0">
+		<Cursor position="1414" topLine="38" />
+	</File>
+	<File name="..\..\testsource\TestReflection.cpp" open="0" top="0" tabpos="2">
+		<Cursor position="943" topLine="0" />
+	</File>
+	<File name="E:\SourceCode\CPP\libsigc++-2.2.8\sigc++\functors\slot_base.cc" open="0" top="0" tabpos="0">
+		<Cursor position="1103" topLine="9" />
+	</File>
+	<File name="E:\SourceCode\CPP\libsigc++-2.2.8\sigc++\trackable.cc" open="0" top="0" tabpos="0">
+		<Cursor position="852" topLine="4" />
+	</File>
+</CodeBlocks_layout_file>

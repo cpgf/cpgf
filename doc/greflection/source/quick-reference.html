@@ -1,0 +1,496 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="maintpl.css" />
+</head>
+<body><div style="width:900px">
+
+<h1>Quick reference -- the cheat sheet</h1>
+
+<a id="top"></a>
+<ul style="text-align:left">
+<li><a href="#field">Field</a>
+<li><a href="#property">Property</a>
+<li><a href="#method">Method</a>
+<li><a href="#constructor">Constructor</a>
+<li><a href="#operator">Operator</a>
+<li><a href="#class">Class</a>
+<li><a href="#enumerator">Enumerator</a>
+<li><a href="#annotation">Annotation</a>
+<li><a href="#property">Property</a>
+</ul><a id="field" ></a>
+<table cols="1" border="1" style="width:100%">
+<tr><td style="background-color:#dddddd">
+<h3 style="text-align:center">Field</h3>
+</td></tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using function</b>
+</p>
+<p>
+			<pre>
+template &lt;typename FT&gt;
+void reflectField(const std::string &amp; name, FT field);</pre>
+		Example:
+		<pre>
+reflectField(&quot;width&quot;, &amp;MyClass:width);</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using macro</b>
+</p>
+<p>
+			<pre>
+GMETA_FIELD(field);</pre>
+		Example:
+		<pre>
+GMETA_FIELD(width);</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Get value</b>
+</p>
+<p>
+			<pre>
+int n = fromVariant<int>(metaField->get(obj)); // get as integer
+std::string s = fromVariant<std::string>(metaField->get(obj)); // get as std::string</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Set value</b>
+</p>
+<p>
+			<pre>
+metaField->set(obj, 5); // set as integer, 5 will be converted to appropriate type
+metaField->set(obj, "hello"); // set as std::string, or C string</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Get field address</b>
+</p>
+<p>
+			<pre>
+void * address = metaField->getAddress(obj);</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Get field size</b>
+</p>
+<p>
+			<pre>
+size_t size = metaField->getFieldSize();</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Get field type</b>
+</p>
+<p>
+			<pre>
+const GMetaType & type = metaField->getType();</pre>
+</p>
+</td>
+</tr>
+</table>
+<p style="text-align:right">
+<a href="#top">Back to top</a>
+</p>
+<br /><br />
+<a id="property" ></a>
+<table cols="1" border="1" style="width:100%">
+<tr><td style="background-color:#dddddd">
+<h3 style="text-align:center">Property</h3>
+</td></tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using function</b>
+</p>
+<p>
+			<pre>
+template &lt;typename Getter, typename Setter&gt;
+void reflectProperty(const std::string &amp; name,
+	const Getter &amp; getter, const Setter &amp; setter);</pre>
+		Example:
+		<pre>
+reflectProperty(&quot;width&quot;, &amp;MyClass::getWidth, &amp;MyClass::setWidth);</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using macro</b>
+</p>
+<p>
+			<pre>
+GMETA_PROPERTY(prop, getter, setter)</pre>
+		Example:
+		<pre>
+GMETA_PROPERTY(width, getWidth, setWidth)</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Get value</b>
+</p>
+<p>
+			<pre>
+int n = fromVariant<int>(metaProperty->get(obj)); // get as integer
+std::string s = fromVariant<std::string>(metaProperty->get(obj)); // get as std::string</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Set value</b>
+</p>
+<p>
+			<pre>
+metaProperty->set(obj, 5); // set as integer, 5 will be converted to appropriate type
+metaProperty->set(obj, "hello"); // set as std::string, or C string</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Get property size</b>
+</p>
+<p>
+			<pre>
+size_t size = metaProperty->getPropertySize();</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Get property type</b>
+</p>
+<p>
+			<pre>
+const GMetaType & type = metaProperty->getType();</pre>
+</p>
+</td>
+</tr>
+</table>
+<p style="text-align:right">
+<a href="#top">Back to top</a>
+</p>
+<br /><br />
+<a id="method" ></a>
+<table cols="1" border="1" style="width:100%">
+<tr><td style="background-color:#dddddd">
+<h3 style="text-align:center">Method</h3>
+</td></tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using function</b>
+</p>
+<p>
+			<pre>
+template &lt;typename FT&gt;
+void reflectMethod(const std::string &amp; name, FT func);</pre>
+		Example:
+		<pre>
+reflectMethod(&quot;checkSum&quot;, &amp;MyClass:checkSum);</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using macro</b>
+</p>
+<p>
+			<pre>
+GMETA_METHOD(method)</pre>
+		Example:
+		<pre>
+GMETA_METHOD(checkSum)</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Invoking</b>
+</p>
+<p>
+			<pre>
+// the method accepts three parameters, integer, boolean, and string
+// the method return an integer
+int n = fromVariant&lt;int&gt;(metaMethod-&gt;invoke(obj, 3, false, &quot;abc&quot;));</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Examine parameters and result type</b>
+</p>
+<p>
+			<pre>
+// get parameter count
+size_t paramCount = metaMethod-&gt;getParamCount();
+
+// get first parameter type
+GMetaType type = metaMethod-&gt;getParamType(0);
+
+// get result type
+GMetaType resultType = metaMethod-&gt;getResultType();</pre>
+</p>
+</td>
+</tr>
+</table>
+<p style="text-align:right">
+<a href="#top">Back to top</a>
+</p>
+<br /><br />
+<a id="constructor" ></a>
+<table cols="1" border="1" style="width:100%">
+<tr><td style="background-color:#dddddd">
+<h3 style="text-align:center">Constructor</h3>
+</td></tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using function</b>
+</p>
+<p>
+			<pre>
+template &lt;typename Signature&gt;
+void reflectConstructor();</pre>
+		Example:
+		<pre>
+reflectConstructor&lt;void *(int, const std::string &amp;)&gt;();</pre>
+		Note: the return type must always be "void *", can't be any other type.
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using macro</b>
+</p>
+<p>
+	Not available
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Construct an object</b>
+</p>
+<p>
+			<pre>
+// pass parameter 18 and "what" to contruct an object
+// the object is returned as "obj"
+void * obj = constructor->invoke(18, "what");</pre>
+</p>
+</td>
+</tr>
+</table>
+<p style="text-align:right">
+<a href="#top">Back to top</a>
+</p>
+<br /><br />
+<a id="operator" ></a>
+<table cols="1" border="1" style="width:100%">
+<tr><td style="background-color:#dddddd">
+<h3 style="text-align:center">Operator</h3>
+</td></tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using function</b>
+</p>
+<p>
+			<pre>
+template &lt;typename Signature, typename Creator&gt;
+void reflectOperator(const Creator &amp; creator);</pre>
+		Example:
+		<pre>
+reflectOperator&lt;MyClass (const GMetaSelf &amp;, int)&gt;(mopHolder + mopHolder);</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using macro</b>
+</p>
+<p>
+	Not available
+</p>
+</td>
+</tr>
+</table>
+<p style="text-align:right">
+<a href="#top">Back to top</a>
+</p>
+<br /><br />
+<a id="class" ></a>
+<table cols="1" border="1" style="width:100%">
+<tr><td style="background-color:#dddddd">
+<h3 style="text-align:center">Class</h3>
+</td></tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using function</b>
+</p>
+<p>
+			<pre>
+void reflectClass(const GMetaClass * metaClass);</pre>
+		Example:
+		<pre>
+reflectClass(findMetaClass<MyClass>());</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using macro</b>
+</p>
+<p>
+			<pre>
+GMETA_CLASS(cls)</pre>
+		Example:
+		<pre>
+GMETA_CLASS(MyClass)</pre>
+</p>
+</td>
+</tr>
+</table>
+<p style="text-align:right">
+<a href="#top">Back to top</a>
+</p>
+<br /><br />
+<a id="enumerator" ></a>
+<table cols="1" border="1" style="width:100%">
+<tr><td style="background-color:#dddddd">
+<h3 style="text-align:center">Enumerator</h3>
+</td></tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using function</b>
+</p>
+<p>
+				<pre>
+reflectEnum<TestObject::BorderStyle>("BorderStyle")
+	("bs0", TestObject::bs0)
+	("bs1", TestObject::bs1)
+	("bs2", TestObject::bs2)
+;</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using macro</b>
+</p>
+<p>
+				<pre>
+GMETA_ENUM(BorderStyle, TestObject::bs0, TestObject::bs1, TestObject::bs2);</pre>
+</p>
+</td>
+</tr>
+</table>
+<p style="text-align:right">
+<a href="#top">Back to top</a>
+</p>
+<br /><br />
+<a id="annotation" ></a>
+<table cols="1" border="1" style="width:100%">
+<tr><td style="background-color:#dddddd">
+<h3 style="text-align:center">Annotation</h3>
+</td></tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using function</b>
+</p>
+<p>
+				<pre>
+reflectAnnotation("attribute")
+	("name", "What's the name")
+	("count", 3)
+	("data", TestData("blahblah", 5))
+;</pre>
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using macro</b>
+</p>
+<p>
+	Not available
+</p>
+</td>
+</tr>
+</table>
+<p style="text-align:right">
+<a href="#top">Back to top</a>
+</p>
+<br /><br />
+<a id="property" ></a>
+<table cols="1" border="1" style="width:100%">
+<tr><td style="background-color:#dddddd">
+<h3 style="text-align:center">Property</h3>
+</td></tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using function</b>
+</p>
+<p>
+	
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p style="margin-top:20px">
+	<b>Reflect using macro</b>
+</p>
+<p>
+	
+</p>
+</td>
+</tr>
+</table>
+<p style="text-align:right">
+<a href="#top">Back to top</a>
+</p>
+<br /><br />
+</div></body></html>

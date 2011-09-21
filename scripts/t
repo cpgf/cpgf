@@ -1,0 +1,35 @@
+<{autotoc width="a long" h=short}>
+
+<{sgroup indent=1}>
+
+First group
+
+
+<{ sh id=myid }> aaa
+<{sh}> bbb
+
+<{sc}>
+<p>What's this</p>
+
+<{autobr}>
+<{/autobr}>
+
+OMG
+<{code}>
+template <typename cls>
+struct GCheckExistMetaClassSelector
+{
+private:
+	typedef char YesType;
+	struct NoType { char a[8]; };
+	template <typename T, T> struct TestFunc {};
+	template <typename FT> static YesType test(TestFunc<const GMetaClass * (*)(), &FT::getMetaClass> *);
+	template <typename FT> static NoType test(...);
+public:
+	enum { Result = sizeof(test<cls>(0)) == sizeof(YesType) };
+};
+<{/code}>
+
+<{/sgroup}>
+
+<{/autotoc}>

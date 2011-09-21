@@ -1,0 +1,405 @@
+<h3>ABC</h3>
+
+<{autotoc}>
+
+<{sgroup}>Define meta classes
+
+<{sh}> Overview
+<{sc}>
+	<p>
+<{autobr}>	
+	Meta class represents a collection of meta information about a certain class.
+	All meta data, like meta fields, meta properties, meta methods, meta enumerators, meta operators, meta constructor, meta annotation, must be added to a meta class.
+	For global fields and methods, they must be added to the global meta class (get via function getGlobalMetaClass).
+	In other words, Reflex is class based reflection system.
+
+	<b>Buiding meta data using function and macro helpers</b>
+	Most meta data can be built in two ways,
+	Using function -- give you best control over the data type, name, etc. All reflex functions are prefixed with "reflect". For instance, reflectField.
+	Using macro helper -- shortcut macro to save typing. All reflex macros start with GMETA_. For instance, GMETA_FIELD.
+<{/autobr}>
+	</p>
+
+<{sh}> Define meta classes outside of the classes declaration.
+<{sc}>
+	Assume we want to define meta classes for below classes
+
+<{code}>
+	class Animal
+	{
+	};
+
+	class Cat : public Animal
+	{
+	};
+<{/code}>
+
+	<p>Now let's build meta class for Animal.</p>
+
+<{code}>
+	GMETA_DEFINE_CLASS(Animal, Animal, "Animal")
+	{
+		// add any meta data here to reflect fields, methods, etc.
+	}
+<{/code}>
+
+	<p>
+	Use macro GMETA_DEFINE_CLASS to define a meta class.
+	GMETA_DEFINE_CLASS accepts three primary parameters, plus arbitrary number of varadic parameters.
+	</p>
+	<p><i>The first parameter, here is Animal</i>, is the class type. It can have any scope prefix, such as MyNameSpace::Animal.</p>
+	<p><i>The second parameter, here is Animal again</i>, is the class type alias. It can be any legal C++ symbol, as long as it's unique in the program. It can't have any scrop prefix. That's to say, it can't contain any '::'.</p>
+	<p><i>The third parameter, here is "Animal"</i>, is the name of the meta class. It can be any string, such as "Meta::WhatNameSpace::Animal", but highly recommand that only C++ symbol and ':' or '.' be used. It must be unique in the meta system. It's the key to find the meta class.</p>
+	
+	<p>Now let's build meta class for Cat.</p>
+
+<{code}>
+	GMETA_DEFINE_CLASS(Cat, Cat, "Cat", Animal)
+	{
+		// add any meta data here to reflect fields, methods, etc.
+
+		reflectField("eyes", &Cat::eyes);
+	}
+<{/code}>
+	<p>
+<{autobr}>
+	This time there is the fourth parameter, Animal, which is the base class, aka, super class.
+	Reflex supports multiple inheritance. If Cat is also dervied from Biological, just add Biological to GMETA_DEFINE_CLASS.
+	
+	The base classes are not necessary reflected. When a non-reflected base class is retrieving for meta class by calling GMetaClass::getBaseClass, it always return NULL. However, calling GMetaClass::getBaseCount to get base class count will include all non-reflected base classes.
+<{/autobr}>
+	</p>
+
+
+
+<{sh}> Add meta data to global scope
+<{sc}>
+<{code}>
+	GMETA_DEFINE_GLOBAL()
+	{
+		// add any meta data here to reflect fields, methods, etc.
+
+		reflectField("catCount", &catCount);
+	}
+<{/code}>
+
+<{autobr}>
+	Macro "GMETA_DEFINE_GLOBAL" indicates that any reflection between the curve brackets are reflected to global scope.
+	The global scoped is treated as a meta class, but it contains all global meta data for globa variables, methods, classes, etc.
+
+	When any meta class is defined by GMETA_DEFINE_CLASS, it's add to global scope automatically.
+<{/autobr}>	
+
+
+<{sh}> Reflect templates
+<{sc}>
+
+
+<{sh}> Reflect classes inside of the classes declaration.
+<{sc}>
+
+
+<{/sgroup}>
+
+
+<{sgroup}>Build meta data
+
+<{sh}> Overview
+<{sc}>
+	<p>
+<{autobr}>	
+	All meta data must be put into some meta class definition blocks.
+<{/autobr}>	
+	</p>
+
+<{/sgroup}>
+
+
+
+<{sh}> Reflect field
+<{sgroup indent="1"}>
+
+<{sh}> What's field
+<{sc}>
+	<p>
+<{autobr}>
+	A field is either a member data or a global variable.
+	Getting and setting a field will be applied directly to the field without any setter or getter function.
+	To use setter and getter functions, use Property.
+<{/autobr}>
+	</p>
+
+<{sh}> Using function
+<{sc}>
+<{code}>
+	class TestObject
+	{
+	private:
+		int width;
+		std::string name;
+		TestData data;
+
+		GMETA_FRIEND(TestObject);
+	}
+
+	GMETA_DEFINE_CLASS(blah blah)
+	{
+		reflectField("width", &TestObject::width);
+		reflectField("data", &TestObject::data, GMetaPolicyNoncopyable());
+	}
+<{/code}>
+
+<p>
+<{autobr}>
+	reflectField takes two or three parameters.
+	The first parameter is the name. The named is used to find the meta data later.
+	The second parameter is the field address.
+	The third parameter is optional. It's the policy.
+
+	GMETA_FRIEND is used to make the reflection friend to TestObject so it can access private member in TestObject.
+	If the member are public, no need GMETA_FRIEND.
+<{/autobr>}>
+</p>
+
+<{sh}> Using macro helper
+<{sc}>
+<{code}>
+	class TestObject
+	{
+	private:
+		int width;
+		std::string name;
+		TestData data;
+
+		GMETA_FRIEND(TestObject);
+	}
+
+	GMETA_DEFINE_CLASS(blah blah)
+	{
+		GMETA_FIELD(width);
+	}
+<{/code}>
+
+<p>
+<{autobr}>
+	GMETA_FIELD takes only one parameter.
+	The macro will use the parameter as the name and address.
+	Policy can't be passed in to the macro.
+<{/autobr>}>
+</p>
+
+<{/sgroup}>
+
+
+
+<{sh}> Reflect property
+<{sgroup indent="1"}>
+
+<{sh}> What's property
+<{sc}>
+	<p>
+<{autobr}>
+	A property is just a member data or a global variable, but can be accessed with or without getter or setter functions.
+<{/autobr}>
+	</p>
+
+<{sh}> Using function
+<{sc}>
+<{code}>
+	class TestObject
+	{
+	public:
+		int getWidth() const;
+		void setWidth(int width);
+	
+		const std::string & getName() const;
+	
+	public:
+		int height;
+
+	private:
+		int width;
+		std::string name;
+	}
+
+	GMETA_DEFINE_CLASS(blah blah)
+	{
+		reflectProperty("name", &TestObject::getName, 0); // #1
+		reflectProperty("width", &TestObject::getWidth, &TestObject::setWidth); // #2
+		reflectProperty("height", &height, &height, GMetaPolicyNoncopyable()); // #3
+	}
+<{/code}>
+
+<p>
+<{autobr}>
+	reflectProperty takes three or four parameters.
+	The first parameter is the name. The named is used to find the meta data later.
+	The second parameter is getter address.
+	The third parameter is setter address.
+	The fourth parameter is optional. It's the policy.
+
+	Here "getter" and "setter" are not necessary functions, they can be the data address directly.
+<{/autobr>}>
+</p>
+
+<{sh}> Using macro helper
+<{sc}>
+<{code}>
+	class TestObject
+	{
+	public:
+		int getWidth() const;
+		void setWidth(int width);
+	
+		SomeData & getData() const;
+	
+	public:
+		int height;
+		SomeData data;
+
+	private:
+		int width;
+	}
+
+	GMETA_DEFINE_CLASS(blah blah)
+	{
+		GMETA_PROPERTY(width, getWidth, setWidth);
+		GMETA_PROPERTY(data, getData, data);
+	}
+<{/code}>
+
+<p>
+<{autobr}>
+	GMETA_PROPERTY takes three parameter. Name, getter, then setter.
+	Policy can't be passed in to the macro.
+<{/autobr>}>
+</p>
+
+<{/sgroup}>
+
+
+
+<{sh}> Reflect method
+<{sgroup indent="1"}>
+
+<{sh}> What's method
+<{sc}>
+	<p>
+<{autobr}>
+	A method is a function.
+	It can take any parameters. If any parameter is an object, that object is not necessary to be reflected.
+	It can be any function, such as member function, virtual function, static member function, global function.
+	It can also has any calling convention, such as cdecl, stdcall, fastcall.
+	For member function, it can be const, volatile, and const volatile.
+<{/autobr}>
+	</p>
+
+<{sh}> Using function
+<{sc}>
+<{code}>
+	class TestObject
+	{
+	public:
+		int getWidth() const;
+	}
+
+	GMETA_DEFINE_CLASS(blah blah)
+	{
+		reflectMethod("getWidth", &TestObject::getWidth);
+	}
+<{/code}>
+
+<p>
+<{autobr}>
+	reflectMethod takes two or three parameters.
+	The first parameter is the name. The named is used to find the meta data later.
+	The second parameter is method address.
+	The third parameter is optional. It's the policy.
+<{/autobr}>
+</p>
+
+<{sh}> Using macro helper
+<{sc}>
+<{code}>
+	class TestObject
+	{
+	public:
+		int getWidth() const;
+	}
+
+	GMETA_DEFINE_CLASS(blah blah)
+	{
+		GMETA_METHOD(getWidth);
+	}
+<{/code}>
+
+<p>
+<{autobr}>
+	GMETA_METHOD takes one parameter, the name.
+	Policy can't be passed in to the macro.
+<{/autobr}>
+</p>
+
+<{/sgroup}>
+
+
+
+<{sh}> Reflect constructor
+<{sgroup indent="1"}>
+
+<{sh}> What's constructor
+<{sc}>
+	<p>
+<{autobr}>
+	A constructor is a C++ class constructor.
+	It can take any parameters, same as method.
+<{/autobr}>
+	</p>
+
+<{sh}> Using function
+<{sc}>
+<{code}>
+	class TestObject
+	{
+	public:
+		TestObject();
+		TestObject(int width);
+		TestObject(int width, const std::string & name);
+		TestObject(int width, const std::string & name, const TestData & data);
+	}
+
+	GMETA_DEFINE_CLASS(blah blah)
+	{
+		reflectConstructor<void * ()>();
+		reflectConstructor<void * (int)>();
+		reflectConstructor<void * (int, const std::string &)>();
+		reflectConstructor<void * (int, const std::string &, const TestData &)>();
+	}
+<{/code}>
+
+<p>
+<{autobr}>
+	reflectConstructor is a template function.
+	It accepts one template parameter, and one optional policy function parameter.
+	The template parameter is the function type. The function type must always return void *.
+<{/autobr}>
+</p>
+
+<{sh}> Using macro helper
+<{sc}>
+<p>
+<{autobr}>
+	No macro helper available for constructor.
+<{/autobr}>
+</p>
+
+<{/sgroup}>
+
+
+
+
+
+
+<{/autotoc}>
+
+

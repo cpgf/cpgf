@@ -1,0 +1,44 @@
+#ifndef __TESTSCRIPTBINDMETADATA_H
+#define __TESTSCRIPTBINDMETADATA_H
+
+
+#include "cpgf/scriptbind/gscriptbind.h"
+
+namespace testscript {
+
+const int Magic1 = 0x1999;
+const int Magic2 = 0xbeef38;
+const int Magic3 = 0xf00d;
+
+struct TestData
+{
+	int x;
+	std::string name;
+};
+
+class TestObject
+{
+public:
+	TestObject() : value(Magic1) {
+	}
+	
+	TestObject(const TestObject & other) : value(Magic2) {
+	}
+	
+	TestObject & operator = (const TestObject & other) {
+		this->value = Magic3;
+	}
+	
+public:
+	int	value;
+};
+
+
+void bindBasicData(cpgf::GScriptObject * script);
+
+
+
+}
+
+
+#endif

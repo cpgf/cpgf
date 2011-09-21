@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="CodeBlocksTest" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\CodeBlocksTest" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="..\..\..\..\framework" />
+					<Add directory="..\..\..\..\framework\platforms" />
+					<Add directory="..\..\..\..\framework\thirdparty" />
+				</Compiler>
+				<Linker>
+					<Add library="D:\Program Files\CodeBlocks\MinGW\lib\libopengl32.a" />
+					<Add library="D:\Program Files\CodeBlocks\MinGW\lib\libglu32.a" />
+					<Add library="D:\Program Files\CodeBlocks\MinGW\lib\libglaux.a" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\CodeBlocksTest" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add directory="..\..\..\..\framework\thirdparty" />
+			<Add directory="..\..\..\..\framework\thirdparty\vmmlib" />
+			<Add directory="..\..\..\..\framework" />
+			<Add directory="E:\SourceCode\CPP\boost_1_40_0" />
+		</Compiler>
+		<Linker>
+			<Add library="gdi32" />
+			<Add library="user32" />
+			<Add library="kernel32" />
+		</Linker>
+		<Unit filename="..\..\..\..\framework\SimpleCallback_autogen.h" />
+		<Unit filename="..\..\..\..\framework\g2d\gcomponents2d.cpp" />
+		<Unit filename="..\..\..\..\framework\g2d\gcomponents2d.h" />
+		<Unit filename="..\..\..\..\framework\g2d\grenderengine2d.cpp" />
+		<Unit filename="..\..\..\..\framework\g2d\grenderengine2d.h" />
+		<Unit filename="..\..\..\..\framework\g2d\gsubsystems2d.cpp" />
+		<Unit filename="..\..\..\..\framework\g2d\gsubsystems2d.h" />
+		<Unit filename="..\..\..\..\framework\gapplication.cpp" />
+		<Unit filename="..\..\..\..\framework\gapplication.h" />
+		<Unit filename="..\..\..\..\framework\gcallback.h" />
+		<Unit filename="..\..\..\..\framework\gcomponent.cpp" />
+		<Unit filename="..\..\..\..\framework\gcomponent.h" />
+		<Unit filename="..\..\..\..\framework\gcomposite.h" />
+		<Unit filename="..\..\..\..\framework\gconfig.cpp" />
+		<Unit filename="..\..\..\..\framework\gconfig.h" />
+		<Unit filename="..\..\..\..\framework\gcontainer.h" />
+		<Unit filename="..\..\..\..\framework\gcore.h" />
+		<Unit filename="..\..\..\..\framework\gdebug.cpp" />
+		<Unit filename="..\..\..\..\framework\gdebug.h" />
+		<Unit filename="..\..\..\..\framework\gentity.cpp" />
+		<Unit filename="..\..\..\..\framework\gentity.h" />
+		<Unit filename="..\..\..\..\framework\gevent.cpp" />
+		<Unit filename="..\..\..\..\framework\gevent.h" />
+		<Unit filename="..\..\..\..\framework\geventsdef.cpp" />
+		<Unit filename="..\..\..\..\framework\geventsdef.h" />
+		<Unit filename="..\..\..\..\framework\ginput.cpp" />
+		<Unit filename="..\..\..\..\framework\ginput.h" />
+		<Unit filename="..\..\..\..\framework\gio.cpp" />
+		<Unit filename="..\..\..\..\framework\gio.h" />
+		<Unit filename="..\..\..\..\framework\gmath.cpp" />
+		<Unit filename="..\..\..\..\framework\gmath.h" />
+		<Unit filename="..\..\..\..\framework\gmockup.cpp" />
+		<Unit filename="..\..\..\..\framework\gmockup.h" />
+		<Unit filename="..\..\..\..\framework\gpprepeat.h" />
+		<Unit filename="..\..\..\..\framework\grenderengine.cpp" />
+		<Unit filename="..\..\..\..\framework\grenderengine.h" />
+		<Unit filename="..\..\..\..\framework\gscene.cpp" />
+		<Unit filename="..\..\..\..\framework\gscene.h" />
+		<Unit filename="..\..\..\..\framework\gsubsystem.cpp" />
+		<Unit filename="..\..\..\..\framework\gsubsystem.h" />
+		<Unit filename="..\..\..\..\framework\gutility.h" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\enable_if.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\exception.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\frustum.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\frustum_culler.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\jacobi_solver.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\lapack.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\lapack_gaussian_elimination.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\lapack_includes.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\lapack_linear_least_squares.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\lapack_svd.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\lapack_types.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\linear_least_squares.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\math.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\matrix.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\matrix_functors.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\matrix_traits.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\qr_decomposition.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\quaternion.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\svd.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\tensor3.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\tucker3_tensor.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\vector.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\vector_traits.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\visibility.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\vmmlib.hpp" />
+		<Unit filename="..\..\..\..\framework\thirdparty\vmmlib\vmmlib_config.hpp" />
+		<Unit filename="main.cpp" />
+		<Unit filename="resource.h" />
+		<Unit filename="resource.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="..\..\source\DoTest.cpp" />
+		<Unit filename="..\..\source\TestApplication.cpp" />
+		<Unit filename="..\..\source\TestApplication.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

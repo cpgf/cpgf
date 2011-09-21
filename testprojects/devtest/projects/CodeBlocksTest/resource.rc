@@ -1,0 +1,14 @@
+#include "resource.h"
+
+DLG_MAIN DIALOGEX 6, 5, 194, 106
+
+CAPTION "Code::Blocks Template Dialog App"
+
+FONT 8, "Tahoma"
+
+STYLE 0x10CE0804
+
+BEGIN
+  CONTROL "&Test", IDC_BTN_TEST, "Button", 0x10010000, 138,  5, 46, 15
+  CONTROL "&Quit", IDC_BTN_QUIT, "Button", 0x10010000, 138, 29, 46, 15
+END

@@ -1,0 +1,242 @@
+project(cpgf)
+
+cmake_minimum_required(VERSION 2.8)
+
+include(build.config.txt)
+
+set(CMAKE_BUILD_TYPE Release)
+
+if(${BUILD_DEBUG})
+	set(CMAKE_BUILD_TYPE Debug)
+	message(STATUS "Build as debug.")
+endif(${BUILD_DEBUG})
+
+set(TARGET_LIB lib)
+set(TARGET_SAMPLELUA samplelua)
+set(TARGET_SAMPLEREFLECTION samplereflection)
+set(TARGET_UNITTEST test)
+
+set(OUTNAME_LIB cpgf)
+set(OUTNAME_SAMPLELUA samplelua)
+set(OUTNAME_SAMPLEREFLECTION samplereflection)
+set(OUTNAME_UNITTEST test)
+
+set(ROOT_PATH ${PROJECT_SOURCE_DIR}/..)
+set(BIN_PATH ${PROJECT_SOURCE_DIR}/bin)
+set(LIB_PATH ${ROOT_PATH}/lib)
+
+set(SRC_PATH ${ROOT_PATH}/src)
+set(SAMPLE_ROOT ${SRC_PATH}/testcase)
+set(SAMPLE_REFLECT_PATH ${SAMPLE_ROOT}/reflection)
+set(SAMPLE_BIND_PATH ${SAMPLE_ROOT}/scriptbind)
+
+set(TEST_PATH ${ROOT_PATH}/test)
+
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN_PATH})
+
+set(HAS_LUA 1)
+if((not DEFINED LUA_DIR) OR (LUA_DIR STREQUAL ""))
+	set(HAS_LUA 0)
+endif((not DEFINED LUA_DIR) OR (LUA_DIR STREQUAL ""))
+
+if(${HAS_LUA})
+	if(CMAKE_COMPILER_IS_GNUCC)
+		find_file(LUA_LIB
+			NAMES liblua.a
+			PATHS ${LUA_DIR}/src NO_DEFAULT_PATH
+		)
+	endif(CMAKE_COMPILER_IS_GNUCC)
+
+	if(MSVC)
+		find_file(LUA_LIB
+			NAMES lua51.lib
+			PATHS ${LUA_DIR}/src NO_DEFAULT_PATH
+		)
+	endif(MSVC)
+
+	if(${LUA_LIB} STREQUAL "LUA_LIB-NOTFOUND")
+		set(HAS_LUA 0)
+		
+		set(LUA_LIB "")
+
+		message(WARNING "Can't find lua library.")
+	endif(${LUA_LIB} STREQUAL "LUA_LIB-NOTFOUND")
+endif(${HAS_LUA})
+
+if(MSVC)
+	add_definitions(-D_SECURE_SCL=0 -D_HAS_ITERATOR_DEBUGGING=0)
+endif(MSVC)
+
+set(SRC_META
+	${SRC_PATH}/gmetaannotation.cpp
+	${SRC_PATH}/gmetaapiservice.cpp
+	${SRC_PATH}/gmetaclass.cpp
+	${SRC_PATH}/gmetacommon.cpp
+	${SRC_PATH}/gmetaconverter.cpp
+	${SRC_PATH}/gmetaenum.cpp
+	${SRC_PATH}/gmetafield.cpp
+	${SRC_PATH}/gmetamethod.cpp
+	${SRC_PATH}/gmetaoperator.cpp
+	${SRC_PATH}/gmetaproperty.cpp
+	${SRC_PATH}/gmetatype.cpp
+	${SRC_PATH}/gmetatypereg.cpp
+)
+
+file(GLOB GLOB_SAMPLEREFLECTION ${SAMPLE_REFLECT_PATH}/*.cpp)
+set(SRC_SAMPLEREFLECTION
+	${SAMPLE_ROOT}/testmain.cpp
+	
+	${GLOB_SAMPLEREFLECTION}
+)
+
+set(SRC_LUABIND )
+
+if(${HAS_LUA})
+	set(SRC_LUABIND
+		${SRC_PATH}/scriptbind/gluabind.cpp
+	)
+endif(${HAS_LUA})
+
+set(SRC_LIB
+	${SRC_META}
+	
+	${SRC_LUABIND}
+)
+
+file(GLOB GLOB_SAMPLELUA ${SAMPLE_BIND_PATH}/luabind/*.cpp)
+set(SRC_SAMPLELUA
+	${SAMPLE_ROOT}/testmain.cpp
+	
+	${SAMPLE_BIND_PATH}/testscriptbindmetadata.cpp
+	
+	${GLOB_SAMPLELUA}
+)
+
+include_directories(../include)
+if(${HAS_LUA})
+	include_directories(${LUA_DIR}/src/ ${LUA_DIR}/etc/)
+endif(${HAS_LUA})
+
+
+add_library(
+	${TARGET_LIB}
+		STATIC
+		${SRC_LIB}
+)
+
+set_target_properties(
+	${TARGET_LIB}
+	PROPERTIES
+#	PREFIX ""
+	OUTPUT_NAME ${OUTNAME_LIB}
+	ARCHIVE_OUTPUT_DIRECTORY ${LIB_PATH}
+)
+
+add_executable(
+	${TARGET_SAMPLEREFLECTION}
+	EXCLUDE_FROM_ALL
+		${SRC_SAMPLEREFLECTION}
+)
+
+set_target_properties(
+	${TARGET_SAMPLEREFLECTION}
+	PROPERTIES
+	OUTPUT_NAME ${OUTNAME_SAMPLEREFLECTION}
+)
+
+target_link_libraries(${TARGET_SAMPLEREFLECTION} ${TARGET_LIB})
+
+if(${HAS_LUA})
+	add_executable(
+		${TARGET_SAMPLELUA}
+		EXCLUDE_FROM_ALL
+			${SRC_SAMPLELUA}
+	)
+
+	set_target_properties(
+		${TARGET_SAMPLELUA}
+		PROPERTIES
+		OUTPUT_NAME ${OUTNAME_SAMPLELUA}
+	)
+
+	target_link_libraries(${TARGET_SAMPLELUA} ${TARGET_LIB} ${LUA_LIB})
+endif(${HAS_LUA})
+
+
+
+
+# unit test
+
+set(HAS_UNITTEST 1)
+if((not DEFINED UNIT_TEST_DIR) OR (UNIT_TEST_DIR STREQUAL ""))
+	set(HAS_UNITTEST 0)
+endif((not DEFINED UNIT_TEST_DIR) OR (UNIT_TEST_DIR STREQUAL ""))
+
+if(${HAS_UNITTEST})
+	find_file(UTEST_EXIST
+		NAMES "UnitTest++.h"
+		PATHS ${UNIT_TEST_DIR} NO_DEFAULT_PATH
+	)
+
+	if(${UTEST_EXIST} STREQUAL "UTEST_EXIST-NOTFOUND")
+		set(HAS_UNITTEST 0)
+
+		message(WARNING "Can't find UnitTest++ in ${UNIT_TEST_DIR}")
+	endif(${UTEST_EXIST} STREQUAL "UTEST_EXIST-NOTFOUND")
+endif(${HAS_UNITTEST})
+
+
+if(${HAS_UNITTEST})
+
+	set(UNITTEST_FRAMEWORK_SUBDIR Posix)
+
+	if(WIN32)
+		set(UNITTEST_FRAMEWORK_SUBDIR Win32)
+	endif(WIN32)
+
+	file(GLOB GLOB_UNITTEST_FRAMEWORK
+		${UNIT_TEST_DIR}/*.cpp
+		${UNIT_TEST_DIR}/${UNITTEST_FRAMEWORK_SUBDIR}/*.cpp
+	)
+
+	set(SRC_UNITTEST_FRAMEWORK
+		${GLOB_UNITTEST_FRAMEWORK}
+	)
+
+	file(GLOB GLOB_TEST_SRC
+		${TEST_PATH}/misc/*.cpp
+		${TEST_PATH}/reflection/*.cpp
+		${TEST_PATH}/scriptbind/*.cpp
+		${TEST_PATH}/scriptbind/luabind/*.cpp
+		${TEST_PATH}/callback/*.cpp
+	)
+
+	set(SRC_TEST_SRC
+		${TEST_PATH}/testmain.cpp
+		
+		${GLOB_TEST_SRC}
+		
+		${SRC_LIB}
+		
+		${SRC_UNITTEST_FRAMEWORK}
+	)
+
+	include_directories(${UNIT_TEST_DIR})
+
+	add_executable(
+		${TARGET_UNITTEST}
+		EXCLUDE_FROM_ALL
+			${SRC_TEST_SRC}
+	)
+
+	target_link_libraries(${TARGET_UNITTEST} ${LUA_LIB})
+	
+	set_target_properties(
+		${TARGET_UNITTEST}
+		PROPERTIES
+		OUTPUT_NAME ${OUTNAME_UNITTEST}
+	)
+
+endif(${HAS_UNITTEST})
+

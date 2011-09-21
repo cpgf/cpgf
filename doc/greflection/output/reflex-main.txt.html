@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title></title>
+</head>
+<body><div style="width:900px">
+
+
+
+
+
+
+
+cppreflex <br />
+
+<b>
+Features:
+</b>
+
+<p>
+1, Can reflect a lot of information.
+<ul>
+	<li>Member and static fields with any data type. </li>
+	<li>Global fields (global variable) with any data type. </li>
+	<li>Properties (fields with getter and setter). Can be either member or global. </li>
+	<li>Member and static functions with any parameters, return value, and calling convention. </li>
+	<li>Global functions. </li>
+	<li>Enumerators. </li>
+	<li>Classes. Inner class can be reflected to outter meta class. Top level classes can be reflected to global meta class. </li>
+	<li>Object contructors. </li>
+	<li>Operators. All overloadable operators, except new and delete, are supported. The functional of overloaded new and delete are already provided by meta class. </li>
+	<li>Annotations. Any annotations, in key-value pairs, can be reflected. Value can be any type.</li>
+</ul>
+</p>
+
+<p>
+2, We can do a lot with the reflection system.
+<ul>
+	<li>Create object from class name, without knowing the class type. </li>
+	<li>Discover the class hierarchy. </li>
+	<li>Get or set any object fields directly or via getter and setter (property) at runtime. </li>
+	<li>Invoke any functions at runtime. Function parameter and result types can be discovered at runtime. </li>
+	<li>Invoke any overloaded operators at runtime. </li>
+	<li>Discover enumerator types at runtime. </li>
+	<li>More. Waiting for you to discover. </li>
+</ul>
+</p>
+
+<p>
+3, Accessing fields and properties, calling methods, are truely runtime behavior, no template parameters are needed. All parameters and return values are passed via GVariant.
+</p>
+
+<p>
+4, Automatically type conversion when getting/setting fields, invoking methods, etc.
+</p>
+
+<p>
+3, Support both intrusive and non-intrusive meta data.
+Reflection code can be put inside the class declaration (intrusive), or put anywhere outside of the class (non-intrusive).
+</p>
+
+<p>
+4, No preprocessor required. Only using templates and macros.
+</p>
+
+<p>
+5, Written in standard and portable C++, compiled on VC 2008 and GCC 4.5.2.
+</p>
+
+<p>
+6, Easy to build the meta data. No ugly macros. Some macros are used in quite function style.
+</p>
+
+<p>
+7, Support multiple inheritance.
+</p>
+
+<p>
+8, Declarative programming with annotations
+</p>
+
+
+
+<br /><br />
+<a href="build-meta-data.html">Buidling meta data</a> <br />
+<a href="using-reflection.html">Using reflection and meta data</a> <br />
+<a href="quick-reference.html">Quick reference (cheat sheet)</a> <br />
+
+
+
+
+</div></body></html>
