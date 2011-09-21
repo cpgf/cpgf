@@ -176,7 +176,7 @@ endif((not DEFINED UNIT_TEST_DIR) OR (UNIT_TEST_DIR STREQUAL ""))
 if(${HAS_UNITTEST})
 	find_file(UTEST_EXIST
 		NAMES "UnitTest++.h"
-		PATHS ${UNIT_TEST_DIR} NO_DEFAULT_PATH
+		PATHS ${UNIT_TEST_DIR}/src NO_DEFAULT_PATH
 	)
 
 	if(${UTEST_EXIST} STREQUAL "UTEST_EXIST-NOTFOUND")
@@ -186,6 +186,16 @@ if(${HAS_UNITTEST})
 	endif(${UTEST_EXIST} STREQUAL "UTEST_EXIST-NOTFOUND")
 endif(${HAS_UNITTEST})
 
+if(${HAS_UNITTEST})
+	if(HAS_LUA LESS 1)
+		set(HAS_UNITTEST 0)
+
+		message(STATUS "Can't find Lua for unit test.")
+		message(STATUS "To build unit test you must have Lua installed.")
+		message(STATUS "Otherwise, change the value UNIT_TEST_DIR in build.config.txt to a non-exist directory to disable unit test.")
+		message(FATAL_ERROR "")
+	endif(HAS_LUA LESS 1)
+endif(${HAS_UNITTEST})
 
 if(${HAS_UNITTEST})
 
@@ -196,8 +206,8 @@ if(${HAS_UNITTEST})
 	endif(WIN32)
 
 	file(GLOB GLOB_UNITTEST_FRAMEWORK
-		${UNIT_TEST_DIR}/*.cpp
-		${UNIT_TEST_DIR}/${UNITTEST_FRAMEWORK_SUBDIR}/*.cpp
+		${UNIT_TEST_DIR}/src/*.cpp
+		${UNIT_TEST_DIR}/src/${UNITTEST_FRAMEWORK_SUBDIR}/*.cpp
 	)
 
 	set(SRC_UNITTEST_FRAMEWORK
@@ -222,7 +232,7 @@ if(${HAS_UNITTEST})
 		${SRC_UNITTEST_FRAMEWORK}
 	)
 
-	include_directories(${UNIT_TEST_DIR})
+	include_directories(${UNIT_TEST_DIR}/src)
 
 	add_executable(
 		${TARGET_UNITTEST}

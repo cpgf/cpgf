@@ -8,7 +8,7 @@ d:/source/lua
 )
 
 set(UNIT_TEST_DIR
-#e:/SourceCode/CPP/UnitTest++/src
-d:/source/UnitTest++/src
+#e:/SourceCode/CPP/UnitTest++
+d:/source/UnitTest++
 )
 
