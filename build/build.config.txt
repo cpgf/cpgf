@@ -1,14 +1,14 @@
 set(BUILD_DEBUG
-0
+10
 )
 
 set(LUA_DIR
 #e:/SourceCode/cpp/lua
-d:/source/lua
+/source/lua
 )
 
 set(UNIT_TEST_DIR
 #e:/SourceCode/CPP/UnitTest++
-d:/source/UnitTest++
+/source/UnitTest++
 )
 

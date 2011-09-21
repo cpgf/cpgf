@@ -316,7 +316,7 @@ namespace {
 		lua_setmetatable(L, -2);
 	}
 
-	void * luaToObject(lua_State * L, GLuaBindingParam * param, size_t index)
+	void * luaToObject(lua_State * L, GLuaBindingParam * param, int index)
 	{
 		if(isValidMetaTable(L, index)) {
 			void * userData = lua_touserdata(L, index);
@@ -330,7 +330,7 @@ namespace {
 		return NULL;
 	}
 
-	GVariant luaToVariant(lua_State * L, GLuaBindingParam * param, size_t index)
+	GVariant luaToVariant(lua_State * L, GLuaBindingParam * param, int index)
 	{
 		int type = lua_type(L, index);
 
