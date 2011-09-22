@@ -50,6 +50,8 @@ public:
 
 	GScriptConfig & operator = (const GScriptConfig & other) {
 		this->flags = other.flags;
+
+		return *this;
 	}
 
 	void setAccessStaticMethodViaInstance(bool set) {

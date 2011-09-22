@@ -318,6 +318,8 @@ namespace {
 
 	void * luaToObject(lua_State * L, GLuaBindingParam * param, int index)
 	{
+		(void)param;
+
 		if(isValidMetaTable(L, index)) {
 			void * userData = lua_touserdata(L, index);
 			if(static_cast<GLuaUserData *>(userData)->getType() == udtClass) {
@@ -835,6 +837,8 @@ namespace {
 
 	bool newindexMemberData(lua_State * L, GClassUserData * userData, const char * name, const GVariant & value)
 	{
+		(void)L;
+
 		void * instance = userData->instance;
 
 		GMetaScopedPointer<IMetaAccessible> data(findAccessible(userData->metaClass, name, false, true, &instance));
@@ -1266,6 +1270,9 @@ GScriptDataType GLuaScriptObject::getType(const GScriptName & name)
 
 				case udtEnum:
 					return sdtEnum;
+
+				default:
+					break;
 				}
 			}
 			break;

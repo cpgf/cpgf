@@ -306,6 +306,7 @@ GTEST(Lib_GetSize)
 	
 
 	CLASS * pobj = NULL;
+	(void)pobj;
 	
 	FIELD(fieldInt);
 	GEQUAL(field->getSize(), sizeof(fieldInt));
@@ -339,6 +340,7 @@ GTEST(API_GetSize)
 
 
 	CLASS * pobj = NULL;
+	(void)pobj;
 	
 	FIELD(fieldInt);
 	GEQUAL(field->getSize(), sizeof(fieldInt));

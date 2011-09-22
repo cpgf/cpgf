@@ -1,5 +1,5 @@
 set(BUILD_DEBUG
-10
+0
 )
 
 set(LUA_DIR

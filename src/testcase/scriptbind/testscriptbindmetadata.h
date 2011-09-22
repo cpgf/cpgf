@@ -23,10 +23,15 @@ public:
 	}
 	
 	TestObject(const TestObject & other) : value(Magic2) {
+		(void)other;
 	}
 	
 	TestObject & operator = (const TestObject & other) {
+		(void)other;
+
 		this->value = Magic3;
+
+		return *this;
 	}
 	
 public:

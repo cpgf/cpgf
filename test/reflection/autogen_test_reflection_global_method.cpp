@@ -65,7 +65,7 @@ namespace Test_GlobalMethod { namespace {
 		GEQUAL(ll, 9876532198765321LL);
 		GNEAR(d, 1.99, 0.0001);
 		GEQUAL(s, "Many");
-		GEQUAL(pc, "Too Many");
+		GEQUAL(string(pc), string("Too Many"));
 		GEQUAL(data.s, "Data");
 		GEQUAL(data.i, 8);
 	}

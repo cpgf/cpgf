@@ -202,8 +202,8 @@ size_t GMetaInternalItemList::getItemListByName(GMetaList * metaList, const char
 
 	for(meta_internal::GMetaItemListImplement::ListType::const_iterator it = this->implement->itemList.begin(); it != this->implement->itemList.end(); ++it) {
 		if(strcmp((*it)->getName().c_str(), name) == 0) {
-			if((filters & MetaFilterInstance) != 0 && !(*it)->isStatic()
-				|| (filters & MetaFilterStatic) != 0 && (*it)->isStatic()) {
+			if(((filters & MetaFilterInstance) != 0 && !(*it)->isStatic())
+				|| ((filters & MetaFilterStatic) != 0 && (*it)->isStatic())) {
 				metaList->add(*it, instance);
 				++count;
 			}

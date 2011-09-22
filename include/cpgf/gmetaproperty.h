@@ -86,6 +86,8 @@ public:
 private:	
 	template <typename T>
 	GVariant doGet(typename GEnableIf<Readable, T>::Result * instance) const {
+		(void)instance;
+
 		return GVariant(deduceVariantType<PropertyType>(true), *(this->getter));
 	}
 	
@@ -264,6 +266,8 @@ public:
 private:	
 	template <typename T>
 	void doSet(typename GEnableIf<Writable, T>::Result * instance, const GVariant & value) const {
+		(void)instance;
+
 		*(this->setter) = fromVariant<PropertyType>(value);
 	}
 

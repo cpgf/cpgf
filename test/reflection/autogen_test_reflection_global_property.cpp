@@ -262,6 +262,7 @@ GTEST(Lib_GetSize)
 	
 
 	CLASS * pobj = NULL;
+	(void)pobj;
 	
 	PROP(propInt);
 	GEQUAL(prop->getSize(), sizeof(propInt));
@@ -295,6 +296,7 @@ GTEST(API_GetSize)
 
 
 	CLASS * pobj = NULL;
+	(void)pobj;
 	
 	PROP(propInt);
 	GEQUAL(prop->getSize(), sizeof(propInt));

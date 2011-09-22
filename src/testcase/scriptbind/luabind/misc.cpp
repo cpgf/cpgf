@@ -87,6 +87,8 @@ public:
 	}
 
 	bool operator == (const TestObject & other) const {
+		(void)other;
+
 		return true;
 //		return this->width == other.width && this->name == other.name;
 	}
