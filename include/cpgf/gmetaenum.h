@@ -50,10 +50,10 @@ public:
 
 	void * createInstance() const;
 	void * createInplace(void * placement) const;
-	void * cloneInstance(void * obj) const;
-	void * cloneInplace(void * obj, void * placement) const;
+	void * cloneInstance(void * instance) const;
+	void * cloneInplace(void * instance, void * placement) const;
 
-	void destroyInstance(void * obj) const;
+	void destroyInstance(void * instance) const;
 	
 private:
 	void addValue(long long value);
@@ -130,17 +130,17 @@ public:
 		return this->baseData->createInplace(placement);
 	}
 	
-	virtual void * cloneInstance(void * obj) const {
-		return this->baseData->cloneInstance(obj);
+	virtual void * cloneInstance(void * instance) const {
+		return this->baseData->cloneInstance(instance);
 	}
 	
-	virtual void * cloneInplace(void * obj, void * placement) const {
-		return this->baseData->cloneInplace(obj, placement);
+	virtual void * cloneInplace(void * instance, void * placement) const {
+		return this->baseData->cloneInplace(instance, placement);
 	}
 	
 
-	virtual void destroyInstance(void * obj) const {
-		this->baseData->destroyInstance(obj);
+	virtual void destroyInstance(void * instance) const {
+		this->baseData->destroyInstance(instance);
 	}
 	
 	

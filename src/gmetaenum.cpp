@@ -119,12 +119,22 @@ size_t GMetaEnumData::getCount() const
 
 const char * GMetaEnumData::getKey(size_t index) const
 {
-	return this->implement->keyNameList[index].c_str();
+	if(index >= this->getCount()) {
+		return NULL;
+	}
+	else {
+		return this->implement->keyNameList[index].c_str();
+	}
 }
 
 long long GMetaEnumData::getValue(size_t index) const
 {
-	return this->implement->enumerators[index];
+	if(index >= this->getCount()) {
+		return 0;
+	}
+	else {
+		return this->implement->enumerators[index];
+	}
 }
 
 int GMetaEnumData::findKey(const char * key) const
@@ -161,19 +171,19 @@ void * GMetaEnumData::createInplace(void * placement) const
 	return newZeroBuffer(placement, this->getTypeSize(), NULL);
 }
 
-void * GMetaEnumData::cloneInstance(void * obj) const
+void * GMetaEnumData::cloneInstance(void * instance) const
 {
-	return newZeroBuffer(NULL, this->getTypeSize(), obj);
+	return newZeroBuffer(NULL, this->getTypeSize(), instance);
 }
 
-void * GMetaEnumData::cloneInplace(void * obj, void * placement) const
+void * GMetaEnumData::cloneInplace(void * instance, void * placement) const
 {
-	return newZeroBuffer(placement, this->getTypeSize(), obj);
+	return newZeroBuffer(placement, this->getTypeSize(), instance);
 }
 
-void GMetaEnumData::destroyInstance(void * obj) const
+void GMetaEnumData::destroyInstance(void * instance) const
 {
-	delete static_cast<char *>(obj);
+	delete static_cast<char *>(instance);
 }
 
 
