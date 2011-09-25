@@ -62,6 +62,10 @@ if(${HAS_LUA})
 
 		message(WARNING "Can't find lua library.")
 	endif(${LUA_LIB} STREQUAL "LUA_LIB-NOTFOUND")
+
+	if(UNIX)
+		set(LUA_LIB ${LUA_LIB} "dl")
+	endif(UNIX)
 endif(${HAS_LUA})
 
 if(MSVC)
