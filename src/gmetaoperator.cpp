@@ -9,6 +9,7 @@
 
 namespace cpgf {
 
+
 namespace meta_internal {
 
 std::string operatorToName(GMetaOpType op) {

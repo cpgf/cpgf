@@ -1,7 +1,8 @@
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gmetatype.h"
-#include "gmetatypereg.h"
+
+#include "pinclude/gmetatypereg.h"
 
 #include <string>
 #include <vector>

@@ -2,7 +2,7 @@
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gassert.h"
 
-#include "gmetatypereg.h"
+#include "pinclude/gmetatypereg.h"
 
 #include <vector>
 #include <typeinfo>
@@ -46,7 +46,7 @@ GMetaTypeData GMetaType::getData() const
 	GMetaTypeData data;
 	
 	data.baseName = this->baseName;
-	data.flags = static_cast<uint16_t>(this->flags);
+	data.flags = static_cast<uint32_t>(this->flags);
 	data.varType = static_cast<uint16_t>(this->varType);
 	
 	return data;

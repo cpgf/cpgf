@@ -1,4 +1,4 @@
-#include "gmetatypereg.h"
+#include "pinclude/gmetatypereg.h"
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gmetafundamental.h"
 

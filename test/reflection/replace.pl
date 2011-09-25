@@ -12,12 +12,17 @@ my @commonReplaceToGlobal = (
 	qr'pobj\-\>' => '',
 	qr'GMETA_DEFINE_CLASS\(.*\)' => 'GMETA_DEFINE_GLOBAL()',
 	qr'&CLASS::' => '&',
+	qr'CLASS::' => '',
 	qr'^\s*CLASS\s+instance.*' => '',
 	qr'&instance' => 'NULL',
 	qr'findMetaClass\s*\(.*?\)' => 'getGlobalMetaClass()',
 	qr'findClassByName\s*\(.*?\)' => 'getGlobalMetaClass()',
 	qr'const\s*\{\s*$' => '{',
 	qr'const\s*$' => '',
+	qr'volatile\s*\{\s*$' => '{',
+	qr'volatile\s*$' => '',
+	qr'const\s+volatile\s*\{\s*$' => '{',
+	qr'const\s+volatile\s*$' => '',
 );
 
 my @replaceItems = (
@@ -54,6 +59,17 @@ my @replaceItems = (
 
 			qr'GMETA_METHOD' => 'GMETA_QUALIFIED_METHOD',
 			qr'\bTest_Method\b' => 'Test_GlobalMethod',
+		],
+	},
+
+	{
+		input => 'test_reflection_enum.cpp',
+		output => 'autogen_test_reflection_enum.cpp',
+		
+		replace => [
+			@commonReplaceToGlobal,
+
+			qr'\bTest_Enum\b' => 'Test_GlobalEnum',
 		],
 	},
 );

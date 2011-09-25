@@ -153,7 +153,7 @@ template <GMetaOpType Op, typename FT, typename EnableIf = void>
 struct MetaOperatorExecuter;
 
 #define DEF_BINARY_FULL(OP, EXP) \
-	template <typename FT> struct MetaOperatorExecuter <OP, FT> : public MetaBinaryOperatorExecuter<FT>	{ \
+	template <typename FT> struct MetaOperatorExecuter <OP, FT, typename GEnableIf<FT::HasResult>::Result> : public MetaBinaryOperatorExecuter<FT>	{ \
 		template <typename P0, typename P1> static GVariant invoke(P0 p0, P1 p1) { \
 			return GVariant(deduceVariantType<typename FT::ResultType>(true), EXP); \
 	} }; \

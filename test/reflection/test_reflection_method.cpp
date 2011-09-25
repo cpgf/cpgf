@@ -184,6 +184,7 @@ GTEST(Lib_ResultType)
 	METHOD(methodRefString);
 	GEQUAL(method->getResultType(), createMetaType<string &>());
 	GCHECK(method->hasResult());
+	GCHECK(! method->getItemType().isConstFunction());
 
 	METHOD(methodConcatString);
 	GEQUAL(method->getResultType(), createMetaType<string>());
@@ -196,6 +197,7 @@ GTEST(Lib_ResultType)
 	METHOD(methodMakeData);
 	GEQUAL(method->getResultType(), createMetaType<void>());
 	GCHECK(! method->hasResult());
+	GCHECK(method->getItemType().isConstFunction());
 
 	METHOD(methodMakeDataByPointer);
 	GEQUAL(method->getResultType(), createMetaType<void>());

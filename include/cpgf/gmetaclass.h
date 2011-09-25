@@ -11,6 +11,7 @@
 #include "cpgf/gmetapolicy.h"
 
 #include "cpgf/gmetaapi.h"
+#include "cpgf/gflags.h"
 
 
 #if defined(_MSC_VER)
@@ -113,6 +114,10 @@
 
 
 #define GMETA_CLASS(cls) \
+	using namespace cpgf; \
+	reflectClass(findMetaClass<MetaCurrentClassType::cls>())
+
+#define GMETA_QUALIFIED_CLASS(cls) \
 	using namespace cpgf; \
 	reflectClass(findMetaClass<cls>())
 
@@ -568,8 +573,8 @@ public:
 	const GMetaMethod * getMethod(const char * name) const;
 	size_t getMethodCount() const;
 	const GMetaMethod * getMethodAt(size_t index) const;
-	size_t getMethodList(GMetaList * metaList, const char * name, unsigned int filters) const;
-	size_t getMethodListInHierarchy(GMetaList * metaList, const char * name, unsigned int filters, void * instance) const;
+	size_t getMethodList(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters) const;
+	size_t getMethodListInHierarchy(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters, void * instance) const;
 
 	const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
 	const GMetaOperator * getOperator(GMetaOpType op) const;
@@ -610,10 +615,6 @@ public:
 		return this == other;
 	}
 
-	const GMetaClass * getBaseClass() const {
-		return this->getBaseClass(0);
-	}
-
 	const GMetaClass * getBaseClass(size_t baseIndex) const {
 		return this->superList->getSuper(baseIndex);
 	}
@@ -645,7 +646,7 @@ private:
 	size_t getItemCount(GMetaCategory listIndex) const;
 	const GMetaItem * getItemAt(GMetaCategory listIndex, size_t index) const;
 	const GMetaItem * getItemByName(GMetaCategory listIndex, const char * name, bool findSuper, void ** outInstance) const;
-	size_t getItemListByName(GMetaList * metaList, GMetaCategory listIndex, const char * name, bool findSuper, unsigned int filters, void * instance) const;
+	size_t getItemListByName(GMetaList * metaList, GMetaCategory listIndex, const char * name, bool findSuper, const GFlags<GMetaFilters> & filters, void * instance) const;
 
 public:
 	// internal use

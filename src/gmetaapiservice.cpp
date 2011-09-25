@@ -4,7 +4,7 @@
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gassert.h"
 
-#include "gmetatypereg.h"
+#include "pinclude/gmetatypereg.h"
 
 #include <string>
 
@@ -51,17 +51,17 @@ protected: \
 	virtual IMetaAnnotation * G_API_CC getAnnotation(const char * name) { return this->doGetAnnotation(name); } \
 	virtual uint32_t G_API_CC getAnnotationCount() { return this->doGetAnnotationCount(); } \
 	virtual IMetaAnnotation * G_API_CC getAnnotationAt(uint32_t index) { return this->doGetAnnotationAt(index); } \
-	virtual gmeta_bool G_API_CC equals(IMetaItem * other) { return this->doEquals(other); } \
-	virtual gmeta_bool G_API_CC isStatic() { return this->doIsStatic(); } \
-	virtual gmeta_bool G_API_CC isField() { return this->doIsField(); } \
-	virtual gmeta_bool G_API_CC isProperty() { return this->doIsProperty(); } \
-	virtual gmeta_bool G_API_CC isMethod() { return this->doIsMethod(); } \
-	virtual gmeta_bool G_API_CC isEnum() { return this->doIsEnum(); } \
-	virtual gmeta_bool G_API_CC isOperator() { return this->doIsOperator(); } \
-	virtual gmeta_bool G_API_CC isConstructor() { return this->doIsConstructor(); } \
-	virtual gmeta_bool G_API_CC isClass() { return this->doIsClass(); } \
-	virtual gmeta_bool G_API_CC isAnnotation() { return this->doIsAnnotation(); } \
-	virtual gmeta_bool G_API_CC isFundamental() { return this->doIsFundamental(); } \
+	virtual gapi_bool G_API_CC equals(IMetaItem * other) { return this->doEquals(other); } \
+	virtual gapi_bool G_API_CC isStatic() { return this->doIsStatic(); } \
+	virtual gapi_bool G_API_CC isField() { return this->doIsField(); } \
+	virtual gapi_bool G_API_CC isProperty() { return this->doIsProperty(); } \
+	virtual gapi_bool G_API_CC isMethod() { return this->doIsMethod(); } \
+	virtual gapi_bool G_API_CC isEnum() { return this->doIsEnum(); } \
+	virtual gapi_bool G_API_CC isOperator() { return this->doIsOperator(); } \
+	virtual gapi_bool G_API_CC isConstructor() { return this->doIsConstructor(); } \
+	virtual gapi_bool G_API_CC isClass() { return this->doIsClass(); } \
+	virtual gapi_bool G_API_CC isAnnotation() { return this->doIsAnnotation(); } \
+	virtual gapi_bool G_API_CC isFundamental() { return this->doIsFundamental(); } \
 	const GMetaItem * getItem() const {	return this->doGetItem(); }
 
 #define IMPL_ALL \
@@ -84,19 +84,19 @@ protected: \
 protected: \
 	virtual void G_API_CC getParamType(uint32_t index, GMetaTypeData * outType) { this->doGetParamType(index, outType); } \
 	virtual uint32_t G_API_CC getParamCount() { return this->doGetParamCount(); } \
-	virtual gmeta_bool G_API_CC hasResult() { return this->doHasResult(); } \
+	virtual gapi_bool G_API_CC hasResult() { return this->doHasResult(); } \
 	virtual void G_API_CC getResultType(GMetaTypeData * outType) { this->doGetResultType(outType); } \
-	virtual gmeta_bool G_API_CC isVariadic() { return this->doIsVariadic(); } \
-	virtual gmeta_bool G_API_CC checkParam(const GVarData * param, uint32_t paramIndex) { return this->doCheckParam(param, paramIndex); } \
-	virtual gmeta_bool G_API_CC isParamTransferOwnership(uint32_t paramIndex) { return this->doIsParamTransferOwnership(paramIndex); } \
-	virtual gmeta_bool G_API_CC isResultTransferOwnership() { return this->doIsResultTransferOwnership(); } \
+	virtual gapi_bool G_API_CC isVariadic() { return this->doIsVariadic(); } \
+	virtual gapi_bool G_API_CC checkParam(const GVarData * param, uint32_t paramIndex) { return this->doCheckParam(param, paramIndex); } \
+	virtual gapi_bool G_API_CC isParamTransferOwnership(uint32_t paramIndex) { return this->doIsParamTransferOwnership(paramIndex); } \
+	virtual gapi_bool G_API_CC isResultTransferOwnership() { return this->doIsResultTransferOwnership(); } \
 	virtual IMetaConverter * G_API_CC createResultConverter() { return this->doCreateResultConverter(); }
 
 
 #define IMPL_ACCESSIBLE \
 protected: \
-	virtual gmeta_bool G_API_CC canGet() { return this->doCanGet(); } \
-	virtual gmeta_bool G_API_CC canSet() { return this->doCanSet(); } \
+	virtual gapi_bool G_API_CC canGet() { return this->doCanGet(); } \
+	virtual gapi_bool G_API_CC canSet() { return this->doCanSet(); } \
 	virtual void G_API_CC get(void * instance, GVarData * outValue) { this->doGet(instance, outValue); } \
 	virtual void G_API_CC set(void * instance, const GVarData * value) { this->doSet(instance, value); } \
 	virtual uint32_t G_API_CC getSize() { return this->doGetSize(); } \
@@ -105,47 +105,7 @@ protected: \
 namespace cpgf {
 
 
-class ImplMetaBase
-{
-public:
-	ImplMetaBase();
-	virtual ~ImplMetaBase();
-
-public:
-	uint32_t doQueryInterface(void *, void *);
-	uint32_t doAddReference();
-	uint32_t doReleaseReference();
-
-private:
-	unsigned int referenceCount;
-};
-
-class ImplMetaObject : public ImplMetaBase
-{
-private:
-	struct ErrorInfo {
-		int32_t errorCode;
-		std::string message;
-	};
-
-public:
-	ImplMetaObject();
-	virtual ~ImplMetaObject();
-
-protected:
-	int32_t doGetErrorCode();
-	const char * doGetErrorMessage();
-
-public:
-	void clearError();
-	void handleError(MetaErrorCode errorCode, const char * message);
-
-private:
-	GScopedPointer<ErrorInfo> errorInfo;
-};
-
-
-class ImplMetaItem : public ImplMetaObject
+class ImplMetaItem : public ImplApiObject
 {
 public:
 	ImplMetaItem(const GMetaItem * item);
@@ -164,18 +124,18 @@ protected:
 	IMetaAnnotation * doGetAnnotation(const char * name);
 	uint32_t doGetAnnotationCount();
 	IMetaAnnotation * doGetAnnotationAt(uint32_t index);
-	gmeta_bool doEquals(IMetaItem * other);
+	gapi_bool doEquals(IMetaItem * other);
 	
-	gmeta_bool doIsStatic();
-	gmeta_bool doIsField();
-	gmeta_bool doIsProperty();
-	gmeta_bool doIsMethod();
-	gmeta_bool doIsEnum();
-	gmeta_bool doIsOperator();
-	gmeta_bool doIsConstructor();
-	gmeta_bool doIsClass();
-	gmeta_bool doIsAnnotation();
-	gmeta_bool doIsFundamental();
+	gapi_bool doIsStatic();
+	gapi_bool doIsField();
+	gapi_bool doIsProperty();
+	gapi_bool doIsMethod();
+	gapi_bool doIsEnum();
+	gapi_bool doIsOperator();
+	gapi_bool doIsConstructor();
+	gapi_bool doIsClass();
+	gapi_bool doIsAnnotation();
+	gapi_bool doIsFundamental();
 
 private:
 	const GMetaItem * item;
@@ -210,7 +170,7 @@ private:
 };
 
 
-class ImplMetaList : public ImplMetaObject, public IMetaList
+class ImplMetaList : public ImplApiObject, public IMetaList
 {
 private:
 	typedef std::vector<IMetaItem *> ListType;
@@ -242,7 +202,7 @@ private:
 };
 
 
-class ImplMetaConverter : public ImplMetaObject, public IMetaConverter
+class ImplMetaConverter : public ImplApiObject, public IMetaConverter
 {
 public:
 	ImplMetaConverter(GMetaConverter * metaConverter);
@@ -252,8 +212,8 @@ public:
 	IMPL_OBJECT
 
 protected:
-	virtual gmeta_bool G_API_CC canToCString();
-	virtual const char * G_API_CC toCString(const void * instance, gmeta_bool * needFree);
+	virtual gapi_bool G_API_CC canToCString();
+	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree);
 
 private:
 	GScopedPointer<GMetaConverter> metaConverter;
@@ -271,12 +231,12 @@ public:
 protected:
 	void doGetParamType(uint32_t index, GMetaTypeData * outType);
 	uint32_t doGetParamCount();
-	gmeta_bool doHasResult();
+	gapi_bool doHasResult();
 	void doGetResultType(GMetaTypeData * outType);
-	gmeta_bool doIsVariadic();
-	gmeta_bool doCheckParam(const GVarData * param, uint32_t paramIndex);
-	gmeta_bool doIsParamTransferOwnership(uint32_t paramIndex);
-	gmeta_bool doIsResultTransferOwnership();
+	gapi_bool doIsVariadic();
+	gapi_bool doCheckParam(const GVarData * param, uint32_t paramIndex);
+	gapi_bool doIsParamTransferOwnership(uint32_t paramIndex);
+	gapi_bool doIsResultTransferOwnership();
 	IMetaConverter * doCreateResultConverter();
 
 private:
@@ -294,8 +254,8 @@ public:
 	ImplMetaAccessible(const GMetaAccessible * accessible);
 
 protected:
-	gmeta_bool doCanGet();
-	gmeta_bool doCanSet();
+	gapi_bool doCanGet();
+	gapi_bool doCanSet();
 	void doGet(void * instance, GVarData * outValue);
 	void doSet(void * instance, const GVarData * value);
 	uint32_t doGetSize();
@@ -472,10 +432,10 @@ private:
 };
 
 
-class ImplMetaAnnotationValue : public ImplMetaObject, public IMetaAnnotationValue
+class ImplMetaAnnotationValue : public ImplApiObject, public IMetaAnnotationValue
 {
 private:
-	typedef ImplMetaObject super;
+	typedef ImplApiObject super;
 
 public:
 	ImplMetaAnnotationValue(const GAnnotationValue * value);
@@ -485,9 +445,9 @@ public:
 
 protected:
 	virtual void G_API_CC getVariant(GVarData * outVariant);
-	virtual gmeta_bool G_API_CC canToString();
-	virtual gmeta_bool G_API_CC canToWideString();
-	virtual gmeta_bool G_API_CC canToInt();
+	virtual gapi_bool G_API_CC canToString();
+	virtual gapi_bool G_API_CC canToWideString();
+	virtual gapi_bool G_API_CC canToInt();
 	virtual const char * G_API_CC toString();
 	virtual const wchar_t * G_API_CC toWideString();
 	virtual int32_t G_API_CC toInt32();
@@ -573,15 +533,15 @@ protected:
 	virtual uint32_t G_API_CC getMetaCount();
 	virtual IMetaItem * G_API_CC getMetaAt(uint32_t index);
 
-	virtual gmeta_bool G_API_CC isGlobal();
-	virtual gmeta_bool G_API_CC isAbstract();
-	virtual gmeta_bool G_API_CC canCreateInstance();
-	virtual gmeta_bool G_API_CC canCopyInstance();
+	virtual gapi_bool G_API_CC isGlobal();
+	virtual gapi_bool G_API_CC isAbstract();
+	virtual gapi_bool G_API_CC canCreateInstance();
+	virtual gapi_bool G_API_CC canCopyInstance();
 
 	virtual IMetaClass * G_API_CC getBaseClass(uint32_t baseIndex);
 	virtual uint32_t G_API_CC getBaseCount();
 
-	virtual gmeta_bool G_API_CC isInheritedFrom(IMetaClass * ancient);
+	virtual gapi_bool G_API_CC isInheritedFrom(IMetaClass * ancient);
 
 	virtual void * G_API_CC castFromBase(void * base, uint32_t baseIndex);
 	virtual void * G_API_CC castToBase(void * self, uint32_t baseIndex);
@@ -594,7 +554,7 @@ private:
 
 
 
-class ImplMetaService : public ImplMetaObject, public IMetaService
+class ImplMetaService : public ImplApiObject, public IMetaService
 {
 public:
 	ImplMetaService();
@@ -683,93 +643,6 @@ void loadMetaList(IMetaList * metaList, GMetaList * rawMetaList)
 }
 
 
-
-ImplMetaBase::ImplMetaBase()
-	: referenceCount(1)
-{
-}
-
-ImplMetaBase::~ImplMetaBase()
-{
-}
-
-uint32_t ImplMetaBase::doQueryInterface(void *, void *)
-{
-	return 0;
-}
-
-uint32_t ImplMetaBase::doAddReference()
-{
-	++this->referenceCount;
-
-	return this->referenceCount;
-}
-
-uint32_t ImplMetaBase::doReleaseReference()
-{
-	if(this->referenceCount > 0) {
-		--this->referenceCount;
-	}
-
-	unsigned int refCount = this->referenceCount;
-
-	if(this->referenceCount == 0) {
-		delete this;
-	}
-
-	return refCount;
-}
-
-
-
-ImplMetaObject::ImplMetaObject()
-	: errorInfo()
-{
-}
-
-ImplMetaObject::~ImplMetaObject()
-{
-}
-
-int32_t ImplMetaObject::doGetErrorCode()
-{
-	if(this->errorInfo) {
-		return this->errorInfo->errorCode;
-	}
-	else {
-		return metaError_None;
-	}
-}
-
-const char * ImplMetaObject::doGetErrorMessage()
-{
-	if(this->errorInfo) {
-		return this->errorInfo->message.c_str();
-	}
-	else {
-		return NULL;
-	}
-}
-
-void ImplMetaObject::clearError()
-{
-	if(this->errorInfo) {
-		this->errorInfo->errorCode = metaError_None;
-	}
-}
-
-void ImplMetaObject::handleError(MetaErrorCode errorCode, const char * message)
-{
-	if(! this->errorInfo) {
-		this->errorInfo.reset(new ErrorInfo);
-	}
-
-	this->errorInfo->errorCode = errorCode;
-	this->errorInfo->message = message;
-}
-
-
-
 ImplMetaItem::ImplMetaItem(const GMetaItem * item)
 	: item(item)
 {
@@ -853,7 +726,7 @@ IMetaAnnotation * ImplMetaItem::doGetAnnotationAt(uint32_t index)
 	LEAVE_META_API(return NULL)
 }
 
-gmeta_bool ImplMetaItem::doEquals(IMetaItem * other)
+gapi_bool ImplMetaItem::doEquals(IMetaItem * other)
 {
 	ENTER_META_API()
 
@@ -862,7 +735,7 @@ gmeta_bool ImplMetaItem::doEquals(IMetaItem * other)
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool ImplMetaItem::doIsStatic()
+gapi_bool ImplMetaItem::doIsStatic()
 {
 	ENTER_META_API()
 
@@ -871,7 +744,7 @@ gmeta_bool ImplMetaItem::doIsStatic()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool ImplMetaItem::doIsField()
+gapi_bool ImplMetaItem::doIsField()
 {
 	ENTER_META_API()
 
@@ -880,7 +753,7 @@ gmeta_bool ImplMetaItem::doIsField()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool ImplMetaItem::doIsProperty()
+gapi_bool ImplMetaItem::doIsProperty()
 {
 	ENTER_META_API()
 
@@ -889,7 +762,7 @@ gmeta_bool ImplMetaItem::doIsProperty()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool ImplMetaItem::doIsMethod()
+gapi_bool ImplMetaItem::doIsMethod()
 {
 	ENTER_META_API()
 
@@ -898,7 +771,7 @@ gmeta_bool ImplMetaItem::doIsMethod()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool ImplMetaItem::doIsEnum()
+gapi_bool ImplMetaItem::doIsEnum()
 {
 	ENTER_META_API()
 
@@ -907,7 +780,7 @@ gmeta_bool ImplMetaItem::doIsEnum()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool ImplMetaItem::doIsOperator()
+gapi_bool ImplMetaItem::doIsOperator()
 {
 	ENTER_META_API()
 
@@ -916,7 +789,7 @@ gmeta_bool ImplMetaItem::doIsOperator()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool ImplMetaItem::doIsConstructor()
+gapi_bool ImplMetaItem::doIsConstructor()
 {
 	ENTER_META_API()
 
@@ -925,7 +798,7 @@ gmeta_bool ImplMetaItem::doIsConstructor()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool ImplMetaItem::doIsClass()
+gapi_bool ImplMetaItem::doIsClass()
 {
 	ENTER_META_API()
 
@@ -934,7 +807,7 @@ gmeta_bool ImplMetaItem::doIsClass()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool ImplMetaItem::doIsAnnotation()
+gapi_bool ImplMetaItem::doIsAnnotation()
 {
 	ENTER_META_API()
 
@@ -943,7 +816,7 @@ gmeta_bool ImplMetaItem::doIsAnnotation()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool ImplMetaItem::doIsFundamental()
+gapi_bool ImplMetaItem::doIsFundamental()
 {
 	ENTER_META_API()
 
@@ -1068,7 +941,7 @@ uint32_t ImplMetaCallable::doGetParamCount()
 	LEAVE_META_API(return 0)
 }
 
-gmeta_bool ImplMetaCallable::doHasResult()
+gapi_bool ImplMetaCallable::doHasResult()
 {
 	ENTER_META_API()
 
@@ -1092,7 +965,7 @@ void ImplMetaCallable::doGetResultType(GMetaTypeData * outType)
 	LEAVE_META_API()
 }
 
-gmeta_bool ImplMetaCallable::doIsVariadic()
+gapi_bool ImplMetaCallable::doIsVariadic()
 {
 	ENTER_META_API()
 
@@ -1101,7 +974,7 @@ gmeta_bool ImplMetaCallable::doIsVariadic()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool ImplMetaCallable::doCheckParam(const GVarData * param, uint32_t paramIndex)
+gapi_bool ImplMetaCallable::doCheckParam(const GVarData * param, uint32_t paramIndex)
 {
 	ENTER_META_API()
 
@@ -1110,7 +983,7 @@ gmeta_bool ImplMetaCallable::doCheckParam(const GVarData * param, uint32_t param
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool ImplMetaCallable::doIsParamTransferOwnership(uint32_t paramIndex)
+gapi_bool ImplMetaCallable::doIsParamTransferOwnership(uint32_t paramIndex)
 {
 	ENTER_META_API()
 
@@ -1119,7 +992,7 @@ gmeta_bool ImplMetaCallable::doIsParamTransferOwnership(uint32_t paramIndex)
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool ImplMetaCallable::doIsResultTransferOwnership()
+gapi_bool ImplMetaCallable::doIsResultTransferOwnership()
 {
 	ENTER_META_API()
 
@@ -1143,7 +1016,7 @@ ImplMetaAccessible::ImplMetaAccessible(const GMetaAccessible * accessible)
 {
 }
 
-gmeta_bool ImplMetaAccessible::doCanGet()
+gapi_bool ImplMetaAccessible::doCanGet()
 {
 	ENTER_META_API()
 
@@ -1152,7 +1025,7 @@ gmeta_bool ImplMetaAccessible::doCanGet()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool ImplMetaAccessible::doCanSet()
+gapi_bool ImplMetaAccessible::doCanSet()
 {
 	ENTER_META_API()
 
@@ -1258,12 +1131,12 @@ ImplMetaConverter::~ImplMetaConverter()
 {
 }
 
-gmeta_bool G_API_CC ImplMetaConverter::canToCString()
+gapi_bool G_API_CC ImplMetaConverter::canToCString()
 {
 	return this->metaConverter->canToCString();
 }
 
-const char * G_API_CC ImplMetaConverter::toCString(const void * instance, gmeta_bool * needFree)
+const char * G_API_CC ImplMetaConverter::toCString(const void * instance, gapi_bool * needFree)
 {
 	int free;
 	
@@ -1570,7 +1443,7 @@ void G_API_CC ImplMetaAnnotationValue::getVariant(GVarData * outVariant)
 	LEAVE_META_API()
 }
 
-gmeta_bool G_API_CC ImplMetaAnnotationValue::canToString()
+gapi_bool G_API_CC ImplMetaAnnotationValue::canToString()
 {
 	ENTER_META_API()
 
@@ -1579,7 +1452,7 @@ gmeta_bool G_API_CC ImplMetaAnnotationValue::canToString()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool G_API_CC ImplMetaAnnotationValue::canToWideString()
+gapi_bool G_API_CC ImplMetaAnnotationValue::canToWideString()
 {
 	ENTER_META_API()
 
@@ -1588,7 +1461,7 @@ gmeta_bool G_API_CC ImplMetaAnnotationValue::canToWideString()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool G_API_CC ImplMetaAnnotationValue::canToInt()
+gapi_bool G_API_CC ImplMetaAnnotationValue::canToInt()
 {
 	ENTER_META_API()
 
@@ -1687,7 +1560,7 @@ IMetaConstructor * G_API_CC ImplMetaClass::getConstructorByParamCount(uint32_t p
 {
 	ENTER_META_API()
 
-	return new ImplMetaConstructor(this->getClass()->getConstructorByParamCount(paramCount));
+	return doCreateItem<ImplMetaConstructor>(this->getClass()->getConstructorByParamCount(paramCount));
 
 	LEAVE_META_API(return NULL)
 }
@@ -1962,7 +1835,7 @@ IMetaItem * G_API_CC ImplMetaClass::getMetaAt(uint32_t index)
 	LEAVE_META_API(return NULL)
 }
 
-gmeta_bool G_API_CC ImplMetaClass::isGlobal()
+gapi_bool G_API_CC ImplMetaClass::isGlobal()
 {
 	ENTER_META_API()
 
@@ -1971,7 +1844,7 @@ gmeta_bool G_API_CC ImplMetaClass::isGlobal()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool G_API_CC ImplMetaClass::isAbstract()
+gapi_bool G_API_CC ImplMetaClass::isAbstract()
 {
 	ENTER_META_API()
 
@@ -1980,7 +1853,7 @@ gmeta_bool G_API_CC ImplMetaClass::isAbstract()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool G_API_CC ImplMetaClass::canCreateInstance()
+gapi_bool G_API_CC ImplMetaClass::canCreateInstance()
 {
 	ENTER_META_API()
 
@@ -1989,7 +1862,7 @@ gmeta_bool G_API_CC ImplMetaClass::canCreateInstance()
 	LEAVE_META_API(return false)
 }
 
-gmeta_bool G_API_CC ImplMetaClass::canCopyInstance()
+gapi_bool G_API_CC ImplMetaClass::canCopyInstance()
 {
 	ENTER_META_API()
 
@@ -2016,7 +1889,7 @@ uint32_t G_API_CC ImplMetaClass::getBaseCount()
 	LEAVE_META_API(return 0)
 }
 
-gmeta_bool G_API_CC ImplMetaClass::isInheritedFrom(IMetaClass * ancient)
+gapi_bool G_API_CC ImplMetaClass::isInheritedFrom(IMetaClass * ancient)
 {
 	ENTER_META_API()
 

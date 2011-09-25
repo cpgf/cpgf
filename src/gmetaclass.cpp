@@ -5,7 +5,8 @@
 #include "cpgf/gmetamethod.h"
 #include "cpgf/gmetaoperator.h"
 #include "cpgf/gmetaproperty.h"
-#include "gmetatypereg.h"
+
+#include "pinclude/gmetatypereg.h"
 
 #include <string>
 #include <vector>
@@ -61,12 +62,22 @@ size_t GMetaSuperList::getCount() const
 
 const GMetaClass * GMetaSuperList::getSuper(size_t index) const
 {
-	return this->implement->superList[index].getBaseClass();
+	if(index >= this->getCount()) {
+		return NULL;
+	}
+	else {
+		return this->implement->superList[index].getBaseClass();
+	}
 }
 
 const GMetaClassCasterBase * GMetaSuperList::getCaster(size_t index) const
 {
-	return this->implement->superList[index].getCaster();
+	if(index >= this->getCount()) {
+		return NULL;
+	}
+	else {
+		return this->implement->superList[index].getCaster();
+	}
 }
 
 void GMetaSuperList::doAdd(const GMetaSuperListItem & item)
@@ -107,7 +118,7 @@ public:
 	GMetaItem * getItemAt(size_t index) const;
 	GMetaItem * getItemByName(const char * name) const;
 
-	size_t getItemListByName(GMetaList * metaList, const char * name, unsigned int filters, void * instance) const;
+	size_t getItemListByName(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters, void * instance) const;
 
 private:
 	void clearList();
@@ -196,15 +207,43 @@ GMetaItem * GMetaInternalItemList::getItemByName(const char * name) const
 	}
 }
 
-size_t GMetaInternalItemList::getItemListByName(GMetaList * metaList, const char * name, unsigned int filters, void * instance) const
+size_t GMetaInternalItemList::getItemListByName(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters, void * instance) const
 {
 	size_t count = 0;
 
 	for(meta_internal::GMetaItemListImplement::ListType::const_iterator it = this->implement->itemList.begin(); it != this->implement->itemList.end(); ++it) {
 		if(strcmp((*it)->getName().c_str(), name) == 0) {
-			if(((filters & MetaFilterInstance) != 0 && !(*it)->isStatic())
-				|| ((filters & MetaFilterStatic) != 0 && (*it)->isStatic())) {
-				metaList->add(*it, instance);
+			GMetaItem * item = *it;
+			bool add = true;
+			
+			if(item->isStatic()) {
+				if(filters.hasAny(metaFilterIgnoreStatic)) {
+					add = false;
+				}
+			}
+			else {
+				if(filters.hasAny(metaFilterIgnoreInstance)) {
+					add = false;
+				}
+			}
+
+			if(filters.hasAny(metaFilterConstMethod | metaFilterVolatileMethod | metaFilterConstVolatileMethod)) {
+				if(item->isMethod()) {
+					const GMetaType & itemType = item->getItemType();
+					if(filters.hasAny(metaFilterConstMethod) && !itemType.isConstFunction()) {
+						add = false;
+					}
+					else if(filters.hasAny(metaFilterVolatileMethod) && !itemType.isVolatileFunction()) {
+						add = false;
+					}
+					else if(filters.hasAny(metaFilterConstVolatileMethod) && !itemType.isConstVolatileFunction()) {
+						add = false;
+					}
+				}
+			}
+
+			if(add) {
+				metaList->add(item, instance);
 				++count;
 			}
 		}
@@ -386,12 +425,12 @@ const GMetaMethod * GMetaClass::getMethodAt(size_t index) const
 	return static_cast<const GMetaMethod *>(this->getItemAt(mcatMethod, index));
 }
 
-size_t GMetaClass::getMethodList(GMetaList * metaList, const char * name, unsigned int filters) const
+size_t GMetaClass::getMethodList(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters) const
 {
 	return this->getItemListByName(metaList, mcatMethod, name, false, filters, NULL);
 }
 
-size_t GMetaClass::getMethodListInHierarchy(GMetaList * metaList, const char * name, unsigned int filters, void * instance) const
+size_t GMetaClass::getMethodListInHierarchy(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters, void * instance) const
 {
 	return this->getItemListByName(metaList, mcatMethod, name, true, filters, instance);
 }
@@ -682,7 +721,7 @@ const GMetaItem * GMetaClass::getItemByName(GMetaCategory listIndex, const char 
 	return result;
 }
 
-size_t GMetaClass::getItemListByName(GMetaList * metaList, GMetaCategory listIndex, const char * name, bool findSuper, unsigned int filters, void * instance) const
+size_t GMetaClass::getItemListByName(GMetaList * metaList, GMetaCategory listIndex, const char * name, bool findSuper, const GFlags<GMetaFilters> & filters, void * instance) const
 {
 	this->ensureRegistered();
 

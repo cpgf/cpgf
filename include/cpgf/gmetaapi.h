@@ -1,6 +1,7 @@
 #ifndef __GMETAAPI_H
 #define __GMETAAPI_H
 
+#include "cpgf/gapi.h"
 #include "cpgf/gvariant.h"
 #include "cpgf/gmetatype.h"
 #include "cpgf/gstdint.h"
@@ -9,9 +10,14 @@
 namespace cpgf {
 
 
-const unsigned int MetaFilterInstance = 1 << 0;
-const unsigned int MetaFilterStatic = 1 << 1;
-const unsigned int MetaFilterStaticOrInstance = MetaFilterInstance | MetaFilterStatic;
+enum GMetaFilters {
+	metaFilterIgnoreInstance = 1 << 0,
+	metaFilterIgnoreStatic = 1 << 1,
+
+	metaFilterConstMethod = 1 << 2,
+	metaFilterVolatileMethod = 1 << 3,
+	metaFilterConstVolatileMethod = 1 << 4,
+};
 
 enum GMetaOpType {
 	mopBinaryFirst = 1,
@@ -87,24 +93,9 @@ enum GMetaOpType {
 	mopFunctor = mopUnaryLast + 1, // a(p0, p1...pn)
 };
 
-typedef int32_t gmeta_bool;
-
 struct IMetaAnnotation;
 
-struct IMetaBase
-{
-   virtual uint32_t G_API_CC unused_queryInterface(void *, void *) = 0;
-   virtual uint32_t G_API_CC addReference() = 0;
-   virtual uint32_t G_API_CC releaseReference() = 0;
-};
-
-struct IMetaObject : public IMetaBase
-{
-	virtual int32_t G_API_CC getErrorCode() = 0;
-	virtual const char * G_API_CC getErrorMessage() = 0;
-};
-
-struct IMetaItem : public IMetaObject
+struct IMetaItem : public IApiObject
 {
 	virtual const char * G_API_CC getName() = 0;
 	virtual const char * G_API_CC getQualifiedName() = 0;
@@ -114,18 +105,18 @@ struct IMetaItem : public IMetaObject
 	virtual IMetaAnnotation * G_API_CC getAnnotation(const char * name) = 0;
 	virtual uint32_t G_API_CC getAnnotationCount() = 0;
 	virtual IMetaAnnotation * G_API_CC getAnnotationAt(uint32_t index) = 0;
-	virtual gmeta_bool G_API_CC equals(IMetaItem * other) = 0;
+	virtual gapi_bool G_API_CC equals(IMetaItem * other) = 0;
 	
-	virtual gmeta_bool G_API_CC isStatic() = 0;
-	virtual gmeta_bool G_API_CC isField() = 0;
-	virtual gmeta_bool G_API_CC isProperty() = 0;
-	virtual gmeta_bool G_API_CC isMethod() = 0;
-	virtual gmeta_bool G_API_CC isEnum() = 0;
-	virtual gmeta_bool G_API_CC isOperator() = 0;
-	virtual gmeta_bool G_API_CC isConstructor() = 0;
-	virtual gmeta_bool G_API_CC isClass() = 0;
-	virtual gmeta_bool G_API_CC isAnnotation() = 0;
-	virtual gmeta_bool G_API_CC isFundamental() = 0;
+	virtual gapi_bool G_API_CC isStatic() = 0;
+	virtual gapi_bool G_API_CC isField() = 0;
+	virtual gapi_bool G_API_CC isProperty() = 0;
+	virtual gapi_bool G_API_CC isMethod() = 0;
+	virtual gapi_bool G_API_CC isEnum() = 0;
+	virtual gapi_bool G_API_CC isOperator() = 0;
+	virtual gapi_bool G_API_CC isConstructor() = 0;
+	virtual gapi_bool G_API_CC isClass() = 0;
+	virtual gapi_bool G_API_CC isAnnotation() = 0;
+	virtual gapi_bool G_API_CC isFundamental() = 0;
 };
 
 struct IMetaTypedItem : public IMetaItem
@@ -143,7 +134,7 @@ struct IMetaTypedItem : public IMetaItem
 	virtual void G_API_CC destroyInstance(void * instance) = 0;
 };
 
-struct IMetaList : public IMetaObject
+struct IMetaList : public IApiObject
 {
 	virtual void G_API_CC add(IMetaItem * item, void * instance) = 0;
 	virtual uint32_t G_API_CC getCount() = 0;
@@ -152,16 +143,16 @@ struct IMetaList : public IMetaObject
 	virtual void G_API_CC clear() = 0;
 };
 
-struct IMetaConverter : public IMetaObject
+struct IMetaConverter : public IApiObject
 {
-	virtual gmeta_bool G_API_CC canToCString() = 0;
-	virtual const char * G_API_CC toCString(const void * instance, gmeta_bool * needFree) = 0;
+	virtual gapi_bool G_API_CC canToCString() = 0;
+	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree) = 0;
 };
 
 struct IMetaAccessible : public IMetaItem
 {
-	virtual gmeta_bool G_API_CC canGet() = 0;
-	virtual gmeta_bool G_API_CC canSet() = 0;
+	virtual gapi_bool G_API_CC canGet() = 0;
+	virtual gapi_bool G_API_CC canSet() = 0;
 	virtual void G_API_CC get(void * instance, GVarData * outValue) = 0;
 	virtual void G_API_CC set(void * instance, const GVarData * value) = 0;
 	virtual uint32_t G_API_CC getSize() = 0;
@@ -181,12 +172,12 @@ struct IMetaCallable : public IMetaItem
 {
 	virtual void G_API_CC getParamType(uint32_t index, GMetaTypeData * outType) = 0;
 	virtual uint32_t G_API_CC getParamCount() = 0;
-	virtual gmeta_bool G_API_CC hasResult() = 0;
+	virtual gapi_bool G_API_CC hasResult() = 0;
 	virtual void G_API_CC getResultType(GMetaTypeData * outType) = 0;
-	virtual gmeta_bool G_API_CC isVariadic() = 0;
-	virtual gmeta_bool G_API_CC checkParam(const GVarData * param, uint32_t paramIndex) = 0;
-	virtual gmeta_bool G_API_CC isParamTransferOwnership(uint32_t paramIndex) = 0;
-	virtual gmeta_bool G_API_CC isResultTransferOwnership() = 0;
+	virtual gapi_bool G_API_CC isVariadic() = 0;
+	virtual gapi_bool G_API_CC checkParam(const GVarData * param, uint32_t paramIndex) = 0;
+	virtual gapi_bool G_API_CC isParamTransferOwnership(uint32_t paramIndex) = 0;
+	virtual gapi_bool G_API_CC isResultTransferOwnership() = 0;
 	virtual void G_API_CC execute(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount) = 0;
 	virtual IMetaConverter * G_API_CC createResultConverter() = 0;
 };
@@ -225,12 +216,12 @@ struct IMetaEnum : public IMetaTypedItem
 	virtual int32_t G_API_CC findKey(const char * key) = 0;
 };
 
-struct IMetaAnnotationValue : public IMetaObject
+struct IMetaAnnotationValue : public IApiObject
 {
 	virtual void G_API_CC getVariant(GVarData * outVariant) = 0;
-	virtual gmeta_bool G_API_CC canToString() = 0;
-	virtual gmeta_bool G_API_CC canToWideString() = 0;
-	virtual gmeta_bool G_API_CC canToInt() = 0;
+	virtual gapi_bool G_API_CC canToString() = 0;
+	virtual gapi_bool G_API_CC canToWideString() = 0;
+	virtual gapi_bool G_API_CC canToInt() = 0;
 	virtual const char * G_API_CC toString() = 0;
 	virtual const wchar_t * G_API_CC toWideString() = 0;
 	virtual int32_t G_API_CC toInt32() = 0;
@@ -286,22 +277,22 @@ struct IMetaClass : public IMetaTypedItem
 	virtual uint32_t G_API_CC getMetaCount() = 0;
 	virtual IMetaItem * G_API_CC getMetaAt(uint32_t index) = 0;
 
-	virtual gmeta_bool G_API_CC isGlobal() = 0;
-	virtual gmeta_bool G_API_CC isAbstract() = 0;
-	virtual gmeta_bool G_API_CC canCreateInstance() = 0;
-	virtual gmeta_bool G_API_CC canCopyInstance() = 0;
+	virtual gapi_bool G_API_CC isGlobal() = 0;
+	virtual gapi_bool G_API_CC isAbstract() = 0;
+	virtual gapi_bool G_API_CC canCreateInstance() = 0;
+	virtual gapi_bool G_API_CC canCopyInstance() = 0;
 	
 	virtual IMetaClass * G_API_CC getBaseClass(uint32_t baseIndex) = 0;
 	virtual uint32_t G_API_CC getBaseCount() = 0;
 
-	virtual gmeta_bool G_API_CC isInheritedFrom(IMetaClass * ancient) = 0;
+	virtual gapi_bool G_API_CC isInheritedFrom(IMetaClass * ancient) = 0;
 
 	virtual void * G_API_CC castFromBase(void * base, uint32_t baseIndex) = 0;
 	virtual void * G_API_CC castToBase(void * self, uint32_t baseIndex) = 0;
 };
 
 
-struct IMetaService : public IMetaObject
+struct IMetaService : public IApiObject
 {
 	virtual IMetaClass * G_API_CC getGlobalMetaClass() = 0;
 

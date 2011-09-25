@@ -1,4 +1,5 @@
 #include "cpgf/scriptbind/gluabind.h"
+#include "cpgf/gflags.h"
 
 #include <stdexcept>
 #include <algorithm>
@@ -73,6 +74,13 @@ namespace {
 		udtMethodList,
 		udtEnum,
 		udtOperator
+	};
+	
+	enum ObjectPointerCV {
+		opcvNone,
+		opcvConst,
+		opcvVolatile,
+		opcvConstVolatile,
 	};
 
 
@@ -149,8 +157,8 @@ namespace {
 		typedef GLuaUserData super;
 
 	public:
-		GClassUserData(GLuaBindingParam * param, IMetaClass * metaClass, void * instance, bool isInstance, bool allowGC)
-			: super(udtClass, param), metaClass(metaClass), instance(instance), isInstance(isInstance), allowGC(allowGC) {
+		GClassUserData(GLuaBindingParam * param, IMetaClass * metaClass, void * instance, bool isInstance, bool allowGC, ObjectPointerCV cv)
+			: super(udtClass, param), metaClass(metaClass), instance(instance), isInstance(isInstance), allowGC(allowGC), cv(cv) {
 			this->metaClass->addReference();
 		}
 
@@ -167,6 +175,7 @@ namespace {
 		void * instance;
 		bool isInstance;
 		bool allowGC;
+		ObjectPointerCV cv;
 	};
 	
 	class GMethodUserData : public GLuaUserData
@@ -277,7 +286,55 @@ namespace {
 		handleError("Can't convert variant to Lua object.");
 	}
 	
-	void objectToLua(lua_State * L, GLuaBindingParam * param, void * instance, IMetaClass * metaClass, bool allowGC)
+	ObjectPointerCV metaTypeToCV(const GMetaType & type)
+	{
+		if(type.isPointer()) {
+			if(type.isPointerToConst()) {
+				return opcvConst;
+			}
+			else if(type.isPointerToVolatile()) {
+				return opcvVolatile;
+			}
+			else if(type.isPointerToConstVolatile()) {
+				return opcvConstVolatile;
+			}
+		}
+		else {
+			if(type.isConst()) {
+				return opcvConst;
+			}
+			else if(type.isVolatile()) {
+				return opcvVolatile;
+			}
+			else if(type.isConstVolatile()) {
+				return opcvConstVolatile;
+			}
+		}
+		
+		return opcvNone;
+	}
+	
+	void cvToFilters(ObjectPointerCV cv, GFlags<GMetaFilters> * filters)
+	{
+		switch(cv) {
+			case opcvConst:
+				filters->set(metaFilterConstMethod);
+				break;
+				
+			case opcvVolatile:
+				filters->set(metaFilterVolatileMethod);
+				break;
+				
+			case opcvConstVolatile:
+				filters->set(metaFilterConstVolatileMethod);
+				break;
+				
+			default:
+				break;
+		}
+	}
+	
+	void objectToLua(lua_State * L, GLuaBindingParam * param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv)
 	{
 		if(instance == NULL) {
 			lua_pushnil(L);
@@ -286,7 +343,7 @@ namespace {
 		}
 
 		void * userData = lua_newuserdata(L, sizeof(GClassUserData));
-		new (userData) GClassUserData(param, metaClass, instance, true, allowGC);
+		new (userData) GClassUserData(param, metaClass, instance, true, allowGC, cv);
 
 		const char * className = metaClass->getName();
 		
@@ -423,7 +480,7 @@ namespace {
 
 					IMetaClass * metaClass = static_cast<IMetaClass *>(typedItem.get());
 					void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-					objectToLua(L, param, instance, static_cast<IMetaClass *>(typedItem.get()), true);
+					objectToLua(L, param, instance, static_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type));
 
 					return true;
 				}
@@ -431,7 +488,7 @@ namespace {
 				if(type.getPointerDimension() == 1) {
 					GASSERT_MSG(!! typedItem->isClass(), "Unknown type");
 
-					objectToLua(L, param, fromVariant<void *>(value), static_cast<IMetaClass *>(typedItem.get()), allowGC);
+					objectToLua(L, param, fromVariant<void *>(value), static_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type));
 
 					return true;
 				}
@@ -448,7 +505,7 @@ namespace {
 		}
 
 		if(converter->canToCString()) {
-			gmeta_bool needFree;
+			gapi_bool needFree;
 			
 			const char * s = converter->toCString(objectAddressFromVariant(value), &needFree);
 
@@ -597,7 +654,7 @@ namespace {
 		}
 
 		if(instance != NULL) {
-			objectToLua(L, param, instance, metaClass, true);
+			objectToLua(L, param, instance, metaClass, true, opcvNone);
 		}
 		else {
 			handleError("Failed to construct an object.");
@@ -665,23 +722,25 @@ namespace {
 	
 	bool indexMemberMethod(lua_State * L, GClassUserData * userData, const char * name)
 	{
-		unsigned int filters = MetaFilterStaticOrInstance;
-		
+		GFlags<GMetaFilters> filters;
+
 		if(userData->isInstance) {
 			if(! userData->getParam()->getConfig().allowAccessStaticMethodViaInstance()) {
-				filters &= ~MetaFilterStatic;
+				filters.set(metaFilterIgnoreStatic);
 			}
 		}
 		else {
-			filters &= ~MetaFilterInstance;
+			filters.set(metaFilterIgnoreInstance);
 		}
+		
+		cvToFilters(userData->cv, &filters);
 
 		GMetaScopedPointer<IMetaList> methodList(userData->getParam()->getService()->createMetaList());
 		
 		userData->metaClass->getMethodListInHierarchy(methodList.get(), name, filters, userData->instance);
 		
 		size_t methodCount = methodList->getCount();
-		
+
 		if(methodCount == 0) {
 			return false;
 		}
@@ -692,16 +751,16 @@ namespace {
 
 			return true;
 		}
-		
+
 		doBindMethodList(L, userData->getParam(), userData->instance, methodList.get());
-		
+
 		return true;
 	}
 
 	IMetaAccessible * findAccessible(IMetaClass * metaClass, const char * name, bool checkGet, bool checkSet, void ** instance)
 	{
 		GMetaScopedPointer<IMetaAccessible> data;
-		
+
 		data.reset(metaClass->getField(name));
 		
 		if(!data || (checkGet && !data->canGet()) || (checkSet && !data->canSet())) {
@@ -932,7 +991,7 @@ namespace {
 	void doBindClass(lua_State * L, GLuaBindingParam * param, IMetaClass * metaClass)
 	{
 		void * userData = lua_newuserdata(L, sizeof(GClassUserData));
-		new (userData) GClassUserData(param, metaClass, NULL, false, false);
+		new (userData) GClassUserData(param, metaClass, NULL, false, false, opcvNone);
 
 		lua_newtable(L);
 
@@ -1435,7 +1494,7 @@ void GLuaScriptObject::setObject(const GScriptName & objectName, void * instance
 
 	GLuaScopeGuard scopeGuard(this);
 
-	objectToLua(this->implement->luaState, &this->implement->param, instance, static_cast<IMetaClass *>(type), transferOwnership);
+	objectToLua(this->implement->luaState, &this->implement->param, instance, static_cast<IMetaClass *>(type), transferOwnership, opcvNone);
 	
 	scopeGuard.set(objectName);
 

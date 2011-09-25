@@ -19,7 +19,7 @@ namespace cpgf {
 struct GMetaTypeData
 {
 	const char * baseName;
-	uint16_t flags;
+	uint32_t flags;
 	uint16_t varType;
 };
 #pragma pack(pop)
@@ -122,7 +122,9 @@ const unsigned int mtFlagIsPointerToVolatile = 1 << 10;
 const unsigned int mtFlagIsPointerToConstVolatile = 1 << 11;
 const unsigned int mtFlagIsFunction = 1 << 12;
 const unsigned int mtFlagIsConstFunction = 1 << 13;
-const unsigned int mtFlagBaseIsClass = 1 << 14;
+const unsigned int mtFlagIsVolatileFunction = 1 << 14;
+const unsigned int mtFlagIsConstVolatileFunction = 1 << 15;
+const unsigned int mtFlagBaseIsClass = 1 << 16;
 
 template <typename T>
 struct GMetaTypeDeduce
@@ -144,6 +146,8 @@ public:
 			| (IsClass<BaseType>::Result ? mtFlagBaseIsClass : 0)
 			| (IsFunction<T>::Result ? mtFlagIsFunction : 0)
 			| (GFunctionTraits<T>::IsConst ? mtFlagIsConstFunction : 0)
+			| (GFunctionTraits<T>::IsVolatile ? mtFlagIsVolatileFunction : 0)
+			| (GFunctionTraits<T>::IsConstVolatile ? mtFlagIsConstVolatileFunction : 0)
 			| (IsReference<T>::Result ? mtFlagIsReference : 0)
 			| (PointerDimension<NoCV>::Result > 0 ? mtFlagIsPointer : 0)
 	};
@@ -228,12 +232,22 @@ public:
 		return this->hasFlag(meta_internal::mtFlagIsConstFunction);
 	}
 
+	bool isVolatileFunction() const {
+		return this->hasFlag(meta_internal::mtFlagIsVolatileFunction);
+	}
+
+	bool isConstVolatileFunction() const {
+		return this->hasFlag(meta_internal::mtFlagIsConstVolatileFunction);
+	}
+
 	bool isConst() const {
-		return this->hasFlag(meta_internal::mtFlagIsConst);
+		return this->hasFlag(meta_internal::mtFlagIsConst)
+			&& !this->isConstVolatile();
 	}
 
 	bool isVolatile() const {
-		return this->hasFlag(meta_internal::mtFlagIsVolatile);
+		return this->hasFlag(meta_internal::mtFlagIsVolatile)
+			&& !this->isConstVolatile();
 	}
 
 	bool isConstVolatile() const {
@@ -241,11 +255,13 @@ public:
 	}
 
 	bool isPointerToConst() const {
-		return this->hasFlag(meta_internal::mtFlagIsPointer | meta_internal::mtFlagIsPointerToConst);
+		return this->hasFlag(meta_internal::mtFlagIsPointer | meta_internal::mtFlagIsPointerToConst)
+			&& !this->isPointerToConstVolatile();
 	}
 
 	bool isPointerToVolatile() const {
-		return this->hasFlag(meta_internal::mtFlagIsPointer | meta_internal::mtFlagIsPointerToVolatile);
+		return this->hasFlag(meta_internal::mtFlagIsPointer | meta_internal::mtFlagIsPointerToVolatile)
+			&& !this->isPointerToConstVolatile();
 	}
 
 	bool isPointerToConstVolatile() const {

@@ -23,6 +23,8 @@
 
 #define GEQUAL(a, b) GCHECK(a == b)
 
+#define GEQUAL_NOTNULL(a, b) GCHECK(a); GCHECK(a == b)
+
 #define GDIFF(a, b) GCHECK(!(a == b))
 
 #define GNEAR(a, b, t) CHECK_CLOSE(a, b, t)

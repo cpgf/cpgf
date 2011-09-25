@@ -69,6 +69,7 @@ if(MSVC)
 endif(MSVC)
 
 set(SRC_META
+	${SRC_PATH}/gapi.cpp
 	${SRC_PATH}/gmetaannotation.cpp
 	${SRC_PATH}/gmetaapiservice.cpp
 	${SRC_PATH}/gmetaclass.cpp

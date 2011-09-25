@@ -1,6 +1,9 @@
+// Auto generated test code
+// Don't modify manually.
+
 #include "test_reflection_common.h"
 
-#define CLASS TestClass_Enum
+#define CLASS void
 #define NAME_CLASS GPP_STRINGIZE(CLASS)
 
 #define ENUM(f) pointerAssign(en, metaClass->getEnum(# f))
@@ -8,10 +11,10 @@
 using namespace std;
 using namespace cpgf;
 
-namespace Test_Enum { namespace {
+namespace Test_GlobalEnum { namespace {
 
-class CLASS {
-public:
+
+
 	enum EnumFirst {
 		ws1, ws2, ws3, ws4
 	};
@@ -21,24 +24,24 @@ public:
 	};
 
 
-}; // class CLASS
 
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME_CLASS) {
-	GMETA_ENUM(EnumFirst, CLASS::ws1, CLASS::ws2, CLASS::ws3, CLASS::ws4);
 
-	reflectEnum<CLASS::EnumSecond>("EnumSecond")
-		("bs1", CLASS::bs1)
-		("bs2", CLASS::bs2)
-		("bs3", CLASS::bs3)
-		("bs4", CLASS::bs4)
-		("bs5", CLASS::bs5)
+GMETA_DEFINE_GLOBAL() {
+	GMETA_ENUM(EnumFirst, ws1, ws2, ws3, ws4);
+
+	reflectEnum<EnumSecond>("EnumSecond")
+		("bs1", bs1)
+		("bs2", bs2)
+		("bs3", bs3)
+		("bs4", bs4)
+		("bs5", bs5)
 	;
 }
 
 
 GTEST(Lib_Exists)
 {
-	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
+	const GMetaClass * metaClass = getGlobalMetaClass();
 	GCHECK(metaClass);
 
 	const GMetaEnum * en;
@@ -56,7 +59,7 @@ GTEST(API_Exists)
 	GMetaScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GMetaScopedPointer<IMetaClass> metaClass(service->getGlobalMetaClass());
 	GCHECK(metaClass);
 
 	GMetaScopedPointer<IMetaEnum> en;
@@ -71,7 +74,7 @@ GTEST(API_Exists)
 
 GTEST(Lib_GetCount)
 {
-	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
+	const GMetaClass * metaClass = getGlobalMetaClass();
 	GCHECK(metaClass);
 
 	const GMetaEnum * en;
@@ -89,7 +92,7 @@ GTEST(API_GetCount)
 	GMetaScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GMetaScopedPointer<IMetaClass> metaClass(service->getGlobalMetaClass());
 	GCHECK(metaClass);
 
 	GMetaScopedPointer<IMetaEnum> en;
@@ -104,7 +107,7 @@ GTEST(API_GetCount)
 
 GTEST(Lib_GetKey)
 {
-	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
+	const GMetaClass * metaClass = getGlobalMetaClass();
 	GCHECK(metaClass);
 
 	const GMetaEnum * en;
@@ -131,7 +134,7 @@ GTEST(API_GetKey)
 	GMetaScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GMetaScopedPointer<IMetaClass> metaClass(service->getGlobalMetaClass());
 	GCHECK(metaClass);
 
 	GMetaScopedPointer<IMetaEnum> en;
@@ -155,23 +158,23 @@ GTEST(API_GetKey)
 
 GTEST(Lib_GetValue)
 {
-	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
+	const GMetaClass * metaClass = getGlobalMetaClass();
 	GCHECK(metaClass);
 
 	const GMetaEnum * en;
 
 	ENUM(EnumFirst);
-	GEQUAL(fromVariant<int>(en->getValue(0)), CLASS::ws1);
-	GEQUAL(fromVariant<int>(en->getValue(1)), CLASS::ws2);
-	GEQUAL(fromVariant<int>(en->getValue(2)), CLASS::ws3);
-	GEQUAL(fromVariant<int>(en->getValue(3)), CLASS::ws4);
+	GEQUAL(fromVariant<int>(en->getValue(0)), ws1);
+	GEQUAL(fromVariant<int>(en->getValue(1)), ws2);
+	GEQUAL(fromVariant<int>(en->getValue(2)), ws3);
+	GEQUAL(fromVariant<int>(en->getValue(3)), ws4);
 
 	ENUM(EnumSecond);
-	GEQUAL(fromVariant<int>(en->getValue(0)), CLASS::bs1);
-	GEQUAL(fromVariant<int>(en->getValue(1)), CLASS::bs2);
-	GEQUAL(fromVariant<int>(en->getValue(2)), CLASS::bs3);
-	GEQUAL(fromVariant<int>(en->getValue(3)), CLASS::bs4);
-	GEQUAL(fromVariant<int>(en->getValue(4)), CLASS::bs5);
+	GEQUAL(fromVariant<int>(en->getValue(0)), bs1);
+	GEQUAL(fromVariant<int>(en->getValue(1)), bs2);
+	GEQUAL(fromVariant<int>(en->getValue(2)), bs3);
+	GEQUAL(fromVariant<int>(en->getValue(3)), bs4);
+	GEQUAL(fromVariant<int>(en->getValue(4)), bs5);
 }
 
 
@@ -180,29 +183,29 @@ GTEST(API_GetValue)
 	GMetaScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GMetaScopedPointer<IMetaClass> metaClass(service->getGlobalMetaClass());
 	GCHECK(metaClass);
 
 	GMetaScopedPointer<IMetaEnum> en;
 
 	ENUM(EnumFirst);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 0)), CLASS::ws1);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 1)), CLASS::ws2);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 2)), CLASS::ws3);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 3)), CLASS::ws4);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 0)), ws1);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 1)), ws2);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 2)), ws3);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 3)), ws4);
 
 	ENUM(EnumSecond);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 0)), CLASS::bs1);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 1)), CLASS::bs2);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 2)), CLASS::bs3);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 3)), CLASS::bs4);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 4)), CLASS::bs5);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 0)), bs1);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 1)), bs2);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 2)), bs3);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 3)), bs4);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 4)), bs5);
 }
 
 
 GTEST(Lib_FindKey)
 {
-	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
+	const GMetaClass * metaClass = getGlobalMetaClass();
 	GCHECK(metaClass);
 
 	const GMetaEnum * en;
@@ -229,7 +232,7 @@ GTEST(API_FindKey)
 	GMetaScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GMetaScopedPointer<IMetaClass> metaClass(service->getGlobalMetaClass());
 	GCHECK(metaClass);
 
 	GMetaScopedPointer<IMetaEnum> en;
