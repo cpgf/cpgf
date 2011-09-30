@@ -239,7 +239,7 @@
 	The fourth parameter is optional. It's the policy.
 
 	Here "getter" and "setter" are not necessary functions, they can be the data address directly.
-<{/autobr>}>
+<{/autobr}>
 </p>
 
 <{sh}> Using macro helper
@@ -272,7 +272,7 @@
 <{autobr}>
 	GMETA_PROPERTY takes three parameter. Name, getter, then setter.
 	Policy can't be passed in to the macro.
-<{/autobr>}>
+<{/autobr}>
 </p>
 
 <{/sgroup}>
@@ -395,6 +395,71 @@
 
 <{/sgroup}>
 
+
+
+
+<{sh}> Reflect operator
+<{sgroup indent="1"}>
+
+<{sh}> What's operator
+<{sc}>
+	<p>
+<{autobr}>
+	An operator is a C++ class operator that be overloaded.
+	It can take any parameters, same as method.
+<{/autobr}>
+	</p>
+
+<{sh}> Using function
+<{sc}>
+<{code}>
+	class TestObject
+	{
+	public:
+		TestObject operator + (int n) const; // a + b
+		TestObject & operator &= (int n); // a &= b
+		TestObject operator ++ (int); // a++
+		int operator ->* (int TestObject::* p); // a->*b
+		int operator () (const std::string & s, int n) const; // a(s, n)
+	}
+	TestObject operator + (int n, const TestObject & obj);
+
+	GMETA_DEFINE_CLASS(blah blah)
+	{
+		reflectOperator<TestObject (const GMetaSelf &, int)>(mopHolder + mopHolder); // member operator +
+		reflectOperator<TestObject (int, const TestObject &)>(mopHolder + mopHolder); // global operator +
+		reflectOperator<TestObject & (GMetaSelf, int)>(mopHolder &= mopHolder); // member operator &=
+		reflectOperator<TestObject (GMetaSelf)> (mopHolder++); // member operator ++
+		reflectOperator<int (GMetaSelf, int TestObject::*)>(mopHolder->*mopHolder); // member operator ->*
+		reflectOperator<int (const std::string &, int)>(mopHolder(mopHolder)); // member operator (const std::string &, int)
+	}
+<{/code}>
+
+<p>
+<{autobr}>
+	reflectOperator is a template function.
+	It accepts one template parameter, one operator function parameter, and one optional policy function parameter.
+	The template parameter is the operator function type.
+	The first function parameter is the result to apply the same operator on mopHolder.
+	For example, if it's operator +, then the parameter is (mopHolder + mopHolder)
+	For most operators, it's quite intuitive.
+	Here are some operators that are not that intuitive:
+	Type conversion, such like "int()", etc. The parameter is mopHolder().
+	Functor, such like "void (int)". The parameter is mopHolder(mopHolder);
+
+	About GMetaSelf. GMetaSelf indicates that parameter is the object itself. So that parameter can be passed as object reference.
+<{/autobr}>
+</p>
+
+<{sh}> Using macro helper
+<{sc}>
+<p>
+<{autobr}>
+	No macro helper available for constructor.
+<{/autobr}>
+</p>
+
+<{/sgroup}>
 
 
 
