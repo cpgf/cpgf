@@ -162,15 +162,15 @@ void doTestAPI()
 {
 	using namespace cpgf;
 
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	testCheckAssert(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName("method::TestObject"));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName("method::TestObject"));
 	testCheckAssert(metaClass);
 
 	std::cout << "API: " << metaClass->getName() << std::endl;
 
-	GMetaScopedPointer<IMetaMethod> method;
+	GApiScopedPointer<IMetaMethod> method;
 
 	{
 		method.reset(metaClass->getMethod("getWidth")); testCheckAssert(method);

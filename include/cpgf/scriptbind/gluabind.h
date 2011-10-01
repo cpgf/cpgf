@@ -64,6 +64,9 @@ private:
 };
 
 
+IScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
+
+
 
 } // namespace cpgf
 

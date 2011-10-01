@@ -62,13 +62,13 @@ GTEST(Lib_Exists)
 
 GTEST(API_Exists)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaField> field;
+	GApiScopedPointer<IMetaField> field;
 
 	FIELD(fieldInt);
 	GCHECK(field);
@@ -146,13 +146,13 @@ GTEST(Lib_CanGet)
 
 GTEST(API_CanGet)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaField> field;
+	GApiScopedPointer<IMetaField> field;
 
 	FIELD(fieldInt);
 	GCHECK(field->canGet());
@@ -203,13 +203,13 @@ GTEST(Lib_CanSet)
 
 GTEST(API_CanSet)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaField> field;
+	GApiScopedPointer<IMetaField> field;
 
 	FIELD(fieldInt);
 	GCHECK(field->canSet());
@@ -263,13 +263,13 @@ GTEST(Lib_GetAddress)
 
 GTEST(API_GetAddress)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaField> field;
+	GApiScopedPointer<IMetaField> field;
 
 	CLASS instance;
 	CLASS * pobj = &instance;
@@ -327,13 +327,13 @@ GTEST(Lib_GetSize)
 
 GTEST(API_GetSize)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaField> field;
+	GApiScopedPointer<IMetaField> field;
 
 	CLASS instance;
 	CLASS * pobj = &instance;
@@ -416,13 +416,13 @@ GTEST(Lib_Set)
 
 GTEST(API_Set)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaField> field;
+	GApiScopedPointer<IMetaField> field;
 
 	CLASS instance;
 	CLASS * pobj = &instance;
@@ -518,13 +518,13 @@ GTEST(Lib_Get)
 
 GTEST(API_Get)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaField> field;
+	GApiScopedPointer<IMetaField> field;
 
 	CLASS instance;
 	CLASS * pobj = &instance;

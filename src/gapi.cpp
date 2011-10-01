@@ -1,4 +1,5 @@
 #include "cpgf/gapi.h"
+#include "pinclude/gapiimpl.h"
 
 
 namespace cpgf {

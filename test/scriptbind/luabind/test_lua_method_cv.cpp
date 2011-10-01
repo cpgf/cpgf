@@ -4,7 +4,7 @@
 namespace {
 
 
-GTEST(Constructor)
+GTEST(Method_CV)
 {
 	TestLuaContext * context = getLuaContext();
 

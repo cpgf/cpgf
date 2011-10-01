@@ -12,7 +12,7 @@ void doTest()
 	TestLuaContext context;
 	context.doString("print(\"Global\")");
 
-	GMetaScopedPointer<IMetaClass> metaClass(context.getService()->findClassByName("testscript::TestData"));
+	GApiScopedPointer<IMetaClass> metaClass(context.getService()->findClassByName("testscript::TestData"));
 	testCheckAssert(metaClass);
 	
 	context.getBinding()->bindClass("TestData", metaClass.get());

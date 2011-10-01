@@ -19,32 +19,6 @@ void metaCheckError(Meta & meta)
 }
 
 
-template <typename T>
-struct GMetaScopedPointerDeleter
-{
-	static inline void Delete(T * p) {
-		if(p) {
-			p->releaseReference();
-		}
-	}
-};
-
-template <typename T>
-class GMetaScopedPointer : public GScopedPointer<T, GMetaScopedPointerDeleter<T> >
-{
-private:
-	typedef GScopedPointer<T, GMetaScopedPointerDeleter<T> > super;
-
-public:
-	GMetaScopedPointer(): super() {
-	}
-
-	explicit GMetaScopedPointer(T * p) : super(p) {
-	}
-
-};
-
-
 template <typename Meta>
 GMetaType metaGetItemType(const Meta & meta)
 {
@@ -88,6 +62,18 @@ bool metaCheckParam(const Meta & meta, const GVariant & param, size_t paramIndex
 	metaCheckError(meta);
 
 	return ok;
+}
+
+template <typename Meta>
+GMetaType metaGetParamType(const Meta & meta, size_t paramIndex)
+{
+	GMetaTypeData typeData;
+
+	const_cast<Meta &>(meta)->getParamType(paramIndex, &typeData);
+	
+	metaCheckError(meta);
+
+	return GMetaType(typeData);
 }
 
 

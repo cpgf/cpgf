@@ -223,6 +223,10 @@ public:
 	bool baseIsClass() const {
 		return this->hasFlag(meta_internal::mtFlagBaseIsClass);
 	}
+	
+	bool isFundamental() const {
+		return vtIsFundamental(this->getVariantType());
+	}
 
 	bool isFunction() const {
 		return this->hasFlag(meta_internal::mtFlagIsFunction);

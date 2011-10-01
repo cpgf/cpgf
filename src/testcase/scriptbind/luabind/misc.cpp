@@ -230,28 +230,28 @@ void doTest()
 	lua_State * L = luaL_newstate();
 	luaL_openlibs(L);
 
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	testCheckAssert(service);
 
-	GMetaScopedPointer<IMetaClass> globalClass(service->getGlobalMetaClass());
+	GApiScopedPointer<IMetaClass> globalClass(service->getGlobalMetaClass());
 	testCheckAssert(globalClass);
 
 	GLuaScriptObject binding(service.get(), L, GScriptConfig());
 
 	GScopedPointer<GLuaScriptObject> scope(static_cast<GLuaScriptObject *>(binding.createScriptObject("myscope")));
 
-	GMetaScopedPointer<IMetaMethod> method;
+	GApiScopedPointer<IMetaMethod> method;
 
 	method.reset(globalClass->getMethod("addNumber")); testCheckAssert(method);
 
 	scope->setMethod("addNumber", NULL, method.get());
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName("method::TestObject"));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName("method::TestObject"));
 	testCheckAssert(metaClass);
 	
 	binding.bindClass("TestObject", metaClass.get());
 	
-	GMetaScopedPointer<IMetaEnum> metaEnum(globalClass->getEnum("GlobalEnum"));
+	GApiScopedPointer<IMetaEnum> metaEnum(globalClass->getEnum("GlobalEnum"));
 	binding.bindEnum(metaEnum->getName(), metaEnum.get());
 
 	binding.setString("ONE", "This is one");
@@ -303,7 +303,7 @@ void doTest()
 	GScriptName nameNewObj("newObj");
 	binding.cacheName(&nameNewObj);
 	cout << static_cast<TestObject *>(binding.getObject(nameNewObj))->width << endl;
-	GMetaScopedPointer<IMetaClass> type(binding.getObjectType(nameNewObj));
+	GApiScopedPointer<IMetaClass> type(binding.getObjectType(nameNewObj));
 	cout << type->getName() << endl;
 
 	GScriptName nameNewLss("newlss");

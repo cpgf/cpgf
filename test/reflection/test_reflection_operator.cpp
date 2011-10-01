@@ -528,13 +528,13 @@ GTEST(Lib_Exists)
 
 GTEST(API_Exists)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaOperator> op;
+	GApiScopedPointer<IMetaOperator> op;
 
 }
 
@@ -588,13 +588,13 @@ GTEST(Lib_InvokeArithmetic)
 
 GTEST(API_InvokeArithmetic)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaOperator> op;
+	GApiScopedPointer<IMetaOperator> op;
 
 	CLASS operand;
 	CLASS result;
@@ -682,13 +682,13 @@ GTEST(Lib_InvokeArithmeticAssign)
 
 GTEST(API_InvokeArithmeticAssign)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaOperator> op;
+	GApiScopedPointer<IMetaOperator> op;
 
 	CLASS operand;
 	CLASS * addr = &operand;
@@ -767,13 +767,13 @@ GTEST(Lib_InvokeBitwise)
 
 GTEST(API_InvokeBitwise)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaOperator> op;
+	GApiScopedPointer<IMetaOperator> op;
 
 	CLASS operand;
 	CLASS result;
@@ -851,13 +851,13 @@ GTEST(Lib_InvokeBitwiseAssign)
 
 GTEST(API_InvokeBitwiseAssign)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaOperator> op;
+	GApiScopedPointer<IMetaOperator> op;
 
 	CLASS operand;
 	CLASS * presult;
@@ -957,13 +957,13 @@ GTEST(Lib_InvokeLogic)
 
 GTEST(API_InvokeLogic)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaOperator> op;
+	GApiScopedPointer<IMetaOperator> op;
 
 	CLASS operand;
 
@@ -1081,13 +1081,13 @@ GTEST(Lib_InvokeUnary)
 
 GTEST(API_InvokeUnary)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaOperator> op;
+	GApiScopedPointer<IMetaOperator> op;
 
 	CLASS operand;
 	CLASS result;
@@ -1198,13 +1198,13 @@ GTEST(Lib_InvokeOther)
 
 GTEST(API_InvokeOther)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass2(service->findClassByName(NAME_CLASS2));
+	GApiScopedPointer<IMetaClass> metaClass2(service->findClassByName(NAME_CLASS2));
 	GCHECK(metaClass2);
 
-	GMetaScopedPointer<IMetaOperator> op;
+	GApiScopedPointer<IMetaOperator> op;
 
 	CLASS operand;
 	CLASS result;

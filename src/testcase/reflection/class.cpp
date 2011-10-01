@@ -125,10 +125,10 @@ void doTestAPI()
 
 	std::cout << "API: " << "Test Meta Classes" << std::endl;
 	
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	testCheckAssert(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass;
+	GApiScopedPointer<IMetaClass> metaClass;
 
 	char buffer[4096];
 

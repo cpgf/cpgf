@@ -5,6 +5,9 @@
 #include "testscriptbind.h"
 #include "cpgf/scriptbind/gscriptbind.h"
 
+
+#include <string.h>
+
 #include <string>
 
 
@@ -29,7 +32,7 @@ public:
 	TestObject(const TestObject & other) : value(other.value) {
 		(void)other;
 	}
-	
+
 	TestObject(int value) : value(value) {
 	}
 	
@@ -82,6 +85,34 @@ public:
 	
 	int methodConstVolatile() const volatile {
 		return 1;
+	}
+	
+	int methodOverload(const TestObject & obj, int n) const {
+		return obj.value + n;
+	}
+	
+	int methodOverload(int n, const TestObject & obj) const {
+		return obj.value + n + 1;
+	}
+	
+	int methodOverload(int a, int b) const {
+		return a * b;
+	}
+	
+	int methodOverload(const char * s, int n) const {
+		return strlen(s) + n;
+	}
+	
+	int methodOverload(int n, const char * s) const {
+		return strlen(s) + n + 1;
+	}
+	
+	int methodOverload(const std::string & s, int n) const {
+		return s.length() * n;
+	}
+	
+	int methodOverload(int n, const std::string & s) const {
+		return s.length() * n + 1;
 	}
 	
 public:

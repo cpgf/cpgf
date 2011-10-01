@@ -59,15 +59,15 @@ void doTestAPI()
 {
 	using namespace cpgf;
 
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	testCheckAssert(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName("enum::TestObject"));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName("enum::TestObject"));
 	testCheckAssert(metaClass);
 
 	std::cout << "API: " << metaClass->getName() << std::endl;
 
-	GMetaScopedPointer<IMetaEnum> metaEnum;
+	GApiScopedPointer<IMetaEnum> metaEnum;
 
 	{
 		metaEnum.reset(metaClass->getEnum("WindowStyle")); testCheckAssert(metaEnum);

@@ -29,45 +29,30 @@ struct IApiObject : public IApiBase
 };
 
 
-class ImplApiBase
+template <typename T>
+struct GApiScopedPointerDeleter
 {
-public:
-	ImplApiBase();
-	virtual ~ImplApiBase();
-
-protected:
-	uint32_t doQueryInterface(void *, void *);
-	uint32_t doAddReference();
-	uint32_t doReleaseReference();
-
-private:
-	unsigned int referenceCount;
+	static inline void Delete(T * p) {
+		if(p) {
+			p->releaseReference();
+		}
+	}
 };
 
-class ImplApiObject : public ImplApiBase
+template <typename T>
+class GApiScopedPointer : public GScopedPointer<T, GApiScopedPointerDeleter<T> >
 {
 private:
-	struct ErrorInfo {
-		int32_t errorCode;
-		std::string message;
-	};
+	typedef GScopedPointer<T, GApiScopedPointerDeleter<T> > super;
 
 public:
-	ImplApiObject();
-	virtual ~ImplApiObject();
+	GApiScopedPointer(): super() {
+	}
 
-public:
-	void clearError();
-	void handleError(int errorCode, const char * message);
+	explicit GApiScopedPointer(T * p) : super(p) {
+	}
 
-protected:
-	int32_t doGetErrorCode();
-	const char * doGetErrorMessage();
-
-private:
-	GScopedPointer<ErrorInfo> errorInfo;
 };
-
 
 
 

@@ -1,10 +1,10 @@
-#include "cpgf/gmetaapiservice.h"
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gmetafundamental.h"
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gassert.h"
 
 #include "pinclude/gmetatypereg.h"
+#include "pinclude/gapiimpl.h"
 
 #include <string>
 
@@ -1893,7 +1893,7 @@ gapi_bool G_API_CC ImplMetaClass::isInheritedFrom(IMetaClass * ancient)
 {
 	ENTER_META_API()
 
-	GMetaScopedPointer<IMetaClass> item;
+	GApiScopedPointer<IMetaClass> item;
 
 	for(uint32_t i = 0; i < this->getBaseCount(); ++i) {
 		item.reset(this->getBaseClass(i));
@@ -1972,7 +1972,7 @@ IMetaTypedItem * G_API_CC ImplMetaService::findTypedItemByName(const char * name
 
 IMetaFundamental * G_API_CC ImplMetaService::findFundamental(GVariantType vt)
 {
-	GASSERT_MSG(vtIsPrimary(vt), "Type must be fundamental");
+	GASSERT_MSG(vtIsFundamental(vt), "Type must be fundamental");
 
 	ENTER_META_API()
 

@@ -150,15 +150,15 @@ void doTestAPI()
 {
 	using namespace cpgf;
 
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	testCheckAssert(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName("operator_logic::TestObject"));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName("operator_logic::TestObject"));
 	testCheckAssert(metaClass);
 
 	std::cout << "API: " << metaClass->getName() << std::endl;
 
-	GMetaScopedPointer<IMetaOperator> metaOperator;
+	GApiScopedPointer<IMetaOperator> metaOperator;
 
 	{
 		metaOperator.reset(getOperator(mopHolder == mopHolder, metaClass, 0)); testCheckAssert(metaOperator);

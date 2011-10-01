@@ -7,5 +7,5 @@
 @goto end
 
 :error
-echo error occurred in batch file.
+@echo error occurred in batch file.
 :end

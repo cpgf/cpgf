@@ -308,6 +308,7 @@ struct IMetaService : public IApiObject
 };
 
 
+IMetaService * createMetaService();
 
 
 } // namespace cpgf

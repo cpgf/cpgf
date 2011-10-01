@@ -40,10 +40,10 @@ inline const cpgf::GMetaOperator * getOperator(cpgf::GMetaOpType op, const cpgf:
 	return NULL;
 }
 
-inline cpgf::IMetaOperator * getOperator(cpgf::GMetaOpType op, const cpgf::GMetaScopedPointer<cpgf::IMetaClass> & metaClass, int index = 0)
+inline cpgf::IMetaOperator * getOperator(cpgf::GMetaOpType op, const cpgf::GApiScopedPointer<cpgf::IMetaClass> & metaClass, int index = 0)
 {
 	for(unsigned int i = 0; i < metaClass->getOperatorCount(); ++i) {
-		cpgf::GMetaScopedPointer<cpgf::IMetaOperator> meta(metaClass->getOperatorAt(i));
+		cpgf::GApiScopedPointer<cpgf::IMetaOperator> meta(metaClass->getOperatorAt(i));
 
 		if(meta->getOperator() == op) {
 			if(index <= 0) {

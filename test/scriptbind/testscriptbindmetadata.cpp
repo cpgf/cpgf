@@ -11,7 +11,7 @@ void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
 {
 	using namespace cpgf;
 
-	GMetaScopedPointer<IMetaClass> metaClass;
+	GApiScopedPointer<IMetaClass> metaClass;
 	
 	metaClass.reset(service->findClassByName("testscript::TestObject"));
 	GCHECK(metaClass);
@@ -59,6 +59,14 @@ GMETA_DEFINE_CLASS(TestObject, TestObject, "testscript::TestObject") {
 	
 	reflectMethod("methodConstVolatile", (int (TestObject::*)())&TestObject::methodConstVolatile);
 	reflectMethod("methodConstVolatile", (int (TestObject::*)() const volatile)&TestObject::methodConstVolatile);
+
+	reflectMethod("methodOverload", (int (TestObject::*)(const TestObject &, int) const)&TestObject::methodOverload);
+	reflectMethod("methodOverload", (int (TestObject::*)(int, const TestObject &) const)&TestObject::methodOverload);
+	reflectMethod("methodOverload", (int (TestObject::*)(int, int) const)&TestObject::methodOverload);
+	reflectMethod("methodOverload", (int (TestObject::*)(const char *, int) const)&TestObject::methodOverload);
+	reflectMethod("methodOverload", (int (TestObject::*)(int, const char *) const)&TestObject::methodOverload);
+	reflectMethod("methodOverload", (int (TestObject::*)(const string &, int) const)&TestObject::methodOverload);
+	reflectMethod("methodOverload", (int (TestObject::*)(int, const string &) const)&TestObject::methodOverload);
 }
 
 

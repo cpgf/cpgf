@@ -11,7 +11,7 @@ GTEST(global)
 
 	TestLuaContext * context = getLuaContext();
 
-	GMetaScopedPointer<IMetaClass> metaClass(context->getService()->findClassByName("testscript::TestData"));
+	GApiScopedPointer<IMetaClass> metaClass(context->getService()->findClassByName("testscript::TestData"));
 	GCHECK(metaClass);
 	
 	GScopedPointer<TestData> data(new TestData);

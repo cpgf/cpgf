@@ -117,14 +117,14 @@ void testItem(cpgf::IMetaItem * item)
 
 	bool foundAttribute = false;
 	for(unsigned int i = 0; i < item->getAnnotationCount(); ++i) {
-		GMetaScopedPointer<IMetaAnnotation> anno(item->getAnnotationAt(i));
+		GApiScopedPointer<IMetaAnnotation> anno(item->getAnnotationAt(i));
 
-		GMetaScopedPointer<IMetaItem> tempItem(anno->getMetaItem());
+		GApiScopedPointer<IMetaItem> tempItem(anno->getMetaItem());
 
 		if(string(anno->getName()) == "attribute") {
 			foundAttribute = true;
 
-			GMetaScopedPointer<IMetaAnnotationValue> value;
+			GApiScopedPointer<IMetaAnnotationValue> value;
 
 			value.reset(anno->getValue("name")); testCheckAssert(value);
 			testCheckAssert(!! value->canToWideString());
@@ -168,10 +168,10 @@ void doTestAPI()
 	using namespace cpgf;
 	using namespace std;
 
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	testCheckAssert(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName("annotation::TestObject"));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName("annotation::TestObject"));
 	testCheckAssert(metaClass);
 
 	std::cout << "API: " << metaClass->getName() << std::endl;
@@ -181,7 +181,7 @@ void doTestAPI()
 	testItem(metaClass.get());
 
 	for(unsigned int i = 0; i < metaClass->getMetaCount(); ++i) {
-		GMetaScopedPointer<IMetaItem> temp(metaClass->getMetaAt(i));
+		GApiScopedPointer<IMetaItem> temp(metaClass->getMetaAt(i));
 		testItem(temp.get());
 	}
 

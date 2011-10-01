@@ -22,18 +22,18 @@ enum GVariantType {
 	vtEmpty = 0,
 	vtVoid = 1,
 
-	vtPrimaryBegin = 2,
-	vtIntegerBegin = vtPrimaryBegin,
-	vtBool = vtPrimaryBegin,
-	vtChar = vtPrimaryBegin + 1, vtWchar = vtPrimaryBegin + 2,
-	vtSignedChar = vtPrimaryBegin + 3, vtUnsignedChar = vtPrimaryBegin + 4,
-	vtSignedShort = vtPrimaryBegin + 5, vtUnsignedShort = vtPrimaryBegin + 6,
-	vtSignedInt = vtPrimaryBegin + 7, vtUnsignedInt = vtPrimaryBegin + 8,
-	vtSignedLong = vtPrimaryBegin + 9, vtUnsignedLong = vtPrimaryBegin + 10,
-	vtSignedLongLong = vtPrimaryBegin + 11, vtUnsignedLongLong = vtPrimaryBegin + 12,
+	vtFundamentalBegin = 2,
+	vtIntegerBegin = vtFundamentalBegin,
+	vtBool = vtFundamentalBegin,
+	vtChar = vtFundamentalBegin + 1, vtWchar = vtFundamentalBegin + 2,
+	vtSignedChar = vtFundamentalBegin + 3, vtUnsignedChar = vtFundamentalBegin + 4,
+	vtSignedShort = vtFundamentalBegin + 5, vtUnsignedShort = vtFundamentalBegin + 6,
+	vtSignedInt = vtFundamentalBegin + 7, vtUnsignedInt = vtFundamentalBegin + 8,
+	vtSignedLong = vtFundamentalBegin + 9, vtUnsignedLong = vtFundamentalBegin + 10,
+	vtSignedLongLong = vtFundamentalBegin + 11, vtUnsignedLongLong = vtFundamentalBegin + 12,
 	vtIntegerEnd = vtUnsignedLongLong,
-	vtFloat = vtPrimaryBegin + 13, vtDouble = vtPrimaryBegin + 14, vtLongDouble = vtPrimaryBegin + 15,
-	vtPrimaryEnd = vtLongDouble,
+	vtFloat = vtFundamentalBegin + 13, vtDouble = vtFundamentalBegin + 14, vtLongDouble = vtFundamentalBegin + 15,
+	vtFundamentalEnd = vtLongDouble,
 
 	vtPointer = 30,
 	vtObject = 31, // is equivalent to unkown type
@@ -133,8 +133,8 @@ inline bool vtIsEmpty(int vt) {
 	return vt == vtEmpty;
 }
 
-inline bool vtIsPrimary(int vt) {
-	return vt >= vtPrimaryBegin && vt <= vtPrimaryEnd;
+inline bool vtIsFundamental(int vt) {
+	return vt >= vtFundamentalBegin && vt <= vtFundamentalEnd;
 }
 
 inline bool vtIsBoolean(int vt) {

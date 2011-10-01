@@ -53,13 +53,13 @@ GTEST(Lib_Exists)
 
 GTEST(API_Exists)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaEnum> en;
+	GApiScopedPointer<IMetaEnum> en;
 
 	ENUM(EnumFirst);
 	GCHECK(en);
@@ -86,13 +86,13 @@ GTEST(Lib_GetCount)
 
 GTEST(API_GetCount)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaEnum> en;
+	GApiScopedPointer<IMetaEnum> en;
 
 	ENUM(EnumFirst);
 	GEQUAL(en->getCount(), 4);
@@ -128,13 +128,13 @@ GTEST(Lib_GetKey)
 
 GTEST(API_GetKey)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaEnum> en;
+	GApiScopedPointer<IMetaEnum> en;
 
 	ENUM(EnumFirst);
 	GEQUAL(en->getKey(0), string("ws1"));
@@ -177,13 +177,13 @@ GTEST(Lib_GetValue)
 
 GTEST(API_GetValue)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaEnum> en;
+	GApiScopedPointer<IMetaEnum> en;
 
 	ENUM(EnumFirst);
 	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 0)), CLASS::ws1);
@@ -226,13 +226,13 @@ GTEST(Lib_FindKey)
 
 GTEST(API_FindKey)
 {
-	GMetaScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createMetaService());
 	GCHECK(service);
 
-	GMetaScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GMetaScopedPointer<IMetaEnum> en;
+	GApiScopedPointer<IMetaEnum> en;
 
 	ENUM(EnumFirst);
 	GEQUAL(en->findKey("ws1"), 0);
