@@ -24,7 +24,7 @@ using namespace std;
 	} \
 	catch(const GVariantException & e) { error(L, e.what()); __VA_ARGS__; } \
 	catch(const GMetaException & e) { error(L, e.what()); __VA_ARGS__; } \
-	catch(const GLuaException & e) { error(L, e.what()); __VA_ARGS__; } \
+	catch(const GScriptException & e) { error(L, e.what()); __VA_ARGS__; } \
 	catch(...) { error(L, "Unknown exception occurred."); __VA_ARGS__; }
 	
 	
@@ -98,15 +98,6 @@ namespace {
 		const GScriptConfig & config;
 	};
 
-	class GLuaException : public std::runtime_error {
-	private:
-		typedef std::runtime_error super;
-		
-	public:
-		GLuaException(const std::string & message) : super(message) {
-		}
-	};
-	
 	int handleError(const char * message, ...)
 	{
 		char buffer[4096];
@@ -118,7 +109,7 @@ namespace {
 
 		va_end (args);
 
-		throw GLuaException(std::string(buffer));
+		throw GScriptException(std::string(buffer));
 	}
 
 	class GLuaUserData

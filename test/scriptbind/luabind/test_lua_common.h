@@ -17,40 +17,74 @@ class TestLuaContext
 {
 public:
 	TestLuaContext() {
-		this->luaState = luaL_newstate();
-		luaL_openlibs(this->luaState);
 		this->service.reset(cpgf::createMetaService());
-		this->binding.reset(new cpgf::GLuaScriptObject(this->service.get(), this->luaState, cpgf::GScriptConfig()));
-		testscript::bindBasicData(this->binding.get(), this->service.get());
+
+		this->luaStateLib = luaL_newstate();
+		luaL_openlibs(this->luaStateLib);
+
+		this->bindingLib.reset(new cpgf::GLuaScriptObject(this->service.get(), this->luaStateLib, cpgf::GScriptConfig()));
+		testscript::bindBasicData(this->bindingLib.get(), this->service.get());
+
+		this->luaStateApi = luaL_newstate();
+		luaL_openlibs(this->luaStateApi);
+
+		this->bindingApi.reset(cpgf::createLuaScriptObject(this->service.get(), this->luaStateApi, cpgf::GScriptConfig()));
+		testscript::bindBasicData(this->bindingApi.get(), this->service.get());
 	}
 
 	~TestLuaContext() {
-		lua_close(this->luaState);
+		lua_close(this->luaStateLib);
+		lua_close(this->luaStateApi);
 	}
 
 	cpgf::IMetaService * getService() const {
 		return this->service.get();
 	}
 
-	lua_State * getLua() const {
-		return this->luaState;
+	lua_State * getLuaLib() const {
+		return this->luaStateLib;
 	}
 
-	cpgf::GLuaScriptObject * getBinding() const {
-		return this->binding.get();
+	lua_State * getLuaApi() const {
+		return this->luaStateApi;
+	}
+
+	cpgf::GLuaScriptObject * getBindingLib() const {
+		return this->bindingLib.get();
+	}
+
+	cpgf::IScriptObject * getBindingApi() const {
+		this->bindingApi->addReference();
+		return this->bindingApi.get();
+	}
+
+	bool doLib(const char * code) const {
+		luaL_loadstring(this->luaStateLib, code);
+		lua_call(this->luaStateLib, 0, LUA_MULTRET);
+
+		return true;
+	}
+
+	bool doApi(const char * code) const {
+		luaL_loadstring(this->luaStateApi, code);
+		lua_call(this->luaStateApi, 0, LUA_MULTRET);
+
+		return true;
 	}
 
 	bool doString(const char * code) const {
-		luaL_loadstring(this->luaState, code);
-		lua_call(this->luaState, 0, LUA_MULTRET);
+		this->doLib(code);
+		this->doApi(code);
 
 		return true;
 	}
 
 private:
-	lua_State * luaState;
 	cpgf::GApiScopedPointer<cpgf::IMetaService> service;
-	cpgf::GScopedPointer<cpgf::GLuaScriptObject> binding;
+	lua_State * luaStateLib;
+	lua_State * luaStateApi;
+	cpgf::GScopedPointer<cpgf::GLuaScriptObject> bindingLib;
+	cpgf::GApiScopedPointer<cpgf::IScriptObject> bindingApi;
 };
 
 inline TestLuaContext * getLuaContext()

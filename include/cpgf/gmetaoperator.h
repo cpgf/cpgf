@@ -756,12 +756,7 @@ public:
 		: super(meta_internal::operatorToName(baseData->getOperator()).c_str(), baseData->createOperatorMetaType(), mcatOperator), baseData(baseData) {
 	}
 
-	~GMetaOperator() {
-	}
-
-	GMetaOpType getOperator() const {
-		return this->baseData->getOperator();
-	}
+	GMetaOpType getOperator() const;
 
 	virtual size_t getParamCount() const;
 	virtual GMetaType getParamType(size_t index) const;

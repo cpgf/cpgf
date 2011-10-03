@@ -17,6 +17,17 @@
 #define EXCEPT_VARIANT(...) GBEGIN_EXCEPTION __VA_ARGS__; GEND_EXCEPTION(const GVariantException &)
 
 
+#define NAME(cls) GPP_STRINGIZE(cls)
+
+#define FIELD(f) pointerAssign(field, metaClass->getField(# f))
+#define METHOD(f) pointerAssign(method, metaClass->getMethod(# f))
+#define OPERA(f) pointerAssign(opera, metaClass->getOperator(f))
+
+#define FIELD_HI(f) pointerAssign(field, metaClass->getFieldInHierarchy(# f, &pobj))
+#define METHOD_HI(f) pointerAssign(method, metaClass->getMethodInHierarchy(# f, &pobj))
+#define OPERA_HI(f) pointerAssign(opera, metaClass->getOperatorInHierarchy(f, &pobj))
+
+
 struct CLASS_DATA {
 	CLASS_DATA() : s(""), i(0) {
 	}
@@ -46,6 +57,10 @@ struct CLASS_DATA {
 
 inline const cpgf::GMetaOperator * getOperator(cpgf::GMetaOpType op, const cpgf::GMetaClass * metaClass, int index = 0)
 {
+	if(index == 0) {
+		return metaClass->getOperator(op);
+	}
+	
 	for(unsigned int i = 0; i < metaClass->getOperatorCount(); ++i) {
 		const cpgf::GMetaOperator * meta = metaClass->getOperatorAt(i);
 
@@ -63,6 +78,10 @@ inline const cpgf::GMetaOperator * getOperator(cpgf::GMetaOpType op, const cpgf:
 
 inline cpgf::IMetaOperator * getOperator(cpgf::GMetaOpType op, const cpgf::GApiScopedPointer<cpgf::IMetaClass> & metaClass, int index = 0)
 {
+	if(index == 0) {
+		return metaClass->getOperator(op);
+	}
+	
 	for(unsigned int i = 0; i < metaClass->getOperatorCount(); ++i) {
 		cpgf::GApiScopedPointer<cpgf::IMetaOperator> meta(metaClass->getOperatorAt(i));
 

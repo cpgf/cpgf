@@ -40,8 +40,8 @@ class GMetaFieldDataGlobal : public GMetaFieldDataBase
 {
 private:
 	enum {
-		readable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidRead>::Result,
-		writable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidWrite>::Result
+		Readable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidRead>::Result,
+		Writable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidWrite>::Result
 	};
 
 public:
@@ -52,11 +52,11 @@ public:
 	}
 
 	virtual bool canGet() const {
-		return readable;
+		return Readable;
 	}
 
 	virtual bool canSet() const {
-		return writable;
+		return Writable;
 	}
 
 	virtual GVariant get(void * instance) const {
@@ -82,13 +82,13 @@ public:
 
 private:	
 	template <typename T>
-	GVariant  doGet(typename GEnableIf<readable, T>::Result * instance) const {
+	GVariant  doGet(typename GEnableIf<Readable, T>::Result * instance) const {
 		(void)instance;
 		return GVariant(deduceVariantType<FT>(true), *(this->field));
 	}
 
 	template <typename T>
-	GVariant  doGet(typename GDisableIf<readable, T>::Result * instance) const {
+	GVariant  doGet(typename GDisableIf<Readable, T>::Result * instance) const {
 		(void)instance;
 
 		meta_internal::handleForbidAccessError(true);
@@ -97,13 +97,13 @@ private:
 	}
 
 	template <typename T>
-	void doSet(typename GEnableIf<writable, T>::Result * instance, const GVariant & value) const {
+	void doSet(typename GEnableIf<Writable, T>::Result * instance, const GVariant & value) const {
 		(void)instance;
 		*(this->field) = fromVariant<FT>(value);
 	}
 
 	template <typename T>
-	void doSet(typename GDisableIf<writable, T>::Result * instance, const GVariant & value) const {
+	void doSet(typename GDisableIf<Writable, T>::Result * instance, const GVariant & value) const {
 		(void)instance;
 		(void)value;
 
@@ -119,8 +119,8 @@ class GMetaFieldDataMember : public GMetaFieldDataBase
 {
 private:
 	enum {
-		readable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidRead>::Result,
-		writable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidWrite>::Result
+		Readable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidRead>::Result,
+		Writable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidWrite>::Result
 	};
 
 public:
@@ -131,11 +131,11 @@ public:
 	}
 
 	virtual bool canGet() const {
-		return readable;
+		return Readable;
 	}
 
 	virtual bool canSet() const {
-		return writable;
+		return Writable;
 	}
 
 	virtual GVariant get(void * instance) const {
@@ -160,12 +160,12 @@ public:
 
 private:
 	template <typename T>
-	GVariant  doGet(typename GEnableIf<readable, T>::Result * instance) const {
+	GVariant  doGet(typename GEnableIf<Readable, T>::Result * instance) const {
 		return GVariant(deduceVariantType<FT>(true), static_cast<OT *>(instance)->*(this->field));
 	}
 
 	template <typename T>
-	GVariant  doGet(typename GDisableIf<readable, T>::Result * instance) const {
+	GVariant  doGet(typename GDisableIf<Readable, T>::Result * instance) const {
 		(void)instance;
 
 		meta_internal::handleForbidAccessError(true);
@@ -174,12 +174,12 @@ private:
 	}
 
 	template <typename T>
-	void doSet(typename GEnableIf<writable, T>::Result * instance, const GVariant & value) const {
+	void doSet(typename GEnableIf<Writable, T>::Result * instance, const GVariant & value) const {
 		static_cast<OT *>(instance)->*(this->field) = fromVariant<FT>(value);
 	}
 
 	template <typename T>
-	void doSet(typename GDisableIf<writable, T>::Result * instance, const GVariant & value) const {
+	void doSet(typename GDisableIf<Writable, T>::Result * instance, const GVariant & value) const {
 		(void)instance;
 		(void)value;
 
@@ -209,9 +209,6 @@ public:
 	GMetaField(const char * name, FT * field, const Policy &)
 		: super(name, createMetaType<FT>(), mcatField), baseData(new meta_internal::GMetaFieldDataGlobal<FT, Policy>(field)) {
 		this->addModifier(metaModifierStatic);
-	}
-
-	~GMetaField() {
 	}
 
 	virtual bool canGet() const;

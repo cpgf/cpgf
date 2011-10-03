@@ -89,60 +89,21 @@ private:
 	typedef GMetaTypedItem super;
 
 public:
-	GMetaEnum(const char * name, const GMetaType & itemType, meta_internal::GMetaEnumData * baseData)
-		: super(name, itemType, mcatEnum), baseData(baseData) {
-	}
+	GMetaEnum(const char * name, const GMetaType & itemType, meta_internal::GMetaEnumData * baseData);
 
-	~GMetaEnum() {
-	}
+	virtual size_t getTypeSize() const;
+	size_t getCount() const;
+	const char * getKey(size_t index) const;
+	GVariant getValue(size_t index) const;
+	int findKey(const char * key) const;
 
-	virtual size_t getTypeSize() const {
-		return this->baseData->getTypeSize();
-	}
+	GMetaEnum & operator () (const char * key, long long value);
 
-	size_t getCount() const {
-		return this->baseData->getCount();
-	}
-
-	const char * getKey(size_t index) const {
-		return this->baseData->getKey(index);
-	}
-
-	GVariant getValue(size_t index) const {
-		return this->baseData->getValue(index);
-	}
-
-	int findKey(const char * key) const {
-		return this->baseData->findKey(key);
-	}
-
-	GMetaEnum & operator () (const char * key, long long value) {
-		this->baseData->addEnum(key, value);
-
-		return *this;
-	}
-
-	virtual void * createInstance() const {
-		return this->baseData->createInstance();
-	}
-	
-	virtual void * createInplace(void * placement) const {
-		return this->baseData->createInplace(placement);
-	}
-	
-	virtual void * cloneInstance(void * instance) const {
-		return this->baseData->cloneInstance(instance);
-	}
-	
-	virtual void * cloneInplace(void * instance, void * placement) const {
-		return this->baseData->cloneInplace(instance, placement);
-	}
-	
-
-	virtual void destroyInstance(void * instance) const {
-		this->baseData->destroyInstance(instance);
-	}
-	
+	virtual void * createInstance() const;
+	virtual void * createInplace(void * placement) const;
+	virtual void * cloneInstance(void * instance) const;
+	virtual void * cloneInplace(void * instance, void * placement) const;
+	virtual void destroyInstance(void * instance) const;
 	
 private:
 	GScopedPointer<meta_internal::GMetaEnumData> baseData;

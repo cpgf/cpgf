@@ -23,6 +23,11 @@ std::string operatorToName(GMetaOpType op) {
 } // namespace meta_internal
 
 
+GMetaOpType GMetaOperator::getOperator() const
+{
+	return this->baseData->getOperator();
+}
+
 size_t GMetaOperator::getParamCount() const
 {
 	return this->baseData->getParamCount();

@@ -14,18 +14,33 @@ GTEST(global)
 	GApiScopedPointer<IMetaClass> metaClass(context->getService()->findClassByName("testscript::TestData"));
 	GCHECK(metaClass);
 	
-	GScopedPointer<TestData> data(new TestData);
-	data->x = 10;
-	data->name = "abc";
+	GScopedPointer<TestData> dataLib(new TestData);
+	GScopedPointer<TestData> dataApi(new TestData);
+	dataLib->x = 10;
+	dataLib->name = "abc";
+	dataApi->x = 10;
+	dataApi->name = "abc";
 
-	context->getBinding()->setObject("data", data.get(), metaClass.get(), false);
-	context->doString("assert(data.x == 10)");
-	context->doString("assert(data.name == \"abc\")");
+	GApiScopedPointer<IScriptName> scriptName;
+	cpgf::GApiScopedPointer<cpgf::IScriptObject> bindingApi(context->getBindingApi());
 
-	context->doString("data.x = data.x + 1");
-	GEQUAL(data->x, 11);
+	context->getBindingLib()->setObject("data", dataLib.get(), metaClass.get(), false);
 	
-	context->getBinding()->nullifyValue("data");
+	scriptName.reset(context->getBindingApi()->createName("data"));
+	bindingApi->setObject(scriptName.get(), dataApi.get(), metaClass.get(), false);
+	
+	context->doString(
+		LINE(assert(data.x == 10))
+		LINE(assert(data.name == "abc"))
+		LINE(data.x = data.x + 1)
+	);
+
+	GEQUAL(dataLib->x, 11);
+	GEQUAL(dataApi->x, 11);
+	
+	context->getBindingLib()->nullifyValue("data");
+	scriptName.reset(context->getBindingApi()->createName("data"));
+	bindingApi->nullifyValue(scriptName.get());
 	context->doString("assert(data == nil)");
 }
 

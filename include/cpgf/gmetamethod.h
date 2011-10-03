@@ -269,9 +269,6 @@ public:
 		: super(name, itemType, mcatMethod), baseData(new meta_internal::GMetaMethodData<CT, Policy>(callback, policy)) {
 	}
 
-	~GMetaMethod() {
-	}
-
 	virtual GMetaType getParamType(size_t index) const;
 	virtual size_t getParamCount() const;
 	virtual bool hasResult() const;
@@ -288,12 +285,11 @@ public:
 	
 	virtual GMetaConverter * createResultConverter() const;
 
-#define REF_CALL(N, unused) \
-	GVariant invoke(void * instance GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, const GVariant & p)) const;
+#define REF_INVOKE(N, unused) GVariant invoke(void * instance GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, const GVariant & p)) const;
 
-	GPP_REPEAT_2(REF_MAX_ARITY, REF_CALL, GPP_EMPTY)
+	GPP_REPEAT_2(REF_MAX_ARITY, REF_INVOKE, GPP_EMPTY)
 
-#undef REF_CALL
+#undef REF_INVOKE
 
 protected:
 	GScopedPointer<meta_internal::GMetaMethodDataBase> baseData;
@@ -309,9 +305,6 @@ public:
 	GMetaConstructor(const CT & callback, const Policy & policy)
 		: super(meta_internal::arityToName(CT::TraitsType::Arity).c_str(), createMetaType<typename CT::TraitsType::FullType>(), mcatConstructor),
 			baseData(new meta_internal::GMetaMethodData<CT, Policy>(callback, policy)) {
-	}
-
-	~GMetaConstructor () {
 	}
 
 	virtual GMetaType getParamType(size_t index) const;

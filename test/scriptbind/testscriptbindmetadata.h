@@ -4,6 +4,7 @@
 
 #include "testscriptbind.h"
 #include "cpgf/scriptbind/gscriptbind.h"
+#include "cpgf/scriptbind/gscriptbindapi.h"
 
 
 #include <string.h>
@@ -121,6 +122,7 @@ public:
 
 
 void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service);
+void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service);
 
 
 

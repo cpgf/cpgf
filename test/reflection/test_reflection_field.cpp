@@ -3,8 +3,6 @@
 #define CLASS TestClass_Field
 #define NAME_CLASS GPP_STRINGIZE(CLASS)
 
-#define FIELD(f) pointerAssign(field, metaClass->getField(# f))
-
 using namespace std;
 using namespace cpgf;
 

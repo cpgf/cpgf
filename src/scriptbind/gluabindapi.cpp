@@ -4,15 +4,15 @@
 #include "../pinclude/gapiimpl.h"
 
 
-#define ENTER_META_API() \
+#define ENTER_BINDING_API() \
 	this->clearError(); \
 	try {
 
-#define LEAVE_META_API(...) \
+#define LEAVE_BINDING_API(...) \
 	} \
 	catch(const GVariantException & e) { this->handleError(metaError_VariantCastFail, e.what()); __VA_ARGS__; } \
-	catch(const GMetaException & e) { this->handleError(e.getErrorCode(), e.what()); __VA_ARGS__; }
-
+	catch(const GMetaException & e) { this->handleError(e.getErrorCode(), e.what()); __VA_ARGS__; } \
+	catch(const GScriptException & e) { this->handleError(e.getErrorCode(), e.what()); __VA_ARGS__; }
 
 #define IMPL_BASE \
 	virtual uint32_t G_API_CC unused_queryInterface(void *, void *) { return 0; } \
@@ -59,7 +59,7 @@ private:
 class ImplScriptName : public ImplApiObject, public IScriptName
 {
 public:
-	ImplScriptName(const char * name);
+	ImplScriptName(GScriptName * scriptName);
 	
 protected:
 	IMPL_BASE
@@ -68,7 +68,7 @@ protected:
 	virtual const char * G_API_CC getName();
 	
 private:
-	GScriptName scriptName;
+	GScopedPointer<GScriptName> scriptName;
 
 private:
 	friend class ImplScriptObject;
@@ -87,6 +87,7 @@ protected:
 	virtual IScriptObject * G_API_CC getOwner();
 	virtual gapi_bool G_API_CC isGlobal();
 
+	virtual IScriptName * G_API_CC createName(const char * name);
 	virtual gapi_bool G_API_CC cacheName(IScriptName * name);
 
 	virtual uint32_t G_API_CC getType(IScriptName * name);
@@ -120,7 +121,7 @@ protected:
 
 private:
 	GScriptName & unwrapScriptName(IScriptName * scriptName) {
-		return static_cast<ImplScriptName *>(scriptName)->scriptName;
+		return *static_cast<ImplScriptName *>(scriptName)->scriptName.get();
 	}
 	
 private:
@@ -179,13 +180,13 @@ gapi_bool G_API_CC ImplScriptConfig::allowAccessClassViaInstance()
 
 
 
-ImplScriptName::ImplScriptName(const char * name) : scriptName(name)
+ImplScriptName::ImplScriptName(GScriptName * scriptName) : scriptName(scriptName)
 {
 }
 	
 const char * G_API_CC ImplScriptName::getName()
 {
-	return this->scriptName.getName();
+	return this->scriptName->getName();
 }
 
 
@@ -201,6 +202,8 @@ IScriptConfig * G_API_CC ImplScriptObject::getConfig()
 
 IScriptObject * G_API_CC ImplScriptObject::getOwner()
 {
+	ENTER_BINDING_API()
+
 	GScriptObject * owner = this->scriptObject->getOwner();
 	if(owner == NULL) {
 		return NULL;
@@ -208,35 +211,68 @@ IScriptObject * G_API_CC ImplScriptObject::getOwner()
 	else {
 		return new ImplScriptObject(owner);
 	}
+
+	LEAVE_BINDING_API(return NULL)
 }
 
 gapi_bool G_API_CC ImplScriptObject::isGlobal()
 {
+	ENTER_BINDING_API()
+
 	return this->scriptObject->isGlobal();
+
+	LEAVE_BINDING_API(return false)
+}
+
+IScriptName * G_API_CC ImplScriptObject::createName(const char * name)
+{
+	ENTER_BINDING_API()
+
+	return new ImplScriptName(new GScriptName(name));
+
+	LEAVE_BINDING_API(return NULL)
 }
 
 gapi_bool G_API_CC ImplScriptObject::cacheName(IScriptName * name)
 {
+	ENTER_BINDING_API()
+
 	return this->scriptObject->cacheName(&this->unwrapScriptName(name));
+
+	LEAVE_BINDING_API(return false)
 }
 
 uint32_t G_API_CC ImplScriptObject::getType(IScriptName * name)
 {
+	ENTER_BINDING_API()
+
 	return this->scriptObject->getType(this->unwrapScriptName(name));
+
+	LEAVE_BINDING_API(return sdtUnknown)
 }
 
 void G_API_CC ImplScriptObject::bindClass(IScriptName * name, IMetaClass * metaClass)
 {
+	ENTER_BINDING_API()
+
 	this->scriptObject->bindClass(this->unwrapScriptName(name), metaClass);
+
+	LEAVE_BINDING_API()
 }
 
 void G_API_CC ImplScriptObject::bindEnum(IScriptName * name, IMetaEnum * metaEnum)
 {
+	ENTER_BINDING_API()
+
 	this->scriptObject->bindEnum(this->unwrapScriptName(name), metaEnum);
+
+	LEAVE_BINDING_API()
 }
 
 IScriptObject * G_API_CC ImplScriptObject::createScriptObject(IScriptName * name)
 {
+	ENTER_BINDING_API()
+
 	GScriptObject * obj = this->scriptObject->createScriptObject(this->unwrapScriptName(name));
 	if(obj == NULL) {
 		return NULL;
@@ -244,10 +280,14 @@ IScriptObject * G_API_CC ImplScriptObject::createScriptObject(IScriptName * name
 	else {
 		return new ImplScriptObject(obj);
 	}
+
+	LEAVE_BINDING_API(return NULL)
 }
 
 void G_API_CC ImplScriptObject::callIndirectly(IScriptName * name, GVarData * outResult, GVarData const * const * params, uint32_t paramCount)
 {
+	ENTER_BINDING_API()
+
 	GVariant paramVariants[REF_MAX_ARITY];
 	const GVariant * paramIndirect[REF_MAX_ARITY];
 
@@ -260,10 +300,14 @@ void G_API_CC ImplScriptObject::callIndirectly(IScriptName * name, GVarData * ou
 	if(outResult) {
 		*outResult = result.takeData();
 	}
+
+	LEAVE_BINDING_API()
 }
 
 void G_API_CC ImplScriptObject::call(IScriptName * name, GVarData * outResult, const GVarData * params, uint32_t paramCount)
 {
+	ENTER_BINDING_API()
+
 	const GVarData * paramIndirect[REF_MAX_ARITY];
 
 	for(uint32_t i = 0; i < paramCount; ++i) {
@@ -271,35 +315,59 @@ void G_API_CC ImplScriptObject::call(IScriptName * name, GVarData * outResult, c
 	}
 
 	this->callIndirectly(name, outResult, paramIndirect, paramCount);
+
+	LEAVE_BINDING_API()
 }
 
 void G_API_CC ImplScriptObject::setFundamental(IScriptName * name, const GVarData * value)
 {
+	ENTER_BINDING_API()
+
 	this->scriptObject->setFundamental(this->unwrapScriptName(name), GVariant(*value));
+
+	LEAVE_BINDING_API()
 }
 
 void G_API_CC ImplScriptObject::setString(IScriptName * stringName, const char * s)
 {
+	ENTER_BINDING_API()
+
 	this->scriptObject->setString(this->unwrapScriptName(stringName), s);
+
+	LEAVE_BINDING_API()
 }
 
 void G_API_CC ImplScriptObject::setObject(IScriptName * objectName, void * instance, IMetaClass * type, gapi_bool transferOwnership)
 {
+	ENTER_BINDING_API()
+
 	this->scriptObject->setObject(this->unwrapScriptName(objectName), instance, type, !! transferOwnership);
+
+	LEAVE_BINDING_API()
 }
 
 void G_API_CC ImplScriptObject::setMethod(IScriptName * name, void * instance, IMetaMethod * method)
 {
+	ENTER_BINDING_API()
+
 	this->scriptObject->setMethod(this->unwrapScriptName(name), instance, method);
+
+	LEAVE_BINDING_API()
 }
 
 void G_API_CC ImplScriptObject::getFundamental(IScriptName * name, GVarData * outResult)
 {
+	ENTER_BINDING_API()
+
 	*outResult = this->scriptObject->getFundamental(this->unwrapScriptName(name)).takeData();
+
+	LEAVE_BINDING_API()
 }
 
 char * G_API_CC ImplScriptObject::getString(IScriptName * stringName)
 {
+	ENTER_BINDING_API()
+
 	GApiScopedPointer<IMetaService> service(createMetaService());
 	
 	std::string s = this->scriptObject->getString(this->unwrapScriptName(stringName));
@@ -307,46 +375,80 @@ char * G_API_CC ImplScriptObject::getString(IScriptName * stringName)
 	memmove(cs, s.c_str(), s.length() + 1);
 	
 	return static_cast<char *>(cs);
+
+	LEAVE_BINDING_API(return NULL)
 }
 
 void * G_API_CC ImplScriptObject::getObject(IScriptName * objectName)
 {
+	ENTER_BINDING_API()
+
 	return this->scriptObject->getObject(this->unwrapScriptName(objectName));
+
+	LEAVE_BINDING_API(return NULL)
 }
 
 IMetaClass * G_API_CC ImplScriptObject::getObjectType(IScriptName * objectName)
 {
+	ENTER_BINDING_API()
+
 	return this->scriptObject->getObjectType(this->unwrapScriptName(objectName));
+
+	LEAVE_BINDING_API(return NULL)
 }
 
 IMetaClass * G_API_CC ImplScriptObject::getClass(IScriptName * className)
 {
+	ENTER_BINDING_API()
+
 	return this->scriptObject->getClass(this->unwrapScriptName(className));
+
+	LEAVE_BINDING_API(return NULL)
 }
 
 IMetaMethod * G_API_CC ImplScriptObject::getMethod(IScriptName * methodName)
 {
+	ENTER_BINDING_API()
+
 	return this->scriptObject->getMethod(this->unwrapScriptName(methodName));
+
+	LEAVE_BINDING_API(return NULL)
 }
 
 IMetaEnum * G_API_CC ImplScriptObject::getEnum(IScriptName * enumName)
 {
+	ENTER_BINDING_API()
+
 	return this->scriptObject->getEnum(this->unwrapScriptName(enumName));
+
+	LEAVE_BINDING_API(return NULL)
 }
 
 void G_API_CC ImplScriptObject::assignValue(IScriptName * fromName, IScriptName * toName)
 {
+	ENTER_BINDING_API()
+
 	this->scriptObject->assignValue(this->unwrapScriptName(fromName), this->unwrapScriptName(toName));
+
+	LEAVE_BINDING_API()
 }
 
 gapi_bool G_API_CC ImplScriptObject::valueIsNull(IScriptName * name)
 {
+	ENTER_BINDING_API()
+
 	return this->scriptObject->valueIsNull(this->unwrapScriptName(name));
+
+	LEAVE_BINDING_API(return false)
 }
 
 void G_API_CC ImplScriptObject::nullifyValue(IScriptName * name)
 {
+	ENTER_BINDING_API()
+
 	this->scriptObject->nullifyValue(this->unwrapScriptName(name));
+
+	LEAVE_BINDING_API()
 }
 
 	

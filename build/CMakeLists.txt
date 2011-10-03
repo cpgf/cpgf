@@ -81,6 +81,7 @@ set(SRC_META
 	${SRC_PATH}/gmetaconverter.cpp
 	${SRC_PATH}/gmetaenum.cpp
 	${SRC_PATH}/gmetafield.cpp
+	${SRC_PATH}/gmetafundamental.cpp
 	${SRC_PATH}/gmetamethod.cpp
 	${SRC_PATH}/gmetaoperator.cpp
 	${SRC_PATH}/gmetaproperty.cpp
@@ -100,6 +101,7 @@ set(SRC_LUABIND )
 if(${HAS_LUA})
 	set(SRC_LUABIND
 		${SRC_PATH}/scriptbind/gbindcommon.cpp
+		${SRC_PATH}/scriptbind/gscriptbind.cpp
 		${SRC_PATH}/scriptbind/gluabind.cpp
 		${SRC_PATH}/scriptbind/gluabindapi.cpp
 	)

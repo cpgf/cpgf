@@ -192,4 +192,69 @@ void GMetaEnumData::destroyInstance(void * instance) const
 
 
 
+GMetaEnum::GMetaEnum(const char * name, const GMetaType & itemType, meta_internal::GMetaEnumData * baseData)
+	: super(name, itemType, mcatEnum), baseData(baseData)
+{
+}
+
+size_t GMetaEnum::getTypeSize() const
+{
+	return this->baseData->getTypeSize();
+}
+
+size_t GMetaEnum::getCount() const
+{
+	return this->baseData->getCount();
+}
+
+const char * GMetaEnum::getKey(size_t index) const
+{
+	return this->baseData->getKey(index);
+}
+
+GVariant GMetaEnum::getValue(size_t index) const
+{
+	return this->baseData->getValue(index);
+}
+
+int GMetaEnum::findKey(const char * key) const
+{
+	return this->baseData->findKey(key);
+}
+
+GMetaEnum & GMetaEnum::operator () (const char * key, long long value)
+{
+	this->baseData->addEnum(key, value);
+
+	return *this;
+}
+
+void * GMetaEnum::createInstance() const
+{
+	return this->baseData->createInstance();
+}
+
+void * GMetaEnum::createInplace(void * placement) const
+{
+	return this->baseData->createInplace(placement);
+}
+
+void * GMetaEnum::cloneInstance(void * instance) const
+{
+	return this->baseData->cloneInstance(instance);
+}
+
+void * GMetaEnum::cloneInplace(void * instance, void * placement) const
+{
+	return this->baseData->cloneInplace(instance, placement);
+}
+
+
+void GMetaEnum::destroyInstance(void * instance) const
+{
+	this->baseData->destroyInstance(instance);
+}
+
+
+
 } // namespace cpgf

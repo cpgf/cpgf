@@ -479,9 +479,6 @@ public:
 		: super(name, meta_internal::createPropertyType<Getter, Setter, Policy>(), mcatProperty), baseData(new meta_internal::GMetaPropertyData<Getter, Setter, Policy>(getter, setter)) {
 	}
 
-	~GMetaProperty() {
-	}
-
 	virtual bool canGet() const;
 	virtual bool canSet() const;
 

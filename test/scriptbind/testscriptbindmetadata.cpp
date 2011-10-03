@@ -29,6 +29,42 @@ void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
 }
 
 
+void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
+{
+	using namespace cpgf;
+
+	GApiScopedPointer<IMetaClass> metaClass;
+	
+	metaClass.reset(service->findClassByName("testscript::TestObject"));
+	GCHECK(metaClass);
+	
+	GApiScopedPointer<IScriptName> scriptName;
+
+	scriptName.reset(script->createName("TestObject"));
+	script->bindClass(scriptName.get(), metaClass.get());
+	
+	metaClass.reset(service->findClassByName("testscript::TestData"));
+	GCHECK(metaClass);
+
+	scriptName.reset(script->createName("TestData"));
+	script->bindClass(scriptName.get(), metaClass.get());
+
+	GVariant v;
+
+	v = Magic1;
+	scriptName.reset(script->createName("Magic1"));
+	script->setFundamental(scriptName.get(), &v.data);
+	
+	v = Magic2;
+	scriptName.reset(script->createName("Magic2"));
+	script->setFundamental(scriptName.get(), &v.data);
+	
+	v = Magic3;
+	scriptName.reset(script->createName("Magic3"));
+	script->setFundamental(scriptName.get(), &v.data);
+}
+
+
 GMETA_DEFINE_CLASS(TestData, TestData, "testscript::TestData") {
 	using namespace cpgf;
 

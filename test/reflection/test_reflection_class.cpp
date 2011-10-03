@@ -1,7 +1,5 @@
 #include "test_reflection_common.h"
 
-#define NAME(cls) GPP_STRINGIZE(cls)
-
 using namespace std;
 using namespace cpgf;
 

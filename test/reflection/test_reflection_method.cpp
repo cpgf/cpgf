@@ -3,8 +3,6 @@
 #define CLASS TestClass_Method
 #define NAME_CLASS GPP_STRINGIZE(CLASS)
 
-#define METHOD(f) pointerAssign(method, metaClass->getMethod(# f))
-
 using namespace std;
 using namespace cpgf;
 

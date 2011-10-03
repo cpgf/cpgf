@@ -184,14 +184,14 @@ struct IMetaCallable : public IMetaItem
 
 struct IMetaMethod : public IMetaCallable
 {
-	virtual void G_API_CC call(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount) = 0;
-	virtual void G_API_CC callIndirectly(GVarData * outResult, void * instance, GVarData const * const * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invoke(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeIndirectly(GVarData * outResult, void * instance, GVarData const * const * params, uint32_t paramCount) = 0;
 };
 
 struct IMetaConstructor : public IMetaCallable
 {
-	virtual void * G_API_CC call(const GVarData * params, uint32_t paramCount) = 0;
-	virtual void * G_API_CC callIndirectly(GVarData const * const * params, uint32_t paramCount) = 0;
+	virtual void * G_API_CC invoke(const GVarData * params, uint32_t paramCount) = 0;
+	virtual void * G_API_CC invokeIndirectly(GVarData const * const * params, uint32_t paramCount) = 0;
 };
 
 struct IMetaOperator : public IMetaCallable

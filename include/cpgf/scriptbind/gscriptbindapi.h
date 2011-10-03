@@ -45,6 +45,7 @@ struct IScriptObject : public IApiObject
 	virtual IScriptObject * G_API_CC getOwner() = 0;
 	virtual gapi_bool G_API_CC isGlobal() = 0;
 
+	virtual IScriptName * G_API_CC createName(const char * name) = 0;
 	virtual gapi_bool G_API_CC cacheName(IScriptName * name) = 0;
 
 	virtual uint32_t G_API_CC getType(IScriptName * name) = 0;

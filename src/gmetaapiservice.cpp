@@ -324,8 +324,8 @@ public:
 
 protected:
 	virtual void G_API_CC execute(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount);
-	virtual void G_API_CC call(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount);
-	virtual void G_API_CC callIndirectly(GVarData * outResult, void * instance, GVarData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC invoke(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeIndirectly(GVarData * outResult, void * instance, GVarData const * const * params, uint32_t paramCount);
 
 private:
 	const GMetaMethod * getMethod() const {
@@ -348,8 +348,8 @@ public:
 
 protected:
 	virtual void G_API_CC execute(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount);
-	virtual void * G_API_CC call(const GVarData * params, uint32_t paramCount);
-	virtual void * G_API_CC callIndirectly(GVarData const * const * params, uint32_t paramCount);
+	virtual void * G_API_CC invoke(const GVarData * params, uint32_t paramCount);
+	virtual void * G_API_CC invokeIndirectly(GVarData const * const * params, uint32_t paramCount);
 
 private:
 	const GMetaConstructor * getConstructor() const {
@@ -1176,10 +1176,10 @@ ImplMetaMethod::ImplMetaMethod(const GMetaMethod * method)
 
 void G_API_CC ImplMetaMethod::execute(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount)
 {
-	this->call(outResult, instance, params, paramCount);
+	this->invoke(outResult, instance, params, paramCount);
 }
 
-void G_API_CC ImplMetaMethod::call(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount)
+void G_API_CC ImplMetaMethod::invoke(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount)
 {
 	GASSERT(paramCount <= REF_MAX_ARITY);
 
@@ -1201,7 +1201,7 @@ void G_API_CC ImplMetaMethod::call(GVarData * outResult, void * instance, const 
 	LEAVE_META_API()
 }
 
-void G_API_CC ImplMetaMethod::callIndirectly(GVarData * outResult, void * instance, GVarData const * const * params, uint32_t paramCount)
+void G_API_CC ImplMetaMethod::invokeIndirectly(GVarData * outResult, void * instance, GVarData const * const * params, uint32_t paramCount)
 {
 	GASSERT(paramCount <= REF_MAX_ARITY);
 
@@ -1234,12 +1234,12 @@ void G_API_CC ImplMetaConstructor::execute(GVarData * outResult, void * instance
 {
 	(void)instance;
 	if(outResult != NULL) {
-		void * newObj = this->call(params, paramCount);
+		void * newObj = this->invoke(params, paramCount);
 		*outResult = GVariant(newObj).takeData();
 	}
 }
 
-void * G_API_CC ImplMetaConstructor::call(const GVarData * params, uint32_t paramCount)
+void * G_API_CC ImplMetaConstructor::invoke(const GVarData * params, uint32_t paramCount)
 {
 	GASSERT(paramCount <= REF_MAX_ARITY);
 
@@ -1256,7 +1256,7 @@ void * G_API_CC ImplMetaConstructor::call(const GVarData * params, uint32_t para
 	LEAVE_META_API(return NULL)
 }
 
-void * G_API_CC ImplMetaConstructor::callIndirectly(GVarData const * const * params, uint32_t paramCount)
+void * G_API_CC ImplMetaConstructor::invokeIndirectly(GVarData const * const * params, uint32_t paramCount)
 {
 	GASSERT(paramCount <= REF_MAX_ARITY);
 

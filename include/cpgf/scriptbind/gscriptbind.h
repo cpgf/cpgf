@@ -12,6 +12,19 @@
 
 namespace cpgf {
 
+class GScriptException : public std::runtime_error {
+private:
+	typedef std::runtime_error super;
+	
+public:
+	GScriptException(const std::string & message) : super(message) {
+	}
+
+	int getErrorCode() const {
+		return 0;
+	}
+};
+
 
 class GScriptConfig
 {
@@ -106,29 +119,14 @@ private:
 class GScriptNameData
 {
 public:
-	GScriptNameData() : referenceCount(1) {
-	}
+	GScriptNameData();
+	virtual ~GScriptNameData();
 
-	virtual ~GScriptNameData() {}
+	void retain();
+	void release();
 
-	void retain() {
-		++this->referenceCount;
-	}
-
-	void release() {
-		--this->referenceCount;
-		if(this->referenceCount <= 0) {
-			delete this;
-		}
-	}
-
-	virtual const char * getName(const char * candidate) const {
-		return candidate;
-	}
-
-	virtual bool isAvailable() const {
-		return false;
-	}
+	virtual const char * getName(const char * candidate) const;
+	virtual bool isAvailable() const;
 
 private:
 	int referenceCount;
@@ -137,56 +135,19 @@ private:
 class GScriptName
 {
 public:
-	GScriptName(const char * name) : name(name), data(NULL) {
-	}
+	GScriptName(const char * name);
+	GScriptName(const char * name, GScriptNameData * data);
+	GScriptName(const GScriptName & other);
+	~GScriptName();
 
-	GScriptName(const char * name, GScriptNameData * data) : name(name), data(data) {
-		if(this->data != NULL) {
-			this->data->retain();
-		}
-	}
+	GScriptName & operator = (GScriptName other);
 
-	GScriptName(const GScriptName & other) : name(other.name), data(other.data) {
-		if(this->data != NULL) {
-			this->data->retain();
-		}
-	}
+	void swap(GScriptName & other);
 
-	~GScriptName() {
-		if(this->data != NULL) {
-			this->data->release();
-		}
-	}
+	const char * getName() const;
 
-	GScriptName & operator = (GScriptName other) {
-		this->swap(other);
-
-		return *this;
-	}
-
-	void swap(GScriptName & other) {
-		using std::swap;
-
-		swap(this->name, other.name);
-		swap(this->data, other.data);
-	}
-
-	const char * getName() const {
-		if(this->data != NULL) {
-			return this->data->getName(this->name);
-		}
-		else {
-			return this->name;
-		}
-	}
-
-	GScriptNameData * getData() const {
-		return this->data;
-	}
-
-	bool hasData() const {
-		return this->data != NULL && this->data->isAvailable();
-	}
+	GScriptNameData * getData() const;
+	bool hasData() const;
 
 private:
 	const char * name;
@@ -197,20 +158,14 @@ private:
 class GScriptObject
 {
 public:
-	GScriptObject(const GScriptConfig & config) : config(config), owner(NULL) {}
-	virtual ~GScriptObject() {}
+	GScriptObject(const GScriptConfig & config);
+	virtual ~GScriptObject();
 
-	const GScriptConfig & getConfig() const {
-		return this->config;
-	}
+	const GScriptConfig & getConfig() const;
 
-	GScriptObject * getOwner() const {
-		return this->owner;
-	}
+	GScriptObject * getOwner() const;
 
-	bool isGlobal() const {
-		return this->owner == NULL;
-	}
+	bool isGlobal() const;
 
 public:	
 	virtual bool cacheName(GScriptName * name) = 0;
@@ -245,9 +200,7 @@ public:
 	virtual void nullifyValue(const GScriptName & name) = 0;
 
 protected:
-	const char * getName() const {
-		return this->name.c_str();
-	}
+	const char * getName() const;
 
 private:
 	GScriptObject(const GScriptObject &);

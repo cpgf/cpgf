@@ -88,14 +88,14 @@ GMetaType metaGetParamType(const Meta & meta, size_t paramIndex)
 	GVariant metaCallMethod(Meta & method, void * obj GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
 		GVarData data; \
-		method->callIndirectly(&data, obj, paramData, N); \
+		method->invokeIndirectly(&data, obj, paramData, N); \
 		metaCheckError(method); \
 		return GVariant(data); \
 	} \
 	template <typename Meta> \
 	void * metaCallConstructor(Meta & constructor GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
-		void * obj = constructor->callIndirectly(paramData, N); \
+		void * obj = constructor->invokeIndirectly(paramData, N); \
 		metaCheckError(constructor); \
 		return obj; \
 	} \

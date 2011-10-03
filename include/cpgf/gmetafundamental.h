@@ -86,44 +86,18 @@ public:
 		new (this->dataBuffer) meta_internal::GMetaFundamentalDataImplement<T>;
 	}
 
-	GVariantType getVariantType() const {
-		return this->getData()->getVariantType();
-	}
+	GVariantType getVariantType() const;
+	GVariant getValue(void * instance) const;
 
-	GVariant getValue(void * instance) const {
-		return this->getData()->getValue(instance);
-	}
-
-	virtual size_t getTypeSize() const {
-		return this->getData()->getTypeSize();
-	}
-
-	virtual void * createInstance() const {
-		return this->getData()->createInstance();
-	}
-
-	virtual void * createInplace(void * placement) const {
-		return this->getData()->createInplace(placement);
-	}
-
-	virtual void * cloneInstance(void * instance) const {
-		return this->getData()->cloneInstance(instance);
-	}
-
-	virtual void * cloneInplace(void * instance, void * placement) const {
-		return this->getData()->cloneInplace(instance, placement);
-	}
-
-
-	virtual void destroyInstance(void * instance) const {
-		this->getData()->destroyInstance(instance);
-	}
-
+	virtual size_t getTypeSize() const;
+	virtual void * createInstance() const;
+	virtual void * createInplace(void * placement) const;
+	virtual void * cloneInstance(void * instance) const;
+	virtual void * cloneInplace(void * instance, void * placement) const;
+	virtual void destroyInstance(void * instance) const;
 
 private:
-	const meta_internal::GMetaFundamentalData * getData() const {
-		return static_cast<const meta_internal::GMetaFundamentalData *>(static_cast<const void *>(this->dataBuffer));
-	}
+	const meta_internal::GMetaFundamentalData * getData() const;
 
 private:
 	char dataBuffer[sizeof(meta_internal::GMetaFundamentalDataImplement<int>)];
