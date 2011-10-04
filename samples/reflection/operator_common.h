@@ -4,7 +4,6 @@
 #include "cpgf/gtestutil.h"
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gmetaoperator.h"
-#include "cpgf/gmetaapiservice.h"
 #include "cpgf/gmetaapiutil.h"
 
 #include <iostream>

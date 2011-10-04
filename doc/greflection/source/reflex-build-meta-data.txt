@@ -447,7 +447,7 @@
 	Type conversion, such like "int()", etc. The parameter is mopHolder().
 	Functor, such like "void (int)". The parameter is mopHolder(mopHolder);
 
-	About GMetaSelf. GMetaSelf indicates that parameter is the object itself. So that parameter can be passed as object reference.
+	About GMetaSelf. GMetaSelf indicates that parameter is the object itself. So that parameter can be passed as both object reference and object pointer.
 <{/autobr}>
 </p>
 
@@ -493,16 +493,6 @@
 <p>
 <{autobr}>
 	reflectOperator is a template function.
-	It accepts one template parameter, one operator function parameter, and one optional policy function parameter.
-	The template parameter is the operator function type.
-	The first function parameter is the result to apply the same operator on mopHolder.
-	For example, if it's operator +, then the parameter is (mopHolder + mopHolder)
-	For most operators, it's quite intuitive.
-	Here are some operators that are not that intuitive:
-	Type conversion, such like "int()", etc. The parameter is mopHolder().
-	Functor, such like "void (int)". The parameter is mopHolder(mopHolder);
-
-	About GMetaSelf. GMetaSelf indicates that parameter is the object itself. So that parameter can be passed as object reference.
 <{/autobr}>
 </p>
 

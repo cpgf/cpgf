@@ -1,6 +1,6 @@
 #include "cpgf/gcallback.h"
 #include "cpgf/gcallbacklist.h"
-#include "test_common.h"
+#include "reflect_common.h"
 
 
 namespace {

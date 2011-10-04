@@ -1,10 +1,9 @@
-#ifndef __TEST_COMMON_H
-#define __TEST_COMMON_H
+#ifndef __REFLECT_COMMON_H
+#define __REFLECT_COMMON_H
 
 #include "cpgf/gtestutil.h"
 
 #include "cpgf/gmetaclass.h"
-#include "cpgf/gmetaapiservice.h"
 #include "cpgf/gmetaapiutil.h"
 
 #include <iostream>

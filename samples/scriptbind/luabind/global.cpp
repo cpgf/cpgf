@@ -1,4 +1,4 @@
-#include "test_common.h"
+#include "luabind_common.h"
 
 
 namespace {

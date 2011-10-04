@@ -26,7 +26,7 @@ set(BIN_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIB_PATH ${ROOT_PATH}/lib)
 
 set(SRC_PATH ${ROOT_PATH}/src)
-set(SAMPLE_ROOT ${SRC_PATH}/testcase)
+set(SAMPLE_ROOT ${ROOT_PATH}/samples)
 set(SAMPLE_REFLECT_PATH ${SAMPLE_ROOT}/reflection)
 set(SAMPLE_BIND_PATH ${SAMPLE_ROOT}/scriptbind)
 
@@ -91,7 +91,7 @@ set(SRC_META
 
 file(GLOB GLOB_SAMPLEREFLECTION ${SAMPLE_REFLECT_PATH}/*.cpp)
 set(SRC_SAMPLEREFLECTION
-	${SAMPLE_ROOT}/testmain.cpp
+	${SAMPLE_ROOT}/samplemain.cpp
 	
 	${GLOB_SAMPLEREFLECTION}
 )
@@ -115,7 +115,7 @@ set(SRC_LIB
 
 file(GLOB GLOB_SAMPLELUA ${SAMPLE_BIND_PATH}/luabind/*.cpp)
 set(SRC_SAMPLELUA
-	${SAMPLE_ROOT}/testmain.cpp
+	${SAMPLE_ROOT}/samplemain.cpp
 	
 	${SAMPLE_BIND_PATH}/testscriptbindmetadata.cpp
 	
