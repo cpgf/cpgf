@@ -26,7 +26,7 @@ GTEST(global)
 
 	context->getBindingLib()->setObject("data", dataLib.get(), metaClass.get(), false);
 	
-	scriptName.reset(context->getBindingApi()->createName("data"));
+	scriptName.reset(bindingApi->createName("data"));
 	bindingApi->setObject(scriptName.get(), dataApi.get(), metaClass.get(), false);
 	
 	context->doString(
@@ -39,7 +39,7 @@ GTEST(global)
 	GEQUAL(dataApi->x, 11);
 	
 	context->getBindingLib()->nullifyValue("data");
-	scriptName.reset(context->getBindingApi()->createName("data"));
+	scriptName.reset(bindingApi->createName("data"));
 	bindingApi->nullifyValue(scriptName.get());
 	context->doString("assert(data == nil)");
 }

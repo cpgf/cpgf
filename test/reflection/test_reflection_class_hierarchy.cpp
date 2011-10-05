@@ -138,7 +138,6 @@ GTEST(Lib_ClassHierarchy_ClassB)
 	METHOD_HI(getID);
 	GCHECK(method);
 	GEQUAL(fromVariant<int>(method->invoke(pobj)), 2);
-	metaClass->destroyInstance(pobj);
 	
 	OPERA(mopHolder + mopHolder);	
 	GCHECK(opera);
@@ -150,6 +149,7 @@ GTEST(Lib_ClassHierarchy_ClassB)
 	OPERA_HI(mopHolder * mopHolder);	
 	GCHECK(opera);
 	GEQUAL(fromVariant<int>(opera->invokeBinary(pobj, 0)), 10);
+	metaClass->destroyInstance(pobj);
 }
 
 
