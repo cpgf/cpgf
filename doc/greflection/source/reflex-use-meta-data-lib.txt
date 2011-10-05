@@ -1,0 +1,351 @@
+<{autotoc}>
+
+<{sgroup}>Using reflection through library
+
+<{sh}> Retrieve meta class
+<{sc}>
+
+<{autobr}>
+To retrieve any meta data, first we need to get the desired meta class.
+
+To get the global meta class, call getGlobalMetaClass().
+To get a certain meta class, call findMetaClass("TheMetaClassName").
+
+Both functions return either NULL for not found or a pointer of const GMetaClass *.
+
+<{/autobr}>	
+
+<{sh}> Retrieve meta data
+<{sc}>
+
+<{autobr}>
+Any meta data can be retrieved through GMetaClass.
+
+GMetaClass exposes a lot of functions to access the meta data, but fortunately we don't remember each function. Most functions have the similar naming convention.
+Assume MMM is the meta name, it can be Constructor, Field, Property, Method, Operator, Enum, Class.
+Then for most meta data, we have these kind of functions,
+<{/autobr}>	
+
+<{code}>
+const GMetaMMM * getMMM(const char * name) const;
+const GMetaMMM * getMMMInHierarchy(const char * name, void ** outInstance) const;
+size_t getMMMCount() const;
+const GMetaMMM * getMMMAt(size_t index) const;
+<{/code}>
+
+<{autobr}>	
+<b>getMMM</b> -- get the meta data by name in current meta class. Return the meta data, or NULL if not found. If the meta data with the same name is overloaded, only the first meta data is returned.
+
+<b>getMMMInHierarchy</b> -- find the meta data in the whole inheritance hierarychy. That means, if the meta data is not found in current meta class, all parent meta classes will be checked recursively.
+The second parameter, can be NULL, or the address of an instance pointer. If it's not NULL, on return the function will convert the pointer to the object in which the meta data is in.
+The function will perform an action as,
+*outInstance = static_cast<ClassThatFoundTheMetaData *>(*outInstance).
+Usually the casted pointer is same as the original pointer, but under virtual inheritance, they can be different.
+
+<b>getMMMCount</b> -- get how many meta data there is.
+
+<b>getMMMAt</b> -- get the meta data at certain index. With this function and getMMMCount, we can get all of the meta data.
+
+Constructors are special because they can't be inherited and have no name. So there are no getConstructor and getConstructorInHierarchy. But there is a function getConstructorByParamCount to get a constructor quickly.
+const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
+
+Here is a list of all functions in GMetaClass that can retrieve meta data:
+
+<{/autobr}>	
+
+<{code}>
+
+const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
+size_t getConstructorCount() const;
+const GMetaConstructor * getConstructorAt(size_t index) const;
+
+const GMetaField * getFieldInHierarchy(const char * name, void ** outInstance) const;
+const GMetaField * getField(const char * name) const;
+size_t getFieldCount() const;
+const GMetaField * getFieldAt(size_t index) const;
+
+const GMetaProperty * getPropertyInHierarchy(const char * name, void ** outInstance) const;
+const GMetaProperty * getProperty(const char * name) const;
+size_t getPropertyCount() const;
+const GMetaProperty * getPropertyAt(size_t index) const;
+
+const GMetaMethod * getMethodInHierarchy(const char * name, void ** outInstance) const;
+const GMetaMethod * getMethod(const char * name) const;
+size_t getMethodCount() const;
+const GMetaMethod * getMethodAt(size_t index) const;
+size_t getMethodList(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters) const;
+size_t getMethodListInHierarchy(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters, void * instance) const;
+
+const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
+const GMetaOperator * getOperator(GMetaOpType op) const;
+size_t getOperatorCount() const;
+const GMetaOperator * getOperatorAt(size_t index) const;
+
+const GMetaEnum * getEnumInHierarchy(const char * name, void ** outInstance) const;
+const GMetaEnum * getEnum(const char * name) const;
+size_t getEnumCount() const;
+const GMetaEnum * getEnumAt(size_t index) const;
+
+const GMetaClass * getClassInHierarchy(const char * name, void ** outInstance) const;
+const GMetaClass * getClass(const char * name) const;
+size_t getClassCount() const;
+const GMetaClass * getClassAt(size_t index) const;
+
+size_t getMetaCount() const;
+const GMetaItem * getMetaAt(size_t index) const;
+
+<{/code}>
+
+<{autobr}>	
+	The last two functions, getMetaCount and getMetaAt, can be used to retrieve arbitrary meta data.
+<{/autobr}>	
+
+
+<{/sgroup}>
+
+
+
+<{sgroup}> Using meta data
+
+<{sh}> Using meta field
+<{sc}>
+
+<{autobr}>
+Class GMetaField exposes several functions to set/get field, and acquire field information.
+
+virtual bool canGet() const;
+Check if the field value can be got.
+A field can't be got if it's forbidden by the policy.
+
+virtual bool canSet() const;
+Check if the field value can be set.
+A field can't be set if it's forbidden by the policy.
+
+virtual GVariant get(void * instance) const;
+Get the field value on the object "instance". A GVariant that represents the value will be returned.
+
+virtual void set(void * instance, const GVariant & v) const;
+Set the field value on the object "instance". A GVariant that represents the value is passed as the second parameter.
+
+virtual size_t getSize() const;
+Get the field memory size. It's as if performing a sizeof on the field.
+
+void * getAddress(void * instance) const;
+Get the field address. It's as if performing a "&" operator on the field.
+
+<{/autobr}>	
+
+
+
+<{sh}> Using meta property
+<{sc}>
+
+<{autobr}>
+Using property is almost same as using field, except that property doesn't support getAddress.
+
+virtual bool canGet() const;
+Check if the property value can be got.
+A property can't be got if it's forbidden by the policy, or the getter is absence (NULL).
+
+virtual bool canSet() const;
+Check if the property value can be set.
+A property can't be set if it's forbidden by the policy, or the setter is absence (NULL).
+
+virtual GVariant get(void * instance) const;
+Get the property value on the object "instance". A GVariant that represents the value will be returned.
+
+virtual void set(void * instance, const GVariant & v) const;
+Set the property value on the object "instance". A GVariant that represents the value is passed as the second parameter.
+
+virtual size_t getSize() const;
+Get the property memory size. It's as if performing a sizeof on the property.
+
+<{/autobr}>	
+
+
+
+<{sh}> Using meta method
+<{sc}>
+
+<{autobr}>
+Class GMetaMethod exposes several functions to invoke method, and acquire field information.
+
+virtual GMetaType getParamType(size_t index) const;
+Acquire parameter type at index.
+
+virtual size_t getParamCount() const;
+Get parameter count.
+
+virtual bool hasResult() const;
+Check whether the method has result. For functions that return "void", this function return false, otherwise, it returns true.
+
+virtual GMetaType getResultType() const;
+Acquire result type information.
+
+virtual bool isVariadic() const;
+Check whether the method can accept variadic parameters.
+
+GVariant invoke(void * instance, const GVariant & p1);
+GVariant invoke(void * instance, const GVariant & p1, const GVariant & p2);
+GVariant invoke(void * instance, const GVariant & p1, const GVariant & p2, ..., const GVariant & pN);
+A group of overloaded functions to invoke the method with different amount of parameters, on the object "instance".
+
+virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
+Invoke the method, and pass the parameters in an array.
+
+virtual bool checkParam(const GVariant & param, size_t paramIndex) const;
+Check if a parameter can be converted to the method parameter.
+
+<{/autobr}>	
+
+
+
+
+<{sh}> Using meta constructor
+<{sc}>
+
+<{autobr}>
+Using constructor is almost same as using method, except that its return value is always a pointer of "void *".
+
+virtual GMetaType getParamType(size_t index) const;
+Acquire parameter type at index.
+
+virtual size_t getParamCount() const;
+Get parameter count.
+
+virtual bool hasResult() const;
+Always return true;
+
+virtual GMetaType getResultType() const;
+Return the type information of the class it will construct.
+
+virtual bool isVariadic() const;
+Check whether the constructor can accept variadic parameters.
+
+GVariant invoke(const GVariant & p1);
+GVariant invoke(const GVariant & p1, const GVariant & p2);
+GVariant invoke(const GVariant & p1, const GVariant & p2, ..., const GVariant & pN);
+A group of overloaded functions to invoke the method with different amount of parameters.
+
+virtual GVariant execute(const GVariant * params, size_t paramCount) const;
+Invoke the constructor, and pass the parameters in an array.
+
+virtual bool checkParam(const GVariant & param, size_t paramIndex) const;
+Check if a parameter can be converted to the constructor parameter.
+
+<{/autobr}>	
+
+
+
+<{sh}> Using meta operator
+<{sc}>
+
+<{autobr}>
+Using operator is almost same as using method, except that its parameter count is determined by the operator itself.
+
+virtual GMetaType getParamType(size_t index) const;
+Acquire parameter type at index.
+
+virtual size_t getParamCount() const;
+Get parameter count.
+
+virtual bool hasResult() const;
+Always return true;
+
+virtual GMetaType getResultType() const;
+Return the type information of the class it will construct.
+
+virtual bool isVariadic() const;
+Check whether the operator can accept variadic parameters.
+
+GVariant invokeUnary(const GVariant & p0) const;
+Invoke the operator with one parameter. The operator should be a unary operator.
+
+GVariant invokeBinary(const GVariant & p0, const GVariant & p1) const;
+Invoke the operator with two parameter. The operator should be a binary operator.
+
+GVariant invokeFunctor(const GVariant & instance, const GVariant & p1, const GVariant & p2, ..., const GVariant & pMax) const;
+Invoke the functor operator.
+
+virtual GVariant execute(const GVariant * params, size_t paramCount) const;
+Invoke the operator, and pass the parameters in an array.
+
+virtual bool checkParam(const GVariant & param, size_t paramIndex) const;
+Check if a parameter can be converted to the operator parameter.
+
+<{/autobr}>	
+
+
+
+<{sh}> Using meta annotation
+<{sc}>
+
+<{autobr}>
+const GMetaItem * getMetaItem() const;
+Get the meta item that the annotation is bound to.
+
+const GAnnotationValue * getValue(const char * name) const;
+Get the annotation value of the key with the "name".
+
+size_t getCount() const;
+Get how many annotation values there are.
+
+const char * getNameAt(size_t index) const;
+Get the annotation name at certain index.
+
+const GAnnotationValue * getValueAt(size_t index) const;
+Get the annotation value at certain index.
+
+
+<{/autobr}>	
+
+
+
+<{sh}> Using meta annotation value
+<{sc}>
+
+<{autobr}>
+Annotation value is not meta data.
+It's the value type of annotation.
+
+const GVariant * getVariant() const;
+Get the value as a GVariant;
+
+bool canToString() const;
+Check if the value can be converted to a string.
+
+bool canToWideString() const;
+Check if the value can be converted to a wide string.
+
+bool canToInt() const;
+Check if the value can be converted to a integer.
+
+const char * toString() const;
+Convert the value to a string.
+
+const wchar_t * toWideString() const;
+Convert the value to a wide string.
+
+int toInt() const;
+Convert the value to an integer.
+
+template <typename T>
+T toObject() const;
+Convert the value to a specified type.
+
+
+<{/autobr}>	
+
+
+
+
+
+
+
+
+<{/sgroup}>
+
+
+
+
+<{/autotoc}>

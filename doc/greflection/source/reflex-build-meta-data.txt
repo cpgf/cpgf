@@ -97,6 +97,12 @@
 
 <{sh}> Reflect classes inside of the classes declaration.
 <{sc}>
+<{autobr}>
+	It's possible to reflect class just inside of the class declaration in the header file. That's also known as intrusive reflection.
+	However, I won't give any document here, because I'm really hesitating whether to remove this feature.
+	
+	So unless there are good reasons, most likely in the future version, classes won't be reflected inside the class declaration.
+<{/autobr}>
 
 
 <{/sgroup}>
@@ -487,12 +493,28 @@
 			("count", 3)
 			("data", TestData("blahblah", 5))
 		;
+		flushAnnotation();
+
+		reflectAnnotation("style")
+			("name", L"WindowStyle")
+			("cat", mcatEnum)
+			("dog", TestData(mcatEnum, "WindowStyle"))
+		;
+		reflectAnnotation("size")
+			("name", "TheSize")
+		;
+		GMETA_ENUM(WindowStyle, CLASS::ws0, CLASS::ws1, CLASS::ws2, CLASS::ws3);
 	}
 <{/code}>
 
 <p>
 <{autobr}>
-	reflectOperator is a template function.
+	reflectAnnotation takes one parameter, the annotation name. And then return an object, which can be used to add more values to the annotation.
+	To add values, just call the functor operator on the object. The first parameter is the value name, the second parameter is the value.
+	
+	An annotation is always added to next non-annotation meta data. To add the annotation to the class itself, call flushAnnotation().
+	
+	In above code, the annotation "attribute" is added to the meta class, and the annotation "style" and "size" are added to meta enum "WindowStyle".
 <{/autobr}>
 </p>
 
@@ -506,6 +528,93 @@
 
 <{/sgroup}>
 
+
+
+
+
+<{sh}> Reflect enumerators
+<{sgroup indent="1"}>
+
+<{sh}> What's enumerator
+<{sc}>
+	<p>
+<{autobr}>
+<{/autobr}>
+	</p>
+
+<{sh}> Using function
+<{sc}>
+<{code}>
+	GMETA_DEFINE_CLASS(blah blah)
+	{
+		reflectEnum<CLASS::EnumSecond>("EnumSecond")
+			("bs1", CLASS::bs1)
+			("bs2", CLASS::bs2)
+			("bs3", CLASS::bs3)
+			("bs4", CLASS::bs4)
+			("bs5", CLASS::bs5)
+	;
+	}
+<{/code}>
+
+<p>
+<{autobr}>
+<{/autobr}>
+</p>
+
+<{sh}> Using macro helper
+<{sc}>
+<{code}>
+	GMETA_DEFINE_CLASS(blah blah)
+	{
+		GMETA_ENUM(EnumFirst, CLASS::ws1, CLASS::ws2, CLASS::ws3, CLASS::ws4);
+	;
+	}
+<{/code}>
+<p>
+<{autobr}>
+<{/autobr}>
+</p>
+
+<{/sgroup}>
+
+
+
+
+
+
+<{sh}> Reflect nested classes
+<{sgroup indent="1"}>
+
+<{sh}> What's nested classes
+<{sc}>
+	<p>
+<{autobr}>
+<{/autobr}>
+	</p>
+
+<{sh}> Using function
+<{sc}>
+<{code}>
+<{/code}>
+
+<p>
+<{autobr}>
+<{/autobr}>
+</p>
+
+<{sh}> Using macro helper
+<{sc}>
+<{code}>
+	GMETA_CLASS(TestOutterClass::Inner);
+	GMETA_CLASS(TestOutterClass::AnotherInner);
+<{/code}>
+<p>
+<{autobr}>
+<{/autobr}>
+</p>
+
+<{/sgroup}>
 
 
 

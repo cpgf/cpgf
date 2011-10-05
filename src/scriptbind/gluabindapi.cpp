@@ -4,6 +4,7 @@
 #include "../pinclude/gapiimpl.h"
 
 
+
 #define ENTER_BINDING_API() \
 	this->clearError(); \
 	try {

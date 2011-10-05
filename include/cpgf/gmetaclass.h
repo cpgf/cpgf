@@ -555,7 +555,7 @@ public:
 			;
 	}
 
-	const GMetaConstructor * getConstructorByParamCount(unsigned int paramCount) const;
+	const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
 	size_t getConstructorCount() const;
 	const GMetaConstructor * getConstructorAt(size_t index) const;
 

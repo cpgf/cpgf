@@ -4,6 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <title></title>
+<link rel="stylesheet" type="text/css" href="maintpl.css" />
 </head>
 <body><div style="width:900px">
 
@@ -170,6 +171,78 @@
 <strong>Using macro helper</strong></a></li>
 </ul>
 </div>
+<div style="margin-left:0px">
+<ul>
+<li>
+<a href="#linkid34">
+<strong>Reflect annotation</strong></a></li>
+</ul>
+</div>
+<p>
+<b>
+<a href="#linkid35">
+<strong></strong></a></b></p>
+<div style="margin-left:60px">
+<ul>
+<li>
+<a href="#linkid36">
+<strong>What's annotation</strong></a></li>
+<li>
+<a href="#linkid37">
+<strong>Using function</strong></a></li>
+<li>
+<a href="#linkid38">
+<strong>Using macro helper</strong></a></li>
+</ul>
+</div>
+<div style="margin-left:0px">
+<ul>
+<li>
+<a href="#linkid39">
+<strong>Reflect enumerators</strong></a></li>
+</ul>
+</div>
+<p>
+<b>
+<a href="#linkid40">
+<strong></strong></a></b></p>
+<div style="margin-left:60px">
+<ul>
+<li>
+<a href="#linkid41">
+<strong>What's enumerator</strong></a></li>
+<li>
+<a href="#linkid42">
+<strong>Using function</strong></a></li>
+<li>
+<a href="#linkid43">
+<strong>Using macro helper</strong></a></li>
+</ul>
+</div>
+<div style="margin-left:0px">
+<ul>
+<li>
+<a href="#linkid44">
+<strong>Reflect nested classes</strong></a></li>
+</ul>
+</div>
+<p>
+<b>
+<a href="#linkid45">
+<strong></strong></a></b></p>
+<div style="margin-left:60px">
+<ul>
+<li>
+<a href="#linkid46">
+<strong>What's nested classes</strong></a></li>
+<li>
+<a href="#linkid47">
+<strong>Using function</strong></a></li>
+<li>
+<a href="#linkid48">
+<strong>Using macro helper</strong></a></li>
+</ul>
+</div>
 
 
 <p><a id="linkid1"></a></p>
@@ -252,7 +325,11 @@
 
 <p><a id="linkid6"></a></p>
 <p>
-<strong>Reflect classes inside of the classes declaration.</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p>
+<strong>Reflect classes inside of the classes declaration.</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p>	It's possible to reflect class just inside of the class declaration in the header file. That's also known as intrusive reflection.<br />
+	However, I won't give any document here, because I'm really hesitating whether to remove this feature.<br />
+	<br />
+	So unless there are good reasons, most likely in the future version, classes won't be reflected inside the class declaration.<br />
+
 
 
 
@@ -552,15 +629,132 @@
 	Type conversion, such like &quot;int()&quot;, etc. The parameter is mopHolder().<br />
 	Functor, such like &quot;void (int)&quot;. The parameter is mopHolder(mopHolder);<br />
 <br />
-	About GMetaSelf. GMetaSelf indicates that parameter is the object itself. So that parameter can be passed as object reference.<br />
+	About GMetaSelf. GMetaSelf indicates that parameter is the object itself. So that parameter can be passed as both object reference and object pointer.<br />
 </p>
 
 <p><a id="linkid33"></a></p>
 <p>
 <strong>Using macro helper</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p><p>
-	No macro helper available for constructor.<br />
+	No macro helper available for operator.<br />
 </p>
 
+
+
+
+
+
+<p><a id="linkid34"></a></p>
+<p>
+<strong>Reflect annotation</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p><p><a id="linkid35"></a></p>
+<h3></h3><p><a id="linkid36"></a></p>
+<p>
+<strong>What's annotation</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p>	<p>
+	An annotation is a kind of special meta data that's added by programmer rather than code.<br />
+	All other non-annotation meta data, such as class, method, field, property, constructor, operator, can have annotations.<br />
+	</p>
+
+<p><a id="linkid37"></a></p>
+<p>
+<strong>Using function</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p><pre>    GMETA_DEFINE_CLASS(blah blah)
+    {
+    	reflectAnnotation(&quot;attribute&quot;)
+    		(&quot;name&quot;, &quot;What's the name&quot;)
+    		(&quot;count&quot;, 3)
+    		(&quot;data&quot;, TestData(&quot;blahblah&quot;, 5))
+    	;
+    	flushAnnotation();
+
+    	reflectAnnotation(&quot;style&quot;)
+    		(&quot;name&quot;, L&quot;WindowStyle&quot;)
+    		(&quot;cat&quot;, mcatEnum)
+    		(&quot;dog&quot;, TestData(mcatEnum, &quot;WindowStyle&quot;))
+    	;
+    	reflectAnnotation(&quot;size&quot;)
+    		(&quot;name&quot;, &quot;TheSize&quot;)
+    	;
+    	GMETA_ENUM(WindowStyle, CLASS::ws0, CLASS::ws1, CLASS::ws2, CLASS::ws3);
+    }
+</pre>
+<p>
+	reflectAnnotation takes one parameter, the annotation name. And then return an object, which can be used to add more values to the annotation.<br />
+	To add values, just call the functor operator on the object. The first parameter is the value name, the second parameter is the value.<br />
+	<br />
+	An annotation is always added to next non-annotation meta data. To add the annotation to the class itself, call flushAnnotation().<br />
+	<br />
+	In above code, the annotation &quot;attribute&quot; is added to the meta class, and the annotation &quot;style&quot; and &quot;size&quot; are added to meta enum &quot;WindowStyle&quot;.<br />
+</p>
+
+<p><a id="linkid38"></a></p>
+<p>
+<strong>Using macro helper</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p><p>
+	No macro helper available for annotation.<br />
+</p>
+
+
+
+
+
+
+<p><a id="linkid39"></a></p>
+<p>
+<strong>Reflect enumerators</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p><p><a id="linkid40"></a></p>
+<h3></h3><p><a id="linkid41"></a></p>
+<p>
+<strong>What's enumerator</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p>	<p>
+	</p>
+
+<p><a id="linkid42"></a></p>
+<p>
+<strong>Using function</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p><pre>    GMETA_DEFINE_CLASS(blah blah)
+    {
+    	reflectEnum&lt;CLASS::EnumSecond&gt;(&quot;EnumSecond&quot;)
+    		(&quot;bs1&quot;, CLASS::bs1)
+    		(&quot;bs2&quot;, CLASS::bs2)
+    		(&quot;bs3&quot;, CLASS::bs3)
+    		(&quot;bs4&quot;, CLASS::bs4)
+    		(&quot;bs5&quot;, CLASS::bs5)
+    ;
+    }
+</pre>
+<p>
+</p>
+
+<p><a id="linkid43"></a></p>
+<p>
+<strong>Using macro helper</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p><pre>    GMETA_DEFINE_CLASS(blah blah)
+    {
+    	GMETA_ENUM(EnumFirst, CLASS::ws1, CLASS::ws2, CLASS::ws3, CLASS::ws4);
+    ;
+    }
+</pre><p>
+</p>
+
+
+
+
+
+
+
+<p><a id="linkid44"></a></p>
+<p>
+<strong>Reflect nested classes</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p><p><a id="linkid45"></a></p>
+<h3></h3><p><a id="linkid46"></a></p>
+<p>
+<strong>What's nested classes</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p>	<p>
+	</p>
+
+<p><a id="linkid47"></a></p>
+<p>
+<strong>Using function</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p><pre></pre>
+<p>
+</p>
+
+<p><a id="linkid48"></a></p>
+<p>
+<strong>Using macro helper</strong><span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span></p><pre>    GMETA_CLASS(TestOutterClass::Inner);
+    GMETA_CLASS(TestOutterClass::AnotherInner);
+</pre><p>
+</p>
 
 
 

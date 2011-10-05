@@ -106,6 +106,7 @@ GScriptObject::GScriptObject(const GScriptConfig & config)
 	: config(config), owner(NULL)
 {
 }
+
 GScriptObject::~GScriptObject()
 {
 }
