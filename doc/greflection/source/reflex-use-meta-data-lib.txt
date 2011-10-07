@@ -21,7 +21,7 @@ Both functions return either NULL for not found or a pointer of const GMetaClass
 <{autobr}>
 Any meta data can be retrieved through GMetaClass.
 
-GMetaClass exposes a lot of functions to access the meta data, but fortunately we don't remember each function. Most functions have the similar naming convention.
+GMetaClass exposes a lot of functions to access the meta data, but fortunately we don't need to memorize each function. Most functions have the similar naming convention.
 Assume MMM is the meta name, it can be Constructor, Field, Property, Method, Operator, Enum, Class.
 Then for most meta data, we have these kind of functions,
 <{/autobr}>	

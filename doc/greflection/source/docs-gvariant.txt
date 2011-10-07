@@ -1,0 +1,118 @@
+<{autotoc}>
+
+<{sgroup}>Using GVariant
+
+<{sh}> Overview
+<{sc}>
+
+<{autobr}>
+The idea of GVariant is inspired by the similar Variant in Windows COM technology.
+A GVariant is used to represent arbitrary type of value.
+Any value, such as but not limited to, integer, float, pointer, object, reference, can be stored in a GVariant.
+
+However, GVariant requires the value copyable.
+If the value is a class object, but the copy constructor is private or not implemented, when trying to create GVariant from such value, compiling will fail.
+
+The reflection and script binding libraries use GVariant comprehensively. GVariant is the very core concept in those libraries.
+
+Please bear in mind, GVariant is used in runtime, so it doesn't remember any compile time information, except the fundamental types.
+So GVariant is not 100% type safe. To use it correctly, you must know the type it holds.
+
+Also, GVariant is not only for reflection. It's an all purpose variant data type.
+
+<{/autobr}>
+
+
+<{sh}> Store value to GVariant
+<{sc}>
+
+<{autobr}>
+Any values can be converted to a GVariant implicitly, so you don't need to call GVariant constructor explicitly.
+
+This is why the invoke function in GMetaMethod accepts only GVariant but any value can be passed directly.
+The prototype of "invoke" in GMetaMethod is,
+GVariant invoke(void * instance, const GVariant & p1, const GVariant & p2, ..., const GVariant & pN);
+We can call it as method->invoke(instance, 5, "test", myObject).
+<{/autobr}>
+
+
+<{sh}> Retrieve value from GVariant
+<{sc}>
+
+<{autobr}>
+A GVariant can be converted back to a normal value with the function fromVariant.
+
+Assume v is a GVariant.
+
+int n = fromVariant<int>(v);
+Convert v to integer.
+
+string s = fromVariant<char *>(v);
+Convert v to C string then assign to a STL string.
+
+MyObject obj = fromVariant<MyObject>(v);
+Convert v to MyObject.
+
+If fromVariant finds the GVariant can't be converted to the desired type, an exception GVariantException will be thrown.
+
+To test if a GVariant can be converted to a type, use canFromVariant.
+It has same parameters as fromVariant, but return a boolean to indicate if the GVariant can be casted.
+
+<{/autobr}>
+
+
+<{sh}> Rules to cast from GVariant
+<{sc}>
+
+<{autobr}>
+Rule 1, A GVariant with fundamental value can be casted to any other fundamental.
+
+GVariant v;
+
+v = 1; // integer
+fromVariant<double>(v); // OK
+
+Rule 2, A GVariant with pointer value can be casted to any other pointer, even if the pointer dimension is different.
+
+v = (char *)1;
+fromVariant<int **>(v); // OK
+
+Rule 3, A GVariant with fundamental value or pointer value can be casted to an object that has constructor to accept the type implicitly.
+
+v = "abc"; // C string, const char *
+std::string s = fromVariant<std::string>(v); // OK, because std::string accepts "const char *".
+
+Rule 4, When casting a GVariant with object (T) or object reference (T &) to another object type (U), T and U must be the same type.
+Otherwise, the memory may be corrupted.
+This is because of GVariant doesn't remember any type information, except the fundamental types.
+So when casting to type T, GVariant will always assume that it holds a buffer with sizeof(T) and try to cast the buffer to T.
+
+Rule 5, <b>warning</b>, casting a GVariant to reference-to-const (const T &) will always cause the object be copied even if it's not necessary.
+
+std::string s = "blah";
+v = s;
+const std::string & rs = fromVariant<const std::string &>(v); // OK, but rs holds a temporary copy of "blah", it doesn't reference to s.
+
+This means, when calling a meta method which has reference to const parameter, the value passed to it will be copied.
+
+Why do we need to copy the object instead of just reference it?
+This is to simulate the nature C++ behavior. Unlike a normal reference (T &), a reference to const is special because it allows the compiler to generate temporary object for it.
+For example, if we have the code,
+const std::string & rs = "abc";
+A temporary object of std::string will be created and rs will reference to it.
+And also for most situation the compiler will not need to create the temporary object, just let the reference happen.
+std::string s = "abc";
+const std::string & rs = s; // no temporary object.
+
+We want to simulate the behavior in GVariant, however, we can't have the temporary object, only compiler knows how to create/destroy it, also we can't determine when to create the temporary when not.
+So what we can do is just let GVariant copy the object, no matter it's necessary or not.
+
+The is the biggest disadvantage of GVariant and if you know how to improve it, let me know.
+
+<{/autobr}>
+
+
+<{/sgroup}>
+
+<{/autotoc}>
+

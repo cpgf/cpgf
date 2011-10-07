@@ -16,6 +16,7 @@ Features:
 	<li>Classes. Inner class can be reflected to outter meta class. Top level classes can be reflected to global meta class. </li>
 	<li>Object contructors. </li>
 	<li>Operators. All overloadable operators, except new and delete, are supported. The functional of overloaded new and delete are already provided by meta class. </li>
+	<li>Templates. Templates can be reflected as meta template, then meta template can be instantiated for each instance.</li>
 	<li>Annotations. Any annotations, in key-value pairs, can be reflected. Value can be any type.</li>
 </ul>
 </p>

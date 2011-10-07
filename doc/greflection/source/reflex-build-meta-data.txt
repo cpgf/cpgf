@@ -93,6 +93,60 @@
 
 <{sh}> Reflect templates
 <{sc}>
+<{code}>
+	template <typename T>
+	class TestBase
+	{
+	public:
+		virtual ~TestBase();
+
+		int getDouble() const;
+	};
+
+	template <typename T, typename P>
+	class TestObject : public TestBase<T>
+	{
+	public:
+		int getSize() const;
+	};
+
+	GMETA_DEFINE_TEMPLATE(
+			TestObject,  // 1
+			TestObject,  // 2
+			typename T GPP_COMMA() typename P,  // 3
+			T GPP_COMMA() P,  // 4
+			"",  // 5
+			TestBase<T> ) {  // 6
+
+		using namespace cpgf;
+
+		GMETA_METHOD(getSize);
+		GMETA_METHOD(getDouble);
+	}
+
+	GMETA_INSTANTIATE_TEMPLATE("template::TestObject_char_int", TestObject, char GPP_COMMA() int);
+<{/code}>
+
+<{autobr}>
+	C++ template can be reflected. And they are reflected as template, rather than class.
+	That's to say, the template can be reflected once, then instantiate instance for each certain type parameter.
+	
+	Using macro "GMETA_DEFINE_TEMPLATE" to reflect template.
+	Like reflecting class, the first two parameters are the class type and the class type alias. Here indeed it's the template "type".
+	The third parameter is the type parameters. It's the parameters that passed in template<>.
+	Note the GPP_COMMA(), it's expanded to ",", but we can't use "," directly here.
+	The fourth parameter is the parameter, without the "typename".
+	The fifth paramter is the name, it can be empty here.
+	The sixth and other paramters are the base classes.
+	
+	Like C++ template, a reflected template can't be used until it's instantiated.
+	Using macro GMETA_INSTANTIATE_TEMPLATE to instantiate a template.
+	The first parameter is the instance name. It's same as class name in reflected class. It must be unique.
+	The second parameter is the template alias. It must be same as the second parameter in GMETA_DEFINE_TEMPLATE.
+	The thid parameter, is the real type parameter.
+	
+	Above instantiate a meta class which is TestObject<char, int>.
+<{/autobr}>
 
 
 <{sh}> Reflect classes inside of the classes declaration.
@@ -164,7 +218,7 @@
 
 	GMETA_FRIEND is used to make the reflection friend to TestObject so it can access private member in TestObject.
 	If the member are public, no need GMETA_FRIEND.
-<{/autobr>}>
+<{/autobr}>
 </p>
 
 <{sh}> Using macro helper
@@ -191,7 +245,7 @@
 	GMETA_FIELD takes only one parameter.
 	The macro will use the parameter as the name and address.
 	Policy can't be passed in to the macro.
-<{/autobr>}>
+<{/autobr}>
 </p>
 
 <{/sgroup}>
