@@ -1,0 +1,108 @@
+cpgf library
+
+
+cpgf library is a cross platform C++ library for reflection, callback, script binding.
+It's written in (almost) standard C++ and doesn't require any preprocess or tools.
+
+
+Version:
+	1.0.0
+
+		
+Libraries:
+	cpgf reflection -- a library to add	reflection feature to C++
+	
+	cpgf Lua binding -- a script binding engine to bind Lua to C++.
+		It's based on the reflection library.
+	
+	cpgf callback -- a callback library to implement signal/slot or callback in C++.
+		It's the primary library for other libraries.
+
+		
+License:
+	Apache License, Version 2.0
+	You may obtain a copy of the License at
+		http://www.apache.org/licenses/LICENSE-2.0
+		
+
+Website:
+	http://www.kbasm.com/
+
+
+Learning the library:
+	Though there are some documentations on the website, they are far from good.
+	You may understand that developers like coding much more than documenting.
+
+	The fastest way to get start with the library is to read the sample code
+	in the folder "samples".
+	The sample code was originally written for test purpose, so they are not
+	as easy to read as you expect. But they covers most features so it's
+	a good kick off.
+	
+	If you want to read more sample code, read the code in the folder "test".
+	They are for unit test. They are much more difficult to read and
+	use a lot of macros.
+	However, they cover much more functions than the sample code.
+	
+	
+Using the library:
+	1, In the project setting, add an include path pointing to "cpgf/include".
+	2, Link the source code or link the library in your project.	
+	3, All classes, functions and APIs are in the namespace "cpgf".
+	
+
+Link the source code:
+	To using the library, the easiest way is to just link all .cpp source code
+	under the src and sub folder.
+	However, a build script is also provide to build the code as static library.
+	
+
+Build the library:
+	The library uses CMake as the build system.
+	A makefile is provided to wrap the CMake build.
+	To build the library, open command line terminal, go to folder "build",
+	
+	run
+		make PLATFORM
+		
+	PLATFORM can be one of
+		nmake mingw linux vc05 vc08 vc10 cb_mingw cb_nmake cb_linux
+		
+	For detailed PLATFORM information, run "make" without parameter to see
+	the help.
+	
+	If you are using MSVC, run "nmake" instead of "make".
+
+	To build with Lua binding, you must change the variable LUA_DIR
+	in build.config.txt to point to the source code of Lua.
+	
+
+Compatibility -- Tested compilers and OSes:
+	Windows XP, Microsoft Visual C++ 2008 Express
+	Windows XP, MingW GCC 4.4.0 and 4.5.2
+	Linux (Ubuntu 11.04 in VirtualBox), GCC 4.5.2
+	Mac 10.6.8, GCC 4.4.0
+	
+	
+Required third party library -- None for the major libraries.
+	Doesn't require C++0X and TR1 features.
+	For Lua binding, Lua library is required.
+	If you want to run the unit test, UnitTest++ is required.
+		But usually you don't need to do that.
+	
+
+Contribute to the library:
+	If you like the library and want to contribute to it, here are some most
+	desired work to do
+	1, Help with the documentation. I'm not a native English speaker, and
+		I also don't like to write documentation.
+	2, Test the library on more compilers and platforms.
+
+
+What does cpgf mean?
+	The original cpgf means Cross Platform Game Framework.
+	It was intended	to be game framework that can work on PC and smart phone.
+	But later the author decided to add more fun but non-game features to the library.
+	So now the library is neither for game nor a framework.
+	It's a cross platform library.
+

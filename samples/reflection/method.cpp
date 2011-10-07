@@ -56,6 +56,10 @@ public:
 	std::string & refName() {
 		return this->name;
 	}
+	
+	int calcObj(const TestObject & other) {
+		return other.width + other.name.length();
+	}
 
 	int sum(const cpgf::GMetaVariadicParam * params) const {
 		int total = 0;
@@ -79,6 +83,7 @@ GMETA_DEFINE_CLASS(TestObject, TestObject, "method::TestObject") {
 	GMETA_METHOD(incWidth);
 	GMETA_METHOD(calcData);
 	GMETA_METHOD(refName);
+	GMETA_METHOD(calcObj);
 	GMETA_METHOD(sum);
 }
 
@@ -143,6 +148,19 @@ void doTestLib()
 		testCheckAssert(pobj->name == "abc");
 		*static_cast<std::string *>(referenceAddressFromVariant(method->invoke(obj))) = "def";
 		testCheckAssert(pobj->name == "def");
+		metaClass->destroyInstance(obj);
+	}
+
+	{
+		method = metaClass->getMethod("calcObj"); testCheckAssert(method != NULL);
+		void * obj = metaClass->createInstance();
+		TestObject * pobj = (TestObject *)obj;
+		TestObject nc;
+		nc.width = 5;
+		nc.name = "abc";
+		GVariant v(nc);
+		int n = fromVariant<int>(method->invoke(obj, v));
+		testCheckAssert(n == 8);
 		metaClass->destroyInstance(obj);
 	}
 

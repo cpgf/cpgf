@@ -41,8 +41,10 @@ none: needcmake
 	$(ECHO) 
 	$(ECHO) "Optional TargetToMake"
 	$(ECHO) 
-	$(ECHO) "  TARGET=lib	Build the library. This is the default if no TARGET is omitted."
+	$(ECHO) "  TARGET=lib	Build the library. This is the default if TARGET is omitted."
 	$(ECHO) "  TARGET=test	Build the unit test."
+	$(ECHO) "  TARGET=samplereflection	Build the reflection sample application."
+	$(ECHO) "  TARGET=samplelua		Build the Lua binding sample application."
 	
 needcmake:
 	$(ECHO)

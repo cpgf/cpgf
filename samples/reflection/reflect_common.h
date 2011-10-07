@@ -78,7 +78,7 @@ public:
 	{
 	}
 
-	TestNoncopyable(int x, std::string tag)
+	TestNoncopyable(int x, const std::string & tag)
 		:	x(x),
 			tag(tag)
 	{

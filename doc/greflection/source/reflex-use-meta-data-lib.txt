@@ -339,6 +339,38 @@ Convert the value to a specified type.
 
 
 
+<{sh}> Using meta enumerators
+<{sc}>
+
+<{autobr}>
+virtual size_t getTypeSize() const;
+Get the memory size of the enumerator type. It's as if performing a sizeof on the enumerator.
+
+size_t getCount() const;
+Get the element count of the enumerator;
+
+const char * getKey(size_t index) const;
+Get the enumerator element key name at index.
+
+GVariant getValue(size_t index) const;
+Get the enumerator element value at index.
+It's safe to convert the result value to an integer.
+
+int findKey(const char * key) const;
+Get the index of a key name.
+Return -1 if not found.
+
+virtual void * createInstance() const;
+virtual void * createInplace(void * placement) const;
+virtual void * cloneInstance(void * instance) const;
+virtual void * cloneInplace(void * instance, void * placement) const;
+virtual void destroyInstance(void * instance) const;
+
+
+<{/autobr}>	
+
+
+
 
 
 

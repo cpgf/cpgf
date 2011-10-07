@@ -48,8 +48,8 @@ private:
 GMETA_DEFINE_CLASS(TestOutterClass, TestOutterClass, "nestedclass::TestOutterClass") {
 	using namespace cpgf;
 
-	GMETA_CLASS(TestOutterClass::Inner);
-	GMETA_CLASS(TestOutterClass::AnotherInner);
+	GMETA_QUALIFIED_CLASS(TestOutterClass::Inner);
+	GMETA_QUALIFIED_CLASS(TestOutterClass::AnotherInner);
 
 	GMETA_FIELD(width);
 }
