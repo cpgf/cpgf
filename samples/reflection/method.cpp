@@ -197,7 +197,7 @@ void doTestAPI()
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 		pobj->width = 123;
-		testCheckEqual(pobj->width, fromVariant<int>(metaCallMethod(method, obj)));
+		testCheckEqual(pobj->width, fromVariant<int>(metaInvokeMethod(method, obj)));
 		metaClass->destroyInstance(obj);
 	}
 
@@ -210,7 +210,7 @@ void doTestAPI()
 		pobj->width = 567;
 		TestObject back(*(TestObject *)obj);
 		std::string s = "abcde";
-		metaCallMethod(method, obj, 3, s);
+		metaInvokeMethod(method, obj, 3, s);
 		std::string ns = "abcde";
 		back.incWidth(3, ns);
 		testCheckStringEqual(s, ns);
@@ -224,7 +224,7 @@ void doTestAPI()
 		TestObject * pobj = (TestObject *)obj;
 		pobj->data = TestData(168, "Test stdcall");
 		TestObject back(*(TestObject *)obj);
-		TestData data1 = fromVariant<TestData>(metaCallMethod(method, obj, 3, 5, "abc"));
+		TestData data1 = fromVariant<TestData>(metaInvokeMethod(method, obj, 3, 5, "abc"));
 		TestData data2 = back.calcData(3, 5, "abc");
 		testCheckEqual(data1, data2);
 		metaClass->destroyInstance(obj);
@@ -236,9 +236,9 @@ void doTestAPI()
 		TestObject * pobj = (TestObject *)obj;
 		pobj->name = "";
 		testCheckAssert(pobj->name != "abc");
-		fromVariant<std::string &>(metaCallMethod(method, obj)) = "abc";
+		fromVariant<std::string &>(metaInvokeMethod(method, obj)) = "abc";
 		testCheckAssert(pobj->name == "abc");
-		*static_cast<std::string *>(referenceAddressFromVariant(metaCallMethod(method, obj))) = "def";
+		*static_cast<std::string *>(referenceAddressFromVariant(metaInvokeMethod(method, obj))) = "def";
 		testCheckAssert(pobj->name == "def");
 		metaClass->destroyInstance(obj);
 	}
@@ -248,7 +248,7 @@ void doTestAPI()
 		testCheckAssert(metaGetItemType(method).isConstFunction());
 
 		void * obj = metaClass->createInstance();
-		int n = fromVariant<int>(metaCallMethod(method, obj, 1, 3, 5, 7, 9));
+		int n = fromVariant<int>(metaInvokeMethod(method, obj, 1, 3, 5, 7, 9));
 		testCheckEqual(n, 1 + 3 + 5 + 7 + 9);
 		metaClass->destroyInstance(obj);
 	}

@@ -390,68 +390,68 @@ GTEST(API_Construct)
 	CLASS * pobj;
 
 	CTOR(0);
-	pobj = (CLASS * )metaCallConstructor(ctor);
+	pobj = (CLASS * )metaInvokeConstructor(ctor);
 	GEQUAL(pobj->ci, 0);
 	GEQUAL(pobj->cs, "");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaCallConstructor(ctor, 1));
+	EXCEPT_META(metaInvokeConstructor(ctor, 1));
 
 	CLASS clone(8, "clone me");
 
 	CTOR(1);
-	pobj = (CLASS * )metaCallConstructor(ctor, clone);
+	pobj = (CLASS * )metaInvokeConstructor(ctor, clone);
 	GEQUAL(pobj->ci, 8);
 	GEQUAL(pobj->cs, "clone me");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaCallConstructor(ctor, clone, ""));
+	EXCEPT_META(metaInvokeConstructor(ctor, clone, ""));
 
 	CTOR(2);
-	pobj = (CLASS * )metaCallConstructor(ctor, 5);
+	pobj = (CLASS * )metaInvokeConstructor(ctor, 5);
 	GEQUAL(pobj->ci, 5);
 	GEQUAL(pobj->cs, "");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaCallConstructor(ctor, 1, 2));
+	EXCEPT_META(metaInvokeConstructor(ctor, 1, 2));
 
 	CTOR(3);
-	pobj = (CLASS * )metaCallConstructor(ctor, "haha");
+	pobj = (CLASS * )metaInvokeConstructor(ctor, "haha");
 	GEQUAL(pobj->ci, 0);
 	GEQUAL(pobj->cs, "haha");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaCallConstructor(ctor, 1));
+	EXCEPT_META(metaInvokeConstructor(ctor, 1));
 
 	CTOR(4);
-	pobj = (CLASS * )metaCallConstructor(ctor, 2, "another");
+	pobj = (CLASS * )metaInvokeConstructor(ctor, 2, "another");
 	GEQUAL(pobj->ci, 2);
 	GEQUAL(pobj->cs, "another");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaCallConstructor(ctor));
+	EXCEPT_META(metaInvokeConstructor(ctor));
 
 	CLASS_DATA data("oh", 38);
 
 	CTOR(5);
-	pobj = (CLASS * )metaCallConstructor(ctor, data);
+	pobj = (CLASS * )metaInvokeConstructor(ctor, data);
 	GEQUAL(pobj->ci, 38);
 	GEQUAL(pobj->cs, "oh");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaCallConstructor(ctor));
+	EXCEPT_META(metaInvokeConstructor(ctor));
 
 	data = CLASS_DATA("?", 1999);
 
 	CTOR(6);
-	pobj = (CLASS * )metaCallConstructor(ctor, &data);
+	pobj = (CLASS * )metaInvokeConstructor(ctor, &data);
 	GEQUAL(pobj->ci, 1999);
 	GEQUAL(pobj->cs, "?");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaCallConstructor(ctor));
+	EXCEPT_META(metaInvokeConstructor(ctor));
 
 	CTOR(7);
-	pobj = (CLASS * )metaCallConstructor(ctor);
+	pobj = (CLASS * )metaInvokeConstructor(ctor);
 	GEQUAL(pobj->ci, 0);
 	GEQUAL(pobj->cs, "Sum");
 	metaClass->destroyInstance(pobj);
 	
 	CTOR(7);
-	pobj = (CLASS * )metaCallConstructor(ctor, 1, 2, 3, 5, 6, 7, 8, 9, 10);
+	pobj = (CLASS * )metaInvokeConstructor(ctor, 1, 2, 3, 5, 6, 7, 8, 9, 10);
 	GEQUAL(pobj->ci, 1 + 2 + 3 + 5 + 6 + 7 + 8 + 9 + 10);
 	GEQUAL(pobj->cs, "Sum");
 	metaClass->destroyInstance(pobj);

@@ -32,8 +32,8 @@ public:
 
 	virtual GScriptObject * createScriptObject(const GScriptName & name);
 	
-	virtual GVariant callIndirectly(const GScriptName & name, GVariant const * const * params, size_t paramCount);
-	virtual GVariant call(const GScriptName & name, const GVariant * params, size_t paramCount);
+	virtual GVariant invokeIndirectly(const GScriptName & name, GVariant const * const * params, size_t paramCount);
+	virtual GVariant invoke(const GScriptName & name, const GVariant * params, size_t paramCount);
 
 	virtual void setFundamental(const GScriptName & name, const GVariant & value);
 	virtual void setString(const GScriptName & stringName, const char * s);

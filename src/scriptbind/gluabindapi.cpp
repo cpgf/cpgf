@@ -98,8 +98,8 @@ protected:
 
 	virtual IScriptObject * G_API_CC createScriptObject(IScriptName * name);
 	
-	virtual void G_API_CC callIndirectly(IScriptName * name, GVarData * outResult, GVarData const * const * params, uint32_t paramCount);
-	virtual void G_API_CC call(IScriptName * name, GVarData * outResult, const GVarData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeIndirectly(IScriptName * name, GVarData * outResult, GVarData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC invoke(IScriptName * name, GVarData * outResult, const GVarData * params, uint32_t paramCount);
 
 	virtual void G_API_CC setFundamental(IScriptName * name, const GVarData * value);
 	virtual void G_API_CC setString(IScriptName * stringName, const char * s);
@@ -285,7 +285,7 @@ IScriptObject * G_API_CC ImplScriptObject::createScriptObject(IScriptName * name
 	LEAVE_BINDING_API(return NULL)
 }
 
-void G_API_CC ImplScriptObject::callIndirectly(IScriptName * name, GVarData * outResult, GVarData const * const * params, uint32_t paramCount)
+void G_API_CC ImplScriptObject::invokeIndirectly(IScriptName * name, GVarData * outResult, GVarData const * const * params, uint32_t paramCount)
 {
 	ENTER_BINDING_API()
 
@@ -297,7 +297,7 @@ void G_API_CC ImplScriptObject::callIndirectly(IScriptName * name, GVarData * ou
 		paramIndirect[i] = &paramVariants[i];
 	}
 
-	GVariant result = this->scriptObject->callIndirectly(this->unwrapScriptName(name), paramIndirect, paramCount);
+	GVariant result = this->scriptObject->invokeIndirectly(this->unwrapScriptName(name), paramIndirect, paramCount);
 	if(outResult) {
 		*outResult = result.takeData();
 	}
@@ -305,7 +305,7 @@ void G_API_CC ImplScriptObject::callIndirectly(IScriptName * name, GVarData * ou
 	LEAVE_BINDING_API()
 }
 
-void G_API_CC ImplScriptObject::call(IScriptName * name, GVarData * outResult, const GVarData * params, uint32_t paramCount)
+void G_API_CC ImplScriptObject::invoke(IScriptName * name, GVarData * outResult, const GVarData * params, uint32_t paramCount)
 {
 	ENTER_BINDING_API()
 
@@ -315,7 +315,7 @@ void G_API_CC ImplScriptObject::call(IScriptName * name, GVarData * outResult, c
 		paramIndirect[i] = &params[i];
 	}
 
-	this->callIndirectly(name, outResult, paramIndirect, paramCount);
+	this->invokeIndirectly(name, outResult, paramIndirect, paramCount);
 
 	LEAVE_BINDING_API()
 }

@@ -153,7 +153,7 @@ void doTestAPI()
 
 	{
 		constructor.reset(metaClass->getConstructorAt(0)); testCheckAssert(constructor);
-		void * obj = metaCallConstructor(constructor);
+		void * obj = metaInvokeConstructor(constructor);
 		TestObject back;
 		testCheckEqual(back, *(TestObject *)obj);
 		metaClass->destroyInstance(obj);
@@ -161,7 +161,7 @@ void doTestAPI()
 
 	{
 		constructor.reset(metaClass->getConstructorAt(1)); testCheckAssert(constructor);
-		void * obj = metaCallConstructor(constructor, 5);
+		void * obj = metaInvokeConstructor(constructor, 5);
 		TestObject back(5);
 		testCheckEqual(back, *(TestObject *)obj);
 		metaClass->destroyInstance(obj);
@@ -169,7 +169,7 @@ void doTestAPI()
 
 	{
 		constructor.reset(metaClass->getConstructorAt(2)); testCheckAssert(constructor);
-		void * obj = metaCallConstructor(constructor, 18, "new name");
+		void * obj = metaInvokeConstructor(constructor, 18, "new name");
 		TestObject back(18, "new name");
 		testCheckEqual(back, *(TestObject *)obj);
 		metaClass->destroyInstance(obj);
@@ -177,7 +177,7 @@ void doTestAPI()
 
 	{
 		constructor.reset(metaClass->getConstructorAt(3)); testCheckAssert(constructor);
-		void * obj = metaCallConstructor(constructor, 9, "another name", TestData(199, "another tag"));
+		void * obj = metaInvokeConstructor(constructor, 9, "another name", TestData(199, "another tag"));
 		TestObject back(9, "another name", TestData(199, "another tag"));
 		testCheckEqual(back, *(TestObject *)obj);
 		metaClass->destroyInstance(obj);
@@ -185,7 +185,7 @@ void doTestAPI()
 
 	{
 		constructor.reset(metaClass->getConstructorAt(4)); testCheckAssert(constructor);
-		void * obj = metaCallConstructor(constructor, 1, 3, 5, 7, 9);
+		void * obj = metaInvokeConstructor(constructor, 1, 3, 5, 7, 9);
 		int n = ((TestObject *)obj)->width;
 		testCheckEqual(n, 1 + 3 + 5 + 7 + 9);
 		metaClass->destroyInstance(obj);

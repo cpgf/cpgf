@@ -1,3 +1,5 @@
+url: docs-gvariant
+
 <{autotoc}>
 
 <{sgroup}>Using GVariant
@@ -107,7 +109,7 @@ const std::string & rs = s; // no temporary object.
 We want to simulate the behavior in GVariant, however, we can't have the temporary object, only compiler knows how to create/destroy it, also we can't determine when to create the temporary when not.
 So what we can do is just let GVariant copy the object, no matter it's necessary or not.
 
-The is the biggest disadvantage of GVariant and if you know how to improve it, let me know.
+The is the biggest disadvantage of GVariant. If you have any idea to improve it, let me know.
 
 <{/autobr}>
 

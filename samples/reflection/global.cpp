@@ -129,7 +129,7 @@ void doTestAPI()
 
 	{
 		method.reset(metaClass->getMethod("addNumber")); testCheckAssert(method);
-		int n = fromVariant<int>(metaCallMethod(method, NULL, 38888, 16888));
+		int n = fromVariant<int>(metaInvokeMethod(method, NULL, 38888, 16888));
 		testCheckEqual(n, addNumber(38888, 16888));
 	}
 

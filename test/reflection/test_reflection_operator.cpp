@@ -601,36 +601,36 @@ GTEST(API_InvokeArithmetic)
 
 	operand.reset(5);
 	OP(mopHolder + mopHolder);
-	result = fromVariant<CLASS>(metaCallOperatorBinary(op, operand, 6));
+	result = fromVariant<CLASS>(metaInvokeOperatorBinary(op, operand, 6));
 	GEQUAL(result.value, 5 + 6);
 
 	OPI(mopHolder + mopHolder, 1);
-	result = fromVariant<CLASS>(metaCallOperatorBinary(op, 3, CLASS(7)));
+	result = fromVariant<CLASS>(metaInvokeOperatorBinary(op, 3, CLASS(7)));
 	GEQUAL(result.value, 3 + 7 * 2);
 
 	operand.reset(5);
 	OP(mopHolder - mopHolder);
-	result = fromVariant<CLASS>(metaCallOperatorBinary(op, operand, 6));
+	result = fromVariant<CLASS>(metaInvokeOperatorBinary(op, operand, 6));
 	GEQUAL(result.value, 5 - 6);
 
 	operand.reset(5);
 	OP(mopHolder * mopHolder);
-	result = fromVariant<CLASS>(metaCallOperatorBinary(op, operand, 6));
+	result = fromVariant<CLASS>(metaInvokeOperatorBinary(op, operand, 6));
 	GEQUAL(result.value, 5 * 6);
 
 	operand.reset(25);
 	OP(mopHolder / mopHolder);
-	result = fromVariant<CLASS>(metaCallOperatorBinary(op, operand, 6));
+	result = fromVariant<CLASS>(metaInvokeOperatorBinary(op, operand, 6));
 	GEQUAL(result.value, 25 / 6);
 
 	operand.reset(25);
 	OP(mopHolder % mopHolder);
-	result = fromVariant<CLASS>(metaCallOperatorBinary(op, operand, 6));
+	result = fromVariant<CLASS>(metaInvokeOperatorBinary(op, operand, 6));
 	GEQUAL(result.value, 25 % 6);
 
 	operand.reset(25);
 	OPI(mopHolder % mopHolder, 1);
-	result = fromVariant<CLASS>(metaCallOperatorBinary(op, operand, 6));
+	result = fromVariant<CLASS>(metaInvokeOperatorBinary(op, operand, 6));
 	GEQUAL(result.value, 25 % (6 + 1));
 
 }
@@ -696,31 +696,31 @@ GTEST(API_InvokeArithmeticAssign)
 
 	operand.reset(5);
 	OP(mopHolder += mopHolder);
-	presult = &(fromVariant<CLASS &>(metaCallOperatorBinary(op, operand, 6)));
+	presult = &(fromVariant<CLASS &>(metaInvokeOperatorBinary(op, operand, 6)));
 	GEQUAL(presult, addr);
 	GEQUAL(presult->value, 5 + 6);
 
 	operand.reset(5);
 	OP(mopHolder -= mopHolder);
-	presult = &(fromVariant<CLASS &>(metaCallOperatorBinary(op, operand, 6)));
+	presult = &(fromVariant<CLASS &>(metaInvokeOperatorBinary(op, operand, 6)));
 	GEQUAL(presult, addr);
 	GEQUAL(presult->value, 5 - 6);
 
 	operand.reset(5);
 	OP(mopHolder *= mopHolder);
-	presult = &(fromVariant<CLASS &>(metaCallOperatorBinary(op, operand, 6)));
+	presult = &(fromVariant<CLASS &>(metaInvokeOperatorBinary(op, operand, 6)));
 	GEQUAL(presult, addr);
 	GEQUAL(presult->value, 5 * 6);
 
 	operand.reset(50);
 	OP(mopHolder /= mopHolder);
-	presult = &(fromVariant<CLASS &>(metaCallOperatorBinary(op, operand, 6)));
+	presult = &(fromVariant<CLASS &>(metaInvokeOperatorBinary(op, operand, 6)));
 	GEQUAL(presult, addr);
 	GEQUAL(presult->value, 50 / 6);
 
 	operand.reset(50);
 	OP(mopHolder %= mopHolder);
-	presult = &(fromVariant<CLASS &>(metaCallOperatorBinary(op, operand, 6)));
+	presult = &(fromVariant<CLASS &>(metaInvokeOperatorBinary(op, operand, 6)));
 	GEQUAL(presult, addr);
 	GEQUAL(presult->value, 50 % 6);
 
@@ -780,27 +780,27 @@ GTEST(API_InvokeBitwise)
 
 	operand.reset(0x57);
 	OP(mopHolder & mopHolder);
-	result = fromVariant<CLASS>(metaCallOperatorBinary(op, operand, 0x3f));
+	result = fromVariant<CLASS>(metaInvokeOperatorBinary(op, operand, 0x3f));
 	GEQUAL(result.value, (0x57 & 0x3f));
 
 	operand.reset(0x57);
 	OP(mopHolder | mopHolder);
-	result = fromVariant<CLASS>(metaCallOperatorBinary(op, operand, 0x3f));
+	result = fromVariant<CLASS>(metaInvokeOperatorBinary(op, operand, 0x3f));
 	GEQUAL(result.value, (0x57 | 0x3f));
 
 	operand.reset(0x57);
 	OP(mopHolder ^ mopHolder);
-	result = fromVariant<CLASS>(metaCallOperatorBinary(op, operand, 0x3f));
+	result = fromVariant<CLASS>(metaInvokeOperatorBinary(op, operand, 0x3f));
 	GEQUAL(result.value, (0x57 ^ 0x3f));
 
 	operand.reset(0x57);
 	OP(mopHolder << mopHolder);
-	result = fromVariant<CLASS>(metaCallOperatorBinary(op, operand, 3));
+	result = fromVariant<CLASS>(metaInvokeOperatorBinary(op, operand, 3));
 	GEQUAL(result.value, (0x57 << 3));
 
 	operand.reset(0x57);
 	OP(mopHolder >> mopHolder);
-	result = fromVariant<CLASS>(metaCallOperatorBinary(op, operand, 3));
+	result = fromVariant<CLASS>(metaInvokeOperatorBinary(op, operand, 3));
 	GEQUAL(result.value, (0x57 >> 3));
 
 }
@@ -864,31 +864,31 @@ GTEST(API_InvokeBitwiseAssign)
 
 	operand.reset(0x57);
 	OP(mopHolder &= mopHolder);
-	presult = &fromVariant<CLASS &>(metaCallOperatorBinary(op, operand, 0x3f));
+	presult = &fromVariant<CLASS &>(metaInvokeOperatorBinary(op, operand, 0x3f));
 	GEQUAL(presult, &operand);
 	GEQUAL(presult->value, (0x57 & 0x3f));
 
 	operand.reset(0x57);
 	OP(mopHolder |= mopHolder);
-	presult = &fromVariant<CLASS &>(metaCallOperatorBinary(op, operand, 0x3f));
+	presult = &fromVariant<CLASS &>(metaInvokeOperatorBinary(op, operand, 0x3f));
 	GEQUAL(presult, &operand);
 	GEQUAL(presult->value, (0x57 | 0x3f));
 
 	operand.reset(0x57);
 	OP(mopHolder ^= mopHolder);
-	presult = &fromVariant<CLASS &>(metaCallOperatorBinary(op, operand, 0x3f));
+	presult = &fromVariant<CLASS &>(metaInvokeOperatorBinary(op, operand, 0x3f));
 	GEQUAL(presult, &operand);
 	GEQUAL(presult->value, (0x57 ^ 0x3f));
 
 	operand.reset(0x57);
 	OP(mopHolder <<= mopHolder);
-	presult = &fromVariant<CLASS &>(metaCallOperatorBinary(op, operand, 3));
+	presult = &fromVariant<CLASS &>(metaInvokeOperatorBinary(op, operand, 3));
 	GEQUAL(presult, &operand);
 	GEQUAL(presult->value, (0x57 << 3));
 
 	operand.reset(0x57);
 	OP(mopHolder >>= mopHolder);
-	presult = &fromVariant<CLASS &>(metaCallOperatorBinary(op, operand, 3));
+	presult = &fromVariant<CLASS &>(metaInvokeOperatorBinary(op, operand, 3));
 	GEQUAL(presult, &operand);
 	GEQUAL(presult->value, (0x57 >> 3));
 
@@ -969,51 +969,51 @@ GTEST(API_InvokeLogic)
 
 	operand.reset(3);
 	OP(mopHolder == mopHolder);
-	GCHECK(fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(3))));
-	GCHECK(! fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(5))));
+	GCHECK(fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(3))));
+	GCHECK(! fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(5))));
 
 	operand.reset(3);
 	OP(mopHolder != mopHolder);
-	GCHECK(fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(5))));
-	GCHECK(! fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(3))));
+	GCHECK(fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(5))));
+	GCHECK(! fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(3))));
 
 	operand.reset(6);
 	OP(mopHolder > mopHolder);
-	GCHECK(fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(3))));
-	GCHECK(! fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(18))));
+	GCHECK(fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(3))));
+	GCHECK(! fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(18))));
 
 	operand.reset(6);
 	OP(mopHolder >= mopHolder);
-	GCHECK(fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(3))));
-	GCHECK(fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(6))));
-	GCHECK(! fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(18))));
+	GCHECK(fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(3))));
+	GCHECK(fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(6))));
+	GCHECK(! fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(18))));
 
 	operand.reset(6);
 	OP(mopHolder < mopHolder);
-	GCHECK(fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(18))));
-	GCHECK(! fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(3))));
+	GCHECK(fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(18))));
+	GCHECK(! fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(3))));
 
 	operand.reset(6);
 	OP(mopHolder <= mopHolder);
-	GCHECK(fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(18))));
-	GCHECK(fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(6))));
-	GCHECK(! fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(3))));
+	GCHECK(fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(18))));
+	GCHECK(fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(6))));
+	GCHECK(! fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(3))));
 
 	operand.reset(6);
 	OP(mopHolder && mopHolder);
-	GCHECK(fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(3))));
-	GCHECK(! fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(0))));
+	GCHECK(fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(3))));
+	GCHECK(! fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(0))));
 	operand.reset(0);
-	GCHECK(! fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(3))));
-	GCHECK(! fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(0))));
+	GCHECK(! fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(3))));
+	GCHECK(! fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(0))));
 
 	operand.reset(6);
 	OP(mopHolder || mopHolder);
-	GCHECK(fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(3))));
-	GCHECK(fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(0))));
+	GCHECK(fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(3))));
+	GCHECK(fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(0))));
 	operand.reset(0);
-	GCHECK(fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(3))));
-	GCHECK(! fromVariant<bool>(metaCallOperatorBinary(op, operand, CLASS(0))));
+	GCHECK(fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(3))));
+	GCHECK(! fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(0))));
 
 }
 
@@ -1094,51 +1094,51 @@ GTEST(API_InvokeUnary)
 
 	operand.reset(-3);
 	OP(+ mopHolder);
-	GEQUAL(fromVariant<CLASS>(metaCallOperatorUnary(op, operand)).value, 3);
+	GEQUAL(fromVariant<CLASS>(metaInvokeOperatorUnary(op, operand)).value, 3);
 	operand.reset(5);
-	GEQUAL(fromVariant<CLASS>(metaCallOperatorUnary(op, operand)).value, 5);
+	GEQUAL(fromVariant<CLASS>(metaInvokeOperatorUnary(op, operand)).value, 5);
 
 	operand.reset(-3);
 	OP(- mopHolder);
-	GEQUAL(fromVariant<CLASS>(metaCallOperatorUnary(op, operand)).value, -3);
+	GEQUAL(fromVariant<CLASS>(metaInvokeOperatorUnary(op, operand)).value, -3);
 	operand.reset(5);
-	GEQUAL(fromVariant<CLASS>(metaCallOperatorUnary(op, operand)).value, -5);
+	GEQUAL(fromVariant<CLASS>(metaInvokeOperatorUnary(op, operand)).value, -5);
 
 	operand.reset(6);
 	OP(++mopHolder);
-	result = fromVariant<CLASS>(metaCallOperatorUnary(op, operand));
+	result = fromVariant<CLASS>(metaInvokeOperatorUnary(op, operand));
 	GEQUAL(result.value, 6 + 1);
 	GEQUAL(operand.value, 6 + 1);
 
 	operand.reset(6);
 	OP(mopHolder++);
-	result = fromVariant<CLASS>(metaCallOperatorUnary(op, operand));
+	result = fromVariant<CLASS>(metaInvokeOperatorUnary(op, operand));
 	GEQUAL(result.value, 6);
 	GEQUAL(operand.value, 6 + 1);
 
 	operand.reset(6);
 	OP(--mopHolder);
-	result = fromVariant<CLASS>(metaCallOperatorUnary(op, operand));
+	result = fromVariant<CLASS>(metaInvokeOperatorUnary(op, operand));
 	GEQUAL(result.value, 6 - 1);
 	GEQUAL(operand.value, 6 - 1);
 
 	operand.reset(6);
 	OP(mopHolder--);
-	result = fromVariant<CLASS>(metaCallOperatorUnary(op, operand));
+	result = fromVariant<CLASS>(metaInvokeOperatorUnary(op, operand));
 	GEQUAL(result.value, 6);
 	GEQUAL(operand.value, 6 - 1);
 
 	operand.reset(3);
 	OP(! mopHolder);
-	GCHECK(! fromVariant<CLASS>(metaCallOperatorUnary(op, operand)).value);
+	GCHECK(! fromVariant<CLASS>(metaInvokeOperatorUnary(op, operand)).value);
 	operand.reset(0);
-	GCHECK(fromVariant<CLASS>(metaCallOperatorUnary(op, operand)).value);
+	GCHECK(fromVariant<CLASS>(metaInvokeOperatorUnary(op, operand)).value);
 
 	operand.reset(3);
 	OP(~ mopHolder);
-	GEQUAL(fromVariant<CLASS>(metaCallOperatorUnary(op, operand)).value, ~3);
+	GEQUAL(fromVariant<CLASS>(metaInvokeOperatorUnary(op, operand)).value, ~3);
 	operand.reset(0);
-	GEQUAL(fromVariant<CLASS>(metaCallOperatorUnary(op, operand)).value, ~0);
+	GEQUAL(fromVariant<CLASS>(metaInvokeOperatorUnary(op, operand)).value, ~0);
 
 }
 
@@ -1211,42 +1211,42 @@ GTEST(API_InvokeOther)
 
 	operand.reset(3);
 	OP2(& mopHolder);
-	GEQUAL(*fromVariant<int *>(metaCallOperatorUnary(op, operand)), 3);
-	*fromVariant<int *>(metaCallOperatorUnary(op, operand)) = 5;
+	GEQUAL(*fromVariant<int *>(metaInvokeOperatorUnary(op, operand)), 3);
+	*fromVariant<int *>(metaInvokeOperatorUnary(op, operand)) = 5;
 	GEQUAL(operand.value, 5);
 
 	operand.reset(3);
 	OP2(* mopHolder);
-	GEQUAL(fromVariant<int>(metaCallOperatorUnary(op, operand)), 6);
+	GEQUAL(fromVariant<int>(metaInvokeOperatorUnary(op, operand)), 6);
 
 	operand.reset(3);
 	OP2((mopHolder, mopHolder));
-	GEQUAL(fromVariant<int>(metaCallOperatorBinary(op, operand, 2)), 5);
+	GEQUAL(fromVariant<int>(metaInvokeOperatorBinary(op, operand, 2)), 5);
 
 	OP2((mopHolder[mopHolder]));
-	GEQUAL(fromVariant<string>(metaCallOperatorBinary(op, operand, 5)), "aaaaa");
+	GEQUAL(fromVariant<string>(metaInvokeOperatorBinary(op, operand, 5)), "aaaaa");
 
 	operand.reset(3);
 	OP2(mopHolder->mopHolder);
-	GEQUAL(*fromVariant<int *>(metaCallOperatorUnary(op, operand)), 3);
-	*fromVariant<int *>(metaCallOperatorUnary(op, operand)) = 5;
+	GEQUAL(*fromVariant<int *>(metaInvokeOperatorUnary(op, operand)), 3);
+	*fromVariant<int *>(metaInvokeOperatorUnary(op, operand)) = 5;
 	GEQUAL(operand.value, 5);
 
 	operand.reset(8);
 	OP2(mopHolder->*mopHolder);
 	int CLASS2::* memPtr = &CLASS2::value;
-	GEQUAL(fromVariant<int>(metaCallOperatorBinary(op, operand, memPtr)), 8);
+	GEQUAL(fromVariant<int>(metaInvokeOperatorBinary(op, operand, memPtr)), 8);
 
 	OP2(mopHolder());
-	GEQUAL(fromVariant<string>(metaCallOperatorUnary(op, operand)), "abc");
+	GEQUAL(fromVariant<string>(metaInvokeOperatorUnary(op, operand)), "abc");
 
 	operand.reset(8);
 	OPI2(mopHolder(mopHolder), 0);
-	GEQUAL(fromVariant<int>(metaCallOperatorFunctor(op, &operand, "abc", 5)), 8 + 3 + 5 * 2);
+	GEQUAL(fromVariant<int>(metaInvokeOperatorFunctor(op, &operand, "abc", 5)), 8 + 3 + 5 * 2);
 
 	OPI2(mopHolder(mopHolder), 1);
-	GEQUAL(fromVariant<int>(metaCallOperatorFunctor(op, &operand)), 0);
-	GEQUAL(fromVariant<int>(metaCallOperatorFunctor(op, &operand, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12)),
+	GEQUAL(fromVariant<int>(metaInvokeOperatorFunctor(op, &operand)), 0);
+	GEQUAL(fromVariant<int>(metaInvokeOperatorFunctor(op, &operand, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12)),
 		1 + 2 + 3 + 5 + 6 + 7 + 8 + 9 + 10 + 11 + 12);
 
 }

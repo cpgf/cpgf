@@ -85,7 +85,7 @@ GMetaType metaGetParamType(const Meta & meta, size_t paramIndex)
 
 #define DEF_CALL_HELPER(N, unused) \
 	template <typename Meta> \
-	GVariant metaCallMethod(Meta & method, void * obj GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GVariant & p)) { \
+	GVariant metaInvokeMethod(Meta & method, void * obj GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
 		GVarData data; \
 		method->invokeIndirectly(&data, obj, paramData, N); \
@@ -93,14 +93,14 @@ GMetaType metaGetParamType(const Meta & meta, size_t paramIndex)
 		return GVariant(data); \
 	} \
 	template <typename Meta> \
-	void * metaCallConstructor(Meta & constructor GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p)) { \
+	void * metaInvokeConstructor(Meta & constructor GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
 		void * obj = constructor->invokeIndirectly(paramData, N); \
 		metaCheckError(constructor); \
 		return obj; \
 	} \
 	template <typename Meta> \
-	GVariant metaCallOperatorFunctor(Meta & op, void * obj GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p)) { \
+	GVariant metaInvokeOperatorFunctor(Meta & op, void * obj GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
 		GVarData data; \
 		op->invokeFunctorIndirectly(&data, obj, paramData, N); \
@@ -115,7 +115,7 @@ GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
 #undef DEF_LOAD_PARAM_HELPER
 
 template <typename Meta>
-GVariant metaCallOperatorUnary(Meta & op, const GVariant & p0)
+GVariant metaInvokeOperatorUnary(Meta & op, const GVariant & p0)
 {
 	GVarData data;
 
@@ -126,7 +126,7 @@ GVariant metaCallOperatorUnary(Meta & op, const GVariant & p0)
 }
 
 template <typename Meta>
-GVariant metaCallOperatorBinary(Meta & op, const GVariant & p0, const GVariant & p1)
+GVariant metaInvokeOperatorBinary(Meta & op, const GVariant & p0, const GVariant & p1)
 {
 	GVarData data;
 

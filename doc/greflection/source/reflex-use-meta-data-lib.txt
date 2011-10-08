@@ -113,24 +113,24 @@ const GMetaItem * getMetaAt(size_t index) const;
 <{autobr}>
 Class GMetaField exposes several functions to set/get field, and acquire field information.
 
-virtual bool canGet() const;
+<{piece}> virtual bool canGet() const; <{/piece}>
 Check if the field value can be got.
 A field can't be got if it's forbidden by the policy.
 
-virtual bool canSet() const;
+<{piece}> virtual bool canSet() const; <{/piece}>
 Check if the field value can be set.
 A field can't be set if it's forbidden by the policy.
 
-virtual GVariant get(void * instance) const;
+<{piece}> virtual GVariant get(void * instance) const; <{/piece}>
 Get the field value on the object "instance". A GVariant that represents the value will be returned.
 
-virtual void set(void * instance, const GVariant & v) const;
+<{piece}> virtual void set(void * instance, const GVariant & v) const; <{/piece}>
 Set the field value on the object "instance". A GVariant that represents the value is passed as the second parameter.
 
-virtual size_t getSize() const;
+<{piece}> virtual size_t getSize() const; <{/piece}>
 Get the field memory size. It's as if performing a sizeof on the field.
 
-void * getAddress(void * instance) const;
+<{piece}> void * getAddress(void * instance) const; <{/piece}>
 Get the field address. It's as if performing a "&" operator on the field.
 
 <{/autobr}>	
@@ -143,21 +143,21 @@ Get the field address. It's as if performing a "&" operator on the field.
 <{autobr}>
 Using property is almost same as using field, except that property doesn't support getAddress.
 
-virtual bool canGet() const;
+<{piece}> virtual bool canGet() const; <{/piece}>
 Check if the property value can be got.
 A property can't be got if it's forbidden by the policy, or the getter is absence (NULL).
 
-virtual bool canSet() const;
+<{piece}> virtual bool canSet() const; <{/piece}>
 Check if the property value can be set.
 A property can't be set if it's forbidden by the policy, or the setter is absence (NULL).
 
-virtual GVariant get(void * instance) const;
+<{piece}> virtual GVariant get(void * instance) const; <{/piece}>
 Get the property value on the object "instance". A GVariant that represents the value will be returned.
 
-virtual void set(void * instance, const GVariant & v) const;
+<{piece}> virtual void set(void * instance, const GVariant & v) const; <{/piece}>
 Set the property value on the object "instance". A GVariant that represents the value is passed as the second parameter.
 
-virtual size_t getSize() const;
+<{piece}> virtual size_t getSize() const; <{/piece}>
 Get the property memory size. It's as if performing a sizeof on the property.
 
 <{/autobr}>	
@@ -170,30 +170,30 @@ Get the property memory size. It's as if performing a sizeof on the property.
 <{autobr}>
 Class GMetaMethod exposes several functions to invoke method, and acquire field information.
 
-virtual GMetaType getParamType(size_t index) const;
+<{piece}> virtual GMetaType getParamType(size_t index) const; <{/piece}>
 Acquire parameter type at index.
 
-virtual size_t getParamCount() const;
+<{piece}> virtual size_t getParamCount() const; <{/piece}>
 Get parameter count.
 
-virtual bool hasResult() const;
+<{piece}> virtual bool hasResult() const; <{/piece}>
 Check whether the method has result. For functions that return "void", this function return false, otherwise, it returns true.
 
-virtual GMetaType getResultType() const;
+<{piece}> virtual GMetaType getResultType() const; <{/piece}>
 Acquire result type information.
 
-virtual bool isVariadic() const;
+<{piece}> virtual bool isVariadic() const; <{/piece}>
 Check whether the method can accept variadic parameters.
 
-GVariant invoke(void * instance, const GVariant & p1);
-GVariant invoke(void * instance, const GVariant & p1, const GVariant & p2);
-GVariant invoke(void * instance, const GVariant & p1, const GVariant & p2, ..., const GVariant & pN);
+<{piece}> GVariant invoke(void * instance, const GVariant & p1); <{/piece}>
+<{piece}> GVariant invoke(void * instance, const GVariant & p1, const GVariant & p2); <{/piece}>
+<{piece}> GVariant invoke(void * instance, const GVariant & p1, const GVariant & p2, ..., const GVariant & pN); <{/piece}>
 A group of overloaded functions to invoke the method with different amount of parameters, on the object "instance".
 
-virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
+<{piece}> virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const; <{/piece}>
 Invoke the method, and pass the parameters in an array.
 
-virtual bool checkParam(const GVariant & param, size_t paramIndex) const;
+<{piece}> virtual bool checkParam(const GVariant & param, size_t paramIndex) const; <{/piece}>
 Check if a parameter can be converted to the method parameter.
 
 <{/autobr}>	
@@ -207,30 +207,30 @@ Check if a parameter can be converted to the method parameter.
 <{autobr}>
 Using constructor is almost same as using method, except that its return value is always a pointer of "void *".
 
-virtual GMetaType getParamType(size_t index) const;
+<{piece}> virtual GMetaType getParamType(size_t index) const; <{/piece}>
 Acquire parameter type at index.
 
-virtual size_t getParamCount() const;
+<{piece}> virtual size_t getParamCount() const; <{/piece}>
 Get parameter count.
 
-virtual bool hasResult() const;
+<{piece}> virtual bool hasResult() const; <{/piece}>
 Always return true;
 
-virtual GMetaType getResultType() const;
+<{piece}> virtual GMetaType getResultType() const; <{/piece}>
 Return the type information of the class it will construct.
 
-virtual bool isVariadic() const;
+<{piece}> virtual bool isVariadic() const; <{/piece}>
 Check whether the constructor can accept variadic parameters.
 
-GVariant invoke(const GVariant & p1);
-GVariant invoke(const GVariant & p1, const GVariant & p2);
-GVariant invoke(const GVariant & p1, const GVariant & p2, ..., const GVariant & pN);
+<{piece}> GVariant invoke(const GVariant & p1); <{/piece}>
+<{piece}> GVariant invoke(const GVariant & p1, const GVariant & p2); <{/piece}>
+<{piece}> GVariant invoke(const GVariant & p1, const GVariant & p2, ..., const GVariant & pN); <{/piece}>
 A group of overloaded functions to invoke the method with different amount of parameters.
 
-virtual GVariant execute(const GVariant * params, size_t paramCount) const;
+<{piece}> virtual GVariant execute(const GVariant * params, size_t paramCount) const; <{/piece}>
 Invoke the constructor, and pass the parameters in an array.
 
-virtual bool checkParam(const GVariant & param, size_t paramIndex) const;
+<{piece}> virtual bool checkParam(const GVariant & param, size_t paramIndex) const; <{/piece}>
 Check if a parameter can be converted to the constructor parameter.
 
 <{/autobr}>	
@@ -243,34 +243,34 @@ Check if a parameter can be converted to the constructor parameter.
 <{autobr}>
 Using operator is almost same as using method, except that its parameter count is determined by the operator itself.
 
-virtual GMetaType getParamType(size_t index) const;
+<{piece}> virtual GMetaType getParamType(size_t index) const; <{/piece}>
 Acquire parameter type at index.
 
-virtual size_t getParamCount() const;
+<{piece}> virtual size_t getParamCount() const; <{/piece}>
 Get parameter count.
 
-virtual bool hasResult() const;
+<{piece}> virtual bool hasResult() const; <{/piece}>
 Always return true;
 
-virtual GMetaType getResultType() const;
+<{piece}> virtual GMetaType getResultType() const; <{/piece}>
 Return the type information of the class it will construct.
 
-virtual bool isVariadic() const;
+<{piece}> virtual bool isVariadic() const; <{/piece}>
 Check whether the operator can accept variadic parameters.
 
-GVariant invokeUnary(const GVariant & p0) const;
+<{piece}> GVariant invokeUnary(const GVariant & p0) const; <{/piece}>
 Invoke the operator with one parameter. The operator should be a unary operator.
 
-GVariant invokeBinary(const GVariant & p0, const GVariant & p1) const;
+<{piece}> GVariant invokeBinary(const GVariant & p0, const GVariant & p1) const; <{/piece}>
 Invoke the operator with two parameter. The operator should be a binary operator.
 
-GVariant invokeFunctor(const GVariant & instance, const GVariant & p1, const GVariant & p2, ..., const GVariant & pMax) const;
+<{piece}> GVariant invokeFunctor(const GVariant & instance, const GVariant & p1, const GVariant & p2, ..., const GVariant & pMax) const; <{/piece}>
 Invoke the functor operator.
 
-virtual GVariant execute(const GVariant * params, size_t paramCount) const;
+<{piece}> virtual GVariant execute(const GVariant * params, size_t paramCount) const; <{/piece}>
 Invoke the operator, and pass the parameters in an array.
 
-virtual bool checkParam(const GVariant & param, size_t paramIndex) const;
+<{piece}> virtual bool checkParam(const GVariant & param, size_t paramIndex) const; <{/piece}>
 Check if a parameter can be converted to the operator parameter.
 
 <{/autobr}>	
@@ -281,19 +281,19 @@ Check if a parameter can be converted to the operator parameter.
 <{sc}>
 
 <{autobr}>
-const GMetaItem * getMetaItem() const;
+<{piece}> const GMetaItem * getMetaItem() const; <{/piece}>
 Get the meta item that the annotation is bound to.
 
-const GAnnotationValue * getValue(const char * name) const;
+<{piece}> const GAnnotationValue * getValue(const char * name) const; <{/piece}>
 Get the annotation value of the key with the "name".
 
-size_t getCount() const;
+<{piece}> size_t getCount() const; <{/piece}>
 Get how many annotation values there are.
 
-const char * getNameAt(size_t index) const;
+<{piece}> const char * getNameAt(size_t index) const; <{/piece}>
 Get the annotation name at certain index.
 
-const GAnnotationValue * getValueAt(size_t index) const;
+<{piece}> const GAnnotationValue * getValueAt(size_t index) const; <{/piece}>
 Get the annotation value at certain index.
 
 
@@ -308,29 +308,29 @@ Get the annotation value at certain index.
 Annotation value is not meta data.
 It's the value type of annotation.
 
-const GVariant * getVariant() const;
+<{piece}> const GVariant * getVariant() const; <{/piece}>
 Get the value as a GVariant;
 
-bool canToString() const;
+<{piece}> bool canToString() const; <{/piece}>
 Check if the value can be converted to a string.
 
-bool canToWideString() const;
+<{piece}> bool canToWideString() const; <{/piece}>
 Check if the value can be converted to a wide string.
 
-bool canToInt() const;
+<{piece}> bool canToInt() const; <{/piece}>
 Check if the value can be converted to a integer.
 
-const char * toString() const;
+<{piece}> const char * toString() const; <{/piece}>
 Convert the value to a string.
 
-const wchar_t * toWideString() const;
+<{piece}> const wchar_t * toWideString() const; <{/piece}>
 Convert the value to a wide string.
 
-int toInt() const;
+<{piece}> int toInt() const; <{/piece}>
 Convert the value to an integer.
 
-template <typename T>
-T toObject() const;
+<{piece}> template <typename T>
+T toObject() const; <{/piece}>
 Convert the value to a specified type.
 
 
@@ -343,28 +343,28 @@ Convert the value to a specified type.
 <{sc}>
 
 <{autobr}>
-virtual size_t getTypeSize() const;
+<{piece}> virtual size_t getTypeSize() const; <{/piece}>
 Get the memory size of the enumerator type. It's as if performing a sizeof on the enumerator.
 
-size_t getCount() const;
+<{piece}> size_t getCount() const; <{/piece}>
 Get the element count of the enumerator;
 
-const char * getKey(size_t index) const;
+<{piece}> const char * getKey(size_t index) const; <{/piece}>
 Get the enumerator element key name at index.
 
-GVariant getValue(size_t index) const;
+<{piece}> GVariant getValue(size_t index) const; <{/piece}>
 Get the enumerator element value at index.
 It's safe to convert the result value to an integer.
 
-int findKey(const char * key) const;
+<{piece}> int findKey(const char * key) const; <{/piece}>
 Get the index of a key name.
 Return -1 if not found.
 
-virtual void * createInstance() const;
-virtual void * createInplace(void * placement) const;
-virtual void * cloneInstance(void * instance) const;
-virtual void * cloneInplace(void * instance, void * placement) const;
-virtual void destroyInstance(void * instance) const;
+<{piece}> virtual void * createInstance() const; <{/piece}>
+<{piece}> virtual void * createInplace(void * placement) const; <{/piece}>
+<{piece}> virtual void * cloneInstance(void * instance) const; <{/piece}>
+<{piece}> virtual void * cloneInplace(void * instance, void * placement) const; <{/piece}>
+<{piece}> virtual void destroyInstance(void * instance) const; <{/piece}>
 
 
 <{/autobr}>	

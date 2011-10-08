@@ -198,7 +198,7 @@ void doTestAPI()
 		void * obj = metaClass->createInstance();
 		((TestObject *)obj)->value = -((TestObject *)obj)->value;
 		TestObject back(*(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaCallOperatorUnary(metaOperator, obj));
+		TestObject res = fromVariant<TestObject>(metaInvokeOperatorUnary(metaOperator, obj));
 		testCheckEqual(res, +back);
 		metaClass->destroyInstance(obj);
 	}
@@ -208,7 +208,7 @@ void doTestAPI()
 		void * obj = metaClass->createInstance();
 		((TestObject *)obj)->value = -((TestObject *)obj)->value;
 		TestObject back(*(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaCallOperatorUnary(metaOperator, obj));
+		TestObject res = fromVariant<TestObject>(metaInvokeOperatorUnary(metaOperator, obj));
 		testCheckEqual(res, -back);
 		metaClass->destroyInstance(obj);
 	}
@@ -217,7 +217,7 @@ void doTestAPI()
 		metaOperator.reset(getOperator(++ mopHolder, metaClass, 0)); testCheckAssert(metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaCallOperatorUnary(metaOperator, obj));
+		TestObject res = fromVariant<TestObject>(metaInvokeOperatorUnary(metaOperator, obj));
 		testCheckEqual(res, ++back);
 		metaClass->destroyInstance(obj);
 	}
@@ -226,7 +226,7 @@ void doTestAPI()
 		metaOperator.reset(getOperator(mopHolder ++, metaClass, 0)); testCheckAssert(metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaCallOperatorUnary(metaOperator, obj));
+		TestObject res = fromVariant<TestObject>(metaInvokeOperatorUnary(metaOperator, obj));
 		testCheckEqual(res, back);
 		metaClass->destroyInstance(obj);
 	}
@@ -235,7 +235,7 @@ void doTestAPI()
 		metaOperator.reset(getOperator(-- mopHolder, metaClass, 0)); testCheckAssert(metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaCallOperatorUnary(metaOperator, obj));
+		TestObject res = fromVariant<TestObject>(metaInvokeOperatorUnary(metaOperator, obj));
 		testCheckEqual(res, --back);
 		metaClass->destroyInstance(obj);
 	}
@@ -244,7 +244,7 @@ void doTestAPI()
 		metaOperator.reset(getOperator(mopHolder --, metaClass, 0)); testCheckAssert(metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaCallOperatorUnary(metaOperator, obj));
+		TestObject res = fromVariant<TestObject>(metaInvokeOperatorUnary(metaOperator, obj));
 		testCheckEqual(res, back);
 		metaClass->destroyInstance(obj);
 	}
@@ -253,7 +253,7 @@ void doTestAPI()
 		metaOperator.reset(getOperator(! mopHolder, metaClass, 0)); testCheckAssert(metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaCallOperatorUnary(metaOperator, obj));
+		TestObject res = fromVariant<TestObject>(metaInvokeOperatorUnary(metaOperator, obj));
 		testCheckEqual(res, !back);
 		metaClass->destroyInstance(obj);
 	}
@@ -262,7 +262,7 @@ void doTestAPI()
 		metaOperator.reset(getOperator(~ mopHolder, metaClass, 0)); testCheckAssert(metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaCallOperatorUnary(metaOperator, obj));
+		TestObject res = fromVariant<TestObject>(metaInvokeOperatorUnary(metaOperator, obj));
 		testCheckEqual(res, ~back);
 		metaClass->destroyInstance(obj);
 	}
@@ -271,7 +271,7 @@ void doTestAPI()
 		metaOperator.reset(getOperator(& mopHolder, metaClass, 0)); testCheckAssert(metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
-		int * pn = fromVariant<int *>(metaCallOperatorUnary(metaOperator, obj));
+		int * pn = fromVariant<int *>(metaInvokeOperatorUnary(metaOperator, obj));
 		testCheckEqual(*pn, *(&back));
 		metaClass->destroyInstance(obj);
 	}
@@ -280,7 +280,7 @@ void doTestAPI()
 		metaOperator.reset(getOperator(* mopHolder, metaClass, 0)); testCheckAssert(metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
-		int n = fromVariant<int>(metaCallOperatorUnary(metaOperator, obj));
+		int n = fromVariant<int>(metaInvokeOperatorUnary(metaOperator, obj));
 		testCheckEqual(n, *back);
 		metaClass->destroyInstance(obj);
 	}

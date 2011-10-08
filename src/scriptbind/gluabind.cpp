@@ -1356,7 +1356,7 @@ GScriptObject * GLuaScriptObject::createScriptObject(const GScriptName & name)
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
 
-GVariant GLuaScriptObject::callIndirectly(const GScriptName & name, GVariant const * const * params, size_t paramCount)
+GVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GVariant const * const * params, size_t paramCount)
 {
 	ENTER_LUA()
 
@@ -1402,7 +1402,7 @@ GVariant GLuaScriptObject::callIndirectly(const GScriptName & name, GVariant con
 	LEAVE_LUA(this->implement->luaState, return GVariant())
 }
 
-GVariant GLuaScriptObject::call(const GScriptName & name, const GVariant * params, size_t paramCount)
+GVariant GLuaScriptObject::invoke(const GScriptName & name, const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1412,7 +1412,7 @@ GVariant GLuaScriptObject::call(const GScriptName & name, const GVariant * param
 		variantPointers[i] = &params[i];
 	}
 
-	return this->callIndirectly(name, variantPointers, paramCount);
+	return this->invokeIndirectly(name, variantPointers, paramCount);
 }
 
 void GLuaScriptObject::setFundamental(const GScriptName & name, const GVariant & value)

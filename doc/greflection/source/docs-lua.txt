@@ -1,0 +1,155 @@
+url: docs-lua-binding
+
+<h1>Lua binding engine -- bind Lua to C++</h1>
+
+<{autotoc}>
+
+<{sgroup}>Binding Lua script engine to C++
+
+<{sh}> Overview
+<{sc}>
+
+<{autobr}>
+The binding engine uses reflection meta data as the source.
+<{/autobr}>
+
+
+<{sh}> What can the binding engine do
+<{sc}>
+
+<{autobr}>
+1, Bind C++ class to Lua. Then Lua script can create instance, invoke class member function, get/set class field and more.
+2, Bind C++ enum type to Lua. Then Lua script can access the enum value by name.
+3, Bind C++ functions (global or member) to Lua.
+4, Bind C++ values to Lua variable.
+5, The overloaded operators in C++ are bound to Lua together with the class.
+6, Invoke Lua functions from C++.
+7, Get and set Lua value from C++.
+<{/autobr}>
+
+
+<{sh}> Get start
+<{sc}>
+
+<{autobr}>
+To start binding Lua, include the header,
+cpgf/scriptbind/gluabind.h
+
+First, we need a GScriptObject object.
+The Lua version is GLuaScriptObject.
+GLuaScriptObject constructor accepts three parameters.
+GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
+
+The first parameter is a IMetaService. You can call createMetaService() to create the service.
+The second parameter is the Lua state.
+The third one is a config. Just call GScriptConfig() to construct default one.
+
+This script object acts as a global scope. All meta data bound to this script object will be bound Lua global space.
+New named scope can be create by calling GScriptObject::createScriptObject(TheName).
+Then all meta data bound to TheName can be accessed via TheName.
+Such as TheName.MyClass, etc.
+
+After getting the GScriptObject object, we get everything ready to bind the meta data to Lua.
+
+<{/autobr}>
+
+
+
+<{sh}> Understand script name
+<{sc}>
+
+<{autobr}>
+All meta data that bound to script engine must be bound to a name.
+But instead of using raw string, the library uses GScriptName (in library) or IScriptName (in API) to represent the literal name.
+
+The reason is simple, Lua, or maybe other script engine, supports hash the name for quick reference.
+Thus script name is introduced to support this feature.
+
+However, if you are using the library (access the library classes directly), you don't need to aware GScriptName.
+Literal string can be passed where GScriptName required.
+If you are using the interface based API, you have to deal with IScriptName.
+
+<{/autobr}>
+
+
+
+<{sh}> Start script object
+<{sc}>
+
+<{autobr}>
+<{piece}> virtual bool cacheName(GScriptName * name) = 0; <{/piece}>
+Cache the script name for later fast use. Lua supports it by reference to the name.
+For any script engine that doesn't support this function, this function doesn't effect.
+
+<{piece}> virtual GScriptDataType getType(const GScriptName & name) = 0; <{/piece}>
+Get the type of a name in the script engine. The name can be any legal name that exists in the script engine.
+Here is the list of the data type,
+	sdtUnknown -- can't determine the type
+	sdtNull -- NULL. It's nil in Lua.
+	sdtFundamental -- fundamental type. Can be boolean, integer, float, etc.
+	sdtString -- string. Can be obtained as C string.
+	sdtClass -- C++ class that bound to the script engine.
+	sdtObject -- C++ object.
+	sdtMethod -- C++ function.
+	sdtEnum -- C++ enumerator.
+	sdtScriptObject -- A script object. Meta data can be added to it.
+	sdtScriptMethod -- Function in the script.
+
+<{piece}> virtual void bindClass(const GScriptName & name, IMetaClass * metaClass) = 0; <{/piece}>
+Bind the meta class under the name.
+
+Some examples,
+
+scriptObject->bindClass(metaClass->getName(), metaClass);
+Bind metaClass under its meta name.
+
+scriptObject->bindClass("MyClass", metaClass);
+Bind metaClass under "MyClass".
+
+In Lua, the script can always invoke the class name to construct new instance.
+a = MyClass()
+a is constructed with the default constructor.
+b = MyClass(5)
+b is constructed with the constructor that accepts an integer.
+
+<{piece}> virtual void bindEnum(const GScriptName & name, IMetaEnum * metaEnum) = 0; <{/piece}>
+Bind the meta enumerator to script.
+Assume we have the enumerator,
+enum MyEnum { x, y, z };
+After binding MyEnum, in Lua, we can access the value by,
+a = MyEnum.x
+b = MyEnum.y
+
+<{piece}> virtual GScriptObject * createScriptObject(const GScriptName & name) = 0; <{/piece}>
+Create a new script object under current script object.
+The new script object can be used to bind meta data.
+
+<{piece}> virtual GVariant invokeIndirectly(const GScriptName & name, GVariant const * const * params, size_t paramCount) = 0; <{/piece}>
+<{piece}> virtual GVariant invoke(const GScriptName & name, const GVariant * params, size_t paramCount) = 0; <{/piece}>
+
+<{piece}> virtual void setFundamental(const GScriptName & name, const GVariant & value) = 0; <{/piece}>
+<{piece}> virtual void setString(const GScriptName & stringName, const char * s) = 0; <{/piece}>
+<{piece}> virtual void setObject(const GScriptName & objectName, void * instance, IMetaClass * type, bool transferOwnership) = 0; <{/piece}>
+<{piece}> virtual void setMethod(const GScriptName & name, void * instance, IMetaMethod * method) = 0; <{/piece}>
+
+<{piece}> virtual GVariant getFundamental(const GScriptName & name) = 0; <{/piece}>
+<{piece}> virtual std::string getString(const GScriptName & stringName) = 0; <{/piece}>
+
+<{piece}> virtual void * getObject(const GScriptName & objectName) = 0; <{/piece}>
+<{piece}> virtual IMetaClass * getObjectType(const GScriptName & objectName) = 0; <{/piece}>
+<{piece}> virtual IMetaClass * getClass(const GScriptName & className) = 0; <{/piece}>
+
+<{piece}> virtual IMetaMethod * getMethod(const GScriptName & methodName) = 0; <{/piece}>
+<{piece}> virtual IMetaEnum * getEnum(const GScriptName & enumName) = 0; <{/piece}>
+
+<{piece}> virtual void assignValue(const GScriptName & fromName, const GScriptName & toName) = 0; <{/piece}>
+<{piece}> virtual bool valueIsNull(const GScriptName & name) = 0; <{/piece}>
+<{piece}> virtual void nullifyValue(const GScriptName & name) = 0; <{/piece}>
+
+<{/autobr}>
+
+
+<{/sgroup}>
+
+
+<{/autotoc}>

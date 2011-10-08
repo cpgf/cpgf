@@ -195,7 +195,7 @@ GTEST(Lib_ResultType)
 	METHOD(methodMakeData);
 	GEQUAL(method->getResultType(), createMetaType<void>());
 	GCHECK(! method->hasResult());
-	GCHECK(method->getItemType().isConstFunction());
+	GCHECK(method->getItemType().isConstFunction()); // class CLASS
 
 	METHOD(methodMakeDataByPointer);
 	GEQUAL(method->getResultType(), createMetaType<void>());
@@ -496,39 +496,39 @@ GTEST(API_Invoke)
 
 	pobj->fieldMethodInt = 910;
 	METHOD(methodGetInt);
-	GEQUAL(fromVariant<int>(metaCallMethod(method, pobj)), 910);
-	EXCEPT_META(metaCallMethod(method, pobj, 1));
+	GEQUAL(fromVariant<int>(metaInvokeMethod(method, pobj)), 910);
+	EXCEPT_META(metaInvokeMethod(method, pobj, 1));
 
 	METHOD(methodAddInt);
-	metaCallMethod(method, pobj, 2);
+	metaInvokeMethod(method, pobj, 2);
 	GEQUAL(pobj->fieldMethodInt, 912);
-	EXCEPT_META(metaCallMethod(method, pobj));
+	EXCEPT_META(metaInvokeMethod(method, pobj));
 
 	pobj->fieldMethodString = "";
 	METHOD(methodRefString);
-	string & refString = fromVariant<string &>(metaCallMethod(method, pobj));
+	string & refString = fromVariant<string &>(metaInvokeMethod(method, pobj));
 	GEQUAL(&pobj->fieldMethodString, &refString);
 	refString = "reffff";
 	GEQUAL(pobj->fieldMethodString, "reffff");
-	EXCEPT_META(metaCallMethod(method, pobj, 1));
+	EXCEPT_META(metaInvokeMethod(method, pobj, 1));
 
 	pobj->fieldMethodString = "a";
 	METHOD(methodConcatString);
-	string s = fromVariant<string>(metaCallMethod(method, pobj, "bc"));
+	string s = fromVariant<string>(metaInvokeMethod(method, pobj, "bc"));
 	GEQUAL(s, "abc");
 	GEQUAL(pobj->fieldMethodString, "abc");
-	EXCEPT_META(metaCallMethod(method, pobj, 1, 2));
+	EXCEPT_META(metaInvokeMethod(method, pobj, 1, 2));
 
 	pobj->fieldMethodString = "bc";
 	pobj->fieldMethodInt = 6;
 	CLASS_DATA data("a", 5);
 	METHOD(methodAddData);
-	CLASS_DATA newData = fromVariant<CLASS_DATA>(metaCallMethod(method, pobj, data));
+	CLASS_DATA newData = fromVariant<CLASS_DATA>(metaInvokeMethod(method, pobj, data));
 	GEQUAL(data.s, "a");
 	GEQUAL(data.i, 5);
 	GEQUAL(newData.s, "abc");
 	GEQUAL(newData.i, 11);
-	EXCEPT_META(metaCallMethod(method, pobj, 1, 3));
+	EXCEPT_META(metaInvokeMethod(method, pobj, 1, 3));
 
 	pobj->fieldMethodString = "abc";
 	pobj->fieldMethodInt = 6;
@@ -536,10 +536,10 @@ GTEST(API_Invoke)
 	GDIFF(data.s, "abc");
 	GDIFF(data.i, 6);
 	METHOD(methodMakeData);
-	metaCallMethod(method, pobj, data);
+	metaInvokeMethod(method, pobj, data);
 	GEQUAL(data.s, "abc");
 	GEQUAL(data.i, 6);
-	EXCEPT_META(metaCallMethod(method, pobj));
+	EXCEPT_META(metaInvokeMethod(method, pobj));
 
 	pobj->fieldMethodString = "abc";
 	pobj->fieldMethodInt = 6;
@@ -547,19 +547,19 @@ GTEST(API_Invoke)
 	GDIFF(data.s, "abc");
 	GDIFF(data.i, 6);
 	METHOD(methodMakeDataByPointer);
-	metaCallMethod(method, pobj, &data);
+	metaInvokeMethod(method, pobj, &data);
 	GEQUAL(data.s, "abc");
 	GEQUAL(data.i, 6);
-	EXCEPT_META(metaCallMethod(method, pobj, 1, 5));
+	EXCEPT_META(metaInvokeMethod(method, pobj, 1, 5));
 
 	METHOD(methodManyParams);
-	metaCallMethod(method, pobj, 'A', 38, 9876532198765321LL, 1.99, "Many", "Too Many", CLASS_DATA("Data", 8));
-	EXCEPT_META(metaCallMethod(method, pobj, 1));
+	metaInvokeMethod(method, pobj, 'A', 38, 9876532198765321LL, 1.99, "Many", "Too Many", CLASS_DATA("Data", 8));
+	EXCEPT_META(metaInvokeMethod(method, pobj, 1));
 
 	METHOD(methodSum);
-	GEQUAL(fromVariant<int>(metaCallMethod(method, pobj)), (0));
-	GEQUAL(fromVariant<int>(metaCallMethod(method, pobj, 1, 2, 3)), (1 + 2 + 3));
-	GEQUAL(fromVariant<int>(metaCallMethod(method, pobj,
+	GEQUAL(fromVariant<int>(metaInvokeMethod(method, pobj)), (0));
+	GEQUAL(fromVariant<int>(metaInvokeMethod(method, pobj, 1, 2, 3)), (1 + 2 + 3));
+	GEQUAL(fromVariant<int>(metaInvokeMethod(method, pobj,
 		18, 56, 102, 192, 3103, 39, 52, 691, 819, 130, 397, 19385
 		)), (
 		18 + 56 + 102 + 192 + 3103 + 39 + 52 + 691 + 819 + 130 + 397 + 19385

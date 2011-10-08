@@ -50,6 +50,12 @@ my @tags = (
 		needClose => 1,
 		handler => \&handlerCode,
 	},
+
+	{
+		tag => "piece",
+		needClose => 1,
+		handler => \&handlerCodePiece,
+	},
 );
 
 my @inputFiles = ();
@@ -285,6 +291,20 @@ sub handlerCode
 	}
 	else {
 		$context->appendContent('<pre>');
+	}
+
+	$context->changeCodeLevel($closeTag);
+}
+
+sub handlerCodePiece
+{
+	my ($tagProcessor, $context, $tagName, $closeTag) = @_;
+
+	if($closeTag) {
+		$context->appendContent('</span>');
+	}
+	else {
+		$context->appendContent('<span style="background-color:#eeeeee">');
 	}
 
 	$context->changeCodeLevel($closeTag);

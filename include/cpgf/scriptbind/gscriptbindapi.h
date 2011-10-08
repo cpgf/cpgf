@@ -55,8 +55,8 @@ struct IScriptObject : public IApiObject
 
 	virtual IScriptObject * G_API_CC createScriptObject(IScriptName * name) = 0;
 	
-	virtual void G_API_CC callIndirectly(IScriptName * name, GVarData * outResult, GVarData const * const * params, uint32_t paramCount) = 0;
-	virtual void G_API_CC call(IScriptName * name, GVarData * outResult, const GVarData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeIndirectly(IScriptName * name, GVarData * outResult, GVarData const * const * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invoke(IScriptName * name, GVarData * outResult, const GVarData * params, uint32_t paramCount) = 0;
 
 	virtual void G_API_CC setFundamental(IScriptName * name, const GVarData * value) = 0;
 	virtual void G_API_CC setString(IScriptName * stringName, const char * s) = 0;
