@@ -13,7 +13,7 @@ namespace cpgf {
 	GPP_REPEAT_3(N, DEF_LOAD_PARAM_HELPER, GPP_EMPTY())
 
 #define DEF_CALL_HELPER(N, unused) \
-	GVariant callScriptFunction(GScriptObject * scriptObject, const GScriptName & name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GVariant & p)) { \
+	GVariant invokeScriptFunction(GScriptObject * scriptObject, const GScriptName & name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
 		return scriptObject->invokeIndirectly(name, params, N); \
 	}

@@ -299,7 +299,7 @@ GTEST(misc)
 //	luaL_dostring(L, code);
 	luaL_loadstring(L, code); lua_call(L, 0, LUA_MULTRET);
 
-	GVariant result = callScriptFunction(&binding, "luaAdd", 8, 2);
+	GVariant result = invokeScriptFunction(&binding, "luaAdd", 8, 2);
 	cout << "Result: " << fromVariant<int>(result) << endl;
 	cout << binding.getString("lss") << endl;
 

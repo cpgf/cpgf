@@ -80,7 +80,7 @@ struct InitAnnoVariant
 {
 	static void init(GVariant & var, const T & value) {
 		GVariantType vt = deduceVariantType<T>(true);
-		variant_internal::InitVariant(var, vt, static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
+		variant_internal::InitVariant(var, vt, deduceVariantPointers<T>(), static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
 	}
 };
 

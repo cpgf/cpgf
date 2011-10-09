@@ -155,7 +155,7 @@ struct MetaOperatorExecuter;
 #define DEF_BINARY_FULL(OP, EXP) \
 	template <typename FT> struct MetaOperatorExecuter <OP, FT, typename GEnableIf<FT::HasResult>::Result> : public MetaBinaryOperatorExecuter<FT>	{ \
 		template <typename P0, typename P1> static GVariant invoke(P0 p0, P1 p1) { \
-			return GVariant(deduceVariantType<typename FT::ResultType>(true), EXP); \
+			return GVariant(deduceVariantType<typename FT::ResultType>(true), deduceVariantPointers<typename FT::ResultType>(), EXP); \
 	} }; \
 	template <typename FT> struct MetaOperatorExecuter <OP, FT, typename GEnableIf<! FT::HasResult>::Result> : public MetaBinaryOperatorExecuter<FT> { \
 		template <typename P0, typename P1> static GVariant invoke(P0 p0, P1 p1) { \
@@ -214,7 +214,7 @@ DEF_BINARY(mopPointerMember, ->*)
 #define DEF_UNARY(OP, EXP) \
 	template <typename FT> struct MetaOperatorExecuter <OP, FT> : public MetaUnaryOperatorExecuter<FT> { \
 		template <typename P0> static GVariant invoke(P0 p) { \
-			return GVariant(deduceVariantType<typename FT::ResultType>(true), EXP); \
+			return GVariant(deduceVariantType<typename FT::ResultType>(true), deduceVariantPointers<typename FT::ResultType>(), EXP); \
 	} }; \
 	template <typename FT> struct MetaOperatorExecuter <OP, FT, typename GEnableIf<! FT::HasResult>::Result> : public MetaUnaryOperatorExecuter<FT> { \
 		template <typename P0> static GVariant invoke(P0 p) { \

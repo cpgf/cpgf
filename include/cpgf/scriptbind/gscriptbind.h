@@ -5,6 +5,7 @@
 #include "cpgf/scriptbind/gscriptbindapi.h"
 
 #include "cpgf/gmetaapiutil.h"
+#include "cpgf/gmetavariant.h"
 
 #include <string>
 #include <algorithm>

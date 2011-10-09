@@ -21,6 +21,7 @@ struct GMetaTypeData
 	const char * baseName;
 	uint32_t flags;
 	uint16_t varType;
+	uint8_t varPointers;
 };
 #pragma pack(pop)
 
@@ -111,20 +112,19 @@ struct StripNonPointer
 };
 
 
-const unsigned int mtFlagPointerMask = 0x0f;
-const unsigned int mtFlagIsConst = 1 << 4;
-const unsigned int mtFlagIsVolatile = 1 << 5;
-const unsigned int mtFlagIsConstVolatile = 1 << 6;
-const unsigned int mtFlagIsReference = 1 << 7;
-const unsigned int mtFlagIsPointer = 1 << 8;
-const unsigned int mtFlagIsPointerToConst = 1 << 9;
-const unsigned int mtFlagIsPointerToVolatile = 1 << 10;
-const unsigned int mtFlagIsPointerToConstVolatile = 1 << 11;
-const unsigned int mtFlagIsFunction = 1 << 12;
-const unsigned int mtFlagIsConstFunction = 1 << 13;
-const unsigned int mtFlagIsVolatileFunction = 1 << 14;
-const unsigned int mtFlagIsConstVolatileFunction = 1 << 15;
-const unsigned int mtFlagBaseIsClass = 1 << 16;
+const unsigned int mtFlagIsConst = 1 << 0;
+const unsigned int mtFlagIsVolatile = 1 << 1;
+const unsigned int mtFlagIsConstVolatile = 1 << 2;
+const unsigned int mtFlagIsReference = 1 << 3;
+const unsigned int mtFlagIsPointer = 1 << 4;
+const unsigned int mtFlagIsPointerToConst = 1 << 5;
+const unsigned int mtFlagIsPointerToVolatile = 1 << 6;
+const unsigned int mtFlagIsPointerToConstVolatile = 1 << 7;
+const unsigned int mtFlagIsFunction = 1 << 8;
+const unsigned int mtFlagIsConstFunction = 1 << 9;
+const unsigned int mtFlagIsVolatileFunction = 1 << 10;
+const unsigned int mtFlagIsConstVolatileFunction = 1 << 11;
+const unsigned int mtFlagBaseIsClass = 1 << 12;
 
 template <typename T>
 struct GMetaTypeDeduce
@@ -136,7 +136,6 @@ private:
 public:
 	enum {
 		Flags = 0
-			| PointerDimension<NoCV>::Result // pointer dimension
 			| (IsConst<T>::Result ? mtFlagIsConst : 0)
 			| (IsVolatile<T>::Result ? mtFlagIsVolatile : 0)
 			| (IsConstVolatile<T>::Result ? mtFlagIsConstVolatile : 0)
@@ -163,6 +162,7 @@ void deduceMetaTypeData(GMetaTypeData * data)
 	data->baseName = NULL;
 	data->flags = GMetaTypeDeduce<T>::Flags;
 	data->varType = static_cast<uint16_t>(deduceVariantType<T>());
+	data->varPointers = deduceVariantPointers<T>();
 }
 
 } // namespace meta_internal
@@ -173,19 +173,19 @@ class GMetaType
 //	GASSERT_STATIC(sizeof(GMetaTypeData) == 8);
 
 public:
-	GMetaType() : baseName(NULL), flags(0), varType(vtEmpty), baseType() {
+	GMetaType() : baseName(NULL), flags(0), varType(vtEmpty), varPointers(0), baseType() {
 	}
 
 	explicit GMetaType(const GMetaTypeData & data)
-		: baseName(data.baseName), flags(data.flags), varType(data.varType), baseType() {
+		: baseName(data.baseName), flags(data.flags), varType(data.varType), varPointers(data.varPointers), baseType() {
 	}
 
 	GMetaType(const GMetaTypeData & data, const GTypeInfo & baseType)
-		: baseName(data.baseName), flags(data.flags), varType(data.varType), baseType(baseType) {
+		: baseName(data.baseName), flags(data.flags), varType(data.varType), varPointers(data.varPointers), baseType(baseType) {
 	}
 
 	GMetaType(const GMetaType & other)
-		: baseName(other.baseName), flags(other.flags), varType(other.varType), baseType(other.baseType) {
+		: baseName(other.baseName), flags(other.flags), varType(other.varType), varPointers(other.varPointers), baseType(other.baseType) {
 	}
 
 	~GMetaType() {
@@ -196,6 +196,7 @@ public:
 			this->baseName = other.baseName;
 			this->flags = other.flags;
 			this->varType = other.varType;
+			this->varPointers = other.varPointers;
 			this->baseType = other.baseType;
 		}
 
@@ -281,7 +282,7 @@ public:
 	}
 
 	unsigned int getPointerDimension() const {
-		return this->flags & meta_internal::mtFlagPointerMask;
+		return this->varPointers;
 	}
 
 	GVariantType getVariantType() const {
@@ -301,6 +302,7 @@ private:
 	const char * baseName;
 	int flags;
 	int varType;
+	int varPointers;
 	GTypeInfo baseType;
 
 private:
@@ -322,15 +324,15 @@ inline GMetaType createMetaTypeWithName(const GMetaType & type, const char * nam
 	return GMetaType(data, type.getBaseType());
 }
 
-void fixupMetaType(GMetaType * type);
-
-
 inline void initializeMetaType(GMetaTypeData * data)
 {
 	data->varType = vtEmpty;
+	data->varPointers = 0;
 	data->flags = 0;
 	data->baseName = NULL;
 }
+
+void fixupMetaType(GMetaType * type);
 
 
 } // namespace cpgf

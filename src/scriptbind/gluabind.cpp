@@ -109,6 +109,7 @@ namespace {
 
 		va_end (args);
 
+printf("Error: %s", buffer);
 		throw GScriptException(std::string(buffer));
 	}
 
@@ -398,6 +399,12 @@ namespace {
 
 		if(vtIsVoidPointer(vt)) {
 			lua_pushlightuserdata(L, fromVariant<void *>(value));
+
+			return true;
+		}
+
+		if(value.getPointers() == 1 && value.getBaseType() == vtChar) {
+			lua_pushstring(L, fromVariant<char *>(value));
 
 			return true;
 		}
@@ -1372,8 +1379,9 @@ GVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GVariant c
 			if(!variantToLua(this->implement->luaState, &this->implement->param, *params[i], type, false)) {
 				if(i > 0) {
 					lua_pop(this->implement->luaState, static_cast<int>(i) - 1);
-					handleError("Can't pass parameter %d", i);
 				}
+
+				handleError("Can't pass parameter at index %d in function %s", i, name.getName());
 			}
 		}
 

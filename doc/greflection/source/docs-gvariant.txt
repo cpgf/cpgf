@@ -1,4 +1,4 @@
-url: docs-gvariant
+url: docs-cpgf-gvariant
 
 <{autotoc}>
 

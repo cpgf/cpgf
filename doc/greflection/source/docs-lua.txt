@@ -1,4 +1,4 @@
-url: docs-lua-binding
+url: docs-cpgf-lua-binding
 
 <h1>Lua binding engine -- bind Lua to C++</h1>
 
@@ -17,15 +17,15 @@ The binding engine uses reflection meta data as the source.
 <{sh}> What can the binding engine do
 <{sc}>
 
-<{autobr}>
-1, Bind C++ class to Lua. Then Lua script can create instance, invoke class member function, get/set class field and more.
-2, Bind C++ enum type to Lua. Then Lua script can access the enum value by name.
-3, Bind C++ functions (global or member) to Lua.
-4, Bind C++ values to Lua variable.
-5, The overloaded operators in C++ are bound to Lua together with the class.
-6, Invoke Lua functions from C++.
-7, Get and set Lua value from C++.
-<{/autobr}>
+<{autoul}>
+Bind C++ class to Lua. Then Lua script can create instance, invoke class member function, get/set class field and more.
+Bind C++ enum type to Lua. Then Lua script can access the enum value by name.
+Bind C++ functions (global or member) to Lua.
+Bind C++ values to Lua variable.
+The overloaded operators in C++ are bound to Lua together with the class.
+Invoke Lua functions from C++.
+Get and set Lua value from C++.
+<{/autoul}>
 
 
 <{sh}> Get start

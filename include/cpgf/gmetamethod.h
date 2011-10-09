@@ -37,7 +37,7 @@ namespace meta_internal {
 		static GVariant invoke(const CT & callback, GVariant const * const * params, size_t paramCount) { \
 			GPP_IF(N, GPP_EMPTY(), (void)params;) \
 			(void)paramCount; \
-			return GVariant(deduceVariantType<RT>(true), callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY))); \
+			return GVariant(deduceVariantType<RT>(true), deduceVariantPointers<RT>(), callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY))); \
 		} \
 	}; \
 	template <typename CT, typename FT> \
@@ -62,7 +62,7 @@ struct GMetaMethodCallHelper <CT, FT, N, RT, true>
 		GMetaVariadicParam variadicParams;
 		variadicParams.params = params;
 		variadicParams.paramCount = paramCount;
-		return GVariant(deduceVariantType<RT>(true), callback(&variadicParams));
+		return GVariant(deduceVariantType<RT>(true), deduceVariantPointers<RT>(), callback(&variadicParams));
 	}
 };
 

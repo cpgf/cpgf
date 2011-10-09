@@ -61,7 +61,7 @@ bool canFromVariant(const GVariant & v);
 namespace variant_internal {
 
 template <typename T>
-void InitVariant(GVariant & v, GVariantType vt, const T & value);
+void InitVariant(GVariant & v, GVariantType vt, int pointers, const T & value);
 
 template <typename T>
 struct DeduceVariantType;
@@ -167,7 +167,7 @@ struct GVarData
 {
 	unsigned short type;
 	unsigned char size;
-	unsigned char padding;
+	unsigned char pointers;
 
 	union {
 		variant_internal::GVariantDataHolder holder;
@@ -245,12 +245,13 @@ public:
 	template <typename T>
 	GVariant(const T & value) {
 		GVariantType vt = variant_internal::DeduceVariantType<T>::Result;
-		variant_internal::InitVariant(*this, vt, static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
+		int pointers = variant_internal::DeduceVariantType<T>::Pointers;
+		variant_internal::InitVariant(*this, vt, pointers, static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
 	}
 
 	template <typename T>
-	GVariant(GVariantType vt, const T & value) {
-		variant_internal::InitVariant(*this, vt, value);
+	GVariant(GVariantType vt, int pointers, const T & value) {
+		variant_internal::InitVariant(*this, vt, pointers, value);
 	}
 
 	GVariant(const GVariant & other) : data(other.data) {
@@ -281,6 +282,14 @@ public:
 
 	GVariantType getType() const {
 		return static_cast<GVariantType>(this->data.type);
+	}
+
+	GVariantType getBaseType() const {
+		return static_cast<GVariantType>(this->data.type & vtMask);
+	}
+
+	int getPointers() const {
+		return this->data.pointers;
 	}
 
 	bool isEmpty() const {
@@ -384,6 +393,7 @@ DEDUCEVT(void, vtVoid);
 template <typename T, typename Enabled = void>
 struct DeduceVariantType_Helper {
 	static const GVariantType Result = DeduceBasicVariantType<typename RemoveConstVolatile<T>::Result>::Result;
+	static const int Pointers = 0;
 };
 
 template <typename T>
@@ -392,6 +402,13 @@ private:
 	static const int temp = DeduceBasicVariantType<typename RemoveConstVolatile<typename RemovePointer<T>::Result>::Result>::Result;
 public:
 	static const GVariantType Result = static_cast<const GVariantType>(temp | byPointer);
+	static const int Pointers = PointerDimension<
+		typename RemoveConstVolatile<
+			typename RemoveReference<
+				typename RemoveConstVolatile<T>::Result
+			>::Result
+		>::Result
+	>::Result;
 };
 
 template <typename T>
@@ -400,11 +417,13 @@ private:
 	static const int temp = DeduceBasicVariantType<typename RemoveConstVolatile<T>::Result>::Result;
 public:
 	static const GVariantType Result = static_cast<const GVariantType>(temp | byReference);
+	static const int Pointers = 0;
 };
 
 template <typename T>
 struct DeduceVariantType_Helper <T, typename GEnableIf<MaybeEnum<T>::Result>::Result> {
 	static const GVariantType Result = vtUnsignedInt;
+	static const int Pointers = 0;
 };
 
 template <typename T>
@@ -439,12 +458,17 @@ DEF_ARRAY_TO_PTR(const volatile)
 
 template <typename T>
 struct DeduceVariantType {
-	static const GVariantType Result = DeduceVariantType_Helper<typename ArrayToPointer<typename RemoveConstVolatile<T>::Result>::Result>::Result;
+private:
+	typedef DeduceVariantType_Helper<typename ArrayToPointer<typename RemoveConstVolatile<T>::Result>::Result> Deducer;
+public:
+	static const GVariantType Result = Deducer::Result;
+	static const int Pointers = Deducer::Pointers;
 };
 
 template <>
 struct DeduceVariantType <void> {
 	static const GVariantType Result = vtVoid;
+	static const int Pointers = 0;
 };
 
 template <typename From, typename To>
@@ -539,9 +563,10 @@ struct CastVariantHelper <From, To, typename GEnableIf<IsPointer<From>::Result &
 };
 
 template <typename T>
-void InitVariant(GVariant & v, GVariantType vt, const T & value) {
+void InitVariant(GVariant & v, GVariantType vt, int pointers, const T & value) {
 	v.data.type = static_cast<unsigned short>(vt);
 	v.data.size = getVariantTypeSize(vt);
+	v.data.pointers = pointers;
 
 	switch(static_cast<int>(vt)) {
 		case vtBool:
@@ -1247,7 +1272,7 @@ inline void adjustVariantType(GVariant * var)
 
 	}
 
-	InitVariant(*var, var->getType(), value);
+	InitVariant(*var, var->getType(), var->getPointers(), value);
 }
 
 
@@ -1337,6 +1362,12 @@ template <typename T>
 GVariantType deduceVariantType()
 {
 	return deduceVariantType<T>(false);
+}
+
+template <typename T>
+int deduceVariantPointers()
+{
+	return variant_internal::DeduceVariantType<T>::Pointers;
 }
 
 inline void initializeVarData(GVarData * data)

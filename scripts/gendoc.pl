@@ -28,6 +28,18 @@ my @tags = (
 	},
 
 	{
+		tag => "autoul",
+		needClose => 1,
+		handler => \&handlerAutoUL,
+	},
+
+	{
+		tag => "autool",
+		needClose => 1,
+		handler => \&handlerAutoOL,
+	},
+
+	{
 		tag => "sgroup", # param: indent
 		needClose => 1,
 		handler => \&handlerSectionGroup,
@@ -254,6 +266,20 @@ sub handlerAutoBR
 	$context->changeAutoBRLevel($closeTag);
 }
 
+sub handlerAutoUL
+{
+	my ($tagProcessor, $context, $tagName, $closeTag) = @_;
+
+	$context->changeAutoULLevel($closeTag);
+}
+
+sub handlerAutoOL
+{
+	my ($tagProcessor, $context, $tagName, $closeTag) = @_;
+
+	$context->changeAutoOLLevel($closeTag);
+}
+
 sub handlerSectionGroup
 {
 	my ($tagProcessor, $context, $tagName, $closeTag) = @_;
@@ -400,6 +426,9 @@ sub new
 
 		codeLevel => 0,
 
+		ulLevel => 0,
+		olLevel => 0,
+
 		topAnchor => '<a id="top"></a>',
 	};
 
@@ -448,6 +477,56 @@ sub changeAutoBRLevel
 	$self->{brLevel} = 0 if($self->{brLevel} < 0);
 }
 
+sub changeAutoULLevel
+{
+	my ($self, $close) = @_;
+	
+	if($close) {
+		--$self->{ulLevel};
+	}
+	else {
+		++$self->{ulLevel};
+	}
+
+	$self->{ulLevel} = 0 if($self->{ulLevel} < 0);
+
+	if($close) {
+		if($self->{ulLevel} == 0) {
+			$self->appendContent('</ul>');
+		}
+	}
+	else {
+		if($self->{ulLevel} == 1) {
+			$self->appendContent('<ul>');
+		}
+	}
+}
+
+sub changeAutoOLLevel
+{
+	my ($self, $close) = @_;
+	
+	if($close) {
+		--$self->{olLevel};
+	}
+	else {
+		++$self->{olLevel};
+	}
+
+	$self->{olLevel} = 0 if($self->{olLevel} < 0);
+
+	if($close) {
+		if($self->{ulLevel} == 0) {
+			$self->appendContent('</ol>');
+		}
+	}
+	else {
+		if($self->{ulLevel} == 1) {
+			$self->appendContent('<ol>');
+		}
+	}
+}
+
 sub changeCodeLevel
 {
 	my ($self, $close) = @_;
@@ -473,8 +552,15 @@ sub formatContent
 {
 	my ($self, $text) = @_;
 
-	if($self->{brLevel}) {
-		$text =~ s/\n/<br \/>\n/msg;
+	if($self->{ulLevel} || $self->{olLevel}) {
+		if($text !~ /^\s*$/) {
+			$text = '<li>' . $text . '</li>';
+		}
+	}
+	else {
+		if($self->{brLevel}) {
+			$text =~ s/\n/<br \/>\n/msg;
+		}
 	}
 	
 	if($self->{codeLevel}) {

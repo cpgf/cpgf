@@ -54,11 +54,7 @@ GMetaTypeData GMetaType::getData() const
 
 void GMetaType::addPointer()
 {
-	this->flags =
-		(this->flags & ~meta_internal::mtFlagPointerMask)
-		+ (this->flags & meta_internal::mtFlagPointerMask)
-		+ 1;
-
+	++this->varPointers;
 	this->varType |= byPointer;
 }
 
