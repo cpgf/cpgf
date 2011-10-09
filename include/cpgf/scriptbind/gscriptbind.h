@@ -178,14 +178,14 @@ public:
 
 	virtual GScriptObject * createScriptObject(const GScriptName & name) = 0;
 	
-	virtual GVariant invokeIndirectly(const GScriptName & name, GVariant const * const * params, size_t paramCount) = 0;
-	virtual GVariant invoke(const GScriptName & name, const GVariant * params, size_t paramCount) = 0;
+	virtual GVariant invoke(const GScriptName & name, const GMetaVariant * params, size_t paramCount) = 0;
+	virtual GVariant invokeIndirectly(const GScriptName & name, GMetaVariant const * const * params, size_t paramCount) = 0;
 
 	virtual void setFundamental(const GScriptName & name, const GVariant & value) = 0;
 	virtual void setString(const GScriptName & stringName, const char * s) = 0;
 	virtual void setObject(const GScriptName & objectName, void * instance, IMetaClass * type, bool transferOwnership) = 0;
 	virtual void setMethod(const GScriptName & name, void * instance, IMetaMethod * method) = 0;
-	
+
 	virtual GVariant getFundamental(const GScriptName & name) = 0;
 	virtual std::string getString(const GScriptName & stringName) = 0;
 	

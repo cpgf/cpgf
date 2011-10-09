@@ -22,7 +22,7 @@ GTEST(global)
 	dataApi->name = "abc";
 
 	GApiScopedPointer<IScriptName> scriptName;
-	cpgf::GApiScopedPointer<cpgf::IScriptObject> bindingApi(context->getBindingApi());
+	GApiScopedPointer<IScriptObject> bindingApi(context->getBindingApi());
 
 	context->getBindingLib()->setObject("data", dataLib.get(), metaClass.get(), false);
 	

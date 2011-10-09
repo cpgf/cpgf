@@ -48,6 +48,7 @@ GMetaTypeData GMetaType::getData() const
 	data.baseName = this->baseName;
 	data.flags = static_cast<uint32_t>(this->flags);
 	data.varType = static_cast<uint16_t>(this->varType);
+	data.varPointers = this->varPointers;
 	
 	return data;
 }

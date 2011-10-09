@@ -109,7 +109,7 @@ namespace {
 
 		va_end (args);
 
-printf("Error: %s", buffer);
+printf("Error: %s \n", buffer);
 		throw GScriptException(std::string(buffer));
 	}
 
@@ -1363,7 +1363,20 @@ GScriptObject * GLuaScriptObject::createScriptObject(const GScriptName & name)
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
 
-GVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GVariant const * const * params, size_t paramCount)
+GVariant GLuaScriptObject::invoke(const GScriptName & name, const GMetaVariant * params, size_t paramCount)
+{
+	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+
+	const cpgf::GMetaVariant * variantPointers[REF_MAX_ARITY];
+
+	for(size_t i = 0; i < paramCount; ++i) {
+		variantPointers[i] = &params[i];
+	}
+
+	return this->invokeIndirectly(name, variantPointers, paramCount);
+}
+
+GVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaVariant const * const * params, size_t paramCount)
 {
 	ENTER_LUA()
 
@@ -1374,9 +1387,8 @@ GVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GVariant c
 	scopeGuard.get(name);
 	
 	if(lua_isfunction(this->implement->luaState, -1)) {
-		GMetaType type;
 		for(size_t i = 0; i < paramCount; ++i) {
-			if(!variantToLua(this->implement->luaState, &this->implement->param, *params[i], type, false)) {
+			if(!variantToLua(this->implement->luaState, &this->implement->param, params[i]->getValue(), params[i]->getType(), false)) {
 				if(i > 0) {
 					lua_pop(this->implement->luaState, static_cast<int>(i) - 1);
 				}
@@ -1408,19 +1420,6 @@ GVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GVariant c
 	return GVariant();
 	
 	LEAVE_LUA(this->implement->luaState, return GVariant())
-}
-
-GVariant GLuaScriptObject::invoke(const GScriptName & name, const GVariant * params, size_t paramCount)
-{
-	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
-
-	const cpgf::GVariant * variantPointers[REF_MAX_ARITY];
-
-	for(size_t i = 0; i < paramCount; ++i) {
-		variantPointers[i] = &params[i];
-	}
-
-	return this->invokeIndirectly(name, variantPointers, paramCount);
 }
 
 void GLuaScriptObject::setFundamental(const GScriptName & name, const GVariant & value)
@@ -1645,3 +1644,6 @@ void GLuaScriptObject::nullifyValue(const GScriptName & name)
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
+
+
+

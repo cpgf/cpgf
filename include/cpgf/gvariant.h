@@ -223,6 +223,8 @@ inline void adjustVariantType(GVariant * data);
 
 } // namespace variant_internal
 
+class GMetaVariant;
+
 class GVariant
 {
 //	GASSERT_STATIC(sizeof(GVarData) == 16);
@@ -311,6 +313,9 @@ public:
 
 public:
 	GVarData data;
+
+private:
+	GVariant(const GMetaVariant &); //disable
 };
 
 inline void swap(GVariant & a, GVariant & b)

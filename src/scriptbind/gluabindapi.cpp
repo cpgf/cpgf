@@ -98,8 +98,8 @@ protected:
 
 	virtual IScriptObject * G_API_CC createScriptObject(IScriptName * name);
 	
-	virtual void G_API_CC invokeIndirectly(IScriptName * name, GVarData * outResult, GVarData const * const * params, uint32_t paramCount);
-	virtual void G_API_CC invoke(IScriptName * name, GVarData * outResult, const GVarData * params, uint32_t paramCount);
+	virtual void G_API_CC invoke(IScriptName * name, GVarData * outResult, const GMetaVarData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeIndirectly(IScriptName * name, GVarData * outResult, GMetaVarData const * const * params, uint32_t paramCount);
 
 	virtual void G_API_CC setFundamental(IScriptName * name, const GVarData * value);
 	virtual void G_API_CC setString(IScriptName * stringName, const char * s);
@@ -285,15 +285,30 @@ IScriptObject * G_API_CC ImplScriptObject::createScriptObject(IScriptName * name
 	LEAVE_BINDING_API(return NULL)
 }
 
-void G_API_CC ImplScriptObject::invokeIndirectly(IScriptName * name, GVarData * outResult, GVarData const * const * params, uint32_t paramCount)
+void G_API_CC ImplScriptObject::invoke(IScriptName * name, GVarData * outResult, const GMetaVarData * params, uint32_t paramCount)
 {
 	ENTER_BINDING_API()
 
-	GVariant paramVariants[REF_MAX_ARITY];
-	const GVariant * paramIndirect[REF_MAX_ARITY];
+	const GMetaVarData * paramIndirect[REF_MAX_ARITY];
 
 	for(uint32_t i = 0; i < paramCount; ++i) {
-		paramVariants[i] = GVariant(*params[i]);
+		paramIndirect[i] = &params[i];
+	}
+
+	this->invokeIndirectly(name, outResult, paramIndirect, paramCount);
+
+	LEAVE_BINDING_API()
+}
+
+void G_API_CC ImplScriptObject::invokeIndirectly(IScriptName * name, GVarData * outResult, GMetaVarData const * const * params, uint32_t paramCount)
+{
+	ENTER_BINDING_API()
+
+	GMetaVariant paramVariants[REF_MAX_ARITY];
+	const GMetaVariant * paramIndirect[REF_MAX_ARITY];
+
+	for(uint32_t i = 0; i < paramCount; ++i) {
+		paramVariants[i] = GMetaVariant(*params[i]);
 		paramIndirect[i] = &paramVariants[i];
 	}
 
@@ -301,21 +316,6 @@ void G_API_CC ImplScriptObject::invokeIndirectly(IScriptName * name, GVarData * 
 	if(outResult) {
 		*outResult = result.takeData();
 	}
-
-	LEAVE_BINDING_API()
-}
-
-void G_API_CC ImplScriptObject::invoke(IScriptName * name, GVarData * outResult, const GVarData * params, uint32_t paramCount)
-{
-	ENTER_BINDING_API()
-
-	const GVarData * paramIndirect[REF_MAX_ARITY];
-
-	for(uint32_t i = 0; i < paramCount; ++i) {
-		paramIndirect[i] = &params[i];
-	}
-
-	this->invokeIndirectly(name, outResult, paramIndirect, paramCount);
 
 	LEAVE_BINDING_API()
 }
