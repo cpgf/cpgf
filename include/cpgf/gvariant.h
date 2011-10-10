@@ -1,11 +1,7 @@
 #ifndef __GVARIANT_H
 #define __GVARIANT_H
 
-#include "cpgf/gcompiler.h"
-#include "cpgf/gassert.h"
-#include "cpgf/gtypetraits.h"
-#include "cpgf/gtypelist.h"
-#include "cpgf/genableif.h"
+#include "cpgf/gvartypedata.h"
 
 #include <stdexcept>
 #include <iostream>
@@ -18,41 +14,6 @@
 
 namespace cpgf {
 
-enum GVariantType {
-	vtEmpty = 0,
-	vtVoid = 1,
-
-	vtFundamentalBegin = 2,
-	vtIntegerBegin = vtFundamentalBegin,
-	vtBool = vtFundamentalBegin,
-	vtChar = vtFundamentalBegin + 1, vtWchar = vtFundamentalBegin + 2,
-	vtSignedChar = vtFundamentalBegin + 3, vtUnsignedChar = vtFundamentalBegin + 4,
-	vtSignedShort = vtFundamentalBegin + 5, vtUnsignedShort = vtFundamentalBegin + 6,
-	vtSignedInt = vtFundamentalBegin + 7, vtUnsignedInt = vtFundamentalBegin + 8,
-	vtSignedLong = vtFundamentalBegin + 9, vtUnsignedLong = vtFundamentalBegin + 10,
-	vtSignedLongLong = vtFundamentalBegin + 11, vtUnsignedLongLong = vtFundamentalBegin + 12,
-	vtIntegerEnd = vtUnsignedLongLong,
-	vtFloat = vtFundamentalBegin + 13, vtDouble = vtFundamentalBegin + 14, vtLongDouble = vtFundamentalBegin + 15,
-	vtFundamentalEnd = vtLongDouble,
-
-	vtPointer = 30,
-	vtObject = 31, // is equivalent to unkown type
-	vtShadow = 32,
-
-	vtUserBegin = 0xff,
-	vtUserEnd = 0x0fff,
-
-	vtMask = 0x0fff,
-
-	byPointer = 0x1000,
-	byReference = 0x2000,
-};
-
-inline GVariantType operator + (GVariantType vt, int n)
-{
-	return static_cast<GVariantType>(static_cast<int>(vt) + n);
-}
-
 class GVariant;
 
 template <typename T>
@@ -61,10 +22,7 @@ bool canFromVariant(const GVariant & v);
 namespace variant_internal {
 
 template <typename T>
-void InitVariant(GVariant & v, GVariantType vt, int pointers, const T & value);
-
-template <typename T>
-struct DeduceVariantType;
+void InitVariant(GVariant & v, const GVarTypeData & typeData, const T & value);
 
 template <typename T>
 struct ArrayToPointer;
@@ -165,9 +123,7 @@ inline bool vtIsVoidPointer(int vt) {
 #pragma pack(1)
 struct GVarData
 {
-	unsigned short type;
-	unsigned char size;
-	unsigned char pointers;
+	GVarTypeData typeData;
 
 	union {
 		variant_internal::GVariantDataHolder holder;
@@ -231,39 +187,38 @@ class GVariant
 
 public:
 	GVariant() {
-		data.type = vtEmpty;
-		data.size = 0;
+		vtInit(data.typeData);
 		data.holder.a = 0;
 		data.holder.b = 0;
 		data.holder.c = 0;
 	}
 
 	GVariant(const GVarData & data) : data(data) {
-		if(this->data.size != variant_internal::getVariantTypeSize(static_cast<GVariantType>(this->data.type))) {
+		if(vtGetSize(this->data.typeData) != variant_internal::getVariantTypeSize(static_cast<GVariantType>(vtGetType(this->data.typeData)))) {
 			variant_internal::adjustVariantType(this);
 		}
 	}
 
 	template <typename T>
 	GVariant(const T & value) {
-		GVariantType vt = variant_internal::DeduceVariantType<T>::Result;
-		int pointers = variant_internal::DeduceVariantType<T>::Pointers;
-		variant_internal::InitVariant(*this, vt, pointers, static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
+		GVarTypeData typeData;
+		deduceVariantType<T>(typeData);
+		variant_internal::InitVariant(*this, typeData, static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
 	}
 
 	template <typename T>
-	GVariant(GVariantType vt, int pointers, const T & value) {
-		variant_internal::InitVariant(*this, vt, pointers, value);
+	GVariant(const GVarTypeData & typeData, const T & value) {
+		variant_internal::InitVariant(*this, typeData, value);
 	}
 
 	GVariant(const GVariant & other) : data(other.data) {
-		if(this->data.type == vtShadow) {
+		if(vtGetType(this->data.typeData) == vtShadow) {
 			this->data.shadowObject->retain();
 		}
 	}
 
 	~GVariant() {
-		if(this->data.type == vtShadow) {
+		if(vtGetType(this->data.typeData) == vtShadow) {
 			this->data.shadowObject->release();
 		}
 	}
@@ -277,21 +232,24 @@ public:
 	void swap(GVariant & other) {
 		using std::swap;
 
-		swap(this->data.type, other.data.type);
-		swap(this->data.size, other.data.size);
+		swap(this->data.typeData, other.data.typeData);
 		swap(this->data.holder, other.data.holder);
 	}
 
+	const GVarTypeData & getTypeData() const {
+		return this->data.typeData;
+	}
+
 	GVariantType getType() const {
-		return static_cast<GVariantType>(this->data.type);
+		return vtGetType(this->data.typeData);
 	}
 
 	GVariantType getBaseType() const {
-		return static_cast<GVariantType>(this->data.type & vtMask);
+		return vtGetBaseType(this->data.typeData);
 	}
 
 	int getPointers() const {
-		return this->data.pointers;
+		return vtGetPointers(this->data.typeData);
 	}
 
 	bool isEmpty() const {
@@ -305,8 +263,7 @@ public:
 	GVarData takeData() {
 		GVarData result = this->data;
 
-		this->data.type = vtEmpty;
-		this->data.size = 0;
+		vtInit(this->data.typeData);
 
 		return result;
 	}
@@ -344,137 +301,14 @@ inline void checkFailCast(bool success) {
 namespace variant_internal {
 
 template <typename T>
-bool isPointer() {
-	return IsPointer<typename RemoveReference<T>::Result>::Result;
+bool isNotPointer() {
+	return ! IsPointer<typename RemoveReference<T>::Result>::Result;
 }
 
 template <typename T>
-bool isNonPointer() {
-	return !isPointer<T>();
+bool isNotFundamental() {
+	return ! IsFundamental<typename RemoveReference<T>::Result>::Result;
 }
-
-template <typename T>
-bool isPrimary() {
-	return IsFundamental<typename RemoveReference<T>::Result>::Result;
-}
-
-template <typename T>
-bool isNonPrimary() {
-	return !isPrimary<T>();
-}
-
-
-template <typename T>
-struct MaybeEnum
-{
-	enum { Result = IsConvertible<T, int>::Result && !IsFundamental<T>::Result && !IsClass<T>::Result && !IsReference<T>::Result && !IsPointer<T>::Result };
-};
-
-template <typename T>
-struct DeduceBasicVariantType {
-	static const GVariantType Result = IsPointer<T>::Result ? vtPointer : vtObject;
-};
-
-#define DEDUCEVT(RT, VT) template <> struct DeduceBasicVariantType <RT> { static const GVariantType Result = VT; }
-DEDUCEVT(bool, vtBool);
-DEDUCEVT(char, vtChar);
-DEDUCEVT(wchar_t, vtWchar);
-DEDUCEVT(signed char, vtSignedChar);
-DEDUCEVT(unsigned char, vtUnsignedChar);
-DEDUCEVT(signed short, vtSignedShort);
-DEDUCEVT(unsigned short, vtUnsignedShort);
-DEDUCEVT(signed int, vtSignedInt);
-DEDUCEVT(unsigned int, vtUnsignedInt);
-DEDUCEVT(long, vtSignedLong);
-DEDUCEVT(unsigned long, vtUnsignedLong);
-DEDUCEVT(signed long long, vtSignedLongLong);
-DEDUCEVT(unsigned long long, vtUnsignedLongLong);
-DEDUCEVT(float, vtFloat);
-DEDUCEVT(double, vtDouble);
-DEDUCEVT(long double, vtLongDouble);
-DEDUCEVT(void, vtVoid);
-#undef DEDUCEVT
-
-template <typename T, typename Enabled = void>
-struct DeduceVariantType_Helper {
-	static const GVariantType Result = DeduceBasicVariantType<typename RemoveConstVolatile<T>::Result>::Result;
-	static const int Pointers = 0;
-};
-
-template <typename T>
-struct DeduceVariantType_Helper <T, typename GEnableIf<IsPointer<T>::Result>::Result> {
-private:
-	static const int temp = DeduceBasicVariantType<typename RemoveConstVolatile<typename RemovePointer<T>::Result>::Result>::Result;
-public:
-	static const GVariantType Result = static_cast<const GVariantType>(temp | byPointer);
-	static const int Pointers = PointerDimension<
-		typename RemoveConstVolatile<
-			typename RemoveReference<
-				typename RemoveConstVolatile<T>::Result
-			>::Result
-		>::Result
-	>::Result;
-};
-
-template <typename T>
-struct DeduceVariantType_Helper <T, typename GEnableIf<IsReference<T>::Result>::Result> {
-private:
-	static const int temp = DeduceBasicVariantType<typename RemoveConstVolatile<T>::Result>::Result;
-public:
-	static const GVariantType Result = static_cast<const GVariantType>(temp | byReference);
-	static const int Pointers = 0;
-};
-
-template <typename T>
-struct DeduceVariantType_Helper <T, typename GEnableIf<MaybeEnum<T>::Result>::Result> {
-	static const GVariantType Result = vtUnsignedInt;
-	static const int Pointers = 0;
-};
-
-template <typename T>
-struct ArrayToPointer
-{
-	typedef T Result;
-	enum { IsArray = false };
-};
-
-#define DEF_ARRAY_TO_PTR(CV) \
-	template <typename T> struct ArrayToPointer <CV T[]> { typedef const volatile typename ArrayToPointer<T>::Result * Result; enum { IsArray = true }; }; \
-	template <typename T> struct ArrayToPointer <CV T (*) []> { typedef const volatile typename ArrayToPointer<T>::Result * Result; enum { IsArray = true }; };
-
-DEF_ARRAY_TO_PTR(GPP_EMPTY())
-DEF_ARRAY_TO_PTR(const)
-DEF_ARRAY_TO_PTR(volatile)
-DEF_ARRAY_TO_PTR(const volatile)
-
-#undef DEF_ARRAY_TO_PTR
-
-#define DEF_ARRAY_TO_PTR(CV) \
-	template <typename T, unsigned int N> struct ArrayToPointer <CV T[N]> { typedef const volatile typename ArrayToPointer<T>::Result * Result; enum { IsArray = true }; }; \
-	template <typename T, unsigned int N> struct ArrayToPointer <CV T (*) [N]> { typedef const volatile typename ArrayToPointer<T>::Result * Result; enum { IsArray = true }; }; \
-	template <typename T, unsigned int N> struct ArrayToPointer <CV T (&) [N]> { typedef const volatile typename ArrayToPointer<T>::Result * Result; enum { IsArray = true }; };
-
-DEF_ARRAY_TO_PTR(GPP_EMPTY())
-DEF_ARRAY_TO_PTR(const)
-DEF_ARRAY_TO_PTR(volatile)
-DEF_ARRAY_TO_PTR(const volatile)
-
-#undef DEF_ARRAY_TO_PTR
-
-template <typename T>
-struct DeduceVariantType {
-private:
-	typedef DeduceVariantType_Helper<typename ArrayToPointer<typename RemoveConstVolatile<T>::Result>::Result> Deducer;
-public:
-	static const GVariantType Result = Deducer::Result;
-	static const int Pointers = Deducer::Pointers;
-};
-
-template <>
-struct DeduceVariantType <void> {
-	static const GVariantType Result = vtVoid;
-	static const int Pointers = 0;
-};
 
 template <typename From, typename To>
 struct CastVariantSelector {
@@ -568,12 +402,11 @@ struct CastVariantHelper <From, To, typename GEnableIf<IsPointer<From>::Result &
 };
 
 template <typename T>
-void InitVariant(GVariant & v, GVariantType vt, int pointers, const T & value) {
-	v.data.type = static_cast<unsigned short>(vt);
-	v.data.size = getVariantTypeSize(vt);
-	v.data.pointers = pointers;
+void InitVariant(GVariant & v, const GVarTypeData & typeData, const T & value) {
+	v.data.typeData = typeData;
+	vtSetSize(v.data.typeData, getVariantTypeSize(vtGetType(typeData)));
 
-	switch(static_cast<int>(vt)) {
+	switch(static_cast<int>(vtGetType(typeData))) {
 		case vtBool:
 			v.data.valueBool = variant_internal::CastVariantHelper<T, bool>::cast(value);
 			break;
@@ -815,118 +648,118 @@ struct CanCastFromVariant
 	static bool canCast(int vt) {
 		switch(static_cast<int>(vt)) {
 			case vtBool:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<bool, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<bool, ResultType>::CanCast;
 
 			case vtChar:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<char, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<char, ResultType>::CanCast;
 
 			case vtWchar:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<wchar_t, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<wchar_t, ResultType>::CanCast;
 
 			case vtSignedChar:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<signed char, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed char, ResultType>::CanCast;
 
 			case vtUnsignedChar:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned char, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned char, ResultType>::CanCast;
 
 			case vtSignedShort:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<signed short, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed short, ResultType>::CanCast;
 
 			case vtUnsignedShort:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned short, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned short, ResultType>::CanCast;
 
 			case vtSignedInt:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<signed int, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed int, ResultType>::CanCast;
 
 			case vtUnsignedInt:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned int, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned int, ResultType>::CanCast;
 
 			case vtSignedLong:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<signed long, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed long, ResultType>::CanCast;
 
 			case vtUnsignedLong:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned long, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned long, ResultType>::CanCast;
 
 			case vtSignedLongLong:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<signed long long, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed long long, ResultType>::CanCast;
 
 			case vtUnsignedLongLong:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned long long, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned long long, ResultType>::CanCast;
 
 			case vtFloat:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<float, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<float, ResultType>::CanCast;
 
 			case vtDouble:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<double, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<double, ResultType>::CanCast;
 
 			case vtLongDouble:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<long double, ResultType>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<long double, ResultType>::CanCast;
 
 			case vtPointer:
 				return variant_internal::CastVariantHelper<const volatile void *, ResultType>::CanCast;
 
 			case vtObject:
-				return variant_internal::isNonPointer<ResultType>() && variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::CanCast;
+				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::CanCast;
 
 			case vtShadow:
 				return variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::CanCast;
 
 			case vtBool | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<bool *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<bool *, ResultType>::CanCast;
 
 			case vtChar | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<char *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<char *, ResultType>::CanCast;
 
 			case vtWchar | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<wchar_t *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<wchar_t *, ResultType>::CanCast;
 
 			case vtSignedChar | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<signed char *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<signed char *, ResultType>::CanCast;
 
 			case vtUnsignedChar | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<unsigned char *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<unsigned char *, ResultType>::CanCast;
 
 			case vtSignedShort | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<signed short *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<signed short *, ResultType>::CanCast;
 
 			case vtUnsignedShort | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<unsigned short *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<unsigned short *, ResultType>::CanCast;
 
 			case vtSignedInt | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<signed int *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<signed int *, ResultType>::CanCast;
 
 			case vtUnsignedInt | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<unsigned int *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<unsigned int *, ResultType>::CanCast;
 
 			case vtSignedLong | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<signed long *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<signed long *, ResultType>::CanCast;
 
 			case vtUnsignedLong | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<unsigned long *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<unsigned long *, ResultType>::CanCast;
 
 			case vtSignedLongLong | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<signed long long *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<signed long long *, ResultType>::CanCast;
 
 			case vtUnsignedLongLong | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<unsigned long long *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<unsigned long long *, ResultType>::CanCast;
 
 			case vtFloat | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<float *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<float *, ResultType>::CanCast;
 
 			case vtDouble | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<double *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<double *, ResultType>::CanCast;
 
 			case vtLongDouble | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<long double *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<long double *, ResultType>::CanCast;
 
 			case vtVoid | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<void *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<void *, ResultType>::CanCast;
 
 			case vtPointer | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<void *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<void *, ResultType>::CanCast;
 
 			case vtObject | byPointer:
-				return variant_internal::isNonPrimary<ResultType>() && variant_internal::CastVariantHelper<void *, ResultType>::CanCast;
+				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<void *, ResultType>::CanCast;
 
 			case vtBool | byReference:
 				return variant_internal::CastVariantHelper<const volatile bool *, const volatile RefValueType *>::CanCast;
@@ -983,7 +816,7 @@ struct CanCastFromVariant
 				return variant_internal::CastVariantHelper<const volatile void *, const volatile RefValueType *>::CanCast;
 
 			case vtObject | byReference:
-				return variant_internal::isNonPointer<RefValueType>() && variant_internal::CastVariantHelper<const volatile void *, const volatile RefValueType *>::CanCast;
+				return variant_internal::isNotPointer<RefValueType>() && variant_internal::CastVariantHelper<const volatile void *, const volatile RefValueType *>::CanCast;
 		}
 
 		return false;
@@ -999,7 +832,7 @@ struct CastFromVariant
 	static ResultType cast(const GVariant & v) {
 		checkFailCast(canFromVariant<T>(v));
 
-		switch(static_cast<int>(v.data.type)) {
+		switch(static_cast<int>(vtGetType(v.data.typeData))) {
 			case vtBool:
 				return variant_internal::CastVariantHelper<bool, ResultType>::cast(v.data.valueBool);
 
@@ -1250,12 +1083,12 @@ inline int getVariantTypeSize(GVariantType type)
 
 inline void adjustVariantType(GVariant * var)
 {
-	if(! vtIsInteger(var->data.type) || var->data.size > sizeof(unsigned long long)) {
+	if(! vtIsInteger(vtGetType(var->data.typeData)) || vtGetSize(var->data.typeData) > sizeof(unsigned long long)) {
 		throw GVariantException("GVariant: inconsistent type.");
 	}
 
 	unsigned long long value = var->data.valueUnsignedLongLong;
-	switch(var->data.size) {
+	switch(vtGetSize(var->data.typeData)) {
 		case 1:
 			value &= 0xff;
 			break;
@@ -1277,7 +1110,7 @@ inline void adjustVariantType(GVariant * var)
 
 	}
 
-	InitVariant(*var, var->getType(), var->getPointers(), value);
+	InitVariant(*var, var->getTypeData(), value);
 }
 
 
@@ -1289,7 +1122,7 @@ inline void adjustVariantType(GVariant * var)
 template <typename T>
 bool canFromVariant(const GVariant & v)
 {
-	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result>::canCast(v.data.type);
+	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result>::canCast(vtGetType(v.data.typeData));
 }
 
 template <typename T>
@@ -1304,7 +1137,7 @@ GVariant pointerToRefVariant(T * p)
 	GVariant v(p);
 
 	if(vtIsByPointer(v.getType())) {
-		v.data.type = (v.data.type & ~byPointer) | byReference;
+		vtSetType(v.data.typeData, (vtGetType(v.data.typeData) & ~byPointer) | byReference);
 	}
 
 	return v;
@@ -1315,7 +1148,7 @@ inline GVariant pointerToRefVariant(const GVariant & p)
 	GVariant v(p);
 
 	if(vtIsByPointer(v.getType())) {
-		v.data.type = (v.data.type & ~byPointer) | byReference;
+		vtSetType(v.data.typeData, (vtGetType(v.data.typeData) & ~byPointer) | byReference);
 	}
 
 	return v;
@@ -1325,9 +1158,9 @@ inline GVariant pointerToObjectVariant(void * p)
 {
 	GVariant result;
 
-	result.data.type = vtObject | byPointer;
+	vtSetType(result.data.typeData, vtObject | byPointer);
 	result.data.ptrObject = p;
-	result.data.size = sizeof(void *);
+	vtSetSize(result.data.typeData, sizeof(void *));
 
 	return result;
 }
@@ -1351,33 +1184,9 @@ inline void * referenceAddressFromVariant(const GVariant & v)
 	}
 }
 
-template <typename T>
-GVariantType deduceVariantType(bool allowShadow)
-{
-	GVariantType vt = variant_internal::DeduceVariantType<T>::Result;
-
-	if(allowShadow && vt == vtObject) {
-		vt = vtShadow;
-	}
-
-	return vt;
-}
-
-template <typename T>
-GVariantType deduceVariantType()
-{
-	return deduceVariantType<T>(false);
-}
-
-template <typename T>
-int deduceVariantPointers()
-{
-	return variant_internal::DeduceVariantType<T>::Pointers;
-}
-
 inline void initializeVarData(GVarData * data)
 {
-	data->type = vtEmpty;
+	vtInit(data->typeData);
 }
 
 

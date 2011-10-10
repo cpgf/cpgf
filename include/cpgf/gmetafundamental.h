@@ -37,7 +37,9 @@ public:
 	}
 
 	virtual GVariantType getVariantType() const {
-		return deduceVariantType<T>();
+		GVarTypeData data;
+		deduceVariantType<T>(data);
+		return vtGetType(data);
 	}
 	
 	virtual GVariant getValue(void * instance) const {

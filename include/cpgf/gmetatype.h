@@ -20,8 +20,7 @@ struct GMetaTypeData
 {
 	const char * baseName;
 	uint32_t flags;
-	uint16_t varType;
-	uint8_t varPointers;
+	GVarTypeData typeData;
 };
 #pragma pack(pop)
 
@@ -161,8 +160,7 @@ void deduceMetaTypeData(GMetaTypeData * data)
 {
 	data->baseName = NULL;
 	data->flags = GMetaTypeDeduce<T>::Flags;
-	data->varType = static_cast<uint16_t>(deduceVariantType<T>());
-	data->varPointers = deduceVariantPointers<T>();
+	deduceVariantType<T>(data->typeData);
 }
 
 } // namespace meta_internal
@@ -173,19 +171,20 @@ class GMetaType
 //	GASSERT_STATIC(sizeof(GMetaTypeData) == 8);
 
 public:
-	GMetaType() : baseName(NULL), flags(0), varType(vtEmpty), varPointers(0), baseType() {
+	GMetaType() : baseName(NULL), flags(0), baseType() {
+		vtInit(typeData);
 	}
 
 	explicit GMetaType(const GMetaTypeData & data)
-		: baseName(data.baseName), flags(data.flags), varType(data.varType), varPointers(data.varPointers), baseType() {
+		: baseName(data.baseName), flags(data.flags), typeData(data.typeData), baseType() {
 	}
 
 	GMetaType(const GMetaTypeData & data, const GTypeInfo & baseType)
-		: baseName(data.baseName), flags(data.flags), varType(data.varType), varPointers(data.varPointers), baseType(baseType) {
+		: baseName(data.baseName), flags(data.flags), typeData(data.typeData), baseType(baseType) {
 	}
 
 	GMetaType(const GMetaType & other)
-		: baseName(other.baseName), flags(other.flags), varType(other.varType), varPointers(other.varPointers), baseType(other.baseType) {
+		: baseName(other.baseName), flags(other.flags), typeData(other.typeData), baseType(other.baseType) {
 	}
 
 	~GMetaType() {
@@ -195,8 +194,7 @@ public:
 		if(this != &other) {
 			this->baseName = other.baseName;
 			this->flags = other.flags;
-			this->varType = other.varType;
-			this->varPointers = other.varPointers;
+			this->typeData = other.typeData;
 			this->baseType = other.baseType;
 		}
 
@@ -210,7 +208,7 @@ public:
 	}
 
 	bool isEmpty() const {
-		return vtIsEmpty(this->varType);
+		return vtIsEmpty(vtGetType(this->typeData));
 	}
 
 	const char * getBaseName() const {
@@ -282,11 +280,11 @@ public:
 	}
 
 	unsigned int getPointerDimension() const {
-		return this->varPointers;
+		return vtGetPointers(this->typeData);
 	}
 
 	GVariantType getVariantType() const {
-		return static_cast<GVariantType>(this->varType);
+		return vtGetType(this->typeData);
 	}
 
 	GMetaTypeData getData() const;
@@ -301,8 +299,7 @@ private:
 private:
 	const char * baseName;
 	int flags;
-	int varType;
-	int varPointers;
+	GVarTypeData typeData;
 	GTypeInfo baseType;
 
 private:
@@ -326,8 +323,7 @@ inline GMetaType createMetaTypeWithName(const GMetaType & type, const char * nam
 
 inline void initializeMetaType(GMetaTypeData * data)
 {
-	data->varType = vtEmpty;
-	data->varPointers = 0;
+	vtInit(data->typeData);
 	data->flags = 0;
 	data->baseName = NULL;
 }

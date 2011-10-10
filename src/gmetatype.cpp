@@ -47,16 +47,15 @@ GMetaTypeData GMetaType::getData() const
 	
 	data.baseName = this->baseName;
 	data.flags = static_cast<uint32_t>(this->flags);
-	data.varType = static_cast<uint16_t>(this->varType);
-	data.varPointers = this->varPointers;
+	data.typeData = this->typeData;
 	
 	return data;
 }
 
 void GMetaType::addPointer()
 {
-	++this->varPointers;
-	this->varType |= byPointer;
+	vtSetPointers(this->typeData, vtGetPointers(this->typeData) + 1);
+	vtSetType(this->typeData, vtGetType(this->typeData) | byPointer);
 }
 
 void fixupMetaType(GMetaType * type)

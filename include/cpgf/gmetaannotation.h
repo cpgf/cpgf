@@ -79,8 +79,9 @@ template <typename T, typename Enabled = void>
 struct InitAnnoVariant
 {
 	static void init(GVariant & var, const T & value) {
-		GVariantType vt = deduceVariantType<T>(true);
-		variant_internal::InitVariant(var, vt, deduceVariantPointers<T>(), static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
+		GVarTypeData data;
+		deduceVariantType<T>(data, true);
+		variant_internal::InitVariant(var, data, static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
 	}
 };
 
@@ -92,7 +93,7 @@ struct InitAnnoVariant <T, typename GEnableIf<
 	>::Result>
 {
 	static void init(GVariant & var, const T & value) {
-		var.data.type = static_cast<unsigned short>(vtAnnoString);
+		vtSetType(var.data.typeData, vtAnnoString);
 		var.data.valueObject = duplicateAnnoString(value);
 	}
 };
@@ -103,7 +104,7 @@ struct InitAnnoVariant <T, typename GEnableIf<
 	>::Result>
 {
 	static void init(GVariant & var, const T & value) {
-		var.data.type = static_cast<unsigned short>(vtAnnoString);
+		vtSetType(var.data.typeData, vtAnnoString);
 		var.data.valueObject = duplicateAnnoString(value.c_str());
 	}
 };
@@ -116,7 +117,7 @@ struct InitAnnoVariant <T, typename GEnableIf<
 	>::Result>
 {
 	static void init(GVariant & var, const T & value) {
-		var.data.type = static_cast<unsigned short>(vtAnnoWideString);
+		vtSetType(var.data.typeData, vtAnnoWideString);
 		var.data.valueObject = duplicateAnnoWideString(value);
 	}
 };
@@ -127,7 +128,7 @@ struct InitAnnoVariant <T, typename GEnableIf<
 	>::Result>
 {
 	static void init(GVariant & var, const T & value) {
-		var.data.type = static_cast<unsigned short>(vtAnnoWideString);
+		vtSetType(var.data.typeData, vtAnnoWideString);
 		var.data.valueObject = duplicateAnnoWideString(value.c_str());
 	}
 };

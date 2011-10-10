@@ -3,6 +3,7 @@
 
 #include "test_reflection_common.h"
 
+
 #define CLASS void
 #define NAME_CLASS GPP_STRINGIZE(CLASS)
 

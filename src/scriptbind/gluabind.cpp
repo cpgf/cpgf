@@ -532,7 +532,7 @@ printf("Error: %s \n", buffer);
 	void doInvokeCallable(void * instance, IMetaCallable * callable, GVarData * paramsData, size_t paramCount, InvokeCallableResult * result)
 	{
 		result->resultCount = 0;
-		result->resultData.type = vtEmpty;
+		vtInit(result->resultData.typeData);
 
 		callable->execute(&result->resultData, instance, paramsData, paramCount);
 	}
@@ -1424,7 +1424,7 @@ GVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaVaria
 
 void GLuaScriptObject::setFundamental(const GScriptName & name, const GVariant & value)
 {
-	GASSERT_MSG(vtIsFundamental(value.data.type), "Only fundamental value can be bound via setFundamental");
+	GASSERT_MSG(vtIsFundamental(vtGetType(value.data.typeData)), "Only fundamental value can be bound via setFundamental");
 
 	ENTER_LUA()
 

@@ -52,11 +52,11 @@ GAnnotationValue::GAnnotationValue(const GAnnotationValue & other)
 {
 	this->var = other.var;
 
-	if(this->var.data.type == vtAnnoString) {
+	if(vtGetType(this->var.data.typeData) == vtAnnoString) {
 		this->var.data.valueObject = meta_internal::duplicateAnnoString(const_cast<const std::string *>(static_cast<const volatile std::string *>(other.var.data.valueObject))->c_str());
 	}
 	else {
-		if(this->var.data.type == vtAnnoWideString) {
+		if(vtGetType(this->var.data.typeData) == vtAnnoWideString) {
 			this->var.data.valueObject = meta_internal::duplicateAnnoWideString(const_cast<const std::wstring *>(static_cast<const volatile std::wstring *>(other.var.data.valueObject))->c_str());
 		}
 	}
@@ -71,11 +71,11 @@ GAnnotationValue & GAnnotationValue::operator = (GAnnotationValue other)
 
 GAnnotationValue::~GAnnotationValue()
 {
-	if(this->var.data.type == vtAnnoString) {
+	if(vtGetType(this->var.data.typeData) == vtAnnoString) {
 		delete static_cast<const volatile std::string *>(this->var.data.valueObject);
 	}
 	else {
-		if(this->var.data.type == vtAnnoWideString) {
+		if(vtGetType(this->var.data.typeData) == vtAnnoWideString) {
 			delete static_cast<const volatile std::wstring *>(this->var.data.valueObject);
 		}
 	}

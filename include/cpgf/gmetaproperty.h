@@ -88,7 +88,9 @@ private:
 	GVariant doGet(typename GEnableIf<Readable, T>::Result * instance) const {
 		(void)instance;
 
-		return GVariant(deduceVariantType<PropertyType>(true), deduceVariantPointers<PropertyType>(), *(this->getter));
+		GVarTypeData data;
+		deduceVariantType<PropertyType>(data, true);
+		return GVariant(data, *(this->getter));
 	}
 	
 	template <typename T>
@@ -139,8 +141,9 @@ public:
 private:	
 	template <typename T>
 	GVariant doGet(typename GEnableIf<Readable, T>::Result * instance) const {
-		return GVariant(deduceVariantType<PropertyType>(true), deduceVariantPointers<PropertyType>(),
-			static_cast<typename MemberDataTrait<Getter>::ObjectType *>(instance)->*(this->getter));
+		GVarTypeData data;
+		deduceVariantType<PropertyType>(data, true);
+		return GVariant(data, static_cast<typename MemberDataTrait<Getter>::ObjectType *>(instance)->*(this->getter));
 	}
 
 	template <typename T>
@@ -189,7 +192,10 @@ private:
 	template <typename T>
 	GVariant doGet(typename GEnableIf<Readable, T>::Result * instance) const {
 		this->callback.setObject(instance);
-		return GVariant(deduceVariantType<PropertyType>(true), deduceVariantPointers<PropertyType>(), this->callback());
+		
+		GVarTypeData data;
+		deduceVariantType<PropertyType>(data, true);
+		return GVariant(data, this->callback());
 	}
 
 	template <typename T>
