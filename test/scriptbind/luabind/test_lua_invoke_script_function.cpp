@@ -23,30 +23,30 @@ GTEST(InvokeScriptFunction)
 	GScriptObject * bindingLib = context->getBindingLib();
 	GApiScopedPointer<IScriptObject> bindingApi(context->getBindingApi());
 	
-	GVariant result;
+	GMetaVariant result;
 	
 	result = invokeScriptFunction(bindingLib, "luaAdd", 8, 2);
-	GEQUAL(fromVariant<int>(result), 10);
+	GEQUAL(fromVariant<int>(result.getValue()), 10);
 	
 	result = invokeScriptFunction(bindingLib, "luaLen", "abc", 2);
-	GEQUAL(fromVariant<int>(result), 5);
+	GEQUAL(fromVariant<int>(result.getValue()), 5);
 
 	TestData data;
 	data.x = 5;
 	data.name = "abc";
 	
 	result = invokeScriptFunction(bindingLib, "luaTestData", &data);
-	GEQUAL(fromVariant<int>(result), 8);
+	GEQUAL(fromVariant<int>(result.getValue()), 8);
 	
 	result = 0;
-	GDIFF(fromVariant<int>(result), 8);
+	GDIFF(fromVariant<int>(result.getValue()), 8);
 	
 	result = invokeScriptFunction(bindingApi.get(), "luaTestData", &data);
-	GEQUAL(fromVariant<int>(result), 8);
+	GEQUAL(fromVariant<int>(result.getValue()), 8);
 
 	TestData * pdata;
 	result = invokeScriptFunction(bindingApi.get(), "luaNewTestData");
-	pdata = fromVariant<TestData *>(result);
+	pdata = fromVariant<TestData *>(result.getValue());
 	GEQUAL(pdata->x, 3);
 	GEQUAL(pdata->name, "def");
 }

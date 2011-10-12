@@ -19,16 +19,16 @@ namespace cpgf {
 	GPP_REPEAT_3(N, DEF_LOAD_PARAM_HELPER_API, GPP_EMPTY())
 
 #define DEF_CALL_HELPER(N, unused) \
-	GVariant invokeScriptFunction(GScriptObject * scriptObject, const GScriptName & name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
+	GMetaVariant invokeScriptFunction(GScriptObject * scriptObject, const GScriptName & name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
 		return scriptObject->invokeIndirectly(name, params, N); \
 	} \
-	GVariant invokeScriptFunction(IScriptObject * scriptObject, const GScriptName & name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
+	GMetaVariant invokeScriptFunction(IScriptObject * scriptObject, const GScriptName & name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
 		DEF_LOAD_PARAM_API(N) \
-		GVarData result; \
+		GMetaVarData result; \
 		GApiScopedPointer<IScriptName> scriptName(scriptObject->createName(name.getName())); \
 		scriptObject->invoke(scriptName.get(), &result, params, N); \
-		return GVariant(result); \
+		return GMetaVariant(result); \
 	}
 
 GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())

@@ -98,8 +98,8 @@ protected:
 
 	virtual IScriptObject * G_API_CC createScriptObject(IScriptName * name);
 	
-	virtual void G_API_CC invoke(IScriptName * name, GVarData * outResult, const GMetaVarData * params, uint32_t paramCount);
-	virtual void G_API_CC invokeIndirectly(IScriptName * name, GVarData * outResult, GMetaVarData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC invoke(IScriptName * name, GMetaVarData * outResult, const GMetaVarData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeIndirectly(IScriptName * name, GMetaVarData * outResult, GMetaVarData const * const * params, uint32_t paramCount);
 
 	virtual void G_API_CC setFundamental(IScriptName * name, const GVarData * value);
 	virtual void G_API_CC setString(IScriptName * stringName, const char * s);
@@ -285,7 +285,7 @@ IScriptObject * G_API_CC ImplScriptObject::createScriptObject(IScriptName * name
 	LEAVE_BINDING_API(return NULL)
 }
 
-void G_API_CC ImplScriptObject::invoke(IScriptName * name, GVarData * outResult, const GMetaVarData * params, uint32_t paramCount)
+void G_API_CC ImplScriptObject::invoke(IScriptName * name, GMetaVarData * outResult, const GMetaVarData * params, uint32_t paramCount)
 {
 	ENTER_BINDING_API()
 
@@ -300,7 +300,7 @@ void G_API_CC ImplScriptObject::invoke(IScriptName * name, GVarData * outResult,
 	LEAVE_BINDING_API()
 }
 
-void G_API_CC ImplScriptObject::invokeIndirectly(IScriptName * name, GVarData * outResult, GMetaVarData const * const * params, uint32_t paramCount)
+void G_API_CC ImplScriptObject::invokeIndirectly(IScriptName * name, GMetaVarData * outResult, GMetaVarData const * const * params, uint32_t paramCount)
 {
 	ENTER_BINDING_API()
 
@@ -312,7 +312,7 @@ void G_API_CC ImplScriptObject::invokeIndirectly(IScriptName * name, GVarData * 
 		paramIndirect[i] = &paramVariants[i];
 	}
 
-	GVariant result = this->scriptObject->invokeIndirectly(this->unwrapScriptName(name), paramIndirect, paramCount);
+	GMetaVariant result = this->scriptObject->invokeIndirectly(this->unwrapScriptName(name), paramIndirect, paramCount);
 	if(outResult) {
 		*outResult = result.takeData();
 	}

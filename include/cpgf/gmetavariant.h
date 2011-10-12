@@ -60,6 +60,18 @@ public:
 		return data;
 	}
 
+	GMetaVarData takeData() {
+		GMetaVarData data;
+
+		data.varData = this->value.takeData();
+		data.typeData = this->type.getData();
+
+		return data;
+	}
+
+private:
+	GMetaVariant(const GVariant &);
+
 private:
 	GVariant value;
 	GMetaType type;

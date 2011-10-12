@@ -309,7 +309,7 @@ printf("Error: %s \n", buffer);
 		lua_setmetatable(L, -2);
 	}
 
-	void * luaToObject(lua_State * L, GLuaBindingParam * param, int index)
+	void * luaToObject(lua_State * L, GLuaBindingParam * param, int index, GMetaType * outType)
 	{
 		(void)param;
 
@@ -317,6 +317,11 @@ printf("Error: %s \n", buffer);
 			void * userData = lua_touserdata(L, index);
 			if(static_cast<GLuaUserData *>(userData)->getType() == udtClass) {
 				GClassUserData * classData = static_cast<GClassUserData *>(userData);
+				if(outType != NULL) {
+					GMetaTypeData typeData;
+					classData->metaClass->getMetaType(&typeData);
+					*outType = GMetaType(typeData);
+				}
 
 				return classData->instance;
 			}
@@ -325,7 +330,7 @@ printf("Error: %s \n", buffer);
 		return NULL;
 	}
 
-	GVariant luaToVariant(lua_State * L, GLuaBindingParam * param, int index)
+	GMetaVariant luaToVariant(lua_State * L, GLuaBindingParam * param, int index)
 	{
 		int type = lua_type(L, index);
 
@@ -343,9 +348,11 @@ printf("Error: %s \n", buffer);
 				return lua_tostring(L, index);
 
 			case LUA_TUSERDATA: {
-				void * obj = luaToObject(L, param, index);
+				GMetaType metaType;
+				void * obj = luaToObject(L, param, index, &metaType);
 				if(obj != NULL) {
-					return pointerToObjectVariant(obj);
+					metaType.addPointer();
+					return GMetaVariant(pointerToObjectVariant(obj), metaType);
 				}
 			}
 				break;
@@ -360,7 +367,7 @@ printf("Error: %s \n", buffer);
 				break;
 		}
 
-		return GVariant();
+		return GMetaVariant();
 	}
 
 	bool variantToLua(lua_State * L, GLuaBindingParam * param, const GVariant & value, const GMetaType & type, bool allowGC)
@@ -518,7 +525,7 @@ printf("Error: %s \n", buffer);
 	void loadMethodParameters(lua_State * L, GLuaBindingParam * param, GVarData * outputParams, size_t startIndex, size_t paramCount)
 	{
 		for(size_t i = 0; i < paramCount; ++i) {
-			outputParams[i] = luaToVariant(L, param, i + startIndex).getData();
+			outputParams[i] = luaToVariant(L, param, i + startIndex).getData().varData;
 		}
 	}
 
@@ -929,7 +936,7 @@ printf("Error: %s \n", buffer);
 		
 		const char * name = lua_tostring(L, -2);
 
-		GVariant value = luaToVariant(L, userData->getParam(), -1);
+		GVariant value = luaToVariant(L, userData->getParam(), -1).getValue();
 		
 		if(newindexMemberData(L, userData, name, value)) {
 			return true;
@@ -1363,7 +1370,7 @@ GScriptObject * GLuaScriptObject::createScriptObject(const GScriptName & name)
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
 
-GVariant GLuaScriptObject::invoke(const GScriptName & name, const GMetaVariant * params, size_t paramCount)
+GMetaVariant GLuaScriptObject::invoke(const GScriptName & name, const GMetaVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1376,7 +1383,7 @@ GVariant GLuaScriptObject::invoke(const GScriptName & name, const GMetaVariant *
 	return this->invokeIndirectly(name, variantPointers, paramCount);
 }
 
-GVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaVariant const * const * params, size_t paramCount)
+GMetaVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaVariant const * const * params, size_t paramCount)
 {
 	ENTER_LUA()
 
@@ -1417,9 +1424,9 @@ GVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaVaria
 		handleError("Can't call non-function.");
 	}
 	
-	return GVariant();
+	return GMetaVariant();
 	
-	LEAVE_LUA(this->implement->luaState, return GVariant())
+	LEAVE_LUA(this->implement->luaState, return GMetaVariant())
 }
 
 void GLuaScriptObject::setFundamental(const GScriptName & name, const GVariant & value)
@@ -1486,7 +1493,7 @@ GVariant GLuaScriptObject::getFundamental(const GScriptName & name)
 
 	scopeGuard.get(name);
 
-	return luaToVariant(this->implement->luaState, &this->implement->param, -1);
+	return luaToVariant(this->implement->luaState, &this->implement->param, -1).getValue();
 	
 	LEAVE_LUA(this->implement->luaState, return GVariant())
 }
@@ -1512,7 +1519,7 @@ void * GLuaScriptObject::getObject(const GScriptName & objectName)
 
 	scopeGuard.get(objectName);
 
-	return luaToObject(this->implement->luaState, &this->implement->param, -1);
+	return luaToObject(this->implement->luaState, &this->implement->param, -1, NULL);
 	
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
