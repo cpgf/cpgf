@@ -25,7 +25,7 @@ public:
 	CLASS(int) {}
 };
 
-GTEST(TestVariant)
+GTEST(TestVariant_Cast)
 {
 	CAN_FROM(int, 0);
 	CAN_FROM(string, "abc");
@@ -46,6 +46,23 @@ GTEST(TestVariant)
 	CAN_FROM_CAST(CLASS *, void *, NULL);
 }
 
+GTEST(TestVariant_ObjectPointer)
+{
+	GEQUAL(vtGetBaseType(GVariant((CLASS *)0).data.typeData), vtObject);
+	GEQUAL(vtGetPointers(GVariant((CLASS *)0).data.typeData), 1);
+
+	GEQUAL(vtGetBaseType(GVariant((CLASS const *)0).data.typeData), vtObject);
+	GEQUAL(vtGetPointers(GVariant((CLASS const *)0).data.typeData), 1);
+
+	GEQUAL(vtGetBaseType(GVariant((CLASS volatile *)0).data.typeData), vtObject);
+	GEQUAL(vtGetPointers(GVariant((CLASS volatile *)0).data.typeData), 1);
+
+	GEQUAL(vtGetBaseType(GVariant((CLASS const volatile *)0).data.typeData), vtObject);
+	GEQUAL(vtGetPointers(GVariant((CLASS const volatile *)0).data.typeData), 1);
+
+	GEQUAL(vtGetBaseType(GVariant((CLASS **)0).data.typeData), vtPointer);
+	GEQUAL(vtGetPointers(GVariant((CLASS **)0).data.typeData), 2);
+}
 
 
 
