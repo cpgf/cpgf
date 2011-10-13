@@ -22,6 +22,7 @@ class GMetaEnum;
 class GMetaFundamental;
 class GMetaAnnotation;
 class GMetaConverter;
+struct IApiAllocator;
 
 
 struct GMetaVariadicParam
@@ -283,7 +284,7 @@ public:
 	}
 
 	virtual bool canToCString() = 0;
-	virtual const char * toCString(const void * instance, int * needFree) = 0;
+	virtual const char * toCString(const void * instance, int * needFree, IApiAllocator * allocator) = 0;
 };
 
 class GMetaConverterDefault : public GMetaConverter

@@ -9,6 +9,18 @@
 #include <string>
 
 
+#define IMPL_BASE \
+	virtual uint32_t G_API_CC unused_queryInterface(void *, void *) { return 0; } \
+	virtual uint32_t G_API_CC addReference() { return this->doAddReference(); } \
+	virtual uint32_t G_API_CC releaseReference() { return this->doReleaseReference(); }
+
+#define IMPL_OBJECT \
+protected: \
+	virtual int32_t G_API_CC getErrorCode() { return this->doGetErrorCode(); } \
+	virtual const char * G_API_CC getErrorMessage() { return this->doGetErrorMessage(); }
+
+
+
 namespace cpgf {
 
 
@@ -51,6 +63,17 @@ private:
 	GScopedPointer<ErrorInfo> errorInfo;
 };
 
+
+class ImplApiAllocator : public ImplApiObject, public IApiAllocator
+{
+protected:
+	IMPL_BASE
+	IMPL_OBJECT
+
+	virtual void * G_API_CC allocate(uint32_t size);
+	virtual void G_API_CC free(void * p);
+	virtual void * G_API_CC reallocate(void * p, uint32_t size);
+};
 
 
 

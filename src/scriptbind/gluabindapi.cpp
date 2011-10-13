@@ -369,10 +369,12 @@ char * G_API_CC ImplScriptObject::getString(IScriptName * stringName)
 {
 	ENTER_BINDING_API()
 
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	
 	std::string s = this->scriptObject->getString(this->unwrapScriptName(stringName));
-	void * cs = service->allocateMemory(s.length() + 1);
+
+	GApiScopedPointer<IApiAllocator> allocator(service->getAllocator());
+	void * cs = allocator->allocate(s.length() + 1);
 	memmove(cs, s.c_str(), s.length() + 1);
 	
 	return static_cast<char *>(cs);

@@ -28,6 +28,13 @@ struct IApiObject : public IApiBase
 	virtual const char * G_API_CC getErrorMessage() = 0;
 };
 
+struct IApiAllocator : public IApiObject
+{
+	virtual void * G_API_CC allocate(uint32_t size) = 0;
+	virtual void G_API_CC free(void * p) = 0;
+	virtual void * G_API_CC reallocate(void * p, uint32_t size) = 0;
+};
+
 
 template <typename T>
 struct GApiScopedPointerDeleter

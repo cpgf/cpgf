@@ -127,7 +127,7 @@ GTEST(Lib_Exists)
 
 GTEST(API_Exists)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
 	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
@@ -334,7 +334,7 @@ GTEST(Lib_CheckParam)
 
 GTEST(API_CheckParam)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
 	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
@@ -483,7 +483,7 @@ GTEST(Lib_Invoke)
 
 GTEST(API_Invoke)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
 	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));

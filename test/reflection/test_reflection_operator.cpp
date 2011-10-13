@@ -528,7 +528,7 @@ GTEST(Lib_Exists)
 
 GTEST(API_Exists)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
 	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
@@ -588,7 +588,7 @@ GTEST(Lib_InvokeArithmetic)
 
 GTEST(API_InvokeArithmetic)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
 	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
@@ -682,7 +682,7 @@ GTEST(Lib_InvokeArithmeticAssign)
 
 GTEST(API_InvokeArithmeticAssign)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
 	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
@@ -767,7 +767,7 @@ GTEST(Lib_InvokeBitwise)
 
 GTEST(API_InvokeBitwise)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
 	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
@@ -851,7 +851,7 @@ GTEST(Lib_InvokeBitwiseAssign)
 
 GTEST(API_InvokeBitwiseAssign)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
 	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
@@ -957,7 +957,7 @@ GTEST(Lib_InvokeLogic)
 
 GTEST(API_InvokeLogic)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
 	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
@@ -1081,7 +1081,7 @@ GTEST(Lib_InvokeUnary)
 
 GTEST(API_InvokeUnary)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
 	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
@@ -1198,7 +1198,7 @@ GTEST(Lib_InvokeOther)
 
 GTEST(API_InvokeOther)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
 	GApiScopedPointer<IMetaClass> metaClass2(service->findClassByName(NAME_CLASS2));

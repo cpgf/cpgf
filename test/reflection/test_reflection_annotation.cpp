@@ -205,7 +205,7 @@ GTEST(Lib_Annotation)
 
 GTEST(API_Annotation)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
 	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));

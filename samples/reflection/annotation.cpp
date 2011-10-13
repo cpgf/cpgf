@@ -168,7 +168,7 @@ void doTestAPI()
 	using namespace cpgf;
 	using namespace std;
 
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	testCheckAssert(service);
 
 	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName("annotation::TestObject"));

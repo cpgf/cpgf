@@ -456,13 +456,14 @@ printf("Error: %s \n", buffer);
 		if(converter->canToCString()) {
 			gapi_bool needFree;
 			
-			const char * s = converter->toCString(objectAddressFromVariant(value), &needFree);
+			GApiScopedPointer<IApiAllocator> allocator(param->getService()->getAllocator());
+			const char * s = converter->toCString(objectAddressFromVariant(value), &needFree, allocator.get());
 
 			if(s != NULL) {
 				lua_pushstring(L, s);
 
 				if(needFree) {
-					param->getService()->freeMemory(s);
+					allocator->free((void *)s);
 				}
 
 				return true;

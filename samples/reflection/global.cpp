@@ -84,10 +84,10 @@ void doTestAPI()
 {
 	using namespace cpgf;
 
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	testCheckAssert(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->getGlobalMetaClass());
+	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	testCheckAssert(metaClass);
 	std::cout << "API: " << metaClass->getName() << std::endl;
 

@@ -19,7 +19,7 @@ public:
 	TestLuaContext() {
 		this->luaState = luaL_newstate();
 		luaL_openlibs(this->luaState);
-		this->service.reset(cpgf::createMetaService());
+		this->service.reset(cpgf::createDefaultMetaService());
 		this->binding.reset(new cpgf::GLuaScriptObject(this->service.get(), this->luaState, cpgf::GScriptConfig()));
 		testscript::bindBasicData(this->binding.get());
 	}

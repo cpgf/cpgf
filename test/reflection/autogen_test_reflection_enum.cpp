@@ -56,10 +56,10 @@ GTEST(Lib_Exists)
 
 GTEST(API_Exists)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->getGlobalMetaClass());
+	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
 	GApiScopedPointer<IMetaEnum> en;
@@ -89,10 +89,10 @@ GTEST(Lib_GetCount)
 
 GTEST(API_GetCount)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->getGlobalMetaClass());
+	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
 	GApiScopedPointer<IMetaEnum> en;
@@ -131,10 +131,10 @@ GTEST(Lib_GetKey)
 
 GTEST(API_GetKey)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->getGlobalMetaClass());
+	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
 	GApiScopedPointer<IMetaEnum> en;
@@ -180,10 +180,10 @@ GTEST(Lib_GetValue)
 
 GTEST(API_GetValue)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->getGlobalMetaClass());
+	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
 	GApiScopedPointer<IMetaEnum> en;
@@ -229,10 +229,10 @@ GTEST(Lib_FindKey)
 
 GTEST(API_FindKey)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->getGlobalMetaClass());
+	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
 	GApiScopedPointer<IMetaEnum> en;

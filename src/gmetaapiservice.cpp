@@ -31,16 +31,6 @@
 	catch(const GMetaException & e) { this->handleError(e.getErrorCode(), e.what()); __VA_ARGS__; }
 
 
-#define IMPL_BASE \
-	virtual uint32_t G_API_CC unused_queryInterface(void *, void *) { return 0; } \
-	virtual uint32_t G_API_CC addReference() { return this->doAddReference(); } \
-	virtual uint32_t G_API_CC releaseReference() { return this->doReleaseReference(); }
-
-#define IMPL_OBJECT \
-protected: \
-	virtual int32_t G_API_CC getErrorCode() { return this->doGetErrorCode(); } \
-	virtual const char * G_API_CC getErrorMessage() { return this->doGetErrorMessage(); }
-
 #define IMPL_ITEM \
 protected: \
 	virtual const char * G_API_CC getName() { return this->doGetName(); } \
@@ -213,7 +203,7 @@ public:
 
 protected:
 	virtual gapi_bool G_API_CC canToCString();
-	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree);
+	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree, IApiAllocator * allocator);
 
 private:
 	GScopedPointer<GMetaConverter> metaConverter;
@@ -554,8 +544,30 @@ private:
 
 
 
+class ImplMetaModule : public ImplApiObject, public IMetaModule
+{
+public:
+	ImplMetaModule();
+	~ImplMetaModule();
+
+	IMPL_BASE
+	IMPL_OBJECT
+
+protected:
+	virtual IMetaClass * G_API_CC getGlobalMetaClass();
+	
+	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name);
+	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt);
+	virtual IMetaClass * G_API_CC findClassByName(const char * name);
+	virtual IMetaClass * G_API_CC findClassByType(const GMetaTypeData * type);
+};
+
+
+
 class ImplMetaService : public ImplApiObject, public IMetaService
 {
+private:
+	typedef std::vector<IMetaModule *> ListType;
 public:
 	ImplMetaService();
 	~ImplMetaService();
@@ -564,9 +576,13 @@ public:
 	IMPL_OBJECT
 
 protected:
-	virtual IMetaClass * G_API_CC getGlobalMetaClass();
-	
+	virtual void G_API_CC addModule(IMetaModule * module);
+	virtual uint32_t G_API_CC getModuleCount();
+	virtual IMetaModule * G_API_CC getModuleAt(uint32_t index);
+
 	virtual IMetaList * G_API_CC createMetaList();
+
+	virtual IApiAllocator * G_API_CC getAllocator();
 
 	virtual void * G_API_CC allocateMemory(uint32_t size);
 	virtual void G_API_CC freeMemory(const void * p);
@@ -575,6 +591,13 @@ protected:
 	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt);
 	virtual IMetaClass * G_API_CC findClassByName(const char * name);
 	virtual IMetaClass * G_API_CC findClassByType(const GMetaTypeData * type);
+
+private:
+	void clear();
+
+private:
+	ListType moduleList;
+	GApiScopedPointer<IApiAllocator> allocator;
 };
 
 
@@ -1136,11 +1159,11 @@ gapi_bool G_API_CC ImplMetaConverter::canToCString()
 	return this->metaConverter->canToCString();
 }
 
-const char * G_API_CC ImplMetaConverter::toCString(const void * instance, gapi_bool * needFree)
+const char * G_API_CC ImplMetaConverter::toCString(const void * instance, gapi_bool * needFree, IApiAllocator * allocator)
 {
 	int free;
 	
-	const char * s = this->metaConverter->toCString(instance, &free);
+	const char * s = this->metaConverter->toCString(instance, &free, allocator);
 	
 	*needFree = free;
 
@@ -1927,21 +1950,99 @@ void * G_API_CC ImplMetaClass::castToBase(void * self, uint32_t baseIndex)
 
 
 
-ImplMetaService::ImplMetaService()
+ImplMetaModule::ImplMetaModule()
 {
 }
 
-ImplMetaService::~ImplMetaService()
+ImplMetaModule::~ImplMetaModule()
 {
 }
 
-IMetaClass * G_API_CC ImplMetaService::getGlobalMetaClass()
+IMetaClass * G_API_CC ImplMetaModule::getGlobalMetaClass()
 {
 	ENTER_META_API()
 
 	return new ImplMetaClass(cpgf::getGlobalMetaClass());
 
 	LEAVE_META_API(return NULL)
+}
+
+IMetaTypedItem * G_API_CC ImplMetaModule::findTypedItemByName(const char * name)
+{
+	ENTER_META_API()
+
+	const GMetaTypedItem * typedItem = findMetaType(name);
+
+	return static_cast<IMetaTypedItem *>(createMetaItem(typedItem));
+
+	LEAVE_META_API(return NULL)
+}
+
+IMetaFundamental * G_API_CC ImplMetaModule::findFundamental(GVariantType vt)
+{
+	GASSERT_MSG(vtIsFundamental(vt), "Type must be fundamental");
+
+	ENTER_META_API()
+
+	return doCreateItem<ImplMetaFundamental>(meta_internal::findRegisteredMetaFundamental(vt));
+
+	LEAVE_META_API(return NULL)
+}
+
+IMetaClass * G_API_CC ImplMetaModule::findClassByName(const char * name)
+{
+	ENTER_META_API()
+
+	return doCreateItem<ImplMetaClass>(findMetaClass(name));
+
+	LEAVE_META_API(return NULL)
+}
+
+IMetaClass * G_API_CC ImplMetaModule::findClassByType(const GMetaTypeData * type)
+{
+	ENTER_META_API()
+
+	return doCreateItem<ImplMetaClass>(findMetaClass(GMetaType(*type)));
+
+	LEAVE_META_API(return NULL)
+}
+
+
+
+ImplMetaService::ImplMetaService()
+{
+}
+
+ImplMetaService::~ImplMetaService()
+{
+	this->clear();
+}
+
+void G_API_CC ImplMetaService::addModule(IMetaModule * module)
+{
+	this->moduleList.push_back(module);
+	module->addReference();
+}
+
+uint32_t G_API_CC ImplMetaService::getModuleCount()
+{
+	return this->moduleList.size();
+}
+
+IMetaModule * G_API_CC ImplMetaService::getModuleAt(uint32_t index)
+{
+	IMetaModule * module = this->moduleList.at(index);
+	module->addReference();
+	return module;
+}
+
+void ImplMetaService::clear()
+{
+	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
+		(*it)->releaseReference();
+	}
+
+	this->moduleList.clear();
 }
 
 void * G_API_CC ImplMetaService::allocateMemory(uint32_t size)
@@ -1959,13 +2060,29 @@ IMetaList * G_API_CC ImplMetaService::createMetaList()
 	return new ImplMetaList;
 }
 
+IApiAllocator * G_API_CC ImplMetaService::getAllocator()
+{
+	if(!this->allocator) {
+		this->allocator.reset(new ImplApiAllocator);
+	}
+	
+	this->allocator->addReference();
+
+	return this->allocator.get();
+}
+
 IMetaTypedItem * G_API_CC ImplMetaService::findTypedItemByName(const char * name)
 {
 	ENTER_META_API()
 
-	const GMetaTypedItem * typedItem = findMetaType(name);
+	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
+		GApiScopedPointer<IMetaTypedItem> item((*it)->findTypedItemByName(name));
+		if(item) {
+			return item.take();
+		}
+	}
 
-	return static_cast<IMetaTypedItem *>(createMetaItem(typedItem));
+	return NULL;
 
 	LEAVE_META_API(return NULL)
 }
@@ -1976,7 +2093,14 @@ IMetaFundamental * G_API_CC ImplMetaService::findFundamental(GVariantType vt)
 
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaFundamental>(meta_internal::findRegisteredMetaFundamental(vt));
+	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
+		GApiScopedPointer<IMetaFundamental> item((*it)->findFundamental(vt));
+		if(item) {
+			return item.take();
+		}
+	}
+
+	return NULL;
 
 	LEAVE_META_API(return NULL)
 }
@@ -1985,7 +2109,14 @@ IMetaClass * G_API_CC ImplMetaService::findClassByName(const char * name)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaClass>(findMetaClass(name));
+	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
+		GApiScopedPointer<IMetaClass> item((*it)->findClassByName(name));
+		if(item) {
+			return item.take();
+		}
+	}
+
+	return NULL;
 
 	LEAVE_META_API(return NULL)
 }
@@ -1994,14 +2125,43 @@ IMetaClass * G_API_CC ImplMetaService::findClassByType(const GMetaTypeData * typ
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaClass>(findMetaClass(GMetaType(*type)));
+	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
+		GApiScopedPointer<IMetaClass> item((*it)->findClassByType(type));
+		if(item) {
+			return item.take();
+		}
+	}
+
+	return NULL;
 
 	LEAVE_META_API(return NULL)
 }
 
-IMetaService * createMetaService()
+
+IMetaModule * getMetaModule()
 {
-	return new ImplMetaService;
+	static GApiScopedPointer<ImplMetaModule> module;
+
+	if(!module) {
+		module.reset(new ImplMetaModule);
+	}
+
+	module->addReference();
+
+	return module.get();
+}
+
+IMetaService * createMetaService(IMetaModule * primaryModule)
+{
+	IMetaService * service = new ImplMetaService;
+	service->addModule(primaryModule);
+	return service;
+}
+
+IMetaService * createDefaultMetaService()
+{
+	GApiScopedPointer<IMetaModule> module(getMetaModule());
+	return createMetaService(module.get());
 }
 
 

@@ -230,10 +230,10 @@ void doTest()
 	lua_State * L = luaL_newstate();
 	luaL_openlibs(L);
 
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	testCheckAssert(service);
 
-	GApiScopedPointer<IMetaClass> globalClass(service->getGlobalMetaClass());
+	GApiScopedPointer<IMetaClass> globalClass(metaGetGlobalMetaClass(service, 0));
 	testCheckAssert(globalClass);
 
 	GLuaScriptObject binding(service.get(), L, GScriptConfig());
@@ -296,8 +296,8 @@ void doTest()
 //	luaL_dostring(L, code);
 	luaL_loadstring(L, code); lua_call(L, 0, LUA_MULTRET);
 
-	GVariant result = invokeScriptFunction(&binding, "luaAdd", 8, 2);
-	cout << "Result: " << fromVariant<int>(result) << endl;
+	GMetaVariant result = invokeScriptFunction(&binding, "luaAdd", 8, 2);
+	cout << "Result: " << fromVariant<int>(result.getValue()) << endl;
 	cout << binding.getString("lss") << endl;
 
 	GScriptName nameNewObj("newObj");

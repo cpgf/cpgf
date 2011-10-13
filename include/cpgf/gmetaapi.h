@@ -146,7 +146,7 @@ struct IMetaList : public IApiObject
 struct IMetaConverter : public IApiObject
 {
 	virtual gapi_bool G_API_CC canToCString() = 0;
-	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree) = 0;
+	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree, IApiAllocator * allocator) = 0;
 };
 
 struct IMetaAccessible : public IMetaItem
@@ -292,11 +292,26 @@ struct IMetaClass : public IMetaTypedItem
 };
 
 
-struct IMetaService : public IApiObject
+struct IMetaModule : public IApiObject
 {
 	virtual IMetaClass * G_API_CC getGlobalMetaClass() = 0;
 
+	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name) = 0;
+	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt) = 0;
+	virtual IMetaClass * G_API_CC findClassByName(const char * name) = 0;
+	virtual IMetaClass * G_API_CC findClassByType(const GMetaTypeData * type) = 0;
+};
+
+
+struct IMetaService : public IApiObject
+{
+	virtual void G_API_CC addModule(IMetaModule * module) = 0;
+	virtual uint32_t G_API_CC getModuleCount() = 0;
+	virtual IMetaModule * G_API_CC getModuleAt(uint32_t index) = 0;
+
 	virtual IMetaList * G_API_CC createMetaList() = 0;
+
+	virtual IApiAllocator * G_API_CC getAllocator() = 0;
 
 	virtual void * G_API_CC allocateMemory(uint32_t size) = 0;
 	virtual void G_API_CC freeMemory(const void * p) = 0;
@@ -308,7 +323,9 @@ struct IMetaService : public IApiObject
 };
 
 
-IMetaService * createMetaService();
+IMetaModule * getMetaModule();
+IMetaService * createMetaService(IMetaModule * primaryModule);
+IMetaService * createDefaultMetaService();
 
 
 } // namespace cpgf

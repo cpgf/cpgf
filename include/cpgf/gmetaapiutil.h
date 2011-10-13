@@ -158,6 +158,13 @@ GVariant metaGetAnnotationVariant(Meta & annotationValue)
 	return GVariant(data);
 }
 
+template <typename Meta>
+IMetaClass * metaGetGlobalMetaClass(Meta & service, size_t index)
+{
+	GApiScopedPointer<IMetaModule> module(service->getModuleAt(index));
+	return module->getGlobalMetaClass();
+}
+
 
 
 } // namespace cpgf

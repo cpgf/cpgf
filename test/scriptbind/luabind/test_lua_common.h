@@ -17,7 +17,7 @@ class TestLuaContext
 {
 public:
 	TestLuaContext() {
-		this->service.reset(cpgf::createMetaService());
+		this->service.reset(cpgf::createDefaultMetaService());
 
 		this->luaStateLib = luaL_newstate();
 		luaL_openlibs(this->luaStateLib);

@@ -1,8 +1,12 @@
 #include "cpgf/gapi.h"
+
 #include "pinclude/gapiimpl.h"
+
+#include <stdlib.h>
 
 
 namespace cpgf {
+
 
 
 ImplApiBase::ImplApiBase()
@@ -89,6 +93,21 @@ const char * ImplApiObject::doGetErrorMessage()
 	}
 }
 
+
+void * G_API_CC ImplApiAllocator::allocate(uint32_t size)
+{
+	return malloc(size);
+}
+
+void G_API_CC ImplApiAllocator::free(void * p)
+{
+	::free(p);
+}
+
+void * G_API_CC ImplApiAllocator::reallocate(void * p, uint32_t size)
+{
+	return realloc(p, size);
+}
 
 
 } // namespace cpgf

@@ -1,6 +1,7 @@
 #ifndef __GCOMPILER_H
 #define __GCOMPILER_H
 
+#include "cpgf/gconfig.h"
 
 
 #if !defined(NDEBUG)
@@ -44,10 +45,12 @@
     #endif
 #endif    
 
-#ifdef G_SUPPORT_STDCALL
-	#define G_API_CC __stdcall
-#else
-	#define G_API_CC
+#ifndef G_API_CC
+	#ifdef G_SUPPORT_STDCALL
+		#define G_API_CC __stdcall
+	#else
+		#define G_API_CC
+	#endif
 #endif
 
 

@@ -183,7 +183,7 @@ void doTestAPI()
 {
 	using namespace cpgf;
 
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	testCheckAssert(service);
 
 	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName("operator_unary::TestObject"));

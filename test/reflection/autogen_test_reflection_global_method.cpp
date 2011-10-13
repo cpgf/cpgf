@@ -3,7 +3,6 @@
 
 #include "test_reflection_common.h"
 
-
 #define CLASS void
 #define NAME_CLASS GPP_STRINGIZE(CLASS)
 
@@ -131,10 +130,10 @@ GTEST(Lib_Exists)
 
 GTEST(API_Exists)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->getGlobalMetaClass());
+	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
 	GApiScopedPointer<IMetaMethod> method;
@@ -338,10 +337,10 @@ GTEST(Lib_CheckParam)
 
 GTEST(API_CheckParam)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->getGlobalMetaClass());
+	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
 	GApiScopedPointer<IMetaMethod> method;
@@ -487,10 +486,10 @@ GTEST(Lib_Invoke)
 
 GTEST(API_Invoke)
 {
-	GApiScopedPointer<IMetaService> service(createMetaService());
+	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->getGlobalMetaClass());
+	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
 	GApiScopedPointer<IMetaMethod> method;
