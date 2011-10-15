@@ -567,6 +567,40 @@ const GMetaItem * GMetaClass::getMetaAt(size_t index) const
 	return this->implement->metaList.getItemAt(index);
 }
 
+bool GMetaClass::isGlobal() const
+{
+	return !this->superList;
+}
+
+bool GMetaClass::isAbstract() const
+{
+	return this->baseData->isAbstract();
+}
+
+bool GMetaClass::canCreateInstance() const
+{
+	return this->baseData->canCreateInstance();
+}
+
+bool GMetaClass::canCopyInstance() const
+{
+	return this->baseData->canCopyInstance();
+}
+
+bool GMetaClass::isSameClass(const GMetaClass * other) const
+{
+	return this == other;
+}
+
+const GMetaClass * GMetaClass::getBaseClass(size_t baseIndex) const
+{
+	return this->superList->getSuper(baseIndex);
+}
+
+size_t GMetaClass::getBaseCount() const
+{
+	return this->superList->getCount();
+}
 
 bool GMetaClass::isInheritedFrom(const GMetaClass * ancient) const
 {

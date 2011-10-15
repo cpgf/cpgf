@@ -29,34 +29,36 @@ namespace meta_internal {
 	case N: return createMetaType<typename TypeList_GetWithDefault<typename CallbackT::TraitsType::ArgTypeList, N>::Result>();
 
 #define REF_CALL_HELPER_CAST(N, unused) \
-	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N>(*params[N])
+	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, HasMetaPolicyItem<Policy, GMetaPolicyItemKeepConstReference<N> >::Result>(*params[N])
 
 #define REF_CALL_HELPER(N, unused) \
-	template <typename CT, typename FT, typename RT> \
-	struct GMetaMethodCallHelper<CT, FT, N, RT, false> { \
+	template <typename CT, typename FT, typename RT, typename Policy> \
+	struct GMetaMethodCallHelper<CT, FT, N, RT, Policy, false> { \
 		static GVariant invoke(const CT & callback, GVariant const * const * params, size_t paramCount) { \
-			GPP_IF(N, GPP_EMPTY(), (void)params;) \
+			(void)params; \
 			(void)paramCount; \
-			GVarTypeData data; \
-			deduceVariantType<RT>(data, true); \
-			return GVariant(data, callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY))); \
+			GVarTypeData typeData; \
+			deduceVariantType<RT>(typeData, true); \
+			GVariant v; \
+			variant_internal::InitVariant<!HasMetaPolicyItem<Policy, GMetaPolicyItemKeepConstReference<N> >::Result>(v, typeData, static_cast<typename variant_internal::DeducePassType<RT>::PassType>(callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)))); \
+			return v; \
 		} \
 	}; \
-	template <typename CT, typename FT> \
-	struct GMetaMethodCallHelper<CT, FT, N, void, false> { \
+	template <typename CT, typename FT, typename Policy> \
+	struct GMetaMethodCallHelper<CT, FT, N, void, Policy, false> { \
 		static GVariant invoke(const CT & callback, GVariant const * const * params, size_t paramCount) { \
-			GPP_IF(N, GPP_EMPTY(), (void)params;) \
+			(void)params; \
 			(void)paramCount; \
 			callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)); \
 			return GVariant(); \
 		} \
 	};
 
-template <typename CT, typename FT, unsigned int N, typename RT, bool IsVariadic>
+template <typename CT, typename FT, unsigned int N, typename RT, typename Policy, bool IsVariadic>
 struct GMetaMethodCallHelper;
 
-template <typename CT, typename FT, unsigned int N, typename RT>
-struct GMetaMethodCallHelper <CT, FT, N, RT, true>
+template <typename CT, typename FT, unsigned int N, typename RT, typename Policy>
+struct GMetaMethodCallHelper <CT, FT, N, RT, Policy, true>
 {
 	GASSERT_STATIC(N == 1);
 
@@ -65,14 +67,12 @@ struct GMetaMethodCallHelper <CT, FT, N, RT, true>
 		variadicParams.params = params;
 		variadicParams.paramCount = paramCount;
 		
-		GVarTypeData data;
-		deduceVariantType<RT>(data, true);
-		return GVariant(data, callback(&variadicParams));
+		return createVariant<true, RT>(callback(&variadicParams), true);
 	}
 };
 
-template <typename CT, typename FT, unsigned int N>
-struct GMetaMethodCallHelper <CT, FT, N, void, true>
+template <typename CT, typename FT, unsigned int N, typename Policy>
+struct GMetaMethodCallHelper <CT, FT, N, void, Policy, true>
 {
 	GASSERT_STATIC(N == 1);
 
@@ -168,7 +168,7 @@ public:
 		}
 
 		this->callback.setObject(instance);
-		return GMetaMethodCallHelper<CallbackType, TraitsType, TraitsType::Arity, typename TraitsType::ResultType, IsVariadicFunction<TraitsType>::Result>::invoke(this->callback, params, paramCount);
+		return GMetaMethodCallHelper<CallbackType, TraitsType, TraitsType::Arity, typename TraitsType::ResultType, Policy, IsVariadicFunction<TraitsType>::Result>::invoke(this->callback, params, paramCount);
 	}
 
 	virtual bool checkParam(const GVariant & param, size_t paramIndex) const {

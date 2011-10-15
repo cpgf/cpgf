@@ -595,33 +595,16 @@ public:
 	const GMetaItem * getMetaAt(size_t index) const;
 
 public:
-	bool isGlobal() const {
-		return !this->superList;
-	}
+	bool isGlobal() const;
+	bool isAbstract() const;
 
-	bool isAbstract() const {
-		return this->baseData->isAbstract();
-	}
+	bool canCreateInstance() const;
+	bool canCopyInstance() const;
 
-	bool canCreateInstance() const {
-		return this->baseData->canCreateInstance();
-	}
+	bool isSameClass(const GMetaClass * other) const;
 
-	bool canCopyInstance() const {
-		return this->baseData->canCopyInstance();
-	}
-
-	bool isSameClass(const GMetaClass * other) const {
-		return this == other;
-	}
-
-	const GMetaClass * getBaseClass(size_t baseIndex) const {
-		return this->superList->getSuper(baseIndex);
-	}
-
-	size_t getBaseCount() const {
-		return this->superList->getCount();
-	}
+	const GMetaClass * getBaseClass(size_t baseIndex) const;
+	size_t getBaseCount() const;
 
 	bool isInheritedFrom(const GMetaClass * ancient) const;
 

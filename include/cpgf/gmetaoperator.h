@@ -609,7 +609,7 @@ public:
 			meta_internal::handleError(metaError_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
 		}
 
-		return GMetaMethodCallHelper<OT, FT, FT::Arity, typename FT::ResultType, IsVariadicFunction<FT>::Result>::invoke(*static_cast<OT *>(instance), params, paramCount);
+		return GMetaMethodCallHelper<OT, FT, FT::Arity, typename FT::ResultType, Policy, IsVariadicFunction<FT>::Result>::invoke(*static_cast<OT *>(instance), params, paramCount);
 	}
 
 	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const {

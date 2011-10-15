@@ -81,7 +81,7 @@ struct InitAnnoVariant
 	static void init(GVariant & var, const T & value) {
 		GVarTypeData data;
 		deduceVariantType<T>(data, true);
-		variant_internal::InitVariant(var, data, static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
+		variant_internal::InitVariant<true>(var, data, static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
 	}
 };
 
@@ -158,28 +158,15 @@ public:
 
 	void swap(GAnnotationValue & other);
 
-	const GVariant * getVariant() const {
-		return &this->var;
-	}
+	const GVariant * getVariant() const;
 
-	bool canToString() const {
-		return this->var.getType() == vtAnnoString;
-	}
-
-	bool canToWideString() const {
-		return this->var.getType() == vtAnnoWideString;
-	}
-
-	bool canToInt() const {
-		return canFromVariant<int>(this->var);
-	}
+	bool canToString() const;
+	bool canToWideString() const;
+	bool canToInt() const;
 
 	const char * toString() const;
 	const wchar_t * toWideString() const;
-
-	int toInt() const {
-		return fromVariant<int>(this->var);
-	}
+	int toInt() const;
 
 	template <typename T>
 	T toObject() const {
@@ -233,9 +220,7 @@ public:
 		return *this;
 	}
 
-	const GMetaItem * getMetaItem() const {
-		return this->metaItem;
-	}
+	const GMetaItem * getMetaItem() const;
 
 	const GAnnotationValue * getValue(const char * name) const;
 	size_t getCount() const;
@@ -243,9 +228,7 @@ public:
 	const GAnnotationValue * getValueAt(size_t index) const;
 
 private:
-	void setMetaItem(const GMetaItem * metaItem) {
-		this->metaItem = metaItem;
-	}
+	void setMetaItem(const GMetaItem * metaItem);
 
 	void clear();
 	

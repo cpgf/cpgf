@@ -52,6 +52,14 @@ namespace Test_GlobalMethod { namespace {
 		data->s = fieldMethodString;
 		data->i = fieldMethodInt;
 	}
+	
+	static const NC_DATA & methodGetNCData(int n) {
+		static NC_DATA nc;
+		
+		nc.i = n;
+		
+		return nc;
+	}
 
 	void methodManyParams(
 		char c,	int i, long long ll,
@@ -89,6 +97,8 @@ GMETA_DEFINE_GLOBAL() {
 	GMETA_QUALIFIED_METHOD(methodMakeDataByPointer);
 	GMETA_QUALIFIED_METHOD(methodManyParams);
 	GMETA_QUALIFIED_METHOD(methodSum);
+	
+	reflectMethod("methodGetNCData", &methodGetNCData, GMetaPolicyKeepAllConstReference());
 }
 
 
@@ -469,6 +479,16 @@ GTEST(Lib_Invoke)
 	GEQUAL(data.i, 6);
 	EXCEPT_META(method->invoke(pobj, 1, 2));
 
+	METHOD(methodGetNCData);
+	{
+		const NC_DATA & nc = fromVariant<const NC_DATA &, true>(method->invoke(NULL, 1));
+		GEQUAL(nc.i, 1);
+	}
+	{
+		const NC_DATA & nc = fromVariant<const NC_DATA &, true>(method->invoke(NULL, 5));
+		GEQUAL(nc.i, 5);
+	}
+	
 	METHOD(methodManyParams);
 	method->invoke(pobj, 'A', 38, 9876532198765321LL, 1.99, "Many", "Too Many", CLASS_DATA("Data", 8));
 	EXCEPT_META(method->invoke(pobj, 1));
@@ -555,6 +575,16 @@ GTEST(API_Invoke)
 	GEQUAL(data.i, 6);
 	EXCEPT_META(metaInvokeMethod(method, pobj, 1, 5));
 
+	METHOD(methodGetNCData);
+	{
+		const NC_DATA & nc = fromVariant<const NC_DATA &, true>(metaInvokeMethod(method, NULL, 1));
+		GEQUAL(nc.i, 1);
+	}
+	{
+		const NC_DATA & nc = fromVariant<const NC_DATA &, true>(metaInvokeMethod(method, NULL, 5));
+		GEQUAL(nc.i, 5);
+	}
+	
 	METHOD(methodManyParams);
 	metaInvokeMethod(method, pobj, 'A', 38, 9876532198765321LL, 1.99, "Many", "Too Many", CLASS_DATA("Data", 8));
 	EXCEPT_META(metaInvokeMethod(method, pobj, 1));
@@ -637,6 +667,18 @@ GTEST(Lib_Execute)
 	GEQUAL(data.s, "abc");
 	GEQUAL(data.i, 6);
 
+	METHOD(methodGetNCData);
+	{
+		params[0] = 1;
+		const NC_DATA & nc = fromVariant<const NC_DATA &, true>(method->execute(NULL, params, 1));
+		GEQUAL(nc.i, 1);
+	}
+	{
+		params[0] = 5;
+		const NC_DATA & nc = fromVariant<const NC_DATA &, true>(method->execute(NULL, params, 1));
+		GEQUAL(nc.i, 5);
+	}
+	
 	METHOD(methodManyParams);
 	params[0] = 'A'; params[1] = 38; params[2] = 9876532198765321LL;
 	params[3] = 1.99; params[4] = "Many"; params[5] = "Too Many";

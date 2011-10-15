@@ -31,6 +31,9 @@ struct GMetaPolicyItemCopyConstructorAbsent {};
 template <int N>
 struct GMetaPolicyItemTransferOwnership {};
 
+// used by method
+template <int N>
+struct GMetaPolicyItemKeepConstReference {};
 
 struct GMetaPolicyDefault
 {
@@ -101,6 +104,18 @@ struct GMetaPolicyTransferResultOwnership
 };
 
 
+#define POLICY_ALL_INDEX_HELPER(N, P) GPP_COMMA_IF(N) P<N>
+
+struct GMetaPolicyKeepAllConstReference
+{
+	typedef TypeList_Make<
+		GMetaPolicyItemKeepConstReference<-1>,
+		GPP_REPEAT(REF_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaPolicyItemKeepConstReference)
+	>::Result
+	Policy;
+};
+
+
 template <typename Policy, template <int> class IndexedPolicyItem>
 bool hasIndexedPolicy(int index)
 {
@@ -108,8 +123,7 @@ bool hasIndexedPolicy(int index)
 		case -1:
 			return HasMetaPolicyItem<Policy, IndexedPolicyItem<-1> >::Result;
 
-#define POLICY_CHECKINDEX_HELPER(N, unused) \
-	case N: return HasMetaPolicyItem<Policy, IndexedPolicyItem<N> >::Result;
+#define POLICY_CHECKINDEX_HELPER(N, unused) case N: return HasMetaPolicyItem<Policy, IndexedPolicyItem<N> >::Result;
 			
 		GPP_REPEAT(REF_MAX_ARITY, POLICY_CHECKINDEX_HELPER, GPP_EMPTY)
 
@@ -124,5 +138,9 @@ bool hasIndexedPolicy(int index)
 } // namespace cpgf
 
 
+#undef POLICY_ALL_INDEX_HELPER
+
+
 
 #endif
+

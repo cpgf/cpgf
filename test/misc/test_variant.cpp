@@ -16,7 +16,8 @@ using namespace cpgf;
 
 namespace Test_Variant { namespace {
 
-class CLASS {
+class CLASS
+{
 public:
 	CLASS() {}
 	CLASS(const CLASS &) {}
@@ -24,6 +25,22 @@ public:
 
 	CLASS(int) {}
 };
+
+class ClassB
+{
+public:
+	static ClassB * lastB;
+
+public:
+	ClassB() { lastB = this; }
+
+	ClassB(const ClassB & other) {
+	}
+
+	ClassB & operator = (const ClassB &) {
+	}
+};
+ClassB * ClassB::lastB = NULL;
 
 GTEST(TestVariant_Cast)
 {
@@ -44,6 +61,15 @@ GTEST(TestVariant_Cast)
 	CAN_FROM_CAST(int *, void *, NULL);
 	CAN_FROM_CAST(int **, void *, NULL);
 	CAN_FROM_CAST(CLASS *, void *, NULL);
+}
+
+GTEST(TestVariant_ConstReference)
+{
+	const ClassB & a = fromVariant<const ClassB &, false>(createVariant<false>(ClassB()));
+	GDIFF(&a, ClassB::lastB);
+
+	const ClassB & b = fromVariant<const ClassB &, true>(createVariant<false>(ClassB()));
+	GEQUAL(&b, ClassB::lastB);
 }
 
 GTEST(TestVariant_ObjectPointer)

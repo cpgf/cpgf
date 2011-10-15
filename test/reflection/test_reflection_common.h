@@ -12,6 +12,7 @@
 
 
 #define CLASS_DATA TestData_Reflection
+#define NC_DATA TestData_Reflection_NoCopyable
 
 #define EXCEPT_META(...) GBEGIN_EXCEPTION __VA_ARGS__; GEND_EXCEPTION(const GMetaException &)
 #define EXCEPT_VARIANT(...) GBEGIN_EXCEPTION __VA_ARGS__; GEND_EXCEPTION(const GVariantException &)
@@ -28,7 +29,9 @@
 #define OPERA_HI(f) pointerAssign(opera, metaClass->getOperatorInHierarchy(f, &pobj))
 
 
-struct CLASS_DATA {
+class CLASS_DATA
+{
+public:
 	CLASS_DATA() : s(""), i(0) {
 	}
 	
@@ -52,6 +55,39 @@ struct CLASS_DATA {
 	
 	std::string s;
 	int i;
+};
+
+
+class NC_DATA
+{
+public:
+	NC_DATA() : s(""), i(0) {
+	}
+	
+	NC_DATA(const std::string s, int i) : s(s), i(i) {
+	}
+
+	explicit NC_DATA(const std::string s) : s(s), i(0) {
+	}
+
+	explicit NC_DATA(int i) : s(""), i(i) {
+	}
+
+	void reset() {
+		s = "";
+		i = 0;
+	}
+	
+	bool operator == (const CLASS_DATA & other) const /**/ {
+		return this->s == other.s && this->i == other.i;
+	}
+	
+	std::string s;
+	int i;
+	
+private:
+	NC_DATA(const NC_DATA &);
+	NC_DATA & operator = (const NC_DATA &);
 };
 
 

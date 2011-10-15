@@ -3,7 +3,7 @@ use warnings;
 
 # generate preprocess macros
 
-my $maxLevels = 30;
+my $maxLevels = 60;
 my $repeatMaxRecursiveLevels = 3;
 
 my $maxGainName = "GPP_MAX_LIMIT";

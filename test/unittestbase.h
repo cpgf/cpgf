@@ -19,7 +19,7 @@
 
 #define GTEST TEST
 
-#define GCHECK(b) CHECK(bool(b))
+#define GCHECK(...) CHECK(bool(__VA_ARGS__))
 
 #define GEQUAL(a, b) GCHECK(a == b)
 

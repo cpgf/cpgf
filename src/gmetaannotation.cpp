@@ -88,6 +88,26 @@ void GAnnotationValue::swap(GAnnotationValue & other)
 	swap(this->var, other.var);
 }
 
+const GVariant * GAnnotationValue::getVariant() const
+{
+	return &this->var;
+}
+
+bool GAnnotationValue::canToString() const
+{
+	return this->var.getType() == vtAnnoString;
+}
+
+bool GAnnotationValue::canToWideString() const
+{
+	return this->var.getType() == vtAnnoWideString;
+}
+
+bool GAnnotationValue::canToInt() const
+{
+	return canFromVariant<int>(this->var);
+}
+
 const char * GAnnotationValue::toString() const
 {
 	return const_cast<const std::string *>(static_cast<const volatile std::string *>(this->var.data.valueObject))->c_str();
@@ -98,6 +118,10 @@ const wchar_t * GAnnotationValue::toWideString() const
 	return const_cast<const std::wstring *>(static_cast<const volatile std::wstring *>(this->var.data.valueObject))->c_str();
 }
 
+int GAnnotationValue::toInt() const
+{
+	return fromVariant<int>(this->var);
+}
 
 
 GAnnotationItem::GAnnotationItem()
@@ -163,6 +187,11 @@ void GMetaAnnotation::doAddItem(GAnnotationItem * item)
 	this->implement->annotationItems.push_back(item);
 }
 
+const GMetaItem * GMetaAnnotation::getMetaItem() const
+{
+	return this->metaItem;
+}
+
 const GAnnotationValue * GMetaAnnotation::getValue(const char * name) const
 {
 	for(meta_internal::GMetaAnnotationImplement::ListType::const_iterator it = this->implement->annotationItems.begin(); it != this->implement->annotationItems.end(); ++it) {
@@ -189,6 +218,10 @@ const GAnnotationValue * GMetaAnnotation::getValueAt(size_t index) const
 	return this->implement->annotationItems[index]->getValue();
 }
 
+void GMetaAnnotation::setMetaItem(const GMetaItem * metaItem)
+{
+	this->metaItem = metaItem;
+}
 
 
 

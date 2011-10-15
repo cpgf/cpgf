@@ -21,7 +21,7 @@ bool canFromVariant(const GVariant & v);
 
 namespace variant_internal {
 
-template <typename T>
+template <bool CanShadow, typename T>
 void InitVariant(GVariant & v, const GVarTypeData & typeData, const T & value);
 
 template <typename T>
@@ -31,7 +31,7 @@ template <typename T, typename Enabled = void>
 struct DeducePassType
 {
 	typedef T Result;
-	typedef const T & PassType;
+	typedef const typename RemoveReference<T>::Result & PassType;
 };
 
 template <typename T>
@@ -203,12 +203,12 @@ public:
 	GVariant(const T & value) {
 		GVarTypeData typeData;
 		deduceVariantType<T>(typeData);
-		variant_internal::InitVariant(*this, typeData, static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
+		variant_internal::InitVariant<true>(*this, typeData, static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
 	}
 
 	template <typename T>
 	GVariant(const GVarTypeData & typeData, const T & value) {
-		variant_internal::InitVariant(*this, typeData, value);
+		variant_internal::InitVariant<true>(*this, typeData, value);
 	}
 
 	GVariant(const GVariant & other) : data(other.data) {
@@ -401,8 +401,21 @@ struct CastVariantHelper <From, To, typename GEnableIf<IsPointer<From>::Result &
 	}
 };
 
-template <typename T>
-void InitVariant(GVariant & v, const GVarTypeData & typeData, const T & value) {
+template <bool CanShadow, typename T>
+void initShadowObject(GVariant & v, const T & value, typename GEnableIf<CanShadow>::Result * = 0)
+{
+	v.data.shadowObject = new variant_internal::GVariantShadowObject<T>(value);
+}
+
+template <bool CanShadow, typename T>
+void initShadowObject(GVariant & v, const T & value, typename GEnableIf<! CanShadow>::Result * = 0)
+{
+	throw GVariantException("GVariant: can't create shadow object for noncopyable object.");
+}
+
+template <bool CanShadow, typename T>
+void InitVariant(GVariant & v, const GVarTypeData & typeData, const T & value)
+{
 	v.data.typeData = typeData;
 	vtSetSize(v.data.typeData, getVariantTypeSize(vtGetType(typeData)));
 
@@ -473,7 +486,7 @@ void InitVariant(GVariant & v, const GVarTypeData & typeData, const T & value) {
 			break;
 
 		case vtShadow:
-			v.data.shadowObject = new variant_internal::GVariantShadowObject<T>(value);
+			initShadowObject<CanShadow>(v, value);
 			break;
 
 
@@ -624,25 +637,35 @@ void InitVariant(GVariant & v, const GVarTypeData & typeData, const T & value) {
 }
 
 
-template <typename T>
+template <typename T, bool KeepConstRef>
 struct CastResult {
 	typedef T Result;
 };
 
-template <typename T>
-struct CastResult <T &> {
+template <typename T, bool KeepConstRef>
+struct CastResult <T &, KeepConstRef> {
 	typedef T & Result;
 };
 
-template <typename T>
-struct CastResult <const T & > {
+template <typename T, bool KeepConstRef>
+struct CastResult <const T &, KeepConstRef> {
 	typedef T Result;
 };
 
 template <typename T>
+struct CastResult <const T &, false> {
+	typedef T Result;
+};
+
+template <typename T>
+struct CastResult <const T &, true> {
+	typedef const T & Result;
+};
+
+template <typename T, bool KeepConstRef>
 struct CanCastFromVariant
 {
-	typedef typename CastResult<T>::Result ResultType;
+	typedef typename CastResult<T, KeepConstRef>::Result ResultType;
 	typedef typename RemoveReference<T>::Result RefValueType;
 
 	static bool canCast(int vt) {
@@ -823,10 +846,10 @@ struct CanCastFromVariant
 	}
 };
 
-template <typename T>
+template <typename T, bool KeepConstRef>
 struct CastFromVariant
 {
-	typedef typename CastResult<T>::Result ResultType;
+	typedef typename CastResult<T, KeepConstRef>::Result ResultType;
 	typedef typename RemoveReference<T>::Result RefValueType;
 
 	static ResultType cast(const GVariant & v) {
@@ -1110,7 +1133,7 @@ inline void adjustVariantType(GVariant * var)
 
 	}
 
-	InitVariant(*var, var->getTypeData(), value);
+	InitVariant<true>(*var, var->getTypeData(), value);
 }
 
 
@@ -1118,17 +1141,50 @@ inline void adjustVariantType(GVariant * var)
 } // namespace variant_internal
 
 
+template <bool CanShadow, typename T>
+GVariant createVariant(const T & value, bool allowShadow = false)
+{
+	GVarTypeData typeData;
+	deduceVariantType<T>(typeData, allowShadow);
+	GVariant v;
+	variant_internal::InitVariant<CanShadow>(v, typeData, static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
+	return v;
+}
+
+template <typename T>
+GVariant createVariantFromCopyable(const T & value, bool allowShadow)
+{
+	return createVariant<true>(value, allowShadow);
+}
+
+template <typename T>
+GVariant createVariantFromCopyable(const T & value)
+{
+	return createVariant<true>(value, false);
+}
 
 template <typename T>
 bool canFromVariant(const GVariant & v)
 {
-	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result>::canCast(vtGetType(v.data.typeData));
+	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, false>::canCast(vtGetType(v.data.typeData));
+}
+
+template <typename T, bool KeepConstRef>
+bool canFromVariant(const GVariant & v)
+{
+	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, KeepConstRef>::canCast(vtGetType(v.data.typeData));
 }
 
 template <typename T>
-typename variant_internal::CastFromVariant<T>::ResultType fromVariant(const GVariant & v)
+typename variant_internal::CastFromVariant<T, false>::ResultType fromVariant(const GVariant & v)
 {
-	return variant_internal::CastFromVariant<typename RemoveConstVolatile<T>::Result>::cast(v);
+	return variant_internal::CastFromVariant<typename RemoveConstVolatile<T>::Result, false>::cast(v);
+}
+
+template <typename T, bool KeepConstRef>
+typename variant_internal::CastFromVariant<T, KeepConstRef>::ResultType fromVariant(const GVariant & v)
+{
+	return variant_internal::CastFromVariant<typename RemoveConstVolatile<T>::Result, KeepConstRef>::cast(v);
 }
 
 template <typename T>
