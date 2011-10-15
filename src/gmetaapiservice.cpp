@@ -43,15 +43,6 @@ protected: \
 	virtual IMetaAnnotation * G_API_CC getAnnotationAt(uint32_t index) { return this->doGetAnnotationAt(index); } \
 	virtual gapi_bool G_API_CC equals(IMetaItem * other) { return this->doEquals(other); } \
 	virtual gapi_bool G_API_CC isStatic() { return this->doIsStatic(); } \
-	virtual gapi_bool G_API_CC isField() { return this->doIsField(); } \
-	virtual gapi_bool G_API_CC isProperty() { return this->doIsProperty(); } \
-	virtual gapi_bool G_API_CC isMethod() { return this->doIsMethod(); } \
-	virtual gapi_bool G_API_CC isEnum() { return this->doIsEnum(); } \
-	virtual gapi_bool G_API_CC isOperator() { return this->doIsOperator(); } \
-	virtual gapi_bool G_API_CC isConstructor() { return this->doIsConstructor(); } \
-	virtual gapi_bool G_API_CC isClass() { return this->doIsClass(); } \
-	virtual gapi_bool G_API_CC isAnnotation() { return this->doIsAnnotation(); } \
-	virtual gapi_bool G_API_CC isFundamental() { return this->doIsFundamental(); } \
 	const GMetaItem * getItem() const {	return this->doGetItem(); }
 
 #define IMPL_ALL \
@@ -584,9 +575,6 @@ protected:
 
 	virtual IApiAllocator * G_API_CC getAllocator();
 
-	virtual void * G_API_CC allocateMemory(uint32_t size);
-	virtual void G_API_CC freeMemory(const void * p);
-
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name);
 	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt);
 	virtual IMetaClass * G_API_CC findClassByName(const char * name);
@@ -763,87 +751,6 @@ gapi_bool ImplMetaItem::doIsStatic()
 	ENTER_META_API()
 
 	return this->doGetItem()->isStatic();
-
-	LEAVE_META_API(return false)
-}
-
-gapi_bool ImplMetaItem::doIsField()
-{
-	ENTER_META_API()
-
-	return this->doGetItem()->isField();
-
-	LEAVE_META_API(return false)
-}
-
-gapi_bool ImplMetaItem::doIsProperty()
-{
-	ENTER_META_API()
-
-	return this->doGetItem()->isProperty();
-
-	LEAVE_META_API(return false)
-}
-
-gapi_bool ImplMetaItem::doIsMethod()
-{
-	ENTER_META_API()
-
-	return this->doGetItem()->isMethod();
-
-	LEAVE_META_API(return false)
-}
-
-gapi_bool ImplMetaItem::doIsEnum()
-{
-	ENTER_META_API()
-
-	return this->doGetItem()->isEnum();
-
-	LEAVE_META_API(return false)
-}
-
-gapi_bool ImplMetaItem::doIsOperator()
-{
-	ENTER_META_API()
-
-	return this->doGetItem()->isOperator();
-
-	LEAVE_META_API(return false)
-}
-
-gapi_bool ImplMetaItem::doIsConstructor()
-{
-	ENTER_META_API()
-
-	return this->doGetItem()->isConstructor();
-
-	LEAVE_META_API(return false)
-}
-
-gapi_bool ImplMetaItem::doIsClass()
-{
-	ENTER_META_API()
-
-	return this->doGetItem()->isClass();
-
-	LEAVE_META_API(return false)
-}
-
-gapi_bool ImplMetaItem::doIsAnnotation()
-{
-	ENTER_META_API()
-
-	return this->doGetItem()->isAnnotation();
-
-	LEAVE_META_API(return false)
-}
-
-gapi_bool ImplMetaItem::doIsFundamental()
-{
-	ENTER_META_API()
-
-	return this->doGetItem()->isFundamental();
 
 	LEAVE_META_API(return false)
 }
@@ -2043,16 +1950,6 @@ void ImplMetaService::clear()
 	}
 
 	this->moduleList.clear();
-}
-
-void * G_API_CC ImplMetaService::allocateMemory(uint32_t size)
-{
-	return metaAllocate(size);
-}
-
-void G_API_CC ImplMetaService::freeMemory(const void * p)
-{
-	metaDeallocate(p);
 }
 
 IMetaList * G_API_CC ImplMetaService::createMetaList()

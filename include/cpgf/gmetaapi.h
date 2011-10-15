@@ -108,15 +108,6 @@ struct IMetaItem : public IApiObject
 	virtual gapi_bool G_API_CC equals(IMetaItem * other) = 0;
 	
 	virtual gapi_bool G_API_CC isStatic() = 0;
-	virtual gapi_bool G_API_CC isField() = 0;
-	virtual gapi_bool G_API_CC isProperty() = 0;
-	virtual gapi_bool G_API_CC isMethod() = 0;
-	virtual gapi_bool G_API_CC isEnum() = 0;
-	virtual gapi_bool G_API_CC isOperator() = 0;
-	virtual gapi_bool G_API_CC isConstructor() = 0;
-	virtual gapi_bool G_API_CC isClass() = 0;
-	virtual gapi_bool G_API_CC isAnnotation() = 0;
-	virtual gapi_bool G_API_CC isFundamental() = 0;
 };
 
 struct IMetaTypedItem : public IMetaItem
@@ -312,9 +303,6 @@ struct IMetaService : public IApiObject
 	virtual IMetaList * G_API_CC createMetaList() = 0;
 
 	virtual IApiAllocator * G_API_CC getAllocator() = 0;
-
-	virtual void * G_API_CC allocateMemory(uint32_t size) = 0;
-	virtual void G_API_CC freeMemory(const void * p) = 0;
 
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name) = 0;
 	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt) = 0;

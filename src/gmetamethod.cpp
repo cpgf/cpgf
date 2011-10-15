@@ -101,7 +101,7 @@ bool GMetaConstructor::hasResult() const
 
 GMetaType GMetaConstructor::getResultType() const
 {
-	GASSERT_MSG(this->getOwnerItem()->isClass(), "Constructor must be owned by class.");
+	GASSERT_MSG(metaIsClass(this->getOwnerItem()->getCategory()), "Constructor must be owned by class.");
 
 	GMetaType type = static_cast<const GMetaClass *>(this->getOwnerItem())->getMetaType();
 

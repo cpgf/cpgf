@@ -116,7 +116,7 @@ void testItem(const cpgf::GMetaItem * item)
 	using namespace cpgf;
 	using namespace std;
 
-	if(item->isAnnotation()) {
+	if(metaIsAnnotation(item->getCategory())) {
 		return;
 	}
 

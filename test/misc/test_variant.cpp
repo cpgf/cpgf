@@ -20,7 +20,7 @@ class CLASS {
 public:
 	CLASS() {}
 	CLASS(const CLASS &) {}
-	explicit CLASS(const string &) {}
+	CLASS(const string &) {}
 
 	CLASS(int) {}
 };

@@ -228,7 +228,7 @@ size_t GMetaInternalItemList::getItemListByName(GMetaList * metaList, const char
 			}
 
 			if(filters.hasAny(metaFilterConstMethod | metaFilterVolatileMethod | metaFilterConstVolatileMethod)) {
-				if(item->isMethod()) {
+				if(metaIsMethod(item->getCategory())) {
 					const GMetaType & itemType = item->getItemType();
 					if(filters.hasAny(metaFilterConstMethod) && !itemType.isConstFunction()) {
 						add = false;
@@ -639,14 +639,14 @@ void GMetaClass::itemAdded(GMetaItem * metaItem)
 {
 	this->refreshAnnotation(metaItem);
 
-	if(!metaItem->isAnnotation()) {
+	if(!metaIsAnnotation(metaItem->getCategory())) {
 		this->previousAddedItem = metaItem;
 	}
 }
 
 void GMetaClass::refreshAnnotation(GMetaItem * metaItem)
 {
-	if(metaItem->isAnnotation()) {
+	if(metaIsAnnotation(metaItem->getCategory())) {
 		return;
 	}
 

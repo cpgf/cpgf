@@ -103,42 +103,6 @@ public:
 		return this->hasModifier(metaModifierStatic);
 	}
 
-	bool isField() const {
-		return this->category == mcatField;
-	}
-
-	bool isProperty() const {
-		return this->category == mcatProperty;
-	}
-
-	bool isMethod() const {
-		return this->category == mcatMethod;
-	}
-
-	bool isEnum() const {
-		return this->category == mcatEnum;
-	}
-
-	bool isOperator() const {
-		return this->category == mcatOperator;
-	}
-
-	bool isConstructor() const {
-		return this->category == mcatConstructor;
-	}
-
-	bool isClass() const {
-		return this->category == mcatClass;
-	}
-
-	bool isAnnotation() const {
-		return this->category == mcatAnnotation;
-	}
-
-	bool isFundamental() const {
-		return this->category == mcatFundamental;
-	}
-
 	GMetaCategory getCategory() const {
 		return this->category;
 	}
@@ -305,8 +269,17 @@ const GMetaFundamental * findMetaFundamental(const GMetaType & type);
 const GMetaFundamental * findMetaFundamental(const char * name);
 const GMetaFundamental * findMetaFundamental(GVariantType vt);
 
-void * metaAllocate(size_t size);
-void metaDeallocate(const void * p);
+bool metaIsField(int category);
+bool metaIsProperty(int category);
+bool metaIsMethod(int category);
+bool metaIsEnum(int category);
+bool metaIsOperator(int category);
+bool metaIsConstructor(int category);
+bool metaIsClass(int category);;
+bool metaIsAnnotation(int category);
+bool metaIsFundamental(int category);
+
+
 
 } // namespace cpgf
 

@@ -424,7 +424,7 @@ printf("Error: %s \n", buffer);
 			GApiScopedPointer<IMetaTypedItem> typedItem(param->getService()->findTypedItemByName(type.getBaseName()));
 			if(typedItem) {
 				if(type.getPointerDimension() == 0) {
-					GASSERT_MSG(!! typedItem->isClass(), "Unknown type");
+					GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 					GASSERT_MSG(type.baseIsClass(), "Unknown type");
 
 					IMetaClass * metaClass = static_cast<IMetaClass *>(typedItem.get());
@@ -435,7 +435,7 @@ printf("Error: %s \n", buffer);
 				}
 
 				if(type.getPointerDimension() == 1) {
-					GASSERT_MSG(!! typedItem->isClass(), "Unknown type");
+					GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
 					objectToLua(L, param, fromVariant<void *>(value), static_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type));
 

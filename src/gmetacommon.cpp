@@ -450,15 +450,53 @@ const GMetaFundamental * findMetaFundamental(GVariantType vt)
 	return meta_internal::findRegisteredMetaFundamental(vt);
 }
 
-void * metaAllocate(size_t size)
+
+bool metaIsField(int category)
 {
-	return new char[size];
+	return category == mcatField;
 }
 
-void metaDeallocate(const void * p)
+bool metaIsProperty(int category)
 {
-	delete static_cast<const char *>(p);
+	return category == mcatProperty;
 }
+
+bool metaIsMethod(int category)
+{
+	return category == mcatMethod;
+}
+
+bool metaIsEnum(int category)
+{
+	return category == mcatEnum;
+}
+
+bool metaIsOperator(int category)
+{
+	return category == mcatOperator;
+}
+
+bool metaIsConstructor(int category)
+{
+	return category == mcatConstructor;
+}
+
+bool metaIsClass(int category)
+{
+	return category == mcatClass;
+}
+
+bool metaIsAnnotation(int category)
+{
+	return category == mcatAnnotation;
+}
+
+bool metaIsFundamental(int category)
+{
+	return category == mcatFundamental;
+}
+
 
 
 } // namespace cpgf
+
