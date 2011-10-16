@@ -2,9 +2,7 @@
 #define __GVARIANT_H
 
 #include "cpgf/gvartypedata.h"
-
-#include <stdexcept>
-#include <iostream>
+#include "cpgf/gexception.h"
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -280,15 +278,8 @@ inline void swap(GVariant & a, GVariant & b)
 	a.swap(b);
 }
 
-class GVariantException : public std::runtime_error {
-public:
-	GVariantException(const std::string & message) : std::runtime_error(message) {
-	}
-
-};
-
 inline void failedCast() {
-	throw GVariantException("GVariant: cast failure");
+	raiseException(Error_Variant_FailCast, "GVariant: cast failure");
 }
 
 inline void checkFailCast(bool success) {
@@ -410,7 +401,7 @@ void initShadowObject(GVariant & v, const T & value, typename GEnableIf<CanShado
 template <bool CanShadow, typename T>
 void initShadowObject(GVariant & v, const T & value, typename GEnableIf<! CanShadow>::Result * = 0)
 {
-	throw GVariantException("GVariant: can't create shadow object for noncopyable object.");
+	raiseException(Error_Variant_FailCopyObject, "GVariant: can't create shadow object for noncopyable object.");
 }
 
 template <bool CanShadow, typename T>
@@ -1107,7 +1098,7 @@ inline int getVariantTypeSize(GVariantType type)
 inline void adjustVariantType(GVariant * var)
 {
 	if(! vtIsInteger(vtGetType(var->data.typeData)) || vtGetSize(var->data.typeData) > sizeof(unsigned long long)) {
-		throw GVariantException("GVariant: inconsistent type.");
+		raiseException(Error_Variant_FailAdjustTypeSize, "GVariant: can't adjust size for inconsistent type.");
 	}
 
 	unsigned long long value = var->data.valueUnsignedLongLong;

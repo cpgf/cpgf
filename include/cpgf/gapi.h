@@ -13,22 +13,20 @@ namespace cpgf {
 
 typedef int32_t gapi_bool;
 
-const int32_t apiError_None = 0;
-
-struct IApiBase
+struct IRoot
 {
    virtual uint32_t G_API_CC unused_queryInterface(void *, void *) = 0;
    virtual uint32_t G_API_CC addReference() = 0;
    virtual uint32_t G_API_CC releaseReference() = 0;
 };
 
-struct IApiObject : public IApiBase
+struct IBaseObject : public IRoot
 {
 	virtual int32_t G_API_CC getErrorCode() = 0;
 	virtual const char * G_API_CC getErrorMessage() = 0;
 };
 
-struct IApiAllocator : public IApiObject
+struct IMemoryAllocator : public IBaseObject
 {
 	virtual void * G_API_CC allocate(uint32_t size) = 0;
 	virtual void G_API_CC free(void * p) = 0;
@@ -37,7 +35,7 @@ struct IApiAllocator : public IApiObject
 
 
 template <typename T>
-struct GApiScopedPointerDeleter
+struct GScopedInterfaceDeleter
 {
 	static inline void Delete(T * p) {
 		if(p) {
@@ -47,16 +45,16 @@ struct GApiScopedPointerDeleter
 };
 
 template <typename T>
-class GApiScopedPointer : public GScopedPointer<T, GApiScopedPointerDeleter<T> >
+class GScopedInterface : public GScopedPointer<T, GScopedInterfaceDeleter<T> >
 {
 private:
-	typedef GScopedPointer<T, GApiScopedPointerDeleter<T> > super;
+	typedef GScopedPointer<T, GScopedInterfaceDeleter<T> > super;
 
 public:
-	GApiScopedPointer(): super() {
+	GScopedInterface(): super() {
 	}
 
-	explicit GApiScopedPointer(T * p) : super(p) {
+	explicit GScopedInterface(T * p) : super(p) {
 	}
 
 };

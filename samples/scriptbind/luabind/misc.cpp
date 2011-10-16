@@ -171,7 +171,7 @@ GMETA_DEFINE_CLASS(TestObject::InnerClass, TestObjectInnerClass, "InnerClass") {
 GMETA_DEFINE_CLASS(TestObject, TestObject, "method::TestObject") {
 	using namespace cpgf;
 
-	GMETA_CLASS(TestObject::InnerClass);
+	GMETA_CLASS(InnerClass);
 	
 	reflectConstructor<void *(int)>();
 
@@ -230,28 +230,28 @@ void doTest()
 	lua_State * L = luaL_newstate();
 	luaL_openlibs(L);
 
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	testCheckAssert(service);
 
-	GApiScopedPointer<IMetaClass> globalClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> globalClass(metaGetGlobalMetaClass(service, 0));
 	testCheckAssert(globalClass);
 
 	GLuaScriptObject binding(service.get(), L, GScriptConfig());
 
 	GScopedPointer<GLuaScriptObject> scope(static_cast<GLuaScriptObject *>(binding.createScriptObject("myscope")));
 
-	GApiScopedPointer<IMetaMethod> method;
+	GScopedInterface<IMetaMethod> method;
 
 	method.reset(globalClass->getMethod("addNumber")); testCheckAssert(method);
 
 	scope->setMethod("addNumber", NULL, method.get());
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName("method::TestObject"));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName("method::TestObject"));
 	testCheckAssert(metaClass);
 	
 	binding.bindClass("TestObject", metaClass.get());
 	
-	GApiScopedPointer<IMetaEnum> metaEnum(globalClass->getEnum("GlobalEnum"));
+	GScopedInterface<IMetaEnum> metaEnum(globalClass->getEnum("GlobalEnum"));
 	binding.bindEnum(metaEnum->getName(), metaEnum.get());
 
 	binding.setString("ONE", "This is one");
@@ -303,7 +303,7 @@ void doTest()
 	GScriptName nameNewObj("newObj");
 	binding.cacheName(&nameNewObj);
 	cout << static_cast<TestObject *>(binding.getObject(nameNewObj))->width << endl;
-	GApiScopedPointer<IMetaClass> type(binding.getObjectType(nameNewObj));
+	GScopedInterface<IMetaClass> type(binding.getObjectType(nameNewObj));
 	cout << type->getName() << endl;
 
 	GScriptName nameNewLss("newlss");

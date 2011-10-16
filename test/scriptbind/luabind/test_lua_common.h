@@ -80,11 +80,11 @@ public:
 	}
 
 private:
-	cpgf::GApiScopedPointer<cpgf::IMetaService> service;
+	cpgf::GScopedInterface<cpgf::IMetaService> service;
 	lua_State * luaStateLib;
 	lua_State * luaStateApi;
 	cpgf::GScopedPointer<cpgf::GLuaScriptObject> bindingLib;
-	cpgf::GApiScopedPointer<cpgf::IScriptObject> bindingApi;
+	cpgf::GScopedInterface<cpgf::IScriptObject> bindingApi;
 };
 
 inline TestLuaContext * getLuaContext()

@@ -13,7 +13,7 @@ class GMetaConverterStdString : public GMetaConverterDefault
 {
 public:
 	virtual bool canToCString();
-	virtual const char * toCString(const void * instance, int * needFree, IApiAllocator * allocator);
+	virtual const char * toCString(const void * instance, int * needFree, IMemoryAllocator * allocator);
 };
 
 } // namespace cpgf

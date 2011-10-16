@@ -21,7 +21,7 @@ GTEST(InvokeScriptFunction)
 	);
 
 	GScriptObject * bindingLib = context->getBindingLib();
-	GApiScopedPointer<IScriptObject> bindingApi(context->getBindingApi());
+	GScopedInterface<IScriptObject> bindingApi(context->getBindingApi());
 	
 	GMetaVariant result;
 	

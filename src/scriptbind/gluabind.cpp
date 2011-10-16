@@ -1,5 +1,7 @@
 #include "cpgf/scriptbind/gluabind.h"
 #include "cpgf/gflags.h"
+#include "cpgf/gexception.h"
+
 #include "gbindcommon.h"
 
 
@@ -15,6 +17,7 @@
 #pragma warning(disable:4996)
 #endif
 
+
 using namespace std;
 
 #define ENTER_LUA() \
@@ -22,9 +25,7 @@ using namespace std;
 
 #define LEAVE_LUA(L, ...) \
 	} \
-	catch(const GVariantException & e) { error(L, e.what()); __VA_ARGS__; } \
-	catch(const GMetaException & e) { error(L, e.what()); __VA_ARGS__; } \
-	catch(const GScriptException & e) { error(L, e.what()); __VA_ARGS__; } \
+	catch(const GException & e) { error(L, e.getMessage()); __VA_ARGS__; } \
 	catch(...) { error(L, "Unknown exception occurred."); __VA_ARGS__; }
 	
 	
@@ -94,24 +95,9 @@ namespace {
 		}
 
 	private:
-		GApiScopedPointer<IMetaService> service;
+		GScopedInterface<IMetaService> service;
 		const GScriptConfig & config;
 	};
-
-	int handleError(const char * message, ...)
-	{
-		char buffer[4096];
-
-		va_list args;
-		va_start(args, message);
-
-		vsprintf(buffer, message, args);
-
-		va_end (args);
-
-printf("Error: %s \n", buffer);
-		throw GScriptException(std::string(buffer));
-	}
 
 	class GLuaUserData
 	{
@@ -265,11 +251,6 @@ printf("Error: %s \n", buffer);
 		lua_error(L);
 	}
 
-	void failVariantToLua()
-	{
-		handleError("Can't convert variant to Lua object.");
-	}
-	
 	void objectToLua(lua_State * L, GLuaBindingParam * param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv)
 	{
 		if(instance == NULL) {
@@ -421,7 +402,7 @@ printf("Error: %s \n", buffer);
 		}
 
 		if(type.getPointerDimension() <= 1) {
-			GApiScopedPointer<IMetaTypedItem> typedItem(param->getService()->findTypedItemByName(type.getBaseName()));
+			GScopedInterface<IMetaTypedItem> typedItem(param->getService()->findTypedItemByName(type.getBaseName()));
 			if(typedItem) {
 				if(type.getPointerDimension() == 0) {
 					GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
@@ -456,7 +437,7 @@ printf("Error: %s \n", buffer);
 		if(converter->canToCString()) {
 			gapi_bool needFree;
 			
-			GApiScopedPointer<IApiAllocator> allocator(param->getService()->getAllocator());
+			GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
 			const char * s = converter->toCString(objectAddressFromVariant(value), &needFree, allocator.get());
 
 			if(s != NULL) {
@@ -555,11 +536,11 @@ printf("Error: %s \n", buffer);
 			GVariant value = GVariant(result->resultData);
 			bool success = variantToLua(L, param, value, GMetaType(typeData), !! callable->isResultTransferOwnership());
 			if(!success) {
-				GApiScopedPointer<IMetaConverter> converter(callable->createResultConverter());
+				GScopedInterface<IMetaConverter> converter(callable->createResultConverter());
 				success = converterToLua(L, param, value, converter.get());
 			}
 			if(!success) {
-				failVariantToLua();
+				raiseException(Error_Lua_FailVariantToLua, "Can't convert variant to Lua object.");
 			}
 
 			result->resultCount = 1;
@@ -576,7 +557,7 @@ printf("Error: %s \n", buffer);
 		IMetaMethod * method = userData->method;
 
 		InvokeCallableResult result;
-		
+
 		GVarData paramsData[REF_MAX_ARITY];
 		loadMethodParameters(L, userData->getParam(), paramsData, 1, lua_gettop(L));
 		if(checkCallable(method, paramsData, lua_gettop(L))) {
@@ -584,7 +565,7 @@ printf("Error: %s \n", buffer);
 			doPushInvokeResult(L, userData->getParam(), method, &result);
 		}
 		else {
-			handleError("Can't invoke method %s", method->getName());
+			raiseFormatException(Error_Lua_FailInvokeMetaMethod, "Can't invoke meta method %s", method->getName());
 		}
 		
 		return result.resultCount;
@@ -615,7 +596,7 @@ printf("Error: %s \n", buffer);
 		loadMethodParamTypes(L, paramsType, 1, lua_gettop(L));
 		
 		for(size_t i = 0; i < methodCount; ++i) {
-			GApiScopedPointer<IMetaMethod> method(static_cast<IMetaMethod *>(methodList->getAt(i)));
+			GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(methodList->getAt(i)));
 
 			methodName = method->getName();
 		
@@ -627,17 +608,17 @@ printf("Error: %s \n", buffer);
 		}
 		
 		if(maxRank >= 0) {
-			GApiScopedPointer<IMetaMethod> method(static_cast<IMetaMethod *>(methodList->getAt(maxRankIndex)));
+			GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(methodList->getAt(maxRankIndex)));
 			doInvokeCallable(methodList->getInstanceAt(maxRankIndex), method.get(), paramsData, lua_gettop(L), &result);
 			doPushInvokeResult(L, userData->getParam(), method.get(), &result);
 			return result.resultCount;
 		}
 
 		if(methodName == NULL) {
-			handleError("Internal error: can't find method list name.");
+			raiseException(Error_Lua_InternalError_CantFindMethodListName, "Internal error: can't find method list name.");
 		}
 		else {
-			handleError("Can't find matched method to invoke for %s", methodName);
+			raiseFormatException(Error_Lua_CantFindMatchedMethod, "Can't find matched method to invoke for %s", methodName);
 		}
 
 		return 0;		
@@ -667,7 +648,7 @@ printf("Error: %s \n", buffer);
 			loadMethodParamTypes(L, paramsType, 2, paramCount);
 		
 			for(size_t i = 0; i < count; ++i) {
-				GApiScopedPointer<IMetaConstructor> constructor(metaClass->getConstructorAt(i));
+				GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(i));
 				int rank = rankCallable(constructor.get(), paramsData, paramsType, paramCount);
 				if(rank > maxRank) {
 					maxRank = rank;
@@ -675,7 +656,7 @@ printf("Error: %s \n", buffer);
 				}
 			}
 			if(maxRank >= 0) {
-				GApiScopedPointer<IMetaConstructor> constructor(metaClass->getConstructorAt(maxRankIndex));
+				GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(maxRankIndex));
 				doInvokeCallable(NULL, constructor.get(), paramsData, paramCount, &result);
 				instance = fromVariant<void *>(GVariant(result.resultData));
 			}
@@ -685,7 +666,7 @@ printf("Error: %s \n", buffer);
 			objectToLua(L, param, instance, metaClass, true, opcvNone);
 		}
 		else {
-			handleError("Failed to construct an object.");
+			raiseException(Error_Lua_FailConstructObject, "Failed to construct an object.");
 		}
 
 		return 1;
@@ -714,7 +695,7 @@ printf("Error: %s \n", buffer);
 		loadMethodParamTypes(L, paramsType, startIndex, paramCount);
 
 		for(size_t i = 0; i < count; ++i) {
-			GApiScopedPointer<IMetaOperator> metaOperator(metaClass->getOperatorAt(i));
+			GScopedInterface<IMetaOperator> metaOperator(metaClass->getOperatorAt(i));
 			if(op == metaOperator->getOperator()) {
 				int rank = rankCallable(metaOperator.get(), paramsData, paramsType, paramCount);
 				if(rank > maxRank) {
@@ -724,7 +705,7 @@ printf("Error: %s \n", buffer);
 			}
 		}
 		if(maxRank >= 0) {
-			GApiScopedPointer<IMetaOperator> metaOperator(metaClass->getOperatorAt(maxRankIndex));
+			GScopedInterface<IMetaOperator> metaOperator(metaClass->getOperatorAt(maxRankIndex));
 			doInvokeCallable(instance, metaOperator.get(), paramsData, paramCount, &result);
 			doPushInvokeResult(L, param, metaOperator.get(), &result);
 			return result.resultCount;
@@ -756,7 +737,7 @@ printf("Error: %s \n", buffer);
 			return invokeConstructor(L, userData->getParam(), userData->metaClass);
 		}
 		else {
-			handleError("Internal error: calling wrong functor.");
+			raiseException(Error_Lua_InternalError_WrongFunctor, "Internal error: calling wrong functor.");
 
 			return 0;
 		}
@@ -779,7 +760,7 @@ printf("Error: %s \n", buffer);
 		
 		cvToFilters(userData->cv, &filters);
 
-		GApiScopedPointer<IMetaList> methodList(userData->getParam()->getService()->createMetaList());
+		GScopedInterface<IMetaList> methodList(userData->getParam()->getService()->createMetaList());
 		
 		userData->metaClass->getMethodListInHierarchy(methodList.get(), name, filters, userData->instance);
 		
@@ -790,7 +771,7 @@ printf("Error: %s \n", buffer);
 		}
 
 		if(methodCount == 1) {
-			GApiScopedPointer<IMetaMethod> method(static_cast<IMetaMethod *>(methodList->getAt(0)));
+			GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(methodList->getAt(0)));
 			doBindMethod(L, userData->getParam(), methodList->getInstanceAt(0), method.get());
 
 			return true;
@@ -805,7 +786,7 @@ printf("Error: %s \n", buffer);
 	{
 		void * instance = userData->instance;
 
-		GApiScopedPointer<IMetaAccessible> data(findAccessible(userData->metaClass, name, true, false, &instance));
+		GScopedInterface<IMetaAccessible> data(findAccessible(userData->metaClass, name, true, false, &instance));
 		
 		if(!data) {
 			return false;
@@ -819,7 +800,7 @@ printf("Error: %s \n", buffer);
 		GVariant value = GVariant(varData);
 		bool success = variantToLua(L, userData->getParam(), value, GMetaType(typeData), false);
 		if(!success) {
-			GApiScopedPointer<IMetaConverter> converter(data->createConverter());
+			GScopedInterface<IMetaConverter> converter(data->createConverter());
 			success = converterToLua(L, userData->getParam(), value, converter.get());
 		}
 
@@ -828,7 +809,7 @@ printf("Error: %s \n", buffer);
 
 	bool indexMemberClass(lua_State * L, GClassUserData * userData, const char * name)
 	{
-		GApiScopedPointer<IMetaClass> metaClass(userData->metaClass->getClassInHierarchy(name, NULL));
+		GScopedInterface<IMetaClass> metaClass(userData->metaClass->getClassInHierarchy(name, NULL));
 
 		if(!metaClass) {
 			return false;
@@ -841,7 +822,7 @@ printf("Error: %s \n", buffer);
 
 	bool indexMemberEnumType(lua_State * L, GClassUserData * userData, const char * name)
 	{
-		GApiScopedPointer<IMetaEnum> metaEnum(userData->metaClass->getEnumInHierarchy(name, NULL));
+		GScopedInterface<IMetaEnum> metaEnum(userData->metaClass->getEnumInHierarchy(name, NULL));
 
 		if(!metaEnum) {
 			return false;
@@ -857,7 +838,7 @@ printf("Error: %s \n", buffer);
 		size_t count = userData->metaClass->getEnumCount();
 
 		for(size_t i = 0; i < count; ++i) {
-			GApiScopedPointer<IMetaEnum> metaEnum(userData->metaClass->getEnumAt(i));
+			GScopedInterface<IMetaEnum> metaEnum(userData->metaClass->getEnumAt(i));
 			int index = metaEnum->findKey(name);
 			if(index >= 0) {
 				GVarData data;
@@ -917,7 +898,7 @@ printf("Error: %s \n", buffer);
 
 		void * instance = userData->instance;
 
-		GApiScopedPointer<IMetaAccessible> data(findAccessible(userData->metaClass, name, false, true, &instance));
+		GScopedInterface<IMetaAccessible> data(findAccessible(userData->metaClass, name, false, true, &instance));
 		
 		if(!data) {
 			return false;
@@ -974,7 +955,7 @@ printf("Error: %s \n", buffer);
 			}
 		}
 
-		handleError("Failed to bind an operator that's not supported by Lua.");
+		raiseException(Error_Lua_NotSupportedOperator, "Failed to bind an operator that's not supported by Lua.");
 	}
 
 	void doBindAllOperators(lua_State * L, GLuaBindingParam * param, void * instance, IMetaClass * metaClass)
@@ -983,7 +964,7 @@ printf("Error: %s \n", buffer);
 
 		size_t count = metaClass->getOperatorCount();
 		for(size_t i = 0; i < count; ++i) {
-			GApiScopedPointer<IMetaOperator> item(metaClass->getOperatorAt(i));
+			GScopedInterface<IMetaOperator> item(metaClass->getOperatorAt(i));
 			uint32_t op = item->getOperator();
 			if(std::find(boundOperators.begin(), boundOperators.end(), op) == boundOperators.end()) {
 				doBindOperator(L, param, instance, metaClass, static_cast<GMetaOpType>(op));
@@ -1092,7 +1073,7 @@ printf("Error: %s \n", buffer);
 
 		int index = userData->metaEnum->findKey(name);
 		if(index < 0) {
-			handleError("Can't find enumerator key -- %s.", name);
+			raiseFormatException(Error_Lua_CantFindEnumKey, "Can't find enumerator key -- %s.", name);
 		}
 		else {
 			GVarData data;
@@ -1109,7 +1090,7 @@ printf("Error: %s \n", buffer);
 	{
 		ENTER_LUA()
 
-		handleError("Can't assign value to enumerator.");
+		raiseException(Error_Lua_CantAssignToEnum, "Can't assign value to enumerator.");
 
 		return 0;
 		
@@ -1401,18 +1382,18 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaV
 					lua_pop(this->implement->luaState, static_cast<int>(i) - 1);
 				}
 
-				handleError("Can't pass parameter at index %d in function %s", i, name.getName());
+				raiseFormatException(Error_Lua_MethodParamMismatch, "Can't pass parameter at index %d in function %s", i, name.getName());
 			}
 		}
 
 		int error = lua_pcall(this->implement->luaState, paramCount, LUA_MULTRET, 0);
 		if(error) {
-			handleError("Error when calling function %s, message: %s", name.getName(), lua_tostring(this->implement->luaState, -1));
+			raiseFormatException(Error_Lua_ScriptFunctionReturnError, "Error when calling function %s, message: %s", name.getName(), lua_tostring(this->implement->luaState, -1));
 		}
 		else {
 			int resultCount = lua_gettop(this->implement->luaState) - top;
 			if(resultCount > 1) {
-				handleError("Can't return multiple value when calling function %s", name.getName());
+				raiseFormatException(Error_Lua_CantReturnMultipleValue, "Can't return multiple value when calling function %s", name.getName());
 			}
 			else {
 				if(resultCount > 0) {
@@ -1422,7 +1403,7 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaV
 		}
 	}
 	else {
-		handleError("Can't call non-function.");
+		raiseException(Error_Lua_CantCallNonfunction, "The script function being invoked is not a function.");
 	}
 	
 	return GMetaVariant();
@@ -1439,7 +1420,7 @@ void GLuaScriptObject::setFundamental(const GScriptName & name, const GVariant &
 	GLuaScopeGuard scopeGuard(this);
 
 	if(! variantToLua(this->implement->luaState, &this->implement->param, value, GMetaType(), false)) {
-		handleError("Failed to bind fundamental variable");
+		raiseException(Error_Lua_CantBindFundamental, "Failed to bind fundamental variable");
 	}
 	
 	scopeGuard.set(name);

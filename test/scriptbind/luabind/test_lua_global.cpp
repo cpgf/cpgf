@@ -11,7 +11,7 @@ GTEST(global)
 
 	TestLuaContext * context = getLuaContext();
 
-	GApiScopedPointer<IMetaClass> metaClass(context->getService()->findClassByName("testscript::TestData"));
+	GScopedInterface<IMetaClass> metaClass(context->getService()->findClassByName("testscript::TestData"));
 	GCHECK(metaClass);
 	
 	GScopedPointer<TestData> dataLib(new TestData);
@@ -21,8 +21,8 @@ GTEST(global)
 	dataApi->x = 10;
 	dataApi->name = "abc";
 
-	GApiScopedPointer<IScriptName> scriptName;
-	GApiScopedPointer<IScriptObject> bindingApi(context->getBindingApi());
+	GScopedInterface<IScriptName> scriptName;
+	GScopedInterface<IScriptObject> bindingApi(context->getBindingApi());
 
 	context->getBindingLib()->setObject("data", dataLib.get(), metaClass.get(), false);
 	

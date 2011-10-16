@@ -26,7 +26,7 @@ namespace cpgf {
 	GMetaVariant invokeScriptFunction(IScriptObject * scriptObject, const GScriptName & name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
 		DEF_LOAD_PARAM_API(N) \
 		GMetaVarData result; \
-		GApiScopedPointer<IScriptName> scriptName(scriptObject->createName(name.getName())); \
+		GScopedInterface<IScriptName> scriptName(scriptObject->createName(name.getName())); \
 		scriptObject->invoke(scriptName.get(), &result, params, N); \
 		return GMetaVariant(result); \
 	}

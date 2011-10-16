@@ -141,15 +141,15 @@ void doTestAPI()
 {
 	using namespace cpgf;
 
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	testCheckAssert(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName("constructor::TestObject"));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName("constructor::TestObject"));
 	testCheckAssert(metaClass);
 
 	std::cout << "API: " << metaClass->getName() << std::endl;
 
-	GApiScopedPointer<IMetaConstructor> constructor;
+	GScopedInterface<IMetaConstructor> constructor;
 
 	{
 		constructor.reset(metaClass->getConstructorAt(0)); testCheckAssert(constructor);

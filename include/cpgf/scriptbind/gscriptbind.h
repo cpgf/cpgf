@@ -13,19 +13,6 @@
 
 namespace cpgf {
 
-class GScriptException : public std::runtime_error {
-private:
-	typedef std::runtime_error super;
-	
-public:
-	GScriptException(const std::string & message) : super(message) {
-	}
-
-	int getErrorCode() const {
-		return 0;
-	}
-};
-
 
 class GScriptConfig
 {

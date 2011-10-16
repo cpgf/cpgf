@@ -46,13 +46,13 @@ A GVariant can be converted back to a normal value with the function fromVariant
 
 Assume v is a GVariant.
 
-int n = fromVariant<int>(v);
+<{piece}> int n = fromVariant<int>(v); <{/piece}>
 Convert v to integer.
 
-string s = fromVariant<char *>(v);
+<{piece}> string s = fromVariant<char *>(v); <{/piece}>
 Convert v to C string then assign to a STL string.
 
-MyObject obj = fromVariant<MyObject>(v);
+<{piece}> MyObject obj = fromVariant<MyObject>(v); <{/piece}>
 Convert v to MyObject.
 
 If fromVariant finds the GVariant can't be converted to the desired type, an exception GVariantException will be thrown.
@@ -69,47 +69,68 @@ It has same parameters as fromVariant, but return a boolean to indicate if the G
 <{autobr}>
 Rule 1, A GVariant with fundamental value can be casted to any other fundamental.
 
+<{piece}>
 GVariant v;
-
 v = 1; // integer
 fromVariant<double>(v); // OK
+<{/piece}>
 
 Rule 2, A GVariant with pointer value can be casted to any other pointer, even if the pointer dimension is different.
 
+<{piece}>
 v = (char *)1;
 fromVariant<int **>(v); // OK
+<{/piece}>
 
 Rule 3, A GVariant with fundamental value or pointer value can be casted to an object that has constructor to accept the type implicitly.
 
+<{piece}>
 v = "abc"; // C string, const char *
 std::string s = fromVariant<std::string>(v); // OK, because std::string accepts "const char *".
+<{/piece}>
 
 Rule 4, When casting a GVariant with object (T) or object reference (T &) to another object type (U), T and U must be the same type.
 Otherwise, the memory may be corrupted.
 This is because of GVariant doesn't remember any type information, except the fundamental types.
-So when casting to type T, GVariant will always assume that it holds a buffer with sizeof(T) and try to cast the buffer to T.
+So when casting to type U, GVariant will always assume that it holds a buffer with sizeof(U) and try to cast the buffer to U.
 
-Rule 5, <b>warning</b>, casting a GVariant to reference-to-const (const T &) will always cause the object be copied even if it's not necessary.
+Rule 5, <b>warning</b>, By default, casting a GVariant to reference-to-const (const T &) will always cause the object be copied even if it's not necessary.
 
+<{piece}>
 std::string s = "blah";
 v = s;
-const std::string & rs = fromVariant<const std::string &>(v); // OK, but rs holds a temporary copy of "blah", it doesn't reference to s.
+const std::string & rs = fromVariant<const std::string &>(v);
+<{/piece}>
+
+rs will hold a temporary copy of "blah", it doesn't reference to s.
+The address of rs and v will be different. &rs != &v
 
 This means, when calling a meta method which has reference to const parameter, the value passed to it will be copied.
 
-Why do we need to copy the object instead of just reference it?
+Why do we need this kind of default behavior to copy the object instead of just reference it?
 This is to simulate the nature C++ behavior. Unlike a normal reference (T &), a reference to const is special because it allows the compiler to generate temporary object for it.
 For example, if we have the code,
 const std::string & rs = "abc";
 A temporary object of std::string will be created and rs will reference to it.
 And also for most situation the compiler will not need to create the temporary object, just let the reference happen.
+<{piece}>
 std::string s = "abc";
 const std::string & rs = s; // no temporary object.
+<{/piece}>
 
 We want to simulate the behavior in GVariant, however, we can't have the temporary object, only compiler knows how to create/destroy it, also we can't determine when to create the temporary when not.
 So what we can do is just let GVariant copy the object, no matter it's necessary or not.
 
-The is the biggest disadvantage of GVariant. If you have any idea to improve it, let me know.
+However fortunately, GVariant provides a mechanism to change the default behavior.
+fromVariant has a second boolean template parameter, which is false by default. If it's true, casting to reference to const will cause a reference, not a copy.
+<{piece}>
+std::string s = "blah";
+v = s;
+const std::string & rs = fromVariant<const std::string &, true>(v);
+<{/piece}>
+
+rs will become a reference to v.
+The address of rs and v will be the same. &rs == &v
 
 <{/autobr}>
 

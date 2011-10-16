@@ -107,13 +107,13 @@ GTEST(Lib_Exists)
 
 GTEST(API_Exists)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GApiScopedPointer<IMetaConstructor> ctor;
+	GScopedInterface<IMetaConstructor> ctor;
 
 	CTOR(0);
 	GCHECK(ctor);
@@ -247,13 +247,13 @@ GTEST(Lib_CheckParam)
 
 GTEST(API_CheckParam)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GApiScopedPointer<IMetaConstructor> ctor;
+	GScopedInterface<IMetaConstructor> ctor;
 
 	CTOR(0);
 	GCHECK(! metaCheckParam(ctor, 38, 0));
@@ -379,13 +379,13 @@ GTEST(Lib_Construct)
 
 GTEST(API_Construct)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
-	GApiScopedPointer<IMetaConstructor> ctor;
+	GScopedInterface<IMetaConstructor> ctor;
 
 	CLASS * pobj;
 

@@ -114,11 +114,11 @@ void doTestLib()
 		
 		testBeginException;
 			field->set(obj, 1);
-		testEndException(GMetaException);
+		testEndException(GException);
 
 		testBeginException;
 			field->get(obj);
-		testEndException(GMetaException);
+		testEndException(GException);
 
 		TestNoncopyable * p = static_cast<TestNoncopyable *>(field->getAddress(obj));
 		testCheckEqual(p->tag, TestObject().nocopy.tag);
@@ -162,14 +162,14 @@ void doTestAPI()
 {
 	using namespace cpgf;
 
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	testCheckAssert(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName("field::TestObject"));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName("field::TestObject"));
 	testCheckAssert(metaClass);
 	std::cout << "API: " << metaClass->getName() << std::endl;
 
-	GApiScopedPointer<IMetaField> field;
+	GScopedInterface<IMetaField> field;
 
 	{
 		field.reset(metaClass->getField("width")); testCheckAssert(field);
@@ -210,11 +210,11 @@ void doTestAPI()
 		
 		testBeginException;
 			metaSetValue(field, obj, 1);
-		testEndException(GMetaException);
+		testEndException(GException);
 
 		testBeginException;
 			metaGetValue(field, obj);
-		testEndException(GMetaException);
+		testEndException(GException);
 
 		TestNoncopyable * p = static_cast<TestNoncopyable *>(field->getAddress(obj));
 		testCheckEqual(p->tag, TestObject().nocopy.tag);

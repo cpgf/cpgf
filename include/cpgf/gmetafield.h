@@ -40,8 +40,8 @@ class GMetaFieldDataGlobal : public GMetaFieldDataBase
 {
 private:
 	enum {
-		Readable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidRead>::Result,
-		Writable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidWrite>::Result
+		Readable = PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result,
+		Writable = PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result
 	};
 
 public:
@@ -122,8 +122,8 @@ class GMetaFieldDataMember : public GMetaFieldDataBase
 {
 private:
 	enum {
-		Readable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidRead>::Result,
-		Writable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidWrite>::Result
+		Readable = PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result,
+		Writable = PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result
 	};
 
 public:

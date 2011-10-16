@@ -18,7 +18,7 @@ enum GScriptDataType {
 };
 
 
-struct IScriptConfig : public IApiObject
+struct IScriptConfig : public IBaseObject
 {
 	virtual void G_API_CC setAccessStaticMethodViaInstance(gapi_bool set) = 0;
 	virtual gapi_bool G_API_CC allowAccessStaticMethodViaInstance() = 0;
@@ -34,13 +34,13 @@ struct IScriptConfig : public IApiObject
 };
 
 
-struct IScriptName : public IApiObject
+struct IScriptName : public IBaseObject
 {
 	virtual const char * G_API_CC getName() = 0;
 };
 
 
-struct IScriptObject : public IApiObject
+struct IScriptObject : public IBaseObject
 {
 	virtual IScriptConfig * G_API_CC getConfig() = 0;
 	virtual IScriptObject * G_API_CC getOwner() = 0;

@@ -49,7 +49,7 @@ public:
 
 private:
 	lua_State * luaState;
-	cpgf::GApiScopedPointer<cpgf::IMetaService> service;
+	cpgf::GScopedInterface<cpgf::IMetaService> service;
 	cpgf::GScopedPointer<cpgf::GLuaScriptObject> binding;
 };
 

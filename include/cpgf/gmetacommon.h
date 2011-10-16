@@ -22,34 +22,13 @@ class GMetaEnum;
 class GMetaFundamental;
 class GMetaAnnotation;
 class GMetaConverter;
-struct IApiAllocator;
+struct IMemoryAllocator;
 
 
 struct GMetaVariadicParam
 {
 	GVariant const * const * params;
 	size_t paramCount;
-};
-
-enum MetaErrorCode {
-	metaError_None = 0,
-	metaError_WrongArity = 1,
-	metaError_ParamOutOfIndex = 2,
-	metaError_PropertyCannotGet = 3,
-	metaError_PropertyCannotSet = 4,
-	metaError_PropertyCannotAccess = 5,
-	metaError_CannotInitAbstractClass = 6,
-	metaError_VariantCastFail = 7,
-	metaError_AccessNoncopable = 8,
-};
-
-class GMetaException : public std::runtime_error {
-public:
-	GMetaException(MetaErrorCode errorCode, const std::string & message);
-	MetaErrorCode getErrorCode() const;
-
-private:
-	MetaErrorCode errorCode;
 };
 
 
@@ -64,7 +43,6 @@ namespace meta_internal {
 
 std::string formatString(const char * message, ...);
 std::string arityToName(int arity);
-int handleError(MetaErrorCode errorCode, const std::string & message);
 
 void handleForbidAccessError(bool isRead);
 
@@ -248,7 +226,7 @@ public:
 	}
 
 	virtual bool canToCString() = 0;
-	virtual const char * toCString(const void * instance, int * needFree, IApiAllocator * allocator) = 0;
+	virtual const char * toCString(const void * instance, int * needFree, IMemoryAllocator * allocator) = 0;
 };
 
 class GMetaConverterDefault : public GMetaConverter

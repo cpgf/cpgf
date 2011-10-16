@@ -106,7 +106,7 @@ bool checkCallable(IMetaCallable * callable, GVarData * paramsData, size_t param
 
 IMetaAccessible * findAccessible(IMetaClass * metaClass, const char * name, bool checkGet, bool checkSet, void ** instance)
 {
-	GApiScopedPointer<IMetaAccessible> data;
+	GScopedInterface<IMetaAccessible> data;
 
 	data.reset(metaClass->getField(name));
 	
@@ -120,7 +120,7 @@ IMetaAccessible * findAccessible(IMetaClass * metaClass, const char * name, bool
 		for(size_t i = 0; i < baseCount; ++i) {
 			*instance = metaClass->castToBase(*self, i);
 
-			GApiScopedPointer<IMetaClass> baseClass(metaClass->getBaseClass(i));
+			GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(i));
 			data.reset(findAccessible(metaClass, name, checkGet, checkSet, instance));
 			if(data) {
 				break;

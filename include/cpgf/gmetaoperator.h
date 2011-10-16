@@ -269,7 +269,7 @@ public:
 	virtual GVariant invoke(const GVariant & p0) const {
 		(void)p0;
 
-		meta_internal::handleError(metaError_WrongArity, meta_internal::formatString("Wrong argument count. Expect: 2.")); // yes, expect 2
+		raiseException(Error_Meta_WrongArity, meta_internal::formatString("Wrong argument count. Expect: 2.")); // yes, expect 2
 
 		return GVariant();
 	}
@@ -277,7 +277,7 @@ public:
 	virtual GVariant invoke(const GVariant & p0, const GVariant & p1) const {
 		(void)p0; (void)p1;
 
-		meta_internal::handleError(metaError_WrongArity, meta_internal::formatString("Wrong argument count. Expect: 1.")); // yes, expect 1
+		raiseException(Error_Meta_WrongArity, meta_internal::formatString("Wrong argument count. Expect: 1.")); // yes, expect 1
 
 		return GVariant();
 	}
@@ -285,7 +285,7 @@ public:
 	virtual GVariant invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const {
 		(void)instance; (void)params; (void)paramCount;
 
-		meta_internal::handleError(metaError_WrongArity, meta_internal::formatString("Invoke functor on a non-functor operator."));
+		raiseException(Error_Meta_WrongArity, meta_internal::formatString("Invoke functor on a non-functor operator."));
 
 		return GVariant();
 	}
@@ -293,7 +293,7 @@ public:
 	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const {
 		(void)instance; (void)params; (void)paramCount;
 
-		meta_internal::handleError(metaError_WrongArity, meta_internal::formatString("Execute on a non-functor operator."));
+		raiseException(Error_Meta_WrongArity, meta_internal::formatString("Execute on a non-functor operator."));
 
 		return GVariant();
 	}
@@ -308,7 +308,7 @@ inline void operatorIndexOutOfBound(size_t index, size_t maxIndex)
 	(void)index;
 	(void)maxIndex;
 
-	meta_internal::handleError(metaError_ParamOutOfIndex, meta_internal::formatString("Index out of bound."));
+	raiseException(Error_Meta_ParamOutOfIndex, meta_internal::formatString("Index out of bound."));
 }
 
 template <typename OT, GMetaOpType Op, typename Signature, typename Policy, typename Enabled = void>
@@ -401,18 +401,18 @@ public:
 		(void)instance;
 
 		if(paramCount != this->getParamCount()) {
-			meta_internal::handleError(metaError_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
+			raiseException(Error_Meta_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
 		}
 
 		return this->invoke(params[0], params[1]);
 	}
 
 	virtual bool isParamTransferOwnership(size_t paramIndex) const {
-		return hasIndexedPolicy<Policy, GMetaPolicyItemTransferOwnership>(static_cast<int>(paramIndex));
+		return hasIndexedPolicy<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
 
 	virtual bool isResultTransferOwnership() const {
-		return hasIndexedPolicy<Policy, GMetaPolicyItemTransferOwnership>(-1);
+		return hasIndexedPolicy<Policy, GMetaRuleTransferOwnership>(-1);
 	}
 
 	virtual GMetaConverter * createResultConverter() const {
@@ -498,18 +498,18 @@ public:
 		(void)instance;
 
 		if(paramCount != this->getParamCount()) {
-			meta_internal::handleError(metaError_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
+			raiseException(Error_Meta_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
 		}
 
 		return this->invoke(params[0]);
 	}
 
 	virtual bool isParamTransferOwnership(size_t paramIndex) const {
-		return hasIndexedPolicy<Policy, GMetaPolicyItemTransferOwnership>(static_cast<int>(paramIndex));
+		return hasIndexedPolicy<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
 
 	virtual bool isResultTransferOwnership() const {
-		return hasIndexedPolicy<Policy, GMetaPolicyItemTransferOwnership>(-1);
+		return hasIndexedPolicy<Policy, GMetaRuleTransferOwnership>(-1);
 	}
 
 	virtual GMetaConverter * createResultConverter() const {
@@ -580,7 +580,7 @@ public:
 			GPP_REPEAT(REF_MAX_ARITY, REF_CHECKPARAM_HELPER, GPP_EMPTY)
 
 			default:
-				handleError(metaError_ParamOutOfIndex, "Parameter out of index");
+				raiseException(Error_Meta_ParamOutOfIndex, "Parameter out of index");
 				return false;
 		}
 	}
@@ -606,7 +606,7 @@ public:
 
 	virtual GVariant invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const {
 		if(!this->isVariadic() && paramCount != this->getParamCount()) {
-			meta_internal::handleError(metaError_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
+			raiseException(Error_Meta_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
 		}
 
 		return GMetaMethodCallHelper<OT, FT, FT::Arity, typename FT::ResultType, Policy, IsVariadicFunction<FT>::Result>::invoke(*static_cast<OT *>(instance), params, paramCount);
@@ -616,7 +616,7 @@ public:
 		GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 		
 		if(!this->isVariadic() && paramCount != this->getParamCount()) {
-			meta_internal::handleError(metaError_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
+			raiseException(Error_Meta_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
 		}
 
 		const cpgf::GVariant * variantPointers[REF_MAX_ARITY];
@@ -629,11 +629,11 @@ public:
 	}
 
 	virtual bool isParamTransferOwnership(size_t paramIndex) const {
-		return hasIndexedPolicy<Policy, GMetaPolicyItemTransferOwnership>(static_cast<int>(paramIndex));
+		return hasIndexedPolicy<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
 
 	virtual bool isResultTransferOwnership() const {
-		return hasIndexedPolicy<Policy, GMetaPolicyItemTransferOwnership>(-1);
+		return hasIndexedPolicy<Policy, GMetaRuleTransferOwnership>(-1);
 	}
 
 	virtual GMetaConverter * createResultConverter() const {

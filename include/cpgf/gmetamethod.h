@@ -29,7 +29,7 @@ namespace meta_internal {
 	case N: return createMetaType<typename TypeList_GetWithDefault<typename CallbackT::TraitsType::ArgTypeList, N>::Result>();
 
 #define REF_CALL_HELPER_CAST(N, unused) \
-	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, HasMetaPolicyItem<Policy, GMetaPolicyItemKeepConstReference<N> >::Result>(*params[N])
+	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, PolicyHasRule<Policy, GMetaRuleKeepConstReference<N> >::Result>(*params[N])
 
 #define REF_CALL_HELPER(N, unused) \
 	template <typename CT, typename FT, typename RT, typename Policy> \
@@ -40,7 +40,7 @@ namespace meta_internal {
 			GVarTypeData typeData; \
 			deduceVariantType<RT>(typeData, true); \
 			GVariant v; \
-			variant_internal::InitVariant<!HasMetaPolicyItem<Policy, GMetaPolicyItemKeepConstReference<N> >::Result>(v, typeData, static_cast<typename variant_internal::DeducePassType<RT>::PassType>(callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)))); \
+			variant_internal::InitVariant<!PolicyHasRule<Policy, GMetaRuleKeepConstReference<N> >::Result>(v, typeData, static_cast<typename variant_internal::DeducePassType<RT>::PassType>(callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)))); \
 			return v; \
 		} \
 	}; \
@@ -149,7 +149,7 @@ public:
 			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_HELPER, GPP_EMPTY)
 
 			default:
-				handleError(metaError_ParamOutOfIndex, "Parameter out of index");
+				raiseException(Error_Meta_ParamOutOfIndex, "Parameter out of index");
 				return GMetaType();
 		}
 	}
@@ -164,7 +164,7 @@ public:
 
 	virtual GVariant invoke(void * instance, GVariant const * const * params, size_t paramCount) const {
 		if(!this->isVariadic() && paramCount != this->getParamCount()) {
-			meta_internal::handleError(metaError_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
+			raiseException(Error_Meta_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
 		}
 
 		this->callback.setObject(instance);
@@ -187,7 +187,7 @@ public:
 			GPP_REPEAT(REF_MAX_ARITY, REF_CHECKPARAM_HELPER, GPP_EMPTY)
 
 			default:
-				handleError(metaError_ParamOutOfIndex, "Parameter out of index");
+				raiseException(Error_Meta_ParamOutOfIndex, "Parameter out of index");
 				return false;
 		}
 
@@ -196,11 +196,11 @@ public:
 	}
 
 	virtual bool isParamTransferOwnership(size_t paramIndex) const {
-		return hasIndexedPolicy<Policy, GMetaPolicyItemTransferOwnership>(static_cast<int>(paramIndex));
+		return hasIndexedPolicy<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
 
 	virtual bool isResultTransferOwnership() const {
-		return hasIndexedPolicy<Policy, GMetaPolicyItemTransferOwnership>(-1);
+		return hasIndexedPolicy<Policy, GMetaRuleTransferOwnership>(-1);
 	}
 
 	virtual GMetaConverter * createResultConverter() const {

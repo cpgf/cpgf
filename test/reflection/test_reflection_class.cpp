@@ -70,13 +70,13 @@ GTEST(Lib_BasicInfo)
 
 GTEST(API_BasicInfo)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass;
+	GScopedInterface<IMetaClass> metaClass;
 	metaClass.reset(service->findClassByName(NAME(ClassBase)));
 	GCHECK(metaClass);
-	GApiScopedPointer<IMetaClass> metaClass2;
+	GScopedInterface<IMetaClass> metaClass2;
 
 	GCHECK(! metaClass->isGlobal());
 	GCHECK(metaClass->canCreateInstance());
@@ -176,10 +176,10 @@ GTEST(Lib_CreateInstance)
 
 GTEST(API_CreateInstance)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
 	
@@ -259,10 +259,10 @@ GTEST(Lib_GetConstructor)
 
 GTEST(API_GetConstructor)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
 	
@@ -310,10 +310,10 @@ GTEST(Lib_GetField)
 
 GTEST(API_GetField)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
 	
@@ -364,10 +364,10 @@ GTEST(Lib_GetProperty)
 
 GTEST(API_GetProperty)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
 	
@@ -416,10 +416,10 @@ GTEST(Lib_GetMethod)
 
 GTEST(API_GetMethod)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
 	
@@ -467,10 +467,10 @@ GTEST(Lib_GetOperator)
 
 GTEST(API_GetOperator)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
 	
@@ -518,10 +518,10 @@ GTEST(Lib_GetEnum)
 
 GTEST(API_GetEnum)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
 	
@@ -578,10 +578,10 @@ GTEST(Lib_GetClass)
 
 GTEST(API_GetClass)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
 	

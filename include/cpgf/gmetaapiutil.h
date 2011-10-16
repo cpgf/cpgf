@@ -13,8 +13,8 @@ namespace cpgf {
 template <typename Meta>
 void metaCheckError(Meta & meta)
 {
-	if(meta && meta->getErrorCode() != metaError_None) {
-		throw GMetaException(static_cast<MetaErrorCode>(meta->getErrorCode()), meta->getErrorMessage());
+	if(meta && meta->getErrorCode() != Error_None) {
+		raiseException(meta->getErrorCode(), meta->getErrorMessage());
 	}
 }
 
@@ -161,7 +161,7 @@ GVariant metaGetAnnotationVariant(Meta & annotationValue)
 template <typename Meta>
 IMetaClass * metaGetGlobalMetaClass(Meta & service, size_t index)
 {
-	GApiScopedPointer<IMetaModule> module(service->getModuleAt(index));
+	GScopedInterface<IMetaModule> module(service->getModuleAt(index));
 	return module->getGlobalMetaClass();
 }
 

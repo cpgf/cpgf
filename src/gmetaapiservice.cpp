@@ -27,9 +27,8 @@
 
 #define LEAVE_META_API(...) \
 	} \
-	catch(const GVariantException & e) { this->handleError(metaError_VariantCastFail, e.what()); __VA_ARGS__; } \
-	catch(const GMetaException & e) { this->handleError(e.getErrorCode(), e.what()); __VA_ARGS__; }
-
+	catch(const GException & e) { this->handleError(e.getCode(), e.getMessage()); __VA_ARGS__; }
+	
 
 #define IMPL_ITEM \
 protected: \
@@ -46,8 +45,8 @@ protected: \
 	const GMetaItem * getItem() const {	return this->doGetItem(); }
 
 #define IMPL_ALL \
-	IMPL_BASE \
-	IMPL_OBJECT \
+	IMPL_ROOT \
+	IMPL_BASEOBJECT \
 	IMPL_ITEM
 
 #define IMPL_TYPEDITEM \
@@ -86,7 +85,7 @@ protected: \
 namespace cpgf {
 
 
-class ImplMetaItem : public ImplApiObject
+class ImplMetaItem : public ImplBaseObject
 {
 public:
 	ImplMetaItem(const GMetaItem * item);
@@ -151,7 +150,7 @@ private:
 };
 
 
-class ImplMetaList : public ImplApiObject, public IMetaList
+class ImplMetaList : public ImplBaseObject, public IMetaList
 {
 private:
 	typedef std::vector<IMetaItem *> ListType;
@@ -163,8 +162,8 @@ public:
 	
 	void load(GMetaList * metaList);
 
-	IMPL_BASE
-	IMPL_OBJECT
+	IMPL_ROOT
+	IMPL_BASEOBJECT
 
 protected:
 	virtual void G_API_CC add(IMetaItem * item, void * instance);
@@ -183,18 +182,18 @@ private:
 };
 
 
-class ImplMetaConverter : public ImplApiObject, public IMetaConverter
+class ImplMetaConverter : public ImplBaseObject, public IMetaConverter
 {
 public:
 	ImplMetaConverter(GMetaConverter * metaConverter);
 	virtual ~ImplMetaConverter();
 
-	IMPL_BASE
-	IMPL_OBJECT
+	IMPL_ROOT
+	IMPL_BASEOBJECT
 
 protected:
 	virtual gapi_bool G_API_CC canToCString();
-	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree, IApiAllocator * allocator);
+	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree, IMemoryAllocator * allocator);
 
 private:
 	GScopedPointer<GMetaConverter> metaConverter;
@@ -413,16 +412,16 @@ private:
 };
 
 
-class ImplMetaAnnotationValue : public ImplApiObject, public IMetaAnnotationValue
+class ImplMetaAnnotationValue : public ImplBaseObject, public IMetaAnnotationValue
 {
 private:
-	typedef ImplApiObject super;
+	typedef ImplBaseObject super;
 
 public:
 	ImplMetaAnnotationValue(const GAnnotationValue * value);
 
-	IMPL_BASE
-	IMPL_OBJECT
+	IMPL_ROOT
+	IMPL_BASEOBJECT
 
 protected:
 	virtual void G_API_CC getVariant(GVarData * outVariant);
@@ -535,14 +534,14 @@ private:
 
 
 
-class ImplMetaModule : public ImplApiObject, public IMetaModule
+class ImplMetaModule : public ImplBaseObject, public IMetaModule
 {
 public:
 	ImplMetaModule();
 	~ImplMetaModule();
 
-	IMPL_BASE
-	IMPL_OBJECT
+	IMPL_ROOT
+	IMPL_BASEOBJECT
 
 protected:
 	virtual IMetaClass * G_API_CC getGlobalMetaClass();
@@ -555,7 +554,7 @@ protected:
 
 
 
-class ImplMetaService : public ImplApiObject, public IMetaService
+class ImplMetaService : public ImplBaseObject, public IMetaService
 {
 private:
 	typedef std::vector<IMetaModule *> ListType;
@@ -563,8 +562,8 @@ public:
 	ImplMetaService();
 	~ImplMetaService();
 
-	IMPL_BASE
-	IMPL_OBJECT
+	IMPL_ROOT
+	IMPL_BASEOBJECT
 
 protected:
 	virtual void G_API_CC addModule(IMetaModule * module);
@@ -573,7 +572,7 @@ protected:
 
 	virtual IMetaList * G_API_CC createMetaList();
 
-	virtual IApiAllocator * G_API_CC getAllocator();
+	virtual IMemoryAllocator * G_API_CC getAllocator();
 
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name);
 	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt);
@@ -585,7 +584,7 @@ private:
 
 private:
 	ListType moduleList;
-	GApiScopedPointer<IApiAllocator> allocator;
+	GScopedInterface<IMemoryAllocator> allocator;
 };
 
 
@@ -1066,7 +1065,7 @@ gapi_bool G_API_CC ImplMetaConverter::canToCString()
 	return this->metaConverter->canToCString();
 }
 
-const char * G_API_CC ImplMetaConverter::toCString(const void * instance, gapi_bool * needFree, IApiAllocator * allocator)
+const char * G_API_CC ImplMetaConverter::toCString(const void * instance, gapi_bool * needFree, IMemoryAllocator * allocator)
 {
 	int free;
 	
@@ -1823,7 +1822,7 @@ gapi_bool G_API_CC ImplMetaClass::isInheritedFrom(IMetaClass * ancient)
 {
 	ENTER_META_API()
 
-	GApiScopedPointer<IMetaClass> item;
+	GScopedInterface<IMetaClass> item;
 
 	for(uint32_t i = 0; i < this->getBaseCount(); ++i) {
 		item.reset(this->getBaseClass(i));
@@ -1957,10 +1956,10 @@ IMetaList * G_API_CC ImplMetaService::createMetaList()
 	return new ImplMetaList;
 }
 
-IApiAllocator * G_API_CC ImplMetaService::getAllocator()
+IMemoryAllocator * G_API_CC ImplMetaService::getAllocator()
 {
 	if(!this->allocator) {
-		this->allocator.reset(new ImplApiAllocator);
+		this->allocator.reset(new ImplMemoryAllocator);
 	}
 	
 	this->allocator->addReference();
@@ -1973,7 +1972,7 @@ IMetaTypedItem * G_API_CC ImplMetaService::findTypedItemByName(const char * name
 	ENTER_META_API()
 
 	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
-		GApiScopedPointer<IMetaTypedItem> item((*it)->findTypedItemByName(name));
+		GScopedInterface<IMetaTypedItem> item((*it)->findTypedItemByName(name));
 		if(item) {
 			return item.take();
 		}
@@ -1991,7 +1990,7 @@ IMetaFundamental * G_API_CC ImplMetaService::findFundamental(GVariantType vt)
 	ENTER_META_API()
 
 	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
-		GApiScopedPointer<IMetaFundamental> item((*it)->findFundamental(vt));
+		GScopedInterface<IMetaFundamental> item((*it)->findFundamental(vt));
 		if(item) {
 			return item.take();
 		}
@@ -2007,7 +2006,7 @@ IMetaClass * G_API_CC ImplMetaService::findClassByName(const char * name)
 	ENTER_META_API()
 
 	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
-		GApiScopedPointer<IMetaClass> item((*it)->findClassByName(name));
+		GScopedInterface<IMetaClass> item((*it)->findClassByName(name));
 		if(item) {
 			return item.take();
 		}
@@ -2023,7 +2022,7 @@ IMetaClass * G_API_CC ImplMetaService::findClassByType(const GMetaTypeData * typ
 	ENTER_META_API()
 
 	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
-		GApiScopedPointer<IMetaClass> item((*it)->findClassByType(type));
+		GScopedInterface<IMetaClass> item((*it)->findClassByType(type));
 		if(item) {
 			return item.take();
 		}
@@ -2037,7 +2036,7 @@ IMetaClass * G_API_CC ImplMetaService::findClassByType(const GMetaTypeData * typ
 
 IMetaModule * getMetaModule()
 {
-	static GApiScopedPointer<ImplMetaModule> module;
+	static GScopedInterface<ImplMetaModule> module;
 
 	if(!module) {
 		module.reset(new ImplMetaModule);
@@ -2057,7 +2056,7 @@ IMetaService * createMetaService(IMetaModule * primaryModule)
 
 IMetaService * createDefaultMetaService()
 {
-	GApiScopedPointer<IMetaModule> module(getMetaModule());
+	GScopedInterface<IMetaModule> module(getMetaModule());
 	return createMetaService(module.get());
 }
 

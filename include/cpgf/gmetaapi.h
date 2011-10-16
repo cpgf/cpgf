@@ -95,7 +95,7 @@ enum GMetaOpType {
 
 struct IMetaAnnotation;
 
-struct IMetaItem : public IApiObject
+struct IMetaItem : public IBaseObject
 {
 	virtual const char * G_API_CC getName() = 0;
 	virtual const char * G_API_CC getQualifiedName() = 0;
@@ -125,7 +125,7 @@ struct IMetaTypedItem : public IMetaItem
 	virtual void G_API_CC destroyInstance(void * instance) = 0;
 };
 
-struct IMetaList : public IApiObject
+struct IMetaList : public IBaseObject
 {
 	virtual void G_API_CC add(IMetaItem * item, void * instance) = 0;
 	virtual uint32_t G_API_CC getCount() = 0;
@@ -134,10 +134,10 @@ struct IMetaList : public IApiObject
 	virtual void G_API_CC clear() = 0;
 };
 
-struct IMetaConverter : public IApiObject
+struct IMetaConverter : public IBaseObject
 {
 	virtual gapi_bool G_API_CC canToCString() = 0;
-	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree, IApiAllocator * allocator) = 0;
+	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree, IMemoryAllocator * allocator) = 0;
 };
 
 struct IMetaAccessible : public IMetaItem
@@ -207,7 +207,7 @@ struct IMetaEnum : public IMetaTypedItem
 	virtual int32_t G_API_CC findKey(const char * key) = 0;
 };
 
-struct IMetaAnnotationValue : public IApiObject
+struct IMetaAnnotationValue : public IBaseObject
 {
 	virtual void G_API_CC getVariant(GVarData * outVariant) = 0;
 	virtual gapi_bool G_API_CC canToString() = 0;
@@ -283,7 +283,7 @@ struct IMetaClass : public IMetaTypedItem
 };
 
 
-struct IMetaModule : public IApiObject
+struct IMetaModule : public IBaseObject
 {
 	virtual IMetaClass * G_API_CC getGlobalMetaClass() = 0;
 
@@ -294,7 +294,7 @@ struct IMetaModule : public IApiObject
 };
 
 
-struct IMetaService : public IApiObject
+struct IMetaService : public IBaseObject
 {
 	virtual void G_API_CC addModule(IMetaModule * module) = 0;
 	virtual uint32_t G_API_CC getModuleCount() = 0;
@@ -302,7 +302,7 @@ struct IMetaService : public IApiObject
 
 	virtual IMetaList * G_API_CC createMetaList() = 0;
 
-	virtual IApiAllocator * G_API_CC getAllocator() = 0;
+	virtual IMemoryAllocator * G_API_CC getAllocator() = 0;
 
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name) = 0;
 	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt) = 0;

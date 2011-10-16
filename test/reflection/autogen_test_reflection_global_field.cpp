@@ -63,13 +63,13 @@ GTEST(Lib_Exists)
 
 GTEST(API_Exists)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
-	GApiScopedPointer<IMetaField> field;
+	GScopedInterface<IMetaField> field;
 
 	FIELD(fieldInt);
 	GCHECK(field);
@@ -147,13 +147,13 @@ GTEST(Lib_CanGet)
 
 GTEST(API_CanGet)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
-	GApiScopedPointer<IMetaField> field;
+	GScopedInterface<IMetaField> field;
 
 	FIELD(fieldInt);
 	GCHECK(field->canGet());
@@ -204,13 +204,13 @@ GTEST(Lib_CanSet)
 
 GTEST(API_CanSet)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
-	GApiScopedPointer<IMetaField> field;
+	GScopedInterface<IMetaField> field;
 
 	FIELD(fieldInt);
 	GCHECK(field->canSet());
@@ -264,13 +264,13 @@ GTEST(Lib_GetAddress)
 
 GTEST(API_GetAddress)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
-	GApiScopedPointer<IMetaField> field;
+	GScopedInterface<IMetaField> field;
 
 
 	CLASS * pobj = NULL;
@@ -328,13 +328,13 @@ GTEST(Lib_GetSize)
 
 GTEST(API_GetSize)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
-	GApiScopedPointer<IMetaField> field;
+	GScopedInterface<IMetaField> field;
 
 
 	CLASS * pobj = NULL;
@@ -417,13 +417,13 @@ GTEST(Lib_Set)
 
 GTEST(API_Set)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
-	GApiScopedPointer<IMetaField> field;
+	GScopedInterface<IMetaField> field;
 
 
 	CLASS * pobj = NULL;
@@ -519,13 +519,13 @@ GTEST(Lib_Get)
 
 GTEST(API_Get)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
 	GCHECK(metaClass);
 
-	GApiScopedPointer<IMetaField> field;
+	GScopedInterface<IMetaField> field;
 
 
 	CLASS * pobj = NULL;

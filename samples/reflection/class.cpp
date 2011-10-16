@@ -76,10 +76,10 @@ void doTestLib()
 	testCheckAssert(! metaClass->canCopyInstance());
 	testBeginException;
 		metaClass->createInstance();
-	testEndException(GMetaException);
+	testEndException(GException);
 	testBeginException;
 		metaClass->createInplace(buffer);
-	testEndException(GMetaException);
+	testEndException(GException);
 
 	metaClass = findMetaClass("class::TestNoDefaultConstructor");
 	testCheckAssert(metaClass != NULL);
@@ -88,10 +88,10 @@ void doTestLib()
 	testCheckAssert(metaClass->canCopyInstance());
 	testBeginException;
 		metaClass->createInstance();
-	testEndException(GMetaException);
+	testEndException(GException);
 	testBeginException;
 		metaClass->createInplace(buffer);
-	testEndException(GMetaException);
+	testEndException(GException);
 
 	metaClass = findMetaClass("class::TestNoCopyConstructor");
 	testCheckAssert(metaClass != NULL);
@@ -100,10 +100,10 @@ void doTestLib()
 	testCheckAssert(! metaClass->canCopyInstance());
 	testBeginException;
 		metaClass->cloneInstance(NULL);
-	testEndException(GMetaException);
+	testEndException(GException);
 	testBeginException;
 		metaClass->cloneInplace(NULL, buffer);
-	testEndException(GMetaException);
+	testEndException(GException);
 
 	metaClass = findMetaClass("class::TestNoDefaultAndCopyConstructor");
 	testCheckAssert(metaClass != NULL);
@@ -112,10 +112,10 @@ void doTestLib()
 	testCheckAssert(! metaClass->canCopyInstance());
 	testBeginException;
 		metaClass->cloneInstance(NULL);
-	testEndException(GMetaException);
+	testEndException(GException);
 	testBeginException;
 		metaClass->cloneInplace(NULL, buffer);
-	testEndException(GMetaException);
+	testEndException(GException);
 
 }
 
@@ -125,10 +125,10 @@ void doTestAPI()
 
 	std::cout << "API: " << "Test Meta Classes" << std::endl;
 	
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	testCheckAssert(service);
 
-	GApiScopedPointer<IMetaClass> metaClass;
+	GScopedInterface<IMetaClass> metaClass;
 
 	char buffer[4096];
 
@@ -140,11 +140,11 @@ void doTestAPI()
 	testBeginException;
 		metaClass->createInstance();
 		metaCheckError(metaClass);
-	testEndException(GMetaException);
+	testEndException(GException);
 	testBeginException;
 		metaClass->createInplace(buffer);
 		metaCheckError(metaClass);
-	testEndException(GMetaException);
+	testEndException(GException);
 
 	metaClass.reset(service->findClassByName("class::TestNoDefaultConstructor"));
 	testCheckAssert(metaClass);
@@ -154,11 +154,11 @@ void doTestAPI()
 	testBeginException;
 		metaClass->createInstance();
 		metaCheckError(metaClass);
-	testEndException(GMetaException);
+	testEndException(GException);
 	testBeginException;
 		metaClass->createInplace(buffer);
 		metaCheckError(metaClass);
-	testEndException(GMetaException);
+	testEndException(GException);
 
 	metaClass.reset(service->findClassByName("class::TestNoCopyConstructor"));
 	testCheckAssert(metaClass);
@@ -168,11 +168,11 @@ void doTestAPI()
 	testBeginException;
 		metaClass->cloneInstance(NULL);
 		metaCheckError(metaClass);
-	testEndException(GMetaException);
+	testEndException(GException);
 	testBeginException;
 		metaClass->cloneInplace(NULL, buffer);
 		metaCheckError(metaClass);
-	testEndException(GMetaException);
+	testEndException(GException);
 
 	metaClass.reset(service->findClassByName("class::TestNoDefaultAndCopyConstructor"));
 	testCheckAssert(metaClass);
@@ -182,11 +182,11 @@ void doTestAPI()
 	testBeginException;
 		metaClass->cloneInstance(NULL);
 		metaCheckError(metaClass);
-	testEndException(GMetaException);
+	testEndException(GException);
 	testBeginException;
 		metaClass->cloneInplace(NULL, buffer);
 		metaCheckError(metaClass);
-	testEndException(GMetaException);
+	testEndException(GException);
 
 }
 

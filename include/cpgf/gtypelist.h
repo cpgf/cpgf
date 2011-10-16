@@ -6,6 +6,9 @@
 #include "cpgf/gpp.h"
 
 
+#define TL_MAX_PARAM GPP_MAX_LIMIT
+
+
 namespace cpgf {
 
 struct GNullType {
@@ -18,10 +21,6 @@ struct GTypeList {
 	typedef T Tail;
 };
 
-
-#ifndef TL_MAX_PARAM
-	#define TL_MAX_PARAM GPP_MAX_LIMIT
-#endif
 
 #define TL_TYPENAME_PARAM_NULL(N, T)			GPP_COMMA_IF(N) typename T ## N = GNullType
 #define TL_DO_TYPE(N) T ## N GPP_COMMA()
@@ -158,6 +157,10 @@ struct TypeList_Append <GTypeList<Head, Tail>, T>
 
 
 } // namespace cpgf
+
+
+
+#undef TL_MAX_PARAM
 
 
 

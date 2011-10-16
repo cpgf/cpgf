@@ -60,7 +60,7 @@ class GMetaGetter <Getter, Policy, typename GEnableIf<
 public:
 	enum {
 		HasGetter = true,
-		Readable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidRead>::Result,
+		Readable = PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result,
 	};
 
 public:
@@ -115,7 +115,7 @@ class GMetaGetter <Getter, Policy, typename GEnableIf<
 public:
 	enum {
 		HasGetter = true,
-		Readable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidRead>::Result,
+		Readable = PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result,
 	};
 
 public:
@@ -165,7 +165,7 @@ class GMetaGetter <Getter, Policy, typename GEnableIf<IsFunction<Getter>::Result
 public:
 	enum {
 		HasGetter = true,
-		Readable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidRead>::Result,
+		Readable = PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result,
 	};
 
 public:
@@ -246,7 +246,7 @@ class GMetaSetter <Setter, Policy, typename GEnableIf<
 public:
 	enum {
 		HasSetter = true,
-		Writable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidWrite>::Result
+		Writable = PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result
 	};
 
 public:
@@ -297,7 +297,7 @@ class GMetaSetter <Setter, Policy, typename GEnableIf<
 public:
 	enum {
 		HasSetter = true,
-		Writable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidWrite>::Result
+		Writable = PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result
 	};
 
 public:
@@ -344,7 +344,7 @@ class GMetaSetter <Setter, Policy, typename GEnableIf<IsFunction<Setter>::Result
 public:
 	enum {
 		HasSetter = true,
-		Writable = NotHasMetaPolicyItem<Policy, GMetaPolicyItemForbidWrite>::Result
+		Writable = PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result
 	};
 
 public:

@@ -207,23 +207,23 @@ private:
 	enum {
 		IsGlobal = IsSameType<OT, void>::Result,
 		IsAbstract = IsAbstractClass<OT>::Result,
-		NoDefaultConstructor = HasMetaPolicyItem<Policy, GMetaPolicyItemDefaultConstructorAbsent>::Result,
-		NoCopyConstructor = HasMetaPolicyItem<Policy, GMetaPolicyItemCopyConstructorAbsent>::Result,
+		NoDefaultConstructor = PolicyHasRule<Policy, GMetaRuleDefaultConstructorAbsent>::Result,
+		NoCopyConstructor = PolicyHasRule<Policy, GMetaRuleCopyConstructorAbsent>::Result,
 		CanDefaultConstruct = !IsGlobal && !IsAbstract && !NoDefaultConstructor,
 		CanCopyConstruct = !IsGlobal && !IsAbstract && !NoCopyConstructor
 	};
 
 private:
 	static void errorAbstract() {
-		meta_internal::handleError(metaError_CannotInitAbstractClass, "Can't instantiate abstract class.");
+		raiseException(Error_Meta_CannotInitAbstractClass, "Can't instantiate abstract class.");
 	}
 
 	static void errorNoDefault() {
-		meta_internal::handleError(metaError_CannotInitAbstractClass, "Can't instantiate object that has no default constructor.");
+		raiseException(Error_Meta_CannotInitAbstractClass, "Can't instantiate object that has no default constructor.");
 	}
 
 	static void errorNoCopy() {
-		meta_internal::handleError(metaError_CannotInitAbstractClass, "Can't copy object that has no copy constructor.");
+		raiseException(Error_Meta_CannotInitAbstractClass, "Can't copy object that has no copy constructor.");
 	}
 
 public:

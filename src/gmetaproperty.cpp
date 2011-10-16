@@ -17,7 +17,7 @@ bool GMetaProperty::canSet() const
 GVariant GMetaProperty::get(void * instance) const
 {
 	if(!this->baseData->canGet()) {
-		meta_internal::handleError(metaError_PropertyCannotGet, meta_internal::formatString("Can't read property %s", this->getName().c_str()));
+		raiseException(Error_Meta_PropertyCannotGet, meta_internal::formatString("Can't read property %s", this->getName().c_str()));
 	}
 
 	return this->baseData->get(instance);
@@ -26,7 +26,7 @@ GVariant GMetaProperty::get(void * instance) const
 void GMetaProperty::set(void * instance, const GVariant & value) const
 {
 	if(!this->baseData->canSet()) {
-		meta_internal::handleError(metaError_PropertyCannotSet, meta_internal::formatString("Can't write property %s", this->getName().c_str()));
+		raiseException(Error_Meta_PropertyCannotSet, meta_internal::formatString("Can't write property %s", this->getName().c_str()));
 	}
 
 	this->baseData->set(instance, value);
@@ -34,10 +34,6 @@ void GMetaProperty::set(void * instance, const GVariant & value) const
 
 size_t GMetaProperty::getSize() const
 {
-//	if(!this->baseData->canAccess()) {
-//		meta_internal::handleError(metaError_PropertyCannotGet, meta_internal::formatString("Can't access property %s", this->getName().c_str()));
-//	}
-
 	return this->baseData->getPropertySize();
 }
 

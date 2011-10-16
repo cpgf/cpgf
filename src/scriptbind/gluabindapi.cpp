@@ -1,5 +1,6 @@
 #include "cpgf/scriptbind/gscriptbindapi.h"
 #include "cpgf/scriptbind/gluabind.h"
+#include "cpgf/gexception.h"
 
 #include "../pinclude/gapiimpl.h"
 
@@ -11,16 +12,14 @@
 
 #define LEAVE_BINDING_API(...) \
 	} \
-	catch(const GVariantException & e) { this->handleError(metaError_VariantCastFail, e.what()); __VA_ARGS__; } \
-	catch(const GMetaException & e) { this->handleError(e.getErrorCode(), e.what()); __VA_ARGS__; } \
-	catch(const GScriptException & e) { this->handleError(e.getErrorCode(), e.what()); __VA_ARGS__; }
+	catch(const GException & e) { this->handleError(e.getCode(), e.getMessage()); __VA_ARGS__; }
 
-#define IMPL_BASE \
+#define IMPL_ROOT \
 	virtual uint32_t G_API_CC unused_queryInterface(void *, void *) { return 0; } \
 	virtual uint32_t G_API_CC addReference() { return this->doAddReference(); } \
 	virtual uint32_t G_API_CC releaseReference() { return this->doReleaseReference(); }
 
-#define IMPL_OBJECT \
+#define IMPL_BASEOBJECT \
 protected: \
 	virtual int32_t G_API_CC getErrorCode() { return this->doGetErrorCode(); } \
 	virtual const char * G_API_CC getErrorMessage() { return this->doGetErrorMessage(); }
@@ -30,15 +29,15 @@ namespace cpgf {
 
 
 
-class ImplScriptConfig : public ImplApiObject, public IScriptConfig
+class ImplScriptConfig : public ImplBaseObject, public IScriptConfig
 {
 public:
 	ImplScriptConfig();
 	explicit ImplScriptConfig(GScriptConfig config);
 
 protected:
-	IMPL_BASE
-	IMPL_OBJECT
+	IMPL_ROOT
+	IMPL_BASEOBJECT
 
 	virtual void G_API_CC setAccessStaticMethodViaInstance(gapi_bool set);
 	virtual gapi_bool G_API_CC allowAccessStaticMethodViaInstance();
@@ -57,14 +56,14 @@ private:
 };
 
 
-class ImplScriptName : public ImplApiObject, public IScriptName
+class ImplScriptName : public ImplBaseObject, public IScriptName
 {
 public:
 	ImplScriptName(GScriptName * scriptName);
 	
 protected:
-	IMPL_BASE
-	IMPL_OBJECT
+	IMPL_ROOT
+	IMPL_BASEOBJECT
 	
 	virtual const char * G_API_CC getName();
 	
@@ -75,14 +74,14 @@ private:
 	friend class ImplScriptObject;
 };
 
-class ImplScriptObject : public ImplApiObject, public IScriptObject
+class ImplScriptObject : public ImplBaseObject, public IScriptObject
 {
 public:
 	ImplScriptObject(GScriptObject * scriptObject);
 	
 protected:
-	IMPL_BASE
-	IMPL_OBJECT
+	IMPL_ROOT
+	IMPL_BASEOBJECT
 	
 	virtual IScriptConfig * G_API_CC getConfig();
 	virtual IScriptObject * G_API_CC getOwner();
@@ -369,11 +368,11 @@ char * G_API_CC ImplScriptObject::getString(IScriptName * stringName)
 {
 	ENTER_BINDING_API()
 
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	
 	std::string s = this->scriptObject->getString(this->unwrapScriptName(stringName));
 
-	GApiScopedPointer<IApiAllocator> allocator(service->getAllocator());
+	GScopedInterface<IMemoryAllocator> allocator(service->getAllocator());
 	void * cs = allocator->allocate(s.length() + 1);
 	memmove(cs, s.c_str(), s.length() + 1);
 	

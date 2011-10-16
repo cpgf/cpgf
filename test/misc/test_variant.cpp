@@ -5,9 +5,9 @@
 #define CAN_FROM(to, value) GCHECK(canFromVariant<to>(value)); fromVariant<to>(value)
 #define CAN_FROM_CAST(to, from, value) GCHECK(canFromVariant<to>(static_cast<from>(value))); fromVariant<to>(static_cast<from>(value))
 #define NOT_FROM(to, value) GCHECK(! canFromVariant<to>(value)); \
-	GBEGIN_EXCEPTION fromVariant<to>(value); GEND_EXCEPTION(const GVariantException &)
+	GBEGIN_EXCEPTION fromVariant<to>(value); GEND_EXCEPTION(const GException &)
 #define NOT_FROM_CAST(to, from, value) GCHECK(! canFromVariant<to>(static_cast<from>(value))); \
-	GBEGIN_EXCEPTION fromVariant<to>(static_cast<from>(value)); GEND_EXCEPTION(const GVariantException &)
+	GBEGIN_EXCEPTION fromVariant<to>(static_cast<from>(value)); GEND_EXCEPTION(const GException &)
 
 #define CLASS TestClass_Variant
 

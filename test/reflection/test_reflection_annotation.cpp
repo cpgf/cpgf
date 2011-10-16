@@ -161,14 +161,14 @@ void testItem(cpgf::IMetaItem * item)
 
 	bool foundAttribute = false;
 	for(unsigned int i = 0; i < item->getAnnotationCount(); ++i) {
-		GApiScopedPointer<IMetaAnnotation> anno(item->getAnnotationAt(i));
+		GScopedInterface<IMetaAnnotation> anno(item->getAnnotationAt(i));
 
-		GApiScopedPointer<IMetaItem> tempItem(anno->getMetaItem());
+		GScopedInterface<IMetaItem> tempItem(anno->getMetaItem());
 
 		if(string(anno->getName()) == "attribute") {
 			foundAttribute = true;
 
-			GApiScopedPointer<IMetaAnnotationValue> value;
+			GScopedInterface<IMetaAnnotationValue> value;
 
 			value.reset(anno->getValue("name")); GCHECK(value);
 			GCHECK(!! value->canToWideString());
@@ -205,10 +205,10 @@ GTEST(Lib_Annotation)
 
 GTEST(API_Annotation)
 {
-	GApiScopedPointer<IMetaService> service(createDefaultMetaService());
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GApiScopedPointer<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 	GCHECK(metaClass);
 
 	metaClass->getMetaCount();
@@ -216,7 +216,7 @@ GTEST(API_Annotation)
 	testItem(metaClass.get());
 
 	for(unsigned int i = 0; i < metaClass->getMetaCount(); ++i) {
-		GApiScopedPointer<IMetaItem> temp(metaClass->getMetaAt(i));
+		GScopedInterface<IMetaItem> temp(metaClass->getMetaAt(i));
 		testItem(temp.get());
 	}
 

@@ -11,7 +11,7 @@ void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
 {
 	using namespace cpgf;
 
-	GApiScopedPointer<IMetaClass> metaClass;
+	GScopedInterface<IMetaClass> metaClass;
 	
 	metaClass.reset(service->findClassByName("testscript::TestObject"));
 	GCHECK(metaClass);
@@ -33,12 +33,12 @@ void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
 {
 	using namespace cpgf;
 
-	GApiScopedPointer<IMetaClass> metaClass;
+	GScopedInterface<IMetaClass> metaClass;
 	
 	metaClass.reset(service->findClassByName("testscript::TestObject"));
 	GCHECK(metaClass);
 	
-	GApiScopedPointer<IScriptName> scriptName;
+	GScopedInterface<IScriptName> scriptName;
 
 	scriptName.reset(script->createName("TestObject"));
 	script->bindClass(scriptName.get(), metaClass.get());

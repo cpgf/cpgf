@@ -14,8 +14,8 @@
 #define CLASS_DATA TestData_Reflection
 #define NC_DATA TestData_Reflection_NoCopyable
 
-#define EXCEPT_META(...) GBEGIN_EXCEPTION __VA_ARGS__; GEND_EXCEPTION(const GMetaException &)
-#define EXCEPT_VARIANT(...) GBEGIN_EXCEPTION __VA_ARGS__; GEND_EXCEPTION(const GVariantException &)
+#define EXCEPT_META(...) GBEGIN_EXCEPTION __VA_ARGS__; GEND_EXCEPTION(const GException &)
+#define EXCEPT_VARIANT(...) GBEGIN_EXCEPTION __VA_ARGS__; GEND_EXCEPTION(const GException &)
 
 
 #define NAME(cls) GPP_STRINGIZE(cls)
@@ -112,14 +112,14 @@ inline const cpgf::GMetaOperator * getOperator(cpgf::GMetaOpType op, const cpgf:
 	return NULL;
 }
 
-inline cpgf::IMetaOperator * getOperator(cpgf::GMetaOpType op, const cpgf::GApiScopedPointer<cpgf::IMetaClass> & metaClass, int index = 0)
+inline cpgf::IMetaOperator * getOperator(cpgf::GMetaOpType op, const cpgf::GScopedInterface<cpgf::IMetaClass> & metaClass, int index = 0)
 {
 	if(index == 0) {
 		return metaClass->getOperator(op);
 	}
 	
 	for(unsigned int i = 0; i < metaClass->getOperatorCount(); ++i) {
-		cpgf::GApiScopedPointer<cpgf::IMetaOperator> meta(metaClass->getOperatorAt(i));
+		cpgf::GScopedInterface<cpgf::IMetaOperator> meta(metaClass->getOperatorAt(i));
 
 		if(meta->getOperator() == op) {
 			if(index <= 0) {

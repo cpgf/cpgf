@@ -10,7 +10,7 @@ bool GMetaConverterStdString::canToCString()
 	return true;
 }
 
-const char * GMetaConverterStdString::toCString(const void * instance, int * needFree, IApiAllocator * allocator)
+const char * GMetaConverterStdString::toCString(const void * instance, int * needFree, IMemoryAllocator * allocator)
 {
 	*needFree = false;
 	

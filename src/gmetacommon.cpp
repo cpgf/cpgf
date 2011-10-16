@@ -24,16 +24,6 @@
 
 namespace cpgf {
 
-GMetaException::GMetaException(MetaErrorCode errorCode, const std::string & message)
-	: std::runtime_error(meta_internal::formatString("Error code: %d message: ", errorCode) + message),
-		errorCode(errorCode)
-{
-}
-
-MetaErrorCode GMetaException::getErrorCode() const
-{
-	return this->errorCode;
-}
 
 std::string normalizeReflectName(const char * name)
 {
@@ -85,13 +75,6 @@ std::string formatString(const char * message, ...)
 }
 
 
-int handleError(MetaErrorCode errorCode, const std::string & message)
-{
-	throw GMetaException(errorCode, message);
-
-//	return errorCode;
-}
-
 void handleForbidAccessError(bool isRead)
 {
 	const char * reason;
@@ -103,7 +86,7 @@ void handleForbidAccessError(bool isRead)
 		reason = "Can't write object. Write is forbidden.";
 	}
 
-	handleError(metaError_AccessNoncopable, reason);
+	raiseException(Error_Meta_AccessNoncopable, reason);
 }
 
 

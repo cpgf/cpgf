@@ -1,4 +1,5 @@
 #include "cpgf/gapi.h"
+#include "cpgf/gerrorcode.h"
 
 #include "pinclude/gapiimpl.h"
 
@@ -9,28 +10,28 @@ namespace cpgf {
 
 
 
-ImplApiBase::ImplApiBase()
+ImplRoot::ImplRoot()
 	: referenceCount(1)
 {
 }
 
-ImplApiBase::~ImplApiBase()
+ImplRoot::~ImplRoot()
 {
 }
 
-uint32_t ImplApiBase::doQueryInterface(void *, void *)
+uint32_t ImplRoot::doQueryInterface(void *, void *)
 {
 	return 0;
 }
 
-uint32_t ImplApiBase::doAddReference()
+uint32_t ImplRoot::doAddReference()
 {
 	++this->referenceCount;
 
 	return this->referenceCount;
 }
 
-uint32_t ImplApiBase::doReleaseReference()
+uint32_t ImplRoot::doReleaseReference()
 {
 	if(this->referenceCount > 0) {
 		--this->referenceCount;
@@ -47,23 +48,23 @@ uint32_t ImplApiBase::doReleaseReference()
 
 
 
-ImplApiObject::ImplApiObject()
+ImplBaseObject::ImplBaseObject()
 	: errorInfo()
 {
 }
 
-ImplApiObject::~ImplApiObject()
+ImplBaseObject::~ImplBaseObject()
 {
 }
 
-void ImplApiObject::clearError()
+void ImplBaseObject::clearError()
 {
 	if(this->errorInfo) {
-		this->errorInfo->errorCode = apiError_None;
+		this->errorInfo->errorCode = Error_None;
 	}
 }
 
-void ImplApiObject::handleError(int errorCode, const char * message)
+void ImplBaseObject::handleError(int errorCode, const char * message)
 {
 	if(! this->errorInfo) {
 		this->errorInfo.reset(new ErrorInfo);
@@ -73,17 +74,17 @@ void ImplApiObject::handleError(int errorCode, const char * message)
 	this->errorInfo->message = message;
 }
 
-int32_t ImplApiObject::doGetErrorCode()
+int32_t ImplBaseObject::doGetErrorCode()
 {
 	if(this->errorInfo) {
 		return this->errorInfo->errorCode;
 	}
 	else {
-		return apiError_None;
+		return Error_None;
 	}
 }
 
-const char * ImplApiObject::doGetErrorMessage()
+const char * ImplBaseObject::doGetErrorMessage()
 {
 	if(this->errorInfo) {
 		return this->errorInfo->message.c_str();
@@ -94,17 +95,17 @@ const char * ImplApiObject::doGetErrorMessage()
 }
 
 
-void * G_API_CC ImplApiAllocator::allocate(uint32_t size)
+void * G_API_CC ImplMemoryAllocator::allocate(uint32_t size)
 {
 	return malloc(size);
 }
 
-void G_API_CC ImplApiAllocator::free(void * p)
+void G_API_CC ImplMemoryAllocator::free(void * p)
 {
 	::free(p);
 }
 
-void * G_API_CC ImplApiAllocator::reallocate(void * p, uint32_t size)
+void * G_API_CC ImplMemoryAllocator::reallocate(void * p, uint32_t size)
 {
 	return realloc(p, size);
 }
