@@ -100,12 +100,12 @@ protected:
 	virtual void G_API_CC invoke(IScriptName * name, GMetaVarData * outResult, const GMetaVarData * params, uint32_t paramCount);
 	virtual void G_API_CC invokeIndirectly(IScriptName * name, GMetaVarData * outResult, GMetaVarData const * const * params, uint32_t paramCount);
 
-	virtual void G_API_CC setFundamental(IScriptName * name, const GVarData * value);
+	virtual void G_API_CC setFundamental(IScriptName * name, const GVariantData * value);
 	virtual void G_API_CC setString(IScriptName * stringName, const char * s);
 	virtual void G_API_CC setObject(IScriptName * objectName, void * instance, IMetaClass * type, gapi_bool transferOwnership);
 	virtual void G_API_CC setMethod(IScriptName * name, void * instance, IMetaMethod * method);
 	
-	virtual void G_API_CC getFundamental(IScriptName * name, GVarData * outResult);
+	virtual void G_API_CC getFundamental(IScriptName * name, GVariantData * outResult);
 	virtual char * G_API_CC getString(IScriptName * stringName);
 	
 	virtual void * G_API_CC getObject(IScriptName * objectName);
@@ -319,7 +319,7 @@ void G_API_CC ImplScriptObject::invokeIndirectly(IScriptName * name, GMetaVarDat
 	LEAVE_BINDING_API()
 }
 
-void G_API_CC ImplScriptObject::setFundamental(IScriptName * name, const GVarData * value)
+void G_API_CC ImplScriptObject::setFundamental(IScriptName * name, const GVariantData * value)
 {
 	ENTER_BINDING_API()
 
@@ -355,7 +355,7 @@ void G_API_CC ImplScriptObject::setMethod(IScriptName * name, void * instance, I
 	LEAVE_BINDING_API()
 }
 
-void G_API_CC ImplScriptObject::getFundamental(IScriptName * name, GVarData * outResult)
+void G_API_CC ImplScriptObject::getFundamental(IScriptName * name, GVariantData * outResult)
 {
 	ENTER_BINDING_API()
 

@@ -51,7 +51,7 @@ void cvToFilters(ObjectPointerCV cv, GFlags<GMetaFilters> * filters)
 	}
 }
 
-int rankCallable(IMetaCallable * callable, GVarData * paramsData, GScriptDataType * paramsType, size_t paramCount)
+int rankCallable(IMetaCallable * callable, GVariantData * paramsData, GScriptDataType * paramsType, size_t paramCount)
 {
 	if(!! callable->isVariadic()) {
 		return 0;
@@ -85,7 +85,7 @@ int rankCallable(IMetaCallable * callable, GVarData * paramsData, GScriptDataTyp
 	return rank;
 }
 
-bool checkCallable(IMetaCallable * callable, GVarData * paramsData, size_t paramCount)
+bool checkCallable(IMetaCallable * callable, GVariantData * paramsData, size_t paramCount)
 {
 	if(!! callable->isVariadic()) {
 		return true;

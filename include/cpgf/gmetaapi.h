@@ -144,8 +144,8 @@ struct IMetaAccessible : public IMetaItem
 {
 	virtual gapi_bool G_API_CC canGet() = 0;
 	virtual gapi_bool G_API_CC canSet() = 0;
-	virtual void G_API_CC get(void * instance, GVarData * outValue) = 0;
-	virtual void G_API_CC set(void * instance, const GVarData * value) = 0;
+	virtual void G_API_CC get(void * instance, GVariantData * outValue) = 0;
+	virtual void G_API_CC set(void * instance, const GVariantData * value) = 0;
 	virtual uint32_t G_API_CC getSize() = 0;
 	virtual IMetaConverter * G_API_CC createConverter() = 0;
 };
@@ -166,50 +166,50 @@ struct IMetaCallable : public IMetaItem
 	virtual gapi_bool G_API_CC hasResult() = 0;
 	virtual void G_API_CC getResultType(GMetaTypeData * outType) = 0;
 	virtual gapi_bool G_API_CC isVariadic() = 0;
-	virtual gapi_bool G_API_CC checkParam(const GVarData * param, uint32_t paramIndex) = 0;
+	virtual gapi_bool G_API_CC checkParam(const GVariantData * param, uint32_t paramIndex) = 0;
 	virtual gapi_bool G_API_CC isParamTransferOwnership(uint32_t paramIndex) = 0;
 	virtual gapi_bool G_API_CC isResultTransferOwnership() = 0;
-	virtual void G_API_CC execute(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount) = 0;
 	virtual IMetaConverter * G_API_CC createResultConverter() = 0;
 };
 
 struct IMetaMethod : public IMetaCallable
 {
-	virtual void G_API_CC invoke(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount) = 0;
-	virtual void G_API_CC invokeIndirectly(GVarData * outResult, void * instance, GVarData const * const * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invoke(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount) = 0;
 };
 
 struct IMetaConstructor : public IMetaCallable
 {
-	virtual void * G_API_CC invoke(const GVarData * params, uint32_t paramCount) = 0;
-	virtual void * G_API_CC invokeIndirectly(GVarData const * const * params, uint32_t paramCount) = 0;
+	virtual void * G_API_CC invoke(const GVariantData * params, uint32_t paramCount) = 0;
+	virtual void * G_API_CC invokeIndirectly(GVariantData const * const * params, uint32_t paramCount) = 0;
 };
 
 struct IMetaOperator : public IMetaCallable
 {
 	virtual int32_t G_API_CC getOperator() = 0;
-	virtual void G_API_CC invokeUnary(GVarData * outResult, const GVarData * p0) = 0;
-	virtual void G_API_CC invokeBinary(GVarData * outResult, const GVarData * p0, const GVarData * p1) = 0;
-	virtual void G_API_CC invokeFunctor(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount) = 0;
-	virtual void G_API_CC invokeFunctorIndirectly(GVarData * outResult, void * instance, GVarData const * const * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeUnary(GVariantData * outResult, const GVariantData * p0) = 0;
+	virtual void G_API_CC invokeBinary(GVariantData * outResult, const GVariantData * p0, const GVariantData * p1) = 0;
+	virtual void G_API_CC invokeFunctor(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeFunctorIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount) = 0;
 };
 
 struct IMetaFundamental : public IMetaTypedItem
 {
-	virtual void G_API_CC getValue(void * instance, GVarData * outValue) = 0;
+	virtual void G_API_CC getValue(void * instance, GVariantData * outValue) = 0;
 };
 
 struct IMetaEnum : public IMetaTypedItem
 {
 	virtual uint32_t G_API_CC getCount() = 0;
 	virtual const char * G_API_CC getKey(uint32_t index) = 0;
-	virtual void G_API_CC getValue(uint32_t index, GVarData * outValue) = 0;
+	virtual void G_API_CC getValue(uint32_t index, GVariantData * outValue) = 0;
 	virtual int32_t G_API_CC findKey(const char * key) = 0;
 };
 
 struct IMetaAnnotationValue : public IBaseObject
 {
-	virtual void G_API_CC getVariant(GVarData * outVariant) = 0;
+	virtual void G_API_CC getVariant(GVariantData * outVariant) = 0;
 	virtual gapi_bool G_API_CC canToString() = 0;
 	virtual gapi_bool G_API_CC canToWideString() = 0;
 	virtual gapi_bool G_API_CC canToInt() = 0;

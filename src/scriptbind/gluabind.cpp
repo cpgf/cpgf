@@ -229,7 +229,7 @@ namespace {
 	struct InvokeCallableResult
 	{
 		int resultCount;
-		GVarData resultData;
+		GVariantData resultData;
 	};
 
 
@@ -504,7 +504,7 @@ namespace {
 		return sdtUnknown;
 	}
 
-	void loadMethodParameters(lua_State * L, GLuaBindingParam * param, GVarData * outputParams, size_t startIndex, size_t paramCount)
+	void loadMethodParameters(lua_State * L, GLuaBindingParam * param, GVariantData * outputParams, size_t startIndex, size_t paramCount)
 	{
 		for(size_t i = 0; i < paramCount; ++i) {
 			outputParams[i] = luaToVariant(L, param, i + startIndex).getData().varData;
@@ -518,7 +518,7 @@ namespace {
 		}
 	}
 
-	void doInvokeCallable(void * instance, IMetaCallable * callable, GVarData * paramsData, size_t paramCount, InvokeCallableResult * result)
+	void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, size_t paramCount, InvokeCallableResult * result)
 	{
 		result->resultCount = 0;
 		vtInit(result->resultData.typeData);
@@ -558,7 +558,7 @@ namespace {
 
 		InvokeCallableResult result;
 
-		GVarData paramsData[REF_MAX_ARITY];
+		GVariantData paramsData[REF_MAX_ARITY];
 		loadMethodParameters(L, userData->getParam(), paramsData, 1, lua_gettop(L));
 		if(checkCallable(method, paramsData, lua_gettop(L))) {
 			doInvokeCallable(userData->instance, method, paramsData, lua_gettop(L), &result);
@@ -589,7 +589,7 @@ namespace {
 		int maxRank = -1;
 		size_t maxRankIndex = 0;
 		
-		GVarData paramsData[REF_MAX_ARITY];
+		GVariantData paramsData[REF_MAX_ARITY];
 		loadMethodParameters(L, userData->getParam(), paramsData, 1, lua_gettop(L));
 		
 		GScriptDataType paramsType[REF_MAX_ARITY];
@@ -641,7 +641,7 @@ namespace {
 			int maxRank = -1;
 			size_t maxRankIndex = 0;
 		
-			GVarData paramsData[REF_MAX_ARITY];
+			GVariantData paramsData[REF_MAX_ARITY];
 			loadMethodParameters(L, param, paramsData, 2, paramCount);
 
 			GScriptDataType paramsType[REF_MAX_ARITY];
@@ -688,7 +688,7 @@ namespace {
 		int maxRank = -1;
 		size_t maxRankIndex = 0;
 		
-		GVarData paramsData[REF_MAX_ARITY];
+		GVariantData paramsData[REF_MAX_ARITY];
 		loadMethodParameters(L, param, paramsData, startIndex, paramCount);
 		
 		GScriptDataType paramsType[REF_MAX_ARITY];
@@ -792,7 +792,7 @@ namespace {
 			return false;
 		}
 
-		GVarData varData;
+		GVariantData varData;
 		GMetaTypeData typeData;
 		data->get(instance, &varData);
 		data->getItemType(&typeData);
@@ -841,7 +841,7 @@ namespace {
 			GScopedInterface<IMetaEnum> metaEnum(userData->metaClass->getEnumAt(i));
 			int index = metaEnum->findKey(name);
 			if(index >= 0) {
-				GVarData data;
+				GVariantData data;
 				metaEnum->getValue(index, &data);
 				lua_pushinteger(L, fromVariant<lua_Integer>(GVariant(data)));
 
@@ -904,7 +904,7 @@ namespace {
 			return false;
 		}
 
-		GVarData varData = value.getData();
+		GVariantData varData = value.getData();
 		data->set(instance, &varData);
 
 		return true;
@@ -1076,7 +1076,7 @@ namespace {
 			raiseFormatException(Error_Lua_CantFindEnumKey, "Can't find enumerator key -- %s.", name);
 		}
 		else {
-			GVarData data;
+			GVariantData data;
 			userData->metaEnum->getValue(index, &data);
 			lua_pushinteger(L, fromVariant<lua_Integer>(GVariant(data)));
 		}

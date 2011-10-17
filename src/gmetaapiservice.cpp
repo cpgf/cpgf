@@ -67,7 +67,7 @@ protected: \
 	virtual gapi_bool G_API_CC hasResult() { return this->doHasResult(); } \
 	virtual void G_API_CC getResultType(GMetaTypeData * outType) { this->doGetResultType(outType); } \
 	virtual gapi_bool G_API_CC isVariadic() { return this->doIsVariadic(); } \
-	virtual gapi_bool G_API_CC checkParam(const GVarData * param, uint32_t paramIndex) { return this->doCheckParam(param, paramIndex); } \
+	virtual gapi_bool G_API_CC checkParam(const GVariantData * param, uint32_t paramIndex) { return this->doCheckParam(param, paramIndex); } \
 	virtual gapi_bool G_API_CC isParamTransferOwnership(uint32_t paramIndex) { return this->doIsParamTransferOwnership(paramIndex); } \
 	virtual gapi_bool G_API_CC isResultTransferOwnership() { return this->doIsResultTransferOwnership(); } \
 	virtual IMetaConverter * G_API_CC createResultConverter() { return this->doCreateResultConverter(); }
@@ -77,8 +77,8 @@ protected: \
 protected: \
 	virtual gapi_bool G_API_CC canGet() { return this->doCanGet(); } \
 	virtual gapi_bool G_API_CC canSet() { return this->doCanSet(); } \
-	virtual void G_API_CC get(void * instance, GVarData * outValue) { this->doGet(instance, outValue); } \
-	virtual void G_API_CC set(void * instance, const GVarData * value) { this->doSet(instance, value); } \
+	virtual void G_API_CC get(void * instance, GVariantData * outValue) { this->doGet(instance, outValue); } \
+	virtual void G_API_CC set(void * instance, const GVariantData * value) { this->doSet(instance, value); } \
 	virtual uint32_t G_API_CC getSize() { return this->doGetSize(); } \
 	virtual IMetaConverter * G_API_CC createConverter() { return this->doCreateConverter(); }
 
@@ -214,7 +214,7 @@ protected:
 	gapi_bool doHasResult();
 	void doGetResultType(GMetaTypeData * outType);
 	gapi_bool doIsVariadic();
-	gapi_bool doCheckParam(const GVarData * param, uint32_t paramIndex);
+	gapi_bool doCheckParam(const GVariantData * param, uint32_t paramIndex);
 	gapi_bool doIsParamTransferOwnership(uint32_t paramIndex);
 	gapi_bool doIsResultTransferOwnership();
 	IMetaConverter * doCreateResultConverter();
@@ -236,8 +236,8 @@ public:
 protected:
 	gapi_bool doCanGet();
 	gapi_bool doCanSet();
-	void doGet(void * instance, GVarData * outValue);
-	void doSet(void * instance, const GVarData * value);
+	void doGet(void * instance, GVariantData * outValue);
+	void doSet(void * instance, const GVariantData * value);
 	uint32_t doGetSize();
 	IMetaConverter * doCreateConverter();
 
@@ -303,9 +303,9 @@ public:
 	IMPL_CALLABLE
 
 protected:
-	virtual void G_API_CC execute(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount);
-	virtual void G_API_CC invoke(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount);
-	virtual void G_API_CC invokeIndirectly(GVarData * outResult, void * instance, GVarData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount);
+	virtual void G_API_CC invoke(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount);
 
 private:
 	const GMetaMethod * getMethod() const {
@@ -327,9 +327,9 @@ public:
 	ImplMetaConstructor(const GMetaConstructor * constructor);
 
 protected:
-	virtual void G_API_CC execute(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount);
-	virtual void * G_API_CC invoke(const GVarData * params, uint32_t paramCount);
-	virtual void * G_API_CC invokeIndirectly(GVarData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount);
+	virtual void * G_API_CC invoke(const GVariantData * params, uint32_t paramCount);
+	virtual void * G_API_CC invokeIndirectly(GVariantData const * const * params, uint32_t paramCount);
 
 private:
 	const GMetaConstructor * getConstructor() const {
@@ -353,11 +353,11 @@ public:
 
 protected:
 	virtual int32_t G_API_CC getOperator();
-	virtual void G_API_CC execute(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount);
-	virtual void G_API_CC invokeUnary(GVarData * outResult, const GVarData * p0);
-	virtual void G_API_CC invokeBinary(GVarData * outResult, const GVarData * p0, const GVarData * p1);
-	virtual void G_API_CC invokeFunctor(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount);
-	virtual void G_API_CC invokeFunctorIndirectly(GVarData * outResult, void * instance, GVarData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeUnary(GVariantData * outResult, const GVariantData * p0);
+	virtual void G_API_CC invokeBinary(GVariantData * outResult, const GVariantData * p0, const GVariantData * p1);
+	virtual void G_API_CC invokeFunctor(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeFunctorIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount);
 
 private:
 	const GMetaOperator * getOperatorItem() const {
@@ -379,7 +379,7 @@ public:
 	ImplMetaFundamental(const GMetaFundamental * fundamental);
 
 protected:
-	virtual void G_API_CC getValue(void * instance, GVarData * outValue);
+	virtual void G_API_CC getValue(void * instance, GVariantData * outValue);
 
 private:
 	const GMetaFundamental * getFundamental() const {
@@ -402,7 +402,7 @@ public:
 protected:
 	virtual uint32_t G_API_CC getCount();
 	virtual const char * G_API_CC getKey(uint32_t index);
-	virtual void G_API_CC getValue(uint32_t index, GVarData * outValue);
+	virtual void G_API_CC getValue(uint32_t index, GVariantData * outValue);
 	virtual int32_t G_API_CC findKey(const char * key);
 
 private:
@@ -424,7 +424,7 @@ public:
 	IMPL_BASEOBJECT
 
 protected:
-	virtual void G_API_CC getVariant(GVarData * outVariant);
+	virtual void G_API_CC getVariant(GVariantData * outVariant);
 	virtual gapi_bool G_API_CC canToString();
 	virtual gapi_bool G_API_CC canToWideString();
 	virtual gapi_bool G_API_CC canToInt();
@@ -903,7 +903,7 @@ gapi_bool ImplMetaCallable::doIsVariadic()
 	LEAVE_META_API(return false)
 }
 
-gapi_bool ImplMetaCallable::doCheckParam(const GVarData * param, uint32_t paramIndex)
+gapi_bool ImplMetaCallable::doCheckParam(const GVariantData * param, uint32_t paramIndex)
 {
 	ENTER_META_API()
 
@@ -963,7 +963,7 @@ gapi_bool ImplMetaAccessible::doCanSet()
 	LEAVE_META_API(return false)
 }
 
-void ImplMetaAccessible::doGet(void * instance, GVarData * outValue)
+void ImplMetaAccessible::doGet(void * instance, GVariantData * outValue)
 {
 	ENTER_META_API()
 	
@@ -974,7 +974,7 @@ void ImplMetaAccessible::doGet(void * instance, GVarData * outValue)
 	LEAVE_META_API()
 }
 
-void ImplMetaAccessible::doSet(void * instance, const GVarData * value)
+void ImplMetaAccessible::doSet(void * instance, const GVariantData * value)
 {
 	ENTER_META_API()
 
@@ -1103,12 +1103,12 @@ ImplMetaMethod::ImplMetaMethod(const GMetaMethod * method)
 {
 }
 
-void G_API_CC ImplMetaMethod::execute(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount)
+void G_API_CC ImplMetaMethod::execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount)
 {
 	this->invoke(outResult, instance, params, paramCount);
 }
 
-void G_API_CC ImplMetaMethod::invoke(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount)
+void G_API_CC ImplMetaMethod::invoke(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount)
 {
 	GASSERT(paramCount <= REF_MAX_ARITY);
 
@@ -1130,7 +1130,7 @@ void G_API_CC ImplMetaMethod::invoke(GVarData * outResult, void * instance, cons
 	LEAVE_META_API()
 }
 
-void G_API_CC ImplMetaMethod::invokeIndirectly(GVarData * outResult, void * instance, GVarData const * const * params, uint32_t paramCount)
+void G_API_CC ImplMetaMethod::invokeIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount)
 {
 	GASSERT(paramCount <= REF_MAX_ARITY);
 
@@ -1159,7 +1159,7 @@ ImplMetaConstructor::ImplMetaConstructor(const GMetaConstructor * constructor)
 {
 }
 
-void G_API_CC ImplMetaConstructor::execute(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount)
+void G_API_CC ImplMetaConstructor::execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount)
 {
 	(void)instance;
 	if(outResult != NULL) {
@@ -1168,7 +1168,7 @@ void G_API_CC ImplMetaConstructor::execute(GVarData * outResult, void * instance
 	}
 }
 
-void * G_API_CC ImplMetaConstructor::invoke(const GVarData * params, uint32_t paramCount)
+void * G_API_CC ImplMetaConstructor::invoke(const GVariantData * params, uint32_t paramCount)
 {
 	GASSERT(paramCount <= REF_MAX_ARITY);
 
@@ -1185,7 +1185,7 @@ void * G_API_CC ImplMetaConstructor::invoke(const GVarData * params, uint32_t pa
 	LEAVE_META_API(return NULL)
 }
 
-void * G_API_CC ImplMetaConstructor::invokeIndirectly(GVarData const * const * params, uint32_t paramCount)
+void * G_API_CC ImplMetaConstructor::invokeIndirectly(GVariantData const * const * params, uint32_t paramCount)
 {
 	GASSERT(paramCount <= REF_MAX_ARITY);
 
@@ -1218,12 +1218,12 @@ int32_t G_API_CC ImplMetaOperator::getOperator()
 	LEAVE_META_API(return 0)
 }
 
-void G_API_CC ImplMetaOperator::execute(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount)
+void G_API_CC ImplMetaOperator::execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount)
 {
 	this->invokeFunctor(outResult, instance, params, paramCount);
 }
 
-void G_API_CC ImplMetaOperator::invokeUnary(GVarData * outResult, const GVarData * p0)
+void G_API_CC ImplMetaOperator::invokeUnary(GVariantData * outResult, const GVariantData * p0)
 {
 	ENTER_META_API()
 
@@ -1237,7 +1237,7 @@ void G_API_CC ImplMetaOperator::invokeUnary(GVarData * outResult, const GVarData
 	LEAVE_META_API()
 }
 
-void G_API_CC ImplMetaOperator::invokeBinary(GVarData * outResult, const GVarData * p0, const GVarData * p1)
+void G_API_CC ImplMetaOperator::invokeBinary(GVariantData * outResult, const GVariantData * p0, const GVariantData * p1)
 {
 	ENTER_META_API()
 
@@ -1251,7 +1251,7 @@ void G_API_CC ImplMetaOperator::invokeBinary(GVarData * outResult, const GVarDat
 	LEAVE_META_API()
 }
 
-void G_API_CC ImplMetaOperator::invokeFunctor(GVarData * outResult, void * instance, const GVarData * params, uint32_t paramCount)
+void G_API_CC ImplMetaOperator::invokeFunctor(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount)
 {
 	GASSERT(paramCount <= REF_MAX_ARITY);
 
@@ -1273,7 +1273,7 @@ void G_API_CC ImplMetaOperator::invokeFunctor(GVarData * outResult, void * insta
 	LEAVE_META_API()
 }
 
-void G_API_CC ImplMetaOperator::invokeFunctorIndirectly(GVarData * outResult, void * instance, GVarData const * const * params, uint32_t paramCount)
+void G_API_CC ImplMetaOperator::invokeFunctorIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount)
 {
 	GASSERT(paramCount <= REF_MAX_ARITY);
 
@@ -1302,7 +1302,7 @@ ImplMetaFundamental::ImplMetaFundamental(const GMetaFundamental * fundamental)
 {
 }
 
-void G_API_CC ImplMetaFundamental::getValue(void * instance, GVarData * outValue)
+void G_API_CC ImplMetaFundamental::getValue(void * instance, GVariantData * outValue)
 {
 	ENTER_META_API()
 
@@ -1337,7 +1337,7 @@ const char * G_API_CC ImplMetaEnum::getKey(uint32_t index)
 	LEAVE_META_API(return NULL)
 }
 
-void G_API_CC ImplMetaEnum::getValue(uint32_t index, GVarData * outValue)
+void G_API_CC ImplMetaEnum::getValue(uint32_t index, GVariantData * outValue)
 {
 	ENTER_META_API()
 
@@ -1363,7 +1363,7 @@ ImplMetaAnnotationValue::ImplMetaAnnotationValue(const GAnnotationValue * value)
 {
 }
 
-void G_API_CC ImplMetaAnnotationValue::getVariant(GVarData * outVariant)
+void G_API_CC ImplMetaAnnotationValue::getVariant(GVariantData * outVariant)
 {
 	ENTER_META_API()
 

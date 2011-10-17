@@ -119,7 +119,7 @@ inline bool vtIsVoidPointer(int vt) {
 
 #pragma pack(push, 1)
 #pragma pack(1)
-struct GVarData
+struct GVariantData
 {
 	GVarTypeData typeData;
 
@@ -181,7 +181,7 @@ class GMetaVariant;
 
 class GVariant
 {
-//	GASSERT_STATIC(sizeof(GVarData) == 16);
+//	GASSERT_STATIC(sizeof(GVariantData) == 16);
 
 public:
 	GVariant() {
@@ -191,7 +191,7 @@ public:
 		data.holder.c = 0;
 	}
 
-	GVariant(const GVarData & data) : data(data) {
+	GVariant(const GVariantData & data) : data(data) {
 		if(vtGetSize(this->data.typeData) != variant_internal::getVariantTypeSize(static_cast<GVariantType>(vtGetType(this->data.typeData)))) {
 			variant_internal::adjustVariantType(this);
 		}
@@ -254,12 +254,12 @@ public:
 		return vtIsEmpty(this->getType());
 	}
 
-	GVarData getData() const {
+	GVariantData getData() const {
 		return this->data;
 	}
 
-	GVarData takeData() {
-		GVarData result = this->data;
+	GVariantData takeData() {
+		GVariantData result = this->data;
 
 		vtInit(this->data.typeData);
 
@@ -267,7 +267,7 @@ public:
 	}
 
 public:
-	GVarData data;
+	GVariantData data;
 
 private:
 	GVariant(const GMetaVariant &); //disable
@@ -1231,7 +1231,7 @@ inline void * referenceAddressFromVariant(const GVariant & v)
 	}
 }
 
-inline void initializeVarData(GVarData * data)
+inline void initializeVarData(GVariantData * data)
 {
 	vtInit(data->typeData);
 }

@@ -19,8 +19,8 @@ enum ObjectPointerCV {
 ObjectPointerCV metaTypeToCV(const GMetaType & type);
 void cvToFilters(ObjectPointerCV cv, GFlags<GMetaFilters> * filters);
 
-int rankCallable(IMetaCallable * callable, GVarData * paramsData, GScriptDataType * paramsType, size_t paramCount);
-bool checkCallable(IMetaCallable * callable, GVarData * paramsData, size_t paramCount);
+int rankCallable(IMetaCallable * callable, GVariantData * paramsData, GScriptDataType * paramsType, size_t paramCount);
+bool checkCallable(IMetaCallable * callable, GVariantData * paramsData, size_t paramCount);
 
 IMetaAccessible * findAccessible(IMetaClass * metaClass, const char * name, bool checkGet, bool checkSet, void ** instance);
 

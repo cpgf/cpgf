@@ -59,12 +59,12 @@ struct IScriptObject : public IBaseObject
 	virtual void G_API_CC invoke(IScriptName * name, GMetaVarData * outResult, const GMetaVarData * params, uint32_t paramCount) = 0;
 	virtual void G_API_CC invokeIndirectly(IScriptName * name, GMetaVarData * outResult, GMetaVarData const * const * params, uint32_t paramCount) = 0;
 
-	virtual void G_API_CC setFundamental(IScriptName * name, const GVarData * value) = 0;
+	virtual void G_API_CC setFundamental(IScriptName * name, const GVariantData * value) = 0;
 	virtual void G_API_CC setString(IScriptName * stringName, const char * s) = 0;
 	virtual void G_API_CC setObject(IScriptName * objectName, void * instance, IMetaClass * type, gapi_bool transferOwnership) = 0;
 	virtual void G_API_CC setMethod(IScriptName * name, void * instance, IMetaMethod * method) = 0;
 	
-	virtual void G_API_CC getFundamental(IScriptName * name, GVarData * outResult) = 0;
+	virtual void G_API_CC getFundamental(IScriptName * name, GVariantData * outResult) = 0;
 	virtual char * G_API_CC getString(IScriptName * stringName) = 0;
 	
 	virtual void * G_API_CC getObject(IScriptName * objectName) = 0;

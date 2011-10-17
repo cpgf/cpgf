@@ -10,7 +10,7 @@ namespace cpgf {
 #pragma pack(1)
 struct GMetaVarData
 {
-	GVarData varData;
+	GVariantData varData;
 	GMetaTypeData typeData;
 };
 #pragma pack(pop)
