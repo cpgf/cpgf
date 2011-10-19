@@ -504,6 +504,15 @@ class GMetaItemListImplement;
 
 
 
+enum GMetaFilters {
+	metaFilterIgnoreInstance = 1 << 0,
+	metaFilterIgnoreStatic = 1 << 1,
+
+	metaFilterConstMethod = 1 << 2,
+	metaFilterVolatileMethod = 1 << 3,
+	metaFilterConstVolatileMethod = 1 << 4,
+};
+
 class GMetaClassImplement;
 
 class GMetaClass : public GMetaTypedItem

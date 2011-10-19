@@ -196,11 +196,11 @@ public:
 	}
 
 	virtual bool isParamTransferOwnership(size_t paramIndex) const {
-		return hasIndexedPolicy<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
+		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
 
 	virtual bool isResultTransferOwnership() const {
-		return hasIndexedPolicy<Policy, GMetaRuleTransferOwnership>(-1);
+		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
 	virtual GMetaConverter * createResultConverter() const {

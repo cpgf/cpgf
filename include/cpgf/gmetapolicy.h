@@ -9,6 +9,8 @@
 
 namespace cpgf {
 
+const int metaPolicyResultIndex = -1;
+
 
 // used by field and property
 struct GMetaRuleForbidRead {};
@@ -75,13 +77,13 @@ typedef MakePolicy<
 
 
 typedef MakePolicy<
-		GMetaRuleTransferOwnership<-1>
+		GMetaRuleTransferOwnership <metaPolicyResultIndex>
 	>
 	GMetaPolicyTransferResultOwnership;
 
 
 typedef MakePolicy<
-		GMetaRuleKeepConstReference<-1>,
+		GMetaRuleKeepConstReference <metaPolicyResultIndex>,
 		GPP_REPEAT(REF_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaRuleKeepConstReference)
 	>
 	GMetaPolicyKeepAllConstReference;

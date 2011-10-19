@@ -34,7 +34,7 @@ struct PolicyNotHasRule
 };
 
 template <typename Policy, template <int> class IndexedPolicyItem>
-bool hasIndexedPolicy(int index)
+bool policyHasIndexedRule(int index)
 {
 	switch(index) {
 		case -1:

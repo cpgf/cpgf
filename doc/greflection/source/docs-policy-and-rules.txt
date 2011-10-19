@@ -1,0 +1,27 @@
+url: docs-cpgf-policy-and-rule
+
+<h1>Policies and Rules -- customize the underlying behavior at compile time</h1>
+
+<{autotoc}>
+
+<{sgroup}>What's policy and rule
+
+<{sh}> Get start
+<{sc}>
+
+<{autobr}>
+Policy is a kind of data type that passed to the library.
+Then the library will recognize the policy and change the default behavior upon the policy.
+
+Policy is composed by rules.
+One rule is just a data type (a struct).
+Rules are recognized by the library.
+One rule will change one aspect of the default behavior.
+<{/autobr}>
+
+
+
+
+
+
+<{/autotoc}>

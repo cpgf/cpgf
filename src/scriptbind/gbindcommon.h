@@ -3,6 +3,7 @@
 
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/gflags.h"
+#include "cpgf/gmetaclass.h"
 
 
 namespace cpgf {
