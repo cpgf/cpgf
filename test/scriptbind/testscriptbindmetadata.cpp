@@ -7,22 +7,40 @@
 
 namespace testscript {
 
-void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
+void bindClass(cpgf::GScriptObject * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
 {
 	using namespace cpgf;
+	
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(metaName));
+	GCHECK(metaClass);
+	
+	script->bindClass(bindName, metaClass.get());
+}
 
-	GScopedInterface<IMetaClass> metaClass;
+
+void bindClass(cpgf::IScriptObject * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
+{
+	using namespace cpgf;
 	
-	metaClass.reset(service->findClassByName("testscript::TestObject"));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(metaName));
 	GCHECK(metaClass);
 	
-	script->bindClass("TestObject", metaClass.get());
-	
-	metaClass.reset(service->findClassByName("testscript::TestData"));
-	GCHECK(metaClass);
-	
-	script->bindClass("TestData", metaClass.get());
-	
+	GScopedInterface<IScriptName> scriptName;
+
+	scriptName.reset(script->createName(bindName));
+	script->bindClass(scriptName.get(), metaClass.get());
+}
+
+
+void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
+{
+	bindClass(script, service, "testscript::TestObject", "TestObject");
+	bindClass(script, service, "testscript::TestData", "TestData");
+	bindClass(script, service, "testscript::TestBase", "TestBase");
+	bindClass(script, service, "testscript::TestA", "TestA");
+	bindClass(script, service, "testscript::TestB", "TestB");
+	bindClass(script, service, "testscript::TestC", "TestC");
+
 	script->setFundamental("Magic1", Magic1);
 	script->setFundamental("Magic2", Magic2);
 	script->setFundamental("Magic3", Magic3);
@@ -33,21 +51,14 @@ void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
 {
 	using namespace cpgf;
 
-	GScopedInterface<IMetaClass> metaClass;
-	
-	metaClass.reset(service->findClassByName("testscript::TestObject"));
-	GCHECK(metaClass);
-	
+	bindClass(script, service, "testscript::TestObject", "TestObject");
+	bindClass(script, service, "testscript::TestData", "TestData");
+	bindClass(script, service, "testscript::TestBase", "TestBase");
+	bindClass(script, service, "testscript::TestA", "TestA");
+	bindClass(script, service, "testscript::TestB", "TestB");
+	bindClass(script, service, "testscript::TestC", "TestC");
+
 	GScopedInterface<IScriptName> scriptName;
-
-	scriptName.reset(script->createName("TestObject"));
-	script->bindClass(scriptName.get(), metaClass.get());
-	
-	metaClass.reset(service->findClassByName("testscript::TestData"));
-	GCHECK(metaClass);
-
-	scriptName.reset(script->createName("TestData"));
-	script->bindClass(scriptName.get(), metaClass.get());
 
 	GVariant v;
 
@@ -70,6 +81,30 @@ GMETA_DEFINE_CLASS(TestData, TestData, "testscript::TestData") {
 
 	GMETA_FIELD(x);
 	GMETA_FIELD(name);
+}
+
+GMETA_DEFINE_CLASS(TestBase, TestBase, "testscript::TestBase") {
+	using namespace cpgf;
+
+	GMETA_METHOD(getValue);
+}
+
+GMETA_DEFINE_CLASS(TestA, TestA, "testscript::TestA", TestBase) {
+	using namespace cpgf;
+
+	GMETA_METHOD(getValue);
+}
+
+GMETA_DEFINE_CLASS(TestB, TestB, "testscript::TestB", TestBase) {
+	using namespace cpgf;
+
+	GMETA_METHOD(getValue);
+}
+
+GMETA_DEFINE_CLASS(TestC, TestC, "testscript::TestC", TestB) {
+	using namespace cpgf;
+
+	GMETA_METHOD(getValue);
 }
 
 GMETA_DEFINE_CLASS(TestObject, TestObject, "testscript::TestObject") {
@@ -103,6 +138,11 @@ GMETA_DEFINE_CLASS(TestObject, TestObject, "testscript::TestObject") {
 	reflectMethod("methodOverload", (int (TestObject::*)(int, const char *) const)&TestObject::methodOverload);
 	reflectMethod("methodOverload", (int (TestObject::*)(const string &, int) const)&TestObject::methodOverload);
 	reflectMethod("methodOverload", (int (TestObject::*)(int, const string &) const)&TestObject::methodOverload);
+
+	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestBase *) const)&TestObject::methodOverloadObject);
+	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestA *) const)&TestObject::methodOverloadObject);
+	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestB *) const)&TestObject::methodOverloadObject);
+	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestC *) const)&TestObject::methodOverloadObject);
 }
 
 

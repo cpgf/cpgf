@@ -454,8 +454,12 @@ namespace {
 		return false;
 	}
 	
-	GScriptDataType getLuaType(lua_State * L, int index)
+	GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 	{
+		if(typeItem != NULL) {
+			*typeItem = NULL;
+		}
+		
 		switch(lua_type(L, index)) {
 			case LUA_TNIL:
 				return sdtNull;
@@ -473,6 +477,11 @@ namespace {
 					GLuaUserData * userData = static_cast<GLuaUserData *>(rawUserData);
 					switch(userData->getType()) {
 					case udtClass:
+						if(typeItem != NULL) {
+							*typeItem = static_cast<GClassUserData *>(userData)->metaClass;
+							(*typeItem)->addReference();
+						}
+
 						if(static_cast<GClassUserData *>(userData)->isInstance) {
 							return sdtObject;
 						}
@@ -485,6 +494,10 @@ namespace {
 						return sdtMethod;
 
 					case udtEnum:
+						if(typeItem != NULL) {
+							*typeItem = static_cast<GEnumUserData *>(userData)->metaEnum;
+							(*typeItem)->addReference();
+						}
 						return sdtEnum;
 
 					default:
@@ -511,10 +524,12 @@ namespace {
 		}
 	}
 
-	void loadMethodParamTypes(lua_State * L, GScriptDataType * outputTypes, size_t startIndex, size_t paramCount)
+	void loadMethodParamTypes(lua_State * L, GBindDataType * outputTypes, size_t startIndex, size_t paramCount)
 	{
 		for(size_t i = 0; i < paramCount; ++i) {
-			outputTypes[i] = getLuaType(L, i + startIndex);
+			IMetaTypedItem * typeItem;
+			outputTypes[i].dataType = getLuaType(L, i + startIndex, &typeItem);
+			outputTypes[i].typeItem.reset(typeItem);
 		}
 	}
 
@@ -592,7 +607,7 @@ namespace {
 		GVariantData paramsData[REF_MAX_ARITY];
 		loadMethodParameters(L, userData->getParam(), paramsData, 1, lua_gettop(L));
 		
-		GScriptDataType paramsType[REF_MAX_ARITY];
+		GBindDataType paramsType[REF_MAX_ARITY];
 		loadMethodParamTypes(L, paramsType, 1, lua_gettop(L));
 		
 		for(size_t i = 0; i < methodCount; ++i) {
@@ -600,7 +615,7 @@ namespace {
 
 			methodName = method->getName();
 		
-			int rank = rankCallable(method.get(), paramsData, paramsType, lua_gettop(L));
+			int rank = rankCallable(userData->getParam()->getService(), method.get(), paramsData, paramsType, lua_gettop(L));
 			if(rank > maxRank) {
 				maxRank = rank;
 				maxRankIndex = i;
@@ -644,12 +659,12 @@ namespace {
 			GVariantData paramsData[REF_MAX_ARITY];
 			loadMethodParameters(L, param, paramsData, 2, paramCount);
 
-			GScriptDataType paramsType[REF_MAX_ARITY];
+			GBindDataType paramsType[REF_MAX_ARITY];
 			loadMethodParamTypes(L, paramsType, 2, paramCount);
 		
 			for(size_t i = 0; i < count; ++i) {
 				GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(i));
-				int rank = rankCallable(constructor.get(), paramsData, paramsType, paramCount);
+				int rank = rankCallable(param->getService(), constructor.get(), paramsData, paramsType, paramCount);
 				if(rank > maxRank) {
 					maxRank = rank;
 					maxRankIndex = i;
@@ -691,13 +706,13 @@ namespace {
 		GVariantData paramsData[REF_MAX_ARITY];
 		loadMethodParameters(L, param, paramsData, startIndex, paramCount);
 		
-		GScriptDataType paramsType[REF_MAX_ARITY];
+		GBindDataType paramsType[REF_MAX_ARITY];
 		loadMethodParamTypes(L, paramsType, startIndex, paramCount);
 
 		for(size_t i = 0; i < count; ++i) {
 			GScopedInterface<IMetaOperator> metaOperator(metaClass->getOperatorAt(i));
 			if(op == metaOperator->getOperator()) {
-				int rank = rankCallable(metaOperator.get(), paramsData, paramsType, paramCount);
+				int rank = rankCallable(param->getService(), metaOperator.get(), paramsData, paramsType, paramCount);
 				if(rank > maxRank) {
 					maxRank = rank;
 					maxRankIndex = i;
@@ -1297,7 +1312,7 @@ GScriptDataType GLuaScriptObject::getType(const GScriptName & name)
 	
 	scopeGuard.get(name);
 
-	return getLuaType(this->implement->luaState, -1);
+	return getLuaType(this->implement->luaState, -1, NULL);
 	
 	LEAVE_LUA(this->implement->luaState, return sdtUnknown)
 }

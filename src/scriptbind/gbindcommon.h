@@ -16,11 +16,17 @@ enum ObjectPointerCV {
 	opcvConstVolatile,
 };
 
+struct GBindDataType
+{
+	GScriptDataType dataType;
+	GScopedInterface<IMetaTypedItem> typeItem;
+};
+
 
 ObjectPointerCV metaTypeToCV(const GMetaType & type);
 void cvToFilters(ObjectPointerCV cv, GFlags<GMetaFilters> * filters);
 
-int rankCallable(IMetaCallable * callable, GVariantData * paramsData, GScriptDataType * paramsType, size_t paramCount);
+int rankCallable(IMetaService * service, IMetaCallable * callable, GVariantData * paramsData, GBindDataType * paramsType, size_t paramCount);
 bool checkCallable(IMetaCallable * callable, GVariantData * paramsData, size_t paramCount);
 
 IMetaAccessible * findAccessible(IMetaClass * metaClass, const char * name, bool checkGet, bool checkSet, void ** instance);

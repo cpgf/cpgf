@@ -24,6 +24,41 @@ struct TestData
 	std::string name;
 };
 
+class TestBase
+{
+public:
+	virtual int getValue() const {
+		return Magic1;
+	}
+};
+
+class TestA : public TestBase
+{
+public:
+	virtual int getValue() const {
+		return Magic2;
+	}
+};
+
+class TestB : public TestBase
+{
+public:
+	virtual int getValue() const {
+		return Magic3;
+	}
+};
+
+class TestC : public TestB
+{
+public:
+	virtual int getValue() const {
+		return Magic1 + Magic2;
+	}
+};
+
+
+
+
 class TestObject
 {
 public:
@@ -114,6 +149,22 @@ public:
 	
 	int methodOverload(int n, const std::string & s) const {
 		return s.length() * n + 1;
+	}
+	
+	int methodOverloadObject(const TestBase * obj) const {
+		return TestBase().getValue();
+	}
+	
+	int methodOverloadObject(const TestA * obj) const {
+		return TestA().getValue();
+	}
+	
+	int methodOverloadObject(const TestB * obj) const {
+		return TestB().getValue();
+	}
+	
+	int methodOverloadObject(const TestC * obj) const {
+		return TestC().getValue();
 	}
 	
 public:

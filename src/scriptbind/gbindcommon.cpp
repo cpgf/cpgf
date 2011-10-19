@@ -51,7 +51,7 @@ void cvToFilters(ObjectPointerCV cv, GFlags<GMetaFilters> * filters)
 	}
 }
 
-int rankCallable(IMetaCallable * callable, GVariantData * paramsData, GScriptDataType * paramsType, size_t paramCount)
+int rankCallable(IMetaService * service, IMetaCallable * callable, GVariantData * paramsData, GBindDataType * paramsType, size_t paramCount)
 {
 	if(!! callable->isVariadic()) {
 		return 0;
@@ -62,24 +62,58 @@ int rankCallable(IMetaCallable * callable, GVariantData * paramsData, GScriptDat
 	}
 
 	for(size_t i = 0; i < paramCount; ++i) {
-		if(!callable->checkParam(&paramsData[i], i)) {
+		if(! callable->checkParam(&paramsData[i], i)) {
 			return -1;
 		}
 	}
 
-	int rank = static_cast<int>(paramCount) + 1;
+	int rank = 1;
+	
+	const int RankEqual = 10;
+	const int RankConvert = 5;
 
 	for(size_t i = 0; i < paramCount; ++i) {
 		GMetaType proto = metaGetParamType(callable, i);
-		GScriptDataType sdt = paramsType[i];
+		GScriptDataType sdt = paramsType[i].dataType;
+		
 		if(sdt == sdtNull) {
-			continue;
-		}
-		if(proto.isFundamental() && sdt == sdtFundamental) {
+			rank += RankEqual;
 			continue;
 		}
 		
-		--rank;
+		if(proto.isFundamental() && sdt == sdtFundamental) {
+			rank += RankEqual;
+			continue;
+		}
+
+		if(proto.getPointerDimension() > 1) {
+			continue;
+		}
+
+		if(! paramsType[i].typeItem) {
+			continue;
+		}
+
+		if(metaIsClass(paramsType[i].typeItem->getCategory())) {
+			GScopedInterface<IMetaTypedItem> protoType(service->findTypedItemByName(proto.getBaseName()));
+			if(! protoType || ! metaIsClass(protoType->getCategory())) {
+				continue;
+			}
+
+			IMetaClass * paramClass = static_cast<IMetaClass *>(paramsType[i].typeItem.get());
+			IMetaClass * protoClass = static_cast<IMetaClass *>(protoType.get());
+
+			if(paramClass->equals(protoClass)) {
+				rank += RankEqual;
+			}
+			else {
+				if(paramClass->isInheritedFrom(protoClass)) {
+					rank += RankConvert;
+				}
+			}
+			
+			continue;
+		}
 	}
 
 	return rank;

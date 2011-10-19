@@ -207,7 +207,6 @@ struct IMetaModule : public IBaseObject
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name) = 0;
 	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt) = 0;
 	virtual IMetaClass * G_API_CC findClassByName(const char * name) = 0;
-	virtual IMetaClass * G_API_CC findClassByType(const GMetaTypeData * type) = 0;
 };
 
 
@@ -224,7 +223,6 @@ struct IMetaService : public IBaseObject
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name) = 0;
 	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt) = 0;
 	virtual IMetaClass * G_API_CC findClassByName(const char * name) = 0;
-	virtual IMetaClass * G_API_CC findClassByType(const GMetaTypeData * type) = 0;
 };
 
 

@@ -76,7 +76,7 @@ set(SRC_META
 	${SRC_PATH}/gapi.cpp
 	${SRC_PATH}/gexception.cpp
 	${SRC_PATH}/gmetaannotation.cpp
-	${SRC_PATH}/gmetaapiservice.cpp
+	${SRC_PATH}/gmetaapi.cpp
 	${SRC_PATH}/gmetaclass.cpp
 	${SRC_PATH}/gmetacommon.cpp
 	${SRC_PATH}/gmetaconverter.cpp

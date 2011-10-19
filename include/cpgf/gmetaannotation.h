@@ -246,15 +246,8 @@ private:
 GMetaAnnotation & globaAddAnnotation(GMetaAnnotation * annotation);
 void globalFlushAnnotation();
 
-inline cpgf::GMetaAnnotation & reflectAnnotation(const char * name)
-{
-	return globaAddAnnotation(new cpgf::GMetaAnnotation(name));
-};
-
-inline void flushAnnotation()
-{
-	globalFlushAnnotation();
-}
+GMetaAnnotation & reflectAnnotation(const char * name);
+void flushAnnotation();
 
 
 } // namespace cpgf

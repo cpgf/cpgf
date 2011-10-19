@@ -58,6 +58,20 @@ void GMetaType::addPointer()
 	vtSetType(this->typeData, vtGetType(this->typeData) | byPointer);
 }
 
+GMetaType createMetaTypeWithName(const GMetaType & type, const char * name)
+{
+	GMetaTypeData data = type.getData();
+	data.baseName = name;
+	return GMetaType(data, type.getBaseType());
+}
+
+void initializeMetaType(GMetaTypeData * data)
+{
+	vtInit(data->typeData);
+	data->flags = 0;
+	data->baseName = NULL;
+}
+
 void fixupMetaType(GMetaType * type)
 {
 	if(type->baseName == NULL) {

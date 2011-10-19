@@ -28,5 +28,26 @@ GTEST(Method_Overload)
 }
 
 
+GTEST(Method_OverloadObject)
+{
+	TestLuaContext * context = getLuaContext();
+
+	context->doString(""
+		LINE(a = TestObject())
+		LINE(assert(a.methodOverloadObject(TestBase()) == Magic1))
+		
+		LINE(a = TestObject())
+		LINE(assert(a.methodOverloadObject(TestA()) == Magic2))
+		
+		LINE(a = TestObject())
+		LINE(assert(a.methodOverloadObject(TestB()) == Magic3))
+		
+		LINE(a = TestObject())
+		LINE(assert(a.methodOverloadObject(TestC()) == Magic1 + Magic2))
+		
+	);
+}
+
+
 
 }

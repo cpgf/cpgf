@@ -224,6 +224,15 @@ void GMetaAnnotation::setMetaItem(const GMetaItem * metaItem)
 }
 
 
+GMetaAnnotation & reflectAnnotation(const char * name)
+{
+	return globaAddAnnotation(new GMetaAnnotation(name));
+};
+
+void flushAnnotation()
+{
+	globalFlushAnnotation();
+}
 
 
 } // namespace cpgf

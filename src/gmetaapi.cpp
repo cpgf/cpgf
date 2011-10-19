@@ -549,7 +549,6 @@ protected:
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name);
 	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt);
 	virtual IMetaClass * G_API_CC findClassByName(const char * name);
-	virtual IMetaClass * G_API_CC findClassByType(const GMetaTypeData * type);
 };
 
 
@@ -577,7 +576,6 @@ protected:
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name);
 	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt);
 	virtual IMetaClass * G_API_CC findClassByName(const char * name);
-	virtual IMetaClass * G_API_CC findClassByType(const GMetaTypeData * type);
 
 private:
 	void clear();
@@ -1904,15 +1902,6 @@ IMetaClass * G_API_CC ImplMetaModule::findClassByName(const char * name)
 	LEAVE_META_API(return NULL)
 }
 
-IMetaClass * G_API_CC ImplMetaModule::findClassByType(const GMetaTypeData * type)
-{
-	ENTER_META_API()
-
-	return doCreateItem<ImplMetaClass>(findMetaClass(GMetaType(*type)));
-
-	LEAVE_META_API(return NULL)
-}
-
 
 
 ImplMetaService::ImplMetaService()
@@ -1971,6 +1960,10 @@ IMetaTypedItem * G_API_CC ImplMetaService::findTypedItemByName(const char * name
 {
 	ENTER_META_API()
 
+	if(name == NULL) {
+		return NULL;
+	}
+
 	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
 		GScopedInterface<IMetaTypedItem> item((*it)->findTypedItemByName(name));
 		if(item) {
@@ -2005,24 +1998,12 @@ IMetaClass * G_API_CC ImplMetaService::findClassByName(const char * name)
 {
 	ENTER_META_API()
 
-	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
-		GScopedInterface<IMetaClass> item((*it)->findClassByName(name));
-		if(item) {
-			return item.take();
-		}
+	if(name == NULL) {
+		return NULL;
 	}
 
-	return NULL;
-
-	LEAVE_META_API(return NULL)
-}
-
-IMetaClass * G_API_CC ImplMetaService::findClassByType(const GMetaTypeData * type)
-{
-	ENTER_META_API()
-
 	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
-		GScopedInterface<IMetaClass> item((*it)->findClassByType(type));
+		GScopedInterface<IMetaClass> item((*it)->findClassByName(name));
 		if(item) {
 			return item.take();
 		}

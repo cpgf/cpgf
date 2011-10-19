@@ -314,19 +314,9 @@ GMetaType createMetaType()
 	return GMetaType(data, meta_internal::GMetaTypeDeduce<T>::getBaseType());
 }
 
-inline GMetaType createMetaTypeWithName(const GMetaType & type, const char * name)
-{
-	GMetaTypeData data = type.getData();
-	data.baseName = name;
-	return GMetaType(data, type.getBaseType());
-}
+GMetaType createMetaTypeWithName(const GMetaType & type, const char * name);
 
-inline void initializeMetaType(GMetaTypeData * data)
-{
-	vtInit(data->typeData);
-	data->flags = 0;
-	data->baseName = NULL;
-}
+void initializeMetaType(GMetaTypeData * data);
 
 void fixupMetaType(GMetaType * type);
 

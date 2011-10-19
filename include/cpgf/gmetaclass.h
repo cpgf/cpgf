@@ -738,10 +738,7 @@ inline const GMetaClass * findMetaClass()
 }
 
 
-inline void reflectClass(const GMetaClass * metaClass)
-{
-	getGlobalMetaClass()->addClass(metaClass);
-}
+void reflectClass(const GMetaClass * metaClass);
 
 
 } // namespace cpgf

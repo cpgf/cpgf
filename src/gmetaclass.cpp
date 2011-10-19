@@ -832,5 +832,11 @@ void globalFlushAnnotation()
 	getGlobalMetaClass()->flushAnnotation();
 }
 
+void reflectClass(const GMetaClass * metaClass)
+{
+	getGlobalMetaClass()->addClass(metaClass);
+}
+
+
 
 } // namespace cpgf

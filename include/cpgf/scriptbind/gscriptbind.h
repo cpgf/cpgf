@@ -14,6 +14,17 @@
 namespace cpgf {
 
 
+enum GScriptDataType {
+	sdtUnknown = 0,
+	sdtNull = 1,
+	sdtFundamental = 2, sdtString = 3,
+	sdtClass = 4, sdtObject = 5,
+	sdtMethod = 6, sdtEnum = 7,
+
+	sdtScriptObject = 10, sdtScriptMethod = 11,
+};
+
+
 class GScriptConfig
 {
 private:
