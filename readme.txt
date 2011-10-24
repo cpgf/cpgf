@@ -95,7 +95,7 @@ Contribute to the library:
 	If you like the library and want to contribute to it, here are some most
 	desired work to do
 	1, Help with the documentation. I'm not a native English speaker, and
-		I also don't like to write documentation.
+		I also don't like to write documentation. 
 	2, Test the library on more compilers and platforms.
 
 
