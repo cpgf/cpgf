@@ -12,7 +12,7 @@ namespace cpgf {
 
 struct IMetaAnnotation;
 
-struct IMetaItem : public IBaseObject
+struct IMetaItem : public IExtendObject
 {
 	virtual const char * G_API_CC getName() = 0;
 	virtual const char * G_API_CC getQualifiedName() = 0;
@@ -42,7 +42,7 @@ struct IMetaTypedItem : public IMetaItem
 	virtual void G_API_CC destroyInstance(void * instance) = 0;
 };
 
-struct IMetaList : public IBaseObject
+struct IMetaList : public IExtendObject
 {
 	virtual void G_API_CC add(IMetaItem * item, void * instance) = 0;
 	virtual uint32_t G_API_CC getCount() = 0;
@@ -51,7 +51,7 @@ struct IMetaList : public IBaseObject
 	virtual void G_API_CC clear() = 0;
 };
 
-struct IMetaConverter : public IBaseObject
+struct IMetaConverter : public IExtendObject
 {
 	virtual gapi_bool G_API_CC canToCString() = 0;
 	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree, IMemoryAllocator * allocator) = 0;
@@ -61,7 +61,7 @@ struct IMetaAccessible : public IMetaItem
 {
 	virtual gapi_bool G_API_CC canGet() = 0;
 	virtual gapi_bool G_API_CC canSet() = 0;
-	virtual void G_API_CC get(void * instance, GVariantData * outValue) = 0;
+	virtual void G_API_CC get(GVariantData * outResult, void * instance) = 0;
 	virtual void G_API_CC set(void * instance, const GVariantData * value) = 0;
 	virtual uint32_t G_API_CC getSize() = 0;
 	virtual IMetaConverter * G_API_CC createConverter() = 0;
@@ -78,7 +78,7 @@ struct IMetaProperty : public IMetaAccessible
 
 struct IMetaCallable : public IMetaItem
 {
-	virtual void G_API_CC getParamType(uint32_t index, GMetaTypeData * outType) = 0;
+	virtual void G_API_CC getParamType(GMetaTypeData * outType, uint32_t index) = 0;
 	virtual uint32_t G_API_CC getParamCount() = 0;
 	virtual gapi_bool G_API_CC hasResult() = 0;
 	virtual void G_API_CC getResultType(GMetaTypeData * outType) = 0;
@@ -113,18 +113,18 @@ struct IMetaOperator : public IMetaCallable
 
 struct IMetaFundamental : public IMetaTypedItem
 {
-	virtual void G_API_CC getValue(void * instance, GVariantData * outValue) = 0;
+	virtual void G_API_CC getValue(GVariantData * outResult, void * instance) = 0;
 };
 
 struct IMetaEnum : public IMetaTypedItem
 {
 	virtual uint32_t G_API_CC getCount() = 0;
 	virtual const char * G_API_CC getKey(uint32_t index) = 0;
-	virtual void G_API_CC getValue(uint32_t index, GVariantData * outValue) = 0;
+	virtual void G_API_CC getValue(GVariantData * outResult, uint32_t index) = 0;
 	virtual int32_t G_API_CC findKey(const char * key) = 0;
 };
 
-struct IMetaAnnotationValue : public IBaseObject
+struct IMetaAnnotationValue : public IExtendObject
 {
 	virtual void G_API_CC getVariant(GVariantData * outVariant) = 0;
 	virtual gapi_bool G_API_CC canToString() = 0;
@@ -200,7 +200,7 @@ struct IMetaClass : public IMetaTypedItem
 };
 
 
-struct IMetaModule : public IBaseObject
+struct IMetaModule : public IExtendObject
 {
 	virtual IMetaClass * G_API_CC getGlobalMetaClass() = 0;
 
@@ -210,7 +210,7 @@ struct IMetaModule : public IBaseObject
 };
 
 
-struct IMetaService : public IBaseObject
+struct IMetaService : public IExtendObject
 {
 	virtual void G_API_CC addModule(IMetaModule * module) = 0;
 	virtual uint32_t G_API_CC getModuleCount() = 0;

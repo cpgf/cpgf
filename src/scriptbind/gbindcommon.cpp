@@ -1,4 +1,4 @@
-#include "gbindcommon.h"
+#include "../pinclude/gbindcommon.h"
 
 namespace cpgf {
 

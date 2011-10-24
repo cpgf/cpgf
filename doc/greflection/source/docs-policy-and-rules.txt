@@ -1,27 +1,47 @@
-url: docs-cpgf-policy-and-rule
+<{filename name=docs-cpgf-policy-and-rule }>
 
 <h1>Policies and Rules -- customize the underlying behavior at compile time</h1>
 
 <{autotoc}>
 
-<{sgroup}>What's policy and rule
+<{sgroup}>Policy and rule
 
 <{sh}> Get start
 <{sc}>
 
 <{autobr}>
-Policy is a kind of data type that passed to the library.
-Then the library will recognize the policy and change the default behavior upon the policy.
+Policy is a mechanism to change the default behavior of the library.
 
 Policy is composed by rules.
 One rule is just a data type (a struct).
-Rules are recognized by the library.
+Rules are pre-defined and recognized by the library.
 One rule will change one aspect of the default behavior.
+
+For example, by default a meta class requires the class has a default constructor.
+If the class doesn't has it, compiling will fail if meta class is being built for it.
+However, if feed the meta class with a policy with the rule of GMetaRuleDefaultConstructorAbsent, the library will know there is no default constructor and will succeed the compiling.
+
+Rules are pre-defined, you can't add any new rules or change any existing rules behavior.
+However, with the combination of rules, a new policy can be created.
+
+To create a policy, include the header gpolicy.h, use MakePolicy to make a policy.
+typedef MakePolicy<Rule1, Rule2, ..., RuleN> NewPolicy;
+
+For the reflection library, there are several predefined policies in file gmetapolicy.h.
 <{/autobr}>
 
 
+<{sh}> Meta rules
+<{sc}>
+
+
+
+
+<{/sgroup}>
 
 
 
 
 <{/autotoc}>
+
+<{include name="moredoc.txt" }>

@@ -215,7 +215,7 @@ sub verify
 					else {
 						my $topAtom = $stack[$#stack];
 						if($topAtom->{tag} !~ /$atom->{tag}/i) {
-							&$error($atom, "Closing mismatch tag -- " . $atom->{tag});
+							&$error($atom, "Closing mismatch tag -- " . $atom->{tag} . " for " . $topAtom->{tag});
 						}
 					}
 					

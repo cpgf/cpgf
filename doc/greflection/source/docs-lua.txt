@@ -1,4 +1,4 @@
-url: docs-cpgf-lua-binding
+<{filename name=docs-cpgf-lua-binding }>
 
 <h1>Lua binding engine -- bind Lua to C++</h1>
 
@@ -40,11 +40,11 @@ The Lua version is GLuaScriptObject.
 GLuaScriptObject constructor accepts three parameters.
 GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
 
-The first parameter is a IMetaService. You can call createMetaService() to create the service.
+The first parameter is a IMetaService. You can call createDefaultMetaService() or createMetaService() to create the service.
 The second parameter is the Lua state.
 The third one is a config. Just call GScriptConfig() to construct default one.
 
-This script object acts as a global scope. All meta data bound to this script object will be bound Lua global space.
+This script object acts as a global scope. All meta data bound to this script object will be bound into Lua global space.
 New named scope can be create by calling GScriptObject::createScriptObject(TheName).
 Then all meta data bound to TheName can be accessed via TheName.
 Such as TheName.MyClass, etc.
@@ -77,24 +77,6 @@ If you are using the interface based API, you have to deal with IScriptName.
 <{sc}>
 
 <{autobr}>
-<{piece}> virtual bool cacheName(GScriptName * name) = 0; <{/piece}>
-Cache the script name for later fast use. Lua supports it by reference to the name.
-For any script engine that doesn't support this function, this function doesn't effect.
-
-<{piece}> virtual GScriptDataType getType(const GScriptName & name) = 0; <{/piece}>
-Get the type of a name in the script engine. The name can be any legal name that exists in the script engine.
-Here is the list of the data type,
-	sdtUnknown -- can't determine the type
-	sdtNull -- NULL. It's nil in Lua.
-	sdtFundamental -- fundamental type. Can be boolean, integer, float, etc.
-	sdtString -- string. Can be obtained as C string.
-	sdtClass -- C++ class that bound to the script engine.
-	sdtObject -- C++ object.
-	sdtMethod -- C++ function.
-	sdtEnum -- C++ enumerator.
-	sdtScriptObject -- A script object. Meta data can be added to it.
-	sdtScriptMethod -- Function in the script.
-
 <{piece}> virtual void bindClass(const GScriptName & name, IMetaClass * metaClass) = 0; <{/piece}>
 Bind the meta class under the name.
 
@@ -120,27 +102,64 @@ After binding MyEnum, in Lua, we can access the value by,
 a = MyEnum.x
 b = MyEnum.y
 
-<{piece}> virtual GScriptObject * createScriptObject(const GScriptName & name) = 0; <{/piece}>
-Create a new script object under current script object.
-The new script object can be used to bind meta data.
+<{piece}> virtual void bindFundamental(const GScriptName & name, const GVariant & value) = 0; <{/piece}>
+Bind the fundamental value to script.
+A fundamental value is the value with primary type, such as integer, float, bool, double, etc.
 
-<{piece}> virtual GVariant invokeIndirectly(const GScriptName & name, GVariant const * const * params, size_t paramCount) = 0; <{/piece}>
-<{piece}> virtual GVariant invoke(const GScriptName & name, const GVariant * params, size_t paramCount) = 0; <{/piece}>
+<{piece}> virtual void bindString(const GScriptName & stringName, const char * s) = 0; <{/piece}>
+Bind a string to script.
 
-<{piece}> virtual void setFundamental(const GScriptName & name, const GVariant & value) = 0; <{/piece}>
-<{piece}> virtual void setString(const GScriptName & stringName, const char * s) = 0; <{/piece}>
-<{piece}> virtual void setObject(const GScriptName & objectName, void * instance, IMetaClass * type, bool transferOwnership) = 0; <{/piece}>
-<{piece}> virtual void setMethod(const GScriptName & name, void * instance, IMetaMethod * method) = 0; <{/piece}>
+<{piece}> virtual void bindObject(const GScriptName & objectName, void * instance, IMetaClass * type, bool transferOwnership) = 0; <{/piece}>
+Bind an object instance to script.
+"instance" is the object pointer.
+"type" is the meta class for the object.
+If "transferOwnership" is true, the object will be freed by the script. If it's false, the C++ code will be responsible to free the object.
+
+<{piece}> virtual void bindMethod(const GScriptName & name, void * instance, IMetaMethod * method) = 0; <{/piece}>
+Bind a function to script.
+"instance" is the object instance for the function. It's NULL for global function.
+"method" is the meta method.
+
+<{piece}> virtual void bindMethodList(const GScriptName & name, IMetaList * methodList) = 0; <{/piece}>
+
+<{piece}> virtual IMetaClass * getClass(const GScriptName & className) = 0; <{/piece}>
+<{piece}> virtual IMetaEnum * getEnum(const GScriptName & enumName) = 0; <{/piece}>
 
 <{piece}> virtual GVariant getFundamental(const GScriptName & name) = 0; <{/piece}>
 <{piece}> virtual std::string getString(const GScriptName & stringName) = 0; <{/piece}>
 
 <{piece}> virtual void * getObject(const GScriptName & objectName) = 0; <{/piece}>
 <{piece}> virtual IMetaClass * getObjectType(const GScriptName & objectName) = 0; <{/piece}>
-<{piece}> virtual IMetaClass * getClass(const GScriptName & className) = 0; <{/piece}>
-
 <{piece}> virtual IMetaMethod * getMethod(const GScriptName & methodName) = 0; <{/piece}>
-<{piece}> virtual IMetaEnum * getEnum(const GScriptName & enumName) = 0; <{/piece}>
+<{piece}> virtual IMetaList * getMethodList(const GScriptName & methodName) = 0; <{/piece}>
+
+<{piece}> virtual bool cacheName(GScriptName * name) = 0; <{/piece}>
+Cache the script name for later fast use. Lua supports it by reference to the name.
+For any script engine that doesn't support this function, this function doesn't effect.
+
+<{piece}> virtual GScriptDataType getType(const GScriptName & name, IMetaTypedItem ** outMetaTypeItem) = 0; <{/piece}>
+Get the type of a name in the script engine. The name can be any legal name that exists in the script engine.
+If "outMetaTypeItem" is not NULL and if the name has a meta type, the meta type will be stored into outMetaTypeItem.
+In this case, you must call releaseReference on outMetaTypeItem to release it after finishing using it.
+
+Here is the list of the data type,
+	sdtUnknown -- can't determine the type
+	sdtNull -- NULL. It's nil in Lua.
+	sdtFundamental -- fundamental type. Can be boolean, integer, float, etc.
+	sdtString -- string. Can be obtained as C string.
+	sdtClass -- C++ class that bound to the script engine.
+	sdtObject -- C++ object.
+	sdtMethod -- C++ function.
+	sdtEnum -- C++ enumerator.
+	sdtScriptObject -- A script object. Meta data can be added to it.
+	sdtScriptMethod -- Function in the script.
+
+<{piece}> virtual GScriptObject * createScriptObject(const GScriptName & name) = 0; <{/piece}>
+Create a new script object under current script object.
+The new script object can be used to bind meta data.
+
+<{piece}> virtual GVariant invokeIndirectly(const GScriptName & name, GVariant const * const * params, size_t paramCount) = 0; <{/piece}>
+<{piece}> virtual GVariant invoke(const GScriptName & name, const GVariant * params, size_t paramCount) = 0; <{/piece}>
 
 <{piece}> virtual void assignValue(const GScriptName & fromName, const GScriptName & toName) = 0; <{/piece}>
 <{piece}> virtual bool valueIsNull(const GScriptName & name) = 0; <{/piece}>
@@ -153,3 +172,5 @@ The new script object can be used to bind meta data.
 
 
 <{/autotoc}>
+
+<{include name="moredoc.txt" }>

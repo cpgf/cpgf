@@ -1,7 +1,9 @@
 #ifndef __GMETAPOLICY_H
 #define __GMETAPOLICY_H
 
+#include "cpgf/gpp.h"
 #include "cpgf/gpolicy.h"
+#include "cpgf/gmetacommon.h"
 
 
 #define POLICY_ALL_INDEX_HELPER(N, P) GPP_COMMA_IF(N) P<N>

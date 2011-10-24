@@ -12,4 +12,8 @@ rem %GEN% -o=%OUT_PATH% %SRC_PATH%/reflex-main.txt
 %GEN% -o=%OUT_PATH% %SRC_PATH%/docs-lua.txt
 %GEN% -o=%OUT_PATH% %SRC_PATH%/reflection-index.txt
 %GEN% -o=%OUT_PATH% %SRC_PATH%/lua-index.txt
+%GEN% -o=%OUT_PATH% %SRC_PATH%/cpgf-index.txt
+%GEN% -o=%OUT_PATH% %SRC_PATH%/cpgf-build.txt
+%GEN% -o=%OUT_PATH% %SRC_PATH%/docs-policy-and-rules.txt
+%GEN% -o=%OUT_PATH% %SRC_PATH%/docs-using-interface-api.txt
 

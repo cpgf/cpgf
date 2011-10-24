@@ -21,7 +21,7 @@ void doTest()
 	data->x = 10;
 	data->name = "abc";
 
-	context.getBinding()->setObject("data", data.get(), metaClass.get(), false);
+	context.getBinding()->bindObject("data", data.get(), metaClass.get(), false);
 	context.doString("assert(data.x == 10)");
 	context.doString("assert(data.name == \"abc\")");
 

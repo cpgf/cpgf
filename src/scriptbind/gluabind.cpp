@@ -2,7 +2,8 @@
 #include "cpgf/gflags.h"
 #include "cpgf/gexception.h"
 
-#include "gbindcommon.h"
+#include "../pinclude/gbindcommon.h"
+#include "../pinclude/gscriptbindapiimpl.h"
 
 
 #include <stdexcept>
@@ -46,7 +47,7 @@ namespace {
 	void doBindMethod(lua_State * L, GLuaBindingParam * param, void * instance, IMetaMethod * method);
 	void doBindClass(lua_State * L, GLuaBindingParam * param, IMetaClass * metaClass);
 	void doBindEnum(lua_State * L, GLuaBindingParam * param, IMetaEnum * metaEnum);
-	void doBindMethodList(lua_State * L, GLuaBindingParam * param, void * instance, IMetaList * methodList);
+	void doBindMethodList(lua_State * L, GLuaBindingParam * param, IMetaList * methodList);
 	
 	void initObjectMetaTable(lua_State * L);
 	void setMetaTableGC(lua_State * L);
@@ -174,8 +175,8 @@ namespace {
 		typedef GLuaUserData super;
 
 	public:
-		GMethodListUserData(GLuaBindingParam * param, void * instance, IMetaList * methodList)
-			: super(udtMethodList, param), instance(instance), methodList(methodList) {
+		GMethodListUserData(GLuaBindingParam * param, IMetaList * methodList)
+			: super(udtMethodList, param), methodList(methodList) {
 			this->methodList->addReference();
 		}
 
@@ -184,7 +185,6 @@ namespace {
 		}
 
 	public:
-		void * instance;
 		IMetaList * methodList;
 	};
 
@@ -490,8 +490,10 @@ namespace {
 						}
 
 					case udtMethod:
-					case udtMethodList:
 						return sdtMethod;
+						
+					case udtMethodList:
+						return sdtMethodList;
 
 					case udtEnum:
 						if(typeItem != NULL) {
@@ -603,7 +605,7 @@ namespace {
 		
 		int maxRank = -1;
 		size_t maxRankIndex = 0;
-		
+
 		GVariantData paramsData[REF_MAX_ARITY];
 		loadMethodParameters(L, userData->getParam(), paramsData, 1, lua_gettop(L));
 		
@@ -792,7 +794,7 @@ namespace {
 			return true;
 		}
 
-		doBindMethodList(L, userData->getParam(), userData->instance, methodList.get());
+		doBindMethodList(L, userData->getParam(), methodList.get());
 
 		return true;
 	}
@@ -809,7 +811,7 @@ namespace {
 
 		GVariantData varData;
 		GMetaTypeData typeData;
-		data->get(instance, &varData);
+		data->get(&varData, instance);
 		data->getItemType(&typeData);
 		
 		GVariant value = GVariant(varData);
@@ -857,7 +859,7 @@ namespace {
 			int index = metaEnum->findKey(name);
 			if(index >= 0) {
 				GVariantData data;
-				metaEnum->getValue(index, &data);
+				metaEnum->getValue(&data, index);
 				lua_pushinteger(L, fromVariant<lua_Integer>(GVariant(data)));
 
 				return true;
@@ -1017,10 +1019,10 @@ namespace {
 		lua_setmetatable(L, -2);
 	}
 
-	void doBindMethodList(lua_State * L, GLuaBindingParam * param, void * instance, IMetaList * methodList)
+	void doBindMethodList(lua_State * L, GLuaBindingParam * param, IMetaList * methodList)
 	{
 		void * userData = lua_newuserdata(L, sizeof(GMethodListUserData));
-		new (userData) GMethodListUserData(param, instance, methodList);
+		new (userData) GMethodListUserData(param, methodList);
 		
 		lua_newtable(L);
 		
@@ -1092,7 +1094,7 @@ namespace {
 		}
 		else {
 			GVariantData data;
-			userData->metaEnum->getValue(index, &data);
+			userData->metaEnum->getValue(&data, index);
 			lua_pushinteger(L, fromVariant<lua_Integer>(GVariant(data)));
 		}
 		
@@ -1304,7 +1306,7 @@ bool GLuaScriptObject::cacheName(GScriptName * name)
 	return name->hasData();
 }
 
-GScriptDataType GLuaScriptObject::getType(const GScriptName & name)
+GScriptDataType GLuaScriptObject::getType(const GScriptName & name, IMetaTypedItem ** outMetaTypeItem)
 {
 	ENTER_LUA()
 	
@@ -1312,7 +1314,7 @@ GScriptDataType GLuaScriptObject::getType(const GScriptName & name)
 	
 	scopeGuard.get(name);
 
-	return getLuaType(this->implement->luaState, -1, NULL);
+	return getLuaType(this->implement->luaState, -1, outMetaTypeItem);
 	
 	LEAVE_LUA(this->implement->luaState, return sdtUnknown)
 }
@@ -1426,9 +1428,9 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaV
 	LEAVE_LUA(this->implement->luaState, return GMetaVariant())
 }
 
-void GLuaScriptObject::setFundamental(const GScriptName & name, const GVariant & value)
+void GLuaScriptObject::bindFundamental(const GScriptName & name, const GVariant & value)
 {
-	GASSERT_MSG(vtIsFundamental(vtGetType(value.data.typeData)), "Only fundamental value can be bound via setFundamental");
+	GASSERT_MSG(vtIsFundamental(vtGetType(value.data.typeData)), "Only fundamental value can be bound via bindFundamental");
 
 	ENTER_LUA()
 
@@ -1443,36 +1445,36 @@ void GLuaScriptObject::setFundamental(const GScriptName & name, const GVariant &
 	LEAVE_LUA(this->implement->luaState)
 }
 
-void GLuaScriptObject::setString(const GScriptName & stringName, const char * s)
+void GLuaScriptObject::bindString(const GScriptName & stringName, const char * s)
 {
 	ENTER_LUA()
 
 	GLuaScopeGuard scopeGuard(this);
 
 	lua_pushstring(this->implement->luaState, s);
-	
+
 	scopeGuard.set(stringName);
 
 	LEAVE_LUA(this->implement->luaState)
 }
 
-void GLuaScriptObject::setObject(const GScriptName & objectName, void * instance, IMetaClass * type, bool transferOwnership)
+void GLuaScriptObject::bindObject(const GScriptName & objectName, void * instance, IMetaClass * type, bool transferOwnership)
 {
 	ENTER_LUA()
 
 	GLuaScopeGuard scopeGuard(this);
 
 	objectToLua(this->implement->luaState, &this->implement->param, instance, static_cast<IMetaClass *>(type), transferOwnership, opcvNone);
-	
+
 	scopeGuard.set(objectName);
 
 	LEAVE_LUA(this->implement->luaState)
 }
 
-void GLuaScriptObject::setMethod(const GScriptName & name, void * instance, IMetaMethod * method)
+void GLuaScriptObject::bindMethod(const GScriptName & name, void * instance, IMetaMethod * method)
 {
 	ENTER_LUA()
-	
+
 	GLuaScopeGuard scopeGuard(this);
 	
 	doBindMethod(this->implement->luaState, &this->implement->param, instance, method);
@@ -1480,6 +1482,56 @@ void GLuaScriptObject::setMethod(const GScriptName & name, void * instance, IMet
 	scopeGuard.set(name);
 	
 	LEAVE_LUA(this->implement->luaState)
+}
+
+void GLuaScriptObject::bindMethodList(const GScriptName & name, IMetaList * methodList)
+{
+	ENTER_LUA()
+
+	GLuaScopeGuard scopeGuard(this);
+	
+	doBindMethodList(this->implement->luaState, &this->implement->param, methodList);
+	
+	scopeGuard.set(name);
+	
+	LEAVE_LUA(this->implement->luaState)
+}
+
+IMetaClass * GLuaScriptObject::getClass(const GScriptName & className)
+{
+	IMetaTypedItem * typedItem = NULL;
+
+	GScriptDataType sdt = this->getType(className, &typedItem);
+	GScopedInterface<IMetaTypedItem> item(typedItem);
+	if(sdt == sdtClass) {
+		return static_cast<IMetaClass *>(item.take());
+	}
+
+	return NULL;
+}
+
+IMetaEnum * GLuaScriptObject::getEnum(const GScriptName & enumName)
+{
+	ENTER_LUA()
+
+	GLuaScopeGuard scopeGuard(this);
+
+	scopeGuard.get(enumName);
+
+	if(isValidMetaTable(this->implement->luaState, -1)) {
+		void * userData = lua_touserdata(this->implement->luaState, -1);
+		if(static_cast<GLuaUserData *>(userData)->getType() == udtEnum) {
+			GEnumUserData * enumData = static_cast<GEnumUserData *>(userData);
+
+			IMetaEnum * metaEnum = enumData->metaEnum;
+			metaEnum->addReference();
+			return metaEnum;
+		}
+	}
+
+	return NULL;
+	
+	LEAVE_LUA(this->implement->luaState, return NULL)
 }
 
 GVariant GLuaScriptObject::getFundamental(const GScriptName & name)
@@ -1521,35 +1573,6 @@ void * GLuaScriptObject::getObject(const GScriptName & objectName)
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
 
-IMetaClass * GLuaScriptObject::getObjectType(const GScriptName & objectName)
-{
-	ENTER_LUA()
-
-	GLuaScopeGuard scopeGuard(this);
-
-	scopeGuard.get(objectName);
-
-	if(isValidMetaTable(this->implement->luaState, -1)) {
-		void * userData = lua_touserdata(this->implement->luaState, -1);
-		if(static_cast<GLuaUserData *>(userData)->getType() == udtClass) {
-			GClassUserData * classData = static_cast<GClassUserData *>(userData);
-
-			IMetaClass * metaClass = classData->metaClass;
-			metaClass->addReference();
-			return metaClass;
-		}
-	}
-
-	return NULL;
-	
-	LEAVE_LUA(this->implement->luaState, return NULL)
-}
-
-IMetaClass * GLuaScriptObject::getClass(const GScriptName & className)
-{
-	return this->getObjectType(className);
-}
-
 IMetaMethod * GLuaScriptObject::getMethod(const GScriptName & methodName)
 {
 	ENTER_LUA()
@@ -1560,8 +1583,7 @@ IMetaMethod * GLuaScriptObject::getMethod(const GScriptName & methodName)
 
 	if(isValidMetaTable(this->implement->luaState, -1)) {
 		void * userData = lua_touserdata(this->implement->luaState, -1);
-		if(static_cast<GLuaUserData *>(userData)->getType() == udtMethod
-			|| static_cast<GLuaUserData *>(userData)->getType() == udtMethodList) {
+		if(static_cast<GLuaUserData *>(userData)->getType() == udtMethod) {
 			GMethodUserData * methodData = static_cast<GMethodUserData *>(userData);
 
 			IMetaMethod * metaMethod = methodData->method;
@@ -1575,22 +1597,22 @@ IMetaMethod * GLuaScriptObject::getMethod(const GScriptName & methodName)
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
 
-IMetaEnum * GLuaScriptObject::getEnum(const GScriptName & enumName)
+IMetaList * GLuaScriptObject::getMethodList(const GScriptName & methodName)
 {
 	ENTER_LUA()
 
 	GLuaScopeGuard scopeGuard(this);
 
-	scopeGuard.get(enumName);
+	scopeGuard.get(methodName);
 
 	if(isValidMetaTable(this->implement->luaState, -1)) {
 		void * userData = lua_touserdata(this->implement->luaState, -1);
-		if(static_cast<GLuaUserData *>(userData)->getType() == udtEnum) {
-			GEnumUserData * enumData = static_cast<GEnumUserData *>(userData);
+		if(static_cast<GLuaUserData *>(userData)->getType() == udtMethodList) {
+			GMethodListUserData * methodListData = static_cast<GMethodListUserData *>(userData);
 
-			IMetaEnum * metaEnum = enumData->metaEnum;
-			metaEnum->addReference();
-			return metaEnum;
+			IMetaList * methodList = methodListData->methodList;
+			methodList->addReference();
+			return methodList;
 		}
 	}
 
@@ -1639,6 +1661,14 @@ void GLuaScriptObject::nullifyValue(const GScriptName & name)
 
 	LEAVE_LUA(this->implement->luaState)
 }
+
+
+
+IScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
+{
+	return new ImplScriptObject(new GLuaScriptObject(service, L, config));
+}
+
 
 
 } // namespace cpgf

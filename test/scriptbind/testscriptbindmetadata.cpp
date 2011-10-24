@@ -41,9 +41,9 @@ void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
 	bindClass(script, service, "testscript::TestB", "TestB");
 	bindClass(script, service, "testscript::TestC", "TestC");
 
-	script->setFundamental("Magic1", Magic1);
-	script->setFundamental("Magic2", Magic2);
-	script->setFundamental("Magic3", Magic3);
+	script->bindFundamental("Magic1", Magic1);
+	script->bindFundamental("Magic2", Magic2);
+	script->bindFundamental("Magic3", Magic3);
 }
 
 
@@ -64,15 +64,15 @@ void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
 
 	v = Magic1;
 	scriptName.reset(script->createName("Magic1"));
-	script->setFundamental(scriptName.get(), &v.data);
+	script->bindFundamental(scriptName.get(), &v.data);
 	
 	v = Magic2;
 	scriptName.reset(script->createName("Magic2"));
-	script->setFundamental(scriptName.get(), &v.data);
+	script->bindFundamental(scriptName.get(), &v.data);
 	
 	v = Magic3;
 	scriptName.reset(script->createName("Magic3"));
-	script->setFundamental(scriptName.get(), &v.data);
+	script->bindFundamental(scriptName.get(), &v.data);
 }
 
 

@@ -13,20 +13,20 @@ namespace cpgf {
 
 typedef int32_t gapi_bool;
 
-struct IRoot
+struct IObject
 {
    virtual uint32_t G_API_CC unused_queryInterface(void *, void *) = 0;
    virtual uint32_t G_API_CC addReference() = 0;
    virtual uint32_t G_API_CC releaseReference() = 0;
 };
 
-struct IBaseObject : public IRoot
+struct IExtendObject : public IObject
 {
 	virtual int32_t G_API_CC getErrorCode() = 0;
 	virtual const char * G_API_CC getErrorMessage() = 0;
 };
 
-struct IMemoryAllocator : public IBaseObject
+struct IMemoryAllocator : public IObject
 {
 	virtual void * G_API_CC allocate(uint32_t size) = 0;
 	virtual void G_API_CC free(void * p) = 0;

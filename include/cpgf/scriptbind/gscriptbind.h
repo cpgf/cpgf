@@ -19,7 +19,8 @@ enum GScriptDataType {
 	sdtNull = 1,
 	sdtFundamental = 2, sdtString = 3,
 	sdtClass = 4, sdtObject = 5,
-	sdtMethod = 6, sdtEnum = 7,
+	sdtMethod = 6, sdtMethodList = 7,
+	sdtEnum = 8,
 
 	sdtScriptObject = 10, sdtScriptMethod = 11,
 };
@@ -167,33 +168,33 @@ public:
 	bool isGlobal() const;
 
 public:	
-	virtual bool cacheName(GScriptName * name) = 0;
-
-	virtual GScriptDataType getType(const GScriptName & name) = 0;
-
 	virtual void bindClass(const GScriptName & name, IMetaClass * metaClass) = 0;
 	virtual void bindEnum(const GScriptName & name, IMetaEnum * metaEnum) = 0;
+
+	virtual void bindFundamental(const GScriptName & name, const GVariant & value) = 0;
+	virtual void bindString(const GScriptName & stringName, const char * s) = 0;
+	virtual void bindObject(const GScriptName & objectName, void * instance, IMetaClass * type, bool transferOwnership) = 0;
+	virtual void bindMethod(const GScriptName & name, void * instance, IMetaMethod * method) = 0;
+	virtual void bindMethodList(const GScriptName & name, IMetaList * methodList) = 0;
+
+	virtual IMetaClass * getClass(const GScriptName & className) = 0;
+	virtual IMetaEnum * getEnum(const GScriptName & enumName) = 0;
+	
+	virtual GVariant getFundamental(const GScriptName & name) = 0;
+	virtual std::string getString(const GScriptName & stringName) = 0;
+	virtual void * getObject(const GScriptName & objectName) = 0;
+	virtual IMetaMethod * getMethod(const GScriptName & methodName) = 0;
+	virtual IMetaList * getMethodList(const GScriptName & methodName) = 0;
+
+	virtual bool cacheName(GScriptName * name) = 0;
+
+	virtual GScriptDataType getType(const GScriptName & name, IMetaTypedItem ** outMetaTypeItem) = 0;
 
 	virtual GScriptObject * createScriptObject(const GScriptName & name) = 0;
 	
 	virtual GMetaVariant invoke(const GScriptName & name, const GMetaVariant * params, size_t paramCount) = 0;
 	virtual GMetaVariant invokeIndirectly(const GScriptName & name, GMetaVariant const * const * params, size_t paramCount) = 0;
 
-	virtual void setFundamental(const GScriptName & name, const GVariant & value) = 0;
-	virtual void setString(const GScriptName & stringName, const char * s) = 0;
-	virtual void setObject(const GScriptName & objectName, void * instance, IMetaClass * type, bool transferOwnership) = 0;
-	virtual void setMethod(const GScriptName & name, void * instance, IMetaMethod * method) = 0;
-
-	virtual GVariant getFundamental(const GScriptName & name) = 0;
-	virtual std::string getString(const GScriptName & stringName) = 0;
-	
-	virtual void * getObject(const GScriptName & objectName) = 0;
-	virtual IMetaClass * getObjectType(const GScriptName & objectName) = 0;
-	virtual IMetaClass * getClass(const GScriptName & className) = 0;
-	
-	virtual IMetaMethod * getMethod(const GScriptName & methodName) = 0;
-	virtual IMetaEnum * getEnum(const GScriptName & enumName) = 0;
-	
 	virtual void assignValue(const GScriptName & fromName, const GScriptName & toName) = 0;
 	virtual bool valueIsNull(const GScriptName & name) = 0;
 	virtual void nullifyValue(const GScriptName & name) = 0;

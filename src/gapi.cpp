@@ -10,28 +10,28 @@ namespace cpgf {
 
 
 
-ImplRoot::ImplRoot()
+ImplObject::ImplObject()
 	: referenceCount(1)
 {
 }
 
-ImplRoot::~ImplRoot()
+ImplObject::~ImplObject()
 {
 }
 
-uint32_t ImplRoot::doQueryInterface(void *, void *)
+uint32_t ImplObject::doQueryInterface(void *, void *)
 {
 	return 0;
 }
 
-uint32_t ImplRoot::doAddReference()
+uint32_t ImplObject::doAddReference()
 {
 	++this->referenceCount;
 
 	return this->referenceCount;
 }
 
-uint32_t ImplRoot::doReleaseReference()
+uint32_t ImplObject::doReleaseReference()
 {
 	if(this->referenceCount > 0) {
 		--this->referenceCount;
@@ -48,23 +48,23 @@ uint32_t ImplRoot::doReleaseReference()
 
 
 
-ImplBaseObject::ImplBaseObject()
+ImplExtendObject::ImplExtendObject()
 	: errorInfo()
 {
 }
 
-ImplBaseObject::~ImplBaseObject()
+ImplExtendObject::~ImplExtendObject()
 {
 }
 
-void ImplBaseObject::clearError()
+void ImplExtendObject::clearError()
 {
 	if(this->errorInfo) {
 		this->errorInfo->errorCode = Error_None;
 	}
 }
 
-void ImplBaseObject::handleError(int errorCode, const char * message)
+void ImplExtendObject::handleError(int errorCode, const char * message)
 {
 	if(! this->errorInfo) {
 		this->errorInfo.reset(new ErrorInfo);
@@ -74,7 +74,7 @@ void ImplBaseObject::handleError(int errorCode, const char * message)
 	this->errorInfo->message = message;
 }
 
-int32_t ImplBaseObject::doGetErrorCode()
+int32_t ImplExtendObject::doGetErrorCode()
 {
 	if(this->errorInfo) {
 		return this->errorInfo->errorCode;
@@ -84,7 +84,7 @@ int32_t ImplBaseObject::doGetErrorCode()
 	}
 }
 
-const char * ImplBaseObject::doGetErrorMessage()
+const char * ImplExtendObject::doGetErrorMessage()
 {
 	if(this->errorInfo) {
 		return this->errorInfo->message.c_str();

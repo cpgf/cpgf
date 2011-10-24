@@ -1,3 +1,5 @@
+<{filename name=cpgf-luabinding }>
+
 <h1>cpgf Lua binding -- an open source library to bind Lua script to C++</h1>
 
 <{autobr}>
@@ -31,4 +33,7 @@ With the powerful reflection, we can add arbitrary script binding quite easily.
 My next plan is to bring JavaScript binding to cpgf. Maybe Google V8 is a choice.
 
 All script binding engine will use the same interface -- GScriptObject and IScriptObject, and use same meta data.
+
 <{/autobr}>
+
+<{include name="moredoc.txt" }>

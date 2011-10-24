@@ -1,4 +1,4 @@
-url: docs-cpgf-reflection-using-meta-data-lib
+<{filename name=docs-cpgf-reflection-using-meta-data-lib }>
 
 
 <{autotoc}>
@@ -384,3 +384,6 @@ Return -1 if not found.
 
 
 <{/autotoc}>
+
+
+<{include name="moredoc.txt" }>

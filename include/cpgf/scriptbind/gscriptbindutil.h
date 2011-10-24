@@ -27,7 +27,7 @@ namespace cpgf {
 		DEF_LOAD_PARAM_API(N) \
 		GMetaVarData result; \
 		GScopedInterface<IScriptName> scriptName(scriptObject->createName(name.getName())); \
-		scriptObject->invoke(scriptName.get(), &result, params, N); \
+		scriptObject->invoke(&result, scriptName.get(), params, N); \
 		return GMetaVariant(result); \
 	}
 

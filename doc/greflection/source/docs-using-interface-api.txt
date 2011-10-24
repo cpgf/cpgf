@@ -1,0 +1,99 @@
+<{filename name=docs-cpgf-using-interface-api }>
+
+<{autotoc}>
+
+<{sgroup}>Using interface based API
+
+<{sh}> What is interface based API
+<{sc}>
+
+<{autobr}>
+The idea of interface based API is inspired by Windows Component Object Model.
+All APIs are exposed in interface form, which is a cluster of abstract virtual functions.
+
+<{/autobr}>	
+
+
+<{sh}> The advantage of interface based API
+<{sc}>
+
+<{autoul}>
+Binary compatible API.
+
+<{/autoul}>	
+
+
+<{sh}> Comparison of class-function based API and interface based API
+<{sc}>
+
+<table border="1" style="width:100%; text-align:left">
+	<tr>
+		<td style="text-align:center; width:30%">
+			<b>Feature </b>
+		</td>
+		<td style="text-align:center; width:35%">
+			<b>Class-function based API </b>
+		</td>
+		<td style="text-align:center; width:30%">
+			<b>Interface based API </b>
+		</td>
+	<tr>
+	
+	<tr>
+		<td> Binary compatible </td>
+		<td> No </td>
+		<td> Yes </td>
+	<tr>
+	
+	<tr>
+		<td> Memory management </td>
+		<td> Raw memory management. Using new and delete. </td>
+		<td> Reference count. Using addReference and releaseReference. </td>
+	<tr>
+
+	<tr>
+		<td> Variant type in API </td>
+		<td> GVariant </td>
+		<td> GVariantData </td>
+	<tr>
+
+	<tr>
+		<td> Meta type in API </td>
+		<td> GMetaType </td>
+		<td> GMetaTypeData </td>
+	<tr>
+	
+	<tr>
+		<td> Scoped pointer </td>
+		<td> GScopedPointer (in gscopedptr.h) </td>
+		<td> GScopedInterface (in gapi.h) </td>
+	<tr>
+	
+	<tr>
+		<td> Error handling </td>
+		<td> Throw exception </td>
+		<td> Error code </td>
+	<tr>
+	
+	<tr>
+		<td>  </td>
+		<td>  </td>
+		<td>  </td>
+	<tr>
+	
+	<tr>
+		<td>  </td>
+		<td>  </td>
+		<td>  </td>
+	<tr>
+	
+</table>
+
+
+<{/sgroup}>
+
+
+<{/autotoc}>
+
+
+<{include name="moredoc.txt" }>

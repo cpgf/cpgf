@@ -172,7 +172,7 @@ struct GVariantData
 
 namespace variant_internal {
 
-inline int getVariantTypeSize(GVariantType type);
+inline unsigned int getVariantTypeSize(GVariantType type);
 inline void adjustVariantType(GVariant * data);
 
 } // namespace variant_internal
@@ -1024,7 +1024,7 @@ struct CastFromVariant
 	}
 };
 
-inline int getVariantTypeSize(GVariantType type)
+inline unsigned int getVariantTypeSize(GVariantType type)
 {
 	switch(static_cast<int>(type)) {
 		case vtEmpty:

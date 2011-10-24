@@ -24,10 +24,10 @@ GTEST(global)
 	GScopedInterface<IScriptName> scriptName;
 	GScopedInterface<IScriptObject> bindingApi(context->getBindingApi());
 
-	context->getBindingLib()->setObject("data", dataLib.get(), metaClass.get(), false);
+	context->getBindingLib()->bindObject("data", dataLib.get(), metaClass.get(), false);
 	
 	scriptName.reset(bindingApi->createName("data"));
-	bindingApi->setObject(scriptName.get(), dataApi.get(), metaClass.get(), false);
+	bindingApi->bindObject(scriptName.get(), dataApi.get(), metaClass.get(), false);
 	
 	context->doString(
 		LINE(assert(data.x == 10))

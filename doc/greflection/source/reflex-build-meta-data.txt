@@ -1,6 +1,5 @@
-url: docs-cpgf-reflection-build-meta-data
+<{filename name=docs-cpgf-reflection-build-meta-data }>
 
-<h3>ABC</h3>
 
 <{autotoc}>
 
@@ -13,12 +12,14 @@ url: docs-cpgf-reflection-build-meta-data
 	Meta class represents a collection of meta information about a certain class.
 	All meta data, like meta fields, meta properties, meta methods, meta enumerators, meta operators, meta constructor, meta annotation, must be added to a meta class.
 	For global fields and methods, they must be added to the global meta class (get via function getGlobalMetaClass).
-	In other words, Reflex is class based reflection system.
+	In other words, this library is class based reflection system.
+	
+	To build the meta data, include the header file gmetaclass.h.
 
 	<b>Buiding meta data using function and macro helpers</b>
 	Most meta data can be built in two ways,
-	Using function -- give you best control over the data type, name, etc. All reflex functions are prefixed with "reflect". For instance, reflectField.
-	Using macro helper -- shortcut macro to save typing. All reflex macros start with GMETA_. For instance, GMETA_FIELD.
+	Using function -- give you best control over the data type, name, etc. All functions are prefixed with "reflect". For instance, reflectField.
+	Using macro helper -- shortcut macro to save typing. All macros start with GMETA_. For instance, GMETA_FIELD.
 <{/autobr}>
 	</p>
 
@@ -49,9 +50,9 @@ url: docs-cpgf-reflection-build-meta-data
 	Use macro GMETA_DEFINE_CLASS to define a meta class.
 	GMETA_DEFINE_CLASS accepts three primary parameters, plus arbitrary number of varadic parameters.
 	</p>
-	<p><i>The first parameter, here is Animal</i>, is the class type. It can have any scope prefix, such as MyNameSpace::Animal.</p>
-	<p><i>The second parameter, here is Animal again</i>, is the class type alias. It can be any legal C++ symbol, as long as it's unique in the program. It can't have any scrop prefix. That's to say, it can't contain any '::'.</p>
-	<p><i>The third parameter, here is "Animal"</i>, is the name of the meta class. It can be any string, such as "Meta::WhatNameSpace::Animal", but highly recommand that only C++ symbol and ':' or '.' be used. It must be unique in the meta system. It's the key to find the meta class.</p>
+	<p>The first parameter, here is Animal, is the class type. It can have any scope prefix, such as MyNameSpace::Animal.</p>
+	<p>The second parameter, here is Animal again, is the class type alias. It can be any legal C++ symbol, as long as it's unique in the program. It can't have any scrop prefix. That's to say, it can't contain any '::'.</p>
+	<p>The third parameter, here is "Animal", is the name of the meta class. It can be any string, such as "Meta::WhatNameSpace::Animal", but highly recommand that only C++ symbol and ':' or '.' be used. It must be unique in the meta system. It's the key to find the meta class.</p>
 	
 	<p>Now let's build meta class for Cat.</p>
 
@@ -66,7 +67,7 @@ url: docs-cpgf-reflection-build-meta-data
 	<p>
 <{autobr}>
 	This time there is the fourth parameter, Animal, which is the base class, aka, super class.
-	Reflex supports multiple inheritance. If Cat is also dervied from Biological, just add Biological to GMETA_DEFINE_CLASS.
+	The library supports multiple inheritance. If Cat is also dervied from Biological, just add Biological to GMETA_DEFINE_CLASS.
 	
 	The base classes are not necessary reflected. When a non-reflected base class is retrieving for meta class by calling GMetaClass::getBaseClass, it always return NULL. However, calling GMetaClass::getBaseCount to get base class count will include all non-reflected base classes.
 <{/autobr}>
@@ -638,43 +639,8 @@ url: docs-cpgf-reflection-build-meta-data
 
 
 
-
-<{sh}> Reflect nested classes
-<{sgroup indent="1"}>
-
-<{sh}> What's nested classes
-<{sc}>
-	<p>
-<{autobr}>
-<{/autobr}>
-	</p>
-
-<{sh}> Using function
-<{sc}>
-<{code}>
-<{/code}>
-
-<p>
-<{autobr}>
-<{/autobr}>
-</p>
-
-<{sh}> Using macro helper
-<{sc}>
-<{code}>
-	GMETA_CLASS(TestOutterClass::Inner);
-	GMETA_CLASS(TestOutterClass::AnotherInner);
-<{/code}>
-<p>
-<{autobr}>
-<{/autobr}>
-</p>
-
-<{/sgroup}>
-
-
-
-
 <{/autotoc}>
 
 
+
+<{include name="moredoc.txt" }>

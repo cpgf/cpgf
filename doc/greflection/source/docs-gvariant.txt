@@ -1,4 +1,4 @@
-url: docs-cpgf-gvariant
+<{filename name=docs-cpgf-gvariant }>
 
 <{autotoc}>
 
@@ -12,10 +12,7 @@ The idea of GVariant is inspired by the similar Variant in Windows COM technolog
 A GVariant is used to represent arbitrary type of value.
 Any value, such as but not limited to, integer, float, pointer, object, reference, can be stored in a GVariant.
 
-However, GVariant requires the value copyable.
-If the value is a class object, but the copy constructor is private or not implemented, when trying to create GVariant from such value, compiling will fail.
-
-The reflection and script binding libraries use GVariant comprehensively. GVariant is the very core concept in those libraries.
+The reflection and script binding libraries use GVariant extensively. GVariant is the very core concept in those libraries.
 
 Please bear in mind, GVariant is used in runtime, so it doesn't remember any compile time information, except the fundamental types.
 So GVariant is not 100% type safe. To use it correctly, you must know the type it holds.
@@ -58,8 +55,29 @@ Convert v to MyObject.
 If fromVariant finds the GVariant can't be converted to the desired type, an exception GVariantException will be thrown.
 
 To test if a GVariant can be converted to a type, use canFromVariant.
-It has same parameters as fromVariant, but return a boolean to indicate if the GVariant can be casted.
+It has the same parameters as fromVariant, but returns a boolean to indicate if the GVariant can be casted.
 
+<{/autobr}>
+
+
+<{sh}> Store non-copyable object or reference to GVariant
+<{sc}>
+
+<{autobr}>
+Bye default, GVariant requires the value assigned to it copyable.
+If the value is a class object, but the copy constructor is private or not implemented, when trying to create GVariant from such value, compiling will fail.
+To store non-copyable object or reference to GVariant, use function createVariant.
+
+<{piece}>
+template <bool CanShadow, typename T>
+GVariant createVariant(const T & value, bool allowShadow = false);
+<{/piece}>
+
+The first template parameter, CanShadow, determines if the object copyable.
+If CanShadow is false, the object is not copyable.
+
+So to store a non-copyable object, named A, to GVariant v, write like this,
+GVariant v = createVariant<false>(A);
 <{/autobr}>
 
 
@@ -138,4 +156,7 @@ The address of rs and v will be the same. &rs == &v
 <{/sgroup}>
 
 <{/autotoc}>
+
+
+<{include name="moredoc.txt" }>
 

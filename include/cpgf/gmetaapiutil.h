@@ -36,7 +36,7 @@ GVariant metaGetValue(const Meta & meta, void * obj)
 {
 	GVariantData data;
 
-	const_cast<Meta &>(meta)->get(obj, &data);
+	const_cast<Meta &>(meta)->get(&data, obj);
 	
 	metaCheckError(meta);
 
@@ -69,7 +69,7 @@ GMetaType metaGetParamType(const Meta & meta, size_t paramIndex)
 {
 	GMetaTypeData typeData;
 
-	const_cast<Meta &>(meta)->getParamType(paramIndex, &typeData);
+	const_cast<Meta &>(meta)->getParamType(&typeData, paramIndex);
 	
 	metaCheckError(meta);
 
@@ -141,7 +141,7 @@ GVariant metaGetEnumValue(Meta & metaEnum, size_t index)
 {
 	GVariantData data;
 
-	metaEnum->getValue(static_cast<unsigned int>(index), &data);
+	metaEnum->getValue(&data, static_cast<unsigned int>(index));
 	metaCheckError(metaEnum);
 
 	return GVariant(data);

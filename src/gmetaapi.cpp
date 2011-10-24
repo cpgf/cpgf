@@ -45,8 +45,8 @@ protected: \
 	const GMetaItem * getItem() const {	return this->doGetItem(); }
 
 #define IMPL_ALL \
-	IMPL_ROOT \
-	IMPL_BASEOBJECT \
+	IMPL_OBJECT \
+	IMPL_EXTENDOBJECT \
 	IMPL_ITEM
 
 #define IMPL_TYPEDITEM \
@@ -62,7 +62,7 @@ protected: \
 
 #define IMPL_CALLABLE \
 protected: \
-	virtual void G_API_CC getParamType(uint32_t index, GMetaTypeData * outType) { this->doGetParamType(index, outType); } \
+	virtual void G_API_CC getParamType(GMetaTypeData * outType, uint32_t index) { this->doGetParamType(outType, index); } \
 	virtual uint32_t G_API_CC getParamCount() { return this->doGetParamCount(); } \
 	virtual gapi_bool G_API_CC hasResult() { return this->doHasResult(); } \
 	virtual void G_API_CC getResultType(GMetaTypeData * outType) { this->doGetResultType(outType); } \
@@ -77,7 +77,7 @@ protected: \
 protected: \
 	virtual gapi_bool G_API_CC canGet() { return this->doCanGet(); } \
 	virtual gapi_bool G_API_CC canSet() { return this->doCanSet(); } \
-	virtual void G_API_CC get(void * instance, GVariantData * outValue) { this->doGet(instance, outValue); } \
+	virtual void G_API_CC get(GVariantData * outResult, void * instance) { this->doGet(outResult, instance); } \
 	virtual void G_API_CC set(void * instance, const GVariantData * value) { this->doSet(instance, value); } \
 	virtual uint32_t G_API_CC getSize() { return this->doGetSize(); } \
 	virtual IMetaConverter * G_API_CC createConverter() { return this->doCreateConverter(); }
@@ -85,7 +85,7 @@ protected: \
 namespace cpgf {
 
 
-class ImplMetaItem : public ImplBaseObject
+class ImplMetaItem : public ImplExtendObject
 {
 public:
 	ImplMetaItem(const GMetaItem * item);
@@ -150,7 +150,7 @@ private:
 };
 
 
-class ImplMetaList : public ImplBaseObject, public IMetaList
+class ImplMetaList : public ImplExtendObject, public IMetaList
 {
 private:
 	typedef std::vector<IMetaItem *> ListType;
@@ -162,8 +162,8 @@ public:
 	
 	void load(GMetaList * metaList);
 
-	IMPL_ROOT
-	IMPL_BASEOBJECT
+	IMPL_OBJECT
+	IMPL_EXTENDOBJECT
 
 protected:
 	virtual void G_API_CC add(IMetaItem * item, void * instance);
@@ -182,14 +182,14 @@ private:
 };
 
 
-class ImplMetaConverter : public ImplBaseObject, public IMetaConverter
+class ImplMetaConverter : public ImplExtendObject, public IMetaConverter
 {
 public:
 	ImplMetaConverter(GMetaConverter * metaConverter);
 	virtual ~ImplMetaConverter();
 
-	IMPL_ROOT
-	IMPL_BASEOBJECT
+	IMPL_OBJECT
+	IMPL_EXTENDOBJECT
 
 protected:
 	virtual gapi_bool G_API_CC canToCString();
@@ -209,7 +209,7 @@ public:
 	ImplMetaCallable(const GMetaCallable * callable);
 
 protected:
-	void doGetParamType(uint32_t index, GMetaTypeData * outType);
+	void doGetParamType(GMetaTypeData * outType, uint32_t index);
 	uint32_t doGetParamCount();
 	gapi_bool doHasResult();
 	void doGetResultType(GMetaTypeData * outType);
@@ -236,7 +236,7 @@ public:
 protected:
 	gapi_bool doCanGet();
 	gapi_bool doCanSet();
-	void doGet(void * instance, GVariantData * outValue);
+	void doGet(GVariantData * outResult, void * instance);
 	void doSet(void * instance, const GVariantData * value);
 	uint32_t doGetSize();
 	IMetaConverter * doCreateConverter();
@@ -379,7 +379,7 @@ public:
 	ImplMetaFundamental(const GMetaFundamental * fundamental);
 
 protected:
-	virtual void G_API_CC getValue(void * instance, GVariantData * outValue);
+	virtual void G_API_CC getValue(GVariantData * outResult, void * instance);
 
 private:
 	const GMetaFundamental * getFundamental() const {
@@ -402,7 +402,7 @@ public:
 protected:
 	virtual uint32_t G_API_CC getCount();
 	virtual const char * G_API_CC getKey(uint32_t index);
-	virtual void G_API_CC getValue(uint32_t index, GVariantData * outValue);
+	virtual void G_API_CC getValue(GVariantData * outResult, uint32_t index);
 	virtual int32_t G_API_CC findKey(const char * key);
 
 private:
@@ -412,16 +412,16 @@ private:
 };
 
 
-class ImplMetaAnnotationValue : public ImplBaseObject, public IMetaAnnotationValue
+class ImplMetaAnnotationValue : public ImplExtendObject, public IMetaAnnotationValue
 {
 private:
-	typedef ImplBaseObject super;
+	typedef ImplExtendObject super;
 
 public:
 	ImplMetaAnnotationValue(const GAnnotationValue * value);
 
-	IMPL_ROOT
-	IMPL_BASEOBJECT
+	IMPL_OBJECT
+	IMPL_EXTENDOBJECT
 
 protected:
 	virtual void G_API_CC getVariant(GVariantData * outVariant);
@@ -534,14 +534,14 @@ private:
 
 
 
-class ImplMetaModule : public ImplBaseObject, public IMetaModule
+class ImplMetaModule : public ImplExtendObject, public IMetaModule
 {
 public:
 	ImplMetaModule();
 	~ImplMetaModule();
 
-	IMPL_ROOT
-	IMPL_BASEOBJECT
+	IMPL_OBJECT
+	IMPL_EXTENDOBJECT
 
 protected:
 	virtual IMetaClass * G_API_CC getGlobalMetaClass();
@@ -553,7 +553,7 @@ protected:
 
 
 
-class ImplMetaService : public ImplBaseObject, public IMetaService
+class ImplMetaService : public ImplExtendObject, public IMetaService
 {
 private:
 	typedef std::vector<IMetaModule *> ListType;
@@ -561,8 +561,8 @@ public:
 	ImplMetaService();
 	~ImplMetaService();
 
-	IMPL_ROOT
-	IMPL_BASEOBJECT
+	IMPL_OBJECT
+	IMPL_EXTENDOBJECT
 
 protected:
 	virtual void G_API_CC addModule(IMetaModule * module);
@@ -844,7 +844,7 @@ ImplMetaCallable::ImplMetaCallable(const GMetaCallable * callable)
 {
 }
 
-void ImplMetaCallable::doGetParamType(uint32_t index, GMetaTypeData * outType)
+void ImplMetaCallable::doGetParamType(GMetaTypeData * outType, uint32_t index)
 {
 	ENTER_META_API()
 
@@ -961,13 +961,13 @@ gapi_bool ImplMetaAccessible::doCanSet()
 	LEAVE_META_API(return false)
 }
 
-void ImplMetaAccessible::doGet(void * instance, GVariantData * outValue)
+void ImplMetaAccessible::doGet(GVariantData * outResult, void * instance)
 {
 	ENTER_META_API()
 	
-	initializeVarData(outValue);
+	initializeVarData(outResult);
 
-	*outValue = this->getAccessible()->get(instance).takeData();
+	*outResult = this->getAccessible()->get(instance).takeData();
 
 	LEAVE_META_API()
 }
@@ -1300,13 +1300,13 @@ ImplMetaFundamental::ImplMetaFundamental(const GMetaFundamental * fundamental)
 {
 }
 
-void G_API_CC ImplMetaFundamental::getValue(void * instance, GVariantData * outValue)
+void G_API_CC ImplMetaFundamental::getValue(GVariantData * outResult, void * instance)
 {
 	ENTER_META_API()
 
-	initializeVarData(outValue);
+	initializeVarData(outResult);
 
-	*outValue = this->getFundamental()->getValue(instance).takeData();
+	*outResult = this->getFundamental()->getValue(instance).takeData();
 
 	LEAVE_META_API()
 }
@@ -1335,13 +1335,13 @@ const char * G_API_CC ImplMetaEnum::getKey(uint32_t index)
 	LEAVE_META_API(return NULL)
 }
 
-void G_API_CC ImplMetaEnum::getValue(uint32_t index, GVariantData * outValue)
+void G_API_CC ImplMetaEnum::getValue(GVariantData * outResult, uint32_t index)
 {
 	ENTER_META_API()
 
-	initializeVarData(outValue);
+	initializeVarData(outResult);
 
-	*outValue = this->getEnum()->getValue(index).takeData();
+	*outResult = this->getEnum()->getValue(index).takeData();
 
 	LEAVE_META_API()
 }

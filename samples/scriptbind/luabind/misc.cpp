@@ -244,7 +244,7 @@ void doTest()
 
 	method.reset(globalClass->getMethod("addNumber")); testCheckAssert(method);
 
-	scope->setMethod("addNumber", NULL, method.get());
+	scope->bindMethod("addNumber", NULL, method.get());
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("method::TestObject"));
 	testCheckAssert(metaClass);
@@ -254,8 +254,8 @@ void doTest()
 	GScopedInterface<IMetaEnum> metaEnum(globalClass->getEnum("GlobalEnum"));
 	binding.bindEnum(metaEnum->getName(), metaEnum.get());
 
-	binding.setString("ONE", "This is one");
-	scope->setString("TWO", "Second one");
+	binding.bindString("ONE", "This is one");
+	scope->bindString("TWO", "Second one");
 
 	const char * code =
 //		"for k,v in pairs(getmetatable(TestObject)) do print(k,v) end \n"
@@ -303,7 +303,9 @@ void doTest()
 	GScriptName nameNewObj("newObj");
 	binding.cacheName(&nameNewObj);
 	cout << static_cast<TestObject *>(binding.getObject(nameNewObj))->width << endl;
-	GScopedInterface<IMetaClass> type(binding.getObjectType(nameNewObj));
+	IMetaTypedItem * item = NULL;
+	binding.getType(nameNewObj, &item);
+	GScopedInterface<IMetaClass> type(static_cast<IMetaClass *>(item));
 	cout << type->getName() << endl;
 
 	GScriptName nameNewLss("newlss");

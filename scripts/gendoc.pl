@@ -12,7 +12,9 @@ use gendocparser;
 use HTML::EasyTags;
 use HTML::TokeParser;
 use HTML::Entities;
+
 use File::Basename;
+use File::Spec;
 
 my @tags = (
 	{
@@ -67,6 +69,18 @@ my @tags = (
 		tag => "piece",
 		needClose => 1,
 		handler => \&handlerCodePiece,
+	},
+
+	{
+		tag => "filename",
+		needClose => 0,
+		handler => \&handlerFileName,
+	},
+
+	{
+		tag => "include",
+		needClose => 0,
+		handler => \&handlerInclude,
 	},
 );
 
@@ -177,31 +191,11 @@ sub doFile
 	my $name = basename($fileName);
 	my $outName = $outputPath . $name . '.html';
 
-	if(! open FH, '<' . $fileName) {
-		print "Warning: can't open file $fileName to read.\n";
+	my $context = &loadFile($fileName);
 
-		return;
+	if(defined $context->{fileName}) {
+		$outName = $outputPath . $context->{fileName} . '.html';
 	}
-
-	my @lines = <FH>;
-
-	close FH;
-
-	my $parser = new TagParser();
-	
-	my $atomList = $parser->parse(\@lines);
-#$parser->dump($atomList);
-
-	my $context = new DocContext;
-
-	my $processor = new TagProcessor(\@tags, $context, \&textHandler);
-	$processor->verify($atomList);
-	$processor->process($atomList);
-	
-	$context->finish;
-	
-	$context->{tocContent} = &formatHTML($context->{tocContent});
-	$context->{content} = &formatHTML($context->{content});
 	
 	if((not $overwriteAllFiles) && (-e $outName)) {
 		my $answer = &askYesNoAll("Overwrite file " . $outName . "?");
@@ -243,6 +237,40 @@ EOM
 
 	close FH;
 
+}
+
+sub loadFile
+{
+	my ($fileName) = @_;
+
+	if(! open FH, '<' . $fileName) {
+		print "Warning: can't open file $fileName to read.\n";
+
+		return;
+	}
+
+	my @lines = <FH>;
+
+	close FH;
+
+	my $parser = new TagParser();
+	
+	my $atomList = $parser->parse(\@lines);
+
+	my $context = new DocContext;
+	
+	$context->{sourceName} = $fileName;
+
+	my $processor = new TagProcessor(\@tags, $context, \&textHandler);
+	$processor->verify($atomList);
+	$processor->process($atomList);
+	
+	$context->finish;
+	
+	$context->{tocContent} = &formatHTML($context->{tocContent});
+	$context->{content} = &formatHTML($context->{content});
+	
+	return $context;
 }
 
 sub textHandler
@@ -327,13 +355,41 @@ sub handlerCodePiece
 	my ($tagProcessor, $context, $tagName, $closeTag) = @_;
 
 	if($closeTag) {
-		$context->appendContent('</span>');
+		$context->appendContent('</div>');
 	}
 	else {
-		$context->appendContent('<span style="background-color:#eeeeee">');
+		$context->appendContent('<div style="background-color:#eeeeee;border-width:1px;border-style:solid;border-color:#dddddd;margin:4px 0px 4px 0px;padding:0px 4px 0px 4px">');
 	}
 
 	$context->changeCodeLevel($closeTag);
+}
+
+sub handlerFileName
+{
+	my ($tagProcessor, $context, $tagName, $closeTag) = @_;
+
+	my $name = $context->{tagHelper}->paramAsString($tagProcessor->getCurrentAtom->{paramMap}, "name");
+	
+	$context->{fileName} = $name;
+}
+
+sub handlerInclude
+{
+	my ($tagProcessor, $context, $tagName, $closeTag) = @_;
+
+	my $fileName = $context->{tagHelper}->paramAsString($tagProcessor->getCurrentAtom->{paramMap}, "name");
+	
+	my $sourceName = $context->{sourceName};
+	
+	$sourceName = File::Spec->rel2abs($sourceName);
+	
+	my $fullFileName = File::Spec->catfile(dirname($sourceName), $fileName);
+	
+	my $newContext = &loadFile($fullFileName);
+	
+	$context->appendContent($newContext->{beforeTocContent});
+	$context->appendContent($newContext->{tocContent});
+	$context->appendContent($newContext->{content});
 }
 
 sub noLineBreak
@@ -430,6 +486,9 @@ sub new
 		olLevel => 0,
 
 		topAnchor => '<a id="top"></a>',
+
+		sourceName => undef,		
+		fileName => undef,
 	};
 
 	bless $self, $class;

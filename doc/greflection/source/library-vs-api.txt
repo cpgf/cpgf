@@ -1,3 +1,5 @@
+<{filename name=docs-cpgf-library-vs-api }>
+
 <{autotoc}>
 
 <{sgroup}>Programming interface -- Library VS API
@@ -10,14 +12,17 @@ The cpgf library exposes two kind of programming interfaces.
 One is called "library".
 The other is called "API".
 
-For library, all interfaces are exposed by the classes directly.
+Library is basing on classes and functions.
 With this approach, the application binary interface (ABI) is not guaranteed to be compatible cross compilers and platforms.
 
-For API, all interfaces are exposed by Windows COM style interfaces (abstract classes).
-With this approach, the application binary interface (ABI) is guaranteed to be compatible cross compilers and platforms.
+API is basing on interfaces, which are in Windows Component Object Model (COM) style.
+With this approach, the application binary interface (ABI) is guaranteed to be compatible cross compilers and platforms, and also cross languages.
 <{/autobr}>	
 
 <{/sgroup}>
 
 
 <{/autotoc}>
+
+
+<{include name="moredoc.txt" }>

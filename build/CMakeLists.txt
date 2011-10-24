@@ -103,8 +103,8 @@ if(${HAS_LUA})
 	set(SRC_LUABIND
 		${SRC_PATH}/scriptbind/gbindcommon.cpp
 		${SRC_PATH}/scriptbind/gscriptbind.cpp
+		${SRC_PATH}/scriptbind/gscriptbindapi.cpp
 		${SRC_PATH}/scriptbind/gluabind.cpp
-		${SRC_PATH}/scriptbind/gluabindapi.cpp
 	)
 endif(${HAS_LUA})
 

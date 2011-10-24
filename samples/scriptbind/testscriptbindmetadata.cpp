@@ -8,9 +8,9 @@ namespace testscript {
 
 void bindBasicData(cpgf::GScriptObject * script)
 {
-	script->setFundamental("Magic1", Magic1);
-	script->setFundamental("Magic2", Magic2);
-	script->setFundamental("Magic3", Magic3);
+	script->bindFundamental("Magic1", Magic1);
+	script->bindFundamental("Magic2", Magic2);
+	script->bindFundamental("Magic3", Magic3);
 }
 
 

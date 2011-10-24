@@ -2,7 +2,7 @@ cpgf library
 
 
 cpgf library is a cross platform C++ library for reflection, callback, script binding.
-It's written in (almost) standard C++ and doesn't require any preprocess or tools.
+It's written in (almostly) standard C++ and doesn't require any preprocess or tools.
 
 
 Version:
@@ -10,7 +10,7 @@ Version:
 
 		
 Libraries:
-	cpgf reflection -- a library to add	reflection feature to C++
+	cpgf reflection -- a library to add	reflection feature to C++.
 	
 	cpgf Lua binding -- a script binding engine to bind Lua to C++.
 		It's based on the reflection library.

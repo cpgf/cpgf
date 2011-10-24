@@ -73,7 +73,7 @@ inline void vtSetType(GVarTypeData & data, int vt) {
 	data.vt = static_cast<GVariantType>(vt);
 }
 
-inline int vtGetSize(const GVarTypeData & data) {
+inline unsigned int vtGetSize(const GVarTypeData & data) {
 	return (data.sizeAndPointers >> 4) & 0xf;
 }
 

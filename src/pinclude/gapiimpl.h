@@ -5,16 +5,17 @@
 #include "cpgf/gcompiler.h"
 #include "cpgf/gstdint.h"
 #include "cpgf/gscopedptr.h"
+#include "cpgf/gapi.h"
 
 #include <string>
 
 
-#define IMPL_ROOT \
+#define IMPL_OBJECT \
 	virtual uint32_t G_API_CC unused_queryInterface(void *, void *) { return 0; } \
 	virtual uint32_t G_API_CC addReference() { return this->doAddReference(); } \
 	virtual uint32_t G_API_CC releaseReference() { return this->doReleaseReference(); }
 
-#define IMPL_BASEOBJECT \
+#define IMPL_EXTENDOBJECT \
 protected: \
 	virtual int32_t G_API_CC getErrorCode() { return this->doGetErrorCode(); } \
 	virtual const char * G_API_CC getErrorMessage() { return this->doGetErrorMessage(); }
@@ -24,11 +25,11 @@ protected: \
 namespace cpgf {
 
 
-class ImplRoot
+class ImplObject
 {
 public:
-	ImplRoot();
-	virtual ~ImplRoot();
+	ImplObject();
+	virtual ~ImplObject();
 
 protected:
 	uint32_t doQueryInterface(void *, void *);
@@ -39,7 +40,7 @@ private:
 	unsigned int referenceCount;
 };
 
-class ImplBaseObject : public ImplRoot
+class ImplExtendObject : public ImplObject
 {
 private:
 	struct ErrorInfo {
@@ -48,8 +49,8 @@ private:
 	};
 
 public:
-	ImplBaseObject();
-	virtual ~ImplBaseObject();
+	ImplExtendObject();
+	virtual ~ImplExtendObject();
 
 public:
 	void clearError();
@@ -64,11 +65,10 @@ private:
 };
 
 
-class ImplMemoryAllocator : public ImplBaseObject, public IMemoryAllocator
+class ImplMemoryAllocator : public ImplObject, public IMemoryAllocator
 {
 protected:
-	IMPL_ROOT
-	IMPL_BASEOBJECT
+	IMPL_OBJECT
 
 	virtual void * G_API_CC allocate(uint32_t size);
 	virtual void G_API_CC free(void * p);

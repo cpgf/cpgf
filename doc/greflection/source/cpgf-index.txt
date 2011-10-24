@@ -1,0 +1,128 @@
+<{filename name=cpgf-index }>
+
+<h1>cpgf library -- a free C++ open source library for reflection, script binding, callbacks</h1>
+
+<{autobr}>
+cpgf is a free, open source and cross platform C++ library.
+cpgf is composed by several independent libraries:
+<{autoul}>
+	cpgf reflection -- a library to add	reflection feature to C++.
+	
+	cpgf Lua binding -- a script binding engine to bind Lua to C++. It's based on the reflection library.
+	
+	cpgf callback -- a callback library to implement signal/slot or callback in C++. It's the primary library for other libraries.
+<{/autoul}>
+The goal of cpgf is to extend C++ language with a lot of easy to use features which are only in other higher level languages and absence in C++.
+cpgf provides a very easy to use callback system, which is common used in C# and script languages.
+cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? now we have it in C++!
+cpgf makes binding to Lua is a piece of cake! The Lua binding engine uses the reflection system extensively.
+And in the future, more script binding will be added.
+
+<{/autobr}>
+
+<h3>Key features</h3>
+<{autoul}>
+	<b>Provide easy to use class and function based library. </b>
+
+	<b>Also provide interface based, Windows COM style, binary compatible API. </b> It's easy to put meta data in a dynamic library and use the meta data from within another library.
+
+	<b>Written in (almost) standard and portable C++. </b> It can be compiled at least under VC and GCC, on Windows, Linux, and Mac.
+
+	<b>Extensively, but not abuse, using template programming. </b> Don't feel scaring. The compile time is not slow!
+<{/autoul}>
+
+
+<h3>Quick facts of reflection library</h3>
+<{autoul}>
+	Almost as powerful as the reflection system in Java and C#.
+	Reflect global/member functions, global/member fields (variable), global/member properties (fields with getter/setter), constructors, classes, enumerators, and annotations.
+	Real runtime reflection. No template parameters are needed.
+	No preprocessor required. Only using templates and macros. 
+	Support multiple inheritance.
+	For more information, please read cpgf reflection related documentation.
+<{/autoul}>
+
+<h3>Quick facts of Lua binding library</h3>
+<{autoul}>
+	Bind C++ classes, enumerators, functions, variables and operators to Lua.
+	Invoke Lua functions from C++.
+	Get and set Lua variables from C++.
+	For more information, please read cpgf Lua binding related documentation.
+<{/autoul}>
+
+<h3>Download cpgf library</h3>
+<{autobr}>
+<a href="/download/cpgf.zip">Zip file, 500 kb</a>
+
+<{/autobr}>
+
+<h3>Documentations</h3>
+<{include name="doclist.txt" }>
+
+<h3>License</h3>
+<{autobr}>
+	Apache License, Version 2.0
+
+<{/autobr}>
+
+<h3>Library version</h3>
+<{autobr}>
+	1.0.0
+
+<{/autobr}>
+
+
+<h3>Compatibility -- Tested compilers and OSes </h3>
+<{autoul}>
+	Windows XP, Microsoft Visual C++ 2008 Express
+	Windows XP, MingW GCC 4.4.0 and 4.5.2
+	Linux (Ubuntu 11.04 in VirtualBox), GCC 4.5.2
+	Mac 10.6.8, GCC 4.4.0
+<{/autoul}>
+	
+	
+<h3>Required third party library -- None for the major libraries </h3>
+<{autobr}>
+	Doesn't require C++0X and TR1 features.
+	For Lua binding, Lua library is required.
+	If you want to run the unit test, UnitTest++ is required. But usually you don't need to do that.
+	
+<{/autobr}>
+	
+
+<h3>Learning the library </h3>
+<{autobr}>
+	Though there are some documentation on the website, they are far from good.
+	You may understand that developers like coding much more than documenting.
+
+	The fastest way to get start with the library is to read the sample code
+	in the folder "samples".
+	The sample code was originally written for test purpose, so they are not
+	as easy to read as you expect. But they covers most features so it's
+	a good kick off.
+	
+	If you want to read more sample code, read the code in the folder "test".
+	They are for unit test. They are much more difficult to read and
+	use a lot of macros.
+	However, they cover much more functions than the sample code.
+	
+<{/autobr}>
+	
+<h3>Contribute to the library </h3>
+<{autobr}>
+	If you like the library and want to contribute to it, here are some most desired work to do
+	1, Help with the documentation. I'm not a native English speaker, and I also don't like writing documentation.
+	2, Test the library on more compilers and platforms.
+	
+<{/autobr}>
+
+<h3>What does cpgf mean? </h3>
+<{autobr}>
+	The original cpgf means Cross Platform Game Framework.
+	It was intended	to be game framework that can work on PC and smart phone.
+	But later I decided to add more fun but non-game features to the library.
+	So now the library is neither for game nor a framework.
+	It's a cross platform C++ library.
+	
+<{/autobr}>
+
