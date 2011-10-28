@@ -184,6 +184,36 @@ sub doFilePattern
 	}
 }
 
+sub doWriteFile
+{
+	my ($fileName, $text) = @_;
+
+	if(open FH, '<' . $fileName) {
+		my @lines = <FH>;
+
+		close FH;
+
+		my $oldText = join('', @lines);
+
+		if($text eq $oldText) {
+			print "Same file $fileName \n";
+
+			return;
+		}
+
+	}
+
+	if(! open FH, '>' . $fileName) {
+		print "Warning: can't open file $fileName to write.\n";
+
+		return;
+	}
+
+	print FH $text;
+
+	close FH;
+}
+
 sub doFile
 {
 	my ($fileName) = @_;
@@ -205,14 +235,10 @@ sub doFile
 		}
 	}
 
-	if(! open FH, '>' . $outName) {
-		print "Warning: can't open file $outName to write.\n";
-
-		return;
-	}
+	my $text = '';
 
 	if($outHTML) {
-		print FH <<EOM;
+		$text .= <<EOM;
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -223,19 +249,19 @@ sub doFile
 </head>
 <body><div style="width:900px">
 EOM
-		print FH "\n\n\n";
+		$text .= "\n\n\n";
 	}
 
-	print FH $context->{beforeTocContent}, "\n\n";
-	print FH $context->{topAnchor}, "\n\n";
-	print FH $context->{tocContent}, "\n\n";
-	print FH $context->{content}, "\n";
+	$text .= $context->{beforeTocContent} . "\n\n";
+	$text .= $context->{topAnchor} . "\n\n";
+	$text .= $context->{tocContent} . "\n\n";
+	$text .= $context->{content} . "\n";
 
 	if($outHTML) {
-		print FH "\n\n\n</div></body></html>";
+		$text .= "\n\n\n</div></body></html>";
 	}
 
-	close FH;
+	&doWriteFile($outName, $text);
 
 }
 

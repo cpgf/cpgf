@@ -14,13 +14,58 @@ All APIs are exposed in interface form, which is a cluster of abstract virtual f
 <{/autobr}>	
 
 
-<{sh}> The advantage of interface based API
+<{sh}> Obtain meta service interface for reflection
 <{sc}>
 
-<{autoul}>
-Binary compatible API.
+<{autobr}>
+Include header file cpgf/gmetaapi.h, call createDefaultMetaService to create a default meta service.
+<{piece}> IMetaService * createDefaultMetaService(); <{/piece}>
 
-<{/autoul}>	
+There two other functions related to the service.
+<{piece}>
+IMetaModule * getMetaModule();
+IMetaService * createMetaService(IMetaModule * primaryModule);
+<{/piece}>
+
+getMetaModule returns a module.
+A module is an executable, or a dynamic library.
+An IMetaModule represents the meta information of current module.
+Each module will have one and only one IMetaModule interface.
+
+An IMetaService represents all meta information of the application, include the executable, any dynamic libraries.
+An application should have one and only one IMetaService, no matter how many modules there are.
+
+<{/autobr}>	
+
+
+
+<{sh}> Obtain root interface for Lua binding
+<{sc}>
+
+<{autobr}>
+Include header file cpgf/scriptbind/gluabind.h, call createLuaScriptObject to get an IScriptObject interface.
+
+<{/autobr}>
+
+
+
+<{sh}> Memory management in interface based API
+<{sc}>
+
+<{autobr}>
+Very like Windows Component Object Model, cpgf interface based API utilizes reference count based memory management.
+Two functions from the root interface IObject give the memory management,
+<{piece}>
+   virtual uint32_t G_API_CC addReference() = 0;
+   virtual uint32_t G_API_CC releaseReference() = 0;
+<{/piece}>
+
+Note: interface returned by any API must be released (call releaseReference()).
+The easiest way to hold an interface is to store it into a scoped pointer.
+GScopedInterface (in gapi.h)
+
+<{/autobr}>
+
 
 
 <{sh}> Comparison of class-function based API and interface based API

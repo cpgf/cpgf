@@ -4,7 +4,6 @@ set GEN=perl ..\..\scripts\gendoc.pl
 set SRC_PATH=source
 set OUT_PATH=output
 
-rem %GEN% -o=%OUT_PATH% %SRC_PATH%/reflex-main.txt
 %GEN% -o=%OUT_PATH% %SRC_PATH%/reflex-build-meta-data.txt
 %GEN% -o=%OUT_PATH% %SRC_PATH%/reflex-use-meta-data-lib.txt
 %GEN% -o=%OUT_PATH% %SRC_PATH%/library-vs-api.txt
@@ -16,4 +15,3 @@ rem %GEN% -o=%OUT_PATH% %SRC_PATH%/reflex-main.txt
 %GEN% -o=%OUT_PATH% %SRC_PATH%/cpgf-build.txt
 %GEN% -o=%OUT_PATH% %SRC_PATH%/docs-policy-and-rules.txt
 %GEN% -o=%OUT_PATH% %SRC_PATH%/docs-using-interface-api.txt
-
