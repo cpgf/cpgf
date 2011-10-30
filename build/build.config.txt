@@ -3,12 +3,12 @@ set(BUILD_DEBUG
 )
 
 set(LUA_DIR
-e:/SourceCode/cpp/lua
-#/source/lua
+#e:/SourceCode/cpp/lua
+/home/wq/source/lua
 )
 
 set(UNIT_TEST_DIR
-e:/SourceCode/CPP/UnitTest++
-#/source/UnitTest++
+#e:/SourceCode/CPP/UnitTest++
+/home/wq/source/UnitTest++
 )
 

@@ -1,6 +1,10 @@
-#!/usr/bin/sh
+#!/bin/bash
 
-mingw32-make mingw TARGET=test
+if [ $OSTYPE == "cygwin" ]; then
+	mingw32-make mingw TARGET=test
+else
+	make linux TARGET=test
+fi
 
 if [ $? != 0 ]; then
 	echo Error occurred.

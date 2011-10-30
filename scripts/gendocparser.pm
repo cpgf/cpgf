@@ -97,7 +97,7 @@ sub _getAtomCount
 {
 	my ($self) = @_;
 	
-	return $#{@{$self->{atomList}}} + 1;
+	return scalar(@{$self->{atomList}});
 }
 
 sub _getAtom
@@ -425,7 +425,7 @@ sub _parseParams
 		$paramText = $remainder;
 	}
 	
-	return $#{@$params} >= 0 ? $params : undef;
+	return scalar(@$params) > 0 ? $params : undef;
 }
 
 sub _parseAtomLine
@@ -454,7 +454,7 @@ sub _parseAtomLine
 sub parse
 {
 	my ($self, $lines) = @_;
-	my $lineCount = $#{@$lines} + 1;
+	my $lineCount = scalar(@$lines);
 	my $atomList = [];
 	my $tag = undef;
 

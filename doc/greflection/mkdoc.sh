@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 
 GEN="perl ../../scripts/gendoc.pl"
 SRC_PATH=source
@@ -11,4 +11,8 @@ fi
 for input in $SRC_PATH/*.txt
 do
 	$GEN -o=$OUT_PATH $input
+	if [ $? != 0 ]; then
+		echo Error when process file $input.
+		exit 1
+	fi
 done

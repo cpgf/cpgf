@@ -59,7 +59,7 @@ And in the future, more script binding will be added.
 <{/autobr}>
 
 <h3>Documentations</h3>
-<{include name="doclist.txt" }>
+<{include name="doclist.inc" }>
 
 <h3>License</h3>
 <{autobr}>
