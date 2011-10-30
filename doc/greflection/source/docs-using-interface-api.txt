@@ -1,5 +1,7 @@
 <{filename name=docs-cpgf-using-interface-api }>
 
+<{title}>cpgf library -- Using interface based API<{/title}>
+
 <{autotoc}>
 
 <{sgroup}>Using interface based API

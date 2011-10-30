@@ -52,11 +52,11 @@ GAnnotationValue::GAnnotationValue(const GAnnotationValue & other)
 {
 	this->var = other.var;
 
-	if(vtGetType(this->var.data.typeData) == vtAnnoString) {
+	if(vtGetType(this->var.data.typeData) == meta_internal::vtAnnoString) {
 		this->var.data.valueObject = meta_internal::duplicateAnnoString(const_cast<const std::string *>(static_cast<const volatile std::string *>(other.var.data.valueObject))->c_str());
 	}
 	else {
-		if(vtGetType(this->var.data.typeData) == vtAnnoWideString) {
+		if(vtGetType(this->var.data.typeData) == meta_internal::vtAnnoWideString) {
 			this->var.data.valueObject = meta_internal::duplicateAnnoWideString(const_cast<const std::wstring *>(static_cast<const volatile std::wstring *>(other.var.data.valueObject))->c_str());
 		}
 	}
@@ -71,11 +71,11 @@ GAnnotationValue & GAnnotationValue::operator = (GAnnotationValue other)
 
 GAnnotationValue::~GAnnotationValue()
 {
-	if(vtGetType(this->var.data.typeData) == vtAnnoString) {
+	if(vtGetType(this->var.data.typeData) == meta_internal::vtAnnoString) {
 		delete static_cast<const volatile std::string *>(this->var.data.valueObject);
 	}
 	else {
-		if(vtGetType(this->var.data.typeData) == vtAnnoWideString) {
+		if(vtGetType(this->var.data.typeData) == meta_internal::vtAnnoWideString) {
 			delete static_cast<const volatile std::wstring *>(this->var.data.valueObject);
 		}
 	}
@@ -95,12 +95,12 @@ const GVariant * GAnnotationValue::getVariant() const
 
 bool GAnnotationValue::canToString() const
 {
-	return this->var.getType() == vtAnnoString;
+	return this->var.getType() == meta_internal::vtAnnoString;
 }
 
 bool GAnnotationValue::canToWideString() const
 {
-	return this->var.getType() == vtAnnoWideString;
+	return this->var.getType() == meta_internal::vtAnnoWideString;
 }
 
 bool GAnnotationValue::canToInt() const

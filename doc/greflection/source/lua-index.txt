@@ -1,5 +1,7 @@
 <{filename name=cpgf-luabinding }>
 
+<{title}>cpgf Lua binding -- an open source library to bind Lua script to C++<{/title}>
+
 <h1>cpgf Lua binding -- an open source library to bind Lua script to C++</h1>
 
 <{autobr}>

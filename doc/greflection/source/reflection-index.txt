@@ -1,5 +1,7 @@
 <{filename name=cpgf-reflection }>
 
+<{title}>cpgf reflection -- an open source library to add reflection to C++<{/title}>
+
 <h1>cpgf reflection -- an open source library to add reflection to C++</h1>
 
 <{autobr}>
@@ -23,6 +25,7 @@ Global fields (global variable) with any data type.
 Properties (fields with getter and setter). Can be either member or global. 
 Member and static functions with any parameters, return value, and calling convention. 
 Global functions. 
+Functions with variadic parameters.
 Enumerators. 
 Classes. Inner class can be reflected to outer meta class. Top level classes can be reflected to global meta class. 
 Class constructors. 

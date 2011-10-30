@@ -1,5 +1,6 @@
 <{filename name=docs-cpgf-reflection-using-meta-data-lib }>
 
+<{title}>cpgf reflection -- using meta data<{/title}>
 
 <{autotoc}>
 
@@ -225,10 +226,11 @@ Return the type information of the class it will construct.
 <{piece}> virtual bool isVariadic() const; <{/piece}>
 Check whether the constructor can accept variadic parameters.
 
-<{piece}> GVariant invoke(const GVariant & p1); <{/piece}>
-<{piece}> GVariant invoke(const GVariant & p1, const GVariant & p2); <{/piece}>
-<{piece}> GVariant invoke(const GVariant & p1, const GVariant & p2, ..., const GVariant & pN); <{/piece}>
+<{piece}> void * invoke(const GVariant & p1); <{/piece}>
+<{piece}> void * invoke(const GVariant & p1, const GVariant & p2); <{/piece}>
+<{piece}> void * invoke(const GVariant & p1, const GVariant & p2, ..., const GVariant & pN); <{/piece}>
 A group of overloaded functions to invoke the method with different amount of parameters.
+Unlike GMetaMethod, these functions here always return void *, which is the address of the new instance.
 
 <{piece}> virtual GVariant execute(const GVariant * params, size_t paramCount) const; <{/piece}>
 Invoke the constructor, and pass the parameters in an array.
@@ -253,10 +255,10 @@ Acquire parameter type at index.
 Get parameter count.
 
 <{piece}> virtual bool hasResult() const; <{/piece}>
-Always return true;
+Check whether the operator has result. For operators that return "void", this function return false, otherwise, it returns true.
 
 <{piece}> virtual GMetaType getResultType() const; <{/piece}>
-Return the type information of the class it will construct.
+Acquire result type information.
 
 <{piece}> virtual bool isVariadic() const; <{/piece}>
 Check whether the operator can accept variadic parameters.
@@ -371,6 +373,63 @@ Return -1 if not found.
 
 
 <{/autobr}>	
+
+
+
+
+<{sh}> Using variadic parameters in meta methods, constructors and operators.
+<{sc}>
+
+<{autobr}>
+Any meta invokable -- methods, constructors, or operators -- with only one parameter of type <b>GMetaVariadicParam *</b> or <b>const GMetaVariadicParam *</b>, is treated as variadic invokable.
+Thus any number of parameters can be passed to the invokable.
+
+A variadic meta method,
+
+<{piece}>int sum(const cpgf::GMetaVariadicParam * params); <{/piece}>
+
+In meaning it's same as C++ variadic function,
+<{piece}>int sum(...); <{/piece}>
+
+Calling the meta version sum,
+method->invoke(obj, 1, 3, 5, 7, 9);
+
+is quite similiar with C++ variadic function,
+obj->sum(1, 3, 5, 7, 9);
+
+GMetaVariadicParam is a structure,
+
+<{/autobr}>	
+
+<{code}>
+struct GMetaVariadicParam
+{
+	GVariant const * const * params;
+	size_t paramCount;
+};
+<{/code}>
+
+<{autobr}>	
+params is a pointer that points to an array of GVariant pointers, each GVariant pointer points to the parameter.
+paramCount is the parameter count.
+
+
+A sample implementation of the variadic method "sum",
+
+<{/autobr}>	
+
+<{code}>
+	int sum(const cpgf::GMetaVariadicParam * params)
+	{
+		int total = 0;
+		for(size_t i = 0; i < params->paramCount; ++i) {
+			total += cpgf::fromVariant<int>(*(params->params[i]));
+		}
+
+		return total;
+	}
+<{/code}>
+
 
 
 

@@ -1,5 +1,7 @@
 <{filename name=cpgf-index }>
 
+<{title}>cpgf library -- a free C++ open source library for reflection, script binding, callbacks <{/title}>
+
 <h1>cpgf library -- a free C++ open source library for reflection, script binding, callbacks</h1>
 
 <{autobr}>

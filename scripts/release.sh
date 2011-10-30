@@ -48,6 +48,7 @@ copy_file "build" "*"
 mkdir $DEST/lib
 
 head_file "include/cpgf" "*"
+head_file "include/cpgf/private" "*"
 head_file "include/cpgf/scriptbind" "*"
 
 head_file "src" "*"

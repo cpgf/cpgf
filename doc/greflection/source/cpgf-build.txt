@@ -1,5 +1,7 @@
 <{filename name=cpgf-build-and-use }>
 
+<{title}>Building and use cpgf library <{/title}>
+
 <h1>Building and use cpgf library</h1>
 
 <h3>Using the library </h3>

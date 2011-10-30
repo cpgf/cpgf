@@ -1,5 +1,7 @@
 <{filename name=docs-cpgf-library-vs-api }>
 
+<{title}>Programming interface -- Library VS API<{/title}>
+
 <{autotoc}>
 
 <{sgroup}>Programming interface -- Library VS API

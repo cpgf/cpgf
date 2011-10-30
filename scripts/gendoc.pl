@@ -82,6 +82,18 @@ my @tags = (
 		needClose => 0,
 		handler => \&handlerInclude,
 	},
+
+	{
+		tag => "head",
+		needClose => 1,
+		handler => \&handlerHead,
+	},
+
+	{
+		tag => "title",
+		needClose => 1,
+		handler => \&handlerTitle,
+	},
 );
 
 my @inputFiles = ();
@@ -244,8 +256,8 @@ sub doFile
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<title></title>
 <link rel="stylesheet" type="text/css" href="maintpl.css" />
+$context->{head}
 </head>
 <body><div style="width:900px">
 EOM
@@ -384,7 +396,8 @@ sub handlerCodePiece
 		$context->appendContent('</div>');
 	}
 	else {
-		$context->appendContent('<div style="background-color:#eeeeee;border-width:1px;border-style:solid;border-color:#dddddd;margin:4px 0px 4px 0px;padding:0px 4px 0px 4px">');
+#		$context->appendContent('<div style="background-color:#eeeeee;border-width:1px;border-style:solid;border-color:#dddddd;margin:4px 0px 4px 0px;padding:0px 4px 0px 4px">');
+		$context->appendContent('<div class="codepiece"">');
 	}
 
 	$context->changeCodeLevel($closeTag);
@@ -416,6 +429,24 @@ sub handlerInclude
 	$context->appendContent($newContext->{beforeTocContent});
 	$context->appendContent($newContext->{tocContent});
 	$context->appendContent($newContext->{content});
+}
+
+sub handlerHead
+{
+	my ($tagProcessor, $context, $tagName, $closeTag) = @_;
+	
+	return if($closeTag);
+	
+	$context->appendHead($tagProcessor);
+}
+
+sub handlerTitle
+{
+	my ($tagProcessor, $context, $tagName, $closeTag) = @_;
+	
+	return if($closeTag);
+	
+	$context->appendTitle($tagProcessor);
 }
 
 sub noLineBreak
@@ -515,6 +546,8 @@ sub new
 
 		sourceName => undef,		
 		fileName => undef,
+		
+		head => '',
 	};
 
 	bless $self, $class;
@@ -773,6 +806,24 @@ sub newSectionHead
 	}
 }
 
+sub appendHead
+{
+	my ($self, $tagProcessor) = @_;
+	
+	my $text = $self->{tagHelper}->getAllText($tagProcessor);
+	
+	$self->{head} .= $text;
+}
+	
+sub appendTitle
+{
+	my ($self, $tagProcessor) = @_;
+	
+	my $text = $self->{tagHelper}->getAllText($tagProcessor);
+	
+	$self->{head} .= '<title>' . $text . '</title>';
+}
+	
 sub newText
 {
 	my ($self, $text) = @_;

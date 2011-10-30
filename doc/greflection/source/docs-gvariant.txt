@@ -1,5 +1,7 @@
 <{filename name=docs-cpgf-gvariant }>
 
+<{title}>cpgf library -- Using GVariant<{/title}>
+
 <{autotoc}>
 
 <{sgroup}>Using GVariant

@@ -1,5 +1,7 @@
 <{filename name=docs-cpgf-policy-and-rule }>
 
+<{title}>Policies and Rules -- customize the underlying behavior at compile time<{/title}>
+
 <h1>Policies and Rules -- customize the underlying behavior at compile time</h1>
 
 <{autotoc}>

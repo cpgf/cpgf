@@ -1,5 +1,5 @@
-#include "cpgf/gmetaclass.h"
 #include "cpgf/gmetaannotation.h"
+#include "cpgf/gmetaclass.h"
 #include "cpgf/gmetaenum.h"
 #include "cpgf/gmetafield.h"
 #include "cpgf/gmetamethod.h"
