@@ -445,4 +445,4 @@ A sample implementation of the variadic method "sum",
 <{/autotoc}>
 
 
-<{include name="moredoc.txt" }>
+<{include name="moredoc.inc" }>

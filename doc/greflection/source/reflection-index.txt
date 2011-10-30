@@ -64,4 +64,4 @@ More. Waiting for you to discover.
 
 <{/autoul}>
 
-<{include name="moredoc.txt" }>
+<{include name="moredoc.inc" }>

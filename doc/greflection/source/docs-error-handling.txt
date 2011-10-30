@@ -1,4 +1,4 @@
 <{filename name=docs-cpgf-error-handling }>
 
-<{include name="moredoc.txt" }>
+<{include name="moredoc.inc" }>
 

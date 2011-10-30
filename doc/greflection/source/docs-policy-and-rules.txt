@@ -46,4 +46,4 @@ For the reflection library, there are several predefined policies in file gmetap
 
 <{/autotoc}>
 
-<{include name="moredoc.txt" }>
+<{include name="moredoc.inc" }>

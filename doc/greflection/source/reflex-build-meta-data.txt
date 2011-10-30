@@ -644,4 +644,4 @@
 
 
 
-<{include name="moredoc.txt" }>
+<{include name="moredoc.inc" }>

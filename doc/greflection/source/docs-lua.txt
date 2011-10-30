@@ -138,6 +138,9 @@ Bind a function to script.
 <{piece}> virtual bool cacheName(GScriptName * name) = 0; <{/piece}>
 Cache the script name for later fast use. Lua supports it by reference to the name.
 For any script engine that doesn't support this function, this function doesn't effect.
+<b>Note:</b>After a name is cached successfully, it must finish its life cycle before the script engine is closed (for Lua, the Lua state is closed).
+If the name object has to live after the script engine is closed, GScriptName::uncache must be called on the name to release any cached reference.
+If this rule is broken, memory crash can be expected.
 
 <{piece}> virtual GScriptDataType getType(const GScriptName & name, IMetaTypedItem ** outMetaTypeItem) = 0; <{/piece}>
 Get the type of a name in the script engine. The name can be any legal name that exists in the script engine.
@@ -175,4 +178,4 @@ The new script object can be used to bind meta data.
 
 <{/autotoc}>
 
-<{include name="moredoc.txt" }>
+<{include name="moredoc.inc" }>

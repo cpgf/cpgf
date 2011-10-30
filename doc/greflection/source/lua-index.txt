@@ -38,4 +38,4 @@ All script binding engine will use the same interface -- GScriptObject and IScri
 
 <{/autobr}>
 
-<{include name="moredoc.txt" }>
+<{include name="moredoc.inc" }>

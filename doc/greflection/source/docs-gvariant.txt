@@ -160,5 +160,5 @@ The address of rs and v will be the same. &rs == &v
 <{/autotoc}>
 
 
-<{include name="moredoc.txt" }>
+<{include name="moredoc.inc" }>
 

@@ -27,4 +27,4 @@ With this approach, the application binary interface (ABI) is guaranteed to be c
 <{/autotoc}>
 
 
-<{include name="moredoc.txt" }>
+<{include name="moredoc.inc" }>

@@ -143,4 +143,4 @@ GScopedInterface (in gapi.h)
 <{/autotoc}>
 
 
-<{include name="moredoc.txt" }>
+<{include name="moredoc.inc" }>
