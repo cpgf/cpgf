@@ -142,6 +142,8 @@ public:
 
 	GScriptName & operator = (GScriptName other);
 
+	void uncache();
+
 	void swap(GScriptName & other);
 
 	const char * getName() const;

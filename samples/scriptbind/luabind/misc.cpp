@@ -299,7 +299,7 @@ void doTest()
 	GMetaVariant result = invokeScriptFunction(&binding, "luaAdd", 8, 2);
 	cout << "Result: " << fromVariant<int>(result.getValue()) << endl;
 	cout << binding.getString("lss") << endl;
-
+	{
 	GScriptName nameNewObj("newObj");
 	binding.cacheName(&nameNewObj);
 	cout << static_cast<TestObject *>(binding.getObject(nameNewObj))->width << endl;
@@ -307,13 +307,15 @@ void doTest()
 	binding.getType(nameNewObj, &item);
 	GScopedInterface<IMetaClass> type(static_cast<IMetaClass *>(item));
 	cout << type->getName() << endl;
+	}
 
 	GScriptName nameNewLss("newlss");
 	binding.cacheName(&nameNewLss);
 	binding.assignValue("lss", nameNewLss);
 	binding.nullifyValue(nameNewLss);
 	luaL_loadstring(L, "print(newlss)"); lua_call(L, 0, LUA_MULTRET);
-
+	nameNewLss.uncache();
+	
 	lua_close(L);
 }
 

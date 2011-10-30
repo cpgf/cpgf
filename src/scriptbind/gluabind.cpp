@@ -1301,7 +1301,9 @@ GLuaScriptObject::~GLuaScriptObject()
 
 bool GLuaScriptObject::cacheName(GScriptName * name)
 {
-	*name = GScriptName(name->getName(), new GLuaScriptNameData(this, name->getName()));
+	GLuaScriptNameData * data = new GLuaScriptNameData(this, name->getName());
+	*name = GScriptName(name->getName(), data);
+	data->release();
 
 	return name->hasData();
 }

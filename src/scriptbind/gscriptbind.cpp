@@ -72,6 +72,14 @@ GScriptName & GScriptName::operator = (GScriptName other)
 	return *this;
 }
 
+void GScriptName::uncache()
+{
+	if(this->data != NULL) {
+		this->data->release();
+		this->data = NULL;
+	}
+}
+
 void GScriptName::swap(GScriptName & other)
 {
 	using std::swap;
