@@ -4,14 +4,6 @@
 #include "cpgf/private/gmetaenum_p.h"
 
 
-#define GMETA_ENUM(e, ...) \
-	getMetaClassObject()->addEnum(new cpgf::GMetaEnum(cpgf::normalizeReflectName(GPP_STRINGIZE(e)).c_str(), cpgf::meta_internal::makeMetaEnumTypeInfo(__VA_ARGS__), &(*cpgf::meta_internal::makeMetaEnumData(# __VA_ARGS__, __VA_ARGS__) , __VA_ARGS__)))
-
-#define GMETA_QUALIFIED_ENUM(e, ...) \
-	using namespace cpgf; \
-	getMetaClassObject()->addEnum(new GMetaEnum(cpgf::normalizeReflectName(GPP_STRINGIZE(e)).c_str(), meta_internal::makeMetaEnumTypeInfo(__VA_ARGS__), &(*meta_internal::makeMetaEnumData(# __VA_ARGS__, __VA_ARGS__) , __VA_ARGS__)))
-
-
 namespace cpgf {
 
 class GMetaEnum;
@@ -45,15 +37,6 @@ public:
 private:
 	GScopedPointer<meta_internal::GMetaEnumData> baseData;
 };
-
-
-GMetaEnum & globalAddEnum(GMetaEnum * en);
-
-template <typename T>
-cpgf::GMetaEnum & reflectEnum(const char * name)
-{
-	return globalAddEnum(new GMetaEnum(name, cpgf::createMetaType<T>(), new cpgf::meta_internal::GMetaEnumData(NULL, sizeof(T))));
-}
 
 
 } // namespace cpgf

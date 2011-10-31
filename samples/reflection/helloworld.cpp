@@ -1,6 +1,6 @@
 #include "cpgf/gtestutil.h" // for test
 
-#include "cpgf/gmetaclass.h"
+#include "cpgf/gmetareflect.h"
 #include "cpgf/gmetafield.h"
 #include "cpgf/gmetaenum.h"
 #include "cpgf/gmetaannotation.h"

@@ -4,12 +4,6 @@
 #include "cpgf/private/gmetaclass_p.h"
 
 #include "cpgf/gmetacommon.h"
-#include "cpgf/gmetaannotation.h"
-#include "cpgf/gmetaenum.h"
-#include "cpgf/gmetafield.h"
-#include "cpgf/gmetamethod.h"
-#include "cpgf/gmetaoperator.h"
-#include "cpgf/gmetaproperty.h"
 #include "cpgf/gmetapolicy.h"
 
 #include "cpgf/gmetaapi.h"
@@ -20,122 +14,6 @@
 #pragma warning(push)
 #pragma warning(disable:4127) // warning C4127: conditional expression is constant
 #endif
-
-
-#define I_GMETA_DO_COMMON_CLASS \
-	public: \
-		static const cpgf::GMetaClass * getMetaClass() { \
-			return getMetaClassObject(); \
-		} \
-	private: \
-		static void destroyMetaObject(void * o) { delete static_cast<MetaCurrentClassType *>(o); } \
-		template <typename i_Reflect_Signature> static void reflectConstructor() { getMetaClassObject()->template addConstructor<MetaCurrentClassType, i_Reflect_Signature>(cpgf::GMetaPolicyDefault()); } \
-		template <typename i_Reflect_Signature, typename i_Reflect_Policy> static void reflectConstructor(const i_Reflect_Policy & policy) { getMetaClassObject()->template addConstructor<MetaCurrentClassType, i_Reflect_Signature>(policy); } \
-		template <typename i_Reflect_FT> static void reflectMethod(const char * name, i_Reflect_FT func) { getMetaClassObject()->addMethod(cpgf::GMetaMethod::newMethod<MetaCurrentClassType>(name, func, cpgf::GMetaPolicyDefault())); } \
-		template <typename i_Reflect_FT, typename i_Reflect_Policy> static void reflectMethod(const char * name, i_Reflect_FT func, const i_Reflect_Policy & policy) { getMetaClassObject()->addMethod(cpgf::GMetaMethod::newMethod<MetaCurrentClassType>(name, func, policy)); } \
-		template <typename i_Reflect_FT> static void reflectField(const char * name, i_Reflect_FT field) { getMetaClassObject()->addField(new cpgf::GMetaField(name, field, cpgf::GMetaPolicyDefault())); } \
-		template <typename i_Reflect_FT, typename i_Reflect_Policy> static void reflectField(const char * name, i_Reflect_FT field, const i_Reflect_Policy & policy) { getMetaClassObject()->addField(new cpgf::GMetaField(name, field, policy)); } \
-		template <typename i_Reflect_Signature, typename i_Reflect_Creator> static void reflectOperator(const i_Reflect_Creator & creator) { getMetaClassObject()->addOperator(new cpgf::GMetaOperator(creator.template create<MetaCurrentClassType, i_Reflect_Signature>(cpgf::GMetaPolicyDefault()))); } \
-		template <typename i_Reflect_Signature, typename i_Reflect_Creator, typename i_Reflect_Policy> static void reflectOperator(const i_Reflect_Creator & creator, const i_Reflect_Policy & policy) { getMetaClassObject()->addOperator(new cpgf::GMetaOperator(creator.template create<MetaCurrentClassType, i_Reflect_Signature>(policy))); } \
-		template <typename i_Reflect_Getter, typename i_Reflect_Setter> static void reflectProperty(const char * name, const i_Reflect_Getter & getter, const i_Reflect_Setter & setter) { getMetaClassObject()->addProperty(new cpgf::GMetaProperty(name, getter, setter, cpgf::GMetaPolicyDefault())); } \
-		template <typename i_Reflect_Getter, typename i_Reflect_Setter, typename i_Reflect_Policy> static void reflectProperty(const char * name, const i_Reflect_Getter & getter, const i_Reflect_Setter & setter, const i_Reflect_Policy & policy) { getMetaClassObject()->addProperty(new cpgf::GMetaProperty(name, getter, setter, policy)); } \
-		template <typename i_Reflect_T> static cpgf::GMetaEnum & reflectEnum(const char * name) { return getMetaClassObject()->addEnum(new cpgf::GMetaEnum(name, cpgf::createMetaType<i_Reflect_T>(), new cpgf::meta_internal::GMetaEnumData(NULL, sizeof(i_Reflect_T)))); } \
-		static void reflectClass(const cpgf::GMetaClass * metaClass) { getMetaClassObject()->addClass(metaClass); } \
-		static cpgf::GMetaAnnotation & reflectAnnotation(const char * name) { return getMetaClassObject()->addAnnotation(new cpgf::GMetaAnnotation(name)); }; \
-		static void flushAnnotation() { getMetaClassObject()->flushAnnotation(); } \
-		inline static void registerMetaInformation()
-
-#define I_GMETA_DO_DEFINE_CLASS(cls, clsname, reg, policy, ...) \
-	private: \
-		typedef cls MetaCurrentClassType; \
-		static cpgf::GMetaClass * getMetaClassObject() { \
-			static cpgf::GMetaClass metaClass((MetaCurrentClassType *)0, cpgf::meta_internal::MakeSuperList<cpgf::TypeList_Make<__VA_ARGS__>::Result, MetaCurrentClassType >(), clsname, &destroyMetaObject, &reg, policy); \
-			metaClass.addModifier(cpgf::metaModifierNoFree); \
-			return &metaClass; \
-		} \
-		I_GMETA_DO_COMMON_CLASS
-
-#define GMETA_INTRUSIVE_CLASS(cls, clsname, ...) I_GMETA_DO_DEFINE_CLASS(cls, clsname, cls::registerMetaInformation, cpgf::GMetaPolicyDefault(), __VA_ARGS__)
-#define GMETA_INTRUSIVE_POLICIED_CLASS(cls, clsname, policy, ...) I_GMETA_DO_DEFINE_CLASS(cls, clsname, cls::registerMetaInformation, policy, __VA_ARGS__)
-
-#define I_GMETA_DEFINE_CLASS(cls, alias, clsname, policy, ...) \
-	class GMETA_WRAP_CLASS(alias) { \
-		I_GMETA_DO_DEFINE_CLASS(cls, clsname, GMETA_WRAP_CLASS(alias)::registerMetaInformation, policy, __VA_ARGS__); \
-	}; \
-	static cpgf::meta_internal::GMetaClassRegister GPP_CONCAT(i_offClass_, __LINE__) (GMETA_WRAP_CLASS(alias)::getMetaClass()); \
-	inline void GMETA_WRAP_CLASS(alias)::registerMetaInformation()
-
-#define GMETA_DEFINE_CLASS(cls, alias, clsname, ...) I_GMETA_DEFINE_CLASS(cls, alias, clsname, cpgf::GMetaPolicyDefault(), __VA_ARGS__)
-#define GMETA_DEFINE_POLICIED_CLASS(cls, alias, clsname, policy, ...) I_GMETA_DEFINE_CLASS(cls, alias, clsname, policy, __VA_ARGS__)
-
-// This macro is almost same as GMETA_DEFINE_POLICIED_TEMPLATE except the policy
-// but we can't call GMETA_DEFINE_POLICIED_TEMPLATE in this macro
-// because GPP_COMMA can't be used in nested macro call in GCC.
-#define GMETA_DEFINE_TEMPLATE(cls, alias, types, params, clsname, ...) \
-	template <types> \
-	class GMETA_WRAP_CLASS(alias) { \
-	private: \
-		typedef cls < params > MetaCurrentClassType; \
-		static cpgf::GMetaClass * getMetaClassObject() { \
-			static cpgf::GMetaClass metaClass((MetaCurrentClassType *)0, cpgf::meta_internal::MakeSuperList<typename cpgf::TypeList_Make<__VA_ARGS__>::Result, MetaCurrentClassType >(), clsname, &destroyMetaObject, &GMETA_WRAP_CLASS(alias)::registerMetaInformation, cpgf::GMetaPolicyDefault()); \
-			metaClass.addModifier(cpgf::metaModifierNoFree); \
-			return &metaClass; \
-		} \
-		I_GMETA_DO_COMMON_CLASS; \
-	public: \
-		static const cpgf::GMetaClass * instantiate(const char * name) { getMetaClassObject()->rebindName(name); return getMetaClass(); } \
-	}; \
-	template <types> \
-	inline void GMETA_WRAP_CLASS(alias) < params >::registerMetaInformation()
-
-#define GMETA_DEFINE_POLICIED_TEMPLATE(cls, alias, types, params, clsname, policy, ...) \
-	template <types> \
-	class GMETA_WRAP_CLASS(alias) { \
-	private: \
-		typedef cls < params > MetaCurrentClassType; \
-		static cpgf::GMetaClass * getMetaClassObject() { \
-			static cpgf::GMetaClass metaClass((MetaCurrentClassType *)0, cpgf::meta_internal::MakeSuperList<typename cpgf::TypeList_Make<__VA_ARGS__>::Result, MetaCurrentClassType >(), clsname, &destroyMetaObject, &GMETA_WRAP_CLASS(alias)::registerMetaInformation, policy); \
-			metaClass.addModifier(cpgf::metaModifierNoFree); \
-			return &metaClass; \
-		} \
-		I_GMETA_DO_COMMON_CLASS; \
-	public: \
-		static const cpgf::GMetaClass * instantiate(const char * name) { getMetaClassObject()->rebindName(name); return getMetaClass(); } \
-	}; \
-	template <types> \
-	inline void GMETA_WRAP_CLASS(alias) < params >::registerMetaInformation()
-
-#define GMETA_INSTANTIATE_TEMPLATE(name, alias, params) \
-	static cpgf::meta_internal::GMetaClassRegister GPP_CONCAT(i_offClass_, __LINE__) (GMETA_WRAP_CLASS(alias) < params >::instantiate(name))
-
-
-
-#define GMETA_WRAP_CLASS(cls) cls ## _oFf_mEta_
-
-#define GMETA_FRIEND(cls) friend class GMETA_WRAP_CLASS(cls)
-
-
-#define GMETA_CLASS(cls) \
-	using namespace cpgf; \
-	reflectClass(findMetaClass<MetaCurrentClassType::cls>())
-
-#define GMETA_QUALIFIED_CLASS(cls) \
-	using namespace cpgf; \
-	reflectClass(findMetaClass<cls>())
-
-#define GMETA_DEFINE_GLOBAL() \
-	struct GPP_CONCAT(GMetaGlobalRegister_, __LINE__) { \
-		static cpgf::GMetaClass * getMetaClass() { return cpgf::getGlobalMetaClass(); } \
-		static cpgf::GMetaClass * getMetaClassObject() { return cpgf::getGlobalMetaClass(); } \
-		inline static void registerGlobalMetaInformation(); \
-		GPP_CONCAT(GMetaGlobalRegister_, __LINE__)() { \
-			static bool initialized = false; \
-			if(!initialized) { registerGlobalMetaInformation(); initialized = true; } \
-		} \
-	}; \
-	static GPP_CONCAT(GMetaGlobalRegister_, __LINE__) GPP_CONCAT(mgr_i_, __LINE__); \
-	inline void GPP_CONCAT(GMetaGlobalRegister_, __LINE__)::registerGlobalMetaInformation()
-
 
 
 
@@ -337,31 +215,6 @@ struct GMetaClassRegister
 };
 
 
-#define CASE_SUPERLIST_ARG(N, unused) case N: superList->add<ClassType, typename TypeList_GetWithDefault<TList, N, void>::Result>(); break;
-
-template <typename TList, typename ClassType>
-GMetaSuperList * MakeSuperList() {
-	GMetaSuperList * superList = new GMetaSuperList;
-
-	for(int i = 0; i < 20; ++i) {
-		if(i >= static_cast<int>(TypeList_Length<TList>::Result)) {
-			break;
-		}
-
-		switch(i) {
-			GPP_REPEAT(19, CASE_SUPERLIST_ARG, GPP_EMPTY())
-
-			default:
-				break;
-		}
-	}
-
-	return superList;
-}
-
-#undef CASE_SUPERLIST_ARG
-
-
 } // namespace meta_internal
 
 
@@ -379,8 +232,6 @@ inline const GMetaClass * findMetaClass()
 
 const GMetaClass * findMetaClass(const GMetaType & type);
 const GMetaClass * findMetaClass(const char * name);
-
-void reflectClass(const GMetaClass * metaClass);
 
 
 } // namespace cpgf

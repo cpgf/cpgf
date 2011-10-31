@@ -10,13 +10,6 @@
 
 
 
-#define GMETA_ANNOTATION(anno) \
-	using namespace cpgf; \
-	reflectAnnotation(GPP_STRINGIZE(anno))
-
-#define GMETA_QUALIFIED_ANNOTATION(anno) GMETA_ANNOTATION(anno)
-
-
 
 namespace cpgf {
 
@@ -121,13 +114,6 @@ private:
 private:
 	friend class GMetaClass;
 };
-
-
-GMetaAnnotation & globaAddAnnotation(GMetaAnnotation * annotation);
-void globalFlushAnnotation();
-
-GMetaAnnotation & reflectAnnotation(const char * name);
-void flushAnnotation();
 
 
 } // namespace cpgf

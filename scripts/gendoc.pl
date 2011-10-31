@@ -634,12 +634,12 @@ sub changeAutoOLLevel
 	$self->{olLevel} = 0 if($self->{olLevel} < 0);
 
 	if($close) {
-		if($self->{ulLevel} == 0) {
+		if($self->{olLevel} == 0) {
 			$self->appendContent('</ol>');
 		}
 	}
 	else {
-		if($self->{ulLevel} == 1) {
+		if($self->{olLevel} == 1) {
 			$self->appendContent('<ol>');
 		}
 	}

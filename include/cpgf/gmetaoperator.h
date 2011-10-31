@@ -139,21 +139,6 @@ private:
 #undef FUNCTOR_LOAD_PARAM
 
 
-void globalAddOperator(GMetaOperator * metaOperator);
-
-template <typename Signature, typename Creator>
-void reflectOperator(const Creator & creator)
-{
-	globalAddOperator(new cpgf::GMetaOperator(creator.template create<void, Signature>(GMetaPolicyDefault())));
-}
-
-template <typename Signature, typename Creator, typename Policy>
-void reflectOperator(const Creator & creator, const Policy & policy)
-{
-	globalAddOperator(new cpgf::GMetaOperator(creator.template create<void, Signature>(policy)));
-}
-
-
 
 } // namespace cpgf
 

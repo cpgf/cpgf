@@ -6,17 +6,6 @@
 #include <string.h>
 
 
-#if defined(_MSC_VER)
-#include <stdlib.h>
-#include <crtdbg.h>
-
-#ifdef _DEBUG
-#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
-#define new DEBUG_NEW
-#endif
-#endif
-
-
 namespace cpgf {
 
 namespace meta_internal {
@@ -223,16 +212,6 @@ void GMetaAnnotation::setMetaItem(const GMetaItem * metaItem)
 	this->metaItem = metaItem;
 }
 
-
-GMetaAnnotation & reflectAnnotation(const char * name)
-{
-	return globaAddAnnotation(new GMetaAnnotation(name));
-};
-
-void flushAnnotation()
-{
-	globalFlushAnnotation();
-}
 
 
 } // namespace cpgf

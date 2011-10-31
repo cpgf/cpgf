@@ -5,7 +5,7 @@
 #include "../unittestbase.h"
 
 
-#include "cpgf/gmetaclass.h"
+#include "cpgf/gmetareflect.h"
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gexception.h"
 

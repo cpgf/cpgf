@@ -19,12 +19,6 @@
 #include "TestApplication.h"
 #include "cpgf/game/g2d/gsubsystems2d.h"
 
-#ifdef _DEBUG
-#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
-#define new DEBUG_NEW
-#endif 
-
-
 using namespace cpgf;
 
 extern void doTestGameSource();

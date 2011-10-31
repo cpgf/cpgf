@@ -14,7 +14,7 @@ cpgf is composed by several independent libraries:
 	
 	cpgf callback -- a callback library to implement signal/slot or callback in C++. It's the primary library for other libraries.
 <{/autoul}>
-The goal of cpgf is to extend C++ language with a lot of easy to use features which are only in other higher level languages and absence in C++.
+The goal of cpgf is to extend C++ language with a lot of easy to use features which are only available in other higher level languages and absence in C++.
 cpgf provides a very easy to use callback system, which is common used in C# and script languages.
 cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? now we have it in C++!
 cpgf makes binding to Lua is a piece of cake! The Lua binding engine uses the reflection system extensively.
@@ -31,6 +31,8 @@ And in the future, more script binding will be added.
 	<b>Written in (almost) standard and portable C++. </b> It can be compiled at least under VC and GCC, on Windows, Linux, and Mac.
 
 	<b>Extensively, but not abuse, using template programming. </b> Don't feel scaring. The compile time is not slow!
+	
+	<b>Free and open source. </b>
 <{/autoul}>
 
 
@@ -86,6 +88,7 @@ And in the future, more script binding will be added.
 <h3>Required third party library -- None for the major libraries </h3>
 <{autobr}>
 	Doesn't require C++0X and TR1 features.
+	Doesn't require Boost library.
 	For Lua binding, Lua library is required.
 	If you want to run the unit test, UnitTest++ is required. But usually you don't need to do that.
 	

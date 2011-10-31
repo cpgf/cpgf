@@ -1,4 +1,4 @@
-#include "cpgf/gmetaclass.h"
+#include "cpgf/gmetareflect.h"
 
 #include "testscriptbindmetadata.h"
 

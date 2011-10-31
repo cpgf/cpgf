@@ -75,7 +75,7 @@ If you are using the interface based API, you have to deal with IScriptName.
 
 
 
-<{sh}> Start script object
+<{sh}> Get start with script object
 <{sc}>
 
 <{autobr}>

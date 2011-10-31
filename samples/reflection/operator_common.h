@@ -2,7 +2,7 @@
 #define __OPERATOR_COMMON_H
 
 #include "cpgf/gtestutil.h"
-#include "cpgf/gmetaclass.h"
+#include "cpgf/gmetareflect.h"
 #include "cpgf/gmetaoperator.h"
 #include "cpgf/gmetaapiutil.h"
 

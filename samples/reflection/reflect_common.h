@@ -3,7 +3,7 @@
 
 #include "cpgf/gtestutil.h"
 
-#include "cpgf/gmetaclass.h"
+#include "cpgf/gmetareflect.h"
 #include "cpgf/gmetaapiutil.h"
 
 #include <iostream>
@@ -16,17 +16,6 @@
 #pragma warning(disable:4250)
 // 'sprintf': This function or variable may be unsafe
 #pragma warning(disable:4996)
-#endif
-
-
-#if defined(_MSC_VER)
-#include <stdlib.h>
-#include <crtdbg.h>
-
-#ifdef _DEBUG
-#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
-#define new DEBUG_NEW
-#endif
 #endif
 
 

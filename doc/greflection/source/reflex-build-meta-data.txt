@@ -15,7 +15,7 @@
 	For global fields and methods, they must be added to the global meta class (get via function getGlobalMetaClass).
 	In other words, this library is class based reflection system.
 	
-	To build the meta data, include the header file gmetaclass.h.
+	To build the meta data, include the header file gmetareflect.h.
 
 	<b>Buiding meta data using function and macro helpers</b>
 	Most meta data can be built in two ways,

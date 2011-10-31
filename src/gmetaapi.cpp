@@ -1,4 +1,4 @@
-#include "cpgf/gmetaclass.h"
+#include "cpgf/gmetareflect.h"
 #include "cpgf/gmetafundamental.h"
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gassert.h"
@@ -8,18 +8,6 @@
 #include "pinclude/gapiimpl.h"
 
 #include <string>
-
-
-#if defined(_MSC_VER)
-#include <stdlib.h>
-#include <crtdbg.h>
-
-#ifdef _DEBUG
-#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
-#define new DEBUG_NEW
-#endif
-#endif
-
 
 
 #define ENTER_META_API() \

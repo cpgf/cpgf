@@ -4,14 +4,6 @@
 #include "cpgf/private/gmetamethod_p.h"
 
 
-#define GMETA_METHOD(method) \
-	reflectMethod(cpgf::normalizeReflectName(GPP_STRINGIZE(method)).c_str(), &MetaCurrentClassType::method)
-
-#define GMETA_QUALIFIED_METHOD(method) \
-	using namespace cpgf; \
-	reflectMethod(cpgf::normalizeReflectName(GPP_STRINGIZE(method)).c_str(), &method)
-
-
 namespace cpgf {
 
 
@@ -101,25 +93,6 @@ public:
 protected:
 	GScopedPointer<meta_internal::GMetaMethodDataBase> baseData;
 };
-
-
-void globalAddMethod(GMetaMethod * method);
-
-template <typename FT>
-void reflectMethod(const char * name, FT func)
-{
-	GASSERT_STATIC(GFunctionTraits<FT>::IsFunction && !GFunctionTraits<FT>::IsMember);
-
-	globalAddMethod(cpgf::GMetaMethod::newMethod<void>(name, func, GMetaPolicyDefault()));
-}
-
-template <typename FT, typename Policy>
-void reflectMethod(const char * name, FT func, const Policy & policy)
-{
-	GASSERT_STATIC(GFunctionTraits<FT>::IsFunction && !GFunctionTraits<FT>::IsMember);
-
-	globalAddMethod(cpgf::GMetaMethod::newMethod<void>(name, func, policy));
-}
 
 
 } // namespace cpgf

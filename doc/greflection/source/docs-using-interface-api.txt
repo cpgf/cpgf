@@ -12,7 +12,23 @@
 <{autobr}>
 The idea of interface based API is inspired by Windows Component Object Model.
 All APIs are exposed in interface form, which is a cluster of abstract virtual functions.
+<{/autobr}>	
 
+
+<{sh}> Why and when to use interface based API
+<{sc}>
+
+<{autobr}>
+The most important difference between interface based API and class-function based API is, interface based API is binary compatible and class-function based API is not binary compatible.
+That's to say, if we need to invoke API cross dynamic libraries or modules, we should use interface based API.
+If we use class-function based API cross dynamic libraries, we must ensure all libraries are compiled with same compiler and with same compiling options, which is not realistic.
+
+If we want to use the API in other languages such as C or Delphi, only interface based API can be used.
+Consider Microsoft MFC and COM. We can use COM in C or Delphi, but we can't use MFC in C or Delphi.
+
+<b>Supporting cross dynamic library is important for reflection and script binding </b>
+Let's imagine we want to create a GUI visual editor. We may want to extend the editor by allowing new components be added via new dynamica library, without re-distribute the editor itself.
+Also we can see DLLs (the dynamic libraries) are how important in Windows development, COM development and .Net development.
 <{/autobr}>	
 
 
@@ -46,6 +62,9 @@ An application should have one and only one IMetaService, no matter how many mod
 
 <{autobr}>
 Include header file cpgf/scriptbind/gluabind.h, call createLuaScriptObject to get an IScriptObject interface.
+<{piece}>
+IScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
+<{/piece}>
 
 <{/autobr}>
 
@@ -62,11 +81,57 @@ Two functions from the root interface IObject give the memory management,
    virtual uint32_t G_API_CC releaseReference() = 0;
 <{/piece}>
 
-Note: interface returned by any API must be released (call releaseReference()).
+Memory management rules:
+<{autool}>
+In-parameters -- the interface passed to another function -- should no reference count change (no add/release).
+Out-parameters -- returned by another function from either the result or the parameter -- should be released by the caller.
+Never try to free the interface memory by calling C++ delete or C free function. You can only call addReference or releaseReference.
+<{/autool}>
 The easiest way to hold an interface is to store it into a scoped pointer.
 GScopedInterface (in gapi.h)
+Then you don't need to call releaseReference manually, GScopedInterface will do it for you.
+GScopedInterface is the scoped pointer (or auto pointer) for interface.
 
 <{/autobr}>
+
+
+
+<{sh}> Learning interface based API
+<{sc}>
+
+<{autobr}>
+I won't repeat each interface and each function in the document because it's not necessary.
+The interface based API is quite simliar with class-function based API.
+
+Here only lists the different aspects between the two set of API.
+Interface will refer to interface based API, and CF will refer to class-function based API.
+
+Aspect -- Class/Interface prefix
+Interface: Prefix is I. Example: IMetaMethod.
+CF: Prefix is G. Example: GMetaMethod.
+
+Aspect -- Calling convention
+Interface: G_API_CC. Which is stdcall on Windows, cdecl on other platform, by default.
+CF: cdecl.
+
+Aspect -- Meta value
+Interface: GVariantData.
+	Example:
+	<{piece}>void G_API_CC get(GVariantData * outResult, void * instance); // in IMetaField <{/piece}>
+CF: GVariant.
+	Example:
+	<{piece}>GVariant get(void * instance); // in GMetaField <{/piece}>
+
+Aspect -- Meta type
+Interface: GMetaTypeData
+	Example:
+	<{piece}>void G_API_CC getParamType(GMetaTypeData * outType, uint32_t index); // in IMetaMethod <{/piece}>
+CF: GMetaType
+	Example:
+	<{piece}>GMetaType getParamType(size_t index); // in GMetaMethod <{/piece}>
+
+<{/autobr}>
+
 
 
 

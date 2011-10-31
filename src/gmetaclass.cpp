@@ -18,18 +18,6 @@
 #include <stdio.h>
 
 
-#if defined(_MSC_VER)
-#include <stdlib.h>
-#include <crtdbg.h>
-
-#ifdef _DEBUG
-#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
-#define new DEBUG_NEW
-#endif
-#endif
-
-
-
 namespace cpgf {
 
 namespace meta_internal {
@@ -791,52 +779,6 @@ const GMetaClass * findMetaClass(const char * name)
 {
 	return meta_internal::findRegisteredMetaClass(name);
 }
-
-void globalAddField(GMetaField * field)
-{
-	getGlobalMetaClass()->addField(field);
-}
-
-void globalAddProperty(GMetaProperty * field)
-{
-	getGlobalMetaClass()->addProperty(field);
-}
-
-void globalAddMethod(GMetaMethod * method)
-{
-	getGlobalMetaClass()->addMethod(method);
-}
-
-void globalAddOperator(GMetaOperator * metaOperator)
-{
-	getGlobalMetaClass()->addOperator(metaOperator);
-}
-
-GMetaEnum & globalAddEnum(GMetaEnum * en)
-{
-	return getGlobalMetaClass()->addEnum(en);
-}
-
-void globalAddClass(const GMetaClass * cls)
-{
-	getGlobalMetaClass()->addClass(cls);
-}
-
-GMetaAnnotation & globaAddAnnotation(GMetaAnnotation * annotation)
-{
-	return getGlobalMetaClass()->addAnnotation(annotation);
-}
-
-void globalFlushAnnotation()
-{
-	getGlobalMetaClass()->flushAnnotation();
-}
-
-void reflectClass(const GMetaClass * metaClass)
-{
-	getGlobalMetaClass()->addClass(metaClass);
-}
-
 
 
 } // namespace cpgf
