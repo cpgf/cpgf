@@ -1,4 +1,125 @@
 <{filename name=docs-cpgf-error-handling }>
 
+<{title}>cpgf library -- error handling<{/title}>
+
+<h1>cpgf library -- error handling</h1>
+
+<{autotoc}>
+
+<{sgroup}>
+
+<{sh}> Error handling in class-function based API
+<{sc}>
+
+<{autobr}>
+The class-function based API utilizes C++ exception mechanism.
+When an error occurs, a GException will be throw.
+GException is declared in header gexception.h
+GException carries an error code and an error message.
+Use following functions in GException to access them.
+<{code}>
+	int getCode() const;
+	const char * getMessage() const;
+<{/code}>
+
+<{/autobr}>
+
+
+<{/sgroup}>
+
+
+
+<{sh}>Error handling in interface based API
+<{sc}>
+
+<{autobr}>
+The interface based API utilizes traditional error code mechanism.
+Why not exception? Because exception can't cross dynamic libraries.
+
+All meta interfaces inherit from IExtendObject (in gapi.h).
+<{code}>
+	struct IExtendObject : public IObject
+	{
+		virtual int32_t G_API_CC getErrorCode() = 0;
+		virtual const char * G_API_CC getErrorMessage() = 0;
+	};
+<{/code}>
+When any error occurs, the interface will catch any exception and transfer the error code and error message to the interface itself.
+If no error occurs, getErrorCode() will return Error_None.
+
+<{/autobr}>
+
+
+<{sh}>Error code
+<{sc}>
+
+<{autobr}>
+<{/autobr}>
+
+<table width="100%" border="1">
+	<tr>
+		<td>Constant</td>
+		<td>Description</td>
+	</tr>
+
+	<tr>
+		<td>Error_Variant_FailCast </td>
+		<td>GVariant can't convert a value to variant or vice versa. </td>
+	</tr>
+
+	<tr>
+		<td>Error_Variant_FailCopyObject </td>
+		<td>Trying to copy a non-copyable object to variant. This only happens on shadow object and usually you don't need to worry about it. </td>
+	</tr>
+
+	<tr>
+		<td>Error_Variant_FailAdjustTypeSize </td>
+		<td>GVariant type size mismatch when transfering crossing modules and GVariant can't correct the size.
+			This usually should not happen unless a variant is transfered between different CPU architecture,
+			such like calling a 64 bit library from a 32 bit program. </td>
+	</tr>
+
+	<tr>
+		<td>Error_Meta_WrongArity </td>
+		<td>Calling invokable with wrong number parameters. </td>
+	</tr>
+
+	<tr>
+		<td>Error_Meta_ParamOutOfIndex </td>
+		<td>Trying to access a parameter out of the index. </td>
+	</tr>
+
+	<tr>
+		<td>Error_Meta_ReadDenied </td>
+		<td>Can't get value from field or property. </td>
+	</tr>
+
+	<tr>
+		<td>Error_Meta_WriteDenied </td>
+		<td>Can't set value to field or property. </td>
+	</tr>
+
+	<tr>
+		<td></td>
+		<td></td>
+	</tr>
+
+	<tr>
+		<td></td>
+		<td></td>
+	</tr>
+
+	<tr>
+		<td></td>
+		<td></td>
+	</tr>
+</table>
+
+
+
+<{/autotoc}>
+
+
+
 <{include name="moredoc.inc" }>
 

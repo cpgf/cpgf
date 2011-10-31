@@ -56,58 +56,19 @@ std::string normalizeReflectName(const char * name)
 
 namespace meta_internal {
 
-std::string formatString(const char * message, ...)
-{
-	char buffer[4096];
-
-	va_list args;
-	va_start(args, message);
-
-#if defined(_MSC_VER)
-	vsprintf_s(buffer, message, args);
-#else
-	vsprintf(buffer, message, args);
-#endif
-
-	va_end (args);
-
-	return std::string(buffer);
-}
-
-
 void handleForbidAccessError(bool isRead)
 {
 	const char * reason;
 	
 	if(isRead) {
 		reason = "Can't read object. Read is forbidden.";
+		raiseException(Error_Meta_ReadDenied, reason);
 	}
 	else {
 		reason = "Can't write object. Write is forbidden.";
+		raiseException(Error_Meta_WriteDenied, reason);
 	}
 
-	raiseException(Error_Meta_AccessNoncopable, reason);
-}
-
-
-std::string arityToName(int arity)
-{
-	char buffer[10];
-	int i = 0;
-
-	if(arity < 10) {
-		buffer[i++] = '0' + (char)arity;
-	}
-	else if(arity < 20) {
-		buffer[i++] = '1';
-		buffer[i++] = '0' + (char)(arity - 10);
-	}
-	else {
-		buffer[i++] = 'X';
-	}
-	buffer[i++] = 0;
-
-	return std::string(buffer);
 }
 
 void makeFullName(const GMetaItem * item, std::string * outName, const char * delimiter)

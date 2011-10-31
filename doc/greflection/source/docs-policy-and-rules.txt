@@ -36,7 +36,102 @@ For the reflection library, there are several predefined policies in file gmetap
 <{sh}> Meta rules
 <{sc}>
 
+<{autobr}>
+<b>GMetaRuleForbidRead </b>
+Apply to: field and property.
+Effect: the value of field and property can't be read directly.
+Invoking "Get" will cause exception.
 
+<b>GMetaRuleForbidWrite </b>
+Apply to: field and property.
+Effect: the value of field and property can't be written directly.
+Invoking "set" will cause exception.
+
+<b>GMetaRuleDefaultConstructorAbsent </b>
+Apply to: class
+Effect: the class doesn't have default constructor.
+
+<b>GMetaRuleCopyConstructorAbsent </b>
+Apply to: class
+Effect: the class doesn't have copy constructor.
+
+<b>GMetaRuleTransferOwnership <N> </b>
+Apply to: invokable -- method, constructor, and operator
+Effect: the parameter or result will discard the object ownership.
+This rule is a template with an integer parameter N.
+If N is metaPolicyResultIndex (which value is -1), the rule is for result. The object returned by the invokable should be freed by the caller.
+If N is 0 or greater integer, the rule is for parameter N. The object passed to the invokable at parameter N will be freed by the callee (the invokable).
+Note: parameter 0 is the first explicit parameter, not "this" pointer.
+
+<b>GMetaRuleKeepConstReference <N> </b>
+Apply to: invokable -- method, constructor, and operator
+Effect: the parameter or result will use reference for variant instead of copying the object.
+See Rule 5 in GVariant document for details.
+
+<{/autobr}>
+
+
+<{sh}> Meta policies
+<{sc}>
+
+<{autobr}>
+Though you can combine the rules to create the policy you need, there are some pre-defined meta policies in gmetapolicy.h
+Below only lists the source code of all of the pre-defined policies.
+The meaning can be found by the policy name and the rules.
+
+<{/autobr}>
+
+<{code}>
+typedef MakePolicy<
+		GMetaRuleForbidRead,
+		GMetaRuleForbidWrite
+	>
+	GMetaPolicyNoncopyable;
+
+
+typedef MakePolicy<
+		GMetaRuleForbidWrite
+	>
+	GMetaPolicyReadOnly;
+
+
+typedef MakePolicy<
+		GMetaRuleForbidRead
+	>
+	GMetaPolicyWriteOnly;
+
+
+typedef MakePolicy<
+		GMetaRuleDefaultConstructorAbsent
+	>
+	GMetaPolicyNoDefaultConstructor;
+
+
+typedef MakePolicy<
+		GMetaRuleCopyConstructorAbsent
+	>
+	GMetaPolicyNoCopyConstructor;
+
+
+typedef MakePolicy<
+		GMetaRuleDefaultConstructorAbsent,
+		GMetaRuleCopyConstructorAbsent
+	>
+	GMetaPolicyNoDefaultAndCopyConstructor;
+
+
+typedef MakePolicy<
+		GMetaRuleTransferOwnership <metaPolicyResultIndex>
+	>
+	GMetaPolicyTransferResultOwnership;
+
+
+typedef MakePolicy<
+		GMetaRuleKeepConstReference <metaPolicyResultIndex>,
+		GPP_REPEAT(REF_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaRuleKeepConstReference)
+	>
+	GMetaPolicyKeepAllConstReference;
+<{/code}>
 
 
 <{/sgroup}>

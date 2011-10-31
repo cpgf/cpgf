@@ -1,4 +1,5 @@
 #include "cpgf/gmetaproperty.h"
+#include "cpgf/gexception.h"
 
 
 namespace cpgf {
@@ -17,7 +18,7 @@ bool GMetaProperty::canSet() const
 GVariant GMetaProperty::get(void * instance) const
 {
 	if(!this->baseData->canGet()) {
-		raiseException(Error_Meta_PropertyCannotGet, meta_internal::formatString("Can't read property %s", this->getName().c_str()));
+		raiseFormatException(Error_Meta_ReadDenied, "Can't read property %s", this->getName().c_str());
 	}
 
 	return this->baseData->get(instance);
@@ -26,7 +27,7 @@ GVariant GMetaProperty::get(void * instance) const
 void GMetaProperty::set(void * instance, const GVariant & value) const
 {
 	if(!this->baseData->canSet()) {
-		raiseException(Error_Meta_PropertyCannotSet, meta_internal::formatString("Can't write property %s", this->getName().c_str()));
+		raiseFormatException(Error_Meta_WriteDenied, "Can't write property %s", this->getName().c_str());
 	}
 
 	this->baseData->set(instance, value);

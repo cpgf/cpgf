@@ -21,6 +21,30 @@
 namespace cpgf {
 
 
+namespace meta_internal {
+
+std::string arityToName(int arity)
+{
+	char buffer[10];
+	int i = 0;
+
+	if(arity < 10) {
+		buffer[i++] = '0' + (char)arity;
+	}
+	else if(arity < 20) {
+		buffer[i++] = '1';
+		buffer[i++] = '0' + (char)(arity - 10);
+	}
+	else {
+		buffer[i++] = 'X';
+	}
+	buffer[i++] = 0;
+
+	return std::string(buffer);
+}
+
+} // namespace meta_internal
+
 
 GMetaType GMetaMethod::getParamType(size_t index) const
 {

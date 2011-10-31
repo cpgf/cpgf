@@ -557,7 +557,7 @@ namespace {
 				success = converterToLua(L, param, value, converter.get());
 			}
 			if(!success) {
-				raiseException(Error_Lua_FailVariantToLua, "Can't convert variant to Lua object.");
+				raiseException(Error_ScriptBinding_FailVariantToScript, "Can't convert variant to Lua object.");
 			}
 
 			result->resultCount = 1;
@@ -582,7 +582,7 @@ namespace {
 			doPushInvokeResult(L, userData->getParam(), method, &result);
 		}
 		else {
-			raiseFormatException(Error_Lua_FailInvokeMetaMethod, "Can't invoke meta method %s", method->getName());
+			raiseFormatException(Error_ScriptBinding_CantFindMatchedMethod, "Can't invoke meta method %s", method->getName());
 		}
 		
 		return result.resultCount;
@@ -632,10 +632,10 @@ namespace {
 		}
 
 		if(methodName == NULL) {
-			raiseException(Error_Lua_InternalError_CantFindMethodListName, "Internal error: can't find method list name.");
+			raiseException(Error_ScriptBinding_InternalError_CantFindMethodListName, "Internal error: can't find method list name.");
 		}
 		else {
-			raiseFormatException(Error_Lua_CantFindMatchedMethod, "Can't find matched method to invoke for %s", methodName);
+			raiseFormatException(Error_ScriptBinding_CantFindMatchedMethod, "Can't find matched method to invoke for %s", methodName);
 		}
 
 		return 0;		
@@ -683,7 +683,7 @@ namespace {
 			objectToLua(L, param, instance, metaClass, true, opcvNone);
 		}
 		else {
-			raiseException(Error_Lua_FailConstructObject, "Failed to construct an object.");
+			raiseException(Error_ScriptBinding_FailConstructObject, "Failed to construct an object.");
 		}
 
 		return 1;
@@ -754,7 +754,7 @@ namespace {
 			return invokeConstructor(L, userData->getParam(), userData->metaClass);
 		}
 		else {
-			raiseException(Error_Lua_InternalError_WrongFunctor, "Internal error: calling wrong functor.");
+			raiseException(Error_ScriptBinding_InternalError_WrongFunctor, "Internal error: calling wrong functor.");
 
 			return 0;
 		}
@@ -972,7 +972,7 @@ namespace {
 			}
 		}
 
-		raiseException(Error_Lua_NotSupportedOperator, "Failed to bind an operator that's not supported by Lua.");
+		raiseException(Error_ScriptBinding_NotSupportedOperator, "Failed to bind an operator that's not supported by Lua.");
 	}
 
 	void doBindAllOperators(lua_State * L, GLuaBindingParam * param, void * instance, IMetaClass * metaClass)
@@ -1090,7 +1090,7 @@ namespace {
 
 		int index = userData->metaEnum->findKey(name);
 		if(index < 0) {
-			raiseFormatException(Error_Lua_CantFindEnumKey, "Can't find enumerator key -- %s.", name);
+			raiseFormatException(Error_ScriptBinding_CantFindEnumKey, "Can't find enumerator key -- %s.", name);
 		}
 		else {
 			GVariantData data;
@@ -1107,7 +1107,7 @@ namespace {
 	{
 		ENTER_LUA()
 
-		raiseException(Error_Lua_CantAssignToEnum, "Can't assign value to enumerator.");
+		raiseException(Error_ScriptBinding_CantAssignToEnum, "Can't assign value to enumerator.");
 
 		return 0;
 		
@@ -1401,18 +1401,18 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaV
 					lua_pop(this->implement->luaState, static_cast<int>(i) - 1);
 				}
 
-				raiseFormatException(Error_Lua_MethodParamMismatch, "Can't pass parameter at index %d in function %s", i, name.getName());
+				raiseFormatException(Error_ScriptBinding_ScriptMethodParamMismatch, "Can't pass parameter at index %d in function %s", i, name.getName());
 			}
 		}
 
 		int error = lua_pcall(this->implement->luaState, paramCount, LUA_MULTRET, 0);
 		if(error) {
-			raiseFormatException(Error_Lua_ScriptFunctionReturnError, "Error when calling function %s, message: %s", name.getName(), lua_tostring(this->implement->luaState, -1));
+			raiseFormatException(Error_ScriptBinding_ScriptFunctionReturnError, "Error when calling function %s, message: %s", name.getName(), lua_tostring(this->implement->luaState, -1));
 		}
 		else {
 			int resultCount = lua_gettop(this->implement->luaState) - top;
 			if(resultCount > 1) {
-				raiseFormatException(Error_Lua_CantReturnMultipleValue, "Can't return multiple value when calling function %s", name.getName());
+				raiseFormatException(Error_ScriptBinding_CantReturnMultipleValue, "Can't return multiple value when calling function %s", name.getName());
 			}
 			else {
 				if(resultCount > 0) {
@@ -1422,7 +1422,7 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaV
 		}
 	}
 	else {
-		raiseException(Error_Lua_CantCallNonfunction, "The script function being invoked is not a function.");
+		raiseException(Error_ScriptBinding_CantCallNonfunction, "The script function being invoked is not a function.");
 	}
 	
 	return GMetaVariant();
@@ -1439,7 +1439,7 @@ void GLuaScriptObject::bindFundamental(const GScriptName & name, const GVariant 
 	GLuaScopeGuard scopeGuard(this);
 
 	if(! variantToLua(this->implement->luaState, &this->implement->param, value, GMetaType(), false)) {
-		raiseException(Error_Lua_CantBindFundamental, "Failed to bind fundamental variable");
+		raiseException(Error_ScriptBinding_CantBindFundamental, "Failed to bind fundamental variable");
 	}
 	
 	scopeGuard.set(name);

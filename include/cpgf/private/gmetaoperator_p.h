@@ -1,7 +1,6 @@
 #ifndef __GMETAOPERATOR_P_H
 #define __GMETAOPERATOR_P_H
 
-
 namespace meta_internal {
 
 template <GMetaOpType op>
@@ -251,7 +250,7 @@ public:
 	virtual GVariant invoke(const GVariant & p0) const {
 		(void)p0;
 
-		raiseException(Error_Meta_WrongArity, meta_internal::formatString("Wrong argument count. Expect: 2.")); // yes, expect 2
+		raiseException(Error_Meta_WrongArity, "Wrong argument count. Expect: 2."); // yes, expect 2
 
 		return GVariant();
 	}
@@ -259,7 +258,7 @@ public:
 	virtual GVariant invoke(const GVariant & p0, const GVariant & p1) const {
 		(void)p0; (void)p1;
 
-		raiseException(Error_Meta_WrongArity, meta_internal::formatString("Wrong argument count. Expect: 1.")); // yes, expect 1
+		raiseException(Error_Meta_WrongArity, "Wrong argument count. Expect: 1."); // yes, expect 1
 
 		return GVariant();
 	}
@@ -267,7 +266,7 @@ public:
 	virtual GVariant invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const {
 		(void)instance; (void)params; (void)paramCount;
 
-		raiseException(Error_Meta_WrongArity, meta_internal::formatString("Invoke functor on a non-functor operator."));
+		raiseException(Error_Meta_WrongArity, "Invoke functor on a non-functor operator.");
 
 		return GVariant();
 	}
@@ -275,7 +274,7 @@ public:
 	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const {
 		(void)instance; (void)params; (void)paramCount;
 
-		raiseException(Error_Meta_WrongArity, meta_internal::formatString("Execute on a non-functor operator."));
+		raiseException(Error_Meta_WrongArity, "Execute on a non-functor operator.");
 
 		return GVariant();
 	}
@@ -290,7 +289,7 @@ inline void operatorIndexOutOfBound(size_t index, size_t maxIndex)
 	(void)index;
 	(void)maxIndex;
 
-	raiseException(Error_Meta_ParamOutOfIndex, meta_internal::formatString("Index out of bound."));
+	raiseException(Error_Meta_ParamOutOfIndex, "Index out of bound.");
 }
 
 template <typename OT, GMetaOpType Op, typename Signature, typename Policy, typename Enabled = void>
@@ -383,7 +382,7 @@ public:
 		(void)instance;
 
 		if(paramCount != this->getParamCount()) {
-			raiseException(Error_Meta_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
+			raiseFormatException(Error_Meta_WrongArity, "Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount);
 		}
 
 		return this->invoke(params[0], params[1]);
@@ -480,7 +479,7 @@ public:
 		(void)instance;
 
 		if(paramCount != this->getParamCount()) {
-			raiseException(Error_Meta_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
+			raiseFormatException(Error_Meta_WrongArity, "Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount);
 		}
 
 		return this->invoke(params[0]);
@@ -588,7 +587,7 @@ public:
 
 	virtual GVariant invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const {
 		if(!this->isVariadic() && paramCount != this->getParamCount()) {
-			raiseException(Error_Meta_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
+			raiseFormatException(Error_Meta_WrongArity, "Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount);
 		}
 
 		return GMetaMethodCallHelper<OT, FT, FT::Arity, typename FT::ResultType, Policy, IsVariadicFunction<FT>::Result>::invoke(*static_cast<OT *>(instance), params, paramCount);
@@ -598,7 +597,7 @@ public:
 		GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 		
 		if(!this->isVariadic() && paramCount != this->getParamCount()) {
-			raiseException(Error_Meta_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
+			raiseFormatException(Error_Meta_WrongArity, "Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount);
 		}
 
 		const cpgf::GVariant * variantPointers[REF_MAX_ARITY];

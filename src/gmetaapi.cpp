@@ -2,6 +2,7 @@
 #include "cpgf/gmetafundamental.h"
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gassert.h"
+#include "cpgf/gexception.h"
 
 #include "pinclude/gmetatypereg.h"
 #include "pinclude/gapiimpl.h"

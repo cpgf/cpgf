@@ -7,6 +7,7 @@
 
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gmetaapiutil.h"
+#include "cpgf/gexception.h"
 
 #include <string>
 

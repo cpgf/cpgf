@@ -7,6 +7,7 @@
 #include "cpgf/gmetaconverter.h"
 #include "cpgf/gpp.h"
 #include "cpgf/gcallback.h"
+#include "cpgf/gexception.h"
 
 
 namespace cpgf {
@@ -42,6 +43,8 @@ namespace meta_internal {
 			return GVariant(); \
 		} \
 	};
+
+std::string arityToName(int arity);
 
 template <typename CT, typename FT, unsigned int N, typename RT, typename Policy, bool IsVariadic>
 struct GMetaMethodCallHelper;
@@ -153,7 +156,7 @@ public:
 
 	virtual GVariant invoke(void * instance, GVariant const * const * params, size_t paramCount) const {
 		if(!this->isVariadic() && paramCount != this->getParamCount()) {
-			raiseException(Error_Meta_WrongArity, meta_internal::formatString("Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount));
+			raiseFormatException(Error_Meta_WrongArity, "Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount);
 		}
 
 		this->callback.setObject(instance);

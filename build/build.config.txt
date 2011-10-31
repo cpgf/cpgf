@@ -4,11 +4,11 @@ set(BUILD_DEBUG
 
 set(LUA_DIR
 #e:/SourceCode/cpp/lua
-/home/wq/source/lua
+/source/lua
 )
 
 set(UNIT_TEST_DIR
 #e:/SourceCode/CPP/UnitTest++
-/home/wq/source/UnitTest++
+/source/UnitTest++
 )
 

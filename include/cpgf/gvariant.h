@@ -2,7 +2,7 @@
 #define __GVARIANT_H
 
 #include "cpgf/gvartypedata.h"
-#include "cpgf/gexception.h"
+#include "cpgf/gerrorcode.h"
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -277,6 +277,8 @@ inline void swap(GVariant & a, GVariant & b)
 {
 	a.swap(b);
 }
+
+extern void raiseException(int errorCode, const std::string & message);
 
 inline void failedCast() {
 	raiseException(Error_Variant_FailCast, "GVariant: cast failure");

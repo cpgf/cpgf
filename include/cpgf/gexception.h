@@ -1,8 +1,6 @@
 #ifndef __GEXCEPTION_H
 #define __GEXCEPTION_H
 
-#include "cpgf/gerrorcode.h"
-
 #include <stdexcept>
 #include <string>
 

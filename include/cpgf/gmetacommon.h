@@ -41,9 +41,6 @@ inline bool isCSymbole(unsigned char c) {
 
 namespace meta_internal {
 
-std::string formatString(const char * message, ...);
-std::string arityToName(int arity);
-
 void handleForbidAccessError(bool isRead);
 
 void * newZeroBuffer(void * buffer, size_t size, void * copy);

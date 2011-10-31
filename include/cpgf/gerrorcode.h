@@ -16,29 +16,26 @@ const int Error_Variant_End					= 100;
 const int Error_Meta_Begin					= 101;
 const int Error_Meta_WrongArity				= Error_Meta_Begin + 0;
 const int Error_Meta_ParamOutOfIndex		= Error_Meta_Begin + 1;
-const int Error_Meta_PropertyCannotGet		= Error_Meta_Begin + 2;
-const int Error_Meta_PropertyCannotSet		= Error_Meta_Begin + 3;
-const int Error_Meta_PropertyCannotAccess	= Error_Meta_Begin + 4;
-const int Error_Meta_CannotInitAbstractClass	= Error_Meta_Begin + 5;
-const int Error_Meta_AccessNoncopable		= Error_Meta_Begin + 6;
+const int Error_Meta_ReadDenied				= Error_Meta_Begin + 2;
+const int Error_Meta_WriteDenied			= Error_Meta_Begin + 3;
+const int Error_Meta_CannotInitAbstractClass	= Error_Meta_Begin + 4;
 const int Error_Meta_End					= 200;
 
-const int Error_Lua_Begin					= 201;
-const int Error_Lua_InternalError_CantFindMethodListName	= Error_Lua_Begin + 0;
-const int Error_Lua_InternalError_WrongFunctor				= Error_Lua_Begin + 1;
-const int Error_Lua_FailVariantToLua		= Error_Lua_Begin + 2;
-const int Error_Lua_FailInvokeMetaMethod	= Error_Lua_Begin + 3;
-const int Error_Lua_CantFindMatchedMethod	= Error_Lua_Begin + 4;
-const int Error_Lua_FailConstructObject		= Error_Lua_Begin + 5;
-const int Error_Lua_NotSupportedOperator	= Error_Lua_Begin + 6;
-const int Error_Lua_CantFindEnumKey			= Error_Lua_Begin + 7;
-const int Error_Lua_CantAssignToEnum		= Error_Lua_Begin + 8;
-const int Error_Lua_MethodParamMismatch		= Error_Lua_Begin + 9;
-const int Error_Lua_CantReturnMultipleValue	= Error_Lua_Begin + 10;
-const int Error_Lua_CantCallNonfunction		= Error_Lua_Begin + 11;
-const int Error_Lua_CantBindFundamental		= Error_Lua_Begin + 12;
-const int Error_Lua_ScriptFunctionReturnError				= Error_Lua_Begin + 13;
-const int Error_Lua_End						= 300;
+const int Error_ScriptBinding_Begin			= 201;
+const int Error_ScriptBinding_InternalError_CantFindMethodListName	= Error_ScriptBinding_Begin + 0;
+const int Error_ScriptBinding_InternalError_WrongFunctor= Error_ScriptBinding_Begin + 1;
+const int Error_ScriptBinding_NotSupportedOperator		= Error_ScriptBinding_Begin + 2;
+const int Error_ScriptBinding_FailVariantToScript		= Error_ScriptBinding_Begin + 3;
+const int Error_ScriptBinding_CantFindMatchedMethod		= Error_ScriptBinding_Begin + 4;
+const int Error_ScriptBinding_FailConstructObject		= Error_ScriptBinding_Begin + 5;
+const int Error_ScriptBinding_CantFindEnumKey			= Error_ScriptBinding_Begin + 6;
+const int Error_ScriptBinding_CantAssignToEnum			= Error_ScriptBinding_Begin + 7;
+const int Error_ScriptBinding_ScriptMethodParamMismatch	= Error_ScriptBinding_Begin + 8;
+const int Error_ScriptBinding_CantReturnMultipleValue	= Error_ScriptBinding_Begin + 9;
+const int Error_ScriptBinding_CantCallNonfunction		= Error_ScriptBinding_Begin + 10;
+const int Error_ScriptBinding_CantBindFundamental		= Error_ScriptBinding_Begin + 11;
+const int Error_ScriptBinding_ScriptFunctionReturnError	= Error_ScriptBinding_Begin + 12;
+const int Error_ScriptBinding_End			= 300;
 
 
 } // namespace cpgf

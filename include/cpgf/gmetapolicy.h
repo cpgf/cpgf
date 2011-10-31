@@ -22,11 +22,11 @@ struct GMetaRuleForbidWrite {};
 struct GMetaRuleDefaultConstructorAbsent {};
 struct GMetaRuleCopyConstructorAbsent {};
 
-// used by method, constructor, and operator
+// used by invokable -- method, constructor, and operator
 template <int N>
 struct GMetaRuleTransferOwnership {};
 
-// used by method
+// used by invokable -- method, constructor, and operator
 template <int N>
 struct GMetaRuleKeepConstReference {};
 
