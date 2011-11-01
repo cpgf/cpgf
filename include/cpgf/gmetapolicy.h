@@ -28,7 +28,11 @@ struct GMetaRuleTransferOwnership {};
 
 // used by invokable -- method, constructor, and operator
 template <int N>
-struct GMetaRuleKeepConstReference {};
+struct GMetaRuleCopyConstReference {};
+
+// used by invokable -- method, constructor, and operator
+template <int N>
+struct GMetaRuleParamNoncopyable {};
 
 
 // policies
@@ -85,10 +89,17 @@ typedef MakePolicy<
 
 
 typedef MakePolicy<
-		GMetaRuleKeepConstReference <metaPolicyResultIndex>,
-		GPP_REPEAT(REF_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaRuleKeepConstReference)
+		GMetaRuleCopyConstReference <metaPolicyResultIndex>,
+		GPP_REPEAT(REF_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaRuleCopyConstReference)
 	>
-	GMetaPolicyKeepAllConstReference;
+	GMetaPolicyCopyAllConstReference;
+
+
+typedef MakePolicy<
+		GMetaRuleParamNoncopyable <metaPolicyResultIndex>,
+		GPP_REPEAT(REF_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaRuleParamNoncopyable)
+	>
+	GMetaPolicyAllParamNoncopyable;
 
 
 

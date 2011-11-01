@@ -80,8 +80,8 @@ GMETA_DEFINE_CLASS(TestObject, TestObject, "method::TestObject") {
 	using namespace cpgf;
 
 	reflectMethod("getWidth", &TestObject::getWidth);
-	GMETA_METHOD(incWidth);
-	GMETA_METHOD(calcData);
+	reflectMethod("incWidth", &TestObject::incWidth, GMetaPolicyCopyAllConstReference());
+	reflectMethod("calcData", &TestObject::calcData, GMetaPolicyCopyAllConstReference());
 	GMETA_METHOD(refName);
 	GMETA_METHOD(calcObj);
 	GMETA_METHOD(sum);

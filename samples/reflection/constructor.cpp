@@ -79,8 +79,8 @@ GMETA_DEFINE_CLASS(TestObject, TestObject, "constructor::TestObject") {
 
 	reflectConstructor<void * ()>();
 	reflectConstructor<void * (int)>();
-	reflectConstructor<void * (int, const std::string &)>();
-	reflectConstructor<void * (int, const std::string &, const TestData &)>();
+	reflectConstructor<void * (int, const std::string &)>(GMetaPolicyCopyAllConstReference());
+	reflectConstructor<void * (int, const std::string &, const TestData &)>(GMetaPolicyCopyAllConstReference());
 	reflectConstructor<void * (const cpgf::GMetaVariadicParam *)>();
 }
 

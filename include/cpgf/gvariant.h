@@ -12,6 +12,9 @@
 
 namespace cpgf {
 
+const int VarantCastKeepConstRef = 0;
+const int VarantCastCopyConstRef = 1;
+
 class GVariant;
 
 template <typename T>
@@ -319,25 +322,25 @@ GVariant createVariantFromCopyable(const T & value)
 template <typename T>
 bool canFromVariant(const GVariant & v)
 {
-	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, false>::canCast(vtGetType(v.data.typeData));
+	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, VarantCastKeepConstRef>::canCast(vtGetType(v.data.typeData));
 }
 
-template <typename T, bool KeepConstRef>
+template <typename T, int Policy>
 bool canFromVariant(const GVariant & v)
 {
-	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, KeepConstRef>::canCast(vtGetType(v.data.typeData));
+	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, Policy>::canCast(vtGetType(v.data.typeData));
 }
 
 template <typename T>
-typename variant_internal::CastFromVariant<T, false>::ResultType fromVariant(const GVariant & v)
+typename variant_internal::CastFromVariant<T, VarantCastKeepConstRef>::ResultType fromVariant(const GVariant & v)
 {
-	return variant_internal::CastFromVariant<typename RemoveConstVolatile<T>::Result, false>::cast(v);
+	return variant_internal::CastFromVariant<typename RemoveConstVolatile<T>::Result, VarantCastKeepConstRef>::cast(v);
 }
 
-template <typename T, bool KeepConstRef>
-typename variant_internal::CastFromVariant<T, KeepConstRef>::ResultType fromVariant(const GVariant & v)
+template <typename T, int Policy>
+typename variant_internal::CastFromVariant<T, Policy>::ResultType fromVariant(const GVariant & v)
 {
-	return variant_internal::CastFromVariant<typename RemoveConstVolatile<T>::Result, KeepConstRef>::cast(v);
+	return variant_internal::CastFromVariant<typename RemoveConstVolatile<T>::Result, Policy>::cast(v);
 }
 
 template <typename T>

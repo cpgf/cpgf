@@ -41,7 +41,7 @@ public:
 
 GMETA_DEFINE_CLASS(CLASS, CLASS, NAME_CLASS) {
 	GMETA_PROPERTY(propInt, getPropInt, propInt);
-	GMETA_PROPERTY(propString, propString, setPropString);
+	reflectProperty("propString", &CLASS::propString, &CLASS::setPropString, GMetaPolicyCopyAllConstReference());
 	GMETA_PROPERTY(propData, getPropData, setPropData);
 	
 	reflectProperty("propReadonlyInt", &CLASS::propReadonlyInt, &CLASS::propReadonlyInt, GMetaPolicyReadOnly());

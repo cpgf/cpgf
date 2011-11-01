@@ -88,14 +88,14 @@ GMETA_DEFINE_CLASS(CLASS, CLASS, NAME_CLASS) {
 	GMETA_METHOD(methodGetInt);
 	GMETA_METHOD(methodAddInt);
 	GMETA_METHOD(methodRefString);
-	GMETA_METHOD(methodConcatString);
+	reflectMethod("methodConcatString", &CLASS::methodConcatString, GMetaPolicyCopyAllConstReference());
 	GMETA_METHOD(methodAddData);
 	GMETA_METHOD(methodMakeData);
 	GMETA_METHOD(methodMakeDataByPointer);
 	GMETA_METHOD(methodManyParams);
 	GMETA_METHOD(methodSum);
 	
-	reflectMethod("methodGetNCData", &CLASS::methodGetNCData, GMetaPolicyKeepAllConstReference());
+	reflectMethod("methodGetNCData", &CLASS::methodGetNCData, GMetaPolicyAllParamNoncopyable());
 }
 
 
@@ -478,11 +478,11 @@ GTEST(Lib_Invoke)
 
 	METHOD(methodGetNCData);
 	{
-		const NC_DATA & nc = fromVariant<const NC_DATA &, true>(method->invoke(NULL, 1));
+		const NC_DATA & nc = fromVariant<const NC_DATA &>(method->invoke(NULL, 1));
 		GEQUAL(nc.i, 1);
 	}
 	{
-		const NC_DATA & nc = fromVariant<const NC_DATA &, true>(method->invoke(NULL, 5));
+		const NC_DATA & nc = fromVariant<const NC_DATA &>(method->invoke(NULL, 5));
 		GEQUAL(nc.i, 5);
 	}
 	
@@ -574,11 +574,11 @@ GTEST(API_Invoke)
 
 	METHOD(methodGetNCData);
 	{
-		const NC_DATA & nc = fromVariant<const NC_DATA &, true>(metaInvokeMethod(method, NULL, 1));
+		const NC_DATA & nc = fromVariant<const NC_DATA &>(metaInvokeMethod(method, NULL, 1));
 		GEQUAL(nc.i, 1);
 	}
 	{
-		const NC_DATA & nc = fromVariant<const NC_DATA &, true>(metaInvokeMethod(method, NULL, 5));
+		const NC_DATA & nc = fromVariant<const NC_DATA &>(metaInvokeMethod(method, NULL, 5));
 		GEQUAL(nc.i, 5);
 	}
 	
@@ -667,12 +667,12 @@ GTEST(Lib_Execute)
 	METHOD(methodGetNCData);
 	{
 		params[0] = 1;
-		const NC_DATA & nc = fromVariant<const NC_DATA &, true>(method->execute(NULL, params, 1));
+		const NC_DATA & nc = fromVariant<const NC_DATA &>(method->execute(NULL, params, 1));
 		GEQUAL(nc.i, 1);
 	}
 	{
 		params[0] = 5;
-		const NC_DATA & nc = fromVariant<const NC_DATA &, true>(method->execute(NULL, params, 1));
+		const NC_DATA & nc = fromVariant<const NC_DATA &>(method->execute(NULL, params, 1));
 		GEQUAL(nc.i, 5);
 	}
 	

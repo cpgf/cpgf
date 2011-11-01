@@ -19,7 +19,7 @@ namespace meta_internal {
 	case N: return createMetaType<typename TypeList_GetWithDefault<typename CallbackT::TraitsType::ArgTypeList, N>::Result>();
 
 #define REF_CALL_HELPER_CAST(N, unused) \
-	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, PolicyHasRule<Policy, GMetaRuleKeepConstReference<N> >::Result>(*params[N])
+	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, PolicyHasRule<Policy, GMetaRuleCopyConstReference<N> >::Result ? VarantCastCopyConstRef : VarantCastKeepConstRef>(*params[N])
 
 #define REF_CALL_HELPER(N, unused) \
 	template <typename CT, typename FT, typename RT, typename Policy> \
@@ -30,7 +30,7 @@ namespace meta_internal {
 			GVarTypeData typeData; \
 			deduceVariantType<RT>(typeData, true); \
 			GVariant v; \
-			variant_internal::InitVariant<!PolicyHasRule<Policy, GMetaRuleKeepConstReference<N> >::Result>(v, typeData, static_cast<typename variant_internal::DeducePassType<RT>::PassType>(callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)))); \
+			variant_internal::InitVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result>(v, typeData, static_cast<typename variant_internal::DeducePassType<RT>::PassType>(callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)))); \
 			return v; \
 		} \
 	}; \

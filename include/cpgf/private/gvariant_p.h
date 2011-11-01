@@ -340,35 +340,35 @@ void InitVariant(GVariant & v, const GVarTypeData & typeData, const T & value)
 }
 
 
-template <typename T, bool KeepConstRef>
+template <typename T, int Policy>
 struct CastResult {
 	typedef T Result;
 };
 
-template <typename T, bool KeepConstRef>
-struct CastResult <T &, KeepConstRef> {
+template <typename T, int Policy>
+struct CastResult <T &, Policy> {
 	typedef T & Result;
 };
 
-template <typename T, bool KeepConstRef>
-struct CastResult <const T &, KeepConstRef> {
+template <typename T, int Policy>
+struct CastResult <const T &, Policy> {
 	typedef T Result;
 };
 
 template <typename T>
-struct CastResult <const T &, false> {
+struct CastResult <const T &, VarantCastCopyConstRef> {
 	typedef T Result;
 };
 
 template <typename T>
-struct CastResult <const T &, true> {
+struct CastResult <const T &, VarantCastKeepConstRef> {
 	typedef const T & Result;
 };
 
-template <typename T, bool KeepConstRef>
+template <typename T, int Policy>
 struct CanCastFromVariant
 {
-	typedef typename CastResult<T, KeepConstRef>::Result ResultType;
+	typedef typename CastResult<T, Policy>::Result ResultType;
 	typedef typename RemoveReference<T>::Result RefValueType;
 
 	static bool canCast(int vt) {
@@ -549,10 +549,10 @@ struct CanCastFromVariant
 	}
 };
 
-template <typename T, bool KeepConstRef>
+template <typename T, int Policy>
 struct CastFromVariant
 {
-	typedef typename CastResult<T, KeepConstRef>::Result ResultType;
+	typedef typename CastResult<T, Policy>::Result ResultType;
 	typedef typename RemoveReference<T>::Result RefValueType;
 
 	static ResultType cast(const GVariant & v) {

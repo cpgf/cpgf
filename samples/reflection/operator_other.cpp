@@ -70,7 +70,7 @@ GMETA_DEFINE_CLASS(TestObject, TestObject, "operator_other::TestObject") {
 	reflectOperator<long (GMetaSelf)>(mopHolder());
 	reflectOperator<std::string (GMetaSelf)>(mopHolder());
 
-	reflectOperator<int (const std::string &, int)>(mopHolder(mopHolder));
+	reflectOperator<int (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference());
 	reflectOperator<int (const cpgf::GMetaVariadicParam *)>(mopHolder(mopHolder));
 }
 

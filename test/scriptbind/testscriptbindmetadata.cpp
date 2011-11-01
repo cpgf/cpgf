@@ -111,9 +111,9 @@ GMETA_DEFINE_CLASS(TestObject, TestObject, "testscript::TestObject") {
 	using namespace cpgf;
 	using namespace std;
 
-	reflectConstructor<void * (const TestObject &)>();
+	reflectConstructor<void * (const TestObject &)>(GMetaPolicyCopyAllConstReference());
 	reflectConstructor<void * (int)>();
-	reflectConstructor<void * (int, const string &)>();
+	reflectConstructor<void * (int, const string &)>(GMetaPolicyCopyAllConstReference());
 	
 	GMETA_FIELD(value);
 	
@@ -131,13 +131,13 @@ GMETA_DEFINE_CLASS(TestObject, TestObject, "testscript::TestObject") {
 	reflectMethod("methodConstVolatile", (int (TestObject::*)())&TestObject::methodConstVolatile);
 	reflectMethod("methodConstVolatile", (int (TestObject::*)() const volatile)&TestObject::methodConstVolatile);
 
-	reflectMethod("methodOverload", (int (TestObject::*)(const TestObject &, int) const)&TestObject::methodOverload);
-	reflectMethod("methodOverload", (int (TestObject::*)(int, const TestObject &) const)&TestObject::methodOverload);
+	reflectMethod("methodOverload", (int (TestObject::*)(const TestObject &, int) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference());
+	reflectMethod("methodOverload", (int (TestObject::*)(int, const TestObject &) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference());
 	reflectMethod("methodOverload", (int (TestObject::*)(int, int) const)&TestObject::methodOverload);
 	reflectMethod("methodOverload", (int (TestObject::*)(const char *, int) const)&TestObject::methodOverload);
 	reflectMethod("methodOverload", (int (TestObject::*)(int, const char *) const)&TestObject::methodOverload);
-	reflectMethod("methodOverload", (int (TestObject::*)(const string &, int) const)&TestObject::methodOverload);
-	reflectMethod("methodOverload", (int (TestObject::*)(int, const string &) const)&TestObject::methodOverload);
+	reflectMethod("methodOverload", (int (TestObject::*)(const string &, int) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference());
+	reflectMethod("methodOverload", (int (TestObject::*)(int, const string &) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference());
 
 	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestBase *) const)&TestObject::methodOverloadObject);
 	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestA *) const)&TestObject::methodOverloadObject);

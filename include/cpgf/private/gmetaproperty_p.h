@@ -358,7 +358,7 @@ private:
 	template <typename T>
 	void doSet(typename GEnableIf<Writable, T>::Result * instance, const GVariant & value) const {
 		this->callback.setObject(instance);
-		this->callback(fromVariant<PropertyType>(value));
+		this->callback(fromVariant<PropertyType, PolicyHasRule<Policy, GMetaRuleCopyConstReference<0> >::Result ? VarantCastCopyConstRef : VarantCastKeepConstRef>(value));
 	}
 
 	template <typename T>

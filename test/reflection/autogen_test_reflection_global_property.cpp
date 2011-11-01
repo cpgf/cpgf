@@ -44,7 +44,7 @@ namespace Test_GlobalProperty { namespace {
 
 GMETA_DEFINE_GLOBAL() {
 	GMETA_QUALIFIED_PROPERTY(propInt, getPropInt, propInt);
-	GMETA_QUALIFIED_PROPERTY(propString, propString, setPropString);
+	reflectProperty("propString", &propString, &setPropString, GMetaPolicyCopyAllConstReference());
 	GMETA_QUALIFIED_PROPERTY(propData, getPropData, setPropData);
 	
 	reflectProperty("propReadonlyInt", &propReadonlyInt, &propReadonlyInt, GMetaPolicyReadOnly());
