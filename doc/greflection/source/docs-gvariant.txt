@@ -114,7 +114,7 @@ Otherwise, the memory may be corrupted.
 This is because of GVariant doesn't remember any type information, except the fundamental types.
 So when casting to type U, GVariant will always assume that it holds a buffer with sizeof(U) and try to cast the buffer to U.
 
-Rule 5, <b>warning</b>, By default, casting a GVariant to reference-to-const (const T &) will always cause the object be copied even if it's not necessary.
+Rule 5, By default, casting a GVariant to reference-to-const (const T &) will not perform implicit type conversion.
 
 <{piece}>
 std::string s = "blah";
@@ -122,35 +122,34 @@ v = s;
 const std::string & rs = fromVariant<const std::string &>(v);
 <{/piece}>
 
-rs will hold a temporary copy of "blah", it doesn't reference to s.
-The address of rs and v will be different. &rs != &v
-
-This means, when calling a meta method which has reference to const parameter, the value passed to it will be copied.
-
-Why do we need this kind of default behavior to copy the object instead of just reference it?
-This is to simulate the nature C++ behavior. Unlike a normal reference (T &), a reference to const is special because it allows the compiler to generate temporary object for it.
-For example, if we have the code,
-const std::string & rs = "abc";
-A temporary object of std::string will be created and rs will reference to it.
-And also for most situation the compiler will not need to create the temporary object, just let the reference happen.
-<{piece}>
-std::string s = "abc";
-const std::string & rs = s; // no temporary object.
-<{/piece}>
-
-We want to simulate the behavior in GVariant, however, we can't have the temporary object, only compiler knows how to create/destroy it, also we can't determine when to create the temporary when not.
-So what we can do is just let GVariant copy the object, no matter it's necessary or not.
-
-However fortunately, GVariant provides a mechanism to change the default behavior.
-fromVariant has a second boolean template parameter, which is false by default. If it's true, casting to reference to const will cause a reference, not a copy.
-<{piece}>
-std::string s = "blah";
-v = s;
-const std::string & rs = fromVariant<const std::string &, true>(v);
-<{/piece}>
-
 rs will become a reference to v.
 The address of rs and v will be the same. &rs == &v
+
+
+<{piece}>
+const char * s = "blah";
+const std::string & rs = fromVariant<const std::string &>(s);
+<{/piece}>
+
+This doesn't work.
+rs will reference to invalid address because s is not std::string.
+And the cast will not convert C string to std::string.
+
+To make fromVariant perform the implicit conversion, feed it with a second parameter.
+
+<{piece}>
+const char * s = "blah";
+const std::string & rs = fromVariant<const std::string &, VarantCastCopyConstRef>(s);
+<{/piece}>
+
+This works as if it's a C++ assignment,
+
+<{piece}>
+const char * s = "blah";
+const std::string & rs = s;
+<{/piece}>
+
+A temporary std::string will be create to hold s, then assign it to rs.
 
 <{/autobr}>
 

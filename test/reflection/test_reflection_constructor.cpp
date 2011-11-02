@@ -59,7 +59,7 @@ public:
 
 GMETA_DEFINE_CLASS(CLASS, CLASS, NAME_CLASS) {
 	reflectConstructor<void * ()>();
-	reflectConstructor<void * (const CLASS &)>(GMetaPolicyCopyAllConstReference());
+	reflectConstructor<void * (const CLASS &)>();
 	reflectConstructor<void * (int)>();
 	reflectConstructor<void * (const string &)>(GMetaPolicyCopyAllConstReference());
 	reflectConstructor<void * (int, const string &)>(GMetaPolicyCopyAllConstReference());

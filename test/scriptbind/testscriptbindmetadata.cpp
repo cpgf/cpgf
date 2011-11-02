@@ -111,7 +111,7 @@ GMETA_DEFINE_CLASS(TestObject, TestObject, "testscript::TestObject") {
 	using namespace cpgf;
 	using namespace std;
 
-	reflectConstructor<void * (const TestObject &)>(GMetaPolicyCopyAllConstReference());
+	reflectConstructor<void * (const TestObject &)>();
 	reflectConstructor<void * (int)>();
 	reflectConstructor<void * (int, const string &)>(GMetaPolicyCopyAllConstReference());
 	

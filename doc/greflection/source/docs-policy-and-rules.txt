@@ -63,10 +63,15 @@ If N is metaPolicyResultIndex (which value is -1), the rule is for result. The o
 If N is 0 or greater integer, the rule is for parameter N. The object passed to the invokable at parameter N will be freed by the callee (the invokable).
 Note: parameter 0 is the first explicit parameter, not "this" pointer.
 
-<b>GMetaRuleKeepConstReference <N> </b>
+<b>GMetaRuleCopyConstReference <N> </b>
 Apply to: invokable -- method, constructor, and operator
-Effect: the parameter or result will use reference for variant instead of copying the object.
+Effect: the parameter or result will copying the object to reference-to-const instead of reference.
+If implicit type conversion is required, such like C string to std::string, use this rule.
 See Rule 5 in GVariant document for details.
+
+<b>GMetaRuleParamNoncopyable <N> </b>
+Apply to: invokable -- method, constructor, and operator
+Effect: the parameter or result is not copyable.
 
 <{/autobr}>
 
@@ -127,10 +132,18 @@ typedef MakePolicy<
 
 
 typedef MakePolicy<
-		GMetaRuleKeepConstReference <metaPolicyResultIndex>,
-		GPP_REPEAT(REF_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaRuleKeepConstReference)
+		GMetaRuleCopyConstReference <metaPolicyResultIndex>,
+		GPP_REPEAT(REF_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaRuleCopyConstReference)
 	>
-	GMetaPolicyKeepAllConstReference;
+	GMetaPolicyCopyAllConstReference;
+
+
+typedef MakePolicy<
+		GMetaRuleParamNoncopyable <metaPolicyResultIndex>,
+		GPP_REPEAT(REF_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaRuleParamNoncopyable)
+	>
+	GMetaPolicyAllParamNoncopyable;
+
 <{/code}>
 
 

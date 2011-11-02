@@ -54,8 +54,8 @@ GMETA_DEFINE_CLASS(FirstReflection, FirstReflection, "FirstReflection") {
 		("nice", FirstReflection::nice)
 	;
 
-	reflectMethod("getSentence", &FirstReflection::getSentence); // using function to reflect method
-	GMETA_METHOD(greet); // using macro to reflect method
+	GMETA_METHOD(getSentence); // using macro to reflect method
+	reflectMethod("greet", &FirstReflection::greet, GMetaPolicyCopyAllConstReference()); // using function to reflect method
 
 	reflectField("headCount", &FirstReflection::headCount);
 }
