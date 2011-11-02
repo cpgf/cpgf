@@ -66,11 +66,11 @@ inline GVariantType vtGetType(const GVarTypeData & data) {
 }
 
 inline void vtSetType(GVarTypeData & data, GVariantType vt) {
-	data.vt = vt;
+	data.vt = static_cast<uint16_t>(vt);
 }
 
 inline void vtSetType(GVarTypeData & data, int vt) {
-	data.vt = static_cast<GVariantType>(vt);
+	data.vt = static_cast<uint16_t>(vt);
 }
 
 inline unsigned int vtGetSize(const GVarTypeData & data) {
@@ -80,7 +80,7 @@ inline unsigned int vtGetSize(const GVarTypeData & data) {
 inline void vtSetSize(GVarTypeData & data, unsigned int size) {
 	GASSERT_MSG(size < 16, "GVarTypeData: too big size");
 	
-	data.sizeAndPointers = (data.sizeAndPointers & 0xf) + (size << 4);
+	data.sizeAndPointers = static_cast<uint8_t>((data.sizeAndPointers & 0xf) + (size << 4));
 }
 
 inline int vtGetPointers(const GVarTypeData & data) {
@@ -90,7 +90,7 @@ inline int vtGetPointers(const GVarTypeData & data) {
 inline void vtSetPointers(GVarTypeData & data, unsigned int pointers) {
 	GASSERT_MSG(pointers < 16, "GVarTypeData: too many pointers");
 
-	data.sizeAndPointers = (data.sizeAndPointers & 0xf0) + pointers;
+	data.sizeAndPointers = static_cast<uint8_t>((data.sizeAndPointers & 0xf0) + pointers);
 }
 
 inline void vtInit(GVarTypeData & data) {

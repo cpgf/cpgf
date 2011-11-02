@@ -519,23 +519,23 @@ namespace {
 		return sdtUnknown;
 	}
 
-	void loadMethodParameters(lua_State * L, GLuaBindingParam * param, GVariantData * outputParams, size_t startIndex, size_t paramCount)
+	void loadMethodParameters(lua_State * L, GLuaBindingParam * param, GVariantData * outputParams, int startIndex, int paramCount)
 	{
-		for(size_t i = 0; i < paramCount; ++i) {
+		for(int i = 0; i < paramCount; ++i) {
 			outputParams[i] = luaToVariant(L, param, i + startIndex).getData().varData;
 		}
 	}
 
-	void loadMethodParamTypes(lua_State * L, GBindDataType * outputTypes, size_t startIndex, size_t paramCount)
+	void loadMethodParamTypes(lua_State * L, GBindDataType * outputTypes, int startIndex, int paramCount)
 	{
-		for(size_t i = 0; i < paramCount; ++i) {
+		for(int i = 0; i < paramCount; ++i) {
 			IMetaTypedItem * typeItem;
 			outputTypes[i].dataType = getLuaType(L, i + startIndex, &typeItem);
 			outputTypes[i].typeItem.reset(typeItem);
 		}
 	}
 
-	void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, size_t paramCount, InvokeCallableResult * result)
+	void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, int paramCount, InvokeCallableResult * result)
 	{
 		result->resultCount = 0;
 		vtInit(result->resultData.typeData);
@@ -613,7 +613,7 @@ namespace {
 		loadMethodParamTypes(L, paramsType, 1, lua_gettop(L));
 		
 		for(size_t i = 0; i < methodCount; ++i) {
-			GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(methodList->getAt(i)));
+			GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(methodList->getAt(static_cast<uint32_t>(i))));
 
 			methodName = method->getName();
 		
@@ -625,8 +625,8 @@ namespace {
 		}
 		
 		if(maxRank >= 0) {
-			GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(methodList->getAt(maxRankIndex)));
-			doInvokeCallable(methodList->getInstanceAt(maxRankIndex), method.get(), paramsData, lua_gettop(L), &result);
+			GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(methodList->getAt(static_cast<uint32_t>(maxRankIndex))));
+			doInvokeCallable(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), method.get(), paramsData, lua_gettop(L), &result);
 			doPushInvokeResult(L, userData->getParam(), method.get(), &result);
 			return result.resultCount;
 		}
@@ -645,7 +645,7 @@ namespace {
 
 	int invokeConstructor(lua_State * L, GLuaBindingParam * param, IMetaClass * metaClass)
 	{
-		size_t paramCount = lua_gettop(L) - 1;
+		int paramCount = lua_gettop(L) - 1;
 		void * instance = NULL;
 
 		if(paramCount == 0 && metaClass->canCreateInstance()) {
@@ -653,7 +653,7 @@ namespace {
 		}
 		else {
 			InvokeCallableResult result;
-			size_t count = metaClass->getConstructorCount();
+			int count = metaClass->getConstructorCount();
 			
 			int maxRank = -1;
 			size_t maxRankIndex = 0;
@@ -664,7 +664,7 @@ namespace {
 			GBindDataType paramsType[REF_MAX_ARITY];
 			loadMethodParamTypes(L, paramsType, 2, paramCount);
 		
-			for(size_t i = 0; i < count; ++i) {
+			for(int i = 0; i < count; ++i) {
 				GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(i));
 				int rank = rankCallable(param->getService(), constructor.get(), paramsData, paramsType, paramCount);
 				if(rank > maxRank) {
@@ -673,7 +673,7 @@ namespace {
 				}
 			}
 			if(maxRank >= 0) {
-				GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(maxRankIndex));
+				GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(static_cast<uint32_t>(maxRankIndex)));
 				doInvokeCallable(NULL, constructor.get(), paramsData, paramCount, &result);
 				instance = fromVariant<void *>(GVariant(result.resultData));
 			}
@@ -691,8 +691,8 @@ namespace {
 
 	int invokeOperator(lua_State * L, GLuaBindingParam * param, void * instance, IMetaClass * metaClass, GMetaOpType op)
 	{
-		size_t paramCount = lua_gettop(L);
-		size_t startIndex = 1;
+		int paramCount = lua_gettop(L);
+		int startIndex = 1;
 
 		InvokeCallableResult result;
 		size_t count = metaClass->getOperatorCount();
@@ -703,7 +703,7 @@ namespace {
 		}
 			
 		int maxRank = -1;
-		size_t maxRankIndex = 0;
+		uint32_t maxRankIndex = 0;
 		
 		GVariantData paramsData[REF_MAX_ARITY];
 		loadMethodParameters(L, param, paramsData, startIndex, paramCount);
@@ -711,7 +711,7 @@ namespace {
 		GBindDataType paramsType[REF_MAX_ARITY];
 		loadMethodParamTypes(L, paramsType, startIndex, paramCount);
 
-		for(size_t i = 0; i < count; ++i) {
+		for(uint32_t i = 0; i < count; ++i) {
 			GScopedInterface<IMetaOperator> metaOperator(metaClass->getOperatorAt(i));
 			if(op == metaOperator->getOperator()) {
 				int rank = rankCallable(param->getService(), metaOperator.get(), paramsData, paramsType, paramCount);
@@ -852,9 +852,9 @@ namespace {
 
 	bool indexMemberEnumValue(lua_State * L, GClassUserData * userData, const char * name)
 	{
-		size_t count = userData->metaClass->getEnumCount();
+		int count = userData->metaClass->getEnumCount();
 
-		for(size_t i = 0; i < count; ++i) {
+		for(int i = 0; i < count; ++i) {
 			GScopedInterface<IMetaEnum> metaEnum(userData->metaClass->getEnumAt(i));
 			int index = metaEnum->findKey(name);
 			if(index >= 0) {
@@ -979,8 +979,8 @@ namespace {
 	{
 		std::vector<uint32_t> boundOperators;
 
-		size_t count = metaClass->getOperatorCount();
-		for(size_t i = 0; i < count; ++i) {
+		int count = metaClass->getOperatorCount();
+		for(int i = 0; i < count; ++i) {
 			GScopedInterface<IMetaOperator> item(metaClass->getOperatorAt(i));
 			uint32_t op = item->getOperator();
 			if(std::find(boundOperators.begin(), boundOperators.end(), op) == boundOperators.end()) {
@@ -1405,7 +1405,7 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaV
 			}
 		}
 
-		int error = lua_pcall(this->implement->luaState, paramCount, LUA_MULTRET, 0);
+		int error = lua_pcall(this->implement->luaState, static_cast<int>(paramCount), LUA_MULTRET, 0);
 		if(error) {
 			raiseFormatException(Error_ScriptBinding_ScriptFunctionReturnError, "Error when calling function %s, message: %s", name.getName(), lua_tostring(this->implement->luaState, -1));
 		}

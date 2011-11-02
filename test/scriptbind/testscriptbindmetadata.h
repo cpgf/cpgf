@@ -72,7 +72,7 @@ public:
 	TestObject(int value) : value(value) {
 	}
 	
-	TestObject(int a, const std::string & s) : value(a + s.length()) {
+	TestObject(int a, const std::string & s) : value(static_cast<int>(a + s.length())) {
 	}
 	
 	TestObject & operator = (const TestObject & other) {
@@ -136,34 +136,42 @@ public:
 	}
 	
 	int methodOverload(const char * s, int n) const {
-		return strlen(s) + n;
+		return static_cast<int>(strlen(s) + n);
 	}
 	
 	int methodOverload(int n, const char * s) const {
-		return strlen(s) + n + 1;
+		return static_cast<int>(strlen(s) + n + 1);
 	}
 	
 	int methodOverload(const std::string & s, int n) const {
-		return s.length() * n;
+		return static_cast<int>(s.length() * n);
 	}
 	
 	int methodOverload(int n, const std::string & s) const {
-		return s.length() * n + 1;
+		return static_cast<int>(s.length() * n + 1);
 	}
 	
 	int methodOverloadObject(const TestBase * obj) const {
+		(void)obj;
+
 		return TestBase().getValue();
 	}
 	
 	int methodOverloadObject(const TestA * obj) const {
+		(void)obj;
+
 		return TestA().getValue();
 	}
 	
 	int methodOverloadObject(const TestB * obj) const {
+		(void)obj;
+
 		return TestB().getValue();
 	}
 	
 	int methodOverloadObject(const TestC * obj) const {
+		(void)obj;
+
 		return TestC().getValue();
 	}
 	

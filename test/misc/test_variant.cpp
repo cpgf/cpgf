@@ -35,10 +35,11 @@ public:
 public:
 	ClassB() { lastB = this; }
 
-	ClassB(const ClassB & other) {
+	ClassB(const ClassB &) {
 	}
 
 	ClassB & operator = (const ClassB &) {
+		return *this;
 	}
 };
 ClassB * ClassB::lastB = NULL;
@@ -48,14 +49,14 @@ GTEST(TestVariant_Cast)
 	CAN_FROM(int, 0);
 	CAN_FROM(string, "abc");
 	CAN_FROM(double, 1999ul);
-	
+
 	NOT_FROM(string, 0);
 	NOT_FROM(int, "a");
 
 	CAN_FROM(CLASS, 5);
 	CAN_FROM(CLASS, string(""));
 	NOT_FROM(CLASS, "");
-	
+
 	CAN_FROM_CAST(void *, int *, NULL);
 	CAN_FROM_CAST(void *, int **, NULL);
 	CAN_FROM_CAST(void *, CLASS *, NULL);

@@ -228,7 +228,7 @@ char * G_API_CC ImplScriptObject::getString(IScriptName * stringName, IMemoryAll
 
 	std::string s = this->scriptObject->getString(unwrapScriptName(stringName));
 
-	void * cs = allocator->allocate(s.length() + 1);
+	void * cs = allocator->allocate(static_cast<uint32_t>(s.length() + 1));
 	memmove(cs, s.c_str(), s.length() + 1);
 	
 	return static_cast<char *>(cs);

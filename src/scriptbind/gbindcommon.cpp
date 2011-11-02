@@ -61,7 +61,7 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, GVariantData 
 		return -1;
 	}
 
-	for(size_t i = 0; i < paramCount; ++i) {
+	for(uint32_t i = 0; i < paramCount; ++i) {
 		if(! callable->checkParam(&paramsData[i], i)) {
 			return -1;
 		}
@@ -129,7 +129,7 @@ bool checkCallable(IMetaCallable * callable, GVariantData * paramsData, size_t p
 		return false;
 	}
 
-	for(size_t i = 0; i < paramCount; ++i) {
+	for(uint32_t i = 0; i < paramCount; ++i) {
 		if(!callable->checkParam(&paramsData[i], i)) {
 			return false;
 		}
@@ -151,7 +151,7 @@ IMetaAccessible * findAccessible(IMetaClass * metaClass, const char * name, bool
 	if(!data || (checkGet && !data->canGet()) || (checkSet && !data->canSet())) {
 		size_t baseCount = metaClass->getBaseCount();
 		void ** self = instance;
-		for(size_t i = 0; i < baseCount; ++i) {
+		for(uint32_t i = 0; i < baseCount; ++i) {
 			*instance = metaClass->castToBase(*self, i);
 
 			GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(i));

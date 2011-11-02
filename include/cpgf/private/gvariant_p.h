@@ -109,6 +109,8 @@ struct CastVariantHelper <From, To, typename GEnableIf<IsReference<To>::Result &
 	enum { CanCast = false };
 
 	static To cast(const From & v) {
+		(void)v;
+
 		raiseException(Error_Variant_FailCopyObject, "GVariant: can't reference to temporary.");
 		return *static_cast<typename RemoveReference<To>::Result *>(0);
 	}
@@ -123,6 +125,9 @@ void initShadowObject(GVariant & v, const T & value, typename GEnableIf<CanShado
 template <bool CanShadow, typename T>
 void initShadowObject(GVariant & v, const T & value, typename GEnableIf<! CanShadow>::Result * = 0)
 {
+	(void)v;
+	(void)value;
+
 	raiseException(Error_Variant_FailCopyObject, "GVariant: can't create shadow object for noncopyable object.");
 }
 

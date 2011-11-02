@@ -57,7 +57,7 @@ bool metaCheckParam(const Meta & meta, const GVariant & param, size_t paramIndex
 {
 	GVariantData data(param.getData());
 	
-	bool ok = !! meta->checkParam(&data, paramIndex);
+	bool ok = !! meta->checkParam(&data, static_cast<uint32_t>(paramIndex));
 
 	metaCheckError(meta);
 
@@ -69,7 +69,7 @@ GMetaType metaGetParamType(const Meta & meta, size_t paramIndex)
 {
 	GMetaTypeData typeData;
 
-	const_cast<Meta &>(meta)->getParamType(&typeData, paramIndex);
+	const_cast<Meta &>(meta)->getParamType(&typeData, static_cast<uint32_t>(paramIndex));
 	
 	metaCheckError(meta);
 
@@ -161,7 +161,7 @@ GVariant metaGetAnnotationVariant(Meta & annotationValue)
 template <typename Meta>
 IMetaClass * metaGetGlobalMetaClass(Meta & service, size_t index)
 {
-	GScopedInterface<IMetaModule> module(service->getModuleAt(index));
+	GScopedInterface<IMetaModule> module(service->getModuleAt(static_cast<uint32_t>(index)));
 	return module->getGlobalMetaClass();
 }
 

@@ -1910,7 +1910,7 @@ void G_API_CC ImplMetaService::addModule(IMetaModule * module)
 
 uint32_t G_API_CC ImplMetaService::getModuleCount()
 {
-	return this->moduleList.size();
+	return static_cast<uint32_t>(this->moduleList.size());
 }
 
 IMetaModule * G_API_CC ImplMetaService::getModuleAt(uint32_t index)
