@@ -33,7 +33,9 @@ enum GMetaFilters {
 
 class GMetaClassImplement;
 
-class GMetaClass : public GMetaTypedItem
+GMAKE_FINAL(GMetaClass)
+
+class GMetaClass : public GMetaTypedItem, GFINAL_BASE(GMetaClass)
 {
 private:
 	typedef GMetaTypedItem super;

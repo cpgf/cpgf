@@ -73,7 +73,7 @@ private:
 	GVariant  doGet(typename GEnableIf<Readable, T>::Result * instance) const {
 		(void)instance;
 
-		GVarTypeData data;
+		GVarTypeData data = GVarTypeData();
 		deduceVariantType<FT>(data, true);
 		return GVariant(data, *(this->field));
 	}
@@ -152,7 +152,7 @@ public:
 private:
 	template <typename T>
 	GVariant  doGet(typename GEnableIf<Readable, T>::Result * instance) const {
-		GVarTypeData data;
+		GVarTypeData data = GVarTypeData();
 		deduceVariantType<FT>(data, true);
 		return GVariant(data, static_cast<OT *>(instance)->*(this->field));
 	}

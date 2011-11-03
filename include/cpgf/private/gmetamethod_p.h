@@ -27,7 +27,7 @@ namespace meta_internal {
 		static GVariant invoke(const CT & callback, GVariant const * const * params, size_t paramCount) { \
 			(void)params; \
 			(void)paramCount; \
-			GVarTypeData typeData; \
+			GVarTypeData typeData = GVarTypeData(); \
 			deduceVariantType<RT>(typeData, true); \
 			GVariant v; \
 			variant_internal::InitVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result>(v, typeData, static_cast<typename variant_internal::DeducePassType<RT>::PassType>(callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)))); \

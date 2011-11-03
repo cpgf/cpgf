@@ -97,10 +97,9 @@ enum GMetaOpType {
 const meta_internal::GMetaOperatorHolder mopHolder = meta_internal::GMetaOperatorHolder();
 
 
-#define VAR_PARAM_DEFAULT(N, unused) GPP_COMMA_IF(N) const GVariant & p ## N = GVariant()
-#define FUNCTOR_LOAD_PARAM(N, unused) params[index++] = & p ## N;
+GMAKE_FINAL(GMetaOperator)
 
-class GMetaOperator : public GMetaCallable
+class GMetaOperator : public GMetaCallable, GFINAL_BASE(GMetaOperator)
 {
 private:
 	typedef GMetaCallable super;
@@ -129,14 +128,15 @@ public:
 
 	GVariant invokeUnary(const GVariant & p0) const;
 	GVariant invokeBinary(const GVariant & p0, const GVariant & p1) const;
+
+#define VAR_PARAM_DEFAULT(N, unused) GPP_COMMA_IF(N) const GVariant & p ## N = GVariant()
 	GVariant invokeFunctor(const GVariant & instance, GPP_REPEAT(REF_MAX_ARITY, VAR_PARAM_DEFAULT, GPP_EMPTY)) const;
+#undef VAR_PARAM_DEFAULT
 
 private:
 	GScopedPointer<meta_internal::GMetaOperatorDataBase> baseData;
 };
 
-#undef VAR_PARAM_DEFAULT
-#undef FUNCTOR_LOAD_PARAM
 
 
 

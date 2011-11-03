@@ -3,6 +3,7 @@
 
 #include "cpgf/gvartypedata.h"
 #include "cpgf/gerrorcode.h"
+#include "cpgf/gclassutil.h"
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -182,7 +183,9 @@ inline void adjustVariantType(GVariant * data);
 
 class GMetaVariant;
 
-class GVariant
+GMAKE_FINAL(GVariant)
+
+class GVariant : GFINAL_BASE(GVariant)
 {
 //	GASSERT_STATIC(sizeof(GVariantData) == 16);
 

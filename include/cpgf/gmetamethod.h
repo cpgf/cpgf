@@ -7,7 +7,9 @@
 namespace cpgf {
 
 
-class GMetaMethod : public GMetaCallable
+GMAKE_FINAL(GMetaMethod)
+
+class GMetaMethod : public GMetaCallable, GFINAL_BASE(GMetaMethod)
 {
 private:
 	typedef GMetaCallable super;
@@ -56,7 +58,10 @@ protected:
 	GScopedPointer<meta_internal::GMetaMethodDataBase> baseData;
 };
 
-class GMetaConstructor : public GMetaCallable
+
+GMAKE_FINAL(GMetaConstructor)
+
+class GMetaConstructor : public GMetaCallable, GFINAL_BASE(GMetaConstructor)
 {
 private:
 	typedef GMetaCallable super;

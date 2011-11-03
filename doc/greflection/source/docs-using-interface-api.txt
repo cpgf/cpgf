@@ -130,6 +130,14 @@ CF: GMetaType
 	Example:
 	<{piece}>GMetaType getParamType(size_t index); // in GMetaMethod <{/piece}>
 
+Aspect -- how functions return aggregate data (GVariant/GVariantData, GMetaType/GMetaTypeData).
+Interface: Return in first parameter which is a pointer to the data.
+	Example:
+	<{piece}>void G_API_CC getParamType(GMetaTypeData * outType, uint32_t index); // in IMetaMethod <{/piece}>
+CF: Return as the C++ function return value.
+	Example:
+	<{piece}>GMetaType getParamType(size_t index); // in GMetaMethod <{/piece}>
+
 <{/autobr}>
 
 

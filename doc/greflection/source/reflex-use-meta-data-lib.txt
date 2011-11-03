@@ -111,6 +111,73 @@ const GMetaItem * getMetaAt(size_t index) const;
 
 <{sgroup}> Using meta data
 
+<{sh}> Using meta item
+<{sc}>
+
+<{autobr}>
+Class GMetaItem is the base class for all meta class.
+It covers the common aspects of the meta data.
+
+<{piece}> bool isStatic() const; <{/piece}>
+Return true if the field, property, or method is global (not class member).
+Otherwise, return false.
+For member only meta data, such as constructor, operator, this function always returns false.
+
+<{piece}> GMetaCategory getCategory() const; <{/piece}>
+Return the category of the meta data.
+Categories list:
+<{/autobr}>
+
+<{code}>
+enum GMetaCategory {
+	mcatField = 0,
+	mcatProperty = 1,
+	mcatMethod = 2,
+	mcatEnum = 3,
+	mcatOperator = 4,
+	mcatConstructor = 5,
+	mcatClass = 6,
+	mcatAnnotation = 7,
+	mcatFundamental = 8,
+};
+<{/code}>
+
+<{autobr}>
+<{piece}> const GMetaItem * getOwnerItem() const; <{/piece}>
+Return the outter meta class that owns the item.
+For members in class A, the owner item is the meta class of A.
+For members in top level global namespace (the meta class returned by getGlobalMetaClass()), the owner item is the global meta class.
+Calling this function on getGlobalMetaClass() will always return NULL.
+
+<{piece}> virtual const GMetaType & getItemType() const; <{/piece}>
+Return the meta type of the item.
+For field and property, it's the field and property variable type.
+For method, it's the function type.
+
+<{piece}> const std::string & getName() const; <{/piece}>
+Return the item name. The name is the one used to register the meta data.
+
+<{piece}> const std::string & getQualifiedName() const; <{/piece}>
+Return the full qualified name. It's all of the owner items, recursively, names joined with ".".
+If a name looks like ClassOne.ClassTwo.myData, it means the item name is myData, it's in ClassTwo, and ClassTwo is an inner class of ClassOne.
+
+<{piece}> std::string makeQualifiedName(const char * delimiter) const; <{/piece}>
+If you are not satisfied with the "." delimiter returned by getQualifiedName, use makeQualifiedName to make your own full qualified name.
+delimiter can be any string.
+
+<{piece}> const GMetaAnnotation * getAnnotation(const char * name) const; <{/piece}>
+Get the annotation with "name" that bound to the item.
+Return NULL if there is no annotation with "name".
+
+<{piece}> size_t getAnnotationCount() const; <{/piece}>
+Return annotation count.
+
+<{piece}> const GMetaAnnotation * getAnnotationAt(size_t index) const; <{/piece}>
+Return annotation at certain index.
+
+<{/autobr}>
+
+
 <{sh}> Using meta field
 <{sc}>
 

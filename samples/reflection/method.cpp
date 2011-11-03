@@ -154,7 +154,6 @@ void doTestLib()
 	{
 		method = metaClass->getMethod("calcObj"); testCheckAssert(method != NULL);
 		void * obj = metaClass->createInstance();
-		TestObject * pobj = (TestObject *)obj;
 		TestObject nc;
 		nc.width = 5;
 		nc.name = "abc";

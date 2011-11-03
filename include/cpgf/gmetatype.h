@@ -4,6 +4,7 @@
 #include "cpgf/gvariant.h"
 #include "cpgf/gstdint.h"
 #include "cpgf/gassert.h"
+#include "cpgf/gclassutil.h"
 
 
 #include <typeinfo>
@@ -25,7 +26,9 @@ struct GMetaTypeData
 #pragma pack(pop)
 
 
-class GTypeInfo
+GMAKE_FINAL(GTypeInfo)
+
+class GTypeInfo : GFINAL_BASE(GTypeInfo)
 {
 public:
 	GTypeInfo() : typeInfo(NULL) {
@@ -73,7 +76,9 @@ GTypeInfo gTypeId()
 #include "cpgf/private/gmetatype_p.h"
 
 
-class GMetaType
+GMAKE_FINAL(GMetaType)
+
+class GMetaType : GFINAL_BASE(GMetaType)
 {
 //	GASSERT_STATIC(sizeof(GMetaTypeData) == 8);
 
@@ -216,7 +221,7 @@ private:
 template <typename T>
 GMetaType createMetaType()
 {
-	GMetaTypeData data;
+	GMetaTypeData data = GMetaTypeData();
 	meta_internal::deduceMetaTypeData<T>(&data);
 	return GMetaType(data, meta_internal::GMetaTypeDeduce<T>::getBaseType());
 }

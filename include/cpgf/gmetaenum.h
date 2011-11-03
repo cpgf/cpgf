@@ -12,7 +12,9 @@ template <typename T>
 cpgf::GMetaEnum & reflectEnum(const char * name);
 
 
-class GMetaEnum : public GMetaTypedItem
+GMAKE_FINAL(GMetaEnum)
+
+class GMetaEnum : public GMetaTypedItem, GFINAL_BASE(GMetaEnum)
 {
 private:
 	typedef GMetaTypedItem super;

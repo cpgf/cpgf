@@ -4,6 +4,7 @@
 #include "cpgf/gconfig.h"
 #include "cpgf/gvariant.h"
 #include "cpgf/gscopedptr.h"
+#include "cpgf/gclassutil.h"
 
 #include <stdexcept>
 #include <vector>
@@ -68,7 +69,7 @@ enum GMetaCategory {
 const int metaModifierStatic = 1 << 0;
 const int metaModifierNoFree = 1 << 1;
 
-class GMetaItem
+class GMetaItem : public GNoncopyable
 {
 public:
 	GMetaItem(const char * name, const GMetaType & itemType, GMetaCategory category);
@@ -109,10 +110,6 @@ protected:
 
 private:
 	void addItemAnnotation(const GMetaAnnotation * annotation);
-
-private:
-	GMetaItem(const GMetaItem &);
-	GMetaItem & operator = (const GMetaItem &);
 
 protected:
 	GScopedPointer<meta_internal::GMetaItemImplement> implement;
@@ -195,7 +192,9 @@ public:
 };
 
 
-class GMetaList
+GMAKE_FINAL(GMetaList)
+
+class GMetaList : GFINAL_BASE(GMetaList)
 {
 public:
 	GMetaList();

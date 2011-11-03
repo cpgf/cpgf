@@ -3,6 +3,7 @@
 
 #include "cpgf/gvariant.h"
 #include "cpgf/gmetatype.h"
+#include "cpgf/gclassutil.h"
 
 namespace cpgf {
 
@@ -16,7 +17,9 @@ struct GMetaVarData
 #pragma pack(pop)
 
 
-class GMetaVariant
+GMAKE_FINAL(GMetaVariant)
+
+class GMetaVariant : GFINAL_BASE(GMetaVariant)
 {
 public:
 	GMetaVariant() {
