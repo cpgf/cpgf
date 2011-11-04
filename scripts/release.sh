@@ -7,6 +7,7 @@ fi
 
 SHOME=$(dirname "$0")
 SRC=$SHOME/..
+ZIPNAME=cpgf.zip
 DEST=$1/cpgf
 echo copy from $SRC to $DEST
 
@@ -44,6 +45,7 @@ head_file()
 	perl $SHOME/file_prefix.pl $SHOME/licensehead_apache.txt $DEST/$SUB_PATH/*.cpp
 }
 
+copy_file "" "readme.txt"
 copy_file "build" "*"
 mkdir $DEST/lib
 
@@ -68,3 +70,15 @@ copy_file "test/misc" "*"
 copy_file "test/reflection" "*"
 copy_file "test/scriptbind" "*"
 copy_file "test/scriptbind/luabind" "*"
+
+cd $1
+
+if [ $? != 0 ]; then
+	echo "Can't change directory for zip."
+	exit 1
+fi
+
+
+zip -rq $ZIPNAME cpgf
+cd ..
+
