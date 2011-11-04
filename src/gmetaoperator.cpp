@@ -23,6 +23,11 @@ std::string operatorToName(GMetaOpType op) {
 } // namespace meta_internal
 
 
+GMetaOperator::GMetaOperator(meta_internal::GMetaOperatorDataBase * baseData)
+	: super(meta_internal::operatorToName(baseData->getOperator()).c_str(), baseData->createOperatorMetaType(), mcatOperator), baseData(baseData)
+{
+}
+
 GMetaOpType GMetaOperator::getOperator() const
 {
 	return this->baseData->getOperator();

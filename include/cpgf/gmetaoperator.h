@@ -105,9 +105,7 @@ private:
 	typedef GMetaCallable super;
 
 public:
-	GMetaOperator(meta_internal::GMetaOperatorDataBase * baseData)
-		: super(meta_internal::operatorToName(baseData->getOperator()).c_str(), baseData->createOperatorMetaType(), mcatOperator), baseData(baseData) {
-	}
+	GMetaOperator(meta_internal::GMetaOperatorDataBase * baseData);
 
 	GMetaOpType getOperator() const;
 

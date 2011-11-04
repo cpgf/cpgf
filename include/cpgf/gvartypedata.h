@@ -53,6 +53,7 @@ struct GVarTypeData
 {
 	uint16_t vt;
 	uint8_t sizeAndPointers;
+	uint8_t padding;
 };
 #pragma pack(pop)
 

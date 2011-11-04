@@ -39,10 +39,11 @@ Annotations. Any annotations, in key-value pairs, can be reflected. Value can be
 <h3>Key features</h3>
 <{autoul}>
 
-No preprocessor required. Only using templates and macros.
-Accessing fields and properties, calling methods, are truly runtime behavior, no template parameters are needed. All parameters and return values are passed via GVariant.
+Building meta data doesn't require preprocessor or any external tool. Only using templates and macros.
+True runtime reflection. Accessing fields and properties, calling methods, are truly runtime behavior, no template parameters are needed. All parameters and return values are passed via GVariant.
 Automatically type conversion when getting/setting fields, invoking methods, etc.
 Support multiple inheritance.
+You don't pay for what you don't use. If you don't build the meta data, no any memory overhead. If you don't use the meta data, no any performance overhead. If you build and use the meta data, you get trivial memory and performance overhead beside very powerful reflection system.
 Binary interface compatible. Can be used cross program dynamic libraries.
 Written in standard and portable C++, compiled on VC and GCC, Windows, Linux, and MacOS.
 

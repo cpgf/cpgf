@@ -14,7 +14,9 @@ namespace cpgf {
 
 class GLuaScriptObjectImplement;
 
-class GLuaScriptObject : public GScriptObject
+GMAKE_FINAL(GLuaScriptObject)
+
+class GLuaScriptObject : public GScriptObject, GFINAL_BASE(GLuaScriptObject)
 {
 private:
 	typedef GScriptObject super;

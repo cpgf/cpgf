@@ -19,9 +19,9 @@ namespace cpgf {
 #pragma pack(1)
 struct GMetaTypeData
 {
-	const char * baseName;
-	uint32_t flags;
 	GVarTypeData typeData;
+	uint32_t flags;
+	const char * baseName;
 };
 #pragma pack(pop)
 

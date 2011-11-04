@@ -6,6 +6,7 @@
 
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gmetavariant.h"
+#include "cpgf/gclassutil.h"
 
 #include <string>
 #include <algorithm>
@@ -26,7 +27,9 @@ enum GScriptDataType {
 };
 
 
-class GScriptConfig
+GMAKE_FINAL(GScriptConfig)
+
+class GScriptConfig : GFINAL_BASE(GScriptConfig)
 {
 private:
 	enum {
