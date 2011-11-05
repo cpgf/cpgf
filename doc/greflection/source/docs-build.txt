@@ -1,4 +1,4 @@
-<{filename name=cpgf-build-and-use }>
+<{filename name=docs-cpgf-build-and-use }>
 
 <{title}>Building and use cpgf library <{/title}>
 

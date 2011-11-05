@@ -214,9 +214,7 @@ if(${HAS_UNITTEST})
 		set(HAS_UNITTEST 0)
 
 		message(STATUS "Can't find Lua for unit test.")
-		message(STATUS "To build unit test you must have Lua installed.")
-		message(STATUS "Otherwise, change the value UNIT_TEST_DIR in build.config.txt to a non-exist directory to disable unit test.")
-		message(FATAL_ERROR "")
+		message(STATUS "Now unit test will be disabled.")
 	endif(HAS_LUA LESS 1)
 endif(${HAS_UNITTEST})
 

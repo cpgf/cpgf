@@ -1,0 +1,43 @@
+<{filename name=cpgf-script-binding }>
+
+<{title}>cpgf script binding -- an open source library to create binding between C++ and Lua script engine<{/title}>
+
+<h1>cpgf script binding -- an open source library to create binding between C++ and Lua script engine</h1>
+
+<{autobr}>
+cpgf script binding library is very easy use to bind between C++ and Lua.
+The library uses reflection meta data extensively.
+
+cpgf script binding is licensed under Apache License, Version 2.0
+
+The supported Lua library is 5.1
+
+<{/autobr}>
+
+<h3>Key features</h3>
+
+<{autoul}>
+
+Bind C++ class to Lua. Then Lua script can create instance, invoke class member function, get/set class field and more.
+Bind C++ enum type to Lua. Then Lua script can access the enum value by name.
+Bind C++ functions (global or member) to Lua.
+Bind C++ values to Lua variable.
+The overloaded operators in C++ are bound to Lua together with the class.
+Invoke Lua functions from C++.
+Get and set Lua value from C++.
+
+<{/autoul}>
+
+<h3>Lua binding is only the very beginning!</h3>
+
+<{autobr}>
+Lua binding is only the first script binding library introduced to cpgf script library.
+With the powerful reflection, we can add arbitrary script binding quite easily.
+
+My next plan is to bring JavaScript binding to cpgf. Maybe Google V8 is an candidate.
+
+All script binding engines will use the same interface -- GScriptObject and IScriptObject, and use same meta data.
+
+<{/autobr}>
+
+<{include name="moredoc.inc" }>

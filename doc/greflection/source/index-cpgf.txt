@@ -10,7 +10,7 @@ cpgf is composed by several independent libraries:
 <{autoul}>
 	cpgf reflection -- a library to add	reflection feature to C++.
 	
-	cpgf Lua binding -- a script binding engine to bind Lua to C++. It's based on the reflection library.
+	cpgf script binding -- a script binding engine to bind Lua to C++. It's based on the reflection library.
 	
 	cpgf callback -- a callback library to implement signal/slot or callback in C++. It's the primary library for other libraries.
 <{/autoul}>
@@ -31,6 +31,8 @@ And in the future, more script binding will be added.
 	<b>Written in (almost) standard and portable C++. </b> It can be compiled at least under VC and GCC, on Windows, Linux, and Mac.
 
 	<b>Extensively, but not abuse, using template programming. </b> Don't feel scaring. The compile time is not slow!
+	
+	<b>No need external preprocessor or code generation tools. </b> Just coding and enjoy. Easy to setup, easy to integrate with your project.
 	
 	<b>Free and open source. </b>
 <{/autoul}>
@@ -56,12 +58,15 @@ And in the future, more script binding will be added.
 
 <h3>Download cpgf library</h3>
 <{autobr}>
-<a href="/download/cpgf.zip">Zip file, 500 kb</a>
+<a href="/download/cpgf_1_0_0.zip">Zip file, 263 kb</a>
 
 <{/autobr}>
 
 <h3>Documentations</h3>
-<{include name="doclist.inc" }>
+<{autobr}>
+<a href="docs-index.html">Read the documentations</a>
+
+<{/autobr}>
 
 <h3>License</h3>
 <{autobr}>
@@ -97,8 +102,8 @@ And in the future, more script binding will be added.
 
 <h3>Learning the library </h3>
 <{autobr}>
-	Though there are some documentation on the website, they are far from good.
-	You may understand that developers like coding much more than documenting.
+	Though there are some documentations on this website, they are far from good.
+	They are incomplete, and not quite native reading.
 
 	The fastest way to get start with the library is to read the sample code
 	in the folder "samples".
@@ -116,8 +121,9 @@ And in the future, more script binding will be added.
 <h3>Contribute to the library </h3>
 <{autobr}>
 	If you like the library and want to contribute to it, here are some most desired work to do
-	1, Help with the documentation. I'm not a native English speaker, and I also don't like writing documentation.
-	2, Test the library on more compilers and platforms.
+	1, Use the library in your real project. That will help the library much. A library is nothing without real projects using it.
+	2, Help with the documentation. I'm not a native English speaker, and I also don't enjoy writing documentation.
+	3, Test the library on more compilers and platforms.
 	
 <{/autobr}>
 

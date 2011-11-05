@@ -1,8 +1,8 @@
 <{filename name=docs-cpgf-lua-binding }>
 
-<{title}>Lua binding engine -- bind Lua to C++<{/title}>
+<{title}>cpgf script binding engine -- bind Lua to C++<{/title}>
 
-<h1>Lua binding engine -- bind Lua to C++</h1>
+<h1>script binding engine -- bind Lua to C++</h1>
 
 <{autotoc}>
 

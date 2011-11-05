@@ -1,14 +1,14 @@
 set(BUILD_DEBUG
-0
+	0
 )
 
+# To enable Lua binding, change the below folder to Lua.
 set(LUA_DIR
-#e:/SourceCode/cpp/lua
-/source/lua
+	e:/SourceCode/cpp/lua
 )
 
+# To enable unit test, change the below folder to UnitTest++.
 set(UNIT_TEST_DIR
-#e:/SourceCode/CPP/UnitTest++
-/source/UnitTest++
+	e:/SourceCode/CPP/UnitTest++
 )
 

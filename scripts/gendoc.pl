@@ -800,7 +800,7 @@ sub newSectionHead
 		$self->appendContent(
 			$self->{html}->p(
 				$self->{html}->strong($text) .
-				'<span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span>'
+				($self->{tocLevel} ? '<span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span>' : '')
 			)
 		);
 	}

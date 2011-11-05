@@ -1,14 +1,16 @@
 #!/usr/bin/sh
 
-if [ $# -ne 1 ]; then
-	echo 1>&2 Usage: $0 destpath
+if [ $# -ne 2 ]; then
+	echo 1>&2 Usage: $0 destpath version
 	exit 1
 fi
 
 SHOME=$(dirname "$0")
 SRC=$SHOME/..
-ZIPNAME=cpgf.zip
 DEST=$1/cpgf
+VERSION=$2
+ZIPNAME=cpgf_$VERSION.zip
+
 echo copy from $SRC to $DEST
 
 if [ -d $DEST ]; then
@@ -16,6 +18,7 @@ if [ -d $DEST ]; then
 	exit 1
 fi
 
+mkdir $1
 mkdir $DEST
 
 copy_file()
@@ -57,19 +60,19 @@ head_file "src" "*"
 head_file "src/pinclude" "*"
 head_file "src/scriptbind" "*"
 
-copy_file "samples" "*"
-copy_file "samples/callback" "*"
-copy_file "samples/reflection" "*"
-copy_file "samples/scriptbind" "*"
-copy_file "samples/scriptbind/luabind" "*"
+head_file "samples" "*"
+head_file "samples/callback" "*"
+head_file "samples/reflection" "*"
+head_file "samples/scriptbind" "*"
+head_file "samples/scriptbind/luabind" "*"
 
-copy_file "test" "*"
-copy_file "test/benchmark/callback" "*"
-copy_file "test/callback" "*"
-copy_file "test/misc" "*"
-copy_file "test/reflection" "*"
-copy_file "test/scriptbind" "*"
-copy_file "test/scriptbind/luabind" "*"
+head_file "test" "*"
+head_file "test/benchmark/callback" "*"
+head_file "test/callback" "*"
+head_file "test/misc" "*"
+head_file "test/reflection" "*"
+head_file "test/scriptbind" "*"
+head_file "test/scriptbind/luabind" "*"
 
 cd $1
 
