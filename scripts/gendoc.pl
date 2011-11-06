@@ -270,7 +270,7 @@ EOM
 	$text .= $context->{content} . "\n";
 
 	if($outHTML) {
-		$text .= "\n\n\n</div></body></html>";
+		$text .= "\n\n\n</div></body></html>\n";
 	}
 
 	&doWriteFile($outName, $text);
@@ -542,7 +542,7 @@ sub new
 		ulLevel => 0,
 		olLevel => 0,
 
-		topAnchor => '<a id="top"></a>',
+		topAnchor => '<a name="top"></a>',
 
 		sourceName => undef,		
 		fileName => undef,
@@ -730,7 +730,7 @@ sub newSectionGroup
 			$self->{html}->p(
 				$self->{html}->b(
 					$self->{html}->a(
-						href => '#' . $id, text => $self->{html}->strong($text)
+						href => $self->{fileName} . '.html#' . $id, text => $self->{html}->strong($text)
 					)
 				)
 			)
@@ -790,17 +790,18 @@ sub newSectionHead
 		$self->appendTOC(
 			$self->{html}->li(
 				$self->{html}->a(
-					href => '#' . $id, text => $self->{html}->strong($text)
+					href => $self->{fileName} . '.html#' . $id, text => $self->{html}->strong($text)
 				)
 			)
 		);
 	
 		$self->_addNewAnchor($id);
 		
+		my $anchor = '"' . $self->{fileName} . '.html#top"';
 		$self->appendContent(
 			$self->{html}->p(
 				$self->{html}->strong($text) .
-				($self->{tocLevel} ? '<span style="margin-left:100px;font-size:small"><a href="#top">back top</a></span>' : '')
+				($self->{tocLevel} ? '<span style="margin-left:100px;font-size:small"><a href=' . $anchor . '>back top</a></span>' : '')
 			)
 		);
 	}
@@ -850,7 +851,7 @@ sub _addNewAnchor
 {
 	my ($self, $id) = @_;
 
-	$self->appendContent('<p><a id="' . $id . '"></a></p>'
+	$self->appendContent('<p><a name="' . $id . '"></a></p>'
 	);
 }
 

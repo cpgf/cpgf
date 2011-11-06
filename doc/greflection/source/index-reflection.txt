@@ -10,7 +10,7 @@ The reflection is quite equivalent to Java reflection.
 We even support annotation.
 
 The only feature that not as good as Java reflection is, we have to build the meta data manually while Java compiler does it.
-But with the powerful C++ templates, building meta data is just a piece of cake. The library will does most work for you, such as deduce meta type.
+But with the powerful C++ templates, building meta data is just a piece of cake. The library will do most work for you, such as deduce meta type.
 
 cpgf reflection is licensed under Apache License, Version 2.0
 

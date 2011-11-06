@@ -20,7 +20,7 @@ Rules are pre-defined and recognized by the library.
 One rule will change one aspect of the default behavior.
 
 For example, by default a meta class requires the class has a default constructor.
-If the class doesn't has it, compiling will fail if meta class is being built for it.
+If the class doesn't have it, compiling will fail if meta class is being built for it.
 However, if feed the meta class with a policy with the rule of GMetaRuleDefaultConstructorAbsent, the library will know there is no default constructor and will succeed the compiling.
 
 Rules are pre-defined, you can't add any new rules or change any existing rules behavior.

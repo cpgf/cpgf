@@ -1,4 +1,4 @@
-<{filename name=docs-cpgf-lua-binding }>
+<{filename name=docs-cpgf-script-binding }>
 
 <{title}>cpgf script binding engine -- bind Lua to C++<{/title}>
 

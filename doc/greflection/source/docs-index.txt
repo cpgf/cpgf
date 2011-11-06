@@ -34,7 +34,7 @@
 <{sc}>
 
 <{autoul}>
-	<a href="docs-cpgf-lua-binding.html">Lua binding engine -- bind Lua to C++ </a>
+	<a href="docs-cpgf-script-binding.html">Lua binding engine -- bind Lua to C++ </a>
 <{/autoul}>
 
 

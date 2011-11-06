@@ -17,7 +17,7 @@ cpgf is composed by several independent libraries:
 The goal of cpgf is to extend C++ language with a lot of easy to use features which are only available in other higher level languages and absence in C++.
 cpgf provides a very easy to use callback system, which is common used in C# and script languages.
 cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? now we have it in C++!
-cpgf makes binding to Lua is a piece of cake! The Lua binding engine uses the reflection system extensively.
+cpgf makes binding to Lua a piece of cake! The Lua binding engine uses the reflection system extensively.
 And in the future, more script binding will be added.
 
 <{/autobr}>

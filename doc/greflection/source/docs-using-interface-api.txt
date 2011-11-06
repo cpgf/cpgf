@@ -195,18 +195,6 @@ CF: Return as the C++ function return value.
 		<td> Error code </td>
 	<tr>
 	
-	<tr>
-		<td>  </td>
-		<td>  </td>
-		<td>  </td>
-	<tr>
-	
-	<tr>
-		<td>  </td>
-		<td>  </td>
-		<td>  </td>
-	<tr>
-	
 </table>
 
 
