@@ -27,7 +27,7 @@ If we want to use the API in other languages such as C or Delphi, only interface
 Consider Microsoft MFC and COM. We can use COM in C or Delphi, but we can't use MFC in C or Delphi.
 
 <b>Supporting cross dynamic library is important for reflection and script binding </b>
-Let's imagine we want to create a GUI visual editor. We may want to extend the editor by allowing new components be added via new dynamica library, without re-distribute the editor itself.
+Let's imagine we want to create a GUI visual editor. We may want to extend the editor by allowing new components be added via new dynamic library, without re-distribute the editor itself.
 Also we can see DLLs (the dynamic libraries) are how important in Windows development, COM development and .Net development.
 <{/autobr}>	
 
@@ -101,7 +101,7 @@ GScopedInterface is the scoped pointer (or auto pointer) for interface.
 
 <{autobr}>
 I won't repeat each interface and each function in the document because it's not necessary.
-The interface based API is quite simliar with class-function based API.
+The interface based API is quite similar with class-function based API.
 
 Here only lists the different aspects between the two set of API.
 Interface will refer to interface based API, and CF will refer to class-function based API.

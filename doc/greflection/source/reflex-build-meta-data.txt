@@ -52,8 +52,8 @@
 	GMETA_DEFINE_CLASS accepts three primary parameters, plus arbitrary number of varadic parameters.
 	</p>
 	<p>The first parameter, here is Animal, is the class type. It can have any scope prefix, such as MyNameSpace::Animal.</p>
-	<p>The second parameter, here is Animal again, is the class type alias. It can be any legal C++ symbol, as long as it's unique in the program. It can't have any scrop prefix. That's to say, it can't contain any '::'.</p>
-	<p>The third parameter, here is "Animal", is the name of the meta class. It can be any string, such as "Meta::WhatNameSpace::Animal", but highly recommand that only C++ symbol and ':' or '.' be used. It must be unique in the meta system. It's the key to find the meta class.</p>
+	<p>The second parameter, here is Animal again, is the class type alias. It can be any legal C++ symbol, as long as it's unique in the program. It can't have any scope prefix. That's to say, it can't contain any '::'.</p>
+	<p>The third parameter, here is "Animal", is the name of the meta class. It can be any string, such as "Meta::WhatNameSpace::Animal", but highly recommend that only C++ symbol and ':' or '.' be used. It must be unique in the meta system. It's the key to find the meta class.</p>
 	
 	<p>Now let's build meta class for Cat.</p>
 
@@ -68,7 +68,7 @@
 	<p>
 <{autobr}>
 	This time there is the fourth parameter, Animal, which is the base class, aka, super class.
-	The library supports multiple inheritance. If Cat is also dervied from Biological, just add Biological to GMETA_DEFINE_CLASS.
+	The library supports multiple inheritance. If Cat is also derived from Biological, just add Biological to GMETA_DEFINE_CLASS.
 	
 	The base classes are not necessary reflected. When a non-reflected base class is retrieving for meta class by calling GMetaClass::getBaseClass, it always return NULL. However, calling GMetaClass::getBaseCount to get base class count will include all non-reflected base classes.
 <{/autobr}>
@@ -89,7 +89,7 @@
 
 <{autobr}>
 	Macro "GMETA_DEFINE_GLOBAL" indicates that any reflection between the curve brackets are reflected to global scope.
-	The global scoped is treated as a meta class, but it contains all global meta data for globa variables, methods, classes, etc.
+	The global scoped is treated as a meta class, but it contains all global meta data for global variables, methods, classes, etc.
 
 	When any meta class is defined by GMETA_DEFINE_CLASS, it's add to global scope automatically.
 <{/autobr}>	
@@ -140,14 +140,14 @@
 	The third parameter is the type parameters. It's the parameters that passed in template<>.
 	Note the GPP_COMMA(), it's expanded to ",", but we can't use "," directly here.
 	The fourth parameter is the parameter, without the "typename".
-	The fifth paramter is the name, it can be empty here.
-	The sixth and other paramters are the base classes.
+	The fifth parameter is the name, it can be empty here.
+	The sixth and other parameters are the base classes.
 	
 	Like C++ template, a reflected template can't be used until it's instantiated.
 	Using macro GMETA_INSTANTIATE_TEMPLATE to instantiate a template.
 	The first parameter is the instance name. It's same as class name in reflected class. It must be unique.
 	The second parameter is the template alias. It must be same as the second parameter in GMETA_DEFINE_TEMPLATE.
-	The thid parameter, is the real type parameter.
+	The third parameter, is the real type parameter.
 	
 	Above instantiate a meta class which is TestObject<char, int>.
 <{/autobr}>

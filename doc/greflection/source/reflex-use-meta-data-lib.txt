@@ -40,7 +40,7 @@ const GMetaMMM * getMMMAt(size_t index) const;
 <{autobr}>	
 <b>getMMM</b> -- get the meta data by name in current meta class. Return the meta data, or NULL if not found. If the meta data with the same name is overloaded, only the first meta data is returned.
 
-<b>getMMMInHierarchy</b> -- find the meta data in the whole inheritance hierarychy. That means, if the meta data is not found in current meta class, all parent meta classes will be checked recursively.
+<b>getMMMInHierarchy</b> -- find the meta data in the whole inheritance hierarchy. That means, if the meta data is not found in current meta class, all parent meta classes will be checked recursively.
 The second parameter, can be NULL, or the address of an instance pointer. If it's not NULL, on return the function will convert the pointer to the object in which the meta data is in.
 The function will perform an action as,
 *outInstance = static_cast<ClassThatFoundTheMetaData *>(*outInstance).
@@ -461,7 +461,7 @@ In meaning it's same as C++ variadic function,
 Calling the meta version sum,
 method->invoke(obj, 1, 3, 5, 7, 9);
 
-is quite similiar with C++ variadic function,
+is quite similar with C++ variadic function,
 obj->sum(1, 3, 5, 7, 9);
 
 GMetaVariadicParam is a structure,
