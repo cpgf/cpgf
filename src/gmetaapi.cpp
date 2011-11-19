@@ -558,8 +558,6 @@ protected:
 	virtual uint32_t G_API_CC getModuleCount();
 	virtual IMetaModule * G_API_CC getModuleAt(uint32_t index);
 
-	virtual IMetaList * G_API_CC createMetaList();
-
 	virtual IMemoryAllocator * G_API_CC getAllocator();
 
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name);
@@ -1929,11 +1927,6 @@ void ImplMetaService::clear()
 	this->moduleList.clear();
 }
 
-IMetaList * G_API_CC ImplMetaService::createMetaList()
-{
-	return new ImplMetaList;
-}
-
 IMemoryAllocator * G_API_CC ImplMetaService::getAllocator()
 {
 	if(!this->allocator) {
@@ -2030,6 +2023,11 @@ IMetaService * createDefaultMetaService()
 	return createMetaService(module.get());
 }
 
+
+IMetaList * createMetaList()
+{
+	return new ImplMetaList;
+}
 
 
 } // namespace cpgf

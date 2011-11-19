@@ -57,6 +57,9 @@ public:
 	virtual void nullifyValue(const GScriptName & name);
 
 private:
+	GLuaScriptObject(const GLuaScriptObject & other);
+	
+private:
 	GScopedPointer<GLuaScriptObjectImplement> implement;
 
 private:

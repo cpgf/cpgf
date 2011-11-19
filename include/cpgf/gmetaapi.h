@@ -216,8 +216,6 @@ struct IMetaService : public IExtendObject
 	virtual uint32_t G_API_CC getModuleCount() = 0;
 	virtual IMetaModule * G_API_CC getModuleAt(uint32_t index) = 0;
 
-	virtual IMetaList * G_API_CC createMetaList() = 0;
-
 	virtual IMemoryAllocator * G_API_CC getAllocator() = 0;
 
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name) = 0;
@@ -230,6 +228,7 @@ IMetaModule * getMetaModule();
 IMetaService * createMetaService(IMetaModule * primaryModule);
 IMetaService * createDefaultMetaService();
 
+IMetaList * createMetaList();
 
 } // namespace cpgf
 

@@ -2,7 +2,6 @@
 #define __TESTSCRIPTBINDMETADATA_H
 
 
-#include "testscriptbind.h"
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"
 

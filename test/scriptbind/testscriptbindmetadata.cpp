@@ -12,7 +12,6 @@ void bindClass(cpgf::GScriptObject * script, cpgf::IMetaService * service, const
 	using namespace cpgf;
 	
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(metaName));
-	GCHECK(metaClass);
 	
 	script->bindClass(bindName, metaClass.get());
 }
@@ -23,7 +22,6 @@ void bindClass(cpgf::IScriptObject * script, cpgf::IMetaService * service, const
 	using namespace cpgf;
 	
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(metaName));
-	GCHECK(metaClass);
 	
 	GScopedInterface<IScriptName> scriptName;
 

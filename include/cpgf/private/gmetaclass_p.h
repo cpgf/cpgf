@@ -246,6 +246,8 @@ struct GMetaClassCasterSelector
 {
 	template <typename D, typename B>
 	static typename GEnableIf<IsVirtualBase<D, B>::Result>::Result * downCast(void * base) {
+		(void)base;
+
 		return NULL;
 	}
 

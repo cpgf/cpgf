@@ -49,6 +49,9 @@ head_file()
 }
 
 copy_file "" "readme.txt"
+copy_file "" "license"
+copy_file "" "changelog"
+
 copy_file "build" "*"
 mkdir $DEST/lib
 

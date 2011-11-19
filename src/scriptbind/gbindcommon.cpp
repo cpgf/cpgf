@@ -3,6 +3,184 @@
 namespace cpgf {
 
 
+GMetaMapItem::GMetaMapItem()
+	: item(NULL), type(mmitNone), enumIndex(0)
+{
+}
+
+GMetaMapItem::GMetaMapItem(IMetaItem * item, GMetaMapItemType type)
+	: item(item), type(type), enumIndex(0)
+{
+	this->item->addReference();
+}
+
+GMetaMapItem::GMetaMapItem(size_t enumIndex, IMetaEnum * item)
+	: item(item), type(mmitEnumValue), enumIndex(enumIndex)
+{
+	this->item->addReference();
+}
+
+GMetaMapItem::GMetaMapItem(IMetaList * metaList)
+	: item(metaList), type(mmitMethodList), enumIndex(0)
+{
+}
+
+GMetaMapItem::GMetaMapItem(const GMetaMapItem & other)
+	: item(other.item), type(other.type), enumIndex(other.enumIndex)
+{
+	this->item->addReference();
+}
+
+GMetaMapItem::~GMetaMapItem()
+{
+	if(this->item != NULL) {
+		this->item->releaseReference();
+	}
+}
+
+GMetaMapItem & GMetaMapItem::operator = (GMetaMapItem other)
+{
+	this->swap(other);
+	
+	return *this;
+}
+
+void GMetaMapItem::swap(GMetaMapItem & other)
+{
+	using std::swap;
+	
+	swap(this->item, other.item);
+	swap(this->type, other.type);
+	swap(this->enumIndex, other.enumIndex);
+}
+
+GMetaMapItemType GMetaMapItem::getType() const
+{
+	return this->type;
+}
+
+IObject * GMetaMapItem::getItem() const
+{
+	if(this->item == NULL) {
+		return NULL;
+	}
+	
+	this->item->addReference();
+	
+	return static_cast<IMetaItem *>(this->item);
+}
+
+
+GMetaMapClass::GMetaMapClass(IMetaClass * metaClass)
+{
+	this->buildMap(metaClass);
+}
+
+GMetaMapItem * GMetaMapClass::findItem(const char * name)
+{
+	MapType::iterator it = this->itemMap.find(name);
+	if(it == this->itemMap.end()) {
+		return NULL;
+	}
+	else {
+		return &this->itemMap[name];
+	}
+}
+
+void GMetaMapClass::buildMap(IMetaClass * metaClass)
+{
+	using namespace std;
+	
+	uint32_t count;
+	uint32_t i;
+	
+	count = metaClass->getClassCount();
+	for(i = 0; i < count; ++i) {
+		GScopedInterface<IMetaClass> innerClass(metaClass->getClassAt(i));
+		const char * name = innerClass->getName();
+		this->itemMap[name] = GMetaMapItem(innerClass.get(), mmitClass);
+	}
+
+	count = metaClass->getEnumCount();
+	for(i = 0; i < count; ++i) {
+		GScopedInterface<IMetaEnum> metaEnum(metaClass->getEnumAt(i));
+		const char * name = metaEnum->getName();
+		this->itemMap[name] = GMetaMapItem(metaEnum.get(), mmitEnum);
+		
+		uint32_t keyCount = metaEnum->getCount();
+		for(uint32_t k = 0; k < keyCount; ++k) {
+			const char * keyName = metaEnum->getName();
+			this->itemMap[keyName] = GMetaMapItem(k, metaEnum.get());
+		}
+	}
+	
+	count = metaClass->getFieldCount();
+	for(i = 0; i < count; ++i) {
+		GScopedInterface<IMetaField> field(metaClass->getFieldAt(i));
+		const char * name = field->getName();
+		this->itemMap[name] = GMetaMapItem(field.get(), mmitField);
+	}
+	
+	count = metaClass->getPropertyCount();
+	for(i = 0; i < count; ++i) {
+		GScopedInterface<IMetaProperty> prop(metaClass->getPropertyAt(i));
+		const char * name = prop->getName();
+		this->itemMap[name] = GMetaMapItem(prop.get(), mmitProperty);
+	}
+	
+	count = metaClass->getMethodCount();
+	for(i = 0; i < count; ++i) {
+		GScopedInterface<IMetaMethod> method(metaClass->getMethodAt(i));
+		const char * name = method->getName();
+		MapType::iterator it = this->itemMap.find(name);
+		if(it == this->itemMap.end()) {
+			this->itemMap[name] = GMetaMapItem(method.get(), mmitMethod);
+		}
+		else {
+			GMetaMapItem & item = it->second;
+			if(item.getType() == mmitMethod) {
+				GScopedInterface<IMetaList> metaList(createMetaList());
+				metaList->add(static_cast<IMetaItem *>(item.getItem()), NULL);
+				metaList->add(method.get(), NULL);
+				this->itemMap[name] = GMetaMapItem(metaList.get());
+			}
+			else {
+				GASSERT(item.getType() == mmitMethodList);
+				
+				static_cast<IMetaList *>(item.getItem())->add(method.get(), NULL);
+			}
+		}
+	}
+}
+
+
+GMetaMap::GMetaMap()
+{
+}
+
+GMetaMap::~GMetaMap()
+{
+	for(MapType::iterator it = this->classMap.begin(); it != this->classMap.end(); ++it) {
+		delete it->second;
+	}
+}
+
+GMetaMapClass * GMetaMap::findClassMap(IMetaClass * metaClass)
+{
+	using namespace std;
+	
+	const char * name = metaClass->getQualifiedName();
+	MapType::iterator it = this->classMap.find(name);
+	
+	if(it != this->classMap.end()) {
+		return it->second;
+	}
+	else {
+		return this->classMap.insert(MapType::value_type(name, new GMetaMapClass(metaClass))).first->second;
+	}
+}
+
+
 ObjectPointerCV metaTypeToCV(const GMetaType & type)
 {
 	if(type.isPointer()) {
@@ -168,5 +346,6 @@ IMetaAccessible * findAccessible(IMetaClass * metaClass, const char * name, bool
 
 
 } // namespace cpgf
+
 
 
