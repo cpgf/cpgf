@@ -757,7 +757,8 @@ namespace {
 					GScopedInterface<IMetaList> metaList(createMetaList());
 					loadMethodList(&traveller, metaList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name);
 					if(metaList->getCount() == 1) {
-						doBindMethod(L, userData->getParam(), metaList->getInstanceAt(0), static_cast<IMetaMethod *>(metaList->getAt(0)));
+						GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(metaList->getAt(0)));
+						doBindMethod(L, userData->getParam(), metaList->getInstanceAt(0), method.get());
 					}
 					else {
 						doBindMethodList(L, userData->getParam(), metaList.get());

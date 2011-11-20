@@ -145,14 +145,16 @@ void GMetaMapClass::buildMap(IMetaClass * metaClass)
 			GMetaMapItem & item = it->second;
 			if(item.getType() == mmitMethod) {
 				GScopedInterface<IMetaList> metaList(createMetaList());
-				metaList->add(static_cast<IMetaItem *>(item.getItem()), NULL);
+				GScopedInterface<IMetaItem> metaItem(static_cast<IMetaItem *>(item.getItem()));
+				metaList->add(metaItem.get(), NULL);
 				metaList->add(method.get(), NULL);
 				this->itemMap[name] = GMetaMapItem(metaList.get());
 			}
 			else {
 				GASSERT(item.getType() == mmitMethodList);
 				
-				static_cast<IMetaList *>(item.getItem())->add(method.get(), NULL);
+				GScopedInterface<IMetaList> metaList(static_cast<IMetaList *>(item.getItem()));
+				metaList->add(method.get(), NULL);
 			}
 		}
 	}
