@@ -22,15 +22,6 @@ namespace cpgf {
 
 GMetaClass * getGlobalMetaClass();
 
-enum GMetaFilters {
-	metaFilterIgnoreInstance = 1 << 0,
-	metaFilterIgnoreStatic = 1 << 1,
-
-	metaFilterConstMethod = 1 << 2,
-	metaFilterVolatileMethod = 1 << 3,
-	metaFilterConstVolatileMethod = 1 << 4,
-};
-
 class GMetaClassImplement;
 
 GMAKE_FINAL(GMetaClass)
@@ -102,8 +93,6 @@ public:
 	const GMetaMethod * getMethod(const char * name) const;
 	size_t getMethodCount() const;
 	const GMetaMethod * getMethodAt(size_t index) const;
-	size_t getMethodList(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters) const;
-	size_t getMethodListInHierarchy(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters, void * instance) const;
 
 	const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
 	const GMetaOperator * getOperator(GMetaOpType op) const;
@@ -158,7 +147,6 @@ private:
 	size_t getItemCount(GMetaCategory listIndex) const;
 	const GMetaItem * getItemAt(GMetaCategory listIndex, size_t index) const;
 	const GMetaItem * getItemByName(GMetaCategory listIndex, const char * name, bool findSuper, void ** outInstance) const;
-	size_t getItemListByName(GMetaList * metaList, GMetaCategory listIndex, const char * name, bool findSuper, const GFlags<GMetaFilters> & filters, void * instance) const;
 
 public:
 	// internal use

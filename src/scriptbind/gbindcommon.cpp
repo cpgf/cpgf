@@ -23,12 +23,17 @@ GMetaMapItem::GMetaMapItem(size_t enumIndex, IMetaEnum * item)
 GMetaMapItem::GMetaMapItem(IMetaList * metaList)
 	: item(metaList), type(mmitMethodList), enumIndex(0)
 {
+	if(this->item != NULL) {
+		this->item->addReference();
+	}
 }
 
 GMetaMapItem::GMetaMapItem(const GMetaMapItem & other)
 	: item(other.item), type(other.type), enumIndex(other.enumIndex)
 {
-	this->item->addReference();
+	if(this->item != NULL) {
+		this->item->addReference();
+	}
 }
 
 GMetaMapItem::~GMetaMapItem()
@@ -67,7 +72,7 @@ IObject * GMetaMapItem::getItem() const
 	
 	this->item->addReference();
 	
-	return static_cast<IMetaItem *>(this->item);
+	return this->item;
 }
 
 
@@ -181,6 +186,29 @@ GMetaMapClass * GMetaMap::findClassMap(IMetaClass * metaClass)
 }
 
 
+bool metaMapItemIsAccessible(GMetaMapItemType type)
+{
+	return type == mmitField || type == mmitProperty;
+}
+
+bool metaMapItemIsInvokable(GMetaMapItemType type)
+{
+	return type == mmitMethod || type == mmitMethodList;
+}
+
+GMetaMapItem * findMetaMapItem(GMetaMap * metaMap, IMetaClass * metaClass, const char * itemName)
+{
+	GMetaMapClass * mapClass = metaMap->findClassMap(metaClass);
+
+	if(mapClass != NULL) {
+		return mapClass->findItem(itemName);
+	}
+	else {
+		return NULL;
+	}
+}
+
+
 ObjectPointerCV metaTypeToCV(const GMetaType & type)
 {
 	if(type.isPointer()) {
@@ -207,26 +235,6 @@ ObjectPointerCV metaTypeToCV(const GMetaType & type)
 	}
 	
 	return opcvNone;
-}
-
-void cvToFilters(ObjectPointerCV cv, GFlags<GMetaFilters> * filters)
-{
-	switch(cv) {
-		case opcvConst:
-			filters->set(metaFilterConstMethod);
-			break;
-			
-		case opcvVolatile:
-			filters->set(metaFilterVolatileMethod);
-			break;
-			
-		case opcvConstVolatile:
-			filters->set(metaFilterConstVolatileMethod);
-			break;
-			
-		default:
-			break;
-	}
 }
 
 int rankCallable(IMetaService * service, IMetaCallable * callable, GVariantData * paramsData, GBindDataType * paramsType, size_t paramCount)
@@ -314,33 +322,6 @@ bool checkCallable(IMetaCallable * callable, GVariantData * paramsData, size_t p
 	}
 
 	return true;
-}
-
-IMetaAccessible * findAccessible(IMetaClass * metaClass, const char * name, bool checkGet, bool checkSet, void ** instance)
-{
-	GScopedInterface<IMetaAccessible> data;
-
-	data.reset(metaClass->getField(name));
-	
-	if(!data || (checkGet && !data->canGet()) || (checkSet && !data->canSet())) {
-		data.reset(metaClass->getProperty(name));
-	}
-	
-	if(!data || (checkGet && !data->canGet()) || (checkSet && !data->canSet())) {
-		size_t baseCount = metaClass->getBaseCount();
-		void ** self = instance;
-		for(uint32_t i = 0; i < baseCount; ++i) {
-			*instance = metaClass->castToBase(*self, i);
-
-			GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(i));
-			data.reset(findAccessible(metaClass, name, checkGet, checkSet, instance));
-			if(data) {
-				break;
-			}
-		}
-	}
-
-	return data.take();
 }
 
 

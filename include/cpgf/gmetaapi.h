@@ -164,8 +164,6 @@ struct IMetaClass : public IMetaTypedItem
 	virtual IMetaMethod * G_API_CC getMethod(const char * name) = 0;
 	virtual uint32_t G_API_CC getMethodCount() = 0;
 	virtual IMetaMethod * G_API_CC getMethodAt(uint32_t index) = 0;
-	virtual void G_API_CC getMethodList(IMetaList * methodList, const char * name, uint32_t filters) = 0;
-	virtual void G_API_CC getMethodListInHierarchy(IMetaList * methodList, const char * name, uint32_t filters, void * instance) = 0;
 
 	virtual IMetaOperator * G_API_CC getOperatorInHierarchy(uint32_t op, void ** instance) = 0;
 	virtual IMetaOperator * G_API_CC getOperator(uint32_t op) = 0;

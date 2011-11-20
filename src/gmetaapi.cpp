@@ -481,8 +481,6 @@ protected:
 	virtual IMetaMethod * G_API_CC getMethod(const char * name);
 	virtual uint32_t G_API_CC getMethodCount();
 	virtual IMetaMethod * G_API_CC getMethodAt(uint32_t index);
-	virtual void G_API_CC getMethodList(IMetaList * methodList, const char * name, uint32_t filters);
-	virtual void G_API_CC getMethodListInHierarchy(IMetaList * methodList, const char * name, uint32_t filters, void * instance);
 
 	virtual IMetaOperator * G_API_CC getOperatorInHierarchy(uint32_t op, void ** instance);
 	virtual IMetaOperator * G_API_CC getOperator(uint32_t op);
@@ -1603,24 +1601,6 @@ IMetaMethod * G_API_CC ImplMetaClass::getMethodAt(uint32_t index)
 	return doCreateItem<ImplMetaMethod>(this->getClass()->getMethodAt(index));
 
 	LEAVE_META_API(return NULL)
-}
-
-void G_API_CC ImplMetaClass::getMethodList(IMetaList * methodList, const char * name, uint32_t filters)
-{
-	GScopedPointer<GMetaList> metaList(new GMetaList);
-
-	this->getClass()->getMethodList(metaList.get(), name, filters);
-
-	loadMetaList(methodList, metaList.get());
-}
-
-void G_API_CC ImplMetaClass::getMethodListInHierarchy(IMetaList * methodList, const char * name, uint32_t filters, void * instance)
-{
-	GScopedPointer<GMetaList> metaList(new GMetaList);
-
-	this->getClass()->getMethodListInHierarchy(metaList.get(), name, filters, instance);
-
-	loadMetaList(methodList, metaList.get());
 }
 
 IMetaOperator * G_API_CC ImplMetaClass::getOperatorInHierarchy(uint32_t op, void ** instance)

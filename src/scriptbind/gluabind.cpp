@@ -1,6 +1,7 @@
 #include "cpgf/scriptbind/gluabind.h"
 #include "cpgf/gflags.h"
 #include "cpgf/gexception.h"
+#include "cpgf/gmetaclasstraveller.h"
 
 #include "../pinclude/gbindcommon.h"
 #include "../pinclude/gscriptbindapiimpl.h"
@@ -605,53 +606,9 @@ namespace {
 		LEAVE_LUA(L, return 0)
 	}
 	
-	bool indexMemberMethod(lua_State * L, GClassUserData * userData, const char * name)
+	bool indexMemberData(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem, void * instance)
 	{
-		GFlags<GMetaFilters> filters;
-
-		if(userData->isInstance) {
-			if(! userData->getParam()->getConfig().allowAccessStaticMethodViaInstance()) {
-				filters.set(metaFilterIgnoreStatic);
-			}
-		}
-		else {
-			filters.set(metaFilterIgnoreInstance);
-		}
-		
-		cvToFilters(userData->cv, &filters);
-
-		GScopedInterface<IMetaList> methodList(createMetaList());
-		
-		userData->metaClass->getMethodListInHierarchy(methodList.get(), name, filters, userData->instance);
-		
-		size_t methodCount = methodList->getCount();
-
-		if(methodCount == 0) {
-			return false;
-		}
-
-		if(methodCount == 1) {
-			GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(methodList->getAt(0)));
-			doBindMethod(L, userData->getParam(), methodList->getInstanceAt(0), method.get());
-
-			return true;
-		}
-
-		doBindMethodList(L, userData->getParam(), methodList.get());
-
-		return true;
-	}
-
-	bool indexMemberData(lua_State * L, GClassUserData * userData, const char * name)
-	{
-		void * instance = userData->instance;
-
-		GScopedInterface<IMetaAccessible> data(findAccessible(userData->metaClass, name, true, false, &instance));
-		
-		if(!data) {
-			return false;
-		}
-
+		GScopedInterface<IMetaAccessible> data(static_cast<IMetaAccessible *>(mapItem->getItem()));
 		GVariantData varData;
 		GMetaTypeData typeData;
 		data->get(&varData, instance);
@@ -666,53 +623,107 @@ namespace {
 
 		return success;
 	}
-
-	bool indexMemberClass(lua_State * L, GClassUserData * userData, const char * name)
+	
+	bool indexMemberEnumType(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem)
 	{
-		GScopedInterface<IMetaClass> metaClass(userData->metaClass->getClassInHierarchy(name, NULL));
-
-		if(!metaClass) {
-			return false;
-		}
-
-		doBindClass(L, userData->getParam(), metaClass.get());
-
-		return true;
-	}
-
-	bool indexMemberEnumType(lua_State * L, GClassUserData * userData, const char * name)
-	{
-		GScopedInterface<IMetaEnum> metaEnum(userData->metaClass->getEnumInHierarchy(name, NULL));
-
-		if(!metaEnum) {
-			return false;
-		}
+		GScopedInterface<IMetaEnum> metaEnum(static_cast<IMetaEnum *>(mapItem->getItem()));
 
 		doBindEnum(L, userData->getParam(), metaEnum.get());
 
 		return true;
 	}
 
-	bool indexMemberEnumValue(lua_State * L, GClassUserData * userData, const char * name)
+	bool indexMemberEnumValue(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem)
 	{
-		int count = userData->metaClass->getEnumCount();
+		(void)userData;
 
-		for(int i = 0; i < count; ++i) {
-			GScopedInterface<IMetaEnum> metaEnum(userData->metaClass->getEnumAt(i));
-			int index = metaEnum->findKey(name);
-			if(index >= 0) {
-				GVariantData data;
-				metaEnum->getValue(&data, index);
-				lua_pushinteger(L, fromVariant<lua_Integer>(GVariant(data)));
+		GScopedInterface<IMetaEnum> metaEnum(static_cast<IMetaEnum *>(mapItem->getItem()));
 
-				return true;
-			}
-		}
+		GVariantData data;
+		metaEnum->getValue(&data, static_cast<uint32_t>(mapItem->getEnumIndex()));
+		lua_pushinteger(L, fromVariant<lua_Integer>(GVariant(data)));
 
-
-		return false;
+		return true;
 	}
 
+	bool indexMemberClass(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem)
+	{
+		GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(mapItem->getItem()));
+
+		doBindClass(L, userData->getParam(), metaClass.get());
+
+		return true;
+	}
+
+	bool allowInvokeMethod(GClassUserData * userData, IMetaMethod * method)
+	{
+		if(userData->isInstance) {
+			if(! userData->getParam()->getConfig().allowAccessStaticMethodViaInstance()) {
+				if(method->isStatic()) {
+					return false;
+				}
+			}
+		}
+		else {
+			if(! method->isStatic()) {
+				return false;
+			}
+		}
+		
+		const GMetaType & methodType = metaGetItemType(method);
+		switch(userData->cv) {
+			case opcvConst:
+				return methodType.isConstFunction();
+				
+			case opcvVolatile:
+				return methodType.isVolatileFunction();
+				
+			case opcvConstVolatile:
+				return methodType.isConstVolatileFunction();
+				
+			default:
+				break;
+		}
+		
+		return true;
+	}
+
+	bool indexMemberMethod(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem, void * instance)
+	{
+		GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(mapItem->getItem()));
+		
+		doBindMethod(L, userData->getParam(), instance, method.get());
+		
+		return true;
+	}
+	
+	void loadMethodList(GMetaClassTraveller * traveller, IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem, void * instance, GClassUserData * userData, const char * methodName)
+	{
+		while(mapItem != NULL) {
+			if(mapItem->getType() == mmitMethod) {
+				GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(mapItem->getItem()));
+				if(allowInvokeMethod(userData, method.get())) {
+					metaList->add(method.get(), instance);
+				}
+			}
+			else {
+				GScopedInterface<IMetaList> methodList(static_cast<IMetaList *>(mapItem->getItem()));
+				for(uint32_t i = 0; i < methodList->getCount(); ++i) {
+					GScopedInterface<IMetaItem> item(methodList->getAt(i));
+					if(allowInvokeMethod(userData, static_cast<IMetaMethod *>(item.get()))) {
+						metaList->add(item.get(), instance);
+					}
+				}
+			}
+			
+			GScopedInterface<IMetaClass> metaClass(traveller->next(&instance));
+			if(!metaClass) {
+				break;
+			}
+			mapItem = findMetaMapItem(metaMap, metaClass.get(), methodName);
+		}
+	}
+	
 	int UserData_index(lua_State * L)
 	{
 		ENTER_LUA()
@@ -721,34 +732,68 @@ namespace {
 		
 		const char * name = lua_tostring(L, -1);
 		
-		if(indexMemberMethod(L, userData, name)) {
-			return true;
-		}
-
-		if(indexMemberData(L, userData, name)) {
-			return true;
-		}
-
-		if(! userData->isInstance || userData->getParam()->getConfig().allowAccessEnumTypeViaInstance()) {
-			if(indexMemberEnumType(L, userData, name)) {
-				return true;
-			}
-		}
-
-		if(! userData->isInstance || userData->getParam()->getConfig().allowAccessEnumValueViaInstance()) {
-			if(indexMemberEnumValue(L, userData, name)) {
-				return true;
-			}
-		}
-
-		if(! userData->isInstance || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
-			if(indexMemberClass(L, userData, name)) {
-				return true;
-			}
-		}
-
-		return false;
+		GMetaClassTraveller traveller(userData->metaClass, userData->instance);
 		
+		void * instance = NULL;
+		
+		for(;;) {
+			GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
+			if(!metaClass) {
+				return false;
+			}
+			
+			GMetaMapItem * mapItem = findMetaMapItem(userData->getParam()->getMetaMap(), metaClass.get(), name);
+			if(mapItem == NULL) {
+				continue;
+			}
+			
+			switch(mapItem->getType()) {
+				case mmitField:
+				case mmitProperty:
+					return indexMemberData(L, userData, mapItem, instance);
+
+				case mmitMethod:
+				case mmitMethodList: {
+					GScopedInterface<IMetaList> metaList(createMetaList());
+					loadMethodList(&traveller, metaList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name);
+					if(metaList->getCount() == 1) {
+						doBindMethod(L, userData->getParam(), metaList->getInstanceAt(0), static_cast<IMetaMethod *>(metaList->getAt(0)));
+					}
+					else {
+						doBindMethodList(L, userData->getParam(), metaList.get());
+					}
+					return true;
+				}
+
+				case mmitEnum:
+					if(! userData->isInstance || userData->getParam()->getConfig().allowAccessEnumTypeViaInstance()) {
+						if(indexMemberEnumType(L, userData, mapItem)) {
+							return true;
+						}
+					}
+					break;
+
+				case mmitEnumValue:
+					if(! userData->isInstance || userData->getParam()->getConfig().allowAccessEnumValueViaInstance()) {
+						if(indexMemberEnumValue(L, userData, mapItem)) {
+							return true;
+						}
+					}
+					break;
+
+				case mmitClass:
+					if(! userData->isInstance || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
+						if(indexMemberClass(L, userData, mapItem)) {
+							return true;
+						}
+					}
+					break;
+
+				default:
+					break;
+			}
+		}
+
 		LEAVE_LUA(L, return false)
 	}
 
@@ -756,18 +801,33 @@ namespace {
 	{
 		(void)L;
 
-		void * instance = userData->instance;
-
-		GScopedInterface<IMetaAccessible> data(findAccessible(userData->metaClass, name, false, true, &instance));
+		GMetaClassTraveller traveller(userData->metaClass, userData->instance);
 		
-		if(!data) {
-			return false;
+		void * instance = NULL;
+		
+		for(;;) {
+			GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
+			if(!metaClass) {
+				return false;
+			}
+			
+			GMetaMapItem * mapItem = findMetaMapItem(userData->getParam()->getMetaMap(), metaClass.get(), name);
+			if(mapItem == NULL) {
+				continue;
+			}
+			
+			if(!metaMapItemIsAccessible(mapItem->getType())) {
+				continue;
+			}
+			
+			GScopedInterface<IMetaAccessible> data(static_cast<IMetaAccessible *>(mapItem->getItem()));
+			
+			GVariantData varData = value.getData();
+			data->set(instance, &varData);
+
+			return true;
 		}
 
-		GVariantData varData = value.getData();
-		data->set(instance, &varData);
-
-		return true;
 	}
 
 	int UserData_newindex(lua_State * L)
@@ -781,7 +841,7 @@ namespace {
 		GVariant value = luaToVariant(L, userData->getParam(), -1).getValue();
 		
 		if(newindexMemberData(L, userData, name, value)) {
-			return true;
+			return 1;
 		}
 
 		return 0;

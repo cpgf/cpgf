@@ -106,8 +106,6 @@ public:
 	GMetaItem * getItemAt(size_t index) const;
 	GMetaItem * getItemByName(const char * name) const;
 
-	size_t getItemListByName(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters, void * instance) const;
-
 private:
 	void clearList();
 
@@ -193,51 +191,6 @@ GMetaItem * GMetaInternalItemList::getItemByName(const char * name) const
 	else {
 		return it->second;
 	}
-}
-
-size_t GMetaInternalItemList::getItemListByName(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters, void * instance) const
-{
-	size_t count = 0;
-
-	for(meta_internal::GMetaItemListImplement::ListType::const_iterator it = this->implement->itemList.begin(); it != this->implement->itemList.end(); ++it) {
-		if(strcmp((*it)->getName().c_str(), name) == 0) {
-			GMetaItem * item = *it;
-			bool add = true;
-			
-			if(item->isStatic()) {
-				if(filters.hasAny(metaFilterIgnoreStatic)) {
-					add = false;
-				}
-			}
-			else {
-				if(filters.hasAny(metaFilterIgnoreInstance)) {
-					add = false;
-				}
-			}
-
-			if(filters.hasAny(metaFilterConstMethod | metaFilterVolatileMethod | metaFilterConstVolatileMethod)) {
-				if(metaIsMethod(item->getCategory())) {
-					const GMetaType & itemType = item->getItemType();
-					if(filters.hasAny(metaFilterConstMethod) && !itemType.isConstFunction()) {
-						add = false;
-					}
-					else if(filters.hasAny(metaFilterVolatileMethod) && !itemType.isVolatileFunction()) {
-						add = false;
-					}
-					else if(filters.hasAny(metaFilterConstVolatileMethod) && !itemType.isConstVolatileFunction()) {
-						add = false;
-					}
-				}
-			}
-
-			if(add) {
-				metaList->add(item, instance);
-				++count;
-			}
-		}
-	}
-
-	return count;
 }
 
 void GMetaInternalItemList::clearList()
@@ -411,16 +364,6 @@ size_t GMetaClass::getMethodCount() const
 const GMetaMethod * GMetaClass::getMethodAt(size_t index) const
 {
 	return static_cast<const GMetaMethod *>(this->getItemAt(mcatMethod, index));
-}
-
-size_t GMetaClass::getMethodList(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters) const
-{
-	return this->getItemListByName(metaList, mcatMethod, name, false, filters, NULL);
-}
-
-size_t GMetaClass::getMethodListInHierarchy(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters, void * instance) const
-{
-	return this->getItemListByName(metaList, mcatMethod, name, true, filters, instance);
 }
 
 void GMetaClass::addOperator(GMetaOperator * metaOperator)
@@ -741,26 +684,6 @@ const GMetaItem * GMetaClass::getItemByName(GMetaCategory listIndex, const char 
 	}
 
 	return result;
-}
-
-size_t GMetaClass::getItemListByName(GMetaList * metaList, GMetaCategory listIndex, const char * name, bool findSuper, const GFlags<GMetaFilters> & filters, void * instance) const
-{
-	this->ensureRegistered();
-
-	GMetaInternalItemList * itemList = this->implement->itemLists[listIndex];
-	size_t count = itemList->getItemListByName(metaList, name, filters, instance);
-
-	if(findSuper && this->superList) {
-		void * self = instance;
-		for(size_t i = 0; i < this->getBaseCount(); ++i) {
-			if(self != NULL) {
-				instance = this->castToBase(self, i);
-			}
-			count += this->getBaseClass(i)->getItemListByName(metaList, listIndex, name, true, filters, instance);
-		}
-	}
-
-	return count;
 }
 
 GMetaClass * getGlobalMetaClass()

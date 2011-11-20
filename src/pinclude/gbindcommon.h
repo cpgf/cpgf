@@ -237,6 +237,10 @@ public:
 	
 	GMetaMapItemType getType() const;
 	IObject * getItem() const;
+
+	size_t getEnumIndex() const {
+		return this->enumIndex;
+	}
 	
 private:
 	IObject * item;
@@ -290,14 +294,15 @@ private:
 	MapType classMap;
 };
 
+bool metaMapItemIsAccessible(GMetaMapItemType type);
+bool metaMapItemIsInvokable(GMetaMapItemType type);
+GMetaMapItem * findMetaMapItem(GMetaMap * metaMap, IMetaClass * metaClass, const char * itemName);
+
 
 ObjectPointerCV metaTypeToCV(const GMetaType & type);
-void cvToFilters(ObjectPointerCV cv, GFlags<GMetaFilters> * filters);
 
 int rankCallable(IMetaService * service, IMetaCallable * callable, GVariantData * paramsData, GBindDataType * paramsType, size_t paramCount);
 bool checkCallable(IMetaCallable * callable, GVariantData * paramsData, size_t paramCount);
-
-IMetaAccessible * findAccessible(IMetaClass * metaClass, const char * name, bool checkGet, bool checkSet, void ** instance);
 
 
 
