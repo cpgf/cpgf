@@ -12,7 +12,7 @@
 
 namespace cpgf {
 
-GException::GException(int errorCode, const std::string & message)
+GException::GException(int errorCode, const char * message)
 	: super(message), errorCode(errorCode)
 {
 }
@@ -27,7 +27,7 @@ const char * GException::getMessage() const
 	return this->what();
 }
 
-void raiseException(int errorCode, const std::string & message)
+void raiseException(int errorCode, const char *  message)
 {
 	throw GException(errorCode, message);
 }
@@ -43,7 +43,7 @@ void raiseFormatException(int errorCode, const char * message, ...)
 
 	va_end (args);
 
-	raiseException(errorCode, std::string(buffer));
+	raiseException(errorCode, buffer);
 }
 
 

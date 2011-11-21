@@ -23,12 +23,15 @@
 using namespace std;
 
 #define ENTER_LUA() \
+	char local_msg[1000]; bool local_error = false; { \
 	try {
 
 #define LEAVE_LUA(L, ...) \
 	} \
-	catch(const GException & e) { error(L, e.getMessage()); __VA_ARGS__; } \
-	catch(...) { error(L, "Unknown exception occurred."); __VA_ARGS__; }
+	catch(const GException & e) { GASSERT(strlen(e.getMessage()) < 1000); strcpy(local_msg, e.getMessage()); local_error = true; } \
+	catch(...) { strcpy(local_msg, "Unknown exception occurred."); local_error = true; } \
+	} if(local_error) error(L, local_msg); \
+	__VA_ARGS__;
 	
 	
 namespace cpgf {
@@ -77,7 +80,7 @@ namespace {
 	};
 
 
-	void error(lua_State * L, const std::string & message)
+	void error(lua_State * L, const char * message)
 	{
 		lua_Debug ar;
 		lua_getstack(L, 1, &ar);
@@ -89,10 +92,11 @@ namespace {
 			fileName = &dummy;
 		}
 
-		GScopedArray<char> s(new char[message.length() + strlen(fileName) + 100]);
-		sprintf(s.get(), "Error, file %s, line %d: %s", fileName, ar.currentline, message.c_str());
+		GASSERT(strlen(message) + strlen(fileName) + 100 < 4000);
+		char s[4000];
+		sprintf(s, "Error, file %s, line %d: %s", fileName, ar.currentline, message);
 
-		lua_pushstring(L, message.c_str());
+		lua_pushstring(L, s);
 		lua_error(L);
 	}
 
@@ -852,12 +856,13 @@ namespace {
 				lua_pushstring(L, luaOperators[i]);
 				void * userData = lua_newuserdata(L, sizeof(GOperatorUserData));
 				new (userData) GOperatorUserData(param, instance, metaClass, op);
-				
+
+/* No need to setup GC as long as GOperatorUserData doesn't need to free any resource.
 				lua_newtable(L);
-				
 				setMetaTableSignature(L);
 				setMetaTableGC(L);
 				lua_setmetatable(L, -2);
+*/
 
 				lua_pushcclosure(L, &UserData_operator, 1);
 				lua_rawset(L, -3);

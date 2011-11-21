@@ -12,7 +12,7 @@ private:
 	typedef std::runtime_error super;
 
 public:
-	GException(int errorCode, const std::string & message);
+	GException(int errorCode, const char * message);
 	
 	int getCode() const;
 	const char * getMessage() const;
@@ -21,7 +21,7 @@ private:
 	int errorCode;	
 };
 
-void raiseException(int errorCode, const std::string & message);
+void raiseException(int errorCode, const char * message);
 void raiseFormatException(int errorCode, const char * message, ...);
 
 

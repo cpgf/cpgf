@@ -284,7 +284,7 @@ inline void swap(GVariant & a, GVariant & b)
 	a.swap(b);
 }
 
-extern void raiseException(int errorCode, const std::string & message);
+extern void raiseException(int errorCode, const char * message);
 
 inline void failedCast() {
 	raiseException(Error_Variant_FailCast, "GVariant: cast failure");

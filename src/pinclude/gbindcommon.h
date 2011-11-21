@@ -150,6 +150,8 @@ public:
 	IMetaList * methodList;
 };
 
+// NOTE: Now the other code assumes that GOperatorUserData doesn't need to free any resource.
+// Whenever GOperatorUserData needs to free resource in destructor, we need to refactor other code to avoid memory leaks.
 class GOperatorUserData : public GScriptUserData
 {
 private:
