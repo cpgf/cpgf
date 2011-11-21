@@ -35,6 +35,7 @@ const int Error_ScriptBinding_CantReturnMultipleValue	= Error_ScriptBinding_Begi
 const int Error_ScriptBinding_CantCallNonfunction		= Error_ScriptBinding_Begin + 10;
 const int Error_ScriptBinding_CantBindFundamental		= Error_ScriptBinding_Begin + 11;
 const int Error_ScriptBinding_ScriptFunctionReturnError	= Error_ScriptBinding_Begin + 12;
+const int Error_ScriptBinding_CantWriteToConstObject	= Error_ScriptBinding_Begin + 13;
 const int Error_ScriptBinding_End			= 300;
 
 

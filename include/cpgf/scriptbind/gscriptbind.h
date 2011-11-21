@@ -33,15 +33,17 @@ class GScriptConfig : GFINAL_BASE(GScriptConfig)
 {
 private:
 	enum {
-		scAccessStaticMethodViaInstance = 1 << 0,
-		scAccessEnumTypeViaInstance = 1 << 1,
-		scAccessEnumValueViaInstance = 1 << 2,
-		scAccessClassViaInstance = 1 << 3
+		scAccessStaticDataViaInstance = 1 << 0,
+		scAccessStaticMethodViaInstance = 1 << 1,
+		scAccessEnumTypeViaInstance = 1 << 2,
+		scAccessEnumValueViaInstance = 1 << 3,
+		scAccessClassViaInstance = 1 << 4
 	};
 
 	enum {
-		DefaultFlags
-			= scAccessStaticMethodViaInstance
+		DefaultFlags =
+				scAccessStaticDataViaInstance
+				| scAccessStaticMethodViaInstance
 				| scAccessEnumTypeViaInstance
 				| scAccessEnumValueViaInstance
 				| scAccessClassViaInstance
@@ -58,6 +60,14 @@ public:
 		this->flags = other.flags;
 
 		return *this;
+	}
+
+	void setAccessStaticDataViaInstance(bool set) {
+		this->setFlag(scAccessStaticDataViaInstance, set);
+	}
+
+	bool allowAccessStaticDataViaInstance() const {
+		return this->hasFlag(scAccessStaticDataViaInstance);
 	}
 
 	void setAccessStaticMethodViaInstance(bool set) {

@@ -29,15 +29,22 @@ void bindClass(cpgf::IScriptObject * script, cpgf::IMetaService * service, const
 	script->bindClass(scriptName.get(), metaClass.get());
 }
 
-
-void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
+template <typename T>
+void bindBasicClass(T * script, cpgf::IMetaService * service)
 {
 	bindClass(script, service, "testscript::TestObject", "TestObject");
 	bindClass(script, service, "testscript::TestData", "TestData");
 	bindClass(script, service, "testscript::TestBase", "TestBase");
+	bindClass(script, service, "testscript::TestOperator", "TestOperator");
 	bindClass(script, service, "testscript::TestA", "TestA");
 	bindClass(script, service, "testscript::TestB", "TestB");
 	bindClass(script, service, "testscript::TestC", "TestC");
+}
+
+
+void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
+{
+	bindBasicClass(script, service);
 
 	script->bindFundamental("Magic1", Magic1);
 	script->bindFundamental("Magic2", Magic2);
@@ -49,12 +56,7 @@ void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
 {
 	using namespace cpgf;
 
-	bindClass(script, service, "testscript::TestObject", "TestObject");
-	bindClass(script, service, "testscript::TestData", "TestData");
-	bindClass(script, service, "testscript::TestBase", "TestBase");
-	bindClass(script, service, "testscript::TestA", "TestA");
-	bindClass(script, service, "testscript::TestB", "TestB");
-	bindClass(script, service, "testscript::TestC", "TestC");
+	bindBasicClass(script, service);
 
 	GScopedInterface<IScriptName> scriptName;
 
@@ -143,6 +145,39 @@ GMETA_DEFINE_CLASS(TestObject, TestObject, "testscript::TestObject") {
 	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestC *) const)&TestObject::methodOverloadObject);
 }
 
+
+GMETA_DEFINE_CLASS(TestOperator, TestOperator, "testscript::TestOperator") {
+	using namespace cpgf;
+	using namespace std;
+
+	reflectConstructor<void * (const TestOperator &)>();
+	reflectConstructor<void * (int)>();
+	
+	GMETA_FIELD(value);
+	
+#define M(OP, RET) \
+	reflectOperator<RET (const GMetaSelf, int)>(mopHolder OP mopHolder); \
+	reflectOperator<RET (const GMetaSelf, const TestOperator &)>(mopHolder OP mopHolder); \
+	reflectOperator<RET (const GMetaSelf, const TestObject &)>(mopHolder OP mopHolder);
+	
+	M(+, TestOperator)
+	M(-, TestOperator)
+	M(*, TestOperator)
+	M(/, TestOperator)
+	M(%, TestOperator)
+
+	M(==, bool)
+	M(<, bool)
+	M(<=, bool)
+
+#undef M
+
+	reflectOperator<TestOperator (const GMetaSelf)>(-mopHolder);
+
+	reflectOperator<TestOperator (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference());
+	reflectOperator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder));
+
+}
 
 
 }

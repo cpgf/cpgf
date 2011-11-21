@@ -385,7 +385,7 @@ GMETA_DEFINE_CLASS(CLASS2, CLASS2, NAME_CLASS2) {
 	reflectOperator<int (GMetaSelf, int CLASS2::*)>(mopHolder->*mopHolder);
 	reflectOperator<std::string (GMetaSelf)>(mopHolder());
 	reflectOperator<int (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference());
-	reflectOperator<int (const cpgf::GMetaVariadicParam *)>(mopHolder(mopHolder));
+	reflectOperator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder));
 }
 
 GTEST(Lib_Exists)

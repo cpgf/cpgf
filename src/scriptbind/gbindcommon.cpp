@@ -326,6 +326,57 @@ bool checkCallable(IMetaCallable * callable, GVariantData * paramsData, size_t p
 	return true;
 }
 
+bool allowInvokeMethod(GClassUserData * userData, IMetaMethod * method)
+{
+	if(userData->isInstance) {
+		if(! userData->getParam()->getConfig().allowAccessStaticMethodViaInstance()) {
+			if(method->isStatic()) {
+				return false;
+			}
+		}
+	}
+	else {
+		if(! method->isStatic()) {
+			return false;
+		}
+	}
+	
+	const GMetaType & methodType = metaGetItemType(method);
+	switch(userData->cv) {
+		case opcvConst:
+			return methodType.isConstFunction();
+			
+		case opcvVolatile:
+			return methodType.isVolatileFunction();
+			
+		case opcvConstVolatile:
+			return methodType.isConstVolatileFunction();
+			
+		default:
+			break;
+	}
+	
+	return true;
+}
+
+bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible)
+{
+	if(userData->isInstance) {
+		if(! userData->getParam()->getConfig().allowAccessStaticDataViaInstance()) {
+			if(accessible->isStatic()) {
+				return false;
+			}
+		}
+	}
+	else {
+		if(! accessible->isStatic()) {
+			return false;
+		}
+	}
+	
+	return true;
+}
+
 
 
 } // namespace cpgf

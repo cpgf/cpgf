@@ -17,6 +17,8 @@ class TestLuaContext
 {
 public:
 	TestLuaContext() {
+		this->printError = true;
+
 		this->service.reset(cpgf::createDefaultMetaService());
 
 		this->luaStateLib = luaL_newstate();
@@ -60,23 +62,44 @@ public:
 
 	bool doLib(const char * code) const {
 		luaL_loadstring(this->luaStateLib, code);
-		lua_call(this->luaStateLib, 0, LUA_MULTRET);
-
-		return true;
+		return checkError(lua_pcall(this->luaStateLib, 0, LUA_MULTRET, 0), this->luaStateLib);
 	}
 
 	bool doApi(const char * code) const {
 		luaL_loadstring(this->luaStateApi, code);
-		lua_call(this->luaStateApi, 0, LUA_MULTRET);
-
-		return true;
+		return checkError(lua_pcall(this->luaStateApi, 0, LUA_MULTRET, 0), this->luaStateApi);
 	}
 
 	bool doString(const char * code) const {
-		this->doLib(code);
-		this->doApi(code);
+		bool ok;
 
-		return true;
+		this->printError = true;
+
+		ok = this->doLib(code);
+		ok = this->doApi(code) && ok;
+
+		return ok;
+	}
+
+	bool doError(const char * code) const {
+		bool ok;
+
+		this->printError = false;
+
+		ok = this->doLib(code);
+		ok = this->doApi(code) && ok;
+
+		return !ok;
+	}
+
+private:
+	bool checkError(int errorCode, lua_State * L) const
+	{
+		if(this->printError && errorCode != 0) {
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+		}
+
+		return errorCode == 0;
 	}
 
 private:
@@ -85,6 +108,7 @@ private:
 	lua_State * luaStateApi;
 	cpgf::GScopedPointer<cpgf::GLuaScriptObject> bindingLib;
 	cpgf::GScopedInterface<cpgf::IScriptObject> bindingApi;
+	mutable bool printError;
 };
 
 inline TestLuaContext * getLuaContext()

@@ -4,10 +4,12 @@
 #include "cpgf/gconfig.h"
 
 
+#undef G_DEBUG
+
 #if !defined(NDEBUG)
-	#define G_DEBUG
+	#define G_DEBUG 1
 #else
-	#undef G_DEBUG
+	#define G_DEBUG 0
 #endif
 
 

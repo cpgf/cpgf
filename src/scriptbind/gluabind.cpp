@@ -89,7 +89,8 @@ namespace {
 			fileName = &dummy;
 		}
 
-		fprintf(stderr, "Error, file %s, line %d: %s \n", fileName, ar.currentline, message.c_str());
+		GScopedArray<char> s(new char[message.length() + strlen(fileName) + 100]);
+		sprintf(s.get(), "Error, file %s, line %d: %s", fileName, ar.currentline, message.c_str());
 
 		lua_pushstring(L, message.c_str());
 		lua_error(L);
@@ -125,11 +126,11 @@ namespace {
 			setMetaTableGC(L);
 		
 			initObjectMetaTable(L);
-			doBindAllOperators(L, param, instance, metaClass);
 
 			lua_pushvalue(L, -1); // duplicate the meta table
 			lua_setfield(L, LUA_REGISTRYINDEX, metaTableName);
 		}
+		doBindAllOperators(L, param, instance, metaClass);
 		
 		lua_setmetatable(L, -2);
 	}
@@ -545,6 +546,10 @@ namespace {
 			++startIndex;
 			--paramCount;
 		}
+		
+		if(op == mopNeg) {
+			paramCount = 1; // Lua pass two parameters to __unm...
+		}
 			
 		int maxRank = -1;
 		uint32_t maxRankIndex = 0;
@@ -606,9 +611,8 @@ namespace {
 		LEAVE_LUA(L, return 0)
 	}
 	
-	bool indexMemberData(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem, void * instance)
+	bool indexMemberData(lua_State * L, GClassUserData * userData, IMetaAccessible * data, void * instance)
 	{
-		GScopedInterface<IMetaAccessible> data(static_cast<IMetaAccessible *>(mapItem->getItem()));
 		GVariantData varData;
 		GMetaTypeData typeData;
 		data->get(&varData, instance);
@@ -652,39 +656,6 @@ namespace {
 
 		doBindClass(L, userData->getParam(), metaClass.get());
 
-		return true;
-	}
-
-	bool allowInvokeMethod(GClassUserData * userData, IMetaMethod * method)
-	{
-		if(userData->isInstance) {
-			if(! userData->getParam()->getConfig().allowAccessStaticMethodViaInstance()) {
-				if(method->isStatic()) {
-					return false;
-				}
-			}
-		}
-		else {
-			if(! method->isStatic()) {
-				return false;
-			}
-		}
-		
-		const GMetaType & methodType = metaGetItemType(method);
-		switch(userData->cv) {
-			case opcvConst:
-				return methodType.isConstFunction();
-				
-			case opcvVolatile:
-				return methodType.isVolatileFunction();
-				
-			case opcvConstVolatile:
-				return methodType.isConstVolatileFunction();
-				
-			default:
-				break;
-		}
-		
 		return true;
 	}
 
@@ -749,8 +720,13 @@ namespace {
 			
 			switch(mapItem->getType()) {
 				case mmitField:
-				case mmitProperty:
-					return indexMemberData(L, userData, mapItem, instance);
+				case mmitProperty: {
+					GScopedInterface<IMetaAccessible> data(static_cast<IMetaAccessible *>(mapItem->getItem()));
+					if(allowAccessData(userData, data.get())) {
+						return indexMemberData(L, userData, data.get(), instance);
+					}
+				}
+				   break;
 
 				case mmitMethod:
 				case mmitMethodList: {
@@ -802,10 +778,16 @@ namespace {
 	{
 		(void)L;
 
+		if(userData->cv == opcvConst) {
+			raiseException(Error_ScriptBinding_CantWriteToConstObject, "Can't write to constant object.");
+
+			return false;
+		}
+
 		GMetaClassTraveller traveller(userData->metaClass, userData->instance);
 		
 		void * instance = NULL;
-		
+
 		for(;;) {
 			GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
 			if(!metaClass) {
@@ -822,11 +804,13 @@ namespace {
 			}
 			
 			GScopedInterface<IMetaAccessible> data(static_cast<IMetaAccessible *>(mapItem->getItem()));
-			
-			GVariantData varData = value.getData();
-			data->set(instance, &varData);
 
-			return true;
+			if(allowAccessData(userData, data.get())) {
+				GVariantData varData = value.getData();
+				data->set(instance, &varData);
+
+				return true;
+			}
 		}
 
 	}
@@ -869,6 +853,12 @@ namespace {
 				void * userData = lua_newuserdata(L, sizeof(GOperatorUserData));
 				new (userData) GOperatorUserData(param, instance, metaClass, op);
 				
+				lua_newtable(L);
+				
+				setMetaTableSignature(L);
+				setMetaTableGC(L);
+				lua_setmetatable(L, -2);
+
 				lua_pushcclosure(L, &UserData_operator, 1);
 				lua_rawset(L, -3);
 

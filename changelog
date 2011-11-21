@@ -1,3 +1,10 @@
+Somedate version 1.0.1
+	Refactored Lua binding, using better and faster algorithm to travel for data and methods.
+	Distinguish static and member data access in Lua binding.
+	Remove error output to stderr in Lua binding.
+	Added unit test -- test_lua_operator.cpp
+	Bug fix: binding Lua operators to wrong meta table.
+	Bug fix: Lua passes two parameters to __unm operator that cpgf doesn't handle correctly.
+
 2011-11-05 version 1.0.0
-	First release
-	
+	First release.

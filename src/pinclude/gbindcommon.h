@@ -304,6 +304,8 @@ ObjectPointerCV metaTypeToCV(const GMetaType & type);
 int rankCallable(IMetaService * service, IMetaCallable * callable, GVariantData * paramsData, GBindDataType * paramsType, size_t paramCount);
 bool checkCallable(IMetaCallable * callable, GVariantData * paramsData, size_t paramCount);
 
+bool allowInvokeMethod(GClassUserData * userData, IMetaMethod * method);
+bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible);
 
 
 } // namespace cpgf
