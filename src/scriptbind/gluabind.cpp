@@ -370,6 +370,10 @@ namespace {
 
 	void loadMethodParameters(lua_State * L, GScriptBindingParam * param, GVariantData * outputParams, int startIndex, int paramCount)
 	{
+		if(paramCount > REF_MAX_ARITY) {
+			raiseException(Error_ScriptBinding_CallMethodWithTooManyParameters, "Too many parameters.");
+		}
+
 		for(int i = 0; i < paramCount; ++i) {
 			outputParams[i] = luaToVariant(L, param, i + startIndex).getData().varData;
 		}
@@ -377,6 +381,10 @@ namespace {
 
 	void loadMethodParamTypes(lua_State * L, GBindDataType * outputTypes, int startIndex, int paramCount)
 	{
+		if(paramCount > REF_MAX_ARITY) {
+			raiseException(Error_ScriptBinding_CallMethodWithTooManyParameters, "Too many parameters.");
+		}
+
 		for(int i = 0; i < paramCount; ++i) {
 			IMetaTypedItem * typeItem;
 			outputTypes[i].dataType = getLuaType(L, i + startIndex, &typeItem);

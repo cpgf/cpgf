@@ -210,6 +210,27 @@ public:
 	IMetaAccessible * accessible;
 };
 
+class GNamedUserData : public GScriptUserData
+{
+private:
+	typedef GScriptUserData super;
+
+public:
+	GNamedUserData(GScriptBindingParam * param, const std::string & name)
+		: super(udtEnum, param), name(name) {
+	}
+
+	virtual ~GNamedUserData() {
+	}
+
+	const std::string & getName() const {
+		return this->name;
+	}
+
+public:
+	std::string name;
+};
+
 
 enum GMetaMapItemType {
 	mmitMethod = 0,
