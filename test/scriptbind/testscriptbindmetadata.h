@@ -233,6 +233,8 @@ public:
 void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service);
 void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service);
 
+void scriptAssert(bool b);
+
 
 
 }

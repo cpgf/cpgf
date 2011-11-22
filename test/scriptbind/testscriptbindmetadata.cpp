@@ -1,5 +1,6 @@
 #include "cpgf/gmetareflect.h"
 #include "cpgf/gscopedptr.h"
+#include "cpgf/gexception.h"
 
 #include "testscriptbindmetadata.h"
 
@@ -29,6 +30,32 @@ void bindClass(cpgf::IScriptObject * script, cpgf::IMetaService * service, const
 	script->bindClass(scriptName.get(), metaClass.get());
 }
 
+void bindMethod(cpgf::GScriptObject * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
+{
+	using namespace cpgf;
+	
+	GScopedInterface<IMetaModule> module(service->getModuleAt(0));
+	GScopedInterface<IMetaClass> metaClass(module->getGlobalMetaClass());
+	GScopedInterface<IMetaMethod> method(metaClass->getMethod(metaName));
+	
+	script->bindMethod(bindName, NULL, method.get());
+}
+
+
+void bindMethod(cpgf::IScriptObject * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
+{
+	using namespace cpgf;
+	
+	GScopedInterface<IMetaModule> module(service->getModuleAt(0));
+	GScopedInterface<IMetaClass> metaClass(module->getGlobalMetaClass());
+	GScopedInterface<IMetaMethod> method(metaClass->getMethod(metaName));
+	
+	GScopedInterface<IScriptName> scriptName;
+
+	scriptName.reset(script->createName(bindName));
+	script->bindMethod(scriptName.get(), NULL, method.get());
+}
+
 template <typename T>
 void bindBasicClass(T * script, cpgf::IMetaService * service)
 {
@@ -49,6 +76,8 @@ void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
 	script->bindFundamental("Magic1", Magic1);
 	script->bindFundamental("Magic2", Magic2);
 	script->bindFundamental("Magic3", Magic3);
+
+	bindMethod(script, service, "scriptAssert", "scriptAssert");
 }
 
 
@@ -73,8 +102,17 @@ void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
 	v = Magic3;
 	scriptName.reset(script->createName("Magic3"));
 	script->bindFundamental(scriptName.get(), &v.data);
+
+	bindMethod(script, service, "scriptAssert", "scriptAssert");
 }
 
+
+void scriptAssert(bool b)
+{
+	if(! b) {
+		cpgf::raiseException(1, "Script assertion failure!");
+	}
+}
 
 GMETA_DEFINE_CLASS(TestData, TestData, "testscript::TestData") {
 	using namespace cpgf;
@@ -177,6 +215,12 @@ GMETA_DEFINE_CLASS(TestOperator, TestOperator, "testscript::TestOperator") {
 	reflectOperator<TestOperator (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference());
 	reflectOperator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder));
 
+}
+
+GMETA_DEFINE_GLOBAL() {
+	using namespace cpgf;
+
+	reflectMethod("scriptAssert", &scriptAssert);
 }
 
 

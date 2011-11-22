@@ -2,9 +2,13 @@ Somedate version 1.0.1
 	Refactored Lua binding, using better and faster algorithm to travel for data and methods.
 	Distinguish static and member data access in Lua binding.
 	Remove error output to stderr in Lua binding.
-	Added unit test -- test_lua_operator.cpp
+	Add: class GMetaClassTraveller in gmetaclasstraveller.h to ease iterating class hierarchy.
+	Add unit test -- test_lua_operator.cpp
 	Bug fix: binding Lua operators to wrong meta table.
 	Bug fix: Lua passes two parameters to __unm operator that cpgf doesn't handle correctly.
+	Bug fix: some exceptions raised by interface API were not detected in Lua binding. Now re-throw it to Lua.
+	Memory leak fix: leak when exception is raised during any Lua callback.
+	Remove: function getMethodList and getMethodListInHierarchy from GMetaClass and IMetaClass. They were replaced with better algorithm.
 
 2011-11-05 version 1.0.0
 	First release.

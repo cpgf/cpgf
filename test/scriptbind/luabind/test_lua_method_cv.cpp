@@ -11,28 +11,28 @@ GTEST(Method_CV)
 	GCHECK(
 		context->doString(""
 			LINE(a = TestObject())
-			LINE(assert(a.methodConst() == 0))
+			LINE(scriptAssert(a.methodConst() == 0))
 			
 			LINE(a = a.selfConst())
-			LINE(assert(a.methodConst() == 1))
+			LINE(scriptAssert(a.methodConst() == 1))
 			
 			LINE(a = TestObject())
-			LINE(assert(a.methodVolatile() == 0))
+			LINE(scriptAssert(a.methodVolatile() == 0))
 			
 			LINE(a = a.selfVolatile())
-			LINE(assert(a.methodVolatile() == 1))
+			LINE(scriptAssert(a.methodVolatile() == 1))
 			
 			LINE(a = TestObject())
-			LINE(assert(a.methodConstVolatile() == 0))
+			LINE(scriptAssert(a.methodConstVolatile() == 0))
 			
 			LINE(a = a.selfConstVolatile())
-			LINE(assert(a.methodConstVolatile() == 1))
+			LINE(scriptAssert(a.methodConstVolatile() == 1))
 			
 			LINE(a = TestObject())
 			LINE(a = a.self())
-			LINE(assert(a.methodConst() == 0))
-			LINE(assert(a.methodVolatile() == 0))
-			LINE(assert(a.methodConstVolatile() == 0))
+			LINE(scriptAssert(a.methodConst() == 0))
+			LINE(scriptAssert(a.methodVolatile() == 0))
+			LINE(scriptAssert(a.methodConstVolatile() == 0))
 			
 		)
 	);
@@ -40,7 +40,7 @@ GTEST(Method_CV)
 	GCHECK(
 		context->doString(""
 			LINE(a = TestObject())
-			LINE(assert(a.methodConst() == 0))
+			LINE(scriptAssert(a.methodConst() == 0))
 			
 			LINE(a = a.selfConst())
 		)

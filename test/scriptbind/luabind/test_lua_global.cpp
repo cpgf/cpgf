@@ -30,8 +30,8 @@ GTEST(global)
 	bindingApi->bindObject(scriptName.get(), dataApi.get(), metaClass.get(), false);
 	
 	context->doString(
-		LINE(assert(data.x == 10))
-		LINE(assert(data.name == "abc"))
+		LINE(scriptAssert(data.x == 10))
+		LINE(scriptAssert(data.name == "abc"))
 		LINE(data.x = data.x + 1)
 	);
 
@@ -41,7 +41,7 @@ GTEST(global)
 	context->getBindingLib()->nullifyValue("data");
 	scriptName.reset(bindingApi->createName("data"));
 	bindingApi->nullifyValue(scriptName.get());
-	context->doString("assert(data == nil)");
+	context->doString("scriptAssert(data == nil)");
 }
 
 

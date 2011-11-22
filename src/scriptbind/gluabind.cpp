@@ -23,14 +23,14 @@
 using namespace std;
 
 #define ENTER_LUA() \
-	char local_msg[1000]; bool local_error = false; { \
+	char local_msg[256]; bool local_error = false; { \
 	try {
 
 #define LEAVE_LUA(L, ...) \
 	} \
-	catch(const GException & e) { GASSERT(strlen(e.getMessage()) < 1000); strcpy(local_msg, e.getMessage()); local_error = true; } \
+	catch(const GException & e) { strncpy(local_msg, e.getMessage(), 256); local_error = true; } \
 	catch(...) { strcpy(local_msg, "Unknown exception occurred."); local_error = true; } \
-	} if(local_error) error(L, local_msg); \
+	} if(local_error) { local_msg[255] = 0; error(L, local_msg); } \
 	__VA_ARGS__;
 	
 	
@@ -92,9 +92,8 @@ namespace {
 			fileName = &dummy;
 		}
 
-		GASSERT(strlen(message) + strlen(fileName) + 100 < 4000);
-		char s[4000];
-		sprintf(s, "Error, file %s, line %d: %s", fileName, ar.currentline, message);
+		char s[1024];
+		sprintf(s, "Error: file %.256s, line %d: %.700s", fileName, ar.currentline, message);
 
 		lua_pushstring(L, s);
 		lua_error(L);
@@ -113,9 +112,9 @@ namespace {
 
 		const char * className = metaClass->getName();
 		
-		GASSERT_MSG(strlen(className) < 4000, "Meta class name is too long");
+		GASSERT_MSG(strlen(className) < 1000, "Meta class name is too long");
 
-		char metaTableName[4096];
+		char metaTableName[1100];
 
 		strcpy(metaTableName, classMetaTablePrefix);
 		strcat(metaTableName, className);
@@ -150,6 +149,7 @@ namespace {
 				if(outType != NULL) {
 					GMetaTypeData typeData;
 					classData->metaClass->getMetaType(&typeData);
+					metaCheckError(classData->metaClass);
 					*outType = GMetaType(typeData);
 				}
 
@@ -390,6 +390,7 @@ namespace {
 		vtInit(result->resultData.typeData);
 
 		callable->execute(&result->resultData, instance, paramsData, paramCount);
+		metaCheckError(callable);
 	}
 	
 	bool doPushInvokeResult(lua_State * L, GScriptBindingParam * param, IMetaCallable * callable, InvokeCallableResult * result)
@@ -398,6 +399,7 @@ namespace {
 			GMetaTypeData typeData;
 		
 			callable->getResultType(&typeData);
+			metaCheckError(callable);
 
 			GVariant value = GVariant(result->resultData);
 			bool success = variantToLua(L, param, value, GMetaType(typeData), !! callable->isResultTransferOwnership());
@@ -619,8 +621,12 @@ namespace {
 	{
 		GVariantData varData;
 		GMetaTypeData typeData;
+
 		data->get(&varData, instance);
+		metaCheckError(data);
+		
 		data->getItemType(&typeData);
+		metaCheckError(data);
 		
 		GVariant value = GVariant(varData);
 		bool success = variantToLua(L, userData->getParam(), value, GMetaType(typeData), false);
@@ -812,6 +818,7 @@ namespace {
 			if(allowAccessData(userData, data.get())) {
 				GVariantData varData = value.getData();
 				data->set(instance, &varData);
+				metaCheckError(data);
 
 				return true;
 			}

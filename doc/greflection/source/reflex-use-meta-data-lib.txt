@@ -77,8 +77,6 @@ const GMetaMethod * getMethodInHierarchy(const char * name, void ** outInstance)
 const GMetaMethod * getMethod(const char * name) const;
 size_t getMethodCount() const;
 const GMetaMethod * getMethodAt(size_t index) const;
-size_t getMethodList(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters) const;
-size_t getMethodListInHierarchy(GMetaList * metaList, const char * name, const GFlags<GMetaFilters> & filters, void * instance) const;
 
 const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
 const GMetaOperator * getOperator(GMetaOpType op) const;
