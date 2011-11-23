@@ -173,6 +173,10 @@ public:
 
 		return TestC().getValue();
 	}
+
+	int add(int n) const {
+		return this->value + n;
+	}
 	
 public:
 	int	value;

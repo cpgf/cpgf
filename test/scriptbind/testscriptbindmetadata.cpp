@@ -181,6 +181,8 @@ GMETA_DEFINE_CLASS(TestObject, TestObject, "testscript::TestObject") {
 	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestA *) const)&TestObject::methodOverloadObject);
 	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestB *) const)&TestObject::methodOverloadObject);
 	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestC *) const)&TestObject::methodOverloadObject);
+
+	reflectMethod("add", &TestObject::add);
 }
 
 
