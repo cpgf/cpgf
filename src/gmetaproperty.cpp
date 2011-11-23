@@ -18,7 +18,7 @@ bool GMetaProperty::canSet() const
 GVariant GMetaProperty::get(void * instance) const
 {
 	if(!this->baseData->canGet()) {
-		raiseFormatException(Error_Meta_ReadDenied, "Can't read property %s", this->getName().c_str());
+		raiseCoreException(Error_Meta_ReadDenied);
 	}
 
 	return this->baseData->get(instance);
@@ -27,7 +27,7 @@ GVariant GMetaProperty::get(void * instance) const
 void GMetaProperty::set(void * instance, const GVariant & value) const
 {
 	if(!this->baseData->canSet()) {
-		raiseFormatException(Error_Meta_WriteDenied, "Can't write property %s", this->getName().c_str());
+		raiseCoreException(Error_Meta_WriteDenied);
 	}
 
 	this->baseData->set(instance, value);

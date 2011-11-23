@@ -79,15 +79,15 @@ private:
 
 private:
 	static void errorAbstract() {
-		raiseException(Error_Meta_CannotInitAbstractClass, "Can't instantiate abstract class.");
+		raiseCoreException(Error_Meta_CannotInitAbstractClass);
 	}
 
 	static void errorNoDefault() {
-		raiseException(Error_Meta_CannotInitAbstractClass, "Can't instantiate object that has no default constructor.");
+		raiseCoreException(Error_Meta_NoDefaultConstructor);
 	}
 
 	static void errorNoCopy() {
-		raiseException(Error_Meta_CannotInitAbstractClass, "Can't copy object that has no copy constructor.");
+		raiseCoreException(Error_Meta_NoCopyConstructor);
 	}
 
 public:

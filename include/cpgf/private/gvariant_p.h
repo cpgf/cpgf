@@ -111,7 +111,7 @@ struct CastVariantHelper <From, To, typename GEnableIf<IsReference<To>::Result &
 	static To cast(const From & v) {
 		(void)v;
 
-		raiseException(Error_Variant_FailCopyObject, "GVariant: can't reference to temporary.");
+		raiseCoreException(Error_Variant_CantReferenceToTemp);
 		return *static_cast<typename RemoveReference<To>::Result *>(0);
 	}
 };
@@ -128,7 +128,7 @@ void initShadowObject(GVariant & v, const T & value, typename GEnableIf<! CanSha
 	(void)v;
 	(void)value;
 
-	raiseException(Error_Variant_FailCopyObject, "GVariant: can't create shadow object for noncopyable object.");
+	raiseCoreException(Error_Variant_FailCopyObject);
 }
 
 template <bool CanShadow, typename T>
@@ -825,7 +825,7 @@ inline unsigned int getVariantTypeSize(GVariantType type)
 inline void adjustVariantType(GVariant * var)
 {
 	if(! vtIsInteger(vtGetType(var->data.typeData)) || vtGetSize(var->data.typeData) > sizeof(unsigned long long)) {
-		raiseException(Error_Variant_FailAdjustTypeSize, "GVariant: can't adjust size for inconsistent type.");
+		raiseCoreException(Error_Variant_FailAdjustTypeSize);
 	}
 
 	unsigned long long value = var->data.valueUnsignedLongLong;

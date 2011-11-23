@@ -23,6 +23,7 @@ private:
 
 void raiseException(int errorCode, const char * message);
 void raiseFormatException(int errorCode, const char * message, ...);
+void raiseCoreException(int errorCode, ...);
 
 
 

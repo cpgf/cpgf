@@ -141,7 +141,7 @@ public:
 			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_HELPER, GPP_EMPTY)
 
 			default:
-				raiseException(Error_Meta_ParamOutOfIndex, "Parameter out of index");
+				raiseCoreException(Error_Meta_ParamOutOfIndex);
 				return GMetaType();
 		}
 	}
@@ -156,7 +156,7 @@ public:
 
 	virtual GVariant invoke(void * instance, GVariant const * const * params, size_t paramCount) const {
 		if(!this->isVariadic() && paramCount != this->getParamCount()) {
-			raiseFormatException(Error_Meta_WrongArity, "Wrong argument count. Expect: %d, but get: %d.", this->getParamCount(), paramCount);
+			raiseCoreException(Error_Meta_WrongArity, this->getParamCount(), paramCount);
 		}
 
 		this->callback.setObject(instance);
@@ -179,7 +179,7 @@ public:
 			GPP_REPEAT(REF_MAX_ARITY, REF_CHECKPARAM_HELPER, GPP_EMPTY)
 
 			default:
-				raiseException(Error_Meta_ParamOutOfIndex, "Parameter out of index");
+				raiseCoreException(Error_Meta_ParamOutOfIndex);
 				return false;
 		}
 

@@ -47,15 +47,11 @@ namespace meta_internal {
 
 void handleForbidAccessError(bool isRead)
 {
-	const char * reason;
-	
 	if(isRead) {
-		reason = "Can't read object. Read is forbidden.";
-		raiseException(Error_Meta_ReadDenied, reason);
+		raiseCoreException(Error_Meta_ReadDenied);
 	}
 	else {
-		reason = "Can't write object. Write is forbidden.";
-		raiseException(Error_Meta_WriteDenied, reason);
+		raiseCoreException(Error_Meta_WriteDenied);
 	}
 
 }

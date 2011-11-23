@@ -3,6 +3,7 @@ Somedate version 1.0.1
 	Distinguish static and member data access in Lua binding.
 	Remove error output to stderr in Lua binding.
 	Add: class GMetaClassTraveller in gmetaclasstraveller.h to ease iterating class hierarchy.
+	Add: function gdynamic_cast in gglobal.h for safe and fast dynamic cast.
 	Add unit test -- test_lua_operator.cpp
 	Bug fix: binding Lua operators to wrong meta table.
 	Bug fix: Lua passes two parameters to __unm operator that cpgf doesn't handle correctly.

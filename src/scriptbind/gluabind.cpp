@@ -73,12 +73,6 @@ namespace {
 	const lua_Integer metaTableSigValue = 0x1eabeef;
 	const char * classMetaTablePrefix = "cpgf_cLaSs_mEta_Table";
 
-	struct InvokeCallableResult
-	{
-		int resultCount;
-		GVariantData resultData;
-	};
-
 
 	void error(lua_State * L, const char * message)
 	{
@@ -257,9 +251,9 @@ namespace {
 					GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 					GASSERT_MSG(type.baseIsClass(), "Unknown type");
 
-					IMetaClass * metaClass = static_cast<IMetaClass *>(typedItem.get());
+					IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
 					void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-					objectToLua(L, param, instance, static_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type));
+					objectToLua(L, param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type));
 
 					return true;
 				}
@@ -267,7 +261,7 @@ namespace {
 				if(type.getPointerDimension() == 1) {
 					GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
-					objectToLua(L, param, fromVariant<void *>(value), static_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type));
+					objectToLua(L, param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type));
 
 					return true;
 				}
@@ -327,11 +321,11 @@ namespace {
 					switch(userData->getType()) {
 					case udtClass:
 						if(typeItem != NULL) {
-							*typeItem = static_cast<GClassUserData *>(userData)->metaClass;
+							*typeItem = gdynamic_cast<GClassUserData *>(userData)->metaClass;
 							(*typeItem)->addReference();
 						}
 
-						if(static_cast<GClassUserData *>(userData)->isInstance) {
+						if(gdynamic_cast<GClassUserData *>(userData)->isInstance) {
 							return sdtObject;
 						}
 						else {
@@ -346,7 +340,7 @@ namespace {
 
 					case udtEnum:
 						if(typeItem != NULL) {
-							*typeItem = static_cast<GEnumUserData *>(userData)->metaEnum;
+							*typeItem = gdynamic_cast<GEnumUserData *>(userData)->metaEnum;
 							(*typeItem)->addReference();
 						}
 						return sdtEnum;
@@ -370,10 +364,6 @@ namespace {
 
 	void loadMethodParameters(lua_State * L, GScriptBindingParam * param, GVariantData * outputParams, int startIndex, int paramCount)
 	{
-		if(paramCount > REF_MAX_ARITY) {
-			raiseException(Error_ScriptBinding_CallMethodWithTooManyParameters, "Too many parameters.");
-		}
-
 		for(int i = 0; i < paramCount; ++i) {
 			outputParams[i] = luaToVariant(L, param, i + startIndex).getData().varData;
 		}
@@ -381,10 +371,6 @@ namespace {
 
 	void loadMethodParamTypes(lua_State * L, GBindDataType * outputTypes, int startIndex, int paramCount)
 	{
-		if(paramCount > REF_MAX_ARITY) {
-			raiseException(Error_ScriptBinding_CallMethodWithTooManyParameters, "Too many parameters.");
-		}
-
 		for(int i = 0; i < paramCount; ++i) {
 			IMetaTypedItem * typeItem;
 			outputTypes[i].dataType = getLuaType(L, i + startIndex, &typeItem);
@@ -392,18 +378,9 @@ namespace {
 		}
 	}
 
-	void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, int paramCount, InvokeCallableResult * result)
-	{
-		result->resultCount = 0;
-		vtInit(result->resultData.typeData);
-
-		callable->execute(&result->resultData, instance, paramsData, paramCount);
-		metaCheckError(callable);
-	}
-	
 	bool doPushInvokeResult(lua_State * L, GScriptBindingParam * param, IMetaCallable * callable, InvokeCallableResult * result)
 	{
-		if(callable->hasResult()) {
+		if(result->resultCount > 0) {
 			GMetaTypeData typeData;
 		
 			callable->getResultType(&typeData);
@@ -416,15 +393,24 @@ namespace {
 				success = converterToLua(L, param, value, converter.get());
 			}
 			if(!success) {
-				raiseException(Error_ScriptBinding_FailVariantToScript, "Can't convert variant to Lua object.");
+				raiseCoreException(Error_ScriptBinding_FailVariantToScript);
 			}
-
-			result->resultCount = 1;
 		}
 		
 		return true;
 	}
 	
+	void loadCallableParam(lua_State * L, GScriptBindingParam * param, InvokeCallableParam * callableParam, int startIndex, size_t paramCount)
+	{
+		if(paramCount > REF_MAX_ARITY) {
+			raiseCoreException(Error_ScriptBinding_CallMethodWithTooManyParameters);
+		}
+
+		callableParam->paramCount = paramCount;
+		loadMethodParameters(L, param, callableParam->paramsData, startIndex, paramCount);
+		loadMethodParamTypes(L, callableParam->paramsType, startIndex, paramCount);
+	}
+
 	int callbackInvokeMethod(lua_State * L)
 	{
 		ENTER_LUA()
@@ -432,19 +418,23 @@ namespace {
 		GMethodUserData * userData = static_cast<GMethodUserData *>(lua_touserdata(L, lua_upvalueindex(1)));
 		IMetaMethod * method = userData->method;
 
-		InvokeCallableResult result;
+		InvokeCallableParam callableParam;
+		loadCallableParam(L, userData->getParam(), &callableParam, 1, lua_gettop(L));
 
-		GVariantData paramsData[REF_MAX_ARITY];
-		loadMethodParameters(L, userData->getParam(), paramsData, 1, lua_gettop(L));
-		if(checkCallable(method, paramsData, lua_gettop(L))) {
-			doInvokeCallable(userData->instance, method, paramsData, lua_gettop(L), &result);
+		int rank = rankCallable(userData->getParam()->getService(), method, &callableParam);
+		if(rank >= 0) {
+			InvokeCallableResult result;
+
+			doInvokeCallable(userData->instance, method, callableParam.paramsData, callableParam.paramCount, &result);
 			doPushInvokeResult(L, userData->getParam(), method, &result);
+			
+			return result.resultCount;
 		}
 		else {
-			raiseFormatException(Error_ScriptBinding_CantFindMatchedMethod, "Can't invoke meta method %s", method->getName());
+			raiseCoreException(Error_ScriptBinding_CantFindMatchedMethod, method->getName());
+
+			return 0;
 		}
-		
-		return result.resultCount;
 
 		LEAVE_LUA(L, return 0)
 	}
@@ -455,47 +445,23 @@ namespace {
 
 		GMethodListUserData * userData = static_cast<GMethodListUserData *>(lua_touserdata(L, lua_upvalueindex(1)));
 		IMetaList * methodList = userData->methodList;
-		
-		InvokeCallableResult result;
 
-		const char * methodName = NULL;
+		InvokeCallableParam callableParam;
+		loadCallableParam(L, userData->getParam(), &callableParam, 1, lua_gettop(L));
 		
-		size_t methodCount = methodList->getCount();
-		
-		int maxRank = -1;
-		size_t maxRankIndex = 0;
+		int maxRankIndex = findAppropriateCallable(userData->getParam()->getService(),
+			makeCallback(methodList, &IMetaList::getAt), methodList->getCount(),
+			&callableParam, FindCallablePredict());
 
-		GVariantData paramsData[REF_MAX_ARITY];
-		loadMethodParameters(L, userData->getParam(), paramsData, 1, lua_gettop(L));
-		
-		GBindDataType paramsType[REF_MAX_ARITY];
-		loadMethodParamTypes(L, paramsType, 1, lua_gettop(L));
-		
-		for(size_t i = 0; i < methodCount; ++i) {
-			GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(methodList->getAt(static_cast<uint32_t>(i))));
-
-			methodName = method->getName();
-		
-			int rank = rankCallable(userData->getParam()->getService(), method.get(), paramsData, paramsType, lua_gettop(L));
-			if(rank > maxRank) {
-				maxRank = rank;
-				maxRankIndex = i;
-			}
-		}
-		
-		if(maxRank >= 0) {
-			GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(methodList->getAt(static_cast<uint32_t>(maxRankIndex))));
-			doInvokeCallable(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), method.get(), paramsData, lua_gettop(L), &result);
-			doPushInvokeResult(L, userData->getParam(), method.get(), &result);
+		if(maxRankIndex >= 0) {
+			InvokeCallableResult result;
+			GScopedInterface<IMetaCallable> callable(gdynamic_cast<IMetaCallable *>(methodList->getAt(maxRankIndex)));
+			doInvokeCallable(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), callable.get(), callableParam.paramsData, lua_gettop(L), &result);
+			doPushInvokeResult(L, userData->getParam(), callable.get(), &result);
 			return result.resultCount;
 		}
 
-		if(methodName == NULL) {
-			raiseException(Error_ScriptBinding_InternalError_CantFindMethodListName, "Internal error: can't find method list name.");
-		}
-		else {
-			raiseFormatException(Error_ScriptBinding_CantFindMatchedMethod, "Can't find matched method to invoke for %s", methodName);
-		}
+		raiseCoreException(Error_ScriptBinding_CantFindMatchedMethod);
 
 		return 0;		
 
@@ -511,29 +477,18 @@ namespace {
 			instance = metaClass->createInstance();
 		}
 		else {
-			InvokeCallableResult result;
-			int count = metaClass->getConstructorCount();
-			
-			int maxRank = -1;
-			size_t maxRankIndex = 0;
+			InvokeCallableParam callableParam;
+			loadCallableParam(L, param, &callableParam, 2, paramCount);
 		
-			GVariantData paramsData[REF_MAX_ARITY];
-			loadMethodParameters(L, param, paramsData, 2, paramCount);
+			int maxRankIndex = findAppropriateCallable(param->getService(),
+				makeCallback(metaClass, &IMetaClass::getConstructorAt), metaClass->getConstructorCount(),
+				&callableParam, FindCallablePredict());
 
-			GBindDataType paramsType[REF_MAX_ARITY];
-			loadMethodParamTypes(L, paramsType, 2, paramCount);
-		
-			for(int i = 0; i < count; ++i) {
-				GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(i));
-				int rank = rankCallable(param->getService(), constructor.get(), paramsData, paramsType, paramCount);
-				if(rank > maxRank) {
-					maxRank = rank;
-					maxRankIndex = i;
-				}
-			}
-			if(maxRank >= 0) {
+			if(maxRankIndex >= 0) {
+				InvokeCallableResult result;
+			
 				GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(static_cast<uint32_t>(maxRankIndex)));
-				doInvokeCallable(NULL, constructor.get(), paramsData, paramCount, &result);
+				doInvokeCallable(NULL, constructor.get(), callableParam.paramsData, paramCount, &result);
 				instance = fromVariant<void *>(GVariant(result.resultData));
 			}
 		}
@@ -542,7 +497,7 @@ namespace {
 			objectToLua(L, param, instance, metaClass, true, opcvNone);
 		}
 		else {
-			raiseException(Error_ScriptBinding_FailConstructObject, "Failed to construct an object.");
+			raiseCoreException(Error_ScriptBinding_FailConstructObject);
 		}
 
 		return 1;
@@ -553,9 +508,6 @@ namespace {
 		int paramCount = lua_gettop(L);
 		int startIndex = 1;
 
-		InvokeCallableResult result;
-		size_t count = metaClass->getOperatorCount();
-
 		if(op == mopFunctor) { // skip the first "func" parameter
 			++startIndex;
 			--paramCount;
@@ -565,28 +517,18 @@ namespace {
 			paramCount = 1; // Lua pass two parameters to __unm...
 		}
 			
-		int maxRank = -1;
-		uint32_t maxRankIndex = 0;
+		InvokeCallableParam callableParam;
+		loadCallableParam(L, param, &callableParam, startIndex, paramCount);
 		
-		GVariantData paramsData[REF_MAX_ARITY];
-		loadMethodParameters(L, param, paramsData, startIndex, paramCount);
-		
-		GBindDataType paramsType[REF_MAX_ARITY];
-		loadMethodParamTypes(L, paramsType, startIndex, paramCount);
+		int maxRankIndex = findAppropriateCallable(param->getService(),
+			makeCallback(metaClass, &IMetaClass::getOperatorAt), metaClass->getOperatorCount(),
+			&callableParam, OperatorCallablePredict(op));
 
-		for(uint32_t i = 0; i < count; ++i) {
-			GScopedInterface<IMetaOperator> metaOperator(metaClass->getOperatorAt(i));
-			if(op == metaOperator->getOperator()) {
-				int rank = rankCallable(param->getService(), metaOperator.get(), paramsData, paramsType, paramCount);
-				if(rank > maxRank) {
-					maxRank = rank;
-					maxRankIndex = i;
-				}
-			}
-		}
-		if(maxRank >= 0) {
+		if(maxRankIndex >= 0) {
+			InvokeCallableResult result;
+
 			GScopedInterface<IMetaOperator> metaOperator(metaClass->getOperatorAt(maxRankIndex));
-			doInvokeCallable(instance, metaOperator.get(), paramsData, paramCount, &result);
+			doInvokeCallable(instance, metaOperator.get(), callableParam.paramsData, paramCount, &result);
 			doPushInvokeResult(L, param, metaOperator.get(), &result);
 			return result.resultCount;
 		}
@@ -617,7 +559,7 @@ namespace {
 			return invokeConstructor(L, userData->getParam(), userData->metaClass);
 		}
 		else {
-			raiseException(Error_ScriptBinding_InternalError_WrongFunctor, "Internal error: calling wrong functor.");
+			raiseCoreException(Error_ScriptBinding_InternalError_WrongFunctor);
 
 			return 0;
 		}
@@ -648,7 +590,7 @@ namespace {
 	
 	bool indexMemberEnumType(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem)
 	{
-		GScopedInterface<IMetaEnum> metaEnum(static_cast<IMetaEnum *>(mapItem->getItem()));
+		GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 
 		doBindEnum(L, userData->getParam(), metaEnum.get());
 
@@ -659,7 +601,7 @@ namespace {
 	{
 		(void)userData;
 
-		GScopedInterface<IMetaEnum> metaEnum(static_cast<IMetaEnum *>(mapItem->getItem()));
+		GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 
 		GVariantData data;
 		metaEnum->getValue(&data, static_cast<uint32_t>(mapItem->getEnumIndex()));
@@ -670,7 +612,7 @@ namespace {
 
 	bool indexMemberClass(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem)
 	{
-		GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(mapItem->getItem()));
+		GScopedInterface<IMetaClass> metaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
 
 		doBindClass(L, userData->getParam(), metaClass.get());
 
@@ -679,7 +621,7 @@ namespace {
 
 	bool indexMemberMethod(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem, void * instance)
 	{
-		GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(mapItem->getItem()));
+		GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
 		
 		doBindMethod(L, userData->getParam(), instance, method.get());
 		
@@ -690,16 +632,16 @@ namespace {
 	{
 		while(mapItem != NULL) {
 			if(mapItem->getType() == mmitMethod) {
-				GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(mapItem->getItem()));
+				GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
 				if(allowInvokeMethod(userData, method.get())) {
 					metaList->add(method.get(), instance);
 				}
 			}
 			else {
-				GScopedInterface<IMetaList> methodList(static_cast<IMetaList *>(mapItem->getItem()));
+				GScopedInterface<IMetaList> methodList(gdynamic_cast<IMetaList *>(mapItem->getItem()));
 				for(uint32_t i = 0; i < methodList->getCount(); ++i) {
 					GScopedInterface<IMetaItem> item(methodList->getAt(i));
-					if(allowInvokeMethod(userData, static_cast<IMetaMethod *>(item.get()))) {
+					if(allowInvokeMethod(userData, gdynamic_cast<IMetaMethod *>(item.get()))) {
 						metaList->add(item.get(), instance);
 					}
 				}
@@ -739,7 +681,7 @@ namespace {
 			switch(mapItem->getType()) {
 				case mmitField:
 				case mmitProperty: {
-					GScopedInterface<IMetaAccessible> data(static_cast<IMetaAccessible *>(mapItem->getItem()));
+					GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 					if(allowAccessData(userData, data.get())) {
 						return indexMemberData(L, userData, data.get(), instance);
 					}
@@ -751,7 +693,7 @@ namespace {
 					GScopedInterface<IMetaList> metaList(createMetaList());
 					loadMethodList(&traveller, metaList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name);
 					if(metaList->getCount() == 1) {
-						GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(metaList->getAt(0)));
+						GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(metaList->getAt(0)));
 						doBindMethod(L, userData->getParam(), metaList->getInstanceAt(0), method.get());
 					}
 					else {
@@ -797,7 +739,7 @@ namespace {
 		(void)L;
 
 		if(userData->cv == opcvConst) {
-			raiseException(Error_ScriptBinding_CantWriteToConstObject, "Can't write to constant object.");
+			raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 
 			return false;
 		}
@@ -821,7 +763,7 @@ namespace {
 				continue;
 			}
 			
-			GScopedInterface<IMetaAccessible> data(static_cast<IMetaAccessible *>(mapItem->getItem()));
+			GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 
 			if(allowAccessData(userData, data.get())) {
 				GVariantData varData = value.getData();
@@ -886,7 +828,7 @@ namespace {
 			}
 		}
 
-		raiseException(Error_ScriptBinding_NotSupportedOperator, "Failed to bind an operator that's not supported by Lua.");
+		raiseCoreException(Error_ScriptBinding_NotSupportedOperator);
 	}
 
 	void doBindAllOperators(lua_State * L, GScriptBindingParam * param, void * instance, IMetaClass * metaClass)
@@ -1004,7 +946,7 @@ namespace {
 
 		int index = userData->metaEnum->findKey(name);
 		if(index < 0) {
-			raiseFormatException(Error_ScriptBinding_CantFindEnumKey, "Can't find enumerator key -- %s.", name);
+			raiseCoreException(Error_ScriptBinding_CantFindEnumKey, name);
 		}
 		else {
 			GVariantData data;
@@ -1021,7 +963,7 @@ namespace {
 	{
 		ENTER_LUA()
 
-		raiseException(Error_ScriptBinding_CantAssignToEnum, "Can't assign value to enumerator.");
+		raiseCoreException(Error_ScriptBinding_CantAssignToEnum);
 
 		return 0;
 		
@@ -1068,7 +1010,7 @@ public:
 	
 	void getTable(lua_State * L) const {
 		if(! this->binding->getOwner()->isGlobal()) {
-			static_cast<GLuaScriptObject *>(this->binding->getOwner())->implement->doGetTable(L);
+			gdynamic_cast<GLuaScriptObject *>(this->binding->getOwner())->implement->doGetTable(L);
 		}
 		this->doGetTable(L);
 	}
@@ -1124,7 +1066,7 @@ private:
 
 
 GLuaScopeGuard::GLuaScopeGuard(GScriptObject * scope)
-	: scope(static_cast<GLuaScriptObject *>(scope))
+	: scope(gdynamic_cast<GLuaScriptObject *>(scope))
 {
 	this->top = lua_gettop(this->scope->implement->luaState);
 	if(! this->scope->isGlobal()) {
@@ -1144,7 +1086,7 @@ void GLuaScopeGuard::set(const GScriptName & name)
 {
 	if(scope->isGlobal()) {
 		if(name.hasData()) {
-			static_cast<GLuaScriptNameData *>(name.getData())->set();
+			gdynamic_cast<GLuaScriptNameData *>(name.getData())->set();
 		}
 		else {
 			lua_setglobal(this->scope->implement->luaState, name.getName());
@@ -1152,7 +1094,7 @@ void GLuaScopeGuard::set(const GScriptName & name)
 	}
 	else {
 		if(name.hasData()) {
-			static_cast<GLuaScriptNameData *>(name.getData())->set();
+			gdynamic_cast<GLuaScriptNameData *>(name.getData())->set();
 		}
 		else {
 			lua_setfield(this->scope->implement->luaState, -2, name.getName());
@@ -1164,7 +1106,7 @@ void GLuaScopeGuard::get(const GScriptName & name)
 {
 	if(scope->isGlobal()) {
 		if(name.hasData()) {
-			static_cast<GLuaScriptNameData *>(name.getData())->get();
+			gdynamic_cast<GLuaScriptNameData *>(name.getData())->get();
 		}
 		else {
 			lua_getglobal(this->scope->implement->luaState, name.getName());
@@ -1172,7 +1114,7 @@ void GLuaScopeGuard::get(const GScriptName & name)
 	}
 	else {
 		if(name.hasData()) {
-			static_cast<GLuaScriptNameData *>(name.getData())->get();
+			gdynamic_cast<GLuaScriptNameData *>(name.getData())->get();
 		}
 		else {
 			lua_getfield(this->scope->implement->luaState, -1, name.getName());
@@ -1328,18 +1270,18 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaV
 					lua_pop(this->implement->luaState, static_cast<int>(i) - 1);
 				}
 
-				raiseFormatException(Error_ScriptBinding_ScriptMethodParamMismatch, "Can't pass parameter at index %d in function %s", i, name.getName());
+				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name.getName());
 			}
 		}
 
 		int error = lua_pcall(this->implement->luaState, static_cast<int>(paramCount), LUA_MULTRET, 0);
 		if(error) {
-			raiseFormatException(Error_ScriptBinding_ScriptFunctionReturnError, "Error when calling function %s, message: %s", name.getName(), lua_tostring(this->implement->luaState, -1));
+			raiseCoreException(Error_ScriptBinding_ScriptFunctionReturnError, name.getName(), lua_tostring(this->implement->luaState, -1));
 		}
 		else {
 			int resultCount = lua_gettop(this->implement->luaState) - top;
 			if(resultCount > 1) {
-				raiseFormatException(Error_ScriptBinding_CantReturnMultipleValue, "Can't return multiple value when calling function %s", name.getName());
+				raiseCoreException(Error_ScriptBinding_CantReturnMultipleValue, name.getName());
 			}
 			else {
 				if(resultCount > 0) {
@@ -1349,7 +1291,7 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaV
 		}
 	}
 	else {
-		raiseException(Error_ScriptBinding_CantCallNonfunction, "The script function being invoked is not a function.");
+		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
 	}
 	
 	return GMetaVariant();
@@ -1366,7 +1308,7 @@ void GLuaScriptObject::bindFundamental(const GScriptName & name, const GVariant 
 	GLuaScopeGuard scopeGuard(this);
 
 	if(! variantToLua(this->implement->luaState, &this->implement->param, value, GMetaType(), false)) {
-		raiseException(Error_ScriptBinding_CantBindFundamental, "Failed to bind fundamental variable");
+		raiseCoreException(Error_ScriptBinding_CantBindFundamental);
 	}
 	
 	scopeGuard.set(name);
@@ -1393,7 +1335,7 @@ void GLuaScriptObject::bindObject(const GScriptName & objectName, void * instanc
 
 	GLuaScopeGuard scopeGuard(this);
 
-	objectToLua(this->implement->luaState, &this->implement->param, instance, static_cast<IMetaClass *>(type), transferOwnership, opcvNone);
+	objectToLua(this->implement->luaState, &this->implement->param, instance, gdynamic_cast<IMetaClass *>(type), transferOwnership, opcvNone);
 
 	scopeGuard.set(objectName);
 
@@ -1433,7 +1375,7 @@ IMetaClass * GLuaScriptObject::getClass(const GScriptName & className)
 	GScriptDataType sdt = this->getType(className, &typedItem);
 	GScopedInterface<IMetaTypedItem> item(typedItem);
 	if(sdt == sdtClass) {
-		return static_cast<IMetaClass *>(item.take());
+		return gdynamic_cast<IMetaClass *>(item.take());
 	}
 
 	return NULL;
@@ -1607,5 +1549,4 @@ IScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, con
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
-
 

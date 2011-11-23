@@ -2,6 +2,7 @@
 #define __GBINDCOMMON_H
 
 #include "cpgf/scriptbind/gscriptbind.h"
+#include "cpgf/gglobal.h"
 #include "cpgf/gflags.h"
 #include "cpgf/gmetaclass.h"
 
@@ -324,11 +325,64 @@ GMetaMapItem * findMetaMapItem(GMetaMap * metaMap, IMetaClass * metaClass, const
 
 ObjectPointerCV metaTypeToCV(const GMetaType & type);
 
-int rankCallable(IMetaService * service, IMetaCallable * callable, GVariantData * paramsData, GBindDataType * paramsType, size_t paramCount);
-bool checkCallable(IMetaCallable * callable, GVariantData * paramsData, size_t paramCount);
+struct FindCallablePredict {
+	bool operator () (IMetaCallable *) {
+		return true;
+	}
+};
+ 
+struct OperatorCallablePredict {
+	explicit OperatorCallablePredict(GMetaOpType op) : op(op) {}
+
+	bool operator () (IMetaCallable * t) {
+		return gdynamic_cast<IMetaOperator *>(t)->getOperator() == this->op;
+	}
+
+private:
+	GMetaOpType op;
+};
+
+struct InvokeCallableParam
+{
+	GVariantData paramsData[REF_MAX_ARITY];
+	GBindDataType paramsType[REF_MAX_ARITY];
+	size_t paramCount;
+};
+
+struct InvokeCallableResult
+{
+	int resultCount;
+	GVariantData resultData;
+};
+
+int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam);
+
+template <typename Getter, typename Predict>
+int findAppropriateCallable(IMetaService * service,
+	const Getter & getter, size_t count,
+	InvokeCallableParam * callableParam, Predict predict)
+{
+	int maxRank = -1;
+	int maxRankIndex = 0;
+
+	for(size_t i = 0; i < count; ++i) {
+		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(getter(static_cast<uint32_t>(i))));
+		if(predict(meta.get())) {
+			int rank = rankCallable(service, meta.get(), callableParam);
+			if(rank > maxRank) {
+				maxRank = rank;
+				maxRankIndex = i;
+			}
+		}
+	}
+	
+	return maxRank >= 0 ? maxRankIndex : -1;
+}
 
 bool allowInvokeMethod(GClassUserData * userData, IMetaMethod * method);
 bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible);
+
+void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, int paramCount, InvokeCallableResult * result);
 
 
 } // namespace cpgf

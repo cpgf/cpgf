@@ -1,5 +1,8 @@
 #include "../pinclude/gbindcommon.h"
 
+#include <stdarg.h>
+
+
 namespace cpgf {
 
 
@@ -239,18 +242,18 @@ ObjectPointerCV metaTypeToCV(const GMetaType & type)
 	return opcvNone;
 }
 
-int rankCallable(IMetaService * service, IMetaCallable * callable, GVariantData * paramsData, GBindDataType * paramsType, size_t paramCount)
+int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam)
 {
 	if(!! callable->isVariadic()) {
 		return 0;
 	}
 
-	if(callable->getParamCount() != paramCount) {
+	if(callable->getParamCount() != callbackParam->paramCount) {
 		return -1;
 	}
 
-	for(uint32_t i = 0; i < paramCount; ++i) {
-		if(! callable->checkParam(&paramsData[i], i)) {
+	for(uint32_t i = 0; i < callbackParam->paramCount; ++i) {
+		if(! callable->checkParam(&callbackParam->paramsData[i], i)) {
 			return -1;
 		}
 	}
@@ -260,9 +263,9 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, GVariantData 
 	const int RankEqual = 10;
 	const int RankConvert = 5;
 
-	for(size_t i = 0; i < paramCount; ++i) {
+	for(size_t i = 0; i < callbackParam->paramCount; ++i) {
 		GMetaType proto = metaGetParamType(callable, i);
-		GScriptDataType sdt = paramsType[i].dataType;
+		GScriptDataType sdt = callbackParam->paramsType[i].dataType;
 		
 		if(sdt == sdtNull) {
 			rank += RankEqual;
@@ -278,17 +281,17 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, GVariantData 
 			continue;
 		}
 
-		if(! paramsType[i].typeItem) {
+		if(! callbackParam->paramsType[i].typeItem) {
 			continue;
 		}
 
-		if(metaIsClass(paramsType[i].typeItem->getCategory())) {
+		if(metaIsClass(callbackParam->paramsType[i].typeItem->getCategory())) {
 			GScopedInterface<IMetaTypedItem> protoType(service->findTypedItemByName(proto.getBaseName()));
 			if(! protoType || ! metaIsClass(protoType->getCategory())) {
 				continue;
 			}
 
-			IMetaClass * paramClass = static_cast<IMetaClass *>(paramsType[i].typeItem.get());
+			IMetaClass * paramClass = static_cast<IMetaClass *>(callbackParam->paramsType[i].typeItem.get());
 			IMetaClass * protoClass = static_cast<IMetaClass *>(protoType.get());
 
 			if(paramClass->equals(protoClass)) {
@@ -305,25 +308,6 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, GVariantData 
 	}
 
 	return rank;
-}
-
-bool checkCallable(IMetaCallable * callable, GVariantData * paramsData, size_t paramCount)
-{
-	if(!! callable->isVariadic()) {
-		return true;
-	}
-
-	if(callable->getParamCount() != paramCount) {
-		return false;
-	}
-
-	for(uint32_t i = 0; i < paramCount; ++i) {
-		if(!callable->checkParam(&paramsData[i], i)) {
-			return false;
-		}
-	}
-
-	return true;
 }
 
 bool allowInvokeMethod(GClassUserData * userData, IMetaMethod * method)
@@ -375,6 +359,15 @@ bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible)
 	}
 	
 	return true;
+}
+
+void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, int paramCount, InvokeCallableResult * result)
+{
+	result->resultCount = callable->hasResult() ? 1 : 0;
+	vtInit(result->resultData.typeData);
+
+	callable->execute(&result->resultData, instance, paramsData, paramCount);
+	metaCheckError(callable);
 }
 
 

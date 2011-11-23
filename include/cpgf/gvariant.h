@@ -284,10 +284,10 @@ inline void swap(GVariant & a, GVariant & b)
 	a.swap(b);
 }
 
-extern void raiseException(int errorCode, const char * message);
+extern void raiseCoreException(int errorCode, ...);
 
 inline void failedCast() {
-	raiseException(Error_Variant_FailCast, "GVariant: cast failure");
+	raiseCoreException(Error_Variant_FailCast);
 }
 
 inline void checkFailCast(bool success) {
