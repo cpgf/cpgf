@@ -63,9 +63,16 @@ void bindBasicClass(T * script, cpgf::IMetaService * service)
 	bindClass(script, service, "testscript::TestData", "TestData");
 	bindClass(script, service, "testscript::TestBase", "TestBase");
 	bindClass(script, service, "testscript::TestOperator", "TestOperator");
+	
 	bindClass(script, service, "testscript::TestA", "TestA");
 	bindClass(script, service, "testscript::TestB", "TestB");
 	bindClass(script, service, "testscript::TestC", "TestC");
+
+	bindClass(script, service, "testscript::DeriveA", "DeriveA");
+	bindClass(script, service, "testscript::DeriveB", "DeriveB");
+	bindClass(script, service, "testscript::DeriveC", "DeriveC");
+	bindClass(script, service, "testscript::DeriveD", "DeriveD");
+	bindClass(script, service, "testscript::DeriveE", "DeriveE");
 }
 
 
@@ -218,6 +225,39 @@ GMETA_DEFINE_CLASS(TestOperator, TestOperator, "testscript::TestOperator") {
 	reflectOperator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder));
 
 }
+
+GMETA_DEFINE_CLASS(DeriveA, DeriveA, "testscript::DeriveA") {
+	using namespace cpgf;
+
+	GMETA_METHOD(getA);
+}
+
+GMETA_DEFINE_CLASS(DeriveB, DeriveB, "testscript::DeriveB", DeriveA) {
+	using namespace cpgf;
+
+	GMETA_METHOD(getB);
+}
+
+GMETA_DEFINE_CLASS(DeriveC, DeriveC, "testscript::DeriveC", DeriveA) {
+	using namespace cpgf;
+
+	GMETA_METHOD(getC);
+}
+
+GMETA_DEFINE_CLASS(DeriveD, DeriveD, "testscript::DeriveD", DeriveB, DeriveC) {
+	using namespace cpgf;
+
+	GMETA_METHOD(getD);
+}
+
+GMETA_DEFINE_CLASS(DeriveE, DeriveE, "testscript::DeriveE", DeriveD) {
+	using namespace cpgf;
+
+	GMETA_METHOD(getE);
+	reflectMethod("pretendA", &DeriveE::pretendA, GMetaPolicyTransferResultOwnership());
+}
+
+
 
 GMETA_DEFINE_GLOBAL() {
 	using namespace cpgf;

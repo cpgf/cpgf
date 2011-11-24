@@ -6,25 +6,20 @@ namespace {
 
 GTEST(Constructor)
 {
-	TestLuaContext * context = getLuaContext();
+	GScopedPointer<TestLuaContext> context(createLuaContext());
 
-	GCHECK(
-	   	context->doString(
-   			LINE(a = TestObject())
-  			LINE(scriptAssert(a.value == Magic1))
+	QDO(a = TestObject())
+	QASSERT(a.value == Magic1)
 
-	  		LINE(a.value = 1999)
-  			LINE(b = TestObject(a))
-  			LINE(scriptAssert(b.value == 1999))
+	QDO(a.value = 1999)
+	QDO(b = TestObject(a))
+	QASSERT(b.value == 1999)
 
-	  		LINE(a = TestObject(180))
-  			LINE(scriptAssert(a.value == 180))
+	QDO(a = TestObject(180))
+	QASSERT(a.value == 180)
 
-  			LINE(a = TestObject(5, "abc"))
-	  		LINE(scriptAssert(a.value == 8))
-
-  		)
-	);
+	QDO(a = TestObject(5, "abc"))
+	QASSERT(a.value == 8)
 }
 
 

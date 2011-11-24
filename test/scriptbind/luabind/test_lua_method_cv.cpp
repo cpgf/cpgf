@@ -6,50 +6,37 @@ namespace {
 
 GTEST(Method_CV)
 {
-	TestLuaContext * context = getLuaContext();
+	GScopedPointer<TestLuaContext> context(createLuaContext());
 
-	GCHECK(
-		context->doString(""
-			LINE(a = TestObject())
-			LINE(scriptAssert(a.methodConst() == 0))
+	QDO(a = TestObject())
+	QASSERT(a.methodConst() == 0)
 			
-			LINE(a = a.selfConst())
-			LINE(scriptAssert(a.methodConst() == 1))
+	QDO(a = a.selfConst())
+	QASSERT(a.methodConst() == 1)
 			
-			LINE(a = TestObject())
-			LINE(scriptAssert(a.methodVolatile() == 0))
+	QDO(a = TestObject())
+	QASSERT(a.methodVolatile() == 0)
 			
-			LINE(a = a.selfVolatile())
-			LINE(scriptAssert(a.methodVolatile() == 1))
+	QDO(a = a.selfVolatile())
+	QASSERT(a.methodVolatile() == 1)
 			
-			LINE(a = TestObject())
-			LINE(scriptAssert(a.methodConstVolatile() == 0))
+	QDO(a = TestObject())
+	QASSERT(a.methodConstVolatile() == 0)
 			
-			LINE(a = a.selfConstVolatile())
-			LINE(scriptAssert(a.methodConstVolatile() == 1))
+	QDO(a = a.selfConstVolatile())
+	QASSERT(a.methodConstVolatile() == 1)
 			
-			LINE(a = TestObject())
-			LINE(a = a.self())
-			LINE(scriptAssert(a.methodConst() == 0))
-			LINE(scriptAssert(a.methodVolatile() == 0))
-			LINE(scriptAssert(a.methodConstVolatile() == 0))
-			
-		)
-	);
+	QDO(a = TestObject())
+	QDO(a = a.self())
+	QASSERT(a.methodConst() == 0)
+	QASSERT(a.methodVolatile() == 0)
+	QASSERT(a.methodConstVolatile() == 0)
 
-	GCHECK(
-		context->doString(""
-			LINE(a = TestObject())
-			LINE(scriptAssert(a.methodConst() == 0))
+	QDO(a = TestObject())
+	QASSERT(a.methodConst() == 0)
 			
-			LINE(a = a.selfConst())
-		)
-	);
-	GCHECK(
-		context->doError(""
-			LINE(a.value = 1) // a is const object
-		)
-	);
+	QDO(a = a.selfConst())
+	QERR(a.value = 1) // a is const object
 }
 
 

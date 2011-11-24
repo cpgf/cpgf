@@ -233,6 +233,69 @@ public:
 	int value;
 };
 
+class DeriveA
+{
+public:
+	virtual const char * getA() const {
+		return "DeriveA";
+	}
+
+public:
+	int value;
+};
+
+class DeriveB : virtual public DeriveA
+{
+public:
+	virtual int getB() const {
+		return Magic1;
+	}
+};
+
+class DeriveC : virtual public DeriveA
+{
+public:
+	virtual int getC() const {
+		return Magic2;
+	}
+};
+
+class DeriveD : public DeriveB, public DeriveC
+{
+public:
+	virtual int getD() const {
+		return Magic3;
+	}
+};
+
+class DeriveE : public DeriveD
+{
+public:
+	virtual int getE() const {
+		return Magic1 + Magic2 + Magic3;
+	}
+
+	virtual const char * getA() const {
+		return "DeriveE";
+	}
+
+	virtual int getB() const {
+		return Magic1 + 1;
+	}
+
+	virtual int getC() const {
+		return Magic2 + 2;
+	}
+
+	virtual int getD() const {
+		return Magic3 + 3;
+	}
+
+	static DeriveA * pretendA() {
+		return new DeriveE;
+	}
+};
+
 
 void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service);
 void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service);

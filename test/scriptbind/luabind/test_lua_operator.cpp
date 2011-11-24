@@ -6,77 +6,76 @@ namespace {
 
 GTEST(Operator)
 {
-	TestLuaContext * context = getLuaContext();
+	GScopedPointer<TestLuaContext> context(createLuaContext());
 
-	GCHECK(
-		context->doString(
-			LINE(a = TestOperator(99))
-			LINE(b = a + 5)
-			LINE(scriptAssert(b.value == 99 + 5))
+	QDO(a = TestOperator(99))
+	QDO(b = a + 5)
+	QASSERT(b.value == 99 + 5)
 	
-			LINE(b = a + TestOperator(8))
-			LINE(scriptAssert(b.value == 99 + 8))
+	QDO(b = a + TestOperator(8))
+	QASSERT(b.value == 99 + 8)
 	
-			LINE(b = a + TestObject(15))
-			LINE(scriptAssert(b.value == 99 + 15))
+	QDO(b = a + TestObject(15))
+	QASSERT(b.value == 99 + 15)
 	
 			
-			LINE(a = TestOperator(98))
-			LINE(b = a - 5)
-			LINE(scriptAssert(b.value == 98 - 5))
+	QDO(a = TestOperator(98))
+	QDO(b = a - 5)
+	QASSERT(b.value == 98 - 5)
 	
-			LINE(b = a - TestOperator(8))
-			LINE(scriptAssert(b.value == 98 - 8))
+	QDO(b = a - TestOperator(8))
+	QASSERT(b.value == 98 - 8)
 	
-			LINE(b = a - TestObject(15))
-			LINE(scriptAssert(b.value == 98 - 15))
-	
-			
-			LINE(a = TestOperator(97))
-			LINE(b = a * 5)
-			LINE(scriptAssert(b.value == 97 * 5))
-	
-			LINE(b = a * TestOperator(8))
-			LINE(scriptAssert(b.value == 97 * 8))
-	
-			LINE(b = a * TestObject(15))
-			LINE(scriptAssert(b.value == 97 * 15))
+	QDO(b = a - TestObject(15))
+	QASSERT(b.value == 98 - 15)
 	
 			
-			LINE(a = TestOperator(99))
-			LINE(b = a / 5)
-			LINE(scriptAssert(b.value == math.floor(99 / 5)))
+	QDO(a = TestOperator(97))
+	QDO(b = a * 5)
+	QASSERT(b.value == 97 * 5)
 	
-			LINE(b = a / TestOperator(8))
-			LINE(scriptAssert(b.value == math.floor(99 / 8)))
+	QDO(b = a * TestOperator(8))
+	QASSERT(b.value == 97 * 8)
 	
-			LINE(b = a / TestObject(15))
-			LINE(scriptAssert(b.value == math.floor(99 / 15)))
+	QDO(b = a * TestObject(15))
+	QASSERT(b.value == 97 * 15)
 	
 			
-			LINE(a = TestOperator(88))
-			LINE(b = a % 5)
-			LINE(scriptAssert(b.value == 88 % 5))
+	QDO(a = TestOperator(99))
+	QDO(b = a / 5)
+	QASSERT(b.value == math.floor(99 / 5))
 	
-			LINE(b = a % TestOperator(8))
-			LINE(scriptAssert(b.value == 88 % 8))
+	QDO(b = a / TestOperator(8))
+	QASSERT(b.value == math.floor(99 / 8))
 	
-			LINE(b = a % TestObject(15))
-			LINE(scriptAssert(b.value == 88 % 15))
+	QDO(b = a / TestObject(15))
+	QASSERT(b.value == math.floor(99 / 15))
+	
+			
+	QDO(a = TestOperator(88))
+	QDO(b = a % 5)
+	QASSERT(b.value == 88 % 5)
+	
+	QDO(b = a % TestOperator(8))
+	QASSERT(b.value == 88 % 8)
+	
+	QDO(b = a % TestObject(15))
+	QASSERT(b.value == 88 % 15)
 	
 	
-			LINE(a = TestOperator(99))
-			LINE(b = -a)
-			LINE(scriptAssert(b.value == -99))
+	QDO(a = TestOperator(99))
+	QDO(b = -a)
+	QASSERT(b.value == -99)
+			
+	QDO(c = TestOperator(9))
+	QDO(a = c)
+	QDO(b = -a)
+	QASSERT(b.value == -9)
 			
 			
-			LINE(d = TestOperator(3))
-			"b = d(5, 7, 9, 1, 2, 6, 8) \n"
-			LINE(scriptAssert(b == 3 + 5 + 7 + 9 + 1 + 2 + 6 + 8))
-			
-			
-		)
-	);
+	QDO(d = TestOperator(3))
+	QDO(b = d(5, 7, 9, 1, 2, 6, 8))
+	QASSERT(b == 3 + 5 + 7 + 9 + 1 + 2 + 6 + 8)
 }
 
 

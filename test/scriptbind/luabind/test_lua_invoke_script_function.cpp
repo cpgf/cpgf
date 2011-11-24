@@ -10,15 +10,12 @@ GTEST(InvokeScriptFunction)
 {
 	using namespace cpgf;
 
-	TestLuaContext * context = getLuaContext();
+	GScopedPointer<TestLuaContext> context(createLuaContext());
 
-	context->doString(
-		LINE(function luaAdd(a, b) return a + b end)
-		LINE(function luaLen(a, b) return string.len(a) + b end)
-		LINE(function luaTestData(a) return a.x + string.len(a.name) end)
-		LINE(function luaNewTestData() a = TestData() a.x = 3 a.name = "def" return a end)
-
-	);
+	QDO(function luaAdd(a, b) return a + b end)
+	QDO(function luaLen(a, b) return string.len(a) + b end)
+	QDO(function luaTestData(a) return a.x + string.len(a.name) end)
+	QDO(function luaNewTestData() a = TestData() a.x = 3 a.name = "def" return a end)
 
 	GScriptObject * bindingLib = context->getBindingLib();
 	GScopedInterface<IScriptObject> bindingApi(context->getBindingApi());

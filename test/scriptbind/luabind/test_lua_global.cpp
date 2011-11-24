@@ -9,7 +9,7 @@ GTEST(global)
 	using namespace cpgf;
 	using namespace testscript;
 
-	TestLuaContext * context = getLuaContext();
+	GScopedPointer<TestLuaContext> context(createLuaContext());
 
 	GScopedInterface<IMetaClass> metaClass(context->getService()->findClassByName("testscript::TestData"));
 	GCHECK(metaClass);
@@ -29,11 +29,9 @@ GTEST(global)
 	scriptName.reset(bindingApi->createName("data"));
 	bindingApi->bindObject(scriptName.get(), dataApi.get(), metaClass.get(), false);
 	
-	context->doString(
-		LINE(scriptAssert(data.x == 10))
-		LINE(scriptAssert(data.name == "abc"))
-		LINE(data.x = data.x + 1)
-	);
+	QASSERT(data.x == 10)
+	QASSERT(data.name == "abc")
+	QDO(data.x = data.x + 1)
 
 	GEQUAL(dataLib->x, 11);
 	GEQUAL(dataApi->x, 11);
@@ -41,7 +39,7 @@ GTEST(global)
 	context->getBindingLib()->nullifyValue("data");
 	scriptName.reset(bindingApi->createName("data"));
 	bindingApi->nullifyValue(scriptName.get());
-	context->doString("scriptAssert(data == nil)");
+	QASSERT(data == nil)
 }
 
 
