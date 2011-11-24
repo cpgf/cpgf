@@ -106,7 +106,7 @@ void deduceVariantType(GVarTypeData & data, bool allowShadow)
 {
 	GVariantType vt = variant_internal::DeduceVariantType<T>::Result;
 
-	if(allowShadow && vt == vtObject) {
+	if(allowShadow && vt == vtObject && variant_internal::DeduceVariantType<T>::Pointers == 0) {
 		vt = vtShadow;
 	}
 

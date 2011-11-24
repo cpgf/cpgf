@@ -26,6 +26,9 @@ struct TestData
 class TestBase
 {
 public:
+	virtual ~TestBase() {
+	}
+
 	virtual int getValue() const {
 		return Magic1;
 	}
@@ -236,6 +239,9 @@ public:
 class DeriveA
 {
 public:
+	virtual ~DeriveA() {
+	}
+
 	virtual const char * getA() const {
 		return "DeriveA";
 	}
