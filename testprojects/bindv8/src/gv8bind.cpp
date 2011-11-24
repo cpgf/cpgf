@@ -10,11 +10,21 @@
 using namespace std;
 
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4996)
+#endif
+
+
 #define ENTER_V8() \
-	v8::HandleScope handleScope; \
-	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
+	char local_msg[256]; bool local_error = false; { \
+	try {
 
 #define LEAVE_V8(...) \
+	} \
+	catch(const GException & e) { strncpy(local_msg, e.getMessage(), 256); local_error = true; } \
+	catch(...) { strcpy(local_msg, "Unknown exception occurred."); local_error = true; } \
+	} if(local_error) { local_msg[255] = 0; v8::ThrowException(v8::String::New(local_msg)); } \
 	__VA_ARGS__;
 
 namespace cpgf {
@@ -248,6 +258,8 @@ namespace {
 	{
 		using namespace v8;
 
+		ENTER_V8()
+
 		Local<External> internalField = Local<External>::Cast(args.This()->GetInternalField(0));
 		GClassUserData * userData = static_cast<GClassUserData *>(internalField->Value());
 
@@ -272,27 +284,27 @@ namespace {
 			}
 			
 			switch(mapItem->getType()) {
-				case mmitMethod: {
+				case mmitMethod:
+				case mmitMethodList: {
+					GScopedInterface<IMetaList> methodList(createMetaList());
+					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name);
+
 					InvokeCallableParam callableParam;
 					loadCallableParam(args, userData->getParam(), &callableParam);
 
-					GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
+					int maxRankIndex = findAppropriateCallable(userData->getParam()->getService(),
+						makeCallback(methodList.get(), &IMetaList::getAt), methodList->getCount(),
+						&callableParam, FindCallablePredict());
 
-					int rank = rankCallable(userData->getParam()->getService(), method.get(), &callableParam);
-					if(rank >= 0) {
+					if(maxRankIndex >= 0) {
 						InvokeCallableResult result;
-
-						doInvokeCallable(userData->instance, method.get(), callableParam.paramsData, callableParam.paramCount, &result);
-						return methodResultToV8(userData->getParam(), method.get(), &result);
+						GScopedInterface<IMetaCallable> callable(gdynamic_cast<IMetaCallable *>(methodList->getAt(maxRankIndex)));
+						doInvokeCallable(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), callable.get(), callableParam.paramsData, callableParam.paramCount, &result);
+						return methodResultToV8(userData->getParam(), callable.get(), &result);
 					}
-					else {
-						raiseCoreException(Error_ScriptBinding_CantFindMatchedMethod, method->getName());
 
-						return v8::Handle<v8::Value>();
-					}
-				}
-
-				case mmitMethodList: {
+					raiseCoreException(Error_ScriptBinding_CantFindMatchedMethod);
+					return v8::Handle<v8::Value>();
 				}
 
 				default:
@@ -301,6 +313,8 @@ namespace {
 		}
 
 		return v8::Handle<v8::Value>();
+
+		LEAVE_V8(return Handle<Value>())
 	}
 
 	v8::Handle<v8::FunctionTemplate> createMethodTemplate(GScriptBindingParam * param, const char * name)
@@ -316,6 +330,22 @@ namespace {
 
 		return functionTemplate;
 	}
+
+	class GMapItemMethodData : public GMetaMapItemData
+	{
+	public:
+		virtual ~GMapItemMethodData() {
+			this->functionTemplate.Dispose();
+			this->functionTemplate.Clear();
+		}
+
+		void setTemplate(v8::Handle<v8::FunctionTemplate> newTemplate) {
+			this->functionTemplate = v8::Persistent<v8::FunctionTemplate>::New(newTemplate);
+		}
+
+	public:
+		v8::Persistent<v8::FunctionTemplate> functionTemplate;
+	};
 
 	v8::Handle<v8::Value> objectConstructor(const v8::Arguments& args)
 	{
@@ -343,6 +373,8 @@ namespace {
 	{
 		using namespace v8;
 
+		ENTER_V8()
+
 		String::Utf8Value utf8_prop(prop);
 		const char * name = *utf8_prop;
 
@@ -363,7 +395,7 @@ namespace {
 			if(mapItem == NULL) {
 				continue;
 			}
-			
+
 			switch(mapItem->getType()) {
 				case mmitField:
 				case mmitProperty: {
@@ -377,7 +409,13 @@ namespace {
 
 				case mmitMethod:
 				case mmitMethodList: {
-					return createMethodTemplate(userData->getParam(), name)->GetFunction();
+					GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getData());
+					if(data == NULL) {
+						data = new GMapItemMethodData;
+						mapItem->setData(data);
+						data->setTemplate(createMethodTemplate(userData->getParam(), name));
+					}
+					return data->functionTemplate->GetFunction();
 				}
 
 #if 0
@@ -411,11 +449,15 @@ namespace {
 		}
 
 		return Handle<Value>();
+
+		LEAVE_V8(return Handle<Value>())
 	}
 
 	v8::Handle<v8::Value> namedMemberSetter(v8::Local<v8::String> prop, v8::Local<v8::Value> value, const v8::AccessorInfo & info)
 	{
 		using namespace v8;
+
+		ENTER_V8()
 
 		String::Utf8Value utf8_prop(prop);
 		const char * name = *utf8_prop;
@@ -488,6 +530,8 @@ namespace {
 		}
 
 		return Handle<Value>();
+
+		LEAVE_V8(return Handle<Value>())
 	}
 
 	void doBindClass(GScriptBindingParam * param, v8::Local<v8::Object> container, const GScriptName & name, IMetaClass * metaClass)
@@ -562,6 +606,9 @@ void GV8ScriptObject::bindClass(const GScriptName & name, IMetaClass * metaClass
 {
 	ENTER_V8()
 
+	v8::HandleScope handleScope;
+	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
+
 	doBindClass(&this->implement->param, localObject, name, metaClass);
 
 	LEAVE_V8()
@@ -590,6 +637,9 @@ void GV8ScriptObject::bindFundamental(const GScriptName & name, const GVariant &
 {
 	ENTER_V8()
 
+	v8::HandleScope handleScope;
+	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
+
 	doBindFundamental(&this->implement->param, localObject, name, value);
 
 	LEAVE_V8()
@@ -598,6 +648,9 @@ void GV8ScriptObject::bindFundamental(const GScriptName & name, const GVariant &
 void GV8ScriptObject::bindAccessible(const GScriptName & name, void * instance, IMetaAccessible * accessible)
 {
 	ENTER_V8()
+
+	v8::HandleScope handleScope;
+	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
 	doBindAccessible(&this->implement->param, localObject, name, instance, accessible);
 
@@ -743,7 +796,16 @@ void testBindV8()
 	executeString("a.value");
 	executeString("b.value");
 	executeString("a.add(8)");
+	executeString("a.add(9)");
 
 	context.Dispose();
 }
+
+
+
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+
 

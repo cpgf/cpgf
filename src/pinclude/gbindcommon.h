@@ -244,6 +244,12 @@ enum GMetaMapItemType {
 	mmitNone = 100,
 };
 
+class GMetaMapItemData
+{
+public:
+	GMetaMapItemData() {}
+	virtual ~GMetaMapItemData() {}
+};
 
 class GMetaMapItem
 {
@@ -265,11 +271,20 @@ public:
 	size_t getEnumIndex() const {
 		return this->enumIndex;
 	}
+
+	void setData(GMetaMapItemData * newData) {
+		this->data.reset(newData);
+	}
+
+	GMetaMapItemData * getData() const {
+		return this->data.get();
+	}
 	
 private:
 	IObject * item;
 	GMetaMapItemType type;
 	size_t enumIndex;
+	GScopedPointer<GMetaMapItemData> data;
 };
 
 inline void swap(GMetaMapItem & a, GMetaMapItem & b)
@@ -383,6 +398,11 @@ bool allowInvokeMethod(GClassUserData * userData, IMetaMethod * method);
 bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible);
 
 void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, int paramCount, InvokeCallableResult * result);
+
+class GMetaClassTraveller;
+void loadMethodList(GMetaClassTraveller * traveller,
+	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
+	void * instance, GClassUserData * userData, const char * methodName);
 
 
 } // namespace cpgf

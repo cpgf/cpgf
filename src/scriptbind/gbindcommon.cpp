@@ -1,5 +1,7 @@
 #include "../pinclude/gbindcommon.h"
 
+#include "cpgf/gmetaclasstraveller.h"
+
 #include <stdarg.h>
 
 
@@ -369,6 +371,36 @@ void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * 
 	callable->execute(&result->resultData, instance, paramsData, paramCount);
 	metaCheckError(callable);
 }
+
+void loadMethodList(GMetaClassTraveller * traveller,
+	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
+	void * instance, GClassUserData * userData, const char * methodName)
+{
+	while(mapItem != NULL) {
+		if(mapItem->getType() == mmitMethod) {
+			GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
+			if(allowInvokeMethod(userData, method.get())) {
+				metaList->add(method.get(), instance);
+			}
+		}
+		else {
+			GScopedInterface<IMetaList> methodList(gdynamic_cast<IMetaList *>(mapItem->getItem()));
+			for(uint32_t i = 0; i < methodList->getCount(); ++i) {
+				GScopedInterface<IMetaItem> item(methodList->getAt(i));
+				if(allowInvokeMethod(userData, gdynamic_cast<IMetaMethod *>(item.get()))) {
+					metaList->add(item.get(), instance);
+				}
+			}
+		}
+		
+		GScopedInterface<IMetaClass> metaClass(traveller->next(&instance));
+		if(!metaClass) {
+			break;
+		}
+		mapItem = findMetaMapItem(metaMap, metaClass.get(), methodName);
+	}
+}
+
 
 
 
