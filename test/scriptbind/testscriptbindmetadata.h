@@ -17,6 +17,12 @@ const int Magic1 = 0x1999;
 const int Magic2 = 0xbeef38;
 const int Magic3 = 0xf00d;
 
+void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service);
+void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service);
+
+void scriptAssert(bool b);
+
+
 struct TestData
 {
 	int x;
@@ -303,11 +309,14 @@ public:
 };
 
 
-void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service);
-void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service);
+class BasicA
+{
+public:
+};
 
-void scriptAssert(bool b);
-
+enum TestEnum {
+	teCpp = 1, teLua = 2, teV8 = 3
+};
 
 
 }

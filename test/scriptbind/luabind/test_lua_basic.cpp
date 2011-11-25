@@ -53,6 +53,19 @@ GTEST(OverloadMethodIndirectInvoke)
 }
 
 
+GTEST(TestEnum)
+{
+	GScopedPointer<TestLuaContext> context(createLuaContext());
+
+	QASSERT(TestEnum.teCpp == 1)
+	QASSERT(TestEnum.teLua == 2)
+	QASSERT(TestEnum.teV8 == 3)
+
+	QERR(TestEnum.teCpp = 5)
+	
+}
+
+
 
 
 }

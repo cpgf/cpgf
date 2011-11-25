@@ -17,7 +17,7 @@ public:
 	};
 
 	enum EnumSecond {
-		bs1 = 1, bs2 = 3, bs3 = 5, bs4 = 7, bs5 = 9,
+		bs1 = 1, bs2 = 3, bs3 = 5, bs4 = 7, bs5 = 0x1fffffffffLL,
 	};
 
 
@@ -171,7 +171,7 @@ GTEST(Lib_GetValue)
 	GEQUAL(fromVariant<int>(en->getValue(1)), CLASS::bs2);
 	GEQUAL(fromVariant<int>(en->getValue(2)), CLASS::bs3);
 	GEQUAL(fromVariant<int>(en->getValue(3)), CLASS::bs4);
-	GEQUAL(fromVariant<int>(en->getValue(4)), CLASS::bs5);
+	GEQUAL(fromVariant<long long>(en->getValue(4)), CLASS::bs5);
 }
 
 
@@ -196,7 +196,7 @@ GTEST(API_GetValue)
 	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 1)), CLASS::bs2);
 	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 2)), CLASS::bs3);
 	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 3)), CLASS::bs4);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 4)), CLASS::bs5);
+	GEQUAL(fromVariant<long long>(metaGetEnumValue(en, 4)), CLASS::bs5);
 }
 
 
