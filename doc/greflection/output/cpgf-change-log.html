@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="maintpl.css" />
+<title>cpgf library changes log</title>
+</head>
+<body><div style="width:900px">
+
+
+
+
+
+<a name="top"></a>
+
+
+
+
+
+<h1>cpgf library changes log</h1>
+
+<h3>2011-11-27 version 1.0.1 </h3>
+<ul><li>	Refactored Lua binding, using better and faster algorithm to travel for data and methods.
+</li><li>	Distinguish static and member data access in Lua binding.
+</li><li>	Add: class GMetaClassTraveller in gmetaclasstraveller.h to ease iterating class hierarchy.
+</li><li>	Add: function gdynamic_cast in gglobal.h for safe and fast dynamic cast.
+</li><li>	Add: unit tests test_lua_basic.cpp, test_lua_operator.cpp, test_lua_hierarchy.cpp
+</li><li>	Bug fix: binding Lua operators to wrong meta table.
+</li><li>	Bug fix: Lua passes two parameters to __unm operator that cpgf doesn't handle correctly.
+</li><li>	Bug fix: some exceptions raised by interface API were not detected in Lua binding. Now re-throw it to Lua.
+</li><li>	Memory leak fix: leak when exception is raised during any Lua callback.
+</li><li>	Remove: function getMethodList and getMethodListInHierarchy from GMetaClass and IMetaClass. They were replaced with better algorithm.
+</li><li>	Remove: error output to stderr in Lua binding.
+</li><li>	Add separate license file.
+</li></ul>
+<h3>2011-11-05 version 1.0.0 </h3>
+<ul><li>	First release.
+</li></ul>
+<br />
+
+<a href="docs-index.html"><h3>More documentations</h3> </a>
+
+
+
+
+
+
+
+</div></body></html>

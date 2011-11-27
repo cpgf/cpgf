@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="maintpl.css" />
+<title>cpgf library -- a free C++ open source library for reflection, script binding, callbacks</title>
+</head>
+<body><div style="width:900px">
+
+
+
+
+
+<a name="top"></a>
+
+
+
+
+
+<h1>cpgf library -- a free C++ open source library for reflection, script binding, callbacks</h1>
+
+cpgf is a free, open source and cross platform C++ library.<br />
+cpgf is composed by several independent libraries:<br />
+<ul><li>	cpgf reflection -- a library to add	reflection feature to C++.
+</li>	
+<li>	cpgf script binding -- a script binding engine to bind Lua to C++. It's based on the reflection library.
+</li>	
+<li>	cpgf callback -- a callback library to implement signal/slot or callback in C++. It's the primary library for other libraries.
+</li></ul>The goal of cpgf is to extend C++ language with a lot of easy to use features which are only available in other higher level languages and absence in C++.<br />
+cpgf provides a very easy to use callback system, which is common used in C# and script languages.<br />
+cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? now we have it in C++!<br />
+cpgf makes binding to Lua a piece of cake! The Lua binding engine uses the reflection system extensively.<br />
+And in the future, more script binding will be added.<br />
+<br />
+<b>Vesion 1.0.1 is release on Nov.27, 2011. </b><br />
+<br />
+
+<h3>Key features</h3>
+<ul><li>	<b>Provide easy to use class and function based library. </b>
+</li>
+<li>	<b>Also provide interface based, Windows COM style, binary compatible API. </b> It's easy to put meta data in a dynamic library and use the meta data from within another library.
+</li>
+<li>	<b>Written in (almost) standard and portable C++. </b> It can be compiled at least under VC and GCC, on Windows, Linux, and Mac.
+</li>
+<li>	<b>Extensively, but not abuse, using template programming. </b> Don't feel scaring. The compile time is not slow!
+</li>	
+<li>	<b>No need external preprocessor or code generation tools. </b> Just coding and enjoy. Easy to setup, easy to integrate with your project.
+</li>	
+<li>	<b>Free and open source. </b>
+</li></ul>
+
+<h3>Quick facts of reflection library</h3>
+<ul><li>	Almost as powerful as the reflection system in Java and C#.
+</li><li>	Reflect global/member functions, global/member fields (variable), global/member properties (fields with getter/setter), constructors, classes, enumerators, and annotations.
+</li><li>	Real runtime reflection. No template parameters are needed.
+</li><li>	No preprocessor required. Only using templates and macros. 
+</li><li>	Support multiple inheritance.
+</li><li>	For more information, please read cpgf reflection related documentation.
+</li></ul>
+<h3>Quick facts of Lua binding library</h3>
+<ul><li>	Bind C++ classes, enumerators, functions, variables and operators to Lua.
+</li><li>	Invoke Lua functions from C++.
+</li><li>	Get and set Lua variables from C++.
+</li><li>	For more information, please read cpgf Lua binding related documentation.
+</li></ul>
+<h3>Download cpgf library</h3>
+<a href="/download/cpgf_1_0_1.zip">Zip file, 270 kb</a><br />
+<br />
+
+<h3>Documentations</h3>
+<a href="docs-index.html">Read the documentations</a><br />
+<br />
+
+<h3>License</h3>
+	Apache License, Version 2.0<br />
+<br />
+
+<h3>Library version</h3>
+	1.0.1<br />
+<br />
+
+<h3>Change log</h3>
+<a href="cpgf-change-log.html">Change log</a><br />
+<br />
+
+<h3>Compatibility -- Tested compilers and OSes </h3>
+<ul><li>	Windows XP, Microsoft Visual C++ 2008 Express
+</li><li>	Windows XP, MingW GCC 4.4.0 and 4.5.2
+</li><li>	Linux (Ubuntu 11.04 in VirtualBox), GCC 4.5.2
+</li><li>	Mac 10.6.8, GCC 4.4.0
+</li></ul>	
+	
+<h3>Required third party library -- None for the major libraries </h3>
+	Doesn't require C++0X and TR1 features.<br />
+	Doesn't require Boost library.<br />
+	For Lua binding, Lua library is required.<br />
+	If you want to run the unit test, UnitTest++ is required. But usually you don't need to do that.<br />
+	<br />
+	
+
+<h3>Learning the library </h3>
+	Though there are some documentations on this website, they are far from good.<br />
+	They are incomplete, and not quite native reading.<br />
+<br />
+	The fastest way to get start with the library is to read the sample code<br />
+	in the folder &quot;samples&quot;.<br />
+	The sample code was originally written for test purpose, so they are not<br />
+	as easy to read as you expect. But they covers most features so it's<br />
+	a good kick off.<br />
+	<br />
+	If you want to read more sample code, read the code in the folder &quot;test&quot;.<br />
+	They are for unit test. They are much more difficult to read and<br />
+	use a lot of macros.<br />
+	However, they cover much more functions than the sample code.<br />
+	<br />
+	
+<h3>Contribute to the library </h3>
+	If you like the library and want to contribute to it, here are some most desired work to do<br />
+	1, Use the library in your real project. That will help the library much. A library is nothing without real projects using it.<br />
+	2, Help with the documentation. I'm not a native English speaker, and I also don't enjoy writing documentation.<br />
+	3, Test the library on more compilers and platforms.<br />
+	<br />
+
+<h3>What does cpgf mean? </h3>
+	The original cpgf means Cross Platform Game Framework.<br />
+	It was intended	to be game framework that can work on PC and smart phone.<br />
+	But later I decided to add more fun but non-game features to the library.<br />
+	So now the library is neither for game nor a framework.<br />
+	It's a cross platform C++ library.<br />
+	<br />
+
+
+
+
+
+</div></body></html>

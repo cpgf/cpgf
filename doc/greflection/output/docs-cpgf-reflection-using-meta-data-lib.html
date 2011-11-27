@@ -1,0 +1,540 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="maintpl.css" />
+<title>cpgf reflection -- using meta data</title>
+</head>
+<body><div style="width:900px">
+
+
+
+
+
+
+
+<a name="top"></a>
+
+
+<p>
+<b>
+<a href="docs-cpgf-reflection-using-meta-data-lib.html#linkid1">
+<strong>Using reflection through library</strong></a></b></p>
+<div style="margin-left:0px">
+<ul>
+<li>
+<a href="docs-cpgf-reflection-using-meta-data-lib.html#linkid2">
+<strong>Retrieve meta class</strong></a></li>
+<li>
+<a href="docs-cpgf-reflection-using-meta-data-lib.html#linkid3">
+<strong>Retrieve meta data</strong></a></li>
+</ul>
+</div>
+<p>
+<b>
+<a href="docs-cpgf-reflection-using-meta-data-lib.html#linkid4">
+<strong>Using meta data</strong></a></b></p>
+<div style="margin-left:0px">
+<ul>
+<li>
+<a href="docs-cpgf-reflection-using-meta-data-lib.html#linkid5">
+<strong>Using meta item</strong></a></li>
+<li>
+<a href="docs-cpgf-reflection-using-meta-data-lib.html#linkid6">
+<strong>Using meta field</strong></a></li>
+<li>
+<a href="docs-cpgf-reflection-using-meta-data-lib.html#linkid7">
+<strong>Using meta property</strong></a></li>
+<li>
+<a href="docs-cpgf-reflection-using-meta-data-lib.html#linkid8">
+<strong>Using meta method</strong></a></li>
+<li>
+<a href="docs-cpgf-reflection-using-meta-data-lib.html#linkid9">
+<strong>Using meta constructor</strong></a></li>
+<li>
+<a href="docs-cpgf-reflection-using-meta-data-lib.html#linkid10">
+<strong>Using meta operator</strong></a></li>
+<li>
+<a href="docs-cpgf-reflection-using-meta-data-lib.html#linkid11">
+<strong>Using meta annotation</strong></a></li>
+<li>
+<a href="docs-cpgf-reflection-using-meta-data-lib.html#linkid12">
+<strong>Using meta annotation value</strong></a></li>
+<li>
+<a href="docs-cpgf-reflection-using-meta-data-lib.html#linkid13">
+<strong>Using meta enumerators</strong></a></li>
+<li>
+<a href="docs-cpgf-reflection-using-meta-data-lib.html#linkid14">
+<strong>Using variadic parameters in meta methods, constructors and operators.</strong></a></li>
+</ul>
+</div>
+
+
+<p><a name="linkid1"></a></p>
+<h3>Using reflection through library</h3><p><a name="linkid2"></a></p>
+<p>
+<strong>Retrieve meta class</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-using-meta-data-lib.html#top">back top</a></span></p>
+To retrieve any meta data, first we need to get the desired meta class.<br />
+<br />
+To get the global meta class, call getGlobalMetaClass().<br />
+To get a certain meta class, call findMetaClass(&quot;TheMetaClassName&quot;).<br />
+<br />
+Both functions return either NULL for not found or a pointer of const GMetaClass *.<br />
+<br />
+
+<p><a name="linkid3"></a></p>
+<p>
+<strong>Retrieve meta data</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-using-meta-data-lib.html#top">back top</a></span></p>
+Any meta data can be retrieved through GMetaClass.<br />
+<br />
+GMetaClass exposes a lot of functions to access the meta data, but fortunately we don't need to memorize each function. Most functions have the similar naming convention.<br />
+Assume MMM is the meta name, it can be Constructor, Field, Property, Method, Operator, Enum, Class.<br />
+Then for most meta data, we have these kind of functions,<br />
+
+<pre>const GMetaMMM * getMMM(const char * name) const;
+const GMetaMMM * getMMMInHierarchy(const char * name, void ** outInstance) const;
+size_t getMMMCount() const;
+const GMetaMMM * getMMMAt(size_t index) const;
+</pre>
+<b>getMMM</b> -- get the meta data by name in current meta class. Return the meta data, or NULL if not found. If the meta data with the same name is overloaded, only the first meta data is returned.<br />
+<br />
+<b>getMMMInHierarchy</b> -- find the meta data in the whole inheritance hierarchy. That means, if the meta data is not found in current meta class, all parent meta classes will be checked recursively.<br />
+The second parameter, can be NULL, or the address of an instance pointer. If it's not NULL, on return the function will convert the pointer to the object in which the meta data is in.<br />
+The function will perform an action as,<br />
+*outInstance = static_cast&lt;ClassThatFoundTheMetaData *&gt;(*outInstance).<br />
+Usually the casted pointer is same as the original pointer, but under virtual inheritance, they can be different.<br />
+<br />
+<b>getMMMCount</b> -- get how many meta data there is.<br />
+<br />
+<b>getMMMAt</b> -- get the meta data at certain index. With this function and getMMMCount, we can get all of the meta data.<br />
+<br />
+Constructors are special because they can't be inherited and have no name. So there are no getConstructor and getConstructorInHierarchy. But there is a function getConstructorByParamCount to get a constructor quickly.<br />
+const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;<br />
+<br />
+Here is a list of all functions in GMetaClass that can retrieve meta data:<br />
+<br />
+
+<pre>
+const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
+size_t getConstructorCount() const;
+const GMetaConstructor * getConstructorAt(size_t index) const;
+
+const GMetaField * getFieldInHierarchy(const char * name, void ** outInstance) const;
+const GMetaField * getField(const char * name) const;
+size_t getFieldCount() const;
+const GMetaField * getFieldAt(size_t index) const;
+
+const GMetaProperty * getPropertyInHierarchy(const char * name, void ** outInstance) const;
+const GMetaProperty * getProperty(const char * name) const;
+size_t getPropertyCount() const;
+const GMetaProperty * getPropertyAt(size_t index) const;
+
+const GMetaMethod * getMethodInHierarchy(const char * name, void ** outInstance) const;
+const GMetaMethod * getMethod(const char * name) const;
+size_t getMethodCount() const;
+const GMetaMethod * getMethodAt(size_t index) const;
+
+const GMetaOperator * getOperatorInHierarchy(GMetaOpType op, void ** outInstance) const;
+const GMetaOperator * getOperator(GMetaOpType op) const;
+size_t getOperatorCount() const;
+const GMetaOperator * getOperatorAt(size_t index) const;
+
+const GMetaEnum * getEnumInHierarchy(const char * name, void ** outInstance) const;
+const GMetaEnum * getEnum(const char * name) const;
+size_t getEnumCount() const;
+const GMetaEnum * getEnumAt(size_t index) const;
+
+const GMetaClass * getClassInHierarchy(const char * name, void ** outInstance) const;
+const GMetaClass * getClass(const char * name) const;
+size_t getClassCount() const;
+const GMetaClass * getClassAt(size_t index) const;
+
+size_t getMetaCount() const;
+const GMetaItem * getMetaAt(size_t index) const;
+
+</pre>
+	The last two functions, getMetaCount and getMetaAt, can be used to retrieve arbitrary meta data.<br />
+
+
+
+
+
+<p><a name="linkid4"></a></p>
+<h3>Using meta data</h3><p><a name="linkid5"></a></p>
+<p>
+<strong>Using meta item</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-using-meta-data-lib.html#top">back top</a></span></p>
+Class GMetaItem is the base class for all meta class.<br />
+It covers the common aspects of the meta data.<br />
+<br />
+<div class="codepiece""> bool isStatic() const; <br />
+</div>Return true if the field, property, or method is global (not class member).<br />
+Otherwise, return false.<br />
+For member only meta data, such as constructor, operator, this function always returns false.<br />
+<br />
+<div class="codepiece""> GMetaCategory getCategory() const; <br />
+</div>Return the category of the meta data.<br />
+Categories list:<br />
+
+<pre>enum GMetaCategory {
+    mcatField = 0,
+    mcatProperty = 1,
+    mcatMethod = 2,
+    mcatEnum = 3,
+    mcatOperator = 4,
+    mcatConstructor = 5,
+    mcatClass = 6,
+    mcatAnnotation = 7,
+    mcatFundamental = 8,
+};
+</pre>
+<div class="codepiece""> const GMetaItem * getOwnerItem() const; <br />
+</div>Return the outter meta class that owns the item.<br />
+For members in class A, the owner item is the meta class of A.<br />
+For members in top level global namespace (the meta class returned by getGlobalMetaClass()), the owner item is the global meta class.<br />
+Calling this function on getGlobalMetaClass() will always return NULL.<br />
+<br />
+<div class="codepiece""> virtual const GMetaType &amp; getItemType() const; <br />
+</div>Return the meta type of the item.<br />
+For field and property, it's the field and property variable type.<br />
+For method, it's the function type.<br />
+<br />
+<div class="codepiece""> const std::string &amp; getName() const; <br />
+</div>Return the item name. The name is the one used to register the meta data.<br />
+<br />
+<div class="codepiece""> const std::string &amp; getQualifiedName() const; <br />
+</div>Return the full qualified name. It's all of the owner items, recursively, names joined with &quot;.&quot;.<br />
+If a name looks like ClassOne.ClassTwo.myData, it means the item name is myData, it's in ClassTwo, and ClassTwo is an inner class of ClassOne.<br />
+<br />
+<div class="codepiece""> std::string makeQualifiedName(const char * delimiter) const; <br />
+</div>If you are not satisfied with the &quot;.&quot; delimiter returned by getQualifiedName, use makeQualifiedName to make your own full qualified name.<br />
+delimiter can be any string.<br />
+<br />
+<div class="codepiece""> const GMetaAnnotation * getAnnotation(const char * name) const; <br />
+</div>Get the annotation with &quot;name&quot; that bound to the item.<br />
+Return NULL if there is no annotation with &quot;name&quot;.<br />
+<br />
+<div class="codepiece""> size_t getAnnotationCount() const; <br />
+</div>Return annotation count.<br />
+<br />
+<div class="codepiece""> const GMetaAnnotation * getAnnotationAt(size_t index) const; <br />
+</div>Return annotation at certain index.<br />
+<br />
+
+
+<p><a name="linkid6"></a></p>
+<p>
+<strong>Using meta field</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-using-meta-data-lib.html#top">back top</a></span></p>
+Class GMetaField exposes several functions to set/get field, and acquire field information.<br />
+<br />
+<div class="codepiece""> virtual bool canGet() const; <br />
+</div>Check if the field value can be got.<br />
+A field can't be got if it's forbidden by the policy.<br />
+<br />
+<div class="codepiece""> virtual bool canSet() const; <br />
+</div>Check if the field value can be set.<br />
+A field can't be set if it's forbidden by the policy.<br />
+<br />
+<div class="codepiece""> virtual GVariant get(void * instance) const; <br />
+</div>Get the field value on the object &quot;instance&quot;. A GVariant that represents the value will be returned.<br />
+<br />
+<div class="codepiece""> virtual void set(void * instance, const GVariant &amp; v) const; <br />
+</div>Set the field value on the object &quot;instance&quot;. A GVariant that represents the value is passed as the second parameter.<br />
+<br />
+<div class="codepiece""> virtual size_t getSize() const; <br />
+</div>Get the field memory size. It's as if performing a sizeof on the field.<br />
+<br />
+<div class="codepiece""> void * getAddress(void * instance) const; <br />
+</div>Get the field address. It's as if performing a &quot;&amp;&quot; operator on the field.<br />
+<br />
+
+
+
+<p><a name="linkid7"></a></p>
+<p>
+<strong>Using meta property</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-using-meta-data-lib.html#top">back top</a></span></p>
+Using property is almost same as using field, except that property doesn't support getAddress.<br />
+<br />
+<div class="codepiece""> virtual bool canGet() const; <br />
+</div>Check if the property value can be got.<br />
+A property can't be got if it's forbidden by the policy, or the getter is absence (NULL).<br />
+<br />
+<div class="codepiece""> virtual bool canSet() const; <br />
+</div>Check if the property value can be set.<br />
+A property can't be set if it's forbidden by the policy, or the setter is absence (NULL).<br />
+<br />
+<div class="codepiece""> virtual GVariant get(void * instance) const; <br />
+</div>Get the property value on the object &quot;instance&quot;. A GVariant that represents the value will be returned.<br />
+<br />
+<div class="codepiece""> virtual void set(void * instance, const GVariant &amp; v) const; <br />
+</div>Set the property value on the object &quot;instance&quot;. A GVariant that represents the value is passed as the second parameter.<br />
+<br />
+<div class="codepiece""> virtual size_t getSize() const; <br />
+</div>Get the property memory size. It's as if performing a sizeof on the property.<br />
+<br />
+
+
+
+<p><a name="linkid8"></a></p>
+<p>
+<strong>Using meta method</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-using-meta-data-lib.html#top">back top</a></span></p>
+Class GMetaMethod exposes several functions to invoke method, and acquire field information.<br />
+<br />
+<div class="codepiece""> virtual GMetaType getParamType(size_t index) const; <br />
+</div>Acquire parameter type at index.<br />
+<br />
+<div class="codepiece""> virtual size_t getParamCount() const; <br />
+</div>Get parameter count.<br />
+<br />
+<div class="codepiece""> virtual bool hasResult() const; <br />
+</div>Check whether the method has result. For functions that return &quot;void&quot;, this function return false, otherwise, it returns true.<br />
+<br />
+<div class="codepiece""> virtual GMetaType getResultType() const; <br />
+</div>Acquire result type information.<br />
+<br />
+<div class="codepiece""> virtual bool isVariadic() const; <br />
+</div>Check whether the method can accept variadic parameters.<br />
+<br />
+<div class="codepiece""> GVariant invoke(void * instance, const GVariant &amp; p1); <br />
+</div><div class="codepiece""> GVariant invoke(void * instance, const GVariant &amp; p1, const GVariant &amp; p2); <br />
+</div><div class="codepiece""> GVariant invoke(void * instance, const GVariant &amp; p1, const GVariant &amp; p2, ..., const GVariant &amp; pN); <br />
+</div>A group of overloaded functions to invoke the method with different amount of parameters, on the object &quot;instance&quot;.<br />
+<br />
+<div class="codepiece""> virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const; <br />
+</div>Invoke the method, and pass the parameters in an array.<br />
+<br />
+<div class="codepiece""> virtual bool checkParam(const GVariant &amp; param, size_t paramIndex) const; <br />
+</div>Check if a parameter can be converted to the method parameter.<br />
+<br />
+
+
+
+
+<p><a name="linkid9"></a></p>
+<p>
+<strong>Using meta constructor</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-using-meta-data-lib.html#top">back top</a></span></p>
+Using constructor is almost same as using method, except that its return value is always a pointer of &quot;void *&quot;.<br />
+<br />
+<div class="codepiece""> virtual GMetaType getParamType(size_t index) const; <br />
+</div>Acquire parameter type at index.<br />
+<br />
+<div class="codepiece""> virtual size_t getParamCount() const; <br />
+</div>Get parameter count.<br />
+<br />
+<div class="codepiece""> virtual bool hasResult() const; <br />
+</div>Always return true;<br />
+<br />
+<div class="codepiece""> virtual GMetaType getResultType() const; <br />
+</div>Return the type information of the class it will construct.<br />
+<br />
+<div class="codepiece""> virtual bool isVariadic() const; <br />
+</div>Check whether the constructor can accept variadic parameters.<br />
+<br />
+<div class="codepiece""> void * invoke(const GVariant &amp; p1); <br />
+</div><div class="codepiece""> void * invoke(const GVariant &amp; p1, const GVariant &amp; p2); <br />
+</div><div class="codepiece""> void * invoke(const GVariant &amp; p1, const GVariant &amp; p2, ..., const GVariant &amp; pN); <br />
+</div>A group of overloaded functions to invoke the method with different amount of parameters.<br />
+Unlike GMetaMethod, these functions here always return void *, which is the address of the new instance.<br />
+<br />
+<div class="codepiece""> virtual GVariant execute(const GVariant * params, size_t paramCount) const; <br />
+</div>Invoke the constructor, and pass the parameters in an array.<br />
+<br />
+<div class="codepiece""> virtual bool checkParam(const GVariant &amp; param, size_t paramIndex) const; <br />
+</div>Check if a parameter can be converted to the constructor parameter.<br />
+<br />
+
+
+
+<p><a name="linkid10"></a></p>
+<p>
+<strong>Using meta operator</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-using-meta-data-lib.html#top">back top</a></span></p>
+Using operator is almost same as using method, except that its parameter count is determined by the operator itself.<br />
+<br />
+<div class="codepiece""> virtual GMetaType getParamType(size_t index) const; <br />
+</div>Acquire parameter type at index.<br />
+<br />
+<div class="codepiece""> virtual size_t getParamCount() const; <br />
+</div>Get parameter count.<br />
+<br />
+<div class="codepiece""> virtual bool hasResult() const; <br />
+</div>Check whether the operator has result. For operators that return &quot;void&quot;, this function return false, otherwise, it returns true.<br />
+<br />
+<div class="codepiece""> virtual GMetaType getResultType() const; <br />
+</div>Acquire result type information.<br />
+<br />
+<div class="codepiece""> virtual bool isVariadic() const; <br />
+</div>Check whether the operator can accept variadic parameters.<br />
+<br />
+<div class="codepiece""> GVariant invokeUnary(const GVariant &amp; p0) const; <br />
+</div>Invoke the operator with one parameter. The operator should be a unary operator.<br />
+<br />
+<div class="codepiece""> GVariant invokeBinary(const GVariant &amp; p0, const GVariant &amp; p1) const; <br />
+</div>Invoke the operator with two parameter. The operator should be a binary operator.<br />
+<br />
+<div class="codepiece""> GVariant invokeFunctor(const GVariant &amp; instance, const GVariant &amp; p1, const GVariant &amp; p2, ..., const GVariant &amp; pMax) const; <br />
+</div>Invoke the functor operator.<br />
+<br />
+<div class="codepiece""> virtual GVariant execute(const GVariant * params, size_t paramCount) const; <br />
+</div>Invoke the operator, and pass the parameters in an array.<br />
+<br />
+<div class="codepiece""> virtual bool checkParam(const GVariant &amp; param, size_t paramIndex) const; <br />
+</div>Check if a parameter can be converted to the operator parameter.<br />
+<br />
+
+
+
+<p><a name="linkid11"></a></p>
+<p>
+<strong>Using meta annotation</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-using-meta-data-lib.html#top">back top</a></span></p>
+<div class="codepiece""> const GMetaItem * getMetaItem() const; <br />
+</div>Get the meta item that the annotation is bound to.<br />
+<br />
+<div class="codepiece""> const GAnnotationValue * getValue(const char * name) const; <br />
+</div>Get the annotation value of the key with the &quot;name&quot;.<br />
+<br />
+<div class="codepiece""> size_t getCount() const; <br />
+</div>Get how many annotation values there are.<br />
+<br />
+<div class="codepiece""> const char * getNameAt(size_t index) const; <br />
+</div>Get the annotation name at certain index.<br />
+<br />
+<div class="codepiece""> const GAnnotationValue * getValueAt(size_t index) const; <br />
+</div>Get the annotation value at certain index.<br />
+<br />
+<br />
+
+
+
+<p><a name="linkid12"></a></p>
+<p>
+<strong>Using meta annotation value</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-using-meta-data-lib.html#top">back top</a></span></p>
+Annotation value is not meta data.<br />
+It's the value type of annotation.<br />
+<br />
+<div class="codepiece""> const GVariant * getVariant() const; <br />
+</div>Get the value as a GVariant;<br />
+<br />
+<div class="codepiece""> bool canToString() const; <br />
+</div>Check if the value can be converted to a string.<br />
+<br />
+<div class="codepiece""> bool canToWideString() const; <br />
+</div>Check if the value can be converted to a wide string.<br />
+<br />
+<div class="codepiece""> bool canToInt() const; <br />
+</div>Check if the value can be converted to a integer.<br />
+<br />
+<div class="codepiece""> const char * toString() const; <br />
+</div>Convert the value to a string.<br />
+<br />
+<div class="codepiece""> const wchar_t * toWideString() const; <br />
+</div>Convert the value to a wide string.<br />
+<br />
+<div class="codepiece""> int toInt() const; <br />
+</div>Convert the value to an integer.<br />
+<br />
+<div class="codepiece""> template &lt;typename T&gt;<br />
+T toObject() const; <br />
+</div>Convert the value to a specified type.<br />
+<br />
+<br />
+
+
+
+
+<p><a name="linkid13"></a></p>
+<p>
+<strong>Using meta enumerators</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-using-meta-data-lib.html#top">back top</a></span></p>
+<div class="codepiece""> virtual size_t getTypeSize() const; <br />
+</div>Get the memory size of the enumerator type. It's as if performing a sizeof on the enumerator.<br />
+<br />
+<div class="codepiece""> size_t getCount() const; <br />
+</div>Get the element count of the enumerator;<br />
+<br />
+<div class="codepiece""> const char * getKey(size_t index) const; <br />
+</div>Get the enumerator element key name at index.<br />
+<br />
+<div class="codepiece""> GVariant getValue(size_t index) const; <br />
+</div>Get the enumerator element value at index.<br />
+It's safe to convert the result value to an integer.<br />
+<br />
+<div class="codepiece""> int findKey(const char * key) const; <br />
+</div>Get the index of a key name.<br />
+Return -1 if not found.<br />
+<br />
+<div class="codepiece""> virtual void * createInstance() const; <br />
+</div><div class="codepiece""> virtual void * createInplace(void * placement) const; <br />
+</div><div class="codepiece""> virtual void * cloneInstance(void * instance) const; <br />
+</div><div class="codepiece""> virtual void * cloneInplace(void * instance, void * placement) const; <br />
+</div><div class="codepiece""> virtual void destroyInstance(void * instance) const; <br />
+</div><br />
+<br />
+
+
+
+
+<p><a name="linkid14"></a></p>
+<p>
+<strong>Using variadic parameters in meta methods, constructors and operators.</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-using-meta-data-lib.html#top">back top</a></span></p>
+Any meta invokable -- methods, constructors, or operators -- with only one parameter of type <b>GMetaVariadicParam *</b> or <b>const GMetaVariadicParam *</b>, is treated as variadic invokable.<br />
+Thus any number of parameters can be passed to the invokable.<br />
+<br />
+A variadic meta method,<br />
+<br />
+<div class="codepiece"">int sum(const cpgf::GMetaVariadicParam * params); <br />
+</div><br />
+In meaning it's same as C++ variadic function,<br />
+<div class="codepiece"">int sum(...); <br />
+</div><br />
+Calling the meta version sum,<br />
+method-&gt;invoke(obj, 1, 3, 5, 7, 9);<br />
+<br />
+is quite similar with C++ variadic function,<br />
+obj-&gt;sum(1, 3, 5, 7, 9);<br />
+<br />
+GMetaVariadicParam is a structure,<br />
+<br />
+
+<pre>struct GMetaVariadicParam
+{
+    GVariant const * const * params;
+    size_t paramCount;
+};
+</pre>
+params is a pointer that points to an array of GVariant pointers, each GVariant pointer points to the parameter.<br />
+paramCount is the parameter count.<br />
+<br />
+<br />
+A sample implementation of the variadic method &quot;sum&quot;,<br />
+<br />
+
+<pre>    int sum(const cpgf::GMetaVariadicParam * params)
+    {
+    	int total = 0;
+    	for(size_t i = 0; i &lt; params-&gt;paramCount; ++i) {
+    		total += cpgf::fromVariant&lt;int&gt;(*(params-&gt;params[i]));
+    	}
+
+    	return total;
+    }
+</pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a href="docs-index.html"><h3>More documentations</h3> </a>
+
+
+
+
+
+
+</div></body></html>

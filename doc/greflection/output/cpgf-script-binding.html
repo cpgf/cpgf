@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="maintpl.css" />
+<title>cpgf script binding -- an open source library to create binding between C++ and Lua script engine</title>
+</head>
+<body><div style="width:900px">
+
+
+
+
+
+<a name="top"></a>
+
+
+
+
+
+<h1>cpgf script binding -- an open source library to create binding between C++ and Lua script engine</h1>
+
+cpgf script binding library is very easy use to bind between C++ and Lua.<br />
+The library uses reflection meta data extensively.<br />
+<br />
+cpgf script binding is licensed under Apache License, Version 2.0<br />
+<br />
+The supported Lua library is 5.1<br />
+<br />
+
+<h3>Key features</h3>
+
+<ul>
+<li>Bind C++ class to Lua. Then Lua script can create instance, invoke class member function, get/set class field and more.
+</li><li>Bind C++ enum type to Lua. Then Lua script can access the enum value by name.
+</li><li>Bind C++ functions (global or member) to Lua.
+</li><li>Bind C++ values to Lua variable.
+</li><li>The overloaded operators in C++ are bound to Lua together with the class.
+</li><li>Invoke Lua functions from C++.
+</li><li>Get and set Lua value from C++.
+</li>
+</ul>
+<h3>Lua binding is only the very beginning!</h3>
+
+Lua binding is only the first script binding library introduced to cpgf script library.<br />
+With the powerful reflection, we can add arbitrary script binding quite easily.<br />
+<br />
+My next plan is to bring JavaScript binding to cpgf. Maybe Google V8 is an candidate.<br />
+<br />
+All script binding engines will use the same interface -- GScriptObject and IScriptObject, and use same meta data.<br />
+<br />
+
+<a href="docs-index.html"><h3>More documentations</h3> </a>
+
+
+
+
+
+
+</div></body></html>
