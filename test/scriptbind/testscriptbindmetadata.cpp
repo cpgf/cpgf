@@ -99,6 +99,8 @@ void bindBasicClass(T * script, cpgf::IMetaService * service)
 	bindClass(script, service, "testscript::DeriveC", "DeriveC");
 	bindClass(script, service, "testscript::DeriveD", "DeriveD");
 	bindClass(script, service, "testscript::DeriveE", "DeriveE");
+
+	bindClass(script, service, "testscript::BasicA", "BasicA");
 }
 
 
@@ -283,6 +285,26 @@ GMETA_DEFINE_CLASS(DeriveE, DeriveE, "testscript::DeriveE", DeriveD) {
 
 	GMETA_METHOD(getE);
 	reflectMethod("pretendA", &DeriveE::pretendA, GMetaPolicyTransferResultOwnership());
+}
+
+
+
+GMETA_DEFINE_CLASS(BasicA::Inner, BasicA_Inner, "Inner") {
+	using namespace cpgf;
+		
+	GMETA_FIELD(x);
+	GMETA_METHOD(add);
+}
+	
+GMETA_DEFINE_CLASS(BasicA, BasicA, "testscript::BasicA") {
+	using namespace cpgf;
+
+	GMETA_QUALIFIED_CLASS(BasicA::Inner);
+	
+	reflectEnum<BasicA::BasicEnum>("BasicEnum")
+		("a", BasicA::a)
+		("b", BasicA::b)
+		("c", BasicA::c);
 }
 
 

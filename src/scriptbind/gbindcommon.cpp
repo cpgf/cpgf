@@ -119,7 +119,7 @@ void GMetaMapClass::buildMap(IMetaClass * metaClass)
 		
 		uint32_t keyCount = metaEnum->getCount();
 		for(uint32_t k = 0; k < keyCount; ++k) {
-			const char * keyName = metaEnum->getName();
+			const char * keyName = metaEnum->getKey(k);
 			this->itemMap[keyName] = GMetaMapItem(k, metaEnum.get());
 		}
 	}
@@ -363,12 +363,12 @@ bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible)
 	return true;
 }
 
-void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, int paramCount, InvokeCallableResult * result)
+void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, size_t paramCount, InvokeCallableResult * result)
 {
 	result->resultCount = callable->hasResult() ? 1 : 0;
 	vtInit(result->resultData.typeData);
 
-	callable->execute(&result->resultData, instance, paramsData, paramCount);
+	callable->execute(&result->resultData, instance, paramsData, static_cast<uint32_t>(paramCount));
 	metaCheckError(callable);
 }
 

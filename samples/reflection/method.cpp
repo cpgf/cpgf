@@ -58,7 +58,7 @@ public:
 	}
 	
 	int calcObj(const TestObject & other) {
-		return other.width + other.name.length();
+		return static_cast<int>(other.width + other.name.length());
 	}
 
 	int sum(const cpgf::GMetaVariadicParam * params) const {

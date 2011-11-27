@@ -362,18 +362,18 @@ namespace {
 		return sdtUnknown;
 	}
 
-	void loadMethodParameters(lua_State * L, GScriptBindingParam * param, GVariantData * outputParams, int startIndex, int paramCount)
+	void loadMethodParameters(lua_State * L, GScriptBindingParam * param, GVariantData * outputParams, int startIndex, size_t paramCount)
 	{
-		for(int i = 0; i < paramCount; ++i) {
-			outputParams[i] = luaToVariant(L, param, i + startIndex).getData().varData;
+		for(size_t i = 0; i < paramCount; ++i) {
+			outputParams[i] = luaToVariant(L, param, static_cast<int>(i) + startIndex).getData().varData;
 		}
 	}
 
-	void loadMethodParamTypes(lua_State * L, GBindDataType * outputTypes, int startIndex, int paramCount)
+	void loadMethodParamTypes(lua_State * L, GBindDataType * outputTypes, int startIndex, size_t paramCount)
 	{
-		for(int i = 0; i < paramCount; ++i) {
+		for(size_t i = 0; i < paramCount; ++i) {
 			IMetaTypedItem * typeItem;
-			outputTypes[i].dataType = getLuaType(L, i + startIndex, &typeItem);
+			outputTypes[i].dataType = getLuaType(L, static_cast<int>(i) + startIndex, &typeItem);
 			outputTypes[i].typeItem.reset(typeItem);
 		}
 	}

@@ -20,6 +20,8 @@ cpgf provides a powerful reflection and meta data system. Ever envy the reflecti
 cpgf makes binding to Lua a piece of cake! The Lua binding engine uses the reflection system extensively.
 And in the future, more script binding will be added.
 
+<b>Vesion 1.0.1 is release on Nov.27, 2011. </b>
+
 <{/autobr}>
 
 <h3>Key features</h3>
@@ -58,7 +60,7 @@ And in the future, more script binding will be added.
 
 <h3>Download cpgf library</h3>
 <{autobr}>
-<a href="/download/cpgf_1_0_0.zip">Zip file, 263 kb</a>
+<a href="/download/cpgf_1_0_1.zip">Zip file, 270 kb</a>
 
 <{/autobr}>
 
@@ -76,10 +78,15 @@ And in the future, more script binding will be added.
 
 <h3>Library version</h3>
 <{autobr}>
-	1.0.0
+	1.0.1
 
 <{/autobr}>
 
+<h3>Change log</h3>
+<{autobr}>
+<a href="cpgf-change-log.html">Change log</a>
+
+<{/autobr}>
 
 <h3>Compatibility -- Tested compilers and OSes </h3>
 <{autoul}>

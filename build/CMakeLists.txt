@@ -133,12 +133,13 @@ endif(${HAS_LUA})
 set(LIB_COMPILE_FLAGS " ")
 set(TEST_COMPILE_FLAGS " ")
 if(CMAKE_COMPILER_IS_GNUCC)
-#	set(LIB_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
+	set(LIB_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
 	set(TEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)
-	set(TEST_COMPILE_FLAGS "-Wall -Wp64")
+	set(LIB_COMPILE_FLAGS "-W4 -Wp64")
+	set(TEST_COMPILE_FLAGS "-W4 -Wp64")
 endif(MSVC)
 
 add_library(

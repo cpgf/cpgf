@@ -17,7 +17,7 @@ public:
 	};
 
 	enum EnumSecond {
-		bs1 = 1, bs2 = 3, bs3 = 5, bs4 = 7, bs5 = 0x1fffffffffLL,
+		bs1 = 1, bs2 = 3, bs3 = 5, bs4 = 7, bs5 = 0x1fffffff,
 	};
 
 

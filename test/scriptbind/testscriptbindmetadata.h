@@ -312,6 +312,27 @@ public:
 class BasicA
 {
 public:
+	enum BasicEnum {
+		a = 1, b = 2, c = 3
+	};
+
+public:
+	class Inner {
+	public:
+		Inner() : x(5) {
+		}
+		
+		int add() {
+			++x;
+			return x;
+		}
+		
+	public:
+		int x;
+
+	};
+
+public:
 };
 
 enum TestEnum {

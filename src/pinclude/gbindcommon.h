@@ -386,7 +386,7 @@ int findAppropriateCallable(IMetaService * service,
 			int rank = rankCallable(service, meta.get(), callableParam);
 			if(rank > maxRank) {
 				maxRank = rank;
-				maxRankIndex = i;
+				maxRankIndex = static_cast<int>(i);
 			}
 		}
 	}
@@ -397,7 +397,7 @@ int findAppropriateCallable(IMetaService * service,
 bool allowInvokeMethod(GClassUserData * userData, IMetaMethod * method);
 bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible);
 
-void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, int paramCount, InvokeCallableResult * result);
+void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, size_t paramCount, InvokeCallableResult * result);
 
 class GMetaClassTraveller;
 void loadMethodList(GMetaClassTraveller * traveller,

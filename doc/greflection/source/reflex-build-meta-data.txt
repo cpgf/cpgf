@@ -640,6 +640,66 @@
 
 
 
+<{sh}> Reflect nested class
+<{sgroup indent="1"}>
+
+<{sh}> What's nested class
+<{sc}>
+<{code}>
+	class MyClass {
+	public:
+		class InnerClass { // this is nested class
+		};
+	};
+<{/code}>
+
+<{sh}> Using function
+<{sc}>
+<{code}>
+	GMETA_DEFINE_CLASS(InnerClass, blah blah)
+	{
+	}
+	
+	GMETA_DEFINE_CLASS(blah blah)
+	{
+		reflectClass(cpgf::findMetaClass<MyClass::InnerClass>());
+	;
+	}
+<{/code}>
+
+<p>
+<{autobr}>
+<{/autobr}>
+</p>
+
+<{sh}> Using macro helper
+<{sc}>
+<{code}>
+	GMETA_DEFINE_CLASS(InnerClass, blah blah)
+	{
+	}
+	
+	GMETA_DEFINE_CLASS(blah blah)
+	{
+		GMETA_CLASS(InnerClass);
+	;
+	}
+<{/code}>
+<p>
+<{autobr}>
+Note and Warning:
+Though InnerClass is in the scope of MyClass, building the meta data for InnerClass will put it into the global scope.
+That's to say, if we have a global class named A, and a global Class named B, B has a nested class A, A and B::A will have clashed meta name.
+
+<{/autobr}>
+</p>
+
+<{/sgroup}>
+
+
+
+
+
 <{/autotoc}>
 
 

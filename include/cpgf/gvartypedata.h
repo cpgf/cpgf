@@ -9,6 +9,12 @@
 #include "cpgf/genableif.h"
 
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4127) // conditional expression is constant
+#endif
+
+
 namespace cpgf {
 
 
@@ -127,5 +133,11 @@ void deduceVariantType(GVarTypeData & data)
 
 
 
+#if defined(_MSC_VER)
+#pragma warning(pop)
 #endif
+
+
+#endif
+
 

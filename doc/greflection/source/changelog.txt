@@ -1,4 +1,11 @@
-2011-11-27 version 1.0.1
+<{filename name=cpgf-change-log }>
+
+<{title}>cpgf library changes log<{/title}>
+
+<h1>cpgf library changes log</h1>
+
+<h3>2011-11-27 version 1.0.1 </h3>
+<{autoul}>
 	Refactored Lua binding, using better and faster algorithm to travel for data and methods.
 	Distinguish static and member data access in Lua binding.
 	Add: class GMetaClassTraveller in gmetaclasstraveller.h to ease iterating class hierarchy.
@@ -11,6 +18,14 @@
 	Remove: function getMethodList and getMethodListInHierarchy from GMetaClass and IMetaClass. They were replaced with better algorithm.
 	Remove: error output to stderr in Lua binding.
 	Add separate license file.
+<{/autoul}>
 
-2011-11-05 version 1.0.0
+<h3>2011-11-05 version 1.0.0 </h3>
+<{autoul}>
 	First release.
+<{/autoul}>
+
+<br />
+
+<{include name="moredoc.inc" }>
+

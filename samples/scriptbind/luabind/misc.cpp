@@ -283,7 +283,6 @@ void doTest()
 
 	;
 
-//	luaL_dostring(L, code);
 	luaL_loadstring(L, code); lua_call(L, 0, LUA_MULTRET);
 
 	GMetaVariant result = invokeScriptFunction(&binding, "luaAdd", 8, 2);
