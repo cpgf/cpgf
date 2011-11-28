@@ -30,6 +30,24 @@ using namespace std;
 namespace cpgf {
 
 namespace {
+	
+	class GMapItemMethodData : public GMetaMapItemData
+	{
+	public:
+		virtual ~GMapItemMethodData() {
+			this->functionTemplate.Dispose();
+			this->functionTemplate.Clear();
+		}
+
+		void setTemplate(v8::Handle<v8::FunctionTemplate> newTemplate) {
+			this->functionTemplate = v8::Persistent<v8::FunctionTemplate>::New(newTemplate);
+		}
+
+	public:
+		v8::Persistent<v8::FunctionTemplate> functionTemplate;
+	};
+
+	void weakHandleCallback(v8::Persistent<v8::Value> object, void * parameter);
 
 	GScriptDataType getV8Type(v8::Handle<v8::Value> value, IMetaTypedItem ** typeItem)
 	{
@@ -58,6 +76,28 @@ namespace {
 		}
 	
 		return sdtUnknown;
+	}
+
+	v8::Handle<v8::Value> objectToV8(GScriptBindingParam * param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv)
+	{
+		using namespace v8;
+
+		if(instance == NULL) {
+			return Handle<Value>();
+		}
+
+		GMetaMapClass * map = param->getMetaMap()->findClassMap(metaClass);
+		GMapItemMethodData * mapData = gdynamic_cast<GMapItemMethodData *>(map->getData());
+		Handle<FunctionTemplate> functionTemplate = mapData->functionTemplate;
+//		Handle<FunctionTemplate> functionTemplate = FunctionTemplate::New();
+		Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance());
+
+		GClassUserData * instanceUserData = new GClassUserData(param, metaClass, instance, true, allowGC, cv);
+		self.MakeWeak(instanceUserData, weakHandleCallback);
+
+		self->SetPointerInInternalField(0, instanceUserData);
+
+		return self;
 	}
 
 	v8::Handle<v8::Value> variantToV8(GScriptBindingParam * param, const GVariant & value, const GMetaType & type, bool allowGC)
@@ -105,17 +145,13 @@ namespace {
 
 					IMetaClass * metaClass = static_cast<IMetaClass *>(typedItem.get());
 					void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-//					objectToLua(L, param, instance, static_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type));
-
-//					return true;
+					return objectToV8(param, instance, static_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type));
 				}
 
 				if(type.getPointerDimension() == 1) {
 					GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
-//					objectToLua(L, param, fromVariant<void *>(value), static_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type));
-
-//					return true;
+					return objectToV8(param, fromVariant<void *>(value), static_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type));
 				}
 			}
 		}
@@ -149,6 +185,19 @@ namespace {
 
 		if(value->IsUint32()) {
 			return value->Uint32Value();
+		}
+
+		if(value->IsFunction()) {
+			if(value->IsObject()) {
+				return 1;
+			}
+			return 0;
+		}
+
+		if(value->IsObject()) {
+			Local<Object> obj = value->ToObject();
+			GClassUserData * userData = static_cast<GClassUserData *>(obj->GetPointerFromInternalField(0));
+			return userData->instance;
 		}
 
 		return GMetaVariant();
@@ -260,8 +309,7 @@ namespace {
 
 		ENTER_V8()
 
-		Local<External> internalField = Local<External>::Cast(args.This()->GetInternalField(0));
-		GClassUserData * userData = static_cast<GClassUserData *>(internalField->Value());
+		GClassUserData * userData = static_cast<GClassUserData *>(args.This()->GetPointerFromInternalField(0));
 
 		Local<External> data = Local<External>::Cast(args.Data());
 		GNamedUserData * namedUserData = static_cast<GNamedUserData *>(data->Value());
@@ -331,44 +379,6 @@ namespace {
 		return functionTemplate;
 	}
 
-	class GMapItemMethodData : public GMetaMapItemData
-	{
-	public:
-		virtual ~GMapItemMethodData() {
-			this->functionTemplate.Dispose();
-			this->functionTemplate.Clear();
-		}
-
-		void setTemplate(v8::Handle<v8::FunctionTemplate> newTemplate) {
-			this->functionTemplate = v8::Persistent<v8::FunctionTemplate>::New(newTemplate);
-		}
-
-	public:
-		v8::Persistent<v8::FunctionTemplate> functionTemplate;
-	};
-
-	v8::Handle<v8::Value> objectConstructor(const v8::Arguments& args)
-	{
-		using namespace v8;
-
-		if(! args.IsConstructCall()) {
-			return ThrowException(String::New("Cannot call constructor as function"));
-		}
-
-		Local<External> data = Local<External>::Cast(args.Data());
-		GClassUserData * userData = static_cast<GClassUserData *>(data->Value());
-
-		void * instance = userData->metaClass->createInstance();
-		Persistent<Object> self = Persistent<Object>::New(args.Holder());
-
-		GClassUserData * instanceUserData = new GClassUserData(userData->getParam(), userData->metaClass, instance, true, true, opcvNone);
-		self.MakeWeak(instanceUserData, weakHandleCallback);
-
-		self->SetInternalField(0, External::New(instanceUserData));
-
-		return self;
-	}
-
 	v8::Handle<v8::Value> namedMemberGetter(v8::Local<v8::String> prop, const v8::AccessorInfo & info)
 	{
 		using namespace v8;
@@ -378,8 +388,7 @@ namespace {
 		String::Utf8Value utf8_prop(prop);
 		const char * name = *utf8_prop;
 
-		Local<External> data = Local<External>::Cast(info.This()->GetInternalField(0));
-		GClassUserData * userData = static_cast<GClassUserData *>(data->Value());
+		GClassUserData * userData = static_cast<GClassUserData *>(info.This()->GetPointerFromInternalField(0));
 
 		GMetaClassTraveller traveller(userData->metaClass, userData->instance);
 
@@ -462,11 +471,10 @@ namespace {
 		String::Utf8Value utf8_prop(prop);
 		const char * name = *utf8_prop;
 
-		Local<External> data = Local<External>::Cast(info.This()->GetInternalField(0));
-		if(data.IsEmpty()) {
+		GClassUserData * userData = static_cast<GClassUserData *>(info.This()->GetPointerFromInternalField(0));
+		if(userData == NULL) {
 			return Handle<Value>();
 		}
-		GClassUserData * userData = static_cast<GClassUserData *>(data->Value());
 
 		GMetaClassTraveller traveller(userData->metaClass, userData->instance);
 
@@ -534,6 +542,63 @@ namespace {
 		LEAVE_V8(return Handle<Value>())
 	}
 
+	void * invokeConstructor(const v8::Arguments & args, GScriptBindingParam * param, IMetaClass * metaClass)
+	{
+		int paramCount = args.Length();
+		void * instance = NULL;
+
+		if(paramCount == 0 && metaClass->canCreateInstance()) {
+			instance = metaClass->createInstance();
+		}
+		else {
+			InvokeCallableParam callableParam;
+			loadCallableParam(args, param, &callableParam);
+		
+			int maxRankIndex = findAppropriateCallable(param->getService(),
+				makeCallback(metaClass, &IMetaClass::getConstructorAt), metaClass->getConstructorCount(),
+				&callableParam, FindCallablePredict());
+
+			if(maxRankIndex >= 0) {
+				InvokeCallableResult result;
+			
+				GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(static_cast<uint32_t>(maxRankIndex)));
+				doInvokeCallable(NULL, constructor.get(), callableParam.paramsData, paramCount, &result);
+				instance = fromVariant<void *>(GVariant(result.resultData));
+			}
+		}
+
+		if(instance != NULL) {
+			return instance;
+		}
+		else {
+			raiseCoreException(Error_ScriptBinding_FailConstructObject);
+		}
+
+		return NULL;
+	}
+
+	v8::Handle<v8::Value> objectConstructor(const v8::Arguments & args)
+	{
+		using namespace v8;
+
+		if(! args.IsConstructCall()) {
+			return ThrowException(String::New("Cannot call constructor as function"));
+		}
+
+		Local<External> data = Local<External>::Cast(args.Data());
+		GClassUserData * userData = static_cast<GClassUserData *>(data->Value());
+
+		void * instance = invokeConstructor(args, userData->getParam(), userData->metaClass);
+		Persistent<Object> self = Persistent<Object>::New(args.Holder());
+
+		GClassUserData * instanceUserData = new GClassUserData(userData->getParam(), userData->metaClass, instance, true, true, opcvNone);
+		self.MakeWeak(instanceUserData, weakHandleCallback);
+
+		self->SetPointerInInternalField(0, instanceUserData);
+
+		return self;
+	}
+
 	void doBindClass(GScriptBindingParam * param, v8::Local<v8::Object> container, const GScriptName & name, IMetaClass * metaClass)
 	{
 		using namespace v8;
@@ -553,6 +618,11 @@ namespace {
 		instanceTemplate->SetNamedPropertyHandler(&namedMemberGetter, &namedMemberSetter);
 
 		container->Set(v8::String::New(name.getName()), functionTemplate->GetFunction());
+
+		GMetaMapClass * map = param->getMetaMap()->findClassMap(metaClass);
+		GMapItemMethodData * mapData = new GMapItemMethodData;
+		mapData->setTemplate(functionTemplate);
+		map->setData(mapData);
 	}
 
 } // unnamed namespace
@@ -796,7 +866,17 @@ void testBindV8()
 	executeString("a.value");
 	executeString("b.value");
 	executeString("a.add(8)");
-	executeString("a.add(9)");
+	executeString("b = a.add");
+//	executeString("b(9)");
+	executeString("a instanceof TestObject");
+	executeString("b = a.self()");
+	executeString("b.value");
+	executeString("b.add(8)");
+	executeString("b instanceof TestObject");
+	executeString("a.value = 168");
+//	executeString("b = new TestObject(function(){})");
+	executeString("b = new TestObject(a.add)");
+//	executeString("b.value");
 
 	context.Dispose();
 }

@@ -310,11 +310,20 @@ public:
 	
 	GMetaMapItem * findItem(const char * name);
 
+	void setData(GMetaMapItemData * newData) {
+		this->data.reset(newData);
+	}
+
+	GMetaMapItemData * getData() const {
+		return this->data.get();
+	}
+	
 private:
 	void buildMap(IMetaClass * metaClass);
 	
 private:
 	MapType itemMap;
+	GScopedPointer<GMetaMapItemData> data;
 };
 
 
