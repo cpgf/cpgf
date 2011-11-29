@@ -424,13 +424,13 @@ namespace {
 
 		ENTER_V8()
 
-		GClassUserData * userData = static_cast<GClassUserData *>(args.This()->GetPointerFromInternalField(0));
+		GClassUserData * userData = static_cast<GClassUserData *>(args.Holder()->GetPointerFromInternalField(0));
 
 		Local<External> data = Local<External>::Cast(args.Data());
 		GMethodListUserData * namedUserData = static_cast<GMethodListUserData *>(data->Value());
 
 		IMetaList * methodList = namedUserData->methodList;
-		
+
 		InvokeCallableParam callableParam;
 		loadCallableParam(args, userData->getParam(), &callableParam);
 
@@ -454,16 +454,18 @@ namespace {
 	}
 
 	v8::Handle<v8::FunctionTemplate> createMethodTemplate(GScriptBindingParam * param, IMetaList * methodList,
-		const char * name, GMethodListUserData ** outUserData)
+		const char * name, v8::Handle<v8::FunctionTemplate> classTemplate, GMethodListUserData ** outUserData)
 	{
 		using namespace v8;
 
 		GMethodListUserData * userData = new GMethodListUserData(param, methodList);
-		*outUserData = userData;
+		if(outUserData != NULL) {
+			*outUserData = userData;
+		}
 		Persistent<External> data = Persistent<External>::New(External::New(userData));
 		data.MakeWeak(userData, weakHandleCallback);
 
-		Handle<FunctionTemplate> functionTemplate = FunctionTemplate::New(callbackMethodList, data);
+		Handle<FunctionTemplate> functionTemplate = FunctionTemplate::New(callbackMethodList, data, Signature::New(classTemplate));
 		functionTemplate->SetClassName(String::New(name));
 
 		return functionTemplate;
@@ -475,7 +477,7 @@ namespace {
 
 		ENTER_V8()
 
-		GEnumUserData * userData = static_cast<GEnumUserData *>(info.This()->GetPointerFromInternalField(0));
+		GEnumUserData * userData = static_cast<GEnumUserData *>(info.Holder()->GetPointerFromInternalField(0));
 		IMetaEnum * metaEnum = userData->metaEnum;
 		v8::String::AsciiValue name(prop);
 		int32_t index = metaEnum->findKey(*name);
@@ -495,7 +497,9 @@ namespace {
 		using namespace v8;
 
 		GEnumUserData * userData = new GEnumUserData(param, metaEnum);
-		*outUserData = userData;
+		if(outUserData != NULL) {
+			*outUserData = userData;
+		}
 //		Persistent<External> data = Persistent<External>::New(External::New(userData));
 //		data.MakeWeak(userData, weakHandleCallback);
 
@@ -514,7 +518,7 @@ namespace {
 		String::Utf8Value utf8_prop(prop);
 		const char * name = *utf8_prop;
 
-		GClassUserData * userData = static_cast<GClassUserData *>(info.This()->GetPointerFromInternalField(0));
+		GClassUserData * userData = static_cast<GClassUserData *>(info.Holder()->GetPointerFromInternalField(0));
 
 		GMetaClassTraveller traveller(userData->metaClass, userData->instance);
 
@@ -525,8 +529,12 @@ namespace {
 			if(!metaClass) {
 				break;
 			}
-			
-			GMetaMapItem * mapItem = findMetaMapItem(userData->getParam()->getMetaMap(), metaClass.get(), name);
+
+			GMetaMapClass * mapClass = userData->getParam()->getMetaMap()->findClassMap(metaClass.get());
+			if(mapClass == NULL) {
+				continue;
+			}
+			GMetaMapItem * mapItem = mapClass->findItem(name);
 			if(mapItem == NULL) {
 				continue;
 			}
@@ -552,7 +560,8 @@ namespace {
 						data = new GMapItemMethodData;
 						mapItem->setData(data);
 						GMethodListUserData * newUserData;
-						data->setTemplate(createMethodTemplate(userData->getParam(), methodList.get(), name, &newUserData));
+						data->setTemplate(createMethodTemplate(userData->getParam(), methodList.get(), name,
+							static_cast<GMapItemClassData *>(mapClass->getData())->functionTemplate, &newUserData));
 						data->setUserData(newUserData);
 					}
 					Local<Function> func = data->functionTemplate->GetFunction();
@@ -611,7 +620,7 @@ namespace {
 		String::Utf8Value utf8_prop(prop);
 		const char * name = *utf8_prop;
 
-		GClassUserData * userData = static_cast<GClassUserData *>(info.This()->GetPointerFromInternalField(0));
+		GClassUserData * userData = static_cast<GClassUserData *>(info.Holder()->GetPointerFromInternalField(0));
 		if(userData == NULL) {
 			return Handle<Value>();
 		}
@@ -1030,9 +1039,9 @@ void testBindV8()
 	executeString("a.value");
 	executeString("b.value");
 	executeString("a.add(8)");
+	executeString("b = {}");
+	executeString("b.__proto__ = a");
 	executeString("b.add(9)");
-	executeString("b = a.add");
-executeString("b(9)");
 	executeString("a instanceof TestObject");
 	executeString("b = a.self()");
 	executeString("b.value");
