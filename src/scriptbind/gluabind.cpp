@@ -605,6 +605,7 @@ namespace {
 
 		GVariantData data;
 		metaEnum->getValue(&data, static_cast<uint32_t>(mapItem->getEnumIndex()));
+		metaCheckError(metaEnum);
 		lua_pushinteger(L, fromVariant<lua_Integer>(GVariant(data)));
 
 		return true;

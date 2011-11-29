@@ -9,7 +9,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	testBindV8();
 
-	_getch();
+//	_getch();
 
 	return 0;
 }
