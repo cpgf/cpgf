@@ -60,12 +60,16 @@ namespace {
 		}
 
 		void setUserData(GMethodListUserData * userData) {
-			this->userData = userData;
+			this->userData.reset(userData);
+		}
+
+		GMethodListUserData * getUserData() const {
+		    return this->userData.get();
 		}
 
 	public:
 		v8::Persistent<v8::FunctionTemplate> functionTemplate;
-		GMethodListUserData * userData;
+		GScopedPointer<GMethodListUserData> userData;
 	};
 
 	class GMapItemEnumData : public GMetaMapItemData
@@ -81,12 +85,16 @@ namespace {
 		}
 
 		void setUserData(GEnumUserData * userData) {
-			this->userData = userData;
+			this->userData.reset(userData);
+		}
+
+		GEnumUserData * getUserData() const {
+		    return this->userData.get();
 		}
 
 	public:
 		v8::Persistent<v8::ObjectTemplate> objectTemplate;
-		GEnumUserData * userData;
+		GScopedPointer<GEnumUserData> userData;
 	};
 
 
@@ -528,9 +536,9 @@ cout << "WEAK FREE!!!!!!" << endl;
 		if(outUserData != NULL) {
 			*outUserData = userData;
 		}
-		param->addUserData(userData);
+
 		Persistent<External> data = Persistent<External>::New(External::New(userData));
-		data.MakeWeak(userData, weakHandleCallback);
+		data.MakeWeak(NULL, weakHandleCallback);
 
 		Handle<FunctionTemplate> functionTemplate = FunctionTemplate::New(callbackMethodList, data, Signature::New(classTemplate));
 		functionTemplate->SetClassName(String::New(name));
@@ -635,7 +643,7 @@ cout << "WEAK FREE!!!!!!" << endl;
 						data->setUserData(newUserData);
 					}
 					Local<Function> func = data->functionTemplate->GetFunction();
-					func->SetPointerInInternalField(0, data->userData);
+					func->SetPointerInInternalField(0, data->getUserData());
 					setObjectSignature(&func);
 
 					return func;
@@ -653,7 +661,7 @@ cout << "WEAK FREE!!!!!!" << endl;
 							data->setUserData(newUserData);
 						}
 						Local<Object> obj = data->objectTemplate->NewInstance();
-						obj->SetPointerInInternalField(0, data->userData);
+						obj->SetPointerInInternalField(0, data->getUserData());
 						setObjectSignature(&obj);
 						return obj;
 					}
