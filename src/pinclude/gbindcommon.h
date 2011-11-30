@@ -43,7 +43,7 @@ public:
 	const GScriptConfig & getConfig() const {
 		return this->config;
 	}
-	
+
 	GMetaMap * getMetaMap() const {
 		return this->metaMap;
 	}
@@ -239,11 +239,11 @@ public:
 	GMetaMapItem(IMetaList * metaList);
 	GMetaMapItem(const GMetaMapItem & other);
 	~GMetaMapItem();
-	
+
 	GMetaMapItem & operator = (GMetaMapItem other);
-	
+
 	void swap(GMetaMapItem & other);
-	
+
 	GMetaMapItemType getType() const;
 	IObject * getItem() const;
 
@@ -258,7 +258,7 @@ public:
 	GMetaMapItemData * getData() const {
 		return this->data.get();
 	}
-	
+
 private:
 	IObject * item;
 	GMetaMapItemType type;
@@ -283,10 +283,10 @@ class GMetaMapClass
 {
 private:
 	typedef std::map<const char *, GMetaMapItem, CStringCompare> MapType;
-	
+
 public:
 	GMetaMapClass(IMetaClass * metaClass);
-	
+
 	GMetaMapItem * findItem(const char * name);
 
 	void setData(GMetaMapItemData * newData) {
@@ -296,10 +296,10 @@ public:
 	GMetaMapItemData * getData() const {
 		return this->data.get();
 	}
-	
+
 private:
 	void buildMap(IMetaClass * metaClass);
-	
+
 private:
 	MapType itemMap;
 	GScopedPointer<GMetaMapItemData> data;
@@ -310,13 +310,13 @@ class GMetaMap
 {
 private:
 	typedef std::map<const char *, GMetaMapClass *, CStringCompare> MapType;
-	
+
 public:
 	GMetaMap();
 	~GMetaMap();
-	
+
 	GMetaMapClass * findClassMap(IMetaClass * metaClass);
-	
+
 private:
 	MapType classMap;
 };
@@ -333,7 +333,7 @@ struct FindCallablePredict {
 		return true;
 	}
 };
- 
+
 struct OperatorCallablePredict {
 	explicit OperatorCallablePredict(GMetaOpType op) : op(op) {}
 
@@ -378,7 +378,7 @@ int findAppropriateCallable(IMetaService * service,
 			}
 		}
 	}
-	
+
 	return maxRank >= 0 ? maxRankIndex : -1;
 }
 

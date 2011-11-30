@@ -30,7 +30,7 @@ using namespace std;
 namespace cpgf {
 
 namespace {
-	
+
 	class GMapItemClassData : public GMetaMapItemData
 	{
 	public:
@@ -89,7 +89,7 @@ namespace {
 		GEnumUserData * userData;
 	};
 
-	
+
 	void weakHandleCallback(v8::Persistent<v8::Value> object, void * parameter);
 	v8::Handle<v8::FunctionTemplate> createClassTemplate(GScriptBindingParam * param, const GScriptName & name, IMetaClass * metaClass);
 
@@ -101,7 +101,7 @@ namespace {
 	{
 		(*object)->SetHiddenValue(v8::String::New(signatureKey), v8::Int32::New(signatureValue));
 	}
-	
+
 	bool isValidObject(v8::Handle<v8::Value> object)
 	{
 		using namespace v8;
@@ -168,11 +168,14 @@ namespace {
 						case udtMethodList:
 							return sdtMethodList;
 						break;
+
+						default:
+						break;
 					}
 				}
 			}
 		}
-	
+
 		return sdtUnknown;
 	}
 
@@ -201,7 +204,7 @@ namespace {
 	v8::Handle<v8::Value> variantToV8(GScriptBindingParam * param, const GVariant & value, const GMetaType & type, bool allowGC)
 	{
 		GVariantType vt = value.getType();
-		
+
 		if(vtIsEmpty(vt)) {
 			return v8::Handle<v8::Value>();
 		}
@@ -325,6 +328,9 @@ namespace {
 							}
 						}
 						break;
+
+						default:
+						break;
 					}
 				}
 			}
@@ -336,6 +342,7 @@ namespace {
 	void weakHandleCallback(v8::Persistent<v8::Value> object, void * parameter)
 	{
 		GScriptUserData * userData = static_cast<GScriptUserData *>(parameter);
+cout << "WEAK FREE!!!!!!" << endl;
 
 		delete userData;
 
@@ -382,7 +389,7 @@ namespace {
 		GAccessibleUserData * userData = static_cast<GAccessibleUserData *>(Local<External>::Cast(info.Data())->Value());
 
 		GVariant result = metaGetValue(userData->accessible, userData->instance);
-		
+
 		return variantToV8(userData->getParam(), result, metaGetItemType(userData->accessible), false);
 	}
 
@@ -415,13 +422,13 @@ namespace {
 		if(converter != NULL) {
 			if(converter->canToCString()) {
 				gapi_bool needFree;
-			
+
 				GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
 				const char * s = converter->toCString(objectAddressFromVariant(value), &needFree, allocator.get());
 
 				if(s != NULL) {
 					Handle<Value> value = String::New(s);
-			
+
 					if(needFree) {
 						allocator->free((void *)s);
 					}
@@ -433,12 +440,12 @@ namespace {
 
 		return Handle<Value>();
 	}
-	
+
 	v8::Handle<v8::Value> methodResultToV8(GScriptBindingParam * param, IMetaCallable * callable, InvokeCallableResult * result)
 	{
 		if(result->resultCount > 0) {
 			GMetaTypeData typeData;
-		
+
 			callable->getResultType(&typeData);
 			metaCheckError(callable);
 
@@ -455,7 +462,7 @@ namespace {
 			return v;
 
 		}
-		
+
 		return v8::Handle<v8::Value>();
 	}
 
@@ -612,7 +619,7 @@ namespace {
 				case mmitMethodList: {
 					GScopedInterface<IMetaList> methodList(createMetaList());
 					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name);
-					
+
 					GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getData());
 					if(data == NULL) {
 						data = new GMapItemMethodData;
@@ -699,14 +706,14 @@ namespace {
 			if(!metaClass) {
 				break;
 			}
-			
+
 			GMetaMapItem * mapItem = findMetaMapItem(userData->getParam()->getMetaMap(), metaClass.get(), name);
 			if(mapItem == NULL) {
 				continue;
 			}
 
 			bool error = false;
-			
+
 			switch(mapItem->getType()) {
 				case mmitField:
 				case mmitProperty: {
@@ -753,14 +760,14 @@ namespace {
 		else {
 			InvokeCallableParam callableParam;
 			loadCallableParam(args, param, &callableParam);
-		
+
 			int maxRankIndex = findAppropriateCallable(param->getService(),
 				makeCallback(metaClass, &IMetaClass::getConstructorAt), metaClass->getConstructorCount(),
 				&callableParam, FindCallablePredict());
 
 			if(maxRankIndex >= 0) {
 				InvokeCallableResult result;
-			
+
 				GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(static_cast<uint32_t>(maxRankIndex)));
 				doInvokeCallable(NULL, constructor.get(), callableParam.paramsData, paramCount, &result);
 				instance = fromVariant<void *>(GVariant(result.resultData));
@@ -805,7 +812,7 @@ namespace {
 		using namespace v8;
 
 		GMetaMapClass * map = param->getMetaMap()->findClassMap(metaClass);
-		
+
 		if(map->getData() != NULL) {
 			return static_cast<GMapItemClassData *>(map->getData())->functionTemplate;
 		}
@@ -816,6 +823,7 @@ namespace {
 
 		Handle<FunctionTemplate> functionTemplate = FunctionTemplate::New(objectConstructor, data);
 		functionTemplate->SetClassName(String::New(name.getName()));
+data.Dispose();
 
 		Local<ObjectTemplate> instanceTemplate = functionTemplate->InstanceTemplate();
 		instanceTemplate->SetInternalFieldCount(1);
@@ -835,7 +843,7 @@ namespace {
 	void doBindClass(GScriptBindingParam * param, v8::Local<v8::Object> container, const GScriptName & name, IMetaClass * metaClass)
 	{
 		using namespace v8;
-		
+
 		Handle<FunctionTemplate> functionTemplate = createClassTemplate(param, name, metaClass);
 		container->Set(v8::String::New(name.getName()), functionTemplate->GetFunction());
 	}
@@ -933,7 +941,7 @@ void GV8ScriptObject::bindEnum(const GScriptName & name, IMetaEnum * metaEnum)
 	obj.MakeWeak(newUserData, weakHandleCallback);
 
 	localObject->Set(String::New(name.getName()), obj);
-	
+
 	LEAVE_V8()
 }
 
@@ -949,13 +957,13 @@ GScriptObject * GV8ScriptObject::createScriptObject(const GScriptName & name)
 	Handle<ObjectTemplate> objectTemplate = ObjectTemplate::New();
 	Local<Object> obj = objectTemplate->NewInstance();
 	localObject->Set(String::New(name.getName()), obj);
-	
+
 	GV8ScriptObject * binding = new GV8ScriptObject(*this, obj);
 	binding->owner = this;
 	binding->name = name.getName();
-	
+
 	return binding;
-	
+
 	LEAVE_V8(return NULL)
 }
 
@@ -1084,12 +1092,12 @@ void GV8ScriptObject::bindMethodList(const GScriptName & name, IMetaList * metho
 	GMethodListUserData * newUserData;
 	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(&this->implement->param, methodList, name.getName(),
 		Handle<FunctionTemplate>(), &newUserData);
-	
+
 	Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
 	func->SetPointerInInternalField(0, newUserData);
 	setObjectSignature(&func);
 	func.MakeWeak(newUserData, weakHandleCallback);
-	
+
 	localObject->Set(v8::String::New(name.getName()), func);
 
 	LEAVE_V8()
@@ -1243,7 +1251,7 @@ void GV8ScriptObject::nullifyValue(const GScriptName & name)
 
 
 
-bool executeString(const char * source, bool print_result = true) 
+bool executeString(const char * source, bool print_result = true)
 {
 	using namespace v8;
 
@@ -1254,7 +1262,7 @@ bool executeString(const char * source, bool print_result = true)
 		v8::String::AsciiValue error(try_catch.Exception());
 		printf("%s\n", *error);
 		return false;
-	} 
+	}
 	else {
 		v8::Handle<v8::Value> result = script->Run();
 		if(result.IsEmpty()) {
@@ -1263,7 +1271,7 @@ bool executeString(const char * source, bool print_result = true)
 			return false;
 		}
 		else {
-			if (print_result && !result->IsUndefined()) {        
+			if (print_result && !result->IsUndefined()) {
 				v8::String::AsciiValue str(result);
 				printf("%s\n", *str);
 			}
@@ -1279,7 +1287,7 @@ void testBindV8()
 	using namespace testscript;
 
 	cpgf::GScopedInterface<cpgf::IMetaService> service(cpgf::createDefaultMetaService());
-	
+
 	HandleScope handle_scope;
 
 	Persistent<Context> context = Context::New();
@@ -1290,12 +1298,12 @@ void testBindV8()
 	script->bindFundamental("x", 1999); executeString("x");
 	script->bindFundamental("x", true); executeString("x");
 	script->bindFundamental("x", "This is a string"); executeString("x");
-	
+
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("testscript::TestObject"));
 	GScopedInterface<IMetaField> metaField(metaClass->getField("value"));
 
 	TestObject obj;
-	
+
 	obj.value = 3838;
 	script->bindAccessible("v", &obj, metaField.get());
 	executeString("v");
@@ -1305,7 +1313,7 @@ void testBindV8()
 	script->bindClass("TestObject", metaClass.get());
 	metaClass.reset(service->findClassByName("testscript::BasicA"));
 	script->bindClass("BasicA", metaClass.get());
-	
+
 	GScopedInterface<IMetaModule> module(service->getModuleAt(0));
 	GScopedInterface<IMetaClass> metaGlobal(module->getGlobalMetaClass());
 	GScopedInterface<IMetaEnum> metaEnum(metaGlobal->getEnum("testscript::TestEnum"));
@@ -1330,7 +1338,7 @@ void testBindV8()
 	executeString("b.value");
 	executeString("b.add(8)");
 	executeString("b instanceof TestObject");
-	
+
 	executeString("a = new BasicA()");
 	executeString("a.BasicEnum.a");
 	executeString("a.b");
@@ -1338,20 +1346,21 @@ void testBindV8()
 	executeString("b.x");
 	executeString("b.add()");
 	executeString("b.x");
-	
+
 	executeString("TestEnum.teCpp");
-	
+
 	executeString("myscope.ScopeTestEnum.teLua");
 
 	executeString("value = 58");
 	cout << fromVariant<int>(script->getFundamental("value")) << endl;
-	
+
 	executeString("function myFunc(n) { return n * 2; } ");
 	GMetaVariant params[10];
 	params[0] = 5;
 	cout << fromVariant<int>(script->invoke("myFunc", params, 1).getValue()) << endl;
 
 	context.Dispose();
+	context.Clear();
 }
 
 
