@@ -76,9 +76,10 @@ namespace {
 		{ Error_ScriptBinding_InternalError_WrongFunctor,		"Internal error: calling wrong functor." },
 		{ Error_ScriptBinding_CantWriteToConstObject,			"Can't write to constant object." },
 		{ Error_ScriptBinding_NotSupportedOperator,				"Failed to bind an operator that's not supported by Lua." },
-		{ Error_ScriptBinding_CantAssignToEnum,					"Can't assign value to enumerator." },
+		{ Error_ScriptBinding_CantAssignToEnumMethodClass,		"Can't assign value to enumerator, method, or class." },
 		{ Error_ScriptBinding_CantCallNonfunction,				"The script function being invoked is not a function." },
 		{ Error_ScriptBinding_CantBindFundamental,				"Failed to bind fundamental variable" },
+		{ Error_ScriptBinding_AccessMemberWithWrongObject,		"Access class member with wrong object." },
 
 		{ -1, NULL },
 

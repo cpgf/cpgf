@@ -944,7 +944,7 @@ namespace {
 	{
 		ENTER_LUA()
 
-		raiseCoreException(Error_ScriptBinding_CantAssignToEnum);
+		raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
 
 		return 0;
 		
@@ -1236,6 +1236,8 @@ GMetaVariant GLuaScriptObject::invoke(const GScriptName & name, const GMetaVaria
 
 GMetaVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaVariant const * const * params, size_t paramCount)
 {
+	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+
 	ENTER_LUA()
 
 	GLuaScopeGuard scopeGuard(this);

@@ -21,6 +21,7 @@ private:
 
 public:
 	GV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
+	GV8ScriptObject(const GV8ScriptObject & other, v8::Local<v8::Object> object);
 	virtual ~GV8ScriptObject();
 
 	virtual void bindClass(const GScriptName & name, IMetaClass * metaClass);

@@ -34,7 +34,7 @@ const int Error_ScriptBinding_FailVariantToScript		= Error_ScriptBinding_Begin +
 const int Error_ScriptBinding_CantFindMatchedMethod		= Error_ScriptBinding_Begin + 3;
 const int Error_ScriptBinding_FailConstructObject		= Error_ScriptBinding_Begin + 4;
 const int Error_ScriptBinding_CantFindEnumKey			= Error_ScriptBinding_Begin + 5;
-const int Error_ScriptBinding_CantAssignToEnum			= Error_ScriptBinding_Begin + 6;
+const int Error_ScriptBinding_CantAssignToEnumMethodClass	= Error_ScriptBinding_Begin + 6;
 const int Error_ScriptBinding_ScriptMethodParamMismatch	= Error_ScriptBinding_Begin + 7;
 const int Error_ScriptBinding_CantReturnMultipleValue	= Error_ScriptBinding_Begin + 8;
 const int Error_ScriptBinding_CantCallNonfunction		= Error_ScriptBinding_Begin + 9;
@@ -42,6 +42,7 @@ const int Error_ScriptBinding_CantBindFundamental		= Error_ScriptBinding_Begin +
 const int Error_ScriptBinding_ScriptFunctionReturnError	= Error_ScriptBinding_Begin + 11;
 const int Error_ScriptBinding_CantWriteToConstObject	= Error_ScriptBinding_Begin + 12;
 const int Error_ScriptBinding_CallMethodWithTooManyParameters	= Error_ScriptBinding_Begin + 13;
+const int Error_ScriptBinding_AccessMemberWithWrongObject	= Error_ScriptBinding_Begin + 14;
 const int Error_ScriptBinding_End			= 300;
 
 
