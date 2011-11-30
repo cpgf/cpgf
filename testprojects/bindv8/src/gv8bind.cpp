@@ -193,6 +193,7 @@ namespace {
 		Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance());
 
 		GClassUserData * instanceUserData = new GClassUserData(param, metaClass, instance, true, allowGC, cv);
+		param->addUserData(instanceUserData);
 		self.MakeWeak(instanceUserData, weakHandleCallback);
 
 		self->SetPointerInInternalField(0, instanceUserData);
@@ -344,7 +345,9 @@ namespace {
 		GScriptUserData * userData = static_cast<GScriptUserData *>(parameter);
 cout << "WEAK FREE!!!!!!" << endl;
 
-		delete userData;
+		if(userData != NULL) {
+			userData->getParam()->removeUserData(userData);
+		}
 
 		object.Dispose();
 		object.Clear();
@@ -409,6 +412,7 @@ cout << "WEAK FREE!!!!!!" << endl;
 		using namespace v8;
 
 		GAccessibleUserData * userData = new GAccessibleUserData(param, instance, accessible);
+		param->addUserData(userData);
 		Persistent<External> data = Persistent<External>::New(External::New(userData));
 		data.MakeWeak(userData, weakHandleCallback);
 
@@ -524,6 +528,7 @@ cout << "WEAK FREE!!!!!!" << endl;
 		if(outUserData != NULL) {
 			*outUserData = userData;
 		}
+		param->addUserData(userData);
 		Persistent<External> data = Persistent<External>::New(External::New(userData));
 		data.MakeWeak(userData, weakHandleCallback);
 
@@ -799,6 +804,7 @@ cout << "WEAK FREE!!!!!!" << endl;
 		Persistent<Object> self = Persistent<Object>::New(args.Holder());
 
 		GClassUserData * instanceUserData = new GClassUserData(userData->getParam(), userData->metaClass, instance, true, true, opcvNone);
+		userData->getParam()->addUserData(instanceUserData);
 		self.MakeWeak(instanceUserData, weakHandleCallback);
 
 		self->SetPointerInInternalField(0, instanceUserData);
@@ -818,12 +824,13 @@ cout << "WEAK FREE!!!!!!" << endl;
 		}
 
 		GClassUserData * userData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
+		param->addUserData(userData);
 		Persistent<External> data = Persistent<External>::New(External::New(userData));
 		data.MakeWeak(userData, weakHandleCallback);
 
 		Handle<FunctionTemplate> functionTemplate = FunctionTemplate::New(objectConstructor, data);
 		functionTemplate->SetClassName(String::New(name.getName()));
-data.Dispose();
+//data.Dispose();
 
 		Local<ObjectTemplate> instanceTemplate = functionTemplate->InstanceTemplate();
 		instanceTemplate->SetInternalFieldCount(1);
@@ -938,6 +945,7 @@ void GV8ScriptObject::bindEnum(const GScriptName & name, IMetaEnum * metaEnum)
 	Persistent<Object> obj = Persistent<Object>::New(objectTemplate->NewInstance());
 	obj->SetPointerInInternalField(0, newUserData);
 	setObjectSignature(&obj);
+	this->implement->param.addUserData(newUserData);
 	obj.MakeWeak(newUserData, weakHandleCallback);
 
 	localObject->Set(String::New(name.getName()), obj);
@@ -1096,6 +1104,7 @@ void GV8ScriptObject::bindMethodList(const GScriptName & name, IMetaList * metho
 	Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
 	func->SetPointerInInternalField(0, newUserData);
 	setObjectSignature(&func);
+	this->implement->param.addUserData(newUserData);
 	func.MakeWeak(newUserData, weakHandleCallback);
 
 	localObject->Set(v8::String::New(name.getName()), func);

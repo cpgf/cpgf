@@ -7,6 +7,7 @@
 #include "cpgf/gmetaclass.h"
 
 #include <map>
+#include <vector>
 #include <string>
 
 
@@ -28,13 +29,20 @@ struct GBindDataType
 	GScopedInterface<IMetaTypedItem> typeItem;
 };
 
+class GScriptUserData;
 
 class GScriptBindingParam
 {
+private:
+	typedef std::vector<GScriptUserData *> UserListType;
+
 public:
-	GScriptBindingParam(IMetaService * service, const GScriptConfig & config, GMetaMap * metaMap) : service(service), config(config), metaMap(metaMap) {
+	GScriptBindingParam(IMetaService * service, const GScriptConfig & config, GMetaMap * metaMap)
+		: service(service), config(config), metaMap(metaMap) {
 		this->service->addReference();
 	}
+
+	~GScriptBindingParam();
 
 	IMetaService * getService() const {
 		return this->service.get();
@@ -48,10 +56,14 @@ public:
 		return this->metaMap;
 	}
 
+	void addUserData(GScriptUserData * userData);
+	void removeUserData(GScriptUserData * userData);
+
 private:
 	GScopedInterface<IMetaService> service;
 	const GScriptConfig & config;
 	GMetaMap * metaMap;
+	GScopedPointer<UserListType> userDataList;
 };
 
 enum GScriptUserDataType {
