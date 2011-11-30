@@ -245,11 +245,11 @@ void * G_API_CC ImplScriptObject::getObject(IScriptName * objectName)
 	LEAVE_BINDING_API(return NULL)
 }
 
-IMetaMethod * G_API_CC ImplScriptObject::getMethod(IScriptName * methodName)
+IMetaMethod * G_API_CC ImplScriptObject::getMethod(IScriptName * methodName, void ** outInstance)
 {
 	ENTER_BINDING_API()
 
-	return this->scriptObject->getMethod(unwrapScriptName(methodName));
+	return this->scriptObject->getMethod(unwrapScriptName(methodName), outInstance);
 
 	LEAVE_BINDING_API(return NULL)
 }
@@ -268,6 +268,21 @@ IScriptObject * G_API_CC ImplScriptObject::createScriptObject(IScriptName * name
 	ENTER_BINDING_API()
 
 	GScriptObject * obj = this->scriptObject->createScriptObject(unwrapScriptName(name));
+	if(obj == NULL) {
+		return NULL;
+	}
+	else {
+		return new ImplScriptObject(obj);
+	}
+
+	LEAVE_BINDING_API(return NULL)
+}
+
+IScriptObject * G_API_CC ImplScriptObject::getScriptObject(IScriptName * name)
+{
+	ENTER_BINDING_API()
+
+	GScriptObject * obj = this->scriptObject->getScriptObject(unwrapScriptName(name));
 	if(obj == NULL) {
 		return NULL;
 	}

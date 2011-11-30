@@ -100,10 +100,11 @@ protected:
 	virtual void G_API_CC getFundamental(GVariantData * outResult, IScriptName * name);
 	virtual char * G_API_CC getString(IScriptName * stringName, IMemoryAllocator * allocator);
 	virtual void * G_API_CC getObject(IScriptName * objectName);
-	virtual IMetaMethod * G_API_CC getMethod(IScriptName * methodName);
+	virtual IMetaMethod * G_API_CC getMethod(IScriptName * methodName, void ** outInstance);
 	virtual IMetaList * G_API_CC getMethodList(IScriptName * methodName);
 
 	virtual IScriptObject * G_API_CC createScriptObject(IScriptName * name);
+	virtual IScriptObject * G_API_CC getScriptObject(IScriptName * name);
 
 	virtual void G_API_CC invoke(GMetaVarData * outResult, IScriptName * name, const GMetaVarData * params, uint32_t paramCount);
 	virtual void G_API_CC invokeIndirectly(GMetaVarData * outResult, IScriptName * name, GMetaVarData const * const * params, uint32_t paramCount);

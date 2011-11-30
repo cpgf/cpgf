@@ -51,7 +51,7 @@ struct IScriptObject : public IExtendObject
 	virtual void G_API_CC getFundamental(GVariantData * outResult, IScriptName * name) = 0;
 	virtual char * G_API_CC getString(IScriptName * stringName, IMemoryAllocator * allocator) = 0;
 	virtual void * G_API_CC getObject(IScriptName * objectName) = 0;
-	virtual IMetaMethod * G_API_CC getMethod(IScriptName * methodName) = 0;
+	virtual IMetaMethod * G_API_CC getMethod(IScriptName * methodName, void ** outInstance) = 0;
 	virtual IMetaList * G_API_CC getMethodList(IScriptName * methodName) = 0;
 	
 	virtual IScriptName * G_API_CC createName(const char * name) = 0;
@@ -60,6 +60,7 @@ struct IScriptObject : public IExtendObject
 	virtual uint32_t G_API_CC getType(IScriptName * name, IMetaTypedItem ** outMetaTypeItem) = 0;
 
 	virtual IScriptObject * G_API_CC createScriptObject(IScriptName * name) = 0;
+	virtual IScriptObject * G_API_CC getScriptObject(IScriptName * name) = 0;
 	
 	virtual void G_API_CC invoke(GMetaVarData * outResult, IScriptName * name, const GMetaVarData * params, uint32_t paramCount) = 0;
 	virtual void G_API_CC invokeIndirectly(GMetaVarData * outResult, IScriptName * name, GMetaVarData const * const * params, uint32_t paramCount) = 0;

@@ -1,3 +1,6 @@
+New version
+	Add: second parameter "void ** outInstance" to function GScriptObject::getMethod
+
 2011-11-27 version 1.0.1
 	Refactored Lua binding, using better and faster algorithm to travel for data and methods.
 	Distinguish static and member data access in Lua binding.

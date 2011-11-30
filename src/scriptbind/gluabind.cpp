@@ -1203,13 +1203,47 @@ GScriptObject * GLuaScriptObject::createScriptObject(const GScriptName & name)
 	
 	GLuaScopeGuard scopeGuard(this);
 
-	lua_newtable(this->implement->luaState);
+	scopeGuard.get(name);
+
+	if(lua_isnil(this->implement->luaState, -1)) {
+		lua_pop(this->implement->luaState, 1);
+		lua_newtable(this->implement->luaState);
+		scopeGuard.set(name);
+	}
+	else {
+		if(isValidMetaTable(this->implement->luaState, -1)) {
+			lua_pop(this->implement->luaState, 1);
+			return NULL;
+		}
+	}
+
+	GLuaScriptObject * binding = new GLuaScriptObject(*this);
+	binding->owner = this;
+	binding->name = name.getName();
+	
+	return binding;
+
+	LEAVE_LUA(this->implement->luaState, return NULL)
+}
+
+GScriptObject * GLuaScriptObject::getScriptObject(const GScriptName & name)
+{
+	ENTER_LUA()
+	
+	GLuaScopeGuard scopeGuard(this);
 
 	scopeGuard.get(name);
 
 	if(lua_isnil(this->implement->luaState, -1)) {
 		lua_pop(this->implement->luaState, 1);
-		scopeGuard.set(name);
+		
+		return NULL;
+	}
+
+	if(isValidMetaTable(this->implement->luaState, -1)) {
+		lua_pop(this->implement->luaState, 1);
+		
+		return NULL;
 	}
 
 	GLuaScriptObject * binding = new GLuaScriptObject(*this);
@@ -1427,18 +1461,26 @@ void * GLuaScriptObject::getObject(const GScriptName & objectName)
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
 
-IMetaMethod * GLuaScriptObject::getMethod(const GScriptName & methodName)
+IMetaMethod * GLuaScriptObject::getMethod(const GScriptName & methodName, void ** outInstance)
 {
 	ENTER_LUA()
 
 	GLuaScopeGuard scopeGuard(this);
 
 	scopeGuard.get(methodName);
+	
+	if(outInstance != NULL) {
+		*outInstance = NULL;
+	}
 
 	if(isValidMetaTable(this->implement->luaState, -1)) {
 		void * userData = lua_touserdata(this->implement->luaState, -1);
 		if(static_cast<GScriptUserData *>(userData)->getType() == udtMethod) {
 			GMethodUserData * methodData = static_cast<GMethodUserData *>(userData);
+
+			if(outInstance != NULL) {
+				*outInstance = methodData->instance;
+			}
 
 			IMetaMethod * metaMethod = methodData->method;
 			metaMethod->addReference();

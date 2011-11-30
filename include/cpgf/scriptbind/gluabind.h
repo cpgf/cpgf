@@ -40,7 +40,7 @@ public:
 	virtual GVariant getFundamental(const GScriptName & name);
 	virtual std::string getString(const GScriptName & stringName);
 	virtual void * getObject(const GScriptName & objectName);
-	virtual IMetaMethod * getMethod(const GScriptName & methodName);
+	virtual IMetaMethod * getMethod(const GScriptName & methodName, void ** outInstance);
 	virtual IMetaList * getMethodList(const GScriptName & methodName);
 	
 	virtual bool cacheName(GScriptName * name);
@@ -48,6 +48,7 @@ public:
 	virtual GScriptDataType getType(const GScriptName & name, IMetaTypedItem ** outMetaTypeItem);
 
 	virtual GScriptObject * createScriptObject(const GScriptName & name);
+	virtual GScriptObject * getScriptObject(const GScriptName & name);
 	
 	virtual GMetaVariant invoke(const GScriptName & name, const GMetaVariant * params, size_t paramCount);
 	virtual GMetaVariant invokeIndirectly(const GScriptName & name, GMetaVariant const * const * params, size_t paramCount);

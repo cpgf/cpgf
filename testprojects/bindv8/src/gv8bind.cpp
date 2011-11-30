@@ -838,13 +838,9 @@ cout << "WEAK FREE!!!!!!" << endl;
 
 		Handle<FunctionTemplate> functionTemplate = FunctionTemplate::New(objectConstructor, data);
 		functionTemplate->SetClassName(String::New(name.getName()));
-//data.Dispose();
 
 		Local<ObjectTemplate> instanceTemplate = functionTemplate->InstanceTemplate();
 		instanceTemplate->SetInternalFieldCount(1);
-
-//		Local<ObjectTemplate> prototypeTemplate = functionTemplate->PrototypeTemplate();
-//		prototypeTemplate->SetNamedPropertyHandler(&namedMemberGetter, &namedMemberSetter);
 
 		instanceTemplate->SetNamedPropertyHandler(&namedMemberGetter, &namedMemberSetter);
 
@@ -979,6 +975,30 @@ GScriptObject * GV8ScriptObject::createScriptObject(const GScriptName & name)
 	binding->name = name.getName();
 
 	return binding;
+
+	LEAVE_V8(return NULL)
+}
+
+GScriptObject * GV8ScriptObject::getScriptObject(const GScriptName & name)
+{
+	using namespace v8;
+
+	ENTER_V8()
+
+	v8::HandleScope handleScope;
+	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
+
+	Local<Value> value = localObject->Get(String::New(name.getName()));
+	if((value->IsObject() || value->IsFunction()) && !isValidObject(value)) {
+		GV8ScriptObject * binding = new GV8ScriptObject(*this, Local<Object>::Cast(value));
+		binding->owner = this;
+		binding->name = name.getName();
+
+		return binding;
+	}
+	else {
+		return NULL;
+	}
 
 	LEAVE_V8(return NULL)
 }
@@ -1189,8 +1209,12 @@ void * GV8ScriptObject::getObject(const GScriptName & objectName)
 	LEAVE_V8(return NULL)
 }
 
-IMetaMethod * GV8ScriptObject::getMethod(const GScriptName & methodName)
+IMetaMethod * GV8ScriptObject::getMethod(const GScriptName & methodName, void ** outInstance)
 {
+	if(outInstance != NULL) {
+		*outInstance = NULL;
+	}
+
 	return NULL;
 }
 
