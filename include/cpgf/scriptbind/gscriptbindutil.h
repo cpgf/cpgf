@@ -19,15 +19,14 @@ namespace cpgf {
 	GPP_REPEAT_3(N, DEF_LOAD_PARAM_HELPER_API, GPP_EMPTY())
 
 #define DEF_CALL_HELPER(N, unused) \
-	GMetaVariant invokeScriptFunction(GScriptObject * scriptObject, const GScriptName & name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
+	GMetaVariant invokeScriptFunction(GScriptObject * scriptObject, const char * name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
 		return scriptObject->invokeIndirectly(name, params, N); \
 	} \
-	GMetaVariant invokeScriptFunction(IScriptObject * scriptObject, const GScriptName & name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
+	GMetaVariant invokeScriptFunction(IScriptObject * scriptObject, const char * name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
 		DEF_LOAD_PARAM_API(N) \
 		GMetaVarData result; \
-		GScopedInterface<IScriptName> scriptName(scriptObject->createName(name.getName())); \
-		scriptObject->invoke(&result, scriptName.get(), params, N); \
+		scriptObject->invoke(&result, name, params, N); \
 		return GMetaVariant(result); \
 	}
 

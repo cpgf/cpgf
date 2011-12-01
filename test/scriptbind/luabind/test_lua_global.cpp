@@ -21,13 +21,11 @@ GTEST(global)
 	dataApi->x = 10;
 	dataApi->name = "abc";
 
-	GScopedInterface<IScriptName> scriptName;
 	GScopedInterface<IScriptObject> bindingApi(context->getBindingApi());
 
 	context->getBindingLib()->bindObject("data", dataLib.get(), metaClass.get(), false);
 	
-	scriptName.reset(bindingApi->createName("data"));
-	bindingApi->bindObject(scriptName.get(), dataApi.get(), metaClass.get(), false);
+	bindingApi->bindObject("data", dataApi.get(), metaClass.get(), false);
 	
 	QASSERT(data.x == 10)
 	QASSERT(data.name == "abc")
@@ -37,8 +35,7 @@ GTEST(global)
 	GEQUAL(dataApi->x, 11);
 	
 	context->getBindingLib()->nullifyValue("data");
-	scriptName.reset(bindingApi->createName("data"));
-	bindingApi->nullifyValue(scriptName.get());
+	bindingApi->nullifyValue("data");
 	QASSERT(data == nil)
 }
 

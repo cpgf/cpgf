@@ -8,7 +8,8 @@
 
 namespace testscript {
 
-void bindClass(cpgf::GScriptObject * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
+template <typename T>
+void bindClass(T * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
 {
 	using namespace cpgf;
 	
@@ -18,19 +19,8 @@ void bindClass(cpgf::GScriptObject * script, cpgf::IMetaService * service, const
 }
 
 
-void bindClass(cpgf::IScriptObject * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
-{
-	using namespace cpgf;
-	
-	GScopedInterface<IMetaClass> metaClass(service->findClassByName(metaName));
-	
-	GScopedInterface<IScriptName> scriptName;
-
-	scriptName.reset(script->createName(bindName));
-	script->bindClass(scriptName.get(), metaClass.get());
-}
-
-void bindMethod(cpgf::GScriptObject * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
+template <typename T>
+void bindMethod(T * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
 {
 	using namespace cpgf;
 	
@@ -42,21 +32,8 @@ void bindMethod(cpgf::GScriptObject * script, cpgf::IMetaService * service, cons
 }
 
 
-void bindMethod(cpgf::IScriptObject * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
-{
-	using namespace cpgf;
-	
-	GScopedInterface<IMetaModule> module(service->getModuleAt(0));
-	GScopedInterface<IMetaClass> metaClass(module->getGlobalMetaClass());
-	GScopedInterface<IMetaMethod> method(metaClass->getMethod(metaName));
-	
-	GScopedInterface<IScriptName> scriptName;
-
-	scriptName.reset(script->createName(bindName));
-	script->bindMethod(scriptName.get(), NULL, method.get());
-}
-
-void bindEnum(cpgf::GScriptObject * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
+template <typename T>
+void bindEnum(T * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
 {
 	using namespace cpgf;
 	
@@ -67,20 +44,6 @@ void bindEnum(cpgf::GScriptObject * script, cpgf::IMetaService * service, const 
 	script->bindEnum(bindName, metaEnum.get());
 }
 
-
-void bindEnum(cpgf::IScriptObject * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
-{
-	using namespace cpgf;
-	
-	GScopedInterface<IMetaModule> module(service->getModuleAt(0));
-	GScopedInterface<IMetaClass> metaClass(module->getGlobalMetaClass());
-	GScopedInterface<IMetaEnum> metaEnum(metaClass->getEnum(metaName));
-	
-	GScopedInterface<IScriptName> scriptName;
-
-	scriptName.reset(script->createName(bindName));
-	script->bindEnum(scriptName.get(), metaEnum.get());
-}
 
 template <typename T>
 void bindBasicClass(T * script, cpgf::IMetaService * service)
@@ -123,21 +86,16 @@ void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
 
 	bindBasicClass(script, service);
 
-	GScopedInterface<IScriptName> scriptName;
-
 	GVariant v;
 
 	v = Magic1;
-	scriptName.reset(script->createName("Magic1"));
-	script->bindFundamental(scriptName.get(), &v.data);
+	script->bindFundamental("Magic1", &v.data);
 	
 	v = Magic2;
-	scriptName.reset(script->createName("Magic2"));
-	script->bindFundamental(scriptName.get(), &v.data);
+	script->bindFundamental("Magic2", &v.data);
 	
 	v = Magic3;
-	scriptName.reset(script->createName("Magic3"));
-	script->bindFundamental(scriptName.get(), &v.data);
+	script->bindFundamental("Magic3", &v.data);
 
 	bindMethod(script, service, "scriptAssert", "scriptAssert");
 	bindEnum(script, service, "testscript::TestEnum", "TestEnum");

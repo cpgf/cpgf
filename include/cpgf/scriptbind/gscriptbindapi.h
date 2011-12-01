@@ -24,50 +24,41 @@ struct IScriptConfig : public IObject
 };
 
 
-struct IScriptName : public IObject
-{
-	virtual const char * G_API_CC getName() = 0;
-};
-
-
 struct IScriptObject : public IExtendObject
 {
 	virtual IScriptConfig * G_API_CC getConfig() = 0;
 	virtual IScriptObject * G_API_CC getOwner() = 0;
 	virtual gapi_bool G_API_CC isGlobal() = 0;
 
-	virtual void G_API_CC bindClass(IScriptName * name, IMetaClass * metaClass) = 0;
-	virtual void G_API_CC bindEnum(IScriptName * name, IMetaEnum * metaEnum) = 0;
+	virtual void G_API_CC bindClass(const char * name, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC bindEnum(const char * name, IMetaEnum * metaEnum) = 0;
 
-	virtual void G_API_CC bindFundamental(IScriptName * name, const GVariantData * value) = 0;
-	virtual void G_API_CC bindString(IScriptName * stringName, const char * s) = 0;
-	virtual void G_API_CC bindObject(IScriptName * objectName, void * instance, IMetaClass * type, gapi_bool transferOwnership) = 0;
-	virtual void G_API_CC bindMethod(IScriptName * name, void * instance, IMetaMethod * method) = 0;
-	virtual void G_API_CC bindMethodList(IScriptName * name, IMetaList * methodList) = 0;
+	virtual void G_API_CC bindFundamental(const char * name, const GVariantData * value) = 0;
+	virtual void G_API_CC bindString(const char * stringName, const char * s) = 0;
+	virtual void G_API_CC bindObject(const char * objectName, void * instance, IMetaClass * type, gapi_bool transferOwnership) = 0;
+	virtual void G_API_CC bindMethod(const char * name, void * instance, IMetaMethod * method) = 0;
+	virtual void G_API_CC bindMethodList(const char * name, IMetaList * methodList) = 0;
 	
-	virtual IMetaClass * G_API_CC getClass(IScriptName * className) = 0;
-	virtual IMetaEnum * G_API_CC getEnum(IScriptName * enumName) = 0;
+	virtual IMetaClass * G_API_CC getClass(const char * className) = 0;
+	virtual IMetaEnum * G_API_CC getEnum(const char * enumName) = 0;
 	
-	virtual void G_API_CC getFundamental(GVariantData * outResult, IScriptName * name) = 0;
-	virtual char * G_API_CC getString(IScriptName * stringName, IMemoryAllocator * allocator) = 0;
-	virtual void * G_API_CC getObject(IScriptName * objectName) = 0;
-	virtual IMetaMethod * G_API_CC getMethod(IScriptName * methodName, void ** outInstance) = 0;
-	virtual IMetaList * G_API_CC getMethodList(IScriptName * methodName) = 0;
+	virtual void G_API_CC getFundamental(GVariantData * outResult, const char * name) = 0;
+	virtual char * G_API_CC getString(const char * stringName, IMemoryAllocator * allocator) = 0;
+	virtual void * G_API_CC getObject(const char * objectName) = 0;
+	virtual IMetaMethod * G_API_CC getMethod(const char * methodName, void ** outInstance) = 0;
+	virtual IMetaList * G_API_CC getMethodList(const char * methodName) = 0;
 	
-	virtual IScriptName * G_API_CC createName(const char * name) = 0;
-	virtual gapi_bool G_API_CC cacheName(IScriptName * name) = 0;
+	virtual uint32_t G_API_CC getType(const char * name, IMetaTypedItem ** outMetaTypeItem) = 0;
 
-	virtual uint32_t G_API_CC getType(IScriptName * name, IMetaTypedItem ** outMetaTypeItem) = 0;
-
-	virtual IScriptObject * G_API_CC createScriptObject(IScriptName * name) = 0;
-	virtual IScriptObject * G_API_CC getScriptObject(IScriptName * name) = 0;
+	virtual IScriptObject * G_API_CC createScriptObject(const char * name) = 0;
+	virtual IScriptObject * G_API_CC getScriptObject(const char * name) = 0;
 	
-	virtual void G_API_CC invoke(GMetaVarData * outResult, IScriptName * name, const GMetaVarData * params, uint32_t paramCount) = 0;
-	virtual void G_API_CC invokeIndirectly(GMetaVarData * outResult, IScriptName * name, GMetaVarData const * const * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invoke(GMetaVarData * outResult, const char * name, const GMetaVarData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeIndirectly(GMetaVarData * outResult, const char * name, GMetaVarData const * const * params, uint32_t paramCount) = 0;
 
-	virtual void G_API_CC assignValue(IScriptName * fromName, IScriptName * toName) = 0;
-	virtual gapi_bool G_API_CC valueIsNull(IScriptName * name) = 0;
-	virtual void G_API_CC nullifyValue(IScriptName * name) = 0;
+	virtual void G_API_CC assignValue(const char * fromName, const char * toName) = 0;
+	virtual gapi_bool G_API_CC valueIsNull(const char * name) = 0;
+	virtual void G_API_CC nullifyValue(const char * name) = 0;
 
 };
 

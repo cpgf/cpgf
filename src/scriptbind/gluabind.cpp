@@ -1014,31 +1014,14 @@ public:
 };
 
 
-class GLuaScriptNameData : public GScriptNameData
-{
-public:
-	GLuaScriptNameData(GLuaScriptObject * table, const char * name);
-	virtual ~GLuaScriptNameData();
-
-	void set();
-	void get();
-
-	virtual bool isAvailable() const;
-
-private:
-	int luaReference;
-	GLuaScriptObject * table;
-};
-
-
 class GLuaScopeGuard
 {
 public:
 	GLuaScopeGuard(GScriptObject * scope);
 	~GLuaScopeGuard();
 	
-	void set(const GScriptName & name);
-	void get(const GScriptName & name);
+	void set(const char * name);
+	void get(const char * name);
 
 private:
 	GLuaScriptObject * scope;
@@ -1063,73 +1046,24 @@ GLuaScopeGuard::~GLuaScopeGuard()
 	}
 }
 
-void GLuaScopeGuard::set(const GScriptName & name)
+void GLuaScopeGuard::set(const char * name)
 {
 	if(scope->isGlobal()) {
-		if(name.hasData()) {
-			gdynamic_cast<GLuaScriptNameData *>(name.getData())->set();
-		}
-		else {
-			lua_setglobal(this->scope->implement->luaState, name.getName());
-		}
+		lua_setglobal(this->scope->implement->luaState, name);
 	}
 	else {
-		if(name.hasData()) {
-			gdynamic_cast<GLuaScriptNameData *>(name.getData())->set();
-		}
-		else {
-			lua_setfield(this->scope->implement->luaState, -2, name.getName());
-		}
+		lua_setfield(this->scope->implement->luaState, -2, name);
 	}
 }
 	
-void GLuaScopeGuard::get(const GScriptName & name)
+void GLuaScopeGuard::get(const char * name)
 {
 	if(scope->isGlobal()) {
-		if(name.hasData()) {
-			gdynamic_cast<GLuaScriptNameData *>(name.getData())->get();
-		}
-		else {
-			lua_getglobal(this->scope->implement->luaState, name.getName());
-		}
+		lua_getglobal(this->scope->implement->luaState, name);
 	}
 	else {
-		if(name.hasData()) {
-			gdynamic_cast<GLuaScriptNameData *>(name.getData())->get();
-		}
-		else {
-			lua_getfield(this->scope->implement->luaState, -1, name.getName());
-		}
+		lua_getfield(this->scope->implement->luaState, -1, name);
 	}
-}
-
-
-GLuaScriptNameData::GLuaScriptNameData(GLuaScriptObject * table, const char * name) : table(table)
-{
-	GLuaScopeGuard scopeGuard(table);
-	scopeGuard.get(name);
-	this->luaReference = luaL_ref(table->implement->luaState, LUA_REGISTRYINDEX);
-}
-
-GLuaScriptNameData::~GLuaScriptNameData()
-{
-	GLuaScopeGuard scopeGuard(this->table);
-	luaL_unref(table->implement->luaState, LUA_REGISTRYINDEX, this->luaReference);
-}
-
-void GLuaScriptNameData::set()
-{
-	lua_rawseti(table->implement->luaState, LUA_REGISTRYINDEX, this->luaReference);
-}
-
-void GLuaScriptNameData::get()
-{
-	lua_rawgeti(table->implement->luaState, LUA_REGISTRYINDEX, this->luaReference);
-}
-
-bool GLuaScriptNameData::isAvailable() const
-{
-	return this->luaReference != LUA_REFNIL;
 }
 
 
@@ -1149,16 +1083,7 @@ GLuaScriptObject::~GLuaScriptObject()
 {
 }
 
-bool GLuaScriptObject::cacheName(GScriptName * name)
-{
-	GLuaScriptNameData * data = new GLuaScriptNameData(this, name->getName());
-	*name = GScriptName(name->getName(), data);
-	data->release();
-
-	return name->hasData();
-}
-
-GScriptDataType GLuaScriptObject::getType(const GScriptName & name, IMetaTypedItem ** outMetaTypeItem)
+GScriptDataType GLuaScriptObject::getType(const char * name, IMetaTypedItem ** outMetaTypeItem)
 {
 	ENTER_LUA()
 	
@@ -1171,7 +1096,7 @@ GScriptDataType GLuaScriptObject::getType(const GScriptName & name, IMetaTypedIt
 	LEAVE_LUA(this->implement->luaState, return sdtUnknown)
 }
 
-void GLuaScriptObject::bindClass(const GScriptName & name, IMetaClass * metaClass)
+void GLuaScriptObject::bindClass(const char * name, IMetaClass * metaClass)
 {
 	ENTER_LUA()
 
@@ -1184,7 +1109,7 @@ void GLuaScriptObject::bindClass(const GScriptName & name, IMetaClass * metaClas
 	LEAVE_LUA(this->implement->luaState)
 }
 
-void GLuaScriptObject::bindEnum(const GScriptName & name, IMetaEnum * metaEnum)
+void GLuaScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 {
 	ENTER_LUA()
 
@@ -1197,7 +1122,7 @@ void GLuaScriptObject::bindEnum(const GScriptName & name, IMetaEnum * metaEnum)
 	LEAVE_LUA(this->implement->luaState)
 }
 
-GScriptObject * GLuaScriptObject::createScriptObject(const GScriptName & name)
+GScriptObject * GLuaScriptObject::createScriptObject(const char * name)
 {
 	ENTER_LUA()
 	
@@ -1219,14 +1144,14 @@ GScriptObject * GLuaScriptObject::createScriptObject(const GScriptName & name)
 
 	GLuaScriptObject * binding = new GLuaScriptObject(*this);
 	binding->owner = this;
-	binding->name = name.getName();
+	binding->name = name;
 	
 	return binding;
 
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
 
-GScriptObject * GLuaScriptObject::getScriptObject(const GScriptName & name)
+GScriptObject * GLuaScriptObject::getScriptObject(const char * name)
 {
 	ENTER_LUA()
 	
@@ -1248,14 +1173,14 @@ GScriptObject * GLuaScriptObject::getScriptObject(const GScriptName & name)
 
 	GLuaScriptObject * binding = new GLuaScriptObject(*this);
 	binding->owner = this;
-	binding->name = name.getName();
+	binding->name = name;
 	
 	return binding;
 
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
 
-GMetaVariant GLuaScriptObject::invoke(const GScriptName & name, const GMetaVariant * params, size_t paramCount)
+GMetaVariant GLuaScriptObject::invoke(const char * name, const GMetaVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1268,7 +1193,7 @@ GMetaVariant GLuaScriptObject::invoke(const GScriptName & name, const GMetaVaria
 	return this->invokeIndirectly(name, variantPointers, paramCount);
 }
 
-GMetaVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaVariant const * const * params, size_t paramCount)
+GMetaVariant GLuaScriptObject::invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1287,18 +1212,18 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaV
 					lua_pop(this->implement->luaState, static_cast<int>(i) - 1);
 				}
 
-				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name.getName());
+				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
 			}
 		}
 
 		int error = lua_pcall(this->implement->luaState, static_cast<int>(paramCount), LUA_MULTRET, 0);
 		if(error) {
-			raiseCoreException(Error_ScriptBinding_ScriptFunctionReturnError, name.getName(), lua_tostring(this->implement->luaState, -1));
+			raiseCoreException(Error_ScriptBinding_ScriptFunctionReturnError, name, lua_tostring(this->implement->luaState, -1));
 		}
 		else {
 			int resultCount = lua_gettop(this->implement->luaState) - top;
 			if(resultCount > 1) {
-				raiseCoreException(Error_ScriptBinding_CantReturnMultipleValue, name.getName());
+				raiseCoreException(Error_ScriptBinding_CantReturnMultipleValue, name);
 			}
 			else {
 				if(resultCount > 0) {
@@ -1316,7 +1241,7 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const GScriptName & name, GMetaV
 	LEAVE_LUA(this->implement->luaState, return GMetaVariant())
 }
 
-void GLuaScriptObject::bindFundamental(const GScriptName & name, const GVariant & value)
+void GLuaScriptObject::bindFundamental(const char * name, const GVariant & value)
 {
 	GASSERT_MSG(vtIsFundamental(vtGetType(value.data.typeData)), "Only fundamental value can be bound via bindFundamental");
 
@@ -1333,7 +1258,7 @@ void GLuaScriptObject::bindFundamental(const GScriptName & name, const GVariant 
 	LEAVE_LUA(this->implement->luaState)
 }
 
-void GLuaScriptObject::bindString(const GScriptName & stringName, const char * s)
+void GLuaScriptObject::bindString(const char * stringName, const char * s)
 {
 	ENTER_LUA()
 
@@ -1346,7 +1271,7 @@ void GLuaScriptObject::bindString(const GScriptName & stringName, const char * s
 	LEAVE_LUA(this->implement->luaState)
 }
 
-void GLuaScriptObject::bindObject(const GScriptName & objectName, void * instance, IMetaClass * type, bool transferOwnership)
+void GLuaScriptObject::bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership)
 {
 	ENTER_LUA()
 
@@ -1359,7 +1284,7 @@ void GLuaScriptObject::bindObject(const GScriptName & objectName, void * instanc
 	LEAVE_LUA(this->implement->luaState)
 }
 
-void GLuaScriptObject::bindMethod(const GScriptName & name, void * instance, IMetaMethod * method)
+void GLuaScriptObject::bindMethod(const char * name, void * instance, IMetaMethod * method)
 {
 	ENTER_LUA()
 
@@ -1372,7 +1297,7 @@ void GLuaScriptObject::bindMethod(const GScriptName & name, void * instance, IMe
 	LEAVE_LUA(this->implement->luaState)
 }
 
-void GLuaScriptObject::bindMethodList(const GScriptName & name, IMetaList * methodList)
+void GLuaScriptObject::bindMethodList(const char * name, IMetaList * methodList)
 {
 	ENTER_LUA()
 
@@ -1385,7 +1310,7 @@ void GLuaScriptObject::bindMethodList(const GScriptName & name, IMetaList * meth
 	LEAVE_LUA(this->implement->luaState)
 }
 
-IMetaClass * GLuaScriptObject::getClass(const GScriptName & className)
+IMetaClass * GLuaScriptObject::getClass(const char * className)
 {
 	IMetaTypedItem * typedItem = NULL;
 
@@ -1398,7 +1323,7 @@ IMetaClass * GLuaScriptObject::getClass(const GScriptName & className)
 	return NULL;
 }
 
-IMetaEnum * GLuaScriptObject::getEnum(const GScriptName & enumName)
+IMetaEnum * GLuaScriptObject::getEnum(const char * enumName)
 {
 	ENTER_LUA()
 
@@ -1422,7 +1347,7 @@ IMetaEnum * GLuaScriptObject::getEnum(const GScriptName & enumName)
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
 
-GVariant GLuaScriptObject::getFundamental(const GScriptName & name)
+GVariant GLuaScriptObject::getFundamental(const char * name)
 {
 	ENTER_LUA()
 
@@ -1435,7 +1360,7 @@ GVariant GLuaScriptObject::getFundamental(const GScriptName & name)
 	LEAVE_LUA(this->implement->luaState, return GVariant())
 }
 
-std::string GLuaScriptObject::getString(const GScriptName & stringName)
+std::string GLuaScriptObject::getString(const char * stringName)
 {
 	ENTER_LUA()
 
@@ -1448,7 +1373,7 @@ std::string GLuaScriptObject::getString(const GScriptName & stringName)
 	LEAVE_LUA(this->implement->luaState, return "")
 }
 
-void * GLuaScriptObject::getObject(const GScriptName & objectName)
+void * GLuaScriptObject::getObject(const char * objectName)
 {
 	ENTER_LUA()
 
@@ -1461,7 +1386,7 @@ void * GLuaScriptObject::getObject(const GScriptName & objectName)
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
 
-IMetaMethod * GLuaScriptObject::getMethod(const GScriptName & methodName, void ** outInstance)
+IMetaMethod * GLuaScriptObject::getMethod(const char * methodName, void ** outInstance)
 {
 	ENTER_LUA()
 
@@ -1493,7 +1418,7 @@ IMetaMethod * GLuaScriptObject::getMethod(const GScriptName & methodName, void *
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
 
-IMetaList * GLuaScriptObject::getMethodList(const GScriptName & methodName)
+IMetaList * GLuaScriptObject::getMethodList(const char * methodName)
 {
 	ENTER_LUA()
 
@@ -1517,7 +1442,7 @@ IMetaList * GLuaScriptObject::getMethodList(const GScriptName & methodName)
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
 
-void GLuaScriptObject::assignValue(const GScriptName & fromName, const GScriptName & toName)
+void GLuaScriptObject::assignValue(const char * fromName, const char * toName)
 {
 	ENTER_LUA()
 
@@ -1529,7 +1454,7 @@ void GLuaScriptObject::assignValue(const GScriptName & fromName, const GScriptNa
 	LEAVE_LUA(this->implement->luaState)
 }
 
-bool GLuaScriptObject::valueIsNull(const GScriptName & name)
+bool GLuaScriptObject::valueIsNull(const char * name)
 {
 	ENTER_LUA()
 
@@ -1542,7 +1467,7 @@ bool GLuaScriptObject::valueIsNull(const GScriptName & name)
 	LEAVE_LUA(this->implement->luaState, return false)
 }
 
-void GLuaScriptObject::nullifyValue(const GScriptName & name)
+void GLuaScriptObject::nullifyValue(const char * name)
 {
 	ENTER_LUA()
 

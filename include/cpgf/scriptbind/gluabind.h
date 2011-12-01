@@ -25,37 +25,35 @@ public:
 	GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
 	virtual ~GLuaScriptObject();
 
-	virtual void bindClass(const GScriptName & name, IMetaClass * metaClass);
-	virtual void bindEnum(const GScriptName & name, IMetaEnum * metaEnum);
+	virtual void bindClass(const char * name, IMetaClass * metaClass);
+	virtual void bindEnum(const char * name, IMetaEnum * metaEnum);
 
-	virtual void bindFundamental(const GScriptName & name, const GVariant & value);
-	virtual void bindString(const GScriptName & stringName, const char * s);
-	virtual void bindObject(const GScriptName & objectName, void * instance, IMetaClass * type, bool transferOwnership);
-	virtual void bindMethod(const GScriptName & name, void * instance, IMetaMethod * method);
-	virtual void bindMethodList(const GScriptName & name, IMetaList * methodList);
+	virtual void bindFundamental(const char * name, const GVariant & value);
+	virtual void bindString(const char * stringName, const char * s);
+	virtual void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership);
+	virtual void bindMethod(const char * name, void * instance, IMetaMethod * method);
+	virtual void bindMethodList(const char * name, IMetaList * methodList);
 
-	virtual IMetaClass * getClass(const GScriptName & className);
-	virtual IMetaEnum * getEnum(const GScriptName & enumName);
+	virtual IMetaClass * getClass(const char * className);
+	virtual IMetaEnum * getEnum(const char * enumName);
 
-	virtual GVariant getFundamental(const GScriptName & name);
-	virtual std::string getString(const GScriptName & stringName);
-	virtual void * getObject(const GScriptName & objectName);
-	virtual IMetaMethod * getMethod(const GScriptName & methodName, void ** outInstance);
-	virtual IMetaList * getMethodList(const GScriptName & methodName);
+	virtual GVariant getFundamental(const char * name);
+	virtual std::string getString(const char * stringName);
+	virtual void * getObject(const char * objectName);
+	virtual IMetaMethod * getMethod(const char * methodName, void ** outInstance);
+	virtual IMetaList * getMethodList(const char * methodName);
 	
-	virtual bool cacheName(GScriptName * name);
+	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
 
-	virtual GScriptDataType getType(const GScriptName & name, IMetaTypedItem ** outMetaTypeItem);
-
-	virtual GScriptObject * createScriptObject(const GScriptName & name);
-	virtual GScriptObject * getScriptObject(const GScriptName & name);
+	virtual GScriptObject * createScriptObject(const char * name);
+	virtual GScriptObject * getScriptObject(const char * name);
 	
-	virtual GMetaVariant invoke(const GScriptName & name, const GMetaVariant * params, size_t paramCount);
-	virtual GMetaVariant invokeIndirectly(const GScriptName & name, GMetaVariant const * const * params, size_t paramCount);
+	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount);
+	virtual GMetaVariant invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount);
 
-	virtual void assignValue(const GScriptName & fromName, const GScriptName & toName);
-	virtual bool valueIsNull(const GScriptName & name);
-	virtual void nullifyValue(const GScriptName & name);
+	virtual void assignValue(const char * fromName, const char * toName);
+	virtual bool valueIsNull(const char * name);
+	virtual void nullifyValue(const char * name);
 
 private:
 	GLuaScriptObject(const GLuaScriptObject & other);

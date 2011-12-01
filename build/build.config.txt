@@ -9,7 +9,7 @@ set(HAS_LUA
 
 # 1 to enable V8 binding, 0 to disable
 set(HAS_V8
-	0
+	1
 )
 
 # To enable unit test, change the below folder to UnitTest++.
