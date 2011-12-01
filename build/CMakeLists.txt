@@ -35,38 +35,8 @@ set(TEST_PATH ${ROOT_PATH}/test)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN_PATH})
 
-set(HAS_LUA 1)
-if((not DEFINED LUA_DIR) OR (LUA_DIR STREQUAL ""))
-	set(HAS_LUA 0)
-endif((not DEFINED LUA_DIR) OR (LUA_DIR STREQUAL ""))
 
-if(${HAS_LUA})
-	if(CMAKE_COMPILER_IS_GNUCC)
-		find_file(LUA_LIB
-			NAMES liblua.a
-			PATHS ${LUA_DIR}/src NO_DEFAULT_PATH
-		)
-	endif(CMAKE_COMPILER_IS_GNUCC)
-
-	if(MSVC)
-		find_file(LUA_LIB
-			NAMES lua51.lib
-			PATHS ${LUA_DIR}/src NO_DEFAULT_PATH
-		)
-	endif(MSVC)
-
-	if(${LUA_LIB} STREQUAL "LUA_LIB-NOTFOUND")
-		set(HAS_LUA 0)
-		
-		set(LUA_LIB "")
-
-		message(WARNING "Can't find lua library.")
-	endif(${LUA_LIB} STREQUAL "LUA_LIB-NOTFOUND")
-
-	if(UNIX)
-		set(LUA_LIB ${LUA_LIB} "dl")
-	endif(UNIX)
-endif(${HAS_LUA})
+### build
 
 if(MSVC)
 	add_definitions(-D_SECURE_SCL=0 -D_HAS_ITERATOR_DEBUGGING=0)
@@ -90,6 +60,10 @@ set(SRC_META
 	${SRC_PATH}/gmetareflect.cpp
 	${SRC_PATH}/gmetatype.cpp
 	${SRC_PATH}/gmetatypereg.cpp
+
+	${SRC_PATH}/scriptbind/gbindcommon.cpp
+	${SRC_PATH}/scriptbind/gscriptbind.cpp
+	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
 )
 
 file(GLOB GLOB_SAMPLEREFLECTION ${SAMPLE_REFLECT_PATH}/*.cpp)
@@ -99,21 +73,26 @@ set(SRC_SAMPLEREFLECTION
 	${GLOB_SAMPLEREFLECTION}
 )
 
-set(SRC_LUABIND )
+set(SRC_LUA_BIND )
+set(SRC_V8_BIND )
 
 if(${HAS_LUA})
-	set(SRC_LUABIND
-		${SRC_PATH}/scriptbind/gbindcommon.cpp
-		${SRC_PATH}/scriptbind/gscriptbind.cpp
-		${SRC_PATH}/scriptbind/gscriptbindapi.cpp
+	set(SRC_LUA_BIND
 		${SRC_PATH}/scriptbind/gluabind.cpp
 	)
 endif(${HAS_LUA})
 
+if(${HAS_V8})
+	set(SRC_V8_BIND
+		${SRC_PATH}/scriptbind/gv8bind.cpp
+	)
+endif(${HAS_V8})
+
 set(SRC_LIB
 	${SRC_META}
 	
-	${SRC_LUABIND}
+	${SRC_LUA_BIND}
+	${SRC_V8_BIND}
 )
 
 file(GLOB GLOB_SAMPLELUA ${SAMPLE_BIND_PATH}/luabind/*.cpp)
@@ -127,8 +106,12 @@ set(SRC_SAMPLELUA
 
 include_directories(../include)
 if(${HAS_LUA})
-	include_directories(${LUA_DIR}/src/ ${LUA_DIR}/etc/)
+	include_directories(${LUA_INC})
 endif(${HAS_LUA})
+
+if(${HAS_V8})
+	include_directories(${V8_INC})
+endif(${HAS_V8})
 
 set(LIB_COMPILE_FLAGS " ")
 set(TEST_COMPILE_FLAGS " ")
@@ -191,7 +174,7 @@ endif(${HAS_LUA})
 
 
 
-# unit test
+### unit test
 
 set(HAS_UNITTEST 1)
 if((not DEFINED UNIT_TEST_DIR) OR (UNIT_TEST_DIR STREQUAL ""))
@@ -213,11 +196,12 @@ endif(${HAS_UNITTEST})
 
 if(${HAS_UNITTEST})
 	if(HAS_LUA LESS 1)
-		set(HAS_UNITTEST 0)
-
-		message(STATUS "Can't find Lua for unit test.")
-		message(STATUS "Now unit test will be disabled.")
+		message(WARNING "Can't find Lua for unit test. Unit test will not include Lua binding test.")
 	endif(HAS_LUA LESS 1)
+
+	if(HAS_V8 LESS 1)
+		message(WARNING "Can't find V8 for unit test. Unit test will not include V8 binding test.")
+	endif(HAS_V8 LESS 1)
 endif(${HAS_UNITTEST})
 
 if(${HAS_UNITTEST})
@@ -240,22 +224,32 @@ if(${HAS_UNITTEST})
 	file(GLOB GLOB_TEST_SRC
 		${TEST_PATH}/misc/*.cpp
 		${TEST_PATH}/reflection/*.cpp
-		${TEST_PATH}/scriptbind/*.cpp
-		${TEST_PATH}/scriptbind/luabind/*.cpp
 		${TEST_PATH}/callback/*.cpp
+		${TEST_PATH}/scriptbind/*.cpp
+		${TEST_PATH}/scriptbind/general/*.cpp
 	)
+
+	set(GLOB_TEST_LUA )
+	if(HAS_LUA)
+		file(GLOB GLOB_TEST_LUA
+			${TEST_PATH}/scriptbind/luabind/*.cpp
+		)
+	endif(HAS_LUA)
 
 	set(SRC_TEST_SRC
 		${TEST_PATH}/testmain.cpp
 		
 		${GLOB_TEST_SRC}
+		${GLOB_TEST_LUA}
 		
 		${SRC_LIB}
-		
+
 		${SRC_UNITTEST_FRAMEWORK}
 	)
 
 	include_directories(${UNIT_TEST_DIR}/src)
+
+	add_definitions(-DENABLE_LUA=${HAS_LUA} -DENABLE_V8=${HAS_V8})
 
 	add_executable(
 		${TARGET_UNITTEST}
@@ -263,7 +257,12 @@ if(${HAS_UNITTEST})
 			${SRC_TEST_SRC}
 	)
 
-	target_link_libraries(${TARGET_UNITTEST} ${LUA_LIB})
+	if(HAS_LUA)
+		target_link_libraries(${TARGET_UNITTEST} ${LUA_LIB})
+	endif(HAS_LUA)
+	if(HAS_V8)
+		target_link_libraries(${TARGET_UNITTEST} ${V8_LIB})
+	endif(HAS_V8)
 	
 	set_target_properties(
 		${TARGET_UNITTEST}

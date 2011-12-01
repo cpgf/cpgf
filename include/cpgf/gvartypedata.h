@@ -103,6 +103,7 @@ inline void vtSetPointers(GVarTypeData & data, unsigned int pointers) {
 inline void vtInit(GVarTypeData & data) {
 	data.vt = vtEmpty;
 	data.sizeAndPointers = 0;
+	data.padding = 0;
 }
 
 #include "cpgf/private/gvartypedata_p.h"

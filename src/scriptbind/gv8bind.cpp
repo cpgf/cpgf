@@ -1,13 +1,13 @@
-#include "gv8bind.h"
+#include "cpgf/scriptbind/gv8bind.h"
 #include "cpgf/gmetaclasstraveller.h"
 
-#include "gbindcommon.h"
-#include "gscriptbindapiimpl.h"
+#include "../pinclude/gbindcommon.h"
+#include "../pinclude/gscriptbindapiimpl.h"
 
 // for test
-#include "testscriptbindmetadata.h"
-#include <iostream>
-using namespace std;
+//#include "testscriptbindmetadata.h"
+//#include <iostream>
+//using namespace std;
 
 
 #if defined(_MSC_VER)
@@ -351,7 +351,6 @@ namespace {
 	void weakHandleCallback(v8::Persistent<v8::Value> object, void * parameter)
 	{
 		GScriptUserData * userData = static_cast<GScriptUserData *>(parameter);
-cout << "WEAK FREE!!!!!!" << endl;
 
 		if(userData != NULL) {
 			userData->getParam()->removeUserData(userData);
@@ -397,6 +396,8 @@ cout << "WEAK FREE!!!!!!" << endl;
 	{
 		using namespace v8;
 
+		(void)prop;
+
 		GAccessibleUserData * userData = static_cast<GAccessibleUserData *>(Local<External>::Cast(info.Data())->Value());
 
 		GVariant result = metaGetValue(userData->accessible, userData->instance);
@@ -407,6 +408,8 @@ cout << "WEAK FREE!!!!!!" << endl;
 	void accessibleSet(v8::Local<v8::String> prop, v8::Local<v8::Value> value, const v8::AccessorInfo & info)
 	{
 		using namespace v8;
+
+		(void)prop;
 
 		GAccessibleUserData * userData = static_cast<GAccessibleUserData *>(Local<External>::Cast(info.Data())->Value());
 
@@ -570,6 +573,8 @@ cout << "WEAK FREE!!!!!!" << endl;
 		const char * name, GEnumUserData ** outUserData)
 	{
 		using namespace v8;
+		
+		(void)name;
 
 		GEnumUserData * userData = new GEnumUserData(param, metaEnum);
 		if(outUserData != NULL) {
@@ -904,6 +909,8 @@ GV8ScriptObject::~GV8ScriptObject()
 
 bool GV8ScriptObject::cacheName(GScriptName * name)
 {
+	(void)name;
+
 	return false;
 }
 
@@ -1155,6 +1162,14 @@ IMetaClass * GV8ScriptObject::getClass(const GScriptName & className)
 
 IMetaEnum * GV8ScriptObject::getEnum(const GScriptName & enumName)
 {
+	IMetaTypedItem * typedItem = NULL;
+
+	GScriptDataType sdt = this->getType(enumName, &typedItem);
+	GScopedInterface<IMetaTypedItem> item(typedItem);
+	if(sdt == sdtEnum) {
+		return gdynamic_cast<IMetaEnum *>(item.take());
+	}
+
 	return NULL;
 }
 
@@ -1211,6 +1226,8 @@ void * GV8ScriptObject::getObject(const GScriptName & objectName)
 
 IMetaMethod * GV8ScriptObject::getMethod(const GScriptName & methodName, void ** outInstance)
 {
+	(void)methodName;
+
 	if(outInstance != NULL) {
 		*outInstance = NULL;
 	}
@@ -1291,6 +1308,7 @@ void GV8ScriptObject::nullifyValue(const GScriptName & name)
 } // namespace cpgf
 
 
+#if 0
 
 bool executeString(const char * source, bool print_result = true)
 {
@@ -1404,7 +1422,7 @@ void testBindV8()
 	context.Clear();
 }
 
-
+#endif
 
 
 #if defined(_MSC_VER)

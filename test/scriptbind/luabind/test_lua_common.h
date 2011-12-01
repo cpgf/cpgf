@@ -57,7 +57,7 @@ public:
 		return this->luaStateApi;
 	}
 
-	cpgf::GLuaScriptObject * getBindingLib() const {
+	cpgf::GScriptObject * getBindingLib() const {
 		return this->bindingLib.get();
 	}
 
@@ -112,7 +112,7 @@ private:
 	cpgf::GScopedInterface<cpgf::IMetaService> service;
 	lua_State * luaStateLib;
 	lua_State * luaStateApi;
-	cpgf::GScopedPointer<cpgf::GLuaScriptObject> bindingLib;
+	cpgf::GScopedPointer<cpgf::GScriptObject> bindingLib;
 	cpgf::GScopedInterface<cpgf::IScriptObject> bindingApi;
 	mutable bool printError;
 };
