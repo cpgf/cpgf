@@ -62,6 +62,9 @@ private:
 };
 
 
+IScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
+
+
 } // namespace cpgf
 
 

@@ -4,10 +4,7 @@
 #include "../pinclude/gbindcommon.h"
 #include "../pinclude/gscriptbindapiimpl.h"
 
-// for test
-//#include "testscriptbindmetadata.h"
-//#include <iostream>
-//using namespace std;
+#include <vector>
 
 
 #if defined(_MSC_VER)
@@ -116,6 +113,7 @@ namespace {
 
 		if(object->IsObject() || object->IsFunction()) {
 			v8::Handle<v8::Value> value = Handle<Object>::Cast(object)->GetHiddenValue(v8::String::New(signatureKey));
+return true;
 			return !value.IsEmpty() && value->IsInt32() && value->Int32Value() == signatureValue;
 		}
 		else {
@@ -269,11 +267,9 @@ namespace {
 		return v8::Undefined();
 	}
 
-	void * v8ToObject(GScriptBindingParam * param, v8::Handle<v8::Value> value, GMetaType * outType)
+	void * v8ToObject(v8::Handle<v8::Value> value, GMetaType * outType)
 	{
 		using namespace v8;
-
-		(void)param;
 
 		if(isValidObject(value)) {
 			GScriptUserData * userData = static_cast<GScriptUserData *>(Handle<Object>::Cast(value)->GetPointerFromInternalField(0));
@@ -293,7 +289,7 @@ namespace {
 		return NULL;
 	}
 
-	GMetaVariant v8ToVariant(GScriptBindingParam * param, v8::Handle<v8::Value> value)
+	GMetaVariant v8ToVariant(v8::Handle<v8::Value> value)
 	{
 		using namespace v8;
 
@@ -330,7 +326,7 @@ namespace {
 					switch(userData->getType()) {
 						case udtClass: {
 							GMetaType metaType;
-							void * obj = v8ToObject(param, value, &metaType);
+							void * obj = v8ToObject(value, &metaType);
 							if(obj != NULL) {
 								metaType.addPointer();
 								return GMetaVariant(pointerToObjectVariant(obj), metaType);
@@ -363,7 +359,7 @@ namespace {
 	void loadMethodParameters(const v8::Arguments & args, GScriptBindingParam * param, GVariantData * outputParams)
 	{
 		for(int i = 0; i < args.Length(); ++i) {
-			outputParams[i] = v8ToVariant(param, args[i]).getData().varData;
+			outputParams[i] = v8ToVariant(args[i]).getData().varData;
 		}
 	}
 
@@ -413,7 +409,7 @@ namespace {
 
 		GAccessibleUserData * userData = static_cast<GAccessibleUserData *>(Local<External>::Cast(info.Data())->Value());
 
-		GMetaVariant v = v8ToVariant(userData->getParam(), value);
+		GMetaVariant v = v8ToVariant(value);
 		metaSetValue(userData->accessible, userData->instance, v.getValue());
 	}
 
@@ -509,19 +505,22 @@ namespace {
 		IMetaList * methodList = namedUserData->methodList;
 
 		InvokeCallableParam callableParam;
-		loadCallableParam(args, userData->getParam(), &callableParam);
+		loadCallableParam(args, namedUserData->getParam(), &callableParam);
 
-		int maxRankIndex = findAppropriateCallable(userData->getParam()->getService(),
+		int maxRankIndex = findAppropriateCallable(namedUserData->getParam()->getService(),
 			makeCallback(methodList, &IMetaList::getAt), methodList->getCount(),
 			&callableParam, FindCallablePredict());
 
 		if(maxRankIndex >= 0) {
 			InvokeCallableResult result;
 			GScopedInterface<IMetaCallable> callable(gdynamic_cast<IMetaCallable *>(methodList->getAt(maxRankIndex)));
-			void * instance = addPointer(userData->instance,
-				subPointer(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), methodList->getInstanceAt(0)));
+			void * instance = NULL;
+			if(userData != NULL) {
+				instance = addPointer(userData->instance,
+					subPointer(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), methodList->getInstanceAt(0)));
+			}
 			doInvokeCallable(instance, callable.get(), callableParam.paramsData, callableParam.paramCount, &result);
-			return methodResultToV8(userData->getParam(), callable.get(), &result);
+			return methodResultToV8(namedUserData->getParam(), callable.get(), &result);
 		}
 
 		raiseCoreException(Error_ScriptBinding_CantFindMatchedMethod);
@@ -737,7 +736,7 @@ namespace {
 				case mmitProperty: {
 					GScopedInterface<IMetaAccessible> data(static_cast<IMetaAccessible *>(mapItem->getItem()));
 					if(allowAccessData(userData, data.get())) {
-						GVariant v = v8ToVariant(userData->getParam(), value).getValue();
+						GVariant v = v8ToVariant(value).getValue();
 						metaSetValue(data.get(), userData->instance, v);
 						return value;
 					}
@@ -1048,7 +1047,7 @@ GMetaVariant GV8ScriptObject::invokeIndirectly(const char * name, GMetaVariant c
 			result = Local<Object>::Cast(func)->CallAsFunction(receiver, paramCount, v8Params);
 		}
 
-		return v8ToVariant(&this->implement->param, result);
+		return v8ToVariant(result);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
@@ -1176,7 +1175,7 @@ GVariant GV8ScriptObject::getFundamental(const char * name)
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
 	Local<Value> value = localObject->Get(String::New(name));
-	return v8ToVariant(&this->implement->param, value).getValue();
+	return v8ToVariant(value).getValue();
 
 	LEAVE_V8(return GVariant())
 }
@@ -1212,7 +1211,7 @@ void * GV8ScriptObject::getObject(const char * objectName)
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
 	Local<Value> value = localObject->Get(String::New(objectName));
-	return v8ToObject(&this->implement->param, value, NULL);
+	return v8ToObject(value, NULL);
 
 	LEAVE_V8(return NULL)
 }
@@ -1294,6 +1293,12 @@ void GV8ScriptObject::nullifyValue(const char * name)
 	localObject->Delete(String::New(name));
 
 	LEAVE_V8()
+}
+
+
+IScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config)
+{
+	return new ImplScriptObject(new GV8ScriptObject(service, object, config));
 }
 
 

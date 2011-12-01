@@ -173,12 +173,83 @@ private:
 
 #if ENABLE_V8
 
+using namespace v8;
+
 class TestScriptCoderV8 : public TestScriptCoder
 {
 public:
 	virtual std::string getNew() {
 		return " new ";
 	}
+};
+
+bool executeString(const char * source, bool print_result = false)
+{
+	using namespace v8;
+
+	v8::HandleScope handle_scope;
+	v8::TryCatch try_catch;
+	v8::Handle<v8::Script> script = v8::Script::Compile(String::New(source), String::New("sample"));
+	if(script.IsEmpty()) {
+		v8::String::AsciiValue error(try_catch.Exception());
+		printf("%s\n", *error);
+		return false;
+	}
+	else {
+		v8::Handle<v8::Value> result = script->Run();
+		if(result.IsEmpty()) {
+			v8::String::AsciiValue error(try_catch.Exception());
+			printf("%s\n", *error);
+			return false;
+		}
+		else {
+			if (print_result && !result->IsUndefined()) {
+				v8::String::AsciiValue str(result);
+				printf("%s\n", *str);
+			}
+			return true;
+		}
+	}
+}
+
+class TestScriptContextV8 : public TestScriptContext
+{
+private:
+	typedef TestScriptContext super;
+
+public:
+	TestScriptContextV8(TestScriptApi api)
+		: super(new TestScriptCoderV8), handleScope(), context(Context::New()), contextScope(context)
+	{
+		Local<Object> global = context->Global();
+
+		if(api == tsaLib) {
+			this->setBinding(new GV8ScriptObject(this->getService(), global, GScriptConfig()));
+		}
+
+		if(api == tsaApi) {
+			this->setBinding(cpgf::createV8ScriptObject(this->getService(), global, cpgf::GScriptConfig()));
+		}
+	}
+
+	~TestScriptContextV8() {
+		this->context.Dispose();
+		this->context.Clear();
+	}
+
+protected:
+	virtual bool doLib(const char * code) const {
+		return executeString(code);
+	}
+
+	virtual bool doApi(const char * code) const {
+		return executeString(code);
+	}
+
+private:
+	HandleScope handleScope;
+	Persistent<Context> context;
+	Context::Scope contextScope;
 };
 
 
@@ -192,7 +263,7 @@ TestScriptContext * createTestScriptContext(TestScriptLang lang, TestScriptApi a
 		return new TestScriptContextLua(api);
 
 	case tslV8:
-		return new TestScriptContextLua(api);
+		return new TestScriptContextV8(api);
 	}
 
 	return NULL;

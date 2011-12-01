@@ -32,6 +32,20 @@ GTEST(Constructor_Lua_Api)
 	testConstructor(context.get());
 }
 
+GTEST(Constructor_V8_Lib)
+{
+	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaLib));
+
+	testConstructor(context.get());
+}
+
+GTEST(Constructor_V8_Api)
+{
+	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaApi));
+
+	testConstructor(context.get());
+}
+
 
 
 
