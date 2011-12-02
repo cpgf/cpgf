@@ -184,6 +184,7 @@ void GMetaEnumData::destroyInstance(void * instance) const
 GMetaEnum::GMetaEnum(const char * name, const GMetaType & itemType, meta_internal::GMetaEnumData * baseData)
 	: super(name, itemType, mcatEnum), baseData(baseData)
 {
+	this->addModifier(metaModifierStatic);
 }
 
 size_t GMetaEnum::getTypeSize() const

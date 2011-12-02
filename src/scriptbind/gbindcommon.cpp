@@ -287,7 +287,9 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallabl
 	}
 
 	for(uint32_t i = 0; i < callbackParam->paramCount; ++i) {
-		if(! callable->checkParam(&callbackParam->paramsData[i], i)) {
+		bool ok = !! callable->checkParam(&callbackParam->paramsData[i], i);
+		metaCheckError(callable);
+		if(! ok) {
 			return -1;
 		}
 	}

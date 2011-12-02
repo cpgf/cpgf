@@ -183,7 +183,7 @@ public:
 	}
 };
 
-bool executeString(const char * source, bool print_result = false)
+bool executeString(const char * source, bool printError, bool printResult = false)
 {
 	using namespace v8;
 
@@ -191,19 +191,23 @@ bool executeString(const char * source, bool print_result = false)
 	v8::TryCatch try_catch;
 	v8::Handle<v8::Script> script = v8::Script::Compile(String::New(source), String::New("sample"));
 	if(script.IsEmpty()) {
-		v8::String::AsciiValue error(try_catch.Exception());
-		printf("%s\n", *error);
+		if(printError) {
+			v8::String::AsciiValue error(try_catch.Exception());
+			printf("%s\n", *error);
+		}
 		return false;
 	}
 	else {
 		v8::Handle<v8::Value> result = script->Run();
 		if(result.IsEmpty()) {
-			v8::String::AsciiValue error(try_catch.Exception());
-			printf("%s\n", *error);
+			if(printError) {
+				v8::String::AsciiValue error(try_catch.Exception());
+				printf("%s\n", *error);
+			}
 			return false;
 		}
 		else {
-			if (print_result && !result->IsUndefined()) {
+			if(printResult && !result->IsUndefined()) {
 				v8::String::AsciiValue str(result);
 				printf("%s\n", *str);
 			}
@@ -239,11 +243,11 @@ public:
 
 protected:
 	virtual bool doLib(const char * code) const {
-		return executeString(code);
+		return executeString(code, this->canPrintError());
 	}
 
 	virtual bool doApi(const char * code) const {
-		return executeString(code);
+		return executeString(code, this->canPrintError());
 	}
 
 private:

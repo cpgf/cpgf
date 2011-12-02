@@ -5,6 +5,8 @@
 #include "cpgf/gerrorcode.h"
 #include "cpgf/gclassutil.h"
 
+#include <string>
+
 #if defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable:4244)
@@ -121,6 +123,7 @@ inline bool vtIsVoidPointer(int vt) {
 	return vt == (byPointer | vtVoid);
 }
 
+
 #pragma pack(push, 1)
 #pragma pack(1)
 struct GVariantData
@@ -174,6 +177,9 @@ struct GVariantData
 };
 #pragma pack(pop)
 
+inline void initializeVarData(GVariantData * data);
+inline void freeVarData(GVariantData * data);
+
 namespace variant_internal {
 
 inline unsigned int getVariantTypeSize(GVariantType type);
@@ -198,6 +204,9 @@ public:
 	}
 
 	GVariant(const GVariantData & data) : data(data) {
+		if(vtIsShadow(vtGetType(this->data.typeData))) {
+			this->data.shadowObject->retain();
+		}
 		if(vtGetSize(this->data.typeData) != variant_internal::getVariantTypeSize(static_cast<GVariantType>(vtGetType(this->data.typeData)))) {
 			variant_internal::adjustVariantType(this);
 		}
@@ -217,15 +226,13 @@ public:
 	}
 
 	GVariant(const GVariant & other) : data(other.data) {
-		if(vtGetType(this->data.typeData) == vtShadow) {
+		if(vtIsShadow(vtGetType(this->data.typeData))) {
 			this->data.shadowObject->retain();
 		}
 	}
 
 	~GVariant() {
-		if(vtGetType(this->data.typeData) == vtShadow) {
-			this->data.shadowObject->release();
-		}
+		freeVarData(&this->data);
 	}
 
 	GVariant & operator = (GVariant other) {
@@ -383,7 +390,7 @@ inline GVariant pointerToObjectVariant(void * p)
 
 inline void * objectAddressFromVariant(const GVariant & v)
 {
-	if(v.getType() == vtShadow) {
+	if(vtIsShadow(v.getType())) {
 		return v.data.shadowObject->getObject();
 	}
 
@@ -403,6 +410,37 @@ inline void * referenceAddressFromVariant(const GVariant & v)
 inline void initializeVarData(GVariantData * data)
 {
 	vtInit(data->typeData);
+}
+
+inline void freeVarData(GVariantData * data)
+{
+	if(vtIsShadow(vtGetType(data->typeData))) {
+		data->shadowObject->release();
+	}
+}
+
+inline void initializeVarString(GVariantData * data, const char * s)
+{
+	vtInit(data->typeData);
+	vtSetType(data->typeData, vtString);
+	vtSetSize(data->typeData, variant_internal::getVariantTypeSize(vtString));
+	vtSetPointers(data->typeData, 0);
+	variant_internal::IVariantShadowObject * shadow = new variant_internal::GVariantShadowObject<std::string>(std::string(s));
+	data->shadowObject = shadow;
+}
+
+inline GVariant createStringVariant(const char * s)
+{
+	GVariant v;
+
+	initializeVarString(&v.data, s);
+
+	return v;
+}
+
+
+inline bool variantIsString(const GVariant & v) {
+	return v.getType() == vtString || (v.getPointers() == 1 && v.getBaseType() == vtChar);
 }
 
 

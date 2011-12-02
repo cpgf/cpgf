@@ -445,6 +445,9 @@ struct CanCastFromVariant
 			case vtShadow:
 				return variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::CanCast;
 
+			case vtString:
+				return IsConvertible<char *, typename RemoveReference<ResultType>::Result>::Result || IsConvertible<const char *, typename RemoveReference<ResultType>::Result>::Result;
+
 			case vtBool | byPointer:
 				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<bool *, ResultType>::CanCast;
 
@@ -564,6 +567,21 @@ struct CanCastFromVariant
 	}
 };
 
+template <typename T>
+T castFromString(const char * s, typename GEnableIf<IsConvertible<char *, T>::Result || IsConvertible<const char *, T>::Result>::Result * = 0)
+{
+	return T(s);
+}
+
+template <typename T>
+T castFromString(const char * s, typename GEnableIf<! (IsConvertible<char *, T>::Result || IsConvertible<const char *, T>::Result)>::Result * = 0)
+{
+	(void)s;
+
+	raiseCoreException(Error_Variant_FailCast);
+	return *(typename RemoveReference<T>::Result *)(0);
+}
+
 template <typename T, int Policy>
 struct CastFromVariant
 {
@@ -630,6 +648,9 @@ struct CastFromVariant
 
 			case vtShadow:
 				return *variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::cast(v.data.shadowObject->getObject());
+			
+			case vtString:
+				return castFromString<ResultType>(static_cast<std::string *>(v.data.shadowObject->getObject())->c_str());
 
 			case vtBool | byPointer:
 				return variant_internal::CastVariantHelper<bool *, ResultType>::cast(const_cast<bool *>(v.data.ptrBool));
@@ -808,6 +829,7 @@ inline unsigned int getVariantTypeSize(GVariantType type)
 		case vtShadow:
 		case vtObject:
 		case vtPointer:
+		case vtString:
 			return sizeof(void *);
 
 		default:

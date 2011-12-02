@@ -4,17 +4,17 @@ namespace {
 
 void testConstructor(TestScriptContext * context)
 {
-	NEWOBJ("a", "TestObject()")
+	QNEWOBJ(a, TestObject())
 	QASSERT(a.value == Magic1)
 
 	QDO(a.value = 1999)
-	NEWOBJ("b", "TestObject(a)")
+	QNEWOBJ(b, TestObject(a))
 	QASSERT(b.value == 1999)
 
-	NEWOBJ("a", "TestObject(180)")
+	QNEWOBJ(a, TestObject(180))
 	QASSERT(a.value == 180)
 
-	NEWOBJ("a", "TestObject(5, \"abc\")")
+	QNEWOBJ(a, TestObject(5, "abc"))
 	QASSERT(a.value == 8)
 }
 

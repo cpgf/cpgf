@@ -357,8 +357,19 @@ private:
 	GMetaOpType op;
 };
 
-struct InvokeCallableParam
+class InvokeCallableParam
 {
+public:
+	InvokeCallableParam() : paramCount(0) {
+	}
+
+	~InvokeCallableParam() {
+		for(size_t i = 0; i < this->paramCount; ++i) {
+			freeVarData(&this->paramsData[i]);
+		}
+	}
+
+public:
 	GVariantData paramsData[REF_MAX_ARITY];
 	GBindDataType paramsType[REF_MAX_ARITY];
 	size_t paramCount;

@@ -15,6 +15,7 @@
 #define QERR(...) ERR(# __VA_ARGS__)
 #define QASSERT(...) QDO(scriptAssert(__VA_ARGS__))
 #define NEWOBJ(lhs, ...) DO(context->getCoder()->newObject(lhs, __VA_ARGS__))
+#define QNEWOBJ(lhs, ...) DO(context->getCoder()->newObject(# lhs, # __VA_ARGS__))
 
 
 namespace testscript {

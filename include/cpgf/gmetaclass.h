@@ -44,6 +44,8 @@ public:
 
 		GASSERT_STATIC(IsClass<ClassT>::Result || (IsSameType<ClassT, void>::Result) || IsFundamental<ClassT>::Result);
 
+		this->addModifier(metaModifierStatic);
+
 		this->intializeImplement();
 		this->setupItemLists();
 	}

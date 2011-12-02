@@ -6,6 +6,10 @@
 
 #include <vector>
 
+// for test
+#include <iostream>
+using namespace std;
+
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -113,8 +117,20 @@ namespace {
 
 		if(object->IsObject() || object->IsFunction()) {
 			v8::Handle<v8::Value> value = Handle<Object>::Cast(object)->GetHiddenValue(v8::String::New(signatureKey));
-return true;
+
 			return !value.IsEmpty() && value->IsInt32() && value->Int32Value() == signatureValue;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	bool isGlobalObject(v8::Handle<v8::Value> object)
+	{
+		using namespace v8;
+
+		if(object->IsObject() || object->IsFunction()) {
+			return Handle<Object>::Cast(object)->GetPointerFromInternalField(0) == NULL;
 		}
 		else {
 			return false;
@@ -236,7 +252,7 @@ return true;
 			return v8::External::New(fromVariant<void *>(value));
 		}
 
-		if(value.getPointers() == 1 && value.getBaseType() == vtChar) {
+		if(variantIsString(value)) {
 			return v8::String::New(fromVariant<char *>(value));
 		}
 
@@ -311,7 +327,7 @@ return true;
 
 		if(value->IsString()) {
 			v8::String::AsciiValue s(value);
-			return *s;
+			return GMetaVariant(createStringVariant(*s), createMetaType<char *>());
 		}
 
 		if(value->IsUint32()) {
@@ -358,8 +374,10 @@ return true;
 
 	void loadMethodParameters(const v8::Arguments & args, GScriptBindingParam * param, GVariantData * outputParams)
 	{
+		(void)param;
+
 		for(int i = 0; i < args.Length(); ++i) {
-			outputParams[i] = v8ToVariant(args[i]).getData().varData;
+			outputParams[i] = v8ToVariant(args[i]).takeData().varData;
 		}
 	}
 
@@ -394,11 +412,15 @@ return true;
 
 		(void)prop;
 
+		ENTER_V8()
+
 		GAccessibleUserData * userData = static_cast<GAccessibleUserData *>(Local<External>::Cast(info.Data())->Value());
 
 		GVariant result = metaGetValue(userData->accessible, userData->instance);
 
 		return variantToV8(userData->getParam(), result, metaGetItemType(userData->accessible), false);
+		
+		LEAVE_V8(return Handle<Value>())
 	}
 
 	void accessibleSet(v8::Local<v8::String> prop, v8::Local<v8::Value> value, const v8::AccessorInfo & info)
@@ -407,10 +429,14 @@ return true;
 
 		(void)prop;
 
+		ENTER_V8()
+
 		GAccessibleUserData * userData = static_cast<GAccessibleUserData *>(Local<External>::Cast(info.Data())->Value());
 
 		GMetaVariant v = v8ToVariant(value);
 		metaSetValue(userData->accessible, userData->instance, v.getValue());
+		
+		LEAVE_V8()
 	}
 
 	void doBindAccessible(GScriptBindingParam * param, v8::Local<v8::Object> container,
@@ -423,7 +449,7 @@ return true;
 		Persistent<External> data = Persistent<External>::New(External::New(userData));
 		data.MakeWeak(userData, weakHandleCallback);
 
-		container->SetAccessor(String::New(name), accessibleGet, accessibleSet, data);
+		container->SetAccessor(String::New(name), &accessibleGet, &accessibleSet, data);
 	}
 
 	v8::Handle<v8::Value> converterToV8(GScriptBindingParam * param, const GVariant & value, IMetaConverter * converter)
@@ -484,7 +510,7 @@ return true;
 
 	int subPointer(void * a, void * b)
 	{
-		return static_cast<char *>(a) - static_cast<char *>(b);
+		return static_cast<int>(static_cast<char *>(a) - static_cast<char *>(b));
 	}
 
 	v8::Handle<v8::Value> callbackMethodList(const v8::Arguments & args)
@@ -493,7 +519,7 @@ return true;
 
 		ENTER_V8()
 
-		if(!isValidObject(args.Holder())) {
+		if(!isGlobalObject(args.Holder()) && !isValidObject(args.Holder())) {
 			raiseCoreException(Error_ScriptBinding_AccessMemberWithWrongObject);
 		}
 
@@ -568,6 +594,21 @@ return true;
 		LEAVE_V8(return Handle<Value>())
 	}
 
+	v8::Handle<v8::Value> namedEnumSetter(v8::Local<v8::String> prop, v8::Local<v8::Value> value, const v8::AccessorInfo & info)
+	{
+		(void)prop;
+		(void)value;
+		(void)info;
+
+		ENTER_V8()
+
+		raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
+		
+		return v8::Handle<v8::Value>();
+
+		LEAVE_V8(return v8::Handle<v8::Value>())
+	}
+
 	v8::Handle<v8::ObjectTemplate> createEnumTemplate(GScriptBindingParam * param, IMetaEnum * metaEnum,
 		const char * name, GEnumUserData ** outUserData)
 	{
@@ -582,25 +623,14 @@ return true;
 
 		Handle<ObjectTemplate> objectTemplate = ObjectTemplate::New();
 		objectTemplate->SetInternalFieldCount(1);
-		objectTemplate->SetNamedPropertyHandler(&namedEnumGetter);
+		objectTemplate->SetNamedPropertyHandler(&namedEnumGetter, &namedEnumSetter);
 
 		return objectTemplate;
 	}
 
-	v8::Handle<v8::Value> namedMemberGetter(v8::Local<v8::String> prop, const v8::AccessorInfo & info)
+	v8::Handle<v8::Value> getNamedMember(GClassUserData * userData, const char * name)
 	{
 		using namespace v8;
-
-		ENTER_V8()
-
-		String::Utf8Value utf8_prop(prop);
-		const char * name = *utf8_prop;
-
-		if(!isValidObject(info.Holder())) {
-			raiseCoreException(Error_ScriptBinding_AccessMemberWithWrongObject);
-		}
-
-		GClassUserData * userData = static_cast<GClassUserData *>(info.Holder()->GetPointerFromInternalField(0));
 
 		GMetaClassTraveller traveller(userData->metaClass, userData->instance);
 
@@ -680,8 +710,8 @@ return true;
 
 				case mmitClass:
 					if(! userData->isInstance || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
-						GScopedInterface<IMetaClass> metaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
-						Handle<FunctionTemplate> functionTemplate = createClassTemplate(userData->getParam(), name, metaClass.get());
+						GScopedInterface<IMetaClass> innerMetaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
+						Handle<FunctionTemplate> functionTemplate = createClassTemplate(userData->getParam(), name, innerMetaClass.get());
 						return functionTemplate->GetFunction();
 					}
 					break;
@@ -692,27 +722,11 @@ return true;
 		}
 
 		return Handle<Value>();
-
-		LEAVE_V8(return Handle<Value>())
 	}
 
-	v8::Handle<v8::Value> namedMemberSetter(v8::Local<v8::String> prop, v8::Local<v8::Value> value, const v8::AccessorInfo & info)
+	v8::Handle<v8::Value> setNamedMember(GClassUserData * userData, const char * name, v8::Local<v8::Value> value)
 	{
 		using namespace v8;
-
-		ENTER_V8()
-
-		String::Utf8Value utf8_prop(prop);
-		const char * name = *utf8_prop;
-
-		if(!isValidObject(info.Holder())) {
-			raiseCoreException(Error_ScriptBinding_AccessMemberWithWrongObject);
-		}
-
-		GClassUserData * userData = static_cast<GClassUserData *>(info.Holder()->GetPointerFromInternalField(0));
-		if(userData == NULL) {
-			return Handle<Value>();
-		}
 
 		GMetaClassTraveller traveller(userData->metaClass, userData->instance);
 
@@ -762,8 +776,110 @@ return true;
 		}
 
 		return Handle<Value>();
+	}
+
+	v8::Handle<v8::Value> staticMemberGetter(v8::Local<v8::String> prop, const v8::AccessorInfo & info)
+	{
+		using namespace v8;
+
+		ENTER_V8()
+
+		GClassUserData * userData = static_cast<GClassUserData *>(Local<External>::Cast(info.Data())->Value());
+
+		String::Utf8Value utf8_prop(prop);
+		const char * name = *utf8_prop;
+
+		return getNamedMember(userData, name);
 
 		LEAVE_V8(return Handle<Value>())
+	}
+
+	void staticMemberSetter(v8::Local<v8::String> prop, v8::Local<v8::Value> value, const v8::AccessorInfo & info)
+	{
+		using namespace v8;
+
+		ENTER_V8()
+
+		GClassUserData * userData = static_cast<GClassUserData *>(Local<External>::Cast(info.Data())->Value());
+
+		String::Utf8Value utf8_prop(prop);
+		const char * name = *utf8_prop;
+
+		setNamedMember(userData, name, value);
+
+		LEAVE_V8()
+	}
+
+	v8::Handle<v8::Value> namedMemberGetter(v8::Local<v8::String> prop, const v8::AccessorInfo & info)
+	{
+		using namespace v8;
+
+		ENTER_V8()
+
+		if(!isValidObject(info.Holder())) {
+			raiseCoreException(Error_ScriptBinding_AccessMemberWithWrongObject);
+		}
+
+		String::Utf8Value utf8_prop(prop);
+		const char * name = *utf8_prop;
+
+		GClassUserData * userData = static_cast<GClassUserData *>(info.Holder()->GetPointerFromInternalField(0));
+
+		return getNamedMember(userData, name);
+
+		LEAVE_V8(return Handle<Value>())
+	}
+
+	v8::Handle<v8::Value> namedMemberSetter(v8::Local<v8::String> prop, v8::Local<v8::Value> value, const v8::AccessorInfo & info)
+	{
+		using namespace v8;
+
+		ENTER_V8()
+
+		String::Utf8Value utf8_prop(prop);
+		const char * name = *utf8_prop;
+
+		if(!isValidObject(info.Holder())) {
+			raiseCoreException(Error_ScriptBinding_AccessMemberWithWrongObject);
+		}
+
+		GClassUserData * userData = static_cast<GClassUserData *>(info.Holder()->GetPointerFromInternalField(0));
+		if(userData == NULL) {
+			return Handle<Value>();
+		}
+
+		return setNamedMember(userData, name, value);
+
+		LEAVE_V8(return Handle<Value>())
+	}
+
+	void accessorNamedMemberSetter(v8::Local<v8::String> prop, v8::Local<v8::Value> value, const v8::AccessorInfo & info)
+	{
+		namedEnumSetter(prop, value, info);
+	}
+
+	void bindClassItems(v8::Local<v8::Object> object, GScriptBindingParam * param, IMetaClass * metaClass, bool allowStatic, bool allowMember)
+	{
+		using namespace v8;
+
+		GClassUserData * userData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
+		param->addUserData(userData);
+		Persistent<External> data = Persistent<External>::New(External::New(userData));
+		data.MakeWeak(userData, weakHandleCallback);
+
+		GScopedInterface<IMetaItem> item;
+		uint32_t count = metaClass->getMetaCount();
+		for(uint32_t i = 0; i < count; ++i) {
+			item.reset(metaClass->getMetaAt(i));
+			if(allowStatic && item->isStatic()) {
+				object->SetAccessor(String::New(item->getName()), &staticMemberGetter, &staticMemberSetter, data);
+			}
+			else {
+				if(allowMember && !item->isStatic()) {
+					object->SetAccessor(String::New(item->getName()), &namedMemberGetter, &accessorNamedMemberSetter, data);
+				}
+			}
+		}
 	}
 
 	void * invokeConstructor(const v8::Arguments & args, GScriptBindingParam * param, IMetaClass * metaClass)
@@ -805,6 +921,8 @@ return true;
 	{
 		using namespace v8;
 
+		ENTER_V8()
+
 		if(! args.IsConstructCall()) {
 			return ThrowException(String::New("Cannot call constructor as function"));
 		}
@@ -823,6 +941,8 @@ return true;
 		setObjectSignature(&self);
 
 		return self;
+
+		LEAVE_V8(return Handle<Value>());
 	}
 
 	v8::Handle<v8::FunctionTemplate> createClassTemplate(GScriptBindingParam * param, const char * name, IMetaClass * metaClass)
@@ -861,6 +981,7 @@ return true;
 
 		Handle<FunctionTemplate> functionTemplate = createClassTemplate(param, name, metaClass);
 		container->Set(v8::String::New(name), functionTemplate->GetFunction());
+		bindClassItems(functionTemplate->GetFunction(), param, metaClass, true, false);
 	}
 
 } // unnamed namespace
@@ -1041,10 +1162,10 @@ GMetaVariant GV8ScriptObject::invokeIndirectly(const char * name, GMetaVariant c
 		Handle<Object> receiver = localObject;
 
 		if(func->IsFunction()) {
-			result = Local<Function>::Cast(func)->Call(receiver, paramCount, v8Params);
+			result = Local<Function>::Cast(func)->Call(receiver, static_cast<int>(paramCount), v8Params);
 		}
 		else {
-			result = Local<Object>::Cast(func)->CallAsFunction(receiver, paramCount, v8Params);
+			result = Local<Object>::Cast(func)->CallAsFunction(receiver, static_cast<int>(paramCount), v8Params);
 		}
 
 		return v8ToVariant(result);

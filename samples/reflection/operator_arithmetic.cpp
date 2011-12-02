@@ -75,7 +75,7 @@ void doTestLib()
 		TestObject back(*(TestObject *)obj);
 		((TestObject *)obj)->value *= 2;
 		testCheckAssert(back != *(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaOperator->invokeBinary(obj, back));
+		fromVariant<TestObject>(metaOperator->invokeBinary(obj, back));
 		testCheckAssert(back == *(TestObject *)obj);
 		metaClass->destroyInstance(obj);
 	}
@@ -165,7 +165,7 @@ void doTestAPI()
 		TestObject back(*(TestObject *)obj);
 		((TestObject *)obj)->value *= 2;
 		testCheckAssert(back != *(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaInvokeOperatorBinary(metaOperator, obj, back));
+		fromVariant<TestObject>(metaInvokeOperatorBinary(metaOperator, obj, back));
 		testCheckAssert(back == *(TestObject *)obj);
 		metaClass->destroyInstance(obj);
 	}

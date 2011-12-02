@@ -63,6 +63,13 @@ GTEST(TestVariant_Cast)
 	CAN_FROM_CAST(int *, void *, NULL);
 	CAN_FROM_CAST(int **, void *, NULL);
 	CAN_FROM_CAST(CLASS *, void *, NULL);
+
+	GVariant v;
+
+	v = createStringVariant("abc");
+	CAN_FROM(string, v);
+	CAN_FROM(char *, v);
+	CAN_FROM(const char *, v);
 }
 
 GTEST(TestVariant_ConstReference)

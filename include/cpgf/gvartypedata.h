@@ -38,6 +38,7 @@ enum GVariantType {
 	vtPointer = 30,
 	vtObject = 31, // is equivalent to unkown type
 	vtShadow = 32,
+	vtString = 33,
 
 	vtUserBegin = 0xff,
 	vtUserEnd = 0x0fff,
@@ -98,6 +99,10 @@ inline void vtSetPointers(GVarTypeData & data, unsigned int pointers) {
 	GASSERT_MSG(pointers < 16, "GVarTypeData: too many pointers");
 
 	data.sizeAndPointers = static_cast<uint8_t>((data.sizeAndPointers & 0xf0) + pointers);
+}
+
+inline bool vtIsShadow(int vt) {
+	return vt == vtShadow || vt == vtString;
 }
 
 inline void vtInit(GVarTypeData & data) {
