@@ -61,7 +61,7 @@ public:
 
 private:
 	GScopedInterface<IMetaService> service;
-	const GScriptConfig & config;
+	GScriptConfig config;
 	GMetaMap * metaMap;
 	GScopedPointer<UserListType> userDataList;
 };

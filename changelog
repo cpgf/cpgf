@@ -1,6 +1,8 @@
 New version
-	Add: second parameter "void ** outInstance" to function GScriptObject::getMethod
-	Remove: removed GScriptName and changed all name type to const char *
+	Added Google V8 Javascript engine binding.
+	Added second parameter "void ** outInstance" to function GScriptObject::getMethod
+	Removed GScriptName and changed all name type to const char *
+	Fixed a memory bug that cause binding engine wrong references to GScriptConfig on the stack.
 
 2011-11-27 version 1.0.1
 	Refactored Lua binding, using better and faster algorithm to travel for data and methods.

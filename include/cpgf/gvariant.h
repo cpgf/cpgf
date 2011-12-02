@@ -207,6 +207,7 @@ public:
 		if(vtIsShadow(vtGetType(this->data.typeData))) {
 			this->data.shadowObject->retain();
 		}
+
 		if(vtGetSize(this->data.typeData) != variant_internal::getVariantTypeSize(static_cast<GVariantType>(vtGetType(this->data.typeData)))) {
 			variant_internal::adjustVariantType(this);
 		}
@@ -438,11 +439,20 @@ inline GVariant createStringVariant(const char * s)
 	return v;
 }
 
-
 inline bool variantIsString(const GVariant & v) {
 	return v.getType() == vtString || (v.getPointers() == 1 && v.getBaseType() == vtChar);
 }
 
+inline GVariant takeVarData(const GVariantData & data)
+{
+	GVariant v(data);
+
+	if(vtIsShadow(vtGetType(v.data.typeData))) {
+		v.data.shadowObject->release();
+	}
+
+	return v;
+}
 
 
 } // namespace cpgf
