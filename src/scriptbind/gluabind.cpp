@@ -569,16 +569,15 @@ namespace {
 	
 	bool indexMemberData(lua_State * L, GClassUserData * userData, IMetaAccessible * data, void * instance)
 	{
-		GVariantData varData;
+		GVariant value;
 		GMetaTypeData typeData;
 
-		data->get(&varData, instance);
+		data->get(&value.data, instance);
 		metaCheckError(data);
 		
 		data->getItemType(&typeData);
 		metaCheckError(data);
 		
-		GVariant value = GVariant(varData);
 		bool success = variantToLua(L, userData->getParam(), value, GMetaType(typeData), false);
 		if(!success) {
 			GScopedInterface<IMetaConverter> converter(data->createConverter());

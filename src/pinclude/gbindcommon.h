@@ -375,8 +375,14 @@ public:
 	size_t paramCount;
 };
 
-struct InvokeCallableResult
+class InvokeCallableResult
 {
+public:
+	~InvokeCallableResult() {
+		freeVarData(&this->resultData);
+	}
+
+public:
 	int resultCount;
 	GVariantData resultData;
 };
