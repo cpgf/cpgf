@@ -38,15 +38,35 @@ namespace {
 		typedef std::set<GScriptUserData *> ListType;
 
 	public:
+		~GUserDataPool() {
+			for(ListType::iterator it = this->userDataList.begin(); it != this->userDataList.end(); ++it) {
+				delete *it;
+			}
+		}
+
 		void addUserData(GScriptUserData * userData) {
 			if(this->userDataList.find(userData) == this->userDataList.end()) {
 				this->userDataList.insert(userData);
 			}
 		}
 
+		void removeUserData(GScriptUserData * userData) {
+			ListType::iterator it = this->userDataList.find(userData);
+			if(it != this->userDataList.end()) {
+				delete *it;
+				this->userDataList.erase(it);
+			}
+		}
+
+
 	private:
 		ListType userDataList;
 	};
+
+	GUserDataPool * getUserDataPool() {
+		static GUserDataPool pool;
+		return &pool;
+	}
 
 	class GMapItemClassData : public GMetaMapItemData
 	{
@@ -67,6 +87,9 @@ namespace {
 	class GMapItemMethodData : public GMetaMapItemData
 	{
 	public:
+		GMapItemMethodData() : userData(NULL) {
+		}
+
 		virtual ~GMapItemMethodData() {
 			this->functionTemplate.Dispose();
 			this->functionTemplate.Clear();
@@ -77,21 +100,24 @@ namespace {
 		}
 
 		void setUserData(GV8MethodUserData * userData) {
-			this->userData.reset(userData);
+			this->userData = userData;
 		}
 
 		GV8MethodUserData * getUserData() const {
-		    return this->userData.get();
+		    return this->userData;
 		}
 
 	public:
 		v8::Persistent<v8::FunctionTemplate> functionTemplate;
-		GScopedPointer<GV8MethodUserData> userData;
+		GV8MethodUserData * userData;
 	};
 
 	class GMapItemEnumData : public GMetaMapItemData
 	{
 	public:
+		GMapItemEnumData() : userData(NULL) {
+		}
+
 		virtual ~GMapItemEnumData() {
 			this->objectTemplate.Dispose();
 			this->objectTemplate.Clear();
@@ -102,16 +128,16 @@ namespace {
 		}
 
 		void setUserData(GEnumUserData * userData) {
-			this->userData.reset(userData);
+			this->userData = userData;
 		}
 
 		GEnumUserData * getUserData() const {
-		    return this->userData.get();
+		    return this->userData;
 		}
 
 	public:
 		v8::Persistent<v8::ObjectTemplate> objectTemplate;
-		GScopedPointer<GEnumUserData> userData;
+		GEnumUserData * userData;
 	};
 
 
@@ -232,7 +258,7 @@ namespace {
 		Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance());
 
 		GClassUserData * instanceUserData = new GClassUserData(param, metaClass, instance, true, allowGC, cv);
-		param->addUserData(instanceUserData);
+		getUserDataPool()->addUserData(instanceUserData);
 		self.MakeWeak(instanceUserData, weakHandleCallback);
 
 		self->SetPointerInInternalField(0, instanceUserData);
@@ -386,7 +412,7 @@ namespace {
 		GScriptUserData * userData = static_cast<GScriptUserData *>(parameter);
 
 		if(userData != NULL) {
-			userData->getParam()->removeUserData(userData);
+			getUserDataPool()->removeUserData(userData);
 		}
 
 		object.Dispose();
@@ -466,7 +492,7 @@ namespace {
 		using namespace v8;
 
 		GAccessibleUserData * userData = new GAccessibleUserData(param, instance, accessible);
-		param->addUserData(userData);
+		getUserDataPool()->addUserData(userData);
 		Persistent<External> data = Persistent<External>::New(External::New(userData));
 		data.MakeWeak(userData, weakHandleCallback);
 
@@ -616,6 +642,7 @@ namespace {
 		}
 
 		Persistent<External> data = Persistent<External>::New(External::New(userData));
+		getUserDataPool()->addUserData(userData);
 		data.MakeWeak(NULL, weakHandleCallback);
 
 		Handle<FunctionTemplate> functionTemplate;
@@ -936,7 +963,7 @@ namespace {
 		using namespace v8;
 
 		GClassUserData * userData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
-		param->addUserData(userData);
+		getUserDataPool()->addUserData(userData);
 		Persistent<External> data = Persistent<External>::New(External::New(userData));
 		data.MakeWeak(userData, weakHandleCallback);
 
@@ -1007,7 +1034,7 @@ namespace {
 		Persistent<Object> self = Persistent<Object>::New(args.Holder());
 
 		GClassUserData * instanceUserData = new GClassUserData(userData->getParam(), userData->metaClass, instance, true, true, opcvNone);
-		userData->getParam()->addUserData(instanceUserData);
+		getUserDataPool()->addUserData(instanceUserData);
 		self.MakeWeak(instanceUserData, weakHandleCallback);
 
 		self->SetPointerInInternalField(0, instanceUserData);
@@ -1029,7 +1056,7 @@ namespace {
 		}
 
 		GClassUserData * userData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
-		param->addUserData(userData);
+		getUserDataPool()->addUserData(userData);
 		Persistent<External> data = Persistent<External>::New(External::New(userData));
 		data.MakeWeak(userData, weakHandleCallback);
 
@@ -1148,7 +1175,7 @@ void GV8ScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 	Persistent<Object> obj = Persistent<Object>::New(objectTemplate->NewInstance());
 	obj->SetPointerInInternalField(0, newUserData);
 	setObjectSignature(&obj);
-	this->implement->param.addUserData(newUserData);
+	getUserDataPool()->addUserData(newUserData);
 	obj.MakeWeak(newUserData, weakHandleCallback);
 
 	localObject->Set(String::New(name), obj);
@@ -1330,8 +1357,7 @@ void GV8ScriptObject::bindMethodList(const char * name, IMetaList * methodList)
 
 	Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
 	setObjectSignature(&func);
-	this->implement->param.addUserData(newUserData);
-	func.MakeWeak(newUserData, weakHandleCallback);
+	func.MakeWeak(NULL, weakHandleCallback);
 
 	localObject->Set(v8::String::New(name), func);
 

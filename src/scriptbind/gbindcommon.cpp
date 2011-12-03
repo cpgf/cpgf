@@ -8,38 +8,6 @@
 namespace cpgf {
 
 
-GScriptBindingParam::~GScriptBindingParam()
-{
-	if(this->userDataList) {
-		for(UserListType::iterator it = this->userDataList->begin(); it != this->userDataList->end(); ++it) {
-			delete *it;
-		}
-	}
-}
-
-void GScriptBindingParam::addUserData(GScriptUserData * userData)
-{
-	if(!this->userDataList) {
-		this->userDataList.reset(new UserListType);
-	}
-
-	this->userDataList->push_back(userData);
-}
-
-void GScriptBindingParam::removeUserData(GScriptUserData * userData)
-{
-	GScopedPointer<GScriptUserData> d(userData);
-
-	if(this->userDataList) {
-		for(UserListType::iterator it = this->userDataList->begin(); it != this->userDataList->end(); ++it) {
-			if(*it == userData) {
-				it = this->userDataList->erase(it);
-			}
-		}
-	}
-}
-
-
 GMetaMapItem::GMetaMapItem()
 	: item(NULL), type(mmitNone), enumIndex(0)
 {
