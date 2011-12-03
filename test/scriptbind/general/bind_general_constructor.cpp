@@ -1,4 +1,4 @@
-#include "bind_general_common.h"
+#include "../bind_common.h"
 
 namespace {
 
@@ -19,7 +19,7 @@ void testConstructor(TestScriptContext * context)
 }
 
 #define CASE testConstructor
-#include "bind_general_testcase.h"
+#include "../bind_testcase.h"
 
 
 

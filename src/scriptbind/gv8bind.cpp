@@ -5,6 +5,7 @@
 #include "../pinclude/gscriptbindapiimpl.h"
 
 #include <vector>
+#include <set>
 
 // for test
 #include <iostream>
@@ -31,6 +32,21 @@ using namespace std;
 namespace cpgf {
 
 namespace {
+	class GUserDataPool
+	{
+	private:
+		typedef std::set<GScriptUserData *> ListType;
+
+	public:
+		void addUserData(GScriptUserData * userData) {
+			if(this->userDataList.find(userData) == this->userDataList.end()) {
+				this->userDataList.insert(userData);
+			}
+		}
+
+	private:
+		ListType userDataList;
+	};
 
 	class GMapItemClassData : public GMetaMapItemData
 	{
@@ -60,17 +76,17 @@ namespace {
 			this->functionTemplate = v8::Persistent<v8::FunctionTemplate>::New(newTemplate);
 		}
 
-		void setUserData(GMethodListUserData * userData) {
+		void setUserData(GV8MethodUserData * userData) {
 			this->userData.reset(userData);
 		}
 
-		GMethodListUserData * getUserData() const {
+		GV8MethodUserData * getUserData() const {
 		    return this->userData.get();
 		}
 
 	public:
 		v8::Persistent<v8::FunctionTemplate> functionTemplate;
-		GScopedPointer<GMethodListUserData> userData;
+		GScopedPointer<GV8MethodUserData> userData;
 	};
 
 	class GMapItemEnumData : public GMetaMapItemData
@@ -258,7 +274,7 @@ namespace {
 		}
 
 		if(type.isEmpty()) {
-			return v8::Undefined();
+			return v8::Handle<v8::Value>();
 		}
 
 		if(type.getPointerDimension() <= 1) {
@@ -281,7 +297,7 @@ namespace {
 			}
 		}
 
-		return v8::Undefined();
+		return v8::Handle<v8::Value>();
 	}
 
 	void * v8ToObject(v8::Handle<v8::Value> value, GMetaType * outType)
@@ -309,6 +325,10 @@ namespace {
 	GMetaVariant v8ToVariant(v8::Handle<v8::Value> value)
 	{
 		using namespace v8;
+
+		if(value.IsEmpty()) {
+			return GMetaVariant();
+		}
 
 		if(value->IsBoolean()) {
 			return value->BooleanValue();
@@ -533,12 +553,26 @@ namespace {
 		}
 
 		Local<External> data = Local<External>::Cast(args.Data());
-		GMethodListUserData * namedUserData = static_cast<GMethodListUserData *>(data->Value());
-
-		IMetaList * methodList = namedUserData->methodList;
+		GV8MethodUserData * namedUserData = static_cast<GV8MethodUserData *>(data->Value());
 
 		InvokeCallableParam callableParam;
 		loadCallableParam(args, namedUserData->getParam(), &callableParam);
+
+		void * instance = NULL;
+		if(userData != NULL) {
+			instance = userData->instance;
+		}
+
+		GScopedInterface<IMetaList> methodList;
+		if(namedUserData->metaClass == NULL) {
+			methodList.reset(namedUserData->methodList);
+			methodList->addReference();
+		}
+		else {
+			methodList.reset(createMetaList());
+			loadMethodList(methodList.get(), namedUserData->getParam()->getMetaMap(), userData == NULL? namedUserData->metaClass : userData->metaClass,
+				instance,  userData, namedUserData->name.c_str());
+		}
 
 		int maxRank = -1;
 		int maxRankIndex = -1;
@@ -559,12 +593,7 @@ namespace {
 		if(maxRankIndex >= 0) {
 			InvokeCallableResult result;
 			GScopedInterface<IMetaCallable> callable(gdynamic_cast<IMetaCallable *>(methodList->getAt(maxRankIndex)));
-			void * instance = NULL;
-			if(userData != NULL) {
-				instance = addPointer(userData->instance,
-					subPointer(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), namedUserData->baseInstance));
-			}
-			doInvokeCallable(instance, callable.get(), callableParam.paramsData, callableParam.paramCount, &result);
+			doInvokeCallable(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), callable.get(), callableParam.paramsData, callableParam.paramCount, &result);
 			return methodResultToV8(namedUserData->getParam(), callable.get(), &result);
 		}
 
@@ -574,12 +603,14 @@ namespace {
 		LEAVE_V8(return Handle<Value>())
 	}
 
-	v8::Handle<v8::FunctionTemplate> createMethodTemplate(GScriptBindingParam * param, IMetaList * methodList,
-		const char * name, v8::Handle<v8::FunctionTemplate> classTemplate, GMethodListUserData ** outUserData)
+	v8::Handle<v8::FunctionTemplate> createMethodTemplate(GScriptBindingParam * param, IMetaClass * metaClass, IMetaList * methodList,
+		const char * name, v8::Handle<v8::FunctionTemplate> classTemplate, GV8MethodUserData ** outUserData)
 	{
 		using namespace v8;
 
-		GMethodListUserData * userData = new GMethodListUserData(param, methodList);
+		(void)classTemplate;
+
+		GV8MethodUserData * userData = new GV8MethodUserData(param, metaClass, methodList, name);
 		if(outUserData != NULL) {
 			*outUserData = userData;
 		}
@@ -587,7 +618,13 @@ namespace {
 		Persistent<External> data = Persistent<External>::New(External::New(userData));
 		data.MakeWeak(NULL, weakHandleCallback);
 
-		Handle<FunctionTemplate> functionTemplate = FunctionTemplate::New(callbackMethodList, data, Signature::New(classTemplate));
+		Handle<FunctionTemplate> functionTemplate;
+		if(metaClass == NULL) {
+			functionTemplate = FunctionTemplate::New(callbackMethodList, data);
+		}
+		else {
+			functionTemplate = FunctionTemplate::New(callbackMethodList, data); //, Signature::New(classTemplate));
+		}
 		functionTemplate->SetClassName(String::New(name));
 
 		return functionTemplate;
@@ -676,7 +713,15 @@ namespace {
 					GScopedInterface<IMetaAccessible> data(static_cast<IMetaAccessible *>(mapItem->getItem()));
 					if(allowAccessData(userData, data.get())) {
 						GVariant result = metaGetValue(data.get(), userData->instance);
-						return variantToV8(userData->getParam(), result, metaGetItemType(data.get()), false);
+						Handle<Value> v = variantToV8(userData->getParam(), result, metaGetItemType(data.get()), false);
+						if(v.IsEmpty()) {
+							GScopedInterface<IMetaConverter> converter(data->createConverter());
+							v = converterToV8(userData->getParam(), result, converter.get());
+						}
+						if(v.IsEmpty()) {
+							raiseCoreException(Error_ScriptBinding_FailVariantToScript);
+						}
+						return v;
 					}
 				}
 				   break;
@@ -690,15 +735,15 @@ namespace {
 
 						data = new GMapItemMethodData;
 						mapItem->setData(data);
-						GMethodListUserData * newUserData;
-						data->setTemplate(createMethodTemplate(userData->getParam(), methodList.get(), name,
-							static_cast<GMapItemClassData *>(mapClass->getData())->functionTemplate, &newUserData));
-						newUserData->baseInstance = instance;
+						GV8MethodUserData * newUserData;
+						GMetaMapClass * baseMapClass = userData->getParam()->getMetaMap()->findClassMap(userData->metaClass);
+						data->setTemplate(createMethodTemplate(userData->getParam(), userData->metaClass, methodList.get(), name,
+							static_cast<GMapItemClassData *>(baseMapClass->getData())->functionTemplate, &newUserData));
+						newUserData->baseInstance = userData->instance;
 						newUserData->name = name;
 						data->setUserData(newUserData);
 					}
 					Local<Function> func = data->functionTemplate->GetFunction();
-//					func->SetPointerInInternalField(0, data->getUserData());
 					setObjectSignature(&func);
 
 					return func;
@@ -1000,6 +1045,12 @@ namespace {
 		mapData->setTemplate(functionTemplate);
 		map->setData(mapData);
 
+		if(metaClass->getBaseCount() > 0) {
+			GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(0));
+			Handle<FunctionTemplate> baseFunctionTemplate = createClassTemplate(param, baseClass->getName(), baseClass.get());
+			functionTemplate->Inherit(baseFunctionTemplate);
+		}
+
 		return functionTemplate;
 	}
 
@@ -1273,12 +1324,11 @@ void GV8ScriptObject::bindMethodList(const char * name, IMetaList * methodList)
 	v8::HandleScope handleScope;
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
-	GMethodListUserData * newUserData;
-	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(&this->implement->param, methodList, name,
+	GV8MethodUserData * newUserData;
+	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(&this->implement->param, NULL, methodList, name,
 		Handle<FunctionTemplate>(), &newUserData);
 
 	Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
-//	func->SetPointerInInternalField(0, newUserData);
 	setObjectSignature(&func);
 	this->implement->param.addUserData(newUserData);
 	func.MakeWeak(newUserData, weakHandleCallback);
@@ -1439,7 +1489,7 @@ void GV8ScriptObject::nullifyValue(const char * name)
 	v8::HandleScope handleScope;
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
-	localObject->Delete(String::New(name));
+	localObject->Set(String::New(name), v8::Null());
 
 	LEAVE_V8()
 }

@@ -14,14 +14,14 @@ set(HAS_V8
 
 # To enable unit test, change the below folder to UnitTest++.
 set(UNIT_TEST_DIR
-	/Source/UnitTest++
+	e:/SourceCode/cpp/UnitTest++
 )
 
 
 ### Lua config
 
 set(LUA_DIR
-	/Source/lua
+	e:/SourceCode/cpp/lua
 )
 
 set(LUA_INC ${LUA_DIR}/src/ ${LUA_DIR}/etc/)
@@ -42,7 +42,7 @@ endif(UNIX)
 ### V8 config
 
 set(V8_DIR
-	/Source/v8
+	e:/SourceCode/cpp/v8
 )
 
 set(V8_INC ${V8_DIR}/include)
@@ -52,6 +52,6 @@ if(CMAKE_COMPILER_IS_GNUCC)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)
-	set(V8_LIB ${V8_DIR}/v8.lib)
+	set(V8_LIB ${V8_DIR}/v8_g.lib)
 endif(MSVC)
 

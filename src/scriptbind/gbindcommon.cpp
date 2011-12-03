@@ -446,7 +446,7 @@ void loadMethodList(GMetaClassTraveller * traveller,
 	loadMethodList(traveller, methodList, metaMap, mapItem, instance, userData, methodName, false);
 }
 
-void XXXloadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * objectMetaClass,
+void loadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * objectMetaClass,
 	void * objectInstance, GClassUserData * userData, const char * methodName)
 {
 	GMetaClassTraveller traveller(objectMetaClass, objectInstance);
@@ -458,7 +458,7 @@ void XXXloadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * 
 			break;
 		}
 
-		GMetaMapClass * mapClass = userData->getParam()->getMetaMap()->findClassMap(metaClass.get());
+		GMetaMapClass * mapClass = metaMap->findClassMap(metaClass.get());
 		if(mapClass == NULL) {
 			continue;
 		}

@@ -1,4 +1,4 @@
-#include "bind_general_common.h"
+#include "../bind_common.h"
 
 namespace {
 
@@ -24,7 +24,7 @@ void testEnum(TestScriptContext * context)
 
 
 #define CASE testEnum
-#include "bind_general_testcase.h"
+#include "../bind_testcase.h"
 
 
 void testInnerClass(TestScriptContext * context)
@@ -37,7 +37,7 @@ void testInnerClass(TestScriptContext * context)
 }
 
 #define CASE testInnerClass
-#include "bind_general_testcase.h"
+#include "../bind_testcase.h"
 
 
 

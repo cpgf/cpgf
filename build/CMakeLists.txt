@@ -236,11 +236,20 @@ if(${HAS_UNITTEST})
 		)
 	endif(HAS_LUA)
 
+	set(GLOB_TEST_V8 )
+	if(HAS_V8)
+		file(GLOB GLOB_TEST_V8
+			${TEST_PATH}/scriptbind/v8bind/*.cpp
+		)
+	endif(HAS_V8)
+
 	set(SRC_TEST_SRC
 		${TEST_PATH}/testmain.cpp
 		
 		${GLOB_TEST_SRC}
+
 		${GLOB_TEST_LUA}
+		${GLOB_TEST_V8}
 		
 		${SRC_LIB}
 

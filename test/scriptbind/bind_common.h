@@ -1,9 +1,9 @@
-#ifndef __BIND_GENERAL_COMMON_H
-#define __BIND_GENERAL_COMMON_H
+#ifndef __BIND_COMMON_H
+#define __BIND_COMMON_H
 
 #include "cpgf/gmetaapi.h"
 
-#include "../testscriptbind.h"
+#include "testscriptbind.h"
 
 #include <string>
 
@@ -65,6 +65,14 @@ public:
 
 	bool doString(const std::string & code) const;
 	bool doError(const std::string & code) const;
+	
+	virtual bool isLua() const {
+		return false;
+	}
+
+	virtual bool isV8() const {
+		return false;
+	}
 
 protected:
 	virtual bool doLib(const char * code) const = 0;

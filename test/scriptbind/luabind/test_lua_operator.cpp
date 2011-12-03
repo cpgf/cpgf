@@ -1,13 +1,11 @@
-#include "test_lua_common.h"
+#include "../bind_common.h"
 
 
 namespace {
 
 
-GTEST(Operator)
+void TestOperator(TestScriptContext * context)
 {
-	GScopedPointer<TestLuaContext> context(createLuaContext());
-
 	QDO(a = TestOperator(99))
 	QDO(b = a + 5)
 	QASSERT(b.value == 99 + 5)
@@ -78,6 +76,8 @@ GTEST(Operator)
 	QASSERT(b == 3 + 5 + 7 + 9 + 1 + 2 + 6 + 8)
 }
 
+#define CASE TestOperator
+#include "../testcase_lua.h"
 
 
 

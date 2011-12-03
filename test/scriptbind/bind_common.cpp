@@ -1,4 +1,4 @@
-#include "bind_general_common.h"
+#include "bind_common.h"
 
 #if ENABLE_LUA
 #include "cpgf/scriptbind/gluabind.h"
@@ -142,6 +142,10 @@ public:
 		}
 	}
 
+	virtual bool isLua() const {
+		return true;
+	}
+
 protected:
 	virtual bool doLib(const char * code) const {
 		luaL_loadstring(this->luaStateLib, code);
@@ -223,8 +227,9 @@ private:
 
 public:
 	TestScriptContextV8(TestScriptApi api)
-		: super(new TestScriptCoderV8), handleScope(), context(Context::New()), contextScope(context)
+		: super(new TestScriptCoderV8), handleScope(), context(Context::New())//, contextScope(context)
 	{
+		this->contextScope = new Context::Scope(this->context);
 		Local<Object> global = context->Global();
 
 		if(api == tsaLib) {
@@ -237,10 +242,16 @@ public:
 	}
 
 	~TestScriptContextV8() {
+		delete this->contextScope;
+
 		this->context.Dispose();
 		this->context.Clear();
 	}
 
+	virtual bool isV8() const {
+		return true;
+	}
+	
 protected:
 	virtual bool doLib(const char * code) const {
 		return executeString(code, this->canPrintError());
@@ -253,7 +264,7 @@ protected:
 private:
 	HandleScope handleScope;
 	Persistent<Context> context;
-	Context::Scope contextScope;
+	Context::Scope * contextScope;
 };
 
 

@@ -151,7 +151,7 @@ private:
 
 public:
 	GMethodListUserData(GScriptBindingParam * param, IMetaList * methodList)
-		: super(udtMethodList, param), methodList(methodList), baseInstance(NULL) {
+		: super(udtMethodList, param), methodList(methodList) {
 		this->methodList->addReference();
 	}
 
@@ -161,8 +161,37 @@ public:
 
 public:
 	IMetaList * methodList;
+};
+
+class GV8MethodUserData : public GScriptUserData
+{
+private:
+	typedef GScriptUserData super;
+
+public:
+	GV8MethodUserData(GScriptBindingParam * param, IMetaClass * metaClass, IMetaList * methodList, const char * name)
+		: super(udtMethodList, param), metaClass(metaClass), methodList(methodList), baseInstance(NULL), name(name) {
+		if(this->metaClass != NULL) {
+			this->metaClass->addReference();
+		}
+		if(this->methodList != NULL) {
+			this->methodList->addReference();
+		}
+	}
+
+	virtual ~GV8MethodUserData() {
+		if(this->metaClass != NULL) {
+			this->metaClass->releaseReference();
+		}
+		if(this->methodList != NULL) {
+			this->methodList->releaseReference();
+		}
+	}
+
+public:
+	IMetaClass * metaClass;
+	IMetaList * methodList;
 	void * baseInstance;
-	// for test
 	std::string name;
 };
 
@@ -420,12 +449,16 @@ bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible);
 void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, size_t paramCount, InvokeCallableResult * result);
 
 class GMetaClassTraveller;
+
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
 	void * instance, GClassUserData * userData, const char * methodName, bool allowAny);
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
 	void * instance, GClassUserData * userData, const char * methodName);
+
+void loadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * objectMetaClass,
+	void * objectInstance, GClassUserData * userData, const char * methodName);
 
 
 } // namespace cpgf

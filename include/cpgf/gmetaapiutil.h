@@ -34,13 +34,13 @@ GMetaType metaGetItemType(const Meta & meta)
 template <typename Meta>
 GVariant metaGetValue(const Meta & meta, void * obj)
 {
-	GVariantData data;
+	GVariant v;
 
-	const_cast<Meta &>(meta)->get(&data, obj);
+	const_cast<Meta &>(meta)->get(&v.data, obj);
 	
 	metaCheckError(meta);
 
-	return takeVarData(data);
+	return v;
 }
 
 template <typename Meta>
@@ -87,10 +87,10 @@ GMetaType metaGetParamType(const Meta & meta, size_t paramIndex)
 	template <typename Meta> \
 	GVariant metaInvokeMethod(Meta & method, void * obj GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
-		GVariantData data; \
-		method->invokeIndirectly(&data, obj, paramData, N); \
+		GVariant v; \
+		method->invokeIndirectly(&v.data, obj, paramData, N); \
 		metaCheckError(method); \
-		return takeVarData(data); \
+		return v; \
 	} \
 	template <typename Meta> \
 	void * metaInvokeConstructor(Meta & constructor GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p)) { \
@@ -102,10 +102,10 @@ GMetaType metaGetParamType(const Meta & meta, size_t paramIndex)
 	template <typename Meta> \
 	GVariant metaInvokeOperatorFunctor(Meta & op, void * obj GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
-		GVariantData data; \
-		op->invokeFunctorIndirectly(&data, obj, paramData, N); \
+		GVariant v; \
+		op->invokeFunctorIndirectly(&v.data, obj, paramData, N); \
 		metaCheckError(op); \
-		return takeVarData(data); \
+		return v; \
 	}
 
 GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
@@ -117,45 +117,45 @@ GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
 template <typename Meta>
 GVariant metaInvokeOperatorUnary(Meta & op, const GVariant & p0)
 {
-	GVariantData data;
+	GVariant v;
 
-	op->invokeUnary(&data, &p0.data);
+	op->invokeUnary(&v.data, &p0.data);
 	metaCheckError(op);
 
-	return takeVarData(data);
+	return v;
 }
 
 template <typename Meta>
 GVariant metaInvokeOperatorBinary(Meta & op, const GVariant & p0, const GVariant & p1)
 {
-	GVariantData data;
+	GVariant v;
 
-	op->invokeBinary(&data, &p0.data, &p1.data);
+	op->invokeBinary(&v.data, &p0.data, &p1.data);
 	metaCheckError(op);
 
-	return takeVarData(data);
+	return v;
 }
 
 template <typename Meta>
 GVariant metaGetEnumValue(Meta & metaEnum, size_t index)
 {
-	GVariantData data;
+	GVariant v;
 
-	metaEnum->getValue(&data, static_cast<unsigned int>(index));
+	metaEnum->getValue(&v.data, static_cast<unsigned int>(index));
 	metaCheckError(metaEnum);
 
-	return takeVarData(data);
+	return v;
 }
 
 template <typename Meta>
 GVariant metaGetAnnotationVariant(Meta & annotationValue)
 {
-	GVariantData data;
+	GVariant v;
 
-	annotationValue->getVariant(&data);
+	annotationValue->getVariant(&v.data);
 	metaCheckError(annotationValue);
 
-	return takeVarData(data);
+	return v;
 }
 
 template <typename Meta>

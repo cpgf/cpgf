@@ -1,13 +1,11 @@
-#include "test_lua_common.h"
+#include "../bind_common.h"
 
 
 namespace {
 
 
-GTEST(MethodIndirectInvoke)
+void MethodIndirectInvoke(TestScriptContext * context)
 {
-	GScopedPointer<TestLuaContext> context(createLuaContext());
-
 	QDO(a = TestObject())
 	QDO(a.value = 1)
 	QASSERT(a.value == 1)
@@ -23,11 +21,12 @@ GTEST(MethodIndirectInvoke)
 	QASSERT(f(2) == 10)
 }
 
+#define CASE MethodIndirectInvoke
+#include "../testcase_lua.h"
 
-GTEST(OverloadMethodIndirectInvoke)
+
+void OverloadMethodIndirectInvoke(TestScriptContext * context)
 {
-	GScopedPointer<TestLuaContext> context(createLuaContext());
-
 	QDO(a = TestObject())
 	QDO(a.value = 1)
 	QASSERT(a.value == 1)
@@ -51,6 +50,9 @@ GTEST(OverloadMethodIndirectInvoke)
 	QASSERT(f("ab", 3) == 2 + 3)
 	QASSERT(f(3, "ab") == 2 + 3 + 1)
 }
+
+#define CASE OverloadMethodIndirectInvoke
+#include "../testcase_lua.h"
 
 
 

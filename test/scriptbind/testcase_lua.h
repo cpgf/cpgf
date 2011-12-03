@@ -4,6 +4,7 @@
 
 #if ENABLE_LUA
 
+
 GTEST(MK(CASE, _Lua_Lib))
 {
 	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaLib));
@@ -18,24 +19,6 @@ GTEST(MK(CASE, _Lua_Api))
 	CASE(context.get());
 }
 
-#endif
-
-
-#if ENABLE_V8
-
-GTEST(MK(CASE, _V8_Lib))
-{
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaLib));
-
-	CASE(context.get());
-}
-
-GTEST(MK(CASE, _V8_Api))
-{
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaApi));
-
-	CASE(context.get());
-}
 
 #endif
 

@@ -1,4 +1,4 @@
-#include "bind_general_common.h"
+#include "../bind_common.h"
 
 
 namespace {
@@ -8,7 +8,7 @@ void testHierarchy(TestScriptContext * context)
 {
 	QNEWOBJ(a, DeriveE())
 	DO("scriptAssert(a.getA() == \"DeriveE\")")
-return;
+
 	QASSERT(a.getB() == Magic1 + 1)
 	QASSERT(a.getC() == Magic2 + 2)
 	QASSERT(a.getD() == Magic3 + 3)
@@ -27,7 +27,7 @@ return;
 }
 
 #define CASE testHierarchy
-#include "bind_general_testcase.h"
+#include "../bind_testcase.h"
 
 
 

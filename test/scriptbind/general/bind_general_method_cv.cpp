@@ -1,4 +1,4 @@
-#include "bind_general_common.h"
+#include "../bind_common.h"
 
 
 namespace {
@@ -39,7 +39,7 @@ void testMethodCV(TestScriptContext * context)
 
 
 #define CASE testMethodCV
-#include "bind_general_testcase.h"
+#include "../bind_testcase.h"
 
 
 }
