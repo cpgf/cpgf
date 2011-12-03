@@ -130,7 +130,8 @@ namespace {
 		using namespace v8;
 
 		if(object->IsObject() || object->IsFunction()) {
-			return Handle<Object>::Cast(object)->GetPointerFromInternalField(0) == NULL;
+			return Handle<Object>::Cast(object)->InternalFieldCount () == 0
+				|| Handle<Object>::Cast(object)->GetPointerFromInternalField(0) == NULL;
 		}
 		else {
 			return false;
@@ -519,11 +520,17 @@ namespace {
 
 		ENTER_V8()
 
-		if(!isGlobalObject(args.Holder()) && !isValidObject(args.Holder())) {
+		bool isGlobal = isGlobalObject(args.Holder());
+
+		if(!isGlobal && !isValidObject(args.Holder())) {
 			raiseCoreException(Error_ScriptBinding_AccessMemberWithWrongObject);
 		}
 
-		GClassUserData * userData = static_cast<GClassUserData *>(args.Holder()->GetPointerFromInternalField(0));
+		GClassUserData * userData = NULL;
+		
+		if(!isGlobal) {
+			userData = static_cast<GClassUserData *>(args.Holder()->GetPointerFromInternalField(0));
+		}
 
 		Local<External> data = Local<External>::Cast(args.Data());
 		GMethodListUserData * namedUserData = static_cast<GMethodListUserData *>(data->Value());
@@ -691,7 +698,7 @@ namespace {
 						data->setUserData(newUserData);
 					}
 					Local<Function> func = data->functionTemplate->GetFunction();
-					func->SetPointerInInternalField(0, data->getUserData());
+//					func->SetPointerInInternalField(0, data->getUserData());
 					setObjectSignature(&func);
 
 					return func;
@@ -1271,7 +1278,7 @@ void GV8ScriptObject::bindMethodList(const char * name, IMetaList * methodList)
 		Handle<FunctionTemplate>(), &newUserData);
 
 	Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
-	func->SetPointerInInternalField(0, newUserData);
+//	func->SetPointerInInternalField(0, newUserData);
 	setObjectSignature(&func);
 	this->implement->param.addUserData(newUserData);
 	func.MakeWeak(newUserData, weakHandleCallback);
