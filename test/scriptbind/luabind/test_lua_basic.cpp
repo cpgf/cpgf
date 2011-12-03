@@ -53,33 +53,5 @@ GTEST(OverloadMethodIndirectInvoke)
 }
 
 
-GTEST(TestEnum)
-{
-	GScopedPointer<TestLuaContext> context(createLuaContext());
-
-	QASSERT(TestEnum.teCpp == 1)
-	QASSERT(TestEnum.teLua == 2)
-	QASSERT(TestEnum.teV8 == 3)
-
-	QERR(TestEnum.teCpp = 5)
-
-	QASSERT(BasicA.BasicEnum.a == 1)
-	QASSERT(BasicA.BasicEnum.b == 2)
-	QASSERT(BasicA.BasicEnum.c == 3)
-}
-
-
-GTEST(TestInnerClass)
-{
-	GScopedPointer<TestLuaContext> context(createLuaContext());
-
-	QDO(a = BasicA.Inner())
-	QASSERT(a.x == 5)
-	QASSERT(a.add() == 6)
-	QASSERT(a.x == 6)
-}
-
-
-
 
 }

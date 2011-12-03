@@ -18,36 +18,13 @@ void testEnum(TestScriptContext * context)
 	QERR(a.BasicEnum.a = 1)
 
 	QASSERT(BasicA.BasicEnum.a == 1)
+	QASSERT(BasicA.BasicEnum.b == 2)
+	QASSERT(BasicA.BasicEnum.c == 3)
 }
 
 
-GTEST(TestEnum_Lua_Lib)
-{
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaLib));
-
-	testEnum(context.get());
-}
-
-GTEST(TestEnum_Lua_Api)
-{
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaApi));
-
-	testEnum(context.get());
-}
-
-GTEST(TestEnum_V8_Lib)
-{
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaLib));
-
-	testEnum(context.get());
-}
-
-GTEST(TestEnum_V8_Api)
-{
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaApi));
-
-	testEnum(context.get());
-}
+#define CASE testEnum
+#include "bind_general_testcase.h"
 
 
 void testInnerClass(TestScriptContext * context)
@@ -59,34 +36,8 @@ void testInnerClass(TestScriptContext * context)
 	QASSERT(a.x == 6)
 }
 
-GTEST(TestInnerClass_Lua_Lib)
-{
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaLib));
-
-	testInnerClass(context.get());
-}
-
-GTEST(TestInnerClass_Lua_Api)
-{
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaApi));
-
-	testInnerClass(context.get());
-}
-
-GTEST(TestInnerClass_V8_Lib)
-{
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaLib));
-
-	testInnerClass(context.get());
-}
-
-GTEST(TestInnerClass_V8_Api)
-{
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaApi));
-
-	testInnerClass(context.get());
-}
-
+#define CASE testInnerClass
+#include "bind_general_testcase.h"
 
 
 

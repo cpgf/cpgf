@@ -533,9 +533,21 @@ namespace {
 		InvokeCallableParam callableParam;
 		loadCallableParam(args, namedUserData->getParam(), &callableParam);
 
-		int maxRankIndex = findAppropriateCallable(namedUserData->getParam()->getService(),
-			makeCallback(methodList, &IMetaList::getAt), methodList->getCount(),
-			&callableParam, FindCallablePredict());
+		int maxRank = -1;
+		int maxRankIndex = -1;
+
+		uint32_t count = methodList->getCount();
+
+		for(uint32_t i = 0; i < count; ++i) {
+			GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(methodList->getAt(i)));
+			if(allowInvokeCallable(userData, meta.get())) {
+				int rank = rankCallable(namedUserData->getParam()->getService(), meta.get(), &callableParam);
+				if(rank > maxRank) {
+					maxRank = rank;
+					maxRankIndex = static_cast<int>(i);
+				}
+			}
+		}
 
 		if(maxRankIndex >= 0) {
 			InvokeCallableResult result;
@@ -543,7 +555,7 @@ namespace {
 			void * instance = NULL;
 			if(userData != NULL) {
 				instance = addPointer(userData->instance,
-					subPointer(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), methodList->getInstanceAt(0)));
+					subPointer(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), namedUserData->baseInstance));
 			}
 			doInvokeCallable(instance, callable.get(), callableParam.paramsData, callableParam.paramCount, &result);
 			return methodResultToV8(namedUserData->getParam(), callable.get(), &result);
@@ -664,16 +676,18 @@ namespace {
 
 				case mmitMethod:
 				case mmitMethodList: {
-					GScopedInterface<IMetaList> methodList(createMetaList());
-					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name);
-
 					GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getData());
 					if(data == NULL) {
+						GScopedInterface<IMetaList> methodList(createMetaList());
+						loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name, true);
+
 						data = new GMapItemMethodData;
 						mapItem->setData(data);
 						GMethodListUserData * newUserData;
 						data->setTemplate(createMethodTemplate(userData->getParam(), methodList.get(), name,
 							static_cast<GMapItemClassData *>(mapClass->getData())->functionTemplate, &newUserData));
+						newUserData->baseInstance = instance;
+						newUserData->name = name;
 						data->setUserData(newUserData);
 					}
 					Local<Function> func = data->functionTemplate->GetFunction();
@@ -844,6 +858,13 @@ namespace {
 		}
 
 		GClassUserData * userData = static_cast<GClassUserData *>(info.Holder()->GetPointerFromInternalField(0));
+
+		if(userData->cv == opcvConst) {
+			raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
+
+			return Handle<Value>();
+		}
+
 		if(userData == NULL) {
 			return Handle<Value>();
 		}

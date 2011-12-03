@@ -18,34 +18,8 @@ void testConstructor(TestScriptContext * context)
 	QASSERT(a.value == 8)
 }
 
-GTEST(Constructor_Lua_Lib)
-{
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaLib));
-
-	testConstructor(context.get());
-}
-
-GTEST(Constructor_Lua_Api)
-{
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaApi));
-
-	testConstructor(context.get());
-}
-
-GTEST(Constructor_V8_Lib)
-{
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaLib));
-
-	testConstructor(context.get());
-}
-
-GTEST(Constructor_V8_Api)
-{
-	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaApi));
-
-	testConstructor(context.get());
-}
-
+#define CASE testConstructor
+#include "bind_general_testcase.h"
 
 
 

@@ -151,7 +151,7 @@ private:
 
 public:
 	GMethodListUserData(GScriptBindingParam * param, IMetaList * methodList)
-		: super(udtMethodList, param), methodList(methodList) {
+		: super(udtMethodList, param), methodList(methodList), baseInstance(NULL) {
 		this->methodList->addReference();
 	}
 
@@ -161,6 +161,9 @@ public:
 
 public:
 	IMetaList * methodList;
+	void * baseInstance;
+	// for test
+	std::string name;
 };
 
 // NOTE: Now the other code assumes that GOperatorUserData doesn't need to free any resource.
@@ -395,7 +398,7 @@ int findAppropriateCallable(IMetaService * service,
 	InvokeCallableParam * callableParam, Predict predict)
 {
 	int maxRank = -1;
-	int maxRankIndex = 0;
+	int maxRankIndex = -1;
 
 	for(size_t i = 0; i < count; ++i) {
 		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(getter(static_cast<uint32_t>(i))));
@@ -408,15 +411,18 @@ int findAppropriateCallable(IMetaService * service,
 		}
 	}
 
-	return maxRank >= 0 ? maxRankIndex : -1;
+	return maxRankIndex;
 }
 
-bool allowInvokeMethod(GClassUserData * userData, IMetaMethod * method);
+bool allowInvokeCallable(GClassUserData * userData, IMetaCallable * method);
 bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible);
 
 void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, size_t paramCount, InvokeCallableResult * result);
 
 class GMetaClassTraveller;
+void loadMethodList(GMetaClassTraveller * traveller,
+	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
+	void * instance, GClassUserData * userData, const char * methodName, bool allowAny);
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
 	void * instance, GClassUserData * userData, const char * methodName);

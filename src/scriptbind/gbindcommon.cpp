@@ -346,9 +346,9 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallabl
 	return rank;
 }
 
-bool allowInvokeMethod(GClassUserData * userData, IMetaMethod * method)
+bool allowInvokeCallable(GClassUserData * userData, IMetaCallable * method)
 {
-	if(userData->isInstance) {
+	if(userData != NULL && userData->isInstance) {
 		if(! userData->getParam()->getConfig().allowAccessStaticMethodViaInstance()) {
 			if(method->isStatic()) {
 				return false;
@@ -361,19 +361,21 @@ bool allowInvokeMethod(GClassUserData * userData, IMetaMethod * method)
 		}
 	}
 	
-	const GMetaType & methodType = metaGetItemType(method);
-	switch(userData->cv) {
-		case opcvConst:
-			return methodType.isConstFunction();
-			
-		case opcvVolatile:
-			return methodType.isVolatileFunction();
-			
-		case opcvConstVolatile:
-			return methodType.isConstVolatileFunction();
-			
-		default:
-			break;
+	if(userData != NULL) {
+		const GMetaType & methodType = metaGetItemType(method);
+		switch(userData->cv) {
+			case opcvConst:
+				return methodType.isConstFunction();
+				
+			case opcvVolatile:
+				return methodType.isVolatileFunction();
+				
+			case opcvConstVolatile:
+				return methodType.isConstVolatileFunction();
+				
+			default:
+				break;
+		}
 	}
 	
 	return true;
@@ -407,22 +409,24 @@ void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * 
 }
 
 void loadMethodList(GMetaClassTraveller * traveller,
-	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, GClassUserData * userData, const char * methodName)
+	IMetaList * methodList, GMetaMap * metaMap, GMetaMapItem * mapItem,
+	void * instance, GClassUserData * userData, const char * methodName, bool allowAny)
 {
 	while(mapItem != NULL) {
 		if(mapItem->getType() == mmitMethod) {
 			GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
-			if(allowInvokeMethod(userData, method.get())) {
-				metaList->add(method.get(), instance);
+			if(allowAny || allowInvokeCallable(userData, method.get())) {
+				methodList->add(method.get(), instance);
 			}
 		}
 		else {
-			GScopedInterface<IMetaList> methodList(gdynamic_cast<IMetaList *>(mapItem->getItem()));
-			for(uint32_t i = 0; i < methodList->getCount(); ++i) {
-				GScopedInterface<IMetaItem> item(methodList->getAt(i));
-				if(allowInvokeMethod(userData, gdynamic_cast<IMetaMethod *>(item.get()))) {
-					metaList->add(item.get(), instance);
+			if(mapItem->getType() == mmitMethodList) {
+				GScopedInterface<IMetaList> newMethodList(gdynamic_cast<IMetaList *>(mapItem->getItem()));
+				for(uint32_t i = 0; i < newMethodList->getCount(); ++i) {
+					GScopedInterface<IMetaItem> item(newMethodList->getAt(i));
+					if(allowAny || allowInvokeCallable(userData, gdynamic_cast<IMetaMethod *>(item.get()))) {
+						methodList->add(item.get(), instance);
+					}
 				}
 			}
 		}
@@ -435,7 +439,55 @@ void loadMethodList(GMetaClassTraveller * traveller,
 	}
 }
 
+void loadMethodList(GMetaClassTraveller * traveller,
+	IMetaList * methodList, GMetaMap * metaMap, GMetaMapItem * mapItem,
+	void * instance, GClassUserData * userData, const char * methodName)
+{
+	loadMethodList(traveller, methodList, metaMap, mapItem, instance, userData, methodName, false);
+}
 
+void XXXloadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * objectMetaClass,
+	void * objectInstance, GClassUserData * userData, const char * methodName)
+{
+	GMetaClassTraveller traveller(objectMetaClass, objectInstance);
+	void * instance = NULL;
+
+	for(;;) {
+		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
+		if(!metaClass) {
+			break;
+		}
+
+		GMetaMapClass * mapClass = userData->getParam()->getMetaMap()->findClassMap(metaClass.get());
+		if(mapClass == NULL) {
+			continue;
+		}
+		GMetaMapItem * mapItem = mapClass->findItem(methodName);
+		if(mapItem == NULL) {
+			continue;
+		}
+
+		switch(mapItem->getType()) {
+			case mmitField:
+			case mmitProperty:
+			   return;
+
+			case mmitMethod:
+			case mmitMethodList: {
+				loadMethodList(&traveller, methodList, metaMap, mapItem, instance, userData, methodName);
+				return;
+			}
+
+			case mmitEnum:
+			case mmitEnumValue:
+			case mmitClass:
+				return;
+
+			default:
+				break;
+		}
+	}
+}
 
 
 } // namespace cpgf
