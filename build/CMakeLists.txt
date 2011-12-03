@@ -118,11 +118,16 @@ set(TEST_COMPILE_FLAGS " ")
 if(CMAKE_COMPILER_IS_GNUCC)
 	set(LIB_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
 	set(TEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
+	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
+if(UNIX)
+	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0 -fprofile-arcs -ftest-coverage")
+endif(UNIX)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)
 	set(LIB_COMPILE_FLAGS "-W4 -Wp64")
 	set(TEST_COMPILE_FLAGS "-W4 -Wp64")
+	set(UNITTEST_COMPILE_FLAGS "-W4 -Wp64")
 endif(MSVC)
 
 add_library(
@@ -277,7 +282,7 @@ if(${HAS_UNITTEST})
 		${TARGET_UNITTEST}
 		PROPERTIES
 		OUTPUT_NAME ${OUTNAME_UNITTEST}
-		COMPILE_FLAGS ${TEST_COMPILE_FLAGS}
+		COMPILE_FLAGS ${UNITTEST_COMPILE_FLAGS}
 	)
 
 endif(${HAS_UNITTEST})

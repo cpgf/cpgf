@@ -14,6 +14,8 @@
 #define QDO(...) DO(# __VA_ARGS__)
 #define QERR(...) ERR(# __VA_ARGS__)
 #define QASSERT(...) QDO(scriptAssert(__VA_ARGS__))
+#define QNOT(...) QDO(scriptAssert(!(__VA_ARGS__)))
+
 #define NEWOBJ(lhs, ...) DO(context->getCoder()->newObject(lhs, __VA_ARGS__))
 #define QNEWOBJ(lhs, ...) DO(context->getCoder()->newObject(# lhs, # __VA_ARGS__))
 

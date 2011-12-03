@@ -17,11 +17,13 @@ class GMetaClassTraveller : public GNoncopyable
 {
 private:
 	struct Node {
-		Node(IMetaClass * metaClass, void * instance) : metaClass(metaClass), instance(instance) {
+		Node(IMetaClass * metaClass, void * instance, IMetaClass * derived)
+			: metaClass(metaClass), instance(instance), derived(derived) {
 		}
 
 		IMetaClass * metaClass;
 		void * instance;
+		IMetaClass * derived;
 	};
 	
 	typedef std::deque<Node> ListType;
@@ -30,6 +32,7 @@ public:
 	GMetaClassTraveller(IMetaClass * metaClass, void * instance);
 	~GMetaClassTraveller();
 	
+	IMetaClass * next(void ** outInstance, IMetaClass ** outDerived);
 	IMetaClass * next(void ** outInstance);
 
 private:

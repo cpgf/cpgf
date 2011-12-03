@@ -629,7 +629,7 @@ namespace {
 		LEAVE_V8(return Handle<Value>())
 	}
 
-	v8::Handle<v8::FunctionTemplate> createMethodTemplate(GScriptBindingParam * param, IMetaClass * metaClass, IMetaList * methodList,
+	v8::Handle<v8::FunctionTemplate> createMethodTemplate(GScriptBindingParam * param, IMetaClass * metaClass, bool isGlobal, IMetaList * methodList,
 		const char * name, v8::Handle<v8::FunctionTemplate> classTemplate, GV8MethodUserData ** outUserData)
 	{
 		using namespace v8;
@@ -646,11 +646,11 @@ namespace {
 		data.MakeWeak(NULL, weakHandleCallback);
 
 		Handle<FunctionTemplate> functionTemplate;
-		if(metaClass == NULL) {
+		if(metaClass == NULL || isGlobal) {
 			functionTemplate = FunctionTemplate::New(callbackMethodList, data);
 		}
 		else {
-			functionTemplate = FunctionTemplate::New(callbackMethodList, data); //, Signature::New(classTemplate));
+			functionTemplate = FunctionTemplate::New(callbackMethodList, data, Signature::New(classTemplate));
 		}
 		functionTemplate->SetClassName(String::New(name));
 
@@ -718,9 +718,12 @@ namespace {
 		GMetaClassTraveller traveller(userData->metaClass, userData->instance);
 
 		void * instance = NULL;
+		IMetaClass * outDerived;
 
 		for(;;) {
-			GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
+			GScopedInterface<IMetaClass> metaClass(traveller.next(&instance, &outDerived));
+			GScopedInterface<IMetaClass> derived(outDerived);
+
 			if(!metaClass) {
 				break;
 			}
@@ -763,8 +766,27 @@ namespace {
 						data = new GMapItemMethodData;
 						mapItem->setData(data);
 						GV8MethodUserData * newUserData;
-						GMetaMapClass * baseMapClass = userData->getParam()->getMetaMap()->findClassMap(userData->metaClass);
-						data->setTemplate(createMethodTemplate(userData->getParam(), userData->metaClass, methodList.get(), name,
+
+						// choose the class to bind to the method (i.e, to call the method, an object must be the class or the class' derived)
+						// that to ensure v8::Arguments::Holder is correct
+						GScopedInterface<IMetaClass> boundClass;
+						if(!derived) {
+							boundClass.reset(metaClass.get());
+							boundClass->addReference();
+						}
+						else {
+							if(derived->getBaseCount() > 0) {
+								// always choose first base because we only support single inheritance in JS
+								boundClass.reset(derived->getBaseClass(0));
+							}
+							else {
+								boundClass.reset(derived.get());
+								boundClass->addReference();
+							}
+						}
+
+						GMetaMapClass * baseMapClass = userData->getParam()->getMetaMap()->findClassMap(boundClass.get());
+						data->setTemplate(createMethodTemplate(userData->getParam(), userData->metaClass, userData->instance == NULL, methodList.get(), name,
 							static_cast<GMapItemClassData *>(baseMapClass->getData())->functionTemplate, &newUserData));
 						newUserData->baseInstance = userData->instance;
 						newUserData->name = name;
@@ -1352,7 +1374,7 @@ void GV8ScriptObject::bindMethodList(const char * name, IMetaList * methodList)
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
 	GV8MethodUserData * newUserData;
-	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(&this->implement->param, NULL, methodList, name,
+	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(&this->implement->param, NULL, true, methodList, name,
 		Handle<FunctionTemplate>(), &newUserData);
 
 	Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
