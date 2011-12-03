@@ -271,6 +271,10 @@ if(${HAS_UNITTEST})
 			${SRC_TEST_SRC}
 	)
 
+	if(UNIX)
+		target_link_libraries(${TARGET_UNITTEST} gcov)
+	endif(UNIX)
+
 	if(HAS_LUA)
 		target_link_libraries(${TARGET_UNITTEST} ${LUA_LIB})
 	endif(HAS_LUA)
