@@ -84,7 +84,7 @@ void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
 	script->bindFundamental("Magic3", Magic3);
 
 	bindMethod(script, service, "scriptAssert", "scriptAssert");
-	bindEnum(script, service, "testscript::TestEnum", "TestEnum");
+	bindEnum(script, service, REG_NAME_TestEnum, "TestEnum");
 
 	script->bindFundamental("testInt", testInt);
 }
