@@ -126,6 +126,7 @@ void testItem(const cpgf::GMetaItem * item)
 		const GMetaAnnotation * anno = item->getAnnotationAt(i);
 
 		GEQUAL(anno->getMetaItem(), item);
+		GEQUAL(anno->getValue("doesntExist"), NULL);
 
 		if(string(anno->getName()) == "attribute") {
 			foundAttribute = true;
@@ -154,7 +155,6 @@ void testItem(cpgf::IMetaItem * item)
 	using namespace cpgf;
 	using namespace std;
 
-//	if(item->isAnnotation()) {
 	if(item->getCategory() == mcatAnnotation) {
 		return;
 	}
@@ -162,6 +162,8 @@ void testItem(cpgf::IMetaItem * item)
 	bool foundAttribute = false;
 	for(unsigned int i = 0; i < item->getAnnotationCount(); ++i) {
 		GScopedInterface<IMetaAnnotation> anno(item->getAnnotationAt(i));
+		
+		GEQUAL(anno->getValue("doesntExist"), NULL);
 
 		GScopedInterface<IMetaItem> tempItem(anno->getMetaItem());
 

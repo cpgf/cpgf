@@ -619,15 +619,6 @@ namespace {
 		return true;
 	}
 
-	bool indexMemberMethod(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem, void * instance)
-	{
-		GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
-		
-		doBindMethod(L, userData->getParam(), instance, method.get());
-		
-		return true;
-	}
-	
 	int UserData_index(lua_State * L)
 	{
 		ENTER_LUA()
@@ -1353,9 +1344,16 @@ GVariant GLuaScriptObject::getFundamental(const char * name)
 	GLuaScopeGuard scopeGuard(this);
 
 	scopeGuard.get(name);
-
-	return luaToVariant(this->implement->luaState, &this->implement->param, -1).getValue();
 	
+	if(getLuaType(this->implement->luaState, -1, NULL) == sdtFundamental) {
+		return luaToVariant(this->implement->luaState, &this->implement->param, -1).getValue();
+	}
+	else {
+		lua_pop(this->implement->luaState, 1);
+		
+		return GVariant();
+	}
+
 	LEAVE_LUA(this->implement->luaState, return GVariant())
 }
 
@@ -1461,7 +1459,7 @@ bool GLuaScriptObject::valueIsNull(const char * name)
 
 	scopeGuard.get(name);
 
-	return ! lua_isnil(this->implement->luaState, -1);
+	return lua_isnil(this->implement->luaState, -1);
 
 	LEAVE_LUA(this->implement->luaState, return false)
 }

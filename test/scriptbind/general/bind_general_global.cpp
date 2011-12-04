@@ -6,7 +6,7 @@ namespace {
 template <typename T>
 void doTestGlobal(T * binding, TestScriptContext * context)
 {
-	GScopedInterface<IMetaClass> metaClass(context->getService()->findClassByName("testscript::TestData"));
+	GScopedInterface<IMetaClass> metaClass(context->getService()->findClassByName(REG_NAME_TestData));
 	GCHECK(metaClass);
 	
 	GScopedPointer<TestData> dataLib(new TestData);

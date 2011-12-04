@@ -1428,7 +1428,7 @@ IMetaAnnotationValue * G_API_CC ImplMetaAnnotation::getValue(const char * name)
 {
 	ENTER_META_API()
 
-	return new ImplMetaAnnotationValue(this->getAnnotation()->getValue(name));
+	return doCreateItem<ImplMetaAnnotationValue>(this->getAnnotation()->getValue(name));
 
 	LEAVE_META_API(return NULL)
 }

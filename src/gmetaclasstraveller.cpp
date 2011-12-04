@@ -5,6 +5,50 @@
 namespace cpgf {
 
 
+GMetaClassTraveller::Node::Node(IMetaClass * metaClass, void * instance, IMetaClass * derived)
+	: metaClass(metaClass), instance(instance), derived(derived)
+{
+	this->retain();
+}
+
+GMetaClassTraveller::Node::Node(const GMetaClassTraveller::Node & other)
+	: metaClass(other.metaClass), instance(other.instance), derived(other.derived)
+{
+	this->retain();
+}
+
+GMetaClassTraveller::Node & GMetaClassTraveller::Node::operator = (const GMetaClassTraveller::Node & other)
+{
+	this->metaClass = other.metaClass;
+	this->instance = other.instance;
+	this->derived = other.derived;
+
+	this->retain();
+
+	return *this;
+}
+
+GMetaClassTraveller::Node::~Node()
+{
+	if(this->metaClass != NULL) {
+		this->metaClass->releaseReference();
+	}
+	if(this->derived != NULL) {
+		this->derived->releaseReference();
+	}
+}
+
+void GMetaClassTraveller::Node::retain()
+{
+	if(this->metaClass != NULL) {
+		this->metaClass->addReference();
+	}
+	if(this->derived != NULL) {
+		this->derived->addReference();
+	}
+}
+
+
 GMetaClassTraveller::GMetaClassTraveller(IMetaClass * metaClass, void * instance)
 {
 	metaClass->addReference();

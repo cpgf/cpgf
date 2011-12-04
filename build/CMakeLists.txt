@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 2.8)
 
 include(build.config.txt)
 
+set(TEST_GCOV 1)
+
 set(CMAKE_BUILD_TYPE Release)
 
 if(${BUILD_DEBUG})
@@ -119,9 +121,9 @@ if(CMAKE_COMPILER_IS_GNUCC)
 	set(LIB_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
 	set(TEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
 	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
-if(UNIX)
+if(TEST_GCOV)
 	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0 -fprofile-arcs -ftest-coverage")
-endif(UNIX)
+endif(TEST_GCOV)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)
@@ -271,9 +273,11 @@ if(${HAS_UNITTEST})
 			${SRC_TEST_SRC}
 	)
 
-	if(UNIX)
-		target_link_libraries(${TARGET_UNITTEST} gcov)
-	endif(UNIX)
+	if(CMAKE_COMPILER_IS_GNUCC)
+		if(TEST_GCOV)
+			target_link_libraries(${TARGET_UNITTEST} gcov)
+		endif(TEST_GCOV)
+	endif(CMAKE_COMPILER_IS_GNUCC)
 
 	if(HAS_LUA)
 		target_link_libraries(${TARGET_UNITTEST} ${LUA_LIB})

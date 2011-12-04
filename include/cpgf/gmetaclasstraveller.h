@@ -16,11 +16,18 @@ struct IMetaClass;
 class GMetaClassTraveller : public GNoncopyable
 {
 private:
-	struct Node {
-		Node(IMetaClass * metaClass, void * instance, IMetaClass * derived)
-			: metaClass(metaClass), instance(instance), derived(derived) {
-		}
+	class Node {
+	public:
+		Node(IMetaClass * metaClass, void * instance, IMetaClass * derived);
+		~Node();
 
+		Node(const Node & other);
+		Node & operator = (const Node & other);
+
+	private:
+		void retain();
+
+	public:
 		IMetaClass * metaClass;
 		void * instance;
 		IMetaClass * derived;

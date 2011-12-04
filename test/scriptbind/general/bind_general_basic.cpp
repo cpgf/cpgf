@@ -2,6 +2,54 @@
 
 namespace {
 
+
+void testValueAssign(TestScriptContext * context)
+{
+	QDO(a = "what")
+	QDO(b = 1)
+	QASSERT(a == "what")
+	QASSERT(b == 1)
+
+	if(context->getBindingLib()) {
+		context->getBindingLib()->assignValue("a", "b");
+		context->getBindingLib()->assignValue("b", "c");
+	}
+	
+	if(context->getBindingApi()) {
+		context->getBindingApi()->assignValue("a", "b");
+		context->getBindingApi()->assignValue("b", "c");
+	}
+	QASSERT(b == "what")
+	QASSERT(c == "what")
+}
+
+#define CASE testValueAssign
+#include "../bind_testcase.h"
+
+
+void testValueIsNull(TestScriptContext * context)
+{
+	if(context->isLua()) {
+		QDO(imnull = nil)
+	}
+
+	if(context->isV8()) {
+		QDO(imnull = null)
+	}
+	
+	if(context->getBindingLib()) {
+		GCHECK(context->getBindingLib()->valueIsNull("imnull"));
+	}
+	
+	if(context->getBindingApi()) {
+		GCHECK(context->getBindingApi()->valueIsNull("imnull"));
+	}
+}
+
+#define CASE testValueIsNull
+#include "../bind_testcase.h"
+
+
 void testEnum(TestScriptContext * context)
 {
 	QASSERT(TestEnum.teCpp == 1)
@@ -37,6 +85,17 @@ void testInnerClass(TestScriptContext * context)
 }
 
 #define CASE testInnerClass
+#include "../bind_testcase.h"
+
+
+void testMisc(TestScriptContext * context)
+{
+	QASSERT(testString == "TestingScript!")
+	QASSERT(testInt == 1978)
+	QASSERT(testObj.value == 2012)
+}
+
+#define CASE testMisc
 #include "../bind_testcase.h"
 
 

@@ -146,6 +146,7 @@ namespace {
 
 	const char * signatureKey = "i_sig_cpgf";
 	const int signatureValue = 0x168feed;
+	const char * userDataKey = "i_userdata_cpgf";
 
 	template <typename T>
 	void setObjectSignature(T * object)
@@ -192,6 +193,10 @@ namespace {
 			return sdtNull;
 		}
 
+		if(value->IsUndefined()) {
+			return sdtNull;
+		}
+
 		if(value->IsBoolean()) {
 			return sdtFundamental;
 		}
@@ -207,37 +212,76 @@ namespace {
 		if(value->IsFunction() || value->IsObject()) {
 			Local<Object> obj = value->ToObject();
 			if(isValidObject(obj)) {
-				GScriptUserData * userData = static_cast<GScriptUserData *>(obj->GetPointerFromInternalField(0));
-				if(userData != NULL) {
-					switch(userData->getType()) {
-						case udtClass: {
-							GClassUserData * classData = static_cast<GClassUserData *>(userData);
-							if(typeItem != NULL) {
-								*typeItem = classData->metaClass;
-								(*typeItem)->addReference();
-							}
-							if(classData->instance == NULL) {
-								return sdtClass;
-							}
-							else {
-								return sdtObject;
+				if(obj->InternalFieldCount() == 0) {
+					Handle<Value> value = obj->GetHiddenValue(v8::String::New(userDataKey));
+					if(! value.IsEmpty()) {
+						if(value->IsExternal()) {
+							GScriptUserData * userData = static_cast<GScriptUserData *>(Handle<External>::Cast(value)->Value());
+							switch(userData->getType()) {
+								case udtClass:
+									if(typeItem != NULL) {
+										*typeItem = static_cast<GClassUserData *>(userData)->metaClass;
+										(*typeItem)->addReference();
+									}
+									return sdtClass;
+
+								case udtMethodList:
+									return sdtMethodList;
+
+								default:
+									break;
 							}
 						}
+					}
 
-						break;
+				}
+				else {
+					GScriptUserData * userData = static_cast<GScriptUserData *>(obj->GetPointerFromInternalField(0));
+					if(userData != NULL) {
+						switch(userData->getType()) {
+							case udtClass: {
+								GClassUserData * classData = static_cast<GClassUserData *>(userData);
+								if(typeItem != NULL) {
+									*typeItem = classData->metaClass;
+									(*typeItem)->addReference();
+								}
+								if(classData->instance == NULL) {
+									return sdtClass;
+								}
+								else {
+									return sdtObject;
+								}
+							}
 
-						case udtMethod:
-							return sdtMethod;
-						break;
+							break;
 
-						case udtMethodList:
-							return sdtMethodList;
-						break;
+							case udtMethod:
+								return sdtMethod;
+							break;
 
-						default:
-						break;
+							case udtMethodList:
+								return sdtMethodList;
+							break;
+
+							case udtEnum:
+								if(typeItem != NULL) {
+									*typeItem = gdynamic_cast<GEnumUserData *>(userData)->metaEnum;
+									(*typeItem)->addReference();
+								}
+								return sdtEnum;
+
+							default:
+							break;
+						}
 					}
 				}
+			}
+
+			if(value->IsFunction()) {
+				return sdtScriptMethod;
+			}
+			else {
+				return sdtScriptObject;
 			}
 		}
 
@@ -654,6 +698,14 @@ namespace {
 		}
 		functionTemplate->SetClassName(String::New(name));
 
+		Local<Function> func = functionTemplate->GetFunction();
+		setObjectSignature(&func);
+		GV8MethodUserData * funcUserData = new GV8MethodUserData(param, metaClass, methodList, name);
+		Persistent<External> funcData = Persistent<External>::New(External::New(funcUserData));
+		getUserDataPool()->addUserData(funcUserData);
+		funcData.MakeWeak(funcUserData, weakHandleCallback);
+		func->SetHiddenValue(v8::String::New(userDataKey), funcData);
+
 		return functionTemplate;
 	}
 
@@ -767,7 +819,7 @@ namespace {
 						mapItem->setData(data);
 						GV8MethodUserData * newUserData;
 
-						// choose the class to bind to the method (i.e, to call the method, an object must be the class or the class' derived)
+						// select the class to bind to the method (i.e, to call the method, an object must be the class or the class' derived)
 						// that to ensure v8::Arguments::Holder is correct
 						GScopedInterface<IMetaClass> boundClass;
 						if(!derived) {
@@ -792,10 +844,8 @@ namespace {
 						newUserData->name = name;
 						data->setUserData(newUserData);
 					}
-					Local<Function> func = data->functionTemplate->GetFunction();
-					setObjectSignature(&func);
 
-					return func;
+					return data->functionTemplate->GetFunction();
 				}
 
 				case mmitEnum:
@@ -1100,6 +1150,15 @@ namespace {
 			functionTemplate->Inherit(baseFunctionTemplate);
 		}
 
+		Local<Function> classFunction = functionTemplate->GetFunction();
+		setObjectSignature(&classFunction);
+		bindClassItems(classFunction, param, metaClass, true, false);
+		GClassUserData * classUserData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
+		getUserDataPool()->addUserData(classUserData);
+		Persistent<External> classData = Persistent<External>::New(External::New(classUserData));
+		classData.MakeWeak(classUserData, weakHandleCallback);
+		classFunction->SetHiddenValue(v8::String::New(userDataKey), classData);
+
 		return functionTemplate;
 	}
 
@@ -1109,7 +1168,6 @@ namespace {
 
 		Handle<FunctionTemplate> functionTemplate = createClassTemplate(param, name, metaClass);
 		container->Set(v8::String::New(name), functionTemplate->GetFunction());
-		bindClassItems(functionTemplate->GetFunction(), param, metaClass, true, false);
 	}
 
 } // unnamed namespace
@@ -1213,6 +1271,11 @@ GScriptObject * GV8ScriptObject::createScriptObject(const char * name)
 
 	v8::HandleScope handleScope;
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
+
+	Local<Value> value = localObject->Get(String::New(name));
+	if(isValidObject(value)) {
+		return NULL;
+	}
 
 	Handle<ObjectTemplate> objectTemplate = ObjectTemplate::New();
 	Local<Object> obj = objectTemplate->NewInstance();
@@ -1422,7 +1485,12 @@ GVariant GV8ScriptObject::getFundamental(const char * name)
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
 	Local<Value> value = localObject->Get(String::New(name));
-	return v8ToVariant(value).getValue();
+	if(getV8Type(value, NULL) == sdtFundamental) {
+		return v8ToVariant(value).getValue();
+	}
+	else {
+		return GVariant();
+	}
 
 	LEAVE_V8(return GVariant())
 }
@@ -1553,121 +1621,6 @@ IScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Objec
 } // namespace cpgf
 
 
-#if 0
-
-bool executeString(const char * source, bool print_result = true)
-{
-	using namespace v8;
-
-	v8::HandleScope handle_scope;
-	v8::TryCatch try_catch;
-	v8::Handle<v8::Script> script = v8::Script::Compile(String::New(source), String::New("sample"));
-	if(script.IsEmpty()) {
-		v8::String::AsciiValue error(try_catch.Exception());
-		printf("%s\n", *error);
-		return false;
-	}
-	else {
-		v8::Handle<v8::Value> result = script->Run();
-		if(result.IsEmpty()) {
-			v8::String::AsciiValue error(try_catch.Exception());
-			printf("%s\n", *error);
-			return false;
-		}
-		else {
-			if (print_result && !result->IsUndefined()) {
-				v8::String::AsciiValue str(result);
-				printf("%s\n", *str);
-			}
-			return true;
-		}
-	}
-}
-
-void testBindV8()
-{
-	using namespace v8;
-	using namespace cpgf;
-	using namespace testscript;
-
-	cpgf::GScopedInterface<cpgf::IMetaService> service(cpgf::createDefaultMetaService());
-
-	HandleScope handle_scope;
-
-	Persistent<Context> context = Context::New();
-	Context::Scope contextScope(context);
-
-	GScopedPointer<GV8ScriptObject> script(new GV8ScriptObject(service.get(), context->Global(), GScriptConfig()));
-
-	script->bindFundamental("x", 1999); executeString("x");
-	script->bindFundamental("x", true); executeString("x");
-	script->bindFundamental("x", "This is a string"); executeString("x");
-
-	GScopedInterface<IMetaClass> metaClass(service->findClassByName("testscript::TestObject"));
-	GScopedInterface<IMetaField> metaField(metaClass->getField("value"));
-
-	TestObject obj;
-
-	obj.value = 3838;
-	script->bindAccessible("v", &obj, metaField.get());
-	executeString("v");
-	executeString("v = 5");
-	cout << obj.value << endl;
-
-	script->bindClass("TestObject", metaClass.get());
-	metaClass.reset(service->findClassByName("testscript::BasicA"));
-	script->bindClass("BasicA", metaClass.get());
-
-	GScopedInterface<IMetaModule> module(service->getModuleAt(0));
-	GScopedInterface<IMetaClass> metaGlobal(module->getGlobalMetaClass());
-	GScopedInterface<IMetaEnum> metaEnum(metaGlobal->getEnum("testscript::TestEnum"));
-	script->bindEnum("TestEnum", metaEnum.get());
-
-	GScopedPointer<GScriptObject> myscope(script->createScriptObject("myscope"));
-	myscope->bindEnum("ScopeTestEnum", metaEnum.get());
-	myscope->bindString("BindString", "This is a bound string."); executeString("myscope.BindString");
-
-	executeString("a = new TestObject()");
-	executeString("b = new TestObject()");
-	executeString("a.value = 67");
-	executeString("b.value = 18");
-	executeString("a.value");
-	executeString("b.value");
-	executeString("a.add(8)");
-	executeString("b = {}");
-	executeString("b.__proto__ = a");
-	executeString("b.add(9)");
-	executeString("a instanceof TestObject");
-	executeString("b = a.self()");
-	executeString("b.value");
-	executeString("b.add(8)");
-	executeString("b instanceof TestObject");
-
-	executeString("a = new BasicA()");
-	executeString("a.BasicEnum.a");
-	executeString("a.b");
-	executeString("b = new a.Inner()");
-	executeString("b.x");
-	executeString("b.add()");
-	executeString("b.x");
-
-	executeString("TestEnum.teCpp");
-
-	executeString("myscope.ScopeTestEnum.teLua");
-
-	executeString("value = 58");
-	cout << fromVariant<int>(script->getFundamental("value")) << endl;
-
-	executeString("function myFunc(n) { return n * 2; } ");
-	GMetaVariant params[10];
-	params[0] = 5;
-	cout << fromVariant<int>(script->invoke("myFunc", params, 1).getValue()) << endl;
-
-	context.Dispose();
-	context.Clear();
-}
-
-#endif
 
 
 #if defined(_MSC_VER)

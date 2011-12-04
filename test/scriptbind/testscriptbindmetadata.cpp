@@ -46,10 +46,12 @@ void bindEnum(T * script, cpgf::IMetaService * service, const char * metaName, c
 
 
 template <typename T>
-void bindBasicClass(T * script, cpgf::IMetaService * service)
+void bindBasicInfo(T * script, cpgf::IMetaService * service)
 {
-	bindClass(script, service, "testscript::TestObject", "TestObject");
-	bindClass(script, service, "testscript::TestData", "TestData");
+	using namespace cpgf;
+	
+	bindClass(script, service, REG_NAME_TestObject, "TestObject");
+	bindClass(script, service, REG_NAME_TestData, "TestData");
 	bindClass(script, service, "testscript::TestBase", "TestBase");
 	bindClass(script, service, "testscript::TestOperator", "TestOperator");
 	
@@ -63,13 +65,19 @@ void bindBasicClass(T * script, cpgf::IMetaService * service)
 	bindClass(script, service, "testscript::DeriveD", "DeriveD");
 	bindClass(script, service, "testscript::DeriveE", "DeriveE");
 
-	bindClass(script, service, "testscript::BasicA", "BasicA");
+	bindClass(script, service, REG_NAME_BasicA, "BasicA");
+	
+	script->bindString("testString", testString);
+
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName(REG_NAME_TestObject));
+	TestObject * obj = new TestObject(testObjValue);
+	script->bindObject("testObj", obj, metaClass.get(), true);
 }
 
 
 void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
 {
-	bindBasicClass(script, service);
+	bindBasicInfo(script, service);
 
 	script->bindFundamental("Magic1", Magic1);
 	script->bindFundamental("Magic2", Magic2);
@@ -77,6 +85,8 @@ void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
 
 	bindMethod(script, service, "scriptAssert", "scriptAssert");
 	bindEnum(script, service, "testscript::TestEnum", "TestEnum");
+
+	script->bindFundamental("testInt", testInt);
 }
 
 
@@ -84,7 +94,7 @@ void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
 {
 	using namespace cpgf;
 
-	bindBasicClass(script, service);
+	bindBasicInfo(script, service);
 
 	GVariant v;
 
@@ -98,7 +108,10 @@ void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
 	script->bindFundamental("Magic3", &v.data);
 
 	bindMethod(script, service, "scriptAssert", "scriptAssert");
-	bindEnum(script, service, "testscript::TestEnum", "TestEnum");
+	bindEnum(script, service, REG_NAME_TestEnum, "TestEnum");
+
+	v = testInt;
+	script->bindFundamental("testInt", &v.data);
 }
 
 
@@ -109,7 +122,7 @@ void scriptAssert(bool b)
 	}
 }
 
-GMETA_DEFINE_CLASS(TestData, TestData, "testscript::TestData") {
+GMETA_DEFINE_CLASS(TestData, TestData, REG_NAME_TestData) {
 	using namespace cpgf;
 
 	GMETA_FIELD(x);
@@ -140,7 +153,7 @@ GMETA_DEFINE_CLASS(TestC, TestC, "testscript::TestC", TestB) {
 	GMETA_METHOD(getValue);
 }
 
-GMETA_DEFINE_CLASS(TestObject, TestObject, "testscript::TestObject") {
+GMETA_DEFINE_CLASS(TestObject, TestObject, REG_NAME_TestObject) {
 	using namespace cpgf;
 	using namespace std;
 
@@ -254,7 +267,7 @@ GMETA_DEFINE_CLASS(BasicA::Inner, BasicA_Inner, "Inner") {
 	GMETA_METHOD(add);
 }
 	
-GMETA_DEFINE_CLASS(BasicA, BasicA, "testscript::BasicA") {
+GMETA_DEFINE_CLASS(BasicA, BasicA, REG_NAME_BasicA) {
 	using namespace cpgf;
 
 	GMETA_QUALIFIED_CLASS(BasicA::Inner);
@@ -272,7 +285,7 @@ GMETA_DEFINE_GLOBAL() {
 
 	reflectMethod("scriptAssert", &scriptAssert);
 	
-	reflectEnum<TestEnum>("testscript::TestEnum")
+	reflectEnum<TestEnum>(REG_NAME_TestEnum)
 		("teCpp", teCpp)
 		("teLua", teLua)
 		("teV8", teV8);

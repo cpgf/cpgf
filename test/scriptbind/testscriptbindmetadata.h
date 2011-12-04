@@ -11,6 +11,12 @@
 #include <string>
 
 
+#define REG_NAME_TestObject "testscript::TestObject"
+#define REG_NAME_TestData "testscript::TestData"
+#define REG_NAME_TestEnum "testscript::TestEnum"
+#define REG_NAME_BasicA "testscript::BasicA"
+
+
 namespace testscript {
 
 const int Magic1 = 0x1999;
@@ -345,6 +351,9 @@ enum TestEnum {
 	teCpp = 1, teLua = 2, teV8 = 3
 };
 
+const char * const testString = "TestingScript!";
+const int testInt = 1978;
+const int testObjValue = 2012;
 
 }
 

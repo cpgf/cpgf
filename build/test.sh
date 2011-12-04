@@ -12,4 +12,6 @@ if [ $? != 0 ]; then
 	exit 1
 fi
 
+find temp_cache/ -name \*.gcda | xargs rm
+
 bin/test
