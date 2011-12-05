@@ -17,6 +17,7 @@ void doTestGetType(T * binding, TestScriptContext * context)
 	QDO(s = "abc")
 	QDO(i = 38)
 	QDO(f = 3.14159265)
+	QDO(func = obj.add)
 
 	RITEM;
 	GCHECK(binding->getType("notExist", &tempItem) == sdtNull);
@@ -28,6 +29,11 @@ void doTestGetType(T * binding, TestScriptContext * context)
 	CHKITEM;
 	GCHECK(item);
 	GCHECK(string(item->getName()) == REG_NAME_TestObject);
+
+	RITEM;
+	GCHECK(binding->getType("func", &tempItem) == sdtScriptMethod);
+	CHKITEM;
+	GCHECK(! item);
 
 	RITEM;
 	GCHECK(binding->getType("TestObject", &tempItem) == sdtClass);
@@ -57,12 +63,12 @@ void doTestGetType(T * binding, TestScriptContext * context)
 	GCHECK(! item);
 
 	RITEM;
-	if(context->isLua()) {
-		GCHECK(binding->getType("scriptAssert", &tempItem) == sdtMethod);
-	}
-	if(context->isV8()) {
-		GCHECK(binding->getType("scriptAssert", &tempItem) == sdtMethodList);
-	}
+	GCHECK(binding->getType("scriptAssert", &tempItem) == sdtMethod);
+	CHKITEM;
+	GCHECK(! item);
+
+	RITEM;
+	GCHECK(binding->getType("testAdd", &tempItem) == sdtMethodList);
 	CHKITEM;
 	GCHECK(! item);
 }
@@ -87,20 +93,11 @@ void doTestGetMethod(T * binding, TestScriptContext * context)
 	(void)context;
 
 	GScopedInterface<IMetaMethod> method;
-	GScopedInterface<IMetaList> methodList;
 
 	GCHECK(binding->getMethod("notExist", NULL) == NULL);
-	GCHECK(binding->getMethodList("notExist") == NULL);
 	
-	if(context->isLua()) {
-		method.reset(binding->getMethod("scriptAssert", NULL));
-		GCHECK(method);
-	}
-	if(context->isV8()) {
-		methodList.reset(binding->getMethodList("scriptAssert"));
-		GCHECK(methodList);
-		GCHECK(methodList->getCount() == 1);
-	}
+	method.reset(binding->getMethod("scriptAssert", NULL));
+	GCHECK(method);
 }
 
 void testGetMethod(TestScriptContext * context)
@@ -114,6 +111,34 @@ void testGetMethod(TestScriptContext * context)
 }
 
 #define CASE testGetMethod
+#include "../bind_testcase.h"
+
+
+template <typename T>
+void doTestGetMethodList(T * binding, TestScriptContext * context)
+{
+	(void)context;
+
+	GScopedInterface<IMetaList> methodList;
+
+	GCHECK(binding->getMethodList("notExist") == NULL);
+	
+	methodList.reset(binding->getMethodList("testAdd"));
+	GCHECK(methodList);
+	GCHECK(methodList->getCount() == 3);
+}
+
+void testGetMethodList(TestScriptContext * context)
+{
+	if(context->getBindingLib() != NULL) {
+		doTestGetMethodList(context->getBindingLib(), context);
+	}
+	if(context->getBindingApi() != NULL) {
+		doTestGetMethodList(context->getBindingApi(), context);
+	}
+}
+
+#define CASE testGetMethodList
 #include "../bind_testcase.h"
 
 

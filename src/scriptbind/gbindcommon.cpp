@@ -457,6 +457,23 @@ void loadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * obj
 	}
 }
 
+GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType)
+{
+	switch(methodType) {
+		case udmtMethod:
+			return sdtMethod;
+
+		case udmtMethodList:
+			return sdtMethodList;
+
+		case udmtInternal:
+			return sdtScriptMethod;
+
+		default:
+			return sdtUnknown;
+	}
+}
+
 
 } // namespace cpgf
 

@@ -4,6 +4,20 @@
 namespace {
 
 
+void Method_OverloadGlobal(TestScriptContext * context)
+{
+	QASSERT(testAdd(8) == 1 + 8)
+	QASSERT(testAdd(7, 8) == 2 + 7 + 8)
+	QASSERT(testAdd(9, 7, 8) == 3 + 9 + 7 + 8)
+	QASSERT(testAdd(9, 7, 8, 38, 68) == 3 + 9 + 7 + 8 + 38 + 68)
+}
+
+
+#define CASE Method_OverloadGlobal
+#include "../bind_testcase.h"
+
+
+
 void Method_Overload(TestScriptContext * context)
 {
 	QNEWOBJ(a, TestObject())

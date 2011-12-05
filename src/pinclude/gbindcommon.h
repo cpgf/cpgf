@@ -136,14 +136,20 @@ public:
 	IMetaMethod * method;
 };
 
+enum GUserDataMethodType {
+	udmtMethod,
+	udmtMethodList,
+	udmtInternal
+};
+
 class GMethodListUserData : public GScriptUserData
 {
 private:
 	typedef GScriptUserData super;
 
 public:
-	GMethodListUserData(GScriptBindingParam * param, IMetaList * methodList)
-		: super(udtMethodList, param), methodList(methodList) {
+	GMethodListUserData(GScriptBindingParam * param, IMetaList * methodList, GUserDataMethodType methodType)
+		: super(udtMethodList, param), methodList(methodList), methodType(methodType) {
 		this->methodList->addReference();
 	}
 
@@ -153,6 +159,7 @@ public:
 
 public:
 	IMetaList * methodList;
+	GUserDataMethodType methodType;
 };
 
 class GExtendMethodUserData : public GScriptUserData
@@ -161,8 +168,8 @@ private:
 	typedef GScriptUserData super;
 
 public:
-	GExtendMethodUserData(GScriptBindingParam * param, IMetaClass * metaClass, IMetaList * methodList, const char * name)
-		: super(udtExtendMethod, param), metaClass(metaClass), methodList(methodList), baseInstance(NULL), name(name) {
+	GExtendMethodUserData(GScriptBindingParam * param, IMetaClass * metaClass, IMetaList * methodList, const char * name, GUserDataMethodType methodType)
+		: super(udtExtendMethod, param), metaClass(metaClass), methodList(methodList), baseInstance(NULL), name(name), methodType(methodType) {
 		if(this->metaClass != NULL) {
 			this->metaClass->addReference();
 		}
@@ -185,6 +192,7 @@ public:
 	IMetaList * methodList;
 	void * baseInstance;
 	std::string name;
+	GUserDataMethodType methodType;
 };
 
 // NOTE: Now the other code assumes that GOperatorUserData doesn't need to free any resource.
@@ -451,6 +459,8 @@ void loadMethodList(GMetaClassTraveller * traveller,
 
 void loadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * objectMetaClass,
 	void * objectInstance, GClassUserData * userData, const char * methodName);
+
+GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType);
 
 
 } // namespace cpgf

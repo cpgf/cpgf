@@ -226,7 +226,7 @@ namespace {
 									return sdtClass;
 
 								case udtExtendMethod:
-									return sdtMethodList;
+									return methodTypeToUserDataType(gdynamic_cast<GExtendMethodUserData *>(userData)->methodType);
 
 								default:
 									break;
@@ -253,14 +253,6 @@ namespace {
 								}
 							}
 
-							break;
-
-							case udtMethod:
-								return sdtMethod;
-							break;
-
-							case udtExtendMethod:
-								return sdtMethodList;
 							break;
 
 							case udtEnum:
@@ -674,13 +666,13 @@ namespace {
 	}
 
 	v8::Handle<v8::FunctionTemplate> createMethodTemplate(GScriptBindingParam * param, IMetaClass * metaClass, bool isGlobal, IMetaList * methodList,
-		const char * name, v8::Handle<v8::FunctionTemplate> classTemplate, GExtendMethodUserData ** outUserData)
+		const char * name, v8::Handle<v8::FunctionTemplate> classTemplate, GUserDataMethodType methodType, GExtendMethodUserData ** outUserData)
 	{
 		using namespace v8;
 
 		(void)classTemplate;
 
-		GExtendMethodUserData * userData = new GExtendMethodUserData(param, metaClass, methodList, name);
+		GExtendMethodUserData * userData = new GExtendMethodUserData(param, metaClass, methodList, name, methodType);
 		if(outUserData != NULL) {
 			*outUserData = userData;
 		}
@@ -700,7 +692,7 @@ namespace {
 
 		Local<Function> func = functionTemplate->GetFunction();
 		setObjectSignature(&func);
-		GExtendMethodUserData * funcUserData = new GExtendMethodUserData(param, metaClass, methodList, name);
+		GExtendMethodUserData * funcUserData = new GExtendMethodUserData(param, metaClass, methodList, name, methodType);
 		Persistent<External> funcData = Persistent<External>::New(External::New(funcUserData));
 		getUserDataPool()->addUserData(funcUserData);
 		funcData.MakeWeak(funcUserData, weakHandleCallback);
@@ -839,7 +831,7 @@ namespace {
 
 						GMetaMapClass * baseMapClass = userData->getParam()->getMetaMap()->findClassMap(boundClass.get());
 						data->setTemplate(createMethodTemplate(userData->getParam(), userData->metaClass, userData->instance == NULL, methodList.get(), name,
-							static_cast<GMapItemClassData *>(baseMapClass->getData())->functionTemplate, &newUserData));
+							static_cast<GMapItemClassData *>(baseMapClass->getData())->functionTemplate, udmtInternal, &newUserData));
 						newUserData->baseInstance = userData->instance;
 						newUserData->name = name;
 						data->setUserData(newUserData);
@@ -1189,6 +1181,54 @@ public:
 		this->object.Dispose();
 	}
 
+	void doBindMethodList(const char * name, IMetaList * methodList, GUserDataMethodType methodType)
+	{
+		using namespace v8;
+
+		v8::HandleScope handleScope;
+		v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->object));
+
+		GExtendMethodUserData * newUserData;
+		Handle<FunctionTemplate> functionTemplate = createMethodTemplate(&this->param, NULL, true, methodList, name,
+			Handle<FunctionTemplate>(), methodType, &newUserData);
+
+		Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
+		setObjectSignature(&func);
+		func.MakeWeak(NULL, weakHandleCallback);
+
+		localObject->Set(v8::String::New(name), func);
+	}
+
+	GExtendMethodUserData * doGetMethodUserData(const char * methodName)
+	{
+		using namespace v8;
+
+		v8::HandleScope handleScope;
+		v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->object));
+
+		Local<Value> value = localObject->Get(String::New(methodName));
+		if(isValidObject(value)) {
+			Local<Object> obj = Local<Object>::Cast(value);
+			if(obj->InternalFieldCount() == 0) {
+				Handle<Value> data = obj->GetHiddenValue(v8::String::New(userDataKey));
+				if(! data.IsEmpty()) {
+					if(data->IsExternal()) {
+						GScriptUserData * userData = static_cast<GScriptUserData *>(Handle<External>::Cast(data)->Value());
+						if(userData->getType() == udtExtendMethod) {
+							GExtendMethodUserData * methodListData = static_cast<GExtendMethodUserData *>(userData);
+							if(methodListData->methodList != NULL) {
+								return methodListData;
+							}
+						}
+					}
+				}
+
+			}
+		}
+
+		return NULL;
+	}
+
 public:
 	GScriptBindingParam param;
 	v8::Persistent<v8::Object> object;
@@ -1421,30 +1461,21 @@ void GV8ScriptObject::bindObject(const char * objectName, void * instance, IMeta
 
 void GV8ScriptObject::bindMethod(const char * name, void * instance, IMetaMethod * method)
 {
+	ENTER_V8()
+
 	GScopedInterface<IMetaList> methodList(createMetaList());
 	methodList->add(method, instance);
 
-	this->bindMethodList(name, methodList.get());
+	this->implement->doBindMethodList(name, methodList.get(), udmtMethod);
+
+	LEAVE_V8()
 }
 
 void GV8ScriptObject::bindMethodList(const char * name, IMetaList * methodList)
 {
-	using namespace v8;
-
 	ENTER_V8()
 
-	v8::HandleScope handleScope;
-	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
-
-	GExtendMethodUserData * newUserData;
-	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(&this->implement->param, NULL, true, methodList, name,
-		Handle<FunctionTemplate>(), &newUserData);
-
-	Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
-	setObjectSignature(&func);
-	func.MakeWeak(NULL, weakHandleCallback);
-
-	localObject->Set(v8::String::New(name), func);
+	this->implement->doBindMethodList(name, methodList, udmtMethodList);
 
 	LEAVE_V8()
 }
@@ -1533,13 +1564,25 @@ void * GV8ScriptObject::getObject(const char * objectName)
 
 IMetaMethod * GV8ScriptObject::getMethod(const char * methodName, void ** outInstance)
 {
-	(void)methodName;
+	ENTER_V8()
 
 	if(outInstance != NULL) {
 		*outInstance = NULL;
 	}
 
-	return NULL;
+	GExtendMethodUserData * userData = this->implement->doGetMethodUserData(methodName);
+	if(userData != NULL && userData->methodType == udmtMethod) {
+		if(outInstance != NULL) {
+			*outInstance = userData->methodList->getInstanceAt(0);
+		}
+
+		return gdynamic_cast<IMetaMethod *>(userData->methodList->getAt(0));
+	}
+	else {
+		return NULL;
+	}
+
+	LEAVE_V8(return NULL)
 }
 
 IMetaList * GV8ScriptObject::getMethodList(const char * methodName)
@@ -1548,31 +1591,15 @@ IMetaList * GV8ScriptObject::getMethodList(const char * methodName)
 
 	ENTER_V8()
 
-	v8::HandleScope handleScope;
-	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
+	GExtendMethodUserData * userData = this->implement->doGetMethodUserData(methodName);
+	if(userData != NULL && userData->methodType == udmtMethodList) {
+		userData->methodList->addReference();
 
-	Local<Value> value = localObject->Get(String::New(methodName));
-	if(isValidObject(value)) {
-		Local<Object> obj = Local<Object>::Cast(value);
-		if(obj->InternalFieldCount() == 0) {
-			Handle<Value> data = obj->GetHiddenValue(v8::String::New(userDataKey));
-			if(! data.IsEmpty()) {
-				if(data->IsExternal()) {
-					GScriptUserData * userData = static_cast<GScriptUserData *>(Handle<External>::Cast(data)->Value());
-					if(userData->getType() == udtExtendMethod) {
-						GExtendMethodUserData * methodListData = static_cast<GExtendMethodUserData *>(userData);
-						if(methodListData->methodList != NULL) {
-							methodListData->methodList->addReference();
-
-							return methodListData->methodList;
-						}
-					}
-				}
-			}
-
-		}
+		return userData->methodList;
 	}
-	return NULL;
+	else {
+		return NULL;
+	}
 
 	LEAVE_V8(return NULL)
 }

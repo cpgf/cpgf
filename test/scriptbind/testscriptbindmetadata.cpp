@@ -72,6 +72,19 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(REG_NAME_TestObject));
 	TestObject * obj = new TestObject(testObjValue);
 	script->bindObject("testObj", obj, metaClass.get(), true);
+
+	GScopedInterface<IMetaModule> module(service->getModuleAt(0));
+	GScopedInterface<IMetaClass> global(module->getGlobalMetaClass());
+	GScopedInterface<IMetaMethod> method;
+	GScopedInterface<IMetaList> metaList(createMetaList());
+
+	method.reset(global->getMethod("testAdd1"));
+	metaList->add(method.get(), NULL);
+	method.reset(global->getMethod("testAdd2"));
+	metaList->add(method.get(), NULL);
+	method.reset(global->getMethod("testAddN"));
+	metaList->add(method.get(), NULL);
+	script->bindMethodList("testAdd", metaList.get());
 }
 
 
@@ -283,7 +296,10 @@ GMETA_DEFINE_CLASS(BasicA, BasicA, REG_NAME_BasicA) {
 GMETA_DEFINE_GLOBAL() {
 	using namespace cpgf;
 
-	reflectMethod("scriptAssert", &scriptAssert);
+	GMETA_QUALIFIED_METHOD(scriptAssert);
+	GMETA_QUALIFIED_METHOD(testAdd1);
+	GMETA_QUALIFIED_METHOD(testAdd2);
+	GMETA_QUALIFIED_METHOD(testAddN);
 	
 	reflectEnum<TestEnum>(REG_NAME_TestEnum)
 		("teCpp", teCpp)

@@ -355,6 +355,24 @@ const char * const testString = "TestingScript!";
 const int testInt = 1978;
 const int testObjValue = 2012;
 
+inline int testAdd1(int a) {
+	return 1 + a;
+}
+
+inline int testAdd2(int a, int b) {
+	return 2 + a + b;
+}
+
+inline int testAddN(const cpgf::GMetaVariadicParam * params) {
+	int total = 3;
+	for(size_t i = 0; i < params->paramCount; ++i) {
+		total += cpgf::fromVariant<int>(*(params->params[i]));
+	}
+
+	return total;
+}
+
+
 }
 
 
