@@ -99,17 +99,17 @@ namespace {
 			this->functionTemplate = v8::Persistent<v8::FunctionTemplate>::New(newTemplate);
 		}
 
-		void setUserData(GV8MethodUserData * userData) {
+		void setUserData(GExtendMethodUserData * userData) {
 			this->userData = userData;
 		}
 
-		GV8MethodUserData * getUserData() const {
+		GExtendMethodUserData * getUserData() const {
 		    return this->userData;
 		}
 
 	public:
 		v8::Persistent<v8::FunctionTemplate> functionTemplate;
-		GV8MethodUserData * userData;
+		GExtendMethodUserData * userData;
 	};
 
 	class GMapItemEnumData : public GMetaMapItemData
@@ -225,7 +225,7 @@ namespace {
 									}
 									return sdtClass;
 
-								case udtMethodList:
+								case udtExtendMethod:
 									return sdtMethodList;
 
 								default:
@@ -259,7 +259,7 @@ namespace {
 								return sdtMethod;
 							break;
 
-							case udtMethodList:
+							case udtExtendMethod:
 								return sdtMethodList;
 							break;
 
@@ -623,7 +623,7 @@ namespace {
 		}
 
 		Local<External> data = Local<External>::Cast(args.Data());
-		GV8MethodUserData * namedUserData = static_cast<GV8MethodUserData *>(data->Value());
+		GExtendMethodUserData * namedUserData = static_cast<GExtendMethodUserData *>(data->Value());
 
 		InvokeCallableParam callableParam;
 		loadCallableParam(args, namedUserData->getParam(), &callableParam);
@@ -674,13 +674,13 @@ namespace {
 	}
 
 	v8::Handle<v8::FunctionTemplate> createMethodTemplate(GScriptBindingParam * param, IMetaClass * metaClass, bool isGlobal, IMetaList * methodList,
-		const char * name, v8::Handle<v8::FunctionTemplate> classTemplate, GV8MethodUserData ** outUserData)
+		const char * name, v8::Handle<v8::FunctionTemplate> classTemplate, GExtendMethodUserData ** outUserData)
 	{
 		using namespace v8;
 
 		(void)classTemplate;
 
-		GV8MethodUserData * userData = new GV8MethodUserData(param, metaClass, methodList, name);
+		GExtendMethodUserData * userData = new GExtendMethodUserData(param, metaClass, methodList, name);
 		if(outUserData != NULL) {
 			*outUserData = userData;
 		}
@@ -700,7 +700,7 @@ namespace {
 
 		Local<Function> func = functionTemplate->GetFunction();
 		setObjectSignature(&func);
-		GV8MethodUserData * funcUserData = new GV8MethodUserData(param, metaClass, methodList, name);
+		GExtendMethodUserData * funcUserData = new GExtendMethodUserData(param, metaClass, methodList, name);
 		Persistent<External> funcData = Persistent<External>::New(External::New(funcUserData));
 		getUserDataPool()->addUserData(funcUserData);
 		funcData.MakeWeak(funcUserData, weakHandleCallback);
@@ -817,7 +817,7 @@ namespace {
 
 						data = new GMapItemMethodData;
 						mapItem->setData(data);
-						GV8MethodUserData * newUserData;
+						GExtendMethodUserData * newUserData;
 
 						// select the class to bind to the method (i.e, to call the method, an object must be the class or the class' derived)
 						// that to ensure v8::Arguments::Holder is correct
@@ -1436,7 +1436,7 @@ void GV8ScriptObject::bindMethodList(const char * name, IMetaList * methodList)
 	v8::HandleScope handleScope;
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
-	GV8MethodUserData * newUserData;
+	GExtendMethodUserData * newUserData;
 	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(&this->implement->param, NULL, true, methodList, name,
 		Handle<FunctionTemplate>(), &newUserData);
 
@@ -1553,12 +1553,23 @@ IMetaList * GV8ScriptObject::getMethodList(const char * methodName)
 
 	Local<Value> value = localObject->Get(String::New(methodName));
 	if(isValidObject(value)) {
-		GScriptUserData * userData = static_cast<GScriptUserData *>(Handle<Object>::Cast(value)->GetPointerFromInternalField(0));
-		if(userData != NULL && userData->getType() == udtMethodList) {
-			GMethodListUserData * methodListData = static_cast<GMethodListUserData *>(userData);
-			methodListData->methodList->addReference();
+		Local<Object> obj = Local<Object>::Cast(value);
+		if(obj->InternalFieldCount() == 0) {
+			Handle<Value> data = obj->GetHiddenValue(v8::String::New(userDataKey));
+			if(! data.IsEmpty()) {
+				if(data->IsExternal()) {
+					GScriptUserData * userData = static_cast<GScriptUserData *>(Handle<External>::Cast(data)->Value());
+					if(userData->getType() == udtExtendMethod) {
+						GExtendMethodUserData * methodListData = static_cast<GExtendMethodUserData *>(userData);
+						if(methodListData->methodList != NULL) {
+							methodListData->methodList->addReference();
 
-			return methodListData->methodList;
+							return methodListData->methodList;
+						}
+					}
+				}
+			}
+
 		}
 	}
 	return NULL;

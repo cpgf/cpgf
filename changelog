@@ -5,6 +5,7 @@ New version
 	Added unit tests for script binding of Lua and V8.
 	Removed GScriptName and changed all name type to const char *
 	Fixed a memory bug that cause binding engine wrong references to GScriptConfig on the stack.
+	Fixed memory leak in GScopedInterface when call "reset" with same pointer.
 
 2011-11-27 version 1.0.1
 	Refactored Lua binding, using better and faster algorithm to travel for data and methods.

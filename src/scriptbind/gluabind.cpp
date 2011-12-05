@@ -354,8 +354,28 @@ namespace {
 			case LUA_TTABLE:
 				return sdtScriptObject;
 
-			case LUA_TFUNCTION:
+			case LUA_TFUNCTION: {
+				lua_getupvalue(L, index, 1);
+				if(lua_isnil(L, -1)) {
+					lua_pop(L, 1);
+				}
+				else {
+					void * rawUserData = lua_touserdata(L, -1);
+					GScriptUserData * userData = static_cast<GScriptUserData *>(rawUserData);
+
+					switch(userData->getType()) {
+					case udtMethod:
+						return sdtMethod;
+						
+					case udtMethodList:
+						return sdtMethodList;
+
+					default:
+						break;
+					}
+				}
 				return sdtScriptMethod;
+			}
 
 		}
 		
@@ -1395,9 +1415,19 @@ IMetaMethod * GLuaScriptObject::getMethod(const char * methodName, void ** outIn
 		*outInstance = NULL;
 	}
 
-	if(isValidMetaTable(this->implement->luaState, -1)) {
-		void * userData = lua_touserdata(this->implement->luaState, -1);
-		if(static_cast<GScriptUserData *>(userData)->getType() == udtMethod) {
+	if(lua_type(this->implement->luaState, -1) != LUA_TFUNCTION) {
+		return NULL;
+	}
+
+	lua_getupvalue(this->implement->luaState, -1, 1);
+	if(lua_isnil(this->implement->luaState, -1)) {
+		lua_pop(this->implement->luaState, 1);
+	}
+	else {
+		void * rawUserData = lua_touserdata(this->implement->luaState, -1);
+		GScriptUserData * userData = static_cast<GScriptUserData *>(rawUserData);
+
+		if(userData->getType() == udtMethod) {
 			GMethodUserData * methodData = static_cast<GMethodUserData *>(userData);
 
 			if(outInstance != NULL) {
@@ -1423,9 +1453,19 @@ IMetaList * GLuaScriptObject::getMethodList(const char * methodName)
 
 	scopeGuard.get(methodName);
 
-	if(isValidMetaTable(this->implement->luaState, -1)) {
-		void * userData = lua_touserdata(this->implement->luaState, -1);
-		if(static_cast<GScriptUserData *>(userData)->getType() == udtMethodList) {
+	if(lua_type(this->implement->luaState, -1) != LUA_TFUNCTION) {
+		return NULL;
+	}
+
+	lua_getupvalue(this->implement->luaState, -1, 1);
+	if(lua_isnil(this->implement->luaState, -1)) {
+		lua_pop(this->implement->luaState, 1);
+	}
+	else {
+		void * rawUserData = lua_touserdata(this->implement->luaState, -1);
+		GScriptUserData * userData = static_cast<GScriptUserData *>(rawUserData);
+
+		if(userData->getType() == udtMethodList) {
 			GMethodListUserData * methodListData = static_cast<GMethodListUserData *>(userData);
 
 			IMetaList * methodList = methodListData->methodList;

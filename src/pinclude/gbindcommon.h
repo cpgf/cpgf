@@ -61,6 +61,7 @@ enum GScriptUserDataType {
 	udtClass,
 	udtMethod,
 	udtMethodList,
+	udtExtendMethod,
 	udtEnum,
 	udtOperator,
 	udtAccessible
@@ -154,14 +155,14 @@ public:
 	IMetaList * methodList;
 };
 
-class GV8MethodUserData : public GScriptUserData
+class GExtendMethodUserData : public GScriptUserData
 {
 private:
 	typedef GScriptUserData super;
 
 public:
-	GV8MethodUserData(GScriptBindingParam * param, IMetaClass * metaClass, IMetaList * methodList, const char * name)
-		: super(udtMethodList, param), metaClass(metaClass), methodList(methodList), baseInstance(NULL), name(name) {
+	GExtendMethodUserData(GScriptBindingParam * param, IMetaClass * metaClass, IMetaList * methodList, const char * name)
+		: super(udtExtendMethod, param), metaClass(metaClass), methodList(methodList), baseInstance(NULL), name(name) {
 		if(this->metaClass != NULL) {
 			this->metaClass->addReference();
 		}
@@ -170,7 +171,7 @@ public:
 		}
 	}
 
-	virtual ~GV8MethodUserData() {
+	virtual ~GExtendMethodUserData() {
 		if(this->metaClass != NULL) {
 			this->metaClass->releaseReference();
 		}

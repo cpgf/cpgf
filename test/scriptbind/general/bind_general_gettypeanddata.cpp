@@ -58,7 +58,7 @@ void doTestGetType(T * binding, TestScriptContext * context)
 
 	RITEM;
 	if(context->isLua()) {
-		GCHECK(binding->getType("scriptAssert", &tempItem) == sdtScriptMethod);
+		GCHECK(binding->getType("scriptAssert", &tempItem) == sdtMethod);
 	}
 	if(context->isV8()) {
 		GCHECK(binding->getType("scriptAssert", &tempItem) == sdtMethodList);
@@ -78,6 +78,42 @@ void testGetType(TestScriptContext * context)
 }
 
 #define CASE testGetType
+#include "../bind_testcase.h"
+
+
+template <typename T>
+void doTestGetMethod(T * binding, TestScriptContext * context)
+{
+	(void)context;
+
+	GScopedInterface<IMetaMethod> method;
+	GScopedInterface<IMetaList> methodList;
+
+	GCHECK(binding->getMethod("notExist", NULL) == NULL);
+	GCHECK(binding->getMethodList("notExist") == NULL);
+	
+	if(context->isLua()) {
+		method.reset(binding->getMethod("scriptAssert", NULL));
+		GCHECK(method);
+	}
+	if(context->isV8()) {
+		methodList.reset(binding->getMethodList("scriptAssert"));
+		GCHECK(methodList);
+		GCHECK(methodList->getCount() == 1);
+	}
+}
+
+void testGetMethod(TestScriptContext * context)
+{
+	if(context->getBindingLib() != NULL) {
+		doTestGetMethod(context->getBindingLib(), context);
+	}
+	if(context->getBindingApi() != NULL) {
+		doTestGetMethod(context->getBindingApi(), context);
+	}
+}
+
+#define CASE testGetMethod
 #include "../bind_testcase.h"
 
 

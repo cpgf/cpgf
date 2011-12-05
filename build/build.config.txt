@@ -17,7 +17,7 @@ set(UNIT_TEST_DIR
 	/source/UnitTest++
 )
 
-set(TEST_GCOV 1)
+set(TEST_GCOV 0)
 if(UNIX)
 	# disable gcov on Linux, otherwise, valgrind will become super slow.
 	set(TEST_GCOV 0)
