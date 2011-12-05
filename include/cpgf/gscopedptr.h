@@ -8,28 +8,34 @@ namespace cpgf {
 
 
 template <typename T>
-class GScopedPointerDeleter_Delete
+struct GScopedPointerDeleter_Delete
 {
-public:
 	static inline void Delete(T * p) {
 		delete p;
 	}
 };
 
 template <typename T>
-class GScopedPointerDeleter_DeleteArray
+struct GScopedPointerDeleter_DeleteArray
 {
-public:
 	static inline void Delete(T * p) {
 		delete[] p;
 	}
 };
 
-template <typename T, typename Deleter = GScopedPointerDeleter_Delete<T> >
+template <typename T>
+struct GScopedPointerResetPredict
+{
+	static inline bool CanReset(T * pointerOfMine, T * pointerToReset) {
+		return pointerOfMine != pointerToReset;
+	}
+};
+
+template <typename T, typename Deleter = GScopedPointerDeleter_Delete<T>, typename ResetPredict = GScopedPointerResetPredict<T> >
 class GScopedPointer
 {
 private:
-    typedef GScopedPointer<T, Deleter> ThisType;
+    typedef GScopedPointer<T, Deleter, ResetPredict> ThisType;
 
 public:
 	GScopedPointer(): rawPointer(NULL) {
@@ -43,7 +49,7 @@ public:
 	}
 
 	inline void reset(T * p = NULL) {
-		if(p != this->rawPointer) {
+		if(ResetPredict::CanReset(this->rawPointer, p)) {
 			ThisType(p).swap(*this);
 		}
 	}
@@ -56,9 +62,9 @@ public:
 		return this->rawPointer;
 	}
 
-    inline bool operator ! () const {
+	inline bool operator ! () const {
 		return this->rawPointer == NULL;
-    }
+	}
 
 	inline T * get() const {
 		return this->rawPointer;
