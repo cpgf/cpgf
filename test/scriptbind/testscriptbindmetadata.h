@@ -4,6 +4,7 @@
 
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"
+#include "cpgf/scriptbind/gscriptbindutil.h"
 
 
 #include <string.h>

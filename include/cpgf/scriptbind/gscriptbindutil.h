@@ -38,11 +38,15 @@ GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
 #undef DEF_LOAD_PARAM_API
 #undef DEF_LOAD_PARAM_HELPER_API
 
+IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject);
+
+void injectMetaClassToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance);
+
 
 } // namespace cpgf
 
 
 
 
-
 #endif
+

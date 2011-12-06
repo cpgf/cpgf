@@ -64,6 +64,7 @@ set(SRC_META
 	${SRC_PATH}/scriptbind/gbindcommon.cpp
 	${SRC_PATH}/scriptbind/gscriptbind.cpp
 	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
+	${SRC_PATH}/scriptbind/gscriptbindutil.cpp
 )
 
 file(GLOB GLOB_SAMPLEREFLECTION ${SAMPLE_REFLECT_PATH}/*.cpp)

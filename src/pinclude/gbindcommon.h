@@ -330,7 +330,7 @@ struct CStringCompare
 
 class GMetaMapClass
 {
-private:
+public:
 	typedef std::map<const char *, GMetaMapItem, CStringCompare> MapType;
 
 public:
@@ -344,6 +344,10 @@ public:
 
 	GMetaMapItemData * getData() const {
 		return this->data.get();
+	}
+	
+	const MapType * getMap() const {
+		return &this->itemMap;
 	}
 
 private:

@@ -220,7 +220,7 @@ namespace {
 							switch(userData->getType()) {
 								case udtClass:
 									if(typeItem != NULL) {
-										*typeItem = static_cast<GClassUserData *>(userData)->metaClass;
+										*typeItem = gdynamic_cast<GClassUserData *>(userData)->metaClass;
 										(*typeItem)->addReference();
 									}
 									return sdtClass;
@@ -240,7 +240,7 @@ namespace {
 					if(userData != NULL) {
 						switch(userData->getType()) {
 							case udtClass: {
-								GClassUserData * classData = static_cast<GClassUserData *>(userData);
+								GClassUserData * classData = gdynamic_cast<GClassUserData *>(userData);
 								if(typeItem != NULL) {
 									*typeItem = classData->metaClass;
 									(*typeItem)->addReference();
@@ -346,15 +346,15 @@ namespace {
 					GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 					GASSERT_MSG(type.baseIsClass(), "Unknown type");
 
-					IMetaClass * metaClass = static_cast<IMetaClass *>(typedItem.get());
+					IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
 					void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-					return objectToV8(param, instance, static_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type));
+					return objectToV8(param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type));
 				}
 
 				if(type.getPointerDimension() == 1) {
 					GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
-					return objectToV8(param, fromVariant<void *>(value), static_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type));
+					return objectToV8(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type));
 				}
 			}
 		}
@@ -369,7 +369,7 @@ namespace {
 		if(isValidObject(value)) {
 			GScriptUserData * userData = static_cast<GScriptUserData *>(Handle<Object>::Cast(value)->GetPointerFromInternalField(0));
 			if(userData != NULL && userData->getType() == udtClass) {
-				GClassUserData * classData = static_cast<GClassUserData *>(userData);
+				GClassUserData * classData = gdynamic_cast<GClassUserData *>(userData);
 				if(outType != NULL) {
 					GMetaTypeData typeData;
 					classData->metaClass->getMetaType(&typeData);
@@ -586,16 +586,6 @@ namespace {
 		return v8::Handle<v8::Value>();
 	}
 
-	void * addPointer(void * a, int delta)
-	{
-		return static_cast<char *>(a) + delta;
-	}
-
-	int subPointer(void * a, void * b)
-	{
-		return static_cast<int>(static_cast<char *>(a) - static_cast<char *>(b));
-	}
-
 	v8::Handle<v8::Value> callbackMethodList(const v8::Arguments & args)
 	{
 		using namespace v8;
@@ -784,7 +774,7 @@ namespace {
 			switch(mapItem->getType()) {
 				case mmitField:
 				case mmitProperty: {
-					GScopedInterface<IMetaAccessible> data(static_cast<IMetaAccessible *>(mapItem->getItem()));
+					GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 					if(allowAccessData(userData, data.get())) {
 						GVariant result = metaGetValue(data.get(), instance);
 						Handle<Value> v = variantToV8(userData->getParam(), result, metaGetItemType(data.get()), false);
@@ -831,7 +821,7 @@ namespace {
 
 						GMetaMapClass * baseMapClass = userData->getParam()->getMetaMap()->findClassMap(boundClass.get());
 						data->setTemplate(createMethodTemplate(userData->getParam(), userData->metaClass, userData->instance == NULL, methodList.get(), name,
-							static_cast<GMapItemClassData *>(baseMapClass->getData())->functionTemplate, udmtInternal, &newUserData));
+							gdynamic_cast<GMapItemClassData *>(baseMapClass->getData())->functionTemplate, udmtInternal, &newUserData));
 						newUserData->baseInstance = userData->instance;
 						newUserData->name = name;
 						data->setUserData(newUserData);
@@ -847,7 +837,7 @@ namespace {
 							data = new GMapItemEnumData;
 							mapItem->setData(data);
 							GEnumUserData * newUserData;
-							GScopedInterface<IMetaEnum> metaEnum(static_cast<IMetaEnum *>(mapItem->getItem()));
+							GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 							data->setTemplate(createEnumTemplate(userData->getParam(), metaEnum.get(), name, &newUserData));
 							data->setUserData(newUserData);
 						}
@@ -905,7 +895,7 @@ namespace {
 			switch(mapItem->getType()) {
 				case mmitField:
 				case mmitProperty: {
-					GScopedInterface<IMetaAccessible> data(static_cast<IMetaAccessible *>(mapItem->getItem()));
+					GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 					if(allowAccessData(userData, data.get())) {
 						GVariant v = v8ToVariant(value).getValue();
 						metaSetValue(data.get(), userData->instance, v);
@@ -1116,7 +1106,7 @@ namespace {
 		GMetaMapClass * map = param->getMetaMap()->findClassMap(metaClass);
 
 		if(map->getData() != NULL) {
-			return static_cast<GMapItemClassData *>(map->getData())->functionTemplate;
+			return gdynamic_cast<GMapItemClassData *>(map->getData())->functionTemplate;
 		}
 
 		GClassUserData * userData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
@@ -1215,7 +1205,7 @@ public:
 					if(data->IsExternal()) {
 						GScriptUserData * userData = static_cast<GScriptUserData *>(Handle<External>::Cast(data)->Value());
 						if(userData->getType() == udtExtendMethod) {
-							GExtendMethodUserData * methodListData = static_cast<GExtendMethodUserData *>(userData);
+							GExtendMethodUserData * methodListData = gdynamic_cast<GExtendMethodUserData *>(userData);
 							if(methodListData->methodList != NULL) {
 								return methodListData;
 							}
@@ -1462,6 +1452,10 @@ void GV8ScriptObject::bindObject(const char * objectName, void * instance, IMeta
 void GV8ScriptObject::bindMethod(const char * name, void * instance, IMetaMethod * method)
 {
 	ENTER_V8()
+
+	if(method->isStatic()) {
+		instance = NULL;
+	}
 
 	GScopedInterface<IMetaList> methodList(createMetaList());
 	methodList->add(method, instance);

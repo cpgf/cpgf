@@ -6,6 +6,9 @@
 
 #define REF_CALL_METHOD(N, unused) \
 	GVariant GMetaMethod::invoke(void * instance GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, const GVariant & p)) const { \
+		if(this->isStatic()) { \
+			instance = NULL; \
+		} \
 		const GVariant * params[REF_MAX_ARITY]; \
 		GPP_REPEAT(N, REF_CALL_LOAD_PARAM, GPP_EMPTY); \
 		return this->baseData->invoke(instance, params, N); \
@@ -74,6 +77,10 @@ bool GMetaMethod::isVariadic() const
 GVariant GMetaMethod::execute(void * instance, const GVariant * params, size_t paramCount) const
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+
+	if(this->isStatic()) {
+		instance = NULL;
+	}
 
 	const cpgf::GVariant * variantPointers[REF_MAX_ARITY];
 

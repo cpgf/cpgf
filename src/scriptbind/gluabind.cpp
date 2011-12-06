@@ -1267,6 +1267,10 @@ void GLuaScriptObject::bindMethod(const char * name, void * instance, IMetaMetho
 {
 	ENTER_LUA()
 
+	if(method->isStatic()) {
+		instance = NULL;
+	}
+
 	GLuaScopeGuard scopeGuard(this);
 	
 	GScopedInterface<IMetaList> methodList(createMetaList());

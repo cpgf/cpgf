@@ -57,6 +57,10 @@ public:
 		return this->bindingApi.get();
 	}
 
+	cpgf::GScriptObject * takeBindingLib() {
+		return this->bindingLib.take();
+	}
+
 	cpgf::IMetaService * getService() const {
 		return this->service.get();
 	}
