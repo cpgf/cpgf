@@ -192,9 +192,15 @@ public:
 	int add(int n) const {
 		return this->value + n;
 	}
+
+	static int incStaticValue() {
+		++staticValue;
+		return staticValue;
+	}
 	
 public:
 	int	value;
+	static int staticValue;
 };
 
 
@@ -258,8 +264,13 @@ public:
 		return "DeriveA";
 	}
 
+	virtual void setData(int data) {
+		this->a = data;
+	}
+
 public:
 	int value;
+	int a;
 };
 
 class DeriveB : virtual public DeriveA
@@ -269,7 +280,15 @@ public:
 		return Magic1;
 	}
 	
+	virtual void setData(int data) {
+		this->b = data * 2;
+
+		DeriveA::setData(data);
+	}
+
+public:
 	int dataB[2];
+	int b;
 };
 
 class DeriveC : virtual public DeriveA
@@ -279,7 +298,15 @@ public:
 		return Magic2;
 	}
 
+	virtual void setData(int data) {
+		this->c = data * 3;
+
+		DeriveA::setData(data);
+	}
+
+public:
 	int dataC[5];
+	int c;
 };
 
 class DeriveD : public DeriveB, public DeriveC
@@ -289,7 +316,16 @@ public:
 		return Magic3;
 	}
 
+	virtual void setData(int data) {
+		this->d = data * 4;
+
+		DeriveB::setData(data);
+		DeriveC::setData(data);
+	}
+
+public:
 	int dataD[10];
+	int d;
 };
 
 class DeriveE : public DeriveD
@@ -318,6 +354,15 @@ public:
 	static DeriveA * pretendA() {
 		return new DeriveE;
 	}
+
+	virtual void setData(int data) {
+		this->e = data * 5;
+
+		DeriveD::setData(data);
+	}
+
+public:
+	int e;
 };
 
 
@@ -354,10 +399,6 @@ enum TestEnum {
 const char * const testString = "TestingScript!";
 const int testInt = 1978;
 const int testObjValue = 2012;
-
-inline int testAdd1(int a) {
-	return 1 + a;
-}
 
 inline int testAdd2(int a, int b) {
 	return 2 + a + b;

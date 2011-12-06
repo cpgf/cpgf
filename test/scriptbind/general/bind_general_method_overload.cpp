@@ -6,7 +6,7 @@ namespace {
 
 void Method_OverloadGlobal(TestScriptContext * context)
 {
-	QASSERT(testAdd(8) == 1 + 8)
+	QASSERT(testAdd(25) == 38 + 25)
 	QASSERT(testAdd(7, 8) == 2 + 7 + 8)
 	QASSERT(testAdd(9, 7, 8) == 3 + 9 + 7 + 8)
 	QASSERT(testAdd(9, 7, 8, 38, 68) == 3 + 9 + 7 + 8 + 38 + 68)

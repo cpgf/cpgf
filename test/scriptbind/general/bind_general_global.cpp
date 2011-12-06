@@ -52,5 +52,23 @@ void testGlobal(TestScriptContext * context)
 #include "../bind_testcase.h"
 
 
+void testStaticMember(TestScriptContext * context)
+{
+	TestObject::staticValue = 0;
+	GCHECK(TestObject::staticValue == 0);
+
+	QDO(TestObject.staticValue = 10)
+	GCHECK(TestObject::staticValue == 10);
+	
+	QDO(a = TestObject.incStaticValue())
+	QASSERT(a == 11);
+	GCHECK(TestObject::staticValue == 11);
+}
+
+#define CASE testStaticMember
+#include "../bind_testcase.h"
+
+
+
 
 }

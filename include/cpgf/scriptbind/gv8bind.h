@@ -21,7 +21,6 @@ private:
 
 public:
 	GV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-	GV8ScriptObject(const GV8ScriptObject & other, v8::Local<v8::Object> object);
 	virtual ~GV8ScriptObject();
 
 	virtual void bindClass(const char * name, IMetaClass * metaClass);
@@ -55,6 +54,10 @@ public:
 	virtual void nullifyValue(const char * name);
 
 	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
+
+private:
+	GV8ScriptObject(const GV8ScriptObject & other, v8::Local<v8::Object> object);
+
 private:
 	GScopedPointer<GV8ScriptObjectImplement> implement;
 

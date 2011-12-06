@@ -13,6 +13,11 @@
 
 namespace cpgf {
 
+class GMetaClassTraveller;
+
+
+namespace bind_internal {
+
 
 class GMetaMap;
 
@@ -448,8 +453,6 @@ bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible);
 
 void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, size_t paramCount, InvokeCallableResult * result);
 
-class GMetaClassTraveller;
-
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
 	void * instance, GClassUserData * userData, const char * methodName, bool allowAny);
@@ -461,6 +464,9 @@ void loadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * obj
 	void * objectInstance, GClassUserData * userData, const char * methodName);
 
 GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType);
+
+
+} // namespace bind_internal
 
 
 } // namespace cpgf

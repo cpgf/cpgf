@@ -7,9 +7,8 @@
 #include <vector>
 #include <set>
 
-// for test
-#include <iostream>
 using namespace std;
+using namespace cpgf::bind_internal;
 
 
 #if defined(_MSC_VER)
@@ -28,6 +27,7 @@ using namespace std;
 	catch(...) { strcpy(local_msg, "Unknown exception occurred."); local_error = true; } \
 	} if(local_error) { local_msg[255] = 0; v8::ThrowException(v8::String::New(local_msg)); } \
 	__VA_ARGS__;
+
 
 namespace cpgf {
 
@@ -643,7 +643,7 @@ namespace {
 
 		for(uint32_t i = 0; i < count; ++i) {
 			GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(methodList->getAt(i)));
-			if(allowInvokeCallable(userData, meta.get())) {
+			if(isGlobal || allowInvokeCallable(userData, meta.get())) {
 				int rank = rankCallable(namedUserData->getParam()->getService(), meta.get(), &callableParam);
 				if(rank > maxRank) {
 					maxRank = rank;
@@ -786,7 +786,7 @@ namespace {
 				case mmitProperty: {
 					GScopedInterface<IMetaAccessible> data(static_cast<IMetaAccessible *>(mapItem->getItem()));
 					if(allowAccessData(userData, data.get())) {
-						GVariant result = metaGetValue(data.get(), userData->instance);
+						GVariant result = metaGetValue(data.get(), instance);
 						Handle<Value> v = variantToV8(userData->getParam(), result, metaGetItemType(data.get()), false);
 						if(v.IsEmpty()) {
 							GScopedInterface<IMetaConverter> converter(data->createConverter());

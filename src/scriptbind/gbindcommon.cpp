@@ -7,6 +7,8 @@
 
 namespace cpgf {
 
+namespace bind_internal {
+
 
 GMetaMapItem::GMetaMapItem()
 	: item(NULL), type(mmitNone), enumIndex(0)
@@ -474,6 +476,8 @@ GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType)
 	}
 }
 
+
+} // namespace bind_internal
 
 } // namespace cpgf
 

@@ -3,6 +3,23 @@
 namespace {
 
 
+template <typename T>
+void doTestValueAssign(T * binding, TestScriptContext * context)
+{
+	(void)context;
+
+	QDO(a = "what")
+	QDO(b = 1)
+	QASSERT(a == "what")
+	QASSERT(b == 1)
+
+	binding->assignValue("a", "b");
+	binding->assignValue("b", "c");
+
+	QASSERT(b == "what")
+	QASSERT(c == "what")
+}
+
 void testValueAssign(TestScriptContext * context)
 {
 	QDO(a = "what")
@@ -11,13 +28,11 @@ void testValueAssign(TestScriptContext * context)
 	QASSERT(b == 1)
 
 	if(context->getBindingLib()) {
-		context->getBindingLib()->assignValue("a", "b");
-		context->getBindingLib()->assignValue("b", "c");
+		doTestValueAssign(context->getBindingLib(), context);
 	}
 	
 	if(context->getBindingApi()) {
-		context->getBindingApi()->assignValue("a", "b");
-		context->getBindingApi()->assignValue("b", "c");
+		doTestValueAssign(context->getBindingApi(), context);
 	}
 	QASSERT(b == "what")
 	QASSERT(c == "what")

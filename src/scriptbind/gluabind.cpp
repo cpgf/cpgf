@@ -21,6 +21,7 @@
 
 
 using namespace std;
+using namespace cpgf::bind_internal;
 
 #define ENTER_LUA() \
 	char local_msg[256]; bool local_error = false; { \
@@ -33,7 +34,7 @@ using namespace std;
 	} if(local_error) { local_msg[255] = 0; error(L, local_msg); } \
 	__VA_ARGS__;
 	
-	
+
 namespace cpgf {
 
 

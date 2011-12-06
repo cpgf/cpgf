@@ -19,7 +19,8 @@
 #define EXCEPT_VARIANT(...) GBEGIN_EXCEPTION __VA_ARGS__; GEND_EXCEPTION(const GException &)
 
 
-#define NAME(cls) GPP_STRINGIZE(cls)
+#define NAME2(cls) GPP_STRINGIZE(test_Reflect_ ## cls)
+#define NAME(cls) NAME2(cls)
 
 #define FIELD(f) pointerAssign(field, metaClass->getField(# f))
 #define METHOD(f) pointerAssign(method, metaClass->getMethod(# f))

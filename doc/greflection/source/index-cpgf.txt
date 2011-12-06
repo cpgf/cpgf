@@ -10,15 +10,14 @@ cpgf is composed by several independent libraries:
 <{autoul}>
 	cpgf reflection -- a library to add	reflection feature to C++.
 	
-	cpgf script binding -- a script binding engine to bind Lua to C++. It's based on the reflection library.
+	cpgf script binding -- a script binding engine to bind Lua and Google V8 Javascript to C++. It's based on the reflection library.
 	
 	cpgf callback -- a callback library to implement signal/slot or callback in C++. It's the primary library for other libraries.
 <{/autoul}>
 The goal of cpgf is to extend C++ language with a lot of easy to use features which are only available in other higher level languages and absence in C++.
 cpgf provides a very easy to use callback system, which is common used in C# and script languages.
 cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? now we have it in C++!
-cpgf makes binding to Lua a piece of cake! The Lua binding engine uses the reflection system extensively.
-And in the future, more script binding will be added.
+cpgf makes binding to Lua and V8 a piece of cake! The script binding engine uses the reflection system extensively.
 
 <b>Vesion 1.0.1 is release on Nov.27, 2011. </b>
 
@@ -50,12 +49,12 @@ And in the future, more script binding will be added.
 	For more information, please read cpgf reflection related documentation.
 <{/autoul}>
 
-<h3>Quick facts of Lua binding library</h3>
+<h3>Quick facts of script binding library</h3>
 <{autoul}>
-	Bind C++ classes, enumerators, functions, variables and operators to Lua.
-	Invoke Lua functions from C++.
-	Get and set Lua variables from C++.
-	For more information, please read cpgf Lua binding related documentation.
+	Bind C++ classes, enumerators, functions, variables and operators to Lua and Google V8 Javascript.
+	Invoke Lua and V8 Javascript functions from C++.
+	Get and set Lua and V8 Javascript variables from C++.
+	For more information, please read cpgf script binding related documentation.
 <{/autoul}>
 
 <h3>Download cpgf library</h3>
@@ -102,6 +101,7 @@ And in the future, more script binding will be added.
 	Doesn't require C++0X and TR1 features.
 	Doesn't require Boost library.
 	For Lua binding, Lua library is required.
+	For Google V8 Javascript binding, V8 library is required.
 	If you want to run the unit test, UnitTest++ is required. But usually you don't need to do that.
 	
 <{/autobr}>
@@ -125,6 +125,15 @@ And in the future, more script binding will be added.
 	
 <{/autobr}>
 	
+<h3>How is the library tested </h3>
+<{autobr}>
+	Several measures are adopted to test the library.
+	Unit test -- hundreds of unit tests were written and ran. More unit tests are being added for existing code and new code.
+	Valgrind -- valgrind is used to check memory leaks and other memory problems (wild pointer, double free, etc).
+	Code coverage -- GNU gcov is used to check the code coverage in unit tests. The ultimate goal is to cover all API functions and 80% implementation code. Though we didn't achieve the goal yet, we are closing to it day by day.
+	
+<{/autobr}>
+
 <h3>Contribute to the library </h3>
 <{autobr}>
 	If you like the library and want to contribute to it, here are some most desired work to do

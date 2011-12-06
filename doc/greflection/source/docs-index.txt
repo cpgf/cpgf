@@ -10,7 +10,7 @@
 <{autoul}>
 	<a href="cpgf-index.html">Introduce cpgf library </a>
 	<a href="cpgf-reflection.html">Introduce cpgf reflection library </a>
-	<a href="cpgf-script-binding.html">Introduce cpgf Lua binding library </a>
+	<a href="cpgf-script-binding.html">Introduce cpgf script (Lua and Google V8) binding library </a>
 <{/autoul}>
 
 
@@ -34,7 +34,7 @@
 <{sc}>
 
 <{autoul}>
-	<a href="docs-cpgf-script-binding.html">Lua binding engine -- bind Lua to C++ </a>
+	<a href="docs-cpgf-script-binding.html">Script binding engine -- bind Lua and Google V8 Javascript to C++ </a>
 <{/autoul}>
 
 

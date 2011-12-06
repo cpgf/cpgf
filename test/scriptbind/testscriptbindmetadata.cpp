@@ -8,6 +8,8 @@
 
 namespace testscript {
 
+int TestObject::staticValue = 0;
+
 template <typename T>
 void bindClass(T * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
 {
@@ -45,6 +47,10 @@ void bindEnum(T * script, cpgf::IMetaService * service, const char * metaName, c
 }
 
 
+namespace {
+	TestObject testObject = TestObject(38);
+}
+
 template <typename T>
 void bindBasicInfo(T * script, cpgf::IMetaService * service)
 {
@@ -78,8 +84,8 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	GScopedInterface<IMetaMethod> method;
 	GScopedInterface<IMetaList> metaList(createMetaList());
 
-	method.reset(global->getMethod("testAdd1"));
-	metaList->add(method.get(), NULL);
+	method.reset(metaClass->getMethod("add"));
+	metaList->add(method.get(), &testObject);
 	method.reset(global->getMethod("testAdd2"));
 	metaList->add(method.get(), NULL);
 	method.reset(global->getMethod("testAddN"));
@@ -204,6 +210,9 @@ GMETA_DEFINE_CLASS(TestObject, TestObject, REG_NAME_TestObject) {
 	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestC *) const)&TestObject::methodOverloadObject);
 
 	reflectMethod("add", &TestObject::add);
+	
+	reflectField("staticValue", &TestObject::staticValue);
+	reflectMethod("incStaticValue", &TestObject::incStaticValue);
 }
 
 
@@ -244,24 +253,33 @@ GMETA_DEFINE_CLASS(DeriveA, DeriveA, "testscript::DeriveA") {
 	using namespace cpgf;
 
 	GMETA_METHOD(getA);
+	GMETA_METHOD(setData);
+
+	GMETA_FIELD(a);
 }
 
 GMETA_DEFINE_CLASS(DeriveB, DeriveB, "testscript::DeriveB", DeriveA) {
 	using namespace cpgf;
 
 	GMETA_METHOD(getB);
+
+	GMETA_FIELD(b);
 }
 
 GMETA_DEFINE_CLASS(DeriveC, DeriveC, "testscript::DeriveC", DeriveA) {
 	using namespace cpgf;
 
 	GMETA_METHOD(getC);
+
+	GMETA_FIELD(c);
 }
 
 GMETA_DEFINE_CLASS(DeriveD, DeriveD, "testscript::DeriveD", DeriveB, DeriveC) {
 	using namespace cpgf;
 
 	GMETA_METHOD(getD);
+
+	GMETA_FIELD(d);
 }
 
 GMETA_DEFINE_CLASS(DeriveE, DeriveE, "testscript::DeriveE", DeriveD) {
@@ -269,6 +287,8 @@ GMETA_DEFINE_CLASS(DeriveE, DeriveE, "testscript::DeriveE", DeriveD) {
 
 	GMETA_METHOD(getE);
 	reflectMethod("pretendA", &DeriveE::pretendA, GMetaPolicyTransferResultOwnership());
+
+	GMETA_FIELD(e);
 }
 
 
@@ -297,7 +317,6 @@ GMETA_DEFINE_GLOBAL() {
 	using namespace cpgf;
 
 	GMETA_QUALIFIED_METHOD(scriptAssert);
-	GMETA_QUALIFIED_METHOD(testAdd1);
 	GMETA_QUALIFIED_METHOD(testAdd2);
 	GMETA_QUALIFIED_METHOD(testAddN);
 	
