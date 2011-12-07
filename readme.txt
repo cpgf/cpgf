@@ -6,13 +6,13 @@ It's written in (almostly) standard C++ and doesn't require any preprocess or to
 
 
 Version:
-	1.0.1
+	1.1.0
 
 		
 Libraries:
 	cpgf reflection -- a library to add	reflection feature to C++.
 	
-	cpgf Lua binding -- a script binding engine to bind Lua to C++.
+	cpgf script binding -- a script binding engine to bind Lua and Google V8 to C++.
 		It's based on the reflection library.
 	
 	cpgf callback -- a callback library to implement signal/slot or callback in C++.
@@ -62,8 +62,7 @@ Build the library:
 	A makefile is provided to wrap the CMake build.
 	To build the library, open command line terminal, go to folder "build",
 	
-	run
-		make PLATFORM
+	make PLATFORM
 		
 	PLATFORM can be one of
 		nmake mingw linux vc05 vc08 vc10 cb_mingw cb_nmake cb_linux
@@ -76,6 +75,19 @@ Build the library:
 	To build with Lua binding, you must change the variable LUA_DIR
 	in build.config.txt to point to the source code of Lua.
 	
+	To build with Google V8 Javascript binding, you must change the variable V8_DIR
+	in build.config.txt to point to the source code of V8.
+
+	To build the unit test and sample code, feed a second parameter
+	
+	make PLATFORM TARGET=TheTarget
+
+	TheTarget can be,
+	lib -- Build the library. This is the default if TARGET is omitted.
+	test -- Build the unit test.
+	samplereflection -- Build the reflection sample application.
+	samplelua -- Build the Lua binding sample application.
+	
 
 Compatibility -- Tested compilers and OSes:
 	Windows XP, Microsoft Visual C++ 2008 Express
@@ -87,6 +99,7 @@ Compatibility -- Tested compilers and OSes:
 Required third party library -- None for the major libraries.
 	Doesn't require C++0X and TR1 features.
 	For Lua binding, Lua library is required.
+	For Google V8 binding, V8 library is required.
 	If you want to run the unit test, UnitTest++ is required.
 		But usually you don't need to do that.
 	

@@ -26,8 +26,7 @@
 	A makefile is provided to wrap the CMake build.
 	To build the library, open command line terminal, go to folder "build",
 	
-	run
-		make PLATFORM
+	make PLATFORM
 		
 	PLATFORM can be one of
 		nmake mingw linux vc05 vc08 vc10 cb_mingw cb_nmake cb_linux
@@ -39,6 +38,20 @@
 
 	To build with Lua binding, you must change the variable LUA_DIR
 	in build.config.txt to point to the source code of Lua.
+	
+	To build with Google V8 Javascript binding, you must change the variable V8_DIR
+	in build.config.txt to point to the source code of V8.
+
+	To build the unit test and sample code, feed a second parameter
+	
+	make PLATFORM TARGET=TheTarget
+
+	TheTarget can be,
+	lib -- Build the library. This is the default if TARGET is omitted.
+	test -- Build the unit test.
+	samplereflection -- Build the reflection sample application.
+	samplelua -- Build the Lua binding sample application.
+
 
 <{/autobr}>
 

@@ -163,7 +163,7 @@ public:
 	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem) = 0;
 
 	virtual GScriptObject * createScriptObject(const char * name) = 0;
-	virtual GScriptObject * getScriptObject(const char * name) = 0;
+	virtual GScriptObject * gainScriptObject(const char * name) = 0;
 	
 	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount) = 0;
 	virtual GMetaVariant invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount) = 0;

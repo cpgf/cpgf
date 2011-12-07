@@ -121,14 +121,14 @@ public:
 			this->luaStateLib = luaL_newstate();
 			luaL_openlibs(this->luaStateLib);
 
-			this->setBinding(new cpgf::GLuaScriptObject(this->getService(), this->luaStateLib, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createLuaScriptObject(this->getService(), this->luaStateLib, cpgf::GScriptConfig()));
 		}
 
 		if(api == tsaApi) {
 			this->luaStateApi = luaL_newstate();
 			luaL_openlibs(this->luaStateApi);
 
-			this->setBinding(cpgf::createLuaScriptObject(this->getService(), this->luaStateApi, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createLuaScriptInterface(this->getService(), this->luaStateApi, cpgf::GScriptConfig()));
 		}
 	}
 
@@ -233,11 +233,11 @@ public:
 		Local<Object> global = context->Global();
 
 		if(api == tsaLib) {
-			this->setBinding(new GV8ScriptObject(this->getService(), global, GScriptConfig()));
+			this->setBinding(cpgf::createV8ScriptObject(this->getService(), global, GScriptConfig()));
 		}
 
 		if(api == tsaApi) {
-			this->setBinding(cpgf::createV8ScriptObject(this->getService(), global, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createV8ScriptInterface(this->getService(), global, cpgf::GScriptConfig()));
 		}
 	}
 

@@ -14,8 +14,12 @@ void testCreateScriptObject(TestScriptContext * context)
 		GCHECK(! existScriptObject);
 		
 		GCHECK(bindingLib->valueIsNull("nso"));
-		GScopedPointer<GScriptObject> newScriptObject(bindingLib->createScriptObject("nso"));
-		newScriptObject->bindFundamental("ix", 38);
+		GScopedPointer<GScriptObject> firstScriptObject(bindingLib->createScriptObject("nso"));
+		firstScriptObject->bindFundamental("ix", 38);
+		
+		GCHECK(bindingLib->valueIsNull("sec"));
+		GScopedPointer<GScriptObject> secondScriptObject(bindingLib->createScriptObject("sec"));
+		secondScriptObject->bindFundamental("iy", 6);
 	}
 	if(bindingApi != NULL) {
 		GScopedInterface<IScriptObject> existScriptObject(bindingApi->createScriptObject("existObj"));
@@ -25,9 +29,15 @@ void testCreateScriptObject(TestScriptContext * context)
 		GScopedInterface<IScriptObject> newScriptObject(bindingApi->createScriptObject("nso"));
 		GVariant v = 38;
 		newScriptObject->bindFundamental("ix", &v.data);
+
+		GCHECK(bindingApi->valueIsNull("sec"));
+		GScopedInterface<IScriptObject> secondScriptObject(bindingApi->createScriptObject("sec"));
+		v = 6;
+		secondScriptObject->bindFundamental("iy", &v.data);
 	}
 	
 	QASSERT(nso.ix == 38);
+	QASSERT(sec.iy == 6);
 }
 
 #define CASE testCreateScriptObject
@@ -54,21 +64,21 @@ void testGetScriptObject(TestScriptContext * context)
 	void * instance = NULL;
 
 	if(bindingLib != NULL) {
-		GScopedPointer<GScriptObject> existScriptObject(bindingLib->getScriptObject("existObj"));
+		GScopedPointer<GScriptObject> existScriptObject(bindingLib->gainScriptObject("existObj"));
 		GCHECK(! existScriptObject);
 
-		GScopedPointer<GScriptObject> newScriptObject(bindingLib->getScriptObject("scope"));
+		GScopedPointer<GScriptObject> newScriptObject(bindingLib->gainScriptObject("scope"));
 		v = GVariant();
 		v = newScriptObject->getFundamental("i");
 		GCHECK(fromVariant<int>(v) == 5);
 		instance = newScriptObject->getObject("obj");
 	}
 	if(bindingApi != NULL) {
-		GScopedInterface<IScriptObject> existScriptObject(bindingApi->getScriptObject("existObj"));
+		GScopedInterface<IScriptObject> existScriptObject(bindingApi->gainScriptObject("existObj"));
 		GCHECK(! existScriptObject);
 
 		GCHECK(bindingApi->valueIsNull("nso"));
-		GScopedInterface<IScriptObject> newScriptObject(bindingApi->getScriptObject("scope"));
+		GScopedInterface<IScriptObject> newScriptObject(bindingApi->gainScriptObject("scope"));
 		v = GVariant();
 		newScriptObject->getFundamental(&v.data, "i");
 		GCHECK(fromVariant<int>(v) == 5);

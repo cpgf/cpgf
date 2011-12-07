@@ -39,19 +39,20 @@ cpgf/scriptbind/gluabind.h
 For V8, include the head,
 cpgf/scriptbind/gv8bind.h
 
-First, we need a GScriptObject object.
+First, we need a GScriptObject or IScriptObject (the interface version) object.
 
-The Lua version is GLuaScriptObject.
-GLuaScriptObject constructor accepts three parameters.
-GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
+Lua version:
+GScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
+IScriptObject * createLuaScriptInterface(IMetaService * service, lua_State * L, const GScriptConfig & config);
 
 The first parameter is a IMetaService. You can call createDefaultMetaService() or createMetaService() to create the service.
 The second parameter is the Lua state.
 The third one is a config. Just call GScriptConfig() to construct default one.
 
-The V8 version is GV8ScriptObject.
-GV8ScriptObject constructor accepts three parameters.
-GV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
+V8 version:
+GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
+IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
+
 The first parameter is a IMetaService. You can call createDefaultMetaService() or createMetaService() to create the service.
 The second parameter is the V8 global object.
 The third one is a config. Just call GScriptConfig() to construct default one.
@@ -172,7 +173,7 @@ In this case, you must call releaseReference on outMetaTypeItem to release it af
 
 Here is the list of the data type,
 	sdtUnknown -- can't determine the type
-	sdtNull -- NULL. It's nil in Lua.
+	sdtNull -- NULL. It's nil in Lua and null or undefined in Javascript.
 	sdtFundamental -- fundamental type. Can be boolean, integer, float, etc.
 	sdtString -- string. Can be obtained as C string.
 	sdtClass -- C++ class that bound to the script engine.
@@ -180,12 +181,22 @@ Here is the list of the data type,
 	sdtMethod -- C++ function.
 	sdtMethodList -- a group of C++ functions.
 	sdtEnum -- C++ enumerator.
-	sdtScriptObject -- A script object. Meta data can be added to it.
+	sdtScriptObject -- A script object. Meta data can be added to it. C++ object is NOT script object.
 	sdtScriptMethod -- Function in the script.
 
 <{piece}> virtual GScriptObject * createScriptObject(const char * name) = 0; <{/piece}>
-Create a new script object under current script object.
+Create a new script object int current script object.
 The new script object can be used to bind meta data.
+If "name" is a C++ object, the function will fail and return NULL.
+
+Note: you should free the returned object.
+
+<{piece}> virtual GScriptObject * gainScriptObject(const char * name) = 0; <{/piece}>
+Get existing script object int current script object.
+The script object can be used to bind meta data.
+If "name" is a C++ object, the function will fail and return NULL.
+
+Note: you should free the returned object.
 
 <{piece}> virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount) = 0; <{/piece}>
 Invoke a function named "name" in the script.

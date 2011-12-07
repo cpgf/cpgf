@@ -81,7 +81,7 @@ protected:
 	virtual IMetaList * G_API_CC getMethodList(const char * methodName);
 
 	virtual IScriptObject * G_API_CC createScriptObject(const char * name);
-	virtual IScriptObject * G_API_CC getScriptObject(const char * name);
+	virtual IScriptObject * G_API_CC gainScriptObject(const char * name);
 
 	virtual void G_API_CC invoke(GMetaVarData * outResult, const char * name, const GMetaVarData * params, uint32_t paramCount);
 	virtual void G_API_CC invokeIndirectly(GMetaVarData * outResult, const char * name, GMetaVarData const * const * params, uint32_t paramCount);

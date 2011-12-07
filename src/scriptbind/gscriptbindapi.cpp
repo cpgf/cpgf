@@ -243,11 +243,11 @@ IScriptObject * G_API_CC ImplScriptObject::createScriptObject(const char * name)
 	LEAVE_BINDING_API(return NULL)
 }
 
-IScriptObject * G_API_CC ImplScriptObject::getScriptObject(const char * name)
+IScriptObject * G_API_CC ImplScriptObject::gainScriptObject(const char * name)
 {
 	ENTER_BINDING_API()
 
-	GScriptObject * obj = this->scriptObject->getScriptObject(name);
+	GScriptObject * obj = this->scriptObject->gainScriptObject(name);
 	if(obj == NULL) {
 		return NULL;
 	}
