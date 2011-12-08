@@ -68,6 +68,7 @@ protected:
 	virtual void G_API_CC bindFundamental(const char * name, const GVariantData * value);
 	virtual void G_API_CC bindString(const char * stringName, const char * s);
 	virtual void G_API_CC bindObject(const char * objectName, void * instance, IMetaClass * type, gapi_bool transferOwnership);
+	virtual void G_API_CC bindRaw(const char * name, const GVariantData * value);
 	virtual void G_API_CC bindMethod(const char * name, void * instance, IMetaMethod * method);
 	virtual void G_API_CC bindMethodList(const char * name, IMetaList * methodList);
 
@@ -77,6 +78,7 @@ protected:
 	virtual void G_API_CC getFundamental(GVariantData * outResult, const char * name);
 	virtual char * G_API_CC getString(const char * stringName, IMemoryAllocator * allocator);
 	virtual void * G_API_CC getObject(const char * objectName);
+	virtual void G_API_CC getRaw(GVariantData * outResult, const char * name);
 	virtual IMetaMethod * G_API_CC getMethod(const char * methodName, void ** outInstance);
 	virtual IMetaList * G_API_CC getMethodList(const char * methodName);
 

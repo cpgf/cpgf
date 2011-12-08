@@ -69,17 +69,18 @@ namespace {
 		{ Error_Meta_NotBinaryOperator, "Can't invoke non-binary operator." },
 		{ Error_Meta_NotFunctorOperator, "Can't invoke non-functor operator." },
 
-		{ Error_ScriptBinding_FailVariantToScript,				"Can't convert variant to Lua object." },
+		{ Error_ScriptBinding_FailVariantToScript,				"Can't convert variant to script object." },
 		{ Error_ScriptBinding_CallMethodWithTooManyParameters,	"Too many parameters." },
 		{ Error_ScriptBinding_CantFindMatchedMethod,			"Can't find matched method to invoke" },
 		{ Error_ScriptBinding_FailConstructObject,				"Failed to construct an object." },
 		{ Error_ScriptBinding_InternalError_WrongFunctor,		"Internal error: calling wrong functor." },
 		{ Error_ScriptBinding_CantWriteToConstObject,			"Can't write to constant object." },
-		{ Error_ScriptBinding_NotSupportedOperator,				"Failed to bind an operator that's not supported by Lua." },
+		{ Error_ScriptBinding_NotSupportedOperator,				"Failed to bind an operator that's not supported by the script." },
 		{ Error_ScriptBinding_CantAssignToEnumMethodClass,		"Can't assign value to enumerator, method, or class." },
 		{ Error_ScriptBinding_CantCallNonfunction,				"The script function being invoked is not a function." },
 		{ Error_ScriptBinding_CantBindFundamental,				"Failed to bind fundamental variable" },
 		{ Error_ScriptBinding_AccessMemberWithWrongObject,		"Access class member with wrong object." },
+		{ Error_ScriptBinding_CantBindRaw, 						"Failed to bind raw data." },
 
 		{ -1, NULL },
 

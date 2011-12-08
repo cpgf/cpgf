@@ -323,7 +323,7 @@ GTEST(Lib_CheckParam)
 	METHOD(methodMakeDataByPointer);
 	GCHECK(method->checkParam((CLASS_DATA *)0, 0));
 	GCHECK(method->checkParam("abc", 0)); // dangerous
-	GCHECK(! method->checkParam(CLASS_DATA(3), 0));
+	GCHECK(method->checkParam(CLASS_DATA(3), 0));
 	GCHECK(! method->checkParam(38, 1));
 
 	METHOD(methodManyParams);
@@ -389,7 +389,7 @@ GTEST(API_CheckParam)
 	METHOD(methodMakeDataByPointer);
 	GCHECK(metaCheckParam(method, (CLASS_DATA *)0, 0));
 	GCHECK(metaCheckParam(method, "abc", 0)); // dangerous
-	GCHECK(! metaCheckParam(method, CLASS_DATA(3), 0));
+	GCHECK(metaCheckParam(method, CLASS_DATA(3), 0));
 	GCHECK(! metaCheckParam(method, 38, 1));
 
 	METHOD(methodManyParams);
@@ -740,7 +740,18 @@ GTEST(Lib_PassParamByValueAndRef)
 	method->invoke(pobj, &data);
 	GEQUAL(data.i, pobj->fieldMethodInt);
 	GEQUAL(data.s, pobj->fieldMethodString);
-	EXCEPT_VARIANT(method->invoke(pobj, data))
+//	EXCEPT_VARIANT(method->invoke(pobj, data))
+
+	pobj->fieldMethodInt = 2;
+	pobj->fieldMethodString = "def";
+	data.reset();
+
+	GDIFF(data.i, pobj->fieldMethodInt);
+	GDIFF(data.s, pobj->fieldMethodString);
+	METHOD(methodMakeDataByPointer);
+	method->invoke(pobj, data);
+	GEQUAL(data.i, pobj->fieldMethodInt);
+	GEQUAL(data.s, pobj->fieldMethodString);
 }
 
 

@@ -440,7 +440,7 @@ struct CanCastFromVariant
 				return variant_internal::CastVariantHelper<const volatile void *, ResultType>::CanCast;
 
 			case vtObject:
-				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::CanCast;
+				return variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::CanCast;
 
 			case vtShadow:
 				return variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::CanCast;
@@ -560,7 +560,7 @@ struct CanCastFromVariant
 				return variant_internal::CastVariantHelper<const volatile void *, const volatile RefValueType *>::CanCast;
 
 			case vtObject | byReference:
-				return variant_internal::isNotPointer<RefValueType>() && variant_internal::CastVariantHelper<const volatile void *, const volatile RefValueType *>::CanCast;
+				return variant_internal::CastVariantHelper<const volatile void *, const volatile RefValueType *>::CanCast;
 		}
 
 		return false;
@@ -580,6 +580,18 @@ T castFromString(const char * s, typename GEnableIf<! (IsConvertible<char *, T>:
 
 	raiseCoreException(Error_Variant_FailCast);
 	return *(typename RemoveReference<T>::Result *)(0);
+}
+
+template <typename T>
+T castFromObject(const volatile void * obj, typename GEnableIf<IsPointer<typename RemoveReference<T>::Result>::Result>::Result * = 0)
+{
+	return (typename RemoveReference<T>::Result)(obj);
+}
+
+template <typename T>
+T castFromObject(const volatile void * obj, typename GEnableIf<! IsPointer<typename RemoveReference<T>::Result>::Result>::Result * = 0)
+{
+	return (T)(*(typename RemoveReference<T>::Result *)obj);
 }
 
 template <typename T, int Policy>
@@ -644,7 +656,7 @@ struct CastFromVariant
 				return variant_internal::CastVariantHelper<const volatile void *, ResultType>::cast(v.data.valuePointer);
 
 			case vtObject:
-				return *variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::cast(v.data.valueObject);
+				return castFromObject<T>(v.data.ptrObject);
 
 			case vtShadow:
 				return *variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::cast(v.data.shadowObject->getObject());
@@ -764,7 +776,7 @@ struct CastFromVariant
 				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile void *, const volatile RefValueType *>::cast(v.data.ptrPointer));
 
 			case vtObject | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile void *, const volatile RefValueType *>::cast(v.data.ptrObject));
+				return castFromObject<T>(v.data.ptrObject);
 		}
 
 		failedCast();

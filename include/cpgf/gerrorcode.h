@@ -43,6 +43,7 @@ const int Error_ScriptBinding_ScriptFunctionReturnError	= Error_ScriptBinding_Be
 const int Error_ScriptBinding_CantWriteToConstObject	= Error_ScriptBinding_Begin + 12;
 const int Error_ScriptBinding_CallMethodWithTooManyParameters	= Error_ScriptBinding_Begin + 13;
 const int Error_ScriptBinding_AccessMemberWithWrongObject	= Error_ScriptBinding_Begin + 14;
+const int Error_ScriptBinding_CantBindRaw			= Error_ScriptBinding_Begin + 15;
 const int Error_ScriptBinding_End			= 300;
 
 

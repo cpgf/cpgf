@@ -65,6 +65,10 @@ struct GVarTypeData
 #pragma pack(pop)
 
 
+inline GVariantType vtGetBaseType(GVariantType vt) {
+	return static_cast<GVariantType>(vt & vtMask);
+}
+
 inline GVariantType vtGetBaseType(const GVarTypeData & data) {
 	return static_cast<GVariantType>(data.vt & vtMask);
 }

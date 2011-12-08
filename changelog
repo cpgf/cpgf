@@ -3,6 +3,7 @@ New version
 	Added second parameter "void ** outInstance" to function GScriptObject::getMethod
 	Refactored unit tests of script binding.
 	Added unit tests for script binding of Lua and V8.
+	Added non-meta data support in script binding. The script can use arbitrary data type.
 	Removed GScriptName and changed all name type to const char *
 	Fixed a memory bug that cause binding engine wrong references to GScriptConfig on the stack.
 	Fixed memory leak in GScopedInterface when call "reset" with same pointer.

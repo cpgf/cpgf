@@ -44,6 +44,9 @@ public:
 		this->service->addReference();
 	}
 
+	virtual ~GScriptBindingParam() {
+	}
+
 	IMetaService * getService() const {
 		return this->service.get();
 	}
@@ -69,7 +72,8 @@ enum GScriptUserDataType {
 	udtExtendMethod,
 	udtEnum,
 	udtOperator,
-	udtAccessible
+	udtAccessible,
+	udtRaw
 };
 
 class GScriptUserData
@@ -119,6 +123,20 @@ public:
 	bool isInstance;
 	bool allowGC;
 	ObjectPointerCV cv;
+};
+
+class GRawUserData : public GScriptUserData
+{
+private:
+	typedef GScriptUserData super;
+
+public:
+	GRawUserData(GScriptBindingParam * param, const GVariant & v)
+		: super(udtRaw, param), data(v) {
+	}
+
+public:
+	GVariant data;
 };
 
 class GMethodUserData : public GScriptUserData
@@ -428,6 +446,11 @@ public:
 	GVariantData resultData;
 };
 
+inline bool variantIsRawData(GVariantType vt) {
+	vt = vtGetBaseType(vt);
+	return vt == vtPointer || vt == vtObject || vt == vtShadow;
+}
+
 int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam);
 
 template <typename Getter, typename Predict>
@@ -469,6 +492,7 @@ void loadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * obj
 
 GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType);
 
+GMetaVariant userDataToVariant(GScriptUserData * userData);
 
 } // namespace bind_internal
 

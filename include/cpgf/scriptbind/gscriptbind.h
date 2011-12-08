@@ -22,6 +22,7 @@ enum GScriptDataType {
 	sdtClass = 4, sdtObject = 5,
 	sdtMethod = 6, sdtMethodList = 7,
 	sdtEnum = 8,
+	sdtRaw = 9,
 
 	sdtScriptObject = 10, sdtScriptMethod = 11,
 };
@@ -37,7 +38,8 @@ private:
 		scAccessStaticMethodViaInstance = 1 << 1,
 		scAccessEnumTypeViaInstance = 1 << 2,
 		scAccessEnumValueViaInstance = 1 << 3,
-		scAccessClassViaInstance = 1 << 4
+		scAccessClassViaInstance = 1 << 4,
+		scAccessRawData = 1 << 5
 	};
 
 	enum {
@@ -47,6 +49,7 @@ private:
 				| scAccessEnumTypeViaInstance
 				| scAccessEnumValueViaInstance
 				| scAccessClassViaInstance
+				| scAccessRawData
 	};
 
 public:
@@ -102,6 +105,14 @@ public:
 		return this->hasFlag(scAccessClassViaInstance);
 	}
 
+	void setAccessRawData(bool set) {
+		this->setFlag(scAccessRawData, set);
+	}
+
+	bool allowAccessRawData() const {
+		return this->hasFlag(scAccessRawData);
+	}
+
 private:
 	bool hasFlag(unsigned int flag) const {
 		return (this->flags & flag) != 0;
@@ -148,6 +159,7 @@ public:
 	virtual void bindFundamental(const char * name, const GVariant & value) = 0;
 	virtual void bindString(const char * stringName, const char * s) = 0;
 	virtual void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership) = 0;
+	virtual void bindRaw(const char * name, const GVariant & value) = 0;
 	virtual void bindMethod(const char * name, void * instance, IMetaMethod * method) = 0;
 	virtual void bindMethodList(const char * name, IMetaList * methodList) = 0;
 
@@ -157,6 +169,7 @@ public:
 	virtual GVariant getFundamental(const char * name) = 0;
 	virtual std::string getString(const char * stringName) = 0;
 	virtual void * getObject(const char * objectName) = 0;
+	virtual GVariant getRaw(const char * name) = 0;
 	virtual IMetaMethod * getMethod(const char * methodName, void ** outInstance) = 0;
 	virtual IMetaList * getMethodList(const char * methodName) = 0;
 

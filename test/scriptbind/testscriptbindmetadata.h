@@ -29,6 +29,13 @@ void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service);
 
 void scriptAssert(bool b);
 
+// RawData is not reflected.
+// It's used to test non-reflected object in script binding.
+struct RawData
+{
+	int n;
+	std::string s;
+};
 
 struct TestData
 {
@@ -78,16 +85,21 @@ class TestObject
 {
 public:
 	TestObject() : value(Magic1) {
+		this->rawPointer = &this->raw;
 	}
 	
 	TestObject(const TestObject & other) : value(other.value) {
 		(void)other;
+		
+		this->rawPointer = &this->raw;
 	}
 
 	TestObject(int value) : value(value) {
+		this->rawPointer = &this->raw;
 	}
 	
 	TestObject(int a, const std::string & s) : value(static_cast<int>(a + s.length())) {
+		this->rawPointer = &this->raw;
 	}
 	
 	TestObject & operator = (const TestObject & other) {
@@ -198,9 +210,32 @@ public:
 		++staticValue;
 		return staticValue;
 	}
+
+	RawData * pointerRaw() {
+		return &this->raw;
+	}
+	
+	RawData & refRaw() {
+		return this->raw;
+	}
+
+	bool isRawPointer(const RawData * p) const {
+		return p == &this->raw;
+	}
+	
+	bool isRawRef(const RawData & r) const {
+		return &r == &this->raw;
+	}
+	
+	void setRaw(RawData * p, int n, const char * s) {
+		p->n = n;
+		p->s = s;
+	}
 	
 public:
 	int	value;
+	RawData raw;
+	RawData * rawPointer;
 	static int staticValue;
 };
 

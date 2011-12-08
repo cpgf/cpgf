@@ -142,6 +142,15 @@ void G_API_CC ImplScriptObject::bindObject(const char * objectName, void * insta
 	LEAVE_BINDING_API()
 }
 
+void G_API_CC ImplScriptObject::bindRaw(const char * name, const GVariantData * value)
+{
+	ENTER_BINDING_API()
+
+	this->scriptObject->bindRaw(name, GVariant(*value));
+
+	LEAVE_BINDING_API()
+}
+
 void G_API_CC ImplScriptObject::bindMethod(const char * name, void * instance, IMetaMethod * method)
 {
 	ENTER_BINDING_API()
@@ -208,6 +217,15 @@ void * G_API_CC ImplScriptObject::getObject(const char * objectName)
 	return this->scriptObject->getObject(objectName);
 
 	LEAVE_BINDING_API(return NULL)
+}
+
+void G_API_CC ImplScriptObject::getRaw(GVariantData * outResult, const char * name)
+{
+	ENTER_BINDING_API()
+
+	*outResult = this->scriptObject->getRaw(name).takeData();
+
+	LEAVE_BINDING_API()
 }
 
 IMetaMethod * G_API_CC ImplScriptObject::getMethod(const char * methodName, void ** outInstance)

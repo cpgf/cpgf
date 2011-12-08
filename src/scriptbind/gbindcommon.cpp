@@ -476,6 +476,32 @@ GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType)
 	}
 }
 
+GMetaVariant userDataToVariant(GScriptUserData * userData)
+{
+	switch(userData->getType()) {
+		case udtClass: {
+			GClassUserData * classData = static_cast<GClassUserData *>(userData);
+			GMetaTypeData typeData;
+			classData->metaClass->getMetaType(&typeData);
+			metaCheckError(classData->metaClass);
+			GMetaType type(typeData);
+			type.addPointer();
+			return GMetaVariant(pointerToObjectVariant(classData->instance), type);
+		}
+
+		case udtRaw: {
+			GRawUserData * rawData = static_cast<GRawUserData *>(userData);
+			return GMetaVariant(rawData->data, GMetaType());
+		}
+
+		default:
+			break;
+	}
+
+	return GMetaVariant();
+}
+
+
 
 } // namespace bind_internal
 

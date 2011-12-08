@@ -213,6 +213,15 @@ GMETA_DEFINE_CLASS(TestObject, TestObject, REG_NAME_TestObject) {
 	
 	reflectField("staticValue", &TestObject::staticValue);
 	reflectMethod("incStaticValue", &TestObject::incStaticValue);
+
+	GMETA_FIELD(raw);
+	GMETA_FIELD(rawPointer);
+
+	GMETA_METHOD(pointerRaw);
+	GMETA_METHOD(refRaw);
+	GMETA_METHOD(isRawPointer);
+	GMETA_METHOD(isRawRef);
+	GMETA_METHOD(setRaw);
 }
 
 

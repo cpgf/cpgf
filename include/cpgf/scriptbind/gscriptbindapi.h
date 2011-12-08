@@ -36,6 +36,7 @@ struct IScriptObject : public IExtendObject
 	virtual void G_API_CC bindFundamental(const char * name, const GVariantData * value) = 0;
 	virtual void G_API_CC bindString(const char * stringName, const char * s) = 0;
 	virtual void G_API_CC bindObject(const char * objectName, void * instance, IMetaClass * type, gapi_bool transferOwnership) = 0;
+	virtual void G_API_CC bindRaw(const char * name, const GVariantData * value) = 0;
 	virtual void G_API_CC bindMethod(const char * name, void * instance, IMetaMethod * method) = 0;
 	virtual void G_API_CC bindMethodList(const char * name, IMetaList * methodList) = 0;
 	
@@ -45,6 +46,7 @@ struct IScriptObject : public IExtendObject
 	virtual void G_API_CC getFundamental(GVariantData * outResult, const char * name) = 0;
 	virtual char * G_API_CC getString(const char * stringName, IMemoryAllocator * allocator) = 0;
 	virtual void * G_API_CC getObject(const char * objectName) = 0;
+	virtual void G_API_CC getRaw(GVariantData * outResult, const char * name) = 0;
 	virtual IMetaMethod * G_API_CC getMethod(const char * methodName, void ** outInstance) = 0;
 	virtual IMetaList * G_API_CC getMethodList(const char * methodName) = 0;
 	
