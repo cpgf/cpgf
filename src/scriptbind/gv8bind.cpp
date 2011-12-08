@@ -376,10 +376,6 @@ v8::Handle<v8::Value> variantToV8(GScriptBindingParam * param, const GVariant & 
 		return v8::Null();
 	}
 
-	if(vtIsVoidPointer(vt)) {
-		return v8::External::New(fromVariant<void *>(value));
-	}
-
 	if(variantIsString(value)) {
 		return v8::String::New(fromVariant<char *>(value));
 	}
