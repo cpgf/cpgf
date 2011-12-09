@@ -494,6 +494,8 @@ GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType);
 
 GMetaVariant userDataToVariant(GScriptUserData * userData);
 
+GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);
+
 } // namespace bind_internal
 
 

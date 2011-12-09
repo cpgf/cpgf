@@ -33,6 +33,11 @@ void GMetaProperty::set(void * instance, const GVariant & value) const
 	this->baseData->set(instance, value);
 }
 
+void * GMetaProperty::getAddress(void * instance) const
+{
+	return this->baseData->getPropertyAddress(instance);
+}
+
 size_t GMetaProperty::getSize() const
 {
 	return this->baseData->getPropertySize();

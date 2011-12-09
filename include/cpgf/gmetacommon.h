@@ -162,6 +162,8 @@ public:
 
 	virtual GVariant get(void * obj) const = 0;
 	virtual void set(void * obj, const GVariant & v) const = 0;
+	
+	virtual void * getAddress(void * instance) const = 0;
 
 	virtual size_t getSize() const = 0;
 	

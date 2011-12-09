@@ -501,6 +501,32 @@ GMetaVariant userDataToVariant(GScriptUserData * userData)
 	return GMetaVariant();
 }
 
+GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst)
+{
+	GVariant value;
+	GMetaTypeData typeData;
+
+	accessible->getItemType(&typeData);
+	metaCheckError(accessible);
+
+	*outType = GMetaType(typeData);
+
+	void * address = accessible->getAddress(instance);
+	if(address != NULL && !outType->isPointer() && outType->baseIsClass()) {
+		outType->addPointer();
+		value = address;
+
+		if(instanceIsConst) {
+			outType->addConst();
+		}
+	}
+	else {
+		accessible->get(&value.data, instance);
+		metaCheckError(accessible);
+	}
+
+	return value;
+}
 
 
 } // namespace bind_internal

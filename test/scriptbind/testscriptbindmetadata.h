@@ -39,6 +39,8 @@ struct RawData
 
 struct TestData
 {
+	TestData() : x(0), name("") {}
+
 	int x;
 	std::string name;
 };
@@ -231,11 +233,29 @@ public:
 		p->n = n;
 		p->s = s;
 	}
+
+	TestData & refData() {
+		return this->data;
+	}
+	
+	TestData * pointerData() {
+		return &this->data;
+	}
+	
+	const TestData & constRefData() {
+		return this->data;
+	}
+	
+	const TestData * constPointerData() {
+		return &this->data;
+	}
 	
 public:
 	int	value;
 	RawData raw;
 	RawData * rawPointer;
+	TestData data;
+
 	static int staticValue;
 };
 

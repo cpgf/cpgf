@@ -383,7 +383,9 @@ v8::Handle<v8::Value> variantToV8(GScriptBindingParam * param, const GVariant & 
 	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
 		GScopedInterface<IMetaTypedItem> typedItem(param->getService()->findTypedItemByName(type.getBaseName()));
 		if(typedItem) {
-			if(type.getPointerDimension() == 0) {
+			bool isReference = type.isReference();
+			
+			if(type.getPointerDimension() == 0 && !isReference) {
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 				GASSERT_MSG(type.baseIsClass(), "Unknown type");
 
@@ -392,7 +394,7 @@ v8::Handle<v8::Value> variantToV8(GScriptBindingParam * param, const GVariant & 
 				return objectToV8(param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type));
 			}
 
-			if(type.getPointerDimension() == 1) {
+			if(type.getPointerDimension() == 1 || isReference) {
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
 				return objectToV8(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type));
@@ -550,7 +552,8 @@ v8::Handle<v8::Value> accessibleGet(v8::Local<v8::String> prop, const v8::Access
 
 	GAccessibleUserData * userData = static_cast<GAccessibleUserData *>(Local<External>::Cast(info.Data())->Value());
 
-	GVariant result = metaGetValue(userData->accessible, userData->instance);
+	GMetaType type;
+	GVariant result = getAccessibleValueAndType(userData->instance, userData->accessible, &type, false);
 
 	return variantToV8(userData->getParam(), result, metaGetItemType(userData->accessible), false, true);
 	
@@ -814,8 +817,9 @@ v8::Handle<v8::Value> getNamedMember(GClassUserData * userData, const char * nam
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 				if(allowAccessData(userData, data.get())) {
-					GVariant result = metaGetValue(data.get(), instance);
-					Handle<Value> v = variantToV8(userData->getParam(), result, metaGetItemType(data.get()), false, false);
+					GMetaType type;
+					GVariant result = getAccessibleValueAndType(instance, data.get(), &type, userData->cv == opcvConst);
+					Handle<Value> v = variantToV8(userData->getParam(), result, type, false, false);
 					if(v.IsEmpty()) {
 						GScopedInterface<IMetaConverter> converter(data->createConverter());
 						v = converterToV8(userData->getParam(), result, converter.get());

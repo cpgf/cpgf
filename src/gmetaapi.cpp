@@ -68,6 +68,7 @@ protected: \
 	virtual gapi_bool G_API_CC canSet() { return this->doCanSet(); } \
 	virtual void G_API_CC get(GVariantData * outResult, void * instance) { this->doGet(outResult, instance); } \
 	virtual void G_API_CC set(void * instance, const GVariantData * value) { this->doSet(instance, value); } \
+	virtual void * G_API_CC getAddress(void * instance) { this->doGetAddress(instance); } \
 	virtual uint32_t G_API_CC getSize() { return this->doGetSize(); } \
 	virtual IMetaConverter * G_API_CC createConverter() { return this->doCreateConverter(); }
 
@@ -227,6 +228,7 @@ protected:
 	gapi_bool doCanSet();
 	void doGet(GVariantData * outResult, void * instance);
 	void doSet(void * instance, const GVariantData * value);
+	void * doGetAddress(void * instance);
 	uint32_t doGetSize();
 	IMetaConverter * doCreateConverter();
 
@@ -247,9 +249,6 @@ public:
 	IMPL_ALL
 
 	IMPL_ACCESSIBLE
-
-protected:
-	virtual void * G_API_CC getAddress(void * instance);
 
 private:
 	const GMetaField * getField() const {
@@ -966,6 +965,15 @@ void ImplMetaAccessible::doSet(void * instance, const GVariantData * value)
 	LEAVE_META_API()
 }
 
+void * ImplMetaAccessible::doGetAddress(void * instance)
+{
+	ENTER_META_API()
+
+	return this->getAccessible()->getAddress(instance);
+
+	LEAVE_META_API(return 0)
+}
+
 uint32_t ImplMetaAccessible::doGetSize()
 {
 	ENTER_META_API()
@@ -1063,16 +1071,6 @@ ImplMetaField::ImplMetaField(const GMetaField * field)
 	: super(field)
 {
 }
-
-void * G_API_CC ImplMetaField::getAddress(void * instance)
-{
-	ENTER_META_API()
-
-	return this->getField()->getAddress(instance);
-
-	LEAVE_META_API(return NULL)
-}
-
 
 
 ImplMetaProperty::ImplMetaProperty(const GMetaProperty * prop)

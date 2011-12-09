@@ -58,6 +58,11 @@ void GMetaType::addPointer()
 	vtSetType(this->typeData, vtGetType(this->typeData) | byPointer);
 }
 
+void GMetaType::addConst()
+{
+	this->flags |= meta_internal::mtFlagIsConst;
+}
+
 GMetaType createMetaTypeWithName(const GMetaType & type, const char * name)
 {
 	GMetaTypeData data = type.getData();

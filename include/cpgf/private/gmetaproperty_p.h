@@ -39,6 +39,11 @@ public:
 		return GVariant();
 	}
 
+	void * getPropertyAddress(void * instance) const {
+		(void)instance;
+
+		return NULL;
+	}
 };
 
 
@@ -75,6 +80,12 @@ public:
 		return this->doGet<void>(instance);
 	}
 	
+	void * getPropertyAddress(void * instance) const {
+		(void)instance;
+
+		return this->getter;
+	}
+
 private:	
 	template <typename T>
 	GVariant doGet(typename GEnableIf<Readable, T>::Result * instance) const {
@@ -130,6 +141,10 @@ public:
 		return this->doGet<void>(instance);
 	}
 	
+	void * getPropertyAddress(void * instance) const {
+		return &(static_cast<typename MemberDataTrait<Getter>::ObjectType *>(instance)->*(this->getter));
+	}
+
 private:	
 	template <typename T>
 	GVariant doGet(typename GEnableIf<Readable, T>::Result * instance) const {
@@ -180,6 +195,12 @@ public:
 		return this->doGet<void>(instance);
 	}
 	
+	void * getPropertyAddress(void * instance) const {
+		(void)instance;
+
+		return NULL;
+	}
+
 private:	
 	template <typename T>
 	GVariant doGet(typename GEnableIf<Readable, T>::Result * instance) const {
@@ -387,6 +408,7 @@ public:
 	virtual bool canSet() const = 0;
 	virtual GVariant get(void * instance) const = 0;
 	virtual void set(void * instance, const GVariant & value) const = 0;
+	virtual void * getPropertyAddress(void * instance) const = 0;
 	virtual size_t getPropertySize() const = 0;
 	virtual GMetaConverter * createConverter() const = 0;
 };
@@ -416,6 +438,10 @@ public:
 
 	virtual void set(void * instance, const GVariant & value) const {
 		this->metaSetter.set(instance, value);
+	}
+
+	virtual void * getPropertyAddress(void * instance) const {
+		return this->metaGetter.getPropertyAddress(instance);
 	}
 
 	virtual size_t getPropertySize() const {

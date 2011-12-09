@@ -63,13 +63,13 @@ struct IMetaAccessible : public IMetaItem
 	virtual gapi_bool G_API_CC canSet() = 0;
 	virtual void G_API_CC get(GVariantData * outResult, void * instance) = 0;
 	virtual void G_API_CC set(void * instance, const GVariantData * value) = 0;
+	virtual void * G_API_CC getAddress(void * instance) = 0;
 	virtual uint32_t G_API_CC getSize() = 0;
 	virtual IMetaConverter * G_API_CC createConverter() = 0;
 };
 
 struct IMetaField : public IMetaAccessible
 {
-	virtual void * G_API_CC getAddress(void * instance) = 0;
 };
 
 struct IMetaProperty : public IMetaAccessible

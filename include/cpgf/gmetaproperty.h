@@ -26,6 +26,8 @@ public:
 	virtual GVariant get(void * instance) const;
 	virtual void set(void * instance, const GVariant & value) const;
 
+	virtual void * getAddress(void * instance) const;
+
 	virtual size_t getSize() const;
 
 	virtual const GMetaType & getItemType() const;

@@ -100,6 +100,12 @@ struct AddReference
 	typedef T & Result;
 };
 
+template <typename T>
+struct AddReference <T &>
+{
+	typedef T & Result;
+};
+
 
 
 template <typename T>

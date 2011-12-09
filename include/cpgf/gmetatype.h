@@ -202,6 +202,7 @@ public:
 	GMetaTypeData getData() const;
 
 	void addPointer();
+	void addConst();
 
 private:
 	bool hasFlag(unsigned int flag) const {

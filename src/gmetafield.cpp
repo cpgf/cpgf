@@ -32,14 +32,14 @@ void GMetaField::set(void * instance, const GVariant & v) const
 	this->baseData->set(instance, v);
 }
 
-size_t GMetaField::getSize() const
-{
-	return this->baseData->getFieldSize();
-}
-
 void * GMetaField::getAddress(void * instance) const
 {
 	return this->baseData->getFieldAddress(instance);
+}
+
+size_t GMetaField::getSize() const
+{
+	return this->baseData->getFieldSize();
 }
 
 GMetaConverter * GMetaField::createConverter() const

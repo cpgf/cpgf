@@ -262,7 +262,9 @@ bool variantToLua(lua_State * L, GScriptBindingParam * param, const GVariant & v
 	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
 		GScopedInterface<IMetaTypedItem> typedItem(param->getService()->findTypedItemByName(type.getBaseName()));
 		if(typedItem) {
-			if(type.getPointerDimension() == 0) {
+			bool isReference = type.isReference();
+
+			if(type.getPointerDimension() == 0 && !isReference) {
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 				GASSERT_MSG(type.baseIsClass(), "Unknown type");
 
@@ -273,7 +275,7 @@ bool variantToLua(lua_State * L, GScriptBindingParam * param, const GVariant & v
 				return true;
 			}
 
-			if(type.getPointerDimension() == 1) {
+			if(type.getPointerDimension() == 1 || isReference) {
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
 				objectToLua(L, param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type));
@@ -580,16 +582,10 @@ int UserData_call(lua_State * L)
 
 bool indexMemberData(lua_State * L, GClassUserData * userData, IMetaAccessible * data, void * instance)
 {
-	GVariant value;
-	GMetaTypeData typeData;
+	GMetaType type;
+	GVariant value = getAccessibleValueAndType(instance, data, &type, userData->cv == opcvConst);
 
-	data->get(&value.data, instance);
-	metaCheckError(data);
-	
-	data->getItemType(&typeData);
-	metaCheckError(data);
-	
-	bool success = variantToLua(L, userData->getParam(), value, GMetaType(typeData), false, false);
+	bool success = variantToLua(L, userData->getParam(), value, type, false, false);
 	if(!success) {
 		GScopedInterface<IMetaConverter> converter(data->createConverter());
 		success = converterToLua(L, userData->getParam(), value, converter.get());

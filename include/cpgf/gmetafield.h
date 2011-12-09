@@ -32,10 +32,10 @@ public:
 	virtual GVariant get(void * instance) const;
 	virtual void set(void * instance, const GVariant & v) const;
 
+	virtual void * getAddress(void * instance) const;
+
 	virtual size_t getSize() const;
 
-	void * getAddress(void * instance) const;
-	
 	virtual GMetaConverter * createConverter() const;
 
 private:
