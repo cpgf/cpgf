@@ -20,7 +20,7 @@ public:
 		this->luaState = luaL_newstate();
 		luaL_openlibs(this->luaState);
 		this->service.reset(cpgf::createDefaultMetaService());
-		this->binding.reset(new cpgf::GLuaScriptObject(this->service.get(), this->luaState, cpgf::GScriptConfig()));
+		this->binding.reset(createLuaScriptObject(this->service.get(), this->luaState, cpgf::GScriptConfig()));
 		testscript::bindBasicData(this->binding.get());
 	}
 
@@ -36,7 +36,7 @@ public:
 		return this->luaState;
 	}
 
-	cpgf::GLuaScriptObject * getBinding() const {
+	cpgf::GScriptObject * getBinding() const {
 		return this->binding.get();
 	}
 
@@ -50,7 +50,7 @@ public:
 private:
 	lua_State * luaState;
 	cpgf::GScopedInterface<cpgf::IMetaService> service;
-	cpgf::GScopedPointer<cpgf::GLuaScriptObject> binding;
+	cpgf::GScopedPointer<cpgf::GScriptObject> binding;
 };
 
 }

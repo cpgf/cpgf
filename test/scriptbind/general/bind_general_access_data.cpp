@@ -123,4 +123,45 @@ void testRefData(TestScriptContext * context)
 #include "../bind_testcase.h"
 
 
+template <typename T>
+void doTestDataConstness(T * binding, TestScriptContext * context)
+{
+	QNEWOBJ(a, TestObject())
+	
+	QDO(b = a.selfConst())
+	QASSERT(a.data.x == 0)
+	QASSERT(a.data.name == "")
+
+	TestObject * obj;
+	
+	obj = static_cast<TestObject *>(binding->getObject("a"));
+	obj->data.x = 38;
+	obj->data.name = "blah";
+
+	QASSERT(b.data.x == 38)
+	QASSERT(b.data.name == "blah")
+
+	QERR(b.data.x = 1)
+	QERR(b.data.name = "")
+}
+
+void testDataConstness(TestScriptContext * context)
+{
+	IScriptObject * bindingApi = context->getBindingApi();
+	GScriptObject * bindingLib = context->getBindingLib();
+
+	if(bindingLib) {
+		doTestDataConstness(bindingLib, context);
+	}
+	
+	if(bindingApi) {
+		doTestDataConstness(bindingApi, context);
+	}
+}
+
+
+#define CASE testDataConstness
+#include "../bind_testcase.h"
+
+
 }

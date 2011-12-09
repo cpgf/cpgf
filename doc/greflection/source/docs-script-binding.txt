@@ -69,7 +69,7 @@ After getting the GScriptObject object, we get everything ready to bind the meta
 
 
 
-<{sh}> Get start with script object
+<{sh}> Script object API
 <{sc}>
 
 <{autobr}>
@@ -120,6 +120,14 @@ Bind an object instance to script.
 "type" is the meta class for the object.
 If "transferOwnership" is true, the object will be freed by the script. If it's false, the C++ code will be responsible to free the object.
 
+<{piece}> irtual void bindRaw(const char * name, const GVariant & value) = 0; <{/piece}> 
+Bind raw object to script.
+A raw object, is either a pointer or object.
+This is useful to bind object which has no meta data, aka, not reflected.
+The parameter "value" must hold a pointer, or an object. It can't be fundamental or string.
+The script can't access any members in the raw object.
+The script can only store the raw object and pass the object back to C++.
+
 <{piece}> virtual void bindMethod(const char * name, void * instance, IMetaMethod * method) = 0; <{/piece}>
 Bind a C++ function to script.
 "instance" is the object instance for the function. It's NULL for global function.
@@ -157,6 +165,9 @@ Return the object that's bound to script using the API bindObject;
 To get the meta class of the object, call getType.
 
 Note: Don't free the returned object.
+
+<{piece}>virtual GVariant getRaw(const char * name) = 0; <{/piece}>
+Return a raw object.
 
 <{piece}> virtual IMetaMethod * getMethod(const char * methodName) = 0; <{/piece}>
 Return the meta method that's bound to script using the API bindMethod.
@@ -216,6 +227,35 @@ Note: Any empty value, undefined value, and null value, are treated as null.
 <{piece}> virtual void nullifyValue(const char * name) = 0; <{/piece}>
 Set the script value to null.
 This is helpful to release any bound value in the script.
+
+<{/autobr}>
+
+
+<{sh}> Utility API
+<{sc}>
+
+<{autobr}>
+To easy the use, there are some utility APIs in gscriptbindutil.h
+
+
+<{piece}>GMetaVariant invokeScriptFunction(GScriptObject * scriptObject, const char * name, GMetaVariant P1, GMetaVariant P2, ..., GMetaVariant PN); <{/piece}>
+<{piece}>GMetaVariant invokeScriptFunction(IScriptObject * scriptObject, const char * name, GMetaVariant P1, GMetaVariant P2, ..., GMetaVariant PN); <{/piece}>
+
+Invoke a script function.
+Example,
+<{piece}>GMetaVariant result = invokeScriptFunction(binding, "funcAdd", 8, 2); <{/piece}>
+
+<{piece}>IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject); <{/piece}>
+Wrap GScriptObject object to IScriptObject.
+Note: the returned interface will become the owner of scriptObject. Don't delete scriptObject.
+
+<{piece}>void injectMetaClassToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance); <{/piece}>
+Inject a class to the script. It will bind all methods, enumerators, nested class, in metaClass, to scriptObject in global scope.
+"instance" is the object if metaClass is not global.
+The function is usually only useful to bind the whole global meta class.
+So if metaClass is a top level global class, calling
+<{piece}>injectMetaClassToScript(myScriptObject, globalClass, NULL); <{/piece}>
+will bind everything in the meta system to the script.
 
 <{/autobr}>
 

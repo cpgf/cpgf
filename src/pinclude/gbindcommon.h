@@ -448,7 +448,7 @@ public:
 
 inline bool variantIsRawData(GVariantType vt) {
 	vt = vtGetBaseType(vt);
-	return vt == vtPointer || vt == vtObject || vt == vtShadow;
+	return vt == vtPointer || vt == vtObject || vt == vtShadow || vt == vtVoid;
 }
 
 int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam);

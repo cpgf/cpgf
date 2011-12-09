@@ -1,0 +1,47 @@
+<{filename name=docs-cpgf-general-faq }>
+
+<{title}>cpgf library -- general frequently asked questions <{/title}>
+
+<h1>cpgf library -- general frequently asked questions</h1>
+
+<{autotoc}>
+
+<{sgroup}> Script binding (Lua and Google V8 Javascript)
+
+<{sh}> When should I use bindMethod and bindMethodList?
+<{sc}>
+
+<{autobr}>
+If you are only binding classes, never you need to call bindMethod or bindMethodList.
+cpgf will bind all class members automatically.
+
+bindMethod and bindMethodList are useful if you want to bind methods to global scope under current script object.
+
+<{/autobr}>
+
+
+<{sh}> Why can't I bind meta field and property?
+<{sc}>
+
+<{autobr}>
+The fields and properties in a meta class will be automatically bound.
+But we can't bind fields or properties to a script object directly.
+In Google V8, it's possible, but in Lua, seems it's not possible because we can't set callback for that.
+If you know how to bind variable with getter and setter in Lua, let me known.
+
+So to keep the API interface consisten, we don't support fields and properties binding.
+
+<{/autobr}>
+
+
+<{/sgroup}>
+
+
+
+
+<{/autotoc}>
+
+
+
+<{include name="moredoc.inc" }>
+
