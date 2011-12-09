@@ -68,7 +68,7 @@ protected: \
 	virtual gapi_bool G_API_CC canSet() { return this->doCanSet(); } \
 	virtual void G_API_CC get(GVariantData * outResult, void * instance) { this->doGet(outResult, instance); } \
 	virtual void G_API_CC set(void * instance, const GVariantData * value) { this->doSet(instance, value); } \
-	virtual void * G_API_CC getAddress(void * instance) { this->doGetAddress(instance); } \
+	virtual void * G_API_CC getAddress(void * instance) { return this->doGetAddress(instance); } \
 	virtual uint32_t G_API_CC getSize() { return this->doGetSize(); } \
 	virtual IMetaConverter * G_API_CC createConverter() { return this->doCreateConverter(); }
 
@@ -247,6 +247,7 @@ public:
 	ImplMetaField(const GMetaField * field);
 
 	IMPL_ALL
+
 
 	IMPL_ACCESSIBLE
 
@@ -937,6 +938,7 @@ gapi_bool ImplMetaAccessible::doCanGet()
 }
 
 gapi_bool ImplMetaAccessible::doCanSet()
+
 {
 	ENTER_META_API()
 
@@ -1681,6 +1683,7 @@ IMetaClass * G_API_CC ImplMetaClass::getClassInHierarchy(const char * name, void
 
 	LEAVE_META_API(return NULL)
 }
+
 
 IMetaClass * G_API_CC ImplMetaClass::getClass(const char * name)
 {
