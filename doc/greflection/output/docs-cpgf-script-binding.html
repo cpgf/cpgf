@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="maintpl.css" />
-<title>cpgf script binding engine -- bind Lua to C++</title>
+<title>cpgf script binding engine -- bind Lua and Google V8 Javascript to C++</title>
 </head>
 <body><div style="width:900px">
 
@@ -12,7 +12,7 @@
 
 
 
-<h1>script binding engine -- bind Lua to C++</h1>
+<h1>script binding engine -- bind Lua and Google V8 Javascript to C++</h1>
 
 
 
@@ -22,7 +22,7 @@
 <p>
 <b>
 <a href="docs-cpgf-script-binding.html#linkid1">
-<strong>Binding Lua script engine to C++</strong></a></b></p>
+<strong>Binding Lua  and Google V8 Javascript engine to C++</strong></a></b></p>
 <div style="margin-left:0px">
 <ul>
 <li>
@@ -36,16 +36,16 @@
 <strong>Get start</strong></a></li>
 <li>
 <a href="docs-cpgf-script-binding.html#linkid5">
-<strong>Understand script name</strong></a></li>
+<strong>Script object API</strong></a></li>
 <li>
 <a href="docs-cpgf-script-binding.html#linkid6">
-<strong>Get start with script object</strong></a></li>
+<strong>Utility API</strong></a></li>
 </ul>
 </div>
 
 
 <p><a name="linkid1"></a></p>
-<h3>Binding Lua script engine to C++</h3><p><a name="linkid2"></a></p>
+<h3>Binding Lua  and Google V8 Javascript engine to C++</h3><p><a name="linkid2"></a></p>
 <p>
 <strong>Overview</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-script-binding.html#top">back top</a></span></p>
 The binding engine uses reflection meta data as the source.<br />
@@ -54,61 +54,59 @@ The binding engine uses reflection meta data as the source.<br />
 <p><a name="linkid3"></a></p>
 <p>
 <strong>What can the binding engine do</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-script-binding.html#top">back top</a></span></p>
-<ul><li>Bind C++ class to Lua. Then Lua script can create instance, invoke class member function, get/set class field and more.
-</li><li>Bind C++ enum type to Lua. Then Lua script can access the enum value by name.
-</li><li>Bind C++ functions (global or member) to Lua.
-</li><li>Bind C++ values to Lua variable.
-</li><li>The overloaded operators in C++ are bound to Lua together with the class.
-</li><li>Invoke Lua functions from C++.
-</li><li>Get and set Lua value from C++.
+<ul><li>Bind C++ class to Lua and Google V8 Javascript. Then Lua and Javascript can create instance, invoke class member function, get/set class field or property, and more.
+</li><li>Bind C++ enum type to Lua and V8 Javascript. Then Lua and Javascript can access the enum value by name.
+</li><li>Bind C++ functions (global or member) to Lua and V8.
+</li><li>Bind C++ values to Lua and V8 variable.
+</li><li>Bind C++ operators to Lua (Lua only). The overloaded operators in C++ are bound to Lua together with the class.
+</li><li>Invoke Lua and V8 Javascript functions from C++.
+</li><li>Get and set Lua and V8 Javascript value from C++.
 </li></ul>
 
 <p><a name="linkid4"></a></p>
 <p>
 <strong>Get start</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-script-binding.html#top">back top</a></span></p>
-To start binding Lua, include the header,<br />
+To binding Lua, include the header,<br />
 cpgf/scriptbind/gluabind.h<br />
+For V8, include the head,<br />
+cpgf/scriptbind/gv8bind.h<br />
 <br />
-First, we need a GScriptObject object.<br />
-The Lua version is GLuaScriptObject.<br />
-GLuaScriptObject constructor accepts three parameters.<br />
-GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig &amp; config)<br />
+First, we need a GScriptObject or IScriptObject (the interface version) object.<br />
+<br />
+Lua version:<br />
+GScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig &amp; config);<br />
+IScriptObject * createLuaScriptInterface(IMetaService * service, lua_State * L, const GScriptConfig &amp; config);<br />
 <br />
 The first parameter is a IMetaService. You can call createDefaultMetaService() or createMetaService() to create the service.<br />
 The second parameter is the Lua state.<br />
 The third one is a config. Just call GScriptConfig() to construct default one.<br />
 <br />
-This script object acts as a global scope. All meta data bound to this script object will be bound into Lua global space.<br />
+V8 version:<br />
+GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local&lt;v8::Object&gt; object, const GScriptConfig &amp; config);<br />
+IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local&lt;v8::Object&gt; object, const GScriptConfig &amp; config);<br />
+<br />
+The first parameter is a IMetaService. You can call createDefaultMetaService() or createMetaService() to create the service.<br />
+The second parameter is the V8 global object.<br />
+The third one is a config. Just call GScriptConfig() to construct default one.<br />
+<br />
+<br />
+This script object acts as a global scope. All meta data bound to this script object will be bound into Lua/V8 global space.<br />
 New named scope can be create by calling GScriptObject::createScriptObject(TheName).<br />
 Then all meta data bound to TheName can be accessed via TheName.<br />
 Such as TheName.MyClass, etc.<br />
 <br />
-After getting the GScriptObject object, we get everything ready to bind the meta data to Lua.<br />
+After getting the GScriptObject object, we get everything ready to bind the meta data to Lua and V8.<br />
 <br />
 
 
 
 <p><a name="linkid5"></a></p>
 <p>
-<strong>Understand script name</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-script-binding.html#top">back top</a></span></p>
-All meta data that bound to script engine must be bound to a name.<br />
-But instead of using raw string, the library uses GScriptName (in library) or IScriptName (in API) to represent the literal name.<br />
-<br />
-The reason is simple, Lua, or maybe other script engine, supports hash the name for quick reference.<br />
-Thus script name is introduced to support this feature.<br />
-<br />
-However, if you are using the library (access the library classes directly), you don't need to aware GScriptName.<br />
-Literal string can be passed where GScriptName required.<br />
-If you are using the interface based API, you have to deal with IScriptName.<br />
-<br />
-
-
-
-<p><a name="linkid6"></a></p>
-<p>
-<strong>Get start with script object</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-script-binding.html#top">back top</a></span></p>
-<div class="codepiece""> virtual void bindClass(const GScriptName &amp; name, IMetaClass * metaClass) = 0; <br />
+<strong>Script object API</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-script-binding.html#top">back top</a></span></p>
+<div class="codepiece""> virtual void bindClass(const char * name, IMetaClass * metaClass) = 0; <br />
 </div>Bind the meta class under the name.<br />
+After binding, all meta data are exposed to the script.<br />
+Thus the script can invoke the class member function, access field/property, invoke operator (Lua only), etc.<br />
 <br />
 Some examples,<br />
 <br />
@@ -124,80 +122,169 @@ a is constructed with the default constructor.<br />
 b = MyClass(5)<br />
 b is constructed with the constructor that accepts an integer.<br />
 <br />
-<div class="codepiece""> virtual void bindEnum(const GScriptName &amp; name, IMetaEnum * metaEnum) = 0; <br />
+In Google V8 Javascript, the keyword &quot;new&quot; must be used to invoke the constructor.<br />
+a = new MyClass()<br />
+a is constructed with the default constructor.<br />
+b = new MyClass(5)<br />
+b is constructed with the constructor that accepts an integer.<br />
+<br />
+<div class="codepiece""> virtual void bindEnum(const char * name, IMetaEnum * metaEnum) = 0; <br />
 </div>Bind the meta enumerator to script.<br />
 Assume we have the enumerator,<br />
 enum MyEnum { x, y, z };<br />
-After binding MyEnum, in Lua, we can access the value by,<br />
+After binding MyEnum, in the script, we can access the value by,<br />
 a = MyEnum.x<br />
 b = MyEnum.y<br />
 <br />
-<div class="codepiece""> virtual void bindFundamental(const GScriptName &amp; name, const GVariant &amp; value) = 0; <br />
+<div class="codepiece""> virtual void bindFundamental(const char * name, const GVariant &amp; value) = 0; <br />
 </div>Bind the fundamental value to script.<br />
 A fundamental value is the value with primary type, such as integer, float, bool, double, etc.<br />
 <br />
-<div class="codepiece""> virtual void bindString(const GScriptName &amp; stringName, const char * s) = 0; <br />
+<div class="codepiece""> virtual void bindString(const char * stringName, const char * s) = 0; <br />
 </div>Bind a string to script.<br />
+After binding, &quot;s&quot; is safe to be freed in C++. The script will hold a copy of the string.<br />
 <br />
-<div class="codepiece""> virtual void bindObject(const GScriptName &amp; objectName, void * instance, IMetaClass * type, bool transferOwnership) = 0; <br />
+<div class="codepiece""> virtual void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership) = 0; <br />
 </div>Bind an object instance to script.<br />
 &quot;instance&quot; is the object pointer.<br />
 &quot;type&quot; is the meta class for the object.<br />
 If &quot;transferOwnership&quot; is true, the object will be freed by the script. If it's false, the C++ code will be responsible to free the object.<br />
 <br />
-<div class="codepiece""> virtual void bindMethod(const GScriptName &amp; name, void * instance, IMetaMethod * method) = 0; <br />
-</div>Bind a function to script.<br />
+<div class="codepiece""> irtual void bindRaw(const char * name, const GVariant &amp; value) = 0; <br />
+</div>Bind raw object to script.<br />
+A raw object, is either a pointer or object.<br />
+This is useful to bind object which has no meta data, aka, not reflected.<br />
+The parameter &quot;value&quot; must hold a pointer, or an object. It can't be fundamental or string.<br />
+The script can't access any members in the raw object.<br />
+The script can only store the raw object and pass the object back to C++.<br />
+<br />
+<div class="codepiece""> virtual void bindMethod(const char * name, void * instance, IMetaMethod * method) = 0; <br />
+</div>Bind a C++ function to script.<br />
 &quot;instance&quot; is the object instance for the function. It's NULL for global function.<br />
 &quot;method&quot; is the meta method.<br />
+method can be a class member function, and &quot;instance&quot; should point to the object. Then the method will behave as a global function in current script object.<br />
+For example, if we have an object &quot;obj&quot; of MyClass, and it has a method &quot;add&quot;,<br />
+Pseudo code: bindMethod(&quot;AnotherAdd&quot;, obj, meta method of MyClass::add);<br />
+Then in script, to call the method, just write &quot;AnotherAdd(blah, blah)&quot;, no object is required.<br />
 <br />
-<div class="codepiece""> virtual void bindMethodList(const GScriptName &amp; name, IMetaList * methodList) = 0; <br />
-</div><br />
-<div class="codepiece""> virtual IMetaClass * getClass(const GScriptName &amp; className) = 0; <br />
-</div><div class="codepiece""> virtual IMetaEnum * getEnum(const GScriptName &amp; enumName) = 0; <br />
-</div><br />
-<div class="codepiece""> virtual GVariant getFundamental(const GScriptName &amp; name) = 0; <br />
-</div><div class="codepiece""> virtual std::string getString(const GScriptName &amp; stringName) = 0; <br />
-</div><br />
-<div class="codepiece""> virtual void * getObject(const GScriptName &amp; objectName) = 0; <br />
-</div><div class="codepiece""> virtual IMetaClass * getObjectType(const GScriptName &amp; objectName) = 0; <br />
-</div><div class="codepiece""> virtual IMetaMethod * getMethod(const GScriptName &amp; methodName) = 0; <br />
-</div><div class="codepiece""> virtual IMetaList * getMethodList(const GScriptName &amp; methodName) = 0; <br />
-</div><br />
-<div class="codepiece""> virtual bool cacheName(GScriptName * name) = 0; <br />
-</div>Cache the script name for later fast use. Lua supports it by reference to the name.<br />
-For any script engine that doesn't support this function, this function doesn't effect.<br />
-<b>Note:</b>After a name is cached successfully, it must finish its life cycle before the script engine is closed (for Lua, the Lua state is closed).<br />
-If the name object has to live after the script engine is closed, GScriptName::uncache must be called on the name to release any cached reference.<br />
-If this rule is broken, memory crash can be expected.<br />
+Note: only use this function to bind method in global scope. You don't need to bind member function for class. bindClass will do it for you.<br />
 <br />
-<div class="codepiece""> virtual GScriptDataType getType(const GScriptName &amp; name, IMetaTypedItem ** outMetaTypeItem) = 0; <br />
+<div class="codepiece""> virtual void bindMethodList(const char * name, IMetaList * methodList) = 0; <br />
+</div>Bind a group of C++ functions to script under the &quot;name&quot;.<br />
+Then all methods are treated as overloaded functions in the script.<br />
+Pseudo code:<br />
+methodList-&gt;add(meta method of MyClass::addLess, &amp;myObject); // int addLess(int)<br />
+methodList-&gt;add(meta method of global addMore, NULL); // int addMore(int a, int b)<br />
+bindMethodList(&quot;add&quot;, methodList);<br />
+Then in script, &quot;add(5)&quot; will invoke MyClass::addLess, &quot;add(8, 9)&quot; will invoke addMore.<br />
+<br />
+<div class="codepiece""> virtual IMetaClass * getClass(const char * className) = 0; <br />
+</div>Return the meta class that's bound to script using the API bindClass;<br />
+<br />
+<div class="codepiece""> virtual IMetaEnum * getEnum(const char * enumName) = 0; <br />
+</div>Return the meta enum that's bound to script using the API bindEnum;<br />
+<br />
+<div class="codepiece""> virtual GVariant getFundamental(const char * name) = 0; <br />
+</div>Return the fundamental value that's bound to script using the API bindFundamental;<br />
+<br />
+<div class="codepiece""> virtual std::string getString(const char * stringName) = 0; <br />
+</div>Return the string that's bound to script using the API bindString;<br />
+<br />
+<div class="codepiece""> virtual void * getObject(const char * objectName) = 0; <br />
+</div>Return the object that's bound to script using the API bindObject;<br />
+To get the meta class of the object, call getType.<br />
+<br />
+Note: Don't free the returned object.<br />
+<br />
+<div class="codepiece"">virtual GVariant getRaw(const char * name) = 0; <br />
+</div>Return a raw object.<br />
+<br />
+<div class="codepiece""> virtual IMetaMethod * getMethod(const char * methodName) = 0; <br />
+</div>Return the meta method that's bound to script using the API bindMethod.<br />
+This function will return NULL for the method that's bound by bindClass,<br />
+<br />
+<div class="codepiece""> virtual IMetaList * getMethodList(const char * methodName) = 0; <br />
+</div>Return the meta method list that's bound to script using the API bindMethodList.<br />
+This function will return NULL for the method list that's bound by bindClass,<br />
+<br />
+<div class="codepiece""> virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem) = 0; <br />
 </div>Get the type of a name in the script engine. The name can be any legal name that exists in the script engine.<br />
 If &quot;outMetaTypeItem&quot; is not NULL and if the name has a meta type, the meta type will be stored into outMetaTypeItem.<br />
 In this case, you must call releaseReference on outMetaTypeItem to release it after finishing using it.<br />
 <br />
 Here is the list of the data type,<br />
 	sdtUnknown -- can't determine the type<br />
-	sdtNull -- NULL. It's nil in Lua.<br />
+	sdtNull -- NULL. It's nil in Lua and null or undefined in Javascript.<br />
 	sdtFundamental -- fundamental type. Can be boolean, integer, float, etc.<br />
 	sdtString -- string. Can be obtained as C string.<br />
 	sdtClass -- C++ class that bound to the script engine.<br />
 	sdtObject -- C++ object.<br />
 	sdtMethod -- C++ function.<br />
+	sdtMethodList -- a group of C++ functions.<br />
 	sdtEnum -- C++ enumerator.<br />
-	sdtScriptObject -- A script object. Meta data can be added to it.<br />
+	sdtScriptObject -- A script object. Meta data can be added to it. C++ object is NOT script object.<br />
 	sdtScriptMethod -- Function in the script.<br />
 <br />
-<div class="codepiece""> virtual GScriptObject * createScriptObject(const GScriptName &amp; name) = 0; <br />
-</div>Create a new script object under current script object.<br />
+<div class="codepiece""> virtual GScriptObject * createScriptObject(const char * name) = 0; <br />
+</div>Create a new script object int current script object.<br />
 The new script object can be used to bind meta data.<br />
+If &quot;name&quot; is a C++ object, the function will fail and return NULL.<br />
 <br />
-<div class="codepiece""> virtual GVariant invokeIndirectly(const GScriptName &amp; name, GVariant const * const * params, size_t paramCount) = 0; <br />
-</div><div class="codepiece""> virtual GVariant invoke(const GScriptName &amp; name, const GVariant * params, size_t paramCount) = 0; <br />
+Note: you should free the returned object.<br />
+<br />
+<div class="codepiece""> virtual GScriptObject * gainScriptObject(const char * name) = 0; <br />
+</div>Get existing script object int current script object.<br />
+The script object can be used to bind meta data.<br />
+If &quot;name&quot; is a C++ object, the function will fail and return NULL.<br />
+<br />
+Note: you should free the returned object.<br />
+<br />
+<div class="codepiece""> virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount) = 0; <br />
+</div>Invoke a function named &quot;name&quot; in the script.<br />
+This can be any function, such as a function written in script, or a C++ function bound to the script.<br />
+The parameters are passed as a pointer to a GVariant.<br />
+<br />
+<div class="codepiece""> virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount) = 0; <br />
+</div>Same as &quot;invoke&quot;, but the parameters are passed as a pointer to a GVariant pointer.<br />
+<br />
+<div class="codepiece""> virtual void assignValue(const char * fromName, const char * toName) = 0; <br />
+</div>Assign a script value named &quot;fromName&quot; to another script value named &quot;toName&quot;.<br />
+<br />
+<div class="codepiece""> virtual bool valueIsNull(const char * name) = 0; <br />
+</div>Return true if the script value is null.<br />
+Note: Any empty value, undefined value, and null value, are treated as null.<br />
+<br />
+<div class="codepiece""> virtual void nullifyValue(const char * name) = 0; <br />
+</div>Set the script value to null.<br />
+This is helpful to release any bound value in the script.<br />
+<br />
+
+
+<p><a name="linkid6"></a></p>
+<p>
+<strong>Utility API</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-script-binding.html#top">back top</a></span></p>
+To easy the use, there are some utility APIs in gscriptbindutil.h<br />
+<br />
+<br />
+<div class="codepiece"">GMetaVariant invokeScriptFunction(GScriptObject * scriptObject, const char * name, GMetaVariant P1, GMetaVariant P2, ..., GMetaVariant PN); <br />
+</div><div class="codepiece"">GMetaVariant invokeScriptFunction(IScriptObject * scriptObject, const char * name, GMetaVariant P1, GMetaVariant P2, ..., GMetaVariant PN); <br />
 </div><br />
-<div class="codepiece""> virtual void assignValue(const GScriptName &amp; fromName, const GScriptName &amp; toName) = 0; <br />
-</div><div class="codepiece""> virtual bool valueIsNull(const GScriptName &amp; name) = 0; <br />
-</div><div class="codepiece""> virtual void nullifyValue(const GScriptName &amp; name) = 0; <br />
+Invoke a script function.<br />
+Example,<br />
+<div class="codepiece"">GMetaVariant result = invokeScriptFunction(binding, &quot;funcAdd&quot;, 8, 2); <br />
 </div><br />
+<div class="codepiece"">IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject); <br />
+</div>Wrap GScriptObject object to IScriptObject.<br />
+Note: the returned interface will become the owner of scriptObject. Don't delete scriptObject.<br />
+<br />
+<div class="codepiece"">void injectMetaClassToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance); <br />
+</div>Inject a class to the script. It will bind all methods, enumerators, nested class, in metaClass, to scriptObject in global scope.<br />
+&quot;instance&quot; is the object if metaClass is not global.<br />
+The function is usually only useful to bind the whole global meta class.<br />
+So if metaClass is a top level global class, calling<br />
+<div class="codepiece"">injectMetaClassToScript(myScriptObject, globalClass, NULL); <br />
+</div>will bind everything in the meta system to the script.<br />
+<br />
 
 
 

@@ -1,13 +1,13 @@
-New version
+2011-12-10 version 1.1.0
 	Added Google V8 Javascript engine binding.
+	Added non-meta data support in script binding. The script can use arbitrary data type. (void *, T *, while T is not reflected).
 	Added second parameter "void ** outInstance" to function GScriptObject::getMethod
 	Refactored unit tests of script binding.
 	Added unit tests for script binding of Lua and V8.
-	Added non-meta data support in script binding. The script can use arbitrary data type. (void *, T *, while T is not reflected).
 	Removed GScriptName and changed all name type to const char *
 	Fixed a memory bug that cause binding engine wrong references to GScriptConfig on the stack.
 	Fixed memory leak in GScopedInterface when call "reset" with same pointer.
-	Fixed a but that can't access a member object's member in script binding. (a.b.c = 1 will cause a.b be copied, now a.b is referenced)
+	Fixed a bug that can't access a member object's member in script binding. (a.b.c = 1 will cause a.b be copied, now a.b is referenced)
 
 2011-11-27 version 1.0.1
 	Refactored Lua binding, using better and faster algorithm to travel for data and methods.

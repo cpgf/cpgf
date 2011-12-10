@@ -6,6 +6,30 @@
 
 <{autotoc}>
 
+<{sgroup}> General
+
+<{sh}> Some of the library document is bad, I want to help to rephrase it, but how can I help?
+<{sc}>
+
+<{autobr}>
+First, any intention of helping the library is appreciated.
+Second, about the documentation.
+I wrote a script to parse my own defined document format to create the document.
+So it's hard for anyone else to edit the document source file directly unless you want to learn my own format.
+
+To help to improve the document, you just need to copy the paragraph, or the whole text, from the web page, edit it in a text editor, then send the revision back to me by email.
+You can find my gmail address in the About page.
+
+Note: you can only help to improve the content, not the format.
+
+<{/autobr}>
+
+
+
+<{/sgroup}>
+
+
+
 <{sgroup}> Script binding (Lua and Google V8 Javascript)
 
 <{sh}> When should I use bindMethod and bindMethodList?
@@ -25,13 +49,28 @@ bindMethod and bindMethodList are useful if you want to bind methods to global s
 
 <{autobr}>
 The fields and properties in a meta class will be automatically bound.
-But we can't bind fields or properties to a script object directly.
-In Google V8, it's possible, but in Lua, seems it's not possible because we can't set callback for that.
-If you know how to bind variable with getter and setter in Lua, let me known.
+But for now we can't bind fields or properties to a script object directly.
+In Google V8, it's already implemented.
+But in Lua, it requires some more work to implement it and may need to refactor current code.
 
-So to keep the API interface consisten, we don't support fields and properties binding.
+So to keep the API interface consisten, we don't support fields and properties binding for now.
+But in later update version, this feature will be supported.
 
 <{/autobr}>
+
+
+<{sh}> How can I pass script function and object from script to C++?
+<{sc}>
+
+<{autobr}>
+It's quite common to define some functions and objects in the script and let C++ code use them.
+You can't pass the function or object directly, because in C++ there is no type of script function and object.
+However, you can pass the function and object name to C++, then the C++ can invoke the script function, or get the script object.
+
+<{/autobr}>
+
+
+
 
 
 <{/sgroup}>

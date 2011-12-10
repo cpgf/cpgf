@@ -154,6 +154,36 @@ A temporary std::string will be create to hold s, then assign it to rs.
 <{/autobr}>
 
 
+<{sh}> GVariant memory management and avoid memory leak
+<{sc}>
+
+<{autobr}>
+GVariant manages memory automatically.
+And usually a GVariant entity is created on the stack, and passed by value or const reference, then there is no possibility of memory leak.
+
+However, the interface based APIs only accept GVariantData instead of GVariant.
+GVariantData is a POD struct and doesn't manage the memory.
+
+So to avoid memory leak, never use GVariantData directly. You should use GVariant.data instead.
+For example, to invoke IMetaField::get to get the field value, we should write like this,
+<{/autobr}>
+
+<{code}>
+GVariant v;
+myMetaClass->get(&v.data, instance);
+// now v holds the value
+
+// if we need to reuse v again, we should reset it
+v = 0;
+myMetaClass->get(&v.data, anotherInstance);
+<{/code}>
+
+
+<{autobr}>
+<{/autobr}>
+
+
+
 <{/sgroup}>
 
 <{/autotoc}>

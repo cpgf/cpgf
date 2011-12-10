@@ -46,3 +46,12 @@
 
 
 
+<{sh}> cpgf frequently asked questions
+<{sc}>
+
+<{autoul}>
+	<a href="docs-cpgf-general-faq.html">General FAQs </a> (not too much content yet)
+<{/autoul}>
+
+
+

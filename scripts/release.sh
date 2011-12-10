@@ -75,7 +75,9 @@ head_file "test/callback" "*"
 head_file "test/misc" "*"
 head_file "test/reflection" "*"
 head_file "test/scriptbind" "*"
+head_file "test/scriptbind/general" "*"
 head_file "test/scriptbind/luabind" "*"
+head_file "test/scriptbind/v8bind" "*"
 
 cd $1
 

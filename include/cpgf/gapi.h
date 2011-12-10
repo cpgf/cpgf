@@ -73,6 +73,90 @@ public:
 };
 
 
+template <typename T>
+class GSharedInteface
+{
+private:
+    typedef GSharedInteface<T> ThisType;
+
+public:
+	GSharedInteface(): rawPointer(NULL) {
+	}
+
+	explicit GSharedInteface(T * p) : rawPointer(p) {
+		if(this->rawPointer != NULL) {
+			this->rawPointer->addReference();
+		}
+	}
+
+	GSharedInteface(const GSharedInteface & other) : rawPointer(other.rawPointer) {
+		if(this->rawPointer != NULL) {
+			this->rawPointer->addReference();
+		}
+	}
+	
+	GSharedInteface & operator = (GSharedInteface other) {
+		this->swap(other);
+	}
+	
+	~GSharedInteface() {
+		if(this->rawPointer != NULL) {
+			this->rawPointer->releaseReference();
+		}
+	}
+
+	inline void reset(T * p = NULL) {
+		ThisType(p).swap(*this);
+	}
+
+	inline T & operator * () const {
+		return *this->rawPointer;
+	}
+
+	inline T * operator -> () const {
+		return this->rawPointer;
+	}
+
+	inline bool operator ! () const {
+		return this->rawPointer == NULL;
+	}
+
+	inline T * get() const {
+		return this->rawPointer;
+	}
+
+	inline T * take() {
+		T * p = this->rawPointer;
+		
+		this->rawPointer = NULL;
+		
+		return p;
+	}
+
+	inline operator bool() {
+		return this->rawPointer != NULL;
+	}
+
+	inline operator bool() const {
+		return this->rawPointer != NULL;
+	}
+
+	inline void swap(GSharedInteface & b) {
+		T * temp = b.rawPointer;
+		b.rawPointer = this->rawPointer;
+		this->rawPointer = temp;
+	}
+
+private:
+	void operator == (const GSharedInteface &) const;
+	void operator != (const GSharedInteface &) const;
+
+protected:
+	T * rawPointer;
+};
+
+
+
 
 } // namespace cpgf
 

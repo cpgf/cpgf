@@ -38,6 +38,9 @@
 <li>
 <a href="docs-cpgf-gvariant.html#linkid6">
 <strong>Rules to cast from GVariant</strong></a></li>
+<li>
+<a href="docs-cpgf-gvariant.html#linkid7">
+<strong>GVariant memory management and avoid memory leak</strong></a></li>
 </ul>
 </div>
 
@@ -163,6 +166,30 @@ const std::string &amp; rs = s;<br />
 </div><br />
 A temporary std::string will be create to hold s, then assign it to rs.<br />
 <br />
+
+
+<p><a name="linkid7"></a></p>
+<p>
+<strong>GVariant memory management and avoid memory leak</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-gvariant.html#top">back top</a></span></p>
+GVariant manages memory automatically.<br />
+And usually a GVariant entity is created on the stack, and passed by value or const reference, then there is no possibility of memory leak.<br />
+<br />
+However, the interface based APIs only accept GVariantData instead of GVariant.<br />
+GVariantData is a POD struct and doesn't manage the memory.<br />
+<br />
+So to avoid memory leak, never use GVariantData directly. You should use GVariant.data instead.<br />
+For example, to invoke IMetaField::get to get the field value, we should write like this,<br />
+
+<pre>GVariant v;
+myMetaClass-&gt;get(&amp;v.data, instance);
+// now v holds the value
+
+// if we need to reuse v again, we should reset it
+v = 0;
+myMetaClass-&gt;get(&amp;v.data, anotherInstance);
+</pre>
+
+
 
 
 

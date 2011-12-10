@@ -59,7 +59,7 @@ cpgf makes binding to Lua and V8 a piece of cake! The script binding engine uses
 
 <h3>Download cpgf library</h3>
 <{autobr}>
-<a href="/download/cpgf_1_0_1.zip">Zip file, 270 kb</a>
+<a href="/download/cpgf_1_1_0.zip">Zip file, 300 kb</a>
 
 <{/autobr}>
 
@@ -77,7 +77,7 @@ cpgf makes binding to Lua and V8 a piece of cake! The script binding engine uses
 
 <h3>Library version</h3>
 <{autobr}>
-	1.0.1
+	1.1.0
 
 <{/autobr}>
 

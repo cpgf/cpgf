@@ -850,6 +850,35 @@ void doBindMethodList(lua_State * L, GScriptBindingParam * param, IMetaList * me
 	lua_pushcclosure(L, &callbackInvokeMethodList, 1);
 }
 
+/*
+class GLuaGlobalAccessorItem
+{
+public:
+	GLuaGlobalAccessorItem(void * instance, IMetaAccessible * accessible) : instance(instance), accessible(accessible) {
+	}
+	
+public:
+	void * instance;
+	GSharedInteface<IMetaAccessible> accessible;
+};
+
+class GLuaGlobalAccessor
+{
+private:
+	typedef map<std::string, GLuaGlobalAccessorItem> MapType;
+
+public:
+
+private:
+	MapType itemMap;
+};
+
+
+void doBindAccessible(lua_State * L, GScriptBindingParam * param, const char * name, void * instance, IMetaAccessible * accessible)
+{
+}
+*/
+
 void setMetaTableGC(lua_State * L)
 {
 	lua_pushstring(L, "__gc");	
@@ -969,6 +998,7 @@ public:
 	virtual void bindEnum(const char * name, IMetaEnum * metaEnum);
 
 	virtual void bindFundamental(const char * name, const GVariant & value);
+	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
 	virtual void bindString(const char * stringName, const char * s);
 	virtual void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership);
 	virtual void bindRaw(const char * name, const GVariant & value);
@@ -1009,16 +1039,17 @@ private:
 	friend class GLuaScriptNameData;
 };
 
+
 class GLuaScriptObjectImplement
 {
 public:
-	GLuaScriptObjectImplement(GLuaScriptObject * binding, IMetaService * service, lua_State * L, const GScriptConfig & config, GMetaMap * metaMap, bool freeMap)
-		: binding(binding), param(service, config, metaMap), luaState(L), freeMap(freeMap)
+	GLuaScriptObjectImplement(GLuaScriptObject * binding, IMetaService * service, lua_State * L, const GScriptConfig & config, GMetaMap * metaMap, bool freeResource)
+		: binding(binding), param(service, config, metaMap), luaState(L), freeResource(freeResource)
 	{
 	}
 	
 	~GLuaScriptObjectImplement() {
-		if(this->freeMap) {
+		if(this->freeResource) {
 			delete this->param.getMetaMap();
 		}
 	}
@@ -1067,7 +1098,7 @@ public:
 	GLuaScriptObject * binding;
 	GScriptBindingParam param;
 	lua_State * luaState;
-	bool freeMap;
+	bool freeResource;
 };
 
 
@@ -1312,6 +1343,23 @@ void GLuaScriptObject::bindFundamental(const char * name, const GVariant & value
 	
 	scopeGuard.set(name);
 
+	LEAVE_LUA(this->implement->luaState)
+}
+
+// not implemented yet
+void GLuaScriptObject::bindAccessible(const char * name, void * instance, IMetaAccessible * accessible)
+{
+	(void)instance;
+	(void)accessible;
+
+	ENTER_LUA()
+
+	GLuaScopeGuard scopeGuard(this);
+
+//	doBindAccessible(this->implement->luaState, &this->implement->param, name, instance, accessible);
+
+	scopeGuard.set(name);
+	
 	LEAVE_LUA(this->implement->luaState)
 }
 

@@ -24,16 +24,15 @@ cpgf is a free, open source and cross platform C++ library.<br />
 cpgf is composed by several independent libraries:<br />
 <ul><li>	cpgf reflection -- a library to add	reflection feature to C++.
 </li>	
-<li>	cpgf script binding -- a script binding engine to bind Lua to C++. It's based on the reflection library.
+<li>	cpgf script binding -- a script binding engine to bind Lua and Google V8 Javascript to C++. It's based on the reflection library.
 </li>	
 <li>	cpgf callback -- a callback library to implement signal/slot or callback in C++. It's the primary library for other libraries.
 </li></ul>The goal of cpgf is to extend C++ language with a lot of easy to use features which are only available in other higher level languages and absence in C++.<br />
 cpgf provides a very easy to use callback system, which is common used in C# and script languages.<br />
 cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? now we have it in C++!<br />
-cpgf makes binding to Lua a piece of cake! The Lua binding engine uses the reflection system extensively.<br />
-And in the future, more script binding will be added.<br />
+cpgf makes binding to Lua and V8 a piece of cake! The script binding engine uses the reflection system extensively.<br />
 <br />
-<b>Vesion 1.0.1 is release on Nov.27, 2011. </b><br />
+<b>Vesion 1.1.0 is released on Dec.10, 2011. </b><br />
 <br />
 
 <h3>Key features</h3>
@@ -58,14 +57,14 @@ And in the future, more script binding will be added.<br />
 </li><li>	Support multiple inheritance.
 </li><li>	For more information, please read cpgf reflection related documentation.
 </li></ul>
-<h3>Quick facts of Lua binding library</h3>
-<ul><li>	Bind C++ classes, enumerators, functions, variables and operators to Lua.
-</li><li>	Invoke Lua functions from C++.
-</li><li>	Get and set Lua variables from C++.
-</li><li>	For more information, please read cpgf Lua binding related documentation.
+<h3>Quick facts of script binding library</h3>
+<ul><li>	Bind C++ classes, enumerators, functions, variables and operators to Lua and Google V8 Javascript.
+</li><li>	Invoke Lua and V8 Javascript functions from C++.
+</li><li>	Get and set Lua and V8 Javascript variables from C++.
+</li><li>	For more information, please read cpgf script binding related documentation.
 </li></ul>
 <h3>Download cpgf library</h3>
-<a href="/download/cpgf_1_0_1.zip">Zip file, 270 kb</a><br />
+<a href="/download/cpgf_1_1_0.zip">Zip file, 300 kb</a><br />
 <br />
 
 <h3>Documentations</h3>
@@ -77,7 +76,7 @@ And in the future, more script binding will be added.<br />
 <br />
 
 <h3>Library version</h3>
-	1.0.1<br />
+	1.1.0<br />
 <br />
 
 <h3>Change log</h3>
@@ -95,6 +94,7 @@ And in the future, more script binding will be added.<br />
 	Doesn't require C++0X and TR1 features.<br />
 	Doesn't require Boost library.<br />
 	For Lua binding, Lua library is required.<br />
+	For Google V8 Javascript binding, V8 library is required.<br />
 	If you want to run the unit test, UnitTest++ is required. But usually you don't need to do that.<br />
 	<br />
 	
@@ -115,6 +115,13 @@ And in the future, more script binding will be added.<br />
 	However, they cover much more functions than the sample code.<br />
 	<br />
 	
+<h3>How is the library tested </h3>
+	Several measures are adopted to test the library.<br />
+	Unit test -- hundreds of unit tests were written and ran. More unit tests are being added for existing code and new code.<br />
+	Valgrind -- valgrind is used to check memory leaks and other memory problems (wild pointer, double free, etc).<br />
+	Code coverage -- GNU gcov is used to check the code coverage in unit tests. The ultimate goal is to cover all API functions and 80% implementation code. Though we didn't achieve the goal yet, we are closing to it day by day.<br />
+	<br />
+
 <h3>Contribute to the library </h3>
 	If you like the library and want to contribute to it, here are some most desired work to do<br />
 	1, Use the library in your real project. That will help the library much. A library is nothing without real projects using it.<br />

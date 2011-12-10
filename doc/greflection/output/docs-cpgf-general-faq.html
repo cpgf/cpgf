@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="maintpl.css" />
+<title>cpgf library -- general frequently asked questions</title>
+</head>
+<body><div style="width:900px">
+
+
+
+
+
+<h1>cpgf library -- general frequently asked questions</h1>
+
+
+
+<a name="top"></a>
+
+
+<p>
+<b>
+<a href="docs-cpgf-general-faq.html#linkid1">
+<strong>General</strong></a></b></p>
+<div style="margin-left:0px">
+<ul>
+<li>
+<a href="docs-cpgf-general-faq.html#linkid2">
+<strong>Some of the library document is bad, I want to help to rephrase it, but how can I help?</strong></a></li>
+</ul>
+</div>
+<p>
+<b>
+<a href="docs-cpgf-general-faq.html#linkid3">
+<strong>Script binding (Lua and Google V8 Javascript)</strong></a></b></p>
+<div style="margin-left:0px">
+<ul>
+<li>
+<a href="docs-cpgf-general-faq.html#linkid4">
+<strong>When should I use bindMethod and bindMethodList?</strong></a></li>
+<li>
+<a href="docs-cpgf-general-faq.html#linkid5">
+<strong>Why can't I bind meta field and property?</strong></a></li>
+<li>
+<a href="docs-cpgf-general-faq.html#linkid6">
+<strong>How can I pass script function and object from script to C++?</strong></a></li>
+</ul>
+</div>
+
+
+<p><a name="linkid1"></a></p>
+<h3>General</h3><p><a name="linkid2"></a></p>
+<p>
+<strong>Some of the library document is bad, I want to help to rephrase it, but how can I help?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
+First, any intention of helping the library is appreciated.<br />
+Second, about the documentation.<br />
+I wrote a script to parse my own defined document format to create the document.<br />
+So it's hard for anyone else to edit the document source file directly unless you want to learn my own format.<br />
+<br />
+To help to improve the document, you just need to copy the paragraph, or the whole text, from the web page, edit it in a text editor, then send the revision back to me by email.<br />
+You can find my gmail address in the About page.<br />
+<br />
+Note: you can only help to improve the content, not the format.<br />
+<br />
+
+
+
+
+
+
+<p><a name="linkid3"></a></p>
+<h3>Script binding (Lua and Google V8 Javascript)</h3><p><a name="linkid4"></a></p>
+<p>
+<strong>When should I use bindMethod and bindMethodList?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
+If you are only binding classes, never you need to call bindMethod or bindMethodList.<br />
+cpgf will bind all class members automatically.<br />
+<br />
+bindMethod and bindMethodList are useful if you want to bind methods to global scope under current script object.<br />
+<br />
+
+
+<p><a name="linkid5"></a></p>
+<p>
+<strong>Why can't I bind meta field and property?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
+The fields and properties in a meta class will be automatically bound.<br />
+But for now we can't bind fields or properties to a script object directly.<br />
+In Google V8, it's already implemented.<br />
+But in Lua, it requires some more work to implement it and may need to refactor current code.<br />
+<br />
+So to keep the API interface consisten, we don't support fields and properties binding for now.<br />
+But in later update version, this feature will be supported.<br />
+<br />
+
+
+<p><a name="linkid6"></a></p>
+<p>
+<strong>How can I pass script function and object from script to C++?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
+It's quite common to define some functions and objects in the script and let C++ code use them.<br />
+You can't pass the function or object directly, because in C++ there is no type of script function and object.<br />
+However, you can pass the function and object name to C++, then the C++ can invoke the script function, or get the script object.<br />
+<br />
+
+
+
+
+
+
+
+
+
+
+
+
+<a href="docs-index.html"><h3>More documentations</h3> </a>
+
+
+
+
+
+
+
+</div></body></html>

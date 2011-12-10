@@ -38,6 +38,25 @@ void testCreateScriptObject(TestScriptContext * context)
 	
 	QASSERT(nso.ix == 38);
 	QASSERT(sec.iy == 6);
+
+	if(bindingLib != NULL) {
+		GScopedPointer<GScriptObject> firstScriptObject(bindingLib->gainScriptObject("nso"));
+		GCHECK(fromVariant<int>(firstScriptObject->getFundamental("ix")) == 38);
+		
+		GScopedPointer<GScriptObject> secondScriptObject(bindingLib->gainScriptObject("sec"));
+		GCHECK(fromVariant<int>(secondScriptObject->getFundamental("iy")) == 6);
+	}
+	if(bindingApi != NULL) {
+		GVariant v;
+		GScopedInterface<IScriptObject> newScriptObject(bindingApi->gainScriptObject("nso"));
+		newScriptObject->getFundamental(&v.data, "ix");
+		GCHECK(fromVariant<int>(v) == 38);
+
+		GScopedInterface<IScriptObject> secondScriptObject(bindingApi->gainScriptObject("sec"));
+		v = 0;
+		secondScriptObject->getFundamental(&v.data, "iy");
+		GCHECK(fromVariant<int>(v) == 6);
+	}
 }
 
 #define CASE testCreateScriptObject
