@@ -34,6 +34,7 @@ struct IScriptObject : public IExtendObject
 	virtual void G_API_CC bindEnum(const char * name, IMetaEnum * metaEnum) = 0;
 
 	virtual void G_API_CC bindFundamental(const char * name, const GVariantData * value) = 0;
+	virtual void G_API_CC bindAccessible(const char * name, void * instance, IMetaAccessible * accessible) = 0;
 	virtual void G_API_CC bindString(const char * stringName, const char * s) = 0;
 	virtual void G_API_CC bindObject(const char * objectName, void * instance, IMetaClass * type, gapi_bool transferOwnership) = 0;
 	virtual void G_API_CC bindRaw(const char * name, const GVariantData * value) = 0;

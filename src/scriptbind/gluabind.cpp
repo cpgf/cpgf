@@ -40,6 +40,148 @@ namespace cpgf {
 
 namespace {
 
+class GLuaScriptObjectImplement;
+class GLuaGlobalAccessor;
+
+class GLuaScriptObject : public GScriptObject
+{
+private:
+	typedef GScriptObject super;
+
+public:
+	GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
+	virtual ~GLuaScriptObject();
+
+	virtual void bindClass(const char * name, IMetaClass * metaClass);
+	virtual void bindEnum(const char * name, IMetaEnum * metaEnum);
+
+	virtual void bindFundamental(const char * name, const GVariant & value);
+	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
+	virtual void bindString(const char * stringName, const char * s);
+	virtual void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership);
+	virtual void bindRaw(const char * name, const GVariant & value);
+	virtual void bindMethod(const char * name, void * instance, IMetaMethod * method);
+	virtual void bindMethodList(const char * name, IMetaList * methodList);
+
+	virtual IMetaClass * getClass(const char * className);
+	virtual IMetaEnum * getEnum(const char * enumName);
+
+	virtual GVariant getFundamental(const char * name);
+	virtual std::string getString(const char * stringName);
+	virtual void * getObject(const char * objectName);
+	virtual GVariant getRaw(const char * name);
+	virtual IMetaMethod * getMethod(const char * methodName, void ** outInstance);
+	virtual IMetaList * getMethodList(const char * methodName);
+	
+	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
+
+	virtual GScriptObject * createScriptObject(const char * name);
+	virtual GScriptObject * gainScriptObject(const char * name);
+	
+	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount);
+	virtual GMetaVariant invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount);
+
+	virtual void assignValue(const char * fromName, const char * toName);
+	virtual bool valueIsNull(const char * name);
+	virtual void nullifyValue(const char * name);
+
+private:
+	GLuaScriptObject(const GLuaScriptObject & other);
+	
+private:
+	GScopedPointer<GLuaScriptObjectImplement> implement;
+
+private:
+	friend class GLuaScopeGuard;
+	friend class GLuaScriptObjectImplement;
+	friend class GLuaScriptNameData;
+	friend class GLuaGlobalAccessor;
+};
+
+
+class GLuaScriptObjectImplement
+{
+public:
+	GLuaScriptObjectImplement(GLuaScriptObject * binding, IMetaService * service,
+		lua_State * L, const GScriptConfig & config, GMetaMap * metaMap, bool freeResource);
+	
+	~GLuaScriptObjectImplement();
+	
+	void getTable() const;
+
+	GMethodListUserData * doGetMethodUserData();
+
+	GLuaGlobalAccessor * getGlobalAccessor();
+
+protected:
+	void doGetTable(lua_State * L) const;
+
+public:
+	GLuaScriptObject * binding;
+	GScriptBindingParam param;
+	lua_State * luaState;
+	bool freeResource;
+
+private:
+	GScopedPointer<GLuaGlobalAccessor> globalAccessor;
+};
+
+
+class GLuaScopeGuard
+{
+public:
+	GLuaScopeGuard(GScriptObject * scope);
+	~GLuaScopeGuard();
+	
+	void keepStack();
+
+	void set(const char * name);
+	void get(const char * name);
+	void rawGet(const char * name);
+
+private:
+	GLuaScriptObject * scope;
+	int top;
+};
+
+
+class GLuaGlobalAccessorItem
+{
+public:
+	GLuaGlobalAccessorItem(void * instance, IMetaAccessible * accessible) : instance(instance), accessible(accessible) {
+	}
+	
+public:
+	void * instance;
+	GSharedInteface<IMetaAccessible> accessible;
+};
+
+class GLuaGlobalAccessor
+{
+private:
+	typedef map<std::string, GLuaGlobalAccessorItem> MapType;
+
+public:
+	explicit GLuaGlobalAccessor(GLuaScriptObject * scriptObject);
+	~GLuaGlobalAccessor();
+	void doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
+
+	int doIndex();
+	int doNewIndex();
+
+private:
+	void initialize();
+	void destroy();
+
+	int doPreviousIndex(const char * name);
+	int doPreviousNewIndex(const char * name);
+
+private:
+	MapType itemMap;
+	GLuaScriptObject * scriptObject;
+	bool hasPreviousMetatable;
+};
+
 int UserData_gc(lua_State * L);
 int UserData_call(lua_State * L);
 int UserData_index(lua_State * L);
@@ -56,6 +198,197 @@ void setMetaTableGC(lua_State * L);
 void setMetaTableCall(lua_State * L, void * userData);
 void setMetaTableSignature(lua_State * L);
 bool isValidMetaTable(lua_State * L, int index);
+
+bool variantToLua(lua_State * L, GScriptBindingParam * param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw);
+GMetaVariant luaToVariant(lua_State * L, GScriptBindingParam * param, int index);
+
+bool doIndexMemberData(lua_State * L, GScriptBindingParam * param, IMetaAccessible * data, void * instance, bool instanceIsConst);
+
+void error(lua_State * L, const char * message);
+
+int GlobalAccessor_index(lua_State * L)
+{
+	ENTER_LUA()
+
+	GLuaGlobalAccessor * accessor = static_cast<GLuaGlobalAccessor *>(lua_touserdata(L, lua_upvalueindex(1)));
+
+	return accessor->doIndex();
+
+	LEAVE_LUA(L, lua_pushnil(L); return 0)
+}
+
+int GlobalAccessor_newindex(lua_State * L)
+{
+	ENTER_LUA()
+
+	GLuaGlobalAccessor * accessor = static_cast<GLuaGlobalAccessor *>(lua_touserdata(L, lua_upvalueindex(1)));
+	
+	return accessor->doNewIndex();
+	
+	LEAVE_LUA(L, return 0)
+}
+
+GLuaGlobalAccessor::GLuaGlobalAccessor(GLuaScriptObject * scriptObject)
+	: scriptObject(scriptObject), hasPreviousMetatable(false)
+{
+	this->initialize();
+}
+
+GLuaGlobalAccessor::~GLuaGlobalAccessor()
+{
+	this->destroy();
+}
+
+void GLuaGlobalAccessor::doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible)
+{
+	string sname(name);
+
+	this->itemMap.insert(make_pair(sname, GLuaGlobalAccessorItem(instance, accessible)));
+}
+
+const char * GlobalAccessorPreviousMetaTableKey = "i_gL0b1_Meta_kEY_389172";
+
+int GLuaGlobalAccessor::doIndex()
+{
+	lua_State * L = this->scriptObject->implement->luaState;
+
+	const char * name = lua_tostring(L, -1);
+
+	string sname(name);
+	MapType::iterator it = this->itemMap.find(sname);
+	if(it != this->itemMap.end()) {
+		doIndexMemberData(L, &this->scriptObject->implement->param, it->second.accessible.get(), it->second.instance, false);
+		return 1;
+	}
+
+	return this->doPreviousIndex(name);
+}
+
+int GLuaGlobalAccessor::doNewIndex()
+{
+	lua_State * L = this->scriptObject->implement->luaState;
+
+	const char * name = lua_tostring(L, -2);
+	
+	string sname(name);
+	MapType::iterator it = this->itemMap.find(sname);
+	if(it != this->itemMap.end()) {
+		GVariant value = luaToVariant(L, &this->scriptObject->implement->param, -1).getValue();
+		GVariantData varData = value.getData();
+		it->second.accessible->set(it->second.instance, &varData);
+		metaCheckError(it->second.accessible);
+		return 1;
+	}
+
+	return this->doPreviousNewIndex(name);
+}
+
+int GLuaGlobalAccessor::doPreviousIndex(const char * name)
+{
+	if(this->hasPreviousMetatable) {
+		lua_State * L = this->scriptObject->implement->luaState;
+		
+		GLuaScopeGuard scopeGuard(this->scriptObject);
+		
+		scopeGuard.keepStack();
+
+		scopeGuard.rawGet(GlobalAccessorPreviousMetaTableKey);
+
+		if(lua_isfunction(L, -1)) {
+			lua_pushstring(L, name);
+			lua_call(L, 1, 1);
+			return 1;
+		}
+		if(lua_istable(L, -1)) {
+			lua_getfield(L, -1, name);
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+int GLuaGlobalAccessor::doPreviousNewIndex(const char * name)
+{
+	if(this->hasPreviousMetatable) {
+		lua_State * L = this->scriptObject->implement->luaState;
+		
+		GLuaScopeGuard scopeGuard(this->scriptObject);
+
+		scopeGuard.keepStack();
+
+		scopeGuard.rawGet(GlobalAccessorPreviousMetaTableKey);
+
+		if(lua_isfunction(L, -1)) {
+			lua_pushstring(L, name);
+			lua_pushvalue(L, -3);
+			lua_call(L, 2, 0);
+			return 1;
+		}
+		if(lua_istable(L, -1)) {
+			lua_pushvalue(L, -2);
+			lua_setfield(L, -2, name);
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+void GLuaGlobalAccessor::initialize()
+{
+	lua_State * L = this->scriptObject->implement->luaState;
+
+	this->hasPreviousMetatable = false;
+
+	{
+		GLuaScopeGuard scopeGuard(this->scriptObject);
+		bool ok = false;
+		if(this->scriptObject->isGlobal()) {
+			ok = lua_getmetatable(L, LUA_GLOBALSINDEX);
+			if(!ok) {
+				lua_newtable(L);
+			}
+			ok = true;
+		}
+		else {
+			ok = lua_getmetatable(L, -1);
+		}
+		if(ok) {
+			scopeGuard.set(GlobalAccessorPreviousMetaTableKey);
+
+			this->hasPreviousMetatable = true;
+		}
+	}
+
+	if(! this->scriptObject->isGlobal()) {
+		this->scriptObject->implement->getTable();
+	}
+
+	lua_newtable(L);
+	
+	lua_pushstring(L, "__index");
+	lua_pushlightuserdata(L, this);
+	lua_pushcclosure(L, &GlobalAccessor_index, 1);
+	lua_rawset(L, -3);
+
+	lua_pushstring(L, "__newindex");
+	lua_pushlightuserdata(L, this);
+	lua_pushcclosure(L, &GlobalAccessor_newindex, 1);
+	lua_rawset(L, -3);
+
+	if(this->scriptObject->isGlobal()) {
+		lua_setmetatable(L, LUA_GLOBALSINDEX);
+	}
+	else {
+		lua_setmetatable(L, -2);
+	}
+}
+
+void GLuaGlobalAccessor::destroy()
+{
+}
+
 
 const char * luaOperators[] = {
 	"__add", "__sub", "__mul", "__div",
@@ -580,21 +913,26 @@ int UserData_call(lua_State * L)
 	LEAVE_LUA(L, return 0)
 }
 
-bool indexMemberData(lua_State * L, GClassUserData * userData, IMetaAccessible * data, void * instance)
+bool doIndexMemberData(lua_State * L, GScriptBindingParam * param, IMetaAccessible * data, void * instance, bool instanceIsConst)
 {
 	GMetaType type;
-	GVariant value = getAccessibleValueAndType(instance, data, &type, userData->cv == opcvConst);
+	GVariant value = getAccessibleValueAndType(instance, data, &type, instanceIsConst);
 
-	bool success = variantToLua(L, userData->getParam(), value, type, false, false);
+	bool success = variantToLua(L, param, value, type, false, false);
 	if(!success) {
 		GScopedInterface<IMetaConverter> converter(data->createConverter());
-		success = converterToLua(L, userData->getParam(), value, converter.get());
+		success = converterToLua(L, param, value, converter.get());
 	}
 	if(!success) {
-		success = rawToLua(L, userData->getParam(), value);
+		success = rawToLua(L, param, value);
 	}
 
 	return success;
+}
+
+bool indexMemberData(lua_State * L, GClassUserData * userData, IMetaAccessible * data, void * instance)
+{
+	return doIndexMemberData(L, userData->getParam(), data, instance, userData->cv == opcvConst);
 }
 
 bool indexMemberEnumType(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem)
@@ -850,35 +1188,6 @@ void doBindMethodList(lua_State * L, GScriptBindingParam * param, IMetaList * me
 	lua_pushcclosure(L, &callbackInvokeMethodList, 1);
 }
 
-/*
-class GLuaGlobalAccessorItem
-{
-public:
-	GLuaGlobalAccessorItem(void * instance, IMetaAccessible * accessible) : instance(instance), accessible(accessible) {
-	}
-	
-public:
-	void * instance;
-	GSharedInteface<IMetaAccessible> accessible;
-};
-
-class GLuaGlobalAccessor
-{
-private:
-	typedef map<std::string, GLuaGlobalAccessorItem> MapType;
-
-public:
-
-private:
-	MapType itemMap;
-};
-
-
-void doBindAccessible(lua_State * L, GScriptBindingParam * param, const char * name, void * instance, IMetaAccessible * accessible)
-{
-}
-*/
-
 void setMetaTableGC(lua_State * L)
 {
 	lua_pushstring(L, "__gc");	
@@ -981,140 +1290,68 @@ void doBindEnum(lua_State * L, GScriptBindingParam * param, IMetaEnum * metaEnum
 	lua_setmetatable(L, -2);
 }
 
-class GLuaScriptObjectImplement;
 
-GMAKE_FINAL(GLuaScriptObject)
-
-class GLuaScriptObject : public GScriptObject, GFINAL_BASE(GLuaScriptObject)
-{
-private:
-	typedef GScriptObject super;
-
-public:
-	GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
-	virtual ~GLuaScriptObject();
-
-	virtual void bindClass(const char * name, IMetaClass * metaClass);
-	virtual void bindEnum(const char * name, IMetaEnum * metaEnum);
-
-	virtual void bindFundamental(const char * name, const GVariant & value);
-	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
-	virtual void bindString(const char * stringName, const char * s);
-	virtual void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership);
-	virtual void bindRaw(const char * name, const GVariant & value);
-	virtual void bindMethod(const char * name, void * instance, IMetaMethod * method);
-	virtual void bindMethodList(const char * name, IMetaList * methodList);
-
-	virtual IMetaClass * getClass(const char * className);
-	virtual IMetaEnum * getEnum(const char * enumName);
-
-	virtual GVariant getFundamental(const char * name);
-	virtual std::string getString(const char * stringName);
-	virtual void * getObject(const char * objectName);
-	virtual GVariant getRaw(const char * name);
-	virtual IMetaMethod * getMethod(const char * methodName, void ** outInstance);
-	virtual IMetaList * getMethodList(const char * methodName);
-	
-	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
-
-	virtual GScriptObject * createScriptObject(const char * name);
-	virtual GScriptObject * gainScriptObject(const char * name);
-	
-	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount);
-	virtual GMetaVariant invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount);
-
-	virtual void assignValue(const char * fromName, const char * toName);
-	virtual bool valueIsNull(const char * name);
-	virtual void nullifyValue(const char * name);
-
-private:
-	GLuaScriptObject(const GLuaScriptObject & other);
-	
-private:
-	GScopedPointer<GLuaScriptObjectImplement> implement;
-
-private:
-	friend class GLuaScopeGuard;
-	friend class GLuaScriptObjectImplement;
-	friend class GLuaScriptNameData;
-};
-
-
-class GLuaScriptObjectImplement
-{
-public:
-	GLuaScriptObjectImplement(GLuaScriptObject * binding, IMetaService * service, lua_State * L, const GScriptConfig & config, GMetaMap * metaMap, bool freeResource)
+GLuaScriptObjectImplement::GLuaScriptObjectImplement(GLuaScriptObject * binding, IMetaService * service, lua_State * L, const GScriptConfig & config, GMetaMap * metaMap, bool freeResource)
 		: binding(binding), param(service, config, metaMap), luaState(L), freeResource(freeResource)
-	{
-	}
+{
+}
 	
-	~GLuaScriptObjectImplement() {
-		if(this->freeResource) {
-			delete this->param.getMetaMap();
-		}
+GLuaScriptObjectImplement::~GLuaScriptObjectImplement()
+{
+	if(this->freeResource) {
+		delete this->param.getMetaMap();
 	}
+}
 	
-	void getTable(lua_State * L) const {
-		if(! this->binding->getOwner()->isGlobal()) {
-			gdynamic_cast<GLuaScriptObject *>(this->binding->getOwner())->implement->doGetTable(L);
-		}
-		this->doGetTable(L);
+void GLuaScriptObjectImplement::getTable() const
+{
+	if(! this->binding->getOwner()->isGlobal()) {
+		gdynamic_cast<GLuaScriptObject *>(this->binding->getOwner())->implement->doGetTable(this->luaState);
 	}
+	this->doGetTable(this->luaState);
+}
 
-	GMethodListUserData * doGetMethodUserData()
-	{
-		if(lua_type(this->luaState, -1) != LUA_TFUNCTION) {
-			return NULL;
-		}
-
-		lua_getupvalue(this->luaState, -1, 1);
-		if(lua_isnil(this->luaState, -1)) {
-			lua_pop(this->luaState, 1);
-		}
-		else {
-			void * rawUserData = lua_touserdata(this->luaState, -1);
-			GScriptUserData * userData = static_cast<GScriptUserData *>(rawUserData);
-
-			if(userData->getType() == udtMethodList) {
-				GMethodListUserData * methodListData = static_cast<GMethodListUserData *>(userData);
-				return methodListData;
-			}
-		}
-
+GMethodListUserData * GLuaScriptObjectImplement::doGetMethodUserData()
+{
+	if(lua_type(this->luaState, -1) != LUA_TFUNCTION) {
 		return NULL;
 	}
 
-protected:
-	void doGetTable(lua_State * L) const {
-		if(this->binding->getOwner()->isGlobal()) {
-			lua_getglobal(L, this->binding->getName());
-		}
-		else {
-			lua_getfield(L, -1, this->binding->getName());
+	lua_getupvalue(this->luaState, -1, 1);
+	if(lua_isnil(this->luaState, -1)) {
+		lua_pop(this->luaState, 1);
+	}
+	else {
+		void * rawUserData = lua_touserdata(this->luaState, -1);
+		GScriptUserData * userData = static_cast<GScriptUserData *>(rawUserData);
+
+		if(userData->getType() == udtMethodList) {
+			GMethodListUserData * methodListData = static_cast<GMethodListUserData *>(userData);
+			return methodListData;
 		}
 	}
 
-public:
-	GLuaScriptObject * binding;
-	GScriptBindingParam param;
-	lua_State * luaState;
-	bool freeResource;
-};
+	return NULL;
+}
 
-
-class GLuaScopeGuard
+GLuaGlobalAccessor * GLuaScriptObjectImplement::getGlobalAccessor()
 {
-public:
-	GLuaScopeGuard(GScriptObject * scope);
-	~GLuaScopeGuard();
-	
-	void set(const char * name);
-	void get(const char * name);
+	if(! this->globalAccessor) {
+		this->globalAccessor.reset(new GLuaGlobalAccessor(this->binding));
+	}
 
-private:
-	GLuaScriptObject * scope;
-	int top;
-};
+	return this->globalAccessor.get();
+}
+
+void GLuaScriptObjectImplement::doGetTable(lua_State * L) const
+{
+	if(this->binding->getOwner()->isGlobal()) {
+		lua_getglobal(L, this->binding->getName());
+	}
+	else {
+		lua_getfield(L, -1, this->binding->getName());
+	}
+}
 
 
 GLuaScopeGuard::GLuaScopeGuard(GScriptObject * scope)
@@ -1122,16 +1359,23 @@ GLuaScopeGuard::GLuaScopeGuard(GScriptObject * scope)
 {
 	this->top = lua_gettop(this->scope->implement->luaState);
 	if(! this->scope->isGlobal()) {
-		this->scope->implement->getTable(this->scope->implement->luaState);
+		this->scope->implement->getTable();
 	}
 }
 	
 GLuaScopeGuard::~GLuaScopeGuard()
 {
-	int currentTop = lua_gettop(this->scope->implement->luaState);
-	if(currentTop > this->top) {
-		lua_pop(this->scope->implement->luaState, currentTop - this->top);
+	if(this->top >= 0) {
+		int currentTop = lua_gettop(this->scope->implement->luaState);
+		if(currentTop > this->top) {
+			lua_pop(this->scope->implement->luaState, currentTop - this->top);
+		}
 	}
+}
+
+void GLuaScopeGuard::keepStack()
+{
+	this->top = -1;
 }
 
 void GLuaScopeGuard::set(const char * name)
@@ -1153,6 +1397,19 @@ void GLuaScopeGuard::get(const char * name)
 		lua_getfield(this->scope->implement->luaState, -1, name);
 	}
 }
+
+void GLuaScopeGuard::rawGet(const char * name)
+{
+	lua_pushstring(this->scope->implement->luaState, name);
+
+	if(scope->isGlobal()) {
+		lua_rawget(this->scope->implement->luaState, LUA_GLOBALSINDEX);
+	}
+	else {
+		lua_rawget(this->scope->implement->luaState, -2);
+	}
+}
+
 
 
 GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
@@ -1349,17 +1606,10 @@ void GLuaScriptObject::bindFundamental(const char * name, const GVariant & value
 // not implemented yet
 void GLuaScriptObject::bindAccessible(const char * name, void * instance, IMetaAccessible * accessible)
 {
-	(void)instance;
-	(void)accessible;
-
 	ENTER_LUA()
 
-	GLuaScopeGuard scopeGuard(this);
+	this->implement->getGlobalAccessor()->doBindAccessible(name, instance, accessible);
 
-//	doBindAccessible(this->implement->luaState, &this->implement->param, name, instance, accessible);
-
-	scopeGuard.set(name);
-	
 	LEAVE_LUA(this->implement->luaState)
 }
 

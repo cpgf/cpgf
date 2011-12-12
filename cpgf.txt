@@ -1,1 +1,10 @@
-cross platform game framework
+Todo:
+
+1, Support bindAccessible in Lua binding
+2, Support default parameter values in meta method
+3, Better meta class definition syntax. Something like,
+defineMetaClass(...)
+	.method(...)
+	.field(...)
+	.property(...)
+	.end()

@@ -157,6 +157,7 @@ public:
 	virtual void bindEnum(const char * name, IMetaEnum * metaEnum) = 0;
 
 	virtual void bindFundamental(const char * name, const GVariant & value) = 0;
+	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible) = 0;
 	virtual void bindString(const char * stringName, const char * s) = 0;
 	virtual void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership) = 0;
 	virtual void bindRaw(const char * name, const GVariant & value) = 0;

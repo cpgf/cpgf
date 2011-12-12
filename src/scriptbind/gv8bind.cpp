@@ -178,6 +178,8 @@ private:
 void weakHandleCallback(v8::Persistent<v8::Value> object, void * parameter);
 v8::Handle<v8::FunctionTemplate> createClassTemplate(GScriptBindingParam * param, const char * name, IMetaClass * metaClass);
 
+v8::Handle<v8::Value> converterToV8(GScriptBindingParam * param, const GVariant & value, IMetaConverter * converter);
+
 const char * signatureKey = "i_sig_cpgf";
 const int signatureValue = 0x168feed;
 const char * userDataKey = "i_userdata_cpgf";
@@ -477,27 +479,6 @@ GMetaVariant v8ToVariant(v8::Handle<v8::Value> value)
 
 	if(value->IsFunction() || value->IsObject()) {
 		return userDataToVariant(value);
-
-		Local<Object> obj = value->ToObject();
-		if(isValidObject(obj)) {
-			GScriptUserData * userData = static_cast<GScriptUserData *>(obj->GetPointerFromInternalField(0));
-			if(userData != NULL) {
-				switch(userData->getType()) {
-					case udtClass: {
-						GMetaType metaType;
-						void * obj = v8ToObject(value, &metaType);
-						if(obj != NULL) {
-							metaType.addPointer();
-							return GMetaVariant(pointerToObjectVariant(obj), metaType);
-						}
-					}
-					break;
-
-					default:
-					break;
-				}
-			}
-		}
 	}
 
 	return GMetaVariant();
@@ -555,7 +536,16 @@ v8::Handle<v8::Value> accessibleGet(v8::Local<v8::String> prop, const v8::Access
 	GMetaType type;
 	GVariant result = getAccessibleValueAndType(userData->instance, userData->accessible, &type, false);
 
-	return variantToV8(userData->getParam(), result, metaGetItemType(userData->accessible), false, true);
+	v8::Handle<v8::Value> v;
+	v = variantToV8(userData->getParam(), result, type, false, false);
+	if(v.IsEmpty()) {
+		GScopedInterface<IMetaConverter> converter(userData->accessible->createConverter());
+		v = converterToV8(userData->getParam(), result, converter.get());
+	}
+	if(v.IsEmpty()) {
+		v = rawToV8(userData->getParam(), result);
+	}
+	return v;
 	
 	LEAVE_V8(return Handle<Value>())
 }

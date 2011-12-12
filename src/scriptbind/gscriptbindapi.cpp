@@ -124,6 +124,15 @@ void G_API_CC ImplScriptObject::bindFundamental(const char * name, const GVarian
 	LEAVE_BINDING_API()
 }
 
+void G_API_CC ImplScriptObject::bindAccessible(const char * name, void * instance, IMetaAccessible * accessible)
+{
+	ENTER_BINDING_API()
+
+	this->scriptObject->bindAccessible(name, instance, accessible);
+
+	LEAVE_BINDING_API()
+}
+
 void G_API_CC ImplScriptObject::bindString(const char * stringName, const char * s)
 {
 	ENTER_BINDING_API()

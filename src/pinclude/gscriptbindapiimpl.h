@@ -66,6 +66,7 @@ protected:
 	virtual void G_API_CC bindEnum(const char * name, IMetaEnum * metaEnum);
 
 	virtual void G_API_CC bindFundamental(const char * name, const GVariantData * value);
+	virtual void G_API_CC bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
 	virtual void G_API_CC bindString(const char * stringName, const char * s);
 	virtual void G_API_CC bindObject(const char * objectName, void * instance, IMetaClass * type, gapi_bool transferOwnership);
 	virtual void G_API_CC bindRaw(const char * name, const GVariantData * value);
