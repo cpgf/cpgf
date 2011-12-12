@@ -294,8 +294,9 @@ void GMetaClass::destroyInstance(void * instance) const {
 	this->destroy(instance);
 }
 
-void GMetaClass::addField(GMetaField * field) {
+GMetaField * GMetaClass::addField(GMetaField * field) {
 	this->addItem(mcatField, field);
+	return field;
 }
 
 const GMetaField * GMetaClass::getFieldInHierarchy(const char * name, void ** outInstance) const
@@ -318,8 +319,9 @@ const GMetaField * GMetaClass::getFieldAt(size_t index) const
 	return static_cast<const GMetaField *>(this->getItemAt(mcatField, index));
 }
 
-void GMetaClass::addProperty(GMetaProperty * property) {
-	this->addItem(mcatProperty, property);
+GMetaProperty * GMetaClass::addProperty(GMetaProperty * prop) {
+	this->addItem(mcatProperty, prop);
+	return prop;
 }
 
 const GMetaProperty * GMetaClass::getPropertyInHierarchy(const char * name, void ** outInstance) const
@@ -342,8 +344,9 @@ const GMetaProperty * GMetaClass::getPropertyAt(size_t index) const
 	return static_cast<const GMetaProperty *>(this->getItemAt(mcatProperty, index));
 }
 
-void GMetaClass::addMethod(GMetaMethod * method) {
+GMetaMethod * GMetaClass::addMethod(GMetaMethod * method) {
 	this->addItem(mcatMethod, method);
+	return method;
 }
 
 const GMetaMethod * GMetaClass::getMethodInHierarchy(const char * name, void ** outInstance) const
@@ -366,9 +369,10 @@ const GMetaMethod * GMetaClass::getMethodAt(size_t index) const
 	return static_cast<const GMetaMethod *>(this->getItemAt(mcatMethod, index));
 }
 
-void GMetaClass::addOperator(GMetaOperator * metaOperator)
+GMetaOperator * GMetaClass::addOperator(GMetaOperator * metaOperator)
 {
 	this->addItem(mcatOperator, metaOperator);
+	return metaOperator;
 }
 
 const GMetaOperator * GMetaClass::doGetOperator(GMetaOpType op, bool findSuper, void ** outInstance) const
@@ -449,11 +453,13 @@ const GMetaEnum * GMetaClass::getEnumAt(size_t index) const
 	return static_cast<const GMetaEnum *>(this->getItemAt(mcatEnum, index));
 }
 
-void GMetaClass::addClass(const GMetaClass * cls)
+const GMetaClass * GMetaClass::addClass(const GMetaClass * cls)
 {
 	this->addItem(mcatClass, const_cast<GMetaClass *>(cls));
 	
 	meta_internal::registerMetaTypedItem(cls);
+
+	return cls;
 }
 
 const GMetaClass * GMetaClass::getClassInHierarchy(const char * name, void ** outInstance) const

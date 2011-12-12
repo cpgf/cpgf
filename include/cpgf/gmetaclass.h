@@ -63,18 +63,19 @@ public:
 	virtual size_t getTypeSize() const;
 
 	template <typename OT, typename Signature, typename Policy>
-	void addConstructor(const Policy & policy) {
+	GMetaConstructor * addConstructor(const Policy & policy) {
 		if(this->isGlobal()) {
-			return;
+			return NULL;
 		}
-		this->addItem(mcatConstructor, new GMetaConstructor(
+		GMetaConstructor * metaConstructor = new GMetaConstructor(
 				GCallback<Signature>(
 					meta_internal::GMetaConstructorInvoker<GFunctionTraits<Signature>::Arity, OT, typename GFunctionTraits<Signature>::ArgList>()
 				),
 				policy
-			)
-			)
-			;
+			);
+		this->addItem(mcatConstructor, metaConstructor);
+
+		return metaConstructor;
 	}
 
 	const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
@@ -135,14 +136,19 @@ public:
 	void * castToBase(void * self, size_t baseIndex) const;
 
 public:
-	void addField(GMetaField * field);
-	void addProperty(GMetaProperty * field);
-	void addMethod(GMetaMethod * method);
-	void addOperator(GMetaOperator * metaOperator);
+	GMetaField * addField(GMetaField * field);
+	GMetaProperty * addProperty(GMetaProperty * prop);
+	GMetaMethod * addMethod(GMetaMethod * method);
+	GMetaOperator * addOperator(GMetaOperator * metaOperator);
 	GMetaEnum & addEnum(GMetaEnum * en);
-	void addClass(const GMetaClass * cls);
+	const GMetaClass * addClass(const GMetaClass * cls);
 	GMetaAnnotation & addAnnotation(GMetaAnnotation * annotation);
 	void flushAnnotation();
+
+	template <typename ClassType, typename BaseType>
+	void addBaseClass() {
+		this->superList->add<ClassType, BaseType>();
+	}
 
 private:
 	void addItem(GMetaCategory listIndex, GMetaItem * item);

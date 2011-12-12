@@ -345,14 +345,14 @@ void GLuaGlobalAccessor::initialize()
 		GLuaScopeGuard scopeGuard(this->scriptObject);
 		bool ok = false;
 		if(this->scriptObject->isGlobal()) {
-			ok = lua_getmetatable(L, LUA_GLOBALSINDEX);
+			ok = !! lua_getmetatable(L, LUA_GLOBALSINDEX);
 			if(!ok) {
 				lua_newtable(L);
 			}
 			ok = true;
 		}
 		else {
-			ok = lua_getmetatable(L, -1);
+			ok = !! lua_getmetatable(L, -1);
 		}
 		if(ok) {
 			scopeGuard.set(GlobalAccessorPreviousMetaTableKey);
