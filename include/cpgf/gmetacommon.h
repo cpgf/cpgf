@@ -121,6 +121,9 @@ private:
 
 private:
 	friend class GMetaClass;
+
+	template <typename ClassType, typename DerivedType>
+	friend class GDefineMetaCommon;
 };
 
 

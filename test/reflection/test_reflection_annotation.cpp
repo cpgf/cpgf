@@ -6,6 +6,10 @@
 
 #include "test_reflection_common.h"
 
+#include "cpgf/gmetadefine.h"
+#include "cpgf/goutmain.h"
+
+
 #define CLASS TestClass_Annotation
 #define NAME_CLASS GPP_STRINGIZE(CLASS)
 
@@ -85,6 +89,7 @@ public:
 	int width;
 };
 
+/*
 GMETA_DEFINE_CLASS(CLASS, CLASS, NAME_CLASS) {
 	using namespace cpgf;
 
@@ -110,6 +115,38 @@ GMETA_DEFINE_CLASS(CLASS, CLASS, NAME_CLASS) {
 	;
 	flushAnnotation();
 }
+*/
+
+namespace {
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>(NAME_CLASS)
+		._annotation("attribute")
+			._value("name", L"TestClass_Annotation")
+			._value("cat", mcatClass)
+			._value("dog", TestData(mcatClass, NAME_CLASS))
+
+		._enum<CLASS::WindowStyle>("WindowStyle")
+			._value("CLASS:ws0", CLASS::ws0)
+			._value("CLASS:ws1", CLASS::ws1)
+			._value("CLASS:ws2", CLASS::ws2)
+			._value("CLASS:ws3", CLASS::ws3)
+			._annotation("attribute")
+				._value("name", L"WindowStyle")
+				._value("cat", mcatEnum)
+				._value("dog", TestData(mcatEnum, "WindowStyle"))
+
+		._field("width", &CLASS::width)
+			._annotation("attribute")
+				._value("name", L"width")
+				._value("cat", mcatField)
+				._value("dog", TestData(mcatField, "width"))
+	;
+}
+}
+
 
 void testItem(const cpgf::GMetaItem * item)
 {

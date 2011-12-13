@@ -2,6 +2,9 @@
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gexception.h"
 
+#include "cpgf/gmetadefine.h"
+#include "cpgf/goutmain.h"
+
 #include "testscriptbindmetadata.h"
 
 #include <string>
@@ -309,6 +312,7 @@ GMETA_DEFINE_CLASS(DeriveE, DeriveE, "testscript::DeriveE", DeriveD) {
 
 
 
+/*
 GMETA_DEFINE_CLASS(BasicA::Inner, BasicA_Inner, "Inner") {
 	using namespace cpgf;
 		
@@ -326,9 +330,27 @@ GMETA_DEFINE_CLASS(BasicA, BasicA, REG_NAME_BasicA) {
 		("b", BasicA::b)
 		("c", BasicA::c);
 }
+*/
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<BasicA>(REG_NAME_BasicA)
+		._class(
+			GDefineMetaClass<BasicA::Inner>::inner("Inner")
+				._field("x", &BasicA::Inner::x)
+				._method("add", &BasicA::Inner::add)
+		)
+		._enum<BasicA::BasicEnum>("BasicEnum")
+			._value("a", BasicA::a)
+			._value("b", BasicA::b)
+			._value("c", BasicA::c);
+	;
+}
 
 
-
+/*
 GMETA_DEFINE_GLOBAL() {
 	using namespace cpgf;
 
@@ -340,6 +362,23 @@ GMETA_DEFINE_GLOBAL() {
 		("teCpp", teCpp)
 		("teLua", teLua)
 		("teV8", teV8);
+}
+*/
+
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaGlobal()
+		._method("scriptAssert", &scriptAssert)
+		._method("testAdd2", &testAdd2)
+		._method("testAddN", &testAddN)
+		._enum<TestEnum>(REG_NAME_TestEnum)
+			._value("teCpp", teCpp)
+			._value("teLua", teLua)
+			._value("teV8", teV8);
+	;
 }
 
 

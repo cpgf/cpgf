@@ -203,6 +203,7 @@ void GMetaItem::addItemAnnotation(const GMetaAnnotation * annotation)
 		this->implement->annotationList.reset(new meta_internal::GMetaItemImplement::AnnotationListType);
 	}
 
+	const_cast<GMetaAnnotation *>(annotation)->setMetaItem(this);
 	this->implement->annotationList->push_back(annotation);
 }
 

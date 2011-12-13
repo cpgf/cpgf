@@ -141,7 +141,7 @@ public:
 	GMetaMethod * addMethod(GMetaMethod * method);
 	GMetaOperator * addOperator(GMetaOperator * metaOperator);
 	GMetaEnum & addEnum(GMetaEnum * en);
-	const GMetaClass * addClass(const GMetaClass * cls);
+	GMetaClass * addClass(const GMetaClass * cls);
 	GMetaAnnotation & addAnnotation(GMetaAnnotation * annotation);
 	void flushAnnotation();
 

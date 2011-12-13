@@ -1,7 +1,6 @@
 #ifndef __GMETADEFINE_H
 #define __GMETADEFINE_H
 
-#include "cpgf/gmetareflect.h"
 #include "cpgf/gmetaannotation.h"
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gmetaenum.h"
@@ -9,10 +8,46 @@
 #include "cpgf/gmetamethod.h"
 #include "cpgf/gmetaoperator.h"
 #include "cpgf/gmetaproperty.h"
+#include "cpgf/gglobal.h"
+#include "cpgf/gpp.h"
+
+
+#define MAX_BASE_COUNT 20
+#define BASE_DEFAULT(N, unused) , typename GPP_CONCAT(BaseType, N) = void
 
 
 namespace cpgf {
 
+
+namespace meta_internal {
+
+
+#define CASE_SUPERLIST_ARG(N, unused) case N: superList->add<ClassType, typename TypeList_GetWithDefault<TList, N, void>::Result>(); break;
+
+template <typename TList, typename ClassType>
+GMetaSuperList * doMakeSuperList() {
+	GMetaSuperList * superList = new GMetaSuperList;
+
+	for(int i = 0; i < 20; ++i) {
+		if(i >= static_cast<int>(TypeList_Length<TList>::Result)) {
+			break;
+		}
+
+		switch(i) {
+			GPP_REPEAT(19, CASE_SUPERLIST_ARG, GPP_EMPTY())
+
+			default:
+				break;
+		}
+	}
+
+	return superList;
+}
+
+#undef CASE_SUPERLIST_ARG
+
+
+} // namespace meta_internal
 
 
 template <typename BaseType>
@@ -31,41 +66,78 @@ private:
 	typedef GDefineMetaEnum<BaseType> ThisType;
 
 public:
-	GDefineMetaEnum(GMetaClass * metaClass, GMetaEnum * metaEnum) : BaseType(metaClass), metaEnum(metaEnum) {
+	GDefineMetaEnum(GMetaClass * metaClass, GMetaEnum * metaEnum) : BaseType(metaClass) {
 		this->currentItem = metaEnum;
 	}
 
 	ThisType & _value(const char * key, long long value) {
-		(*metaEnum)(key, value);
+		(*gdynamic_cast<GMetaEnum *>(this->currentItem))(key, value);
 
 		return *this;
 	}
 
-private:
-	GMetaEnum * metaEnum;
 };
 
 template <typename BaseType>
 class GDefineMetaAnnotation : public BaseType
 {
 public:
-	GDefineMetaAnnotation(GMetaClass * metaClass, GMetaAnnotation * annotation) : BaseType(metaClass), annotation(annotation) {
+	GDefineMetaAnnotation(GMetaClass * metaClass, GMetaAnnotation * annotation) : BaseType(metaClass) {
 		this->currentItem = annotation;
 	}
 
 	template <typename T>
 	GDefineMetaAnnotation & _value(const char * name, const T & value) {
-		(*annotation)(name, value);
+		(*gdynamic_cast<GMetaAnnotation *>(this->currentItem))(name, value);
 
 		return *this;
 	}
 
-private:
-	GMetaAnnotation * annotation;
+};
+
+template <typename BaseType>
+class GDefineMetaField : public BaseType
+{
+public:
+	GDefineMetaField(GMetaClass * metaClass, GMetaField * field) : BaseType(metaClass) {
+		this->currentItem = field;
+	}
+
+};
+
+template <typename BaseType>
+class GDefineMetaProperty : public BaseType
+{
+public:
+	GDefineMetaProperty(GMetaClass * metaClass, GMetaProperty * prop) : BaseType(metaClass) {
+		this->currentItem = prop;
+	}
+
+};
+
+template <typename BaseType>
+class GDefineMetaOperator : public BaseType
+{
+public:
+	GDefineMetaOperator(GMetaClass * metaClass, GMetaOperator * op) : BaseType(metaClass) {
+		this->currentItem = op;
+	}
+
+};
+
+template <typename BaseType>
+class GDefineMetaInnerClass : public BaseType
+{
+public:
+	GDefineMetaInnerClass(GMetaClass * metaClass, GMetaClass * inner) : BaseType(metaClass) {
+		this->currentItem = inner;
+	}
+
 };
 
 
-template <typename ClassType>
+
+template <typename ClassType GPP_REPEAT(MAX_BASE_COUNT, BASE_DEFAULT, GPP_EMPTY)>
 class GDefineMetaClass;
 
 template <typename ClassType, typename DerivedType>
@@ -75,7 +147,7 @@ private:
 	typedef GDefineMetaCommon<ClassType, DerivedType> ThisType;
 
 public:
-	GDefineMetaCommon(GMetaClass * metaClass) : metaClass(metaClass), currentItem(metaClass) {
+	explicit GDefineMetaCommon(GMetaClass * metaClass) : metaClass(metaClass), currentItem(metaClass) {
 	}
 
 	template <typename FT>
@@ -95,45 +167,53 @@ public:
 	}
 	
 	template <typename FT>
-	DerivedType & _field(const char * name, FT field) {
-		this->metaClass->addField(new GMetaField(name, field, GMetaPolicyDefault()));
-		
-		return static_cast<DerivedType &>(*this);
+	GDefineMetaField<DerivedType> _field(const char * name, FT field) {
+		return GDefineMetaField<DerivedType>(
+			this->metaClass,
+			this->metaClass->addField(new GMetaField(name, field, GMetaPolicyDefault()))
+		);
 	}
 
 	template <typename FT, typename Policy>
-	DerivedType & _field(const char * name, FT field, const Policy & policy) {
-		this->metaClass->addField(new GMetaField(name, field, policy));
-		
-		return static_cast<DerivedType &>(*this);
+	GDefineMetaField<DerivedType> _field(const char * name, FT field, const Policy & policy) {
+		return GDefineMetaField<DerivedType>(
+			this->metaClass,
+			this->metaClass->addField(new GMetaField(name, field, policy))
+		);
 	}
 
 	template <typename FT>
-	DerivedType & _property(const char * name, FT prop) {
-		this->metaClass->addProperty(new GMetaProperty(name, prop, GMetaPolicyDefault()));
+	GDefineMetaProperty<DerivedType> _property(const char * name, FT prop) {
+		return GDefineMetaProperty<DerivedType>(
+			this->metaClass,
+			this->metaClass->addProperty(new GMetaProperty(name, prop, GMetaPolicyDefault()))
+		);
 		
 		return static_cast<DerivedType &>(*this);
 	}
 
 	template <typename FT, typename Policy>
-	DerivedType & _property(const char * name, FT prop, const Policy & policy) {
-		this->metaClass->addProperty(new GMetaProperty(name, prop, policy));
-		
-		return static_cast<DerivedType &>(*this);
+	GDefineMetaProperty<DerivedType> _property(const char * name, FT prop, const Policy & policy) {
+		return GDefineMetaProperty<DerivedType>(
+			this->metaClass,
+			this->metaClass->addProperty(new GMetaProperty(name, prop, policy))
+		);
 	}
 
 	template <typename FT, typename Creator>
-	DerivedType & _operator(const Creator & creator) {
-		this->metaClass->addOperator(new GMetaOperator(creator.template create<ClassType, FT>(GMetaPolicyDefault())));
-
-		return static_cast<DerivedType &>(*this);
+	GDefineMetaOperator<DerivedType> _operator(const Creator & creator) {
+		return GDefineMetaOperator<DerivedType>(
+			this->metaClass,
+			this->metaClass->addOperator(new GMetaOperator(creator.template create<ClassType, FT>(GMetaPolicyDefault())))
+		);
 	}
 
 	template <typename FT, typename Creator, typename Policy>
-	DerivedType & _operator(const Creator & creator, const Policy & policy) {
-		this->metaClass->addOperator(new GMetaOperator(creator.template create<ClassType, FT>(policy)));
-
-		return static_cast<DerivedType &>(*this);
+	GDefineMetaOperator<DerivedType> _operator(const Creator & creator, const Policy & policy) {
+		return GDefineMetaOperator<DerivedType>(
+			this->metaClass,
+			this->metaClass->addOperator(new GMetaOperator(creator.template create<ClassType, FT>(policy)))
+		);
 	}
 
 	template <typename T>
@@ -145,10 +225,11 @@ public:
 	}
 
 	template <typename T>
-	DerivedType & _class(const GDefineMetaClass<T> & defineClass) {
-		this->metaClass->addClass(defineClass.metaClass);
-
-		return static_cast<DerivedType &>(*this);
+	GDefineMetaInnerClass<DerivedType> _class(GDefineMetaClass<T> defineClass) {
+		return GDefineMetaInnerClass<DerivedType>(
+			this->metaClass,
+			this->metaClass->addClass(defineClass.getMetaClass())
+		);
 	}
 
 	GDefineMetaAnnotation<DerivedType> _annotation(const char * name) {
@@ -166,9 +247,7 @@ protected:
 };
 
 
-
-
-template <typename ClassType>
+template <typename ClassType GPP_REPEAT_TAIL_PARAMS(MAX_BASE_COUNT, typename BaseType)>
 class GDefineMetaClass : public GDefineMetaCommon<ClassType, GDefineMetaClass<ClassType> >
 {
 private:
@@ -181,7 +260,17 @@ public:
 	}
 
 public:
-	GDefineMetaClass(GMetaClass * metaClass) : super(metaClass) {
+	explicit GDefineMetaClass(GMetaClass * metaClass) : super(metaClass) {
+	}
+
+	explicit GDefineMetaClass(const char * className) : super(NULL) {
+		this->init(className, true);
+	}
+
+	static ThisType inner(const char * className) {
+		ThisType c((GMetaClass *)NULL);
+		c.init(className, false);
+		return c;
 	}
 
 	template <typename BaseType>
@@ -205,11 +294,32 @@ public:
 		return *this;
 	}
 
-	ThisType & _global() {
-		getGlobalMetaClass()->addClass(this->metaClass);
-		return *this;
+	GMetaClass * getMetaClass() const {
+		return this->metaClass;
 	}
 
+private:
+	typedef typename cpgf::TypeList_Make<GPP_REPEAT_PARAMS(MAX_BASE_COUNT, BaseType)>::Result BaseListType;
+	void init(const char * className, bool addToGlobal) {
+		GMetaClass * classToAdd = NULL;
+
+		if(addToGlobal) {
+			classToAdd = const_cast<GMetaClass *>(getGlobalMetaClass()->getClass(className));
+		}
+		if(classToAdd == NULL) {
+			classToAdd = new GMetaClass(
+				(ClassType *)0, meta_internal::doMakeSuperList<BaseListType, ClassType>(),
+				className, &GDefineMetaClass<ClassType>::destroyMetaObject, NULL, GMetaPolicyDefault()
+			);
+
+			if(addToGlobal) {
+				getGlobalMetaClass()->addClass(classToAdd);
+			}
+		}
+
+		this->metaClass = classToAdd;
+		this->currentItem = classToAdd;
+	}
 };
 
 
@@ -222,42 +332,21 @@ private:
 public:
 	GDefineMetaGlobal() : super(getGlobalMetaClass()) {
 	}
+
+	explicit GDefineMetaGlobal(GMetaClass * metaClass) : super(metaClass) {
+	}
+
 };
 
 
-template <typename ClassType>
-GDefineMetaClass<ClassType> defineMetaClass(const char * className)
-{
-	return GDefineMetaClass<ClassType>(
-		new GMetaClass(
-			(ClassType *)0, meta_internal::MakeSuperList<TypeList_Make<>::Result, ClassType>(),
-			className, &GDefineMetaClass<ClassType>::destroyMetaObject, NULL, GMetaPolicyDefault()
-		)
-	);
-}
 
 
 } // namespace cpgf
 
-inline void testDefineMeta();
-class AAA {
-public:
-	AAA() { testDefineMeta(); }
-	void abc() {}
-	int value;
-};
 
-inline void testDefineMeta()
-{
-	using namespace cpgf;
 
-	defineMetaClass<AAA>("AAA")
-		._constructor<void *()>()
-		._method("abc", &AAA::abc)
-	;
-}
-
-static AAA bbb;
+#undef MAX_BASE_COUNT
+#undef BASE_DEFAULT
 
 
 #endif

@@ -453,13 +453,13 @@ const GMetaEnum * GMetaClass::getEnumAt(size_t index) const
 	return static_cast<const GMetaEnum *>(this->getItemAt(mcatEnum, index));
 }
 
-const GMetaClass * GMetaClass::addClass(const GMetaClass * cls)
+GMetaClass * GMetaClass::addClass(const GMetaClass * cls)
 {
 	this->addItem(mcatClass, const_cast<GMetaClass *>(cls));
 	
 	meta_internal::registerMetaTypedItem(cls);
 
-	return cls;
+	return const_cast<GMetaClass *>(cls);
 }
 
 const GMetaClass * GMetaClass::getClassInHierarchy(const char * name, void ** outInstance) const
@@ -630,7 +630,6 @@ void GMetaClass::refreshAnnotation(GMetaItem * metaItem)
 			break;
 		}
 
-		annotation->setMetaItem(metaItem);
 		metaItem->addItemAnnotation(annotation);
 	}
 }

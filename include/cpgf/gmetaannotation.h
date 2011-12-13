@@ -119,6 +119,7 @@ private:
 
 private:
 	friend class GMetaClass;
+	friend class GMetaItem;
 };
 
 
