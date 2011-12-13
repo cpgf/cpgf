@@ -33,7 +33,7 @@ private:
 
 public:
 	template <typename ClassT, typename Policy>
-	GMetaClass(ClassT *, meta_internal::GMetaSuperList * superList, const char * name, void (*destroy)(void *), void (*metaRegister)(), const Policy &)
+	GMetaClass(ClassT *, meta_internal::GMetaSuperList * superList, const char * name, void (*destroy)(void *), void (*metaRegister)(GMetaClass *), const Policy &)
 		:	super(name, createMetaType<ClassT>(), mcatClass),
 			intialized(false),
 			destroy(destroy),
@@ -174,7 +174,7 @@ private:
 private:
 	mutable bool intialized;
 	void (*destroy)(void *);
-	void (*metaRegister)();
+	void (*metaRegister)(GMetaClass * metaClass);
 
 	GMetaItem * previousAddedItem;
 

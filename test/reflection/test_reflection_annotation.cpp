@@ -89,40 +89,11 @@ public:
 	int width;
 };
 
-/*
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME_CLASS) {
-	using namespace cpgf;
-
-	reflectAnnotation("attribute")
-		("name", L"TestClass_Annotation")
-		("cat", mcatClass)
-		("dog", TestData(mcatClass, NAME_CLASS))
-	;
-	flushAnnotation();
-
-	reflectAnnotation("attribute")
-		("name", L"WindowStyle")
-		("cat", mcatEnum)
-		("dog", TestData(mcatEnum, "WindowStyle"))
-	;
-	GMETA_ENUM(WindowStyle, CLASS::ws0, CLASS::ws1, CLASS::ws2, CLASS::ws3);
-
-	GMETA_FIELD(width);
-	reflectAnnotation("attribute")
-		("name", L"width")
-		("cat", mcatField)
-		("dog", TestData(mcatField, "width"))
-	;
-	flushAnnotation();
-}
-*/
-
 namespace {
-G_AUTO_RUN_BEFORE_MAIN()
-{
-	using namespace cpgf;
 
-	GDefineMetaClass<CLASS>(NAME_CLASS)
+void lazyDefineClass(GDefineMetaClass<CLASS> define)
+{
+	define
 		._annotation("attribute")
 			._value("name", L"TestClass_Annotation")
 			._value("cat", mcatClass)
@@ -144,6 +115,13 @@ G_AUTO_RUN_BEFORE_MAIN()
 				._value("cat", mcatField)
 				._value("dog", TestData(mcatField, "width"))
 	;
+}
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>::lazy(NAME_CLASS, &lazyDefineClass);
 }
 }
 

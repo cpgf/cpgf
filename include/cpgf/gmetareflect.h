@@ -33,7 +33,7 @@
 		static void reflectClass(const cpgf::GMetaClass * metaClass) { getMetaClassObject()->addClass(metaClass); } \
 		static cpgf::GMetaAnnotation & reflectAnnotation(const char * name) { return getMetaClassObject()->addAnnotation(new cpgf::GMetaAnnotation(name)); }; \
 		static void flushAnnotation() { getMetaClassObject()->flushAnnotation(); } \
-		inline static void registerMetaInformation()
+		inline static void registerMetaInformation(cpgf::GMetaClass *)
 
 #define I_GMETA_DO_DEFINE_CLASS(cls, clsname, reg, policy, ...) \
 	private: \
@@ -53,7 +53,7 @@
 		I_GMETA_DO_DEFINE_CLASS(cls, clsname, GMETA_WRAP_CLASS(alias)::registerMetaInformation, policy, __VA_ARGS__); \
 	}; \
 	static cpgf::meta_internal::GMetaClassRegister GPP_CONCAT(i_offClass_, __LINE__) (GMETA_WRAP_CLASS(alias)::getMetaClass()); \
-	inline void GMETA_WRAP_CLASS(alias)::registerMetaInformation()
+	inline void GMETA_WRAP_CLASS(alias)::registerMetaInformation(cpgf::GMetaClass *)
 
 #define GMETA_DEFINE_CLASS(cls, alias, clsname, ...) I_GMETA_DEFINE_CLASS(cls, alias, clsname, cpgf::GMetaPolicyDefault(), __VA_ARGS__)
 #define GMETA_DEFINE_POLICIED_CLASS(cls, alias, clsname, policy, ...) I_GMETA_DEFINE_CLASS(cls, alias, clsname, policy, __VA_ARGS__)
@@ -76,7 +76,7 @@
 		static const cpgf::GMetaClass * instantiate(const char * name) { getMetaClassObject()->rebindName(name); return getMetaClass(); } \
 	}; \
 	template <types> \
-	inline void GMETA_WRAP_CLASS(alias) < params >::registerMetaInformation()
+	inline void GMETA_WRAP_CLASS(alias) < params >::registerMetaInformation(cpgf::GMetaClass *)
 
 #define GMETA_DEFINE_POLICIED_TEMPLATE(cls, alias, types, params, clsname, policy, ...) \
 	template <types> \
@@ -93,7 +93,7 @@
 		static const cpgf::GMetaClass * instantiate(const char * name) { getMetaClassObject()->rebindName(name); return getMetaClass(); } \
 	}; \
 	template <types> \
-	inline void GMETA_WRAP_CLASS(alias) < params >::registerMetaInformation()
+	inline void GMETA_WRAP_CLASS(alias) < params >::registerMetaInformation(cpgf::GMetaClass *)
 
 #define GMETA_INSTANTIATE_TEMPLATE(name, alias, params) \
 	static cpgf::meta_internal::GMetaClassRegister GPP_CONCAT(i_offClass_, __LINE__) (GMETA_WRAP_CLASS(alias) < params >::instantiate(name))

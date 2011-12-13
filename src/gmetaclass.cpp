@@ -587,7 +587,7 @@ void GMetaClass::ensureRegistered() const
 {
 	if(! this->intialized) {
 		if(this->metaRegister) {
-			this->metaRegister();
+			this->metaRegister(const_cast<GMetaClass *>(this));
 		}
 
 		this->intialized = true;

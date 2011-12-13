@@ -144,36 +144,40 @@ void scriptAssert(bool b)
 	}
 }
 
-GMETA_DEFINE_CLASS(TestData, TestData, REG_NAME_TestData) {
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_FIELD(x);
-	GMETA_FIELD(name);
+	GDefineMetaClass<TestData>
+		::define(REG_NAME_TestData)
+		._field("x", &TestData::x)
+		._field("name", &TestData::name)
+	;
 }
 
-GMETA_DEFINE_CLASS(TestBase, TestBase, "testscript::TestBase") {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_METHOD(getValue);
+	GDefineMetaClass<TestBase>
+		::define("testscript::TestBase")
+		._method("getValue", &TestBase::getValue);
+	;
+
+	GDefineMetaClass<TestA, TestBase>
+		::define("testscript::TestA")
+	;
+
+	GDefineMetaClass<TestB, TestBase>
+		::define("testscript::TestB")
+	;
+
+	GDefineMetaClass<TestC, TestB>
+		::define("testscript::TestC")
+	;
 }
 
-GMETA_DEFINE_CLASS(TestA, TestA, "testscript::TestA", TestBase) {
-	using namespace cpgf;
-
-	GMETA_METHOD(getValue);
-}
-
-GMETA_DEFINE_CLASS(TestB, TestB, "testscript::TestB", TestBase) {
-	using namespace cpgf;
-
-	GMETA_METHOD(getValue);
-}
-
-GMETA_DEFINE_CLASS(TestC, TestC, "testscript::TestC", TestB) {
-	using namespace cpgf;
-
-	GMETA_METHOD(getValue);
-}
 
 GMETA_DEFINE_CLASS(TestObject, TestObject, REG_NAME_TestObject) {
 	using namespace cpgf;
@@ -234,109 +238,85 @@ GMETA_DEFINE_CLASS(TestObject, TestObject, REG_NAME_TestObject) {
 	GMETA_METHOD(constPointerData);
 }
 
-
-GMETA_DEFINE_CLASS(TestOperator, TestOperator, "testscript::TestOperator") {
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 	using namespace std;
 
-	reflectConstructor<void * (const TestOperator &)>();
-	reflectConstructor<void * (int)>();
-	
-	GMETA_FIELD(value);
-	
-#define M(OP, RET) \
-	reflectOperator<RET (const GMetaSelf, int)>(mopHolder OP mopHolder); \
-	reflectOperator<RET (const GMetaSelf, const TestOperator &)>(mopHolder OP mopHolder); \
-	reflectOperator<RET (const GMetaSelf, const TestObject &)>(mopHolder OP mopHolder);
-	
-	M(+, TestOperator)
-	M(-, TestOperator)
-	M(*, TestOperator)
-	M(/, TestOperator)
-	M(%, TestOperator)
+	GDefineMetaClass<TestOperator>
+		::define("testscript::TestOperator")
 
-	M(==, bool)
-	M(<, bool)
-	M(<=, bool)
+		._constructor<void * (const TestOperator &)>()
+		._constructor<void * (int)>()
+		
+		._field("value", &TestOperator::value)
+		
+		._operator<TestOperator (const GMetaSelf)>(-mopHolder)
+		._operator<TestOperator (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference())
+		._operator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder))
+#define M(OP, RET) \
+		._operator<RET (const GMetaSelf, int)>(mopHolder OP mopHolder) \
+		._operator<RET (const GMetaSelf, const TestOperator &)>(mopHolder OP mopHolder) \
+		._operator<RET (const GMetaSelf, const TestObject &)>(mopHolder OP mopHolder)
+	
+		M(+, TestOperator)
+		M(-, TestOperator)
+		M(*, TestOperator)
+		M(/, TestOperator)
+		M(%, TestOperator)
+
+		M(==, bool)
+		M(<, bool)
+		M(<=, bool)
 
 #undef M
-
-	reflectOperator<TestOperator (const GMetaSelf)>(-mopHolder);
-
-	reflectOperator<TestOperator (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference());
-	reflectOperator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder));
-
+	;
 }
-
-GMETA_DEFINE_CLASS(DeriveA, DeriveA, "testscript::DeriveA") {
-	using namespace cpgf;
-
-	GMETA_METHOD(getA);
-	GMETA_METHOD(setData);
-
-	GMETA_FIELD(a);
-}
-
-GMETA_DEFINE_CLASS(DeriveB, DeriveB, "testscript::DeriveB", DeriveA) {
-	using namespace cpgf;
-
-	GMETA_METHOD(getB);
-
-	GMETA_FIELD(b);
-}
-
-GMETA_DEFINE_CLASS(DeriveC, DeriveC, "testscript::DeriveC", DeriveA) {
-	using namespace cpgf;
-
-	GMETA_METHOD(getC);
-
-	GMETA_FIELD(c);
-}
-
-GMETA_DEFINE_CLASS(DeriveD, DeriveD, "testscript::DeriveD", DeriveB, DeriveC) {
-	using namespace cpgf;
-
-	GMETA_METHOD(getD);
-
-	GMETA_FIELD(d);
-}
-
-GMETA_DEFINE_CLASS(DeriveE, DeriveE, "testscript::DeriveE", DeriveD) {
-	using namespace cpgf;
-
-	GMETA_METHOD(getE);
-	reflectMethod("pretendA", &DeriveE::pretendA, GMetaPolicyTransferResultOwnership());
-
-	GMETA_FIELD(e);
-}
-
-
-
-/*
-GMETA_DEFINE_CLASS(BasicA::Inner, BasicA_Inner, "Inner") {
-	using namespace cpgf;
-		
-	GMETA_FIELD(x);
-	GMETA_METHOD(add);
-}
-	
-GMETA_DEFINE_CLASS(BasicA, BasicA, REG_NAME_BasicA) {
-	using namespace cpgf;
-
-	GMETA_QUALIFIED_CLASS(BasicA::Inner);
-	
-	reflectEnum<BasicA::BasicEnum>("BasicEnum")
-		("a", BasicA::a)
-		("b", BasicA::b)
-		("c", BasicA::c);
-}
-*/
 
 G_AUTO_RUN_BEFORE_MAIN()
 {
 	using namespace cpgf;
 
-	GDefineMetaClass<BasicA>(REG_NAME_BasicA)
+	GDefineMetaClass<DeriveA>
+		::define("testscript::DeriveA")
+		._method("getA", &DeriveA::getA)
+		._method("setData", &DeriveA::setData)
+		._field("a", &DeriveA::a)
+	;
+
+	GDefineMetaClass<DeriveB, DeriveA>
+		::define("testscript::DeriveB")
+		._method("getB", &DeriveB::getB)
+		._field("b", &DeriveB::b)
+	;
+
+	GDefineMetaClass<DeriveC, DeriveA>
+		::define("testscript::DeriveC")
+		._method("getC", &DeriveC::getC)
+		._field("c", &DeriveC::c)
+	;
+
+	GDefineMetaClass<DeriveD, DeriveB, DeriveC>
+		::define("testscript::DeriveD")
+		._method("getD", &DeriveD::getD)
+		._field("d", &DeriveD::d)
+	;
+
+	GDefineMetaClass<DeriveE, DeriveD>
+		::define("testscript::DeriveE")
+		._method("getE", &DeriveE::getE)
+		._method("pretendA", &DeriveE::pretendA, GMetaPolicyTransferResultOwnership())
+		._field("e", &DeriveE::e)
+	;
+}
+
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<BasicA>
+		::define(REG_NAME_BasicA)
 		._class(
 			GDefineMetaClass<BasicA::Inner>::inner("Inner")
 				._field("x", &BasicA::Inner::x)
@@ -345,25 +325,9 @@ G_AUTO_RUN_BEFORE_MAIN()
 		._enum<BasicA::BasicEnum>("BasicEnum")
 			._value("a", BasicA::a)
 			._value("b", BasicA::b)
-			._value("c", BasicA::c);
+			._value("c", BasicA::c)
 	;
 }
-
-
-/*
-GMETA_DEFINE_GLOBAL() {
-	using namespace cpgf;
-
-	GMETA_QUALIFIED_METHOD(scriptAssert);
-	GMETA_QUALIFIED_METHOD(testAdd2);
-	GMETA_QUALIFIED_METHOD(testAddN);
-	
-	reflectEnum<TestEnum>(REG_NAME_TestEnum)
-		("teCpp", teCpp)
-		("teLua", teLua)
-		("teV8", teV8);
-}
-*/
 
 
 G_AUTO_RUN_BEFORE_MAIN()
@@ -377,7 +341,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 		._enum<TestEnum>(REG_NAME_TestEnum)
 			._value("teCpp", teCpp)
 			._value("teLua", teLua)
-			._value("teV8", teV8);
+			._value("teV8", teV8)
 	;
 }
 

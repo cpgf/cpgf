@@ -46,6 +46,20 @@ GMetaSuperList * doMakeSuperList() {
 
 #undef CASE_SUPERLIST_ARG
 
+template <typename DefineClass>
+struct GLazyDefineClassHelper
+{
+	static void (*registerAddress)(DefineClass define);
+
+	static void metaRegister(GMetaClass * metaClass)
+	{
+		registerAddress(DefineClass(metaClass));
+	}
+};
+
+template <typename DefineClass>
+void (*GLazyDefineClassHelper<DefineClass>::registerAddress)(DefineClass define) = NULL;
+
 
 } // namespace meta_internal
 
@@ -147,7 +161,19 @@ private:
 	typedef GDefineMetaCommon<ClassType, DerivedType> ThisType;
 
 public:
-	explicit GDefineMetaCommon(GMetaClass * metaClass) : metaClass(metaClass), currentItem(metaClass) {
+	explicit GDefineMetaCommon(GMetaClass * metaClass)
+		: metaClass(metaClass), currentItem(metaClass) {
+	}
+
+	GDefineMetaCommon(const GDefineMetaCommon & other)
+		: metaClass(other.metaClass), currentItem(other.currentItem) {
+	}
+
+	GDefineMetaCommon & operator = (const GDefineMetaCommon & other) {
+		this->metaClass = other.metaClass;
+		this->currentItem = other.currentItem;
+
+		return *this;
 	}
 
 	template <typename FT>
@@ -241,6 +267,10 @@ public:
 		);
 	}
 
+	DerivedType end() {
+		return DerivedType(this->metaClass);
+	}
+
 protected:
 	GMetaClass * metaClass;
 	GMetaItem * currentItem;
@@ -248,18 +278,44 @@ protected:
 
 
 template <typename ClassType GPP_REPEAT_TAIL_PARAMS(MAX_BASE_COUNT, typename BaseType)>
-class GDefineMetaClass : public GDefineMetaCommon<ClassType, GDefineMetaClass<ClassType> >
+class GDefineMetaClass : public GDefineMetaCommon<ClassType, GDefineMetaClass<ClassType GPP_REPEAT_TAIL_PARAMS(MAX_BASE_COUNT, BaseType)> >
 {
 private:
-	typedef GDefineMetaCommon<ClassType, GDefineMetaClass<ClassType> > super;
-	typedef GDefineMetaClass<ClassType> ThisType;
+	typedef GDefineMetaClass<ClassType GPP_REPEAT_TAIL_PARAMS(MAX_BASE_COUNT, BaseType)> ThisType;
+	typedef GDefineMetaCommon<ClassType, ThisType > super;
 
 public:
-	static void destroyMetaObject(void * instance) {
-		delete static_cast<ClassType *>(instance);
+	static ThisType define(const char * className) {
+		ThisType c((GMetaClass *)NULL);
+		c.init(className, NULL, true);
+		return c;
 	}
 
-public:
+	static ThisType inner(const char * className) {
+		ThisType c((GMetaClass *)NULL);
+		c.init(className, NULL, false);
+		return c;
+	}
+
+	static ThisType lazy(const char * className, void (*reg)(ThisType define)) {
+		GASSERT(reg != NULL);
+
+		ThisType c((GMetaClass *)NULL);
+		meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
+		c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, true);
+		return c;
+	}
+
+	static ThisType lazyInner(const char * className, void (*reg)(ThisType define)) {
+		GASSERT(reg != NULL);
+
+		ThisType c((GMetaClass *)NULL);
+		meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
+		c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false);
+		return c;
+	}
+
+protected:
 	explicit GDefineMetaClass(GMetaClass * metaClass) : super(metaClass) {
 	}
 
@@ -267,12 +323,7 @@ public:
 		this->init(className, true);
 	}
 
-	static ThisType inner(const char * className) {
-		ThisType c((GMetaClass *)NULL);
-		c.init(className, false);
-		return c;
-	}
-
+public:
 	template <typename BaseType>
 	ThisType & _base() {
 		this->metaClass->template addBaseClass<ClassType, BaseType>();
@@ -299,8 +350,12 @@ public:
 	}
 
 private:
+	static void destroyMetaObject(void * instance) {
+		delete static_cast<ClassType *>(instance);
+	}
+
 	typedef typename cpgf::TypeList_Make<GPP_REPEAT_PARAMS(MAX_BASE_COUNT, BaseType)>::Result BaseListType;
-	void init(const char * className, bool addToGlobal) {
+	void init(const char * className, void (*reg)(GMetaClass *), bool addToGlobal) {
 		GMetaClass * classToAdd = NULL;
 
 		if(addToGlobal) {
@@ -309,7 +364,7 @@ private:
 		if(classToAdd == NULL) {
 			classToAdd = new GMetaClass(
 				(ClassType *)0, meta_internal::doMakeSuperList<BaseListType, ClassType>(),
-				className, &GDefineMetaClass<ClassType>::destroyMetaObject, NULL, GMetaPolicyDefault()
+				className, &destroyMetaObject, reg, GMetaPolicyDefault()
 			);
 
 			if(addToGlobal) {
@@ -320,6 +375,10 @@ private:
 		this->metaClass = classToAdd;
 		this->currentItem = classToAdd;
 	}
+
+private:
+	template <typename DefineClass>
+	friend struct meta_internal::GLazyDefineClassHelper;
 };
 
 
