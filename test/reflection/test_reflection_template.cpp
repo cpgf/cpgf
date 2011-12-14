@@ -35,22 +35,22 @@ public:
 	int n;
 };
 
-GMETA_DEFINE_TEMPLATE(
-		CLASS,
-		CLASS,
-		typename T GPP_COMMA() typename P,
-		T GPP_COMMA() P,
-		"",
-		TestBase<T> ) {
 
-	using namespace cpgf;
-
-	GMETA_METHOD(getSize);
-	GMETA_METHOD(getDouble);
+template <typename ClassType>
+void lazyDefineClass(GDefineMetaClass<ClassType> define)
+{
+	define
+		._method("getSize", &ClassType::getSize)
+		._method("getDouble", &ClassType::getDouble)
+	;
 }
 
-GMETA_INSTANTIATE_TEMPLATE(NAME_CLASS, CLASS, char GPP_COMMA() int);
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
 
+	GDefineMetaClass<CLASS<char, int> >::lazy(NAME_CLASS, &lazyDefineClass<CLASS<char, int> >);
+}
 
 
 GTEST(ReflectTemplate)

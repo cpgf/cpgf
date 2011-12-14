@@ -39,14 +39,22 @@ public:
 	}
 }; // class CLASS
 
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME_CLASS) {
-	GMETA_PROPERTY(propInt, getPropInt, propInt);
-	reflectProperty("propString", &CLASS::propString, &CLASS::setPropString, GMetaPolicyCopyAllConstReference());
-	GMETA_PROPERTY(propData, getPropData, setPropData);
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME_CLASS)
 	
-	reflectProperty("propReadonlyInt", &CLASS::propReadonlyInt, &CLASS::propReadonlyInt, GMetaPolicyReadOnly());
-	reflectProperty("propWriteonlyString", &CLASS::propWriteonlyString, &CLASS::propWriteonlyString, GMetaPolicyWriteOnly());
-	reflectProperty("propNoncopyableData", &CLASS::propNoncopyableData, &CLASS::propNoncopyableData, GMetaPolicyNoncopyable());
+		._property("propInt", &CLASS::getPropInt, &CLASS::propInt)
+		._property("propString", &CLASS::propString, &CLASS::setPropString, GMetaPolicyCopyAllConstReference())
+		._property("propData", &CLASS::getPropData, &CLASS::setPropData)
+	
+		._property("propReadonlyInt", &CLASS::propReadonlyInt, &CLASS::propReadonlyInt, GMetaPolicyReadOnly())
+		._property("propWriteonlyString", &CLASS::propWriteonlyString, &CLASS::propWriteonlyString, GMetaPolicyWriteOnly())
+		._property("propNoncopyableData", &CLASS::propNoncopyableData, &CLASS::propNoncopyableData, GMetaPolicyNoncopyable())
+	;
 }
 
 

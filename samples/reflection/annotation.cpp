@@ -41,31 +41,37 @@ public:
 	int width;
 };
 
-GMETA_DEFINE_CLASS(TestObject, TestObject, "annotation::TestObject") {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	reflectAnnotation("attribute")
-		("name", L"annotation::TestObject")
-		("cat", mcatClass)
-		("dog", TestData(mcatClass, "annotation::TestObject"))
-	;
-	flushAnnotation();
+	GDefineMetaClass<TestObject>
+		::define("annotation::TestObject")
+	
+		._annotation("attribute")
+			._value("name", L"annotation::TestObject")
+			._value("cat", mcatClass)
+			._value("dog", TestData(mcatClass, "annotation::TestObject"))
 
-	reflectAnnotation("attribute")
-		("name", L"WindowStyle")
-		("cat", mcatEnum)
-		("dog", TestData(mcatEnum, "WindowStyle"))
-	;
-	GMETA_ENUM(WindowStyle, TestObject::ws0, TestObject::ws1, TestObject::ws2, TestObject::ws3);
+		._enum<TestObject::WindowStyle>("WindowStyle")
+			._value("ws0", TestObject::ws0)
+			._value("ws1", TestObject::ws1)
+			._value("ws2", TestObject::ws2)
+			._value("ws3", TestObject::ws3)
+			._annotation("attribute")
+				._value("name", L"WindowStyle")
+				._value("cat", mcatEnum)
+				._value("dog", TestData(mcatEnum, "WindowStyle"))
 
-	GMETA_FIELD(width);
-	reflectAnnotation("attribute")
-		("name", L"width")
-		("cat", mcatField)
-		("dog", TestData(mcatField, "width"))
+		._field("width", &TestObject::width)
+			._annotation("attribute")
+				._value("name", L"width")
+				._value("cat", mcatField)
+				._value("dog", TestData(mcatField, "width"))
 	;
-	flushAnnotation();
 }
+
 
 void testItem(const cpgf::GMetaItem * item)
 {

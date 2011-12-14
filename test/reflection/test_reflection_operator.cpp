@@ -233,64 +233,70 @@ CLASS operator + (int n, const CLASS & obj) {
 }
 
 
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME_CLASS) {
-	// arithmetic
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
 
-	reflectOperator<CLASS & (GMetaSelf, const CLASS &)>(mopHolder = mopHolder);
-	reflectOperator<CLASS (const GMetaSelf &, int)>(mopHolder + mopHolder);
-	reflectOperator<CLASS (int, const CLASS &)>(mopHolder + mopHolder);
-	reflectOperator<CLASS (const GMetaSelf &, int)>(mopHolder - mopHolder);
-	reflectOperator<CLASS (const GMetaSelf &, int)>(mopHolder * mopHolder);
-	reflectOperator<CLASS (const GMetaSelf &, int)>(mopHolder / mopHolder);
-	reflectOperator<CLASS (const GMetaSelf &, int)>(mopHolder % mopHolder);
-	reflectOperator<CLASS (GMetaSelf, int)>(mopHolder % mopHolder);
+	GDefineMetaClass<CLASS>
+		::define(NAME_CLASS)
 
-	// arithmetic assign
+		// arithmetic
 
-	reflectOperator<CLASS & (GMetaSelf, int)>(mopHolder += mopHolder);
-	reflectOperator<CLASS & (GMetaSelf, int)>(mopHolder -= mopHolder);
-	reflectOperator<CLASS & (GMetaSelf, int)>(mopHolder *= mopHolder);
-	reflectOperator<CLASS & (GMetaSelf, int)>(mopHolder /= mopHolder);
-	reflectOperator<CLASS & (GMetaSelf, int)>(mopHolder %= mopHolder);
+		._operator<CLASS & (GMetaSelf, const CLASS &)>(mopHolder = mopHolder)
+		._operator<CLASS (const GMetaSelf &, int)>(mopHolder + mopHolder)
+		._operator<CLASS (int, const CLASS &)>(mopHolder + mopHolder)
+		._operator<CLASS (const GMetaSelf &, int)>(mopHolder - mopHolder)
+		._operator<CLASS (const GMetaSelf &, int)>(mopHolder * mopHolder)
+		._operator<CLASS (const GMetaSelf &, int)>(mopHolder / mopHolder)
+		._operator<CLASS (const GMetaSelf &, int)>(mopHolder % mopHolder)
+		._operator<CLASS (GMetaSelf, int)>(mopHolder % mopHolder)
 
-	// bitwise
+		// arithmetic assign
 
-	reflectOperator<CLASS (const GMetaSelf &, int)>(mopHolder & mopHolder);
-	reflectOperator<CLASS (const GMetaSelf &, int)>(mopHolder | mopHolder);
-	reflectOperator<CLASS (const GMetaSelf &, int)>(mopHolder ^ mopHolder);
-	reflectOperator<CLASS (const GMetaSelf &, int)>(mopHolder >> mopHolder);
-	reflectOperator<CLASS (const GMetaSelf &, int)>(mopHolder << mopHolder);
+		._operator<CLASS & (GMetaSelf, int)>(mopHolder += mopHolder)
+		._operator<CLASS & (GMetaSelf, int)>(mopHolder -= mopHolder)
+		._operator<CLASS & (GMetaSelf, int)>(mopHolder *= mopHolder)
+		._operator<CLASS & (GMetaSelf, int)>(mopHolder /= mopHolder)
+		._operator<CLASS & (GMetaSelf, int)>(mopHolder %= mopHolder)
 
-	// bitwise assign
+		// bitwise
 
-	reflectOperator<CLASS & (GMetaSelf, int)>(mopHolder &= mopHolder);
-	reflectOperator<CLASS & (GMetaSelf, int)>(mopHolder |= mopHolder);
-	reflectOperator<CLASS & (GMetaSelf, int)>(mopHolder ^= mopHolder);
-	reflectOperator<CLASS & (GMetaSelf, int)>(mopHolder >>= mopHolder);
-	reflectOperator<CLASS & (GMetaSelf, int)>(mopHolder <<= mopHolder);
+		._operator<CLASS (const GMetaSelf &, int)>(mopHolder & mopHolder)
+		._operator<CLASS (const GMetaSelf &, int)>(mopHolder | mopHolder)
+		._operator<CLASS (const GMetaSelf &, int)>(mopHolder ^ mopHolder)
+		._operator<CLASS (const GMetaSelf &, int)>(mopHolder >> mopHolder)
+		._operator<CLASS (const GMetaSelf &, int)>(mopHolder << mopHolder)
 
-	// logic
+		// bitwise assign
 
-	reflectOperator<bool (const GMetaSelf &, const CLASS &)>(mopHolder == mopHolder);
-	reflectOperator<bool (const GMetaSelf &, const CLASS &)>(mopHolder != mopHolder);
-	reflectOperator<bool (const GMetaSelf &, const CLASS &)>(mopHolder > mopHolder);
-	reflectOperator<bool (const GMetaSelf &, const CLASS &)>(mopHolder >= mopHolder);
-	reflectOperator<bool (const GMetaSelf &, const CLASS &)>(mopHolder < mopHolder);
-	reflectOperator<bool (const GMetaSelf &, const CLASS &)>(mopHolder <= mopHolder);
-	reflectOperator<bool (const GMetaSelf &, const CLASS &)>(mopHolder && mopHolder);
-	reflectOperator<bool (const GMetaSelf &, const CLASS &)>(mopHolder || mopHolder);
+		._operator<CLASS & (GMetaSelf, int)>(mopHolder &= mopHolder)
+		._operator<CLASS & (GMetaSelf, int)>(mopHolder |= mopHolder)
+		._operator<CLASS & (GMetaSelf, int)>(mopHolder ^= mopHolder)
+		._operator<CLASS & (GMetaSelf, int)>(mopHolder >>= mopHolder)
+		._operator<CLASS & (GMetaSelf, int)>(mopHolder <<= mopHolder)
 
-	// unary
+		// logic
 
-	reflectOperator<CLASS (const GMetaSelf &)> (+ mopHolder);
-	reflectOperator<CLASS (const GMetaSelf &)> (- mopHolder);
-	reflectOperator<CLASS (GMetaSelf)> (++mopHolder);
-	reflectOperator<CLASS (GMetaSelf)> (mopHolder++);
-	reflectOperator<CLASS (GMetaSelf)> (--mopHolder);
-	reflectOperator<CLASS (GMetaSelf)> (mopHolder--);
-	reflectOperator<CLASS (const GMetaSelf &)> (! mopHolder);
-	reflectOperator<CLASS (const GMetaSelf &)> (~ mopHolder);
+		._operator<bool (const GMetaSelf &, const CLASS &)>(mopHolder == mopHolder)
+		._operator<bool (const GMetaSelf &, const CLASS &)>(mopHolder != mopHolder)
+		._operator<bool (const GMetaSelf &, const CLASS &)>(mopHolder > mopHolder)
+		._operator<bool (const GMetaSelf &, const CLASS &)>(mopHolder >= mopHolder)
+		._operator<bool (const GMetaSelf &, const CLASS &)>(mopHolder < mopHolder)
+		._operator<bool (const GMetaSelf &, const CLASS &)>(mopHolder <= mopHolder)
+		._operator<bool (const GMetaSelf &, const CLASS &)>(mopHolder && mopHolder)
+		._operator<bool (const GMetaSelf &, const CLASS &)>(mopHolder || mopHolder)
 
+		// unary
+
+		._operator<CLASS (const GMetaSelf &)> (+ mopHolder)
+		._operator<CLASS (const GMetaSelf &)> (- mopHolder)
+		._operator<CLASS (GMetaSelf)> (++mopHolder)
+		._operator<CLASS (GMetaSelf)> (mopHolder++)
+		._operator<CLASS (GMetaSelf)> (--mopHolder)
+		._operator<CLASS (GMetaSelf)> (mopHolder--)
+		._operator<CLASS (const GMetaSelf &)> (! mopHolder)
+		._operator<CLASS (const GMetaSelf &)> (~ mopHolder)
+	;
 }
 
 
@@ -374,19 +380,27 @@ public:
 };
 
 
-GMETA_DEFINE_CLASS(CLASS2, CLASS2, NAME_CLASS2) {
-	// other
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
 
-	reflectOperator<int * (const GMetaSelf &)> (& mopHolder);
-	reflectOperator<int (const GMetaSelf &)> (* mopHolder);
-	reflectOperator<CLASS2 & (GMetaSelf, int)>((mopHolder , mopHolder));
-	reflectOperator<std::string (GMetaSelf, int)>(mopHolder[0]);
-	reflectOperator<int * (GMetaSelf)>(mopHolder->mopHolder);
-	reflectOperator<int (GMetaSelf, int CLASS2::*)>(mopHolder->*mopHolder);
-	reflectOperator<std::string (GMetaSelf)>(mopHolder());
-	reflectOperator<int (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference());
-	reflectOperator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder));
+	GDefineMetaClass<CLASS2>
+		::define(NAME_CLASS2)
+
+		// other
+
+		._operator<int * (const GMetaSelf &)> (& mopHolder)
+		._operator<int (const GMetaSelf &)> (* mopHolder)
+		._operator<CLASS2 & (GMetaSelf, int)>((mopHolder , mopHolder))
+		._operator<std::string (GMetaSelf, int)>(mopHolder[0])
+		._operator<int * (GMetaSelf)>(mopHolder->mopHolder)
+		._operator<int (GMetaSelf, int CLASS2::*)>(mopHolder->*mopHolder)
+		._operator<std::string (GMetaSelf)>(mopHolder())
+		._operator<int (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference())
+		._operator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder))
+	;
 }
+
 
 GTEST(Lib_Exists)
 {

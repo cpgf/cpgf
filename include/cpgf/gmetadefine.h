@@ -208,21 +208,19 @@ public:
 		);
 	}
 
-	template <typename FT>
-	GDefineMetaProperty<DerivedType> _property(const char * name, FT prop) {
+	template <typename Getter, typename Setter>
+	GDefineMetaProperty<DerivedType> _property(const char * name, const Getter & getter, const Setter & setter) {
 		return GDefineMetaProperty<DerivedType>(
 			this->metaClass,
-			this->metaClass->addProperty(new GMetaProperty(name, prop, GMetaPolicyDefault()))
+			this->metaClass->addProperty(new GMetaProperty(name, getter, setter, GMetaPolicyDefault()))
 		);
-		
-		return static_cast<DerivedType &>(*this);
 	}
 
-	template <typename FT, typename Policy>
-	GDefineMetaProperty<DerivedType> _property(const char * name, FT prop, const Policy & policy) {
+	template <typename Getter, typename Setter, typename Policy>
+	GDefineMetaProperty<DerivedType> _property(const char * name, const Getter & getter, const Setter & setter, const Policy & policy) {
 		return GDefineMetaProperty<DerivedType>(
 			this->metaClass,
-			this->metaClass->addProperty(new GMetaProperty(name, prop, policy))
+			this->metaClass->addProperty(new GMetaProperty(name, getter, setter, policy))
 		);
 	}
 
@@ -267,10 +265,6 @@ public:
 		);
 	}
 
-	DerivedType end() {
-		return DerivedType(this->metaClass);
-	}
-
 protected:
 	GMetaClass * metaClass;
 	GMetaItem * currentItem;
@@ -287,13 +281,13 @@ private:
 public:
 	static ThisType define(const char * className) {
 		ThisType c((GMetaClass *)NULL);
-		c.init(className, NULL, true);
+		c.init(className, NULL, true, GMetaPolicyDefault());
 		return c;
 	}
 
 	static ThisType inner(const char * className) {
 		ThisType c((GMetaClass *)NULL);
-		c.init(className, NULL, false);
+		c.init(className, NULL, false, GMetaPolicyDefault());
 		return c;
 	}
 
@@ -302,7 +296,7 @@ public:
 
 		ThisType c((GMetaClass *)NULL);
 		meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
-		c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, true);
+		c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, true, GMetaPolicyDefault());
 		return c;
 	}
 
@@ -311,16 +305,50 @@ public:
 
 		ThisType c((GMetaClass *)NULL);
 		meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
-		c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false);
+		c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, GMetaPolicyDefault());
 		return c;
 	}
+
+	template <typename P>
+	struct Policy {
+		static ThisType define(const char * className) {
+			ThisType c((GMetaClass *)NULL);
+			c.init(className, NULL, true, P());
+			return c;
+		}
+
+		static ThisType inner(const char * className) {
+			ThisType c((GMetaClass *)NULL);
+			c.init(className, NULL, false, P());
+			return c;
+		}
+
+		static ThisType lazy(const char * className, void (*reg)(ThisType define)) {
+			GASSERT(reg != NULL);
+
+			ThisType c((GMetaClass *)NULL);
+			meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
+			c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, true, P());
+			return c;
+		}
+
+		static ThisType lazyInner(const char * className, void (*reg)(ThisType define)) {
+			GASSERT(reg != NULL);
+
+			ThisType c((GMetaClass *)NULL);
+			meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
+			c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, P());
+			return c;
+		}
+	};
+	
 
 protected:
 	explicit GDefineMetaClass(GMetaClass * metaClass) : super(metaClass) {
 	}
 
 	explicit GDefineMetaClass(const char * className) : super(NULL) {
-		this->init(className, true);
+		this->init(className, true, GMetaPolicyDefault());
 	}
 
 public:
@@ -355,7 +383,9 @@ private:
 	}
 
 	typedef typename cpgf::TypeList_Make<GPP_REPEAT_PARAMS(MAX_BASE_COUNT, BaseType)>::Result BaseListType;
-	void init(const char * className, void (*reg)(GMetaClass *), bool addToGlobal) {
+	
+	template <typename Policy>
+	void init(const char * className, void (*reg)(GMetaClass *), bool addToGlobal, const Policy & policy) {
 		GMetaClass * classToAdd = NULL;
 
 		if(addToGlobal) {
@@ -364,7 +394,7 @@ private:
 		if(classToAdd == NULL) {
 			classToAdd = new GMetaClass(
 				(ClassType *)0, meta_internal::doMakeSuperList<BaseListType, ClassType>(),
-				className, &destroyMetaObject, reg, GMetaPolicyDefault()
+				className, &destroyMetaObject, reg, policy
 			);
 
 			if(addToGlobal) {

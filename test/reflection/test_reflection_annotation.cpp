@@ -6,9 +6,6 @@
 
 #include "test_reflection_common.h"
 
-#include "cpgf/gmetadefine.h"
-#include "cpgf/goutmain.h"
-
 
 #define CLASS TestClass_Annotation
 #define NAME_CLASS GPP_STRINGIZE(CLASS)
@@ -123,6 +120,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 
 	GDefineMetaClass<CLASS>::lazy(NAME_CLASS, &lazyDefineClass);
 }
+
 }
 
 

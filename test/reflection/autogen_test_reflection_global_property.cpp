@@ -42,14 +42,22 @@ namespace Test_GlobalProperty { namespace {
 	}
 
 
-GMETA_DEFINE_GLOBAL() {
-	GMETA_QUALIFIED_PROPERTY(propInt, getPropInt, propInt);
-	reflectProperty("propString", &propString, &setPropString, GMetaPolicyCopyAllConstReference());
-	GMETA_QUALIFIED_PROPERTY(propData, getPropData, setPropData);
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaGlobal()
+		
 	
-	reflectProperty("propReadonlyInt", &propReadonlyInt, &propReadonlyInt, GMetaPolicyReadOnly());
-	reflectProperty("propWriteonlyString", &propWriteonlyString, &propWriteonlyString, GMetaPolicyWriteOnly());
-	reflectProperty("propNoncopyableData", &propNoncopyableData, &propNoncopyableData, GMetaPolicyNoncopyable());
+		._property("propInt", &getPropInt, &propInt)
+		._property("propString", &propString, &setPropString, GMetaPolicyCopyAllConstReference())
+		._property("propData", &getPropData, &setPropData)
+	
+		._property("propReadonlyInt", &propReadonlyInt, &propReadonlyInt, GMetaPolicyReadOnly())
+		._property("propWriteonlyString", &propWriteonlyString, &propWriteonlyString, GMetaPolicyWriteOnly())
+		._property("propNoncopyableData", &propNoncopyableData, &propNoncopyableData, GMetaPolicyNoncopyable())
+	;
 }
 
 

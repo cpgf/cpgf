@@ -28,11 +28,18 @@ public:
 };
 
 
-GMETA_DEFINE_CLASS(ClassBase, ClassBase, NAME(ClassBase)) {
-}
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
 
-GMETA_DEFINE_CLASS(ClassAbstract, ClassAbstract, NAME(ClassAbstract)) {
-	GMETA_METHOD(myAbstract);
+	GDefineMetaClass<ClassBase>
+		::define(NAME(ClassBase))
+	;
+	
+	GDefineMetaClass<ClassAbstract>
+		::define(NAME(ClassAbstract))
+		._method("myAbstract", &ClassAbstract::myAbstract)
+	;
 }
 
 
@@ -129,7 +136,14 @@ public:
 	string s;
 };
 
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME(CLASS)) {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME(CLASS))
+	;
 }
 
 
@@ -233,13 +247,21 @@ public:
 };
 
 
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME(CLASS)) {
-	reflectConstructor<void * ()>();
-	reflectConstructor<void * (int)>();
-	reflectConstructor<void * (string)>();
-	reflectConstructor<void * (int, string)>();
-	reflectConstructor<void * (int, int, int)>();
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME(CLASS))
+
+		._constructor<void * ()>()
+		._constructor<void * (int)>()
+		._constructor<void * (string)>()
+		._constructor<void * (int, string)>()
+		._constructor<void * (int, int, int)>()
+	;
 }
+
 
 GTEST(Lib_GetConstructor)
 {
@@ -287,11 +309,19 @@ public:
 };
 
 
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME(CLASS)) {
-	GMETA_FIELD(f0);
-	GMETA_FIELD(f1);
-	GMETA_FIELD(f2);
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME(CLASS))
+
+		._field("f0", &CLASS::f0)
+		._field("f1", &CLASS::f1)
+		._field("f2", &CLASS::f2)
+	;
 }
+
 
 GTEST(Lib_GetField)
 {
@@ -339,12 +369,20 @@ public:
 };
 
 
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME(CLASS)) {
-	GMETA_PROPERTY(p0, p0, p0);
-	GMETA_PROPERTY(p1, p1, p1);
-	GMETA_PROPERTY(p2, p2, p2);
-	GMETA_PROPERTY(p3, p3, p3);
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME(CLASS))
+
+		._property("p0", &CLASS::p0, &CLASS::p0)
+		._property("p1", &CLASS::p1, &CLASS::p1)
+		._property("p2", &CLASS::p2, &CLASS::p2)
+		._property("p3", &CLASS::p3, &CLASS::p3)
+	;
 }
+
 
 GTEST(Lib_GetProperty)
 {
@@ -393,11 +431,19 @@ public:
 };
 
 
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME(CLASS)) {
-	GMETA_METHOD(m0);
-	GMETA_METHOD(m1);
-	GMETA_METHOD(m2);
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME(CLASS))
+
+		._method("m0", &CLASS::m0)
+		._method("m1", &CLASS::m1)
+		._method("m2", &CLASS::m2)
+	;
 }
+
 
 GTEST(Lib_GetMethod)
 {
@@ -444,11 +490,19 @@ public:
 };
 
 
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME(CLASS)) {
-	reflectOperator<void (GMetaSelf, int)>(mopHolder + mopHolder);
-	reflectOperator<void (GMetaSelf, int)>(mopHolder - mopHolder);
-	reflectOperator<void (GMetaSelf, int)>(mopHolder * mopHolder);
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME(CLASS))
+
+		._operator<void (GMetaSelf, int)>(mopHolder + mopHolder)
+		._operator<void (GMetaSelf, int)>(mopHolder - mopHolder)
+		._operator<void (GMetaSelf, int)>(mopHolder * mopHolder)
+	;
 }
+
 
 GTEST(Lib_GetOperator)
 {
@@ -495,11 +549,19 @@ public:
 };
 
 
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME(CLASS)) {
-	reflectEnum<CLASS::E0>("E0");
-	reflectEnum<CLASS::E1>("E1");
-	reflectEnum<CLASS::E2>("E2");
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME(CLASS))
+
+		._enum<CLASS::E0>("E0")
+		._enum<CLASS::E1>("E1")
+		._enum<CLASS::E2>("E2")
+	;
 }
+
 
 GTEST(Lib_GetEnum)
 {
@@ -546,20 +608,30 @@ public:
 };
 
 
-GMETA_DEFINE_CLASS(CLASS::C0, NestClass_C0, NAME(CLASS::C0)) {
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME(CLASS))
+
+		._class(
+			GDefineMetaClass<CLASS::C0>
+				::inner(NAME(CLASS::C0))
+		)
+
+		._class(
+			GDefineMetaClass<CLASS::C1>
+				::inner(NAME(CLASS::C1))
+		)
+
+		._class(
+			GDefineMetaClass<CLASS::C2>
+				::inner(NAME(CLASS::C2))
+		)
+	;
 }
 
-GMETA_DEFINE_CLASS(CLASS::C1, NestClass_C1, NAME(CLASS::C1)) {
-}
-
-GMETA_DEFINE_CLASS(CLASS::C2, NestClass_C2, NAME(CLASS::C2)) {
-}
-
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME(CLASS)) {
-	GMETA_CLASS(C0);
-	GMETA_CLASS(C1);
-	GMETA_CLASS(C2);
-}
 
 GTEST(Lib_GetClass)
 {

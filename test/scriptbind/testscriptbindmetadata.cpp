@@ -1,4 +1,3 @@
-#include "cpgf/gmetareflect.h"
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gexception.h"
 
@@ -179,64 +178,70 @@ G_AUTO_RUN_BEFORE_MAIN()
 }
 
 
-GMETA_DEFINE_CLASS(TestObject, TestObject, REG_NAME_TestObject) {
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 	using namespace std;
 
-	reflectConstructor<void * (const TestObject &)>();
-	reflectConstructor<void * (int)>();
-	reflectConstructor<void * (int, const string &)>(GMetaPolicyCopyAllConstReference());
-	
-	GMETA_FIELD(value);
-	
-	GMETA_METHOD(self);
-	GMETA_METHOD(selfConst);
-	GMETA_METHOD(selfVolatile);
-	GMETA_METHOD(selfConstVolatile);
-	
-	reflectMethod("methodConst", (int (TestObject::*)())&TestObject::methodConst);
-	reflectMethod("methodConst", (int (TestObject::*)() const)&TestObject::methodConst);
-	
-	reflectMethod("methodVolatile", (int (TestObject::*)())&TestObject::methodVolatile);
-	reflectMethod("methodVolatile", (int (TestObject::*)() volatile)&TestObject::methodVolatile);
-	
-	reflectMethod("methodConstVolatile", (int (TestObject::*)())&TestObject::methodConstVolatile);
-	reflectMethod("methodConstVolatile", (int (TestObject::*)() const volatile)&TestObject::methodConstVolatile);
+	GDefineMetaClass<TestObject>
+		::define(REG_NAME_TestObject)
 
-	reflectMethod("methodOverload", (int (TestObject::*)(const TestObject &, int) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference());
-	reflectMethod("methodOverload", (int (TestObject::*)(int, const TestObject &) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference());
-	reflectMethod("methodOverload", (int (TestObject::*)(int, int) const)&TestObject::methodOverload);
-	reflectMethod("methodOverload", (int (TestObject::*)(const char *, int) const)&TestObject::methodOverload);
-	reflectMethod("methodOverload", (int (TestObject::*)(int, const char *) const)&TestObject::methodOverload);
-	reflectMethod("methodOverload", (int (TestObject::*)(const string &, int) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference());
-	reflectMethod("methodOverload", (int (TestObject::*)(int, const string &) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference());
-
-	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestBase *) const)&TestObject::methodOverloadObject);
-	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestA *) const)&TestObject::methodOverloadObject);
-	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestB *) const)&TestObject::methodOverloadObject);
-	reflectMethod("methodOverloadObject", (int (TestObject::*)(const TestC *) const)&TestObject::methodOverloadObject);
-
-	reflectMethod("add", &TestObject::add);
+		._constructor<void * (const TestObject &)>()
+		._constructor<void * (int)>()
+		._constructor<void * (int, const string &)>(GMetaPolicyCopyAllConstReference())
 	
-	reflectField("staticValue", &TestObject::staticValue);
-	reflectMethod("incStaticValue", &TestObject::incStaticValue);
-
-	GMETA_FIELD(data);
+		._field("value", &TestObject::value)
 	
-	GMETA_FIELD(raw);
-	GMETA_FIELD(rawPointer);
-
-	GMETA_METHOD(pointerRaw);
-	GMETA_METHOD(refRaw);
-	GMETA_METHOD(isRawPointer);
-	GMETA_METHOD(isRawRef);
-	GMETA_METHOD(setRaw);
+		._method("self", &TestObject::self)
+		._method("selfConst", &TestObject::selfConst)
+		._method("selfVolatile", &TestObject::selfVolatile)
+		._method("selfConstVolatile", &TestObject::selfConstVolatile)
 	
-	GMETA_METHOD(refData);
-	GMETA_METHOD(pointerData);
-	GMETA_METHOD(constRefData);
-	GMETA_METHOD(constPointerData);
+		._method("methodConst", (int (TestObject::*)())&TestObject::methodConst)
+		._method("methodConst", (int (TestObject::*)() const)&TestObject::methodConst)
+	
+		._method("methodVolatile", (int (TestObject::*)())&TestObject::methodVolatile)
+		._method("methodVolatile", (int (TestObject::*)() volatile)&TestObject::methodVolatile)
+	
+		._method("methodConstVolatile", (int (TestObject::*)())&TestObject::methodConstVolatile)
+		._method("methodConstVolatile", (int (TestObject::*)() const volatile)&TestObject::methodConstVolatile)
+
+		._method("methodOverload", (int (TestObject::*)(const TestObject &, int) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference())
+		._method("methodOverload", (int (TestObject::*)(int, const TestObject &) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference())
+		._method("methodOverload", (int (TestObject::*)(int, int) const)&TestObject::methodOverload)
+		._method("methodOverload", (int (TestObject::*)(const char *, int) const)&TestObject::methodOverload)
+		._method("methodOverload", (int (TestObject::*)(int, const char *) const)&TestObject::methodOverload)
+		._method("methodOverload", (int (TestObject::*)(const string &, int) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference())
+		._method("methodOverload", (int (TestObject::*)(int, const string &) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference())
+
+		._method("methodOverloadObject", (int (TestObject::*)(const TestBase *) const)&TestObject::methodOverloadObject)
+		._method("methodOverloadObject", (int (TestObject::*)(const TestA *) const)&TestObject::methodOverloadObject)
+		._method("methodOverloadObject", (int (TestObject::*)(const TestB *) const)&TestObject::methodOverloadObject)
+		._method("methodOverloadObject", (int (TestObject::*)(const TestC *) const)&TestObject::methodOverloadObject)
+
+		._method("add", &TestObject::add)
+	
+		._field("staticValue", &TestObject::staticValue)
+		._method("incStaticValue", &TestObject::incStaticValue)
+
+		._field("data", &TestObject::data)
+	
+		._field("raw", &TestObject::raw)
+		._field("rawPointer", &TestObject::rawPointer)
+
+		._method("pointerRaw", &TestObject::pointerRaw)
+		._method("refRaw", &TestObject::refRaw)
+		._method("isRawPointer", &TestObject::isRawPointer)
+		._method("isRawRef", &TestObject::isRawRef)
+		._method("setRaw", &TestObject::setRaw)
+	
+		._method("refData", &TestObject::refData)
+		._method("pointerData", &TestObject::pointerData)
+		._method("constRefData", &TestObject::constRefData)
+		._method("constPointerData", &TestObject::constPointerData)
+	;
 }
+
 
 G_AUTO_RUN_BEFORE_MAIN()
 {

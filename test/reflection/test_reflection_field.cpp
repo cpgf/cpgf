@@ -20,14 +20,21 @@ public:
 	CLASS_DATA fieldNoncopyableData;
 }; // class CLASS
 
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME_CLASS) {
-	GMETA_FIELD(fieldInt);
-	GMETA_FIELD(fieldString);
-	GMETA_FIELD(fieldData);
-	
-	reflectField("fieldReadonlyInt", &CLASS::fieldReadonlyInt, GMetaPolicyReadOnly());
-	reflectField("fieldWriteonlyString", &CLASS::fieldWriteonlyString, GMetaPolicyWriteOnly());
-	reflectField("fieldNoncopyableData", &CLASS::fieldNoncopyableData, GMetaPolicyNoncopyable());
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME_CLASS)
+
+		._field("fieldInt", &CLASS::fieldInt)
+		._field("fieldString", &CLASS::fieldString)
+		._field("fieldData", &CLASS::fieldData)
+		._field("fieldReadonlyInt", &CLASS::fieldReadonlyInt, GMetaPolicyReadOnly())
+		._field("fieldWriteonlyString", &CLASS::fieldWriteonlyString, GMetaPolicyWriteOnly())
+		._field("fieldNoncopyableData", &CLASS::fieldNoncopyableData, GMetaPolicyNoncopyable())
+	;
 }
 
 

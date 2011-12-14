@@ -3,6 +3,9 @@
 
 #include "cpgf/gtestutil.h"
 
+#include "cpgf/gmetadefine.h"
+#include "cpgf/goutmain.h"
+
 #include "cpgf/gmetareflect.h"
 #include "cpgf/gmetaapiutil.h"
 

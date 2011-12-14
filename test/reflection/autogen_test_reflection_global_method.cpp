@@ -87,18 +87,25 @@ namespace Test_GlobalMethod { namespace {
 
 
 
-GMETA_DEFINE_GLOBAL() {
-	GMETA_QUALIFIED_METHOD(methodGetInt);
-	GMETA_QUALIFIED_METHOD(methodAddInt);
-	GMETA_QUALIFIED_METHOD(methodRefString);
-	reflectMethod("methodConcatString", &methodConcatString, GMetaPolicyCopyAllConstReference());
-	GMETA_QUALIFIED_METHOD(methodAddData);
-	GMETA_QUALIFIED_METHOD(methodMakeData);
-	GMETA_QUALIFIED_METHOD(methodMakeDataByPointer);
-	GMETA_QUALIFIED_METHOD(methodManyParams);
-	GMETA_QUALIFIED_METHOD(methodSum);
-	
-	reflectMethod("methodGetNCData", &methodGetNCData, GMetaPolicyAllParamNoncopyable());
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaGlobal()
+		
+
+		._method("methodGetInt", &methodGetInt)
+		._method("methodAddInt", &methodAddInt)
+		._method("methodRefString", &methodRefString)
+		._method("methodConcatString", &methodConcatString, GMetaPolicyCopyAllConstReference())
+		._method("methodAddData", &methodAddData)
+		._method("methodMakeData", &methodMakeData)
+		._method("methodMakeDataByPointer", &methodMakeDataByPointer)
+		._method("methodManyParams", &methodManyParams)
+		._method("methodSum", &methodSum)
+		._method("methodGetNCData", &methodGetNCData, GMetaPolicyAllParamNoncopyable())
+	;
 }
 
 

@@ -23,14 +23,21 @@ namespace Test_GlobalField { namespace {
 	CLASS_DATA fieldNoncopyableData;
 
 
-GMETA_DEFINE_GLOBAL() {
-	GMETA_QUALIFIED_FIELD(fieldInt);
-	GMETA_QUALIFIED_FIELD(fieldString);
-	GMETA_QUALIFIED_FIELD(fieldData);
-	
-	reflectField("fieldReadonlyInt", &fieldReadonlyInt, GMetaPolicyReadOnly());
-	reflectField("fieldWriteonlyString", &fieldWriteonlyString, GMetaPolicyWriteOnly());
-	reflectField("fieldNoncopyableData", &fieldNoncopyableData, GMetaPolicyNoncopyable());
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaGlobal()
+		
+
+		._field("fieldInt", &fieldInt)
+		._field("fieldString", &fieldString)
+		._field("fieldData", &fieldData)
+		._field("fieldReadonlyInt", &fieldReadonlyInt, GMetaPolicyReadOnly())
+		._field("fieldWriteonlyString", &fieldWriteonlyString, GMetaPolicyWriteOnly())
+		._field("fieldNoncopyableData", &fieldNoncopyableData, GMetaPolicyNoncopyable())
+	;
 }
 
 

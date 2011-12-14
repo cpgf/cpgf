@@ -48,20 +48,31 @@ class XE : public XC, public XD
 };
 
 
-GMETA_DEFINE_CLASS(XA, XA, MM(XA)) {
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<XA>
+		::define(MM(XA))
+	;
+
+	GDefineMetaClass<XB>
+		::define(MM(XB))
+	;
+
+	GDefineMetaClass<XC, XA, XB>
+		::define(MM(XC))
+	;
+
+	GDefineMetaClass<XD, XA>
+		::define(MM(XD))
+	;
+
+	GDefineMetaClass<XE, XC, XD>
+		::define(MM(XE))
+	;
 }
 
-GMETA_DEFINE_CLASS(XB, XB, MM(XB)) {
-}
-
-GMETA_DEFINE_CLASS(XC, XC, MM(XC), XA, XB) {
-}
-
-GMETA_DEFINE_CLASS(XD, XD, MM(XD), XA) {
-}
-
-GMETA_DEFINE_CLASS(XE, XE, MM(XE), XC, XD) {
-}
 
 GTEST(API_TestTraveller)
 {

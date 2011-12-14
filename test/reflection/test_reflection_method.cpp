@@ -84,18 +84,25 @@ public:
 
 }; // class CLASS
 
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME_CLASS) {
-	GMETA_METHOD(methodGetInt);
-	GMETA_METHOD(methodAddInt);
-	GMETA_METHOD(methodRefString);
-	reflectMethod("methodConcatString", &CLASS::methodConcatString, GMetaPolicyCopyAllConstReference());
-	GMETA_METHOD(methodAddData);
-	GMETA_METHOD(methodMakeData);
-	GMETA_METHOD(methodMakeDataByPointer);
-	GMETA_METHOD(methodManyParams);
-	GMETA_METHOD(methodSum);
-	
-	reflectMethod("methodGetNCData", &CLASS::methodGetNCData, GMetaPolicyAllParamNoncopyable());
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME_CLASS)
+
+		._method("methodGetInt", &CLASS::methodGetInt)
+		._method("methodAddInt", &CLASS::methodAddInt)
+		._method("methodRefString", &CLASS::methodRefString)
+		._method("methodConcatString", &CLASS::methodConcatString, GMetaPolicyCopyAllConstReference())
+		._method("methodAddData", &CLASS::methodAddData)
+		._method("methodMakeData", &CLASS::methodMakeData)
+		._method("methodMakeDataByPointer", &CLASS::methodMakeDataByPointer)
+		._method("methodManyParams", &CLASS::methodManyParams)
+		._method("methodSum", &CLASS::methodSum)
+		._method("methodGetNCData", &CLASS::methodGetNCData, GMetaPolicyAllParamNoncopyable())
+	;
 }
 
 

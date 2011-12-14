@@ -10,11 +10,18 @@ public:
 	virtual void abstractFunction() = 0;
 };
 
-GMETA_DEFINE_CLASS(TestAbstract, TestAbstract, "class::TestAbstract") {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_METHOD(abstractFunction);
+	GDefineMetaClass<TestAbstract>
+		::define("class::TestAbstract")
+
+		._method("abstractFunction", &TestAbstract::abstractFunction)
+	;
 }
+
 
 class TestNoDefaultConstructor
 {

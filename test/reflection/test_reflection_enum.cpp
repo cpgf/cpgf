@@ -23,15 +23,26 @@ public:
 
 }; // class CLASS
 
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME_CLASS) {
-	GMETA_ENUM(EnumFirst, CLASS::ws1, CLASS::ws2, CLASS::ws3, CLASS::ws4);
 
-	reflectEnum<CLASS::EnumSecond>("EnumSecond")
-		("bs1", CLASS::bs1)
-		("bs2", CLASS::bs2)
-		("bs3", CLASS::bs3)
-		("bs4", CLASS::bs4)
-		("bs5", CLASS::bs5)
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME_CLASS)
+
+		._enum<CLASS::EnumFirst>("EnumFirst")
+			._value("ws1", CLASS::ws1)
+			._value("ws2", CLASS::ws2)
+			._value("ws3", CLASS::ws3)
+			._value("ws4", CLASS::ws4)
+
+		._enum<CLASS::EnumSecond>("EnumSecond")
+			._value("bs1", CLASS::bs1)
+			._value("bs2", CLASS::bs2)
+			._value("bs3", CLASS::bs3)
+			._value("bs4", CLASS::bs4)
+			._value("bs5", CLASS::bs5)
 	;
 }
 

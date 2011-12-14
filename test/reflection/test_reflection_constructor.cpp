@@ -57,15 +57,23 @@ public:
 
 };
 
-GMETA_DEFINE_CLASS(CLASS, CLASS, NAME_CLASS) {
-	reflectConstructor<void * ()>();
-	reflectConstructor<void * (const CLASS &)>();
-	reflectConstructor<void * (int)>();
-	reflectConstructor<void * (const string &)>(GMetaPolicyCopyAllConstReference());
-	reflectConstructor<void * (int, const string &)>(GMetaPolicyCopyAllConstReference());
-	reflectConstructor<void * (const CLASS_DATA &)>();
-	reflectConstructor<void * (const CLASS_DATA *)>();
-	reflectConstructor<void * (const GMetaVariadicParam *)>();
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME_CLASS)
+
+		._constructor<void * ()>()
+		._constructor<void * (const CLASS &)>()
+		._constructor<void * (int)>()
+		._constructor<void * (const string &)>(GMetaPolicyCopyAllConstReference())
+		._constructor<void * (int, const string &)>(GMetaPolicyCopyAllConstReference())
+		._constructor<void * (const CLASS_DATA &)>()
+		._constructor<void * (const CLASS_DATA *)>()
+		._constructor<void * (const GMetaVariadicParam *)>()
+	;
 }
 
 

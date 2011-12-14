@@ -3,8 +3,6 @@
 
 #include "test_reflection_common.h"
 
-#include "cpgf/gmetadefine.h"
-
 #define CLASS void
 #define NAME_CLASS GPP_STRINGIZE(CLASS)
 
@@ -28,15 +26,26 @@ namespace Test_GlobalEnum { namespace {
 
 
 
-GMETA_DEFINE_GLOBAL() {
-	GMETA_ENUM(EnumFirst, ws1, ws2, ws3, ws4);
 
-	reflectEnum<EnumSecond>("EnumSecond")
-		("bs1", bs1)
-		("bs2", bs2)
-		("bs3", bs3)
-		("bs4", bs4)
-		("bs5", bs5)
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaGlobal()
+		
+
+		._enum<EnumFirst>("EnumFirst")
+			._value("ws1", ws1)
+			._value("ws2", ws2)
+			._value("ws3", ws3)
+			._value("ws4", ws4)
+
+		._enum<EnumSecond>("EnumSecond")
+			._value("bs1", bs1)
+			._value("bs2", bs2)
+			._value("bs3", bs3)
+			._value("bs4", bs4)
+			._value("bs5", bs5)
 	;
 }
 

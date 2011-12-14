@@ -19,15 +19,23 @@ public:
 	int operator * (int) const { return 10; }
 };
 
-GMETA_DEFINE_CLASS(ClassA, ClassA, NAME(ClassA)) {
-	GMETA_FIELD(fieldA);
-	GMETA_FIELD(fieldP);
 
-	GMETA_METHOD(getID);
-	GMETA_METHOD(methodA);
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<ClassA>
+		::define(NAME(ClassA))
+		
+		._field("fieldA", &ClassA::fieldA)
+		._field("fieldP", &ClassA::fieldP)
+
+		._method("getID", &ClassA::getID)
+		._method("methodA", &ClassA::methodA)
 	
-	reflectOperator<int (const GMetaSelf &, int)>(mopHolder + mopHolder);
-	reflectOperator<int (const GMetaSelf &, int)>(mopHolder * mopHolder);
+		._operator<int (const GMetaSelf &, int)>(mopHolder + mopHolder)
+		._operator<int (const GMetaSelf &, int)>(mopHolder * mopHolder)
+	;
 }
 
 
@@ -40,14 +48,23 @@ public:
 };
 int operator + (const ClassB &, int) { return 2; }
 
-GMETA_DEFINE_CLASS(ClassB, ClassB, NAME(ClassB), ClassA) {
-	GMETA_FIELD(fieldB);
-	GMETA_FIELD(fieldP);
 
-	GMETA_METHOD(getID);
+G_AUTO_RUN_BEFORE_MAIN()
+{
+	using namespace cpgf;
+
+	GDefineMetaClass<ClassB, ClassA>
+		::define(NAME(ClassB))
+		
+		._field("fieldB", &ClassB::fieldB)
+		._field("fieldP", &ClassB::fieldP)
+
+		._method("getID", &ClassB::getID)
 	
-	reflectOperator<int (const ClassB &, int)>(mopHolder + mopHolder);
+		._operator<int (const GMetaSelf &, int)>(mopHolder + mopHolder)
+	;
 }
+
 
 GTEST(Lib_ClassHierarchy_ClassA)
 {
