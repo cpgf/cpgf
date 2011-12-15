@@ -44,26 +44,30 @@ private:
 
 	cpgf::GCallback<int (const std::string &)> callback;
 
-	GMETA_FRIEND(TestObject);
 	friend void doTestLib();
 	friend void doTestAPI();
+	friend void fieldDefineClass();
 };
 
 int TestObject::stats = 5;
 
-
-GMETA_DEFINE_CLASS(TestObject, TestObject, "field::TestObject") {
+void fieldDefineClass()
+{
 	using namespace cpgf;
 
-	GMETA_FIELD(width);
-	GMETA_FIELD(name);
-	GMETA_FIELD(data);
-	GMETA_FIELD(callback);
+	GDefineMetaClass<TestObject>
+		::define("field::TestObject")
 
-	GMETA_FIELD(stats);
-
-	reflectField("nocopy", &TestObject::nocopy, GMetaPolicyNoncopyable());
+		._field("width", &TestObject::width)
+		._field("name", &TestObject::name)
+		._field("data", &TestObject::data)
+		._field("callback", &TestObject::callback)
+		._field("stats", &TestObject::stats)
+		._field("nocopy", &TestObject::nocopy, GMetaPolicyNoncopyable())
+	;
 }
+
+G_RUN_BEFORE_MAIN(fieldDefineClass())
 
 void doTestLib()
 {

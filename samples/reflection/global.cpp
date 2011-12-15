@@ -14,17 +14,20 @@ int addNumber(int n, int delta)
 	return n + delta;
 }
 
-GMETA_DEFINE_GLOBAL() {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_QUALIFIED_FIELD(width);
-	GMETA_QUALIFIED_FIELD(name);
-	GMETA_QUALIFIED_FIELD(data);
-
-	GMETA_QUALIFIED_FIELD(stats);
-
-	GMETA_QUALIFIED_METHOD(addNumber);
+	GDefineMetaGlobal()
+		._field("width", &width)
+		._field("name", &name)
+		._field("data", &data)
+		._field("stats", &stats)
+		._method("addNumber", &addNumber)
+	;
 }
+
 
 void doTestLib()
 {

@@ -1,7 +1,9 @@
+#include "cpgf/gmetadefine.h"
+#include "cpgf/goutmain.h"
+
 #include "cpgf/gtestutil.h"
 #include "cpgf/scriptbind/gluabind.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
-#include "cpgf/gmetareflect.h"
 
 #include <iostream>
 #include <string>
@@ -152,43 +154,45 @@ public:
 };
 
 
-GMETA_DEFINE_CLASS(TestObject::InnerClass, TestObjectInnerClass, "InnerClass") {
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_METHOD(get);
-}
+	GDefineMetaClass<TestObject>
+		::define("method::TestObject")
 
-GMETA_DEFINE_CLASS(TestObject, TestObject, "method::TestObject") {
-	using namespace cpgf;
+		._class(
+			GDefineMetaClass<TestObject::InnerClass>
+				::inner("InnerClass")
+				._method("get", &TestObject::InnerClass::get)
+		)
 
-	GMETA_CLASS(InnerClass);
+		._constructor<void *(int)>()
+
+		._enum<TestObject::MyEnum>("MyEnum")
+			._element("a", TestObject::a)
+
+		._method("newTestObject", &TestObject::newTestObject, GMetaPolicyTransferResultOwnership())
+		._method("cloneTestObject", &TestObject::cloneTestObject)
+
+		._method("getWidth", (int (TestObject::*)() const)&TestObject::getWidth)
+		._method("getWidth", (TestObject::MyEnum (TestObject::*)(int) const)&TestObject::getWidth)
+		._method("getWidth", (TestObject::MyEnum (TestObject::*)(int, int) const)&TestObject::getWidth)
+
+		._method("incWidth", &TestObject::incWidth, GMetaPolicyCopyAllConstReference())
+		._method("calcData", &TestObject::calcData, GMetaPolicyCopyAllConstReference())
 	
-	reflectConstructor<void *(int)>();
+		._method("getVoid", &TestObject::getVoid)
+		._method("setVoid", &TestObject::setVoid)
+	
+		._method("sum", &TestObject::sum)
 
-	reflectEnum<TestObject::MyEnum>("MyEnum")
-		("a", TestObject::a)
+		._field("width", &TestObject::width)
+
+		._operator<bool (const GMetaSelf &, const TestObject &)>(mopHolder == mopHolder)
+		._operator<int (const GMetaSelf &, const TestObject &)>(mopHolder + mopHolder)
+		._operator<int (int, int)>(mopHolder(mopHolder))
 	;
-
-	reflectMethod("newTestObject", &TestObject::newTestObject, GMetaPolicyTransferResultOwnership());
-	reflectMethod("cloneTestObject", &TestObject::cloneTestObject);
-
-	reflectMethod("getWidth", (int (TestObject::*)() const)&TestObject::getWidth);
-	reflectMethod("getWidth", (TestObject::MyEnum (TestObject::*)(int) const)&TestObject::getWidth);
-	reflectMethod("getWidth", (TestObject::MyEnum (TestObject::*)(int, int) const)&TestObject::getWidth);
-
-	reflectMethod("incWidth", &TestObject::incWidth, GMetaPolicyCopyAllConstReference());
-	reflectMethod("calcData", &TestObject::calcData, GMetaPolicyCopyAllConstReference());
-	
-	GMETA_METHOD(getVoid);
-	GMETA_METHOD(setVoid);
-	
-	GMETA_METHOD(sum);
-
-	GMETA_FIELD(width);
-
-	reflectOperator<bool (const GMetaSelf &, const TestObject &)>(mopHolder == mopHolder);
-	reflectOperator<int (const GMetaSelf &, const TestObject &)>(mopHolder + mopHolder);
-	reflectOperator<int (int, int)>(mopHolder(mopHolder));
 }
 
 int addNumber(int n, int delta)
@@ -205,13 +209,17 @@ enum GlobalEnum {
 	geA = 5, geB = 6
 };
 
-GMETA_DEFINE_GLOBAL() {
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	reflectMethod("addNumber", (int (*)(int, int))&addNumber);
-	reflectMethod("addNumber", (int (*)(int, int, int))&addNumber);
-
-	GMETA_ENUM(GlobalEnum, geA, geB);
+	GDefineMetaGlobal()
+		._method("addNumber", (int (*)(int, int))&addNumber)
+		._method("addNumber", (int (*)(int, int, int))&addNumber)
+		._enum<GlobalEnum>("GlobalEnum")
+			._element("geA", geA)
+			._element("geB", geB)
+	;
 }
 
 

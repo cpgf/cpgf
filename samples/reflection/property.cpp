@@ -54,14 +54,18 @@ public:
 	TestNoncopyable nocopy;
 };
 
-GMETA_DEFINE_CLASS(TestObject, TestObject, "property::TestObject") {
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_PROPERTY(width, getWidth, setWidth);
-	reflectProperty("name", &TestObject::getName, 0);
-	GMETA_PROPERTY(data, getData, data);
-	
-	reflectProperty("nocopy", &TestObject::nocopy, 0, GMetaPolicyNoncopyable());
+	GDefineMetaClass<TestObject>
+		::define("property::TestObject")
+
+		._property("width", &TestObject::getWidth, &TestObject::setWidth)
+		._property("name", &TestObject::getName, 0)
+		._property("data", &TestObject::getData, &TestObject::data)
+		._property("nocopy", &TestObject::nocopy, 0, GMetaPolicyNoncopyable())
+	;
 }
 
 void doTest()

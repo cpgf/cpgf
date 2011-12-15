@@ -38,7 +38,6 @@ public:
 			intialized(false),
 			destroy(destroy),
 			metaRegister(metaRegister),
-			previousAddedItem(NULL),
 			superList(superList),
 			baseData(new meta_internal::GMetaClassData<ClassT, Policy>()) {
 
@@ -142,8 +141,6 @@ public:
 	GMetaOperator * addOperator(GMetaOperator * metaOperator);
 	GMetaEnum & addEnum(GMetaEnum * en);
 	GMetaClass * addClass(const GMetaClass * cls);
-	GMetaAnnotation & addAnnotation(GMetaAnnotation * annotation);
-	void flushAnnotation();
 
 	template <typename ClassType, typename BaseType>
 	void addBaseClass() {
@@ -164,9 +161,6 @@ private:
 	void ensureRegistered() const;
 	void setupItemLists();
 
-	void itemAdded(GMetaItem * metaItem);
-	void refreshAnnotation(GMetaItem * metaItem);
-
 	const GMetaOperator * doGetOperator(GMetaOpType op, bool findSuper, void ** outInstance) const;
 
 	void intializeImplement();
@@ -175,8 +169,6 @@ private:
 	mutable bool intialized;
 	void (*destroy)(void *);
 	void (*metaRegister)(GMetaClass * metaClass);
-
-	GMetaItem * previousAddedItem;
 
 	GScopedPointer<meta_internal::GMetaSuperList> superList;
 	GScopedPointer<meta_internal::GMetaClassDataBase> baseData;

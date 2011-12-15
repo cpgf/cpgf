@@ -54,22 +54,27 @@ public:
 
 };
 
-GMETA_DEFINE_CLASS(TestObject, TestObject, "operator_unary::TestObject") {
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	reflectOperator<TestObject (const GMetaSelf &)> (+ mopHolder);
-	reflectOperator<TestObject (const GMetaSelf &)> (- mopHolder);
+	GDefineMetaClass<TestObject>
+		::define("operator_unary::TestObject")
 
-	reflectOperator<TestObject (GMetaSelf)> (++mopHolder);
-	reflectOperator<TestObject (GMetaSelf)> (mopHolder++);
-	reflectOperator<TestObject (GMetaSelf)> (--mopHolder);
-	reflectOperator<TestObject (GMetaSelf)> (mopHolder--);
+		._operator<TestObject (const GMetaSelf &)> (+ mopHolder)
+		._operator<TestObject (const GMetaSelf &)> (- mopHolder)
 
-	reflectOperator<TestObject (const GMetaSelf &)> (! mopHolder);
-	reflectOperator<TestObject (const GMetaSelf &)> (~ mopHolder);
+		._operator<TestObject (GMetaSelf)> (++mopHolder)
+		._operator<TestObject (GMetaSelf)> (mopHolder++)
+		._operator<TestObject (GMetaSelf)> (--mopHolder)
+		._operator<TestObject (GMetaSelf)> (mopHolder--)
 
-	reflectOperator<int * (const GMetaSelf &)> (& mopHolder);
-	reflectOperator<int (const GMetaSelf &)> (* mopHolder);
+		._operator<TestObject (const GMetaSelf &)> (! mopHolder)
+		._operator<TestObject (const GMetaSelf &)> (~ mopHolder)
+
+		._operator<int * (const GMetaSelf &)> (& mopHolder)
+		._operator<int (const GMetaSelf &)> (* mopHolder)
+	;
 }
 
 

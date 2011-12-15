@@ -26,12 +26,19 @@ public:
 	int value;
 };
 
-GMETA_DEFINE_CLASS(Window, Window, "inheritance_multiple::Window") {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_METHOD(getName);
-	GMETA_METHOD(getID);
+	GDefineMetaClass<Window>
+		::define("inheritance_multiple::Window")
+	
+		._method("getName", &Window::getName)
+		._method("getID", &Window::getID)
+	;
 }
+
 
 class BorderWindow : public virtual Window, public Border
 {
@@ -57,14 +64,20 @@ public:
 };
 const std::string BorderWindow::Name = "border_window";
 
-GMETA_DEFINE_CLASS(BorderWindow, BorderWindow, "inheritance_multiple::BorderWindow", Window, Border) {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_METHOD(getID);
-	GMETA_METHOD(born);
-
-	GMETA_FIELD(borderWidth);
+	GDefineMetaClass<BorderWindow, Window, Border>
+		::define("inheritance_multiple::BorderWindow")
+	
+		._method("getID", &BorderWindow::getID)
+		._method("born", &BorderWindow::born)
+		._field("borderWidth", &BorderWindow::borderWidth)
+	;
 }
+
 
 class MenuWindow : public virtual Window
 {
@@ -88,11 +101,18 @@ public:
 };
 const std::string MenuWindow::Name = "menu_window";
 
-GMETA_DEFINE_CLASS(MenuWindow, MenuWindow, "inheritance_multiple::MenuWindow", Window) {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_METHOD(getID);
+	GDefineMetaClass<MenuWindow, Window>
+		::define("inheritance_multiple::MenuWindow")
+	
+		._method("getID", &MenuWindow::getID)
+	;
 }
+
 
 class MainWindow : public BorderWindow, public MenuWindow
 {
@@ -116,12 +136,19 @@ public:
 };
 const std::string MainWindow::Name = "main_window";
 
-GMETA_DEFINE_CLASS(MainWindow, MainWindow, "inheritance_multiple::MainWindow", BorderWindow, MenuWindow) {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_METHOD(getName);
-	GMETA_METHOD(getID);
+	GDefineMetaClass<MainWindow, BorderWindow, MenuWindow>
+		::define("inheritance_multiple::MainWindow")
+	
+		._method("getName", &MainWindow::getName)
+		._method("getID", &MainWindow::getID)
+	;
 }
+
 
 void doTest()
 {

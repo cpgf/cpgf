@@ -76,16 +76,23 @@ public:
 	TestData data;
 };
 
-GMETA_DEFINE_CLASS(TestObject, TestObject, "method::TestObject") {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	reflectMethod("getWidth", &TestObject::getWidth);
-	reflectMethod("incWidth", &TestObject::incWidth, GMetaPolicyCopyAllConstReference());
-	reflectMethod("calcData", &TestObject::calcData, GMetaPolicyCopyAllConstReference());
-	GMETA_METHOD(refName);
-	GMETA_METHOD(calcObj);
-	GMETA_METHOD(sum);
+	GDefineMetaClass<TestObject>
+		::define("method::TestObject")
+	
+		._method("getWidth", &TestObject::getWidth)
+		._method("incWidth", &TestObject::incWidth, GMetaPolicyCopyAllConstReference())
+		._method("calcData", &TestObject::calcData, GMetaPolicyCopyAllConstReference())
+		._method("refName", &TestObject::refName)
+		._method("calcObj", &TestObject::calcObj)
+		._method("sum", &TestObject::sum)
+	;
 }
+
 
 void doTestLib()
 {

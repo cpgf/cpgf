@@ -74,15 +74,22 @@ public:
 	TestData data;
 };
 
-GMETA_DEFINE_CLASS(TestObject, TestObject, "constructor::TestObject") {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	reflectConstructor<void * ()>();
-	reflectConstructor<void * (int)>();
-	reflectConstructor<void * (int, const std::string &)>(GMetaPolicyCopyAllConstReference());
-	reflectConstructor<void * (int, const std::string &, const TestData &)>(GMetaPolicyCopyAllConstReference());
-	reflectConstructor<void * (const cpgf::GMetaVariadicParam *)>();
+	GDefineMetaClass<TestObject>
+		::define("constructor::TestObject")
+
+		._constructor<void * ()>()
+		._constructor<void * (int)>()
+		._constructor<void * (int, const std::string &)>(GMetaPolicyCopyAllConstReference())
+		._constructor<void * (int, const std::string &, const TestData &)>(GMetaPolicyCopyAllConstReference())
+		._constructor<void * (const cpgf::GMetaVariadicParam *)>()
+	;
 }
+
 
 void doTestLib()
 {

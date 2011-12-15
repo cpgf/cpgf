@@ -37,34 +37,35 @@ public:
 		return *this;
 	}
 
-private:
+public:
 	int width;
 
-	GMETA_FRIEND(TestOutterClass);
-	friend void doTest();
 };
 
 
-GMETA_DEFINE_CLASS(TestOutterClass, TestOutterClass, "nestedclass::TestOutterClass") {
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_QUALIFIED_CLASS(TestOutterClass::Inner);
-	GMETA_QUALIFIED_CLASS(TestOutterClass::AnotherInner);
+	GDefineMetaClass<TestOutterClass>
+		::define("nestedclass::TestOutterClass")
 
-	GMETA_FIELD(width);
+		._class(
+			GDefineMetaClass<TestOutterClass::Inner>
+				::inner("nestedclass::TestOutterClass::Inner")
+				._field("x", &TestOutterClass::Inner::x)
+		)	
+
+		._class(
+			GDefineMetaClass<TestOutterClass::AnotherInner>
+				::inner("nestedclass::TestOutterClass::AnotherInner")
+				._field("y", &TestOutterClass::AnotherInner::y)
+		)
+
+		._field("width", &TestOutterClass::width)
+	;
 }
 
-GMETA_DEFINE_CLASS(TestOutterClass::Inner, TestOutterClass_Inner, "nestedclass::TestOutterClass::Inner") {
-	using namespace cpgf;
-		
-	GMETA_FIELD(x);
-}
-	
-GMETA_DEFINE_CLASS(TestOutterClass::AnotherInner, TestOutterClass_AnotherInner, "nestedclass::TestOutterClass::AnotherInner") {
-	using namespace cpgf;
-
-	GMETA_FIELD(y);
-}
 
 void doTest()
 {

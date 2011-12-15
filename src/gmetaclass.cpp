@@ -1,4 +1,3 @@
-#include "cpgf/gmetaannotation.h"
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gmetaenum.h"
 #include "cpgf/gmetafield.h"
@@ -221,8 +220,6 @@ public:
 	GMetaInternalList<GMetaOperator> operatorList;
 	GMetaInternalList<GMetaEnum> enumList;
 	GMetaInternalList<GMetaClass> classList;
-
-	GMetaInternalList<GMetaAnnotation> annotationList;
 
 	GMetaInternalItemList metaList;
 
@@ -482,13 +479,6 @@ const GMetaClass * GMetaClass::getClassAt(size_t index) const
 	return static_cast<const GMetaClass *>(this->getItemAt(mcatClass, index));
 }
 
-GMetaAnnotation & GMetaClass::addAnnotation(GMetaAnnotation * annotation)
-{
-	this->addItem(mcatAnnotation, annotation);
-
-	return *annotation;
-}
-
 
 size_t GMetaClass::getMetaCount() const
 {
@@ -603,42 +593,6 @@ void GMetaClass::setupItemLists()
 	this->implement->itemLists[mcatOperator] = &this->implement->operatorList;
 	this->implement->itemLists[mcatEnum] = &this->implement->enumList;
 	this->implement->itemLists[mcatClass] = &this->implement->classList;
-	this->implement->itemLists[mcatAnnotation] = &this->implement->annotationList;
-}
-
-void GMetaClass::itemAdded(GMetaItem * metaItem)
-{
-	this->refreshAnnotation(metaItem);
-
-	if(!metaIsAnnotation(metaItem->getCategory())) {
-		this->previousAddedItem = metaItem;
-	}
-}
-
-void GMetaClass::refreshAnnotation(GMetaItem * metaItem)
-{
-	if(metaIsAnnotation(metaItem->getCategory())) {
-		return;
-	}
-
-	size_t annotationCount = this->implement->annotationList.getCount();
-	while(annotationCount > 0) {
-		--annotationCount;
-
-		GMetaAnnotation * annotation = this->implement->annotationList.getAt(annotationCount);
-		if(annotation->getMetaItem() != NULL) {
-			break;
-		}
-
-		metaItem->addItemAnnotation(annotation);
-	}
-}
-
-void GMetaClass::flushAnnotation()
-{
-	this->refreshAnnotation(this->previousAddedItem == NULL ? this : this->previousAddedItem);
-
-	this->previousAddedItem = NULL;
 }
 
 void GMetaClass::addItem(GMetaCategory listIndex, GMetaItem * item)
@@ -648,8 +602,6 @@ void GMetaClass::addItem(GMetaCategory listIndex, GMetaItem * item)
 	this->implement->metaList.addItem(item);
 
 	item->ownerItem = this;
-
-	this->itemAdded(item);
 }
 
 size_t GMetaClass::getItemCount(GMetaCategory listIndex) const

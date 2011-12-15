@@ -1,8 +1,10 @@
 #ifndef __OPERATOR_COMMON_H
 #define __OPERATOR_COMMON_H
 
+#include "cpgf/gmetadefine.h"
+#include "cpgf/goutmain.h"
+
 #include "cpgf/gtestutil.h"
-#include "cpgf/gmetareflect.h"
 #include "cpgf/gmetaoperator.h"
 #include "cpgf/gmetaapiutil.h"
 

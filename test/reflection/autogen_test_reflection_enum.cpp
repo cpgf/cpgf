@@ -35,17 +35,17 @@ G_AUTO_RUN_BEFORE_MAIN()
 		
 
 		._enum<EnumFirst>("EnumFirst")
-			._value("ws1", ws1)
-			._value("ws2", ws2)
-			._value("ws3", ws3)
-			._value("ws4", ws4)
+			._element("ws1", ws1)
+			._element("ws2", ws2)
+			._element("ws3", ws3)
+			._element("ws4", ws4)
 
 		._enum<EnumSecond>("EnumSecond")
-			._value("bs1", bs1)
-			._value("bs2", bs2)
-			._value("bs3", bs3)
-			._value("bs4", bs4)
-			._value("bs5", bs5)
+			._element("bs1", bs1)
+			._element("bs2", bs2)
+			._element("bs3", bs3)
+			._element("bs4", bs4)
+			._element("bs5", bs5)
 	;
 }
 

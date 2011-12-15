@@ -18,18 +18,30 @@ public:
 public:
 };
 
-GMETA_DEFINE_CLASS(TestObject, TestObject, "enum::TestObject") {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_ENUM(WindowStyle, TestObject::ws0, TestObject::ws1, TestObject::ws2, TestObject::ws3);
-	reflectEnum<TestObject::BorderStyle>("BorderStyle")
-		("bs0", TestObject::bs0)
-		("bs1", TestObject::bs1)
-		("bs2", TestObject::bs2)
-		("bs3", TestObject::bs3)
-		("bs4", TestObject::bs4)
+	GDefineMetaClass<TestObject>
+		::define("enum::TestObject")
+
+		._enum<TestObject::WindowStyle>("WindowStyle")
+			._element("ws0", TestObject::ws0)
+			._element("ws1", TestObject::ws1)
+			._element("ws2", TestObject::ws2)
+			._element("ws3", TestObject::ws3)
+
+		._enum<TestObject::BorderStyle>("BorderStyle")
+			._element("bs0", TestObject::bs0)
+			._element("bs1", TestObject::bs1)
+			._element("bs2", TestObject::bs2)
+			._element("bs3", TestObject::bs3)
+			._element("bs4", TestObject::bs4)
+
 	;
 }
+
 
 void doTestLib()
 {

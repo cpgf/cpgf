@@ -84,7 +84,7 @@ public:
 		this->currentItem = metaEnum;
 	}
 
-	ThisType & _value(const char * key, long long value) {
+	ThisType & _element(const char * key, long long value) {
 		(*gdynamic_cast<GMetaEnum *>(this->currentItem))(key, value);
 
 		return *this;
@@ -101,7 +101,7 @@ public:
 	}
 
 	template <typename T>
-	GDefineMetaAnnotation & _value(const char * name, const T & value) {
+	GDefineMetaAnnotation & _element(const char * name, const T & value) {
 		(*gdynamic_cast<GMetaAnnotation *>(this->currentItem))(name, value);
 
 		return *this;

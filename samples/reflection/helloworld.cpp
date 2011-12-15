@@ -1,6 +1,8 @@
 #include "cpgf/gtestutil.h" // for test
 
-#include "cpgf/gmetareflect.h"
+#include "cpgf/gmetadefine.h"
+#include "cpgf/goutmain.h"
+
 #include "cpgf/gmetafield.h"
 #include "cpgf/gmetaenum.h"
 #include "cpgf/gmetaannotation.h"
@@ -45,20 +47,26 @@ public:
 	int headCount;
 };
 
-GMETA_DEFINE_CLASS(FirstReflection, FirstReflection, "FirstReflection") {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	reflectEnum<FirstReflection::HelloStyle>("HelloStyle")
-		("hello", FirstReflection::hello)
-		("hi", FirstReflection::hi)
-		("nice", FirstReflection::nice)
+	GDefineMetaClass<FirstReflection>
+		::define("FirstReflection")
+		
+		._enum<FirstReflection::HelloStyle>("HelloStyle")
+			._element("hello", FirstReflection::hello)
+			._element("hi", FirstReflection::hi)
+			._element("nice", FirstReflection::nice)
+
+		._method("getSentence", &FirstReflection::getSentence)
+		._method("greet", &FirstReflection::greet, GMetaPolicyCopyAllConstReference())
+		
+		._field("headCount", &FirstReflection::headCount)
 	;
-
-	GMETA_METHOD(getSentence); // using macro to reflect method
-	reflectMethod("greet", &FirstReflection::greet, GMetaPolicyCopyAllConstReference()); // using function to reflect method
-
-	reflectField("headCount", &FirstReflection::headCount);
 }
+
 
 void doTest()
 {

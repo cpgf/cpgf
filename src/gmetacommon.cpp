@@ -86,6 +86,11 @@ public:
 	}
 
 	~GMetaItemImplement() {
+		if(this->annotationList) {
+			for(AnnotationListType::iterator it = this->annotationList->begin(); it != this->annotationList->end(); ++it) {
+				delete *it;
+			}
+		}
 	}
 
 	std::string name;

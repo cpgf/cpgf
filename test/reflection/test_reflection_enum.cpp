@@ -32,17 +32,17 @@ G_AUTO_RUN_BEFORE_MAIN()
 		::define(NAME_CLASS)
 
 		._enum<CLASS::EnumFirst>("EnumFirst")
-			._value("ws1", CLASS::ws1)
-			._value("ws2", CLASS::ws2)
-			._value("ws3", CLASS::ws3)
-			._value("ws4", CLASS::ws4)
+			._element("ws1", CLASS::ws1)
+			._element("ws2", CLASS::ws2)
+			._element("ws3", CLASS::ws3)
+			._element("ws4", CLASS::ws4)
 
 		._enum<CLASS::EnumSecond>("EnumSecond")
-			._value("bs1", CLASS::bs1)
-			._value("bs2", CLASS::bs2)
-			._value("bs3", CLASS::bs3)
-			._value("bs4", CLASS::bs4)
-			._value("bs5", CLASS::bs5)
+			._element("bs1", CLASS::bs1)
+			._element("bs2", CLASS::bs2)
+			._element("bs3", CLASS::bs3)
+			._element("bs4", CLASS::bs4)
+			._element("bs5", CLASS::bs5)
 	;
 }
 

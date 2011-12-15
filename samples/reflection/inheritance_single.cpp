@@ -20,12 +20,19 @@ public:
 	int value;
 };
 
-GMETA_DEFINE_CLASS(TestObject_InheritanceSingle, TestObject_InheritanceSingle, "inheritance_single::TestObject_InheritanceSingle") {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_METHOD(getName);
-	GMETA_METHOD(getID);
+	GDefineMetaClass<TestObject_InheritanceSingle>
+		::define("inheritance_single::TestObject_InheritanceSingle")
+	
+		._method("getName", &TestObject_InheritanceSingle::getName)
+		._method("getID", &TestObject_InheritanceSingle::getID)
+	;
 }
+
 
 class TestAnimal : public TestObject_InheritanceSingle
 {
@@ -49,12 +56,19 @@ public:
 };
 const std::string TestAnimal::Name = "animal";
 
-GMETA_DEFINE_CLASS(TestAnimal, TestAnimal, "inheritance_single::TestAnimal", TestObject_InheritanceSingle) {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_METHOD(getID);
-	GMETA_METHOD(born);
+	GDefineMetaClass<TestAnimal, TestObject_InheritanceSingle>
+		::define("inheritance_single::TestAnimal")
+	
+		._method("getID", &TestAnimal::getID)
+		._method("born", &TestAnimal::born)
+	;
 }
+
 
 class TestCat : public TestAnimal
 {
@@ -78,11 +92,18 @@ public:
 };
 const std::string TestCat::Name = "cat";
 
-GMETA_DEFINE_CLASS(TestCat, TestCat, "inheritance_single::TestCat", TestAnimal) {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_METHOD(getID);
+	GDefineMetaClass<TestCat, TestAnimal>
+		::define("inheritance_single::TestCat")
+	
+		._method("getID", &TestCat::getID)
+	;
 }
+
 
 void doTest()
 {

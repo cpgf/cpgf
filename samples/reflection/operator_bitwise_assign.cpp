@@ -40,18 +40,19 @@ public:
 
 };
 
-GMETA_DEFINE_CLASS(TestObject, TestObject, "operator_bitwise_assign::TestObject") {
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	reflectOperator<TestObject & (GMetaSelf, int)>(mopHolder &= mopHolder);
+	GDefineMetaClass<TestObject>
+		::define("operator_bitwise_assign::TestObject")
 
-	reflectOperator<TestObject & (GMetaSelf, int)>(mopHolder |= mopHolder);
-
-	reflectOperator<TestObject & (GMetaSelf, int)>(mopHolder ^= mopHolder);
-
-	reflectOperator<TestObject & (GMetaSelf, int)>(mopHolder >>= mopHolder);
-
-	reflectOperator<TestObject & (GMetaSelf, int)>(mopHolder <<= mopHolder);
+		._operator<TestObject & (GMetaSelf, int)>(mopHolder &= mopHolder)
+		._operator<TestObject & (GMetaSelf, int)>(mopHolder |= mopHolder)
+		._operator<TestObject & (GMetaSelf, int)>(mopHolder ^= mopHolder)
+		._operator<TestObject & (GMetaSelf, int)>(mopHolder >>= mopHolder)
+		._operator<TestObject & (GMetaSelf, int)>(mopHolder <<= mopHolder)
+	;
 }
 
 void doTestLib()

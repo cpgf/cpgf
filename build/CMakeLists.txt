@@ -57,7 +57,6 @@ set(SRC_META
 	${SRC_PATH}/gmetamethod.cpp
 	${SRC_PATH}/gmetaoperator.cpp
 	${SRC_PATH}/gmetaproperty.cpp
-	${SRC_PATH}/gmetareflect.cpp
 	${SRC_PATH}/gmetatype.cpp
 	${SRC_PATH}/gmetatypereg.cpp
 

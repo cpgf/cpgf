@@ -34,20 +34,25 @@ public:
 
 };
 
-GMETA_DEFINE_CLASS(TestObject, TestObject, "operator_logic::TestObject") {
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	reflectOperator<bool (const GMetaSelf &, const TestObject &)>(mopHolder == mopHolder);
-	reflectOperator<bool (const GMetaSelf &, const TestObject &)>(mopHolder != mopHolder);
+	GDefineMetaClass<TestObject>
+		::define("operator_logic::TestObject")
 
-	reflectOperator<bool (const GMetaSelf &, const TestObject &)>(mopHolder > mopHolder);
-	reflectOperator<bool (const GMetaSelf &, const TestObject &)>(mopHolder >= mopHolder);
+		._operator<bool (const GMetaSelf &, const TestObject &)>(mopHolder == mopHolder)
+		._operator<bool (const GMetaSelf &, const TestObject &)>(mopHolder != mopHolder)
 
-	reflectOperator<bool (const GMetaSelf &, const TestObject &)>(mopHolder < mopHolder);
-	reflectOperator<bool (const GMetaSelf &, const TestObject &)>(mopHolder <= mopHolder);
+		._operator<bool (const GMetaSelf &, const TestObject &)>(mopHolder > mopHolder)
+		._operator<bool (const GMetaSelf &, const TestObject &)>(mopHolder >= mopHolder)
 
-	reflectOperator<bool (const GMetaSelf &, const TestObject &)>(mopHolder && mopHolder);
-	reflectOperator<bool (const GMetaSelf &, const TestObject &)>(mopHolder || mopHolder);
+		._operator<bool (const GMetaSelf &, const TestObject &)>(mopHolder < mopHolder)
+		._operator<bool (const GMetaSelf &, const TestObject &)>(mopHolder <= mopHolder)
+
+		._operator<bool (const GMetaSelf &, const TestObject &)>(mopHolder && mopHolder)
+		._operator<bool (const GMetaSelf &, const TestObject &)>(mopHolder || mopHolder)
+	;
 }
 
 

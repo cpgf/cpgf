@@ -30,10 +30,16 @@ public:
 	}
 };
 
-GMETA_DEFINE_POLICIED_CLASS(TestNoDefaultConstructor, TestNoDefaultConstructor, "class::TestNoDefaultConstructor", cpgf::GMetaPolicyNoDefaultConstructor()) {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
+	GDefineMetaClass<TestNoDefaultConstructor>::Policy<GMetaPolicyNoDefaultConstructor>
+		::define("class::TestNoDefaultConstructor")
+	;
 }
+
 
 class TestNoCopyConstructor
 {
@@ -46,10 +52,16 @@ private:
 	TestNoCopyConstructor & operator = (const TestNoCopyConstructor &);
 };
 
-GMETA_DEFINE_POLICIED_CLASS(TestNoCopyConstructor, TestNoCopyConstructor, "class::TestNoCopyConstructor", cpgf::GMetaPolicyNoCopyConstructor()) {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
+	GDefineMetaClass<TestNoCopyConstructor>::Policy<cpgf::GMetaPolicyNoCopyConstructor>
+		::define("class::TestNoCopyConstructor")
+	;
 }
+
 
 class TestNoDefaultAndCopyConstructor
 {
@@ -62,10 +74,16 @@ private:
 	TestNoDefaultAndCopyConstructor & operator = (const TestNoDefaultAndCopyConstructor &);
 };
 
-GMETA_DEFINE_POLICIED_CLASS(TestNoDefaultAndCopyConstructor, TestNoDefaultAndCopyConstructor, "class::TestNoDefaultAndCopyConstructor", cpgf::GMetaPolicyNoDefaultAndCopyConstructor()) {
+
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
+	GDefineMetaClass<TestNoDefaultAndCopyConstructor>::Policy<cpgf::GMetaPolicyNoDefaultAndCopyConstructor>
+		::define("class::TestNoDefaultAndCopyConstructor")
+	;
 }
+
 
 void doTestLib()
 {

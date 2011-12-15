@@ -39,23 +39,24 @@ int operator + (int n, const TestObject & obj) {
 }
 
 
-GMETA_DEFINE_CLASS(TestObject, TestObject, "operator_arithmetic::TestObject") {
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	reflectOperator<TestObject & (GMetaSelf, const TestObject &)>(mopHolder = mopHolder);
+	GDefineMetaClass<TestObject>
+		::define("operator_arithmetic::TestObject")
 
-	reflectOperator<TestObject (const GMetaSelf &, int)>(mopHolder + mopHolder);
-	reflectOperator<int (int, const TestObject &)>(mopHolder + mopHolder);
+		._operator<TestObject & (GMetaSelf, const TestObject &)>(mopHolder = mopHolder)
+		._operator<TestObject (const GMetaSelf &, int)>(mopHolder + mopHolder)
+		._operator<int (int, const TestObject &)>(mopHolder + mopHolder)
+		._operator<TestObject (const GMetaSelf &, int)>(mopHolder - mopHolder)
+		._operator<TestObject (const GMetaSelf &, int)>(mopHolder * mopHolder)
+		._operator<TestObject (const GMetaSelf &, int)>(mopHolder / mopHolder)
 
-	reflectOperator<TestObject (const GMetaSelf &, int)>(mopHolder - mopHolder);
-
-	reflectOperator<TestObject (const GMetaSelf &, int)>(mopHolder * mopHolder);
-
-	reflectOperator<TestObject (const GMetaSelf &, int)>(mopHolder / mopHolder);
-
-	// test operator function constness correct
-	reflectOperator<TestObject (const GMetaSelf &, int)>(mopHolder % mopHolder);
-	reflectOperator<TestObject (GMetaSelf, int)>(mopHolder % mopHolder);
+		// test operator function constness correct
+		._operator<TestObject (const GMetaSelf &, int)>(mopHolder % mopHolder)
+		._operator<TestObject (GMetaSelf, int)>(mopHolder % mopHolder)
+	;
 }
 
 void doTestLib()

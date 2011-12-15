@@ -328,9 +328,9 @@ G_AUTO_RUN_BEFORE_MAIN()
 				._method("add", &BasicA::Inner::add)
 		)
 		._enum<BasicA::BasicEnum>("BasicEnum")
-			._value("a", BasicA::a)
-			._value("b", BasicA::b)
-			._value("c", BasicA::c)
+			._element("a", BasicA::a)
+			._element("b", BasicA::b)
+			._element("c", BasicA::c)
 	;
 }
 
@@ -344,9 +344,9 @@ G_AUTO_RUN_BEFORE_MAIN()
 		._method("testAdd2", &testAdd2)
 		._method("testAddN", &testAddN)
 		._enum<TestEnum>(REG_NAME_TestEnum)
-			._value("teCpp", teCpp)
-			._value("teLua", teLua)
-			._value("teV8", teV8)
+			._element("teCpp", teCpp)
+			._element("teLua", teLua)
+			._element("teV8", teV8)
 	;
 }
 

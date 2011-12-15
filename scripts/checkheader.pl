@@ -42,6 +42,10 @@ sub doPath
 	foreach(@files) {
 		&doFile($_);
 	}
+
+	if($#files < 0) {
+		print "Warning: can't find any files in ", $path, "\n";
+	}
 }
 
 sub doFile

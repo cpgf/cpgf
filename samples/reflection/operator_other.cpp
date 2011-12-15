@@ -56,22 +56,24 @@ public:
 
 };
 
-GMETA_DEFINE_CLASS(TestObject, TestObject, "operator_other::TestObject") {
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	reflectOperator<TestObject & (GMetaSelf, int)>((mopHolder , mopHolder));
+	GDefineMetaClass<TestObject>
+		::define("operator_other::TestObject")
 
-	reflectOperator<std::string (GMetaSelf, int)>(mopHolder[0]);
+		._operator<TestObject & (GMetaSelf, int)>((mopHolder , mopHolder))
+		._operator<std::string (GMetaSelf, int)>(mopHolder[0])
+		._operator<int * (GMetaSelf)>(mopHolder->mopHolder)
+		._operator<int (GMetaSelf, int TestObject::*)>(mopHolder->*mopHolder)
 
-	reflectOperator<int * (GMetaSelf)>(mopHolder->mopHolder);
+		._operator<long (GMetaSelf)>(mopHolder())
+		._operator<std::string (GMetaSelf)>(mopHolder())
 
-	reflectOperator<int (GMetaSelf, int TestObject::*)>(mopHolder->*mopHolder);
-
-	reflectOperator<long (GMetaSelf)>(mopHolder());
-	reflectOperator<std::string (GMetaSelf)>(mopHolder());
-
-	reflectOperator<int (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference());
-	reflectOperator<int (const cpgf::GMetaVariadicParam *)>(mopHolder(mopHolder));
+		._operator<int (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference())
+		._operator<int (const cpgf::GMetaVariadicParam *)>(mopHolder(mopHolder))
+	;
 }
 
 void doTestLib()

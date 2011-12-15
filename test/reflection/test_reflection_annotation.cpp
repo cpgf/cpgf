@@ -92,25 +92,25 @@ void lazyDefineClass(GDefineMetaClass<CLASS> define)
 {
 	define
 		._annotation("attribute")
-			._value("name", L"TestClass_Annotation")
-			._value("cat", mcatClass)
-			._value("dog", TestData(mcatClass, NAME_CLASS))
+			._element("name", L"TestClass_Annotation")
+			._element("cat", mcatClass)
+			._element("dog", TestData(mcatClass, NAME_CLASS))
 
 		._enum<CLASS::WindowStyle>("WindowStyle")
-			._value("CLASS:ws0", CLASS::ws0)
-			._value("CLASS:ws1", CLASS::ws1)
-			._value("CLASS:ws2", CLASS::ws2)
-			._value("CLASS:ws3", CLASS::ws3)
+			._element("CLASS:ws0", CLASS::ws0)
+			._element("CLASS:ws1", CLASS::ws1)
+			._element("CLASS:ws2", CLASS::ws2)
+			._element("CLASS:ws3", CLASS::ws3)
 			._annotation("attribute")
-				._value("name", L"WindowStyle")
-				._value("cat", mcatEnum)
-				._value("dog", TestData(mcatEnum, "WindowStyle"))
+				._element("name", L"WindowStyle")
+				._element("cat", mcatEnum)
+				._element("dog", TestData(mcatEnum, "WindowStyle"))
 
 		._field("width", &CLASS::width)
 			._annotation("attribute")
-				._value("name", L"width")
-				._value("cat", mcatField)
-				._value("dog", TestData(mcatField, "width"))
+				._element("name", L"width")
+				._element("cat", mcatField)
+				._element("dog", TestData(mcatField, "width"))
 	;
 }
 

@@ -1,4 +1,5 @@
-#include "cpgf/gmetareflect.h"
+#include "cpgf/gmetadefine.h"
+#include "cpgf/goutmain.h"
 
 #include "testscriptbindmetadata.h"
 
@@ -14,21 +15,24 @@ void bindBasicData(cpgf::GScriptObject * script)
 }
 
 
-GMETA_DEFINE_CLASS(TestData, TestData, "testscript::TestData") {
+G_AUTO_RUN_BEFORE_MAIN()
+{
 	using namespace cpgf;
 
-	GMETA_FIELD(x);
-	GMETA_FIELD(name);
+	GDefineMetaClass<TestData>
+		::define("testscript::TestData")
+		
+		._field("x", &TestData::x)
+		._field("name", &TestData::name)
+	;
+
+	GDefineMetaClass<TestObject>
+		::define("testscript::TestObject")
+
+		._constructor<void * (const TestObject &)>()
+		._field("value", &TestObject::value)
+	;
 }
-
-GMETA_DEFINE_CLASS(TestObject, TestObject, "testscript::TestObject") {
-	using namespace cpgf;
-
-	GMETA_FIELD(value);
-	reflectConstructor<void * (const TestObject &)>();
-}
-
-
 
 }
 
