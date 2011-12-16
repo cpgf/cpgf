@@ -12,6 +12,40 @@ using namespace cpgf::bind_internal;
 namespace cpgf {
 
 
+inline bool isCSymbol(unsigned char c) {
+    return isalpha(c) || c == '_' || isdigit(c);
+}
+
+std::string normalizeReflectName(const char * name)
+{
+	size_t length = strlen(name);
+
+	if(length == 0) {
+		return "";
+	}
+
+	const char * p = name + (length - 1);
+	const char * end = p;
+
+	while(!isCSymbol(*end) && end > name) {
+		--end;
+	}
+	if(isCSymbol(*end)) {
+		++end;
+	}
+
+	while(isCSymbol(*p) && p > name) {
+		--p;
+	}
+
+	if(!isCSymbol(*p)) {
+		++p;
+	}
+
+	return std::string(p, end - p);
+}
+
+
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject)
 {
 	return new ImplScriptObject(scriptObject);

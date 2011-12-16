@@ -14,7 +14,7 @@ class GMetaEnumDataImplement;
 class GMetaEnumData
 {
 public:
-	GMetaEnumData(const char * keyNames, size_t typeSize);
+	explicit GMetaEnumData(size_t typeSize);
 	~GMetaEnumData();
 
 	size_t getTypeSize() const;
@@ -49,21 +49,6 @@ private:
 	size_t typeSize;
 };
 
-
-template <typename T>
-inline GMetaEnumData * makeMetaEnumData(const char * keyNames, const T & first, ...) {
-    (void)first;
-
-	GMetaEnumData * d = new GMetaEnumData(keyNames, sizeof(T));
-
-	return d;
-}
-
-template <typename T>
-inline GMetaType makeMetaEnumTypeInfo(const T & first, ...) {
-    (void)first;
-	return createMetaType<T>();
-}
 
 
 } // namespace meta_internal

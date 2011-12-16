@@ -8,76 +8,6 @@ namespace cpgf {
 namespace meta_internal {
 
 
-void splitToken(const char * buffer, std::vector<std::string> * tokens, bool excludeQualifyName)
-{
-	if(buffer == NULL) {
-		return;
-	}
-	
-	const char * p = buffer;
-	const char * end = buffer + strlen(buffer);
-
-	for(;;) {
-        while(!isCSymbole(*p)) {
-            if(!*p) {
-                return;
-            }
-            ++p;
-        }
-
-		const char * next = strchr(p, ',');
-		if(!next) {
-			next = end;
-		}
-
-		if(excludeQualifyName) {
-			const char * reverse = next;
-
-			for(;;) {
-				--reverse;
-				if(reverse == p) {
-					break;
-				}
-
-				if(isCSymbole(*reverse)) {
-					++reverse;
-					break;
-				}
-			}
-
-			for(;;) {
-				--reverse;
-				if(reverse == p) {
-					break;
-				}
-
-				if(!isCSymbole(*reverse)) {
-					++reverse;
-					break;
-				}
-			}
-
-			p = reverse;
-		}
-
-		const char * t = next;
-		--t;
-		while(!isCSymbole(*t)) {
-			if(t == p) {
-				break;
-			}
-			--t;
-		}
-		tokens->push_back(std::string(p, t - p + 1));
-		p = next;
-
-		if(!*p) {
-			break;
-		}
-	}
-}
-
-
 class GMetaEnumDataImplement
 {
 public:
@@ -86,10 +16,9 @@ public:
 };
 
 
-GMetaEnumData::GMetaEnumData(const char * keyNames, size_t typeSize)
+GMetaEnumData::GMetaEnumData(size_t typeSize)
 	: implement(new GMetaEnumDataImplement), typeSize(typeSize)
 {
-	splitToken(keyNames, &this->implement->keyNameList, true);
 }
 
 GMetaEnumData::~GMetaEnumData()

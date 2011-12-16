@@ -2,6 +2,8 @@
 
 <{title}>cpgf script binding -- an open source library to bind Lua and Google V8 Javascript to C++ <{/title}>
 
+<{include name="cpgf-header.inc" }>
+
 <h1>cpgf script binding -- an open source library to bind Lua and Google V8 Javascript to C++ </h1>
 
 <{autobr}>
@@ -42,4 +44,4 @@ It means <b>write your C++ code once, binding to different script language.</b>
 
 <{/autobr}>
 
-<{include name="moredoc.inc" }>
+<{include name="cpgf-footer.inc" }>

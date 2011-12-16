@@ -2,7 +2,97 @@
 
 <{title}>cpgf reflection -- building meta data<{/title}>
 
+<{include name="cpgf-header.inc" }>
+
 <{autotoc}>
+
+<{sgroup}>Overview
+
+<{autobr}>
+Below is a piece of sample code to define all kind of meta data.
+The full compilable code can be found in file samples/reflection/overview.cpp 
+<{/autobr}>	
+
+<{code}>
+
+void myMetaBuild()
+{
+	using namespace cpgf;
+
+	// define meta class
+	GDefineMetaClass<MyClass, MyFirstBaseClass, MySecondBaseClass> // which class to define (MyClass), and give the base classes
+		::define("MyClass_TheNameCanBeDiffWithClassName") // the class name
+
+		// The meta class for MyClass has two annotations.
+		// First's name is attribute, and has three elements.
+		// Second's name is style.
+		._annotation("attribute")
+			._element("name", "What's my name") // element name, value is an Ansi string
+			._element("cat", mcatClass) // element cat, value is int
+			._element("dog", TestData(mcatClass, "A cute dog")) // element dog, value is TestData
+		._annotation("style")
+			._element("fit", L"fit me") // element fit, value is a Wide string.
+
+	    // constructors
+		._constructor<void * ()>()
+		._constructor<void * (int)>()
+		._constructor<void * (int, const std::string &)>(GMetaPolicyCopyAllConstReference())
+
+		._field("width", &MyClass::width) // reflect a normal field
+		._field("nocopy", &MyClass::nocopy, GMetaPolicyNoncopyable()) // reflect a field with policy
+
+		._property("name", &MyClass::getName, 0) // a property has only getter, no setter
+		._property("data", &MyClass::getData, &MyClass::data) // a property has both getter and setter.
+		// also can reflect a property with policy
+		
+		._method("getWidth", &MyClass::getWidth) // reflect a normal method
+		._method("incWidth", &MyClass::incWidth, GMetaPolicyCopyAllConstReference()) // reflect a method with policy
+			._annotation("attr") // the method incWidth has an annotation
+				._element("what", "ok")
+
+		// operator
+		._operator<MyClass (const GMetaSelf &, int)>(mopHolder + mopHolder)
+
+		// enumerator
+		._enum<MyClass::WindowStyle>("WindowStyle")
+			._element("ws0", MyClass::ws0)
+			._element("ws1", MyClass::ws1)
+			._element("ws2", MyClass::ws2)
+			._element("ws3", MyClass::ws3)
+
+		// nested class
+		._class(
+			GDefineMetaClass<MyClass::AnotherInner>
+				::inner("AnotherInner")
+				._field("y", &MyClass::AnotherInner::y)
+		)
+	;
+
+	// define global meta data
+
+	GDefineMetaGlobal()
+		._field("myStats", &myStats)
+		._method("myAddNumber", &myAddNumber)
+	;
+
+	// define meta data for template
+	GDefineMetaClass<MyTemplate<char, int> >::lazy("MyTemplate_char_int", &lazyDefineClass<MyTemplate<char, int> >);
+}
+
+int main()
+{
+	myMetaBuild();
+
+	// now meta data is ready to use
+
+	return 0;
+}
+<{/code}>
+
+
+<{/sgroup}>
+
+
 
 <{sgroup}>Define meta classes
 
@@ -12,19 +102,18 @@
 <{autobr}>	
 	Meta class represents a collection of meta information about a certain class.
 	All meta data, like meta fields, meta properties, meta methods, meta enumerators, meta operators, meta constructor, meta annotation, must be added to a meta class.
-	For global fields and methods, they must be added to the global meta class (get via function getGlobalMetaClass).
+	For global fields and methods, they must be added to the global meta class.
 	In other words, this library is class based reflection system.
 	
-	To build the meta data, include the header file gmetareflect.h.
+	To build the meta data, include the header file gmetadefine.h.
 
-	<b>Buiding meta data using function and macro helpers</b>
-	Most meta data can be built in two ways,
-	Using function -- give you best control over the data type, name, etc. All functions are prefixed with "reflect". For instance, reflectField.
-	Using macro helper -- shortcut macro to save typing. All macros start with GMETA_. For instance, GMETA_FIELD.
+	<b>Buiding meta data using only functions.</b>
+	From version 1.2.0, meta data can be built using only chained functions.
+	The ugly macros in previous version had gone.
 <{/autobr}>
 	</p>
 
-<{sh}> Define meta classes outside of the classes declaration.
+<{sh}> Define a meta class.
 <{sc}>
 	Assume we want to define meta classes for below classes
 
@@ -41,57 +130,80 @@
 	<p>Now let's build meta class for Animal.</p>
 
 <{code}>
-	GMETA_DEFINE_CLASS(Animal, Animal, "Animal")
-	{
-		// add any meta data here to reflect fields, methods, etc.
-	}
+	<b>GDefineMetaClass</b><Animal>
+		::<b>define</b>("Animal")
+		._field(blah blah)
+		._method(blah blah)
+	;
 <{/code}>
 
-	<p>
-	Use macro GMETA_DEFINE_CLASS to define a meta class.
-	GMETA_DEFINE_CLASS accepts three primary parameters, plus arbitrary number of varadic parameters.
-	</p>
-	<p>The first parameter, here is Animal, is the class type. It can have any scope prefix, such as MyNameSpace::Animal.</p>
-	<p>The second parameter, here is Animal again, is the class type alias. It can be any legal C++ symbol, as long as it's unique in the program. It can't have any scope prefix. That's to say, it can't contain any '::'.</p>
-	<p>The third parameter, here is "Animal", is the name of the meta class. It can be any string, such as "Meta::WhatNameSpace::Animal", but highly recommend that only C++ symbol and ':' or '.' be used. It must be unique in the meta system. It's the key to find the meta class.</p>
-	
+	<{autobr}>
+	GDefineMetaClass is the template to define a meta class.
+	It accepts one or more template parameters.
+	The first template parameter is always the class itself. The other template parameters are the class' super classes (aka, parent classes).
+
+	The function "define" is used to define a top level class.
+	Top level class means the class is in the global or a namespace scope. It's not nested in another class.
+	<{/autobr}>
+
 	<p>Now let's build meta class for Cat.</p>
 
 <{code}>
-	GMETA_DEFINE_CLASS(Cat, Cat, "Cat", Animal)
-	{
-		// add any meta data here to reflect fields, methods, etc.
-
-		reflectField("eyes", &Cat::eyes);
-	}
+	<b>GDefineMetaClass</b><Cat, Animal>
+		::<b>define</b>("Cat")
+		._field(blah blah)
+		._method(blah blah)
+	;
 <{/code}>
 	<p>
 <{autobr}>
-	This time there is the fourth parameter, Animal, which is the base class, aka, super class.
-	The library supports multiple inheritance. If Cat is also derived from Biological, just add Biological to GMETA_DEFINE_CLASS.
+	This time there is the second template parameter, Animal, which is the base class, aka, super class.
+	The library supports multiple inheritance. If Cat is also derived from Biological, just add Biological to GDefineMetaClass.
 	
 	The base classes are not necessary reflected. When a non-reflected base class is retrieving for meta class by calling GMetaClass::getBaseClass, it always return NULL. However, calling GMetaClass::getBaseCount to get base class count will include all non-reflected base classes.
 <{/autobr}>
 	</p>
 
 
+<{sh}> Lazy define a meta class
+<{sc}>
+<{code}>
+	void lazyDefineClass(GDefineMetaClass<Animal> define)
+	{
+		define
+			._field(blah blah)
+			._method(blah blah)
+		;
+	}
+
+	GDefineMetaClass<Animal>::<b>lazy</b>("Animal", &lazyDefineClass);
+<{/code}>
+	<p>
+<{autobr}>
+	GDefineMetaClass::define will cause all meta data is built immediately.
+	GDefineMetaClass::lazy will delay the building until the meta data is really used.
+	"lazy" is similar with "define", except it requires a second parameter, which is a function that does the real reflecting.
+	The function prototype is
+	void func(GDefineMetaClass<T> define)
+	Which T is the class to build for, here is Animal.
+<{/autobr}>
+	</p>
 
 <{sh}> Add meta data to global scope
 <{sc}>
 <{code}>
-	GMETA_DEFINE_GLOBAL()
-	{
-		// add any meta data here to reflect fields, methods, etc.
+	<b>GDefineMetaGlobal</b>()
+		._field(blah blah)
+		._method(blah blah)
+	;
 
-		reflectField("catCount", &catCount);
-	}
 <{/code}>
 
 <{autobr}>
-	Macro "GMETA_DEFINE_GLOBAL" indicates that any reflection between the curve brackets are reflected to global scope.
+	GDefineMetaGlobal indicates that any reflection added to it are reflected to global scope.
 	The global scoped is treated as a meta class, but it contains all global meta data for global variables, methods, classes, etc.
 
-	When any meta class is defined by GMETA_DEFINE_CLASS, it's add to global scope automatically.
+	When any meta class is defined by GDefineMetaClass::define, it's add to global scope automatically.
 <{/autobr}>	
 
 
@@ -99,67 +211,34 @@
 <{sc}>
 <{code}>
 	template <typename T>
-	class TestBase
+	class MyTemplateBase
 	{
 	public:
-		virtual ~TestBase();
+		virtual ~MyTemplateBase();
 
 		int getDouble() const;
 	};
 
 	template <typename T, typename P>
-	class TestObject : public TestBase<T>
+	class MyTemplate : public MyTemplateBase<T>
 	{
 	public:
 		int getSize() const;
 	};
 
-	GMETA_DEFINE_TEMPLATE(
-			TestObject,  // 1
-			TestObject,  // 2
-			typename T GPP_COMMA() typename P,  // 3
-			T GPP_COMMA() P,  // 4
-			"",  // 5
-			TestBase<T> ) {  // 6
-
-		using namespace cpgf;
-
-		GMETA_METHOD(getSize);
-		GMETA_METHOD(getDouble);
+	template <typename ClassType>
+	void lazyDefineClass(cpgf::GDefineMetaClass<ClassType> define)
+	{
+		define
+			._method("getSize", &ClassType::getSize)
+			._method("getDouble", &ClassType::getDouble)
+		;
 	}
 
-	GMETA_INSTANTIATE_TEMPLATE("template::TestObject_char_int", TestObject, char GPP_COMMA() int);
+	GDefineMetaClass<MyTemplate<char, int> >::lazy("MyTemplate_char_int", &lazyDefineClass<MyTemplate<char, int> >);
 <{/code}>
 
 <{autobr}>
-	C++ template can be reflected. And they are reflected as template, rather than class.
-	That's to say, the template can be reflected once, then instantiate instance for each certain type parameter.
-	
-	Using macro "GMETA_DEFINE_TEMPLATE" to reflect template.
-	Like reflecting class, the first two parameters are the class type and the class type alias. Here indeed it's the template "type".
-	The third parameter is the type parameters. It's the parameters that passed in template<>.
-	Note the GPP_COMMA(), it's expanded to ",", but we can't use "," directly here.
-	The fourth parameter is the parameter, without the "typename".
-	The fifth parameter is the name, it can be empty here.
-	The sixth and other parameters are the base classes.
-	
-	Like C++ template, a reflected template can't be used until it's instantiated.
-	Using macro GMETA_INSTANTIATE_TEMPLATE to instantiate a template.
-	The first parameter is the instance name. It's same as class name in reflected class. It must be unique.
-	The second parameter is the template alias. It must be same as the second parameter in GMETA_DEFINE_TEMPLATE.
-	The third parameter, is the real type parameter.
-	
-	Above instantiate a meta class which is TestObject<char, int>.
-<{/autobr}>
-
-
-<{sh}> Reflect classes inside of the classes declaration.
-<{sc}>
-<{autobr}>
-	It's possible to reflect class just inside of the class declaration in the header file. That's also known as intrusive reflection.
-	However, I won't give any document here, because I'm really hesitating whether to remove this feature.
-	
-	So unless there are good reasons, most likely in the future version, classes won't be reflected inside the class declaration.
 <{/autobr}>
 
 
@@ -167,17 +246,6 @@
 
 
 <{sgroup}>Build meta data
-
-<{sh}> Overview
-<{sc}>
-	<p>
-<{autobr}>	
-	All meta data must be put into some meta class definition blocks.
-<{/autobr}>	
-	</p>
-
-<{/sgroup}>
-
 
 
 <{sh}> Reflect field
@@ -193,62 +261,20 @@
 <{/autobr}>
 	</p>
 
-<{sh}> Using function
-<{sc}>
 <{code}>
-	class TestObject
-	{
-	private:
-		int width;
-		std::string name;
-		TestData data;
+	GDefineMetaClass<MyClass>
+		::define("MyClass")
 
-		GMETA_FRIEND(TestObject);
-	}
-
-	GMETA_DEFINE_CLASS(blah blah)
-	{
-		reflectField("width", &TestObject::width);
-		reflectField("data", &TestObject::data, GMetaPolicyNoncopyable());
-	}
+		.<b>_field</b>("width", &MyClass::width) // reflect a normal field
+		.<b>_field</b>("nocopy", &MyClass::nocopy, GMetaPolicyNoncopyable()) // reflect a field with policy
 <{/code}>
 
 <p>
 <{autobr}>
-	reflectField takes two or three parameters.
+	_field takes two or three parameters.
 	The first parameter is the name. The named is used to find the meta data later.
 	The second parameter is the field address.
 	The third parameter is optional. It's the policy.
-
-	GMETA_FRIEND is used to make the reflection friend to TestObject so it can access private member in TestObject.
-	If the member are public, no need GMETA_FRIEND.
-<{/autobr}>
-</p>
-
-<{sh}> Using macro helper
-<{sc}>
-<{code}>
-	class TestObject
-	{
-	private:
-		int width;
-		std::string name;
-		TestData data;
-
-		GMETA_FRIEND(TestObject);
-	}
-
-	GMETA_DEFINE_CLASS(blah blah)
-	{
-		GMETA_FIELD(width);
-	}
-<{/code}>
-
-<p>
-<{autobr}>
-	GMETA_FIELD takes only one parameter.
-	The macro will use the parameter as the name and address.
-	Policy can't be passed in to the macro.
 <{/autobr}>
 </p>
 
@@ -267,75 +293,23 @@
 <{/autobr}>
 	</p>
 
-<{sh}> Using function
-<{sc}>
 <{code}>
-	class TestObject
-	{
-	public:
-		int getWidth() const;
-		void setWidth(int width);
-	
-		const std::string & getName() const;
-	
-	public:
-		int height;
+	GDefineMetaClass<MyClass>
+		::define("MyClass")
 
-	private:
-		int width;
-		std::string name;
-	}
-
-	GMETA_DEFINE_CLASS(blah blah)
-	{
-		reflectProperty("name", &TestObject::getName, 0); // #1
-		reflectProperty("width", &TestObject::getWidth, &TestObject::setWidth); // #2
-		reflectProperty("height", &height, &height, GMetaPolicyNoncopyable()); // #3
-	}
+		._property("name", &MyClass::getName, 0) // a property has only getter, no setter
+		._property("data", &MyClass::getData, &MyClass::data, MyPolicy()) // a property has both getter and setter, and has a policy.
 <{/code}>
 
 <p>
 <{autobr}>
-	reflectProperty takes three or four parameters.
+	._property takes three or four parameters.
 	The first parameter is the name. The named is used to find the meta data later.
 	The second parameter is getter address.
 	The third parameter is setter address.
 	The fourth parameter is optional. It's the policy.
 
 	Here "getter" and "setter" are not necessary functions, they can be the data address directly.
-<{/autobr}>
-</p>
-
-<{sh}> Using macro helper
-<{sc}>
-<{code}>
-	class TestObject
-	{
-	public:
-		int getWidth() const;
-		void setWidth(int width);
-	
-		SomeData & getData() const;
-	
-	public:
-		int height;
-		SomeData data;
-
-	private:
-		int width;
-	}
-
-	GMETA_DEFINE_CLASS(blah blah)
-	{
-		GMETA_PROPERTY(width, getWidth, setWidth);
-		GMETA_PROPERTY(data, getData, data);
-	}
-<{/code}>
-
-<p>
-<{autobr}>
-	GMETA_PROPERTY takes three parameter. Name, getter, then setter.
-	Policy can't be passed in to the macro.
 <{/autobr}>
 </p>
 
@@ -358,51 +332,23 @@
 <{/autobr}>
 	</p>
 
-<{sh}> Using function
-<{sc}>
 <{code}>
-	class TestObject
-	{
-	public:
-		int getWidth() const;
-	}
+	GDefineMetaClass<MyClass>
+		::define("MyClass")
 
-	GMETA_DEFINE_CLASS(blah blah)
-	{
-		reflectMethod("getWidth", &TestObject::getWidth);
-	}
+		._method("getWidth", &MyClass::getWidth) // reflect a normal method
+		._method("incWidth", &MyClass::incWidth, GMetaPolicyCopyAllConstReference()) // reflect a method with policy
 <{/code}>
 
 <p>
 <{autobr}>
-	reflectMethod takes two or three parameters.
+	._ethod takes two or three parameters.
 	The first parameter is the name. The named is used to find the meta data later.
 	The second parameter is method address.
 	The third parameter is optional. It's the policy.
 <{/autobr}>
 </p>
 
-<{sh}> Using macro helper
-<{sc}>
-<{code}>
-	class TestObject
-	{
-	public:
-		int getWidth() const;
-	}
-
-	GMETA_DEFINE_CLASS(blah blah)
-	{
-		GMETA_METHOD(getWidth);
-	}
-<{/code}>
-
-<p>
-<{autobr}>
-	GMETA_METHOD takes one parameter, the name.
-	Policy can't be passed in to the macro.
-<{/autobr}>
-</p>
 
 <{/sgroup}>
 
@@ -420,42 +366,23 @@
 <{/autobr}>
 	</p>
 
-<{sh}> Using function
-<{sc}>
 <{code}>
-	class TestObject
-	{
-	public:
-		TestObject();
-		TestObject(int width);
-		TestObject(int width, const std::string & name);
-		TestObject(int width, const std::string & name, const TestData & data);
-	}
+	GDefineMetaClass<MyClass>
+		::define("MyClass")
 
-	GMETA_DEFINE_CLASS(blah blah)
-	{
-		reflectConstructor<void * ()>();
-		reflectConstructor<void * (int)>();
-		reflectConstructor<void * (int, const std::string &)>();
-		reflectConstructor<void * (int, const std::string &, const TestData &)>();
-	}
+		._constructor<void * ()>()
+		._constructor<void * (int)>()
+		._constructor<void * (int, const std::string &)>(GMetaPolicyCopyAllConstReference())
 <{/code}>
 
 <p>
 <{autobr}>
-	reflectConstructor is a template function.
+	._constructor is a template function.
 	It accepts one template parameter, and one optional policy function parameter.
 	The template parameter is the function type. The function type must always return void *.
 <{/autobr}>
 </p>
 
-<{sh}> Using macro helper
-<{sc}>
-<p>
-<{autobr}>
-	No macro helper available for constructor.
-<{/autobr}>
-</p>
 
 <{/sgroup}>
 
@@ -474,34 +401,17 @@
 <{/autobr}>
 	</p>
 
-<{sh}> Using function
-<{sc}>
 <{code}>
-	class TestObject
-	{
-	public:
-		TestObject operator + (int n) const; // a + b
-		TestObject & operator &= (int n); // a &= b
-		TestObject operator ++ (int); // a++
-		int operator ->* (int TestObject::* p); // a->*b
-		int operator () (const std::string & s, int n) const; // a(s, n)
-	}
-	TestObject operator + (int n, const TestObject & obj);
+	GDefineMetaClass<MyClass>
+		::define("MyClass")
 
-	GMETA_DEFINE_CLASS(blah blah)
-	{
-		reflectOperator<TestObject (const GMetaSelf &, int)>(mopHolder + mopHolder); // member operator +
-		reflectOperator<TestObject (int, const TestObject &)>(mopHolder + mopHolder); // global operator +
-		reflectOperator<TestObject & (GMetaSelf, int)>(mopHolder &= mopHolder); // member operator &=
-		reflectOperator<TestObject (GMetaSelf)> (mopHolder++); // member operator ++
-		reflectOperator<int (GMetaSelf, int TestObject::*)>(mopHolder->*mopHolder); // member operator ->*
-		reflectOperator<int (const std::string &, int)>(mopHolder(mopHolder)); // member operator (const std::string &, int)
-	}
+		._operator<MyClass (const GMetaSelf &, int)>(mopHolder + mopHolder) // +
+		._operator<MyClass (const GMetaSelf &, int)>(mopHolder - mopHolder) // -
 <{/code}>
 
 <p>
 <{autobr}>
-	reflectOperator is a template function.
+	_operator is a template function.
 	It accepts one template parameter, one operator function parameter, and one optional policy function parameter.
 	The template parameter is the operator function type.
 	The first function parameter is the result to apply the same operator on mopHolder.
@@ -515,13 +425,6 @@
 <{/autobr}>
 </p>
 
-<{sh}> Using macro helper
-<{sc}>
-<p>
-<{autobr}>
-	No macro helper available for operator.
-<{/autobr}>
-</p>
 
 <{/sgroup}>
 
@@ -541,48 +444,31 @@
 <{/autobr}>
 	</p>
 
-<{sh}> Using function
-<{sc}>
 <{code}>
-	GMETA_DEFINE_CLASS(blah blah)
-	{
-		reflectAnnotation("attribute")
-			("name", "What's the name")
-			("count", 3)
-			("data", TestData("blahblah", 5))
-		;
-		flushAnnotation();
+	GDefineMetaClass<MyClass>
+		::define("MyClass")
 
-		reflectAnnotation("style")
-			("name", L"WindowStyle")
-			("cat", mcatEnum)
-			("dog", TestData(mcatEnum, "WindowStyle"))
-		;
-		reflectAnnotation("size")
-			("name", "TheSize")
-		;
-		GMETA_ENUM(WindowStyle, CLASS::ws0, CLASS::ws1, CLASS::ws2, CLASS::ws3);
-	}
+		._annotation("attribute")
+			._element("name", "What's my name") // element name, value is an Ansi string
+			._element("cat", mcatClass) // element cat, value is int
+			._element("dog", TestData(mcatClass, "A cute dog")) // element dog, value is TestData
+		._annotation("style")
+			._element("fit", L"fit me") // element fit, value is a Wide string.
+
+		._method("incWidth", &MyClass::incWidth, GMetaPolicyCopyAllConstReference()) // reflect a method with policy
+			._annotation("attr") // the method incWidth has an annotation
+				._element("what", "ok")
 <{/code}>
 
 <p>
 <{autobr}>
-	reflectAnnotation takes one parameter, the annotation name. And then return an object, which can be used to add more values to the annotation.
-	To add values, just call the functor operator on the object. The first parameter is the value name, the second parameter is the value.
+	_nnotation takes one parameter, the annotation name.
+	To add elements, just call _element on the object. The first parameter is the value name, the second parameter is the value.
 	
-	An annotation is always added to next non-annotation meta data. To add the annotation to the class itself, call flushAnnotation().
-	
-	In above code, the annotation "attribute" is added to the meta class, and the annotation "style" and "size" are added to meta enum "WindowStyle".
+	In above code, the annotation "attribute" and "style" are added to the meta class, and the annotation "attr" is added to meta method "incWidth".
 <{/autobr}>
 </p>
 
-<{sh}> Using macro helper
-<{sc}>
-<p>
-<{autobr}>
-	No macro helper available for annotation.
-<{/autobr}>
-</p>
 
 <{/sgroup}>
 
@@ -600,35 +486,17 @@
 <{/autobr}>
 	</p>
 
-<{sh}> Using function
-<{sc}>
 <{code}>
-	GMETA_DEFINE_CLASS(blah blah)
-	{
-		reflectEnum<CLASS::EnumSecond>("EnumSecond")
-			("bs1", CLASS::bs1)
-			("bs2", CLASS::bs2)
-			("bs3", CLASS::bs3)
-			("bs4", CLASS::bs4)
-			("bs5", CLASS::bs5)
-	;
-	}
+	GDefineMetaClass<MyClass>
+		::define("MyClass")
+
+		._enum<MyClass::WindowStyle>("WindowStyle")
+			._element("ws0", MyClass::ws0)
+			._element("ws1", MyClass::ws1)
+			._element("ws2", MyClass::ws2)
+			._element("ws3", MyClass::ws3)
 <{/code}>
 
-<p>
-<{autobr}>
-<{/autobr}>
-</p>
-
-<{sh}> Using macro helper
-<{sc}>
-<{code}>
-	GMETA_DEFINE_CLASS(blah blah)
-	{
-		GMETA_ENUM(EnumFirst, CLASS::ws1, CLASS::ws2, CLASS::ws3, CLASS::ws4);
-	;
-	}
-<{/code}>
 <p>
 <{autobr}>
 <{/autobr}>
@@ -656,15 +524,14 @@
 <{sh}> Using function
 <{sc}>
 <{code}>
-	GMETA_DEFINE_CLASS(InnerClass, blah blah)
-	{
-	}
-	
-	GMETA_DEFINE_CLASS(blah blah)
-	{
-		reflectClass(cpgf::findMetaClass<MyClass::InnerClass>());
-	;
-	}
+	GDefineMetaClass<MyClass>
+		::define("MyClass")
+
+		._class(
+			GDefineMetaClass<MyClass::InnerClass>
+				::inner("InnerClass")
+				._field("whatever", &MyClass::InnerClass::whatever)
+		)
 <{/code}>
 
 <p>
@@ -672,36 +539,15 @@
 <{/autobr}>
 </p>
 
-<{sh}> Using macro helper
-<{sc}>
-<{code}>
-	GMETA_DEFINE_CLASS(InnerClass, blah blah)
-	{
-	}
-	
-	GMETA_DEFINE_CLASS(blah blah)
-	{
-		GMETA_CLASS(InnerClass);
-	;
-	}
-<{/code}>
-<p>
-<{autobr}>
-Note and Warning:
-Though InnerClass is in the scope of MyClass, building the meta data for InnerClass will put it into the global scope.
-That's to say, if we have a global class named A, and a global Class named B, B has a nested class A, A and B::A will have clashed meta name.
-
-<{/autobr}>
-</p>
 
 <{/sgroup}>
 
 
+<{/sgroup}>
 
 
 
 <{/autotoc}>
 
 
-
-<{include name="moredoc.inc" }>
+<{include name="cpgf-footer.inc" }>

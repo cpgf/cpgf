@@ -2,6 +2,8 @@
 
 <{title}>cpgf script binding engine -- bind Lua and Google V8 Javascript to C++<{/title}>
 
+<{include name="cpgf-header.inc" }>
+
 <h1>script binding engine -- bind Lua and Google V8 Javascript to C++</h1>
 
 <{autotoc}>
@@ -109,6 +111,12 @@ b = MyEnum.y
 <{piece}> virtual void bindFundamental(const char * name, const GVariant & value) = 0; <{/piece}>
 Bind the fundamental value to script.
 A fundamental value is the value with primary type, such as integer, float, bool, double, etc.
+
+<{piece}> virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible) = 0; <{/piece}>
+Bind a field or property to script. Here accessible means a field or property.
+Lua binding performance warning: binding an accessible to a script object may slow down the accessing to that script object.
+So if performance is important for you, don't bind accessible to global script object.
+Google V8 doesn't have this impact.
 
 <{piece}> virtual void bindString(const char * stringName, const char * s) = 0; <{/piece}>
 Bind a string to script.
@@ -265,4 +273,4 @@ will bind everything in the meta system to the script.
 
 <{/autotoc}>
 
-<{include name="moredoc.inc" }>
+<{include name="cpgf-footer.inc" }>

@@ -2,6 +2,8 @@
 
 <{title}>cpgf reflection -- using meta data<{/title}>
 
+<{include name="cpgf-header.inc" }>
+
 <{autotoc}>
 
 <{sgroup}>Using reflection through library
@@ -510,4 +512,4 @@ A sample implementation of the variadic method "sum",
 <{/autotoc}>
 
 
-<{include name="moredoc.inc" }>
+<{include name="cpgf-footer.inc" }>

@@ -1,0 +1,16 @@
+<{filename name=cpgf-download }>
+
+<{include name="cpgf-header.inc" }>
+
+<h3>Download cpgf library</h3>
+<{autobr}>
+<a href="/download/cpgf_1_1_0.zip">Zip file, 300 kb, version 1.1.0</a>
+
+<{/autobr}>
+
+<h3>License</h3>
+<{autobr}>
+	Apache License, Version 2.0
+
+<{/autobr}>
+

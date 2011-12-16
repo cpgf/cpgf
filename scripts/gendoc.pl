@@ -282,7 +282,7 @@ sub loadFile
 	my ($fileName) = @_;
 
 	if(! open FH, '<' . $fileName) {
-		print "Warning: can't open file $fileName to read.\n";
+		die "Warning: can't open file $fileName to read.\n";
 
 		return;
 	}

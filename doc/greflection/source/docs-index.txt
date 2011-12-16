@@ -2,6 +2,8 @@
 
 <{title}>Documentations for C++ cpgf library, reflection, Lua binding<{/title}>
 
+<{include name="cpgf-header.inc" }>
+
 <h1>Documentations for C++ cpgf library, reflection, Lua binding</h1>
 
 <{sh}> Libraries introductions
@@ -54,4 +56,5 @@
 <{/autoul}>
 
 
+<{include name="cpgf-footer.inc" }>
 

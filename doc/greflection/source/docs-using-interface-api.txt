@@ -2,6 +2,8 @@
 
 <{title}>cpgf library -- Using interface based API<{/title}>
 
+<{include name="cpgf-header.inc" }>
+
 <{autotoc}>
 
 <{sgroup}>Using interface based API
@@ -204,4 +206,4 @@ CF: Return as the C++ function return value.
 <{/autotoc}>
 
 
-<{include name="moredoc.inc" }>
+<{include name="cpgf-footer.inc" }>

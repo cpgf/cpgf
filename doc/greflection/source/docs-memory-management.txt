@@ -2,6 +2,8 @@
 
 <{title}>cpgf library memory management guideline<{/title}>
 
+<{include name="cpgf-header.inc" }>
+
 <h1>cpgf library memory management guideline</h1>
 
 <{autobr}>
@@ -39,3 +41,6 @@ To be exception safe, a scoped smart pointer GScopedInterface is provided.
 
 
 <{/autobr}>
+
+
+<{include name="cpgf-footer.inc" }>

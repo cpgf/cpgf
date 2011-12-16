@@ -2,6 +2,8 @@
 
 <{title}>cpgf library changes log<{/title}>
 
+<{include name="cpgf-header.inc" }>
+
 <h1>cpgf library changes log</h1>
 
 <h3>2011-12-10 version 1.1.0 </h3>
@@ -40,5 +42,5 @@
 
 <br />
 
-<{include name="moredoc.inc" }>
+<{include name="cpgf-footer.inc" }>
 

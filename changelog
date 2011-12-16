@@ -1,6 +1,7 @@
-TBD version 1.2.0
+2011-12-17 version 1.2.0
 	Added new meta data definition syntax. Now no macro is required to build the meta data.
-	Removed gmetareflect, which was macro based meta data reflection.
+	Added bindAccessible in script binding.
+	Removed gmetareflect .h and .cpp, which was macro based meta data reflection.
 
 2011-12-10 version 1.1.0
 	Added Google V8 Javascript engine binding.

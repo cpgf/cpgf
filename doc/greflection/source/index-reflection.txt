@@ -2,6 +2,8 @@
 
 <{title}>cpgf reflection -- an open source library to add reflection to C++<{/title}>
 
+<{include name="cpgf-header.inc" }>
+
 <h1>cpgf reflection -- an open source library to add reflection to C++</h1>
 
 <{autobr}>
@@ -65,4 +67,4 @@ More. Waiting for you to discover.
 
 <{/autoul}>
 
-<{include name="moredoc.inc" }>
+<{include name="cpgf-footer.inc" }>

@@ -14,35 +14,6 @@
 namespace cpgf {
 
 
-std::string normalizeReflectName(const char * name)
-{
-	size_t length = strlen(name);
-
-	if(length == 0) {
-		return "";
-	}
-
-	const char * p = name + (length - 1);
-	const char * end = p;
-
-	while(!isCSymbole(*end) && end > name) {
-		--end;
-	}
-	if(isCSymbole(*end)) {
-		++end;
-	}
-
-	while(isCSymbole(*p) && p > name) {
-		--p;
-	}
-
-	if(!isCSymbole(*p)) {
-		++p;
-	}
-
-	return std::string(p, end - p);
-}
-
 namespace meta_internal {
 
 void handleForbidAccessError(bool isRead)

@@ -2,6 +2,8 @@
 
 <{title}>Programming interface -- Library VS API<{/title}>
 
+<{include name="cpgf-header.inc" }>
+
 <{autotoc}>
 
 <{sgroup}>Programming interface -- Library VS API
@@ -28,4 +30,4 @@ With this approach, the application binary interface (ABI) is guaranteed to be c
 <{/autotoc}>
 
 
-<{include name="moredoc.inc" }>
+<{include name="cpgf-footer.inc" }>

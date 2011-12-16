@@ -2,6 +2,8 @@
 
 <{title}>cpgf library -- general frequently asked questions <{/title}>
 
+<{include name="cpgf-header.inc" }>
+
 <h1>cpgf library -- general frequently asked questions</h1>
 
 <{autotoc}>
@@ -82,5 +84,5 @@ However, you can pass the function and object name to C++, then the C++ can invo
 
 
 
-<{include name="moredoc.inc" }>
+<{include name="cpgf-footer.inc" }>
 

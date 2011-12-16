@@ -2,6 +2,8 @@
 
 <{title}>cpgf library -- error handling<{/title}>
 
+<{include name="cpgf-header.inc" }>
+
 <h1>cpgf library -- error handling</h1>
 
 <{autotoc}>
@@ -121,5 +123,5 @@ If no error occurs, getErrorCode() will return Error_None.
 
 
 
-<{include name="moredoc.inc" }>
+<{include name="cpgf-footer.inc" }>
 

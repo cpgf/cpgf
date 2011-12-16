@@ -8,9 +8,6 @@ namespace cpgf {
 
 class GMetaEnum;
 
-template <typename T>
-cpgf::GMetaEnum & reflectEnum(const char * name);
-
 
 GMAKE_FINAL(GMetaEnum)
 

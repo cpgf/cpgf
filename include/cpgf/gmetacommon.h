@@ -33,13 +33,6 @@ struct GMetaVariadicParam
 };
 
 
-std::string normalizeReflectName(const char * name);
-
-inline bool isCSymbole(unsigned char c) {
-    return isalpha(c) || c == '_' || isdigit(c);
-}
-
-
 namespace meta_internal {
 
 void handleForbidAccessError(bool isRead);
