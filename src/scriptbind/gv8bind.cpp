@@ -767,6 +767,7 @@ v8::Handle<v8::ObjectTemplate> createEnumTemplate(GScriptBindingParam * param, I
 	(void)name;
 
 	GEnumUserData * userData = new GEnumUserData(param, metaEnum);
+	getUserDataPool()->addUserData(userData);
 	if(outUserData != NULL) {
 		*outUserData = userData;
 	}
@@ -1345,7 +1346,6 @@ void GV8ScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 	Persistent<Object> obj = Persistent<Object>::New(objectTemplate->NewInstance());
 	obj->SetPointerInInternalField(0, newUserData);
 	setObjectSignature(&obj);
-	getUserDataPool()->addUserData(newUserData);
 	obj.MakeWeak(newUserData, weakHandleCallback);
 
 	localObject->Set(String::New(name), obj);
