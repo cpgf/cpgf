@@ -6,6 +6,7 @@
 #include "cpgf/greference.h"
 #include "cpgf/gcontainer.h"
 #include "cpgf/gtypetraits.h"
+#include "cpgf/genableif.h"
 
 #include <algorithm>
 #include <utility>
@@ -21,10 +22,10 @@
 
 #define CB_DEF_MEMBER(N) \
 	template <typename InnerOT, typename InnerFT> \
-	class GCallbackMember : public callback_internal::GCallbackMemberBase<GCallbackMember<InnerOT, InnerFT>, InnerOT, InnerFT> { \
+	class GCallbackMember : public callback_internal::GCallbackMemberBase<GCallbackMember<InnerOT, InnerFT>, InnerOT, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> { \
 	private: \
 		typedef GCallbackMember <InnerOT, InnerFT> ThisType; \
-		typedef callback_internal::GCallbackMemberBase<ThisType, InnerOT, InnerFT> super; \
+		typedef callback_internal::GCallbackMemberBase<ThisType, InnerOT, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> super; \
 	public: \
 		GCallbackMember(InnerOT * instance, const InnerFT & func) : super(instance, func) {} \
 		static RT virtualInvoke(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) { return (static_cast<ThisType *>(self)->instance->*(*&(static_cast<ThisType *>(self)->func)))(GPP_REPEAT_PARAMS(N, p)); } \
@@ -32,10 +33,10 @@
 
 #define CB_DEF_GLOBAL(N) \
 	template <typename InnerFT> \
-	class GCallbackGlobal : public callback_internal::GCallbackGlobalBase<GCallbackGlobal<InnerFT>, InnerFT> { \
+	class GCallbackGlobal : public callback_internal::GCallbackGlobalBase<GCallbackGlobal<InnerFT>, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> { \
 	private: \
 		typedef GCallbackGlobal <InnerFT> ThisType; \
-		typedef callback_internal::GCallbackGlobalBase<ThisType, InnerFT> super; \
+		typedef callback_internal::GCallbackGlobalBase<ThisType, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> super; \
 	public: \
 		GCallbackGlobal (const InnerFT & func) : super(func) {} \
 		static RT virtualInvoke(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) { return (*&(static_cast<ThisType *>(self)->func))(GPP_REPEAT_PARAMS(N, p)); } \
@@ -53,7 +54,7 @@
 
 #define CB_DEF_AGENT_N(N, P) \
 	template<typename RT GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, typename PT) > \
-	class GCallbackAgent_ ## N : public GCallbackBase { \
+	class GCallbackAgent_ ## N : public GCallbackBase<RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> { \
 	private: \
 		typedef GCallbackAgent_ ## N < RT GPP_REPEAT_TAIL_PARAMS(N, PT) > ThisType; \
 	protected: \
@@ -61,16 +62,29 @@
 		typedef FunctionType * FunctionPointer; \
 		CB_DEF_MEMBER(N) \
 		CB_DEF_GLOBAL(N) \
+		template <typename RR> int doInvoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT) GPP_COMMA_IF(N) typename GEnableIf<IsSameType<RR, void>::Result>::Result * = 0) const { if(this->getBase()) { ((FunctionPointer)(this->getBase()->getInvoke()))(this->getBase() GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, p)); } return 0; } \
+		template <typename RR> RT doInvoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT) GPP_COMMA_IF(N) typename GEnableIf<!IsSameType<RR, void>::Result>::Result * = 0) const { if(this->getBase()) { return ((FunctionPointer)(this->getBase()->getInvoke()))(this->getBase() GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, p)); } else { return callback_internal::ConstructDefault<RT>::construct(); } } \
 	public: \
-		RT invoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) const { if(this->getBase()) { return reinterpret_cast<FunctionPointer>(this->getBase()->getInvoke())(this->getBase() GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, p)); } else { return callback_internal::ConstructDefault<RT>::construct(); } } \
-		RT operator () (GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) const { return this->invoke(GPP_REPEAT_PARAMS(N, p)); } \
+		typename cpgf::callback_internal::ReturnType<RT>::Result invoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) const { return doInvoke<RT>(GPP_REPEAT_PARAMS(N, p)); } \
+		typename cpgf::callback_internal::ReturnType<RT>::Result operator () (GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) const { return this->doInvoke<RT>(GPP_REPEAT_PARAMS(N, p)); } \
 	};
-
 
 namespace cpgf {
 
 
 namespace callback_internal {
+
+template <typename RT>
+struct ReturnType
+{
+	typedef RT Result;
+};
+
+template <>
+struct ReturnType <void>
+{
+	typedef int Result;
+};
 
 // traits to construct default return value
 // and avoid "invalid value-initialization of reference types" error in GCC when return type is reference
@@ -184,6 +198,7 @@ private:
 	char buffer[BufferSize];
 
 private:
+	template <typename InvokeType>
 	friend class GCallbackBase;
 };
 
@@ -238,15 +253,17 @@ struct ThisTypeTrait<BT, GT, MyCT, const GReference<const MyCT> > {
 };
 
 
+template <typename InvokeType>
 struct GCallbackVirtual
 {
 	void (*destructObject)(void * self);
 	void * (*setOrGetObject)(const void * self, void * o, bool set);
 	void * (*clone)(const void * self, CBAllocator * allocator);
 	bool (*isSameCallback)(const void * self, const void * other);
-	void * invoke;
+	InvokeType invoke;
 };
 
+template <typename InvokeType>
 class GCallbackFunctorBase
 {
 public:
@@ -274,19 +291,19 @@ public:
 		return this->virtualFunctions->isSameCallback(this, other);
 	}
 
-	void * getInvoke() const {
+	InvokeType getInvoke() const {
 		return this->virtualFunctions->invoke;
 	}
 
 protected:
-	GCallbackVirtual * virtualFunctions;
+	GCallbackVirtual<InvokeType> * virtualFunctions;
 };
 
-template <typename DerivedT, typename InnerOT, typename InnerFT>
-class GCallbackMemberBase : public GCallbackFunctorBase {
+template <typename DerivedT, typename InnerOT, typename InnerFT, typename InvokeType>
+class GCallbackMemberBase : public GCallbackFunctorBase <InvokeType> {
 private:
-	typedef GCallbackMemberBase <DerivedT, InnerOT, InnerFT> ThisType;
-	typedef GCallbackFunctorBase BaseType;
+	typedef GCallbackMemberBase<DerivedT, InnerOT, InnerFT, InvokeType> ThisType;
+	typedef GCallbackFunctorBase<InvokeType> BaseType;
 	typedef DerivedT DerivedType;
 
 	static void virtualDestructObject(void * self) {
@@ -317,9 +334,9 @@ private:
 
 public:
 	GCallbackMemberBase(InnerOT * instance, const InnerFT & func) : instance(instance), func(func) {
-		static GCallbackVirtual thisFunctions = {
+		static GCallbackVirtual<InvokeType> thisFunctions = {
 			&virtualDestructObject, &virtualSetOrGetObject,
-			&virtualClone, &virtualIsSameCallback, reinterpret_cast<void *>(&DerivedType::virtualInvoke) };
+			&virtualClone, &virtualIsSameCallback, &DerivedType::virtualInvoke };
 
 		this->virtualFunctions = &thisFunctions;
 	}
@@ -345,12 +362,12 @@ inline bool testEqual(const T & a, const T & b) {
 
 } // namespace _test_equal
 
-template <typename DerivedT, typename InnerFT>
-class GCallbackGlobalBase : public GCallbackFunctorBase {
+template <typename DerivedT, typename InnerFT, typename InvokeType>
+class GCallbackGlobalBase : public GCallbackFunctorBase <InvokeType> {
 private:
-	typedef GCallbackGlobalBase <DerivedT, InnerFT> ThisType;
+	typedef GCallbackGlobalBase<DerivedT, InnerFT, InvokeType> ThisType;
 	typedef DerivedT DerivedType;
-	typedef GCallbackFunctorBase BaseType;
+	typedef GCallbackFunctorBase<InvokeType> BaseType;
 
 	static void virtualDestructObject(void * self) {
 		(void)self;
@@ -374,9 +391,9 @@ private:
 
 public:
 	GCallbackGlobalBase(const InnerFT & func) : func(func) {
-		static GCallbackVirtual thisFunctions = {
+		static GCallbackVirtual<InvokeType> thisFunctions = {
 			&virtualDestructObject, &virtualSetOrGetObject,
-			&virtualClone, &virtualIsSameCallback, reinterpret_cast<void *>(&DerivedType::virtualInvoke) };
+			&virtualClone, &virtualIsSameCallback, &DerivedType::virtualInvoke };
 
 		this->virtualFunctions = &thisFunctions;
 	}
@@ -386,10 +403,11 @@ protected:
 };
 
 
+template <typename InvokeType>
 class GCallbackBase
 {
 public:
-	typedef GCallbackFunctorBase BaseType;
+	typedef GCallbackFunctorBase<InvokeType> BaseType;
 
 public:
 	GCallbackBase() {
@@ -467,7 +485,7 @@ private:
 
 public:
 	enum {
-		Result = 
+		Result =
 			! IsFundamental<BaseType>::Result
 			&& ! IsSameType<BaseType, void>::Result
 			&& (IsFunction<BaseType>::Result

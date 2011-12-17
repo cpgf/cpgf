@@ -245,14 +245,14 @@ template <bool IsPolymorphic>
 struct GMetaClassCasterSelector
 {
 	template <typename D, typename B>
-	static typename GEnableIf<IsVirtualBase<D, B>::Result>::Result * downCast(void * base) {
+	static void * downCast(void * base, typename GEnableIf<IsVirtualBase<D, B>::Result>::Result * = 0) {
 		(void)base;
 
 		return NULL;
 	}
 
 	template <typename D, typename B>
-	static typename GEnableIf<!IsVirtualBase<D, B>::Result>::Result * downCast(void * base) {
+	static void * downCast(void * base, typename GEnableIf<!IsVirtualBase<D, B>::Result>::Result * = 0) {
 		return static_cast<D *>(static_cast<B *>(base));
 	}
 
