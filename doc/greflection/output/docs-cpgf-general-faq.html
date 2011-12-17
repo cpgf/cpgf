@@ -12,6 +12,42 @@
 
 
 
+<table style="font-weight:bold;font-size:18px">
+<tr>
+
+<td>
+	<a href="cpgf-index.html">home</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-docs.html">documentation</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-download.html">download</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-change-log.html">change log</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-support.html">support</a>
+</td>
+
+</tr>
+</table>
+
+<br />
+
 <h1>cpgf library -- general frequently asked questions</h1>
 
 
@@ -41,9 +77,6 @@
 <strong>When should I use bindMethod and bindMethodList?</strong></a></li>
 <li>
 <a href="docs-cpgf-general-faq.html#linkid5">
-<strong>Why can't I bind meta field and property?</strong></a></li>
-<li>
-<a href="docs-cpgf-general-faq.html#linkid6">
 <strong>How can I pass script function and object from script to C++?</strong></a></li>
 </ul>
 </div>
@@ -82,19 +115,6 @@ bindMethod and bindMethodList are useful if you want to bind methods to global s
 
 <p><a name="linkid5"></a></p>
 <p>
-<strong>Why can't I bind meta field and property?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
-The fields and properties in a meta class will be automatically bound.<br />
-But for now we can't bind fields or properties to a script object directly.<br />
-In Google V8, it's already implemented.<br />
-But in Lua, it requires some more work to implement it and may need to refactor current code.<br />
-<br />
-So to keep the API interface consisten, we don't support fields and properties binding for now.<br />
-But in later update version, this feature will be supported.<br />
-<br />
-
-
-<p><a name="linkid6"></a></p>
-<p>
 <strong>How can I pass script function and object from script to C++?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
 It's quite common to define some functions and objects in the script and let C++ code use them.<br />
 You can't pass the function or object directly, because in C++ there is no type of script function and object.<br />
@@ -110,9 +130,6 @@ However, you can pass the function and object name to C++, then the C++ can invo
 
 
 
-
-
-<a href="docs-index.html"><h3>More documentations</h3> </a>
 
 
 

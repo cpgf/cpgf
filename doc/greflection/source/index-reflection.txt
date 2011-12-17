@@ -11,7 +11,7 @@ cpgf reflection library adds powerful reflection feature to C++.
 The reflection is quite equivalent to Java reflection.
 We even support annotation.
 
-The only feature that not as good as Java reflection is, we have to build the meta data manually while Java compiler does it.
+The only feature that not as good as Java reflection is, we have to build the meta data manually while Java compiler does it automatically.
 But with the powerful C++ templates, building meta data is just a piece of cake. The library will do most work for you, such as deduce meta type.
 
 cpgf reflection is licensed under Apache License, Version 2.0
@@ -32,7 +32,7 @@ Enumerators.
 Classes. Inner class can be reflected to outer meta class. Top level classes can be reflected to global meta class. 
 Class constructors. 
 Operators. All overloadable operators, except new and delete, are supported. The functional of overloaded new and delete are already provided by meta class. 
-Templates. Templates can be reflected as meta template, then meta template can be instantiated for each class instance.
+Templates. Templates can be reflected as easily as classes.
 Annotations. Any annotations, in key-value pairs, can be reflected. Value can be any type.
 
 <{/autoul}>
@@ -41,7 +41,7 @@ Annotations. Any annotations, in key-value pairs, can be reflected. Value can be
 <h3>Key features</h3>
 <{autoul}>
 
-Building meta data doesn't require preprocessor or any external tool. Only using templates and macros.
+Building meta data doesn't require preprocessor or any external tool. Only using C++ templates, classes and functions.
 True runtime reflection. Accessing fields and properties, calling methods, are truly runtime behavior, no template parameters are needed. All parameters and return values are passed via GVariant.
 Automatically type conversion when getting/setting fields, invoking methods, etc.
 Support multiple inheritance.
@@ -56,7 +56,7 @@ Written in standard and portable C++, compiled on VC and GCC, Windows, Linux, an
 <h3>We can do a lot with the reflection library</h3>
 
 <{autoul}>
-Easy script binding. Indeed there is a Lua binding engine in the cpgf, build on the reflection library.
+Easy script binding. Indeed there is Lua and Google V8 Javascript binding engine in the library, build upon the reflection library.
 Create object from class name, without knowing the class type. 
 Discover the class hierarchy. 
 Get or set any object fields directly or via getter and setter (property) at runtime. 

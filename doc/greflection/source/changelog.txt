@@ -6,6 +6,13 @@
 
 <h1>cpgf library changes log</h1>
 
+<h3>2011-12-17 version 1.2.0 </h3>
+<{autoul}>
+	Added new meta data definition syntax. Now no macro is required to build the meta data.
+	Added bindAccessible in script binding.
+	Removed gmetareflect .h and .cpp, which was macro based meta data reflection.
+<{/autoul}>
+
 <h3>2011-12-10 version 1.1.0 </h3>
 <{autoul}>
 	Added Google V8 Javascript engine binding.

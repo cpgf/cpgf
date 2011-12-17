@@ -18,13 +18,49 @@
 
 
 
+<table style="font-weight:bold;font-size:18px">
+<tr>
+
+<td>
+	<a href="cpgf-index.html">home</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-docs.html">documentation</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-download.html">download</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-change-log.html">change log</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-support.html">support</a>
+</td>
+
+</tr>
+</table>
+
+<br />
+
 <h1>cpgf reflection -- an open source library to add reflection to C++</h1>
 
 cpgf reflection library adds powerful reflection feature to C++.<br />
 The reflection is quite equivalent to Java reflection.<br />
 We even support annotation.<br />
 <br />
-The only feature that not as good as Java reflection is, we have to build the meta data manually while Java compiler does it.<br />
+The only feature that not as good as Java reflection is, we have to build the meta data manually while Java compiler does it automatically.<br />
 But with the powerful C++ templates, building meta data is just a piece of cake. The library will do most work for you, such as deduce meta type.<br />
 <br />
 cpgf reflection is licensed under Apache License, Version 2.0<br />
@@ -43,14 +79,14 @@ cpgf reflection is licensed under Apache License, Version 2.0<br />
 </li><li>Classes. Inner class can be reflected to outer meta class. Top level classes can be reflected to global meta class. 
 </li><li>Class constructors. 
 </li><li>Operators. All overloadable operators, except new and delete, are supported. The functional of overloaded new and delete are already provided by meta class. 
-</li><li>Templates. Templates can be reflected as meta template, then meta template can be instantiated for each class instance.
+</li><li>Templates. Templates can be reflected as easily as classes.
 </li><li>Annotations. Any annotations, in key-value pairs, can be reflected. Value can be any type.
 </li>
 </ul>
 
 <h3>Key features</h3>
 <ul>
-<li>Building meta data doesn't require preprocessor or any external tool. Only using templates and macros.
+<li>Building meta data doesn't require preprocessor or any external tool. Only using C++ templates, classes and functions.
 </li><li>True runtime reflection. Accessing fields and properties, calling methods, are truly runtime behavior, no template parameters are needed. All parameters and return values are passed via GVariant.
 </li><li>Automatically type conversion when getting/setting fields, invoking methods, etc.
 </li><li>Support multiple inheritance.
@@ -63,7 +99,7 @@ cpgf reflection is licensed under Apache License, Version 2.0<br />
 
 <h3>We can do a lot with the reflection library</h3>
 
-<ul><li>Easy script binding. Indeed there is a Lua binding engine in the cpgf, build on the reflection library.
+<ul><li>Easy script binding. Indeed there is Lua and Google V8 Javascript binding engine in the library, build upon the reflection library.
 </li><li>Create object from class name, without knowing the class type. 
 </li><li>Discover the class hierarchy. 
 </li><li>Get or set any object fields directly or via getter and setter (property) at runtime. 
@@ -73,9 +109,6 @@ cpgf reflection is licensed under Apache License, Version 2.0<br />
 </li><li>More. Waiting for you to discover. 
 </li>
 </ul>
-<a href="docs-index.html"><h3>More documentations</h3> </a>
-
-
 
 
 

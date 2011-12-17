@@ -77,13 +77,11 @@ class GMetaItemListImplement
 {
 public:
 	typedef std::vector<GMetaItem *> ListType;
-	typedef std::multimap<const std::string, GMetaItem *> MapType;
-	typedef std::map<GMetaItem *, bool> PointerMap;
+	typedef std::multimap<const char *, GMetaItem *, meta_internal::CStringCompare> MapType;
 
 public:
 	ListType itemList;
 	MapType itemMap;
-	PointerMap addressMap;
 };
 
 
@@ -156,13 +154,15 @@ void GMetaInternalItemList::setClearOnFree(bool clearOnFree)
 
 void GMetaInternalItemList::addItem(GMetaItem * item)
 {
-	if(this->implement->addressMap.find(item) != this->implement->addressMap.end()) {
-		return;
-	}
+	GASSERT(metaIsAnnotation(item->getCategory())
+		|| metaIsConstructor(item->getCategory())
+		|| metaIsMethod(item->getCategory())
+		|| metaIsOperator(item->getCategory())
+		|| this->getItemByName(item->getName().c_str()) == NULL
+	);
 
 	this->implement->itemList.push_back(item);
-	this->implement->itemMap.insert(std::make_pair(item->getName(), item));
-	this->implement->addressMap.insert(std::make_pair(item, true));
+	this->implement->itemMap.insert(std::make_pair(item->getName().c_str(), item));
 }
 
 size_t GMetaInternalItemList::getCount() const
@@ -182,7 +182,7 @@ GMetaItem * GMetaInternalItemList::getItemAt(size_t index) const
 
 GMetaItem * GMetaInternalItemList::getItemByName(const char * name) const
 {
-	meta_internal::GMetaItemListImplement::MapType::const_iterator it = this->implement->itemMap.find(std::string(name));
+	meta_internal::GMetaItemListImplement::MapType::const_iterator it = this->implement->itemMap.find(name);
 
 	if(it == this->implement->itemMap.end()) {
 		return NULL;
@@ -422,12 +422,12 @@ const GMetaOperator * GMetaClass::getOperatorAt(size_t index) const
 	return static_cast<const GMetaOperator *>(this->getItemAt(mcatOperator, index));
 }
 
-GMetaEnum & GMetaClass::addEnum(GMetaEnum * en) {
+GMetaEnum * GMetaClass::addEnum(GMetaEnum * en) {
 	this->addItem(mcatEnum, en);
 	
 	meta_internal::registerMetaTypedItem(en);
 	
-	return *en;
+	return en;
 }
 
 const GMetaEnum * GMetaClass::getEnumInHierarchy(const char * name, void ** outInstance) const
@@ -566,11 +566,6 @@ void * GMetaClass::castToBase(void * self, size_t baseIndex) const
 	}
 
 	return this->superList->getCaster(baseIndex)->upCast(self);
-}
-
-void GMetaClass::rebindName(const char * name)
-{
-	this->setName(name);
 }
 
 void GMetaClass::ensureRegistered() const

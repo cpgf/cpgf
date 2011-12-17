@@ -1,0 +1,51 @@
+<{filename name=cpgf-support }>
+
+<{title}>Support for cpgf library<{/title}>
+
+<{include name="cpgf-header.inc" }>
+
+<h3>Support for cpgf library </h3>
+
+<p>
+	We use the mailing list for technical support. <br />
+	Feel free to subscribe and post message to the mailing list if you want to, <br />
+	<{autoul}>
+		Seek for support about cpgf library
+		Give your feedback
+		Report bugs
+		Get update when new version is released
+		Discuss anything about cpgf library
+	<{/autoul}>
+</p>
+
+
+<p>
+Post message, send the topic to, <br />
+<a href="mailto:cpgf-user@yahoogroups.com"> cpgf-user@yahoogroups.com </a>
+</p>
+
+<p>
+Subscribe, send a blank mail to, <br />
+<a href="mailto:cpgf-user-subscribe@yahoogroups.com">cpgf-user-subscribe@yahoogroups.com </a>
+</p>
+
+<p>
+Unsubscribe, send a blank mail to, <br />
+<a href="mailto:cpgf-user-unsubscribe@yahoogroups.com">cpgf-user-unsubscribe@yahoogroups.com </a>
+</p>
+
+<p>
+<{autobr}>
+Note: when you subscribing to the mailing list, on Yahoo! confirmation web page, it will ask you to join the Yahoo! group.
+DO NOT click it. It requires your Yahoo! account.
+You should click to join the mailing list, not the group.
+<{/autobr}>
+</p>
+
+
+<p>
+<{autobr}>
+To read the archive messages, please visit,
+<a href="http://tech.groups.yahoo.com/group/cpgf-user/messages" target="_blank">http://tech.groups.yahoo.com/group/cpgf-user/messages</a>
+<{/autobr}>
+</p>

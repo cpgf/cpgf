@@ -176,7 +176,8 @@ void myMetaBuild()
 	;
 
 	// define meta data for template
-	GDefineMetaClass<MyTemplate<char, int> >::lazy("MyTemplate_char_int", &lazyDefineClass<MyTemplate<char, int> >);
+	GDefineMetaClass<MyTemplate<char, int> >::lazy("MyTemplate_char_int", &lazyDefineClass<MyTemplate<char, int> >); // instantiation
+	GDefineMetaClass<MyTemplate<double, short> >::lazy("MyTemplate_double_short", &lazyDefineClass<MyTemplate<double, short> >); // another instantiation
 }
 
 

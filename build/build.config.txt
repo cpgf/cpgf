@@ -1,5 +1,5 @@
 set(BUILD_DEBUG
-	1
+	0
 )
 
 # 1 to enable Lua binding, 0 to disable
@@ -14,7 +14,7 @@ set(HAS_V8
 
 # To enable unit test, change the below folder to UnitTest++.
 set(UNIT_TEST_DIR
-	/source/UnitTest++
+	e:/sourcecode/cpp/UnitTest++
 )
 
 set(TEST_GCOV 0)
@@ -26,7 +26,7 @@ endif(UNIX)
 ### Lua config
 
 set(LUA_DIR
-	/source/lua
+	e:/sourcecode/cpp/lua
 )
 
 set(LUA_INC ${LUA_DIR}/src/ ${LUA_DIR}/etc/)
@@ -47,7 +47,7 @@ endif(UNIX)
 ### V8 config
 
 set(V8_DIR
-	/source/v8
+	e:/sourcecode/cpp/v8
 )
 
 set(V8_INC ${V8_DIR}/include)

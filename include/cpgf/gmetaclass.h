@@ -139,7 +139,7 @@ public:
 	GMetaProperty * addProperty(GMetaProperty * prop);
 	GMetaMethod * addMethod(GMetaMethod * method);
 	GMetaOperator * addOperator(GMetaOperator * metaOperator);
-	GMetaEnum & addEnum(GMetaEnum * en);
+	GMetaEnum * addEnum(GMetaEnum * en);
 	GMetaClass * addClass(const GMetaClass * cls);
 
 	template <typename ClassType, typename BaseType>
@@ -152,10 +152,6 @@ private:
 	size_t getItemCount(GMetaCategory listIndex) const;
 	const GMetaItem * getItemAt(GMetaCategory listIndex, size_t index) const;
 	const GMetaItem * getItemByName(GMetaCategory listIndex, const char * name, bool findSuper, void ** outInstance) const;
-
-public:
-	// internal use
-	void rebindName(const char * name);
 
 private:
 	void ensureRegistered() const;

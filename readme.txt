@@ -6,7 +6,7 @@ It's written in (almostly) standard C++ and doesn't require any preprocess or to
 
 
 Version:
-	1.1.0
+	1.2.0
 
 		
 Libraries:
@@ -25,6 +25,10 @@ License:
 		http://www.apache.org/licenses/LICENSE-2.0
 		
 
+Author and owner:
+	Wang Qi, in Beijing, China
+
+	
 Website:
 	http://www.kbasm.com/
 

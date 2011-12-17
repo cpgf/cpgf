@@ -28,7 +28,7 @@ template <typename TList, typename ClassType>
 GMetaSuperList * doMakeSuperList() {
 	GMetaSuperList * superList = new GMetaSuperList;
 
-	for(int i = 0; i < 20; ++i) {
+	for(int i = 0; i < MAX_BASE_COUNT; ++i) {
 		if(i >= static_cast<int>(TypeList_Length<TList>::Result)) {
 			break;
 		}
@@ -53,7 +53,7 @@ struct GLazyDefineClassHelper
 
 	static void metaRegister(GMetaClass * metaClass)
 	{
-		registerAddress(DefineClass(metaClass));
+		registerAddress(DefineClass(metaClass, metaClass));
 	}
 };
 
@@ -68,8 +68,7 @@ template <typename BaseType>
 class GDefineMetaMethod : public BaseType
 {
 public:
-	GDefineMetaMethod(GMetaClass * metaClass, GMetaMethod * method) : BaseType(metaClass) {
-		this->currentItem = method;
+	GDefineMetaMethod(GMetaClass * metaClass, GMetaMethod * method) : BaseType(metaClass, method) {
 	}
 };
 
@@ -80,8 +79,7 @@ private:
 	typedef GDefineMetaEnum<BaseType> ThisType;
 
 public:
-	GDefineMetaEnum(GMetaClass * metaClass, GMetaEnum * metaEnum) : BaseType(metaClass) {
-		this->currentItem = metaEnum;
+	GDefineMetaEnum(GMetaClass * metaClass, GMetaEnum * metaEnum) : BaseType(metaClass, metaEnum) {
 	}
 
 	ThisType & _element(const char * key, long long value) {
@@ -96,8 +94,7 @@ template <typename BaseType>
 class GDefineMetaAnnotation : public BaseType
 {
 public:
-	GDefineMetaAnnotation(GMetaClass * metaClass, GMetaAnnotation * annotation) : BaseType(metaClass) {
-		this->currentItem = annotation;
+	GDefineMetaAnnotation(GMetaClass * metaClass, GMetaAnnotation * annotation) : BaseType(metaClass, annotation) {
 	}
 
 	template <typename T>
@@ -113,8 +110,7 @@ template <typename BaseType>
 class GDefineMetaField : public BaseType
 {
 public:
-	GDefineMetaField(GMetaClass * metaClass, GMetaField * field) : BaseType(metaClass) {
-		this->currentItem = field;
+	GDefineMetaField(GMetaClass * metaClass, GMetaField * field) : BaseType(metaClass, field) {
 	}
 
 };
@@ -123,8 +119,7 @@ template <typename BaseType>
 class GDefineMetaProperty : public BaseType
 {
 public:
-	GDefineMetaProperty(GMetaClass * metaClass, GMetaProperty * prop) : BaseType(metaClass) {
-		this->currentItem = prop;
+	GDefineMetaProperty(GMetaClass * metaClass, GMetaProperty * prop) : BaseType(metaClass, prop) {
 	}
 
 };
@@ -133,8 +128,7 @@ template <typename BaseType>
 class GDefineMetaOperator : public BaseType
 {
 public:
-	GDefineMetaOperator(GMetaClass * metaClass, GMetaOperator * op) : BaseType(metaClass) {
-		this->currentItem = op;
+	GDefineMetaOperator(GMetaClass * metaClass, GMetaOperator * op) : BaseType(metaClass, op) {
 	}
 
 };
@@ -143,12 +137,10 @@ template <typename BaseType>
 class GDefineMetaInnerClass : public BaseType
 {
 public:
-	GDefineMetaInnerClass(GMetaClass * metaClass, GMetaClass * inner) : BaseType(metaClass) {
-		this->currentItem = inner;
+	GDefineMetaInnerClass(GMetaClass * metaClass, GMetaClass * inner) : BaseType(metaClass, inner) {
 	}
 
 };
-
 
 
 template <typename ClassType GPP_REPEAT(MAX_BASE_COUNT, BASE_DEFAULT, GPP_EMPTY)>
@@ -161,8 +153,8 @@ private:
 	typedef GDefineMetaCommon<ClassType, DerivedType> ThisType;
 
 public:
-	explicit GDefineMetaCommon(GMetaClass * metaClass)
-		: metaClass(metaClass), currentItem(metaClass) {
+	GDefineMetaCommon(GMetaClass * metaClass, GMetaItem * currentItem)
+		: metaClass(metaClass), currentItem(currentItem) {
 	}
 
 	GDefineMetaCommon(const GDefineMetaCommon & other)
@@ -244,7 +236,7 @@ public:
 	GDefineMetaEnum<DerivedType> _enum(const char * name) {
 		return GDefineMetaEnum<DerivedType>(
 			this->metaClass,
-			&this->metaClass->addEnum(new GMetaEnum(name, createMetaType<T>(), new meta_internal::GMetaEnumData(sizeof(T))))
+			this->metaClass->addEnum(new GMetaEnum(name, createMetaType<T>(), new meta_internal::GMetaEnumData(sizeof(T))))
 		);
 	}
 
@@ -257,11 +249,9 @@ public:
 	}
 
 	GDefineMetaAnnotation<DerivedType> _annotation(const char * name) {
-		GMetaAnnotation * annotation = new GMetaAnnotation(name);
-		this->currentItem->addItemAnnotation(annotation);
 		return GDefineMetaAnnotation<DerivedType>(
 			this->metaClass,
-			annotation
+			this->currentItem->addItemAnnotation(new GMetaAnnotation(name))
 		);
 	}
 
@@ -280,13 +270,13 @@ private:
 
 public:
 	static ThisType define(const char * className) {
-		ThisType c((GMetaClass *)NULL);
+		ThisType c(NULL, NULL);
 		c.init(className, NULL, true, GMetaPolicyDefault());
 		return c;
 	}
 
 	static ThisType inner(const char * className) {
-		ThisType c((GMetaClass *)NULL);
+		ThisType c(NULL, NULL);
 		c.init(className, NULL, false, GMetaPolicyDefault());
 		return c;
 	}
@@ -294,7 +284,7 @@ public:
 	static ThisType lazy(const char * className, void (*reg)(ThisType define)) {
 		GASSERT(reg != NULL);
 
-		ThisType c((GMetaClass *)NULL);
+		ThisType c(NULL, NULL);
 		meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
 		c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, true, GMetaPolicyDefault());
 		return c;
@@ -303,7 +293,7 @@ public:
 	static ThisType lazyInner(const char * className, void (*reg)(ThisType define)) {
 		GASSERT(reg != NULL);
 
-		ThisType c((GMetaClass *)NULL);
+		ThisType c(NULL, NULL);
 		meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
 		c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, GMetaPolicyDefault());
 		return c;
@@ -312,13 +302,13 @@ public:
 	template <typename P>
 	struct Policy {
 		static ThisType define(const char * className) {
-			ThisType c((GMetaClass *)NULL);
+			ThisType c(NULL, NULL);
 			c.init(className, NULL, true, P());
 			return c;
 		}
 
 		static ThisType inner(const char * className) {
-			ThisType c((GMetaClass *)NULL);
+			ThisType c(NULL, NULL);
 			c.init(className, NULL, false, P());
 			return c;
 		}
@@ -326,7 +316,7 @@ public:
 		static ThisType lazy(const char * className, void (*reg)(ThisType define)) {
 			GASSERT(reg != NULL);
 
-			ThisType c((GMetaClass *)NULL);
+			ThisType c(NULL, NULL);
 			meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
 			c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, true, P());
 			return c;
@@ -335,7 +325,7 @@ public:
 		static ThisType lazyInner(const char * className, void (*reg)(ThisType define)) {
 			GASSERT(reg != NULL);
 
-			ThisType c((GMetaClass *)NULL);
+			ThisType c(NULL, NULL);
 			meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
 			c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, P());
 			return c;
@@ -344,10 +334,10 @@ public:
 	
 
 protected:
-	explicit GDefineMetaClass(GMetaClass * metaClass) : super(metaClass) {
+	GDefineMetaClass(GMetaClass * metaClass, GMetaItem * currentItem) : super(metaClass, currentItem) {
 	}
 
-	explicit GDefineMetaClass(const char * className) : super(NULL) {
+	explicit GDefineMetaClass(const char * className) : super(NULL, NULL) {
 		this->init(className, true, GMetaPolicyDefault());
 	}
 
@@ -419,10 +409,10 @@ private:
 	typedef GDefineMetaGlobal ThisType;
 
 public:
-	GDefineMetaGlobal() : super(getGlobalMetaClass()) {
+	GDefineMetaGlobal() : super(getGlobalMetaClass(), getGlobalMetaClass()) {
 	}
 
-	explicit GDefineMetaGlobal(GMetaClass * metaClass) : super(metaClass) {
+	GDefineMetaGlobal(GMetaClass * metaClass, GMetaItem * currentItem) : super(metaClass, currentItem) {
 	}
 
 };
@@ -439,3 +429,4 @@ public:
 
 
 #endif
+

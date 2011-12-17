@@ -95,6 +95,7 @@ void lazyDefineClass(GDefineMetaClass<CLASS> define)
 			._element("name", L"TestClass_Annotation")
 			._element("cat", mcatClass)
 			._element("dog", TestData(mcatClass, NAME_CLASS))
+			._element("desc", "Description")
 
 		._enum<CLASS::WindowStyle>("WindowStyle")
 			._element("CLASS:ws0", CLASS::ws0)
@@ -105,12 +106,14 @@ void lazyDefineClass(GDefineMetaClass<CLASS> define)
 				._element("name", L"WindowStyle")
 				._element("cat", mcatEnum)
 				._element("dog", TestData(mcatEnum, "WindowStyle"))
+				._element("desc", "Description")
 
 		._field("width", &CLASS::width)
 			._annotation("attribute")
 				._element("name", L"width")
 				._element("cat", mcatField)
 				._element("dog", TestData(mcatField, "width"))
+				._element("desc", "Description")
 	;
 }
 
@@ -140,6 +143,7 @@ void testItem(const cpgf::GMetaItem * item)
 
 		GEQUAL(anno->getMetaItem(), item);
 		GEQUAL(anno->getValue("doesntExist"), NULL);
+		GEQUAL(anno->getCount(), 4);
 
 		if(string(anno->getName()) == "attribute") {
 			foundAttribute = true;
@@ -147,16 +151,28 @@ void testItem(const cpgf::GMetaItem * item)
 			const GAnnotationValue * value;
 
 			value = anno->getValue("name"); GCHECK(value != NULL);
+			GEQUAL(std::string(anno->getNameAt(0)), "name");
+			GEQUAL(anno->getValueAt(0), value);
 			GCHECK(value->canToWideString());
 			GEQUAL(value->toWideString(), stringToWString(item->getName()));
 
 			value = anno->getValue("cat"); GCHECK(value != NULL);
+			GEQUAL(std::string(anno->getNameAt(1)), "cat");
+			GEQUAL(anno->getValueAt(1), value);
 			GCHECK(value->canToInt());
 			GEQUAL(value->toInt(), item->getCategory());
 
 			value = anno->getValue("dog"); GCHECK(value != NULL);
+			GEQUAL(std::string(anno->getNameAt(2)), "dog");
+			GEQUAL(anno->getValueAt(2), value);
 			TestData data = value->toObject<TestData>();
 			GEQUAL(data, TestData(item->getCategory(), item->getName()));
+
+			value = anno->getValue("desc"); GCHECK(value != NULL);
+			GEQUAL(std::string(anno->getNameAt(3)), "desc");
+			GEQUAL(anno->getValueAt(3), value);
+			GCHECK(value->canToString());
+			GEQUAL(value->toString(), std::string("Description"));
 		}
 	}
 

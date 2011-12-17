@@ -1,10 +1,12 @@
 <{filename name=cpgf-download }>
 
+<{title}>Download cpgf library<{/title}>
+
 <{include name="cpgf-header.inc" }>
 
 <h3>Download cpgf library</h3>
 <{autobr}>
-<a href="/download/cpgf_1_1_0.zip">Zip file, 300 kb, version 1.1.0</a>
+<a href="/download/cpgf_1_2_0.zip">Zip file, 310 kb, version 1.2.0</a>
 
 <{/autobr}>
 

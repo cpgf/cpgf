@@ -10,6 +10,7 @@
 #include <vector>
 
 #include <ctype.h>
+#include <string.h>
 
 
 #define REF_MAX_ARITY G_MAX_ARITY
@@ -40,6 +41,14 @@ void handleForbidAccessError(bool isRead);
 void * newZeroBuffer(void * buffer, size_t size, void * copy);
 
 class GMetaItemImplement;
+
+struct CStringCompare
+{
+	bool operator () (const char * a, const char * b) const {
+		return strcmp(a, b) < 0;
+	}
+};
+
 
 } // namespace meta_internal
 
@@ -102,7 +111,7 @@ protected:
 	void setName(const char * name);
 
 private:
-	void addItemAnnotation(const GMetaAnnotation * annotation);
+	GMetaAnnotation * addItemAnnotation(GMetaAnnotation * annotation);
 
 protected:
 	GScopedPointer<meta_internal::GMetaItemImplement> implement;

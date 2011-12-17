@@ -235,10 +235,16 @@ int main()
 		;
 	}
 
+	// instantiation
 	GDefineMetaClass<MyTemplate<char, int> >::lazy("MyTemplate_char_int", &lazyDefineClass<MyTemplate<char, int> >);
+	// another instantiation
+	GDefineMetaClass<MyTemplate<double, short> >::lazy("MyTemplate_double_short", &lazyDefineClass<MyTemplate<double, short> >);
 <{/code}>
 
 <{autobr}>
+Though we can treat a template instantiation as a normal class and use GDefineMetaClass<T>::define to reflect the meta data, it will be better to use the "lazy" trick in the above sample code.
+Then the lazy define function (here is lazyDefineClass) can be reused for every template instantiations.
+Note unlike lazy reflection class which lazy function is a normal function, the lazy function for template is a template function.
 <{/autobr}>
 
 

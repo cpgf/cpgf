@@ -339,17 +339,10 @@ inline void swap(GMetaMapItem & a, GMetaMapItem & b)
 }
 
 
-struct CStringCompare
-{
-	bool operator () (const char * a, const char * b) const {
-		return strcmp(a, b) < 0;
-	}
-};
-
 class GMetaMapClass
 {
 public:
-	typedef std::map<const char *, GMetaMapItem, CStringCompare> MapType;
+	typedef std::map<const char *, GMetaMapItem, meta_internal::CStringCompare> MapType;
 
 public:
 	GMetaMapClass(IMetaClass * metaClass);
@@ -380,7 +373,7 @@ private:
 class GMetaMap
 {
 private:
-	typedef std::map<const char *, GMetaMapClass *, CStringCompare> MapType;
+	typedef std::map<const char *, GMetaMapClass *, meta_internal::CStringCompare> MapType;
 
 public:
 	GMetaMap();

@@ -71,5 +71,5 @@ sub processFile
 	print FH $content;
 	close FH;
 
-	utime $atime, $mtime, $file;	
+#	utime $atime, $mtime, $file;	
 }

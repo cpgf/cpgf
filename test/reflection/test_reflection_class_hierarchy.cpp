@@ -115,6 +115,8 @@ GTEST(Lib_ClassHierarchy_ClassB)
 	const GMetaClass * metaClass = findMetaClass(NAME(ClassB));
 	GCHECK(metaClass);
 	
+	GCHECK(metaClass->isInheritedFrom(findMetaClass(NAME(ClassA))));
+	
 	const GMetaMethod * method;
 	const GMetaField * field;
 	const GMetaOperator * opera;

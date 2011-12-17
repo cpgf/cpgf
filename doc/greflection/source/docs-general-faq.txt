@@ -46,21 +46,6 @@ bindMethod and bindMethodList are useful if you want to bind methods to global s
 <{/autobr}>
 
 
-<{sh}> Why can't I bind meta field and property?
-<{sc}>
-
-<{autobr}>
-The fields and properties in a meta class will be automatically bound.
-But for now we can't bind fields or properties to a script object directly.
-In Google V8, it's already implemented.
-But in Lua, it requires some more work to implement it and may need to refactor current code.
-
-So to keep the API interface consisten, we don't support fields and properties binding for now.
-But in later update version, this feature will be supported.
-
-<{/autobr}>
-
-
 <{sh}> How can I pass script function and object from script to C++?
 <{sc}>
 

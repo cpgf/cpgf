@@ -12,6 +12,42 @@
 
 
 
+<table style="font-weight:bold;font-size:18px">
+<tr>
+
+<td>
+	<a href="cpgf-index.html">home</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-docs.html">documentation</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-download.html">download</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-change-log.html">change log</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-support.html">support</a>
+</td>
+
+</tr>
+</table>
+
+<br />
+
 <h1>script binding engine -- bind Lua and Google V8 Javascript to C++</h1>
 
 
@@ -139,6 +175,12 @@ b = MyEnum.y<br />
 <div class="codepiece""> virtual void bindFundamental(const char * name, const GVariant &amp; value) = 0; <br />
 </div>Bind the fundamental value to script.<br />
 A fundamental value is the value with primary type, such as integer, float, bool, double, etc.<br />
+<br />
+<div class="codepiece""> virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible) = 0; <br />
+</div>Bind a field or property to script. Here accessible means a field or property.<br />
+Lua binding performance warning: binding an accessible to a script object may slow down the accessing to that script object.<br />
+So if performance is important for you, don't bind accessible to global script object.<br />
+Google V8 doesn't have this impact.<br />
 <br />
 <div class="codepiece""> virtual void bindString(const char * stringName, const char * s) = 0; <br />
 </div>Bind a string to script.<br />
@@ -288,9 +330,6 @@ So if metaClass is a top level global class, calling<br />
 
 
 
-
-
-<a href="docs-index.html"><h3>More documentations</h3> </a>
 
 
 

@@ -173,14 +173,16 @@ const GMetaAnnotation * GMetaItem::getAnnotationAt(size_t index) const
 	}
 }
 
-void GMetaItem::addItemAnnotation(const GMetaAnnotation * annotation)
+GMetaAnnotation * GMetaItem::addItemAnnotation(GMetaAnnotation * annotation)
 {
 	if(! this->implement->annotationList) {
 		this->implement->annotationList.reset(new meta_internal::GMetaItemImplement::AnnotationListType);
 	}
 
-	const_cast<GMetaAnnotation *>(annotation)->setMetaItem(this);
+	annotation->setMetaItem(this);
 	this->implement->annotationList->push_back(annotation);
+
+	return annotation;
 }
 
 const GMetaType & GMetaItem::getItemType() const

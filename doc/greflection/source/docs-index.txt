@@ -1,4 +1,4 @@
-<{filename name=docs-index }>
+<{filename name=cpgf-docs }>
 
 <{title}>Documentations for C++ cpgf library, reflection, Lua binding<{/title}>
 
