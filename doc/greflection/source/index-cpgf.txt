@@ -21,7 +21,7 @@ cpgf provides a very easy to use callback system, which is common used in C# and
 cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? now we have it in C++!
 cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding engine uses the reflection system extensively.
 
-<b>Vesion 1.2.0 is released on Dec.17, 2011. </b>
+<b>Vesion 1.2.1 is released on Dec.18, 2011. </b>
 
 <{/autobr}>
 
@@ -79,7 +79,7 @@ cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding 
 
 <h3>Library version</h3>
 <{autobr}>
-	1.2.0
+	1.2.1
 
 <{/autobr}>
 
@@ -97,18 +97,16 @@ Website: <a href="http://www.kbasm.com/">http://www.kbasm.com/</a>
 <{/autobr}>
 
 
-<h3>Compatibility -- Tested compilers and OSes </h3>
-<{autoul}>
-	Windows XP, Microsoft Visual C++ 2008 Express
-	Windows XP, MingW GCC 4.4.0 and 4.5.2
-	Linux (Ubuntu 11.04 in VirtualBox), GCC 4.5.2
-	Mac 10.6.8, GCC 4.4.0
-<{/autoul}>
-	
-	
-<h3>Required third party library -- None for the major libraries </h3>
+<h3>Compatibility -- Tested compilers and platforms </h3>
 <{autobr}>
-	Doesn't require C++0X and TR1 features.
+	<a href="docs-cpgf-compilers-and-platforms.html">Read this document for more information </a>
+
+<{/autobr}>
+
+	
+<h3>Required third party library -- None for the primary libraries </h3>
+<{autobr}>
+	Doesn't require C++0X, TR1 or C++11 features.
 	Doesn't require Boost library.
 	For Lua binding, Lua library is required.
 	For Google V8 Javascript binding, V8 library is required.
@@ -122,15 +120,11 @@ Website: <a href="http://www.kbasm.com/">http://www.kbasm.com/</a>
 	Though there are some documentations on this website, they are far from good.
 	They are incomplete, and not quite native reading.
 
-	The fastest way to get start with the library is to read the sample code
-	in the folder "samples".
-	The sample code was originally written for test purpose, so they are not
-	as easy to read as you expect. But they covers most features so it's
-	a good kick off.
+	The fastest way to get start with the library is to read the sample code in the folder "samples".
+	The sample code was originally written for test purpose, so they are not as easy to read as you expect. But they covers most features so it's a good kick off.
 	
 	If you want to read more sample code, read the code in the folder "test".
-	They are for unit test. They are much more difficult to read and
-	use a lot of macros.
+	They are for unit test. They are much more difficult to read and use a lot of macros.
 	However, they cover much more functions than the sample code.
 	
 <{/autobr}>
@@ -149,7 +143,7 @@ Website: <a href="http://www.kbasm.com/">http://www.kbasm.com/</a>
 	If you like the library and want to contribute to it, here are some most desired work to do
 	1, Use the library in your real project. That will help the library much. A library is nothing without real projects using it.
 	2, Help with the documentation. I'm not a native English speaker, and I also don't enjoy writing documentation.
-	3, Test the library on more compilers and platforms.
+	3, Test the library on more compilers and platforms, especially on 64 bit platforms and compilers.
 	
 <{/autobr}>
 

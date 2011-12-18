@@ -1,0 +1,140 @@
+<{filename name=docs-cpgf-compilers-and-platforms }>
+
+<{title}>cgpf library portability and compatibility<{/title}>
+
+<{include name="cpgf-header.inc" }>
+
+<h3>cgpf library portability and compatibility -- tested supported C++ compilers and platforms</h3>
+
+<{autobr}>
+
+Below table shows the tested platforms and C++ compilers that cpgf works on.
+In summary, if you are working on Microsoft Windows, Linux, MacOS, and using the compilers MS VC 2008 or newer, GCC 3.4.2 or newer, cpgf library will work for you.
+And your target platform is not limited to Windows, Linux or Mac. It can be mobile phones, embeded deviced, game consoles, as long as it has a compiler supported in the list.
+
+<{/autobr}>
+
+<table border="1">
+<tr>
+
+<td><b>Platform </b></td>
+<td><b>Compiler </b></td>
+<td><b>Target </b></td>
+<td><b>Result </b></td>
+<td><b>Comment </b></td>
+
+</tr>
+
+<tr>
+
+<td>Microsoft Windows </td>
+<td>Microsoft Visual C++ 2008 Express </td>
+<td>32 bit </td>
+<td>Compile clean </td>
+<td>Though the target is 32 bit, "-Wp64" is enabled to check 64 bit portability. </td>
+
+</tr>
+
+<tr>
+
+<td>Microsoft Windows </td>
+<td>Microsoft Visual C++ 2010 Professional </td>
+<td>32 bit </td>
+<td>Compile clean </td>
+<td>Though the target is 32 bit, "-Wp64" is enabled to check 64 bit portability. </td>
+
+</tr>
+
+<tr>
+
+<td>MinGW</td>
+<td>gcc 4.4.0, 4.5.2, 4.6.1 </td>
+<td>32 bit </td>
+<td>Compile clean </td>
+<td></td>
+
+</tr>
+
+<td>MinGW</td>
+<td>gcc 3.4.2 </td>
+<td>32 bit </td>
+<td>A lot of useless compile warnings </td>
+<td>The test case "test_reflection_class.cpp" will trigger an internal bug in g++. <br />
+So that file is excluded from the test.
+</td>
+
+</tr>
+
+<tr>
+
+<td>Linux </td>
+<td>gcc 4.5.2 </td>
+<td>32 bit </td>
+<td>Compile clean </td>
+<td>The linux version is Ubuntu 11.04 running in VirtualBox </td>
+
+</tr>
+
+<tr>
+
+<td>Apple Mac 10.6.8 </td>
+<td>gcc 4.4.0 </td>
+<td>32 bit </td>
+<td>Compile clean </td>
+<td></td>
+
+</tr>
+
+<tr>
+
+<td>Apple Mac 10.6.8 </td>
+<td>Darwin gcc 4.2.1 </td>
+<td>32 bit </td>
+<td>A lot of useless compile warnings </td>
+<td></td>
+
+</tr>
+
+<tr>
+
+<td>Apple Mac 10.6.8 </td>
+<td>Xcode 4.0.1 </td>
+<td>32 bit </td>
+<td>Compile clean </td>
+<td>The compiler is Xcode default one.</td>
+
+</tr>
+
+<tr>
+
+<td>Apple Mac 10.6.8 </td>
+<td>Xcode 4.0.1 </td>
+<td>64 bit </td>
+<td>Compile clean </td>
+<td>Failed link because Lua and V8 were compiled in 32 bit. <br />
+The library itself should work well on 64 bit target.
+</td>
+
+</tr>
+
+</table>
+
+<{autobr}>
+
+<b>Notes: </b>
+
+<b>"Compile clean" means succeeding the compiling and linking, no errors or warnings after enabling all warnings. </b>
+Google V8 v8.h will introduce warnings but that's not counted to cpgf.
+
+<b>The working compilers and platforms are not limited to the list in the table. </b>
+The table only shows the compilers and platforms that were tested.
+The newer version compilers and platforms should work well too.
+
+<b>Your help is wanted. </b>
+If you approve that cpgf library works on other compilers or platforms, please let me know!
+Especially non-VC and non-gcc compilers are interested, such as Intel compiler.
+Also non-Windows, non-Linux and non-Mac platforms are interested, such as mobile phones, game consoles (Wii, WiiU, NDS, 3DS, XBox 360, PS3, PSP), or embeded system.
+Also more 64 bit tests are interested.
+
+
+<{/autobr}>

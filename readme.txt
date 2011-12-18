@@ -6,7 +6,7 @@ It's written in (almostly) standard C++ and doesn't require any preprocess or to
 
 
 Version:
-	1.2.0
+	1.2.1
 
 		
 Libraries:
@@ -69,7 +69,7 @@ Build the library:
 	make PLATFORM
 		
 	PLATFORM can be one of
-		nmake mingw linux vc05 vc08 vc10 cb_mingw cb_nmake cb_linux
+		nmake mingw linux vc05 vc08 vc10 cb_mingw cb_nmake cb_linux xcode
 		
 	For detailed PLATFORM information, run "make" without parameter to see
 	the help.

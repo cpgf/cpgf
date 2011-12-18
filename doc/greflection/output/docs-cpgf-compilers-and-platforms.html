@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="maintpl.css" />
+<title>cgpf library portability and compatibility</title>
+</head>
+<body><div style="width:900px">
+
+
+
+
+
+<a name="top"></a>
+
+
+
+
+
+<table style="font-weight:bold;font-size:18px">
+<tr>
+
+<td>
+	<a href="cpgf-index.html">home</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-docs.html">documentation</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-download.html">download</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-change-log.html">change log</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-support.html">support</a>
+</td>
+
+</tr>
+</table>
+
+<br />
+
+<h3>cgpf library portability and compatibility -- tested supported C++ compilers and platforms</h3>
+
+<br />
+Below table shows the tested platforms and C++ compilers that cpgf works on.<br />
+In summary, if you are working on Microsoft Windows, Linux, MacOS, and using the compilers MS VC 2008 or newer, GCC 3.4.2 or newer, cpgf library will work for you.<br />
+And your target platform is not limited to Windows, Linux or Mac. It can be mobile phones, embeded deviced, game consoles, as long as it has a compiler supported in the list.<br />
+<br />
+
+<table border="1">
+<tr>
+
+<td><b>Platform </b></td>
+<td><b>Compiler </b></td>
+<td><b>Target </b></td>
+<td><b>Result </b></td>
+<td><b>Comment </b></td>
+
+</tr>
+
+<tr>
+
+<td>Microsoft Windows </td>
+<td>Microsoft Visual C++ 2008 Express </td>
+<td>32 bit </td>
+<td>Compile clean </td>
+<td>Though the target is 32 bit, &quot;-Wp64&quot; is enabled to check 64 bit portability. </td>
+
+</tr>
+
+<tr>
+
+<td>Microsoft Windows </td>
+<td>Microsoft Visual C++ 2010 Professional </td>
+<td>32 bit </td>
+<td>Compile clean </td>
+<td>Though the target is 32 bit, &quot;-Wp64&quot; is enabled to check 64 bit portability. </td>
+
+</tr>
+
+<tr>
+
+<td>MinGW</td>
+<td>gcc 4.4.0, 4.5.2, 4.6.1 </td>
+<td>32 bit </td>
+<td>Compile clean </td>
+<td></td>
+
+</tr>
+
+<td>MinGW</td>
+<td>gcc 3.4.2 </td>
+<td>32 bit </td>
+<td>A lot of useless compile warnings </td>
+<td>The test case &quot;test_reflection_class.cpp&quot; will trigger an internal bug in g++. <br />
+So that file is excluded from the test.
+</td>
+
+</tr>
+
+<tr>
+
+<td>Linux </td>
+<td>gcc 4.5.2 </td>
+<td>32 bit </td>
+<td>Compile clean </td>
+<td>The linux version is Ubuntu 11.04 running in VirtualBox </td>
+
+</tr>
+
+<tr>
+
+<td>Apple Mac 10.6.8 </td>
+<td>gcc 4.4.0 </td>
+<td>32 bit </td>
+<td>Compile clean </td>
+<td></td>
+
+</tr>
+
+<tr>
+
+<td>Apple Mac 10.6.8 </td>
+<td>Darwin gcc 4.2.1 </td>
+<td>32 bit </td>
+<td>A lot of useless compile warnings </td>
+<td></td>
+
+</tr>
+
+<tr>
+
+<td>Apple Mac 10.6.8 </td>
+<td>Xcode 4.0.1 </td>
+<td>32 bit </td>
+<td>Compile clean </td>
+<td>The compiler is Xcode default one.</td>
+
+</tr>
+
+<tr>
+
+<td>Apple Mac 10.6.8 </td>
+<td>Xcode 4.0.1 </td>
+<td>64 bit </td>
+<td>Compile clean </td>
+<td>Failed link because Lua and V8 were compiled in 32 bit. <br />
+The library itself should work well on 64 bit target.
+</td>
+
+</tr>
+
+</table>
+
+<br />
+<b>Notes: </b><br />
+<br />
+<b>&quot;Compile clean&quot; means succeeding the compiling and linking, no errors or warnings after enabling all warnings. </b><br />
+Google V8 v8.h will introduce warnings but that's not counted to cpgf.<br />
+<br />
+<b>The working compilers and platforms are not limited to the list in the table. </b><br />
+The table only shows the compilers and platforms that were tested.<br />
+The newer version compilers and platforms should work well too.<br />
+<br />
+<b>Your help is wanted. </b><br />
+If you approve that cpgf library works on other compilers or platforms, please let me know!<br />
+Especially non-VC and non-gcc compilers are interested, such as Intel compiler.<br />
+Also non-Windows, non-Linux and non-Mac platforms are interested, such as mobile phones, game consoles (Wii, WiiU, NDS, 3DS, XBox 360, PS3, PSP), or embeded system.<br />
+Also more 64 bit tests are interested.<br />
+<br />
+<br />
+
+
+
+
+</div></body></html>

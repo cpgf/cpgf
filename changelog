@@ -1,3 +1,8 @@
+2011-12-18 version 1.2.1
+	Fixed the code compatibility. Now the library can be compiled by GCC 3.4.2. (Tested with MingW GCC).
+	Remove a type casting between void * and function pointer in gcallback. Now the library is more compatible with C++ standard.
+	Added xcode project generating in CMake build.
+
 2011-12-17 version 1.2.0
 	Added new meta data definition syntax. Now no macro is required to build the meta data.
 	Added bindAccessible in script binding.

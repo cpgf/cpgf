@@ -13,7 +13,7 @@ PROJECT=cpgf
 
 PROJECT_PREFIX = project
 
-SUPPORT_MAKES = auto nmake mingw linux vc05 vc08 vc10 cb_mingw cb_nmake cb_linux
+SUPPORT_MAKES = auto nmake mingw linux vc05 vc08 vc10 cb_mingw cb_nmake cb_linux xcode
 
 none: needcmake
 	$(ECHO) "Usage:"
@@ -25,27 +25,27 @@ none: needcmake
 	$(ECHO) "Available MakeType"
 	$(ECHO) "  $(SUPPORT_MAKES)"
 	$(ECHO) 
-	$(ECHO) "  nmake		Generate Microsoft VC makefile and then use nmake to build."
-	$(ECHO) "  mingw		Generate MingW makefile and then use mingw32-make to build."
-	$(ECHO) "  linux		Generate Linux/Unix makefile and then use GCC make to build."
-	$(ECHO) "  vc05		Generate project files for Microsoft VC 2005. No auto build. You need to open the project in VC IDE then build."
-	$(ECHO) "  vc08		Generate project files for Microsoft VC 2008. No auto build. You need to open the project in VC IDE then build."
-	$(ECHO) "  vc10		Generate project files for Microsoft VC 2010. No auto build. You need to open the project in VC IDE then build."
-	$(ECHO) "  cb_mingw	Generate project files for Code::Blocks using MingW compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
-	$(ECHO) "  cb_nmake	Generate project files for Code::Blocks using VC compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
-	$(ECHO) "  cb_linux	Generate project files for Code::Blocks using Linux/Unix GCC compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
-	$(ECHO) "  xcode Generate project files for Apple Xcode. No auto build. You need to open the project in Xcode IDE then build."
-	$(ECHO) "  auto		Auto detect the compiler and make environment and then use make to build. NOT recommend."
+	$(ECHO) "  nmake        Generate Microsoft VC makefile and then use nmake to build."
+	$(ECHO) "  mingw        Generate MinGW makefile and then use mingw32-make to build."
+	$(ECHO) "  linux        Generate Linux/Unix makefile and then use GCC make to build."
+	$(ECHO) "  vc05         Generate project files for Microsoft VC 2005. No auto build. You need to open the project in VC IDE then build."
+	$(ECHO) "  vc08         Generate project files for Microsoft VC 2008. No auto build. You need to open the project in VC IDE then build."
+	$(ECHO) "  vc10         Generate project files for Microsoft VC 2010. No auto build. You need to open the project in VC IDE then build."
+	$(ECHO) "  cb_mingw     Generate project files for Code::Blocks using MinGW g++ compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
+	$(ECHO) "  cb_nmake     Generate project files for Code::Blocks using VC compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
+	$(ECHO) "  cb_linux     Generate project files for Code::Blocks using Linux/Unix GCC compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
+	$(ECHO) "  xcode        Generate project files for Apple Xcode. No auto build. You need to open the project in Xcode IDE then build."
+	$(ECHO) "  auto         Auto detect the compiler and make environment and then use make to build. NOT recommend."
 	$(ECHO) 
-	$(ECHO) "  clean		No build. Remove and clean all generated files, include build and projects files."
-	$(ECHO) "  cleanbuild	No build. Remove and clean all build files, but leave projects files."
+	$(ECHO) "  clean        No build. Remove and clean all generated files, include build and projects files."
+	$(ECHO) "  cleanbuild   No build. Remove and clean all build files, but leave projects files."
 	$(ECHO) 
 	$(ECHO) "Optional TargetToMake"
 	$(ECHO) 
-	$(ECHO) "  TARGET=lib	Build the library. This is the default if TARGET is omitted."
-	$(ECHO) "  TARGET=test	Build the unit test."
-	$(ECHO) "  TARGET=samplereflection	Build the reflection sample application."
-	$(ECHO) "  TARGET=samplelua		Build the Lua binding sample application."
+	$(ECHO) "  TARGET=lib               Build the library. This is the default if TARGET is omitted."
+	$(ECHO) "  TARGET=test              Build the unit test."
+	$(ECHO) "  TARGET=samplereflection  Build the reflection sample application."
+	$(ECHO) "  TARGET=samplelua         Build the Lua binding sample application."
 	
 needcmake:
 	$(ECHO)
