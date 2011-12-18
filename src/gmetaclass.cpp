@@ -261,7 +261,7 @@ size_t GMetaClass::getTypeSize() const
 	return this->baseData->getObjectSize();
 }
 
-const GMetaConstructor * GMetaClass::getConstructorByParamCount(unsigned int paramCount) const
+const GMetaConstructor * GMetaClass::getConstructorByParamCount(size_t paramCount) const
 {
 	this->ensureRegistered();
 

@@ -14,4 +14,7 @@ fi
 
 #find temp_cache/ -name \*.gcda | xargs rm
 
-bin/test
+cd ./bin
+./test
+cd ../
+

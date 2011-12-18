@@ -34,6 +34,7 @@ none: needcmake
 	$(ECHO) "  cb_mingw	Generate project files for Code::Blocks using MingW compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
 	$(ECHO) "  cb_nmake	Generate project files for Code::Blocks using VC compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
 	$(ECHO) "  cb_linux	Generate project files for Code::Blocks using Linux/Unix GCC compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
+	$(ECHO) "  xcode Generate project files for Apple Xcode. No auto build. You need to open the project in Xcode IDE then build."
 	$(ECHO) "  auto		Auto detect the compiler and make environment and then use make to build. NOT recommend."
 	$(ECHO) 
 	$(ECHO) "  clean		No build. Remove and clean all generated files, include build and projects files."
@@ -101,6 +102,10 @@ cb_linux: needcmake
 	$(MK_DIR) $(PROJECT_PREFIX)_cb_linux
 	$(CH_DIR) $(PROJECT_PREFIX)_cb_linux $(CMAKE) -G"CodeBlocks - Unix Makefiles"
 	$(ECHO) Please open the project file $(PROJECT).cbp in $(PROJECT_PREFIX)_cb_linux in Code::Blocks.
+
+xcode: needcmake
+	$(CMAKE) -G"Xcode"
+	$(ECHO) Please open the solution $(PROJECT).xcodeproj in Xcode IDE.
 
 cleanbuild: needcmake
 	@cmake -E remove_directory bin
