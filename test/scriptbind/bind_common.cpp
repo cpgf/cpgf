@@ -71,7 +71,7 @@ bool TestScriptContext::doString(const std::string & code) const
 	if(this->bindingLib) {
 		ok = this->doLib(code.c_str());
 	}
-	
+
 	if(this->bindingApi) {
 		ok = this->doApi(code.c_str()) && ok;
 	}
@@ -88,7 +88,7 @@ bool TestScriptContext::doError(const std::string & code) const
 	if(this->bindingLib) {
 		ok = this->doLib(code.c_str());
 	}
-	
+
 	if(this->bindingApi) {
 		ok = this->doApi(code.c_str()) && ok;
 	}
@@ -136,7 +136,7 @@ public:
 		if(this->luaStateLib != NULL) {
 			lua_close(this->luaStateLib);
 		}
-		
+
 		if(this->luaStateApi != NULL) {
 			lua_close(this->luaStateApi);
 		}
@@ -251,7 +251,7 @@ public:
 	virtual bool isV8() const {
 		return true;
 	}
-	
+
 protected:
 	virtual bool doLib(const char * code) const {
 		return executeString(code, this->canPrintError());
@@ -275,10 +275,18 @@ TestScriptContext * createTestScriptContext(TestScriptLang lang, TestScriptApi a
 {
 	switch(lang) {
 	case tslLua:
+#if ENABLE_LUA
 		return new TestScriptContextLua(api);
+#else
+		break;
+#endif
 
 	case tslV8:
+#if ENABLE_V8
 		return new TestScriptContextV8(api);
+#else
+		break;
+#endif
 	}
 
 	return NULL;

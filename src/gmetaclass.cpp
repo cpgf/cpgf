@@ -25,7 +25,7 @@ class GMetaSuperListImplement
 {
 public:
 	typedef std::vector<GMetaSuperListItem> ListType;
-	
+
 public:
 	ListType superList;
 };
@@ -377,7 +377,7 @@ const GMetaOperator * GMetaClass::doGetOperator(GMetaOpType op, bool findSuper, 
 	this->ensureRegistered();
 
 	const GMetaOperator * result = NULL;
-	
+
 	for(size_t i = 0; i < this->implement->operatorList.getCount(); ++i) {
 		if(this->implement->operatorList.getAt(i)->getOperator() == op) {
 			result = this->implement->operatorList.getAt(i);
@@ -424,9 +424,9 @@ const GMetaOperator * GMetaClass::getOperatorAt(size_t index) const
 
 GMetaEnum * GMetaClass::addEnum(GMetaEnum * en) {
 	this->addItem(mcatEnum, en);
-	
+
 	meta_internal::registerMetaTypedItem(en);
-	
+
 	return en;
 }
 
@@ -453,7 +453,7 @@ const GMetaEnum * GMetaClass::getEnumAt(size_t index) const
 GMetaClass * GMetaClass::addClass(const GMetaClass * cls)
 {
 	this->addItem(mcatClass, const_cast<GMetaClass *>(cls));
-	
+
 	meta_internal::registerMetaTypedItem(cls);
 
 	return const_cast<GMetaClass *>(cls);
@@ -483,7 +483,7 @@ const GMetaClass * GMetaClass::getClassAt(size_t index) const
 size_t GMetaClass::getMetaCount() const
 {
 	this->ensureRegistered();
-	
+
 	return this->implement->metaList.getCount();
 }
 
@@ -593,7 +593,7 @@ void GMetaClass::setupItemLists()
 void GMetaClass::addItem(GMetaCategory listIndex, GMetaItem * item)
 {
 	this->implement->itemLists[listIndex]->addItem(item);
-	
+
 	this->implement->metaList.addItem(item);
 
 	item->ownerItem = this;

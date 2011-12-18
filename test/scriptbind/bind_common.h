@@ -1,6 +1,14 @@
 #ifndef __BIND_COMMON_H
 #define __BIND_COMMON_H
 
+#ifndef ENABLE_LUA
+#define ENABLE_LUA 1
+#endif
+#ifndef ENABLE_V8
+#define ENABLE_V8 1
+#endif
+
+
 #include "cpgf/gmetaapi.h"
 
 #include "testscriptbind.h"
