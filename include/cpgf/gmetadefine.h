@@ -412,7 +412,14 @@ public:
 	GDefineMetaGlobal() : super(getGlobalMetaClass(), getGlobalMetaClass()) {
 	}
 
+	explicit GDefineMetaGlobal(GMetaClass * metaClass) : super(metaClass, metaClass) {
+	}
+
 	GDefineMetaGlobal(GMetaClass * metaClass, GMetaItem * currentItem) : super(metaClass, currentItem) {
+	}
+
+	void setName(const char * name) {
+		this->metaClass->rebindName(name);
 	}
 
 };

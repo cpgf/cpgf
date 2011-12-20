@@ -17,32 +17,11 @@
 #endif
 
 
-
 namespace cpgf {
 
 const GMetaClass * findMetaClass(const GMetaType & type);
 
 namespace meta_internal {
-
-
-template <typename cls>
-struct GCheckExistMetaClassSelector
-{
-private:
-	typedef char YesType;
-	struct NoType { char a[8]; };
-	template <typename T, T> struct TestFunc {};
-	template <typename FT> static YesType test(TestFunc<const GMetaClass * (*)(), &FT::getMetaClass> *);
-	template <typename FT> static NoType test(...);
-public:
-	enum { Result = sizeof(test<cls>(0)) == sizeof(YesType) };
-};
-
-template <typename cls>
-struct GCheckExistMetaClass
-{
-	enum { Result = GCheckExistMetaClassSelector<cls>::Result };
-};
 
 
 class GMetaClassDataBase

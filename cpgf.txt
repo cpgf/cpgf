@@ -1,7 +1,11 @@
 Todo:
 
+1, Support default parameter values in meta method
+2, Define meta data for STL
+3, Define meta data for C library?
+
+Done:
 1, Support bindAccessible in Lua binding
-2, Support default parameter values in meta method
 3, Better meta class definition syntax. Something like,
 defineMetaClass(...)
 	.method(...)

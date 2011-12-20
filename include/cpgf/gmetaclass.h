@@ -20,8 +20,6 @@
 namespace cpgf {
 
 
-GMetaClass * getGlobalMetaClass();
-
 class GMetaClassImplement;
 
 GMAKE_FINAL(GMetaClass)
@@ -45,7 +43,7 @@ public:
 
 		this->addModifier(metaModifierStatic);
 
-		this->intializeImplement();
+		this->initializeImplement();
 		this->setupItemLists();
 	}
 
@@ -159,7 +157,10 @@ private:
 
 	const GMetaOperator * doGetOperator(GMetaOpType op, bool findSuper, void ** outInstance) const;
 
-	void intializeImplement();
+	void initializeImplement();
+
+private:
+	void rebindName(const char * name);
 
 private:
 	mutable bool intialized;
@@ -170,54 +171,19 @@ private:
 	GScopedPointer<meta_internal::GMetaClassDataBase> baseData;
 	
 	GMetaClassImplement * implement;
+
+private:
+	friend class GDefineMetaGlobal;
 };
 
-
-
-namespace meta_internal {
-
-template <typename cls, bool inCls>
-struct GGetMetaClass
-{
-	static const GMetaClass * get() {
-		return cls::getMetaClass();
-	}
-};
-
-template <typename cls>
-struct GGetMetaClass <cls, false>
-{
-	static const GMetaClass * get() {
-		return NULL;
-	}
-};
-
-
-struct GMetaClassRegister
-{
-	GMetaClassRegister(const GMetaClass * metaClass) {
-		getGlobalMetaClass()->addClass(metaClass);
-	}
-};
-
-
-} // namespace meta_internal
-
-
-template <typename ClassType>
-inline const GMetaClass * findMetaClass()
-{
-	const GMetaClass * metaClass = meta_internal::GGetMetaClass<ClassType, cpgf::meta_internal::GCheckExistMetaClass<ClassType>::Result>::get();
-
-	if(metaClass == NULL) {
-		metaClass = findMetaClass(createMetaType<ClassType>());
-	}
-
-	return metaClass;
-}
 
 const GMetaClass * findMetaClass(const GMetaType & type);
 const GMetaClass * findMetaClass(const char * name);
+
+GMetaClass * getGlobalMetaClass();
+GMetaClass * getGlobalMetaClassAt(size_t index);
+size_t getGlobalMetaClassCount();
+GMetaClass * getGlobalMetaClassByName(const char * name);
 
 
 } // namespace cpgf

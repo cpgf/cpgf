@@ -201,6 +201,9 @@ struct IMetaClass : public IMetaTypedItem
 struct IMetaModule : public IExtendObject
 {
 	virtual IMetaClass * G_API_CC getGlobalMetaClass() = 0;
+	virtual IMetaClass * G_API_CC getGlobalMetaClassAt(uint32_t index);
+	virtual uint32_t G_API_CC getGlobalMetaClassCount();
+	virtual IMetaClass * G_API_CC getGlobalMetaClassByName(const char * name);
 
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name) = 0;
 	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt) = 0;

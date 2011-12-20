@@ -538,6 +538,9 @@ public:
 
 protected:
 	virtual IMetaClass * G_API_CC getGlobalMetaClass();
+	virtual IMetaClass * G_API_CC getGlobalMetaClassAt(uint32_t index);
+	virtual uint32_t G_API_CC getGlobalMetaClassCount();
+	virtual IMetaClass * G_API_CC getGlobalMetaClassByName(const char * name);
 	
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name);
 	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt);
@@ -1841,6 +1844,33 @@ IMetaClass * G_API_CC ImplMetaModule::getGlobalMetaClass()
 	ENTER_META_API()
 
 	return new ImplMetaClass(cpgf::getGlobalMetaClass());
+
+	LEAVE_META_API(return NULL)
+}
+
+IMetaClass * G_API_CC ImplMetaModule::getGlobalMetaClassAt(uint32_t index)
+{
+	ENTER_META_API()
+
+	return new ImplMetaClass(cpgf::getGlobalMetaClassAt(index));
+
+	LEAVE_META_API(return NULL)
+}
+
+uint32_t G_API_CC ImplMetaModule::getGlobalMetaClassCount()
+{
+	ENTER_META_API()
+
+	return getGlobalMetaClassCount();
+
+	LEAVE_META_API(return 0)
+}
+
+IMetaClass * G_API_CC ImplMetaModule::getGlobalMetaClassByName(const char * name)
+{
+	ENTER_META_API()
+
+	return new ImplMetaClass(cpgf::getGlobalMetaClassByName(name));
 
 	LEAVE_META_API(return NULL)
 }
