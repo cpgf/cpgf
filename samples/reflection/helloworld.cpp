@@ -83,7 +83,7 @@ void doTest()
 	testCheckAssert(metaEnum != NULL);
 
 	cout << "There are " << metaEnum->getCount() << " kind of styles to say hello." << endl;
-	for(size_t i = 0; i < metaEnum->getCount(); ++i) {
+	for(uint32_t i = 0; i < metaEnum->getCount(); ++i) {
 		cout << "The style secret key of No." << i << " is " << metaEnum->getKey(i) << endl;
 	}
 

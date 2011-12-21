@@ -1843,7 +1843,7 @@ IMetaClass * G_API_CC ImplMetaModule::getGlobalMetaClass()
 {
 	ENTER_META_API()
 
-	return new ImplMetaClass(cpgf::getGlobalMetaClass());
+	return new ImplMetaClass(::cpgf::getGlobalMetaClass());
 
 	LEAVE_META_API(return NULL)
 }
@@ -1852,7 +1852,7 @@ IMetaClass * G_API_CC ImplMetaModule::getGlobalMetaClassAt(uint32_t index)
 {
 	ENTER_META_API()
 
-	return new ImplMetaClass(cpgf::getGlobalMetaClassAt(index));
+	return new ImplMetaClass(::cpgf::getGlobalMetaClassAt(index));
 
 	LEAVE_META_API(return NULL)
 }
@@ -1861,7 +1861,7 @@ uint32_t G_API_CC ImplMetaModule::getGlobalMetaClassCount()
 {
 	ENTER_META_API()
 
-	return getGlobalMetaClassCount();
+	return static_cast<uint32_t>(::cpgf::getGlobalMetaClassCount());
 
 	LEAVE_META_API(return 0)
 }
@@ -1870,7 +1870,7 @@ IMetaClass * G_API_CC ImplMetaModule::getGlobalMetaClassByName(const char * name
 {
 	ENTER_META_API()
 
-	return new ImplMetaClass(cpgf::getGlobalMetaClassByName(name));
+	return new ImplMetaClass(::cpgf::getGlobalMetaClassByName(name));
 
 	LEAVE_META_API(return NULL)
 }
