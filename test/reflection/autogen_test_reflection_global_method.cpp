@@ -87,6 +87,13 @@ namespace Test_GlobalMethod { namespace {
 
 
 
+int methodExplicitThis(CLASS * self, int n)
+{
+	(void)self;
+
+	return fieldMethodInt + n;
+}
+
 
 G_AUTO_RUN_BEFORE_MAIN()
 {
@@ -105,6 +112,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 		._method("methodManyParams", &methodManyParams)
 		._method("methodSum", &methodSum)
 		._method("methodGetNCData", &methodGetNCData, GMetaPolicyAllParamNoncopyable())
+		._method("methodExplicitThis", &methodExplicitThis, GMetaPolicyExplicitThis())
 	;
 }
 
@@ -141,6 +149,9 @@ GTEST(Lib_Exists)
 	GCHECK(method);
 
 	METHOD(methodSum);
+	GCHECK(method);
+
+	METHOD(methodExplicitThis);
 	GCHECK(method);
 }
 
@@ -180,6 +191,9 @@ GTEST(API_Exists)
 	GCHECK(method);
 
 	METHOD(methodSum);
+	GCHECK(method);
+
+	METHOD(methodExplicitThis);
 	GCHECK(method);
 }
 
@@ -226,6 +240,10 @@ GTEST(Lib_ResultType)
 	GCHECK(! method->hasResult());
 
 	METHOD(methodSum);
+	GEQUAL(method->getResultType(), createMetaType<int>());
+	GCHECK(method->hasResult());
+
+	METHOD(methodExplicitThis);
 	GEQUAL(method->getResultType(), createMetaType<int>());
 	GCHECK(method->hasResult());
 }
@@ -286,6 +304,11 @@ GTEST(Lib_ParamType)
 	GCHECK(method->isVariadic());
 	GEQUAL(method->getParamCount(), 1);
 	GEQUAL(method->getParamType(0), createMetaType<const GMetaVariadicParam *>());
+
+	METHOD(methodExplicitThis);
+	GCHECK(! method->isVariadic());
+	GEQUAL(method->getParamCount(), 1);
+	GEQUAL(method->getParamType(0), createMetaType<int>());
 }
 
 
@@ -349,6 +372,9 @@ GTEST(Lib_CheckParam)
 	GCHECK(method->checkParam(38, 10));
 	GCHECK(method->checkParam(38, 100));
 	GCHECK(method->checkParam(38, 1000));
+
+	METHOD(methodExplicitThis);
+	GCHECK(method->checkParam(38, 0));
 }
 
 
@@ -415,6 +441,9 @@ GTEST(API_CheckParam)
 	GCHECK(metaCheckParam(method, 38, 10));
 	GCHECK(metaCheckParam(method, 38, 100));
 	GCHECK(metaCheckParam(method, 38, 1000));
+
+	METHOD(methodExplicitThis);
+	GCHECK(metaCheckParam(method, 38, 0));
 }
 
 
@@ -508,6 +537,10 @@ GTEST(Lib_Invoke)
 		)), (
 		18 + 56 + 102 + 192 + 3103 + 39 + 52 + 691 + 819 + 130 + 397 + 19385
 		));
+
+	fieldMethodInt = 17;
+	METHOD(methodExplicitThis);
+	GEQUAL(fromVariant<int>(method->invoke(pobj, 38)), 17 + 38);
 }
 
 
@@ -604,6 +637,10 @@ GTEST(API_Invoke)
 		)), (
 		18 + 56 + 102 + 192 + 3103 + 39 + 52 + 691 + 819 + 130 + 397 + 19385
 		));
+
+	fieldMethodInt = 17;
+	METHOD(methodExplicitThis);
+	GEQUAL(fromVariant<int>(metaInvokeMethod(method, pobj, 38)), 17 + 38);
 }
 
 

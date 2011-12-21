@@ -1,6 +1,7 @@
 #ifndef __GMETAMETHOD_P_H
 #define __GMETAMETHOD_P_H
 
+#include "cpgf/private/gmetainvoke_p.h"
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gmetatype.h"
 #include "cpgf/gmetapolicy.h"
@@ -8,6 +9,12 @@
 #include "cpgf/gpp.h"
 #include "cpgf/gcallback.h"
 #include "cpgf/gexception.h"
+
+
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4127) // warning C4127: conditional expression is constant
+#endif
 
 
 namespace cpgf {
@@ -18,84 +25,7 @@ namespace meta_internal {
 #define REF_GETPARAM_HELPER(N, unused) \
 	case N: return createMetaType<typename TypeList_GetWithDefault<typename CallbackT::TraitsType::ArgTypeList, N>::Result>();
 
-#define REF_CALL_HELPER_CAST(N, unused) \
-	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, PolicyHasRule<Policy, GMetaRuleCopyConstReference<N> >::Result ? VarantCastCopyConstRef : VarantCastKeepConstRef>(*params[N])
-
-#define REF_CALL_HELPER(N, unused) \
-	template <typename CT, typename FT, typename RT, typename Policy> \
-	struct GMetaMethodCallHelper<CT, FT, N, RT, Policy, false> { \
-		static GVariant invoke(const CT & callback, GVariant const * const * params, size_t paramCount) { \
-			(void)params; \
-			(void)paramCount; \
-			GVarTypeData typeData = GVarTypeData(); \
-			deduceVariantType<RT>(typeData, ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
-			GVariant v; \
-			variant_internal::InitVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result>(v, typeData, static_cast<typename variant_internal::DeducePassType<RT>::PassType>(callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)))); \
-			return v; \
-		} \
-	}; \
-	template <typename CT, typename FT, typename Policy> \
-	struct GMetaMethodCallHelper<CT, FT, N, void, Policy, false> { \
-		static GVariant invoke(const CT & callback, GVariant const * const * params, size_t paramCount) { \
-			(void)params; \
-			(void)paramCount; \
-			callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)); \
-			return GVariant(); \
-		} \
-	};
-
 std::string arityToName(int arity);
-
-template <typename CT, typename FT, unsigned int N, typename RT, typename Policy, bool IsVariadic>
-struct GMetaMethodCallHelper;
-
-template <typename CT, typename FT, unsigned int N, typename RT, typename Policy>
-struct GMetaMethodCallHelper <CT, FT, N, RT, Policy, true>
-{
-	GASSERT_STATIC(N == 1);
-
-	static GVariant invoke(const CT & callback, GVariant const * const * params, size_t paramCount) {
-		GMetaVariadicParam variadicParams;
-		variadicParams.params = params;
-		variadicParams.paramCount = paramCount;
-		
-		return createVariant<true, RT>(callback(&variadicParams), true);
-	}
-};
-
-template <typename CT, typename FT, unsigned int N, typename Policy>
-struct GMetaMethodCallHelper <CT, FT, N, void, Policy, true>
-{
-	GASSERT_STATIC(N == 1);
-
-	static GVariant invoke(const CT & callback, GVariant const * const * params, size_t paramCount) {
-		GMetaVariadicParam variadicParams;
-		variadicParams.params = params;
-		variadicParams.paramCount = paramCount;
-		callback(&variadicParams);
-		return GVariant();
-	}
-};
-
-GPP_REPEAT_2(REF_MAX_ARITY, REF_CALL_HELPER, GPP_EMPTY)
-
-template <typename FunctionTraits, typename Enabled = void>
-struct IsVariadicFunction
-{
-	typedef FunctionTraits TraitsType;
-
-	enum { Result = false };
-};
-
-template <typename FunctionTraits>
-struct IsVariadicFunction <FunctionTraits, typename GEnableIf<(FunctionTraits::Arity == 1)>::Result>
-{
-	typedef FunctionTraits TraitsType;
-
-	enum { Result = (IsSameType<typename TraitsType::ArgList::Arg0, GMetaVariadicParam *>::Result
-		|| IsSameType<typename TraitsType::ArgList::Arg0, const GMetaVariadicParam *>::Result)
-	};
-};
 
 class GMetaMethodDataBase
 {
@@ -108,6 +38,7 @@ public:
 	virtual GMetaType getParamType(size_t index) const = 0;
 	virtual GMetaType getResultType() const = 0;
 	virtual bool isVariadic() const = 0;
+	virtual bool isExplicitThis() const = 0;
 	virtual GVariant invoke(void * instance, GVariant const * const * params, size_t paramCount) const = 0;
 	virtual bool checkParam(const GVariant & param, size_t paramIndex) const = 0;
 	virtual bool isParamTransferOwnership(size_t paramIndex) const = 0;
@@ -129,7 +60,7 @@ public:
 	}
 
 	virtual size_t getParamCount() const {
-		return TraitsType::Arity;
+		return PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result ? TraitsType::Arity - 1 : TraitsType::Arity;
 	}
 
 	virtual bool hasResult() const {
@@ -137,6 +68,9 @@ public:
 	}
 
 	virtual GMetaType getParamType(size_t index) const {
+		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
+			++index;
+		}
 		switch(index) {
 			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_HELPER, GPP_EMPTY)
 
@@ -154,13 +88,29 @@ public:
 		return IsVariadicFunction<TraitsType>::Result;
 	}
 
+	virtual bool isExplicitThis() const {
+		return PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result;
+	}
+
 	virtual GVariant invoke(void * instance, GVariant const * const * params, size_t paramCount) const {
-		if(!this->isVariadic() && paramCount != this->getParamCount()) {
+		if(!(
+				this->isVariadic()
+				|| paramCount == this->getParamCount()
+				|| (paramCount == this->getParamCount() - 1 && PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result)
+			)
+		) {
 			raiseCoreException(Error_Meta_WrongArity, this->getParamCount(), paramCount);
 		}
 
 		this->callback.setObject(instance);
-		return GMetaMethodCallHelper<CallbackType, TraitsType, TraitsType::Arity, typename TraitsType::ResultType, Policy, IsVariadicFunction<TraitsType>::Result>::invoke(this->callback, params, paramCount);
+		return GMetaInvokeHelper<CallbackType,
+			TraitsType,
+			TraitsType::Arity,
+			typename TraitsType::ResultType,
+			Policy,
+			IsVariadicFunction<TraitsType>::Result,
+			PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result
+		>::invoke(instance, this->callback, params, paramCount);
 	}
 
 	virtual bool checkParam(const GVariant & param, size_t paramIndex) const {
@@ -170,6 +120,10 @@ public:
 
 		if(paramIndex >= this->getParamCount()) {
 			return false;
+		}
+
+		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
+			++paramIndex;
 		}
 
 #define REF_CHECKPARAM_HELPER(N, unused) \
@@ -188,6 +142,9 @@ public:
 	}
 
 	virtual bool isParamTransferOwnership(size_t paramIndex) const {
+		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
+			++paramIndex;
+		}
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
 
@@ -203,29 +160,63 @@ public:
 	CallbackType callback;
 };
 
+template <typename OT, typename FT, typename Enabled = void>
+struct IsStaticFunctor
+{
+	enum {
+		IsStatic = true,
+		IsFunction = false,
+		IsFunctor = true
+	};
+};
 
-#define REF_PARAM_TYPEVALUE(N, P)		GPP_COMMA_IF(N) P ## N p ## N
+template <typename OT, typename FT>
+struct IsStaticFunctor <OT, FT, typename GEnableIf<IsFunction<FT>::Result>::Result>
+{
+	enum {
+		IsStatic = IsSameType<OT, void>::Result || IsSameType<typename GFunctionTraits<FT>::ObjectType, void>::Result,
+		IsFunction = true,
+		IsFunctor = false
+	};
+};
 
-template <typename OT, typename FuncOT, typename Enabled = void>
-struct GMetaMethodCallbackMaker {
+template <typename OT, typename FT, typename Enabled = void>
+struct GMetaMethodCallbackMaker;
+
+template <typename OT, typename FT>
+struct GMetaMethodCallbackMaker <OT, FT, typename GEnableIf<IsStaticFunctor<OT, FT>::IsFunction && ! IsStaticFunctor<OT, FT>::IsStatic>::Result>
+{
 	enum { modifiers = 0 };
 
-	template <typename FT>
-	static typename FunctionCallbackType<FT>::Result make(const FT & func) {
+	template <typename F>
+	static typename FunctionCallbackType<FT>::Result make(const F & func) {
 		return makeCallback(static_cast<OT *>(NULL), func);
 	}
 };
 
-template <typename OT, typename FuncOT>
-struct GMetaMethodCallbackMaker <OT, FuncOT, typename GEnableIf<IsSameType<OT, void>::Result || IsSameType<FuncOT, void>::Result>::Result> {
+template <typename OT, typename FT>
+struct GMetaMethodCallbackMaker <OT, FT, typename GEnableIf<IsStaticFunctor<OT, FT>::IsFunction && IsStaticFunctor<OT, FT>::IsStatic>::Result>
+{
 	enum { modifiers = metaModifierStatic };
 
-	template <typename FT>
-	static typename FunctionCallbackType<FT>::Result make(const FT & func) {
+	template <typename F>
+	static typename FunctionCallbackType<FT>::Result make(const F & func) {
 		return makeCallback(func);
 	}
 };
 
+template <typename OT, typename FT>
+struct GMetaMethodCallbackMaker <OT, GCallback<FT>, typename GEnableIf<! IsStaticFunctor<OT, GCallback<FT> >::IsFunction>::Result>
+{
+	enum { modifiers = metaModifierStatic };
+
+	static GCallback<FT> make(const GCallback<FT> & func) {
+		return func;
+	}
+};
+
+
+#define REF_PARAM_TYPEVALUE(N, P)		GPP_COMMA_IF(N) P ## N p ## N
 
 #define REF_CONSTRUCTOR_INVOKE(N, unused) \
     template<typename OT, typename ArgsList> struct GMetaConstructorInvoker <N, OT, ArgsList> { \
@@ -253,6 +244,12 @@ GPP_REPEAT_2(REF_MAX_ARITY, REF_CONSTRUCTOR_INVOKE, GPP_EMPTY)
 #undef REF_CONSTRUCTOR_INVOKE
 #undef REF_GETPARAM_HELPER
 #undef REF_PARAM_TYPEVALUE
+
+
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 
 #endif

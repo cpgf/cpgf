@@ -1,3 +1,6 @@
+TBD version 1.2.2
+	Added meta policy GMetaRuleExplicitThis
+
 2011-12-18 version 1.2.1
 	Fixed the code compatibility. Now the library can be compiled by GCC 3.4.2. (Tested with MingW GCC).
 	Remove a type casting between void * and function pointer in gcallback. Now the library is more compatible with C++ standard.

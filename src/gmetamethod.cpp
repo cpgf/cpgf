@@ -6,7 +6,7 @@
 
 #define REF_CALL_METHOD(N, unused) \
 	GVariant GMetaMethod::invoke(void * instance GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, const GVariant & p)) const { \
-		if(this->isStatic()) { \
+		if(this->isStatic() && ! this->baseData->isExplicitThis()) { \
 			instance = NULL; \
 		} \
 		const GVariant * params[REF_MAX_ARITY]; \

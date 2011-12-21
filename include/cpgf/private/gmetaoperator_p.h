@@ -1,6 +1,12 @@
 #ifndef __GMETAOPERATOR_P_H
 #define __GMETAOPERATOR_P_H
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4127) // warning C4127: conditional expression is constant
+#endif
+
+
 namespace meta_internal {
 
 template <GMetaOpType op>
@@ -586,11 +592,23 @@ public:
 	}
 
 	virtual GVariant invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const {
-		if(!this->isVariadic() && paramCount != this->getParamCount()) {
+		if(!(
+				this->isVariadic()
+				|| paramCount == this->getParamCount()
+				|| (paramCount == this->getParamCount() - 1 && PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result)
+			)
+		) {
 			raiseCoreException(Error_Meta_WrongArity, this->getParamCount(), paramCount);
 		}
 
-		return GMetaMethodCallHelper<OT, FT, FT::Arity, typename FT::ResultType, Policy, IsVariadicFunction<FT>::Result>::invoke(*static_cast<OT *>(instance), params, paramCount);
+		return GMetaInvokeHelper<OT,
+			FT,
+			FT::Arity,
+			typename FT::ResultType,
+			Policy,
+			IsVariadicFunction<FT>::Result,
+			PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result
+		>::invoke(instance, *static_cast<OT *>(instance), params, paramCount);
 	}
 
 	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const {
@@ -724,6 +742,11 @@ std::string operatorToName(GMetaOpType op);
 
 } // namespace meta_internal
 
+
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 
 #endif

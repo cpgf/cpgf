@@ -17,11 +17,13 @@ private:
 public:
 	template <typename OT, typename FT, typename Policy>
 	static GMetaMethod * newMethod(const char * name, const FT & func, const Policy & policy) {
-		GASSERT_STATIC(IsFunction<FT>::Result);
+//		GASSERT_STATIC(IsFunction<FT>::Result);
 
-		GMetaMethod * method = new GMetaMethod(name, createMetaType<FT>(), meta_internal::GMetaMethodCallbackMaker<OT, typename GFunctionTraits<FT>::ObjectType>::make(func), policy);
+		GMetaMethod * method = new GMetaMethod(name, createMetaType<FT>(), meta_internal::GMetaMethodCallbackMaker<OT, FT>::make(func), policy);
 
-		method->addModifier(meta_internal::GMetaMethodCallbackMaker<OT, typename GFunctionTraits<FT>::ObjectType>::modifiers);
+		if(! PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
+			method->addModifier(meta_internal::GMetaMethodCallbackMaker<OT, FT>::modifiers);
+		}
 
 		return method;
 	}

@@ -34,6 +34,9 @@ struct GMetaRuleCopyConstReference {};
 template <int N>
 struct GMetaRuleParamNoncopyable {};
 
+// used by method
+struct GMetaRuleExplicitThis {};
+
 
 // policies
 
@@ -101,6 +104,10 @@ typedef MakePolicy<
 	>
 	GMetaPolicyAllParamNoncopyable;
 
+typedef MakePolicy<
+		GMetaRuleExplicitThis
+	>
+	GMetaPolicyExplicitThis;
 
 
 } // namespace cpgf

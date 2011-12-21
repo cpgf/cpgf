@@ -27,6 +27,7 @@ my @commonReplaceToGlobal = (
 	qr'volatile\s*$' => '',
 	qr'const\s+volatile\s*\{\s*$' => '{',
 	qr'const\s+volatile\s*$' => '',
+	qr'self\-\>' => '',
 );
 
 my @replaceItems = (

@@ -2,9 +2,9 @@
 #define __GMETAOPERATOR_H
 
 
+#include "cpgf/private/gmetainvoke_p.h"
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gmetaapi.h"
-#include "cpgf/gmetamethod.h"
 #include "cpgf/gassert.h"
 
 #include <string>

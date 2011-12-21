@@ -75,6 +75,14 @@ See Rule 5 in GVariant document for details.
 Apply to: invokable -- method, constructor, and operator
 Effect: the parameter or result is not copyable.
 
+<b>GMetaRuleExplicitThis </b>
+Apply to: method
+Effect: the first parameter of the method is treated as "this" pointer and it's invisible from the outside.
+This policy is used to use a global method to pretend being a member function.
+For example, if we have global function,
+void myMethod(MyClass * instance, int param);
+Applying GMetaRuleExplicitThis will have the same effect as if myMethod is a member function of MyClass and the prototype is void myMethod(int param).
+
 <{/autobr}>
 
 
@@ -145,6 +153,11 @@ typedef MakePolicy<
 		GPP_REPEAT(REF_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaRuleParamNoncopyable)
 	>
 	GMetaPolicyAllParamNoncopyable;
+
+typedef MakePolicy<
+		GMetaRuleExplicitThis
+	>
+	GMetaPolicyExplicitThis;
 
 <{/code}>
 
