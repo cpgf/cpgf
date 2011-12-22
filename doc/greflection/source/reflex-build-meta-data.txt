@@ -63,7 +63,7 @@ void myMetaBuild()
 		// nested class
 		._class(
 			GDefineMetaClass<MyClass::AnotherInner>
-				::inner("AnotherInner")
+				::create("AnotherInner")
 				._field("y", &MyClass::AnotherInner::y)
 		)
 	;
@@ -161,6 +161,9 @@ int main()
 	The library supports multiple inheritance. If Cat is also derived from Biological, just add Biological to GDefineMetaClass.
 	
 	The base classes are not necessary reflected. When a non-reflected base class is retrieving for meta class by calling GMetaClass::getBaseClass, it always return NULL. However, calling GMetaClass::getBaseCount to get base class count will include all non-reflected base classes.
+
+	GDefineMetaClass::<b>create</b>
+	The function "create" behaves similar as "define". "define" will add the meta class to global scope, while "create" not.
 <{/autobr}>
 	</p>
 
@@ -186,6 +189,8 @@ int main()
 	The function prototype is
 	void func(GDefineMetaClass<T> define)
 	Which T is the class to build for, here is Animal.
+
+	GDefineMetaClass::<b>lazyCreate</b> "create" a meta class with lazy build.
 <{/autobr}>
 	</p>
 
@@ -535,7 +540,7 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 		._class(
 			GDefineMetaClass<MyClass::InnerClass>
-				::inner("InnerClass")
+				::create("InnerClass")
 				._field("whatever", &MyClass::InnerClass::whatever)
 		)
 <{/code}>

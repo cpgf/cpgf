@@ -1,5 +1,7 @@
 TBD version 1.2.2
-	Added meta policy GMetaRuleExplicitThis
+	Added meta policy GMetaRuleExplicitThis.
+	Support binding object functor as meta method.
+	Renamed GDefineMetaClass::inner to GDefineMetaClass::create.
 
 2011-12-18 version 1.2.1
 	Fixed the code compatibility. Now the library can be compiled by GCC 3.4.2. (Tested with MingW GCC).

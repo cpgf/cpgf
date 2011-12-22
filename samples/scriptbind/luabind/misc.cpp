@@ -163,7 +163,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 
 		._class(
 			GDefineMetaClass<TestObject::InnerClass>
-				::inner("InnerClass")
+				::create("InnerClass")
 				._method("get", &TestObject::InnerClass::get)
 		)
 

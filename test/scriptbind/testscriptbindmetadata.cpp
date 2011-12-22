@@ -323,7 +323,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 	GDefineMetaClass<BasicA>
 		::define(REG_NAME_BasicA)
 		._class(
-			GDefineMetaClass<BasicA::Inner>::inner("Inner")
+			GDefineMetaClass<BasicA::Inner>::create("Inner")
 				._field("x", &BasicA::Inner::x)
 				._method("add", &BasicA::Inner::add)
 		)

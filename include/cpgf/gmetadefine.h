@@ -275,7 +275,7 @@ public:
 		return c;
 	}
 
-	static ThisType inner(const char * className) {
+	static ThisType create(const char * className) {
 		ThisType c(NULL, NULL);
 		c.init(className, NULL, false, GMetaPolicyDefault());
 		return c;
@@ -290,7 +290,7 @@ public:
 		return c;
 	}
 
-	static ThisType lazyInner(const char * className, void (*reg)(ThisType define)) {
+	static ThisType lazyCreate(const char * className, void (*reg)(ThisType define)) {
 		GASSERT(reg != NULL);
 
 		ThisType c(NULL, NULL);
@@ -307,7 +307,7 @@ public:
 			return c;
 		}
 
-		static ThisType inner(const char * className) {
+		static ThisType create(const char * className) {
 			ThisType c(NULL, NULL);
 			c.init(className, NULL, false, P());
 			return c;
@@ -322,7 +322,7 @@ public:
 			return c;
 		}
 
-		static ThisType lazyInner(const char * className, void (*reg)(ThisType define)) {
+		static ThisType lazyCreate(const char * className, void (*reg)(ThisType define)) {
 			GASSERT(reg != NULL);
 
 			ThisType c(NULL, NULL);
@@ -334,6 +334,9 @@ public:
 	
 
 protected:
+	explicit GDefineMetaClass(GMetaClass * metaClass) : super(metaClass, metaClass) {
+	}
+
 	GDefineMetaClass(GMetaClass * metaClass, GMetaItem * currentItem) : super(metaClass, currentItem) {
 	}
 

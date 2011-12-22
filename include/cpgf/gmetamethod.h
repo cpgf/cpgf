@@ -4,6 +4,12 @@
 #include "cpgf/private/gmetamethod_p.h"
 
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4127) // warning C4127: conditional expression is constant
+#endif
+
+
 namespace cpgf {
 
 
@@ -17,8 +23,6 @@ private:
 public:
 	template <typename OT, typename FT, typename Policy>
 	static GMetaMethod * newMethod(const char * name, const FT & func, const Policy & policy) {
-//		GASSERT_STATIC(IsFunction<FT>::Result);
-
 		GMetaMethod * method = new GMetaMethod(name, createMetaType<FT>(), meta_internal::GMetaMethodCallbackMaker<OT, FT>::make(func), policy);
 
 		if(! PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
@@ -104,6 +108,11 @@ protected:
 
 } // namespace cpgf
 
+
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 
 #endif
