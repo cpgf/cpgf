@@ -57,6 +57,21 @@ However, you can pass the function and object name to C++, then the C++ can invo
 <{/autobr}>
 
 
+<{sh}> Why the Google V8 binding is based on an old version V8 (v3.4.5)?
+<{sc}>
+
+<{autobr}>
+First, the V8 version used in cpgf is not very old. It should be already stable version.
+Second, the reason cpgf doesn't use an up to date V8 version is that, V8 is always using some exotic building system, from Scons to gyp, rather than makefile or CMake, which is widely accepted by C++ world.
+It's very hard to get those weird building system working correctly under MS VC and MinGW, both of which are used to develop cpgf.
+You may check the user comments on V8 web page <a href="http://code.google.com/p/v8/wiki/BuildingOnWindows" target="_blank">here</a> and <a href="http://code.google.com/p/v8/wiki/BuildingWithGYP" target="_blank">here</a> to see how other V8 users said.
+The total time I wasted on building V8 is much longer than total time I spent on building wxWidgets and Qt.
+I would like to invest my time on more valuable works, rather than building a third party library.
+So let's stick with current V8 version 3.4.5, until the future V8 is not compatible with it.
+
+<{/autobr}>
+
+
 
 
 
