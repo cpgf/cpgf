@@ -55,6 +55,22 @@
 	#endif
 #endif
 
+// C++ 0x/11
+#ifndef G_SUPPORT_RVALUE_REFERENCE
+	#ifdef G_COMPILER_VC
+		#if _MSC_VER >= 1600
+			#define G_SUPPORT_RVALUE_REFERENCE 1
+		#endif
+	#endif
+	#ifdef G_COMPILER_GCC
+		#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2)) && defined(__GXX_EXPERIMENTAL_CXX0X__)
+			#define G_SUPPORT_RVALUE_REFERENCE 1
+		#endif
+	#endif
+	#ifndef G_SUPPORT_RVALUE_REFERENCE
+		#define G_SUPPORT_RVALUE_REFERENCE 0
+	#endif
+#endif
 
 
 #endif

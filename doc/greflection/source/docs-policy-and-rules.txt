@@ -23,7 +23,7 @@ One rule will change one aspect of the default behavior.
 
 For example, by default a meta class requires the class has a default constructor.
 If the class doesn't have it, compiling will fail if meta class is being built for it.
-However, if feed the meta class with a policy with the rule of GMetaRuleDefaultConstructorAbsent, the library will know there is no default constructor and will succeed the compiling.
+However, if feeding the meta class with a policy with the rule of GMetaRuleDefaultConstructorAbsent, the library will know there is no default constructor and will succeed the compiling.
 
 Rules are pre-defined, you can't add any new rules or change any existing rules behavior.
 However, with the combination of rules, a new policy can be created.
@@ -67,13 +67,13 @@ Note: parameter 0 is the first explicit parameter, not "this" pointer.
 
 <b>GMetaRuleCopyConstReference <N> </b>
 Apply to: invokable -- method, constructor, and operator
-Effect: the parameter or result will copying the object to reference-to-const instead of reference.
+Effect: the parameter or result will copy the object to reference-to-const instead of reference.
 If implicit type conversion is required, such like C string to std::string, use this rule.
 See Rule 5 in GVariant document for details.
 
 <b>GMetaRuleParamNoncopyable <N> </b>
 Apply to: invokable -- method, constructor, and operator
-Effect: the parameter or result is not copyable.
+Effect: the parameter or resjiult is not copyable.
 
 <b>GMetaRuleExplicitThis </b>
 Apply to: method

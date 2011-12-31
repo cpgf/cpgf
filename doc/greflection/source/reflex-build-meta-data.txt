@@ -353,7 +353,7 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 <p>
 <{autobr}>
-	._ethod takes two or three parameters.
+	._method takes two or three parameters.
 	The first parameter is the name. The named is used to find the meta data later.
 	The second parameter is method address.
 	The third parameter is optional. It's the policy.
