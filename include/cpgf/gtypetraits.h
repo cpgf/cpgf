@@ -1,6 +1,7 @@
 #ifndef __GTYPETRAITS_H
 #define __GTYPETRAITS_H
 
+#include "cpgf/gcompiler.h"
 #include "cpgf/genableif.h"
 #include "cpgf/gtypelist.h"
 #include "cpgf/gfunctiontraits.h"
@@ -77,6 +78,13 @@ struct RemoveReference <T &>
 	typedef T Result;
 };
 
+#if G_SUPPORT_RVALUE_REFERENCE
+template <typename T>
+struct RemoveReference <T &&>
+{
+	typedef T Result;
+};
+#endif
 
 template <typename T>
 struct IsArray
@@ -507,6 +515,14 @@ struct GArgumentTraits <T &>
 {
 	typedef T & Result;
 };
+
+#if G_SUPPORT_RVALUE_REFERENCE
+template <typename T>
+struct GArgumentTraits <T &&>
+{
+	typedef T && Result;
+};
+#endif
 
 template <typename T, unsigned int N>
 struct GArgumentTraits <T [N]>

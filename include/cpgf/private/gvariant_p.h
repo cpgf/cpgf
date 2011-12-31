@@ -370,6 +370,13 @@ struct CastResult <const T &, Policy> {
 	typedef T Result;
 };
 
+#if G_SUPPORT_RVALUE_REFERENCE
+template <typename T, int Policy>
+struct CastResult <T &&, Policy> {
+	typedef T Result;
+};
+#endif
+
 template <typename T>
 struct CastResult <const T &, VarantCastCopyConstRef> {
 	typedef T Result;
