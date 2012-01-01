@@ -17,22 +17,8 @@
 	#define CB_MAX_ARITY G_MAX_ARITY
 #endif
 
-#if G_SUPPORT_RVALUE_REFERENCE
-	template <typename T>
-	T && forwardRValue(T & value) {
-		return static_cast<T &&>(value);
-	}
-
-#else
-	template <typename T>
-	T & forwardRValue(T & value) {
-		return value;
-	}
-#endif
-
-
 #define CB_PARAM_TYPEVALUE(N, P)		GPP_COMMA_IF(N) typename GArgumentTraits<P ## N>::Result  p ## N
-#define CB_PARAM_PASSVALUE(N, P)		GPP_COMMA_IF(N) forwardRValue(p ## N)
+#define CB_PARAM_PASSVALUE(N, P)		GPP_COMMA_IF(N) callback_internal::ForwardValue<typename GArgumentTraits<P ## N>::Result, typename GArgumentTraits<P ## N>::Result>::forward(p ## N)
 
 
 #define CB_DEF_MEMBER(N) \
@@ -88,6 +74,25 @@ namespace cpgf {
 
 
 namespace callback_internal {
+
+template <typename To, typename From>
+struct ForwardValue
+{
+	static To & forward(From & value) {
+		return value;
+	}
+};
+
+#if G_SUPPORT_RVALUE_REFERENCE
+template <typename To, typename From>
+struct ForwardValue <To &&, From>
+{
+	static To && forward(From & value) {
+		return static_cast<To &&>(value);
+	}
+};
+#endif
+
 
 template <typename RT>
 struct ReturnType
