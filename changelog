@@ -1,6 +1,7 @@
 TBD version 1.2.2
 	Added meta policy GMetaRuleExplicitThis.
 	Support binding object functor as meta method.
+	Support C++0x/C++11 rvalue reference in callback and reflection.
 	Renamed GDefineMetaClass::inner to GDefineMetaClass::create.
 
 2011-12-18 version 1.2.1

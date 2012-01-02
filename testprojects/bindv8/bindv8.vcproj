@@ -177,10 +177,6 @@
 				RelativePath=".\bindv8.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\src\gv8bind.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -251,10 +247,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\gmetaproperty.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\gmetareflect.cpp"
 				>
 			</File>
 			<File

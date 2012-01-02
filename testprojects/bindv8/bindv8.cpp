@@ -3,11 +3,8 @@
 //#include <conio.h>
 
 
-void testBindV8();
-
 int main(int argc, char * argv[])
 {
-	testBindV8();
 
 //	_getch();
 

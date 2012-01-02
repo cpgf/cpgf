@@ -78,7 +78,7 @@ namespace callback_internal {
 template <typename To, typename From>
 struct ForwardValue
 {
-	static To & forward(From & value) {
+	static typename AddReference<To>::Result forward(typename AddReference<From>::Result value) {
 		return value;
 	}
 };
