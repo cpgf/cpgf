@@ -8,7 +8,7 @@
 
 <{autobr}>
 cpgf is a free, open source and cross platform C++ library.
-cpgf is composed by several independent libraries:
+cpgf is composed by several independent components:
 <{autoul}>
 	cpgf reflection -- a library to add	reflection feature to C++.
 	

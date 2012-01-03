@@ -70,6 +70,19 @@ GTEST(TestVariant_Cast)
 	CAN_FROM(string, v);
 	CAN_FROM(char *, v);
 	CAN_FROM(const char *, v);
+
+	CLASS obj;
+	int n = 0;
+
+	CAN_FROM_CAST(CLASS &, CLASS &, obj);
+	NOT_FROM_CAST(int &, int &, n);
+
+#if G_SUPPORT_RVALUE_REFERENCE
+	CAN_FROM_CAST(CLASS &, CLASS &&, n);
+	CAN_FROM_CAST(CLASS &&, CLASS &, obj);
+	CAN_FROM_CAST(int &&, int, 0);
+	CAN_FROM_CAST(int, int &&, 0);
+#endif
 }
 
 GTEST(TestVariant_ConstReference)

@@ -163,7 +163,7 @@ void myMetaBuild()
 		// nested class
 		._class(
 			GDefineMetaClass<MyClass::AnotherInner>
-				::create("AnotherInner")
+				::declare("AnotherInner")
 				._field("y", &MyClass::AnotherInner::y)
 		)
 	;

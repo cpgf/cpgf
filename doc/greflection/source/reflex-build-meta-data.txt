@@ -63,7 +63,7 @@ void myMetaBuild()
 		// nested class
 		._class(
 			GDefineMetaClass<MyClass::AnotherInner>
-				::create("AnotherInner")
+				::declare("AnotherInner")
 				._field("y", &MyClass::AnotherInner::y)
 		)
 	;
@@ -162,8 +162,8 @@ int main()
 	
 	The base classes are not necessary reflected. When a non-reflected base class is retrieving for meta class by calling GMetaClass::getBaseClass, it always return NULL. However, calling GMetaClass::getBaseCount to get base class count will include all non-reflected base classes.
 
-	GDefineMetaClass::<b>create</b>
-	The function "create" behaves similar as "define". "define" will add the meta class to global scope, while "create" not.
+	GDefineMetaClass::<b>declare</b>
+	The function "declare" behaves similar as "define". "define" will add the meta class to global scope, while "declare" not.
 <{/autobr}>
 	</p>
 
@@ -190,7 +190,7 @@ int main()
 	void func(GDefineMetaClass<T> define)
 	Which T is the class to build for, here is Animal.
 
-	GDefineMetaClass::<b>lazyCreate</b> "create" a meta class with lazy build.
+	GDefineMetaClass::<b>lazyDeclare</b> "declare" a meta class with lazy build.
 <{/autobr}>
 	</p>
 
@@ -540,7 +540,7 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 		._class(
 			GDefineMetaClass<MyClass::InnerClass>
-				::create("InnerClass")
+				::declare("InnerClass")
 				._field("whatever", &MyClass::InnerClass::whatever)
 		)
 <{/code}>

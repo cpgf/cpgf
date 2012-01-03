@@ -82,7 +82,7 @@ void doTest()
 	metaEnum = metaClass->getEnum("HelloStyle");
 	testCheckAssert(metaEnum != NULL);
 
-	cout << "There are " << metaEnum->getCount() << " kind of styles to say hello." << endl;
+	cout << "There are " << static_cast<unsigned int>(metaEnum->getCount()) << " kind of styles to say hello." << endl;
 	for(uint32_t i = 0; i < metaEnum->getCount(); ++i) {
 		cout << "The style secret key of No." << i << " is " << metaEnum->getKey(i) << endl;
 	}

@@ -52,13 +52,13 @@ G_AUTO_RUN_BEFORE_MAIN()
 
 		._class(
 			GDefineMetaClass<TestOutterClass::Inner>
-				::create("nestedclass::TestOutterClass::Inner")
+				::declare("nestedclass::TestOutterClass::Inner")
 				._field("x", &TestOutterClass::Inner::x)
 		)	
 
 		._class(
 			GDefineMetaClass<TestOutterClass::AnotherInner>
-				::create("nestedclass::TestOutterClass::AnotherInner")
+				::declare("nestedclass::TestOutterClass::AnotherInner")
 				._field("y", &TestOutterClass::AnotherInner::y)
 		)
 

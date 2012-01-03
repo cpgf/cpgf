@@ -828,7 +828,6 @@ GTEST(Lib_PassParamByValueAndRef)
 	method->invoke(pobj, &data);
 	GEQUAL(data.i, pobj->fieldMethodInt);
 	GEQUAL(data.s, pobj->fieldMethodString);
-//	EXCEPT_VARIANT(method->invoke(pobj, data))
 
 	pobj->fieldMethodInt = 2;
 	pobj->fieldMethodString = "def";

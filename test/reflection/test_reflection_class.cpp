@@ -617,17 +617,17 @@ G_AUTO_RUN_BEFORE_MAIN()
 
 		._class(
 			GDefineMetaClass<CLASS::C0>
-				::create(NAME(CLASS::C0))
+				::declare(NAME(CLASS::C0))
 		)
 
 		._class(
 			GDefineMetaClass<CLASS::C1>
-				::create(NAME(CLASS::C1))
+				::declare(NAME(CLASS::C1))
 		)
 
 		._class(
 			GDefineMetaClass<CLASS::C2>
-				::create(NAME(CLASS::C2))
+				::declare(NAME(CLASS::C2))
 		)
 	;
 }

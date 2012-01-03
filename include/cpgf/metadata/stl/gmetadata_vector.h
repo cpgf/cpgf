@@ -2,48 +2,64 @@
 #define __GMETADATA_VECTOR_H
 
 #include "cpgf/metadata/stl/gmetadata_iterator.h"
+#include "cpgf/metadata/stl/private/gmetadata_container_common.h"
 
 #include "cpgf/gmetadefine.h"
 
-#include <vector>
-
+#include "cpgf/metadata/stl/private/gmetadata_stl_header.h"
 
 namespace cpgf {
 
+namespace metadata_internal {
+
 template <typename T, typename MetaDefine>
-void bindMetaData_vector(MetaDefine define)
+void doBindMetaData_vector(MetaDefine define)
 {
-	GDefineMetaClass<typename T::iterator> iteratorDefine = GDefineMetaClass<typename T::iterator>::create("iterator");
-	bindMetaData_iterator<typename T::iterator>(iteratorDefine);
+	GDefineMetaClass<typename T::iterator> iteratorDefine = GDefineMetaClass<typename T::iterator>::declare("iterator");
+	bindMetaData_iterator(iteratorDefine);
+	
+	metadata_internal::bindMetaData_CommonContainer<T>(define);
 
 	define
-		._constructor<void * ()>()
-		._method("assign", (void (T::*) (T::size_type, const T::value_type&) ) &T::assign)
-		//._method("assign", &impl::STL_Vector_AssignWrapper<impl::STLIteratorHolder<T::iterator, typename T::value_type>, T>)
-		//._method("assign", &impl::STL_Vector_AssignWrapper<impl::STLIteratorHolder<T::const_iterator, typename T::value_type>, T>)
-		//._method("assign", &impl::STL_Vector_AssignWrapper<impl::STLIteratorHolder<T::reverse_iterator, typename T::value_type>, T>)
-		//._method("assign", &impl::STL_Vector_AssignWrapper<impl::STLIteratorHolder<T::const_reverse_iterator, typename T::value_type>, T>)
-		//._method("at", &impl::STL_AtMethod<T>)
-		//._method("at", &impl::STL_AtMethodConst<T>)
-		//._method("back", &impl::STL_BackMethod<T>)
-		//._method("back", &impl::STL_BackMethodConst<T>)
-		._method("capacity", &T::capacity)
-		//._method("front", &impl::STL_FrontMethod<T>)
-		//._method("front", &impl::STL_FrontMethodConst<T>)
-		//._method("insert", &impl::STL_Vector_Insert1<impl::STLIteratorHolder<T::iterator, typename T::value_type>, T>)
-		//._method("insert", &impl::STL_Vector_Insert2<impl::STLIteratorHolder<T::iterator, typename T::value_type>, T>)
-		._method("max_size", &T::max_size)
-		._method("pop_back", &T::pop_back)
-._method("push_back", (void (T::*)(T::value_type &&)) &T::push_back)
-		._method("push_back", (void (T::*)(const T::value_type &)) &T::push_back)
-		._method("reserve", &T::reserve)
-		._method("resize", (void (T::*) (T::size_type, T::value_type)) &T::resize)
+		.TEMPLATE _method("assign", (void (T::*)(typename T::size_type, const typename T::value_type &)) &T::assign)
+		.TEMPLATE _method("at", (typename T::reference (T::*)(typename T::size_type)) &T::at)
+		.TEMPLATE _method("at", (typename T::const_reference (T::*)(typename T::size_type) const) &T::at)
+		.TEMPLATE _method("back", (typename T::reference (T::*)()) &T::back)
+		.TEMPLATE _method("back", (typename T::const_reference (T::*)() const) &T::back)
+		.TEMPLATE _method("capacity", &T::capacity)
+		.TEMPLATE _method("front", (typename T::reference (T::*)()) &T::front)
+		.TEMPLATE _method("front", (typename T::const_reference (T::*)() const) &T::front)
+		.TEMPLATE _method("max_size", (typename T::size_type (T::*)() const) &T::max_size)
+		.TEMPLATE _method("pop_back", (void (T::*)()) &T::pop_back)
+		.TEMPLATE _method("push_back", (void (T::*)(const typename T::value_type &)) &T::push_back)
+		.TEMPLATE _method("reserve", (void (T::*)(typename T::size_type)) &T::reserve)
+//		.TEMPLATE _method("resize", (void (T::*) (typename T::size_type, const typename T::value_type &)) &T::resize)
+		.TEMPLATE _method("resize", (void (T::*) (typename T::size_type)) &T::resize)
+
+#if QUIRK_CONST_ITERATOR()
+		.TEMPLATE _method("insert", (typename T::iterator (T::*)(typename T::const_iterator, typename const T::value_type &)) &T::insert)
+		.TEMPLATE _method("insert", (void (T::*)(typename T::const_iterator, typename T::size_type, typename const T::value_type &)) &T::insert)
+#else
+		.TEMPLATE _method("insert", (typename T::iterator (T::*)(typename T::iterator, const typename T::value_type &)) &T::insert)
+		.TEMPLATE _method("insert", (void (T::*)(typename T::iterator, typename T::size_type, const typename T::value_type &)) &T::insert)
+#endif
 	;
+}
+
+} // namespace metadata_internal
+
+
+template <typename MetaDefine>
+void bindMetaData_vector(MetaDefine define)
+{
+	metadata_internal::doBindMetaData_vector<typename MetaDefine::ClassType>(define);
 }
 
 
 } // namespace cpgf
 
+
+#include "cpgf/metadata/stl/private/gmetadata_stl_footer.h"
 
 
 #endif

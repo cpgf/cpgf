@@ -65,6 +65,14 @@ struct IsReference <T &>
 	enum { Result = true };
 };
 
+#if G_SUPPORT_RVALUE_REFERENCE
+template <typename T>
+struct IsReference <T &&>
+{
+	enum { Result = true };
+};
+#endif
+
 
 template <typename T>
 struct RemoveReference
@@ -85,6 +93,63 @@ struct RemoveReference <T &&>
 	typedef T Result;
 };
 #endif
+
+
+template <typename T>
+struct IsLValueReference
+{
+	enum { Result = false };
+};
+
+template <typename T>
+struct IsLValueReference <T &>
+{
+	enum { Result = true };
+};
+
+
+template <typename T>
+struct RemoveLValueReference
+{
+	typedef T Result;
+};
+
+template <typename T>
+struct RemoveLValueReference <T &>
+{
+	typedef T Result;
+};
+
+
+template <typename T>
+struct IsRValueReference
+{
+	enum { Result = false };
+};
+
+#if G_SUPPORT_RVALUE_REFERENCE
+template <typename T>
+struct IsRValueReference <T &&>
+{
+	enum { Result = true };
+};
+#endif
+
+
+template <typename T>
+struct RemoveRValueReference
+{
+	typedef T Result;
+};
+
+#if G_SUPPORT_RVALUE_REFERENCE
+template <typename T>
+struct RemoveRValueReference <T &&>
+{
+	typedef T Result;
+};
+#endif
+
 
 template <typename T>
 struct IsArray

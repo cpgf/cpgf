@@ -21,6 +21,41 @@ namespace cpgf {
 
 namespace meta_internal {
 
+namespace {
+	typedef std::vector<GMetaClass *> MetaDefineClassList;
+	MetaDefineClassList * metaDefineClassList = NULL;
+} // unnamed namespace
+
+void metaDefineAddMetaClass(GMetaClass * metaClass)
+{
+	if(metaDefineClassList == NULL) {
+		metaDefineClassList = new MetaDefineClassList;
+	}
+
+	metaDefineClassList->push_back(metaClass);
+}
+
+bool metaDefineRemoveMetaClass(GMetaClass * metaClass)
+{
+	if(metaDefineClassList != NULL) {
+		for(MetaDefineClassList::iterator it = metaDefineClassList->begin(); it != metaDefineClassList->end(); ++it) {
+			if(*it == metaClass) {
+				metaDefineClassList->erase(it);
+				if(metaDefineClassList->empty()) {
+					delete metaDefineClassList;
+					metaDefineClassList = NULL;
+				}
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+
+
 class GMetaSuperListImplement
 {
 public:

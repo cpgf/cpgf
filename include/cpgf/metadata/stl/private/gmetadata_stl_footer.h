@@ -1,0 +1,4 @@
+
+#undef QUIRK_CONST_ITERATOR
+#undef TEMPLATE
+

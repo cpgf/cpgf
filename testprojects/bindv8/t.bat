@@ -1,8 +1,10 @@
-msbuild
+@echo off
+
+msbuild bindv8.vcxproj
 
 if errorlevel 1 goto error
 
-debug\bindv8
+rem debug\bindv8
 
 goto end
 

@@ -118,10 +118,26 @@ set(TEST_COMPILE_FLAGS " ")
 if(CMAKE_COMPILER_IS_GNUCC)
 	set(LIB_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
 	set(TEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
+
 	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
 if(TEST_GCOV)
 	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0 -fprofile-arcs -ftest-coverage")
 endif(TEST_GCOV)
+
+if(MINGW)
+	set(LIB_COMPILE_FLAGS "${LIB_COMPILE_FLAGS} -std=gnu++0x")
+	set(TEST_COMPILE_FLAGS "${TEST_COMPILE_FLAGS} -std=gnu++0x")
+
+	set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=gnu++0x")
+endif(MINGW)
+
+if(${MINGW} LESS 1)
+	set(LIB_COMPILE_FLAGS "${LIB_COMPILE_FLAGS} -std=c++0x")
+	set(TEST_COMPILE_FLAGS "${TEST_COMPILE_FLAGS} -std=c++0x")
+
+	set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=c++0x")
+endif(${MINGW} LESS 1)
+
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)
@@ -207,9 +223,7 @@ if(${HAS_UNITTEST})
 	if(HAS_V8 LESS 1)
 		message(WARNING "Can't find V8 for unit test. Unit test will not include V8 binding test.")
 	endif(HAS_V8 LESS 1)
-endif(${HAS_UNITTEST})
 
-if(${HAS_UNITTEST})
 
 	set(UNITTEST_FRAMEWORK_SUBDIR Posix)
 

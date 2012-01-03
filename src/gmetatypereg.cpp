@@ -24,7 +24,7 @@ namespace {
 		GMetaTypedItemList(bool freeItems) : freeItems(freeItems) {
 		}
 
-		~GMetaTypedItemList(){
+		~GMetaTypedItemList() {
 			if(this->freeItems) {
 				for(ListType::const_iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
 					delete *it;
