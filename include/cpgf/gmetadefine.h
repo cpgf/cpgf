@@ -60,8 +60,99 @@ struct GLazyDefineClassHelper
 template <typename DefineClass>
 void (*GLazyDefineClassHelper<DefineClass>::registerAddress)(DefineClass define) = NULL;
 
-extern void metaDefineAddMetaClass(GMetaClass * metaClass);
-extern bool metaDefineRemoveMetaClass(GMetaClass * metaClass);
+template <typename T>
+class GSharedDataHolder
+{
+public:
+	explicit GSharedDataHolder(T * data) : data(data), referenceCount(1), freeData(true) {
+	}
+
+	GSharedDataHolder(T * data, bool freeData) : data(data), referenceCount(1), freeData(freeData) {
+	}
+
+	~GSharedDataHolder() {
+		if(this->freeData) {
+			delete this->data;
+		}
+	}
+
+	void retain() {
+		++this->referenceCount;
+	}
+
+	void release() {
+		--this->referenceCount;
+		if(this->referenceCount <= 0) {
+			delete this;
+		}
+	}
+
+	T * get() const {
+		return this->data;
+	}
+
+	T * take() {
+		this->freeData = false;
+		return this->data;
+	}
+
+private:
+	T * data;
+	int referenceCount;
+	bool freeData;
+};
+
+template <typename T>
+class GSharedData
+{
+private:
+	typedef GSharedData<T> ThisType;
+
+public:
+	explicit GSharedData(T * p) : holder(new GSharedDataHolder<T>(p)) {
+	}
+
+	explicit GSharedData(T * p, bool freeData) : holder(new GSharedDataHolder<T>(p, freeData)) {
+	}
+
+	~GSharedData() {
+		this->holder->release();
+	}
+
+	GSharedData(const GSharedData & other) : holder(other.holder) {
+		this->holder->retain();
+	}
+
+	GSharedData & operator = (GSharedData other) {
+		other.swap(this);
+		return *this;
+	}
+
+	void swap(GSharedData & other) {
+		std::swap(this->holder, other.holder);
+	}
+
+	T * operator -> () const {
+		return this->holder->get();
+	}
+
+	T * get() const {
+		return this->holder->get();
+	}
+
+	T * take() {
+		return this->holder->take();
+	}
+
+	void reset(T * p = NULL) {
+		ThisType(p).swap(*this);
+	}
+
+private:
+	GSharedDataHolder<T> * holder;
+};
+
+typedef GSharedData<GMetaClass> GSharedMetaClass;
 
 
 } // namespace meta_internal
@@ -71,7 +162,7 @@ template <typename BaseType>
 class GDefineMetaMethod : public BaseType
 {
 public:
-	GDefineMetaMethod(GMetaClass * metaClass, GMetaMethod * method) : BaseType(metaClass, method) {
+	GDefineMetaMethod(meta_internal::GSharedMetaClass metaClass, GMetaMethod * method) : BaseType(metaClass, method) {
 	}
 };
 
@@ -82,10 +173,10 @@ private:
 	typedef GDefineMetaEnum<BaseType> ThisType;
 
 public:
-	GDefineMetaEnum(GMetaClass * metaClass, GMetaEnum * metaEnum) : BaseType(metaClass, metaEnum) {
+	GDefineMetaEnum(meta_internal::GSharedMetaClass metaClass, GMetaEnum * metaEnum) : BaseType(metaClass, metaEnum) {
 	}
 
-	ThisType & _element(const char * key, long long value) {
+	ThisType _element(const char * key, long long value) {
 		(*gdynamic_cast<GMetaEnum *>(this->currentItem))(key, value);
 
 		return *this;
@@ -97,11 +188,11 @@ template <typename BaseType>
 class GDefineMetaAnnotation : public BaseType
 {
 public:
-	GDefineMetaAnnotation(GMetaClass * metaClass, GMetaAnnotation * annotation) : BaseType(metaClass, annotation) {
+	GDefineMetaAnnotation(meta_internal::GSharedMetaClass metaClass, GMetaAnnotation * annotation) : BaseType(metaClass, annotation) {
 	}
 
 	template <typename T>
-	GDefineMetaAnnotation & _element(const char * name, const T & value) {
+	GDefineMetaAnnotation _element(const char * name, const T & value) {
 		(*gdynamic_cast<GMetaAnnotation *>(this->currentItem))(name, value);
 
 		return *this;
@@ -113,7 +204,7 @@ template <typename BaseType>
 class GDefineMetaField : public BaseType
 {
 public:
-	GDefineMetaField(GMetaClass * metaClass, GMetaField * field) : BaseType(metaClass, field) {
+	GDefineMetaField(meta_internal::GSharedMetaClass metaClass, GMetaField * field) : BaseType(metaClass, field) {
 	}
 
 };
@@ -122,7 +213,7 @@ template <typename BaseType>
 class GDefineMetaProperty : public BaseType
 {
 public:
-	GDefineMetaProperty(GMetaClass * metaClass, GMetaProperty * prop) : BaseType(metaClass, prop) {
+	GDefineMetaProperty(meta_internal::GSharedMetaClass metaClass, GMetaProperty * prop) : BaseType(metaClass, prop) {
 	}
 
 };
@@ -131,7 +222,7 @@ template <typename BaseType>
 class GDefineMetaOperator : public BaseType
 {
 public:
-	GDefineMetaOperator(GMetaClass * metaClass, GMetaOperator * op) : BaseType(metaClass, op) {
+	GDefineMetaOperator(meta_internal::GSharedMetaClass metaClass, GMetaOperator * op) : BaseType(metaClass, op) {
 	}
 
 };
@@ -140,7 +231,7 @@ template <typename BaseType>
 class GDefineMetaInnerClass : public BaseType
 {
 public:
-	GDefineMetaInnerClass(GMetaClass * metaClass, GMetaClass * inner) : BaseType(metaClass, inner) {
+	GDefineMetaInnerClass(meta_internal::GSharedMetaClass metaClass, GMetaClass * inner) : BaseType(metaClass, inner) {
 	}
 
 };
@@ -159,26 +250,17 @@ private:
 	typedef GDefineMetaCommon<ClassType, DerivedType> ThisType;
 
 public:
-	GDefineMetaCommon(GMetaClass * metaClass, GMetaItem * currentItem)
-		: metaClass(metaClass), currentItem(currentItem), freeMetaClass(false) {
+	GDefineMetaCommon(meta_internal::GSharedMetaClass metaClass, GMetaItem * currentItem)
+		: metaClass(metaClass), currentItem(currentItem) {
 	}
 
 	GDefineMetaCommon(const GDefineMetaCommon & other)
-		: metaClass(other.metaClass), currentItem(other.currentItem), freeMetaClass(other.freeMetaClass) {
-		other.freeMetaClass = false;
+		: metaClass(other.metaClass), currentItem(other.currentItem) {
 	}
 
-	~GDefineMetaCommon() {
-		if(this->freeMetaClass && meta_internal::metaDefineRemoveMetaClass(this->metaClass)) {
-			delete this->metaClass;
-		}
-	}
-
-	GDefineMetaCommon & operator = (const GDefineMetaCommon & other) {
+	GDefineMetaCommon operator = (const GDefineMetaCommon & other) {
 		this->metaClass = other.metaClass;
 		this->currentItem = other.currentItem;
-		this->freeMetaClass = other.freeMetaClass;
-		other.freeMetaClass = false;
 
 		return *this;
 	}
@@ -271,9 +353,8 @@ public:
 	}
 
 protected:
-	GMetaClass * metaClass;
+	meta_internal::GSharedMetaClass metaClass;
 	GMetaItem * currentItem;
-	mutable bool freeMetaClass;
 };
 
 
@@ -286,13 +367,13 @@ private:
 
 public:
 	static ThisType define(const char * className) {
-		ThisType c(NULL, NULL);
+		ThisType c;
 		c.init(className, NULL, true, GMetaPolicyDefault());
 		return c;
 	}
 
 	static ThisType declare(const char * className) {
-		ThisType c(NULL, NULL);
+		ThisType c;
 		c.init(className, NULL, false, GMetaPolicyDefault());
 		return c;
 	}
@@ -300,7 +381,7 @@ public:
 	static ThisType lazy(const char * className, void (*reg)(ThisType define)) {
 		GASSERT(reg != NULL);
 
-		ThisType c(NULL, NULL);
+		ThisType c;
 		meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
 		c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, true, GMetaPolicyDefault());
 		return c;
@@ -309,7 +390,7 @@ public:
 	static ThisType lazyDeclare(const char * className, void (*reg)(ThisType define)) {
 		GASSERT(reg != NULL);
 
-		ThisType c(NULL, NULL);
+		ThisType c;
 		meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
 		c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, GMetaPolicyDefault());
 		return c;
@@ -318,13 +399,13 @@ public:
 	template <typename P>
 	struct Policy {
 		static ThisType define(const char * className) {
-			ThisType c(NULL, NULL);
+			ThisType c;
 			c.init(className, NULL, true, P());
 			return c;
 		}
 
 		static ThisType declare(const char * className) {
-			ThisType c(NULL, NULL);
+			ThisType c;
 			c.init(className, NULL, false, P());
 			return c;
 		}
@@ -332,7 +413,7 @@ public:
 		static ThisType lazy(const char * className, void (*reg)(ThisType define)) {
 			GASSERT(reg != NULL);
 
-			ThisType c(NULL, NULL);
+			ThisType c;
 			meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
 			c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, true, P());
 			return c;
@@ -341,7 +422,7 @@ public:
 		static ThisType lazyDeclare(const char * className, void (*reg)(ThisType define)) {
 			GASSERT(reg != NULL);
 
-			ThisType c(NULL, NULL);
+			ThisType c;
 			meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
 			c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, P());
 			return c;
@@ -350,45 +431,46 @@ public:
 	
 
 protected:
-	explicit GDefineMetaClass(GMetaClass * metaClass) : super(metaClass, metaClass) {
+	GDefineMetaClass() : super(meta_internal::GSharedMetaClass(NULL), NULL) {
 	}
 
-	GDefineMetaClass(GMetaClass * metaClass, GMetaItem * currentItem) : super(metaClass, currentItem) {
+	explicit GDefineMetaClass(GMetaClass * metaClass) : super(meta_internal::GSharedMetaClass(metaClass), metaClass) {
 	}
 
-	explicit GDefineMetaClass(const char * className) : super(NULL, NULL) {
-		this->init(className, true, GMetaPolicyDefault());
+	GDefineMetaClass(GMetaClass * metaClass, GMetaItem * currentItem) : super(meta_internal::GSharedMetaClass(metaClass), currentItem) {
+	}
+
+	GDefineMetaClass(meta_internal::GSharedMetaClass metaClass, GMetaItem * currentItem) : super(metaClass, currentItem) {
 	}
 
 public:
 	template <typename BaseType>
-	ThisType & _base() {
+	ThisType _base() {
 		this->metaClass->template addBaseClass<ClassType, BaseType>();
 
 		return *this;
 	}
 
 	template <typename FT>
-	ThisType & _constructor() {
+	ThisType _constructor() {
 		this->metaClass->template addConstructor<ClassType, FT>(GMetaPolicyDefault());
 
 		return *this;
 	}
 
 	template <typename FT, typename Policy>
-	ThisType & _constructor(const Policy & policy) {
+	ThisType _constructor(const Policy & policy) {
 		this->metaClass->template addConstructor<ClassType, FT>(policy);
 
 		return *this;
 	}
 
 	GMetaClass * getMetaClass() const {
-		return this->metaClass;
+		return this->metaClass.get();
 	}
 
-	GMetaClass * takeMetaClass() const {
-		meta_internal::metaDefineRemoveMetaClass(this->metaClass);
-		return this->metaClass;
+	GMetaClass * takeMetaClass() {
+		return this->metaClass.take();
 	}
 
 private:
@@ -417,12 +499,11 @@ private:
 			}
 		}
 
-		if(!addToGlobal) {
-			this->freeMetaClass = true;
-			meta_internal::metaDefineAddMetaClass(classToAdd);
+		this->metaClass.reset(classToAdd);
+		if(addToGlobal) {
+			this->metaClass.take();
 		}
 
-		this->metaClass = classToAdd;
 		this->currentItem = classToAdd;
 	}
 
@@ -439,13 +520,13 @@ private:
 	typedef GDefineMetaGlobal ThisType;
 
 public:
-	GDefineMetaGlobal() : super(getGlobalMetaClass(), getGlobalMetaClass()) {
+	GDefineMetaGlobal() : super(meta_internal::GSharedMetaClass(getGlobalMetaClass(), false), getGlobalMetaClass()) {
 	}
 
-	explicit GDefineMetaGlobal(GMetaClass * metaClass) : super(metaClass, metaClass) {
+	explicit GDefineMetaGlobal(GMetaClass * metaClass) : super(meta_internal::GSharedMetaClass(metaClass, false), metaClass) {
 	}
 
-	GDefineMetaGlobal(GMetaClass * metaClass, GMetaItem * currentItem) : super(metaClass, currentItem) {
+	GDefineMetaGlobal(meta_internal::GSharedMetaClass metaClass, GMetaItem * currentItem) : super(meta_internal::GSharedMetaClass(metaClass.take(), false), currentItem) {
 	}
 
 	void setName(const char * name) {

@@ -1,4 +1,3 @@
 
-#undef QUIRK_CONST_ITERATOR
-#undef TEMPLATE
+#undef CPGF_MD_STL_TEMPLATE
 

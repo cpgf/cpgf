@@ -1,14 +1,10 @@
 
 #ifdef _MSC_VER
-	#if _MSC_VER >= 1500
-		#define QUIRK_CONST_ITERATOR() 1
-		#define TEMPLATE
-	#endif
+	#define CPGF_MD_STL_TEMPLATE
 #endif
 
-#ifndef QUIRK_CONST_ITERATOR
-	#define QUIRK_CONST_ITERATOR() 0
-	#define TEMPLATE template
+#ifndef CPGF_MD_STL_TEMPLATE
+	#define CPGF_MD_STL_TEMPLATE template
 #endif
 
 

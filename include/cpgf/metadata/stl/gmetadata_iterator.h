@@ -14,10 +14,10 @@ template <typename T, typename MetaDefine>
 void doBindIteratorCommon(MetaDefine define)
 {
 	define
-		.TEMPLATE _operator<T & (GMetaSelf, const T &)>(mopHolder == mopHolder)
-		.TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder != mopHolder)
-		.TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(++mopHolder)
-		.TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(mopHolder++)
+		.CPGF_MD_STL_TEMPLATE _operator<T & (GMetaSelf, const T &)>(mopHolder == mopHolder)
+		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder != mopHolder)
+		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(++mopHolder)
+		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(mopHolder++)
 	;
 }
 
@@ -45,8 +45,8 @@ void doBindIterator(MetaDefine define, const std::bidirectional_iterator_tag &)
 	doBindIterator<T>(define, std::forward_iterator_tag());
 
 	define
-		.TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(--mopHolder)
-		.TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(mopHolder--)
+		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(--mopHolder)
+		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(mopHolder--)
 	;
 }
 
@@ -56,15 +56,15 @@ void doBindIterator(MetaDefine define, const std::random_access_iterator_tag &)
 	doBindIterator<T>(define, std::bidirectional_iterator_tag());
 
 	define
-		.TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder + mopHolder)
-		.TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder += mopHolder)
-		.TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder - mopHolder)
-		.TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder -= mopHolder)
-		.TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder[mopHolder])
-		.TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder < mopHolder)
-		.TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder <= mopHolder)
-		.TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder > mopHolder)
-		.TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder >= mopHolder)
+		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder + mopHolder)
+		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder += mopHolder)
+		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder - mopHolder)
+		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder -= mopHolder)
+		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder[mopHolder])
+		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder < mopHolder)
+		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder <= mopHolder)
+		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder > mopHolder)
+		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder >= mopHolder)
 	;
 }
 
@@ -75,8 +75,8 @@ template <typename MetaDefine>
 void bindMetaData_iterator(MetaDefine define)
 {
 	define
-		.TEMPLATE _operator<typename MetaDefine::ClassType::pointer (GMetaSelf)>(mopHolder->mopHolder)
-		.TEMPLATE _operator<typename MetaDefine::ClassType::reference (GMetaSelf)>(*mopHolder)
+		.CPGF_MD_STL_TEMPLATE _operator<typename MetaDefine::ClassType::pointer (GMetaSelf)>(mopHolder->mopHolder)
+		.CPGF_MD_STL_TEMPLATE _operator<typename MetaDefine::ClassType::reference (GMetaSelf)>(*mopHolder)
 	;
 
 	metadata_internal::doBindIterator<typename MetaDefine::ClassType>(define, typename MetaDefine::ClassType::iterator_category());
