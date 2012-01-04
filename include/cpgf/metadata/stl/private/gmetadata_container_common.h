@@ -13,7 +13,7 @@ namespace cpgf {
 namespace metadata_internal {
 
 template <typename T, typename MetaDefine>
-void bindMetaData_CommonContainer(MetaDefine define)
+void bindMetaData_CommonContainer(MetaDefine define, bool scriptable)
 {
 	define
 		.CPGF_MD_STL_TEMPLATE _constructor<void * ()>()
@@ -22,8 +22,8 @@ void bindMetaData_CommonContainer(MetaDefine define)
 		.CPGF_MD_STL_TEMPLATE _method("begin", (typename T::const_iterator (T::*)() const) &T::begin)
 		.CPGF_MD_STL_TEMPLATE _method("clear", (void (T::*)()) &T::clear)
 		.CPGF_MD_STL_TEMPLATE _method("empty", (typename T::const_iterator (T::*)() const) &T::empty)
-		.CPGF_MD_STL_TEMPLATE _method("end", (typename T::iterator (T::*)()) &T::end)
-		.CPGF_MD_STL_TEMPLATE _method("end", (typename T::const_iterator (T::*)() const) &T::end)
+		.CPGF_MD_STL_TEMPLATE _method("_end", (typename T::iterator (T::*)()) &T::end)
+		.CPGF_MD_STL_TEMPLATE _method("_end", (typename T::const_iterator (T::*)() const) &T::end)
 		.CPGF_MD_STL_TEMPLATE _method("erase", extractFunction1(&T::erase))
 		.CPGF_MD_STL_TEMPLATE _method("erase", extractFunction2(&T::erase))
 		.CPGF_MD_STL_TEMPLATE _method("rbegin", (typename T::reverse_iterator (T::*)()) &T::rbegin)
@@ -34,6 +34,34 @@ void bindMetaData_CommonContainer(MetaDefine define)
 		.CPGF_MD_STL_TEMPLATE _method("swap", (void (T::*)(T &)) &T::swap)
 	;
 }
+
+template <typename T, typename MetaDefine>
+void bindMetaData_CommonIterators(MetaDefine define, bool scriptable)
+{
+	define
+		._class(
+			bindMetaData_iterator(
+				GDefineMetaClass<typename T::iterator>::declare("iterator"), scriptable
+			)
+		)
+		._class(
+			bindMetaData_iterator(
+				GDefineMetaClass<typename T::const_iterator>::declare("const_iterator"), scriptable
+			)
+		)
+		._class(
+			bindMetaData_iterator(
+				GDefineMetaClass<typename T::reverse_iterator>::declare("reverse_iterator"), scriptable
+			)
+		)
+		._class(
+			bindMetaData_iterator(
+				GDefineMetaClass<typename T::const_reverse_iterator>::declare("const_reverse_iterator"), scriptable
+			)
+		)
+	;
+}
+
 
 } // namespace metadata_internal
 

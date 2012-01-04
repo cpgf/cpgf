@@ -54,7 +54,7 @@ namespace {
 			}
 
 			for(ListType::const_iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
-				if(strcmp((*it)->getName().c_str(), name) == 0) {
+				if(strcmp((*it)->getTypeName().c_str(), name) == 0) {
 					return *it;
 				}
 			}

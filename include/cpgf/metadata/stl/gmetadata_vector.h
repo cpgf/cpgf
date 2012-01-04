@@ -13,12 +13,10 @@ namespace cpgf {
 namespace metadata_internal {
 
 template <typename T, typename MetaDefine>
-void doBindMetaData_vector(MetaDefine define)
+void doBindMetaData_vector(MetaDefine define, bool scriptable)
 {
-	GDefineMetaClass<typename T::iterator> iteratorDefine = GDefineMetaClass<typename T::iterator>::declare("iterator");
-	bindMetaData_iterator(iteratorDefine);
-	
-	metadata_internal::bindMetaData_CommonContainer<T>(define);
+	metadata_internal::bindMetaData_CommonContainer<T>(define, scriptable);
+	metadata_internal::bindMetaData_CommonIterators<T>(define, scriptable);
 
 	define
 		.CPGF_MD_STL_TEMPLATE _method("assign", (void (T::*)(typename T::size_type, const typename T::value_type &)) &T::assign)
@@ -44,9 +42,15 @@ void doBindMetaData_vector(MetaDefine define)
 
 
 template <typename MetaDefine>
+void bindMetaData_vector(MetaDefine define, bool scriptable)
+{
+	metadata_internal::doBindMetaData_vector<typename MetaDefine::ClassType>(define, scriptable);
+}
+
+template <typename MetaDefine>
 void bindMetaData_vector(MetaDefine define)
 {
-	metadata_internal::doBindMetaData_vector<typename MetaDefine::ClassType>(define);
+	bindMetaData_vector(define, false);
 }
 
 

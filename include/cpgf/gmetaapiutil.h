@@ -165,6 +165,8 @@ IMetaClass * metaGetGlobalMetaClass(Meta & service, size_t index)
 	return module->getGlobalMetaClass();
 }
 
+IMetaItem * metaItemToInterface(const GMetaItem * item);
+
 
 
 } // namespace cpgf

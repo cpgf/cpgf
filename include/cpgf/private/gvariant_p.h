@@ -78,7 +78,8 @@ struct VariantCaster <From, To, typename GEnableIf<
 };
 
 template <typename From, typename To, typename Enabled = void>
-struct CastVariantHelper {
+struct CastVariantHelper
+{
 	enum { CanCast = VariantCaster<From, To>::CanCast };
 
 	static To cast(const From & v) {
@@ -87,7 +88,8 @@ struct CastVariantHelper {
 };
 
 template <typename From, typename To>
-struct CastVariantHelper <From, To, typename GEnableIf<IsPointer<From>::Result && IsPointer<To>::Result>::Result> {
+struct CastVariantHelper <From, To, typename GEnableIf<IsPointer<From>::Result && IsPointer<To>::Result>::Result>
+{
 	enum { CanCast = true };
 
 	static To cast(const From & v) {
@@ -96,7 +98,9 @@ struct CastVariantHelper <From, To, typename GEnableIf<IsPointer<From>::Result &
 };
 
 template <typename From, typename To>
-struct CastVariantHelper <From, To, typename GEnableIf<IsPointer<From>::Result && !IsPointer<To>::Result && IsVoid<typename RemovePointer<From>::Result>::Result>::Result> {
+struct CastVariantHelper <From, To, typename GEnableIf<IsPointer<From>::Result
+	&& !IsPointer<To>::Result && IsVoid<typename RemovePointer<From>::Result>::Result>::Result>
+{
 	enum { CanCast = true };
 
 	static To cast(const From & v) {
@@ -105,7 +109,11 @@ struct CastVariantHelper <From, To, typename GEnableIf<IsPointer<From>::Result &
 };
 
 template <typename From, typename To>
-struct CastVariantHelper <From, To, typename GEnableIf<IsReference<To>::Result && ! IsReference<From>::Result && ! IsPointer<From>::Result>::Result> {
+struct CastVariantHelper <From, To, typename GEnableIf<IsReference<To>::Result
+	&& ! IsReference<From>::Result
+	&& ! IsPointer<From>::Result>::Result
+	>
+{
 	enum { CanCast = false };
 
 	static To cast(const From & v) {
@@ -384,7 +392,7 @@ struct CastResult <const T &, VarantCastCopyConstRef> {
 
 template <typename T>
 struct CastResult <const T &, VarantCastKeepConstRef> {
-	typedef const T & Result;
+	typedef typename GIfElse<IsFundamental<T>::Result, T, const T &>::Result Result;
 };
 
 template <typename T, int Policy>

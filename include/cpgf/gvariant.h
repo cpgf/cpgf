@@ -4,6 +4,7 @@
 #include "cpgf/gvartypedata.h"
 #include "cpgf/gerrorcode.h"
 #include "cpgf/gclassutil.h"
+#include "cpgf/gifelse.h"
 
 #include <string>
 

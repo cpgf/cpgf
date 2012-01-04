@@ -10,19 +10,6 @@
 
 <{sgroup}> General
 
-<{sh}> There are some undocumented interesting code, such as type traits, can I use it?
-<{sc}>
-
-<{autobr}>
-Better not.
-All the undocumented code, such as type traits, type list, are used to serve for other components.
-They are not guaranteed to be complete or general.
-
-So don't use them until they are documented.
-
-<{/autobr}>
-
-
 
 <{sh}> Some of the library document is bad, I want to help to rephrase it, but how can I help?
 <{sc}>

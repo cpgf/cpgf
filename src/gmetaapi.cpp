@@ -581,7 +581,7 @@ private:
 
 
 
-IMetaItem * createMetaItem(const GMetaItem * item)
+IMetaItem * metaItemToInterface(const GMetaItem * item)
 {
 	if(item == NULL) {
 		return NULL;
@@ -638,7 +638,7 @@ void loadMetaList(IMetaList * metaList, GMetaList * rawMetaList)
 {
 	size_t count = rawMetaList->getCount();
 	for(size_t i = 0; i < count; ++i) {
-		IMetaItem * item = createMetaItem(rawMetaList->getAt(i));
+		IMetaItem * item = metaItemToInterface(rawMetaList->getAt(i));
 		metaList->add(item, rawMetaList->getInstanceAt(i));
 		item->releaseReference();
 	}
@@ -672,7 +672,7 @@ IMetaItem * ImplMetaItem::doGetOwnerItem()
 {
 	ENTER_META_API()
 
-	return createMetaItem(this->item->getOwnerItem());
+	return metaItemToInterface(this->item->getOwnerItem());
 
 	LEAVE_META_API(return NULL)
 }
@@ -1428,7 +1428,7 @@ IMetaItem * G_API_CC ImplMetaAnnotation::getMetaItem()
 {
 	ENTER_META_API()
 
-	return createMetaItem(this->getAnnotation()->getMetaItem());
+	return metaItemToInterface(this->getAnnotation()->getMetaItem());
 
 	LEAVE_META_API(return NULL)
 }
@@ -1734,7 +1734,7 @@ IMetaItem * G_API_CC ImplMetaClass::getMetaAt(uint32_t index)
 {
 	ENTER_META_API()
 
-	return createMetaItem(this->getClass()->getMetaAt(index));
+	return metaItemToInterface(this->getClass()->getMetaAt(index));
 
 	LEAVE_META_API(return NULL)
 }
@@ -1881,7 +1881,7 @@ IMetaTypedItem * G_API_CC ImplMetaModule::findTypedItemByName(const char * name)
 
 	const GMetaTypedItem * typedItem = findMetaType(name);
 
-	return static_cast<IMetaTypedItem *>(createMetaItem(typedItem));
+	return static_cast<IMetaTypedItem *>(metaItemToInterface(typedItem));
 
 	LEAVE_META_API(return NULL)
 }

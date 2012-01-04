@@ -1,5 +1,7 @@
 Todo:
 
+1, Support name replacer in meta data builder
+2, Support explicit this in property getter and setter.
 1, GVariant passes rvalue reference as value, not efficient, should imporve.
 2, Support default parameter values in meta method
 3, Define meta data for STL

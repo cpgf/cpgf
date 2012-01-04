@@ -1,0 +1,25 @@
+#ifndef __GIFELSE_H
+#define __GIFELSE_H
+
+namespace cpgf {
+
+template <bool P, typename T, typename F>
+struct GIfElse;
+
+template <typename T, typename F>
+struct GIfElse <true, T, F>
+{
+	typedef T Result;
+};
+
+template <typename T, typename F>
+struct GIfElse <false, T, F>
+{
+	typedef F Result;
+};
+
+
+} // namespace cpgf
+
+
+#endif

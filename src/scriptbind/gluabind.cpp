@@ -1141,7 +1141,7 @@ void doBindOperator(lua_State * L, GScriptBindingParam * param, void * instance,
 		}
 	}
 
-	raiseCoreException(Error_ScriptBinding_NotSupportedOperator);
+//	raiseCoreException(Error_ScriptBinding_NotSupportedOperator);
 }
 
 void doBindAllOperators(lua_State * L, GScriptBindingParam * param, void * instance, IMetaClass * metaClass)
