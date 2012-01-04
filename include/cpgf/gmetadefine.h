@@ -53,7 +53,8 @@ struct GLazyDefineClassHelper
 
 	static void metaRegister(GMetaClass * metaClass)
 	{
-		registerAddress(DefineClass(metaClass, metaClass));
+		DefineClass define(metaClass, metaClass);
+		registerAddress(define);
 	}
 };
 
@@ -435,9 +436,11 @@ protected:
 	}
 
 	explicit GDefineMetaClass(GMetaClass * metaClass) : super(meta_internal::GSharedMetaClass(metaClass), metaClass) {
+		this->takeMetaClass();
 	}
 
 	GDefineMetaClass(GMetaClass * metaClass, GMetaItem * currentItem) : super(meta_internal::GSharedMetaClass(metaClass), currentItem) {
+		this->takeMetaClass();
 	}
 
 	GDefineMetaClass(meta_internal::GSharedMetaClass metaClass, GMetaItem * currentItem) : super(metaClass, currentItem) {

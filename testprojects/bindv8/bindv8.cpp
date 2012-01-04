@@ -14,7 +14,8 @@ typedef vector<int> VectorType;
 
 int main(int argc, char * argv[])
 {
-	bindMetaData_vector(GDefineMetaClass<VectorType>::declare("vector_int"));
+	GDefineMetaClass<VectorType> define = GDefineMetaClass<VectorType>::declare("vector_int");
+	bindMetaData_vector(define);
 
 //	_getch();
 
