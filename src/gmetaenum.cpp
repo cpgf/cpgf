@@ -1,5 +1,7 @@
 #include "cpgf/gmetaenum.h"
 
+#include "pinclude/gmetatypereg.h"
+
 #include <vector>
 
 
@@ -114,6 +116,13 @@ GMetaEnum::GMetaEnum(const char * name, const GMetaType & itemType, meta_interna
 	: super(name, itemType, mcatEnum), baseData(baseData)
 {
 	this->addModifier(metaModifierStatic);
+	
+	meta_internal::registerMetaTypedItem(this);
+}
+
+GMetaEnum::~GMetaEnum()
+{
+	meta_internal::removeMetaTypedItem(this);
 }
 
 size_t GMetaEnum::getTypeSize() const

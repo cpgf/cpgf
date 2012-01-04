@@ -18,6 +18,7 @@ private:
 
 public:
 	GMetaEnum(const char * name, const GMetaType & itemType, meta_internal::GMetaEnumData * baseData);
+	virtual ~GMetaEnum();
 
 	virtual size_t getTypeSize() const;
 	size_t getCount() const;

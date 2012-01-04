@@ -26,6 +26,7 @@ const GMetaFundamental * findRegisteredMetaFundamental(const char * name);
 const GMetaFundamental * findRegisteredMetaFundamental(GVariantType vt);
 
 void registerMetaTypedItem(const GMetaTypedItem * typedItem);
+void removeMetaTypedItem(const GMetaTypedItem * typedItem);
 
 
 } // namespace meta_internal

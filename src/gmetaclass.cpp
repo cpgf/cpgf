@@ -300,13 +300,17 @@ public:
 
 GMetaClass::~GMetaClass()
 {
+	meta_internal::removeMetaTypedItem(this);
+
 	delete this->implement;
 }
 
-void GMetaClass::initializeImplement()
+void GMetaClass::initialize()
 {
 	this->implement = new GMetaClassImplement;
 	this->implement->metaList.setClearOnFree(false);
+
+	meta_internal::registerMetaTypedItem(this);
 }
 
 void GMetaClass::rebindName(const char * name)
@@ -503,8 +507,6 @@ const GMetaOperator * GMetaClass::getOperatorAt(size_t index) const
 GMetaEnum * GMetaClass::addEnum(GMetaEnum * en) {
 	this->addItem(mcatEnum, en);
 
-	meta_internal::registerMetaTypedItem(en);
-
 	return en;
 }
 
@@ -531,8 +533,6 @@ const GMetaEnum * GMetaClass::getEnumAt(size_t index) const
 GMetaClass * GMetaClass::addClass(const GMetaClass * cls)
 {
 	this->addItem(mcatClass, const_cast<GMetaClass *>(cls));
-
-	meta_internal::registerMetaTypedItem(cls);
 
 	return const_cast<GMetaClass *>(cls);
 }

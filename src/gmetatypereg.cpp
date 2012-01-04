@@ -12,6 +12,8 @@ namespace meta_internal {
 
 
 namespace {
+	static bool isInFinalizing = false;
+
 	class GMetaTypedItemList
 	{
 	public:
@@ -21,10 +23,12 @@ namespace {
 		GMetaTypedItemList() : freeItems(false) {
 		}
 
-		GMetaTypedItemList(bool freeItems) : freeItems(freeItems) {
+		explicit GMetaTypedItemList(bool freeItems) : freeItems(freeItems) {
 		}
 
 		~GMetaTypedItemList() {
+			isInFinalizing = true;
+
 			if(this->freeItems) {
 				for(ListType::const_iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
 					delete *it;
@@ -35,6 +39,13 @@ namespace {
 		void add(const GMetaTypedItem * item) {
 			if(std::find(this->itemList.begin(), this->itemList.end(), item) == this->itemList.end()) {
 				this->itemList.push_back(item);
+			}
+		}
+		
+		void remove(const GMetaTypedItem * item) {
+			ListType::iterator it = std::find(this->itemList.begin(), this->itemList.end(), item);
+			if(it != this->itemList.end()) {
+				this->itemList.erase(it);
 			}
 		}
 
@@ -77,10 +88,6 @@ namespace {
 
 	GMetaTypedItemList * getMetaClassList() {
 		static GMetaTypedItemList metaClassList;
-
-		if(metaClassList.isEmpty()) {
-			metaClassList.add(getGlobalMetaClass());
-		}
 
 		return &metaClassList;
 	}
@@ -233,6 +240,26 @@ void registerMetaTypedItem(const GMetaTypedItem * typedItem)
 			
 		default:
 			GASSERT_MSG(false, "Registering non-type item.");
+			break;
+	}
+}
+
+void removeMetaTypedItem(const GMetaTypedItem * typedItem)
+{
+	if(isInFinalizing) {
+		return;
+	}
+
+	switch(typedItem->getCategory()) {
+		case mcatClass:
+			getMetaClassList()->remove(typedItem);
+			break;
+		
+		case mcatEnum:
+			getMetaEnumList()->remove(typedItem);
+			break;
+			
+		default:
 			break;
 	}
 }

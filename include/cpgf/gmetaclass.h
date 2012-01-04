@@ -43,7 +43,7 @@ public:
 
 		this->addModifier(metaModifierStatic);
 
-		this->initializeImplement();
+		this->initialize();
 		this->setupItemLists();
 	}
 
@@ -157,7 +157,7 @@ private:
 
 	const GMetaOperator * doGetOperator(GMetaOpType op, bool findSuper, void ** outInstance) const;
 
-	void initializeImplement();
+	void initialize();
 
 private:
 	void rebindName(const char * name);

@@ -17,7 +17,7 @@ void doTestBind(T * binding, TestScriptContext * c)
 {
 	GScopedPointer<TestScriptContext> context(c);
 
-	GDefineMetaClass<VectorType> define = GDefineMetaClass<VectorType>::define("vector_int");
+	GDefineMetaClass<VectorType> define = GDefineMetaClass<VectorType>::declare("vector_int");
 	bindMetaData_vector(define, true);
 
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(define.getMetaClass())));
