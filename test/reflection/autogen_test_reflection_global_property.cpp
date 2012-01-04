@@ -1,6 +1,7 @@
 // Auto generated test code
 // Don't modify manually.
 
+#define AUTOGEN_TEST
 #include "test_reflection_common.h"
 
 #define CLASS void
@@ -23,6 +24,8 @@ namespace Test_GlobalProperty { namespace {
 	int propReadonlyInt;
 	string propWriteonlyString;
 	CLASS_DATA propNoncopyableData;
+	
+	int propExplicit;
 
 
 	int getPropInt() {
@@ -42,6 +45,19 @@ namespace Test_GlobalProperty { namespace {
 	}
 
 
+int propExplicitGet(CLASS * pobj)
+{
+	(void)pobj;
+
+	return propExplicit;
+}
+
+void propExplicitSet(CLASS * pobj, int data)
+{
+	(void)pobj;
+
+	propExplicit = data;
+}
 
 G_AUTO_RUN_BEFORE_MAIN()
 {
@@ -57,6 +73,8 @@ G_AUTO_RUN_BEFORE_MAIN()
 		._property("propReadonlyInt", &propReadonlyInt, &propReadonlyInt, GMetaPolicyReadOnly())
 		._property("propWriteonlyString", &propWriteonlyString, &propWriteonlyString, GMetaPolicyWriteOnly())
 		._property("propNoncopyableData", &propNoncopyableData, &propNoncopyableData, GMetaPolicyNoncopyable())
+		
+		._property("propExplicit", &propExplicitGet, &propExplicitSet, GMetaPolicyExplicitThis())
 	;
 }
 
@@ -84,6 +102,9 @@ GTEST(Lib_Exists)
 	GCHECK(prop);
 	
 	PROP(propNoncopyableData);
+	GCHECK(prop);
+	
+	PROP(propExplicit);
 	GCHECK(prop);
 }
 
@@ -115,6 +136,9 @@ GTEST(API_Exists)
 	
 	PROP(propNoncopyableData);
 	GCHECK(prop);
+	
+	PROP(propExplicit);
+	GCHECK(prop);
 }
 
 
@@ -142,6 +166,9 @@ GTEST(Lib_CheckItemType)
 	
 	PROP(propNoncopyableData);
 	GEQUAL(prop->getItemType(), createMetaType<CLASS_DATA>());
+	
+	PROP(propExplicit);
+	GEQUAL(prop->getItemType(), createMetaType<int>());
 }
 
 
@@ -169,6 +196,9 @@ GTEST(Lib_CanGet)
 	
 	PROP(propNoncopyableData);
 	GCHECK(! prop->canGet());
+	
+	PROP(propExplicit);
+	GCHECK(prop->canGet());
 }
 
 
@@ -200,6 +230,9 @@ GTEST(API_CanGet)
 	
 	PROP(propNoncopyableData);
 	GCHECK(! prop->canGet());
+	
+	PROP(propExplicit);
+	GCHECK(prop->canGet());
 }
 
 
@@ -228,6 +261,9 @@ GTEST(Lib_CanSet)
 	
 	PROP(propNoncopyableData);
 	GCHECK(! prop->canSet());
+	
+	PROP(propExplicit);
+	GCHECK(prop->canSet());
 }
 
 
@@ -258,6 +294,9 @@ GTEST(API_CanSet)
 	
 	PROP(propNoncopyableData);
 	GCHECK(! prop->canSet());
+	
+	PROP(propExplicit);
+	GCHECK(prop->canSet());
 }
 
 
@@ -289,6 +328,9 @@ GTEST(Lib_GetSize)
 	
 	PROP(propNoncopyableData);
 	GEQUAL(prop->getSize(), sizeof(propNoncopyableData));
+	
+	PROP(propExplicit);
+	GEQUAL(prop->getSize(), sizeof(propExplicit));
 }
 
 
@@ -323,6 +365,9 @@ GTEST(API_GetSize)
 	
 	PROP(propNoncopyableData);
 	GEQUAL(prop->getSize(), sizeof(propNoncopyableData));
+	
+	PROP(propExplicit);
+	GEQUAL(prop->getSize(), sizeof(propExplicit));
 }
 
 
@@ -342,6 +387,7 @@ GTEST(Lib_Set)
 	propReadonlyInt = 0;
 	propWriteonlyString = "";
 	propNoncopyableData = CLASS_DATA();
+	propExplicit = 0;
 	
 	const int valueInt = 5;
 	const string valueString = "A string";
@@ -349,6 +395,7 @@ GTEST(Lib_Set)
 	const int valueReadonlyInt = 1999;
 	const string valueWriteonlyString = "Antoerh string";
 	const CLASS_DATA valueNoncopyableData = CLASS_DATA("Noncopyable data string", 68);
+	const int valueExplicit = 78;
 	
 	GDIFF(propInt, valueInt);
 	GDIFF(propString, valueString);
@@ -356,6 +403,7 @@ GTEST(Lib_Set)
 	GDIFF(propReadonlyInt, valueReadonlyInt);
 	GDIFF(propWriteonlyString, valueWriteonlyString);
 	GDIFF(propNoncopyableData, valueNoncopyableData);
+	GDIFF(propExplicit, valueExplicit);
 
 	PROP(propInt);
 	prop->set(pobj, valueInt);
@@ -378,6 +426,10 @@ GTEST(Lib_Set)
 	
 	PROP(propNoncopyableData);
 	EXCEPT_META(prop->set(pobj, valueNoncopyableData))
+
+	PROP(propExplicit);
+	prop->set(pobj, valueExplicit);
+	GEQUAL(valueExplicit, propExplicit);
 }
 
 
@@ -400,6 +452,7 @@ GTEST(API_Set)
 	propReadonlyInt = 0;
 	propWriteonlyString = "";
 	propNoncopyableData = CLASS_DATA();
+	propExplicit = 0;
 	
 	const int valueInt = 5;
 	const string valueString = "A string";
@@ -407,6 +460,7 @@ GTEST(API_Set)
 	const int valueReadonlyInt = 1999;
 	const string valueWriteonlyString = "Antoerh string";
 	const CLASS_DATA valueNoncopyableData = CLASS_DATA("Noncopyable data string", 68);
+	const int valueExplicit = 78;
 	
 	GDIFF(propInt, valueInt);
 	GDIFF(propString, valueString);
@@ -414,6 +468,7 @@ GTEST(API_Set)
 	GDIFF(propReadonlyInt, valueReadonlyInt);
 	GDIFF(propWriteonlyString, valueWriteonlyString);
 	GDIFF(propNoncopyableData, valueNoncopyableData);
+	GDIFF(propExplicit, valueExplicit);
 
 	PROP(propInt);
 	metaSetValue(prop, pobj, valueInt);
@@ -436,6 +491,10 @@ GTEST(API_Set)
 	
 	PROP(propNoncopyableData);
 	EXCEPT_META(metaSetValue(prop, pobj, valueNoncopyableData))
+
+	PROP(propExplicit);
+	metaSetValue(prop, pobj, valueExplicit);
+	GEQUAL(valueExplicit, propExplicit);
 }
 
 
@@ -455,6 +514,7 @@ GTEST(Lib_Get)
 	const int valueReadonlyInt = 1999;
 	const string valueWriteonlyString = "Antoerh string";
 	const CLASS_DATA valueNoncopyableData = CLASS_DATA("Noncopyable data string", 68);
+	const int valueExplicit = 78;
 
 	propInt = valueInt;
 	propString = valueString;
@@ -462,6 +522,7 @@ GTEST(Lib_Get)
 	propReadonlyInt = valueReadonlyInt;
 	propWriteonlyString = valueWriteonlyString;
 	propNoncopyableData = valueNoncopyableData;
+	propExplicit = valueExplicit;
 	
 	PROP(propInt);
 	GEQUAL(fromVariant<int>(prop->get(pobj)), valueInt + 1);
@@ -480,6 +541,9 @@ GTEST(Lib_Get)
 	
 	PROP(propNoncopyableData);
 	EXCEPT_META(prop->get(pobj))
+	
+	PROP(propExplicit);
+	GEQUAL(fromVariant<int>(prop->get(pobj)), valueExplicit);
 }
 
 
@@ -502,6 +566,7 @@ GTEST(API_Get)
 	const int valueReadonlyInt = 1999;
 	const string valueWriteonlyString = "Antoerh string";
 	const CLASS_DATA valueNoncopyableData = CLASS_DATA("Noncopyable data string", 68);
+	const int valueExplicit = 78;
 
 	propInt = valueInt;
 	propString = valueString;
@@ -509,6 +574,7 @@ GTEST(API_Get)
 	propReadonlyInt = valueReadonlyInt;
 	propWriteonlyString = valueWriteonlyString;
 	propNoncopyableData = valueNoncopyableData;
+	propExplicit = valueExplicit;
 	
 	PROP(propInt);
 	GEQUAL(fromVariant<int>(metaGetValue(prop, pobj)), valueInt + 1);
@@ -527,6 +593,9 @@ GTEST(API_Get)
 	
 	PROP(propNoncopyableData);
 	EXCEPT_META(metaGetValue(prop, pobj))
+	
+	PROP(propExplicit);
+	GEQUAL(fromVariant<int>(metaGetValue(prop, pobj)), valueExplicit);
 }
 
 

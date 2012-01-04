@@ -37,6 +37,8 @@ void doTestBind(T * binding, TestScriptContext * c)
 	QASSERT(i.value() == 1)
 	QDO(i = i.inc())
 	QASSERT(i.value() == 2)
+	QDO(i.inc())
+	QASSERT(i.value() == 3)
 
 	context.reset();
 }

@@ -15,6 +15,8 @@ namespace metadata_internal {
 template <typename T, typename MetaDefine>
 void bindMetaData_CommonContainer(MetaDefine define, bool scriptable)
 {
+	(void)scriptable;
+
 	define
 		.CPGF_MD_STL_TEMPLATE _constructor<void * ()>()
 		.CPGF_MD_STL_TEMPLATE _constructor<void * (const T &)>()

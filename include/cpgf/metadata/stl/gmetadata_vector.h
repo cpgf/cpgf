@@ -27,14 +27,20 @@ void doBindMetaData_vector(MetaDefine define, bool scriptable)
 		.CPGF_MD_STL_TEMPLATE _method("capacity", &T::capacity)
 		.CPGF_MD_STL_TEMPLATE _method("front", (typename T::reference (T::*)()) &T::front)
 		.CPGF_MD_STL_TEMPLATE _method("front", (typename T::const_reference (T::*)() const) &T::front)
-		.CPGF_MD_STL_TEMPLATE _method("insert", extractFunction2(&T::insert))
-		.CPGF_MD_STL_TEMPLATE _method("insert", extractFunction3(&T::insert))
 		.CPGF_MD_STL_TEMPLATE _method("max_size", (typename T::size_type (T::*)() const) &T::max_size)
 		.CPGF_MD_STL_TEMPLATE _method("pop_back", (void (T::*)()) &T::pop_back)
 		.CPGF_MD_STL_TEMPLATE _method("push_back", (void (T::*)(const typename T::value_type &)) &T::push_back)
 		.CPGF_MD_STL_TEMPLATE _method("reserve", (void (T::*)(typename T::size_type)) &T::reserve)
 		.CPGF_MD_STL_TEMPLATE _method("resize", extractFunction2(&T::resize))
 		.CPGF_MD_STL_TEMPLATE _method("resize", extractFunction1(&T::resize))
+
+#if CPGF_MD_STL_QUIRK_CONST_ITERATOR()		
+		.CPGF_MD_STL_TEMPLATE _method("insert", (typename T::iterator (T::*)(typename T::const_iterator, const typename T::value_type &)) &T::insert)
+		.CPGF_MD_STL_TEMPLATE _method("insert", (void (T::*)(typename T::const_iterator, typename T::size_type, const typename T::value_type &)) &T::insert)
+#else
+		.CPGF_MD_STL_TEMPLATE _method("insert", (typename T::iterator (T::*)(typename T::iterator, const typename T::value_type &)) &T::insert)
+		.CPGF_MD_STL_TEMPLATE _method("insert", (void (T::*)(typename T::iterator, typename T::size_type, const typename T::value_type &)) &T::insert)
+#endif
 	;
 }
 

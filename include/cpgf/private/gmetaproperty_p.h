@@ -173,6 +173,7 @@ public:
 	enum {
 		HasGetter = true,
 		Readable = PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result,
+		ExplicitThis = PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result,
 	};
 
 public:
@@ -203,12 +204,21 @@ public:
 
 private:	
 	template <typename T>
-	GVariant doGet(typename GEnableIf<Readable, T>::Result * instance) const {
+	GVariant doGet(typename GEnableIf<Readable && !ExplicitThis, T>::Result * instance) const {
 		this->callback.setObject(instance);
 		
 		GVarTypeData data = GVarTypeData();
 		deduceVariantType<PropertyType>(data, true);
 		return GVariant(data, this->callback());
+	}
+
+	template <typename T>
+	GVariant doGet(typename GEnableIf<Readable && ExplicitThis, T>::Result * instance) const {
+		this->callback.setObject(instance);
+		
+		GVarTypeData data = GVarTypeData();
+		deduceVariantType<PropertyType>(data, true);
+		return GVariant(data, this->callback((typename GFunctionTraits<Getter>::ArgList::Arg0)(instance)));
 	}
 
 	template <typename T>
@@ -357,7 +367,8 @@ class GMetaSetter <Setter, Policy, typename GEnableIf<IsFunction<Setter>::Result
 public:
 	enum {
 		HasSetter = true,
-		Writable = PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result
+		Writable = PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result,
+		ExplicitThis = PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result,
 	};
 
 public:
@@ -382,9 +393,16 @@ public:
 
 private:	
 	template <typename T>
-	void doSet(typename GEnableIf<Writable, T>::Result * instance, const GVariant & value) const {
+	void doSet(typename GEnableIf<Writable && !ExplicitThis, T>::Result * instance, const GVariant & value) const {
 		this->callback.setObject(instance);
 		this->callback(fromVariant<PropertyType, PolicyHasRule<Policy, GMetaRuleCopyConstReference<0> >::Result ? VarantCastCopyConstRef : VarantCastKeepConstRef>(value));
+	}
+
+	template <typename T>
+	void doSet(typename GEnableIf<Writable && ExplicitThis, T>::Result * instance, const GVariant & value) const {
+		this->callback.setObject(instance);
+		this->callback((typename GFunctionTraits<Setter>::ArgList::Arg0)(instance),
+			fromVariant<typename GFunctionTraits<Setter>::ArgList::Arg1, PolicyHasRule<Policy, GMetaRuleCopyConstReference<0> >::Result ? VarantCastCopyConstRef : VarantCastKeepConstRef>(value));
 	}
 
 	template <typename T>

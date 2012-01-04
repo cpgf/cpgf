@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="D:\projects\cpgf\trunk\src\pinclude\;D:\projects\cpgf\trunk\test\scriptbind\;E:\SourceCode\CPP\v8\include\;D:\projects\cpgf\trunk\include\"
+				AdditionalIncludeDirectories="D:\projects\cpgf\trunk\src\pinclude\;D:\projects\cpgf\trunk\test\scriptbind\;&quot;e:\SourceCode\CPP\UnitTest++\src&quot;;e:\SourceCode\CPP\lua\etc;e:\SourceCode\CPP\lua\src;E:\SourceCode\CPP\v8\include\;D:\projects\cpgf\trunk\include\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,9 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="v8.lib Ws2_32.lib winmm.lib"
+				AdditionalDependencies="v8.lib lua51.lib Ws2_32.lib winmm.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="E:\SourceCode\CPP\v8\"
+				AdditionalLibraryDirectories="E:\SourceCode\CPP\v8\;e:\SourceCode\CPP\lua\src"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -265,11 +265,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\scriptbind\gluabind.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\scriptbind\gscriptbind.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\src\scriptbind\gscriptbindapi.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\scriptbind\gv8bind.cpp"
 					>
 				</File>
 			</Filter>
@@ -278,7 +286,83 @@
 			Name="test_src"
 			>
 			<File
+				RelativePath="..\..\test\scriptbind\bind_common.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\test\scriptbind\testscriptbindmetadata.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="unittest++"
+			>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\AssertException.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\Checks.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\CurrentTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\DeferredTestReporter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\DeferredTestResult.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\MemoryOutStream.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\ReportAssert.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\Test.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\TestDetails.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\TestList.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\TestReporter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\TestReporterStdout.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\TestResults.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\TestRunner.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\TimeConstraint.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\Win32\TimeHelpers.cpp"
+				>
+			</File>
+			<File
+				RelativePath="E:\SourceCode\CPP\UnitTest++\src\XmlTestReporter.cpp"
 				>
 			</File>
 		</Filter>

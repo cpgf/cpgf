@@ -114,6 +114,7 @@ sub processFile
 // Auto generated test code
 // Don't modify manually.
 
+#define AUTOGEN_TEST
 EOM
 	print FH @$newLines;
 	close FH;

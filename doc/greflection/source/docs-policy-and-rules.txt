@@ -76,12 +76,13 @@ Apply to: invokable -- method, constructor, and operator
 Effect: the parameter or resjiult is not copyable.
 
 <b>GMetaRuleExplicitThis </b>
-Apply to: method
+Apply to: method, operator and property which getter or setter is method
 Effect: the first parameter of the method is treated as "this" pointer and it's invisible from the outside.
 This policy is used to use a global method to pretend being a member function.
 For example, if we have global function,
 void myMethod(MyClass * instance, int param);
 Applying GMetaRuleExplicitThis will have the same effect as if myMethod is a member function of MyClass and the prototype is void myMethod(int param).
+With this policy, global function can be used as property getter or setter.
 
 <{/autobr}>
 

@@ -17,7 +17,7 @@ typename T::value_type scriptableIterator_value(T * it)
 }
 
 template <typename T>
-typename T scriptableIterator_inc(T * it)
+T scriptableIterator_inc(T * it)
 {
 	return ++(*it);
 }

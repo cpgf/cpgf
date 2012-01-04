@@ -1,6 +1,7 @@
 // Auto generated test code
 // Don't modify manually.
 
+#define AUTOGEN_TEST
 #include "test_reflection_common.h"
 
 #define CLASS void
