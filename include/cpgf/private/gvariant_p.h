@@ -598,9 +598,9 @@ T castFromString(const char * s, typename GEnableIf<! (IsConvertible<char *, T>:
 }
 
 template <typename T>
-T castFromObject(const volatile void * obj, typename GEnableIf<IsPointer<typename RemoveReference<T>::Result>::Result>::Result * = 0)
+T castFromObject(const volatile void * const & obj, typename GEnableIf<IsPointer<typename RemoveReference<T>::Result>::Result>::Result * = 0)
 {
-	return (typename RemoveReference<T>::Result)(obj);
+	return (T)(obj);
 }
 
 template <typename T>

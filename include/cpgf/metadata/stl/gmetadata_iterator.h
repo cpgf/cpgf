@@ -4,6 +4,7 @@
 #include "cpgf/gtypetraits.h"
 #include "cpgf/gmetadefine.h"
 
+#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/stl/private/gmetadata_stl_header.h"
 
 namespace cpgf {
@@ -11,7 +12,7 @@ namespace cpgf {
 namespace metadata_internal {
 
 template <typename T>
-typename T::value_type scriptableIterator_value(T * it)
+typename T::reference scriptableIterator_value(T * it)
 {
 	return *(*it);
 }
@@ -65,7 +66,7 @@ bool scriptableIterator_greaterOrEqual(T * it, T * other)
 }
 
 template <typename T, typename MetaDefine>
-void doBindIteratorCommon(MetaDefine define, bool scriptable)
+void doBindIteratorCommon(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer)
 {
 	define
 		.CPGF_MD_STL_TEMPLATE _operator<T & (GMetaSelf, const T &)>(mopHolder == mopHolder)
@@ -76,34 +77,34 @@ void doBindIteratorCommon(MetaDefine define, bool scriptable)
 
 	if(scriptable) {
 		define
-			.CPGF_MD_STL_TEMPLATE _method("inc", &scriptableIterator_inc<T>, GMetaPolicyExplicitThis())
-			.CPGF_MD_STL_TEMPLATE _method("equal", &scriptableIterator_equal<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_STL_TEMPLATE _method(replaceName("inc", replacer), &scriptableIterator_inc<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_STL_TEMPLATE _method(replaceName("equal", replacer), &scriptableIterator_equal<T>, GMetaPolicyExplicitThis())
 		;
 	}
 }
 
 template <typename T, typename MetaDefine>
-void doBindIterator(MetaDefine define, bool scriptable, const std::input_iterator_tag &)
+void doBindIterator(MetaDefine define, bool scriptable, const std::input_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBindIteratorCommon<T>(define, scriptable);
+	doBindIteratorCommon<T>(define, scriptable, replacer);
 }
 
 template <typename T, typename MetaDefine>
-void doBindIterator(MetaDefine define, bool scriptable, const std::output_iterator_tag &)
+void doBindIterator(MetaDefine define, bool scriptable, const std::output_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBindIteratorCommon<T>(define, scriptable);
+	doBindIteratorCommon<T>(define, scriptable, replacer);
 }
 
 template <typename T, typename MetaDefine>
-void doBindIterator(MetaDefine define, bool scriptable, const std::forward_iterator_tag &)
+void doBindIterator(MetaDefine define, bool scriptable, const std::forward_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBindIteratorCommon<T>(define, scriptable);
+	doBindIteratorCommon<T>(define, scriptable, replacer);
 }
 
 template <typename T, typename MetaDefine>
-void doBindIterator(MetaDefine define, bool scriptable, const std::bidirectional_iterator_tag &)
+void doBindIterator(MetaDefine define, bool scriptable, const std::bidirectional_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBindIterator<T>(define, scriptable, std::forward_iterator_tag());
+	doBindIterator<T>(define, scriptable, std::forward_iterator_tag(), replacer);
 
 	define
 		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(--mopHolder)
@@ -112,15 +113,15 @@ void doBindIterator(MetaDefine define, bool scriptable, const std::bidirectional
 
 	if(scriptable) {
 		define
-			.CPGF_MD_STL_TEMPLATE _method("dec", &scriptableIterator_dec<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_STL_TEMPLATE _method(replaceName("dec", replacer), &scriptableIterator_dec<T>, GMetaPolicyExplicitThis())
 		;
 	}
 }
 
 template <typename T, typename MetaDefine>
-void doBindIterator(MetaDefine define, bool scriptable, const std::random_access_iterator_tag &)
+void doBindIterator(MetaDefine define, bool scriptable, const std::random_access_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBindIterator<T>(define, scriptable, std::bidirectional_iterator_tag());
+	doBindIterator<T>(define, scriptable, std::bidirectional_iterator_tag(), replacer);
 
 	define
 		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder + mopHolder)
@@ -136,17 +137,17 @@ void doBindIterator(MetaDefine define, bool scriptable, const std::random_access
 
 	if(scriptable) {
 		define
-			.CPGF_MD_STL_TEMPLATE _method("skip", &scriptableIterator_skip<T>, GMetaPolicyExplicitThis())
-			.CPGF_MD_STL_TEMPLATE _method("less", &scriptableIterator_less<T>, GMetaPolicyExplicitThis())
-			.CPGF_MD_STL_TEMPLATE _method("lessOrEqual", &scriptableIterator_lessOrEqual<T>, GMetaPolicyExplicitThis())
-			.CPGF_MD_STL_TEMPLATE _method("greater", &scriptableIterator_greater<T>, GMetaPolicyExplicitThis())
-			.CPGF_MD_STL_TEMPLATE _method("greaterOrEqual", &scriptableIterator_greaterOrEqual<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_STL_TEMPLATE _method(replaceName("skip", replacer), &scriptableIterator_skip<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_STL_TEMPLATE _method(replaceName("less", replacer), &scriptableIterator_less<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_STL_TEMPLATE _method(replaceName("lessOrEqual", replacer), &scriptableIterator_lessOrEqual<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_STL_TEMPLATE _method(replaceName("greater", replacer), &scriptableIterator_greater<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_STL_TEMPLATE _method(replaceName("greaterOrEqual", replacer), &scriptableIterator_greaterOrEqual<T>, GMetaPolicyExplicitThis())
 		;
 	}
 }
 
 template <typename T, typename MetaDefine>
-void doBindIteratorAccessor(MetaDefine define, bool scriptable)
+void doBindIteratorAccessor(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer)
 {
 	define
 		.CPGF_MD_STL_TEMPLATE _operator<typename T::pointer (GMetaSelf)>(mopHolder->mopHolder)
@@ -155,7 +156,7 @@ void doBindIteratorAccessor(MetaDefine define, bool scriptable)
 
 	if(scriptable) {
 		define
-			.CPGF_MD_STL_TEMPLATE _method("value", &scriptableIterator_value<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_STL_TEMPLATE _method(replaceName("value", replacer), &scriptableIterator_value<T>, GMetaPolicyExplicitThis())
 		;
 	}
 }
@@ -165,18 +166,18 @@ void doBindIteratorAccessor(MetaDefine define, bool scriptable)
 
 
 template <typename MetaDefine>
-MetaDefine bindMetaData_iterator(MetaDefine define, bool scriptable)
+MetaDefine bindMetaData_iterator(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer = NULL)
 {
-	metadata_internal::doBindIteratorAccessor<typename MetaDefine::ClassType>(define, scriptable);
-	metadata_internal::doBindIterator<typename MetaDefine::ClassType>(define, scriptable, typename MetaDefine::ClassType::iterator_category());
+	metadata_internal::doBindIteratorAccessor<typename MetaDefine::ClassType>(define, scriptable, replacer);
+	metadata_internal::doBindIterator<typename MetaDefine::ClassType>(define, scriptable, typename MetaDefine::ClassType::iterator_category(), replacer);
 
 	return define;
 }
 
 template <typename MetaDefine>
-MetaDefine bindMetaData_iterator(MetaDefine define)
+MetaDefine bindMetaData_iterator(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
 {
-	return bindMetaData_iterator(define, false);
+	return bindMetaData_iterator(define, false, replacer);
 }
 
 

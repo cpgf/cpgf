@@ -554,7 +554,7 @@ bool rawToLua(lua_State * L, GScriptBindingParam * param, const GVariant & value
 
 bool variantToLua(lua_State * L, GScriptBindingParam * param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
 {
-	GVariantType vt = value.getType();
+	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
 	
 	if(vtIsEmpty(vt)) {
 		lua_pushnil(L);
@@ -615,6 +615,13 @@ bool variantToLua(lua_State * L, GScriptBindingParam * param, const GVariant & v
 
 				return true;
 			}
+		}
+
+		if(type.isReference()) {
+			GMetaType newType(type);
+			newType.removeReference();
+
+			return variantToLua(L, param, value, newType, allowGC, allowRaw);
 		}
 	}
 

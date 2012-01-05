@@ -203,6 +203,7 @@ public:
 
 	void addPointer();
 	void addConst();
+	void removeReference();
 
 private:
 	bool hasFlag(unsigned int flag) const {

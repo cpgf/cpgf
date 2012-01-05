@@ -45,7 +45,7 @@ struct DeduceVariantType_Helper {
 template <typename T>
 struct DeduceVariantType_Helper <T, typename GEnableIf<IsPointer<T>::Result>::Result> {
 private:
-	static const int temp = DeduceBasicVariantType<typename RemoveConstVolatile<typename RemovePointer<T>::Result>::Result>::Result;
+	static const int temp = DeduceBasicVariantType<typename ExtractRawType<T>::Result>::Result;
 public:
 	static const GVariantType Result = static_cast<const GVariantType>(temp | byPointer);
 	static const int Pointers = PointerDimension<
@@ -60,7 +60,7 @@ public:
 template <typename T>
 struct DeduceVariantType_Helper <T, typename GEnableIf<IsReference<T>::Result>::Result> {
 private:
-	static const int temp = DeduceBasicVariantType<typename RemoveConstVolatile<T>::Result>::Result;
+	static const int temp = DeduceBasicVariantType<typename RemoveConstVolatile<typename RemoveReference<T>::Result>::Result>::Result;
 public:
 	static const GVariantType Result = static_cast<const GVariantType>(temp | byReference);
 	static const int Pointers = 0;

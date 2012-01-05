@@ -1,6 +1,7 @@
 #include "pinclude/gmetatypereg.h"
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gmetafundamental.h"
+#include "cpgf/gstringmap.h"
 
 #include <vector>
 
@@ -17,7 +18,7 @@ namespace {
 	class GMetaTypedItemList
 	{
 	public:
-		typedef std::vector<const GMetaTypedItem *> ListType;
+		typedef GStringMap<const GMetaTypedItem *, GStringMapReuseKey> MapType;
 
 	public:
 		GMetaTypedItemList() : freeItems(false) {
@@ -30,29 +31,24 @@ namespace {
 			isInFinalizing = true;
 
 			if(this->freeItems) {
-				for(ListType::const_iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
-					delete *it;
+				for(MapType::const_iterator it = this->itemMap.begin(); it != this->itemMap.end(); ++it) {
+					delete it->second;
 				}
 			}
 		}
 
 		void add(const GMetaTypedItem * item) {
-			if(std::find(this->itemList.begin(), this->itemList.end(), item) == this->itemList.end()) {
-				this->itemList.push_back(item);
-			}
+			this->itemMap.set(item->getTypeName().c_str(), item);
 		}
 		
 		void remove(const GMetaTypedItem * item) {
-			ListType::iterator it = std::find(this->itemList.begin(), this->itemList.end(), item);
-			if(it != this->itemList.end()) {
-				this->itemList.erase(it);
-			}
+			this->itemMap.remove(item->getTypeName().c_str());
 		}
 
 		const GMetaTypedItem * findByType(const GTypeInfo & type) const {
-			for(ListType::const_iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
-				if((*it)->getMetaType().getBaseType() == type) {
-					return *it;
+			for(MapType::const_iterator it = this->itemMap.begin(); it != this->itemMap.end(); ++it) {
+				if(it->second->getMetaType().getBaseType() == type) {
+					return it->second;
 				}
 			}
 
@@ -64,25 +60,20 @@ namespace {
 				return NULL;
 			}
 
-			for(ListType::const_iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
-				if(strcmp((*it)->getTypeName().c_str(), name) == 0) {
-					return *it;
-				}
-			}
-
-			return NULL;
+			MapType::const_iterator it = this->itemMap.find(name);
+			return it == this->itemMap.end() ? NULL : it->second;
 		}
 
 		bool isEmpty() const {
-			return this->itemList.empty();
+			return this->itemMap.isEmpty();
 		}
 
-		const ListType * getItemList() const {
-			return &this->itemList;
+		const MapType * getItemMap() const {
+			return &this->itemMap;
 		}
 
 	private:
-		ListType itemList;
+		MapType itemMap;
 		bool freeItems;
 	};
 
@@ -215,11 +206,11 @@ const GMetaFundamental * findRegisteredMetaFundamental(const char * name)
 
 const GMetaFundamental * findRegisteredMetaFundamental(GVariantType vt)
 {
-	const GMetaTypedItemList::ListType * itemList = getMetaFundamentalList()->getItemList();
+	const GMetaTypedItemList::MapType * itemMap = getMetaFundamentalList()->getItemMap();
 
-	for(GMetaTypedItemList::ListType::const_iterator it = itemList->begin(); it != itemList->end(); ++it) {
-		if(static_cast<const GMetaFundamental *>(*it)->getVariantType() == vt) {
-			return static_cast<const GMetaFundamental *>(*it);
+	for(GMetaTypedItemList::MapType::const_iterator it = itemMap->begin(); it != itemMap->end(); ++it) {
+		if(static_cast<const GMetaFundamental *>(it->second)->getVariantType() == vt) {
+			return static_cast<const GMetaFundamental *>(it->second);
 		}
 	}
 

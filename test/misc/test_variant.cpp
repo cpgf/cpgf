@@ -77,6 +77,15 @@ GTEST(TestVariant_Cast)
 	CAN_FROM_CAST(CLASS &, CLASS &, obj);
 	NOT_FROM_CAST(int &, int &, n);
 
+	CLASS * pobj = NULL;
+	CLASS * & rpobj = pobj;
+	CAN_FROM_CAST(CLASS *, CLASS * &, rpobj);
+	CAN_FROM_CAST(CLASS * &, CLASS *, NULL);
+
+	GVarTypeData typeData = GVarTypeData();
+	deduceVariantType<CLASS * & >(typeData, true);
+	GEQUAL(typeData.vt, vtPointer | byReference);
+
 #if G_SUPPORT_RVALUE_REFERENCE
 	CAN_FROM_CAST(CLASS &, CLASS &&, n);
 	CAN_FROM_CAST(CLASS &&, CLASS &, obj);
@@ -108,7 +117,7 @@ GTEST(TestVariant_ObjectPointer)
 	GEQUAL(vtGetBaseType(GVariant((CLASS const volatile *)0).data.typeData), vtObject);
 	GEQUAL(vtGetPointers(GVariant((CLASS const volatile *)0).data.typeData), 1);
 
-	GEQUAL(vtGetBaseType(GVariant((CLASS **)0).data.typeData), vtPointer);
+	GEQUAL(vtGetBaseType(GVariant((CLASS **)0).data.typeData), vtObject);
 	GEQUAL(vtGetPointers(GVariant((CLASS **)0).data.typeData), 2);
 }
 

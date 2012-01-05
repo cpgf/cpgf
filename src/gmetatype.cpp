@@ -63,6 +63,12 @@ void GMetaType::addConst()
 	this->flags |= meta_internal::mtFlagIsConst;
 }
 
+void GMetaType::removeReference()
+{
+	this->flags &= ~meta_internal::mtFlagIsReference;
+	vtSetType(this->typeData, vtGetType(this->typeData) & ~byReference);
+}
+
 GMetaType createMetaTypeWithName(const GMetaType & type, const char * name)
 {
 	GMetaTypeData data = type.getData();

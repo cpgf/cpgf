@@ -35,7 +35,7 @@ enum GVariantType {
 	vtFloat = vtFundamentalBegin + 13, vtDouble = vtFundamentalBegin + 14, vtLongDouble = vtFundamentalBegin + 15,
 	vtFundamentalEnd = vtLongDouble,
 
-	vtPointer = 30,
+	vtPointer = 30, // T * &. If no reference, T * is type of T + byPointer
 	vtObject = 31, // is equivalent to unkown type
 	vtShadow = 32,
 	vtString = 33,

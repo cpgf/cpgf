@@ -180,6 +180,8 @@ v8::Handle<v8::FunctionTemplate> createClassTemplate(GScriptBindingParam * param
 
 v8::Handle<v8::Value> converterToV8(GScriptBindingParam * param, const GVariant & value, IMetaConverter * converter);
 
+GMetaMapClass * getMetaClassMap(GScriptBindingParam * param, IMetaClass * metaClass);
+
 const char * signatureKey = "i_sig_cpgf";
 const int signatureValue = 0x168feed;
 const char * userDataKey = "i_userdata_cpgf";
@@ -319,7 +321,7 @@ v8::Handle<v8::Value> objectToV8(GScriptBindingParam * param, void * instance, I
 		return Handle<Value>();
 	}
 
-	GMetaMapClass * map = param->getMetaMap()->findClassMap(metaClass);
+	GMetaMapClass * map = getMetaClassMap(param, metaClass);
 	GMapItemClassData * mapData = gdynamic_cast<GMapItemClassData *>(map->getData());
 	Handle<FunctionTemplate> functionTemplate = mapData->functionTemplate;
 	Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance());
@@ -356,7 +358,7 @@ v8::Handle<v8::Value> rawToV8(GScriptBindingParam * param, const GVariant & valu
 
 v8::Handle<v8::Value> variantToV8(GScriptBindingParam * param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
 {
-	GVariantType vt = value.getType();
+	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
 
 	if(vtIsEmpty(vt)) {
 		return v8::Handle<v8::Value>();
@@ -401,6 +403,13 @@ v8::Handle<v8::Value> variantToV8(GScriptBindingParam * param, const GVariant & 
 
 				return objectToV8(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type));
 			}
+		}
+
+		if(type.isReference()) {
+			GMetaType newType(type);
+			newType.removeReference();
+
+			return variantToV8(param, value, newType, allowGC, allowRaw);
 		}
 	}
 
@@ -794,7 +803,7 @@ v8::Handle<v8::Value> getNamedMember(GClassUserData * userData, const char * nam
 			break;
 		}
 
-		GMetaMapClass * mapClass = userData->getParam()->getMetaMap()->findClassMap(metaClass.get());
+		GMetaMapClass * mapClass = getMetaClassMap(userData->getParam(), metaClass.get());
 		if(mapClass == NULL) {
 			continue;
 		}
@@ -855,7 +864,7 @@ v8::Handle<v8::Value> getNamedMember(GClassUserData * userData, const char * nam
 						}
 					}
 
-					GMetaMapClass * baseMapClass = userData->getParam()->getMetaMap()->findClassMap(boundClass.get());
+					GMetaMapClass * baseMapClass = getMetaClassMap(userData->getParam(), boundClass.get());
 					data->setTemplate(createMethodTemplate(userData->getParam(), userData->metaClass, userData->instance == NULL, methodList.get(), name,
 						gdynamic_cast<GMapItemClassData *>(baseMapClass->getData())->functionTemplate, udmtInternal, &newUserData));
 					newUserData->baseInstance = userData->instance;
@@ -1119,6 +1128,17 @@ v8::Handle<v8::Value> objectConstructor(const v8::Arguments & args)
 	return self;
 
 	LEAVE_V8(return Handle<Value>());
+}
+
+GMetaMapClass * getMetaClassMap(GScriptBindingParam * param, IMetaClass * metaClass)
+{
+	GMetaMapClass * map = param->getMetaMap()->findClassMap(metaClass);
+
+	if(map->getData() == NULL) {
+		createClassTemplate(param, metaClass->getName(), metaClass);
+	}
+
+	return map;
 }
 
 v8::Handle<v8::FunctionTemplate> createClassTemplate(GScriptBindingParam * param, const char * name, IMetaClass * metaClass)
