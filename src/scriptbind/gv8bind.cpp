@@ -8,7 +8,6 @@
 #include <set>
 #include <map>
 
-#include <iostream>
 
 using namespace std;
 using namespace cpgf::bind_internal;
@@ -41,7 +40,8 @@ template <typename KeyType, typename ValueType>
 class GUserDataMap
 {
 private:
-	typedef map<KeyType, ValueType> MapType;
+	typedef map<KeyType, ValueType> KeyValueMap;
+	typedef map<ValueType, KeyType> ValueKeyMap;
 
 public:
 	GUserDataMap() : nextKey((KeyType)0) {
@@ -70,34 +70,35 @@ public:
 	KeyType addValue(ValueType value) {
 		KeyType key = this->getNextKey();
 		this->keyMap.insert(make_pair(key, value));
-//cout << "Add: key= " << key << " value= " << value << endl;
-if(key == (KeyType) 0x6fb) {
-	key = key;
-}
+//		this->valueMap.insert(make_pair(value, key));
 		return key;
 	}
 
 	void removeValue(ValueType value) {
-		for(typename MapType::iterator it = this->keyMap.begin(); it != this->keyMap.end(); ++it) {
+		for(typename KeyValueMap::iterator it = this->keyMap.begin(); it != this->keyMap.end(); ++it) {
 			if(it->second == value) {
-//cout << "Remove: key= " << it->first << " value= " << value << endl;
 				this->keyMap.erase(it);
 				break;
 			}
 		}
 	}
 
-	ValueType getValue(KeyType key) const {
-if(key == (KeyType) 0x6fb) {
-	key = key;
-}
+	KeyType getKey(ValueType value) const {
+		for(typename KeyValueMap::iterator it = this->keyMap.begin(); it != this->keyMap.end(); ++it) {
+			if(it->second == value) {
+				return it->first;
+			}
+		}
 
-		typename MapType::const_iterator it = this->keyMap.find(key);
+		return (KeyType)0;
+	}
+
+	ValueType getValue(KeyType key) const {
+		typename KeyValueMap::const_iterator it = this->keyMap.find(key);
 		if(it == this->keyMap.end()) {
 			return (ValueType)0;
 		}
 		else {
-//cout << "Get: key= " << key << " value= " << it->second << endl;
 			return it->second;
 		}
 	}
@@ -115,7 +116,8 @@ private:
 
 private:
 	mutable KeyType nextKey;
-	mutable MapType keyMap;
+	mutable KeyValueMap keyMap;
+	mutable ValueKeyMap valueMap;
 };
 
 typedef GUserDataMap<void *, void *> GV8UserDataMap;
@@ -138,14 +140,17 @@ public:
 	void * addUserData(GScriptUserData * userData) {
 		if(this->userDataList.find(userData) == this->userDataList.end()) {
 			this->userDataList.insert(userData);
+			return userDataMap.addValue(userData);
 		}
-		return userDataMap.addValue(userData);
+		else {
+			return userDataMap.getKey(userData);
+		}
 	}
 
 	void removeUserData(GScriptUserData * userData) {
-		userDataMap.removeValue(userData);
 		ListType::iterator it = this->userDataList.find(userData);
 		if(it != this->userDataList.end()) {
+			userDataMap.removeValue(userData);
 			delete *it;
 			this->userDataList.erase(it);
 		}
@@ -1468,7 +1473,7 @@ void GV8ScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 	obj->SetPointerInInternalField(0, newUserData);
 	setObjectSignature(&obj);
 	void * key = addUserDataToPool(this->implement->param, newUserData);
-	obj.MakeWeak(NULL, weakHandleCallback);
+	obj.MakeWeak(key, weakHandleCallback);
 
 	localObject->Set(String::New(name), obj);
 
