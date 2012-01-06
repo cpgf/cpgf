@@ -6,6 +6,9 @@
 
 #include <vector>
 #include <set>
+#include <map>
+
+#include <iostream>
 
 using namespace std;
 using namespace cpgf::bind_internal;
@@ -34,6 +37,91 @@ namespace cpgf {
 
 namespace {
 
+template <typename KeyType, typename ValueType>
+class GUserDataMap
+{
+private:
+	typedef map<KeyType, ValueType> MapType;
+
+public:
+	GUserDataMap() : nextKey((KeyType)0) {
+	}
+
+	KeyType getNextKey() const {
+		KeyType oldKey = this->nextKey;
+		for(;;) {
+			this->nextKey = this->incKey(this->nextKey);
+			if(this->nextKey == (KeyType)0) {
+				continue;
+			}
+
+			if(this->nextKey == oldKey) {
+				break;
+			}
+
+			if(this->keyMap.find(this->nextKey) == this->keyMap.end()) {
+				return this->nextKey;
+			}
+		}
+
+		throw GException(-1, "V8 key space is full!");
+	}
+
+	KeyType addValue(ValueType value) {
+		KeyType key = this->getNextKey();
+		this->keyMap.insert(make_pair(key, value));
+//cout << "Add: key= " << key << " value= " << value << endl;
+if(key == (KeyType) 0x6fb) {
+	key = key;
+}
+		return key;
+	}
+
+	void removeValue(ValueType value) {
+		for(typename MapType::iterator it = this->keyMap.begin(); it != this->keyMap.end(); ++it) {
+			if(it->second == value) {
+//cout << "Remove: key= " << it->first << " value= " << value << endl;
+				this->keyMap.erase(it);
+				break;
+			}
+		}
+	}
+
+	ValueType getValue(KeyType key) const {
+if(key == (KeyType) 0x6fb) {
+	key = key;
+}
+
+		typename MapType::const_iterator it = this->keyMap.find(key);
+		if(it == this->keyMap.end()) {
+			return (ValueType)0;
+		}
+		else {
+//cout << "Get: key= " << key << " value= " << it->second << endl;
+			return it->second;
+		}
+	}
+
+private:
+	template <typename T>
+	KeyType incKey(T * key) const {
+		return (KeyType)(((char *)key) + 1);
+	}
+	
+	template <typename T>
+	KeyType incKey(T key) const {
+		return (KeyType)(key + 1);
+	}
+
+private:
+	mutable KeyType nextKey;
+	mutable MapType keyMap;
+};
+
+typedef GUserDataMap<void *, void *> GV8UserDataMap;
+GV8UserDataMap userDataMap;
+
+
 class GUserDataPool
 {
 private:
@@ -42,17 +130,20 @@ private:
 public:
 	~GUserDataPool() {
 		for(ListType::iterator it = this->userDataList.begin(); it != this->userDataList.end(); ++it) {
+			userDataMap.removeValue(*it);
 			delete *it;
 		}
 	}
 
-	void addUserData(GScriptUserData * userData) {
+	void * addUserData(GScriptUserData * userData) {
 		if(this->userDataList.find(userData) == this->userDataList.end()) {
 			this->userDataList.insert(userData);
 		}
+		return userDataMap.addValue(userData);
 	}
 
 	void removeUserData(GScriptUserData * userData) {
+		userDataMap.removeValue(userData);
 		ListType::iterator it = this->userDataList.find(userData);
 		if(it != this->userDataList.end()) {
 			delete *it;
@@ -215,9 +306,9 @@ bool isGlobalObject(v8::Handle<v8::Value> object)
 	}
 }
 
-void addUserDataToPool(GScriptBindingParam * param, GScriptUserData * userData)
+void * addUserDataToPool(GScriptBindingParam * param, GScriptUserData * userData)
 {
-	gdynamic_cast<GV8ScriptBindingParam *>(param)->getUserDataPool()->addUserData(userData);
+	return gdynamic_cast<GV8ScriptBindingParam *>(param)->getUserDataPool()->addUserData(userData);
 }
 
 void removeUserDataFromPool(GScriptBindingParam * param, GScriptUserData * userData)
@@ -337,8 +428,8 @@ v8::Handle<v8::Value> objectToV8(GScriptBindingParam * param, void * instance, I
 	Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance());
 
 	GClassUserData * instanceUserData = new GClassUserData(param, metaClass, instance, true, allowGC, cv);
-	addUserDataToPool(param, instanceUserData);
-	self.MakeWeak(instanceUserData, weakHandleCallback);
+	void * key = addUserDataToPool(param, instanceUserData);
+	self.MakeWeak(key, weakHandleCallback);
 
 	self->SetPointerInInternalField(0, instanceUserData);
 	setObjectSignature(&self);
@@ -354,8 +445,8 @@ v8::Handle<v8::Value> rawToV8(GScriptBindingParam * param, const GVariant & valu
 		Persistent<Object> self = Persistent<Object>::New(gdynamic_cast<GV8ScriptBindingParam *>(param)->getRawObject());
 
 		GRawUserData * instanceUserData = new GRawUserData(param, value);
-		addUserDataToPool(param, instanceUserData);
-		self.MakeWeak(instanceUserData, weakHandleCallback);
+		void * key = addUserDataToPool(param, instanceUserData);
+		self.MakeWeak(key, weakHandleCallback);
 
 		self->SetPointerInInternalField(0, instanceUserData);
 		setObjectSignature(&self);
@@ -505,7 +596,7 @@ GMetaVariant v8ToVariant(v8::Handle<v8::Value> value)
 
 void weakHandleCallback(v8::Persistent<v8::Value> object, void * parameter)
 {
-	GScriptUserData * userData = static_cast<GScriptUserData *>(parameter);
+	GScriptUserData * userData = static_cast<GScriptUserData *>(userDataMap.getValue(parameter));
 
 	if(userData != NULL) {
 		removeUserDataFromPool(userData->getParam(), userData);
@@ -587,9 +678,9 @@ void doBindAccessible(GScriptBindingParam * param, v8::Local<v8::Object> contain
 	const char * name, void * instance, IMetaAccessible * accessible)
 {
 	GAccessibleUserData * userData = new GAccessibleUserData(param, instance, accessible);
-	addUserDataToPool(param, userData);
+	void * key = addUserDataToPool(param, userData);
 	Persistent<External> data = Persistent<External>::New(External::New(userData));
-	data.MakeWeak(userData, weakHandleCallback);
+	data.MakeWeak(key, weakHandleCallback);
 
 	container->SetAccessor(String::New(name), &accessibleGet, &accessibleSet, data);
 }
@@ -740,8 +831,8 @@ v8::Handle<v8::FunctionTemplate> createMethodTemplate(GScriptBindingParam * para
 	setObjectSignature(&func);
 	GExtendMethodUserData * funcUserData = new GExtendMethodUserData(param, metaClass, methodList, name, methodType);
 	Persistent<External> funcData = Persistent<External>::New(External::New(funcUserData));
-	addUserDataToPool(param, funcUserData);
-	funcData.MakeWeak(funcUserData, weakHandleCallback);
+	void * key = addUserDataToPool(param, funcUserData);
+	funcData.MakeWeak(key, weakHandleCallback);
 	func->SetHiddenValue(v8::String::New(userDataKey), funcData);
 
 	return functionTemplate;
@@ -1060,9 +1151,9 @@ void accessorNamedMemberSetter(v8::Local<v8::String> prop, v8::Local<v8::Value> 
 void bindClassItems(v8::Local<v8::Object> object, GScriptBindingParam * param, IMetaClass * metaClass, bool allowStatic, bool allowMember)
 {
 	GClassUserData * userData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
-	addUserDataToPool(param, userData);
+	void * key = addUserDataToPool(param, userData);
 	Persistent<External> data = Persistent<External>::New(External::New(userData));
-	data.MakeWeak(userData, weakHandleCallback);
+	data.MakeWeak(key, weakHandleCallback);
 
 	GScopedInterface<IMetaItem> item;
 	uint32_t count = metaClass->getMetaCount();
@@ -1129,8 +1220,8 @@ v8::Handle<v8::Value> objectConstructor(const v8::Arguments & args)
 	Persistent<Object> self = Persistent<Object>::New(args.Holder());
 
 	GClassUserData * instanceUserData = new GClassUserData(userData->getParam(), userData->metaClass, instance, true, true, opcvNone);
-	addUserDataToPool(userData->getParam(), instanceUserData);
-	self.MakeWeak(instanceUserData, weakHandleCallback);
+	void * key = addUserDataToPool(userData->getParam(), instanceUserData);
+	self.MakeWeak(key, weakHandleCallback);
 
 	self->SetPointerInInternalField(0, instanceUserData);
 	setObjectSignature(&self);
@@ -1160,9 +1251,9 @@ v8::Handle<v8::FunctionTemplate> createClassTemplate(GScriptBindingParam * param
 	}
 
 	GClassUserData * userData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
-	addUserDataToPool(param, userData);
+	void * key = addUserDataToPool(param, userData);
 	Persistent<External> data = Persistent<External>::New(External::New(userData));
-	data.MakeWeak(userData, weakHandleCallback);
+	data.MakeWeak(key, weakHandleCallback);
 
 	Handle<FunctionTemplate> functionTemplate = FunctionTemplate::New(objectConstructor, data);
 	functionTemplate->SetClassName(String::New(name));
@@ -1187,9 +1278,9 @@ v8::Handle<v8::FunctionTemplate> createClassTemplate(GScriptBindingParam * param
 	bindClassItems(classFunction, param, metaClass, true, false);
 
 	GClassUserData * classUserData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
-	addUserDataToPool(param, classUserData);
+	key = addUserDataToPool(param, classUserData);
 	Persistent<External> classData = Persistent<External>::New(External::New(classUserData));
-	classData.MakeWeak(classUserData, weakHandleCallback);
+	classData.MakeWeak(key, weakHandleCallback);
 	classFunction->SetHiddenValue(v8::String::New(userDataKey), classData);
 
 	return functionTemplate;
@@ -1376,7 +1467,8 @@ void GV8ScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 	Persistent<Object> obj = Persistent<Object>::New(objectTemplate->NewInstance());
 	obj->SetPointerInInternalField(0, newUserData);
 	setObjectSignature(&obj);
-	obj.MakeWeak(newUserData, weakHandleCallback);
+	void * key = addUserDataToPool(this->implement->param, newUserData);
+	obj.MakeWeak(NULL, weakHandleCallback);
 
 	localObject->Set(String::New(name), obj);
 
