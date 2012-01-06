@@ -84,7 +84,7 @@ GTEST(TestVariant_Cast)
 
 	GVarTypeData typeData = GVarTypeData();
 	deduceVariantType<CLASS * & >(typeData, true);
-	GEQUAL(typeData.vt, vtPointer | byReference);
+	GEQUAL(typeData.vt, (vtPointer | byReference));
 
 #if G_SUPPORT_RVALUE_REFERENCE
 	CAN_FROM_CAST(CLASS &, CLASS &&, n);

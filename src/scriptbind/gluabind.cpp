@@ -102,8 +102,7 @@ private:
 class GLuaScriptObjectImplement
 {
 public:
-	GLuaScriptObjectImplement(GLuaScriptObject * binding, IMetaService * service,
-		lua_State * L, const GScriptConfig & config, GMetaMap * metaMap, bool freeResource);
+	GLuaScriptObjectImplement(GScriptBindingParam * param, GLuaScriptObject * binding, lua_State * L, bool freeResource);
 	
 	~GLuaScriptObjectImplement();
 	
@@ -117,8 +116,8 @@ protected:
 	void doGetTable(lua_State * L) const;
 
 public:
+	GScriptBindingParam * param;
 	GLuaScriptObject * binding;
-	GScriptBindingParam param;
 	lua_State * luaState;
 	bool freeResource;
 
@@ -257,7 +256,7 @@ int GLuaGlobalAccessor::doIndex()
 	string sname(name);
 	MapType::iterator it = this->itemMap.find(sname);
 	if(it != this->itemMap.end()) {
-		doIndexMemberData(L, &this->scriptObject->implement->param, it->second.accessible.get(), it->second.instance, false);
+		doIndexMemberData(L, this->scriptObject->implement->param, it->second.accessible.get(), it->second.instance, false);
 		return 1;
 	}
 
@@ -273,7 +272,7 @@ int GLuaGlobalAccessor::doNewIndex()
 	string sname(name);
 	MapType::iterator it = this->itemMap.find(sname);
 	if(it != this->itemMap.end()) {
-		GVariant value = luaToVariant(L, &this->scriptObject->implement->param, -1).getValue();
+		GVariant value = luaToVariant(L, this->scriptObject->implement->param, -1).getValue();
 		GVariantData varData = value.getData();
 		it->second.accessible->set(it->second.instance, &varData);
 		metaCheckError(it->second.accessible);
@@ -1298,15 +1297,15 @@ void doBindEnum(lua_State * L, GScriptBindingParam * param, IMetaEnum * metaEnum
 }
 
 
-GLuaScriptObjectImplement::GLuaScriptObjectImplement(GLuaScriptObject * binding, IMetaService * service, lua_State * L, const GScriptConfig & config, GMetaMap * metaMap, bool freeResource)
-		: binding(binding), param(service, config, metaMap), luaState(L), freeResource(freeResource)
+GLuaScriptObjectImplement::GLuaScriptObjectImplement(GScriptBindingParam * param, GLuaScriptObject * binding, lua_State * L, bool freeResource)
+		: param(param), binding(binding), luaState(L), freeResource(freeResource)
 {
 }
 	
 GLuaScriptObjectImplement::~GLuaScriptObjectImplement()
 {
 	if(this->freeResource) {
-		delete this->param.getMetaMap();
+		delete this->param;
 	}
 }
 	
@@ -1422,13 +1421,13 @@ void GLuaScopeGuard::rawGet(const char * name)
 GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
 	: super(config)
 {
-	this->implement.reset(new GLuaScriptObjectImplement(this, service, L, super::getConfig(), new GMetaMap, true));
+	this->implement.reset(new GLuaScriptObjectImplement(new GScriptBindingParam(service, super::getConfig()), this, L, true));
 }
 
 GLuaScriptObject::GLuaScriptObject(const GLuaScriptObject & other)
-	: super(other.implement->param.getConfig())
+	: super(other.implement->param->getConfig())
 {
-	this->implement.reset(new GLuaScriptObjectImplement(this, other.implement->param.getService(), other.implement->luaState, super::getConfig(), other.implement->param.getMetaMap(), false));
+	this->implement.reset(new GLuaScriptObjectImplement(other.implement->param, this, other.implement->luaState, false));
 }
 
 GLuaScriptObject::~GLuaScriptObject()
@@ -1454,7 +1453,7 @@ void GLuaScriptObject::bindClass(const char * name, IMetaClass * metaClass)
 
 	GLuaScopeGuard scopeGuard(this);
 
-	doBindClass(this->implement->luaState, &this->implement->param, metaClass);
+	doBindClass(this->implement->luaState, this->implement->param, metaClass);
 	
 	scopeGuard.set(name);
 
@@ -1467,7 +1466,7 @@ void GLuaScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 
 	GLuaScopeGuard scopeGuard(this);
 
-	doBindEnum(this->implement->luaState, &this->implement->param, metaEnum);
+	doBindEnum(this->implement->luaState, this->implement->param, metaEnum);
 	
 	scopeGuard.set(name);
 
@@ -1559,7 +1558,7 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const char * name, GMetaVariant 
 	
 	if(lua_isfunction(this->implement->luaState, -1)) {
 		for(size_t i = 0; i < paramCount; ++i) {
-			if(!variantToLua(this->implement->luaState, &this->implement->param, params[i]->getValue(), params[i]->getType(), false, true)) {
+			if(!variantToLua(this->implement->luaState, this->implement->param, params[i]->getValue(), params[i]->getType(), false, true)) {
 				if(i > 0) {
 					lua_pop(this->implement->luaState, static_cast<int>(i) - 1);
 				}
@@ -1579,7 +1578,7 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const char * name, GMetaVariant 
 			}
 			else {
 				if(resultCount > 0) {
-					return luaToVariant(this->implement->luaState, &this->implement->param, -1);
+					return luaToVariant(this->implement->luaState, this->implement->param, -1);
 				}
 			}
 		}
@@ -1601,7 +1600,7 @@ void GLuaScriptObject::bindFundamental(const char * name, const GVariant & value
 
 	GLuaScopeGuard scopeGuard(this);
 
-	if(! variantToLua(this->implement->luaState, &this->implement->param, value, GMetaType(), false, true)) {
+	if(! variantToLua(this->implement->luaState, this->implement->param, value, GMetaType(), false, true)) {
 		raiseCoreException(Error_ScriptBinding_CantBindFundamental);
 	}
 	
@@ -1639,7 +1638,7 @@ void GLuaScriptObject::bindObject(const char * objectName, void * instance, IMet
 
 	GLuaScopeGuard scopeGuard(this);
 
-	objectToLua(this->implement->luaState, &this->implement->param, instance, gdynamic_cast<IMetaClass *>(type), transferOwnership, opcvNone);
+	objectToLua(this->implement->luaState, this->implement->param, instance, gdynamic_cast<IMetaClass *>(type), transferOwnership, opcvNone);
 
 	scopeGuard.set(objectName);
 
@@ -1654,7 +1653,7 @@ void GLuaScriptObject::bindRaw(const char * name, const GVariant & value)
 
 	GLuaScopeGuard scopeGuard(this);
 
-	if(! rawToLua(this->implement->luaState, &this->implement->param, value)) {
+	if(! rawToLua(this->implement->luaState, this->implement->param, value)) {
 		raiseCoreException(Error_ScriptBinding_CantBindRaw);
 	}
 	
@@ -1676,7 +1675,7 @@ void GLuaScriptObject::bindMethod(const char * name, void * instance, IMetaMetho
 	GScopedInterface<IMetaList> methodList(createMetaList());
 	methodList->add(method, instance);
 
-	doBindMethodList(this->implement->luaState, &this->implement->param, methodList.get(), udmtMethod);
+	doBindMethodList(this->implement->luaState, this->implement->param, methodList.get(), udmtMethod);
 	
 	scopeGuard.set(name);
 	
@@ -1689,7 +1688,7 @@ void GLuaScriptObject::bindMethodList(const char * name, IMetaList * methodList)
 
 	GLuaScopeGuard scopeGuard(this);
 
-	doBindMethodList(this->implement->luaState, &this->implement->param, methodList, udmtMethodList);
+	doBindMethodList(this->implement->luaState, this->implement->param, methodList, udmtMethodList);
 	
 	scopeGuard.set(name);
 	
@@ -1742,7 +1741,7 @@ GVariant GLuaScriptObject::getFundamental(const char * name)
 	scopeGuard.get(name);
 	
 	if(getLuaType(this->implement->luaState, -1, NULL) == sdtFundamental) {
-		return luaToVariant(this->implement->luaState, &this->implement->param, -1).getValue();
+		return luaToVariant(this->implement->luaState, this->implement->param, -1).getValue();
 	}
 	else {
 		lua_pop(this->implement->luaState, 1);
@@ -1774,7 +1773,7 @@ void * GLuaScriptObject::getObject(const char * objectName)
 
 	scopeGuard.get(objectName);
 
-	return luaToObject(this->implement->luaState, &this->implement->param, -1, NULL);
+	return luaToObject(this->implement->luaState, this->implement->param, -1, NULL);
 	
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
@@ -1788,7 +1787,7 @@ GVariant GLuaScriptObject::getRaw(const char * name)
 	scopeGuard.get(name);
 	
 	if(getLuaType(this->implement->luaState, -1, NULL) == sdtRaw) {
-		return luaToVariant(this->implement->luaState, &this->implement->param, -1).getValue();
+		return luaToVariant(this->implement->luaState, this->implement->param, -1).getValue();
 	}
 	else {
 		lua_pop(this->implement->luaState, 1);

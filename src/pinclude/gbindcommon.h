@@ -5,6 +5,7 @@
 #include "cpgf/gglobal.h"
 #include "cpgf/gflags.h"
 #include "cpgf/gmetaclass.h"
+#include "cpgf/gclassutil.h"
 
 #include <map>
 #include <vector>
@@ -21,6 +22,8 @@ namespace bind_internal {
 
 class GMetaMap;
 
+GMetaMap * createMetaMap();
+
 enum ObjectPointerCV {
 	opcvNone,
 	opcvConst,
@@ -36,11 +39,11 @@ struct GBindDataType
 
 class GScriptUserData;
 
-class GScriptBindingParam
+class GScriptBindingParam : public GNoncopyable
 {
 public:
-	GScriptBindingParam(IMetaService * service, const GScriptConfig & config, GMetaMap * metaMap)
-		: service(service), config(config), metaMap(metaMap) {
+	GScriptBindingParam(IMetaService * service, const GScriptConfig & config)
+		: service(service), config(config), metaMap(createMetaMap()) {
 		this->service->addReference();
 	}
 
@@ -56,13 +59,13 @@ public:
 	}
 
 	GMetaMap * getMetaMap() const {
-		return this->metaMap;
+		return this->metaMap.get();
 	}
 
 private:
 	GScopedInterface<IMetaService> service;
 	GScriptConfig config;
-	GMetaMap * metaMap;
+	GScopedPointer<GMetaMap> metaMap;
 };
 
 enum GScriptUserDataType {

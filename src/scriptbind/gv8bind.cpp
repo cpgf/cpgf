@@ -65,11 +65,6 @@ private:
 	ListType userDataList;
 };
 
-GUserDataPool * getUserDataPool() {
-	static GUserDataPool pool;
-	return &pool;
-}
-
 class GMapItemClassData : public GMetaMapItemData
 {
 public:
@@ -149,8 +144,8 @@ private:
 	typedef GScriptBindingParam super;
 
 public:
-	GV8ScriptBindingParam(IMetaService * service, const GScriptConfig & config, GMetaMap * metaMap)
-		: super(service, config, metaMap)
+	GV8ScriptBindingParam(IMetaService * service, const GScriptConfig & config)
+		: super(service, config)
 	{
 	}
 
@@ -170,8 +165,13 @@ public:
 		return this->objectTemplate->NewInstance();
 	}
 
+	GUserDataPool * getUserDataPool() {
+		return &userDataPool;
+	}
+
 private:
 	Persistent<ObjectTemplate> objectTemplate;
+	GUserDataPool userDataPool;
 };
 
 
@@ -213,6 +213,16 @@ bool isGlobalObject(v8::Handle<v8::Value> object)
 	else {
 		return false;
 	}
+}
+
+void addUserDataToPool(GScriptBindingParam * param, GScriptUserData * userData)
+{
+	gdynamic_cast<GV8ScriptBindingParam *>(param)->getUserDataPool()->addUserData(userData);
+}
+
+void removeUserDataFromPool(GScriptBindingParam * param, GScriptUserData * userData)
+{
+	gdynamic_cast<GV8ScriptBindingParam *>(param)->getUserDataPool()->removeUserData(userData);
 }
 
 GScriptDataType getV8Type(v8::Local<v8::Value> value, IMetaTypedItem ** typeItem)
@@ -327,7 +337,7 @@ v8::Handle<v8::Value> objectToV8(GScriptBindingParam * param, void * instance, I
 	Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance());
 
 	GClassUserData * instanceUserData = new GClassUserData(param, metaClass, instance, true, allowGC, cv);
-	getUserDataPool()->addUserData(instanceUserData);
+	addUserDataToPool(param, instanceUserData);
 	self.MakeWeak(instanceUserData, weakHandleCallback);
 
 	self->SetPointerInInternalField(0, instanceUserData);
@@ -344,7 +354,7 @@ v8::Handle<v8::Value> rawToV8(GScriptBindingParam * param, const GVariant & valu
 		Persistent<Object> self = Persistent<Object>::New(gdynamic_cast<GV8ScriptBindingParam *>(param)->getRawObject());
 
 		GRawUserData * instanceUserData = new GRawUserData(param, value);
-		getUserDataPool()->addUserData(instanceUserData);
+		addUserDataToPool(param, instanceUserData);
 		self.MakeWeak(instanceUserData, weakHandleCallback);
 
 		self->SetPointerInInternalField(0, instanceUserData);
@@ -498,7 +508,7 @@ void weakHandleCallback(v8::Persistent<v8::Value> object, void * parameter)
 	GScriptUserData * userData = static_cast<GScriptUserData *>(parameter);
 
 	if(userData != NULL) {
-		getUserDataPool()->removeUserData(userData);
+		removeUserDataFromPool(userData->getParam(), userData);
 	}
 
 	object.Dispose();
@@ -577,7 +587,7 @@ void doBindAccessible(GScriptBindingParam * param, v8::Local<v8::Object> contain
 	const char * name, void * instance, IMetaAccessible * accessible)
 {
 	GAccessibleUserData * userData = new GAccessibleUserData(param, instance, accessible);
-	getUserDataPool()->addUserData(userData);
+	addUserDataToPool(param, userData);
 	Persistent<External> data = Persistent<External>::New(External::New(userData));
 	data.MakeWeak(userData, weakHandleCallback);
 
@@ -714,7 +724,7 @@ v8::Handle<v8::FunctionTemplate> createMethodTemplate(GScriptBindingParam * para
 	}
 
 	Persistent<External> data = Persistent<External>::New(External::New(userData));
-	getUserDataPool()->addUserData(userData);
+	addUserDataToPool(param, userData);
 	data.MakeWeak(NULL, weakHandleCallback);
 
 	Handle<FunctionTemplate> functionTemplate;
@@ -730,7 +740,7 @@ v8::Handle<v8::FunctionTemplate> createMethodTemplate(GScriptBindingParam * para
 	setObjectSignature(&func);
 	GExtendMethodUserData * funcUserData = new GExtendMethodUserData(param, metaClass, methodList, name, methodType);
 	Persistent<External> funcData = Persistent<External>::New(External::New(funcUserData));
-	getUserDataPool()->addUserData(funcUserData);
+	addUserDataToPool(param, funcUserData);
 	funcData.MakeWeak(funcUserData, weakHandleCallback);
 	func->SetHiddenValue(v8::String::New(userDataKey), funcData);
 
@@ -776,7 +786,7 @@ v8::Handle<v8::ObjectTemplate> createEnumTemplate(GScriptBindingParam * param, I
 	(void)name;
 
 	GEnumUserData * userData = new GEnumUserData(param, metaEnum);
-	getUserDataPool()->addUserData(userData);
+	addUserDataToPool(param, userData);
 	if(outUserData != NULL) {
 		*outUserData = userData;
 	}
@@ -1050,7 +1060,7 @@ void accessorNamedMemberSetter(v8::Local<v8::String> prop, v8::Local<v8::Value> 
 void bindClassItems(v8::Local<v8::Object> object, GScriptBindingParam * param, IMetaClass * metaClass, bool allowStatic, bool allowMember)
 {
 	GClassUserData * userData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
-	getUserDataPool()->addUserData(userData);
+	addUserDataToPool(param, userData);
 	Persistent<External> data = Persistent<External>::New(External::New(userData));
 	data.MakeWeak(userData, weakHandleCallback);
 
@@ -1119,7 +1129,7 @@ v8::Handle<v8::Value> objectConstructor(const v8::Arguments & args)
 	Persistent<Object> self = Persistent<Object>::New(args.Holder());
 
 	GClassUserData * instanceUserData = new GClassUserData(userData->getParam(), userData->metaClass, instance, true, true, opcvNone);
-	getUserDataPool()->addUserData(instanceUserData);
+	addUserDataToPool(userData->getParam(), instanceUserData);
 	self.MakeWeak(instanceUserData, weakHandleCallback);
 
 	self->SetPointerInInternalField(0, instanceUserData);
@@ -1150,7 +1160,7 @@ v8::Handle<v8::FunctionTemplate> createClassTemplate(GScriptBindingParam * param
 	}
 
 	GClassUserData * userData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
-	getUserDataPool()->addUserData(userData);
+	addUserDataToPool(param, userData);
 	Persistent<External> data = Persistent<External>::New(External::New(userData));
 	data.MakeWeak(userData, weakHandleCallback);
 
@@ -1177,7 +1187,7 @@ v8::Handle<v8::FunctionTemplate> createClassTemplate(GScriptBindingParam * param
 	bindClassItems(classFunction, param, metaClass, true, false);
 
 	GClassUserData * classUserData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
-	getUserDataPool()->addUserData(classUserData);
+	addUserDataToPool(param, classUserData);
 	Persistent<External> classData = Persistent<External>::New(External::New(classUserData));
 	classData.MakeWeak(classUserData, weakHandleCallback);
 	classFunction->SetHiddenValue(v8::String::New(userDataKey), classData);
@@ -1194,13 +1204,13 @@ void doBindClass(GScriptBindingParam * param, v8::Local<v8::Object> container, c
 class GV8ScriptObjectImplement
 {
 public:
-	GV8ScriptObjectImplement(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config, GMetaMap * metaMap, bool freeMap)
-		: param(service, config, metaMap), object(v8::Persistent<v8::Object>::New(object)), freeMap(freeMap) {
+	GV8ScriptObjectImplement(GV8ScriptBindingParam * param, v8::Local<v8::Object> object, bool freeResource)
+		: param(param), object(v8::Persistent<v8::Object>::New(object)), freeResource(freeResource) {
 	}
 
 	~GV8ScriptObjectImplement() {
-		if(this->freeMap) {
-			delete this->param.getMetaMap();
+		if(this->freeResource) {
+			delete this->param;
 		}
 
 		this->object.Dispose();
@@ -1212,7 +1222,7 @@ public:
 		v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->object));
 
 		GExtendMethodUserData * newUserData;
-		Handle<FunctionTemplate> functionTemplate = createMethodTemplate(&this->param, NULL, true, methodList, name,
+		Handle<FunctionTemplate> functionTemplate = createMethodTemplate(this->param, NULL, true, methodList, name,
 		Handle<FunctionTemplate>(), methodType, &newUserData);
 
 		Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
@@ -1251,9 +1261,9 @@ public:
 	}
 
 public:
-	GV8ScriptBindingParam param;
+	GV8ScriptBindingParam * param;
 	v8::Persistent<v8::Object> object;
-	bool freeMap;
+	bool freeResource;
 };
 
 
@@ -1315,13 +1325,13 @@ private:
 GV8ScriptObject::GV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config)
 	: super(config)
 {
-	this->implement.reset(new GV8ScriptObjectImplement(service, object, config, new GMetaMap, true));
+	this->implement.reset(new GV8ScriptObjectImplement(new GV8ScriptBindingParam(service, config), object, true));
 }
 
 GV8ScriptObject::GV8ScriptObject(const GV8ScriptObject & other, v8::Local<v8::Object> object)
-	: super(other.implement->param.getConfig())
+	: super(other.implement->param->getConfig())
 {
-	this->implement.reset(new GV8ScriptObjectImplement(other.implement->param.getService(), object, super::getConfig(), other.implement->param.getMetaMap(), false));
+	this->implement.reset(new GV8ScriptObjectImplement(other.implement->param, object, false));
 }
 
 GV8ScriptObject::~GV8ScriptObject()
@@ -1348,7 +1358,7 @@ void GV8ScriptObject::bindClass(const char * name, IMetaClass * metaClass)
 	v8::HandleScope handleScope;
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
-	doBindClass(&this->implement->param, localObject, name, metaClass);
+	doBindClass(this->implement->param, localObject, name, metaClass);
 
 	LEAVE_V8()
 }
@@ -1361,7 +1371,7 @@ void GV8ScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
 	GEnumUserData * newUserData;
-	Handle<ObjectTemplate> objectTemplate = createEnumTemplate(&this->implement->param, metaEnum, name, &newUserData);
+	Handle<ObjectTemplate> objectTemplate = createEnumTemplate(this->implement->param, metaEnum, name, &newUserData);
 	objectTemplate->SetInternalFieldCount(1);
 	Persistent<Object> obj = Persistent<Object>::New(objectTemplate->NewInstance());
 	obj->SetPointerInInternalField(0, newUserData);
@@ -1447,7 +1457,7 @@ GMetaVariant GV8ScriptObject::invokeIndirectly(const char * name, GMetaVariant c
 	if(func->IsFunction() || (func->IsObject() && Local<Object>::Cast(func)->IsCallable())) {
 		Handle<Value> v8Params[REF_MAX_ARITY];
 		for(size_t i = 0; i < paramCount; ++i) {
-			v8Params[i] = variantToV8(&this->implement->param, params[i]->getValue(), params[i]->getType(), false, true);
+			v8Params[i] = variantToV8(this->implement->param, params[i]->getValue(), params[i]->getType(), false, true);
 			if(v8Params[i].IsEmpty()) {
 				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
 			}
@@ -1483,7 +1493,7 @@ void GV8ScriptObject::bindFundamental(const char * name, const GVariant & value)
 	v8::HandleScope handleScope;
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
-	localObject->Set(v8::String::New(name), variantToV8(&this->implement->param, value, GMetaType(), false, true));
+	localObject->Set(v8::String::New(name), variantToV8(this->implement->param, value, GMetaType(), false, true));
 
 	LEAVE_V8()
 }
@@ -1495,7 +1505,7 @@ void GV8ScriptObject::bindAccessible(const char * name, void * instance, IMetaAc
 	v8::HandleScope handleScope;
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
-	doBindAccessible(&this->implement->param, localObject, name, instance, accessible);
+	doBindAccessible(this->implement->param, localObject, name, instance, accessible);
 
 	LEAVE_V8()
 }
@@ -1519,7 +1529,7 @@ void GV8ScriptObject::bindObject(const char * objectName, void * instance, IMeta
 	v8::HandleScope handleScope;
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
-	v8::Handle<v8::Value> obj = objectToV8(&this->implement->param, instance, type, transferOwnership, opcvNone);
+	v8::Handle<v8::Value> obj = objectToV8(this->implement->param, instance, type, transferOwnership, opcvNone);
 	localObject->Set(v8::String::New(objectName), obj);
 
 	LEAVE_V8()
@@ -1534,7 +1544,7 @@ void GV8ScriptObject::bindRaw(const char * name, const GVariant & value)
 	v8::HandleScope handleScope;
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
-	localObject->Set(v8::String::New(name), rawToV8(&this->implement->param, value));
+	localObject->Set(v8::String::New(name), rawToV8(this->implement->param, value));
 
 	LEAVE_V8()
 }

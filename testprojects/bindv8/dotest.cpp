@@ -74,7 +74,7 @@ void doTest(TestScriptContext * context)
 
 void doTest()
 {
-	doTest(createTestScriptContext(tslLua, tsaLib));
-//	doTest(createTestScriptContext(tslV8, tsaLib));
+//	doTest(createTestScriptContext(tslLua, tsaLib));
+	doTest(createTestScriptContext(tslV8, tsaLib));
 }
 

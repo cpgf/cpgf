@@ -4,6 +4,7 @@ TBD version 1.2.2
 	Support C++0x/C++11 rvalue reference in variant, callback and reflection.
 	Renamed GDefineMetaClass::inner to GDefineMetaClass::declare.
 	Fixed a bug that can't cast a variant with fundamental to const T &.
+	Fixed a bug that crash when return unbound nested class from member function in V8 binding.
 
 2011-12-18 version 1.2.1
 	Fixed the code compatibility. Now the library can be compiled by GCC 3.4.2. (Tested with MingW GCC).

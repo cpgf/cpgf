@@ -9,6 +9,10 @@ namespace cpgf {
 
 namespace bind_internal {
 
+GMetaMap * createMetaMap()
+{
+	return new GMetaMap;
+}
 
 GMetaMapItem::GMetaMapItem()
 	: item(NULL), type(mmitNone), enumIndex(0)
