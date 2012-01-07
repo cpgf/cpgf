@@ -162,8 +162,21 @@ int main()
 	
 	The base classes are not necessary reflected. When a non-reflected base class is retrieving for meta class by calling GMetaClass::getBaseClass, it always return NULL. However, calling GMetaClass::getBaseCount to get base class count will include all non-reflected base classes.
 
-	GDefineMetaClass::<b>declare</b>
+	GDefineMetaClass::<b>declare </b>
 	The function "declare" behaves similar as "define". "define" will add the meta class to global scope, while "declare" not.
+	
+	<b>GDefineMetaClass::define VS GDefineMetaClass::declare </b>
+	GDefineMetaClass::define = GDefineMetaClass::declare + add to global
+	GDefineMetaClass::declare will create a meta class, and GDefineMetaClass owns the meta class. That means GDefineMetaClass will free the meta class in its destructor.
+	If the meta class is added to another class (the global class, or any other class), GDefineMetaClass will give up the ownership.
+	
+	If you want to reflect class to global scope, just use GDefineMetaClass::define.
+	If you want to reflect a nested class, or a temporary meta class (not want to add to global scope), use GDefineMetaClass::declare.
+
+	There are two function in GDefineMetaClass to get the meta class:
+	GMetaClass * getMetaClass() const; // get the meta class, GDefineMetaClass still owns the meta class
+	GMetaClass * takeMetaClass(); // get the meta class, GDefineMetaClass will transfer the ownership to the caller. It's the caller's responsibility to free the meta class if it's not added to other class.
+	
 <{/autobr}>
 	</p>
 

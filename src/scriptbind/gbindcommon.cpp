@@ -532,6 +532,13 @@ GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible
 	return value;
 }
 
+bool shouldRemoveReference(const GMetaType & type)
+{
+	return type.isReference()
+		&& (type.isPointer() || vtIsFundamental(vtGetBaseType(type.getVariantType())))
+		;
+}
+
 
 } // namespace bind_internal
 

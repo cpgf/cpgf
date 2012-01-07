@@ -202,6 +202,25 @@ const std::string &amp; rs = s;<br />
 </div><br />
 A temporary std::string will be create to hold s, then assign it to rs.<br />
 <br />
+Rule 6, Setting a reference to fundamental (such as int &amp;, double &amp;) to variant will cause the value is copied instead of reference.<br />
+That's to say, you can't convert such variant back to reference.<br />
+<br />
+<div class="codepiece"">int n = 0;<br />
+int &amp; r = n;<br />
+GVariant v = r;<br />
+fromVariant&lt;int &amp;&gt;(v); // faile<br />
+</div><br />
+However, setting a reference to object (such as MyClass &amp;) to variant will cause the variant references to the object.<br />
+<br />
+<div class="codepiece"">MyClass c;<br />
+MyClass &amp; r = c;<br />
+GVariant v = r;<br />
+fromVariant&lt;MyClass &amp;&gt;(v); // ok<br />
+</div><br />
+In summary, be careful to use reference. Usually you should reference-to-const or pointer instead of reference.<br />
+<br />
+Rule 7, GVariant treats rvalue reference (int &amp;&amp;, MyClass &amp;&amp;, etc) same as lvalue reference.<br />
+<br />
 
 
 <p><a name="linkid7"></a></p>

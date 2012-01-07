@@ -492,6 +492,8 @@ GMetaVariant userDataToVariant(GScriptUserData * userData);
 
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);
 
+bool shouldRemoveReference(const GMetaType & type);
+
 } // namespace bind_internal
 
 

@@ -12,6 +12,12 @@ set(HAS_V8
 	1
 )
 
+# 1 to enable C++ 0X in GCC, then rvalue reference is enabled
+# 0 to disable rvalue reference
+set(SUPPORT_GCC_0X
+	1
+)
+
 # To enable unit test, change the below folder to UnitTest++.
 set(UNIT_TEST_DIR
 	e:/sourcecode/cpp/UnitTest++

@@ -1,6 +1,5 @@
 Todo:
 
-1, in V8, should remove the static user data pool.
 2, In v8, support property enumerator.
 1, GVariant passes rvalue reference as value, not efficient, should imporve.
 2, Support default parameter values in meta method
@@ -8,6 +7,7 @@ Todo:
 4, Define meta data for C library?
 
 Done:
+1, in V8, should remove the static user data pool.
 1, Support name replacer in meta data builder
 2, Support explicit this in property getter and setter.
 1, callback can't work with rvalue reference

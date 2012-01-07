@@ -616,7 +616,7 @@ bool variantToLua(lua_State * L, GScriptBindingParam * param, const GVariant & v
 			}
 		}
 
-		if(type.isReference()) {
+		if(bind_internal::shouldRemoveReference(type)) {
 			GMetaType newType(type);
 			newType.removeReference();
 

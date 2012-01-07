@@ -1,8 +1,11 @@
-TBD version 1.2.2
+2012-01-07 version 1.2.2
 	Added meta policy GMetaRuleExplicitThis.
 	Support binding object functor as meta method.
 	Support C++0x/C++11 rvalue reference in variant, callback and reflection.
+	Support return reference to fundamental from script function. (Pass by value instead of reference)
 	Renamed GDefineMetaClass::inner to GDefineMetaClass::declare.
+	Now the meta class created by GDefineMetaClass::declare can be freed automatically if it's not added to other class.
+	Refactored to make script binding less dependence on static variables.
 	Fixed a bug that can't cast a variant with fundamental to const T &.
 	Fixed a bug that crash when return unbound nested class from member function in V8 binding.
 

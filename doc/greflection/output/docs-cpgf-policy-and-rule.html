@@ -87,7 +87,7 @@ One rule will change one aspect of the default behavior.<br />
 <br />
 For example, by default a meta class requires the class has a default constructor.<br />
 If the class doesn't have it, compiling will fail if meta class is being built for it.<br />
-However, if feed the meta class with a policy with the rule of GMetaRuleDefaultConstructorAbsent, the library will know there is no default constructor and will succeed the compiling.<br />
+However, if feeding the meta class with a policy with the rule of GMetaRuleDefaultConstructorAbsent, the library will know there is no default constructor and will succeed the compiling.<br />
 <br />
 Rules are pre-defined, you can't add any new rules or change any existing rules behavior.<br />
 However, with the combination of rules, a new policy can be created.<br />
@@ -129,13 +129,22 @@ Note: parameter 0 is the first explicit parameter, not &quot;this&quot; pointer.
 <br />
 <b>GMetaRuleCopyConstReference &lt;N&gt; </b><br />
 Apply to: invokable -- method, constructor, and operator<br />
-Effect: the parameter or result will copying the object to reference-to-const instead of reference.<br />
+Effect: the parameter or result will copy the object to reference-to-const instead of reference.<br />
 If implicit type conversion is required, such like C string to std::string, use this rule.<br />
 See Rule 5 in GVariant document for details.<br />
 <br />
 <b>GMetaRuleParamNoncopyable &lt;N&gt; </b><br />
 Apply to: invokable -- method, constructor, and operator<br />
-Effect: the parameter or result is not copyable.<br />
+Effect: the parameter or resjiult is not copyable.<br />
+<br />
+<b>GMetaRuleExplicitThis </b><br />
+Apply to: method, operator and property which getter or setter is method<br />
+Effect: the first parameter of the method is treated as &quot;this&quot; pointer and it's invisible from the outside.<br />
+This policy is used to use a global method to pretend being a member function.<br />
+For example, if we have global function,<br />
+void myMethod(MyClass * instance, int param);<br />
+Applying GMetaRuleExplicitThis will have the same effect as if myMethod is a member function of MyClass and the prototype is void myMethod(int param).<br />
+With this policy, global function can be used as property getter or setter.<br />
 <br />
 
 
@@ -203,6 +212,11 @@ typedef MakePolicy&lt;
     	GPP_REPEAT(REF_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaRuleParamNoncopyable)
     &gt;
     GMetaPolicyAllParamNoncopyable;
+
+typedef MakePolicy&lt;
+    	GMetaRuleExplicitThis
+    &gt;
+    GMetaPolicyExplicitThis;
 
 </pre>
 

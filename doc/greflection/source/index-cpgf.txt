@@ -21,7 +21,7 @@ cpgf provides a very easy to use callback system, which is common used in C# and
 cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? now we have it in C++!
 cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding engine uses the reflection system extensively.
 
-<b>Vesion 1.2.1 is released on Dec.18, 2011. </b>
+<b>Vesion 1.2.2 is released on Jan.7, 2012. </b>
 
 <{/autobr}>
 
@@ -79,7 +79,7 @@ cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding 
 
 <h3>Library version</h3>
 <{autobr}>
-	1.2.1
+	1.2.2
 
 <{/autobr}>
 

@@ -42,7 +42,7 @@ class GUserDataMap
 private:
 	typedef map<KeyType, ValueType> KeyValueMap;
 	typedef map<ValueType, KeyType> ValueKeyMap;
-
+	
 public:
 	GUserDataMap() : nextKey((KeyType)0) {
 	}
@@ -70,27 +70,26 @@ public:
 	KeyType addValue(ValueType value) {
 		KeyType key = this->getNextKey();
 		this->keyMap.insert(make_pair(key, value));
-//		this->valueMap.insert(make_pair(value, key));
+		this->valueMap.insert(make_pair(value, key));
 		return key;
 	}
 
 	void removeValue(ValueType value) {
-		for(typename KeyValueMap::iterator it = this->keyMap.begin(); it != this->keyMap.end(); ++it) {
-			if(it->second == value) {
-				this->keyMap.erase(it);
-				break;
-			}
+		typename ValueKeyMap::iterator it = this->valueMap.find(value);
+		if(it != this->valueMap.end()) {
+			this->keyMap.erase(this->keyMap.find(it->second));
+			this->valueMap.erase(it);
 		}
 	}
 
 	KeyType getKey(ValueType value) const {
-		for(typename KeyValueMap::iterator it = this->keyMap.begin(); it != this->keyMap.end(); ++it) {
-			if(it->second == value) {
-				return it->first;
-			}
+		typename ValueKeyMap::iterator it = this->valueMap.find(value);
+		if(it != this->valueMap.end()) {
+			return it->second;
 		}
-
-		return (KeyType)0;
+		else {
+			return (KeyType)0;
+		}
 	}
 
 	ValueType getValue(KeyType key) const {
@@ -511,7 +510,7 @@ v8::Handle<v8::Value> variantToV8(GScriptBindingParam * param, const GVariant & 
 			}
 		}
 
-		if(type.isReference()) {
+		if(bind_internal::shouldRemoveReference(type)) {
 			GMetaType newType(type);
 			newType.removeReference();
 

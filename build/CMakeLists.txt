@@ -120,23 +120,25 @@ if(CMAKE_COMPILER_IS_GNUCC)
 	set(TEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
 
 	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
-if(TEST_GCOV)
-	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0 -fprofile-arcs -ftest-coverage")
-endif(TEST_GCOV)
+	if(TEST_GCOV)
+		set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0 -fprofile-arcs -ftest-coverage")
+	endif(TEST_GCOV)
 
-if(MINGW)
-	set(LIB_COMPILE_FLAGS "${LIB_COMPILE_FLAGS} -std=gnu++0x")
-	set(TEST_COMPILE_FLAGS "${TEST_COMPILE_FLAGS} -std=gnu++0x")
+	if(SUPPORT_GCC_0X)
+		if(MINGW)
+			set(LIB_COMPILE_FLAGS "${LIB_COMPILE_FLAGS} -std=gnu++0x")
+			set(TEST_COMPILE_FLAGS "${TEST_COMPILE_FLAGS} -std=gnu++0x")
 
-	set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=gnu++0x")
-endif(MINGW)
+			set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=gnu++0x")
+		endif(MINGW)
 
-if(${MINGW} LESS 1)
-	set(LIB_COMPILE_FLAGS "${LIB_COMPILE_FLAGS} -std=c++0x")
-	set(TEST_COMPILE_FLAGS "${TEST_COMPILE_FLAGS} -std=c++0x")
+		if(${MINGW} LESS 1)
+			set(LIB_COMPILE_FLAGS "${LIB_COMPILE_FLAGS} -std=c++0x")
+			set(TEST_COMPILE_FLAGS "${TEST_COMPILE_FLAGS} -std=c++0x")
 
-	set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=c++0x")
-endif(${MINGW} LESS 1)
+			set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=c++0x")
+		endif(${MINGW} LESS 1)
+	endif(SUPPORT_GCC_0X)
 
 endif(CMAKE_COMPILER_IS_GNUCC)
 

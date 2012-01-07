@@ -286,7 +286,7 @@ void myMetaBuild()
     	// nested class
     	._class(
     		GDefineMetaClass&lt;MyClass::AnotherInner&gt;
-    			::inner(&quot;AnotherInner&quot;)
+    			::declare(&quot;AnotherInner&quot;)
     			._field(&quot;y&quot;, &amp;MyClass::AnotherInner::y)
     	)
     ;
@@ -370,6 +370,22 @@ int main()
 	The library supports multiple inheritance. If Cat is also derived from Biological, just add Biological to GDefineMetaClass.<br />
 	<br />
 	The base classes are not necessary reflected. When a non-reflected base class is retrieving for meta class by calling GMetaClass::getBaseClass, it always return NULL. However, calling GMetaClass::getBaseCount to get base class count will include all non-reflected base classes.<br />
+<br />
+	GDefineMetaClass::<b>declare </b><br />
+	The function &quot;declare&quot; behaves similar as &quot;define&quot;. &quot;define&quot; will add the meta class to global scope, while &quot;declare&quot; not.<br />
+	<br />
+	<b>GDefineMetaClass::define VS GDefineMetaClass::declare </b><br />
+	GDefineMetaClass::define = GDefineMetaClass::declare + add to global<br />
+	GDefineMetaClass::declare will create a meta class, and GDefineMetaClass owns the meta class. That means GDefineMetaClass will free the meta class in its destructor.<br />
+	If the meta class is added to another class (the global class, or any other class), GDefineMetaClass will give up the ownership.<br />
+	<br />
+	If you want to reflect class to global scope, just use GDefineMetaClass::define.<br />
+	If you want to reflect a nested class, or a temporary meta class (not want to add to global scope), use GDefineMetaClass::declare.<br />
+<br />
+	There are two function in GDefineMetaClass to get the meta class:<br />
+	GMetaClass * getMetaClass() const; // get the meta class, GDefineMetaClass still owns the meta class<br />
+	GMetaClass * takeMetaClass(); // get the meta class, GDefineMetaClass will transfer the ownership to the caller. It's the caller's responsibility to free the meta class if it's not added to other class.<br />
+	<br />
 	</p>
 
 
@@ -391,6 +407,8 @@ int main()
 	The function prototype is<br />
 	void func(GDefineMetaClass&lt;T&gt; define)<br />
 	Which T is the class to build for, here is Animal.<br />
+<br />
+	GDefineMetaClass::<b>lazyDeclare</b> &quot;declare&quot; a meta class with lazy build.<br />
 	</p>
 
 <p><a name="linkid6"></a></p>
@@ -522,7 +540,7 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
     	._method(&quot;incWidth&quot;, &amp;MyClass::incWidth, GMetaPolicyCopyAllConstReference()) // reflect a method with policy
 </pre>
 <p>
-	._ethod takes two or three parameters.<br />
+	._method takes two or three parameters.<br />
 	The first parameter is the name. The named is used to find the meta data later.<br />
 	The second parameter is method address.<br />
 	The third parameter is optional. It's the policy.<br />
@@ -676,7 +694,7 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
     	._class(
     		GDefineMetaClass&lt;MyClass::InnerClass&gt;
-    			::inner(&quot;InnerClass&quot;)
+    			::declare(&quot;InnerClass&quot;)
     			._field(&quot;whatever&quot;, &amp;MyClass::InnerClass::whatever)
     	)
 </pre>
