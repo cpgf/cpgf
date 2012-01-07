@@ -105,6 +105,7 @@ void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
 	script->bindFundamental("Magic3", Magic3);
 
 	bindMethod(script, service, "scriptAssert", "scriptAssert");
+	bindMethod(script, service, "scriptNot", "scriptNot");
 	bindEnum(script, service, REG_NAME_TestEnum, "TestEnum");
 
 	script->bindFundamental("testInt", testInt);
@@ -129,6 +130,7 @@ void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
 	script->bindFundamental("Magic3", &v.data);
 
 	bindMethod(script, service, "scriptAssert", "scriptAssert");
+	bindMethod(script, service, "scriptNot", "scriptNot");
 	bindEnum(script, service, REG_NAME_TestEnum, "TestEnum");
 
 	v = testInt;
@@ -140,6 +142,13 @@ void scriptAssert(bool b)
 {
 	if(! b) {
 		cpgf::raiseException(1, "Script assertion failure!");
+	}
+}
+
+void scriptNot(bool b)
+{
+	if(b) {
+		cpgf::raiseException(1, "Script NOT assertion failure!");
 	}
 }
 
@@ -341,6 +350,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 
 	GDefineMetaGlobal()
 		._method("scriptAssert", &scriptAssert)
+		._method("scriptNot", &scriptNot)
 		._method("testAdd2", &testAdd2)
 		._method("testAddN", &testAddN)
 		._enum<TestEnum>(REG_NAME_TestEnum)

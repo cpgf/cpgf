@@ -13,7 +13,7 @@ namespace cpgf {
 namespace metadata_internal {
 
 template <typename T, typename MetaDefine>
-void bindMetaData_CommonContainer(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer)
+void buildMetaData_CommonContainer(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer)
 {
 	(void)scriptable;
 
@@ -22,8 +22,8 @@ void bindMetaData_CommonContainer(MetaDefine define, bool scriptable, const GMet
 		.CPGF_MD_STL_TEMPLATE _constructor<void * (const T &)>()
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("begin", replacer), (typename T::iterator (T::*)()) &T::begin)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("begin", replacer), (typename T::const_iterator (T::*)() const) &T::begin)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("clear", replacer), (void (T::*)()) &T::clear)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("empty", replacer), (typename T::const_iterator (T::*)() const) &T::empty)
+		.CPGF_MD_STL_TEMPLATE _method(replaceName("clear", replacer), &T::clear)
+		.CPGF_MD_STL_TEMPLATE _method(replaceName("empty", replacer), &T::empty)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("end", replacer), (typename T::iterator (T::*)()) &T::end)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("end", replacer), (typename T::const_iterator (T::*)() const) &T::end)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("erase", replacer), extractFunction1(&T::erase))
@@ -32,32 +32,32 @@ void bindMetaData_CommonContainer(MetaDefine define, bool scriptable, const GMet
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("rbegin", replacer), (typename T::const_reverse_iterator (T::*)() const) &T::rbegin)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("rend", replacer), (typename T::reverse_iterator (T::*)()) &T::rend)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("rend", replacer), (typename T::const_reverse_iterator (T::*)() const) &T::rend)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("size", replacer), (typename T::size_type (T::*)() const) &T::size)
+		.CPGF_MD_STL_TEMPLATE _method(replaceName("size", replacer), &T::size)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("swap", replacer), (void (T::*)(T &)) &T::swap)
 	;
 }
 
 template <typename T, typename MetaDefine>
-void bindMetaData_CommonIterators(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer)
+void buildMetaData_CommonIterators(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer)
 {
 	define
 		._class(
-			bindMetaData_iterator(
+			buildMetaData_iterator(
 				GDefineMetaClass<typename T::iterator>::declare(replaceName("iterator", replacer)), scriptable
 			)
 		)
 		._class(
-			bindMetaData_iterator(
+			buildMetaData_iterator(
 				GDefineMetaClass<typename T::const_iterator>::declare(replaceName("const_iterator", replacer)), scriptable
 			)
 		)
 		._class(
-			bindMetaData_iterator(
+			buildMetaData_iterator(
 				GDefineMetaClass<typename T::reverse_iterator>::declare(replaceName("reverse_iterator", replacer)), scriptable
 			)
 		)
 		._class(
-			bindMetaData_iterator(
+			buildMetaData_iterator(
 				GDefineMetaClass<typename T::const_reverse_iterator>::declare(replaceName("const_reverse_iterator", replacer)), scriptable
 			)
 		)

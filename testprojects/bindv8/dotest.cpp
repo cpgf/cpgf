@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <iostream>
+#include <sstream>
 
 using namespace cpgf;
 using namespace std;
@@ -20,7 +21,7 @@ void doTestBind(T * binding, TestScriptContext * c)
 	GMetaDataNameReplacer replacer;
 	initializeLuaReplacer(&replacer);
 	GDefineMetaClass<VectorType> define = GDefineMetaClass<VectorType>::declare("vector_int");
-	bindMetaData_vector(define, true, &replacer);
+	buildMetaData_vector(define, true, &replacer);
 
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(define.getMetaClass())));
 	binding->bindClass("vector_int", metaClass.get());

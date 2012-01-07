@@ -248,6 +248,8 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/callback/*.cpp
 		${TEST_PATH}/scriptbind/*.cpp
 		${TEST_PATH}/scriptbind/general/*.cpp
+		${TEST_PATH}/scriptbind/metadata/*.cpp
+		${TEST_PATH}/scriptbind/metadata/stl/*.cpp
 	)
 
 	set(GLOB_TEST_LUA )

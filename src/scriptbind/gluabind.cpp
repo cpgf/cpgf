@@ -1899,7 +1899,7 @@ GScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, con
 
 IScriptObject * createLuaScriptInterface(IMetaService * service, lua_State * L, const GScriptConfig & config)
 {
-	return new ImplScriptObject(new GLuaScriptObject(service, L, config));
+	return new ImplScriptObject(new GLuaScriptObject(service, L, config), true);
 }
 
 

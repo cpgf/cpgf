@@ -1853,7 +1853,7 @@ GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Objec
 
 IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config)
 {
-	return new ImplScriptObject(new GV8ScriptObject(service, object, config));
+	return new ImplScriptObject(new GV8ScriptObject(service, object, config), true);
 }
 
 

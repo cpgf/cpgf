@@ -50,7 +50,8 @@ private:
 class ImplScriptObject : public ImplExtendObject, public IScriptObject
 {
 public:
-	ImplScriptObject(GScriptObject * scriptObject);
+	ImplScriptObject(GScriptObject * scriptObject, bool freeObject);
+	virtual ~ImplScriptObject();
 	
 protected:
 	IMPL_OBJECT
@@ -94,7 +95,8 @@ protected:
 	virtual void G_API_CC nullifyValue(const char * name);
 
 private:
-	GScopedPointer<GScriptObject> scriptObject;
+	GScriptObject * scriptObject;
+	bool freeObject;
 };
 
 

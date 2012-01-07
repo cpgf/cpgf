@@ -46,9 +46,14 @@ std::string normalizeReflectName(const char * name)
 }
 
 
+IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject)
+{
+	return new ImplScriptObject(scriptObject, freeObject);
+}
+
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject)
 {
-	return new ImplScriptObject(scriptObject);
+	return scriptObjectToInterface(scriptObject, false);
 }
 
 void injectMetaClassToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance)

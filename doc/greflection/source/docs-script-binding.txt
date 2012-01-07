@@ -255,7 +255,10 @@ Example,
 
 <{piece}>IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject); <{/piece}>
 Wrap GScriptObject object to IScriptObject.
-Note: the returned interface will become the owner of scriptObject. Don't delete scriptObject.
+Note: the returned interface will not own the scriptObject. The caller should delete scriptObject.
+
+<{piece}>IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject); <{/piece}>
+If freeObject is true, the returned interface will free the script object.
 
 <{piece}>void injectMetaClassToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance); <{/piece}>
 Inject a class to the script. It will bind all methods, enumerators, nested class, in metaClass, to scriptObject in global scope.

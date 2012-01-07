@@ -55,8 +55,16 @@ gapi_bool G_API_CC ImplScriptConfig::allowAccessClassViaInstance()
 
 
 
-ImplScriptObject::ImplScriptObject(GScriptObject * scriptObject) : scriptObject(scriptObject)
+ImplScriptObject::ImplScriptObject(GScriptObject * scriptObject, bool freeObject)
+	: scriptObject(scriptObject), freeObject(freeObject)
 {
+}
+
+ImplScriptObject::~ImplScriptObject()
+{
+	if(this->freeObject) {
+		delete this->scriptObject;
+	}
 }
 
 IScriptConfig * G_API_CC ImplScriptObject::getConfig()
@@ -73,7 +81,7 @@ IScriptObject * G_API_CC ImplScriptObject::getOwner()
 		return NULL;
 	}
 	else {
-		return new ImplScriptObject(owner);
+		return new ImplScriptObject(owner, false);
 	}
 
 	LEAVE_BINDING_API(return NULL)
@@ -264,7 +272,7 @@ IScriptObject * G_API_CC ImplScriptObject::createScriptObject(const char * name)
 		return NULL;
 	}
 	else {
-		return new ImplScriptObject(obj);
+		return new ImplScriptObject(obj, true);
 	}
 
 	LEAVE_BINDING_API(return NULL)
@@ -279,7 +287,7 @@ IScriptObject * G_API_CC ImplScriptObject::gainScriptObject(const char * name)
 		return NULL;
 	}
 	else {
-		return new ImplScriptObject(obj);
+		return new ImplScriptObject(obj, true);
 	}
 
 	LEAVE_BINDING_API(return NULL)

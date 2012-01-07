@@ -28,6 +28,7 @@ void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service);
 void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service);
 
 void scriptAssert(bool b);
+void scriptNot(bool b);
 
 // RawData is not reflected.
 // It's used to test non-reflected object in script binding.

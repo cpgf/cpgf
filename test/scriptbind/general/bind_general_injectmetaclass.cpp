@@ -43,9 +43,8 @@ void testInjectMetaClass(TestScriptContext * context)
 	GScriptObject * bindingLib = context->getBindingLib();
 
 	if(bindingLib) {
-		GScopedInterface<IScriptObject> binding(scriptObjectToInterface(bindingLib));
+		GScopedInterface<IScriptObject> binding(scriptObjectToInterface(bindingLib, false));
 		doTestInjectMetaClass(binding.get(), context);
-		context->takeBindingLib();
 	}
 	
 	if(bindingApi) {

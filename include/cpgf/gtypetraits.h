@@ -396,6 +396,7 @@ struct IsAbstractClass <void>
 #pragma warning(push)
 #pragma warning(disable:4244)
 #pragma warning(disable:4800) // warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+#pragma warning(disable:4267) // weird warning when reflecting std::vector in VC, disable it.
 #endif
 
 template <typename From, typename To, typename Enabled = void>

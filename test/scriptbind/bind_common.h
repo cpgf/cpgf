@@ -21,7 +21,10 @@
 #define ERR(s) GCHECK(context->doError(s));
 #define QDO(...) DO(# __VA_ARGS__)
 #define QERR(...) ERR(# __VA_ARGS__)
+
+#define DOASSERT(...) DO(std::string("scriptAssert(") + __VA_ARGS__ + ")")
 #define QASSERT(...) QDO(scriptAssert(__VA_ARGS__))
+#define QASSERTNOT(...) QDO(scriptNot(__VA_ARGS__))
 #define QNOT(...) QDO(scriptAssert(!(__VA_ARGS__)))
 
 #define NEWOBJ(lhs, ...) DO(context->getCoder()->newObject(lhs, __VA_ARGS__))
@@ -63,10 +66,6 @@ public:
 
 	cpgf::IScriptObject * getBindingApi() const {
 		return this->bindingApi.get();
-	}
-
-	cpgf::GScriptObject * takeBindingLib() {
-		return this->bindingLib.take();
 	}
 
 	cpgf::IMetaService * getService() const {
