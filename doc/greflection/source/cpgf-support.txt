@@ -49,3 +49,12 @@ To read the archive messages, please visit,
 <a href="http://tech.groups.yahoo.com/group/cpgf-user/messages" target="_blank">http://tech.groups.yahoo.com/group/cpgf-user/messages</a>
 <{/autobr}>
 </p>
+
+
+<p>
+<{autobr}>
+Now the mail list is carried by gmane.
+Use below link to read the mail list on gmane.
+<a href="http://dir.gmane.org/gmane.comp.lib.cpgf.user" target="_blank">http://dir.gmane.org/gmane.comp.lib.cpgf.user</a>
+<{/autobr}>
+</p>

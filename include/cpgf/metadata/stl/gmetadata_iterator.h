@@ -32,11 +32,12 @@ T scriptableIterator_dec(T * it)
 template <typename T>
 T scriptableIterator_skip(T * it, int n)
 {
-	return (*it) + n;
+	(*it) += n;
+	return *it;
 }
 
 template <typename T>
-bool scriptableIterator_equal(T * it, T * other)
+bool scriptableIterator_equals(T * it, T * other)
 {
 	return (*it) == (*other);
 }
@@ -78,7 +79,7 @@ void doBuildIteratorCommon(MetaDefine define, bool scriptable, const GMetaDataNa
 	if(scriptable) {
 		define
 			.CPGF_MD_STL_TEMPLATE _method(replaceName("inc", replacer), &scriptableIterator_inc<T>, GMetaPolicyExplicitThis())
-			.CPGF_MD_STL_TEMPLATE _method(replaceName("equal", replacer), &scriptableIterator_equal<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_STL_TEMPLATE _method(replaceName("equals", replacer), &scriptableIterator_equals<T>, GMetaPolicyExplicitThis())
 		;
 	}
 }

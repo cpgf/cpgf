@@ -69,17 +69,28 @@
 <p>
 <b>
 <a href="docs-cpgf-general-faq.html#linkid3">
-<strong>Script binding (Lua and Google V8 Javascript)</strong></a></b></p>
+<strong>Reflection</strong></a></b></p>
 <div style="margin-left:0px">
 <ul>
 <li>
 <a href="docs-cpgf-general-faq.html#linkid4">
-<strong>When should I use bindMethod and bindMethodList?</strong></a></li>
-<li>
+<strong>When I build meta data for method, why the compiler issues warning like returning reference to temporary object?</strong></a></li>
+</ul>
+</div>
+<p>
+<b>
 <a href="docs-cpgf-general-faq.html#linkid5">
-<strong>How can I pass script function and object from script to C++?</strong></a></li>
+<strong>Script binding (Lua and Google V8 Javascript)</strong></a></b></p>
+<div style="margin-left:0px">
+<ul>
 <li>
 <a href="docs-cpgf-general-faq.html#linkid6">
+<strong>When should I use bindMethod and bindMethodList?</strong></a></li>
+<li>
+<a href="docs-cpgf-general-faq.html#linkid7">
+<strong>How can I pass script function and object from script to C++?</strong></a></li>
+<li>
+<a href="docs-cpgf-general-faq.html#linkid8">
 <strong>Why the Google V8 binding is based on an old version V8 (v3.4.5)?</strong></a></li>
 </ul>
 </div>
@@ -106,7 +117,29 @@ Note: you can only help to improve the content, not the format.<br />
 
 
 <p><a name="linkid3"></a></p>
-<h3>Script binding (Lua and Google V8 Javascript)</h3><p><a name="linkid4"></a></p>
+<h3>Reflection</h3><p><a name="linkid4"></a></p>
+<p>
+<strong>When I build meta data for method, why the compiler issues warning like returning reference to temporary object?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
+This is because either the parameter, or the return value, is a reference-to-const to an object which can be constructed implicitly from other data type.<br />
+For example, if we have this method,<br />
+<div class="codepiece"">void setName(const std::string &amp; name); <br />
+</div>std::string can be constructed implicitly from const char *.<br />
+<br />
+When this kind of method is reflected, GVariant will try to return reference to local temporary object.<br />
+That warning is dangerous, it may crash your program.<br />
+To solve this issue, use policy GMetaPolicyCopyAllConstReference.<br />
+That policy will force the parameter or return value being passed by value instead of reference.<br />
+<br />
+<div class="codepiece"">._method(&quot;setName&quot;, &amp;setName, GMetaPolicyCopyAllConstReference()) <br />
+</div><br />
+
+
+
+
+
+
+<p><a name="linkid5"></a></p>
+<h3>Script binding (Lua and Google V8 Javascript)</h3><p><a name="linkid6"></a></p>
 <p>
 <strong>When should I use bindMethod and bindMethodList?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
 If you are only binding classes, never you need to call bindMethod or bindMethodList.<br />
@@ -116,7 +149,7 @@ bindMethod and bindMethodList are useful if you want to bind methods to global s
 <br />
 
 
-<p><a name="linkid5"></a></p>
+<p><a name="linkid7"></a></p>
 <p>
 <strong>How can I pass script function and object from script to C++?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
 It's quite common to define some functions and objects in the script and let C++ code use them.<br />
@@ -125,7 +158,7 @@ However, you can pass the function and object name to C++, then the C++ can invo
 <br />
 
 
-<p><a name="linkid6"></a></p>
+<p><a name="linkid8"></a></p>
 <p>
 <strong>Why the Google V8 binding is based on an old version V8 (v3.4.5)?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
 First, the V8 version used in cpgf is not very old. It should be already stable version.<br />

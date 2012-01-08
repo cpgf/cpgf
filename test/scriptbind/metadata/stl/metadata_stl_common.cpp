@@ -28,7 +28,7 @@ string GTestValueProvider_Int::value(int id) const
 	return stream.str();
 }
 
-string GTestValueProvider_Int::equal(const string & a, const string & b) const
+string GTestValueProvider_Int::equals(const string & a, const string & b) const
 {
 	return a + " == " + b;
 }
@@ -43,9 +43,9 @@ string GTestValueProvider_TestData::value(int id) const
 	return stream.str();
 }
 
-string GTestValueProvider_TestData::equal(const string & a, const string & b) const
+string GTestValueProvider_TestData::equals(const string & a, const string & b) const
 {
-	return a + ".equal(" + b + ")";
+	return a + ".equals(" + b + ")";
 }
 
 
@@ -58,7 +58,7 @@ string GTestValueProvider_String::value(int id) const
 	return stream.str();
 }
 
-string GTestValueProvider_String::equal(const string & a, const string & b) const
+string GTestValueProvider_String::equals(const string & a, const string & b) const
 {
 	return a + " == " + b;
 }
@@ -70,7 +70,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 		::define("testStl::StlTestData")
 		._constructor<void *()>()
 		._constructor<void *(int)>()
-		._method("equal", &StlTestData::equal)
+		._method("equals", &StlTestData::equals)
 		._field("value", &StlTestData::value)
 	;		
 }

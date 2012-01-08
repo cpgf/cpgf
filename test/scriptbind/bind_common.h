@@ -23,6 +23,7 @@
 #define QERR(...) ERR(# __VA_ARGS__)
 
 #define DOASSERT(...) DO(std::string("scriptAssert(") + __VA_ARGS__ + ")")
+#define DOASSERTNOT(...) DO(std::string("scriptNot(") + __VA_ARGS__ + ")")
 #define QASSERT(...) QDO(scriptAssert(__VA_ARGS__))
 #define QASSERTNOT(...) QDO(scriptNot(__VA_ARGS__))
 #define QNOT(...) QDO(scriptAssert(!(__VA_ARGS__)))

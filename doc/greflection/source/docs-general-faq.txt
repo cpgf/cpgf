@@ -33,6 +33,33 @@ Note: you can only help to improve the content, not the format.
 
 
 
+<{sgroup}> Reflection
+
+
+<{sh}> When I build meta data for method, why the compiler issues warning like returning reference to temporary object?
+<{sc}>
+
+<{autobr}>
+This is because either the parameter, or the return value, is a reference-to-const to an object which can be constructed implicitly from other data type.
+For example, if we have this method,
+<{piece}>void setName(const std::string & name); <{/piece}>
+std::string can be constructed implicitly from const char *.
+
+When this kind of method is reflected, GVariant will try to return reference to local temporary object.
+That warning is dangerous, it may crash your program.
+To solve this issue, use policy GMetaPolicyCopyAllConstReference.
+That policy will force the parameter or return value being passed by value instead of reference.
+
+<{piece}>._method("setName", &setName, GMetaPolicyCopyAllConstReference()) <{/piece}>
+
+<{/autobr}>
+
+
+
+<{/sgroup}>
+
+
+
 <{sgroup}> Script binding (Lua and Google V8 Javascript)
 
 <{sh}> When should I use bindMethod and bindMethodList?
