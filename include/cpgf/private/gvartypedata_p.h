@@ -117,6 +117,19 @@ struct DeduceVariantType <void> {
 	static const int Pointers = 0;
 };
 
+template <>
+struct DeduceVariantType <IObject *> {
+	static const GVariantType Result = vtInterface;
+	static const int Pointers = 1;
+};
+
+template <>
+struct DeduceVariantType <const IObject *> {
+	static const GVariantType Result = vtInterface;
+	static const int Pointers = 1;
+};
+
+
 } // namespace variant_internal
 
 

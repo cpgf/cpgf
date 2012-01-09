@@ -28,6 +28,16 @@ namespace cpgf {
 		GMetaVarData result; \
 		scriptObject->invoke(&result, name, params, N); \
 		return GMetaVariant(result); \
+	} \
+	inline GMetaVariant invokeScriptFunction(GScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
+		DEF_LOAD_PARAM(N) \
+		return scriptFunction->invokeIndirectly(params, N); \
+	} \
+	inline GMetaVariant invokeScriptFunction(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
+		DEF_LOAD_PARAM_API(N) \
+		GMetaVarData result; \
+		scriptFunction->invoke(&result, params, N); \
+		return GMetaVariant(result); \
 	}
 
 GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())

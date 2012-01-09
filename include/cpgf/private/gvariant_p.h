@@ -215,6 +215,10 @@ void InitVariant(GVariant & v, const GVarTypeData & typeData, const T & value)
 			initShadowObject<CanShadow>(v, value);
 			break;
 
+		case vtInterface:
+			v.data.valueInterface = variant_internal::CastVariantHelper<T, IObject *>::cast(value);
+			break;
+
 
 		case vtBool | byPointer:
 			v.data.ptrBool = variant_internal::CastVariantHelper<T, bool *>::cast(value);
@@ -463,6 +467,9 @@ struct CanCastFromVariant
 			case vtString:
 				return IsConvertible<char *, typename RemoveReference<ResultType>::Result>::Result || IsConvertible<const char *, typename RemoveReference<ResultType>::Result>::Result;
 
+			case vtInterface:
+				return variant_internal::CastVariantHelper<IObject *, typename RemoveReference<ResultType>::Result *>::CanCast;
+
 			case vtBool | byPointer:
 				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<bool *, ResultType>::CanCast;
 
@@ -678,6 +685,9 @@ struct CastFromVariant
 			
 			case vtString:
 				return castFromString<ResultType>(static_cast<std::string *>(v.data.shadowObject->getObject())->c_str());
+
+			case vtInterface:
+				return variant_internal::CastVariantHelper<IObject *, ResultType>::cast(v.data.valueInterface);
 
 			case vtBool | byPointer:
 				return variant_internal::CastVariantHelper<bool *, ResultType>::cast(const_cast<bool *>(v.data.ptrBool));

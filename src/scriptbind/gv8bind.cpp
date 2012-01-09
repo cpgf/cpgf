@@ -1357,7 +1357,7 @@ public:
 
 public:
 	GV8ScriptBindingParam * param;
-	v8::Persistent<v8::Object> object;
+	Persistent<Object> object;
 	bool freeResource;
 };
 
@@ -1398,6 +1398,8 @@ public:
 	virtual GScriptObject * createScriptObject(const char * name);
 	virtual GScriptObject * gainScriptObject(const char * name);
 	
+	virtual GScriptFunction * gainScriptFunction(const char * name);
+
 	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount);
 	virtual GMetaVariant invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount);
 
@@ -1407,6 +1409,15 @@ public:
 
 	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
 
+public:
+	GV8ScriptBindingParam * getParam() const {
+		return this->implement->param;
+	}
+
+	Local<Object> getObject() const {
+		return Local<Object>::New(this->implement->object);
+	}
+
 private:
 	GV8ScriptObject(const GV8ScriptObject & other, v8::Local<v8::Object> object);
 
@@ -1415,6 +1426,94 @@ private:
 
 private:
 };
+
+
+bool valueIsCallable(Local<Value> value)
+{
+	return value->IsFunction() || (value->IsObject() && Local<Object>::Cast(value)->IsCallable());
+}
+
+GMetaVariant invokeV8FunctionIndirectly(GV8ScriptObject * scope, Local<Value> func, GMetaVariant const * const * params, size_t paramCount, const char * name)
+{
+	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+
+	if(valueIsCallable(func)) {
+		Handle<Value> v8Params[REF_MAX_ARITY];
+		for(size_t i = 0; i < paramCount; ++i) {
+			v8Params[i] = variantToV8(scope->getParam(), params[i]->getValue(), params[i]->getType(), false, true);
+			if(v8Params[i].IsEmpty()) {
+				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
+			}
+		}
+
+		Local<Value> result;
+		Handle<Object> receiver = scope->getObject();
+
+		if(func->IsFunction()) {
+			result = Local<Function>::Cast(func)->Call(receiver, static_cast<int>(paramCount), v8Params);
+		}
+		else {
+			result = Local<Object>::Cast(func)->CallAsFunction(receiver, static_cast<int>(paramCount), v8Params);
+		}
+
+		return v8ToVariant(result);
+	}
+	else {
+		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
+	}
+
+	return GMetaVariant();
+}
+
+
+class GV8ScriptFunction : public GScriptFunction
+{
+public:
+	GV8ScriptFunction(GV8ScriptObject * scope, Local<Value> func);
+	virtual ~GV8ScriptFunction();
+	
+	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount);
+	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
+
+private:
+	GV8ScriptObject * scope;
+	Persistent<Function> func;
+};
+
+GV8ScriptFunction::GV8ScriptFunction(GV8ScriptObject * scope, Local<Value> func)
+	: scope(scope), func(Persistent<Function>::New(Local<Function>::Cast(func)))
+{
+}
+
+GV8ScriptFunction::~GV8ScriptFunction()
+{
+	this->func.Dispose();
+	this->func.Clear();
+}
+	
+GMetaVariant GV8ScriptFunction::invoke(const GMetaVariant * params, size_t paramCount)
+{
+	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+
+	const cpgf::GMetaVariant * variantPointers[REF_MAX_ARITY];
+
+	for(size_t i = 0; i < paramCount; ++i) {
+		variantPointers[i] = &params[i];
+	}
+
+	return this->invokeIndirectly(variantPointers, paramCount);
+}
+
+GMetaVariant GV8ScriptFunction::invokeIndirectly(GMetaVariant const * const * params, size_t paramCount)
+{
+	ENTER_V8()
+
+	HandleScope handleScope;
+
+	return invokeV8FunctionIndirectly(this->scope, Local<Value>::New(this->func), params, paramCount, "");
+	
+	LEAVE_V8(return GMetaVariant())
+}
 
 
 GV8ScriptObject::GV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config)
@@ -1508,8 +1607,8 @@ GScriptObject * GV8ScriptObject::gainScriptObject(const char * name)
 {
 	ENTER_V8()
 
-	v8::HandleScope handleScope;
-	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(this->implement->object));
 
 	Local<Value> value = localObject->Get(String::New(name));
 	if((value->IsObject() || value->IsFunction()) && !isValidObject(value)) {
@@ -1523,6 +1622,25 @@ GScriptObject * GV8ScriptObject::gainScriptObject(const char * name)
 		return NULL;
 	}
 
+	LEAVE_V8(return NULL)
+}
+
+GScriptFunction * GV8ScriptObject::gainScriptFunction(const char * name)
+{
+	ENTER_V8()
+
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(this->implement->object));
+
+	Local<Value> value = localObject->Get(String::New(name));
+
+	if(valueIsCallable(value)) {
+		return new GV8ScriptFunction(this, value);
+	}
+	else {
+		return NULL;
+	}
+	
 	LEAVE_V8(return NULL)
 }
 
@@ -1541,41 +1659,14 @@ GMetaVariant GV8ScriptObject::invoke(const char * name, const GMetaVariant * par
 
 GMetaVariant GV8ScriptObject::invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount)
 {
-	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
-
 	ENTER_V8()
 
 	v8::HandleScope handleScope;
 	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->implement->object));
 
 	Local<Value> func = localObject->Get(String::New(name));
-
-	if(func->IsFunction() || (func->IsObject() && Local<Object>::Cast(func)->IsCallable())) {
-		Handle<Value> v8Params[REF_MAX_ARITY];
-		for(size_t i = 0; i < paramCount; ++i) {
-			v8Params[i] = variantToV8(this->implement->param, params[i]->getValue(), params[i]->getType(), false, true);
-			if(v8Params[i].IsEmpty()) {
-				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
-			}
-		}
-
-		Local<Value> result;
-		Handle<Object> receiver = localObject;
-
-		if(func->IsFunction()) {
-			result = Local<Function>::Cast(func)->Call(receiver, static_cast<int>(paramCount), v8Params);
-		}
-		else {
-			result = Local<Object>::Cast(func)->CallAsFunction(receiver, static_cast<int>(paramCount), v8Params);
-		}
-
-		return v8ToVariant(result);
-	}
-	else {
-		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
-	}
-
-	return GMetaVariant();
+	
+	return invokeV8FunctionIndirectly(this, func, params, paramCount, name);
 
 	LEAVE_V8(return GMetaVariant())
 }

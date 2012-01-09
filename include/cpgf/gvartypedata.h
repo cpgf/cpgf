@@ -7,6 +7,7 @@
 #include "cpgf/gtypetraits.h"
 #include "cpgf/gtypelist.h"
 #include "cpgf/genableif.h"
+#include "cpgf/ginterface.h"
 
 
 #if defined(_MSC_VER)
@@ -39,6 +40,7 @@ enum GVariantType {
 	vtObject = 31, // is equivalent to unkown type
 	vtShadow = 32,
 	vtString = 33,
+	vtInterface = 34, // IObject *
 
 	vtUserBegin = 0xff,
 	vtUserEnd = 0x0fff,
@@ -107,6 +109,10 @@ inline void vtSetPointers(GVarTypeData & data, unsigned int pointers) {
 
 inline bool vtIsShadow(int vt) {
 	return vt == vtShadow || vt == vtString;
+}
+
+inline bool vtIsInterface(int vt) {
+	return vt == vtInterface;
 }
 
 inline void vtInit(GVarTypeData & data) {

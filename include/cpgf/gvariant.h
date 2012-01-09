@@ -172,7 +172,8 @@ struct GVariantData
 		const volatile long double * ptrLongDouble;
 		const volatile void * ptrPointer;
 		const volatile void * ptrObject;
-
+		
+		IObject * valueInterface;
 		variant_internal::IVariantShadowObject * shadowObject;
 
 	};
@@ -206,9 +207,7 @@ public:
 	}
 
 	GVariant(const GVariantData & data) : data(data) {
-		if(vtIsShadow(vtGetType(this->data.typeData))) {
-			this->data.shadowObject->retain();
-		}
+		this->init();
 
 		if(vtGetSize(this->data.typeData) != variant_internal::getVariantTypeSize(static_cast<GVariantType>(vtGetType(this->data.typeData)))) {
 			variant_internal::adjustVariantType(this);
@@ -221,17 +220,19 @@ public:
 		vtInit(typeData);
 		deduceVariantType<T>(typeData);
 		variant_internal::InitVariant<true>(*this, typeData, static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
+		
+		this->init();
 	}
 
 	template <typename T>
 	GVariant(const GVarTypeData & typeData, const T & value) {
 		variant_internal::InitVariant<true>(*this, typeData, value);
+		
+		this->init();
 	}
 
 	GVariant(const GVariant & other) : data(other.data) {
-		if(vtIsShadow(vtGetType(this->data.typeData))) {
-			this->data.shadowObject->retain();
-		}
+		this->init();
 	}
 
 	~GVariant() {
@@ -281,6 +282,18 @@ public:
 		vtInit(this->data.typeData);
 
 		return result;
+	}
+
+private:
+	void init() {
+		if(vtIsShadow(vtGetType(this->data.typeData))) {
+			this->data.shadowObject->retain();
+		}
+		else {
+			if(vtIsInterface(vtGetType(this->data.typeData)) && this->data.valueInterface != NULL) {
+				this->data.valueInterface->addReference();
+			}
+		}
 	}
 
 public:
@@ -420,6 +433,11 @@ inline void freeVarData(GVariantData * data)
 	if(vtIsShadow(vtGetType(data->typeData))) {
 		data->shadowObject->release();
 	}
+	else {
+		if(vtIsInterface(vtGetType(data->typeData)) && data->valueInterface != NULL) {
+			data->valueInterface->releaseReference();
+		}
+	}
 }
 
 inline void initializeVarString(GVariantData * data, const char * s)
@@ -443,17 +461,6 @@ inline GVariant createStringVariant(const char * s)
 
 inline bool variantIsString(const GVariant & v) {
 	return v.getType() == vtString || (v.getPointers() == 1 && v.getBaseType() == vtChar);
-}
-
-inline GVariant takeVarData(const GVariantData & data)
-{
-	GVariant v(data);
-
-	if(vtIsShadow(vtGetType(v.data.typeData))) {
-		v.data.shadowObject->release();
-	}
-
-	return v;
 }
 
 

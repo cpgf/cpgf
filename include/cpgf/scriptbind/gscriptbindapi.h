@@ -24,6 +24,14 @@ struct IScriptConfig : public IObject
 };
 
 
+struct IScriptFunction : public IExtendObject
+{
+public:
+	virtual void G_API_CC invoke(GMetaVarData * outResult, const GMetaVarData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeIndirectly(GMetaVarData * outResult, GMetaVarData const * const * params, uint32_t paramCount) = 0;
+};
+
+
 struct IScriptObject : public IExtendObject
 {
 	virtual IScriptConfig * G_API_CC getConfig() = 0;

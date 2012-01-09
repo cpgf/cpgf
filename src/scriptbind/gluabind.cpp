@@ -40,8 +40,35 @@ namespace cpgf {
 
 namespace {
 
-class GLuaScriptObjectImplement;
+class GLuaScriptObject;
 class GLuaGlobalAccessor;
+
+class GLuaScriptObjectImplement
+{
+public:
+	GLuaScriptObjectImplement(GScriptBindingParam * param, GLuaScriptObject * binding, lua_State * L, bool freeResource);
+	
+	~GLuaScriptObjectImplement();
+	
+	void getTable() const;
+
+	GMethodListUserData * doGetMethodUserData();
+
+	GLuaGlobalAccessor * getGlobalAccessor();
+
+protected:
+	void doGetTable(lua_State * L) const;
+
+public:
+	GScriptBindingParam * param;
+	GLuaScriptObject * binding;
+	lua_State * luaState;
+	bool freeResource;
+
+private:
+	GScopedPointer<GLuaGlobalAccessor> globalAccessor;
+};
+
 
 class GLuaScriptObject : public GScriptObject
 {
@@ -78,12 +105,23 @@ public:
 	virtual GScriptObject * createScriptObject(const char * name);
 	virtual GScriptObject * gainScriptObject(const char * name);
 	
+	virtual GScriptFunction * gainScriptFunction(const char * name);
+	
 	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount);
 	virtual GMetaVariant invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount);
 
 	virtual void assignValue(const char * fromName, const char * toName);
 	virtual bool valueIsNull(const char * name);
 	virtual void nullifyValue(const char * name);
+
+public:
+	lua_State * getLuaState() const {
+		return this->implement->luaState;
+	}
+
+	GScriptBindingParam * getParam() const {
+		return this->implement->param;
+	}
 
 private:
 	GLuaScriptObject(const GLuaScriptObject & other);
@@ -96,33 +134,6 @@ private:
 	friend class GLuaScriptObjectImplement;
 	friend class GLuaScriptNameData;
 	friend class GLuaGlobalAccessor;
-};
-
-
-class GLuaScriptObjectImplement
-{
-public:
-	GLuaScriptObjectImplement(GScriptBindingParam * param, GLuaScriptObject * binding, lua_State * L, bool freeResource);
-	
-	~GLuaScriptObjectImplement();
-	
-	void getTable() const;
-
-	GMethodListUserData * doGetMethodUserData();
-
-	GLuaGlobalAccessor * getGlobalAccessor();
-
-protected:
-	void doGetTable(lua_State * L) const;
-
-public:
-	GScriptBindingParam * param;
-	GLuaScriptObject * binding;
-	lua_State * luaState;
-	bool freeResource;
-
-private:
-	GScopedPointer<GLuaGlobalAccessor> globalAccessor;
 };
 
 
@@ -1143,11 +1154,9 @@ void doBindOperator(lua_State * L, GScriptBindingParam * param, void * instance,
 			lua_pushcclosure(L, &UserData_operator, 1);
 			lua_rawset(L, -3);
 
-			return ;
+			return;
 		}
 	}
-
-//	raiseCoreException(Error_ScriptBinding_NotSupportedOperator);
 }
 
 void doBindAllOperators(lua_State * L, GScriptBindingParam * param, void * instance, IMetaClass * metaClass)
@@ -1416,6 +1425,134 @@ void GLuaScopeGuard::rawGet(const char * name)
 	}
 }
 
+// the object is on stack top
+int refLua(GLuaScriptObject * scope)
+{
+	GLuaScopeGuard scopeGuard(scope);
+
+	if(scope->isGlobal()) {
+		return luaL_ref(scope->getLuaState(), LUA_GLOBALSINDEX);
+	}
+	else {
+		lua_pushvalue(scope->getLuaState(), -2);
+		return luaL_ref(scope->getLuaState(), -2);
+	}
+}
+
+void unrefLua(GLuaScriptObject * scope, int ref)
+{
+	GLuaScopeGuard scopeGuard(scope);
+
+	if(scope->isGlobal()) {
+		luaL_unref(scope->getLuaState(), LUA_GLOBALSINDEX, ref);
+	}
+	else {
+		luaL_unref(scope->getLuaState(), -1, ref);
+	}
+}
+
+void getRefObject(GLuaScriptObject * scope, int ref)
+{
+	GLuaScopeGuard scopeGuard(scope);
+
+	if(scope->isGlobal()) {
+		lua_rawgeti(scope->getLuaState(), LUA_GLOBALSINDEX, ref);
+	}
+	else {
+		lua_rawgeti(scope->getLuaState(), -1, ref);
+	}
+}
+
+// function is on stack top
+GMetaVariant invokeLuaFunctionIndirectly(GLuaScriptObject * scope, GMetaVariant const * const * params, size_t paramCount, const char * name)
+{
+	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+
+	lua_State * L = scope->getLuaState();
+
+	int top = lua_gettop(L) - 1;
+
+	if(lua_isfunction(L, -1)) {
+		for(size_t i = 0; i < paramCount; ++i) {
+			if(!variantToLua(L, scope->getParam(), params[i]->getValue(), params[i]->getType(), false, true)) {
+				if(i > 0) {
+					lua_pop(L, static_cast<int>(i) - 1);
+				}
+
+				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
+			}
+		}
+
+		int error = lua_pcall(L, static_cast<int>(paramCount), LUA_MULTRET, 0);
+		if(error) {
+			raiseCoreException(Error_ScriptBinding_ScriptFunctionReturnError, name, lua_tostring(L, -1));
+		}
+		else {
+			int resultCount = lua_gettop(L) - top;
+			if(resultCount > 1) {
+				raiseCoreException(Error_ScriptBinding_CantReturnMultipleValue, name);
+			}
+			else {
+				if(resultCount > 0) {
+					return luaToVariant(L, scope->getParam(), -1);
+				}
+			}
+		}
+	}
+	else {
+		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
+	}
+	
+	return GMetaVariant();
+}
+
+class GLuaScriptFunction : public GScriptFunction
+{
+public:
+	explicit GLuaScriptFunction(GLuaScriptObject * scope);
+	virtual ~GLuaScriptFunction();
+	
+	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount);
+	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
+
+private:
+	GLuaScriptObject * scope;
+	int ref;
+};
+
+GLuaScriptFunction::GLuaScriptFunction(GLuaScriptObject * scope)
+	: scope(scope), ref(refLua(scope))
+{
+}
+
+GLuaScriptFunction::~GLuaScriptFunction()
+{
+	unrefLua(this->scope, this->ref);
+}
+	
+GMetaVariant GLuaScriptFunction::invoke(const GMetaVariant * params, size_t paramCount)
+{
+	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+
+	const cpgf::GMetaVariant * variantPointers[REF_MAX_ARITY];
+
+	for(size_t i = 0; i < paramCount; ++i) {
+		variantPointers[i] = &params[i];
+	}
+
+	return this->invokeIndirectly(variantPointers, paramCount);
+}
+
+GMetaVariant GLuaScriptFunction::invokeIndirectly(GMetaVariant const * const * params, size_t paramCount)
+{
+	ENTER_LUA()
+
+	getRefObject(this->scope, this->ref);
+
+	return invokeLuaFunctionIndirectly(this->scope, params, paramCount, "");
+	
+	LEAVE_LUA(this->scope->getLuaState(), return GMetaVariant())
+}
 
 
 GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
@@ -1531,6 +1668,19 @@ GScriptObject * GLuaScriptObject::gainScriptObject(const char * name)
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
 
+GScriptFunction * GLuaScriptObject::gainScriptFunction(const char * name)
+{
+	ENTER_LUA()
+
+	GLuaScopeGuard scopeGuard(this);
+
+	scopeGuard.get(name);
+
+	return new GLuaScriptFunction(this);
+	
+	LEAVE_LUA(this->implement->luaState, return NULL)
+}
+
 GMetaVariant GLuaScriptObject::invoke(const char * name, const GMetaVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
@@ -1546,48 +1696,13 @@ GMetaVariant GLuaScriptObject::invoke(const char * name, const GMetaVariant * pa
 
 GMetaVariant GLuaScriptObject::invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount)
 {
-	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
-
 	ENTER_LUA()
 
 	GLuaScopeGuard scopeGuard(this);
 
-	int top = lua_gettop(this->implement->luaState);
-
 	scopeGuard.get(name);
-	
-	if(lua_isfunction(this->implement->luaState, -1)) {
-		for(size_t i = 0; i < paramCount; ++i) {
-			if(!variantToLua(this->implement->luaState, this->implement->param, params[i]->getValue(), params[i]->getType(), false, true)) {
-				if(i > 0) {
-					lua_pop(this->implement->luaState, static_cast<int>(i) - 1);
-				}
 
-				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
-			}
-		}
-
-		int error = lua_pcall(this->implement->luaState, static_cast<int>(paramCount), LUA_MULTRET, 0);
-		if(error) {
-			raiseCoreException(Error_ScriptBinding_ScriptFunctionReturnError, name, lua_tostring(this->implement->luaState, -1));
-		}
-		else {
-			int resultCount = lua_gettop(this->implement->luaState) - top;
-			if(resultCount > 1) {
-				raiseCoreException(Error_ScriptBinding_CantReturnMultipleValue, name);
-			}
-			else {
-				if(resultCount > 0) {
-					return luaToVariant(this->implement->luaState, this->implement->param, -1);
-				}
-			}
-		}
-	}
-	else {
-		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
-	}
-	
-	return GMetaVariant();
+	return invokeLuaFunctionIndirectly(this, params, paramCount, name);
 	
 	LEAVE_LUA(this->implement->luaState, return GMetaVariant())
 }
@@ -1609,7 +1724,6 @@ void GLuaScriptObject::bindFundamental(const char * name, const GVariant & value
 	LEAVE_LUA(this->implement->luaState)
 }
 
-// not implemented yet
 void GLuaScriptObject::bindAccessible(const char * name, void * instance, IMetaAccessible * accessible)
 {
 	ENTER_LUA()

@@ -47,6 +47,25 @@ private:
 };
 
 
+class ImplScriptFunction : public ImplExtendObject, public IScriptFunction
+{
+public:
+	ImplScriptFunction(GScriptFunction * scriptFunction, bool freeFunction);
+	virtual ~ImplScriptFunction();
+
+protected:
+	IMPL_OBJECT
+	IMPL_EXTENDOBJECT
+
+	virtual void G_API_CC invoke(GMetaVarData * outResult, const GMetaVarData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeIndirectly(GMetaVarData * outResult, GMetaVarData const * const * params, uint32_t paramCount);
+
+private:
+	GScriptFunction * scriptFunction;
+	bool freeFunction;
+};
+
+
 class ImplScriptObject : public ImplExtendObject, public IScriptObject
 {
 public:

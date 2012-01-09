@@ -55,6 +55,54 @@ gapi_bool G_API_CC ImplScriptConfig::allowAccessClassViaInstance()
 
 
 
+ImplScriptFunction::ImplScriptFunction(GScriptFunction * scriptFunction, bool freeFunction)
+	: scriptFunction(scriptFunction), freeFunction(freeFunction)
+{
+}
+
+ImplScriptFunction::~ImplScriptFunction()
+{
+	if(this->freeFunction) {
+		delete this->scriptFunction;
+	}
+}
+
+void G_API_CC ImplScriptFunction::invoke(GMetaVarData * outResult, const GMetaVarData * params, uint32_t paramCount)
+{
+	ENTER_BINDING_API()
+
+	const GMetaVarData * paramIndirect[REF_MAX_ARITY];
+
+	for(uint32_t i = 0; i < paramCount; ++i) {
+		paramIndirect[i] = &params[i];
+	}
+
+	this->invokeIndirectly(outResult, paramIndirect, paramCount);
+
+	LEAVE_BINDING_API()
+}
+
+void G_API_CC ImplScriptFunction::invokeIndirectly(GMetaVarData * outResult, GMetaVarData const * const * params, uint32_t paramCount)
+{
+	ENTER_BINDING_API()
+
+	GMetaVariant paramVariants[REF_MAX_ARITY];
+	const GMetaVariant * paramIndirect[REF_MAX_ARITY];
+
+	for(uint32_t i = 0; i < paramCount; ++i) {
+		paramVariants[i] = GMetaVariant(*params[i]);
+		paramIndirect[i] = &paramVariants[i];
+	}
+
+	GMetaVariant result = this->scriptFunction->invokeIndirectly(paramIndirect, paramCount);
+	if(outResult) {
+		*outResult = result.takeData();
+	}
+
+	LEAVE_BINDING_API()
+}
+
+
 ImplScriptObject::ImplScriptObject(GScriptObject * scriptObject, bool freeObject)
 	: scriptObject(scriptObject), freeObject(freeObject)
 {
