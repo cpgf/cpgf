@@ -372,8 +372,14 @@ public:
 	static const bool Result = (sizeof(test<T>(0)) == sizeof(typetraits_internal::YesType));
 };
 
-template <typename T>
+template <typename T, typename Enable = void>
 struct IsAbstractClass
+{
+	enum { Result = false };
+};
+
+template <typename T>
+struct IsAbstractClass <T, typename GEnableIf<IsClass<T>::Result>::Result>
 {
 private:
 	template <typename U>
@@ -382,13 +388,7 @@ private:
 	static typetraits_internal::YesType check(...);
 
 public:
-	enum { Result = (sizeof(T) != 0 && IsClass<T>::Result && sizeof(check<T>(0)) == sizeof(typetraits_internal::YesType)) };
-};
-
-template <>
-struct IsAbstractClass <void>
-{
-	enum { Result = false };
+	enum { Result = (sizeof(T) != 0 && sizeof(check<T>(0)) == sizeof(typetraits_internal::YesType)) };
 };
 
 

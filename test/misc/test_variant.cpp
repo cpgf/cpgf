@@ -2,6 +2,7 @@
 
 #include "cpgf/gvariant.h"
 #include "cpgf/gexception.h"
+#include "cpgf/gmetaapi.h"
 
 #define CAN_FROM(to, value) GCHECK(canFromVariant<to>(value)); fromVariant<to>(value)
 #define CAN_FROM_CAST(to, from, value) GCHECK(canFromVariant<to>(static_cast<from>(value))); fromVariant<to>(static_cast<from>(value))
@@ -119,6 +120,15 @@ GTEST(TestVariant_ObjectPointer)
 
 	GEQUAL(vtGetBaseType(GVariant((CLASS **)0).data.typeData), vtObject);
 	GEQUAL(vtGetPointers(GVariant((CLASS **)0).data.typeData), 2);
+
+	GEQUAL(vtGetBaseType(GVariant((IMetaClass *)0).data.typeData), vtInterface);
+	GEQUAL(vtGetPointers(GVariant((IMetaClass *)0).data.typeData), 1);
+
+	GEQUAL(vtGetBaseType(GVariant((const IMetaClass * const volatile)0).data.typeData), vtInterface);
+	GEQUAL(vtGetPointers(GVariant((const IMetaClass * const volatile)0).data.typeData), 1);
+
+	GEQUAL(vtGetBaseType(GVariant((const volatile IMetaClass *)0).data.typeData), vtInterface);
+	GEQUAL(vtGetPointers(GVariant((const volatile IMetaClass *)0).data.typeData), 1);
 }
 
 

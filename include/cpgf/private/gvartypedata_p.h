@@ -102,8 +102,9 @@ DEF_ARRAY_TO_PTR(const volatile)
 
 #undef DEF_ARRAY_TO_PTR
 
-template <typename T>
-struct DeduceVariantType {
+template <typename T, typename Enable = void>
+struct DeduceVariantType
+{
 private:
 	typedef DeduceVariantType_Helper<typename ArrayToPointer<typename RemoveConstVolatile<T>::Result>::Result> Deducer;
 public:
@@ -112,22 +113,19 @@ public:
 };
 
 template <>
-struct DeduceVariantType <void> {
+struct DeduceVariantType <void>
+{
 	static const GVariantType Result = vtVoid;
 	static const int Pointers = 0;
 };
 
-template <>
-struct DeduceVariantType <IObject *> {
+template <typename T>
+struct DeduceVariantType <T *, typename GEnableIf<IsConvertible<const typename RemoveConstVolatile<T>::Result &, const IObject &>::Result>::Result>
+{
 	static const GVariantType Result = vtInterface;
 	static const int Pointers = 1;
 };
 
-template <>
-struct DeduceVariantType <const IObject *> {
-	static const GVariantType Result = vtInterface;
-	static const int Pointers = 1;
-};
 
 
 } // namespace variant_internal

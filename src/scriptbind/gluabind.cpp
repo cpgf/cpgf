@@ -43,6 +43,28 @@ namespace {
 class GLuaScriptObject;
 class GLuaGlobalAccessor;
 
+class GLuaScriptFunction : public GScriptFunction
+{
+public:
+	GLuaScriptFunction(GLuaScriptObject * scope, int objectIndex);
+	GLuaScriptFunction(lua_State * L, GScriptBindingParam * bindingParam, int objectIndex);
+	virtual ~GLuaScriptFunction();
+	
+	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount);
+	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
+
+private:
+	bool hasScope() const {
+		return this->scope != NULL;
+	}
+
+private:
+	GLuaScriptObject * scope;
+	lua_State * luaState;
+	GScriptBindingParam * bindingParam;
+	int ref;
+};
+
 class GLuaScriptObjectImplement
 {
 public:
@@ -509,6 +531,13 @@ GMetaVariant userDataToVariant(lua_State * L, GScriptBindingParam * param, int i
 	return GMetaVariant();
 }
 
+GMetaVariant functionToVariant(lua_State * L, GScriptBindingParam * param, int index)
+{
+	GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GLuaScriptFunction(L, param, index), true));
+	
+	return GMetaVariant(func.get(), GMetaType());
+}
+
 GMetaVariant luaToVariant(lua_State * L, GScriptBindingParam * param, int index)
 {
 	int type = lua_type(L, index);
@@ -529,11 +558,13 @@ GMetaVariant luaToVariant(lua_State * L, GScriptBindingParam * param, int index)
 		case LUA_TUSERDATA:
 			return userDataToVariant(L, param, index);
 
+		case LUA_TFUNCTION:
+			return functionToVariant(L, param, index);
+
 		case LUA_TLIGHTUSERDATA:
 			break;
 
 		case LUA_TTABLE:
-		case LUA_TFUNCTION:
 		case LUA_TTHREAD:
 			break;
 	}
@@ -1425,18 +1456,24 @@ void GLuaScopeGuard::rawGet(const char * name)
 	}
 }
 
-// the object is on stack top
-int refLua(GLuaScriptObject * scope)
+int refLua(GLuaScriptObject * scope, int objectIndex)
 {
 	GLuaScopeGuard scopeGuard(scope);
 
 	if(scope->isGlobal()) {
+		lua_pushvalue(scope->getLuaState(), objectIndex);
 		return luaL_ref(scope->getLuaState(), LUA_GLOBALSINDEX);
 	}
 	else {
-		lua_pushvalue(scope->getLuaState(), -2);
+		lua_pushvalue(scope->getLuaState(), objectIndex - 1);
 		return luaL_ref(scope->getLuaState(), -2);
 	}
+}
+
+int refLua(lua_State * L, int objectIndex)
+{
+	lua_pushvalue(L, objectIndex);
+	return luaL_ref(L, LUA_GLOBALSINDEX);
 }
 
 void unrefLua(GLuaScriptObject * scope, int ref)
@@ -1451,6 +1488,11 @@ void unrefLua(GLuaScriptObject * scope, int ref)
 	}
 }
 
+void unrefLua(lua_State * L, int ref)
+{
+	luaL_unref(L, LUA_GLOBALSINDEX, ref);
+}
+
 void getRefObject(GLuaScriptObject * scope, int ref)
 {
 	GLuaScopeGuard scopeGuard(scope);
@@ -1463,18 +1505,21 @@ void getRefObject(GLuaScriptObject * scope, int ref)
 	}
 }
 
+void getRefObject(lua_State * L, int ref)
+{
+	lua_rawgeti(L, LUA_GLOBALSINDEX, ref);
+}
+
 // function is on stack top
-GMetaVariant invokeLuaFunctionIndirectly(GLuaScriptObject * scope, GMetaVariant const * const * params, size_t paramCount, const char * name)
+GMetaVariant invokeLuaFunctionIndirectly(lua_State * L, GScriptBindingParam * bindingParam, GMetaVariant const * const * params, size_t paramCount, const char * name)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
-
-	lua_State * L = scope->getLuaState();
 
 	int top = lua_gettop(L) - 1;
 
 	if(lua_isfunction(L, -1)) {
 		for(size_t i = 0; i < paramCount; ++i) {
-			if(!variantToLua(L, scope->getParam(), params[i]->getValue(), params[i]->getType(), false, true)) {
+			if(!variantToLua(L, bindingParam, params[i]->getValue(), params[i]->getType(), false, true)) {
 				if(i > 0) {
 					lua_pop(L, static_cast<int>(i) - 1);
 				}
@@ -1494,7 +1539,7 @@ GMetaVariant invokeLuaFunctionIndirectly(GLuaScriptObject * scope, GMetaVariant 
 			}
 			else {
 				if(resultCount > 0) {
-					return luaToVariant(L, scope->getParam(), -1);
+					return luaToVariant(L, bindingParam, -1);
 				}
 			}
 		}
@@ -1506,28 +1551,25 @@ GMetaVariant invokeLuaFunctionIndirectly(GLuaScriptObject * scope, GMetaVariant 
 	return GMetaVariant();
 }
 
-class GLuaScriptFunction : public GScriptFunction
+
+GLuaScriptFunction::GLuaScriptFunction(GLuaScriptObject * scope, int objectIndex)
+	: scope(scope), luaState(NULL), bindingParam(NULL), ref(refLua(scope, objectIndex))
 {
-public:
-	explicit GLuaScriptFunction(GLuaScriptObject * scope);
-	virtual ~GLuaScriptFunction();
-	
-	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount);
-	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
+}
 
-private:
-	GLuaScriptObject * scope;
-	int ref;
-};
-
-GLuaScriptFunction::GLuaScriptFunction(GLuaScriptObject * scope)
-	: scope(scope), ref(refLua(scope))
+GLuaScriptFunction::GLuaScriptFunction(lua_State * L, GScriptBindingParam * bindingParam, int objectIndex)
+	: scope(NULL), luaState(L), bindingParam(bindingParam), ref(refLua(L, objectIndex))
 {
 }
 
 GLuaScriptFunction::~GLuaScriptFunction()
 {
-	unrefLua(this->scope, this->ref);
+	if(this->hasScope()) {
+		unrefLua(this->scope, this->ref);
+	}
+	else {
+		unrefLua(this->luaState, this->ref);
+	}
 }
 	
 GMetaVariant GLuaScriptFunction::invoke(const GMetaVariant * params, size_t paramCount)
@@ -1549,7 +1591,12 @@ GMetaVariant GLuaScriptFunction::invokeIndirectly(GMetaVariant const * const * p
 
 	getRefObject(this->scope, this->ref);
 
-	return invokeLuaFunctionIndirectly(this->scope, params, paramCount, "");
+	if(this->hasScope()) {
+		return invokeLuaFunctionIndirectly(this->scope->getLuaState(), this->scope->getParam(), params, paramCount, "");
+	}
+	else {
+		return invokeLuaFunctionIndirectly(this->luaState, this->bindingParam, params, paramCount, "");
+	}
 	
 	LEAVE_LUA(this->scope->getLuaState(), return GMetaVariant())
 }
@@ -1676,7 +1723,7 @@ GScriptFunction * GLuaScriptObject::gainScriptFunction(const char * name)
 
 	scopeGuard.get(name);
 
-	return new GLuaScriptFunction(this);
+	return new GLuaScriptFunction(this, -1);
 	
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
@@ -1702,7 +1749,7 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const char * name, GMetaVariant 
 
 	scopeGuard.get(name);
 
-	return invokeLuaFunctionIndirectly(this, params, paramCount, name);
+	return invokeLuaFunctionIndirectly(this->getLuaState(), this->getParam(), params, paramCount, name);
 	
 	LEAVE_LUA(this->implement->luaState, return GMetaVariant())
 }

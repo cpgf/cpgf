@@ -867,6 +867,7 @@ inline unsigned int getVariantTypeSize(GVariantType type)
 		case vtObject:
 		case vtPointer:
 		case vtString:
+		case vtInterface:
 			return sizeof(void *);
 
 		default:
