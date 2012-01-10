@@ -124,8 +124,8 @@ GTEST(TestVariant_ObjectPointer)
 	GEQUAL(vtGetBaseType(GVariant((IMetaClass *)0).data.typeData), vtInterface);
 	GEQUAL(vtGetPointers(GVariant((IMetaClass *)0).data.typeData), 1);
 
-	GEQUAL(vtGetBaseType(GVariant((const IMetaClass * const volatile)0).data.typeData), vtInterface);
-	GEQUAL(vtGetPointers(GVariant((const IMetaClass * const volatile)0).data.typeData), 1);
+	GEQUAL(vtGetBaseType(GVariant((const IMetaClass *)0).data.typeData), vtInterface);
+	GEQUAL(vtGetPointers(GVariant((const IMetaClass *)0).data.typeData), 1);
 
 	GEQUAL(vtGetBaseType(GVariant((const volatile IMetaClass *)0).data.typeData), vtInterface);
 	GEQUAL(vtGetPointers(GVariant((const volatile IMetaClass *)0).data.typeData), 1);

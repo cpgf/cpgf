@@ -2,6 +2,7 @@ Todo:
 
 1, Support ExplicitThis policy for property getter and setter separately.
 2, Support script function callback (wrap to object).
+3, Need to test setting script function as property.
 3, Test with Lua 5.2
 2, In v8, support property enumerator.
 1, GVariant passes rvalue reference as value, not efficient, should imporve.

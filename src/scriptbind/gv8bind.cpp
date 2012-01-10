@@ -627,12 +627,12 @@ GMetaVariant v8ToVariant(GScriptBindingParam * param, v8::Handle<v8::Value> valu
 		return value->Uint32Value();
 	}
 
-	if(value->IsObject()) {
-		return userDataToVariant(value);
-	}
-
 	if(value->IsFunction()) {
 		return functionToVariant(param, value);
+	}
+
+	if(value->IsObject()) {
+		return userDataToVariant(value);
 	}
 
 	return GMetaVariant();
@@ -1545,7 +1545,7 @@ GMetaVariant GV8ScriptFunction::invokeIndirectly(GMetaVariant const * const * pa
 		return invokeV8FunctionIndirectly(this->scope->getParam(), this->scope->getObject(), Local<Value>::New(this->func), params, paramCount, "");
 	}
 	else {
-		return invokeV8FunctionIndirectly(this->bindingParam, Local<Object>(), Local<Value>::New(this->func), params, paramCount, "");
+		return invokeV8FunctionIndirectly(this->bindingParam, this->func->CreationContext()->Global(), Local<Value>::New(this->func), params, paramCount, "");
 	}
 	
 	LEAVE_V8(return GMetaVariant())

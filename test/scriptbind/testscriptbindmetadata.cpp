@@ -12,6 +12,28 @@ namespace testscript {
 
 int TestObject::staticValue = 0;
 
+int testAdd2(int a, int b)
+{
+	return 2 + a + b;
+}
+
+int testAddN(const cpgf::GMetaVariadicParam * params)
+{
+	int total = 3;
+	for(size_t i = 0; i < params->paramCount; ++i) {
+		total += cpgf::fromVariant<int>(*(params->params[i]));
+	}
+
+	return total;
+}
+
+int testAddCallback(cpgf::IScriptFunction * scriptFunction)
+{
+	using namespace cpgf;
+
+	return fromVariant<int>(invokeScriptFunction(scriptFunction, 5, 6).getValue());
+}
+
 template <typename T>
 void bindClass(T * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
 {
@@ -93,6 +115,11 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	method.reset(global->getMethod("testAddN"));
 	metaList->add(method.get(), NULL);
 	script->bindMethodList("testAdd", metaList.get());
+
+	bindMethod(script, service, "scriptAssert", "scriptAssert");
+	bindMethod(script, service, "scriptNot", "scriptNot");
+	bindMethod(script, service, "testAddCallback", "testAddCallback");
+	bindEnum(script, service, REG_NAME_TestEnum, "TestEnum");
 }
 
 
@@ -103,10 +130,6 @@ void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
 	script->bindFundamental("Magic1", Magic1);
 	script->bindFundamental("Magic2", Magic2);
 	script->bindFundamental("Magic3", Magic3);
-
-	bindMethod(script, service, "scriptAssert", "scriptAssert");
-	bindMethod(script, service, "scriptNot", "scriptNot");
-	bindEnum(script, service, REG_NAME_TestEnum, "TestEnum");
 
 	script->bindFundamental("testInt", testInt);
 }
@@ -128,10 +151,6 @@ void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
 	
 	v = Magic3;
 	script->bindFundamental("Magic3", &v.data);
-
-	bindMethod(script, service, "scriptAssert", "scriptAssert");
-	bindMethod(script, service, "scriptNot", "scriptNot");
-	bindEnum(script, service, REG_NAME_TestEnum, "TestEnum");
 
 	v = testInt;
 	script->bindFundamental("testInt", &v.data);
@@ -353,6 +372,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 		._method("scriptNot", &scriptNot)
 		._method("testAdd2", &testAdd2)
 		._method("testAddN", &testAddN)
+		._method("testAddCallback", &testAddCallback)
 		._enum<TestEnum>(REG_NAME_TestEnum)
 			._element("teCpp", teCpp)
 			._element("teLua", teLua)

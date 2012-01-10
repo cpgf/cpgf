@@ -1,5 +1,6 @@
 TBD version 1.2.3
 	Added vtInterface in GVariant.
+	Added script function wrapper. Now script can pass function to C++.
 
 2012-01-07 version 1.2.2
 	Added meta policy GMetaRuleExplicitThis.

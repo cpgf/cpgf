@@ -765,12 +765,14 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 				void * rawUserData = lua_touserdata(L, -1);
 				GScriptUserData * userData = static_cast<GScriptUserData *>(rawUserData);
 
-				switch(userData->getType()) {
-				case udtMethodList:
-					return methodTypeToUserDataType(gdynamic_cast<GMethodListUserData *>(userData)->methodType);
+				if(userData != NULL) {
+					switch(userData->getType()) {
+					case udtMethodList:
+						return methodTypeToUserDataType(gdynamic_cast<GMethodListUserData *>(userData)->methodType);
 
-				default:
-					break;
+					default:
+						break;
+					}
 				}
 			}
 			return sdtScriptMethod;
@@ -1589,7 +1591,12 @@ GMetaVariant GLuaScriptFunction::invokeIndirectly(GMetaVariant const * const * p
 {
 	ENTER_LUA()
 
-	getRefObject(this->scope, this->ref);
+	if(this->hasScope()) {
+		getRefObject(this->scope, this->ref);
+	}
+	else {
+		getRefObject(this->luaState, this->ref);
+	}
 
 	if(this->hasScope()) {
 		return invokeLuaFunctionIndirectly(this->scope->getLuaState(), this->scope->getParam(), params, paramCount, "");
