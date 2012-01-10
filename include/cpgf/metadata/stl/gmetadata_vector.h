@@ -34,7 +34,7 @@ void doBuildMetaData_vector(MetaDefine define, bool scriptable, const GMetaDataN
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("push_back", replacer), (void (T::*)(const typename T::value_type &)) &T::push_back, policy)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("reserve", replacer), (void (T::*)(typename T::size_type)) &T::reserve)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("resize", replacer), extractFunction2(&T::resize), policy)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("resize", replacer), extractFunction1(&T::resize), policy)
+		.CPGF_MD_STL_TEMPLATE _method(replaceName("resize", replacer), (void (T::*)(typename T::size_type)) &T::resize, policy)
 
 		.CPGF_MD_STL_TEMPLATE _operator<typename T::reference (GMetaSelf, typename T::size_type)>(mopHolder[0], policy)
 		.CPGF_MD_STL_TEMPLATE _operator<typename T::const_reference (const GMetaSelf &, typename T::size_type)>(mopHolder[0], policy)
