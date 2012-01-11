@@ -38,6 +38,89 @@ namespace {
 
 
 class GV8ScriptObject;
+class GV8ScriptBindingParam;
+
+class GV8ScriptObjectImplement
+{
+public:
+	GV8ScriptObjectImplement(GV8ScriptBindingParam * param, v8::Local<v8::Object> object, bool freeResource);
+	~GV8ScriptObjectImplement();
+
+	void doBindMethodList(const char * name, IMetaList * methodList, GUserDataMethodType methodType);
+	GExtendMethodUserData * doGetMethodUserData(const char * methodName);
+
+public:
+	GV8ScriptBindingParam * param;
+	Persistent<Object> object;
+	bool freeResource;
+};
+
+
+GMAKE_FINAL(GV8ScriptObject)
+
+class GV8ScriptObject : public GScriptObject, GFINAL_BASE(GV8ScriptObject)
+{
+private:
+	typedef GScriptObject super;
+
+public:
+	GV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
+	virtual ~GV8ScriptObject();
+
+	virtual void bindClass(const char * name, IMetaClass * metaClass);
+	virtual void bindEnum(const char * name, IMetaEnum * metaEnum);
+
+	virtual void bindFundamental(const char * name, const GVariant & value);
+	virtual void bindString(const char * stringName, const char * s);
+	virtual void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership);
+	virtual void bindRaw(const char * name, const GVariant & value);
+	virtual void bindMethod(const char * name, void * instance, IMetaMethod * method);
+	virtual void bindMethodList(const char * name, IMetaList * methodList);
+
+	virtual IMetaClass * getClass(const char * className);
+	virtual IMetaEnum * getEnum(const char * enumName);
+
+	virtual GVariant getFundamental(const char * name);
+	virtual std::string getString(const char * stringName);
+	virtual void * getObject(const char * objectName);
+	virtual GVariant getRaw(const char * name);
+	virtual IMetaMethod * getMethod(const char * methodName, void ** outInstance);
+	virtual IMetaList * getMethodList(const char * methodName);
+	
+	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
+
+	virtual GScriptObject * createScriptObject(const char * name);
+	virtual GScriptObject * gainScriptObject(const char * name);
+	
+	virtual GScriptFunction * gainScriptFunction(const char * name);
+
+	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount);
+	virtual GMetaVariant invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount);
+
+	virtual void assignValue(const char * fromName, const char * toName);
+	virtual bool valueIsNull(const char * name);
+	virtual void nullifyValue(const char * name);
+
+	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
+
+public:
+	GV8ScriptBindingParam * getParam() const {
+		return this->implement->param;
+	}
+
+	Local<Object> getObject() const {
+		return Local<Object>::New(this->implement->object);
+	}
+
+private:
+	GV8ScriptObject(const GV8ScriptObject & other, v8::Local<v8::Object> object);
+
+private:
+	GScopedPointer<GV8ScriptObjectImplement> implement;
+
+private:
+};
+
 
 template <typename KeyType, typename ValueType>
 class GUserDataMap
@@ -1336,136 +1419,64 @@ void doBindClass(GScriptBindingParam * param, v8::Local<v8::Object> container, c
 	container->Set(v8::String::New(name), functionTemplate->GetFunction());
 }
 
-class GV8ScriptObjectImplement
+
+GV8ScriptObjectImplement::GV8ScriptObjectImplement(GV8ScriptBindingParam * param, v8::Local<v8::Object> object, bool freeResource)
+	: param(param), object(v8::Persistent<v8::Object>::New(object)), freeResource(freeResource)
 {
-public:
-	GV8ScriptObjectImplement(GV8ScriptBindingParam * param, v8::Local<v8::Object> object, bool freeResource)
-		: param(param), object(v8::Persistent<v8::Object>::New(object)), freeResource(freeResource) {
+}
+
+GV8ScriptObjectImplement::~GV8ScriptObjectImplement()
+{
+	if(this->freeResource) {
+		delete this->param;
 	}
 
-	~GV8ScriptObjectImplement() {
-		if(this->freeResource) {
-			delete this->param;
-		}
+	this->object.Dispose();
+}
 
-		this->object.Dispose();
-	}
+void GV8ScriptObjectImplement::doBindMethodList(const char * name, IMetaList * methodList, GUserDataMethodType methodType)
+{
+	v8::HandleScope handleScope;
+	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->object));
 
-	void doBindMethodList(const char * name, IMetaList * methodList, GUserDataMethodType methodType)
-	{
-		v8::HandleScope handleScope;
-		v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->object));
+	GExtendMethodUserData * newUserData;
+	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(this->param, NULL, true, methodList, name,
+	Handle<FunctionTemplate>(), methodType, &newUserData);
 
-		GExtendMethodUserData * newUserData;
-		Handle<FunctionTemplate> functionTemplate = createMethodTemplate(this->param, NULL, true, methodList, name,
-		Handle<FunctionTemplate>(), methodType, &newUserData);
+	Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
+	setObjectSignature(&func);
+	func.MakeWeak(NULL, weakHandleCallback);
 
-		Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
-		setObjectSignature(&func);
-		func.MakeWeak(NULL, weakHandleCallback);
+	localObject->Set(v8::String::New(name), func);
+}
 
-		localObject->Set(v8::String::New(name), func);
-	}
-
-	GExtendMethodUserData * doGetMethodUserData(const char * methodName)
-	{
-		v8::HandleScope handleScope;
-		v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->object));
-
-		Local<Value> value = localObject->Get(String::New(methodName));
-		if(isValidObject(value)) {
-			Local<Object> obj = Local<Object>::Cast(value);
-			if(obj->InternalFieldCount() == 0) {
-				Handle<Value> data = obj->GetHiddenValue(v8::String::New(userDataKey));
-				if(! data.IsEmpty()) {
-					if(data->IsExternal()) {
-						GScriptUserData * userData = static_cast<GScriptUserData *>(Handle<External>::Cast(data)->Value());
-						if(userData->getType() == udtExtendMethod) {
-							GExtendMethodUserData * methodListData = gdynamic_cast<GExtendMethodUserData *>(userData);
-							if(methodListData->methodList != NULL) {
-								return methodListData;
-							}
+GExtendMethodUserData * GV8ScriptObjectImplement::doGetMethodUserData(const char * methodName)
+{
+	v8::HandleScope handleScope;
+	v8::Local<v8::Object> localObject(v8::Local<v8::Object>::New(this->object));
+	
+	Local<Value> value = localObject->Get(String::New(methodName));
+	if(isValidObject(value)) {
+		Local<Object> obj = Local<Object>::Cast(value);
+		if(obj->InternalFieldCount() == 0) {
+			Handle<Value> data = obj->GetHiddenValue(v8::String::New(userDataKey));
+			if(! data.IsEmpty()) {
+				if(data->IsExternal()) {
+					GScriptUserData * userData = static_cast<GScriptUserData *>(Handle<External>::Cast(data)->Value());
+					if(userData->getType() == udtExtendMethod) {
+						GExtendMethodUserData * methodListData = gdynamic_cast<GExtendMethodUserData *>(userData);
+						if(methodListData->methodList != NULL) {
+							return methodListData;
 						}
 					}
 				}
-
 			}
+
 		}
-
-		return NULL;
 	}
 
-public:
-	GV8ScriptBindingParam * param;
-	Persistent<Object> object;
-	bool freeResource;
-};
-
-
-GMAKE_FINAL(GV8ScriptObject)
-
-class GV8ScriptObject : public GScriptObject, GFINAL_BASE(GV8ScriptObject)
-{
-private:
-	typedef GScriptObject super;
-
-public:
-	GV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-	virtual ~GV8ScriptObject();
-
-	virtual void bindClass(const char * name, IMetaClass * metaClass);
-	virtual void bindEnum(const char * name, IMetaEnum * metaEnum);
-
-	virtual void bindFundamental(const char * name, const GVariant & value);
-	virtual void bindString(const char * stringName, const char * s);
-	virtual void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership);
-	virtual void bindRaw(const char * name, const GVariant & value);
-	virtual void bindMethod(const char * name, void * instance, IMetaMethod * method);
-	virtual void bindMethodList(const char * name, IMetaList * methodList);
-
-	virtual IMetaClass * getClass(const char * className);
-	virtual IMetaEnum * getEnum(const char * enumName);
-
-	virtual GVariant getFundamental(const char * name);
-	virtual std::string getString(const char * stringName);
-	virtual void * getObject(const char * objectName);
-	virtual GVariant getRaw(const char * name);
-	virtual IMetaMethod * getMethod(const char * methodName, void ** outInstance);
-	virtual IMetaList * getMethodList(const char * methodName);
-	
-	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
-
-	virtual GScriptObject * createScriptObject(const char * name);
-	virtual GScriptObject * gainScriptObject(const char * name);
-	
-	virtual GScriptFunction * gainScriptFunction(const char * name);
-
-	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount);
-	virtual GMetaVariant invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount);
-
-	virtual void assignValue(const char * fromName, const char * toName);
-	virtual bool valueIsNull(const char * name);
-	virtual void nullifyValue(const char * name);
-
-	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
-
-public:
-	GV8ScriptBindingParam * getParam() const {
-		return this->implement->param;
-	}
-
-	Local<Object> getObject() const {
-		return Local<Object>::New(this->implement->object);
-	}
-
-private:
-	GV8ScriptObject(const GV8ScriptObject & other, v8::Local<v8::Object> object);
-
-private:
-	GScopedPointer<GV8ScriptObjectImplement> implement;
-
-private:
-};
+	return NULL;
+}
 
 
 bool valueIsCallable(Local<Value> value)
