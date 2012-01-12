@@ -68,7 +68,7 @@ public:
 
 	virtual void G_API_CC release() {
 		--this->refCount;
-		if(!this->refCount) {
+		if(this->refCount <= 0) {
 			delete this;
 		}
 	}

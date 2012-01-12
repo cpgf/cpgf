@@ -1556,7 +1556,9 @@ GMetaVariant GV8ScriptFunction::invokeIndirectly(GMetaVariant const * const * pa
 		return invokeV8FunctionIndirectly(this->scope->getParam(), this->scope->getObject(), Local<Value>::New(this->func), params, paramCount, "");
 	}
 	else {
-		return invokeV8FunctionIndirectly(this->bindingParam, this->func->CreationContext()->Global(), Local<Value>::New(this->func), params, paramCount, "");
+//		return invokeV8FunctionIndirectly(this->bindingParam, this->func->CreationContext()->Global(), Local<Value>::New(this->func), params, paramCount, "");
+		Local<Object> receiver = Object::New();
+		return invokeV8FunctionIndirectly(this->bindingParam, receiver, Local<Value>::New(this->func), params, paramCount, "");
 	}
 	
 	LEAVE_V8(return GMetaVariant())
