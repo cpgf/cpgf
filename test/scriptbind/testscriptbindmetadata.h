@@ -460,6 +460,7 @@ const int testObjValue = 2012;
 int testAdd2(int a, int b);
 int testAddN(const cpgf::GMetaVariadicParam * params);
 int testAddCallback(cpgf::IScriptFunction * scriptFunction);
+int testExecAddCallback();
 
 
 }

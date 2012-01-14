@@ -8,9 +8,14 @@
 
 #include <string>
 
+
+using namespace cpgf;
+
 namespace testscript {
 
 int TestObject::staticValue = 0;
+
+GScopedInterface<IScriptFunction> testScriptFunction;
 
 int testAdd2(int a, int b)
 {
@@ -27,11 +32,27 @@ int testAddN(const cpgf::GMetaVariadicParam * params)
 	return total;
 }
 
-int testAddCallback(cpgf::IScriptFunction * scriptFunction)
+int testAddCallback(IScriptFunction * scriptFunction)
 {
-	using namespace cpgf;
-
 	return fromVariant<int>(invokeScriptFunction(scriptFunction, 5, 6).getValue());
+}
+
+void testScriptFunctionSetter(IScriptFunction * scriptFunction)
+{
+	scriptFunction->addReference();
+	testScriptFunction.reset(scriptFunction);
+}
+
+IScriptFunction * testScriptFunctionGetter()
+{
+	return testScriptFunction.get();
+}
+
+int testExecAddCallback()
+{
+	int n = fromVariant<int>(invokeScriptFunction(testScriptFunction.get(), 5, 6).getValue());
+	testScriptFunction.reset(); // destroy it to avoid crash between different script engine such as Lua and V8. It's not a bug
+	return n;
 }
 
 template <typename T>
@@ -68,6 +89,19 @@ void bindEnum(T * script, cpgf::IMetaService * service, const char * metaName, c
 	GScopedInterface<IMetaEnum> metaEnum(metaClass->getEnum(metaName));
 	
 	script->bindEnum(bindName, metaEnum.get());
+}
+
+
+template <typename T>
+void bindProperty(T * script, cpgf::IMetaService * service, void * instance, const char * metaName, const char * bindName)
+{
+	using namespace cpgf;
+	
+	GScopedInterface<IMetaModule> module(service->getModuleAt(0));
+	GScopedInterface<IMetaClass> metaClass(module->getGlobalMetaClass());
+	GScopedInterface<IMetaProperty> metaAccessible(metaClass->getProperty(metaName));
+	
+	script->bindAccessible(bindName, instance, metaAccessible.get());
 }
 
 
@@ -119,7 +153,10 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	bindMethod(script, service, "scriptAssert", "scriptAssert");
 	bindMethod(script, service, "scriptNot", "scriptNot");
 	bindMethod(script, service, "testAddCallback", "testAddCallback");
+	bindMethod(script, service, "testExecAddCallback", "testExecAddCallback");
 	bindEnum(script, service, REG_NAME_TestEnum, "TestEnum");
+
+	bindProperty(script, service, NULL, "testScriptFunction", "testScriptFunction");
 }
 
 
@@ -373,10 +410,12 @@ G_AUTO_RUN_BEFORE_MAIN()
 		._method("testAdd2", &testAdd2)
 		._method("testAddN", &testAddN)
 		._method("testAddCallback", &testAddCallback)
+		._method("testExecAddCallback", &testExecAddCallback)
 		._enum<TestEnum>(REG_NAME_TestEnum)
 			._element("teCpp", teCpp)
 			._element("teLua", teLua)
 			._element("teV8", teV8)
+		._property("testScriptFunction", &testScriptFunctionGetter, &testScriptFunctionSetter)
 	;
 }
 

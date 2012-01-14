@@ -8,10 +8,10 @@ namespace {
 string makeFunc(const string & name, TestScriptContext * context)
 {
 	if(context->isLua()) {
-		return "function " + name + "(a, b) return a + b end";
+		return "function " + name + "(t, u) return t + u end";
 	}
 	if(context->isV8()) {
-		return "function " + name + "(a, b) { return a + b; }";
+		return "function " + name + "(t, u) { return t + u; }";
 	}
 
 	return "";
@@ -45,6 +45,40 @@ void testScriptFunctionCallback(TestScriptContext * context)
 }
 
 #define CASE testScriptFunctionCallback
+#include "../bind_testcase.h"
+
+
+
+template <typename T>
+void doTestScriptFunctionProperty(T * binding, TestScriptContext * context)
+{
+	(void)binding;
+
+	DO(makeFunc("fcallback", context))
+	QDO(testScriptFunction = fcallback)
+	QDO(a = testExecAddCallback())
+	QASSERT(a == 11)
+return;
+	DO(string("testScriptFunction = ") + makeFunc("", context) + "")
+	QDO(b = testExecAddCallback())
+	QASSERT(b == 11)
+}
+
+void testScriptFunctionProperty(TestScriptContext * context)
+{
+	GScriptObject * bindingLib = context->getBindingLib();
+	IScriptObject * bindingApi = context->getBindingApi();
+
+	if(bindingLib) {
+		doTestScriptFunctionProperty(bindingLib, context);
+	}
+	
+	if(bindingApi) {
+		doTestScriptFunctionProperty(bindingApi, context);
+	}
+}
+
+#define CASE testScriptFunctionProperty
 #include "../bind_testcase.h"
 
 

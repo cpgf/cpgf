@@ -217,6 +217,9 @@ void InitVariant(GVariant & v, const GVarTypeData & typeData, const T & value)
 
 		case vtInterface:
 			v.data.valueInterface = variant_internal::CastVariantHelper<T, IObject *>::cast(value);
+			if(v.data.valueInterface != NULL) {
+				v.data.valueInterface->addReference();
+			}
 			break;
 
 

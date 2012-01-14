@@ -359,21 +359,15 @@ private:
 class GV8ScriptFunction : public GScriptFunction
 {
 public:
-	GV8ScriptFunction(GV8ScriptObject * scope, Local<Value> func);
-	GV8ScriptFunction(GScriptBindingParam * bindingParam, Local<Value> func);
+	GV8ScriptFunction(GScriptBindingParam * bindingParam, Local<Object> receiver, Local<Value> func);
 	virtual ~GV8ScriptFunction();
 	
 	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount);
 	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
 
 private:
-	bool hasScope() const {
-		return this->scope != NULL;
-	}
-
-private:
-	GV8ScriptObject * scope;
 	GScriptBindingParam * bindingParam;
+	Persistent<Object> receiver;
 	Persistent<Function> func;
 };
 
@@ -668,10 +662,10 @@ GMetaVariant userDataToVariant(v8::Handle<v8::Value> value)
 	return GMetaVariant();
 }
 
-GMetaVariant functionToVariant(GScriptBindingParam * param, v8::Handle<v8::Value> value)
+GMetaVariant functionToVariant(GScriptBindingParam * param, Local<Context> context, v8::Handle<v8::Value> value)
 {
 	if(value->IsFunction()) {
-		GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GV8ScriptFunction(param, Local<Value>::New(value)), true));
+		GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GV8ScriptFunction(param, context->Global(), Local<Value>::New(value)), true));
 	
 		return GMetaVariant(func.get(), GMetaType());
 	}
@@ -679,7 +673,7 @@ GMetaVariant functionToVariant(GScriptBindingParam * param, v8::Handle<v8::Value
 	return GMetaVariant();
 }
 
-GMetaVariant v8ToVariant(GScriptBindingParam * param, v8::Handle<v8::Value> value)
+GMetaVariant v8ToVariant(GScriptBindingParam * param, Local<Context> context, v8::Handle<v8::Value> value)
 {
 	if(value.IsEmpty()) {
 		return GMetaVariant();
@@ -711,7 +705,7 @@ GMetaVariant v8ToVariant(GScriptBindingParam * param, v8::Handle<v8::Value> valu
 	}
 
 	if(value->IsFunction()) {
-		return functionToVariant(param, value);
+		return functionToVariant(param, context, value);
 	}
 
 	if(value->IsObject()) {
@@ -738,7 +732,7 @@ void loadMethodParameters(const v8::Arguments & args, GScriptBindingParam * para
 	(void)param;
 
 	for(int i = 0; i < args.Length(); ++i) {
-		outputParams[i] = v8ToVariant(param, args[i]).takeData().varData;
+		outputParams[i] = v8ToVariant(param, args.Holder()->CreationContext(), args[i]).takeData().varData;
 	}
 }
 
@@ -793,9 +787,11 @@ void accessibleSet(v8::Local<v8::String> prop, v8::Local<v8::Value> value, const
 
 	ENTER_V8()
 
+	HandleScope handleScope;
+
 	GAccessibleUserData * userData = static_cast<GAccessibleUserData *>(Local<External>::Cast(info.Data())->Value());
 
-	GMetaVariant v = v8ToVariant(userData->getParam(), value);
+	GMetaVariant v = v8ToVariant(userData->getParam(), info.Holder()->CreationContext(), value);
 	metaSetValue(userData->accessible, userData->instance, v.getValue());
 	
 	LEAVE_V8()
@@ -1144,7 +1140,7 @@ v8::Handle<v8::Value> getNamedMember(GClassUserData * userData, const char * nam
 	return Handle<Value>();
 }
 
-v8::Handle<v8::Value> setNamedMember(GClassUserData * userData, const char * name, v8::Local<v8::Value> value)
+v8::Handle<v8::Value> setNamedMember(GClassUserData * userData, const char * name, Local<Context> context, v8::Local<v8::Value> value)
 {
 	GMetaClassTraveller traveller(userData->metaClass, userData->instance);
 
@@ -1168,7 +1164,7 @@ v8::Handle<v8::Value> setNamedMember(GClassUserData * userData, const char * nam
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 				if(allowAccessData(userData, data.get())) {
-					GVariant v = v8ToVariant(userData->getParam(), value).getValue();
+					GVariant v = v8ToVariant(userData->getParam(), context, value).getValue();
 					metaSetValue(data.get(), userData->instance, v);
 					return value;
 				}
@@ -1219,7 +1215,7 @@ void staticMemberSetter(v8::Local<v8::String> prop, v8::Local<v8::Value> value, 
 	String::Utf8Value utf8_prop(prop);
 	const char * name = *utf8_prop;
 
-	setNamedMember(userData, name, value);
+	setNamedMember(userData, name, info.Holder()->CreationContext(), value);
 
 	LEAVE_V8()
 }
@@ -1265,7 +1261,7 @@ v8::Handle<v8::Value> namedMemberSetter(v8::Local<v8::String> prop, v8::Local<v8
 		return Handle<Value>();
 	}
 
-	return setNamedMember(userData, name, value);
+	return setNamedMember(userData, name, info.Holder()->CreationContext(), value);
 
 	LEAVE_V8(return Handle<Value>())
 }
@@ -1507,7 +1503,7 @@ GMetaVariant invokeV8FunctionIndirectly(GScriptBindingParam * bindingParam, Loca
 			result = Local<Object>::Cast(func)->CallAsFunction(receiver, static_cast<int>(paramCount), v8Params);
 		}
 
-		return v8ToVariant(bindingParam, result);
+		return v8ToVariant(bindingParam, receiver->CreationContext(), result);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
@@ -1517,18 +1513,17 @@ GMetaVariant invokeV8FunctionIndirectly(GScriptBindingParam * bindingParam, Loca
 }
 
 
-GV8ScriptFunction::GV8ScriptFunction(GV8ScriptObject * scope, Local<Value> func)
-	: scope(scope), bindingParam(NULL), func(Persistent<Function>::New(Local<Function>::Cast(func)))
-{
-}
-
-GV8ScriptFunction::GV8ScriptFunction(GScriptBindingParam * bindingParam, Local<Value> func)
-	: scope(NULL), bindingParam(bindingParam), func(Persistent<Function>::New(Local<Function>::Cast(func)))
+GV8ScriptFunction::GV8ScriptFunction(GScriptBindingParam * bindingParam, Local<Object> receiver, Local<Value> func)
+	: bindingParam(bindingParam),
+		receiver(Persistent<Object>::New(Local<Object>::Cast(receiver))),
+		func(Persistent<Function>::New(Local<Function>::Cast(func)))
 {
 }
 
 GV8ScriptFunction::~GV8ScriptFunction()
 {
+	this->receiver.Dispose();
+	this->receiver.Clear();
 	this->func.Dispose();
 	this->func.Clear();
 }
@@ -1552,14 +1547,8 @@ GMetaVariant GV8ScriptFunction::invokeIndirectly(GMetaVariant const * const * pa
 
 	HandleScope handleScope;
 
-	if(this->hasScope()) {
-		return invokeV8FunctionIndirectly(this->scope->getParam(), this->scope->getObject(), Local<Value>::New(this->func), params, paramCount, "");
-	}
-	else {
-//		return invokeV8FunctionIndirectly(this->bindingParam, this->func->CreationContext()->Global(), Local<Value>::New(this->func), params, paramCount, "");
-		Local<Object> receiver = Object::New();
-		return invokeV8FunctionIndirectly(this->bindingParam, receiver, Local<Value>::New(this->func), params, paramCount, "");
-	}
+	Local<Object> receiver = Local<Object>::New(this->receiver);
+	return invokeV8FunctionIndirectly(this->bindingParam, receiver, Local<Value>::New(this->func), params, paramCount, "");
 	
 	LEAVE_V8(return GMetaVariant())
 }
@@ -1684,7 +1673,7 @@ GScriptFunction * GV8ScriptObject::gainScriptFunction(const char * name)
 	Local<Value> value = localObject->Get(String::New(name));
 
 	if(valueIsCallable(value)) {
-		return new GV8ScriptFunction(this, value);
+		return new GV8ScriptFunction(this->getParam(), localObject, value);
 	}
 	else {
 		return NULL;
@@ -1845,7 +1834,7 @@ GVariant GV8ScriptObject::getFundamental(const char * name)
 
 	Local<Value> value = localObject->Get(String::New(name));
 	if(getV8Type(value, NULL) == sdtFundamental) {
-		return v8ToVariant(this->getParam(), value).getValue();
+		return v8ToVariant(this->getParam(), this->implement->object->CreationContext(), value).getValue();
 	}
 	else {
 		return GVariant();
@@ -1895,7 +1884,7 @@ GVariant GV8ScriptObject::getRaw(const char * name)
 
 	Local<Value> value = localObject->Get(String::New(name));
 	if(getV8Type(value, NULL) == sdtRaw) {
-		return v8ToVariant(this->getParam(), value).getValue();
+		return v8ToVariant(this->getParam(), this->implement->object->CreationContext(), value).getValue();
 	}
 	else {
 		return GVariant();
