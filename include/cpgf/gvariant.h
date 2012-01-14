@@ -59,7 +59,7 @@ template <typename T>
 class GVariantShadowObject : public IVariantShadowObject
 {
 public:
-	GVariantShadowObject(const T & obj) : refCount(1), obj(obj) {
+	GVariantShadowObject(const T & obj) : refCount(0), obj(obj) {
 	}
 
 	virtual void G_API_CC retain() {
@@ -448,6 +448,7 @@ inline void initializeVarString(GVariantData * data, const char * s)
 	vtSetPointers(data->typeData, 0);
 	variant_internal::IVariantShadowObject * shadow = new variant_internal::GVariantShadowObject<std::string>(std::string(s));
 	data->shadowObject = shadow;
+	data->shadowObject->retain();
 }
 
 inline GVariant createStringVariant(const char * s)
