@@ -173,7 +173,7 @@ public:
 	enum {
 		HasGetter = true,
 		Readable = PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result,
-		ExplicitThis = PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result,
+		ExplicitThis = PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result || PolicyHasRule<Policy, GMetaRuleGetterExplicitThis>::Result,
 	};
 
 public:
@@ -368,7 +368,7 @@ public:
 	enum {
 		HasSetter = true,
 		Writable = PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result,
-		ExplicitThis = PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result,
+		ExplicitThis = PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result || PolicyHasRule<Policy, GMetaRuleSetterExplicitThis>::Result,
 	};
 
 public:

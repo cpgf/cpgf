@@ -19,6 +19,18 @@ public:
 	
 	explicit StlTestData(int value) : value(value) {
 	}
+
+	bool operator == (const StlTestData & other) const {
+		return this->value == other.value;
+	}
+	
+	bool operator < (const StlTestData & other) const {
+		return this->value < other.value;
+	}
+	
+	bool operator <= (const StlTestData & other) const {
+		return this->value <= other.value;
+	}
 	
 	bool equals(const StlTestData & other) const {
 		return this->value == other.value;
@@ -120,7 +132,11 @@ void testStlContainer_Pushback(Binding * binding, TestScriptContext * context, c
 	stlContainer_AddValue(context, 3, "a.push_back", 0, valueProvider);
 
 	QASSERT(a.size() == 3)
-	
+
+	DOASSERT(valueProvider.equals("a.begin().value()", valueProvider.value(0)))
+	DOASSERT(valueProvider.equals("a.begin().inc().value()", valueProvider.value(1)))
+	DOASSERT(valueProvider.equals("a.begin().inc().inc().value()", valueProvider.value(2)))
+
 	QDO(it = a.begin())
 	QASSERTNOT(it.equals(a._end()))
 

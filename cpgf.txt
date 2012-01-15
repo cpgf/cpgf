@@ -1,10 +1,5 @@
 Todo:
 
-1, Support ExplicitThis policy for property getter and setter separately.
-2, Support script object pass to cpp (wrap to object).
-2, Support script function callback (wrap to object).
-3, Test and support return GVariant to script.
-3, Need to test setting script function as property.
 3, Test with Lua 5.2
 2, In v8, support property enumerator.
 1, GVariant passes rvalue reference as value, not efficient, should imporve.
@@ -13,7 +8,12 @@ Todo:
 4, Define meta data for C library?
 
 Done:
+1, Support ExplicitThis policy for property getter and setter separately.
+3, Test and support return GVariant to script.
 1, in V8, should remove the static user data pool.
+2, Support script object pass to cpp (wrap to object).
+2, Support script function callback (wrap to object).
+3, Need to test setting script function as property.
 1, Support name replacer in meta data builder
 2, Support explicit this in property getter and setter.
 1, callback can't work with rvalue reference

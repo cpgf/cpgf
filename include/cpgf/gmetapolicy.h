@@ -34,8 +34,14 @@ struct GMetaRuleCopyConstReference {};
 template <int N>
 struct GMetaRuleParamNoncopyable {};
 
-// used by method
+// used by method and property getter/setter
 struct GMetaRuleExplicitThis {};
+
+// used by property getter
+struct GMetaRuleGetterExplicitThis {};
+
+// used by property Setter
+struct GMetaRuleSetterExplicitThis {};
 
 
 // policies

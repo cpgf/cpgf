@@ -304,6 +304,9 @@ G_AUTO_RUN_BEFORE_MAIN()
 		._method("pointerData", &TestObject::pointerData)
 		._method("constRefData", &TestObject::constRefData)
 		._method("constPointerData", &TestObject::constPointerData)
+		
+		._method("scriptObjectCallback", &TestObject::scriptObjectCallback)
+		._method("getVariant", &TestObject::getVariant)
 	;
 }
 

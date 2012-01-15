@@ -1,6 +1,10 @@
 TBD version 1.2.3
 	Added vtInterface in GVariant.
-	Added script function wrapper. Now script can pass function to C++.
+	Added script function wrapper. Now script can pass function to C++ as method parameters.
+	Added script object wrapper. Now script can pass object to C++ as method parameters.
+	Added meta data for STL iterator, vector, list and deque.
+	Added policy GMetaRuleGetterExplicitThis and GMetaRuleSetterExplicitThis for property getter and setter
+	Fixed a bug that in script binding, if a method returns GVariant, the result will be wrongly converted to an object.
 
 2012-01-07 version 1.2.2
 	Added meta policy GMetaRuleExplicitThis.

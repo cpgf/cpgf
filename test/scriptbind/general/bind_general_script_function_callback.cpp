@@ -58,7 +58,7 @@ void doTestScriptFunctionProperty(T * binding, TestScriptContext * context)
 	QDO(testScriptFunction = fcallback)
 	QDO(a = testExecAddCallback())
 	QASSERT(a == 11)
-return;
+
 	DO(string("testScriptFunction = ") + makeFunc("", context) + "")
 	QDO(b = testExecAddCallback())
 	QASSERT(b == 11)

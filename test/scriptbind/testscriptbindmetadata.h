@@ -251,6 +251,23 @@ public:
 		return &this->data;
 	}
 	
+	int scriptObjectCallback(cpgf::IScriptObject * scriptObject) {
+		return cpgf::fromVariant<int>(cpgf::scriptGetFundamental(scriptObject, "myInt")) + 38;
+	}
+
+	cpgf::GVariant getVariant(int cat) const {
+		switch(cat) {
+			case 1:
+				return "abc";
+
+			case 2:
+				return 1.5;
+
+			default:
+				return 38;
+		}
+	}
+	
 public:
 	int	value;
 	RawData raw;

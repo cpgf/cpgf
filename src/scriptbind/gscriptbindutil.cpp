@@ -46,6 +46,19 @@ std::string normalizeReflectName(const char * name)
 }
 
 
+GVariant scriptGetFundamental(GScriptObject * scriptObject, const char * name)
+{
+	return scriptObject->getFundamental(name);
+}
+
+GVariant scriptGetFundamental(IScriptObject * scriptObject, const char * name)
+{
+	GVariant v;
+	scriptObject->getFundamental(&v.data, name);
+	return v;
+}
+
+
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject)
 {
 	return new ImplScriptObject(scriptObject, freeObject);
@@ -79,6 +92,7 @@ void injectMetaClassToScript(IScriptObject * scriptObject, IMetaClass * metaClas
 
 			case mmitProperty:
 			case mmitField:
+				scriptObject->bindAccessible(normalizeReflectName(name).c_str(), instance, gdynamic_cast<IMetaAccessible *>(metaObject.get()));
 				break;
 
 			case mmitEnum:

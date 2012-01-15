@@ -58,6 +58,9 @@ mkdir $DEST/lib
 head_file "include/cpgf" "*"
 head_file "include/cpgf/private" "*"
 head_file "include/cpgf/scriptbind" "*"
+head_file "include/cpgf/metadata" "*"
+head_file "include/cpgf/metadata/stl" "*"
+head_file "include/cpgf/metadata/stl/private" "*"
 
 head_file "src" "*"
 head_file "src/pinclude" "*"
@@ -78,6 +81,8 @@ head_file "test/scriptbind" "*"
 head_file "test/scriptbind/general" "*"
 head_file "test/scriptbind/luabind" "*"
 head_file "test/scriptbind/v8bind" "*"
+head_file "test/scriptbind/metadata" "*"
+head_file "test/scriptbind/metadata/stl" "*"
 
 cd $1
 

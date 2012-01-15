@@ -1,5 +1,5 @@
-#ifndef __GMETADATA_LIST_H
-#define __GMETADATA_LIST_H
+#ifndef __GMETADATA_VECTOR_H
+#define __GMETADATA_VECTOR_H
 
 
 #include "cpgf/metadata/stl/gmetadata_iterator.h"
@@ -15,42 +15,36 @@ namespace cpgf {
 namespace metadata_internal {
 
 template <typename T, typename MetaDefine, typename Policy>
-void doBuildMetaData_list(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer, const Policy & policy)
+void doBuildMetaData_deque(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer, const Policy & policy)
 {
 	metadata_internal::buildMetaData_CommonContainer<T>(define, scriptable, replacer);
 	metadata_internal::buildMetaData_CommonIterators<T>(define, scriptable, replacer);
 
 	define
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("assign", replacer), (void (T::*)(typename T::size_type, const typename T::value_type &)) &T::assign, policy)
+		.CPGF_MD_STL_TEMPLATE _method(replaceName("at", replacer), (typename T::reference (T::*)(typename T::size_type)) &T::at, policy)
+		.CPGF_MD_STL_TEMPLATE _method(replaceName("at", replacer), (typename T::const_reference (T::*)(typename T::size_type) const) &T::at, policy)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("back", replacer), (typename T::reference (T::*)()) &T::back, policy)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("back", replacer), (typename T::const_reference (T::*)() const) &T::back, policy)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("front", replacer), (typename T::reference (T::*)()) &T::front, policy)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("front", replacer), (typename T::const_reference (T::*)() const) &T::front, policy)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("max_size", replacer), (typename T::size_type (T::*)() const) &T::max_size)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("pop_back", replacer), (void (T::*)()) &T::pop_back)
+		.CPGF_MD_STL_TEMPLATE _method(replaceName("pop_front", replacer), (void (T::*)()) &T::pop_front)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("push_back", replacer), (void (T::*)(const typename T::value_type &)) &T::push_back, policy)
+		.CPGF_MD_STL_TEMPLATE _method(replaceName("push_front", replacer), (void (T::*)(const typename T::value_type &)) &T::push_front, policy)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("resize", replacer), extractFunction2(&T::resize), policy)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("resize", replacer), extractFunction1(&T::resize), policy)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("remove", replacer), &T::remove, policy)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("unique", replacer), (void (T::*)()) &T::unique)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("merge", replacer), (void (T::*)(T &)) &T::merge)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("sort", replacer), (void (T::*)()) &T::sort)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("reverse", replacer), (void (T::*)()) &T::reverse)
+		.CPGF_MD_STL_TEMPLATE _method(replaceName("resize", replacer), (void (T::*)(typename T::size_type)) &T::resize, policy)
+
+		.CPGF_MD_STL_TEMPLATE _operator<typename T::reference (GMetaSelf, typename T::size_type)>(mopHolder[0], policy)
+		.CPGF_MD_STL_TEMPLATE _operator<typename T::const_reference (const GMetaSelf &, typename T::size_type)>(mopHolder[0], policy)
 
 #if CPGF_MD_STL_QUIRK_CONST_ITERATOR()		
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("insert", replacer), (typename T::iterator (T::*)(typename T::const_iterator, const typename T::value_type &)) &T::insert, policy)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("insert", replacer), (void (T::*)(typename T::const_iterator, typename T::size_type, const typename T::value_type &)) &T::insert, policy)
-		
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("splice", replacer), (void (T::*)(typename T::const_iterator, T &)) &T::splice)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("splice", replacer), (void (T::*)(typename T::const_iterator, T &, typename T::const_iterator)) &T::splice)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("splice", replacer), (void (T::*)(typename T::const_iterator, T &, typename T::const_iterator, typename T::const_iterator)) &T::splice)
 #else
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("insert", replacer), (typename T::iterator (T::*)(typename T::iterator, const typename T::value_type &)) &T::insert, policy)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("insert", replacer), (void (T::*)(typename T::iterator, typename T::size_type, const typename T::value_type &)) &T::insert, policy)
-		
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("splice", replacer), (void (T::*)(typename T::iterator, T &)) &T::splice)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("splice", replacer), (void (T::*)(typename T::iterator, T &, typename T::iterator)) &T::splice)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("splice", replacer), (void (T::*)(typename T::iterator, T &, typename T::iterator, typename T::iterator)) &T::splice)
 #endif
 	;
 }
@@ -59,15 +53,15 @@ void doBuildMetaData_list(MetaDefine define, bool scriptable, const GMetaDataNam
 
 
 template <typename MetaDefine, typename Policy>
-void buildMetaData_list(MetaDefine define, bool scriptable, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_deque(MetaDefine define, bool scriptable, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
 {
-	metadata_internal::doBuildMetaData_list<typename MetaDefine::ClassType>(define, scriptable, replacer, policy);
+	metadata_internal::doBuildMetaData_deque<typename MetaDefine::ClassType>(define, scriptable, replacer, policy);
 }
 
 template <typename MetaDefine, typename Policy>
-void buildMetaData_list(MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_vector(MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
 {
-	buildMetaData_list(define, false, replacer);
+	buildMetaData_deque(define, false, replacer);
 }
 
 

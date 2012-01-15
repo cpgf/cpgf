@@ -160,7 +160,7 @@ public:
 
 	GScriptObject * getOwner() const;
 
-	bool isGlobal() const;
+	virtual bool isGlobal() const;
 
 public:	
 	virtual void bindClass(const char * name, IMetaClass * metaClass) = 0;

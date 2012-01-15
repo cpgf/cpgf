@@ -46,7 +46,6 @@ class GLuaGlobalAccessor;
 class GLuaScriptFunction : public GScriptFunction
 {
 public:
-	GLuaScriptFunction(GLuaScriptObject * scope, int objectIndex);
 	GLuaScriptFunction(lua_State * L, GScriptBindingParam * bindingParam, int objectIndex);
 	virtual ~GLuaScriptFunction();
 	
@@ -54,12 +53,6 @@ public:
 	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
 
 private:
-	bool hasScope() const {
-		return this->scope != NULL;
-	}
-
-private:
-	GLuaScriptObject * scope;
 	lua_State * luaState;
 	GScriptBindingParam * bindingParam;
 	int ref;
@@ -68,9 +61,11 @@ private:
 class GLuaScriptObjectImplement
 {
 public:
-	GLuaScriptObjectImplement(GScriptBindingParam * param, GLuaScriptObject * binding, const GLuaScriptObject * refObject, lua_State * L, int objectIndex, bool freeResource);
+	GLuaScriptObjectImplement(GScriptBindingParam * param, GLuaScriptObject * binding, lua_State * L, int objectIndex, bool freeResource);
 	
 	~GLuaScriptObjectImplement();
+	
+	bool isGlobal() const;
 	
 	void getTable() const;
 
@@ -97,8 +92,12 @@ private:
 
 public:
 	GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
+	GLuaScriptObject(const GLuaScriptObject & other);
+	GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config, int objectIndex);
 	virtual ~GLuaScriptObject();
 
+	virtual bool isGlobal() const;
+	
 	virtual void bindClass(const char * name, IMetaClass * metaClass);
 	virtual void bindEnum(const char * name, IMetaEnum * metaEnum);
 
@@ -143,9 +142,6 @@ public:
 		return this->implement->param;
 	}
 
-private:
-	GLuaScriptObject(const GLuaScriptObject & other);
-	
 private:
 	GScopedPointer<GLuaScriptObjectImplement> implement;
 
@@ -236,40 +232,12 @@ bool doIndexMemberData(lua_State * L, GScriptBindingParam * param, IMetaAccessib
 
 void error(lua_State * L, const char * message);
 
-int refLua(GLuaScriptObject * scope, int objectIndex)
-{
-	GLuaScopeGuard scopeGuard(scope);
-
-	if(scope->isGlobal()) {
-		lua_pushvalue(scope->getLuaState(), objectIndex);
-		return luaL_ref(scope->getLuaState(), LUA_GLOBALSINDEX);
-	}
-	else {
-		lua_pushvalue(scope->getLuaState(), objectIndex - 1);
-		return luaL_ref(scope->getLuaState(), -2);
-	}
-}
+const int RefTable = LUA_REGISTRYINDEX;
 
 int refLua(lua_State * L, int objectIndex)
 {
 	lua_pushvalue(L, objectIndex);
-	return luaL_ref(L, LUA_GLOBALSINDEX);
-}
-
-void unrefLua(GLuaScriptObject * scope, int ref)
-{
-	if(ref == LUA_NOREF) {
-		return;
-	}
-
-	GLuaScopeGuard scopeGuard(scope);
-
-	if(scope->isGlobal()) {
-		luaL_unref(scope->getLuaState(), LUA_GLOBALSINDEX, ref);
-	}
-	else {
-		luaL_unref(scope->getLuaState(), -1, ref);
-	}
+	return luaL_ref(L, RefTable);
 }
 
 void unrefLua(lua_State * L, int ref)
@@ -278,23 +246,7 @@ void unrefLua(lua_State * L, int ref)
 		return;
 	}
 
-	luaL_unref(L, LUA_GLOBALSINDEX, ref);
-}
-
-void getRefObject(GLuaScriptObject * scope, int ref)
-{
-	if(ref == LUA_NOREF) {
-		return;
-	}
-
-	GLuaScopeGuard scopeGuard(scope);
-
-	if(scope->isGlobal()) {
-		lua_rawgeti(scope->getLuaState(), LUA_GLOBALSINDEX, ref);
-	}
-	else {
-		lua_rawgeti(scope->getLuaState(), -1, ref);
-	}
+	luaL_unref(L, RefTable, ref);
 }
 
 void getRefObject(lua_State * L, int ref)
@@ -303,8 +255,9 @@ void getRefObject(lua_State * L, int ref)
 		return;
 	}
 
-	lua_rawgeti(L, LUA_GLOBALSINDEX, ref);
+	lua_rawgeti(L, RefTable, ref);
 }
+
 
 int GlobalAccessor_index(lua_State * L)
 {
@@ -606,6 +559,13 @@ GMetaVariant functionToVariant(lua_State * L, GScriptBindingParam * param, int i
 	return GMetaVariant(func.get(), GMetaType());
 }
 
+GMetaVariant tableToVariant(lua_State * L, GScriptBindingParam * param, int index)
+{
+	GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GLuaScriptObject(param->getService(), L, param->getConfig(), index), true));
+	
+	return GMetaVariant(scriptObject.get(), GMetaType());
+}
+
 GMetaVariant luaToVariant(lua_State * L, GScriptBindingParam * param, int index)
 {
 	int type = lua_type(L, index);
@@ -633,6 +593,8 @@ GMetaVariant luaToVariant(lua_State * L, GScriptBindingParam * param, int index)
 			break;
 
 		case LUA_TTABLE:
+			return tableToVariant(L, param, index);
+			
 		case LUA_TTHREAD:
 			break;
 	}
@@ -1407,31 +1369,34 @@ void doBindEnum(lua_State * L, GScriptBindingParam * param, IMetaEnum * metaEnum
 }
 
 
-GLuaScriptObjectImplement::GLuaScriptObjectImplement(GScriptBindingParam * param, GLuaScriptObject * binding, const GLuaScriptObject * refObject, lua_State * L, int objectIndex, bool freeResource)
+GLuaScriptObjectImplement::GLuaScriptObjectImplement(GScriptBindingParam * param, GLuaScriptObject * binding, lua_State * L, int objectIndex, bool freeResource)
 		: param(param), binding(binding), luaState(L), ref(LUA_NOREF), freeResource(freeResource)
 {
 	if(objectIndex != 0) {
-		this->ref = refLua(const_cast<GLuaScriptObject *>(refObject), objectIndex);
+		this->ref = refLua(this->luaState, objectIndex);
 	}
 }
 	
 GLuaScriptObjectImplement::~GLuaScriptObjectImplement()
 {
-	unrefLua(this->binding, this->ref);
+	if(this->ref != LUA_NOREF) {
+		unrefLua(this->luaState, this->ref);
+	}
 
 	if(this->freeResource) {
 		delete this->param;
 	}
 }
 	
+bool GLuaScriptObjectImplement::isGlobal() const
+{
+	return this->ref == LUA_NOREF;
+}
+
 void GLuaScriptObjectImplement::getTable() const
 {
-	if(this->binding->getOwner()->isGlobal()) {
-		lua_rawgeti(this->luaState, LUA_GLOBALSINDEX, this->ref);
-	}
-	else {
-		gdynamic_cast<GLuaScriptObject *>(this->binding->getOwner())->implement->getTable();
-		lua_rawgeti(this->luaState, -1, this->ref);
+	if(this->ref != LUA_NOREF) {
+		getRefObject(this->luaState, this->ref);
 	}
 }
 
@@ -1566,24 +1531,14 @@ GMetaVariant invokeLuaFunctionIndirectly(lua_State * L, GScriptBindingParam * bi
 }
 
 
-GLuaScriptFunction::GLuaScriptFunction(GLuaScriptObject * scope, int objectIndex)
-	: scope(scope), luaState(NULL), bindingParam(NULL), ref(refLua(scope, objectIndex))
-{
-}
-
 GLuaScriptFunction::GLuaScriptFunction(lua_State * L, GScriptBindingParam * bindingParam, int objectIndex)
-	: scope(NULL), luaState(L), bindingParam(bindingParam), ref(refLua(L, objectIndex))
+	: luaState(L), bindingParam(bindingParam), ref(refLua(L, objectIndex))
 {
 }
 
 GLuaScriptFunction::~GLuaScriptFunction()
 {
-	if(this->hasScope()) {
-		unrefLua(this->scope, this->ref);
-	}
-	else {
-		unrefLua(this->luaState, this->ref);
-	}
+	unrefLua(this->luaState, this->ref);
 }
 	
 GMetaVariant GLuaScriptFunction::invoke(const GMetaVariant * params, size_t paramCount)
@@ -1603,38 +1558,39 @@ GMetaVariant GLuaScriptFunction::invokeIndirectly(GMetaVariant const * const * p
 {
 	ENTER_LUA()
 
-	if(this->hasScope()) {
-		getRefObject(this->scope, this->ref);
-	}
-	else {
-		getRefObject(this->luaState, this->ref);
-	}
+	getRefObject(this->luaState, this->ref);
 
-	if(this->hasScope()) {
-		return invokeLuaFunctionIndirectly(this->scope->getLuaState(), this->scope->getParam(), params, paramCount, "");
-	}
-	else {
-		return invokeLuaFunctionIndirectly(this->luaState, this->bindingParam, params, paramCount, "");
-	}
+	return invokeLuaFunctionIndirectly(this->luaState, this->bindingParam, params, paramCount, "");
 	
-	LEAVE_LUA((this->hasScope() ? this->scope->getLuaState() : this->luaState), return GMetaVariant())
+	LEAVE_LUA(this->luaState, return GMetaVariant())
 }
 
 
 GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
 	: super(config)
 {
-	this->implement.reset(new GLuaScriptObjectImplement(new GScriptBindingParam(service, super::getConfig()), this, NULL, L, 0, true));
+	this->implement.reset(new GLuaScriptObjectImplement(new GScriptBindingParam(service, super::getConfig()), this, L, 0, true));
+}
+
+GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config, int objectIndex)
+	: super(config)
+{
+	this->implement.reset(new GLuaScriptObjectImplement(new GScriptBindingParam(service, super::getConfig()), this, L, objectIndex, true));
 }
 
 GLuaScriptObject::GLuaScriptObject(const GLuaScriptObject & other)
 	: super(other.implement->param->getConfig())
 {
-	this->implement.reset(new GLuaScriptObjectImplement(other.implement->param, this, &other, other.implement->luaState, -1, false));
+	this->implement.reset(new GLuaScriptObjectImplement(other.implement->param, this, other.implement->luaState, -1, false));
 }
 
 GLuaScriptObject::~GLuaScriptObject()
 {
+}
+
+bool GLuaScriptObject::isGlobal() const
+{
+	return this->implement->isGlobal();
 }
 
 GScriptDataType GLuaScriptObject::getType(const char * name, IMetaTypedItem ** outMetaTypeItem)
@@ -1743,7 +1699,7 @@ GScriptFunction * GLuaScriptObject::gainScriptFunction(const char * name)
 
 	scopeGuard.get(name);
 
-	return new GLuaScriptFunction(this, -1);
+	return new GLuaScriptFunction(this->getLuaState(), this->getParam(), -1);
 	
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }

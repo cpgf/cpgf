@@ -114,5 +114,17 @@ void testMisc(TestScriptContext * context)
 #include "../bind_testcase.h"
 
 
+void testReturnVariant(TestScriptContext * context)
+{
+	QNEWOBJ(a, TestObject())
+	QASSERT(a.getVariant(1) == "abc")
+	QASSERT(a.getVariant(2) == 1.5)
+	QASSERT(a.getVariant(0) == 38)
+}
+
+#define CASE testReturnVariant
+#include "../bind_testcase.h"
+
+
 
 }
