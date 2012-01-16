@@ -271,6 +271,24 @@ will bind everything in the meta system to the script.
 <{/autobr}>
 
 
+<{sh}> Passing script function and object to C++
+<{sc}>
+
+<{autobr}>
+The script function and object here are the function and object defined in the script, not exposed by C++.
+When the script is calling a C++ function, or setting a property, a script function will be wrapped in a IScriptFunction interface, and a script object will be wrapped in a IScriptObject interface.
+Then the C++ code can use the interfaces to access the script function and object.
+
+Notes:
+1, If the script interface is passed as method parameter, don't release it. The caller will release it.
+2, Don't pass script interface to field. You should use property with getter and setter to set the data.
+In the setter, addReference must be called on the interface to retain it. Otherwise, the interface will be released by the script.
+
+<{/autobr}>
+
+
+
+
 <{/sgroup}>
 
 
