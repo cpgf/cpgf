@@ -30,7 +30,7 @@ void doBuildMetaData_list(MetaDefine define, bool scriptable, const GMetaDataNam
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("pop_back", replacer), (void (T::*)()) &T::pop_back)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("push_back", replacer), (void (T::*)(const typename T::value_type &)) &T::push_back, policy)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("resize", replacer), extractFunction2(&T::resize), policy)
-		.CPGF_MD_STL_TEMPLATE _method(replaceName("resize", replacer), extractFunction1(&T::resize), policy)
+		.CPGF_MD_STL_TEMPLATE _method(replaceName("resize", replacer), (void (T::*)(typename T::size_type)) &T::resize, policy)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("remove", replacer), &T::remove, policy)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("unique", replacer), (void (T::*)()) &T::unique)
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("merge", replacer), (void (T::*)(T &)) &T::merge)
