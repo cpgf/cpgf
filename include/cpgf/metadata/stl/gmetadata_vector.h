@@ -15,10 +15,10 @@ namespace cpgf {
 namespace metadata_internal {
 
 template <typename T, typename MetaDefine, typename Policy>
-void doBuildMetaData_vector(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer, const Policy & policy)
+void doBuildMetaData_vector(bool scriptable, MetaDefine define, const GMetaDataNameReplacer * replacer, const Policy & policy)
 {
-	metadata_internal::buildMetaData_CommonContainer<T>(define, scriptable, replacer);
-	metadata_internal::buildMetaData_CommonIterators<T>(define, scriptable, replacer);
+	metadata_internal::buildMetaData_CommonContainer<T>(scriptable, define, replacer);
+	metadata_internal::buildMetaData_CommonIterators<T>(scriptable, define, replacer);
 
 	define
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("assign", replacer), (void (T::*)(typename T::size_type, const typename T::value_type &)) &T::assign, policy)
@@ -53,15 +53,15 @@ void doBuildMetaData_vector(MetaDefine define, bool scriptable, const GMetaDataN
 
 
 template <typename MetaDefine, typename Policy>
-void buildMetaData_vector(MetaDefine define, bool scriptable, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_vector(bool scriptable, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
 {
-	metadata_internal::doBuildMetaData_vector<typename MetaDefine::ClassType>(define, scriptable, replacer, policy);
+	metadata_internal::doBuildMetaData_vector<typename MetaDefine::ClassType>(scriptable, define, replacer, policy);
 }
 
 template <typename MetaDefine, typename Policy>
 void buildMetaData_vector(MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
 {
-	buildMetaData_vector(define, false, replacer);
+	buildMetaData_vector(true, define, policy, replacer);
 }
 
 

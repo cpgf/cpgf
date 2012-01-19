@@ -67,7 +67,7 @@ bool scriptableIterator_greaterOrEqual(T * it, T * other)
 }
 
 template <typename T, typename MetaDefine>
-void doBuildIteratorCommon(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer)
+void doBuildIteratorCommon(bool scriptable, MetaDefine define, const GMetaDataNameReplacer * replacer)
 {
 	define
 		.CPGF_MD_STL_TEMPLATE _operator<T & (GMetaSelf, const T &)>(mopHolder == mopHolder)
@@ -85,27 +85,27 @@ void doBuildIteratorCommon(MetaDefine define, bool scriptable, const GMetaDataNa
 }
 
 template <typename T, typename MetaDefine>
-void doBuildIterator(MetaDefine define, bool scriptable, const std::input_iterator_tag &, const GMetaDataNameReplacer * replacer)
+void doBuildIterator(bool scriptable, MetaDefine define, const std::input_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBuildIteratorCommon<T>(define, scriptable, replacer);
+	doBuildIteratorCommon<T>(scriptable, define, replacer);
 }
 
 template <typename T, typename MetaDefine>
-void doBuildIterator(MetaDefine define, bool scriptable, const std::output_iterator_tag &, const GMetaDataNameReplacer * replacer)
+void doBuildIterator(bool scriptable, MetaDefine define, const std::output_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBuildIteratorCommon<T>(define, scriptable, replacer);
+	doBuildIteratorCommon<T>(scriptable, define, replacer);
 }
 
 template <typename T, typename MetaDefine>
-void doBuildIterator(MetaDefine define, bool scriptable, const std::forward_iterator_tag &, const GMetaDataNameReplacer * replacer)
+void doBuildIterator(bool scriptable, MetaDefine define, const std::forward_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBuildIteratorCommon<T>(define, scriptable, replacer);
+	doBuildIteratorCommon<T>(scriptable, define, replacer);
 }
 
 template <typename T, typename MetaDefine>
-void doBuildIterator(MetaDefine define, bool scriptable, const std::bidirectional_iterator_tag &, const GMetaDataNameReplacer * replacer)
+void doBuildIterator(bool scriptable, MetaDefine define, const std::bidirectional_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBuildIterator<T>(define, scriptable, std::forward_iterator_tag(), replacer);
+	doBuildIterator<T>(scriptable, define, std::forward_iterator_tag(), replacer);
 
 	define
 		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(--mopHolder)
@@ -120,9 +120,9 @@ void doBuildIterator(MetaDefine define, bool scriptable, const std::bidirectiona
 }
 
 template <typename T, typename MetaDefine>
-void doBuildIterator(MetaDefine define, bool scriptable, const std::random_access_iterator_tag &, const GMetaDataNameReplacer * replacer)
+void doBuildIterator(bool scriptable, MetaDefine define, const std::random_access_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBuildIterator<T>(define, scriptable, std::bidirectional_iterator_tag(), replacer);
+	doBuildIterator<T>(scriptable, define, std::bidirectional_iterator_tag(), replacer);
 
 	define
 		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder + mopHolder)
@@ -148,7 +148,7 @@ void doBuildIterator(MetaDefine define, bool scriptable, const std::random_acces
 }
 
 template <typename T, typename MetaDefine>
-void doBuildIteratorAccessor(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer)
+void doBuildIteratorAccessor(bool scriptable, MetaDefine define, const GMetaDataNameReplacer * replacer)
 {
 	define
 		.CPGF_MD_STL_TEMPLATE _operator<typename T::pointer (GMetaSelf)>(mopHolder->mopHolder)
@@ -167,10 +167,10 @@ void doBuildIteratorAccessor(MetaDefine define, bool scriptable, const GMetaData
 
 
 template <typename MetaDefine>
-MetaDefine buildMetaData_iterator(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer = NULL)
+MetaDefine buildMetaData_iterator(bool scriptable, MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
 {
-	metadata_internal::doBuildIteratorAccessor<typename MetaDefine::ClassType>(define, scriptable, replacer);
-	metadata_internal::doBuildIterator<typename MetaDefine::ClassType>(define, scriptable, typename MetaDefine::ClassType::iterator_category(), replacer);
+	metadata_internal::doBuildIteratorAccessor<typename MetaDefine::ClassType>(scriptable, define, replacer);
+	metadata_internal::doBuildIterator<typename MetaDefine::ClassType>(scriptable, define, typename MetaDefine::ClassType::iterator_category(), replacer);
 
 	return define;
 }
@@ -178,7 +178,7 @@ MetaDefine buildMetaData_iterator(MetaDefine define, bool scriptable, const GMet
 template <typename MetaDefine>
 MetaDefine buildMetaData_iterator(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
 {
-	return buildMetaData_iterator(define, false, replacer);
+	return buildMetaData_iterator(true, define, replacer);
 }
 
 

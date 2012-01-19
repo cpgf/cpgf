@@ -12,7 +12,7 @@ void testStlVector_Helper(Binding * binding, TestScriptContext * c, const char *
 	GMetaDataNameReplacer replacer;
 	initializeLuaReplacer(&replacer);
 	GDefineMetaClass<Container> define = GDefineMetaClass<Container>::declare(className);
-	buildMetaData_vector(define, true, typename GMetaDataPolicyDeduce<typename Container::value_type>::Result(), &replacer);
+	buildMetaData_vector(define, typename GMetaDataPolicyDeduce<typename Container::value_type>::Result(), &replacer);
 
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(define.getMetaClass())));
 	binding->bindClass(className, metaClass.get());

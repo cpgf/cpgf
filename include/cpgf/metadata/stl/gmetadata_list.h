@@ -15,10 +15,10 @@ namespace cpgf {
 namespace metadata_internal {
 
 template <typename T, typename MetaDefine, typename Policy>
-void doBuildMetaData_list(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer, const Policy & policy)
+void doBuildMetaData_list(bool scriptable, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer)
 {
-	metadata_internal::buildMetaData_CommonContainer<T>(define, scriptable, replacer);
-	metadata_internal::buildMetaData_CommonIterators<T>(define, scriptable, replacer);
+	metadata_internal::buildMetaData_CommonContainer<T>(scriptable, define, replacer);
+	metadata_internal::buildMetaData_CommonIterators<T>(scriptable, define, replacer);
 
 	define
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("assign", replacer), (void (T::*)(typename T::size_type, const typename T::value_type &)) &T::assign, policy)
@@ -59,15 +59,15 @@ void doBuildMetaData_list(MetaDefine define, bool scriptable, const GMetaDataNam
 
 
 template <typename MetaDefine, typename Policy>
-void buildMetaData_list(MetaDefine define, bool scriptable, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_list(bool scriptable, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
 {
-	metadata_internal::doBuildMetaData_list<typename MetaDefine::ClassType>(define, scriptable, replacer, policy);
+	metadata_internal::doBuildMetaData_list<typename MetaDefine::ClassType>(scriptable, define, policy, replacer);
 }
 
 template <typename MetaDefine, typename Policy>
 void buildMetaData_list(MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
 {
-	buildMetaData_list(define, false, replacer);
+	buildMetaData_list(true, define, policy, replacer);
 }
 
 

@@ -13,7 +13,7 @@ namespace cpgf {
 namespace metadata_internal {
 
 template <typename T, typename MetaDefine>
-void buildMetaData_CommonContainer(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer)
+void buildMetaData_CommonContainer(bool scriptable, MetaDefine define, const GMetaDataNameReplacer * replacer)
 {
 	(void)scriptable;
 
@@ -38,27 +38,27 @@ void buildMetaData_CommonContainer(MetaDefine define, bool scriptable, const GMe
 }
 
 template <typename T, typename MetaDefine>
-void buildMetaData_CommonIterators(MetaDefine define, bool scriptable, const GMetaDataNameReplacer * replacer)
+void buildMetaData_CommonIterators(bool scriptable, MetaDefine define, const GMetaDataNameReplacer * replacer)
 {
 	define
 		._class(
 			buildMetaData_iterator(
-				GDefineMetaClass<typename T::iterator>::declare(replaceName("iterator", replacer)), scriptable
+				scriptable, GDefineMetaClass<typename T::iterator>::declare(replaceName("iterator", replacer))
 			)
 		)
 		._class(
 			buildMetaData_iterator(
-				GDefineMetaClass<typename T::const_iterator>::declare(replaceName("const_iterator", replacer)), scriptable
+				scriptable, GDefineMetaClass<typename T::const_iterator>::declare(replaceName("const_iterator", replacer))
 			)
 		)
 		._class(
 			buildMetaData_iterator(
-				GDefineMetaClass<typename T::reverse_iterator>::declare(replaceName("reverse_iterator", replacer)), scriptable
+				scriptable, GDefineMetaClass<typename T::reverse_iterator>::declare(replaceName("reverse_iterator", replacer))
 			)
 		)
 		._class(
 			buildMetaData_iterator(
-				GDefineMetaClass<typename T::const_reverse_iterator>::declare(replaceName("const_reverse_iterator", replacer)), scriptable
+				scriptable, GDefineMetaClass<typename T::const_reverse_iterator>::declare(replaceName("const_reverse_iterator", replacer))
 			)
 		)
 	;
