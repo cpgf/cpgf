@@ -12,10 +12,11 @@ namespace cpgf {
 
 namespace metadata_internal {
 
-template <typename T, typename MetaDefine>
-void buildMetaData_CommonContainer(bool scriptable, MetaDefine define, const GMetaDataNameReplacer * replacer)
+template <typename T, typename MetaDefine, typename Policy>
+void buildMetaData_CommonContainer(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer)
 {
-	(void)scriptable;
+	(void)config;
+	(void)policy;
 
 	define
 		.CPGF_MD_STL_TEMPLATE _constructor<void * ()>()
@@ -37,28 +38,28 @@ void buildMetaData_CommonContainer(bool scriptable, MetaDefine define, const GMe
 	;
 }
 
-template <typename T, typename MetaDefine>
-void buildMetaData_CommonIterators(bool scriptable, MetaDefine define, const GMetaDataNameReplacer * replacer)
+template <typename T, typename MetaDefine, typename Policy>
+void buildMetaData_CommonIterators(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer)
 {
 	define
 		._class(
 			buildMetaData_iterator(
-				scriptable, GDefineMetaClass<typename T::iterator>::declare(replaceName("iterator", replacer))
+				config, GDefineMetaClass<typename T::iterator>::declare(replaceName("iterator", replacer)), policy, replacer
+			)
+		)
+		._class(
+			buildMetaData_constIterator(
+				config, GDefineMetaClass<typename T::const_iterator>::declare(replaceName("const_iterator", replacer)), policy, replacer
 			)
 		)
 		._class(
 			buildMetaData_iterator(
-				scriptable, GDefineMetaClass<typename T::const_iterator>::declare(replaceName("const_iterator", replacer))
+				config, GDefineMetaClass<typename T::reverse_iterator>::declare(replaceName("reverse_iterator", replacer)), policy, replacer
 			)
 		)
 		._class(
-			buildMetaData_iterator(
-				scriptable, GDefineMetaClass<typename T::reverse_iterator>::declare(replaceName("reverse_iterator", replacer))
-			)
-		)
-		._class(
-			buildMetaData_iterator(
-				scriptable, GDefineMetaClass<typename T::const_reverse_iterator>::declare(replaceName("const_reverse_iterator", replacer))
+			buildMetaData_constIterator(
+				config, GDefineMetaClass<typename T::const_reverse_iterator>::declare(replaceName("const_reverse_iterator", replacer)), policy, replacer
 			)
 		)
 	;

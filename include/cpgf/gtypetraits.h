@@ -379,7 +379,7 @@ struct IsAbstractClass
 };
 
 template <typename T>
-struct IsAbstractClass <T, typename GEnableIf<IsClass<T>::Result>::Result>
+struct IsAbstractClass <T, typename GEnableIfResult<IsClass<T> >::Result>
 {
 private:
 	template <typename U>
@@ -415,12 +415,14 @@ public:
 };
 
 template <typename From, typename To>
-struct IsConvertible <From, To, typename GEnableIf<
-	IsVoid<From>::Result
-	|| IsVoid<To>::Result
-	|| IsAbstractClass<From>::Result
-	|| IsArray<From>::Result
-	|| IsArray<To>::Result
+struct IsConvertible <From, To, typename GEnableIfResult<
+	GOrResult5<
+		IsVoid<From>,
+		IsVoid<To>,
+		IsAbstractClass<From>,
+		IsArray<From>,
+		IsArray<To>
+	>
 	>::Result>
 {
 public:
@@ -453,7 +455,7 @@ struct IsVirtualBase
 };
 
 template <typename Derived, typename Base>
-struct IsVirtualBase <Derived, Base, typename GEnableIf<IsClass<Derived>::Result && IsClass<Base>::Result>::Result>
+struct IsVirtualBase <Derived, Base, typename GEnableIfResult<GAndResult2<IsClass<Derived>, IsClass<Base> > >::Result>
 {
 private:
 	struct A : public Derived, public virtual Base {
@@ -489,7 +491,7 @@ struct IsPolymorphic
 };
 
 template <typename T>
-struct IsPolymorphic <T, typename GEnableIf<IsClass<T>::Result>::Result>
+struct IsPolymorphic <T, typename GEnableIfResult<IsClass<T> >::Result>
 {
 private:
 	struct A : public T {
@@ -518,13 +520,13 @@ public:
 template <typename T>
 struct MemberDataTrait
 {
-	enum { IsMemberData = false };
+	enum { Result = false };
 };
 
 template <typename OT, typename FT>
 struct MemberDataTrait <FT OT::*>
 {
-	enum { IsMemberData = true };
+	enum { Result = true };
 	typedef OT ObjectType;
 	typedef FT FieldType;
 	typedef FT OT::* DataType;
@@ -533,7 +535,7 @@ struct MemberDataTrait <FT OT::*>
 template <typename OT, typename FT>
 struct MemberDataTrait <FT OT::* const>
 {
-	enum { IsMemberData = true };
+	enum { Result = true };
 	typedef OT ObjectType;
 	typedef FT FieldType;
 	typedef FT OT::* const DataType;
@@ -542,7 +544,7 @@ struct MemberDataTrait <FT OT::* const>
 template <typename OT, typename FT>
 struct MemberDataTrait <FT OT::* volatile>
 {
-	enum { IsMemberData = true };
+	enum { Result = true };
 	typedef OT ObjectType;
 	typedef FT FieldType;
 	typedef FT OT::* volatile DataType;
@@ -551,7 +553,7 @@ struct MemberDataTrait <FT OT::* volatile>
 template <typename OT, typename FT>
 struct MemberDataTrait <FT OT::* const volatile>
 {
-	enum { IsMemberData = true };
+	enum { Result = true };
 	typedef OT ObjectType;
 	typedef FT FieldType;
 	typedef FT OT::* const volatile DataType;
@@ -565,7 +567,7 @@ struct GArgumentTraits
 };
 
 template <typename T>
-struct GArgumentTraits <T, typename GEnableIf<IsFundamental<T>::Result>::Result>
+struct GArgumentTraits <T, typename GEnableIfResult<IsFundamental<T> >::Result>
 {
 	typedef T Result;
 };

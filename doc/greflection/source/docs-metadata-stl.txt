@@ -18,7 +18,7 @@ Note: due to the variations of STL implementation, the meta data may be not comp
 If so, a report with detail to me is welcome.
 
 Note: due to the very heavy use of template in both cpgf and STL, compiling speed is quite slow.
-Each unit test for STL meta data will cause more than one minute to compile.
+Each unit test for STL meta data will need more than one minutes and giga bytes memory to compile.
 Also the .obj file is very big, more than 10M.
 So it's best practice to put all meta data in one CPP file and only compile once.
 

@@ -4,6 +4,7 @@
 #include "cpgf/gtypetraits.h"
 #include "cpgf/gmetadefine.h"
 
+#include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/stl/private/gmetadata_stl_header.h"
 
@@ -15,6 +16,12 @@ template <typename T>
 typename T::reference scriptableIterator_value(T * it)
 {
 	return *(*it);
+}
+
+template <typename T>
+void scriptableIterator_set(T * it, const typename T::value_type & value)
+{
+	*(*it) = value;
 }
 
 template <typename T>
@@ -66,9 +73,11 @@ bool scriptableIterator_greaterOrEqual(T * it, T * other)
 	return (*it) >= (*other);
 }
 
-template <typename T, typename MetaDefine>
-void doBuildIteratorCommon(bool scriptable, MetaDefine define, const GMetaDataNameReplacer * replacer)
+template <typename T, typename MetaDefine, typename Policy>
+void doBuildIteratorCommon(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer)
 {
+	(void)policy;
+
 	define
 		.CPGF_MD_STL_TEMPLATE _operator<T & (GMetaSelf, const T &)>(mopHolder == mopHolder)
 		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder != mopHolder)
@@ -76,7 +85,7 @@ void doBuildIteratorCommon(bool scriptable, MetaDefine define, const GMetaDataNa
 		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(mopHolder++)
 	;
 
-	if(scriptable) {
+	if(metaDataConfigIsScriptable(config)) {
 		define
 			.CPGF_MD_STL_TEMPLATE _method(replaceName("inc", replacer), &scriptableIterator_inc<T>, GMetaPolicyExplicitThis())
 			.CPGF_MD_STL_TEMPLATE _method(replaceName("equals", replacer), &scriptableIterator_equals<T>, GMetaPolicyExplicitThis())
@@ -84,45 +93,45 @@ void doBuildIteratorCommon(bool scriptable, MetaDefine define, const GMetaDataNa
 	}
 }
 
-template <typename T, typename MetaDefine>
-void doBuildIterator(bool scriptable, MetaDefine define, const std::input_iterator_tag &, const GMetaDataNameReplacer * replacer)
+template <typename T, typename MetaDefine, typename Policy>
+void doBuildIterator(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const std::input_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBuildIteratorCommon<T>(scriptable, define, replacer);
+	doBuildIteratorCommon<T>(config, define, policy, replacer);
 }
 
-template <typename T, typename MetaDefine>
-void doBuildIterator(bool scriptable, MetaDefine define, const std::output_iterator_tag &, const GMetaDataNameReplacer * replacer)
+template <typename T, typename MetaDefine, typename Policy>
+void doBuildIterator(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const std::output_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBuildIteratorCommon<T>(scriptable, define, replacer);
+	doBuildIteratorCommon<T>(config, define, policy, replacer);
 }
 
-template <typename T, typename MetaDefine>
-void doBuildIterator(bool scriptable, MetaDefine define, const std::forward_iterator_tag &, const GMetaDataNameReplacer * replacer)
+template <typename T, typename MetaDefine, typename Policy>
+void doBuildIterator(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const std::forward_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBuildIteratorCommon<T>(scriptable, define, replacer);
+	doBuildIteratorCommon<T>(config, define, policy, replacer);
 }
 
-template <typename T, typename MetaDefine>
-void doBuildIterator(bool scriptable, MetaDefine define, const std::bidirectional_iterator_tag &, const GMetaDataNameReplacer * replacer)
+template <typename T, typename MetaDefine, typename Policy>
+void doBuildIterator(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const std::bidirectional_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBuildIterator<T>(scriptable, define, std::forward_iterator_tag(), replacer);
+	doBuildIterator<T>(config, define, policy, std::forward_iterator_tag(), replacer);
 
 	define
 		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(--mopHolder)
 		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(mopHolder--)
 	;
 
-	if(scriptable) {
+	if(metaDataConfigIsScriptable(config)) {
 		define
 			.CPGF_MD_STL_TEMPLATE _method(replaceName("dec", replacer), &scriptableIterator_dec<T>, GMetaPolicyExplicitThis())
 		;
 	}
 }
 
-template <typename T, typename MetaDefine>
-void doBuildIterator(bool scriptable, MetaDefine define, const std::random_access_iterator_tag &, const GMetaDataNameReplacer * replacer)
+template <typename T, typename MetaDefine, typename Policy>
+void doBuildIterator(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const std::random_access_iterator_tag &, const GMetaDataNameReplacer * replacer)
 {
-	doBuildIterator<T>(scriptable, define, std::bidirectional_iterator_tag(), replacer);
+	doBuildIterator<T>(config, define, policy, std::bidirectional_iterator_tag(), replacer);
 
 	define
 		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder + mopHolder)
@@ -136,7 +145,7 @@ void doBuildIterator(bool scriptable, MetaDefine define, const std::random_acces
 		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder >= mopHolder)
 	;
 
-	if(scriptable) {
+	if(metaDataConfigIsScriptable(config)) {
 		define
 			.CPGF_MD_STL_TEMPLATE _method(replaceName("skip", replacer), &scriptableIterator_skip<T>, GMetaPolicyExplicitThis())
 			.CPGF_MD_STL_TEMPLATE _method(replaceName("less", replacer), &scriptableIterator_less<T>, GMetaPolicyExplicitThis())
@@ -147,15 +156,17 @@ void doBuildIterator(bool scriptable, MetaDefine define, const std::random_acces
 	}
 }
 
-template <typename T, typename MetaDefine>
-void doBuildIteratorAccessor(bool scriptable, MetaDefine define, const GMetaDataNameReplacer * replacer)
+template <typename T, typename MetaDefine, typename Policy>
+void doBuildIteratorAccessor(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer)
 {
+	(void)policy;
+
 	define
 		.CPGF_MD_STL_TEMPLATE _operator<typename T::pointer (GMetaSelf)>(mopHolder->mopHolder)
 		.CPGF_MD_STL_TEMPLATE _operator<typename T::reference (GMetaSelf)>(*mopHolder)
 	;
 
-	if(scriptable) {
+	if(metaDataConfigIsScriptable(config)) {
 		define
 			.CPGF_MD_STL_TEMPLATE _method(replaceName("value", replacer), &scriptableIterator_value<T>, GMetaPolicyExplicitThis())
 		;
@@ -166,19 +177,40 @@ void doBuildIteratorAccessor(bool scriptable, MetaDefine define, const GMetaData
 } // namespace metadata_internal
 
 
-template <typename MetaDefine>
-MetaDefine buildMetaData_iterator(bool scriptable, MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+template <typename MetaDefine, typename Policy>
+MetaDefine buildMetaData_constIterator(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
 {
-	metadata_internal::doBuildIteratorAccessor<typename MetaDefine::ClassType>(scriptable, define, replacer);
-	metadata_internal::doBuildIterator<typename MetaDefine::ClassType>(scriptable, define, typename MetaDefine::ClassType::iterator_category(), replacer);
+	metadata_internal::doBuildIteratorAccessor<typename MetaDefine::ClassType>(config, define, policy, replacer);
+	metadata_internal::doBuildIterator<typename MetaDefine::ClassType>(config, define, policy, typename MetaDefine::ClassType::iterator_category(), replacer);
 
 	return define;
 }
 
-template <typename MetaDefine>
-MetaDefine buildMetaData_iterator(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+template <typename MetaDefine, typename Policy>
+MetaDefine buildMetaData_constIterator(MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
 {
-	return buildMetaData_iterator(true, define, replacer);
+	return buildMetaData_constIterator(mdcScriptable, define, policy, replacer);
+}
+
+
+template <typename MetaDefine, typename Policy>
+MetaDefine buildMetaData_iterator(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
+{
+	buildMetaData_constIterator(config, define, policy, replacer);
+
+	if(metaDataConfigIsScriptable(config)) {
+		define
+			.CPGF_MD_STL_TEMPLATE _method(replaceName("set", replacer), &metadata_internal::scriptableIterator_set<typename MetaDefine::ClassType>, MergePolicy<GMetaPolicyExplicitThis, Policy>())
+		;
+	}
+
+	return define;
+}
+
+template <typename MetaDefine, typename Policy>
+MetaDefine buildMetaData_iterator(MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
+{
+	return buildMetaData_writableIterator(mdcScriptable, define, policy, replacer);
 }
 
 

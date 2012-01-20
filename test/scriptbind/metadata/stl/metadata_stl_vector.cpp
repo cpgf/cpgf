@@ -25,6 +25,7 @@ void testStlVector_Helper(Binding * binding, TestScriptContext * c, const char *
 	testStlContainer_FrontBack<Container>(binding, c, className, valueProvider);
 	testStlContainer_Assign<Container>(binding, c, className, valueProvider);
 	testStlContainer_At<Container>(binding, c, className, valueProvider);
+	testStlContainer_Set<Container>(binding, c, className, valueProvider);
 
 	testStlContainer_ForwardIterator<Container>(binding, c, className, valueProvider);
 	testStlContainer_BackwardIterator<Container>(binding, c, className, valueProvider);

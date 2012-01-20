@@ -63,8 +63,8 @@
 		typedef FunctionType * FunctionPointer; \
 		CB_DEF_MEMBER(N) \
 		CB_DEF_GLOBAL(N) \
-		template <typename RR> int doInvoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT) GPP_COMMA_IF(N) typename GEnableIf<IsSameType<RR, void>::Result>::Result * = 0) const { if(this->getBase()) { ((FunctionPointer)(this->getBase()->getInvoke()))(this->getBase() GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } return 0; } \
-		template <typename RR> RT doInvoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT) GPP_COMMA_IF(N) typename GEnableIf<!IsSameType<RR, void>::Result>::Result * = 0) const { if(this->getBase()) { return ((FunctionPointer)(this->getBase()->getInvoke()))(this->getBase() GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } else { return callback_internal::ConstructDefault<RT>::construct(); } } \
+		template <typename RR> int doInvoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT) GPP_COMMA_IF(N) typename GEnableIfResult<IsSameType<RR, void> >::Result * = 0) const { if(this->getBase()) { ((FunctionPointer)(this->getBase()->getInvoke()))(this->getBase() GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } return 0; } \
+		template <typename RR> RT doInvoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT) GPP_COMMA_IF(N) typename GDisableIfResult<IsSameType<RR, void> >::Result * = 0) const { if(this->getBase()) { return ((FunctionPointer)(this->getBase()->getInvoke()))(this->getBase() GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } else { return callback_internal::ConstructDefault<RT>::construct(); } } \
 	public: \
 		typename cpgf::callback_internal::ReturnType<RT>::Result invoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) const { return doInvoke<RT>(GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } \
 		typename cpgf::callback_internal::ReturnType<RT>::Result operator () (GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) const { return this->doInvoke<RT>(GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } \

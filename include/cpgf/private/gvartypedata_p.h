@@ -43,7 +43,7 @@ struct DeduceVariantType_Helper {
 };
 
 template <typename T>
-struct DeduceVariantType_Helper <T, typename GEnableIf<IsPointer<T>::Result>::Result> {
+struct DeduceVariantType_Helper <T, typename GEnableIfResult<IsPointer<T> >::Result> {
 private:
 	static const int temp = DeduceBasicVariantType<typename ExtractRawType<T>::Result>::Result;
 public:
@@ -58,7 +58,7 @@ public:
 };
 
 template <typename T>
-struct DeduceVariantType_Helper <T, typename GEnableIf<IsReference<T>::Result>::Result> {
+struct DeduceVariantType_Helper <T, typename GEnableIfResult<IsReference<T> >::Result> {
 private:
 	static const int temp = DeduceBasicVariantType<typename RemoveConstVolatile<typename RemoveReference<T>::Result>::Result>::Result;
 public:
@@ -67,7 +67,7 @@ public:
 };
 
 template <typename T>
-struct DeduceVariantType_Helper <T, typename GEnableIf<MaybeEnum<T>::Result>::Result> {
+struct DeduceVariantType_Helper <T, typename GEnableIfResult<MaybeEnum<T> >::Result> {
 	static const GVariantType Result = vtUnsignedInt;
 	static const int Pointers = 0;
 };
@@ -120,7 +120,7 @@ struct DeduceVariantType <void>
 };
 
 template <typename T>
-struct DeduceVariantType <T *, typename GEnableIf<IsConvertible<const typename RemoveConstVolatile<T>::Result &, const IObject &>::Result>::Result>
+struct DeduceVariantType <T *, typename GEnableIfResult<IsConvertible<const typename RemoveConstVolatile<T>::Result &, const IObject &> >::Result>
 {
 	static const GVariantType Result = vtInterface;
 	static const int Pointers = 1;

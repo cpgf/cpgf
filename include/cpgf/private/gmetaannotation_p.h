@@ -68,10 +68,14 @@ struct InitAnnoVariant
 };
 
 template <typename T>
-struct InitAnnoVariant <T, typename GEnableIf<
-	IsSameType<T, char *>::Result || IsSameType<T, const char *>::Result
-	|| IsSameType<T, char * &>::Result || IsSameType<T, const char * &>::Result
-	|| IsCharArray<typename RemoveReference<T>::Result>::Result
+struct InitAnnoVariant <T, typename GEnableIfResult<
+	GOrResult5<
+		IsSameType<T, char *>,
+		IsSameType<T, const char *>,
+		IsSameType<T, char * &>,
+		IsSameType<T, const char * &>,
+		IsCharArray<typename RemoveReference<T>::Result>
+	>
 	>::Result>
 {
 	static void init(GVariant & var, const T & value) {
@@ -81,8 +85,12 @@ struct InitAnnoVariant <T, typename GEnableIf<
 };
 
 template <typename T>
-struct InitAnnoVariant <T, typename GEnableIf<
-	IsSameType<T, std::string>::Result || IsSameType<T, std::string &>::Result || IsSameType<T, const std::string &>::Result
+struct InitAnnoVariant <T, typename GEnableIfResult<
+	GOrResult3<
+		IsSameType<T, std::string>,
+		IsSameType<T, std::string &>,
+		IsSameType<T, const std::string &>
+	>
 	>::Result>
 {
 	static void init(GVariant & var, const T & value) {
@@ -92,10 +100,14 @@ struct InitAnnoVariant <T, typename GEnableIf<
 };
 
 template <typename T>
-struct InitAnnoVariant <T, typename GEnableIf<
-	IsSameType<T, wchar_t *>::Result || IsSameType<T, const wchar_t *>::Result
-	|| IsSameType<T, wchar_t * &>::Result || IsSameType<T, const wchar_t * &>::Result
-	|| IsWideCharArray<typename RemoveReference<T>::Result>::Result
+struct InitAnnoVariant <T, typename GEnableIfResult<
+	GOrResult5<
+		IsSameType<T, wchar_t *>,
+		IsSameType<T, const wchar_t *>,
+		IsSameType<T, wchar_t * &>,
+		IsSameType<T, const wchar_t * &>,
+		IsWideCharArray<typename RemoveReference<T>::Result>
+	>
 	>::Result>
 {
 	static void init(GVariant & var, const T & value) {
@@ -105,8 +117,12 @@ struct InitAnnoVariant <T, typename GEnableIf<
 };
 
 template <typename T>
-struct InitAnnoVariant <T, typename GEnableIf<
-	IsSameType<T, std::wstring>::Result || IsSameType<T, std::wstring &>::Result || IsSameType<T, const std::wstring &>::Result
+struct InitAnnoVariant <T, typename GEnableIfResult<
+	GOrResult3<
+		IsSameType<T, std::wstring>,
+		IsSameType<T, std::wstring &>,
+		IsSameType<T, const std::wstring &>
+	>
 	>::Result>
 {
 	static void init(GVariant & var, const T & value) {

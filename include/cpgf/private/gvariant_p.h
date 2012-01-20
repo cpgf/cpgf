@@ -64,10 +64,12 @@ struct VariantCaster {
 };
 
 template <typename From, typename To>
-struct VariantCaster <From, To, typename GEnableIf<
-		IsConvertible<From, To>::Result
-			|| (MaybeEnum<From>::Result && IsInteger<To>::Result) // for enum
-			|| (MaybeEnum<To>::Result && IsInteger<From>::Result) // for enum
+struct VariantCaster <From, To, typename GEnableIfResult<
+	GOrResult3<
+		IsConvertible<From, To>,
+		GAndResult2<MaybeEnum<From>, IsInteger<To> >, // for enum
+		GAndResult2<MaybeEnum<To>, IsInteger<From> > // for enum
+	>
 	>::Result>
 {
 	enum { CanCast = true };
@@ -88,7 +90,12 @@ struct CastVariantHelper
 };
 
 template <typename From, typename To>
-struct CastVariantHelper <From, To, typename GEnableIf<IsPointer<From>::Result && IsPointer<To>::Result>::Result>
+struct CastVariantHelper <From, To, typename GEnableIfResult<
+	GAndResult2<
+		IsPointer<From>,
+		IsPointer<To>
+	>
+	>::Result>
 {
 	enum { CanCast = true };
 
@@ -98,8 +105,13 @@ struct CastVariantHelper <From, To, typename GEnableIf<IsPointer<From>::Result &
 };
 
 template <typename From, typename To>
-struct CastVariantHelper <From, To, typename GEnableIf<IsPointer<From>::Result
-	&& !IsPointer<To>::Result && IsVoid<typename RemovePointer<From>::Result>::Result>::Result>
+struct CastVariantHelper <From, To, typename GEnableIfResult<
+	GAndResult3<
+		IsPointer<From>,
+		GNotResult<IsPointer<To> >,
+		IsVoid<typename RemovePointer<From>::Result>
+	>
+	>::Result>
 {
 	enum { CanCast = true };
 
@@ -109,9 +121,13 @@ struct CastVariantHelper <From, To, typename GEnableIf<IsPointer<From>::Result
 };
 
 template <typename From, typename To>
-struct CastVariantHelper <From, To, typename GEnableIf<IsReference<To>::Result
-	&& ! IsReference<From>::Result
-	&& ! IsPointer<From>::Result>::Result
+struct CastVariantHelper <From, To, typename GEnableIfResult<
+	GAndResult3<
+		IsReference<To>,
+		GNotResult<IsReference<From> >,
+		GNotResult<IsPointer<From> >
+	>
+	>::Result
 	>
 {
 	enum { CanCast = false };
@@ -372,7 +388,7 @@ struct InitVariantSelector
 };
 
 template <bool CanShadow, typename T>
-struct InitVariantSelector <CanShadow, T, typename GEnableIf<IsSameType<T, GVariant>::Result>::Result>
+struct InitVariantSelector <CanShadow, T, typename GEnableIfResult<IsSameType<T, GVariant> >::Result>
 {
 	static void init(GVariant & v, const GVarTypeData & typeData, const T & value) {
 		(void)typeData;
@@ -610,13 +626,19 @@ struct CanCastFromVariant
 };
 
 template <typename T>
-T castFromString(const char * s, typename GEnableIf<IsConvertible<char *, T>::Result || IsConvertible<const char *, T>::Result>::Result * = 0)
+struct CheckIsConvertibleToCharPointer
+{
+	enum { Result = IsConvertible<char *, T>::Result || IsConvertible<const char *, T>::Result };
+};
+
+template <typename T>
+T castFromString(const char * s, typename GEnableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
 {
 	return T(s);
 }
 
 template <typename T>
-T castFromString(const char * s, typename GEnableIf<! (IsConvertible<char *, T>::Result || IsConvertible<const char *, T>::Result)>::Result * = 0)
+T castFromString(const char * s, typename GDisableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
 {
 	(void)s;
 
@@ -625,13 +647,13 @@ T castFromString(const char * s, typename GEnableIf<! (IsConvertible<char *, T>:
 }
 
 template <typename T>
-T castFromObject(const volatile void * const & obj, typename GEnableIf<IsPointer<typename RemoveReference<T>::Result>::Result>::Result * = 0)
+T castFromObject(const volatile void * const & obj, typename GEnableIfResult<IsPointer<typename RemoveReference<T>::Result> >::Result * = 0)
 {
 	return (T)(obj);
 }
 
 template <typename T>
-T castFromObject(const volatile void * obj, typename GEnableIf<! IsPointer<typename RemoveReference<T>::Result>::Result>::Result * = 0)
+T castFromObject(const volatile void * obj, typename GDisableIfResult<IsPointer<typename RemoveReference<T>::Result> >::Result * = 0)
 {
 	return (T)(*(typename RemoveReference<T>::Result *)obj);
 }

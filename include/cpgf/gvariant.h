@@ -34,6 +34,11 @@ void InitVariant(GVariant & v, const GVarTypeData & typeData, const T & value);
 template <typename T>
 struct ArrayToPointer;
 
+template <typename T>
+struct CheckIsArray {
+	enum { Result = T::IsArray };
+};
+
 template <typename T, typename Enabled = void>
 struct DeducePassType
 {
@@ -42,7 +47,7 @@ struct DeducePassType
 };
 
 template <typename T>
-struct DeducePassType <T, typename GEnableIf<ArrayToPointer<T>::IsArray>::Result>
+struct DeducePassType <T, typename GEnableIfResult<CheckIsArray<ArrayToPointer<T> > >::Result>
 {
 	typedef typename ArrayToPointer<T>::Result Result;
 	typedef typename ArrayToPointer<T>::Result PassType;

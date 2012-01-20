@@ -76,11 +76,11 @@ public:
 	}
 	
 	bool has(T flags) const {
-		return (this->value & flags) == flags;
+		return (this->value & flags) == static_cast<ValueType>(flags);
 	}
 	
 	bool has(ValueType flags) const {
-		return (this->value & flags) == flags;
+		return (this->value & flags) == static_cast<ValueType>(flags);
 	}
 	
 	bool hasAny(T flags) const {

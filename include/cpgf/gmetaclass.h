@@ -7,7 +7,6 @@
 #include "cpgf/gmetapolicy.h"
 
 #include "cpgf/gmetaapi.h"
-#include "cpgf/gflags.h"
 
 
 #if defined(_MSC_VER)

@@ -48,8 +48,13 @@ public:
 
 
 template <typename Getter, typename Policy>
-class GMetaGetter <Getter, Policy, typename GEnableIf<
-	!IsFunction<Getter>::Result && !MemberDataTrait<Getter>::IsMemberData && !IsFundamental<Getter>::Result>::Result
+class GMetaGetter <Getter, Policy, typename GEnableIfResult<
+	GAndResult3<
+		GNotResult<IsFunction<Getter> >,
+		GNotResult<MemberDataTrait<Getter> >,
+		GNotResult<IsFundamental<Getter> >
+	>
+	>::Result
 >
 {
 	GASSERT_STATIC(IsPointer<Getter>::Result);
@@ -111,8 +116,12 @@ private:
 };
 
 template <typename Getter, typename Policy>
-class GMetaGetter <Getter, Policy, typename GEnableIf<
-	!IsFunction<Getter>::Result && MemberDataTrait<Getter>::IsMemberData>::Result
+class GMetaGetter <Getter, Policy, typename GEnableIfResult<
+	GAndResult2<
+		GNotResult<IsFunction<Getter> >,
+		MemberDataTrait<Getter>
+	>
+	>::Result
 >
 {
 public:
@@ -167,7 +176,7 @@ private:
 };
 
 template <typename Getter, typename Policy>
-class GMetaGetter <Getter, Policy, typename GEnableIf<IsFunction<Getter>::Result>::Result>
+class GMetaGetter <Getter, Policy, typename GEnableIfResult<IsFunction<Getter> >::Result>
 {
 public:
 	enum {
@@ -260,8 +269,13 @@ public:
 
 
 template <typename Setter, typename Policy>
-class GMetaSetter <Setter, Policy, typename GEnableIf<
-	!IsFunction<Setter>::Result && !MemberDataTrait<Setter>::IsMemberData && !IsFundamental<Setter>::Result>::Result
+class GMetaSetter <Setter, Policy, typename GEnableIfResult<
+	GAndResult3<
+		GNotResult<IsFunction<Setter> >,
+		GNotResult<MemberDataTrait<Setter> >,
+		GNotResult<IsFundamental<Setter> >
+	>
+	>::Result
 >
 {
 	GASSERT_STATIC(IsPointer<Setter>::Result);
@@ -313,8 +327,12 @@ private:
 };
 
 template <typename Setter, typename Policy>
-class GMetaSetter <Setter, Policy, typename GEnableIf<
-	!IsFunction<Setter>::Result && MemberDataTrait<Setter>::IsMemberData>::Result
+class GMetaSetter <Setter, Policy, typename GEnableIfResult<
+	GAndResult2<
+		GNotResult<IsFunction<Setter> >,
+		MemberDataTrait<Setter>
+	>
+	>::Result
 >
 {
 public:
@@ -362,7 +380,7 @@ private:
 };
 
 template <typename Setter, typename Policy>
-class GMetaSetter <Setter, Policy, typename GEnableIf<IsFunction<Setter>::Result>::Result>
+class GMetaSetter <Setter, Policy, typename GEnableIfResult<IsFunction<Setter> >::Result>
 {
 public:
 	enum {

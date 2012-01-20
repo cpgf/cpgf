@@ -21,6 +21,15 @@ struct MakePolicy
 
 #undef POLICTY_TYPENAME_PARAM_NULL
 
+template <typename PolicyA, typename PolicyB>
+struct MergePolicy
+{
+	typedef typename TypeList_Append<
+		typename PolicyA::Rules, typename PolicyB::Rules
+	>::Result
+	Rules;
+};
+
 template <typename Policy, typename Rule>
 struct PolicyHasRule
 {

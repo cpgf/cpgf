@@ -136,17 +136,23 @@ struct MetaUnaryOperatorExecuter
 	};
 };
 
+template <typename FT>
+struct CheckHasResult
+{
+	enum { Result = FT::HasResult };
+};
+
 template <GMetaOpType Op, typename FT, typename EnableIf = void>
 struct MetaOperatorExecuter;
 
 #define DEF_BINARY_FULL(OP, EXP) \
-	template <typename FT> struct MetaOperatorExecuter <OP, FT, typename GEnableIf<FT::HasResult>::Result> : public MetaBinaryOperatorExecuter<FT>	{ \
+	template <typename FT> struct MetaOperatorExecuter <OP, FT, typename GEnableIfResult<CheckHasResult<FT> >::Result> : public MetaBinaryOperatorExecuter<FT>	{ \
 		template <typename P0, typename P1> static GVariant invoke(P0 p0, P1 p1) { \
 			GVarTypeData data = GVarTypeData(); \
 			deduceVariantType<typename FT::ResultType>(data, true); \
 			return GVariant(data, EXP); \
 	} }; \
-	template <typename FT> struct MetaOperatorExecuter <OP, FT, typename GEnableIf<! FT::HasResult>::Result> : public MetaBinaryOperatorExecuter<FT> { \
+	template <typename FT> struct MetaOperatorExecuter <OP, FT, typename GDisableIfResult<CheckHasResult<FT> >::Result> : public MetaBinaryOperatorExecuter<FT> { \
 		template <typename P0, typename P1> static GVariant invoke(P0 p0, P1 p1) { \
 			EXP; return GVariant(); \
 	} };
@@ -207,7 +213,7 @@ DEF_BINARY(mopPointerMember, ->*)
 			deduceVariantType<typename FT::ResultType>(data, true); \
 			return GVariant(data, EXP); \
 	} }; \
-	template <typename FT> struct MetaOperatorExecuter <OP, FT, typename GEnableIf<! FT::HasResult>::Result> : public MetaUnaryOperatorExecuter<FT> { \
+	template <typename FT> struct MetaOperatorExecuter <OP, FT, typename GDisableIfResult<CheckHasResult<FT> >::Result> : public MetaUnaryOperatorExecuter<FT> { \
 		template <typename P0> static GVariant invoke(P0 p) { \
 			EXP; return GVariant(); \
 	} };
@@ -302,7 +308,7 @@ template <typename OT, GMetaOpType Op, typename Signature, typename Policy, type
 class GMetaOperatorData;
 
 template <typename OT, GMetaOpType Op, typename Signature, typename Policy>
-class GMetaOperatorData <OT, Op, Signature, Policy, typename GEnableIf<IsBinaryOperator<Op>::Result>::Result>
+class GMetaOperatorData <OT, Op, Signature, Policy, typename GEnableIfResult<IsBinaryOperator<Op> >::Result>
 	: public GMetaOperatorDataBase
 {
 private:
@@ -409,7 +415,7 @@ public:
 
 
 template <typename OT, GMetaOpType Op, typename Signature, typename Policy>
-class GMetaOperatorData <OT, Op, Signature, Policy, typename GEnableIf<IsUnaryOperator<Op>::Result>::Result>
+class GMetaOperatorData <OT, Op, Signature, Policy, typename GEnableIfResult<IsUnaryOperator<Op> >::Result>
 	: public GMetaOperatorDataBase
 {
 private:
@@ -506,7 +512,7 @@ public:
 };
 
 template <typename OT, GMetaOpType Op, typename Signature, typename Policy>
-class GMetaOperatorData <OT, Op, Signature, Policy, typename GEnableIf<IsFunctorOperator<Op>::Result>::Result>
+class GMetaOperatorData <OT, Op, Signature, Policy, typename GEnableIfResult<IsFunctorOperator<Op> >::Result>
 	: public GMetaOperatorDataBase
 {
 private:

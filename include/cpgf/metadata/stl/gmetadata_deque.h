@@ -15,10 +15,10 @@ namespace cpgf {
 namespace metadata_internal {
 
 template <typename T, typename MetaDefine, typename Policy>
-void doBuildMetaData_deque(bool scriptable, MetaDefine define, const GMetaDataNameReplacer * replacer, const Policy & policy)
+void doBuildMetaData_deque(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer)
 {
-	metadata_internal::buildMetaData_CommonContainer<T>(scriptable, define, replacer);
-	metadata_internal::buildMetaData_CommonIterators<T>(scriptable, define, replacer);
+	metadata_internal::buildMetaData_CommonContainer<T>(config, define, policy, replacer);
+	metadata_internal::buildMetaData_CommonIterators<T>(config, define, policy, replacer);
 
 	define
 		.CPGF_MD_STL_TEMPLATE _method(replaceName("assign", replacer), (void (T::*)(typename T::size_type, const typename T::value_type &)) &T::assign, policy)
@@ -53,15 +53,15 @@ void doBuildMetaData_deque(bool scriptable, MetaDefine define, const GMetaDataNa
 
 
 template <typename MetaDefine, typename Policy>
-void buildMetaData_deque(bool scriptable, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_deque(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
 {
-	metadata_internal::doBuildMetaData_deque<typename MetaDefine::ClassType>(scriptable, define, replacer, policy);
+	metadata_internal::doBuildMetaData_deque<typename MetaDefine::ClassType>(config, define, policy, replacer);
 }
 
 template <typename MetaDefine, typename Policy>
 void buildMetaData_deque(MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
 {
-	buildMetaData_deque(true, define, policy, replacer);
+	buildMetaData_deque(mdcScriptable, define, policy, replacer);
 }
 
 

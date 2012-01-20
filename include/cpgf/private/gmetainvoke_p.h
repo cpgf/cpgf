@@ -155,6 +155,12 @@ struct GMetaInvokeHelper <CT, FT, N, void, Policy, true, true>
 
 GPP_REPEAT_2(REF_MAX_ARITY, REF_CALL_HELPER, GPP_EMPTY)
 
+template <typename FunctionTraits>
+struct CheckSingleArity
+{
+	enum { Result = (FunctionTraits::Arity == 1) };
+};
+
 template <typename FunctionTraits, typename Enabled = void>
 struct IsVariadicFunction
 {
@@ -164,7 +170,7 @@ struct IsVariadicFunction
 };
 
 template <typename FunctionTraits>
-struct IsVariadicFunction <FunctionTraits, typename GEnableIf<(FunctionTraits::Arity == 1)>::Result>
+struct IsVariadicFunction <FunctionTraits, typename GEnableIfResult<CheckSingleArity<FunctionTraits> >::Result>
 {
 	typedef FunctionTraits TraitsType;
 

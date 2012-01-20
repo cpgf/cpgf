@@ -161,21 +161,49 @@ public:
 };
 
 template <typename OT, typename FT, typename Enabled = void>
-struct IsStaticFunctor
+struct CheckIsStatic
 {
 	enum {
-		IsStatic = true,
-		IsFunction = false,
+		Result = true
+	};
+};
+
+template <typename OT, typename FT>
+struct CheckIsStatic <OT, FT, typename GEnableIfResult<IsFunction<FT> >::Result>
+{
+	enum {
+		Result = IsSameType<OT, void>::Result || IsSameType<typename GFunctionTraits<FT>::ObjectType, void>::Result
+	};
+};
+
+template <typename OT, typename FT, typename Enabled = void>
+struct CheckIsFunction
+{
+	enum {
+		Result = false
+	};
+};
+
+template <typename OT, typename FT>
+struct CheckIsFunction <OT, FT, typename GEnableIfResult<IsFunction<FT> >::Result>
+{
+	enum {
+		Result = true
+	};
+};
+
+template <typename OT, typename FT, typename Enabled = void>
+struct CheckIsFunctor
+{
+	enum {
 		IsFunctor = true
 	};
 };
 
 template <typename OT, typename FT>
-struct IsStaticFunctor <OT, FT, typename GEnableIf<IsFunction<FT>::Result>::Result>
+struct CheckIsFunctor <OT, FT, typename GEnableIfResult<IsFunction<FT> >::Result>
 {
 	enum {
-		IsStatic = IsSameType<OT, void>::Result || IsSameType<typename GFunctionTraits<FT>::ObjectType, void>::Result,
-		IsFunction = true,
 		IsFunctor = false
 	};
 };
@@ -184,7 +212,13 @@ template <typename OT, typename FT, typename Enabled = void>
 struct GMetaMethodCallbackMaker;
 
 template <typename OT, typename FT>
-struct GMetaMethodCallbackMaker <OT, FT, typename GEnableIf<IsStaticFunctor<OT, FT>::IsFunction && ! IsStaticFunctor<OT, FT>::IsStatic>::Result>
+struct GMetaMethodCallbackMaker <OT, FT,
+	typename GEnableIfResult<
+		GAndResult2<
+			CheckIsFunction<OT, FT>,
+			GNotResult<CheckIsStatic<OT, FT> >
+		>
+	>::Result>
 {
 	enum { modifiers = 0 };
 
@@ -195,7 +229,13 @@ struct GMetaMethodCallbackMaker <OT, FT, typename GEnableIf<IsStaticFunctor<OT, 
 };
 
 template <typename OT, typename FT>
-struct GMetaMethodCallbackMaker <OT, FT, typename GEnableIf<IsStaticFunctor<OT, FT>::IsFunction && IsStaticFunctor<OT, FT>::IsStatic>::Result>
+struct GMetaMethodCallbackMaker <OT, FT,
+	typename GEnableIfResult<
+		GAndResult2<
+			CheckIsFunction<OT, FT>,
+			CheckIsStatic<OT, FT>
+		>
+	>::Result>
 {
 	enum { modifiers = metaModifierStatic };
 
@@ -206,7 +246,10 @@ struct GMetaMethodCallbackMaker <OT, FT, typename GEnableIf<IsStaticFunctor<OT, 
 };
 
 template <typename OT, typename FT>
-struct GMetaMethodCallbackMaker <OT, GCallback<FT>, typename GEnableIf<! IsStaticFunctor<OT, GCallback<FT> >::IsFunction>::Result>
+struct GMetaMethodCallbackMaker <OT, GCallback<FT>,
+	typename GEnableIfResult<
+		GNotResult<CheckIsFunction<OT, GCallback<FT> > >
+	>::Result>
 {
 	enum { modifiers = metaModifierStatic };
 

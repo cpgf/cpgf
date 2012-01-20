@@ -123,6 +123,29 @@ void testStlContainer_Empty(Binding * binding, TestScriptContext * context, cons
 
 
 template <typename Container, typename Binding>
+void testStlContainer_Set(Binding * binding, TestScriptContext * context, const string & className, const GTestValueProvider & valueProvider)
+{
+	(void)binding; (void)context; (void)className; (void)valueProvider;
+
+	NEWOBJ("a", className + "()");
+
+	DO(string("a.push_back(") + valueProvider.value(5) + ")")
+	DO(string("a.push_back(") + valueProvider.value(5) + ")")
+	DO(string("a.push_back(") + valueProvider.value(5) + ")")
+
+	DOASSERT(valueProvider.equals("a.begin().value()", valueProvider.value(5)))
+	DOASSERT(valueProvider.equals("a.begin().inc().value()", valueProvider.value(5)))
+	DOASSERT(valueProvider.equals("a.begin().inc().inc().value()", valueProvider.value(5)))
+	
+	DO(string("a.begin().inc().set(") + valueProvider.value(1) + ")")
+
+	DOASSERT(valueProvider.equals("a.begin().value()", valueProvider.value(5)))
+	DOASSERT(valueProvider.equals("a.begin().inc().value()", valueProvider.value(1)))
+	DOASSERT(valueProvider.equals("a.begin().inc().inc().value()", valueProvider.value(5)))
+}
+
+
+template <typename Container, typename Binding>
 void testStlContainer_Pushback(Binding * binding, TestScriptContext * context, const string & className, const GTestValueProvider & valueProvider)
 {
 	(void)binding; (void)context; (void)className; (void)valueProvider;

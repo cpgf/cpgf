@@ -44,7 +44,7 @@ public:
 	}
 
 	template<typename FT>
-	GCallback(const FT & func, typename GEnableIf<callback_internal::TypeMaybeFunctor<FT>::Result>::Result * = 0) {
+	GCallback(const FT & func, typename GEnableIfResult<callback_internal::TypeMaybeFunctor<FT> >::Result * = 0) {
 		assert(callback_debug::isCompleteCallback(func));
 
 		this->setBase(callback_internal::ThisTypeTrait<BaseType, super::template GCallbackGlobal, ThisType, FT>::createBase(func, &this->allocator));
