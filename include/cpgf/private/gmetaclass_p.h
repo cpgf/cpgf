@@ -9,6 +9,7 @@
 #include "cpgf/gmetaoperator.h"
 #include "cpgf/gmetaproperty.h"
 #include "cpgf/gmetapolicy.h"
+#include "cpgf/gifelse.h"
 
 
 #if defined(_MSC_VER)
@@ -79,37 +80,37 @@ public:
 	}
 
 	virtual void * createInstance() const {
-		return this->doCreateInstance<void>();
+		return this->doCreateInstance<typename GIfElse<CanDefaultConstruct, void, int>::Result >();
 	}
 
 	virtual void * createInplace(void * placement) const {
-		return this->doCreateInplace<void>(placement);
+		return this->doCreateInplace<typename GIfElse<CanDefaultConstruct, void, int>::Result >(placement);
 	}
 
 	virtual void * cloneInstance(void * instance) const {
-		return this->doCloneInstance<void>(instance);
+		return this->doCloneInstance<typename GIfElse<CanCopyConstruct, void, int>::Result >(instance);
 	}
 
 	virtual void * cloneInplace(void * instance, void * placement) const {
-		return this->doCloneInplace<void>(instance, placement);
+		return this->doCloneInplace<typename GIfElse<CanCopyConstruct, void, int>::Result >(instance, placement);
 	}
 
 	virtual size_t getObjectSize() const {
-		return this->doGetObjectSize<void>();
+		return this->doGetObjectSize<typename GIfElse<IsGlobal, void, OT>::Result >();
 	}
 
 	virtual bool isAbstract() const {
-		return this->doIsAbstract<void>();
+		return this->doIsAbstract<typename GIfElse<IsGlobal, void, OT>::Result >();
 	}
 
 private:
 	template <typename T>
-	void * doCreateInstance(typename GEnableIf<CanDefaultConstruct, T>::Result * = 0) const {
+	void * doCreateInstance(typename GEnableIfResult<IsVoid<T>, T>::Result * = 0) const {
 		return new OT;
 	}
 
 	template <typename T>
-	void * doCreateInstance(typename GDisableIf<CanDefaultConstruct, T>::Result * = 0) const {
+	void * doCreateInstance(typename GDisableIfResult<IsVoid<T>, T>::Result * = 0) const {
 		if(IsAbstract) {
 			errorAbstract();
 		}
@@ -123,12 +124,12 @@ private:
 	}
 
 	template <typename T>
-	void * doCreateInplace(typename GEnableIf<CanDefaultConstruct, T>::Result * placement) const {
+	void * doCreateInplace(typename GEnableIfResult<IsVoid<T>, void>::Result * placement) const {
 		return new (placement) OT;
 	}
 
 	template <typename T>
-	void * doCreateInplace(typename GDisableIf<CanDefaultConstruct, T>::Result * placement) const {
+	void * doCreateInplace(typename GDisableIfResult<IsVoid<T>, void>::Result * placement) const {
 		(void)placement;
 
 		if(IsAbstract) {
@@ -144,12 +145,12 @@ private:
 	}
 
 	template <typename T>
-	void * doCloneInstance(typename GEnableIf<CanCopyConstruct, T>::Result * instance) const {
+	void * doCloneInstance(typename GEnableIfResult<IsVoid<T>, void>::Result * instance) const {
 		return new OT (*static_cast<OT *>(instance));
 	}
 
 	template <typename T>
-	void * doCloneInstance(typename GDisableIf<CanCopyConstruct, T>::Result * instance) const {
+	void * doCloneInstance(typename GDisableIfResult<IsVoid<T>, void>::Result * instance) const {
 		(void)instance;
 
 		if(IsAbstract) {
@@ -165,12 +166,12 @@ private:
 	}
 
 	template <typename T>
-	void * doCloneInplace(typename GEnableIf<CanCopyConstruct, T>::Result * instance, void * placement) const {
+	void * doCloneInplace(typename GEnableIfResult<IsVoid<T>, void>::Result * instance, void * placement) const {
 		return new (placement) OT (*static_cast<OT *>(instance));
 	}
 
 	template <typename T>
-	void * doCloneInplace(typename GDisableIf<CanCopyConstruct, T>::Result * instance, void * placement) const {
+	void * doCloneInplace(typename GDisableIfResult<IsVoid<T>, void>::Result * instance, void * placement) const {
 		(void)instance;
 		(void)placement;
 
@@ -187,22 +188,22 @@ private:
 	}
 
 	template <typename T>
-	size_t doGetObjectSize(typename GDisableIf<IsGlobal, T>::Result * = 0) const {
-		return sizeof(OT);
+	size_t doGetObjectSize(typename GDisableIfResult<IsVoid<T>, void>::Result * = 0) const {
+		return sizeof(T);
 	}
 
 	template <typename T>
-	size_t doGetObjectSize(typename GEnableIf<IsGlobal, T>::Result * = 0) const {
+	size_t doGetObjectSize(typename GEnableIfResult<IsVoid<T>, void>::Result * = 0) const {
 		return 0;
 	}
 
 	template <typename T>
-	bool doIsAbstract(typename GDisableIf<IsGlobal, T>::Result * = 0) const {
+	bool doIsAbstract(typename GDisableIfResult<IsVoid<T>, void>::Result * = 0) const {
 		return IsAbstractClass<OT>::Result;
 	}
 
 	template <typename T>
-	bool doIsAbstract(typename GEnableIf<IsGlobal, T>::Result * = 0) const {
+	bool doIsAbstract(typename GEnableIfResult<IsVoid<T>, void>::Result * = 0) const {
 		return true;
 	}
 

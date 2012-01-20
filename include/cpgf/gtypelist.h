@@ -90,12 +90,12 @@ struct TypeList_Length;
 
 template <>
 struct TypeList_Length <GNullType> {
-	enum { Result = 0 };
+	G_STATIC_CONSTANT(int, Result = 0);
 };
         
 template <typename H, typename T>
 struct TypeList_Length<GTypeList<H, T> > {
-	enum { Result = 1 + TypeList_Length<T>::Result };
+	G_STATIC_CONSTANT(int, Result = 1 + TypeList_Length<T>::Result);
 };
 
 
@@ -107,13 +107,13 @@ struct TypeList_IndexOf;
 template <typename T>
 struct TypeList_IndexOf<GNullType, T>
 {
-    enum { Result = -1 };
+    G_STATIC_CONSTANT(int, Result = -1);
 };
 
 template <typename H, typename T>
 struct TypeList_IndexOf<GTypeList<H, T>, H>
 {
-    enum { Result = 0 };
+    G_STATIC_CONSTANT(int, Result = 0);
 };
 
 template <typename Head, typename Tail, typename T>
@@ -122,7 +122,7 @@ struct TypeList_IndexOf<GTypeList<Head, Tail>, T>
 private:
     enum { temp = TypeList_IndexOf<Tail, T>::Result };
 public:
-    enum { Result = (temp == -1 ? -1 : 1 + temp) };
+    G_STATIC_CONSTANT(int, Result = (temp == -1 ? -1 : 1 + temp));
 };
 
 

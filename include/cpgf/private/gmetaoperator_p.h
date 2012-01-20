@@ -12,19 +12,19 @@ namespace meta_internal {
 template <GMetaOpType op>
 struct IsBinaryOperator
 {
-	enum { Result = (op >= mopBinaryFirst && op <= mopBinaryLast) };
+	G_STATIC_CONSTANT(bool, Result = (op >= mopBinaryFirst && op <= mopBinaryLast));
 };
 
 template <GMetaOpType op>
 struct IsUnaryOperator
 {
-	enum { Result = (op >= mopUnaryFirst && op <= mopUnaryLast) };
+	G_STATIC_CONSTANT(bool, Result = (op >= mopUnaryFirst && op <= mopUnaryLast));
 };
 
 template <GMetaOpType op>
 struct IsFunctorOperator
 {
-	enum { Result = (op == mopFunctor) };
+	G_STATIC_CONSTANT(bool, Result = (op == mopFunctor));
 };
 
 template <typename T>
@@ -139,7 +139,7 @@ struct MetaUnaryOperatorExecuter
 template <typename FT>
 struct CheckHasResult
 {
-	enum { Result = FT::HasResult };
+	G_STATIC_CONSTANT(bool, Result = FT::HasResult);
 };
 
 template <GMetaOpType Op, typename FT, typename EnableIf = void>
@@ -534,7 +534,7 @@ public:
 	}
 
 	virtual GMetaType getParamType(size_t index) const {
-		if(index < FT::Arity) {
+		if(index < static_cast<size_t>(FT::Arity)) {
 			switch(index) {
 #define REF_GETPARAM_HELPER(N, unused) \
 	case N: return createMetaType<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>();

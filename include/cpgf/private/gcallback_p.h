@@ -23,10 +23,10 @@
 
 #define CB_DEF_MEMBER(N) \
 	template <typename InnerOT, typename InnerFT> \
-	class GCallbackMember : public callback_internal::GCallbackMemberBase<GCallbackMember<InnerOT, InnerFT>, InnerOT, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> { \
+	class GCallbackMember : public GCallbackMemberBase<GCallbackMember<InnerOT, InnerFT>, InnerOT, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> { \
 	private: \
 		typedef GCallbackMember <InnerOT, InnerFT> ThisType; \
-		typedef callback_internal::GCallbackMemberBase<ThisType, InnerOT, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> super; \
+		typedef GCallbackMemberBase<ThisType, InnerOT, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> super; \
 	public: \
 		GCallbackMember(InnerOT * instance, const InnerFT & func) : super(instance, func) {} \
 		static RT virtualInvoke(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) { return (static_cast<ThisType *>(self)->instance->*(*&(static_cast<ThisType *>(self)->func)))(GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } \
@@ -34,10 +34,10 @@
 
 #define CB_DEF_GLOBAL(N) \
 	template <typename InnerFT> \
-	class GCallbackGlobal : public callback_internal::GCallbackGlobalBase<GCallbackGlobal<InnerFT>, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> { \
+	class GCallbackGlobal : public GCallbackGlobalBase<GCallbackGlobal<InnerFT>, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> { \
 	private: \
 		typedef GCallbackGlobal <InnerFT> ThisType; \
-		typedef callback_internal::GCallbackGlobalBase<ThisType, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> super; \
+		typedef GCallbackGlobalBase<ThisType, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> super; \
 	public: \
 		GCallbackGlobal (const InnerFT & func) : super(func) {} \
 		static RT virtualInvoke(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) { return (*&(static_cast<ThisType *>(self)->func))(GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } \
@@ -474,9 +474,14 @@ public:
 		this->allocator.base = base;
 	}
 
+#ifndef G_NO_MEMBER_TEMPLATE_FRIENDS
 protected:
+#else
+public:
+#endif
 	CBAllocator allocator;
 
+#ifndef G_NO_MEMBER_TEMPLATE_FRIENDS
 private:
 	template <typename CallbackType, template<typename> class ConnectionT, template<typename T, typename = std::allocator<T> > class ListType>
 	friend class GCallbackListBase;
@@ -486,6 +491,7 @@ private:
 
 	template <typename BT, template<typename>class GT, typename MyCT, typename CT>
 	friend struct ThisTypeTrait;
+#endif
 };
 
 
@@ -531,3 +537,4 @@ public:
 
 
 #endif
+

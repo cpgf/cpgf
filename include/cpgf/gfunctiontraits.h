@@ -31,9 +31,9 @@
 #define FT_DEF_COMMON(N) \
 		typedef RT FunctionType(GPP_REPEAT(N, FT_PARAM_TYPEVALUE, P)); \
 		typedef FunctionType * FunctionPointer; \
-		enum { Arity = N }; \
-		enum { IsFunction = true }; \
-		enum { HasResult = GFunctionHasResult<RT>::Result }; \
+		G_STATIC_CONSTANT(int, Arity = N); \
+		G_STATIC_CONSTANT(bool, IsFunction = true); \
+		G_STATIC_CONSTANT(bool, HasResult = GFunctionHasResult<RT>::Result); \
 		typedef RT ResultType; \
 		GPP_IF(N, FT_DEF_ARGTYPE, FT_DEF_ARGTYPE0)(N) \
 		typedef typename TypeList_Make<GPP_REPEAT_PARAMS(N, P) >::Result ArgTypeList;
@@ -43,14 +43,20 @@
 	struct GFunctionTraitsBase <RT (CC *) (GPP_REPEAT_PARAMS(N, P)) > { \
 		typedef RT (CC * FullType) (GPP_REPEAT_PARAMS(N, P)); \
 		typedef GFunctionTraitNullType ObjectType; \
-		enum { IsMember = false, IsConst = false, IsVolatile = false, IsConstVolatile = false }; \
+		G_STATIC_CONSTANT(bool, IsMember = false); \
+		G_STATIC_CONSTANT(bool, IsConst = false); \
+		G_STATIC_CONSTANT(bool, IsVolatile = false); \
+		G_STATIC_CONSTANT(bool, IsConstVolatile = false); \
 		FT_DEF_COMMON(N) \
 	}; \
 	template <typename RT GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, typename P) > \
 	struct GFunctionTraitsBase <RT CC (GPP_REPEAT_PARAMS(N, P)) > { \
 		typedef RT (CC * FullType) (GPP_REPEAT_PARAMS(N, P)); \
 		typedef GFunctionTraitNullType ObjectType; \
-		enum { IsMember = false, IsConst = false, IsVolatile = false, IsConstVolatile = false }; \
+		G_STATIC_CONSTANT(bool, IsMember = false); \
+		G_STATIC_CONSTANT(bool, IsConst = false); \
+		G_STATIC_CONSTANT(bool, IsVolatile = false); \
+		G_STATIC_CONSTANT(bool, IsConstVolatile = false); \
 		FT_DEF_COMMON(N) \
 	};
 
@@ -62,7 +68,10 @@
 	struct GFunctionTraitsBase <RT (CC OT::*) (GPP_REPEAT_PARAMS(N, P)) CV> { \
 		typedef RT (CC OT::*FullType) (GPP_REPEAT_PARAMS(N, P)) CV; \
 		typedef OT ObjectType; \
-		enum { IsMember = true, IsConst = isC, IsVolatile = isV, IsConstVolatile = isCV }; \
+		G_STATIC_CONSTANT(bool, IsMember = true); \
+		G_STATIC_CONSTANT(bool, IsConst = isC); \
+		G_STATIC_CONSTANT(bool, IsVolatile = isV); \
+		G_STATIC_CONSTANT(bool, IsConstVolatile = isCV); \
 		FT_DEF_COMMON(N) \
 	};
 
@@ -85,13 +94,13 @@ namespace _internal {
 template <typename T>
 struct GFunctionHasResult
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 
 template <>
 struct GFunctionHasResult <void>
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 GPP_REPEAT_2(FT_MAX_ARITY, FT_DEF_PARAM, GPP_EMPTY)
@@ -99,9 +108,12 @@ GPP_REPEAT_2(FT_MAX_ARITY, FT_DEF_PARAM, GPP_EMPTY)
 template <typename FT>
 struct GFunctionTraitsBase
 {
-	enum { Arity = -1 };
-	enum { IsFunction = false };
-	enum { IsMember = false, IsConst = false, IsVolatile = false, IsConstVolatile = false };
+	G_STATIC_CONSTANT(int, Arity = -1);
+	G_STATIC_CONSTANT(bool, IsFunction = false);
+	G_STATIC_CONSTANT(bool, IsMember = false);
+	G_STATIC_CONSTANT(bool, IsConst = false);
+	G_STATIC_CONSTANT(bool, IsVolatile = false);
+	G_STATIC_CONSTANT(bool, IsConstVolatile = false);
 };
 
 FT_DEF_GLOBAL(FT_MAX_ARITY, GPP_EMPTY())

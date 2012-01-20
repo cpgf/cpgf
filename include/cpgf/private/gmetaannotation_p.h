@@ -24,37 +24,37 @@ inline std::wstring * duplicateAnnoWideString(const volatile wchar_t * s)
 template <typename T>
 struct IsCharArray
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 template <unsigned int N>
 struct IsCharArray <char[N]>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 
 template <unsigned int N>
 struct IsCharArray <const char[N]>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 
 template <typename T>
 struct IsWideCharArray
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 template <unsigned int N>
 struct IsWideCharArray <wchar_t[N]>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 
 template <unsigned int N>
 struct IsWideCharArray <const wchar_t[N]>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 
 template <typename T, typename Enabled = void>

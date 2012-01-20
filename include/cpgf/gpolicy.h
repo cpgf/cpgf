@@ -1,6 +1,7 @@
 #ifndef __GPOLICY_H
 #define __GPOLICY_H
 
+#include "cpgf/gcompiler.h"
 #include "cpgf/gtypelist.h"
 
 
@@ -33,13 +34,13 @@ struct MergePolicy
 template <typename Policy, typename Rule>
 struct PolicyHasRule
 {
-	enum { Result = (TypeList_IndexOf<typename Policy::Rules, Rule>::Result >= 0) };
+	G_STATIC_CONSTANT(bool, Result = (TypeList_IndexOf<typename Policy::Rules, Rule>::Result >= 0));
 };
 
 template <typename Policy, typename Rule>
 struct PolicyNotHasRule
 {
-	enum { Result = (TypeList_IndexOf<typename Policy::Rules, Rule>::Result < 0) };
+	G_STATIC_CONSTANT(bool, Result = (TypeList_IndexOf<typename Policy::Rules, Rule>::Result < 0));
 };
 
 template <typename Policy, template <int> class IndexedPolicyItem>

@@ -53,7 +53,7 @@ DEF_CAST_VARIANT_SELECTOR(const volatile, const volatile)
 
 template <typename From, typename To, typename Enabled = void>
 struct VariantCaster {
-	enum { CanCast = false };
+	G_STATIC_CONSTANT(bool, CanCast = false);
 
 	static To cast(const From & v) {
 		(void)v;
@@ -72,7 +72,7 @@ struct VariantCaster <From, To, typename GEnableIfResult<
 	>
 	>::Result>
 {
-	enum { CanCast = true };
+	G_STATIC_CONSTANT(bool, CanCast = true);
 
 	static To cast(const From & v) {
 		return CastVariantSelector<From, To>::cast(v);
@@ -82,7 +82,7 @@ struct VariantCaster <From, To, typename GEnableIfResult<
 template <typename From, typename To, typename Enabled = void>
 struct CastVariantHelper
 {
-	enum { CanCast = VariantCaster<From, To>::CanCast };
+	G_STATIC_CONSTANT(bool, CanCast = VariantCaster<From, To>::CanCast);
 
 	static To cast(const From & v) {
 		return VariantCaster<From, To>::cast(v);
@@ -97,7 +97,7 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 	>
 	>::Result>
 {
-	enum { CanCast = true };
+	G_STATIC_CONSTANT(bool, CanCast = true);
 
 	static To cast(const From & v) {
 		return (To)(v);
@@ -113,7 +113,7 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 	>
 	>::Result>
 {
-	enum { CanCast = true };
+	G_STATIC_CONSTANT(bool, CanCast = true);
 
 	static To cast(const From & v) {
 		return (To)(*(typename RemoveReference<To>::Result *)(v));
@@ -130,7 +130,7 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 	>::Result
 	>
 {
-	enum { CanCast = false };
+	G_STATIC_CONSTANT(bool, CanCast = false);
 
 	static To cast(const From & v) {
 		(void)v;
@@ -628,7 +628,7 @@ struct CanCastFromVariant
 template <typename T>
 struct CheckIsConvertibleToCharPointer
 {
-	enum { Result = IsConvertible<char *, T>::Result || IsConvertible<const char *, T>::Result };
+	G_STATIC_CONSTANT(bool, Result = IsConvertible<char *, T>::Result || IsConvertible<const char *, T>::Result);
 };
 
 template <typename T>

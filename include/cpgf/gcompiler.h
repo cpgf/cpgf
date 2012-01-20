@@ -24,7 +24,9 @@
 #if defined(_MSC_VER)
 	#define G_COMPILER_VC
 #elif defined(__BORLANDC__)
-	#define G_COMPILER_BCB
+	#define G_COMPILER_CPPBUILDER
+#elif defined(__CODEGEARC__)
+	#define G_COMPILER_CPPBUILDER
 #elif defined(__GNUC__)
 	#define G_COMPILER_GCC
 #else
@@ -45,6 +47,11 @@
 			#undef G_SUPPORT_FASTCALL
         #endif
     #endif
+
+    #ifdef G_COMPILER_CPPBUILDER
+		#undef G_SUPPORT_STDCALL
+		#undef G_SUPPORT_FASTCALL
+    #endif
 #endif    
 
 #ifndef G_API_CC
@@ -54,6 +61,12 @@
 		#define G_API_CC
 	#endif
 #endif
+
+#ifdef G_COMPILER_CPPBUILDER
+	#define G_NO_MEMBER_TEMPLATE_FRIENDS
+#endif
+
+#define G_STATIC_CONSTANT(type, ...) static const type __VA_ARGS__
 
 // C++ 0x/11
 #ifndef G_SUPPORT_RVALUE_REFERENCE

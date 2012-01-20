@@ -36,7 +36,7 @@ struct ArrayToPointer;
 
 template <typename T>
 struct CheckIsArray {
-	enum { Result = T::IsArray };
+	G_STATIC_CONSTANT(bool, Result = T::IsArray);
 };
 
 template <typename T, typename Enabled = void>

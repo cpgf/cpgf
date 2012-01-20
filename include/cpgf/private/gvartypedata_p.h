@@ -8,7 +8,7 @@ namespace variant_internal {
 template <typename T>
 struct MaybeEnum
 {
-	enum { Result = IsConvertible<T, int>::Result && !IsFundamental<T>::Result && !IsClass<T>::Result && !IsReference<T>::Result && !IsPointer<T>::Result };
+	G_STATIC_CONSTANT(bool, Result = IsConvertible<T, int>::Result && !IsFundamental<T>::Result && !IsClass<T>::Result && !IsReference<T>::Result && !IsPointer<T>::Result);
 };
 
 template <typename T>
@@ -90,6 +90,7 @@ DEF_ARRAY_TO_PTR(const volatile)
 
 #undef DEF_ARRAY_TO_PTR
 
+#ifndef G_COMPILER_CPPBUILDER
 #define DEF_ARRAY_TO_PTR(CV) \
 	template <typename T, unsigned int N> struct ArrayToPointer <CV T[N]> { typedef const volatile typename ArrayToPointer<T>::Result * Result; enum { IsArray = true }; }; \
 	template <typename T, unsigned int N> struct ArrayToPointer <CV T (*) [N]> { typedef const volatile typename ArrayToPointer<T>::Result * Result; enum { IsArray = true }; }; \
@@ -101,6 +102,7 @@ DEF_ARRAY_TO_PTR(volatile)
 DEF_ARRAY_TO_PTR(const volatile)
 
 #undef DEF_ARRAY_TO_PTR
+#endif
 
 template <typename T, typename Enable = void>
 struct DeduceVariantType

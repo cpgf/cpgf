@@ -11,19 +11,33 @@ namespace cpgf {
 template <typename T>
 struct PointerDimension
 {
-	enum { Result = 0 };
+	G_STATIC_CONSTANT(int, Result = 0);
 };
 
-template <typename T> struct PointerDimension <T *> { enum { Result = 1 + PointerDimension<T>::Result }; };
-template <typename T> struct PointerDimension <T const> { enum { Result = PointerDimension<T>::Result }; };
-template <typename T> struct PointerDimension <T volatile> { enum { Result = PointerDimension<T>::Result }; };
-template <typename T> struct PointerDimension <T const volatile> { enum { Result = PointerDimension<T>::Result }; };
+template <typename T> struct PointerDimension <T *>
+{
+	G_STATIC_CONSTANT(int, Result = 1 + PointerDimension<T>::Result);
+};
+
+template <typename T> struct PointerDimension <T const>
+{
+	G_STATIC_CONSTANT(int, Result = PointerDimension<T>::Result);
+};
+template <typename T> struct PointerDimension <T volatile>
+{
+	G_STATIC_CONSTANT(int, Result = PointerDimension<T>::Result);
+};
+
+template <typename T> struct PointerDimension <T const volatile>
+{
+	G_STATIC_CONSTANT(int, Result = PointerDimension<T>::Result);
+};
 
 
 template <typename T>
 struct IsPointer
 {
-	enum { Result = PointerDimension<T>::Result > 0 };
+	G_STATIC_CONSTANT(bool, Result = PointerDimension<T>::Result > 0);
 };
 
 
@@ -56,20 +70,20 @@ struct AddPointer <T, 0>
 template <typename T>
 struct IsReference
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 template <typename T>
 struct IsReference <T &>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 
 #if G_SUPPORT_RVALUE_REFERENCE
 template <typename T>
 struct IsReference <T &&>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 #endif
 
@@ -98,13 +112,13 @@ struct RemoveReference <T &&>
 template <typename T>
 struct IsLValueReference
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 template <typename T>
 struct IsLValueReference <T &>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 
 
@@ -124,14 +138,14 @@ struct RemoveLValueReference <T &>
 template <typename T>
 struct IsRValueReference
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 #if G_SUPPORT_RVALUE_REFERENCE
 template <typename T>
 struct IsRValueReference <T &&>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 #endif
 
@@ -154,17 +168,19 @@ struct RemoveRValueReference <T &&>
 template <typename T>
 struct IsArray
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
-template <typename T> struct IsArray <T []> { enum { Result = true }; };
-template <typename T> struct IsArray <T const []> { enum { Result = true }; };
-template <typename T> struct IsArray <T volatile []> { enum { Result = true }; };
-template <typename T> struct IsArray <T const volatile []> { enum { Result = true }; };
-template <typename T, unsigned int N> struct IsArray <T [N]> { enum { Result = true }; };
-template <typename T, unsigned int N> struct IsArray <T const [N]> { enum { Result = true }; };
-template <typename T, unsigned int N> struct IsArray <T volatile [N]> { enum { Result = true }; };
-template <typename T, unsigned int N> struct IsArray <T const volatile [N]> { enum { Result = true }; };
+template <typename T> struct IsArray <T []> { G_STATIC_CONSTANT(bool, Result = true); };
+template <typename T> struct IsArray <T const []> { G_STATIC_CONSTANT(bool, Result = true); };
+template <typename T> struct IsArray <T volatile []> { G_STATIC_CONSTANT(bool, Result = true); };
+template <typename T> struct IsArray <T const volatile []> { G_STATIC_CONSTANT(bool, Result = true); };
+#ifndef G_COMPILER_CPPBUILDER
+template <typename T, unsigned int N> struct IsArray <T [N]> { G_STATIC_CONSTANT(bool, Result = true); };
+template <typename T, unsigned int N> struct IsArray <T const [N]> { G_STATIC_CONSTANT(bool, Result = true); };
+template <typename T, unsigned int N> struct IsArray <T volatile [N]> { G_STATIC_CONSTANT(bool, Result = true); };
+template <typename T, unsigned int N> struct IsArray <T const volatile [N]> { G_STATIC_CONSTANT(bool, Result = true); };
+#endif
 
 
 template <typename T>
@@ -184,13 +200,13 @@ struct AddReference <T &>
 template <typename T>
 struct IsConst
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 template <typename T>
 struct IsConst <T const>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 
 
@@ -219,13 +235,13 @@ struct AddConst
 template <typename T>
 struct IsVolatile
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 template <typename T>
 struct IsVolatile <T volatile>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 
 
@@ -245,13 +261,13 @@ struct RemoveVolatile <T volatile>
 template <typename T>
 struct IsConstVolatile
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 template <typename T>
 struct IsConstVolatile <T const volatile>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 
 
@@ -288,20 +304,20 @@ template <typename T> struct ExtractRawType <T &> { typedef typename ExtractRawT
 template <typename T1, typename T2>
 struct IsSameType
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 template <typename T>
 struct IsSameType <T, T>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 
 
 template <typename T>
 struct IsVoid
 {
-	enum { Result = TypeList_IndexOf< TypeList_Make<void, void const, void volatile, void const volatile>::Result, T>::Result >= 0 };
+	G_STATIC_CONSTANT(bool, Result = TypeList_IndexOf< TypeList_Make<void, void const, void volatile, void const volatile>::Result, T>::Result >= 0);
 };
 
 
@@ -310,7 +326,7 @@ typedef TypeList_Make<float, double, long double>::Result FloatTypes;
 template <typename T>
 struct IsFloat
 {
-	enum { Result = TypeList_IndexOf<FloatTypes, T>::Result >= 0 };
+	G_STATIC_CONSTANT(bool, Result = TypeList_IndexOf<FloatTypes, T>::Result >= 0);
 };
 
 
@@ -322,35 +338,35 @@ typedef TypeList_Make<bool, char, wchar_t>::Result UnknownSignTypes;
 template <typename T>
 struct IsSigned
 {
-	enum { Result = TypeList_IndexOf<SignedTypes, T>::Result >= 0 };
+	G_STATIC_CONSTANT(bool, Result = TypeList_IndexOf<SignedTypes, T>::Result >= 0);
 };
 
 
 template <typename T>
 struct IsUnsigned
 {
-	enum { Result = TypeList_IndexOf<UnsignedTypes, T>::Result >= 0 };
+	G_STATIC_CONSTANT(bool, Result = TypeList_IndexOf<UnsignedTypes, T>::Result >= 0);
 };
 
 
 template <typename T>
 struct IsUnknownSign
 {
-	enum { Result = TypeList_IndexOf<UnknownSignTypes, T>::Result >= 0 };
+	G_STATIC_CONSTANT(bool, Result = TypeList_IndexOf<UnknownSignTypes, T>::Result >= 0);
 };
 
 
 template <typename T>
 struct IsInteger
 {
-	enum { Result = (IsSigned<T>::Result || IsUnsigned<T>::Result || IsUnknownSign<T>::Result) };
+	G_STATIC_CONSTANT(bool, Result = (IsSigned<T>::Result || IsUnsigned<T>::Result || IsUnknownSign<T>::Result));
 };
 
 
 template <typename T>
 struct IsFundamental
 {
-	enum { Result = (IsInteger<T>::Result || IsFloat<T>::Result) };
+	G_STATIC_CONSTANT(bool, Result = (IsInteger<T>::Result || IsFloat<T>::Result));
 };
 
 
@@ -360,8 +376,9 @@ namespace typetraits_internal {
 } // namespace typetraits_internal
 
 
+#ifndef G_COMPILER_CPPBUILDER
 template <typename T>
-class IsClass
+struct IsClass
 {
 public:
 	template <typename C>
@@ -369,13 +386,22 @@ public:
 	template <typename C>
 	static typetraits_internal::NoType test(...);
 
-	static const bool Result = (sizeof(test<T>(0)) == sizeof(typetraits_internal::YesType));
+	G_STATIC_CONSTANT(bool, Result = (sizeof(test<T>(0)) == sizeof(typetraits_internal::YesType)));
 };
+#else
+template <typename T>
+struct IsClass
+{
+	G_STATIC_CONSTANT(bool, Result = __is_class(T));
+};
+#endif
 
+
+#ifndef G_COMPILER_CPPBUILDER
 template <typename T, typename Enable = void>
 struct IsAbstractClass
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 template <typename T>
@@ -388,8 +414,15 @@ private:
 	static typetraits_internal::YesType check(...);
 
 public:
-	enum { Result = (sizeof(T) != 0 && sizeof(check<T>(0)) == sizeof(typetraits_internal::YesType)) };
+	G_STATIC_CONSTANT(bool, Result = (sizeof(T) != 0 && sizeof(check<T>(0)) == sizeof(typetraits_internal::YesType)));
 };
+#else
+template <typename T>
+struct IsAbstractClass
+{
+	G_STATIC_CONSTANT(bool, Result = __is_abstract(T));
+};
+#endif
 
 
 #if defined(_MSC_VER)
@@ -399,6 +432,7 @@ public:
 #pragma warning(disable:4267) // weird warning when reflecting std::vector in VC, disable it.
 #endif
 
+#ifndef G_COMPILER_CPPBUILDER
 template <typename From, typename To, typename Enabled = void>
 struct IsConvertible
 {
@@ -410,8 +444,7 @@ private:
 	static From makeFrom();
 
 public:
-	enum { Result = IsSameType<From, To>::Result
-		|| (sizeof(check(makeFrom())) == sizeof(typetraits_internal::YesType)) };
+	G_STATIC_CONSTANT(bool, Result = IsSameType<From, To>::Result || (sizeof(check(makeFrom())) == sizeof(typetraits_internal::YesType)));
 };
 
 template <typename From, typename To>
@@ -425,9 +458,15 @@ struct IsConvertible <From, To, typename GEnableIfResult<
 	>
 	>::Result>
 {
-public:
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
+#else
+template <typename From, typename To>
+struct IsConvertible
+{
+	G_STATIC_CONSTANT(bool, Result = std::is_convertible<From, To>::value);
+};
+#endif
 
 #if defined(_MSC_VER)
 #pragma warning(pop)
@@ -437,7 +476,7 @@ public:
 template <typename T>
 struct IsFunction
 {
-	enum { Result = GFunctionTraits<T>::IsFunction };
+	G_STATIC_CONSTANT(bool, Result = GFunctionTraits<T>::IsFunction);
 };
 
 
@@ -451,7 +490,7 @@ struct IsFunction
 template <typename Derived, typename Base, typename Enabled = void>
 struct IsVirtualBase
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 template <typename Derived, typename Base>
@@ -473,10 +512,10 @@ private:
 	};
 
 public:
-	enum { Result = (!IsSameType<Derived, Base>::Result
+	G_STATIC_CONSTANT(bool, Result = (!IsSameType<Derived, Base>::Result
 		&& IsConvertible<const volatile Derived *, const volatile Base *>::Result
 		&& IsConvertible<const volatile Derived &, const volatile Base &>::Result
-		&& sizeof(A) == sizeof(B)) };
+		&& sizeof(A) == sizeof(B)));
 };
 
 #if defined(_MSC_VER)
@@ -487,7 +526,7 @@ public:
 template <typename T, typename Enabled = void>
 struct IsPolymorphic
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 template <typename T>
@@ -514,19 +553,19 @@ private:
 	};
 
 public:
-	enum { Result = (sizeof(A) == sizeof(B)) };
+	G_STATIC_CONSTANT(bool, Result = (sizeof(A) == sizeof(B)));
 };
 
 template <typename T>
 struct MemberDataTrait
 {
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 template <typename OT, typename FT>
 struct MemberDataTrait <FT OT::*>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 	typedef OT ObjectType;
 	typedef FT FieldType;
 	typedef FT OT::* DataType;
@@ -535,7 +574,7 @@ struct MemberDataTrait <FT OT::*>
 template <typename OT, typename FT>
 struct MemberDataTrait <FT OT::* const>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 	typedef OT ObjectType;
 	typedef FT FieldType;
 	typedef FT OT::* const DataType;
@@ -544,7 +583,7 @@ struct MemberDataTrait <FT OT::* const>
 template <typename OT, typename FT>
 struct MemberDataTrait <FT OT::* volatile>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 	typedef OT ObjectType;
 	typedef FT FieldType;
 	typedef FT OT::* volatile DataType;
@@ -553,7 +592,7 @@ struct MemberDataTrait <FT OT::* volatile>
 template <typename OT, typename FT>
 struct MemberDataTrait <FT OT::* const volatile>
 {
-	enum { Result = true };
+	G_STATIC_CONSTANT(bool, Result = true);
 	typedef OT ObjectType;
 	typedef FT FieldType;
 	typedef FT OT::* const volatile DataType;

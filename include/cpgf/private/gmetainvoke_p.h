@@ -158,7 +158,7 @@ GPP_REPEAT_2(REF_MAX_ARITY, REF_CALL_HELPER, GPP_EMPTY)
 template <typename FunctionTraits>
 struct CheckSingleArity
 {
-	enum { Result = (FunctionTraits::Arity == 1) };
+	G_STATIC_CONSTANT(bool, Result = (FunctionTraits::Arity == 1));
 };
 
 template <typename FunctionTraits, typename Enabled = void>
@@ -166,7 +166,7 @@ struct IsVariadicFunction
 {
 	typedef FunctionTraits TraitsType;
 
-	enum { Result = false };
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 template <typename FunctionTraits>
@@ -174,9 +174,9 @@ struct IsVariadicFunction <FunctionTraits, typename GEnableIfResult<CheckSingleA
 {
 	typedef FunctionTraits TraitsType;
 
-	enum { Result = (IsSameType<typename TraitsType::ArgList::Arg0, GMetaVariadicParam *>::Result
+	G_STATIC_CONSTANT(bool, Result = (IsSameType<typename TraitsType::ArgList::Arg0, GMetaVariadicParam *>::Result
 		|| IsSameType<typename TraitsType::ArgList::Arg0, const GMetaVariadicParam *>::Result)
-	};
+	);
 };
 
 
