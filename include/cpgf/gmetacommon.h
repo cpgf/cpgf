@@ -1,6 +1,7 @@
 #ifndef __GMETACOMMON_H
 #define __GMETACOMMON_H
 
+#include "cpgf/gcompiler.h"
 #include "cpgf/gconfig.h"
 #include "cpgf/gvariant.h"
 #include "cpgf/gscopedptr.h"

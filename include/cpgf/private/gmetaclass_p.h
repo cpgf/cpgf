@@ -48,14 +48,12 @@ template <typename OT, typename Policy>
 class GMetaClassData : public GMetaClassDataBase
 {
 private:
-	enum {
-		IsGlobal = IsSameType<OT, void>::Result,
-		IsAbstract = IsAbstractClass<OT>::Result,
-		NoDefaultConstructor = PolicyHasRule<Policy, GMetaRuleDefaultConstructorAbsent>::Result,
-		NoCopyConstructor = PolicyHasRule<Policy, GMetaRuleCopyConstructorAbsent>::Result,
-		CanDefaultConstruct = !IsGlobal && !IsAbstract && !NoDefaultConstructor,
-		CanCopyConstruct = !IsGlobal && !IsAbstract && !NoCopyConstructor
-	};
+	G_STATIC_CONSTANT(bool, IsGlobal = IsSameType<OT, void>::Result);
+	G_STATIC_CONSTANT(bool, IsAbstract = IsAbstractClass<OT>::Result);
+	G_STATIC_CONSTANT(bool, NoDefaultConstructor = PolicyHasRule<Policy, GMetaRuleDefaultConstructorAbsent>::Result);
+	G_STATIC_CONSTANT(bool, NoCopyConstructor = PolicyHasRule<Policy, GMetaRuleCopyConstructorAbsent>::Result);
+	G_STATIC_CONSTANT(bool, CanDefaultConstruct = !IsGlobal && !IsAbstract && !NoDefaultConstructor);
+	G_STATIC_CONSTANT(bool, CanCopyConstruct = !IsGlobal && !IsAbstract && !NoCopyConstructor);
 
 private:
 	static void errorAbstract() {

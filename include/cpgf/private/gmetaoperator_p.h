@@ -30,8 +30,8 @@ struct IsFunctorOperator
 template <typename T>
 struct CheckOperatorSelf
 {
-	enum { IsConst =  IsSameType<T, const GMetaSelf &>::Result };
-	enum { IsSelf =  IsSameType<T, GMetaSelf>::Result || IsConst };
+	G_STATIC_CONSTANT(bool, IsConst =  IsSameType<T, const GMetaSelf &>::Result);
+	G_STATIC_CONSTANT(bool, IsSelf =  IsSameType<T, GMetaSelf>::Result || IsConst);
 };
 
 
@@ -121,19 +121,17 @@ template <typename FT>
 struct MetaBinaryOperatorExecuter
 {
 	typedef FT FunctionTraits;
-	enum {
-		IsConst0 = CheckOperatorSelf<typename FT::ArgList::Arg0>::IsConst,
-		IsConst1 = CheckOperatorSelf<typename FT::ArgList::Arg1>::IsConst
-	};
+
+	G_STATIC_CONSTANT(bool, IsConst0 = CheckOperatorSelf<typename FT::ArgList::Arg0>::IsConst);
+	G_STATIC_CONSTANT(bool, IsConst1 = CheckOperatorSelf<typename FT::ArgList::Arg1>::IsConst);
 };
 
 template <typename FT>
 struct MetaUnaryOperatorExecuter
 {
 	typedef FT FunctionTraits;
-	enum {
-		IsConst0 = CheckOperatorSelf<typename FT::ArgList::Arg0>::IsConst
-	};
+
+	G_STATIC_CONSTANT(bool, IsConst0 = CheckOperatorSelf<typename FT::ArgList::Arg0>::IsConst);
 };
 
 template <typename FT>

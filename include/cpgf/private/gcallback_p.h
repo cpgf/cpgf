@@ -510,13 +510,13 @@ private:
 	typedef typename RemoveConstVolatile<typename RemovePointer<typename RemoveConstVolatile<typename RemoveReference<FT>::Result>::Result>::Result>::Result BaseType;
 
 public:
-	enum {
+	G_STATIC_CONSTANT(bool,
 		Result =
 			! IsFundamental<BaseType>::Result
 			&& ! IsSameType<BaseType, void>::Result
 			&& (IsFunction<BaseType>::Result
 				|| IsClass<typename RemoveConstVolatile<typename RemoveReference<FT>::Result>::Result>::Result)
-	};
+	);
 };
 
 

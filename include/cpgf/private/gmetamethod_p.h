@@ -163,49 +163,37 @@ public:
 template <typename OT, typename FT, typename Enabled = void>
 struct CheckIsStatic
 {
-	enum {
-		Result = true
-	};
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 
 template <typename OT, typename FT>
 struct CheckIsStatic <OT, FT, typename GEnableIfResult<IsFunction<FT> >::Result>
 {
-	enum {
-		Result = IsSameType<OT, void>::Result || IsSameType<typename GFunctionTraits<FT>::ObjectType, void>::Result
-	};
+	G_STATIC_CONSTANT(bool, Result = IsSameType<OT, void>::Result || IsSameType<typename GFunctionTraits<FT>::ObjectType, void>::Result);
 };
 
 template <typename OT, typename FT, typename Enabled = void>
 struct CheckIsFunction
 {
-	enum {
-		Result = false
-	};
+	G_STATIC_CONSTANT(bool, Result = false);
 };
 
 template <typename OT, typename FT>
 struct CheckIsFunction <OT, FT, typename GEnableIfResult<IsFunction<FT> >::Result>
 {
-	enum {
-		Result = true
-	};
+	G_STATIC_CONSTANT(bool, Result = true);
 };
 
 template <typename OT, typename FT, typename Enabled = void>
 struct CheckIsFunctor
 {
-	enum {
-		IsFunctor = true
-	};
+	G_STATIC_CONSTANT(bool, IsFunctor = true);
 };
 
 template <typename OT, typename FT>
 struct CheckIsFunctor <OT, FT, typename GEnableIfResult<IsFunction<FT> >::Result>
 {
-	enum {
-		IsFunctor = false
-	};
+	G_STATIC_CONSTANT(bool, IsFunctor = false);
 };
 
 template <typename OT, typename FT, typename Enabled = void>
