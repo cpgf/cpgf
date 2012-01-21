@@ -33,6 +33,13 @@ template <typename C, typename T = void>
 struct GDisableIfResult : public GDisableIf<C::Result, T> {
 };
 
+struct GTrueResult {
+	G_STATIC_CONSTANT(bool, Result = true);
+};
+
+struct GFalseResult {
+	G_STATIC_CONSTANT(bool, Result = false);
+};
 
 template <typename T>
 struct GNotResult {
@@ -40,66 +47,16 @@ struct GNotResult {
 };
 
 
-template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-struct GAndResult7 {
+template <typename T1, typename T2, typename T3 = GTrueResult, typename T4 = GTrueResult, typename T5 = GTrueResult, typename T6 = GTrueResult, typename T7 = GTrueResult>
+struct GAndResult {
 	G_STATIC_CONSTANT(bool, Result = T1::Result && T2::Result && T3::Result && T4::Result && T5::Result && T6::Result && T7::Result);
 };
 
-template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-struct GAndResult6 {
-	G_STATIC_CONSTANT(bool, Result = T1::Result && T2::Result && T3::Result && T4::Result && T5::Result && T6::Result);
-};
-
-template <typename T1, typename T2, typename T3, typename T4, typename T5>
-struct GAndResult5 {
-	G_STATIC_CONSTANT(bool, Result = T1::Result && T2::Result && T3::Result && T4::Result && T5::Result);
-};
-
-template <typename T1, typename T2, typename T3, typename T4>
-struct GAndResult4 {
-	G_STATIC_CONSTANT(bool, Result = T1::Result && T2::Result && T3::Result && T4::Result);
-};
-
-template <typename T1, typename T2, typename T3>
-struct GAndResult3 {
-	G_STATIC_CONSTANT(bool, Result = T1::Result && T2::Result && T3::Result);
-};
-
-template <typename T1, typename T2>
-struct GAndResult2 {
-	G_STATIC_CONSTANT(bool, Result = T1::Result && T2::Result);
-};
-
-
-template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-struct GOrResult7 {
+template <typename T1, typename T2, typename T3 = GFalseResult, typename T4 = GFalseResult, typename T5 = GFalseResult, typename T6 = GFalseResult, typename T7 = GFalseResult>
+struct GOrResult {
 	G_STATIC_CONSTANT(bool, Result = T1::Result || T2::Result || T3::Result || T4::Result || T5::Result || T6::Result || T7::Result);
 };
 
-template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-struct GOrResult6 {
-	G_STATIC_CONSTANT(bool, Result = T1::Result || T2::Result || T3::Result || T4::Result || T5::Result || T6::Result);
-};
-
-template <typename T1, typename T2, typename T3, typename T4, typename T5>
-struct GOrResult5 {
-	G_STATIC_CONSTANT(bool, Result = T1::Result || T2::Result || T3::Result || T4::Result || T5::Result);
-};
-
-template <typename T1, typename T2, typename T3, typename T4>
-struct GOrResult4 {
-	G_STATIC_CONSTANT(bool, Result = T1::Result || T2::Result || T3::Result || T4::Result);
-};
-
-template <typename T1, typename T2, typename T3>
-struct GOrResult3 {
-	G_STATIC_CONSTANT(bool, Result = T1::Result || T2::Result || T3::Result);
-};
-
-template <typename T1, typename T2>
-struct GOrResult2 {
-	G_STATIC_CONSTANT(bool, Result = T1::Result || T2::Result);
-};
 
 template <bool B1, bool B2, bool B3 = true, bool B4 = true, bool B5 = true, bool B6 = true, bool B7 = true>
 struct GBoolAnd;

@@ -363,7 +363,7 @@ struct IsUnknownSign
 template <typename T>
 struct IsInteger
 {
-	G_STATIC_CONSTANT(bool, Result = (GOrResult3<IsSigned<T>, IsUnsigned<T>, IsUnknownSign<T> >::Result));
+	G_STATIC_CONSTANT(bool, Result = (GOrResult<IsSigned<T>, IsUnsigned<T>, IsUnknownSign<T> >::Result));
 };
 
 
@@ -371,7 +371,7 @@ struct IsInteger
 template <typename T>
 struct IsFundamental
 {
-	G_STATIC_CONSTANT(bool, Result = (GOrResult2<IsInteger<T>, IsFloat<T> >::Result));
+	G_STATIC_CONSTANT(bool, Result = (GOrResult<IsInteger<T>, IsFloat<T> >::Result));
 };
 #else
 template <class __T>
@@ -462,7 +462,7 @@ public:
 
 template <typename From, typename To>
 struct IsConvertible <From, To, typename GEnableIfResult<
-	GOrResult5<
+	GOrResult<
 		IsVoid<From>,
 		IsVoid<To>,
 		IsAbstractClass<From>,
@@ -507,7 +507,7 @@ struct IsVirtualBase
 };
 
 template <typename Derived, typename Base>
-struct IsVirtualBase <Derived, Base, typename GEnableIfResult<GAndResult2<IsClass<Derived>, IsClass<Base> > >::Result>
+struct IsVirtualBase <Derived, Base, typename GEnableIfResult<GAndResult<IsClass<Derived>, IsClass<Base> > >::Result>
 {
 private:
 	struct A : public Derived, public virtual Base {

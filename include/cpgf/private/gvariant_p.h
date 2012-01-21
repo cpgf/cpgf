@@ -65,10 +65,10 @@ struct VariantCaster {
 
 template <typename From, typename To>
 struct VariantCaster <From, To, typename GEnableIfResult<
-	GOrResult3<
+	GOrResult<
 		IsConvertible<From, To>,
-		GAndResult2<MaybeEnum<From>, IsInteger<To> >, // for enum
-		GAndResult2<MaybeEnum<To>, IsInteger<From> > // for enum
+		GAndResult<MaybeEnum<From>, IsInteger<To> >, // for enum
+		GAndResult<MaybeEnum<To>, IsInteger<From> > // for enum
 	>
 	>::Result>
 {
@@ -91,7 +91,7 @@ struct CastVariantHelper
 
 template <typename From, typename To>
 struct CastVariantHelper <From, To, typename GEnableIfResult<
-	GAndResult2<
+	GAndResult<
 		IsPointer<From>,
 		IsPointer<To>
 	>
@@ -106,7 +106,7 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 
 template <typename From, typename To>
 struct CastVariantHelper <From, To, typename GEnableIfResult<
-	GAndResult3<
+	GAndResult<
 		IsPointer<From>,
 		GNotResult<IsPointer<To> >,
 		IsVoid<typename RemovePointer<From>::Result>
@@ -122,7 +122,7 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 
 template <typename From, typename To>
 struct CastVariantHelper <From, To, typename GEnableIfResult<
-	GAndResult3<
+	GAndResult<
 		IsReference<To>,
 		GNotResult<IsReference<From> >,
 		GNotResult<IsPointer<From> >

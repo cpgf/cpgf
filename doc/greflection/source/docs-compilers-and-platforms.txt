@@ -12,6 +12,8 @@ Below table shows the tested platforms and C++ compilers that cpgf works on.
 In summary, if you are working on Microsoft Windows, Linux, MacOS, and using the compilers MS VC 2008 or newer, GCC 3.4.2 or newer, cpgf library will work for you.
 And your target platform is not limited to Windows, Linux or Mac. It can be mobile phones, embeded deviced, game consoles, as long as it has a compiler supported in the list.
 
+From version 1.2.3, cpgf also supports Embarcadero C++ Builder (tested with version 2010).
+
 <{/autobr}>
 
 <table border="1">
@@ -113,6 +115,23 @@ So that file is excluded from the test.
 <td>Compile clean </td>
 <td>Failed link because Lua and V8 were compiled in 32 bit. <br />
 The library itself should work well on 64 bit target.
+</td>
+
+</tr>
+
+<tr>
+
+<td>Windows XP </td>
+<td>Embarcadero C++ Builder </td>
+<td>32 bit </td>
+<td>Only compiled library and partial unit tests </td>
+<td>
+<{autobr}>
+Note: script binding library can be compiled but doesn't link, because it's not trivial work to get C++ Buidler work with Lua and Google V8 library.
+Some unit tests will cause "E2491 Maximum VIRDEF count exceeded" error, or internal error.
+That's because of that the compiler is buggy and lame.
+<{/autobr}>
+
 </td>
 
 </tr>

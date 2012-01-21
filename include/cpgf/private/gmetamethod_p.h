@@ -202,7 +202,7 @@ struct GMetaMethodCallbackMaker;
 template <typename OT, typename FT>
 struct GMetaMethodCallbackMaker <OT, FT,
 	typename GEnableIfResult<
-		GAndResult2<
+		GAndResult<
 			CheckIsFunction<OT, FT>,
 			GNotResult<CheckIsStatic<OT, FT> >
 		>
@@ -219,7 +219,7 @@ struct GMetaMethodCallbackMaker <OT, FT,
 template <typename OT, typename FT>
 struct GMetaMethodCallbackMaker <OT, FT,
 	typename GEnableIfResult<
-		GAndResult2<
+		GAndResult<
 			CheckIsFunction<OT, FT>,
 			CheckIsStatic<OT, FT>
 		>

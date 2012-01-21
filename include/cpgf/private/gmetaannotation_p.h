@@ -69,7 +69,7 @@ struct InitAnnoVariant
 
 template <typename T>
 struct InitAnnoVariant <T, typename GEnableIfResult<
-	GOrResult5<
+	GOrResult<
 		IsSameType<T, char *>,
 		IsSameType<T, const char *>,
 		IsSameType<T, char * &>,
@@ -86,7 +86,7 @@ struct InitAnnoVariant <T, typename GEnableIfResult<
 
 template <typename T>
 struct InitAnnoVariant <T, typename GEnableIfResult<
-	GOrResult3<
+	GOrResult<
 		IsSameType<T, std::string>,
 		IsSameType<T, std::string &>,
 		IsSameType<T, const std::string &>
@@ -101,7 +101,7 @@ struct InitAnnoVariant <T, typename GEnableIfResult<
 
 template <typename T>
 struct InitAnnoVariant <T, typename GEnableIfResult<
-	GOrResult5<
+	GOrResult<
 		IsSameType<T, wchar_t *>,
 		IsSameType<T, const wchar_t *>,
 		IsSameType<T, wchar_t * &>,
@@ -118,7 +118,7 @@ struct InitAnnoVariant <T, typename GEnableIfResult<
 
 template <typename T>
 struct InitAnnoVariant <T, typename GEnableIfResult<
-	GOrResult3<
+	GOrResult<
 		IsSameType<T, std::wstring>,
 		IsSameType<T, std::wstring &>,
 		IsSameType<T, const std::wstring &>

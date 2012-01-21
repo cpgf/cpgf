@@ -48,7 +48,7 @@ public:
 
 template <typename Getter, typename Policy>
 class GMetaGetter <Getter, Policy, typename GEnableIfResult<
-	GAndResult3<
+	GAndResult<
 		GNotResult<IsFunction<Getter> >,
 		GNotResult<MemberDataTrait<Getter> >,
 		GNotResult<IsFundamental<Getter> >
@@ -114,7 +114,7 @@ private:
 
 template <typename Getter, typename Policy>
 class GMetaGetter <Getter, Policy, typename GEnableIfResult<
-	GAndResult2<
+	GAndResult<
 		GNotResult<IsFunction<Getter> >,
 		MemberDataTrait<Getter>
 	>
@@ -262,7 +262,7 @@ public:
 
 template <typename Setter, typename Policy>
 class GMetaSetter <Setter, Policy, typename GEnableIfResult<
-	GAndResult3<
+	GAndResult<
 		GNotResult<IsFunction<Setter> >,
 		GNotResult<MemberDataTrait<Setter> >,
 		GNotResult<IsFundamental<Setter> >
@@ -318,7 +318,7 @@ private:
 
 template <typename Setter, typename Policy>
 class GMetaSetter <Setter, Policy, typename GEnableIfResult<
-	GAndResult2<
+	GAndResult<
 		GNotResult<IsFunction<Setter> >,
 		MemberDataTrait<Setter>
 	>
