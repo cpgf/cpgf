@@ -23,23 +23,35 @@
 
 #define CB_DEF_MEMBER(N) \
 	template <typename InnerOT, typename InnerFT> \
-	class GCallbackMember : public GCallbackMemberBase<GCallbackMember<InnerOT, InnerFT>, InnerOT, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> { \
-	private: \
-		typedef GCallbackMember <InnerOT, InnerFT> ThisType; \
-		typedef GCallbackMemberBase<ThisType, InnerOT, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> super; \
-	public: \
-		GCallbackMember(InnerOT * instance, const InnerFT & func) : super(instance, func) {} \
-		static RT virtualInvoke(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) { return (static_cast<ThisType *>(self)->instance->*(*&(static_cast<ThisType *>(self)->func)))(GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } \
+	struct GCallbackMember { \
+    	typedef GCallbackMember_ ## N <InnerOT, InnerFT, RT GPP_REPEAT_TAIL_PARAMS(N, PT)> Type; \
 	};
 
 #define CB_DEF_GLOBAL(N) \
 	template <typename InnerFT> \
-	class GCallbackGlobal : public GCallbackGlobalBase<GCallbackGlobal<InnerFT>, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> { \
+	struct GCallbackGlobal { \
+    	typedef GCallbackGlobal_ ## N <InnerFT, RT GPP_REPEAT_TAIL_PARAMS(N, PT)> Type; \
+	};
+
+#define CB_DEF_MEMBER_N(N) \
+	template <typename InnerOT, typename InnerFT, typename RT GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, typename PT) > \
+	class GCallbackMember_ ## N : public GCallbackMemberBase<GCallbackMember_ ## N <InnerOT, InnerFT, RT GPP_REPEAT_TAIL_PARAMS(N, PT)>, InnerOT, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> { \
 	private: \
-		typedef GCallbackGlobal <InnerFT> ThisType; \
+		typedef GCallbackMember_ ## N <InnerOT, InnerFT, RT GPP_REPEAT_TAIL_PARAMS(N, PT)> ThisType; \
+		typedef GCallbackMemberBase<ThisType, InnerOT, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> super; \
+	public: \
+		GCallbackMember_ ## N(InnerOT * instance, const InnerFT & func) : super(instance, func) {} \
+		static RT virtualInvoke(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) { return (static_cast<ThisType *>(self)->instance->*(*&(static_cast<ThisType *>(self)->func)))(GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } \
+	};
+
+#define CB_DEF_GLOBAL_N(N) \
+	template <typename InnerFT, typename RT GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, typename PT) > \
+	class GCallbackGlobal_ ## N : public GCallbackGlobalBase<GCallbackGlobal_ ## N <InnerFT, RT GPP_REPEAT_TAIL_PARAMS(N, PT)>, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> { \
+	private: \
+		typedef GCallbackGlobal_ ## N <InnerFT, RT GPP_REPEAT_TAIL_PARAMS(N, PT)> ThisType; \
 		typedef GCallbackGlobalBase<ThisType, InnerFT, RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> super; \
 	public: \
-		GCallbackGlobal (const InnerFT & func) : super(func) {} \
+		GCallbackGlobal_ ## N(const InnerFT & func) : super(func) {} \
 		static RT virtualInvoke(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) { return (*&(static_cast<ThisType *>(self)->func))(GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } \
 	};
 
@@ -54,10 +66,14 @@
 	};
 
 #define CB_DEF_AGENT_N(N, P) \
+	CB_DEF_MEMBER_N(N) \
+	CB_DEF_GLOBAL_N(N) \
 	template<typename RT GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, typename PT) > \
 	class GCallbackAgent_ ## N : public GCallbackBase<RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> { \
-	private: \
+	protected: \
 		typedef GCallbackAgent_ ## N < RT GPP_REPEAT_TAIL_PARAMS(N, PT) > ThisType; \
+		typedef GCallbackBase<RT (*)(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT))> super; \
+		typedef typename super::BaseType BaseType; \
 	protected: \
 		typedef RT FunctionType(void * self GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)); \
 		typedef FunctionType * FunctionPointer; \
@@ -65,6 +81,12 @@
 		CB_DEF_GLOBAL(N) \
 		template <typename RR> int doInvoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT) GPP_COMMA_IF(N) typename GEnableIfResult<IsSameType<RR, void> >::Result * = 0) const { if(this->getBase()) { ((FunctionPointer)(this->getBase()->getInvoke()))(this->getBase() GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } return 0; } \
 		template <typename RR> RT doInvoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT) GPP_COMMA_IF(N) typename GDisableIfResult<IsSameType<RR, void> >::Result * = 0) const { if(this->getBase()) { return ((FunctionPointer)(this->getBase()->getInvoke()))(this->getBase() GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } else { return callback_internal::ConstructDefault<RT>::construct(); } } \
+		template<typename OT, typename FT>	void init(OT * instance, const FT & func) { \
+			this->setBase(this->allocator.template newObject<typename GCallbackMember<OT, FT>::Type >(instance, func)); \
+		} \
+		template<typename Derived, typename FT> void init(const FT & func) { \
+			this->setBase(callback_internal::ThisTypeTrait<BaseType, GCallbackGlobal, Derived, FT>::createBase(func, &this->allocator)); \
+		} \
 	public: \
 		typename cpgf::callback_internal::ReturnType<RT>::Result invoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) const { return doInvoke<RT>(GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } \
 		typename cpgf::callback_internal::ReturnType<RT>::Result operator () (GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT)) const { return this->doInvoke<RT>(GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } \
@@ -226,14 +248,14 @@ private:
 template <typename BT, template<typename>class GT, typename MyCT, typename FT>
 struct ThisTypeTrait {
 	static BT * createBase(const FT & func, CBAllocator * allocator) {
-		return allocator->newObject<GT<FT> >(func);
+		return allocator->newObject<typename GT<FT>::Type >(func);
 	}
 };
 
 template <typename BT, template<typename>class GT, typename MyCT, typename FT>
 struct ThisTypeTrait<BT, GT, MyCT, const FT> {
 	static BT * createBase(const FT & func, CBAllocator * allocator) {
-		return allocator->newObject<GT<const FT> >(func);
+		return allocator->newObject<typename GT<const FT>::Type >(func);
 	}
 };
 
@@ -321,14 +343,13 @@ protected:
 
 template <typename DerivedT, typename InnerOT, typename InnerFT, typename InvokeType>
 class GCallbackMemberBase : public GCallbackFunctorBase <InvokeType> {
-private:
+protected:
 	typedef GCallbackMemberBase<DerivedT, InnerOT, InnerFT, InvokeType> ThisType;
 	typedef GCallbackFunctorBase<InvokeType> BaseType;
 	typedef DerivedT DerivedType;
 
 	static void virtualDestructObject(void * self) {
 		(void)self;
-
 		static_cast<ThisType *>(self)->~GCallbackMemberBase();
 	}
 
@@ -384,7 +405,7 @@ inline bool testEqual(const T & a, const T & b) {
 
 template <typename DerivedT, typename InnerFT, typename InvokeType>
 class GCallbackGlobalBase : public GCallbackFunctorBase <InvokeType> {
-private:
+protected:
 	typedef GCallbackGlobalBase<DerivedT, InnerFT, InvokeType> ThisType;
 	typedef DerivedT DerivedType;
 	typedef GCallbackFunctorBase<InvokeType> BaseType;

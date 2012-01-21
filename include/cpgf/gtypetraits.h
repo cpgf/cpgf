@@ -6,6 +6,10 @@
 #include "cpgf/gtypelist.h"
 #include "cpgf/gfunctiontraits.h"
 
+#ifdef G_COMPILER_CPPBUILDER
+#include <type_traits>
+#endif
+
 namespace cpgf {
 
 template <typename T>

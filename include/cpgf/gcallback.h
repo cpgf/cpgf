@@ -27,7 +27,6 @@ private:
 	typedef GCallback <Signature> ThisType;
 	typedef callback_internal::GCallbackFunctionTraits<GFunctionTraits<Signature>::Arity, Signature> CallbackTraitsType;
 	typedef typename CallbackTraitsType::CallbackAgentType super;
-	typedef typename super::BaseType BaseType;
 
 public:
 	typedef typename super::FunctionType FunctionType;
@@ -40,14 +39,14 @@ public:
 
 	template<typename OT, typename FT>
 	GCallback(OT * instance, const FT & func) {
-		this->setBase(this->allocator.template newObject<typename super::template GCallbackMember<OT, FT> >(instance, func));
+		this->template init<OT, FT>(instance, func);
 	}
 
 	template<typename FT>
 	GCallback(const FT & func, typename GEnableIfResult<callback_internal::TypeMaybeFunctor<FT> >::Result * = 0) {
 		assert(callback_debug::isCompleteCallback(func));
 
-		this->setBase(callback_internal::ThisTypeTrait<BaseType, super::template GCallbackGlobal, ThisType, FT>::createBase(func, &this->allocator));
+		this->template init<ThisType, FT>(func);
 	}
 
     GCallback(const ThisType & other) : super(other) {

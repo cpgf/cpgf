@@ -18,8 +18,8 @@
 
 namespace cpgf {
 
-const int VarantCastKeepConstRef = 0;
-const int VarantCastCopyConstRef = 1;
+const int VarantCastKeepConstRef = 1;
+const int VarantCastCopyConstRef = 2;
 
 class GVariant;
 

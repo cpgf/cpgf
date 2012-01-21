@@ -16,7 +16,7 @@ bool isNotFundamental() {
 template <typename From, typename To>
 struct CastVariantSelector {
 	static To cast(const From & v) {
-		return static_cast<To>(v);
+		return (To)(v);
 	}
 };
 
