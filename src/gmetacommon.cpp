@@ -311,9 +311,10 @@ bool GMetaConverterDefault::canToCString()
 	return false;
 }
 
-const char * GMetaConverterDefault::toCString(const void * instance, int * needFree)
+const char * GMetaConverterDefault::toCString(const void * instance, int * needFree, IMemoryAllocator * allocator)
 {
 	(void)instance;
+    (void)allocator;
 
 	*needFree = false;
 

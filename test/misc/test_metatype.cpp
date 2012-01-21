@@ -7,6 +7,8 @@ using namespace cpgf;
 
 namespace Test_Metatype { namespace {
 
+struct TestType {};
+
 GTEST(TestMetaType)
 {
 	GCHECK(createMetaType<int>() == createMetaType<const int &>());
@@ -18,8 +20,8 @@ GTEST(TestMetaType)
 	GCHECK(! createMetaType<int *>().isPointerToConst());
 	GCHECK(createMetaType<const int *>().isPointerToConst());
 
-	GCHECK(! createMetaType<int (Test::*)()>().isConstFunction());
-	GCHECK(createMetaType<int (Test::*)() const>().isConstFunction());
+	GCHECK(! createMetaType<int (TestType::*)()>().isConstFunction());
+	GCHECK(createMetaType<int (TestType::*)() const>().isConstFunction());
 }
 
 

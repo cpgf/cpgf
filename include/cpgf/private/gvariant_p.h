@@ -82,7 +82,7 @@ struct VariantCaster <From, To, typename GEnableIfResult<
 template <typename From, typename To, typename Enabled = void>
 struct CastVariantHelper
 {
-	G_STATIC_CONSTANT(bool, CanCast = VariantCaster<From, To>::CanCast);
+	G_STATIC_CONSTANT(bool, CanCast = (VariantCaster<From, To>::CanCast));
 
 	static To cast(const From & v) {
 		return VariantCaster<From, To>::cast(v);
@@ -158,7 +158,9 @@ void initShadowObject(GVariant & v, const T & value, typename GEnableIf<! CanSha
 template <bool CanShadow, typename T, typename Enable = void>
 struct InitVariantSelector
 {
-	static void init(GVariant & v, const GVarTypeData & typeData, const T & value) {
+	typedef typename RemoveReference<T>::Result NoRef;
+
+	static void init(GVariant & v, const GVarTypeData & typeData, const NoRef & value) {
 		v.data.typeData = typeData;
 		vtSetSize(v.data.typeData, getVariantTypeSize(vtGetType(typeData)));
 
@@ -225,7 +227,7 @@ struct InitVariantSelector
 				break;
 
 			case vtObject:
-				v.data.valueObject = variant_internal::CastVariantHelper<T *, const volatile void *>::cast(const_cast<T *>(&value));
+				v.data.valueObject = variant_internal::CastVariantHelper<NoRef *, const volatile void *>::cast(const_cast<NoRef *>(&value));
 				break;
 
 			case vtShadow:
@@ -397,29 +399,29 @@ struct InitVariantSelector <CanShadow, T, typename GEnableIfResult<IsSameType<T,
 };
 
 template <bool CanShadow, typename T>
-void InitVariant(GVariant & v, const GVarTypeData & typeData, const T & value)
+void InitVariant(GVariant & v, const GVarTypeData & typeData, const typename RemoveReference<T>::Result & value)
 {
 	InitVariantSelector<CanShadow, T>::init(v, typeData, value);
 }
 
 
-template <typename T, int Policy>
+template <typename T, typename Policy>
 struct CastResult {
 	typedef T Result;
 };
 
-template <typename T, int Policy>
+template <typename T, typename Policy>
 struct CastResult <T &, Policy> {
 	typedef T & Result;
 };
 
-template <typename T, int Policy>
+template <typename T, typename Policy>
 struct CastResult <const T &, Policy> {
 	typedef T Result;
 };
 
 #if G_SUPPORT_RVALUE_REFERENCE
-template <typename T, int Policy>
+template <typename T, typename Policy>
 struct CastResult <T &&, Policy> {
 	typedef T Result;
 };
@@ -435,7 +437,7 @@ struct CastResult <const T &, VarantCastKeepConstRef> {
 	typedef typename GIfElse<IsFundamental<T>::Result, T, const T &>::Result Result;
 };
 
-template <typename T, int Policy>
+template <typename T, typename Policy>
 struct CanCastFromVariant
 {
 	typedef typename CastResult<T, Policy>::Result ResultType;
@@ -628,7 +630,7 @@ struct CanCastFromVariant
 template <typename T>
 struct CheckIsConvertibleToCharPointer
 {
-	G_STATIC_CONSTANT(bool, Result = IsConvertible<char *, T>::Result || IsConvertible<const char *, T>::Result);
+	G_STATIC_CONSTANT(bool, Result = (IsConvertible<char *, T>::Result || IsConvertible<const char *, T>::Result));
 };
 
 template <typename T>
@@ -658,7 +660,7 @@ T castFromObject(const volatile void * obj, typename GDisableIfResult<IsPointer<
 	return (T)(*(typename RemoveReference<T>::Result *)obj);
 }
 
-template <typename T, int Policy>
+template <typename T, typename Policy>
 struct CastFromVariant
 {
 	typedef typename CastResult<T, Policy>::Result ResultType;
@@ -953,7 +955,7 @@ inline void adjustVariantType(GVariant * var)
 
 	}
 
-	InitVariant<true>(*var, var->getTypeData(), value);
+	InitVariant<true, unsigned long long>(*var, var->getTypeData(), value);
 }
 
 

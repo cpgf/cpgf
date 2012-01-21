@@ -18,8 +18,8 @@
 
 namespace cpgf {
 
-const int VarantCastKeepConstRef = 1;
-const int VarantCastCopyConstRef = 2;
+struct VarantCastKeepConstRef {};
+struct VarantCastCopyConstRef {};
 
 class GVariant;
 
@@ -29,7 +29,7 @@ bool canFromVariant(const GVariant & v);
 namespace variant_internal {
 
 template <bool CanShadow, typename T>
-void InitVariant(GVariant & v, const GVarTypeData & typeData, const T & value);
+void InitVariant(GVariant & v, const GVarTypeData & typeData, const typename RemoveReference<T>::Result & value);
 
 template <typename T>
 struct ArrayToPointer;
@@ -43,7 +43,7 @@ template <typename T, typename Enabled = void>
 struct DeducePassType
 {
 	typedef T Result;
-	typedef const typename RemoveReference<T>::Result & PassType;
+    typedef typename RemoveReference<T>::Result PassType;
 };
 
 template <typename T>
@@ -52,6 +52,7 @@ struct DeducePassType <T, typename GEnableIfResult<CheckIsArray<ArrayToPointer<T
 	typedef typename ArrayToPointer<T>::Result Result;
 	typedef typename ArrayToPointer<T>::Result PassType;
 };
+
 
 class IVariantShadowObject
 {
@@ -225,12 +226,12 @@ public:
 		GVarTypeData typeData;
 		vtInit(typeData);
 		deduceVariantType<T>(typeData);
-		variant_internal::InitVariant<true>(*this, typeData, static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
+		variant_internal::InitVariant<true, typename variant_internal::DeducePassType<T>::PassType>(*this, typeData, value);
 	}
 
 	template <typename T>
 	GVariant(const GVarTypeData & typeData, const T & value) {
-		variant_internal::InitVariant<true>(*this, typeData, value);
+		variant_internal::InitVariant<true, T>(*this, typeData, value);
 	}
 
 	GVariant(const GVariant & other) : data(other.data) {
@@ -332,7 +333,7 @@ GVariant createVariant(const T & value, bool allowShadow = false)
 	GVarTypeData typeData;
 	deduceVariantType<T>(typeData, allowShadow);
 	GVariant v;
-	variant_internal::InitVariant<CanShadow>(v, typeData, static_cast<typename variant_internal::DeducePassType<T>::PassType>(value));
+	variant_internal::InitVariant<CanShadow, typename variant_internal::DeducePassType<T>::PassType>(v, typeData, value);
 	return v;
 }
 
@@ -354,7 +355,7 @@ bool canFromVariant(const GVariant & v)
 	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, VarantCastKeepConstRef>::canCast(vtGetType(v.data.typeData));
 }
 
-template <typename T, int Policy>
+template <typename T, typename Policy>
 bool canFromVariant(const GVariant & v)
 {
 	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, Policy>::canCast(vtGetType(v.data.typeData));
@@ -366,7 +367,7 @@ typename variant_internal::CastFromVariant<T, VarantCastKeepConstRef>::ResultTyp
 	return variant_internal::CastFromVariant<typename RemoveConstVolatile<T>::Result, VarantCastKeepConstRef>::cast(v);
 }
 
-template <typename T, int Policy>
+template <typename T, typename Policy>
 typename variant_internal::CastFromVariant<T, Policy>::ResultType fromVariant(const GVariant & v)
 {
 	return variant_internal::CastFromVariant<typename RemoveConstVolatile<T>::Result, Policy>::cast(v);

@@ -8,7 +8,7 @@ namespace variant_internal {
 template <typename T>
 struct MaybeEnum
 {
-	G_STATIC_CONSTANT(bool, Result = IsConvertible<T, int>::Result && !IsFundamental<T>::Result && !IsClass<T>::Result && !IsReference<T>::Result && !IsPointer<T>::Result);
+	G_STATIC_CONSTANT(bool, Result = (IsConvertible<T, int>::Result && !IsFundamental<T>::Result && !IsClass<T>::Result && !IsReference<T>::Result && !IsPointer<T>::Result));
 };
 
 template <typename T>

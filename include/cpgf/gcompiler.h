@@ -66,7 +66,7 @@
 	#define G_NO_MEMBER_TEMPLATE_FRIENDS
 #endif
 
-#define G_STATIC_CONSTANT(type, ...) static const type __VA_ARGS__
+#define G_STATIC_CONSTANT(type, assignment) static const type assignment
 
 // C++ 0x/11
 #ifndef G_SUPPORT_RVALUE_REFERENCE

@@ -116,6 +116,21 @@ struct GBoolAnd <true, true, true, true, true, true, true>
 	G_STATIC_CONSTANT(bool, Result = true);
 };
 
+template <bool B1, bool B2, bool B3 = false, bool B4 = false, bool B5 = false, bool B6 = false, bool B7 = false>
+struct GBoolOr;
+
+template <bool B1, bool B2, bool B3, bool B4, bool B5, bool B6, bool B7>
+struct GBoolOr
+{
+	G_STATIC_CONSTANT(bool, Result = true);
+};
+
+template <>
+struct GBoolOr <false, false, false, false, false, false, false>
+{
+	G_STATIC_CONSTANT(bool, Result = false);
+};
+
 
 } // namespace cpgf
 

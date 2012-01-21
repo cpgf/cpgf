@@ -5,6 +5,7 @@
 #include "cpgf/gmetatype.h"
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gcallback.h"
+#include "cpgf/gifelse.h"
 
 
 #if defined(_MSC_VER)
@@ -59,7 +60,7 @@ class GMetaGetter <Getter, Policy, typename GEnableIfResult<
 
 public:
 	G_STATIC_CONSTANT(bool, HasGetter = true);
-	G_STATIC_CONSTANT(bool, Readable = PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result);
+	G_STATIC_CONSTANT(bool, Readable = (PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result));
 
 public:
 	typedef typename RemovePointer<Getter>::Result PropertyType;
@@ -122,7 +123,7 @@ class GMetaGetter <Getter, Policy, typename GEnableIfResult<
 {
 public:
 	G_STATIC_CONSTANT(bool, HasGetter = true);
-	G_STATIC_CONSTANT(bool, Readable = PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result);
+	G_STATIC_CONSTANT(bool, Readable = (PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result));
 
 public:
 	typedef typename MemberDataTrait<Getter>::FieldType PropertyType;
@@ -174,8 +175,8 @@ class GMetaGetter <Getter, Policy, typename GEnableIfResult<IsFunction<Getter> >
 {
 public:
 	G_STATIC_CONSTANT(bool, HasGetter = true);
-	G_STATIC_CONSTANT(bool, Readable = PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result);
-	G_STATIC_CONSTANT(bool, ExplicitThis = PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result || PolicyHasRule<Policy, GMetaRuleGetterExplicitThis>::Result);
+	G_STATIC_CONSTANT(bool, Readable = (PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result));
+	G_STATIC_CONSTANT(bool, ExplicitThis = (PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result || PolicyHasRule<Policy, GMetaRuleGetterExplicitThis>::Result));
 	G_STATIC_CONSTANT(bool, NotExplicitThis = !ExplicitThis);
 
 public:
@@ -273,7 +274,7 @@ class GMetaSetter <Setter, Policy, typename GEnableIfResult<
 
 public:
 	G_STATIC_CONSTANT(bool, HasSetter = true);
-	G_STATIC_CONSTANT(bool, Writable = PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result);
+	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result));
 
 public:
 	typedef typename RemovePointer<Setter>::Result PropertyType;
@@ -326,7 +327,7 @@ class GMetaSetter <Setter, Policy, typename GEnableIfResult<
 {
 public:
 	G_STATIC_CONSTANT(bool, HasSetter = true);
-	G_STATIC_CONSTANT(bool, Writable = PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result);
+	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result));
 
 public:
 	typedef typename MemberDataTrait<Setter>::FieldType PropertyType;
@@ -371,8 +372,8 @@ class GMetaSetter <Setter, Policy, typename GEnableIfResult<IsFunction<Setter> >
 {
 public:
 	G_STATIC_CONSTANT(bool, HasSetter = true);
-	G_STATIC_CONSTANT(bool, Writable = PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result);
-	G_STATIC_CONSTANT(bool, ExplicitThis = PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result || PolicyHasRule<Policy, GMetaRuleSetterExplicitThis>::Result);
+	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result));
+	G_STATIC_CONSTANT(bool, ExplicitThis = (PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result || PolicyHasRule<Policy, GMetaRuleSetterExplicitThis>::Result));
 	G_STATIC_CONSTANT(bool, NotExplicitThis = !ExplicitThis);
 
 public:
@@ -399,14 +400,14 @@ private:
 	template <typename T>
 	void doSet(typename GEnableIf<Writable && NotExplicitThis, T>::Result * instance, const GVariant & value) const {
 		this->callback.setObject(instance);
-		this->callback(fromVariant<PropertyType, PolicyHasRule<Policy, GMetaRuleCopyConstReference<0> >::Result ? VarantCastCopyConstRef : VarantCastKeepConstRef>(value));
+		this->callback(fromVariant<PropertyType, typename GIfElseResult<PolicyHasRule<Policy, GMetaRuleCopyConstReference<0> >, VarantCastCopyConstRef, VarantCastKeepConstRef>::Result>(value));
 	}
 
 	template <typename T>
 	void doSet(typename GEnableIf<Writable && ExplicitThis, T>::Result * instance, const GVariant & value) const {
 		this->callback.setObject(instance);
 		this->callback((typename GFunctionTraits<Setter>::ArgList::Arg0)(instance),
-			fromVariant<typename GFunctionTraits<Setter>::ArgList::Arg1, PolicyHasRule<Policy, GMetaRuleCopyConstReference<0> >::Result ? VarantCastCopyConstRef : VarantCastKeepConstRef>(value));
+			fromVariant<typename GFunctionTraits<Setter>::ArgList::Arg1, typename GIfElseResult<PolicyHasRule<Policy, GMetaRuleCopyConstReference<0> >, VarantCastCopyConstRef, VarantCastKeepConstRef>::Result>(value));
 	}
 
 	template <typename T>

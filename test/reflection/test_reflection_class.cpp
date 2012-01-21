@@ -256,7 +256,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 
 		._constructor<void * ()>()
 		._constructor<void * (int)>()
-		._constructor<void * (string)>()
+		._constructor<void * (*)(string)>()
 		._constructor<void * (int, string)>()
 		._constructor<void * (int, int, int)>()
 	;

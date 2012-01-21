@@ -18,6 +18,11 @@ struct GIfElse <false, T, F>
 	typedef F Result;
 };
 
+template <typename C, typename T, typename F>
+struct GIfElseResult : public GIfElse <C::Result, T, F>
+{
+};
+
 
 } // namespace cpgf
 

@@ -242,7 +242,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 
 		// arithmetic
 
-		._operator<CLASS & (GMetaSelf, const CLASS &)>(mopHolder = mopHolder)
+		._operator<CLASS & (*)(GMetaSelf, const CLASS &)>(mopHolder = mopHolder)
 		._operator<CLASS (const GMetaSelf &, int)>(mopHolder + mopHolder)
 		._operator<CLASS (int, const CLASS &)>(mopHolder + mopHolder)
 		._operator<CLASS (const GMetaSelf &, int)>(mopHolder - mopHolder)
@@ -253,11 +253,11 @@ G_AUTO_RUN_BEFORE_MAIN()
 
 		// arithmetic assign
 
-		._operator<CLASS & (GMetaSelf, int)>(mopHolder += mopHolder)
-		._operator<CLASS & (GMetaSelf, int)>(mopHolder -= mopHolder)
-		._operator<CLASS & (GMetaSelf, int)>(mopHolder *= mopHolder)
-		._operator<CLASS & (GMetaSelf, int)>(mopHolder /= mopHolder)
-		._operator<CLASS & (GMetaSelf, int)>(mopHolder %= mopHolder)
+		._operator<CLASS & (*)(GMetaSelf, int)>(mopHolder += mopHolder)
+		._operator<CLASS & (*)(GMetaSelf, int)>(mopHolder -= mopHolder)
+		._operator<CLASS & (*)(GMetaSelf, int)>(mopHolder *= mopHolder)
+		._operator<CLASS & (*)(GMetaSelf, int)>(mopHolder /= mopHolder)
+		._operator<CLASS & (*)(GMetaSelf, int)>(mopHolder %= mopHolder)
 
 		// bitwise
 
@@ -269,11 +269,11 @@ G_AUTO_RUN_BEFORE_MAIN()
 
 		// bitwise assign
 
-		._operator<CLASS & (GMetaSelf, int)>(mopHolder &= mopHolder)
-		._operator<CLASS & (GMetaSelf, int)>(mopHolder |= mopHolder)
-		._operator<CLASS & (GMetaSelf, int)>(mopHolder ^= mopHolder)
-		._operator<CLASS & (GMetaSelf, int)>(mopHolder >>= mopHolder)
-		._operator<CLASS & (GMetaSelf, int)>(mopHolder <<= mopHolder)
+		._operator<CLASS & (*)(GMetaSelf, int)>(mopHolder &= mopHolder)
+		._operator<CLASS & (*)(GMetaSelf, int)>(mopHolder |= mopHolder)
+		._operator<CLASS & (*)(GMetaSelf, int)>(mopHolder ^= mopHolder)
+		._operator<CLASS & (*)(GMetaSelf, int)>(mopHolder >>= mopHolder)
+		._operator<CLASS & (*)(GMetaSelf, int)>(mopHolder <<= mopHolder)
 
 		// logic
 
@@ -391,10 +391,10 @@ G_AUTO_RUN_BEFORE_MAIN()
 
 		._operator<int * (const GMetaSelf &)> (& mopHolder)
 		._operator<int (const GMetaSelf &)> (* mopHolder)
-		._operator<CLASS2 & (GMetaSelf, int)>((mopHolder , mopHolder))
+		._operator<CLASS2 & (*)(GMetaSelf, int)>((mopHolder , mopHolder))
 		._operator<std::string (GMetaSelf, int)>(mopHolder[0])
-		._operator<int * (GMetaSelf)>(mopHolder->mopHolder)
-		._operator<int (GMetaSelf, int CLASS2::*)>(mopHolder->*mopHolder)
+		._operator<int * (*)(GMetaSelf)>(mopHolder->mopHolder)
+		._operator<int (*)(GMetaSelf, int CLASS2::*)>(mopHolder->*mopHolder)
 		._operator<std::string (GMetaSelf)>(mopHolder())
 		._operator<int (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference())
 		._operator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder))

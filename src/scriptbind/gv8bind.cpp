@@ -647,7 +647,7 @@ void * v8ToObject(Handle<Value> value, GMetaType * outType)
 	return NULL;
 }
 
-GMetaVariant userDataToVariant(GScriptBindingParam * param, Handle<Value> value)
+GMetaVariant v8UserDataToVariant(GScriptBindingParam * param, Handle<Value> value)
 {
 	if(value->IsFunction() || value->IsObject()) {
 		Local<Object> obj = value->ToObject();
@@ -714,7 +714,7 @@ GMetaVariant v8ToVariant(GScriptBindingParam * param, Local<Context> context, Ha
 	}
 
 	if(value->IsObject()) {
-		return userDataToVariant(param, value);
+		return v8UserDataToVariant(param, value);
 	}
 
 	return GMetaVariant();

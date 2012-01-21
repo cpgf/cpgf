@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <typeinfo>
 
+#include "cpgf/gcompiler.h"
 #include "cpgf/gcallback.h"
 #include "cpgf/gcallbacklist.h"
 
@@ -392,7 +393,9 @@ public:
 
 		GEQUAL(makeCallback(cbObject, &CallbackObject::callback0)(), 3);
 
+#ifndef G_COMPILER_CPPBUILDER // C++ Builder can't compile it
 		GCallback<void (int)>(std::bind1st(std::ptr_fun(&callbackBindFirst), 1))(2);
+#endif
 
 		CallbackObject * tempObject = new CallbackObject;
 		connection = cbList->add(makeCallback1(tempObject, &CallbackObject::callback2));
@@ -611,8 +614,10 @@ public:
 		cb2 = GCallback<void ()>(makeReference(makeConstReference(makeReference(cobj2))));
 		GCHECK(cb1 == cb2 && cb2 == cb1);
 
+#ifndef G_COMPILER_CPPBUILDER // C++ Builder can't compile it
 		cb2 = GCallback<void ()>(makeConstReference(makeReference(makeConstReference(cobj2))));
 		GCHECK(cb1 == cb2 && cb2 == cb1);
+#endif
 
 //		cb1 = GCallback<void ()>(makeReference(makeConstReference(makeReference(makeConstReference(cb2)))));
 //		GCHECK(cb1 == cb2 && cb2 == cb1);

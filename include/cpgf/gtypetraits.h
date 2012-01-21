@@ -321,7 +321,7 @@ struct IsSameType <T, T>
 template <typename T>
 struct IsVoid
 {
-	G_STATIC_CONSTANT(bool, Result = TypeList_IndexOf< TypeList_Make<void, void const, void volatile, void const volatile>::Result, T>::Result >= 0);
+	G_STATIC_CONSTANT(bool, Result = (TypeList_IndexOf< TypeList_Make<void, void const, void volatile, void const volatile>::Result, T>::Result >= 0));
 };
 
 
@@ -330,7 +330,7 @@ typedef TypeList_Make<float, double, long double>::Result FloatTypes;
 template <typename T>
 struct IsFloat
 {
-	G_STATIC_CONSTANT(bool, Result = TypeList_IndexOf<FloatTypes, T>::Result >= 0);
+	G_STATIC_CONSTANT(bool, Result = (TypeList_IndexOf<FloatTypes, T>::Result >= 0));
 };
 
 
@@ -342,36 +342,45 @@ typedef TypeList_Make<bool, char, wchar_t>::Result UnknownSignTypes;
 template <typename T>
 struct IsSigned
 {
-	G_STATIC_CONSTANT(bool, Result = TypeList_IndexOf<SignedTypes, T>::Result >= 0);
+	G_STATIC_CONSTANT(bool, Result = (TypeList_IndexOf<SignedTypes, T>::Result >= 0));
 };
 
 
 template <typename T>
 struct IsUnsigned
 {
-	G_STATIC_CONSTANT(bool, Result = TypeList_IndexOf<UnsignedTypes, T>::Result >= 0);
+	G_STATIC_CONSTANT(bool, Result = (TypeList_IndexOf<UnsignedTypes, T>::Result >= 0));
 };
 
 
 template <typename T>
 struct IsUnknownSign
 {
-	G_STATIC_CONSTANT(bool, Result = TypeList_IndexOf<UnknownSignTypes, T>::Result >= 0);
+	G_STATIC_CONSTANT(bool, Result = (TypeList_IndexOf<UnknownSignTypes, T>::Result >= 0));
 };
 
 
 template <typename T>
 struct IsInteger
 {
-	G_STATIC_CONSTANT(bool, Result = (IsSigned<T>::Result || IsUnsigned<T>::Result || IsUnknownSign<T>::Result));
+	G_STATIC_CONSTANT(bool, Result = (GOrResult3<IsSigned<T>, IsUnsigned<T>, IsUnknownSign<T> >::Result));
 };
 
 
+#ifndef G_COMPILER_CPPBUILDER
 template <typename T>
 struct IsFundamental
 {
-	G_STATIC_CONSTANT(bool, Result = (IsInteger<T>::Result || IsFloat<T>::Result));
+	G_STATIC_CONSTANT(bool, Result = (GOrResult2<IsInteger<T>, IsFloat<T> >::Result));
 };
+#else
+template <class __T>
+struct IsFundamental
+{
+//	G_STATIC_CONSTANT(bool, Result = __is_fundamental(T));
+	static const bool Result=__is_fundamental(__T);
+};
+#endif
 
 
 namespace typetraits_internal {
@@ -448,7 +457,7 @@ private:
 	static From makeFrom();
 
 public:
-	G_STATIC_CONSTANT(bool, Result = IsSameType<From, To>::Result || (sizeof(check(makeFrom())) == sizeof(typetraits_internal::YesType)));
+	G_STATIC_CONSTANT(bool, Result = (IsSameType<From, To>::Result || (sizeof(check(makeFrom())) == sizeof(typetraits_internal::YesType))));
 };
 
 template <typename From, typename To>
@@ -468,7 +477,7 @@ struct IsConvertible <From, To, typename GEnableIfResult<
 template <typename From, typename To>
 struct IsConvertible
 {
-	G_STATIC_CONSTANT(bool, Result = std::is_convertible<From, To>::value);
+	G_STATIC_CONSTANT(bool, Result = (std::is_convertible<From, To>::value));
 };
 #endif
 
@@ -615,11 +624,11 @@ struct GArgumentTraits <T, typename GEnableIfResult<IsFundamental<T> >::Result>
 	typedef T Result;
 };
 
-template <typename T>
-struct GArgumentTraits <T *>
-{
-	typedef T * Result;
-};
+//template <typename T>
+//struct GArgumentTraits <T *>
+//{
+//	typedef T * Result;
+//};
 
 template <typename T>
 struct GArgumentTraits <T &>
@@ -635,11 +644,13 @@ struct GArgumentTraits <T &&>
 };
 #endif
 
+#ifndef G_COMPILER_CPPBUILDER
 template <typename T, unsigned int N>
 struct GArgumentTraits <T [N]>
 {
 	typedef const T * & Result;
 };
+#endif
 
 
 } // namespace cpgf
@@ -647,3 +658,4 @@ struct GArgumentTraits <T [N]>
 
 
 #endif
+

@@ -169,7 +169,7 @@ struct CheckIsStatic
 template <typename OT, typename FT>
 struct CheckIsStatic <OT, FT, typename GEnableIfResult<IsFunction<FT> >::Result>
 {
-	G_STATIC_CONSTANT(bool, Result = IsSameType<OT, void>::Result || IsSameType<typename GFunctionTraits<FT>::ObjectType, void>::Result);
+	G_STATIC_CONSTANT(bool, Result = (IsSameType<OT, void>::Result || IsSameType<typename GFunctionTraits<FT>::ObjectType, void>::Result));
 };
 
 template <typename OT, typename FT, typename Enabled = void>

@@ -3,6 +3,7 @@
 
 #include "cpgf/gpp.h"
 #include "cpgf/gassert.h"
+#include "cpgf/gifelse.h"
 #include "cpgf/gvariant.h"
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gmetatype.h"
@@ -18,10 +19,10 @@ namespace meta_internal {
 
 
 #define REF_CALL_HELPER_CAST(N, unused) \
-	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, PolicyHasRule<Policy, GMetaRuleCopyConstReference<N> >::Result ? VarantCastCopyConstRef : VarantCastKeepConstRef>(*params[N])
+	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, typename GIfElseResult<PolicyHasRule<Policy, GMetaRuleCopyConstReference<N> >, VarantCastCopyConstRef, VarantCastKeepConstRef>::Result >(*params[N])
 
 #define REF_CALL_HELPER_CAST_EXPLICIT_THIS_HELPER(N) \
-	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, PolicyHasRule<Policy, GMetaRuleCopyConstReference<N> >::Result ? VarantCastCopyConstRef : VarantCastKeepConstRef>(*params[N - 1])
+	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, typename GIfElseResult<PolicyHasRule<Policy, GMetaRuleCopyConstReference<N> >, VarantCastCopyConstRef, VarantCastKeepConstRef>::Result >(*params[N - 1])
 
 #define REF_CALL_HELPER_CAST_EXPLICIT_THIS_EMPTY(N)
 
@@ -37,7 +38,7 @@ namespace meta_internal {
 			GVarTypeData typeData = GVarTypeData(); \
 			deduceVariantType<RT>(typeData, ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
 			GVariant v; \
-			variant_internal::InitVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result>(v, typeData, static_cast<typename variant_internal::DeducePassType<RT>::PassType>(callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)))); \
+			variant_internal::InitVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result, typename variant_internal::template DeducePassType<RT>::PassType>(v, typeData, callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY))); \
 			return v; \
 		} \
 	}; \
@@ -59,7 +60,7 @@ namespace meta_internal {
 			GVarTypeData typeData = GVarTypeData(); \
 			deduceVariantType<RT>(typeData, ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
 			GVariant v; \
-			variant_internal::InitVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result>(v, typeData, static_cast<typename variant_internal::DeducePassType<RT>::PassType>(callback((typename CT::TraitsType::ArgList::Arg0)(instance) GPP_REPEAT(N, REF_CALL_HELPER_CAST_EXPLICIT_THIS, GPP_EMPTY)))); \
+			variant_internal::InitVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result, typename variant_internal::template DeducePassType<RT>::PassType>(v, typeData, callback((typename CT::TraitsType::ArgList::Arg0)(instance) GPP_REPEAT(N, REF_CALL_HELPER_CAST_EXPLICIT_THIS, GPP_EMPTY))); \
 			return v; \
 		} \
 	}; \

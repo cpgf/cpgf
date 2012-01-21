@@ -181,7 +181,8 @@ template <typename MetaDefine, typename Policy>
 MetaDefine buildMetaData_constIterator(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL)
 {
 	metadata_internal::doBuildIteratorAccessor<typename MetaDefine::ClassType>(config, define, policy, replacer);
-	metadata_internal::doBuildIterator<typename MetaDefine::ClassType>(config, define, policy, typename MetaDefine::ClassType::iterator_category(), replacer);
+    typename MetaDefine::ClassType::iterator_category category;
+	metadata_internal::doBuildIterator<typename MetaDefine::ClassType>(config, define, policy, category, replacer);
 
 	return define;
 }

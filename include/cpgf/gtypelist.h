@@ -3,6 +3,7 @@
 
 // code in this file is highly inspired from Loki library
 
+#include "cpgf/gcompiler.h"
 #include "cpgf/gpp.h"
 
 

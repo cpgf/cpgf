@@ -237,7 +237,7 @@ class GMetaConverterDefault : public GMetaConverter
 {
 public:
 	virtual bool canToCString();
-	virtual const char * toCString(const void * instance, int * needFree);
+	virtual const char * toCString(const void * instance, int * needFree, IMemoryAllocator * allocator);
 };
 
 

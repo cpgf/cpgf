@@ -540,7 +540,7 @@ void * luaToObject(lua_State * L, GScriptBindingParam * param, int index, GMetaT
 	return NULL;
 }
 
-GMetaVariant userDataToVariant(lua_State * L, GScriptBindingParam * param, int index)
+GMetaVariant luaUserDataToVariant(lua_State * L, GScriptBindingParam * param, int index)
 {
 	(void)param;
 
@@ -584,7 +584,7 @@ GMetaVariant luaToVariant(lua_State * L, GScriptBindingParam * param, int index)
 			return GMetaVariant(createStringVariant(lua_tostring(L, index)), createMetaType<char *>());
 
 		case LUA_TUSERDATA:
-			return userDataToVariant(L, param, index);
+			return luaUserDataToVariant(L, param, index);
 
 		case LUA_TFUNCTION:
 			return functionToVariant(L, param, index);

@@ -134,7 +134,12 @@ template <typename T>
 struct ConstructDefault
 {
 	static T construct() {
+#ifndef G_COMPILER_CPPBUILDER
 		return typename RemoveConstVolatile<T>::Result();
+#else
+		typename RemoveConstVolatile<T>::Result x;
+        return x;
+#endif
 	}
 };
 
@@ -532,11 +537,13 @@ private:
 
 public:
 	G_STATIC_CONSTANT(bool,
-		Result =
+		Result = (
 			! IsFundamental<BaseType>::Result
 			&& ! IsSameType<BaseType, void>::Result
 			&& (IsFunction<BaseType>::Result
-				|| IsClass<typename RemoveConstVolatile<typename RemoveReference<FT>::Result>::Result>::Result)
+				|| IsClass<typename RemoveConstVolatile<typename RemoveReference<FT>::Result>::Result>::Result
+                )
+        )
 	);
 };
 

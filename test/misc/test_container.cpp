@@ -189,24 +189,24 @@ inline void checkContainerIteratorIncrement(ContainerType & container)
 		GWiseList<int>::iterator it;
 
 		st.push_back(1);
-		callTest(checkContainerValues(&st, 1, lastValue));
+		callTest(checkContainerValues<IntList>(&st, 1, lastValue));
 
 		st.push_front(2);
-		callTest(checkContainerValues(&st, 2, 1, lastValue));
+		callTest(checkContainerValues<IntList>(&st, 2, 1, lastValue));
 
 		st.insert(st.end(), 3);
-		callTest(checkContainerValues(&st, 2, 1, 3, lastValue));
+		callTest(checkContainerValues<IntList>(&st, 2, 1, 3, lastValue));
 
 		it = st.begin();
 		std::advance(it, 2); // point to 3
 		st.insert(it, 4);
-		callTest(checkContainerValues(&st, 2, 1, 4, 3, lastValue));
+		callTest(checkContainerValues<IntList>(&st, 2, 1, 4, 3, lastValue));
 
 		--it; // point to 4
 		st.insertBefore(it, 6);
-		callTest(checkContainerValues(&st, 2, 1, 6, 4, 3, lastValue));
+		callTest(checkContainerValues<IntList>(&st, 2, 1, 6, 4, 3, lastValue));
 		st.insertAfter(it, 5);
-		callTest(checkContainerValues(&st, 2, 1, 6, 4, 5, 3, lastValue));
+		callTest(checkContainerValues<IntList>(&st, 2, 1, 6, 4, 5, 3, lastValue));
 
 		typedef GWiseList<std::string> StringList;
 		StringList * stringList = new StringList;
@@ -352,26 +352,26 @@ inline void checkContainerIteratorIncrement(ContainerType & container)
 		GWiseSkipList<int>::reverse_iterator rit;
 
 		st.insert(20);
-		callTest(checkContainerValues(&st, 20, lastValue));
+		callTest(checkContainerValues<IntList>(&st, 20, lastValue));
 
 		st.insert(10);
-		callTest(checkContainerValues(&st, 10, 20, lastValue));
+		callTest(checkContainerValues<IntList>(&st, 10, 20, lastValue));
 
 		st.insert(30);
-		callTest(checkContainerValues(&st, 10, 20, 30, lastValue));
+		callTest(checkContainerValues<IntList>(&st, 10, 20, 30, lastValue));
 
 		st.remove(20);
-		callTest(checkContainerValues(&st, 10, 30, lastValue));
+		callTest(checkContainerValues<IntList>(&st, 10, 30, lastValue));
 
 		it = st.find(10);
 		GDIFF(it, st.end());
 
 		st.replace(it, 50);
-		callTest(checkContainerValues(&st, 30, 50, lastValue));
+		callTest(checkContainerValues<IntList>(&st, 30, 50, lastValue));
 
 		rit = st.rbegin();
 		st.replace(rit, 10);
-		callTest(checkContainerValues(&st, 10, 30, lastValue));
+		callTest(checkContainerValues<IntList>(&st, 10, 30, lastValue));
 
 		typedef GWiseSkipList<std::string> StringList;
 		StringList * stringList = new StringList;
