@@ -8,10 +8,10 @@ namespace Test_Class { namespace {
 bool itemEuqal(IMetaItem * a, IMetaItem * b)
 {
 	bool equal = a->equals(b);
-	
+
 	a->releaseReference();
 	b->releaseReference();
-	
+
 	return equal;
 }
 
@@ -35,7 +35,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 	GDefineMetaClass<ClassBase>
 		::define(NAME(ClassBase))
 	;
-	
+
 	GDefineMetaClass<ClassAbstract>
 		::define(NAME(ClassAbstract))
 		._method("myAbstract", &ClassAbstract::myAbstract)
@@ -58,7 +58,7 @@ GTEST(Lib_BasicInfo)
 	GEQUAL(metaClass->getBaseCount(), 0);
 	GCHECK(! metaClass->isInheritedFrom(NULL));
 	GCHECK(! metaClass->isInheritedFrom(findMetaClass(NAME(ClassAbstract))));
-	
+
 	metaClass = findMetaClass(NAME(ClassAbstract));
 	GCHECK(metaClass);
 
@@ -95,7 +95,7 @@ GTEST(API_BasicInfo)
 	GCHECK(! metaClass->isInheritedFrom(NULL));
 	metaClass2.reset((service->findClassByName(NAME(ClassAbstract))));
 	GCHECK(! metaClass->isInheritedFrom(metaClass2.get()));
-	
+
 	metaClass.reset(service->findClassByName(NAME(ClassAbstract)));
 	GCHECK(metaClass);
 
@@ -118,19 +118,19 @@ class CLASS {
 public:
 	CLASS() : n(5), s("abc") {
 	}
-	
+
 	CLASS(const CLASS & other) : n(other.n), s(other.s) {
 	}
-	
+
 	bool operator == (const CLASS & other) const {
 		return this->n == other.n;
 		return this->s == other.s;
 	}
-	
+
 	bool check() const {
 		return this->n == 5 && this->s == "abc";
 	}
-	
+
 public:
 	int n;
 	string s;
@@ -154,20 +154,20 @@ GTEST(Lib_CreateInstance)
 	metaClass = findMetaClass(NAME(CLASS));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	CLASS * pobj;
 	char inplace[1000];
-	
+
 	pobj = (CLASS *)(metaClass->createInstance());
 	GCHECK(pobj);
 	GCHECK(pobj->check());
 	metaClass->destroyInstance(pobj);
-	
+
 	pobj = (CLASS *)(metaClass->createInplace(inplace));
 	GCHECK(pobj);
 	GCHECK(pobj->check());
 	pobj->~CLASS();
-	
+
 	CLASS clone;
 	clone.n = 100;
 	clone.s = "notabc";
@@ -196,20 +196,20 @@ GTEST(API_CreateInstance)
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	CLASS * pobj;
 	char inplace[1000];
-	
+
 	pobj = (CLASS *)(metaClass->createInstance());
 	GCHECK(pobj);
 	GCHECK(pobj->check());
 	metaClass->destroyInstance(pobj);
-	
+
 	pobj = (CLASS *)(metaClass->createInplace(inplace));
 	GCHECK(pobj);
 	GCHECK(pobj->check());
 	pobj->~CLASS();
-	
+
 	CLASS clone;
 	clone.n = 100;
 	clone.s = "notabc";
@@ -270,7 +270,7 @@ GTEST(Lib_GetConstructor)
 	metaClass = findMetaClass(NAME(CLASS));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	GEQUAL(metaClass->getConstructorCount(), 5);
 	GEQUAL_NOTNULL(metaClass->getConstructorByParamCount(0), metaClass->getConstructorAt(0));
 	GEQUAL_NOTNULL(metaClass->getConstructorByParamCount(1), metaClass->getConstructorAt(1));
@@ -287,7 +287,7 @@ GTEST(API_GetConstructor)
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	GEQUAL(metaClass->getConstructorCount(), 5);
 	GCHECK(itemEuqal(metaClass->getConstructorByParamCount(0), metaClass->getConstructorAt(0)));
 	GCHECK(itemEuqal(metaClass->getConstructorByParamCount(1), metaClass->getConstructorAt(1)));
@@ -304,7 +304,7 @@ public:
 	int f0;
 	int f1;
 	int f2;
-	
+
 	char data[60];
 };
 
@@ -330,7 +330,7 @@ GTEST(Lib_GetField)
 	metaClass = findMetaClass(NAME(CLASS));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	GEQUAL(metaClass->getFieldCount(), 3);
 	GEQUAL_NOTNULL(metaClass->getField("f0"), metaClass->getFieldAt(0));
 	GEQUAL_NOTNULL(metaClass->getField("f1"), metaClass->getFieldAt(1));
@@ -346,7 +346,7 @@ GTEST(API_GetField)
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	GEQUAL(metaClass->getFieldCount(), 3);
 	GCHECK(itemEuqal(metaClass->getField("f0"), metaClass->getFieldAt(0)));
 	GCHECK(itemEuqal(metaClass->getField("f1"), metaClass->getFieldAt(1)));
@@ -364,7 +364,7 @@ public:
 	int p1;
 	int p2;
 	int p3;
-	
+
 	char data[15];
 };
 
@@ -391,7 +391,7 @@ GTEST(Lib_GetProperty)
 	metaClass = findMetaClass(NAME(CLASS));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	GEQUAL(metaClass->getPropertyCount(), 4);
 	GEQUAL_NOTNULL(metaClass->getProperty("p0"), metaClass->getPropertyAt(0));
 	GEQUAL_NOTNULL(metaClass->getProperty("p1"), metaClass->getPropertyAt(1));
@@ -408,7 +408,7 @@ GTEST(API_GetProperty)
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	GEQUAL(metaClass->getPropertyCount(), 4);
 	GCHECK(itemEuqal(metaClass->getProperty("p0"), metaClass->getPropertyAt(0)));
 	GCHECK(itemEuqal(metaClass->getProperty("p1"), metaClass->getPropertyAt(1)));
@@ -426,7 +426,7 @@ public:
 	void m0() {}
 	int m1() { return 0; }
 	int m2(string) { return 0; }
-	
+
 	char data[18];
 };
 
@@ -452,7 +452,7 @@ GTEST(Lib_GetMethod)
 	metaClass = findMetaClass(NAME(CLASS));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	GEQUAL(metaClass->getMethodCount(), 3);
 	GEQUAL_NOTNULL(metaClass->getMethod("m0"), metaClass->getMethodAt(0));
 	GEQUAL_NOTNULL(metaClass->getMethod("m1"), metaClass->getMethodAt(1));
@@ -468,7 +468,7 @@ GTEST(API_GetMethod)
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	GEQUAL(metaClass->getMethodCount(), 3);
 	GCHECK(itemEuqal(metaClass->getMethod("m0"), metaClass->getMethodAt(0)));
 	GCHECK(itemEuqal(metaClass->getMethod("m1"), metaClass->getMethodAt(1)));
@@ -485,7 +485,7 @@ public:
 	void operator + (int) {}
 	void operator - (int) {}
 	void operator * (int) {}
-	
+
 	char data[199];
 };
 
@@ -511,7 +511,7 @@ GTEST(Lib_GetOperator)
 	metaClass = findMetaClass(NAME(CLASS));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	GEQUAL(metaClass->getOperatorCount(), 3);
 	GEQUAL_NOTNULL(metaClass->getOperator(mopHolder + mopHolder), metaClass->getOperatorAt(0));
 	GEQUAL_NOTNULL(metaClass->getOperator(mopHolder - mopHolder), metaClass->getOperatorAt(1));
@@ -527,7 +527,7 @@ GTEST(API_GetOperator)
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	GEQUAL(metaClass->getOperatorCount(), 3);
 	GCHECK(itemEuqal(metaClass->getOperator(mopHolder + mopHolder), metaClass->getOperatorAt(0)));
 	GCHECK(itemEuqal(metaClass->getOperator(mopHolder - mopHolder), metaClass->getOperatorAt(1)));
@@ -544,7 +544,7 @@ public:
 	enum E0 {};
 	enum E1 {};
 	enum E2 {};
-	
+
 	char data[19];
 };
 
@@ -570,7 +570,7 @@ GTEST(Lib_GetEnum)
 	metaClass = findMetaClass(NAME(CLASS));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	GEQUAL(metaClass->getEnumCount(), 3);
 	GEQUAL_NOTNULL(metaClass->getEnum("E0"), metaClass->getEnumAt(0));
 	GEQUAL_NOTNULL(metaClass->getEnum("E1"), metaClass->getEnumAt(1));
@@ -586,7 +586,7 @@ GTEST(API_GetEnum)
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	GEQUAL(metaClass->getEnumCount(), 3);
 	GCHECK(itemEuqal(metaClass->getEnum("E0"), metaClass->getEnumAt(0)));
 	GCHECK(itemEuqal(metaClass->getEnum("E1"), metaClass->getEnumAt(1)));
@@ -603,7 +603,7 @@ public:
 	class C0 {};
 	class C1 {};
 	class C2 {};
-	
+
 	char data[8];
 };
 
@@ -640,7 +640,7 @@ GTEST(Lib_GetClass)
 	metaClass = findMetaClass(NAME(CLASS));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	GEQUAL(metaClass->getClassCount(), 3);
 	GEQUAL_NOTNULL(metaClass->getClass(NAME(CLASS::C0)), metaClass->getClassAt(0));
 	GEQUAL_NOTNULL(metaClass->getClass(NAME(CLASS::C1)), metaClass->getClassAt(1));
@@ -656,7 +656,7 @@ GTEST(API_GetClass)
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME(CLASS)));
 	GCHECK(metaClass);
 	GEQUAL(metaClass->getTypeSize(), sizeof(CLASS));
-	
+
 	GEQUAL(metaClass->getClassCount(), 3);
 	GCHECK(itemEuqal(metaClass->getClass(NAME(CLASS::C0)), metaClass->getClassAt(0)));
 	GCHECK(itemEuqal(metaClass->getClass(NAME(CLASS::C1)), metaClass->getClassAt(1)));

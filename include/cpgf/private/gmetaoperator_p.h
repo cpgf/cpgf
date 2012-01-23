@@ -246,7 +246,7 @@ public:
 
 	virtual GMetaOpType getOperator() const = 0;
 	virtual size_t getParamCount() const = 0;
-	
+
 	virtual bool isParamSelf(size_t paramIndex) const = 0;
 	virtual GMetaType getParamType(size_t index) const = 0;
 	virtual bool hasResult() const = 0;
@@ -256,7 +256,7 @@ public:
 	virtual bool checkParam(const GVariant & param, size_t paramIndex) const = 0;
 
 	virtual GMetaType createOperatorMetaType() const = 0;
-	
+
 	virtual GVariant invoke(const GVariant & p0) const {
 		(void)p0;
 
@@ -380,6 +380,10 @@ public:
 		return createMetaType<typename GFunctionTraits<Signature>::FullType>();
 	}
 
+	virtual GVariant invoke(const GVariant & p0) const {
+	    return GMetaOperatorDataBase::invoke(p0);
+	}
+
 	virtual GVariant invoke(const GVariant & p0, const GVariant & p1) const {
 		return MetaBinaryOperator<OT,
 			MetaOperatorExecuter<Op, FT>,
@@ -485,6 +489,10 @@ public:
 		>::invoke(p0);
 	}
 
+	virtual GVariant invoke(const GVariant & p0, const GVariant & p1) const {
+	    return GMetaOperatorDataBase::invoke(p0, p1);
+	}
+
 	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const {
 		(void)instance;
 
@@ -542,7 +550,7 @@ public:
 #undef REF_GETPARAM_HELPER
 			}
 		}
-		
+
 		operatorIndexOutOfBound(index, FT::Arity);
 		return GMetaType();
 	}
@@ -617,7 +625,7 @@ public:
 
 	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const {
 		GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
-		
+
 		if(!this->isVariadic() && paramCount != this->getParamCount()) {
 			raiseCoreException(Error_Meta_WrongArity, this->getParamCount(), paramCount);
 		}

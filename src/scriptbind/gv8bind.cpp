@@ -87,12 +87,12 @@ public:
 	virtual GVariant getRaw(const char * name);
 	virtual IMetaMethod * getMethod(const char * methodName, void ** outInstance);
 	virtual IMetaList * getMethodList(const char * methodName);
-	
+
 	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
 
 	virtual GScriptObject * createScriptObject(const char * name);
 	virtual GScriptObject * gainScriptObject(const char * name);
-	
+
 	virtual GScriptFunction * gainScriptFunction(const char * name);
 
 	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount);
@@ -129,7 +129,7 @@ class GUserDataMap
 private:
 	typedef map<KeyType, ValueType> KeyValueMap;
 	typedef map<ValueType, KeyType> ValueKeyMap;
-	
+
 public:
 	GUserDataMap() : nextKey((KeyType)0) {
 	}
@@ -194,7 +194,7 @@ private:
 	KeyType incKey(T * key) const {
 		return (KeyType)(((char *)key) + 1);
 	}
-	
+
 	template <typename T>
 	KeyType incKey(T key) const {
 		return (KeyType)(key + 1);
@@ -282,10 +282,6 @@ public:
 		this->userData = userData;
 	}
 
-	GExtendMethodUserData * getUserData() const {
-		return this->userData;
-	}
-
 public:
 	Persistent<FunctionTemplate> functionTemplate;
 	GExtendMethodUserData * userData;
@@ -362,7 +358,7 @@ class GV8ScriptFunction : public GScriptFunction
 public:
 	GV8ScriptFunction(GScriptBindingParam * bindingParam, Local<Object> receiver, Local<Value> func);
 	virtual ~GV8ScriptFunction();
-	
+
 	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount);
 	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
 
@@ -596,7 +592,7 @@ Handle<Value> variantToV8(GScriptBindingParam * param, const GVariant & value, c
 		GScopedInterface<IMetaTypedItem> typedItem(param->getService()->findTypedItemByName(type.getBaseName()));
 		if(typedItem) {
 			bool isReference = type.isReference();
-			
+
 			if(type.getPointerDimension() == 0 && !isReference) {
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 				GASSERT_MSG(type.baseIsClass(), "Unknown type");
@@ -660,11 +656,11 @@ GMetaVariant v8UserDataToVariant(GScriptBindingParam * param, Handle<Value> valu
 		}
 		else {
 			GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GV8ScriptObject(param->getService(), obj, param->getConfig()), true));
-	
+
 			return GMetaVariant(scriptObject.get(), GMetaType());
 		}
 	}
-	
+
 	return GMetaVariant();
 }
 
@@ -672,7 +668,7 @@ GMetaVariant functionToVariant(GScriptBindingParam * param, Local<Context> conte
 {
 	if(value->IsFunction()) {
 		GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GV8ScriptFunction(param, context->Global(), Local<Value>::New(value)), true));
-	
+
 		return GMetaVariant(func.get(), GMetaType());
 	}
 
@@ -783,7 +779,7 @@ Handle<Value> accessibleGet(Local<String> prop, const AccessorInfo & info)
 		v = rawToV8(userData->getParam(), result);
 	}
 	return v;
-	
+
 	LEAVE_V8(return Handle<Value>())
 }
 
@@ -799,7 +795,7 @@ void accessibleSet(Local<String> prop, Local<Value> value, const AccessorInfo & 
 
 	GMetaVariant v = v8ToVariant(userData->getParam(), info.Holder()->CreationContext(), value);
 	metaSetValue(userData->accessible, userData->instance, v.getValue());
-	
+
 	LEAVE_V8()
 }
 
@@ -877,7 +873,7 @@ Handle<Value> callbackMethodList(const Arguments & args)
 	}
 
 	GClassUserData * userData = NULL;
-	
+
 	if(!isGlobal) {
 		userData = static_cast<GClassUserData *>(args.Holder()->GetPointerFromInternalField(0));
 	}
@@ -994,7 +990,7 @@ Handle<Value> namedEnumSetter(Local<String> prop, Local<Value> value, const Acce
 	ENTER_V8()
 
 	raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
-	
+
 	return Handle<Value>();
 
 	LEAVE_V8(return Handle<Value>())
@@ -1304,6 +1300,7 @@ Handle<Array> namedMemberEnumerator(const AccessorInfo & info)
 
 	GMetaClassTraveller traveller(userData->metaClass, userData->instance);
 	GStringMap<bool, GStringMapReuseKey> nameMap;
+	GScopedInterface<IMetaItem> metaItem;
 
 	for(;;) {
 		GScopedInterface<IMetaClass> metaClass(traveller.next(NULL, NULL));
@@ -1314,7 +1311,8 @@ Handle<Array> namedMemberEnumerator(const AccessorInfo & info)
 
 		uint32_t metaCount = metaClass->getMetaCount();
 		for(uint32_t i = 0; i < metaCount; ++i) {
-			nameMap.set(metaClass->getMetaAt(i)->getName(), true);
+			metaItem.reset(metaClass->getMetaAt(i));
+			nameMap.set(metaItem->getName(), true);
 		}
 	}
 
@@ -1516,7 +1514,7 @@ GExtendMethodUserData * GV8ScriptObjectImplement::doGetMethodUserData(const char
 {
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->object));
-	
+
 	Local<Value> value = localObject->Get(String::New(methodName));
 	if(isValidObject(value)) {
 		Local<Object> obj = Local<Object>::Cast(value);
@@ -1593,7 +1591,7 @@ GV8ScriptFunction::~GV8ScriptFunction()
 	this->func.Dispose();
 	this->func.Clear();
 }
-	
+
 GMetaVariant GV8ScriptFunction::invoke(const GMetaVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
@@ -1615,7 +1613,7 @@ GMetaVariant GV8ScriptFunction::invokeIndirectly(GMetaVariant const * const * pa
 
 	Local<Object> receiver = Local<Object>::New(this->receiver);
 	return invokeV8FunctionIndirectly(this->bindingParam, receiver, Local<Value>::New(this->func), params, paramCount, "");
-	
+
 	LEAVE_V8(return GMetaVariant())
 }
 
@@ -1744,7 +1742,7 @@ GScriptFunction * GV8ScriptObject::gainScriptFunction(const char * name)
 	else {
 		return NULL;
 	}
-	
+
 	LEAVE_V8(return NULL)
 }
 
@@ -1769,7 +1767,7 @@ GMetaVariant GV8ScriptObject::invokeIndirectly(const char * name, GMetaVariant c
 	Local<Object> localObject(Local<Object>::New(this->implement->object));
 
 	Local<Value> func = localObject->Get(String::New(name));
-	
+
 	return invokeV8FunctionIndirectly(this->getParam(), this->getObject(), func, params, paramCount, name);
 
 	LEAVE_V8(return GMetaVariant())
@@ -1778,7 +1776,7 @@ GMetaVariant GV8ScriptObject::invokeIndirectly(const char * name, GMetaVariant c
 void GV8ScriptObject::bindFundamental(const char * name, const GVariant & value)
 {
 	GASSERT_MSG(vtIsFundamental(vtGetType(value.data.typeData)), "Only fundamental value can be bound via bindFundamental");
-	
+
 	ENTER_V8()
 
 	HandleScope handleScope;
@@ -1829,7 +1827,7 @@ void GV8ScriptObject::bindObject(const char * objectName, void * instance, IMeta
 void GV8ScriptObject::bindRaw(const char * name, const GVariant & value)
 {
 	GASSERT_MSG(vtIsFundamental(vtGetType(value.data.typeData)), "Only fundamental value can be bound via bindFundamental");
-	
+
 	ENTER_V8()
 
 	HandleScope handleScope;

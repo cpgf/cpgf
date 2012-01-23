@@ -186,13 +186,14 @@ namespace _internal {
 	public:
 		NodeType * node;
 
-	protected:
+//	protected: // Intel ICC will error if it's protected
+	public:
 		RetainerType * retainer;
 
 		GWiseIteratorBase * previous;
 		GWiseIteratorBase * next;
 
-		template <typename T>
+        template <typename NodeType>
 		friend class GLinkedList;
 	};
 
@@ -1588,7 +1589,7 @@ public:
 	void clear() {
 		this->clearChildren();
 	}
-	
+
 private:
 	GWiseQuadNode(const GWiseQuadNode &);
 	GWiseQuadNode & operator = (const GWiseQuadNode &);

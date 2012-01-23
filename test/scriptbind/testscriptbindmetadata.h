@@ -331,6 +331,8 @@ public:
 class DeriveA
 {
 public:
+	DeriveA() : value(0), a(0) {}
+
 	virtual ~DeriveA() {
 	}
 
@@ -350,6 +352,8 @@ public:
 class DeriveB : virtual public DeriveA
 {
 public:
+	DeriveB() : b(0) {}
+
 	virtual int getB() const {
 		return Magic1;
 	}
@@ -368,6 +372,8 @@ public:
 class DeriveC : virtual public DeriveA
 {
 public:
+	DeriveC() : c(0) {}
+
 	virtual int getC() const {
 		return Magic2;
 	}
@@ -386,6 +392,8 @@ public:
 class DeriveD : public DeriveB, public DeriveC
 {
 public:
+	DeriveD() : d(0) {}
+
 	virtual int getD() const {
 		return Magic3;
 	}
@@ -405,6 +413,8 @@ public:
 class DeriveE : public DeriveD
 {
 public:
+	DeriveE() : e(0) {}
+
 	virtual int getE() const {
 		return Magic1 + Magic2 + Magic3;
 	}

@@ -44,7 +44,7 @@ namespace {
 		void add(const GMetaTypedItem * item) {
 			this->itemMap.set(item->getTypeName().c_str(), item);
 		}
-		
+
 		void remove(const GMetaTypedItem * item) {
 			this->itemMap.remove(item->getTypeName().c_str());
 		}
@@ -66,10 +66,6 @@ namespace {
 
 			MapType::const_iterator it = this->itemMap.find(name);
 			return it == this->itemMap.end() ? NULL : it->second;
-		}
-
-		bool isEmpty() const {
-			return this->itemMap.isEmpty();
 		}
 
 		const MapType * getItemMap() const {
@@ -102,7 +98,7 @@ namespace {
 	void registerFundamentalTypes()
 	{
 		GMetaTypedItemList * itemList = getMetaFundamentalList();
-		
+
 		itemList->add(new GMetaFundamental((bool *)0, "bool"));
 		itemList->add(new GMetaFundamental((char *)0, "char"));
 		itemList->add(new GMetaFundamental((wchar_t *)0, "wchar"));
@@ -122,7 +118,7 @@ namespace {
 	}
 
 	bool metaTypeRegIntialized = false;
-	
+
 	void intializeAllMetaTypes(const GMetaClass * metaClass)
 	{
 		for(size_t i = 0; i < metaClass->getClassCount(); ++i) {
@@ -146,11 +142,11 @@ const GMetaTypedItem * findRegisteredMetaType(const GTypeInfo & type)
 	const GMetaTypedItem * item;
 
 	item = getMetaClassList()->findByType(type);
-	
+
 	if(item == NULL) {
 		item = getMetaFundamentalList()->findByType(type);
 	}
-	
+
 	if(item == NULL) {
 		item = getMetaEnumList()->findByType(type);
 	}
@@ -163,11 +159,11 @@ const GMetaTypedItem * findRegisteredMetaType(const char * name)
 	const GMetaTypedItem * item;
 
 	item = getMetaClassList()->findByName(name);
-	
+
 	if(item == NULL) {
 		item = getMetaFundamentalList()->findByName(name);
 	}
-	
+
 	if(item == NULL) {
 		item = getMetaEnumList()->findByName(name);
 	}
@@ -228,11 +224,11 @@ void registerMetaTypedItem(const GMetaTypedItem * typedItem)
 		case mcatClass:
 			getMetaClassList()->add(typedItem);
 			break;
-		
+
 		case mcatEnum:
 			getMetaEnumList()->add(typedItem);
 			break;
-			
+
 		default:
 			GASSERT_MSG(false, "Registering non-type item.");
 			break;
@@ -249,11 +245,11 @@ void removeMetaTypedItem(const GMetaTypedItem * typedItem)
 		case mcatClass:
 			getMetaClassList()->remove(typedItem);
 			break;
-		
+
 		case mcatEnum:
 			getMetaEnumList()->remove(typedItem);
 			break;
-			
+
 		default:
 			break;
 	}
