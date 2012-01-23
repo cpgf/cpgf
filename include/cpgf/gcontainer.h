@@ -193,7 +193,7 @@ namespace _internal {
 		GWiseIteratorBase * previous;
 		GWiseIteratorBase * next;
 
-        template <typename NodeType>
+        template <typename T>
 		friend class GLinkedList;
 	};
 

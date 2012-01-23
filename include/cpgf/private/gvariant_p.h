@@ -59,7 +59,7 @@ struct VariantCaster {
 		(void)v;
 
 		failedCast();
-		return *(typename RemoveReference<To>::Result *)0;
+		return *(typename RemoveReference<To>::Result *)0xffffff;
 	}
 };
 
@@ -136,7 +136,7 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 		(void)v;
 
 		raiseCoreException(Error_Variant_CantReferenceToTemp);
-		return *static_cast<typename RemoveReference<To>::Result *>(0);
+		return *(typename RemoveReference<To>::Result *)0xffffff;
 	}
 };
 
@@ -847,7 +847,7 @@ struct CastFromVariant
 		}
 
 		failedCast();
-		return *(typename RemoveReference<T>::Result *)0;
+		return *(typename RemoveReference<T>::Result *)0xffffff;
 	}
 };
 
