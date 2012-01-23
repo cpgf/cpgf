@@ -125,6 +125,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 }
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(Lib_Exists)
 {
 	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
@@ -165,8 +166,10 @@ GTEST(Lib_Exists)
 	METHOD(methodFunctor);
 	GCHECK(method);
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(API_Exists)
 {
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
@@ -210,13 +213,15 @@ GTEST(API_Exists)
 	METHOD(methodFunctor);
 	GCHECK(method);
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(Lib_ResultType)
 {
 	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
 	GCHECK(metaClass);
-	
+
 	const GMetaMethod * method;
 
 	METHOD(methodGetInt);
@@ -265,13 +270,15 @@ GTEST(Lib_ResultType)
 	GEQUAL(method->getResultType(), createMetaType<int>());
 	GCHECK(method->hasResult());
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(Lib_ParamType)
 {
 	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
 	GCHECK(metaClass);
-	
+
 	const GMetaMethod * method;
 
 	METHOD(methodGetInt);
@@ -333,13 +340,15 @@ GTEST(Lib_ParamType)
 	GEQUAL(method->getParamCount(), 2);
 	GEQUAL(method->getParamType(0), createMetaType<int>());
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(Lib_CheckParam)
 {
 	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
 	GCHECK(metaClass);
-	
+
 	const GMetaMethod * method;
 
 	METHOD(methodGetInt);
@@ -403,8 +412,10 @@ GTEST(Lib_CheckParam)
 	GCHECK(method->checkParam(38, 0));
 	GCHECK(method->checkParam("abc", 1));
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(API_CheckParam)
 {
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
@@ -476,13 +487,15 @@ GTEST(API_CheckParam)
 	GCHECK(metaCheckParam(method, 38, 0));
 	GCHECK(metaCheckParam(method, "abc", 1));
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(Lib_Invoke)
 {
 	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
 	GCHECK(metaClass);
-	
+
 	const GMetaMethod * method;
 
 	CLASS instance;
@@ -578,8 +591,10 @@ GTEST(Lib_Invoke)
 	METHOD(methodFunctor);
 	GEQUAL(fromVariant<int>(method->invoke(pobj, 38, "hello")), 17 + 38 + 3 + 5);
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(API_Invoke)
 {
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
@@ -683,13 +698,15 @@ GTEST(API_Invoke)
 	METHOD(methodFunctor);
 	GEQUAL(fromVariant<int>(metaInvokeMethod(method, pobj, 38, "hello")), 17 + 38 + 3 + 5);
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(Lib_Execute)
 {
 	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
 	GCHECK(metaClass);
-	
+
 	const GMetaMethod * method;
 
 	CLASS instance;
@@ -782,18 +799,19 @@ GTEST(Lib_Execute)
 		18 + 56 + 102 + 192 + 3103 + 39 + 52 + 691 + 819 + 130 + 397 + 19385
 		));
 }
+#endif
 
 
 GTEST(Lib_PassParamByValueAndRef)
 {
 	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
 	GCHECK(metaClass);
-	
+
 	const GMetaMethod * method;
 
 	CLASS instance;
 	CLASS * pobj = &instance;
-	
+
 	CLASS_DATA data("abc", 5);
 	CLASS_DATA newData;
 

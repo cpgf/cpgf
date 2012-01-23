@@ -13,6 +13,11 @@
 #pragma warning(disable:4127) // conditional expression is constant
 #endif
 
+#ifdef G_COMPILER_CPPBUILDER
+#pragma warn -8008 //Condition is always true
+#pragma warn -8066 //Unreachable code
+#endif
+
 
 namespace cpgf {
 
@@ -520,6 +525,12 @@ GMetaType createPropertyType() {
 } // namespace cpgf
 
 
+#ifdef G_COMPILER_CPPBUILDER
+#pragma warn .8008 //Condition is always true
+#pragma warn .8066 //Unreachable code
+#endif
+
+
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
@@ -527,3 +538,4 @@ GMetaType createPropertyType() {
 
 
 #endif
+

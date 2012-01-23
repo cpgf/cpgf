@@ -402,11 +402,12 @@ G_AUTO_RUN_BEFORE_MAIN()
 }
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(Lib_Exists)
 {
 	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
 	GCHECK(metaClass);
-	
+
 	const GMetaOperator * op;
 
 	OP(mopHolder + mopHolder);
@@ -492,7 +493,7 @@ GTEST(Lib_Exists)
 	
 	OP( mopHolder ++);
 	GCHECK(op);
-	
+
 	OP(-- mopHolder);
 	GCHECK(op);
 	
@@ -538,8 +539,10 @@ GTEST(Lib_Exists)
 	OPI2(mopHolder(mopHolder), 1);
 	GCHECK(op);
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(API_Exists)
 {
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
@@ -550,14 +553,144 @@ GTEST(API_Exists)
 
 	GScopedInterface<IMetaOperator> op;
 
+	OP(mopHolder + mopHolder);
+	GCHECK(op);
+
+	OP(mopHolder - mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder * mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder / mopHolder);
+	GCHECK(op);
+	
+	OPI(mopHolder % mopHolder, 0);
+	GCHECK(op);
+	
+	OPI(mopHolder % mopHolder, 1);
+	GCHECK(op);
+
+	OP(mopHolder += mopHolder);
+	GCHECK(op);
+
+	OP(mopHolder -= mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder *= mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder /= mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder %= mopHolder);
+	GCHECK(op);
+
+	OP(mopHolder & mopHolder);
+	GCHECK(op);
+
+	OP(mopHolder | mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder ^ mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder << mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder >> mopHolder);
+	GCHECK(op);
+
+	OP(mopHolder == mopHolder);
+	GCHECK(op);
+
+	OP(mopHolder != mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder > mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder >= mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder < mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder <= mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder && mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder || mopHolder);
+	GCHECK(op);
+	
+	OP(+ mopHolder);
+	GCHECK(op);
+	
+	OP(- mopHolder);
+	GCHECK(op);
+	
+	OP(++ mopHolder);
+	GCHECK(op);
+	
+	OP( mopHolder ++);
+	GCHECK(op);
+
+	OP(-- mopHolder);
+	GCHECK(op);
+	
+	OP(mopHolder --);
+	GCHECK(op);
+	
+	OP(! mopHolder);
+	GCHECK(op);
+	
+	OP(~ mopHolder);
+	GCHECK(op);
+	
+	GScopedInterface<IMetaClass> metaClass2(service->findClassByName(NAME_CLASS2));
+	GCHECK(metaClass2);
+	
+	OP2(& mopHolder);
+	GCHECK(op);
+	
+	OP2(* mopHolder);
+	GCHECK(op);
+
+	OP2((mopHolder , mopHolder));
+	GCHECK(op);
+
+	OP2(mopHolder[0]);
+	GCHECK(op);
+
+	OP2(mopHolder -> mopHolder);
+	GCHECK(op);
+
+	OP2(mopHolder ->* mopHolder);
+	GCHECK(op);
+
+	OPI2(mopHolder(), 0);
+	GCHECK(op);
+
+	OPI2(mopHolder(mopHolder), 1);
+	GCHECK(op);
+
+	OPI2(mopHolder(), 0);
+	GCHECK(op);
+
+	OPI2(mopHolder(mopHolder), 1);
+	GCHECK(op);
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(Lib_InvokeArithmetic)
 {
 	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
 	GCHECK(metaClass);
-	
+
 	const GMetaOperator * op;
 
 	CLASS operand;
@@ -598,8 +731,10 @@ GTEST(Lib_InvokeArithmetic)
 	GEQUAL(result.value, 25 % (6 + 1));
 
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(API_InvokeArithmetic)
 {
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
@@ -648,13 +783,15 @@ GTEST(API_InvokeArithmetic)
 	GEQUAL(result.value, 25 % (6 + 1));
 
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(Lib_InvokeArithmeticAssign)
 {
 	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
 	GCHECK(metaClass);
-	
+
 	const GMetaOperator * op;
 
 	CLASS operand;
@@ -692,8 +829,10 @@ GTEST(Lib_InvokeArithmeticAssign)
 	GEQUAL(presult->value, 50 % 6);
 
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(API_InvokeArithmeticAssign)
 {
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
@@ -739,8 +878,10 @@ GTEST(API_InvokeArithmeticAssign)
 	GEQUAL(presult->value, 50 % 6);
 
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(Lib_InvokeBitwise)
 {
 	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
@@ -777,8 +918,10 @@ GTEST(Lib_InvokeBitwise)
 	GEQUAL(result.value, (0x57 >> 3));
 
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(API_InvokeBitwise)
 {
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
@@ -818,8 +961,10 @@ GTEST(API_InvokeBitwise)
 	GEQUAL(result.value, (0x57 >> 3));
 
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(Lib_InvokeBitwiseAssign)
 {
 	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
@@ -861,8 +1006,10 @@ GTEST(Lib_InvokeBitwiseAssign)
 	GEQUAL(presult->value, (0x57 >> 3));
 
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(API_InvokeBitwiseAssign)
 {
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
@@ -907,8 +1054,10 @@ GTEST(API_InvokeBitwiseAssign)
 	GEQUAL(presult->value, (0x57 >> 3));
 
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(Lib_InvokeLogic)
 {
 	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
@@ -967,8 +1116,10 @@ GTEST(Lib_InvokeLogic)
 	GCHECK(! fromVariant<bool>(op->invokeBinary(operand, CLASS(0))));
 
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(API_InvokeLogic)
 {
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
@@ -1030,8 +1181,10 @@ GTEST(API_InvokeLogic)
 	GCHECK(! fromVariant<bool>(metaInvokeOperatorBinary(op, operand, CLASS(0))));
 
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(Lib_InvokeUnary)
 {
 	const GMetaClass * metaClass = findMetaClass(NAME_CLASS);
@@ -1091,8 +1244,10 @@ GTEST(Lib_InvokeUnary)
 	GEQUAL(fromVariant<CLASS>(op->invokeUnary(operand)).value, ~0);
 
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(API_InvokeUnary)
 {
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
@@ -1155,8 +1310,10 @@ GTEST(API_InvokeUnary)
 	GEQUAL(fromVariant<CLASS>(metaInvokeOperatorUnary(op, operand)).value, ~0);
 
 }
+#endif
 
 
+#ifndef G_COMPILER_CPPBUILDER
 GTEST(Lib_InvokeOther)
 {
 	const GMetaClass * metaClass2 = findMetaClass(NAME_CLASS2);
@@ -1208,6 +1365,7 @@ GTEST(Lib_InvokeOther)
 		1 + 2 + 3 + 5 + 6 + 7 + 8 + 9 + 10 + 11 + 12);
 
 }
+#endif
 
 
 GTEST(API_InvokeOther)
@@ -1269,5 +1427,6 @@ GTEST(API_InvokeOther)
 
 
 } }
+
 
 

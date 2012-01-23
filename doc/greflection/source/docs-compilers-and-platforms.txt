@@ -73,7 +73,7 @@ So that file is excluded from the test.
 <td>gcc 4.5.2 </td>
 <td>32 bit </td>
 <td>Compile clean </td>
-<td>The linux version is Ubuntu 11.04 running in VirtualBox </td>
+<td>The Linux version is Ubuntu 11.04 running in VirtualBox </td>
 
 </tr>
 
@@ -121,6 +121,21 @@ The library itself should work well on 64 bit target.
 
 <tr>
 
+<td>Linux </td>
+<td>Intel C++ Compiler Composer XE 12.1.2, free version </td>
+<td>32 bit </td>
+<td>Compile clean </td>
+<td>
+<{autobr}>
+The Linux version is Ubuntu 11.04 running in VirtualBox.
+Since ICC is compatible with GCC on Linux, the prior versions to v12 should also work.
+<{/autobr}>
+</td>
+
+</tr>
+
+<tr>
+
 <td>Windows XP </td>
 <td>Embarcadero C++ Builder </td>
 <td>32 bit </td>
@@ -146,8 +161,23 @@ That's because of that the compiler is buggy and lame.
 Google V8 v8.h will introduce warnings but that's not counted to cpgf.
 
 <b>The working compilers and platforms are not limited to the list in the table. </b>
-The table only shows the compilers and platforms that were tested.
-The newer version compilers and platforms should work well too.
+The table only shows the compilers and platforms that had been tested.
+The other not too old compilers in GCC, VC family should work well too. Not too old means not as old as VC 6 or GCC 2.9.5.
+
+<b>C++ Builder is not fully tested. </b>
+Seems C++ Builder is quite lame and doesn't have the ability to compile quite complicated source file.
+For some unit test, the compiler always throws errors, such like "E2491 Maximum VIRDEF count exceeded", or internal error. All are the compiler's internal limitation.
+So some unit test for reflection, such as method or operator, most tests are removed in C++ Builder.
+Also script binding is not tested in C++ Builder, because it will be hard to build Lua and V8 library using C++ Builder.
+In brief, only 40% of the total unit tests are used to test cpgf in C++ Builder.
+So if you want to use cpgf in C++ Builder, take your own risk.
+
+
+<b>Not all compilers are tested for compatibility in every cpgf release. </b>
+Due to the frequently library releasing, and the huge work/time on testing all compilers listed above, in each release, not all compilers are tested.
+So if you find any supported compiler failed to compile the library, please forgive it kindly and notify me for the issue.
+Up to now, it's only guaranteed that GCC 4.6 and VC 2008 are used to test every release.
+
 
 <b>Your help is wanted. </b>
 If you approve that cpgf library works on other compilers or platforms, please let me know!

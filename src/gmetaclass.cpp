@@ -17,6 +17,11 @@
 #include <stdio.h>
 
 
+#ifdef G_COMPILER_CPPBUILDER
+#pragma warn -8104 //Local Static with constructor dangerous for multi-threaded apps
+#endif
+
+
 namespace cpgf {
 
 namespace meta_internal {

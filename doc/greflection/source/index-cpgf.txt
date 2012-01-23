@@ -31,7 +31,7 @@ cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding 
 
 	<b>Also provide interface based, Windows COM style, binary compatible API. </b> It's easy to put meta data in a dynamic library and use the meta data from within another library.
 
-	<b>Written in (almost) standard and portable C++. </b> It can be compiled in VC 2008, GCC 3.4.2 and C++ Builder 2010, on Windows, Linux, and Mac.
+	<b>Written in (almost) standard and portable C++. </b> It can be compiled in VC 2008, GCC 3.4.2, Intel Composer XE 12.1.2 and C++ Builder 2010, on Windows, Linux, and Mac.
 
 	<b>Extensively, but not abuse, using template programming. </b> 
 	
@@ -45,7 +45,7 @@ cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding 
 <{autoul}>
 	As powerful as the reflection system in Java and C#.
 	Reflect global/member functions, global/member fields (variable), global/member properties (fields with getter/setter), constructors, classes, enumerators, and annotations.
-	Real runtime reflection. No template parameters are needed.
+	Real runtime reflection. No compile time template parameters are needed when using the reflection.
 	No external preprocessor required, no ugly macros. Only using C++ templates, classes, and functions.
 	Support multiple inheritance.
 	For more information, please read cpgf reflection related documentation.
@@ -53,6 +53,7 @@ cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding 
 
 <h3>Quick facts of script binding library</h3>
 <{autoul}>
+	Very easy and simple to use. Any reflected meta data can be bound to scripts.
 	Bind C++ classes, enumerators, functions, variables and operators to Lua and Google V8 Javascript.
 	Invoke Lua and V8 Javascript functions from C++.
 	Pass function written in script to C++ and used by C++.
@@ -125,7 +126,7 @@ Website: <a href="http://www.kbasm.com/">http://www.kbasm.com/</a>
 	The sample code was originally written for test purpose, so they are not as easy to read as you expect. But they covers most features so it's a good kick off.
 	
 	If you want to read more sample code, read the code in the folder "test".
-	They are for unit test. They are much more difficult to read and use a lot of macros.
+	They are for unit test. They are much more difficult to read and they use a lot of macros.
 	However, they cover much more functions than the sample code.
 	
 <{/autobr}>

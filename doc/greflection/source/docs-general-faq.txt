@@ -11,6 +11,31 @@
 <{sgroup}> General
 
 
+<{sh}> What's the exception safety in cpgf library?
+<{sc}>
+
+<{autobr}>
+The library provides basic exception safety. That's to say, when exception occurs, no memory leak, and the object is not garbled.
+However, it's hard to guarantee the exceptio safety. So if you find anything that's not exception safety, let me know.
+
+<{/autobr}>
+
+
+<{sh}> What's the thread safety in cpgf library?
+<{sc}>
+
+<{autobr}>
+The library is not safe for writting at the same time in multiple thread.
+Due the static objects and lazy meta data building, before the static objects intializes and lazy occurs. reading from multiple thread is not safe.
+But when all static objects initializes and lazy occurs, reading is safe in multiple thread.
+
+For example, if you get a meta method in one thread, calling the method in several threads at the same time should be safe.
+
+However, the library is not tested in multiple threads environment yet, so take your own risk.
+
+<{/autobr}>
+
+
 <{sh}> Some of the library document is bad, I want to help to rephrase it, but how can I help?
 <{sc}>
 
@@ -40,7 +65,7 @@ Note: you can only help to improve the content, not the format.
 <{sc}>
 
 <{autobr}>
-This is because either the parameter, or the return value, is a reference-to-const to an object which can be constructed implicitly from other data type.
+This is because either the parameter, or the return value, is a reference-to-const to an object which can be constructed implicitly from a fundamental (int, char, etc) type or pointer or reference to a fundamental type.
 For example, if we have this method,
 <{piece}>void setName(const std::string & name); <{/piece}>
 std::string can be constructed implicitly from const char *.
@@ -51,6 +76,7 @@ To solve this issue, use policy GMetaPolicyCopyAllConstReference.
 That policy will force the parameter or return value being passed by value instead of reference.
 
 <{piece}>._method("setName", &setName, GMetaPolicyCopyAllConstReference()) <{/piece}>
+
 
 <{/autobr}>
 

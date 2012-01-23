@@ -93,7 +93,15 @@ enum GMetaOpType {
 
 #include "cpgf/private/gmetaoperator_p.h"
 
+#ifdef G_COMPILER_CPPBUILDER
+#pragma warn -8058 //Cannot create pre-compiled header: initialized data in header
+#endif
+
 const meta_internal::GMetaOperatorHolder mopHolder = meta_internal::GMetaOperatorHolder();
+
+#ifdef G_COMPILER_CPPBUILDER
+#pragma warn .8058 //Cannot create pre-compiled header: initialized data in header
+#endif
 
 
 GMAKE_FINAL(GMetaOperator)
@@ -142,3 +150,5 @@ private:
 
 
 #endif
+
+

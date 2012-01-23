@@ -30,7 +30,7 @@ So it's best practice to put all meta data in one CPP file and only compile once
 
 <{autobr}>
 The meta data for each STL template is in its own header file.
-The header files are in folder cpgf/metadata/stl.
+The header files are in folder include/cpgf/metadata/stl.
 gmetadata_deque.h
 gmetadata_iterator.h
 gmetadata_list.h
@@ -41,52 +41,61 @@ The APIs prototype:
 
 <{code}>
 template <typename MetaDefine, typename Policy>
-MetaDefine buildMetaData_constIterator(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
+MetaDefine buildMetaData_constIterator(const GMetaDataConfigFlags & config, MetaDefine define,
+	const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
 
 template <typename MetaDefine, typename Policy>
-MetaDefine buildMetaData_constIterator(MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
+MetaDefine buildMetaData_constIterator(MetaDefine define,
+	const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
 
 template <typename MetaDefine, typename Policy>
-MetaDefine buildMetaData_iterator(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
+MetaDefine buildMetaData_iterator(const GMetaDataConfigFlags & config, MetaDefine define,
+	const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
 
 template <typename MetaDefine, typename Policy>
-MetaDefine buildMetaData_iterator(MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
-
-
-template <typename MetaDefine, typename Policy>
-void buildMetaData_vector(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
-
-template <typename MetaDefine, typename Policy>
-void buildMetaData_vector(MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
+MetaDefine buildMetaData_iterator(MetaDefine define,
+	const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
 
 
 template <typename MetaDefine, typename Policy>
-void buildMetaData_list(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
+void buildMetaData_vector(const GMetaDataConfigFlags & config, MetaDefine define,
+	const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
 
 template <typename MetaDefine, typename Policy>
-void buildMetaData_list(MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
+void buildMetaData_vector(MetaDefine define,
+	const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
 
 
 template <typename MetaDefine, typename Policy>
-void buildMetaData_deque(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
+void buildMetaData_list(const GMetaDataConfigFlags & config, MetaDefine define,
+	const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
 
 template <typename MetaDefine, typename Policy>
-void buildMetaData_deque(MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
+void buildMetaData_list(MetaDefine define,
+	const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
 
 
+template <typename MetaDefine, typename Policy>
+void buildMetaData_deque(const GMetaDataConfigFlags & config, MetaDefine define,
+	const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
+
+template <typename MetaDefine, typename Policy>
+void buildMetaData_deque(MetaDefine define,
+	const Policy & policy, const GMetaDataNameReplacer * replacer = NULL);
 
 <{/code}>
 
 <{autobr}>
+
 The parameters:
 
 <b>config</b>: The config flags to control how to build meta data.
 Now it can be only either 0, or mdcScriptable.
-if it's mdcScriptable, the meta data will contain auxiliary functions which can be used by script.
+If it's mdcScriptable, the meta data will contain auxiliary functions which can be used by script.
 For example, C++ iterator can be only increased by ++ operator which is not possible in script. A function "inc" is provided that can be used in script.
 Note: the counterpart API that doesn't have config, will always build meta data as if mdcScriptable is provided.
 
-Here is the auxiliary functions list, assume "it" and "it2" is an iterator:
+Here is the auxiliary functions list, assume "it" is an iterator:
 ++it --> it.inc()
 it++ --> it.inc()
 --it --> it.dec()

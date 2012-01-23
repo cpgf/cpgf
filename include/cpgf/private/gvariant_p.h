@@ -158,9 +158,7 @@ void initShadowObject(GVariant & v, const T & value, typename GEnableIf<! CanSha
 template <bool CanShadow, typename T, typename Enable = void>
 struct InitVariantSelector
 {
-	typedef typename RemoveReference<T>::Result NoRef;
-
-	static void init(GVariant & v, const GVarTypeData & typeData, const NoRef & value) {
+	static void init(GVariant & v, const GVarTypeData & typeData, const T & value) {
 		v.data.typeData = typeData;
 		vtSetSize(v.data.typeData, getVariantTypeSize(vtGetType(typeData)));
 
@@ -227,7 +225,7 @@ struct InitVariantSelector
 				break;
 
 			case vtObject:
-				v.data.valueObject = variant_internal::CastVariantHelper<NoRef *, const volatile void *>::cast(const_cast<NoRef *>(&value));
+				v.data.valueObject = variant_internal::CastVariantHelper<T *, const volatile void *>::cast(const_cast<T *>(&value));
 				break;
 
 			case vtShadow:

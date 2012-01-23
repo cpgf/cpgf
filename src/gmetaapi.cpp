@@ -16,6 +16,11 @@
 #include <string>
 
 
+#ifdef G_COMPILER_CPPBUILDER
+#pragma warn -8104 //Local Static with constructor dangerous for multi-threaded apps
+#endif
+
+
 #define ENTER_META_API() \
 	this->clearError(); \
 	try {
