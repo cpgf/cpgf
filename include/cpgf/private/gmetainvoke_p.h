@@ -13,6 +13,12 @@
 #include "cpgf/gexception.h"
 
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4267) // weird warning when reflecting std::vector in VC, disable it.
+#endif
+
+
 namespace cpgf {
 
 namespace meta_internal {
@@ -193,6 +199,11 @@ struct IsVariadicFunction <FunctionTraits, typename GEnableIfResult<CheckSingleA
 #undef REF_CALL_HELPER_CAST_EXPLICIT_THIS
 #undef REF_CALL_HELPER_CAST_EXPLICIT_THIS_HELPER
 #undef REF_CALL_HELPER_CAST_EXPLICIT_THIS_EMPTY
+
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 
 #endif

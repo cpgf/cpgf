@@ -1,5 +1,6 @@
 #include "cpgf/scriptbind/gv8bind.h"
 #include "cpgf/gmetaclasstraveller.h"
+#include "cpgf/gstringmap.h"
 
 #include "../pinclude/gbindcommon.h"
 #include "../pinclude/gscriptbindapiimpl.h"
@@ -999,6 +1000,26 @@ Handle<Value> namedEnumSetter(Local<String> prop, Local<Value> value, const Acce
 	LEAVE_V8(return Handle<Value>())
 }
 
+Handle<Array> namedEnumEnumerator(const AccessorInfo & info)
+{
+	ENTER_V8()
+
+	GEnumUserData * userData = static_cast<GEnumUserData *>(info.Holder()->GetPointerFromInternalField(0));
+	IMetaEnum * metaEnum = userData->metaEnum;
+	uint32_t keyCount = metaEnum->getCount();
+
+	HandleScope handleScope;
+
+	Local<Array> metaNames = Array::New(keyCount);
+	for(uint32_t i = 0; i < keyCount; ++i) {
+		metaNames->Set(Number::New(i), String::New(metaEnum->getKey(i)));
+	}
+
+	return handleScope.Close(metaNames);
+
+	LEAVE_V8(return Handle<Array>())
+}
+
 Handle<ObjectTemplate> createEnumTemplate(GScriptBindingParam * param, IMetaEnum * metaEnum,
 	const char * name, GEnumUserData ** outUserData)
 {
@@ -1012,7 +1033,7 @@ Handle<ObjectTemplate> createEnumTemplate(GScriptBindingParam * param, IMetaEnum
 
 	Handle<ObjectTemplate> objectTemplate = ObjectTemplate::New();
 	objectTemplate->SetInternalFieldCount(1);
-	objectTemplate->SetNamedPropertyHandler(&namedEnumGetter, &namedEnumSetter);
+	objectTemplate->SetNamedPropertyHandler(&namedEnumGetter, &namedEnumSetter, NULL, NULL, &namedEnumEnumerator);
 
 	return objectTemplate;
 }
@@ -1271,6 +1292,46 @@ Handle<Value> namedMemberSetter(Local<String> prop, Local<Value> value, const Ac
 	LEAVE_V8(return Handle<Value>())
 }
 
+Handle<Array> namedMemberEnumerator(const AccessorInfo & info)
+{
+	ENTER_V8()
+
+	if(!isValidObject(info.Holder())) {
+		raiseCoreException(Error_ScriptBinding_AccessMemberWithWrongObject);
+	}
+
+	GClassUserData * userData = static_cast<GClassUserData *>(info.Holder()->GetPointerFromInternalField(0));
+
+	GMetaClassTraveller traveller(userData->metaClass, userData->instance);
+	GStringMap<bool, GStringMapReuseKey> nameMap;
+
+	for(;;) {
+		GScopedInterface<IMetaClass> metaClass(traveller.next(NULL, NULL));
+
+		if(!metaClass) {
+			break;
+		}
+
+		uint32_t metaCount = metaClass->getMetaCount();
+		for(uint32_t i = 0; i < metaCount; ++i) {
+			nameMap.set(metaClass->getMetaAt(i)->getName(), true);
+		}
+	}
+
+	HandleScope handleScope;
+
+	Local<Array> metaNames = Array::New(nameMap.getCount());
+	int i = 0;
+	for(GStringMap<bool, GStringMapReuseKey>::iterator it = nameMap.begin(); it != nameMap.end(); ++it) {
+		metaNames->Set(Number::New(i), String::New(it->first));
+		++i;
+	}
+
+	return handleScope.Close(metaNames);
+
+	LEAVE_V8(return Handle<Array>())
+}
+
 void accessorNamedMemberSetter(Local<String> prop, Local<Value> value, const AccessorInfo & info)
 {
 	namedEnumSetter(prop, value, info);
@@ -1389,7 +1450,7 @@ Handle<FunctionTemplate> createClassTemplate(GScriptBindingParam * param, const 
 	Local<ObjectTemplate> instanceTemplate = functionTemplate->InstanceTemplate();
 	instanceTemplate->SetInternalFieldCount(1);
 
-	instanceTemplate->SetNamedPropertyHandler(&namedMemberGetter, &namedMemberSetter);
+	instanceTemplate->SetNamedPropertyHandler(&namedMemberGetter, &namedMemberSetter, NULL, NULL, &namedMemberEnumerator);
 
 	GMapItemClassData * mapData = new GMapItemClassData;
 	mapData->setTemplate(functionTemplate);

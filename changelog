@@ -4,6 +4,7 @@ TBD version 1.2.3
 	Added script object wrapper. Now script can pass object to C++ as method parameters.
 	Added meta data for STL iterator, vector, list and deque.
 	Added policy GMetaRuleGetterExplicitThis and GMetaRuleSetterExplicitThis for property getter and setter.
+	V8 binding -- Added object property enumerator. Now using for..in will enumerate all meta data in the object.
 	Improve code portability, now can compile in C++ Builder 2010. But will get "E2491 Maximum VIRDEF count exceeded; check for recursion" error when compiling some unit test.
 	Fixed a bug that in script binding, if a method returns GVariant, the result will be wrongly converted to an object.
 

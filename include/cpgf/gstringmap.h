@@ -78,6 +78,10 @@ public:
 	bool isEmpty() const {
 		return this->stringMap.empty();
 	}
+	
+	int getCount() const {
+		return static_cast<int>(this->stringMap.size());
+	}
 
 	iterator find(const char * key) {
 		return this->stringMap.find(key);
