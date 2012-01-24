@@ -54,7 +54,7 @@
 
 <br />
 
-<h1>cpgf library -- a free C++ open source library for reflection, script binding, callbacks</h1>
+<h1>cpgf library -- a free C++ open source library for reflection, script binding, callbacks </h1>
 
 cpgf is a free, open source and cross platform C++ library.<br />
 cpgf is composed by several independent components:<br />
@@ -68,7 +68,7 @@ cpgf provides a very easy to use callback system, which is common used in C# and
 cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? now we have it in C++!<br />
 cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding engine uses the reflection system extensively.<br />
 <br />
-<b>Vesion 1.2.2 is released on Jan.7, 2012. </b><br />
+<b>Vesion 1.2.3 is released on Jan.24, 2012. </b><br />
 <br />
 
 <h3>Key features</h3>
@@ -76,9 +76,9 @@ cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding 
 </li>
 <li>	<b>Also provide interface based, Windows COM style, binary compatible API. </b> It's easy to put meta data in a dynamic library and use the meta data from within another library.
 </li>
-<li>	<b>Written in (almost) standard and portable C++. </b> It can be compiled at least under VC and GCC, on Windows, Linux, and Mac.
+<li>	<b>Written in (almost) standard and portable C++. </b> It can be compiled in VC 2008, GCC 3.4.2, Intel Composer XE 12.1.2 and C++ Builder 2010, on Windows, Linux, and Mac.
 </li>
-<li>	<b>Extensively, but not abuse, using template programming. </b> Don't feel scaring. The compile time is not slow!
+<li>	<b>Extensively, but not abuse, using template programming. </b> 
 </li>	
 <li>	<b>No need external preprocessor or code generation tools. </b> Just coding and enjoy. Easy to setup, easy to integrate with your project.
 </li>	
@@ -86,16 +86,18 @@ cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding 
 </li></ul>
 
 <h3>Quick facts of reflection library</h3>
-<ul><li>	Almost as powerful as the reflection system in Java and C#.
+<ul><li>	As powerful as the reflection system in Java and C#.
 </li><li>	Reflect global/member functions, global/member fields (variable), global/member properties (fields with getter/setter), constructors, classes, enumerators, and annotations.
-</li><li>	Real runtime reflection. No template parameters are needed.
+</li><li>	Real runtime reflection. No compile time template parameters are needed when using the reflection.
 </li><li>	No external preprocessor required, no ugly macros. Only using C++ templates, classes, and functions.
 </li><li>	Support multiple inheritance.
 </li><li>	For more information, please read cpgf reflection related documentation.
 </li></ul>
 <h3>Quick facts of script binding library</h3>
-<ul><li>	Bind C++ classes, enumerators, functions, variables and operators to Lua and Google V8 Javascript.
+<ul><li>	Very easy and simple to use. Any reflected meta data can be bound to scripts.
+</li><li>	Bind C++ classes, enumerators, functions, variables and operators to Lua and Google V8 Javascript.
 </li><li>	Invoke Lua and V8 Javascript functions from C++.
+</li><li>	Pass function written in script to C++ and used by C++.
 </li><li>	Get and set Lua and V8 Javascript variables from C++.
 </li><li>	For more information, please read cpgf script binding related documentation.
 </li></ul>
@@ -112,7 +114,7 @@ cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding 
 <br />
 
 <h3>Library version</h3>
-	1.2.2<br />
+	1.2.3<br />
 <br />
 
 <h3>Change log</h3>
@@ -126,6 +128,7 @@ Website: <a href="http://www.kbasm.com/">http://www.kbasm.com/</a><br />
 
 
 <h3>Compatibility -- Tested compilers and platforms </h3>
+	Support GCC 3.4.2 and up, MS VC 2008 and up, C++ Builder 2010 and up, XCode and Intel C++ Compiler.<br />
 	<a href="docs-cpgf-compilers-and-platforms.html">Read this document for more information </a><br />
 <br />
 
@@ -147,7 +150,7 @@ Website: <a href="http://www.kbasm.com/">http://www.kbasm.com/</a><br />
 	The sample code was originally written for test purpose, so they are not as easy to read as you expect. But they covers most features so it's a good kick off.<br />
 	<br />
 	If you want to read more sample code, read the code in the folder &quot;test&quot;.<br />
-	They are for unit test. They are much more difficult to read and use a lot of macros.<br />
+	They are for unit test. They are much more difficult to read and they use a lot of macros.<br />
 	However, they cover much more functions than the sample code.<br />
 	<br />
 	

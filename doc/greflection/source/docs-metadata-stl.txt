@@ -18,9 +18,6 @@ Note: due to the variations of STL implementation, the meta data may be not comp
 If so, a report with detail to me is welcome.
 
 Note: due to the very heavy use of template in both cpgf and STL, compiling speed is quite slow.
-Each unit test for STL meta data will need more than one minutes and giga bytes memory to compile.
-Also the .obj file is very big, more than 10M.
-So it's best practice to put all meta data in one CPP file and only compile once.
 
 <{/autobr}>
 
@@ -124,20 +121,20 @@ Examples to build meta data for STL.
 
 <{/autobr}>
 <{code}>
-	GMetaDataNameReplacer replacer;
-	initializeLuaReplacer(&replacer);
-	GDefineMetaClass<vector<int> > define = GDefineMetaClass<vector<int> >::declare("MyVector");
-	buildMetaData_vector(define, typename GMetaDataPolicyDeduce<typename vector<int>::value_type>::Result(), &replacer);
+GMetaDataNameReplacer replacer;
+initializeLuaReplacer(&replacer);
+GDefineMetaClass<vector<int> > define = GDefineMetaClass<vector<int> >::declare("MyVector");
+buildMetaData_vector(define, typename GMetaDataPolicyDeduce<typename vector<int>::value_type>::Result(), &replacer);
 <{/code}>
+
 <{autobr}>
 	Now the meta class in "define" contains the meta data for vector<int>, named MyVector.
 	If the code doesn't compile (C++ Builder will fail), change typename GMetaDataPolicyDeduce<typename vector<int>::value_type>::Result() to a temporary variable.
-<{code}>
-	typename GMetaDataPolicyDeduce<typename vector<int>::value_type>::Result p;
-	buildMetaData_vector(define, p, &replacer);
-<{/code}>
-
 <{/autobr}>
+<{code}>
+typename GMetaDataPolicyDeduce<typename vector<int>::value_type>::Result p;
+buildMetaData_vector(define, p, &replacer);
+<{/code}>
 
 
 

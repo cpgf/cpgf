@@ -6,7 +6,7 @@ It's written in (almostly) standard C++ and doesn't require any preprocess or to
 
 
 Version:
-	1.2.2
+	1.2.3
 
 		
 Libraries:
@@ -96,7 +96,9 @@ Build the library:
 Compatibility -- Tested compilers and OSes:
 	Windows XP, Microsoft Visual C++ 2008 Express and Microsoft Visual C++ 2010 Professional
 	Windows XP, MingW GCC 3.4.2, 4.4.0 and 4.5.2
+	Windows XP, Embarcadero C++ Builder 2010
 	Linux (Ubuntu 11.04 in VirtualBox), GCC 4.5.2
+	Linux (Ubuntu 11.04 in VirtualBox), Intel C++ Compiler Composer XE
 	Mac 10.6.8, GCC 4.4.0
 	
 	

@@ -76,6 +76,9 @@
 <li>
 <a href="docs-cpgf-script-binding.html#linkid6">
 <strong>Utility API</strong></a></li>
+<li>
+<a href="docs-cpgf-script-binding.html#linkid7">
+<strong>Passing script function and object to C++</strong></a></li>
 </ul>
 </div>
 
@@ -317,7 +320,10 @@ Example,<br />
 </div><br />
 <div class="codepiece"">IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject); <br />
 </div>Wrap GScriptObject object to IScriptObject.<br />
-Note: the returned interface will become the owner of scriptObject. Don't delete scriptObject.<br />
+Note: the returned interface will not own the scriptObject. The caller should delete scriptObject.<br />
+<br />
+<div class="codepiece"">IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject); <br />
+</div>If freeObject is true, the returned interface will free the script object.<br />
 <br />
 <div class="codepiece"">void injectMetaClassToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance); <br />
 </div>Inject a class to the script. It will bind all methods, enumerators, nested class, in metaClass, to scriptObject in global scope.<br />
@@ -327,6 +333,22 @@ So if metaClass is a top level global class, calling<br />
 <div class="codepiece"">injectMetaClassToScript(myScriptObject, globalClass, NULL); <br />
 </div>will bind everything in the meta system to the script.<br />
 <br />
+
+
+<p><a name="linkid7"></a></p>
+<p>
+<strong>Passing script function and object to C++</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-script-binding.html#top">back top</a></span></p>
+The script function and object here are the function and object defined in the script, not exposed by C++.<br />
+When the script is calling a C++ function, or setting a property, a script function will be wrapped in a IScriptFunction interface, and a script object will be wrapped in a IScriptObject interface.<br />
+Then the C++ code can use the interfaces to access the script function and object.<br />
+<br />
+Notes:<br />
+1, If the script interface is passed as method parameter, don't release it. The caller will release it.<br />
+2, Don't pass script interface to field. You should use property with getter and setter to set the data.<br />
+In the setter, addReference must be called on the interface to retain it. Otherwise, the interface will be released by the script.<br />
+<br />
+
+
 
 
 

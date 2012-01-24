@@ -100,17 +100,6 @@ bindMethod and bindMethodList are useful if you want to bind methods to global s
 <{/autobr}>
 
 
-<{sh}> How can I pass script function and object from script to C++?
-<{sc}>
-
-<{autobr}>
-It's quite common to define some functions and objects in the script and let C++ code use them.
-You can't pass the function or object directly, because in C++ there is no type of script function and object.
-However, you can pass the function and object name to C++, then the C++ can invoke the script function, or get the script object.
-
-<{/autobr}>
-
-
 <{sh}> Why the Google V8 binding is based on an old version V8 (v3.4.5)?
 <{sc}>
 

@@ -2,17 +2,17 @@ set(BUILD_DEBUG
 	0
 )
 
-# 1 to enable Lua binding, 0 to disable
+# set 1 to enable Lua binding, 0 to disable
 set(HAS_LUA
 	1
 )
 
-# 1 to enable V8 binding, 0 to disable
+# set 1 to enable V8 binding, 0 to disable
 set(HAS_V8
 	1
 )
 
-# 1 to enable C++ 0X in GCC, then rvalue reference is enabled
+# set 1 to enable C++ 0X in GCC, then rvalue reference is enabled
 # 0 to disable rvalue reference
 set(SUPPORT_GCC_0X
 	1
@@ -63,7 +63,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)
-	set(V8_LIB ${V8_DIR}/v8_g.lib)
+	set(V8_LIB ${V8_DIR}/v8.lib)
 endif(MSVC)
 
 

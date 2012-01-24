@@ -56,6 +56,16 @@
 
 <h1>cpgf library changes log</h1>
 
+<h3>2012-01-24 version 1.2.3 </h3>
+<ul><li>	Added script function wrapper. Now script can pass script function to C++ as method parameters.
+</li><li>	Added script object wrapper. Now script can pass script object to C++ as method parameters.
+</li><li>	Added meta data for STL iterator, vector, list and deque.
+</li><li>	V8 binding -- Added object property enumerator. Now using for..in will enumerate all meta data in the object.
+</li><li>	Added policy GMetaRuleGetterExplicitThis and GMetaRuleSetterExplicitThis for property getter and setter.
+</li><li>	Added vtInterface in GVariant.
+</li><li>	Improved code portability, now the library can compile in Intel C++ Compiler Composer XE and Embarcadero C++ Builder 2010.
+</li><li>	Fixed a bug that in script binding, if a method returns GVariant, the result will be wrongly converted to an object.
+</li></ul>	
 <h3>2012-01-07 version 1.2.2 </h3>
 <ul><li>	Added meta policy GMetaRuleExplicitThis.
 </li><li>	Support binding object functor as meta method.

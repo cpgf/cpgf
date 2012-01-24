@@ -63,34 +63,37 @@
 <ul>
 <li>
 <a href="docs-cpgf-general-faq.html#linkid2">
+<strong>What's the exception safety in cpgf library?</strong></a></li>
+<li>
+<a href="docs-cpgf-general-faq.html#linkid3">
+<strong>What's the thread safety in cpgf library?</strong></a></li>
+<li>
+<a href="docs-cpgf-general-faq.html#linkid4">
 <strong>Some of the library document is bad, I want to help to rephrase it, but how can I help?</strong></a></li>
 </ul>
 </div>
 <p>
 <b>
-<a href="docs-cpgf-general-faq.html#linkid3">
+<a href="docs-cpgf-general-faq.html#linkid5">
 <strong>Reflection</strong></a></b></p>
 <div style="margin-left:0px">
 <ul>
 <li>
-<a href="docs-cpgf-general-faq.html#linkid4">
+<a href="docs-cpgf-general-faq.html#linkid6">
 <strong>When I build meta data for method, why the compiler issues warning like returning reference to temporary object?</strong></a></li>
 </ul>
 </div>
 <p>
 <b>
-<a href="docs-cpgf-general-faq.html#linkid5">
+<a href="docs-cpgf-general-faq.html#linkid7">
 <strong>Script binding (Lua and Google V8 Javascript)</strong></a></b></p>
 <div style="margin-left:0px">
 <ul>
 <li>
-<a href="docs-cpgf-general-faq.html#linkid6">
+<a href="docs-cpgf-general-faq.html#linkid8">
 <strong>When should I use bindMethod and bindMethodList?</strong></a></li>
 <li>
-<a href="docs-cpgf-general-faq.html#linkid7">
-<strong>How can I pass script function and object from script to C++?</strong></a></li>
-<li>
-<a href="docs-cpgf-general-faq.html#linkid8">
+<a href="docs-cpgf-general-faq.html#linkid9">
 <strong>Why the Google V8 binding is based on an old version V8 (v3.4.5)?</strong></a></li>
 </ul>
 </div>
@@ -98,6 +101,27 @@
 
 <p><a name="linkid1"></a></p>
 <h3>General</h3><p><a name="linkid2"></a></p>
+<p>
+<strong>What's the exception safety in cpgf library?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
+The library provides basic exception safety. That's to say, when exception occurs, no memory leak, and the object is not garbled.<br />
+However, it's hard to guarantee the exceptio safety. So if you find anything that's not exception safety, let me know.<br />
+<br />
+
+
+<p><a name="linkid3"></a></p>
+<p>
+<strong>What's the thread safety in cpgf library?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
+The library is not safe for writting at the same time in multiple thread.<br />
+Due the static objects and lazy meta data building, before the static objects intializes and lazy occurs. reading from multiple thread is not safe.<br />
+But when all static objects initializes and lazy occurs, reading is safe in multiple thread.<br />
+<br />
+For example, if you get a meta method in one thread, calling the method in several threads at the same time should be safe.<br />
+<br />
+However, the library is not tested in multiple threads environment yet, so take your own risk.<br />
+<br />
+
+
+<p><a name="linkid4"></a></p>
 <p>
 <strong>Some of the library document is bad, I want to help to rephrase it, but how can I help?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
 First, any intention of helping the library is appreciated.<br />
@@ -116,11 +140,11 @@ Note: you can only help to improve the content, not the format.<br />
 
 
 
-<p><a name="linkid3"></a></p>
-<h3>Reflection</h3><p><a name="linkid4"></a></p>
+<p><a name="linkid5"></a></p>
+<h3>Reflection</h3><p><a name="linkid6"></a></p>
 <p>
 <strong>When I build meta data for method, why the compiler issues warning like returning reference to temporary object?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
-This is because either the parameter, or the return value, is a reference-to-const to an object which can be constructed implicitly from other data type.<br />
+This is because either the parameter, or the return value, is a reference-to-const to an object which can be constructed implicitly from a fundamental (int, char, etc) type or pointer or reference to a fundamental type.<br />
 For example, if we have this method,<br />
 <div class="codepiece"">void setName(const std::string &amp; name); <br />
 </div>std::string can be constructed implicitly from const char *.<br />
@@ -132,14 +156,15 @@ That policy will force the parameter or return value being passed by value inste
 <br />
 <div class="codepiece"">._method(&quot;setName&quot;, &amp;setName, GMetaPolicyCopyAllConstReference()) <br />
 </div><br />
+<br />
 
 
 
 
 
 
-<p><a name="linkid5"></a></p>
-<h3>Script binding (Lua and Google V8 Javascript)</h3><p><a name="linkid6"></a></p>
+<p><a name="linkid7"></a></p>
+<h3>Script binding (Lua and Google V8 Javascript)</h3><p><a name="linkid8"></a></p>
 <p>
 <strong>When should I use bindMethod and bindMethodList?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
 If you are only binding classes, never you need to call bindMethod or bindMethodList.<br />
@@ -149,16 +174,7 @@ bindMethod and bindMethodList are useful if you want to bind methods to global s
 <br />
 
 
-<p><a name="linkid7"></a></p>
-<p>
-<strong>How can I pass script function and object from script to C++?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
-It's quite common to define some functions and objects in the script and let C++ code use them.<br />
-You can't pass the function or object directly, because in C++ there is no type of script function and object.<br />
-However, you can pass the function and object name to C++, then the C++ can invoke the script function, or get the script object.<br />
-<br />
-
-
-<p><a name="linkid8"></a></p>
+<p><a name="linkid9"></a></p>
 <p>
 <strong>Why the Google V8 binding is based on an old version V8 (v3.4.5)?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
 First, the V8 version used in cpgf is not very old. It should be already stable version.<br />

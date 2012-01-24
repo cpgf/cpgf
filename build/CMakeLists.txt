@@ -145,7 +145,7 @@ endif(CMAKE_COMPILER_IS_GNUCC)
 if(MSVC)
 	set(LIB_COMPILE_FLAGS "-W4 -Wp64")
 	set(TEST_COMPILE_FLAGS "-W4 -Wp64")
-	set(UNITTEST_COMPILE_FLAGS "-W4 -Wp64")
+	set(UNITTEST_COMPILE_FLAGS "-W4 -Wp64 -bigobj")
 endif(MSVC)
 
 add_library(

@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="maintpl.css" />
+<title>Built-in meta data for STL in C++ cpgf library</title>
+</head>
+<body><div style="width:900px">
+
+
+
+
+
+<a name="top"></a>
+
+
+
+
+
+<table style="font-weight:bold;font-size:18px">
+<tr>
+
+<td>
+	<a href="cpgf-index.html">home</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-docs.html">documentation</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-download.html">download</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-change-log.html">change log</a>
+</td>
+
+<td style="width:30px"></td>
+
+<td>
+	<a href="cpgf-support.html">support</a>
+</td>
+
+</tr>
+</table>
+
+<br />
+
+<h1>Built-in meta data for STL in C++ cpgf library</h1>
+
+<p><a name="linkid1"></a></p>
+<p>
+<strong>Overview</strong></p>
+The meta data for STL is a collection of meta data to represent for C++ STL library.<br />
+Currently there are meta data for iterator, vector, list and deque.<br />
+More meta data will be added in the future.<br />
+<br />
+Note: due to the variations of STL implementation, the meta data may be not compilable for certain STL porting.<br />
+If so, a report with detail to me is welcome.<br />
+<br />
+Note: due to the very heavy use of template in both cpgf and STL, compiling speed is quite slow.<br />
+<br />
+
+
+<p><a name="linkid2"></a></p>
+<p>
+<strong>APIs to build meta data</strong></p>
+The meta data for each STL template is in its own header file.<br />
+The header files are in folder include/cpgf/metadata/stl.<br />
+gmetadata_deque.h<br />
+gmetadata_iterator.h<br />
+gmetadata_list.h<br />
+gmetadata_vector.h<br />
+<br />
+The APIs prototype:<br />
+
+<pre>template &lt;typename MetaDefine, typename Policy&gt;
+MetaDefine buildMetaData_constIterator(const GMetaDataConfigFlags &amp; config, MetaDefine define,
+    const Policy &amp; policy, const GMetaDataNameReplacer * replacer = NULL);
+
+template &lt;typename MetaDefine, typename Policy&gt;
+MetaDefine buildMetaData_constIterator(MetaDefine define,
+    const Policy &amp; policy, const GMetaDataNameReplacer * replacer = NULL);
+
+template &lt;typename MetaDefine, typename Policy&gt;
+MetaDefine buildMetaData_iterator(const GMetaDataConfigFlags &amp; config, MetaDefine define,
+    const Policy &amp; policy, const GMetaDataNameReplacer * replacer = NULL);
+
+template &lt;typename MetaDefine, typename Policy&gt;
+MetaDefine buildMetaData_iterator(MetaDefine define,
+    const Policy &amp; policy, const GMetaDataNameReplacer * replacer = NULL);
+
+
+template &lt;typename MetaDefine, typename Policy&gt;
+void buildMetaData_vector(const GMetaDataConfigFlags &amp; config, MetaDefine define,
+    const Policy &amp; policy, const GMetaDataNameReplacer * replacer = NULL);
+
+template &lt;typename MetaDefine, typename Policy&gt;
+void buildMetaData_vector(MetaDefine define,
+    const Policy &amp; policy, const GMetaDataNameReplacer * replacer = NULL);
+
+
+template &lt;typename MetaDefine, typename Policy&gt;
+void buildMetaData_list(const GMetaDataConfigFlags &amp; config, MetaDefine define,
+    const Policy &amp; policy, const GMetaDataNameReplacer * replacer = NULL);
+
+template &lt;typename MetaDefine, typename Policy&gt;
+void buildMetaData_list(MetaDefine define,
+    const Policy &amp; policy, const GMetaDataNameReplacer * replacer = NULL);
+
+
+template &lt;typename MetaDefine, typename Policy&gt;
+void buildMetaData_deque(const GMetaDataConfigFlags &amp; config, MetaDefine define,
+    const Policy &amp; policy, const GMetaDataNameReplacer * replacer = NULL);
+
+template &lt;typename MetaDefine, typename Policy&gt;
+void buildMetaData_deque(MetaDefine define,
+    const Policy &amp; policy, const GMetaDataNameReplacer * replacer = NULL);
+
+</pre>
+<br />
+The parameters:<br />
+<br />
+<b>config</b>: The config flags to control how to build meta data.<br />
+Now it can be only either 0, or mdcScriptable.<br />
+If it's mdcScriptable, the meta data will contain auxiliary functions which can be used by script.<br />
+For example, C++ iterator can be only increased by ++ operator which is not possible in script. A function &quot;inc&quot; is provided that can be used in script.<br />
+Note: the counterpart API that doesn't have config, will always build meta data as if mdcScriptable is provided.<br />
+<br />
+Here is the auxiliary functions list, assume &quot;it&quot; is an iterator:<br />
+++it --&gt; it.inc()<br />
+it++ --&gt; it.inc()<br />
+--it --&gt; it.dec()<br />
+it-- --&gt; it.dec()<br />
+it + n --&gt; it.skip(n)<br />
+*it --&gt; it.value()<br />
+*it = newValue --&gt; it.set(newValue) // only available for non-const iterator<br />
+Examples:<br />
+myVector.begin().inc().inc().value() will return the third value in the vector.<br />
+<br />
+<b>define</b>: a meta define that represents the meta class.<br />
+It can be obtained by GDefineMetaClass&lt;T&gt;::define or GDefineMetaClass&lt;T&gt;::declare.<br />
+<br />
+<b>policy</b>: the policy that controlling how the STL functions accept parameters.<br />
+cgpf provides GMetaDataPolicyDeduce to auto deduce the policy. But it only counts std::string specially.<br />
+<br />
+<b>replacer</b>: a mechanism that allows to change the default function name in the meta data.<br />
+If replacer is NULL, the meta name will keep same as in STL.<br />
+If replacer is not NULL, the meta name will be replaced if the name appears in replacer.<br />
+For example, in replacer, if &quot;end&quot; is replaced with &quot;_end&quot;, the meta name of any &quot;end&quot; will become &quot;_end&quot;.<br />
+If you are binding meta data to Lua, you should ways replace &quot;end&quot; with &quot;_end&quot; because &quot;end&quot; is key word in Lua.<br />
+A function initializeLuaReplacer can do it for you.<br />
+<div class="codepiece"">void initializeLuaReplacer(GMetaDataNameReplacer * replacer); <br />
+</div><br />
+Examples to build meta data for STL.<br />
+<br />
+<pre>GMetaDataNameReplacer replacer;
+initializeLuaReplacer(&amp;replacer);
+GDefineMetaClass&lt;vector&lt;int&gt; &gt; define = GDefineMetaClass&lt;vector&lt;int&gt; &gt;::declare(&quot;MyVector&quot;);
+buildMetaData_vector(define, typename GMetaDataPolicyDeduce&lt;typename vector&lt;int&gt;::value_type&gt;::Result(), &amp;replacer);
+</pre>
+	Now the meta class in &quot;define&quot; contains the meta data for vector&lt;int&gt;, named MyVector.<br />
+	If the code doesn't compile (C++ Builder will fail), change typename GMetaDataPolicyDeduce&lt;typename vector&lt;int&gt;::value_type&gt;::Result() to a temporary variable.<br />
+<pre>typename GMetaDataPolicyDeduce&lt;typename vector&lt;int&gt;::value_type&gt;::Result p;
+buildMetaData_vector(define, p, &amp;replacer);
+</pre>
+
+
+
+
+
+
+
+</div></body></html>

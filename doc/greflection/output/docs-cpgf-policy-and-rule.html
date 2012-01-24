@@ -146,6 +146,11 @@ void myMethod(MyClass * instance, int param);<br />
 Applying GMetaRuleExplicitThis will have the same effect as if myMethod is a member function of MyClass and the prototype is void myMethod(int param).<br />
 With this policy, global function can be used as property getter or setter.<br />
 <br />
+<b>GMetaRuleGetterExplicitThis and GMetaRuleSetterExplicitThis </b><br />
+Apply to: property getter and setter.<br />
+Effect: same as GMetaRuleExplicitThis, but GMetaRuleGetterExplicitThis only has effect on property getter, and GMetaRuleSetterExplicitThis only has effect on property setter.<br />
+With these two rules, we can control the explict this on getter and setter separately.<br />
+<br />
 
 
 <p><a name="linkid4"></a></p>
