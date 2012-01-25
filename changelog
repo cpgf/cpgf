@@ -1,3 +1,7 @@
+TBD version 1.2.4
+	Add binary data support (via IByteArray) in script binding.
+	Fixed a bug in V8 binding that enum value can't be accessed through class.
+
 2012-01-24 version 1.2.3
 	Added script function wrapper. Now script can pass script function to C++ as method parameters.
 	Added script object wrapper. Now script can pass script object to C++ as method parameters.

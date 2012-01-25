@@ -14,6 +14,9 @@ private:
 	typedef GStringMap<std::string> MapType;
 
 public:
+	virtual ~GMetaDataNameReplacer() {
+	}
+
 	void add(const char * name, const char * replacement) {
 		if(! this->stringMap) {
 			this->stringMap.reset(new MapType);
@@ -21,7 +24,7 @@ public:
 		this->stringMap->set(name, replacement);
 	}
 
-	const char * get(const char * name) const {
+	virtual const char * replace(const char * name) const {
 		if(! this->stringMap || ! this->stringMap->hasKey(name)) {
 			return name;
 		}
@@ -36,7 +39,7 @@ private:
 
 inline const char * replaceName(const char * name, const GMetaDataNameReplacer * replacer)
 {
-	return replacer ? replacer->get(name) : name;
+	return replacer ? replacer->replace(name) : name;
 }
 
 inline void initializeLuaReplacer(GMetaDataNameReplacer * replacer)

@@ -1353,6 +1353,13 @@ void bindClassItems(Local<Object> object, GScriptBindingParam * param, IMetaClas
 		item.reset(metaClass->getMetaAt(i));
 		if(allowStatic && item->isStatic()) {
 			object->SetAccessor(String::New(item->getName()), &staticMemberGetter, &staticMemberSetter, data);
+			if(metaIsEnum(item->getCategory())) {
+				IMetaEnum * metaEnum = gdynamic_cast<IMetaEnum *>(item.get());
+				uint32_t keyCount = metaEnum->getCount();
+				for(uint32_t k = 0; k < keyCount; ++k) {
+					object->SetAccessor(String::New(metaEnum->getKey(k)), &staticMemberGetter, &staticMemberSetter, data);
+				}
+			}
 		}
 		else {
 			if(allowMember && !item->isStatic()) {

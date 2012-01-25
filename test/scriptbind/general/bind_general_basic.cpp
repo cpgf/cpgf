@@ -83,6 +83,14 @@ void testEnum(TestScriptContext * context)
 	QASSERT(BasicA.BasicEnum.a == 1)
 	QASSERT(BasicA.BasicEnum.b == 2)
 	QASSERT(BasicA.BasicEnum.c == 3)
+	
+	QASSERT(BasicA.a == 1)
+	QASSERT(BasicA.b == 2)
+	QASSERT(BasicA.c == 3)
+
+	QASSERT(a.a == 1)
+	QASSERT(a.b == 2)
+	QASSERT(a.c == 3)
 }
 
 
