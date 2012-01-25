@@ -519,7 +519,7 @@ GScriptDataType getV8Type(Local<Value> value, IMetaTypedItem ** typeItem)
 	return sdtUnknown;
 }
 
-Handle<Value> objectToV8(GScriptBindingParam * param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv)
+Handle<Value> objectToV8(GScriptBindingParam * param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
 {
 	if(instance == NULL) {
 		return Handle<Value>();
@@ -530,7 +530,7 @@ Handle<Value> objectToV8(GScriptBindingParam * param, void * instance, IMetaClas
 	Handle<FunctionTemplate> functionTemplate = mapData->functionTemplate;
 	Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance());
 
-	GClassUserData * instanceUserData = new GClassUserData(param, metaClass, instance, true, allowGC, cv);
+	GClassUserData * instanceUserData = new GClassUserData(param, metaClass, instance, true, allowGC, cv, dataType);
 	void * key = addUserDataToPool(param, instanceUserData);
 	self.MakeWeak(key, weakHandleCallback);
 
@@ -580,7 +580,7 @@ Handle<Value> variantToV8(GScriptBindingParam * param, const GVariant & value, c
 		return Number::New(fromVariant<double>(value));
 	}
 
-	if(canFromVariant<void *>(value) && objectAddressFromVariant(value) == NULL) {
+	if(!vtIsByteArray(vt) && canFromVariant<void *>(value) && objectAddressFromVariant(value) == NULL) {
 		return Null();
 	}
 
@@ -599,13 +599,18 @@ Handle<Value> variantToV8(GScriptBindingParam * param, const GVariant & value, c
 
 				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
 				void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-				return objectToV8(param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type));
+				return objectToV8(param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type), cudtNormal);
 			}
 
 			if(type.getPointerDimension() == 1 || isReference) {
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
-				return objectToV8(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type));
+				if(vtIsByteArray(vt)) {
+					return objectToV8(param, value.data.valueByteArray, gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type), cudtByteArray);
+				}
+				else {
+					return objectToV8(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type), cudtNormal);
+				}
 			}
 		}
 
@@ -1337,7 +1342,7 @@ void accessorNamedMemberSetter(Local<String> prop, Local<Value> value, const Acc
 
 void bindClassItems(Local<Object> object, GScriptBindingParam * param, IMetaClass * metaClass, bool allowStatic, bool allowMember)
 {
-	GClassUserData * userData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
+	GClassUserData * userData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal);
 	void * key = addUserDataToPool(param, userData);
 	Persistent<External> data = Persistent<External>::New(External::New(userData));
 	data.MakeWeak(key, weakHandleCallback);
@@ -1386,7 +1391,9 @@ void * invokeConstructor(const Arguments & args, GScriptBindingParam * param, IM
 		return instance;
 	}
 	else {
-		raiseCoreException(Error_ScriptBinding_FailConstructObject);
+		// Unlike Lua, we should not raise exception because interface (such as IByteArray) will always fail
+		// to construct called from objectToV8, returning NULL is OK
+		//raiseCoreException(Error_ScriptBinding_FailConstructObject);
 	}
 
 	return NULL;
@@ -1406,7 +1413,7 @@ Handle<Value> objectConstructor(const Arguments & args)
 	void * instance = invokeConstructor(args, userData->getParam(), userData->metaClass);
 	Persistent<Object> self = Persistent<Object>::New(args.Holder());
 
-	GClassUserData * instanceUserData = new GClassUserData(userData->getParam(), userData->metaClass, instance, true, true, opcvNone);
+	GClassUserData * instanceUserData = new GClassUserData(userData->getParam(), userData->metaClass, instance, true, true, opcvNone, cudtNormal);
 	void * key = addUserDataToPool(userData->getParam(), instanceUserData);
 	self.MakeWeak(key, weakHandleCallback);
 
@@ -1437,7 +1444,7 @@ Handle<FunctionTemplate> createClassTemplate(GScriptBindingParam * param, const 
 		return gdynamic_cast<GMapItemClassData *>(map->getData())->functionTemplate;
 	}
 
-	GClassUserData * userData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
+	GClassUserData * userData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal);
 	void * key = addUserDataToPool(param, userData);
 	Persistent<External> data = Persistent<External>::New(External::New(userData));
 	data.MakeWeak(key, weakHandleCallback);
@@ -1464,7 +1471,7 @@ Handle<FunctionTemplate> createClassTemplate(GScriptBindingParam * param, const 
 	setObjectSignature(&classFunction);
 	bindClassItems(classFunction, param, metaClass, true, false);
 
-	GClassUserData * classUserData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone);
+	GClassUserData * classUserData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal);
 	key = addUserDataToPool(param, classUserData);
 	Persistent<External> classData = Persistent<External>::New(External::New(classUserData));
 	classData.MakeWeak(key, weakHandleCallback);
@@ -1818,7 +1825,7 @@ void GV8ScriptObject::bindObject(const char * objectName, void * instance, IMeta
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->implement->object));
 
-	Handle<Value> obj = objectToV8(this->implement->param, instance, type, transferOwnership, opcvNone);
+	Handle<Value> obj = objectToV8(this->implement->param, instance, type, transferOwnership, opcvNone, cudtNormal);
 	localObject->Set(String::New(objectName), obj);
 
 	LEAVE_V8()

@@ -6,6 +6,7 @@
 
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/metadata/gnamereplacer.h"
+#include "cpgf/metadata/gmetadataconfig.h"
 
 
 namespace cpgf {
@@ -16,7 +17,7 @@ namespace metadata_internal {
 #define M(Type, Name) define.CPGF_MD_TEMPLATE _method(replaceName(# Name, replacer), &Type::Name);
 
 template <typename T, typename MetaDefine>
-void doBuildMetaData_ByteArray(MetaDefine define, const GMetaDataNameReplacer * replacer)
+void doBuildMetaData_ByteArray(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer)
 {
 	M(T, getMemory)
 	
@@ -49,6 +50,11 @@ void doBuildMetaData_ByteArray(MetaDefine define, const GMetaDataNameReplacer * 
 	M(T, writeUint64)
 	
 	M(T, writeBuffer)
+	
+	if(metaDataConfigIsAutoProperty(config)) {
+		define._property("position", &T::getPosition, &T::setPosition);
+		define._property("length", &T::getLength, &T::setLength);
+	}
 }
 
 #undef M
@@ -58,9 +64,15 @@ void doBuildMetaData_ByteArray(MetaDefine define, const GMetaDataNameReplacer * 
 
 
 template <typename MetaDefine>
+void buildMetaData_ByteArray(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+{
+	metadata_internal::doBuildMetaData_ByteArray<typename MetaDefine::ClassType>(config, define, replacer);
+}
+
+template <typename MetaDefine>
 void buildMetaData_ByteArray(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
 {
-	metadata_internal::doBuildMetaData_ByteArray<typename MetaDefine::ClassType>(define, replacer);
+	buildMetaData_ByteArray(mdcAutoProperty, define, replacer);
 }
 
 

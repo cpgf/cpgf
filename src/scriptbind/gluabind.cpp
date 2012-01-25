@@ -479,7 +479,7 @@ void error(lua_State * L, const char * message)
 	lua_error(L);
 }
 
-void objectToLua(lua_State * L, GScriptBindingParam * param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv)
+void objectToLua(lua_State * L, GScriptBindingParam * param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
 {
 	if(instance == NULL) {
 		lua_pushnil(L);
@@ -488,7 +488,7 @@ void objectToLua(lua_State * L, GScriptBindingParam * param, void * instance, IM
 	}
 
 	void * userData = lua_newuserdata(L, sizeof(GClassUserData));
-	new (userData) GClassUserData(param, metaClass, instance, true, allowGC, cv);
+	new (userData) GClassUserData(param, metaClass, instance, true, allowGC, cv, dataType);
 
 	const char * className = metaClass->getName();
 	
@@ -651,7 +651,7 @@ bool variantToLua(lua_State * L, GScriptBindingParam * param, const GVariant & v
 		return true;
 	}
 
-	if(canFromVariant<void *>(value) && objectAddressFromVariant(value) == NULL) {
+	if(!vtIsByteArray(vt) && canFromVariant<void *>(value) && objectAddressFromVariant(value) == NULL) {
 		lua_pushnil(L);
 
 		return true;
@@ -674,7 +674,7 @@ bool variantToLua(lua_State * L, GScriptBindingParam * param, const GVariant & v
 
 				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
 				void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-				objectToLua(L, param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type));
+				objectToLua(L, param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type), cudtNormal);
 
 				return true;
 			}
@@ -682,7 +682,14 @@ bool variantToLua(lua_State * L, GScriptBindingParam * param, const GVariant & v
 			if(type.getPointerDimension() == 1 || isReference) {
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
-				objectToLua(L, param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type));
+				if(vtIsByteArray(vt)) {
+					objectToLua(L, param, value.data.valueByteArray, gdynamic_cast<IMetaClass *>(typedItem.get()),
+						allowGC, metaTypeToCV(type), cudtByteArray);
+				}
+				else {
+					objectToLua(L, param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()),
+						allowGC, metaTypeToCV(type), cudtNormal);
+				}
 
 				return true;
 			}
@@ -920,7 +927,7 @@ int invokeConstructor(lua_State * L, GScriptBindingParam * param, IMetaClass * m
 	}
 
 	if(instance != NULL) {
-		objectToLua(L, param, instance, metaClass, true, opcvNone);
+		objectToLua(L, param, instance, metaClass, true, opcvNone, cudtNormal);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1239,7 +1246,7 @@ void doBindAllOperators(lua_State * L, GScriptBindingParam * param, void * insta
 void doBindClass(lua_State * L, GScriptBindingParam * param, IMetaClass * metaClass)
 {
 	void * userData = lua_newuserdata(L, sizeof(GClassUserData));
-	new (userData) GClassUserData(param, metaClass, NULL, false, false, opcvNone);
+	new (userData) GClassUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal);
 
 	lua_newtable(L);
 
@@ -1775,7 +1782,7 @@ void GLuaScriptObject::bindObject(const char * objectName, void * instance, IMet
 
 	GLuaScopeGuard scopeGuard(this);
 
-	objectToLua(this->implement->luaState, this->implement->param, instance, gdynamic_cast<IMetaClass *>(type), transferOwnership, opcvNone);
+	objectToLua(this->implement->luaState, this->implement->param, instance, gdynamic_cast<IMetaClass *>(type), transferOwnership, opcvNone, cudtNormal);
 
 	scopeGuard.set(objectName);
 

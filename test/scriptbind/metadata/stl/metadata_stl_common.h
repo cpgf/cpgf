@@ -6,6 +6,11 @@
 
 #include <string>
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4503) // warning C503: decorated name length exceeded, name was truncated
+#endif
+
 
 using namespace std;
 

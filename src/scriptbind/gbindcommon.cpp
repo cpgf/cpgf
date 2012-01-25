@@ -9,6 +9,53 @@ namespace cpgf {
 
 namespace bind_internal {
 
+GScriptBindingParam::GScriptBindingParam(IMetaService * service, const GScriptConfig & config)
+	: service(service), config(config), metaMap(createMetaMap())
+{
+	this->service->addReference();
+}
+
+GScriptBindingParam::~GScriptBindingParam()
+{
+}
+
+
+GClassUserData::GClassUserData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance, bool isInstance,
+	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+	: super(udtClass, param), metaClass(metaClass), instance(instance), isInstance(isInstance), allowGC(allowGC), cv(cv), dataType(dataType)
+{
+	this->metaClass->addReference();
+
+	switch(dataType) {
+		case cudtByteArray:
+			this->allowGC = false;
+			this->byteArray->addReference();
+			break;
+
+		default:
+			break;
+	}
+}
+
+GClassUserData::~GClassUserData()
+{
+	switch(dataType) {
+		case cudtByteArray:
+			this->byteArray->releaseReference();
+			break;
+
+		default:
+			break;
+	}
+
+	if(this->allowGC) {
+		this->metaClass->destroyInstance(instance);
+	}
+
+	this->metaClass->releaseReference();
+}
+
+
 GMetaMap * createMetaMap()
 {
 	return new GMetaMap;
@@ -490,7 +537,17 @@ GMetaVariant userDataToVariant(GScriptUserData * userData)
 			metaCheckError(classData->metaClass);
 			GMetaType type(typeData);
 			type.addPointer();
-			return GMetaVariant(pointerToObjectVariant(classData->instance), type);
+			switch(classData->dataType) {
+				case cudtNormal: {
+					return GMetaVariant(pointerToObjectVariant(classData->instance), type);
+				}
+
+				case cudtByteArray: {
+					return GMetaVariant(GVariant(classData->byteArray), type);
+				}
+			}
+
+			break;
 		}
 
 		case udtRaw: {

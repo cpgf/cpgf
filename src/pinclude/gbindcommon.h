@@ -6,6 +6,7 @@
 #include "cpgf/gflags.h"
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gclassutil.h"
+#include "cpgf/gbytearrayapi.h"
 
 #include <map>
 #include <vector>
@@ -31,6 +32,11 @@ enum ObjectPointerCV {
 	opcvConstVolatile,
 };
 
+enum ClassUserDataType {
+	cudtNormal,
+	cudtByteArray
+};
+
 struct GBindDataType
 {
 	GScriptDataType dataType;
@@ -42,13 +48,8 @@ class GScriptUserData;
 class GScriptBindingParam : public GNoncopyable
 {
 public:
-	GScriptBindingParam(IMetaService * service, const GScriptConfig & config)
-		: service(service), config(config), metaMap(createMetaMap()) {
-		this->service->addReference();
-	}
-
-	virtual ~GScriptBindingParam() {
-	}
+	GScriptBindingParam(IMetaService * service, const GScriptConfig & config);
+	virtual ~GScriptBindingParam();
 
 	IMetaService * getService() const {
 		return this->service.get();
@@ -107,25 +108,20 @@ private:
 	typedef GScriptUserData super;
 
 public:
-	GClassUserData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance, bool isInstance, bool allowGC, ObjectPointerCV cv)
-		: super(udtClass, param), metaClass(metaClass), instance(instance), isInstance(isInstance), allowGC(allowGC), cv(cv) {
-		this->metaClass->addReference();
-	}
-
-	virtual ~GClassUserData() {
-		if(this->allowGC) {
-			this->metaClass->destroyInstance(instance);
-		}
-
-		this->metaClass->releaseReference();
-	}
+	GClassUserData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance, bool isInstance,
+		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
+	virtual ~GClassUserData();
 
 public:
 	IMetaClass * metaClass;
-	void * instance;
+	union {
+		void * instance;
+		IByteArray * byteArray;
+	};
 	bool isInstance;
 	bool allowGC;
 	ObjectPointerCV cv;
+	ClassUserDataType dataType;
 };
 
 class GRawUserData : public GScriptUserData

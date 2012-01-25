@@ -68,11 +68,13 @@ IByteArray * createByteArray()
 void writeNumberToByteArray(int n, IByteArray * ba)
 {
 	ba->writeInt32(n);
+	ba->writeInt32(n * 2);
 }
 
 void writeNumberToByteArrayMemory(int n, void * buffer)
 {
 	*(int32_t *)buffer = n;
+	*(int32_t *)((int8_t *)buffer + sizeof(int32_t)) = n * 2;
 }
 
 template <typename T>
@@ -183,8 +185,7 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 
 	bindProperty(script, service, NULL, "testScriptFunction", "testScriptFunction");
 	
-	GDefineMetaClass<IByteArray> define = GDefineMetaClass<IByteArray>::define("IByteArray");
-	buildMetaData_ByteArray(define);
+	bindClass(script, service, "IByteArray", "IByteArray");
 }
 
 
@@ -434,6 +435,9 @@ G_AUTO_RUN_BEFORE_MAIN()
 G_AUTO_RUN_BEFORE_MAIN()
 {
 	using namespace cpgf;
+
+	GDefineMetaClass<IByteArray> byteArrayDefine = GDefineMetaClass<IByteArray>::define("IByteArray");
+	buildMetaData_ByteArray(byteArrayDefine);
 
 	GDefineMetaGlobal()
 		._method("scriptAssert", &scriptAssert)
