@@ -6,7 +6,7 @@
 
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/gnamereplacer.h"
-#include "cpgf/metadata/stl/private/gmetadata_stl_header.h"
+#include "cpgf/metadata/private/gmetadata_header.h"
 
 namespace cpgf {
 
@@ -79,16 +79,16 @@ void doBuildIteratorCommon(const GMetaDataConfigFlags & config, MetaDefine defin
 	(void)policy;
 
 	define
-		.CPGF_MD_STL_TEMPLATE _operator<T & (GMetaSelf, const T &)>(mopHolder == mopHolder)
-		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder != mopHolder)
-		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(++mopHolder)
-		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(mopHolder++)
+		.CPGF_MD_TEMPLATE _operator<T & (GMetaSelf, const T &)>(mopHolder == mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder != mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(++mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(mopHolder++)
 	;
 
 	if(metaDataConfigIsScriptable(config)) {
 		define
-			.CPGF_MD_STL_TEMPLATE _method(replaceName("inc", replacer), &scriptableIterator_inc<T>, GMetaPolicyExplicitThis())
-			.CPGF_MD_STL_TEMPLATE _method(replaceName("equals", replacer), &scriptableIterator_equals<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_TEMPLATE _method(replaceName("inc", replacer), &scriptableIterator_inc<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_TEMPLATE _method(replaceName("equals", replacer), &scriptableIterator_equals<T>, GMetaPolicyExplicitThis())
 		;
 	}
 }
@@ -117,13 +117,13 @@ void doBuildIterator(const GMetaDataConfigFlags & config, MetaDefine define, con
 	doBuildIterator<T>(config, define, policy, std::forward_iterator_tag(), replacer);
 
 	define
-		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(--mopHolder)
-		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(mopHolder--)
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(--mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(mopHolder--)
 	;
 
 	if(metaDataConfigIsScriptable(config)) {
 		define
-			.CPGF_MD_STL_TEMPLATE _method(replaceName("dec", replacer), &scriptableIterator_dec<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_TEMPLATE _method(replaceName("dec", replacer), &scriptableIterator_dec<T>, GMetaPolicyExplicitThis())
 		;
 	}
 }
@@ -134,24 +134,24 @@ void doBuildIterator(const GMetaDataConfigFlags & config, MetaDefine define, con
 	doBuildIterator<T>(config, define, policy, std::bidirectional_iterator_tag(), replacer);
 
 	define
-		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder + mopHolder)
-		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder += mopHolder)
-		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder - mopHolder)
-		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder -= mopHolder)
-		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder[mopHolder])
-		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder < mopHolder)
-		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder <= mopHolder)
-		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder > mopHolder)
-		.CPGF_MD_STL_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder >= mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder + mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder += mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder - mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder -= mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder[mopHolder])
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder < mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder <= mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder > mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder >= mopHolder)
 	;
 
 	if(metaDataConfigIsScriptable(config)) {
 		define
-			.CPGF_MD_STL_TEMPLATE _method(replaceName("skip", replacer), &scriptableIterator_skip<T>, GMetaPolicyExplicitThis())
-			.CPGF_MD_STL_TEMPLATE _method(replaceName("less", replacer), &scriptableIterator_less<T>, GMetaPolicyExplicitThis())
-			.CPGF_MD_STL_TEMPLATE _method(replaceName("lessOrEqual", replacer), &scriptableIterator_lessOrEqual<T>, GMetaPolicyExplicitThis())
-			.CPGF_MD_STL_TEMPLATE _method(replaceName("greater", replacer), &scriptableIterator_greater<T>, GMetaPolicyExplicitThis())
-			.CPGF_MD_STL_TEMPLATE _method(replaceName("greaterOrEqual", replacer), &scriptableIterator_greaterOrEqual<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_TEMPLATE _method(replaceName("skip", replacer), &scriptableIterator_skip<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_TEMPLATE _method(replaceName("less", replacer), &scriptableIterator_less<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_TEMPLATE _method(replaceName("lessOrEqual", replacer), &scriptableIterator_lessOrEqual<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_TEMPLATE _method(replaceName("greater", replacer), &scriptableIterator_greater<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_TEMPLATE _method(replaceName("greaterOrEqual", replacer), &scriptableIterator_greaterOrEqual<T>, GMetaPolicyExplicitThis())
 		;
 	}
 }
@@ -162,13 +162,13 @@ void doBuildIteratorAccessor(const GMetaDataConfigFlags & config, MetaDefine def
 	(void)policy;
 
 	define
-		.CPGF_MD_STL_TEMPLATE _operator<typename T::pointer (GMetaSelf)>(mopHolder->mopHolder)
-		.CPGF_MD_STL_TEMPLATE _operator<typename T::reference (GMetaSelf)>(*mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename T::pointer (GMetaSelf)>(mopHolder->mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename T::reference (GMetaSelf)>(*mopHolder)
 	;
 
 	if(metaDataConfigIsScriptable(config)) {
 		define
-			.CPGF_MD_STL_TEMPLATE _method(replaceName("value", replacer), &scriptableIterator_value<T>, GMetaPolicyExplicitThis())
+			.CPGF_MD_TEMPLATE _method(replaceName("value", replacer), &scriptableIterator_value<T>, GMetaPolicyExplicitThis())
 		;
 	}
 }
@@ -201,7 +201,7 @@ MetaDefine buildMetaData_iterator(const GMetaDataConfigFlags & config, MetaDefin
 
 	if(metaDataConfigIsScriptable(config)) {
 		define
-			.CPGF_MD_STL_TEMPLATE _method(replaceName("set", replacer), &metadata_internal::scriptableIterator_set<typename MetaDefine::ClassType>, MergePolicy<GMetaPolicyExplicitThis, Policy>())
+			.CPGF_MD_TEMPLATE _method(replaceName("set", replacer), &metadata_internal::scriptableIterator_set<typename MetaDefine::ClassType>, MergePolicy<GMetaPolicyExplicitThis, Policy>())
 		;
 	}
 
@@ -218,7 +218,7 @@ MetaDefine buildMetaData_iterator(MetaDefine define, const Policy & policy, cons
 } // namespace cpgf
 
 
-#include "cpgf/metadata/stl/private/gmetadata_stl_footer.h"
+#include "cpgf/metadata/private/gmetadata_footer.h"
 
 #endif
 

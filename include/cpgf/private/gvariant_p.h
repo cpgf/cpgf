@@ -79,6 +79,41 @@ struct VariantCaster <From, To, typename GEnableIfResult<
 	}
 };
 
+template <typename To, typename Enabled = void>
+struct ByteArrayCaster
+{
+	G_STATIC_CONSTANT(bool, CanCast = false);
+
+	static To cast(const volatile IByteArray * v) {
+		(void)v;
+
+		raiseCoreException(Error_Variant_CantReferenceToTemp);
+		return *(typename RemoveReference<To>::Result *)0xffffff;
+	}
+};
+
+template <typename To>
+struct ByteArrayCaster <To *,
+	typename GEnableIfResult<IsSameType<IByteArray, typename RemoveConstVolatile<To>::Result> >::Result>
+{
+	G_STATIC_CONSTANT(bool, CanCast = true);
+
+	static To * cast(const volatile IByteArray * v) {
+		return (To *)v;
+	}
+};
+
+template <typename To>
+struct ByteArrayCaster <To *,
+	typename GDisableIfResult<IsSameType<IByteArray, typename RemoveConstVolatile<To>::Result> >::Result>
+{
+	G_STATIC_CONSTANT(bool, CanCast = true);
+
+	static To * cast(const volatile IByteArray * v) {
+		return (To *)(const_cast<IByteArray *>(v)->getMemory());
+	}
+};
+
 template <typename From, typename To, typename Enabled = void>
 struct CastVariantHelper
 {
@@ -89,18 +124,23 @@ struct CastVariantHelper
 	}
 };
 
+template <typename To>
+struct CastVariantHelper <IByteArray *, To> : public ByteArrayCaster<To> {};
+template <typename To>
+struct CastVariantHelper <const IByteArray *, To> : public ByteArrayCaster<To> {};
+template <typename To>
+struct CastVariantHelper <volatile IByteArray *, To> : public ByteArrayCaster<To> {};
+template <typename To>
+struct CastVariantHelper <const volatile IByteArray *, To> : public ByteArrayCaster<To> {};
+
 template <typename From, typename To>
-struct CastVariantHelper <From, To, typename GEnableIfResult<
-	GAndResult<
-		IsPointer<From>,
-		IsPointer<To>
-	>
-	>::Result>
+struct CastVariantHelper <From *, To *,
+	typename GDisableIfResult<IsSameType<IByteArray, typename RemoveConstVolatile<From>::Result> >::Result>
 {
 	G_STATIC_CONSTANT(bool, CanCast = true);
 
-	static To cast(const From & v) {
-		return (To)(v);
+	static To * cast(const From * v) {
+		return (To *)(v);
 	}
 };
 
@@ -236,6 +276,13 @@ struct InitVariantSelector
 				v.data.valueInterface = variant_internal::CastVariantHelper<T, IObject *>::cast(value);
 				if(v.data.valueInterface != NULL) {
 					v.data.valueInterface->addReference();
+				}
+				break;
+
+			case vtByteArray:
+				v.data.valueByteArray = variant_internal::CastVariantHelper<T, IByteArray *>::cast(value);
+				if(v.data.valueByteArray != NULL) {
+					v.data.valueByteArray->addReference();
 				}
 				break;
 
@@ -505,6 +552,9 @@ struct CanCastFromVariant
 
 			case vtInterface:
 				return variant_internal::CastVariantHelper<IObject *, typename RemoveReference<ResultType>::Result *>::CanCast;
+			
+			case vtByteArray:
+				return variant_internal::CastVariantHelper<IByteArray *, typename RemoveReference<ResultType>::Result *>::CanCast;
 
 			case vtBool | byPointer:
 				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<bool *, ResultType>::CanCast;
@@ -730,6 +780,9 @@ struct CastFromVariant
 
 			case vtInterface:
 				return variant_internal::CastVariantHelper<IObject *, ResultType>::cast(v.data.valueInterface);
+			
+			case vtByteArray:
+				return variant_internal::CastVariantHelper<IByteArray *, ResultType>::cast(v.data.valueByteArray);
 
 			case vtBool | byPointer:
 				return variant_internal::CastVariantHelper<bool *, ResultType>::cast(const_cast<bool *>(v.data.ptrBool));
@@ -910,6 +963,7 @@ inline unsigned int getVariantTypeSize(GVariantType type)
 		case vtPointer:
 		case vtString:
 		case vtInterface:
+		case vtByteArray:
 			return sizeof(void *);
 
 		default:

@@ -15,6 +15,7 @@ class GByteArray {
 public:
 	GByteArray();
     explicit GByteArray(size_t length);
+	~GByteArray();
 
     void * getMemory() const;
 

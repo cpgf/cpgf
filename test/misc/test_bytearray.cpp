@@ -3,6 +3,7 @@
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gbytearray.h"
 #include "cpgf/gbytearrayapi.h"
+#include "cpgf/gvariant.h"
 
 using namespace cpgf;
 
@@ -114,6 +115,24 @@ GTEST(TestByteArrayInterface)
 	GScopedInterface<IByteArray> byteArray(byteArrayToInterface(new GByteArray, true));
 
     testByteArray(byteArray.get());
+}
+
+struct Dummy {};
+
+GTEST(TestByteArrayVariantCast)
+{
+	GScopedInterface<IByteArray> byteArray(byteArrayToInterface(new GByteArray, true));
+	GVariant v;
+
+    v = (const volatile IByteArray *)(byteArray.get());
+
+    GEQUAL(fromVariant<IByteArray *>(v), byteArray.get());
+    GEQUAL(fromVariant<const IByteArray *>(v), byteArray.get());
+	
+	GEQUAL(fromVariant<void *>(v), byteArray->getMemory());
+	GEQUAL(fromVariant<const void *>(v), byteArray->getMemory());
+	GEQUAL(fromVariant<const volatile char *>(v), byteArray->getMemory());
+	GEQUAL(fromVariant<const Dummy *>(v), byteArray->getMemory());
 }
 
 

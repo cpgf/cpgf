@@ -4,6 +4,11 @@
 #include "cpgf/gmetadefine.h"
 #include "cpgf/goutmain.h"
 
+#include "cpgf/gbytearray.h"
+#include "cpgf/gbytearrayapi.h"
+
+#include "cpgf/metadata/gmetadata_bytearray.h"
+
 #include "testscriptbindmetadata.h"
 
 #include <string>
@@ -53,6 +58,21 @@ int testExecAddCallback()
 	int n = fromVariant<int>(invokeScriptFunction(testScriptFunction.get(), 5, 6).getValue());
 	testScriptFunction.reset(); // destroy it to avoid crash between different script engine such as Lua and V8. It's not a bug
 	return n;
+}
+
+IByteArray * createByteArray()
+{
+	return byteArrayToInterface(new GByteArray, true);
+}
+
+void writeNumberToByteArray(int n, IByteArray * ba)
+{
+	ba->writeInt32(n);
+}
+
+void writeNumberToByteArrayMemory(int n, void * buffer)
+{
+	*(int32_t *)buffer = n;
 }
 
 template <typename T>
@@ -154,9 +174,17 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	bindMethod(script, service, "scriptNot", "scriptNot");
 	bindMethod(script, service, "testAddCallback", "testAddCallback");
 	bindMethod(script, service, "testExecAddCallback", "testExecAddCallback");
+	
+	bindMethod(script, service, "createByteArray", "createByteArray");
+	bindMethod(script, service, "writeNumberToByteArray", "writeNumberToByteArray");
+	bindMethod(script, service, "writeNumberToByteArrayMemory", "writeNumberToByteArrayMemory");
+	
 	bindEnum(script, service, REG_NAME_TestEnum, "TestEnum");
 
 	bindProperty(script, service, NULL, "testScriptFunction", "testScriptFunction");
+	
+	GDefineMetaClass<IByteArray> define = GDefineMetaClass<IByteArray>::define("IByteArray");
+	buildMetaData_ByteArray(define);
 }
 
 
@@ -414,6 +442,11 @@ G_AUTO_RUN_BEFORE_MAIN()
 		._method("testAddN", &testAddN)
 		._method("testAddCallback", &testAddCallback)
 		._method("testExecAddCallback", &testExecAddCallback)
+		
+		._method("createByteArray", &createByteArray, GMetaPolicyTransferResultOwnership())
+		._method("writeNumberToByteArray", &writeNumberToByteArray)
+		._method("writeNumberToByteArrayMemory", &writeNumberToByteArrayMemory)
+		
 		._enum<TestEnum>(REG_NAME_TestEnum)
 			._element("teCpp", teCpp)
 			._element("teLua", teLua)

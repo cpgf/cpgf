@@ -180,8 +180,9 @@ struct GVariantData
 		const volatile void * ptrPointer;
 		const volatile void * ptrObject;
 		
-		IObject * valueInterface;
 		variant_internal::IVariantShadowObject * shadowObject;
+		IObject * valueInterface;
+		IByteArray * valueByteArray;
 
 	};
 };
@@ -292,10 +293,11 @@ private:
 		if(vtIsShadow(vtGetType(this->data.typeData))) {
 			this->data.shadowObject->retain();
 		}
-		else {
-			if(vtIsInterface(vtGetType(this->data.typeData)) && this->data.valueInterface != NULL) {
-				this->data.valueInterface->addReference();
-			}
+		else if(vtIsInterface(vtGetType(this->data.typeData)) && this->data.valueInterface != NULL) {
+			this->data.valueInterface->addReference();
+		}
+		else if(vtIsByteArray(vtGetType(this->data.typeData)) && this->data.valueByteArray != NULL) {
+			this->data.valueByteArray->addReference();
 		}
 	}
 
@@ -436,10 +438,11 @@ inline void freeVarData(GVariantData * data)
 	if(vtIsShadow(vtGetType(data->typeData))) {
 		data->shadowObject->release();
 	}
-	else {
-		if(vtIsInterface(vtGetType(data->typeData)) && data->valueInterface != NULL) {
-			data->valueInterface->releaseReference();
-		}
+	else if(vtIsInterface(vtGetType(data->typeData)) && data->valueInterface != NULL) {
+		data->valueInterface->releaseReference();
+	}
+	else if(vtIsByteArray(vtGetType(data->typeData)) && data->valueByteArray != NULL) {
+		data->valueByteArray->releaseReference();
 	}
 }
 

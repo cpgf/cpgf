@@ -6,6 +6,8 @@
 
 #include <vector>
 
+#include <string.h>
+
 
 using namespace std;
 
@@ -114,6 +116,10 @@ GByteArray::GByteArray()
 
 GByteArray::GByteArray(size_t length)
 	: implement(new GByteArrayImplement(length))
+{
+}
+
+GByteArray::~GByteArray()
 {
 }
 

@@ -129,6 +129,19 @@ struct DeduceVariantType <T *, typename GEnableIfResult<IsConvertible<const type
 	static const int Pointers = 1;
 };
 
+template <>
+struct DeduceVariantType <IByteArray *>
+{
+	static const GVariantType Result = vtByteArray;
+	static const int Pointers = 1;
+};
+
+template <>
+struct DeduceVariantType <const IByteArray *> : public DeduceVariantType <IByteArray *> {};
+template <>
+struct DeduceVariantType <volatile IByteArray *> : public DeduceVariantType <IByteArray *> {};
+template <>
+struct DeduceVariantType <const volatile IByteArray *> : public DeduceVariantType <IByteArray *> {};
 
 
 } // namespace variant_internal
