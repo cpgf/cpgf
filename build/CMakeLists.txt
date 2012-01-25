@@ -44,6 +44,7 @@ endif(MSVC)
 
 set(SRC_META
 	${SRC_PATH}/gapi.cpp
+	${SRC_PATH}/gbytearray.cpp
 	${SRC_PATH}/gexception.cpp
 	${SRC_PATH}/gmetaannotation.cpp
 	${SRC_PATH}/gmetaapi.cpp
