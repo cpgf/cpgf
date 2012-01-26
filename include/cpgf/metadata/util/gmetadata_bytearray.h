@@ -4,20 +4,19 @@
 
 #include "cpgf/gmetadefine.h"
 
-#include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 
+
+#include "cpgf/metadata/private/gmetadata_header.h"
 
 namespace cpgf {
 
 namespace metadata_internal {
 
 
-#define M(Type, Name) define.CPGF_MD_TEMPLATE _method(replaceName(# Name, replacer), &Type::Name);
-
 template <typename T, typename MetaDefine>
-void doBuildMetaData_ByteArray(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer)
+void doBuildMetaData_byteArray(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer)
 {
 	M(T, getMemory)
 	
@@ -37,6 +36,9 @@ void doBuildMetaData_ByteArray(const GMetaDataConfigFlags & config, MetaDefine d
 	M(T, readUint32)
 	M(T, readUint64)
 	
+	M(T, readFloat32)
+	M(T, readFloat64)
+	
 	M(T, readBuffer)
 	
 	M(T, writeInt8)
@@ -49,6 +51,9 @@ void doBuildMetaData_ByteArray(const GMetaDataConfigFlags & config, MetaDefine d
 	M(T, writeUint32)
 	M(T, writeUint64)
 	
+	M(T, writeFloat32)
+	M(T, writeFloat64)
+	
 	M(T, writeBuffer)
 	
 	if(metaDataConfigIsAutoProperty(config)) {
@@ -57,22 +62,20 @@ void doBuildMetaData_ByteArray(const GMetaDataConfigFlags & config, MetaDefine d
 	}
 }
 
-#undef M
-
 
 } // namespace metadata_internal
 
 
 template <typename MetaDefine>
-void buildMetaData_ByteArray(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_byteArray(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
 {
-	metadata_internal::doBuildMetaData_ByteArray<typename MetaDefine::ClassType>(config, define, replacer);
+	metadata_internal::doBuildMetaData_byteArray<typename MetaDefine::ClassType>(config, define, replacer);
 }
 
 template <typename MetaDefine>
-void buildMetaData_ByteArray(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_byteArray(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
 {
-	buildMetaData_ByteArray(mdcAutoProperty, define, replacer);
+	buildMetaData_byteArray(mdcAutoProperty, define, replacer);
 }
 
 

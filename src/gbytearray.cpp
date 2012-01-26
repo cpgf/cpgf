@@ -189,6 +189,16 @@ uint64_t GByteArray::readUint64() const
 	return this->implement->read<uint64_t>();
 }
 
+float GByteArray::readFloat32() const
+{
+	return this->implement->read<float>();
+}
+
+double GByteArray::readFloat64() const
+{
+	return this->implement->read<double>();
+}
+
 void GByteArray::readBuffer(void * buffer, size_t length) const
 {
     this->implement->readBuffer(buffer, length);
@@ -234,6 +244,16 @@ void GByteArray::writeUint64(uint64_t value)
 	this->implement->write<uint64_t>(value);
 }
 
+void GByteArray::writeFloat32(float value)
+{
+	this->implement->write<float>(value);
+}
+
+void GByteArray::writeFloat64(double value)
+{
+	this->implement->write<double>(value);
+}
+
 void GByteArray::writeBuffer(const void * buffer, size_t length)
 {
     this->implement->writeBuffer(buffer, length);
@@ -269,6 +289,9 @@ protected:
     virtual uint32_t G_API_CC readUint32();
     virtual uint64_t G_API_CC readUint64();
 
+    virtual float G_API_CC readFloat32();
+    virtual double G_API_CC readFloat64();
+    
     virtual void G_API_CC readBuffer(void * buffer, uint32_t length);
 
     virtual void G_API_CC writeInt8(int8_t value);
@@ -281,6 +304,9 @@ protected:
     virtual void G_API_CC writeUint32(uint32_t value);
     virtual void G_API_CC writeUint64(uint64_t value);
 
+    virtual void G_API_CC writeFloat32(float value);
+    virtual void G_API_CC writeFloat64(double value);
+    
     virtual void G_API_CC writeBuffer(const void * buffer, uint32_t length);
 
 private:
@@ -432,6 +458,24 @@ uint64_t G_API_CC ImplByteArray::readUint64()
     LEAVE_BYTEARRAY_API(return 0)
 }
 
+float G_API_CC ImplByteArray::readFloat32()
+{
+	ENTER_BYTEARRAY_API()
+
+    return this->byteArray->readFloat32();
+
+    LEAVE_BYTEARRAY_API(return 0)
+}
+
+double G_API_CC ImplByteArray::readFloat64()
+{
+	ENTER_BYTEARRAY_API()
+
+    return this->byteArray->readFloat64();
+
+    LEAVE_BYTEARRAY_API(return 0)
+}
+
 void G_API_CC ImplByteArray::readBuffer(void * buffer, uint32_t length)
 {
 	ENTER_BYTEARRAY_API()
@@ -509,6 +553,24 @@ void G_API_CC ImplByteArray::writeUint64(uint64_t value)
 	ENTER_BYTEARRAY_API()
 
     return this->byteArray->writeUint64(value);
+
+    LEAVE_BYTEARRAY_API()
+}
+
+void G_API_CC ImplByteArray::writeFloat32(float value)
+{
+	ENTER_BYTEARRAY_API()
+
+    return this->byteArray->writeFloat32(value);
+
+    LEAVE_BYTEARRAY_API()
+}
+
+void G_API_CC ImplByteArray::writeFloat64(double value)
+{
+	ENTER_BYTEARRAY_API()
+
+    return this->byteArray->writeFloat64(value);
 
     LEAVE_BYTEARRAY_API()
 }

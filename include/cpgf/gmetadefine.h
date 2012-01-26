@@ -177,7 +177,7 @@ public:
 	GDefineMetaEnum(meta_internal::GSharedMetaClass metaClass, GMetaEnum * metaEnum) : BaseType(metaClass, metaEnum) {
 	}
 
-	ThisType _element(const char * key, long long value) {
+	ThisType _element(const char * key, const GVariant & value) {
 		(*gdynamic_cast<GMetaEnum *>(this->currentItem))(key, value);
 
 		return *this;
@@ -377,6 +377,10 @@ public:
 		ThisType c;
 		c.init(className, NULL, false, GMetaPolicyDefault());
 		return c;
+	}
+	
+	static ThisType fromMetaClass(GMetaClass * metaClass) {
+		return ThisType(metaClass);
 	}
 
 	static ThisType lazy(const char * className, void (*reg)(ThisType define)) {

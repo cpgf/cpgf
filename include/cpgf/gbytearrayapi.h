@@ -24,6 +24,9 @@ struct IByteArray : IExtendObject {
     virtual uint16_t G_API_CC readUint16() = 0;
     virtual uint32_t G_API_CC readUint32() = 0;
     virtual uint64_t G_API_CC readUint64() = 0;
+    
+    virtual float G_API_CC readFloat32() = 0;
+    virtual double G_API_CC readFloat64() = 0;
 
     virtual void G_API_CC readBuffer(void * buffer, uint32_t length) = 0;
 
@@ -37,6 +40,9 @@ struct IByteArray : IExtendObject {
     virtual void G_API_CC writeUint32(uint32_t value) = 0;
     virtual void G_API_CC writeUint64(uint64_t value) = 0;
 
+    virtual void G_API_CC writeFloat32(float value) = 0;
+    virtual void G_API_CC writeFloat64(double value) = 0;
+    
     virtual void G_API_CC writeBuffer(const void * buffer, uint32_t length) = 0;
 };
 

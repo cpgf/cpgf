@@ -13,7 +13,7 @@ namespace meta_internal {
 class GMetaEnumDataImplement
 {
 public:
-	std::vector<long long> enumerators;
+	std::vector<GVariant> enumerators;
 	std::vector<std::string> keyNameList;
 };
 
@@ -47,7 +47,7 @@ const char * GMetaEnumData::getKey(size_t index) const
 	}
 }
 
-long long GMetaEnumData::getValue(size_t index) const
+GVariant GMetaEnumData::getValue(size_t index) const
 {
 	if(index >= this->getCount()) {
 		return 0;
@@ -70,13 +70,13 @@ int GMetaEnumData::findKey(const char * key) const
 	return -1;
 }
 
-void GMetaEnumData::addEnum(const char * key, long long value)
+void GMetaEnumData::addEnum(const char * key, const GVariant & value)
 {
 	this->implement->keyNameList.push_back(key);
 	this->implement->enumerators.push_back(value);
 }
 
-void GMetaEnumData::addValue(long long value)
+void GMetaEnumData::addValue(const GVariant & value)
 {
 	this->implement->enumerators.push_back(value);
 }
@@ -150,7 +150,7 @@ int GMetaEnum::findKey(const char * key) const
 	return this->baseData->findKey(key);
 }
 
-GMetaEnum & GMetaEnum::operator () (const char * key, long long value)
+GMetaEnum & GMetaEnum::operator () (const char * key, const GVariant & value)
 {
 	this->baseData->addEnum(key, value);
 

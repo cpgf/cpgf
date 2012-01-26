@@ -7,7 +7,7 @@
 #include "cpgf/gbytearray.h"
 #include "cpgf/gbytearrayapi.h"
 
-#include "cpgf/metadata/gmetadata_bytearray.h"
+#include "cpgf/metadata/util/gmetadata_bytearray.h"
 
 #include "testscriptbindmetadata.h"
 
@@ -40,6 +40,11 @@ int testAddN(const cpgf::GMetaVariadicParam * params)
 int testAddCallback(IScriptFunction * scriptFunction)
 {
 	return fromVariant<int>(invokeScriptFunction(scriptFunction, 5, 6).getValue());
+}
+
+int testAddCallback2(void *)
+{
+	return 0;
 }
 
 void testScriptFunctionSetter(IScriptFunction * scriptFunction)
@@ -172,9 +177,15 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	metaList->add(method.get(), NULL);
 	script->bindMethodList("testAdd", metaList.get());
 
+	GScopedInterface<IMetaList> metaList2(createMetaList());
+	method.reset(global->getMethod("testAddCallback2"));
+	metaList2->add(method.get(), NULL);
+	method.reset(global->getMethod("testAddCallback"));
+	metaList2->add(method.get(), NULL);
+	script->bindMethodList("testAddCallback", metaList2.get());
+
 	bindMethod(script, service, "scriptAssert", "scriptAssert");
 	bindMethod(script, service, "scriptNot", "scriptNot");
-	bindMethod(script, service, "testAddCallback", "testAddCallback");
 	bindMethod(script, service, "testExecAddCallback", "testExecAddCallback");
 	
 	bindMethod(script, service, "createByteArray", "createByteArray");
@@ -437,13 +448,14 @@ G_AUTO_RUN_BEFORE_MAIN()
 	using namespace cpgf;
 
 	GDefineMetaClass<IByteArray> byteArrayDefine = GDefineMetaClass<IByteArray>::define("IByteArray");
-	buildMetaData_ByteArray(byteArrayDefine);
+	buildMetaData_byteArray(byteArrayDefine);
 
 	GDefineMetaGlobal()
 		._method("scriptAssert", &scriptAssert)
 		._method("scriptNot", &scriptNot)
 		._method("testAdd2", &testAdd2)
 		._method("testAddN", &testAddN)
+		._method("testAddCallback2", &testAddCallback2)
 		._method("testAddCallback", &testAddCallback)
 		._method("testExecAddCallback", &testExecAddCallback)
 		

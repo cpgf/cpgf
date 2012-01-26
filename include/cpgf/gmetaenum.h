@@ -26,7 +26,7 @@ public:
 	GVariant getValue(size_t index) const;
 	int findKey(const char * key) const;
 
-	GMetaEnum & operator () (const char * key, long long value);
+	GMetaEnum & operator () (const char * key, const GVariant & value);
 
 	virtual void * createInstance() const;
 	virtual void * createInplace(void * placement) const;

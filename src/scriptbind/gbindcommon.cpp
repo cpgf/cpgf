@@ -334,6 +334,11 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallabl
 			continue;
 		}
 
+		if(sdt == sdtScriptMethod && vtIsInterface(proto.getVariantType())) {
+			rank += RankConvert;
+			continue;
+		}
+
 		if(proto.getPointerDimension() > 1) {
 			continue;
 		}

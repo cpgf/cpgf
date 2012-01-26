@@ -606,6 +606,7 @@ Handle<Value> variantToV8(GScriptBindingParam * param, const GVariant & value, c
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
 				if(vtIsByteArray(vt)) {
+					GScopedInterface<IByteArray> ba(value.data.valueByteArray); // free the byte array after return
 					return objectToV8(param, value.data.valueByteArray, gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type), cudtByteArray);
 				}
 				else {

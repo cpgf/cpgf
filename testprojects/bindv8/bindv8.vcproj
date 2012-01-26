@@ -40,8 +40,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/bigobj"
 				Optimization="0"
-				AdditionalIncludeDirectories="D:\projects\cpgf\trunk\src\pinclude\;D:\projects\cpgf\trunk\test\scriptbind\;&quot;e:\SourceCode\CPP\UnitTest++\src&quot;;e:\SourceCode\CPP\lua\etc;e:\SourceCode\CPP\lua\src;E:\SourceCode\CPP\v8\include\;D:\projects\cpgf\trunk\include\"
+				AdditionalIncludeDirectories="D:\projects\cpgf\trunk\src\pinclude\;D:\projects\cpgf\trunk\test\scriptbind\;&quot;e:\SourceCode\CPP\UnitTest++\src&quot;;e:\SourceCode\CPP\lua\etc;e:\SourceCode\CPP\lua\src;E:\SourceCode\CPP\v8\include\;D:\projects\cpgf\trunk\include\;E:\SourceCode\CPP\glut\bin\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,9 +62,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="v8.lib lua51.lib Ws2_32.lib winmm.lib"
+				AdditionalDependencies="v8.lib lua51.lib Ws2_32.lib winmm.lib opengl32.lib glu32.lib glut32.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="E:\SourceCode\CPP\v8\;e:\SourceCode\CPP\lua\src"
+				AdditionalLibraryDirectories="E:\SourceCode\CPP\v8\;e:\SourceCode\CPP\lua\src;E:\SourceCode\CPP\glut\bin\"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -177,6 +178,26 @@
 				RelativePath=".\bindv8.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\..\src\metadata\opengl\gmetadata_openglut.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\opengl\registergl.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\opengl\registerglu.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\opengl\registerglut.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\samples\opengl\sampleopengl.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -195,6 +216,10 @@
 			>
 			<File
 				RelativePath="..\..\src\gapi.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gbytearray.cpp"
 				>
 			</File>
 			<File
@@ -274,6 +299,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\scriptbind\gscriptbindapi.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\scriptbind\gscriptbindutil.cpp"
 					>
 				</File>
 				<File

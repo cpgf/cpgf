@@ -2,11 +2,11 @@
 //#include <tchar.h>
 //#include <conio.h>
 
-#include "dotest.cpp"
+void testOpenGL();
 
 int main(int argc, char * argv[])
 {
-	doTest();
+	testOpenGL();
 
 //	_getch();
 

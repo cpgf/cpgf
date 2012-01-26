@@ -683,6 +683,7 @@ bool variantToLua(lua_State * L, GScriptBindingParam * param, const GVariant & v
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
 				if(vtIsByteArray(vt)) {
+					GScopedInterface<IByteArray> ba(value.data.valueByteArray); // free the byte array after return
 					objectToLua(L, param, value.data.valueByteArray, gdynamic_cast<IMetaClass *>(typedItem.get()),
 						allowGC, metaTypeToCV(type), cudtByteArray);
 				}

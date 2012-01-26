@@ -78,6 +78,8 @@ void testByteArrayWriteAndRead(T * byteArray)
     byteArray->writeUint16(0x1234);
     byteArray->writeUint32(0xff000);
     byteArray->writeUint64(0x789012345LL);
+    byteArray->writeFloat32(1.5f);
+    byteArray->writeFloat64(2.8);
     byteArray->writeBuffer(bufferSample, bufferSize);
 
     byteArray->setPosition(0);
@@ -89,6 +91,8 @@ void testByteArrayWriteAndRead(T * byteArray)
     GEQUAL(byteArray->readUint16(), 0x1234);
     GEQUAL(byteArray->readUint32(), 0xff000);
     GEQUAL(byteArray->readUint64(), 0x789012345LL);
+    GEQUAL(byteArray->readFloat32(), 1.5f);
+    GEQUAL(byteArray->readFloat64(), 2.8);
     byteArray->readBuffer(buffer, bufferSize);
     for(int i = 0; i < bufferSize; ++i) {
     	GEQUAL(buffer[i], bufferSample[i]);

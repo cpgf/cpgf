@@ -22,10 +22,10 @@ public:
 	size_t getCount() const;
 
 	const char * getKey(size_t index) const;
-	long long getValue(size_t index) const;
+	GVariant getValue(size_t index) const;
 	int findKey(const char * key) const;
 
-	void addEnum(const char * key, long long value);
+	void addEnum(const char * key, const GVariant & value);
 
 	template <typename T>
 	GMetaEnumData & operator , (const T & data) {
@@ -42,7 +42,7 @@ public:
 	void destroyInstance(void * instance) const;
 	
 private:
-	void addValue(long long value);
+	void addValue(const GVariant & value);
 
 private:
 	GScopedPointer<GMetaEnumDataImplement> implement;

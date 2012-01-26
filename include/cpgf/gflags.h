@@ -38,6 +38,12 @@ public:
 	GFlags(T flags) : value(flags) {
 	}
 	
+	GFlags(int flags) : value(flags) {
+	}
+	
+	GFlags(long long flags) : value(flags) {
+	}
+	
 	GFlags(unsigned int flags) : value(flags) {
 	}
 	

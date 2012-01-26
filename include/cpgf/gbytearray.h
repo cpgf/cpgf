@@ -34,6 +34,9 @@ public:
     uint16_t readUint16() const;
     uint32_t readUint32() const;
     uint64_t readUint64() const;
+    
+    float readFloat32() const;
+    double readFloat64() const;
 
     void readBuffer(void * buffer, size_t length) const;
 
@@ -46,6 +49,9 @@ public:
     void writeUint16(uint16_t value);
     void writeUint32(uint32_t value);
     void writeUint64(uint64_t value);
+    
+    void writeFloat32(float value);
+    void writeFloat64(double value);
 
     void writeBuffer(const void * buffer, size_t length);
 private:
