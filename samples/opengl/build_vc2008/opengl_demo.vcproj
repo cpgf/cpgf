@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="bindv8"
+	Name="opengl_demo"
 	ProjectGUID="{99A8A9F1-6C6D-47EF-9865-1D7706F38D0F}"
-	RootNamespace="bindv8"
+	RootNamespace="opengl_demo"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -18,8 +18,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="..\bin"
+			IntermediateDirectory="..\bin"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/bigobj"
 				Optimization="0"
-				AdditionalIncludeDirectories="D:\projects\cpgf\trunk\src\pinclude\;D:\projects\cpgf\trunk\test\scriptbind\;&quot;e:\SourceCode\CPP\UnitTest++\src&quot;;e:\SourceCode\CPP\lua\etc;e:\SourceCode\CPP\lua\src;E:\SourceCode\CPP\v8\include\;D:\projects\cpgf\trunk\include\;E:\SourceCode\CPP\glut\bin\"
+				AdditionalIncludeDirectories="..\..\..\src\pinclude\;..\..\..\test\scriptbind\;..\..\..\include\;e:\SourceCode\CPP\lua\etc;e:\SourceCode\CPP\lua\src;E:\SourceCode\CPP\v8\include\;E:\SourceCode\CPP\freeglut\vc\include\GL\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,9 +62,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="v8.lib lua51.lib Ws2_32.lib winmm.lib opengl32.lib glu32.lib glut32.lib"
+				AdditionalDependencies="v8.lib lua51.lib Ws2_32.lib winmm.lib opengl32.lib glu32.lib freeglut.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="E:\SourceCode\CPP\v8\;e:\SourceCode\CPP\lua\src;E:\SourceCode\CPP\glut\bin\"
+				AdditionalLibraryDirectories="E:\SourceCode\CPP\v8\;e:\SourceCode\CPP\lua\src;E:\SourceCode\CPP\freeglut\vc\lib\"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -93,8 +93,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="..\bin"
+			IntermediateDirectory="..\bin"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -118,7 +118,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="D:\projects\cpgf\trunk\src\pinclude\;D:\projects\cpgf\trunk\test\scriptbind\;&quot;e:\SourceCode\CPP\UnitTest++\src&quot;;e:\SourceCode\CPP\lua\etc;e:\SourceCode\CPP\lua\src;E:\SourceCode\CPP\v8\include\;D:\projects\cpgf\trunk\include\;E:\SourceCode\CPP\glut\bin\"
+				AdditionalIncludeDirectories="..\..\..\src\pinclude\;..\..\..\test\scriptbind\;..\..\..\include\;e:\SourceCode\CPP\lua\etc;e:\SourceCode\CPP\lua\src;E:\SourceCode\CPP\v8\include\;E:\SourceCode\CPP\glut\bin\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -178,23 +178,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\src\metadata\opengl\gmetadata_openglut.cpp"
+				RelativePath="..\..\..\src\metadata\opengl\gmetadata_openglut.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\samples\opengl\registergl.cpp"
+				RelativePath="..\registergl.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\samples\opengl\registerglu.cpp"
+				RelativePath="..\registerglu.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\samples\opengl\registerglut.cpp"
+				RelativePath="..\registerglut.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\samples\opengl\sampleopengl.cpp"
+				RelativePath="..\sampleopengl.cpp"
 				>
 			</File>
 		</Filter>
@@ -214,98 +214,98 @@
 			Name="cpgf"
 			>
 			<File
-				RelativePath="..\..\src\gapi.cpp"
+				RelativePath="..\..\..\src\gapi.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gbytearray.cpp"
+				RelativePath="..\..\..\src\gbytearray.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gexception.cpp"
+				RelativePath="..\..\..\src\gexception.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gmetaannotation.cpp"
+				RelativePath="..\..\..\src\gmetaannotation.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gmetaapi.cpp"
+				RelativePath="..\..\..\src\gmetaapi.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gmetaclass.cpp"
+				RelativePath="..\..\..\src\gmetaclass.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gmetaclasstraveller.cpp"
+				RelativePath="..\..\..\src\gmetaclasstraveller.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gmetacommon.cpp"
+				RelativePath="..\..\..\src\gmetacommon.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gmetaconverter.cpp"
+				RelativePath="..\..\..\src\gmetaconverter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gmetaenum.cpp"
+				RelativePath="..\..\..\src\gmetaenum.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gmetafield.cpp"
+				RelativePath="..\..\..\src\gmetafield.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gmetafundamental.cpp"
+				RelativePath="..\..\..\src\gmetafundamental.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gmetamethod.cpp"
+				RelativePath="..\..\..\src\gmetamethod.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gmetaoperator.cpp"
+				RelativePath="..\..\..\src\gmetaoperator.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gmetaproperty.cpp"
+				RelativePath="..\..\..\src\gmetaproperty.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gmetatype.cpp"
+				RelativePath="..\..\..\src\gmetatype.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\gmetatypereg.cpp"
+				RelativePath="..\..\..\src\gmetatypereg.cpp"
 				>
 			</File>
 			<Filter
 				Name="scriptbind"
 				>
 				<File
-					RelativePath="..\..\src\scriptbind\gbindcommon.cpp"
+					RelativePath="..\..\..\src\scriptbind\gbindcommon.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\scriptbind\gluabind.cpp"
+					RelativePath="..\..\..\src\scriptbind\gluabind.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\scriptbind\gscriptbind.cpp"
+					RelativePath="..\..\..\src\scriptbind\gscriptbind.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\scriptbind\gscriptbindapi.cpp"
+					RelativePath="..\..\..\src\scriptbind\gscriptbindapi.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\scriptbind\gscriptbindutil.cpp"
+					RelativePath="..\..\..\src\scriptbind\gscriptbindutil.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\scriptbind\gv8bind.cpp"
+					RelativePath="..\..\..\src\scriptbind\gv8bind.cpp"
 					>
 				</File>
 			</Filter>
@@ -314,83 +314,11 @@
 			Name="test_src"
 			>
 			<File
-				RelativePath="..\..\test\scriptbind\bind_common.cpp"
+				RelativePath="..\..\..\test\scriptbind\bind_common.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\test\scriptbind\testscriptbindmetadata.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="unittest++"
-			>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\AssertException.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\Checks.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\CurrentTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\DeferredTestReporter.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\DeferredTestResult.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\MemoryOutStream.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\ReportAssert.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\Test.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\TestDetails.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\TestList.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\TestReporter.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\TestReporterStdout.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\TestResults.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\TestRunner.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\TimeConstraint.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\Win32\TimeHelpers.cpp"
-				>
-			</File>
-			<File
-				RelativePath="E:\SourceCode\CPP\UnitTest++\src\XmlTestReporter.cpp"
+				RelativePath="..\..\..\test\scriptbind\testscriptbindmetadata.cpp"
 				>
 			</File>
 		</Filter>

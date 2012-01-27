@@ -29,6 +29,8 @@ Bind C++ values to Lua and V8 variable.
 Bind C++ operators to Lua (Lua only). The overloaded operators in C++ are bound to Lua together with the class.
 Invoke Lua and V8 Javascript functions from C++.
 Get and set Lua and V8 Javascript value from C++.
+Transfer binary data between C++ and script.
+Pass script function and object to C++.
 <{/autoul}>
 
 

@@ -5,13 +5,13 @@
 #include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 
+#include "cpgf/scriptbind/gscriptbindapi.h"
+
 
 #include "cpgf/metadata/private/gmetadata_header.h"
 
 
 namespace cpgf {
-
-struct IScriptFunction;
 
 namespace metadata_internal {
 

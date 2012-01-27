@@ -1,4 +1,4 @@
-#include "../bind_common.h"
+#include "../testscriptbind.h"
 
 #include "cpgf/scriptbind/gscriptbindutil.h"
 

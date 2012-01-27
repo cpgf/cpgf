@@ -83,7 +83,7 @@ public:
 	virtual GMetaType getResultType() const {
 		return createMetaType<typename CallbackT::TraitsType::ResultType>();
 	}
-	
+
 	virtual bool isVariadic() const {
 		return IsVariadicFunction<TraitsType>::Result;
 	}
@@ -197,7 +197,8 @@ struct CheckIsFunctor <OT, FT, typename GEnableIfResult<IsFunction<FT> >::Result
 };
 
 template <typename OT, typename FT, typename Enabled = void>
-struct GMetaMethodCallbackMaker;
+struct GMetaMethodCallbackMaker {
+};
 
 template <typename OT, typename FT>
 struct GMetaMethodCallbackMaker <OT, FT,

@@ -10,8 +10,9 @@
 
 
 #include "cpgf/gmetaapi.h"
+#include "cpgf/gmetaclass.h"
 
-#include "testscriptbind.h"
+#include "testscriptbindmetadata.h"
 
 #include <string>
 

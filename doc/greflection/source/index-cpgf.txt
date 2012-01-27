@@ -58,6 +58,8 @@ cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding 
 	Invoke Lua and V8 Javascript functions from C++.
 	Pass function written in script to C++ and used by C++.
 	Get and set Lua and V8 Javascript variables from C++.
+	Transfer binary data between C++ and script.
+	Pass script function and object to C++.
 	For more information, please read cpgf script binding related documentation.
 <{/autoul}>
 

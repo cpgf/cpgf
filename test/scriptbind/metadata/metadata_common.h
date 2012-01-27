@@ -2,7 +2,7 @@
 #define __METADATA_COMMON_H
 
 
-#include "../bind_common.h"
+#include "../testscriptbind.h"
 
 
 

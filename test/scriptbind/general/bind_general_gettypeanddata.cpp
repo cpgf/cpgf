@@ -1,4 +1,5 @@
-#include "../bind_common.h"
+#include "../testscriptbind.h"
+
 
 #define RITEM tempItem = (IMetaTypedItem *)100
 #define CHKITEM \

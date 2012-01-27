@@ -5,7 +5,7 @@
 
 #include "../unittestbase.h"
 
-#include "testscriptbindmetadata.h"
+#include "bind_common.h"
 
 
 #endif

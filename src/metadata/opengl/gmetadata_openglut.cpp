@@ -1,14 +1,14 @@
 #define GLUT_DISABLE_ATEXIT_HACK
 
-#include "cpgf/metadata/opengl/gmetadata_openglut.h"
-
-#include "cpgf/scriptbind/gscriptbindapi.h"
-#include "cpgf/scriptbind/gscriptbindutil.h"
-
 #if defined(_WIN32)
 	#include <windows.h>
 #endif
 #include "glut.h"
+
+#include "cpgf/metadata/opengl/gmetadata_openglut.h"
+
+#include "cpgf/scriptbind/gscriptbindapi.h"
+#include "cpgf/scriptbind/gscriptbindutil.h"
 
 #include <map>
 
@@ -18,14 +18,6 @@ namespace cpgf {
 
 
 namespace metadata_internal {
-
-void helper_glutInit()
-{
-	int n = 0;
-	char c = 0;
-	char * pc = &c;
-//	glutInit(&n, &pc);
-}
 
 namespace {
 
@@ -66,41 +58,6 @@ struct GlutScriptCallbackData
 #endif
 #endif
 };
-/*
-GLUTAPI void APIENTRY glutDisplayFunc(void (GLUTCALLBACK *func)(void));
-GLUTAPI void APIENTRY glutReshapeFunc(void (GLUTCALLBACK *func)(int width, int height));
-GLUTAPI void APIENTRY glutKeyboardFunc(void (GLUTCALLBACK *func)(unsigned char key, int x, int y));
-GLUTAPI void APIENTRY glutMouseFunc(void (GLUTCALLBACK *func)(int button, int state, int x, int y));
-GLUTAPI void APIENTRY glutMotionFunc(void (GLUTCALLBACK *func)(int x, int y));
-GLUTAPI void APIENTRY glutPassiveMotionFunc(void (GLUTCALLBACK *func)(int x, int y));
-GLUTAPI void APIENTRY glutEntryFunc(void (GLUTCALLBACK *func)(int state));
-GLUTAPI void APIENTRY glutVisibilityFunc(void (GLUTCALLBACK *func)(int state));
-GLUTAPI void APIENTRY glutIdleFunc(void (GLUTCALLBACK *func)(void));
-GLUTAPI void APIENTRY glutTimerFunc(unsigned int millis, void (GLUTCALLBACK *func)(int value), int value);
-GLUTAPI void APIENTRY glutMenuStateFunc(void (GLUTCALLBACK *func)(int state));
-#if (GLUT_API_VERSION >= 2)
-GLUTAPI void APIENTRY glutSpecialFunc(void (GLUTCALLBACK *func)(int key, int x, int y));
-GLUTAPI void APIENTRY glutSpaceballMotionFunc(void (GLUTCALLBACK *func)(int x, int y, int z));
-GLUTAPI void APIENTRY glutSpaceballRotateFunc(void (GLUTCALLBACK *func)(int x, int y, int z));
-GLUTAPI void APIENTRY glutSpaceballButtonFunc(void (GLUTCALLBACK *func)(int button, int state));
-GLUTAPI void APIENTRY glutButtonBoxFunc(void (GLUTCALLBACK *func)(int button, int state));
-GLUTAPI void APIENTRY glutDialsFunc(void (GLUTCALLBACK *func)(int dial, int value));
-GLUTAPI void APIENTRY glutTabletMotionFunc(void (GLUTCALLBACK *func)(int x, int y));
-GLUTAPI void APIENTRY glutTabletButtonFunc(void (GLUTCALLBACK *func)(int button, int state, int x, int y));
-#if (GLUT_API_VERSION >= 3)
-GLUTAPI void APIENTRY glutMenuStatusFunc(void (GLUTCALLBACK *func)(int status, int x, int y));
-GLUTAPI void APIENTRY glutOverlayDisplayFunc(void (GLUTCALLBACK *func)(void));
-#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-GLUTAPI void APIENTRY glutWindowStatusFunc(void (GLUTCALLBACK *func)(int state));
-#endif
-#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
-GLUTAPI void APIENTRY glutKeyboardUpFunc(void (GLUTCALLBACK *func)(unsigned char key, int x, int y));
-GLUTAPI void APIENTRY glutSpecialUpFunc(void (GLUTCALLBACK *func)(int key, int x, int y));
-GLUTAPI void APIENTRY glutJoystickFunc(void (GLUTCALLBACK *func)(unsigned int buttonMask, int x, int y, int z), int pollInterval);
-#endif
-#endif
-#endif
-*/
 
 typedef map<int, GlutScriptCallbackData> GlutCallbackMap;
 
@@ -118,6 +75,14 @@ GlutScriptCallbackData * getCurrentCallbackData()
 
 } // unnamed namespace
 
+
+void helper_glutInit()
+{
+	int n = 1;
+	char c[] = "abc";
+	char * pc = c;
+	glutInit(&n, &pc);
+}
 
 void callback_glutDisplayFunc()
 {

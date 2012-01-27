@@ -11,7 +11,7 @@
 <{sgroup}> General
 
 
-<{sh}> What's the exception safety in cpgf library?
+<{sh id="exception_safety"}> What's the exception safety in cpgf library?
 <{sc}>
 
 <{autobr}>
@@ -21,7 +21,7 @@ However, it's hard to guarantee the exceptio safety. So if you find anything tha
 <{/autobr}>
 
 
-<{sh}> What's the thread safety in cpgf library?
+<{sh id="thread_safety"}> What's the thread safety in cpgf library?
 <{sc}>
 
 <{autobr}>
@@ -36,7 +36,7 @@ However, the library is not tested in multiple threads environment yet, so take 
 <{/autobr}>
 
 
-<{sh}> Some of the library document is bad, I want to help to rephrase it, but how can I help?
+<{sh id="improve_document"}> Some of the library document is bad, I want to help to rephrase it, but how can I help?
 <{sc}>
 
 <{autobr}>
@@ -61,7 +61,7 @@ Note: you can only help to improve the content, not the format.
 <{sgroup}> Reflection
 
 
-<{sh}> When I build meta data for method, why the compiler issues warning like returning reference to temporary object?
+<{sh id="return_reference_to_temp"}> When I build meta data for method, why the compiler issues warning like returning reference to temporary object?
 <{sc}>
 
 <{autobr}>
@@ -88,7 +88,7 @@ That policy will force the parameter or return value being passed by value inste
 
 <{sgroup}> Script binding (Lua and Google V8 Javascript)
 
-<{sh}> When should I use bindMethod and bindMethodList?
+<{sh id="when_use_bindMethod_and_bindMethodList"}> When should I use bindMethod and bindMethodList?
 <{sc}>
 
 <{autobr}>
@@ -100,7 +100,7 @@ bindMethod and bindMethodList are useful if you want to bind methods to global s
 <{/autobr}>
 
 
-<{sh}> Why the Google V8 binding is based on an old version V8 (v3.4.5)?
+<{sh id="why_v8_is_old"}> Why the Google V8 binding is based on an old version V8 (v3.4.5)?
 <{sc}>
 
 <{autobr}>

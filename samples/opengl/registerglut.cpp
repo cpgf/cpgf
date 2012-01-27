@@ -1,6 +1,8 @@
 #define GLUT_DISABLE_ATEXIT_HACK
 
-#include <windows.h>
+#if defined(_WIN32)
+	#include <windows.h>
+#endif
 #include <glut.h>
 
 #include "cpgf/metadata/opengl/gmetadata_openglut.h"

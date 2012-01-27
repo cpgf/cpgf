@@ -8,6 +8,11 @@
 
 #include "cpgf/metadata/private/gmetadata_header.h"
 
+// this fake class declaration here is to cheat IsConvertible to avoid incomplete type error
+// if the future glu.h declare them (instead of forward them), we should remove below classes.
+class GLUnurbs{};
+class GLUquadric{};
+class GLUtesselator{};
 
 namespace cpgf {
 

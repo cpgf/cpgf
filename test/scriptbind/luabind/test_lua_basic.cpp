@@ -1,4 +1,4 @@
-#include "../bind_common.h"
+#include "../testscriptbind.h"
 
 
 namespace {

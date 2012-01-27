@@ -1,4 +1,6 @@
-#include <windows.h>
+#if defined(_WIN32)
+	#include <windows.h>
+#endif
 #include <gl/gl.h>
 
 #include "cpgf/metadata/opengl/gmetadata_opengl.h"

@@ -1029,6 +1029,7 @@ void doBuildMetaData_open_gl_constants(const GMetaDataConfigFlags & config, Meta
 		GENUM_VALUE(GL_T2F_C4F_N3F_V3F)
 		GENUM_VALUE(GL_T4F_C4F_N3F_V4F)
 
+#ifdef GL_EXT_vertex_array
 		/* Extensions */
 		GENUM_VALUE(GL_EXT_vertex_array)
 		GENUM_VALUE(GL_EXT_bgra)
@@ -1106,6 +1107,7 @@ void doBuildMetaData_open_gl_constants(const GMetaDataConfigFlags & config, Meta
 
 		/* WIN_specular_fog */
 		GENUM_VALUE(GL_FOG_SPECULAR_TEXTURE_WIN)
+#endif
 
 		/* For compatibility with OpenGL v1.0 */
 		GENUM_VALUE(GL_LOGIC_OP)
