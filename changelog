@@ -1,4 +1,4 @@
-TBD version 1.2.4
+2012-01-28 version 1.2.4
 	Added binary data support (via IByteArray) in script binding.
 	Added meta data for OpenGL, GLU, and GLUT.
 	Added a sample program to show how to use OpenGL in Lua and V8 Javascript.

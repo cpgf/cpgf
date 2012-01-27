@@ -1148,7 +1148,7 @@ Handle<Value> getNamedMember(GClassUserData * userData, const char * name)
 			case mmitEnumValue:
 				if(! userData->isInstance || userData->getParam()->getConfig().allowAccessEnumValueViaInstance()) {
 					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-					return variantToV8(userData->getParam(), metaGetEnumValue(metaEnum, static_cast<uint32_t>(mapItem->getEnumIndex())), GMetaType(), true, false);
+					return variantToV8(userData->getParam(), metaGetEnumValue(metaEnum, static_cast<uint32_t>(mapItem->getEnumIndex())), GMetaType(), false, true);
 				}
 				break;
 

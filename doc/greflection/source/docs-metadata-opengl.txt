@@ -149,6 +149,7 @@ The parameters:
 <b>config</b>: The config flags to control how to build meta data.
 The legal value for GL binding is either 0, or mdcScriptable.
 If it's mdcScriptable, the meta data will contain auxiliary functions to handle callback functions in GLUT library.
+Also a function createByteArray is bound to script so the script can create byte array to manipulate and pass binary data.
 
 <b>define</b>: a meta define that represents the meta class.
 It can be obtained by GDefineMetaClass<T>::define or GDefineMetaClass<T>::declare.
