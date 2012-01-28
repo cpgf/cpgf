@@ -18,7 +18,6 @@ cpgf library itself is able to work with any version of OpenGL as long as meta d
 The OpenGL binding is only tested on Wnidows, due to my lacking experience. The library is cross platform.
 
 Some cool features in script binding with OpenGL:
-
 <{/autobr}>
 
 <{autoul}>
@@ -27,81 +26,97 @@ Some cool features in script binding with OpenGL:
 	Complete binary data supports. Scripts can pass vertex buffer, color buffer, etc, to GL functions.
 <{/autoul}>
 
+<table cols="2" style="width:100%">
+<tr>
+	<td style="width:50%">
+	<img src="/images/cpgf_opengl_lua.jpg" alt="Lua OpenGL demo" style="display:inline" />
+	</td>
+	<td style="width:50%">
+	<img src="/images/cpgf_opengl_javascript.jpg" alt="V8 Javascript OpenGL demo" style="display:inline" />
+	</td>
+</tr>
+<tr>
+	<td style="font-size:80%">Screenshot of the demo using OpenGL in Lua script </td>
+	<td style="font-size:80%">Screenshot of the demo using OpenGL in Google V8 Javascript </td>
+</tr>
+</table>
+<br />
+
 <{autobr}>
-Can't wait to experiment the OpenGL binding, below is a piece of real Javascript code snippet that using OpenGL!
+Can't wait to experiment the OpenGL binding? Below is a piece of real Javascript code snippet that using OpenGL!
 To see more code, see samples/opengl/sampleopengl.cpp in the library package.
 
 <{/autobr}>
 
 <{code}>
-	function render()
-	{
-		gl.glClear(gl.GL_COLOR_BUFFER_BIT + gl.GL_DEPTH_BUFFER_BIT + gl.GL_STENCIL_BUFFER_BIT)
+function render()
+{
+	gl.glClear(gl.GL_COLOR_BUFFER_BIT + gl.GL_DEPTH_BUFFER_BIT + gl.GL_STENCIL_BUFFER_BIT)
 
-		gl.glEnableClientState(gl.GL_VERTEX_ARRAY)
-		gl.glEnableClientState(gl.GL_COLOR_ARRAY)
-		gl.glEnableClientState(gl.GL_NORMAL_ARRAY)
-		gl.glPushMatrix()
-		gl.glTranslatef(translateX, translateY, 0)
-		gl.glRotatef(rotate, 1, 0, 1)
-		gl.glVertexPointer(3, gl.GL_FLOAT, 0, vertexList)
-		gl.glColorPointer(3, gl.GL_FLOAT, 0, colorList)
-		gl.glNormalPointer(gl.GL_FLOAT, 0, normalList)
-		gl.glDrawElements(gl.GL_QUADS, 24, gl.GL_UNSIGNED_INT, indexList)
-		 gl.glPopMatrix()
-		gl.glDisableClientState(gl.GL_VERTEX_ARRAY)
-		gl.glDisableClientState(gl.GL_COLOR_ARRAY)
-		gl.glDisableClientState(gl.GL_NORMAL_ARRAY)
-		gl.glutSwapBuffers()
-	}
-	function reshape(w, h)
-	{
-		gl.glViewport(0, 0, w, h)
-		gl.glMatrixMode(gl.GL_MODELVIEW)
-	}
-	function keyboard(key, x, y)
-	{
-		if(key == 27) exitDemo()
-	}
-	function timer(value)
-	{
-		rotate = rotate + 1
-		rotate = rotate % 360
-		gl.glutPostRedisplay()
-		gl.glutTimerFunc(value, timer, value)
-	}
-	function start()
-	{
-		gl.glutInit()
-		gl.glutInitDisplayMode(gl.GLUT_DEPTH + gl.GLUT_DOUBLE + gl.GLUT_RGB + gl.GLUT_STENCIL)
-		gl.glutInitWindowPosition(200, 200)
-		gl.glutInitWindowSize(320, 320)
-		gl.glutCreateWindow("cpgf OpenGL binding demo")
-		gl.glutDisplayFunc(render)
-		gl.glutReshapeFunc(reshape)
-		gl.glutKeyboardFunc(keyboard)
-		period = 33
-		gl.glutTimerFunc(period, timer, period)
+	gl.glEnableClientState(gl.GL_VERTEX_ARRAY)
+	gl.glEnableClientState(gl.GL_COLOR_ARRAY)
+	gl.glEnableClientState(gl.GL_NORMAL_ARRAY)
+	gl.glPushMatrix()
+	gl.glTranslatef(translateX, translateY, 0)
+	gl.glRotatef(rotate, 1, 0, 1)
+	gl.glVertexPointer(3, gl.GL_FLOAT, 0, vertexList)
+	gl.glColorPointer(3, gl.GL_FLOAT, 0, colorList)
+	gl.glNormalPointer(gl.GL_FLOAT, 0, normalList)
+	gl.glDrawElements(gl.GL_QUADS, 24, gl.GL_UNSIGNED_INT, indexList)
+	gl.glPopMatrix()
+	gl.glDisableClientState(gl.GL_VERTEX_ARRAY)
+	gl.glDisableClientState(gl.GL_COLOR_ARRAY)
+	gl.glDisableClientState(gl.GL_NORMAL_ARRAY)
+	gl.glutSwapBuffers()
+}
+function reshape(w, h)
+{
+	gl.glViewport(0, 0, w, h)
+	gl.glMatrixMode(gl.GL_MODELVIEW)
+}
+function keyboard(key, x, y)
+{
+	if(key == 27) exitDemo()
+}
+function timer(value)
+{
+	rotate = rotate + 1
+	rotate = rotate % 360
+	gl.glutPostRedisplay()
+	gl.glutTimerFunc(value, timer, value)
+}
+function start()
+{
+	gl.glutInit()
+	gl.glutInitDisplayMode(gl.GLUT_DEPTH + gl.GLUT_DOUBLE + gl.GLUT_RGB + gl.GLUT_STENCIL)
+	gl.glutInitWindowPosition(200, 200)
+	gl.glutInitWindowSize(320, 320)
+	gl.glutCreateWindow("cpgf OpenGL binding demo")
+	gl.glutDisplayFunc(render)
+	gl.glutReshapeFunc(reshape)
+	gl.glutKeyboardFunc(keyboard)
+	period = 33
+	gl.glutTimerFunc(period, timer, period)
 
-		gl.glShadeModel(gl.GL_SMOOTH)
-		gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_NICEST)
-		gl.glHint(gl.GL_LINE_SMOOTH_HINT, gl.GL_NICEST)
-		gl.glHint(gl.GL_POLYGON_SMOOTH_HINT, gl.GL_NICEST)
+	gl.glShadeModel(gl.GL_SMOOTH)
+	gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_NICEST)
+	gl.glHint(gl.GL_LINE_SMOOTH_HINT, gl.GL_NICEST)
+	gl.glHint(gl.GL_POLYGON_SMOOTH_HINT, gl.GL_NICEST)
 
-		gl.glEnable(gl.GL_DEPTH_TEST)
-		gl.glEnable(gl.GL_LIGHTING)
-		gl.glEnable(gl.GL_TEXTURE_2D)
-		gl.glEnable(gl.GL_CULL_FACE)
+	gl.glEnable(gl.GL_DEPTH_TEST)
+	gl.glEnable(gl.GL_LIGHTING)
+	gl.glEnable(gl.GL_TEXTURE_2D)
+	gl.glEnable(gl.GL_CULL_FACE)
 
-		gl.glColorMaterial(gl.GL_FRONT_AND_BACK, gl.GL_AMBIENT_AND_DIFFUSE)
-		gl.glEnable(gl.GL_COLOR_MATERIAL)
-		gl.glClearColor(0, 0, 0, 0)
-		gl.glClearStencil(0)
-		gl.glClearDepth(1.0)
-		gl.glDepthFunc(gl.GL_LEQUAL)
+	gl.glColorMaterial(gl.GL_FRONT_AND_BACK, gl.GL_AMBIENT_AND_DIFFUSE)
+	gl.glEnable(gl.GL_COLOR_MATERIAL)
+	gl.glClearColor(0, 0, 0, 0)
+	gl.glClearStencil(0)
+	gl.glClearDepth(1.0)
+	gl.glDepthFunc(gl.GL_LEQUAL)
 
-		gl.glutMainLoop()
-	}
+	gl.glutMainLoop()
+}
 <{/code}>
 
 
@@ -115,29 +130,50 @@ gmetadata_opengl.h
 gmetadata_openglu.h
 gmetadata_openglut.h
 
+Note: before include those header file, the corresponding OpenGL header file must be included first.
+So the code on Windows will look like:
+
+<{/autobr}>
+
+<{code}>
+#include <windows.h>
+#include <gl/gl.h>
+#include "cpgf/metadata/opengl/gmetadata_opengl.h"
+<{/code}>
+
+<{autobr}>
+Similar with GLU and GLUT.
+
 The APIs prototype:
+
 <{/autobr}>
 
 <{code}>
 template <typename MetaDefine>
-void buildMetaData_open_gl(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer = NULL);
+void buildMetaData_open_gl(const GMetaDataConfigFlags & config, MetaDefine define,
+	const GMetaDataNameReplacer * replacer = NULL);
 
 template <typename MetaDefine>
-void buildMetaData_open_gl(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL);
-
-
-template <typename MetaDefine>
-void buildMetaData_open_glu(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer = NULL);
-
-template <typename MetaDefine>
-void buildMetaData_open_glu(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL);
+void buildMetaData_open_gl(MetaDefine define,
+	const GMetaDataNameReplacer * replacer = NULL);
 
 
 template <typename MetaDefine>
-void buildMetaData_open_glut(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer = NULL);
+void buildMetaData_open_glu(const GMetaDataConfigFlags & config, MetaDefine define,
+	const GMetaDataNameReplacer * replacer = NULL);
 
 template <typename MetaDefine>
-void buildMetaData_open_glut(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL);
+void buildMetaData_open_glu(MetaDefine define,
+	const GMetaDataNameReplacer * replacer = NULL);
+
+
+template <typename MetaDefine>
+void buildMetaData_open_glut(const GMetaDataConfigFlags & config, MetaDefine define,
+	const GMetaDataNameReplacer * replacer = NULL);
+
+template <typename MetaDefine>
+void buildMetaData_open_glut(MetaDefine define,
+	const GMetaDataNameReplacer * replacer = NULL);
 
 
 <{/code}>
@@ -150,6 +186,7 @@ The parameters:
 The legal value for GL binding is either 0, or mdcScriptable.
 If it's mdcScriptable, the meta data will contain auxiliary functions to handle callback functions in GLUT library.
 Also a function createByteArray is bound to script so the script can create byte array to manipulate and pass binary data.
+Note: the counterpart API that doesn't have config, will always build meta data as if mdcScriptable is provided.
 
 <b>define</b>: a meta define that represents the meta class.
 It can be obtained by GDefineMetaClass<T>::define or GDefineMetaClass<T>::declare.

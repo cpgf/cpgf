@@ -18,6 +18,9 @@ Libraries:
 	cpgf callback -- a callback library to implement signal/slot or callback in C++.
 		It's the primary library for other libraries.
 
+	
+	cpgf meta data collection -- a library with built-in meta data support.
+		Now there are meta data for C++ STL, OpenGL, OpenGLU, and OpenGLUT.
 		
 License:
 	Apache License, Version 2.0

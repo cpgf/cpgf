@@ -3,7 +3,7 @@
 #if defined(_WIN32)
 	#include <windows.h>
 #endif
-#include <glut.h>
+#include <gl/glut.h>
 
 #include "cpgf/metadata/opengl/gmetadata_openglut.h"
 

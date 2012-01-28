@@ -1,11 +1,3 @@
-#if defined(_WIN32)
-	#include <windows.h>
-#endif
-#include <gl/gl.h>
-#include <gl/glu.h>
-
-#include <glut.h>
-
 #include "cpgf/gmetadefine.h"
 
 #include "bind_common.h"
@@ -340,12 +332,9 @@ const char * jsCode = ""
 ;
 
 
-static TestScriptContext * currentContext = NULL;
-
 template <typename Binding>
 void start(Binding * binding, TestScriptContext * c, GMetaClass * glMetaClass)
 {
-	currentContext = c;
 	GScopedPointer<TestScriptContext> context(c);
 
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(glMetaClass)));
@@ -365,7 +354,6 @@ void start(Binding * binding, TestScriptContext * c, GMetaClass * glMetaClass)
 	invokeScriptFunction(binding, "start", NULL, 0);
 
 	// should not come here;
-	currentContext = NULL;
 	context.reset();
 };
 
@@ -399,10 +387,11 @@ int main(int argc, char * argv[])
 	else {
 		cout << "Running V8 Javascript." << endl;
 	}
-	cout << "If 'v8' is put as the parameter, V8 Javascript will be run." << endl;
-	cout << endl;
-	cout << "Press ESC in the window to exit." << endl;
-	cout << "Don't click X button because GLUT doesn't exit main loop well." << endl;
+	cout << "If 'v8' is put as the parameter, V8 Javascript will be run." << endl
+		<< endl
+		<< "Press ESC in the window to exit." << endl
+		<< "Don't click X button because GLUT doesn't exit main loop well." << endl
+	;
 
 	TestScriptContext * context;
 	context = createTestScriptContext((runLua ? tslLua : tslV8), tsaLib);

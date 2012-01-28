@@ -79,6 +79,9 @@
 <li>
 <a href="docs-cpgf-script-binding.html#linkid7">
 <strong>Passing script function and object to C++</strong></a></li>
+<li>
+<a href="docs-cpgf-script-binding.html#linkid8">
+<strong>Using binary data in script -- the interface IByteArray</strong></a></li>
 </ul>
 </div>
 
@@ -100,6 +103,8 @@ The binding engine uses reflection meta data as the source.<br />
 </li><li>Bind C++ operators to Lua (Lua only). The overloaded operators in C++ are bound to Lua together with the class.
 </li><li>Invoke Lua and V8 Javascript functions from C++.
 </li><li>Get and set Lua and V8 Javascript value from C++.
+</li><li>Transfer binary data between C++ and script.
+</li><li>Pass script function and object to C++.
 </li></ul>
 
 <p><a name="linkid4"></a></p>
@@ -347,6 +352,85 @@ Notes:<br />
 2, Don't pass script interface to field. You should use property with getter and setter to set the data.<br />
 In the setter, addReference must be called on the interface to retain it. Otherwise, the interface will be released by the script.<br />
 <br />
+
+
+
+<p><a name="linkid8"></a></p>
+<p>
+<strong>Using binary data in script -- the interface IByteArray</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-script-binding.html#top">back top</a></span></p>
+IByteArray is an interface that can be used by script to read and write binary data.<br />
+An IByteArray can be created in C++ as: IByteArray * ba = byteArrayToInterface(new GByteArray, true);<br />
+To use IByteArray in script, the interface must has its meta data.<br />
+There are functions to build meta data for IByteArray in include/cpgf/metadata/util/gmetadata_bytearray.h<br />
+<br />
+A GVariant that holds an IByteArray has special conversion rules.<br />
+When the GVariant is converted to &quot;IByteArray *&quot;, the result is a pointer to IByteArray.<br />
+When the GVariant is converted to any pointers other than &quot;IByteArray *&quot;, such as converted to &quot;void *&quot;, &quot;int *&quot;, etc, the result is a pointer to the memory that IByteArray holds, as if IByteArray::getMemory is called.<br />
+With these rules, script can pass an IByteArray in the same way to pass a raw memory pointer.<br />
+For example, if we have a C++ function,<br />
+<div class="codepiece"">void setColors(void * colors, int colorCount); <br />
+</div>&quot;colors&quot; points to a buffer which is an array of integer. Then in script we can code like,<br />
+
+<pre>myByteArray.writeInt32(0xffffff);
+myByteArray.writeInt32(0x00ffff);
+setColors(myByteArray, 2);
+</pre>
+<br />
+Note: current implementation of IByteArray, the class GByteArray, use native endian that depends on the CPU. So the same data written to IByteArray will be different between Intel and ARM CPU.<br />
+You can implement IByteArray on your own needs, such as adding endian independent feature, or even encryption feature.<br />
+<br />
+Below list IByteArray declaration, with some comments.<br />
+The sample code in file samples/opengl/sampleopengl.cpp has some good demonstration for how to use binary data in script.<br />
+
+<pre>struct IByteArray : IExtendObject {
+    // Get the raw memory
+    virtual void * G_API_CC getMemory() = 0;
+
+    // Get current position. All read/write operations are performed on current position.
+    virtual uint32_t G_API_CC getPosition() = 0;
+    // Set current position.
+    virtual void G_API_CC setPosition(uint32_t position) = 0;
+
+    // Get the memory length. Note: when writting to the end of the memory, the memory will grow automatically.
+    virtual uint32_t G_API_CC getLength() = 0;
+    // Set the memory length. Don't need to call it unless you want to reserver property memory.
+    virtual void G_API_CC setLength(uint32_t length) = 0;
+
+    // Read data from current position, then current position will move to next data.
+    virtual int8_t G_API_CC readInt8() = 0;
+    virtual int16_t G_API_CC readInt16() = 0;
+    virtual int32_t G_API_CC readInt32() = 0;
+    virtual int64_t G_API_CC readInt64() = 0;
+
+    virtual uint8_t G_API_CC  readUint8() = 0;
+    virtual uint16_t G_API_CC readUint16() = 0;
+    virtual uint32_t G_API_CC readUint32() = 0;
+    virtual uint64_t G_API_CC readUint64() = 0;
+    
+    virtual float G_API_CC readFloat32() = 0;
+    virtual double G_API_CC readFloat64() = 0;
+
+    virtual void G_API_CC readBuffer(void * buffer, uint32_t length) = 0;
+
+    // Write data to current position, then current position will move to next data.
+    virtual void G_API_CC writeInt8(int8_t value) = 0;
+    virtual void G_API_CC writeInt16(int16_t value) = 0;
+    virtual void G_API_CC writeInt32(int32_t value) = 0;
+    virtual void G_API_CC writeInt64(int64_t value) = 0;
+
+    virtual void G_API_CC writeUint8(uint8_t value) = 0;
+    virtual void G_API_CC writeUint16(uint16_t value) = 0;
+    virtual void G_API_CC writeUint32(uint32_t value) = 0;
+    virtual void G_API_CC writeUint64(uint64_t value) = 0;
+
+    virtual void G_API_CC writeFloat32(float value) = 0;
+    virtual void G_API_CC writeFloat64(double value) = 0;
+    
+    virtual void G_API_CC writeBuffer(const void * buffer, uint32_t length) = 0;
+};
+</pre>
+<br />
+
 
 
 

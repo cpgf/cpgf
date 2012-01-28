@@ -305,8 +305,7 @@ When the GVariant is converted to any pointers other than "IByteArray *", such a
 With these rules, script can pass an IByteArray in the same way to pass a raw memory pointer.
 For example, if we have a C++ function,
 <{piece}>void setColors(void * colors, int colorCount); <{/piece}>
-"colors" points to a buffer which is an array of integer. Then script we can code like,
-
+"colors" points to a buffer which is an array of integer. Then in script we can code like,
 <{/autobr}>
 
 <{code}>
@@ -316,12 +315,12 @@ setColors(myByteArray, 2);
 <{/code}>
 
 <{autobr}>
+
 Note: current implementation of IByteArray, the class GByteArray, use native endian that depends on the CPU. So the same data written to IByteArray will be different between Intel and ARM CPU.
-You can implement IByteArray on your own needs, such adding endian independent feature, or even encryption feature.
+You can implement IByteArray on your own needs, such as adding endian independent feature, or even encryption feature.
 
 Below list IByteArray declaration, with some comments.
 The sample code in file samples/opengl/sampleopengl.cpp has some good demonstration for how to use binary data in script.
-
 <{/autobr}>
 
 <{code}>

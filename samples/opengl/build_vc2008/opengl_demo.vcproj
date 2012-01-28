@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/bigobj"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\src\pinclude\;..\..\..\test\scriptbind\;..\..\..\include\;e:\SourceCode\CPP\lua\etc;e:\SourceCode\CPP\lua\src;E:\SourceCode\CPP\v8\include\;E:\SourceCode\CPP\freeglut\vc\include\GL\"
+				AdditionalIncludeDirectories="..\..\..\src\pinclude\;..\..\..\test\scriptbind\;..\..\..\include\;e:\SourceCode\CPP\lua\etc;e:\SourceCode\CPP\lua\src;E:\SourceCode\CPP\v8\include\;E:\SourceCode\CPP\freeglut\vc\include\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

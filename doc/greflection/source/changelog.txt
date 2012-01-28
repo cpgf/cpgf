@@ -6,6 +6,15 @@
 
 <h1>cpgf library changes log</h1>
 
+<h3>2012-01-28 version 1.2.4 </h3>
+<{autoul}>
+	Added meta data for OpenGL, GLU, and GLUT.
+	Added binary data support (via IByteArray) in script binding.
+	Added a sample application to show how to use OpenGL in Lua and V8 Javascript.
+	Extended meta enum to accept a GVariant. Now meta enum can be not only integer, but also float, pointer, string, etc. Useful to reflect constants.
+	Fixed a bug in V8 binding that enum value can't be accessed through class.
+<{/autoul}>
+
 <h3>2012-01-24 version 1.2.3 </h3>
 <{autoul}>
 	Added script function wrapper. Now script can pass script function to C++ as method parameters.
