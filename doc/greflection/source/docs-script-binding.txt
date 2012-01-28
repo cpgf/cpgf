@@ -2,7 +2,6 @@
 
 <{title}>cpgf script binding engine -- bind Lua and Google V8 Javascript to C++<{/title}>
 
-<{include name="cpgf-header.inc" }>
 
 <h1>script binding engine -- bind Lua and Google V8 Javascript to C++</h1>
 
@@ -385,4 +384,3 @@ struct IByteArray : IExtendObject {
 
 <{/autotoc}>
 
-<{include name="cpgf-footer.inc" }>

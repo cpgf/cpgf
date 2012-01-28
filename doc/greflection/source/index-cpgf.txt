@@ -2,7 +2,6 @@
 
 <{title}>cpgf library -- a free C++ open source library for reflection, script binding, callbacks <{/title}>
 
-<{include name="cpgf-header.inc" }>
 
 <h1>cpgf library -- a free C++ open source library for reflection, script binding, callbacks </h1>
 
@@ -22,6 +21,7 @@ The goal of cpgf is to extend C++ language with a lot of easy to use features wh
 cpgf provides a very easy to use callback system, which is common used in C# and script languages.
 cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? now we have it in C++!
 cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding engine uses the reflection system extensively.
+Want to use OpenGL in Lua and Javascrit? It can't be easier using cpgf.
 
 <b>Vesion 1.2.4 is released on Jan.28, 2012. </b>
 
@@ -165,4 +165,3 @@ Website: <a href="http://www.kbasm.com/">http://www.kbasm.com/</a>
 <{/autobr}>
 
 
-<{include name="cpgf-footer.inc" }>

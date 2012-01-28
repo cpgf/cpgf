@@ -2,7 +2,6 @@
 
 <{title}>Policies and Rules -- customize the underlying behavior at compile time<{/title}>
 
-<{include name="cpgf-header.inc" }>
 
 <h1>Policies and Rules -- customize the underlying behavior at compile time</h1>
 
@@ -175,4 +174,3 @@ typedef MakePolicy<
 
 <{/autotoc}>
 
-<{include name="cpgf-footer.inc" }>

@@ -2,7 +2,6 @@
 
 <{title}>cpgf library -- Using interface based API<{/title}>
 
-<{include name="cpgf-header.inc" }>
 
 <{autotoc}>
 
@@ -206,4 +205,3 @@ CF: Return as the C++ function return value.
 <{/autotoc}>
 
 
-<{include name="cpgf-footer.inc" }>

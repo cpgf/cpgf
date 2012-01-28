@@ -2,7 +2,6 @@
 
 <{title}>Building and use cpgf library <{/title}>
 
-<{include name="cpgf-header.inc" }>
 
 <h1>Building and use cpgf library</h1>
 
@@ -57,5 +56,4 @@
 
 <{/autobr}>
 
-<{include name="cpgf-footer.inc" }>
 

@@ -2,7 +2,6 @@
 
 <{title}>cpgf library -- Using GVariant<{/title}>
 
-<{include name="cpgf-header.inc" }>
 
 <{autotoc}>
 
@@ -214,5 +213,4 @@ myMetaClass->get(&v.data, anotherInstance);
 <{/autotoc}>
 
 
-<{include name="cpgf-footer.inc" }>
 

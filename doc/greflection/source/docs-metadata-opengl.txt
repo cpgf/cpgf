@@ -2,7 +2,6 @@
 
 <{title}>Built-in meta data for OpenGL, GLU and GLUT in C++ cpgf library<{/title}>
 
-<{include name="cpgf-header.inc" }>
 
 <h1>Built-in meta data for OpenGL, GLU and GLUT in C++ cpgf library</h1>
 
@@ -197,5 +196,4 @@ Please read STL meta data document for details.
 <{/autobr}>
 
 
-<{include name="cpgf-footer.inc" }>
 

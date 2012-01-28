@@ -2,7 +2,6 @@
 
 <{title}>cpgf reflection -- building meta data<{/title}>
 
-<{include name="cpgf-header.inc" }>
 
 <{autotoc}>
 
@@ -574,4 +573,3 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 <{/autotoc}>
 
 
-<{include name="cpgf-footer.inc" }>

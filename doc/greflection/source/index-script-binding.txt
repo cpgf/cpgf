@@ -2,7 +2,6 @@
 
 <{title}>cpgf script binding -- an open source library to bind Lua and Google V8 Javascript to C++ <{/title}>
 
-<{include name="cpgf-header.inc" }>
 
 <h1>cpgf script binding -- an open source library to bind Lua and Google V8 Javascript to C++ </h1>
 
@@ -48,4 +47,3 @@ Are you a web developign team? Try this libray. Connect your great web experienc
 
 <{/autobr}>
 
-<{include name="cpgf-footer.inc" }>

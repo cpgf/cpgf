@@ -2,7 +2,6 @@
 
 <{title}>cpgf library -- general frequently asked questions <{/title}>
 
-<{include name="cpgf-header.inc" }>
 
 <h1>cpgf library -- general frequently asked questions</h1>
 
@@ -127,5 +126,4 @@ So let's stick with current V8 version 3.4.5, until the future V8 is not compati
 
 
 
-<{include name="cpgf-footer.inc" }>
 
