@@ -15,6 +15,7 @@
 
 
 using namespace cpgf;
+using namespace std;
 
 namespace testscript {
 
@@ -80,6 +81,26 @@ void writeNumberToByteArrayMemory(int n, void * buffer)
 {
 	*(int32_t *)buffer = n;
 	*(int32_t *)((int8_t *)buffer + sizeof(int32_t)) = n * 2;
+}
+
+bool testDefaultParam(int type, int i = 5, std::string s = "abc", TestObject obj = TestObject(8))
+{
+	switch(type) {
+		case 0: // all are default
+			return i == 5 && s == "abc" && obj.value == 8;
+
+		case 1: // i is 98
+			return i == 98 && s == "abc" && obj.value == 8;
+
+		case 2: // i is 98, s is "def"
+			return i == 98 && s == "def" && obj.value == 8;
+
+		case 3: // i is 98, s is "def", obj.value is 38
+			return i == 98 && s == "def" && obj.value == 38;
+
+		default:
+			return false;
+	}
 }
 
 template <typename T>
@@ -191,6 +212,7 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	bindMethod(script, service, "createByteArray", "createByteArray");
 	bindMethod(script, service, "writeNumberToByteArray", "writeNumberToByteArray");
 	bindMethod(script, service, "writeNumberToByteArrayMemory", "writeNumberToByteArrayMemory");
+	bindMethod(script, service, "testDefaultParam", "testDefaultParam");
 	
 	bindEnum(script, service, REG_NAME_TestEnum, "TestEnum");
 
@@ -462,6 +484,11 @@ G_AUTO_RUN_BEFORE_MAIN()
 		._method("createByteArray", &createByteArray, GMetaPolicyTransferResultOwnership())
 		._method("writeNumberToByteArray", &writeNumberToByteArray)
 		._method("writeNumberToByteArrayMemory", &writeNumberToByteArrayMemory)
+
+		._method("testDefaultParam", &testDefaultParam)
+			._default(copyVariantFromCopyable(TestObject(8)))
+			._default(copyVariantFromCopyable(string("abc")))
+			._default(5)
 		
 		._enum<TestEnum>(REG_NAME_TestEnum)
 			._element("teCpp", teCpp)

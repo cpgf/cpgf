@@ -40,6 +40,7 @@ public:
 
 	virtual GMetaType getParamType(size_t index) const;
 	virtual size_t getParamCount() const;
+	virtual size_t getDefaultParamCount() const;
 	virtual bool hasResult() const;
 	virtual GMetaType getResultType() const;
 	virtual bool isVariadic() const;
@@ -53,6 +54,8 @@ public:
 	virtual bool isResultTransferOwnership() const;
 	
 	virtual GMetaConverter * createResultConverter() const;
+
+	void addDefaultParam(const GVariant & v);
 
 #define REF_INVOKE(N, unused) GVariant invoke(void * instance GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, const GVariant & p)) const;
 
@@ -81,6 +84,7 @@ public:
 
 	virtual GMetaType getParamType(size_t index) const;
 	virtual size_t getParamCount() const;
+	virtual size_t getDefaultParamCount() const;
 	virtual bool hasResult() const;
 	virtual GMetaType getResultType() const;
 	virtual bool isVariadic() const;
@@ -93,6 +97,8 @@ public:
 	virtual bool isResultTransferOwnership() const;
 
 	virtual GMetaConverter * createResultConverter() const;
+
+	void addDefaultParam(const GVariant & v);
 
 #define REF_NEW_INSTANCE(N, unused) \
 	void * invoke(GPP_REPEAT(N, GPP_COMMA_PARAM, const GVariant & p)) const;

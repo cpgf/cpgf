@@ -160,10 +160,36 @@ typedef GSharedData<GMetaClass> GSharedMetaClass;
 
 
 template <typename BaseType>
+class GDefineMetaConstructor : public BaseType
+{
+private:
+	typedef GDefineMetaConstructor<BaseType> ThisType;
+
+public:
+	GDefineMetaConstructor(meta_internal::GSharedMetaClass metaClass, GMetaConstructor * constructor) : BaseType(metaClass, constructor) {
+	}
+
+	ThisType _default(const GVariant & value) {
+		gdynamic_cast<GMetaConstructor *>(this->currentItem)->addDefaultParam(value);
+
+		return *this;
+	}
+};
+
+template <typename BaseType>
 class GDefineMetaMethod : public BaseType
 {
+private:
+	typedef GDefineMetaMethod<BaseType> ThisType;
+
 public:
 	GDefineMetaMethod(meta_internal::GSharedMetaClass metaClass, GMetaMethod * method) : BaseType(metaClass, method) {
+	}
+
+	ThisType _default(const GVariant & value) {
+		gdynamic_cast<GMetaMethod *>(this->currentItem)->addDefaultParam(value);
+
+		return *this;
 	}
 };
 
@@ -222,10 +248,18 @@ public:
 template <typename BaseType>
 class GDefineMetaOperator : public BaseType
 {
+private:
+	typedef GDefineMetaOperator<BaseType> ThisType;
+
 public:
 	GDefineMetaOperator(meta_internal::GSharedMetaClass metaClass, GMetaOperator * op) : BaseType(metaClass, op) {
 	}
 
+	ThisType _default(const GVariant & value) {
+		gdynamic_cast<GMetaOperator *>(this->currentItem)->addDefaultParam(value);
+
+		return *this;
+	}
 };
 
 template <typename BaseType>
@@ -459,17 +493,19 @@ public:
 	}
 
 	template <typename FT>
-	ThisType _constructor() {
-		this->metaClass->template addConstructor<ClassType, FT>(GMetaPolicyDefault());
-
-		return *this;
+	GDefineMetaConstructor<ThisType> _constructor() {
+		return GDefineMetaConstructor<ThisType>(
+			this->metaClass,
+			this->metaClass->template addConstructor<ClassType, FT>(GMetaPolicyDefault())
+		);
 	}
 
 	template <typename FT, typename Policy>
-	ThisType _constructor(const Policy & policy) {
-		this->metaClass->template addConstructor<ClassType, FT>(policy);
-
-		return *this;
+	GDefineMetaConstructor<ThisType> _constructor(const Policy & policy) {
+		return GDefineMetaConstructor<ThisType>(
+			this->metaClass,
+			this->metaClass->template addConstructor<ClassType, FT>(policy)
+		);
 	}
 
 	GMetaClass * getMetaClass() const {

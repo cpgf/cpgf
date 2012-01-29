@@ -241,8 +241,7 @@ DEF_UNARY(mopMember, p.operator->())
 class GMetaOperatorDataBase
 {
 public:
-	virtual ~GMetaOperatorDataBase() {
-	}
+	virtual ~GMetaOperatorDataBase();
 
 	virtual GMetaOpType getOperator() const = 0;
 	virtual size_t getParamCount() const = 0;
@@ -257,41 +256,20 @@ public:
 
 	virtual GMetaType createOperatorMetaType() const = 0;
 
-	virtual GVariant invoke(const GVariant & p0) const {
-		(void)p0;
+	virtual GVariant invoke(const GVariant & p0) const;
+	virtual GVariant invoke(const GVariant & p0, const GVariant & p1) const;
+	virtual GVariant invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const;
 
-		raiseCoreException(Error_Meta_NotUnaryOperator);
-
-		return GVariant();
-	}
-
-	virtual GVariant invoke(const GVariant & p0, const GVariant & p1) const {
-		(void)p0; (void)p1;
-
-		raiseCoreException(Error_Meta_NotBinaryOperator);
-
-		return GVariant();
-	}
-
-	virtual GVariant invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const {
-		(void)instance; (void)params; (void)paramCount;
-
-		raiseCoreException(Error_Meta_NotFunctorOperator);
-
-		return GVariant();
-	}
-
-	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const {
-		(void)instance; (void)params; (void)paramCount;
-
-		raiseCoreException(Error_Meta_NotFunctorOperator);
-
-		return GVariant();
-	}
+	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
 
 	virtual bool isParamTransferOwnership(size_t paramIndex) const = 0;
 	virtual bool isResultTransferOwnership() const = 0;
 	virtual GMetaConverter * createResultConverter() const = 0;
+	
+	GMetaDefaultParamList * getDefaultParamList() const;
+	bool hasDefaultParam() const;
+private:
+	mutable GScopedPointer<GMetaDefaultParamList> defaultParamList;
 };
 
 inline void operatorIndexOutOfBound(size_t index, size_t maxIndex)
@@ -634,6 +612,10 @@ public:
 
 		for(size_t i = 0; i < paramCount; ++i) {
 			variantPointers[i] = &params[i];
+		}
+		
+		if(this->hasDefaultParam()) {
+			this->getDefaultParamList()->loadDefaultParams(variantPointers, paramCount, this->getParamCount());
 		}
 
 		return this->invokeFunctor(instance, variantPointers, paramCount);

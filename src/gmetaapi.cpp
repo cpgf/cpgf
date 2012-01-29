@@ -64,6 +64,7 @@ protected: \
 protected: \
 	virtual void G_API_CC getParamType(GMetaTypeData * outType, uint32_t index) { this->doGetParamType(outType, index); } \
 	virtual uint32_t G_API_CC getParamCount() { return this->doGetParamCount(); } \
+	virtual uint32_t G_API_CC getDefaultParamCount() { return this->doGetDefaultParamCount(); } \
 	virtual gapi_bool G_API_CC hasResult() { return this->doHasResult(); } \
 	virtual void G_API_CC getResultType(GMetaTypeData * outType) { this->doGetResultType(outType); } \
 	virtual gapi_bool G_API_CC isVariadic() { return this->doIsVariadic(); } \
@@ -212,6 +213,7 @@ public:
 protected:
 	void doGetParamType(GMetaTypeData * outType, uint32_t index);
 	uint32_t doGetParamCount();
+	uint32_t doGetDefaultParamCount();
 	gapi_bool doHasResult();
 	void doGetResultType(GMetaTypeData * outType);
 	gapi_bool doIsVariadic();
@@ -863,6 +865,15 @@ uint32_t ImplMetaCallable::doGetParamCount()
 	ENTER_META_API()
 
 	return static_cast<uint32_t>(this->getCallable()->getParamCount());
+
+	LEAVE_META_API(return 0)
+}
+
+uint32_t ImplMetaCallable::doGetDefaultParamCount()
+{
+	ENTER_META_API()
+
+	return static_cast<uint32_t>(this->getCallable()->getDefaultParamCount());
 
 	LEAVE_META_API(return 0)
 }

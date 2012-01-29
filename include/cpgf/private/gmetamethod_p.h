@@ -2,6 +2,7 @@
 #define __GMETAMETHOD_P_H
 
 #include "cpgf/private/gmetainvoke_p.h"
+#include "cpgf/private/gmetadefaultparam_p.h"
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gmetatype.h"
 #include "cpgf/gmetapolicy.h"
@@ -30,8 +31,7 @@ std::string arityToName(int arity);
 class GMetaMethodDataBase
 {
 public:
-	virtual ~GMetaMethodDataBase() {
-	}
+	virtual ~GMetaMethodDataBase();
 
 	virtual size_t getParamCount() const = 0;
 	virtual bool hasResult() const = 0;
@@ -44,6 +44,11 @@ public:
 	virtual bool isParamTransferOwnership(size_t paramIndex) const = 0;
 	virtual bool isResultTransferOwnership() const = 0;
 	virtual GMetaConverter * createResultConverter() const = 0;
+
+	GMetaDefaultParamList * getDefaultParamList() const;
+	bool hasDefaultParam() const;
+private:
+	mutable GScopedPointer<GMetaDefaultParamList> defaultParamList;
 };
 
 template<typename CallbackT, typename Policy>

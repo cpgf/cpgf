@@ -60,6 +60,7 @@ set(SRC_META
 	${SRC_PATH}/gmetaproperty.cpp
 	${SRC_PATH}/gmetatype.cpp
 	${SRC_PATH}/gmetatypereg.cpp
+	${SRC_PATH}/gvariant.cpp
 
 	${SRC_PATH}/scriptbind/gbindcommon.cpp
 	${SRC_PATH}/scriptbind/gscriptbind.cpp

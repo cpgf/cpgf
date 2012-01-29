@@ -6,19 +6,25 @@
 
 #define REF_CALL_METHOD(N, unused) \
 	GVariant GMetaMethod::invoke(void * instance GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, const GVariant & p)) const { \
-		if(this->isStatic() && ! this->baseData->isExplicitThis()) { \
-			instance = NULL; \
-		} \
+		if(this->isStatic() && ! this->baseData->isExplicitThis()) { instance = NULL; } \
 		const GVariant * params[REF_MAX_ARITY]; \
 		GPP_REPEAT(N, REF_CALL_LOAD_PARAM, GPP_EMPTY); \
-		return this->baseData->invoke(instance, params, N); \
+		size_t passedParamCount = N; \
+		if(this->baseData->hasDefaultParam()) { \
+			passedParamCount = this->baseData->getDefaultParamList()->loadDefaultParams(params, N, this->baseData->getParamCount()); \
+		} \
+		return this->baseData->invoke(instance, params, passedParamCount); \
 	}
 
 #define REF_NEW_INSTANCE(N, unused) \
 	void * GMetaConstructor::invoke(GPP_REPEAT(N, GPP_COMMA_PARAM, const GVariant & p)) const { \
 		const GVariant * params[REF_MAX_ARITY]; \
 		GPP_REPEAT(N, REF_CALL_LOAD_PARAM, GPP_EMPTY); \
-		return fromVariant<void *>(this->baseData->invoke(NULL, params, N)); \
+		size_t passedParamCount = N; \
+		if(this->baseData->hasDefaultParam()) { \
+			passedParamCount = this->baseData->getDefaultParamList()->loadDefaultParams(params, N, this->baseData->getParamCount()); \
+		} \
+		return fromVariant<void *>(this->baseData->invoke(NULL, params, passedParamCount)); \
 	}
 
 namespace cpgf {
@@ -46,6 +52,26 @@ std::string arityToName(int arity)
 	return std::string(buffer);
 }
 
+GMetaMethodDataBase::~GMetaMethodDataBase()
+{
+}
+
+GMetaDefaultParamList * GMetaMethodDataBase::getDefaultParamList() const
+{
+	if(! this->defaultParamList) {
+		this->defaultParamList.reset(new GMetaDefaultParamList);
+	}
+
+	return this->defaultParamList.get();
+}
+
+bool GMetaMethodDataBase::hasDefaultParam() const
+{
+	return !! this->defaultParamList
+		&& this->defaultParamList->getDefaultCount() > 0;
+}
+
+
 } // namespace meta_internal
 
 
@@ -57,6 +83,11 @@ GMetaType GMetaMethod::getParamType(size_t index) const
 size_t GMetaMethod::getParamCount() const
 {
 	return this->baseData->getParamCount();
+}
+
+size_t GMetaMethod::getDefaultParamCount() const
+{
+	return this->baseData->hasDefaultParam() ? this->baseData->getDefaultParamList()->getDefaultCount() : 0;
 }
 
 bool GMetaMethod::hasResult() const
@@ -88,6 +119,10 @@ GVariant GMetaMethod::execute(void * instance, const GVariant * params, size_t p
 		variantPointers[i] = &params[i];
 	}
 
+	if(this->baseData->hasDefaultParam()) {
+		paramCount = this->baseData->getDefaultParamList()->loadDefaultParams(variantPointers, paramCount, this->baseData->getParamCount());
+	}
+
 	return this->baseData->invoke(instance, variantPointers, paramCount);
 }
 
@@ -111,6 +146,11 @@ GMetaConverter * GMetaMethod::createResultConverter() const
 	return this->baseData->createResultConverter();
 }
 
+void GMetaMethod::addDefaultParam(const GVariant & v)
+{
+	this->baseData->getDefaultParamList()->addDefault(v);
+}
+
 GPP_REPEAT_2(REF_MAX_ARITY, REF_CALL_METHOD, GPP_EMPTY)
 
 
@@ -123,6 +163,11 @@ GMetaType GMetaConstructor::getParamType(size_t index) const
 size_t GMetaConstructor::getParamCount() const
 {
 	return this->baseData->getParamCount();
+}
+
+size_t GMetaConstructor::getDefaultParamCount() const
+{
+	return this->baseData->hasDefaultParam() ? this->baseData->getDefaultParamList()->getDefaultCount() : 0;
 }
 
 bool GMetaConstructor::hasResult() const
@@ -158,6 +203,10 @@ GVariant GMetaConstructor::execute(void * instance, const GVariant * params, siz
 		variantPointers[i] = &params[i];
 	}
 
+	if(this->baseData->hasDefaultParam()) {
+		paramCount = this->baseData->getDefaultParamList()->loadDefaultParams(variantPointers, paramCount, this->baseData->getParamCount());
+	}
+
 	return this->baseData->invoke(NULL, variantPointers, paramCount);
 }
 
@@ -179,6 +228,11 @@ bool GMetaConstructor::isResultTransferOwnership() const
 GMetaConverter * GMetaConstructor::createResultConverter() const
 {
 	return NULL;
+}
+
+void GMetaConstructor::addDefaultParam(const GVariant & v)
+{
+	this->baseData->getDefaultParamList()->addDefault(v);
 }
 
 GPP_REPEAT_2(REF_MAX_ARITY, REF_NEW_INSTANCE, GPP_EMPTY)

@@ -3,6 +3,7 @@
 
 
 #include "cpgf/private/gmetainvoke_p.h"
+#include "cpgf/private/gmetadefaultparam_p.h"
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gassert.h"
@@ -117,6 +118,7 @@ public:
 	GMetaOpType getOperator() const;
 
 	virtual size_t getParamCount() const;
+	virtual size_t getDefaultParamCount() const;
 	virtual GMetaType getParamType(size_t index) const;
 	virtual bool hasResult() const;
 	virtual GMetaType getResultType() const;
@@ -130,6 +132,8 @@ public:
 	virtual GMetaConverter * createResultConverter() const;
 
 	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
+
+	void addDefaultParam(const GVariant & v);
 
 	GVariant invokeUnary(const GVariant & p0) const;
 	GVariant invokeBinary(const GVariant & p0, const GVariant & p1) const;

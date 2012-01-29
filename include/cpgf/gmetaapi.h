@@ -80,6 +80,7 @@ struct IMetaCallable : public IMetaItem
 {
 	virtual void G_API_CC getParamType(GMetaTypeData * outType, uint32_t index) = 0;
 	virtual uint32_t G_API_CC getParamCount() = 0;
+	virtual uint32_t G_API_CC getDefaultParamCount() = 0;
 	virtual gapi_bool G_API_CC hasResult() = 0;
 	virtual void G_API_CC getResultType(GMetaTypeData * outType) = 0;
 	virtual gapi_bool G_API_CC isVariadic() = 0;

@@ -2,6 +2,8 @@
 #include "cpgf/gmetaannotation.h"
 #include "cpgf/gmetatype.h"
 
+#include "cpgf/private/gmetadefaultparam_p.h"
+
 #include "pinclude/gmetatypereg.h"
 
 #include <string>
@@ -15,6 +17,41 @@ namespace cpgf {
 
 
 namespace meta_internal {
+
+void GMetaDefaultParamList::addDefault(const GVariant & v)
+{
+	this->defaultValueList.push_back(v);
+}
+
+const GVariant & GMetaDefaultParamList::getDefault(size_t index)
+{
+	return this->defaultValueList.at(index);
+}
+
+size_t GMetaDefaultParamList::getDefaultCount() const
+{
+	return this->defaultValueList.size();
+}
+
+size_t GMetaDefaultParamList::loadDefaultParams(
+	const GVariant ** paramBuffer, size_t passedParamCount, size_t prototypeParamCount)
+{
+	if(passedParamCount < prototypeParamCount) {
+		int totalCount = static_cast<int>(this->getDefaultCount());
+		int startIndex = totalCount - 1;
+		int needCount = static_cast<int>(prototypeParamCount - passedParamCount);
+		if(needCount <= totalCount) {
+			startIndex = needCount - 1;
+		}
+		while(startIndex >= 0) {
+			paramBuffer[passedParamCount] = &this->defaultValueList.at(startIndex);
+			++passedParamCount;
+			--startIndex;
+		}
+	}
+
+	return passedParamCount;
+}
 
 void handleForbidAccessError(bool isRead)
 {

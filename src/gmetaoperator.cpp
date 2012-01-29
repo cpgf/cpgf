@@ -20,6 +20,62 @@ std::string operatorToName(GMetaOpType op) {
 	return std::string(buffer);
 }
 
+
+GMetaOperatorDataBase::~GMetaOperatorDataBase()
+{
+}
+
+GVariant GMetaOperatorDataBase::invoke(const GVariant & p0) const
+{
+	(void)p0;
+
+	raiseCoreException(Error_Meta_NotUnaryOperator);
+
+	return GVariant();
+}
+
+GVariant GMetaOperatorDataBase::invoke(const GVariant & p0, const GVariant & p1) const
+{
+	(void)p0; (void)p1;
+
+	raiseCoreException(Error_Meta_NotBinaryOperator);
+
+	return GVariant();
+}
+
+GVariant GMetaOperatorDataBase::invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const
+{
+	(void)instance; (void)params; (void)paramCount;
+
+	raiseCoreException(Error_Meta_NotFunctorOperator);
+
+	return GVariant();
+}
+
+GVariant GMetaOperatorDataBase::execute(void * instance, const GVariant * params, size_t paramCount) const
+{
+	(void)instance; (void)params; (void)paramCount;
+
+	raiseCoreException(Error_Meta_NotFunctorOperator);
+
+	return GVariant();
+}
+
+GMetaDefaultParamList * GMetaOperatorDataBase::getDefaultParamList() const
+{
+	if(! this->defaultParamList) {
+		this->defaultParamList.reset(new GMetaDefaultParamList);
+	}
+
+	return this->defaultParamList.get();
+}
+
+bool GMetaOperatorDataBase::hasDefaultParam() const
+{
+	return !! this->defaultParamList
+		&& this->defaultParamList->getDefaultCount() > 0;
+}
+
 } // namespace meta_internal
 
 
@@ -41,6 +97,11 @@ size_t GMetaOperator::getParamCount() const
 GMetaType GMetaOperator::getParamType(size_t index) const
 {
 	return this->baseData->getParamType(index);
+}
+
+size_t GMetaOperator::getDefaultParamCount() const
+{
+	return this->baseData->hasDefaultParam() ? this->baseData->getDefaultParamList()->getDefaultCount() : 0;
 }
 
 bool GMetaOperator::hasResult() const
@@ -78,6 +139,11 @@ GMetaConverter * GMetaOperator::createResultConverter() const
 	return this->baseData->createResultConverter();
 }
 
+void GMetaOperator::addDefaultParam(const GVariant & v)
+{
+	this->baseData->getDefaultParamList()->addDefault(v);
+}
+
 GVariant GMetaOperator::invokeUnary(const GVariant & p0) const
 {
 	return this->baseData->invoke(p0);
@@ -111,6 +177,10 @@ GVariant GMetaOperator::invokeFunctor(const GVariant & instance, GPP_REPEAT(REF_
 		}
 
 		++paramCount;
+	}
+	
+	if(this->baseData->hasDefaultParam()) {
+		paramCount = this->baseData->getDefaultParamList()->loadDefaultParams(params, paramCount, this->baseData->getParamCount());
 	}
 
 	return this->baseData->invokeFunctor(fromVariant<void *>(instance), params, paramCount);

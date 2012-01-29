@@ -188,6 +188,7 @@ public:
 
 	virtual size_t getParamCount() const = 0;
 	virtual GMetaType getParamType(size_t index) const = 0;
+	virtual size_t getDefaultParamCount() const = 0;
 	virtual bool hasResult() const = 0;
 	virtual GMetaType getResultType() const = 0;
 	virtual bool isVariadic() const = 0;

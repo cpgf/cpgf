@@ -110,10 +110,6 @@ inline void vtSetPointers(GVarTypeData & data, unsigned int pointers) {
 	data.sizeAndPointers = static_cast<uint8_t>((data.sizeAndPointers & 0xf0) + pointers);
 }
 
-inline bool vtIsShadow(int vt) {
-	return vt == vtShadow || vt == vtString;
-}
-
 inline bool vtIsInterface(int vt) {
 	return vt == vtInterface;
 }
@@ -131,11 +127,11 @@ inline void vtInit(GVarTypeData & data) {
 #include "cpgf/private/gvartypedata_p.h"
 
 template <typename T>
-void deduceVariantType(GVarTypeData & data, bool allowShadow)
+void deduceVariantType(GVarTypeData & data, bool copyObject)
 {
 	GVariantType vt = variant_internal::DeduceVariantType<T>::Result;
 
-	if(allowShadow && vt == vtObject && variant_internal::DeduceVariantType<T>::Pointers == 0) {
+	if(copyObject && vt == vtObject && variant_internal::DeduceVariantType<T>::Pointers == 0) {
 		vt = vtShadow;
 	}
 

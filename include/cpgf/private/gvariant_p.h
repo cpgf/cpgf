@@ -3,6 +3,44 @@
 
 namespace variant_internal {
 
+unsigned int getVariantTypeSize(GVariantType type);
+void adjustVariantType(GVariant * var);
+
+class IVariantShadowObject
+{
+public:
+	virtual void G_API_CC retain() = 0;
+	virtual void G_API_CC release() = 0;
+	virtual void * G_API_CC getObject() = 0;
+};
+
+template <typename T>
+class GVariantShadowObject : public IVariantShadowObject
+{
+public:
+	GVariantShadowObject(const T & obj) : refCount(1), obj(obj) {
+	}
+
+	virtual void G_API_CC retain() {
+		++this->refCount;
+	}
+
+	virtual void G_API_CC release() {
+		--this->refCount;
+		if(this->refCount <= 0) {
+			delete this;
+		}
+	}
+
+	virtual void * G_API_CC getObject() {
+		return (void *)(&this->obj);
+	}
+
+private:
+	int refCount;
+	T obj;
+};
+
 template <typename T>
 bool isNotPointer() {
 	return ! IsPointer<typename RemoveReference<T>::Result>::Result;
@@ -180,14 +218,14 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 	}
 };
 
-template <bool CanShadow, typename T>
-void initShadowObject(GVariant & v, const T & value, typename GEnableIf<CanShadow>::Result * = 0)
+template <bool Copyable, typename T>
+void initShadowObject(GVariant & v, const T & value, typename GEnableIf<Copyable>::Result * = 0)
 {
 	v.data.shadowObject = new variant_internal::GVariantShadowObject<T>(value);
 }
 
-template <bool CanShadow, typename T>
-void initShadowObject(GVariant & v, const T & value, typename GEnableIf<! CanShadow>::Result * = 0)
+template <bool Copyable, typename T>
+void initShadowObject(GVariant & v, const T & value, typename GDisableIf<Copyable>::Result * = 0)
 {
 	(void)v;
 	(void)value;
@@ -195,7 +233,7 @@ void initShadowObject(GVariant & v, const T & value, typename GEnableIf<! CanSha
 	raiseCoreException(Error_Variant_FailCopyObject);
 }
 
-template <bool CanShadow, typename T, typename Enable = void>
+template <bool Copyable, typename T, typename Enable = void>
 struct InitVariantSelector
 {
 	static void init(GVariant & v, const GVarTypeData & typeData, const T & value) {
@@ -269,7 +307,7 @@ struct InitVariantSelector
 				break;
 
 			case vtShadow:
-				initShadowObject<CanShadow>(v, value);
+				initShadowObject<Copyable>(v, value);
 				break;
 
 			case vtInterface:
@@ -434,8 +472,8 @@ struct InitVariantSelector
 	}
 };
 
-template <bool CanShadow, typename T>
-struct InitVariantSelector <CanShadow, T, typename GEnableIfResult<IsSameType<T, GVariant> >::Result>
+template <bool Copyable, typename T>
+struct InitVariantSelector <Copyable, T, typename GEnableIfResult<IsSameType<T, GVariant> >::Result>
 {
 	static void init(GVariant & v, const GVarTypeData & typeData, const T & value) {
 		(void)typeData;
@@ -443,10 +481,10 @@ struct InitVariantSelector <CanShadow, T, typename GEnableIfResult<IsSameType<T,
 	}
 };
 
-template <bool CanShadow, typename T>
+template <bool Copyable, typename T>
 void InitVariant(GVariant & v, const GVarTypeData & typeData, const typename RemoveReference<T>::Result & value)
 {
-	InitVariantSelector<CanShadow, T>::init(v, typeData, value);
+	InitVariantSelector<Copyable, T>::init(v, typeData, value);
 }
 
 
@@ -903,112 +941,6 @@ struct CastFromVariant
 		return *(typename RemoveReference<T>::Result *)0xffffff;
 	}
 };
-
-inline unsigned int getVariantTypeSize(GVariantType type)
-{
-	switch(static_cast<int>(type)) {
-		case vtEmpty:
-			return 0;
-
-		case vtBool:
-			return sizeof(bool);
-
-		case vtChar:
-			return sizeof(char);
-
-		case vtWchar:
-			return sizeof(wchar_t);
-
-		case vtSignedChar:
-			return sizeof(signed char);
-
-		case vtUnsignedChar:
-			return sizeof(unsigned char);
-
-		case vtSignedShort:
-			return sizeof(signed short);
-
-		case vtUnsignedShort:
-			return sizeof(unsigned short);
-
-		case vtSignedInt:
-			return sizeof(signed int);
-
-		case vtUnsignedInt:
-			return sizeof(unsigned int);
-
-		case vtSignedLong:
-			return sizeof(signed long);
-
-		case vtUnsignedLong:
-			return sizeof(unsigned long);
-
-		case vtSignedLongLong:
-			return sizeof(signed long long);
-
-		case vtUnsignedLongLong:
-			return sizeof(unsigned long long);
-
-		case vtFloat:
-			return sizeof(float);
-
-		case vtDouble:
-			return sizeof(double);
-
-		case vtLongDouble:
-			return sizeof(long double);
-
-		case vtShadow:
-		case vtObject:
-		case vtPointer:
-		case vtString:
-		case vtInterface:
-		case vtByteArray:
-			return sizeof(void *);
-
-		default:
-			if(vtIsByPointer(type) || vtIsByReference(type)) {
-				return sizeof(void *);
-			}
-
-	}
-
-	GASSERT_MSG(false, "Can't detect variant type size.");
-
-	return 0;
-}
-
-inline void adjustVariantType(GVariant * var)
-{
-	if(! vtIsInteger(vtGetType(var->data.typeData)) || vtGetSize(var->data.typeData) > sizeof(unsigned long long)) {
-		raiseCoreException(Error_Variant_FailAdjustTypeSize);
-	}
-
-	unsigned long long value = var->data.valueUnsignedLongLong;
-	switch(vtGetSize(var->data.typeData)) {
-		case 1:
-			value &= 0xff;
-			break;
-
-		case 2:
-			value &= 0xffff;
-			break;
-
-		case 4:
-			value &= 0xffffffffu;
-			break;
-
-		case 8:
-			value &= 0xffffffffffffffffull;
-			break;
-
-		default:
-			break;
-
-	}
-
-	InitVariant<true, unsigned long long>(*var, var->getTypeData(), value);
-}
 
 
 

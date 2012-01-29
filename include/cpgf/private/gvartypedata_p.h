@@ -143,6 +143,33 @@ struct DeduceVariantType <volatile IByteArray *> : public DeduceVariantType <IBy
 template <>
 struct DeduceVariantType <const volatile IByteArray *> : public DeduceVariantType <IByteArray *> {};
 
+template <typename T>
+struct ArrayToPointer;
+
+template <typename T>
+struct CheckIsArray {
+	G_STATIC_CONSTANT(bool, Result = T::IsArray);
+};
+
+template <typename T, typename Enabled = void>
+struct DeducePassType
+{
+	typedef T Result;
+    typedef typename RemoveReference<T>::Result PassType;
+};
+
+template <typename T>
+struct DeducePassType <T, typename GEnableIfResult<CheckIsArray<ArrayToPointer<T> > >::Result>
+{
+	typedef typename ArrayToPointer<T>::Result Result;
+	typedef typename ArrayToPointer<T>::Result PassType;
+};
+
+inline bool isVtUsingShadow(int vt) {
+	return vt == vtShadow || vt == vtString;
+}
+
+
 
 } // namespace variant_internal
 

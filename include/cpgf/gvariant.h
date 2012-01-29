@@ -22,72 +22,17 @@ struct VarantCastKeepConstRef {};
 struct VarantCastCopyConstRef {};
 
 class GVariant;
+class GMetaVariant;
 
 template <typename T>
 bool canFromVariant(const GVariant & v);
 
 namespace variant_internal {
 
-template <bool CanShadow, typename T>
+template <bool Copyable, typename T>
 void InitVariant(GVariant & v, const GVarTypeData & typeData, const typename RemoveReference<T>::Result & value);
 
-template <typename T>
-struct ArrayToPointer;
-
-template <typename T>
-struct CheckIsArray {
-	G_STATIC_CONSTANT(bool, Result = T::IsArray);
-};
-
-template <typename T, typename Enabled = void>
-struct DeducePassType
-{
-	typedef T Result;
-    typedef typename RemoveReference<T>::Result PassType;
-};
-
-template <typename T>
-struct DeducePassType <T, typename GEnableIfResult<CheckIsArray<ArrayToPointer<T> > >::Result>
-{
-	typedef typename ArrayToPointer<T>::Result Result;
-	typedef typename ArrayToPointer<T>::Result PassType;
-};
-
-
-class IVariantShadowObject
-{
-public:
-	virtual void G_API_CC retain() = 0;
-	virtual void G_API_CC release() = 0;
-	virtual void * G_API_CC getObject() = 0;
-};
-
-template <typename T>
-class GVariantShadowObject : public IVariantShadowObject
-{
-public:
-	GVariantShadowObject(const T & obj) : refCount(1), obj(obj) {
-	}
-
-	virtual void G_API_CC retain() {
-		++this->refCount;
-	}
-
-	virtual void G_API_CC release() {
-		--this->refCount;
-		if(this->refCount <= 0) {
-			delete this;
-		}
-	}
-
-	virtual void * G_API_CC getObject() {
-		return (void *)(&this->obj);
-	}
-
-private:
-	int refCount;
-	T obj;
-};
+class IVariantShadowObject;
 
 struct GVariantDataHolder
 {
@@ -188,39 +133,14 @@ struct GVariantData
 };
 #pragma pack(pop)
 
-inline void initializeVarData(GVariantData * data);
-inline void freeVarData(GVariantData * data);
-
-namespace variant_internal {
-
-inline unsigned int getVariantTypeSize(GVariantType type);
-inline void adjustVariantType(GVariant * data);
-
-} // namespace variant_internal
-
-class GMetaVariant;
 
 GMAKE_FINAL(GVariant)
 
 class GVariant : GFINAL_BASE(GVariant)
 {
-//	GASSERT_STATIC(sizeof(GVariantData) == 16);
-
 public:
-	GVariant() {
-		vtInit(data.typeData);
-		data.holder.a = 0;
-		data.holder.b = 0;
-		data.holder.c = 0;
-	}
-
-	GVariant(const GVariantData & data) : data(data) {
-		this->init();
-
-		if(vtGetSize(this->data.typeData) != variant_internal::getVariantTypeSize(static_cast<GVariantType>(vtGetType(this->data.typeData)))) {
-			variant_internal::adjustVariantType(this);
-		}
-	}
+	GVariant();
+	GVariant(const GVariantData & data);
 
 	template <typename T>
 	GVariant(const T & value) {
@@ -235,26 +155,10 @@ public:
 		variant_internal::InitVariant<true, T>(*this, typeData, value);
 	}
 
-	GVariant(const GVariant & other) : data(other.data) {
-		this->init();
-	}
-
-	~GVariant() {
-		freeVarData(&this->data);
-	}
-
-	GVariant & operator = (GVariant other) {
-		this->swap(other);
-
-		return *this;
-	}
-
-	void swap(GVariant & other) {
-		using std::swap;
-
-		swap(this->data.typeData, other.data.typeData);
-		swap(this->data.holder, other.data.holder);
-	}
+	GVariant(const GVariant & other);
+	~GVariant();
+	GVariant & operator = (GVariant other);
+	void swap(GVariant & other);
 
 	const GVarTypeData & getTypeData() const {
 		return this->data.typeData;
@@ -280,26 +184,10 @@ public:
 		return this->data;
 	}
 
-	GVariantData takeData() {
-		GVariantData result = this->data;
-
-		vtInit(this->data.typeData);
-
-		return result;
-	}
+	GVariantData takeData();
 
 private:
-	void init() {
-		if(vtIsShadow(vtGetType(this->data.typeData))) {
-			this->data.shadowObject->retain();
-		}
-		else if(vtIsInterface(vtGetType(this->data.typeData)) && this->data.valueInterface != NULL) {
-			this->data.valueInterface->addReference();
-		}
-		else if(vtIsByteArray(vtGetType(this->data.typeData)) && this->data.valueByteArray != NULL) {
-			this->data.valueByteArray->addReference();
-		}
-	}
+	void init();
 
 public:
 	GVariantData data;
@@ -315,41 +203,12 @@ inline void swap(GVariant & a, GVariant & b)
 
 extern void raiseCoreException(int errorCode, ...);
 
-inline void failedCast() {
-	raiseCoreException(Error_Variant_FailCast);
-}
-
-inline void checkFailCast(bool success) {
-	if(!success) {
-		failedCast();
-	}
-}
+void failedCast();
+void checkFailCast(bool success);
 
 
 #include "cpgf/private/gvariant_p.h"
 
-
-template <bool CanShadow, typename T>
-GVariant createVariant(const T & value, bool allowShadow = false)
-{
-	GVarTypeData typeData;
-	deduceVariantType<T>(typeData, allowShadow);
-	GVariant v;
-	variant_internal::InitVariant<CanShadow, typename variant_internal::DeducePassType<T>::PassType>(v, typeData, value);
-	return v;
-}
-
-template <typename T>
-GVariant createVariantFromCopyable(const T & value, bool allowShadow)
-{
-	return createVariant<true>(value, allowShadow);
-}
-
-template <typename T>
-GVariant createVariantFromCopyable(const T & value)
-{
-	return createVariant<true>(value, false);
-}
 
 template <typename T>
 bool canFromVariant(const GVariant & v)
@@ -387,87 +246,38 @@ GVariant pointerToRefVariant(T * p)
 	return v;
 }
 
-inline GVariant pointerToRefVariant(const GVariant & p)
+GVariant pointerToRefVariant(const GVariant & p);
+
+template <bool Copyable, typename T>
+GVariant createVariant(const T & value, bool copyObject = false)
 {
-	GVariant v(p);
-
-	if(vtIsByPointer(v.getType())) {
-		vtSetType(v.data.typeData, (vtGetType(v.data.typeData) & ~byPointer) | byReference);
-	}
-
-	return v;
-}
-
-inline GVariant pointerToObjectVariant(void * p)
-{
-	GVariant result;
-
-	vtSetType(result.data.typeData, vtObject | byPointer);
-	result.data.ptrObject = p;
-	vtSetSize(result.data.typeData, sizeof(void *));
-
-	return result;
-}
-
-inline void * objectAddressFromVariant(const GVariant & v)
-{
-	if(vtIsShadow(v.getType())) {
-		return v.data.shadowObject->getObject();
-	}
-
-	return fromVariant<void *>(v);
-}
-
-inline void * referenceAddressFromVariant(const GVariant & v)
-{
-	if(vtIsByReference(v.getType())) {
-		return const_cast<void *>(v.data.ptrObject);
-	}
-	else {
-		return objectAddressFromVariant(v);
-	}
-}
-
-inline void initializeVarData(GVariantData * data)
-{
-	vtInit(data->typeData);
-}
-
-inline void freeVarData(GVariantData * data)
-{
-	if(vtIsShadow(vtGetType(data->typeData))) {
-		data->shadowObject->release();
-	}
-	else if(vtIsInterface(vtGetType(data->typeData)) && data->valueInterface != NULL) {
-		data->valueInterface->releaseReference();
-	}
-	else if(vtIsByteArray(vtGetType(data->typeData)) && data->valueByteArray != NULL) {
-		data->valueByteArray->releaseReference();
-	}
-}
-
-inline void initializeVarString(GVariantData * data, const char * s)
-{
-	vtInit(data->typeData);
-	vtSetType(data->typeData, vtString);
-	vtSetSize(data->typeData, variant_internal::getVariantTypeSize(vtString));
-	vtSetPointers(data->typeData, 0);
-	variant_internal::IVariantShadowObject * shadow = new variant_internal::GVariantShadowObject<std::string>(std::string(s));
-	data->shadowObject = shadow;
-}
-
-inline GVariant createStringVariant(const char * s)
-{
+	GVarTypeData typeData;
+	deduceVariantType<T>(typeData, copyObject);
 	GVariant v;
-
-	initializeVarString(&v.data, s);
-
+	variant_internal::InitVariant<Copyable, typename variant_internal::DeducePassType<T>::PassType>(v, typeData, value);
 	return v;
 }
 
-inline bool variantIsString(const GVariant & v) {
-	return v.getType() == vtString || (v.getPointers() == 1 && v.getBaseType() == vtChar);
+template <typename T>
+GVariant createVariantFromCopyable(const T & value)
+{
+	return createVariant<true>(value, false);
 }
+
+template <typename T>
+GVariant copyVariantFromCopyable(const T & value)
+{
+	return createVariant<true>(value, true);
+}
+
+GVariant pointerToObjectVariant(void * p);
+void * objectAddressFromVariant(const GVariant & v);
+void * referenceAddressFromVariant(const GVariant & v);
+void initializeVarData(GVariantData * data);
+void freeVarData(GVariantData * data);
+void initializeVarString(GVariantData * data, const char * s);
+GVariant createStringVariant(const char * s);
+bool variantIsString(const GVariant & v);
 
 
 } // namespace cpgf

@@ -303,7 +303,11 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallabl
 		return 0;
 	}
 
-	if(callable->getParamCount() != callbackParam->paramCount) {
+	if(callable->getParamCount() < callbackParam->paramCount) {
+		return -1;
+	}
+
+	if(callable->getParamCount() - callable->getDefaultParamCount() > callbackParam->paramCount) {
 		return -1;
 	}
 
