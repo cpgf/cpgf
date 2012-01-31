@@ -11,7 +11,7 @@ sub new
 	my $self = {
 		name => undef,
 
-		values => [],
+		valueList => [],
 
 		%args
 	};

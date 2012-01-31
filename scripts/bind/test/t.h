@@ -26,6 +26,10 @@ public:
 
 	bool operator <= (const MyClass & other);
 
+	template <typename TT, int NN>
+	void tempFunc(TT * aa);
+
+	MyClass * imPublic;
 private:
 	MyClass * imPrivate;
 

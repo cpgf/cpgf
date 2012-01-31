@@ -11,14 +11,14 @@ sub new
 	my $self = {
 		name => undef,
 
-		baseList => [],
+		baseNameList => [], # names of base classes
 
 		constructorList => [],
 		fieldList => [],
 		methodList => [],
-		classList => [],
 		enumList => [],
 		operatorList => [],
+		classNameList => [], # names of inner classes
 
 		%args
 	};
