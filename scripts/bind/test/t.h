@@ -22,7 +22,7 @@ class MyClass : public BaseA, private BaseB
 public:
 	explicit MyClass(int n);
 
-	int abc(const int * volatile p, int (MyClass::*xxx)(int, double), int def = 0x38);
+	virtual int abc(const int * volatile p, int (MyClass::*xxx)(int, double), int def = 0x38);
 
 	bool operator <= (const MyClass & other);
 

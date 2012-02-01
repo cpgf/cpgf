@@ -3,6 +3,9 @@ package DoxyXmlLoader;
 use strict;
 use warnings;
 
+use XML::DOM;
+use File::Basename;
+
 use Data::Dumper;
 
 use Util;
@@ -27,32 +30,17 @@ sub new
 
 		currentClass => undef,
 
+		globalClass => new Class,
+
 		%args
 	};
+
+	Util::listPush($self->{classList}, $self->{globalClass});
 
 	bless $self, $class;
 
 	return $self;
 }
-
-sub parse
-{
-	my ($self, $xmlNode) = @_;
-
-	my $root = $xmlNode->getElementsByTagName('doxygen')->[0];
-	my $childNodeList = $root->getChildNodes();
-	foreach(@{$childNodeList}) {
-		my $node = $_;
-		my $nodeName = $node->getNodeName();
-
-		if($nodeName eq 'compounddef') {
-			$self->parseCompounddef($node);
-		}
-		else {
-#			Util::fatal("Unknown node name '$nodeName'");
-		}
-	}
-};
 
 sub checkVisibility
 {
@@ -68,6 +56,55 @@ sub checkNodeVisibility
 	return $self->checkVisibility(Util::getAttribute($xmlNode, 'prot'));
 }
 
+sub parseFile
+{
+	my ($self, $fileName) = @_;
+
+	if(!(-e $fileName)) {
+		print "File $fileName doesn't exists.\n";
+		return;
+	}
+
+	my $parser = new XML::DOM::Parser;
+	my $doc = $parser->parsefile ($fileName);
+	$self->parse($doc, dirname($fileName));
+}
+
+sub parse
+{
+	my ($self, $xmlNode, $path) = @_;
+
+	my $root;
+	$root = $xmlNode->getElementsByTagName('doxygen')->[0];
+	$root = $xmlNode->getElementsByTagName('doxygenindex')->[0] unless defined $root;
+	my $childNodeList = $root->getChildNodes();
+	foreach(@{$childNodeList}) {
+		my $node = $_;
+		my $nodeName = $node->getNodeName();
+
+		if($nodeName eq 'compounddef') {
+			$self->parseCompounddef($node);
+		}
+		elsif($nodeName eq 'compound') {
+			$self->parseCompound($node, $path);
+		}
+		else {
+		}
+	}
+};
+
+sub parseCompound
+{
+	my ($self, $xmlNode, $path) = @_;
+
+	return unless $self->checkNodeVisibility($xmlNode);
+
+	my $refid = Util::getAttribute($xmlNode, 'refid');
+	my $fileName = $path . '/' . $refid . '.xml';
+
+	$self->parseFile($fileName);
+}
+
 sub parseCompounddef
 {
 	my ($self, $xmlNode) = @_;
@@ -79,6 +116,30 @@ sub parseCompounddef
 	if($kind eq 'class') {
 		$self->parseClass($xmlNode);
 	}
+	elsif($kind eq 'file') {
+		$self->parseDefFile($xmlNode);
+	}
+	elsif($kind eq 'namespace') {
+		$self->parseNamespace($xmlNode);
+	}
+}
+
+sub parseDefFile
+{
+	my ($self, $xmlNode) = @_;
+	
+	$self->{currentClass} = $self->{globalClass};
+
+	foreach(@{$xmlNode->getElementsByTagName('sectiondef', 0)}) {
+		$self->parseSectiondef($_);
+	}
+}
+
+sub parseNamespace
+{
+	my ($self, $xmlNode) = @_;
+
+	$self->parseDefFile($xmlNode);
 }
 
 sub parseClass
@@ -194,7 +255,8 @@ sub parseMethod
 	my $method = new Method(
 		name => $name,
 		returnType => Util::getNodeText(Util::getNode($xmlNode, 'type')),
-		static => Util::valueYesNo(Util::getAttribute($xmlNode, 'static'))
+		static => Util::valueYesNo(Util::getAttribute($xmlNode, 'static')),
+		virtual => ((Util::getAttribute($xmlNode, 'virt') eq 'virtual') ? 1 : 0),
 	);
 	$self->parseParams($xmlNode, $method->{paramList});
 	Util::listPush($self->{currentClass}->{methodList}, $method);

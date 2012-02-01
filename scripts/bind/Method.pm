@@ -12,8 +12,8 @@ sub new
 		name => undef,
 		returnType => undef,
 		
-		member => 0,
 		static => 0,
+		virtual => 0,
 
 		paramList => [],
 

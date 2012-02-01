@@ -1349,7 +1349,7 @@ GENERATE_AUTOGEN_DEF   = NO
 # feature is still experimental and incomplete at the 
 # moment.
 
-GENERATE_PERLMOD       = YES
+GENERATE_PERLMOD       = NO
 
 # If the PERLMOD_LATEX tag is set to YES Doxygen will generate 
 # the necessary Makefile rules, Perl scripts and LaTeX code to be able 

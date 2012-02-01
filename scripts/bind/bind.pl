@@ -4,17 +4,13 @@ use warnings;
 use DoxyXmlLoader;
 use CodeWriter;
 
-use XML::DOM;
-
 use Data::Dumper;
 
-my $xmlName = "test/xml/class_n_n_n_1_1_my_class.xml";
-
-my $parser = new XML::DOM::Parser;
-my $doc = $parser->parsefile ($xmlName);
+#my $xmlName = "test/xml/class_n_n_n_1_1_my_class.xml";
+my $xmlName = "test/xml/index.xml";
 
 my $loader = new DoxyXmlLoader;
-$loader->parse($doc);
+$loader->parseFile($xmlName);
 
 print Dumper($loader->{classList});
 

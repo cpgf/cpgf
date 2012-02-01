@@ -12,7 +12,6 @@ sub new
 		name => undef,
 		type => undef,
 		
-		member => 0,
 		static => 0,
 
 		%args
