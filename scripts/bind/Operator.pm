@@ -11,7 +11,10 @@ sub new
 	my $self = {
 		operator => undef,
 
+		template => 0,
+
 		paramList => [],
+		templateParamList => [],
 
 		%args
 	};

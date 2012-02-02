@@ -14,8 +14,10 @@ sub new
 		
 		static => 0,
 		virtual => 0,
+		template => 0,
 
 		paramList => [],
+		templateParamList => [],
 
 		%args
 	};

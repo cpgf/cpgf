@@ -20,6 +20,9 @@ sub new
 		operatorList => [],
 		classNameList => [], # names of inner classes
 
+		template => 0,
+		templateParamList => [],
+
 		%args
 	};
 

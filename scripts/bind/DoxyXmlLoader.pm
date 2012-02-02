@@ -60,6 +60,8 @@ sub parseFile
 {
 	my ($self, $fileName) = @_;
 
+#print "Parsing file $fileName.\n";
+
 	if(!(-e $fileName)) {
 		print "File $fileName doesn't exists.\n";
 		return;
@@ -162,6 +164,8 @@ sub parseClass
 	foreach(@{$xmlNode->getElementsByTagName('sectiondef', 0)}) {
 		$self->parseSectiondef($_);
 	}
+	
+	$self->parseTemplateParams($xmlNode, $class);
 }
 
 sub getMemebers
@@ -234,6 +238,7 @@ sub parseMethod
 		if(Util::getBaseName($self->{currentClass}->{name}) eq $name) { # constructor
 			my $constructor = new Constructor;
 			$self->parseParams($xmlNode, $constructor->{paramList});
+			$self->parseTemplateParams($xmlNode, $constructor);
 			Util::listPush($self->{currentClass}->{constructorList}, $constructor);
 
 			return;
@@ -247,6 +252,7 @@ sub parseMethod
 			operator => $op
 		);
 		$self->parseParams($xmlNode, $operator->{paramList});
+		$self->parseTemplateParams($xmlNode, $operator);
 		Util::listPush($self->{currentClass}->{operatorList}, $operator);
 
 		return;
@@ -259,6 +265,7 @@ sub parseMethod
 		virtual => ((Util::getAttribute($xmlNode, 'virt') eq 'virtual') ? 1 : 0),
 	);
 	$self->parseParams($xmlNode, $method->{paramList});
+	$self->parseTemplateParams($xmlNode, $method);
 	Util::listPush($self->{currentClass}->{methodList}, $method);
 }
 
@@ -276,6 +283,29 @@ sub parseParams
 			defaultValue => Util::getNodeText(Util::getNode($node, 'defval'))
 		);
 		Util::listPush($params, $param);
+	}
+}
+
+sub parseTemplateParams
+{
+	my ($self, $xmlNode, $item) = @_;
+
+	$item->{template} = 0;
+
+	return unless defined $xmlNode;
+
+	$xmlNode = Util::getNode($xmlNode, 'templateparamlist');
+	return unless defined $xmlNode;
+
+	foreach(@{$xmlNode->getElementsByTagName('param', 0)}) {
+		my $node = $_;
+		my $param = new Param(
+			name => Util::getNodeText(Util::getNode($node, 'declname')),
+			type => Util::getNodeText(Util::getNode($node, 'type')),
+			defaultValue => Util::getNodeText(Util::getNode($node, 'defval'))
+		);
+		Util::listPush($item->{templateParamList}, $param);
+		$item->{template} = 1;
 	}
 }
 

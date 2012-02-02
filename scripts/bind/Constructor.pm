@@ -9,7 +9,10 @@ sub new
 	my %args = @_;
 
 	my $self = {
+		template => 0,
+
 		paramList => [],
+		templateParamList => [],
 
 		%args
 	};

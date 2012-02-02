@@ -17,6 +17,7 @@ class BaseB
 {
 };
 
+template <typename MMM, typename EEE = void>
 class MyClass : public BaseA, private BaseB
 {
 public:
