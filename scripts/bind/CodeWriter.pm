@@ -21,7 +21,7 @@ sub new
 	return $self;
 }
 
-sub addIndent
+sub incIndent
 {
 	my ($self) = @_;
 

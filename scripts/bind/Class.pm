@@ -11,17 +11,27 @@ sub new
 	my $self = {
 		name => undef,
 
+		visibility => 'public',
+		location => undef,
+
 		baseNameList => [], # names of base classes
+		baseList => [], # base classes
 
 		constructorList => [],
 		fieldList => [],
 		methodList => [],
 		enumList => [],
 		operatorList => [],
+
 		classNameList => [], # names of inner classes
+		classList => [], # inner classes
+
+		defineList => [],
 
 		template => 0,
 		templateParamList => [],
+
+		inner => 0,
 
 		%args
 	};

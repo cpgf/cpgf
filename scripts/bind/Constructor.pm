@@ -9,6 +9,9 @@ sub new
 	my %args = @_;
 
 	my $self = {
+		visibility => 'public',
+		location => undef,
+
 		template => 0,
 
 		paramList => [],

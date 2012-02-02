@@ -1,8 +1,23 @@
+$basePath = '';
+
+BEGIN {
+	$basePath = $0;
+	$basePath =~ s![^/\\]+$!!;
+	unshift @INC, $basePath;
+}
+
+require 'config.default.pl';
+
+my $bindConfig = {
+	%{$config},
+};
+
 use strict;
 use warnings;
 
 use DoxyXmlLoader;
 use CodeWriter;
+use MetaClassWriter;
 
 use Data::Dumper;
 
@@ -11,33 +26,21 @@ my $xmlName = "test/xml/index.xml";
 
 my $loader = new DoxyXmlLoader;
 $loader->parseFile($xmlName);
+$loader->fixup();
 
 print Dumper($loader->{classList});
 
+my $codeWriter = new CodeWriter;
 foreach(@{$loader->{classList}}) {
-	my $writer = new CodeWriter;
-#	print Util::dumpClass($writer, $_);
+	my $class = $_;
+	my $className = 'global';
+	$className = $class->{name} if(not $class->isGlobal());
+	$className = Util::getBaseName($className);
+	my $writer = new MetaClassWriter(class => $class, codeWriter => $codeWriter, config => $bindConfig);
+	$writer->beginMetaFunction("do" . $className);
+	$writer->write();
+	$writer->endMetaFunction();
 }
+print $codeWriter->{text};
 
 
-__END__
-
-BEGIN {
-	my $p = $0;
-	$p =~ s![^/\\]+$!!;
-	$p = './test/perlmod/';
-	unshift @INC, $p;
-}
-
-use DoxyDocs;
-use DoxyLoader;
-
-use Data::Dumper;
-
-#use strict;
-use warnings;
-
-my $loader = new DoxyLoader;
-$loader->parse($doxydocs);
-
-print Dumper($loader->{classList});

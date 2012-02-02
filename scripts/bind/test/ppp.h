@@ -1,14 +1,14 @@
 
-#define MYDEF 1
-#define MYDEF2
-#define MYFUNC(n) n
-#define MYFUNC2() 5
+#define MYDEF_PPP 1
+#define MYDEF2_PPP
+#define MYFUNC_PPP(n) n
+#define MYFUNC2_PPP() 5
 
 namespace NNN {
 
 namespace MMM {
 
-class BaseA
+class BaseA_PPP
 {
 };
 
@@ -16,15 +16,15 @@ class BaseA
 
 using namespace MMM;
 
-class BaseB
+class BaseB_PPP
 {
 };
 
 template <typename MMM, typename EEE = void>
-class MyClass : public BaseA, private BaseB
+class MyClass_PPP : public BaseA_PPP, private BaseB_PPP
 {
 public:
-	explicit MyClass(int n);
+	explicit MyClass_PPP(int n);
 
 	virtual int abc(const int * volatile p, int (MyClass::*xxx)(int, double), int def = 0x38);
 	void overloadFunc(int n);
@@ -40,7 +40,7 @@ private:
 	MyClass * imPrivate;
 
 public:
-	class InnerClass
+	class InnerClass_PPP
 	{
 	public:
 		int value;
@@ -52,10 +52,10 @@ public:
 	typedef ABC DEF;
 };
 
-MyClass * myGlobalFunc(int nnn = 5);
+MyClass * myGlobalFunc_PPP(int nnn = 5);
 
 
 }
 
 
-MyClass * myGlobalFuncNot();
+MyClass * myGlobalFuncNot_PPP();

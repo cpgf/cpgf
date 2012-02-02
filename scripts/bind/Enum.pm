@@ -11,6 +11,9 @@ sub new
 	my $self = {
 		name => undef,
 
+		location => undef,
+		visibility => 'public',
+
 		valueList => [],
 
 		%args
@@ -19,6 +22,13 @@ sub new
 	bless $self, $class;
 
 	return $self;
+}
+
+sub getList
+{
+	my ($self, $class) = @_;
+
+	return $class->{enumList};
 }
 
 

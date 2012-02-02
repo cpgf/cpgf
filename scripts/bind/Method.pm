@@ -12,6 +12,9 @@ sub new
 		name => undef,
 		returnType => undef,
 		
+		location => undef,
+		visibility => 'public',
+
 		static => 0,
 		virtual => 0,
 		template => 0,
@@ -25,6 +28,13 @@ sub new
 	bless $self, $class;
 
 	return $self;
+}
+
+sub getList
+{
+	my ($self, $class) = @_;
+
+	return $class->{methodList};
 }
 
 

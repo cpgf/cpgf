@@ -1,4 +1,4 @@
-package Field;
+package Define;
 
 use strict;
 use warnings;
@@ -9,13 +9,11 @@ sub new
 	my %args = @_;
 
 	my $self = {
-		name => undef,
-		type => undef,
-		
 		location => undef,
 		visibility => 'public',
-
-		static => 0,
+		
+		name => undef,
+		value => undef,
 
 		%args
 	};
@@ -29,7 +27,7 @@ sub getList
 {
 	my ($self, $class) = @_;
 
-	return $class->{fieldList};
+	return $class->{defineList};
 }
 
 
