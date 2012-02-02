@@ -138,35 +138,6 @@ sub doFixupGlobals
 {
 	my ($classList) = @_;
 
-	my $firstGlobalIndex = -1;
-	my $firstGlobal = undef;
-
-	foreach(@{$classList}) {
-		++$firstGlobalIndex;
-		if($_->isGlobal()) {
-			$firstGlobal = $_;
-			last;
-		}
-	}
-
-	if(defined $firstGlobal) {
-		my $finished = 0;
-
-		while(not $finished) {
-			$finished = 1;
-
-			for(my $i = $firstGlobalIndex + 1; $i <= $#{@{$classList}}; ++$i) {
-				my $c = $classList->[$i];
-				if($c->isGlobal()) {
-					$firstGlobal = &mergeClasses($firstGlobal, $c);
-					splice(@{$classList}, $i, 1);
-					$finished = 0;
-					last;
-				}
-			}
-		}
-	}
-
 	my %fileMap = ();
 	my $finished = 0;
 	while(not $finished) {
@@ -204,6 +175,7 @@ sub doFixupGlobalItems
 		my $location = $item->{location};
 		if(not defined $fileMap->{$location}) {
 			$fileMap->{$location} = new Class;
+			$fileMap->{$location}->{location} = $location;
 		}
 		&listPush($item->getList($fileMap->{$location}), $item);
 	}

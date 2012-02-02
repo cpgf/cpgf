@@ -52,7 +52,7 @@ sub writeConstructor
 		
 		$cw->out($action . "<void * (");
 		Util::writeParamList($cw, $item->{paramList}, 0);
-		$cw->out(")>(policy);\n");
+		$cw->out(")>(_p);\n");
 	}
 }
 
@@ -71,7 +71,7 @@ sub writeField
 		
 		$cw->out($action);
 		$cw->out('(' . $self->getReplace($name) . ", ");
-		$cw->out("&" . $prefix . $name . ", policy);\n");
+		$cw->out("&" . $prefix . $name . ", _p);\n");
 	}
 }
 
@@ -105,7 +105,7 @@ sub writeMethod
 			Util::writeParamList($cw, $item->{paramList}, 0);
 			$cw->out("))");
 		}
-		$cw->out("&" . $prefix . $name . ", policy);\n");
+		$cw->out("&" . $prefix . $name . ", _p);\n");
 	}
 }
 
@@ -123,35 +123,16 @@ sub getAction
 {
 	my ($self, $name) = @_;
 	
-	return 'define.CPGF_MD_TEMPLATE ' . $name;
+	return '_d.CPGF_MD_TEMPLATE ' . $name;
 }
 
 sub getReplace
 {
 	my ($self, $name) = @_;
 	
-	return 'replaceName("' . $name . '", replacer)';
+	return 'replaceName("' . $name . '", _r)';
 }
 
-sub beginMetaFunction
-{
-	my ($self, $name) = @_;
-	my $cw = $self->{codeWriter};
-
-	$cw->out("template <template <typename MetaDefine, typename Policy>>\n");
-	$cw->out("void " . $name . "(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer, const Policy & policy)\n");
-	$cw->out("{\n");
-	$cw->incIndent();
-}
-
-sub endMetaFunction
-{
-	my ($self) = @_;
-	my $cw = $self->{codeWriter};
-
-	$cw->decIndent();
-	$cw->out("}\n");
-}
 
 
 1;

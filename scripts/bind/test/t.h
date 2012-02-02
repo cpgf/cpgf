@@ -10,6 +10,8 @@ namespace MMM {
 
 class BaseA
 {
+public:
+	int ddd();
 };
 
 }
@@ -25,12 +27,16 @@ class MyClass : public BaseA, private BaseB
 {
 public:
 	explicit MyClass(int n);
+	virtual ~MyClass();
 
 	virtual int abc(const int * volatile p, int (MyClass::*xxx)(int, double), int def = 0x38);
 	void overloadFunc(int n);
 	int overloadFunc(void * p);
 
 	bool operator <= (const MyClass & other);
+	
+	template <typename T>
+	void templateFunc(T * a);
 
 	template <typename TT, int NN>
 	void tempFunc(TT * aa);

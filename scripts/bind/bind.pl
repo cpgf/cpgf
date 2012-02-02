@@ -3,7 +3,7 @@ $basePath = '';
 BEGIN {
 	$basePath = $0;
 	$basePath =~ s![^/\\]+$!!;
-	unshift @INC, $basePath;
+	unshift @INC, $basePath . "lib";
 }
 
 require 'config.default.pl';
@@ -18,6 +18,7 @@ use warnings;
 use DoxyXmlLoader;
 use CodeWriter;
 use MetaClassWriter;
+use MetaWriter;
 
 use Data::Dumper;
 
@@ -28,19 +29,11 @@ my $loader = new DoxyXmlLoader;
 $loader->parseFile($xmlName);
 $loader->fixup();
 
-print Dumper($loader->{classList});
+#print Dumper($loader->{classList});
 
-my $codeWriter = new CodeWriter;
-foreach(@{$loader->{classList}}) {
-	my $class = $_;
-	my $className = 'global';
-	$className = $class->{name} if(not $class->isGlobal());
-	$className = Util::getBaseName($className);
-	my $writer = new MetaClassWriter(class => $class, codeWriter => $codeWriter, config => $bindConfig);
-	$writer->beginMetaFunction("do" . $className);
-	$writer->write();
-	$writer->endMetaFunction();
-}
-print $codeWriter->{text};
+my $metaWriter = new MetaWriter(
+	classList => $loader->{classList},
+	config => $bindConfig,
+);
 
-
+$metaWriter->write();

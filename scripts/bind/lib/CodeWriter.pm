@@ -41,7 +41,7 @@ sub out
 
 	my $indentText = ' ' x ($self->{indent} * 4);
 
-	if($self->{text} =~ /\n$/ms) {
+	if($self->{text} =~ /\n$/s) {
 		$self->{text} .= $indentText;
 	}
 

@@ -96,6 +96,7 @@ sub parseFile
 	my $parser = new XML::DOM::Parser;
 	my $doc = $parser->parsefile ($fileName);
 	$self->parse($doc, dirname($fileName));
+	$doc->dispose();
 }
 
 sub parse
@@ -252,6 +253,8 @@ sub parseMethod
 	my ($self, $xmlNode, $name) = @_;
 
 	if(not $self->{currentClass}->isGlobal()) {
+		return if $name =~ /~/; #destructor
+		
 		if(Util::getBaseName($self->{currentClass}->{name}) eq $name) { # constructor
 			my $constructor = new Constructor;
 			$self->parseParams($xmlNode, $constructor->{paramList});
