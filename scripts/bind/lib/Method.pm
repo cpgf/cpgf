@@ -16,6 +16,7 @@ sub new
 		visibility => 'public',
 
 		static => 0,
+		const => 0,
 		virtual => 0,
 		template => 0,
 

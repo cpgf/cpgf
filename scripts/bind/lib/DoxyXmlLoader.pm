@@ -269,10 +269,16 @@ sub parseMethod
 
 	if($name =~ /^.*\boperator(\b.*)$/) { # operator
 		my $op = $1;
+		$op =~ s/\s//g;
 		my $operator = new Operator(
 			returnType => Util::getNodeText(Util::getNode($xmlNode, 'type')),
-			operator => $op
+			operator => $op,
+			static => Util::valueYesNo(Util::getAttribute($xmlNode, 'static')),
+			const => Util::valueYesNo(Util::getAttribute($xmlNode, 'const')),
 		);
+		if($operator->{returnType} eq '') { # type convertion operator, T()
+			$operator->{returnType} = $operator->{operator};
+		}
 		$self->parseParams($xmlNode, $operator->{paramList});
 		$self->parseTemplateParams($xmlNode, $operator);
 		Util::listPush($self->{currentClass}->{operatorList}, $operator);
@@ -286,6 +292,7 @@ sub parseMethod
 		name => $name,
 		returnType => Util::getNodeText(Util::getNode($xmlNode, 'type')),
 		static => Util::valueYesNo(Util::getAttribute($xmlNode, 'static')),
+		const => Util::valueYesNo(Util::getAttribute($xmlNode, 'const')),
 		virtual => ((Util::getAttribute($xmlNode, 'virt') eq 'virtual') ? 1 : 0),
 	);
 	$self->parseParams($xmlNode, $method->{paramList});

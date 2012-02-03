@@ -1,3 +1,6 @@
+#include <string>
+
+using namespace std;
 
 #define MYDEF 1
 #define MYDEF2
@@ -7,6 +10,8 @@
 namespace NNN {
 
 namespace MMM {
+
+struct CLASS {};
 
 class BaseA
 {
@@ -22,7 +27,6 @@ class BaseB
 {
 };
 
-template <typename MMM, typename EEE = void>
 class MyClass : public BaseA, private BaseB
 {
 public:
@@ -34,6 +38,14 @@ public:
 	int overloadFunc(void * p);
 
 	bool operator <= (const MyClass & other);
+	int operator [] (int n) const;
+	operator std::string () const;
+	CLASS operator ++ ();
+	CLASS operator ++ (int);
+	CLASS operator -- ();
+	CLASS operator -- (int);
+	CLASS operator ! () const;
+	CLASS operator ~ () const;
 	
 	template <typename T>
 	void templateFunc(T * a);
@@ -54,6 +66,7 @@ public:
 
 	enum ABC { a=1, b};
 	enum {YY = 5, PP = 6};
+	enum {DYY = 5, DPP = 6};
 
 	typedef ABC DEF;
 };
@@ -64,4 +77,4 @@ MyClass * myGlobalFunc(int nnn = 5);
 }
 
 
-MyClass * myGlobalFuncNot();
+NNN::MyClass * myGlobalFuncNot();

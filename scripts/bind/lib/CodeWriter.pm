@@ -45,7 +45,7 @@ sub out
 		$self->{text} .= $indentText;
 	}
 
-	$s =~ s/\n(.)/\n$1$indentText/msg;
+	$s =~ s/(\n+)([^\n])/$1$2$indentText/msg;
 	$self->{text} .= $s;
 }
 

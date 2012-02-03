@@ -12,6 +12,9 @@ our @EXPORT = qw(
 	&getBaseName
 	&valueYesNo
 	&getAttribute
+
+	&getBaseFileName
+
 	&fixupClassList
 	&dumpClass
 
@@ -100,6 +103,15 @@ sub getNodeText
 	}
 
 	return $result;
+}
+
+sub getBaseFileName
+{
+	my ($fn) = @_;
+	
+	$fn =~ s/\.[^.]+$//;
+	
+	return $fn;
 }
 
 sub itemIsPublic

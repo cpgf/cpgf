@@ -33,7 +33,8 @@ sub write
 
 	foreach(@{$self->{fileWriterList}}) {
 		my $fileWriter = $_;
-		$fileWriter->write();
+		$fileWriter->writeHeader();
+		$fileWriter->writeSource();
 	}
 }
 

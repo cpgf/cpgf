@@ -12,6 +12,28 @@ my $bindConfig = {
 	%{$config},
 };
 
+use Getopt::Long;
+
+my $configFile = undef;
+my @xmlFileNames = ();
+my $outputPath = './output';
+my $cppOutputPath = './output';
+
+GetOptions(
+	'xml=s' => \@xmlFileNames,
+	'config=s' => \$configFile,
+	'output=s' => \$outputPath,
+	'cppoutput=s' => \$cppOutputPath,
+);
+
+if(defined $configFile) {
+	require $configFile;
+	$bindConfig = {
+		%{$bindConfig},
+		%{$config},
+	};
+}
+
 use strict;
 use warnings;
 
@@ -22,18 +44,36 @@ use MetaWriter;
 
 use Data::Dumper;
 
-#my $xmlName = "test/xml/class_n_n_n_1_1_my_class.xml";
-my $xmlName = "test/xml/index.xml";
+&usage() if($#xmlFileNames < 0);
 
-my $loader = new DoxyXmlLoader;
-$loader->parseFile($xmlName);
-$loader->fixup();
+$bindConfig->{outputDir} = $outputPath;
+$bindConfig->{cppOutputDir} = $cppOutputPath;
+&doMain();
+	
+sub usage
+{
+	print <<EOM;
+Usage:
+EOM
+	die "\n";
+}
 
-#print Dumper($loader->{classList});
+sub doMain
+{
+	foreach(@xmlFileNames) {
+		my $xmlName = $_;
 
-my $metaWriter = new MetaWriter(
-	classList => $loader->{classList},
-	config => $bindConfig,
-);
+		my $loader = new DoxyXmlLoader;
+		$loader->parseFile($xmlName);
+		$loader->fixup();
 
-$metaWriter->write();
+		#print Dumper($loader->{classList});
+
+		my $metaWriter = new MetaWriter(
+			classList => $loader->{classList},
+			config => $bindConfig,
+		);
+
+		$metaWriter->write();
+	}
+}
