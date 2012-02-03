@@ -206,7 +206,6 @@ sub doFixupBases
 			my $baseClass = &findItemByName($classList, $names[0]);
 			if(defined $baseClass) {
 				push @{$target->{baseList}}, $baseClass;
-				$baseClass->{visibility} = $names[1];
 			}
 		}
 	}

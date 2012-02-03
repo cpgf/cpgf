@@ -19,6 +19,7 @@ sub new
 	my $self = {
 		sourceFileName => undef,
 		classList => [],
+		fileMap => undef,
 		config => undef,
 		
 		%args
@@ -84,6 +85,12 @@ sub writeHeader
 	$self->endMetaFunction($cw);
 	
 	$cw->out("\n\n");
+	foreach(@{$self->{fileMap}->{namespaceList}}) {
+		my $ns = $_;
+		$cw->out("using namespace " . $ns . ";\n");
+	}
+	
+	$cw->out("\n\n");
 	$cw->out('#include "cpgf/metadata/private/gmetadata_footer.h"' . "\n");
 	$cw->out("\n\n");
 	$cw->out('#endif');
@@ -101,7 +108,7 @@ sub writeSource
 	
 	mkpath(File::Spec->catfile($self->{config}->{cppOutputDir}, ''));
 
-	my $outFileName = $self->makeOutputFileName('.cpp');
+	my $outFileName = File::Spec->catfile($self->{config}->{cppOutputDir}, $self->getDestFileName()) . '.cpp';
 	my $cw = new CodeWriter;
 
 	$cw->out('#include "' . $self->{config}->{headerIncludePrefix} . $self->getBaseFileName() . ".h\"\n");
@@ -127,7 +134,14 @@ sub writeSource
 			$cw->out("GDefineMetaGlobal define;\n");
 		}
 		else {
-			my $typeName = "GDefineMetaClass<" . $class->{name} . ">";
+			my $typeName = "GDefineMetaClass<" . $class->{name};
+			foreach(@{$class->{baseNameList}}) {
+				my @names = split('~', $_);
+				if($names[1] eq 'public') {
+					$typeName .= ", " . $names[0];
+				}
+			}
+			$typeName .= ">";
 			$cw->out($typeName . " define = " . $typeName . "::define(\"" . Util::getBaseName($class->{name}) . "\");\n");
 		}
 		
@@ -167,6 +181,7 @@ sub beginMetaFunction
 	$cw->out("{\n");
 	$cw->incIndent();
 	$cw->out("(void)config; (void)_d; (void)_r; (void)_d;\n");
+	$cw->out("using namespace cpgf;\n");
 	$cw->out("\n");
 }
 

@@ -11,13 +11,15 @@ namespace NNN {
 
 namespace MMM {
 
-struct CLASS {};
+#define CLASS int
 
 class BaseA
 {
 public:
-	int ddd();
+	int ddd() { return 0; }
 };
+
+void globalInNested() {}
 
 }
 
@@ -30,22 +32,23 @@ class BaseB
 class MyClass : public BaseA, private BaseB
 {
 public:
-	explicit MyClass(int n);
-	virtual ~MyClass();
+	MyClass() {};
+	explicit MyClass(int n) {};
+	virtual ~MyClass() {};
 
-	virtual int abc(const int * volatile p, int (MyClass::*xxx)(int, double), int def = 0x38);
-	void overloadFunc(int n);
-	int overloadFunc(void * p);
+	virtual int abc(const int * volatile p, int (MyClass::*xxx)(int, double), int def = 0x38) { return 0; };
+	void overloadFunc(int n) {};
+	int overloadFunc(void * p) { return 0; };
 
-	bool operator <= (const MyClass & other);
-	int operator [] (int n) const;
-	operator std::string () const;
-	CLASS operator ++ ();
-	CLASS operator ++ (int);
-	CLASS operator -- ();
-	CLASS operator -- (int);
-	CLASS operator ! () const;
-	CLASS operator ~ () const;
+	bool operator <= (const MyClass & other) { return true; };
+	int operator [] (int n) const {return 0;};
+	operator std::string () const {return "";};
+	CLASS operator ++ () { return 0; }
+	CLASS operator ++ (int) { return 0; }
+	CLASS operator -- () { return 0; }
+	CLASS operator -- (int) { return 0; }
+	CLASS operator ! () const { return 0; }
+	CLASS operator ~ () const { return 0; }
 	
 	template <typename T>
 	void templateFunc(T * a);
@@ -66,15 +69,14 @@ public:
 
 	enum ABC { a=1, b};
 	enum {YY = 5, PP = 6};
-	enum {DYY = 5, DPP = 6};
 
 	typedef ABC DEF;
 };
 
-MyClass * myGlobalFunc(int nnn = 5);
+MyClass * myGlobalFunc(int nnn = 5) {return 0;}
 
 
 }
 
 
-NNN::MyClass * myGlobalFuncNot();
+NNN::MyClass * myGlobalFuncNot() {return 0;}

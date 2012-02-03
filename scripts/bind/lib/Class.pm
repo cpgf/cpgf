@@ -14,7 +14,7 @@ sub new
 		visibility => 'public',
 		location => undef,
 
-		baseNameList => [], # names of base classes
+		baseNameList => [], # names of base classes, name~visibility
 		baseList => [], # base classes
 
 		constructorList => [],

@@ -71,6 +71,7 @@ sub doMain
 
 		my $metaWriter = new MetaWriter(
 			classList => $loader->{classList},
+			fileMap => $loader->{fileMap},
 			config => $bindConfig,
 		);
 

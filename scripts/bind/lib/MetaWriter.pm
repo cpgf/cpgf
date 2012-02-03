@@ -14,6 +14,7 @@ sub new
 
 	my $self = {
 		classList => undef,
+		fileMap => undef,
 		config => undef,
 		fileWriterList => [],
 		
@@ -41,7 +42,7 @@ sub write
 sub buildFileWriterList
 {
 	my ($self) = @_;
-	my %fileMap = ();
+	my %fm = ();
 	
 
 	$self->{fileWriterList} = [];
@@ -50,14 +51,15 @@ sub buildFileWriterList
 		my $item = $_;
 		my $location = $item->{location};
 
-		if(not defined $fileMap{$location}) {
-			$fileMap{$location} = new MetaFileWriter(
+		if(not defined $fm{$location}) {
+			$fm{$location} = new MetaFileWriter(
 				sourceFileName => $location,
+				fileMap => $self->{fileMap}->{$location},
 				config => $self->{config}
 			);
-			Util::listPush($self->{fileWriterList}, $fileMap{$location});
+			Util::listPush($self->{fileWriterList}, $fm{$location});
 		}
-		Util::listPush($fileMap{$location}->{classList}, $item);
+		Util::listPush($fm{$location}->{classList}, $item);
 	}
 }
 

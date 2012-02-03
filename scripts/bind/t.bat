@@ -1,0 +1,1 @@
+perl bind.pl --xml test/xml/index.xml --output test/output --cppoutput test/output --config config.test.pl
