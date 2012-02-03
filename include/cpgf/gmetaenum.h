@@ -1,13 +1,15 @@
 #ifndef __GMETAENUM_H
 #define __GMETAENUM_H
 
-#include "cpgf/private/gmetaenum_p.h"
+#include "cpgf/gmetacommon.h"
+#include "cpgf/gmetatype.h"
 
 
 namespace cpgf {
 
 class GMetaEnum;
 
+class GMetaEnumDataImplement;
 
 GMAKE_FINAL(GMetaEnum)
 
@@ -17,7 +19,7 @@ private:
 	typedef GMetaTypedItem super;
 
 public:
-	GMetaEnum(const char * name, const GMetaType & itemType, meta_internal::GMetaEnumData * baseData);
+	GMetaEnum(const char * name, const GMetaType & itemType);
 	virtual ~GMetaEnum();
 
 	virtual size_t getTypeSize() const;
@@ -35,7 +37,10 @@ public:
 	virtual void destroyInstance(void * instance) const;
 	
 private:
-	GScopedPointer<meta_internal::GMetaEnumData> baseData;
+	void addEnum(const char * key, const GVariant & value);
+
+private:
+	GScopedPointer<GMetaEnumDataImplement> implement;
 };
 
 

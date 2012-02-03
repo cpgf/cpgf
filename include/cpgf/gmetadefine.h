@@ -368,7 +368,7 @@ public:
 	GDefineMetaEnum<DerivedType> _enum(const char * name) {
 		return GDefineMetaEnum<DerivedType>(
 			this->metaClass,
-			this->metaClass->addEnum(new GMetaEnum(name, createMetaType<T>(), new meta_internal::GMetaEnumData(sizeof(T))))
+			this->metaClass->addEnum(new GMetaEnum(name, createMetaType<T>()))
 		);
 	}
 
