@@ -246,6 +246,10 @@ Acquire parameter type at index.
 <{piece}> virtual size_t getParamCount() const; <{/piece}>
 Get parameter count.
 
+<{piece}> virtual size_t getDefaultParamCount() const; <{/piece}>
+Get the default parameter count.
+For instance, if we have a meta method "int abc(int a, int b = 5, int c = 6);", getDefaultParamCount() will return 2 for it.
+
 <{piece}> virtual bool hasResult() const; <{/piece}>
 Check whether the method has result. For functions that return "void", this function return false, otherwise, it returns true.
 
@@ -283,6 +287,10 @@ Acquire parameter type at index.
 <{piece}> virtual size_t getParamCount() const; <{/piece}>
 Get parameter count.
 
+<{piece}> virtual size_t getDefaultParamCount() const; <{/piece}>
+Get the default parameter count.
+For instance, if we have a meta method "int abc(int a, int b = 5, int c = 6);", getDefaultParamCount() will return 2 for it.
+
 <{piece}> virtual bool hasResult() const; <{/piece}>
 Always return true;
 
@@ -319,6 +327,10 @@ Acquire parameter type at index.
 
 <{piece}> virtual size_t getParamCount() const; <{/piece}>
 Get parameter count.
+
+<{piece}> virtual size_t getDefaultParamCount() const; <{/piece}>
+Get the default parameter count.
+For instance, if we have a meta method "int abc(int a, int b = 5, int c = 6);", getDefaultParamCount() will return 2 for it.
 
 <{piece}> virtual bool hasResult() const; <{/piece}>
 Check whether the operator has result. For operators that return "void", this function return false, otherwise, it returns true.

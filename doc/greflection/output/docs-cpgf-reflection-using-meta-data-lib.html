@@ -287,6 +287,10 @@ Class GMetaMethod exposes several functions to invoke method, and acquire field 
 <div class="codepiece""> virtual size_t getParamCount() const; <br />
 </div>Get parameter count.<br />
 <br />
+<div class="codepiece""> virtual size_t getDefaultParamCount() const; <br />
+</div>Get the default parameter count.<br />
+For instance, if we have a meta method &quot;int abc(int a, int b = 5, int c = 6);&quot;, getDefaultParamCount() will return 2 for it.<br />
+<br />
 <div class="codepiece""> virtual bool hasResult() const; <br />
 </div>Check whether the method has result. For functions that return &quot;void&quot;, this function return false, otherwise, it returns true.<br />
 <br />
@@ -322,6 +326,10 @@ Using constructor is almost same as using method, except that its return value i
 <div class="codepiece""> virtual size_t getParamCount() const; <br />
 </div>Get parameter count.<br />
 <br />
+<div class="codepiece""> virtual size_t getDefaultParamCount() const; <br />
+</div>Get the default parameter count.<br />
+For instance, if we have a meta method &quot;int abc(int a, int b = 5, int c = 6);&quot;, getDefaultParamCount() will return 2 for it.<br />
+<br />
 <div class="codepiece""> virtual bool hasResult() const; <br />
 </div>Always return true;<br />
 <br />
@@ -356,6 +364,10 @@ Using operator is almost same as using method, except that its parameter count i
 <br />
 <div class="codepiece""> virtual size_t getParamCount() const; <br />
 </div>Get parameter count.<br />
+<br />
+<div class="codepiece""> virtual size_t getDefaultParamCount() const; <br />
+</div>Get the default parameter count.<br />
+For instance, if we have a meta method &quot;int abc(int a, int b = 5, int c = 6);&quot;, getDefaultParamCount() will return 2 for it.<br />
 <br />
 <div class="codepiece""> virtual bool hasResult() const; <br />
 </div>Check whether the operator has result. For operators that return &quot;void&quot;, this function return false, otherwise, it returns true.<br />

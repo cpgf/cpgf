@@ -23,7 +23,7 @@ cpgf provides a powerful reflection and meta data system. Ever envy the reflecti
 cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding engine uses the reflection system extensively.
 Want to use OpenGL in Lua and Javascrit? It can't be easier using cpgf.
 
-<b>Vesion 1.2.4 is released on Jan.28, 2012. </b>
+<b>Vesion 1.2.5 is released on Feb.5, 2012. </b>
 
 <{/autobr}>
 
@@ -50,6 +50,7 @@ Want to use OpenGL in Lua and Javascrit? It can't be easier using cpgf.
 	Real runtime reflection. No compile time template parameters are needed when using the reflection.
 	No external preprocessor required, no ugly macros. Only using C++ templates, classes, and functions.
 	Support multiple inheritance.
+	Support default parameters for constructor, method, and operators.
 	For more information, please read cpgf reflection related documentation.
 <{/autoul}>
 
@@ -85,7 +86,7 @@ Want to use OpenGL in Lua and Javascrit? It can't be easier using cpgf.
 
 <h3>Library version</h3>
 <{autobr}>
-	1.2.4
+	1.2.5
 
 <{/autobr}>
 

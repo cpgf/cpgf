@@ -468,6 +468,10 @@ GDefineMetaClass<MyClass>
 <{sc}>
 	<p>
 <{autobr}>
+Note: enumerator here, doesn't only limit to C++ enum, but also can be any constants, such as string, pointer, object.
+It's because now meta enum uses a GVariant to hold the value.
+If the enum value is object, be sure it's not freed after the meta data is built.
+Use the function copyVariantFromCopyable in GVariant.h to make the GVariant holds a copy of object.
 <{/autobr}>
 	</p>
 
@@ -513,6 +517,48 @@ GDefineMetaClass<MyClass>
 
 <p>
 <{autobr}>
+<{/autobr}>
+</p>
+
+
+
+<{sh}> Reflect parameter default values.
+<{sc}>
+	<p>
+<{autobr}>
+Liking the native C++, an invokable, such as constructor, method, operator functor, can have default value in meta data.
+Assume we give the below function default values to parameter obj, s, and i
+<{/autobr}>
+	</p>
+
+<{code}>
+bool myFunc(int type, int i, std::string s, TestObject obj);
+<{/code}>
+
+<{code}>
+GDefineMetaClass<MyClass>
+	::define("MyClass")
+
+	._method("myFunc", &myFunc)
+		._default(copyVariantFromCopyable(TestObject(8)))
+		._default(copyVariantFromCopyable(string("abc")))
+		._default(5)
+	;
+<{/code}>
+
+<p>
+<{autobr}>
+Then the meta method myFunc is same as a C++ function with the prototype
+<{code}>
+bool myFunc(int type, int i = 5, std::string s = "abc", TestObject obj = TestObject(8));
+<{/code}>
+
+The meta function "_default" must be called in the order from right most parameter to left. The first "_default" is always given to the right first parameter, the second is given to right second parameter, and so on.
+When any default parameter values are omitted when calling the meta method, cpgf library will supply the parameter with the default value.
+Note: If the default value is object, be sure it's not freed after the meta data is built.
+Use the function copyVariantFromCopyable in GVariant.h to make the GVariant holds a copy of object.
+Note again: the meta default value is implemeted in no relation to C++ default parameters. So the C++ function may have no default value, such as the example above shows.
+
 <{/autobr}>
 </p>
 
