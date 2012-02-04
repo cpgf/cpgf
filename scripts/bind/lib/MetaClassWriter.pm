@@ -12,6 +12,9 @@ sub new
 		class => undef,
 		codeWriter => undef,
 		config => undef,
+		
+		define => '_d',
+		classType => 'D::ClassType',
 
 		%args
 	};
@@ -25,7 +28,7 @@ sub getScopePrefix
 {
 	my ($self) = @_;
 
-	return ($self->{class}->isGlobal() ? '' : 'D::ClassType' . '::');
+	return ($self->{class}->isGlobal() ? '' : $self->{classType} . '::');
 }
 
 sub write
@@ -36,7 +39,9 @@ sub write
 	$self->writeField();
 	$self->writeMethod();
 	$self->writeEnum();
+	$self->writeDefine();
 	$self->writeOperator();
+	$self->writeClass();
 }
 
 sub writeConstructor
@@ -128,7 +133,7 @@ sub writeEnum
 
 		my $typeName = $prefix . $name;
 
-		if($name =~ /\@/) {
+		if($name =~ /\@/ or $name eq '') {
 			$name = 'GlobalEnum_' . $index;
 			$typeName = 'long long';
 			++$index;
@@ -144,6 +149,35 @@ sub writeEnum
 		$cw->decIndent();
 		$cw->out(";\n");
 	}
+}
+
+sub writeDefine
+{
+	my ($self) = @_;
+	my $cw = $self->{codeWriter};
+	my $prefix = $self->getScopePrefix();
+	my $action = $self->getAction("_enum");
+
+	my $index = 0;
+	
+	return if($#{@{$self->{class}->{defineList}}} < 0);
+
+	$cw->out($action . "<long long>(" . $self->getReplace("GlobalDefine_") . ")\n");
+	$cw->incIndent();
+	
+	foreach(@{$self->{class}->{defineList}}) {
+		my $item = $_;
+		
+		my $value = $item->{value};
+		if((not defined $value) or $value eq '') {
+			next;
+		}
+		
+		$cw->out('._element(' . $self->getReplace($item->{name}) . ', ' . $item->{name} . ")\n");
+	}
+	
+	$cw->decIndent();
+	$cw->out(";\n");
 }
 
 sub writeOperator
@@ -211,6 +245,38 @@ sub writeOperator
 	}
 }
 
+sub writeClass
+{
+	my ($self) = @_;
+	my $cw = $self->{codeWriter};
+	my $prefix = $self->getScopePrefix();
+	my $action = $self->getAction("_class");
+
+	foreach(@{$self->{class}->{classList}}) {
+		my $item = $_;
+		my $name = $item->{name};
+		
+		next unless($self->canWrite($item));
+		
+		$cw->out("{\n");
+		$cw->incIndent();
+		
+		Util::defineMetaClass($cw, $item, '_nd', 'declare');
+		my $writer = new MetaClassWriter(
+			class => $item,
+			codeWriter => $cw,
+			config => $self->{config},
+			define => '_nd',
+			classType => $item->{name},
+		);
+		$writer->write();
+		$cw->out($action . "(_nd);\n");
+		
+		$cw->decIndent();
+		$cw->out("}\n");
+	}
+}
+
 sub canWrite
 {
 	my ($self, $item) = @_;
@@ -225,7 +291,7 @@ sub getAction
 {
 	my ($self, $name) = @_;
 	
-	return '_d.CPGF_MD_TEMPLATE ' . $name;
+	return $self->{define} . '.CPGF_MD_TEMPLATE ' . $name;
 }
 
 sub getReplace

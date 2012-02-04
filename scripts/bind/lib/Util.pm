@@ -14,6 +14,7 @@ our @EXPORT = qw(
 	&getAttribute
 
 	&getBaseFileName
+	&defineMetaClass
 
 	&fixupClassList
 	&dumpClass
@@ -112,6 +113,26 @@ sub getBaseFileName
 	$fn =~ s/\.[^.]+$//;
 	
 	return $fn;
+}
+
+sub defineMetaClass
+{
+	my ($codeWriter, $class, $varName, $action) = @_;
+	
+	if($class->isGlobal()) {
+		$codeWriter->out("GDefineMetaGlobal " . $varName . ";\n");
+	}
+	else {
+		my $typeName = "GDefineMetaClass<" . $class->{name};
+		foreach(@{$class->{baseNameList}}) {
+			my @names = split('~', $_);
+			if($names[1] eq 'public') {
+				$typeName .= ", " . $names[0];
+			}
+		}
+		$typeName .= ">";
+		$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . "::" . $action . "(\"" . Util::getBaseName($class->{name}) . "\");\n");
+	}
 }
 
 sub itemIsPublic

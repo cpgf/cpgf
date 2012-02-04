@@ -54,146 +54,27 @@
 <li>
 <a href="docs-cpgf-reflection-build-meta-data.html#linkid9">
 <strong>Reflect field</strong></a></li>
-</ul>
-</div>
-<p>
-<b>
+<li>
 <a href="docs-cpgf-reflection-build-meta-data.html#linkid10">
-<strong></strong></a></b></p>
-<div style="margin-left:60px">
-<ul>
+<strong>Reflect property</strong></a></li>
 <li>
 <a href="docs-cpgf-reflection-build-meta-data.html#linkid11">
-<strong>What's field</strong></a></li>
-</ul>
-</div>
-<div style="margin-left:0px">
-<ul>
+<strong>Reflect method</strong></a></li>
 <li>
 <a href="docs-cpgf-reflection-build-meta-data.html#linkid12">
-<strong>Reflect property</strong></a></li>
-</ul>
-</div>
-<p>
-<b>
+<strong>Reflect constructor</strong></a></li>
+<li>
 <a href="docs-cpgf-reflection-build-meta-data.html#linkid13">
-<strong></strong></a></b></p>
-<div style="margin-left:60px">
-<ul>
+<strong>Reflect operator</strong></a></li>
 <li>
 <a href="docs-cpgf-reflection-build-meta-data.html#linkid14">
-<strong>What's property</strong></a></li>
-</ul>
-</div>
-<div style="margin-left:0px">
-<ul>
+<strong>Reflect annotation</strong></a></li>
 <li>
 <a href="docs-cpgf-reflection-build-meta-data.html#linkid15">
-<strong>Reflect method</strong></a></li>
-</ul>
-</div>
-<p>
-<b>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid16">
-<strong></strong></a></b></p>
-<div style="margin-left:60px">
-<ul>
-<li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid17">
-<strong>What's method</strong></a></li>
-</ul>
-</div>
-<div style="margin-left:0px">
-<ul>
-<li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid18">
-<strong>Reflect constructor</strong></a></li>
-</ul>
-</div>
-<p>
-<b>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid19">
-<strong></strong></a></b></p>
-<div style="margin-left:60px">
-<ul>
-<li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid20">
-<strong>What's constructor</strong></a></li>
-</ul>
-</div>
-<div style="margin-left:0px">
-<ul>
-<li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid21">
-<strong>Reflect operator</strong></a></li>
-</ul>
-</div>
-<p>
-<b>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid22">
-<strong></strong></a></b></p>
-<div style="margin-left:60px">
-<ul>
-<li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid23">
-<strong>What's operator</strong></a></li>
-</ul>
-</div>
-<div style="margin-left:0px">
-<ul>
-<li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid24">
-<strong>Reflect annotation</strong></a></li>
-</ul>
-</div>
-<p>
-<b>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid25">
-<strong></strong></a></b></p>
-<div style="margin-left:60px">
-<ul>
-<li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid26">
-<strong>What's annotation</strong></a></li>
-</ul>
-</div>
-<div style="margin-left:0px">
-<ul>
-<li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid27">
 <strong>Reflect enumerators</strong></a></li>
-</ul>
-</div>
-<p>
-<b>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid28">
-<strong></strong></a></b></p>
-<div style="margin-left:60px">
-<ul>
 <li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid29">
-<strong>What's enumerator</strong></a></li>
-</ul>
-</div>
-<div style="margin-left:0px">
-<ul>
-<li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid30">
+<a href="docs-cpgf-reflection-build-meta-data.html#linkid16">
 <strong>Reflect nested class</strong></a></li>
-</ul>
-</div>
-<p>
-<b>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid31">
-<strong></strong></a></b></p>
-<div style="margin-left:60px">
-<ul>
-<li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid32">
-<strong>What's nested class</strong></a></li>
-<li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid33">
-<strong>Using function</strong></a></li>
 </ul>
 </div>
 
@@ -300,21 +181,21 @@ int main()
 <p>
 <strong>Define a meta class.</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	Assume we want to define meta classes for below classes
 
-<pre>    class Animal
-    {
-    };
+<pre>class Animal
+{
+};
 
-    class Cat : public Animal
-    {
-    };
+class Cat : public Animal
+{
+};
 </pre>
 	<p>Now let's build meta class for Animal.</p>
 
-<pre>    <b>GDefineMetaClass</b>&lt;Animal&gt;
-    	::<b>define</b>(&quot;Animal&quot;)
-    	._field(blah blah)
-    	._method(blah blah)
-    ;
+<pre><b>GDefineMetaClass</b>&lt;Animal&gt;
+    ::<b>define</b>(&quot;Animal&quot;)
+    ._field(blah blah)
+    ._method(blah blah)
+;
 </pre>
 	GDefineMetaClass is the template to define a meta class.<br />
 	It accepts one or more template parameters.<br />
@@ -325,11 +206,11 @@ int main()
 
 	<p>Now let's build meta class for Cat.</p>
 
-<pre>    <b>GDefineMetaClass</b>&lt;Cat, Animal&gt;
-    	::<b>define</b>(&quot;Cat&quot;)
-    	._field(blah blah)
-    	._method(blah blah)
-    ;
+<pre><b>GDefineMetaClass</b>&lt;Cat, Animal&gt;
+    ::<b>define</b>(&quot;Cat&quot;)
+    ._field(blah blah)
+    ._method(blah blah)
+;
 </pre>	<p>
 	This time there is the second template parameter, Animal, which is the base class, aka, super class.<br />
 	The library supports multiple inheritance. If Cat is also derived from Biological, just add Biological to GDefineMetaClass.<br />
@@ -356,15 +237,15 @@ int main()
 
 <p><a name="linkid5"></a></p>
 <p>
-<strong>Lazy define a meta class</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><pre>    void lazyDefineClass(GDefineMetaClass&lt;Animal&gt; define)
-    {
-    	define
-    		._field(blah blah)
-    		._method(blah blah)
-    	;
-    }
+<strong>Lazy define a meta class</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><pre>void lazyDefineClass(GDefineMetaClass&lt;Animal&gt; define)
+{
+    define
+    	._field(blah blah)
+    	._method(blah blah)
+    ;
+}
 
-    GDefineMetaClass&lt;Animal&gt;::<b>lazy</b>(&quot;Animal&quot;, &amp;lazyDefineClass);
+GDefineMetaClass&lt;Animal&gt;::<b>lazy</b>(&quot;Animal&quot;, &amp;lazyDefineClass);
 </pre>	<p>
 	GDefineMetaClass::define will cause all meta data is built immediately.<br />
 	GDefineMetaClass::lazy will delay the building until the meta data is really used.<br />
@@ -378,10 +259,10 @@ int main()
 
 <p><a name="linkid6"></a></p>
 <p>
-<strong>Add meta data to global scope</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><pre>    <b>GDefineMetaGlobal</b>()
-    	._field(blah blah)
-    	._method(blah blah)
-    ;
+<strong>Add meta data to global scope</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><pre><b>GDefineMetaGlobal</b>()
+    ._field(blah blah)
+    ._method(blah blah)
+;
 
 </pre>
 	GDefineMetaGlobal indicates that any reflection added to it are reflected to global scope.<br />
@@ -392,35 +273,35 @@ int main()
 
 <p><a name="linkid7"></a></p>
 <p>
-<strong>Reflect templates</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><pre>    template &lt;typename T&gt;
-    class MyTemplateBase
-    {
-    public:
-    	virtual ~MyTemplateBase();
+<strong>Reflect templates</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><pre>template &lt;typename T&gt;
+class MyTemplateBase
+{
+public:
+    virtual ~MyTemplateBase();
 
-    	int getDouble() const;
-    };
+    int getDouble() const;
+};
 
-    template &lt;typename T, typename P&gt;
-    class MyTemplate : public MyTemplateBase&lt;T&gt;
-    {
-    public:
-    	int getSize() const;
-    };
+template &lt;typename T, typename P&gt;
+class MyTemplate : public MyTemplateBase&lt;T&gt;
+{
+public:
+    int getSize() const;
+};
 
-    template &lt;typename ClassType&gt;
-    void lazyDefineClass(cpgf::GDefineMetaClass&lt;ClassType&gt; define)
-    {
-    	define
-    		._method(&quot;getSize&quot;, &amp;ClassType::getSize)
-    		._method(&quot;getDouble&quot;, &amp;ClassType::getDouble)
-    	;
-    }
+template &lt;typename ClassType&gt;
+void lazyDefineClass(cpgf::GDefineMetaClass&lt;ClassType&gt; define)
+{
+    define
+    	._method(&quot;getSize&quot;, &amp;ClassType::getSize)
+    	._method(&quot;getDouble&quot;, &amp;ClassType::getDouble)
+    ;
+}
 
-    // instantiation
-    GDefineMetaClass&lt;MyTemplate&lt;char, int&gt; &gt;::lazy(&quot;MyTemplate_char_int&quot;, &amp;lazyDefineClass&lt;MyTemplate&lt;char, int&gt; &gt;);
-    // another instantiation
-    GDefineMetaClass&lt;MyTemplate&lt;double, short&gt; &gt;::lazy(&quot;MyTemplate_double_short&quot;, &amp;lazyDefineClass&lt;MyTemplate&lt;double, short&gt; &gt;);
+// instantiation
+GDefineMetaClass&lt;MyTemplate&lt;char, int&gt; &gt;::lazy(&quot;MyTemplate_char_int&quot;, &amp;lazyDefineClass&lt;MyTemplate&lt;char, int&gt; &gt;);
+// another instantiation
+GDefineMetaClass&lt;MyTemplate&lt;double, short&gt; &gt;::lazy(&quot;MyTemplate_double_short&quot;, &amp;lazyDefineClass&lt;MyTemplate&lt;double, short&gt; &gt;);
 </pre>
 Though we can treat a template instantiation as a normal class and use GDefineMetaClass&lt;T&gt;::define to reflect the meta data, it will be better to use the &quot;lazy&quot; trick in the above sample code.<br />
 Then the lazy define function (here is lazyDefineClass) can be reused for every template instantiations.<br />
@@ -432,20 +313,17 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 <p><a name="linkid8"></a></p>
 <h3>Build meta data</h3><p><a name="linkid9"></a></p>
 <p>
-<strong>Reflect field</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><p><a name="linkid10"></a></p>
-<h3></h3><p><a name="linkid11"></a></p>
-<p>
-<strong>What's field</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
+<strong>Reflect field</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 	A field is either a member data or a global variable.<br />
 	Getting and setting a field will be applied directly to the field without any setter or getter function.<br />
 	To use setter and getter functions, use Property.<br />
 	</p>
 
-<pre>    GDefineMetaClass&lt;MyClass&gt;
-    	::define(&quot;MyClass&quot;)
+<pre>GDefineMetaClass&lt;MyClass&gt;
+    ::define(&quot;MyClass&quot;)
 
-    	.<b>_field</b>(&quot;width&quot;, &amp;MyClass::width) // reflect a normal field
-    	.<b>_field</b>(&quot;nocopy&quot;, &amp;MyClass::nocopy, GMetaPolicyNoncopyable()) // reflect a field with policy
+    .<b>_field</b>(&quot;width&quot;, &amp;MyClass::width) // reflect a normal field
+    .<b>_field</b>(&quot;nocopy&quot;, &amp;MyClass::nocopy, GMetaPolicyNoncopyable()) // reflect a field with policy
 </pre>
 <p>
 	_field takes two or three parameters.<br />
@@ -456,21 +334,17 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 
-
-<p><a name="linkid12"></a></p>
+<p><a name="linkid10"></a></p>
 <p>
-<strong>Reflect property</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><p><a name="linkid13"></a></p>
-<h3></h3><p><a name="linkid14"></a></p>
-<p>
-<strong>What's property</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
+<strong>Reflect property</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 	A property is just a member data or a global variable, but can be accessed with or without getter or setter functions.<br />
 	</p>
 
-<pre>    GDefineMetaClass&lt;MyClass&gt;
-    	::define(&quot;MyClass&quot;)
+<pre>GDefineMetaClass&lt;MyClass&gt;
+    ::define(&quot;MyClass&quot;)
 
-    	._property(&quot;name&quot;, &amp;MyClass::getName, 0) // a property has only getter, no setter
-    	._property(&quot;data&quot;, &amp;MyClass::getData, &amp;MyClass::data, MyPolicy()) // a property has both getter and setter, and has a policy.
+    ._property(&quot;name&quot;, &amp;MyClass::getName, 0) // a property has only getter, no setter
+    ._property(&quot;data&quot;, &amp;MyClass::getData, &amp;MyClass::data, MyPolicy()) // a property has both getter and setter, and has a policy.
 </pre>
 <p>
 	._property takes three or four parameters.<br />
@@ -484,13 +358,9 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 
-
-<p><a name="linkid15"></a></p>
+<p><a name="linkid11"></a></p>
 <p>
-<strong>Reflect method</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><p><a name="linkid16"></a></p>
-<h3></h3><p><a name="linkid17"></a></p>
-<p>
-<strong>What's method</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
+<strong>Reflect method</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 	A method is a function.<br />
 	It can take any parameters. If any parameter is an object, that object is not necessary to be reflected.<br />
 	It can be any function, such as member function, virtual function, static member function, global function.<br />
@@ -498,11 +368,11 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 	For member function, it can be const, volatile, and const volatile.<br />
 	</p>
 
-<pre>    GDefineMetaClass&lt;MyClass&gt;
-    	::define(&quot;MyClass&quot;)
+<pre>GDefineMetaClass&lt;MyClass&gt;
+    ::define(&quot;MyClass&quot;)
 
-    	._method(&quot;getWidth&quot;, &amp;MyClass::getWidth) // reflect a normal method
-    	._method(&quot;incWidth&quot;, &amp;MyClass::incWidth, GMetaPolicyCopyAllConstReference()) // reflect a method with policy
+    ._method(&quot;getWidth&quot;, &amp;MyClass::getWidth) // reflect a normal method
+    ._method(&quot;incWidth&quot;, &amp;MyClass::incWidth, GMetaPolicyCopyAllConstReference()) // reflect a method with policy
 </pre>
 <p>
 	._method takes two or three parameters.<br />
@@ -514,23 +384,19 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 
-
-<p><a name="linkid18"></a></p>
+<p><a name="linkid12"></a></p>
 <p>
-<strong>Reflect constructor</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><p><a name="linkid19"></a></p>
-<h3></h3><p><a name="linkid20"></a></p>
-<p>
-<strong>What's constructor</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
+<strong>Reflect constructor</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 	A constructor is a C++ class constructor.<br />
 	It can take any parameters, same as method.<br />
 	</p>
 
-<pre>    GDefineMetaClass&lt;MyClass&gt;
-    	::define(&quot;MyClass&quot;)
+<pre>GDefineMetaClass&lt;MyClass&gt;
+    ::define(&quot;MyClass&quot;)
 
-    	._constructor&lt;void * ()&gt;()
-    	._constructor&lt;void * (int)&gt;()
-    	._constructor&lt;void * (int, const std::string &amp;)&gt;(GMetaPolicyCopyAllConstReference())
+    ._constructor&lt;void * ()&gt;()
+    ._constructor&lt;void * (int)&gt;()
+    ._constructor&lt;void * (int, const std::string &amp;)&gt;(GMetaPolicyCopyAllConstReference())
 </pre>
 <p>
 	._constructor is a template function.<br />
@@ -541,23 +407,18 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 
-
-
-<p><a name="linkid21"></a></p>
+<p><a name="linkid13"></a></p>
 <p>
-<strong>Reflect operator</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><p><a name="linkid22"></a></p>
-<h3></h3><p><a name="linkid23"></a></p>
-<p>
-<strong>What's operator</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
+<strong>Reflect operator</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 	An operator is a C++ class operator that be overloaded.<br />
 	It can take any parameters, same as method.<br />
 	</p>
 
-<pre>    GDefineMetaClass&lt;MyClass&gt;
-    	::define(&quot;MyClass&quot;)
+<pre>GDefineMetaClass&lt;MyClass&gt;
+    ::define(&quot;MyClass&quot;)
 
-    	._operator&lt;MyClass (const GMetaSelf &amp;, int)&gt;(mopHolder + mopHolder) // +
-    	._operator&lt;MyClass (const GMetaSelf &amp;, int)&gt;(mopHolder - mopHolder) // -
+    ._operator&lt;MyClass (const GMetaSelf &amp;, int)&gt;(mopHolder + mopHolder) // +
+    ._operator&lt;MyClass (const GMetaSelf &amp;, int)&gt;(mopHolder - mopHolder) // -
 </pre>
 <p>
 	_operator is a template function.<br />
@@ -576,32 +437,26 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 
-
-
-
-<p><a name="linkid24"></a></p>
+<p><a name="linkid14"></a></p>
 <p>
-<strong>Reflect annotation</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><p><a name="linkid25"></a></p>
-<h3></h3><p><a name="linkid26"></a></p>
-<p>
-<strong>What's annotation</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
+<strong>Reflect annotation</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 	An annotation is a kind of special meta data that's added by programmer rather than code.<br />
 	All other non-annotation meta data, such as class, method, field, property, constructor, operator, can have annotations.<br />
 	</p>
 
-<pre>    GDefineMetaClass&lt;MyClass&gt;
-    	::define(&quot;MyClass&quot;)
+<pre>GDefineMetaClass&lt;MyClass&gt;
+    ::define(&quot;MyClass&quot;)
 
-    	._annotation(&quot;attribute&quot;)
-    		._element(&quot;name&quot;, &quot;What's my name&quot;) // element name, value is an Ansi string
-    		._element(&quot;cat&quot;, mcatClass) // element cat, value is int
-    		._element(&quot;dog&quot;, TestData(mcatClass, &quot;A cute dog&quot;)) // element dog, value is TestData
-    	._annotation(&quot;style&quot;)
-    		._element(&quot;fit&quot;, L&quot;fit me&quot;) // element fit, value is a Wide string.
+    ._annotation(&quot;attribute&quot;)
+    	._element(&quot;name&quot;, &quot;What's my name&quot;) // element name, value is an Ansi string
+    	._element(&quot;cat&quot;, mcatClass) // element cat, value is int
+    	._element(&quot;dog&quot;, TestData(mcatClass, &quot;A cute dog&quot;)) // element dog, value is TestData
+    ._annotation(&quot;style&quot;)
+    	._element(&quot;fit&quot;, L&quot;fit me&quot;) // element fit, value is a Wide string.
 
-    	._method(&quot;incWidth&quot;, &amp;MyClass::incWidth, GMetaPolicyCopyAllConstReference()) // reflect a method with policy
-    		._annotation(&quot;attr&quot;) // the method incWidth has an annotation
-    			._element(&quot;what&quot;, &quot;ok&quot;)
+    ._method(&quot;incWidth&quot;, &amp;MyClass::incWidth, GMetaPolicyCopyAllConstReference()) // reflect a method with policy
+    	._annotation(&quot;attr&quot;) // the method incWidth has an annotation
+    		._element(&quot;what&quot;, &quot;ok&quot;)
 </pre>
 <p>
 	_nnotation takes one parameter, the annotation name.<br />
@@ -613,25 +468,19 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 
-
-
-
-<p><a name="linkid27"></a></p>
+<p><a name="linkid15"></a></p>
 <p>
-<strong>Reflect enumerators</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><p><a name="linkid28"></a></p>
-<h3></h3><p><a name="linkid29"></a></p>
-<p>
-<strong>What's enumerator</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
+<strong>Reflect enumerators</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 	</p>
 
-<pre>    GDefineMetaClass&lt;MyClass&gt;
-    	::define(&quot;MyClass&quot;)
+<pre>GDefineMetaClass&lt;MyClass&gt;
+    ::define(&quot;MyClass&quot;)
 
-    	._enum&lt;MyClass::WindowStyle&gt;(&quot;WindowStyle&quot;)
-    		._element(&quot;ws0&quot;, MyClass::ws0)
-    		._element(&quot;ws1&quot;, MyClass::ws1)
-    		._element(&quot;ws2&quot;, MyClass::ws2)
-    		._element(&quot;ws3&quot;, MyClass::ws3)
+    ._enum&lt;MyClass::WindowStyle&gt;(&quot;WindowStyle&quot;)
+    	._element(&quot;ws0&quot;, MyClass::ws0)
+    	._element(&quot;ws1&quot;, MyClass::ws1)
+    	._element(&quot;ws2&quot;, MyClass::ws2)
+    	._element(&quot;ws3&quot;, MyClass::ws3)
 </pre>
 <p>
 </p>
@@ -639,32 +488,27 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 
-
-
-<p><a name="linkid30"></a></p>
+<p><a name="linkid16"></a></p>
 <p>
-<strong>Reflect nested class</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><p><a name="linkid31"></a></p>
-<h3></h3><p><a name="linkid32"></a></p>
-<p>
-<strong>What's nested class</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><pre>    class MyClass {
-    public:
-    	class InnerClass { // this is nested class
-    	};
+<strong>Reflect nested class</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><pre>class MyClass {
+public:
+    class InnerClass { // this is nested class
     };
+};
 </pre>
-<p><a name="linkid33"></a></p>
-<p>
-<strong>Using function</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><pre>    GDefineMetaClass&lt;MyClass&gt;
-    	::define(&quot;MyClass&quot;)
+<pre>GDefineMetaClass&lt;MyClass&gt;
+    ::define(&quot;MyClass&quot;)
 
-    	._class(
-    		GDefineMetaClass&lt;MyClass::InnerClass&gt;
-    			::declare(&quot;InnerClass&quot;)
-    			._field(&quot;whatever&quot;, &amp;MyClass::InnerClass::whatever)
-    	)
+    ._class(
+    	GDefineMetaClass&lt;MyClass::InnerClass&gt;
+    		::declare(&quot;InnerClass&quot;)
+    		._field(&quot;whatever&quot;, &amp;MyClass::InnerClass::whatever)
+    )
 </pre>
 <p>
 </p>
+
+
 
 
 

@@ -11,7 +11,7 @@ namespace NNN {
 
 namespace MMM {
 
-#define CLASS int
+typedef int CLASS;
 
 class BaseA
 {
@@ -70,6 +70,7 @@ public:
 	enum ABC { a=1, b};
 	enum {YY = 5, PP = 6};
 
+	static const int classConst = 38;
 	typedef ABC DEF;
 };
 
@@ -80,3 +81,4 @@ MyClass * myGlobalFunc(int nnn = 5) {return 0;}
 
 
 NNN::MyClass * myGlobalFuncNot() {return 0;}
+const int globalConst = 8;

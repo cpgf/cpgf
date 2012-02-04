@@ -178,23 +178,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\src\metadata\opengl\gmetadata_openglut.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\samples\opengl\registergl.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\samples\opengl\registerglu.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\samples\opengl\registerglut.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\samples\opengl\sampleopengl.cpp"
+				RelativePath=".\bindv8.cpp"
 				>
 			</File>
 		</Filter>
@@ -281,6 +265,10 @@
 				RelativePath="..\..\src\gmetatypereg.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\..\src\gvariant.cpp"
+				>
+			</File>
 			<Filter
 				Name="scriptbind"
 				>
@@ -314,11 +302,7 @@
 			Name="test_src"
 			>
 			<File
-				RelativePath="..\..\test\scriptbind\bind_common.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\test\scriptbind\testscriptbindmetadata.cpp"
+				RelativePath="..\..\scripts\bind\test\output\meta_t.cpp"
 				>
 			</File>
 		</Filter>

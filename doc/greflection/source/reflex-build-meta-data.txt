@@ -117,23 +117,23 @@ int main()
 	Assume we want to define meta classes for below classes
 
 <{code}>
-	class Animal
-	{
-	};
+class Animal
+{
+};
 
-	class Cat : public Animal
-	{
-	};
+class Cat : public Animal
+{
+};
 <{/code}>
 
 	<p>Now let's build meta class for Animal.</p>
 
 <{code}>
-	<b>GDefineMetaClass</b><Animal>
-		::<b>define</b>("Animal")
-		._field(blah blah)
-		._method(blah blah)
-	;
+<b>GDefineMetaClass</b><Animal>
+	::<b>define</b>("Animal")
+	._field(blah blah)
+	._method(blah blah)
+;
 <{/code}>
 
 	<{autobr}>
@@ -148,11 +148,11 @@ int main()
 	<p>Now let's build meta class for Cat.</p>
 
 <{code}>
-	<b>GDefineMetaClass</b><Cat, Animal>
-		::<b>define</b>("Cat")
-		._field(blah blah)
-		._method(blah blah)
-	;
+<b>GDefineMetaClass</b><Cat, Animal>
+	::<b>define</b>("Cat")
+	._field(blah blah)
+	._method(blah blah)
+;
 <{/code}>
 	<p>
 <{autobr}>
@@ -183,15 +183,15 @@ int main()
 <{sh}> Lazy define a meta class
 <{sc}>
 <{code}>
-	void lazyDefineClass(GDefineMetaClass<Animal> define)
-	{
-		define
-			._field(blah blah)
-			._method(blah blah)
-		;
-	}
+void lazyDefineClass(GDefineMetaClass<Animal> define)
+{
+	define
+		._field(blah blah)
+		._method(blah blah)
+	;
+}
 
-	GDefineMetaClass<Animal>::<b>lazy</b>("Animal", &lazyDefineClass);
+GDefineMetaClass<Animal>::<b>lazy</b>("Animal", &lazyDefineClass);
 <{/code}>
 	<p>
 <{autobr}>
@@ -209,10 +209,10 @@ int main()
 <{sh}> Add meta data to global scope
 <{sc}>
 <{code}>
-	<b>GDefineMetaGlobal</b>()
-		._field(blah blah)
-		._method(blah blah)
-	;
+<b>GDefineMetaGlobal</b>()
+	._field(blah blah)
+	._method(blah blah)
+;
 
 <{/code}>
 
@@ -227,35 +227,35 @@ int main()
 <{sh}> Reflect templates
 <{sc}>
 <{code}>
-	template <typename T>
-	class MyTemplateBase
-	{
-	public:
-		virtual ~MyTemplateBase();
+template <typename T>
+class MyTemplateBase
+{
+public:
+	virtual ~MyTemplateBase();
 
-		int getDouble() const;
-	};
+	int getDouble() const;
+};
 
-	template <typename T, typename P>
-	class MyTemplate : public MyTemplateBase<T>
-	{
-	public:
-		int getSize() const;
-	};
+template <typename T, typename P>
+class MyTemplate : public MyTemplateBase<T>
+{
+public:
+	int getSize() const;
+};
 
-	template <typename ClassType>
-	void lazyDefineClass(cpgf::GDefineMetaClass<ClassType> define)
-	{
-		define
-			._method("getSize", &ClassType::getSize)
-			._method("getDouble", &ClassType::getDouble)
-		;
-	}
+template <typename ClassType>
+void lazyDefineClass(cpgf::GDefineMetaClass<ClassType> define)
+{
+	define
+		._method("getSize", &ClassType::getSize)
+		._method("getDouble", &ClassType::getDouble)
+	;
+}
 
-	// instantiation
-	GDefineMetaClass<MyTemplate<char, int> >::lazy("MyTemplate_char_int", &lazyDefineClass<MyTemplate<char, int> >);
-	// another instantiation
-	GDefineMetaClass<MyTemplate<double, short> >::lazy("MyTemplate_double_short", &lazyDefineClass<MyTemplate<double, short> >);
+// instantiation
+GDefineMetaClass<MyTemplate<char, int> >::lazy("MyTemplate_char_int", &lazyDefineClass<MyTemplate<char, int> >);
+// another instantiation
+GDefineMetaClass<MyTemplate<double, short> >::lazy("MyTemplate_double_short", &lazyDefineClass<MyTemplate<double, short> >);
 <{/code}>
 
 <{autobr}>
@@ -272,9 +272,6 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 <{sh}> Reflect field
-<{sgroup indent="1"}>
-
-<{sh}> What's field
 <{sc}>
 	<p>
 <{autobr}>
@@ -285,11 +282,11 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 	</p>
 
 <{code}>
-	GDefineMetaClass<MyClass>
-		::define("MyClass")
+GDefineMetaClass<MyClass>
+	::define("MyClass")
 
-		.<b>_field</b>("width", &MyClass::width) // reflect a normal field
-		.<b>_field</b>("nocopy", &MyClass::nocopy, GMetaPolicyNoncopyable()) // reflect a field with policy
+	.<b>_field</b>("width", &MyClass::width) // reflect a normal field
+	.<b>_field</b>("nocopy", &MyClass::nocopy, GMetaPolicyNoncopyable()) // reflect a field with policy
 <{/code}>
 
 <p>
@@ -301,14 +298,9 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 <{/autobr}>
 </p>
 
-<{/sgroup}>
-
 
 
 <{sh}> Reflect property
-<{sgroup indent="1"}>
-
-<{sh}> What's property
 <{sc}>
 	<p>
 <{autobr}>
@@ -317,11 +309,11 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 	</p>
 
 <{code}>
-	GDefineMetaClass<MyClass>
-		::define("MyClass")
+GDefineMetaClass<MyClass>
+	::define("MyClass")
 
-		._property("name", &MyClass::getName, 0) // a property has only getter, no setter
-		._property("data", &MyClass::getData, &MyClass::data, MyPolicy()) // a property has both getter and setter, and has a policy.
+	._property("name", &MyClass::getName, 0) // a property has only getter, no setter
+	._property("data", &MyClass::getData, &MyClass::data, MyPolicy()) // a property has both getter and setter, and has a policy.
 <{/code}>
 
 <p>
@@ -336,14 +328,9 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 <{/autobr}>
 </p>
 
-<{/sgroup}>
-
 
 
 <{sh}> Reflect method
-<{sgroup indent="1"}>
-
-<{sh}> What's method
 <{sc}>
 	<p>
 <{autobr}>
@@ -356,11 +343,11 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 	</p>
 
 <{code}>
-	GDefineMetaClass<MyClass>
-		::define("MyClass")
+GDefineMetaClass<MyClass>
+	::define("MyClass")
 
-		._method("getWidth", &MyClass::getWidth) // reflect a normal method
-		._method("incWidth", &MyClass::incWidth, GMetaPolicyCopyAllConstReference()) // reflect a method with policy
+	._method("getWidth", &MyClass::getWidth) // reflect a normal method
+	._method("incWidth", &MyClass::incWidth, GMetaPolicyCopyAllConstReference()) // reflect a method with policy
 <{/code}>
 
 <p>
@@ -373,14 +360,9 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 </p>
 
 
-<{/sgroup}>
-
 
 
 <{sh}> Reflect constructor
-<{sgroup indent="1"}>
-
-<{sh}> What's constructor
 <{sc}>
 	<p>
 <{autobr}>
@@ -390,12 +372,12 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 	</p>
 
 <{code}>
-	GDefineMetaClass<MyClass>
-		::define("MyClass")
+GDefineMetaClass<MyClass>
+	::define("MyClass")
 
-		._constructor<void * ()>()
-		._constructor<void * (int)>()
-		._constructor<void * (int, const std::string &)>(GMetaPolicyCopyAllConstReference())
+	._constructor<void * ()>()
+	._constructor<void * (int)>()
+	._constructor<void * (int, const std::string &)>(GMetaPolicyCopyAllConstReference())
 <{/code}>
 
 <p>
@@ -407,15 +389,9 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 </p>
 
 
-<{/sgroup}>
-
-
 
 
 <{sh}> Reflect operator
-<{sgroup indent="1"}>
-
-<{sh}> What's operator
 <{sc}>
 	<p>
 <{autobr}>
@@ -425,11 +401,11 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 	</p>
 
 <{code}>
-	GDefineMetaClass<MyClass>
-		::define("MyClass")
+GDefineMetaClass<MyClass>
+	::define("MyClass")
 
-		._operator<MyClass (const GMetaSelf &, int)>(mopHolder + mopHolder) // +
-		._operator<MyClass (const GMetaSelf &, int)>(mopHolder - mopHolder) // -
+	._operator<MyClass (const GMetaSelf &, int)>(mopHolder + mopHolder) // +
+	._operator<MyClass (const GMetaSelf &, int)>(mopHolder - mopHolder) // -
 <{/code}>
 
 <p>
@@ -449,16 +425,9 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 </p>
 
 
-<{/sgroup}>
-
-
-
 
 
 <{sh}> Reflect annotation
-<{sgroup indent="1"}>
-
-<{sh}> What's annotation
 <{sc}>
 	<p>
 <{autobr}>
@@ -468,19 +437,19 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 	</p>
 
 <{code}>
-	GDefineMetaClass<MyClass>
-		::define("MyClass")
+GDefineMetaClass<MyClass>
+	::define("MyClass")
 
-		._annotation("attribute")
-			._element("name", "What's my name") // element name, value is an Ansi string
-			._element("cat", mcatClass) // element cat, value is int
-			._element("dog", TestData(mcatClass, "A cute dog")) // element dog, value is TestData
-		._annotation("style")
-			._element("fit", L"fit me") // element fit, value is a Wide string.
+	._annotation("attribute")
+		._element("name", "What's my name") // element name, value is an Ansi string
+		._element("cat", mcatClass) // element cat, value is int
+		._element("dog", TestData(mcatClass, "A cute dog")) // element dog, value is TestData
+	._annotation("style")
+		._element("fit", L"fit me") // element fit, value is a Wide string.
 
-		._method("incWidth", &MyClass::incWidth, GMetaPolicyCopyAllConstReference()) // reflect a method with policy
-			._annotation("attr") // the method incWidth has an annotation
-				._element("what", "ok")
+	._method("incWidth", &MyClass::incWidth, GMetaPolicyCopyAllConstReference()) // reflect a method with policy
+		._annotation("attr") // the method incWidth has an annotation
+			._element("what", "ok")
 <{/code}>
 
 <p>
@@ -493,16 +462,9 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 </p>
 
 
-<{/sgroup}>
-
-
-
 
 
 <{sh}> Reflect enumerators
-<{sgroup indent="1"}>
-
-<{sh}> What's enumerator
 <{sc}>
 	<p>
 <{autobr}>
@@ -510,51 +472,43 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 	</p>
 
 <{code}>
-	GDefineMetaClass<MyClass>
-		::define("MyClass")
+GDefineMetaClass<MyClass>
+	::define("MyClass")
 
-		._enum<MyClass::WindowStyle>("WindowStyle")
-			._element("ws0", MyClass::ws0)
-			._element("ws1", MyClass::ws1)
-			._element("ws2", MyClass::ws2)
-			._element("ws3", MyClass::ws3)
+	._enum<MyClass::WindowStyle>("WindowStyle")
+		._element("ws0", MyClass::ws0)
+		._element("ws1", MyClass::ws1)
+		._element("ws2", MyClass::ws2)
+		._element("ws3", MyClass::ws3)
 <{/code}>
 
 <p>
 <{autobr}>
 <{/autobr}>
 </p>
-
-<{/sgroup}>
-
 
 
 
 
 <{sh}> Reflect nested class
-<{sgroup indent="1"}>
-
-<{sh}> What's nested class
 <{sc}>
 <{code}>
-	class MyClass {
-	public:
-		class InnerClass { // this is nested class
-		};
+class MyClass {
+public:
+	class InnerClass { // this is nested class
 	};
+};
 <{/code}>
 
-<{sh}> Using function
-<{sc}>
 <{code}>
-	GDefineMetaClass<MyClass>
-		::define("MyClass")
+GDefineMetaClass<MyClass>
+	::define("MyClass")
 
-		._class(
-			GDefineMetaClass<MyClass::InnerClass>
-				::declare("InnerClass")
-				._field("whatever", &MyClass::InnerClass::whatever)
-		)
+	._class(
+		GDefineMetaClass<MyClass::InnerClass>
+			::declare("InnerClass")
+			._field("whatever", &MyClass::InnerClass::whatever)
+	)
 <{/code}>
 
 <p>
@@ -563,7 +517,8 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 </p>
 
 
-<{/sgroup}>
+
+
 
 
 <{/sgroup}>

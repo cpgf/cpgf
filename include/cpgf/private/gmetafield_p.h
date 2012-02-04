@@ -28,7 +28,7 @@ class GMetaFieldDataGlobal : public GMetaFieldDataBase
 {
 private:
 	G_STATIC_CONSTANT(bool, Readable = (PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result));
-	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result));
+	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result && !IsConst<FT>::Result));
 
 public:
 	GMetaFieldDataGlobal(FT * field) : field(field) {
@@ -59,7 +59,7 @@ public:
 
 	virtual void * getFieldAddress(void * instance) const {
 		(void)instance;
-		return this->field;
+		return (void *)(this->field);
 	}
 	
 	virtual GMetaConverter * createConverter() const {

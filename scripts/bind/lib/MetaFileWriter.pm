@@ -128,22 +128,12 @@ sub writeSource
 	$cw->incIndent();
 
 	foreach(@{$self->{classList}}) {
-		$cw->out("{\n");
 		my $class = $_;
-		if($class->isGlobal()) {
-			$cw->out("GDefineMetaGlobal define;\n");
-		}
-		else {
-			my $typeName = "GDefineMetaClass<" . $class->{name};
-			foreach(@{$class->{baseNameList}}) {
-				my @names = split('~', $_);
-				if($names[1] eq 'public') {
-					$typeName .= ", " . $names[0];
-				}
-			}
-			$typeName .= ">";
-			$cw->out($typeName . " define = " . $typeName . "::define(\"" . Util::getBaseName($class->{name}) . "\");\n");
-		}
+		next if($class->{template});
+
+		$cw->out("{\n");
+		
+		Util::defineMetaClass($cw, $class, '_d', 'define');
 		
 		my $className = 'global';
 		$className = $class->{name} if(not $class->isGlobal());
@@ -151,7 +141,7 @@ sub writeSource
 		$className = ucfirst($className);
 		
 		my $funcName = $self->{config}->{metaClassFunctionPrefix} . $className;
-		$cw->out($funcName . "(0, define, NULL, GMetaPolicyCopyAllConstReference());\n");
+		$cw->out($funcName . "(0, _d, NULL, GMetaPolicyCopyAllConstReference());\n");
 		
 		$cw->out("}\n");
 		$cw->out("\n\n");

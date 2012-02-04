@@ -83,7 +83,7 @@ void writeNumberToByteArrayMemory(int n, void * buffer)
 	*(int32_t *)((int8_t *)buffer + sizeof(int32_t)) = n * 2;
 }
 
-bool testDefaultParam(int type, int i = 5, std::string s = "abc", TestObject obj = TestObject(8))
+bool testDefaultParam(int type, int i, std::string s, TestObject obj)
 {
 	switch(type) {
 		case 0: // all are default

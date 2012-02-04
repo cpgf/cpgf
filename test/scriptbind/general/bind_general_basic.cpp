@@ -138,9 +138,11 @@ void testDefaultParameters(TestScriptContext * context)
 {
 	QNEWOBJ(a, TestObject(38))
 	QASSERT(testDefaultParam(0));
+	QASSERT(testDefaultParam(0, 5));
 	QASSERT(testDefaultParam(1, 98));
 	QASSERT(testDefaultParam(2, 98, "def"));
 	QASSERT(testDefaultParam(3, 98, "def", a));
+	QERR(testDefaultParam(0, 5, "abc", a, 0));
 }
 
 #define CASE testDefaultParameters
