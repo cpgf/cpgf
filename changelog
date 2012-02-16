@@ -1,3 +1,7 @@
+TBD version 1.2.6
+	Now the OpenGL metadata can be compiled with GCC.
+	Added the OpenGL sample to cmake build file.
+
 2012-02-05 version 1.2.5
 	Support parameters default value for meta invokable. Method, constructor and object functor operator.
 	Refactored GMetaEnum to remove unnecessary code.

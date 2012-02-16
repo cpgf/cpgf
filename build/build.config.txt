@@ -18,9 +18,14 @@ set(SUPPORT_GCC_0X
 	1
 )
 
+# whether we have GLUT library
+set(HAS_GLUT
+	1
+)
+
 # To enable unit test, change the below folder to UnitTest++.
 set(UNIT_TEST_DIR
-	e:/sourcecode/cpp/UnitTest++
+	/source/UnitTest++
 )
 
 set(TEST_GCOV 0)
@@ -32,7 +37,7 @@ endif(UNIX)
 ### Lua config
 
 set(LUA_DIR
-	e:/sourcecode/cpp/lua
+	/source/lua
 )
 
 set(LUA_INC ${LUA_DIR}/src/ ${LUA_DIR}/etc/)
@@ -53,7 +58,7 @@ endif(UNIX)
 ### V8 config
 
 set(V8_DIR
-	e:/sourcecode/cpp/v8
+	/source/v8
 )
 
 set(V8_INC ${V8_DIR}/include)
@@ -68,3 +73,17 @@ endif(MSVC)
 
 
 
+### glut config
+set(GLUT_DIR
+	/Source/freeglut
+)
+
+set(GLUT_INC ${GLUT_DIR}/include)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(GLUT_LIB ${GLUT_DIR}/src/libfreeglutdll.a opengl32 glu32)
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(MSVC)
+	set(GLUT_LIB ${GLUT_DIR}/src/freeglut.lib)
+endif(MSVC)

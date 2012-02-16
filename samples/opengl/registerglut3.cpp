@@ -13,10 +13,10 @@
 using namespace cpgf;
 
 
-void registerOpenGLUT(GMetaClass * metaClass)
+void registerOpenGLUT3(GMetaClass * metaClass)
 {
 	GDefineMetaClass<void> define = GDefineMetaClass<void>::fromMetaClass(metaClass);
 
-	buildMetaData_open_glut_constants(define);
+	buildMetaData_open_glut_helpers(define);
 }
 

@@ -2,7 +2,6 @@
 
 if [ $OSTYPE == "cygwin" ]; then
 	mingw32-make mingw TARGET=test
-#	nmake nmake TARGET=test
 else
 	make linux TARGET=test
 fi

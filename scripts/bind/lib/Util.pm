@@ -80,6 +80,7 @@ sub getAttribute
 {
 	my ($xmlNode, $attrName) = @_;
 
+	return undef unless defined $xmlNode;
 	my $attrNode = $xmlNode->getAttributes()->getNamedItem($attrName);
 	return defined $attrNode ? $attrNode->getValue() : undef;
 }

@@ -518,7 +518,7 @@ public:
 
 private:
 	static void destroyMetaObject(void * instance) {
-		delete static_cast<ClassType *>(instance);
+		delete static_cast<typename GIfElse<IsVoid<ClassType>::Result, char, ClassType>::Result *>(instance);
 	}
 
 	typedef typename cpgf::TypeList_Make<GPP_REPEAT_PARAMS(MAX_BASE_COUNT, BaseType)>::Result BaseListType;

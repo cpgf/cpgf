@@ -3,8 +3,8 @@ $config = {
 	allowProtected => 0,
 	allowPrivate => 0,
 	
-	metaClassFunctionPrefix => 'XXXbuildMetaClass_',
-	metaFileFunctionPrefix => 'XXXbuildMetaFile_',
+	metaClassFunctionPrefix => 'buildMetaClass_',
+	metaFileFunctionPrefix => 'buildMetaFile_',
 	sourceFilePrefix => 'meta_',
 
 	autoRegisterToGlobal => 1,

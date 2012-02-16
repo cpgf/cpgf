@@ -23,6 +23,8 @@ namespace metadata_internal {
 template <typename MetaDefine>
 void doBuildMetaData_open_glu_constants(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer)
 {
+	(void)config;
+
 	define.CPGF_MD_TEMPLATE _enum<int>("glu_enum")
 
 		/* Version */
@@ -186,6 +188,8 @@ void doBuildMetaData_open_glu_constants(const GMetaDataConfigFlags & config, Met
 template <typename MetaDefine>
 void doBuildMetaData_open_glu_functions(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer)
 {
+	(void)config;
+
 	GM(gluErrorString)
 	GM(gluErrorUnicodeStringEXT)
 	GM(gluGetString)

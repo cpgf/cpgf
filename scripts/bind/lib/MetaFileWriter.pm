@@ -61,7 +61,7 @@ sub writeHeader
 			codeWriter => $cw,
 			config => $self->{config}
 		);
-		my $className = 'global';
+		my $className = $self->getGlobalPostfix();
 		$className = $class->{name} if(not $class->isGlobal());
 		$className = Util::getBaseName($className);
 		$className = ucfirst($className);
@@ -135,7 +135,7 @@ sub writeSource
 		
 		Util::defineMetaClass($cw, $class, '_d', 'define');
 		
-		my $className = 'global';
+		my $className = $self->getGlobalPostfix();
 		$className = $class->{name} if(not $class->isGlobal());
 		$className = Util::getBaseName($className);
 		$className = ucfirst($className);
@@ -188,6 +188,17 @@ sub makeOutputFileName
 	my ($self, $extension) = @_;
 	
 	return File::Spec->catfile($self->{config}->{outputDir}, $self->getDestFileName()) . $extension;
+}
+
+sub getGlobalPostfix
+{
+	my ($self) = @_;
+	
+	my $g = 'global_' . Util::getBaseFileName(basename($self->{sourceFileName}));
+	$g = lc($g);
+	$g =~ s/\./_/;
+
+	return $g;
 }
 
 sub getBaseFileName

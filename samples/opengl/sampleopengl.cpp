@@ -1,6 +1,6 @@
 #include "cpgf/gmetadefine.h"
 
-#include "bind_common.h"
+#include "../../test/scriptbind/bind_common.h"
 
 #include <iostream>
 #include <string.h>
@@ -11,6 +11,8 @@ using namespace std;
 void registerOpenGL(GMetaClass * metaClass);
 void registerOpenGLU(GMetaClass * metaClass);
 void registerOpenGLUT(GMetaClass * metaClass);
+void registerOpenGLUT2(GMetaClass * metaClass);
+void registerOpenGLUT3(GMetaClass * metaClass);
 
 //    v6----- v5
 //   /|      /|
@@ -351,7 +353,7 @@ void start(Binding * binding, TestScriptContext * c, GMetaClass * glMetaClass)
 		context->doString(jsCode);
 	}
 
-	invokeScriptFunction(binding, "start", NULL, 0);
+	invokeScriptFunction(binding, "start");
 
 	// should not come here;
 	context.reset();
@@ -369,6 +371,8 @@ int main(int argc, char * argv[])
 	registerOpenGL(define.getMetaClass());
 	registerOpenGLU(define.getMetaClass());
 	registerOpenGLUT(define.getMetaClass());
+	registerOpenGLUT2(define.getMetaClass());
+	registerOpenGLUT3(define.getMetaClass());
 
 	GDefineMetaGlobal()
 		._method("exitDemo", &exitDemo);

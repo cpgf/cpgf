@@ -14,11 +14,13 @@ endif(${BUILD_DEBUG})
 set(TARGET_LIB lib)
 set(TARGET_SAMPLELUA samplelua)
 set(TARGET_SAMPLEREFLECTION samplereflection)
+set(TARGET_SAMPLEOPENGL sampleopengl)
 set(TARGET_UNITTEST test)
 
 set(OUTNAME_LIB cpgf)
 set(OUTNAME_SAMPLELUA samplelua)
 set(OUTNAME_SAMPLEREFLECTION samplereflection)
+set(OUTNAME_SAMPLEOPENGL sampleopengl)
 set(OUTNAME_UNITTEST test)
 
 set(ROOT_PATH ${PROJECT_SOURCE_DIR}/..)
@@ -29,6 +31,7 @@ set(SRC_PATH ${ROOT_PATH}/src)
 set(SAMPLE_ROOT ${ROOT_PATH}/samples)
 set(SAMPLE_REFLECT_PATH ${SAMPLE_ROOT}/reflection)
 set(SAMPLE_BIND_PATH ${SAMPLE_ROOT}/scriptbind)
+set(SAMPLE_OPENGL_PATH ${SAMPLE_ROOT}/opengl)
 
 set(TEST_PATH ${ROOT_PATH}/test)
 
@@ -77,6 +80,7 @@ set(SRC_SAMPLEREFLECTION
 
 set(SRC_LUA_BIND )
 set(SRC_V8_BIND )
+set(SRC_GLUT )
 
 if(${HAS_LUA})
 	set(SRC_LUA_BIND
@@ -95,15 +99,6 @@ set(SRC_LIB
 	
 	${SRC_LUA_BIND}
 	${SRC_V8_BIND}
-)
-
-file(GLOB GLOB_SAMPLELUA ${SAMPLE_BIND_PATH}/luabind/*.cpp)
-set(SRC_SAMPLELUA
-	${SAMPLE_ROOT}/samplemain.cpp
-	
-	${SAMPLE_BIND_PATH}/testscriptbindmetadata.cpp
-	
-	${GLOB_SAMPLELUA}
 )
 
 include_directories(../include)
@@ -164,6 +159,8 @@ set_target_properties(
 	COMPILE_FLAGS ${LIB_COMPILE_FLAGS}
 )
 
+
+# sample reflection
 add_executable(
 	${TARGET_SAMPLEREFLECTION}
 	EXCLUDE_FROM_ALL
@@ -179,7 +176,17 @@ set_target_properties(
 
 target_link_libraries(${TARGET_SAMPLEREFLECTION} ${TARGET_LIB})
 
+# sample Lua
 if(${HAS_LUA})
+	file(GLOB GLOB_SAMPLELUA ${SAMPLE_BIND_PATH}/luabind/*.cpp)
+	set(SRC_SAMPLELUA
+		${SAMPLE_ROOT}/samplemain.cpp
+	
+		${SAMPLE_BIND_PATH}/testscriptbindmetadata.cpp
+	
+		${GLOB_SAMPLELUA}
+	)
+
 	add_executable(
 		${TARGET_SAMPLELUA}
 		EXCLUDE_FROM_ALL
@@ -196,6 +203,37 @@ if(${HAS_LUA})
 	target_link_libraries(${TARGET_SAMPLELUA} ${TARGET_LIB} ${LUA_LIB})
 endif(${HAS_LUA})
 
+
+# sample opengl
+if(${HAS_GLUT})
+	file(GLOB GLOB_SAMPLEOPENGL ${SAMPLE_OPENGL_PATH}/*.cpp)
+	set(SRC_SAMPLEOPENGL
+		${GLOB_SAMPLEOPENGL}
+		
+		${SRC_PATH}/metadata/opengl/gmetadata_openglut.cpp
+		${TEST_PATH}/scriptbind/bind_common.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata.cpp
+	)
+
+	add_executable(
+		${TARGET_SAMPLEOPENGL}
+		EXCLUDE_FROM_ALL
+			${SRC_SAMPLEOPENGL}
+	)
+
+	include_directories(${GLUT_INC})
+
+	set_target_properties(
+		${TARGET_SAMPLEOPENGL}
+		PROPERTIES
+		OUTPUT_NAME ${OUTNAME_SAMPLEOPENGL}
+		COMPILE_FLAGS ${TEST_COMPILE_FLAGS}
+	)
+
+	add_definitions(-DFREEGLUT_EXPORTS)
+	
+	target_link_libraries(${TARGET_SAMPLEOPENGL} ${TARGET_LIB} ${GLUT_LIB} ${LUA_LIB} ${V8_LIB})
+endif(${HAS_GLUT})
 
 
 
