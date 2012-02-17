@@ -47,6 +47,7 @@ sub writeHeader
 	$cw->out('#define ' . $guardName . "\n");
 	$cw->out("\n\n");
 
+	$cw->out('#include "cpgf/gmetadefine.h"' . "\n");
 	$cw->out('#include "cpgf/metadata/gnamereplacer.h"' . "\n");
 	$cw->out('#include "cpgf/metadata/gmetadataconfig.h"' . "\n");
 	$cw->out('#include "cpgf/metadata/private/gmetadata_header.h"' . "\n");
@@ -111,16 +112,31 @@ sub writeSource
 	my $outFileName = File::Spec->catfile($self->{config}->{cppOutputDir}, $self->getDestFileName()) . '.cpp';
 	my $cw = new CodeWriter;
 
-	$cw->out('#include "' . $self->{config}->{headerIncludePrefix} . $self->getBaseFileName() . ".h\"\n");
-	$cw->out("\n");
+	if(defined($self->{config}->{headerCode})) {
+		$cw->out($self->{config}->{headerCode});
+		$cw->out("\n");
+	}
+	if(defined($self->{config}->{headerIncludePrefix})) {
+		$cw->out('#include "' . $self->{config}->{headerIncludePrefix} . $self->getBaseFileName() . ".h\"\n");
+		$cw->out("\n");
+	}
+	elsif(defined($self->{config}->{headerReplacer})) {
+		my $fileName = $self->{sourceFileName};
+		$fileName =~ s/\\/\//g;
+		$fileName = &{$self->{config}->{headerReplacer}}($fileName);
+		$cw->out('#include "' . $fileName . "\"\n");
+		$cw->out("\n");
+	}
 	$cw->out('#include "' . $self->getDestFileName() . ".h\"\n");
 	$cw->out("\n");
-	$cw->out('#include "cpgf/gmetadefine.h"' . "\n");
 	$cw->out('#include "cpgf/gmetapolicy.h"' . "\n");
 	$cw->out('#include "cpgf/goutmain.h"' . "\n");
 	$cw->out("\n");
 	
 	$cw->out("using namespace cpgf;\n");
+	$cw->out("\n");
+
+	$cw->out("namespace {\n");
 	$cw->out("\n");
 
 	$cw->out("G_AUTO_RUN_BEFORE_MAIN()\n");
@@ -133,7 +149,7 @@ sub writeSource
 
 		$cw->out("{\n");
 		
-		Util::defineMetaClass($cw, $class, '_d', 'define');
+		Util::defineMetaClass($cw, $class, '_d', 'define', $class->getPolicyRules());
 		
 		my $className = $self->getGlobalPostfix();
 		$className = $class->{name} if(not $class->isGlobal());
@@ -149,7 +165,11 @@ sub writeSource
 
 	$cw->decIndent();
 	$cw->out("}\n");
-	
+	$cw->out("\n");
+
+	$cw->out("} // unnamed namespace\n");
+	$cw->out("\n");
+
 	open FH, '>' . $outFileName or die "Can't write to file $outFileName. \n";
 	print FH $cw->{text};
 	close FH;
@@ -170,7 +190,7 @@ sub beginMetaFunction
 	$cw->out("void " . $name . "(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)\n");
 	$cw->out("{\n");
 	$cw->incIndent();
-	$cw->out("(void)config; (void)_d; (void)_r; (void)_d;\n");
+	$cw->out("(void)config; (void)_d; (void)_r; (void)_d; (void)_p;\n");
 	$cw->out("using namespace cpgf;\n");
 	$cw->out("\n");
 }
@@ -196,7 +216,7 @@ sub getGlobalPostfix
 	
 	my $g = 'global_' . Util::getBaseFileName(basename($self->{sourceFileName}));
 	$g = lc($g);
-	$g =~ s/\./_/;
+	$g =~ s/\./_/g;
 
 	return $g;
 }

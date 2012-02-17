@@ -7,6 +7,9 @@ $config = {
 	metaFileFunctionPrefix => 'buildMetaFile_',
 	sourceFilePrefix => 'meta_',
 
+	# for source code
 	autoRegisterToGlobal => 0,
 	headerIncludePrefix => '',
+	headerCode => undef,
+	headerReplacer => undef,
 };

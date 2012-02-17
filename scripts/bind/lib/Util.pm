@@ -20,6 +20,10 @@ our @EXPORT = qw(
 	&dumpClass
 
 	&writeParamList
+
+	&itemIsPublic
+	&itemIsProtected
+	&itemIsPrivate
 );
 
 sub fatal
@@ -118,7 +122,7 @@ sub getBaseFileName
 
 sub defineMetaClass
 {
-	my ($codeWriter, $class, $varName, $action) = @_;
+	my ($codeWriter, $class, $varName, $action, $rules) = @_;
 	
 	if($class->isGlobal()) {
 		$codeWriter->out("GDefineMetaGlobal " . $varName . ";\n");
@@ -132,27 +136,31 @@ sub defineMetaClass
 			}
 		}
 		$typeName .= ">";
-		$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . "::" . $action . "(\"" . Util::getBaseName($class->{name}) . "\");\n");
+		my $policy = '';
+		if(defined($rules) and $#{@{$rules}} >= 0) {
+			$policy = '::Policy<MakePolicy<' . join(', ', @{$rules}) . '> >';
+		}
+		$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::" . $action . "(\"" . Util::getBaseName($class->{name}) . "\");\n");
 	}
 }
 
 sub itemIsPublic
 {
-	my ($item) = $_;
+	my ($item) = @_;
 
 	return $item->{visibility} eq 'public';
 }
 
 sub itemIsProtected
 {
-	my ($item) = $_;
+	my ($item) = @_;
 
 	return $item->{visibility} eq 'protected';
 }
 
 sub itemIsPrivate
 {
-	my ($item) = $_;
+	my ($item) = @_;
 
 	return $item->{visibility} eq 'private';
 }

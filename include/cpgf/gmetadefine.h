@@ -155,6 +155,22 @@ private:
 
 typedef GSharedData<GMetaClass> GSharedMetaClass;
 
+template <typename T, bool CanDelete>
+struct ObjectDeleter
+{
+	static void deleteObject(void * instance) {
+		delete static_cast<typename GIfElse<IsVoid<T>::Result, char, T>::Result *>(instance);
+	}
+};
+
+template <typename T>
+struct ObjectDeleter <T, false>
+{
+	static void deleteObject(void * instance) {
+		(void)instance;
+	}
+};
+
 
 } // namespace meta_internal
 
@@ -517,10 +533,6 @@ public:
 	}
 
 private:
-	static void destroyMetaObject(void * instance) {
-		delete static_cast<typename GIfElse<IsVoid<ClassType>::Result, char, ClassType>::Result *>(instance);
-	}
-
 	typedef typename cpgf::TypeList_Make<GPP_REPEAT_PARAMS(MAX_BASE_COUNT, BaseType)>::Result BaseListType;
 	
 	template <typename Policy>
@@ -534,7 +546,7 @@ private:
 		if(classToAdd == NULL) {
 			classToAdd = new GMetaClass(
 				(ClassType *)0, meta_internal::doMakeSuperList<BaseListType, ClassType>(),
-				className, &destroyMetaObject, reg, policy
+				className, &meta_internal::ObjectDeleter<ClassType, !PolicyHasRule<Policy, GMetaRuleDestructorAbsent>::Result >::deleteObject, reg, policy
 			);
 
 			if(addToGlobal) {

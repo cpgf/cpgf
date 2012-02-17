@@ -454,10 +454,10 @@ private:
 	static typetraits_internal::NoType check(...);
 	static typetraits_internal::YesType check(To);
 
-	static From makeFrom();
+	static From from;
 
 public:
-	G_STATIC_CONSTANT(bool, Result = (IsSameType<From, To>::Result || (sizeof(check(makeFrom())) == sizeof(typetraits_internal::YesType))));
+	G_STATIC_CONSTANT(bool, Result = (IsSameType<From, To>::Result || (sizeof(check(from)) == sizeof(typetraits_internal::YesType))));
 };
 
 template <typename From, typename To>

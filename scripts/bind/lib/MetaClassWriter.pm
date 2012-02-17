@@ -26,9 +26,16 @@ sub new
 
 sub getScopePrefix
 {
-	my ($self) = @_;
+	my ($self, $prefix) = @_;
 
-	return ($self->{class}->isGlobal() ? '' : $self->{classType} . '::');
+	$prefix = '' unless defined $prefix;
+
+	if($self->{class}->isGlobal()) {
+		return '';
+	}
+	else {
+		return $prefix . $self->{classType} . '::';
+	}
 }
 
 sub write
@@ -51,6 +58,7 @@ sub writeConstructor
 	my $action = $self->getAction("_constructor");
 
 	return if($self->{class}->isGlobal());
+	return if($self->{class}->isAbstract());
 
 	foreach(@{$self->{class}->{constructorList}}) {
 		my $item = $_;
@@ -110,7 +118,11 @@ sub writeMethod
 		if($overload) {
 			$cw->out("(" . $item->{returnType} . " (" . $prefix . "*) (");
 			Util::writeParamList($cw, $item->{paramList}, 0);
-			$cw->out("))");
+			$cw->out(")");
+			if(!$item->{static} and $item->{const}) {
+				$cw->out(" const");
+			}
+			$cw->out(")");
 		}
 		$cw->out("&" . $prefix . $name . ", _p);\n");
 	}
@@ -120,6 +132,7 @@ sub writeEnum
 {
 	my ($self) = @_;
 	my $cw = $self->{codeWriter};
+	my $typePrefix = $self->getScopePrefix('typename ');
 	my $prefix = $self->getScopePrefix();
 	my $action = $self->getAction("_enum");
 
@@ -131,7 +144,7 @@ sub writeEnum
 		
 		next unless($self->canWrite($item));
 
-		my $typeName = $prefix . $name;
+		my $typeName = $typePrefix . $name;
 
 		if($name =~ /\@/ or $name eq '') {
 			$name = 'GlobalEnum_' . $index;
@@ -194,12 +207,15 @@ sub writeOperator
 		next unless($self->canWrite($item));
 		
 		$cw->out($action . "<" . $item->{returnType} . " (*)(");
-		if(not $item->{static}) {
+		
+		my $isStatic = ($self->{class}->isGlobal() or $item->{static});
+		
+		if(not $isStatic) {
 			if($item->{const}) {
-				$cw->out('const GMetaSelf &');
+				$cw->out('const cpgf::GMetaSelf &');
 			}
 			else {
-				$cw->out('GMetaSelf');
+				$cw->out('cpgf::GMetaSelf');
 			}
 		}
 		my $op = $item->{operator};
@@ -207,14 +223,14 @@ sub writeOperator
 		if($op eq '++' or $op eq '--') {
 		}
 		else {
-			if($#{@{$item->{paramList}}} >= 0) {
+			if($#{@{$item->{paramList}}} >= 0 and not $isStatic) {
 				$cw->out(', ');
 			}
 			Util::writeParamList($cw, $item->{paramList}, 0);
 		}
 		$cw->out(")>(");
 		my $realParamCount = $#{@{$item->{paramList}}} + 1;
-		if(not $item->{static}) {
+		if(not $isStatic) {
 			++$realParamCount;
 		}
 		if($op eq '()') {
@@ -237,6 +253,9 @@ sub writeOperator
 			}
 			elsif($realParamCount == 1) {
 				$opText = $op . 'H';
+			}
+			else {
+				print "OP::::::::  ", $realParamCount, "  ", $op, "\n";
 			}
 		}
 		$opText =~ s/H/mopHolder/g;

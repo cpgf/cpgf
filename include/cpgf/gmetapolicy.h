@@ -22,6 +22,9 @@ struct GMetaRuleForbidWrite {};
 struct GMetaRuleDefaultConstructorAbsent {};
 struct GMetaRuleCopyConstructorAbsent {};
 
+// used by meta define
+struct GMetaRuleDestructorAbsent {};
+
 // used by invokable -- method, constructor, and operator
 template <int N>
 struct GMetaRuleTransferOwnership {};
@@ -83,13 +86,16 @@ typedef MakePolicy<
 	>
 	GMetaPolicyNoCopyConstructor;
 
-
 typedef MakePolicy<
 		GMetaRuleDefaultConstructorAbsent,
 		GMetaRuleCopyConstructorAbsent
 	>
 	GMetaPolicyNoDefaultAndCopyConstructor;
 
+typedef MakePolicy<
+		GMetaRuleDestructorAbsent
+	>
+	GMetaPolicyDestructorAbsent;
 
 typedef MakePolicy<
 		GMetaRuleTransferOwnership <metaPolicyResultIndex>

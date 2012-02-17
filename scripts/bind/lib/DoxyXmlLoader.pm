@@ -12,6 +12,7 @@ use Util;
 
 use Class;
 use Constructor;
+use Destructor;
 use Param;
 use Operator;
 use Field;
@@ -281,7 +282,15 @@ sub parseMethod
 	my ($self, $xmlNode, $name) = @_;
 
 	if(not $self->{currentClass}->isGlobal()) {
-		return if $name =~ /~/; #destructor
+		if($name =~ /~/) {
+			my $destructor = new Destructor;
+			$self->{currentClass}->{destructor} = $destructor;
+			$self->takeVisibility($xmlNode, $destructor);
+			$self->takeLocation($xmlNode, $destructor);
+			$self->resolveNamespace($destructor);
+
+			return;
+		}
 		
 		if(Util::getBaseName($self->{currentClass}->{name}) eq $name) { # constructor
 			my $constructor = new Constructor;
@@ -324,6 +333,7 @@ sub parseMethod
 		static => Util::valueYesNo(Util::getAttribute($xmlNode, 'static')),
 		const => Util::valueYesNo(Util::getAttribute($xmlNode, 'const')),
 		virtual => ((Util::getAttribute($xmlNode, 'virt') eq 'virtual') ? 1 : 0),
+		pureVirtual => ((Util::getAttribute($xmlNode, 'virt') eq 'pure-virtual') ? 1 : 0),
 	);
 	$self->parseParams($xmlNode, $method->{paramList});
 	$self->parseTemplateParams($xmlNode, $method);

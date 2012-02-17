@@ -18,6 +18,7 @@ sub new
 		static => 0,
 		const => 0,
 		virtual => 0,
+		pureVirtual => 0,
 		template => 0,
 
 		paramList => [],
