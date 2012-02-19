@@ -10,6 +10,8 @@ our @EXPORT = qw(
 	
 	&getUniqueID
 	
+	&makeNamespaceSymbol
+	
 	&writeToFile
 	
 	&findItemByName
@@ -45,6 +47,13 @@ sub getUniqueID
 {
 	++$currentUniqueID;
 	return $currentUniqueID;
+}
+
+sub makeNamespaceSymbol
+{
+	my ($config) = @_;
+	
+	return '_mEta_nS_' . $config->{id};
 }
 
 sub writeToFile
@@ -160,15 +169,63 @@ sub getBaseFileName
 
 sub defineMetaClass
 {
-	my ($codeWriter, $class, $varName, $action, $rules, $namespace) = @_;
+	my ($config, $codeWriter, $class, $varName, $action, $rules, $code) = @_;
 	
-	if($class->isGlobal()) {
-		if(defined $namespace) {
-			$codeWriter->out('GDefineMetaClass<void> ' . $varName . ' = GDefineMetaClass<void>::' . $action . '("' . $namespace . "\");\n");
+	my $namespace = Util::makeNamespaceSymbol($config);
+	
+	if($config->{hardcodeNamespace}) {
+		if($class->isGlobal()) {
+			if(defined $config->{namespace}) {
+				$codeWriter->out('GDefineMetaClass<void> ' . $varName . ' = GDefineMetaClass<void>::' . $action . '(' . $namespace . ");\n");
+			}
+			else {
+				$codeWriter->out("GDefineMetaGlobal " . $varName . ";\n");
+			}
+			
+			$codeWriter->out($code . "\n");
 		}
 		else {
-			$codeWriter->out("GDefineMetaGlobal " . $varName . ";\n");
+			my $typeName = "GDefineMetaClass<" . $class->{name};
+			foreach(@{$class->{baseNameList}}) {
+				my @names = split('~', $_);
+				if($names[1] eq 'public') {
+					$typeName .= ", " . $names[0];
+				}
+			}
+			$typeName .= ">";
+			my $policy = '';
+			if(defined($rules) and $#{@{$rules}} >= 0) {
+				$policy = '::Policy<MakePolicy<' . join(', ', @{$rules}) . '> >';
+			}
+			if(defined $config->{namespace}) {
+				$codeWriter->out('GDefineMetaClass<void> _ns = GDefineMetaClass<void>::' . $action . '(' . $namespace . ");\n");
+				$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->{name}) . "\");\n");
+				$codeWriter->out("_ns._class(" . $varName . ");\n");
+			}
+			else {
+				$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::" . $action . "(\"" . Util::getBaseName($class->{name}) . "\");\n");
+			}
+			
+			$codeWriter->out($code . "\n");
 		}
+
+		return;
+	}
+	
+	if($class->isGlobal()) {
+		$codeWriter->out("if(" . $namespace . ") {\n");
+		$codeWriter->incIndent();
+		$codeWriter->out('GDefineMetaClass<void> ' . $varName . ' = GDefineMetaClass<void>::' . $action . '(' . $namespace . ");\n");
+		$codeWriter->out($code . "\n");
+		$codeWriter->decIndent();
+		$codeWriter->out("}\n");
+		
+		$codeWriter->out("else {\n");
+		$codeWriter->incIndent();
+		$codeWriter->out("GDefineMetaGlobal " . $varName . ";\n");
+		$codeWriter->out($code . "\n");
+		$codeWriter->decIndent();
+		$codeWriter->out("}\n");
 	}
 	else {
 		my $typeName = "GDefineMetaClass<" . $class->{name};
@@ -183,14 +240,21 @@ sub defineMetaClass
 		if(defined($rules) and $#{@{$rules}} >= 0) {
 			$policy = '::Policy<MakePolicy<' . join(', ', @{$rules}) . '> >';
 		}
-		if(defined $namespace) {
-			$codeWriter->out('GDefineMetaClass<void> _ns = GDefineMetaClass<void>::' . $action . '("' . $namespace . "\");\n");
-			$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->{name}) . "\");\n");
-			$codeWriter->out("_ns._class(" . $varName . ");\n");
-		}
-		else {
-			$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::" . $action . "(\"" . Util::getBaseName($class->{name}) . "\");\n");
-		}
+		$codeWriter->out("if(" . $namespace . ") {\n");
+		$codeWriter->incIndent();
+		$codeWriter->out('GDefineMetaClass<void> _ns = GDefineMetaClass<void>::' . $action . '(' . $namespace . ");\n");
+		$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->{name}) . "\");\n");
+		$codeWriter->out("_ns._class(" . $varName . ");\n");
+		$codeWriter->out($code . "\n");
+		$codeWriter->decIndent();
+		$codeWriter->out("}\n");
+
+		$codeWriter->out("else {\n");
+		$codeWriter->incIndent();
+		$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::" . $action . "(\"" . Util::getBaseName($class->{name}) . "\");\n");
+		$codeWriter->out($code . "\n");
+		$codeWriter->decIndent();
+		$codeWriter->out("}\n");
 	}
 }
 

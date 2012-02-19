@@ -6,6 +6,8 @@
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/goutmain.h"
 
+extern const char * _mEta_nS_box2d;
+
 using namespace cpgf;
 
 namespace {
@@ -13,26 +15,29 @@ namespace {
 G_AUTO_RUN_BEFORE_MAIN()
 {
     {
-    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define("box2d");
+    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
     GDefineMetaClass<b2ContactConstraint> _d = GDefineMetaClass<b2ContactConstraint>::declare("b2ContactConstraint");
     _ns._class(_d);
     buildMetaClass_B2ContactConstraint(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+
     }
     
 
     {
-    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define("box2d");
+    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
     GDefineMetaClass<b2ContactConstraintPoint> _d = GDefineMetaClass<b2ContactConstraintPoint>::declare("b2ContactConstraintPoint");
     _ns._class(_d);
     buildMetaClass_B2ContactConstraintPoint(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+
     }
     
 
     {
-    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define("box2d");
+    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
     GDefineMetaClass<b2ContactSolver> _d = GDefineMetaClass<b2ContactSolver>::Policy<MakePolicy<GMetaRuleDestructorAbsent, GMetaRuleDefaultConstructorAbsent> >::declare("b2ContactSolver");
     _ns._class(_d);
     buildMetaClass_B2ContactSolver(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+
     }
     
 

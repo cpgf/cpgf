@@ -74,7 +74,7 @@ void buildMetaClass_B2DebugDraw(const cpgf::GMetaDataConfigFlags & config, D _d,
     _d.CPGF_MD_TEMPLATE _method(replaceName("DrawSolidCircle", _r), &D::ClassType::DrawSolidCircle, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("DrawSegment", _r), &D::ClassType::DrawSegment, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("DrawTransform", _r), &D::ClassType::DrawTransform, _p);
-    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalEnum_0", _r))
+    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalEnum_box2d_4", _r))
         ._element(replaceName("e_shapeBit", _r), D::ClassType::e_shapeBit)
         ._element(replaceName("e_jointBit", _r), D::ClassType::e_jointBit)
         ._element(replaceName("e_aabbBit", _r), D::ClassType::e_aabbBit)

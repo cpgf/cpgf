@@ -1,5 +1,6 @@
 Todo:
 
+1, Refactor binding Perl script, remove the public field, use accessor instead.
 1, Support script override C++ functions. It's difficult. Adding interceptor in meta system is not enough.
 2, Support object pool in interface based api
 3, Test with Lua 5.2

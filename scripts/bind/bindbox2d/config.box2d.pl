@@ -1,4 +1,6 @@
 $config = {
+	id => 'box2d',
+
 	allowPublic => 1,
 	allowProtected => 0,
 	allowPrivate => 0,
@@ -10,6 +12,7 @@ $config = {
 	# for source code
 	autoRegisterToGlobal => 1,
 	namespace => 'box2d',
+	hardcodeNamespace => 1,
 	headerCode => '#include "Box2D/Box2D.h"',
 	headerReplacer => \&doHeaderReplace,
 	metaHeaderPath => 'cpgf/metadata/box2d/',

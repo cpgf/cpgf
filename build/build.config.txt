@@ -108,7 +108,7 @@ set(BOX2D_DIR
 	e:/SourceCode/cpp/Box2D/Box2D
 )
 if(CMAKE_COMPILER_IS_GNUCC)
-	set(BOX2D_LIB ${BOX2D_DIR}/lib/libBox2D.a opengl32 glu32)
+	set(BOX2D_LIB ${BOX2D_DIR}/lib/libBox2D.a)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)

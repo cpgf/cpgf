@@ -127,6 +127,10 @@ sub writeSource
 	$cw->out('#include "cpgf/goutmain.h"' . "\n");
 	$cw->out("\n");
 	
+	my $namespaceSymbol = Util::makeNamespaceSymbol($self->{config});
+	$cw->out('extern const char * ' . $namespaceSymbol . ";\n");
+	$cw->out("\n");
+	
 	$cw->out("using namespace cpgf;\n");
 	$cw->out("\n");
 
@@ -143,15 +147,15 @@ sub writeSource
 
 		$cw->out("{\n");
 		
-		Util::defineMetaClass($cw, $class, '_d', 'define', $class->getPolicyRules(), $self->{config}->{namespace});
-		
 		my $className = $self->getGlobalPostfix();
 		$className = $class->{name} if(not $class->isGlobal());
 		$className = Util::getBaseName($className);
 		$className = ucfirst($className);
 		
 		my $funcName = $self->{config}->{metaClassFunctionPrefix} . $className;
-		$cw->out($funcName . "(0, _d, NULL, GMetaPolicyCopyAllConstReference());\n");
+		my $code = $funcName . "(0, _d, NULL, GMetaPolicyCopyAllConstReference());\n";
+		
+		Util::defineMetaClass($self->{config}, $cw, $class, '_d', 'define', $class->getPolicyRules(), $code);
 		
 		$cw->out("}\n");
 		$cw->out("\n\n");

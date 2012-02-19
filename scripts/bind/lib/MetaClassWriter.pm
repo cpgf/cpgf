@@ -140,8 +140,6 @@ sub writeEnum
 	my $prefix = $self->getScopePrefix();
 	my $action = $self->getAction("_enum");
 
-	my $index = 0;
-
 	foreach(@{$self->{class}->{enumList}}) {
 		my $item = $_;
 		my $name = $item->{name};
@@ -151,9 +149,8 @@ sub writeEnum
 		my $typeName = $typePrefix . $name;
 
 		if($name =~ /\@/ or $name eq '') {
-			$name = 'GlobalEnum_' . $index;
+			$name = 'GlobalEnum_'  . $self->{config}->{id} . "_" . Util::getUniqueID();
 			$typeName = 'long long';
-			++$index;
 		}
 		
 		$cw->out($action . "<" . $typeName . '>(' . $self->getReplace($name) . ")\n");
@@ -175,11 +172,9 @@ sub writeDefine
 	my $prefix = $self->getScopePrefix();
 	my $action = $self->getAction("_enum");
 
-	my $index = 0;
-	
 	return if($#{@{$self->{class}->{defineList}}} < 0);
 
-	$cw->out($action . "<long long>(" . $self->getReplace("GlobalDefine_" . Util::getUniqueID()) . ")\n");
+	$cw->out($action . "<long long>(" . $self->getReplace("GlobalDefine_" . $self->{config}->{id} . "_" . Util::getUniqueID()) . ")\n");
 	$cw->incIndent();
 	
 	foreach(@{$self->{class}->{defineList}}) {
