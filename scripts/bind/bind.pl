@@ -3,6 +3,7 @@ $basePath = '';
 BEGIN {
 	$basePath = $0;
 	$basePath =~ s![^/\\]+$!!;
+	unshift @INC, $basePath;
 	unshift @INC, $basePath . "lib";
 }
 
@@ -77,4 +78,6 @@ sub doMain
 
 		$metaWriter->write();
 	}
+	
+	print "Finished.\n";
 }

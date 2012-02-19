@@ -108,7 +108,7 @@ class GMetaFieldDataMember : public GMetaFieldDataBase
 {
 private:
 	G_STATIC_CONSTANT(bool, Readable = (PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result));
-	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result));
+	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result && !IsArray<FT>::Result));
 
 public:
 	GMetaFieldDataMember(FT OT::* field) : field(field) {

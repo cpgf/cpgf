@@ -18,14 +18,9 @@ set(SUPPORT_GCC_0X
 	1
 )
 
-# whether we have GLUT library
-set(HAS_GLUT
-	1
-)
-
 # To enable unit test, change the below folder to UnitTest++.
 set(UNIT_TEST_DIR
-	/source/UnitTest++
+	e:/SourceCode/cpp/UnitTest++
 )
 
 set(TEST_GCOV 0)
@@ -34,10 +29,24 @@ if(UNIX)
 	set(TEST_GCOV 0)
 endif(UNIX)
 
+
+### Samples config
+
+# whether we have GLUT library
+set(HAS_GLUT
+	1
+)
+
+# whether we have Box2D library
+set(HAS_BOX2D
+	1
+)
+
+
 ### Lua config
 
 set(LUA_DIR
-	/source/lua
+	e:/SourceCode/cpp/lua
 )
 
 set(LUA_INC ${LUA_DIR}/src/ ${LUA_DIR}/etc/)
@@ -58,7 +67,7 @@ endif(UNIX)
 ### V8 config
 
 set(V8_DIR
-	/source/v8
+	e:/SourceCode/cpp/v8
 )
 
 set(V8_INC ${V8_DIR}/include)
@@ -74,16 +83,37 @@ endif(MSVC)
 
 
 ### glut config
-set(GLUT_DIR
-	/Source/freeglut
-)
-
-set(GLUT_INC ${GLUT_DIR}/include)
 
 if(CMAKE_COMPILER_IS_GNUCC)
-	set(GLUT_LIB ${GLUT_DIR}/src/libfreeglutdll.a opengl32 glu32)
+	set(GLUT_DIR
+		e:/SourceCode/cpp/freeglut/mingw
+	)
+	set(GLUT_LIB ${GLUT_DIR}/lib/libfreeglut.a opengl32 glu32)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)
-	set(GLUT_LIB ${GLUT_DIR}/src/freeglut.lib)
+	set(GLUT_DIR
+		e:/SourceCode/cpp/freeglut/vc
+	)
+	set(GLUT_LIB ${GLUT_DIR}/lib/freeglut.lib)
 endif(MSVC)
+
+set(GLUT_INC ${GLUT_DIR}/include)
+
+
+
+### Box2D config
+
+set(BOX2D_DIR
+	e:/SourceCode/cpp/Box2D/Box2D
+)
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(BOX2D_LIB ${BOX2D_DIR}/lib/libBox2D.a opengl32 glu32)
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(MSVC)
+	set(BOX2D_LIB ${BOX2D_DIR}/lib/Box2D.lib)
+endif(MSVC)
+
+set(BOX2D_INC ${BOX2D_DIR}/)
+

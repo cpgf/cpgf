@@ -1,7 +1,10 @@
 TBD version 1.2.6
+	Added meta data for Box2D physical engine.
+	Added a sample application for Box2D binding.
 	Now the OpenGL metadata can be compiled with GCC.
 	Added the OpenGL sample to cmake build file.
 	Added policy GMetaPolicyDestructorAbsent to allow meta data for class with private destructor.
+	Fixed a bug that _class prototype in GMetaDefine is wrong.
 
 2012-02-05 version 1.2.5
 	Support parameters default value for meta invokable. Method, constructor and object functor operator.

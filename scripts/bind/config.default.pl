@@ -9,7 +9,8 @@ $config = {
 
 	# for source code
 	autoRegisterToGlobal => 0,
-	headerIncludePrefix => '',
+	namespace => undef,
 	headerCode => undef,
 	headerReplacer => undef,
+	metaHeaderPath => '',
 };

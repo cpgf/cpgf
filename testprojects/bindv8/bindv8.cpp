@@ -2,7 +2,7 @@
 //#include <tchar.h>
 //#include <conio.h>
 
-int main(int argc, char * argv[])
+int mainXXX(int argc, char * argv[])
 {
 //	_getch();
 

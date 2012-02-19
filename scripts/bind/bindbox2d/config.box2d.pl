@@ -9,9 +9,10 @@ $config = {
 
 	# for source code
 	autoRegisterToGlobal => 1,
-	headerIncludePrefix => undef,
+	namespace => 'box2d',
 	headerCode => '#include "Box2D/Box2D.h"',
 	headerReplacer => \&doHeaderReplace,
+	metaHeaderPath => 'cpgf/metadata/box2d/',
 };
 
 sub doHeaderReplace

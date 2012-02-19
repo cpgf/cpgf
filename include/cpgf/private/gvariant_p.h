@@ -54,7 +54,7 @@ bool isNotFundamental() {
 template <typename From, typename To>
 struct CastVariantSelector {
 	static To cast(const From & v) {
-		return (To)(v);
+		return (To)((typename GIfElse<MaybeEnum<To>::Result, long long, To>::Result)(v));
 	}
 };
 
@@ -105,8 +105,8 @@ template <typename From, typename To>
 struct VariantCaster <From, To, typename GEnableIfResult<
 	GOrResult<
 		IsConvertible<From, To>,
-		GAndResult<MaybeEnum<From>, IsInteger<To> >, // for enum
-		GAndResult<MaybeEnum<To>, IsInteger<From> > // for enum
+		GAndResult<MaybeEnum<From>, IsConvertible<To, int> >, // for enum
+		GAndResult<MaybeEnum<To>, IsConvertible<From, int> > // for enum
 	>
 	>::Result>
 {
@@ -177,7 +177,7 @@ struct CastVariantHelper <From *, To *,
 {
 	G_STATIC_CONSTANT(bool, CanCast = true);
 
-	static To * cast(const From * v) {
+	static To * cast(From * v) {
 		return (To *)(v);
 	}
 };
@@ -307,7 +307,7 @@ struct InitVariantSelector
 				break;
 
 			case vtShadow:
-				initShadowObject<Copyable>(v, value);
+				initShadowObject<Copyable && !IsArray<T>::Result>(v, value);
 				break;
 
 			case vtInterface:
@@ -749,8 +749,8 @@ T castFromObject(const volatile void * obj, typename GDisableIfResult<IsPointer<
 template <typename T, typename Policy>
 struct CastFromVariant
 {
-	typedef typename CastResult<T, Policy>::Result ResultType;
-	typedef typename RemoveReference<T>::Result RefValueType;
+	typedef typename variant_internal::ArrayToPointer<typename CastResult<T, Policy>::Result>::Result ResultType;
+	typedef typename variant_internal::ArrayToPointer<typename RemoveReference<T>::Result>::Result RefValueType;
 
 	static ResultType cast(const GVariant & v) {
 		checkFailCast(canFromVariant<T>(v));

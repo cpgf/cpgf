@@ -15,12 +15,14 @@ set(TARGET_LIB lib)
 set(TARGET_SAMPLELUA samplelua)
 set(TARGET_SAMPLEREFLECTION samplereflection)
 set(TARGET_SAMPLEOPENGL sampleopengl)
+set(TARGET_SAMPLEBOX2D samplebox2d)
 set(TARGET_UNITTEST test)
 
 set(OUTNAME_LIB cpgf)
 set(OUTNAME_SAMPLELUA samplelua)
 set(OUTNAME_SAMPLEREFLECTION samplereflection)
 set(OUTNAME_SAMPLEOPENGL sampleopengl)
+set(OUTNAME_SAMPLEBOX2D samplebox2d)
 set(OUTNAME_UNITTEST test)
 
 set(ROOT_PATH ${PROJECT_SOURCE_DIR}/..)
@@ -31,7 +33,6 @@ set(SRC_PATH ${ROOT_PATH}/src)
 set(SAMPLE_ROOT ${ROOT_PATH}/samples)
 set(SAMPLE_REFLECT_PATH ${SAMPLE_ROOT}/reflection)
 set(SAMPLE_BIND_PATH ${SAMPLE_ROOT}/scriptbind)
-set(SAMPLE_OPENGL_PATH ${SAMPLE_ROOT}/opengl)
 
 set(TEST_PATH ${ROOT_PATH}/test)
 
@@ -206,7 +207,7 @@ endif(${HAS_LUA})
 
 # sample opengl
 if(${HAS_GLUT})
-	file(GLOB GLOB_SAMPLEOPENGL ${SAMPLE_OPENGL_PATH}/*.cpp)
+	file(GLOB GLOB_SAMPLEOPENGL ${SAMPLE_ROOT}/opengl/*.cpp)
 	set(SRC_SAMPLEOPENGL
 		${GLOB_SAMPLEOPENGL}
 		
@@ -234,6 +235,47 @@ if(${HAS_GLUT})
 	
 	target_link_libraries(${TARGET_SAMPLEOPENGL} ${TARGET_LIB} ${GLUT_LIB} ${LUA_LIB} ${V8_LIB})
 endif(${HAS_GLUT})
+
+
+# sample Box2D
+if(${HAS_BOX2D})
+	file(GLOB GLOB_SAMPLEBOX2D ${SAMPLE_ROOT}/box2d/*.cpp)
+	file(GLOB GLOB_METABOX2D ${SRC_PATH}/metadata/box2d/*.cpp)
+	set(SRC_SAMPLEBOX2D
+		${GLOB_SAMPLEBOX2D}
+		${GLOB_METABOX2D}
+		
+		${SAMPLE_ROOT}/opengl/registergl.cpp
+		${SAMPLE_ROOT}/opengl/registerglu.cpp
+		${SAMPLE_ROOT}/opengl/registerglut.cpp
+		${SAMPLE_ROOT}/opengl/registerglut2.cpp
+		${SAMPLE_ROOT}/opengl/registerglut3.cpp
+		
+		${SRC_PATH}/metadata/opengl/gmetadata_openglut.cpp
+		${TEST_PATH}/scriptbind/bind_common.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata.cpp
+	)
+
+	add_executable(
+		${TARGET_SAMPLEBOX2D}
+		EXCLUDE_FROM_ALL
+			${SRC_SAMPLEBOX2D}
+	)
+
+	include_directories(${GLUT_INC})
+	include_directories(${BOX2D_INC})
+
+	set_target_properties(
+		${TARGET_SAMPLEBOX2D}
+		PROPERTIES
+		OUTPUT_NAME ${OUTNAME_SAMPLEBOX2D}
+		COMPILE_FLAGS ${TEST_COMPILE_FLAGS}
+	)
+
+	add_definitions(-DFREEGLUT_EXPORTS)
+	
+	target_link_libraries(${TARGET_SAMPLEBOX2D} ${TARGET_LIB} ${GLUT_LIB} ${BOX2D_LIB} ${LUA_LIB} ${V8_LIB})
+endif(${HAS_BOX2D})
 
 
 

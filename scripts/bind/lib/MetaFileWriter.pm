@@ -96,9 +96,7 @@ sub writeHeader
 	$cw->out("\n\n");
 	$cw->out('#endif');
 	
-	open FH, '>' . $outFileName or die "Can't write to file $outFileName. \n";
-	print FH $cw->{text};
-	close FH;
+	Util::writeToFile($outFileName, $cw->{text});
 }
 
 sub writeSource
@@ -116,18 +114,14 @@ sub writeSource
 		$cw->out($self->{config}->{headerCode});
 		$cw->out("\n");
 	}
-	if(defined($self->{config}->{headerIncludePrefix})) {
-		$cw->out('#include "' . $self->{config}->{headerIncludePrefix} . $self->getBaseFileName() . ".h\"\n");
-		$cw->out("\n");
-	}
-	elsif(defined($self->{config}->{headerReplacer})) {
+	if(defined($self->{config}->{headerReplacer})) {
 		my $fileName = $self->{sourceFileName};
 		$fileName =~ s/\\/\//g;
-		$fileName = &{$self->{config}->{headerReplacer}}($fileName);
+		$fileName = &{$self->{config}->{headerReplacer}}($fileName, $self->getBaseFileName());
 		$cw->out('#include "' . $fileName . "\"\n");
 		$cw->out("\n");
 	}
-	$cw->out('#include "' . $self->getDestFileName() . ".h\"\n");
+	$cw->out('#include "' . $self->{config}->{metaHeaderPath} . $self->getDestFileName() . ".h\"\n");
 	$cw->out("\n");
 	$cw->out('#include "cpgf/gmetapolicy.h"' . "\n");
 	$cw->out('#include "cpgf/goutmain.h"' . "\n");
@@ -149,7 +143,7 @@ sub writeSource
 
 		$cw->out("{\n");
 		
-		Util::defineMetaClass($cw, $class, '_d', 'define', $class->getPolicyRules());
+		Util::defineMetaClass($cw, $class, '_d', 'define', $class->getPolicyRules(), $self->{config}->{namespace});
 		
 		my $className = $self->getGlobalPostfix();
 		$className = $class->{name} if(not $class->isGlobal());
@@ -169,10 +163,8 @@ sub writeSource
 
 	$cw->out("} // unnamed namespace\n");
 	$cw->out("\n");
-
-	open FH, '>' . $outFileName or die "Can't write to file $outFileName. \n";
-	print FH $cw->{text};
-	close FH;
+	
+	Util::writeToFile($outFileName, $cw->{text});
 }
 
 sub invokeMetaFunction

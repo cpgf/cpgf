@@ -388,8 +388,8 @@ public:
 		);
 	}
 
-	template <typename T>
-	GDefineMetaInnerClass<DerivedType> _class(GDefineMetaClass<T> defineClass) {
+	template <typename MetaClass>
+	GDefineMetaInnerClass<DerivedType> _class(MetaClass defineClass) {
 		return GDefineMetaInnerClass<DerivedType>(
 			this->metaClass,
 			this->metaClass->addClass(defineClass.takeMetaClass())

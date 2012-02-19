@@ -7,6 +7,11 @@ use Class;
 
 our @EXPORT = qw(
 	&fatal
+	
+	&getUniqueID
+	
+	&writeToFile
+	
 	&findItemByName
 	&listPush
 	&getBaseName
@@ -26,12 +31,45 @@ our @EXPORT = qw(
 	&itemIsPrivate
 );
 
+my $currentUniqueID = 0;
+
 sub fatal
 {
 	my @msg = @_;
 
 	print @msg;
 	die "\n";
+}
+
+sub getUniqueID
+{
+	++$currentUniqueID;
+	return $currentUniqueID;
+}
+
+sub writeToFile
+{
+	my ($fileName, $content) = @_;
+
+	if(open FH, '<' . $fileName) {
+		my @lines = <FH>;
+
+		close FH;
+
+		my $oldText = join('', @lines);
+
+		if($content eq $oldText) {
+			print "Same file $fileName ... skipped. \n";
+
+			return;
+		}
+
+	}
+
+	print "Write to file $fileName. \n";
+	open FH, '>' . $fileName or die "Can't write to file $fileName. \n";
+	print FH $content;
+	close FH;
 }
 
 sub findItemByName
@@ -122,10 +160,15 @@ sub getBaseFileName
 
 sub defineMetaClass
 {
-	my ($codeWriter, $class, $varName, $action, $rules) = @_;
+	my ($codeWriter, $class, $varName, $action, $rules, $namespace) = @_;
 	
 	if($class->isGlobal()) {
-		$codeWriter->out("GDefineMetaGlobal " . $varName . ";\n");
+		if(defined $namespace) {
+			$codeWriter->out('GDefineMetaClass<void> ' . $varName . ' = GDefineMetaClass<void>::' . $action . '("' . $namespace . "\");\n");
+		}
+		else {
+			$codeWriter->out("GDefineMetaGlobal " . $varName . ";\n");
+		}
 	}
 	else {
 		my $typeName = "GDefineMetaClass<" . $class->{name};
@@ -140,7 +183,14 @@ sub defineMetaClass
 		if(defined($rules) and $#{@{$rules}} >= 0) {
 			$policy = '::Policy<MakePolicy<' . join(', ', @{$rules}) . '> >';
 		}
-		$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::" . $action . "(\"" . Util::getBaseName($class->{name}) . "\");\n");
+		if(defined $namespace) {
+			$codeWriter->out('GDefineMetaClass<void> _ns = GDefineMetaClass<void>::' . $action . '("' . $namespace . "\");\n");
+			$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->{name}) . "\");\n");
+			$codeWriter->out("_ns._class(" . $varName . ");\n");
+		}
+		else {
+			$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::" . $action . "(\"" . Util::getBaseName($class->{name}) . "\");\n");
+		}
 	}
 }
 

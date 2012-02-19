@@ -84,6 +84,8 @@ sub writeField
 		
 		next unless($self->canWrite($item));
 		
+		next if($name =~ /\@/ or $name eq ''); # anonymous union
+		
 		$cw->out($action);
 		$cw->out('(' . $self->getReplace($name) . ", ");
 		$cw->out("&" . $prefix . $name . ", _p);\n");
@@ -112,6 +114,8 @@ sub writeMethod
 		
 		next if($item->{template});
 		next unless($self->canWrite($item));
+		
+		$overload = $overload || $self->{class}->isGlobal();
 
 		$cw->out($action);
 		$cw->out('(' . $self->getReplace($name) . ", ");
@@ -175,7 +179,7 @@ sub writeDefine
 	
 	return if($#{@{$self->{class}->{defineList}}} < 0);
 
-	$cw->out($action . "<long long>(" . $self->getReplace("GlobalDefine_") . ")\n");
+	$cw->out($action . "<long long>(" . $self->getReplace("GlobalDefine_" . Util::getUniqueID()) . ")\n");
 	$cw->incIndent();
 	
 	foreach(@{$self->{class}->{defineList}}) {
@@ -208,22 +212,29 @@ sub writeOperator
 		
 		$cw->out($action . "<" . $item->{returnType} . " (*)(");
 		
-		my $isStatic = ($self->{class}->isGlobal() or $item->{static});
+		my $op = $item->{operator};
 		
-		if(not $isStatic) {
-			if($item->{const}) {
-				$cw->out('const cpgf::GMetaSelf &');
-			}
-			else {
-				$cw->out('cpgf::GMetaSelf');
+		my $isStatic = ($self->{class}->isGlobal() or $item->{static});
+		my $isFunctor = $op eq '()';
+		my $hasSelf = 0;
+		
+		if(not $isFunctor) {
+			if(not $isStatic) {
+				if($item->{const}) {
+					$cw->out('const cpgf::GMetaSelf &');
+				}
+				else {
+					$cw->out('cpgf::GMetaSelf');
+				}
+				
+				$hasSelf = 1;
 			}
 		}
-		my $op = $item->{operator};
 		my $opText = '';
 		if($op eq '++' or $op eq '--') {
 		}
 		else {
-			if($#{@{$item->{paramList}}} >= 0 and not $isStatic) {
+			if($#{@{$item->{paramList}}} >= 0 and $hasSelf) {
 				$cw->out(', ');
 			}
 			Util::writeParamList($cw, $item->{paramList}, 0);
@@ -233,7 +244,7 @@ sub writeOperator
 		if(not $isStatic) {
 			++$realParamCount;
 		}
-		if($op eq '()') {
+		if($isFunctor) {
 			$opText = 'H(H)';
 		}
 		elsif($op eq '[]') {

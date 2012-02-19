@@ -156,6 +156,9 @@ sub parseCompounddef
 	if($kind eq 'class') {
 		$self->parseClass($xmlNode, $location);
 	}
+	elsif($kind eq 'struct') {
+		$self->parseClass($xmlNode, $location);
+	}
 	elsif($kind eq 'file') {
 		if(not defined $self->{fileMap}->{$location}) {
 			$self->{fileMap}->{$location} = new FileInfo(
