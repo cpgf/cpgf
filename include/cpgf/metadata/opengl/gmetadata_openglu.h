@@ -191,7 +191,7 @@ void doBuildMetaData_open_glu_functions(const GMetaDataConfigFlags & config, Met
 	(void)config;
 
 	GM(gluErrorString)
-	GM(gluErrorUnicodeStringEXT)
+//	GM(gluErrorUnicodeStringEXT)
 	GM(gluGetString)
 	GM(gluOrtho2D)
 	GM(gluPerspective)
