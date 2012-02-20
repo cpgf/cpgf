@@ -1,5 +1,7 @@
 package Operator;
 
+use base qw(Item);
+
 use strict;
 use warnings;
 
@@ -8,11 +10,14 @@ sub new
 	my $class = shift || {};
 	my %args = @_;
 
-	my $self = {
-		operator => undef,
+	my $self = {};
 
-		location => undef,
-		visibility => 'public',
+	bless $self, ref $class || $class;
+
+	$self = $self->SUPER::new(%args);
+
+	my $values = {
+		operator => undef,
 
 		static => 0,
 		const => 0,
@@ -25,7 +30,7 @@ sub new
 		%args
 	};
 
-	bless $self, $class;
+	Util::assignValues($self, $values);
 
 	return $self;
 }

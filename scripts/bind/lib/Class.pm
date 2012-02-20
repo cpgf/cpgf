@@ -1,5 +1,7 @@
 package Class;
 
+use base qw(Item);
+
 use strict;
 use warnings;
 
@@ -8,12 +10,13 @@ sub new
 	my $class = shift || {};
 	my %args = @_;
 
-	my $self = {
-		name => undef,
+	my $self = {};
 
-		visibility => 'public',
-		location => undef,
+	bless $self, ref $class || $class;
 
+	$self = $self->SUPER::new(%args);
+
+	my $values = {
 		baseNameList => [], # names of base classes, name~visibility
 		baseList => [], # base classes
 
@@ -37,7 +40,7 @@ sub new
 		%args
 	};
 
-	bless $self, $class;
+	Util::assignValues($self, $values);
 
 	return $self;
 }
@@ -46,7 +49,7 @@ sub isGlobal
 {
 	my ($self) = @_;
 
-	return not defined $self->{name};
+	return not defined $self->getName;
 }
 
 sub isAbstract

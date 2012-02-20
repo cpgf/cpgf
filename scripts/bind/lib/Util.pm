@@ -11,7 +11,12 @@ our @EXPORT = qw(
 	&getUniqueID
 	
 	&makeNamespaceSymbol
+
+	&assignValues
 	
+	&getWrittenFileCount
+	&getSkippedFileCount
+
 	&writeToFile
 	
 	&findItemByName
@@ -35,6 +40,12 @@ our @EXPORT = qw(
 
 my $currentUniqueID = 0;
 
+my $writtenFileCount = 0;
+my $skippedFileCount = 0;
+
+sub getWrittenFileCount { return $writtenFileCount; }
+sub getSkippedFileCount { return $skippedFileCount; }
+
 sub fatal
 {
 	my @msg = @_;
@@ -56,6 +67,15 @@ sub makeNamespaceSymbol
 	return '_mEta_nS_' . $config->{id};
 }
 
+sub assignValues
+{
+	my ($object, $values) = @_;
+
+	foreach(keys %{$values}) {
+		$object->{$_} = $values->{$_};
+	}
+}
+
 sub writeToFile
 {
 	my ($fileName, $content) = @_;
@@ -68,15 +88,19 @@ sub writeToFile
 		my $oldText = join('', @lines);
 
 		if($content eq $oldText) {
-			print "Same file $fileName ... skipped. \n";
+			++$skippedFileCount;
+
+#			print "Same file $fileName ... skipped. \n";
 
 			return;
 		}
 
 	}
 
+	++$writtenFileCount;
+
 	print "Write to file $fileName. \n";
-	open FH, '>' . $fileName or die "Can't write to file $fileName. \n";
+	open FH, '>' . $fileName or fatal("Can't write to file $fileName. \n");
 	print FH $content;
 	close FH;
 }
@@ -87,7 +111,7 @@ sub findItemByName
 
 	foreach(@{$itemList}) {
 		my $base = $_;
-		if(defined($base->{name}) and ($base->{name} eq $name)) {
+		if(defined($base->getName) and ($base->getName eq $name)) {
 			return $base;
 		}
 	}
@@ -185,7 +209,7 @@ sub defineMetaClass
 			$codeWriter->out($code . "\n");
 		}
 		else {
-			my $typeName = "GDefineMetaClass<" . $class->{name};
+			my $typeName = "GDefineMetaClass<" . $class->getName;
 			foreach(@{$class->{baseNameList}}) {
 				my @names = split('~', $_);
 				if($names[1] eq 'public') {
@@ -199,11 +223,11 @@ sub defineMetaClass
 			}
 			if(defined $config->{namespace}) {
 				$codeWriter->out('GDefineMetaClass<void> _ns = GDefineMetaClass<void>::' . $action . '(' . $namespace . ");\n");
-				$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->{name}) . "\");\n");
+				$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->getName) . "\");\n");
 				$codeWriter->out("_ns._class(" . $varName . ");\n");
 			}
 			else {
-				$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::" . $action . "(\"" . Util::getBaseName($class->{name}) . "\");\n");
+				$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::" . $action . "(\"" . Util::getBaseName($class->getName) . "\");\n");
 			}
 			
 			$codeWriter->out($code . "\n");
@@ -228,7 +252,7 @@ sub defineMetaClass
 		$codeWriter->out("}\n");
 	}
 	else {
-		my $typeName = "GDefineMetaClass<" . $class->{name};
+		my $typeName = "GDefineMetaClass<" . $class->getName;
 		foreach(@{$class->{baseNameList}}) {
 			my @names = split('~', $_);
 			if($names[1] eq 'public') {
@@ -243,7 +267,7 @@ sub defineMetaClass
 		$codeWriter->out("if(" . $namespace . ") {\n");
 		$codeWriter->incIndent();
 		$codeWriter->out('GDefineMetaClass<void> _ns = GDefineMetaClass<void>::' . $action . '(' . $namespace . ");\n");
-		$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->{name}) . "\");\n");
+		$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->getName) . "\");\n");
 		$codeWriter->out("_ns._class(" . $varName . ");\n");
 		$codeWriter->out($code . "\n");
 		$codeWriter->decIndent();
@@ -251,7 +275,7 @@ sub defineMetaClass
 
 		$codeWriter->out("else {\n");
 		$codeWriter->incIndent();
-		$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::" . $action . "(\"" . Util::getBaseName($class->{name}) . "\");\n");
+		$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::" . $action . "(\"" . Util::getBaseName($class->getName) . "\");\n");
 		$codeWriter->out($code . "\n");
 		$codeWriter->decIndent();
 		$codeWriter->out("}\n");
@@ -262,21 +286,21 @@ sub itemIsPublic
 {
 	my ($item) = @_;
 
-	return $item->{visibility} eq 'public';
+	return $item->getVisibility eq 'public';
 }
 
 sub itemIsProtected
 {
 	my ($item) = @_;
 
-	return $item->{visibility} eq 'protected';
+	return $item->getVisibility eq 'protected';
 }
 
 sub itemIsPrivate
 {
 	my ($item) = @_;
 
-	return $item->{visibility} eq 'private';
+	return $item->getVisibility eq 'private';
 }
 
 sub fixupClassList
@@ -328,10 +352,10 @@ sub doFixupGlobalItems
 
 	foreach(@{$itemList}) {
 		my $item = $_;
-		my $location = $item->{location};
+		my $location = $item->getLocation;
 		if(not defined $fileMap->{$location}) {
 			$fileMap->{$location} = new Class;
-			$fileMap->{$location}->{location} = $location;
+			$fileMap->{$location}->setLocation($location);
 		}
 		&listPush($item->getList($fileMap->{$location}), $item);
 	}
@@ -371,7 +395,7 @@ sub doFixupInners
 			if(defined $innerClass) {
 				$innerClass->{inner} = 1;
 				push @{$target->{classList}}, $innerClass;
-				$innerClass->{visibility} = $names[1];
+				$innerClass->setVisibility($names[1]);
 			}
 		}
 	}
@@ -412,40 +436,6 @@ sub mergeArrays
 	return $a;
 }
 
-sub dumpClass
-{
-	my ($writer, $class) = @_;
-
-	$writer->out("class " . $class->{name});
-	$writer->out("\n");
-	$writer->out("{\n");
-
-	$writer->addIndent();
-
-	foreach(@{$class->{methodList}}) {
-		my $method = $_;
-		&dumpMethod($writer, $method);
-	}
-
-	$writer->decIndent();
-
-	$writer->out("}\n");
-
-	return $writer->{text};
-}
-
-sub dumpMethod
-{
-	my ($writer, $method) = @_;
-
-	$writer->out($method->{returnType} . ' ' . $method->{name} . '(');
-	writeParamList($writer, $method->{paramList});
-	$writer->out(");");
-	$writer->out("\n");
-
-	return $writer->{text};
-}
-
 sub writeParamList
 {
 	my ($writer, $paramList, $withName) = @_;
@@ -462,7 +452,7 @@ sub writeParam
 {
 	my ($writer, $param, $withName) = @_;
 	
-	$writer->out($param->{type} . ($withName ? ' ' . $param->{name} : ''));
+	$writer->out($param->{type} . ($withName ? ' ' . $param->getName : ''));
 }
 
 

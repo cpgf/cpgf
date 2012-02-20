@@ -63,7 +63,7 @@ sub writeHeader
 			config => $self->{config}
 		);
 		my $className = $self->getGlobalPostfix();
-		$className = $class->{name} if(not $class->isGlobal());
+		$className = $class->getName if(not $class->isGlobal());
 		$className = Util::getBaseName($className);
 		$className = ucfirst($className);
 		
@@ -148,7 +148,7 @@ sub writeSource
 		$cw->out("{\n");
 		
 		my $className = $self->getGlobalPostfix();
-		$className = $class->{name} if(not $class->isGlobal());
+		$className = $class->getName if(not $class->isGlobal());
 		$className = Util::getBaseName($className);
 		$className = ucfirst($className);
 		

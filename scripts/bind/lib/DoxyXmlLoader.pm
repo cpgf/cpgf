@@ -65,7 +65,7 @@ sub takeVisibility
 {
 	my ($self, $xmlNode, $item) = @_;
 
-	$item->{visibility} = $self->getVisibility($xmlNode);
+	$item->setVisibility($self->getVisibility($xmlNode));
 }
 
 sub getLocation
@@ -79,7 +79,7 @@ sub takeLocation
 {
 	my ($self, $xmlNode, $item) = @_;
 
-	$item->{location} = $self->getLocation($xmlNode);
+	$item->setLocation($self->getLocation($xmlNode));
 }
 
 sub resolveNamespace
@@ -87,7 +87,7 @@ sub resolveNamespace
 	my ($self, $item) = @_;
 
 	if(defined $self->{currentNamespace}) {
-		$item->{name} = $self->{currentNamespace} . '::' . $item->{name};
+		$item->setName($self->{currentNamespace} . '::' . $item->getName);
 	}
 }
 
@@ -184,7 +184,7 @@ sub parseDefFile
 	
 	$self->{currentClass} = new Class;
 	Util::listPush($self->{classList}, $self->{currentClass});
-	$self->{currentClass}->{location} = $location;
+	$self->{currentClass}->setLocation($location);
 
 	foreach(@{$xmlNode->getElementsByTagName('sectiondef', 0)}) {
 		$self->parseSectiondef($_);
@@ -209,11 +209,11 @@ sub parseClass
 	my $className = Util::getNodeText(Util::getNode($xmlNode, 'compoundname'));
 
 	my $class = new Class(
-		name => $className
+		_name => $className
 	);
 
 	$self->{currentClass} = $class;
-	$class->{location} = $location;
+	$class->setLocation($location);
 
 	Util::listPush($self->{classList}, $class);
 
@@ -295,7 +295,7 @@ sub parseMethod
 			return;
 		}
 		
-		if(Util::getBaseName($self->{currentClass}->{name}) eq $name) { # constructor
+		if(Util::getBaseName($self->{currentClass}->getName) eq $name) { # constructor
 			my $constructor = new Constructor;
 			$self->parseParams($xmlNode, $constructor->{paramList});
 			$self->parseTemplateParams($xmlNode, $constructor);
@@ -331,7 +331,7 @@ sub parseMethod
 	}
 
 	my $method = new Method(
-		name => $name,
+		_name => $name,
 		returnType => Util::getNodeText(Util::getNode($xmlNode, 'type')),
 		static => Util::valueYesNo(Util::getAttribute($xmlNode, 'static')),
 		const => Util::valueYesNo(Util::getAttribute($xmlNode, 'const')),
@@ -355,7 +355,7 @@ sub parseParams
 	foreach(@{$xmlNode->getElementsByTagName('param', 0)}) {
 		my $node = $_;
 		my $param = new Param(
-			name => Util::getNodeText(Util::getNode($node, 'declname')),
+			_name => Util::getNodeText(Util::getNode($node, 'declname')),
 			type => Util::getNodeText(Util::getNode($node, 'type')),
 			defaultValue => Util::getNodeText(Util::getNode($node, 'defval'))
 		);
@@ -377,7 +377,7 @@ sub parseTemplateParams
 	foreach(@{$xmlNode->getElementsByTagName('param', 0)}) {
 		my $node = $_;
 		my $param = new Param(
-			name => Util::getNodeText(Util::getNode($node, 'declname')),
+			_name => Util::getNodeText(Util::getNode($node, 'declname')),
 			type => Util::getNodeText(Util::getNode($node, 'type')),
 			defaultValue => Util::getNodeText(Util::getNode($node, 'defval'))
 		);
@@ -391,7 +391,7 @@ sub parseField
 	my ($self, $xmlNode) = @_;
 
 	my $field = new Field(
-		name => Util::getNodeText(Util::getNode($xmlNode, 'name')),
+		_name => Util::getNodeText(Util::getNode($xmlNode, 'name')),
 		type => Util::getNodeText(Util::getNode($xmlNode, 'type')),
 		static => Util::valueYesNo(Util::getAttribute($xmlNode, 'static'))
 	);
@@ -406,7 +406,7 @@ sub parseEnum
 	my ($self, $xmlNode) = @_;
 
 	my $enum = new Enum(
-		name => Util::getNodeText(Util::getNode($xmlNode, 'name'))
+		_name => Util::getNodeText(Util::getNode($xmlNode, 'name'))
 	);
 	Util::listPush($self->{currentClass}->{enumList}, $enum);
 	$self->takeVisibility($xmlNode, $enum);
@@ -416,8 +416,8 @@ sub parseEnum
 	foreach(@{$xmlNode->getElementsByTagName('enumvalue', 0)}) {
 		my $node = $_;
 		my $value = new EnumValue(
-			name => Util::getNodeText(Util::getNode($node, 'name')),
-			value => Util::getNodeText(Util::getNode($node, 'initializer'))
+			_name => Util::getNodeText(Util::getNode($node, 'name')),
+			_value => Util::getNodeText(Util::getNode($node, 'initializer'))
 		);
 		Util::listPush($enum->{valueList}, $value);
 	}
@@ -430,8 +430,8 @@ sub parseDefine
 	return if defined Util::getNode($xmlNode, 'param');
 
 	my $define = new Define(
-		name => Util::getNodeText(Util::getNode($xmlNode, 'name')),
-		value => Util::getNodeText(Util::getNode($xmlNode, 'initializer'))
+		_name => Util::getNodeText(Util::getNode($xmlNode, 'name')),
+		_value => Util::getNodeText(Util::getNode($xmlNode, 'initializer'))
 	);
 	Util::listPush($self->{currentClass}->{defineList}, $define);
 	$self->takeVisibility($xmlNode, $define);

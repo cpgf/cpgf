@@ -70,7 +70,7 @@ sub buildFileWriterList
 
 	foreach(@{$self->{classList}}) {
 		my $item = $_;
-		my $location = $item->{location};
+		my $location = $item->getLocation;
 
 		if(not defined $fm{$location}) {
 			$fm{$location} = new MetaFileWriter(

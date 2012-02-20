@@ -80,7 +80,7 @@ sub writeField
 
 	foreach(@{$self->{class}->{fieldList}}) {
 		my $item = $_;
-		my $name = $item->{name};
+		my $name = $item->getName;
 		
 		next unless($self->canWrite($item));
 		
@@ -103,13 +103,13 @@ sub writeMethod
 
 	foreach(@{$self->{class}->{methodList}}) {
 		my $item = $_;
-		my $name = $item->{name};
+		my $name = $item->getName;
 		++$methodOverload{$name};
 	}
 
 	foreach(@{$self->{class}->{methodList}}) {
 		my $item = $_;
-		my $name = $item->{name};
+		my $name = $item->getName;
 		my $overload = $methodOverload{$name} > 1;
 		
 		next if($item->{template});
@@ -142,7 +142,7 @@ sub writeEnum
 
 	foreach(@{$self->{class}->{enumList}}) {
 		my $item = $_;
-		my $name = $item->{name};
+		my $name = $item->getName;
 		
 		next unless($self->canWrite($item));
 
@@ -157,7 +157,7 @@ sub writeEnum
 		$cw->incIndent();
 			foreach(@{$item->{valueList}}) {
 				my $value = $_;
-				my $n = $value->{name};
+				my $n = $value->getName;
 				$cw->out('._element(' . $self->getReplace($n) . ', ' . $prefix . $n . ")\n");
 			}
 		$cw->decIndent();
@@ -180,12 +180,12 @@ sub writeDefine
 	foreach(@{$self->{class}->{defineList}}) {
 		my $item = $_;
 		
-		my $value = $item->{value};
+		my $value = $item->getValue;
 		if((not defined $value) or $value eq '') {
 			next;
 		}
 		
-		$cw->out('._element(' . $self->getReplace($item->{name}) . ', ' . $item->{name} . ")\n");
+		$cw->out('._element(' . $self->getReplace($item->getName) . ', ' . $item->getName . ")\n");
 	}
 	
 	$cw->decIndent();
@@ -201,7 +201,7 @@ sub writeOperator
 
 	foreach(@{$self->{class}->{operatorList}}) {
 		my $item = $_;
-		my $name = $item->{name};
+		my $name = $item->getName;
 		
 		next unless($self->canWrite($item));
 		
@@ -279,7 +279,7 @@ sub writeClass
 
 	foreach(@{$self->{class}->{classList}}) {
 		my $item = $_;
-		my $name = $item->{name};
+		my $name = $item->getName;
 		
 		next unless($self->canWrite($item));
 		
@@ -292,7 +292,7 @@ sub writeClass
 			codeWriter => $cw,
 			config => $self->{config},
 			define => '_nd',
-			classType => $item->{name},
+			classType => $item->getName,
 		);
 		$writer->write();
 		$cw->out($action . "(_nd);\n");

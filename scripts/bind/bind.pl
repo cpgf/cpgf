@@ -79,5 +79,7 @@ sub doMain
 		$metaWriter->write();
 	}
 	
+	print "Wrote " . &Util::getWrittenFileCount . " files. \n";
+	print "Skipped " . &Util::getSkippedFileCount . "\n";
 	print "Finished.\n";
 }
