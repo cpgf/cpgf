@@ -12,11 +12,13 @@ $config = {
 
 	callback => undef,
 
+	headerExtension => '.h',
+	sourceExtension => '.cpp',
+
 	# for source code
 	autoRegisterToGlobal => 0,
 	namespace => undef,
-	hardcodeNamespace => 1,
-	headerCode => undef,
-	headerReplacer => undef,
+	sourceHeaderCode => undef,
+	sourceHeaderReplacer => undef,
 	metaHeaderPath => '',
 };

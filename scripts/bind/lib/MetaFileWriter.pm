@@ -38,7 +38,7 @@ sub writeHeader
 	
 	mkpath(File::Spec->catfile($self->{_config}->{outputDir}, ''));
 
-	my $outFileName = $self->makeOutputFileName('.h');
+	my $outFileName = $self->makeOutputFileName($self->{_config}->{headerExtension});
 	my $cw = new CodeWriter;
 
 	my $guardName = '__' . uc($self->getDestFileName()) . '_H';
@@ -111,20 +111,20 @@ sub writeSource
 	
 	mkpath(File::Spec->catfile($self->{_config}->{cppOutputDir}, ''));
 
-	my $outFileName = File::Spec->catfile($self->{_config}->{cppOutputDir}, $self->getDestFileName()) . '.cpp';
+	my $outFileName = File::Spec->catfile($self->{_config}->{cppOutputDir}, $self->getDestFileName()) . $self->{_config}->{sourceExtension};
 	my $cw = new CodeWriter;
 
 	$cw->out("// Auto generated file, don't modify.\n");
 	$cw->out("\n");
 
-	if(defined($self->{_config}->{headerCode})) {
-		$cw->out($self->{_config}->{headerCode});
+	if(defined($self->{_config}->{sourceHeaderCode})) {
+		$cw->out($self->{_config}->{sourceHeaderCode});
 		$cw->out("\n");
 	}
-	if(defined($self->{_config}->{headerReplacer})) {
+	if(defined($self->{_config}->{sourceHeaderReplacer})) {
 		my $fileName = $self->{_sourceFileName};
 		$fileName =~ s/\\/\//g;
-		$fileName = &{$self->{_config}->{headerReplacer}}($fileName, $self->getBaseFileName());
+		$fileName = &{$self->{_config}->{sourceHeaderReplacer}}($fileName, $self->getBaseFileName());
 		$cw->out('#include "' . $fileName . "\"\n");
 		$cw->out("\n");
 	}

@@ -1,8 +1,6 @@
 A sample for using OpenGL in Lua and Google V8 Javascript
 
-It's only tested on Windows with Microsoft VC.
-
-To compile it, you need to change the related include and lib path in the VC project.
+The build script is included in the main project in folder "build".
 
 The sample requires OpenGL and GLUT, and at least Lua or Google V8 library.
 

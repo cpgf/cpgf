@@ -46,6 +46,8 @@ none: needcmake
 	$(ECHO) "  TARGET=test              Build the unit test."
 	$(ECHO) "  TARGET=samplereflection  Build the reflection sample application."
 	$(ECHO) "  TARGET=samplelua         Build the Lua binding sample application."
+	$(ECHO) "  TARGET=sampleopengl      Build the Opengl binding sample application."
+	$(ECHO) "  TARGET=samplebox2d       Build the Box2D binding sample application."
 	
 needcmake:
 	$(ECHO)

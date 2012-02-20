@@ -216,59 +216,15 @@ sub defineMetaClass
 	
 	my $namespace = Util::makeNamespaceSymbol($config);
 	
-	if($config->{hardcodeNamespace}) {
-		if($class->isGlobal()) {
-			if(defined $config->{namespace}) {
-				$codeWriter->out('GDefineMetaClass<void> ' . $varName . ' = GDefineMetaClass<void>::' . $action . '(' . $namespace . ");\n");
-			}
-			else {
-				$codeWriter->out("GDefineMetaGlobal " . $varName . ";\n");
-			}
-			
-			$codeWriter->out($code . "\n");
+	if($class->isGlobal()) {
+		if(defined $config->{namespace}) {
+			$codeWriter->out('GDefineMetaClass<void> ' . $varName . ' = GDefineMetaClass<void>::' . $action . '(' . $namespace . ");\n");
 		}
 		else {
-			my $typeName = "GDefineMetaClass<" . $class->getName;
-			foreach(@{$class->getBaseNameList}) {
-				my @names = split('~', $_);
-				if($names[1] eq 'public') {
-					$typeName .= ", " . $names[0];
-				}
-			}
-			$typeName .= ">";
-			my $policy = '';
-			if(defined($rules) and $#{@{$rules}} >= 0) {
-				$policy = '::Policy<MakePolicy<' . join(', ', @{$rules}) . '> >';
-			}
-			if(defined $config->{namespace}) {
-				$codeWriter->out('GDefineMetaClass<void> _ns = GDefineMetaClass<void>::' . $action . '(' . $namespace . ");\n");
-				$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->getName) . "\");\n");
-				$codeWriter->out("_ns._class(" . $varName . ");\n");
-			}
-			else {
-				$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::" . $action . "(\"" . Util::getBaseName($class->getName) . "\");\n");
-			}
-			
-			$codeWriter->out($code . "\n");
+			$codeWriter->out("GDefineMetaGlobal " . $varName . ";\n");
 		}
-
-		return;
-	}
-	
-	if($class->isGlobal()) {
-		$codeWriter->out("if(" . $namespace . ") {\n");
-		$codeWriter->incIndent();
-		$codeWriter->out('GDefineMetaClass<void> ' . $varName . ' = GDefineMetaClass<void>::' . $action . '(' . $namespace . ");\n");
-		$codeWriter->out($code . "\n");
-		$codeWriter->decIndent();
-		$codeWriter->out("}\n");
 		
-		$codeWriter->out("else {\n");
-		$codeWriter->incIndent();
-		$codeWriter->out("GDefineMetaGlobal " . $varName . ";\n");
 		$codeWriter->out($code . "\n");
-		$codeWriter->decIndent();
-		$codeWriter->out("}\n");
 	}
 	else {
 		my $typeName = "GDefineMetaClass<" . $class->getName;
@@ -283,21 +239,16 @@ sub defineMetaClass
 		if(defined($rules) and $#{@{$rules}} >= 0) {
 			$policy = '::Policy<MakePolicy<' . join(', ', @{$rules}) . '> >';
 		}
-		$codeWriter->out("if(" . $namespace . ") {\n");
-		$codeWriter->incIndent();
-		$codeWriter->out('GDefineMetaClass<void> _ns = GDefineMetaClass<void>::' . $action . '(' . $namespace . ");\n");
-		$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->getName) . "\");\n");
-		$codeWriter->out("_ns._class(" . $varName . ");\n");
+		if(defined $config->{namespace}) {
+			$codeWriter->out('GDefineMetaClass<void> _ns = GDefineMetaClass<void>::' . $action . '(' . $namespace . ");\n");
+			$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->getName) . "\");\n");
+			$codeWriter->out("_ns._class(" . $varName . ");\n");
+		}
+		else {
+			$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::" . $action . "(\"" . Util::getBaseName($class->getName) . "\");\n");
+		}
+		
 		$codeWriter->out($code . "\n");
-		$codeWriter->decIndent();
-		$codeWriter->out("}\n");
-
-		$codeWriter->out("else {\n");
-		$codeWriter->incIndent();
-		$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::" . $action . "(\"" . Util::getBaseName($class->getName) . "\");\n");
-		$codeWriter->out($code . "\n");
-		$codeWriter->decIndent();
-		$codeWriter->out("}\n");
 	}
 }
 

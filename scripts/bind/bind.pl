@@ -45,11 +45,22 @@ use MetaWriter;
 
 use Data::Dumper;
 
-&usage() if($#xmlFileNames < 0);
+&greeting;
+
+&usage if($#xmlFileNames < 0);
 
 $bindConfig->{outputDir} = $outputPath;
 $bindConfig->{cppOutputDir} = $cppOutputPath;
-&doMain();
+&doMain;
+
+sub greeting
+{
+	print <<EOM;
+cpgf library meta data generating tool.
+Copyright 2012, Wang Qi
+
+EOM
+}
 	
 sub usage
 {
@@ -61,6 +72,7 @@ EOM
 
 sub doMain
 {
+	print "Processing, waiting...\n";
 	foreach(@xmlFileNames) {
 		my $xmlName = $_;
 
@@ -79,7 +91,7 @@ sub doMain
 		$metaWriter->write();
 	}
 	
-	print "Wrote " . &Util::getWrittenFileCount . " files. \n";
-	print "Skipped " . &Util::getSkippedFileCount . "\n";
-	print "Finished.\n";
+	print "Written " . &Util::getWrittenFileCount . " files. \n";
+	print "Skipped " . &Util::getSkippedFileCount . " identical files.\n";
+	print "Done.\n";
 }

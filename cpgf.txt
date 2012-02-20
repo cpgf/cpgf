@@ -1,6 +1,5 @@
 Todo:
 
-1, Refactor binding Perl script, remove the public field, use accessor instead.
 1, Support script override C++ functions. It's difficult. Adding interceptor in meta system is not enough.
 2, Support object pool in interface based api
 3, Test with Lua 5.2
@@ -10,6 +9,7 @@ Todo:
 4, Define meta data for C library?
 
 Done:
+1, Refactor binding Perl script, remove the public field, use accessor instead.
 1, Support byte array to ease binary data accessing in script
 2, Support anonymous enum in script.
 1, Support ExplicitThis policy for property getter and setter separately.

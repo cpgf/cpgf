@@ -1,5 +1,6 @@
 TBD version 1.2.6
 	Added meta data for Box2D physical engine.
+	Added a tool written in Perl to generate meta data from Doxygen XML files automatically. (Basic features, only tested with Box2D)
 	Added a sample application for Box2D binding.
 	Now the OpenGL metadata can be compiled with GCC.
 	Added the OpenGL sample to cmake build file.
