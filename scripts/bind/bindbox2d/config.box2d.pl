@@ -9,6 +9,8 @@ $config = {
 	metaFileFunctionPrefix => 'buildMetaFile_',
 	sourceFilePrefix => 'meta_',
 
+	callback => \&processCallback,
+
 	# for source code
 	autoRegisterToGlobal => 1,
 	namespace => 'box2d',
@@ -17,6 +19,17 @@ $config = {
 	headerReplacer => \&doHeaderReplace,
 	metaHeaderPath => 'cpgf/metadata/box2d/',
 };
+
+sub processCallback
+{
+	my ($item, $callbackParam) = @_;
+
+	if($item->isMethod) {
+		if($item->getName eq 'GetMaxMotorForce') {
+			$callbackParam->{skipBind} = 1;
+		}
+	}
+}
 
 sub doHeaderReplace
 {

@@ -1,3 +1,5 @@
+// Auto generated file, don't modify.
+
 #include "Box2D/Box2D.h"
 #include "Box2D/Dynamics/Contacts/b2Contact.h"
 

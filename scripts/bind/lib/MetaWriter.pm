@@ -13,10 +13,10 @@ sub new
 	my %args = @_;
 
 	my $self = {
-		classList => undef,
-		fileMap => undef,
-		config => undef,
-		fileWriterList => [],
+		_classList => undef,
+		_fileMap => undef,
+		_config => undef,
+		_fileWriterList => [],
 		
 		%args
 	};
@@ -32,7 +32,7 @@ sub write
 
 	$self->buildFileWriterList();
 
-	foreach(@{$self->{fileWriterList}}) {
+	foreach(@{$self->{_fileWriterList}}) {
 		my $fileWriter = $_;
 		$fileWriter->writeHeader();
 		$fileWriter->writeSource();
@@ -45,12 +45,17 @@ sub createNamespaceCpp
 {
 	my ($self) = @_;
 
-	return unless($self->{config}->{autoRegisterToGlobal});
+	return unless($self->{_config}->{autoRegisterToGlobal});
 	
-	my $outFileName = File::Spec->catfile($self->{config}->{cppOutputDir}, 'meta_namespace_' . $self->{config}->{id}) . '.cpp';
-	my $content = 'const char * ' . Util::makeNamespaceSymbol($self->{config}) . ' = ';
-	if(defined $self->{config}->{namespace}) {
-		$content .= '"' . $self->{config}->{namespace} . '"';
+	my $outFileName = File::Spec->catfile($self->{_config}->{cppOutputDir}, 'meta_namespace_' . $self->{_config}->{id}) . '.cpp';
+	my $content = <<EOM;
+// Auto generated file, don't modify.
+
+EOM
+
+	$content .= 'const char * ' . Util::makeNamespaceSymbol($self->{_config}) . ' = ';
+	if(defined $self->{_config}->{namespace}) {
+		$content .= '"' . $self->{_config}->{namespace} . '"';
 	}
 	else {
 		$content .= '0';
@@ -66,21 +71,21 @@ sub buildFileWriterList
 	my %fm = ();
 	
 
-	$self->{fileWriterList} = [];
+	$self->{_fileWriterList} = [];
 
-	foreach(@{$self->{classList}}) {
+	foreach(@{$self->{_classList}}) {
 		my $item = $_;
 		my $location = $item->getLocation;
 
 		if(not defined $fm{$location}) {
 			$fm{$location} = new MetaFileWriter(
-				sourceFileName => $location,
-				fileMap => $self->{fileMap}->{$location},
-				config => $self->{config}
+				_sourceFileName => $location,
+				_fileMap => $self->{_fileMap}->{$location},
+				_config => $self->{_config}
 			);
-			Util::listPush($self->{fileWriterList}, $fm{$location});
+			Util::listPush($self->{_fileWriterList}, $fm{$location});
 		}
-		Util::listPush($fm{$location}->{classList}, $item);
+		$fm{$location}->addClass($item);
 	}
 }
 

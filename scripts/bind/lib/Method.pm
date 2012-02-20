@@ -17,6 +17,8 @@ sub new
 	$self = $self->SUPER::new(%args);
 
 	my $values = {
+		_category => Item::catMethod,
+		
 		_returnType => undef,
 
 		_const => 0,
@@ -43,7 +45,7 @@ sub getList
 {
 	my ($self, $class) = @_;
 
-	return $class->{methodList};
+	return $class->getMethodList;
 }
 
 

@@ -9,9 +9,9 @@ sub new
 	my %args = @_;
 
 	my $self = {
-		indent => 0,
+		_indent => 0,
 
-		text => '',
+		_text => '',
 
 		%args
 	};
@@ -21,32 +21,34 @@ sub new
 	return $self;
 }
 
+sub getText { return shift->{_text}; }
+
 sub incIndent
 {
 	my ($self) = @_;
 
-	++$self->{indent};
+	++$self->{_indent};
 }
 
 sub decIndent
 {
 	my ($self) = @_;
 
-	--$self->{indent};
+	--$self->{_indent};
 }
 
 sub out
 {
 	my ($self, $s) = @_;
 
-	my $indentText = ' ' x ($self->{indent} * 4);
+	my $indentText = ' ' x ($self->{_indent} * 4);
 
-	if($self->{text} =~ /\n$/s) {
-		$self->{text} .= $indentText;
+	if($self->{_text} =~ /\n$/s) {
+		$self->{_text} .= $indentText;
 	}
 
 	$s =~ s/(\n+)([^\n])/$1$2$indentText/msg;
-	$self->{text} .= $s;
+	$self->{_text} .= $s;
 }
 
 

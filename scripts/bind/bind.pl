@@ -71,9 +71,9 @@ sub doMain
 		#print Dumper($loader->{classList});
 
 		my $metaWriter = new MetaWriter(
-			classList => $loader->{classList},
-			fileMap => $loader->{fileMap},
-			config => $bindConfig,
+			_classList => $loader->getClassList,
+			_fileMap => $loader->getFileMap,
+			_config => $bindConfig,
 		);
 
 		$metaWriter->write();

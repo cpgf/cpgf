@@ -9,9 +9,9 @@ sub new
 	my %args = @_;
 
 	my $self = {
-		location => undef,
+		_location => undef,
 
-		namespaceList => [],
+		_namespaceList => [],
 
 		%args
 	};
@@ -20,6 +20,12 @@ sub new
 
 	return $self;
 }
+
+sub getLocation { return shift->{_location}; }
+sub setLocation { my ($self, $value) = @_; $self->{_location} = $value; }
+
+sub getNamespaceList { return shift->{_namespaceList}; }
+sub addNamespace { my ($self, $v) = @_; Util::listPush($self->{_namespaceList}, $v); }
 
 
 1;

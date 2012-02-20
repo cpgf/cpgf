@@ -17,6 +17,8 @@ sub new
 	$self = $self->SUPER::new(%args);
 
 	my $values = {
+		_category => Item::catEnum,
+		
 		_valueList => [],
 
 		%args
@@ -40,7 +42,7 @@ sub getList
 {
 	my ($self, $class) = @_;
 
-	return $class->{enumList};
+	return $class->getEnumList;
 }
 
 

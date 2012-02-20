@@ -1,4 +1,5 @@
-//auto generated file, don't modify.
+// Auto generated file, don't modify.
+
 #ifndef __META_B2LINEJOINT_H
 #define __META_B2LINEJOINT_H
 
@@ -31,7 +32,6 @@ void buildMetaClass_B2LineJoint(const cpgf::GMetaDataConfigFlags & config, D _d,
     _d.CPGF_MD_TEMPLATE _method(replaceName("SetMotorSpeed", _r), &D::ClassType::SetMotorSpeed, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("GetMotorSpeed", _r), &D::ClassType::GetMotorSpeed, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("SetMaxMotorForce", _r), &D::ClassType::SetMaxMotorForce, _p);
-//    _d.CPGF_MD_TEMPLATE _method(replaceName("GetMaxMotorForce", _r), &D::ClassType::GetMaxMotorForce, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("GetMotorForce", _r), &D::ClassType::GetMotorForce, _p);
 }
 

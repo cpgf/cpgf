@@ -9,12 +9,14 @@ sub new
 	my %args = @_;
 
 	my $self = {
-		class => undef,
-		codeWriter => undef,
-		config => undef,
+		_class => undef,
+		_codeWriter => undef,
+		_config => undef,
 		
-		define => '_d',
-		classType => 'D::ClassType',
+		_define => '_d',
+		_classType => 'D::ClassType',
+
+		_callbackParam => undef,
 
 		%args
 	};
@@ -30,12 +32,41 @@ sub getScopePrefix
 
 	$prefix = '' unless defined $prefix;
 
-	if($self->{class}->isGlobal()) {
+	if($self->{_class}->isGlobal()) {
 		return '';
 	}
 	else {
-		return $prefix . $self->{classType} . '::';
+		return $prefix . $self->{_classType} . '::';
 	}
+}
+
+sub doCallback
+{
+	my ($self, $item) = @_;
+
+	if(defined $self->getCallback) {
+		$self->{_callbackParam} = Util::createCallbackParam;
+		&{$self->getCallback}($item, $self->{_callbackParam});
+	}
+	else {
+		$self->{_callbackParam} = Util::createCallbackParam unless defined $self->{_callbackParam};
+	}
+
+	return $item;
+}
+
+sub getCallback
+{
+	my ($self) = @_;
+
+	return $self->{_config}->{callback};
+}
+
+sub skipItem
+{
+	my ($self) = @_;
+
+	return $self->{_callbackParam}->{skipBind};
 }
 
 sub write
@@ -54,14 +85,18 @@ sub write
 sub writeConstructor
 {
 	my ($self) = @_;
-	my $cw = $self->{codeWriter};
+	my $cw = $self->{_codeWriter};
 	my $action = $self->getAction("_constructor");
 
-	return if($self->{class}->isGlobal());
-	return if($self->{class}->isAbstract());
+	return if($self->{_class}->isGlobal());
+	return if($self->{_class}->isAbstract());
 
-	foreach(@{$self->{class}->getConstructorList}) {
+	foreach(@{$self->{_class}->getConstructorList}) {
 		my $item = $_;
+
+		$item = $self->doCallback($item);
+		
+		next if($self->skipItem);
 		
 		next unless($self->canWrite($item));
 		
@@ -74,13 +109,17 @@ sub writeConstructor
 sub writeField
 {
 	my ($self) = @_;
-	my $cw = $self->{codeWriter};
+	my $cw = $self->{_codeWriter};
 	my $prefix = $self->getScopePrefix();
 	my $action = $self->getAction("_field");
 
-	foreach(@{$self->{class}->{fieldList}}) {
+	foreach(@{$self->{_class}->getFieldList}) {
 		my $item = $_;
 		my $name = $item->getName;
+		
+		$item = $self->doCallback($item);
+		
+		next if($self->skipItem);
 		
 		next unless($self->canWrite($item));
 		
@@ -95,27 +134,31 @@ sub writeField
 sub writeMethod
 {
 	my ($self) = @_;
-	my $cw = $self->{codeWriter};
+	my $cw = $self->{_codeWriter};
 	my $prefix = $self->getScopePrefix();
 	my $action = $self->getAction("_method");
 
 	my %methodOverload = ();
 
-	foreach(@{$self->{class}->{methodList}}) {
+	foreach(@{$self->{_class}->getMethodList}) {
 		my $item = $_;
 		my $name = $item->getName;
 		++$methodOverload{$name};
 	}
 
-	foreach(@{$self->{class}->{methodList}}) {
+	foreach(@{$self->{_class}->getMethodList}) {
 		my $item = $_;
 		my $name = $item->getName;
 		my $overload = $methodOverload{$name} > 1;
 		
+		$item = $self->doCallback($item);
+		
+		next if($self->skipItem);
+		
 		next if($item->isTemplate);
 		next unless($self->canWrite($item));
 		
-		$overload = $overload || $self->{class}->isGlobal();
+		$overload = $overload || $self->{_class}->isGlobal();
 
 		$cw->out($action);
 		$cw->out('(' . $self->getReplace($name) . ", ");
@@ -135,21 +178,25 @@ sub writeMethod
 sub writeEnum
 {
 	my ($self) = @_;
-	my $cw = $self->{codeWriter};
+	my $cw = $self->{_codeWriter};
 	my $typePrefix = $self->getScopePrefix('typename ');
 	my $prefix = $self->getScopePrefix();
 	my $action = $self->getAction("_enum");
 
-	foreach(@{$self->{class}->{enumList}}) {
+	foreach(@{$self->{_class}->getEnumList}) {
 		my $item = $_;
 		my $name = $item->getName;
+		
+		$item = $self->doCallback($item);
+		
+		next if($self->skipItem);
 		
 		next unless($self->canWrite($item));
 
 		my $typeName = $typePrefix . $name;
 
 		if($name =~ /\@/ or $name eq '') {
-			$name = 'GlobalEnum_'  . $self->{config}->{id} . "_" . Util::getUniqueID();
+			$name = 'GlobalEnum_'  . $self->{_config}->{id} . "_" . Util::getUniqueID();
 			$typeName = 'long long';
 		}
 		
@@ -168,17 +215,21 @@ sub writeEnum
 sub writeDefine
 {
 	my ($self) = @_;
-	my $cw = $self->{codeWriter};
+	my $cw = $self->{_codeWriter};
 	my $prefix = $self->getScopePrefix();
 	my $action = $self->getAction("_enum");
 
-	return if($#{@{$self->{class}->{defineList}}} < 0);
+	return unless($self->{_class}->getDefineCount > 0);
 
-	$cw->out($action . "<long long>(" . $self->getReplace("GlobalDefine_" . $self->{config}->{id} . "_" . Util::getUniqueID()) . ")\n");
+	$cw->out($action . "<long long>(" . $self->getReplace("GlobalDefine_" . $self->{_config}->{id} . "_" . Util::getUniqueID()) . ")\n");
 	$cw->incIndent();
 	
-	foreach(@{$self->{class}->{defineList}}) {
+	foreach(@{$self->{_class}->getDefineList}) {
 		my $item = $_;
+		
+		$item = $self->doCallback($item);
+		
+		next if($self->skipItem);
 		
 		my $value = $item->getValue;
 		if((not defined $value) or $value eq '') {
@@ -195,13 +246,17 @@ sub writeDefine
 sub writeOperator
 {
 	my ($self) = @_;
-	my $cw = $self->{codeWriter};
+	my $cw = $self->{_codeWriter};
 	my $prefix = $self->getScopePrefix();
 	my $action = $self->getAction("_operator");
 
-	foreach(@{$self->{class}->{operatorList}}) {
+	foreach(@{$self->{_class}->getOperatorList}) {
 		my $item = $_;
 		my $name = $item->getName;
+		
+		$item = $self->doCallback($item);
+		
+		next if($self->skipItem);
 		
 		next unless($self->canWrite($item));
 		
@@ -209,7 +264,7 @@ sub writeOperator
 		
 		my $op = $item->getOperator;
 		
-		my $isStatic = ($self->{class}->isGlobal() or $item->isStatic);
+		my $isStatic = ($self->{_class}->isGlobal() or $item->isStatic);
 		my $isFunctor = $op eq '()';
 		my $hasSelf = 0;
 		
@@ -273,13 +328,17 @@ sub writeOperator
 sub writeClass
 {
 	my ($self) = @_;
-	my $cw = $self->{codeWriter};
+	my $cw = $self->{_codeWriter};
 	my $prefix = $self->getScopePrefix();
 	my $action = $self->getAction("_class");
 
-	foreach(@{$self->{class}->{classList}}) {
+	foreach(@{$self->{_class}->getClassList}) {
 		my $item = $_;
 		my $name = $item->getName;
+		
+		$item = $self->doCallback($item);
+		
+		next if($self->skipItem);
 		
 		next unless($self->canWrite($item));
 		
@@ -288,11 +347,11 @@ sub writeClass
 		
 		Util::defineMetaClass($cw, $item, '_nd', 'declare');
 		my $writer = new MetaClassWriter(
-			class => $item,
-			codeWriter => $cw,
-			config => $self->{config},
-			define => '_nd',
-			classType => $item->getName,
+			_class => $item,
+			_codeWriter => $cw,
+			_config => $self->{_config},
+			_define => '_nd',
+			_classType => $item->getName,
 		);
 		$writer->write();
 		$cw->out($action . "(_nd);\n");
@@ -306,9 +365,9 @@ sub canWrite
 {
 	my ($self, $item) = @_;
 
-	return ($self->{config}->{allowPublic} and Util::itemIsPublic($item))
-		|| ($self->{config}->{allowProtected} and Util::itemIsProtected($item))
-		|| ($self->{config}->{allowPrivate} and Util::itemIsPrivate($item))
+	return ($self->{_config}->{allowPublic} and Util::itemIsPublic($item))
+		|| ($self->{_config}->{allowProtected} and Util::itemIsProtected($item))
+		|| ($self->{_config}->{allowPrivate} and Util::itemIsPrivate($item))
 	;
 }
 
@@ -316,7 +375,7 @@ sub getAction
 {
 	my ($self, $name) = @_;
 	
-	return $self->{define} . '.CPGF_MD_TEMPLATE ' . $name;
+	return $self->{_define} . '.CPGF_MD_TEMPLATE ' . $name;
 }
 
 sub getReplace

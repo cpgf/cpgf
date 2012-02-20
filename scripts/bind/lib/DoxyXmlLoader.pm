@@ -30,11 +30,11 @@ sub new
 	my %args = @_;
 
 	my $self = {
-		classList => [],
-		fileMap => {},
+		_classList => [],
+		_fileMap => {},
 
-		currentClass => undef,
-		currentNamespace => undef,
+		_currentClass => undef,
+		_currentNamespace => undef,
 
 		%args
 	};
@@ -43,6 +43,9 @@ sub new
 
 	return $self;
 }
+
+sub getClassList { return shift->{_classList}; }
+sub getFileMap { return shift->{_fileMap}; }
 
 sub getVisibility
 {
@@ -86,8 +89,8 @@ sub resolveNamespace
 {
 	my ($self, $item) = @_;
 
-	if(defined $self->{currentNamespace}) {
-		$item->setName($self->{currentNamespace} . '::' . $item->getName);
+	if(defined $self->{_currentNamespace}) {
+		$item->setName($self->{_currentNamespace} . '::' . $item->getName);
 	}
 }
 
@@ -95,7 +98,7 @@ sub fixup
 {
 	my ($self) = @_;
 
-	$self->{classList} = Util::fixupClassList($self->{classList});
+	$self->{_classList} = Util::fixupClassList($self->{_classList});
 }
 
 sub parseFile
@@ -160,15 +163,15 @@ sub parseCompounddef
 		$self->parseClass($xmlNode, $location);
 	}
 	elsif($kind eq 'file') {
-		if(not defined $self->{fileMap}->{$location}) {
-			$self->{fileMap}->{$location} = new FileInfo(
+		if(not defined $self->{_fileMap}->{$location}) {
+			$self->{_fileMap}->{$location} = new FileInfo(
 				location => $location
 			);
 		}
-		my $fileInfo = $self->{fileMap}->{$location};
+		my $fileInfo = $self->{_fileMap}->{$location};
 		foreach($xmlNode->getElementsByTagName('innernamespace')) {
 			my $n = $_;
-			&Util::listPush($fileInfo->{namespaceList}, &Util::getNodeText($n));
+			$fileInfo->addNamespace(&Util::getNodeText($n));
 		}
 
 		$self->parseDefFile($xmlNode, $location);
@@ -182,9 +185,9 @@ sub parseDefFile
 {
 	my ($self, $xmlNode, $location) = @_;
 	
-	$self->{currentClass} = new Class;
-	Util::listPush($self->{classList}, $self->{currentClass});
-	$self->{currentClass}->setLocation($location);
+	$self->{_currentClass} = new Class;
+	Util::listPush($self->{_classList}, $self->{_currentClass});
+	$self->{_currentClass}->setLocation($location);
 
 	foreach(@{$xmlNode->getElementsByTagName('sectiondef', 0)}) {
 		$self->parseSectiondef($_);
@@ -195,11 +198,11 @@ sub parseNamespace
 {
 	my ($self, $xmlNode, $location) = @_;
 
-	$self->{currentNamespace} = Util::getNodeText(Util::getNode($xmlNode, 'compoundname'));
+	$self->{_currentNamespace} = Util::getNodeText(Util::getNode($xmlNode, 'compoundname'));
 	
 	$self->parseDefFile($xmlNode, $location);
 
-	$self->{currentNamespace} = undef;
+	$self->{_currentNamespace} = undef;
 }
 
 sub parseClass
@@ -212,10 +215,10 @@ sub parseClass
 		_name => $className
 	);
 
-	$self->{currentClass} = $class;
+	$self->{_currentClass} = $class;
 	$class->setLocation($location);
 
-	Util::listPush($self->{classList}, $class);
+	Util::listPush($self->{_classList}, $class);
 
 	$self->parseBaseClasses($xmlNode);
 	$self->parseInnerClasses($xmlNode);
@@ -236,7 +239,7 @@ sub parseBaseClasses
 	foreach(@{$xmlNode->getElementsByTagName('basecompoundref', 0)}) {
 		my $node = $_;
    		my $name = Util::getNodeText($node) . '~' . $self->getVisibility($node);
-   		Util::listPush($self->{currentClass}->{baseNameList}, $name);
+   		$self->{_currentClass}->addBaseName($name);
    	}
 }
 
@@ -249,7 +252,7 @@ sub parseInnerClasses
 	foreach(@{$xmlNode->getElementsByTagName('innerclass', 0)}) {
 		my $node = $_;
    		my $name = Util::getNodeText($node) . '~' . $self->getVisibility($xmlNode);
-   		Util::listPush($self->{currentClass}->{classNameList}, $name);
+   		$self->{_currentClass}->addClassName($name);
    	}
 }
 
@@ -265,7 +268,10 @@ sub parseSectiondef
 		my $name = Util::getNodeText(Util::getNode($node, 'name'));
 
 		if($kind eq 'function') {
-			$self->parseMethod($node, $name);
+			my $f = $self->parseMethod($node, $name);
+			$self->takeVisibility($node, $f);
+			$self->takeLocation($node, $f);
+			$self->resolveNamespace($f);
 		}
 		elsif($kind eq 'variable') {
 			$self->parseField($node, $name);
@@ -284,27 +290,21 @@ sub parseMethod
 {
 	my ($self, $xmlNode, $name) = @_;
 
-	if(not $self->{currentClass}->isGlobal()) {
+	if(not $self->{_currentClass}->isGlobal()) {
 		if($name =~ /~/) {
 			my $destructor = new Destructor;
-			$self->{currentClass}->setDestructor($destructor);
-			$self->takeVisibility($xmlNode, $destructor);
-			$self->takeLocation($xmlNode, $destructor);
-			$self->resolveNamespace($destructor);
+			$self->{_currentClass}->setDestructor($destructor);
 
-			return;
+			return $destructor;
 		}
 		
-		if(Util::getBaseName($self->{currentClass}->getName) eq $name) { # constructor
+		if(Util::getBaseName($self->{_currentClass}->getName) eq $name) { # constructor
 			my $constructor = new Constructor;
 			$self->parseParams($xmlNode, $constructor);
 			$self->parseTemplateParams($xmlNode, $constructor);
-			$self->{currentClass}->addConstructor($constructor);
-			$self->takeVisibility($xmlNode, $constructor);
-			$self->takeLocation($xmlNode, $constructor);
-			$self->resolveNamespace($constructor);
+			$self->{_currentClass}->addConstructor($constructor);
 
-			return;
+			return $constructor;
 		}
 	}
 
@@ -322,12 +322,9 @@ sub parseMethod
 		}
 		$self->parseParams($xmlNode, $operator);
 		$self->parseTemplateParams($xmlNode, $operator);
-		Util::listPush($self->{currentClass}->{operatorList}, $operator);
-		$self->takeVisibility($xmlNode, $operator);
-		$self->takeLocation($xmlNode, $operator);
-		$self->resolveNamespace($operator);
+		$self->{_currentClass}->addOperator($operator);
 
-		return;
+		return $operator;
 	}
 
 	my $method = new Method(
@@ -340,10 +337,9 @@ sub parseMethod
 	);
 	$self->parseParams($xmlNode, $method);
 	$self->parseTemplateParams($xmlNode, $method);
-	Util::listPush($self->{currentClass}->{methodList}, $method);
-	$self->takeVisibility($xmlNode, $method);
-	$self->takeLocation($xmlNode, $method);
-	$self->resolveNamespace($method);
+	$self->{_currentClass}->addMethod($method);
+
+	return $method;
 }
 
 sub parseParams
@@ -392,7 +388,7 @@ sub parseField
 		_type => Util::getNodeText(Util::getNode($xmlNode, 'type')),
 		_static => Util::valueYesNo(Util::getAttribute($xmlNode, 'static'))
 	);
-	Util::listPush($self->{currentClass}->{fieldList}, $field);
+	$self->{_currentClass}->addField($field);
 	$self->takeVisibility($xmlNode, $field);
 	$self->takeLocation($xmlNode, $field);
 	$self->resolveNamespace($field);
@@ -405,7 +401,7 @@ sub parseEnum
 	my $enum = new Enum(
 		_name => Util::getNodeText(Util::getNode($xmlNode, 'name'))
 	);
-	Util::listPush($self->{currentClass}->{enumList}, $enum);
+	$self->{_currentClass}->addEnum($enum);
 	$self->takeVisibility($xmlNode, $enum);
 	$self->takeLocation($xmlNode, $enum);
 	$self->resolveNamespace($enum);
@@ -430,7 +426,7 @@ sub parseDefine
 		_name => Util::getNodeText(Util::getNode($xmlNode, 'name')),
 		_value => Util::getNodeText(Util::getNode($xmlNode, 'initializer'))
 	);
-	Util::listPush($self->{currentClass}->{defineList}, $define);
+	$self->{_currentClass}->addDefine($define);
 	$self->takeVisibility($xmlNode, $define);
 	$self->takeLocation($xmlNode, $define);
 }

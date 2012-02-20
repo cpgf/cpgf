@@ -10,6 +10,8 @@ $config = {
 	metaFileFunctionPrefix => 'buildMetaFile_',
 	sourceFilePrefix => 'meta_',
 
+	callback => undef,
+
 	# for source code
 	autoRegisterToGlobal => 0,
 	namespace => undef,

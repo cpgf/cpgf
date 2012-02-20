@@ -1,4 +1,5 @@
-//auto generated file, don't modify.
+// Auto generated file, don't modify.
+
 #ifndef __META_B2WELDJOINT_H
 #define __META_B2WELDJOINT_H
 

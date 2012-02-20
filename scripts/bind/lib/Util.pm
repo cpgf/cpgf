@@ -7,6 +7,9 @@ use Class;
 
 our @EXPORT = qw(
 	&fatal
+	&fatalAbstract
+
+	&createCallbackParam
 	
 	&getUniqueID
 	
@@ -52,6 +55,22 @@ sub fatal
 
 	print @msg;
 	die "\n";
+}
+
+sub fatalAbstract
+{
+	my ($methodName) = @_;
+
+	fatal("Invoking abstract method " . ((defined $methodName) ? $methodName : " unknown."));
+}
+
+sub createCallbackParam
+{
+	my $param = {
+		skipBind => 0
+	};
+
+	return $param
 }
 
 sub getUniqueID
@@ -210,7 +229,7 @@ sub defineMetaClass
 		}
 		else {
 			my $typeName = "GDefineMetaClass<" . $class->getName;
-			foreach(@{$class->{baseNameList}}) {
+			foreach(@{$class->getBaseNameList}) {
 				my @names = split('~', $_);
 				if($names[1] eq 'public') {
 					$typeName .= ", " . $names[0];
@@ -253,7 +272,7 @@ sub defineMetaClass
 	}
 	else {
 		my $typeName = "GDefineMetaClass<" . $class->getName;
-		foreach(@{$class->{baseNameList}}) {
+		foreach(@{$class->getBaseNameList}) {
 			my @names = split('~', $_);
 			if($names[1] eq 'public') {
 				$typeName .= ", " . $names[0];
@@ -310,6 +329,7 @@ sub fixupClassList
 	$classList = &doFixupGlobals($classList);
 	$classList = &doFixupBases($classList);
 	$classList = &doFixupInners($classList);
+	$classList = &doFixupOwners($classList);
 
 	return $classList;
 }
@@ -327,11 +347,11 @@ sub doFixupGlobals
 			my $c = $classList->[$i];
 			next unless($c->isGlobal());
 
-			&doFixupGlobalItems(\%fileMap, $c->{fieldList});
-			&doFixupGlobalItems(\%fileMap, $c->{methodList});
-			&doFixupGlobalItems(\%fileMap, $c->{operatorList});
-			&doFixupGlobalItems(\%fileMap, $c->{enumList});
-			&doFixupGlobalItems(\%fileMap, $c->{defineList});
+			&doFixupGlobalItems(\%fileMap, $c->getFieldList);
+			&doFixupGlobalItems(\%fileMap, $c->getMethodList);
+			&doFixupGlobalItems(\%fileMap, $c->getOperatorList);
+			&doFixupGlobalItems(\%fileMap, $c->getEnumList);
+			&doFixupGlobalItems(\%fileMap, $c->getDefineList);
 
 			splice(@{$classList}, $i, 1);
 			$finished = 0;
@@ -367,13 +387,13 @@ sub doFixupBases
 
 	foreach(@{$classList}) {
 		my $target = $_;
-		$target->{baseList} = [];
+		$target->setBaseList([]);
 
-		foreach(@{$target->{baseNameList}}) {
+		foreach(@{$target->getBaseNameList}) {
 			my @names = split('~', $_);
 			my $baseClass = &findItemByName($classList, $names[0]);
 			if(defined $baseClass) {
-				push @{$target->{baseList}}, $baseClass;
+				$target->addBase($baseClass);
 			}
 		}
 	}
@@ -387,14 +407,14 @@ sub doFixupInners
 
 	foreach(@{$classList}) {
 		my $target = $_;
-		$target->{classList} = [];
+		$target->setClassList([]);
 
-		foreach(@{$target->{classNameList}}) {
+		foreach(@{$target->getClassNameList}) {
 			my @names = split('~', $_);
 			my $innerClass = &findItemByName($classList, $names[0]);
 			if(defined $innerClass) {
-				$innerClass->{inner} = 1;
-				push @{$target->{classList}}, $innerClass;
+				$innerClass->setInner(1);
+				$target->addClass($innerClass);
 				$innerClass->setVisibility($names[1]);
 			}
 		}
@@ -402,9 +422,21 @@ sub doFixupInners
 	
 	for(my $i = $#{@{$classList}}; $i >= 0; --$i) {
 		my $c = $classList->[$i];
-		if($c->{inner}) {
+		if($c->isInner) {
 			splice(@{$classList}, $i, 1);
 		}
+	}
+
+	return $classList;
+}
+
+sub doFixupOwners
+{
+	my ($classList) = @_;
+
+	foreach(@{$classList}) {
+		my $target = $_;
+		$target->fixupOwners();
 	}
 
 	return $classList;
@@ -414,13 +446,13 @@ sub mergeClasses
 {
 	my ($a, $b) = @_;
 
-	&mergeArrays($a->{baseList}, $b->{baseList});
+	&mergeArrays($a->getBaseList, $b->getBaseList);
 	&mergeArrays($a->getConstructorList, $b->getConstructorList);
-	&mergeArrays($a->{fieldList}, $b->{fieldList});
-	&mergeArrays($a->{methodList}, $b->{methodList});
-	&mergeArrays($a->{enumList}, $b->{enumList});
-	&mergeArrays($a->{operatorList}, $b->{operatorList});
-	&mergeArrays($a->{classList}, $b->{classList});
+	&mergeArrays($a->getFieldList, $b->getFieldList);
+	&mergeArrays($a->getMethodList, $b->getMethodList);
+	&mergeArrays($a->getEnumList, $b->getEnumList);
+	&mergeArrays($a->getOperatorList, $b->getOperatorList);
+	&mergeArrays($a->getClassList, $b->getClassList);
 
 	return $a;
 }

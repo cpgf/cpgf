@@ -17,6 +17,8 @@ sub new
 	$self = $self->SUPER::new(%args);
 
 	my $values = {
+		_category => Item::catDestructor,
+		
 		%args
 	};
 

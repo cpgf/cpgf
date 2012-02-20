@@ -17,6 +17,8 @@ sub new
 	$self = $self->SUPER::new(%args);
 
 	my $values = {
+		_category => Item::catDefine,
+
 		_value => undef,
 
 		%args
@@ -33,7 +35,7 @@ sub getList
 {
 	my ($self, $class) = @_;
 
-	return $class->{defineList};
+	return $class->getDefineList;
 }
 
 
