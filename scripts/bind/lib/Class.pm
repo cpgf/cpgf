@@ -20,8 +20,8 @@ sub new
 		baseNameList => [], # names of base classes, name~visibility
 		baseList => [], # base classes
 
-		constructorList => [],
-		destructor => undef,
+		_constructorList => [],
+		_destructor => undef,
 		fieldList => [],
 		methodList => [],
 		enumList => [],
@@ -32,9 +32,6 @@ sub new
 
 		defineList => [],
 
-		template => 0,
-		templateParamList => [],
-
 		inner => 0,
 
 		%args
@@ -44,6 +41,12 @@ sub new
 
 	return $self;
 }
+
+sub getConstructorList { return shift->{_constructorList}; }
+sub addConstructor { my ($self, $v) = @_; Util::listPush($self->{_constructorList}, $v); }
+
+sub getDestructor { return shift->{_destructor}; }
+sub setDestructor { my ($self, $v) = @_; $self->{_destructor} = $v; }
 
 sub isGlobal
 {
@@ -58,7 +61,7 @@ sub isAbstract
 
 	foreach(@{$self->{methodList}}) {
 		my $m = $_;
-		if($m->{pureVirtual}) {
+		if($m->isPureVirtual) {
 			return 1;
 		}
 	}
@@ -71,17 +74,17 @@ sub getPolicyRules
 	my ($self) = @_;
 	my $rules = [];
 
-	if(defined($self->{destructor})) { # and !Util::itemIsPublic($self->{destructor})) {
+	if(defined($self->getDestructor) and !Util::itemIsPublic($self->getDestructor)) {
 		Util::listPush($rules, 'GMetaRuleDestructorAbsent');
 	}
 
 	my $hasDefaultCtor = 0;
 	my $hasNonDefaultCtor = 0;
 	my $hasNonPublicDefaultCtor = 0;
-	foreach(@{$self->{constructorList}}) {
+	foreach(@{$self->getConstructorList}) {
 		my $c = $_;
 
-		if($#{@{$c->{paramList}}} < 0) {
+		if(not $c->hasParam) {
 			$hasDefaultCtor = 1;
 			if(!Util::itemIsPublic($c)) {
 				$hasNonPublicDefaultCtor = 1;

@@ -34,7 +34,7 @@ void buildMetaClass_B2BroadPhase(const cpgf::GMetaDataConfigFlags & config, D _d
     _d.CPGF_MD_TEMPLATE _method(replaceName("TestOverlap", _r), &D::ClassType::TestOverlap, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("GetProxyCount", _r), &D::ClassType::GetProxyCount, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("ComputeHeight", _r), &D::ClassType::ComputeHeight, _p);
-    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalEnum_box2d_3", _r))
+    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalEnum_box2d_2", _r))
         ._element(replaceName("e_nullProxy", _r), D::ClassType::e_nullProxy)
     ;
 }

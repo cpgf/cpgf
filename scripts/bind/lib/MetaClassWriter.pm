@@ -60,13 +60,13 @@ sub writeConstructor
 	return if($self->{class}->isGlobal());
 	return if($self->{class}->isAbstract());
 
-	foreach(@{$self->{class}->{constructorList}}) {
+	foreach(@{$self->{class}->getConstructorList}) {
 		my $item = $_;
 		
 		next unless($self->canWrite($item));
 		
 		$cw->out($action . "<void * (");
-		Util::writeParamList($cw, $item->{paramList}, 0);
+		Util::writeParamList($cw, $item->getParamList, 0);
 		$cw->out(")>(_p);\n");
 	}
 }
@@ -112,7 +112,7 @@ sub writeMethod
 		my $name = $item->getName;
 		my $overload = $methodOverload{$name} > 1;
 		
-		next if($item->{template});
+		next if($item->isTemplate);
 		next unless($self->canWrite($item));
 		
 		$overload = $overload || $self->{class}->isGlobal();
@@ -120,10 +120,10 @@ sub writeMethod
 		$cw->out($action);
 		$cw->out('(' . $self->getReplace($name) . ", ");
 		if($overload) {
-			$cw->out("(" . $item->{returnType} . " (" . $prefix . "*) (");
-			Util::writeParamList($cw, $item->{paramList}, 0);
+			$cw->out("(" . $item->getReturnType . " (" . $prefix . "*) (");
+			Util::writeParamList($cw, $item->getParamList, 0);
 			$cw->out(")");
-			if(!$item->{static} and $item->{const}) {
+			if(!$item->isStatic and $item->isConst) {
 				$cw->out(" const");
 			}
 			$cw->out(")");
@@ -155,7 +155,7 @@ sub writeEnum
 		
 		$cw->out($action . "<" . $typeName . '>(' . $self->getReplace($name) . ")\n");
 		$cw->incIndent();
-			foreach(@{$item->{valueList}}) {
+			foreach(@{$item->getValueList}) {
 				my $value = $_;
 				my $n = $value->getName;
 				$cw->out('._element(' . $self->getReplace($n) . ', ' . $prefix . $n . ")\n");
@@ -205,17 +205,17 @@ sub writeOperator
 		
 		next unless($self->canWrite($item));
 		
-		$cw->out($action . "<" . $item->{returnType} . " (*)(");
+		$cw->out($action . "<" . $item->getReturnType . " (*)(");
 		
-		my $op = $item->{operator};
+		my $op = $item->getOperator;
 		
-		my $isStatic = ($self->{class}->isGlobal() or $item->{static});
+		my $isStatic = ($self->{class}->isGlobal() or $item->isStatic);
 		my $isFunctor = $op eq '()';
 		my $hasSelf = 0;
 		
 		if(not $isFunctor) {
 			if(not $isStatic) {
-				if($item->{const}) {
+				if($item->isConst) {
 					$cw->out('const cpgf::GMetaSelf &');
 				}
 				else {
@@ -229,13 +229,13 @@ sub writeOperator
 		if($op eq '++' or $op eq '--') {
 		}
 		else {
-			if($#{@{$item->{paramList}}} >= 0 and $hasSelf) {
+			if($item->hasParam and $hasSelf) {
 				$cw->out(', ');
 			}
-			Util::writeParamList($cw, $item->{paramList}, 0);
+			Util::writeParamList($cw, $item->getParamList, 0);
 		}
 		$cw->out(")>(");
-		my $realParamCount = $#{@{$item->{paramList}}} + 1;
+		my $realParamCount = $item->getParamCount;
 		if(not $isStatic) {
 			++$realParamCount;
 		}

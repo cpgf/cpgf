@@ -17,11 +17,6 @@ sub new
 	$self = $self->SUPER::new(%args);
 
 	my $values = {
-		template => 0,
-
-		paramList => [],
-		templateParamList => [],
-
 		%args
 	};
 
@@ -29,6 +24,7 @@ sub new
 
 	return $self;
 }
+
 
 
 1;

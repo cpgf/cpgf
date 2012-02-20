@@ -9,9 +9,9 @@ sub new
 	my %args = @_;
 
 	my $self = {
-		name => undef,
-		type => undef,
-		defaultValue => undef,
+		_name => undef,
+		_type => undef,
+		_defaultValue => undef,
 
 		%args
 	};
@@ -21,5 +21,8 @@ sub new
 	return $self;
 }
 
+sub getName { return shift->{_name}; }
+sub getType { return shift->{_type}; }
+sub getDeafultValue { return shift->{_defaultValue}; }
 
 1;

@@ -17,15 +17,11 @@ sub new
 	$self = $self->SUPER::new(%args);
 
 	my $values = {
-		operator => undef,
+		_operator => undef,
+		
+		_returnType => undef,
 
-		static => 0,
-		const => 0,
-
-		template => 0,
-
-		paramList => [],
-		templateParamList => [],
+		_const => 0,
 
 		%args
 	};
@@ -34,6 +30,13 @@ sub new
 
 	return $self;
 }
+
+sub isConst { return shift->{_const}; }
+
+sub getOperator { return shift->{_operator}; }
+
+sub getReturnType { return shift->{_returnType}; }
+sub setReturnType { my ($self, $value) = @_; $self->{_returnType} = $value; }
 
 sub getList
 {

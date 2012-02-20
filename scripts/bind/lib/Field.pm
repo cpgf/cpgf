@@ -17,10 +17,8 @@ sub new
 	$self = $self->SUPER::new(%args);
 
 	my $values = {
-		type => undef,
+		_type => undef,
 		
-		static => 0,
-
 		%args
 	};
 
@@ -28,6 +26,8 @@ sub new
 
 	return $self;
 }
+
+sub getType { return shift->{_type}; }
 
 sub getList
 {

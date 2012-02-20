@@ -414,13 +414,13 @@ sub mergeClasses
 {
 	my ($a, $b) = @_;
 
-	$a->{baseList} = &mergeArrays($a->{baseList}, $b->{baseList});
-	$a->{constructorList} = &mergeArrays($a->{constructorList}, $b->{constructorList});
-	$a->{fieldList} = &mergeArrays($a->{fieldList}, $b->{fieldList});
-	$a->{methodList} = &mergeArrays($a->{methodList}, $b->{methodList});
-	$a->{enumList} = &mergeArrays($a->{enumList}, $b->{enumList});
-	$a->{operatorList} = &mergeArrays($a->{operatorList}, $b->{operatorList});
-	$a->{classList} = &mergeArrays($a->{classList}, $b->{classList});
+	&mergeArrays($a->{baseList}, $b->{baseList});
+	&mergeArrays($a->getConstructorList, $b->getConstructorList);
+	&mergeArrays($a->{fieldList}, $b->{fieldList});
+	&mergeArrays($a->{methodList}, $b->{methodList});
+	&mergeArrays($a->{enumList}, $b->{enumList});
+	&mergeArrays($a->{operatorList}, $b->{operatorList});
+	&mergeArrays($a->{classList}, $b->{classList});
 
 	return $a;
 }
@@ -452,7 +452,7 @@ sub writeParam
 {
 	my ($writer, $param, $withName) = @_;
 	
-	$writer->out($param->{type} . ($withName ? ' ' . $param->getName : ''));
+	$writer->out($param->getType . ($withName ? ' ' . $param->getName : ''));
 }
 
 

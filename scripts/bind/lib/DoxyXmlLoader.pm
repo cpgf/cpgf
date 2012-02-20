@@ -287,7 +287,7 @@ sub parseMethod
 	if(not $self->{currentClass}->isGlobal()) {
 		if($name =~ /~/) {
 			my $destructor = new Destructor;
-			$self->{currentClass}->{destructor} = $destructor;
+			$self->{currentClass}->setDestructor($destructor);
 			$self->takeVisibility($xmlNode, $destructor);
 			$self->takeLocation($xmlNode, $destructor);
 			$self->resolveNamespace($destructor);
@@ -297,9 +297,9 @@ sub parseMethod
 		
 		if(Util::getBaseName($self->{currentClass}->getName) eq $name) { # constructor
 			my $constructor = new Constructor;
-			$self->parseParams($xmlNode, $constructor->{paramList});
+			$self->parseParams($xmlNode, $constructor);
 			$self->parseTemplateParams($xmlNode, $constructor);
-			Util::listPush($self->{currentClass}->{constructorList}, $constructor);
+			$self->{currentClass}->addConstructor($constructor);
 			$self->takeVisibility($xmlNode, $constructor);
 			$self->takeLocation($xmlNode, $constructor);
 			$self->resolveNamespace($constructor);
@@ -312,15 +312,15 @@ sub parseMethod
 		my $op = $1;
 		$op =~ s/\s//g;
 		my $operator = new Operator(
-			returnType => Util::getNodeText(Util::getNode($xmlNode, 'type')),
-			operator => $op,
-			static => Util::valueYesNo(Util::getAttribute($xmlNode, 'static')),
-			const => Util::valueYesNo(Util::getAttribute($xmlNode, 'const')),
+			_returnType => Util::getNodeText(Util::getNode($xmlNode, 'type')),
+			_operator => $op,
+			_static => Util::valueYesNo(Util::getAttribute($xmlNode, 'static')),
+			_const => Util::valueYesNo(Util::getAttribute($xmlNode, 'const')),
 		);
-		if($operator->{returnType} eq '') { # type convertion operator, T()
-			$operator->{returnType} = $operator->{operator};
+		if($operator->getReturnType eq '') { # type convertion operator, T()
+			$operator->setReturnType($operator->getOperator);
 		}
-		$self->parseParams($xmlNode, $operator->{paramList});
+		$self->parseParams($xmlNode, $operator);
 		$self->parseTemplateParams($xmlNode, $operator);
 		Util::listPush($self->{currentClass}->{operatorList}, $operator);
 		$self->takeVisibility($xmlNode, $operator);
@@ -332,13 +332,13 @@ sub parseMethod
 
 	my $method = new Method(
 		_name => $name,
-		returnType => Util::getNodeText(Util::getNode($xmlNode, 'type')),
-		static => Util::valueYesNo(Util::getAttribute($xmlNode, 'static')),
-		const => Util::valueYesNo(Util::getAttribute($xmlNode, 'const')),
-		virtual => ((Util::getAttribute($xmlNode, 'virt') eq 'virtual') ? 1 : 0),
-		pureVirtual => ((Util::getAttribute($xmlNode, 'virt') eq 'pure-virtual') ? 1 : 0),
+		_returnType => Util::getNodeText(Util::getNode($xmlNode, 'type')),
+		_static => Util::valueYesNo(Util::getAttribute($xmlNode, 'static')),
+		_const => Util::valueYesNo(Util::getAttribute($xmlNode, 'const')),
+		_virtual => ((Util::getAttribute($xmlNode, 'virt') eq 'virtual') ? 1 : 0),
+		_pureVirtual => ((Util::getAttribute($xmlNode, 'virt') eq 'pure-virtual') ? 1 : 0),
 	);
-	$self->parseParams($xmlNode, $method->{paramList});
+	$self->parseParams($xmlNode, $method);
 	$self->parseTemplateParams($xmlNode, $method);
 	Util::listPush($self->{currentClass}->{methodList}, $method);
 	$self->takeVisibility($xmlNode, $method);
@@ -348,7 +348,7 @@ sub parseMethod
 
 sub parseParams
 {
-	my ($self, $xmlNode, $params) = @_;
+	my ($self, $xmlNode, $item) = @_;
 
 	return unless defined $xmlNode;
 
@@ -356,18 +356,16 @@ sub parseParams
 		my $node = $_;
 		my $param = new Param(
 			_name => Util::getNodeText(Util::getNode($node, 'declname')),
-			type => Util::getNodeText(Util::getNode($node, 'type')),
-			defaultValue => Util::getNodeText(Util::getNode($node, 'defval'))
+			_type => Util::getNodeText(Util::getNode($node, 'type')),
+			_defaultValue => Util::getNodeText(Util::getNode($node, 'defval'))
 		);
-		Util::listPush($params, $param);
+		$item->addParam($param);
 	}
 }
 
 sub parseTemplateParams
 {
 	my ($self, $xmlNode, $item) = @_;
-
-	$item->{template} = 0;
 
 	return unless defined $xmlNode;
 
@@ -378,11 +376,10 @@ sub parseTemplateParams
 		my $node = $_;
 		my $param = new Param(
 			_name => Util::getNodeText(Util::getNode($node, 'declname')),
-			type => Util::getNodeText(Util::getNode($node, 'type')),
-			defaultValue => Util::getNodeText(Util::getNode($node, 'defval'))
+			_type => Util::getNodeText(Util::getNode($node, 'type')),
+			_defaultValue => Util::getNodeText(Util::getNode($node, 'defval'))
 		);
-		Util::listPush($item->{templateParamList}, $param);
-		$item->{template} = 1;
+		$item->addTemplateParam($param);
 	}
 }
 
@@ -392,8 +389,8 @@ sub parseField
 
 	my $field = new Field(
 		_name => Util::getNodeText(Util::getNode($xmlNode, 'name')),
-		type => Util::getNodeText(Util::getNode($xmlNode, 'type')),
-		static => Util::valueYesNo(Util::getAttribute($xmlNode, 'static'))
+		_type => Util::getNodeText(Util::getNode($xmlNode, 'type')),
+		_static => Util::valueYesNo(Util::getAttribute($xmlNode, 'static'))
 	);
 	Util::listPush($self->{currentClass}->{fieldList}, $field);
 	$self->takeVisibility($xmlNode, $field);
@@ -419,7 +416,7 @@ sub parseEnum
 			_name => Util::getNodeText(Util::getNode($node, 'name')),
 			_value => Util::getNodeText(Util::getNode($node, 'initializer'))
 		);
-		Util::listPush($enum->{valueList}, $value);
+		$enum->addValue($value);
 	}
 }
 

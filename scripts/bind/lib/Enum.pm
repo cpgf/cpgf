@@ -17,7 +17,7 @@ sub new
 	$self = $self->SUPER::new(%args);
 
 	my $values = {
-		valueList => [],
+		_valueList => [],
 
 		%args
 	};
@@ -25,6 +25,15 @@ sub new
 	Util::assignValues($self, $values);
 
 	return $self;
+}
+
+sub getValueList { return shift->{_valueList}; }
+
+sub addValue
+{
+	my ($self, $value) = @_;
+
+	Util::listPush($self->{_valueList}, $value);
 }
 
 sub getList

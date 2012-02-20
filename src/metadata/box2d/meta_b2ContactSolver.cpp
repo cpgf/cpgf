@@ -34,7 +34,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 
     {
     GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2ContactSolver> _d = GDefineMetaClass<b2ContactSolver>::Policy<MakePolicy<GMetaRuleDestructorAbsent, GMetaRuleDefaultConstructorAbsent> >::declare("b2ContactSolver");
+    GDefineMetaClass<b2ContactSolver> _d = GDefineMetaClass<b2ContactSolver>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2ContactSolver");
     _ns._class(_d);
     buildMetaClass_B2ContactSolver(0, _d, NULL, GMetaPolicyCopyAllConstReference());
 

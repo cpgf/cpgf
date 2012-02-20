@@ -23,7 +23,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 
     {
     GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2BlockAllocator> _d = GDefineMetaClass<b2BlockAllocator>::Policy<MakePolicy<GMetaRuleDestructorAbsent> >::declare("b2BlockAllocator");
+    GDefineMetaClass<b2BlockAllocator> _d = GDefineMetaClass<b2BlockAllocator>::declare("b2BlockAllocator");
     _ns._class(_d);
     buildMetaClass_B2BlockAllocator(0, _d, NULL, GMetaPolicyCopyAllConstReference());
 

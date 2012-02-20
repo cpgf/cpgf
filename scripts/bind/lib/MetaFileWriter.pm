@@ -143,7 +143,7 @@ sub writeSource
 
 	foreach(@{$self->{classList}}) {
 		my $class = $_;
-		next if($class->{template});
+		next if($class->isTemplate);
 
 		$cw->out("{\n");
 		

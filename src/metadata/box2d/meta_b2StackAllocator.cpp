@@ -23,7 +23,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 
     {
     GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2StackAllocator> _d = GDefineMetaClass<b2StackAllocator>::Policy<MakePolicy<GMetaRuleDestructorAbsent> >::declare("b2StackAllocator");
+    GDefineMetaClass<b2StackAllocator> _d = GDefineMetaClass<b2StackAllocator>::declare("b2StackAllocator");
     _ns._class(_d);
     buildMetaClass_B2StackAllocator(0, _d, NULL, GMetaPolicyCopyAllConstReference());
 
