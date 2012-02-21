@@ -45,17 +45,6 @@ void buildMetaClass_B2DistanceJointDef(const cpgf::GMetaDataConfigFlags & config
 }
 
 
-template <typename D, typename Policy>
-void buildMetaFile_B2DistanceJoint(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
-{
-    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
-    using namespace cpgf;
-    
-    buildMetaClass_B2DistanceJoint(config, _d, _r, _p);
-    buildMetaClass_B2DistanceJointDef(config, _d, _r, _p);
-}
-
-
 
 
 #include "cpgf/metadata/private/gmetadata_footer.h"

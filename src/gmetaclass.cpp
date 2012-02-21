@@ -557,7 +557,9 @@ void GMetaClass::extractTo(GMetaClass * master)
 {
 	for(int i = 0; i < static_cast<int>(mcatCount); ++i) {
 		GMetaCategory c = static_cast<GMetaCategory>(i);
-		this->implement->itemLists[c]->extractTo(master->implement->itemLists[c]);
+		if(this->implement->itemLists[c] != NULL) {
+			this->implement->itemLists[c]->extractTo(master->implement->itemLists[c]);
+		}
 	}
 	this->implement->metaList.extractTo(&master->implement->metaList);
 }

@@ -6,44 +6,30 @@
 #include "cpgf/metadata/box2d/meta_b2Contact.h"
 
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/goutmain.h"
-
-extern const char * _mEta_nS_box2d;
 
 using namespace cpgf;
 
-namespace {
-
-G_AUTO_RUN_BEFORE_MAIN()
+GDefineMetaInfo createMetaClass_B2Contact()
 {
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2Contact> _d = GDefineMetaClass<b2Contact>::Policy<MakePolicy<GMetaRuleDestructorAbsent, GMetaRuleDefaultConstructorAbsent, GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("b2Contact");
-    _ns._class(_d);
     buildMetaClass_B2Contact(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2ContactEdge> _d = GDefineMetaClass<b2ContactEdge>::declare("b2ContactEdge");
-    _ns._class(_d);
-    buildMetaClass_B2ContactEdge(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2ContactRegister> _d = GDefineMetaClass<b2ContactRegister>::declare("b2ContactRegister");
-    _ns._class(_d);
-    buildMetaClass_B2ContactRegister(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
+    return _d.getMetaInfo();
 }
 
-} // unnamed namespace
+
+GDefineMetaInfo createMetaClass_B2ContactEdge()
+{
+    GDefineMetaClass<b2ContactEdge> _d = GDefineMetaClass<b2ContactEdge>::declare("b2ContactEdge");
+    buildMetaClass_B2ContactEdge(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    return _d.getMetaInfo();
+}
+
+
+GDefineMetaInfo createMetaClass_B2ContactRegister()
+{
+    GDefineMetaClass<b2ContactRegister> _d = GDefineMetaClass<b2ContactRegister>::declare("b2ContactRegister");
+    buildMetaClass_B2ContactRegister(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    return _d.getMetaInfo();
+}
+
 

@@ -113,18 +113,6 @@ void buildMetaClass_B2BodyDef(const cpgf::GMetaDataConfigFlags & config, D _d, c
 }
 
 
-template <typename D, typename Policy>
-void buildMetaFile_B2Body(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
-{
-    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
-    using namespace cpgf;
-    
-    buildMetaClass_Global_b2body(config, _d, _r, _p);
-    buildMetaClass_B2Body(config, _d, _r, _p);
-    buildMetaClass_B2BodyDef(config, _d, _r, _p);
-}
-
-
 
 
 #include "cpgf/metadata/private/gmetadata_footer.h"

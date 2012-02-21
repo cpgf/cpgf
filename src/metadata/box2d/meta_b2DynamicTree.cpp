@@ -6,42 +6,30 @@
 #include "cpgf/metadata/box2d/meta_b2DynamicTree.h"
 
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/goutmain.h"
-
-extern const char * _mEta_nS_box2d;
 
 using namespace cpgf;
 
-namespace {
-
-G_AUTO_RUN_BEFORE_MAIN()
+GDefineMetaInfo createMetaClass_Global_b2dynamictree()
 {
-    {
-    GDefineMetaNamespace _d = GDefineMetaNamespace::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _d = GDefineMetaNamespace::dangle("");
     buildMetaClass_Global_b2dynamictree(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2DynamicTree> _d = GDefineMetaClass<b2DynamicTree>::declare("b2DynamicTree");
-    _ns._class(_d);
-    buildMetaClass_B2DynamicTree(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2DynamicTreeNode> _d = GDefineMetaClass<b2DynamicTreeNode>::declare("b2DynamicTreeNode");
-    _ns._class(_d);
-    buildMetaClass_B2DynamicTreeNode(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
+    return _d.getMetaInfo();
 }
 
-} // unnamed namespace
+
+GDefineMetaInfo createMetaClass_B2DynamicTree()
+{
+    GDefineMetaClass<b2DynamicTree> _d = GDefineMetaClass<b2DynamicTree>::declare("b2DynamicTree");
+    buildMetaClass_B2DynamicTree(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    return _d.getMetaInfo();
+}
+
+
+GDefineMetaInfo createMetaClass_B2DynamicTreeNode()
+{
+    GDefineMetaClass<b2DynamicTreeNode> _d = GDefineMetaClass<b2DynamicTreeNode>::declare("b2DynamicTreeNode");
+    buildMetaClass_B2DynamicTreeNode(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    return _d.getMetaInfo();
+}
+
 

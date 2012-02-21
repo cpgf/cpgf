@@ -6,42 +6,30 @@
 #include "cpgf/metadata/box2d/meta_b2PulleyJoint.h"
 
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/goutmain.h"
-
-extern const char * _mEta_nS_box2d;
 
 using namespace cpgf;
 
-namespace {
-
-G_AUTO_RUN_BEFORE_MAIN()
+GDefineMetaInfo createMetaClass_Global_b2pulleyjoint()
 {
-    {
-    GDefineMetaNamespace _d = GDefineMetaNamespace::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _d = GDefineMetaNamespace::dangle("");
     buildMetaClass_Global_b2pulleyjoint(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2PulleyJoint, b2Joint> _d = GDefineMetaClass<b2PulleyJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2PulleyJoint");
-    _ns._class(_d);
-    buildMetaClass_B2PulleyJoint(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2PulleyJointDef, b2JointDef> _d = GDefineMetaClass<b2PulleyJointDef, b2JointDef>::declare("b2PulleyJointDef");
-    _ns._class(_d);
-    buildMetaClass_B2PulleyJointDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
+    return _d.getMetaInfo();
 }
 
-} // unnamed namespace
+
+GDefineMetaInfo createMetaClass_B2PulleyJoint()
+{
+    GDefineMetaClass<b2PulleyJoint, b2Joint> _d = GDefineMetaClass<b2PulleyJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2PulleyJoint");
+    buildMetaClass_B2PulleyJoint(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    return _d.getMetaInfo();
+}
+
+
+GDefineMetaInfo createMetaClass_B2PulleyJointDef()
+{
+    GDefineMetaClass<b2PulleyJointDef, b2JointDef> _d = GDefineMetaClass<b2PulleyJointDef, b2JointDef>::declare("b2PulleyJointDef");
+    buildMetaClass_B2PulleyJointDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    return _d.getMetaInfo();
+}
+
 

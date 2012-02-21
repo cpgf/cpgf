@@ -53,18 +53,6 @@ void buildMetaClass_B2Pair(const cpgf::GMetaDataConfigFlags & config, D _d, cons
 }
 
 
-template <typename D, typename Policy>
-void buildMetaFile_B2BroadPhase(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
-{
-    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
-    using namespace cpgf;
-    
-    buildMetaClass_Global_b2broadphase(config, _d, _r, _p);
-    buildMetaClass_B2BroadPhase(config, _d, _r, _p);
-    buildMetaClass_B2Pair(config, _d, _r, _p);
-}
-
-
 
 
 #include "cpgf/metadata/private/gmetadata_footer.h"

@@ -6,26 +6,14 @@
 #include "cpgf/metadata/box2d/meta_b2TOISolver.h"
 
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/goutmain.h"
-
-extern const char * _mEta_nS_box2d;
 
 using namespace cpgf;
 
-namespace {
-
-G_AUTO_RUN_BEFORE_MAIN()
+GDefineMetaInfo createMetaClass_B2TOISolver()
 {
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2TOISolver> _d = GDefineMetaClass<b2TOISolver>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2TOISolver");
-    _ns._class(_d);
     buildMetaClass_B2TOISolver(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
+    return _d.getMetaInfo();
 }
 
-} // unnamed namespace
 

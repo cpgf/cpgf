@@ -141,24 +141,6 @@ void buildMetaClass_Features(const cpgf::GMetaDataConfigFlags & config, D _d, co
 }
 
 
-template <typename D, typename Policy>
-void buildMetaFile_B2Collision(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
-{
-    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
-    using namespace cpgf;
-    
-    buildMetaClass_Global_b2collision(config, _d, _r, _p);
-    buildMetaClass_B2AABB(config, _d, _r, _p);
-    buildMetaClass_B2ClipVertex(config, _d, _r, _p);
-    buildMetaClass_B2Manifold(config, _d, _r, _p);
-    buildMetaClass_B2ManifoldPoint(config, _d, _r, _p);
-    buildMetaClass_B2RayCastInput(config, _d, _r, _p);
-    buildMetaClass_B2RayCastOutput(config, _d, _r, _p);
-    buildMetaClass_B2WorldManifold(config, _d, _r, _p);
-    buildMetaClass_Features(config, _d, _r, _p);
-}
-
-
 
 
 #include "cpgf/metadata/private/gmetadata_footer.h"

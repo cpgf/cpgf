@@ -6,35 +6,22 @@
 #include "cpgf/metadata/box2d/meta_b2WeldJoint.h"
 
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/goutmain.h"
-
-extern const char * _mEta_nS_box2d;
 
 using namespace cpgf;
 
-namespace {
-
-G_AUTO_RUN_BEFORE_MAIN()
+GDefineMetaInfo createMetaClass_B2WeldJoint()
 {
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2WeldJoint, b2Joint> _d = GDefineMetaClass<b2WeldJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2WeldJoint");
-    _ns._class(_d);
     buildMetaClass_B2WeldJoint(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2WeldJointDef, b2JointDef> _d = GDefineMetaClass<b2WeldJointDef, b2JointDef>::declare("b2WeldJointDef");
-    _ns._class(_d);
-    buildMetaClass_B2WeldJointDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
+    return _d.getMetaInfo();
 }
 
-} // unnamed namespace
+
+GDefineMetaInfo createMetaClass_B2WeldJointDef()
+{
+    GDefineMetaClass<b2WeldJointDef, b2JointDef> _d = GDefineMetaClass<b2WeldJointDef, b2JointDef>::declare("b2WeldJointDef");
+    buildMetaClass_B2WeldJointDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    return _d.getMetaInfo();
+}
+
 

@@ -7,18 +7,23 @@ $config = {
 	allowPrivate => 0,
 	
 	metaClassFunctionPrefix => 'buildMetaClass_',
-	metaFileFunctionPrefix => 'buildMetaFile_',
+	metaClassCreatePrefix => 'createMetaClass_',
+
+	metaClassMainRegisterPrefix => 'registerMain_',
+
 	sourceFilePrefix => 'meta_',
+	mainSourceFilePrefix => 'register_main_',
 
 	callback => undef,
 
 	headerExtension => '.h',
 	sourceExtension => '.cpp',
 
-	# for source code
-	autoRegisterToGlobal => 0,
-	namespace => undef,
 	sourceHeaderCode => undef,
 	sourceHeaderReplacer => undef,
 	metaHeaderPath => '',
+	
+	# auto register to global?
+	autoRegisterToGlobal => 0,
+	namespace => undef,
 };

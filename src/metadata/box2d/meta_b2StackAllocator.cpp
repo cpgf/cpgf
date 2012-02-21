@@ -6,42 +6,30 @@
 #include "cpgf/metadata/box2d/meta_b2StackAllocator.h"
 
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/goutmain.h"
-
-extern const char * _mEta_nS_box2d;
 
 using namespace cpgf;
 
-namespace {
-
-G_AUTO_RUN_BEFORE_MAIN()
+GDefineMetaInfo createMetaClass_Global_b2stackallocator()
 {
-    {
-    GDefineMetaNamespace _d = GDefineMetaNamespace::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _d = GDefineMetaNamespace::dangle("");
     buildMetaClass_Global_b2stackallocator(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2StackAllocator> _d = GDefineMetaClass<b2StackAllocator>::declare("b2StackAllocator");
-    _ns._class(_d);
-    buildMetaClass_B2StackAllocator(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2StackEntry> _d = GDefineMetaClass<b2StackEntry>::declare("b2StackEntry");
-    _ns._class(_d);
-    buildMetaClass_B2StackEntry(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
+    return _d.getMetaInfo();
 }
 
-} // unnamed namespace
+
+GDefineMetaInfo createMetaClass_B2StackAllocator()
+{
+    GDefineMetaClass<b2StackAllocator> _d = GDefineMetaClass<b2StackAllocator>::declare("b2StackAllocator");
+    buildMetaClass_B2StackAllocator(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    return _d.getMetaInfo();
+}
+
+
+GDefineMetaInfo createMetaClass_B2StackEntry()
+{
+    GDefineMetaClass<b2StackEntry> _d = GDefineMetaClass<b2StackEntry>::declare("b2StackEntry");
+    buildMetaClass_B2StackEntry(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    return _d.getMetaInfo();
+}
+
 

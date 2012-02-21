@@ -41,11 +41,10 @@ sub writeHeader
 	my $outFileName = $self->makeOutputFileName($self->{_config}->{headerExtension});
 	my $cw = new CodeWriter;
 
-	my $guardName = '__' . uc($self->getDestFileName()) . '_H';
+	Util::writeAutoComment($cw);	
+
+	my $guardName = '__' . uc(Util::normalizeSymbol($self->getDestFileName())) . '_H';
 	$guardName =~ s/\./_/g;
-	
-	$cw->out("// Auto generated file, don't modify.\n");
-	$cw->out("\n");
 
 	$cw->out('#ifndef ' . $guardName . "\n");
 	$cw->out('#define ' . $guardName . "\n");
@@ -66,12 +65,9 @@ sub writeHeader
 			_codeWriter => $cw,
 			_config => $self->{_config}
 		);
-		my $className = $self->getGlobalPostfix();
-		$className = $class->getName if(not $class->isGlobal());
-		$className = Util::getBaseName($className);
-		$className = ucfirst($className);
 		
-		my $funcName = $self->{_config}->{metaClassFunctionPrefix} . $className;
+		my $funcName = $self->createFunctionName($class, $self->{_config}->{metaClassFunctionPrefix});
+
 		push @buildFunctionNameList, $funcName;
 		
 		$self->beginMetaFunction($cw, $funcName);
@@ -81,15 +77,6 @@ sub writeHeader
 		$cw->out("\n\n");
 	}
 
-	my $fileFuncName = $self->{_config}->{metaFileFunctionPrefix} . ucfirst($self->getBaseFileName());
-	$fileFuncName =~ s/\./_/g;
-	$self->beginMetaFunction($cw, $fileFuncName);
-	foreach(@buildFunctionNameList) {
-		$self->invokeMetaFunction($cw, $_);
-	}
-	$self->endMetaFunction($cw);
-	
-	$cw->out("\n\n");
 	foreach(@{$self->{_fileMap}->getNamespaceList}) {
 		my $ns = $_;
 		$cw->out("using namespace " . $ns . ";\n");
@@ -105,7 +92,7 @@ sub writeHeader
 
 sub writeSource
 {
-	my ($self) = @_;
+	my ($self, $createFunctionNames) = @_;
 
 	return unless($self->{_config}->{autoRegisterToGlobal});
 	
@@ -114,8 +101,7 @@ sub writeSource
 	my $outFileName = File::Spec->catfile($self->{_config}->{cppOutputDir}, $self->getDestFileName()) . $self->{_config}->{sourceExtension};
 	my $cw = new CodeWriter;
 
-	$cw->out("// Auto generated file, don't modify.\n");
-	$cw->out("\n");
+	Util::writeAutoComment($cw);	
 
 	if(defined($self->{_config}->{sourceHeaderCode})) {
 		$cw->out($self->{_config}->{sourceHeaderCode});
@@ -131,58 +117,48 @@ sub writeSource
 	$cw->out('#include "' . $self->{_config}->{metaHeaderPath} . $self->getDestFileName() . ".h\"\n");
 	$cw->out("\n");
 	$cw->out('#include "cpgf/gmetapolicy.h"' . "\n");
-	$cw->out('#include "cpgf/goutmain.h"' . "\n");
-	$cw->out("\n");
-	
-	my $namespaceSymbol = Util::makeNamespaceSymbol($self->{_config});
-	$cw->out('extern const char * ' . $namespaceSymbol . ";\n");
 	$cw->out("\n");
 	
 	$cw->out("using namespace cpgf;\n");
 	$cw->out("\n");
 
-	$cw->out("namespace {\n");
-	$cw->out("\n");
-
-	$cw->out("G_AUTO_RUN_BEFORE_MAIN()\n");
-	$cw->out("{\n");
-	$cw->incIndent();
-
 	foreach(@{$self->{_classList}}) {
 		my $class = $_;
 		next if($class->isTemplate);
 
+		my $funcName = $self->createFunctionName($class, $self->{_config}->{metaClassCreatePrefix});
+		Util::listPush($createFunctionNames, $funcName);
+
+		$cw->out("GDefineMetaInfo $funcName()\n");
 		$cw->out("{\n");
 		
-		my $className = $self->getGlobalPostfix();
-		$className = $class->getName if(not $class->isGlobal());
-		$className = Util::getBaseName($className);
-		$className = ucfirst($className);
+		$cw->incIndent();
 		
-		my $funcName = $self->{_config}->{metaClassFunctionPrefix} . $className;
-		my $code = $funcName . "(0, _d, NULL, GMetaPolicyCopyAllConstReference());\n";
+		Util::createMetaClass($self->{_config}, $cw, $class, '_d', $class->getPolicyRules());
 		
-		Util::defineMetaClass($self->{_config}, $cw, $class, '_d', 'define', $class->getPolicyRules(), $code);
+		my $callFunc = $self->createFunctionName($class, $self->{_config}->{metaClassFunctionPrefix});
+		$cw->out("$callFunc(0, _d, NULL, GMetaPolicyCopyAllConstReference());\n");
+		$cw->out("return _d.getMetaInfo();\n");
 		
+		$cw->decIndent();
+
 		$cw->out("}\n");
 		$cw->out("\n\n");
 	}
-
-	$cw->decIndent();
-	$cw->out("}\n");
-	$cw->out("\n");
-
-	$cw->out("} // unnamed namespace\n");
-	$cw->out("\n");
 	
 	Util::writeToFile($outFileName, $cw->getText);
 }
 
-sub invokeMetaFunction
+sub createFunctionName
 {
-	my ($self, $cw, $name) = @_;
+	my ($self, $class, $prefix) = @_;
 
-	$cw->out($name . "(config, _d, _r, _p);\n");
+	my $className = $self->getGlobalPostfix();
+	$className = $class->getName if(not $class->isGlobal());
+	$className = Util::getBaseName($className);
+	$className = ucfirst($className);
+		
+	return $prefix . $className;
 }
 
 sub beginMetaFunction
@@ -217,11 +193,20 @@ sub getGlobalPostfix
 {
 	my ($self) = @_;
 	
-	my $g = 'global_' . Util::getBaseFileName(basename($self->{_sourceFileName}));
+	my $g = 'global_' . $self->getFileNameSymbol;
 	$g = lc($g);
-	$g =~ s/\./_/g;
 
 	return $g;
+}
+
+sub getFileNameSymbol
+{
+	my ($self) = @_;
+	
+	my $s = Util::getBaseFileName(basename($self->{_sourceFileName}));
+	$s =~ s/\./_/g;
+
+	return $s;
 }
 
 sub getBaseFileName

@@ -78,20 +78,6 @@ void buildMetaClass_B2SimplexCache(const cpgf::GMetaDataConfigFlags & config, D 
 }
 
 
-template <typename D, typename Policy>
-void buildMetaFile_B2Distance(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
-{
-    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
-    using namespace cpgf;
-    
-    buildMetaClass_Global_b2distance(config, _d, _r, _p);
-    buildMetaClass_B2DistanceInput(config, _d, _r, _p);
-    buildMetaClass_B2DistanceOutput(config, _d, _r, _p);
-    buildMetaClass_B2DistanceProxy(config, _d, _r, _p);
-    buildMetaClass_B2SimplexCache(config, _d, _r, _p);
-}
-
-
 
 
 #include "cpgf/metadata/private/gmetadata_footer.h"

@@ -6,33 +6,22 @@
 #include "cpgf/metadata/box2d/meta_b2Settings.h"
 
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/goutmain.h"
-
-extern const char * _mEta_nS_box2d;
 
 using namespace cpgf;
 
-namespace {
-
-G_AUTO_RUN_BEFORE_MAIN()
+GDefineMetaInfo createMetaClass_Global_b2settings()
 {
-    {
-    GDefineMetaNamespace _d = GDefineMetaNamespace::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _d = GDefineMetaNamespace::dangle("");
     buildMetaClass_Global_b2settings(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2Version> _d = GDefineMetaClass<b2Version>::declare("b2Version");
-    _ns._class(_d);
-    buildMetaClass_B2Version(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
+    return _d.getMetaInfo();
 }
 
-} // unnamed namespace
+
+GDefineMetaInfo createMetaClass_B2Version()
+{
+    GDefineMetaClass<b2Version> _d = GDefineMetaClass<b2Version>::declare("b2Version");
+    buildMetaClass_B2Version(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    return _d.getMetaInfo();
+}
+
 

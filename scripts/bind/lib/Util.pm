@@ -29,7 +29,9 @@ our @EXPORT = qw(
 	&getAttribute
 
 	&getBaseFileName
+	
 	&defineMetaClass
+	&createMetaClass
 
 	&fixupClassList
 	&dumpClass
@@ -39,6 +41,9 @@ our @EXPORT = qw(
 	&itemIsPublic
 	&itemIsProtected
 	&itemIsPrivate
+
+	&writeAutoComment
+	&normalizeSymbol
 );
 
 my $currentUniqueID = 0;
@@ -212,9 +217,10 @@ sub getBaseFileName
 
 sub defineMetaClass
 {
-	my ($config, $codeWriter, $class, $varName, $action, $rules, $code) = @_;
+	my ($config, $codeWriter, $class, $varName, $action) = @_;
+	my $rules = $class->getPolicyRules();
 	
-	my $namespace = Util::makeNamespaceSymbol($config);
+	my $namespace = '"' . ((defined $config->{namespace}) ? $config->{namespace} : '') . '"';
 	
 	if($class->isGlobal()) {
 		if(defined $config->{namespace}) {
@@ -223,8 +229,6 @@ sub defineMetaClass
 		else {
 			$codeWriter->out("GDefineMetaGlobal " . $varName . ";\n");
 		}
-		
-		$codeWriter->out($code . "\n");
 	}
 	else {
 		my $typeName = "GDefineMetaClass<" . $class->getName;
@@ -247,8 +251,30 @@ sub defineMetaClass
 		else {
 			$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::" . $action . "(\"" . Util::getBaseName($class->getName) . "\");\n");
 		}
-		
-		$codeWriter->out($code . "\n");
+	}
+}
+
+sub createMetaClass
+{
+	my ($config, $codeWriter, $class, $varName, $rules) = @_;
+	
+	if($class->isGlobal()) {
+		$codeWriter->out("GDefineMetaNamespace $varName = GDefineMetaNamespace::dangle(\"\");\n");
+	}
+	else {
+		my $typeName = "GDefineMetaClass<" . $class->getName;
+		foreach(@{$class->getBaseNameList}) {
+			my @names = split('~', $_);
+			if($names[1] eq 'public') {
+				$typeName .= ", " . $names[0];
+			}
+		}
+		$typeName .= ">";
+		my $policy = '';
+		if(defined($rules) and $#{@{$rules}} >= 0) {
+			$policy = '::Policy<MakePolicy<' . join(', ', @{$rules}) . '> >';
+		}
+		$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->getName) . "\");\n");
 	}
 }
 
@@ -438,5 +464,21 @@ sub writeParam
 	$writer->out($param->getType . ($withName ? ' ' . $param->getName : ''));
 }
 
+sub writeAutoComment
+{
+	my ($writer) = @_;
+	
+	$writer->out("// Auto generated file, don't modify.\n");
+	$writer->out("\n");
+}
+
+sub normalizeSymbol
+{
+	my ($s) = @_;
+	
+	$s =~ s/\./_/g;
+
+	return $s;
+}
 
 1;

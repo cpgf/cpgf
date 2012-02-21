@@ -172,22 +172,6 @@ void buildMetaClass_B2Vec3(const cpgf::GMetaDataConfigFlags & config, D _d, cons
 }
 
 
-template <typename D, typename Policy>
-void buildMetaFile_B2Math(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
-{
-    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
-    using namespace cpgf;
-    
-    buildMetaClass_Global_b2math(config, _d, _r, _p);
-    buildMetaClass_B2Mat22(config, _d, _r, _p);
-    buildMetaClass_B2Mat33(config, _d, _r, _p);
-    buildMetaClass_B2Sweep(config, _d, _r, _p);
-    buildMetaClass_B2Transform(config, _d, _r, _p);
-    buildMetaClass_B2Vec2(config, _d, _r, _p);
-    buildMetaClass_B2Vec3(config, _d, _r, _p);
-}
-
-
 
 
 #include "cpgf/metadata/private/gmetadata_footer.h"

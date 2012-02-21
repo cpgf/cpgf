@@ -116,23 +116,6 @@ void buildMetaClass_B2RayCastCallback(const cpgf::GMetaDataConfigFlags & config,
 }
 
 
-template <typename D, typename Policy>
-void buildMetaFile_B2WorldCallbacks(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
-{
-    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
-    using namespace cpgf;
-    
-    buildMetaClass_B2Color(config, _d, _r, _p);
-    buildMetaClass_B2ContactFilter(config, _d, _r, _p);
-    buildMetaClass_B2ContactImpulse(config, _d, _r, _p);
-    buildMetaClass_B2ContactListener(config, _d, _r, _p);
-    buildMetaClass_B2DebugDraw(config, _d, _r, _p);
-    buildMetaClass_B2DestructionListener(config, _d, _r, _p);
-    buildMetaClass_B2QueryCallback(config, _d, _r, _p);
-    buildMetaClass_B2RayCastCallback(config, _d, _r, _p);
-}
-
-
 
 
 #include "cpgf/metadata/private/gmetadata_footer.h"

@@ -5,6 +5,8 @@ TBD version 1.2.6
 	Now the OpenGL metadata can be compiled with GCC.
 	Added the OpenGL sample to cmake build file.
 	Added policy GMetaPolicyDestructorAbsent to allow meta data for class with private destructor.
+	Added class GDefineMetaInfo in gmetadefine.h to ease splitting meta data building to different source file. (Reduce using templates).
+	Added "dangle" to GDefineMetaClass.
 	Fixed a bug that _class prototype in GMetaDefine is wrong.
 
 2012-02-05 version 1.2.5

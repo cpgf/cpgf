@@ -6,42 +6,30 @@
 #include "cpgf/metadata/box2d/meta_b2BroadPhase.h"
 
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/goutmain.h"
-
-extern const char * _mEta_nS_box2d;
 
 using namespace cpgf;
 
-namespace {
-
-G_AUTO_RUN_BEFORE_MAIN()
+GDefineMetaInfo createMetaClass_Global_b2broadphase()
 {
-    {
-    GDefineMetaNamespace _d = GDefineMetaNamespace::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _d = GDefineMetaNamespace::dangle("");
     buildMetaClass_Global_b2broadphase(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2BroadPhase> _d = GDefineMetaClass<b2BroadPhase>::declare("b2BroadPhase");
-    _ns._class(_d);
-    buildMetaClass_B2BroadPhase(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
-    GDefineMetaClass<b2Pair> _d = GDefineMetaClass<b2Pair>::declare("b2Pair");
-    _ns._class(_d);
-    buildMetaClass_B2Pair(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
+    return _d.getMetaInfo();
 }
 
-} // unnamed namespace
+
+GDefineMetaInfo createMetaClass_B2BroadPhase()
+{
+    GDefineMetaClass<b2BroadPhase> _d = GDefineMetaClass<b2BroadPhase>::declare("b2BroadPhase");
+    buildMetaClass_B2BroadPhase(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    return _d.getMetaInfo();
+}
+
+
+GDefineMetaInfo createMetaClass_B2Pair()
+{
+    GDefineMetaClass<b2Pair> _d = GDefineMetaClass<b2Pair>::declare("b2Pair");
+    buildMetaClass_B2Pair(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    return _d.getMetaInfo();
+}
+
 

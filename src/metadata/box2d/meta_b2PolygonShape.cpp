@@ -6,26 +6,14 @@
 #include "cpgf/metadata/box2d/meta_b2PolygonShape.h"
 
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/goutmain.h"
-
-extern const char * _mEta_nS_box2d;
 
 using namespace cpgf;
 
-namespace {
-
-G_AUTO_RUN_BEFORE_MAIN()
+GDefineMetaInfo createMetaClass_B2PolygonShape()
 {
-    {
-    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2PolygonShape, b2Shape> _d = GDefineMetaClass<b2PolygonShape, b2Shape>::declare("b2PolygonShape");
-    _ns._class(_d);
     buildMetaClass_B2PolygonShape(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-
-    }
-    
-
+    return _d.getMetaInfo();
 }
 
-} // unnamed namespace
 

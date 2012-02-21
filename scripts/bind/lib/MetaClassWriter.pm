@@ -345,7 +345,7 @@ sub writeClass
 		$cw->out("{\n");
 		$cw->incIndent();
 		
-		Util::defineMetaClass($cw, $item, '_nd', 'declare');
+		Util::defineMetaClass($self->{config}, $cw, $item, '_nd', 'declare');
 		my $writer = new MetaClassWriter(
 			_class => $item,
 			_codeWriter => $cw,

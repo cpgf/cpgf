@@ -45,7 +45,7 @@ use MetaWriter;
 
 use Data::Dumper;
 
-&greeting;
+# &greeting;
 
 &usage if($#xmlFileNames < 0);
 
