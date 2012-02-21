@@ -125,7 +125,7 @@ public:
 	}
 
 	GSharedData & operator = (GSharedData other) {
-		other.swap(this);
+		other.swap(*this);
 		return *this;
 	}
 
@@ -288,6 +288,42 @@ public:
 };
 
 
+class GDefineMetaInfo
+{
+public:
+	explicit GDefineMetaInfo(meta_internal::GSharedMetaClass metaClass, bool dangling)
+		: metaClass(metaClass), dangling(dangling) {
+	}
+
+	GDefineMetaInfo(const GDefineMetaInfo & other)
+		: metaClass(other.metaClass), dangling(other.dangling) {
+	}
+
+	GDefineMetaInfo & operator = (const GDefineMetaInfo & other) {
+		this->metaClass = other.metaClass;
+		this->dangling = other.dangling;
+
+		return *this;
+	}
+
+	GMetaClass * getMetaClass() const {
+		return this->metaClass.get();
+	}
+
+	GMetaClass * takeMetaClass() {
+		return this->metaClass.take();
+	}
+
+	bool isDangle() const {
+		return this->dangling;
+	}
+
+protected:
+	meta_internal::GSharedMetaClass metaClass;
+	bool dangling;
+};
+
+
 template <typename ClassType GPP_REPEAT(MAX_BASE_COUNT, BASE_DEFAULT, GPP_EMPTY)>
 class GDefineMetaClass;
 
@@ -302,15 +338,16 @@ private:
 
 public:
 	GDefineMetaCommon(meta_internal::GSharedMetaClass metaClass, GMetaItem * currentItem)
-		: metaClass(metaClass), currentItem(currentItem) {
+		: metaClass(metaClass), dangling(false), currentItem(currentItem) {
 	}
 
 	GDefineMetaCommon(const GDefineMetaCommon & other)
-		: metaClass(other.metaClass), currentItem(other.currentItem) {
+		: metaClass(other.metaClass), dangling(other.dangling), currentItem(other.currentItem) {
 	}
 
 	GDefineMetaCommon operator = (const GDefineMetaCommon & other) {
 		this->metaClass = other.metaClass;
+		this->dangling = other.dangling;
 		this->currentItem = other.currentItem;
 
 		return *this;
@@ -390,10 +427,23 @@ public:
 
 	template <typename MetaClass>
 	GDefineMetaInnerClass<DerivedType> _class(MetaClass defineClass) {
-		return GDefineMetaInnerClass<DerivedType>(
-			this->metaClass,
-			this->metaClass->addClass(defineClass.takeMetaClass())
-		);
+		return this->_class(defineClass.getMetaInfo());
+	}
+
+	GDefineMetaInnerClass<DerivedType> _class(GDefineMetaInfo metaInfo) {
+		if(metaInfo.isDangle()) {
+			metaInfo.getMetaClass()->extractTo(this->metaClass.get());
+			return GDefineMetaInnerClass<DerivedType>(
+				this->metaClass,
+				this->metaClass.get()
+			);
+		}
+		else {
+			return GDefineMetaInnerClass<DerivedType>(
+				this->metaClass,
+				this->metaClass->addClass(metaInfo.takeMetaClass())
+			);
+		}
 	}
 
 	GDefineMetaAnnotation<DerivedType> _annotation(const char * name) {
@@ -405,6 +455,7 @@ public:
 
 protected:
 	meta_internal::GSharedMetaClass metaClass;
+	bool dangling;
 	GMetaItem * currentItem;
 };
 
@@ -425,6 +476,13 @@ public:
 
 	static ThisType declare(const char * className) {
 		ThisType c;
+		c.init(className, NULL, false, GMetaPolicyDefault());
+		return c;
+	}
+	
+	static ThisType dangle(const char * className) {
+		ThisType c;
+		c.dangling = true;
 		c.init(className, NULL, false, GMetaPolicyDefault());
 		return c;
 	}
@@ -451,6 +509,16 @@ public:
 		return c;
 	}
 
+	static ThisType lazyDangle(const char * className, void (*reg)(ThisType define)) {
+		GASSERT(reg != NULL);
+
+		ThisType c;
+		c.dangling = true;
+		meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
+		c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, GMetaPolicyDefault());
+		return c;
+	}
+
 	template <typename P>
 	struct Policy {
 		static ThisType define(const char * className) {
@@ -461,6 +529,13 @@ public:
 
 		static ThisType declare(const char * className) {
 			ThisType c;
+			c.init(className, NULL, false, P());
+			return c;
+		}
+
+		static ThisType dangle(const char * className) {
+			ThisType c;
+			c.dangling = true;
 			c.init(className, NULL, false, P());
 			return c;
 		}
@@ -478,6 +553,16 @@ public:
 			GASSERT(reg != NULL);
 
 			ThisType c;
+			meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
+			c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, P());
+			return c;
+		}
+
+		static ThisType lazyDangle(const char * className, void (*reg)(ThisType define)) {
+			GASSERT(reg != NULL);
+
+			ThisType c;
+			c.dangling = true;
 			meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
 			c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, P());
 			return c;
@@ -522,6 +607,10 @@ public:
 			this->metaClass,
 			this->metaClass->template addConstructor<ClassType, FT>(policy)
 		);
+	}
+
+	GDefineMetaInfo getMetaInfo() const {
+		return GDefineMetaInfo(this->metaClass, this->dangling);
 	}
 
 	GMetaClass * getMetaClass() const {
@@ -590,6 +679,8 @@ public:
 
 };
 
+
+typedef GDefineMetaClass<void> GDefineMetaNamespace;
 
 
 

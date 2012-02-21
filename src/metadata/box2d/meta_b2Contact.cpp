@@ -17,7 +17,7 @@ namespace {
 G_AUTO_RUN_BEFORE_MAIN()
 {
     {
-    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2Contact> _d = GDefineMetaClass<b2Contact>::Policy<MakePolicy<GMetaRuleDestructorAbsent, GMetaRuleDefaultConstructorAbsent, GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("b2Contact");
     _ns._class(_d);
     buildMetaClass_B2Contact(0, _d, NULL, GMetaPolicyCopyAllConstReference());
@@ -26,7 +26,7 @@ G_AUTO_RUN_BEFORE_MAIN()
     
 
     {
-    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2ContactEdge> _d = GDefineMetaClass<b2ContactEdge>::declare("b2ContactEdge");
     _ns._class(_d);
     buildMetaClass_B2ContactEdge(0, _d, NULL, GMetaPolicyCopyAllConstReference());
@@ -35,7 +35,7 @@ G_AUTO_RUN_BEFORE_MAIN()
     
 
     {
-    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2ContactRegister> _d = GDefineMetaClass<b2ContactRegister>::declare("b2ContactRegister");
     _ns._class(_d);
     buildMetaClass_B2ContactRegister(0, _d, NULL, GMetaPolicyCopyAllConstReference());

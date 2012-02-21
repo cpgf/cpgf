@@ -181,6 +181,8 @@ public:
 	GMetaItem * getItemAt(size_t index) const;
 	GMetaItem * getItemByName(const char * name) const;
 
+	void extractTo(GMetaInternalItemList * master);
+
 private:
 	void clearList();
 
@@ -270,6 +272,14 @@ GMetaItem * GMetaInternalItemList::getItemByName(const char * name) const
 	}
 }
 
+void GMetaInternalItemList::extractTo(GMetaInternalItemList * master)
+{
+	for(meta_internal::GMetaItemListImplement::ListType::iterator it = this->implement->itemList.begin(); it != this->implement->itemList.end(); ++it) {
+		master->addItem(*it);
+	}
+	this->implement->itemList.clear();
+}
+
 void GMetaInternalItemList::clearList()
 {
 	if(this->clearOnFree) {
@@ -279,6 +289,7 @@ void GMetaInternalItemList::clearList()
 			}
 		}
 	}
+	this->implement->itemList.clear();
 }
 
 
@@ -540,6 +551,15 @@ GMetaClass * GMetaClass::addClass(const GMetaClass * cls)
 	this->addItem(mcatClass, const_cast<GMetaClass *>(cls));
 
 	return const_cast<GMetaClass *>(cls);
+}
+
+void GMetaClass::extractTo(GMetaClass * master)
+{
+	for(int i = 0; i < static_cast<int>(mcatCount); ++i) {
+		GMetaCategory c = static_cast<GMetaCategory>(i);
+		this->implement->itemLists[c]->extractTo(master->implement->itemLists[c]);
+	}
+	this->implement->metaList.extractTo(&master->implement->metaList);
 }
 
 const GMetaClass * GMetaClass::getClassInHierarchy(const char * name, void ** outInstance) const

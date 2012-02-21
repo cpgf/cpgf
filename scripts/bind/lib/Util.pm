@@ -218,7 +218,7 @@ sub defineMetaClass
 	
 	if($class->isGlobal()) {
 		if(defined $config->{namespace}) {
-			$codeWriter->out('GDefineMetaClass<void> ' . $varName . ' = GDefineMetaClass<void>::' . $action . '(' . $namespace . ");\n");
+			$codeWriter->out('GDefineMetaNamespace ' . $varName . ' = GDefineMetaNamespace::' . $action . '(' . $namespace . ");\n");
 		}
 		else {
 			$codeWriter->out("GDefineMetaGlobal " . $varName . ";\n");
@@ -240,7 +240,7 @@ sub defineMetaClass
 			$policy = '::Policy<MakePolicy<' . join(', ', @{$rules}) . '> >';
 		}
 		if(defined $config->{namespace}) {
-			$codeWriter->out('GDefineMetaClass<void> _ns = GDefineMetaClass<void>::' . $action . '(' . $namespace . ");\n");
+			$codeWriter->out('GDefineMetaNamespace _ns = GDefineMetaNamespace::' . $action . '(' . $namespace . ");\n");
 			$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->getName) . "\");\n");
 			$codeWriter->out("_ns._class(" . $varName . ");\n");
 		}

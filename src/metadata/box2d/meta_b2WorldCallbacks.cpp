@@ -17,7 +17,7 @@ namespace {
 G_AUTO_RUN_BEFORE_MAIN()
 {
     {
-    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2Color> _d = GDefineMetaClass<b2Color>::declare("b2Color");
     _ns._class(_d);
     buildMetaClass_B2Color(0, _d, NULL, GMetaPolicyCopyAllConstReference());
@@ -26,7 +26,7 @@ G_AUTO_RUN_BEFORE_MAIN()
     
 
     {
-    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2ContactFilter> _d = GDefineMetaClass<b2ContactFilter>::declare("b2ContactFilter");
     _ns._class(_d);
     buildMetaClass_B2ContactFilter(0, _d, NULL, GMetaPolicyCopyAllConstReference());
@@ -35,7 +35,7 @@ G_AUTO_RUN_BEFORE_MAIN()
     
 
     {
-    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2ContactImpulse> _d = GDefineMetaClass<b2ContactImpulse>::declare("b2ContactImpulse");
     _ns._class(_d);
     buildMetaClass_B2ContactImpulse(0, _d, NULL, GMetaPolicyCopyAllConstReference());
@@ -44,7 +44,7 @@ G_AUTO_RUN_BEFORE_MAIN()
     
 
     {
-    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2ContactListener> _d = GDefineMetaClass<b2ContactListener>::declare("b2ContactListener");
     _ns._class(_d);
     buildMetaClass_B2ContactListener(0, _d, NULL, GMetaPolicyCopyAllConstReference());
@@ -53,7 +53,7 @@ G_AUTO_RUN_BEFORE_MAIN()
     
 
     {
-    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2DebugDraw> _d = GDefineMetaClass<b2DebugDraw>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("b2DebugDraw");
     _ns._class(_d);
     buildMetaClass_B2DebugDraw(0, _d, NULL, GMetaPolicyCopyAllConstReference());
@@ -62,7 +62,7 @@ G_AUTO_RUN_BEFORE_MAIN()
     
 
     {
-    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2DestructionListener> _d = GDefineMetaClass<b2DestructionListener>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("b2DestructionListener");
     _ns._class(_d);
     buildMetaClass_B2DestructionListener(0, _d, NULL, GMetaPolicyCopyAllConstReference());
@@ -71,7 +71,7 @@ G_AUTO_RUN_BEFORE_MAIN()
     
 
     {
-    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2QueryCallback> _d = GDefineMetaClass<b2QueryCallback>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("b2QueryCallback");
     _ns._class(_d);
     buildMetaClass_B2QueryCallback(0, _d, NULL, GMetaPolicyCopyAllConstReference());
@@ -80,7 +80,7 @@ G_AUTO_RUN_BEFORE_MAIN()
     
 
     {
-    GDefineMetaClass<void> _ns = GDefineMetaClass<void>::define(_mEta_nS_box2d);
+    GDefineMetaNamespace _ns = GDefineMetaNamespace::define(_mEta_nS_box2d);
     GDefineMetaClass<b2RayCastCallback> _d = GDefineMetaClass<b2RayCastCallback>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("b2RayCastCallback");
     _ns._class(_d);
     buildMetaClass_B2RayCastCallback(0, _d, NULL, GMetaPolicyCopyAllConstReference());

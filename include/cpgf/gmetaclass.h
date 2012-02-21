@@ -132,6 +132,11 @@ public:
 	void * castToBase(void * self, size_t baseIndex) const;
 
 public:
+	template <typename ClassType, typename BaseType>
+	void addBaseClass() {
+		this->superList->add<ClassType, BaseType>();
+	}
+
 	GMetaField * addField(GMetaField * field);
 	GMetaProperty * addProperty(GMetaProperty * prop);
 	GMetaMethod * addMethod(GMetaMethod * method);
@@ -139,10 +144,7 @@ public:
 	GMetaEnum * addEnum(GMetaEnum * en);
 	GMetaClass * addClass(const GMetaClass * cls);
 
-	template <typename ClassType, typename BaseType>
-	void addBaseClass() {
-		this->superList->add<ClassType, BaseType>();
-	}
+	void extractTo(GMetaClass * master);
 
 private:
 	void addItem(GMetaCategory listIndex, GMetaItem * item);
