@@ -13,8 +13,6 @@ our @EXPORT = qw(
 	
 	&getUniqueID
 	
-	&makeNamespaceSymbol
-
 	&assignValues
 	
 	&getWrittenFileCount
@@ -85,13 +83,6 @@ sub getUniqueID
 {
 	++$currentUniqueID;
 	return $currentUniqueID;
-}
-
-sub makeNamespaceSymbol
-{
-	my ($config) = @_;
-	
-	return '_mEta_nS_' . $config->{id};
 }
 
 sub assignValues

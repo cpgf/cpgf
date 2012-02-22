@@ -1,6 +1,6 @@
 // Auto generated file, don't modify.
 
-#include "cpgf/metadata/box2d/register_main_box2d_box2d.h"
+#include "cpgf/metadata/box2d/register_meta_box2d.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/goutmain.h"
 

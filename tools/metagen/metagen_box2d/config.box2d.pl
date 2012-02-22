@@ -1,6 +1,9 @@
 $config = {
-	id => 'box2d',
+	projectID => 'box2d',
 
+	headerOutput => '../../../include/cpgf/metadata/box2d',
+	sourceOutput => '../../../src/metadata/box2d',
+	
 	metaOutputCallback => \&processCallback,
 	
 	cppNamespace => "meta_box2d",
@@ -11,7 +14,7 @@ $config = {
 	metaClassMainRegisterPrefix => 'registerMain_',
 
 	sourceFilePrefix => 'meta_box2d_',
-	mainSourceFilePrefix => 'register_main_box2d_',
+	mainSourceFile => 'register_meta_box2d',
 
 	autoRegisterToGlobal => 1,
 	metaNamespace => 'box2d',

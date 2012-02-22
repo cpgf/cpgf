@@ -195,7 +195,7 @@ sub writeEnum
 		my $typeName = $typePrefix . $name;
 
 		if($name =~ /\@/ or $name eq '') {
-			$name = 'GlobalEnum_'  . $self->{_config}->{id} . "_" . Util::getUniqueID();
+			$name = 'GlobalEnum_'  . $self->{_config}->{projectID} . "_" . Util::getUniqueID();
 			$typeName = 'long long';
 		}
 		
@@ -220,7 +220,7 @@ sub writeDefine
 
 	return unless($self->{_class}->getDefineCount > 0);
 
-	$cw->out($action . "<long long>(" . $self->getReplace("GlobalDefine_" . $self->{_config}->{id} . "_" . Util::getUniqueID()) . ")\n");
+	$cw->out($action . "<long long>(" . $self->getReplace("GlobalDefine_" . $self->{_config}->{projectID} . "_" . Util::getUniqueID()) . ")\n");
 	$cw->incIndent();
 	
 	foreach(@{$self->{_class}->getDefineList}) {

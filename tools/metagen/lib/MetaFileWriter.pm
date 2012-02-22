@@ -88,7 +88,7 @@ sub writeHeader
 	$cw->out("\n\n");
 	$cw->out('#endif');
 	
-	mkpath(File::Spec->catfile($self->{_config}->{outputDir}, ''));
+	mkpath(File::Spec->catfile($self->{_config}->{headerOutput}, ''));
 	my $outFileName = $self->makeOutputFileName($self->{_config}->{headerExtension});
 	Util::writeToFile($outFileName, $cw->getText);
 }
@@ -150,8 +150,8 @@ sub writeSource
 	
 	Util::writeNamespaceEnd($cw, $self->{_config}->{cppNamespace});
 	
-	mkpath(File::Spec->catfile($self->{_config}->{cppOutputDir}, ''));
-	my $outFileName = File::Spec->catfile($self->{_config}->{cppOutputDir}, $self->getDestFileName()) . $self->{_config}->{sourceExtension};
+	mkpath(File::Spec->catfile($self->{_config}->{sourceOutput}, ''));
+	my $outFileName = File::Spec->catfile($self->{_config}->{sourceOutput}, $self->getDestFileName()) . $self->{_config}->{sourceExtension};
 	Util::writeToFile($outFileName, $cw->getText);
 }
 
@@ -192,7 +192,7 @@ sub makeOutputFileName
 {
 	my ($self, $extension) = @_;
 	
-	return File::Spec->catfile($self->{_config}->{outputDir}, $self->getDestFileName()) . $extension;
+	return File::Spec->catfile($self->{_config}->{headerOutput}, $self->getDestFileName()) . $extension;
 }
 
 sub getGlobalPostfix

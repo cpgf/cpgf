@@ -14,7 +14,7 @@ sub doMain
 	&loadHeadContent;
 	
 	foreach(@filePatterns) {
-		&processPattern($_);
+		&prefixProcessPattern($_);
 	}
 }
 
@@ -42,7 +42,7 @@ sub loadHeadContent
 	$headContent = join('', @lines);
 }
 
-sub processPattern
+sub prefixProcessPattern
 {
 	my ($pattern) = @_;
 	my @files = glob($pattern);
@@ -50,11 +50,11 @@ sub processPattern
 	die "Can't find file for pattern $pattern.\n" unless($#files >= 0);
 	
 	foreach(@files) {
-		&processFile($_);
+		&prefixProcessFile($_);
 	}
 }
 
-sub processFile
+sub prefixProcessFile
 {
 	my ($file) = @_;
 	

@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __REGISTER_MAIN_BOX2D_BOX2D_H
-#define __REGISTER_MAIN_BOX2D_BOX2D_H
+#ifndef __REGISTER_META_BOX2D_H
+#define __REGISTER_META_BOX2D_H
 
 
 #include "cpgf/gmetadefine.h"

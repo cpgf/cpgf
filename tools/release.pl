@@ -102,10 +102,16 @@ sub doMain
 	$releasePath = &normalizePath($ARGV[0]);
 	$destPath = $releasePath . 'cpgf/';
 	$version = $ARGV[1];
+	
+	if(-e $destPath) {
+		die "$destPath exists. \n";
+	}
 
 	foreach(@{$patternList}) {
 		&processPattern($_);
 	}
+	
+	mkdir($destPath . 'lib');
 
 	&makeZip;
 }
@@ -117,7 +123,7 @@ sub makeZip
 	my $v = "$version";
 	$v =~ s/\./_/;
 	my $zipName = "cpgf_$v.zip";
-	system "zip -rq $zipName cpgf";
+	system "zip -rq -9 $zipName cpgf";
 }
 
 sub processPattern
@@ -156,10 +162,6 @@ sub doProcessPattern
 
 		next unless(matchFileList($file, $pattern->{files}));
 
-		if(-e $destFileName) {
-#			die "$destFileName exists.\n";
-		}
-
 		copy($file, $destFileName);
 		&processDestFile($pattern, $destFileName);
 	}
@@ -182,6 +184,30 @@ sub processDestFile
 			system "perl $scriptPath/file_prefix.pl $scriptPath/$license $destFile";
 		}
 	}
+	
+	if($destFile =~ /\.doxyfile$/i) {
+		&compactFile($destFile);
+	}
+}
+
+sub compactFile
+{
+	my ($fileName) = @_;
+	
+	open FH, '<' . $fileName or die "Can't open file $fileName to read for compact.\n";
+	my @lines = <FH>;
+	close FH;
+	
+	open FH, '>' . $fileName or die "Can't open file $fileName to write for compact.\n";
+	foreach(@lines) {
+		my $line = $_;
+		chomp($line);
+		$line =~ s/#.*$//;
+		if($line !~ /^\s*$/) {
+			print FH $line . "\n";
+		}
+	}
+	close FH;
 }
 
 sub matchFileList

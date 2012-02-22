@@ -17,14 +17,14 @@ use Getopt::Long;
 
 my $configFile = undef;
 my @xmlFileNames = ();
-my $outputPath = './output';
-my $cppOutputPath = './output';
+my $headerOutputPath = undef;
+my $sourceOutputPath = undef;
 
 GetOptions(
 	'xml=s' => \@xmlFileNames,
 	'config=s' => \$configFile,
-	'output=s' => \$outputPath,
-	'cppoutput=s' => \$cppOutputPath,
+	'headerOutput=s' => \$headerOutputPath,
+	'sourceOutput=s' => \$sourceOutputPath,
 );
 
 if(defined $configFile) {
@@ -49,8 +49,8 @@ use Data::Dumper;
 
 &usage if($#xmlFileNames < 0);
 
-$bindConfig->{outputDir} = $outputPath;
-$bindConfig->{cppOutputDir} = $cppOutputPath;
+$bindConfig->{headerOutput} = $headerOutputPath if defined $headerOutputPath;
+$bindConfig->{sourceOutput} = $sourceOutputPath if defined $sourceOutputPath;
 &doMain;
 
 sub greeting
@@ -65,7 +65,11 @@ EOM
 sub usage
 {
 	print <<EOM;
-Usage:
+Usage: perl metagen.pl --xml <Doxygen XML name> --config <Config Perl Script> --headerOutput [Header output path] --sourceOutputPath [Source output path]
+    --xml                Specify the Doxygen XML index file name.
+    --config             Specify the config file. See config.default.pl for reference.
+    --headerOutput       Optional. Specify where the .h files are created in. It can be specified in the config file too. If it's omitted, "./output" is used.
+    --sourceOutputPath   Optional. Specify where the .cpp files are created in. It can be specified in the config file too. If it's omitted, "./output" is used.
 EOM
 	die "\n";
 }

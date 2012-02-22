@@ -1,1 +1,1 @@
-perl ../metagen.pl --xml xml/index.xml --output ../../../include/cpgf/metadata/box2d --cppoutput ../../../src/metadata/box2d --config config.box2d.pl
+perl ../metagen.pl --xml xml/index.xml --config config.box2d.pl

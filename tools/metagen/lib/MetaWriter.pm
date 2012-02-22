@@ -47,14 +47,14 @@ sub getMainFileName
 {
 	my ($self) = @_;
 
-	return $self->{_config}->{mainSourceFilePrefix} . $self->{_config}->{id};
+	return $self->{_config}->{mainSourceFile};
 }
 
 sub getMainFunctionName
 {
 	my ($self) = @_;
 
-	return $self->{_config}->{metaClassMainRegisterPrefix} . $self->{_config}->{id};
+	return $self->{_config}->{metaClassMainRegisterPrefix} . $self->{_config}->{projectID};
 }
 
 sub createMainHeader
@@ -63,7 +63,7 @@ sub createMainHeader
 
 	return unless($self->{_config}->{autoRegisterToGlobal});
 	
-	my $outFileName = File::Spec->catfile($self->{_config}->{outputDir}, $self->getMainFileName) . '.h';
+	my $outFileName = File::Spec->catfile($self->{_config}->{headerOutput}, $self->getMainFileName) . '.h';
 	my $cw = new CodeWriter;
 
 	Util::writeAutoComment($cw);	
@@ -127,7 +127,7 @@ sub createMainSource
 
 	return unless($self->{_config}->{autoRegisterToGlobal});
 	
-	my $outFileName = File::Spec->catfile($self->{_config}->{cppOutputDir}, $self->getMainFileName) . '.cpp';
+	my $outFileName = File::Spec->catfile($self->{_config}->{sourceOutput}, $self->getMainFileName) . '.cpp';
 	my $cw = new CodeWriter;
 
 	Util::writeAutoComment($cw);	
