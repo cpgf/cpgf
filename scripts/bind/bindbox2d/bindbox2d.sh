@@ -1,1 +1,0 @@
-perl ../bind.pl --xml xml/index.xml --output ../../../include/cpgf/metadata/box2d --cppoutput ../../../src/metadata/box2d --config config.box2d.pl

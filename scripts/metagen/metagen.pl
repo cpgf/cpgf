@@ -72,26 +72,34 @@ EOM
 
 sub doMain
 {
+	my $processedCount = 0;
+
 	print "Processing, waiting...\n";
 	foreach(@xmlFileNames) {
 		my $xmlName = $_;
 
 		my $loader = new DoxyXmlLoader;
-		$loader->parseFile($xmlName);
-		$loader->fixup();
+		if($loader->parseFile($xmlName)) {
+			++$processedCount;
 
-		#print Dumper($loader->{classList});
+			$loader->fixup();
 
-		my $metaWriter = new MetaWriter(
-			_classList => $loader->getClassList,
-			_fileMap => $loader->getFileMap,
-			_config => $bindConfig,
-		);
+			my $metaWriter = new MetaWriter(
+				_classList => $loader->getClassList,
+				_fileMap => $loader->getFileMap,
+				_config => $bindConfig,
+			);
 
-		$metaWriter->write();
+			$metaWriter->write();
+		}
 	}
-	
-	print "Written " . &Util::getWrittenFileCount . " files. \n";
-	print "Skipped " . &Util::getSkippedFileCount . " identical files.\n";
-	print "Done.\n";
+
+	if($processedCount > 0) {
+		print "Written " . &Util::getWrittenFileCount . " files. \n";
+		print "Skipped " . &Util::getSkippedFileCount . " identical files.\n";
+		print "Done.\n";
+	}
+	else {
+		print "Nothing to process. \n";
+	}
 }

@@ -107,13 +107,15 @@ sub parseFile
 
 	if(!(-e $fileName)) {
 		print "File $fileName doesn't exists.\n";
-		return;
+		return 0;
 	}
 
 	my $parser = new XML::DOM::Parser;
 	my $doc = $parser->parsefile ($fileName);
 	$self->parse($doc, dirname($fileName));
 	$doc->dispose();
+
+	return 1;
 }
 
 sub parse
