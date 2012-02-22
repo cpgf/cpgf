@@ -1,6 +1,6 @@
 #!/bin/sh
 
-GEN="perl ../../scripts/gendoc.pl"
+GEN="perl ../../tools/gendoc.pl"
 SRC_PATH=source
 OUT_PATH=output
 
