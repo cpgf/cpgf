@@ -82,6 +82,8 @@ sub createMainHeader
 	$cw->out("using namespace cpgf;\n");
 	$cw->out("\n");
 
+	Util::writeNamespaceBegin($cw, $self->{_config}->{cppNamespace});
+	
 	foreach(@{$createFunctionNames}) {
 		my $funcName = $_;
 
@@ -109,6 +111,10 @@ sub createMainHeader
 	$cw->decIndent();
 	$cw->out("}\n");
 	
+	$cw->out("\n");
+	
+	Util::writeNamespaceEnd($cw, $self->{_config}->{cppNamespace});
+	
 	$cw->out("\n\n");
 	$cw->out('#endif');
 
@@ -135,6 +141,8 @@ sub createMainSource
 	$cw->out("using namespace cpgf;\n");
 	$cw->out("\n");
 
+	Util::writeNamespaceBegin($cw, $self->{_config}->{cppNamespace});
+	
 	$cw->out("namespace {\n");
 	$cw->out("\n");
 
@@ -153,6 +161,8 @@ sub createMainSource
 
 	$cw->out("} // unnamed namespace\n");
 	$cw->out("\n");
+	
+	Util::writeNamespaceEnd($cw, $self->{_config}->{cppNamespace});
 
 	Util::writeToFile($outFileName, $cw->getText);
 }

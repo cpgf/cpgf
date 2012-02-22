@@ -9,6 +9,9 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_B2DistanceJoint()
 {
     GDefineMetaClass<b2DistanceJoint, b2Joint> _d = GDefineMetaClass<b2DistanceJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2DistanceJoint");
@@ -23,5 +26,8 @@ GDefineMetaInfo createMetaClass_B2DistanceJointDef()
     buildMetaClass_B2DistanceJointDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 

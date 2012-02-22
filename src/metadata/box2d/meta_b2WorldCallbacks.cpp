@@ -9,6 +9,9 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_B2Color()
 {
     GDefineMetaClass<b2Color> _d = GDefineMetaClass<b2Color>::declare("b2Color");
@@ -71,5 +74,8 @@ GDefineMetaInfo createMetaClass_B2RayCastCallback()
     buildMetaClass_B2RayCastCallback(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 

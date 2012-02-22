@@ -9,6 +9,9 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_Global_b2math();
 GDefineMetaInfo createMetaClass_B2Mat22();
 GDefineMetaInfo createMetaClass_B2Mat33();
@@ -201,6 +204,10 @@ void registerMain_box2d(Meta _d)
         ._class(createMetaClass_B2World())
     ;
 }
+
+} // namespace meta_box2d 
+
+
 
 
 #endif

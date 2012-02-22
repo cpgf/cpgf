@@ -9,6 +9,9 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_B2PrismaticJoint()
 {
     GDefineMetaClass<b2PrismaticJoint, b2Joint> _d = GDefineMetaClass<b2PrismaticJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2PrismaticJoint");
@@ -23,5 +26,8 @@ GDefineMetaInfo createMetaClass_B2PrismaticJointDef()
     buildMetaClass_B2PrismaticJointDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 

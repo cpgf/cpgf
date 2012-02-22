@@ -9,6 +9,9 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_B2MassData()
 {
     GDefineMetaClass<b2MassData> _d = GDefineMetaClass<b2MassData>::declare("b2MassData");
@@ -23,5 +26,8 @@ GDefineMetaInfo createMetaClass_B2Shape()
     buildMetaClass_B2Shape(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 

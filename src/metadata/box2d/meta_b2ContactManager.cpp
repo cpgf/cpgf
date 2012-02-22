@@ -9,11 +9,17 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_B2ContactManager()
 {
     GDefineMetaClass<b2ContactManager> _d = GDefineMetaClass<b2ContactManager>::declare("b2ContactManager");
     buildMetaClass_B2ContactManager(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 

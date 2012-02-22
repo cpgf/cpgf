@@ -9,6 +9,9 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_B2FrictionJoint()
 {
     GDefineMetaClass<b2FrictionJoint, b2Joint> _d = GDefineMetaClass<b2FrictionJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2FrictionJoint");
@@ -23,5 +26,8 @@ GDefineMetaInfo createMetaClass_B2FrictionJointDef()
     buildMetaClass_B2FrictionJointDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 

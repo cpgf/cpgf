@@ -10,6 +10,9 @@
 #include "cpgf/metadata/private/gmetadata_header.h"
 
 
+namespace meta_box2d { 
+
+
 template <typename D, typename Policy>
 void buildMetaClass_B2Contact(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
@@ -55,6 +58,9 @@ void buildMetaClass_B2ContactRegister(const cpgf::GMetaDataConfigFlags & config,
     _d.CPGF_MD_TEMPLATE _field(replaceName("destroyFcn", _r), &D::ClassType::destroyFcn, _p);
     _d.CPGF_MD_TEMPLATE _field(replaceName("primary", _r), &D::ClassType::primary, _p);
 }
+
+
+} // namespace meta_box2d 
 
 
 

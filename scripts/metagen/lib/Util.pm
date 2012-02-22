@@ -37,6 +37,9 @@ our @EXPORT = qw(
 	&dumpClass
 
 	&writeParamList
+	&writeDefaultParams
+	&writeNamespaceBegin
+	&writeNamespaceEnd
 
 	&itemIsPublic
 	&itemIsProtected
@@ -220,10 +223,10 @@ sub defineMetaClass
 	my ($config, $codeWriter, $class, $varName, $action) = @_;
 	my $rules = $class->getPolicyRules();
 	
-	my $namespace = '"' . ((defined $config->{namespace}) ? $config->{namespace} : '') . '"';
+	my $namespace = '"' . ((defined $config->{metaNamespace}) ? $config->{metaNamespace} : '') . '"';
 	
 	if($class->isGlobal()) {
-		if(defined $config->{namespace}) {
+		if(defined $config->{metaNamespace}) {
 			$codeWriter->out('GDefineMetaNamespace ' . $varName . ' = GDefineMetaNamespace::' . $action . '(' . $namespace . ");\n");
 		}
 		else {
@@ -243,7 +246,7 @@ sub defineMetaClass
 		if(defined($rules) and $#{@{$rules}} >= 0) {
 			$policy = '::Policy<MakePolicy<' . join(', ', @{$rules}) . '> >';
 		}
-		if(defined $config->{namespace}) {
+		if(defined $config->{metaNamespace}) {
 			$codeWriter->out('GDefineMetaNamespace _ns = GDefineMetaNamespace::' . $action . '(' . $namespace . ");\n");
 			$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->getName) . "\");\n");
 			$codeWriter->out("_ns._class(" . $varName . ");\n");
@@ -457,11 +460,49 @@ sub writeParamList
 	}
 }
 
+sub writeDefaultParams
+{
+	my ($writer, $paramList) = @_;
+	my $index = $#{@{$paramList}};
+
+	if($index >= 0 && $paramList->[$index]->hasDefaultValue) {
+		$writer->out("\n");
+		$writer->incIndent;
+
+		while($index >= 0 && $paramList->[$index]->hasDefaultValue) {
+			$writer->out("._default(copyVariantFromCopyable(" . $paramList->[$index]->getDefaultValue . "))\n");
+		}
+
+		$writer->decIndent;
+	}
+	$writer->out(";\n");
+}
+
 sub writeParam
 {
 	my ($writer, $param, $withName) = @_;
 	
 	$writer->out($param->getType . ($withName ? ' ' . $param->getName : ''));
+}
+
+sub writeNamespaceBegin
+{
+	my ($writer, $namespace) = @_;
+
+	if(defined $namespace) {
+		$writer->out("namespace $namespace { \n");
+		$writer->out("\n\n");
+	}
+}
+
+sub writeNamespaceEnd
+{
+	my ($writer, $namespace) = @_;
+
+	if(defined $namespace) {
+		$writer->out("} // namespace $namespace \n");
+		$writer->out("\n\n");
+	}
 }
 
 sub writeAutoComment

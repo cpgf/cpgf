@@ -9,6 +9,9 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_B2RevoluteJoint()
 {
     GDefineMetaClass<b2RevoluteJoint, b2Joint> _d = GDefineMetaClass<b2RevoluteJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2RevoluteJoint");
@@ -23,5 +26,8 @@ GDefineMetaInfo createMetaClass_B2RevoluteJointDef()
     buildMetaClass_B2RevoluteJointDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 

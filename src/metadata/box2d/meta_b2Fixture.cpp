@@ -9,6 +9,9 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_B2Filter()
 {
     GDefineMetaClass<b2Filter> _d = GDefineMetaClass<b2Filter>::declare("b2Filter");
@@ -31,5 +34,8 @@ GDefineMetaInfo createMetaClass_B2FixtureDef()
     buildMetaClass_B2FixtureDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 

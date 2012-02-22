@@ -10,6 +10,9 @@
 #include "cpgf/metadata/private/gmetadata_header.h"
 
 
+namespace meta_box2d { 
+
+
 template <typename D, typename Policy>
 void buildMetaClass_B2TOISolver(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
@@ -21,6 +24,9 @@ void buildMetaClass_B2TOISolver(const cpgf::GMetaDataConfigFlags & config, D _d,
     _d.CPGF_MD_TEMPLATE _method(replaceName("Clear", _r), &D::ClassType::Clear, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("Solve", _r), &D::ClassType::Solve, _p);
 }
+
+
+} // namespace meta_box2d 
 
 
 

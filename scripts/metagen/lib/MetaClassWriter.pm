@@ -44,22 +44,17 @@ sub doCallback
 {
 	my ($self, $item) = @_;
 
-	if(defined $self->getCallback) {
+	my $callback = $self->{_config}->{metaOutputCallback};
+
+	if(defined $callback) {
 		$self->{_callbackParam} = Util::createCallbackParam;
-		&{$self->getCallback}($item, $self->{_callbackParam});
+		&{$callback}($item, $self->{_callbackParam});
 	}
 	else {
 		$self->{_callbackParam} = Util::createCallbackParam unless defined $self->{_callbackParam};
 	}
 
 	return $item;
-}
-
-sub getCallback
-{
-	my ($self) = @_;
-
-	return $self->{_config}->{callback};
 }
 
 sub skipItem
@@ -102,7 +97,9 @@ sub writeConstructor
 		
 		$cw->out($action . "<void * (");
 		Util::writeParamList($cw, $item->getParamList, 0);
-		$cw->out(")>(_p);\n");
+		$cw->out(")>(_p)");
+		
+		Util::writeDefaultParams($cw, $item->getParamList);
 	}
 }
 
@@ -171,7 +168,9 @@ sub writeMethod
 			}
 			$cw->out(")");
 		}
-		$cw->out("&" . $prefix . $name . ", _p);\n");
+		$cw->out("&" . $prefix . $name . ", _p)");
+
+		Util::writeDefaultParams($cw, $item->getParamList);
 	}
 }
 
@@ -321,7 +320,9 @@ sub writeOperator
 		}
 		$opText =~ s/H/mopHolder/g;
 		$cw->out($opText . ', ');
-		$cw->out("_p);\n");
+		$cw->out("_p)");
+		
+		Util::writeDefaultParams($cw, $item->getParamList);
 	}
 }
 

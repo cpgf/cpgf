@@ -10,6 +10,9 @@
 #include "cpgf/metadata/private/gmetadata_header.h"
 
 
+namespace meta_box2d { 
+
+
 template <typename D, typename Policy>
 void buildMetaClass_Global_b2stackallocator(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
@@ -44,6 +47,9 @@ void buildMetaClass_B2StackEntry(const cpgf::GMetaDataConfigFlags & config, D _d
     _d.CPGF_MD_TEMPLATE _field(replaceName("size", _r), &D::ClassType::size, _p);
     _d.CPGF_MD_TEMPLATE _field(replaceName("usedMalloc", _r), &D::ClassType::usedMalloc, _p);
 }
+
+
+} // namespace meta_box2d 
 
 
 

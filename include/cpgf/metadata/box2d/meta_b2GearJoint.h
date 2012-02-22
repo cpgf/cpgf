@@ -10,6 +10,9 @@
 #include "cpgf/metadata/private/gmetadata_header.h"
 
 
+namespace meta_box2d { 
+
+
 template <typename D, typename Policy>
 void buildMetaClass_B2GearJoint(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
@@ -36,6 +39,9 @@ void buildMetaClass_B2GearJointDef(const cpgf::GMetaDataConfigFlags & config, D 
     _d.CPGF_MD_TEMPLATE _field(replaceName("joint2", _r), &D::ClassType::joint2, _p);
     _d.CPGF_MD_TEMPLATE _field(replaceName("ratio", _r), &D::ClassType::ratio, _p);
 }
+
+
+} // namespace meta_box2d 
 
 
 

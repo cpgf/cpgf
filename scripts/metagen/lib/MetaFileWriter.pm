@@ -36,9 +36,6 @@ sub writeHeader
 {
 	my ($self) = @_;
 	
-	mkpath(File::Spec->catfile($self->{_config}->{outputDir}, ''));
-
-	my $outFileName = $self->makeOutputFileName($self->{_config}->{headerExtension});
 	my $cw = new CodeWriter;
 
 	Util::writeAutoComment($cw);	
@@ -57,6 +54,8 @@ sub writeHeader
 	$cw->out("\n\n");
 			
 	my @buildFunctionNameList = ();
+
+	Util::writeNamespaceBegin($cw, $self->{_config}->{cppNamespace});
 	
 	foreach(@{$self->{_classList}}) {
 		my $class = $_;
@@ -77,6 +76,8 @@ sub writeHeader
 		$cw->out("\n\n");
 	}
 
+	Util::writeNamespaceEnd($cw, $self->{_config}->{cppNamespace});
+	
 	foreach(@{$self->{_fileMap}->getNamespaceList}) {
 		my $ns = $_;
 		$cw->out("using namespace " . $ns . ";\n");
@@ -87,6 +88,8 @@ sub writeHeader
 	$cw->out("\n\n");
 	$cw->out('#endif');
 	
+	mkpath(File::Spec->catfile($self->{_config}->{outputDir}, ''));
+	my $outFileName = $self->makeOutputFileName($self->{_config}->{headerExtension});
 	Util::writeToFile($outFileName, $cw->getText);
 }
 
@@ -96,9 +99,6 @@ sub writeSource
 
 	return unless($self->{_config}->{autoRegisterToGlobal});
 	
-	mkpath(File::Spec->catfile($self->{_config}->{cppOutputDir}, ''));
-
-	my $outFileName = File::Spec->catfile($self->{_config}->{cppOutputDir}, $self->getDestFileName()) . $self->{_config}->{sourceExtension};
 	my $cw = new CodeWriter;
 
 	Util::writeAutoComment($cw);	
@@ -122,6 +122,8 @@ sub writeSource
 	$cw->out("using namespace cpgf;\n");
 	$cw->out("\n");
 
+	Util::writeNamespaceBegin($cw, $self->{_config}->{cppNamespace});
+	
 	foreach(@{$self->{_classList}}) {
 		my $class = $_;
 		next if($class->isTemplate);
@@ -146,6 +148,10 @@ sub writeSource
 		$cw->out("\n\n");
 	}
 	
+	Util::writeNamespaceEnd($cw, $self->{_config}->{cppNamespace});
+	
+	mkpath(File::Spec->catfile($self->{_config}->{cppOutputDir}, ''));
+	my $outFileName = File::Spec->catfile($self->{_config}->{cppOutputDir}, $self->getDestFileName()) . $self->{_config}->{sourceExtension};
 	Util::writeToFile($outFileName, $cw->getText);
 }
 

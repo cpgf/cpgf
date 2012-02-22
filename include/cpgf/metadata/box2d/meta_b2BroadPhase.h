@@ -10,6 +10,9 @@
 #include "cpgf/metadata/private/gmetadata_header.h"
 
 
+namespace meta_box2d { 
+
+
 template <typename D, typename Policy>
 void buildMetaClass_Global_b2broadphase(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
@@ -51,6 +54,9 @@ void buildMetaClass_B2Pair(const cpgf::GMetaDataConfigFlags & config, D _d, cons
     _d.CPGF_MD_TEMPLATE _field(replaceName("proxyIdB", _r), &D::ClassType::proxyIdB, _p);
     _d.CPGF_MD_TEMPLATE _field(replaceName("next", _r), &D::ClassType::next, _p);
 }
+
+
+} // namespace meta_box2d 
 
 
 

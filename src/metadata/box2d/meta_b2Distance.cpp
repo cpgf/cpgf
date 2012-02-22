@@ -9,6 +9,9 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_Global_b2distance()
 {
     GDefineMetaNamespace _d = GDefineMetaNamespace::dangle("");
@@ -47,5 +50,8 @@ GDefineMetaInfo createMetaClass_B2SimplexCache()
     buildMetaClass_B2SimplexCache(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 

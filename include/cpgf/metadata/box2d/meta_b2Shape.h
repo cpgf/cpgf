@@ -10,6 +10,9 @@
 #include "cpgf/metadata/private/gmetadata_header.h"
 
 
+namespace meta_box2d { 
+
+
 template <typename D, typename Policy>
 void buildMetaClass_B2MassData(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
@@ -43,6 +46,9 @@ void buildMetaClass_B2Shape(const cpgf::GMetaDataConfigFlags & config, D _d, con
         ._element(replaceName("e_typeCount", _r), D::ClassType::e_typeCount)
     ;
 }
+
+
+} // namespace meta_box2d 
 
 
 

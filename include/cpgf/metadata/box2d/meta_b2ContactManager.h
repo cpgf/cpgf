@@ -10,6 +10,9 @@
 #include "cpgf/metadata/private/gmetadata_header.h"
 
 
+namespace meta_box2d { 
+
+
 template <typename D, typename Policy>
 void buildMetaClass_B2ContactManager(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
@@ -28,6 +31,9 @@ void buildMetaClass_B2ContactManager(const cpgf::GMetaDataConfigFlags & config, 
     _d.CPGF_MD_TEMPLATE _method(replaceName("Destroy", _r), &D::ClassType::Destroy, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("Collide", _r), &D::ClassType::Collide, _p);
 }
+
+
+} // namespace meta_box2d 
 
 
 

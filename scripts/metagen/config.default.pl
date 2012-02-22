@@ -14,7 +14,9 @@ $config = {
 	sourceFilePrefix => 'meta_',
 	mainSourceFilePrefix => 'register_main_',
 
-	callback => undef,
+	cppNamespace => undef,
+
+	metaOutputCallback => undef,
 
 	headerExtension => '.h',
 	sourceExtension => '.cpp',
@@ -25,5 +27,5 @@ $config = {
 	
 	# auto register to global?
 	autoRegisterToGlobal => 0,
-	namespace => undef,
+	metaNamespace => undef,
 };

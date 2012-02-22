@@ -10,6 +10,9 @@
 #include "cpgf/metadata/private/gmetadata_header.h"
 
 
+namespace meta_box2d { 
+
+
 template <typename D, typename Policy>
 void buildMetaClass_B2PrismaticJoint(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
@@ -55,6 +58,9 @@ void buildMetaClass_B2PrismaticJointDef(const cpgf::GMetaDataConfigFlags & confi
     _d.CPGF_MD_TEMPLATE _field(replaceName("motorSpeed", _r), &D::ClassType::motorSpeed, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("Initialize", _r), &D::ClassType::Initialize, _p);
 }
+
+
+} // namespace meta_box2d 
 
 
 

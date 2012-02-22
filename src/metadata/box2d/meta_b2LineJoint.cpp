@@ -9,6 +9,9 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_B2LineJoint()
 {
     GDefineMetaClass<b2LineJoint, b2Joint> _d = GDefineMetaClass<b2LineJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2LineJoint");
@@ -23,5 +26,8 @@ GDefineMetaInfo createMetaClass_B2LineJointDef()
     buildMetaClass_B2LineJointDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 

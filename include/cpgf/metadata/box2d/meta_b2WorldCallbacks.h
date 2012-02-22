@@ -10,6 +10,9 @@
 #include "cpgf/metadata/private/gmetadata_header.h"
 
 
+namespace meta_box2d { 
+
+
 template <typename D, typename Policy>
 void buildMetaClass_B2Color(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
@@ -114,6 +117,9 @@ void buildMetaClass_B2RayCastCallback(const cpgf::GMetaDataConfigFlags & config,
     
     _d.CPGF_MD_TEMPLATE _method(replaceName("ReportFixture", _r), &D::ClassType::ReportFixture, _p);
 }
+
+
+} // namespace meta_box2d 
 
 
 

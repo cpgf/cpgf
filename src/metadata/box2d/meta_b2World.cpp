@@ -9,11 +9,17 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_B2World()
 {
     GDefineMetaClass<b2World> _d = GDefineMetaClass<b2World>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2World");
     buildMetaClass_B2World(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 

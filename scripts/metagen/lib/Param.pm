@@ -23,6 +23,7 @@ sub new
 
 sub getName { return shift->{_name}; }
 sub getType { return shift->{_type}; }
-sub getDeafultValue { return shift->{_defaultValue}; }
+sub getDefaultValue { return shift->{_defaultValue}; }
+sub hasDefaultValue { return defined shift->{_defaultValue}; }
 
 1;

@@ -56,7 +56,7 @@ $bindConfig->{cppOutputDir} = $cppOutputPath;
 sub greeting
 {
 	print <<EOM;
-cpgf library meta data generating tool.
+cpgf library meta data generator.
 Copyright 2012, Wang Qi
 
 EOM

@@ -10,6 +10,9 @@
 #include "cpgf/metadata/private/gmetadata_header.h"
 
 
+namespace meta_box2d { 
+
+
 template <typename D, typename Policy>
 void buildMetaClass_Global_b2body(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
@@ -111,6 +114,9 @@ void buildMetaClass_B2BodyDef(const cpgf::GMetaDataConfigFlags & config, D _d, c
     _d.CPGF_MD_TEMPLATE _field(replaceName("userData", _r), &D::ClassType::userData, _p);
     _d.CPGF_MD_TEMPLATE _field(replaceName("inertiaScale", _r), &D::ClassType::inertiaScale, _p);
 }
+
+
+} // namespace meta_box2d 
 
 
 

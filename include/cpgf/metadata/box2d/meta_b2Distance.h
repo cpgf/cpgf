@@ -10,6 +10,9 @@
 #include "cpgf/metadata/private/gmetadata_header.h"
 
 
+namespace meta_box2d { 
+
+
 template <typename D, typename Policy>
 void buildMetaClass_Global_b2distance(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
@@ -76,6 +79,9 @@ void buildMetaClass_B2SimplexCache(const cpgf::GMetaDataConfigFlags & config, D 
     _d.CPGF_MD_TEMPLATE _field(replaceName("indexA", _r), &D::ClassType::indexA, _p);
     _d.CPGF_MD_TEMPLATE _field(replaceName("indexB", _r), &D::ClassType::indexB, _p);
 }
+
+
+} // namespace meta_box2d 
 
 
 

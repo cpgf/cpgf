@@ -9,6 +9,9 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_B2ContactConstraint()
 {
     GDefineMetaClass<b2ContactConstraint> _d = GDefineMetaClass<b2ContactConstraint>::declare("b2ContactConstraint");
@@ -31,5 +34,8 @@ GDefineMetaInfo createMetaClass_B2ContactSolver()
     buildMetaClass_B2ContactSolver(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 

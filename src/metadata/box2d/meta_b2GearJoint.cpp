@@ -9,6 +9,9 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_B2GearJoint()
 {
     GDefineMetaClass<b2GearJoint, b2Joint> _d = GDefineMetaClass<b2GearJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2GearJoint");
@@ -23,5 +26,8 @@ GDefineMetaInfo createMetaClass_B2GearJointDef()
     buildMetaClass_B2GearJointDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 

@@ -9,6 +9,9 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_B2MouseJoint()
 {
     GDefineMetaClass<b2MouseJoint, b2Joint> _d = GDefineMetaClass<b2MouseJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2MouseJoint");
@@ -23,5 +26,8 @@ GDefineMetaInfo createMetaClass_B2MouseJointDef()
     buildMetaClass_B2MouseJointDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 

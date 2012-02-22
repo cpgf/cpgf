@@ -10,6 +10,9 @@
 #include "cpgf/metadata/private/gmetadata_header.h"
 
 
+namespace meta_box2d { 
+
+
 template <typename D, typename Policy>
 void buildMetaClass_Global_b2blockallocator(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
@@ -34,6 +37,9 @@ void buildMetaClass_B2BlockAllocator(const cpgf::GMetaDataConfigFlags & config, 
     _d.CPGF_MD_TEMPLATE _method(replaceName("Free", _r), &D::ClassType::Free, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("Clear", _r), &D::ClassType::Clear, _p);
 }
+
+
+} // namespace meta_box2d 
 
 
 

@@ -1,11 +1,12 @@
 $config = {
 	id => 'box2d',
 
-	callback => \&processCallback,
+	metaOutputCallback => \&processCallback,
 	
-	# for source code
+	cppNamespace => "meta_box2d",
+
 	autoRegisterToGlobal => 1,
-	namespace => 'box2d',
+	metaNamespace => 'box2d',
 	sourceHeaderCode => '#include "Box2D/Box2D.h"',
 	sourceHeaderReplacer => \&doHeaderReplace,
 	metaHeaderPath => 'cpgf/metadata/box2d/',

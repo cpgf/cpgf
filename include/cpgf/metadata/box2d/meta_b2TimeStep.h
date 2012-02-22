@@ -10,6 +10,9 @@
 #include "cpgf/metadata/private/gmetadata_header.h"
 
 
+namespace meta_box2d { 
+
+
 template <typename D, typename Policy>
 void buildMetaClass_B2TimeStep(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
@@ -23,6 +26,9 @@ void buildMetaClass_B2TimeStep(const cpgf::GMetaDataConfigFlags & config, D _d, 
     _d.CPGF_MD_TEMPLATE _field(replaceName("positionIterations", _r), &D::ClassType::positionIterations, _p);
     _d.CPGF_MD_TEMPLATE _field(replaceName("warmStarting", _r), &D::ClassType::warmStarting, _p);
 }
+
+
+} // namespace meta_box2d 
 
 
 

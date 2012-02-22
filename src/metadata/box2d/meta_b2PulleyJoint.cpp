@@ -9,6 +9,9 @@
 
 using namespace cpgf;
 
+namespace meta_box2d { 
+
+
 GDefineMetaInfo createMetaClass_Global_b2pulleyjoint()
 {
     GDefineMetaNamespace _d = GDefineMetaNamespace::dangle("");
@@ -31,5 +34,8 @@ GDefineMetaInfo createMetaClass_B2PulleyJointDef()
     buildMetaClass_B2PulleyJointDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
+
+
+} // namespace meta_box2d 
 
 
