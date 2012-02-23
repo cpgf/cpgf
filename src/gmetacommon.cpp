@@ -274,7 +274,7 @@ const GMetaType & GMetaTypedItem::getMetaType() const
 const std::string & GMetaTypedItem::getTypeName() const
 {
 	if(this->typeName == "") {
-		meta_internal::makeFullName(this, &this->typeName, "-");
+		meta_internal::makeFullName(this, &this->typeName, ".");
 	}
 	return this->typeName;
 }

@@ -14,7 +14,7 @@ namespace meta_box2d {
 
 GDefineMetaInfo createMetaClass_Global_b2broadphase()
 {
-    GDefineMetaNamespace _d = GDefineMetaNamespace::dangle("");
+    GDefineMetaDangle _d = GDefineMetaDangle::dangle();
     buildMetaClass_Global_b2broadphase(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }

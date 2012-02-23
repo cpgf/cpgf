@@ -35,8 +35,6 @@ our @EXPORT = qw(
 
 	&writeParamList
 	&writeDefaultParams
-	&writeNamespaceBegin
-	&writeNamespaceEnd
 
 	&itemIsPublic
 	&itemIsProtected
@@ -44,6 +42,8 @@ our @EXPORT = qw(
 
 	&writeAutoComment
 	&normalizeSymbol
+
+	&sortClassList
 );
 
 my $currentUniqueID = 0;
@@ -252,7 +252,7 @@ sub createMetaClass
 	my ($config, $codeWriter, $class, $varName, $rules) = @_;
 	
 	if($class->isGlobal()) {
-		$codeWriter->out("GDefineMetaNamespace $varName = GDefineMetaNamespace::dangle(\"\");\n");
+		$codeWriter->out("GDefineMetaDangle $varName = GDefineMetaDangle::dangle();\n");
 	}
 	else {
 		my $typeName = "GDefineMetaClass<" . $class->getName;
@@ -355,26 +355,6 @@ sub writeParam
 	$writer->out($param->getType . ($withName ? ' ' . $param->getName : ''));
 }
 
-sub writeNamespaceBegin
-{
-	my ($writer, $namespace) = @_;
-
-	if(defined $namespace) {
-		$writer->out("namespace $namespace { \n");
-		$writer->out("\n\n");
-	}
-}
-
-sub writeNamespaceEnd
-{
-	my ($writer, $namespace) = @_;
-
-	if(defined $namespace) {
-		$writer->out("} // namespace $namespace \n");
-		$writer->out("\n\n");
-	}
-}
-
 sub writeAutoComment
 {
 	my ($writer) = @_;
@@ -391,5 +371,28 @@ sub normalizeSymbol
 
 	return $s;
 }
+
+sub sortClassList
+{
+	my ($classList) = @_;
+
+	my @sortedArray = sort {
+		return -1 unless defined $a->getName;
+		return 1 unless defined $b->getName;
+
+		return uc($a->getName) cmp uc($b->getName);
+	}
+	@{$classList};
+
+	my $newList = [];
+
+	foreach(@sortedArray) {
+		listPush($newList, $_);
+	}
+	
+	return $newList;
+}
+
+
 
 1;

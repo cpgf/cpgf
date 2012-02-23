@@ -510,14 +510,14 @@ template <typename Derived, typename Base>
 struct IsVirtualBase <Derived, Base, typename GEnableIfResult<GAndResult<IsClass<Derived>, IsClass<Base> > >::Result>
 {
 private:
-	struct A : public Derived, public virtual Base {
+	struct A : Derived, virtual Base {
 		A();
 		A(const A &);
 		A & operator = (const A &);
 		~A();
 	};
 
-	struct B : public Derived {
+	struct B : Derived {
 		B();
 		B(const B &);
 		B & operator = (const B &);

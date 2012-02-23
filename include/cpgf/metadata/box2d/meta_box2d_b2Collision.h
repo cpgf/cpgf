@@ -65,6 +65,19 @@ void buildMetaClass_B2ClipVertex(const cpgf::GMetaDataConfigFlags & config, D _d
 
 
 template <typename D, typename Policy>
+void buildMetaClass_Features(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
+{
+    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
+    using namespace cpgf;
+    
+    _d.CPGF_MD_TEMPLATE _field(replaceName("referenceEdge", _r), &D::ClassType::referenceEdge, _p);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("incidentEdge", _r), &D::ClassType::incidentEdge, _p);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("incidentVertex", _r), &D::ClassType::incidentVertex, _p);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("flip", _r), &D::ClassType::flip, _p);
+}
+
+
+template <typename D, typename Policy>
 void buildMetaClass_B2Manifold(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
     (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
@@ -128,19 +141,6 @@ void buildMetaClass_B2WorldManifold(const cpgf::GMetaDataConfigFlags & config, D
     _d.CPGF_MD_TEMPLATE _field(replaceName("normal", _r), &D::ClassType::normal, _p);
     _d.CPGF_MD_TEMPLATE _field(replaceName("points", _r), &D::ClassType::points, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("Initialize", _r), &D::ClassType::Initialize, _p);
-}
-
-
-template <typename D, typename Policy>
-void buildMetaClass_Features(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
-{
-    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
-    using namespace cpgf;
-    
-    _d.CPGF_MD_TEMPLATE _field(replaceName("referenceEdge", _r), &D::ClassType::referenceEdge, _p);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("incidentEdge", _r), &D::ClassType::incidentEdge, _p);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("incidentVertex", _r), &D::ClassType::incidentVertex, _p);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("flip", _r), &D::ClassType::flip, _p);
 }
 
 

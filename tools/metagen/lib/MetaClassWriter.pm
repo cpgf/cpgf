@@ -343,8 +343,7 @@ sub writeClass
 		
 		next unless($self->canWrite($item));
 		
-		$cw->out("{\n");
-		$cw->incIndent();
+		$cw->beginBlock();
 		
 		Util::defineMetaClass($self->{config}, $cw, $item, '_nd', 'declare');
 		my $writer = new MetaClassWriter(
@@ -357,8 +356,7 @@ sub writeClass
 		$writer->write();
 		$cw->out($action . "(_nd);\n");
 		
-		$cw->decIndent();
-		$cw->out("}\n");
+		$cw->endBlock();
 	}
 }
 

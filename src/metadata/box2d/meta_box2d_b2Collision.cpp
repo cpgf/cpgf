@@ -14,7 +14,7 @@ namespace meta_box2d {
 
 GDefineMetaInfo createMetaClass_Global_b2collision()
 {
-    GDefineMetaNamespace _d = GDefineMetaNamespace::dangle("");
+    GDefineMetaDangle _d = GDefineMetaDangle::dangle();
     buildMetaClass_Global_b2collision(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
@@ -32,6 +32,14 @@ GDefineMetaInfo createMetaClass_B2ClipVertex()
 {
     GDefineMetaClass<b2ClipVertex> _d = GDefineMetaClass<b2ClipVertex>::declare("b2ClipVertex");
     buildMetaClass_B2ClipVertex(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    return _d.getMetaInfo();
+}
+
+
+GDefineMetaInfo createMetaClass_Features()
+{
+    GDefineMetaClass<b2ContactID::Features> _d = GDefineMetaClass<b2ContactID::Features>::declare("Features");
+    buildMetaClass_Features(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
 
@@ -72,14 +80,6 @@ GDefineMetaInfo createMetaClass_B2WorldManifold()
 {
     GDefineMetaClass<b2WorldManifold> _d = GDefineMetaClass<b2WorldManifold>::declare("b2WorldManifold");
     buildMetaClass_B2WorldManifold(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-    return _d.getMetaInfo();
-}
-
-
-GDefineMetaInfo createMetaClass_Features()
-{
-    GDefineMetaClass<b2ContactID::Features> _d = GDefineMetaClass<b2ContactID::Features>::declare("Features");
-    buildMetaClass_Features(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
 

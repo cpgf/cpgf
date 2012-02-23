@@ -16,7 +16,7 @@ sub new
 		%args
 	};
 
-	bless $self, $class;
+	bless $self, ref $class || $class;
 
 	return $self;
 }

@@ -3,7 +3,7 @@ package MetaWriter;
 use strict;
 use warnings;
 
-use CodeWriter;
+use CppWriter;
 use Util;
 use MetaFileWriter;
 
@@ -64,27 +64,24 @@ sub createMainHeader
 	return unless($self->{_config}->{autoRegisterToGlobal});
 	
 	my $outFileName = File::Spec->catfile($self->{_config}->{headerOutput}, $self->getMainFileName) . '.h';
-	my $cw = new CodeWriter;
+	my $cw = new CppWriter;
 
 	Util::writeAutoComment($cw);	
 
-	my $guardName = '__' . uc(Util::normalizeSymbol($self->getMainFileName())) . '_H';
-	$guardName =~ s/\./_/g;
+	$cw->beginIncludeGuard(Util::normalizeSymbol($self->getMainFileName()) . '_H');
 
-	$cw->out('#ifndef ' . $guardName . "\n");
-	$cw->out('#define ' . $guardName . "\n");
-	$cw->out("\n\n");
-
-	$cw->out('#include "cpgf/gmetadefine.h"' . "\n");
+	$cw->include('cpgf/gmetadefine.h');
 
 	$cw->out("\n\n");
 	
-	$cw->out("using namespace cpgf;\n");
+	$cw->useNamespace("cpgf");
 	$cw->out("\n");
 
-	Util::writeNamespaceBegin($cw, $self->{_config}->{cppNamespace});
+	$cw->beginNamespace($self->{_config}->{cppNamespace});
 	
-	foreach(@{$createFunctionNames}) {
+	my @sortedCreateFunctionNames = sort(@{$createFunctionNames});
+
+	foreach(@sortedCreateFunctionNames) {
 		my $funcName = $_;
 
 		$cw->out("GDefineMetaInfo $funcName();\n");
@@ -94,13 +91,14 @@ sub createMainHeader
 
 	$cw->out("template <typename Meta>\n");
 	$cw->out("void " . $self->getMainFunctionName . "(Meta _d)\n");
-	$cw->out("{\n");
-	$cw->incIndent();
+
+	$cw->beginBlock();
 
 	$cw->out("_d\n");
 
 	$cw->incIndent();
-	foreach(@{$createFunctionNames}) {
+
+	foreach(@sortedCreateFunctionNames) {
 		my $funcName = $_;
 
 		$cw->out("._class($funcName())\n");
@@ -108,15 +106,13 @@ sub createMainHeader
 	$cw->decIndent();
 	$cw->out(";\n");
 
-	$cw->decIndent();
-	$cw->out("}\n");
+	$cw->endBlock();
 	
 	$cw->out("\n");
 	
-	Util::writeNamespaceEnd($cw, $self->{_config}->{cppNamespace});
-	
-	$cw->out("\n\n");
-	$cw->out('#endif');
+	$cw->endNamespace($self->{_config}->{cppNamespace});
+
+	$cw->endIncludeGuard();	
 
 	Util::writeToFile($outFileName, $cw->getText);
 }
@@ -128,41 +124,38 @@ sub createMainSource
 	return unless($self->{_config}->{autoRegisterToGlobal});
 	
 	my $outFileName = File::Spec->catfile($self->{_config}->{sourceOutput}, $self->getMainFileName) . '.cpp';
-	my $cw = new CodeWriter;
+	my $cw = new CppWriter;
 
 	Util::writeAutoComment($cw);	
 
-	$cw->out('#include "' . $self->{_config}->{metaHeaderPath} . $self->getMainFileName() . ".h\"\n");
-	$cw->out('#include "cpgf/gmetadefine.h"' . "\n");
-	$cw->out('#include "cpgf/goutmain.h"' . "\n");
+	$cw->include($self->{_config}->{metaHeaderPath} . $self->getMainFileName() . '.h');
+	$cw->include('cpgf/gmetadefine.h');
+	$cw->include('cpgf/goutmain.h');
 
 	$cw->out("\n\n");
 	
-	$cw->out("using namespace cpgf;\n");
+	$cw->useNamespace("cpgf");
 	$cw->out("\n");
 
-	Util::writeNamespaceBegin($cw, $self->{_config}->{cppNamespace});
+	$cw->beginNamespace($self->{_config}->{cppNamespace});
 	
-	$cw->out("namespace {\n");
-	$cw->out("\n");
+	$cw->beginNamespace('');
 
 	$cw->out("G_AUTO_RUN_BEFORE_MAIN()\n");
-	$cw->out("{\n");
-	$cw->incIndent();
+
+	$cw->beginBlock();
 
 	my $global = new Class;
 	Util::defineMetaClass($self->{_config}, $cw, $global, '_d', 'define');
 
 	$cw->out($self->getMainFunctionName . "(_d);\n");
 
-	$cw->decIndent();
-	$cw->out("}\n");
+	$cw->endBlock();
 	$cw->out("\n");
 
-	$cw->out("} // unnamed namespace\n");
-	$cw->out("\n");
+	$cw->endNamespace('');
 	
-	Util::writeNamespaceEnd($cw, $self->{_config}->{cppNamespace});
+	$cw->endNamespace($self->{_config}->{cppNamespace});
 
 	Util::writeToFile($outFileName, $cw->getText);
 }

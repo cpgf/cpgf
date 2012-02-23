@@ -480,13 +480,6 @@ public:
 		return c;
 	}
 	
-	static ThisType dangle(const char * className) {
-		ThisType c;
-		c.dangling = true;
-		c.init(className, NULL, false, GMetaPolicyDefault());
-		return c;
-	}
-	
 	static ThisType fromMetaClass(GMetaClass * metaClass) {
 		return ThisType(metaClass);
 	}
@@ -509,16 +502,6 @@ public:
 		return c;
 	}
 
-	static ThisType lazyDangle(const char * className, void (*reg)(ThisType define)) {
-		GASSERT(reg != NULL);
-
-		ThisType c;
-		c.dangling = true;
-		meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
-		c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, GMetaPolicyDefault());
-		return c;
-	}
-
 	template <typename P>
 	struct Policy {
 		static ThisType define(const char * className) {
@@ -529,13 +512,6 @@ public:
 
 		static ThisType declare(const char * className) {
 			ThisType c;
-			c.init(className, NULL, false, P());
-			return c;
-		}
-
-		static ThisType dangle(const char * className) {
-			ThisType c;
-			c.dangling = true;
 			c.init(className, NULL, false, P());
 			return c;
 		}
@@ -553,16 +529,6 @@ public:
 			GASSERT(reg != NULL);
 
 			ThisType c;
-			meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
-			c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, P());
-			return c;
-		}
-
-		static ThisType lazyDangle(const char * className, void (*reg)(ThisType define)) {
-			GASSERT(reg != NULL);
-
-			ThisType c;
-			c.dangling = true;
 			meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
 			c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, P());
 			return c;
@@ -621,7 +587,7 @@ public:
 		return this->metaClass.take();
 	}
 
-private:
+protected:
 	typedef typename cpgf::TypeList_Make<GPP_REPEAT_PARAMS(MAX_BASE_COUNT, BaseType)>::Result BaseListType;
 	
 	template <typename Policy>
@@ -657,6 +623,61 @@ private:
 };
 
 
+class GDefineMetaDangle : public GDefineMetaCommon<void, GDefineMetaDangle>
+{
+private:
+	typedef GDefineMetaDangle ThisType;
+	typedef GDefineMetaCommon<void, GDefineMetaDangle> super;
+
+public:
+	static ThisType dangle() {
+		ThisType c;
+		c.init();
+		return c;
+	}
+	
+	GDefineMetaInfo getMetaInfo() const {
+		return GDefineMetaInfo(this->metaClass, this->dangling);
+	}
+
+	GMetaClass * getMetaClass() const {
+		return this->metaClass.get();
+	}
+
+	GMetaClass * takeMetaClass() {
+		return this->metaClass.take();
+	}
+
+protected:
+	GDefineMetaDangle() : super(meta_internal::GSharedMetaClass(NULL), NULL) {
+	}
+
+	explicit GDefineMetaDangle(GMetaClass * metaClass) : super(meta_internal::GSharedMetaClass(metaClass, false), metaClass) {
+	}
+
+	GDefineMetaDangle(GMetaClass * metaClass, GMetaItem * currentItem) : super(meta_internal::GSharedMetaClass(metaClass), currentItem) {
+	}
+
+	GDefineMetaDangle(meta_internal::GSharedMetaClass metaClass, GMetaItem * currentItem) : super(metaClass, currentItem) {
+	}
+
+protected:
+	void init() {
+		this->dangling = true;
+		
+		GMetaClass * metaClass = new GMetaClass((void *)0, new meta_internal::GMetaSuperList, "", NULL, NULL, GMetaPolicyDefault());
+
+		this->metaClass.reset(metaClass);
+		this->currentItem = metaClass;
+	}
+
+private:
+	template <typename DefineClass>
+	friend struct meta_internal::GLazyDefineClassHelper;
+
+};
+
+
 class GDefineMetaGlobal : public GDefineMetaCommon<void, GDefineMetaGlobal >
 {
 private:
@@ -681,7 +702,6 @@ public:
 
 
 typedef GDefineMetaClass<void> GDefineMetaNamespace;
-
 
 
 } // namespace cpgf

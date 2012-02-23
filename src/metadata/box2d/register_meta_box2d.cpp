@@ -10,7 +10,8 @@ using namespace cpgf;
 namespace meta_box2d { 
 
 
-namespace {
+namespace { 
+
 
 G_AUTO_RUN_BEFORE_MAIN()
 {
@@ -19,6 +20,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 }
 
 } // unnamed namespace
+
 
 } // namespace meta_box2d 
 

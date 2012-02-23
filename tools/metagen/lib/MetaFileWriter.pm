@@ -8,7 +8,7 @@ use File::Basename;
 use File::Path;
 
 use Util;
-use CodeWriter;
+use CppWriter;
 use MetaClassWriter;
 
 sub new
@@ -36,28 +36,24 @@ sub writeHeader
 {
 	my ($self) = @_;
 	
-	my $cw = new CodeWriter;
+	my $cw = new CppWriter;
 
 	Util::writeAutoComment($cw);	
 
-	my $guardName = '__' . uc(Util::normalizeSymbol($self->getDestFileName())) . '_H';
-	$guardName =~ s/\./_/g;
+	$cw->beginIncludeGuard(Util::normalizeSymbol($self->getDestFileName()) . '_H');
 
-	$cw->out('#ifndef ' . $guardName . "\n");
-	$cw->out('#define ' . $guardName . "\n");
-	$cw->out("\n\n");
-
-	$cw->out('#include "cpgf/gmetadefine.h"' . "\n");
-	$cw->out('#include "cpgf/metadata/gnamereplacer.h"' . "\n");
-	$cw->out('#include "cpgf/metadata/gmetadataconfig.h"' . "\n");
-	$cw->out('#include "cpgf/metadata/private/gmetadata_header.h"' . "\n");
+	$cw->include('cpgf/gmetadefine.h');
+	$cw->include('cpgf/metadata/gnamereplacer.h');
+	$cw->include('cpgf/metadata/gmetadataconfig.h');
+	$cw->include('cpgf/metadata/private/gmetadata_header.h');
 	$cw->out("\n\n");
 			
 	my @buildFunctionNameList = ();
 
-	Util::writeNamespaceBegin($cw, $self->{_config}->{cppNamespace});
-	
-	foreach(@{$self->{_classList}}) {
+	$cw->beginNamespace($self->{_config}->{cppNamespace});
+
+	my $sortedClassList = Util::sortClassList($self->{_classList});
+	foreach(@{$sortedClassList}) {
 		my $class = $_;
 		my $writer = new MetaClassWriter(
 			_class => $class,
@@ -76,17 +72,17 @@ sub writeHeader
 		$cw->out("\n\n");
 	}
 
-	Util::writeNamespaceEnd($cw, $self->{_config}->{cppNamespace});
+	$cw->endNamespace($self->{_config}->{cppNamespace});
 	
 	foreach(@{$self->{_fileMap}->getNamespaceList}) {
 		my $ns = $_;
-		$cw->out("using namespace " . $ns . ";\n");
+		$cw->useNamespace($ns);
 	}
 	
 	$cw->out("\n\n");
-	$cw->out('#include "cpgf/metadata/private/gmetadata_footer.h"' . "\n");
-	$cw->out("\n\n");
-	$cw->out('#endif');
+	$cw->include('cpgf/metadata/private/gmetadata_footer.h');
+	
+	$cw->endIncludeGuard();
 	
 	mkpath(File::Spec->catfile($self->{_config}->{headerOutput}, ''));
 	my $outFileName = $self->makeOutputFileName($self->{_config}->{headerExtension});
@@ -99,7 +95,7 @@ sub writeSource
 
 	return unless($self->{_config}->{autoRegisterToGlobal});
 	
-	my $cw = new CodeWriter;
+	my $cw = new CppWriter;
 
 	Util::writeAutoComment($cw);	
 
@@ -111,20 +107,21 @@ sub writeSource
 		my $fileName = $self->{_sourceFileName};
 		$fileName =~ s/\\/\//g;
 		$fileName = &{$self->{_config}->{sourceHeaderReplacer}}($fileName, $self->getBaseFileName());
-		$cw->out('#include "' . $fileName . "\"\n");
+		$cw->include($fileName);
 		$cw->out("\n");
 	}
-	$cw->out('#include "' . $self->{_config}->{metaHeaderPath} . $self->getDestFileName() . ".h\"\n");
+	$cw->include($self->{_config}->{metaHeaderPath} . $self->getDestFileName() . '.h');
 	$cw->out("\n");
-	$cw->out('#include "cpgf/gmetapolicy.h"' . "\n");
+	$cw->include('cpgf/gmetapolicy.h');
 	$cw->out("\n");
 	
-	$cw->out("using namespace cpgf;\n");
+	$cw->useNamespace("cpgf");
 	$cw->out("\n");
 
-	Util::writeNamespaceBegin($cw, $self->{_config}->{cppNamespace});
+	$cw->beginNamespace($self->{_config}->{cppNamespace});
 	
-	foreach(@{$self->{_classList}}) {
+	my $sortedClassList = Util::sortClassList($self->{_classList});
+	foreach(@{$sortedClassList}) {
 		my $class = $_;
 		next if($class->isTemplate);
 
@@ -132,9 +129,8 @@ sub writeSource
 		Util::listPush($createFunctionNames, $funcName);
 
 		$cw->out("GDefineMetaInfo $funcName()\n");
-		$cw->out("{\n");
 		
-		$cw->incIndent();
+		$cw->beginBlock();
 		
 		Util::createMetaClass($self->{_config}, $cw, $class, '_d', $class->getPolicyRules());
 		
@@ -142,13 +138,12 @@ sub writeSource
 		$cw->out("$callFunc(0, _d, NULL, GMetaPolicyCopyAllConstReference());\n");
 		$cw->out("return _d.getMetaInfo();\n");
 		
-		$cw->decIndent();
+		$cw->endBlock();
 
-		$cw->out("}\n");
 		$cw->out("\n\n");
 	}
 	
-	Util::writeNamespaceEnd($cw, $self->{_config}->{cppNamespace});
+	$cw->endNamespace($self->{_config}->{cppNamespace});
 	
 	mkpath(File::Spec->catfile($self->{_config}->{sourceOutput}, ''));
 	my $outFileName = File::Spec->catfile($self->{_config}->{sourceOutput}, $self->getDestFileName()) . $self->{_config}->{sourceExtension};
@@ -173,10 +168,9 @@ sub beginMetaFunction
 
 	$cw->out("template <typename D, typename Policy>\n");
 	$cw->out("void " . $name . "(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)\n");
-	$cw->out("{\n");
-	$cw->incIndent();
+	$cw->beginBlock();
 	$cw->out("(void)config; (void)_d; (void)_r; (void)_d; (void)_p;\n");
-	$cw->out("using namespace cpgf;\n");
+	$cw->useNamespace("cpgf");
 	$cw->out("\n");
 }
 
@@ -184,8 +178,7 @@ sub endMetaFunction
 {
 	my ($self, $cw) = @_;
 
-	$cw->decIndent();
-	$cw->out("}\n");
+	$cw->endBlock();
 }
 
 sub makeOutputFileName
