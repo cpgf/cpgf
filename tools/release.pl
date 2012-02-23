@@ -1,9 +1,18 @@
+BEGIN {
+	$basePath = $0;
+	$basePath =~ s![^/\\]+$!!;
+	unshift @INC, $basePath;
+	unshift @INC, $basePath . "lib";
+}
+
 use strict;
 use warnings;
 
 use File::Basename;
 use File::Copy;
 use File::Path;
+
+use FilePrefix;
 
 my %defaultConfig = (
 	path => undef,
@@ -90,6 +99,9 @@ my $releasePath;
 my $destPath;
 my $version;
 
+my $cppHeadContent = undef;
+my $perlHeadContent = undef;
+
 &doMain;
 
 sub doMain
@@ -172,17 +184,7 @@ sub processDestFile
 	my ($pattern, $destFile) = @_;
 
 	if($pattern->{licenseHead}) {
-		my $license = undef;
-
-		if($destFile =~ /\.(h|cpp)$/i) {
-			$license = 'licensehead_apache.txt';
-		}
-		elsif($destFile =~ /\.p[ml]$/i) {
-			$license = 'licensehead_apache_perl.txt';
-		}
-		if(defined($license)) {
-			system "perl $scriptPath/file_prefix.pl $scriptPath/$license $destFile";
-		}
+		&licenseFile($destFile);
 	}
 	
 	if($destFile =~ /\.doxyfile$/i) {
@@ -190,6 +192,20 @@ sub processDestFile
 	}
 }
 
+sub licenseFile
+{
+	my ($destFile) = @_;
+
+	if($destFile =~ /\.(h|cpp)$/i) {
+		$cppHeadContent = &FilePrefix::prefixLoadHeadContent('licensehead_apache.txt') unless defined $cppHeadContent;
+		&FilePrefix::prefixProcessFile($destFile, $cppHeadContent);
+	}
+	elsif($destFile =~ /\.p[ml]$/i) {
+		$perlHeadContent = &FilePrefix::prefixLoadHeadContent('licensehead_apache_perl.txt') unless defined $perlHeadContent;
+		&FilePrefix::prefixProcessFile($destFile, $perlHeadContent);
+	}
+}
+	
 sub compactFile
 {
 	my ($fileName) = @_;

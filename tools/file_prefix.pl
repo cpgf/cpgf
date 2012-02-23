@@ -1,5 +1,14 @@
+BEGIN {
+	$basePath = $0;
+	$basePath =~ s![^/\\]+$!!;
+	unshift @INC, $basePath;
+	unshift @INC, $basePath . "lib";
+}
+
 use strict;
 use warnings;
+
+use FilePrefix;
 
 my $headFileName = undef;
 my @filePatterns = ();
@@ -11,10 +20,10 @@ my $headContent = '';
 sub doMain
 {
 	&parseCommandLine(\@ARGV);
-	&loadHeadContent;
+	$headContent = &FilePrefix::prefixLoadHeadContent($headFileName);
 	
 	foreach(@filePatterns) {
-		&prefixProcessPattern($_);
+		&FilePrefix::prefixProcessPattern($_, $headContent);
 	}
 }
 
@@ -33,43 +42,3 @@ sub parseCommandLine
 	die "Files required.\n" unless($#filePatterns >= 0);
 }
 
-sub loadHeadContent
-{
-	open FH, '<' . $headFileName or die "Can't open head file $headFileName to read.\n";
-	my @lines = <FH>;
-	close FH;
-	
-	$headContent = join('', @lines);
-}
-
-sub prefixProcessPattern
-{
-	my ($pattern) = @_;
-	my @files = glob($pattern);
-
-	die "Can't find file for pattern $pattern.\n" unless($#files >= 0);
-	
-	foreach(@files) {
-		&prefixProcessFile($_);
-	}
-}
-
-sub prefixProcessFile
-{
-	my ($file) = @_;
-	
-	my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size, $atime, $mtime, $ctime, $blksize, $blocks) = stat($file);
-
-	open FH, '<' . $file or die "Can't open head file $file to read.\n";
-	my @lines = <FH>;
-	close FH;
-	
-	my $content = join('', @lines);
-
-	open FH, '>' . $file or die "Can't open head file $file to write.\n";
-	print FH $headContent;
-	print FH $content;
-	close FH;
-
-#	utime $atime, $mtime, $file;	
-}

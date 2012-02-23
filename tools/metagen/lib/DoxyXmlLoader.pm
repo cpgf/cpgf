@@ -23,6 +23,7 @@ use Define;
 
 use FileInfo;
 
+use Fixup;
 
 sub new
 {
@@ -98,7 +99,7 @@ sub fixup
 {
 	my ($self) = @_;
 
-	$self->{_classList} = Util::fixupClassList($self->{_classList});
+	$self->{_classList} = Fixup::fixupClassList($self->{_classList});
 }
 
 sub parseFile
