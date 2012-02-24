@@ -7,6 +7,8 @@
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gclassutil.h"
 
+#include "cpgf/private/gmetacommon_p.h"
+
 #include <stdexcept>
 #include <vector>
 
@@ -33,26 +35,6 @@ struct GMetaVariadicParam
 	GVariant const * const * params;
 	size_t paramCount;
 };
-
-
-namespace meta_internal {
-
-void handleForbidAccessError(bool isRead);
-
-void * newZeroBuffer(void * buffer, size_t size, void * copy);
-
-class GMetaItemImplement;
-
-struct CStringCompare
-{
-	bool operator () (const char * a, const char * b) const {
-		return strcmp(a, b) < 0;
-	}
-};
-
-
-} // namespace meta_internal
-
 
 
 enum GMetaCategory {

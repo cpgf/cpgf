@@ -14,26 +14,63 @@ public:
 	virtual void * G_API_CC getObject() = 0;
 };
 
-template <typename T>
-class GVariantShadowObject : public IVariantShadowObject
+struct GVariantShadowObjectVirtual
+{
+	void (*retain)(void * self);
+	void (*release)(void * self);
+	void * (*getObject)(void * self);
+};
+
+class GVariantShadowObjectBase : public IVariantShadowObject
 {
 public:
-	GVariantShadowObject(const T & obj) : refCount(1), obj(obj) {
-	}
-
 	virtual void G_API_CC retain() {
-		++this->refCount;
+		this->virtualFunctions->retain(this);
 	}
 
 	virtual void G_API_CC release() {
-		--this->refCount;
-		if(this->refCount <= 0) {
-			delete this;
-		}
+		this->virtualFunctions->release(this);
 	}
 
 	virtual void * G_API_CC getObject() {
-		return (void *)(&this->obj);
+		return this->virtualFunctions->getObject(this);
+	}
+
+protected:
+	GVariantShadowObjectVirtual * virtualFunctions;
+};
+
+template <typename T>
+class GVariantShadowObject : public GVariantShadowObjectBase
+{
+private:
+	typedef GVariantShadowObject<T> ThisType;
+
+private:
+	static void virtualRetain(void * self) {
+		++static_cast<ThisType *>(self)->refCount;
+	}
+
+	static void virtualRelease(void * self) {
+		--static_cast<ThisType *>(self)->refCount;
+		if(static_cast<ThisType *>(self)->refCount <= 0) {
+			delete static_cast<ThisType *>(self);
+		}
+	}
+
+	static void * virtualGetObject(void * self) {
+		return (void *)(&static_cast<ThisType *>(self)->obj);
+	}
+
+public:
+	GVariantShadowObject(const T & obj) : refCount(1), obj(obj) {
+		static GVariantShadowObjectVirtual thisFunctions = {
+			&virtualRetain,
+			&virtualRelease,
+			&virtualGetObject
+		};
+
+		this->virtualFunctions = &thisFunctions;
 	}
 
 private:

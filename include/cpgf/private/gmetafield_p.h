@@ -10,16 +10,55 @@ namespace cpgf {
 
 namespace meta_internal {
 
+struct GMetaFieldDataVirtual
+{
+	void (*deleteObject)(void * self);
+	bool (*canGet)(const void * self);
+	bool (*canSet)(const void * self);
+	GVariant (*get)(const void * self, void * instance);
+	void (*set)(const void * self, void * instance, const GVariant & v);
+	size_t (*getFieldSize)(const void * self);
+	void * (*getFieldAddress)(const void * self, void * instance);
+	GMetaConverter * (*createConverter)(const void * self);
+};
+
 class GMetaFieldDataBase
 {
 public:
-	virtual bool canGet() const = 0;
-	virtual bool canSet() const = 0;
-	virtual GVariant get(void * instance) const = 0;
-	virtual void set(void * instance, const GVariant & v) const = 0;
-	virtual size_t getFieldSize() const = 0;
-	virtual void * getFieldAddress(void * instance) const = 0;
-	virtual GMetaConverter * createConverter() const = 0;
+	void deleteObject() {
+		this->virtualFunctions->deleteObject(this);
+	}
+
+	bool canGet() const {
+		return this->virtualFunctions->canGet(this);
+	}
+
+	bool canSet() const {
+		return this->virtualFunctions->canSet(this);
+	}
+
+	GVariant get(void * instance) const {
+		return this->virtualFunctions->get(this, instance);
+	}
+
+	void set(void * instance, const GVariant & v) const {
+		this->virtualFunctions->set(this, instance, v);
+	}
+
+	size_t getFieldSize() const {
+		return this->virtualFunctions->getFieldSize(this);
+	}
+
+	void * getFieldAddress(void * instance) const {
+		return this->virtualFunctions->getFieldAddress(this, instance);
+	}
+
+	GMetaConverter * createConverter() const {
+		return this->virtualFunctions->createConverter(this);
+	}
+
+protected:
+	GMetaFieldDataVirtual * virtualFunctions;
 };
 
 
@@ -30,40 +69,57 @@ private:
 	G_STATIC_CONSTANT(bool, Readable = (PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result));
 	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result && !IsConst<FT>::Result));
 
-public:
-	GMetaFieldDataGlobal(FT * field) : field(field) {
-	}
+private:
+	static bool virtualCanGet(const void * self) {
+		(void)self;
 
-	~GMetaFieldDataGlobal() {
-	}
-
-	virtual bool canGet() const {
 		return Readable;
 	}
 
-	virtual bool canSet() const {
+	static bool virtualCanSet(const void * self) {
+		(void)self;
+
 		return Writable;
 	}
 
-	virtual GVariant get(void * instance) const {
-		return this->doGet<void>(instance);
+	static GVariant virtualGet(const void * self, void * instance) {
+		return static_cast<const GMetaFieldDataGlobal *>(self)->doGet<void>(instance);
 	}
 
-	virtual void set(void * instance, const GVariant & value) const {
-		this->doSet<void>(instance, value);
+	static void virtualSet(const void * self, void * instance, const GVariant & value) {
+		static_cast<const GMetaFieldDataGlobal *>(self)->doSet<void>(instance, value);
 	}
 
-	virtual size_t getFieldSize() const {
+	static size_t virtualGetFieldSize(const void * self) {
+		(void)self;
+
 		return sizeof(FT);
 	}
 
-	virtual void * getFieldAddress(void * instance) const {
+	static void * virtualGetFieldAddress(const void * self, void * instance) {
 		(void)instance;
-		return (void *)(this->field);
+		return (void *)(static_cast<const GMetaFieldDataGlobal *>(self)->field);
 	}
 	
-	virtual GMetaConverter * createConverter() const {
+	static GMetaConverter * virtualCreateConverter(const void * self) {
+		(void)self;
+
 		return GMetaConverterTraits<FT>::createConverter();
+	}
+
+public:
+	GMetaFieldDataGlobal(FT * field) : field(field) {
+		static GMetaFieldDataVirtual thisFunctions = {
+			&virtualBaseMetaDeleter<GMetaFieldDataGlobal>,
+			&virtualCanGet,
+			&virtualCanSet,
+			&virtualGet,
+			&virtualSet,
+			&virtualGetFieldSize,
+			&virtualGetFieldAddress,
+			&virtualCreateConverter
+		};
+		this->virtualFunctions = &thisFunctions;
 	}
 
 private:	
@@ -110,39 +166,54 @@ private:
 	G_STATIC_CONSTANT(bool, Readable = (PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result));
 	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result && !IsArray<FT>::Result));
 
-public:
-	GMetaFieldDataMember(FT OT::* field) : field(field) {
-	}
+private:
+	static bool virtualCanGet(const void * self) {
+		(void)self;
 
-	~GMetaFieldDataMember() {
-	}
-
-	virtual bool canGet() const {
 		return Readable;
 	}
 
-	virtual bool canSet() const {
+	static bool virtualCanSet(const void * self) {
+		(void)self;
+
 		return Writable;
 	}
 
-	virtual GVariant get(void * instance) const {
-		return this->doGet<void>(instance);
+	static GVariant virtualGet(const void * self, void * instance) {
+		return static_cast<const GMetaFieldDataMember *>(self)->doGet<void>(instance);
 	}
 
-	virtual void set(void * instance, const GVariant & value) const {
-		this->doSet<void>(instance, value);
+	static void virtualSet(const void * self, void * instance, const GVariant & value) {
+		static_cast<const GMetaFieldDataMember *>(self)->doSet<void>(instance, value);
 	}
 
-	virtual size_t getFieldSize() const {
+	static size_t virtualGetFieldSize(const void * self) {
+		(void)self;
+
 		return sizeof(FT);
 	}
 
-	virtual void * getFieldAddress(void * instance) const {
-		return &(static_cast<OT *>(instance)->*(this->field));
+	static void * virtualGetFieldAddress(const void * self, void * instance) {
+		(void)instance;
+		return &(static_cast<OT *>(instance)->*(static_cast<const GMetaFieldDataMember *>(self)->field));
 	}
 	
-	virtual GMetaConverter * createConverter() const {
+	static GMetaConverter * virtualCreateConverter(const void * self) {
+		(void)self;
+
 		return GMetaConverterTraits<FT>::createConverter();
+	}
+
+public:
+	GMetaFieldDataMember(FT OT::* field) : field(field) {
+		static GMetaFieldDataVirtual thisFunctions = {
+			&virtualBaseMetaDeleter<GMetaFieldDataMember>,
+			&virtualCanGet, &virtualCanSet,
+			&virtualGet, &virtualSet,
+			&virtualGetFieldSize, &virtualGetFieldAddress,
+			&virtualCreateConverter
+		};
+		this->virtualFunctions = &thisFunctions;
 	}
 
 private:

@@ -28,25 +28,79 @@ namespace meta_internal {
 
 std::string arityToName(int arity);
 
+struct GMetaMethodDataVirtual
+{
+	void (*deleteObject)(void * self);
+	size_t (*getParamCount)(const void * self);
+	bool (*hasResult)(const void * self);
+	GMetaType (*getParamType)(const void * self, size_t index);
+	GMetaType (*getResultType)(const void * self);
+	bool (*isVariadic)(const void * self);
+	bool (*isExplicitThis)(const void * self);
+	GVariant (*invoke)(const void * self, void * instance, GVariant const * const * params, size_t paramCount);
+	bool (*checkParam)(const void * self, const GVariant & param, size_t paramIndex);
+	bool (*isParamTransferOwnership)(const void * self, size_t paramIndex);
+	bool (*isResultTransferOwnership)(const void * self);
+	GMetaConverter * (*createResultConverter)(const void * self);
+};
+
 class GMetaMethodDataBase
 {
 public:
-	virtual ~GMetaMethodDataBase();
+	void deleteObject() {
+		this->virtualFunctions->deleteObject(this);
+	}
 
-	virtual size_t getParamCount() const = 0;
-	virtual bool hasResult() const = 0;
-	virtual GMetaType getParamType(size_t index) const = 0;
-	virtual GMetaType getResultType() const = 0;
-	virtual bool isVariadic() const = 0;
-	virtual bool isExplicitThis() const = 0;
-	virtual GVariant invoke(void * instance, GVariant const * const * params, size_t paramCount) const = 0;
-	virtual bool checkParam(const GVariant & param, size_t paramIndex) const = 0;
-	virtual bool isParamTransferOwnership(size_t paramIndex) const = 0;
-	virtual bool isResultTransferOwnership() const = 0;
-	virtual GMetaConverter * createResultConverter() const = 0;
+	size_t getParamCount() const {
+		return this->virtualFunctions->getParamCount(this);
+	}
+
+	bool hasResult() const {
+		return this->virtualFunctions->hasResult(this);
+	}
+
+	GMetaType getParamType(size_t index) const {
+		return this->virtualFunctions->getParamType(this, index);
+	}
+
+	GMetaType getResultType() const {
+		return this->virtualFunctions->getResultType(this);
+	}
+
+	bool isVariadic() const {
+		return this->virtualFunctions->isVariadic(this);
+	}
+
+	bool isExplicitThis() const {
+		return this->virtualFunctions->isExplicitThis(this);
+	}
+
+	GVariant invoke(void * instance, GVariant const * const * params, size_t paramCount) const {
+		return this->virtualFunctions->invoke(this, instance, params, paramCount);
+	}
+
+	bool checkParam(const GVariant & param, size_t paramIndex) const {
+		return this->virtualFunctions->checkParam(this, param, paramIndex);
+	}
+
+	bool isParamTransferOwnership(size_t paramIndex) const {
+		return this->virtualFunctions->isParamTransferOwnership(this, paramIndex);
+	}
+
+	bool isResultTransferOwnership() const {
+		return this->virtualFunctions->isResultTransferOwnership(this);
+	}
+
+	GMetaConverter * createResultConverter() const {
+		return this->virtualFunctions->createResultConverter(this);
+	}
 
 	GMetaDefaultParamList * getDefaultParamList() const;
 	bool hasDefaultParam() const;
+
+protected:
+	GMetaMethodDataVirtual * virtualFunctions;
+
 private:
 	mutable GScopedPointer<GMetaDefaultParamList> defaultParamList;
 };
@@ -60,19 +114,22 @@ private:
 	typedef typename CallbackType::TraitsType TraitsType;
 	typedef typename TraitsType::ArgTypeList ArgTypeList;
 
-public:
-	explicit GMetaMethodData(const CallbackType & cb, const Policy &) : callback(cb) {
-	}
+private:
+	static size_t virtualGetParamCount(const void * self) {
+		(void)self;
 
-	virtual size_t getParamCount() const {
 		return PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result ? TraitsType::Arity - 1 : TraitsType::Arity;
 	}
 
-	virtual bool hasResult() const {
+	static bool virtualHasResult(const void * self) {
+		(void)self;
+
 		return ! IsSameType<typename TraitsType::ResultType, void>::Result;
 	}
 
-	virtual GMetaType getParamType(size_t index) const {
+	static GMetaType virtualGetParamType(const void * self, size_t index) {
+		(void)self;
+
 		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
 			++index;
 		}
@@ -85,29 +142,35 @@ public:
 		}
 	}
 
-	virtual GMetaType getResultType() const {
+	static GMetaType virtualGetResultType(const void * self) {
+		(void)self;
+
 		return createMetaType<typename CallbackT::TraitsType::ResultType>();
 	}
 
-	virtual bool isVariadic() const {
+	static bool virtualIsVariadic(const void * self) {
+		(void)self;
+
 		return IsVariadicFunction<TraitsType>::Result;
 	}
 
-	virtual bool isExplicitThis() const {
+	static bool virtualIsExplicitThis(const void * self) {
+		(void)self;
+
 		return PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result;
 	}
 
-	virtual GVariant invoke(void * instance, GVariant const * const * params, size_t paramCount) const {
+	static GVariant virtualInvoke(const void * self, void * instance, GVariant const * const * params, size_t paramCount) {
 		if(!(
-				this->isVariadic()
-				|| paramCount == this->getParamCount()
-				|| (paramCount == this->getParamCount() - 1 && PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result)
+				static_cast<const GMetaMethodData *>(self)->isVariadic()
+				|| paramCount == static_cast<const GMetaMethodData *>(self)->getParamCount()
+				|| (paramCount == static_cast<const GMetaMethodData *>(self)->getParamCount() - 1 && PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result)
 			)
 		) {
-			raiseCoreException(Error_Meta_WrongArity, this->getParamCount(), paramCount);
+			raiseCoreException(Error_Meta_WrongArity, static_cast<const GMetaMethodData *>(self)->getParamCount(), paramCount);
 		}
 
-		this->callback.setObject(instance);
+		static_cast<const GMetaMethodData *>(self)->callback.setObject(instance);
 		return GMetaInvokeHelper<CallbackType,
 			TraitsType,
 			TraitsType::Arity,
@@ -115,15 +178,15 @@ public:
 			Policy,
 			IsVariadicFunction<TraitsType>::Result,
 			PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result
-		>::invoke(instance, this->callback, params, paramCount);
+		>::invoke(instance, static_cast<const GMetaMethodData *>(self)->callback, params, paramCount);
 	}
 
-	virtual bool checkParam(const GVariant & param, size_t paramIndex) const {
-		if(this->isVariadic()) {
+	static bool virtualCheckParam(const void * self, const GVariant & param, size_t paramIndex) {
+		if(static_cast<const GMetaMethodData *>(self)->isVariadic()) {
 			return true;
 		}
 
-		if(paramIndex >= this->getParamCount()) {
+		if(paramIndex >= static_cast<const GMetaMethodData *>(self)->getParamCount()) {
 			return false;
 		}
 
@@ -146,19 +209,45 @@ public:
 
 	}
 
-	virtual bool isParamTransferOwnership(size_t paramIndex) const {
+	static bool virtualIsParamTransferOwnership(const void * self, size_t paramIndex) {
+		(void)self;
+
 		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
 			++paramIndex;
 		}
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
 
-	virtual bool isResultTransferOwnership() const {
+	static bool virtualIsResultTransferOwnership(const void * self) {
+		(void)self;
+
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	virtual GMetaConverter * createResultConverter() const {
+	static GMetaConverter * virtualCreateResultConverter(const void * self) {
+		(void)self;
+
 		return GMetaConverterTraits<typename CallbackT::TraitsType::ResultType>::createConverter();
+	}
+
+public:
+	GMetaMethodData(const CallbackType & cb, const Policy &) : callback(cb) {
+		static GMetaMethodDataVirtual thisFunctions = {
+			&virtualBaseMetaDeleter<GMetaMethodData>,
+			&virtualGetParamCount,
+			&virtualHasResult,
+			&virtualGetParamType,
+			&virtualGetResultType,
+			&virtualIsVariadic,
+			&virtualIsExplicitThis,
+			&virtualInvoke,
+			&virtualCheckParam,
+			&virtualIsParamTransferOwnership,
+			&virtualIsResultTransferOwnership,
+			&virtualCreateResultConverter
+		};
+
+		this->virtualFunctions = &thisFunctions;
 	}
 
 public:

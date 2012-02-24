@@ -238,36 +238,96 @@ DEF_UNARY(mopMember, p.operator->())
 #undef DEF_UNARY
 
 
+struct GMetaOperatorDataVirtual
+{
+	void (*deleteObject)(void * self);
+	
+	GVariant (*invoke)(const void * self, const GVariant & p0);
+	GVariant (*invoke2)(const void * self, const GVariant & p0, const GVariant & p1);
+	GVariant (*invokeFunctor)(const void * self, void * instance, GVariant const * const * params, size_t paramCount);
+	GVariant (*execute)(const void * self, void * instance, const GVariant * params, size_t paramCount);
+	
+	GMetaOpType (*getOperator)(const void * self);
+	size_t (*getParamCount)(const void * self);
+	bool (*hasResult)(const void * self);
+	bool (*isParamSelf)(const void * self, size_t paramIndex);
+	GMetaType (*getParamType)(const void * self, size_t index);
+	GMetaType (*getResultType)(const void * self);
+	bool (*isVariadic)(const void * self);
+	bool (*checkParam)(const void * self, const GVariant & param, size_t paramIndex);
+	bool (*isParamTransferOwnership)(const void * self, size_t paramIndex);
+	bool (*isResultTransferOwnership)(const void * self);
+	GMetaConverter * (*createResultConverter)(const void * self);
+	GMetaType (*createOperatorMetaType)(const void * self);
+};
+
 class GMetaOperatorDataBase
 {
 public:
-	virtual ~GMetaOperatorDataBase();
+	void deleteObject() {
+		this->virtualFunctions->deleteObject(this);
+	}
 
-	virtual GMetaOpType getOperator() const = 0;
-	virtual size_t getParamCount() const = 0;
+	GMetaOpType getOperator() const {
+		return this->virtualFunctions->getOperator(this);
+	}
 
-	virtual bool isParamSelf(size_t paramIndex) const = 0;
-	virtual GMetaType getParamType(size_t index) const = 0;
-	virtual bool hasResult() const = 0;
-	virtual GMetaType getResultType() const = 0;
-	virtual bool isVariadic() const = 0;
+	size_t getParamCount() const {
+		return this->virtualFunctions->getParamCount(this);
+	}
 
-	virtual bool checkParam(const GVariant & param, size_t paramIndex) const = 0;
+	bool isParamSelf(size_t paramIndex) const {
+		return this->virtualFunctions->isParamSelf(this, paramIndex);
+	}
 
-	virtual GMetaType createOperatorMetaType() const = 0;
+	GMetaType getParamType(size_t paramIndex) const {
+		return this->virtualFunctions->getParamType(this, paramIndex);
+	}
 
-	virtual GVariant invoke(const GVariant & p0) const;
-	virtual GVariant invoke(const GVariant & p0, const GVariant & p1) const;
-	virtual GVariant invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const;
+	bool hasResult() const {
+		return this->virtualFunctions->hasResult(this);
+	}
 
-	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
+	GMetaType getResultType() const {
+		return this->virtualFunctions->getResultType(this);
+	}
 
-	virtual bool isParamTransferOwnership(size_t paramIndex) const = 0;
-	virtual bool isResultTransferOwnership() const = 0;
-	virtual GMetaConverter * createResultConverter() const = 0;
+	bool isVariadic() const {
+		return this->virtualFunctions->isVariadic(this);
+	}
+
+	bool checkParam(const GVariant & param, size_t paramIndex) const {
+		return this->virtualFunctions->checkParam(this, param, paramIndex);
+	}
+
+	GMetaType createOperatorMetaType() const {
+		return this->virtualFunctions->createOperatorMetaType(this);
+	}
+
+	GVariant invoke(const GVariant & p0) const;
+	GVariant invoke(const GVariant & p0, const GVariant & p1) const;
+	GVariant invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const;
+
+	GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
+
+	bool isParamTransferOwnership(size_t paramIndex) const {
+		return this->virtualFunctions->isParamTransferOwnership(this, paramIndex);
+	}
+
+	bool isResultTransferOwnership() const {
+		return this->virtualFunctions->isResultTransferOwnership(this);
+	}
+
+	GMetaConverter * createResultConverter() const {
+		return this->virtualFunctions->createResultConverter(this);
+	}
 	
 	GMetaDefaultParamList * getDefaultParamList() const;
 	bool hasDefaultParam() const;
+
+protected:
+	GMetaOperatorDataVirtual * virtualFunctions;
+
 private:
 	mutable GScopedPointer<GMetaDefaultParamList> defaultParamList;
 };
@@ -288,20 +348,27 @@ class GMetaOperatorData <OT, Op, Signature, Policy, typename GEnableIfResult<IsB
 	: public GMetaOperatorDataBase
 {
 private:
+	typedef GMetaOperatorData <OT, Op, Signature, Policy, typename GEnableIfResult<IsBinaryOperator<Op> >::Result> ThisType;
 	typedef GFunctionTraits<Signature> FT;
 
 	GASSERT_STATIC(FT::Arity == 2);
 
-public:
-	virtual GMetaOpType getOperator() const {
+private:
+	static GMetaOpType virtualGetOperator(const void * self) {
+		(void)self;
+
 		return Op;
 	}
 
-	virtual size_t getParamCount() const {
+	static size_t virtualGetParamCount(const void * self) {
+		(void)self;
+
 		return 2;
 	}
 
-	virtual bool isParamSelf(size_t paramIndex) const {
+	static bool virtualIsParamSelf(const void * self, size_t paramIndex) {
+		(void)self;
+
 		switch(paramIndex) {
 		case 0:
 			return CheckOperatorSelf<typename FT::ArgList::Arg0>::IsSelf;
@@ -315,7 +382,9 @@ public:
 		return false;
 	}
 
-	virtual GMetaType getParamType(size_t index) const {
+	static GMetaType virtualGetParamType(const void * self, size_t index) {
+		(void)self;
+
 		switch(index) {
 		case 0:
 			return createMetaType<typename FT::ArgList::Arg0>();
@@ -329,19 +398,27 @@ public:
 		return GMetaType();
 	}
 
-	virtual bool hasResult() const {
+	static bool virtualHasResult(const void * self) {
+		(void)self;
+
 		return ! IsVoid<typename FT::ResultType>::Result;
 	}
 
-	virtual GMetaType getResultType() const {
+	static GMetaType virtualGetResultType(const void * self) {
+		(void)self;
+
 		return createMetaType<typename FT::ResultType>();
 	}
 
-	virtual bool isVariadic() const {
+	static bool virtualIsVariadic(const void * self) {
+		(void)self;
+
 		return false;
 	}
 
-	virtual bool checkParam(const GVariant & param, size_t paramIndex) const {
+	static bool virtualCheckParam(const void * self, const GVariant & param, size_t paramIndex) {
+		(void)self;
+
 		switch(paramIndex) {
 		case 0:
 			return canFromVariant<typename FT::ArgList::Arg0>(param);
@@ -354,15 +431,15 @@ public:
 		}
 	}
 
-	virtual GMetaType createOperatorMetaType() const {
+	static GMetaType virtualCreateOperatorMetaType(const void * self) {
+		(void)self;
+
 		return createMetaType<typename GFunctionTraits<Signature>::FullType>();
 	}
 
-	virtual GVariant invoke(const GVariant & p0) const {
-	    return GMetaOperatorDataBase::invoke(p0);
-	}
+	static GVariant virtualInvoke2(const void * self, const GVariant & p0, const GVariant & p1) {
+		(void)self;
 
-	virtual GVariant invoke(const GVariant & p0, const GVariant & p1) const {
 		return MetaBinaryOperator<OT,
 			MetaOperatorExecuter<Op, FT>,
 			CheckOperatorSelf<typename FT::ArgList::Arg0>::IsSelf,
@@ -370,26 +447,59 @@ public:
 		>::invoke(p0, p1);
 	}
 
-	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const {
+	static GVariant virtualExecute(const void * self, void * instance, const GVariant * params, size_t paramCount) {
 		(void)instance;
 
-		if(paramCount != this->getParamCount()) {
-			raiseCoreException(Error_Meta_WrongArity, this->getParamCount(), paramCount);
+		if(paramCount != virtualGetParamCount(self)) {
+			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(self), paramCount);
 		}
 
-		return this->invoke(params[0], params[1]);
+		return virtualInvoke2(self, params[0], params[1]);
 	}
 
-	virtual bool isParamTransferOwnership(size_t paramIndex) const {
+	static bool virtualIsParamTransferOwnership(const void * self, size_t paramIndex) {
+		(void)self;
+
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
 
-	virtual bool isResultTransferOwnership() const {
+	static bool virtualIsResultTransferOwnership(const void * self) {
+		(void)self;
+
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	virtual GMetaConverter * createResultConverter() const {
+	static GMetaConverter * virtualCreateResultConverter(const void * self) {
+		(void)self;
+
 		return GMetaConverterTraits<typename FT::ResultType>::createConverter();
+	}
+
+public:
+	GMetaOperatorData() {
+		static GMetaOperatorDataVirtual thisFunctions = {
+			&virtualBaseMetaDeleter<ThisType>,
+			
+			NULL,
+			&virtualInvoke2,
+			NULL,
+			&virtualExecute,
+
+			&virtualGetOperator,
+			&virtualGetParamCount,
+			&virtualHasResult,
+			&virtualIsParamSelf,
+			&virtualGetParamType,
+			&virtualGetResultType,
+			&virtualIsVariadic,
+			&virtualCheckParam,
+			&virtualIsParamTransferOwnership,
+			&virtualIsResultTransferOwnership,
+			&virtualCreateResultConverter,
+			&virtualCreateOperatorMetaType
+		};
+
+		this->virtualFunctions = &thisFunctions;
 	}
 };
 
@@ -399,20 +509,27 @@ class GMetaOperatorData <OT, Op, Signature, Policy, typename GEnableIfResult<IsU
 	: public GMetaOperatorDataBase
 {
 private:
+	typedef GMetaOperatorData <OT, Op, Signature, Policy, typename GEnableIfResult<IsUnaryOperator<Op> >::Result> ThisType;
 	typedef GFunctionTraits<Signature> FT;
 
 	GASSERT_STATIC(FT::Arity == 1);
 
-public:
-	virtual GMetaOpType getOperator() const {
+private:
+	static GMetaOpType virtualGetOperator(const void * self) {
+		(void)self;
+
 		return Op;
 	}
 
-	virtual size_t getParamCount() const {
+	static size_t virtualGetParamCount(const void * self) {
+		(void)self;
+
 		return 1;
 	}
 
-	virtual bool isParamSelf(size_t paramIndex) const {
+	static bool virtualIsParamSelf(const void * self, size_t paramIndex) {
+		(void)self;
+
 		switch(paramIndex) {
 		case 0:
 			return CheckOperatorSelf<typename FT::ArgList::Arg0>::IsSelf;
@@ -423,7 +540,9 @@ public:
 		return false;
 	}
 
-	virtual GMetaType getParamType(size_t index) const {
+	static GMetaType virtualGetParamType(const void * self, size_t index) {
+		(void)self;
+
 		switch(index) {
 		case 0:
 			return createMetaType<typename FT::ArgList::Arg0>();
@@ -434,19 +553,27 @@ public:
 		return GMetaType();
 	}
 
-	virtual bool hasResult() const {
+	static bool virtualHasResult(const void * self) {
+		(void)self;
+
 		return ! IsVoid<typename FT::ResultType>::Result;
 	}
 
-	virtual GMetaType getResultType() const {
+	static GMetaType virtualGetResultType(const void * self) {
+		(void)self;
+
 		return createMetaType<typename FT::ResultType>();
 	}
 
-	virtual bool isVariadic() const {
+	static bool virtualIsVariadic(const void * self) {
+		(void)self;
+
 		return false;
 	}
 
-	virtual bool checkParam(const GVariant & param, size_t paramIndex) const {
+	static bool virtualCheckParam(const void * self, const GVariant & param, size_t paramIndex) {
+		(void)self;
+
 		switch(paramIndex) {
 		case 0:
 			return canFromVariant<typename FT::ArgList::Arg0>(param);
@@ -456,43 +583,75 @@ public:
 		}
 	}
 
-	virtual GMetaType createOperatorMetaType() const {
+	static GMetaType virtualCreateOperatorMetaType(const void * self) {
+		(void)self;
+
 		return createMetaType<typename GFunctionTraits<Signature>::FullType>();
 	}
 
-	virtual GVariant invoke(const GVariant & p0) const {
+	static GVariant virtualInvoke(const void * self, const GVariant & p0) {
+		(void)self;
+
 		return MetaUnaryOperator<OT,
 			MetaOperatorExecuter<Op, FT>,
 			CheckOperatorSelf<typename FT::ArgList::Arg0>::IsSelf
 		>::invoke(p0);
 	}
 
-	virtual GVariant invoke(const GVariant & p0, const GVariant & p1) const {
-	    return GMetaOperatorDataBase::invoke(p0, p1);
-	}
-
-	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const {
+	static GVariant virtualExecute(const void * self, void * instance, const GVariant * params, size_t paramCount) {
 		(void)instance;
 
-		if(paramCount != this->getParamCount()) {
-			raiseCoreException(Error_Meta_WrongArity, this->getParamCount(), paramCount);
+		if(paramCount != virtualGetParamCount(self)) {
+			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(self), paramCount);
 		}
 
-		return this->invoke(params[0]);
+		return virtualInvoke(self, params[0]);
 	}
 
-	virtual bool isParamTransferOwnership(size_t paramIndex) const {
+	static bool virtualIsParamTransferOwnership(const void * self, size_t paramIndex) {
+		(void)self;
+
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
 
-	virtual bool isResultTransferOwnership() const {
+	static bool virtualIsResultTransferOwnership(const void * self) {
+		(void)self;
+
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	virtual GMetaConverter * createResultConverter() const {
+	static GMetaConverter * virtualCreateResultConverter(const void * self) {
+		(void)self;
+
 		return GMetaConverterTraits<typename FT::ResultType>::createConverter();
 	}
 
+public:
+	GMetaOperatorData() {
+		static GMetaOperatorDataVirtual thisFunctions = {
+			&virtualBaseMetaDeleter<ThisType>,
+			
+			&virtualInvoke,
+			NULL,
+			NULL,
+			&virtualExecute,
+
+			&virtualGetOperator,
+			&virtualGetParamCount,
+			&virtualHasResult,
+			&virtualIsParamSelf,
+			&virtualGetParamType,
+			&virtualGetResultType,
+			&virtualIsVariadic,
+			&virtualCheckParam,
+			&virtualIsParamTransferOwnership,
+			&virtualIsResultTransferOwnership,
+			&virtualCreateResultConverter,
+			&virtualCreateOperatorMetaType
+		};
+
+		this->virtualFunctions = &thisFunctions;
+	}
 };
 
 template <typename OT, GMetaOpType Op, typename Signature, typename Policy>
@@ -500,24 +659,32 @@ class GMetaOperatorData <OT, Op, Signature, Policy, typename GEnableIfResult<IsF
 	: public GMetaOperatorDataBase
 {
 private:
+	typedef GMetaOperatorData <OT, Op, Signature, Policy, typename GEnableIfResult<IsFunctorOperator<Op> >::Result> ThisType;
 	typedef GFunctionTraits<Signature> FT;
 
-public:
-	virtual GMetaOpType getOperator() const {
+private:
+	static GMetaOpType virtualGetOperator(const void * self) {
+		(void)self;
+
 		return Op;
 	}
 
-	virtual size_t getParamCount() const {
+	static size_t virtualGetParamCount(const void * self) {
+		(void)self;
+
 		return FT::Arity;
 	}
 
-	virtual bool isParamSelf(size_t paramIndex) const {
+	static bool virtualIsParamSelf(const void * self, size_t paramIndex) {
+		(void)self;
 		(void)paramIndex;
 
 		return false;
 	}
 
-	virtual GMetaType getParamType(size_t index) const {
+	static GMetaType virtualGetParamType(const void * self, size_t index) {
+		(void)self;
+
 		if(index < static_cast<size_t>(FT::Arity)) {
 			switch(index) {
 #define REF_GETPARAM_HELPER(N, unused) \
@@ -533,23 +700,29 @@ public:
 		return GMetaType();
 	}
 
-	virtual bool hasResult() const {
+	static bool virtualHasResult(const void * self) {
+		(void)self;
+
 		return ! IsVoid<typename FT::ResultType>::Result;
 	}
 
-	virtual GMetaType getResultType() const {
+	static GMetaType virtualGetResultType(const void * self) {
+		(void)self;
+
 		return createMetaType<typename FT::ResultType>();
 	}
 
-	virtual bool isVariadic() const {
+	static bool virtualIsVariadic(const void * self) {
+		(void)self;
+
 		return IsVariadicFunction<FT>::Result;
 	}
 
 #define REF_CHECKPARAM_HELPER(N, unused) \
 	case N: return canFromVariant<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>(param);
 
-	virtual bool checkParam(const GVariant & param, size_t paramIndex) const {
-		if(paramIndex >= this->getParamCount()) {
+	static bool virtualCheckParam(const void * self, const GVariant & param, size_t paramIndex) {
+		if(paramIndex >= virtualGetParamCount(self)) {
 			return false;
 		}
 
@@ -563,32 +736,30 @@ public:
 	}
 #undef REF_CHECKPARAM_HELPER
 
-	virtual GMetaType createOperatorMetaType() const {
+	static GMetaType virtualCreateOperatorMetaType(const void * self) {
+		(void)self;
+
 		return createMetaType<typename GFunctionTraits<Signature>::FullType>();
 	}
 
-	virtual GVariant invoke(const GVariant & p0) const {
-		const GVariant * params[1];
-
-		return this->invokeFunctor(fromVariant<void *>(p0), params, 0);
+	static GVariant virtualInvoke(const void * self, const GVariant & p0) {
+		return virtualInvokeFunctor(self, fromVariant<void *>(p0), NULL, 0);
 	}
 
-	virtual GVariant invoke(const GVariant & p0, const GVariant & p1) const {
-		const GVariant * params[1];
+	static GVariant virtualInvoke2(const void * self, const GVariant & p0, const GVariant & p1) {
+		const GVariant * params = &p1;
 
-		params[0] = &p1;
-
-		return this->invokeFunctor(fromVariant<void *>(p0), params, 1);
+		return virtualInvokeFunctor(self, fromVariant<void *>(p0), &params, 1);
 	}
 
-	virtual GVariant invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const {
+	static GVariant virtualInvokeFunctor(const void * self, void * instance, GVariant const * const * params, size_t paramCount) {
 		if(!(
-				this->isVariadic()
-				|| paramCount == this->getParamCount()
-				|| (paramCount == this->getParamCount() - 1 && PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result)
+				virtualIsVariadic(self)
+				|| paramCount == virtualGetParamCount(self)
+				|| (paramCount == virtualGetParamCount(self) - 1 && PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result)
 			)
 		) {
-			raiseCoreException(Error_Meta_WrongArity, this->getParamCount(), paramCount);
+			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(self), paramCount);
 		}
 
 		return GMetaInvokeHelper<OT,
@@ -601,11 +772,11 @@ public:
 		>::invoke(instance, *static_cast<OT *>(instance), params, paramCount);
 	}
 
-	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const {
+	static GVariant virtualExecute(const void * self, void * instance, const GVariant * params, size_t paramCount) {
 		GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
-		if(!this->isVariadic() && paramCount != this->getParamCount()) {
-			raiseCoreException(Error_Meta_WrongArity, this->getParamCount(), paramCount);
+		if(!virtualIsVariadic(self) && paramCount != virtualGetParamCount(self)) {
+			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(self), paramCount);
 		}
 
 		const cpgf::GVariant * variantPointers[REF_MAX_ARITY];
@@ -614,23 +785,56 @@ public:
 			variantPointers[i] = &params[i];
 		}
 		
-		if(this->hasDefaultParam()) {
-			this->getDefaultParamList()->loadDefaultParams(variantPointers, paramCount, this->getParamCount());
+		if(static_cast<const ThisType *>(self)->hasDefaultParam()) {
+			static_cast<const ThisType *>(self)->getDefaultParamList()->loadDefaultParams(variantPointers, paramCount, virtualGetParamCount(self));
 		}
 
-		return this->invokeFunctor(instance, variantPointers, paramCount);
+		return virtualInvokeFunctor(self, instance, variantPointers, paramCount);
 	}
 
-	virtual bool isParamTransferOwnership(size_t paramIndex) const {
+	static bool virtualIsParamTransferOwnership(const void * self, size_t paramIndex) {
+		(void)self;
+
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
 
-	virtual bool isResultTransferOwnership() const {
+	static bool virtualIsResultTransferOwnership(const void * self) {
+		(void)self;
+
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	virtual GMetaConverter * createResultConverter() const {
+	static GMetaConverter * virtualCreateResultConverter(const void * self) {
+		(void)self;
+
 		return GMetaConverterTraits<typename FT::ResultType>::createConverter();
+	}
+
+public:
+	GMetaOperatorData() {
+		static GMetaOperatorDataVirtual thisFunctions = {
+			&virtualBaseMetaDeleter<ThisType>,
+			
+			&virtualInvoke,
+			&virtualInvoke2,
+			&virtualInvokeFunctor,
+			&virtualExecute,
+
+			&virtualGetOperator,
+			&virtualGetParamCount,
+			&virtualHasResult,
+			&virtualIsParamSelf,
+			&virtualGetParamType,
+			&virtualGetResultType,
+			&virtualIsVariadic,
+			&virtualCheckParam,
+			&virtualIsParamTransferOwnership,
+			&virtualIsResultTransferOwnership,
+			&virtualCreateResultConverter,
+			&virtualCreateOperatorMetaType
+		};
+
+		this->virtualFunctions = &thisFunctions;
 	}
 
 };

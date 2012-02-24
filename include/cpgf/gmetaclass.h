@@ -169,7 +169,10 @@ private:
 	void (*metaRegister)(GMetaClass * metaClass);
 
 	GScopedPointer<meta_internal::GMetaSuperList> superList;
-	GScopedPointer<meta_internal::GMetaClassDataBase> baseData;
+	
+	GScopedPointer<meta_internal::GMetaClassDataBase,
+		meta_internal::GScopedPointerDeleter_BaseMeta<meta_internal::GMetaClassDataBase> >
+		baseData;
 	
 	GMetaClassImplement * implement;
 

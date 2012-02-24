@@ -52,10 +52,6 @@ std::string arityToName(int arity)
 	return std::string(buffer);
 }
 
-GMetaMethodDataBase::~GMetaMethodDataBase()
-{
-}
-
 GMetaDefaultParamList * GMetaMethodDataBase::getDefaultParamList() const
 {
 	if(! this->defaultParamList) {

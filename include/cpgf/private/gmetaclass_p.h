@@ -24,24 +24,60 @@ const GMetaClass * findMetaClass(const GMetaType & type);
 
 namespace meta_internal {
 
+struct GMetaClassDataVirtual
+{
+	void (*deleteObject)(void * self);
+	bool (*canCreateInstance)(const void * self);
+	bool (*canCopyInstance)(const void * self);
+	void * (*createInstance)(const void * self);
+	void * (*createInplace)(const void * self, void * placement);
+	void * (*cloneInstance)(const void * self, void * instance);
+	void * (*cloneInplace)(const void * self, void * instance, void * placement);
+	size_t (*getObjectSize)(const void * self);
+	bool (*isAbstract)(const void * self);
+};
 
 class GMetaClassDataBase
 {
 public:
-	GMetaClassDataBase() {
+	void deleteObject() {
+		this->virtualFunctions->deleteObject(this);
 	}
 
-	virtual ~GMetaClassDataBase() {
+	bool canCreateInstance() const {
+		return this->virtualFunctions->canCreateInstance(this);
 	}
 
-	virtual bool canCreateInstance() const = 0;
-	virtual bool canCopyInstance() const = 0;
-	virtual void * createInstance() const = 0;
-	virtual void * createInplace(void * placement) const = 0;
-	virtual void * cloneInstance(void * instance) const = 0;
-	virtual void * cloneInplace(void * instance, void * placement) const = 0;
-	virtual size_t getObjectSize() const = 0;
-	virtual bool isAbstract() const = 0;
+	bool canCopyInstance() const {
+		return this->virtualFunctions->canCopyInstance(this);
+	}
+
+	void * createInstance() const {
+		return this->virtualFunctions->createInstance(this);
+	}
+
+	void * createInplace(void * placement) const {
+		return this->virtualFunctions->createInplace(this, placement);
+	}
+
+	void * cloneInstance(void * instance) const {
+		return this->virtualFunctions->cloneInstance(this, instance);
+	}
+
+	void * cloneInplace(void * instance, void * placement) const {
+		return this->virtualFunctions->cloneInplace(this, instance, placement);
+	}
+
+	size_t getObjectSize() const {
+		return this->virtualFunctions->getObjectSize(this);
+	}
+
+	bool isAbstract() const {
+		return this->virtualFunctions->isAbstract(this);
+	}
+
+protected:
+	GMetaClassDataVirtual * virtualFunctions;
 };
 
 template <typename OT, typename Policy>
@@ -68,37 +104,58 @@ private:
 		raiseCoreException(Error_Meta_NoCopyConstructor);
 	}
 
-public:
-	virtual bool canCreateInstance() const {
+private:
+	static bool virtualCanCreateInstance(const void * self) {
+		(void)self;
+
 		return CanDefaultConstruct;
 	}
 
-	virtual bool canCopyInstance() const {
+	static bool virtualCanCopyInstance(const void * self) {
+		(void)self;
+
 		return CanCopyConstruct;
 	}
 
-	virtual void * createInstance() const {
-		return this->doCreateInstance<typename GIfElse<CanDefaultConstruct, void, int>::Result >();
+	static void * virtualCreateInstance(const void * self) {
+		return static_cast<const GMetaClassData *>(self)->doCreateInstance<typename GIfElse<CanDefaultConstruct, void, int>::Result >();
 	}
 
-	virtual void * createInplace(void * placement) const {
-		return this->doCreateInplace<typename GIfElse<CanDefaultConstruct, void, int>::Result >(placement);
+	static void * virtualCreateInplace(const void * self, void * placement) {
+		return static_cast<const GMetaClassData *>(self)->doCreateInplace<typename GIfElse<CanDefaultConstruct, void, int>::Result >(placement);
 	}
 
-	virtual void * cloneInstance(void * instance) const {
-		return this->doCloneInstance<typename GIfElse<CanCopyConstruct, void, int>::Result >(instance);
+	static void * virtualCloneInstance(const void * self, void * instance) {
+		return static_cast<const GMetaClassData *>(self)->doCloneInstance<typename GIfElse<CanCopyConstruct, void, int>::Result >(instance);
 	}
 
-	virtual void * cloneInplace(void * instance, void * placement) const {
-		return this->doCloneInplace<typename GIfElse<CanCopyConstruct, void, int>::Result >(instance, placement);
+	static void * virtualCloneInplace(const void * self, void * instance, void * placement) {
+		return static_cast<const GMetaClassData *>(self)->doCloneInplace<typename GIfElse<CanCopyConstruct, void, int>::Result >(instance, placement);
 	}
 
-	virtual size_t getObjectSize() const {
-		return this->doGetObjectSize<typename GIfElse<IsGlobal, void, OT>::Result >();
+	static size_t virtualGetObjectSize(const void * self) {
+		return static_cast<const GMetaClassData *>(self)->doGetObjectSize<typename GIfElse<IsGlobal, void, OT>::Result >();
 	}
 
-	virtual bool isAbstract() const {
-		return this->doIsAbstract<typename GIfElse<IsGlobal, void, OT>::Result >();
+	static bool virtualIsAbstract(const void * self) {
+		return static_cast<const GMetaClassData *>(self)->doIsAbstract<typename GIfElse<IsGlobal, void, OT>::Result >();
+	}
+
+public:
+	GMetaClassData() {
+		static GMetaClassDataVirtual thisFunctions = {
+			&virtualBaseMetaDeleter<GMetaClassData>,
+			&virtualCanCreateInstance,
+			&virtualCanCopyInstance,
+			&virtualCreateInstance,
+			&virtualCreateInplace,
+			&virtualCloneInstance,
+			&virtualCloneInplace,
+			&virtualGetObjectSize,
+			&virtualIsAbstract
+		};
+
+		this->virtualFunctions = &thisFunctions;
 	}
 
 private:
@@ -208,15 +265,32 @@ private:
 };
 
 
+class GMetaClassCasterBase;
+
+struct GMetaClassCasterVirtual
+{
+	GMetaClassCasterBase * (*clone)();
+	void * (*downCast)(void * base);
+	void * (*upCast)(void * derived);
+};
+
 class GMetaClassCasterBase
 {
 public:
-	virtual ~GMetaClassCasterBase() {
+	GMetaClassCasterBase * clone() const {
+		return this->virtualFunctions->clone();
 	}
 
-	virtual GMetaClassCasterBase * clone() const = 0;
-	virtual void * downCast(void * base) const = 0;
-	virtual void * upCast(void * derived) const = 0;
+	void * downCast(void * base) const {
+		return this->virtualFunctions->downCast(base);
+	}
+
+	void * upCast(void * derived) const {
+		return this->virtualFunctions->upCast(derived);
+	}
+
+protected:
+	GMetaClassCasterVirtual * virtualFunctions;
 };
 
 template <bool IsPolymorphic>
@@ -248,34 +322,56 @@ struct GMetaClassCasterSelector <true>
 template <typename Derived, typename Base>
 class GMetaClassCaster : public GMetaClassCasterBase
 {
-public:
-	virtual GMetaClassCasterBase * clone() const {
+private:
+	static GMetaClassCasterBase * virtualClone() {
 		return new GMetaClassCaster<Derived, Base>;
 	}
 
-	virtual void * downCast(void * base) const {
+	static void * virtualDownCast(void * base) {
 		return GMetaClassCasterSelector<IsPolymorphic<Base>::Result>::template downCast<Derived, Base>(base);
 	}
 
-	virtual void * upCast(void * derived) const {
+	static void * virtualUpCast(void * derived) {
 		return static_cast<Base *>(static_cast<Derived *>(derived));
+	}
+
+public:
+	GMetaClassCaster() {
+		static GMetaClassCasterVirtual thisFunctions = {
+			&virtualClone,
+			&virtualDownCast,
+			&virtualUpCast
+		};
+
+		this->virtualFunctions = &thisFunctions;
 	}
 };
 
 template <typename Derived>
 class GMetaClassCaster <Derived, void>: public GMetaClassCasterBase
 {
-public:
-	virtual GMetaClassCasterBase * clone() const {
+private:
+	static GMetaClassCasterBase * virtualClone() {
 		return new GMetaClassCaster<Derived, void>;
 	}
 
-	virtual void * downCast(void * base) const {
+	static void * virtualDownCast(void * base) {
 		return base;
 	}
 
-	virtual void * upCast(void * derived) const {
+	static void * virtualUpCast(void * derived) {
 		return derived;
+	}
+
+public:
+	GMetaClassCaster() {
+		static GMetaClassCasterVirtual thisFunctions = {
+			&virtualClone,
+			&virtualDownCast,
+			&virtualUpCast
+		};
+
+		this->virtualFunctions = &thisFunctions;
 	}
 };
 

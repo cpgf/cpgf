@@ -143,7 +143,9 @@ public:
 #undef VAR_PARAM_DEFAULT
 
 private:
-	GScopedPointer<meta_internal::GMetaOperatorDataBase> baseData;
+	GScopedPointer<meta_internal::GMetaOperatorDataBase,
+		meta_internal::GScopedPointerDeleter_BaseMeta<meta_internal::GMetaOperatorDataBase> >
+		baseData;
 };
 
 

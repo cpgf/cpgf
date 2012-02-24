@@ -35,7 +35,9 @@ public:
 	virtual GMetaConverter * createConverter() const;
 
 private:
-	GScopedPointer<meta_internal::GMetaPropertyDataBase> baseData;
+	GScopedPointer<meta_internal::GMetaPropertyDataBase,
+		meta_internal::GScopedPointerDeleter_BaseMeta<meta_internal::GMetaPropertyDataBase> >
+		baseData;
 };
 
 

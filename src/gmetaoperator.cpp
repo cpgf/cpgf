@@ -21,44 +21,56 @@ std::string operatorToName(GMetaOpType op) {
 }
 
 
-GMetaOperatorDataBase::~GMetaOperatorDataBase()
-{
-}
-
 GVariant GMetaOperatorDataBase::invoke(const GVariant & p0) const
 {
 	(void)p0;
 
-	raiseCoreException(Error_Meta_NotUnaryOperator);
-
-	return GVariant();
+	if(this->virtualFunctions->invoke == NULL) {
+		raiseCoreException(Error_Meta_NotUnaryOperator);
+		return GVariant();
+	}
+	else {
+		return this->virtualFunctions->invoke(this, p0);
+	}
 }
 
 GVariant GMetaOperatorDataBase::invoke(const GVariant & p0, const GVariant & p1) const
 {
 	(void)p0; (void)p1;
 
-	raiseCoreException(Error_Meta_NotBinaryOperator);
-
-	return GVariant();
+	if(this->virtualFunctions->invoke2 == NULL) {
+		raiseCoreException(Error_Meta_NotBinaryOperator);
+		return GVariant();
+	}
+	else {
+		return this->virtualFunctions->invoke2(this, p0, p1);
+	}
 }
 
 GVariant GMetaOperatorDataBase::invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const
 {
 	(void)instance; (void)params; (void)paramCount;
 
-	raiseCoreException(Error_Meta_NotFunctorOperator);
-
-	return GVariant();
+	if(this->virtualFunctions->invokeFunctor == NULL) {
+		raiseCoreException(Error_Meta_NotFunctorOperator);
+		return GVariant();
+	}
+	else {
+		return this->virtualFunctions->invokeFunctor(this, instance, params, paramCount);
+	}
 }
 
 GVariant GMetaOperatorDataBase::execute(void * instance, const GVariant * params, size_t paramCount) const
 {
 	(void)instance; (void)params; (void)paramCount;
 
-	raiseCoreException(Error_Meta_NotFunctorOperator);
-
-	return GVariant();
+	if(this->virtualFunctions->execute == NULL) {
+		raiseCoreException(Error_Meta_NotFunctorOperator);
+		return GVariant();
+	}
+	else {
+		return this->virtualFunctions->execute(this, instance, params, paramCount);
+	}
 }
 
 GMetaDefaultParamList * GMetaOperatorDataBase::getDefaultParamList() const
@@ -169,7 +181,7 @@ GVariant GMetaOperator::invokeFunctor(const GVariant & instance, GPP_REPEAT(REF_
 
 	GPP_REPEAT(REF_MAX_ARITY, FUNCTOR_LOAD_PARAM, GPP_EMPTY);
 
-	int paramCount = 0;
+	size_t paramCount = 0;
 
 	while(paramCount < REF_MAX_ARITY) {
 		if(params[paramCount]->isEmpty()) {

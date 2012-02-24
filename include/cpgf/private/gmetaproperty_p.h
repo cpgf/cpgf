@@ -428,17 +428,55 @@ private:
 };
 
 
+struct GMetaPropertyDataVirtual
+{
+	void (*deleteObject)(void * self);
+	bool (*canGet)(const void * self);
+	bool (*canSet)(const void * self);
+	GVariant (*get)(const void * self, void * instance);
+	void (*set)(const void * self, void * instance, const GVariant & v);
+	size_t (*getPropertySize)(const void * self);
+	void * (*getPropertyAddress)(const void * self, void * instance);
+	GMetaConverter * (*createConverter)(const void * self);
+};
+
 class GMetaPropertyDataBase
 {
 public:
-	virtual ~GMetaPropertyDataBase() {}
-	virtual bool canGet() const = 0;
-	virtual bool canSet() const = 0;
-	virtual GVariant get(void * instance) const = 0;
-	virtual void set(void * instance, const GVariant & value) const = 0;
-	virtual void * getPropertyAddress(void * instance) const = 0;
-	virtual size_t getPropertySize() const = 0;
-	virtual GMetaConverter * createConverter() const = 0;
+	void deleteObject() {
+		this->virtualFunctions->deleteObject(this);
+	}
+	
+	bool canGet() const {
+		return this->virtualFunctions->canGet(this);
+	}
+
+	bool canSet() const {
+		return this->virtualFunctions->canSet(this);
+	}
+
+	GVariant get(void * instance) const {
+		return this->virtualFunctions->get(this, instance);
+	}
+
+	void set(void * instance, const GVariant & v) const {
+		this->virtualFunctions->set(this, instance, v);
+	}
+
+	size_t getPropertySize() const {
+		return this->virtualFunctions->getPropertySize(this);
+	}
+
+	void * getPropertyAddress(void * instance) const {
+		return this->virtualFunctions->getPropertyAddress(this, instance);
+	}
+
+	GMetaConverter * createConverter() const {
+		return this->virtualFunctions->createConverter(this);
+	}
+
+protected:
+	GMetaPropertyDataVirtual * virtualFunctions;
 };
 
 template <typename Getter, typename Setter, typename Policy>
@@ -448,31 +486,34 @@ private:
 	typedef GMetaGetter<Getter, Policy> GetterType;
 	typedef GMetaSetter<Setter, Policy> SetterType;
 	
-public:
-	GMetaPropertyData(const Getter & getter, const Setter & setter) : metaGetter(getter), metaSetter(setter) {
-	}
+private:
+	static bool virtualCanGet(const void * self) {
+		(void)self;
 
-	virtual bool canGet() const {
 		return GetterType::Readable;
 	}
 
-	virtual bool canSet() const {
+	static bool virtualCanSet(const void * self) {
+		(void)self;
+		
 		return SetterType::Writable;
 	}
 
-	virtual GVariant get(void * instance) const {
-		return this->metaGetter.get(instance);
+	static GVariant virtualGet(const void * self, void * instance) {
+		return static_cast<const GMetaPropertyData *>(self)->metaGetter.get(instance);
 	}
 
-	virtual void set(void * instance, const GVariant & value) const {
-		this->metaSetter.set(instance, value);
+	static void virtualSet(const void * self, void * instance, const GVariant & value) {
+		static_cast<const GMetaPropertyData *>(self)->metaSetter.set(instance, value);
 	}
 
-	virtual void * getPropertyAddress(void * instance) const {
-		return this->metaGetter.getPropertyAddress(instance);
+	static void * virtualGetPropertyAddress(const void * self, void * instance) {
+		return static_cast<const GMetaPropertyData *>(self)->metaGetter.getPropertyAddress(instance);
 	}
 
-	virtual size_t getPropertySize() const {
+	static size_t virtualGetPropertySize(const void * self) {
+		(void)self;
+
 		if(GetterType::HasGetter) {
 			return sizeof(typename GetterType::PropertyType);
 		}
@@ -486,7 +527,9 @@ public:
 		return 0;
 	}
 
-	virtual GMetaConverter * createConverter() const {
+	static GMetaConverter * virtualCreateConverter(const void * self) {
+		(void)self;
+
 		if(GetterType::HasGetter) {
 			return GMetaConverterTraits<typename GetterType::PropertyType>::createConverter();
 		}
@@ -496,6 +539,21 @@ public:
 		}
 
 		return NULL;
+	}
+
+public:
+	GMetaPropertyData(const Getter & getter, const Setter & setter) : metaGetter(getter), metaSetter(setter) {
+		static GMetaPropertyDataVirtual thisFunctions = {
+			&virtualBaseMetaDeleter<GMetaPropertyData>,
+			&virtualCanGet,
+			&virtualCanSet,
+			&virtualGet,
+			&virtualSet,
+			&virtualGetPropertySize,
+			&virtualGetPropertyAddress,
+			&virtualCreateConverter
+		};
+		this->virtualFunctions = &thisFunctions;
 	}
 
 private:

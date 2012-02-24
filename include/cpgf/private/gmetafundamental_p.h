@@ -11,65 +11,133 @@ namespace cpgf {
 
 namespace meta_internal {
 
+struct GMetaFundamentalDataVirtual
+{
+	size_t (*getTypeSize)(const void * self);
+	GVariantType (*getVariantType)(const void * self);
+	GVariant (*getValue)(const void * self, void * instance);
+	
+	void * (*createInstance)(const void * self);
+	void * (*createInplace)(const void * self, void * placement);
+	void * (*cloneInstance)(const void * self, void * instance);
+	void * (*cloneInplace)(const void * self, void * instance, void * placement);
+	void (*destroyInstance)(const void * self, void * o);
+};
+
 class GMetaFundamentalData
 {
 public:
-	virtual size_t getTypeSize() const = 0;
-	virtual GVariantType getVariantType() const = 0;
-	virtual GVariant getValue(void * instance) const = 0;
+	size_t getTypeSize() const {
+		return this->virtualFunctions->getTypeSize(this);
+	}
 
-	virtual void * createInstance() const = 0;
-	virtual void * createInplace(void * placement) const = 0;
-	virtual void * cloneInstance(void * instance) const = 0;
-	virtual void * cloneInplace(void * instance, void * placement) const = 0;
+	GVariantType getVariantType() const {
+		return this->virtualFunctions->getVariantType(this);
+	}
 
-	virtual void destroyInstance(void * o) const = 0;
+	GVariant getValue(void * instance) const {
+		return this->virtualFunctions->getValue(this, instance);
+	}
 
+	void * createInstance() const {
+		return this->virtualFunctions->createInstance(this);
+	}
+
+	void * createInplace(void * placement) const {
+		return this->virtualFunctions->createInplace(this, placement);
+	}
+
+	void * cloneInstance(void * instance) const {
+		return this->virtualFunctions->cloneInstance(this, instance);
+	}
+
+	void * cloneInplace(void * instance, void * placement) const {
+		return this->virtualFunctions->cloneInplace(this, instance, placement);
+	}
+
+	void destroyInstance(void * o) const {
+		this->virtualFunctions->destroyInstance(this, o);
+	}
+
+protected:
+	GMetaFundamentalDataVirtual * virtualFunctions;
 };
 
 
 template <typename T>
 class GMetaFundamentalDataImplement : public GMetaFundamentalData
 {
-public:
-	virtual size_t getTypeSize() const {
+private:
+	static size_t virtualGetTypeSize(const void * self) {
+		(void)self;
+
 		return sizeof(T);
 	}
 
-	virtual GVariantType getVariantType() const {
+	static GVariantType virtualGetVariantType(const void * self) {
+		(void)self;
+
 		GVarTypeData data;
 		deduceVariantType<T>(data);
 		return vtGetType(data);
 	}
 	
-	virtual GVariant getValue(void * instance) const {
+	static GVariant virtualGetValue(const void * self, void * instance) {
+		(void)self;
+
 		return GVariant(*static_cast<T *>(instance));
 	}
 
-	virtual void * createInstance() const {
+	static void * virtualCreateInstance(const void * self) {
+		(void)self;
+
 		return new T(0);
 	}
 
-	virtual void * createInplace(void * placement) const {
+	static void * virtualCreateInplace(const void * self, void * placement) {
+		(void)self;
+
 		*static_cast<T *>(placement) = 0;
 
 		return placement;
 	}
 
-	virtual void * cloneInstance(void * instance) const {
+	static void * virtualCloneInstance(const void * self, void * instance) {
+		(void)self;
+
 		return new T(*static_cast<T *>(instance));
 	}
 
-	virtual void * cloneInplace(void * instance, void * placement) const {
+	static void * virtualCloneInplace(const void * self, void * instance, void * placement) {
+		(void)self;
+
 		*static_cast<T *>(placement) = *static_cast<T *>(instance);
 
 		return placement;
 	}
 
-	virtual void destroyInstance(void * instance) const {
+	static void virtualDestroyInstance(const void * self, void * instance) {
+		(void)self;
+
 		delete static_cast<T *>(instance);
 	}
 
+public:
+	GMetaFundamentalDataImplement() {
+		static GMetaFundamentalDataVirtual thisFunctions = {
+			&virtualGetTypeSize,
+			&virtualGetVariantType,
+			&virtualGetValue,
+			&virtualCreateInstance,
+			&virtualCreateInplace,
+			&virtualCloneInstance,
+			&virtualCloneInplace,
+			&virtualDestroyInstance
+		};
+
+		this->virtualFunctions = &thisFunctions;
+
+	}
 };
 
 
