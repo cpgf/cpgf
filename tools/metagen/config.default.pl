@@ -14,6 +14,18 @@ $config = {
 	allowPublic => 1,
 	allowProtected => 0,
 	allowPrivate => 0,
+
+	# Specify the meta data categories that are allowed to generate meta data
+	allowedMetaData => [
+		Item::catConstructor,
+		Item::catDestructor,
+		Item::catClass,
+		Item::catDefine,
+		Item::catEnum,
+		Item::catField,
+		Item::catMethod,
+		Item::catOperator
+	],
 	
 	# Prefix for auto generated functions.
 	# See the meta data for Box2D to see how they are used.

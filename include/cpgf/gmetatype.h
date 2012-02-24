@@ -62,6 +62,10 @@ public:
 		return this->typeInfo == NULL;
 	}
 
+	const std::type_info & getStdTypeInfo() const {
+		return *(this->typeInfo);
+	}
+
 private:
 	const std::type_info * typeInfo;
 };

@@ -7,6 +7,7 @@ TBD version 1.3.0
 	Added policy GMetaPolicyDestructorAbsent to allow meta data for class with private destructor.
 	Added class GDefineMetaInfo in gmetadefine.h to ease splitting meta data building to different source file. (Reduce using templates).
 	Added "dangle" to GDefineMetaClass.
+	Added function getStdTypeInfo to GTypeInfo to get C++ type info.
 	Fixed a bug that _class prototype in GMetaDefine is wrong.
 
 2012-02-05 version 1.2.5

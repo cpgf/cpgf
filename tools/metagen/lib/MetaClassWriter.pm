@@ -64,17 +64,30 @@ sub skipItem
 	return $self->{_callbackParam}->{skipBind};
 }
 
+sub allowedMetaData
+{
+	my ($self, $category) = @_;
+
+	foreach(@{$self->{_config}->{allowedMetaData}}) {
+		if($_ == $category) {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 sub write
 {
 	my ($self) = @_;
 
-	$self->writeConstructor();
-	$self->writeField();
-	$self->writeMethod();
-	$self->writeEnum();
-	$self->writeDefine();
-	$self->writeOperator();
-	$self->writeClass();
+	$self->writeConstructor() if($self->allowedMetaData(Item::catConstructor));
+	$self->writeField() if($self->allowedMetaData(Item::catField));
+	$self->writeMethod() if($self->allowedMetaData(Item::catMethod));
+	$self->writeEnum() if($self->allowedMetaData(Item::catEnum));
+	$self->writeDefine() if($self->allowedMetaData(Item::catDefine));
+	$self->writeOperator() if($self->allowedMetaData(Item::catOperator));
+	$self->writeClass() if($self->allowedMetaData(Item::catClass));
 }
 
 sub writeConstructor
