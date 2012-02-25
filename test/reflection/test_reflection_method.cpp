@@ -105,15 +105,22 @@ struct methodFunctor
 G_AUTO_RUN_BEFORE_MAIN()
 {
 	using namespace cpgf;
-
-	GDefineMetaClass<CLASS>
-		::define(NAME_CLASS)
-
+	
+	// test dangling meta class
+	GDefineMetaDangle<CLASS> dangle = GDefineMetaDangle<CLASS>::dangle();
+	dangle
 		._method("methodGetInt", &CLASS::methodGetInt)
 		._method("methodAddInt", &CLASS::methodAddInt)
 		._method("methodRefString", &CLASS::methodRefString)
 		._method("methodConcatString", &CLASS::methodConcatString, GMetaPolicyCopyAllConstReference())
 		._method("methodAddData", &CLASS::methodAddData)
+	;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME_CLASS)
+		
+		._class(dangle)
+
 		._method("methodMakeData", &CLASS::methodMakeData)
 		._method("methodMakeDataByPointer", &CLASS::methodMakeDataByPointer)
 		._method("methodManyParams", &CLASS::methodManyParams)

@@ -224,6 +224,73 @@ GDefineMetaClass<Animal>::<b>lazy</b>("Animal", &lazyDefineClass);
 <{/autobr}>	
 
 
+<{sh}> Build dangling meta class
+<{sc}>
+<{code}>
+GDefineMetaGlobalDangle myGlobalDangleMeta = <b>GDefineMetaGlobalDangle::dangle()</b>()
+	._field(blah blah)
+	._method(blah blah)
+;
+GDefineMetaGlobal()
+	._class(myGlobalDangleMeta)
+;
+
+GDefineMetaDangle<MyClass> myClassDangle = GDefineMetaDangle<MyClass>::dangle()
+;
+
+GDefineMetaDangle<MyClass>::define("MyClass")
+	._class(myClassDangle)
+;
+<{/code}>
+
+<{autobr}>
+	A dangling meta class is similar as a normal meta class.
+	When a dangling meta class is added to other meta class, it will be not added as nested class, but all of its members will be extracted directly to the outter class.
+	In above code sample, the field and method added to myGlobalDangleMeta will be added to global directly.
+	That's to say, a dangling meta class is a virtual container rather than a meta class.
+	
+	How is dangling meta class useful?
+	It's useful to split the meta data building to different translate units (cpp files).
+	With the help of the non-template GDefineMetaInfo, it's possible to split meta data for a class, or for global, to different cpp files.
+	Splitting meta data to smaller cpp files can help to reduce the compile time, compile memory usage, and help to make compiler happy (some compilers may crash with cpp file containing a lot of meta data).
+
+<{/autobr}>	
+
+
+<{sh}> GDefineMetaInfo -- non template representation of meta define class
+<{sc}>
+<{autobr}>
+	GDefineMetaInfo can be obtained by calling getMetaInfo() on GDefineMetaClass and GDefineMetaDangle.
+	GDefineMetaInfo is a non-template class.
+	The non-template feature is vital because then it's possible to return GDefineMetaInfo from a function defined in a source file.
+	In contrary, GDefineMetaClass and GDefineMetaDangle must be returned from functions defined in header file.
+	
+	Below is pseudo code to demonstrate how to use GDefineMetaInfo.
+	
+<{/autobr}>	
+
+<{code}>
+// a.cpp
+GDefineMetaInfo buildMetaDataForMyClass()
+{
+	GDefineMetaDangle<MyClass> define = GDefineMetaDangle<MyClass>::dangle();
+	define
+		._constructor<blah blah>()
+		._method(blah blah);
+		._field(blah blah);
+	;
+}
+
+// b.cpp
+start code block // auto register or function, whatever
+GDefineMetaClass<MyClass> define = GDefineMetaClass<MyClass>::define();
+define
+	._class(buildMetaDataForMyClass())
+;
+
+<{/code}>
+
+
 <{sh}> Reflect templates
 <{sc}>
 <{code}>

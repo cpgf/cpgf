@@ -14,7 +14,7 @@ namespace meta_box2d {
 
 GDefineMetaInfo createMetaClass_Global_b2math()
 {
-    GDefineMetaDangle _d = GDefineMetaDangle::dangle();
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     buildMetaClass_Global_b2math(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }

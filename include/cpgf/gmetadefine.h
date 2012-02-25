@@ -470,13 +470,13 @@ private:
 public:
 	static ThisType define(const char * className) {
 		ThisType c;
-		c.init<true>(className, NULL, true, GMetaPolicyDefault());
+		c.init(className, NULL, true, GMetaPolicyDefault());
 		return c;
 	}
 
 	static ThisType declare(const char * className) {
 		ThisType c;
-		c.init<true>(className, NULL, false, GMetaPolicyDefault());
+		c.init(className, NULL, false, GMetaPolicyDefault());
 		return c;
 	}
 	
@@ -489,7 +489,7 @@ public:
 
 		ThisType c;
 		meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
-		c.init<true>(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, true, GMetaPolicyDefault());
+		c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, true, GMetaPolicyDefault());
 		return c;
 	}
 
@@ -498,23 +498,21 @@ public:
 
 		ThisType c;
 		meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
-		c.init<true>(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, GMetaPolicyDefault());
+		c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, GMetaPolicyDefault());
 		return c;
 	}
 
 	template <typename P>
 	struct Policy {
-    	G_STATIC_CONSTANT(bool, DestructorAvailable = (!PolicyHasRule<Policy, GMetaRuleDestructorAbsent>::Result));
-
 		static ThisType define(const char * className) {
 			ThisType c;
-			c.init<DestructorAvailable>(className, NULL, true, P());
+			c.init(className, NULL, true, P());
 			return c;
 		}
 
 		static ThisType declare(const char * className) {
 			ThisType c;
-			c.init<DestructorAvailable>(className, NULL, false, P());
+			c.init(className, NULL, false, P());
 			return c;
 		}
 
@@ -523,7 +521,7 @@ public:
 
 			ThisType c;
 			meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
-			c.init<DestructorAvailable>(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, true, P());
+			c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, true, P());
 			return c;
 		}
 
@@ -532,7 +530,7 @@ public:
 
 			ThisType c;
 			meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
-			c.init<DestructorAvailable>(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, P());
+			c.init(className, &meta_internal::GLazyDefineClassHelper<ThisType>::metaRegister, false, P());
 			return c;
 		}
 	};
@@ -592,10 +590,8 @@ public:
 protected:
 	typedef typename cpgf::TypeList_Make<GPP_REPEAT_PARAMS(MAX_BASE_COUNT, BaseType)>::Result BaseListType;
 
-    // C++ Builder can't compile if deducing DestructorAvailable from Policy
-    // So we pass it explicitly
-	template <bool DestructorAvailable, typename Policy>
-	void init(const char * className, void (*reg)(GMetaClass *), bool addToGlobal, const Policy & policy) {
+	template <typename P>
+	void init(const char * className, void (*reg)(GMetaClass *), bool addToGlobal, const P & policy) {
 		GMetaClass * classToAdd = NULL;
 
 		if(addToGlobal) {
@@ -605,7 +601,7 @@ protected:
 		if(classToAdd == NULL) {
 			classToAdd = new GMetaClass(
 				(ClassType *)0, meta_internal::doMakeSuperList<BaseListType, ClassType>(),
-				className, &meta_internal::ObjectDeleter<ClassType, DestructorAvailable>::deleteObject, reg, policy
+				className, &meta_internal::ObjectDeleter<ClassType, !PolicyHasRule<P, GMetaRuleDestructorAbsent>::Result>::deleteObject, reg, policy
 			);
 
 			if(addToGlobal) {
@@ -627,11 +623,12 @@ private:
 };
 
 
-class GDefineMetaDangle : public GDefineMetaCommon<void, GDefineMetaDangle>
+template <typename ClassType>
+class GDefineMetaDangle : public GDefineMetaCommon<ClassType, GDefineMetaDangle<ClassType> >
 {
 private:
 	typedef GDefineMetaDangle ThisType;
-	typedef GDefineMetaCommon<void, GDefineMetaDangle> super;
+	typedef GDefineMetaCommon<ClassType, GDefineMetaDangle<ClassType> > super;
 
 public:
 	static ThisType dangle() {
@@ -640,6 +637,22 @@ public:
 		return c;
 	}
 	
+	template <typename FT>
+	GDefineMetaConstructor<ThisType> _constructor() {
+		return GDefineMetaConstructor<ThisType>(
+			this->metaClass,
+			this->metaClass->template addConstructor<ClassType, FT>(GMetaPolicyDefault())
+		);
+	}
+
+	template <typename FT, typename Policy>
+	GDefineMetaConstructor<ThisType> _constructor(const Policy & policy) {
+		return GDefineMetaConstructor<ThisType>(
+			this->metaClass,
+			this->metaClass->template addConstructor<ClassType, FT>(policy)
+		);
+	}
+
 	GDefineMetaInfo getMetaInfo() const {
 		return GDefineMetaInfo(this->metaClass, this->dangling);
 	}
@@ -669,7 +682,7 @@ protected:
 	void init() {
 		this->dangling = true;
 		
-		GMetaClass * metaClass = new GMetaClass((void *)0, new meta_internal::GMetaSuperList, "", NULL, NULL, GMetaPolicyDefault());
+		GMetaClass * metaClass = new GMetaClass((ClassType *)0, new meta_internal::GMetaSuperList, "", NULL, NULL, GMetaPolicyDefault());
 
 		this->metaClass.reset(metaClass);
 		this->currentItem = metaClass;
@@ -706,6 +719,8 @@ public:
 
 
 typedef GDefineMetaClass<void> GDefineMetaNamespace;
+
+typedef GDefineMetaDangle<void> GDefineMetaGlobalDangle;
 
 
 } // namespace cpgf

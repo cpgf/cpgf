@@ -252,7 +252,7 @@ sub createMetaClass
 	my ($config, $codeWriter, $class, $varName, $rules) = @_;
 	
 	if($class->isGlobal()) {
-		$codeWriter->out("GDefineMetaDangle $varName = GDefineMetaDangle::dangle();\n");
+		$codeWriter->out("GDefineMetaGlobalDangle $varName = GDefineMetaGlobalDangle::dangle();\n");
 	}
 	else {
 		my $typeName = "GDefineMetaClass<" . $class->getName;

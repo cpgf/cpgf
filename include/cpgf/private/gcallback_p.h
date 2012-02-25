@@ -13,6 +13,12 @@
 #include <utility>
 #include <assert.h>
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4267)
+#endif
+
+
 #if !defined(CB_MAX_ARITY)
 	#define CB_MAX_ARITY G_MAX_ARITY
 #endif
@@ -562,6 +568,10 @@ public:
 #undef CB_FUNC_TRAITS_ARGS
 #undef CB_PARAM_TYPEVALUE
 
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 
 #endif

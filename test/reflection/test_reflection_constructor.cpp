@@ -68,12 +68,19 @@ G_AUTO_RUN_BEFORE_MAIN()
 {
 	using namespace cpgf;
 
-	GDefineMetaClass<CLASS>
-		::define(NAME_CLASS)
-
+	// test dangling meta class
+	GDefineMetaDangle<CLASS> dangle = GDefineMetaDangle<CLASS>::dangle();
+	dangle
 		._constructor<void * ()>()
 		._constructor<void * (const CLASS &)>()
 		._constructor<void * (int)>()
+	;
+
+	GDefineMetaClass<CLASS>
+		::define(NAME_CLASS)
+
+		._class(dangle)
+
 		._constructor<void * (const string &)>(GMetaPolicyCopyAllConstReference())
 		._constructor<void * (int, const string &)>(GMetaPolicyCopyAllConstReference())
 		._constructor<void * (const CLASS_DATA &)>()

@@ -686,6 +686,9 @@ void GMetaClass::ensureRegistered() const
 
 void GMetaClass::setupItemLists()
 {
+	this->implement->itemLists[mcatAnnotation] = NULL;
+	this->implement->itemLists[mcatFundamental] = NULL;
+
 	this->implement->itemLists[mcatField] = &this->implement->fieldList;
 	this->implement->itemLists[mcatProperty] = &this->implement->propertyList;
 	this->implement->itemLists[mcatMethod] = &this->implement->methodList;
