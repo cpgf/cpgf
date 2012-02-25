@@ -42,41 +42,47 @@
 <strong>Add meta data to global scope</strong></a></li>
 <li>
 <a href="docs-cpgf-reflection-build-meta-data.html#linkid7">
+<strong>Build dangling meta class</strong></a></li>
+<li>
+<a href="docs-cpgf-reflection-build-meta-data.html#linkid8">
+<strong>GDefineMetaInfo -- non template representation of meta define class</strong></a></li>
+<li>
+<a href="docs-cpgf-reflection-build-meta-data.html#linkid9">
 <strong>Reflect templates</strong></a></li>
 </ul>
 </div>
 <p>
 <b>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid8">
+<a href="docs-cpgf-reflection-build-meta-data.html#linkid10">
 <strong>Build meta data</strong></a></b></p>
 <div style="margin-left:0px">
 <ul>
 <li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid9">
+<a href="docs-cpgf-reflection-build-meta-data.html#linkid11">
 <strong>Reflect field</strong></a></li>
 <li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid10">
+<a href="docs-cpgf-reflection-build-meta-data.html#linkid12">
 <strong>Reflect property</strong></a></li>
 <li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid11">
+<a href="docs-cpgf-reflection-build-meta-data.html#linkid13">
 <strong>Reflect method</strong></a></li>
 <li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid12">
+<a href="docs-cpgf-reflection-build-meta-data.html#linkid14">
 <strong>Reflect constructor</strong></a></li>
 <li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid13">
+<a href="docs-cpgf-reflection-build-meta-data.html#linkid15">
 <strong>Reflect operator</strong></a></li>
 <li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid14">
+<a href="docs-cpgf-reflection-build-meta-data.html#linkid16">
 <strong>Reflect annotation</strong></a></li>
 <li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid15">
+<a href="docs-cpgf-reflection-build-meta-data.html#linkid17">
 <strong>Reflect enumerators</strong></a></li>
 <li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid16">
+<a href="docs-cpgf-reflection-build-meta-data.html#linkid18">
 <strong>Reflect nested class</strong></a></li>
 <li>
-<a href="docs-cpgf-reflection-build-meta-data.html#linkid17">
+<a href="docs-cpgf-reflection-build-meta-data.html#linkid19">
 <strong>Reflect parameter default values.</strong></a></li>
 </ul>
 </div>
@@ -276,6 +282,65 @@ GDefineMetaClass&lt;Animal&gt;::<b>lazy</b>(&quot;Animal&quot;, &amp;lazyDefineC
 
 <p><a name="linkid7"></a></p>
 <p>
+<strong>Build dangling meta class</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><pre>GDefineMetaGlobalDangle myGlobalDangleMeta = <b>GDefineMetaGlobalDangle::dangle()</b>()
+    ._field(blah blah)
+    ._method(blah blah)
+;
+GDefineMetaGlobal()
+    ._class(myGlobalDangleMeta)
+;
+
+GDefineMetaDangle&lt;MyClass&gt; myClassDangle = GDefineMetaDangle&lt;MyClass&gt;::dangle()
+;
+
+GDefineMetaDangle&lt;MyClass&gt;::define(&quot;MyClass&quot;)
+    ._class(myClassDangle)
+;
+</pre>
+	A dangling meta class is similar as a normal meta class.<br />
+	When a dangling meta class is added to other meta class, it will be not added as nested class, but all of its members will be extracted directly to the outter class.<br />
+	In above code sample, the field and method added to myGlobalDangleMeta will be added to global directly.<br />
+	That's to say, a dangling meta class is a virtual container rather than a meta class.<br />
+	<br />
+	How is dangling meta class useful?<br />
+	It's useful to split the meta data building to different translate units (cpp files).<br />
+	With the help of the non-template GDefineMetaInfo, it's possible to split meta data for a class, or for global, to different cpp files.<br />
+	Splitting meta data to smaller cpp files can help to reduce the compile time, compile memory usage, and help to make compiler happy (some compilers may crash with cpp file containing a lot of meta data).<br />
+<br />
+
+
+<p><a name="linkid8"></a></p>
+<p>
+<strong>GDefineMetaInfo -- non template representation of meta define class</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	GDefineMetaInfo can be obtained by calling getMetaInfo() on GDefineMetaClass and GDefineMetaDangle.<br />
+	GDefineMetaInfo is a non-template class.<br />
+	The non-template feature is vital because then it's possible to return GDefineMetaInfo from a function defined in a source file.<br />
+	In contrary, GDefineMetaClass and GDefineMetaDangle must be returned from functions defined in header file.<br />
+	<br />
+	Below is pseudo code to demonstrate how to use GDefineMetaInfo.<br />
+	<br />
+
+<pre>// a.cpp
+GDefineMetaInfo buildMetaDataForMyClass()
+{
+    GDefineMetaDangle&lt;MyClass&gt; define = GDefineMetaDangle&lt;MyClass&gt;::dangle();
+    define
+    	._constructor&lt;blah blah&gt;()
+    	._method(blah blah);
+    	._field(blah blah);
+    ;
+}
+
+// b.cpp
+start code block // auto register or function, whatever
+GDefineMetaClass&lt;MyClass&gt; define = GDefineMetaClass&lt;MyClass&gt;::define();
+define
+    ._class(buildMetaDataForMyClass())
+;
+
+</pre>
+
+<p><a name="linkid9"></a></p>
+<p>
 <strong>Reflect templates</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><pre>template &lt;typename T&gt;
 class MyTemplateBase
 {
@@ -313,8 +378,8 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 
-<p><a name="linkid8"></a></p>
-<h3>Build meta data</h3><p><a name="linkid9"></a></p>
+<p><a name="linkid10"></a></p>
+<h3>Build meta data</h3><p><a name="linkid11"></a></p>
 <p>
 <strong>Reflect field</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 	A field is either a member data or a global variable.<br />
@@ -337,7 +402,7 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 
-<p><a name="linkid10"></a></p>
+<p><a name="linkid12"></a></p>
 <p>
 <strong>Reflect property</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 	A property is just a member data or a global variable, but can be accessed with or without getter or setter functions.<br />
@@ -361,7 +426,7 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 
-<p><a name="linkid11"></a></p>
+<p><a name="linkid13"></a></p>
 <p>
 <strong>Reflect method</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 	A method is a function.<br />
@@ -387,7 +452,7 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 
-<p><a name="linkid12"></a></p>
+<p><a name="linkid14"></a></p>
 <p>
 <strong>Reflect constructor</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 	A constructor is a C++ class constructor.<br />
@@ -410,7 +475,7 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 
-<p><a name="linkid13"></a></p>
+<p><a name="linkid15"></a></p>
 <p>
 <strong>Reflect operator</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 	An operator is a C++ class operator that be overloaded.<br />
@@ -440,7 +505,7 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 
-<p><a name="linkid14"></a></p>
+<p><a name="linkid16"></a></p>
 <p>
 <strong>Reflect annotation</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 	An annotation is a kind of special meta data that's added by programmer rather than code.<br />
@@ -471,7 +536,7 @@ Note unlike lazy reflection class which lazy function is a normal function, the 
 
 
 
-<p><a name="linkid15"></a></p>
+<p><a name="linkid17"></a></p>
 <p>
 <strong>Reflect enumerators</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 Note: enumerator here, doesn't only limit to C++ enum, but also can be any constants, such as string, pointer, object.<br />
@@ -495,7 +560,7 @@ Use the function copyVariantFromCopyable in GVariant.h to make the GVariant hold
 
 
 
-<p><a name="linkid16"></a></p>
+<p><a name="linkid18"></a></p>
 <p>
 <strong>Reflect nested class</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p><pre>class MyClass {
 public:
@@ -517,7 +582,7 @@ public:
 
 
 
-<p><a name="linkid17"></a></p>
+<p><a name="linkid19"></a></p>
 <p>
 <strong>Reflect parameter default values.</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-reflection-build-meta-data.html#top">back top</a></span></p>	<p>
 Liking the native C++, an invokable, such as constructor, method, operator functor, can have default value in meta data.<br />

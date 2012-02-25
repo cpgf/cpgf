@@ -46,6 +46,9 @@
 <li>
 <a href="docs-cpgf-general-faq.html#return_reference_to_temp">
 <strong>When I build meta data for method, why the compiler issues warning like returning reference to temporary object?</strong></a></li>
+<li>
+<a href="docs-cpgf-general-faq.html#reflect_namespace">
+<strong>cpgf doesn't support reflecting meta data for namespace. I need namespace, please!</strong></a></li>
 </ul>
 </div>
 <p>
@@ -121,6 +124,27 @@ That policy will force the parameter or return value being passed by value inste
 <br />
 <div class="codepiece"">._method(&quot;setName&quot;, &amp;setName, GMetaPolicyCopyAllConstReference()) <br />
 </div><br />
+<br />
+
+
+
+<p><a name="reflect_namespace"></a></p>
+<p>
+<strong>cpgf doesn't support reflecting meta data for namespace. I need namespace, please!</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
+It's true that cpgf doesn't support reflecting namespace.<br />
+There are two reasons for it.<br />
+1, Reflecting namespace will cause using meta data much more complicated.<br />
+2, Namespace in C++ is less important. It's mainly used to avoid naming clash.<br />
+<br />
+However, we can simulate namespace reflection in cpgf perfectly.<br />
+<br />
+There is a typedef in gmetadefine.h<br />
+<div class="codepiece"">typedef GDefineMetaClass&lt;void&gt; GDefineMetaNamespace; <br />
+</div><br />
+GDefineMetaNamespace acts as a virtual meta class.<br />
+A GDefineMetaNamespace can hold any meta data.<br />
+A GDefineMetaNamespace can be added to global, or even another meta class (in C++ we can't have namespace in a class, but in cpgf we can).<br />
+The OpenGL and Box2D sample code in cpgf package demonstrate the use of namespace well.<br />
 <br />
 
 

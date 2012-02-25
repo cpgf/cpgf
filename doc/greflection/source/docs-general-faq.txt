@@ -81,6 +81,29 @@ That policy will force the parameter or return value being passed by value inste
 
 
 
+<{sh id="reflect_namespace"}> cpgf doesn't support reflecting meta data for namespace. I need namespace, please!
+<{sc}>
+
+<{autobr}>
+It's true that cpgf doesn't support reflecting namespace.
+There are two reasons for it.
+1, Reflecting namespace will cause using meta data much more complicated.
+2, Namespace in C++ is less important. It's mainly used to avoid naming clash.
+
+However, we can simulate namespace reflection in cpgf perfectly.
+
+There is a typedef in gmetadefine.h
+<{piece}>typedef GDefineMetaClass<void> GDefineMetaNamespace; <{/piece}>
+
+GDefineMetaNamespace acts as a virtual meta class.
+A GDefineMetaNamespace can hold any meta data.
+A GDefineMetaNamespace can be added to global, or even another meta class (in C++ we can't have namespace in a class, but in cpgf we can).
+The OpenGL and Box2D sample code in cpgf package demonstrate the use of namespace well.
+
+<{/autobr}>
+
+
+
 <{/sgroup}>
 
 

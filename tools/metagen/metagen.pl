@@ -69,7 +69,7 @@ Usage: perl metagen.pl --xml <Doxygen XML name> --config <Config Perl Script> --
     --xml                Specify the Doxygen XML index file name.
     --config             Specify the config file. See config.default.pl for reference.
     --headerOutput       Optional. Specify where the .h files are created in. It can be specified in the config file too. If it's omitted, "./output" is used.
-    --sourceOutputPath   Optional. Specify where the .cpp files are created in. It can be specified in the config file too. If it's omitted, "./output" is used.
+    --sourceOutput       Optional. Specify where the .cpp files are created in. It can be specified in the config file too. If it's omitted, "./output" is used.
 EOM
 	die "\n";
 }

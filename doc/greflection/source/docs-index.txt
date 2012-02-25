@@ -57,6 +57,15 @@
 
 
 
+<{sh}> Tools
+<{sc}>
+
+<{autoul}>
+	<a href="docs-cpgf-tools-meta-data-generator.html">Metagen -- C++ meta data generator </a>
+<{/autoul}>
+
+
+
 <{sh}> cpgf frequently asked questions
 <{sc}>
 

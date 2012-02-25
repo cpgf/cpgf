@@ -366,7 +366,7 @@ void exitDemo()
 
 int main(int argc, char * argv[])
 {
-	GDefineMetaClass<void> define = GDefineMetaClass<void>::declare("gl");
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("gl");
 
 	registerOpenGL(define.getMetaClass());
 	registerOpenGLU(define.getMetaClass());
