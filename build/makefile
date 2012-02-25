@@ -106,7 +106,7 @@ cb_linux: needcmake
 	$(ECHO) Please open the project file $(PROJECT).cbp in $(PROJECT_PREFIX)_cb_linux in Code::Blocks.
 
 xcode: needcmake
-	$(CMAKE) -G"Xcode"
+	cmake -DCMAKE_BUILD_TYPE=Release -G"Xcode"
 	$(ECHO) Please open the solution $(PROJECT).xcodeproj in Xcode IDE.
 
 cleanbuild: needcmake

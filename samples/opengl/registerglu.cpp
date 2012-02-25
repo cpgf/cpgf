@@ -1,11 +1,17 @@
+#include "cpgf/gcompiler.h"
+#include "cpgf/gmetadefine.h"
+
 #if defined(_WIN32)
-	#include <windows.h>
+    #include <windows.h>
 #endif
-#include <GL/glu.h>
+
+#ifdef G_OS_APPLE
+    #include <OpenGL/glu.h>
+#else
+    #include <GL/glu.h>
+#endif
 
 #include "cpgf/metadata/opengl/gmetadata_openglu.h"
-
-#include "cpgf/gmetadefine.h"
 
 using namespace cpgf;
 

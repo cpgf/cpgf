@@ -17,6 +17,8 @@
 	#define G_OS_WIN32
 #elif defined(linux) || defined(__linux) || defined(__linux__) || defined(__GNU__) || defined(__GLIBC__) 
 	#define G_OS_LINUX
+#elif defined(__APPLE__)
+	#define G_OS_APPLE
 #else
 	#define G_OS_UNKNOWN
 #endif

@@ -1,13 +1,19 @@
 #define GLUT_DISABLE_ATEXIT_HACK
 
+#include "cpgf/gcompiler.h"
+#include "cpgf/gmetadefine.h"
+
 #if defined(_WIN32)
-	#include <windows.h>
+    #include <windows.h>
 #endif
-#include <GL/glut.h>
+
+#ifdef G_OS_APPLE
+    #include <GLUT/glut.h>
+#else
+    #include <GL/glut.h>
+#endif
 
 #include "cpgf/metadata/opengl/gmetadata_openglut.h"
-
-#include "cpgf/gmetadefine.h"
 
 
 using namespace cpgf;
