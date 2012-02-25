@@ -82,11 +82,11 @@ sub setStatic { my ($self, $value) = @_; $self->{_static} = $value; }
 sub getParamList { return shift->{_paramList}; }
 sub hasParam
 {
-	return $#{@{shift->{_paramList}}} >= 0;
+	return scalar(@{shift->{_paramList}}) > 0;
 }
 sub getParamCount
 {
-	return $#{@{shift->{_paramList}}} + 1;
+	return scalar(@{shift->{_paramList}});
 }
 sub addParam
 {
@@ -98,7 +98,7 @@ sub addParam
 sub getTemplateParamList { return shift->{_templateParamList}; }
 sub isTemplate
 {
-	return $#{@{shift->{_templateParamList}}} >= 0;
+	return scalar(@{shift->{_templateParamList}}) > 0;
 }
 sub addTemplateParam
 {

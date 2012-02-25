@@ -30,7 +30,7 @@ sub doFixupGlobals
 	while(not $finished) {
 		$finished = 1;
 
-		for(my $i = 0; $i <= $#{@{$classList}}; ++$i) {
+		for(my $i = 0; $i < scalar(@{$classList}); ++$i) {
 			my $c = $classList->[$i];
 			next unless($c->isGlobal());
 
@@ -107,7 +107,7 @@ sub doFixupInners
 		}
 	}
 	
-	for(my $i = $#{@{$classList}}; $i >= 0; --$i) {
+	for(my $i = scalar(@{$classList}) - 1; $i >= 0; --$i) {
 		my $c = $classList->[$i];
 		if($c->isInner) {
 			splice(@{$classList}, $i, 1);

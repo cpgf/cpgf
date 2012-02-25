@@ -103,11 +103,15 @@ sub writeToFile
 		close FH;
 
 		my $oldText = join('', @lines);
+		my $temp = $content;
 
-		if($content eq $oldText) {
+		$temp =~ s/\r//msg;
+		$oldText =~ s/\r//msg;
+
+		if($temp eq $oldText) {
 			++$skippedFileCount;
 
-#			print "Same file $fileName ... skipped. \n";
+#			print "Identical file $fileName ... skipped. \n";
 
 			return;
 		}
@@ -233,7 +237,7 @@ sub defineMetaClass
 		}
 		$typeName .= ">";
 		my $policy = '';
-		if(defined($rules) and $#{@{$rules}} >= 0) {
+		if(defined($rules) and scalar(@{$rules}) > 0) {
 			$policy = '::Policy<MakePolicy<' . join(', ', @{$rules}) . '> >';
 		}
 		if(defined $config->{metaNamespace}) {
@@ -264,7 +268,7 @@ sub createMetaClass
 		}
 		$typeName .= ">";
 		my $policy = '';
-		if(defined($rules) and $#{@{$rules}} >= 0) {
+		if(defined($rules) and scalar(@{$rules}) > 0) {
 			$policy = '::Policy<MakePolicy<' . join(', ', @{$rules}) . '> >';
 		}
 		$codeWriter->out($typeName .  " " . $varName . " = " . $typeName . $policy . "::declare(\"" . Util::getBaseName($class->getName) . "\");\n");
@@ -333,7 +337,7 @@ sub writeParamList
 sub writeDefaultParams
 {
 	my ($writer, $paramList) = @_;
-	my $index = $#{@{$paramList}};
+	my $index = scalar(@{$paramList}) - 1;
 
 	if($index >= 0 && $paramList->[$index]->hasDefaultValue) {
 		$writer->out("\n");

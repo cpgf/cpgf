@@ -50,11 +50,11 @@ sub addBaseName { my ($self, $v) = @_; Util::listPush($self->{_baseNameList}, $v
 sub getBaseList { return shift->{_baseList}; }
 sub setBaseList { my ($self, $v) = @_; $self->{_baseList} = $v; }
 sub addBase { my ($self, $v) = @_; Util::listPush($self->{_baseList}, $v); }
-sub getBaseCount { return $#{@{shift->{_baseList}}} + 1; }
+sub getBaseCount { return scalar(@{shift->{_baseList}}); }
 
 sub getConstructorList { return shift->{_constructorList}; }
 sub addConstructor { my ($self, $v) = @_; Util::listPush($self->{_constructorList}, $v); }
-sub getConstructorCount { return $#{@{shift->{_constructorList}}} + 1; }
+sub getConstructorCount { return scalar(@{shift->{_constructorList}}); }
 
 sub getDestructor { return shift->{_destructor}; }
 sub setDestructor { my ($self, $v) = @_; $self->{_destructor} = $v; }
@@ -62,23 +62,23 @@ sub hasDestructor { return defined shift->{_destructor}; }
 
 sub getFieldList { return shift->{_fieldList}; }
 sub addField { my ($self, $v) = @_; Util::listPush($self->{_fieldList}, $v); }
-sub getFieldCount { return $#{@{shift->{_fieldList}}} + 1; }
+sub getFieldCount { return scalar(@{shift->{_fieldList}}); }
 
 sub getMethodList { return shift->{_methodList}; }
 sub addMethod { my ($self, $v) = @_; Util::listPush($self->{_methodList}, $v); }
-sub getMethodCount { return $#{@{shift->{_methodList}}} + 1; }
+sub getMethodCount { return scalar(@{shift->{_methodList}}); }
 
 sub getEnumList { return shift->{_enumList}; }
 sub addEnum { my ($self, $v) = @_; Util::listPush($self->{_enumList}, $v); }
-sub getEnumCount { return $#{@{shift->{_enumList}}} + 1; }
+sub getEnumCount { return scalar(@{shift->{_enumList}}); }
 
 sub getOperatorList { return shift->{_operatorList}; }
 sub addOperator { my ($self, $v) = @_; Util::listPush($self->{_operatorList}, $v); }
-sub getOperatorCount { return $#{@{shift->{_operatorList}}} + 1; }
+sub getOperatorCount { return scalar(@{shift->{_operatorList}}); }
 
 sub getDefineList { return shift->{_defineList}; }
 sub addDefine { my ($self, $v) = @_; Util::listPush($self->{_defineList}, $v); }
-sub getDefineCount { return $#{@{shift->{_defineList}}} + 1; }
+sub getDefineCount { return scalar(@{shift->{_defineList}}); }
 
 sub getClassNameList { return shift->{_classNameList}; }
 sub addClassName { my ($self, $v) = @_; Util::listPush($self->{_classNameList}, $v); }
@@ -86,7 +86,7 @@ sub addClassName { my ($self, $v) = @_; Util::listPush($self->{_classNameList}, 
 sub getClassList { return shift->{_classList}; }
 sub setClassList { my ($self, $v) = @_; $self->{_classList} = $v; }
 sub addClass { my ($self, $v) = @_; Util::listPush($self->{_classList}, $v); }
-sub getClassCount { return $#{@{shift->{_classList}}} + 1; }
+sub getClassCount { return scalar(@{shift->{_classList}}); }
 
 sub isInner { return shift->{_inner}; }
 sub setInner { my ($self, $v) = @_; $self->{_inner} = $v; }
