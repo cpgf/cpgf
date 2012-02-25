@@ -90,8 +90,11 @@ bool isNotFundamental() {
 
 template <typename From, typename To>
 struct CastVariantSelector {
+private:
+	typedef typename GIfElse<MaybeEnum<To>::Result, long long, To>::Result U;
+public:
 	static To cast(const From & v) {
-		return (To)((typename GIfElse<MaybeEnum<To>::Result, long long, To>::Result)(v));
+		return (To)((U)(v));
 	}
 };
 

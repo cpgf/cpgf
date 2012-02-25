@@ -17,8 +17,6 @@ namespace Test_MetaType { namespace {
 
 GTEST(TestMetaType)
 {
-	#define TT(a, b) cout << #a << " == " << #b << "? " << (typeid(a) == typeid(b)) << endl;
-
 	MT_EQUAL(int, int);
 	MT_EQUAL(int, int &);
 	MT_EQUAL(int, const int &);
@@ -63,17 +61,6 @@ GTEST(TestMetaType)
 	GCHECK(MT(volatile int *).isPointerToVolatile());
 	GCHECK(MT(const volatile int *).isPointerToConstVolatile());
 
-return;
-	TT(int &, const int &);
-	TT(int &, volatile int &);
-	TT(int &, const volatile int &);
-
-	TT(int *, const int *);
-	TT(int *, volatile int *);
-	TT(int *, const volatile int *);
-	TT(const int *, const volatile int *);
-	TT(volatile int *, const volatile int *);
-	TT(const int *, volatile int *);
 }
 
 

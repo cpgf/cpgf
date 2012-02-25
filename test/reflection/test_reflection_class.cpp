@@ -124,7 +124,6 @@ public:
 
 	bool operator == (const CLASS & other) const {
 		return this->n == other.n;
-		return this->s == other.s;
 	}
 
 	bool check() const {

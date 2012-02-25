@@ -4,7 +4,8 @@
 namespace cpgf {
 
 template <bool P, typename T, typename F>
-struct GIfElse;
+struct GIfElse {
+};
 
 template <typename T, typename F>
 struct GIfElse <true, T, F>
