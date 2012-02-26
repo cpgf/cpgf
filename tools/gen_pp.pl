@@ -1,7 +1,7 @@
+# generate preprocess macros
+
 use strict;
 use warnings;
-
-# generate preprocess macros
 
 my $maxLevels = 60;
 my $repeatMaxRecursiveLevels = 3;

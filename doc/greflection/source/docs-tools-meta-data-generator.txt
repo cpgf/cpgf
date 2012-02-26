@@ -1,9 +1,9 @@
 <{filename name=docs-cpgf-tools-meta-data-generator }>
 
-<{title}>Metagen -- C++ meta data generator <{/title}>
+<{title}>cpgf metagen -- C++ meta data generator for reflection and script binding <{/title}>
 
 
-<h1>Metagen -- C++ meta data generator </h1>
+<h1>cpgf metagen -- C++ meta data generator for reflection and script binding </h1>
 
 <{autotoc}>
 

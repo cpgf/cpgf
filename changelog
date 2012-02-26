@@ -5,10 +5,10 @@
 	Now the OpenGL metadata can be compiled with GCC.
 	Added the OpenGL sample to cmake build file.
 	Added policy GMetaPolicyDestructorAbsent to allow meta data for class with private destructor.
-	Added class GDefineMetaInfo in gmetadefine.h to ease splitting meta data building to different source file. (Reduce using templates).
-	Added "dangle" to GDefineMetaClass.
+	Added class GDefineMetaInfo in gmetadefine.h to ease splitting meta data building to different source files. (Reduce using templates).
+	Added "dangle" and GDefineMetaDangle.
 	Added function getStdTypeInfo to GTypeInfo to get C++ type info.
-	Removed all virtual functions from meta templates to reduce code bloat (the unit test size is decreased by 10%).
+	Removed all virtual functions from meta templates to reduce code bloat (the unit test executable size is decreased by 10%).
 	Fixed a bug that _class prototype in GMetaDefine is wrong.
 
 2012-02-05 version 1.2.5

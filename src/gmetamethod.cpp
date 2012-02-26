@@ -32,6 +32,83 @@ namespace cpgf {
 
 namespace meta_internal {
 
+
+void GMetaMethodDataBase::deleteObject()
+{
+	this->virtualFunctions->deleteObject(this);
+}
+
+size_t GMetaMethodDataBase::getParamCount() const
+{
+	return this->virtualFunctions->getParamCount(this);
+}
+
+bool GMetaMethodDataBase::hasResult() const
+{
+	return this->virtualFunctions->hasResult(this);
+}
+
+GMetaType GMetaMethodDataBase::getParamType(size_t index) const
+{
+	return this->virtualFunctions->getParamType(this, index);
+}
+
+GMetaType GMetaMethodDataBase::getResultType() const
+{
+	return this->virtualFunctions->getResultType(this);
+}
+
+bool GMetaMethodDataBase::isVariadic() const
+{
+	return this->virtualFunctions->isVariadic(this);
+}
+
+bool GMetaMethodDataBase::isExplicitThis() const
+{
+	return this->virtualFunctions->isExplicitThis(this);
+}
+
+GVariant GMetaMethodDataBase::invoke(void * instance, GVariant const * const * params, size_t paramCount) const
+{
+	return this->virtualFunctions->invoke(this, instance, params, paramCount);
+}
+
+bool GMetaMethodDataBase::checkParam(const GVariant & param, size_t paramIndex) const
+{
+	return this->virtualFunctions->checkParam(this, param, paramIndex);
+}
+
+bool GMetaMethodDataBase::isParamTransferOwnership(size_t paramIndex) const
+{
+	return this->virtualFunctions->isParamTransferOwnership(this, paramIndex);
+}
+
+bool GMetaMethodDataBase::isResultTransferOwnership() const
+{
+	return this->virtualFunctions->isResultTransferOwnership(this);
+}
+
+GMetaConverter * GMetaMethodDataBase::createResultConverter() const
+{
+	return this->virtualFunctions->createResultConverter(this);
+}
+
+GMetaDefaultParamList * GMetaMethodDataBase::getDefaultParamList() const
+{
+	if(! this->defaultParamList) {
+		this->defaultParamList.reset(new GMetaDefaultParamList);
+	}
+
+	return this->defaultParamList.get();
+}
+
+bool GMetaMethodDataBase::hasDefaultParam() const
+{
+	return !! this->defaultParamList
+		&& this->defaultParamList->getDefaultCount() > 0;
+}
+
+
 std::string arityToName(int arity)
 {
 	char buffer[10];
@@ -50,21 +127,6 @@ std::string arityToName(int arity)
 	buffer[i++] = 0;
 
 	return std::string(buffer);
-}
-
-GMetaDefaultParamList * GMetaMethodDataBase::getDefaultParamList() const
-{
-	if(! this->defaultParamList) {
-		this->defaultParamList.reset(new GMetaDefaultParamList);
-	}
-
-	return this->defaultParamList.get();
-}
-
-bool GMetaMethodDataBase::hasDefaultParam() const
-{
-	return !! this->defaultParamList
-		&& this->defaultParamList->getDefaultCount() > 0;
 }
 
 

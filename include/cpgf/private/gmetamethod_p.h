@@ -47,53 +47,24 @@ struct GMetaMethodDataVirtual
 class GMetaMethodDataBase
 {
 public:
-	void deleteObject() {
-		this->virtualFunctions->deleteObject(this);
-	}
+	void deleteObject();
 
-	size_t getParamCount() const {
-		return this->virtualFunctions->getParamCount(this);
-	}
+	size_t getParamCount() const;
+	bool hasResult() const;
+	GMetaType getParamType(size_t index) const;
+	GMetaType getResultType() const;
 
-	bool hasResult() const {
-		return this->virtualFunctions->hasResult(this);
-	}
+	bool isVariadic() const;
+	bool isExplicitThis() const;
 
-	GMetaType getParamType(size_t index) const {
-		return this->virtualFunctions->getParamType(this, index);
-	}
+	GVariant invoke(void * instance, GVariant const * const * params, size_t paramCount) const;
 
-	GMetaType getResultType() const {
-		return this->virtualFunctions->getResultType(this);
-	}
+	bool checkParam(const GVariant & param, size_t paramIndex) const;
 
-	bool isVariadic() const {
-		return this->virtualFunctions->isVariadic(this);
-	}
+	bool isParamTransferOwnership(size_t paramIndex) const;
+	bool isResultTransferOwnership() const;
 
-	bool isExplicitThis() const {
-		return this->virtualFunctions->isExplicitThis(this);
-	}
-
-	GVariant invoke(void * instance, GVariant const * const * params, size_t paramCount) const {
-		return this->virtualFunctions->invoke(this, instance, params, paramCount);
-	}
-
-	bool checkParam(const GVariant & param, size_t paramIndex) const {
-		return this->virtualFunctions->checkParam(this, param, paramIndex);
-	}
-
-	bool isParamTransferOwnership(size_t paramIndex) const {
-		return this->virtualFunctions->isParamTransferOwnership(this, paramIndex);
-	}
-
-	bool isResultTransferOwnership() const {
-		return this->virtualFunctions->isResultTransferOwnership(this);
-	}
-
-	GMetaConverter * createResultConverter() const {
-		return this->virtualFunctions->createResultConverter(this);
-	}
+	GMetaConverter * createResultConverter() const;
 
 	GMetaDefaultParamList * getDefaultParamList() const;
 	bool hasDefaultParam() const;
@@ -104,6 +75,7 @@ protected:
 private:
 	mutable GScopedPointer<GMetaDefaultParamList> defaultParamList;
 };
+
 
 template<typename CallbackT, typename Policy>
 class GMetaMethodData : public GMetaMethodDataBase

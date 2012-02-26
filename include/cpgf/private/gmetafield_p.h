@@ -25,37 +25,18 @@ struct GMetaFieldDataVirtual
 class GMetaFieldDataBase
 {
 public:
-	void deleteObject() {
-		this->virtualFunctions->deleteObject(this);
-	}
+	void deleteObject();
 
-	bool canGet() const {
-		return this->virtualFunctions->canGet(this);
-	}
+	bool canGet() const;
+	bool canSet() const;
 
-	bool canSet() const {
-		return this->virtualFunctions->canSet(this);
-	}
+	GVariant get(void * instance) const;
+	void set(void * instance, const GVariant & v) const;
 
-	GVariant get(void * instance) const {
-		return this->virtualFunctions->get(this, instance);
-	}
+	size_t getFieldSize() const;
+	void * getFieldAddress(void * instance) const;
 
-	void set(void * instance, const GVariant & v) const {
-		this->virtualFunctions->set(this, instance, v);
-	}
-
-	size_t getFieldSize() const {
-		return this->virtualFunctions->getFieldSize(this);
-	}
-
-	void * getFieldAddress(void * instance) const {
-		return this->virtualFunctions->getFieldAddress(this, instance);
-	}
-
-	GMetaConverter * createConverter() const {
-		return this->virtualFunctions->createConverter(this);
-	}
+	GMetaConverter * createConverter() const;
 
 protected:
 	GMetaFieldDataVirtual * virtualFunctions;

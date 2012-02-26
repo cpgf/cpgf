@@ -443,37 +443,18 @@ struct GMetaPropertyDataVirtual
 class GMetaPropertyDataBase
 {
 public:
-	void deleteObject() {
-		this->virtualFunctions->deleteObject(this);
-	}
+	void deleteObject();
 	
-	bool canGet() const {
-		return this->virtualFunctions->canGet(this);
-	}
+	bool canGet() const;
+	bool canSet() const;
 
-	bool canSet() const {
-		return this->virtualFunctions->canSet(this);
-	}
+	GVariant get(void * instance) const;
+	void set(void * instance, const GVariant & v) const;
 
-	GVariant get(void * instance) const {
-		return this->virtualFunctions->get(this, instance);
-	}
+	size_t getPropertySize() const;
+	void * getPropertyAddress(void * instance) const;
 
-	void set(void * instance, const GVariant & v) const {
-		this->virtualFunctions->set(this, instance, v);
-	}
-
-	size_t getPropertySize() const {
-		return this->virtualFunctions->getPropertySize(this);
-	}
-
-	void * getPropertyAddress(void * instance) const {
-		return this->virtualFunctions->getPropertyAddress(this, instance);
-	}
-
-	GMetaConverter * createConverter() const {
-		return this->virtualFunctions->createConverter(this);
-	}
+	GMetaConverter * createConverter() const;
 
 protected:
 	GMetaPropertyDataVirtual * virtualFunctions;

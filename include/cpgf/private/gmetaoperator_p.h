@@ -264,45 +264,22 @@ struct GMetaOperatorDataVirtual
 class GMetaOperatorDataBase
 {
 public:
-	void deleteObject() {
-		this->virtualFunctions->deleteObject(this);
-	}
+	void deleteObject();
 
-	GMetaOpType getOperator() const {
-		return this->virtualFunctions->getOperator(this);
-	}
+	GMetaOpType getOperator() const;
 
-	size_t getParamCount() const {
-		return this->virtualFunctions->getParamCount(this);
-	}
+	size_t getParamCount() const;
+	bool isParamSelf(size_t paramIndex) const;
+	GMetaType getParamType(size_t paramIndex) const;
 
-	bool isParamSelf(size_t paramIndex) const {
-		return this->virtualFunctions->isParamSelf(this, paramIndex);
-	}
+	bool hasResult() const;
+	GMetaType getResultType() const;
 
-	GMetaType getParamType(size_t paramIndex) const {
-		return this->virtualFunctions->getParamType(this, paramIndex);
-	}
+	bool isVariadic() const;
 
-	bool hasResult() const {
-		return this->virtualFunctions->hasResult(this);
-	}
+	bool checkParam(const GVariant & param, size_t paramIndex) const;
 
-	GMetaType getResultType() const {
-		return this->virtualFunctions->getResultType(this);
-	}
-
-	bool isVariadic() const {
-		return this->virtualFunctions->isVariadic(this);
-	}
-
-	bool checkParam(const GVariant & param, size_t paramIndex) const {
-		return this->virtualFunctions->checkParam(this, param, paramIndex);
-	}
-
-	GMetaType createOperatorMetaType() const {
-		return this->virtualFunctions->createOperatorMetaType(this);
-	}
+	GMetaType createOperatorMetaType() const;
 
 	GVariant invoke(const GVariant & p0) const;
 	GVariant invoke(const GVariant & p0, const GVariant & p1) const;
@@ -310,17 +287,10 @@ public:
 
 	GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
 
-	bool isParamTransferOwnership(size_t paramIndex) const {
-		return this->virtualFunctions->isParamTransferOwnership(this, paramIndex);
-	}
+	bool isParamTransferOwnership(size_t paramIndex) const;
+	bool isResultTransferOwnership() const;
 
-	bool isResultTransferOwnership() const {
-		return this->virtualFunctions->isResultTransferOwnership(this);
-	}
-
-	GMetaConverter * createResultConverter() const {
-		return this->virtualFunctions->createResultConverter(this);
-	}
+	GMetaConverter * createResultConverter() const;
 	
 	GMetaDefaultParamList * getDefaultParamList() const;
 	bool hasDefaultParam() const;
@@ -332,13 +302,8 @@ private:
 	mutable GScopedPointer<GMetaDefaultParamList> defaultParamList;
 };
 
-inline void operatorIndexOutOfBound(size_t index, size_t maxIndex)
-{
-	(void)index;
-	(void)maxIndex;
 
-	raiseCoreException(Error_Meta_ParamOutOfIndex);
-}
+void operatorIndexOutOfBound(size_t index, size_t maxIndex);
 
 template <typename OT, GMetaOpType Op, typename Signature, typename Policy, typename Enabled = void>
 class GMetaOperatorData;

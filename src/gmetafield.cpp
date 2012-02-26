@@ -3,6 +3,52 @@
 
 namespace cpgf {
 
+namespace meta_internal {
+
+
+void GMetaFieldDataBase::deleteObject()
+{
+	this->virtualFunctions->deleteObject(this);
+}
+
+bool GMetaFieldDataBase::canGet() const
+{
+	return this->virtualFunctions->canGet(this);
+}
+
+bool GMetaFieldDataBase::canSet() const
+{
+	return this->virtualFunctions->canSet(this);
+}
+
+GVariant GMetaFieldDataBase::get(void * instance) const
+{
+	return this->virtualFunctions->get(this, instance);
+}
+
+void GMetaFieldDataBase::set(void * instance, const GVariant & v) const
+{
+	this->virtualFunctions->set(this, instance, v);
+}
+
+size_t GMetaFieldDataBase::getFieldSize() const
+{
+	return this->virtualFunctions->getFieldSize(this);
+}
+
+void * GMetaFieldDataBase::getFieldAddress(void * instance) const
+{
+	return this->virtualFunctions->getFieldAddress(this, instance);
+}
+
+GMetaConverter * GMetaFieldDataBase::createConverter() const
+{
+	return this->virtualFunctions->createConverter(this);
+}
+
+	
+} // namespace meta_internal
+
 
 bool GMetaField::canGet() const
 {

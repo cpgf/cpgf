@@ -26,6 +26,69 @@ namespace cpgf {
 
 namespace meta_internal {
 
+
+void GMetaClassDataBase::deleteObject()
+{
+	this->virtualFunctions->deleteObject(this);
+}
+
+bool GMetaClassDataBase::canCreateInstance() const
+{
+	return this->virtualFunctions->canCreateInstance(this);
+}
+
+bool GMetaClassDataBase::canCopyInstance() const
+{
+	return this->virtualFunctions->canCopyInstance(this);
+}
+
+void * GMetaClassDataBase::createInstance() const
+{
+	return this->virtualFunctions->createInstance(this);
+}
+
+void * GMetaClassDataBase::createInplace(void * placement) const
+{
+	return this->virtualFunctions->createInplace(this, placement);
+}
+
+void * GMetaClassDataBase::cloneInstance(void * instance) const
+{
+	return this->virtualFunctions->cloneInstance(this, instance);
+}
+
+void * GMetaClassDataBase::cloneInplace(void * instance, void * placement) const
+{
+	return this->virtualFunctions->cloneInplace(this, instance, placement);
+}
+
+size_t GMetaClassDataBase::getObjectSize() const
+{
+	return this->virtualFunctions->getObjectSize(this);
+}
+
+bool GMetaClassDataBase::isAbstract() const
+{
+	return this->virtualFunctions->isAbstract(this);
+}
+
+
+GMetaClassCasterBase * GMetaClassCasterBase::clone() const
+{
+	return this->virtualFunctions->clone();
+}
+
+void * GMetaClassCasterBase::downCast(void * base) const
+{
+	return this->virtualFunctions->downCast(base);
+}
+
+void * GMetaClassCasterBase::upCast(void * derived) const
+{
+	return this->virtualFunctions->upCast(derived);
+}
+
+
 class GMetaSuperListImplement
 {
 public:

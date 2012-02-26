@@ -27,37 +27,18 @@ struct GMetaFundamentalDataVirtual
 class GMetaFundamentalData
 {
 public:
-	size_t getTypeSize() const {
-		return this->virtualFunctions->getTypeSize(this);
-	}
+	size_t getTypeSize() const;
 
-	GVariantType getVariantType() const {
-		return this->virtualFunctions->getVariantType(this);
-	}
+	GVariantType getVariantType() const;
 
-	GVariant getValue(void * instance) const {
-		return this->virtualFunctions->getValue(this, instance);
-	}
+	GVariant getValue(void * instance) const;
 
-	void * createInstance() const {
-		return this->virtualFunctions->createInstance(this);
-	}
+	void * createInstance() const;
+	void * createInplace(void * placement) const;
+	void * cloneInstance(void * instance) const;
+	void * cloneInplace(void * instance, void * placement) const;
 
-	void * createInplace(void * placement) const {
-		return this->virtualFunctions->createInplace(this, placement);
-	}
-
-	void * cloneInstance(void * instance) const {
-		return this->virtualFunctions->cloneInstance(this, instance);
-	}
-
-	void * cloneInplace(void * instance, void * placement) const {
-		return this->virtualFunctions->cloneInplace(this, instance, placement);
-	}
-
-	void destroyInstance(void * o) const {
-		this->virtualFunctions->destroyInstance(this, o);
-	}
+	void destroyInstance(void * o) const;
 
 protected:
 	GMetaFundamentalDataVirtual * virtualFunctions;

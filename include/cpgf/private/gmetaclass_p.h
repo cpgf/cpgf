@@ -40,41 +40,19 @@ struct GMetaClassDataVirtual
 class GMetaClassDataBase
 {
 public:
-	void deleteObject() {
-		this->virtualFunctions->deleteObject(this);
-	}
+	void deleteObject();
+	
+	bool canCreateInstance() const;
+	bool canCopyInstance() const;
+	
+	void * createInstance() const;
+	void * createInplace(void * placement) const;
+	void * cloneInstance(void * instance) const;
+	void * cloneInplace(void * instance, void * placement) const;
 
-	bool canCreateInstance() const {
-		return this->virtualFunctions->canCreateInstance(this);
-	}
+	size_t getObjectSize() const;
 
-	bool canCopyInstance() const {
-		return this->virtualFunctions->canCopyInstance(this);
-	}
-
-	void * createInstance() const {
-		return this->virtualFunctions->createInstance(this);
-	}
-
-	void * createInplace(void * placement) const {
-		return this->virtualFunctions->createInplace(this, placement);
-	}
-
-	void * cloneInstance(void * instance) const {
-		return this->virtualFunctions->cloneInstance(this, instance);
-	}
-
-	void * cloneInplace(void * instance, void * placement) const {
-		return this->virtualFunctions->cloneInplace(this, instance, placement);
-	}
-
-	size_t getObjectSize() const {
-		return this->virtualFunctions->getObjectSize(this);
-	}
-
-	bool isAbstract() const {
-		return this->virtualFunctions->isAbstract(this);
-	}
+	bool isAbstract() const;
 
 protected:
 	GMetaClassDataVirtual * virtualFunctions;
@@ -277,17 +255,10 @@ struct GMetaClassCasterVirtual
 class GMetaClassCasterBase
 {
 public:
-	GMetaClassCasterBase * clone() const {
-		return this->virtualFunctions->clone();
-	}
+	GMetaClassCasterBase * clone() const;
 
-	void * downCast(void * base) const {
-		return this->virtualFunctions->downCast(base);
-	}
-
-	void * upCast(void * derived) const {
-		return this->virtualFunctions->upCast(derived);
-	}
+	void * downCast(void * base) const;
+	void * upCast(void * derived) const;
 
 protected:
 	GMetaClassCasterVirtual * virtualFunctions;

@@ -44,7 +44,7 @@ my $patternList = [
 		%defaultConfig,
 
 		path => "include/cpgf",
-		files => [ '*' ],
+		files => [ '*.h', '*.cpp' ],
 		excludePath => [ 'game' ],
 		recursive => 1,
 	},
@@ -53,7 +53,7 @@ my $patternList = [
 		%defaultConfig,
 
 		path => "src",
-		files => [ '*' ],
+		files => [ '*.h', '*.cpp' ],
 		excludePath => [ 'game' ],
 		recursive => 1,
 	},
@@ -62,7 +62,7 @@ my $patternList = [
 		%defaultConfig,
 
 		path => "samples",
-		files => [ '*' ],
+		files => [ '*.h', '*.cpp', 'readme*' ],
 		recursive => 1,
 	},
 
@@ -70,7 +70,7 @@ my $patternList = [
 		%defaultConfig,
 
 		path => "test",
-		files => [ '*' ],
+		files => [ '*.h', '*.cpp' ],
 		recursive => 1,
 	},
 
@@ -133,7 +133,7 @@ sub makeZip
 	chdir($releasePath);
 	
 	my $v = "$version";
-	$v =~ s/\./_/;
+	$v =~ s/\./_/g;
 	my $zipName = "cpgf_$v.zip";
 	system "zip -rq -9 $zipName cpgf";
 }
@@ -246,7 +246,7 @@ sub matchFile
 	$pattern =~ s/\./\\./g;
 	$pattern =~ s/\*/\.\*/g;
 
-	return &getFileName($file) =~ m!^$pattern$!;
+	return &getFileName($file) =~ m!^$pattern$!i;
 }
 
 sub normalizePath

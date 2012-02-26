@@ -12,14 +12,71 @@ namespace cpgf {
 
 namespace meta_internal {
 
-std::string operatorToName(GMetaOpType op) {
-	char buffer[10];
 
-	sprintf(buffer, "%d", op);
-
-	return std::string(buffer);
+void GMetaOperatorDataBase::deleteObject()
+{
+	this->virtualFunctions->deleteObject(this);
 }
 
+GMetaOpType GMetaOperatorDataBase::getOperator() const
+{
+	return this->virtualFunctions->getOperator(this);
+}
+
+size_t GMetaOperatorDataBase::getParamCount() const
+{
+	return this->virtualFunctions->getParamCount(this);
+}
+
+bool GMetaOperatorDataBase::isParamSelf(size_t paramIndex) const
+{
+	return this->virtualFunctions->isParamSelf(this, paramIndex);
+}
+
+GMetaType GMetaOperatorDataBase::getParamType(size_t paramIndex) const
+{
+	return this->virtualFunctions->getParamType(this, paramIndex);
+}
+
+bool GMetaOperatorDataBase::hasResult() const
+{
+	return this->virtualFunctions->hasResult(this);
+}
+
+GMetaType GMetaOperatorDataBase::getResultType() const
+{
+	return this->virtualFunctions->getResultType(this);
+}
+
+bool GMetaOperatorDataBase::isVariadic() const
+{
+	return this->virtualFunctions->isVariadic(this);
+}
+
+bool GMetaOperatorDataBase::checkParam(const GVariant & param, size_t paramIndex) const
+{
+	return this->virtualFunctions->checkParam(this, param, paramIndex);
+}
+
+GMetaType GMetaOperatorDataBase::createOperatorMetaType() const
+{
+	return this->virtualFunctions->createOperatorMetaType(this);
+}
+
+bool GMetaOperatorDataBase::isParamTransferOwnership(size_t paramIndex) const
+{
+	return this->virtualFunctions->isParamTransferOwnership(this, paramIndex);
+}
+
+bool GMetaOperatorDataBase::isResultTransferOwnership() const
+{
+	return this->virtualFunctions->isResultTransferOwnership(this);
+}
+
+GMetaConverter * GMetaOperatorDataBase::createResultConverter() const
+{
+	return this->virtualFunctions->createResultConverter(this);
+}
 
 GVariant GMetaOperatorDataBase::invoke(const GVariant & p0) const
 {
@@ -87,6 +144,23 @@ bool GMetaOperatorDataBase::hasDefaultParam() const
 	return !! this->defaultParamList
 		&& this->defaultParamList->getDefaultCount() > 0;
 }
+
+
+void operatorIndexOutOfBound(size_t index, size_t maxIndex)
+{
+	(void)index;
+	(void)maxIndex;
+
+	raiseCoreException(Error_Meta_ParamOutOfIndex);
+}
+std::string operatorToName(GMetaOpType op) {
+	char buffer[10];
+
+	sprintf(buffer, "%d", op);
+
+	return std::string(buffer);
+}
+
 
 } // namespace meta_internal
 
