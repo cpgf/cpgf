@@ -30,8 +30,10 @@ if(MSVC)
 	add_definitions(-D_SECURE_SCL=0 -D_HAS_ITERATOR_DEBUGGING=0)
 endif(MSVC)
 
+file(GLOB GLOB_SEED ${SEED_SRC_PATH}/*.cpp)
+
 set(SRC_META
-	${SEED_SRC_PATH}/main.cpp
+	${GLOB_SEED}
 
 	${SRC_PATH}/gapi.cpp
 	${SRC_PATH}/gbytearray.cpp
