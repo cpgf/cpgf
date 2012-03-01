@@ -7,38 +7,45 @@ using namespace std;
 
 
 /*
-IArchiveWriter -- the primary writer to write data to different output, such as binary, text, etc.
-Meta writer -- write meta object/value to archive writer. It just writes, no care of pointers resolve, etc.
-Meta archive -- archiving. It does the pointers resolve.
+IMetaWriter -- the primary writer to write data to different output, such as binary, text, etc.
+Meta archive writer -- write meta object/value to archive writer. It does the pointers resolve. It doesn't use meta item's archive class.
+Meta archive -- archiving. It uses meta item's archive class.
 */
 
 namespace cpgf {
 
-struct IMetaArchiveWriter;
+struct IMetaArchiveWriter {};
 
-struct IArchiveWriter : public IObject
+struct IMetaWriter : public IObject
 {
 	virtual void G_API_CC writeFundamental(IMetaArchiveWriter * archiveWriter, const char * name, const GVariant & value) = 0;
 	virtual void G_API_CC writeString(IMetaArchiveWriter * archiveWriter, const char * name, const char * value) = 0;
+
+	virtual void G_API_CC beginWriteObject(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC endWriteObject(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass) = 0;
+
+	virtual void G_API_CC beginWriteArray(IMetaArchiveWriter * archiveWriter, const char * name, uint32_t length, IMetaTypedItem * typeItem) = 0;
+	virtual void G_API_CC endWriteArray(IMetaArchiveWriter * archiveWriter, const char * name, uint32_t length, IMetaTypedItem * typeItem) = 0;
 };
 
 
 class GMetaArchive;
 
-class GMetaArchiveWriter
+class GMetaArchiveWriter : public IMetaArchiveWriter
 {
 public:
-	explicit GMetaArchiveWriter(IArchiveWriter * writer, GMetaArchive * archive);
+	explicit GMetaArchiveWriter(IMetaWriter * writer, GMetaArchive * archive);
 
 	void writeObject(const char * name, void * instance, IMetaClass * metaClass);
 	void writeMetaItem(const char * name, void * instance, IMetaItem * metaItem);
 
 protected:
-	void doWriteMetaAccessible(IMetaAccessible * accessible, void * instance);
-	void doWriteValue(const GVariant & value, const GMetaType & metaType);
+	void doWriteObject(const char * name, void * instance, IMetaClass * metaClass);
+	void doWriteMetaAccessible(const char * name, void * instance, IMetaAccessible * accessible);
+	void doWriteValue(const char * name, const GVariant & value, const GMetaType & metaType);
 
 private:
-	IArchiveWriter * writer;
+	IMetaWriter * writer;
 	GMetaArchive * archive;
 };
 
@@ -46,25 +53,40 @@ private:
 class GMetaArchive
 {
 public:
-	explicit GMetaArchive(IArchiveWriter * writer);
+	explicit GMetaArchive(IMetaWriter * writer);
+
+	void writeObject(const char * name, void * instance, IMetaClass * metaClass);
+	void writeMetaItem(const char * name, void * instance, IMetaItem * metaItem);
 
 private:
 	GScopedPointer<GMetaArchiveWriter> archiveWriter;
 };
 
-GMetaArchive::GMetaArchive(IArchiveWriter * writer)
+GMetaArchive::GMetaArchive(IMetaWriter * writer)
 {
 	this->archiveWriter.reset(new GMetaArchiveWriter(writer, this));
 }
 
+void GMetaArchive::writeObject(const char * name, void * instance, IMetaClass * metaClass)
+{
+	this->archiveWriter->writeObject(name, instance, metaClass);
+}
 
-GMetaArchiveWriter::GMetaArchiveWriter(IArchiveWriter * writer, GMetaArchive * archive)
+void GMetaArchive::writeMetaItem(const char * name, void * instance, IMetaItem * metaItem)
+{
+	this->archiveWriter->writeMetaItem(name, instance, metaItem);
+}
+
+
+
+GMetaArchiveWriter::GMetaArchiveWriter(IMetaWriter * writer, GMetaArchive * archive)
 	: writer(writer), archive(archive)
 {
 }
 
 void GMetaArchiveWriter::writeObject(const char * name, void * instance, IMetaClass * metaClass)
 {
+	this->doWriteObject(name, instance, metaClass);
 }
 
 void GMetaArchiveWriter::writeMetaItem(const char * name, void * instance, IMetaItem * metaItem)
@@ -72,7 +94,7 @@ void GMetaArchiveWriter::writeMetaItem(const char * name, void * instance, IMeta
 	switch(static_cast<GMetaCategory>(metaItem->getCategory())) {
 		case mcatField:
 		case mcatProperty:
-			this->doWriteMetaAccessible(static_cast<IMetaAccessible *>(metaItem), instance);
+			this->doWriteMetaAccessible(name, instance, static_cast<IMetaAccessible *>(metaItem));
 			break;
 
 		default:
@@ -80,16 +102,32 @@ void GMetaArchiveWriter::writeMetaItem(const char * name, void * instance, IMeta
 	}
 }
 
-void GMetaArchiveWriter::doWriteMetaAccessible(IMetaAccessible * accessible, void * instance)
+void GMetaArchiveWriter::doWriteObject(const char * name, void * instance, IMetaClass * metaClass)
 {
-	this->doWriteValue(metaGetValue(accessible, instance), metaGetItemType(accessible));
+	// todo: resolve field pointers.
+
 }
 
-void GMetaArchiveWriter::doWriteValue(const GVariant & value, const GMetaType & metaType)
+void GMetaArchiveWriter::doWriteMetaAccessible(const char * name, void * instance, IMetaAccessible * accessible)
+{
+	this->doWriteValue(name, metaGetValue(accessible, instance), metaGetItemType(accessible));
+}
+
+void GMetaArchiveWriter::doWriteValue(const char * name, const GVariant & value, const GMetaType & metaType)
 {
 	size_t pointers = metaType.getPointerDimension();
 
 	if(pointers == 0) {
+		if(metaType.isFundamental()) {
+			this->writer->writeFundamental(this, name, value);
+		}
+		else if(metaType.baseIsClass()) {
+		}
+		else {
+			// error
+		}
+	}
+	else if(pointers == 1) {
 	}
 }
 
