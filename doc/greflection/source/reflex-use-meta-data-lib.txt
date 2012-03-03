@@ -368,7 +368,7 @@ Check if a parameter can be converted to the operator parameter.
 Get the meta item that the annotation is bound to.
 
 <{piece}> const GAnnotationValue * getValue(const char * name) const; <{/piece}>
-Get the annotation value of the key with the "name".
+Get the annotation value of the key with the "name". Return NULL if "name" doesn't exist.
 
 <{piece}> size_t getCount() const; <{/piece}>
 Get how many annotation values there are.
@@ -411,6 +411,9 @@ Convert the value to a wide string.
 
 <{piece}> int toInt() const; <{/piece}>
 Convert the value to an integer.
+
+<{piece}> bool toBoolean() const; <{/piece}>
+Convert the value to a boolean.
 
 <{piece}> template <typename T>
 T toObject() const; <{/piece}>

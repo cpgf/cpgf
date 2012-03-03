@@ -112,6 +112,11 @@ int GAnnotationValue::toInt() const
 	return fromVariant<int>(this->var);
 }
 
+bool GAnnotationValue::toBoolean() const
+{
+	return fromVariant<bool>(this->var);
+}
+
 
 GAnnotationItem::GAnnotationItem()
 	: implement(new meta_internal::GAnnotationItemImplement("")), value()

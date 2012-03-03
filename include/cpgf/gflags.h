@@ -81,6 +81,15 @@ public:
 		this->value &= ~flags;
 	}
 	
+	void setByBool(T flags, bool value) {
+		if(value) {
+			this->set(flags);
+		}
+		else {
+			this->clear(flags);
+		}
+	}
+	
 	bool has(T flags) const {
 		return (this->value & flags) == static_cast<ValueType>(flags);
 	}

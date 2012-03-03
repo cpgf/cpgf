@@ -25,7 +25,7 @@ However, it's hard to guarantee the exceptio safety. So if you find anything tha
 
 <{autobr}>
 The library is not safe for writting at the same time in multiple thread.
-Due the static objects and lazy meta data building, before the static objects intializes and lazy occurs. reading from multiple thread is not safe.
+Due to the static objects and lazy meta data building, before the static objects intializes and lazy occurs. reading from multiple thread is not safe.
 But when all static objects initializes and lazy occurs, reading is safe in multiple thread.
 
 For example, if you get a meta method in one thread, calling the method in several threads at the same time should be safe.
@@ -35,13 +35,13 @@ However, the library is not tested in multiple threads environment yet, so take 
 <{/autobr}>
 
 
-<{sh id="improve_document"}> Some of the library document is bad, I want to help to rephrase it, but how can I help?
+<{sh id="improve_document"}> Some of the library document is bad, I want to help to rephrase it, how can I help?
 <{sc}>
 
 <{autobr}>
 First, any intention of helping the library is appreciated.
 Second, about the documentation.
-I wrote a script to parse my own defined document format to create the document.
+I wrote a Perl script to parse my own defined document format to create the document.
 So it's hard for anyone else to edit the document source file directly unless you want to learn my own format.
 
 To help to improve the document, you just need to copy the paragraph, or the whole text, from the web page, edit it in a text editor, then send the revision back to me by email.

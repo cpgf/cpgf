@@ -42,6 +42,7 @@ public:
 	const char * toString() const;
 	const wchar_t * toWideString() const;
 	int toInt() const;
+	bool toBoolean() const;
 
 	template <typename T>
 	T toObject() const {

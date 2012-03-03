@@ -34,7 +34,7 @@
 <strong>What's the thread safety in cpgf library?</strong></a></li>
 <li>
 <a href="docs-cpgf-general-faq.html#improve_document">
-<strong>Some of the library document is bad, I want to help to rephrase it, but how can I help?</strong></a></li>
+<strong>Some of the library document is bad, I want to help to rephrase it, how can I help?</strong></a></li>
 </ul>
 </div>
 <p>
@@ -80,7 +80,7 @@ However, it's hard to guarantee the exceptio safety. So if you find anything tha
 <p>
 <strong>What's the thread safety in cpgf library?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
 The library is not safe for writting at the same time in multiple thread.<br />
-Due the static objects and lazy meta data building, before the static objects intializes and lazy occurs. reading from multiple thread is not safe.<br />
+Due to the static objects and lazy meta data building, before the static objects intializes and lazy occurs. reading from multiple thread is not safe.<br />
 But when all static objects initializes and lazy occurs, reading is safe in multiple thread.<br />
 <br />
 For example, if you get a meta method in one thread, calling the method in several threads at the same time should be safe.<br />
@@ -91,10 +91,10 @@ However, the library is not tested in multiple threads environment yet, so take 
 
 <p><a name="improve_document"></a></p>
 <p>
-<strong>Some of the library document is bad, I want to help to rephrase it, but how can I help?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
+<strong>Some of the library document is bad, I want to help to rephrase it, how can I help?</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-general-faq.html#top">back top</a></span></p>
 First, any intention of helping the library is appreciated.<br />
 Second, about the documentation.<br />
-I wrote a script to parse my own defined document format to create the document.<br />
+I wrote a Perl script to parse my own defined document format to create the document.<br />
 So it's hard for anyone else to edit the document source file directly unless you want to learn my own format.<br />
 <br />
 To help to improve the document, you just need to copy the paragraph, or the whole text, from the web page, edit it in a text editor, then send the revision back to me by email.<br />
