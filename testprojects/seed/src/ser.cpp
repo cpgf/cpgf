@@ -130,10 +130,36 @@ private:
 };
 
 
+bool canSerializeObject(const GMetaArchiveConfig & config, IMetaClass * metaClass)
+{
+	return true;
+}
+
+bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * accessible, IMetaClass * ownerClass)
+{
+	if(! accessible->canGet()) {
+		return false;
+	}
+	if(! accessible->canSet()) {
+		return false;
+	}
+
+	return true;
+}
+
+bool canSerializeBaseClass(const GMetaArchiveConfig & config, IMetaClass * baseClass, IMetaClass * metaClass)
+{
+	if(baseClass == NULL) {
+		return false;
+	}
+
+	return true;
+}
+
 class GMetaArchiveWriter : public IMetaArchiveWriter
 {
 public:
-	explicit GMetaArchiveWriter(IMetaService * service, IMetaWriter * writer);
+	explicit GMetaArchiveWriter(const GMetaArchiveConfig & config, IMetaService * service, IMetaWriter * writer);
 
 	// take care of customized serializer, take care of pointer resolve.
 	void writeObject(const char * name, void * instance, IMetaClass * metaClass);
@@ -153,10 +179,6 @@ public:
 	void beginWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass);
 	void endWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass);
 	
-	bool canWriteObject(IMetaClass * metaClass);
-	bool canWriteMetaItem(IMetaItem * metaItem, IMetaClass * ownerClass);
-	bool canWriteBaseClass(IMetaClass * baseClass, IMetaClass * metaClass);
-
 protected:
 	void doWriteObject(void * instance, IMetaClass * metaClass);
 	void doDefaultWriteObject(void * instance, IMetaClass * metaClass);
@@ -170,6 +192,7 @@ protected:
 	uint32_t getNextArchiveID();
 
 private:
+	GMetaArchiveConfig config;
 	GScopedInterface<IMetaService> service;
 	GScopedInterface<IMetaWriter> writer;
 	uint32_t currentArchiveID;
@@ -188,8 +211,8 @@ struct IMetaFieldSerializer : public IObject
 };
 
 
-GMetaArchiveWriter::GMetaArchiveWriter(IMetaService * service, IMetaWriter * writer)
-	: service(service), writer(writer), currentArchiveID(0)
+GMetaArchiveWriter::GMetaArchiveWriter(const GMetaArchiveConfig & config, IMetaService * service, IMetaWriter * writer)
+	: config(config), service(service), writer(writer), currentArchiveID(0)
 {
 	this->service->addReference();
 	this->writer->addReference();
@@ -282,7 +305,7 @@ void GMetaArchiveWriter::doDirectWriteObject(void * instance, IMetaClass * metaC
 	for(i = 0; i < count; ++i) {
 		baseClass.reset(metaClass->getBaseClass(i));
 		
-		if(this->canWriteBaseClass(baseClass.get(), metaClass)) {
+		if(canSerializeBaseClass(this->config, baseClass.get(), metaClass)) {
 			this->doWriteObject(metaClass->castToBase(instance, i), baseClass.get());
 		}
 	}
@@ -303,8 +326,8 @@ void GMetaArchiveWriter::doDirectWriteObjectWithoutBase(void * instance, IMetaCl
 	count = metaClass->getFieldCount();
 	for(i = 0; i < count; ++i) {
 		accessible.reset(metaClass->getFieldAt(i));
-		
-		if(this->canWriteMetaItem(accessible.get(), metaClass)) {
+
+		if(canSerializeField(this->config, accessible.get(), metaClass)) {
 			this->doWriteField(accessible->getName(), instance, accessible.get());
 		}
 	}
@@ -312,7 +335,7 @@ void GMetaArchiveWriter::doDirectWriteObjectWithoutBase(void * instance, IMetaCl
 	count = metaClass->getPropertyCount();
 	for(i = 0; i < count; ++i) {
 		accessible.reset(metaClass->getPropertyAt(i));
-		if(this->canWriteMetaItem(accessible.get(), metaClass)) {
+		if(canSerializeField(this->config, accessible.get(), metaClass)) {
 			this->doWriteField(accessible->getName(), instance, accessible.get());
 		}
 	}
@@ -354,9 +377,6 @@ void GMetaArchiveWriter::doDirectWriteField(const char * name, void * instance, 
 				}
 			}
 		}
-		else {
-			// error
-		}
 	}
 	else {
 		void * ptr = fromVariant<void *>(metaGetValue(accessible, instance));
@@ -395,42 +415,6 @@ void GMetaArchiveWriter::beginWriteObject(const char * name, uint32_t archiveID,
 void GMetaArchiveWriter::endWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass)
 {
 	this->writer->endWriteObject(name, archiveID, instance, metaClass);
-}
-
-bool GMetaArchiveWriter::canWriteObject(IMetaClass * metaClass)
-{
-	return true;
-}
-
-bool GMetaArchiveWriter::canWriteMetaItem(IMetaItem * metaItem, IMetaClass * ownerClass)
-{
-	switch(static_cast<GMetaCategory>(metaItem->getCategory())) {
-		case mcatField:
-		case mcatProperty: {
-			IMetaAccessible * accessible = static_cast<IMetaAccessible *>(metaItem);
-			if(! accessible->canGet()) {
-				return false;
-			}
-			if(! accessible->canSet()) {
-				return false;
-			}
-		}
-			break;
-
-		default:
-			break;
-	}
-
-	return true;
-}
-
-bool GMetaArchiveWriter::canWriteBaseClass(IMetaClass * baseClass, IMetaClass * metaClass)
-{
-	if(baseClass == NULL) {
-		return false;
-	}
-
-	return true;
 }
 
 
@@ -479,7 +463,7 @@ void testSer()
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
 
 	GStreamMetaWriter<ostream> stream(cout);
-	GMetaArchiveWriter archiveWriter(service.get(), &stream);
+	GMetaArchiveWriter archiveWriter(GMetaArchiveConfig(), service.get(), &stream);
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
 
