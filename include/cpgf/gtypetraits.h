@@ -570,6 +570,20 @@ public:
 };
 
 template <typename T>
+struct IsEnum
+{
+	G_STATIC_CONSTANT(bool, Result = (
+		IsConvertible<T, int>::Result
+		&& !IsFundamental<T>::Result
+		&& !IsClass<T>::Result
+		&& !IsReference<T>::Result
+		&& !IsPointer<T>::Result
+		&& !IsFunction<T>::Result
+		)
+	);
+};
+
+template <typename T>
 struct MemberDataTrait
 {
 	G_STATIC_CONSTANT(bool, Result = false);

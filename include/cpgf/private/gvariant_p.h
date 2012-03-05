@@ -91,7 +91,7 @@ bool isNotFundamental() {
 template <typename From, typename To>
 struct CastVariantSelector {
 private:
-	typedef typename GIfElse<MaybeEnum<To>::Result, long long, To>::Result U;
+	typedef typename GIfElse<IsEnum<To>::Result, long long, To>::Result U;
 public:
 	static To cast(const From & v) {
 		return (To)((U)(v));
@@ -145,8 +145,8 @@ template <typename From, typename To>
 struct VariantCaster <From, To, typename GEnableIfResult<
 	GOrResult<
 		IsConvertible<From, To>,
-		GAndResult<MaybeEnum<From>, IsConvertible<To, int> >, // for enum
-		GAndResult<MaybeEnum<To>, IsConvertible<From, int> > // for enum
+		GAndResult<IsEnum<From>, IsConvertible<To, int> >, // for enum
+		GAndResult<IsEnum<To>, IsConvertible<From, int> > // for enum
 	>
 	>::Result>
 {

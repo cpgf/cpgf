@@ -6,12 +6,6 @@ namespace variant_internal {
 
 
 template <typename T>
-struct MaybeEnum
-{
-	G_STATIC_CONSTANT(bool, Result = (IsConvertible<T, int>::Result && !IsFundamental<T>::Result && !IsClass<T>::Result && !IsReference<T>::Result && !IsPointer<T>::Result));
-};
-
-template <typename T>
 struct DeduceBasicVariantType {
 	static const GVariantType Result = IsPointer<T>::Result ? vtPointer : vtObject;
 };
@@ -67,7 +61,7 @@ public:
 };
 
 template <typename T>
-struct DeduceVariantType_Helper <T, typename GEnableIfResult<MaybeEnum<T> >::Result> {
+struct DeduceVariantType_Helper <T, typename GEnableIfResult<IsEnum<T> >::Result> {
 	static const GVariantType Result = vtUnsignedInt;
 	static const int Pointers = 0;
 };
