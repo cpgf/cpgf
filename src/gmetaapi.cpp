@@ -433,6 +433,7 @@ protected:
 	virtual const char * G_API_CC toString();
 	virtual const wchar_t * G_API_CC toWideString();
 	virtual int32_t G_API_CC toInt32();
+	virtual gapi_bool G_API_CC toBoolean();
 
 private:
 	const GAnnotationValue * value;
@@ -712,7 +713,7 @@ IMetaAnnotation * ImplMetaItem::doGetAnnotation(const char * name)
 {
 	ENTER_META_API()
 
-	return new ImplMetaAnnotation(this->doGetItem()->getAnnotation(name));
+	return doCreateItem<ImplMetaAnnotation>(this->doGetItem()->getAnnotation(name));
 
 	LEAVE_META_API(return NULL)
 }
@@ -1434,6 +1435,15 @@ int32_t G_API_CC ImplMetaAnnotationValue::toInt32()
 	LEAVE_META_API(return 0)
 }
 
+gapi_bool G_API_CC ImplMetaAnnotationValue::toBoolean()
+{
+	ENTER_META_API()
+
+	return this->value->toBoolean();
+
+	LEAVE_META_API(return 0)
+}
+
 
 ImplMetaAnnotation::ImplMetaAnnotation(const GMetaAnnotation * annotation)
 	: super(annotation)
@@ -1480,7 +1490,7 @@ IMetaAnnotationValue * G_API_CC ImplMetaAnnotation::getValueAt(uint32_t index)
 {
 	ENTER_META_API()
 
-	return new ImplMetaAnnotationValue(this->getAnnotation()->getValueAt(index));
+	return doCreateItem<ImplMetaAnnotationValue>(this->getAnnotation()->getValueAt(index));
 
 	LEAVE_META_API(return NULL)
 }

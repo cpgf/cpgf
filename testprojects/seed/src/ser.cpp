@@ -6,11 +6,17 @@
 #include "cpgf/gmetadefine.h"
 #include "cpgf/goutmain.h"
 
+#include <map>
+
+
 #include <iostream>
 using namespace std;
 
 
 namespace cpgf {
+
+const char * const SerializationAnnotation = "serialize";
+const char * const SerializationAnnotationEnable = "enable";
 
 enum GMetaArchivePointerType {
 	aptByValue, aptByPointer, aptIgnore
@@ -162,9 +168,27 @@ private:
 };
 
 
+bool canSerializeItem(const GMetaArchiveConfig & config, IMetaItem * item)
+{
+	GScopedInterface<IMetaAnnotation> annotation(item->getAnnotation(SerializationAnnotation));
+
+	if(! annotation) {
+	}
+	else {
+		GScopedInterface<IMetaAnnotationValue> annotationValue(annotation->getValue(SerializationAnnotationEnable));
+		if(annotationValue) {
+			if(! annotationValue->toBoolean()) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 bool canSerializeObject(const GMetaArchiveConfig & config, IMetaClass * metaClass)
 {
-	return true;
+	return canSerializeItem(config, metaClass);
 }
 
 bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * accessible, IMetaClass * ownerClass)
@@ -176,7 +200,7 @@ bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * acce
 		return false;
 	}
 
-	return true;
+	return canSerializeItem(config, accessible);
 }
 
 bool canSerializeBaseClass(const GMetaArchiveConfig & config, IMetaClass * baseClass, IMetaClass * metaClass)
@@ -186,6 +210,39 @@ bool canSerializeBaseClass(const GMetaArchiveConfig & config, IMetaClass * baseC
 	}
 
 	return true;
+}
+
+class GMetaArchivePointerSolver
+{
+private:
+	typedef std::map<void *, uint32_t> MapType;
+
+public:
+	bool hasPointer(void * p) const;
+	uint32_t getArchiveID(void * p) const;
+	void addPointer(void * p, uint32_t archiveID);
+
+private:
+	MapType pointerMap;
+};
+
+bool GMetaArchivePointerSolver::hasPointer(void * p) const
+{
+	return this->pointerMap.find(p) != this->pointerMap.end();
+}
+
+uint32_t GMetaArchivePointerSolver::getArchiveID(void * p) const
+{
+	GASSERT(this->hasPointer(p));
+	
+	return this->pointerMap.find(p)->second;
+}
+
+void GMetaArchivePointerSolver::addPointer(void * p, uint32_t archiveID)
+{
+	GASSERT(! this->hasPointer(p));
+
+	this->pointerMap.insert(pair<void *, uint32_t>(p, archiveID));
 }
 
 class GMetaArchiveWriter : public IMetaArchiveWriter
@@ -233,6 +290,7 @@ private:
 	GScopedInterface<IMetaService> service;
 	GScopedInterface<IMetaWriter> writer;
 	uint32_t currentArchiveID;
+	GScopedPointer<GMetaArchivePointerSolver> pointerSolver;
 };
 
 
@@ -348,7 +406,22 @@ void GMetaArchiveWriter::doWriteObject(void * instance, IMetaClass * metaClass, 
 void GMetaArchiveWriter::doDefaultWriteObject(void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType)
 {
 	if(pointerType != aptIgnore) {
-		// todo: resolve pointers.
+		if(true) {
+			if(! this->pointerSolver) {
+				this->pointerSolver.reset(new GMetaArchivePointerSolver);
+			}
+
+			if(this->pointerSolver->hasPointer(instance)) {
+				if(pointerType == aptByValue) {
+					// error
+				}
+				else {
+					this->writer->writeReferenceID("", this->getNextArchiveID(), this->pointerSolver->getArchiveID(instance));
+				}
+
+				return;
+			}
+		}
 	}
 
 	this->doDirectWriteObject(instance, metaClass);
@@ -511,6 +584,9 @@ G_AUTO_RUN_BEFORE_MAIN()
 		::define(NAME_CLASS)
 
 		._field("a", &CLASS::a)
+			._annotation("serialize")
+				._element("enable", false)
+
 		._field("fieldInt", &CLASS::fieldInt)
 		._field("fieldString", &CLASS::fieldString)
 		._field("fieldReadonlyInt", &CLASS::fieldReadonlyInt, GMetaPolicyReadOnly())

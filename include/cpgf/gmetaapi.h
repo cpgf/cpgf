@@ -134,6 +134,7 @@ struct IMetaAnnotationValue : public IExtendObject
 	virtual const char * G_API_CC toString() = 0;
 	virtual const wchar_t * G_API_CC toWideString() = 0;
 	virtual int32_t G_API_CC toInt32() = 0;
+	virtual gapi_bool G_API_CC toBoolean() = 0;
 };
 
 struct IMetaAnnotation : public IMetaItem
