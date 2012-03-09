@@ -572,12 +572,17 @@ void GMetaArchiveWriter::endWriteObject(const char * name, uint32_t archiveID, v
 
 using namespace cpgf;
 
-#define CLASS TestClass
-#define NAME_CLASS "TestClass"
-
-class CLASS {
+class TestClassSerializeBase {
 public:
-	CLASS() : a(NULL), object(NULL) {
+	TestClassSerializeBase() : baseInt(0xb) {
+	}
+
+	int baseInt;
+};
+
+class TestClassSerialize : public TestClassSerializeBase {
+public:
+	TestClassSerialize() : a(NULL), object(NULL) {
 	}
 
 	const char * a;
@@ -587,7 +592,7 @@ public:
 	int fieldReadonlyInt;
 	string fieldWriteonlyString;
 
-	CLASS * object;
+	TestClassSerialize * object;
 };
 
 
@@ -595,18 +600,24 @@ G_AUTO_RUN_BEFORE_MAIN()
 {
 	using namespace cpgf;
 
-	GDefineMetaClass<CLASS>
-		::define(NAME_CLASS)
+	GDefineMetaClass<TestClassSerializeBase>
+		::define("TestClassSerializeBase")
 
-		._field("a", &CLASS::a)
+		._field("baseInt", &TestClassSerializeBase::baseInt)
+	;
+
+	GDefineMetaClass<TestClassSerialize, TestClassSerializeBase>
+		::define("TestClassSerialize")
+
+		._field("a", &TestClassSerialize::a)
 			._annotation("serialize")
 				._element("enable", false)
 
-		._field("fieldInt", &CLASS::fieldInt)
-		._field("fieldString", &CLASS::fieldString)
-		._field("fieldReadonlyInt", &CLASS::fieldReadonlyInt, GMetaPolicyReadOnly())
-		._field("fieldWriteonlyString", &CLASS::fieldWriteonlyString, GMetaPolicyWriteOnly())
-		._field("object", &CLASS::object)
+		._field("fieldInt", &TestClassSerialize::fieldInt)
+		._field("fieldString", &TestClassSerialize::fieldString)
+		._field("fieldReadonlyInt", &TestClassSerialize::fieldReadonlyInt, GMetaPolicyReadOnly())
+		._field("fieldWriteonlyString", &TestClassSerialize::fieldWriteonlyString, GMetaPolicyWriteOnly())
+		._field("object", &TestClassSerialize::object)
 	;
 }
 
@@ -617,13 +628,13 @@ void testSer()
 	GStreamMetaWriter<ostream> stream(cout);
 	GMetaArchiveWriter archiveWriter(GMetaArchiveConfig(), service.get(), &stream);
 
-	GScopedInterface<IMetaClass> metaClass(service->findClassByName(NAME_CLASS));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestClassSerialize"));
 
 	GScopedInterface<IMetaField> field;
 
-	CLASS instance;
-	CLASS anotherObject;
-	CLASS * pobj = &instance;
+	TestClassSerialize instance;
+	TestClassSerialize anotherObject;
+	TestClassSerialize * pobj = &instance;
 	instance.fieldInt = 38;
 	instance.a = "abcdef";
 	instance.object = &anotherObject;

@@ -46,7 +46,7 @@ Automatically type conversion when getting/setting fields, invoking methods, etc
 Support multiple inheritance.
 You don't pay for what you don't use. If you don't build the meta data, no any memory overhead. If you don't use the meta data, no any performance overhead. If you build and use the meta data, you get trivial memory and performance overhead beside very powerful reflection system.
 Binary interface compatible. Can be used cross program dynamic libraries.
-Written in standard and portable C++, compiled on VC and GCC, Windows, Linux, and MacOS.
+Written in standard and portable C++, compiled on VC and GCC, Windows, Linux, and Mac (iOS, iPhone, iPad).
 
 <{/autoul}>
 

@@ -403,7 +403,7 @@ For instance, if we have a meta method &quot;int abc(int a, int b = 5, int c = 6
 </div>Get the meta item that the annotation is bound to.<br />
 <br />
 <div class="codepiece""> const GAnnotationValue * getValue(const char * name) const; <br />
-</div>Get the annotation value of the key with the &quot;name&quot;.<br />
+</div>Get the annotation value of the key with the &quot;name&quot;. Return NULL if &quot;name&quot; doesn't exist.<br />
 <br />
 <div class="codepiece""> size_t getCount() const; <br />
 </div>Get how many annotation values there are.<br />
@@ -444,6 +444,9 @@ It's the value type of annotation.<br />
 <br />
 <div class="codepiece""> int toInt() const; <br />
 </div>Convert the value to an integer.<br />
+<br />
+<div class="codepiece""> bool toBoolean() const; <br />
+</div>Convert the value to a boolean.<br />
 <br />
 <div class="codepiece""> template &lt;typename T&gt;<br />
 T toObject() const; <br />
