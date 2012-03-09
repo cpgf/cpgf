@@ -69,22 +69,136 @@ struct IMetaWriter : public IObject
 //	virtual void G_API_CC endWriteArray(const char * name, uint32_t length, IMetaTypedItem * typeItem) = 0;
 };
 
+namespace {
+
+int defaultVariantTypeMap[] = {
+	vtBool, 0,
+	vtChar, 1,
+	vtWchar, 2,
+	vtSignedChar, 3,
+	vtUnsignedChar, 4,
+	vtSignedShort, 5,
+	vtUnsignedShort, 6,
+	vtSignedInt, 7,
+	vtUnsignedInt, 8,
+	vtSignedLong, 9,
+	vtUnsignedLong, 10,
+	vtSignedLongLong, 11,
+	vtUnsignedLongLong, 12,
+	vtFloat, 13,
+	vtDouble, 14,
+	vtLongDouble, 15,
+	vtObject, 16,
+	vtString, 17,
+	vtWideString, 18,
+
+	vtEmpty,
+};
+
+}
+
+GVariantType getVariantTypeFromMap(int * variantTypeMap, int mappedType)
+{
+	while(*variantTypeMap != vtEmpty) {
+		if(*(variantTypeMap + 1) == mappedType) {
+			return static_cast<GVariantType>(*variantTypeMap);
+		}
+		variantTypeMap += 2;
+	}
+
+	return vtEmpty;
+}
+
+int getMappedTypeFromMap(int * variantTypeMap, GVariantType vt)
+{
+	while(*variantTypeMap != vtEmpty) {
+		if(*variantTypeMap == vt) {
+			return *(variantTypeMap + 1);
+		}
+		variantTypeMap += 2;
+	}
+
+	return -1;
+}
+
 template <typename STREAM>
 class GStreamMetaWriter : public IMetaWriter
 {
 public:
-	explicit GStreamMetaWriter(STREAM & stream) : stream(stream), referenceCount(1), indent(0) {
+	explicit GStreamMetaWriter(STREAM & stream) : stream(stream), variantTypeMap(defaultVariantTypeMap), referenceCount(1), indent(0) {
 	}
 
 protected:
 	virtual void G_API_CC writeFundamental(const char * name, uint32_t archiveID, const GVariant & value) {
 		this->writeIndent();
 		
-		this->stream << archiveID << "  " << name << " -- ";
+		this->stream << archiveID << "  " << name;
+		this->stream << " type: " << getMappedTypeFromMap(this->variantTypeMap, value.getType());
+		this->stream << " -- ";
 
 		switch(value.getType()) {
+			case vtBool:
+				this->stream << fromVariant<bool>(value);
+				break;
+
+			case vtChar:
+				this->stream << fromVariant<char>(value);
+				break;
+
+			case vtWchar:
+				this->stream << fromVariant<wchar_t>(value);
+				break;
+
+			case vtSignedChar:
+				this->stream << fromVariant<signed char>(value);
+				break;
+
+			case vtUnsignedChar:
+				this->stream << fromVariant<unsigned char>(value);
+				break;
+
+			case vtSignedShort:
+				this->stream << fromVariant<signed short>(value);
+				break;
+
+			case vtUnsignedShort:
+				this->stream << fromVariant<unsigned short>(value);
+				break;
+
 			case vtSignedInt:
-				this->stream << fromVariant<int>(value);
+				this->stream << fromVariant<signed int>(value);
+				break;
+
+			case vtUnsignedInt:
+				this->stream << fromVariant<unsigned int>(value);
+				break;
+
+			case vtSignedLong:
+				this->stream << fromVariant<signed long>(value);
+				break;
+
+			case vtUnsignedLong:
+				this->stream << fromVariant<unsigned long>(value);
+				break;
+
+			case vtSignedLongLong:
+				this->stream << fromVariant<signed long long>(value);
+				break;
+
+			case vtUnsignedLongLong:
+				this->stream << fromVariant<unsigned long long>(value);
+				break;
+
+			case vtFloat:
+				this->stream << fromVariant<float>(value);
+				break;
+
+			case vtDouble:
+				this->stream << fromVariant<double>(value);
+				break;
+
+			case vtLongDouble:
+				this->stream << fromVariant<long double>(value);
 				break;
 
 			default:
@@ -169,6 +283,7 @@ protected:
 
 private:
 	STREAM & stream;
+	int * variantTypeMap;
 	uint32_t referenceCount;
 	int indent;
 };
@@ -574,10 +689,10 @@ using namespace cpgf;
 
 class TestClassSerializeBase {
 public:
-	TestClassSerializeBase() : baseInt(0xb) {
+	TestClassSerializeBase() : baseA(5.8) {
 	}
 
-	int baseInt;
+	double baseA;
 };
 
 class TestClassSerialize : public TestClassSerializeBase {
@@ -603,7 +718,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 	GDefineMetaClass<TestClassSerializeBase>
 		::define("TestClassSerializeBase")
 
-		._field("baseInt", &TestClassSerializeBase::baseInt)
+		._field("baseA", &TestClassSerializeBase::baseA)
 	;
 
 	GDefineMetaClass<TestClassSerialize, TestClassSerializeBase>

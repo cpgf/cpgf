@@ -42,8 +42,9 @@ enum GVariantType {
 	vtObject = 31, // is equivalent to unkown type
 	vtShadow = 32,
 	vtString = 33,
-	vtInterface = 34, // IObject *
-	vtByteArray = 35, // IByteArray *
+	vtWideString = 34,
+	vtInterface = 35, // IObject *
+	vtByteArray = 36, // IByteArray *
 
 	vtUserBegin = 0xff,
 	vtUserEnd = 0x0fff,
