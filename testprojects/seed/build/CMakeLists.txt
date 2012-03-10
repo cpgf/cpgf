@@ -58,6 +58,8 @@ set(SRC_META
 	${SRC_PATH}/scriptbind/gscriptbind.cpp
 	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
 	${SRC_PATH}/scriptbind/gscriptbindutil.cpp
+	
+	${SRC_PATH}/gapi.cpp
 
 #	${SRC_PATH}/scriptbind/gluabind.cpp
 #	${SRC_PATH}/scriptbind/gv8bind.cpp
@@ -66,6 +68,7 @@ set(SRC_META
 include_directories(
 	${ROOT_PATH}/include
 	${SEED_PATH}/include
+	${SRC_PATH}
 )
 if(${HAS_LUA})
 	include_directories(${LUA_INC})
