@@ -35,6 +35,7 @@ struct GMetaClassDataVirtual
 	void * (*cloneInplace)(const void * self, void * instance, void * placement);
 	size_t (*getObjectSize)(const void * self);
 	bool (*isAbstract)(const void * self);
+	bool (*isPolymorphic)(const void * self);
 };
 
 class GMetaClassDataBase
@@ -53,6 +54,7 @@ public:
 	size_t getObjectSize() const;
 
 	bool isAbstract() const;
+	bool isPolymorphic() const;
 
 protected:
 	GMetaClassDataVirtual * virtualFunctions;
@@ -119,6 +121,10 @@ private:
 		return static_cast<const GMetaClassData *>(self)->doIsAbstract<typename GIfElse<IsGlobal, void, OT>::Result >();
 	}
 
+	static bool virtualPolymorphic(const void * self) {
+		return IsPolymorphic<OT>::Result;
+	}
+
 public:
 	GMetaClassData() {
 		static GMetaClassDataVirtual thisFunctions = {
@@ -130,7 +136,8 @@ public:
 			&virtualCloneInstance,
 			&virtualCloneInplace,
 			&virtualGetObjectSize,
-			&virtualIsAbstract
+			&virtualIsAbstract,
+			&virtualPolymorphic
 		};
 
 		this->virtualFunctions = &thisFunctions;
@@ -349,7 +356,7 @@ public:
 class GMetaSuperListItem
 {
 public:
-	GMetaSuperListItem(const GMetaClass * superClass, const GMetaType & type, GMetaClassCasterBase * caster)
+	GMetaSuperListItem(GMetaClass * superClass, const GMetaType & type, GMetaClassCasterBase * caster)
 		: superClass(superClass), type(type), caster(caster) {
 	}
 
@@ -388,12 +395,12 @@ public:
 	const GMetaClassCasterBase * getCaster(size_t index) const;
 
 	template <typename ClassType, typename BaseType>
-	void add() {
+	GMetaSuperListItem * add() {
 		if(this->isMetaRoot<BaseType>()) {
-			return;
+			return NULL;
 		}
 
-		this->doAdd(GMetaSuperListItem(NULL, createMetaType<BaseType>(), new GMetaClassCaster<ClassType, BaseType>()));
+		return this->doAdd(GMetaSuperListItem(NULL, createMetaType<BaseType>(), new GMetaClassCaster<ClassType, BaseType>()));
 	}
 
 private:
@@ -402,7 +409,7 @@ private:
 		return IsSameType<T, void>::Result;
 	}
 
-	void doAdd(const GMetaSuperListItem & item);
+	GMetaSuperListItem * doAdd(const GMetaSuperListItem & item);
 
 private:
 	GScopedPointer<GMetaSuperListImplement> implement;

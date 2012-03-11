@@ -8,6 +8,8 @@
 
 #include "cpgf/gmetaapi.h"
 
+#include <vector>
+
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -27,6 +29,8 @@ class GMetaClass : public GMetaTypedItem, GFINAL_BASE(GMetaClass)
 {
 private:
 	typedef GMetaTypedItem super;
+	
+	typedef std::vector<const GMetaClass *> DerivedListType;
 
 public:
 	template <typename ClassT, typename Policy>
@@ -114,6 +118,7 @@ public:
 public:
 	bool isGlobal() const;
 	bool isAbstract() const;
+	bool isPolymorphic() const;
 
 	bool canCreateInstance() const;
 	bool canCopyInstance() const;
@@ -123,6 +128,9 @@ public:
 	const GMetaClass * getBaseClass(size_t baseIndex) const;
 	size_t getBaseCount() const;
 
+	const GMetaClass * getDerivedClass(size_t derivedIndex) const;
+	size_t getDerivedCount() const;
+
 	bool isInheritedFrom(const GMetaClass * ancient) const;
 
 	// return a pointer points to this class
@@ -131,11 +139,22 @@ public:
 	// return a pointer points to base class
 	void * castToBase(void * self, size_t baseIndex) const;
 
+	// return a pointer points to this class
+	void * castFromDerived(void * derived, size_t derivedIndex) const;
+
+	// return a pointer points to derived class
+	void * castToDerived(void * self, size_t derivedIndex) const;
+
 public:
 	template <typename ClassType, typename BaseType>
 	void addBaseClass() {
-		this->superList->add<ClassType, BaseType>();
+		GMetaClass * baseClass = const_cast<GMetaClass *>(this->superList->add<ClassType, BaseType>()->getBaseClass());
+		if(baseClass != NULL) {
+			baseClass->addDerivedClass(this);
+		}
 	}
+	
+	void addDerivedClass(const GMetaClass * derived);
 
 	GMetaField * addField(GMetaField * field);
 	GMetaProperty * addProperty(GMetaProperty * prop);
@@ -173,6 +192,8 @@ private:
 	GScopedPointer<meta_internal::GMetaClassDataBase,
 		meta_internal::GScopedPointerDeleter_BaseMeta<meta_internal::GMetaClassDataBase> >
 		baseData;
+		
+	GScopedPointer<DerivedListType> derivedList;
 	
 	GMetaClassImplement * implement;
 

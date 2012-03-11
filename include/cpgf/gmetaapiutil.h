@@ -4,6 +4,7 @@
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gscopedptr.h"
+#include "cpgf/gexception.h"
 
 
 
@@ -167,6 +168,7 @@ IMetaClass * metaGetGlobalMetaClass(Meta & service, size_t index)
 
 IMetaItem * metaItemToInterface(const GMetaItem * item);
 
+IMetaClass * findAppropriateDerivedClass(void * instance, IMetaClass * metaClass, void ** outCastedInstance);
 
 
 } // namespace cpgf

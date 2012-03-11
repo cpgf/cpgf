@@ -516,16 +516,23 @@ protected:
 
 	virtual gapi_bool G_API_CC isGlobal();
 	virtual gapi_bool G_API_CC isAbstract();
+	virtual gapi_bool G_API_CC isPolymorphic();
 	virtual gapi_bool G_API_CC canCreateInstance();
 	virtual gapi_bool G_API_CC canCopyInstance();
 
 	virtual IMetaClass * G_API_CC getBaseClass(uint32_t baseIndex);
 	virtual uint32_t G_API_CC getBaseCount();
 
+	virtual IMetaClass * G_API_CC getDerivedClass(uint32_t baseIndex);
+	virtual uint32_t G_API_CC getDerivedCount();
+	
 	virtual gapi_bool G_API_CC isInheritedFrom(IMetaClass * ancient);
 
 	virtual void * G_API_CC castFromBase(void * base, uint32_t baseIndex);
 	virtual void * G_API_CC castToBase(void * self, uint32_t baseIndex);
+
+	virtual void * G_API_CC castFromDerived(void * derived, uint32_t derivedIndex);
+	virtual void * G_API_CC castToDerived(void * self, uint32_t derivedIndex);
 
 private:
 	const GMetaClass * getClass() const {
@@ -588,48 +595,6 @@ private:
 };
 
 
-
-IMetaItem * metaItemToInterface(const GMetaItem * item)
-{
-	if(item == NULL) {
-		return NULL;
-	}
-
-	switch(item->getCategory()) {
-		case mcatFundamental:
-			return new ImplMetaFundamental(static_cast<const GMetaFundamental *>(item));
-
-		case mcatField:
-			return new ImplMetaField(static_cast<const GMetaField *>(item));
-
-		case mcatProperty:
-			return new ImplMetaProperty(static_cast<const GMetaProperty *>(item));
-
-		case mcatMethod:
-			return new ImplMetaMethod(static_cast<const GMetaMethod *>(item));
-
-		case mcatEnum:
-			return new ImplMetaEnum(static_cast<const GMetaEnum *>(item));
-
-		case mcatOperator:
-			return new ImplMetaOperator(static_cast<const GMetaOperator *>(item));
-
-		case mcatConstructor:
-			return new ImplMetaConstructor(static_cast<const GMetaConstructor *>(item));
-
-		case mcatClass:
-			return new ImplMetaClass(static_cast<const GMetaClass *>(item));
-
-		case mcatAnnotation:
-			return new ImplMetaAnnotation(static_cast<const GMetaAnnotation *>(item));
-
-		default:
-			break;
-
-	}
-
-	return NULL;
-}
 
 template <typename T, typename P>
 T * doCreateItem(P * p)
@@ -1783,6 +1748,15 @@ gapi_bool G_API_CC ImplMetaClass::isAbstract()
 	LEAVE_META_API(return false)
 }
 
+gapi_bool G_API_CC ImplMetaClass::isPolymorphic()
+{
+	ENTER_META_API()
+
+	return this->getClass()->isPolymorphic();
+
+	LEAVE_META_API(return false)
+}
+
 gapi_bool G_API_CC ImplMetaClass::canCreateInstance()
 {
 	ENTER_META_API()
@@ -1819,6 +1793,24 @@ uint32_t G_API_CC ImplMetaClass::getBaseCount()
 	LEAVE_META_API(return 0)
 }
 
+IMetaClass * G_API_CC ImplMetaClass::getDerivedClass(uint32_t derivedIndex)
+{
+	ENTER_META_API()
+
+	return doCreateItem<ImplMetaClass>(this->getClass()->getDerivedClass(derivedIndex));
+
+	LEAVE_META_API(return NULL)
+}
+
+uint32_t G_API_CC ImplMetaClass::getDerivedCount()
+{
+	ENTER_META_API()
+
+	return static_cast<uint32_t>(this->getClass()->getDerivedCount());
+
+	LEAVE_META_API(return 0)
+}
+
 gapi_bool G_API_CC ImplMetaClass::isInheritedFrom(IMetaClass * ancient)
 {
 	ENTER_META_API()
@@ -1851,6 +1843,24 @@ void * G_API_CC ImplMetaClass::castToBase(void * self, uint32_t baseIndex)
 	ENTER_META_API()
 
 	return this->getClass()->castToBase(self, baseIndex);
+
+	LEAVE_META_API(return NULL)
+}
+
+void * G_API_CC ImplMetaClass::castFromDerived(void * derived, uint32_t derivedIndex)
+{
+	ENTER_META_API()
+
+	return this->getClass()->castFromDerived(derived, derivedIndex);
+
+	LEAVE_META_API(return NULL)
+}
+
+void * G_API_CC ImplMetaClass::castToDerived(void * self, uint32_t derivedIndex)
+{
+	ENTER_META_API()
+
+	return this->getClass()->castToDerived(self, derivedIndex);
 
 	LEAVE_META_API(return NULL)
 }
@@ -2071,6 +2081,87 @@ IMetaList * createMetaList()
 {
 	return new ImplMetaList;
 }
+
+IMetaItem * metaItemToInterface(const GMetaItem * item)
+{
+	if(item == NULL) {
+		return NULL;
+	}
+
+	switch(item->getCategory()) {
+		case mcatFundamental:
+			return new ImplMetaFundamental(static_cast<const GMetaFundamental *>(item));
+
+		case mcatField:
+			return new ImplMetaField(static_cast<const GMetaField *>(item));
+
+		case mcatProperty:
+			return new ImplMetaProperty(static_cast<const GMetaProperty *>(item));
+
+		case mcatMethod:
+			return new ImplMetaMethod(static_cast<const GMetaMethod *>(item));
+
+		case mcatEnum:
+			return new ImplMetaEnum(static_cast<const GMetaEnum *>(item));
+
+		case mcatOperator:
+			return new ImplMetaOperator(static_cast<const GMetaOperator *>(item));
+
+		case mcatConstructor:
+			return new ImplMetaConstructor(static_cast<const GMetaConstructor *>(item));
+
+		case mcatClass:
+			return new ImplMetaClass(static_cast<const GMetaClass *>(item));
+
+		case mcatAnnotation:
+			return new ImplMetaAnnotation(static_cast<const GMetaAnnotation *>(item));
+
+		default:
+			break;
+
+	}
+
+	return NULL;
+}
+
+IMetaClass * findAppropriateDerivedClass(void * instance, IMetaClass * metaClass, void ** outCastedInstance)
+{
+	if(outCastedInstance != NULL) {
+		*outCastedInstance = instance;
+	}
+
+	if(! metaClass->isPolymorphic()) {
+		metaClass->addReference();
+		return metaClass;
+	}
+
+	metaClass->addReference();
+	GScopedInterface<IMetaClass> currentClass(metaClass);
+
+	for(;;) {
+		void * derivedInstance = NULL;
+		uint32_t derivedCount = currentClass->getDerivedCount();
+
+		for(uint32_t i = 0; i < derivedCount; ++i) {
+			derivedInstance = currentClass->castToDerived(instance, i);
+			if(derivedInstance != NULL) {
+				currentClass.reset(currentClass->getDerivedClass(i));
+				instance = derivedInstance;
+				break;
+			}
+		}
+
+		if(derivedInstance == NULL) {
+			break;
+		}
+	}
+
+	if(outCastedInstance != NULL) {
+		*outCastedInstance = instance;
+	}
+	return currentClass.take();
+}
+
 
 
 } // namespace cpgf

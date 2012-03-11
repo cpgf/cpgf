@@ -187,16 +187,23 @@ struct IMetaClass : public IMetaTypedItem
 
 	virtual gapi_bool G_API_CC isGlobal() = 0;
 	virtual gapi_bool G_API_CC isAbstract() = 0;
+	virtual gapi_bool G_API_CC isPolymorphic() = 0;
 	virtual gapi_bool G_API_CC canCreateInstance() = 0;
 	virtual gapi_bool G_API_CC canCopyInstance() = 0;
 	
 	virtual IMetaClass * G_API_CC getBaseClass(uint32_t baseIndex) = 0;
 	virtual uint32_t G_API_CC getBaseCount() = 0;
 
+	virtual IMetaClass * G_API_CC getDerivedClass(uint32_t derivedIndex) = 0;
+	virtual uint32_t G_API_CC getDerivedCount() = 0;
+
 	virtual gapi_bool G_API_CC isInheritedFrom(IMetaClass * ancient) = 0;
 
 	virtual void * G_API_CC castFromBase(void * base, uint32_t baseIndex) = 0;
 	virtual void * G_API_CC castToBase(void * self, uint32_t baseIndex) = 0;
+	
+	virtual void * G_API_CC castFromDerived(void * derived, uint32_t derivedIndex) = 0;
+	virtual void * G_API_CC castToDerived(void * self, uint32_t derivedIndex) = 0;
 };
 
 
