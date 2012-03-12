@@ -122,6 +122,8 @@ private:
 	}
 
 	static bool virtualPolymorphic(const void * self) {
+		(void)self;
+
 		return IsPolymorphic<OT>::Result;
 	}
 

@@ -397,7 +397,7 @@ void GMetaClass::initialize()
 
 	meta_internal::registerMetaTypedItem(this);
 	
-	if(this->superList != NULL && this->superList->getCount() > 0) {
+	if(this->superList && this->superList->getCount() > 0) {
 		size_t baseCount = this->superList->getCount();
 		for(size_t i = 0; i < baseCount; ++i) {
 			GMetaClass * baseClass = const_cast<GMetaClass *>(this->superList->getSuper(i));
@@ -797,7 +797,7 @@ void * GMetaClass::castFromDerived(void * derived, size_t derivedIndex) const
 	size_t derivedBaseCount = derivedClass->getBaseCount();
 	for(size_t i = 0; i < derivedBaseCount; ++i) {
 		if(derivedClass->getBaseClass(i) == this) {
-			return derivedClass->getBaseClass(i)->castToBase(derived, i);
+			return derivedClass->castToBase(derived, i);
 		}
 	}
 
@@ -815,7 +815,7 @@ void * GMetaClass::castToDerived(void * self, size_t derivedIndex) const
 	size_t derivedBaseCount = derivedClass->getBaseCount();
 	for(size_t i = 0; i < derivedBaseCount; ++i) {
 		if(derivedClass->getBaseClass(i) == this) {
-			return derivedClass->getBaseClass(i)->castFromBase(self, i);
+			return derivedClass->castFromBase(self, i);
 		}
 	}
 

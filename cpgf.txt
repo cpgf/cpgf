@@ -1,5 +1,6 @@
 Todo:
 
+1, In reflection, now finding base class is depending on global classes. Not fine. Should find base class in the most outter class recursively.
 1, Metagen, needs to parse Doxygen document for annotation.
 1, Support script override C++ functions. It's difficult. Adding interceptor in meta system is not enough.
 2, Support object pool in interface based api
