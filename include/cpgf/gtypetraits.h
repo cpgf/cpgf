@@ -552,8 +552,11 @@ private:
 		A & operator = (const A &);
 		virtual ~A();
 		char n[256];
+#if !defined(_MSC_VER) && !defined(__ICL)
+		// has problem in VC when has virtual base class
 		struct V {};
 		virtual void x(const V *);
+#endif
 	};
 
 	struct B : public T {

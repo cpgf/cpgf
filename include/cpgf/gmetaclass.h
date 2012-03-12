@@ -124,6 +124,7 @@ public:
 	bool canCopyInstance() const;
 
 	bool isSameClass(const GMetaClass * other) const;
+	bool equals(const GMetaClass * other) const;
 
 	const GMetaClass * getBaseClass(size_t baseIndex) const;
 	size_t getBaseCount() const;

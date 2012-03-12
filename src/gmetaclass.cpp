@@ -717,6 +717,11 @@ bool GMetaClass::isSameClass(const GMetaClass * other) const
 	return this == other;
 }
 
+bool GMetaClass::equals(const GMetaClass * other) const
+{
+	return this == other;
+}
+
 const GMetaClass * GMetaClass::getBaseClass(size_t baseIndex) const
 {
 	return this->superList->getSuper(baseIndex);

@@ -2124,6 +2124,42 @@ IMetaItem * metaItemToInterface(const GMetaItem * item)
 	return NULL;
 }
 
+const GMetaClass * findAppropriateDerivedClass(void * instance, const GMetaClass * metaClass, void ** outCastedInstance)
+{
+	if(outCastedInstance != NULL) {
+		*outCastedInstance = instance;
+	}
+
+	if(! metaClass->isPolymorphic()) {
+		return metaClass;
+	}
+
+	const GMetaClass * currentClass = metaClass;
+
+	for(;;) {
+		void * derivedInstance = NULL;
+		size_t derivedCount = currentClass->getDerivedCount();
+
+		for(size_t i = 0; i < derivedCount; ++i) {
+			derivedInstance = currentClass->castToDerived(instance, i);
+			if(derivedInstance != NULL) {
+				currentClass = currentClass->getDerivedClass(i);
+				instance = derivedInstance;
+				break;
+			}
+		}
+
+		if(derivedInstance == NULL) {
+			break;
+		}
+	}
+
+	if(outCastedInstance != NULL) {
+		*outCastedInstance = instance;
+	}
+	return currentClass;
+}
+
 IMetaClass * findAppropriateDerivedClass(void * instance, IMetaClass * metaClass, void ** outCastedInstance)
 {
 	if(outCastedInstance != NULL) {

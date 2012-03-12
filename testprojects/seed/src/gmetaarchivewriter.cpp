@@ -272,7 +272,9 @@ void GMetaArchiveWriter::doDirectWriteField(const char * name, void * instance, 
 					if(metaType.getBaseName() != NULL) {
 						GScopedInterface<IMetaClass> metaClass(this->service->findClassByName(metaType.getBaseName()));
 						if(metaClass) {
-							this->writeObjectPointer(name, ptr, metaClass.get());
+							void * castedPtr;
+							GScopedInterface<IMetaClass> castedMetaClass(findAppropriateDerivedClass(ptr, metaClass.get(), &castedPtr));
+							this->writeObjectPointer(name, castedPtr, castedMetaClass.get());
 						}
 					}
 				}

@@ -168,6 +168,7 @@ IMetaClass * metaGetGlobalMetaClass(Meta & service, size_t index)
 
 IMetaItem * metaItemToInterface(const GMetaItem * item);
 
+const GMetaClass * findAppropriateDerivedClass(void * instance, const GMetaClass * metaClass, void ** outCastedInstance);
 IMetaClass * findAppropriateDerivedClass(void * instance, IMetaClass * metaClass, void ** outCastedInstance);
 
 
