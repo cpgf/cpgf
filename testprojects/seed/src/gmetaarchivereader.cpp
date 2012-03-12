@@ -274,6 +274,12 @@ void GMetaArchiveReader::doDirectReadField(const char * name, void * instance, I
 				if(ptr == NULL) {
 					ptr = metaClass->createInstance();
 				}
+				else {
+					void * castedPtr;
+					GScopedInterface<IMetaClass> castedMetaClass(findAppropriateDerivedClass(ptr, metaClass.get(), &castedPtr));
+					ptr = castedPtr;
+					metaClass.reset(castedMetaClass.take());
+				}
 				metaSetValue(accessible, instance, ptr);
 				this->readObject(metaClass->getName(), ptr, metaClass.get());
 			}
