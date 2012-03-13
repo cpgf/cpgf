@@ -159,80 +159,6 @@ public:
 };
 
 
-class GGlobalMetaClassList
-{
-private:
-	typedef std::vector<GMetaClass *> ClassList;
-
-public:
-	GGlobalMetaClassList();
-	~GGlobalMetaClassList();
-
-	GMetaClass * getDefault();
-	GMetaClass * getAt(size_t index);
-	size_t getCount();
-	GMetaClass * getByName(const char * name);
-
-private:
-	GMetaClass * createGlobal();
-
-private:
-	ClassList classList;
-};
-
-GGlobalMetaClassList::GGlobalMetaClassList()
-{
-}
-
-GGlobalMetaClassList::~GGlobalMetaClassList()
-{
-	for(ClassList::iterator it = this->classList.begin(); it != this->classList.end(); ++it) {
-		delete *it;
-	}
-}
-
-GMetaClass * GGlobalMetaClassList::getDefault()
-{
-	return this->getAt(0);
-}
-
-GMetaClass * GGlobalMetaClassList::getAt(size_t index)
-{
-	while(index >= this->classList.size()) {
-		this->classList.push_back(NULL);
-	}
-
-	if(this->classList.at(index) == NULL) {
-		this->classList[index] = this->createGlobal();
-	}
-
-	return this->classList.at(index);
-}
-
-size_t GGlobalMetaClassList::getCount()
-{
-	return this->classList.size();
-}
-
-GMetaClass * GGlobalMetaClassList::getByName(const char * name)
-{
-	std::string sname(name);
-
-	for(ClassList::iterator it = this->classList.begin(); it != this->classList.end(); ++it) {
-		if((*it)->getName() == sname) {
-			return *it;
-		}
-	}
-
-	return NULL;
-}
-
-GMetaClass * GGlobalMetaClassList::createGlobal()
-{
-	return new GMetaClass((void *)0, new meta_internal::GMetaSuperList, "", NULL, NULL, GMetaPolicyDefault());
-}
-
-
 } // namespace meta_internal
 
 class GMetaInternalItemList {
@@ -910,31 +836,10 @@ const GMetaClass * findMetaClass(const char * name)
 	return meta_internal::findRegisteredMetaClass(name);
 }
 
-meta_internal::GGlobalMetaClassList * getGlobalMetaClassList()
-{
-	static meta_internal::GGlobalMetaClassList classList;
-
-	return &classList;
-}
-
 GMetaClass * getGlobalMetaClass()
 {
-	return getGlobalMetaClassList()->getDefault();
-}
-
-GMetaClass * getGlobalMetaClassAt(size_t index)
-{
-	return getGlobalMetaClassList()->getAt(index);
-}
-
-size_t getGlobalMetaClassCount()
-{
-	return getGlobalMetaClassList()->getCount();
-}
-
-GMetaClass * getGlobalMetaClassByName(const char * name)
-{
-	return getGlobalMetaClassList()->getByName(name);
+	static GMetaClass global(GMetaClass((void *)0, new meta_internal::GMetaSuperList, "", NULL, NULL, GMetaPolicyDefault()));
+	return &global;
 }
 
 

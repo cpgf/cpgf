@@ -11,61 +11,6 @@ namespace cpgf {
 
 
 
-class GMetaArchiveReaderConfig : public GMetaArchiveConfig
-{
-private:
-	enum ConfigFlags {
-		macResolvePointers = 1 << 0
-	};
-
-	enum {
-		defaultConfig = macResolvePointers
-	};
-
-public:
-	GMetaArchiveReaderConfig() : flags(defaultConfig) {
-	}
-
-	void setAllowReslovePointers(bool allow) {
-		this->flags.setByBool(macResolvePointers, allow);
-	}
-
-	bool allowReslovePointers() const {
-		return this->flags.has(macResolvePointers);
-	}
-
-private:
-	GFlags<ConfigFlags> flags;
-};
-
-
-enum GMetaArchiveItemType {
-	matNull = 0,
-	matObject = 1,
-	matReferenceObject = 2,
-	matClassType = 3,
-	matFundamental = 4,
-	matString = 5,
-};
-
-struct IMetaReader : public IObject
-{
-	virtual uint32_t G_API_CC getArchiveType(const char * name) = 0;
-	virtual uint32_t G_API_CC getClassType(const char * name) = 0;
-
-	virtual void G_API_CC readFundamental(const char * name, uint32_t * outArchiveID, GVariantData * outValue) = 0;
-	virtual char * G_API_CC readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID) = 0;
-	virtual void * G_API_CC readNullPointer(const char * name) = 0;
-
-	virtual void G_API_CC beginReadObject(GMetaArchiveObjectInformation * objectInformation) = 0;
-	virtual void G_API_CC endReadObject(const GMetaArchiveObjectInformation * objectInformation) = 0;
-
-	virtual uint32_t G_API_CC readReferenceID(const char * name) = 0;
-	virtual IMetaClass * G_API_CC readClassType(const char * name, uint32_t * outArchiveID) = 0;
-
-};
-
-
 struct IMetaArchiveReader {};
 
 class GMetaArchiveReaderPointerTracker;
@@ -74,7 +19,7 @@ class GMetaArchiveReaderClassTypeTracker;
 class GMetaArchiveReader : public IMetaArchiveReader
 {
 public:
-	GMetaArchiveReader(const GMetaArchiveReaderConfig & config, IMetaService * service, IMetaReader * reader);
+	GMetaArchiveReader(const GMetaArchiveConfig & config, IMetaService * service, IMetaReader * reader);
 	~GMetaArchiveReader();
 
 	// take care of customized serializer, take care of pointer resolve.
@@ -109,7 +54,7 @@ protected:
 	GMetaArchiveReaderClassTypeTracker * getClassTypeTracker();
 
 private:
-	GMetaArchiveReaderConfig config;
+	GMetaArchiveConfig config;
 	GScopedInterface<IMetaService> service;
 	GScopedInterface<IMetaReader> reader;
 	GScopedPointer<GMetaArchiveReaderPointerTracker> pointerSolver;

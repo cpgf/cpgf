@@ -89,7 +89,7 @@ void GMetaArchiveWriterClassTypeTracker::addClassType(const string & classType, 
 }
 
 
-GMetaArchiveWriter::GMetaArchiveWriter(const GMetaArchiveWriterConfig & config, IMetaService * service, IMetaWriter * writer)
+GMetaArchiveWriter::GMetaArchiveWriter(const GMetaArchiveConfig & config, IMetaService * service, IMetaWriter * writer)
 	: config(config), service(service), writer(writer), currentArchiveID(0)
 {
 	this->service->addReference();

@@ -207,9 +207,6 @@ const GMetaClass * findMetaClass(const GMetaType & type);
 const GMetaClass * findMetaClass(const char * name);
 
 GMetaClass * getGlobalMetaClass();
-GMetaClass * getGlobalMetaClassAt(size_t index);
-size_t getGlobalMetaClassCount();
-GMetaClass * getGlobalMetaClassByName(const char * name);
 
 
 } // namespace cpgf

@@ -10,27 +10,6 @@
 namespace cpgf {
 
 
-
-class GMetaArchiveWriterConfig : public GMetaArchiveConfig
-{
-};
-
-struct IMetaWriter : public IObject
-{
-	virtual void G_API_CC writeFundamental(const char * name, uint32_t archiveID, const GVariantData * value) = 0;
-	virtual void G_API_CC writeString(const char * name, uint32_t archiveID, const char * value) = 0;
-	virtual void G_API_CC writeNullPointer(const char * name) = 0;
-
-	virtual void G_API_CC beginWriteObject(const GMetaArchiveObjectInformation * objectInformation) = 0;
-	virtual void G_API_CC endWriteObject(const GMetaArchiveObjectInformation * objectInformation) = 0;
-
-	virtual void G_API_CC writeReferenceID(const char * name, uint32_t archiveID, uint32_t referenceArchiveID) = 0;
-	virtual void G_API_CC writeClassType(const char * name, uint32_t archiveID, IMetaClass * metaClass) = 0;
-
-//	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length, IMetaTypedItem * typeItem) = 0;
-//	virtual void G_API_CC endWriteArray(const char * name, uint32_t length, IMetaTypedItem * typeItem) = 0;
-};
-
 struct IMetaArchiveWriter {};
 
 enum GMetaArchivePointerType {
@@ -43,7 +22,7 @@ class GMetaArchiveWriterClassTypeTracker;
 class GMetaArchiveWriter : public IMetaArchiveWriter
 {
 public:
-	GMetaArchiveWriter(const GMetaArchiveWriterConfig & config, IMetaService * service, IMetaWriter * writer);
+	GMetaArchiveWriter(const GMetaArchiveConfig & config, IMetaService * service, IMetaWriter * writer);
 	~GMetaArchiveWriter();
 
 	// take care of customized serializer, take care of pointer resolve.
@@ -87,7 +66,7 @@ protected:
 	GMetaArchiveWriterClassTypeTracker * getClassTypeTracker();
 
 private:
-	GMetaArchiveWriterConfig config;
+	GMetaArchiveConfig config;
 	GScopedInterface<IMetaService> service;
 	GScopedInterface<IMetaWriter> writer;
 	uint32_t currentArchiveID;

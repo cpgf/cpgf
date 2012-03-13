@@ -92,7 +92,7 @@ void GMetaArchiveReaderClassTypeTracker::addArchiveID(uint32_t archiveID, IMetaC
 }
 
 
-GMetaArchiveReader::GMetaArchiveReader(const GMetaArchiveReaderConfig & config, IMetaService * service, IMetaReader * reader)
+GMetaArchiveReader::GMetaArchiveReader(const GMetaArchiveConfig & config, IMetaService * service, IMetaReader * reader)
 	: config(config), service(service), reader(reader)
 {
 	this->service->addReference();

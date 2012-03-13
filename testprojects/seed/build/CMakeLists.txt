@@ -1,4 +1,4 @@
-project(seed)
+project(seedTest)
 
 cmake_minimum_required(VERSION 2.8)
 
@@ -32,8 +32,30 @@ endif(MSVC)
 
 file(GLOB GLOB_SEED ${SEED_SRC_PATH}/*.cpp)
 
+set(HAS_UNITTEST 1)
+if(${HAS_UNITTEST})
+	set(UNITTEST_FRAMEWORK_SUBDIR Posix)
+
+	if(WIN32)
+		set(UNITTEST_FRAMEWORK_SUBDIR Win32)
+	endif(WIN32)
+
+	file(GLOB GLOB_UNITTEST_FRAMEWORK
+		${UNIT_TEST_DIR}/src/*.cpp
+		${UNIT_TEST_DIR}/src/${UNITTEST_FRAMEWORK_SUBDIR}/*.cpp
+	)
+	
+	include_directories(${UNIT_TEST_DIR}/src)
+endif(${HAS_UNITTEST})
+
+set(SRC_UNITTEST_FRAMEWORK
+	${GLOB_UNITTEST_FRAMEWORK}
+)
+
 set(SRC_META
 	${GLOB_SEED}
+	
+	${SRC_UNITTEST_FRAMEWORK}
 
 	${SRC_PATH}/gapi.cpp
 	${SRC_PATH}/gbytearray.cpp
@@ -69,6 +91,7 @@ include_directories(
 	${ROOT_PATH}/include
 	${SEED_PATH}/include
 	${SRC_PATH}
+	${ROOT_PATH}/test
 )
 if(${HAS_LUA})
 	include_directories(${LUA_INC})
