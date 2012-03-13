@@ -2,6 +2,7 @@
 #include "cpgf/gmetaapiutil.h"
 
 #include <map>
+#include <string>
 
 using namespace std;
 
@@ -9,7 +10,7 @@ using namespace std;
 namespace cpgf {
 
 
-class GMetaArchiveWriterTracker
+class GMetaArchiveWriterPointerTracker
 {
 private:
 	typedef std::map<void *, uint32_t> MapType;
@@ -23,23 +24,68 @@ private:
 	MapType pointerMap;
 };
 
-bool GMetaArchiveWriterTracker::hasPointer(void * p) const
+class GMetaArchiveWriterClassTypeTracker
+{
+private:
+	typedef std::map<string, uint32_t> MapType;
+
+public:
+	bool hasClassType(const string & classType) const;
+	uint32_t getArchiveID(const string & classType) const;
+	void addClassType(const string & classType, uint32_t archiveID);
+
+private:
+	MapType classTypeMap;
+};
+
+
+bool GMetaArchiveWriterPointerTracker::hasPointer(void * p) const
 {
 	return this->pointerMap.find(p) != this->pointerMap.end();
 }
 
-uint32_t GMetaArchiveWriterTracker::getArchiveID(void * p) const
+uint32_t GMetaArchiveWriterPointerTracker::getArchiveID(void * p) const
 {
-	GASSERT(this->hasPointer(p));
-	
-	return this->pointerMap.find(p)->second;
+	MapType::const_iterator it = this->pointerMap.find(p);
+
+	if(it == this->pointerMap.end()) {
+		return archiveIDNone;
+	}
+	else {
+		return it->second;
+	}
 }
 
-void GMetaArchiveWriterTracker::addPointer(void * p, uint32_t archiveID)
+void GMetaArchiveWriterPointerTracker::addPointer(void * p, uint32_t archiveID)
 {
 	GASSERT(! this->hasPointer(p));
 
 	this->pointerMap.insert(pair<void *, uint32_t>(p, archiveID));
+}
+
+
+bool GMetaArchiveWriterClassTypeTracker::hasClassType(const string & classType) const
+{
+	return this->classTypeMap.find(classType) != this->classTypeMap.end();
+}
+
+uint32_t GMetaArchiveWriterClassTypeTracker::getArchiveID(const string & classType) const
+{
+	MapType::const_iterator it = this->classTypeMap.find(classType);
+
+	if(it == this->classTypeMap.end()) {
+		return archiveIDNone;
+	}
+	else {
+		return it->second;
+	}
+}
+
+void GMetaArchiveWriterClassTypeTracker::addClassType(const string & classType, uint32_t archiveID)
+{
+	GASSERT(this->hasClassType(classType));
+	
+	this->classTypeMap.insert(pair<string, uint32_t>(classType, archiveID));
 }
 
 
@@ -67,12 +113,13 @@ void GMetaArchiveWriter::writeObjectPointer(const char * name, void * instance, 
 void GMetaArchiveWriter::writeObjectHelper(const char * name, void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType)
 {
 	uint32_t archiveID = this->getNextArchiveID();
+	uint32_t classTypeID = this->getClassTypeID(instance, metaClass, pointerType);
 
-	this->beginWriteObject(name, archiveID, instance, metaClass);
+	this->beginWriteObject(name, archiveID, instance, metaClass, classTypeID);
 
 	this->doWriteObject(archiveID, instance, metaClass, pointerType);
 
-	this->endWriteObject(name, archiveID, instance, metaClass);
+	this->endWriteObject(name, archiveID, instance, metaClass, classTypeID);
 }
 
 void GMetaArchiveWriter::writeField(const char * name, void * instance, IMetaAccessible * accessible)
@@ -93,12 +140,13 @@ void GMetaArchiveWriter::defaultWriteObjectPointer(const char * name, void * ins
 void GMetaArchiveWriter::defaultWriteObjectHelper(const char * name, void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType)
 {
 	uint32_t archiveID = this->getNextArchiveID();
+	uint32_t classTypeID = this->getClassTypeID(instance, metaClass, pointerType);
 
-	this->beginWriteObject(name, archiveID, instance, metaClass);
+	this->beginWriteObject(name, archiveID, instance, metaClass, classTypeID);
 
 	this->doDefaultWriteObject(archiveID, instance, metaClass, pointerType);
 
-	this->endWriteObject(name, archiveID, instance, metaClass);
+	this->endWriteObject(name, archiveID, instance, metaClass, classTypeID);
 }
 
 void GMetaArchiveWriter::defaultWriteField(const char * name, void * instance, IMetaAccessible * accessible)
@@ -110,11 +158,11 @@ void GMetaArchiveWriter::directWriteObject(const char * name, void * instance, I
 {
 	uint32_t archiveID = this->getNextArchiveID();
 
-	this->beginWriteObject(name, archiveID, instance, metaClass);
+	this->beginWriteObject(name, archiveID, instance, metaClass, archiveIDNone);
 
 	this->doDirectWriteObject(archiveID, instance, metaClass);
 
-	this->endWriteObject(name, archiveID, instance, metaClass);
+	this->endWriteObject(name, archiveID, instance, metaClass, archiveIDNone);
 }
 
 void GMetaArchiveWriter::directWriteField(const char * name, void * instance, IMetaAccessible * accessible)
@@ -126,11 +174,11 @@ void GMetaArchiveWriter::directWriteObjectWithoutBase(const char * name, void * 
 {
 	uint32_t archiveID = this->getNextArchiveID();
 
-	this->beginWriteObject(name, archiveID, instance, metaClass);
+	this->beginWriteObject(name, archiveID, instance, metaClass, archiveIDNone);
 
 	this->doDirectWriteObjectWithoutBase(archiveID, instance, metaClass);
 
-	this->endWriteObject(name, archiveID, instance, metaClass);
+	this->endWriteObject(name, archiveID, instance, metaClass, archiveIDNone);
 }
 
 void GMetaArchiveWriter::doWriteObject(uint32_t archiveID, void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType)
@@ -148,26 +196,48 @@ void GMetaArchiveWriter::doDefaultWriteObject(uint32_t archiveID, void * instanc
 {
 	if(pointerType != aptIgnore) {
 		if(this->config.allowTrackPointer()) {
-			if(! this->pointerSolver) {
-				this->pointerSolver.reset(new GMetaArchiveWriterTracker);
-			}
 
-			if(this->pointerSolver->hasPointer(instance)) {
+			if(this->getPointerTracker()->hasPointer(instance)) {
 				if(pointerType == aptByValue) {
 					// error
 				}
 				else {
-					this->writer->writeReferenceID("", this->getNextArchiveID(), this->pointerSolver->getArchiveID(instance));
+					this->writer->writeReferenceID("", this->getNextArchiveID(), this->getPointerTracker()->getArchiveID(instance));
 				}
 
 				return;
 			}
 
-			this->pointerSolver->addPointer(instance, archiveID);
+			this->getPointerTracker()->addPointer(instance, archiveID);
 		}
 	}
 
 	this->doDirectWriteObject(archiveID, instance, metaClass);
+}
+
+uint32_t GMetaArchiveWriter::getClassTypeID(void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType)
+{
+	uint32_t classTypeID = archiveIDNone;
+
+	if(true) {
+		if(pointerType == aptByPointer) {
+			void * castedPtr;
+			GScopedInterface<IMetaClass> castedMetaClass(findAppropriateDerivedClass(instance, metaClass, &castedPtr));
+			if(! castedMetaClass->equals(metaClass)) {
+				const char * typeName = castedMetaClass->getTypeName();
+				if(this->getClassTypeTracker()->hasClassType(typeName)) {
+					classTypeID = this->getClassTypeTracker()->getArchiveID(typeName);
+				}
+				else {
+					classTypeID = this->getNextArchiveID();
+					this->getClassTypeTracker()->addClassType(typeName, classTypeID);
+					this->writer->writeClassType("", classTypeID, metaClass);
+				}
+			}
+		}
+	}
+
+	return classTypeID;
 }
 
 void GMetaArchiveWriter::doDirectWriteObject(uint32_t archiveID, void * instance, IMetaClass * metaClass)
@@ -272,9 +342,7 @@ void GMetaArchiveWriter::doDirectWriteField(const char * name, void * instance, 
 					if(metaType.getBaseName() != NULL) {
 						GScopedInterface<IMetaClass> metaClass(this->service->findClassByName(metaType.getBaseName()));
 						if(metaClass) {
-							void * castedPtr;
-							GScopedInterface<IMetaClass> castedMetaClass(findAppropriateDerivedClass(ptr, metaClass.get(), &castedPtr));
-							this->writeObjectPointer(name, castedPtr, castedMetaClass.get());
+							this->writeObjectPointer(name, ptr, metaClass.get());
 						}
 					}
 				}
@@ -291,14 +359,48 @@ uint32_t GMetaArchiveWriter::getNextArchiveID()
 	return this->currentArchiveID;
 }
 
-void GMetaArchiveWriter::beginWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass)
+GMetaArchiveWriterPointerTracker * GMetaArchiveWriter::getPointerTracker()
 {
-	this->writer->beginWriteObject(name, archiveID, instance, metaClass);
+	if(! this->pointerSolver) {
+		this->pointerSolver.reset(new GMetaArchiveWriterPointerTracker);
+	}
+
+	return this->pointerSolver.get();
 }
 
-void GMetaArchiveWriter::endWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass)
+GMetaArchiveWriterClassTypeTracker * GMetaArchiveWriter::getClassTypeTracker()
 {
-	this->writer->endWriteObject(name, archiveID, instance, metaClass);
+	if(! this->classTypeTracker) {
+		this->classTypeTracker.reset(new GMetaArchiveWriterClassTypeTracker);
+	}
+
+	return this->classTypeTracker.get();
+}
+
+void GMetaArchiveWriter::beginWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, uint32_t classTypeID)
+{
+	GMetaArchiveObjectInformation objectInformation;
+	
+	objectInformation.name = name;
+	objectInformation.archiveID = archiveID;
+	objectInformation.classTypeID = classTypeID;
+	objectInformation.instance = instance;
+	objectInformation.metaClass = metaClass;
+
+	this->writer->beginWriteObject(&objectInformation);
+}
+
+void GMetaArchiveWriter::endWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, uint32_t classTypeID)
+{
+	GMetaArchiveObjectInformation objectInformation;
+	
+	objectInformation.name = name;
+	objectInformation.archiveID = archiveID;
+	objectInformation.classTypeID = classTypeID;
+	objectInformation.instance = instance;
+	objectInformation.metaClass = metaClass;
+
+	this->writer->endWriteObject(&objectInformation);
 }
 
 

@@ -49,6 +49,7 @@ enum PermanentType {
 
 	ptNull = 50, // for null pointer
 	ptReferenceID = 51, // for one pointer reference to another
+	ptClassType = 52, // for class type definition
 
 };
 
@@ -308,6 +309,9 @@ protected:
 	IMPL_OBJECT
 
 	virtual void G_API_CC writeFundamental(const char * name, uint32_t archiveID, const GVariantData * value) {
+		(void)name;
+		(void)archiveID;
+
 		GVariant v(*value);
 
 		this->writeType(getMappedTypeFromMap(this->variantTypeMap, v.getType()));
@@ -318,28 +322,23 @@ protected:
 	}
 
 	virtual void G_API_CC writeString(const char * name, uint32_t archiveID, const char * value) {
+		(void)name;
+		(void)archiveID;
+
 		this->writeType(ptString);
 		
 		this->writeDelimiter();
 
-		size_t len = strlen(value);
-
-		this->stream << static_cast<uint32_t>(len);
-
-		this->writeDelimiter();
-
-		this->stream.write(value, len);
+		this->doWriteString(value);
 	}
 
 	virtual void G_API_CC writeNullPointer(const char * name) {
+		(void)name;
+
 		this->writeType(ptNull);
 	}
 
-	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
-		(void)name;
-		(void)instance;
-		(void)metaClass;
-
+	virtual void G_API_CC beginWriteObject(const GMetaArchiveObjectInformation * objectInformation) {
 		if(this->delimiter != dtNone) {
 			this->stream << '\n';
 			this->delimiter = dtNone;
@@ -347,23 +346,37 @@ protected:
 
 		this->writeType(ptObject);
 		this->writeDelimiter();
-		this->stream << static_cast<uint32_t>(archiveID);
+		this->stream << static_cast<uint32_t>(objectInformation->classTypeID);
+		this->writeDelimiter();
+		this->stream << static_cast<uint32_t>(objectInformation->archiveID);
 	}
 
-	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
-		(void)name;
-		(void)instance;
-		(void)metaClass;
+	virtual void G_API_CC endWriteObject(const GMetaArchiveObjectInformation * objectInformation) {
+		(void)objectInformation;
 
-		this->delimiter == dtNewline;
+		this->delimiter = dtNewline;
 	}
 
 	virtual void G_API_CC writeReferenceID(const char * name, uint32_t archiveID, uint32_t referenceArchiveID) {
+		(void)name;
+		(void)archiveID;
+
 		this->writeType(ptReferenceID);
 		
 		this->writeDelimiter();
 		
 		this->stream << static_cast<uint32_t>(referenceArchiveID);
+	}
+
+	virtual void G_API_CC writeClassType(const char * name, uint32_t archiveID, IMetaClass * metaClass) {
+		(void)name;
+		(void)archiveID;
+
+		this->writeType(ptClassType);
+		
+		this->writeDelimiter();
+
+		this->doWriteString(metaClass->getTypeName());
 	}
 
 protected:
@@ -385,6 +398,16 @@ protected:
 	void writeType(int permanentType) {
 		this->writeDelimiter();
 		this->stream << static_cast<uint16_t>(permanentType);
+	}
+
+	void doWriteString(const char * s) {
+		size_t len = strlen(s);
+
+		this->stream << static_cast<uint32_t>(len);
+
+		this->writeDelimiter();
+
+		this->stream.write(s, len);
 	}
 
 private:
@@ -412,13 +435,23 @@ private:
 	};
 
 public:
-	explicit GTextStreamMetaReader(Stream & stream) : stream(stream), variantTypeMap(defaultVariantTypeMap) {
+	GTextStreamMetaReader(IMetaService * service, Stream & stream)
+		: service(service), stream(stream), variantTypeMap(defaultVariantTypeMap) {
+		this->service->addReference();
 	}
 
 protected:
 	IMPL_OBJECT
 
+	void checkType(PermanentType type, PermanentType expected) {
+		if(type != expected) {
+			serializeError(Error_Serialization_TypeMismatch);
+		}
+	}
+
 	virtual uint32_t G_API_CC getArchiveType(const char * name) {
+		(void)name;
+
 		StreamMarker marker(this);
 		PermanentType type = this->readType();
 		switch(type) {
@@ -434,59 +467,106 @@ protected:
 			case ptReferenceID:
 				return matReferenceObject;
 
+			case ptClassType:
+				return matClassType;
+
 			default:
 				return matFundamental;
 		}
 	}
 
-	virtual void G_API_CC readFundamental(const char * name, uint32_t * outArchiveID, GVariantData * outValue) {
+	virtual uint32_t G_API_CC getClassType(const char * name) {
+		(void)name;
+
+		StreamMarker marker(this);
 		PermanentType type = this->readType();
+		checkType(type, ptObject);
+
+		uint32_t classTypeID;
+		this->stream >> classTypeID;
+		this->skipDelimiter();
+
+		return classTypeID;
+	}
+
+	virtual void G_API_CC readFundamental(const char * name, uint32_t * outArchiveID, GVariantData * outValue) {
+		(void)name;
+		(void)outArchiveID;
+
+		PermanentType type = this->readType();
+		
 		GVariantType vt = getVariantTypeFromMap(this->variantTypeMap, type);
+		if(vt == vtEmpty) {
+			serializeError(Error_Serialization_TypeMismatch);
+		}
 
 		GVariant v(streamReadFundamental<Stream, TypeMap>(this->stream, vt));
+		this->skipDelimiter();
 		*outValue = v.takeData();
 	}
 
 	virtual char * G_API_CC readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID) {
+		(void)name;
+		(void)outArchiveID;
+
 		PermanentType type = this->readType();
-		uint32_t len;
-		this->stream >> len;
-		this->skipDelimiter();
-		char * s = static_cast<char *>(allocator->allocate(len + 1));
-		this->stream.read(s, len);
-		s[len] = 0;
-		return s;
+		checkType(type, ptString);
+
+		return this->doReadString(allocator);
 	}
 
 	virtual void * G_API_CC readNullPointer(const char * name) {
+		(void)name;
+
 		PermanentType type = this->readType();
-		if(type == ptNull) {
-		}
+		checkType(type, ptNull);
+		
+		this->skipDelimiter();
 
 		return NULL;
 	}
 
-	virtual void G_API_CC beginReadObject(const char * name, void * instance, IMetaClass * metaClass, uint32_t * outArchiveID) {
-		(void)name;
-		(void)instance;
-		(void)metaClass;
-
+	virtual void G_API_CC beginReadObject(GMetaArchiveObjectInformation * objectInformation) {
 		PermanentType type = this->readType();
-		this->stream >> *outArchiveID;
+		checkType(type, ptObject);
+
+		this->stream >> objectInformation->classTypeID;
+		
+		this->skipDelimiter();
+		
+		this->stream >> objectInformation->archiveID;
+		
+		this->skipDelimiter();
 	}
 
-	virtual void G_API_CC endReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
-		(void)name;
-		(void)instance;
-		(void)metaClass;
+	virtual void G_API_CC endReadObject(const GMetaArchiveObjectInformation * objectInformation) {
+		(void)objectInformation;
 
 	}
 
 	virtual uint32_t G_API_CC readReferenceID(const char * name) {
+		(void)name;
+
 		PermanentType type = this->readType();
+		checkType(type, ptReferenceID);
+
 		uint32_t referenceArchiveID;
 		this->stream >> referenceArchiveID;
+		
+		this->skipDelimiter();
+		
 		return referenceArchiveID;
+	}
+
+	virtual IMetaClass * G_API_CC readClassType(const char * name, uint32_t * outArchiveID) {
+		(void)name;
+		(void)outArchiveID;
+
+		PermanentType type = this->readType();
+		checkType(type, ptClassType);
+
+		GScopedArray<char> classType(this->doReadString(NULL));
+		return this->service->findClassByName(classType.get());
 	}
 
 protected:
@@ -501,7 +581,27 @@ protected:
 		return static_cast<PermanentType>(type);
 	}
 
+	char * doReadString(IMemoryAllocator * allocator) {
+		uint32_t len;
+		this->stream >> len;
+		this->skipDelimiter();
+		char * s;
+		if(allocator == NULL) {
+			s = new char[len + 1];
+		}
+		else {
+			s = static_cast<char *>(allocator->allocate(len + 1));
+		}
+		this->stream.read(s, len);
+		s[len] = 0;
+		
+		this->skipDelimiter();
+
+		return s;
+	}
+
 private:
+	GScopedInterface<IMetaService> service;
 	Stream & stream;
 	int * variantTypeMap;
 };
@@ -595,7 +695,7 @@ void testSer()
 
 	stream.seekg(0);
 	
-	GTextStreamMetaReader<stringstream> inputStream(stream);
+	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
 	GMetaArchiveReader archiveReader(GMetaArchiveReaderConfig(), service.get(), &inputStream);
 	TestClassSerialize readInstance;
 	archiveReader.readObject("", &readInstance, metaClass.get());

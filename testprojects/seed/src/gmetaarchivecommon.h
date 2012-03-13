@@ -34,6 +34,16 @@ struct IMetaFieldSerializer : public IObject
 };
 
 
+struct GMetaArchiveObjectInformation
+{
+	const char * name;
+	uint32_t archiveID;
+	uint32_t classTypeID;
+	void * instance;
+	IMetaClass * metaClass;
+};
+
+
 class GMetaArchiveConfig
 {
 private:
@@ -76,6 +86,7 @@ bool canSerializeBaseClass(const GMetaArchiveConfig & config, IMetaClass * baseC
 
 const int Error_Serialization_Begin = 301;
 const int Error_Serialization_TypeMismatch = Error_Serialization_Begin + 0;
+const int Error_Serialization_CannotFindObjectType = Error_Serialization_Begin + 1;
 const int Error_Serialization_End = 400;
 
 inline void serializeError(int errorCode, ...)

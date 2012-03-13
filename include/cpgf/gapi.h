@@ -62,32 +62,32 @@ public:
 
 
 template <typename T>
-class GSharedInteface
+class GSharedInterface
 {
 private:
-    typedef GSharedInteface<T> ThisType;
+    typedef GSharedInterface<T> ThisType;
 
 public:
-	GSharedInteface(): rawPointer(NULL) {
+	GSharedInterface(): rawPointer(NULL) {
 	}
 
-	explicit GSharedInteface(T * p) : rawPointer(p) {
+	explicit GSharedInterface(T * p) : rawPointer(p) {
 		if(this->rawPointer != NULL) {
 			this->rawPointer->addReference();
 		}
 	}
 
-	GSharedInteface(const GSharedInteface & other) : rawPointer(other.rawPointer) {
+	GSharedInterface(const GSharedInterface & other) : rawPointer(other.rawPointer) {
 		if(this->rawPointer != NULL) {
 			this->rawPointer->addReference();
 		}
 	}
 	
-	GSharedInteface & operator = (GSharedInteface other) {
+	GSharedInterface & operator = (GSharedInterface other) {
 		this->swap(other);
 	}
 	
-	~GSharedInteface() {
+	~GSharedInterface() {
 		if(this->rawPointer != NULL) {
 			this->rawPointer->releaseReference();
 		}
@@ -129,15 +129,15 @@ public:
 		return this->rawPointer != NULL;
 	}
 
-	inline void swap(GSharedInteface & b) {
+	inline void swap(GSharedInterface & b) {
 		T * temp = b.rawPointer;
 		b.rawPointer = this->rawPointer;
 		this->rawPointer = temp;
 	}
 
 private:
-	void operator == (const GSharedInteface &) const;
-	void operator != (const GSharedInteface &) const;
+	void operator == (const GSharedInterface &) const;
+	void operator != (const GSharedInterface &) const;
 
 protected:
 	T * rawPointer;

@@ -179,7 +179,7 @@ public:
 	
 public:
 	void * instance;
-	GSharedInteface<IMetaAccessible> accessible;
+	GSharedInterface<IMetaAccessible> accessible;
 };
 
 class GLuaGlobalAccessor

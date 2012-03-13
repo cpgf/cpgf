@@ -10,7 +10,7 @@ using namespace std;
 namespace cpgf {
 
 
-class GMetaArchiveReaderTracker
+class GMetaArchiveReaderPointerTracker
 {
 private:
 	typedef std::map<uint32_t, void *> MapType;
@@ -24,19 +24,40 @@ private:
 	MapType pointerMap;
 };
 
-bool GMetaArchiveReaderTracker::hasArchiveID(uint32_t archiveID) const
+class GMetaArchiveReaderClassTypeTracker
+{
+private:
+	typedef GSharedInterface<IMetaClass> MetaType;
+	typedef std::map<uint32_t, MetaType> MapType;
+
+public:
+	bool hasArchiveID(uint32_t archiveID) const;
+	IMetaClass * getMetaClass(uint32_t archiveID) const;
+	void addArchiveID(uint32_t archiveID, IMetaClass * metaClass);
+
+private:
+	MapType classTypeMap;
+};
+
+
+bool GMetaArchiveReaderPointerTracker::hasArchiveID(uint32_t archiveID) const
 {
 	return this->pointerMap.find(archiveID) != this->pointerMap.end();
 }
 
-void * GMetaArchiveReaderTracker::getPointer(uint32_t archiveID) const
+void * GMetaArchiveReaderPointerTracker::getPointer(uint32_t archiveID) const
 {
-	GASSERT(this->hasArchiveID(archiveID));
-	
-	return this->pointerMap.find(archiveID)->second;
+	MapType::const_iterator it = this->pointerMap.find(archiveID);
+
+	if(it == this->pointerMap.end()) {
+		return NULL;
+	}
+	else {
+		return it->second;
+	}
 }
 
-void GMetaArchiveReaderTracker::addArchiveID(uint32_t archiveID, void * p)
+void GMetaArchiveReaderPointerTracker::addArchiveID(uint32_t archiveID, void * p)
 {
 	GASSERT(! this->hasArchiveID(archiveID));
 
@@ -44,8 +65,35 @@ void GMetaArchiveReaderTracker::addArchiveID(uint32_t archiveID, void * p)
 }
 
 
+bool GMetaArchiveReaderClassTypeTracker::hasArchiveID(uint32_t archiveID) const
+{
+	return this->classTypeMap.find(archiveID) != this->classTypeMap.end();
+}
+
+IMetaClass * GMetaArchiveReaderClassTypeTracker::getMetaClass(uint32_t archiveID) const
+{
+	MapType::const_iterator it = this->classTypeMap.find(archiveID);
+
+	if(it == this->classTypeMap.end()) {
+		return NULL;
+	}
+	else {
+		IMetaClass * metaClass = it->second.get();
+		metaClass->addReference();
+		return metaClass;
+	}
+}
+
+void GMetaArchiveReaderClassTypeTracker::addArchiveID(uint32_t archiveID, IMetaClass * metaClass)
+{
+	GASSERT(! this->hasArchiveID(archiveID));
+
+	this->classTypeMap.insert(pair<uint32_t, MetaType>(archiveID, MetaType(metaClass)));
+}
+
+
 GMetaArchiveReader::GMetaArchiveReader(const GMetaArchiveReaderConfig & config, IMetaService * service, IMetaReader * reader)
-	: config(config), service(service), reader(reader), pointerSolver(new GMetaArchiveReaderTracker)
+	: config(config), service(service), reader(reader)
 {
 	this->service->addReference();
 	this->reader->addReference();
@@ -108,22 +156,36 @@ void GMetaArchiveReader::directReadObjectWithoutBase(const char * name, void * i
 
 uint32_t GMetaArchiveReader::beginReadObject(const char * name, void * instance, IMetaClass * metaClass)
 {
-	uint32_t archiveID = archiveIDNone;
+	GMetaArchiveObjectInformation objectInformation;
 	
-	this->reader->beginReadObject(name, instance, metaClass, &archiveID);
+	objectInformation.name = name;
+	objectInformation.archiveID = archiveIDNone;
+	objectInformation.classTypeID = archiveIDNone;
+	objectInformation.instance = instance;
+	objectInformation.metaClass = metaClass;
 
-	if(archiveID != archiveIDNone) {
-		if(! this->pointerSolver->hasArchiveID(archiveID)) {
-			this->pointerSolver->addArchiveID(archiveID, instance);
+	this->reader->beginReadObject(&objectInformation);
+
+	if(objectInformation.archiveID != archiveIDNone) {
+		if(! this->getPointerTracker()->hasArchiveID(objectInformation.archiveID)) {
+			this->getPointerTracker()->addArchiveID(objectInformation.archiveID, instance);
 		}
 	}
 	
-	return archiveID;
+	return objectInformation.archiveID;
 }
 
 void GMetaArchiveReader::endReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass)
 {
-	this->reader->endReadObject(name, archiveID, instance, metaClass);
+	GMetaArchiveObjectInformation objectInformation;
+	
+	objectInformation.name = name;
+	objectInformation.archiveID = archiveID;
+	objectInformation.classTypeID = archiveIDNone;
+	objectInformation.instance = instance;
+	objectInformation.metaClass = metaClass;
+
+	this->reader->endReadObject(&objectInformation);
 }
 
 void GMetaArchiveReader::doReadObject(uint32_t archiveID, void * instance, IMetaClass * metaClass)
@@ -272,6 +334,16 @@ void GMetaArchiveReader::doDirectReadField(const char * name, void * instance, I
 			else {
 				void * ptr = fromVariant<void *>(metaGetValue(accessible, instance));
 				if(ptr == NULL) {
+					uint32_t classTypeID = this->reader->getClassType(name);
+					if(classTypeID != archiveIDNone) {
+						IMetaClass * storedMetaClass = this->getClassTypeTracker()->getMetaClass(classTypeID);
+						if(storedMetaClass == NULL) {
+							serializeError(Error_Serialization_CannotFindObjectType);
+						}
+						else {
+							metaClass.reset(storedMetaClass);
+						}
+					}
 					ptr = metaClass->createInstance();
 				}
 				else {
@@ -292,8 +364,8 @@ void GMetaArchiveReader::doDirectReadField(const char * name, void * instance, I
 			}
 			
 			archiveID = this->reader->readReferenceID(name);
-			if(this->pointerSolver->hasArchiveID(archiveID)) {
-				metaSetValue(accessible, instance, this->pointerSolver->getPointer(archiveID));
+			if(this->getPointerTracker()->hasArchiveID(archiveID)) {
+				metaSetValue(accessible, instance, this->getPointerTracker()->getPointer(archiveID));
 			}
 			else {
 				serializeError(Error_Serialization_TypeMismatch);
@@ -301,9 +373,34 @@ void GMetaArchiveReader::doDirectReadField(const char * name, void * instance, I
 			
 			break;
 		}
+
+		case matClassType: {
+			GScopedInterface<IMetaClass> metaClass(this->reader->readClassType(name, &archiveID));
+			if(metaClass && archiveID != archiveIDNone && ! this->getClassTypeTracker()->hasArchiveID(archiveID)) {
+				this->getClassTypeTracker()->addArchiveID(archiveID, metaClass.get());
+			}
+			break;
+		}
 	}
 }
 
+GMetaArchiveReaderPointerTracker * GMetaArchiveReader::getPointerTracker()
+{
+	if(! this->pointerSolver) {
+		this->pointerSolver.reset(new GMetaArchiveReaderPointerTracker);
+	}
+
+	return this->pointerSolver.get();
+}
+
+GMetaArchiveReaderClassTypeTracker * GMetaArchiveReader::getClassTypeTracker()
+{
+	if(! this->classTypeTracker) {
+		this->classTypeTracker.reset(new GMetaArchiveReaderClassTypeTracker);
+	}
+
+	return this->classTypeTracker.get();
+}
 
 
 } // namespace cpgf
