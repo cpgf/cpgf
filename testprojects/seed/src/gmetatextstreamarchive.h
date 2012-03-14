@@ -212,6 +212,9 @@ public:
 	explicit GTextStreamMetaWriter(Stream & stream) : stream(stream), variantTypeMap(defaultVariantTypeMap), delimiter(dtNone) {
 	}
 
+	~GTextStreamMetaWriter() {
+	}
+
 protected:
 	IMPL_OBJECT
 
@@ -348,6 +351,9 @@ public:
 	GTextStreamMetaReader(IMetaService * service, Stream & stream)
 		: service(service), stream(stream), variantTypeMap(defaultVariantTypeMap) {
 		this->service->addReference();
+	}
+
+	~GTextStreamMetaReader() {
 	}
 
 protected:

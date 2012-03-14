@@ -838,8 +838,8 @@ const GMetaClass * findMetaClass(const char * name)
 
 GMetaClass * getGlobalMetaClass()
 {
-	static GMetaClass global(GMetaClass((void *)0, new meta_internal::GMetaSuperList, "", NULL, NULL, GMetaPolicyDefault()));
-	return &global;
+	static GScopedPointer<GMetaClass> global(new GMetaClass((void *)0, new meta_internal::GMetaSuperList, "", NULL, NULL, GMetaPolicyDefault()));
+	return global.get();
 }
 
 
