@@ -46,6 +46,11 @@ GMetaConverter * GMetaFieldDataBase::createConverter() const
 	return this->virtualFunctions->createConverter(this);
 }
 
+GMetaExtendType GMetaFieldDataBase::getItemExtendType(uint32_t flags) const
+{
+	return this->virtualFunctions->getItemExtendType(this, flags);
+}
+
 	
 } // namespace meta_internal
 
@@ -91,6 +96,11 @@ size_t GMetaField::getSize() const
 GMetaConverter * GMetaField::createConverter() const
 {
 	return this->baseData->createConverter();
+}
+
+GMetaExtendType GMetaField::getItemExtendType(uint32_t flags) const
+{
+	return this->baseData->getItemExtendType(flags);
 }
 
 

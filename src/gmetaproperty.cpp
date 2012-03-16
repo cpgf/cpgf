@@ -48,6 +48,11 @@ GMetaConverter * GMetaPropertyDataBase::createConverter() const
 	return this->virtualFunctions->createConverter(this);
 }
 
+GMetaExtendType GMetaPropertyDataBase::getItemExtendType(uint32_t flags) const
+{
+	return this->virtualFunctions->getItemExtendType(this, flags);
+}
+
 
 } // namespace meta_internal
 
@@ -98,6 +103,11 @@ const GMetaType & GMetaProperty::getItemType() const
 GMetaConverter * GMetaProperty::createConverter() const
 {
 	return this->baseData->createConverter();
+}
+
+GMetaExtendType GMetaProperty::getItemExtendType(uint32_t flags) const
+{
+	return this->baseData->getItemExtendType(flags);
 }
 
 

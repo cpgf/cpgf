@@ -22,6 +22,8 @@ struct GMetaFundamentalDataVirtual
 	void * (*cloneInstance)(const void * self, void * instance);
 	void * (*cloneInplace)(const void * self, void * instance, void * placement);
 	void (*destroyInstance)(const void * self, void * o);
+	
+	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
 };
 
 class GMetaFundamentalData
@@ -39,6 +41,8 @@ public:
 	void * cloneInplace(void * instance, void * placement) const;
 
 	void destroyInstance(void * o) const;
+
+	GMetaExtendType getItemExtendType(uint32_t flags) const;
 
 protected:
 	GMetaFundamentalDataVirtual * virtualFunctions;
@@ -103,6 +107,12 @@ private:
 		delete static_cast<T *>(instance);
 	}
 
+	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags) {
+		(void)self;
+
+		return createMetaExtendType<T>(flags);
+	}
+
 public:
 	GMetaFundamentalDataImplement() {
 		static GMetaFundamentalDataVirtual thisFunctions = {
@@ -113,7 +123,8 @@ public:
 			&virtualCreateInplace,
 			&virtualCloneInstance,
 			&virtualCloneInplace,
-			&virtualDestroyInstance
+			&virtualDestroyInstance,
+			&virtualGetItemExtendType
 		};
 
 		this->virtualFunctions = &thisFunctions;

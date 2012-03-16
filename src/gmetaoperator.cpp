@@ -130,6 +130,11 @@ GVariant GMetaOperatorDataBase::execute(void * instance, const GVariant * params
 	}
 }
 
+GMetaExtendType GMetaOperatorDataBase::getItemExtendType(uint32_t flags) const
+{
+	return this->virtualFunctions->getItemExtendType(this, flags);
+}
+
 GMetaDefaultParamList * GMetaOperatorDataBase::getDefaultParamList() const
 {
 	if(! this->defaultParamList) {
@@ -243,6 +248,11 @@ GVariant GMetaOperator::invokeBinary(const GVariant & p0, const GVariant & p1) c
 GVariant GMetaOperator::execute(void * instance, const GVariant * params, size_t paramCount) const
 {
 	return this->baseData->execute(instance, params, paramCount);
+}
+
+GMetaExtendType GMetaOperator::getItemExtendType(uint32_t flags) const
+{
+	return this->baseData->getItemExtendType(flags);
 }
 
 #define VAR_PARAM_DEFAULT(N, unused) GPP_COMMA_IF(N) const GVariant & p ## N

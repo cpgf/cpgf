@@ -217,6 +217,12 @@ void GMetaAnnotation::setMetaItem(const GMetaItem * metaItem)
 	this->metaItem = metaItem;
 }
 
+GMetaExtendType GMetaAnnotation::getItemExtendType(uint32_t flags) const
+{
+	(void)flags;
+	
+	return GMetaExtendType();
+}
 
 
 } // namespace cpgf

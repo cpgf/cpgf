@@ -438,6 +438,7 @@ struct GMetaPropertyDataVirtual
 	size_t (*getPropertySize)(const void * self);
 	void * (*getPropertyAddress)(const void * self, void * instance);
 	GMetaConverter * (*createConverter)(const void * self);
+	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
 };
 
 class GMetaPropertyDataBase
@@ -455,6 +456,7 @@ public:
 	void * getPropertyAddress(void * instance) const;
 
 	GMetaConverter * createConverter() const;
+	GMetaExtendType getItemExtendType(uint32_t flags) const;
 
 protected:
 	GMetaPropertyDataVirtual * virtualFunctions;
@@ -522,6 +524,21 @@ private:
 		return NULL;
 	}
 
+	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
+	{
+		(void)self;
+		
+		if(GetterType::HasGetter) {
+			return createMetaExtendType<typename GetterType::PropertyType>(flags);
+		}
+
+		if(SetterType::HasSetter) {
+			return createMetaExtendType<typename SetterType::PropertyType>(flags);
+		}
+
+		return GMetaExtendType();
+	}
+
 public:
 	GMetaPropertyData(const Getter & getter, const Setter & setter) : metaGetter(getter), metaSetter(setter) {
 		static GMetaPropertyDataVirtual thisFunctions = {
@@ -532,7 +549,8 @@ public:
 			&virtualSet,
 			&virtualGetPropertySize,
 			&virtualGetPropertyAddress,
-			&virtualCreateConverter
+			&virtualCreateConverter,
+			virtualGetItemExtendType
 		};
 		this->virtualFunctions = &thisFunctions;
 	}

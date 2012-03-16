@@ -36,6 +36,7 @@ struct GMetaClassDataVirtual
 	size_t (*getObjectSize)(const void * self);
 	bool (*isAbstract)(const void * self);
 	bool (*isPolymorphic)(const void * self);
+	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
 };
 
 class GMetaClassDataBase
@@ -52,6 +53,7 @@ public:
 	void * cloneInplace(void * instance, void * placement) const;
 
 	size_t getObjectSize() const;
+	GMetaExtendType getItemExtendType(uint32_t flags) const;
 
 	bool isAbstract() const;
 	bool isPolymorphic() const;
@@ -117,6 +119,12 @@ private:
 		return static_cast<const GMetaClassData *>(self)->doGetObjectSize<typename GIfElse<IsGlobal, void, OT>::Result >();
 	}
 
+	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags) {
+		(void)self;
+		
+		return createMetaExtendType<OT>(flags);
+	}
+
 	static bool virtualIsAbstract(const void * self) {
 		return static_cast<const GMetaClassData *>(self)->doIsAbstract<typename GIfElse<IsGlobal, void, OT>::Result >();
 	}
@@ -139,7 +147,8 @@ public:
 			&virtualCloneInplace,
 			&virtualGetObjectSize,
 			&virtualIsAbstract,
-			&virtualPolymorphic
+			&virtualPolymorphic,
+			&virtualGetItemExtendType
 		};
 
 		this->virtualFunctions = &thisFunctions;

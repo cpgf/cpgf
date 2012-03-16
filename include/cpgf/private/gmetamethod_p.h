@@ -42,6 +42,7 @@ struct GMetaMethodDataVirtual
 	bool (*isParamTransferOwnership)(const void * self, size_t paramIndex);
 	bool (*isResultTransferOwnership)(const void * self);
 	GMetaConverter * (*createResultConverter)(const void * self);
+	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
 };
 
 class GMetaMethodDataBase
@@ -65,6 +66,7 @@ public:
 	bool isResultTransferOwnership() const;
 
 	GMetaConverter * createResultConverter() const;
+	GMetaExtendType getItemExtendType(uint32_t flags) const;
 
 	GMetaDefaultParamList * getDefaultParamList() const;
 	bool hasDefaultParam() const;
@@ -202,6 +204,13 @@ private:
 		return GMetaConverterTraits<typename CallbackT::TraitsType::ResultType>::createConverter();
 	}
 
+	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
+	{
+		(void)self;
+		
+		return createMetaExtendType<typename TraitsType::FunctionType>(flags);
+	}
+
 public:
 	GMetaMethodData(const CallbackType & cb, const Policy &) : callback(cb) {
 		static GMetaMethodDataVirtual thisFunctions = {
@@ -216,7 +225,8 @@ public:
 			&virtualCheckParam,
 			&virtualIsParamTransferOwnership,
 			&virtualIsResultTransferOwnership,
-			&virtualCreateResultConverter
+			&virtualCreateResultConverter,
+			&virtualGetItemExtendType
 		};
 
 		this->virtualFunctions = &thisFunctions;

@@ -31,7 +31,7 @@ int main(int argc, char * argv[])
 	int xxx[] = { 5, 6, 7 };
 	test(xxx);
 
-	int yyy[0];
+	int yyy[5];
 	test(yyy);
 
 //	testBoost();

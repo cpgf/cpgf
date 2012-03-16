@@ -67,6 +67,11 @@ size_t GMetaClassDataBase::getObjectSize() const
 	return this->virtualFunctions->getObjectSize(this);
 }
 
+GMetaExtendType GMetaClassDataBase::getItemExtendType(uint32_t flags) const
+{
+	return this->virtualFunctions->getItemExtendType(this, flags);
+}
+
 bool GMetaClassDataBase::isAbstract() const
 {
 	return this->virtualFunctions->isAbstract(this);
@@ -362,6 +367,11 @@ void * GMetaClass::cloneInplace(void * instance, void * placement) const
 size_t GMetaClass::getTypeSize() const
 {
 	return this->baseData->getObjectSize();
+}
+
+GMetaExtendType GMetaClass::getItemExtendType(uint32_t flags) const
+{
+	return this->baseData->getItemExtendType(flags);
 }
 
 const GMetaConstructor * GMetaClass::getConstructorByParamCount(size_t paramCount) const

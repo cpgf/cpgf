@@ -93,6 +93,11 @@ GMetaConverter * GMetaMethodDataBase::createResultConverter() const
 	return this->virtualFunctions->createResultConverter(this);
 }
 
+GMetaExtendType GMetaMethodDataBase::getItemExtendType(uint32_t flags) const
+{
+	return this->virtualFunctions->getItemExtendType(this, flags);
+}
+
 GMetaDefaultParamList * GMetaMethodDataBase::getDefaultParamList() const
 {
 	if(! this->defaultParamList) {
@@ -204,6 +209,11 @@ GMetaConverter * GMetaMethod::createResultConverter() const
 	return this->baseData->createResultConverter();
 }
 
+GMetaExtendType GMetaMethod::getItemExtendType(uint32_t flags) const
+{
+	return this->baseData->getItemExtendType(flags);
+}
+
 void GMetaMethod::addDefaultParam(const GVariant & v)
 {
 	this->baseData->getDefaultParamList()->addDefault(v);
@@ -286,6 +296,11 @@ bool GMetaConstructor::isResultTransferOwnership() const
 GMetaConverter * GMetaConstructor::createResultConverter() const
 {
 	return NULL;
+}
+
+GMetaExtendType GMetaConstructor::getItemExtendType(uint32_t flags) const
+{
+	return this->baseData->getItemExtendType(flags);
 }
 
 void GMetaConstructor::addDefaultParam(const GVariant & v)

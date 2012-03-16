@@ -62,6 +62,8 @@ public:
 
 	virtual size_t getTypeSize() const;
 
+	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
+
 	template <typename OT, typename Signature, typename Policy>
 	GMetaConstructor * addConstructor(const Policy & policy) {
 		if(this->isGlobal()) {

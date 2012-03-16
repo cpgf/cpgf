@@ -133,6 +133,8 @@ public:
 
 	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
 
+	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
+
 	void addDefaultParam(const GVariant & v);
 
 	GVariant invokeUnary(const GVariant & p0) const;

@@ -54,6 +54,8 @@ public:
 	virtual bool isResultTransferOwnership() const;
 	
 	virtual GMetaConverter * createResultConverter() const;
+	
+	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
 
 	void addDefaultParam(const GVariant & v);
 
@@ -99,6 +101,7 @@ public:
 	virtual bool isResultTransferOwnership() const;
 
 	virtual GMetaConverter * createResultConverter() const;
+	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
 
 	void addDefaultParam(const GVariant & v);
 

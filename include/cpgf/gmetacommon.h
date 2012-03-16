@@ -6,6 +6,7 @@
 #include "cpgf/gvariant.h"
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gclassutil.h"
+#include "cpgf/gmetaextendtype.h"
 
 #include "cpgf/private/gmetacommon_p.h"
 
@@ -81,6 +82,7 @@ public:
 	}
 
 	virtual const GMetaType & getItemType() const;
+	virtual GMetaExtendType getItemExtendType(uint32_t flags) const = 0;
 
 	const std::string & getName() const;
 	const std::string & getQualifiedName() const;

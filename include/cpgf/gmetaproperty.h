@@ -34,6 +34,8 @@ public:
 
 	virtual GMetaConverter * createConverter() const;
 
+	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
+
 private:
 	GScopedPointer<meta_internal::GMetaPropertyDataBase,
 		meta_internal::GScopedPointerDeleter_BaseMeta<meta_internal::GMetaPropertyDataBase> >

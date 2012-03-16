@@ -110,6 +110,10 @@ void GMetaEnum::addEnum(const char * key, const GVariant & value)
 	this->implement->enumerators.push_back(value);
 }
 
+GMetaExtendType GMetaEnum::getItemExtendType(uint32_t flags) const
+{
+	return createMetaExtendType<int>();
+}
 
 
 } // namespace cpgf

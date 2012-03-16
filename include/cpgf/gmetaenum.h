@@ -36,6 +36,8 @@ public:
 	virtual void * cloneInplace(void * instance, void * placement) const;
 	virtual void destroyInstance(void * instance) const;
 	
+	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
+
 private:
 	void addEnum(const char * key, const GVariant & value);
 

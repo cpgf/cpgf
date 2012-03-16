@@ -259,6 +259,7 @@ struct GMetaOperatorDataVirtual
 	bool (*isResultTransferOwnership)(const void * self);
 	GMetaConverter * (*createResultConverter)(const void * self);
 	GMetaType (*createOperatorMetaType)(const void * self);
+	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
 };
 
 class GMetaOperatorDataBase
@@ -291,6 +292,7 @@ public:
 	bool isResultTransferOwnership() const;
 
 	GMetaConverter * createResultConverter() const;
+	GMetaExtendType getItemExtendType(uint32_t flags) const;
 	
 	GMetaDefaultParamList * getDefaultParamList() const;
 	bool hasDefaultParam() const;
@@ -440,6 +442,13 @@ private:
 		return GMetaConverterTraits<typename FT::ResultType>::createConverter();
 	}
 
+	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
+	{
+		(void)self;
+		
+		return createMetaExtendType<FT>(flags);
+	}
+
 public:
 	GMetaOperatorData() {
 		static GMetaOperatorDataVirtual thisFunctions = {
@@ -461,7 +470,8 @@ public:
 			&virtualIsParamTransferOwnership,
 			&virtualIsResultTransferOwnership,
 			&virtualCreateResultConverter,
-			&virtualCreateOperatorMetaType
+			&virtualCreateOperatorMetaType,
+			&virtualGetItemExtendType
 		};
 
 		this->virtualFunctions = &thisFunctions;
@@ -591,6 +601,13 @@ private:
 		return GMetaConverterTraits<typename FT::ResultType>::createConverter();
 	}
 
+	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
+	{
+		(void)self;
+		
+		return createMetaExtendType<FT>(flags);
+	}
+
 public:
 	GMetaOperatorData() {
 		static GMetaOperatorDataVirtual thisFunctions = {
@@ -612,7 +629,8 @@ public:
 			&virtualIsParamTransferOwnership,
 			&virtualIsResultTransferOwnership,
 			&virtualCreateResultConverter,
-			&virtualCreateOperatorMetaType
+			&virtualCreateOperatorMetaType,
+			&virtualGetItemExtendType
 		};
 
 		this->virtualFunctions = &thisFunctions;
@@ -775,6 +793,13 @@ private:
 		return GMetaConverterTraits<typename FT::ResultType>::createConverter();
 	}
 
+	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
+	{
+		(void)self;
+		
+		return createMetaExtendType<FT>(flags);
+	}
+
 public:
 	GMetaOperatorData() {
 		static GMetaOperatorDataVirtual thisFunctions = {
@@ -796,7 +821,8 @@ public:
 			&virtualIsParamTransferOwnership,
 			&virtualIsResultTransferOwnership,
 			&virtualCreateResultConverter,
-			&virtualCreateOperatorMetaType
+			&virtualCreateOperatorMetaType,
+			&virtualGetItemExtendType
 		};
 
 		this->virtualFunctions = &thisFunctions;

@@ -20,6 +20,7 @@ struct GMetaFieldDataVirtual
 	size_t (*getFieldSize)(const void * self);
 	void * (*getFieldAddress)(const void * self, void * instance);
 	GMetaConverter * (*createConverter)(const void * self);
+	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
 };
 
 class GMetaFieldDataBase
@@ -37,6 +38,7 @@ public:
 	void * getFieldAddress(void * instance) const;
 
 	GMetaConverter * createConverter() const;
+	GMetaExtendType getItemExtendType(uint32_t flags) const;
 
 protected:
 	GMetaFieldDataVirtual * virtualFunctions;
@@ -87,6 +89,13 @@ private:
 
 		return GMetaConverterTraits<FT>::createConverter();
 	}
+	
+	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
+	{
+		(void)self;
+		
+		return createMetaExtendType<FT>(flags);
+	}
 
 public:
 	GMetaFieldDataGlobal(FT * field) : field(field) {
@@ -98,7 +107,8 @@ public:
 			&virtualSet,
 			&virtualGetFieldSize,
 			&virtualGetFieldAddress,
-			&virtualCreateConverter
+			&virtualCreateConverter,
+			&virtualGetItemExtendType
 		};
 		this->virtualFunctions = &thisFunctions;
 	}
@@ -185,6 +195,13 @@ private:
 		return GMetaConverterTraits<FT>::createConverter();
 	}
 
+	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
+	{
+		(void)self;
+		
+		return createMetaExtendType<FT>(flags);
+	}
+
 public:
 	GMetaFieldDataMember(FT OT::* field) : field(field) {
 		static GMetaFieldDataVirtual thisFunctions = {
@@ -192,7 +209,8 @@ public:
 			&virtualCanGet, &virtualCanSet,
 			&virtualGet, &virtualSet,
 			&virtualGetFieldSize, &virtualGetFieldAddress,
-			&virtualCreateConverter
+			&virtualCreateConverter,
+			&virtualGetItemExtendType
 		};
 		this->virtualFunctions = &thisFunctions;
 	}

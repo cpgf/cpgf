@@ -48,6 +48,11 @@ void GMetaFundamentalData::destroyInstance(void * o) const
 	this->virtualFunctions->destroyInstance(this, o);
 }
 
+GMetaExtendType GMetaFundamentalData::getItemExtendType(uint32_t flags) const
+{
+	return this->virtualFunctions->getItemExtendType(this, flags);
+}
+
 
 } // namespace meta_internal
 
@@ -93,6 +98,11 @@ void GMetaFundamental::destroyInstance(void * instance) const
 	this->getData()->destroyInstance(instance);
 }
 
+
+GMetaExtendType GMetaFundamental::getItemExtendType(uint32_t flags) const
+{
+	return this->getData()->getItemExtendType(flags);
+}
 
 const meta_internal::GMetaFundamentalData * GMetaFundamental::getData() const
 {

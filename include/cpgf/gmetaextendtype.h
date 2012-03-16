@@ -18,10 +18,7 @@ namespace cpgf {
 #pragma pack(1)
 struct GMetaExtendTypeData
 {
-	union {
-		uint32_t arraySize;
-		uint32_t createFlags;
-	};
+	uint32_t arraySize;
 };
 #pragma pack(pop)
 
@@ -76,6 +73,8 @@ public:
 
 	GMetaExtendType & operator = (const GMetaExtendType & other) {
 		this->data = other.data;
+
+		return *this;
 	}
 
 public:
@@ -85,6 +84,8 @@ public:
 template <typename T>
 GMetaExtendType createMetaExtendType(uint32_t createFlags)
 {
+	(void)createFlags;
+
 	GMetaExtendType type;
 
 	meta_internal::deduceMetaExtendTypeData<T>(&type.data);
@@ -95,15 +96,7 @@ GMetaExtendType createMetaExtendType(uint32_t createFlags)
 template <typename T>
 GMetaExtendType createMetaExtendType()
 {
-	return createMetaExtendType<T>(0xffffffff);
-}
-
-template <typename T>
-void createMetaExtendType(GMetaExtendType * outExtendType)
-{
-	if(outExtendType != NULL) {
-		*outExtendType = createMetaExtendType<T>(outExtendType->data.createFlags);
-	}
+	return createMetaExtendType<T>(0);
 }
 
 
