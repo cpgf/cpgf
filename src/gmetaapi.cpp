@@ -542,10 +542,29 @@ private:
 
 
 
+class ImplGlobalMetaModule : public ImplExtendObject, public IMetaModule
+{
+public:
+	ImplGlobalMetaModule();
+	~ImplGlobalMetaModule();
+
+	IMPL_OBJECT
+	IMPL_EXTENDOBJECT
+
+protected:
+	virtual IMetaClass * G_API_CC getGlobalMetaClass();
+	
+	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name);
+	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt);
+	virtual IMetaClass * G_API_CC findClassByName(const char * name);
+};
+
+
+
 class ImplMetaModule : public ImplExtendObject, public IMetaModule
 {
 public:
-	ImplMetaModule();
+	ImplMetaModule(GMetaClass * metaClass);
 	~ImplMetaModule();
 
 	IMPL_OBJECT
@@ -557,6 +576,9 @@ protected:
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name);
 	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt);
 	virtual IMetaClass * G_API_CC findClassByName(const char * name);
+
+private:
+	GMetaClass * metaClass;
 };
 
 
@@ -1864,7 +1886,59 @@ void * G_API_CC ImplMetaClass::castToDerived(void * self, uint32_t derivedIndex)
 
 
 
-ImplMetaModule::ImplMetaModule()
+ImplGlobalMetaModule::ImplGlobalMetaModule()
+{
+}
+
+ImplGlobalMetaModule::~ImplGlobalMetaModule()
+{
+}
+
+IMetaClass * G_API_CC ImplGlobalMetaModule::getGlobalMetaClass()
+{
+	ENTER_META_API()
+
+	return new ImplMetaClass(::cpgf::getGlobalMetaClass());
+
+	LEAVE_META_API(return NULL)
+}
+
+IMetaTypedItem * G_API_CC ImplGlobalMetaModule::findTypedItemByName(const char * name)
+{
+	ENTER_META_API()
+
+	const GMetaTypedItem * typedItem = findMetaType(name);
+
+	return static_cast<IMetaTypedItem *>(metaItemToInterface(typedItem));
+
+	LEAVE_META_API(return NULL)
+}
+
+IMetaFundamental * G_API_CC ImplGlobalMetaModule::findFundamental(GVariantType vt)
+{
+	GASSERT_MSG(vtIsFundamental(vt), "Type must be fundamental");
+
+	ENTER_META_API()
+
+	return doCreateItem<ImplMetaFundamental>(meta_internal::findRegisteredMetaFundamental(vt));
+
+	LEAVE_META_API(return NULL)
+}
+
+IMetaClass * G_API_CC ImplGlobalMetaModule::findClassByName(const char * name)
+{
+	ENTER_META_API()
+
+	return doCreateItem<ImplMetaClass>(findMetaClass(name));
+
+	LEAVE_META_API(return NULL)
+}
+
+
+// The implementation is almost same as ImplGlobalMetaModule.
+// May change in the future.
+ImplMetaModule::ImplMetaModule(GMetaClass * metaClass)
+	: metaClass(metaClass)
 {
 }
 
@@ -1876,7 +1950,7 @@ IMetaClass * G_API_CC ImplMetaModule::getGlobalMetaClass()
 {
 	ENTER_META_API()
 
-	return new ImplMetaClass(::cpgf::getGlobalMetaClass());
+	return new ImplMetaClass(this->metaClass);
 
 	LEAVE_META_API(return NULL)
 }
@@ -2022,15 +2096,12 @@ IMetaClass * G_API_CC ImplMetaService::findClassByName(const char * name)
 
 IMetaModule * getMetaModule()
 {
-	static GScopedInterface<ImplMetaModule> module;
+	return new ImplGlobalMetaModule;
+}
 
-	if(!module) {
-		module.reset(new ImplMetaModule);
-	}
-
-	module->addReference();
-
-	return module.get();
+IMetaModule * createMetaModule(GMetaClass * metaClass)
+{
+	return new ImplMetaModule(metaClass);
 }
 
 IMetaService * createMetaService(IMetaModule * primaryModule)

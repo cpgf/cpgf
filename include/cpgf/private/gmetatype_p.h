@@ -50,11 +50,12 @@ const unsigned int mtFlagIsPointer = 1 << 4;
 const unsigned int mtFlagIsPointerToConst = 1 << 5;
 const unsigned int mtFlagIsPointerToVolatile = 1 << 6;
 const unsigned int mtFlagIsPointerToConstVolatile = 1 << 7;
-const unsigned int mtFlagIsFunction = 1 << 8;
-const unsigned int mtFlagIsConstFunction = 1 << 9;
-const unsigned int mtFlagIsVolatileFunction = 1 << 10;
-const unsigned int mtFlagIsConstVolatileFunction = 1 << 11;
-const unsigned int mtFlagBaseIsClass = 1 << 12;
+const unsigned int mtFlagIsArray = 1 << 8;
+const unsigned int mtFlagIsFunction = 1 << 9;
+const unsigned int mtFlagIsConstFunction = 1 << 10;
+const unsigned int mtFlagIsVolatileFunction = 1 << 11;
+const unsigned int mtFlagIsConstVolatileFunction = 1 << 12;
+const unsigned int mtFlagBaseIsClass = 1 << 13;
 
 template <typename T>
 struct GMetaTypeDeduce
@@ -73,6 +74,7 @@ public:
 			| (IsVolatile<typename RemovePointer<NoCV>::Result>::Result ? mtFlagIsPointerToVolatile : 0)
 			| (IsConstVolatile<typename RemovePointer<NoCV>::Result>::Result ? mtFlagIsPointerToConstVolatile : 0)
 			| (IsClass<BaseType>::Result ? mtFlagBaseIsClass : 0)
+			| (IsArray<T>::Result ? mtFlagIsArray : 0)
 			| (IsFunction<T>::Result ? mtFlagIsFunction : 0)
 			| (GFunctionTraits<T>::IsConst ? mtFlagIsConstFunction : 0)
 			| (GFunctionTraits<T>::IsVolatile ? mtFlagIsVolatileFunction : 0)

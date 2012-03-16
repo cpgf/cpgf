@@ -143,6 +143,10 @@ public:
 		return vtIsFundamental(this->getVariantType());
 	}
 
+	bool isArray() const {
+		return this->hasFlag(meta_internal::mtFlagIsArray);
+	}
+
 	bool isFunction() const {
 		return this->hasFlag(meta_internal::mtFlagIsFunction);
 	}
