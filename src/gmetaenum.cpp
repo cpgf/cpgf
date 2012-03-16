@@ -112,6 +112,8 @@ void GMetaEnum::addEnum(const char * key, const GVariant & value)
 
 GMetaExtendType GMetaEnum::getItemExtendType(uint32_t flags) const
 {
+	(void)flags;
+
 	return createMetaExtendType<int>();
 }
 

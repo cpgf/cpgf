@@ -56,26 +56,14 @@ GMAKE_FINAL(GMetaExtendType)
 class GMetaExtendType : GFINAL_BASE(GMetaExtendType)
 {
 public:
-	GMetaExtendType()
-	{
-		this->data.arraySize = 0;
-	}
+	GMetaExtendType();
+	explicit GMetaExtendType(const GMetaExtendTypeData & data);
+	GMetaExtendType(const GMetaExtendType & other);
+	~GMetaExtendType();
 
-	explicit GMetaExtendType(const GMetaExtendTypeData & data)
-		: data(data)
-	{
-	}
-
-	GMetaExtendType(const GMetaExtendType & other)
-		: data(other.data)
-	{
-	}
-
-	GMetaExtendType & operator = (const GMetaExtendType & other) {
-		this->data = other.data;
-
-		return *this;
-	}
+	GMetaExtendType & operator = (GMetaExtendType other);
+	
+	void swap(GMetaExtendType & other);
 
 public:
 	GMetaExtendTypeData data;

@@ -57,6 +57,7 @@ set(SRC_META
 	${SRC_PATH}/gmetacommon.cpp
 	${SRC_PATH}/gmetaconverter.cpp
 	${SRC_PATH}/gmetaenum.cpp
+	${SRC_PATH}/gmetaextendtype.cpp
 	${SRC_PATH}/gmetafield.cpp
 	${SRC_PATH}/gmetafundamental.cpp
 	${SRC_PATH}/gmetamethod.cpp
