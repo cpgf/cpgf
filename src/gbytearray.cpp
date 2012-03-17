@@ -1,8 +1,7 @@
 #include "cpgf/gbytearray.h"
 #include "cpgf/gbytearrayapi.h"
 #include "cpgf/gexception.h"
-
-#include "pinclude/gapiimpl.h"
+#include "cpgf/gapiutil.h"
 
 #include <vector>
 
@@ -260,15 +259,15 @@ void GByteArray::writeBuffer(const void * buffer, size_t length)
 }
 
 
-class ImplByteArray : public ImplExtendObject, public IByteArray
+class ImplByteArray : public IByteArray
 {
 public:
 	ImplByteArray();
     ImplByteArray(GByteArray * byteArray, bool freeByteArray);
     ~ImplByteArray();
 
-    IMPL_OBJECT
-	IMPL_EXTENDOBJECT
+    G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
 
 protected:
     virtual void * G_API_CC getMemory();
@@ -315,14 +314,14 @@ private:
 };
 
 #define ENTER_BYTEARRAY_API() \
-	this->clearError(); \
+	this->ginterface_implExtendObject.clearError(); \
 	try {
 
 #define LEAVE_BYTEARRAY_API(...) \
 	} \
-	catch(const GException & e) { this->handleError(e.getCode(), e.getMessage()); __VA_ARGS__; } \
-	catch(const std::exception & e) { this->handleError(0, e.what()); __VA_ARGS__; } \
-	catch(...) { this->handleError(0, "Unknow exception."); __VA_ARGS__; }
+	catch(const GException & e) { this->ginterface_implExtendObject.handleError(e.getCode(), e.getMessage()); __VA_ARGS__; } \
+	catch(const std::exception & e) { this->ginterface_implExtendObject.handleError(0, e.what()); __VA_ARGS__; } \
+	catch(...) { this->ginterface_implExtendObject.handleError(0, "Unknow exception."); __VA_ARGS__; }
 
 ImplByteArray::ImplByteArray()
 	: byteArray(new GByteArray), freeByteArray(true)

@@ -2,33 +2,33 @@
 #define __GSCRIPTBINDAPIIMPL_H
 
 
+#include "cpgf/gmetaapi.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"
 #include "cpgf/gexception.h"
 
-#include "gapiimpl.h"
 #include "gbindcommon.h"
 
 
 #define ENTER_BINDING_API() \
-	this->clearError(); \
+	this->ginterface_implExtendObject.clearError(); \
 	try {
 
 #define LEAVE_BINDING_API(...) \
 	} \
-	catch(const GException & e) { this->handleError(e.getCode(), e.getMessage()); __VA_ARGS__; }
+	catch(const GException & e) { this->ginterface_implExtendObject.handleError(e.getCode(), e.getMessage()); __VA_ARGS__; }
 
 
 namespace cpgf {
 
 
-class ImplScriptConfig : public ImplObject, public IScriptConfig
+class ImplScriptConfig : public IScriptConfig
 {
 public:
 	ImplScriptConfig();
 	explicit ImplScriptConfig(GScriptConfig config);
 
 protected:
-	IMPL_OBJECT
+	G_INTERFACE_IMPL_OBJECT
 
 	virtual void G_API_CC setAccessStaticMethodViaInstance(gapi_bool set);
 	virtual gapi_bool G_API_CC allowAccessStaticMethodViaInstance();
@@ -47,15 +47,15 @@ private:
 };
 
 
-class ImplScriptFunction : public ImplExtendObject, public IScriptFunction
+class ImplScriptFunction : public IScriptFunction
 {
 public:
 	ImplScriptFunction(GScriptFunction * scriptFunction, bool freeFunction);
 	virtual ~ImplScriptFunction();
 
 protected:
-	IMPL_OBJECT
-	IMPL_EXTENDOBJECT
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
 
 	virtual void G_API_CC invoke(GMetaVarData * outResult, const GMetaVarData * params, uint32_t paramCount);
 	virtual void G_API_CC invokeIndirectly(GMetaVarData * outResult, GMetaVarData const * const * params, uint32_t paramCount);
@@ -66,15 +66,15 @@ private:
 };
 
 
-class ImplScriptObject : public ImplExtendObject, public IScriptObject
+class ImplScriptObject : public IScriptObject
 {
 public:
 	ImplScriptObject(GScriptObject * scriptObject, bool freeObject);
 	virtual ~ImplScriptObject();
 	
 protected:
-	IMPL_OBJECT
-	IMPL_EXTENDOBJECT
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
 
 	virtual IScriptConfig * G_API_CC getConfig();
 	virtual IScriptObject * G_API_CC getOwner();
