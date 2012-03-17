@@ -47,7 +47,6 @@ if(MSVC)
 endif(MSVC)
 
 set(SRC_META
-	${SRC_PATH}/gapi.cpp
 	${SRC_PATH}/gapiutil.cpp
 	${SRC_PATH}/gbytearray.cpp
 	${SRC_PATH}/gexception.cpp
