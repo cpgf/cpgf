@@ -7,6 +7,7 @@
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gclassutil.h"
 #include "cpgf/gmetaextendtype.h"
+#include "cpgf/gapi.h"
 
 #include "cpgf/private/gmetacommon_p.h"
 
@@ -156,8 +157,6 @@ public:
 	virtual void * getAddress(void * instance) const = 0;
 
 	virtual size_t getSize() const = 0;
-	
-	virtual GMetaConverter * createConverter() const = 0;
 
 };
 
@@ -175,12 +174,12 @@ public:
 	virtual size_t getDefaultParamCount() const = 0;
 	virtual bool hasResult() const = 0;
 	virtual GMetaType getResultType() const = 0;
+	virtual GMetaExtendType getResultExtendType(uint32_t flags) const = 0;
 	virtual bool isVariadic() const = 0;
 	virtual bool checkParam(const GVariant & param, size_t paramIndex) const = 0;
 	virtual bool isParamTransferOwnership(size_t paramIndex) const = 0;
 	virtual bool isResultTransferOwnership() const = 0;
 	virtual GVariant execute(void * obj, const GVariant * params, size_t paramCount) const = 0;
-	virtual GMetaConverter * createResultConverter() const = 0;
 
 };
 
@@ -208,24 +207,6 @@ private:
 };
 
 
-class GMetaConverter
-{
-public:
-	virtual ~GMetaConverter() {
-	}
-
-	virtual bool canToCString() = 0;
-	virtual const char * toCString(const void * instance, int * needFree, IMemoryAllocator * allocator) = 0;
-};
-
-class GMetaConverterDefault : public GMetaConverter
-{
-public:
-	virtual bool canToCString();
-	virtual const char * toCString(const void * instance, int * needFree, IMemoryAllocator * allocator);
-};
-
-
 const GMetaTypedItem * findMetaType(const GMetaType & type);
 const GMetaTypedItem * findMetaType(const char * name);
 
@@ -250,15 +231,6 @@ bool metaIsFundamental(int category);
 
 } // namespace cpgf
 
-
-template <typename T>
-struct GMetaConverterTraits
-{
-	static cpgf::GMetaConverter * createConverter()
-	{
-		return NULL;
-	}
-};
 
 
 

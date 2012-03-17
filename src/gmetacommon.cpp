@@ -343,22 +343,6 @@ void GMetaList::clear()
 }
 
 
-bool GMetaConverterDefault::canToCString()
-{
-	return false;
-}
-
-const char * GMetaConverterDefault::toCString(const void * instance, int * needFree, IMemoryAllocator * allocator)
-{
-	(void)instance;
-    (void)allocator;
-
-	*needFree = false;
-
-	return NULL;
-}
-
-
 
 const GMetaTypedItem * findMetaType(const GMetaType & type)
 {

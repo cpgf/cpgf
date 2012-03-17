@@ -4,6 +4,7 @@
 #include "cpgf/gapi.h"
 #include "cpgf/gvariant.h"
 #include "cpgf/gmetatype.h"
+#include "cpgf/gmetaextendtype.h"
 #include "cpgf/gstdint.h"
 
 
@@ -18,6 +19,7 @@ struct IMetaItem : public IExtendObject
 	virtual const char * G_API_CC getQualifiedName() = 0;
 	virtual IMetaItem * G_API_CC getOwnerItem() = 0;
 	virtual void G_API_CC getItemType(GMetaTypeData * outType) = 0;
+	virtual void G_API_CC getItemExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags) = 0;
 	virtual uint32_t G_API_CC getCategory() = 0;
 	virtual IMetaAnnotation * G_API_CC getAnnotation(const char * name) = 0;
 	virtual uint32_t G_API_CC getAnnotationCount() = 0;
@@ -51,12 +53,6 @@ struct IMetaList : public IExtendObject
 	virtual void G_API_CC clear() = 0;
 };
 
-struct IMetaConverter : public IExtendObject
-{
-	virtual gapi_bool G_API_CC canToCString() = 0;
-	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree, IMemoryAllocator * allocator) = 0;
-};
-
 struct IMetaAccessible : public IMetaItem
 {
 	virtual gapi_bool G_API_CC canGet() = 0;
@@ -65,7 +61,6 @@ struct IMetaAccessible : public IMetaItem
 	virtual void G_API_CC set(void * instance, const GVariantData * value) = 0;
 	virtual void * G_API_CC getAddress(void * instance) = 0;
 	virtual uint32_t G_API_CC getSize() = 0;
-	virtual IMetaConverter * G_API_CC createConverter() = 0;
 };
 
 struct IMetaField : public IMetaAccessible
@@ -83,12 +78,12 @@ struct IMetaCallable : public IMetaItem
 	virtual uint32_t G_API_CC getDefaultParamCount() = 0;
 	virtual gapi_bool G_API_CC hasResult() = 0;
 	virtual void G_API_CC getResultType(GMetaTypeData * outType) = 0;
+	virtual void G_API_CC getResultExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags) = 0;
 	virtual gapi_bool G_API_CC isVariadic() = 0;
 	virtual gapi_bool G_API_CC checkParam(const GVariantData * param, uint32_t paramIndex) = 0;
 	virtual gapi_bool G_API_CC isParamTransferOwnership(uint32_t paramIndex) = 0;
 	virtual gapi_bool G_API_CC isResultTransferOwnership() = 0;
 	virtual void G_API_CC execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount) = 0;
-	virtual IMetaConverter * G_API_CC createResultConverter() = 0;
 };
 
 struct IMetaMethod : public IMetaCallable

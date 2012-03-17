@@ -122,6 +122,7 @@ public:
 	virtual GMetaType getParamType(size_t index) const;
 	virtual bool hasResult() const;
 	virtual GMetaType getResultType() const;
+	virtual GMetaExtendType getResultExtendType(uint32_t flags) const;
 	virtual bool isVariadic() const;
 
 	virtual bool checkParam(const GVariant & param, size_t paramIndex) const;
@@ -129,8 +130,6 @@ public:
 	virtual bool isParamTransferOwnership(size_t paramIndex) const;
 	virtual bool isResultTransferOwnership() const;
 	
-	virtual GMetaConverter * createResultConverter() const;
-
 	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
 
 	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;

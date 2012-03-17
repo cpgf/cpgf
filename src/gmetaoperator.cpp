@@ -48,6 +48,11 @@ GMetaType GMetaOperatorDataBase::getResultType() const
 	return this->virtualFunctions->getResultType(this);
 }
 
+GMetaExtendType GMetaOperatorDataBase::getResultExtendType(uint32_t flags) const
+{
+	return this->virtualFunctions->getResultExtendType(this, flags);
+}
+
 bool GMetaOperatorDataBase::isVariadic() const
 {
 	return this->virtualFunctions->isVariadic(this);
@@ -71,11 +76,6 @@ bool GMetaOperatorDataBase::isParamTransferOwnership(size_t paramIndex) const
 bool GMetaOperatorDataBase::isResultTransferOwnership() const
 {
 	return this->virtualFunctions->isResultTransferOwnership(this);
-}
-
-GMetaConverter * GMetaOperatorDataBase::createResultConverter() const
-{
-	return this->virtualFunctions->createResultConverter(this);
 }
 
 GVariant GMetaOperatorDataBase::invoke(const GVariant & p0) const
@@ -205,6 +205,11 @@ GMetaType GMetaOperator::getResultType() const
 	return this->baseData->getResultType();
 }
 
+GMetaExtendType GMetaOperator::getResultExtendType(uint32_t flags) const
+{
+	return this->baseData->getResultExtendType(flags);
+}
+
 bool GMetaOperator::isVariadic() const
 {
 	return this->baseData->isVariadic();
@@ -223,11 +228,6 @@ bool GMetaOperator::isParamTransferOwnership(size_t paramIndex) const
 bool GMetaOperator::isResultTransferOwnership() const
 {
 	return this->baseData->isResultTransferOwnership();
-}
-
-GMetaConverter * GMetaOperator::createResultConverter() const
-{
-	return this->baseData->createResultConverter();
 }
 
 void GMetaOperator::addDefaultParam(const GVariant & v)

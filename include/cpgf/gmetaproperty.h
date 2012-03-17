@@ -32,8 +32,6 @@ public:
 
 	virtual const GMetaType & getItemType() const;
 
-	virtual GMetaConverter * createConverter() const;
-
 	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
 
 private:

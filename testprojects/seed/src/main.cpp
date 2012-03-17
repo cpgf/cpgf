@@ -3,8 +3,10 @@
 //#include <conio.h>
 
 #include <iostream>
+#include <string>
 
 #include "cpgf/gmetaextendtype.h"
+#include "cpgf/metatraits/gmetaconverter_string.h"
 
 #include "unittestbase.h"
 
@@ -15,13 +17,20 @@ void testSer();
 
 void testBoost();
 
+namespace ttt {
+
 template <typename T>
 void test(T &)
 {
 	GMetaExtendType type;
-	type = createMetaExtendType<T>();
-	cout << "Array size: " << type.data.arraySize << endl;
+	type = createMetaExtendType<T>(GExtendTypeCreateFlag_Converter);
+	cout << "Array size: " << type.getArraySize() << endl;
+	cout << "Converter: " << type.getConverter() << endl;
 }
+
+}
+
+using namespace ttt;
 
 int main(int argc, char * argv[])
 {
@@ -33,6 +42,9 @@ int main(int argc, char * argv[])
 
 	int yyy[5];
 	test(yyy);
+
+	string s;
+	test(s);
 
 //	testBoost();
 

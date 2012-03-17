@@ -43,11 +43,6 @@ void * GMetaPropertyDataBase::getPropertyAddress(void * instance) const
 	return this->virtualFunctions->getPropertyAddress(this, instance);
 }
 
-GMetaConverter * GMetaPropertyDataBase::createConverter() const
-{
-	return this->virtualFunctions->createConverter(this);
-}
-
 GMetaExtendType GMetaPropertyDataBase::getItemExtendType(uint32_t flags) const
 {
 	return this->virtualFunctions->getItemExtendType(this, flags);
@@ -98,11 +93,6 @@ size_t GMetaProperty::getSize() const
 const GMetaType & GMetaProperty::getItemType() const
 {
 	return super::getItemType();
-}
-
-GMetaConverter * GMetaProperty::createConverter() const
-{
-	return this->baseData->createConverter();
 }
 
 GMetaExtendType GMetaProperty::getItemExtendType(uint32_t flags) const

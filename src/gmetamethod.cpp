@@ -58,6 +58,11 @@ GMetaType GMetaMethodDataBase::getResultType() const
 	return this->virtualFunctions->getResultType(this);
 }
 
+GMetaExtendType GMetaMethodDataBase::getResultExtendType(uint32_t flags) const
+{
+	return this->virtualFunctions->getResultExtendType(this, flags);
+}
+
 bool GMetaMethodDataBase::isVariadic() const
 {
 	return this->virtualFunctions->isVariadic(this);
@@ -86,11 +91,6 @@ bool GMetaMethodDataBase::isParamTransferOwnership(size_t paramIndex) const
 bool GMetaMethodDataBase::isResultTransferOwnership() const
 {
 	return this->virtualFunctions->isResultTransferOwnership(this);
-}
-
-GMetaConverter * GMetaMethodDataBase::createResultConverter() const
-{
-	return this->virtualFunctions->createResultConverter(this);
 }
 
 GMetaExtendType GMetaMethodDataBase::getItemExtendType(uint32_t flags) const
@@ -163,6 +163,11 @@ GMetaType GMetaMethod::getResultType() const
 	return this->baseData->getResultType();
 }
 
+GMetaExtendType GMetaMethod::getResultExtendType(uint32_t flags) const
+{
+	return this->baseData->getResultExtendType(flags);
+}
+
 bool GMetaMethod::isVariadic() const
 {
 	return this->baseData->isVariadic();
@@ -202,11 +207,6 @@ bool GMetaMethod::isParamTransferOwnership(size_t paramIndex) const
 bool GMetaMethod::isResultTransferOwnership() const
 {
 	return this->baseData->isResultTransferOwnership();
-}
-
-GMetaConverter * GMetaMethod::createResultConverter() const
-{
-	return this->baseData->createResultConverter();
 }
 
 GMetaExtendType GMetaMethod::getItemExtendType(uint32_t flags) const
@@ -254,6 +254,13 @@ GMetaType GMetaConstructor::getResultType() const
 	return type;
 }
 
+GMetaExtendType GMetaConstructor::getResultExtendType(uint32_t flags) const
+{
+	GASSERT_MSG(metaIsClass(this->getOwnerItem()->getCategory()), "Constructor must be owned by class.");
+
+	return static_cast<const GMetaClass *>(this->getOwnerItem())->getItemExtendType(flags);
+}
+
 bool GMetaConstructor::isVariadic() const
 {
 	return this->baseData->isVariadic();
@@ -291,11 +298,6 @@ bool GMetaConstructor::isParamTransferOwnership(size_t paramIndex) const
 bool GMetaConstructor::isResultTransferOwnership() const
 {
 	return this->baseData->isResultTransferOwnership();
-}
-
-GMetaConverter * GMetaConstructor::createResultConverter() const
-{
-	return NULL;
 }
 
 GMetaExtendType GMetaConstructor::getItemExtendType(uint32_t flags) const

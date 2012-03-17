@@ -4,9 +4,32 @@
 namespace cpgf {
 
 
+namespace {
+	void retainInterface(IObject * i)
+	{
+		if(i != NULL) {
+			i->addReference();
+		}
+	}
+
+	void releaseInterface(IObject * i)
+	{
+		if(i != NULL) {
+			i->releaseReference();
+		}
+	}
+	
+	void initExtendTypeData(GMetaExtendTypeData * data)
+	{
+		data->arraySize = 0;
+		data->converter = NULL;
+	}
+} // unnamed namespace
+
+
 GMetaExtendType::GMetaExtendType()
 {
-	this->data.arraySize = 0;
+	initExtendTypeData(&this->data);
 }
 
 GMetaExtendType::GMetaExtendType(const GMetaExtendTypeData & data)
@@ -17,9 +40,12 @@ GMetaExtendType::GMetaExtendType(const GMetaExtendTypeData & data)
 GMetaExtendType::GMetaExtendType(const GMetaExtendType & other)
 	: data(other.data)
 {
+	this->doRetainInterfaces();
 }
 
-GMetaExtendType::~GMetaExtendType() {
+GMetaExtendType::~GMetaExtendType()
+{
+	this->doReleaseInterfaces();
 }
 
 GMetaExtendType & GMetaExtendType::operator = (GMetaExtendType other)
@@ -29,6 +55,16 @@ GMetaExtendType & GMetaExtendType::operator = (GMetaExtendType other)
 	return *this;
 }
 
+void GMetaExtendType::doRetainInterfaces()
+{
+	retainInterface(this->data.converter);
+}
+
+void GMetaExtendType::doReleaseInterfaces()
+{
+	releaseInterface(this->data.converter);
+}
+
 void GMetaExtendType::swap(GMetaExtendType & other)
 {
 	using std::swap;
@@ -36,6 +72,30 @@ void GMetaExtendType::swap(GMetaExtendType & other)
 	swap(this->data, other.data);
 }
 
+GMetaExtendTypeData GMetaExtendType::takeData()
+{
+	GMetaExtendTypeData retsultData = this->data;
+	
+	initExtendTypeData(&this->data);
+
+	return retsultData;
+}
+
+uint32_t GMetaExtendType::getArraySize() const
+{
+	return this->data.arraySize;
+}
+
+IMetaConverter * GMetaExtendType::getConverter() const
+{
+	if(this->data.converter != NULL) {
+		this->data.converter->addReference();
+		return this->data.converter;
+	}
+	else {
+		return NULL;
+	}
+}
 
 
 } // namespace cpgf

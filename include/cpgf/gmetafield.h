@@ -36,8 +36,6 @@ public:
 
 	virtual size_t getSize() const;
 
-	virtual GMetaConverter * createConverter() const;
-
 	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
 
 private:

@@ -253,11 +253,11 @@ struct GMetaOperatorDataVirtual
 	bool (*isParamSelf)(const void * self, size_t paramIndex);
 	GMetaType (*getParamType)(const void * self, size_t index);
 	GMetaType (*getResultType)(const void * self);
+	GMetaExtendType (*getResultExtendType)(const void * self, uint32_t flags);
 	bool (*isVariadic)(const void * self);
 	bool (*checkParam)(const void * self, const GVariant & param, size_t paramIndex);
 	bool (*isParamTransferOwnership)(const void * self, size_t paramIndex);
 	bool (*isResultTransferOwnership)(const void * self);
-	GMetaConverter * (*createResultConverter)(const void * self);
 	GMetaType (*createOperatorMetaType)(const void * self);
 	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
 };
@@ -275,6 +275,7 @@ public:
 
 	bool hasResult() const;
 	GMetaType getResultType() const;
+	GMetaExtendType getResultExtendType(uint32_t flags) const;
 
 	bool isVariadic() const;
 
@@ -291,7 +292,6 @@ public:
 	bool isParamTransferOwnership(size_t paramIndex) const;
 	bool isResultTransferOwnership() const;
 
-	GMetaConverter * createResultConverter() const;
 	GMetaExtendType getItemExtendType(uint32_t flags) const;
 	
 	GMetaDefaultParamList * getDefaultParamList() const;
@@ -377,6 +377,12 @@ private:
 		return createMetaType<typename FT::ResultType>();
 	}
 
+	static GMetaExtendType virtualGetResultExtendType(const void * self, uint32_t flags) {
+		(void)self;
+
+		return createMetaExtendType<typename FT::ResultType>(flags);
+	}
+	
 	static bool virtualIsVariadic(const void * self) {
 		(void)self;
 
@@ -436,12 +442,6 @@ private:
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	static GMetaConverter * virtualCreateResultConverter(const void * self) {
-		(void)self;
-
-		return GMetaConverterTraits<typename FT::ResultType>::createConverter();
-	}
-
 	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
 	{
 		(void)self;
@@ -465,11 +465,11 @@ public:
 			&virtualIsParamSelf,
 			&virtualGetParamType,
 			&virtualGetResultType,
+			&virtualGetResultExtendType,
 			&virtualIsVariadic,
 			&virtualCheckParam,
 			&virtualIsParamTransferOwnership,
 			&virtualIsResultTransferOwnership,
-			&virtualCreateResultConverter,
 			&virtualCreateOperatorMetaType,
 			&virtualGetItemExtendType
 		};
@@ -540,6 +540,12 @@ private:
 		return createMetaType<typename FT::ResultType>();
 	}
 
+	static GMetaExtendType virtualGetResultExtendType(const void * self, uint32_t flags) {
+		(void)self;
+
+		return createMetaExtendType<typename FT::ResultType>(flags);
+	}
+	
 	static bool virtualIsVariadic(const void * self) {
 		(void)self;
 
@@ -595,12 +601,6 @@ private:
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	static GMetaConverter * virtualCreateResultConverter(const void * self) {
-		(void)self;
-
-		return GMetaConverterTraits<typename FT::ResultType>::createConverter();
-	}
-
 	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
 	{
 		(void)self;
@@ -624,11 +624,11 @@ public:
 			&virtualIsParamSelf,
 			&virtualGetParamType,
 			&virtualGetResultType,
+			&virtualGetResultExtendType,
 			&virtualIsVariadic,
 			&virtualCheckParam,
 			&virtualIsParamTransferOwnership,
 			&virtualIsResultTransferOwnership,
-			&virtualCreateResultConverter,
 			&virtualCreateOperatorMetaType,
 			&virtualGetItemExtendType
 		};
@@ -695,6 +695,12 @@ private:
 		return createMetaType<typename FT::ResultType>();
 	}
 
+	static GMetaExtendType virtualGetResultExtendType(const void * self, uint32_t flags) {
+		(void)self;
+
+		return createMetaExtendType<typename FT::ResultType>(flags);
+	}
+	
 	static bool virtualIsVariadic(const void * self) {
 		(void)self;
 
@@ -787,12 +793,6 @@ private:
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	static GMetaConverter * virtualCreateResultConverter(const void * self) {
-		(void)self;
-
-		return GMetaConverterTraits<typename FT::ResultType>::createConverter();
-	}
-
 	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
 	{
 		(void)self;
@@ -816,11 +816,11 @@ public:
 			&virtualIsParamSelf,
 			&virtualGetParamType,
 			&virtualGetResultType,
+			&virtualGetResultExtendType,
 			&virtualIsVariadic,
 			&virtualCheckParam,
 			&virtualIsParamTransferOwnership,
 			&virtualIsResultTransferOwnership,
-			&virtualCreateResultConverter,
 			&virtualCreateOperatorMetaType,
 			&virtualGetItemExtendType
 		};

@@ -41,11 +41,6 @@ void * GMetaFieldDataBase::getFieldAddress(void * instance) const
 	return this->virtualFunctions->getFieldAddress(this, instance);
 }
 
-GMetaConverter * GMetaFieldDataBase::createConverter() const
-{
-	return this->virtualFunctions->createConverter(this);
-}
-
 GMetaExtendType GMetaFieldDataBase::getItemExtendType(uint32_t flags) const
 {
 	return this->virtualFunctions->getItemExtendType(this, flags);
@@ -91,11 +86,6 @@ void * GMetaField::getAddress(void * instance) const
 size_t GMetaField::getSize() const
 {
 	return this->baseData->getFieldSize();
-}
-
-GMetaConverter * GMetaField::createConverter() const
-{
-	return this->baseData->createConverter();
 }
 
 GMetaExtendType GMetaField::getItemExtendType(uint32_t flags) const

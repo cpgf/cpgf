@@ -8,7 +8,6 @@
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gmetatype.h"
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/gmetaconverter.h"
 #include "cpgf/gcallback.h"
 #include "cpgf/gexception.h"
 

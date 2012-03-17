@@ -19,7 +19,6 @@ struct GMetaFieldDataVirtual
 	void (*set)(const void * self, void * instance, const GVariant & v);
 	size_t (*getFieldSize)(const void * self);
 	void * (*getFieldAddress)(const void * self, void * instance);
-	GMetaConverter * (*createConverter)(const void * self);
 	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
 };
 
@@ -37,7 +36,6 @@ public:
 	size_t getFieldSize() const;
 	void * getFieldAddress(void * instance) const;
 
-	GMetaConverter * createConverter() const;
 	GMetaExtendType getItemExtendType(uint32_t flags) const;
 
 protected:
@@ -84,12 +82,6 @@ private:
 		return (void *)(static_cast<const GMetaFieldDataGlobal *>(self)->field);
 	}
 	
-	static GMetaConverter * virtualCreateConverter(const void * self) {
-		(void)self;
-
-		return GMetaConverterTraits<FT>::createConverter();
-	}
-	
 	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
 	{
 		(void)self;
@@ -107,7 +99,6 @@ public:
 			&virtualSet,
 			&virtualGetFieldSize,
 			&virtualGetFieldAddress,
-			&virtualCreateConverter,
 			&virtualGetItemExtendType
 		};
 		this->virtualFunctions = &thisFunctions;
@@ -189,12 +180,6 @@ private:
 		return &(static_cast<OT *>(instance)->*(static_cast<const GMetaFieldDataMember *>(self)->field));
 	}
 	
-	static GMetaConverter * virtualCreateConverter(const void * self) {
-		(void)self;
-
-		return GMetaConverterTraits<FT>::createConverter();
-	}
-
 	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
 	{
 		(void)self;
@@ -209,7 +194,6 @@ public:
 			&virtualCanGet, &virtualCanSet,
 			&virtualGet, &virtualSet,
 			&virtualGetFieldSize, &virtualGetFieldAddress,
-			&virtualCreateConverter,
 			&virtualGetItemExtendType
 		};
 		this->virtualFunctions = &thisFunctions;

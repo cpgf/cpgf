@@ -778,7 +778,7 @@ Handle<Value> accessibleGet(Local<String> prop, const AccessorInfo & info)
 	Handle<Value> v;
 	v = variantToV8(userData->getParam(), result, type, false, false);
 	if(v.IsEmpty()) {
-		GScopedInterface<IMetaConverter> converter(userData->accessible->createConverter());
+		GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(userData->accessible, GExtendTypeCreateFlag_Converter).getConverter());
 		v = converterToV8(userData->getParam(), result, converter.get());
 	}
 	if(v.IsEmpty()) {
@@ -852,7 +852,7 @@ Handle<Value> methodResultToV8(GScriptBindingParam * param, IMetaCallable * call
 		Handle<Value> v;
 		v = variantToV8(param, value, GMetaType(typeData), !! callable->isResultTransferOwnership(), false);
 		if(v.IsEmpty()) {
-			GScopedInterface<IMetaConverter> converter(callable->createResultConverter());
+			GScopedInterface<IMetaConverter> converter(metaGetResultExtendType(callable, GExtendTypeCreateFlag_Converter).getConverter());
 			v = converterToV8(param, value, converter.get());
 		}
 		if(v.IsEmpty()) {
@@ -1073,7 +1073,7 @@ Handle<Value> getNamedMember(GClassUserData * userData, const char * name)
 					GVariant result = getAccessibleValueAndType(instance, data.get(), &type, userData->cv == opcvConst);
 					Handle<Value> v = variantToV8(userData->getParam(), result, type, false, false);
 					if(v.IsEmpty()) {
-						GScopedInterface<IMetaConverter> converter(data->createConverter());
+						GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(data, GExtendTypeCreateFlag_Converter).getConverter());
 						v = converterToV8(userData->getParam(), result, converter.get());
 					}
 					if(v.IsEmpty()) {

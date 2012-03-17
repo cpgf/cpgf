@@ -6,7 +6,6 @@
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gmetatype.h"
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/gmetaconverter.h"
 #include "cpgf/gpp.h"
 #include "cpgf/gcallback.h"
 #include "cpgf/gexception.h"
@@ -35,13 +34,13 @@ struct GMetaMethodDataVirtual
 	bool (*hasResult)(const void * self);
 	GMetaType (*getParamType)(const void * self, size_t index);
 	GMetaType (*getResultType)(const void * self);
+	GMetaExtendType (*getResultExtendType)(const void * self, uint32_t flags);
 	bool (*isVariadic)(const void * self);
 	bool (*isExplicitThis)(const void * self);
 	GVariant (*invoke)(const void * self, void * instance, GVariant const * const * params, size_t paramCount);
 	bool (*checkParam)(const void * self, const GVariant & param, size_t paramIndex);
 	bool (*isParamTransferOwnership)(const void * self, size_t paramIndex);
 	bool (*isResultTransferOwnership)(const void * self);
-	GMetaConverter * (*createResultConverter)(const void * self);
 	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
 };
 
@@ -54,6 +53,7 @@ public:
 	bool hasResult() const;
 	GMetaType getParamType(size_t index) const;
 	GMetaType getResultType() const;
+	GMetaExtendType getResultExtendType(uint32_t flags) const;
 
 	bool isVariadic() const;
 	bool isExplicitThis() const;
@@ -65,7 +65,6 @@ public:
 	bool isParamTransferOwnership(size_t paramIndex) const;
 	bool isResultTransferOwnership() const;
 
-	GMetaConverter * createResultConverter() const;
 	GMetaExtendType getItemExtendType(uint32_t flags) const;
 
 	GMetaDefaultParamList * getDefaultParamList() const;
@@ -122,6 +121,12 @@ private:
 		return createMetaType<typename CallbackT::TraitsType::ResultType>();
 	}
 
+	static GMetaExtendType virtualGetResultExtendType(const void * self, uint32_t flags) {
+		(void)self;
+
+		return createMetaExtendType<typename CallbackT::TraitsType::ResultType>(flags);
+	}
+	
 	static bool virtualIsVariadic(const void * self) {
 		(void)self;
 
@@ -198,12 +203,6 @@ private:
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	static GMetaConverter * virtualCreateResultConverter(const void * self) {
-		(void)self;
-
-		return GMetaConverterTraits<typename CallbackT::TraitsType::ResultType>::createConverter();
-	}
-
 	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
 	{
 		(void)self;
@@ -219,13 +218,13 @@ public:
 			&virtualHasResult,
 			&virtualGetParamType,
 			&virtualGetResultType,
+			&virtualGetResultExtendType,
 			&virtualIsVariadic,
 			&virtualIsExplicitThis,
 			&virtualInvoke,
 			&virtualCheckParam,
 			&virtualIsParamTransferOwnership,
 			&virtualIsResultTransferOwnership,
-			&virtualCreateResultConverter,
 			&virtualGetItemExtendType
 		};
 

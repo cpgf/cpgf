@@ -58,6 +58,7 @@ set(SRC_META
 	${SRC_UNITTEST_FRAMEWORK}
 
 	${SRC_PATH}/gapi.cpp
+	${SRC_PATH}/gapiutil.cpp
 	${SRC_PATH}/gbytearray.cpp
 	${SRC_PATH}/gexception.cpp
 	${SRC_PATH}/gmetaannotation.cpp
@@ -65,7 +66,6 @@ set(SRC_META
 	${SRC_PATH}/gmetaclass.cpp
 	${SRC_PATH}/gmetaclasstraveller.cpp
 	${SRC_PATH}/gmetacommon.cpp
-	${SRC_PATH}/gmetaconverter.cpp
 	${SRC_PATH}/gmetaenum.cpp
 	${SRC_PATH}/gmetaextendtype.cpp
 	${SRC_PATH}/gmetafield.cpp

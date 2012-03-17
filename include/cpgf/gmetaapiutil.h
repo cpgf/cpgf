@@ -19,7 +19,6 @@ void metaCheckError(Meta & meta)
 	}
 }
 
-
 template <typename Meta>
 GMetaType metaGetItemType(const Meta & meta)
 {
@@ -30,6 +29,46 @@ GMetaType metaGetItemType(const Meta & meta)
 	metaCheckError(meta);
 
 	return GMetaType(typeData);
+}
+
+template <typename Meta>
+GMetaExtendType metaGetItemExtendType(const Meta & meta, uint32_t flags)
+{
+	GMetaExtendTypeData typeData;
+
+	const_cast<Meta &>(meta)->getItemExtendType(&typeData, flags);
+
+	GMetaExtendType type(typeData);
+	
+	metaCheckError(meta);
+
+	return type;
+}
+
+template <typename Meta>
+GMetaType metaGetResultType(const Meta & meta)
+{
+	GMetaTypeData typeData;
+
+	const_cast<Meta &>(meta)->getResultType(&typeData);
+	
+	metaCheckError(meta);
+
+	return GMetaType(typeData);
+}
+
+template <typename Meta>
+GMetaExtendType metaGetResultExtendType(const Meta & meta, uint32_t flags)
+{
+	GMetaExtendTypeData typeData;
+
+	const_cast<Meta &>(meta)->getResultExtendType(&typeData, flags);
+
+	GMetaExtendType type(typeData);
+	
+	metaCheckError(meta);
+
+	return type;
 }
 
 template <typename Meta>

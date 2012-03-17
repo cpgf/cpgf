@@ -848,7 +848,7 @@ bool doPushInvokeResult(lua_State * L, GScriptBindingParam * param, IMetaCallabl
 		GVariant value = GVariant(result->resultData);
 		bool success = variantToLua(L, param, value, GMetaType(typeData), !! callable->isResultTransferOwnership(), false);
 		if(!success) {
-			GScopedInterface<IMetaConverter> converter(callable->createResultConverter());
+			GScopedInterface<IMetaConverter> converter(metaGetResultExtendType(callable, GExtendTypeCreateFlag_Converter).getConverter());
 			success = converterToLua(L, param, value, converter.get());
 		}
 		if(!success) {
@@ -1008,7 +1008,7 @@ bool doIndexMemberData(lua_State * L, GScriptBindingParam * param, IMetaAccessib
 
 	bool success = variantToLua(L, param, value, type, false, false);
 	if(!success) {
-		GScopedInterface<IMetaConverter> converter(data->createConverter());
+		GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(data, GExtendTypeCreateFlag_Converter).getConverter());
 		success = converterToLua(L, param, value, converter.get());
 	}
 	if(!success) {

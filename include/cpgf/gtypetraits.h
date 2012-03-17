@@ -187,6 +187,23 @@ template <typename T, unsigned int N> struct IsArray <T const volatile [N]> { G_
 #endif
 
 
+template <typename T, typename Enable = void>
+struct ArraySize
+{
+	enum { Result = 0 };
+};
+
+template <typename T>
+struct ArraySize <T, typename GEnableIfResult<IsArray<T> >::Result>
+{
+private:
+	static T arrayData;
+
+public:
+	enum { Result = (sizeof(arrayData) / sizeof(arrayData[0])) };
+};
+
+
 template <typename T>
 struct AddReference
 {

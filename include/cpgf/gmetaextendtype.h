@@ -6,6 +6,7 @@
 #include "cpgf/gassert.h"
 #include "cpgf/gclassutil.h"
 
+#include "cpgf/metatraits/gmetaconverter.h"
 
 #include <typeinfo>
 
@@ -14,37 +15,32 @@
 
 namespace cpgf {
 
+const uint32_t GExtendTypeCreateFlag_Converter = 1 << 0;
+
 #pragma pack(push, 1)
 #pragma pack(1)
 struct GMetaExtendTypeData
 {
 	uint32_t arraySize;
+	IMetaConverter * converter;
 };
 #pragma pack(pop)
 
 
 namespace meta_internal {
 
-template <typename T, typename Enable = void>
-struct ArraySize
-{
-	enum { Result = 0 };
-};
-
 template <typename T>
-struct ArraySize <T, typename GEnableIfResult<IsArray<T> >::Result>
-{
-private:
-	static T arrayData;
-
-public:
-	enum { Result = (sizeof(arrayData) / sizeof(arrayData[0])) };
-};
-
-template <typename T>
-void deduceMetaExtendTypeData(GMetaExtendTypeData * data)
+void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags)
 {
 	data->arraySize = ArraySize<T>::Result;
+	
+	if((createFlags & GExtendTypeCreateFlag_Converter) != 0) {
+//		data->converter = GMetaConverterTraits<T>::createConverter();
+		data->converter = ::metaTraitsCreateConverter((typename RemoveReference<T>::Result *)0);
+	}
+	else {
+		data->converter = NULL;
+	}
 }
 
 
@@ -65,20 +61,27 @@ public:
 	
 	void swap(GMetaExtendType & other);
 
-public:
+	uint32_t getArraySize() const;
+	IMetaConverter * getConverter() const;
+	
+	GMetaExtendTypeData takeData();
+
+private:
+	void doRetainInterfaces();
+	void doReleaseInterfaces();
+
+private:
 	GMetaExtendTypeData data;
 };
 
 template <typename T>
 GMetaExtendType createMetaExtendType(uint32_t createFlags)
 {
-	(void)createFlags;
+	GMetaExtendTypeData typeData;
 
-	GMetaExtendType type;
+	meta_internal::deduceMetaExtendTypeData<T>(&typeData, createFlags);
 
-	meta_internal::deduceMetaExtendTypeData<T>(&type.data);
-
-	return type;
+	return GMetaExtendType(typeData);
 }
 
 template <typename T>

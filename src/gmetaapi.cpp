@@ -9,9 +9,9 @@
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gassert.h"
 #include "cpgf/gexception.h"
+#include "cpgf/gapiutil.h"
 
 #include "pinclude/gmetatypereg.h"
-#include "pinclude/gapiimpl.h"
 
 #include <string>
 
@@ -22,12 +22,12 @@
 
 
 #define ENTER_META_API() \
-	this->clearError(); \
+	this->ginterface_implExtendObject.clearError(); \
 	try {
 
 #define LEAVE_META_API(...) \
 	} \
-	catch(const GException & e) { this->handleError(e.getCode(), e.getMessage()); __VA_ARGS__; }
+	catch(const GException & e) { this->ginterface_implExtendObject.handleError(e.getCode(), e.getMessage()); __VA_ARGS__; }
 	
 
 #define IMPL_ITEM \
@@ -36,6 +36,7 @@ protected: \
 	virtual const char * G_API_CC getQualifiedName() { return this->doGetQualifiedName(); } \
 	virtual IMetaItem * G_API_CC getOwnerItem() { return this->doGetOwnerItem(); } \
 	virtual void G_API_CC getItemType(GMetaTypeData * outType) { this->doGetItemType(outType); } \
+	virtual void G_API_CC getItemExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags) { this->doGetItemExtendType(outExtendType, flags); } \
 	virtual uint32_t G_API_CC getCategory() { return this->doGetCategory(); } \
 	virtual IMetaAnnotation * G_API_CC getAnnotation(const char * name) { return this->doGetAnnotation(name); } \
 	virtual uint32_t G_API_CC getAnnotationCount() { return this->doGetAnnotationCount(); } \
@@ -45,8 +46,8 @@ protected: \
 	const GMetaItem * getItem() const {	return this->doGetItem(); }
 
 #define IMPL_ALL \
-	IMPL_OBJECT \
-	IMPL_EXTENDOBJECT \
+	G_INTERFACE_IMPL_OBJECT_DERIVED \
+	G_INTERFACE_IMPL_EXTENDOBJECT_DERIVED \
 	IMPL_ITEM
 
 #define IMPL_TYPEDITEM \
@@ -67,11 +68,11 @@ protected: \
 	virtual uint32_t G_API_CC getDefaultParamCount() { return this->doGetDefaultParamCount(); } \
 	virtual gapi_bool G_API_CC hasResult() { return this->doHasResult(); } \
 	virtual void G_API_CC getResultType(GMetaTypeData * outType) { this->doGetResultType(outType); } \
+	virtual void G_API_CC getResultExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags) { this->doGetResultExtendType(outExtendType, flags); } \
 	virtual gapi_bool G_API_CC isVariadic() { return this->doIsVariadic(); } \
 	virtual gapi_bool G_API_CC checkParam(const GVariantData * param, uint32_t paramIndex) { return this->doCheckParam(param, paramIndex); } \
 	virtual gapi_bool G_API_CC isParamTransferOwnership(uint32_t paramIndex) { return this->doIsParamTransferOwnership(paramIndex); } \
-	virtual gapi_bool G_API_CC isResultTransferOwnership() { return this->doIsResultTransferOwnership(); } \
-	virtual IMetaConverter * G_API_CC createResultConverter() { return this->doCreateResultConverter(); }
+	virtual gapi_bool G_API_CC isResultTransferOwnership() { return this->doIsResultTransferOwnership(); }
 
 
 #define IMPL_ACCESSIBLE \
@@ -81,14 +82,16 @@ protected: \
 	virtual void G_API_CC get(GVariantData * outResult, void * instance) { this->doGet(outResult, instance); } \
 	virtual void G_API_CC set(void * instance, const GVariantData * value) { this->doSet(instance, value); } \
 	virtual void * G_API_CC getAddress(void * instance) { return this->doGetAddress(instance); } \
-	virtual uint32_t G_API_CC getSize() { return this->doGetSize(); } \
-	virtual IMetaConverter * G_API_CC createConverter() { return this->doCreateConverter(); }
+	virtual uint32_t G_API_CC getSize() { return this->doGetSize(); }
 
 namespace cpgf {
 
 
-class ImplMetaItem : public ImplExtendObject
+class ImplMetaItem
 {
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
+
 public:
 	ImplMetaItem(const GMetaItem * item);
 
@@ -102,6 +105,7 @@ protected:
 	const char * doGetQualifiedName();
 	IMetaItem * doGetOwnerItem();
 	void doGetItemType(GMetaTypeData * outType);
+	void doGetItemExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags);
 	uint32_t doGetCategory();
 	IMetaAnnotation * doGetAnnotation(const char * name);
 	uint32_t doGetAnnotationCount();
@@ -152,7 +156,7 @@ private:
 };
 
 
-class ImplMetaList : public ImplExtendObject, public IMetaList
+class ImplMetaList : public IMetaList
 {
 private:
 	typedef std::vector<IMetaItem *> ListType;
@@ -164,8 +168,8 @@ public:
 	
 	void load(GMetaList * metaList);
 
-	IMPL_OBJECT
-	IMPL_EXTENDOBJECT
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
 
 protected:
 	virtual void G_API_CC add(IMetaItem * item, void * instance);
@@ -184,24 +188,6 @@ private:
 };
 
 
-class ImplMetaConverter : public ImplExtendObject, public IMetaConverter
-{
-public:
-	ImplMetaConverter(GMetaConverter * metaConverter);
-	virtual ~ImplMetaConverter();
-
-	IMPL_OBJECT
-	IMPL_EXTENDOBJECT
-
-protected:
-	virtual gapi_bool G_API_CC canToCString();
-	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree, IMemoryAllocator * allocator);
-
-private:
-	GScopedPointer<GMetaConverter> metaConverter;
-};
-
-
 class ImplMetaCallable : public ImplMetaItem
 {
 private:
@@ -216,6 +202,7 @@ protected:
 	uint32_t doGetDefaultParamCount();
 	gapi_bool doHasResult();
 	void doGetResultType(GMetaTypeData * outType);
+	void doGetResultExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags);
 	gapi_bool doIsVariadic();
 	gapi_bool doCheckParam(const GVariantData * param, uint32_t paramIndex);
 	gapi_bool doIsParamTransferOwnership(uint32_t paramIndex);
@@ -243,7 +230,6 @@ protected:
 	void doSet(void * instance, const GVariantData * value);
 	void * doGetAddress(void * instance);
 	uint32_t doGetSize();
-	IMetaConverter * doCreateConverter();
 
 private:
 	const GMetaAccessible * getAccessible() const {
@@ -414,16 +400,13 @@ private:
 };
 
 
-class ImplMetaAnnotationValue : public ImplExtendObject, public IMetaAnnotationValue
+class ImplMetaAnnotationValue : public IMetaAnnotationValue
 {
-private:
-	typedef ImplExtendObject super;
-
 public:
 	ImplMetaAnnotationValue(const GAnnotationValue * value);
 
-	IMPL_OBJECT
-	IMPL_EXTENDOBJECT
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
 
 protected:
 	virtual void G_API_CC getVariant(GVariantData * outVariant);
@@ -542,14 +525,14 @@ private:
 
 
 
-class ImplGlobalMetaModule : public ImplExtendObject, public IMetaModule
+class ImplGlobalMetaModule : public IMetaModule
 {
 public:
 	ImplGlobalMetaModule();
 	~ImplGlobalMetaModule();
 
-	IMPL_OBJECT
-	IMPL_EXTENDOBJECT
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
 
 protected:
 	virtual IMetaClass * G_API_CC getGlobalMetaClass();
@@ -561,14 +544,14 @@ protected:
 
 
 
-class ImplMetaModule : public ImplExtendObject, public IMetaModule
+class ImplMetaModule : public IMetaModule
 {
 public:
 	ImplMetaModule(GMetaClass * metaClass);
 	~ImplMetaModule();
 
-	IMPL_OBJECT
-	IMPL_EXTENDOBJECT
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
 
 protected:
 	virtual IMetaClass * G_API_CC getGlobalMetaClass();
@@ -583,7 +566,7 @@ private:
 
 
 
-class ImplMetaService : public ImplExtendObject, public IMetaService
+class ImplMetaService : public IMetaService
 {
 private:
 	typedef std::vector<IMetaModule *> ListType;
@@ -591,8 +574,8 @@ public:
 	ImplMetaService();
 	~ImplMetaService();
 
-	IMPL_OBJECT
-	IMPL_EXTENDOBJECT
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
 
 protected:
 	virtual void G_API_CC addModule(IMetaModule * module);
@@ -680,6 +663,17 @@ void ImplMetaItem::doGetItemType(GMetaTypeData * outType)
 	fixupMetaType(&type);
 
 	*outType = type.getData();
+
+	LEAVE_META_API()
+}
+
+void ImplMetaItem::doGetItemExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags)
+{
+	ENTER_META_API()
+	
+	GMetaExtendType extendType = this->item->getItemExtendType(flags);
+
+	*outExtendType = extendType.takeData();
 
 	LEAVE_META_API()
 }
@@ -887,6 +881,17 @@ void ImplMetaCallable::doGetResultType(GMetaTypeData * outType)
 	LEAVE_META_API()
 }
 
+void ImplMetaCallable::doGetResultExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags)
+{
+	ENTER_META_API()
+
+	GMetaExtendType extendType = this->getCallable()->getResultExtendType(flags);
+
+	*outExtendType = extendType.takeData();
+
+	LEAVE_META_API()
+}
+
 gapi_bool ImplMetaCallable::doIsVariadic()
 {
 	ENTER_META_API()
@@ -921,15 +926,6 @@ gapi_bool ImplMetaCallable::doIsResultTransferOwnership()
 	return this->getCallable()->isResultTransferOwnership();
 
 	LEAVE_META_API(return false)
-}
-
-IMetaConverter * ImplMetaCallable::doCreateResultConverter()
-{
-	ENTER_META_API()
-
-	return doCreateItem<ImplMetaConverter>(this->getCallable()->createResultConverter());
-
-	LEAVE_META_API(return NULL)
 }
 
 
@@ -995,15 +991,6 @@ uint32_t ImplMetaAccessible::doGetSize()
 	LEAVE_META_API(return 0)
 }
 
-IMetaConverter * ImplMetaAccessible::doCreateConverter()
-{
-	ENTER_META_API()
-
-	return doCreateItem<ImplMetaConverter>(this->getAccessible()->createConverter());
-
-	LEAVE_META_API(return 0)
-}
-
 
 ImplMetaList::ImplMetaList()
 {
@@ -1053,31 +1040,6 @@ void G_API_CC ImplMetaList::clear()
 	this->instanceList.clear();
 }
 
-
-ImplMetaConverter::ImplMetaConverter(GMetaConverter * metaConverter)
-	: metaConverter(metaConverter)
-{
-}
-
-ImplMetaConverter::~ImplMetaConverter()
-{
-}
-
-gapi_bool G_API_CC ImplMetaConverter::canToCString()
-{
-	return this->metaConverter->canToCString();
-}
-
-const char * G_API_CC ImplMetaConverter::toCString(const void * instance, gapi_bool * needFree, IMemoryAllocator * allocator)
-{
-	int free;
-	
-	const char * s = this->metaConverter->toCString(instance, &free, allocator);
-	
-	*needFree = free;
-
-	return s;
-}
 
 ImplMetaField::ImplMetaField(const GMetaField * field)
 	: super(field)
@@ -2027,7 +1989,7 @@ void ImplMetaService::clear()
 IMemoryAllocator * G_API_CC ImplMetaService::getAllocator()
 {
 	if(!this->allocator) {
-		this->allocator.reset(new ImplMemoryAllocator);
+		this->allocator.reset(new GImplMemoryAllocator);
 	}
 	
 	this->allocator->addReference();
