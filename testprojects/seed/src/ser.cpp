@@ -1,3 +1,5 @@
+#include "cpgf/metatraits/gmetaserializer_string.h"
+
 #include "gmetatextstreamarchive.h"
 
 #include "cpgf/ginterface.h"
@@ -20,13 +22,6 @@
 #include <iostream>
 #include <sstream>
 using namespace std;
-
-
-namespace cpgf {
-
-
-
-} // namespace cpgf
 
 
 using namespace cpgf;
@@ -77,7 +72,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 				._element("enable", false)
 
 		._field("fieldInt", &TestClassSerialize::fieldInt)
-//		._field("fieldString", &TestClassSerialize::fieldString)
+		._field("fieldString", &TestClassSerialize::fieldString)
 //		._field("fieldReadonlyInt", &TestClassSerialize::fieldReadonlyInt, GMetaPolicyReadOnly())
 //		._field("fieldWriteonlyString", &TestClassSerialize::fieldWriteonlyString, GMetaPolicyWriteOnly())
 		._field("object", &TestClassSerialize::object)
@@ -101,6 +96,7 @@ void testSer()
 	TestClassSerialize * pobj = &instance;
 	instance.fieldInt = 38;
 	instance.a = "abcdef";
+	instance.fieldString = "STL string";
 	instance.object = new TestClassSerialize;
 	instance.object->fieldInt = 98;
 
@@ -120,5 +116,6 @@ void testSer()
 	cout << endl << "Read object" << endl;
 	cout << readInstance.fieldInt << endl;
 	cout << readInstance.object->fieldInt << endl;
+	cout << readInstance.fieldString << endl;
 }
 

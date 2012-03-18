@@ -1,5 +1,5 @@
 set(BUILD_DEBUG
-	1
+	0
 )
 
 # set 1 to enable Lua binding, 0 to disable

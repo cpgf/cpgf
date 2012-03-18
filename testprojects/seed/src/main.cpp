@@ -37,15 +37,6 @@ int main(int argc, char * argv[])
 	(void)argc;
 	(void)argv;
 
-	int xxx[] = { 5, 6, 7 };
-	test(xxx);
-
-	int yyy[5];
-	test(yyy);
-
-	string s;
-	test(s);
-
 //	testBoost();
 
 	UnitTest::RunAllTests();

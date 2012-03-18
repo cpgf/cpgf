@@ -70,6 +70,9 @@ set(SRC_META
 	${SRC_PATH}/scriptbind/gscriptbind.cpp
 	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
 	${SRC_PATH}/scriptbind/gscriptbindutil.cpp
+	
+	${SRC_PATH}/metatraits/gmetaserializer_string.cpp
+	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
 )
 
 file(GLOB GLOB_SAMPLEREFLECTION ${SAMPLE_REFLECT_PATH}/*.cpp)

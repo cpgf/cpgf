@@ -72,17 +72,9 @@ struct IMetaReader : public IObject
 };
 
 
-struct IMetaObjectSerializer : public IObject
+struct IMetaArchiveReader
 {
-	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, uint32_t archiveID, void * instance, IMetaClass * metaClass) = 0;
-	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) = 0;
-};
-
-
-struct IMetaFieldSerializer : public IObject
-{
-	virtual void G_API_CC writeField(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaAccessible * accessible) = 0;
-	virtual void G_API_CC readField(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaAccessible * accessible) = 0;
+	virtual IMemoryAllocator * G_API_CC getAllocator() = 0;
 };
 
 
@@ -129,6 +121,7 @@ bool canSerializeBaseClass(const GMetaArchiveConfig & config, IMetaClass * baseC
 const int Error_Serialization_Begin = 301;
 const int Error_Serialization_TypeMismatch = Error_Serialization_Begin + 0;
 const int Error_Serialization_CannotFindObjectType = Error_Serialization_Begin + 1;
+const int Error_Serialization_MissingMetaClass = Error_Serialization_Begin + 2;
 const int Error_Serialization_End = 400;
 
 inline void serializeError(int errorCode, ...)

@@ -1,3 +1,5 @@
+#include "cpgf/metatraits/gmetaconverter_string.h"
+
 #include "metadata_stl_common.h"
 #include "cpgf/metadata/stl/gmetadata_vector.h"
 #include "cpgf/metadata/gmetadatapolicydeduce.h"

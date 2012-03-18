@@ -2,6 +2,8 @@
 #define __METADATA_STL_COMMON_H
 
 
+#include "cpgf/metatraits/gmetaconverter_string.h"
+
 #include "../metadata_common.h"
 
 #include <string>

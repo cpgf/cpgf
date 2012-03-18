@@ -97,6 +97,17 @@ IMetaConverter * GMetaExtendType::getConverter() const
 	}
 }
 
+IMetaSerializer * GMetaExtendType::getSerializer() const
+{
+	if(this->data.serializer != NULL) {
+		this->data.serializer->addReference();
+		return this->data.serializer;
+	}
+	else {
+		return NULL;
+	}
+}
+
 
 } // namespace cpgf
 

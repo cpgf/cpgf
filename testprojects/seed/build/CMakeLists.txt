@@ -3,6 +3,7 @@ project(seedTest)
 cmake_minimum_required(VERSION 2.8)
 
 include(../../../build/build.config.txt)
+set(BUILD_DEBUG 1)
 
 set(CMAKE_BUILD_TYPE Release)
 
@@ -57,7 +58,6 @@ set(SRC_META
 	
 	${SRC_UNITTEST_FRAMEWORK}
 
-	${SRC_PATH}/gapi.cpp
 	${SRC_PATH}/gapiutil.cpp
 	${SRC_PATH}/gbytearray.cpp
 	${SRC_PATH}/gexception.cpp
@@ -76,14 +76,15 @@ set(SRC_META
 	${SRC_PATH}/gmetatype.cpp
 	${SRC_PATH}/gmetatypereg.cpp
 	${SRC_PATH}/gvariant.cpp
+	
+	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
+	${SRC_PATH}/metatraits/gmetaserializer_string.cpp
 
 	${SRC_PATH}/scriptbind/gbindcommon.cpp
 	${SRC_PATH}/scriptbind/gscriptbind.cpp
 	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
 	${SRC_PATH}/scriptbind/gscriptbindutil.cpp
 	
-	${SRC_PATH}/gapi.cpp
-
 #	${SRC_PATH}/scriptbind/gluabind.cpp
 #	${SRC_PATH}/scriptbind/gv8bind.cpp
 )
@@ -93,6 +94,7 @@ include_directories(
 	${SEED_PATH}/include
 	${SRC_PATH}
 	${ROOT_PATH}/test
+	${SEED_PATH}/src
 )
 if(${HAS_LUA})
 	include_directories(${LUA_INC})

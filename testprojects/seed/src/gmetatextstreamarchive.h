@@ -6,8 +6,7 @@
 #include "gmetaarchivecommon.h"
 #include "cpgf/gvartypedata.h"
 #include "cpgf/gclassutil.h"
-
-#include "pinclude/gapiimpl.h"
+#include "cpgf/gapiutil.h"
 
 
 namespace cpgf {
@@ -199,7 +198,7 @@ GVariant streamReadFundamental(Stream & stream, GVariantType vt)
 }
 
 template <typename Stream, template<typename> class TypeMap = PermenentTypeMap>
-class GTextStreamMetaWriter : public ImplObject, public IMetaWriter
+class GTextStreamMetaWriter : public IMetaWriter
 {
 	GMAKE_NONCOPYABLE(GTextStreamMetaWriter);
 
@@ -216,7 +215,7 @@ public:
 	}
 
 protected:
-	IMPL_OBJECT
+	G_INTERFACE_IMPL_OBJECT
 
 	virtual void G_API_CC writeFundamental(const char * name, uint32_t archiveID, const GVariantData * value) {
 		(void)name;
@@ -327,7 +326,7 @@ private:
 };
 
 template <typename Stream, template<typename> class TypeMap = PermenentTypeMap>
-class GTextStreamMetaReader : public ImplObject, public IMetaReader
+class GTextStreamMetaReader : public IMetaReader
 {
 	GMAKE_NONCOPYABLE(GTextStreamMetaReader);
 
@@ -357,7 +356,7 @@ public:
 	}
 
 protected:
-	IMPL_OBJECT
+	G_INTERFACE_IMPL_OBJECT
 
 	virtual uint32_t G_API_CC getArchiveType(const char * name) {
 		(void)name;

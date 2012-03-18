@@ -33,15 +33,15 @@ public:
 	}
 };
 
-
-} // namespace cpgf
-
-
 template <typename T>
 inline cpgf::IMetaConverter * metaTraitsCreateConverter(T *)
 {
 	return NULL;
 }
+
+
+} // namespace cpgf
+
 
 
 

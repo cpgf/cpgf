@@ -2,8 +2,6 @@
 #define __UNITTESTBASE_H
 
 
-#include "cpgf/metatraits/gmetaconverter_string.h"
-
 #include "UnitTest++.h"
 
 #include "cpgf/gpp.h"
