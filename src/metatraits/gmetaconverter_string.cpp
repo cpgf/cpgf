@@ -23,12 +23,12 @@ public:
 	}
 };
 
-cpgf::IMetaConverter * metaTraitsCreateConverter(std::string *)
-{
-	return new cpgf::GMetaConverterStdString;
-}
+//cpgf::IMetaConverter * metaTraitsCreateConverter(std::string &)
+//{
+//	return new cpgf::GMetaConverterStdString;
+//}
 
-cpgf::IMetaConverter * metaTraitsCreateConverter(const std::string *)
+cpgf::IMetaConverter * metaTraitsCreateConverter(const std::string &)
 {
 	return new cpgf::GMetaConverterStdString;
 }

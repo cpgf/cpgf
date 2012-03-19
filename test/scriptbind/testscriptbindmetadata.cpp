@@ -6,11 +6,6 @@
 #include "cpgf/gmetadefine.h"
 #include "cpgf/goutmain.h"
 
-#include "cpgf/gbytearray.h"
-#include "cpgf/gbytearrayapi.h"
-
-#include "cpgf/metadata/util/gmetadata_bytearray.h"
-
 #include "testscriptbindmetadata.h"
 
 #include <string>
@@ -21,9 +16,12 @@ using namespace std;
 
 namespace testscript {
 
-int TestObject::staticValue = 0;
+void TestScriptBindMetaData1();
+void TestScriptBindMetaData2();
+void TestScriptBindMetaData3();
+void TestScriptBindMetaData4();
 
-GScopedInterface<IScriptFunction> testScriptFunction;
+int TestObject::staticValue = 0;
 
 int testAdd2(int a, int b)
 {
@@ -43,66 +41,6 @@ int testAddN(const cpgf::GMetaVariadicParam * params)
 int testAddCallback(IScriptFunction * scriptFunction)
 {
 	return fromVariant<int>(invokeScriptFunction(scriptFunction, 5, 6).getValue());
-}
-
-int testAddCallback2(void *)
-{
-	return 0;
-}
-
-void testScriptFunctionSetter(IScriptFunction * scriptFunction)
-{
-	scriptFunction->addReference();
-	testScriptFunction.reset(scriptFunction);
-}
-
-IScriptFunction * testScriptFunctionGetter()
-{
-	return testScriptFunction.get();
-}
-
-int testExecAddCallback()
-{
-	int n = fromVariant<int>(invokeScriptFunction(testScriptFunction.get(), 5, 6).getValue());
-	testScriptFunction.reset(); // destroy it to avoid crash between different script engine such as Lua and V8. It's not a bug
-	return n;
-}
-
-IByteArray * createByteArray()
-{
-	return byteArrayToInterface(new GByteArray, true);
-}
-
-void writeNumberToByteArray(int n, IByteArray * ba)
-{
-	ba->writeInt32(n);
-	ba->writeInt32(n * 2);
-}
-
-void writeNumberToByteArrayMemory(int n, void * buffer)
-{
-	*(int32_t *)buffer = n;
-	*(int32_t *)((int8_t *)buffer + sizeof(int32_t)) = n * 2;
-}
-
-bool testDefaultParam(int type, int i, std::string s, TestObject obj)
-{
-	switch(type) {
-		case 0: // all are default
-			return i == 5 && s == "abc" && obj.value == 8;
-
-		case 1: // i is 98
-			return i == 98 && s == "abc" && obj.value == 8;
-
-		case 2: // i is 98, s is "def"
-			return i == 98 && s == "def" && obj.value == 8;
-
-		case 3: // i is 98, s is "def", obj.value is 38
-			return i == 98 && s == "def" && obj.value == 38;
-
-		default:
-			return false;
-	}
 }
 
 template <typename T>
@@ -274,231 +212,13 @@ void scriptNot(bool b)
 
 G_AUTO_RUN_BEFORE_MAIN()
 {
-	using namespace cpgf;
-
-	GDefineMetaClass<TestData>
-		::define(REG_NAME_TestData)
-		._field("x", &TestData::x)
-		._field("name", &TestData::name)
-	;
+	TestScriptBindMetaData1();
+	TestScriptBindMetaData2();
+	TestScriptBindMetaData3();
+	TestScriptBindMetaData4();
 }
 
 
-G_AUTO_RUN_BEFORE_MAIN()
-{
-	using namespace cpgf;
-
-	GDefineMetaClass<TestBase>
-		::define("testscript::TestBase")
-		._method("getValue", &TestBase::getValue);
-	;
-
-	GDefineMetaClass<TestA, TestBase>
-		::define("testscript::TestA")
-	;
-
-	GDefineMetaClass<TestB, TestBase>
-		::define("testscript::TestB")
-	;
-
-	GDefineMetaClass<TestC, TestB>
-		::define("testscript::TestC")
-	;
-}
-
-
-G_AUTO_RUN_BEFORE_MAIN()
-{
-	using namespace cpgf;
-	using namespace std;
-
-	GDefineMetaClass<TestObject>
-		::define(REG_NAME_TestObject)
-
-		._constructor<void * (const TestObject &)>()
-		._constructor<void * (int)>()
-		._constructor<void * (int, const string &)>(GMetaPolicyCopyAllConstReference())
-	
-		._field("value", &TestObject::value)
-	
-		._method("self", &TestObject::self)
-		._method("selfConst", &TestObject::selfConst)
-		._method("selfVolatile", &TestObject::selfVolatile)
-		._method("selfConstVolatile", &TestObject::selfConstVolatile)
-	
-		._method("methodConst", (int (TestObject::*)())&TestObject::methodConst)
-		._method("methodConst", (int (TestObject::*)() const)&TestObject::methodConst)
-	
-		._method("methodVolatile", (int (TestObject::*)())&TestObject::methodVolatile)
-		._method("methodVolatile", (int (TestObject::*)() volatile)&TestObject::methodVolatile)
-	
-		._method("methodConstVolatile", (int (TestObject::*)())&TestObject::methodConstVolatile)
-		._method("methodConstVolatile", (int (TestObject::*)() const volatile)&TestObject::methodConstVolatile)
-
-		._method("methodOverload", (int (TestObject::*)(const TestObject &, int) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference())
-		._method("methodOverload", (int (TestObject::*)(int, const TestObject &) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference())
-		._method("methodOverload", (int (TestObject::*)(int, int) const)&TestObject::methodOverload)
-		._method("methodOverload", (int (TestObject::*)(const char *, int) const)&TestObject::methodOverload)
-		._method("methodOverload", (int (TestObject::*)(int, const char *) const)&TestObject::methodOverload)
-		._method("methodOverload", (int (TestObject::*)(const string &, int) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference())
-		._method("methodOverload", (int (TestObject::*)(int, const string &) const)&TestObject::methodOverload, GMetaPolicyCopyAllConstReference())
-
-		._method("methodOverloadObject", (int (TestObject::*)(const TestBase *) const)&TestObject::methodOverloadObject)
-		._method("methodOverloadObject", (int (TestObject::*)(const TestA *) const)&TestObject::methodOverloadObject)
-		._method("methodOverloadObject", (int (TestObject::*)(const TestB *) const)&TestObject::methodOverloadObject)
-		._method("methodOverloadObject", (int (TestObject::*)(const TestC *) const)&TestObject::methodOverloadObject)
-
-		._method("add", &TestObject::add)
-	
-		._field("staticValue", &TestObject::staticValue)
-		._method("incStaticValue", &TestObject::incStaticValue)
-
-		._field("data", &TestObject::data)
-	
-		._field("raw", &TestObject::raw)
-		._field("rawPointer", &TestObject::rawPointer)
-
-		._method("pointerRaw", &TestObject::pointerRaw)
-		._method("refRaw", &TestObject::refRaw)
-		._method("isRawPointer", &TestObject::isRawPointer)
-		._method("isRawRef", &TestObject::isRawRef)
-		._method("setRaw", &TestObject::setRaw)
-	
-		._method("refData", &TestObject::refData)
-		._method("pointerData", &TestObject::pointerData)
-		._method("constRefData", &TestObject::constRefData)
-		._method("constPointerData", &TestObject::constPointerData)
-		
-		._method("scriptObjectCallback", &TestObject::scriptObjectCallback)
-		._method("getVariant", &TestObject::getVariant)
-	;
-}
-
-
-G_AUTO_RUN_BEFORE_MAIN()
-{
-	using namespace cpgf;
-	using namespace std;
-
-	GDefineMetaClass<TestOperator>
-		::define("testscript::TestOperator")
-
-		._constructor<void * (const TestOperator &)>()
-		._constructor<void * (int)>()
-		
-		._field("value", &TestOperator::value)
-		
-		._operator<TestOperator (const GMetaSelf)>(-mopHolder)
-		._operator<TestOperator (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference())
-		._operator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder))
-#define M(OP, RET) \
-		._operator<RET (const GMetaSelf, int)>(mopHolder OP mopHolder) \
-		._operator<RET (const GMetaSelf, const TestOperator &)>(mopHolder OP mopHolder) \
-		._operator<RET (const GMetaSelf, const TestObject &)>(mopHolder OP mopHolder)
-	
-		M(+, TestOperator)
-		M(-, TestOperator)
-		M(*, TestOperator)
-		M(/, TestOperator)
-		M(%, TestOperator)
-
-		M(==, bool)
-		M(<, bool)
-		M(<=, bool)
-
-#undef M
-	;
-}
-
-G_AUTO_RUN_BEFORE_MAIN()
-{
-	using namespace cpgf;
-
-	GDefineMetaClass<DeriveA>
-		::define("testscript::DeriveA")
-		._method("getA", &DeriveA::getA)
-		._method("setData", &DeriveA::setData)
-		._field("a", &DeriveA::a)
-	;
-
-	GDefineMetaClass<DeriveB, DeriveA>
-		::define("testscript::DeriveB")
-		._method("getB", &DeriveB::getB)
-		._field("b", &DeriveB::b)
-	;
-
-	GDefineMetaClass<DeriveC, DeriveA>
-		::define("testscript::DeriveC")
-		._method("getC", &DeriveC::getC)
-		._field("c", &DeriveC::c)
-	;
-
-	GDefineMetaClass<DeriveD, DeriveB, DeriveC>
-		::define("testscript::DeriveD")
-		._method("getD", &DeriveD::getD)
-		._field("d", &DeriveD::d)
-	;
-
-	GDefineMetaClass<DeriveE, DeriveD>
-		::define("testscript::DeriveE")
-		._method("getE", &DeriveE::getE)
-		._method("pretendA", &DeriveE::pretendA, GMetaPolicyTransferResultOwnership())
-		._field("e", &DeriveE::e)
-	;
-}
-
-
-G_AUTO_RUN_BEFORE_MAIN()
-{
-	using namespace cpgf;
-
-	GDefineMetaClass<BasicA>
-		::define(REG_NAME_BasicA)
-		._class(
-			GDefineMetaClass<BasicA::Inner>::declare("Inner")
-				._field("x", &BasicA::Inner::x)
-				._method("add", &BasicA::Inner::add)
-		)
-		._enum<BasicA::BasicEnum>("BasicEnum")
-			._element("a", BasicA::a)
-			._element("b", BasicA::b)
-			._element("c", BasicA::c)
-	;
-}
-
-
-G_AUTO_RUN_BEFORE_MAIN()
-{
-	using namespace cpgf;
-
-	GDefineMetaClass<IByteArray> byteArrayDefine = GDefineMetaClass<IByteArray>::define("IByteArray");
-	buildMetaData_byteArray(byteArrayDefine);
-
-	GDefineMetaGlobal()
-		._method("scriptAssert", &scriptAssert)
-		._method("scriptNot", &scriptNot)
-		._method("testAdd2", &testAdd2)
-		._method("testAddN", &testAddN)
-		._method("testAddCallback2", &testAddCallback2)
-		._method("testAddCallback", &testAddCallback)
-		._method("testExecAddCallback", &testExecAddCallback)
-		
-		._method("createByteArray", &createByteArray, GMetaPolicyTransferResultOwnership())
-		._method("writeNumberToByteArray", &writeNumberToByteArray)
-		._method("writeNumberToByteArrayMemory", &writeNumberToByteArrayMemory)
-
-		._method("testDefaultParam", &testDefaultParam)
-			._default(copyVariantFromCopyable(TestObject(8)))
-			._default(copyVariantFromCopyable(string("abc")))
-			._default(5)
-		
-		._enum<TestEnum>(REG_NAME_TestEnum)
-			._element("teCpp", teCpp)
-			._element("teLua", teLua)
-			._element("teV8", teV8)
-		._property("testScriptFunction", &testScriptFunctionGetter, &testScriptFunctionSetter)
-	;
-}
 
 
 }

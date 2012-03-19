@@ -72,8 +72,45 @@ struct IMetaReader : public IObject
 };
 
 
-struct IMetaArchiveReader
+struct IMetaArchiveWriter : public IExtendObject
 {
+	// take care of customized serializer, take care of pointer tracking.
+	virtual void G_API_CC writeObjectValue(const char * name, void * instance, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC writeObjectPointer(const char * name, void * instance, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC writeField(const char * name, void * instance, IMetaAccessible * accessible) = 0;
+	
+	// ignore customized serializer, take care of pointer tracking.
+	virtual void G_API_CC defaultWriteObjectValue(const char * name, void * instance, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC defaultWriteObjectPointer(const char * name, void * instance, IMetaClass * metaClass) = 0;
+
+	// ignore customized serializer, ignore pointer tracking, take care of base classes
+	virtual void G_API_CC directWriteObject(const char * name, void * instance, IMetaClass * metaClass) = 0;
+
+	// ignore customized serializer, ignore pointer tracking, ignore base classes, only write the object itself
+	virtual void G_API_CC directWriteObjectWithoutBase(const char * name, void * instance, IMetaClass * metaClass) = 0;
+
+	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, uint32_t classTypeID) = 0;
+	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, uint32_t classTypeID) = 0;
+};
+
+struct IMetaArchiveReader : public IExtendObject
+{
+	// take care of customized serializer, take care of pointer tracking.
+	virtual void G_API_CC readObject(const char * name, void * instance, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC readField(const char * name, void * instance, IMetaAccessible * accessible) = 0;
+	
+	// ignore customized serializer, take care of pointer tracking.
+	virtual void G_API_CC defaultReaderObject(const char * name, void * instance, IMetaClass * metaClass) = 0;
+
+	// ignore customized serializer, ignore pointer tracking, take care of base classes
+	virtual void G_API_CC directReadObject(const char * name, void * instance, IMetaClass * metaClass) = 0;
+
+	// ignore customized serializer, ignore pointer tracking, ignore base classes, only write the object itself
+	virtual void G_API_CC directReadObjectWithoutBase(const char * name, void * instance, IMetaClass * metaClass) = 0;
+
+	virtual uint32_t G_API_CC beginReadObject(const char * name, void * instance, IMetaClass * metaClass);
+	virtual void G_API_CC endReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass) = 0;
+	
 	virtual IMemoryAllocator * G_API_CC getAllocator() = 0;
 };
 
@@ -96,6 +133,9 @@ public:
 	GMetaArchiveConfig() : flags(defaultConfig) {
 	}
 
+	explicit GMetaArchiveConfig(uint32_t flags) : flags(flags) {
+	}
+
 	void setAllowTrackPointer(bool allow) {
 		this->flags.setByBool(macTrackPointers, allow);
 	}
@@ -110,6 +150,10 @@ public:
 private:
 	GFlags<ConfigFlags> flags;
 };
+
+
+IMetaArchiveWriter * createMetaArchiveWriter(uint32_t config, IMetaService * service, IMetaWriter * writer);
+IMetaArchiveReader * createMetaArchiveReader(uint32_t config, IMetaService * service, IMetaReader * reader);
 
 
 bool canSerializeItem(const GMetaArchiveConfig & config, IMetaItem * item);

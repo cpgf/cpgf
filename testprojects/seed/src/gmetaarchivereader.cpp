@@ -1,4 +1,5 @@
-#include "gmetaarchivereader.h"
+#include "gmetaarchivecommon.h"
+
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gapiutil.h"
 
@@ -7,6 +8,58 @@
 using namespace std;
 
 namespace cpgf {
+
+
+class GMetaArchiveReaderPointerTracker;
+class GMetaArchiveReaderClassTypeTracker;
+
+class GMetaArchiveReader : public IMetaArchiveReader
+{
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
+
+public:
+	GMetaArchiveReader(const GMetaArchiveConfig & config, IMetaService * service, IMetaReader * reader);
+	~GMetaArchiveReader();
+
+	// take care of customized serializer, take care of pointer tracking.
+	virtual void G_API_CC readObject(const char * name, void * instance, IMetaClass * metaClass);
+	virtual void G_API_CC readField(const char * name, void * instance, IMetaAccessible * accessible);
+	
+	// ignore customized serializer, take care of pointer tracking.
+	virtual void G_API_CC defaultReaderObject(const char * name, void * instance, IMetaClass * metaClass);
+
+	// ignore customized serializer, ignore pointer tracking, take care of base classes
+	virtual void G_API_CC directReadObject(const char * name, void * instance, IMetaClass * metaClass);
+
+	// ignore customized serializer, ignore pointer tracking, ignore base classes, only write the object itself
+	virtual void G_API_CC directReadObjectWithoutBase(const char * name, void * instance, IMetaClass * metaClass);
+
+	virtual uint32_t G_API_CC beginReadObject(const char * name, void * instance, IMetaClass * metaClass);
+	virtual void G_API_CC endReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass);
+	
+	virtual IMemoryAllocator * G_API_CC getAllocator();
+	
+protected:
+	void * readObjectHelper(const char * name, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer);
+	void * doReadObject(uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer);
+	void doDefaultReadObject(uint32_t archiveID, void * instance, IMetaClass * metaClass);
+	void doDirectReadObject(uint32_t archiveID, void * instance, IMetaClass * metaClass);
+	void doDirectReadObjectWithoutBase(uint32_t archiveID, void * instance, IMetaClass * metaClass);
+	
+	void doReadField(const char * name, void * instance, IMetaAccessible * accessible);
+
+	GMetaArchiveReaderPointerTracker * getPointerTracker();
+	GMetaArchiveReaderClassTypeTracker * getClassTypeTracker();
+
+private:
+	GMetaArchiveConfig config;
+	GScopedInterface<IMetaService> service;
+	GScopedInterface<IMetaReader> reader;
+	GScopedPointer<GMetaArchiveReaderPointerTracker> pointerSolver;
+	GScopedPointer<GMetaArchiveReaderClassTypeTracker> classTypeTracker;
+	GScopedInterface<IMemoryAllocator> allocator;
+};
 
 
 class GMetaArchiveReaderPointerTracker
@@ -393,6 +446,12 @@ GMetaArchiveReaderClassTypeTracker * GMetaArchiveReader::getClassTypeTracker()
 	}
 
 	return this->classTypeTracker.get();
+}
+
+
+IMetaArchiveReader * createMetaArchiveReader(uint32_t config, IMetaService * service, IMetaReader * reader)
+{
+	return new GMetaArchiveReader(GMetaArchiveConfig(config), service, reader);
 }
 
 

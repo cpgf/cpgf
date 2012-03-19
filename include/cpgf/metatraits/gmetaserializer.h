@@ -21,7 +21,7 @@ struct IMetaSerializer : public IObject
 
 
 template <typename T>
-inline cpgf::IMetaSerializer * metaTraitsCreateSerializer(T *)
+inline IMetaSerializer * metaTraitsCreateSerializer(const T &)
 {
 	return NULL;
 }

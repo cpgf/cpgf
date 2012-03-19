@@ -1,5 +1,7 @@
-#include "gmetaarchivewriter.h"
+#include "gmetaarchivecommon.h"
+
 #include "cpgf/gmetaapiutil.h"
+#include "cpgf/gapiutil.h"
 
 #include <map>
 #include <string>
@@ -8,6 +10,68 @@ using namespace std;
 
 
 namespace cpgf {
+
+
+enum GMetaArchivePointerType {
+	aptByValue, aptByPointer, aptIgnore
+};
+
+class GMetaArchiveWriterPointerTracker;
+class GMetaArchiveWriterClassTypeTracker;
+
+class GMetaArchiveWriter : public IMetaArchiveWriter
+{
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
+
+public:
+	GMetaArchiveWriter(const GMetaArchiveConfig & config, IMetaService * service, IMetaWriter * writer);
+	~GMetaArchiveWriter();
+
+	// take care of customized serializer, take care of pointer tracking.
+	virtual void G_API_CC writeObjectValue(const char * name, void * instance, IMetaClass * metaClass);
+	virtual void G_API_CC writeObjectPointer(const char * name, void * instance, IMetaClass * metaClass);
+	virtual void G_API_CC writeField(const char * name, void * instance, IMetaAccessible * accessible);
+	
+	// ignore customized serializer, take care of pointer tracking.
+	virtual void G_API_CC defaultWriteObjectValue(const char * name, void * instance, IMetaClass * metaClass);
+	virtual void G_API_CC defaultWriteObjectPointer(const char * name, void * instance, IMetaClass * metaClass);
+
+	// ignore customized serializer, ignore pointer tracking, take care of base classes
+	virtual void G_API_CC directWriteObject(const char * name, void * instance, IMetaClass * metaClass);
+
+	// ignore customized serializer, ignore pointer tracking, ignore base classes, only write the object itself
+	virtual void G_API_CC directWriteObjectWithoutBase(const char * name, void * instance, IMetaClass * metaClass);
+
+	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, uint32_t classTypeID);
+	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, uint32_t classTypeID);
+
+protected:
+	void writeObjectHelper(const char * name, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GMetaArchivePointerType pointerType);
+	void defaultWriteObjectHelper(const char * name, void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType);
+	
+	void doWriteObject(uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GMetaArchivePointerType pointerType);
+	void doDefaultWriteObject(uint32_t archiveID, void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType);
+	void doDirectWriteObject(uint32_t archiveID, void * instance, IMetaClass * metaClass);
+	void doDirectWriteObjectWithoutBase(uint32_t archiveID, void * instance, IMetaClass * metaClass);
+	
+	void doWriteField(const char * name, void * instance, IMetaAccessible * accessible);
+	
+	uint32_t getClassTypeID(void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType);
+
+	uint32_t getNextArchiveID();
+
+	GMetaArchiveWriterPointerTracker * getPointerTracker();
+	GMetaArchiveWriterClassTypeTracker * getClassTypeTracker();
+
+private:
+	GMetaArchiveConfig config;
+	GScopedInterface<IMetaService> service;
+	GScopedInterface<IMetaWriter> writer;
+	uint32_t currentArchiveID;
+	GScopedPointer<GMetaArchiveWriterPointerTracker> pointerSolver;
+	GScopedPointer<GMetaArchiveWriterClassTypeTracker> classTypeTracker;
+};
 
 
 class GMetaArchiveWriterPointerTracker
@@ -397,6 +461,10 @@ void GMetaArchiveWriter::endWriteObject(const char * name, uint32_t archiveID, v
 	this->writer->endWriteObject(&objectInformation);
 }
 
+IMetaArchiveWriter * createMetaArchiveWriter(uint32_t config, IMetaService * service, IMetaWriter * writer)
+{
+	return new GMetaArchiveWriter(GMetaArchiveConfig(config), service, writer);
+}
 
 
 } // namespace cpgf

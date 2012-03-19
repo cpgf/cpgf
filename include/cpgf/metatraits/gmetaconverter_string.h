@@ -9,8 +9,8 @@ namespace cpgf {
 
 struct IMetaConverter;
 
-IMetaConverter * metaTraitsCreateConverter(std::string *);
-IMetaConverter * metaTraitsCreateConverter(const std::string *);
+//IMetaConverter * metaTraitsCreateConverter(std::string &);
+IMetaConverter * metaTraitsCreateConverter(const std::string &);
 
 
 

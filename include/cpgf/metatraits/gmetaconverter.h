@@ -1,7 +1,6 @@
 #ifndef __GMETACONVERTER_H
 #define __GMETACONVERTER_H
 
-
 #include "cpgf/gapiutil.h"
 
 
@@ -34,7 +33,7 @@ public:
 };
 
 template <typename T>
-inline cpgf::IMetaConverter * metaTraitsCreateConverter(T *)
+inline IMetaConverter * metaTraitsCreateConverter(const T &)
 {
 	return NULL;
 }

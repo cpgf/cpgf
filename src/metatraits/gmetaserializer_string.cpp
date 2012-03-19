@@ -1,5 +1,5 @@
 #include "cpgf/metatraits/gmetaserializer.h"
-#include "gmetaarchivecommon.h"
+#include "d:/test/test/trunk/testprojects/seed/src/gmetaarchivecommon.h"
 
 #include <string>
 
@@ -36,12 +36,12 @@ public:
 };
 
 
-cpgf::IMetaSerializer * metaTraitsCreateSerializer(std::string *)
-{
-	return new cpgf::GMetaSerializerString;
-}
+//cpgf::IMetaSerializer * metaTraitsCreateSerializer(std::string &)
+//{
+//	return new cpgf::GMetaSerializerString;
+//}
 
-cpgf::IMetaSerializer * metaTraitsCreateSerializer(const std::string *)
+cpgf::IMetaSerializer * metaTraitsCreateSerializer(const std::string &)
 {
 	return new cpgf::GMetaSerializerString;
 }

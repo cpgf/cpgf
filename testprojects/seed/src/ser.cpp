@@ -10,8 +10,6 @@
 #include "cpgf/gmetadefine.h"
 #include "cpgf/goutmain.h"
 
-#include "gmetaarchivewriter.h"
-#include "gmetaarchivereader.h"
 #include "gmetaarchivetypemap.h"
 
 #include <string.h>
@@ -86,7 +84,7 @@ void testSer()
 	stringstream stream;
 
 	GTextStreamMetaWriter<stringstream> outputStream(stream);
-	GMetaArchiveWriter archiveWriter(GMetaArchiveConfig(), service.get(), &outputStream);
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service.get(), &outputStream));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestClassSerialize"));
 
@@ -101,18 +99,18 @@ void testSer()
 	instance.object->fieldInt = 98;
 
 	field.reset(metaClass->getField("fieldInt"));
-//	archiveWriter.writeField(field->getName(), pobj, field.get());
+//	archiveWriter->writeField(field->getName(), pobj, field.get());
 	
-	archiveWriter.writeObjectValue("obj", pobj, metaClass.get());
+	archiveWriter->writeObjectValue("obj", pobj, metaClass.get());
 
 	cout << stream.str().c_str();
 
 	stream.seekg(0);
 	
 	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
-	GMetaArchiveReader archiveReader(GMetaArchiveConfig(), service.get(), &inputStream);
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service.get(), &inputStream));
 	TestClassSerialize readInstance;
-	archiveReader.readObject("", &readInstance, metaClass.get());
+	archiveReader->readObject("", &readInstance, metaClass.get());
 	cout << endl << "Read object" << endl;
 	cout << readInstance.fieldInt << endl;
 	cout << readInstance.object->fieldInt << endl;
