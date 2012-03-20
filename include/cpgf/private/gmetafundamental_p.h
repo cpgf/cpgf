@@ -42,7 +42,10 @@ public:
 
 	void destroyInstance(void * o) const;
 
-	GMetaExtendType getItemExtendType(uint32_t flags) const;
+	// must be defined in header to make template function overloading happy.
+	GMetaExtendType getItemExtendType(uint32_t flags) const {
+		return this->virtualFunctions->getItemExtendType(this, flags);
+	}
 
 protected:
 	GMetaFundamentalDataVirtual * virtualFunctions;

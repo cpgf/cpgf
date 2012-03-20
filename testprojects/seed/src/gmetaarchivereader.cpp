@@ -155,7 +155,7 @@ GMetaArchiveReader::~GMetaArchiveReader()
 {
 }
 
-void GMetaArchiveReader::readObject(const char * name, void * instance, IMetaClass * metaClass)
+void G_API_CC GMetaArchiveReader::readObject(const char * name, void * instance, IMetaClass * metaClass)
 {
 	this->readObjectHelper(name, instance, metaClass, NULL);
 }
@@ -171,12 +171,12 @@ void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, 
 	return p;
 }
 
-void GMetaArchiveReader::readField(const char * name, void * instance, IMetaAccessible * accessible)
+void G_API_CC GMetaArchiveReader::readField(const char * name, void * instance, IMetaAccessible * accessible)
 {
 	this->doReadField(name, instance, accessible);
 }
 
-void GMetaArchiveReader::defaultReaderObject(const char * name, void * instance, IMetaClass * metaClass)
+void G_API_CC GMetaArchiveReader::defaultReaderObject(const char * name, void * instance, IMetaClass * metaClass)
 {
 	uint32_t archiveID = this->beginReadObject(name, instance, metaClass);
 
@@ -185,7 +185,7 @@ void GMetaArchiveReader::defaultReaderObject(const char * name, void * instance,
 	this->endReadObject(name, archiveID, instance, metaClass);
 }
 
-void GMetaArchiveReader::directReadObject(const char * name, void * instance, IMetaClass * metaClass)
+void G_API_CC GMetaArchiveReader::directReadObject(const char * name, void * instance, IMetaClass * metaClass)
 {
 	uint32_t archiveID = this->beginReadObject(name, instance, metaClass);
 
@@ -194,7 +194,7 @@ void GMetaArchiveReader::directReadObject(const char * name, void * instance, IM
 	this->endReadObject(name, archiveID, instance, metaClass);
 }
 
-void GMetaArchiveReader::directReadObjectWithoutBase(const char * name, void * instance, IMetaClass * metaClass)
+void G_API_CC GMetaArchiveReader::directReadObjectWithoutBase(const char * name, void * instance, IMetaClass * metaClass)
 {
 	uint32_t archiveID = this->beginReadObject(name, instance, metaClass);
 
@@ -203,7 +203,7 @@ void GMetaArchiveReader::directReadObjectWithoutBase(const char * name, void * i
 	this->endReadObject(name, archiveID, instance, metaClass);
 }
 
-uint32_t GMetaArchiveReader::beginReadObject(const char * name, void * instance, IMetaClass * metaClass)
+uint32_t G_API_CC GMetaArchiveReader::beginReadObject(const char * name, void * instance, IMetaClass * metaClass)
 {
 	GMetaArchiveObjectInformation objectInformation;
 	

@@ -130,11 +130,6 @@ GVariant GMetaOperatorDataBase::execute(void * instance, const GVariant * params
 	}
 }
 
-GMetaExtendType GMetaOperatorDataBase::getItemExtendType(uint32_t flags) const
-{
-	return this->virtualFunctions->getItemExtendType(this, flags);
-}
-
 GMetaDefaultParamList * GMetaOperatorDataBase::getDefaultParamList() const
 {
 	if(! this->defaultParamList) {

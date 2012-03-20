@@ -65,7 +65,10 @@ public:
 	bool isParamTransferOwnership(size_t paramIndex) const;
 	bool isResultTransferOwnership() const;
 
-	GMetaExtendType getItemExtendType(uint32_t flags) const;
+	// must be defined in header to make template function overloading happy.
+	GMetaExtendType getItemExtendType(uint32_t flags) const {
+		return this->virtualFunctions->getItemExtendType(this, flags);
+	}
 
 	GMetaDefaultParamList * getDefaultParamList() const;
 	bool hasDefaultParam() const;

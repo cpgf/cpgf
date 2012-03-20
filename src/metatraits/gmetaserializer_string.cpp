@@ -36,12 +36,7 @@ public:
 };
 
 
-//cpgf::IMetaSerializer * metaTraitsCreateSerializer(std::string &)
-//{
-//	return new cpgf::GMetaSerializerString;
-//}
-
-cpgf::IMetaSerializer * metaTraitsCreateSerializer(const std::string &)
+IMetaSerializer * metaTraitsCreateSerializer(const std::string &)
 {
 	return new cpgf::GMetaSerializerString;
 }

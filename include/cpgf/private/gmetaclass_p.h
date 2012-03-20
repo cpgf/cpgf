@@ -53,7 +53,11 @@ public:
 	void * cloneInplace(void * instance, void * placement) const;
 
 	size_t getObjectSize() const;
-	GMetaExtendType getItemExtendType(uint32_t flags) const;
+	
+	// must be defined in header to make template function overloading happy.
+	GMetaExtendType getItemExtendType(uint32_t flags) const {
+		return this->virtualFunctions->getItemExtendType(this, flags);
+	}
 
 	bool isAbstract() const;
 	bool isPolymorphic() const;

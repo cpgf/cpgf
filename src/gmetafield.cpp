@@ -41,10 +41,6 @@ void * GMetaFieldDataBase::getFieldAddress(void * instance) const
 	return this->virtualFunctions->getFieldAddress(this, instance);
 }
 
-GMetaExtendType GMetaFieldDataBase::getItemExtendType(uint32_t flags) const
-{
-	return this->virtualFunctions->getItemExtendType(this, flags);
-}
 
 	
 } // namespace meta_internal

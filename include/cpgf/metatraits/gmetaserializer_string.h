@@ -9,13 +9,11 @@ namespace cpgf {
 
 struct IMetaSerializer;
 
-//IMetaSerializer * metaTraitsCreateSerializer(std::string &);
 IMetaSerializer * metaTraitsCreateSerializer(const std::string &);
 
 
 
 } // namespace cpgf
-
 
 
 #endif

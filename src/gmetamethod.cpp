@@ -93,11 +93,6 @@ bool GMetaMethodDataBase::isResultTransferOwnership() const
 	return this->virtualFunctions->isResultTransferOwnership(this);
 }
 
-GMetaExtendType GMetaMethodDataBase::getItemExtendType(uint32_t flags) const
-{
-	return this->virtualFunctions->getItemExtendType(this, flags);
-}
-
 GMetaDefaultParamList * GMetaMethodDataBase::getDefaultParamList() const
 {
 	if(! this->defaultParamList) {

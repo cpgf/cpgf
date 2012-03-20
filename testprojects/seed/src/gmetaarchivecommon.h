@@ -108,7 +108,7 @@ struct IMetaArchiveReader : public IExtendObject
 	// ignore customized serializer, ignore pointer tracking, ignore base classes, only write the object itself
 	virtual void G_API_CC directReadObjectWithoutBase(const char * name, void * instance, IMetaClass * metaClass) = 0;
 
-	virtual uint32_t G_API_CC beginReadObject(const char * name, void * instance, IMetaClass * metaClass);
+	virtual uint32_t G_API_CC beginReadObject(const char * name, void * instance, IMetaClass * metaClass) = 0;
 	virtual void G_API_CC endReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass) = 0;
 	
 	virtual IMemoryAllocator * G_API_CC getAllocator() = 0;

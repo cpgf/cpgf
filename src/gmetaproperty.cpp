@@ -43,11 +43,6 @@ void * GMetaPropertyDataBase::getPropertyAddress(void * instance) const
 	return this->virtualFunctions->getPropertyAddress(this, instance);
 }
 
-GMetaExtendType GMetaPropertyDataBase::getItemExtendType(uint32_t flags) const
-{
-	return this->virtualFunctions->getItemExtendType(this, flags);
-}
-
 
 } // namespace meta_internal
 

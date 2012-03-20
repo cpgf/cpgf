@@ -164,12 +164,12 @@ GMetaArchiveWriter::~GMetaArchiveWriter()
 {
 }
 
-void GMetaArchiveWriter::writeObjectValue(const char * name, void * instance, IMetaClass * metaClass)
+void G_API_CC GMetaArchiveWriter::writeObjectValue(const char * name, void * instance, IMetaClass * metaClass)
 {
 	this->writeObjectHelper(name, instance, metaClass, NULL, aptByValue);
 }
 
-void GMetaArchiveWriter::writeObjectPointer(const char * name, void * instance, IMetaClass * metaClass)
+void G_API_CC GMetaArchiveWriter::writeObjectPointer(const char * name, void * instance, IMetaClass * metaClass)
 {
 	this->writeObjectHelper(name, instance, metaClass, NULL, aptByPointer);
 }
@@ -186,17 +186,17 @@ void GMetaArchiveWriter::writeObjectHelper(const char * name, void * instance, I
 	this->endWriteObject(name, archiveID, instance, metaClass, classTypeID);
 }
 
-void GMetaArchiveWriter::writeField(const char * name, void * instance, IMetaAccessible * accessible)
+void G_API_CC GMetaArchiveWriter::writeField(const char * name, void * instance, IMetaAccessible * accessible)
 {
 	this->doWriteField(name, instance, accessible);
 }
 
-void GMetaArchiveWriter::defaultWriteObjectValue(const char * name, void * instance, IMetaClass * metaClass)
+void G_API_CC GMetaArchiveWriter::defaultWriteObjectValue(const char * name, void * instance, IMetaClass * metaClass)
 {
 	this->defaultWriteObjectHelper(name, instance, metaClass, aptByValue);
 }
 
-void GMetaArchiveWriter::defaultWriteObjectPointer(const char * name, void * instance, IMetaClass * metaClass)
+void G_API_CC GMetaArchiveWriter::defaultWriteObjectPointer(const char * name, void * instance, IMetaClass * metaClass)
 {
 	this->defaultWriteObjectHelper(name, instance, metaClass, aptByPointer);
 }
@@ -213,7 +213,7 @@ void GMetaArchiveWriter::defaultWriteObjectHelper(const char * name, void * inst
 	this->endWriteObject(name, archiveID, instance, metaClass, classTypeID);
 }
 
-void GMetaArchiveWriter::directWriteObject(const char * name, void * instance, IMetaClass * metaClass)
+void G_API_CC GMetaArchiveWriter::directWriteObject(const char * name, void * instance, IMetaClass * metaClass)
 {
 	uint32_t archiveID = this->getNextArchiveID();
 
@@ -224,7 +224,7 @@ void GMetaArchiveWriter::directWriteObject(const char * name, void * instance, I
 	this->endWriteObject(name, archiveID, instance, metaClass, archiveIDNone);
 }
 
-void GMetaArchiveWriter::directWriteObjectWithoutBase(const char * name, void * instance, IMetaClass * metaClass)
+void G_API_CC GMetaArchiveWriter::directWriteObjectWithoutBase(const char * name, void * instance, IMetaClass * metaClass)
 {
 	uint32_t archiveID = this->getNextArchiveID();
 
@@ -435,7 +435,7 @@ GMetaArchiveWriterClassTypeTracker * GMetaArchiveWriter::getClassTypeTracker()
 	return this->classTypeTracker.get();
 }
 
-void GMetaArchiveWriter::beginWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, uint32_t classTypeID)
+void G_API_CC GMetaArchiveWriter::beginWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, uint32_t classTypeID)
 {
 	GMetaArchiveObjectInformation objectInformation;
 	
@@ -448,7 +448,7 @@ void GMetaArchiveWriter::beginWriteObject(const char * name, uint32_t archiveID,
 	this->writer->beginWriteObject(&objectInformation);
 }
 
-void GMetaArchiveWriter::endWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, uint32_t classTypeID)
+void G_API_CC GMetaArchiveWriter::endWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, uint32_t classTypeID)
 {
 	GMetaArchiveObjectInformation objectInformation;
 	
