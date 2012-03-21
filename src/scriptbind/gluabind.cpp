@@ -2,6 +2,7 @@
 #include "cpgf/gflags.h"
 #include "cpgf/gexception.h"
 #include "cpgf/gmetaclasstraveller.h"
+#include "cpgf/gcallback.h"
 
 #include "../pinclude/gbindcommon.h"
 #include "../pinclude/gscriptbindapiimpl.h"

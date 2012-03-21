@@ -4,9 +4,9 @@
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/gglobal.h"
 #include "cpgf/gflags.h"
-#include "cpgf/gmetaclass.h"
 #include "cpgf/gclassutil.h"
 #include "cpgf/gbytearrayapi.h"
+#include "cpgf/gmetaoperatorop.h"
 
 #include <map>
 #include <vector>

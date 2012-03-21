@@ -275,7 +275,10 @@ public:
 
 	bool hasResult() const;
 	GMetaType getResultType() const;
-	GMetaExtendType getResultExtendType(uint32_t flags) const;
+	
+	GMetaExtendType getResultExtendType(uint32_t flags) const {
+		return this->virtualFunctions->getResultExtendType(this, flags);
+	}
 
 	bool isVariadic() const;
 

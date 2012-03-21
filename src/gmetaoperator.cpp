@@ -48,11 +48,6 @@ GMetaType GMetaOperatorDataBase::getResultType() const
 	return this->virtualFunctions->getResultType(this);
 }
 
-GMetaExtendType GMetaOperatorDataBase::getResultExtendType(uint32_t flags) const
-{
-	return this->virtualFunctions->getResultExtendType(this, flags);
-}
-
 bool GMetaOperatorDataBase::isVariadic() const
 {
 	return this->virtualFunctions->isVariadic(this);

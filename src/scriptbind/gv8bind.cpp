@@ -1,6 +1,7 @@
 #include "cpgf/scriptbind/gv8bind.h"
 #include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gstringmap.h"
+#include "cpgf/gcallback.h"
 
 #include "../pinclude/gbindcommon.h"
 #include "../pinclude/gscriptbindapiimpl.h"
