@@ -44,11 +44,11 @@ int main(int argc, char * argv[])
 	(void)argv;
 
 //	testBoost();
-	string s;
-	test(s);
+//	string s;
+//	test(s);
 
 	UnitTest::RunAllTests();
-	testSer();
+//	testSer();
 
 //	_getch();
 	printf("\n");
