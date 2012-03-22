@@ -163,31 +163,33 @@ public:
 	string * pnull;
 };
 
+#define F(f) FIELD(TestSerializeClass, f)
+
 template <typename D>
 void register_TestSerializeClass(D define)
 {
 	GDefineMetaClass<TestSerializeClass> classDefine = GDefineMetaClass<TestSerializeClass>::declare("TestSerializeClass");
 	
 	classDefine
-		FIELD(b)
-		FIELD(c)
-		FIELD(sc)
-		FIELD(uc)
-		FIELD(si)
-		FIELD(usi)
-		FIELD(i)
-		FIELD(ui)
-		FIELD(l)
-		FIELD(ul)
-		FIELD(ll)
-		FIELD(ull)
-		FIELD(f)
-		FIELD(df)
-		FIELD(ldf)
-		FIELD(str)
-		FIELD(pstr)
-		FIELD(pself)
-		FIELD(pnull)
+		F(b)
+		F(c)
+		F(sc)
+		F(uc)
+		F(si)
+		F(usi)
+		F(i)
+		F(ui)
+		F(l)
+		F(ul)
+		F(ll)
+		F(ull)
+		F(f)
+		F(df)
+		F(ldf)
+		F(str)
+		F(pstr)
+		F(pself)
+		F(pnull)
 	;
 
 	define._class(classDefine);
@@ -219,6 +221,7 @@ void doTestSimpleObject(IMetaWriter * writer, IMetaReader * reader, const SEEK &
 	GCHECK(instance != readInstance);
 
 	readInstance.pself = NULL;
+	readInstance.pnull = (string *)0xbeef;
 	archiveReader->readObject("", &readInstance, metaClass.get());
 
 	GEQUAL(instance, readInstance);

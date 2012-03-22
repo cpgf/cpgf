@@ -3,8 +3,7 @@
 
 #include "unittestbase.h"
 
-#define FIELD(n) ._field(# n, &TestSerializeClass::n)
-
+#define FIELD(cls, n) ._field(# n, &cls::n)
 
 
 #endif

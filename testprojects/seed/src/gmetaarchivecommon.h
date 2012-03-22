@@ -6,6 +6,8 @@
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gexception.h"
 
+#include "cpgf/gstringmap.h"
+
 
 namespace cpgf {
 
@@ -156,6 +158,41 @@ private:
 };
 
 
+class GBaseClassMap
+{
+private:
+	struct MapItem {
+		void * instance;
+		IMetaClass * metaClass;
+	};
+
+	typedef GStringMap<MapItem, GStringMapReuseKey> MapType;
+
+public:
+	~GBaseClassMap() {
+		for(MapType::iterator it = this->itemMap.begin(); it != this->itemMap.end(); ++it) {
+			it->second.metaClass->releaseReference();
+		}
+	}
+
+	bool hasMetaClass(void * instance, IMetaClass * metaClass) const {
+		MapType::const_iterator it = this->itemMap.find(metaClass->getTypeName());
+		return it != this->itemMap.end() && it->second.instance == instance;
+	}
+
+	void addMetaClass(void * instance, IMetaClass * metaClass) {
+		MapItem item;
+		item.instance = instance;
+		item.metaClass = metaClass;
+		this->itemMap.set(metaClass->getTypeName(), item);
+		metaClass->addReference();
+	}
+
+private:
+	MapType itemMap;
+};
+
+
 IMetaArchiveWriter * createMetaArchiveWriter(uint32_t config, IMetaService * service, IMetaWriter * writer);
 IMetaArchiveReader * createMetaArchiveReader(uint32_t config, IMetaService * service, IMetaReader * reader);
 
@@ -176,7 +213,6 @@ inline void serializeError(int errorCode, ...)
 {
 	raiseException(errorCode, "Serialize error.");
 }
-
 
 
 } // namespace cpgf

@@ -46,6 +46,11 @@ IMetaSerializer * metaTraitsCreateSerializer(std::string * &)
 	return new cpgf::GMetaSerializerString;
 }
 
+IMetaSerializer * metaTraitsCreateSerializer(const std::string * &)
+{
+	return new cpgf::GMetaSerializerString;
+}
+
 
 
 } // namespace cpgf
