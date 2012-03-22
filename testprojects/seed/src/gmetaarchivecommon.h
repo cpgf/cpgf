@@ -147,6 +147,10 @@ public:
 	bool allowSerializeField() const { return true; }
 	bool allowSerializeProperty() const { return true; }
 
+	uint32_t getFlags() const {
+		return this->flags;
+	}
+
 private:
 	GFlags<ConfigFlags> flags;
 };

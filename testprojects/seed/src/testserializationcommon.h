@@ -3,6 +3,7 @@
 
 #include "unittestbase.h"
 
+#define FIELD(n) ._field(# n, &TestSerializeClass::n)
 
 
 

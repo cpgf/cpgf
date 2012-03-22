@@ -3,6 +3,7 @@
 
 
 #include "../unittestbase.h"
+#include "../testmetatraits.h"
 
 
 #include "cpgf/gmetadefine.h"

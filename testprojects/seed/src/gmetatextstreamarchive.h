@@ -299,7 +299,7 @@ protected:
 			}
 			else {
 				this->stream << "\n";
-				this->delimiter = dtNone;
+				this->delimiter = dtSpace;
 			}
 		}
 	}

@@ -1,5 +1,3 @@
-#include "cpgf/metatraits/gmetaconverter_string.h"
-
 #include "testscriptbindmetadata.h"
 #include "cpgf/gmetadefine.h"
 

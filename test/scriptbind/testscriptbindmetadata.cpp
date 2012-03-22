@@ -1,5 +1,3 @@
-#include "cpgf/metatraits/gmetaconverter_string.h"
-
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gexception.h"
 

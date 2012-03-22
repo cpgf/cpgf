@@ -53,6 +53,8 @@ public:
 			&& FEQUAL(this->ldf, other.ldf)
 			&& this->str == other.str
 			&& (this->pstr == other.pstr || (this->pstr != NULL && other.pstr != NULL && *(this->pstr) == *(other.pstr)))
+			&& (this->pself == &this->str && other.pself == &other.str)
+			&& (this->pnull == NULL && other.pnull == NULL)
 		;
 	}
 
@@ -74,7 +76,9 @@ public:
 			&& !FEQUAL(this->df, other.df)
 			&& !FEQUAL(this->ldf, other.ldf)
 			&& this->str != other.str
-//			&& !(this->pstr == other.pstr || (this->pstr != NULL && other.pstr != NULL && *(this->pstr) == *(other.pstr)))
+			&& !(this->pstr == other.pstr || (this->pstr != NULL && other.pstr != NULL && *(this->pstr) == *(other.pstr)))
+			&& (this->pself == &this->str && other.pself == &other.str)
+			&& (this->pnull == NULL && other.pnull == NULL)
 		;
 	}
 
@@ -100,6 +104,8 @@ public:
 			delete this->pstr;
 		}
 		this->pstr = NULL;
+		this->pself = &this->str;
+		this->pnull = NULL;
 	}
 
 	void set(long long seed)
@@ -153,9 +159,9 @@ public:
 	long double ldf;
 	string str;
 	string * pstr;
+	string * pself;
+	string * pnull;
 };
-
-#define F(n) ._field(# n, &TestSerializeClass::n)
 
 template <typename D>
 void register_TestSerializeClass(D define)
@@ -163,29 +169,29 @@ void register_TestSerializeClass(D define)
 	GDefineMetaClass<TestSerializeClass> classDefine = GDefineMetaClass<TestSerializeClass>::declare("TestSerializeClass");
 	
 	classDefine
-		F(b)
-		F(c)
-		F(sc)
-		F(uc)
-		F(si)
-		F(usi)
-		F(i)
-		F(ui)
-		F(l)
-		F(ul)
-		F(ll)
-		F(ull)
-		F(f)
-		F(df)
-		F(ldf)
-		F(str)
-		F(pstr)
+		FIELD(b)
+		FIELD(c)
+		FIELD(sc)
+		FIELD(uc)
+		FIELD(si)
+		FIELD(usi)
+		FIELD(i)
+		FIELD(ui)
+		FIELD(l)
+		FIELD(ul)
+		FIELD(ll)
+		FIELD(ull)
+		FIELD(f)
+		FIELD(df)
+		FIELD(ldf)
+		FIELD(str)
+		FIELD(pstr)
+		FIELD(pself)
+		FIELD(pnull)
 	;
 
 	define._class(classDefine);
 }
-
-#undef F
 
 template <typename SEEK>
 void doTestSimpleObject(IMetaWriter * writer, IMetaReader * reader, const SEEK & seek)
@@ -195,7 +201,7 @@ void doTestSimpleObject(IMetaWriter * writer, IMetaReader * reader, const SEEK &
 
 	GScopedInterface<IMetaService> service(createMetaService(createMetaModule(define.getMetaClass())));
 
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service.get(), writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service.get(), writer));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClass"));
 
@@ -206,12 +212,13 @@ void doTestSimpleObject(IMetaWriter * writer, IMetaReader * reader, const SEEK &
 
 	seek(0);
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service.get(), reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service.get(), reader));
 	
 	TestSerializeClass readInstance;
 	
 	GCHECK(instance != readInstance);
 
+	readInstance.pself = NULL;
 	archiveReader->readObject("", &readInstance, metaClass.get());
 
 	GEQUAL(instance, readInstance);
@@ -228,6 +235,7 @@ GTEST(TestSimpleObject)
 
 	GTextStreamMetaWriter<stringstream> outputStream(stream);
 	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
+	
 	doTestSimpleObject(&outputStream, &inputStream, makeCallback(&stream, extractFunction1(&stringstream::seekg)));
 	
 	cout << stream.str().c_str() << endl;

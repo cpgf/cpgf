@@ -63,6 +63,8 @@ protected:
 
 	GMetaArchiveWriterPointerTracker * getPointerTracker();
 	GMetaArchiveWriterClassTypeTracker * getClassTypeTracker();
+	
+	bool trackPointer(uint32_t archiveID, void * instance, GMetaArchivePointerType pointerType);
 
 private:
 	GMetaArchiveConfig config;
@@ -179,6 +181,10 @@ void GMetaArchiveWriter::writeObjectHelper(const char * name, void * instance, I
 	uint32_t archiveID = this->getNextArchiveID();
 	uint32_t classTypeID = this->getClassTypeID(instance, metaClass, pointerType);
 
+	if(this->trackPointer(archiveID, instance, pointerType)) {
+		return;
+	}
+	
 	this->beginWriteObject(name, archiveID, instance, metaClass, classTypeID);
 
 	this->doWriteObject(archiveID, instance, metaClass, serializer, pointerType);
@@ -206,6 +212,10 @@ void GMetaArchiveWriter::defaultWriteObjectHelper(const char * name, void * inst
 	uint32_t archiveID = this->getNextArchiveID();
 	uint32_t classTypeID = this->getClassTypeID(instance, metaClass, pointerType);
 
+	if(this->trackPointer(archiveID, instance, pointerType)) {
+		return;
+	}
+	
 	this->beginWriteObject(name, archiveID, instance, metaClass, classTypeID);
 
 	this->doDefaultWriteObject(archiveID, instance, metaClass, pointerType);
@@ -256,7 +266,12 @@ void GMetaArchiveWriter::doDefaultWriteObject(uint32_t archiveID, void * instanc
 	if(metaClass == NULL) {
 		serializeError(Error_Serialization_MissingMetaClass);
 	}
-	
+
+	this->doDirectWriteObject(archiveID, instance, metaClass);
+}
+
+bool GMetaArchiveWriter::trackPointer(uint32_t archiveID, void * instance, GMetaArchivePointerType pointerType)
+{
 	if(pointerType != aptIgnore) {
 		if(this->config.allowTrackPointer()) {
 
@@ -265,17 +280,17 @@ void GMetaArchiveWriter::doDefaultWriteObject(uint32_t archiveID, void * instanc
 					// error
 				}
 				else {
-					this->writer->writeReferenceID("", this->getNextArchiveID(), this->getPointerTracker()->getArchiveID(instance));
+					this->writer->writeReferenceID("", archiveID, this->getPointerTracker()->getArchiveID(instance));
 				}
 
-				return;
+				return true;
 			}
 
 			this->getPointerTracker()->addPointer(instance, archiveID);
 		}
 	}
 
-	this->doDirectWriteObject(archiveID, instance, metaClass);
+	return false;
 }
 
 uint32_t GMetaArchiveWriter::getClassTypeID(void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType)

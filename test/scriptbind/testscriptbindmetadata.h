@@ -2,6 +2,8 @@
 #define __TESTSCRIPTBINDMETADATA_H
 
 
+#include "../testmetatraits.h"
+
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
