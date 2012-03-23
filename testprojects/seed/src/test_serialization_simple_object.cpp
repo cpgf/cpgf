@@ -241,7 +241,7 @@ GTEST(TestSimpleObject)
 	
 	doTestSimpleObject(&outputStream, &inputStream, makeCallback(&stream, extractFunction1(&stringstream::seekg)));
 	
-	cout << stream.str().c_str() << endl;
+//	cout << stream.str().c_str() << endl;
 }
 
 

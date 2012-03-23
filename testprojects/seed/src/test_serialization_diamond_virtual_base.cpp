@@ -22,11 +22,24 @@ using namespace cpgf;
 
 namespace {
 
+int readCount = 0;
+int writeCount = 0;
+
 class A
 {
 public:
 	A() : a(0) {}
 	virtual ~A() {}
+
+	int getA() const {
+		++readCount;
+		return a;
+	}
+	
+	void setA(int a) {
+		++writeCount;
+		this->a = a;
+	}
 
 	int a;
 };
@@ -81,7 +94,7 @@ void register_TestSerializeClass(Define define)
 	GDefineMetaClass<A> classDefineA = GDefineMetaClass<A>::declare("TestSerializeClassA");
 	
 	classDefineA
-		FIELD(A, a)
+		._property("a", &A::getA, &A::setA)
 	;
 
 	define._class(classDefineA);
@@ -115,6 +128,9 @@ void register_TestSerializeClass(Define define)
 template <typename SEEK>
 void doTestMultipleInheritance(IMetaWriter * writer, IMetaReader * reader, const SEEK & seek)
 {
+	readCount = 0;
+	writeCount = 0;
+
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
 
@@ -143,6 +159,9 @@ void doTestMultipleInheritance(IMetaWriter * writer, IMetaReader * reader, const
 	archiveReader->readObject("", &readInstance, metaClass.get());
 
 	GEQUAL(instance, readInstance);
+
+	GEQUAL(1, readCount);
+	GEQUAL(1, writeCount);
 }
 
 GTEST(testMultipleInheritance)
@@ -159,7 +178,7 @@ GTEST(testMultipleInheritance)
 	
 	doTestMultipleInheritance(&outputStream, &inputStream, makeCallback(&stream, extractFunction1(&stringstream::seekg)));
 	
-	cout << stream.str().c_str() << endl;
+//	cout << stream.str().c_str() << endl;
 }
 
 

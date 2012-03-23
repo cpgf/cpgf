@@ -326,6 +326,16 @@ void GMetaArchiveReader::doReadField(const char * name, void * instance, IMetaAc
 	uint32_t archiveID;
 
 	GMetaArchiveItemType type = static_cast<GMetaArchiveItemType>(this->reader->getArchiveType(name));
+
+	if(type == matClassType) {
+		uint32_t classTypeID;
+		GScopedInterface<IMetaClass> metaClass(this->reader->readClassType(name, &classTypeID));
+		type = static_cast<GMetaArchiveItemType>(this->reader->getArchiveType(name));
+		if(metaClass && classTypeID != archiveIDNone && ! this->getClassTypeTracker()->hasArchiveID(classTypeID)) {
+			this->getClassTypeTracker()->addArchiveID(classTypeID, metaClass.get());
+		}
+	}
+
 	switch(type) {
 		case matNull: {
 			if(pointers == 0) {
@@ -418,13 +428,10 @@ void GMetaArchiveReader::doReadField(const char * name, void * instance, IMetaAc
 			break;
 		}
 
-		case matClassType: {
-			GScopedInterface<IMetaClass> metaClass(this->reader->readClassType(name, &archiveID));
-			if(metaClass && archiveID != archiveIDNone && ! this->getClassTypeTracker()->hasArchiveID(archiveID)) {
-				this->getClassTypeTracker()->addArchiveID(archiveID, metaClass.get());
-			}
+		default:
+			GASSERT(false);
+
 			break;
-		}
 	}
 }
 

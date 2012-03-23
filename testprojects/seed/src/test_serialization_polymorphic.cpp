@@ -22,8 +22,9 @@ using namespace cpgf;
 
 namespace {
 
-int readCount = 0;
-int writeCount = 0;
+const int CA = 1;
+const int CB = 2;
+const int CC = 3;
 
 class A
 {
@@ -31,15 +32,7 @@ public:
 	A() : a(0) {}
 	virtual ~A() {}
 
-	int getA() const {
-		++readCount;
-		return a;
-	}
-	
-	void setA(int a) {
-		++writeCount;
-		this->a = a;
-	}
+	virtual int get() const { return CA; }
 
 	int a;
 };
@@ -49,6 +42,8 @@ class B : public A
 public:
 	B() : b(0) {}
 
+	virtual int get() const { return CB; }
+
 	int b;
 };
 
@@ -57,35 +52,19 @@ class C : public A
 public:
 	C() : c(0) {}
 
+	virtual int get() const { return CC; }
+
 	int c;
 };
 
-class D : public B, public C
+class R
 {
 public:
-	D() : d(0) {}
+	R() : r(0), pa(NULL) {}
+	~R() { delete pa; }
 
-	bool operator == (const D & other) const {
-		return
-			this->B::a == other.B::a
-			&& this->C::a == other.C::a
-			&& this->b == other.b
-			&& this->c == other.c
-			&& this->d == other.d
-		;
-	}
-	
-	bool operator != (const D & other) const {
-		return
-			this->B::a != other.B::a
-			&& this->C::a != other.C::a
-			&& this->b != other.b
-			&& this->c != other.c
-			&& this->d != other.d
-		;
-	}
-	
-	int d;
+	int r;
+	A * pa;
 };
 
 
@@ -96,7 +75,7 @@ void register_TestSerializeClass(Define define)
 	GDefineMetaClass<A> classDefineA = GDefineMetaClass<A>::declare("TestSerializeClassA");
 	
 	classDefineA
-		._property("a", &A::getA, &A::setA)
+		FIELD(A, a)
 	;
 
 	define._class(classDefineA);
@@ -117,22 +96,20 @@ void register_TestSerializeClass(Define define)
 
 	define._class(classDefineC);
 	
-	GDefineMetaClass<D, B, C> classDefineD = GDefineMetaClass<D, B, C>::declare("TestSerializeClassD");
+	GDefineMetaClass<R> classDefineR = GDefineMetaClass<R>::declare("TestSerializeClassR");
 	
-	classDefineD
-		FIELD(D, d)
+	classDefineR
+		FIELD(R, r)
+		FIELD(R, pa)
 	;
 
-	define._class(classDefineD);
+	define._class(classDefineR);
 
 }
 
 template <typename SEEK>
-void doTestMultipleInheritance(IMetaWriter * writer, IMetaReader * reader, const SEEK & seek)
+void doTestPolymorphic(IMetaWriter * writer, IMetaReader * reader, const SEEK & seek)
 {
-	readCount = 0;
-	writeCount = 0;
-
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
 
@@ -140,14 +117,14 @@ void doTestMultipleInheritance(IMetaWriter * writer, IMetaReader * reader, const
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service.get(), writer));
 
-	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassD"));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassR"));
 
-	D instance;
-	instance.B::a = 0x1a;
-	instance.C::a = 0x1b;
-	instance.b = 0x2b;
-	instance.c = 0x3c;
-	instance.d = 0x4d;
+	R instance;
+	instance.r = 58;
+	B * pb = new B;
+	instance.pa = pb;
+	pb->a = 15;
+	pb->b = 16;
 
 	archiveWriter->writeObjectValue("obj", &instance, metaClass.get());
 
@@ -155,19 +132,15 @@ void doTestMultipleInheritance(IMetaWriter * writer, IMetaReader * reader, const
 	
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service.get(), reader));
 	
-	D readInstance;
+	R readInstance;
 	
-	GCHECK(instance != readInstance);
-
 	archiveReader->readObject("", &readInstance, metaClass.get());
 
-	GEQUAL(instance, readInstance);
-
-	GEQUAL(2, readCount);
-	GEQUAL(2, writeCount);
+	GCHECK(readInstance.pa != NULL);
+	GEQUAL(CB, readInstance.pa->get());
 }
 
-GTEST(testMultipleInheritance)
+GTEST(testPolymorphic)
 {
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
@@ -179,9 +152,9 @@ GTEST(testMultipleInheritance)
 	GTextStreamMetaWriter<stringstream> outputStream(stream);
 	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
 	
-	doTestMultipleInheritance(&outputStream, &inputStream, makeCallback(&stream, extractFunction1(&stringstream::seekg)));
+	doTestPolymorphic(&outputStream, &inputStream, makeCallback(&stream, extractFunction1(&stringstream::seekg)));
 	
-//	cout << stream.str().c_str() << endl;
+	cout << stream.str().c_str() << endl;
 }
 
 

@@ -285,6 +285,9 @@ protected:
 		
 		this->writeDelimiter();
 
+		this->stream << static_cast<uint32_t>(archiveID);
+		this->writeDelimiter();
+		
 		this->doWriteString(metaClass->getTypeName());
 	}
 
@@ -474,6 +477,11 @@ protected:
 		PermanentType type = this->readType();
 		checkType(type, ptClassType);
 
+		uint32_t id;
+		this->stream >> id;
+		this->skipDelimiter();
+		*outArchiveID = id;
+		
 		GScopedArray<char> classType(this->doReadString(NULL));
 		return this->service->findClassByName(classType.get());
 	}

@@ -57,7 +57,7 @@ protected:
 	
 	void doWriteField(const char * name, void * instance, IMetaAccessible * accessible);
 	
-	uint32_t getClassTypeID(void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType);
+	uint32_t getClassTypeID(void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType, IMetaClass ** outCastedMetaClass);
 
 	uint32_t getNextArchiveID();
 
@@ -149,7 +149,7 @@ uint32_t GMetaArchiveWriterClassTypeTracker::getArchiveID(const string & classTy
 
 void GMetaArchiveWriterClassTypeTracker::addClassType(const string & classType, uint32_t archiveID)
 {
-	GASSERT(this->hasClassType(classType));
+	GASSERT(! this->hasClassType(classType));
 	
 	this->classTypeMap.insert(pair<string, uint32_t>(classType, archiveID));
 }
@@ -179,18 +179,21 @@ void G_API_CC GMetaArchiveWriter::writeObjectPointer(const char * name, void * i
 void GMetaArchiveWriter::writeObjectHelper(const char * name, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GMetaArchivePointerType pointerType)
 {
 	uint32_t archiveID = this->getNextArchiveID();
-	uint32_t classTypeID = this->getClassTypeID(instance, metaClass, pointerType);
 
 	if(this->trackPointer(archiveID, instance, pointerType)) {
 		return;
 	}
 	
-	this->beginWriteObject(name, archiveID, instance, metaClass, classTypeID);
+	IMetaClass * outCastedMetaClass;
+	uint32_t classTypeID = this->getClassTypeID(instance, metaClass, pointerType, &outCastedMetaClass);
+	GScopedInterface<IMetaClass> castedMetaClass(outCastedMetaClass);
+
+	this->beginWriteObject(name, archiveID, instance, castedMetaClass.get(), classTypeID);
 
 	GBaseClassMap baseClassMap;
-	this->doWriteObject(archiveID, instance, metaClass, serializer, pointerType, &baseClassMap);
+	this->doWriteObject(archiveID, instance, castedMetaClass.get(), serializer, pointerType, &baseClassMap);
 
-	this->endWriteObject(name, archiveID, instance, metaClass, classTypeID);
+	this->endWriteObject(name, archiveID, instance, castedMetaClass.get(), classTypeID);
 }
 
 void G_API_CC GMetaArchiveWriter::writeField(const char * name, void * instance, IMetaAccessible * accessible)
@@ -211,18 +214,21 @@ void G_API_CC GMetaArchiveWriter::defaultWriteObjectPointer(const char * name, v
 void GMetaArchiveWriter::defaultWriteObjectHelper(const char * name, void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType)
 {
 	uint32_t archiveID = this->getNextArchiveID();
-	uint32_t classTypeID = this->getClassTypeID(instance, metaClass, pointerType);
 
 	if(this->trackPointer(archiveID, instance, pointerType)) {
 		return;
 	}
-	
-	this->beginWriteObject(name, archiveID, instance, metaClass, classTypeID);
+
+	IMetaClass * outCastedMetaClass;
+	uint32_t classTypeID = this->getClassTypeID(instance, metaClass, pointerType, &outCastedMetaClass);
+	GScopedInterface<IMetaClass> castedMetaClass(outCastedMetaClass);
+
+	this->beginWriteObject(name, archiveID, instance, castedMetaClass.get(), classTypeID);
 
 	GBaseClassMap baseClassMap;
-	this->doDefaultWriteObject(archiveID, instance, metaClass, pointerType, &baseClassMap);
+	this->doDefaultWriteObject(archiveID, instance, castedMetaClass.get(), pointerType, &baseClassMap);
 
-	this->endWriteObject(name, archiveID, instance, metaClass, classTypeID);
+	this->endWriteObject(name, archiveID, instance, castedMetaClass.get(), classTypeID);
 }
 
 void G_API_CC GMetaArchiveWriter::directWriteObject(const char * name, void * instance, IMetaClass * metaClass)
@@ -296,9 +302,11 @@ bool GMetaArchiveWriter::trackPointer(uint32_t archiveID, void * instance, GMeta
 	return false;
 }
 
-uint32_t GMetaArchiveWriter::getClassTypeID(void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType)
+uint32_t GMetaArchiveWriter::getClassTypeID(void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType, IMetaClass ** outCastedMetaClass)
 {
 	uint32_t classTypeID = archiveIDNone;
+
+	*outCastedMetaClass = NULL;
 
 	if(metaClass != NULL) {
 		if(pointerType == aptByPointer) {
@@ -312,9 +320,15 @@ uint32_t GMetaArchiveWriter::getClassTypeID(void * instance, IMetaClass * metaCl
 				else {
 					classTypeID = this->getNextArchiveID();
 					this->getClassTypeTracker()->addClassType(typeName, classTypeID);
-					this->writer->writeClassType("", classTypeID, metaClass);
+					this->writer->writeClassType("", classTypeID, castedMetaClass.get());
 				}
+				*outCastedMetaClass = castedMetaClass.take();
 			}
+		}
+		
+		if(*outCastedMetaClass == NULL) {
+			*outCastedMetaClass = metaClass;
+			metaClass->addReference();
 		}
 	}
 
