@@ -1,5 +1,3 @@
-#include "cpgf/metatraits/gmetaserializer_string.h"
-
 #include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
 
@@ -195,8 +193,8 @@ void register_TestSerializeClass(D define)
 	define._class(classDefine);
 }
 
-template <typename SEEK>
-void doTestSimpleObject(IMetaWriter * writer, IMetaReader * reader, const SEEK & seek)
+template <typename AR>
+void doTestSimpleObject(IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
@@ -212,7 +210,7 @@ void doTestSimpleObject(IMetaWriter * writer, IMetaReader * reader, const SEEK &
 
 	archiveWriter->writeObjectValue("obj", &instance, metaClass.get());
 
-	seek(0);
+	ar.rewind();
 	
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service.get(), reader));
 	
@@ -239,7 +237,7 @@ GTEST(TestSimpleObject)
 	GTextStreamMetaWriter<stringstream> outputStream(stream);
 	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
 	
-	doTestSimpleObject(&outputStream, &inputStream, makeCallback(&stream, extractFunction1(&stringstream::seekg)));
+	doTestSimpleObject(&outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

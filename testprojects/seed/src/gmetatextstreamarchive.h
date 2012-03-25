@@ -492,6 +492,8 @@ protected:
 	}
 
 	PermanentType readType() {
+		GASSERT(! this->stream.eof());
+
 		uint16_t type;
 		this->stream >> type;
 		this->skipDelimiter();
@@ -499,6 +501,8 @@ protected:
 	}
 
 	char * doReadString(IMemoryAllocator * allocator) {
+		GASSERT(! this->stream.eof());
+
 		uint32_t len;
 		this->stream >> len;
 		this->skipDelimiter();

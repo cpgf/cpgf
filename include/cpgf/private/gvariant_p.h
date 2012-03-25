@@ -628,6 +628,9 @@ struct CanCastFromVariant
 			case vtString:
 				return IsConvertible<char *, typename RemoveReference<ResultType>::Result>::Result || IsConvertible<const char *, typename RemoveReference<ResultType>::Result>::Result;
 
+			case vtWideString:
+				return IsConvertible<wchar_t *, typename RemoveReference<ResultType>::Result>::Result || IsConvertible<const wchar_t *, typename RemoveReference<ResultType>::Result>::Result;
+
 			case vtInterface:
 				return variant_internal::CastVariantHelper<IObject *, typename RemoveReference<ResultType>::Result *>::CanCast;
 			
@@ -775,6 +778,27 @@ T castFromString(const char * s, typename GDisableIfResult<CheckIsConvertibleToC
 }
 
 template <typename T>
+struct CheckIsConvertibleToWideCharPointer
+{
+	G_STATIC_CONSTANT(bool, Result = (IsConvertible<wchar_t *, T>::Result || IsConvertible<const wchar_t *, T>::Result));
+};
+
+template <typename T>
+T castFromWideString(const wchar_t * s, typename GEnableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result * = 0)
+{
+	return T(s);
+}
+
+template <typename T>
+T castFromWideString(const wchar_t * s, typename GDisableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result * = 0)
+{
+	(void)s;
+
+	raiseCoreException(Error_Variant_FailCast);
+	return *(typename RemoveReference<T>::Result *)(0);
+}
+
+template <typename T>
 T castFromObject(const volatile void * const & obj, typename GEnableIfResult<IsPointer<typename RemoveReference<T>::Result> >::Result * = 0)
 {
 	return (T)(obj);
@@ -855,6 +879,9 @@ struct CastFromVariant
 			
 			case vtString:
 				return castFromString<ResultType>(static_cast<std::string *>(v.data.shadowObject->getObject())->c_str());
+
+			case vtWideString:
+				return castFromWideString<ResultType>(static_cast<std::wstring *>(v.data.shadowObject->getObject())->c_str());
 
 			case vtInterface:
 				return variant_internal::CastVariantHelper<IObject *, ResultType>::cast(v.data.valueInterface);

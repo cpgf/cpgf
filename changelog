@@ -1,4 +1,5 @@
 TBD version 1.3.1
+	Now GVariant supports wide string.
 	Fixed a bug that annotation interface may point to NULL meta annotation.
 
 2012-02-26 version 1.3.0

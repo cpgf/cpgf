@@ -1,4 +1,4 @@
-#include "cpgf/metatraits/gmetaserializer_string.h"
+#include "testserializationcommon.h"
 
 #include "gmetatextstreamarchive.h"
 
@@ -35,8 +35,11 @@ public:
 class TestClassSerialize : public TestClassSerializeBase {
 public:
 	TestClassSerialize() : a(NULL), object(NULL) {
+		this->arr[0] = 138;
+		this->arr[1] = 139;
+		this->arr[2] = 168;
 	}
-	
+
 	~TestClassSerialize() {
 		delete object;
 	}
@@ -49,6 +52,7 @@ public:
 	string fieldWriteonlyString;
 
 	TestClassSerialize * object;
+	int arr[3];
 };
 
 
@@ -69,11 +73,12 @@ G_AUTO_RUN_BEFORE_MAIN()
 			._annotation("serialize")
 				._element("enable", false)
 
-		._field("fieldInt", &TestClassSerialize::fieldInt)
-		._field("fieldString", &TestClassSerialize::fieldString)
+//		._field("fieldInt", &TestClassSerialize::fieldInt)
+//		._field("fieldString", &TestClassSerialize::fieldString)
 //		._field("fieldReadonlyInt", &TestClassSerialize::fieldReadonlyInt, GMetaPolicyReadOnly())
 //		._field("fieldWriteonlyString", &TestClassSerialize::fieldWriteonlyString, GMetaPolicyWriteOnly())
-		._field("object", &TestClassSerialize::object)
+//		._field("object", &TestClassSerialize::object)
+		._field("arr", &TestClassSerialize::arr)
 	;
 }
 
@@ -100,20 +105,21 @@ void testSer()
 
 	field.reset(metaClass->getField("fieldInt"));
 //	archiveWriter->writeField(field->getName(), pobj, field.get());
-	
+
 	archiveWriter->writeObjectValue("obj", pobj, metaClass.get());
 
 	cout << stream.str().c_str();
 
 	stream.seekg(0);
-	
+
 	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service.get(), &inputStream));
 	TestClassSerialize readInstance;
 	archiveReader->readObject("", &readInstance, metaClass.get());
 	cout << endl << "Read object" << endl;
 	cout << readInstance.fieldInt << endl;
-	cout << readInstance.object->fieldInt << endl;
-	cout << readInstance.fieldString << endl;
+//	cout << readInstance.object->fieldInt << endl;
+//	cout << readInstance.fieldString << endl;
+	cout << "ArraySize: " << ArraySize<int [3][5]>::Result << endl;
 }
 

@@ -278,6 +278,9 @@ void freeVarData(GVariantData * data);
 void initializeVarString(GVariantData * data, const char * s);
 GVariant createStringVariant(const char * s);
 bool variantIsString(const GVariant & v);
+void initializeVarWideString(GVariantData * data, const wchar_t * s);
+GVariant createWideStringVariant(const wchar_t * s);
+bool variantIsWideString(const GVariant & v);
 
 
 } // namespace cpgf

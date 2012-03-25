@@ -160,7 +160,7 @@ struct DeducePassType <T, typename GEnableIfResult<CheckIsArray<ArrayToPointer<T
 };
 
 inline bool isVtUsingShadow(int vt) {
-	return vt == vtShadow || vt == vtString;
+	return vt == vtShadow || vt == vtString || vt == vtWideString;
 }
 
 

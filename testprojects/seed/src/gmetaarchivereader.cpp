@@ -336,6 +336,12 @@ void GMetaArchiveReader::doReadField(const char * name, void * instance, IMetaAc
 		}
 	}
 
+	if(metaType.isArray()) {
+		GScopedInterface<IMetaSerializer> serializer(metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Serializer).getSerializer());
+		this->readObjectHelper(name, accessible->getAddress(instance), NULL, serializer.get());
+		return;
+	}
+
 	switch(type) {
 		case matNull: {
 			if(pointers == 0) {
@@ -353,14 +359,6 @@ void GMetaArchiveReader::doReadField(const char * name, void * instance, IMetaAc
 			}
 			else {
 				serializeError(Error_Serialization_TypeMismatch);
-			}
-			break;
-		}
-
-		case matString: {
-			if(pointers == 1 && vtGetBaseType(metaType.getVariantType()) == vtChar) {
-				char * s = this->reader->readString(name, this->getAllocator(), &archiveID);
-				this->getAllocator()->free(s);
 			}
 			break;
 		}

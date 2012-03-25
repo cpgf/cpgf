@@ -47,8 +47,8 @@ int main(int argc, char * argv[])
 //	string s;
 //	test(s);
 
-	UnitTest::RunAllTests();
-//	testSer();
+//	UnitTest::RunAllTests();
+	testSer();
 
 //	_getch();
 	printf("\n");

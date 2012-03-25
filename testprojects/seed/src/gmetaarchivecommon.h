@@ -214,6 +214,17 @@ inline void serializeError(int errorCode, ...)
 	raiseException(errorCode, "Serialize error.");
 }
 
+template <typename T>
+void serializeWriteValue(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, void * instance) 
+{
+}
+
+template <typename T>
+void * serializeReadValue(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance) 
+{
+}
+
+
 
 } // namespace cpgf
 

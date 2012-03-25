@@ -149,7 +149,7 @@ class GMetaFieldDataMember : public GMetaFieldDataBase
 {
 private:
 	G_STATIC_CONSTANT(bool, Readable = (PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result));
-	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result && !IsArray<FT>::Result));
+	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result)); // && !IsArray<FT>::Result));
 
 private:
 	static bool virtualCanGet(const void * self) {
@@ -220,12 +220,12 @@ private:
 	}
 
 	template <typename T>
-	void doSet(typename GEnableIf<Writable, T>::Result * instance, const GVariant & value) const {
+	void doSet(typename GEnableIf<Writable && !IsArray<FT>::Result, T>::Result * instance, const GVariant & value) const {
 		static_cast<OT *>(instance)->*(this->field) = fromVariant<FT>(value);
 	}
 
 	template <typename T>
-	void doSet(typename GDisableIf<Writable, T>::Result * instance, const GVariant & value) const {
+	void doSet(typename GDisableIf<Writable && !IsArray<FT>::Result, T>::Result * instance, const GVariant & value) const {
 		(void)instance;
 		(void)value;
 

@@ -396,6 +396,12 @@ void GMetaArchiveWriter::doWriteField(const char * name, void * instance, IMetaA
 	GMetaType metaType = metaGetItemType(accessible);
 	size_t pointers = metaType.getPointerDimension();
 
+	if(metaType.isArray()) {
+		GScopedInterface<IMetaSerializer> serializer(metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Serializer).getSerializer());
+		this->writeObjectHelper(name, accessible->getAddress(instance), NULL, serializer.get(), aptByValue);
+		return;
+	}
+
 	if(pointers == 0) {
 		if(metaType.isFundamental()) {
 			GVariant v(metaGetValue(accessible, instance));
@@ -423,10 +429,7 @@ void GMetaArchiveWriter::doWriteField(const char * name, void * instance, IMetaA
 				this->writer->writeNullPointer(name);
 			}
 			else {
-				if(vtGetBaseType(metaType.getVariantType()) == vtChar) {
-					this->writer->writeString(name, this->getNextArchiveID(), static_cast<char *>(ptr));
-				}
-				else if(metaType.baseIsClass()) {
+				if(metaType.baseIsClass()) {
 					bool written = false;
 					if(metaType.getBaseName() != NULL) {
 						GScopedInterface<IMetaClass> metaClass(this->service->findClassByName(metaType.getBaseName()));

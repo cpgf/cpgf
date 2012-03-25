@@ -63,6 +63,7 @@ unsigned int getVariantTypeSize(GVariantType type)
 		case vtObject:
 		case vtPointer:
 		case vtString:
+		case vtWideString:
 		case vtInterface:
 		case vtByteArray:
 			return sizeof(void *);
@@ -273,6 +274,30 @@ GVariant createStringVariant(const char * s)
 bool variantIsString(const GVariant & v)
 {
 	return v.getType() == vtString || (v.getPointers() == 1 && v.getBaseType() == vtChar);
+}
+
+void initializeVarWideString(GVariantData * data, const wchar_t * s)
+{
+	vtInit(data->typeData);
+	vtSetType(data->typeData, vtWideString);
+	vtSetSize(data->typeData, variant_internal::getVariantTypeSize(vtWideString));
+	vtSetPointers(data->typeData, 0);
+	variant_internal::IVariantShadowObject * shadow = new variant_internal::GVariantShadowObject<std::wstring>(std::wstring(s));
+	data->shadowObject = shadow;
+}
+
+GVariant createWideStringVariant(const wchar_t * s)
+{
+	GVariant v;
+
+	initializeVarWideString(&v.data, s);
+
+	return v;
+}
+
+bool variantIsWideString(const GVariant & v)
+{
+	return v.getType() == vtWideString || (v.getPointers() == 1 && v.getBaseType() == vtWchar);
 }
 
 

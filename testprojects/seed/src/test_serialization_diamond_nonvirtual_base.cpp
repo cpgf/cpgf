@@ -1,5 +1,3 @@
-#include "cpgf/metatraits/gmetaserializer_string.h"
-
 #include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
 
@@ -127,8 +125,8 @@ void register_TestSerializeClass(Define define)
 
 }
 
-template <typename SEEK>
-void doTestMultipleInheritance(IMetaWriter * writer, IMetaReader * reader, const SEEK & seek)
+template <typename AR>
+void doTestMultipleInheritance(IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
 	readCount = 0;
 	writeCount = 0;
@@ -151,7 +149,7 @@ void doTestMultipleInheritance(IMetaWriter * writer, IMetaReader * reader, const
 
 	archiveWriter->writeObjectValue("obj", &instance, metaClass.get());
 
-	seek(0);
+	ar.rewind();
 	
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service.get(), reader));
 	
@@ -179,7 +177,7 @@ GTEST(testMultipleInheritance)
 	GTextStreamMetaWriter<stringstream> outputStream(stream);
 	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
 	
-	doTestMultipleInheritance(&outputStream, &inputStream, makeCallback(&stream, extractFunction1(&stringstream::seekg)));
+	doTestMultipleInheritance(&outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

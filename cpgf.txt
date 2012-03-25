@@ -1,6 +1,10 @@
+Features:
+Serialization supports:
+Multiple pointers to same object.
+Diamond multiple inheritance. Only serialize one copy of same data.
+
 Todo:
 
-1, Serialization. Class type (full qualified name) needs to be stored to construct correct object.
 1, In reflection, now finding base class is depending on global classes. Not fine. Should find base class in the most outter class recursively.
 1, Metagen, needs to parse Doxygen document for annotation.
 1, Support script override C++ functions. It's difficult. Adding interceptor in meta system is not enough.
@@ -12,6 +16,7 @@ Todo:
 4, Define meta data for C library?
 
 Done:
+1, Serialization. Class type (full qualified name) needs to be stored to construct correct object.
 1, Refactor binding Perl script, remove the public field, use accessor instead.
 1, Support byte array to ease binary data accessing in script
 2, Support anonymous enum in script.
