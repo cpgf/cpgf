@@ -154,7 +154,7 @@ void doTestMultipleInheritance(IMetaWriter * writer, IMetaReader * reader, const
 	
 	GCHECK(instance != readInstance);
 
-	archiveReader->readObject("", &readInstance, metaClass.get());
+	serializeReadObject(archiveReader.get(), "", &readInstance, metaClass.get());
 
 	GEQUAL(instance, readInstance);
 

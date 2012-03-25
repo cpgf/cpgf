@@ -161,7 +161,10 @@ void GMetaArchiveWriterClassTypeTracker::addClassType(const string & classType, 
 GMetaArchiveWriter::GMetaArchiveWriter(const GMetaArchiveConfig & config, IMetaService * service, IMetaWriter * writer)
 	: config(config), service(service), writer(writer), currentArchiveID(0)
 {
-	this->service->addReference();
+	if(this->service) {
+		this->service->addReference();
+	}
+
 	this->writer->addReference();
 }
 
@@ -410,7 +413,7 @@ void GMetaArchiveWriter::doWriteField(const char * name, void * instance, IMetaA
 		else {
 			if(pointers == 0) {
 				ptr = accessible->getAddress(instance);
-				if(ptr == NULL) {
+				if(ptr == NULL) { // this happens when accessible is a property with both getter and setter.
 					GVariant v(metaGetValue(accessible, instance));
 					if(canFromVariant<void *>(v)) {
 						ptr = fromVariant<void *>(v);

@@ -96,8 +96,7 @@ struct IMetaArchiveWriter : public IExtendObject
 struct IMetaArchiveReader : public IExtendObject
 {
 	// take care of customized serializer, take care of pointer tracking.
-	virtual void G_API_CC readObject(const char * name, void * instance, IMetaClass * metaClass) = 0;
-	virtual void G_API_CC readField(const char * name, void * instance, IMetaAccessible * accessible) = 0;
+	virtual void G_API_CC readObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 	
 	// ignore customized serializer, take care of pointer tracking.
 	virtual void G_API_CC defaultReaderObject(const char * name, void * instance, IMetaClass * metaClass) = 0;
@@ -215,16 +214,22 @@ inline void serializeError(int errorCode, ...)
 void serializeWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
 void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
 
+void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaClass * metaClass);
+
 template <typename T>
-void serializeWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance) 
+void serializeWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, T * instance) 
 {
 	GMetaTypeData metaTypeData = createMetaType<T>().getData();
-	archiveWriter->writeObject(name, instance, &metaTypeData, NULL);
+	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>( GExtendTypeCreateFlag_Serializer).getSerializer());
+	archiveWriter->writeObject(name, instance, &metaTypeData, serializer.get());
 }
 
 template <typename T>
-void * serializeReadValue(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance) 
+void serializeReadValue(IMetaArchiveReader * archiveReader, const char * name, T * instance) 
 {
+	GMetaTypeData metaTypeData = createMetaType<T>().getData();
+	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>( GExtendTypeCreateFlag_Serializer).getSerializer());
+	archiveReader->readObject(name, instance, &metaTypeData, serializer.get());
 }
 
 GVariant readFundamental(void * address, const GMetaType & metaType);

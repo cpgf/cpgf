@@ -74,6 +74,12 @@ void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char 
 	archiveWriter->writeObject(name, instance, &metaTypeData, NULL);
 }
 
+void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaClass * metaClass)
+{
+	GMetaTypeData metaType = metaGetItemType(metaClass).getData();
+	archiveReader->readObject(name, instance, &metaType, NULL);
+}
+
 #if defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable:4800) // warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)

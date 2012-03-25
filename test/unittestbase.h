@@ -33,6 +33,7 @@
 #define GEND_EXCEPTION(e) GCHECK(false); } catch(e) {}
 
 #define FEQUAL(a, b) (fabs((a) - (b)) < 0.001)
+#define GFEQUAL(a, b) GNEAR(a, b, 0.001)
 
 namespace cpgf {
 

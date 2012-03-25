@@ -35,9 +35,6 @@ public:
 class TestClassSerialize : public TestClassSerializeBase {
 public:
 	TestClassSerialize() : a(NULL), object(NULL) {
-		this->arr[0] = 138;
-		this->arr[1] = 139;
-		this->arr[2] = 168;
 	}
 
 	~TestClassSerialize() {
@@ -102,6 +99,9 @@ void testSer()
 	instance.fieldString = "STL string";
 	instance.object = new TestClassSerialize;
 	instance.object->fieldInt = 98;
+	instance.arr[0] = 138;
+	instance.arr[1] = 139;
+	instance.arr[2] = 168;
 
 	field.reset(metaClass->getField("fieldInt"));
 //	archiveWriter->writeField(field->getName(), pobj, field.get());
@@ -115,9 +115,9 @@ void testSer()
 	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service.get(), &inputStream));
 	TestClassSerialize readInstance;
-	archiveReader->readObject("", &readInstance, metaClass.get());
+	serializeReadObject(archiveReader.get(), "", &readInstance, metaClass.get());
 	cout << endl << "Read object" << endl;
-	cout << readInstance.fieldInt << endl;
+	cout << readInstance.arr[0] << " " << readInstance.arr[1] << " " << readInstance.arr[2] << endl;
 //	cout << readInstance.object->fieldInt << endl;
 //	cout << readInstance.fieldString << endl;
 	cout << "ArraySize: " << ArraySize<int [3][5]>::Result << endl;

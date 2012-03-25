@@ -36,6 +36,7 @@ public:
 	bool operator == (const TestSerializeClass & other) const {
 		return this->b == other.b
 			&& this->c == other.c
+			&& this->wc == other.wc
 			&& this->sc == other.sc
 			&& this->uc == other.uc
 			&& this->si == other.si
@@ -60,6 +61,7 @@ public:
 	bool operator != (const TestSerializeClass & other) const {
 		return this->b != other.b
 			&& this->c != other.c
+			&& this->wc != other.wc
 			&& this->sc != other.sc
 			&& this->uc != other.uc
 			&& this->si != other.si
@@ -84,6 +86,7 @@ public:
 	{
 		this->b = false;
 		this->c = 0;
+		this->wc = 0;
 		this->sc = 0;
 		this->uc = 0;
 		this->si = 0;
@@ -110,11 +113,12 @@ public:
 	{
 		this->b = true;
 		this->c = (char)(seed);
-		this->sc = (signed char)(seed + 1);
+		this->wc = (wchar_t)(seed + 20);
+		this->sc = -(signed char)(seed + 1);
 		this->uc = (unsigned char)(seed + 2);
 		this->si = (short)(seed + 3);
 		this->usi = (unsigned short)(seed + 5);
-		this->i = (int)(seed + 10);
+		this->i = -(int)(seed + 10);
 		this->ui = (unsigned int)(seed + 23);
 		this->l = (long)(seed + 12345);
 		this->ul = (unsigned long)(seed + 712345);
@@ -142,6 +146,7 @@ public:
 
 	bool b;
 	char c;
+	wchar_t wc;
 	signed char sc;
 	unsigned char uc;
 	short si;
@@ -171,6 +176,7 @@ void register_TestSerializeClass(D define)
 	classDefine
 		F(b)
 		F(c)
+		F(wc)
 		F(sc)
 		F(uc)
 		F(si)
@@ -220,7 +226,7 @@ void doTestSimpleObject(IMetaWriter * writer, IMetaReader * reader, const AR & a
 
 	readInstance.pself = NULL;
 	readInstance.pnull = (string *)0xbeef;
-	archiveReader->readObject("", &readInstance, metaClass.get());
+	serializeReadObject(archiveReader.get(), "", &readInstance, metaClass.get());
 
 	GEQUAL(instance, readInstance);
 }

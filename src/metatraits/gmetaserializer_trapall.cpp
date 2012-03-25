@@ -30,6 +30,9 @@ public:
 		(void)archiveReader;
 		(void)metaClass;
 
+		GMetaTypeData typeData = this->metaType.getData();
+		archiveReader->readObject("", instance, &typeData, this->serializer.get());
+
 		return instance;
 	}
 

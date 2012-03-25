@@ -351,8 +351,11 @@ private:
 
 public:
 	GTextStreamMetaReader(IMetaService * service, Stream & stream)
-		: service(service), stream(stream), variantTypeMap(defaultVariantTypeMap) {
-		this->service->addReference();
+		: service(service), stream(stream), variantTypeMap(defaultVariantTypeMap)
+	{
+		if(this->service) {
+			this->service->addReference();
+		}
 	}
 
 	~GTextStreamMetaReader() {

@@ -158,7 +158,7 @@ void doTestPolymorphic(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 
 	R readInstance1;
 	
-	archiveReader->readObject("", &readInstance1, metaClass.get());
+	serializeReadObject(archiveReader.get(), "", &readInstance1, metaClass.get());
 
 	GCHECK(readInstance1.pa != NULL);
 	GEQUAL(CB, readInstance1.pa->get());
@@ -168,7 +168,7 @@ void doTestPolymorphic(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 
 	R readInstance2;
 
-	archiveReader->readObject("", &readInstance2, metaClass.get());
+	serializeReadObject(archiveReader.get(), "", &readInstance2, metaClass.get());
 
 	GCHECK(readInstance2.pa != NULL);
 	GEQUAL(CD, readInstance2.pa->get());

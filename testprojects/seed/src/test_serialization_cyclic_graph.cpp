@@ -146,7 +146,7 @@ void doTestCyclicGraph(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 
 	A readInstance;
 	
-	archiveReader->readObject("", &readInstance, metaClass.get());
+	serializeReadObject(archiveReader.get(), "", &readInstance, metaClass.get());
 	
 	GCHECK(readInstance.verify());
 }
