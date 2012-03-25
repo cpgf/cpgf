@@ -6,6 +6,8 @@
 #include <map>
 #include <string>
 
+#include <iostream>
+
 using namespace std;
 
 
@@ -29,10 +31,8 @@ public:
 	~GMetaArchiveWriter();
 
 	// take care of customized serializer, take care of pointer tracking.
-	virtual void G_API_CC writeObjectValue(const char * name, void * instance, IMetaClass * metaClass);
-	virtual void G_API_CC writeObjectPointer(const char * name, void * instance, IMetaClass * metaClass);
-	virtual void G_API_CC writeField(const char * name, void * instance, IMetaAccessible * accessible);
-	
+	virtual void G_API_CC writeObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
+
 	// ignore customized serializer, take care of pointer tracking.
 	virtual void G_API_CC defaultWriteObjectValue(const char * name, void * instance, IMetaClass * metaClass);
 	virtual void G_API_CC defaultWriteObjectPointer(const char * name, void * instance, IMetaClass * metaClass);
@@ -56,6 +56,9 @@ protected:
 	void doDirectWriteObjectWithoutBase(uint32_t archiveID, void * instance, IMetaClass * metaClass);
 	
 	void doWriteField(const char * name, void * instance, IMetaAccessible * accessible);
+	void doWriteProperty(const char * name, void * instance, IMetaAccessible * accessible);
+	
+	void doWriteValue(const char * name, void * instance, const GMetaType & metaType, IMetaSerializer * serializer, GMetaArchivePointerType pointerType);
 	
 	uint32_t getClassTypeID(void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType, IMetaClass ** outCastedMetaClass);
 
@@ -166,14 +169,15 @@ GMetaArchiveWriter::~GMetaArchiveWriter()
 {
 }
 
-void G_API_CC GMetaArchiveWriter::writeObjectValue(const char * name, void * instance, IMetaClass * metaClass)
+void G_API_CC GMetaArchiveWriter::writeObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer)
 {
-	this->writeObjectHelper(name, instance, metaClass, NULL, aptByValue);
-}
-
-void G_API_CC GMetaArchiveWriter::writeObjectPointer(const char * name, void * instance, IMetaClass * metaClass)
-{
-	this->writeObjectHelper(name, instance, metaClass, NULL, aptByPointer);
+	GMetaType type(*metaType);
+	if(type.isPointer()) {
+		this->doWriteValue(name, instance, type, serializer, aptByPointer);
+	}
+	else {
+		this->doWriteValue(name, instance, type, serializer, aptByValue);
+	}
 }
 
 void GMetaArchiveWriter::writeObjectHelper(const char * name, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GMetaArchivePointerType pointerType)
@@ -194,11 +198,6 @@ void GMetaArchiveWriter::writeObjectHelper(const char * name, void * instance, I
 	this->doWriteObject(archiveID, instance, castedMetaClass.get(), serializer, pointerType, &baseClassMap);
 
 	this->endWriteObject(name, archiveID, instance, castedMetaClass.get(), classTypeID);
-}
-
-void G_API_CC GMetaArchiveWriter::writeField(const char * name, void * instance, IMetaAccessible * accessible)
-{
-	this->doWriteField(name, instance, accessible);
 }
 
 void G_API_CC GMetaArchiveWriter::defaultWriteObjectValue(const char * name, void * instance, IMetaClass * metaClass)
@@ -272,6 +271,8 @@ void GMetaArchiveWriter::doWriteObject(uint32_t archiveID, void * instance, IMet
 
 void GMetaArchiveWriter::doDefaultWriteObject(uint32_t archiveID, void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType, GBaseClassMap * baseClassMap)
 {
+	(void)pointerType;
+
 	if(metaClass == NULL) {
 		serializeError(Error_Serialization_MissingMetaClass);
 	}
@@ -385,7 +386,7 @@ void GMetaArchiveWriter::doDirectWriteObjectWithoutBase(uint32_t archiveID, void
 		for(i = 0; i < count; ++i) {
 			accessible.reset(metaClass->getPropertyAt(i));
 			if(canSerializeField(this->config, accessible.get(), metaClass)) {
-				this->doWriteField(accessible->getName(), instance, accessible.get());
+				this->doWriteProperty(accessible->getName(), instance, accessible.get());
 			}
 		}
 	}
@@ -396,56 +397,89 @@ void GMetaArchiveWriter::doWriteField(const char * name, void * instance, IMetaA
 	GMetaType metaType = metaGetItemType(accessible);
 	size_t pointers = metaType.getPointerDimension();
 
-	if(metaType.isArray()) {
+	if(pointers <= 1) {
 		GScopedInterface<IMetaSerializer> serializer(metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Serializer).getSerializer());
-		this->writeObjectHelper(name, accessible->getAddress(instance), NULL, serializer.get(), aptByValue);
+		
+		void * ptr;
+		GMetaArchivePointerType pointerType;
+
+		if(metaType.isArray()) {
+			ptr = accessible->getAddress(instance);
+			pointerType = aptByValue;
+		}
+		else {
+			if(pointers == 0) {
+				ptr = accessible->getAddress(instance);
+				if(ptr == NULL) {
+					GVariant v(metaGetValue(accessible, instance));
+					if(canFromVariant<void *>(v)) {
+						ptr = fromVariant<void *>(v);
+					}
+				}
+				pointerType = aptByValue;
+			}
+			else {
+				ptr = fromVariant<void *>(metaGetValue(accessible, instance));
+				pointerType = aptByPointer;
+			}
+		}
+
+		GASSERT(ptr != NULL || serializer);
+
+		this->doWriteValue(name, ptr, metaType, serializer.get(), pointerType);
+	}
+	else {
+	}
+}
+
+void GMetaArchiveWriter::doWriteProperty(const char * name, void * instance, IMetaAccessible * accessible)
+{
+	GMetaType metaType = metaGetItemType(accessible);
+	size_t pointers = metaType.getPointerDimension();
+
+	if(pointers == 0 && metaType.isFundamental()) {
+		GVariant v(metaGetValue(accessible, instance));
+		this->writer->writeFundamental(name, this->getNextArchiveID(), &v.data);
 		return;
 	}
 
-	if(pointers == 0) {
-		if(metaType.isFundamental()) {
-			GVariant v(metaGetValue(accessible, instance));
-			this->writer->writeFundamental(name, this->getNextArchiveID(), &v.data);
-		}
-		else if(metaType.baseIsClass()) {
-			bool written = false;
-			if(metaType.getBaseName() != NULL) {
-				GScopedInterface<IMetaClass> metaClass(this->service->findClassByName(metaType.getBaseName()));
-				if(metaClass) {
-					this->writeObjectHelper(name, accessible->getAddress(instance), metaClass.get(), NULL, aptByValue);
-					written = true;
-				}
-			}
-			if(! written) {
-				GScopedInterface<IMetaSerializer> serializer(metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Serializer).getSerializer());
-				this->writeObjectHelper(name, accessible->getAddress(instance), NULL, serializer.get(), aptByValue);
-			}
-		}
+	this->doWriteField(name, instance, accessible);
+}
+
+void GMetaArchiveWriter::doWriteValue(const char * name, void * address, const GMetaType & metaType, IMetaSerializer * serializer, GMetaArchivePointerType pointerType)
+{
+	if(metaType.isArray()) {
+		this->writeObjectHelper(name, address, NULL, serializer, aptByValue);
+		return;
 	}
-	else {
-		if(pointers == 1) {
-			void * ptr = fromVariant<void *>(metaGetValue(accessible, instance));
-			if(ptr == NULL) {
-				this->writer->writeNullPointer(name);
-			}
-			else {
-				if(metaType.baseIsClass()) {
-					bool written = false;
-					if(metaType.getBaseName() != NULL) {
-						GScopedInterface<IMetaClass> metaClass(this->service->findClassByName(metaType.getBaseName()));
-						if(metaClass) {
-							this->writeObjectHelper(name, ptr, metaClass.get(), NULL, aptByPointer);
-							written = true;
-						}
-					}
-					if(! written) {
-						GScopedInterface<IMetaSerializer> serializer(metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Serializer).getSerializer());
-						this->writeObjectHelper(name, ptr, NULL, serializer.get(), aptByPointer);
-					}
-				}
-			}
+
+	unsigned int pointers = metaType.getPointerDimension();
+
+	if(pointers == 0 && metaType.isFundamental()) {
+		GVariant v(readFundamental(address, metaType));
+		this->writer->writeFundamental(name, this->getNextArchiveID(), &v.data);
+		return;
+	}
+
+	if(pointers > 1) {
+		// error
+	}
+
+	if(metaType.baseIsClass()) {
+		if(address == NULL && pointerType == aptByPointer) {
+			this->writer->writeNullPointer(name);
 		}
 		else {
+			GScopedInterface<IMetaClass> metaClass;
+			GScopedInterface<IMetaSerializer> scopedSerializer;
+			if(metaType.getBaseName() != NULL) {
+				metaClass.reset(this->service->findClassByName(metaType.getBaseName()));
+			}
+			if(serializer == NULL) {
+				scopedSerializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
+				serializer = scopedSerializer.get();
+			}
+			this->writeObjectHelper(name, address, metaClass.get(), serializer, pointerType);
 		}
 	}
 }

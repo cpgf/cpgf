@@ -141,7 +141,7 @@ void doTestPolymorphic(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	pb1->a = 15;
 	pb1->b = 16;
 
-	archiveWriter->writeObjectValue("", &instance1, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), "", &instance1, metaClass.get());
 
 	R instance2;
 	instance2.r = 68;
@@ -150,7 +150,7 @@ void doTestPolymorphic(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	pd2->a = 25;
 	pd2->d = 26;
 
-	archiveWriter->writeObjectValue("", &instance2, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), "", &instance2, metaClass.get());
 
 	// read
 

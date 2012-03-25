@@ -127,6 +127,10 @@ inline void vtInit(GVarTypeData & data) {
 
 #include "cpgf/private/gvartypedata_p.h"
 
+namespace variant_internal {
+unsigned int getVariantTypeSize(GVariantType type);
+} // namespace variant_internal
+
 template <typename T>
 void deduceVariantType(GVarTypeData & data, bool copyObject)
 {
@@ -138,6 +142,7 @@ void deduceVariantType(GVarTypeData & data, bool copyObject)
 
 	vtSetType(data, vt);
 	vtSetPointers(data, variant_internal::DeduceVariantType<T>::Pointers);
+	vtSetSize(data, variant_internal::getVariantTypeSize(vtGetType(data)));
 }
 
 template <typename T>

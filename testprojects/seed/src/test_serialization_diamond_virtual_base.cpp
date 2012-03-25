@@ -144,7 +144,7 @@ void doTestMultipleInheritance(IMetaWriter * writer, IMetaReader * reader, const
 	instance.c = 0x3c;
 	instance.d = 0x4d;
 
-	archiveWriter->writeObjectValue("obj", &instance, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), "obj", &instance, metaClass.get());
 
 	ar.rewind();
 	

@@ -208,7 +208,7 @@ void doTestSimpleObject(IMetaWriter * writer, IMetaReader * reader, const AR & a
 	TestSerializeClass instance;
 	instance.set(38);
 
-	archiveWriter->writeObjectValue("obj", &instance, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), "obj", &instance, metaClass.get());
 
 	ar.rewind();
 	

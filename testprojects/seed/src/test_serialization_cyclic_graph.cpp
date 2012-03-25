@@ -140,7 +140,7 @@ void doTestCyclicGraph(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	
 	GCHECK(instance.verify());
 
-	archiveWriter->writeObjectValue("", &instance, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), "", &instance, metaClass.get());
 
 	ar.rewind();
 

@@ -10,7 +10,7 @@ class GMetaSerializerArray : public IMetaSerializer
 {
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
-	
+
 public:
 	GMetaSerializerArray(IMetaSerializer * elementSerializer, unsigned int elementSize, unsigned int elementCount)
 		: elementSerializer(elementSerializer), elementSize(elementSize), elementCount(elementCount)

@@ -81,6 +81,7 @@ set(SRC_META
 	${SRC_PATH}/metatraits/gmetaserializer_string.cpp
 	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
 	${SRC_PATH}/metatraits/gmetaserializer_fundamental.cpp
+	${SRC_PATH}/metatraits/gmetaserializer_trapall.cpp
 
 	${SRC_PATH}/scriptbind/gbindcommon.cpp
 	${SRC_PATH}/scriptbind/gscriptbind.cpp

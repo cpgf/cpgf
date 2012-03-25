@@ -77,10 +77,8 @@ struct IMetaReader : public IObject
 struct IMetaArchiveWriter : public IExtendObject
 {
 	// take care of customized serializer, take care of pointer tracking.
-	virtual void G_API_CC writeObjectValue(const char * name, void * instance, IMetaClass * metaClass) = 0;
-	virtual void G_API_CC writeObjectPointer(const char * name, void * instance, IMetaClass * metaClass) = 0;
-	virtual void G_API_CC writeField(const char * name, void * instance, IMetaAccessible * accessible) = 0;
-	
+	virtual void G_API_CC writeObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
+
 	// ignore customized serializer, take care of pointer tracking.
 	virtual void G_API_CC defaultWriteObjectValue(const char * name, void * instance, IMetaClass * metaClass) = 0;
 	virtual void G_API_CC defaultWriteObjectPointer(const char * name, void * instance, IMetaClass * metaClass) = 0;
@@ -214,15 +212,23 @@ inline void serializeError(int errorCode, ...)
 	raiseException(errorCode, "Serialize error.");
 }
 
+void serializeWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
+void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
+
 template <typename T>
-void serializeWriteValue(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, void * instance) 
+void serializeWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance) 
 {
+	GMetaTypeData metaTypeData = createMetaType<T>().getData();
+	archiveWriter->writeObject(name, instance, &metaTypeData, NULL);
 }
 
 template <typename T>
 void * serializeReadValue(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance) 
 {
 }
+
+GVariant readFundamental(void * address, const GMetaType & metaType);
+void writeFundamental(void * address, const GMetaType & metaType, const GVariant & v);
 
 
 

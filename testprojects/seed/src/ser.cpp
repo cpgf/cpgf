@@ -106,7 +106,7 @@ void testSer()
 	field.reset(metaClass->getField("fieldInt"));
 //	archiveWriter->writeField(field->getName(), pobj, field.get());
 
-	archiveWriter->writeObjectValue("obj", pobj, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), "obj", pobj, metaClass.get());
 
 	cout << stream.str().c_str();
 

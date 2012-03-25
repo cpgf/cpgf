@@ -9,6 +9,7 @@ unsigned int getVariantTypeSize(GVariantType type)
 {
 	switch(static_cast<int>(type)) {
 		case vtEmpty:
+		case vtVoid:
 			return 0;
 
 		case vtBool:

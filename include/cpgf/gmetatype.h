@@ -207,6 +207,10 @@ public:
 		return vtGetType(this->typeData);
 	}
 
+	GVarTypeData getTypeData() const {
+		return this->typeData;
+	}
+	
 	GMetaTypeData getData() const;
 
 	void addPointer();
