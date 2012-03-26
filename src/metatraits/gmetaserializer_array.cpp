@@ -18,10 +18,10 @@ public:
 		this->elementSerializer->addReference();
 	}
 	
-	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
+	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
 			this->elementSerializer->writeObject(archiveWriter, metaWriter, archiveID, instance, metaClass);
-			instance = static_cast<char *>(instance) + this->elementSize;
+			instance = static_cast<const char *>(instance) + this->elementSize;
 		}
 	}
 	

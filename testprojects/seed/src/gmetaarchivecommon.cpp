@@ -86,7 +86,7 @@ void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, 
 #endif
 
 template <typename T>
-GVariant doReadInteger(void * address, unsigned int size)
+GVariant doReadInteger(const void * address, unsigned int size)
 {
 	switch(size) {
 		case 1:
@@ -107,7 +107,7 @@ GVariant doReadInteger(void * address, unsigned int size)
 	return GVariant();
 }
 
-GVariant readFundamental(void * address, const GMetaType & metaType)
+GVariant readFundamental(const void * address, const GMetaType & metaType)
 {
 	GVarTypeData typeData = metaType.getTypeData();
 	unsigned int size = vtGetSize(typeData);

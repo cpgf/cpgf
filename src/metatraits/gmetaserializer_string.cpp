@@ -12,11 +12,11 @@ class GMetaSerializerString : public IMetaSerializer
 	G_INTERFACE_IMPL_EXTENDOBJECT
 	
 public:
-	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
+	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
 		(void)archiveWriter;
 		(void)metaClass;
 
-		metaWriter->writeString("", archiveID, static_cast<std::string *>(instance)->c_str());
+		metaWriter->writeString("", archiveID, static_cast<const std::string *>(instance)->c_str());
 	}
 	
 	virtual void * G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {

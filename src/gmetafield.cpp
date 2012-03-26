@@ -21,7 +21,7 @@ bool GMetaFieldDataBase::canSet() const
 	return this->virtualFunctions->canSet(this);
 }
 
-GVariant GMetaFieldDataBase::get(void * instance) const
+GVariant GMetaFieldDataBase::get(const void * instance) const
 {
 	return this->virtualFunctions->get(this, instance);
 }
@@ -36,7 +36,7 @@ size_t GMetaFieldDataBase::getFieldSize() const
 	return this->virtualFunctions->getFieldSize(this);
 }
 
-void * GMetaFieldDataBase::getFieldAddress(void * instance) const
+void * GMetaFieldDataBase::getFieldAddress(const void * instance) const
 {
 	return this->virtualFunctions->getFieldAddress(this, instance);
 }
@@ -56,7 +56,7 @@ bool GMetaField::canSet() const
 	return this->baseData->canSet();
 }
 
-GVariant GMetaField::get(void * instance) const
+GVariant GMetaField::get(const void * instance) const
 {
 	if(this->isStatic()) {
 		instance = NULL;
@@ -74,7 +74,7 @@ void GMetaField::set(void * instance, const GVariant & v) const
 	this->baseData->set(instance, v);
 }
 
-void * GMetaField::getAddress(void * instance) const
+void * GMetaField::getAddress(const void * instance) const
 {
 	return this->baseData->getFieldAddress(instance);
 }

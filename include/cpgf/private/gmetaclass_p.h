@@ -31,8 +31,8 @@ struct GMetaClassDataVirtual
 	bool (*canCopyInstance)(const void * self);
 	void * (*createInstance)(const void * self);
 	void * (*createInplace)(const void * self, void * placement);
-	void * (*cloneInstance)(const void * self, void * instance);
-	void * (*cloneInplace)(const void * self, void * instance, void * placement);
+	void * (*cloneInstance)(const void * self, const void * instance);
+	void * (*cloneInplace)(const void * self, const void * instance, void * placement);
 	size_t (*getObjectSize)(const void * self);
 	bool (*isAbstract)(const void * self);
 	bool (*isPolymorphic)(const void * self);
@@ -49,8 +49,8 @@ public:
 	
 	void * createInstance() const;
 	void * createInplace(void * placement) const;
-	void * cloneInstance(void * instance) const;
-	void * cloneInplace(void * instance, void * placement) const;
+	void * cloneInstance(const void * instance) const;
+	void * cloneInplace(const void * instance, void * placement) const;
 
 	size_t getObjectSize() const;
 	
@@ -111,11 +111,11 @@ private:
 		return static_cast<const GMetaClassData *>(self)->doCreateInplace<typename GIfElse<CanDefaultConstruct, void, int>::Result >(placement);
 	}
 
-	static void * virtualCloneInstance(const void * self, void * instance) {
+	static void * virtualCloneInstance(const void * self, const void * instance) {
 		return static_cast<const GMetaClassData *>(self)->doCloneInstance<typename GIfElse<CanCopyConstruct, void, int>::Result >(instance);
 	}
 
-	static void * virtualCloneInplace(const void * self, void * instance, void * placement) {
+	static void * virtualCloneInplace(const void * self, const void * instance, void * placement) {
 		return static_cast<const GMetaClassData *>(self)->doCloneInplace<typename GIfElse<CanCopyConstruct, void, int>::Result >(instance, placement);
 	}
 
@@ -200,12 +200,12 @@ private:
 	}
 
 	template <typename T>
-	void * doCloneInstance(typename GEnableIfResult<IsVoid<T>, void>::Result * instance) const {
-		return new OT (*static_cast<OT *>(instance));
+	void * doCloneInstance(typename GEnableIfResult<IsVoid<T>, void>::Result const * instance) const {
+		return new OT (*static_cast<const OT *>(instance));
 	}
 
 	template <typename T>
-	void * doCloneInstance(typename GDisableIfResult<IsVoid<T>, void>::Result * instance) const {
+	void * doCloneInstance(typename GDisableIfResult<IsVoid<T>, void>::Result const * instance) const {
 		(void)instance;
 
 		if(IsAbstract) {
@@ -221,12 +221,12 @@ private:
 	}
 
 	template <typename T>
-	void * doCloneInplace(typename GEnableIfResult<IsVoid<T>, void>::Result * instance, void * placement) const {
-		return new (placement) OT (*static_cast<OT *>(instance));
+	void * doCloneInplace(typename GEnableIfResult<IsVoid<T>, void>::Result const * instance, void * placement) const {
+		return new (placement) OT (*static_cast<const OT *>(instance));
 	}
 
 	template <typename T>
-	void * doCloneInplace(typename GDisableIfResult<IsVoid<T>, void>::Result * instance, void * placement) const {
+	void * doCloneInplace(typename GDisableIfResult<IsVoid<T>, void>::Result const * instance, void * placement) const {
 		(void)instance;
 		(void)placement;
 
@@ -279,8 +279,8 @@ class GMetaClassCasterBase
 public:
 	GMetaClassCasterBase * clone() const;
 
-	void * downCast(void * base) const;
-	void * upCast(void * derived) const;
+	void * downCast(const void * base) const;
+	void * upCast(const void * derived) const;
 
 protected:
 	GMetaClassCasterVirtual * virtualFunctions;

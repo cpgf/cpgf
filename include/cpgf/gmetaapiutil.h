@@ -72,7 +72,7 @@ GMetaExtendType metaGetResultExtendType(const Meta & meta, uint32_t flags)
 }
 
 template <typename Meta>
-GVariant metaGetValue(const Meta & meta, void * obj)
+GVariant metaGetValue(const Meta & meta, const void * obj)
 {
 	GVariant v;
 
@@ -207,8 +207,8 @@ IMetaClass * metaGetGlobalMetaClass(Meta & service, size_t index)
 
 IMetaItem * metaItemToInterface(const GMetaItem * item);
 
-const GMetaClass * findAppropriateDerivedClass(void * instance, const GMetaClass * metaClass, void ** outCastedInstance);
-IMetaClass * findAppropriateDerivedClass(void * instance, IMetaClass * metaClass, void ** outCastedInstance);
+const GMetaClass * findAppropriateDerivedClass(const void * instance, const GMetaClass * metaClass, void ** outCastedInstance);
+IMetaClass * findAppropriateDerivedClass(const void * instance, IMetaClass * metaClass, void ** outCastedInstance);
 
 
 } // namespace cpgf

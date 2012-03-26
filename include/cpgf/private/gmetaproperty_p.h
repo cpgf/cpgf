@@ -83,11 +83,11 @@ public:
 		}
 	}
 
-	GVariant get(void * instance) const {
+	GVariant get(const void * instance) const {
 		return this->doGet<void>(instance);
 	}
 	
-	void * getPropertyAddress(void * instance) const {
+	void * getPropertyAddress(const void * instance) const {
 		(void)instance;
 
 		return this->getter;
@@ -95,7 +95,7 @@ public:
 
 private:	
 	template <typename T>
-	GVariant doGet(typename GEnableIf<Readable, T>::Result * instance) const {
+	GVariant doGet(typename GEnableIf<Readable, T>::Result const * instance) const {
 		(void)instance;
 
 		GVarTypeData data = GVarTypeData();
@@ -104,7 +104,7 @@ private:
 	}
 	
 	template <typename T>
-	GVariant doGet(typename GDisableIf<Readable, T>::Result * instance) const {
+	GVariant doGet(typename GDisableIf<Readable, T>::Result const * instance) const {
 		(void)instance;
 
 		meta_internal::handleForbidAccessError(true);
@@ -146,24 +146,24 @@ public:
 		}
 	}
 
-	GVariant get(void * instance) const {
+	GVariant get(const void * instance) const {
 		return this->doGet<void>(instance);
 	}
 	
-	void * getPropertyAddress(void * instance) const {
-		return &(static_cast<typename MemberDataTrait<Getter>::ObjectType *>(instance)->*(this->getter));
+	void * getPropertyAddress(const void * instance) const {
+		return &(static_cast<typename MemberDataTrait<Getter>::ObjectType *>(const_cast<void *>(instance))->*(this->getter));
 	}
 
 private:	
 	template <typename T>
-	GVariant doGet(typename GEnableIf<Readable, T>::Result * instance) const {
+	GVariant doGet(typename GEnableIf<Readable, T>::Result const * instance) const {
 		GVarTypeData data = GVarTypeData();
 		deduceVariantType<PropertyType>(data, true);
-		return GVariant(data, static_cast<typename MemberDataTrait<Getter>::ObjectType *>(instance)->*(this->getter));
+		return GVariant(data, static_cast<typename MemberDataTrait<Getter>::ObjectType const *>(instance)->*(this->getter));
 	}
 
 	template <typename T>
-	GVariant doGet(typename GDisableIf<Readable, T>::Result * instance) const {
+	GVariant doGet(typename GDisableIf<Readable, T>::Result const * instance) const {
 		(void)instance;
 
 		meta_internal::handleForbidAccessError(true);
@@ -200,11 +200,11 @@ public:
 		}
 	}
 
-	GVariant get(void * instance) const {
+	GVariant get(const void * instance) const {
 		return this->doGet<void>(instance);
 	}
 	
-	void * getPropertyAddress(void * instance) const {
+	void * getPropertyAddress(const void * instance) const {
 		(void)instance;
 
 		return NULL;
@@ -212,8 +212,8 @@ public:
 
 private:	
 	template <typename T>
-	GVariant doGet(typename GEnableIf<Readable && NotExplicitThis, T>::Result * instance) const {
-		this->callback.setObject(instance);
+	GVariant doGet(typename GEnableIf<Readable && NotExplicitThis, T>::Result const * instance) const {
+		this->callback.setObject(const_cast<void *>(instance));
 		
 		GVarTypeData data = GVarTypeData();
 		deduceVariantType<PropertyType>(data, true);
@@ -221,8 +221,8 @@ private:
 	}
 
 	template <typename T>
-	GVariant doGet(typename GEnableIf<Readable && ExplicitThis, T>::Result * instance) const {
-		this->callback.setObject(instance);
+	GVariant doGet(typename GEnableIf<Readable && ExplicitThis, T>::Result const * instance) const {
+		this->callback.setObject(const_cast<void *>(instance));
 		
 		GVarTypeData data = GVarTypeData();
 		deduceVariantType<PropertyType>(data, true);
@@ -230,7 +230,7 @@ private:
 	}
 
 	template <typename T>
-	GVariant doGet(typename GDisableIf<Readable, T>::Result * instance) const {
+	GVariant doGet(typename GDisableIf<Readable, T>::Result const * instance) const {
 		(void)instance;
 
 		meta_internal::handleForbidAccessError(true);
@@ -433,10 +433,10 @@ struct GMetaPropertyDataVirtual
 	void (*deleteObject)(void * self);
 	bool (*canGet)(const void * self);
 	bool (*canSet)(const void * self);
-	GVariant (*get)(const void * self, void * instance);
+	GVariant (*get)(const void * self, const void * instance);
 	void (*set)(const void * self, void * instance, const GVariant & v);
 	size_t (*getPropertySize)(const void * self);
-	void * (*getPropertyAddress)(const void * self, void * instance);
+	void * (*getPropertyAddress)(const void * self, const void * instance);
 	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
 };
 
@@ -448,11 +448,11 @@ public:
 	bool canGet() const;
 	bool canSet() const;
 
-	GVariant get(void * instance) const;
+	GVariant get(const void * instance) const;
 	void set(void * instance, const GVariant & v) const;
 
 	size_t getPropertySize() const;
-	void * getPropertyAddress(void * instance) const;
+	void * getPropertyAddress(const void * instance) const;
 
 	// must be defined in header to make template function overloading happy.
 	GMetaExtendType getItemExtendType(uint32_t flags) const {
@@ -483,7 +483,7 @@ private:
 		return SetterType::Writable;
 	}
 
-	static GVariant virtualGet(const void * self, void * instance) {
+	static GVariant virtualGet(const void * self, const void * instance) {
 		return static_cast<const GMetaPropertyData *>(self)->metaGetter.get(instance);
 	}
 
@@ -491,7 +491,7 @@ private:
 		static_cast<const GMetaPropertyData *>(self)->metaSetter.set(instance, value);
 	}
 
-	static void * virtualGetPropertyAddress(const void * self, void * instance) {
+	static void * virtualGetPropertyAddress(const void * self, const void * instance) {
 		return static_cast<const GMetaPropertyData *>(self)->metaGetter.getPropertyAddress(instance);
 	}
 

@@ -22,13 +22,13 @@ public:
 	}
 
 	GVariantType getVariantType() const;
-	GVariant getValue(void * instance) const;
+	GVariant getValue(const void * instance) const;
 
 	virtual size_t getTypeSize() const;
 	virtual void * createInstance() const;
 	virtual void * createInplace(void * placement) const;
-	virtual void * cloneInstance(void * instance) const;
-	virtual void * cloneInplace(void * instance, void * placement) const;
+	virtual void * cloneInstance(const void * instance) const;
+	virtual void * cloneInplace(const void * instance, void * placement) const;
 	virtual void destroyInstance(void * instance) const;
 
 	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;

@@ -18,7 +18,7 @@ GVariantType GMetaFundamentalData::getVariantType() const
 	return this->virtualFunctions->getVariantType(this);
 }
 
-GVariant GMetaFundamentalData::getValue(void * instance) const
+GVariant GMetaFundamentalData::getValue(const void * instance) const
 {
 	return this->virtualFunctions->getValue(this, instance);
 }
@@ -33,12 +33,12 @@ void * GMetaFundamentalData::createInplace(void * placement) const
 	return this->virtualFunctions->createInplace(this, placement);
 }
 
-void * GMetaFundamentalData::cloneInstance(void * instance) const
+void * GMetaFundamentalData::cloneInstance(const void * instance) const
 {
 	return this->virtualFunctions->cloneInstance(this, instance);
 }
 
-void * GMetaFundamentalData::cloneInplace(void * instance, void * placement) const
+void * GMetaFundamentalData::cloneInplace(const void * instance, void * placement) const
 {
 	return this->virtualFunctions->cloneInplace(this, instance, placement);
 }
@@ -57,7 +57,7 @@ GVariantType GMetaFundamental::getVariantType() const
 	return this->getData()->getVariantType();
 }
 
-GVariant GMetaFundamental::getValue(void * instance) const
+GVariant GMetaFundamental::getValue(const void * instance) const
 {
 	return this->getData()->getValue(instance);
 }
@@ -77,12 +77,12 @@ void * GMetaFundamental::createInplace(void * placement) const
 	return this->getData()->createInplace(placement);
 }
 
-void * GMetaFundamental::cloneInstance(void * instance) const
+void * GMetaFundamental::cloneInstance(const void * instance) const
 {
 	return this->getData()->cloneInstance(instance);
 }
 
-void * GMetaFundamental::cloneInplace(void * instance, void * placement) const
+void * GMetaFundamental::cloneInplace(const void * instance, void * placement) const
 {
 	return this->getData()->cloneInplace(instance, placement);
 }

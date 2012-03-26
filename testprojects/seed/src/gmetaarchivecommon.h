@@ -36,7 +36,7 @@ struct GMetaArchiveObjectInformation
 	const char * name;
 	uint32_t archiveID;
 	uint32_t classTypeID;
-	void * instance;
+	const void * instance;
 	IMetaClass * metaClass;
 };
 
@@ -77,20 +77,20 @@ struct IMetaReader : public IObject
 struct IMetaArchiveWriter : public IExtendObject
 {
 	// take care of customized serializer, take care of pointer tracking.
-	virtual void G_API_CC writeObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
+	virtual void G_API_CC writeObject(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 
 	// ignore customized serializer, take care of pointer tracking.
-	virtual void G_API_CC defaultWriteObjectValue(const char * name, void * instance, IMetaClass * metaClass) = 0;
-	virtual void G_API_CC defaultWriteObjectPointer(const char * name, void * instance, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC defaultWriteObjectValue(const char * name, const void * instance, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC defaultWriteObjectPointer(const char * name, const void * instance, IMetaClass * metaClass) = 0;
 
 	// ignore customized serializer, ignore pointer tracking, take care of base classes
-	virtual void G_API_CC directWriteObject(const char * name, void * instance, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC directWriteObject(const char * name, const void * instance, IMetaClass * metaClass) = 0;
 
 	// ignore customized serializer, ignore pointer tracking, ignore base classes, only write the object itself
-	virtual void G_API_CC directWriteObjectWithoutBase(const char * name, void * instance, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC directWriteObjectWithoutBase(const char * name, const void * instance, IMetaClass * metaClass) = 0;
 
-	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, uint32_t classTypeID) = 0;
-	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, uint32_t classTypeID) = 0;
+	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, uint32_t classTypeID) = 0;
+	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, uint32_t classTypeID) = 0;
 };
 
 struct IMetaArchiveReader : public IExtendObject
@@ -216,12 +216,32 @@ void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char 
 
 void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaClass * metaClass);
 
+namespace serialization_internal {
+
 template <typename T>
-void serializeWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, T * instance) 
+struct SerializeWriteValueParam
+{
+	static const void * param(const T & object) {
+		return &object;
+	}
+};
+
+template <typename T>
+struct SerializeWriteValueParam <T *>
+{
+	static const void * param(T * object) {
+		return static_cast<void *>(object);
+	}
+};
+
+} // namespace serialization_internal
+
+template <typename T>
+void serializeWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, const T & object) 
 {
 	GMetaTypeData metaTypeData = createMetaType<T>().getData();
 	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>( GExtendTypeCreateFlag_Serializer).getSerializer());
-	archiveWriter->writeObject(name, instance, &metaTypeData, serializer.get());
+	archiveWriter->writeObject(name, serialization_internal::SerializeWriteValueParam<T>::param(object), &metaTypeData, serializer.get());
 }
 
 template <typename T>
@@ -232,7 +252,7 @@ void serializeReadValue(IMetaArchiveReader * archiveReader, const char * name, T
 	archiveReader->readObject(name, instance, &metaTypeData, serializer.get());
 }
 
-GVariant readFundamental(void * address, const GMetaType & metaType);
+GVariant readFundamental(const void * address, const GMetaType & metaType);
 void writeFundamental(void * address, const GMetaType & metaType, const GVariant & v);
 
 

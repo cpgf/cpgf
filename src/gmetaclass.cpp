@@ -52,12 +52,12 @@ void * GMetaClassDataBase::createInplace(void * placement) const
 	return this->virtualFunctions->createInplace(this, placement);
 }
 
-void * GMetaClassDataBase::cloneInstance(void * instance) const
+void * GMetaClassDataBase::cloneInstance(const void * instance) const
 {
 	return this->virtualFunctions->cloneInstance(this, instance);
 }
 
-void * GMetaClassDataBase::cloneInplace(void * instance, void * placement) const
+void * GMetaClassDataBase::cloneInplace(const void * instance, void * placement) const
 {
 	return this->virtualFunctions->cloneInplace(this, instance, placement);
 }
@@ -83,14 +83,14 @@ GMetaClassCasterBase * GMetaClassCasterBase::clone() const
 	return this->virtualFunctions->clone();
 }
 
-void * GMetaClassCasterBase::downCast(void * base) const
+void * GMetaClassCasterBase::downCast(const void * base) const
 {
-	return this->virtualFunctions->downCast(base);
+	return this->virtualFunctions->downCast(const_cast<void *>(base));
 }
 
-void * GMetaClassCasterBase::upCast(void * derived) const
+void * GMetaClassCasterBase::upCast(const void * derived) const
 {
-	return this->virtualFunctions->upCast(derived);
+	return this->virtualFunctions->upCast(const_cast<void *>(derived));
 }
 
 
@@ -349,12 +349,12 @@ void * GMetaClass::createInplace(void * placement) const
 	return this->baseData->createInplace(placement);
 }
 
-void * GMetaClass::cloneInstance(void * instance) const
+void * GMetaClass::cloneInstance(const void * instance) const
 {
 	return this->baseData->cloneInstance(instance);
 }
 
-void * GMetaClass::cloneInplace(void * instance, void * placement) const
+void * GMetaClass::cloneInplace(const void * instance, void * placement) const
 {
 	return this->baseData->cloneInplace(instance, placement);
 }
@@ -700,34 +700,34 @@ bool GMetaClass::isInheritedFrom(const GMetaClass * ancient) const
 	return false;
 }
 
-void * GMetaClass::castFromBase(void * base, size_t baseIndex) const
+void * GMetaClass::castFromBase(const void * base, size_t baseIndex) const
 {
 	const GMetaClass * baseClass = this->getBaseClass(baseIndex);
 
 	if(baseClass == NULL) {
-		return base;
+		return const_cast<void *>(base);
 	}
 
 	return this->superList->getCaster(baseIndex)->downCast(base);
 }
 
-void * GMetaClass::castToBase(void * self, size_t baseIndex) const
+void * GMetaClass::castToBase(const void * self, size_t baseIndex) const
 {
 	const GMetaClass * baseClass = this->getBaseClass(baseIndex);
 
 	if(baseClass == NULL) {
-		return self;
+		return const_cast<void *>(self);
 	}
 
 	return this->superList->getCaster(baseIndex)->upCast(self);
 }
 
-void * GMetaClass::castFromDerived(void * derived, size_t derivedIndex) const
+void * GMetaClass::castFromDerived(const void * derived, size_t derivedIndex) const
 {
 	const GMetaClass * derivedClass = this->getDerivedClass(derivedIndex);
 	
 	if(derivedClass == NULL) {
-		return derived;
+		return const_cast<void *>(derived);
 	}
 
 	size_t derivedBaseCount = derivedClass->getBaseCount();
@@ -737,15 +737,15 @@ void * GMetaClass::castFromDerived(void * derived, size_t derivedIndex) const
 		}
 	}
 
-	return derived;
+	return const_cast<void *>(derived);
 }
 
-void * GMetaClass::castToDerived(void * self, size_t derivedIndex) const
+void * GMetaClass::castToDerived(const void * self, size_t derivedIndex) const
 {
 	const GMetaClass * derivedClass = this->getDerivedClass(derivedIndex);
 	
 	if(derivedClass == NULL) {
-		return self;
+		return const_cast<void *>(self);
 	}
 
 	size_t derivedBaseCount = derivedClass->getBaseCount();
@@ -755,7 +755,7 @@ void * GMetaClass::castToDerived(void * self, size_t derivedIndex) const
 		}
 	}
 
-	return self;
+	return const_cast<void *>(self);
 }
 
 void GMetaClass::ensureRegistered() const

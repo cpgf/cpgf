@@ -15,12 +15,12 @@ struct GMetaFundamentalDataVirtual
 {
 	size_t (*getTypeSize)(const void * self);
 	GVariantType (*getVariantType)(const void * self);
-	GVariant (*getValue)(const void * self, void * instance);
+	GVariant (*getValue)(const void * self, const void * instance);
 	
 	void * (*createInstance)(const void * self);
 	void * (*createInplace)(const void * self, void * placement);
-	void * (*cloneInstance)(const void * self, void * instance);
-	void * (*cloneInplace)(const void * self, void * instance, void * placement);
+	void * (*cloneInstance)(const void * self, const void * instance);
+	void * (*cloneInplace)(const void * self, const void * instance, void * placement);
 	void (*destroyInstance)(const void * self, void * o);
 	
 	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
@@ -33,12 +33,12 @@ public:
 
 	GVariantType getVariantType() const;
 
-	GVariant getValue(void * instance) const;
+	GVariant getValue(const void * instance) const;
 
 	void * createInstance() const;
 	void * createInplace(void * placement) const;
-	void * cloneInstance(void * instance) const;
-	void * cloneInplace(void * instance, void * placement) const;
+	void * cloneInstance(const void * instance) const;
+	void * cloneInplace(const void * instance, void * placement) const;
 
 	void destroyInstance(void * o) const;
 
@@ -70,10 +70,10 @@ private:
 		return vtGetType(data);
 	}
 	
-	static GVariant virtualGetValue(const void * self, void * instance) {
+	static GVariant virtualGetValue(const void * self, const void * instance) {
 		(void)self;
 
-		return GVariant(*static_cast<T *>(instance));
+		return GVariant(*static_cast<const T *>(instance));
 	}
 
 	static void * virtualCreateInstance(const void * self) {
@@ -90,16 +90,16 @@ private:
 		return placement;
 	}
 
-	static void * virtualCloneInstance(const void * self, void * instance) {
+	static void * virtualCloneInstance(const void * self, const void * instance) {
 		(void)self;
 
-		return new T(*static_cast<T *>(instance));
+		return new T(*static_cast<const T *>(instance));
 	}
 
-	static void * virtualCloneInplace(const void * self, void * instance, void * placement) {
+	static void * virtualCloneInplace(const void * self, const void * instance, void * placement) {
 		(void)self;
 
-		*static_cast<T *>(placement) = *static_cast<T *>(instance);
+		*static_cast<T *>(placement) = *static_cast<const T *>(instance);
 
 		return placement;
 	}

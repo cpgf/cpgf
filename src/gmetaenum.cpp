@@ -88,14 +88,14 @@ void * GMetaEnum::createInplace(void * placement) const
 	return new(placement) GVariant;
 }
 
-void * GMetaEnum::cloneInstance(void * instance) const
+void * GMetaEnum::cloneInstance(const void * instance) const
 {
-	return new GVariant(*static_cast<GVariant *>(instance));
+	return new GVariant(*static_cast<const GVariant *>(instance));
 }
 
-void * GMetaEnum::cloneInplace(void * instance, void * placement) const
+void * GMetaEnum::cloneInplace(const void * instance, void * placement) const
 {
-	return new(placement) GVariant(*static_cast<GVariant *>(instance));
+	return new(placement) GVariant(*static_cast<const GVariant *>(instance));
 }
 
 

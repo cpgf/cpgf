@@ -15,10 +15,10 @@ struct GMetaFieldDataVirtual
 	void (*deleteObject)(void * self);
 	bool (*canGet)(const void * self);
 	bool (*canSet)(const void * self);
-	GVariant (*get)(const void * self, void * instance);
+	GVariant (*get)(const void * self, const void * instance);
 	void (*set)(const void * self, void * instance, const GVariant & v);
 	size_t (*getFieldSize)(const void * self);
-	void * (*getFieldAddress)(const void * self, void * instance);
+	void * (*getFieldAddress)(const void * self, const void * instance);
 	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
 };
 
@@ -30,11 +30,11 @@ public:
 	bool canGet() const;
 	bool canSet() const;
 
-	GVariant get(void * instance) const;
+	GVariant get(const void * instance) const;
 	void set(void * instance, const GVariant & v) const;
 
 	size_t getFieldSize() const;
-	void * getFieldAddress(void * instance) const;
+	void * getFieldAddress(const void * instance) const;
 
 	// must be defined in header to make template function overloading happy.
 	GMetaExtendType getItemExtendType(uint32_t flags) const {
@@ -66,7 +66,7 @@ private:
 		return Writable;
 	}
 
-	static GVariant virtualGet(const void * self, void * instance) {
+	static GVariant virtualGet(const void * self, const void * instance) {
 		return static_cast<const GMetaFieldDataGlobal *>(self)->doGet<void>(instance);
 	}
 
@@ -80,7 +80,7 @@ private:
 		return sizeof(FT);
 	}
 
-	static void * virtualGetFieldAddress(const void * self, void * instance) {
+	static void * virtualGetFieldAddress(const void * self, const void * instance) {
 		(void)instance;
 		return (void *)(static_cast<const GMetaFieldDataGlobal *>(self)->field);
 	}
@@ -109,7 +109,7 @@ public:
 
 private:	
 	template <typename T>
-	GVariant  doGet(typename GEnableIf<Readable, T>::Result * instance) const {
+	GVariant  doGet(typename GEnableIf<Readable, T>::Result const * instance) const {
 		(void)instance;
 
 		GVarTypeData data = GVarTypeData();
@@ -118,7 +118,7 @@ private:
 	}
 
 	template <typename T>
-	GVariant  doGet(typename GDisableIf<Readable, T>::Result * instance) const {
+	GVariant  doGet(typename GDisableIf<Readable, T>::Result const * instance) const {
 		(void)instance;
 
 		meta_internal::handleForbidAccessError(true);
@@ -164,7 +164,7 @@ private:
 		return Writable;
 	}
 
-	static GVariant virtualGet(const void * self, void * instance) {
+	static GVariant virtualGet(const void * self, const void * instance) {
 		return static_cast<const GMetaFieldDataMember *>(self)->doGet<void>(instance);
 	}
 
@@ -178,9 +178,8 @@ private:
 		return sizeof(FT);
 	}
 
-	static void * virtualGetFieldAddress(const void * self, void * instance) {
-		(void)instance;
-		return &(static_cast<OT *>(instance)->*(static_cast<const GMetaFieldDataMember *>(self)->field));
+	static void * virtualGetFieldAddress(const void * self, const void * instance) {
+		return &(static_cast<OT *>(const_cast<void *>(instance))->*(static_cast<const GMetaFieldDataMember *>(self)->field));
 	}
 	
 	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
@@ -204,14 +203,14 @@ public:
 
 private:
 	template <typename T>
-	GVariant  doGet(typename GEnableIf<Readable, T>::Result * instance) const {
+	GVariant  doGet(typename GEnableIf<Readable, T>::Result const * instance) const {
 		GVarTypeData data = GVarTypeData();
 		deduceVariantType<FT>(data, true);
-		return GVariant(data, static_cast<OT *>(instance)->*(this->field));
+		return GVariant(data, static_cast<const OT *>(instance)->*(this->field));
 	}
 
 	template <typename T>
-	GVariant  doGet(typename GDisableIf<Readable, T>::Result * instance) const {
+	GVariant  doGet(typename GDisableIf<Readable, T>::Result const * instance) const {
 		(void)instance;
 
 		meta_internal::handleForbidAccessError(true);

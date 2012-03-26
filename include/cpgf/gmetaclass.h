@@ -55,8 +55,8 @@ public:
 public:
 	virtual void * createInstance() const;
 	virtual void * createInplace(void * placement) const;
-	virtual void * cloneInstance(void * instance) const;
-	virtual void * cloneInplace(void * instance, void * placement) const;
+	virtual void * cloneInstance(const void * instance) const;
+	virtual void * cloneInplace(const void * instance, void * placement) const;
 
 	virtual void destroyInstance(void * instance) const;
 
@@ -137,16 +137,16 @@ public:
 	bool isInheritedFrom(const GMetaClass * ancient) const;
 
 	// return a pointer points to this class
-	void * castFromBase(void * base, size_t baseIndex) const;
+	void * castFromBase(const void * base, size_t baseIndex) const;
 
 	// return a pointer points to base class
-	void * castToBase(void * self, size_t baseIndex) const;
+	void * castToBase(const void * self, size_t baseIndex) const;
 
 	// return a pointer points to this class
-	void * castFromDerived(void * derived, size_t derivedIndex) const;
+	void * castFromDerived(const void * derived, size_t derivedIndex) const;
 
 	// return a pointer points to derived class
-	void * castToDerived(void * self, size_t derivedIndex) const;
+	void * castToDerived(const void * self, size_t derivedIndex) const;
 
 public:
 	template <typename ClassType, typename BaseType>

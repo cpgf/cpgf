@@ -29,10 +29,10 @@ public:
 	virtual bool canGet() const;
 	virtual bool canSet() const;
 
-	virtual GVariant get(void * instance) const;
+	virtual GVariant get(const void * instance) const;
 	virtual void set(void * instance, const GVariant & v) const;
 
-	virtual void * getAddress(void * instance) const;
+	virtual void * getAddress(const void * instance) const;
 
 	virtual size_t getSize() const;
 

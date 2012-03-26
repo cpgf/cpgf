@@ -130,10 +130,10 @@ public:
 
 	virtual void * createInstance() const = 0;
 	virtual void * createInplace(void * placement) const = 0;
-	virtual void * cloneInstance(void * obj) const = 0;
-	virtual void * cloneInplace(void * obj, void * placement) const = 0;
+	virtual void * cloneInstance(const void * instance) const = 0;
+	virtual void * cloneInplace(const void * instance, void * placement) const = 0;
 
-	virtual void destroyInstance(void * obj) const = 0;
+	virtual void destroyInstance(void * instance) const = 0;
 	
 private:
 	mutable std::string typeName;
@@ -151,10 +151,10 @@ public:
 	virtual bool canGet() const = 0;
 	virtual bool canSet() const = 0;
 
-	virtual GVariant get(void * obj) const = 0;
-	virtual void set(void * obj, const GVariant & v) const = 0;
+	virtual GVariant get(const void * instance) const = 0;
+	virtual void set(void * instance, const GVariant & v) const = 0;
 	
-	virtual void * getAddress(void * instance) const = 0;
+	virtual void * getAddress(const void * instance) const = 0;
 
 	virtual size_t getSize() const = 0;
 

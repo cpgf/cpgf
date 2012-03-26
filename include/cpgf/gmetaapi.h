@@ -38,8 +38,8 @@ struct IMetaTypedItem : public IMetaItem
 
 	virtual void * G_API_CC createInstance() = 0;
 	virtual void * G_API_CC createInplace(void * placement) = 0;
-	virtual void * G_API_CC cloneInstance(void * instance) = 0;
-	virtual void * G_API_CC cloneInplace(void * instance, void * placement) = 0;
+	virtual void * G_API_CC cloneInstance(const void * instance) = 0;
+	virtual void * G_API_CC cloneInplace(const void * instance, void * placement) = 0;
 
 	virtual void G_API_CC destroyInstance(void * instance) = 0;
 };
@@ -57,9 +57,9 @@ struct IMetaAccessible : public IMetaItem
 {
 	virtual gapi_bool G_API_CC canGet() = 0;
 	virtual gapi_bool G_API_CC canSet() = 0;
-	virtual void G_API_CC get(GVariantData * outResult, void * instance) = 0;
+	virtual void G_API_CC get(GVariantData * outResult, const void * instance) = 0;
 	virtual void G_API_CC set(void * instance, const GVariantData * value) = 0;
-	virtual void * G_API_CC getAddress(void * instance) = 0;
+	virtual void * G_API_CC getAddress(const void * instance) = 0;
 	virtual uint32_t G_API_CC getSize() = 0;
 };
 
@@ -109,7 +109,7 @@ struct IMetaOperator : public IMetaCallable
 
 struct IMetaFundamental : public IMetaTypedItem
 {
-	virtual void G_API_CC getValue(GVariantData * outResult, void * instance) = 0;
+	virtual void G_API_CC getValue(GVariantData * outResult, const void * instance) = 0;
 };
 
 struct IMetaEnum : public IMetaTypedItem
@@ -194,11 +194,11 @@ struct IMetaClass : public IMetaTypedItem
 
 	virtual gapi_bool G_API_CC isInheritedFrom(IMetaClass * ancient) = 0;
 
-	virtual void * G_API_CC castFromBase(void * base, uint32_t baseIndex) = 0;
-	virtual void * G_API_CC castToBase(void * self, uint32_t baseIndex) = 0;
+	virtual void * G_API_CC castFromBase(const void * base, uint32_t baseIndex) = 0;
+	virtual void * G_API_CC castToBase(const void * self, uint32_t baseIndex) = 0;
 	
-	virtual void * G_API_CC castFromDerived(void * derived, uint32_t derivedIndex) = 0;
-	virtual void * G_API_CC castToDerived(void * self, uint32_t derivedIndex) = 0;
+	virtual void * G_API_CC castFromDerived(const void * derived, uint32_t derivedIndex) = 0;
+	virtual void * G_API_CC castToDerived(const void * self, uint32_t derivedIndex) = 0;
 };
 
 

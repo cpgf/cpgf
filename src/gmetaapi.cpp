@@ -57,8 +57,8 @@ protected: \
 	virtual const char * G_API_CC getTypeName() { return this->doGetTypeName(); } \
 	virtual void * G_API_CC createInstance() { return this->doCreateInstance(); } \
 	virtual void * G_API_CC createInplace(void * placement) { return this->doCreateInplace(placement); } \
-	virtual void * G_API_CC cloneInstance(void * instance) { return this->doCloneInstance(instance); } \
-	virtual void * G_API_CC cloneInplace(void * instance, void * placement) { return this->doCloneInplace(instance, placement); } \
+	virtual void * G_API_CC cloneInstance(const void * instance) { return this->doCloneInstance(instance); } \
+	virtual void * G_API_CC cloneInplace(const void * instance, void * placement) { return this->doCloneInplace(instance, placement); } \
 	virtual void G_API_CC destroyInstance(void * instance) { this->doDestroyInstance(instance); }
 
 #define IMPL_CALLABLE \
@@ -79,9 +79,9 @@ protected: \
 protected: \
 	virtual gapi_bool G_API_CC canGet() { return this->doCanGet(); } \
 	virtual gapi_bool G_API_CC canSet() { return this->doCanSet(); } \
-	virtual void G_API_CC get(GVariantData * outResult, void * instance) { this->doGet(outResult, instance); } \
+	virtual void G_API_CC get(GVariantData * outResult, const void * instance) { this->doGet(outResult, instance); } \
 	virtual void G_API_CC set(void * instance, const GVariantData * value) { this->doSet(instance, value); } \
-	virtual void * G_API_CC getAddress(void * instance) { return this->doGetAddress(instance); } \
+	virtual void * G_API_CC getAddress(const void * instance) { return this->doGetAddress(instance); } \
 	virtual uint32_t G_API_CC getSize() { return this->doGetSize(); }
 
 namespace cpgf {
@@ -144,8 +144,8 @@ protected:
 
 	void * doCreateInstance();
 	void * doCreateInplace(void * placement);
-	void * doCloneInstance(void * instance);
-	void * doCloneInplace(void * instance, void * placement);
+	void * doCloneInstance(const void * instance);
+	void * doCloneInplace(const void * instance, void * placement);
 
 	void doDestroyInstance(void * instance);
 
@@ -226,9 +226,9 @@ public:
 protected:
 	gapi_bool doCanGet();
 	gapi_bool doCanSet();
-	void doGet(GVariantData * outResult, void * instance);
+	void doGet(GVariantData * outResult, const void * instance);
 	void doSet(void * instance, const GVariantData * value);
-	void * doGetAddress(void * instance);
+	void * doGetAddress(const void * instance);
 	uint32_t doGetSize();
 
 private:
@@ -367,7 +367,7 @@ public:
 	ImplMetaFundamental(const GMetaFundamental * fundamental);
 
 protected:
-	virtual void G_API_CC getValue(GVariantData * outResult, void * instance);
+	virtual void G_API_CC getValue(GVariantData * outResult, const void * instance);
 
 private:
 	const GMetaFundamental * getFundamental() const {
@@ -511,11 +511,11 @@ protected:
 	
 	virtual gapi_bool G_API_CC isInheritedFrom(IMetaClass * ancient);
 
-	virtual void * G_API_CC castFromBase(void * base, uint32_t baseIndex);
-	virtual void * G_API_CC castToBase(void * self, uint32_t baseIndex);
+	virtual void * G_API_CC castFromBase(const void * base, uint32_t baseIndex);
+	virtual void * G_API_CC castToBase(const void * self, uint32_t baseIndex);
 
-	virtual void * G_API_CC castFromDerived(void * derived, uint32_t derivedIndex);
-	virtual void * G_API_CC castToDerived(void * self, uint32_t derivedIndex);
+	virtual void * G_API_CC castFromDerived(const void * derived, uint32_t derivedIndex);
+	virtual void * G_API_CC castToDerived(const void * self, uint32_t derivedIndex);
 
 private:
 	const GMetaClass * getClass() const {
@@ -790,7 +790,7 @@ void * ImplMetaTypedItem::doCreateInplace(void * placement)
 	LEAVE_META_API(return NULL)
 }
 
-void * ImplMetaTypedItem::doCloneInstance(void * instance)
+void * ImplMetaTypedItem::doCloneInstance(const void * instance)
 {
 	ENTER_META_API()
 
@@ -799,7 +799,7 @@ void * ImplMetaTypedItem::doCloneInstance(void * instance)
 	LEAVE_META_API(return NULL)
 }
 
-void * ImplMetaTypedItem::doCloneInplace(void * instance, void * placement)
+void * ImplMetaTypedItem::doCloneInplace(const void * instance, void * placement)
 {
 	ENTER_META_API()
 
@@ -953,7 +953,7 @@ gapi_bool ImplMetaAccessible::doCanSet()
 	LEAVE_META_API(return false)
 }
 
-void ImplMetaAccessible::doGet(GVariantData * outResult, void * instance)
+void ImplMetaAccessible::doGet(GVariantData * outResult, const void * instance)
 {
 	ENTER_META_API()
 	
@@ -973,7 +973,7 @@ void ImplMetaAccessible::doSet(void * instance, const GVariantData * value)
 	LEAVE_META_API()
 }
 
-void * ImplMetaAccessible::doGetAddress(void * instance)
+void * ImplMetaAccessible::doGetAddress(const void * instance)
 {
 	ENTER_META_API()
 
@@ -1257,7 +1257,7 @@ ImplMetaFundamental::ImplMetaFundamental(const GMetaFundamental * fundamental)
 {
 }
 
-void G_API_CC ImplMetaFundamental::getValue(GVariantData * outResult, void * instance)
+void G_API_CC ImplMetaFundamental::getValue(GVariantData * outResult, const void * instance)
 {
 	ENTER_META_API()
 
@@ -1810,7 +1810,7 @@ gapi_bool G_API_CC ImplMetaClass::isInheritedFrom(IMetaClass * ancient)
 	LEAVE_META_API(return false)
 }
 
-void * G_API_CC ImplMetaClass::castFromBase(void * base, uint32_t baseIndex)
+void * G_API_CC ImplMetaClass::castFromBase(const void * base, uint32_t baseIndex)
 {
 	ENTER_META_API()
 
@@ -1819,7 +1819,7 @@ void * G_API_CC ImplMetaClass::castFromBase(void * base, uint32_t baseIndex)
 	LEAVE_META_API(return NULL)
 }
 
-void * G_API_CC ImplMetaClass::castToBase(void * self, uint32_t baseIndex)
+void * G_API_CC ImplMetaClass::castToBase(const void * self, uint32_t baseIndex)
 {
 	ENTER_META_API()
 
@@ -1828,7 +1828,7 @@ void * G_API_CC ImplMetaClass::castToBase(void * self, uint32_t baseIndex)
 	LEAVE_META_API(return NULL)
 }
 
-void * G_API_CC ImplMetaClass::castFromDerived(void * derived, uint32_t derivedIndex)
+void * G_API_CC ImplMetaClass::castFromDerived(const void * derived, uint32_t derivedIndex)
 {
 	ENTER_META_API()
 
@@ -1837,7 +1837,7 @@ void * G_API_CC ImplMetaClass::castFromDerived(void * derived, uint32_t derivedI
 	LEAVE_META_API(return NULL)
 }
 
-void * G_API_CC ImplMetaClass::castToDerived(void * self, uint32_t derivedIndex)
+void * G_API_CC ImplMetaClass::castToDerived(const void * self, uint32_t derivedIndex)
 {
 	ENTER_META_API()
 
@@ -2127,10 +2127,10 @@ IMetaItem * metaItemToInterface(const GMetaItem * item)
 	return NULL;
 }
 
-const GMetaClass * findAppropriateDerivedClass(void * instance, const GMetaClass * metaClass, void ** outCastedInstance)
+const GMetaClass * findAppropriateDerivedClass(const void * instance, const GMetaClass * metaClass, void ** outCastedInstance)
 {
 	if(outCastedInstance != NULL) {
-		*outCastedInstance = instance;
+		*outCastedInstance = const_cast<void *>(instance);
 	}
 
 	if(! metaClass->isPolymorphic()) {
@@ -2158,15 +2158,15 @@ const GMetaClass * findAppropriateDerivedClass(void * instance, const GMetaClass
 	}
 
 	if(outCastedInstance != NULL) {
-		*outCastedInstance = instance;
+		*outCastedInstance = const_cast<void *>(instance);
 	}
 	return currentClass;
 }
 
-IMetaClass * findAppropriateDerivedClass(void * instance, IMetaClass * metaClass, void ** outCastedInstance)
+IMetaClass * findAppropriateDerivedClass(const void * instance, IMetaClass * metaClass, void ** outCastedInstance)
 {
 	if(outCastedInstance != NULL) {
-		*outCastedInstance = instance;
+		*outCastedInstance = const_cast<void *>(instance);
 	}
 
 	if(! metaClass->isPolymorphic()) {
@@ -2196,7 +2196,7 @@ IMetaClass * findAppropriateDerivedClass(void * instance, IMetaClass * metaClass
 	}
 
 	if(outCastedInstance != NULL) {
-		*outCastedInstance = instance;
+		*outCastedInstance = const_cast<void *>(instance);
 	}
 	return currentClass.take();
 }

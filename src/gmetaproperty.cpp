@@ -23,7 +23,7 @@ bool GMetaPropertyDataBase::canSet() const
 	return this->virtualFunctions->canSet(this);
 }
 
-GVariant GMetaPropertyDataBase::get(void * instance) const
+GVariant GMetaPropertyDataBase::get(const void * instance) const
 {
 	return this->virtualFunctions->get(this, instance);
 }
@@ -38,7 +38,7 @@ size_t GMetaPropertyDataBase::getPropertySize() const
 	return this->virtualFunctions->getPropertySize(this);
 }
 
-void * GMetaPropertyDataBase::getPropertyAddress(void * instance) const
+void * GMetaPropertyDataBase::getPropertyAddress(const void * instance) const
 {
 	return this->virtualFunctions->getPropertyAddress(this, instance);
 }
@@ -57,7 +57,7 @@ bool GMetaProperty::canSet() const
 	return this->baseData->canSet();
 }
 
-GVariant GMetaProperty::get(void * instance) const
+GVariant GMetaProperty::get(const void * instance) const
 {
 	if(!this->baseData->canGet()) {
 		raiseCoreException(Error_Meta_ReadDenied);
@@ -75,7 +75,7 @@ void GMetaProperty::set(void * instance, const GVariant & value) const
 	this->baseData->set(instance, value);
 }
 
-void * GMetaProperty::getAddress(void * instance) const
+void * GMetaProperty::getAddress(const void * instance) const
 {
 	return this->baseData->getPropertyAddress(instance);
 }

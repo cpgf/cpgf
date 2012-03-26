@@ -42,24 +42,26 @@ void doTestSimpleValue(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	double df = -0.056;
 	long double ldf = 13123.123;
 	string s = "abc";
+	string * ps = &s;
 
-	serializeWriteValue(archiveWriter.get(), "b", &b);
-	serializeWriteValue(archiveWriter.get(), "c", &c);
-	serializeWriteValue(archiveWriter.get(), "wc", &wc);
-	serializeWriteValue(archiveWriter.get(), "sc", &sc);
-	serializeWriteValue(archiveWriter.get(), "uc", &uc);
-	serializeWriteValue(archiveWriter.get(), "si", &si);
-	serializeWriteValue(archiveWriter.get(), "usi", &usi);
-	serializeWriteValue(archiveWriter.get(), "i", &i);
-	serializeWriteValue(archiveWriter.get(), "ui", &ui);
-	serializeWriteValue(archiveWriter.get(), "l", &l);
-	serializeWriteValue(archiveWriter.get(), "ul", &ul);
-	serializeWriteValue(archiveWriter.get(), "ll", &ll);
-	serializeWriteValue(archiveWriter.get(), "ull", &ull);
-	serializeWriteValue(archiveWriter.get(), "f", &f);
-	serializeWriteValue(archiveWriter.get(), "df", &df);
-	serializeWriteValue(archiveWriter.get(), "ldf", &ldf);
-	serializeWriteValue(archiveWriter.get(), "s", &s);
+	serializeWriteValue(archiveWriter.get(), "b", b);
+	serializeWriteValue(archiveWriter.get(), "c", c);
+	serializeWriteValue(archiveWriter.get(), "wc", wc);
+	serializeWriteValue(archiveWriter.get(), "sc", sc);
+	serializeWriteValue(archiveWriter.get(), "uc", uc);
+	serializeWriteValue(archiveWriter.get(), "si", si);
+	serializeWriteValue(archiveWriter.get(), "usi", usi);
+	serializeWriteValue(archiveWriter.get(), "i", i);
+	serializeWriteValue(archiveWriter.get(), "ui", ui);
+	serializeWriteValue(archiveWriter.get(), "l", l);
+	serializeWriteValue(archiveWriter.get(), "ul", ul);
+	serializeWriteValue(archiveWriter.get(), "ll", ll);
+	serializeWriteValue(archiveWriter.get(), "ull", ull);
+	serializeWriteValue(archiveWriter.get(), "f", f);
+	serializeWriteValue(archiveWriter.get(), "df", df);
+	serializeWriteValue(archiveWriter.get(), "ldf", ldf);
+	serializeWriteValue(archiveWriter.get(), "s", s);
+	serializeWriteValue(archiveWriter.get(), "ps", ps);
 
 	ar.rewind();
 	
@@ -82,6 +84,7 @@ void doTestSimpleValue(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	double rdf = 0;
 	long double rldf = 0;
 	string rs = "";
+	string * rps = NULL;
 
 	serializeReadValue(archiveReader.get(), "rb", &rb);
 	serializeReadValue(archiveReader.get(), "rc", &rc);
@@ -100,6 +103,7 @@ void doTestSimpleValue(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	serializeReadValue(archiveReader.get(), "rdf", &rdf);
 	serializeReadValue(archiveReader.get(), "rldf", &rldf);
 	serializeReadValue(archiveReader.get(), "rs", &rs);
+	serializeReadValue(archiveReader.get(), "rps", &rps);
 
 	GEQUAL(b, rb);
 	GEQUAL(c, rc);
@@ -118,6 +122,7 @@ void doTestSimpleValue(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	GFEQUAL(df, rdf);
 	GCHECK(fabs(ldf - rldf) < 0.1);
 	GEQUAL(s, rs);
+	GEQUAL(rps, &rs);
 }
 
 GTEST(testSimpleValue)
