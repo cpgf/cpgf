@@ -23,6 +23,7 @@ namespace {
 	{
 		data->arraySize = 0;
 		data->converter = NULL;
+		data->serializer = NULL;
 	}
 } // unnamed namespace
 
@@ -58,11 +59,13 @@ GMetaExtendType & GMetaExtendType::operator = (GMetaExtendType other)
 void GMetaExtendType::doRetainInterfaces()
 {
 	retainInterface(this->data.converter);
+	retainInterface(this->data.serializer);
 }
 
 void GMetaExtendType::doReleaseInterfaces()
 {
 	releaseInterface(this->data.converter);
+	releaseInterface(this->data.serializer);
 }
 
 void GMetaExtendType::swap(GMetaExtendType & other)

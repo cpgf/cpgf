@@ -132,7 +132,8 @@ void doTestMultipleInheritance(IMetaWriter * writer, IMetaReader * reader, const
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
 
-	GScopedInterface<IMetaService> service(createMetaService(createMetaModule(define.getMetaClass())));
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service.get(), writer));
 
@@ -167,7 +168,8 @@ GTEST(testMultipleInheritance)
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
 
-	GScopedInterface<IMetaService> service(createMetaService(createMetaModule(define.getMetaClass())));
+		GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
 
 	stringstream stream;
 

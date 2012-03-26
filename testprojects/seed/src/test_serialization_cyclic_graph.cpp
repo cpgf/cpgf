@@ -128,7 +128,8 @@ void doTestCyclicGraph(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
 
-	GScopedInterface<IMetaService> service(createMetaService(createMetaModule(define.getMetaClass())));
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassA"));
 
@@ -156,7 +157,8 @@ GTEST(testCyclicGraph)
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
 
-	GScopedInterface<IMetaService> service(createMetaService(createMetaModule(define.getMetaClass())));
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
 
 	stringstream stream;
 

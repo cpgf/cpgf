@@ -6,7 +6,7 @@
 #include "cpgf/gmetadefine.h"
 
 #include <math.h>
-#include <stdlib.h>
+#include <stdio.h>
 
 #include <string>
 
@@ -119,7 +119,7 @@ public:
 		this->ldf = (long double)(seed * 109.58);
 
 		char buffer[100];
-		itoa((int)seed, buffer, 10);
+		sprintf(buffer, "%d", (int)seed);
 		std::string s = "StlString:";
 		this->str = s + buffer;
 		s = "PtrStlString:";
