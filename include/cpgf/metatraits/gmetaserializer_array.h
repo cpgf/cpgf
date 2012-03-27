@@ -23,7 +23,7 @@ IMetaSerializer * metaTraitsCreateSerializerForArray(const T & a)
 	return serializer;
 }
 
-template <typename T, unsigned N>
+template <typename T, int N>
 IMetaSerializer * metaTraitsCreateSerializerForArray(const T (&)[N])
 {
 	T * p = 0;
@@ -33,7 +33,7 @@ IMetaSerializer * metaTraitsCreateSerializerForArray(const T (&)[N])
 
 } // namespace metatraits_internal
 
-template <typename T, unsigned N>
+template <typename T, int N>
 IMetaSerializer * metaTraitsCreateSerializer(const T (&a)[N])
 {
 	return metatraits_internal::metaTraitsCreateSerializerForArray(a);

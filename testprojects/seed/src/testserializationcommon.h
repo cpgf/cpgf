@@ -6,6 +6,9 @@
 
 #include "unittestbase.h"
 
+#include <string>
+
+
 #define FIELD(cls, n) ._field(# n, &cls::n)
 
 template <typename STREAM>
@@ -24,6 +27,17 @@ private:
 private:
 	STREAM & stream;
 };
+
+template <typename T>
+void initTestValue(T & value, long long seed)
+{
+	value = (T)(seed);
+}
+
+void initTestValue(bool & value, long long seed);
+void initTestValue(std::string & value, long long seed);
+
+long long getTestSeed(int n);
 
 
 #endif

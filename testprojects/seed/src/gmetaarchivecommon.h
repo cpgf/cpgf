@@ -206,10 +206,8 @@ const int Error_Serialization_CannotFindObjectType = Error_Serialization_Begin +
 const int Error_Serialization_MissingMetaClass = Error_Serialization_Begin + 2;
 const int Error_Serialization_End = 400;
 
-inline void serializeError(int errorCode, ...)
-{
-	raiseException(errorCode, "Serialize error.");
-}
+void serializeError(int errorCode, ...);
+
 
 void serializeWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
 void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
@@ -240,16 +238,16 @@ template <typename T>
 void serializeWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, const T & object) 
 {
 	GMetaTypeData metaTypeData = createMetaType<T>().getData();
-	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>( GExtendTypeCreateFlag_Serializer).getSerializer());
+	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>(GExtendTypeCreateFlag_Serializer).getSerializer());
 	archiveWriter->writeObject(name, serialization_internal::SerializeWriteValueParam<T>::param(object), &metaTypeData, serializer.get());
 }
 
 template <typename T>
-void serializeReadValue(IMetaArchiveReader * archiveReader, const char * name, T * instance) 
+void serializeReadValue(IMetaArchiveReader * archiveReader, const char * name, T & instance) 
 {
 	GMetaTypeData metaTypeData = createMetaType<T>().getData();
 	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>( GExtendTypeCreateFlag_Serializer).getSerializer());
-	archiveReader->readObject(name, instance, &metaTypeData, serializer.get());
+	archiveReader->readObject(name, &instance, &metaTypeData, serializer.get());
 }
 
 GVariant readFundamental(const void * address, const GMetaType & metaType);

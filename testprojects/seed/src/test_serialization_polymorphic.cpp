@@ -120,18 +120,12 @@ void register_TestSerializeClass(Define define)
 }
 
 template <typename AR>
-void doTestPolymorphic(IMetaWriter * writer, IMetaReader * reader, const AR & ar)
+void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassR"));
 
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service.get(), writer));
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service.get(), reader));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service, writer));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service, reader));
 
 	// write
 
@@ -191,7 +185,7 @@ GTEST(testPolymorphic)
 	GTextStreamMetaWriter<stringstream> outputStream(stream);
 	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
 	
-	doTestPolymorphic(&outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
+	doTestPolymorphic(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

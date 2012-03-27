@@ -124,18 +124,12 @@ void register_TestSerializeClass(Define define)
 }
 
 template <typename AR>
-void doTestMultipleInheritance(IMetaWriter * writer, IMetaReader * reader, const AR & ar)
+void doTestMultipleInheritance(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
 	readCount = 0;
 	writeCount = 0;
 
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service.get(), writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service, writer));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassD"));
 
@@ -149,7 +143,7 @@ void doTestMultipleInheritance(IMetaWriter * writer, IMetaReader * reader, const
 
 	ar.rewind();
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service.get(), reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service, reader));
 	
 	D readInstance;
 	
@@ -168,7 +162,7 @@ GTEST(testMultipleInheritance)
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
 
-		GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
 	GScopedInterface<IMetaService> service(createMetaService(module.get()));
 
 	stringstream stream;
@@ -176,7 +170,7 @@ GTEST(testMultipleInheritance)
 	GTextStreamMetaWriter<stringstream> outputStream(stream);
 	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
 	
-	doTestMultipleInheritance(&outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
+	doTestMultipleInheritance(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

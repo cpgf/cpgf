@@ -1,4 +1,5 @@
 #include "testserializationcommon.h"
+#include "testserializationcommonclasses.h"
 #include "cpgf/gmetadefine.h"
 
 #include "gmetatextstreamarchive.h"
@@ -21,11 +22,13 @@ using namespace cpgf;
 namespace {
 
 template <typename AR>
-void doTestSimpleValue(IMetaWriter * writer, IMetaReader * reader, const AR & ar)
+void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), NULL, writer));
 
-	bool b = true;
+	enum { L = 30 };
+
+	bool b[L];
 	char c = 5;
 	wchar_t wc = 7;
 	signed char sc = -90;
@@ -44,7 +47,12 @@ void doTestSimpleValue(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	string s = "abc";
 	string * ps = &s;
 
+#define INIT(v, l) for(int i = 0; i < l; ++i) initTestValue(v[i], getTestSeed(i + 1));
+	INIT(b, L)
+#undef INIT
+
 	serializeWriteValue(archiveWriter.get(), "b", b);
+
 	serializeWriteValue(archiveWriter.get(), "c", c);
 	serializeWriteValue(archiveWriter.get(), "wc", wc);
 	serializeWriteValue(archiveWriter.get(), "sc", sc);
@@ -67,7 +75,7 @@ void doTestSimpleValue(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), NULL, reader));
 	
-	bool rb = false;
+	bool rb[L];
 	char rc = 0;
 	wchar_t rwc = 0;
 	signed char rsc = 0;
@@ -86,7 +94,16 @@ void doTestSimpleValue(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	string rs = "";
 	string * rps = NULL;
 
+#define INIT(v, l) for(int i = 0; i < l; ++i) initTestValue(v[i], getTestSeed(0));
+	INIT(rb, L)
+#undef INIT
+
 	serializeReadValue(archiveReader.get(), "rb", rb);
+
+#define EQ(v, u, l) for(int i = 0; i < l; ++i) GEQUAL(v[i], u[i]);
+	EQ(b, rb, L)
+#undef EQ
+
 	serializeReadValue(archiveReader.get(), "rc", rc);
 	serializeReadValue(archiveReader.get(), "rwc", rwc);
 	serializeReadValue(archiveReader.get(), "rsc", rsc);
@@ -105,7 +122,7 @@ void doTestSimpleValue(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	serializeReadValue(archiveReader.get(), "rs", rs);
 	serializeReadValue(archiveReader.get(), "rps", rps);
 
-	GEQUAL(b, rb);
+//	GEQUAL(b, rb);
 	GEQUAL(c, rc);
 	GEQUAL(wc, rwc);
 	GEQUAL(sc, rsc);
@@ -125,16 +142,16 @@ void doTestSimpleValue(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	GEQUAL(rps, &rs);
 }
 
-GTEST(testSimpleValue)
+GTEST(testSimpleArray)
 {
 	stringstream stream;
 
 	GTextStreamMetaWriter<stringstream> outputStream(stream);
 	GTextStreamMetaReader<stringstream> inputStream(NULL, stream);
 	
-	doTestSimpleValue(&outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
+	doTestSimpleArray(&outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
 	
-//	cout << stream.str().c_str() << endl;
+	cout << stream.str().c_str() << endl;
 }
 
 

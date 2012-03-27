@@ -22,15 +22,9 @@ using namespace cpgf;
 namespace {
 
 template <typename AR>
-void doTestSimpleObject(IMetaWriter * writer, IMetaReader * reader, const AR & ar)
+void doTestSimpleObject(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service.get(), writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service, writer));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClass"));
 
@@ -41,7 +35,7 @@ void doTestSimpleObject(IMetaWriter * writer, IMetaReader * reader, const AR & a
 
 	ar.rewind();
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service.get(), reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service, reader));
 	
 	TestSerializeClass readInstance;
 	
@@ -67,7 +61,7 @@ GTEST(TestSimpleObject)
 	GTextStreamMetaWriter<stringstream> outputStream(stream);
 	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
 	
-	doTestSimpleObject(&outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
+	doTestSimpleObject(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

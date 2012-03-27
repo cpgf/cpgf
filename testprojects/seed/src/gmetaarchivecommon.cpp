@@ -58,6 +58,11 @@ bool canSerializeBaseClass(const GMetaArchiveConfig & config, IMetaClass * baseC
 	return true;
 }
 
+void serializeError(int errorCode, ...)
+{
+	raiseFormatException(errorCode, "Serialize error: %d.", errorCode);
+}
+
 void serializeWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
 {
 	GMetaTypeData metaType = metaGetItemType(metaClass).getData();

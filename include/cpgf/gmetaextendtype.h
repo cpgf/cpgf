@@ -46,16 +46,18 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags)
 	data->arraySize = ArraySize<T>::Result;
 	
 	if((createFlags & GExtendTypeCreateFlag_Converter) != 0) {
-		typename WrapExtendType<T>::Result * p = 0;
-		data->converter = metaTraitsCreateConverter(*p);
+//		typename WrapExtendType<T>::Result & p = *(typename WrapExtendType<T>::Result *)0;
+//		data->converter = metaTraitsCreateConverter(p);
+		data->converter = metaTraitsCreateConverter(*(typename WrapExtendType<T>::Result *)0);
 	}
 	else {
 		data->converter = NULL;
 	}
 	
 	if((createFlags & GExtendTypeCreateFlag_Serializer) != 0) {
-		typename WrapExtendType<T>::Result * p = 0;
-		data->serializer = metaTraitsCreateSerializer(*p);
+//		typename WrapExtendType<T>::Result & p = *(typename WrapExtendType<T>::Result *)0;
+//		data->serializer = metaTraitsCreateSerializer(p);
+		data->serializer = metaTraitsCreateSerializer(*(typename WrapExtendType<T>::Result *)0);
 	}
 	else {
 		data->serializer = NULL;
