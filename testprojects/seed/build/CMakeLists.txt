@@ -110,7 +110,7 @@ endif(${HAS_V8})
 set(SEED_COMPILE_FLAGS " ")
 set(TEST_COMPILE_FLAGS " ")
 if(CMAKE_COMPILER_IS_GNUCC)
-	set(SEED_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0")
+	set(SEED_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
 
 	if(SUPPORT_GCC_0X)
 		if(MINGW)

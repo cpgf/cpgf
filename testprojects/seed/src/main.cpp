@@ -2,12 +2,15 @@
 //#include <tchar.h>
 //#include <conio.h>
 
-#include <iostream>
-#include <string>
+#include "cpgf/gifelse.h"
+#include "cpgf/gmetaextendtype.h"
 
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaserializer_string.h"
-#include "cpgf/gmetaextendtype.h"
+#include "cpgf/metatraits/gmetaserializer_array.h"
+
+#include <iostream>
+#include <string>
 
 #include "unittestbase.h"
 
@@ -18,8 +21,21 @@ void testSer();
 
 void testBoost();
 
-namespace cpgf {
-namespace ttt {
+
+using namespace cpgf;
+
+template <typename T>
+void abc(const T &)
+{
+	cout << "Trapped all." << endl;
+}
+
+template <typename T, int N>
+void abc(const T (&x) [N])
+{
+	(void)x;
+	cout << "Array." << endl;
+}
 
 template <typename T>
 void test(T &)
@@ -31,23 +47,14 @@ void test(T &)
 	cout << "Serializer: " << type.getSerializer() << endl;
 }
 
-}
-}
-
-
-using namespace cpgf;
-using namespace cpgf::ttt;
 
 int main(int argc, char * argv[])
 {
 	(void)argc;
 	(void)argv;
-
-//	testBoost();
-//	string s;
-//	test(s);
-
+	
 //	testSer();
+
 	UnitTest::RunAllTests();
 
 //	_getch();

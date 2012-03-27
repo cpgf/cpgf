@@ -2,10 +2,16 @@
 #define __GMETASERIALIZER_ARRAY_H
 
 #include "cpgf/metatraits/gmetaserializer.h"
-#include "cpgf/metatraits/gmetaserializer_trapall.h"
 
 
 namespace cpgf {
+
+// forward declare the function in gmetaserializer_trapall.h
+// gmetaserializer_trapall.h must be inlcuded after gmetaserializer_array.h
+// otherwise, because gmetaserializer_trapall.h includes gmetaextendtype.h, it will cause array overloading doesn't work on GCC.
+template <typename T>
+IMetaSerializer * createTrapAllSerializer();
+
 
 namespace metatraits_internal {
 
@@ -42,6 +48,9 @@ IMetaSerializer * metaTraitsCreateSerializer(const T (&a)[N])
 
 
 } // namespace cpgf
+
+
+#include "cpgf/metatraits/gmetaserializer_trapall.h"
 
 
 #endif

@@ -123,6 +123,7 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	serializeReadValue(archiveReader.get(), "rps", rps);
 
 //	GEQUAL(b, rb);
+
 	GEQUAL(c, rc);
 	GEQUAL(wc, rwc);
 	GEQUAL(sc, rsc);
@@ -151,7 +152,7 @@ GTEST(testSimpleArray)
 	
 	doTestSimpleArray(&outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
 	
-	cout << stream.str().c_str() << endl;
+//	cout << stream.str().c_str() << endl;
 }
 
 
