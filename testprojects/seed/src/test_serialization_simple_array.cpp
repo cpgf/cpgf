@@ -26,33 +26,54 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 {
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), NULL, writer));
 
-	enum { L = 30 };
+	enum {
+		A = 3, B = 5, C = 38, D = 50, E = 51, F = 58, G = 60, H = 61, I = 66, J = 68, K = 10, L = 15, M = 18, N = 20, O = 25, P = 28, Q = 2
+	};
 
-	bool b[L];
-	char c = 5;
-	wchar_t wc = 7;
-	signed char sc = -90;
-	unsigned char uc = 180;
-	short si = -38;
-	unsigned short usi = 98;
-	int i = 12345;
-	unsigned int ui = 98765;
-	long l = -1002;
-	unsigned long ul = 120909;
-	long long ll = -0xbeefdeadLL;
-	unsigned long long ull = 0xdeef;
-	float f = 1987.5;
-	double df = -0.056;
-	long double ldf = 13123.123;
-	string s = "abc";
-	string * ps = &s;
+	bool b[A];
+	char c[B];
+	wchar_t wc[C];
+	signed char sc[D];
+	unsigned char uc[E];
+	short si[F];
+	unsigned short usi[G];
+	int i[H];
+	unsigned int ui[I];
+	long l[J];
+	unsigned long ul[K];
+	long long ll[L];
+	unsigned long long ull[M];
+	float f[N];
+	double df[O];
+	long double ldf[P];
+	string s[Q];
+	string * ps[Q];
 
-#define INIT(v, l) for(int i = 0; i < l; ++i) initTestValue(v[i], getTestSeed(i + 1));
-	INIT(b, L)
+#define INIT(v, l) for(int z = 0; z < l; ++z) initTestValue(v[z], getTestSeed(z + 1));
+	INIT(b, A)
+	INIT(c, B)
+	INIT(wc, C)
+	INIT(sc, D)
+	INIT(uc, E)
+	INIT(si, F)
+	INIT(usi, G)
+	INIT(i, H)
+	INIT(ui, I)
+	INIT(l, J)
+	INIT(ul, K)
+	INIT(ll, L)
+	INIT(ull, M)
+	INIT(f, N)
+	INIT(df, O)
+	INIT(ldf, P)
+	INIT(s, Q)
+#undef INIT
+
+#define INIT(v, l) for(int z = 0; z < l; ++z) ps[z] = &s[z];
+	INIT(ps, Q)
 #undef INIT
 
 	serializeWriteValue(archiveWriter.get(), "b", b);
-
 	serializeWriteValue(archiveWriter.get(), "c", c);
 	serializeWriteValue(archiveWriter.get(), "wc", wc);
 	serializeWriteValue(archiveWriter.get(), "sc", sc);
@@ -72,38 +93,54 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	serializeWriteValue(archiveWriter.get(), "ps", ps);
 
 	ar.rewind();
-	
+
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), NULL, reader));
 	
-	bool rb[L];
-	char rc = 0;
-	wchar_t rwc = 0;
-	signed char rsc = 0;
-	unsigned char ruc = 0;
-	short rsi = 0;
-	unsigned short rusi = 0;
-	int ri = 0;
-	unsigned int rui = 0;
-	long rl = 0;
-	unsigned long rul = 0;
-	long long rll = 0;
-	unsigned long long rull = 0;
-	float rf = 0;
-	double rdf = 0;
-	long double rldf = 0;
-	string rs = "";
-	string * rps = NULL;
+	bool rb[A];
+	char rc[B];
+	wchar_t rwc[C];
+	signed char rsc[D];
+	unsigned char ruc[E];
+	short rsi[F];
+	unsigned short rusi[G];
+	int ri[H];
+	unsigned int rui[I];
+	long rl[J];
+	unsigned long rul[K];
+	long long rll[L];
+	unsigned long long rull[M];
+	float rf[N];
+	double rdf[O];
+	long double rldf[P];
+	string rs[Q];
+	string * rps[Q];
 
-#define INIT(v, l) for(int i = 0; i < l; ++i) initTestValue(v[i], getTestSeed(0));
-	INIT(rb, L)
+#define INIT(v, l) for(int z = 0; z < l; ++z) initTestValue(v[z], getTestSeed(0));
+	INIT(rb, A)
+	INIT(rc, B)
+	INIT(rwc, C)
+	INIT(rsc, D)
+	INIT(ruc, E)
+	INIT(rsi, F)
+	INIT(rusi, G)
+	INIT(ri, H)
+	INIT(rui, I)
+	INIT(rl, J)
+	INIT(rul, K)
+	INIT(rll, L)
+	INIT(rull, M)
+	INIT(rf, N)
+	INIT(rdf, O)
+	INIT(rldf, P)
+	INIT(rs, Q)
 #undef INIT
 
+#define INIT(v, l) for(int z = 0; z < l; ++z) ps[z] = NULL;
+	INIT(rps, Q)
+#undef INIT
+
+
 	serializeReadValue(archiveReader.get(), "rb", rb);
-
-#define EQ(v, u, l) for(int i = 0; i < l; ++i) GEQUAL(v[i], u[i]);
-	EQ(b, rb, L)
-#undef EQ
-
 	serializeReadValue(archiveReader.get(), "rc", rc);
 	serializeReadValue(archiveReader.get(), "rwc", rwc);
 	serializeReadValue(archiveReader.get(), "rsc", rsc);
@@ -122,25 +159,33 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	serializeReadValue(archiveReader.get(), "rs", rs);
 	serializeReadValue(archiveReader.get(), "rps", rps);
 
-//	GEQUAL(b, rb);
+#define EQ(v, u, l) for(int z = 0; z < l; ++z) GEQUAL(v[z], u[z]);
+	EQ(b, rb, A)
+	EQ(c, rc, B)
+	EQ(wc, rwc, C)
+	EQ(sc, rsc, D)
+	EQ(uc, ruc, E)
+	EQ(si, rsi, F)
+	EQ(usi, rusi, G)
+	EQ(i, ri, H)
+	EQ(ui, rui, I)
+	EQ(l, rl, J)
+	EQ(ul, rul, K)
+	EQ(ll, rll, L)
+	EQ(ull, rull, M)
+	EQ(s, rs, Q)
+#undef EQ
 
-	GEQUAL(c, rc);
-	GEQUAL(wc, rwc);
-	GEQUAL(sc, rsc);
-	GEQUAL(uc, ruc);
-	GEQUAL(si, rsi);
-	GEQUAL(usi, rusi);
-	GEQUAL(i, ri);
-	GEQUAL(ui, rui);
-	GEQUAL(l, rl);
-	GEQUAL(ul, rul);
-	GEQUAL(ll, rll);
-	GEQUAL(ull, rull);
-	GFEQUAL(f, rf);
-	GFEQUAL(df, rdf);
-	GCHECK(fabs(ldf - rldf) < 0.1);
-	GEQUAL(s, rs);
-	GEQUAL(rps, &rs);
+#define EQ(v, u, l) for(int z = 0; z < l; ++z) GCHECK(fabs(v[z] - u[z]) < 0.1);
+//	EQ(f, rf, N)
+//	EQ(df, rdf, O)
+//	EQ(ldf, rldf, P)
+#undef EQ
+
+#define EQ(v, u, l) for(int z = 0; z < l; ++z) GEQUAL(&rs[z], rps[z]);
+//	EQ(rs, rps, Q)
+#undef EQ
+
 }
 
 GTEST(testSimpleArray)

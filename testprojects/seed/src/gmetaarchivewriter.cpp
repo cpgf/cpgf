@@ -175,6 +175,11 @@ GMetaArchiveWriter::~GMetaArchiveWriter()
 void G_API_CC GMetaArchiveWriter::writeObject(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer)
 {
 	GMetaType type(*metaType);
+	
+//	if(this->trackPointer(archiveIDNone, instance, (type.isPointer() ? aptByPointer : aptByValue))) {
+//		return;
+//	}
+	
 	if(type.isPointer()) {
 		this->doWriteValue(name, instance, type, serializer, aptByPointer);
 	}
@@ -290,9 +295,12 @@ bool GMetaArchiveWriter::trackPointer(uint32_t archiveID, const void * instance,
 
 			if(this->getPointerTracker()->hasPointer(instance)) {
 				if(pointerType == aptByValue) {
-					// error
+					return false;
 				}
 				else {
+					if(archiveID == archiveIDNone) {
+						archiveID = this->getNextArchiveID();
+					}
 					this->writer->writeReferenceID("", archiveID, this->getPointerTracker()->getArchiveID(instance));
 				}
 

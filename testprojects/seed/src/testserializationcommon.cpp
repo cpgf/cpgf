@@ -10,6 +10,21 @@ void initTestValue(bool & value, long long seed)
 	value = ((seed % 2) != 0);
 }
 
+void initTestValue(char & value, long long seed)
+{
+	value = 'a' + (seed % 26);
+}
+
+void initTestValue(signed char & value, long long seed)
+{
+	value = 'a' + (seed % 26);
+}
+
+void initTestValue(unsigned char & value, long long seed)
+{
+	value = 'a' + (seed % 26);
+}
+
 void initTestValue(std::string & value, long long seed)
 {
 	char buffer[100];

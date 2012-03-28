@@ -41,15 +41,16 @@ public:
 	
 protected:
 	void * readObjectHelper(const char * name, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer);
-	void * doReadObject(uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap);
-	void doDefaultReadObject(uint32_t archiveID, void * instance, IMetaClass * metaClass, GBaseClassMap * baseClassMap);
-	void doDirectReadObject(uint32_t archiveID, void * instance, IMetaClass * metaClass, GBaseClassMap * baseClassMap);
+	void * doReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap);
+	void doDefaultReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, GBaseClassMap * baseClassMap);
+	void doDirectReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, GBaseClassMap * baseClassMap);
 	void doDirectReadObjectWithoutBase(uint32_t archiveID, void * instance, IMetaClass * metaClass);
 	
 	void doReadField(const char * name, void * instance, IMetaAccessible * accessible);
 	void doReadProperty(const char * name, void * instance, IMetaAccessible * accessible);
 	
 	void doReadValue(const char * name, void * address, const GMetaType & metaType, IMetaSerializer * serializer);
+	bool untrackPointer(const char * name, void * address, const GMetaType & metaType);
 
 	GMetaArchiveReaderPointerTracker * getPointerTracker();
 	GMetaArchiveReaderClassTypeTracker * getClassTypeTracker();
@@ -163,15 +164,24 @@ GMetaArchiveReader::~GMetaArchiveReader()
 void G_API_CC GMetaArchiveReader::readObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer)
 {
 	GMetaType type(*metaType);
+
+	if(this->untrackPointer(name, instance, type)) {
+		return;
+	}
+
 	this->doReadValue(name, instance, type, serializer);
 }
 
 void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer)
 {
+	if(metaClass != NULL && this->untrackPointer(name, instance, metaGetItemType(metaClass))) {
+		return instance;
+	}
+
 	uint32_t archiveID = this->beginReadObject(name, instance, metaClass);
 
 	GBaseClassMap baseClassMap;
-	void * p = this->doReadObject(archiveID, instance, metaClass, serializer, &baseClassMap);
+	void * p = this->doReadObject(name, archiveID, instance, metaClass, serializer, &baseClassMap);
 
 	this->endReadObject(name, archiveID, instance, metaClass);
 
@@ -180,26 +190,38 @@ void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, 
 
 void G_API_CC GMetaArchiveReader::defaultReaderObject(const char * name, void * instance, IMetaClass * metaClass)
 {
+	if(metaClass != NULL && this->untrackPointer(name, instance, metaGetItemType(metaClass))) {
+		return;
+	}
+
 	uint32_t archiveID = this->beginReadObject(name, instance, metaClass);
 
 	GBaseClassMap baseClassMap;
-	this->doDefaultReadObject(archiveID, instance, metaClass, &baseClassMap);
+	this->doDefaultReadObject(name, archiveID, instance, metaClass, &baseClassMap);
 
 	this->endReadObject(name, archiveID, instance, metaClass);
 }
 
 void G_API_CC GMetaArchiveReader::directReadObject(const char * name, void * instance, IMetaClass * metaClass)
 {
+	if(metaClass != NULL && this->untrackPointer(name, instance, metaGetItemType(metaClass))) {
+		return;
+	}
+
 	uint32_t archiveID = this->beginReadObject(name, instance, metaClass);
 
 	GBaseClassMap baseClassMap;
-	this->doDirectReadObject(archiveID, instance, metaClass, &baseClassMap);
+	this->doDirectReadObject(name, archiveID, instance, metaClass, &baseClassMap);
 
 	this->endReadObject(name, archiveID, instance, metaClass);
 }
 
 void G_API_CC GMetaArchiveReader::directReadObjectWithoutBase(const char * name, void * instance, IMetaClass * metaClass)
 {
+	if(metaClass != NULL && this->untrackPointer(name, instance, metaGetItemType(metaClass))) {
+		return;
+	}
+
 	uint32_t archiveID = this->beginReadObject(name, instance, metaClass);
 
 	this->doDirectReadObjectWithoutBase(archiveID, instance, metaClass);
@@ -241,7 +263,7 @@ void GMetaArchiveReader::endReadObject(const char * name, uint32_t archiveID, vo
 	this->reader->endReadObject(&objectInformation);
 }
 
-void * GMetaArchiveReader::doReadObject(uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap)
+void * GMetaArchiveReader::doReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap)
 {
 	GScopedInterface<IMetaSerializer> serializerPointer;
 	if(serializer == NULL && metaClass != NULL) {
@@ -253,17 +275,17 @@ void * GMetaArchiveReader::doReadObject(uint32_t archiveID, void * instance, IMe
 		return serializer->readObject(this, this->reader.get(), archiveID, instance, metaClass);
 	}
 	else {
-		this->doDefaultReadObject(archiveID, instance, metaClass, baseClassMap);
+		this->doDefaultReadObject(name, archiveID, instance, metaClass, baseClassMap);
 		return instance;
 	}
 }
 
-void GMetaArchiveReader::doDefaultReadObject(uint32_t archiveID, void * instance, IMetaClass * metaClass, GBaseClassMap * baseClassMap)
+void GMetaArchiveReader::doDefaultReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, GBaseClassMap * baseClassMap)
 {
-	this->doDirectReadObject(archiveID, instance, metaClass, baseClassMap);
+	this->doDirectReadObject(name, archiveID, instance, metaClass, baseClassMap);
 }
 
-void GMetaArchiveReader::doDirectReadObject(uint32_t archiveID, void * instance, IMetaClass * metaClass, GBaseClassMap * baseClassMap)
+void GMetaArchiveReader::doDirectReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, GBaseClassMap * baseClassMap)
 {
 	GScopedInterface<IMetaClass> baseClass;
 	uint32_t i;
@@ -277,7 +299,7 @@ void GMetaArchiveReader::doDirectReadObject(uint32_t archiveID, void * instance,
 			void * baseInstance = metaClass->castToBase(instance, i);
 			if(! baseClassMap->hasMetaClass(baseInstance, baseClass.get())) {
 				baseClassMap->addMetaClass(baseInstance, baseClass.get());
-				this->doReadObject(archiveIDNone, baseInstance, baseClass.get(), NULL, baseClassMap);
+				this->doReadObject(name, archiveIDNone, baseInstance, baseClass.get(), NULL, baseClassMap);
 			}
 		}
 	}
@@ -426,6 +448,30 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 
 			break;
 	}
+}
+
+bool GMetaArchiveReader::untrackPointer(const char * name, void * address, const GMetaType & metaType)
+{
+	GMetaArchiveItemType type = static_cast<GMetaArchiveItemType>(this->reader->getArchiveType(name));
+
+	if(type == matReferenceObject) {
+		size_t pointers = metaType.getPointerDimension();
+		if(pointers == 0) {
+			serializeError(Error_Serialization_TypeMismatch);
+		}
+			
+		uint32_t archiveID = this->reader->readReferenceID(name);
+		if(this->getPointerTracker()->hasArchiveID(archiveID)) {
+			*(void **)address = this->getPointerTracker()->getPointer(archiveID);
+
+			return true;
+		}
+		else {
+			serializeError(Error_Serialization_TypeMismatch);
+		}
+	}
+
+	return false;
 }
 
 void GMetaArchiveReader::doReadField(const char * name, void * instance, IMetaAccessible * accessible)

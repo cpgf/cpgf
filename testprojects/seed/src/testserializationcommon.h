@@ -35,6 +35,9 @@ void initTestValue(T & value, long long seed)
 }
 
 void initTestValue(bool & value, long long seed);
+void initTestValue(char & value, long long seed);
+void initTestValue(signed char & value, long long seed);
+void initTestValue(unsigned char & value, long long seed);
 void initTestValue(std::string & value, long long seed);
 
 long long getTestSeed(int n);

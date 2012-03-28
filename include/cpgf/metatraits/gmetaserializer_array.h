@@ -2,6 +2,7 @@
 #define __GMETASERIALIZER_ARRAY_H
 
 #include "cpgf/metatraits/gmetaserializer.h"
+#include "cpgf/gmetatype.h"
 
 
 namespace cpgf {
@@ -15,7 +16,19 @@ IMetaSerializer * createTrapAllSerializer();
 
 namespace metatraits_internal {
 
-IMetaSerializer * createArraySerializer(IMetaSerializer * elementSerializer, unsigned int elementSize, unsigned int elementCount);
+IMetaSerializer * createArraySerializer(IMetaSerializer * elementSerializer, const GMetaType & metaType, unsigned int elementSize, unsigned int elementCount);
+
+template <typename T>
+GMetaType createMetaTypeForArray(const T &)
+{
+	return createMetaType<T>();
+}
+
+template <typename T, int N>
+GMetaType createMetaTypeForArray(const T (&)[N])
+{
+	return createMetaTypeForArray<T>();
+}
 
 template <typename T>
 IMetaSerializer * metaTraitsCreateSerializerForArray(const T & a)
@@ -34,7 +47,7 @@ IMetaSerializer * metaTraitsCreateSerializerForArray(const T (&)[N])
 {
 	T * p = 0;
 	GScopedInterface<IMetaSerializer> elementSerializer(metaTraitsCreateSerializerForArray(*p));
-	return metatraits_internal::createArraySerializer(elementSerializer.get(), sizeof(T), N);
+	return metatraits_internal::createArraySerializer(elementSerializer.get(), createMetaTypeForArray(*p), sizeof(T), N);
 }
 
 } // namespace metatraits_internal

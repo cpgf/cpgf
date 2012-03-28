@@ -47,11 +47,13 @@ void test(T &)
 	cout << "Serializer: " << type.getSerializer() << endl;
 }
 
-
 int main(int argc, char * argv[])
 {
 	(void)argc;
 	(void)argv;
+
+	int a[5];
+//	test(a);
 	
 //	testSer();
 
