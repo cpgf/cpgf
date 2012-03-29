@@ -33,25 +33,13 @@ public:
 	// take care of customized serializer, take care of pointer tracking.
 	virtual void G_API_CC writeObject(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
 
-	// ignore customized serializer, take care of pointer tracking.
-	virtual void G_API_CC defaultWriteObjectValue(const char * name, const void * instance, IMetaClass * metaClass);
-	virtual void G_API_CC defaultWriteObjectPointer(const char * name, const void * instance, IMetaClass * metaClass);
-
-	// ignore customized serializer, ignore pointer tracking, take care of base classes
-	virtual void G_API_CC directWriteObject(const char * name, const void * instance, IMetaClass * metaClass);
-
-	// ignore customized serializer, ignore pointer tracking, ignore base classes, only write the object itself
-	virtual void G_API_CC directWriteObjectWithoutBase(const char * name, const void * instance, IMetaClass * metaClass);
-
 	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, uint32_t classTypeID);
 	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, uint32_t classTypeID);
 
 protected:
 	void writeObjectHelper(const char * name, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GMetaArchivePointerType pointerType);
-	void defaultWriteObjectHelper(const char * name, const void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType);
 	
 	void doWriteObject(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GMetaArchivePointerType pointerType, GBaseClassMap * baseClassMap);
-	void doDefaultWriteObject(uint32_t archiveID, const void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType, GBaseClassMap * baseClassMap);
 	void doDirectWriteObject(uint32_t archiveID, const void * instance, IMetaClass * metaClass, GBaseClassMap * baseClassMap);
 	void doDirectWriteObjectWithoutBase(uint32_t archiveID, const void * instance, IMetaClass * metaClass);
 	
@@ -208,59 +196,6 @@ void GMetaArchiveWriter::writeObjectHelper(const char * name, const void * insta
 	this->endWriteObject(name, archiveID, instance, castedMetaClass.get(), classTypeID);
 }
 
-void G_API_CC GMetaArchiveWriter::defaultWriteObjectValue(const char * name, const void * instance, IMetaClass * metaClass)
-{
-	this->defaultWriteObjectHelper(name, instance, metaClass, aptByValue);
-}
-
-void G_API_CC GMetaArchiveWriter::defaultWriteObjectPointer(const char * name, const void * instance, IMetaClass * metaClass)
-{
-	this->defaultWriteObjectHelper(name, instance, metaClass, aptByPointer);
-}
-
-void GMetaArchiveWriter::defaultWriteObjectHelper(const char * name, const void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType)
-{
-	uint32_t archiveID = this->getNextArchiveID();
-
-	if(this->trackPointer(archiveID, instance, pointerType)) {
-		return;
-	}
-
-	IMetaClass * outCastedMetaClass;
-	uint32_t classTypeID = this->getClassTypeID(instance, metaClass, pointerType, &outCastedMetaClass);
-	GScopedInterface<IMetaClass> castedMetaClass(outCastedMetaClass);
-
-	this->beginWriteObject(name, archiveID, instance, castedMetaClass.get(), classTypeID);
-
-	GBaseClassMap baseClassMap;
-	this->doDefaultWriteObject(archiveID, instance, castedMetaClass.get(), pointerType, &baseClassMap);
-
-	this->endWriteObject(name, archiveID, instance, castedMetaClass.get(), classTypeID);
-}
-
-void G_API_CC GMetaArchiveWriter::directWriteObject(const char * name, const void * instance, IMetaClass * metaClass)
-{
-	uint32_t archiveID = this->getNextArchiveID();
-
-	this->beginWriteObject(name, archiveID, instance, metaClass, archiveIDNone);
-
-	GBaseClassMap baseClassMap;
-	this->doDirectWriteObject(archiveID, instance, metaClass, &baseClassMap);
-
-	this->endWriteObject(name, archiveID, instance, metaClass, archiveIDNone);
-}
-
-void G_API_CC GMetaArchiveWriter::directWriteObjectWithoutBase(const char * name, const void * instance, IMetaClass * metaClass)
-{
-	uint32_t archiveID = this->getNextArchiveID();
-
-	this->beginWriteObject(name, archiveID, instance, metaClass, archiveIDNone);
-
-	this->doDirectWriteObjectWithoutBase(archiveID, instance, metaClass);
-
-	this->endWriteObject(name, archiveID, instance, metaClass, archiveIDNone);
-}
-
 void GMetaArchiveWriter::doWriteObject(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GMetaArchivePointerType pointerType, GBaseClassMap * baseClassMap)
 {
 	GScopedInterface<IMetaSerializer> serializerPointer;
@@ -273,19 +208,12 @@ void GMetaArchiveWriter::doWriteObject(uint32_t archiveID, const void * instance
 		serializer->writeObject(this, this->writer.get(), archiveID, instance, metaClass);
 	}
 	else {
-		this->doDefaultWriteObject(archiveID, instance, metaClass, pointerType, baseClassMap);
+		if(metaClass == NULL) {
+			serializeError(Error_Serialization_MissingMetaClass);
+		}
+
+		this->doDirectWriteObject(archiveID, instance, metaClass, baseClassMap);
 	}
-}
-
-void GMetaArchiveWriter::doDefaultWriteObject(uint32_t archiveID, const void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType, GBaseClassMap * baseClassMap)
-{
-	(void)pointerType;
-
-	if(metaClass == NULL) {
-		serializeError(Error_Serialization_MissingMetaClass);
-	}
-
-	this->doDirectWriteObject(archiveID, instance, metaClass, baseClassMap);
 }
 
 bool GMetaArchiveWriter::trackPointer(uint32_t archiveID, const void * instance, GMetaArchivePointerType pointerType)
@@ -473,7 +401,7 @@ void GMetaArchiveWriter::doWriteValue(const char * name, const void * address, c
 	}
 
 	if(pointers > 1) {
-		// error
+		serializeError(Error_Serialization_UnknownType);
 	}
 
 	if(metaType.baseIsClass()) {

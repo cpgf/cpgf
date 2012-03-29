@@ -79,16 +79,6 @@ struct IMetaArchiveWriter : public IExtendObject
 	// take care of customized serializer, take care of pointer tracking.
 	virtual void G_API_CC writeObject(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 
-	// ignore customized serializer, take care of pointer tracking.
-	virtual void G_API_CC defaultWriteObjectValue(const char * name, const void * instance, IMetaClass * metaClass) = 0;
-	virtual void G_API_CC defaultWriteObjectPointer(const char * name, const void * instance, IMetaClass * metaClass) = 0;
-
-	// ignore customized serializer, ignore pointer tracking, take care of base classes
-	virtual void G_API_CC directWriteObject(const char * name, const void * instance, IMetaClass * metaClass) = 0;
-
-	// ignore customized serializer, ignore pointer tracking, ignore base classes, only write the object itself
-	virtual void G_API_CC directWriteObjectWithoutBase(const char * name, const void * instance, IMetaClass * metaClass) = 0;
-
 	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, uint32_t classTypeID) = 0;
 	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, uint32_t classTypeID) = 0;
 };
@@ -98,15 +88,6 @@ struct IMetaArchiveReader : public IExtendObject
 	// take care of customized serializer, take care of pointer tracking.
 	virtual void G_API_CC readObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 	
-	// ignore customized serializer, take care of pointer tracking.
-	virtual void G_API_CC defaultReaderObject(const char * name, void * instance, IMetaClass * metaClass) = 0;
-
-	// ignore customized serializer, ignore pointer tracking, take care of base classes
-	virtual void G_API_CC directReadObject(const char * name, void * instance, IMetaClass * metaClass) = 0;
-
-	// ignore customized serializer, ignore pointer tracking, ignore base classes, only write the object itself
-	virtual void G_API_CC directReadObjectWithoutBase(const char * name, void * instance, IMetaClass * metaClass) = 0;
-
 	virtual uint32_t G_API_CC beginReadObject(const char * name, void * instance, IMetaClass * metaClass) = 0;
 	virtual void G_API_CC endReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass) = 0;
 	
@@ -204,6 +185,7 @@ const int Error_Serialization_Begin = 301;
 const int Error_Serialization_TypeMismatch = Error_Serialization_Begin + 0;
 const int Error_Serialization_CannotFindObjectType = Error_Serialization_Begin + 1;
 const int Error_Serialization_MissingMetaClass = Error_Serialization_Begin + 2;
+const int Error_Serialization_UnknownType = Error_Serialization_Begin + 3;
 const int Error_Serialization_End = 400;
 
 void serializeError(int errorCode, ...);
