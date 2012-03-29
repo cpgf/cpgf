@@ -28,19 +28,13 @@ public:
 		return new std::string;
 	}
 
-	virtual void * G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
+	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
 		(void)archiveReader;
 		(void)metaClass;
 
-		if(instance == NULL) {
-			instance = new std::string;
-		}
-		
 		char * s = metaReader->readString("", archiveReader->getAllocator(), &archiveID);
 		*static_cast<std::string *>(instance) = s;
 		archiveReader->getAllocator()->free(s);
-
-		return instance;
 	}
 };
 

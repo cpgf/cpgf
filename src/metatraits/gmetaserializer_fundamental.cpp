@@ -28,15 +28,13 @@ public:
 		return NULL;
 	}
 
-	virtual void * G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
+	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
 		(void)archiveReader;
 		(void)metaClass;
 
 		GVariant v;
 		metaReader->readFundamental("", &archiveID, &v.data);
 		*static_cast<T *>(instance) = fromVariant<T>(v);
-
-		return instance;
 	}
 };
 

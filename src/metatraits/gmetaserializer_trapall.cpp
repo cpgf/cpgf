@@ -35,14 +35,12 @@ public:
 		return NULL;
 	}
 
-	virtual void * G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
+	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
 		(void)archiveReader;
 		(void)metaClass;
 
 		GMetaTypeData typeData = this->metaType.getData();
 		archiveReader->readObject("", instance, &typeData, this->serializer.get());
-
-		return instance;
 	}
 
 private:

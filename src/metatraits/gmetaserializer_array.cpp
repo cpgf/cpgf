@@ -42,14 +42,12 @@ public:
 		return NULL;
 	}
 
-	virtual void * G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
+	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
 		GMetaTypeData typeData = this->metaType.getData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
 			archiveReader->readObject("", instance, &typeData, this->elementSerializer.get());
 			instance = static_cast<char *>(instance) + this->elementSize;
 		}
-
-		return instance;
 	}
 	
 private:
