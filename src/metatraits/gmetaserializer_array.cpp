@@ -19,16 +19,25 @@ public:
 	}
 	
 	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
+		GMetaTypeData typeData = this->metaType.getData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
-			GMetaTypeData typeData = this->metaType.getData();
 			archiveWriter->writeObject("", instance, &typeData, this->elementSerializer.get());
 			instance = static_cast<const char *>(instance) + this->elementSize;
 		}
 	}
 	
+	virtual void * G_API_CC allocateObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, IMetaClass * metaClass) {
+		(void)archiveReader;
+		(void)metaReader;
+		(void)archiveID;
+		(void)metaClass;
+
+		return NULL;
+	}
+
 	virtual void * G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
+		GMetaTypeData typeData = this->metaType.getData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
-			GMetaTypeData typeData = this->metaType.getData();
 			archiveReader->readObject("", instance, &typeData, this->elementSerializer.get());
 			instance = static_cast<char *>(instance) + this->elementSize;
 		}

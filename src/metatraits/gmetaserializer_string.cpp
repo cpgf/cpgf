@@ -19,6 +19,15 @@ public:
 		metaWriter->writeString("", archiveID, static_cast<const std::string *>(instance)->c_str());
 	}
 	
+	virtual void * G_API_CC allocateObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, IMetaClass * metaClass) {
+		(void)archiveReader;
+		(void)metaReader;
+		(void)archiveID;
+		(void)metaClass;
+
+		return new std::string;
+	}
+
 	virtual void * G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
 		(void)archiveReader;
 		(void)metaClass;

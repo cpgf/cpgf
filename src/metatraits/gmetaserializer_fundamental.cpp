@@ -19,6 +19,15 @@ public:
 		metaWriter->writeFundamental("", archiveID, &v.data);
 	}
 	
+	virtual void * G_API_CC allocateObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, IMetaClass * metaClass) {
+		(void)archiveReader;
+		(void)metaReader;
+		(void)archiveID;
+		(void)metaClass;
+
+		return NULL;
+	}
+
 	virtual void * G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
 		(void)archiveReader;
 		(void)metaClass;

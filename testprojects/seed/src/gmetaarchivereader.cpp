@@ -32,6 +32,10 @@ public:
 	
 protected:
 	void * readObjectHelper(const char * name, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer);
+	
+	void * doReadObjectHierarchy(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap);
+	void * doReadObjectWithoutBase(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer);
+	
 	void * doReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap);
 	void doDirectReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, GBaseClassMap * baseClassMap);
 	void doDirectReadObjectWithoutBase(uint32_t archiveID, void * instance, IMetaClass * metaClass);
@@ -176,6 +180,16 @@ void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, 
 	this->endReadObject(name, archiveID, instance, metaClass);
 
 	return p;
+}
+
+void * GMetaArchiveReader::doReadObjectHierarchy(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap)
+{
+	return NULL;
+}
+
+void * GMetaArchiveReader::doReadObjectWithoutBase(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer)
+{
+	return NULL;
 }
 
 uint32_t G_API_CC GMetaArchiveReader::beginReadObject(const char * name, void * instance, IMetaClass * metaClass)

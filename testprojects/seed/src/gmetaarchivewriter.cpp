@@ -39,8 +39,9 @@ public:
 protected:
 	void writeObjectHelper(const char * name, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GMetaArchivePointerType pointerType);
 	
-	void doWriteObject(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GMetaArchivePointerType pointerType, GBaseClassMap * baseClassMap);
-	void doDirectWriteObject(uint32_t archiveID, const void * instance, IMetaClass * metaClass, GBaseClassMap * baseClassMap);
+	void doWriteObjectHierarchy(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap);
+	void doWriteObjectWithoutBase(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer);
+	
 	void doDirectWriteObjectWithoutBase(uint32_t archiveID, const void * instance, IMetaClass * metaClass);
 	
 	void doWriteField(const char * name, const void * instance, IMetaAccessible * accessible);
@@ -191,12 +192,37 @@ void GMetaArchiveWriter::writeObjectHelper(const char * name, const void * insta
 	this->beginWriteObject(name, archiveID, instance, castedMetaClass.get(), classTypeID);
 
 	GBaseClassMap baseClassMap;
-	this->doWriteObject(archiveID, instance, castedMetaClass.get(), serializer, pointerType, &baseClassMap);
+	this->doWriteObjectHierarchy(archiveID, instance, castedMetaClass.get(), serializer, &baseClassMap);
 
 	this->endWriteObject(name, archiveID, instance, castedMetaClass.get(), classTypeID);
 }
 
-void GMetaArchiveWriter::doWriteObject(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GMetaArchivePointerType pointerType, GBaseClassMap * baseClassMap)
+void GMetaArchiveWriter::doWriteObjectHierarchy(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap)
+{
+	// metaClass can be NULL if serializer is not NULL
+	if(metaClass != NULL) {
+		GScopedInterface<IMetaClass> baseClass;
+		uint32_t i;
+		uint32_t count;
+
+		count = metaClass->getBaseCount();
+		for(i = 0; i < count; ++i) {
+			baseClass.reset(metaClass->getBaseClass(i));
+		
+			if(canSerializeBaseClass(this->config, baseClass.get(), metaClass)) {
+				void * baseInstance = metaClass->castToBase(instance, i);
+				if(! baseClassMap->hasMetaClass(baseInstance, baseClass.get())) {
+					baseClassMap->addMetaClass(baseInstance, baseClass.get());
+					this->doWriteObjectHierarchy(archiveIDNone, baseInstance, baseClass.get(), NULL, baseClassMap);
+				}
+			}
+		}
+	}
+
+	this->doWriteObjectWithoutBase(archiveID, instance, metaClass, serializer);
+}
+
+void GMetaArchiveWriter::doWriteObjectWithoutBase(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer)
 {
 	GScopedInterface<IMetaSerializer> serializerPointer;
 	if(serializer == NULL && metaClass != NULL) {
@@ -212,89 +238,8 @@ void GMetaArchiveWriter::doWriteObject(uint32_t archiveID, const void * instance
 			serializeError(Error_Serialization_MissingMetaClass);
 		}
 
-		this->doDirectWriteObject(archiveID, instance, metaClass, baseClassMap);
+		this->doDirectWriteObjectWithoutBase(archiveID, instance, metaClass);
 	}
-}
-
-bool GMetaArchiveWriter::trackPointer(uint32_t archiveID, const void * instance, GMetaArchivePointerType pointerType)
-{
-	if(pointerType != aptIgnore) {
-		if(this->config.allowTrackPointer()) {
-
-			if(this->getPointerTracker()->hasPointer(instance)) {
-				if(pointerType == aptByValue) {
-					return false;
-				}
-				else {
-					if(archiveID == archiveIDNone) {
-						archiveID = this->getNextArchiveID();
-					}
-					this->writer->writeReferenceID("", archiveID, this->getPointerTracker()->getArchiveID(instance));
-				}
-
-				return true;
-			}
-
-			this->getPointerTracker()->addPointer(instance, archiveID);
-		}
-	}
-
-	return false;
-}
-
-uint32_t GMetaArchiveWriter::getClassTypeID(const void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType, IMetaClass ** outCastedMetaClass)
-{
-	uint32_t classTypeID = archiveIDNone;
-
-	*outCastedMetaClass = NULL;
-
-	if(metaClass != NULL) {
-		if(pointerType == aptByPointer) {
-			void * castedPtr;
-			GScopedInterface<IMetaClass> castedMetaClass(findAppropriateDerivedClass(instance, metaClass, &castedPtr));
-			if(! castedMetaClass->equals(metaClass)) {
-				const char * typeName = castedMetaClass->getTypeName();
-				if(this->getClassTypeTracker()->hasClassType(typeName)) {
-					classTypeID = this->getClassTypeTracker()->getArchiveID(typeName);
-				}
-				else {
-					classTypeID = this->getNextArchiveID();
-					this->getClassTypeTracker()->addClassType(typeName, classTypeID);
-					this->writer->writeClassType("", classTypeID, castedMetaClass.get());
-				}
-				*outCastedMetaClass = castedMetaClass.take();
-			}
-		}
-		
-		if(*outCastedMetaClass == NULL) {
-			*outCastedMetaClass = metaClass;
-			metaClass->addReference();
-		}
-	}
-
-	return classTypeID;
-}
-
-void GMetaArchiveWriter::doDirectWriteObject(uint32_t archiveID, const void * instance, IMetaClass * metaClass, GBaseClassMap * baseClassMap)
-{
-	GScopedInterface<IMetaClass> baseClass;
-	uint32_t i;
-	uint32_t count;
-
-	count = metaClass->getBaseCount();
-	for(i = 0; i < count; ++i) {
-		baseClass.reset(metaClass->getBaseClass(i));
-		
-		if(canSerializeBaseClass(this->config, baseClass.get(), metaClass)) {
-			void * baseInstance = metaClass->castToBase(instance, i);
-			if(! baseClassMap->hasMetaClass(baseInstance, baseClass.get())) {
-				baseClassMap->addMetaClass(baseInstance, baseClass.get());
-				this->doWriteObject(archiveIDNone, baseInstance, baseClass.get(), NULL, aptIgnore, baseClassMap);
-			}
-		}
-	}
-
-	this->doDirectWriteObjectWithoutBase(archiveID, instance, metaClass);
 }
 
 void GMetaArchiveWriter::doDirectWriteObjectWithoutBase(uint32_t archiveID, const void * instance, IMetaClass * metaClass)
@@ -421,6 +366,65 @@ void GMetaArchiveWriter::doWriteValue(const char * name, const void * address, c
 			this->writeObjectHelper(name, address, metaClass.get(), serializer, pointerType);
 		}
 	}
+}
+
+bool GMetaArchiveWriter::trackPointer(uint32_t archiveID, const void * instance, GMetaArchivePointerType pointerType)
+{
+	if(pointerType != aptIgnore) {
+		if(this->config.allowTrackPointer()) {
+
+			if(this->getPointerTracker()->hasPointer(instance)) {
+				if(pointerType == aptByValue) {
+					return false;
+				}
+				else {
+					if(archiveID == archiveIDNone) {
+						archiveID = this->getNextArchiveID();
+					}
+					this->writer->writeReferenceID("", archiveID, this->getPointerTracker()->getArchiveID(instance));
+				}
+
+				return true;
+			}
+
+			this->getPointerTracker()->addPointer(instance, archiveID);
+		}
+	}
+
+	return false;
+}
+
+uint32_t GMetaArchiveWriter::getClassTypeID(const void * instance, IMetaClass * metaClass, GMetaArchivePointerType pointerType, IMetaClass ** outCastedMetaClass)
+{
+	uint32_t classTypeID = archiveIDNone;
+
+	*outCastedMetaClass = NULL;
+
+	if(metaClass != NULL) {
+		if(pointerType == aptByPointer) {
+			void * castedPtr;
+			GScopedInterface<IMetaClass> castedMetaClass(findAppropriateDerivedClass(instance, metaClass, &castedPtr));
+			if(! castedMetaClass->equals(metaClass)) {
+				const char * typeName = castedMetaClass->getTypeName();
+				if(this->getClassTypeTracker()->hasClassType(typeName)) {
+					classTypeID = this->getClassTypeTracker()->getArchiveID(typeName);
+				}
+				else {
+					classTypeID = this->getNextArchiveID();
+					this->getClassTypeTracker()->addClassType(typeName, classTypeID);
+					this->writer->writeClassType("", classTypeID, castedMetaClass.get());
+				}
+				*outCastedMetaClass = castedMetaClass.take();
+			}
+		}
+		
+		if(*outCastedMetaClass == NULL) {
+			*outCastedMetaClass = metaClass;
+			metaClass->addReference();
+		}
+	}
+
+	return classTypeID;
 }
 
 uint32_t GMetaArchiveWriter::getNextArchiveID()

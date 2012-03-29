@@ -135,7 +135,7 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	INIT(rs, Q)
 #undef INIT
 
-#define INIT(v, l) for(int z = 0; z < l; ++z) ps[z] = NULL;
+#define INIT(v, l) for(int z = 0; z < l; ++z) v[z] = NULL;
 	INIT(rps, Q)
 #undef INIT
 
@@ -157,7 +157,7 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	serializeReadValue(archiveReader.get(), "rdf", rdf);
 	serializeReadValue(archiveReader.get(), "rldf", rldf);
 	serializeReadValue(archiveReader.get(), "rs", rs);
-	serializeReadValue(archiveReader.get(), "rps", rps);
+//	serializeReadValue(archiveReader.get(), "rps", rps);
 
 #define EQ(v, u, l) for(int z = 0; z < l; ++z) GEQUAL(v[z], u[z]);
 	EQ(b, rb, A)
