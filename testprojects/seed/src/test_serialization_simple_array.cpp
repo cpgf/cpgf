@@ -95,7 +95,7 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	ar.rewind();
 
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), NULL, reader));
-	
+
 	bool rb[A];
 	char rc[B];
 	wchar_t rwc[C];
@@ -157,7 +157,7 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	serializeReadValue(archiveReader.get(), "rdf", rdf);
 	serializeReadValue(archiveReader.get(), "rldf", rldf);
 	serializeReadValue(archiveReader.get(), "rs", rs);
-//	serializeReadValue(archiveReader.get(), "rps", rps);
+	serializeReadValue(archiveReader.get(), "rps", rps);
 
 #define EQ(v, u, l) for(int z = 0; z < l; ++z) GEQUAL(v[z], u[z]);
 	EQ(b, rb, A)
@@ -177,13 +177,13 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 #undef EQ
 
 #define EQ(v, u, l) for(int z = 0; z < l; ++z) GCHECK(fabs(v[z] - u[z]) < 0.1);
-//	EQ(f, rf, N)
-//	EQ(df, rdf, O)
-//	EQ(ldf, rldf, P)
+	EQ(f, rf, N)
+	EQ(df, rdf, O)
+	EQ(ldf, rldf, P)
 #undef EQ
 
 #define EQ(v, u, l) for(int z = 0; z < l; ++z) GEQUAL(&rs[z], rps[z]);
-//	EQ(rs, rps, Q)
+	EQ(rs, rps, Q)
 #undef EQ
 
 }

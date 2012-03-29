@@ -32,6 +32,21 @@ void initTestValue(std::string & value, long long seed)
 	value = buffer;
 }
 
+void initTestValue(float & value, long long seed)
+{
+	value = (float)(seed % 1000) + (seed % 2 == 0 ? 0.5 : 0.8);
+}
+
+void initTestValue(double & value, long long seed)
+{
+	value = (float)(seed % 1000) + (seed % 2 == 0 ? 0.5 : 0.8);
+}
+
+void initTestValue(long double & value, long long seed)
+{
+	value = (float)(seed % 1000) + (seed % 2 == 0 ? 0.5 : 0.8);
+}
+
 long long getTestSeed(int n)
 {
 	long long seed = 0x739521LL;

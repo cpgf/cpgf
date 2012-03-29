@@ -21,7 +21,14 @@ public:
 	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
 		GMetaTypeData typeData = this->metaType.getData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
-			archiveWriter->writeObject("", instance, &typeData, this->elementSerializer.get());
+			const void * ptr;
+			if(this->metaType.getPointerDimension() > 0) {
+				ptr = *(void **)instance;
+			}
+			else {
+				ptr = instance;
+			}
+			archiveWriter->writeObject("", ptr, &typeData, this->elementSerializer.get());
 			instance = static_cast<const char *>(instance) + this->elementSize;
 		}
 	}

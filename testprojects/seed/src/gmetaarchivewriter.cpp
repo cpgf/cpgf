@@ -165,10 +165,6 @@ void G_API_CC GMetaArchiveWriter::writeObject(const char * name, const void * in
 {
 	GMetaType type(*metaType);
 	
-//	if(this->trackPointer(archiveIDNone, instance, (type.isPointer() ? aptByPointer : aptByValue))) {
-//		return;
-//	}
-	
 	if(type.isPointer()) {
 		this->doWriteValue(name, instance, type, serializer, aptByPointer);
 	}
@@ -184,7 +180,7 @@ void GMetaArchiveWriter::writeObjectHelper(const char * name, const void * insta
 	if(this->trackPointer(archiveID, instance, pointerType)) {
 		return;
 	}
-	
+
 	IMetaClass * outCastedMetaClass;
 	uint32_t classTypeID = this->getClassTypeID(instance, metaClass, pointerType, &outCastedMetaClass);
 	GScopedInterface<IMetaClass> castedMetaClass(outCastedMetaClass);
