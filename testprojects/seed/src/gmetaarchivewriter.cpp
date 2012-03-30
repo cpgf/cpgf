@@ -15,7 +15,7 @@ namespace cpgf {
 
 
 enum GMetaArchivePointerType {
-	aptByValue, aptByPointer, aptIgnore
+	aptByValue, aptByPointer
 };
 
 class GMetaArchiveWriterPointerTracker;
@@ -334,8 +334,9 @@ void GMetaArchiveWriter::doWriteValue(const char * name, const void * address, c
 	}
 
 	unsigned int pointers = metaType.getPointerDimension();
+	bool isPointer = metaType.isPointer();
 
-	if(pointers == 0 && metaType.isFundamental()) {
+	if(!isPointer && metaType.isFundamental()) {
 		GVariant v(readFundamental(address, metaType));
 		this->writer->writeFundamental(name, this->getNextArchiveID(), &v.data);
 		return;
@@ -346,7 +347,7 @@ void GMetaArchiveWriter::doWriteValue(const char * name, const void * address, c
 	}
 
 	if(metaType.baseIsClass()) {
-		if(address == NULL && pointerType == aptByPointer) {
+		if(address == NULL && isPointer) {
 			this->writer->writeNullPointer(name);
 		}
 		else {
@@ -366,25 +367,21 @@ void GMetaArchiveWriter::doWriteValue(const char * name, const void * address, c
 
 bool GMetaArchiveWriter::trackPointer(uint32_t archiveID, const void * instance, GMetaArchivePointerType pointerType)
 {
-	if(pointerType != aptIgnore) {
-		if(this->config.allowTrackPointer()) {
-
-			if(this->getPointerTracker()->hasPointer(instance)) {
-				if(pointerType == aptByValue) {
-					return false;
-				}
-				else {
-					if(archiveID == archiveIDNone) {
-						archiveID = this->getNextArchiveID();
-					}
-					this->writer->writeReferenceID("", archiveID, this->getPointerTracker()->getArchiveID(instance));
-				}
-
-				return true;
+	if(this->config.allowTrackPointer()) {
+		if(this->getPointerTracker()->hasPointer(instance)) {
+			if(pointerType == aptByValue) {
+				return false;
 			}
-
-			this->getPointerTracker()->addPointer(instance, archiveID);
+			else {
+				if(archiveID == archiveIDNone) {
+					archiveID = this->getNextArchiveID();
+				}
+				this->writer->writeReferenceID("", archiveID, this->getPointerTracker()->getArchiveID(instance));
+			}
+				return true;
 		}
+
+		this->getPointerTracker()->addPointer(instance, archiveID);
 	}
 
 	return false;

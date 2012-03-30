@@ -13,75 +13,54 @@ using namespace cpgf;
 
 namespace {
 
-class C;
-
 class A
 {
 public:
-	A() : a(0), pc(NULL) {}
-	~A();
+	A() : na(0) {}
 	
-	void init();
-	bool verify() const;
-	
-	int a;
-	A * pself;
-	C * pc;
+	int na;
 };
 
 class B
 {
 public:
-	B() : b(0), pa(NULL) {}
+	B() : nb(0) {}
 
-	int b;
-	B * pself;
-	A * pa;
+	A a;
+	int nb;
 };
 
 class C
 {
 public:
-	C() : c(0), pb(NULL) {}
+	C() : nc(0) {}
 
-	int c;
-	C * pself;
-	B * pb;
+	void init() {
+		this->a.na = 1;
+		this->b.nb = 2;
+		this->nc = 3;
+		this->b.a.na = 5;
+	}
+
+	A a;
+	B b;
+	int nc;
 };
 
-A::~A()
+bool operator == (const A & a1, const A & a2)
 {
-	if(this->pc != NULL) {
-		delete this->pc->pb;
-		delete this->pc;
-	}
+	return a1.na == a2.na;
 }
 
-void A::init()
+bool operator == (const B & b1, const B & b2)
 {
-	this->pc = new C;
-	this->pc->pb = new B;
-	this->pc->pb->pa = this;
-	this->pself = this;
-	this->pc->pself = this->pc;
-	this->pc->pb->pself = this->pc->pb;
-	this->a = 1;
-	this->pc->c = 3;
-	this->pc->pb->b = 2;
+	return b1.a == b2.a && b2.nb == b2.nb;
 }
 
-bool A::verify() const
+bool operator == (const C & c1, const C & c2)
 {
-	return
-		this->pc != NULL
-		&& this->pc->pb != NULL
-		&& this->pc->pb->pa == this
-		&& this->a == 1
-		&& this->pc->c == 3
-		&& this->pc->pb->b == 2
-	;
+	return c1.a == c2.a && c1.b == c2.b && c1.nc == c2.nc;
 }
-
 
 template <typename Define>
 void register_TestSerializeClass(Define define)
@@ -89,57 +68,56 @@ void register_TestSerializeClass(Define define)
 	GDefineMetaClass<A> classDefineA = GDefineMetaClass<A>::declare("TestSerializeClassA");
 	
 	classDefineA
-		FIELD(A, a)
-		FIELD(A, pself)
-		FIELD(A, pc)
+		FIELD(A, na)
 	;
 	define._class(classDefineA);
 	
 	GDefineMetaClass<B> classDefineB = GDefineMetaClass<B>::declare("TestSerializeClassB");
 	
 	classDefineB
-		FIELD(B, b)
-		FIELD(B, pself)
-		FIELD(B, pa)
+		FIELD(B, a)
+		FIELD(B, nb)
 	;
 	define._class(classDefineB);
 
 	GDefineMetaClass<C> classDefineC = GDefineMetaClass<C>::declare("TestSerializeClassC");
 	
 	classDefineC
-		FIELD(C, c)
-		FIELD(C, pself)
-		FIELD(C, pb)
+		FIELD(C, a)
+		FIELD(C, b)
+		FIELD(C, nc)
 	;
 	define._class(classDefineC);
 	
 }
 
 template <typename AR>
-void doTestCyclicGraph(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
+void doTestNestedObject(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
-	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassA"));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassC"));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service, writer));
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service, reader));
 
-	A instance;
+	C instance;
 	instance.init();
-	
-	GCHECK(instance.verify());
 
+	C * pinstance = &instance;
+	
+	serializeWriteObjectPointer(archiveWriter.get(), "", pinstance, metaClass.get());
+	// should error
 	serializeWriteObjectValue(archiveWriter.get(), "", &instance, metaClass.get());
 
 	ar.rewind();
 
-	A readInstance;
+	C readInstance;
 	
 	serializeReadObject(archiveReader.get(), "", &readInstance, metaClass.get());
 	
-	GCHECK(readInstance.verify());
+	GCHECK(instance == readInstance);
 }
 
-GTEST(testCyclicGraph)
+GTEST(testNestedObject)
 {
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
@@ -152,7 +130,7 @@ GTEST(testCyclicGraph)
 	GTextStreamMetaWriter<stringstream> outputStream(stream);
 	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
 	
-	doTestCyclicGraph(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
+	doTestNestedObject(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

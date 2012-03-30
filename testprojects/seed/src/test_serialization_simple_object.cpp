@@ -4,14 +4,7 @@
 
 #include "gmetatextstreamarchive.h"
 
-#include "cpgf/ginterface.h"
-#include "cpgf/gflags.h"
-#include "cpgf/gfunctionextractor.h"
-
-#include "gmetaarchivetypemap.h"
-
 #include <sstream>
-#include <string>
 
 #include <iostream>
 

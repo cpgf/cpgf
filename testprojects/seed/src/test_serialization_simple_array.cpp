@@ -4,12 +4,6 @@
 
 #include "gmetatextstreamarchive.h"
 
-#include "cpgf/ginterface.h"
-#include "cpgf/gflags.h"
-#include "cpgf/gfunctionextractor.h"
-
-#include "gmetaarchivetypemap.h"
-
 #include <sstream>
 #include <string>
 
@@ -182,7 +176,7 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	EQ(ldf, rldf, P)
 #undef EQ
 
-#define EQ(v, u, l) for(int z = 0; z < l; ++z) GEQUAL(&rs[z], rps[z]);
+#define EQ(v, u, l) for(int z = 0; z < l; ++z) GEQUAL(&v[z], u[z]);
 	EQ(rs, rps, Q)
 #undef EQ
 
