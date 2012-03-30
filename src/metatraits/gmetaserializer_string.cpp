@@ -12,6 +12,10 @@ class GMetaSerializerString : public IMetaSerializer
 	G_INTERFACE_IMPL_EXTENDOBJECT
 	
 public:
+	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
+		return "meta_ser_std_string";
+	}
+	
 	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
 		(void)archiveWriter;
 		(void)metaClass;
@@ -40,16 +44,6 @@ public:
 
 
 IMetaSerializer * metaTraitsCreateSerializer(const std::string &)
-{
-	return new cpgf::GMetaSerializerString;
-}
-
-IMetaSerializer * metaTraitsCreateSerializer(std::string * &)
-{
-	return new cpgf::GMetaSerializerString;
-}
-
-IMetaSerializer * metaTraitsCreateSerializer(const std::string * &)
 {
 	return new cpgf::GMetaSerializerString;
 }

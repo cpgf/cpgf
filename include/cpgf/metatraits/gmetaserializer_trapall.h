@@ -20,7 +20,9 @@ template <typename T>
 IMetaSerializer * createTrapAllSerializer()
 {
 	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>(GExtendTypeCreateFlag_Serializer).getSerializer());
-	return metatraits_internal::doCreateTrapAllSerializer(createMetaType<T>(), serializer.get());
+	GMetaType metaType(createMetaType<T>());
+	fixupMetaType(&metaType);
+	return metatraits_internal::doCreateTrapAllSerializer(metaType, serializer.get());
 }
 
 

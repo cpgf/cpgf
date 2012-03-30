@@ -56,7 +56,7 @@ protected:
 	GMetaArchiveWriterPointerTracker * getPointerTracker();
 	GMetaArchiveWriterClassTypeTracker * getClassTypeTracker();
 	
-	bool trackPointer(uint32_t archiveID, const void * instance, GMetaArchivePointerType pointerType);
+	bool trackPointer(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GMetaArchivePointerType pointerType);
 
 private:
 	GMetaArchiveConfig config;
@@ -71,12 +71,36 @@ private:
 class GMetaArchiveWriterPointerTracker
 {
 private:
-	typedef std::map<const void *, uint32_t> MapType;
+	class GMetaArchiveWriterPointerTrackerItem
+	{
+	public:
+		GMetaArchiveWriterPointerTrackerItem()
+			: instance(NULL), typeName(NULL)
+		{
+		}
+
+		GMetaArchiveWriterPointerTrackerItem(const void * instance, const char * typeName)
+			: instance(instance), typeName(typeName)
+		{
+		}
+
+		bool operator < (const GMetaArchiveWriterPointerTrackerItem & other) const {
+			return this->instance < other.instance
+				|| (this->instance == other.instance && strcmp(this->typeName, other.typeName) < 0)
+				;
+		}
+
+	public:
+		const void * instance;
+		const char * typeName;
+	};
+
+	typedef std::map<GMetaArchiveWriterPointerTrackerItem, uint32_t> MapType;
 
 public:
-	bool hasPointer(const void * p) const;
-	uint32_t getArchiveID(const void * p) const;
-	void addPointer(const void * p, uint32_t archiveID);
+	bool hasPointer(const void * instance, const char * typeName) const;
+	uint32_t getArchiveID(const void * instance, const char * typeName) const;
+	void addPointer(const void * instance, const char * typeName, uint32_t archiveID);
 
 private:
 	MapType pointerMap;
@@ -97,14 +121,14 @@ private:
 };
 
 
-bool GMetaArchiveWriterPointerTracker::hasPointer(const void * p) const
+bool GMetaArchiveWriterPointerTracker::hasPointer(const void * instance, const char * typeName) const
 {
-	return this->pointerMap.find(p) != this->pointerMap.end();
+	return this->pointerMap.find(GMetaArchiveWriterPointerTrackerItem(instance, typeName)) != this->pointerMap.end();
 }
 
-uint32_t GMetaArchiveWriterPointerTracker::getArchiveID(const void * p) const
+uint32_t GMetaArchiveWriterPointerTracker::getArchiveID(const void * instance, const char * typeName) const
 {
-	MapType::const_iterator it = this->pointerMap.find(p);
+	MapType::const_iterator it = this->pointerMap.find(GMetaArchiveWriterPointerTrackerItem(instance, typeName));
 
 	if(it == this->pointerMap.end()) {
 		return archiveIDNone;
@@ -114,11 +138,11 @@ uint32_t GMetaArchiveWriterPointerTracker::getArchiveID(const void * p) const
 	}
 }
 
-void GMetaArchiveWriterPointerTracker::addPointer(const void * p, uint32_t archiveID)
+void GMetaArchiveWriterPointerTracker::addPointer(const void * instance, const char * typeName, uint32_t archiveID)
 {
-	GASSERT(! this->hasPointer(p));
+	GASSERT(! this->hasPointer(instance, typeName));
 
-	this->pointerMap.insert(pair<const void *, uint32_t>(p, archiveID));
+	this->pointerMap.insert(pair<GMetaArchiveWriterPointerTrackerItem, uint32_t>(GMetaArchiveWriterPointerTrackerItem(instance, typeName), archiveID));
 }
 
 
@@ -177,7 +201,7 @@ void GMetaArchiveWriter::writeObjectHelper(const char * name, const void * insta
 {
 	uint32_t archiveID = this->getNextArchiveID();
 
-	if(this->trackPointer(archiveID, instance, pointerType)) {
+	if(this->trackPointer(archiveID, instance, metaClass, serializer, pointerType)) {
 		return;
 	}
 
@@ -365,23 +389,36 @@ void GMetaArchiveWriter::doWriteValue(const char * name, const void * address, c
 	}
 }
 
-bool GMetaArchiveWriter::trackPointer(uint32_t archiveID, const void * instance, GMetaArchivePointerType pointerType)
+bool GMetaArchiveWriter::trackPointer(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GMetaArchivePointerType pointerType)
 {
 	if(this->config.allowTrackPointer()) {
-		if(this->getPointerTracker()->hasPointer(instance)) {
+		const char * typeName = NULL;
+		if(serializer != NULL) {
+			typeName = serializer->getClassTypeName(this, this->writer.get(), archiveID, NULL, metaClass);
+		}
+		if(typeName == NULL && metaClass != NULL) {
+			typeName = metaClass->getTypeName();
+		}
+
+		if(typeName == NULL) {
+			return false;
+		}
+
+		if(this->getPointerTracker()->hasPointer(instance, typeName)) {
 			if(pointerType == aptByValue) {
+				serializeError(Error_Serialization_TypeMismatch);
 				return false;
 			}
 			else {
 				if(archiveID == archiveIDNone) {
 					archiveID = this->getNextArchiveID();
 				}
-				this->writer->writeReferenceID("", archiveID, this->getPointerTracker()->getArchiveID(instance));
+				this->writer->writeReferenceID("", archiveID, this->getPointerTracker()->getArchiveID(instance, typeName));
 			}
 				return true;
 		}
 
-		this->getPointerTracker()->addPointer(instance, archiveID);
+		this->getPointerTracker()->addPointer(instance, typeName, archiveID);
 	}
 
 	return false;

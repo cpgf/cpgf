@@ -21,7 +21,7 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), NULL, writer));
 
 	enum {
-		A = 3, B = 5, C = 38, D = 50, E = 51, F = 58, G = 60, H = 61, I = 66, J = 68, K = 10, L = 15, M = 18, N = 20, O = 25, P = 28, Q = 2
+		A = 3, B = 5, C = 8, D = 15, E = 18, F = 20, G = 21, H = 25, I = 28, J = 30, K = 32, L = 35, M = 38, N = 50, O = 52, P = 55, Q = 58
 	};
 
 	bool b[A];

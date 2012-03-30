@@ -34,7 +34,7 @@ template <typename T>
 struct WrapExtendType
 {
 	typedef
-		typename GIfElse<IsVoid<T>::Result, int, typename RemoveReference<T>::Result>::Result
+		typename GIfElse<IsVoid<T>::Result, int, typename ExtractRawType<T>::Result>::Result
 		Result;
 };
 

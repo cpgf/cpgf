@@ -18,6 +18,15 @@ public:
 		}
 	}
 
+	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
+		if(this->serializer) {
+			return this->serializer->getClassTypeName(archiveWriter, metaWriter, archiveID, instance, metaClass);
+		}
+		else {
+			return this->metaType.getBaseName();
+		}
+	}
+	
 	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
 		(void)archiveWriter;
 		(void)metaClass;

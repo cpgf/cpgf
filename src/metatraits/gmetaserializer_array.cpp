@@ -2,6 +2,12 @@
 #include "../../testprojects/seed/src/gmetaarchivecommon.h"
 
 
+#include <string>
+#include <stdio.h>
+
+using namespace std;
+
+
 namespace cpgf {
 
 namespace metatraits_internal {
@@ -18,6 +24,24 @@ public:
 		this->elementSerializer->addReference();
 	}
 	
+	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
+			if(this->classType == "") {
+				const char * typeName = this->elementSerializer->getClassTypeName(archiveWriter, metaWriter, archiveID, instance, metaClass);
+				if(typeName != NULL) {
+					char buffer[128];
+					sprintf(buffer, "[%u]", this->elementSize);
+					this->classType = string(typeName) + buffer;
+				}
+			}
+			
+			if(this->classType == "") {
+				return NULL;
+			}
+			else {
+				return this->classType.c_str();
+			}
+	}
+
 	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
 		GMetaTypeData typeData = this->metaType.getData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
@@ -54,7 +78,8 @@ private:
 	GScopedInterface<IMetaSerializer> elementSerializer;
 	GMetaType metaType;
 	unsigned int elementSize;
-	unsigned int elementCount;	
+	unsigned int elementCount;
+	string classType;
 };
 
 
