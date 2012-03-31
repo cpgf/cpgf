@@ -20,10 +20,11 @@ public:
 		return "meta_ser_std_string";
 	}
 	
-	virtual void G_API_CC writeObject(const char * name, IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
+	virtual void G_API_CC writeObject(const char * name, IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass, uint32_t pointers) {
 		(void)archiveWriter;
 		(void)metaClass;
 
+		archiveWriter->trackPointer(archiveID, instance, metaClass, this, pointers);
 		metaWriter->writeString(name, archiveID, static_cast<const std::string *>(instance)->c_str());
 	}
 	
@@ -37,6 +38,8 @@ public:
 	virtual void G_API_CC readObject(const char * name, IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
 		(void)archiveReader;
 		(void)metaClass;
+
+		archiveReader->trackPointer(archiveID, instance);
 
 		char * s = metaReader->readString(name, archiveReader->getAllocator(), &archiveID);
 		*static_cast<std::string *>(instance) = s;

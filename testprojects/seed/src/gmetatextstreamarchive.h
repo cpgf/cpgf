@@ -516,7 +516,7 @@ protected:
 protected:
 	void skipDelimiter() {
 		if(! this->stream.eof()) {
-			char c = this->stream.get();
+			int c = this->stream.get();
 			if(c != ' ' && c != '\n') {
 				GASSERT(false);
 			}

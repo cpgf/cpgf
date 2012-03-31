@@ -24,7 +24,7 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 		A = 3, B = 5, C = 6, D = 7, E = 8, F = 10, G = 11,
 		H = 12, I = 15, J = 16, K = 17, L = 18, M = 20, N = 21,
 		O = 22, P = 25, Q = 28,
-		R = 30, S = 15
+		R = 3, S = 5
 	};
 
 	bool b[A];
@@ -231,7 +231,7 @@ GTEST(testSimpleArray)
 	
 	doTestSimpleArray(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
 
-	cout << stream.str().c_str() << endl;
+//	cout << stream.str().c_str() << endl;
 }
 
 

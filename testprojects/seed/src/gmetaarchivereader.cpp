@@ -27,6 +27,8 @@ public:
 	// take care of customized serializer, take care of pointer tracking.
 	virtual void G_API_CC readObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
 	
+	virtual void G_API_CC trackPointer(uint32_t archiveID, void * instance);
+
 	virtual uint32_t G_API_CC beginReadObject(const char * name, void * instance, IMetaClass * metaClass);
 	virtual void G_API_CC endReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass);
 	
@@ -34,9 +36,6 @@ public:
 	
 protected:
 	void * readObjectHelper(const char * name, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer);
-	
-	void * doReadObjectHierarchy(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap);
-	void * doReadObjectWithoutBase(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer);
 	
 	void * doReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap);
 	void doDirectReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, GBaseClassMap * baseClassMap);
@@ -46,7 +45,7 @@ protected:
 	void doReadProperty(const char * name, void * instance, IMetaAccessible * accessible);
 	
 	void doReadValue(const char * name, void * address, const GMetaType & metaType, IMetaSerializer * serializer);
-	bool untrackPointer(const char * name, void * address, const GMetaType & metaType);
+	bool checkUntrackPointer(const char * name, void * address);
 
 	GMetaArchiveReaderPointerTracker * getPointerTracker();
 	GMetaArchiveReaderClassTypeTracker * getClassTypeTracker();
@@ -167,7 +166,7 @@ void G_API_CC GMetaArchiveReader::readObject(const char * name, void * instance,
 {
 	GMetaType type(*metaType);
 
-	if(this->untrackPointer(name, instance, type)) {
+	if(this->checkUntrackPointer(name, instance)) {
 		return;
 	}
 
@@ -176,7 +175,7 @@ void G_API_CC GMetaArchiveReader::readObject(const char * name, void * instance,
 
 void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer)
 {
-	if(metaClass != NULL && this->untrackPointer(name, instance, metaGetItemType(metaClass))) {
+	if(this->checkUntrackPointer(name, instance)) {
 		return instance;
 	}
 
@@ -188,16 +187,6 @@ void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, 
 	this->endReadObject(name, archiveID, instance, metaClass);
 
 	return p;
-}
-
-void * GMetaArchiveReader::doReadObjectHierarchy(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap)
-{
-	return NULL;
-}
-
-void * GMetaArchiveReader::doReadObjectWithoutBase(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer)
-{
-	return NULL;
 }
 
 uint32_t G_API_CC GMetaArchiveReader::beginReadObject(const char * name, void * instance, IMetaClass * metaClass)
@@ -212,12 +201,6 @@ uint32_t G_API_CC GMetaArchiveReader::beginReadObject(const char * name, void * 
 
 	this->reader->beginReadObject(&objectInformation);
 
-	if(objectInformation.archiveID != archiveIDNone) {
-		if(! this->getPointerTracker()->hasArchiveID(objectInformation.archiveID)) {
-			this->getPointerTracker()->addArchiveID(objectInformation.archiveID, instance);
-		}
-	}
-	
 	return objectInformation.archiveID;
 }
 
@@ -249,6 +232,7 @@ void * GMetaArchiveReader::doReadObject(const char * name, uint32_t archiveID, v
 		serializer->readObject(name, this, this->reader.get(), archiveID, instance, metaClass);
 	}
 	else {
+		this->trackPointer(archiveID, instance);
 		this->doDirectReadObject(name, archiveID, instance, metaClass, baseClassMap);
 	}
 	return instance;
@@ -419,16 +403,11 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 	}
 }
 
-bool GMetaArchiveReader::untrackPointer(const char * name, void * address, const GMetaType & metaType)
+bool GMetaArchiveReader::checkUntrackPointer(const char * name, void * address)
 {
 	GMetaArchiveItemType type = static_cast<GMetaArchiveItemType>(this->reader->getArchiveType(name));
 
 	if(type == matReferenceObject) {
-		size_t pointers = metaType.getPointerDimension();
-		if(pointers == 0) {
-			serializeError(Error_Serialization_TypeMismatch);
-		}
-			
 		uint32_t archiveID = this->reader->readReferenceID(name);
 		if(this->getPointerTracker()->hasArchiveID(archiveID)) {
 			*(void **)address = this->getPointerTracker()->getPointer(archiveID);
@@ -441,6 +420,16 @@ bool GMetaArchiveReader::untrackPointer(const char * name, void * address, const
 	}
 
 	return false;
+}
+
+void G_API_CC GMetaArchiveReader::trackPointer(uint32_t archiveID, void * instance)
+{
+	if(archiveID != archiveIDNone) {
+		if(! this->getPointerTracker()->hasArchiveID(archiveID)) {
+			this->getPointerTracker()->addArchiveID(archiveID, instance);
+		}
+	}
+	
 }
 
 void GMetaArchiveReader::doReadField(const char * name, void * instance, IMetaAccessible * accessible)

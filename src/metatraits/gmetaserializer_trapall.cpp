@@ -27,9 +27,10 @@ public:
 		}
 	}
 	
-	virtual void G_API_CC writeObject(const char * name, IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
+	virtual void G_API_CC writeObject(const char * name, IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass, uint32_t pointers) {
 		(void)archiveWriter;
 		(void)metaClass;
+		(void)pointers;
 
 		GMetaTypeData typeData = this->metaType.getData();
 		archiveWriter->writeObject(name, instance, &typeData, this->serializer.get());
@@ -64,7 +65,11 @@ public:
 		(void)metaClass;
 
 		GMetaTypeData typeData = this->metaType.getData();
-		archiveReader->readObject(name, instance, &typeData, this->serializer.get());
+		void * ptr = instance;
+		if(this->metaType.isPointer()) {
+			ptr = &instance;
+		}
+		archiveReader->readObject(name, ptr, &typeData, this->serializer.get());
 	}
 
 private:

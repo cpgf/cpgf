@@ -42,7 +42,7 @@ public:
 			}
 	}
 
-	virtual void G_API_CC writeObject(const char * name, IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
+	virtual void G_API_CC writeObject(const char * name, IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass, uint32_t pointers) {
 		metaWriter->beginWriteArray(name, this->elementCount);
 
 		GMetaTypeData typeData = this->metaType.getData();

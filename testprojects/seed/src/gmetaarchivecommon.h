@@ -80,8 +80,9 @@ struct IMetaArchiveWriter : public IExtendObject
 {
 	virtual IMetaService * G_API_CC getMetaService() = 0;
 
-	// take care of customized serializer, take care of pointer tracking.
 	virtual void G_API_CC writeObject(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
+
+	virtual void G_API_CC trackPointer(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, uint32_t pointers) = 0;
 
 	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, uint32_t classTypeID) = 0;
 	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, uint32_t classTypeID) = 0;
@@ -91,9 +92,10 @@ struct IMetaArchiveReader : public IExtendObject
 {
 	virtual IMetaService * G_API_CC getMetaService() = 0;
 
-	// take care of customized serializer, take care of pointer tracking.
 	virtual void G_API_CC readObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 	
+	virtual void G_API_CC trackPointer(uint32_t archiveID, void * instance) = 0;
+
 	virtual uint32_t G_API_CC beginReadObject(const char * name, void * instance, IMetaClass * metaClass) = 0;
 	virtual void G_API_CC endReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass) = 0;
 	
