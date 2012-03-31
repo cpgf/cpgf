@@ -22,6 +22,8 @@ public:
 	GMetaArchiveReader(const GMetaArchiveConfig & config, IMetaService * service, IMetaReader * reader);
 	~GMetaArchiveReader();
 
+	virtual IMetaService * G_API_CC getMetaService();
+
 	// take care of customized serializer, take care of pointer tracking.
 	virtual void G_API_CC readObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
 	
@@ -153,6 +155,12 @@ GMetaArchiveReader::GMetaArchiveReader(const GMetaArchiveConfig & config, IMetaS
 
 GMetaArchiveReader::~GMetaArchiveReader()
 {
+}
+
+IMetaService * G_API_CC GMetaArchiveReader::getMetaService()
+{
+	this->service->addReference();
+	return this->service.get();
 }
 
 void G_API_CC GMetaArchiveReader::readObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer)

@@ -39,7 +39,24 @@ public:
 		(void)archiveReader;
 		(void)metaClass;
 
-		return NULL;
+		if(this->serializer) {
+			return this->serializer->allocateObject(archiveReader, metaClass);
+		}
+		else {
+			GScopedInterface<IMetaClass> metaClassHolder;
+			if(metaClass == NULL && this->metaType.getBaseName() != NULL) {
+				GScopedInterface<IMetaService> service(archiveReader->getMetaService());
+				metaClassHolder.reset(service->findClassByName(this->metaType.getBaseName()));
+				metaClass = metaClassHolder.get();
+			}
+
+			if(metaClass != NULL) {
+				return metaClass->createInstance();
+			}
+			else {
+				return NULL;
+			}
+		}
 	}
 
 	virtual void G_API_CC readObject(const char * name, IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {

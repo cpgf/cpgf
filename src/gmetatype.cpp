@@ -56,6 +56,7 @@ void GMetaType::addPointer()
 {
 	vtSetPointers(this->typeData, vtGetPointers(this->typeData) + 1);
 	vtSetType(this->typeData, vtGetType(this->typeData) | byPointer);
+	this->flags |= meta_internal::mtFlagIsPointer;
 }
 
 void GMetaType::addConst()

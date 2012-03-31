@@ -24,7 +24,7 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 		A = 3, B = 5, C = 6, D = 7, E = 8, F = 10, G = 11,
 		H = 12, I = 15, J = 16, K = 17, L = 18, M = 20, N = 21,
 		O = 22, P = 25, Q = 28,
-		R = 3
+		R = 30, S = 15
 	};
 
 	bool b[A];
@@ -46,6 +46,8 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 	string s[Q];
 	string * ps[Q];
 	TestSerializeClass o[R];
+	TestSerializeClass * po[R];
+	TestSerializeClass * npo[S];
 
 #define INIT(v, l) for(int z = 0; z < l; ++z) initTestValue(v[z], getTestSeed(z + 1));
 	INIT(b, A)
@@ -68,8 +70,13 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 	INIT(o, R)
 #undef INIT
 
-#define INIT(v, l) for(int z = 0; z < l; ++z) ps[z] = &s[z];
-	INIT(ps, Q)
+#define INIT(v, u, l) for(int z = 0; z < l; ++z) v[z] = &u[z];
+	INIT(ps, s, Q)
+	INIT(po, o, R)
+#undef INIT
+
+#define INIT(v, l) for(int z = 0; z < l; ++z) { v[z] = new TestSerializeClass(); initTestValue(*v[z], getTestSeed(z + 1)); }
+	INIT(npo, S)
 #undef INIT
 
 	serializeWriteValue(archiveWriter.get(), "b", b);
@@ -91,6 +98,8 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 	serializeWriteValue(archiveWriter.get(), "s", s);
 	serializeWriteValue(archiveWriter.get(), "ps", ps);
 	serializeWriteValue(archiveWriter.get(), "o", o);
+	serializeWriteValue(archiveWriter.get(), "po", po);
+	serializeWriteValue(archiveWriter.get(), "npo", npo);
 
 	ar.rewind();
 
@@ -115,6 +124,8 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 	string rs[Q];
 	string * rps[Q];
 	TestSerializeClass ro[R];
+	TestSerializeClass * rpo[R];
+	TestSerializeClass * rnpo[S];
 
 #define INIT(v, l) for(int z = 0; z < l; ++z) initTestValue(v[z], getTestSeed(0));
 	INIT(rb, A)
@@ -139,6 +150,8 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 
 #define INIT(v, l) for(int z = 0; z < l; ++z) v[z] = NULL;
 	INIT(rps, Q)
+	INIT(rpo, R)
+	INIT(rnpo, S)
 #undef INIT
 
 
@@ -161,6 +174,8 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 	serializeReadValue(archiveReader.get(), "rs", rs);
 	serializeReadValue(archiveReader.get(), "rps", rps);
 	serializeReadValue(archiveReader.get(), "ro", ro);
+	serializeReadValue(archiveReader.get(), "rpo", rpo);
+	serializeReadValue(archiveReader.get(), "rnpo", rnpo);
 
 #define EQ(v, u, l) for(int z = 0; z < l; ++z) GEQUAL(v[z], u[z]);
 	EQ(b, rb, A)
@@ -188,8 +203,17 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 
 #define EQ(v, u, l) for(int z = 0; z < l; ++z) GEQUAL(&v[z], u[z]);
 	EQ(rs, rps, Q)
+	EQ(ro, rpo, R)
 #undef EQ
 
+#define EQ(v, u, l) for(int z = 0; z < l; ++z) GEQUAL(*v[z], *u[z]);
+	EQ(npo, rnpo, S)
+#undef EQ
+
+#define F(v, l) for(int z = 0; z < l; ++z) delete v[z];
+	F(npo, S)
+	F(rnpo, S)
+#undef F
 }
 
 GTEST(testSimpleArray)
@@ -206,12 +230,8 @@ GTEST(testSimpleArray)
 	GTextStreamMetaReader<stringstream> inputStream(NULL, stream);
 	
 	doTestSimpleArray(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
-return;	
+
 	cout << stream.str().c_str() << endl;
-	TestSerializeClass a[3];
-	cout << sizeof(TestSerializeClass) << endl;
-	cout << sizeof(a[0]) << endl;
-	cout << sizeof(a) << endl;
 }
 
 

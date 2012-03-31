@@ -30,6 +30,8 @@ public:
 	GMetaArchiveWriter(const GMetaArchiveConfig & config, IMetaService * service, IMetaWriter * writer);
 	~GMetaArchiveWriter();
 
+	virtual IMetaService * G_API_CC getMetaService();
+
 	// take care of customized serializer, take care of pointer tracking.
 	virtual void G_API_CC writeObject(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
 
@@ -95,12 +97,30 @@ private:
 		string typeName;
 	};
 
-	typedef std::map<GMetaArchiveWriterPointerTrackerItem, uint32_t> MapType;
+	class GMetaArchiveWriterPointerTrackerValue
+	{
+	public:
+		GMetaArchiveWriterPointerTrackerValue()
+			: archiveID(archiveIDNone), pointerType(aptByPointer)
+		{
+		}
+
+		GMetaArchiveWriterPointerTrackerValue(uint32_t archiveID, GMetaArchivePointerType pointerType)
+			: archiveID(archiveID), pointerType(pointerType)
+		{
+		}
+
+	public:
+		uint32_t archiveID;
+		GMetaArchivePointerType pointerType;
+	};
+
+	typedef std::map<GMetaArchiveWriterPointerTrackerItem, GMetaArchiveWriterPointerTrackerValue> MapType;
 
 public:
 	bool hasPointer(const void * instance, const char * typeName) const;
-	uint32_t getArchiveID(const void * instance, const char * typeName) const;
-	void addPointer(const void * instance, const char * typeName, uint32_t archiveID);
+	uint32_t getArchiveID(const void * instance, const char * typeName, GMetaArchivePointerType * outPointerType) const;
+	void addPointer(const void * instance, const char * typeName, uint32_t archiveID, GMetaArchivePointerType pointerType);
 
 private:
 	MapType pointerMap;
@@ -126,23 +146,28 @@ bool GMetaArchiveWriterPointerTracker::hasPointer(const void * instance, const c
 	return this->pointerMap.find(GMetaArchiveWriterPointerTrackerItem(instance, typeName)) != this->pointerMap.end();
 }
 
-uint32_t GMetaArchiveWriterPointerTracker::getArchiveID(const void * instance, const char * typeName) const
+uint32_t GMetaArchiveWriterPointerTracker::getArchiveID(const void * instance, const char * typeName, GMetaArchivePointerType * outPointerType) const
 {
+	*outPointerType = aptByPointer;
+
 	MapType::const_iterator it = this->pointerMap.find(GMetaArchiveWriterPointerTrackerItem(instance, typeName));
 
 	if(it == this->pointerMap.end()) {
 		return archiveIDNone;
 	}
 	else {
-		return it->second;
+		*outPointerType = it->second.pointerType;
+		return it->second.archiveID;
 	}
 }
 
-void GMetaArchiveWriterPointerTracker::addPointer(const void * instance, const char * typeName, uint32_t archiveID)
+void GMetaArchiveWriterPointerTracker::addPointer(const void * instance, const char * typeName, uint32_t archiveID, GMetaArchivePointerType pointerType)
 {
 	GASSERT(! this->hasPointer(instance, typeName));
 
-	this->pointerMap.insert(pair<GMetaArchiveWriterPointerTrackerItem, uint32_t>(GMetaArchiveWriterPointerTrackerItem(instance, typeName), archiveID));
+	this->pointerMap.insert(pair<GMetaArchiveWriterPointerTrackerItem, GMetaArchiveWriterPointerTrackerValue>(
+		GMetaArchiveWriterPointerTrackerItem(instance, typeName), GMetaArchiveWriterPointerTrackerValue(archiveID, pointerType))
+	);
 }
 
 
@@ -185,6 +210,12 @@ GMetaArchiveWriter::~GMetaArchiveWriter()
 {
 }
 
+IMetaService * G_API_CC GMetaArchiveWriter::getMetaService()
+{
+	this->service->addReference();
+	return this->service.get();
+}
+
 void G_API_CC GMetaArchiveWriter::writeObject(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer)
 {
 	GMetaType type(*metaType);
@@ -201,13 +232,13 @@ void GMetaArchiveWriter::writeObjectHelper(const char * name, const void * insta
 {
 	uint32_t archiveID = this->getNextArchiveID();
 
-	if(this->trackPointer(archiveID, instance, metaClass, serializer, pointerType)) {
-		return;
-	}
-
 	IMetaClass * outCastedMetaClass;
 	uint32_t classTypeID = this->getClassTypeID(instance, metaClass, pointerType, &outCastedMetaClass);
 	GScopedInterface<IMetaClass> castedMetaClass(outCastedMetaClass);
+
+	if(this->trackPointer(archiveID, instance, castedMetaClass.get(), serializer, pointerType)) {
+		return;
+	}
 
 	this->beginWriteObject(name, archiveID, instance, castedMetaClass.get(), classTypeID);
 
@@ -405,20 +436,25 @@ bool GMetaArchiveWriter::trackPointer(uint32_t archiveID, const void * instance,
 		}
 
 		if(this->getPointerTracker()->hasPointer(instance, typeName)) {
+			GMetaArchivePointerType referencePointerType;
+			uint32_t referenceID = this->getPointerTracker()->getArchiveID(instance, typeName, &referencePointerType);
+
 			if(pointerType == aptByValue) {
-				serializeError(Error_Serialization_TypeMismatch);
+				if(referencePointerType != aptByValue) { // if the object is stored via a pointer firstly, error!
+					serializeError(Error_Serialization_TypeMismatch);
+				}
 				return false;
 			}
 			else {
 				if(archiveID == archiveIDNone) {
 					archiveID = this->getNextArchiveID();
 				}
-				this->writer->writeReferenceID("", archiveID, this->getPointerTracker()->getArchiveID(instance, typeName));
+				this->writer->writeReferenceID("", archiveID, referenceID);
 			}
 				return true;
 		}
 
-		this->getPointerTracker()->addPointer(instance, typeName, archiveID);
+		this->getPointerTracker()->addPointer(instance, typeName, archiveID, pointerType);
 	}
 
 	return false;
