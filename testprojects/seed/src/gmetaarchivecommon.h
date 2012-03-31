@@ -149,7 +149,7 @@ private:
 public:
 	~GBaseClassMap() {
 		for(MapType::iterator it = this->itemMap.begin(); it != this->itemMap.end(); ++it) {
-			it->second.metaClass->releaseReference();
+//			it->second.metaClass->releaseReference();
 		}
 	}
 
@@ -163,7 +163,7 @@ public:
 		item.instance = instance;
 		item.metaClass = metaClass;
 		this->itemMap.set(metaClass->getTypeName(), item);
-		metaClass->addReference();
+//		metaClass->addReference();
 	}
 
 private:

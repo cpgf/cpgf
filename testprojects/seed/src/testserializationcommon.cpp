@@ -15,6 +15,11 @@ void initTestValue(char & value, long long seed)
 	value = 'a' + (seed % 26);
 }
 
+void initTestValue(wchar_t & value, long long seed)
+{
+	value = 'a' + (seed % 26);
+}
+
 void initTestValue(signed char & value, long long seed)
 {
 	value = 'a' + (seed % 26);

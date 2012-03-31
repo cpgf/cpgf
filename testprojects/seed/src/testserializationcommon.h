@@ -36,6 +36,7 @@ void initTestValue(T & value, long long seed)
 
 void initTestValue(bool & value, long long seed);
 void initTestValue(char & value, long long seed);
+void initTestValue(wchar_t & value, long long seed);
 void initTestValue(signed char & value, long long seed);
 void initTestValue(unsigned char & value, long long seed);
 void initTestValue(float & value, long long seed);

@@ -75,7 +75,7 @@ private:
 	{
 	public:
 		GMetaArchiveWriterPointerTrackerItem()
-			: instance(NULL), typeName(NULL)
+			: instance(NULL), typeName()
 		{
 		}
 
@@ -86,13 +86,13 @@ private:
 
 		bool operator < (const GMetaArchiveWriterPointerTrackerItem & other) const {
 			return this->instance < other.instance
-				|| (this->instance == other.instance && strcmp(this->typeName, other.typeName) < 0)
+				|| (this->instance == other.instance && this->typeName < other.typeName)
 				;
 		}
 
 	public:
 		const void * instance;
-		const char * typeName;
+		string typeName;
 	};
 
 	typedef std::map<GMetaArchiveWriterPointerTrackerItem, uint32_t> MapType;
