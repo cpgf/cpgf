@@ -39,8 +39,8 @@ public:
 protected:
 	void writeObjectHelper(const char * name, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GMetaArchivePointerType pointerType);
 	
-	void doWriteObjectHierarchy(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap);
-	void doWriteObjectWithoutBase(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer);
+	void doWriteObjectHierarchy(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap);
+	void doWriteObjectWithoutBase(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer);
 	
 	void doDirectWriteObjectWithoutBase(uint32_t archiveID, const void * instance, IMetaClass * metaClass);
 	
@@ -212,12 +212,12 @@ void GMetaArchiveWriter::writeObjectHelper(const char * name, const void * insta
 	this->beginWriteObject(name, archiveID, instance, castedMetaClass.get(), classTypeID);
 
 	GBaseClassMap baseClassMap;
-	this->doWriteObjectHierarchy(archiveID, instance, castedMetaClass.get(), serializer, &baseClassMap);
+	this->doWriteObjectHierarchy(name, archiveID, instance, castedMetaClass.get(), serializer, &baseClassMap);
 
 	this->endWriteObject(name, archiveID, instance, castedMetaClass.get(), classTypeID);
 }
 
-void GMetaArchiveWriter::doWriteObjectHierarchy(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap)
+void GMetaArchiveWriter::doWriteObjectHierarchy(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap)
 {
 	// metaClass can be NULL if serializer is not NULL
 	if(metaClass != NULL) {
@@ -233,16 +233,16 @@ void GMetaArchiveWriter::doWriteObjectHierarchy(uint32_t archiveID, const void *
 				void * baseInstance = metaClass->castToBase(instance, i);
 				if(! baseClassMap->hasMetaClass(baseInstance, baseClass.get())) {
 					baseClassMap->addMetaClass(baseInstance, baseClass.get());
-					this->doWriteObjectHierarchy(archiveIDNone, baseInstance, baseClass.get(), NULL, baseClassMap);
+					this->doWriteObjectHierarchy(name, archiveIDNone, baseInstance, baseClass.get(), NULL, baseClassMap);
 				}
 			}
 		}
 	}
 
-	this->doWriteObjectWithoutBase(archiveID, instance, metaClass, serializer);
+	this->doWriteObjectWithoutBase(name, archiveID, instance, metaClass, serializer);
 }
 
-void GMetaArchiveWriter::doWriteObjectWithoutBase(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer)
+void GMetaArchiveWriter::doWriteObjectWithoutBase(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer)
 {
 	GScopedInterface<IMetaSerializer> serializerPointer;
 	if(serializer == NULL && metaClass != NULL) {
@@ -251,7 +251,7 @@ void GMetaArchiveWriter::doWriteObjectWithoutBase(uint32_t archiveID, const void
 	}
 
 	if(serializer != NULL) {
-		serializer->writeObject(this, this->writer.get(), archiveID, instance, metaClass);
+		serializer->writeObject(name, this, this->writer.get(), archiveID, instance, metaClass);
 	}
 	else {
 		if(metaClass == NULL) {
@@ -380,7 +380,7 @@ void GMetaArchiveWriter::doWriteValue(const char * name, const void * address, c
 			if(metaType.getBaseName() != NULL) {
 				metaClass.reset(this->service->findClassByName(metaType.getBaseName()));
 			}
-			if(serializer == NULL) {
+			if(serializer == NULL && metaClass) {
 				scopedSerializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
 				serializer = scopedSerializer.get();
 			}
@@ -394,7 +394,7 @@ bool GMetaArchiveWriter::trackPointer(uint32_t archiveID, const void * instance,
 	if(this->config.allowTrackPointer()) {
 		const char * typeName = NULL;
 		if(serializer != NULL) {
-			typeName = serializer->getClassTypeName(this, this->writer.get(), archiveID, NULL, metaClass);
+			typeName = serializer->getClassTypeName(this, instance, metaClass);
 		}
 		if(typeName == NULL && metaClass != NULL) {
 			typeName = metaClass->getTypeName();

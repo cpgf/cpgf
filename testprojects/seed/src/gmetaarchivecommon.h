@@ -52,8 +52,8 @@ struct IMetaWriter : public IObject
 	virtual void G_API_CC writeReferenceID(const char * name, uint32_t archiveID, uint32_t referenceArchiveID) = 0;
 	virtual void G_API_CC writeClassType(const char * name, uint32_t archiveID, IMetaClass * metaClass) = 0;
 
-//	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length, IMetaTypedItem * typeItem) = 0;
-//	virtual void G_API_CC endWriteArray(const char * name, uint32_t length, IMetaTypedItem * typeItem) = 0;
+	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length) = 0;
+	virtual void G_API_CC endWriteArray(const char * name, uint32_t length) = 0;
 };
 
 struct IMetaReader : public IObject
@@ -71,6 +71,8 @@ struct IMetaReader : public IObject
 	virtual uint32_t G_API_CC readReferenceID(const char * name) = 0;
 	virtual IMetaClass * G_API_CC readClassType(const char * name, uint32_t * outArchiveID) = 0;
 
+	virtual uint32_t G_API_CC beginReadArray(const char * name) = 0;
+	virtual void G_API_CC endReadArray(const char * name) = 0;
 };
 
 
@@ -141,18 +143,11 @@ class GBaseClassMap
 private:
 	struct MapItem {
 		void * instance;
-		IMetaClass * metaClass;
 	};
 
 	typedef GStringMap<MapItem, GStringMapReuseKey> MapType;
 
 public:
-	~GBaseClassMap() {
-		for(MapType::iterator it = this->itemMap.begin(); it != this->itemMap.end(); ++it) {
-//			it->second.metaClass->releaseReference();
-		}
-	}
-
 	bool hasMetaClass(void * instance, IMetaClass * metaClass) const {
 		MapType::const_iterator it = this->itemMap.find(metaClass->getTypeName());
 		return it != this->itemMap.end() && it->second.instance == instance;
@@ -161,9 +156,7 @@ public:
 	void addMetaClass(void * instance, IMetaClass * metaClass) {
 		MapItem item;
 		item.instance = instance;
-		item.metaClass = metaClass;
 		this->itemMap.set(metaClass->getTypeName(), item);
-//		metaClass->addReference();
 	}
 
 private:

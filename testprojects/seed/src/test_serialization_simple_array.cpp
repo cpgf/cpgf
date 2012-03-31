@@ -1,5 +1,5 @@
-#include "testserializationcommon.h"
 #include "testserializationcommonclasses.h"
+#include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
 
 #include "gmetatextstreamarchive.h"
@@ -16,12 +16,15 @@ using namespace cpgf;
 namespace {
 
 template <typename AR>
-void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar)
+void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), NULL, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service, writer));
 
 	enum {
-		A = 3, B = 5, C = 8, D = 15, E = 18, F = 20, G = 21, H = 25, I = 28, J = 30, K = 32, L = 35, M = 38, N = 50, O = 52, P = 55, Q = 58
+		A = 3, B = 5, C = 6, D = 7, E = 8, F = 10, G = 11,
+		H = 12, I = 15, J = 16, K = 17, L = 18, M = 20, N = 21,
+		O = 22, P = 25, Q = 28,
+		R = 3
 	};
 
 	bool b[A];
@@ -42,6 +45,7 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	long double ldf[P];
 	string s[Q];
 	string * ps[Q];
+	TestSerializeClass o[R];
 
 #define INIT(v, l) for(int z = 0; z < l; ++z) initTestValue(v[z], getTestSeed(z + 1));
 	INIT(b, A)
@@ -61,6 +65,7 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	INIT(df, O)
 	INIT(ldf, P)
 	INIT(s, Q)
+	INIT(o, R)
 #undef INIT
 
 #define INIT(v, l) for(int z = 0; z < l; ++z) ps[z] = &s[z];
@@ -85,10 +90,11 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	serializeWriteValue(archiveWriter.get(), "ldf", ldf);
 	serializeWriteValue(archiveWriter.get(), "s", s);
 	serializeWriteValue(archiveWriter.get(), "ps", ps);
+	serializeWriteValue(archiveWriter.get(), "o", o);
 
 	ar.rewind();
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), NULL, reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service, reader));
 
 	bool rb[A];
 	char rc[B];
@@ -108,6 +114,7 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	long double rldf[P];
 	string rs[Q];
 	string * rps[Q];
+	TestSerializeClass ro[R];
 
 #define INIT(v, l) for(int z = 0; z < l; ++z) initTestValue(v[z], getTestSeed(0));
 	INIT(rb, A)
@@ -127,6 +134,7 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	INIT(rdf, O)
 	INIT(rldf, P)
 	INIT(rs, Q)
+	INIT(ro, R)
 #undef INIT
 
 #define INIT(v, l) for(int z = 0; z < l; ++z) v[z] = NULL;
@@ -152,6 +160,7 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	serializeReadValue(archiveReader.get(), "rldf", rldf);
 	serializeReadValue(archiveReader.get(), "rs", rs);
 	serializeReadValue(archiveReader.get(), "rps", rps);
+	serializeReadValue(archiveReader.get(), "ro", ro);
 
 #define EQ(v, u, l) for(int z = 0; z < l; ++z) GEQUAL(v[z], u[z]);
 	EQ(b, rb, A)
@@ -168,6 +177,7 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	EQ(ll, rll, L)
 	EQ(ull, rull, M)
 	EQ(s, rs, Q)
+	EQ(o, ro, R)
 #undef EQ
 
 #define EQ(v, u, l) for(int z = 0; z < l; ++z) GCHECK(fabs(v[z] - u[z]) < 0.1);
@@ -184,14 +194,24 @@ void doTestSimpleArray(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 
 GTEST(testSimpleArray)
 {
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
 	stringstream stream;
 
 	GTextStreamMetaWriter<stringstream> outputStream(stream);
 	GTextStreamMetaReader<stringstream> inputStream(NULL, stream);
 	
-	doTestSimpleArray(&outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
-	
-//	cout << stream.str().c_str() << endl;
+	doTestSimpleArray(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
+return;	
+	cout << stream.str().c_str() << endl;
+	TestSerializeClass a[3];
+	cout << sizeof(TestSerializeClass) << endl;
+	cout << sizeof(a[0]) << endl;
+	cout << sizeof(a) << endl;
 }
 
 

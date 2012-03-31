@@ -18,38 +18,36 @@ public:
 		}
 	}
 
-	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
+	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, const void * instance, IMetaClass * metaClass) {
 		if(this->serializer) {
-			return this->serializer->getClassTypeName(archiveWriter, metaWriter, archiveID, instance, metaClass);
+			return this->serializer->getClassTypeName(archiveWriter, instance, metaClass);
 		}
 		else {
 			return this->metaType.getBaseName();
 		}
 	}
 	
-	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
+	virtual void G_API_CC writeObject(const char * name, IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
 		(void)archiveWriter;
 		(void)metaClass;
 
 		GMetaTypeData typeData = this->metaType.getData();
-		archiveWriter->writeObject("", instance, &typeData, this->serializer.get());
+		archiveWriter->writeObject(name, instance, &typeData, this->serializer.get());
 	}
 	
-	virtual void * G_API_CC allocateObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, IMetaClass * metaClass) {
+	virtual void * G_API_CC allocateObject(IMetaArchiveReader * archiveReader, IMetaClass * metaClass) {
 		(void)archiveReader;
-		(void)metaReader;
-		(void)archiveID;
 		(void)metaClass;
 
 		return NULL;
 	}
 
-	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
+	virtual void G_API_CC readObject(const char * name, IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
 		(void)archiveReader;
 		(void)metaClass;
 
 		GMetaTypeData typeData = this->metaType.getData();
-		archiveReader->readObject("", instance, &typeData, this->serializer.get());
+		archiveReader->readObject(name, instance, &typeData, this->serializer.get());
 	}
 
 private:

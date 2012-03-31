@@ -24,12 +24,12 @@ public:
 		this->elementSerializer->addReference();
 	}
 	
-	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
+	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, const void * instance, IMetaClass * metaClass) {
 			if(this->classType == "") {
-				const char * typeName = this->elementSerializer->getClassTypeName(archiveWriter, metaWriter, archiveID, instance, metaClass);
+				const char * typeName = this->elementSerializer->getClassTypeName(archiveWriter, instance, metaClass);
 				if(typeName != NULL) {
 					char buffer[128];
-					sprintf(buffer, "[%u]", this->elementSize);
+					sprintf(buffer, "[%u]", this->elementCount);
 					this->classType = string(typeName) + buffer;
 				}
 			}
@@ -42,7 +42,9 @@ public:
 			}
 	}
 
-	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
+	virtual void G_API_CC writeObject(const char * name, IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, uint32_t archiveID, const void * instance, IMetaClass * metaClass) {
+		metaWriter->beginWriteArray(name, this->elementCount);
+
 		GMetaTypeData typeData = this->metaType.getData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
 			const void * ptr;
@@ -55,23 +57,29 @@ public:
 			archiveWriter->writeObject("", ptr, &typeData, this->elementSerializer.get());
 			instance = static_cast<const char *>(instance) + this->elementSize;
 		}
+		
+		metaWriter->endWriteArray(name, this->elementCount);
 	}
 	
-	virtual void * G_API_CC allocateObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, IMetaClass * metaClass) {
+	virtual void * G_API_CC allocateObject(IMetaArchiveReader * archiveReader, IMetaClass * metaClass) {
 		(void)archiveReader;
-		(void)metaReader;
-		(void)archiveID;
 		(void)metaClass;
 
 		return NULL;
 	}
 
-	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
+	virtual void G_API_CC readObject(const char * name, IMetaArchiveReader * archiveReader, IMetaReader * metaReader, uint32_t archiveID, void * instance, IMetaClass * metaClass) {
+		uint32_t length = metaReader->beginReadArray(name);
+		
+		GASSERT(length == this->elementCount);
+
 		GMetaTypeData typeData = this->metaType.getData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
 			archiveReader->readObject("", instance, &typeData, this->elementSerializer.get());
 			instance = static_cast<char *>(instance) + this->elementSize;
 		}
+
+		metaReader->endReadArray(name);
 	}
 	
 private:

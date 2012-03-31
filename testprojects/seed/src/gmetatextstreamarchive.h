@@ -291,6 +291,18 @@ protected:
 		this->doWriteString(metaClass->getTypeName());
 	}
 
+	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length) {
+		(void)name;
+		
+		this->writeDelimiter();
+		this->stream << static_cast<uint32_t>(length);
+	}
+
+	virtual void G_API_CC endWriteArray(const char * name, uint32_t length) {
+		(void)name;
+		(void)length;
+	}
+
 protected:
 	void writeDelimiter() {
 		if(this->delimiter == dtNone) {
@@ -436,8 +448,6 @@ protected:
 		PermanentType type = this->readType();
 		checkType(type, ptNull);
 		
-		this->skipDelimiter();
-
 		return NULL;
 	}
 
@@ -489,9 +499,28 @@ protected:
 		return this->service->findClassByName(classType.get());
 	}
 
+	virtual uint32_t G_API_CC beginReadArray(const char * name) {
+		(void)name;
+
+		uint16_t length;
+		this->stream >> length;
+		this->skipDelimiter();
+
+		return length;
+	}
+
+	virtual void G_API_CC endReadArray(const char * name) {
+		(void)name;
+	}
+
 protected:
 	void skipDelimiter() {
-		this->stream.get();
+		if(! this->stream.eof()) {
+			char c = this->stream.get();
+			if(c != ' ' && c != '\n') {
+				GASSERT(false);
+			}
+		}
 	}
 
 	PermanentType readType() {

@@ -94,10 +94,10 @@ void TestSerializeClass::reset()
 void TestSerializeClass::set(long long seed)
 {
 	this->b = true;
-	this->c = (char)(seed);
-	this->wc = (wchar_t)(seed + 20);
-	this->sc = -(signed char)(seed + 1);
-	this->uc = (unsigned char)(seed + 2);
+	initTestValue(this->c, seed);
+	initTestValue(this->wc, seed + 20);
+	initTestValue(this->sc, seed + 1);
+	initTestValue(this->uc, seed + 2);
 	this->si = (short)(seed + 3);
 	this->usi = (unsigned short)(seed + 5);
 	this->i = -(int)(seed + 10);
@@ -106,9 +106,9 @@ void TestSerializeClass::set(long long seed)
 	this->ul = (unsigned long)(seed + 712345);
 	this->ll = (long long)(seed + 1234578);
 	this->ull = (unsigned long long)(seed + 12345789);
-	this->f = (float)(seed * 1.2356);
-	this->df = (double)(seed * 17.3);
-	this->ldf = (long double)(seed * 109.58);
+	initTestValue(this->f, seed );
+	initTestValue(this->df, seed);
+	initTestValue(this->ldf, seed);
 
 	char buffer[100];
 	sprintf(buffer, "%d", (int)seed);

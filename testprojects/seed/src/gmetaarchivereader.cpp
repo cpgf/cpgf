@@ -236,9 +236,9 @@ void * GMetaArchiveReader::doReadObject(const char * name, uint32_t archiveID, v
 
 	if(serializer != NULL) {
 		if(instance == NULL) {
-			instance = serializer->allocateObject(this, this->reader.get(), archiveID, metaClass);
+			instance = serializer->allocateObject(this, metaClass);
 		}
-		serializer->readObject(this, this->reader.get(), archiveID, instance, metaClass);
+		serializer->readObject(name, this, this->reader.get(), archiveID, instance, metaClass);
 	}
 	else {
 		this->doDirectReadObject(name, archiveID, instance, metaClass, baseClassMap);
