@@ -130,3 +130,72 @@ void initTestValue(TestSerializeClass & value, long long seed)
 {
 	value.set(seed);
 }
+
+
+#define LOOP2(d1, d2) for(int z1 = 0; z1 < d1; ++z1) for(int z2 = 0; z2 < d2; ++z2)
+#define LOOP3(d1, d2, d3) for(int z1 = 0; z1 < d1; ++z1) for(int z2 = 0; z2 < d2; ++z2) for(int z3 = 0; z3 < d3; ++z3)
+
+TestSerializeArray::TestSerializeArray()
+{
+	LOOP3(B1, B2, B3) npo[z1][z2][z3] = NULL;
+}
+
+TestSerializeArray::~TestSerializeArray()
+{
+	this->reset();
+}
+
+bool TestSerializeArray::operator == (const TestSerializeArray & other) const
+{
+#define EQ2(v, d1, d2) LOOP2(d1, d2) if(v[z1][z2] != other. v[z1][z2]) return false;
+#define EQ3(v, d1, d2, d3) LOOP3(d1, d2, d3) if(v[z1][z2][z3] != other. v[z1][z2][z3]) return false;
+
+	EQ2(i, A1, A2)
+	EQ3(s, B1, B2, B3)
+	EQ3(o, B1, B2, B3)
+	
+#undef EQ2
+#undef EQ3
+
+	LOOP3(B1, B2, B3) if(ps[z1][z2][z3] != &s[z1][z2][z3]) return false;
+	LOOP3(B1, B2, B3) if(other.ps[z1][z2][z3] != &other.s[z1][z2][z3]) return false;
+	
+	LOOP3(B1, B2, B3) if(po[z1][z2][z3] != &o[z1][z2][z3]) return false;
+	LOOP3(B1, B2, B3) if(other.po[z1][z2][z3] != &other.o[z1][z2][z3]) return false;
+	
+	LOOP3(B1, B2, B3) if(*npo[z1][z2][z3] != *other.npo[z1][z2][z3]) return false;
+
+	return true;
+}
+
+void TestSerializeArray::reset()
+{
+	LOOP3(B1, B2, B3) ps[z1][z2][z3] = NULL;
+	LOOP3(B1, B2, B3) po[z1][z2][z3] = NULL;
+	
+	LOOP3(B1, B2, B3) {
+		delete npo[z1][z2][z3];
+		npo[z1][z2][z3] = NULL;
+	}
+}
+
+void TestSerializeArray::init()
+{
+#define INIT2(v, d1, d2) LOOP2(d1, d2) initTestValue(v[z1][z2], getTestSeed(0));
+#define INIT3(v, d1, d2, d3) LOOP3(d1, d2, d3) initTestValue(v[z1][z2][z3], getTestSeed(0));
+	
+	INIT2(i, A1, A2)
+	INIT3(s, B1, B2, B3)
+	INIT3(o, B1, B2, B3)
+
+#undef INIT2
+#undef INIT3
+
+	LOOP3(B1, B2, B3) ps[z1][z2][z3] = &s[z1][z2][z3];
+	LOOP3(B1, B2, B3) po[z1][z2][z3] = &o[z1][z2][z3];
+	LOOP3(B1, B2, B3) {
+		npo[z1][z2][z3] = new TestSerializeClass();
+		initTestValue(*npo[z1][z2][z3], getTestSeed(z1 * B2 * B3 + z2 * B3 + z3 + 1));
+	}
+}
+

@@ -22,11 +22,15 @@ public:
 	}
 };
 
+namespace metatraits_internal {
 
-IMetaConverter * GMetaTraitsCreateConverter<std::string>::createConverter()
+IMetaConverter * createConverterForString()
 {
-	return new cpgf::GMetaConverterStdString;
+	return new GMetaConverterStdString;
 }
+
+} // namespace metatraits_internal
+
 
 
 } // namespace cpgf

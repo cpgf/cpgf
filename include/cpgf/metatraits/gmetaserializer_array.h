@@ -14,19 +14,6 @@ namespace metatraits_internal {
 IMetaSerializer * createArraySerializer(IMetaSerializer * elementSerializer, const GMetaType & metaType, unsigned int elementSize, unsigned int elementCount);
 
 template <typename T>
-GMetaType createMetaTypeForArray(const T &)
-{
-	return createMetaType<T>();
-}
-
-template <typename T, int N>
-GMetaType createMetaTypeForArray(const T (&)[N])
-{
-	T * p = 0;
-	return createMetaTypeForArray(*p);
-}
-
-template <typename T>
 IMetaSerializer * metaTraitsCreateSerializerForArray(const T & a)
 {
 	IMetaSerializer * serializer = metaTraitsCreateSerializer(a);
@@ -43,7 +30,7 @@ IMetaSerializer * metaTraitsCreateSerializerForArray(const T (&)[N])
 {
 	T * p = 0;
 	GScopedInterface<IMetaSerializer> elementSerializer(metaTraitsCreateSerializerForArray(*p));
-	return createArraySerializer(elementSerializer.get(), createMetaTypeForArray(*p), sizeof(T), N);
+	return createArraySerializer(elementSerializer.get(), createMetaType<T>(), sizeof(T), N);
 }
 
 } // namespace metatraits_internal
@@ -54,7 +41,7 @@ struct GMetaTraitsCreateSerializer <T[N]>
 	static IMetaSerializer * createSerializer() {
 		T * p = 0;
 		GScopedInterface<IMetaSerializer> elementSerializer(metatraits_internal::metaTraitsCreateSerializerForArray(*p));
-		return metatraits_internal::createArraySerializer(elementSerializer.get(), metatraits_internal::createMetaTypeForArray(*p), sizeof(T), N);
+		return metatraits_internal::createArraySerializer(elementSerializer.get(), createMetaType<T>(), sizeof(T), N);
 	}
 };
 

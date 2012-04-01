@@ -8,10 +8,18 @@
 
 namespace cpgf {
 
+namespace metatraits_internal {
+
+IMetaConverter * createConverterForString();
+
+} // namespace metatraits_internal
+
 template <>
 struct GMetaTraitsCreateConverter <std::string>
 {
-	static IMetaConverter * createConverter();
+	static IMetaConverter * createConverter() {
+		return metatraits_internal::createConverterForString();
+	}
 };
 
 

@@ -517,8 +517,10 @@ protected:
 	void skipDelimiter() {
 		if(! this->stream.eof()) {
 			int c = this->stream.get();
-			if(c != ' ' && c != '\n') {
-				GASSERT(false);
+			if(! this->stream.eof()) {
+				if(c != ' ' && c != '\n') {
+					GASSERT(false);
+				}
 			}
 		}
 	}

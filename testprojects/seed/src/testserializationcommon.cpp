@@ -54,10 +54,13 @@ void initTestValue(long double & value, long long seed)
 
 long long getTestSeed(int n)
 {
+return n;
+/*
 	long long seed = 0x739521LL;
 	
 	seed <<= (n % 32);
 	seed += n;
 
 	return seed;
+*/	
 }

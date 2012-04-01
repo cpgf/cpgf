@@ -310,7 +310,7 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 		}
 	}
 
-	if(metaType.isArray()) {
+	if(metaType.baseIsArray()) {
 		this->readObjectHelper(name, address, NULL, serializer);
 		return;
 	}
@@ -454,7 +454,7 @@ void GMetaArchiveReader::doReadMember(const char * name, void * instance, IMetaA
 		char buffer[64];
 		void * ptr;
 
-		if(metaType.isArray()) {
+		if(metaType.baseIsArray()) {
 			ptr = accessible->getAddress(instance);
 		}
 		else {

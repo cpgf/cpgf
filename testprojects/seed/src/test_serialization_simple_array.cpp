@@ -13,6 +13,8 @@ using namespace std;
 using namespace cpgf;
 
 
+#define LOOP(l) for(int z = 0; z < l; ++z)
+
 namespace {
 
 template <typename AR>
@@ -49,7 +51,7 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 	TestSerializeClass * po[R];
 	TestSerializeClass * npo[S];
 
-#define INIT(v, l) for(int z = 0; z < l; ++z) initTestValue(v[z], getTestSeed(z + 1));
+#define INIT(v, l) LOOP(l) initTestValue(v[z], getTestSeed(z + 1));
 	INIT(b, A)
 	INIT(c, B)
 	INIT(wc, C)
@@ -70,12 +72,12 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 	INIT(o, R)
 #undef INIT
 
-#define INIT(v, u, l) for(int z = 0; z < l; ++z) v[z] = &u[z];
+#define INIT(v, u, l) LOOP(l) v[z] = &u[z];
 	INIT(ps, s, Q)
 	INIT(po, o, R)
 #undef INIT
 
-#define INIT(v, l) for(int z = 0; z < l; ++z) { v[z] = new TestSerializeClass(); initTestValue(*v[z], getTestSeed(z + 1)); }
+#define INIT(v, l) LOOP(l) { v[z] = new TestSerializeClass(); initTestValue(*v[z], getTestSeed(z + 1)); }
 	INIT(npo, S)
 #undef INIT
 
@@ -127,7 +129,7 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 	TestSerializeClass * rpo[R];
 	TestSerializeClass * rnpo[S];
 
-#define INIT(v, l) for(int z = 0; z < l; ++z) initTestValue(v[z], getTestSeed(0));
+#define INIT(v, l) LOOP(l) initTestValue(v[z], getTestSeed(0));
 	INIT(rb, A)
 	INIT(rc, B)
 	INIT(rwc, C)
@@ -148,7 +150,7 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 	INIT(ro, R)
 #undef INIT
 
-#define INIT(v, l) for(int z = 0; z < l; ++z) v[z] = NULL;
+#define INIT(v, l) LOOP(l) v[z] = NULL;
 	INIT(rps, Q)
 	INIT(rpo, R)
 	INIT(rnpo, S)
@@ -177,7 +179,7 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 	serializeReadValue(archiveReader.get(), "rpo", rpo);
 	serializeReadValue(archiveReader.get(), "rnpo", rnpo);
 
-#define EQ(v, u, l) for(int z = 0; z < l; ++z) GEQUAL(v[z], u[z]);
+#define EQ(v, u, l) LOOP(l) GEQUAL(v[z], u[z]);
 	EQ(b, rb, A)
 	EQ(c, rc, B)
 	EQ(wc, rwc, C)
@@ -195,25 +197,21 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 	EQ(o, ro, R)
 #undef EQ
 
-#define EQ(v, u, l) for(int z = 0; z < l; ++z) GCHECK(fabs(v[z] - u[z]) < 0.1);
+#define EQ(v, u, l) LOOP(l) GCHECK(fabs(v[z] - u[z]) < 0.1);
 	EQ(f, rf, N)
 	EQ(df, rdf, O)
 	EQ(ldf, rldf, P)
 #undef EQ
 
-#define EQ(v, u, l) for(int z = 0; z < l; ++z) GEQUAL(&v[z], u[z]);
+#define EQ(v, u, l) LOOP(l) GEQUAL(&v[z], u[z]);
 	EQ(rs, rps, Q)
 	EQ(ro, rpo, R)
 #undef EQ
 
-#define EQ(v, u, l) for(int z = 0; z < l; ++z) GEQUAL(*v[z], *u[z]);
-	EQ(npo, rnpo, S)
-#undef EQ
+	LOOP(S) GEQUAL(*npo[z], *rnpo[z]);
 
-#define F(v, l) for(int z = 0; z < l; ++z) delete v[z];
-	F(npo, S)
-	F(rnpo, S)
-#undef F
+	LOOP(S) delete npo[z];
+	LOOP(S) delete rnpo[z];
 }
 
 GTEST(testSimpleArray)

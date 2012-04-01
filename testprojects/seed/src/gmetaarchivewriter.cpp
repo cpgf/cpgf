@@ -339,7 +339,7 @@ void GMetaArchiveWriter::doWriteMember(const char * name, const void * instance,
 		
 		void * ptr;
 
-		if(metaType.isArray()) {
+		if(metaType.baseIsArray()) {
 			ptr = accessible->getAddress(instance);
 		}
 		else {
@@ -368,7 +368,7 @@ void GMetaArchiveWriter::doWriteMember(const char * name, const void * instance,
 
 void GMetaArchiveWriter::doWriteValue(const char * name, const void * address, const GMetaType & metaType, IMetaSerializer * serializer, int pointers)
 {
-	if(metaType.isArray()) {
+	if(metaType.baseIsArray()) {
 		this->writeObjectHelper(name, address, NULL, serializer, 0);
 		return;
 	}

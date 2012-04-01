@@ -87,129 +87,49 @@ class GMetaType : GFINAL_BASE(GMetaType)
 //	GASSERT_STATIC(sizeof(GMetaTypeData) == 8);
 
 public:
-	GMetaType() : baseName(NULL), flags(0), baseType() {
-		vtInit(typeData);
-	}
+	GMetaType();
+	explicit GMetaType(const GMetaTypeData & data);
+	GMetaType(const GMetaTypeData & data, const GTypeInfo & baseType);
+	GMetaType(const GMetaType & other);
+	~GMetaType();
 
-	explicit GMetaType(const GMetaTypeData & data)
-		: baseName(data.baseName), flags(data.flags), typeData(data.typeData), baseType() {
-	}
-
-	GMetaType(const GMetaTypeData & data, const GTypeInfo & baseType)
-		: baseName(data.baseName), flags(data.flags), typeData(data.typeData), baseType(baseType) {
-	}
-
-	GMetaType(const GMetaType & other)
-		: baseName(other.baseName), flags(other.flags), typeData(other.typeData), baseType(other.baseType) {
-	}
-
-	~GMetaType() {
-	}
-
-	GMetaType & operator = (const GMetaType & other) {
-		if(this != &other) {
-			this->baseName = other.baseName;
-			this->flags = other.flags;
-			this->typeData = other.typeData;
-			this->baseType = other.baseType;
-		}
-
-		return *this;
-	}
-
-	bool operator == (const GMetaType & other) const;
-
-	bool operator != (const GMetaType & other) const {
-		return ! this->operator == (other);
-	}
-
-	bool isEmpty() const {
-		return vtIsEmpty(vtGetType(this->typeData));
-	}
-
-	const char * getBaseName() const {
-		return this->baseName;
-	}
-
-	const GTypeInfo & getBaseType() const {
-		return this->baseType;
-	}
-
-	bool baseIsClass() const {
-		return this->hasFlag(meta_internal::mtFlagBaseIsClass);
-	}
+	GMetaType & operator = (const GMetaType & other);
 	
-	bool isFundamental() const {
-		return vtIsFundamental(this->getVariantType());
-	}
+	bool operator == (const GMetaType & other) const;
+	bool operator != (const GMetaType & other) const;
 
-	bool isArray() const {
-		return this->hasFlag(meta_internal::mtFlagIsArray);
-	}
+	bool isEmpty() const;
 
-	bool isFunction() const {
-		return this->hasFlag(meta_internal::mtFlagIsFunction);
-	}
+	const char * getBaseName() const;
+	const GTypeInfo & getBaseType() const;
 
-	bool isConstFunction() const {
-		return this->hasFlag(meta_internal::mtFlagIsConstFunction);
-	}
+	bool baseIsClass() const;
+	bool baseIsArray() const;
+	
+	bool isFundamental() const;
+	
+	bool isFunction() const;
+	bool isConstFunction() const;
+	bool isVolatileFunction() const;
+	bool isConstVolatileFunction() const;
 
-	bool isVolatileFunction() const {
-		return this->hasFlag(meta_internal::mtFlagIsVolatileFunction);
-	}
+	bool isConst() const;
+	bool isVolatile() const;
+	bool isConstVolatile() const;
 
-	bool isConstVolatileFunction() const {
-		return this->hasFlag(meta_internal::mtFlagIsConstVolatileFunction);
-	}
+	bool isPointerToConst() const;
+	bool isPointerToVolatile() const;
+	bool isPointerToConstVolatile() const;
 
-	bool isConst() const {
-		return this->hasFlag(meta_internal::mtFlagIsConst)
-			&& !this->isConstVolatile();
-	}
+	bool isPointer() const;
 
-	bool isVolatile() const {
-		return this->hasFlag(meta_internal::mtFlagIsVolatile)
-			&& !this->isConstVolatile();
-	}
+	bool isReference() const;
 
-	bool isConstVolatile() const {
-		return this->hasFlag(meta_internal::mtFlagIsConstVolatile);
-	}
+	unsigned int getPointerDimension() const;
+	
+	GVariantType getVariantType() const;
 
-	bool isPointerToConst() const {
-		return this->hasFlag(meta_internal::mtFlagIsPointer | meta_internal::mtFlagIsPointerToConst)
-			&& !this->isPointerToConstVolatile();
-	}
-
-	bool isPointerToVolatile() const {
-		return this->hasFlag(meta_internal::mtFlagIsPointer | meta_internal::mtFlagIsPointerToVolatile)
-			&& !this->isPointerToConstVolatile();
-	}
-
-	bool isPointerToConstVolatile() const {
-		return this->hasFlag(meta_internal::mtFlagIsPointer | meta_internal::mtFlagIsPointerToConstVolatile);
-	}
-
-	bool isPointer() const {
-		return this->hasFlag(meta_internal::mtFlagIsPointer);
-	}
-
-	bool isReference() const {
-		return this->hasFlag(meta_internal::mtFlagIsReference);
-	}
-
-	unsigned int getPointerDimension() const {
-		return vtGetPointers(this->typeData);
-	}
-
-	GVariantType getVariantType() const {
-		return vtGetType(this->typeData);
-	}
-
-	GVarTypeData getTypeData() const {
-		return this->typeData;
-	}
+	GVarTypeData getTypeData() const;
 	
 	GMetaTypeData getData() const;
 

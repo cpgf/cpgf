@@ -48,7 +48,7 @@ public:
 		GMetaTypeData typeData = this->metaType.getData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
 			const void * ptr;
-			if(this->metaType.getPointerDimension() > 0) {
+			if(this->metaType.isPointer() && ! this->metaType.baseIsArray()) {
 				ptr = *(void **)instance;
 			}
 			else {

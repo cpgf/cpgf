@@ -43,6 +43,34 @@ public:
 	std::string * pnull;
 };
 
+class TestSerializeArray
+{
+private:
+	enum {
+		A1 = 3, A2 = 5,
+		B1 = 5, B2 = 3, B3 = 2,
+	};
+
+public:
+	TestSerializeArray();
+	~TestSerializeArray();
+
+	bool operator == (const TestSerializeArray & other) const;
+
+	void reset();
+	void init();
+
+public:
+	int i[A1][A2];
+	std::string s[B1][B2][B3];
+	std::string * ps[B1][B2][B3];
+	TestSerializeClass o[B1][B2][B3];
+	TestSerializeClass * po[B1][B2][B3];
+	TestSerializeClass * npo[B1][B2][B3];
+};
+
+
+
 #define F(f) FIELD(TestSerializeClass, f)
 
 template <typename D>
@@ -77,6 +105,23 @@ void register_TestSerializeClass(D define)
 }
 
 #undef F
+
+template <typename D>
+void register_TestSerializeArray(D define)
+{
+	cpgf::GDefineMetaClass<TestSerializeArray> classDefine = cpgf::GDefineMetaClass<TestSerializeArray>::declare("TestSerializeArray");
+	
+	classDefine
+		FIELD(TestSerializeArray, i)
+		FIELD(TestSerializeArray, s)
+		FIELD(TestSerializeArray, ps)
+		FIELD(TestSerializeArray, o)
+		FIELD(TestSerializeArray, po)
+		FIELD(TestSerializeArray, npo)
+	;
+
+	define._class(classDefine);
+}
 
 
 void initTestValue(TestSerializeClass & value, long long seed);
