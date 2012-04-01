@@ -24,9 +24,17 @@ struct IMetaSerializer : public IObject
 
 
 template <typename T>
+struct GMetaTraitsCreateSerializer
+{
+	static IMetaSerializer * createSerializer() {
+		return NULL;
+	}
+};
+
+template <typename T>
 inline IMetaSerializer * metaTraitsCreateSerializer(const T &)
 {
-	return NULL;
+	return GMetaTraitsCreateSerializer<T>::createSerializer();
 }
 
 

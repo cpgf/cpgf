@@ -2,16 +2,11 @@
 #define __GMETASERIALIZER_ARRAY_H
 
 #include "cpgf/metatraits/gmetaserializer.h"
+#include "cpgf/metatraits/gmetaserializer_trapall.h"
 #include "cpgf/gmetatype.h"
 
 
 namespace cpgf {
-
-// forward declare the function in gmetaserializer_trapall.h
-// gmetaserializer_trapall.h must be inlcuded after gmetaserializer_array.h
-// otherwise, because gmetaserializer_trapall.h includes gmetaextendtype.h, it will cause array overloading doesn't work on GCC.
-template <typename T>
-IMetaSerializer * createTrapAllSerializer();
 
 
 namespace metatraits_internal {
@@ -27,7 +22,8 @@ GMetaType createMetaTypeForArray(const T &)
 template <typename T, int N>
 GMetaType createMetaTypeForArray(const T (&)[N])
 {
-	return createMetaTypeForArray<T>();
+	T * p = 0;
+	return createMetaTypeForArray(*p);
 }
 
 template <typename T>
@@ -47,23 +43,26 @@ IMetaSerializer * metaTraitsCreateSerializerForArray(const T (&)[N])
 {
 	T * p = 0;
 	GScopedInterface<IMetaSerializer> elementSerializer(metaTraitsCreateSerializerForArray(*p));
-	return metatraits_internal::createArraySerializer(elementSerializer.get(), createMetaTypeForArray(*p), sizeof(T), N);
+	return createArraySerializer(elementSerializer.get(), createMetaTypeForArray(*p), sizeof(T), N);
 }
 
 } // namespace metatraits_internal
 
 template <typename T, int N>
-IMetaSerializer * metaTraitsCreateSerializer(const T (&a)[N])
+struct GMetaTraitsCreateSerializer <T[N]>
 {
-	return metatraits_internal::metaTraitsCreateSerializerForArray(a);
-}
+	static IMetaSerializer * createSerializer() {
+		T * p = 0;
+		GScopedInterface<IMetaSerializer> elementSerializer(metatraits_internal::metaTraitsCreateSerializerForArray(*p));
+		return metatraits_internal::createArraySerializer(elementSerializer.get(), metatraits_internal::createMetaTypeForArray(*p), sizeof(T), N);
+	}
+};
+
 
 
 
 } // namespace cpgf
 
-
-#include "cpgf/metatraits/gmetaserializer_trapall.h"
 
 
 #endif

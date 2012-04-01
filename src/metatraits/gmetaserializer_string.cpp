@@ -1,4 +1,4 @@
-#include "cpgf/metatraits/gmetaserializer.h"
+#include "cpgf/metatraits/gmetaserializer_string.h"
 #include "../../testprojects/seed/src/gmetaarchivecommon.h"
 
 #include <string>
@@ -48,7 +48,7 @@ public:
 };
 
 
-IMetaSerializer * metaTraitsCreateSerializer(const std::string &)
+IMetaSerializer * GMetaTraitsCreateSerializer<std::string>::createSerializer()
 {
 	return new cpgf::GMetaSerializerString;
 }

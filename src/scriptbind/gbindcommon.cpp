@@ -583,11 +583,13 @@ GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible
 
 	void * address = accessible->getAddress(instance);
 	if(address != NULL && !outType->isPointer() && outType->baseIsClass()) {
-		outType->addPointer();
 		value = address;
 
 		if(instanceIsConst) {
-			outType->addConst();
+			outType->addPointerToConst();
+		}
+		else {
+			outType->addPointer();
 		}
 	}
 	else {

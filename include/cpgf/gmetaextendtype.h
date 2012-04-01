@@ -33,8 +33,12 @@ namespace meta_internal {
 template <typename T>
 struct WrapExtendType
 {
+private:
+	typedef typename ExtractRawType<T>::Result Raw;
+
+public:
 	typedef
-		typename GIfElse<IsVoid<T>::Result, int, typename ExtractRawType<T>::Result>::Result
+		typename GIfElse<IsVoid<Raw>::Result, int, Raw>::Result
 		Result;
 };
 

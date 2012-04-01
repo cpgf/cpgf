@@ -1,15 +1,19 @@
 #ifndef __GMETACONVERTER_STRING_H
 #define __GMETACONVERTER_STRING_H
 
+#include "cpgf/metatraits/gmetaconverter.h"
 
 #include <string>
 
 
 namespace cpgf {
 
-struct IMetaConverter;
+template <>
+struct GMetaTraitsCreateConverter <std::string>
+{
+	static IMetaConverter * createConverter();
+};
 
-IMetaConverter * metaTraitsCreateConverter(const std::string &);
 
 
 

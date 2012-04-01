@@ -1,16 +1,18 @@
 #ifndef __GMETASERIALIZER_STRING_H
 #define __GMETASERIALIZER_STRING_H
 
+#include "cpgf/metatraits/gmetaserializer.h"
 
 #include <string>
 
 
 namespace cpgf {
 
-struct IMetaSerializer;
-
-IMetaSerializer * metaTraitsCreateSerializer(const std::string &);
-
+template <>
+struct GMetaTraitsCreateSerializer <std::string>
+{
+	static IMetaSerializer * createSerializer();
+};
 
 
 } // namespace cpgf

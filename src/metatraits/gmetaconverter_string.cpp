@@ -1,4 +1,4 @@
-#include "cpgf/metatraits/gmetaconverter.h"
+#include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/gapiutil.h"
 
 #include <string>
@@ -23,11 +23,10 @@ public:
 };
 
 
-cpgf::IMetaConverter * metaTraitsCreateConverter(const std::string &)
+IMetaConverter * GMetaTraitsCreateConverter<std::string>::createConverter()
 {
 	return new cpgf::GMetaConverterStdString;
 }
-
 
 
 } // namespace cpgf

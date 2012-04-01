@@ -5,10 +5,6 @@
 #include "cpgf/gifelse.h"
 #include "cpgf/gmetaextendtype.h"
 
-#include "cpgf/metatraits/gmetaconverter_string.h"
-#include "cpgf/metatraits/gmetaserializer_string.h"
-#include "cpgf/metatraits/gmetaserializer_array.h"
-
 #include <iostream>
 #include <string>
 
@@ -31,15 +27,34 @@ void abc(const T &)
 }
 
 template <typename T>
+struct X
+{
+	static void doIt() {
+		cout << "X1" << endl;
+	}
+};
+
+template <typename T>
 void test(const T & a)
 {
 	abc(a);
+	X<T>::doIt();
 }
 
+template <>
 void abc(const string &)
 {
 	cout << "2" << endl;
 }
+
+template <>
+struct X <string>
+{
+	static void doIt() {
+		cout << "X2" << endl;
+	}
+};
+
 
 int main(int argc, char * argv[])
 {

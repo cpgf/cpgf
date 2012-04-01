@@ -59,6 +59,24 @@ void GMetaType::addPointer()
 	this->flags |= meta_internal::mtFlagIsPointer;
 }
 
+void GMetaType::addPointerToConst()
+{
+	this->addPointer();
+	this->flags |= meta_internal::mtFlagIsPointerToConst;
+}
+
+void GMetaType::addPointerToVolatile()
+{
+	this->addPointer();
+	this->flags |= meta_internal::mtFlagIsPointerToVolatile;
+}
+
+void GMetaType::addPointerToConstVolatile()
+{
+	this->addPointer();
+	this->flags |= meta_internal::mtFlagIsPointerToConstVolatile;
+}
+
 void GMetaType::addConst()
 {
 	this->flags |= meta_internal::mtFlagIsConst;

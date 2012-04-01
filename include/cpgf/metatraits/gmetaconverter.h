@@ -33,9 +33,17 @@ public:
 };
 
 template <typename T>
+struct GMetaTraitsCreateConverter
+{
+	static IMetaConverter * createConverter() {
+		return NULL;
+	}
+};
+
+template <typename T>
 inline IMetaConverter * metaTraitsCreateConverter(const T &)
 {
-	return NULL;
+	return GMetaTraitsCreateConverter<T>::createConverter();
 }
 
 

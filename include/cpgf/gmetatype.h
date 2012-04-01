@@ -214,6 +214,9 @@ public:
 	GMetaTypeData getData() const;
 
 	void addPointer();
+	void addPointerToConst();
+	void addPointerToVolatile();
+	void addPointerToConstVolatile();
 	void addConst();
 	void removeReference();
 
