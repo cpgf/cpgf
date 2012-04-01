@@ -122,7 +122,7 @@ void doTestMultipleInheritance(IMetaService * service, IMetaWriter * writer, IMe
 	readCount = 0;
 	writeCount = 0;
 
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassD"));
 
@@ -136,7 +136,7 @@ void doTestMultipleInheritance(IMetaService * service, IMetaWriter * writer, IMe
 
 	ar.rewind();
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service, reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader));
 	
 	D readInstance;
 	

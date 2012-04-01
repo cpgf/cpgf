@@ -18,7 +18,7 @@ namespace {
 template <typename AR>
 void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
 
 	enum {
 		A = 3, B = 5, C = 6, D = 7, E = 8, F = 10, G = 11,
@@ -103,7 +103,7 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 
 	ar.rewind();
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service, reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader));
 
 	bool rb[A];
 	char rc[B];

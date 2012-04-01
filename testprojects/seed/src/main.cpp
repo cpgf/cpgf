@@ -27,24 +27,18 @@ using namespace cpgf;
 template <typename T>
 void abc(const T &)
 {
-	cout << "Trapped all." << endl;
-}
-
-template <typename T, int N>
-void abc(const T (&x) [N])
-{
-	(void)x;
-	cout << "Array." << endl;
+	cout << "1" << endl;
 }
 
 template <typename T>
-void test(T &)
+void test(const T & a)
 {
-	GMetaExtendType type;
-	type = createMetaExtendType<T>(GExtendTypeCreateFlag_Converter | GExtendTypeCreateFlag_Serializer);
-	cout << "Array size: " << type.getArraySize() << endl;
-	cout << "Converter: " << type.getConverter() << endl;
-	cout << "Serializer: " << type.getSerializer() << endl;
+	abc(a);
+}
+
+void abc(const string &)
+{
+	cout << "2" << endl;
 }
 
 int main(int argc, char * argv[])
@@ -52,8 +46,8 @@ int main(int argc, char * argv[])
 	(void)argc;
 	(void)argv;
 
-	int a[5];
-//	test(a);
+//	string s;
+//	test(s);
 	
 //	testSer();
 

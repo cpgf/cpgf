@@ -24,9 +24,10 @@ public:
 
 	virtual IMetaService * G_API_CC getMetaService();
 
-	// take care of customized serializer, take care of pointer tracking.
 	virtual void G_API_CC readObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
 	
+	virtual void G_API_CC readMember(const char * name, void * instance, IMetaAccessible * accessible);
+
 	virtual void G_API_CC trackPointer(uint32_t archiveID, void * instance);
 
 	virtual uint32_t G_API_CC beginReadObject(const char * name, void * instance, IMetaClass * metaClass);
@@ -41,8 +42,7 @@ protected:
 	void doDirectReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, GBaseClassMap * baseClassMap);
 	void doDirectReadObjectWithoutBase(uint32_t archiveID, void * instance, IMetaClass * metaClass);
 	
-	void doReadField(const char * name, void * instance, IMetaAccessible * accessible);
-	void doReadProperty(const char * name, void * instance, IMetaAccessible * accessible);
+	void doReadMember(const char * name, void * instance, IMetaAccessible * accessible);
 	
 	void doReadValue(const char * name, void * address, const GMetaType & metaType, IMetaSerializer * serializer);
 	bool checkUntrackPointer(const char * name, void * address);
@@ -173,6 +173,11 @@ void G_API_CC GMetaArchiveReader::readObject(const char * name, void * instance,
 	this->doReadValue(name, instance, type, serializer);
 }
 
+void G_API_CC GMetaArchiveReader::readMember(const char * name, void * instance, IMetaAccessible * accessible)
+{
+	this->doReadMember(name, instance, accessible);
+}
+
 void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer)
 {
 	if(this->checkUntrackPointer(name, instance)) {
@@ -219,12 +224,6 @@ void GMetaArchiveReader::endReadObject(const char * name, uint32_t archiveID, vo
 
 void * GMetaArchiveReader::doReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, GBaseClassMap * baseClassMap)
 {
-	GScopedInterface<IMetaSerializer> serializerPointer;
-	if(serializer == NULL && metaClass != NULL) {
-		serializerPointer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
-		serializer = serializerPointer.get();
-	}
-
 	if(serializer != NULL) {
 		if(instance == NULL) {
 			instance = serializer->allocateObject(this, metaClass);
@@ -278,7 +277,7 @@ void GMetaArchiveReader::doDirectReadObjectWithoutBase(uint32_t archiveID, void 
 			accessible.reset(metaClass->getFieldAt(i));
 
 			if(canSerializeField(this->config, accessible.get(), metaClass)) {
-				this->doReadField(accessible->getName(), instance, accessible.get());
+				this->doReadMember(accessible->getName(), instance, accessible.get());
 			}
 		}
 	}
@@ -288,7 +287,7 @@ void GMetaArchiveReader::doDirectReadObjectWithoutBase(uint32_t archiveID, void 
 		for(i = 0; i < count; ++i) {
 			accessible.reset(metaClass->getPropertyAt(i));
 			if(canSerializeField(this->config, accessible.get(), metaClass)) {
-				this->doReadProperty(accessible->getName(), instance, accessible.get());
+				this->doReadMember(accessible->getName(), instance, accessible.get());
 			}
 		}
 	}
@@ -432,10 +431,22 @@ void G_API_CC GMetaArchiveReader::trackPointer(uint32_t archiveID, void * instan
 	
 }
 
-void GMetaArchiveReader::doReadField(const char * name, void * instance, IMetaAccessible * accessible)
+void GMetaArchiveReader::doReadMember(const char * name, void * instance, IMetaAccessible * accessible)
 {
 	GMetaType metaType = metaGetItemType(accessible);
 	size_t pointers = metaType.getPointerDimension();
+
+	bool isProperty = metaIsProperty(accessible->getCategory());
+
+	if(isProperty) {
+		if(pointers == 0 && metaType.isFundamental()) {
+			GVariantData data;
+			uint32_t archiveID;
+			this->reader->readFundamental(name, &archiveID, &data);
+			accessible->set(instance, &data);
+			return;
+		}
+	}
 
 	if(pointers <= 1) {
 		GScopedInterface<IMetaSerializer> serializer(metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Serializer).getSerializer());
@@ -461,23 +472,8 @@ void GMetaArchiveReader::doReadField(const char * name, void * instance, IMetaAc
 		}
 	}
 	else {
+		serializeError(Error_Serialization_TypeMismatch);
 	}
-}
-
-void GMetaArchiveReader::doReadProperty(const char * name, void * instance, IMetaAccessible * accessible)
-{
-	GMetaType metaType = metaGetItemType(accessible);
-	size_t pointers = metaType.getPointerDimension();
-
-	if(pointers == 0 && metaType.isFundamental()) {
-		GVariantData data;
-		uint32_t archiveID;
-		this->reader->readFundamental(name, &archiveID, &data);
-		accessible->set(instance, &data);
-		return;
-	}
-
-	this->doReadField(name, instance, accessible);
 }
 
 IMemoryAllocator * G_API_CC GMetaArchiveReader::getAllocator()

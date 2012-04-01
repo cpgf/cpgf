@@ -7,6 +7,61 @@
 namespace cpgf {
 
 
+GMetaArchiveConfig::GMetaArchiveConfig() : flags(defaultConfig)
+{
+}
+
+GMetaArchiveConfig::GMetaArchiveConfig(uint32_t flags) : flags(flags) {
+}
+
+void GMetaArchiveConfig::setAllowTrackPointer(bool allow)
+{
+	this->flags.setByBool(macDisableTrackPointers, !allow);
+}
+
+bool GMetaArchiveConfig::allowTrackPointer() const
+{
+	return ! this->flags.has(macDisableTrackPointers);
+}
+
+void GMetaArchiveConfig::setAllowSerializeField(bool allow)
+{
+	this->flags.setByBool(macDisableSerializeField, !allow);
+}
+
+bool GMetaArchiveConfig::allowSerializeField() const
+{
+	return ! this->flags.has(macDisableSerializeField);
+}
+
+void GMetaArchiveConfig::setAllowSerializeProperty(bool allow)
+{
+	this->flags.setByBool(macDisableSerializeProperty, !allow);
+}
+
+bool GMetaArchiveConfig::allowSerializeProperty() const
+{
+	return ! this->flags.has(macDisableSerializeProperty);
+}
+
+uint32_t GMetaArchiveConfig::getFlags() const
+{
+	return this->flags;
+}
+
+
+bool GBaseClassMap::hasMetaClass(void * instance, IMetaClass * metaClass) const
+{
+	MapType::const_iterator it = this->itemMap.find(metaClass->getTypeName());
+	return it != this->itemMap.end() && it->second == instance;
+}
+
+void GBaseClassMap::addMetaClass(void * instance, IMetaClass * metaClass)
+{
+	this->itemMap.set(metaClass->getTypeName(), instance);
+}
+
+
 bool canSerializeItem(const GMetaArchiveConfig & config, IMetaItem * item)
 {
 	(void)config;
@@ -66,7 +121,11 @@ void serializeError(int errorCode, ...)
 void serializeWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
 {
 	GMetaTypeData metaType = metaGetItemType(metaClass).getData();
-	archiveWriter->writeObject(name, instance, &metaType, NULL);
+	GScopedInterface<IMetaSerializer> serializer;
+	if(metaClass != NULL) {
+		serializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
+	}
+	archiveWriter->writeObject(name, instance, &metaType, serializer.get());
 }
 
 void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
@@ -76,7 +135,11 @@ void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char 
 		metaType.addPointer();
 	}
 	GMetaTypeData metaTypeData = metaType.getData();
-	archiveWriter->writeObject(name, instance, &metaTypeData, NULL);
+	GScopedInterface<IMetaSerializer> serializer;
+	if(metaClass != NULL) {
+		serializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
+	}
+	archiveWriter->writeObject(name, instance, &metaTypeData, serializer.get());
 }
 
 void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaClass * metaClass)

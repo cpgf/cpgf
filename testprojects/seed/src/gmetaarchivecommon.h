@@ -81,6 +81,8 @@ struct IMetaArchiveWriter : public IExtendObject
 	virtual IMetaService * G_API_CC getMetaService() = 0;
 
 	virtual void G_API_CC writeObject(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
+	
+	virtual void G_API_CC writeMember(const char * name, const void * instance, IMetaAccessible * accessible) = 0;
 
 	virtual void G_API_CC trackPointer(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, uint32_t pointers) = 0;
 
@@ -94,6 +96,8 @@ struct IMetaArchiveReader : public IExtendObject
 
 	virtual void G_API_CC readObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 	
+	virtual void G_API_CC readMember(const char * name, void * instance, IMetaAccessible * accessible) = 0;
+
 	virtual void G_API_CC trackPointer(uint32_t archiveID, void * instance) = 0;
 
 	virtual uint32_t G_API_CC beginReadObject(const char * name, void * instance, IMetaClass * metaClass) = 0;
@@ -107,37 +111,29 @@ class GMetaArchiveConfig
 {
 private:
 	enum ConfigFlags {
-		macSerializeField = 1 << 0,
-		macSerializeProperty = 1 << 1,
-		macTrackPointers = 1 << 2
+		macDisableSerializeField = 1 << 0,
+		macDisableSerializeProperty = 1 << 1,
+		macDisableTrackPointers = 1 << 2
 	};
 
 	enum {
-		defaultConfig = macSerializeField | macSerializeProperty
-			| macTrackPointers
+		defaultConfig = 0
 	};
 
 public:
-	GMetaArchiveConfig() : flags(defaultConfig) {
-	}
+	GMetaArchiveConfig();
+	explicit GMetaArchiveConfig(uint32_t flags);
 
-	explicit GMetaArchiveConfig(uint32_t flags) : flags(flags) {
-	}
+	void setAllowTrackPointer(bool allow);
+	bool allowTrackPointer() const;
 
-	void setAllowTrackPointer(bool allow) {
-		this->flags.setByBool(macTrackPointers, allow);
-	}
+	void setAllowSerializeField(bool allow);
+	bool allowSerializeField() const;
 
-	bool allowTrackPointer() const {
-		return this->flags.has(macTrackPointers);
-	}
+	void setAllowSerializeProperty(bool allow);
+	bool allowSerializeProperty() const;
 
-	bool allowSerializeField() const { return true; }
-	bool allowSerializeProperty() const { return true; }
-
-	uint32_t getFlags() const {
-		return this->flags;
-	}
+	uint32_t getFlags() const;
 
 private:
 	GFlags<ConfigFlags> flags;
@@ -147,23 +143,11 @@ private:
 class GBaseClassMap
 {
 private:
-	struct MapItem {
-		void * instance;
-	};
-
-	typedef GStringMap<MapItem, GStringMapReuseKey> MapType;
+	typedef GStringMap<void *, GStringMapReuseKey> MapType;
 
 public:
-	bool hasMetaClass(void * instance, IMetaClass * metaClass) const {
-		MapType::const_iterator it = this->itemMap.find(metaClass->getTypeName());
-		return it != this->itemMap.end() && it->second.instance == instance;
-	}
-
-	void addMetaClass(void * instance, IMetaClass * metaClass) {
-		MapItem item;
-		item.instance = instance;
-		this->itemMap.set(metaClass->getTypeName(), item);
-	}
+	bool hasMetaClass(void * instance, IMetaClass * metaClass) const;
+	void addMetaClass(void * instance, IMetaClass * metaClass);
 
 private:
 	MapType itemMap;

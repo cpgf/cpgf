@@ -17,7 +17,7 @@ namespace {
 template <typename AR>
 void doTestSimpleObject(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClass"));
 
@@ -28,7 +28,7 @@ void doTestSimpleObject(IMetaService * service, IMetaWriter * writer, IMetaReade
 
 	ar.rewind();
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service, reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader));
 	
 	TestSerializeClass readInstance;
 	

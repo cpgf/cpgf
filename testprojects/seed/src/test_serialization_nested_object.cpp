@@ -96,8 +96,8 @@ void doTestNestedObject(IMetaService * service, IMetaWriter * writer, IMetaReade
 {
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassC"));
 
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig().getFlags(), service, writer));
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig().getFlags(), service, reader));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader));
 
 	C instance;
 	instance.init();
