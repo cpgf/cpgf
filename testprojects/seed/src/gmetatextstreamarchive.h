@@ -294,6 +294,10 @@ protected:
 	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length) {
 		(void)name;
 		
+		this->writeType(ptArray);
+		
+		this->writeDelimiter();
+
 		this->writeDelimiter();
 		this->stream << static_cast<uint32_t>(length);
 	}
@@ -361,6 +365,8 @@ private:
 		long mark;
 	};
 
+    friend class StreamMarker;
+
 public:
 	GTextStreamMetaReader(IMetaService * service, Stream & stream)
 		: service(service), stream(stream), variantTypeMap(defaultVariantTypeMap)
@@ -389,7 +395,7 @@ protected:
 				return matObject;
 
 			case ptString:
-				return matString;
+				return matCustomized;
 
 			case ptReferenceID:
 				return matReferenceObject;
@@ -501,6 +507,9 @@ protected:
 
 	virtual uint32_t G_API_CC beginReadArray(const char * name) {
 		(void)name;
+
+		PermanentType type = this->readType();
+		checkType(type, ptArray);
 
 		uint16_t length;
 		this->stream >> length;

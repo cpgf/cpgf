@@ -25,8 +25,9 @@ enum GMetaArchiveItemType {
 	matReferenceObject = 2,
 	matClassType = 3,
 	matFundamental = 4,
-	matString = 5,
+	matCustomized = 5,
 };
+
 
 struct IMetaArchiveWriter;
 struct IMetaArchiveReader;
@@ -137,20 +138,6 @@ public:
 
 private:
 	GFlags<ConfigFlags> flags;
-};
-
-
-class GBaseClassMap
-{
-private:
-	typedef GStringMap<void *, GStringMapReuseKey> MapType;
-
-public:
-	bool hasMetaClass(void * instance, IMetaClass * metaClass) const;
-	void addMetaClass(void * instance, IMetaClass * metaClass);
-
-private:
-	MapType itemMap;
 };
 
 

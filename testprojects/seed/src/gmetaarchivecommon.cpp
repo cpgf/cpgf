@@ -1,10 +1,25 @@
 #include "gmetaarchivecommon.h"
+#include "gmetaarchivecommonimpl.h"
+
 #include "cpgf/gstdint.h"
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gfixedtype.h"
 
 
 namespace cpgf {
+
+
+bool GBaseClassMap::hasMetaClass(void * instance, IMetaClass * metaClass) const
+{
+	MapType::const_iterator it = this->itemMap.find(metaClass->getTypeName());
+	return it != this->itemMap.end() && it->second == instance;
+}
+
+void GBaseClassMap::addMetaClass(void * instance, IMetaClass * metaClass)
+{
+	this->itemMap.set(metaClass->getTypeName(), instance);
+}
+
 
 
 GMetaArchiveConfig::GMetaArchiveConfig() : flags(defaultConfig)
@@ -47,18 +62,6 @@ bool GMetaArchiveConfig::allowSerializeProperty() const
 uint32_t GMetaArchiveConfig::getFlags() const
 {
 	return this->flags;
-}
-
-
-bool GBaseClassMap::hasMetaClass(void * instance, IMetaClass * metaClass) const
-{
-	MapType::const_iterator it = this->itemMap.find(metaClass->getTypeName());
-	return it != this->itemMap.end() && it->second == instance;
-}
-
-void GBaseClassMap::addMetaClass(void * instance, IMetaClass * metaClass)
-{
-	this->itemMap.set(metaClass->getTypeName(), instance);
 }
 
 
@@ -153,21 +156,29 @@ void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, 
 #pragma warning(disable:4800) // warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
 #endif
 
+// C++ builder doesn't like typename below
+#ifdef G_COMPILER_CPPBUILDER
+	#define TYPENAME
+#else
+	#define TYPENAME typename
+#endif
+
+
 template <typename T>
 GVariant doReadInteger(const void * address, unsigned int size)
 {
 	switch(size) {
 		case 1:
-			return (T)(*(typename GIfElse<IsSigned<T>::Result, GFixedTypeInt8::Signed, GFixedTypeInt8::Unsigned>::Result *)(address));
+			return (T)(*(TYPENAME GIfElse<IsSigned<T>::Result, GFixedTypeInt8::Signed, GFixedTypeInt8::Unsigned>::Result *)(address));
 
 		case 2:
-			return (T)(*(typename GIfElse<IsSigned<T>::Result, GFixedTypeInt16::Signed, GFixedTypeInt16::Unsigned>::Result *)(address));
+			return (T)(*(TYPENAME GIfElse<IsSigned<T>::Result, GFixedTypeInt16::Signed, GFixedTypeInt16::Unsigned>::Result *)(address));
 
 		case 4:
-			return (T)(*(typename GIfElse<IsSigned<T>::Result, GFixedTypeInt32::Signed, GFixedTypeInt32::Unsigned>::Result *)(address));
+			return (T)(*(TYPENAME GIfElse<IsSigned<T>::Result, GFixedTypeInt32::Signed, GFixedTypeInt32::Unsigned>::Result *)(address));
 
 		case 8:
-			return (T)(*(typename GIfElse<IsSigned<T>::Result, GFixedTypeInt64::Signed, GFixedTypeInt64::Unsigned>::Result *)(address));
+			return (T)(*(TYPENAME GIfElse<IsSigned<T>::Result, GFixedTypeInt64::Signed, GFixedTypeInt64::Unsigned>::Result *)(address));
 	}
 
 	GASSERT(false);
@@ -252,19 +263,19 @@ void doWriteInteger(void * address, unsigned int size, const GVariant & v)
 {
 	switch(size) {
 		case 1:
-			*(typename GIfElse<IsSigned<T>::Result, GFixedTypeInt8::Signed, GFixedTypeInt8::Unsigned>::Result *)(address) = fromVariant<typename GIfElse<IsSigned<T>::Result, GFixedTypeInt8::Signed, GFixedTypeInt8::Unsigned>::Result>(v);
+			*(TYPENAME GIfElse<IsSigned<T>::Result, GFixedTypeInt8::Signed, GFixedTypeInt8::Unsigned>::Result *)(address) = fromVariant<TYPENAME GIfElse<IsSigned<T>::Result, GFixedTypeInt8::Signed, GFixedTypeInt8::Unsigned>::Result>(v);
 			break;
 
 		case 2:
-			*(typename GIfElse<IsSigned<T>::Result, GFixedTypeInt16::Signed, GFixedTypeInt16::Unsigned>::Result *)(address) = fromVariant<typename GIfElse<IsSigned<T>::Result, GFixedTypeInt16::Signed, GFixedTypeInt16::Unsigned>::Result>(v);
+			*(TYPENAME GIfElse<IsSigned<T>::Result, GFixedTypeInt16::Signed, GFixedTypeInt16::Unsigned>::Result *)(address) = fromVariant<TYPENAME GIfElse<IsSigned<T>::Result, GFixedTypeInt16::Signed, GFixedTypeInt16::Unsigned>::Result>(v);
 			break;
 
 		case 4:
-			*(typename GIfElse<IsSigned<T>::Result, GFixedTypeInt32::Signed, GFixedTypeInt32::Unsigned>::Result *)(address) = fromVariant<typename GIfElse<IsSigned<T>::Result, GFixedTypeInt32::Signed, GFixedTypeInt32::Unsigned>::Result>(v);
+			*(TYPENAME GIfElse<IsSigned<T>::Result, GFixedTypeInt32::Signed, GFixedTypeInt32::Unsigned>::Result *)(address) = fromVariant<TYPENAME GIfElse<IsSigned<T>::Result, GFixedTypeInt32::Signed, GFixedTypeInt32::Unsigned>::Result>(v);
 			break;
 
 		case 8:
-			*(typename GIfElse<IsSigned<T>::Result, GFixedTypeInt64::Signed, GFixedTypeInt64::Unsigned>::Result *)(address) = fromVariant<typename GIfElse<IsSigned<T>::Result, GFixedTypeInt64::Signed, GFixedTypeInt64::Unsigned>::Result>(v);
+			*(TYPENAME GIfElse<IsSigned<T>::Result, GFixedTypeInt64::Signed, GFixedTypeInt64::Unsigned>::Result *)(address) = fromVariant<TYPENAME GIfElse<IsSigned<T>::Result, GFixedTypeInt64::Signed, GFixedTypeInt64::Unsigned>::Result>(v);
 			break;
 
 		default:
@@ -357,9 +368,6 @@ void writeFundamental(void * address, const GMetaType & metaType, const GVariant
 	}
 }
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 
 
 } // namespace cpgf

@@ -45,6 +45,8 @@ enum PermanentType {
 	ptNull = 50, // for null pointer
 	ptReferenceID = 51, // for one pointer reference to another
 	ptClassType = 52, // for class type definition
+	
+	ptArray = 53,
 
 };
 

@@ -121,7 +121,7 @@ template <typename Head, typename Tail, typename T>
 struct TypeList_IndexOf<GTypeList<Head, Tail>, T>
 {
 private:
-    enum { temp = TypeList_IndexOf<Tail, T>::Result };
+    G_STATIC_CONSTANT(int, temp = (TypeList_IndexOf<Tail, T>::Result));
 public:
     G_STATIC_CONSTANT(int, Result = (temp == -1 ? -1 : 1 + temp));
 };

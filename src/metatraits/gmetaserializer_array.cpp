@@ -12,6 +12,8 @@ namespace cpgf {
 
 namespace metatraits_internal {
 
+const char * const elementName = "item";
+
 class GMetaSerializerArray : public IMetaSerializer
 {
 	G_INTERFACE_IMPL_OBJECT
@@ -34,7 +36,7 @@ public:
 				}
 			}
 			
-			if(this->classType == "") {
+			if(this->classType.size() == 0) {
 				return NULL;
 			}
 			else {
@@ -54,7 +56,7 @@ public:
 			else {
 				ptr = instance;
 			}
-			archiveWriter->writeObject("", ptr, &typeData, this->elementSerializer.get());
+			archiveWriter->writeObject(elementName, ptr, &typeData, this->elementSerializer.get());
 			instance = static_cast<const char *>(instance) + this->elementSize;
 		}
 		
@@ -75,7 +77,7 @@ public:
 
 		GMetaTypeData typeData = this->metaType.getData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
-			archiveReader->readObject("", instance, &typeData, this->elementSerializer.get());
+			archiveReader->readObject(elementName, instance, &typeData, this->elementSerializer.get());
 			instance = static_cast<char *>(instance) + this->elementSize;
 		}
 

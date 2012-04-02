@@ -39,11 +39,11 @@ public:
 		(void)archiveReader;
 		(void)metaClass;
 
-		archiveReader->trackPointer(archiveID, instance);
-
 		char * s = metaReader->readString(name, archiveReader->getAllocator(), &archiveID);
 		*static_cast<std::string *>(instance) = s;
 		archiveReader->getAllocator()->free(s);
+		
+		archiveReader->trackPointer(archiveID, instance);
 	}
 };
 
