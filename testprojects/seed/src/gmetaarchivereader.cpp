@@ -1,3 +1,4 @@
+#include "gmetaarchivereader.h"
 #include "gmetaarchivecommon.h"
 #include "gmetaarchivecommonimpl.h"
 
@@ -339,6 +340,7 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 
 		case matFundamental: {
 			if(metaType.isFundamental()) {
+				vtSetType(data.typeData, metaType.getVariantType());
 				this->reader->readFundamental(name, &archiveID, &data);
 				writeFundamental(address, metaType, GVariant(data));
 			}
@@ -522,6 +524,14 @@ IMetaArchiveReader * createMetaArchiveReader(uint32_t config, IMetaService * ser
 {
 	return new GMetaArchiveReader(GMetaArchiveConfig(config), service, reader);
 }
+
+
+void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaClass * metaClass)
+{
+	GMetaTypeData metaType = metaGetItemType(metaClass).getData();
+	archiveReader->readObject(name, instance, &metaType, NULL);
+}
+
 
 
 } // namespace cpgf

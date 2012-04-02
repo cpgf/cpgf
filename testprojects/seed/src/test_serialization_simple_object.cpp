@@ -1,3 +1,6 @@
+#include "gmetaarchivereader.h"
+#include "gmetaarchivewriter.h"
+
 #include "testserializationcommon.h"
 #include "testserializationcommonclasses.h"
 #include "cpgf/gmetadefine.h"
@@ -17,6 +20,8 @@ namespace {
 template <typename AR>
 void doTestSimpleObject(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
+	const char * const serializeObjectName = "simpleObject";
+	
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClass"));
@@ -24,7 +29,7 @@ void doTestSimpleObject(IMetaService * service, IMetaWriter * writer, IMetaReade
 	TestSerializeClass instance;
 	instance.set(38);
 
-	serializeWriteObjectValue(archiveWriter.get(), "obj", &instance, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	ar.rewind();
 	
@@ -36,7 +41,7 @@ void doTestSimpleObject(IMetaService * service, IMetaWriter * writer, IMetaReade
 
 	readInstance.pself = NULL;
 	readInstance.pnull = (string *)0xbeef;
-	serializeReadObject(archiveReader.get(), "", &readInstance, metaClass.get());
+	serializeReadObject(archiveReader.get(), serializeObjectName, &readInstance, metaClass.get());
 
 	GEQUAL(instance, readInstance);
 }
@@ -51,10 +56,10 @@ GTEST(TestSimpleObject)
 
 	stringstream stream;
 
-	GTextStreamMetaWriter<stringstream> outputStream(stream);
-	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
+	GScopedInterface<IMetaWriter> outputStream(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaReader> inputStream(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestSimpleObject(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
+	doTestSimpleObject(service.get(), outputStream.get(), inputStream.get(), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

@@ -2,6 +2,7 @@
 #define __GMETAFUNDAMENTAL_H
 
 #include "cpgf/private/gmetafundamental_p.h"
+#include "cpgf/gmetatype.h"
 
 
 namespace cpgf {
@@ -39,6 +40,8 @@ private:
 private:
 	char dataBuffer[sizeof(meta_internal::GMetaFundamentalDataImplement<int>)];
 };
+
+
 
 
 } // namespace cpgf

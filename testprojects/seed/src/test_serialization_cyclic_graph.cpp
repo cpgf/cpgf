@@ -1,3 +1,6 @@
+#include "gmetaarchivereader.h"
+#include "gmetaarchivewriter.h"
+
 #include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
 
@@ -118,6 +121,8 @@ void register_TestSerializeClass(Define define)
 template <typename AR>
 void doTestCyclicGraph(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
+	const char * const serializeObjectName = "cyclicGraph";
+	
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassA"));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
@@ -128,7 +133,7 @@ void doTestCyclicGraph(IMetaService * service, IMetaWriter * writer, IMetaReader
 	
 	GCHECK(instance.verify());
 
-	serializeWriteObjectValue(archiveWriter.get(), "", &instance, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	ar.rewind();
 
@@ -136,7 +141,7 @@ void doTestCyclicGraph(IMetaService * service, IMetaWriter * writer, IMetaReader
 	
 	GCHECK(! readInstance.verify());
 	
-	serializeReadObject(archiveReader.get(), "", &readInstance, metaClass.get());
+	serializeReadObject(archiveReader.get(), serializeObjectName, &readInstance, metaClass.get());
 	
 	GCHECK(readInstance.verify());
 }
@@ -151,10 +156,10 @@ GTEST(testCyclicGraph)
 
 	stringstream stream;
 
-	GTextStreamMetaWriter<stringstream> outputStream(stream);
-	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
+	GScopedInterface<IMetaWriter> outputStream(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaReader> inputStream(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestCyclicGraph(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
+	doTestCyclicGraph(service.get(), outputStream.get(), inputStream.get(), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

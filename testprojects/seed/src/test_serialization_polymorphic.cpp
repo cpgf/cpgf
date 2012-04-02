@@ -1,3 +1,6 @@
+#include "gmetaarchivereader.h"
+#include "gmetaarchivewriter.h"
+
 #include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
 
@@ -115,6 +118,8 @@ void register_TestSerializeClass(Define define)
 template <typename AR>
 void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
+	const char * const serializeObjectName = "polymorphic";
+	
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassR"));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
@@ -129,7 +134,7 @@ void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, IMetaReader
 	pb1->a = 15;
 	pb1->b = 16;
 
-	serializeWriteObjectValue(archiveWriter.get(), "", &instance1, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance1, metaClass.get());
 
 	R instance2;
 	instance2.r = 68;
@@ -138,7 +143,7 @@ void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, IMetaReader
 	pd2->a = 25;
 	pd2->d = 26;
 
-	serializeWriteObjectValue(archiveWriter.get(), "", &instance2, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance2, metaClass.get());
 
 	// read
 
@@ -146,7 +151,7 @@ void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, IMetaReader
 
 	R readInstance1;
 
-	serializeReadObject(archiveReader.get(), "", &readInstance1, metaClass.get());
+	serializeReadObject(archiveReader.get(), serializeObjectName, &readInstance1, metaClass.get());
 
 	GCHECK(readInstance1.pa != NULL);
 	GEQUAL(CB, readInstance1.pa->get());
@@ -156,7 +161,7 @@ void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, IMetaReader
 
 	R readInstance2;
 
-	serializeReadObject(archiveReader.get(), "", &readInstance2, metaClass.get());
+	serializeReadObject(archiveReader.get(), serializeObjectName, &readInstance2, metaClass.get());
 
 	GCHECK(readInstance2.pa != NULL);
 	GEQUAL(CD, readInstance2.pa->get());
@@ -175,10 +180,10 @@ GTEST(testPolymorphic)
 
 	stringstream stream;
 
-	GTextStreamMetaWriter<stringstream> outputStream(stream);
-	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
+	GScopedInterface<IMetaWriter> outputStream(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaReader> inputStream(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestPolymorphic(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
+	doTestPolymorphic(service.get(), outputStream.get(), inputStream.get(), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

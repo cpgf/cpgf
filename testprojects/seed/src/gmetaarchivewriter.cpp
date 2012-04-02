@@ -1,3 +1,4 @@
+#include "gmetaarchivewriter.h"
 #include "gmetaarchivecommon.h"
 #include "gmetaarchivecommonimpl.h"
 
@@ -56,7 +57,7 @@ protected:
 	GMetaArchiveWriterPointerTracker * getPointerTracker();
 	GMetaArchiveWriterClassTypeTracker * getClassTypeTracker();
 	
-	bool checkTrackedPointer(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, int pointers);
+	bool checkTrackedPointer(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, int pointers);
 
 private:
 	GMetaArchiveConfig config;
@@ -235,7 +236,7 @@ void GMetaArchiveWriter::writeObjectHelper(const char * name, const void * insta
 	uint32_t classTypeID = this->getClassTypeID(instance, metaClass, pointers, &outCastedMetaClass);
 	GScopedInterface<IMetaClass> castedMetaClass(outCastedMetaClass);
 
-	if(this->checkTrackedPointer(archiveID, instance, castedMetaClass.get(), serializer, pointers)) {
+	if(this->checkTrackedPointer(name, archiveID, instance, castedMetaClass.get(), serializer, pointers)) {
 		return;
 	}
 
@@ -424,7 +425,7 @@ void GMetaArchiveWriter::doWriteValue(const char * name, const void * address, c
 	}
 }
 
-bool GMetaArchiveWriter::checkTrackedPointer(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, int pointers)
+bool GMetaArchiveWriter::checkTrackedPointer(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, int pointers)
 {
 	if(this->config.allowTrackPointer()) {
 		const char * typeName = NULL;
@@ -454,7 +455,7 @@ bool GMetaArchiveWriter::checkTrackedPointer(uint32_t archiveID, const void * in
 					archiveID = this->getNextArchiveID();
 				}
 
-				this->writer->writeReferenceID("", archiveID, referenceID);
+				this->writer->writeReferenceID(name, archiveID, referenceID);
 			}
 				return true;
 		}
@@ -500,7 +501,7 @@ uint32_t GMetaArchiveWriter::getClassTypeID(const void * instance, IMetaClass * 
 				else {
 					classTypeID = this->getNextArchiveID();
 					this->getClassTypeTracker()->addClassType(typeName, classTypeID);
-					this->writer->writeClassType("", classTypeID, castedMetaClass.get());
+					this->writer->writeClassType(classTypeID, castedMetaClass.get());
 				}
 				*outCastedMetaClass = castedMetaClass.take();
 			}
@@ -555,6 +556,32 @@ IMetaArchiveWriter * createMetaArchiveWriter(uint32_t config, IMetaService * ser
 {
 	return new GMetaArchiveWriter(GMetaArchiveConfig(config), service, writer);
 }
+
+
+void serializeWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
+{
+	GMetaTypeData metaType = metaGetItemType(metaClass).getData();
+	GScopedInterface<IMetaSerializer> serializer;
+	if(metaClass != NULL) {
+		serializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
+	}
+	archiveWriter->writeObject(name, instance, &metaType, serializer.get());
+}
+
+void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
+{
+	GMetaType metaType(metaGetItemType(metaClass));
+	if(! metaType.isPointer()) {
+		metaType.addPointer();
+	}
+	GMetaTypeData metaTypeData = metaType.getData();
+	GScopedInterface<IMetaSerializer> serializer;
+	if(metaClass != NULL) {
+		serializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
+	}
+	archiveWriter->writeObject(name, instance, &metaTypeData, serializer.get());
+}
+
 
 
 } // namespace cpgf

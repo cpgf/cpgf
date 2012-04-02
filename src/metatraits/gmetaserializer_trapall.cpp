@@ -1,5 +1,7 @@
 #include "cpgf/metatraits/gmetaserializer_trapall.h"
 #include "../../testprojects/seed/src/gmetaarchivecommon.h"
+#include "../../testprojects/seed/src/gmetaarchivereader.h"
+#include "../../testprojects/seed/src/gmetaarchivewriter.h"
 
 
 namespace cpgf {

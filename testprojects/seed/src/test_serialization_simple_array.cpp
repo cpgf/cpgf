@@ -1,3 +1,6 @@
+#include "gmetaarchivereader.h"
+#include "gmetaarchivewriter.h"
+
 #include "testserializationcommonclasses.h"
 #include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
@@ -224,10 +227,10 @@ GTEST(testSimpleArray)
 
 	stringstream stream;
 
-	GTextStreamMetaWriter<stringstream> outputStream(stream);
-	GTextStreamMetaReader<stringstream> inputStream(NULL, stream);
+	GScopedInterface<IMetaWriter> outputStream(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaReader> inputStream(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestSimpleArray(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
+	doTestSimpleArray(service.get(), outputStream.get(), inputStream.get(), TestArchiveStream<stringstream>(stream));
 
 //	cout << stream.str().c_str() << endl;
 }

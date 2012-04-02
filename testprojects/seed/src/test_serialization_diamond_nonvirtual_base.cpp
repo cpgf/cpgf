@@ -1,3 +1,6 @@
+#include "gmetaarchivereader.h"
+#include "gmetaarchivewriter.h"
+
 #include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
 
@@ -121,6 +124,8 @@ void register_TestSerializeClass(Define define)
 template <typename AR>
 void doTestMultipleInheritance(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
+	const char * const serializeObjectName = "multipleInheritance";
+	
 	readCount = 0;
 	writeCount = 0;
 
@@ -135,7 +140,7 @@ void doTestMultipleInheritance(IMetaService * service, IMetaWriter * writer, IMe
 	instance.c = 0x3c;
 	instance.d = 0x4d;
 
-	serializeWriteObjectValue(archiveWriter.get(), "obj", &instance, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	ar.rewind();
 	
@@ -145,7 +150,7 @@ void doTestMultipleInheritance(IMetaService * service, IMetaWriter * writer, IMe
 	
 	GCHECK(instance != readInstance);
 
-	serializeReadObject(archiveReader.get(), "", &readInstance, metaClass.get());
+	serializeReadObject(archiveReader.get(), serializeObjectName, &readInstance, metaClass.get());
 
 	GEQUAL(instance, readInstance);
 
@@ -163,10 +168,10 @@ GTEST(testMultipleInheritance)
 
 	stringstream stream;
 
-	GTextStreamMetaWriter<stringstream> outputStream(stream);
-	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
+	GScopedInterface<IMetaWriter> outputStream(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaReader> inputStream(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestMultipleInheritance(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
+	doTestMultipleInheritance(service.get(), outputStream.get(), inputStream.get(), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

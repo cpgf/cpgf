@@ -1,3 +1,6 @@
+#include "gmetaarchivereader.h"
+#include "gmetaarchivewriter.h"
+
 #include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
 
@@ -94,6 +97,8 @@ void register_TestSerializeClass(Define define)
 template <typename AR>
 void doTestNestedObject(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
+	const char * const serializeObjectName = "nestedObject";
+	
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassC"));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
@@ -104,10 +109,10 @@ void doTestNestedObject(IMetaService * service, IMetaWriter * writer, IMetaReade
 
 	C * pinstance = &instance;
 	
-	serializeWriteObjectPointer(archiveWriter.get(), "", pinstance, metaClass.get());
+	serializeWriteObjectPointer(archiveWriter.get(), serializeObjectName, pinstance, metaClass.get());
 	// should error
 	GBEGIN_EXCEPTION
-		serializeWriteObjectValue(archiveWriter.get(), "", &instance, metaClass.get());
+		serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 	GEND_EXCEPTION(...)
 
 	ar.rewind();
@@ -129,10 +134,10 @@ GTEST(testNestedObject)
 
 	stringstream stream;
 
-	GTextStreamMetaWriter<stringstream> outputStream(stream);
-	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
+	GScopedInterface<IMetaWriter> outputStream(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaReader> inputStream(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestNestedObject(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
+	doTestNestedObject(service.get(), outputStream.get(), inputStream.get(), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

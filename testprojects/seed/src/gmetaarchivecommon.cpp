@@ -121,36 +121,6 @@ void serializeError(int errorCode, ...)
 	raiseFormatException(errorCode, "Serialize error: %d.", errorCode);
 }
 
-void serializeWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
-{
-	GMetaTypeData metaType = metaGetItemType(metaClass).getData();
-	GScopedInterface<IMetaSerializer> serializer;
-	if(metaClass != NULL) {
-		serializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
-	}
-	archiveWriter->writeObject(name, instance, &metaType, serializer.get());
-}
-
-void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
-{
-	GMetaType metaType(metaGetItemType(metaClass));
-	if(! metaType.isPointer()) {
-		metaType.addPointer();
-	}
-	GMetaTypeData metaTypeData = metaType.getData();
-	GScopedInterface<IMetaSerializer> serializer;
-	if(metaClass != NULL) {
-		serializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
-	}
-	archiveWriter->writeObject(name, instance, &metaTypeData, serializer.get());
-}
-
-void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaClass * metaClass)
-{
-	GMetaTypeData metaType = metaGetItemType(metaClass).getData();
-	archiveReader->readObject(name, instance, &metaType, NULL);
-}
-
 #if defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable:4800) // warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
@@ -188,9 +158,8 @@ GVariant doReadInteger(const void * address, unsigned int size)
 
 GVariant readFundamental(const void * address, const GMetaType & metaType)
 {
-	GVarTypeData typeData = metaType.getTypeData();
-	unsigned int size = vtGetSize(typeData);
-	if(vtIsReal(vtGetType(typeData))) {
+	size_t size = metaType.getVariantSize();
+	if(vtIsReal(metaType.getVariantType())) {
 		switch(size) {
 			case 4:
 				return *(GFixedTypeFloat32::Signed *)(address);
@@ -208,7 +177,7 @@ GVariant readFundamental(const void * address, const GMetaType & metaType)
 		}
 	}
 	else {
-		switch(vtGetType(typeData)) {
+		switch(metaType.getVariantType()) {
 			case vtBool:
 				return doReadInteger<bool>(address, size);
 
@@ -285,9 +254,8 @@ void doWriteInteger(void * address, unsigned int size, const GVariant & v)
 
 void writeFundamental(void * address, const GMetaType & metaType, const GVariant & v)
 {
-	GVarTypeData typeData = metaType.getTypeData();
-	unsigned int size = vtGetSize(typeData);
-	if(vtIsReal(vtGetType(typeData))) {
+	size_t size = metaType.getVariantSize();;
+	if(vtIsReal(metaType.getVariantType())) {
 		switch(size) {
 			case 4:
 				*(GFixedTypeFloat32::Signed *)(address) = fromVariant<GFixedTypeFloat32::Signed>(v);
@@ -307,7 +275,7 @@ void writeFundamental(void * address, const GMetaType & metaType, const GVariant
 		}
 	}
 	else {
-		switch(vtGetType(typeData)) {
+		switch(metaType.getVariantType()) {
 			case vtBool:
 				doWriteInteger<bool>(address, size, v);
 				break;

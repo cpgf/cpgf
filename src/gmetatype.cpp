@@ -186,9 +186,9 @@ GVariantType GMetaType::getVariantType() const
 	return vtGetType(this->typeData);
 }
 
-GVarTypeData GMetaType::getTypeData() const
+size_t GMetaType::getVariantSize() const
 {
-	return this->typeData;
+	return vtGetSize(this->typeData);
 }
 
 GMetaTypeData GMetaType::getData() const

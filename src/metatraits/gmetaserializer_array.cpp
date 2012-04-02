@@ -1,5 +1,7 @@
 #include "cpgf/metatraits/gmetaserializer.h"
 #include "../../testprojects/seed/src/gmetaarchivecommon.h"
+#include "../../testprojects/seed/src/gmetaarchivereader.h"
+#include "../../testprojects/seed/src/gmetaarchivewriter.h"
 
 
 #include <string>

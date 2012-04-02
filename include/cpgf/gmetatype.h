@@ -128,9 +128,8 @@ public:
 	unsigned int getPointerDimension() const;
 	
 	GVariantType getVariantType() const;
+	size_t getVariantSize() const;
 
-	GVarTypeData getTypeData() const;
-	
 	GMetaTypeData getData() const;
 
 	void addPointer();

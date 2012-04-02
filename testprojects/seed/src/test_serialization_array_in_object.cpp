@@ -1,3 +1,6 @@
+#include "gmetaarchivereader.h"
+#include "gmetaarchivewriter.h"
+
 #include "testserializationcommon.h"
 #include "testserializationcommonclasses.h"
 #include "cpgf/gmetadefine.h"
@@ -17,6 +20,8 @@ namespace {
 template <typename AR>
 void doTestArrayInObject(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
 {
+	const char * const serializeObjectName = "arrayInObject";
+
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeArray"));
@@ -24,7 +29,7 @@ void doTestArrayInObject(IMetaService * service, IMetaWriter * writer, IMetaRead
 	TestSerializeArray instance;
 	instance.init();
 
-	serializeWriteObjectValue(archiveWriter.get(), "obj", &instance, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	ar.rewind();
 	
@@ -34,7 +39,7 @@ void doTestArrayInObject(IMetaService * service, IMetaWriter * writer, IMetaRead
 	
 	GCHECK(! (instance == readInstance));
 
-	serializeReadObject(archiveReader.get(), "obj", &readInstance, metaClass.get());
+	serializeReadObject(archiveReader.get(), serializeObjectName, &readInstance, metaClass.get());
 
 	GEQUAL(instance, readInstance);
 }
@@ -50,10 +55,10 @@ GTEST(testArrayInObject)
 
 	stringstream stream;
 
-	GTextStreamMetaWriter<stringstream> outputStream(stream);
-	GTextStreamMetaReader<stringstream> inputStream(service.get(), stream);
+	GScopedInterface<IMetaWriter> outputStream(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaReader> inputStream(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestArrayInObject(service.get(), &outputStream, &inputStream, TestArchiveStream<stringstream>(stream));
+	doTestArrayInObject(service.get(), outputStream.get(), inputStream.get(), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }
