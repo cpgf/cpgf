@@ -235,7 +235,9 @@ protected:
 		(void)archiveID;
 
 		this->writeType(ptString);
+		this->writeDelimiter();
 		
+		this->stream << static_cast<uint32_t>(archiveID);
 		this->writeDelimiter();
 
 		this->doWriteString(value);
@@ -247,7 +249,7 @@ protected:
 		this->writeType(ptNull);
 	}
 
-	virtual void G_API_CC beginWriteObject(const GMetaArchiveObjectInformation * objectInformation) {
+	virtual void G_API_CC beginWriteObject(GMetaArchiveWriterParam * param) {
 		if(this->delimiter != dtNone) {
 			this->stream << '\n';
 			this->delimiter = dtNone;
@@ -255,13 +257,13 @@ protected:
 
 		this->writeType(ptObject);
 		this->writeDelimiter();
-		this->stream << static_cast<uint32_t>(objectInformation->classTypeID);
+		this->stream << static_cast<uint32_t>(param->classTypeID);
 		this->writeDelimiter();
-		this->stream << static_cast<uint32_t>(objectInformation->archiveID);
+		this->stream << static_cast<uint32_t>(param->archiveID);
 	}
 
-	virtual void G_API_CC endWriteObject(const GMetaArchiveObjectInformation * objectInformation) {
-		(void)objectInformation;
+	virtual void G_API_CC endWriteObject(GMetaArchiveWriterParam * param) {
+		(void)param;
 
 		this->delimiter = dtNewline;
 	}
@@ -294,11 +296,15 @@ protected:
 	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length) {
 		(void)name;
 		
+		if(this->delimiter != dtNone) {
+			this->stream << '\n';
+			this->delimiter = dtNone;
+		}
+
 		this->writeType(ptArray);
 		
 		this->writeDelimiter();
 
-		this->writeDelimiter();
 		this->stream << static_cast<uint32_t>(length);
 	}
 
@@ -445,6 +451,9 @@ protected:
 		PermanentType type = this->readType();
 		checkType(type, ptString);
 
+		this->stream >> *outArchiveID;
+		this->skipDelimiter();
+		
 		return this->doReadString(allocator);
 	}
 
@@ -457,21 +466,28 @@ protected:
 		return NULL;
 	}
 
-	virtual void G_API_CC beginReadObject(GMetaArchiveObjectInformation * objectInformation) {
+	virtual uint32_t G_API_CC beginReadObject(GMetaArchiveReaderParam * param) {
+		(void)param;
+
 		PermanentType type = this->readType();
 		checkType(type, ptObject);
 
-		this->stream >> objectInformation->classTypeID;
+		uint32_t classTypeID;
+		uint32_t archiveID;
+
+		this->stream >> classTypeID;
 		
 		this->skipDelimiter();
 		
-		this->stream >> objectInformation->archiveID;
+		this->stream >> archiveID;
 		
 		this->skipDelimiter();
+
+		return archiveID;
 	}
 
-	virtual void G_API_CC endReadObject(const GMetaArchiveObjectInformation * objectInformation) {
-		(void)objectInformation;
+	virtual void G_API_CC endReadObject(GMetaArchiveReaderParam * param) {
+		(void)param;
 
 	}
 
@@ -513,7 +529,6 @@ protected:
 
 		uint16_t length;
 		this->stream >> length;
-		this->skipDelimiter();
 
 		return length;
 	}

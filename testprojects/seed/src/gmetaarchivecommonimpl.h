@@ -43,12 +43,16 @@ public:
 		this->headerStack.pop();
 	}
 	
-	bool needHeader() const {
+	bool needBegin() const {
 		return (! this->headerStack.empty()) && ! this->headerStack.top();
 	}
 	
+	bool needEnd() const {
+		return ! this->needBegin();
+	}
+	
 	void addedHeader() {
-		if(this->needHeader()) {
+		if(this->needBegin()) {
 			this->headerStack.pop();
 			this->headerStack.push(true);
 		}

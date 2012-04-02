@@ -145,7 +145,7 @@ void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, IMetaReader
 	ar.rewind();
 
 	R readInstance1;
-	
+
 	serializeReadObject(archiveReader.get(), "", &readInstance1, metaClass.get());
 
 	GCHECK(readInstance1.pa != NULL);

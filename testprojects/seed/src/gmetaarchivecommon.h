@@ -32,14 +32,29 @@ enum GMetaArchiveItemType {
 struct IMetaArchiveWriter;
 struct IMetaArchiveReader;
 
-struct GMetaArchiveObjectInformation
+#pragma pack(push, 1)
+#pragma pack(1)
+
+struct GMetaArchiveWriterParam
 {
 	const char * name;
 	uint32_t archiveID;
-	uint32_t classTypeID;
 	const void * instance;
 	IMetaClass * metaClass;
+	IMetaSerializer * serializer;
+	uint32_t classTypeID;
+	uint32_t pointers;
 };
+
+struct GMetaArchiveReaderParam
+{
+	const char * name;
+	void * instance;
+	IMetaClass * metaClass;
+};
+
+#pragma pack(pop)
+
 
 struct IMetaWriter : public IObject
 {
@@ -47,8 +62,8 @@ struct IMetaWriter : public IObject
 	virtual void G_API_CC writeString(const char * name, uint32_t archiveID, const char * value) = 0;
 	virtual void G_API_CC writeNullPointer(const char * name) = 0;
 
-	virtual void G_API_CC beginWriteObject(const GMetaArchiveObjectInformation * objectInformation) = 0;
-	virtual void G_API_CC endWriteObject(const GMetaArchiveObjectInformation * objectInformation) = 0;
+	virtual void G_API_CC beginWriteObject(GMetaArchiveWriterParam * param) = 0;
+	virtual void G_API_CC endWriteObject(GMetaArchiveWriterParam * param) = 0;
 
 	virtual void G_API_CC writeReferenceID(const char * name, uint32_t archiveID, uint32_t referenceArchiveID) = 0;
 	virtual void G_API_CC writeClassType(const char * name, uint32_t archiveID, IMetaClass * metaClass) = 0;
@@ -66,8 +81,8 @@ struct IMetaReader : public IObject
 	virtual char * G_API_CC readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID) = 0;
 	virtual void * G_API_CC readNullPointer(const char * name) = 0;
 
-	virtual void G_API_CC beginReadObject(GMetaArchiveObjectInformation * objectInformation) = 0;
-	virtual void G_API_CC endReadObject(const GMetaArchiveObjectInformation * objectInformation) = 0;
+	virtual uint32_t G_API_CC beginReadObject(GMetaArchiveReaderParam * param) = 0;
+	virtual void G_API_CC endReadObject(GMetaArchiveReaderParam * param) = 0;
 
 	virtual uint32_t G_API_CC readReferenceID(const char * name) = 0;
 	virtual IMetaClass * G_API_CC readClassType(const char * name, uint32_t * outArchiveID) = 0;
@@ -87,8 +102,8 @@ struct IMetaArchiveWriter : public IExtendObject
 
 	virtual void G_API_CC trackPointer(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, uint32_t pointers) = 0;
 
-	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, uint32_t classTypeID) = 0;
-	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, uint32_t classTypeID) = 0;
+	virtual void G_API_CC beginWriteObject(GMetaArchiveWriterParam * param) = 0;
+	virtual void G_API_CC endWriteObject(GMetaArchiveWriterParam * param) = 0;
 };
 
 struct IMetaArchiveReader : public IExtendObject
@@ -101,8 +116,8 @@ struct IMetaArchiveReader : public IExtendObject
 
 	virtual void G_API_CC trackPointer(uint32_t archiveID, void * instance) = 0;
 
-	virtual uint32_t G_API_CC beginReadObject(const char * name, void * instance, IMetaClass * metaClass) = 0;
-	virtual void G_API_CC endReadObject(const char * name, uint32_t archiveID, void * instance, IMetaClass * metaClass) = 0;
+	virtual uint32_t G_API_CC beginReadObject(GMetaArchiveReaderParam * param) = 0;
+	virtual void G_API_CC endReadObject(GMetaArchiveReaderParam * param) = 0;
 	
 	virtual IMemoryAllocator * G_API_CC getAllocator() = 0;
 };
