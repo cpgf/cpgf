@@ -116,6 +116,13 @@ bool canSerializeBaseClass(const GMetaArchiveConfig & config, IMetaClass * baseC
 	return true;
 }
 
+void serializeCheckType(PermanentType type, PermanentType expected)
+{
+	if(type != expected) {
+		serializeError(Error_Serialization_TypeMismatch);
+	}
+}
+
 void serializeError(int errorCode, ...)
 {
 	raiseFormatException(errorCode, "Serialize error: %d.", errorCode);
@@ -135,7 +142,7 @@ void serializeError(int errorCode, ...)
 
 
 template <typename T>
-GVariant doReadInteger(const void * address, unsigned int size)
+GVariant doReadInteger(const void * address, size_t size)
 {
 	switch(size) {
 		case 1:
@@ -228,7 +235,7 @@ GVariant readFundamental(const void * address, const GMetaType & metaType)
 }
 
 template <typename T>
-void doWriteInteger(void * address, unsigned int size, const GVariant & v)
+void doWriteInteger(void * address, size_t size, const GVariant & v)
 {
 	switch(size) {
 		case 1:

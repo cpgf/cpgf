@@ -1,10 +1,5 @@
-#include "gmetaarchivereader.h"
-#include "gmetaarchivewriter.h"
-
 #include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
-
-#include "gmetatextstreamarchive.h"
 
 #include <sstream>
 
@@ -135,6 +130,8 @@ void doTestCyclicGraph(IMetaService * service, IMetaWriter * writer, IMetaReader
 
 	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
+	writer->flush();
+	
 	ar.rewind();
 
 	A readInstance;
@@ -156,10 +153,10 @@ GTEST(testCyclicGraph)
 
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> outputStream(createTextStreamMetaWriter(stream));
-	GScopedInterface<IMetaReader> inputStream(createTextStreamMetaReader(service.get(), stream));
+	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestCyclicGraph(service.get(), outputStream.get(), inputStream.get(), TestArchiveStream<stringstream>(stream));
+	doTestCyclicGraph(service.get(), writer.get(), reader.get(), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

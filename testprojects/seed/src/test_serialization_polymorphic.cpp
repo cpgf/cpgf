@@ -1,10 +1,5 @@
-#include "gmetaarchivereader.h"
-#include "gmetaarchivewriter.h"
-
 #include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
-
-#include "gmetatextstreamarchive.h"
 
 #include <sstream>
 
@@ -115,15 +110,15 @@ void register_TestSerializeClass(Define define)
 
 }
 
-template <typename AR>
-void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
+template <typename READER, typename AR>
+void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, const READER & reader, const AR & ar)
 {
 	const char * const serializeObjectName = "polymorphic";
+	const char * const serializeObjectName2 = "polymorphic2";
 	
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassR"));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader));
 
 	// write
 
@@ -143,9 +138,12 @@ void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, IMetaReader
 	pd2->a = 25;
 	pd2->d = 26;
 
-	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance2, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName2, &instance2, metaClass.get());
+
+	writer->flush();
 
 	// read
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
 
 	ar.rewind();
 
@@ -157,20 +155,22 @@ void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, IMetaReader
 	GEQUAL(CB, readInstance1.pa->get());
 	GEQUAL(58, readInstance1.r);
 	GEQUAL(15, readInstance1.pa->a);
+	GDIFF(NULL, dynamic_cast<B *>(readInstance1.pa));
 	GEQUAL(16, dynamic_cast<B *>(readInstance1.pa)->b);
 
 	R readInstance2;
 
-	serializeReadObject(archiveReader.get(), serializeObjectName, &readInstance2, metaClass.get());
+	serializeReadObject(archiveReader.get(), serializeObjectName2, &readInstance2, metaClass.get());
 
 	GCHECK(readInstance2.pa != NULL);
 	GEQUAL(CD, readInstance2.pa->get());
 	GEQUAL(68, readInstance2.r);
 	GEQUAL(25, readInstance2.pa->a);
+	GDIFF(NULL, dynamic_cast<D *>(readInstance2.pa));
 	GEQUAL(26, dynamic_cast<D *>(readInstance2.pa)->d);
 }
 
-GTEST(testPolymorphic)
+GTEST(testPolymorphic_TextStream)
 {
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
@@ -180,10 +180,27 @@ GTEST(testPolymorphic)
 
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> outputStream(createTextStreamMetaWriter(stream));
-	GScopedInterface<IMetaReader> inputStream(createTextStreamMetaReader(service.get(), stream));
+	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestPolymorphic(service.get(), outputStream.get(), inputStream.get(), TestArchiveStream<stringstream>(stream));
+	doTestPolymorphic(service.get(), writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
+	
+//	cout << stream.str().c_str() << endl;
+}
+
+GTEST(testPolymorphic_Xml)
+{
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
+	stringstream stream;
+
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	
+	doTestPolymorphic(service.get(), writer.get(), MetaReaderGetterXml(service.get(), stream), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

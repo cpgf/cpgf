@@ -1,10 +1,5 @@
-#include "gmetaarchivereader.h"
-#include "gmetaarchivewriter.h"
-
 #include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
-
-#include "gmetatextstreamarchive.h"
 
 #include <sstream>
 
@@ -142,6 +137,8 @@ void doTestMultipleInheritance(IMetaService * service, IMetaWriter * writer, IMe
 
 	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
+	writer->flush();
+	
 	ar.rewind();
 	
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader));
@@ -168,10 +165,10 @@ GTEST(testMultipleInheritance)
 
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> outputStream(createTextStreamMetaWriter(stream));
-	GScopedInterface<IMetaReader> inputStream(createTextStreamMetaReader(service.get(), stream));
+	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestMultipleInheritance(service.get(), outputStream.get(), inputStream.get(), TestArchiveStream<stringstream>(stream));
+	doTestMultipleInheritance(service.get(), writer.get(), reader.get(), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

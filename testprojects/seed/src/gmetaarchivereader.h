@@ -34,7 +34,8 @@ struct IMetaReader : public IObject
 	virtual void G_API_CC endReadObject(GMetaArchiveReaderParam * param) = 0;
 
 	virtual uint32_t G_API_CC readReferenceID(const char * name) = 0;
-	virtual IMetaClass * G_API_CC readClassType(const char * name, uint32_t * outArchiveID) = 0;
+	virtual IMetaClass * G_API_CC readClassAndTypeID(uint32_t * outClassTypeID) = 0;
+	virtual IMetaClass * G_API_CC readClass(uint32_t classTypeID) = 0;
 
 	virtual uint32_t G_API_CC beginReadArray(const char * name) = 0;
 	virtual void G_API_CC endReadArray(const char * name) = 0;

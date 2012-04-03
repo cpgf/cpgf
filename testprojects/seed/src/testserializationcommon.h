@@ -1,6 +1,13 @@
 #ifndef __TESTSERIALIZATIONCOMMON_H
 #define __TESTSERIALIZATIONCOMMON_H
 
+#include "gmetaarchivereader.h"
+#include "gmetaarchivewriter.h"
+
+#include "gmetatextstreamarchive.h"
+#include "gmetaxmlarchive.h"
+
+
 #include "cpgf/metatraits/gmetaserializer_string.h"
 #include "cpgf/metatraits/gmetaserializer_array.h"
 
@@ -27,6 +34,33 @@ private:
 private:
 	STREAM & stream;
 };
+
+
+class MetaReaderGetter
+{
+public:
+	explicit MetaReaderGetter(cpgf::IMetaReader * reader) : reader(reader) {}
+
+	cpgf::IMetaReader * get() const { return this->reader; }
+
+private:
+	cpgf::IMetaReader * reader;
+};
+
+class MetaReaderGetterXml
+{
+public:
+	MetaReaderGetterXml(cpgf::IMetaService * service, std::stringstream & stream);
+
+	cpgf::IMetaReader * get() const;
+
+private:
+	cpgf::IMetaService * service;
+	std::stringstream & stream;
+	mutable cpgf::GScopedInterface<cpgf::IMetaReader> reader;
+	mutable std::string xmlContent;
+};
+
 
 template <typename T>
 void initTestValue(T & value, long long seed)

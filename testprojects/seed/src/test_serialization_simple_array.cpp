@@ -1,11 +1,6 @@
-#include "gmetaarchivereader.h"
-#include "gmetaarchivewriter.h"
-
 #include "testserializationcommonclasses.h"
 #include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
-
-#include "gmetatextstreamarchive.h"
 
 #include <sstream>
 #include <string>
@@ -20,8 +15,8 @@ using namespace cpgf;
 
 namespace {
 
-template <typename AR>
-void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
+template <typename READER, typename AR>
+void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, const READER & reader, const AR & ar)
 {
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
 
@@ -106,9 +101,11 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 	serializeWriteValue(archiveWriter.get(), "po", po);
 	serializeWriteValue(archiveWriter.get(), "npo", npo);
 
+	writer->flush();
+	
 	ar.rewind();
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
 
 	bool rb[A];
 	char rc[B];
@@ -159,28 +156,27 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 	INIT(rnpo, S)
 #undef INIT
 
-
-	serializeReadValue(archiveReader.get(), "rb", rb);
-	serializeReadValue(archiveReader.get(), "rc", rc);
-	serializeReadValue(archiveReader.get(), "rwc", rwc);
-	serializeReadValue(archiveReader.get(), "rsc", rsc);
-	serializeReadValue(archiveReader.get(), "ruc", ruc);
-	serializeReadValue(archiveReader.get(), "rsi", rsi);
-	serializeReadValue(archiveReader.get(), "rusi", rusi);
-	serializeReadValue(archiveReader.get(), "ri", ri);
-	serializeReadValue(archiveReader.get(), "rui", rui);
-	serializeReadValue(archiveReader.get(), "rl", rl);
-	serializeReadValue(archiveReader.get(), "rul", rul);
-	serializeReadValue(archiveReader.get(), "rll", rll);
-	serializeReadValue(archiveReader.get(), "rull", rull);
-	serializeReadValue(archiveReader.get(), "rf", rf);
-	serializeReadValue(archiveReader.get(), "rdf", rdf);
-	serializeReadValue(archiveReader.get(), "rldf", rldf);
-	serializeReadValue(archiveReader.get(), "rs", rs);
-	serializeReadValue(archiveReader.get(), "rps", rps);
-	serializeReadValue(archiveReader.get(), "ro", ro);
-	serializeReadValue(archiveReader.get(), "rpo", rpo);
-	serializeReadValue(archiveReader.get(), "rnpo", rnpo);
+	serializeReadValue(archiveReader.get(), "b", rb);
+	serializeReadValue(archiveReader.get(), "c", rc);
+	serializeReadValue(archiveReader.get(), "wc", rwc);
+	serializeReadValue(archiveReader.get(), "sc", rsc);
+	serializeReadValue(archiveReader.get(), "uc", ruc);
+	serializeReadValue(archiveReader.get(), "si", rsi);
+	serializeReadValue(archiveReader.get(), "usi", rusi);
+	serializeReadValue(archiveReader.get(), "i", ri);
+	serializeReadValue(archiveReader.get(), "ui", rui);
+	serializeReadValue(archiveReader.get(), "l", rl);
+	serializeReadValue(archiveReader.get(), "ul", rul);
+	serializeReadValue(archiveReader.get(), "ll", rll);
+	serializeReadValue(archiveReader.get(), "ull", rull);
+	serializeReadValue(archiveReader.get(), "f", rf);
+	serializeReadValue(archiveReader.get(), "df", rdf);
+	serializeReadValue(archiveReader.get(), "ldf", rldf);
+	serializeReadValue(archiveReader.get(), "s", rs);
+	serializeReadValue(archiveReader.get(), "ps", rps);
+	serializeReadValue(archiveReader.get(), "o", ro);
+	serializeReadValue(archiveReader.get(), "po", rpo);
+	serializeReadValue(archiveReader.get(), "npo", rnpo);
 
 #define EQ(v, u, l) LOOP(l) GEQUAL(v[z], u[z]);
 	EQ(b, rb, A)
@@ -217,7 +213,7 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, IMetaReader
 	LOOP(S) delete rnpo[z];
 }
 
-GTEST(testSimpleArray)
+GTEST(testSimpleArray_TextStream)
 {
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
@@ -227,10 +223,27 @@ GTEST(testSimpleArray)
 
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> outputStream(createTextStreamMetaWriter(stream));
-	GScopedInterface<IMetaReader> inputStream(createTextStreamMetaReader(service.get(), stream));
+	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestSimpleArray(service.get(), outputStream.get(), inputStream.get(), TestArchiveStream<stringstream>(stream));
+	doTestSimpleArray(service.get(), writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
+
+//	cout << stream.str().c_str() << endl;
+}
+
+GTEST(testSimpleArray_Xml)
+{
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
+	stringstream stream;
+
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	
+	doTestSimpleArray(service.get(), writer.get(), MetaReaderGetterXml(service.get(), stream), TestArchiveStream<stringstream>(stream));
 
 //	cout << stream.str().c_str() << endl;
 }

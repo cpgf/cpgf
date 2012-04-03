@@ -1,10 +1,5 @@
-#include "gmetaarchivereader.h"
-#include "gmetaarchivewriter.h"
-
 #include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
-
-#include "gmetatextstreamarchive.h"
 
 #include <sstream>
 
@@ -139,6 +134,8 @@ void doTestDiamondVirtualBase(IMetaService * service, IMetaWriter * writer, IMet
 
 	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
+	writer->flush();
+	
 	ar.rewind();
 	
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader));
@@ -165,10 +162,10 @@ GTEST(testDiamondVirtualBase)
 
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> outputStream(createTextStreamMetaWriter(stream));
-	GScopedInterface<IMetaReader> inputStream(createTextStreamMetaReader(service.get(), stream));
+	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestDiamondVirtualBase(service.get(), outputStream.get(), inputStream.get(), TestArchiveStream<stringstream>(stream));
+	doTestDiamondVirtualBase(service.get(), writer.get(), reader.get(), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

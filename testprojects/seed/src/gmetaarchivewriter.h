@@ -35,10 +35,12 @@ struct IMetaWriter : public IObject
 	virtual void G_API_CC endWriteObject(GMetaArchiveWriterParam * param) = 0;
 
 	virtual void G_API_CC writeReferenceID(const char * name, uint32_t archiveID, uint32_t referenceArchiveID) = 0;
-	virtual void G_API_CC writeClassType(uint32_t archiveID, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC writeClassType(uint32_t classTypeID, IMetaClass * metaClass) = 0;
 
 	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length) = 0;
 	virtual void G_API_CC endWriteArray(const char * name, uint32_t length) = 0;
+	
+	virtual void G_API_CC flush() = 0;
 };
 
 struct IMetaArchiveWriter : public IExtendObject

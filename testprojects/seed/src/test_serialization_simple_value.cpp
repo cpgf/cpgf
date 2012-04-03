@@ -1,10 +1,5 @@
-#include "gmetaarchivereader.h"
-#include "gmetaarchivewriter.h"
-
 #include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
-
-#include "gmetatextstreamarchive.h"
 
 #include <sstream>
 #include <string>
@@ -17,8 +12,8 @@ using namespace cpgf;
 
 namespace {
 
-template <typename AR>
-void doTestSimpleValue(IMetaWriter * writer, IMetaReader * reader, const AR & ar)
+template <typename READER, typename AR>
+void doTestSimpleValue(IMetaWriter * writer, const READER & reader, const AR & ar)
 {
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, NULL, writer));
 
@@ -60,9 +55,11 @@ void doTestSimpleValue(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	serializeWriteValue(archiveWriter.get(), "s", s);
 	serializeWriteValue(archiveWriter.get(), "ps", ps);
 
+	writer->flush();
+	
 	ar.rewind();
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, NULL, reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, NULL, reader.get()));
 	
 	bool rb = false;
 	char rc = 0;
@@ -83,24 +80,24 @@ void doTestSimpleValue(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	string rs = "";
 	string * rps = NULL;
 
-	serializeReadValue(archiveReader.get(), "rb", rb);
-	serializeReadValue(archiveReader.get(), "rc", rc);
-	serializeReadValue(archiveReader.get(), "rwc", rwc);
-	serializeReadValue(archiveReader.get(), "rsc", rsc);
-	serializeReadValue(archiveReader.get(), "ruc", ruc);
-	serializeReadValue(archiveReader.get(), "rsi", rsi);
-	serializeReadValue(archiveReader.get(), "rusi", rusi);
-	serializeReadValue(archiveReader.get(), "ri", ri);
-	serializeReadValue(archiveReader.get(), "rui", rui);
-	serializeReadValue(archiveReader.get(), "rl", rl);
-	serializeReadValue(archiveReader.get(), "rul", rul);
-	serializeReadValue(archiveReader.get(), "rll", rll);
-	serializeReadValue(archiveReader.get(), "rull", rull);
-	serializeReadValue(archiveReader.get(), "rf", rf);
-	serializeReadValue(archiveReader.get(), "rdf", rdf);
-	serializeReadValue(archiveReader.get(), "rldf", rldf);
-	serializeReadValue(archiveReader.get(), "rs", rs);
-	serializeReadValue(archiveReader.get(), "rps", rps);
+	serializeReadValue(archiveReader.get(), "b", rb);
+	serializeReadValue(archiveReader.get(), "c", rc);
+	serializeReadValue(archiveReader.get(), "wc", rwc);
+	serializeReadValue(archiveReader.get(), "sc", rsc);
+	serializeReadValue(archiveReader.get(), "uc", ruc);
+	serializeReadValue(archiveReader.get(), "si", rsi);
+	serializeReadValue(archiveReader.get(), "usi", rusi);
+	serializeReadValue(archiveReader.get(), "i", ri);
+	serializeReadValue(archiveReader.get(), "ui", rui);
+	serializeReadValue(archiveReader.get(), "l", rl);
+	serializeReadValue(archiveReader.get(), "ul", rul);
+	serializeReadValue(archiveReader.get(), "ll", rll);
+	serializeReadValue(archiveReader.get(), "ull", rull);
+	serializeReadValue(archiveReader.get(), "f", rf);
+	serializeReadValue(archiveReader.get(), "df", rdf);
+	serializeReadValue(archiveReader.get(), "ldf", rldf);
+	serializeReadValue(archiveReader.get(), "s", rs);
+	serializeReadValue(archiveReader.get(), "ps", rps);
 
 	GEQUAL(b, rb);
 	GEQUAL(c, rc);
@@ -122,14 +119,26 @@ void doTestSimpleValue(IMetaWriter * writer, IMetaReader * reader, const AR & ar
 	GEQUAL(rps, &rs);
 }
 
-GTEST(testSimpleValue)
+GTEST(testSimpleValue_TextStream)
 {
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> outputStream(createTextStreamMetaWriter(stream));
-	GScopedInterface<IMetaReader> inputStream(createTextStreamMetaReader(NULL, stream));
+	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(NULL, stream));
 	
-	doTestSimpleValue(outputStream.get(), inputStream.get(), TestArchiveStream<stringstream>(stream));
+	doTestSimpleValue(writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
+	
+//	cout << stream.str().c_str() << endl;
+}
+
+
+GTEST(testSimpleValue_XML)
+{
+	stringstream stream;
+
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	
+	doTestSimpleValue(writer.get(), MetaReaderGetterXml(NULL, stream), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

@@ -1,11 +1,6 @@
-#include "gmetaarchivereader.h"
-#include "gmetaarchivewriter.h"
-
 #include "testserializationcommonclasses.h"
 #include "testserializationcommon.h"
 #include "cpgf/gmetadefine.h"
-
-#include "gmetatextstreamarchive.h"
 
 #include <sstream>
 #include <string>
@@ -64,6 +59,8 @@ void doTestMultipleDimensionArray(IMetaService * service, IMetaWriter * writer, 
 	serializeWriteValue(archiveWriter.get(), "po", po);
 	serializeWriteValue(archiveWriter.get(), "npo", npo);
 
+	writer->flush();
+	
 	ar.rewind();
 
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader));
@@ -128,10 +125,10 @@ GTEST(testMultipleDimensionArray)
 
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> outputStream(createTextStreamMetaWriter(stream));
-	GScopedInterface<IMetaReader> inputStream(createTextStreamMetaReader(service.get(), stream));
+	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestMultipleDimensionArray(service.get(), outputStream.get(), inputStream.get(), TestArchiveStream<stringstream>(stream));
+	doTestMultipleDimensionArray(service.get(), writer.get(), reader.get(), TestArchiveStream<stringstream>(stream));
 
 ///	cout << stream.str().c_str() << endl;
 }

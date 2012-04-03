@@ -2,7 +2,6 @@ Features:
 Serialization supports:
 Multiple pointers to same object.
 Diamond multiple inheritance. Only serialize one copy of same data.
-gmetaserializer_array.h must be included after all other traits.
 
 Todo:
 

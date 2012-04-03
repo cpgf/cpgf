@@ -315,8 +315,8 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 	GMetaArchiveItemType type = static_cast<GMetaArchiveItemType>(this->reader->getArchiveType(name));
 
 	if(type == matClassType) {
-		uint32_t classTypeID;
-		GScopedInterface<IMetaClass> metaClass(this->reader->readClassType(name, &classTypeID));
+		uint32_t classTypeID = archiveIDNone;
+		GScopedInterface<IMetaClass> metaClass(this->reader->readClassAndTypeID(&classTypeID));
 		type = static_cast<GMetaArchiveItemType>(this->reader->getArchiveType(name));
 		if(metaClass && classTypeID != archiveIDNone && ! this->getClassTypeTracker()->hasArchiveID(classTypeID)) {
 			this->getClassTypeTracker()->addArchiveID(classTypeID, metaClass.get());
@@ -370,8 +370,16 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 						uint32_t classTypeID = this->reader->getClassType(name);
 						if(classTypeID != archiveIDNone) {
 							IMetaClass * storedMetaClass = this->getClassTypeTracker()->getMetaClass(classTypeID);
+							
 							if(storedMetaClass == NULL) {
-								serializeError(Error_Serialization_CannotFindObjectType);
+								metaClass.reset(this->reader->readClass(classTypeID));
+								storedMetaClass = metaClass.get();
+								if(storedMetaClass == NULL) {
+									serializeError(Error_Serialization_CannotFindObjectType);
+								}
+								if(metaClass && classTypeID != archiveIDNone) {
+									this->getClassTypeTracker()->addArchiveID(classTypeID, metaClass.get());
+								}
 							}
 							else {
 								metaClass.reset(storedMetaClass);

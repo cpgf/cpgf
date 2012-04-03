@@ -14,7 +14,7 @@ namespace cpgf {
 
 namespace metatraits_internal {
 
-const char * const elementName = "item";
+const char * const elementFormat = "item%d";
 
 class GMetaSerializerArray : public IMetaSerializer
 {
@@ -47,6 +47,8 @@ public:
 	}
 
 	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, GMetaArchiveWriterParam * param) {
+		char buffer[1024];
+
 		metaWriter->beginWriteArray(param->name, this->elementCount);
 
 		GMetaTypeData typeData = this->metaType.getData();
@@ -58,7 +60,8 @@ public:
 			else {
 				ptr = param->instance;
 			}
-			archiveWriter->writeObject(elementName, ptr, &typeData, this->elementSerializer.get());
+			sprintf(buffer, elementFormat, i);
+			archiveWriter->writeObject(buffer, ptr, &typeData, this->elementSerializer.get());
 			param->instance = static_cast<const char *>(param->instance) + this->elementSize;
 		}
 		
@@ -73,13 +76,16 @@ public:
 	}
 
 	virtual void G_API_CC readObject(const char * name, IMetaArchiveReader * archiveReader, IMetaReader * metaReader, void * instance, IMetaClass * metaClass) {
+		char buffer[1024];
+
 		uint32_t length = metaReader->beginReadArray(name);
 		
 		GASSERT(length == this->elementCount);
 
 		GMetaTypeData typeData = this->metaType.getData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
-			archiveReader->readObject(elementName, instance, &typeData, this->elementSerializer.get());
+			sprintf(buffer, elementFormat, i);
+			archiveReader->readObject(buffer, instance, &typeData, this->elementSerializer.get());
 			instance = static_cast<char *>(instance) + this->elementSize;
 		}
 

@@ -1,6 +1,7 @@
 #ifndef __GMETAARCHIVECOMMON_H
 #define __GMETAARCHIVECOMMON_H
 
+#include "gmetaarchivetypemap.h"
 
 #include "cpgf/gflags.h"
 #include "cpgf/gmetaapi.h"
@@ -67,12 +68,14 @@ bool canSerializeObject(const GMetaArchiveConfig & config, IMetaClass * metaClas
 bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * accessible, IMetaClass * ownerClass);
 bool canSerializeBaseClass(const GMetaArchiveConfig & config, IMetaClass * baseClass, IMetaClass * metaClass);
 
+void serializeCheckType(PermanentType type, PermanentType expected);
 
 const int Error_Serialization_Begin = 301;
 const int Error_Serialization_TypeMismatch = Error_Serialization_Begin + 0;
 const int Error_Serialization_CannotFindObjectType = Error_Serialization_Begin + 1;
 const int Error_Serialization_MissingMetaClass = Error_Serialization_Begin + 2;
 const int Error_Serialization_UnknownType = Error_Serialization_Begin + 3;
+const int Error_Serialization_InvalidStorage = Error_Serialization_Begin + 4;
 const int Error_Serialization_End = 400;
 
 void serializeError(int errorCode, ...);

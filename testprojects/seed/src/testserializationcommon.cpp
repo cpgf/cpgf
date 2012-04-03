@@ -1,9 +1,27 @@
 #include "testserializationcommon.h"
+#include "gmetaxmlarchive.h"
+
 
 #include <stdio.h>
 
+
 using namespace std;
 using namespace cpgf;
+
+MetaReaderGetterXml::MetaReaderGetterXml(IMetaService * service, stringstream & stream)
+	: service(service), stream(stream)
+{
+}
+
+IMetaReader * MetaReaderGetterXml::get() const
+{
+	this->xmlContent = this->stream.str().c_str();
+	if(! this->reader) {
+		this->reader.reset(cpgf::createXmlMetaReader(this->service, &this->xmlContent[0]));
+	}
+	return this->reader.get();
+}
+
 
 void initTestValue(bool & value, long long seed)
 {
