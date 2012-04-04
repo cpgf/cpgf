@@ -13,12 +13,12 @@ void GMetaFieldDataBase::deleteObject()
 
 bool GMetaFieldDataBase::canGet() const
 {
-	return this->virtualFunctions->canGet(this);
+	return this->virtualFunctions->canGet();
 }
 
 bool GMetaFieldDataBase::canSet() const
 {
-	return this->virtualFunctions->canSet(this);
+	return this->virtualFunctions->canSet();
 }
 
 GVariant GMetaFieldDataBase::get(const void * instance) const
@@ -33,7 +33,7 @@ void GMetaFieldDataBase::set(void * instance, const GVariant & v) const
 
 size_t GMetaFieldDataBase::getFieldSize() const
 {
-	return this->virtualFunctions->getFieldSize(this);
+	return this->virtualFunctions->getFieldSize();
 }
 
 void * GMetaFieldDataBase::getFieldAddress(const void * instance) const

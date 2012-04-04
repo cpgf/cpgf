@@ -738,8 +738,6 @@ void weakHandleCallback(Persistent<Value> object, void * parameter)
 
 void loadMethodParameters(const Arguments & args, GScriptBindingParam * param, GVariantData * outputParams)
 {
-	(void)param;
-
 	for(int i = 0; i < args.Length(); ++i) {
 		outputParams[i] = v8ToVariant(param, args.Holder()->CreationContext(), args[i]).takeData().varData;
 	}
@@ -765,10 +763,8 @@ void loadCallableParam(const Arguments & args, GScriptBindingParam * param, Invo
 	loadMethodParamTypes(args, callableParam->paramsType);
 }
 
-Handle<Value> accessibleGet(Local<String> prop, const AccessorInfo & info)
+Handle<Value> accessibleGet(Local<String> /*prop*/, const AccessorInfo & info)
 {
-	(void)prop;
-
 	ENTER_V8()
 
 	GAccessibleUserData * userData = static_cast<GAccessibleUserData *>(Local<External>::Cast(info.Data())->Value());
@@ -790,10 +786,8 @@ Handle<Value> accessibleGet(Local<String> prop, const AccessorInfo & info)
 	LEAVE_V8(return Handle<Value>())
 }
 
-void accessibleSet(Local<String> prop, Local<Value> value, const AccessorInfo & info)
+void accessibleSet(Local<String> /*prop*/, Local<Value> value, const AccessorInfo & info)
 {
-	(void)prop;
-
 	ENTER_V8()
 
 	HandleScope handleScope;
@@ -939,8 +933,6 @@ Handle<Value> callbackMethodList(const Arguments & args)
 Handle<FunctionTemplate> createMethodTemplate(GScriptBindingParam * param, IMetaClass * metaClass, bool isGlobal, IMetaList * methodList,
 	const char * name, Handle<FunctionTemplate> classTemplate, GUserDataMethodType methodType, GExtendMethodUserData ** outUserData)
 {
-	(void)classTemplate;
-
 	GExtendMethodUserData * userData = new GExtendMethodUserData(param, metaClass, methodList, name, methodType);
 	if(outUserData != NULL) {
 		*outUserData = userData;
@@ -988,12 +980,8 @@ Handle<Value> namedEnumGetter(Local<String> prop, const AccessorInfo & info)
 	LEAVE_V8(return Handle<Value>())
 }
 
-Handle<Value> namedEnumSetter(Local<String> prop, Local<Value> value, const AccessorInfo & info)
+Handle<Value> namedEnumSetter(Local<String> /*prop*/, Local<Value> /*value*/, const AccessorInfo & /*info*/)
 {
-	(void)prop;
-	(void)value;
-	(void)info;
-
 	ENTER_V8()
 
 	raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
@@ -1024,10 +1012,8 @@ Handle<Array> namedEnumEnumerator(const AccessorInfo & info)
 }
 
 Handle<ObjectTemplate> createEnumTemplate(GScriptBindingParam * param, IMetaEnum * metaEnum,
-	const char * name, GEnumUserData ** outUserData)
+	const char * /*name*/, GEnumUserData ** outUserData)
 {
-	(void)name;
-
 	GEnumUserData * userData = new GEnumUserData(param, metaEnum);
 	addUserDataToPool(param, userData);
 	if(outUserData != NULL) {

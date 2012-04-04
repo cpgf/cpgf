@@ -13,17 +13,17 @@ namespace meta_internal {
 
 struct GMetaFundamentalDataVirtual
 {
-	size_t (*getTypeSize)(const void * self);
-	GVariantType (*getVariantType)(const void * self);
-	GVariant (*getValue)(const void * self, const void * instance);
+	size_t (*getTypeSize)();
+	GVariantType (*getVariantType)();
+	GVariant (*getValue)(const void * instance);
 	
-	void * (*createInstance)(const void * self);
-	void * (*createInplace)(const void * self, void * placement);
-	void * (*cloneInstance)(const void * self, const void * instance);
-	void * (*cloneInplace)(const void * self, const void * instance, void * placement);
-	void (*destroyInstance)(const void * self, void * o);
+	void * (*createInstance)();
+	void * (*createInplace)(void * placement);
+	void * (*cloneInstance)(const void * instance);
+	void * (*cloneInplace)(const void * instance, void * placement);
+	void (*destroyInstance)(void * o);
 	
-	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
+	GMetaExtendType (*getItemExtendType)(uint32_t flags);
 };
 
 class GMetaFundamentalData
@@ -44,7 +44,7 @@ public:
 
 	// must be defined in header to make template function overloading happy.
 	GMetaExtendType getItemExtendType(uint32_t flags) const {
-		return this->virtualFunctions->getItemExtendType(this, flags);
+		return this->virtualFunctions->getItemExtendType(flags);
 	}
 
 protected:
@@ -56,63 +56,45 @@ template <typename T>
 class GMetaFundamentalDataImplement : public GMetaFundamentalData
 {
 private:
-	static size_t virtualGetTypeSize(const void * self) {
-		(void)self;
-
+	static size_t virtualGetTypeSize() {
 		return sizeof(T);
 	}
 
-	static GVariantType virtualGetVariantType(const void * self) {
-		(void)self;
-
+	static GVariantType virtualGetVariantType() {
 		GVarTypeData data;
 		deduceVariantType<T>(data);
 		return vtGetType(data);
 	}
 	
-	static GVariant virtualGetValue(const void * self, const void * instance) {
-		(void)self;
-
+	static GVariant virtualGetValue(const void * instance) {
 		return GVariant(*static_cast<const T *>(instance));
 	}
 
-	static void * virtualCreateInstance(const void * self) {
-		(void)self;
-
+	static void * virtualCreateInstance() {
 		return new T(0);
 	}
 
-	static void * virtualCreateInplace(const void * self, void * placement) {
-		(void)self;
-
+	static void * virtualCreateInplace(void * placement) {
 		*static_cast<T *>(placement) = 0;
 
 		return placement;
 	}
 
-	static void * virtualCloneInstance(const void * self, const void * instance) {
-		(void)self;
-
+	static void * virtualCloneInstance(const void * instance) {
 		return new T(*static_cast<const T *>(instance));
 	}
 
-	static void * virtualCloneInplace(const void * self, const void * instance, void * placement) {
-		(void)self;
-
+	static void * virtualCloneInplace(const void * instance, void * placement) {
 		*static_cast<T *>(placement) = *static_cast<const T *>(instance);
 
 		return placement;
 	}
 
-	static void virtualDestroyInstance(const void * self, void * instance) {
-		(void)self;
-
+	static void virtualDestroyInstance(void * instance) {
 		delete static_cast<T *>(instance);
 	}
 
-	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags) {
-		(void)self;
-
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags) {
 		return createMetaExtendType<T>(flags);
 	}
 

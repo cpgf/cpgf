@@ -1114,9 +1114,8 @@ ImplMetaConstructor::ImplMetaConstructor(const GMetaConstructor * constructor)
 {
 }
 
-void G_API_CC ImplMetaConstructor::execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount)
+void G_API_CC ImplMetaConstructor::execute(GVariantData * outResult, void * /*instance*/, const GVariantData * params, uint32_t paramCount)
 {
-	(void)instance;
 	if(outResult != NULL) {
 		void * newObj = this->invoke(params, paramCount);
 		*outResult = GVariant(newObj).takeData();

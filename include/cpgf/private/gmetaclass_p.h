@@ -27,16 +27,16 @@ namespace meta_internal {
 struct GMetaClassDataVirtual
 {
 	void (*deleteObject)(void * self);
-	bool (*canCreateInstance)(const void * self);
-	bool (*canCopyInstance)(const void * self);
+	bool (*canCreateInstance)();
+	bool (*canCopyInstance)();
 	void * (*createInstance)(const void * self);
 	void * (*createInplace)(const void * self, void * placement);
 	void * (*cloneInstance)(const void * self, const void * instance);
 	void * (*cloneInplace)(const void * self, const void * instance, void * placement);
 	size_t (*getObjectSize)(const void * self);
 	bool (*isAbstract)(const void * self);
-	bool (*isPolymorphic)(const void * self);
-	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
+	bool (*isPolymorphic)();
+	GMetaExtendType (*getItemExtendType)(uint32_t flags);
 };
 
 class GMetaClassDataBase
@@ -56,7 +56,7 @@ public:
 	
 	// must be defined in header to make template function overloading happy.
 	GMetaExtendType getItemExtendType(uint32_t flags) const {
-		return this->virtualFunctions->getItemExtendType(this, flags);
+		return this->virtualFunctions->getItemExtendType(flags);
 	}
 
 	bool isAbstract() const;
@@ -91,15 +91,11 @@ private:
 	}
 
 private:
-	static bool virtualCanCreateInstance(const void * self) {
-		(void)self;
-
+	static bool virtualCanCreateInstance() {
 		return CanDefaultConstruct;
 	}
 
-	static bool virtualCanCopyInstance(const void * self) {
-		(void)self;
-
+	static bool virtualCanCopyInstance() {
 		return CanCopyConstruct;
 	}
 
@@ -123,9 +119,7 @@ private:
 		return static_cast<const GMetaClassData *>(self)->doGetObjectSize<typename GIfElse<IsGlobal, void, OT>::Result >();
 	}
 
-	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags) {
-		(void)self;
-		
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags) {
 		return createMetaExtendType<OT>(flags);
 	}
 
@@ -133,9 +127,7 @@ private:
 		return static_cast<const GMetaClassData *>(self)->doIsAbstract<typename GIfElse<IsGlobal, void, OT>::Result >();
 	}
 
-	static bool virtualPolymorphic(const void * self) {
-		(void)self;
-
+	static bool virtualPolymorphic() {
 		return IsPolymorphic<OT>::Result;
 	}
 
@@ -184,9 +176,7 @@ private:
 	}
 
 	template <typename T>
-	void * doCreateInplace(typename GDisableIfResult<IsVoid<T>, void>::Result * placement) const {
-		(void)placement;
-
+	void * doCreateInplace(typename GDisableIfResult<IsVoid<T>, void>::Result * /*placement*/) const {
 		if(IsAbstract) {
 			errorAbstract();
 		}
@@ -205,9 +195,7 @@ private:
 	}
 
 	template <typename T>
-	void * doCloneInstance(typename GDisableIfResult<IsVoid<T>, void>::Result const * instance) const {
-		(void)instance;
-
+	void * doCloneInstance(typename GDisableIfResult<IsVoid<T>, void>::Result const * /*instance*/) const {
 		if(IsAbstract) {
 			errorAbstract();
 		}
@@ -226,10 +214,7 @@ private:
 	}
 
 	template <typename T>
-	void * doCloneInplace(typename GDisableIfResult<IsVoid<T>, void>::Result const * instance, void * placement) const {
-		(void)instance;
-		(void)placement;
-
+	void * doCloneInplace(typename GDisableIfResult<IsVoid<T>, void>::Result const * /*instance*/, void * /*placement*/) const {
 		if(IsAbstract) {
 			errorAbstract();
 		}
@@ -290,9 +275,7 @@ template <bool IsPolymorphic>
 struct GMetaClassCasterSelector
 {
 	template <typename D, typename B>
-	static void * downCast(void * base, typename GEnableIfResult<IsVirtualBase<D, B> >::Result * = 0) {
-		(void)base;
-
+	static void * downCast(void * /*base*/, typename GEnableIfResult<IsVirtualBase<D, B> >::Result * = 0) {
 		return NULL;
 	}
 

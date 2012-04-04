@@ -36,10 +36,8 @@ namespace meta_internal {
 #define REF_CALL_HELPER(N, unused) \
 	template <typename CT, typename FT, typename RT, typename Policy> \
 	struct GMetaInvokeHelper<CT, FT, N, RT, Policy, false, false> { \
-		static GVariant invoke(void * instance, const CT & callback, GVariant const * const * params, size_t paramCount) { \
-			(void)params; \
-			(void)paramCount; \
-			(void)instance; \
+		static GVariant invoke(void * /*instance*/, const CT & callback, GVariant const * const * params, size_t /*paramCount*/) { \
+			(void)params; /*unused when N == 0*/ \
 			GVarTypeData typeData = GVarTypeData(); \
 			deduceVariantType<RT>(typeData, ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
 			GVariant v; \
@@ -49,19 +47,16 @@ namespace meta_internal {
 	}; \
 	template <typename CT, typename FT, typename Policy> \
 	struct GMetaInvokeHelper<CT, FT, N, void, Policy, false, false> { \
-		static GVariant invoke(void * instance, const CT & callback, GVariant const * const * params, size_t paramCount) { \
-			(void)params; \
-			(void)paramCount; \
-			(void)instance; \
+		static GVariant invoke(void * /*instance*/, const CT & callback, GVariant const * const * params, size_t /*paramCount*/) { \
+			(void)params; /*unused when N == 0*/ \
 			callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)); \
 			return GVariant(); \
 		} \
 	}; \
 	template <typename CT, typename FT, typename RT, typename Policy> \
 	struct GMetaInvokeHelper<CT, FT, N, RT, Policy, false, true> { \
-		static GVariant invoke(void * instance, const CT & callback, GVariant const * const * params, size_t paramCount) { \
-			(void)params; \
-			(void)paramCount; \
+		static GVariant invoke(void * instance, const CT & callback, GVariant const * const * params, size_t /*paramCount*/) { \
+			(void)params; /*unused when N == 0*/ \
 			GVarTypeData typeData = GVarTypeData(); \
 			deduceVariantType<RT>(typeData, ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
 			GVariant v; \
@@ -71,9 +66,8 @@ namespace meta_internal {
 	}; \
 	template <typename CT, typename FT, typename Policy> \
 	struct GMetaInvokeHelper<CT, FT, N, void, Policy, false, true> { \
-		static GVariant invoke(void * instance, const CT & callback, GVariant const * const * params, size_t paramCount) { \
-			(void)params; \
-			(void)paramCount; \
+		static GVariant invoke(void * instance, const CT & callback, GVariant const * const * params, size_t /*paramCount*/) { \
+			(void)params; /*unused when N == 0*/ \
 			callback((typename CT::TraitsType::ArgList::Arg0)(instance) GPP_REPEAT(N, REF_CALL_HELPER_CAST_EXPLICIT_THIS, GPP_EMPTY)); \
 			return GVariant(); \
 		} \
@@ -87,9 +81,7 @@ struct GMetaInvokeHelper <CT, FT, N, RT, Policy, true, false>
 {
 	GASSERT_STATIC(N == 1);
 
-	static GVariant invoke(void * instance, const CT & callback, GVariant const * const * params, size_t paramCount) {
-		(void)instance;
-
+	static GVariant invoke(void * /*instance*/, const CT & callback, GVariant const * const * params, size_t paramCount) {
 		GMetaVariadicParam variadicParams;
 		variadicParams.params = params;
 		variadicParams.paramCount = paramCount;
@@ -103,9 +95,7 @@ struct GMetaInvokeHelper <CT, FT, N, void, Policy, true, false>
 {
 	GASSERT_STATIC(N == 1);
 
-	static GVariant invoke(void * instance, const CT & callback, GVariant const * const * params, size_t paramCount) {
-		(void)instance;
-
+	static GVariant invoke(void * /*instance*/, const CT & callback, GVariant const * const * params, size_t paramCount) {
 		GMetaVariadicParam variadicParams;
 		variadicParams.params = params;
 		variadicParams.paramCount = paramCount;

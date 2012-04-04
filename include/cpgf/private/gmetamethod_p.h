@@ -30,18 +30,18 @@ std::string arityToName(int arity);
 struct GMetaMethodDataVirtual
 {
 	void (*deleteObject)(void * self);
-	size_t (*getParamCount)(const void * self);
-	bool (*hasResult)(const void * self);
-	GMetaType (*getParamType)(const void * self, size_t index);
-	GMetaType (*getResultType)(const void * self);
-	GMetaExtendType (*getResultExtendType)(const void * self, uint32_t flags);
-	bool (*isVariadic)(const void * self);
-	bool (*isExplicitThis)(const void * self);
+	size_t (*getParamCount)();
+	bool (*hasResult)();
+	GMetaType (*getParamType)(size_t index);
+	GMetaType (*getResultType)();
+	GMetaExtendType (*getResultExtendType)(uint32_t flags);
+	bool (*isVariadic)();
+	bool (*isExplicitThis)();
 	GVariant (*invoke)(const void * self, void * instance, GVariant const * const * params, size_t paramCount);
 	bool (*checkParam)(const void * self, const GVariant & param, size_t paramIndex);
-	bool (*isParamTransferOwnership)(const void * self, size_t paramIndex);
-	bool (*isResultTransferOwnership)(const void * self);
-	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
+	bool (*isParamTransferOwnership)(size_t paramIndex);
+	bool (*isResultTransferOwnership)();
+	GMetaExtendType (*getItemExtendType)(uint32_t flags);
 };
 
 class GMetaMethodDataBase
@@ -55,7 +55,7 @@ public:
 	GMetaType getResultType() const;
 	
 	GMetaExtendType getResultExtendType(uint32_t flags) const {
-		return this->virtualFunctions->getResultExtendType(this, flags);
+		return this->virtualFunctions->getResultExtendType(flags);
 	}
 
 	bool isVariadic() const;
@@ -70,7 +70,7 @@ public:
 
 	// must be defined in header to make template function overloading happy.
 	GMetaExtendType getItemExtendType(uint32_t flags) const {
-		return this->virtualFunctions->getItemExtendType(this, flags);
+		return this->virtualFunctions->getItemExtendType(flags);
 	}
 
 	GMetaDefaultParamList * getDefaultParamList() const;
@@ -94,21 +94,15 @@ private:
 	typedef typename TraitsType::ArgTypeList ArgTypeList;
 
 private:
-	static size_t virtualGetParamCount(const void * self) {
-		(void)self;
-
+	static size_t virtualGetParamCount() {
 		return PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result ? TraitsType::Arity - 1 : TraitsType::Arity;
 	}
 
-	static bool virtualHasResult(const void * self) {
-		(void)self;
-
+	static bool virtualHasResult() {
 		return ! IsSameType<typename TraitsType::ResultType, void>::Result;
 	}
 
-	static GMetaType virtualGetParamType(const void * self, size_t index) {
-		(void)self;
-
+	static GMetaType virtualGetParamType(size_t index) {
 		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
 			++index;
 		}
@@ -121,27 +115,19 @@ private:
 		}
 	}
 
-	static GMetaType virtualGetResultType(const void * self) {
-		(void)self;
-
+	static GMetaType virtualGetResultType() {
 		return createMetaType<typename CallbackT::TraitsType::ResultType>();
 	}
 
-	static GMetaExtendType virtualGetResultExtendType(const void * self, uint32_t flags) {
-		(void)self;
-
+	static GMetaExtendType virtualGetResultExtendType(uint32_t flags) {
 		return createMetaExtendType<typename CallbackT::TraitsType::ResultType>(flags);
 	}
 	
-	static bool virtualIsVariadic(const void * self) {
-		(void)self;
-
+	static bool virtualIsVariadic() {
 		return IsVariadicFunction<TraitsType>::Result;
 	}
 
-	static bool virtualIsExplicitThis(const void * self) {
-		(void)self;
-
+	static bool virtualIsExplicitThis() {
 		return PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result;
 	}
 
@@ -194,25 +180,19 @@ private:
 
 	}
 
-	static bool virtualIsParamTransferOwnership(const void * self, size_t paramIndex) {
-		(void)self;
-
+	static bool virtualIsParamTransferOwnership(size_t paramIndex) {
 		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
 			++paramIndex;
 		}
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
 
-	static bool virtualIsResultTransferOwnership(const void * self) {
-		(void)self;
-
+	static bool virtualIsResultTransferOwnership() {
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags)
 	{
-		(void)self;
-		
 		return createMetaExtendType<typename TraitsType::FunctionType>(flags);
 	}
 

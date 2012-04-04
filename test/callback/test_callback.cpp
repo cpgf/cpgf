@@ -54,8 +54,7 @@ public:
 	CallbackSyntax() {
 	}
 
-	CallbackSyntax(const CallbackSyntax & other) {
-		(void)other;
+	CallbackSyntax(const CallbackSyntax &) {
 	}
 
 	CallbackSyntax(const volatile CallbackSyntax & other) {
@@ -63,9 +62,7 @@ public:
 	}
 
 private:
-	CallbackSyntax & operator = (const CallbackSyntax & other) {
-		(void)other;
-
+	CallbackSyntax & operator = (const CallbackSyntax &other) {
 		return *this;
 	}
 
@@ -150,41 +147,33 @@ public:
 	}
 
 
-	void operator () (int a) {
-	    (void)a;
+	void operator () (int) {
 	}
 
-	void operator () (int a) const {
-	    (void)a;
+	void operator () (int) const {
 	}
 
-	void operator () (int a) volatile {
-	    (void)a;
+	void operator () (int) volatile {
 	}
 
-	void operator () (int a) const volatile {
-	    (void)a;
+	void operator () (int) const volatile {
 	}
 
 
 	template <typename T>
-	void overload_template_T(T a) {
-	    (void)a;
+	void overload_template_T(T) {
 	}
 
 	template <typename T>
-	void overload_template_T(T a) const {
-	    (void)a;
+	void overload_template_T(T) const {
 	}
 
 	template <typename T>
-	void overload_template_T(T a) volatile {
-	    (void)a;
+	void overload_template_T(T) volatile {
 	}
 
 	template <typename T>
-	void overload_template_T(T a) const volatile {
-	    (void)a;
+	void overload_template_T(T) const volatile {
 	}
 
 
@@ -211,22 +200,17 @@ public:
 		GCHECK(a == 9 && s == "stdcall");
 	}
 
-	void overload_param(int a) {
-	    (void)a;
+	void overload_param(int) {
 	}
 
-	void overload_param(double a) {
-	    (void)a;
+	void overload_param(double) {
 	}
 
-	void overload_param(int a, int b, int c = 0) {
-	    (void)a; (void)b; (void)c;
+	void overload_param(int, int, int = 0) {
 	}
 
 
-	int int_int_string(int a, std::string s) const {
-		(void)s;
-
+	int int_int_string(int a, std::string) const {
 		return a + 1;
 	}
 
@@ -242,8 +226,7 @@ public:
 	void operator () () {
 	}
 
-	bool operator == (const CallbackComparableObject & other) const {
-	    (void)other;
+	bool operator == (const CallbackComparableObject &) const {
 		return true;
 	}
 };
@@ -290,33 +273,27 @@ public:
 		return *this;
 	}
 
-	static void callbackStatic(int abc) {
-	    (void)abc;
+	static void callbackStatic(int) {
 	}
 
-	void operator () (int nnn) const {
-	    (void)nnn;
+	void operator () (int) const {
 	}
 
 	int callback0() {
 		return 3;
 	}
 
-	void /*G_API_CC MingW gcc 4.4.0 bug on __stdcall, uncomment this will cause wrong binary code*/ callback1(int n) const {
-	    (void)n;
+	void /*G_API_CC MingW gcc 4.4.0 bug on __stdcall, uncomment this will cause wrong binary code*/ callback1(int) const {
 	}
 
-	void callback2(int n) const {
-	    (void)n;
+	void callback2(int) const {
 		GEQUAL(this->nnn, 16);
 	}
 
-	void callback2(int a, int b) {
-	    (void)a; (void)b;
+	void callback2(int, int) {
 	}
 
-	virtual void callback3(int x, int y)  {
-	    (void)x; (void)y;
+	virtual void callback3(int, int)  {
 	}
 
 	int nnn;
@@ -333,28 +310,24 @@ public:
 class CallbackSon1 : virtual public CallbackBase
 {
 public:
-	virtual void ZvirFunc1(int a) {
-	    (void)a;
+	virtual void ZvirFunc1(int) {
 	}
 };
 
 class CallbackSon2 : virtual public CallbackBase
 {
 public:
-	virtual void YvirFunc1(int a) {
-	    (void)a;
+	virtual void YvirFunc1(int) {
 	}
 };
 
 class CallbackGrandson : public CallbackSon1, public CallbackSon2
 {
 public:
-	virtual void virFunc1(int a) {
-	    (void)a;
+	virtual void virFunc1(int) {
 	}
 
-	void func2(int a) const {
-	    (void)a;
+	void func2(int) const {
 	}
 };
 

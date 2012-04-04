@@ -133,9 +133,7 @@ template <typename From, typename To, typename Enabled = void>
 struct VariantCaster {
 	G_STATIC_CONSTANT(bool, CanCast = false);
 
-	static To cast(const From & v) {
-		(void)v;
-
+	static To cast(const From & /*v*/) {
 		failedCast();
 		return *(typename RemoveReference<To>::Result *)0xffffff;
 	}
@@ -162,9 +160,7 @@ struct ByteArrayCaster
 {
 	G_STATIC_CONSTANT(bool, CanCast = false);
 
-	static To cast(const volatile IByteArray * v) {
-		(void)v;
-
+	static To cast(const volatile IByteArray * /*v*/) {
 		raiseCoreException(Error_Variant_CantReferenceToTemp);
 		return *(typename RemoveReference<To>::Result *)0xffffff;
 	}
@@ -250,9 +246,7 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 {
 	G_STATIC_CONSTANT(bool, CanCast = false);
 
-	static To cast(const From & v) {
-		(void)v;
-
+	static To cast(const From & /*v*/) {
 		raiseCoreException(Error_Variant_CantReferenceToTemp);
 		return *(typename RemoveReference<To>::Result *)0xffffff;
 	}
@@ -265,11 +259,8 @@ void initShadowObject(GVariant & v, const T & value, typename GEnableIf<Copyable
 }
 
 template <bool Copyable, typename T>
-void initShadowObject(GVariant & v, const T & value, typename GDisableIf<Copyable>::Result * = 0)
+void initShadowObject(GVariant & /*v*/, const T & /*value*/, typename GDisableIf<Copyable>::Result * = 0)
 {
-	(void)v;
-	(void)value;
-
 	raiseCoreException(Error_Variant_FailCopyObject);
 }
 
@@ -515,8 +506,7 @@ struct InitVariantSelector
 template <bool Copyable, typename T>
 struct InitVariantSelector <Copyable, T, typename GEnableIfResult<IsSameType<T, GVariant> >::Result>
 {
-	static void init(GVariant & v, const GVarTypeData & typeData, const T & value) {
-		(void)typeData;
+	static void init(GVariant & v, const GVarTypeData & /*typeData*/, const T & value) {
 		v = value;
 	}
 };
@@ -769,10 +759,8 @@ T castFromString(const char * s, typename GEnableIfResult<CheckIsConvertibleToCh
 }
 
 template <typename T>
-T castFromString(const char * s, typename GDisableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
+T castFromString(const char * /*s*/, typename GDisableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
 {
-	(void)s;
-
 	raiseCoreException(Error_Variant_FailCast);
 	return *(typename RemoveReference<T>::Result *)(0);
 }
@@ -790,10 +778,8 @@ T castFromWideString(const wchar_t * s, typename GEnableIfResult<CheckIsConverti
 }
 
 template <typename T>
-T castFromWideString(const wchar_t * s, typename GDisableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result * = 0)
+T castFromWideString(const wchar_t * /*s*/, typename GDisableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result * = 0)
 {
-	(void)s;
-
 	raiseCoreException(Error_Variant_FailCast);
 	return *(typename RemoveReference<T>::Result *)(0);
 }

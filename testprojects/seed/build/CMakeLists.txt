@@ -49,6 +49,8 @@ if(${HAS_UNITTEST})
 	include_directories(${UNIT_TEST_DIR}/src)
 endif(${HAS_UNITTEST})
 
+include_directories(E:/SourceCode/CPP/boost)
+
 set(SRC_UNITTEST_FRAMEWORK
 	${GLOB_UNITTEST_FRAMEWORK}
 )

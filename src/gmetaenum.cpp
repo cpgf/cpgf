@@ -110,10 +110,8 @@ void GMetaEnum::addEnum(const char * key, const GVariant & value)
 	this->implement->enumerators.push_back(value);
 }
 
-GMetaExtendType GMetaEnum::getItemExtendType(uint32_t flags) const
+GMetaExtendType GMetaEnum::getItemExtendType(uint32_t /*flags*/) const
 {
-	(void)flags;
-
 	return createMetaExtendType<int>();
 }
 

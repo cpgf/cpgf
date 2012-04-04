@@ -10,6 +10,7 @@
 
 #include "unittestbase.h"
 
+
 using namespace std;
 using namespace cpgf;
 
@@ -55,12 +56,8 @@ struct X <string>
 	}
 };
 
-
-int main(int argc, char * argv[])
+int main(int /*argc*/, char * /*argv*/[])
 {
-	(void)argc;
-	(void)argv;
-
 //	string s;
 //	test(s);
 	

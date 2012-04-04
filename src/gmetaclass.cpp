@@ -34,12 +34,12 @@ void GMetaClassDataBase::deleteObject()
 
 bool GMetaClassDataBase::canCreateInstance() const
 {
-	return this->virtualFunctions->canCreateInstance(this);
+	return this->virtualFunctions->canCreateInstance();
 }
 
 bool GMetaClassDataBase::canCopyInstance() const
 {
-	return this->virtualFunctions->canCopyInstance(this);
+	return this->virtualFunctions->canCopyInstance();
 }
 
 void * GMetaClassDataBase::createInstance() const
@@ -74,7 +74,7 @@ bool GMetaClassDataBase::isAbstract() const
 
 bool GMetaClassDataBase::isPolymorphic() const
 {
-	return this->virtualFunctions->isPolymorphic(this);
+	return this->virtualFunctions->isPolymorphic();
 }
 
 

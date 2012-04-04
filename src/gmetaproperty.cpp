@@ -15,12 +15,12 @@ void GMetaPropertyDataBase::deleteObject()
 
 bool GMetaPropertyDataBase::canGet() const
 {
-	return this->virtualFunctions->canGet(this);
+	return this->virtualFunctions->canGet();
 }
 
 bool GMetaPropertyDataBase::canSet() const
 {
-	return this->virtualFunctions->canSet(this);
+	return this->virtualFunctions->canSet();
 }
 
 GVariant GMetaPropertyDataBase::get(const void * instance) const
@@ -35,7 +35,7 @@ void GMetaPropertyDataBase::set(void * instance, const GVariant & v) const
 
 size_t GMetaPropertyDataBase::getPropertySize() const
 {
-	return this->virtualFunctions->getPropertySize(this);
+	return this->virtualFunctions->getPropertySize();
 }
 
 void * GMetaPropertyDataBase::getPropertyAddress(const void * instance) const

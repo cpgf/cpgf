@@ -10,42 +10,42 @@ namespace meta_internal {
 
 size_t GMetaFundamentalData::getTypeSize() const
 {
-	return this->virtualFunctions->getTypeSize(this);
+	return this->virtualFunctions->getTypeSize();
 }
 
 GVariantType GMetaFundamentalData::getVariantType() const
 {
-	return this->virtualFunctions->getVariantType(this);
+	return this->virtualFunctions->getVariantType();
 }
 
 GVariant GMetaFundamentalData::getValue(const void * instance) const
 {
-	return this->virtualFunctions->getValue(this, instance);
+	return this->virtualFunctions->getValue(instance);
 }
 
 void * GMetaFundamentalData::createInstance() const
 {
-	return this->virtualFunctions->createInstance(this);
+	return this->virtualFunctions->createInstance();
 }
 
 void * GMetaFundamentalData::createInplace(void * placement) const
 {
-	return this->virtualFunctions->createInplace(this, placement);
+	return this->virtualFunctions->createInplace(placement);
 }
 
 void * GMetaFundamentalData::cloneInstance(const void * instance) const
 {
-	return this->virtualFunctions->cloneInstance(this, instance);
+	return this->virtualFunctions->cloneInstance(instance);
 }
 
 void * GMetaFundamentalData::cloneInplace(const void * instance, void * placement) const
 {
-	return this->virtualFunctions->cloneInplace(this, instance, placement);
+	return this->virtualFunctions->cloneInplace(instance, placement);
 }
 
 void GMetaFundamentalData::destroyInstance(void * o) const
 {
-	this->virtualFunctions->destroyInstance(this, o);
+	this->virtualFunctions->destroyInstance(o);
 }
 
 

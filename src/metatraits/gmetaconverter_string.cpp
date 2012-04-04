@@ -13,9 +13,7 @@ public:
 		return true;
 	}
 	
-	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree, IMemoryAllocator * allocator) {
-		(void)allocator;
-
+	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree, IMemoryAllocator * /*allocator*/) {
 		*needFree = false;
 		
 		return static_cast<const std::string *>(instance)->c_str();

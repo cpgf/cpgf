@@ -13,13 +13,13 @@ namespace meta_internal {
 struct GMetaFieldDataVirtual
 {
 	void (*deleteObject)(void * self);
-	bool (*canGet)(const void * self);
-	bool (*canSet)(const void * self);
+	bool (*canGet)();
+	bool (*canSet)();
 	GVariant (*get)(const void * self, const void * instance);
 	void (*set)(const void * self, void * instance, const GVariant & v);
-	size_t (*getFieldSize)(const void * self);
+	size_t (*getFieldSize)();
 	void * (*getFieldAddress)(const void * self, const void * instance);
-	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
+	GMetaExtendType (*getItemExtendType)(uint32_t flags);
 };
 
 class GMetaFieldDataBase
@@ -38,7 +38,7 @@ public:
 
 	// must be defined in header to make template function overloading happy.
 	GMetaExtendType getItemExtendType(uint32_t flags) const {
-		return this->virtualFunctions->getItemExtendType(this, flags);
+		return this->virtualFunctions->getItemExtendType(flags);
 	}
 
 protected:
@@ -54,15 +54,11 @@ private:
 	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result && !IsConst<FT>::Result));
 
 private:
-	static bool virtualCanGet(const void * self) {
-		(void)self;
-
+	static bool virtualCanGet() {
 		return Readable;
 	}
 
-	static bool virtualCanSet(const void * self) {
-		(void)self;
-
+	static bool virtualCanSet() {
 		return Writable;
 	}
 
@@ -74,21 +70,16 @@ private:
 		static_cast<const GMetaFieldDataGlobal *>(self)->doSet<void>(instance, value);
 	}
 
-	static size_t virtualGetFieldSize(const void * self) {
-		(void)self;
-
+	static size_t virtualGetFieldSize() {
 		return sizeof(FT);
 	}
 
-	static void * virtualGetFieldAddress(const void * self, const void * instance) {
-		(void)instance;
+	static void * virtualGetFieldAddress(const void * self, const void * /*instance*/) {
 		return (void *)(static_cast<const GMetaFieldDataGlobal *>(self)->field);
 	}
 	
-	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags)
 	{
-		(void)self;
-		
 		return createMetaExtendType<FT>(flags);
 	}
 
@@ -109,34 +100,26 @@ public:
 
 private:	
 	template <typename T>
-	GVariant  doGet(typename GEnableIf<Readable, T>::Result const * instance) const {
-		(void)instance;
-
+	GVariant  doGet(typename GEnableIf<Readable, T>::Result const * /*instance*/) const {
 		GVarTypeData data = GVarTypeData();
 		deduceVariantType<FT>(data, true);
 		return GVariant(data, *(this->field));
 	}
 
 	template <typename T>
-	GVariant  doGet(typename GDisableIf<Readable, T>::Result const * instance) const {
-		(void)instance;
-
+	GVariant  doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
 		meta_internal::handleForbidAccessError(true);
 		
 		return GVariant();
 	}
 
 	template <typename T>
-	void doSet(typename GEnableIf<Writable, T>::Result * instance, const GVariant & value) const {
-		(void)instance;
+	void doSet(typename GEnableIf<Writable, T>::Result * /*instance*/, const GVariant & value) const {
 		*(this->field) = fromVariant<FT>(value);
 	}
 
 	template <typename T>
-	void doSet(typename GDisableIf<Writable, T>::Result * instance, const GVariant & value) const {
-		(void)instance;
-		(void)value;
-
+	void doSet(typename GDisableIf<Writable, T>::Result * /*instance*/, const GVariant & /*value*/) const {
 		meta_internal::handleForbidAccessError(false);
 	}
 
@@ -152,15 +135,11 @@ private:
 	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result)); // && !IsArray<FT>::Result));
 
 private:
-	static bool virtualCanGet(const void * self) {
-		(void)self;
-
+	static bool virtualCanGet() {
 		return Readable;
 	}
 
-	static bool virtualCanSet(const void * self) {
-		(void)self;
-
+	static bool virtualCanSet() {
 		return Writable;
 	}
 
@@ -172,9 +151,7 @@ private:
 		static_cast<const GMetaFieldDataMember *>(self)->doSet<void>(instance, value);
 	}
 
-	static size_t virtualGetFieldSize(const void * self) {
-		(void)self;
-
+	static size_t virtualGetFieldSize() {
 		return sizeof(FT);
 	}
 
@@ -182,10 +159,8 @@ private:
 		return &(static_cast<OT *>(const_cast<void *>(instance))->*(static_cast<const GMetaFieldDataMember *>(self)->field));
 	}
 	
-	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags)
 	{
-		(void)self;
-		
 		return createMetaExtendType<FT>(flags);
 	}
 
@@ -210,9 +185,7 @@ private:
 	}
 
 	template <typename T>
-	GVariant  doGet(typename GDisableIf<Readable, T>::Result const * instance) const {
-		(void)instance;
-
+	GVariant  doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
 		meta_internal::handleForbidAccessError(true);
 		
 		return GVariant();
@@ -224,10 +197,7 @@ private:
 	}
 
 	template <typename T>
-	void doSet(typename GDisableIf<Writable && !IsArray<FT>::Result, T>::Result * instance, const GVariant & value) const {
-		(void)instance;
-		(void)value;
-
+	void doSet(typename GDisableIf<Writable && !IsArray<FT>::Result, T>::Result * /*instance*/, const GVariant & /*value*/) const {
 		meta_internal::handleForbidAccessError(false);
 	}
 

@@ -54,12 +54,10 @@ public:
 		globalVar += getValue(n);
 	}
 
-	virtual void virtualMember1(const ParamType & n) const {
-	    (void)n;
+	virtual void virtualMember1(const ParamType & /*n*/) const {
 	}
 
-	virtual void virtualMember2(const ParamType & n) const {
-	    (void)n;
+	virtual void virtualMember2(const ParamType & /*n*/) const {
 	}
 
 	void operator () (const ParamType & n) const {
@@ -76,8 +74,7 @@ public:
 
 class BenchmarkTestObjectExtend : public BenchmarkTestObject {
 public:
-	virtual void virtualMember1(const ParamType & n) const {
-	    (void)n;
+	virtual void virtualMember1(const ParamType & /*n*/) const {
 	}
 };
 

@@ -418,6 +418,7 @@ protected:
 	typedef GCallbackFunctorBase<InvokeType> BaseType;
 
 	static void virtualDestructObject(void * self) {
+		(void)self; // 'self" is unused, weird
 		static_cast<ThisType *>(self)->~GCallbackGlobalBase();
 	}
 

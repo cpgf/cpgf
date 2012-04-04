@@ -519,10 +519,8 @@ void objectToLua(lua_State * L, GScriptBindingParam * param, void * instance, IM
 	lua_setmetatable(L, -2);
 }
 
-void * luaToObject(lua_State * L, GScriptBindingParam * param, int index, GMetaType * outType)
+void * luaToObject(lua_State * L, GScriptBindingParam * /*param*/, int index, GMetaType * outType)
 {
-	(void)param;
-
 	if(isValidMetaTable(L, index)) {
 		void * userData = lua_touserdata(L, index);
 		if(static_cast<GScriptUserData *>(userData)->getType() == udtClass) {
@@ -541,10 +539,8 @@ void * luaToObject(lua_State * L, GScriptBindingParam * param, int index, GMetaT
 	return NULL;
 }
 
-GMetaVariant luaUserDataToVariant(lua_State * L, GScriptBindingParam * param, int index)
+GMetaVariant luaUserDataToVariant(lua_State * L, GScriptBindingParam * /*param*/, int index)
 {
-	(void)param;
-
 	if(isValidMetaTable(L, index)) {
 		void * userData = lua_touserdata(L, index);
 		return userDataToVariant(static_cast<GScriptUserData *>(userData));
@@ -1035,8 +1031,6 @@ bool indexMemberEnumType(lua_State * L, GClassUserData * userData, GMetaMapItem 
 
 bool indexMemberEnumValue(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem)
 {
-	(void)userData;
-
 	GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 
 	GVariantData data;
@@ -1136,10 +1130,8 @@ int UserData_index(lua_State * L)
 	LEAVE_LUA(L, lua_pushnil(L); return false)
 }
 
-bool newindexMemberData(lua_State * L, GClassUserData * userData, const char * name, const GVariant & value)
+bool newindexMemberData(lua_State * /*L*/, GClassUserData * userData, const char * name, const GVariant & value)
 {
-	(void)L;
-
 	if(userData->cv == opcvConst) {
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 

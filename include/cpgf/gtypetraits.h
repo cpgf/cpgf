@@ -10,6 +10,12 @@
 #include <type_traits>
 #endif
 
+// suppress all warnings
+#ifdef __GNUC__
+#pragma GCC system_header
+#endif
+
+
 namespace cpgf {
 
 template <typename T>

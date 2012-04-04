@@ -242,24 +242,24 @@ struct GMetaOperatorDataVirtual
 {
 	void (*deleteObject)(void * self);
 	
-	GVariant (*invoke)(const void * self, const GVariant & p0);
-	GVariant (*invoke2)(const void * self, const GVariant & p0, const GVariant & p1);
-	GVariant (*invokeFunctor)(const void * self, void * instance, GVariant const * const * params, size_t paramCount);
+	GVariant (*invoke)(const GVariant & p0);
+	GVariant (*invoke2)(const GVariant & p0, const GVariant & p1);
+	GVariant (*invokeFunctor)(void * instance, GVariant const * const * params, size_t paramCount);
 	GVariant (*execute)(const void * self, void * instance, const GVariant * params, size_t paramCount);
 	
-	GMetaOpType (*getOperator)(const void * self);
-	size_t (*getParamCount)(const void * self);
-	bool (*hasResult)(const void * self);
-	bool (*isParamSelf)(const void * self, size_t paramIndex);
-	GMetaType (*getParamType)(const void * self, size_t index);
-	GMetaType (*getResultType)(const void * self);
-	GMetaExtendType (*getResultExtendType)(const void * self, uint32_t flags);
-	bool (*isVariadic)(const void * self);
-	bool (*checkParam)(const void * self, const GVariant & param, size_t paramIndex);
-	bool (*isParamTransferOwnership)(const void * self, size_t paramIndex);
-	bool (*isResultTransferOwnership)(const void * self);
-	GMetaType (*createOperatorMetaType)(const void * self);
-	GMetaExtendType (*getItemExtendType)(const void * self, uint32_t flags);
+	GMetaOpType (*getOperator)();
+	size_t (*getParamCount)();
+	bool (*hasResult)();
+	bool (*isParamSelf)(size_t paramIndex);
+	GMetaType (*getParamType)(size_t index);
+	GMetaType (*getResultType)();
+	GMetaExtendType (*getResultExtendType)(uint32_t flags);
+	bool (*isVariadic)();
+	bool (*checkParam)(const GVariant & param, size_t paramIndex);
+	bool (*isParamTransferOwnership)(size_t paramIndex);
+	bool (*isResultTransferOwnership)();
+	GMetaType (*createOperatorMetaType)();
+	GMetaExtendType (*getItemExtendType)(uint32_t flags);
 };
 
 class GMetaOperatorDataBase
@@ -277,7 +277,7 @@ public:
 	GMetaType getResultType() const;
 	
 	GMetaExtendType getResultExtendType(uint32_t flags) const {
-		return this->virtualFunctions->getResultExtendType(this, flags);
+		return this->virtualFunctions->getResultExtendType(flags);
 	}
 
 	bool isVariadic() const;
@@ -297,7 +297,7 @@ public:
 
 	// must be defined in header to make template function overloading happy.
 	GMetaExtendType getItemExtendType(uint32_t flags) const {
-		return this->virtualFunctions->getItemExtendType(this, flags);
+		return this->virtualFunctions->getItemExtendType(flags);
 	}
 	
 	GMetaDefaultParamList * getDefaultParamList() const;
@@ -327,21 +327,15 @@ private:
 	GASSERT_STATIC(FT::Arity == 2);
 
 private:
-	static GMetaOpType virtualGetOperator(const void * self) {
-		(void)self;
-
+	static GMetaOpType virtualGetOperator() {
 		return Op;
 	}
 
-	static size_t virtualGetParamCount(const void * self) {
-		(void)self;
-
+	static size_t virtualGetParamCount() {
 		return 2;
 	}
 
-	static bool virtualIsParamSelf(const void * self, size_t paramIndex) {
-		(void)self;
-
+	static bool virtualIsParamSelf(size_t paramIndex) {
 		switch(paramIndex) {
 		case 0:
 			return CheckOperatorSelf<typename FT::ArgList::Arg0>::IsSelf;
@@ -355,9 +349,7 @@ private:
 		return false;
 	}
 
-	static GMetaType virtualGetParamType(const void * self, size_t index) {
-		(void)self;
-
+	static GMetaType virtualGetParamType(size_t index) {
 		switch(index) {
 		case 0:
 			return createMetaType<typename FT::ArgList::Arg0>();
@@ -371,33 +363,23 @@ private:
 		return GMetaType();
 	}
 
-	static bool virtualHasResult(const void * self) {
-		(void)self;
-
+	static bool virtualHasResult() {
 		return ! IsVoid<typename FT::ResultType>::Result;
 	}
 
-	static GMetaType virtualGetResultType(const void * self) {
-		(void)self;
-
+	static GMetaType virtualGetResultType() {
 		return createMetaType<typename FT::ResultType>();
 	}
 
-	static GMetaExtendType virtualGetResultExtendType(const void * self, uint32_t flags) {
-		(void)self;
-
+	static GMetaExtendType virtualGetResultExtendType(uint32_t flags) {
 		return createMetaExtendType<typename FT::ResultType>(flags);
 	}
 	
-	static bool virtualIsVariadic(const void * self) {
-		(void)self;
-
+	static bool virtualIsVariadic() {
 		return false;
 	}
 
-	static bool virtualCheckParam(const void * self, const GVariant & param, size_t paramIndex) {
-		(void)self;
-
+	static bool virtualCheckParam(const GVariant & param, size_t paramIndex) {
 		switch(paramIndex) {
 		case 0:
 			return canFromVariant<typename FT::ArgList::Arg0>(param);
@@ -410,15 +392,11 @@ private:
 		}
 	}
 
-	static GMetaType virtualCreateOperatorMetaType(const void * self) {
-		(void)self;
-
+	static GMetaType virtualCreateOperatorMetaType() {
 		return createMetaType<typename GFunctionTraits<Signature>::FullType>();
 	}
 
-	static GVariant virtualInvoke2(const void * self, const GVariant & p0, const GVariant & p1) {
-		(void)self;
-
+	static GVariant virtualInvoke2(const GVariant & p0, const GVariant & p1) {
 		return MetaBinaryOperator<OT,
 			MetaOperatorExecuter<Op, FT>,
 			CheckOperatorSelf<typename FT::ArgList::Arg0>::IsSelf,
@@ -426,32 +404,24 @@ private:
 		>::invoke(p0, p1);
 	}
 
-	static GVariant virtualExecute(const void * self, void * instance, const GVariant * params, size_t paramCount) {
-		(void)instance;
-
-		if(paramCount != virtualGetParamCount(self)) {
-			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(self), paramCount);
+	static GVariant virtualExecute(const void * /*self*/, void * /*instance*/, const GVariant * params, size_t paramCount) {
+		if(paramCount != virtualGetParamCount()) {
+			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(), paramCount);
 		}
 
-		return virtualInvoke2(self, params[0], params[1]);
+		return virtualInvoke2(params[0], params[1]);
 	}
 
-	static bool virtualIsParamTransferOwnership(const void * self, size_t paramIndex) {
-		(void)self;
-
+	static bool virtualIsParamTransferOwnership(size_t paramIndex) {
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
 
-	static bool virtualIsResultTransferOwnership(const void * self) {
-		(void)self;
-
+	static bool virtualIsResultTransferOwnership() {
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags)
 	{
-		(void)self;
-		
 		return createMetaExtendType<FT>(flags);
 	}
 
@@ -496,21 +466,15 @@ private:
 	GASSERT_STATIC(FT::Arity == 1);
 
 private:
-	static GMetaOpType virtualGetOperator(const void * self) {
-		(void)self;
-
+	static GMetaOpType virtualGetOperator() {
 		return Op;
 	}
 
-	static size_t virtualGetParamCount(const void * self) {
-		(void)self;
-
+	static size_t virtualGetParamCount() {
 		return 1;
 	}
 
-	static bool virtualIsParamSelf(const void * self, size_t paramIndex) {
-		(void)self;
-
+	static bool virtualIsParamSelf(size_t paramIndex) {
 		switch(paramIndex) {
 		case 0:
 			return CheckOperatorSelf<typename FT::ArgList::Arg0>::IsSelf;
@@ -521,9 +485,7 @@ private:
 		return false;
 	}
 
-	static GMetaType virtualGetParamType(const void * self, size_t index) {
-		(void)self;
-
+	static GMetaType virtualGetParamType(size_t index) {
 		switch(index) {
 		case 0:
 			return createMetaType<typename FT::ArgList::Arg0>();
@@ -534,33 +496,23 @@ private:
 		return GMetaType();
 	}
 
-	static bool virtualHasResult(const void * self) {
-		(void)self;
-
+	static bool virtualHasResult() {
 		return ! IsVoid<typename FT::ResultType>::Result;
 	}
 
-	static GMetaType virtualGetResultType(const void * self) {
-		(void)self;
-
+	static GMetaType virtualGetResultType() {
 		return createMetaType<typename FT::ResultType>();
 	}
 
-	static GMetaExtendType virtualGetResultExtendType(const void * self, uint32_t flags) {
-		(void)self;
-
+	static GMetaExtendType virtualGetResultExtendType(uint32_t flags) {
 		return createMetaExtendType<typename FT::ResultType>(flags);
 	}
 	
-	static bool virtualIsVariadic(const void * self) {
-		(void)self;
-
+	static bool virtualIsVariadic() {
 		return false;
 	}
 
-	static bool virtualCheckParam(const void * self, const GVariant & param, size_t paramIndex) {
-		(void)self;
-
+	static bool virtualCheckParam(const GVariant & param, size_t paramIndex) {
 		switch(paramIndex) {
 		case 0:
 			return canFromVariant<typename FT::ArgList::Arg0>(param);
@@ -570,47 +522,35 @@ private:
 		}
 	}
 
-	static GMetaType virtualCreateOperatorMetaType(const void * self) {
-		(void)self;
-
+	static GMetaType virtualCreateOperatorMetaType() {
 		return createMetaType<typename GFunctionTraits<Signature>::FullType>();
 	}
 
-	static GVariant virtualInvoke(const void * self, const GVariant & p0) {
-		(void)self;
-
+	static GVariant virtualInvoke(const GVariant & p0) {
 		return MetaUnaryOperator<OT,
 			MetaOperatorExecuter<Op, FT>,
 			CheckOperatorSelf<typename FT::ArgList::Arg0>::IsSelf
 		>::invoke(p0);
 	}
 
-	static GVariant virtualExecute(const void * self, void * instance, const GVariant * params, size_t paramCount) {
-		(void)instance;
-
-		if(paramCount != virtualGetParamCount(self)) {
-			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(self), paramCount);
+	static GVariant virtualExecute(const void * /*self*/, void * /*instance*/, const GVariant * params, size_t paramCount) {
+		if(paramCount != virtualGetParamCount()) {
+			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(), paramCount);
 		}
 
-		return virtualInvoke(self, params[0]);
+		return virtualInvoke(params[0]);
 	}
 
-	static bool virtualIsParamTransferOwnership(const void * self, size_t paramIndex) {
-		(void)self;
-
+	static bool virtualIsParamTransferOwnership(size_t paramIndex) {
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
 
-	static bool virtualIsResultTransferOwnership(const void * self) {
-		(void)self;
-
+	static bool virtualIsResultTransferOwnership() {
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags)
 	{
-		(void)self;
-		
 		return createMetaExtendType<FT>(flags);
 	}
 
@@ -652,28 +592,19 @@ private:
 	typedef GFunctionTraits<Signature> FT;
 
 private:
-	static GMetaOpType virtualGetOperator(const void * self) {
-		(void)self;
-
+	static GMetaOpType virtualGetOperator() {
 		return Op;
 	}
 
-	static size_t virtualGetParamCount(const void * self) {
-		(void)self;
-
+	static size_t virtualGetParamCount() {
 		return FT::Arity;
 	}
 
-	static bool virtualIsParamSelf(const void * self, size_t paramIndex) {
-		(void)self;
-		(void)paramIndex;
-
+	static bool virtualIsParamSelf(size_t /*paramIndex*/) {
 		return false;
 	}
 
-	static GMetaType virtualGetParamType(const void * self, size_t index) {
-		(void)self;
-
+	static GMetaType virtualGetParamType(size_t index) {
 		if(index < static_cast<size_t>(FT::Arity)) {
 			switch(index) {
 #define REF_GETPARAM_HELPER(N, unused) \
@@ -689,35 +620,27 @@ private:
 		return GMetaType();
 	}
 
-	static bool virtualHasResult(const void * self) {
-		(void)self;
-
+	static bool virtualHasResult() {
 		return ! IsVoid<typename FT::ResultType>::Result;
 	}
 
-	static GMetaType virtualGetResultType(const void * self) {
-		(void)self;
-
+	static GMetaType virtualGetResultType() {
 		return createMetaType<typename FT::ResultType>();
 	}
 
-	static GMetaExtendType virtualGetResultExtendType(const void * self, uint32_t flags) {
-		(void)self;
-
+	static GMetaExtendType virtualGetResultExtendType(uint32_t flags) {
 		return createMetaExtendType<typename FT::ResultType>(flags);
 	}
 	
-	static bool virtualIsVariadic(const void * self) {
-		(void)self;
-
+	static bool virtualIsVariadic() {
 		return IsVariadicFunction<FT>::Result;
 	}
 
 #define REF_CHECKPARAM_HELPER(N, unused) \
 	case N: return canFromVariant<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>(param);
 
-	static bool virtualCheckParam(const void * self, const GVariant & param, size_t paramIndex) {
-		if(paramIndex >= virtualGetParamCount(self)) {
+	static bool virtualCheckParam(const GVariant & param, size_t paramIndex) {
+		if(paramIndex >= virtualGetParamCount()) {
 			return false;
 		}
 
@@ -731,30 +654,28 @@ private:
 	}
 #undef REF_CHECKPARAM_HELPER
 
-	static GMetaType virtualCreateOperatorMetaType(const void * self) {
-		(void)self;
-
+	static GMetaType virtualCreateOperatorMetaType() {
 		return createMetaType<typename GFunctionTraits<Signature>::FullType>();
 	}
 
-	static GVariant virtualInvoke(const void * self, const GVariant & p0) {
-		return virtualInvokeFunctor(self, fromVariant<void *>(p0), NULL, 0);
+	static GVariant virtualInvoke(const GVariant & p0) {
+		return virtualInvokeFunctor(fromVariant<void *>(p0), NULL, 0);
 	}
 
-	static GVariant virtualInvoke2(const void * self, const GVariant & p0, const GVariant & p1) {
+	static GVariant virtualInvoke2(const GVariant & p0, const GVariant & p1) {
 		const GVariant * params = &p1;
 
-		return virtualInvokeFunctor(self, fromVariant<void *>(p0), &params, 1);
+		return virtualInvokeFunctor(fromVariant<void *>(p0), &params, 1);
 	}
 
-	static GVariant virtualInvokeFunctor(const void * self, void * instance, GVariant const * const * params, size_t paramCount) {
+	static GVariant virtualInvokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) {
 		if(!(
-				virtualIsVariadic(self)
-				|| paramCount == virtualGetParamCount(self)
-				|| (paramCount == virtualGetParamCount(self) - 1 && PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result)
+				virtualIsVariadic()
+				|| paramCount == virtualGetParamCount()
+				|| (paramCount == virtualGetParamCount() - 1 && PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result)
 			)
 		) {
-			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(self), paramCount);
+			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(), paramCount);
 		}
 
 		return GMetaInvokeHelper<OT,
@@ -770,8 +691,8 @@ private:
 	static GVariant virtualExecute(const void * self, void * instance, const GVariant * params, size_t paramCount) {
 		GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
-		if(!virtualIsVariadic(self) && paramCount != virtualGetParamCount(self)) {
-			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(self), paramCount);
+		if(!virtualIsVariadic() && paramCount != virtualGetParamCount()) {
+			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(), paramCount);
 		}
 
 		const cpgf::GVariant * variantPointers[REF_MAX_ARITY];
@@ -781,28 +702,22 @@ private:
 		}
 		
 		if(static_cast<const ThisType *>(self)->hasDefaultParam()) {
-			static_cast<const ThisType *>(self)->getDefaultParamList()->loadDefaultParams(variantPointers, paramCount, virtualGetParamCount(self));
+			static_cast<const ThisType *>(self)->getDefaultParamList()->loadDefaultParams(variantPointers, paramCount, virtualGetParamCount());
 		}
 
-		return virtualInvokeFunctor(self, instance, variantPointers, paramCount);
+		return virtualInvokeFunctor(instance, variantPointers, paramCount);
 	}
 
-	static bool virtualIsParamTransferOwnership(const void * self, size_t paramIndex) {
-		(void)self;
-
+	static bool virtualIsParamTransferOwnership(size_t paramIndex) {
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
 
-	static bool virtualIsResultTransferOwnership(const void * self) {
-		(void)self;
-
+	static bool virtualIsResultTransferOwnership() {
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	static GMetaExtendType virtualGetItemExtendType(const void * self, uint32_t flags)
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags)
 	{
-		(void)self;
-		
 		return createMetaExtendType<FT>(flags);
 	}
 

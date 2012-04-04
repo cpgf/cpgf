@@ -65,10 +65,8 @@ uint32_t GMetaArchiveConfig::getFlags() const
 }
 
 
-bool canSerializeItem(const GMetaArchiveConfig & config, IMetaItem * item)
+bool canSerializeItem(const GMetaArchiveConfig & /*config*/, IMetaItem * item)
 {
-	(void)config;
-
 	GScopedInterface<IMetaAnnotation> annotation(item->getAnnotation(SerializationAnnotation));
 
 	if(! annotation) {
@@ -90,10 +88,8 @@ bool canSerializeObject(const GMetaArchiveConfig & config, IMetaClass * metaClas
 	return canSerializeItem(config, metaClass);
 }
 
-bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * accessible, IMetaClass * ownerClass)
+bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * accessible, IMetaClass * /*ownerClass*/)
 {
-	(void) ownerClass;
-
 	if(! accessible->canGet()) {
 		return false;
 	}
@@ -104,11 +100,8 @@ bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * acce
 	return canSerializeItem(config, accessible);
 }
 
-bool canSerializeBaseClass(const GMetaArchiveConfig & config, IMetaClass * baseClass, IMetaClass * metaClass)
+bool canSerializeBaseClass(const GMetaArchiveConfig & /*config*/, IMetaClass * baseClass, IMetaClass * /*metaClass*/)
 {
-	(void)config;
-	(void)metaClass;
-
 	if(baseClass == NULL) {
 		return false;
 	}

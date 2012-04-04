@@ -40,32 +40,32 @@ void GMetaMethodDataBase::deleteObject()
 
 size_t GMetaMethodDataBase::getParamCount() const
 {
-	return this->virtualFunctions->getParamCount(this);
+	return this->virtualFunctions->getParamCount();
 }
 
 bool GMetaMethodDataBase::hasResult() const
 {
-	return this->virtualFunctions->hasResult(this);
+	return this->virtualFunctions->hasResult();
 }
 
 GMetaType GMetaMethodDataBase::getParamType(size_t index) const
 {
-	return this->virtualFunctions->getParamType(this, index);
+	return this->virtualFunctions->getParamType(index);
 }
 
 GMetaType GMetaMethodDataBase::getResultType() const
 {
-	return this->virtualFunctions->getResultType(this);
+	return this->virtualFunctions->getResultType();
 }
 
 bool GMetaMethodDataBase::isVariadic() const
 {
-	return this->virtualFunctions->isVariadic(this);
+	return this->virtualFunctions->isVariadic();
 }
 
 bool GMetaMethodDataBase::isExplicitThis() const
 {
-	return this->virtualFunctions->isExplicitThis(this);
+	return this->virtualFunctions->isExplicitThis();
 }
 
 GVariant GMetaMethodDataBase::invoke(void * instance, GVariant const * const * params, size_t paramCount) const
@@ -80,12 +80,12 @@ bool GMetaMethodDataBase::checkParam(const GVariant & param, size_t paramIndex) 
 
 bool GMetaMethodDataBase::isParamTransferOwnership(size_t paramIndex) const
 {
-	return this->virtualFunctions->isParamTransferOwnership(this, paramIndex);
+	return this->virtualFunctions->isParamTransferOwnership(paramIndex);
 }
 
 bool GMetaMethodDataBase::isResultTransferOwnership() const
 {
-	return this->virtualFunctions->isResultTransferOwnership(this);
+	return this->virtualFunctions->isResultTransferOwnership();
 }
 
 GMetaDefaultParamList * GMetaMethodDataBase::getDefaultParamList() const
@@ -256,11 +256,9 @@ bool GMetaConstructor::isVariadic() const
 	return this->baseData->isVariadic();
 }
 
-GVariant GMetaConstructor::execute(void * instance, const GVariant * params, size_t paramCount) const
+GVariant GMetaConstructor::execute(void * /*instance*/, const GVariant * params, size_t paramCount) const
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
-
-	(void)instance;
 
 	const cpgf::GVariant * variantPointers[REF_MAX_ARITY];
 

@@ -20,102 +20,94 @@ void GMetaOperatorDataBase::deleteObject()
 
 GMetaOpType GMetaOperatorDataBase::getOperator() const
 {
-	return this->virtualFunctions->getOperator(this);
+	return this->virtualFunctions->getOperator();
 }
 
 size_t GMetaOperatorDataBase::getParamCount() const
 {
-	return this->virtualFunctions->getParamCount(this);
+	return this->virtualFunctions->getParamCount();
 }
 
 bool GMetaOperatorDataBase::isParamSelf(size_t paramIndex) const
 {
-	return this->virtualFunctions->isParamSelf(this, paramIndex);
+	return this->virtualFunctions->isParamSelf(paramIndex);
 }
 
 GMetaType GMetaOperatorDataBase::getParamType(size_t paramIndex) const
 {
-	return this->virtualFunctions->getParamType(this, paramIndex);
+	return this->virtualFunctions->getParamType(paramIndex);
 }
 
 bool GMetaOperatorDataBase::hasResult() const
 {
-	return this->virtualFunctions->hasResult(this);
+	return this->virtualFunctions->hasResult();
 }
 
 GMetaType GMetaOperatorDataBase::getResultType() const
 {
-	return this->virtualFunctions->getResultType(this);
+	return this->virtualFunctions->getResultType();
 }
 
 bool GMetaOperatorDataBase::isVariadic() const
 {
-	return this->virtualFunctions->isVariadic(this);
+	return this->virtualFunctions->isVariadic();
 }
 
 bool GMetaOperatorDataBase::checkParam(const GVariant & param, size_t paramIndex) const
 {
-	return this->virtualFunctions->checkParam(this, param, paramIndex);
+	return this->virtualFunctions->checkParam(param, paramIndex);
 }
 
 GMetaType GMetaOperatorDataBase::createOperatorMetaType() const
 {
-	return this->virtualFunctions->createOperatorMetaType(this);
+	return this->virtualFunctions->createOperatorMetaType();
 }
 
 bool GMetaOperatorDataBase::isParamTransferOwnership(size_t paramIndex) const
 {
-	return this->virtualFunctions->isParamTransferOwnership(this, paramIndex);
+	return this->virtualFunctions->isParamTransferOwnership(paramIndex);
 }
 
 bool GMetaOperatorDataBase::isResultTransferOwnership() const
 {
-	return this->virtualFunctions->isResultTransferOwnership(this);
+	return this->virtualFunctions->isResultTransferOwnership();
 }
 
 GVariant GMetaOperatorDataBase::invoke(const GVariant & p0) const
 {
-	(void)p0;
-
 	if(this->virtualFunctions->invoke == NULL) {
 		raiseCoreException(Error_Meta_NotUnaryOperator);
 		return GVariant();
 	}
 	else {
-		return this->virtualFunctions->invoke(this, p0);
+		return this->virtualFunctions->invoke(p0);
 	}
 }
 
 GVariant GMetaOperatorDataBase::invoke(const GVariant & p0, const GVariant & p1) const
 {
-	(void)p0; (void)p1;
-
 	if(this->virtualFunctions->invoke2 == NULL) {
 		raiseCoreException(Error_Meta_NotBinaryOperator);
 		return GVariant();
 	}
 	else {
-		return this->virtualFunctions->invoke2(this, p0, p1);
+		return this->virtualFunctions->invoke2(p0, p1);
 	}
 }
 
 GVariant GMetaOperatorDataBase::invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const
 {
-	(void)instance; (void)params; (void)paramCount;
-
 	if(this->virtualFunctions->invokeFunctor == NULL) {
 		raiseCoreException(Error_Meta_NotFunctorOperator);
 		return GVariant();
 	}
 	else {
-		return this->virtualFunctions->invokeFunctor(this, instance, params, paramCount);
+		return this->virtualFunctions->invokeFunctor(instance, params, paramCount);
 	}
 }
 
 GVariant GMetaOperatorDataBase::execute(void * instance, const GVariant * params, size_t paramCount) const
 {
-	(void)instance; (void)params; (void)paramCount;
-
 	if(this->virtualFunctions->execute == NULL) {
 		raiseCoreException(Error_Meta_NotFunctorOperator);
 		return GVariant();
@@ -141,13 +133,11 @@ bool GMetaOperatorDataBase::hasDefaultParam() const
 }
 
 
-void operatorIndexOutOfBound(size_t index, size_t maxIndex)
+void operatorIndexOutOfBound(size_t /*index*/, size_t /*maxIndex*/)
 {
-	(void)index;
-	(void)maxIndex;
-
 	raiseCoreException(Error_Meta_ParamOutOfIndex);
 }
+
 std::string operatorToName(GMetaOpType op) {
 	char buffer[10];
 
