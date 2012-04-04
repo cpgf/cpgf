@@ -143,6 +143,8 @@ void initTestValue(TestSerializeClass & value, long long seed)
 TestSerializeArray::TestSerializeArray()
 {
 	LOOP3(B1, B2, B3) npo[z1][z2][z3] = NULL;
+
+	this->reset();
 }
 
 TestSerializeArray::~TestSerializeArray()
@@ -175,6 +177,16 @@ bool TestSerializeArray::operator == (const TestSerializeArray & other) const
 
 void TestSerializeArray::reset()
 {
+#define INIT2(v, d1, d2) LOOP2(d1, d2) initTestValue(v[z1][z2], getTestSeed(0));
+#define INIT3(v, d1, d2, d3) LOOP3(d1, d2, d3) initTestValue(v[z1][z2][z3], getTestSeed(0));
+	
+	INIT2(i, A1, A2)
+	INIT3(s, B1, B2, B3)
+	INIT3(o, B1, B2, B3)
+
+#undef INIT2
+#undef INIT3
+
 	LOOP3(B1, B2, B3) ps[z1][z2][z3] = NULL;
 	LOOP3(B1, B2, B3) po[z1][z2][z3] = NULL;
 	
@@ -186,8 +198,8 @@ void TestSerializeArray::reset()
 
 void TestSerializeArray::init()
 {
-#define INIT2(v, d1, d2) LOOP2(d1, d2) initTestValue(v[z1][z2], getTestSeed(0));
-#define INIT3(v, d1, d2, d3) LOOP3(d1, d2, d3) initTestValue(v[z1][z2][z3], getTestSeed(0));
+#define INIT2(v, d1, d2) LOOP2(d1, d2) initTestValue(v[z1][z2], getTestSeed(z1 * d2 + d2 + 1));
+#define INIT3(v, d1, d2, d3) LOOP3(d1, d2, d3) initTestValue(v[z1][z2][z3], getTestSeed(z1 * d2 * d3 + z2 * d3 + z3 + 1));
 	
 	INIT2(i, A1, A2)
 	INIT3(s, B1, B2, B3)
