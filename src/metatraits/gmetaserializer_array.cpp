@@ -9,12 +9,16 @@
 
 using namespace std;
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4996)
+#endif
 
 namespace cpgf {
 
 namespace metatraits_internal {
 
-const char * const elementFormat = "item%d";
+const char * const elementName = "item";
 
 class GMetaSerializerArray : public IMetaSerializer
 {
@@ -47,8 +51,6 @@ public:
 	}
 
 	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, GMetaArchiveWriterParam * param) {
-		char buffer[1024];
-
 		metaWriter->beginWriteArray(param->name, this->elementCount);
 
 		GMetaTypeData typeData = this->metaType.getData();
@@ -60,32 +62,25 @@ public:
 			else {
 				ptr = param->instance;
 			}
-			sprintf(buffer, elementFormat, i);
-			archiveWriter->writeObject(buffer, ptr, &typeData, this->elementSerializer.get());
+			archiveWriter->writeObject(elementName, ptr, &typeData, this->elementSerializer.get());
 			param->instance = static_cast<const char *>(param->instance) + this->elementSize;
 		}
 		
 		metaWriter->endWriteArray(param->name, this->elementCount);
 	}
 	
-	virtual void * G_API_CC allocateObject(IMetaArchiveReader * archiveReader, IMetaClass * metaClass) {
-		(void)archiveReader;
-		(void)metaClass;
-
+	virtual void * G_API_CC allocateObject(IMetaArchiveReader * /*archiveReader*/, IMetaClass * /*metaClass*/) {
 		return NULL;
 	}
 
-	virtual void G_API_CC readObject(const char * name, IMetaArchiveReader * archiveReader, IMetaReader * metaReader, void * instance, IMetaClass * metaClass) {
-		char buffer[1024];
-
+	virtual void G_API_CC readObject(const char * name, IMetaArchiveReader * archiveReader, IMetaReader * metaReader, void * instance, IMetaClass * /*metaClass*/) {
 		uint32_t length = metaReader->beginReadArray(name);
 		
 		GASSERT(length == this->elementCount);
 
 		GMetaTypeData typeData = this->metaType.getData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
-			sprintf(buffer, elementFormat, i);
-			archiveReader->readObject(buffer, instance, &typeData, this->elementSerializer.get());
+			archiveReader->readObject(elementName, instance, &typeData, this->elementSerializer.get());
 			instance = static_cast<char *>(instance) + this->elementSize;
 		}
 

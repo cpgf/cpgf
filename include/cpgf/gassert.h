@@ -24,9 +24,7 @@ struct GStaticAssertCheck <true> { enum { a = 1 }; };
 	#define GASSERT(expr) gassert((bool)(expr), "assert failure", __FILE__, __LINE__);
 	#define GASSERT_MSG(expr, msg) gassert((bool)(expr), msg, __FILE__, __LINE__);
 
-	inline void gassert(bool expr, const char * msg, const char * file, int line) {
-		(void)file;
-		(void)line;
+	inline void gassert(bool expr, const char * msg, const char * /*file*/, int /*line*/) {
 		if(!expr) {
 			throw std::runtime_error(msg);
 		}

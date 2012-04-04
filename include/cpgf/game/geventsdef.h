@@ -22,10 +22,8 @@ public:
 		: super(data.message, source), key(data.key), screenX(data.screenX), screenY(data.screenY) {
 	}
 
-	GTouchInputEvent(void * source, int message, int key, gcoord x, gcoord y)
+	GTouchInputEvent(void * source, int message, int key, gcoord /*x*/, gcoord /*y*/)
 		: super(message, source), key(key), screenX(screenX), screenY(screenY) {
-		(void)x;
-		(void)y;
 	}
 
 

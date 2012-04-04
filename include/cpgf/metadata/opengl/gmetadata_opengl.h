@@ -18,10 +18,8 @@ namespace metadata_internal {
 
 
 template <typename MetaDefine>
-void doBuildMetaData_open_gl_constants(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer)
+void doBuildMetaData_open_gl_constants(const GMetaDataConfigFlags & /*config*/, MetaDefine define, const GMetaDataNameReplacer * replacer)
 {
-	(void)config;
-
 	define.CPGF_MD_TEMPLATE _enum<int>("gl_enum")
 
 		/* Version */
@@ -1119,10 +1117,8 @@ void doBuildMetaData_open_gl_constants(const GMetaDataConfigFlags & config, Meta
 }
 
 template <typename MetaDefine>
-void doBuildMetaData_open_gl_functions(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer)
+void doBuildMetaData_open_gl_functions(const GMetaDataConfigFlags & /*config*/, MetaDefine define, const GMetaDataNameReplacer * replacer)
 {
-	(void)config;
-
 	GM(glAccum)
 	GM(glAlphaFunc)
 	GM(glAreTexturesResident)

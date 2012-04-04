@@ -166,8 +166,7 @@ struct ObjectDeleter
 template <typename T>
 struct ObjectDeleter <T, false>
 {
-	static void deleteObject(void * instance) {
-		(void)instance;
+	static void deleteObject(void * /*instance*/) {
 	}
 };
 

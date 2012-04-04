@@ -12,8 +12,8 @@ using namespace cpgf;
 
 namespace {
 
-template <typename AR>
-void doTestArrayInObject(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
+template <typename READER, typename AR>
+void doTestArrayInObject(IMetaService * service, IMetaWriter * writer, const READER & reader, const AR & ar)
 {
 	const char * const serializeObjectName = "arrayInObject";
 
@@ -30,7 +30,7 @@ void doTestArrayInObject(IMetaService * service, IMetaWriter * writer, IMetaRead
 
 	ar.rewind();
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
 	
 	TestSerializeArray readInstance;
 	
@@ -41,7 +41,7 @@ void doTestArrayInObject(IMetaService * service, IMetaWriter * writer, IMetaRead
 	GEQUAL(instance, readInstance);
 }
 
-GTEST(testArrayInObject)
+GTEST(testArrayInObject_TextStream)
 {
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
@@ -55,7 +55,26 @@ GTEST(testArrayInObject)
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
 	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestArrayInObject(service.get(), writer.get(), reader.get(), TestArchiveStream<stringstream>(stream));
+	doTestArrayInObject(service.get(), writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
+	
+//	cout << stream.str().c_str() << endl;
+}
+
+
+GTEST(testArrayInObject)
+{
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+	register_TestSerializeArray(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
+	stringstream stream;
+
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	
+	doTestArrayInObject(service.get(), writer.get(), MetaReaderGetterXml(service.get(), stream), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

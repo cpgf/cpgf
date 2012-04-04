@@ -26,7 +26,7 @@ struct IMetaReader : public IObject
 	virtual uint32_t G_API_CC getArchiveType(const char * name) = 0;
 	virtual uint32_t G_API_CC getClassType(const char * name) = 0;
 
-	virtual void G_API_CC readFundamental(const char * name, uint32_t * outArchiveID, GVariantData * outValue) = 0;
+	virtual void G_API_CC readFundamental(const char * name, GVariantData * outValue) = 0;
 	virtual char * G_API_CC readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID) = 0;
 	virtual void * G_API_CC readNullPointer(const char * name) = 0;
 

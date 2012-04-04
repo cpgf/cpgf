@@ -114,7 +114,6 @@ template <typename READER, typename AR>
 void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, const READER & reader, const AR & ar)
 {
 	const char * const serializeObjectName = "polymorphic";
-	const char * const serializeObjectName2 = "polymorphic2";
 	
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassR"));
 
@@ -138,7 +137,7 @@ void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, const READE
 	pd2->a = 25;
 	pd2->d = 26;
 
-	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName2, &instance2, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance2, metaClass.get());
 
 	writer->flush();
 
@@ -160,7 +159,7 @@ void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, const READE
 
 	R readInstance2;
 
-	serializeReadObject(archiveReader.get(), serializeObjectName2, &readInstance2, metaClass.get());
+	serializeReadObject(archiveReader.get(), serializeObjectName, &readInstance2, metaClass.get());
 
 	GCHECK(readInstance2.pa != NULL);
 	GEQUAL(CD, readInstance2.pa->get());

@@ -223,8 +223,7 @@ public:
 	GCallbackTrackable() {
 	}
 
-	GCallbackTrackable(const GCallbackTrackable & other) {
-		(void)other;
+	GCallbackTrackable(const GCallbackTrackable & /*other*/) {
 	}
 
 	~GCallbackTrackable() {

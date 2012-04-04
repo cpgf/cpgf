@@ -341,7 +341,7 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 		case matFundamental: {
 			if(metaType.isFundamental()) {
 				vtSetType(data.typeData, metaType.getVariantType());
-				this->reader->readFundamental(name, &archiveID, &data);
+				this->reader->readFundamental(name, &data);
 				writeFundamental(address, metaType, GVariant(data));
 			}
 			else {
@@ -465,8 +465,7 @@ void GMetaArchiveReader::doReadMember(const char * name, void * instance, IMetaA
 	if(isProperty) {
 		if(pointers == 0 && metaType.isFundamental()) {
 			GVariantData data;
-			uint32_t archiveID;
-			this->reader->readFundamental(name, &archiveID, &data);
+			this->reader->readFundamental(name, &data);
 			accessible->set(instance, &data);
 			return;
 		}

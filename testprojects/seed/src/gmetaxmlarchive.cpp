@@ -14,6 +14,11 @@
 using namespace std;
 using namespace rapidxml;
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4996)
+#endif
+
 
 namespace cpgf {
 
@@ -23,9 +28,6 @@ namespace serialization_internal {
 
 typedef xml_node<char> XmlNodeType;	
 typedef xml_attribute<char> XmlAttributeType;
-
-typedef stack<XmlNodeType *> ObjectNodeStack;
-
 
 const char * const nameRootNode = "cpgf";
 const char * const nameDataNode = "data";
@@ -38,32 +40,45 @@ const char * const nameClassTypeID = "cid";
 const char * const nameLength = "len";
 const char * const prefixClassType = "c";
 
-void checkNode(void * node, const char * nodeName)
+void checkNode(void * node, const char * /*nodeName*/)
 {
 	if(node == NULL) {
 		serializeError(Error_Serialization_InvalidStorage);
 	}
 }
 
+XmlNodeType * getSiblingAt(XmlNodeType * node, const char * name, size_t index)
+{
+	while(index > 0 && node != NULL) {
+		--index;
+		node = node->next_sibling(name);
+	}
+
+	return node;
+}
+
 
 class GXmlMetaWriter : public IMetaWriter
 {
 	GMAKE_NONCOPYABLE(GXmlMetaWriter);
-	
+
+private:
+	typedef stack<XmlNodeType *> ObjectNodeStack;
+
 public:
 	GXmlMetaWriter(std::ostream & outputStream, serialization_internal::FuncStreamWriteFundamental streamWriteFundamental);
 
 protected:
 	G_INTERFACE_IMPL_OBJECT
 
-	virtual void G_API_CC writeFundamental(const char * name, uint32_t archiveID, const GVariantData * value);
+	virtual void G_API_CC writeFundamental(const char * name, const GVariantData * value);
 	virtual void G_API_CC writeString(const char * name, uint32_t archiveID, const char * value);
 	virtual void G_API_CC writeNullPointer(const char * name);
 	
 	virtual void G_API_CC beginWriteObject(GMetaArchiveWriterParam * param);
 	virtual void G_API_CC endWriteObject(GMetaArchiveWriterParam * param);
 
-	virtual void G_API_CC writeReferenceID(const char * name, uint32_t archiveID, uint32_t referenceArchiveID);
+	virtual void G_API_CC writeReferenceID(const char * name, uint32_t referenceArchiveID);
 	virtual void G_API_CC writeClassType(uint32_t classTypeID, IMetaClass * metaClass);
 
 	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length);
@@ -96,12 +111,38 @@ private:
 	XmlNodeType * classTypeNode;
 };
 
+class GXmlMetaReaderNameTracker
+{
+private:
+	typedef GStringMap<size_t, GStringMapReuseKey> MapType;
+
+public:
+	explicit GXmlMetaReaderNameTracker(XmlNodeType * node);
+	void free();
+
+	GXmlMetaReaderNameTracker(const GXmlMetaReaderNameTracker & other);
+	GXmlMetaReaderNameTracker & operator = (const GXmlMetaReaderNameTracker & other);
+
+	XmlNodeType * getNode() const;
+
+	size_t getIndex(const char * name) const;
+	void addIndex(const char * name);
+
+private:
+	XmlNodeType * node;
+	MapType * countMap;
+};
+
 class GXmlMetaReader : public IMetaReader
 {
 	GMAKE_NONCOPYABLE(GXmlMetaReader);
 
+private:
+	typedef stack<GXmlMetaReaderNameTracker> ObjectNodeStack;
+
 public:
 	GXmlMetaReader(IMetaService * service, char * xmlContent, serialization_internal::FuncStreamReadFundamental streamReadFundamental);
+	~GXmlMetaReader();
 
 protected:
 	G_INTERFACE_IMPL_OBJECT
@@ -109,7 +150,7 @@ protected:
 	virtual uint32_t G_API_CC getArchiveType(const char * name);
 	virtual uint32_t G_API_CC getClassType(const char * name);
 	
-	virtual void G_API_CC readFundamental(const char * name, uint32_t * outArchiveID, GVariantData * outValue);
+	virtual void G_API_CC readFundamental(const char * name, GVariantData * outValue);
 	virtual char * G_API_CC readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID);
 	virtual void * G_API_CC readNullPointer(const char * name);
 
@@ -131,10 +172,13 @@ private:
 	XmlNodeType * getCurrentNode() const;
 	void pushNode(XmlNodeType * node);
 	void popNode();
+	void doPopNode();
 
 	XmlNodeType * getNode(const char * name);
+	void gotoNextNode(XmlNodeType * currentNode, const char * name);
+
 	XmlAttributeType * getAttribute(XmlNodeType * node, const char * name);
-	long long getIntAttribute(XmlNodeType * node, const char * name);
+	uint32_t getIntAttribute(XmlNodeType * node, const char * name);
 	PermanentType readType(XmlNodeType * node);
 
 private:
@@ -174,7 +218,7 @@ GXmlMetaWriter::GXmlMetaWriter(std::ostream & outputStream, serialization_intern
 	rootNode->append_node(this->classTypeNode);
 }
 
-void G_API_CC GXmlMetaWriter::writeFundamental(const char * name, uint32_t archiveID, const GVariantData * value)
+void G_API_CC GXmlMetaWriter::writeFundamental(const char * name, const GVariantData * value)
 {
 	GVariant v(*value);
 
@@ -207,12 +251,12 @@ void G_API_CC GXmlMetaWriter::beginWriteObject(GMetaArchiveWriterParam * param)
 	this->addIntAttribute(newNode, nameClassTypeID, param->classTypeID);
 }
 
-void G_API_CC GXmlMetaWriter::endWriteObject(GMetaArchiveWriterParam * param)
+void G_API_CC GXmlMetaWriter::endWriteObject(GMetaArchiveWriterParam * /*param*/)
 {
 	this->popNode();
 }
 
-void G_API_CC GXmlMetaWriter::writeReferenceID(const char * name, uint32_t archiveID, uint32_t referenceArchiveID)
+void G_API_CC GXmlMetaWriter::writeReferenceID(const char * name, uint32_t referenceArchiveID)
 {
 	XmlNodeType * newNode = this->addNode(name);
 	this->addType(newNode, ptReferenceID);
@@ -238,7 +282,7 @@ void G_API_CC GXmlMetaWriter::beginWriteArray(const char * name, uint32_t length
 	this->addIntAttribute(newNode, nameLength, length);
 }
 
-void G_API_CC GXmlMetaWriter::endWriteArray(const char * name, uint32_t length)
+void G_API_CC GXmlMetaWriter::endWriteArray(const char * /*name*/, uint32_t /*length*/)
 {
 	this->popNode();
 }
@@ -320,6 +364,58 @@ void GXmlMetaWriter::addType(XmlNodeType * node, int permanentType)
 
 
 
+GXmlMetaReaderNameTracker::GXmlMetaReaderNameTracker(XmlNodeType * node)
+	: node(node), countMap(NULL)
+{
+}
+
+void GXmlMetaReaderNameTracker::free()
+{
+	delete this->countMap;
+	this->countMap = NULL;
+}
+
+GXmlMetaReaderNameTracker::GXmlMetaReaderNameTracker(const GXmlMetaReaderNameTracker & other)
+	: node(other.node), countMap(other.countMap)
+{
+}
+
+GXmlMetaReaderNameTracker & GXmlMetaReaderNameTracker::operator = (const GXmlMetaReaderNameTracker & other)
+{
+	this->node = other.node;
+	this->countMap = other.countMap;
+
+	return *this;
+}
+
+XmlNodeType * GXmlMetaReaderNameTracker::getNode() const
+{
+	return this->node;
+}
+
+size_t GXmlMetaReaderNameTracker::getIndex(const char * name) const
+{
+	if(this->countMap != NULL) {
+		MapType::const_iterator it = this->countMap->find(name);
+		if(it != this->countMap->end()) {
+			return it->second;
+		}
+	}
+
+	return 0;
+}
+
+void GXmlMetaReaderNameTracker::addIndex(const char * name)
+{
+	if(this->countMap == NULL) {
+		this->countMap = new MapType;
+	}
+
+	this->countMap->set(name, this->getIndex(name) + 1);
+}
+
+
+
 GXmlMetaReader::GXmlMetaReader(IMetaService * service, char * xmlContent, serialization_internal::FuncStreamReadFundamental streamReadFundamental)
 	: service(service), streamReadFundamental(streamReadFundamental), variantTypeMap(defaultVariantTypeMap)
 {
@@ -331,13 +427,20 @@ GXmlMetaReader::GXmlMetaReader(IMetaService * service, char * xmlContent, serial
 	XmlNodeType * dataNode = rootNode->first_node(nameDataNode);
 	checkNode(dataNode, "dataNode");
 	
-	this->nodeStack.push(dataNode);
+	this->nodeStack.push(GXmlMetaReaderNameTracker(dataNode));
 
 	this->classTypeNode = rootNode->first_node(nameClassTypesNode);
 	checkNode(this->classTypeNode, "classTypeNode");
 
 	if(this->service) {
 		this->service->addReference();
+	}
+}
+
+GXmlMetaReader::~GXmlMetaReader()
+{
+	while(! this->nodeStack.empty()) {
+		this->doPopNode();
 	}
 }
 
@@ -381,7 +484,7 @@ uint32_t G_API_CC GXmlMetaReader::getClassType(const char * name)
 	return classTypeID;
 }
 
-void G_API_CC GXmlMetaReader::readFundamental(const char * name, uint32_t * outArchiveID, GVariantData * outValue)
+void G_API_CC GXmlMetaReader::readFundamental(const char * name, GVariantData * outValue)
 {
 	XmlNodeType * node = this->getNode(name);
 	checkNode(node, name);
@@ -397,6 +500,8 @@ void G_API_CC GXmlMetaReader::readFundamental(const char * name, uint32_t * outA
 
 	GVariant v(this->streamReadFundamental(this->textStream, vt));
 	*outValue = v.takeData();
+
+	this->gotoNextNode(node, name);
 }
 
 char * G_API_CC GXmlMetaReader::readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID)
@@ -409,11 +514,21 @@ char * G_API_CC GXmlMetaReader::readString(const char * name, IMemoryAllocator *
 
 	*outArchiveID = this->getIntAttribute(node, nameArchiveID);
 	
-	return this->doReadString(node, allocator);
+	char * s = this->doReadString(node, allocator);
+
+	this->gotoNextNode(node, name);
+
+	return s;
 }
 
 void * G_API_CC GXmlMetaReader::readNullPointer(const char * name)
 {
+	XmlNodeType * node = this->getNode(name);
+
+	if(node != NULL) {
+		this->gotoNextNode(node, name);
+	}
+
 	return NULL;
 }
 
@@ -427,12 +542,14 @@ uint32_t G_API_CC GXmlMetaReader::beginReadObject(GMetaArchiveReaderParam * para
 
 	uint32_t archiveID = this->getIntAttribute(node, nameArchiveID);
 
+	this->gotoNextNode(node, param->name);
+
 	this->pushNode(node);
 
 	return archiveID;
 }
 
-void G_API_CC GXmlMetaReader::endReadObject(GMetaArchiveReaderParam * param)
+void G_API_CC GXmlMetaReader::endReadObject(GMetaArchiveReaderParam * /*param*/)
 {
 	this->popNode();
 }
@@ -447,10 +564,12 @@ uint32_t G_API_CC GXmlMetaReader::readReferenceID(const char * name)
 
 	uint32_t referenceArchiveID = this->getIntAttribute(node, nameReferenceID);
 	
+	this->gotoNextNode(node, name);
+
 	return referenceArchiveID;
 }
 
-IMetaClass * G_API_CC GXmlMetaReader::readClassAndTypeID(uint32_t * outClassTypeID)
+IMetaClass * G_API_CC GXmlMetaReader::readClassAndTypeID(uint32_t * /*outClassTypeID*/)
 {
 	return NULL;
 }
@@ -478,12 +597,14 @@ uint32_t G_API_CC GXmlMetaReader::beginReadArray(const char * name)
 
 	uint32_t len = this->getIntAttribute(node, nameLength);
 
+	this->gotoNextNode(node, name);
+
 	this->pushNode(node);
 
 	return len;
 }
 
-void G_API_CC GXmlMetaReader::endReadArray(const char * name)
+void G_API_CC GXmlMetaReader::endReadArray(const char * /*name*/)
 {
 	this->popNode();
 }
@@ -491,7 +612,7 @@ void G_API_CC GXmlMetaReader::endReadArray(const char * name)
 char * GXmlMetaReader::doReadString(XmlNodeType * node, IMemoryAllocator * allocator)
 {
 	char * s = node->value();
-	char * result = static_cast<char *>(allocator->allocate(strlen(s) + 1));
+	char * result = static_cast<char *>(allocator->allocate(static_cast<uint32_t>(strlen(s) + 1)));
 	strcpy(result, s);
 	return result;
 }
@@ -504,27 +625,43 @@ void GXmlMetaReader::setTextStream(const char * text)
 
 XmlNodeType * GXmlMetaReader::getCurrentNode() const
 {
-	return this->nodeStack.top();
+	return this->nodeStack.top().getNode();;
 }
 
 void GXmlMetaReader::pushNode(XmlNodeType * node)
 {
-	this->nodeStack.push(node);
+	this->nodeStack.push(GXmlMetaReaderNameTracker(node));
 }
 
 void GXmlMetaReader::popNode()
 {
 	GASSERT(! this->nodeStack.empty());
 
-	this->nodeStack.pop();
+	this->doPopNode();
 
 	// still can't be empty, because there at least be the root node.
 	GASSERT(! this->nodeStack.empty());
 }
 
+void GXmlMetaReader::doPopNode()
+{
+	this->nodeStack.top().free();
+	this->nodeStack.pop();
+}
+
 XmlNodeType * GXmlMetaReader::getNode(const char * name)
 {
-	return this->getCurrentNode()->first_node(name);
+	XmlNodeType * firstNode = this->getCurrentNode()->first_node(name);
+	size_t index = this->nodeStack.top().getIndex(name);
+
+	return getSiblingAt(firstNode, name, index);
+}
+
+void GXmlMetaReader::gotoNextNode(XmlNodeType * currentNode, const char * name)
+{
+	if(currentNode->next_sibling(name) != 0) {
+		this->nodeStack.top().addIndex(name);
+	}
 }
 
 XmlAttributeType * GXmlMetaReader::getAttribute(XmlNodeType * node, const char * name)
@@ -532,14 +669,14 @@ XmlAttributeType * GXmlMetaReader::getAttribute(XmlNodeType * node, const char *
 	return node->first_attribute(name);
 }
 
-long long GXmlMetaReader::getIntAttribute(XmlNodeType * node, const char * name)
+uint32_t GXmlMetaReader::getIntAttribute(XmlNodeType * node, const char * name)
 {
 	XmlAttributeType * attribute = this->getAttribute(node, name);
 	
 	checkNode(attribute, name);
 	this->setTextStream(attribute->value());
 
-	long long value = 0;
+	uint32_t value = 0;
 	this->textStream >> value;
 
 	return value;

@@ -319,9 +319,7 @@ namespace _internal {
 			}
 		}
 
-		GWiseIteratorRetainer & operator = (const GWiseIteratorRetainer &other) {
-			(void)other;
-
+		GWiseIteratorRetainer & operator = (const GWiseIteratorRetainer &) {
 			return *this;
 		}
 

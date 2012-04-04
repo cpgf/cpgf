@@ -22,10 +22,7 @@ public:
 	virtual gapi_bool G_API_CC canToCString() {
 		return false;
 	}
-	virtual const char * G_API_CC toCString(const void * instance, gapi_bool * needFree, IMemoryAllocator * allocator) {
-		(void)instance;
-		(void)allocator;
-
+	virtual const char * G_API_CC toCString(const void * /*instance*/, gapi_bool * needFree, IMemoryAllocator * /*allocator*/) {
 		*needFree = false;
 
 		return NULL;

@@ -29,8 +29,7 @@ struct GStringMapReuseKey
 		return key;
 	}
 
-	static void freeKey(const char * key) {
-		(void)key;
+	static void freeKey(const char * /*key*/) {
 	}
 };
 

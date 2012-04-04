@@ -27,14 +27,14 @@ struct GMetaArchiveWriterParam
 
 struct IMetaWriter : public IObject
 {
-	virtual void G_API_CC writeFundamental(const char * name, uint32_t archiveID, const GVariantData * value) = 0;
+	virtual void G_API_CC writeFundamental(const char * name, const GVariantData * value) = 0;
 	virtual void G_API_CC writeString(const char * name, uint32_t archiveID, const char * value) = 0;
 	virtual void G_API_CC writeNullPointer(const char * name) = 0;
 
 	virtual void G_API_CC beginWriteObject(GMetaArchiveWriterParam * param) = 0;
 	virtual void G_API_CC endWriteObject(GMetaArchiveWriterParam * param) = 0;
 
-	virtual void G_API_CC writeReferenceID(const char * name, uint32_t archiveID, uint32_t referenceArchiveID) = 0;
+	virtual void G_API_CC writeReferenceID(const char * name, uint32_t referenceArchiveID) = 0;
 	virtual void G_API_CC writeClassType(uint32_t classTypeID, IMetaClass * metaClass) = 0;
 
 	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length) = 0;

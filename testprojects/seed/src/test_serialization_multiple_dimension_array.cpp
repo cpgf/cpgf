@@ -17,8 +17,8 @@ using namespace cpgf;
 
 namespace {
 
-template <typename AR>
-void doTestMultipleDimensionArray(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
+template <typename READER, typename AR>
+void doTestMultipleDimensionArray(IMetaService * service, IMetaWriter * writer, const READER & reader, const AR & ar)
 {
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
 
@@ -63,7 +63,7 @@ void doTestMultipleDimensionArray(IMetaService * service, IMetaWriter * writer, 
 	
 	ar.rewind();
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
 
 	int ri[A1][A2];
 	string rs2[A1][A2];
@@ -88,14 +88,14 @@ void doTestMultipleDimensionArray(IMetaService * service, IMetaWriter * writer, 
 	LOOP3(B1, B2, B3) rpo[z1][z2][z3] = NULL;
 	LOOP3(B1, B2, B3) rnpo[z1][z2][z3] = NULL;
 
-	serializeReadValue(archiveReader.get(), "ri", ri);
-	serializeReadValue(archiveReader.get(), "rl", rl);
-	serializeReadValue(archiveReader.get(), "rs2", rs2);
-	serializeReadValue(archiveReader.get(), "rs", rs);
-	serializeReadValue(archiveReader.get(), "rps", rps);
-	serializeReadValue(archiveReader.get(), "ro", ro);
-	serializeReadValue(archiveReader.get(), "rpo", rpo);
-	serializeReadValue(archiveReader.get(), "rnpo", rnpo);
+	serializeReadValue(archiveReader.get(), "i", ri);
+	serializeReadValue(archiveReader.get(), "l", rl);
+	serializeReadValue(archiveReader.get(), "s2", rs2);
+	serializeReadValue(archiveReader.get(), "s", rs);
+	serializeReadValue(archiveReader.get(), "ps", rps);
+	serializeReadValue(archiveReader.get(), "o", ro);
+	serializeReadValue(archiveReader.get(), "po", rpo);
+	serializeReadValue(archiveReader.get(), "npo", rnpo);
 
 #define EQ2(v, u, d1, d2) LOOP2(d1, d2) GEQUAL(v[z1][z2], u[z1][z2]);
 	EQ2(i, ri, A1, A2)
@@ -115,7 +115,7 @@ void doTestMultipleDimensionArray(IMetaService * service, IMetaWriter * writer, 
 	LOOP3(B1, B2, B3) delete rnpo[z1][z2][z3];
 }
 
-GTEST(testMultipleDimensionArray)
+GTEST(testMultipleDimensionArray_TextStream)
 {
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
@@ -128,7 +128,25 @@ GTEST(testMultipleDimensionArray)
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
 	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestMultipleDimensionArray(service.get(), writer.get(), reader.get(), TestArchiveStream<stringstream>(stream));
+	doTestMultipleDimensionArray(service.get(), writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
+
+///	cout << stream.str().c_str() << endl;
+}
+
+
+GTEST(testMultipleDimensionArray_Xml)
+{
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
+	stringstream stream;
+
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	
+	doTestMultipleDimensionArray(service.get(), writer.get(), MetaReaderGetterXml(service.get(), stream), TestArchiveStream<stringstream>(stream));
 
 ///	cout << stream.str().c_str() << endl;
 }

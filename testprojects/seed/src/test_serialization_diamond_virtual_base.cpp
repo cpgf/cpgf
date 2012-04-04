@@ -114,8 +114,8 @@ void register_TestSerializeClass(Define define)
 
 }
 
-template <typename AR>
-void doTestDiamondVirtualBase(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
+template <typename READER, typename AR>
+void doTestDiamondVirtualBase(IMetaService * service, IMetaWriter * writer, const READER & reader, const AR & ar)
 {
 	const char * const serializeObjectName = "diamondVirtualBase";
 	
@@ -138,7 +138,7 @@ void doTestDiamondVirtualBase(IMetaService * service, IMetaWriter * writer, IMet
 	
 	ar.rewind();
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
 	
 	D readInstance;
 	
@@ -152,7 +152,7 @@ void doTestDiamondVirtualBase(IMetaService * service, IMetaWriter * writer, IMet
 	GEQUAL(1, writeCount);
 }
 
-GTEST(testDiamondVirtualBase)
+GTEST(testDiamondVirtualBase_TextStream)
 {
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
@@ -165,7 +165,25 @@ GTEST(testDiamondVirtualBase)
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
 	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestDiamondVirtualBase(service.get(), writer.get(), reader.get(), TestArchiveStream<stringstream>(stream));
+	doTestDiamondVirtualBase(service.get(), writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
+	
+//	cout << stream.str().c_str() << endl;
+}
+
+
+GTEST(testDiamondVirtualBase_Xml)
+{
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
+	stringstream stream;
+
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	
+	doTestDiamondVirtualBase(service.get(), writer.get(), MetaReaderGetterXml(service.get(), stream), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

@@ -37,10 +37,7 @@ struct GScopedInterfaceResetPredict
 {
 	// dont restrict that p != this->rawPointer
 	// even if the pointer is the same, it's necessary to reset to release one reference count.
-	static inline bool CanReset(T * pointerOfMine, T * pointerToReset) {
-		(void)pointerOfMine;
-		(void)pointerToReset;
-
+	static inline bool CanReset(T * /*pointerOfMine*/, T * /*pointerToReset*/) {
 		return true;
 	}
 };

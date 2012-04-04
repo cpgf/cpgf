@@ -51,10 +51,8 @@ void helper_glutJoystickFunc(IScriptFunction * scriptFunction, int pollInterval)
 
 
 template <typename MetaDefine>
-void doBuildMetaData_open_glut_constants(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer)
+void doBuildMetaData_open_glut_constants(const GMetaDataConfigFlags & /*config*/, MetaDefine define, const GMetaDataNameReplacer * replacer)
 {
-	(void)config;
-
 	define.CPGF_MD_TEMPLATE _enum<int>("glut_enum")
 
 		GENUM_VALUE(GLUT_API_VERSION)
@@ -332,10 +330,8 @@ void doBuildMetaData_open_glut_constants(const GMetaDataConfigFlags & config, Me
 }
 
 template <typename MetaDefine>
-void doBuildMetaData_open_glut_functions(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer)
+void doBuildMetaData_open_glut_functions(const GMetaDataConfigFlags & /*config*/, MetaDefine define, const GMetaDataNameReplacer * replacer)
 {
-	(void)config;
-
 	/* GLUT initialization sub-API. */
 	GM(glutInit)
 	#if defined(_WIN32) && !defined(GLUT_DISABLE_ATEXIT_HACK)

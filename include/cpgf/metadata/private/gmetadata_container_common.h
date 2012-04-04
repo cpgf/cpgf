@@ -13,11 +13,8 @@ namespace cpgf {
 namespace metadata_internal {
 
 template <typename T, typename MetaDefine, typename Policy>
-void buildMetaData_CommonContainer(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer)
+void buildMetaData_CommonContainer(const GMetaDataConfigFlags & /*config*/, MetaDefine define, const Policy & /*policy*/, const GMetaDataNameReplacer * replacer)
 {
-	(void)config;
-	(void)policy;
-
 	define
 		.CPGF_MD_TEMPLATE _constructor<void * ()>()
 		.CPGF_MD_TEMPLATE _constructor<void * (const T &)>()

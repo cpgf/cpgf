@@ -157,16 +157,12 @@ struct CBInplaceMeasure;
 template <>
 struct CBInplaceMeasure<true> {
 	template <typename T, typename PT1, typename PT2>
-	static T * newObject(void * buffer, const PT1 & p1, const PT2 & p2) {
-		(void)buffer;
-
+	static T * newObject(void * /*buffer*/, const PT1 & p1, const PT2 & p2) {
 		return new T(p1, p2);
 	}
 
 	template <typename T, typename PT1>
-	static T * newObject(void * buffer, const PT1 & p1) {
-		(void)buffer;
-
+	static T * newObject(void * /*buffer*/, const PT1 & p1) {
 		return new T(p1);
 	}
 
@@ -360,7 +356,7 @@ protected:
 	typedef DerivedT DerivedType;
 
 	static void virtualDestructObject(void * self) {
-		(void)self;
+		(void)self; // VC will issue unused parameter without this line?
 		static_cast<ThisType *>(self)->~GCallbackMemberBase();
 	}
 
@@ -422,14 +418,10 @@ protected:
 	typedef GCallbackFunctorBase<InvokeType> BaseType;
 
 	static void virtualDestructObject(void * self) {
-		(void)self;
-
 		static_cast<ThisType *>(self)->~GCallbackGlobalBase();
 	}
 
-	static void * virtualSetOrGetObject(const void * self, void * o, bool set) {
-		(void)self; (void)o; (void)set;
-
+	static void * virtualSetOrGetObject(const void * /*self*/, void * /*o*/, bool /*set*/) {
 		return NULL;
 	}
 

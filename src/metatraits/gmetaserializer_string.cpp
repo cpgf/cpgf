@@ -14,11 +14,7 @@ class GMetaSerializerString : public IMetaSerializer
 	G_INTERFACE_IMPL_EXTENDOBJECT
 	
 public:
-	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, const void * instance, IMetaClass * metaClass) {
-		(void)archiveWriter;
-		(void)instance;
-		(void)metaClass;
-
+	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * /*archiveWriter*/, const void * /*instance*/, IMetaClass * /*metaClass*/) {
 		return "meta_ser_std_string";
 	}
 	
@@ -27,17 +23,11 @@ public:
 		metaWriter->writeString(param->name, param->archiveID, static_cast<const std::string *>(param->instance)->c_str());
 	}
 	
-	virtual void * G_API_CC allocateObject(IMetaArchiveReader * archiveReader, IMetaClass * metaClass) {
-		(void)archiveReader;
-		(void)metaClass;
-
+	virtual void * G_API_CC allocateObject(IMetaArchiveReader * /*archiveReader*/, IMetaClass * /*metaClass*/) {
 		return new std::string;
 	}
 
-	virtual void G_API_CC readObject(const char * name, IMetaArchiveReader * archiveReader, IMetaReader * metaReader, void * instance, IMetaClass * metaClass) {
-		(void)archiveReader;
-		(void)metaClass;
-
+	virtual void G_API_CC readObject(const char * name, IMetaArchiveReader * archiveReader, IMetaReader * metaReader, void * instance, IMetaClass * /*metaClass*/) {
 		uint32_t archiveID;
 		char * s = metaReader->readString(name, archiveReader->getAllocator(), &archiveID);
 		*static_cast<std::string *>(instance) = s;

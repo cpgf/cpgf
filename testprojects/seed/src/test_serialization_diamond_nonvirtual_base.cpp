@@ -116,10 +116,10 @@ void register_TestSerializeClass(Define define)
 
 }
 
-template <typename AR>
-void doTestMultipleInheritance(IMetaService * service, IMetaWriter * writer, IMetaReader * reader, const AR & ar)
+template <typename READER, typename AR>
+void doTestDiamondNonvirtualBase(IMetaService * service, IMetaWriter * writer, const READER & reader, const AR & ar)
 {
-	const char * const serializeObjectName = "multipleInheritance";
+	const char * const serializeObjectName = "diamondNonvirtualBase";
 	
 	readCount = 0;
 	writeCount = 0;
@@ -141,7 +141,7 @@ void doTestMultipleInheritance(IMetaService * service, IMetaWriter * writer, IMe
 	
 	ar.rewind();
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
 	
 	D readInstance;
 	
@@ -155,7 +155,7 @@ void doTestMultipleInheritance(IMetaService * service, IMetaWriter * writer, IMe
 	GEQUAL(2, writeCount);
 }
 
-GTEST(testMultipleInheritance)
+GTEST(testDiamondNonvirtualBase_TextStream)
 {
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
@@ -168,7 +168,25 @@ GTEST(testMultipleInheritance)
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
 	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestMultipleInheritance(service.get(), writer.get(), reader.get(), TestArchiveStream<stringstream>(stream));
+	doTestDiamondNonvirtualBase(service.get(), writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
+	
+//	cout << stream.str().c_str() << endl;
+}
+
+
+GTEST(testDiamondNonvirtualBase_Xml)
+{
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
+	stringstream stream;
+
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	
+	doTestDiamondNonvirtualBase(service.get(), writer.get(), MetaReaderGetterXml(service.get(), stream), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

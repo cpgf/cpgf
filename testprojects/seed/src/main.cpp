@@ -61,7 +61,6 @@ int main(int argc, char * argv[])
 	(void)argc;
 	(void)argv;
 
-#error "TODO: XML storage should not require unique node name. This can be fixed by maintainning an internal counter.";
 //	string s;
 //	test(s);
 	

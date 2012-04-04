@@ -74,10 +74,8 @@ bool scriptableIterator_greaterOrEqual(T * it, T * other)
 }
 
 template <typename T, typename MetaDefine, typename Policy>
-void doBuildIteratorCommon(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer)
+void doBuildIteratorCommon(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & /*policy*/, const GMetaDataNameReplacer * replacer)
 {
-	(void)policy;
-
 	define
 		.CPGF_MD_TEMPLATE _operator<T & (GMetaSelf, const T &)>(mopHolder == mopHolder)
 		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder != mopHolder)
@@ -157,10 +155,8 @@ void doBuildIterator(const GMetaDataConfigFlags & config, MetaDefine define, con
 }
 
 template <typename T, typename MetaDefine, typename Policy>
-void doBuildIteratorAccessor(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy, const GMetaDataNameReplacer * replacer)
+void doBuildIteratorAccessor(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & /*policy*/, const GMetaDataNameReplacer * replacer)
 {
-	(void)policy;
-
 	define
 		.CPGF_MD_TEMPLATE _operator<typename T::pointer (GMetaSelf)>(mopHolder->mopHolder)
 		.CPGF_MD_TEMPLATE _operator<typename T::reference (GMetaSelf)>(*mopHolder)

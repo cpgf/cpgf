@@ -8,6 +8,12 @@
 using namespace std;
 using namespace cpgf;
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4996)
+#endif
+
+
 MetaReaderGetterXml::MetaReaderGetterXml(IMetaService * service, stringstream & stream)
 	: service(service), stream(stream)
 {
@@ -57,17 +63,17 @@ void initTestValue(std::string & value, long long seed)
 
 void initTestValue(float & value, long long seed)
 {
-	value = (float)(seed % 1000) + (seed % 2 == 0 ? 0.5 : 0.8);
+	value = (float)(seed % 1000) + (seed % 2 == 0 ? 0.5f : 0.8f);
 }
 
 void initTestValue(double & value, long long seed)
 {
-	value = (float)(seed % 1000) + (seed % 2 == 0 ? 0.5 : 0.8);
+	value = (float)(seed % 1000) + (seed % 2 == 0 ? 0.5f : 0.8f);
 }
 
 void initTestValue(long double & value, long long seed)
 {
-	value = (float)(seed % 1000) + (seed % 2 == 0 ? 0.5 : 0.8);
+	value = (float)(seed % 1000) + (seed % 2 == 0 ? 0.5f : 0.8f);
 }
 
 long long getTestSeed(int n)
