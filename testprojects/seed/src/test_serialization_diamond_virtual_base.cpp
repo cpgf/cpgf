@@ -134,8 +134,6 @@ void doTestDiamondVirtualBase(IMetaService * service, IMetaWriter * writer, cons
 
 	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
-	writer->flush();
-	
 	ar.rewind();
 	
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
@@ -179,11 +177,11 @@ GTEST(testDiamondVirtualBase_Xml)
 	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
 	GScopedInterface<IMetaService> service(createMetaService(module.get()));
 
-	stringstream stream;
+	GMetaXmlArchive outputArchive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestDiamondVirtualBase(service.get(), writer.get(), MetaReaderGetterXml(service.get(), stream), TestArchiveStream<stringstream>(stream));
+	doTestDiamondVirtualBase(service.get(), writer.get(), MetaReaderGetterXml(service.get(), outputArchive), TestArchiveStreamNone());
 	
 //	cout << stream.str().c_str() << endl;
 }

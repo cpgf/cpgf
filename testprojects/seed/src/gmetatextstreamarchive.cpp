@@ -36,8 +36,6 @@ protected:
 	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length);
 	virtual void G_API_CC endWriteArray(const char * name, uint32_t length);
 
-	virtual void G_API_CC flush();
-	
 protected:
 	void writeDelimiter();
 	void writeType(int permanentType);
@@ -208,10 +206,6 @@ void G_API_CC GTextStreamMetaWriter::beginWriteArray(const char * /*name*/, uint
 }
 
 void G_API_CC GTextStreamMetaWriter::endWriteArray(const char * /*name*/, uint32_t /*length*/)
-{
-}
-
-void G_API_CC GTextStreamMetaWriter::flush()
 {
 }
 

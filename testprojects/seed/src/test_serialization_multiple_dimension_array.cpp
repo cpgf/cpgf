@@ -59,8 +59,6 @@ void doTestMultipleDimensionArray(IMetaService * service, IMetaWriter * writer, 
 	serializeWriteValue(archiveWriter.get(), "po", po);
 	serializeWriteValue(archiveWriter.get(), "npo", npo);
 
-	writer->flush();
-	
 	ar.rewind();
 
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
@@ -142,11 +140,11 @@ GTEST(testMultipleDimensionArray_Xml)
 	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
 	GScopedInterface<IMetaService> service(createMetaService(module.get()));
 
-	stringstream stream;
+	GMetaXmlArchive outputArchive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestMultipleDimensionArray(service.get(), writer.get(), MetaReaderGetterXml(service.get(), stream), TestArchiveStream<stringstream>(stream));
+	doTestMultipleDimensionArray(service.get(), writer.get(), MetaReaderGetterXml(service.get(), outputArchive), TestArchiveStreamNone());
 
 ///	cout << stream.str().c_str() << endl;
 }

@@ -139,8 +139,6 @@ void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, const READE
 
 	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance2, metaClass.get());
 
-	writer->flush();
-
 	// read
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
 
@@ -195,11 +193,11 @@ GTEST(testPolymorphic_Xml)
 	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
 	GScopedInterface<IMetaService> service(createMetaService(module.get()));
 
-	stringstream stream;
+	GMetaXmlArchive outputArchive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestPolymorphic(service.get(), writer.get(), MetaReaderGetterXml(service.get(), stream), TestArchiveStream<stringstream>(stream));
+	doTestPolymorphic(service.get(), writer.get(), MetaReaderGetterXml(service.get(), outputArchive), TestArchiveStreamNone());
 	
 //	cout << stream.str().c_str() << endl;
 }

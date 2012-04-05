@@ -129,8 +129,6 @@ void doTestCyclicGraph(IMetaService * service, IMetaWriter * writer, const READE
 
 	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
-	writer->flush();
-	
 	ar.rewind();
 
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
@@ -171,11 +169,11 @@ GTEST(testCyclicGraph)
 	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
 	GScopedInterface<IMetaService> service(createMetaService(module.get()));
 
-	stringstream stream;
+	GMetaXmlArchive outputArchive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestCyclicGraph(service.get(), writer.get(), MetaReaderGetterXml(service.get(), stream), TestArchiveStream<stringstream>(stream));
+	doTestCyclicGraph(service.get(), writer.get(), MetaReaderGetterXml(service.get(), outputArchive), TestArchiveStreamNone());
 	
 //	cout << stream.str().c_str() << endl;
 }

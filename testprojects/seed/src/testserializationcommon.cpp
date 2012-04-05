@@ -14,16 +14,18 @@ using namespace cpgf;
 #endif
 
 
-MetaReaderGetterXml::MetaReaderGetterXml(IMetaService * service, stringstream & stream)
-	: service(service), stream(stream)
+MetaReaderGetterXml::MetaReaderGetterXml(IMetaService * service, GMetaXmlArchive & outputArchive)
+	: service(service), outputArchive(outputArchive)
 {
 }
 
 IMetaReader * MetaReaderGetterXml::get() const
 {
-	this->xmlContent = this->stream.str().c_str();
 	if(! this->reader) {
-		this->reader.reset(cpgf::createXmlMetaReader(this->service, &this->xmlContent[0]));
+		stringstream stream;
+		this->outputArchive.saveToStream(stream);
+		this->inputArchive.loadNonIntrusive(stream.str().c_str());
+		this->reader.reset(cpgf::createXmlMetaReader(this->service, this->inputArchive));
 	}
 	return this->reader.get();
 }

@@ -35,6 +35,13 @@ private:
 	STREAM & stream;
 };
 
+class TestArchiveStreamNone
+{
+public:
+	void rewind() const {
+	}
+};
+
 
 class MetaReaderGetter
 {
@@ -50,15 +57,15 @@ private:
 class MetaReaderGetterXml
 {
 public:
-	MetaReaderGetterXml(cpgf::IMetaService * service, std::stringstream & stream);
+	MetaReaderGetterXml(cpgf::IMetaService * service, cpgf::GMetaXmlArchive & outputArchive);
 
 	cpgf::IMetaReader * get() const;
 
 private:
 	cpgf::IMetaService * service;
-	std::stringstream & stream;
+	cpgf::GMetaXmlArchive & outputArchive;
+	cpgf::GMetaXmlArchive inputArchive;
 	mutable cpgf::GScopedInterface<cpgf::IMetaReader> reader;
-	mutable std::string xmlContent;
 };
 
 

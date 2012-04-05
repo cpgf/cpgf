@@ -26,8 +26,6 @@ void doTestSimpleObject(IMetaService * service, IMetaWriter * writer, const READ
 
 	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
-	writer->flush();
-	
 	ar.rewind();
 	
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
@@ -69,11 +67,11 @@ GTEST(TestSimpleObject_Xml)
 	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
 	GScopedInterface<IMetaService> service(createMetaService(module.get()));
 
-	stringstream stream;
+	GMetaXmlArchive outputArchive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestSimpleObject(service.get(), writer.get(), MetaReaderGetterXml(service.get(), stream), TestArchiveStream<stringstream>(stream));
+	doTestSimpleObject(service.get(), writer.get(), MetaReaderGetterXml(service.get(), outputArchive), TestArchiveStreamNone());
 	
 //	cout << stream.str().c_str() << endl;
 }

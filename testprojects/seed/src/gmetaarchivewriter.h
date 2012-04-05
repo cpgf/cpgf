@@ -39,8 +39,6 @@ struct IMetaWriter : public IObject
 
 	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length) = 0;
 	virtual void G_API_CC endWriteArray(const char * name, uint32_t length) = 0;
-	
-	virtual void G_API_CC flush() = 0;
 };
 
 struct IMetaArchiveWriter : public IExtendObject

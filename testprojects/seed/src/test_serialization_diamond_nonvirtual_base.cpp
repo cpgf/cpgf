@@ -137,8 +137,6 @@ void doTestDiamondNonvirtualBase(IMetaService * service, IMetaWriter * writer, c
 
 	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
-	writer->flush();
-	
 	ar.rewind();
 	
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
@@ -182,11 +180,11 @@ GTEST(testDiamondNonvirtualBase_Xml)
 	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
 	GScopedInterface<IMetaService> service(createMetaService(module.get()));
 
-	stringstream stream;
+	GMetaXmlArchive outputArchive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestDiamondNonvirtualBase(service.get(), writer.get(), MetaReaderGetterXml(service.get(), stream), TestArchiveStream<stringstream>(stream));
+	doTestDiamondNonvirtualBase(service.get(), writer.get(), MetaReaderGetterXml(service.get(), outputArchive), TestArchiveStreamNone());
 	
 //	cout << stream.str().c_str() << endl;
 }

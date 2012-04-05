@@ -109,8 +109,6 @@ void doTestNestedObject(IMetaService * service, IMetaWriter * writer, const READ
 //		serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 //	GEND_EXCEPTION(...)
 
-	writer->flush();
-	
 	ar.rewind();
 
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
@@ -149,11 +147,11 @@ GTEST(testNestedObject_Xml)
 	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
 	GScopedInterface<IMetaService> service(createMetaService(module.get()));
 
-	stringstream stream;
+	GMetaXmlArchive outputArchive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestNestedObject(service.get(), writer.get(), MetaReaderGetterXml(service.get(), stream), TestArchiveStream<stringstream>(stream));
+	doTestNestedObject(service.get(), writer.get(), MetaReaderGetterXml(service.get(), outputArchive), TestArchiveStreamNone());
 	
 //	cout << stream.str().c_str() << endl;
 }

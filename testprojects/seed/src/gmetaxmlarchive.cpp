@@ -22,12 +22,10 @@ using namespace rapidxml;
 
 namespace cpgf {
 
+namespace {
 
-namespace serialization_internal {
-
-
-typedef xml_node<char> XmlNodeType;	
-typedef xml_attribute<char> XmlAttributeType;
+typedef xml_node<> XmlNodeType;	
+typedef xml_attribute<> XmlAttributeType;
 
 const char * const nameRootNode = "cpgf";
 const char * const nameDataNode = "data";
@@ -39,6 +37,7 @@ const char * const nameReferenceID = "rid";
 const char * const nameClassTypeID = "cid";
 const char * const nameLength = "len";
 const char * const prefixClassType = "c";
+
 
 void checkNode(void * node, const char * /*nodeName*/)
 {
@@ -58,6 +57,140 @@ XmlNodeType * getSiblingAt(XmlNodeType * node, const char * name, size_t index)
 }
 
 
+} // unnamed namespace
+
+
+class GMetaXmlArchiveImplement
+{
+public:
+	GMetaXmlArchiveImplement();
+
+	void initializeXml();
+
+	void loadIntrusive(char * xmlContent);
+	void loadNonIntrusive(const char * xmlContent);
+	void saveToStream(std::ostream & outputStream);
+
+	XmlNodeType * getDataNode() const;
+	XmlNodeType * getClassTypeNode() const;
+	xml_document<> * getXml() const;
+
+private:
+	void doLoad(char * xmlContent);
+
+private:
+	xml_document<> xml;
+	string intrusiveXmlContent;
+	XmlNodeType * dataNode;
+	XmlNodeType * classTypeNode;
+};
+
+GMetaXmlArchiveImplement::GMetaXmlArchiveImplement()
+	: dataNode(NULL), classTypeNode(NULL)
+{
+}
+
+void GMetaXmlArchiveImplement::initializeXml()
+{
+	XmlNodeType * rootNode = this->xml.allocate_node(node_element, this->xml.allocate_string(nameRootNode));
+	this->xml.append_node(rootNode);
+
+	this->dataNode = this->xml.allocate_node(node_element, this->xml.allocate_string(nameDataNode));
+	rootNode->append_node(this->dataNode);
+	
+	this->classTypeNode = this->xml.allocate_node(node_element, this->xml.allocate_string(nameClassTypesNode));
+	rootNode->append_node(this->classTypeNode);
+}
+
+void GMetaXmlArchiveImplement::loadIntrusive(char * xmlContent)
+{
+	this->intrusiveXmlContent = "";
+	this->doLoad(xmlContent);
+}
+
+void GMetaXmlArchiveImplement::loadNonIntrusive(const char * xmlContent)
+{
+	this->intrusiveXmlContent = xmlContent;
+	this->doLoad(&this->intrusiveXmlContent[0]);
+}
+
+void GMetaXmlArchiveImplement::saveToStream(std::ostream & outputStream)
+{
+	outputStream << this->xml;
+}
+
+XmlNodeType * GMetaXmlArchiveImplement::getDataNode() const
+{
+	GASSERT(this->dataNode != NULL);
+
+	return this->dataNode;
+}
+
+XmlNodeType * GMetaXmlArchiveImplement::getClassTypeNode() const
+{
+	GASSERT(this->classTypeNode != NULL);
+
+	return this->classTypeNode;
+}
+
+xml_document<> * GMetaXmlArchiveImplement::getXml() const
+{
+	return const_cast<xml_document<> *>(&this->xml);
+}
+
+void GMetaXmlArchiveImplement::doLoad(char * xmlContent)
+{
+	this->xml.parse<0>(xmlContent);
+
+	XmlNodeType * rootNode = this->xml.first_node(nameRootNode);
+	checkNode(rootNode, "root");
+
+	this->dataNode = rootNode->first_node(nameDataNode);
+	checkNode(dataNode, "dataNode");
+	
+	this->classTypeNode = rootNode->first_node(nameClassTypesNode);
+	checkNode(this->classTypeNode, "classTypeNode");
+}
+
+
+GMetaXmlArchive::GMetaXmlArchive()
+	: implement()
+{
+}
+
+GMetaXmlArchive::~GMetaXmlArchive()
+{
+}
+
+void GMetaXmlArchive::loadIntrusive(char * xmlContent) const
+{
+	this->implement.reset(new GMetaXmlArchiveImplement);
+	this->implement->loadIntrusive(xmlContent);
+}
+
+void GMetaXmlArchive::loadNonIntrusive(const char * xmlContent) const
+{
+	this->implement.reset(new GMetaXmlArchiveImplement);
+	this->implement->loadNonIntrusive(xmlContent);
+}
+
+void GMetaXmlArchive::saveToStream(std::ostream & outputStream) const
+{
+	this->implement->saveToStream(outputStream);
+}
+
+GMetaXmlArchiveImplement * GMetaXmlArchive::getImplement() const
+{
+	if(! this->implement) {
+		this->implement.reset(new GMetaXmlArchiveImplement);
+	}
+	return this->implement.get();
+}
+
+
+namespace serialization_internal {
+
+
 class GXmlMetaWriter : public IMetaWriter
 {
 	GMAKE_NONCOPYABLE(GXmlMetaWriter);
@@ -66,7 +199,7 @@ private:
 	typedef stack<XmlNodeType *> ObjectNodeStack;
 
 public:
-	GXmlMetaWriter(std::ostream & outputStream, serialization_internal::FuncStreamWriteFundamental streamWriteFundamental);
+	GXmlMetaWriter(xml_document<> * xml, XmlNodeType * dataNode, XmlNodeType * classTypeNode, serialization_internal::FuncStreamWriteFundamental streamWriteFundamental);
 
 protected:
 	G_INTERFACE_IMPL_OBJECT
@@ -84,8 +217,6 @@ protected:
 	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length);
 	virtual void G_API_CC endWriteArray(const char * name, uint32_t length);
 	
-	virtual void G_API_CC flush();
-
 private:
 	void clearTextStream();
 	const char * newString(const char * s);
@@ -102,13 +233,13 @@ private:
 	void addType(XmlNodeType * node, int permanentType);
 	
 private:
-	std::ostream & outputStream;
+	xml_document<> * xml;
+	XmlNodeType * dataNode;
+	XmlNodeType * classTypeNode;
 	serialization_internal::FuncStreamWriteFundamental streamWriteFundamental;
 	int * variantTypeMap;
-	xml_document<> xml;
 	ObjectNodeStack nodeStack;
 	stringstream textStream;
-	XmlNodeType * classTypeNode;
 };
 
 class GXmlMetaReaderNameTracker
@@ -141,7 +272,7 @@ private:
 	typedef stack<GXmlMetaReaderNameTracker> ObjectNodeStack;
 
 public:
-	GXmlMetaReader(IMetaService * service, char * xmlContent, serialization_internal::FuncStreamReadFundamental streamReadFundamental);
+	GXmlMetaReader(IMetaService * service, XmlNodeType * dataNode, XmlNodeType * classTypeNode, serialization_internal::FuncStreamReadFundamental streamReadFundamental);
 	~GXmlMetaReader();
 
 protected:
@@ -183,39 +314,32 @@ private:
 
 private:
 	GScopedInterface<IMetaService> service;
+	XmlNodeType * dataNode;
+	XmlNodeType * classTypeNode;
 	serialization_internal::FuncStreamReadFundamental streamReadFundamental;
 	int * variantTypeMap;
-	xml_document<> xml;
 	ObjectNodeStack nodeStack;
 	stringstream textStream;
-	XmlNodeType * classTypeNode;
 };
 
 
-IMetaWriter * doCreateXmlMetaWriter(std::ostream & outputStream, FuncStreamWriteFundamental func)
+IMetaWriter * doCreateXmlMetaWriter(const GMetaXmlArchive & xmlArchive, FuncStreamWriteFundamental func)
 {
-	return new GXmlMetaWriter(outputStream, func);
+	xmlArchive.getImplement()->initializeXml();
+
+	return new GXmlMetaWriter(xmlArchive.getImplement()->getXml(), xmlArchive.getImplement()->getDataNode(), xmlArchive.getImplement()->getClassTypeNode(), func);
 }
 
-IMetaReader * doCreateXmlMetaReader(IMetaService * service, char * xmlContent, FuncStreamReadFundamental func)
+IMetaReader * doCreateXmlMetaReader(IMetaService * service, const GMetaXmlArchive & xmlArchive, FuncStreamReadFundamental func)
 {
-	return new GXmlMetaReader(service, xmlContent, func);
+	return new GXmlMetaReader(service, xmlArchive.getImplement()->getDataNode(), xmlArchive.getImplement()->getClassTypeNode(), func);
 }
 
 
-GXmlMetaWriter::GXmlMetaWriter(std::ostream & outputStream, serialization_internal::FuncStreamWriteFundamental streamWriteFundamental)
-	: outputStream(outputStream), streamWriteFundamental(streamWriteFundamental), variantTypeMap(defaultVariantTypeMap)
+GXmlMetaWriter::GXmlMetaWriter(xml_document<> * xml, XmlNodeType * dataNode, XmlNodeType * classTypeNode, serialization_internal::FuncStreamWriteFundamental streamWriteFundamental)
+	: xml(xml), dataNode(dataNode), classTypeNode(classTypeNode), streamWriteFundamental(streamWriteFundamental), variantTypeMap(defaultVariantTypeMap)
 {
-	XmlNodeType * rootNode = this->xml.allocate_node(node_element, this->newString(nameRootNode));
-	this->xml.append_node(rootNode);
-
-	XmlNodeType * dataNode = this->xml.allocate_node(node_element, this->newString(nameDataNode));
-	rootNode->append_node(dataNode);
-	
-	this->nodeStack.push(dataNode);
-
-	this->classTypeNode = this->xml.allocate_node(node_element, this->newString(nameClassTypesNode));
-	rootNode->append_node(this->classTypeNode);
+	this->nodeStack.push(this->dataNode);
 }
 
 void G_API_CC GXmlMetaWriter::writeFundamental(const char * name, const GVariantData * value)
@@ -268,7 +392,7 @@ void G_API_CC GXmlMetaWriter::writeClassType(uint32_t classTypeID, IMetaClass * 
 	this->clearTextStream();
 	this->textStream << prefixClassType << classTypeID;
 
-	XmlNodeType * newNode = this->xml.allocate_node(node_element, this->newString(this->textStream.str().c_str()), metaClass->getTypeName());
+	XmlNodeType * newNode = this->xml->allocate_node(node_element, this->newString(this->textStream.str().c_str()), metaClass->getTypeName());
 	this->classTypeNode->append_node(newNode);
 	this->addType(newNode, ptClassType);
 	this->addIntAttribute(newNode, nameArchiveID, classTypeID);
@@ -287,11 +411,6 @@ void G_API_CC GXmlMetaWriter::endWriteArray(const char * /*name*/, uint32_t /*le
 	this->popNode();
 }
 
-void G_API_CC GXmlMetaWriter::flush()
-{
-	this->outputStream << this->xml;
-}
-
 void GXmlMetaWriter::clearTextStream()
 {
 	this->textStream.str("");
@@ -300,7 +419,7 @@ void GXmlMetaWriter::clearTextStream()
 
 const char * GXmlMetaWriter::newString(const char * s)
 {
-	return s == NULL ? NULL : this->xml.allocate_string(s);
+	return s == NULL ? NULL : this->xml->allocate_string(s);
 }
 
 XmlNodeType * GXmlMetaWriter::getCurrentNode() const
@@ -328,7 +447,7 @@ XmlNodeType * GXmlMetaWriter::addNode(const char * name, const char * value)
 	GASSERT(name != NULL);
 	GASSERT(strlen(name) > 0);
 
-	XmlNodeType * newNode = this->xml.allocate_node(node_element, this->newString(name), this->newString(value));
+	XmlNodeType * newNode = this->xml->allocate_node(node_element, this->newString(name), this->newString(value));
 	this->getCurrentNode()->append_node(newNode);
 	return newNode;
 }
@@ -340,7 +459,7 @@ XmlNodeType * GXmlMetaWriter::addNode(const char * name)
 
 XmlAttributeType * GXmlMetaWriter::addAttribute(XmlNodeType * node, const char * name, const char * value)
 {
-	XmlAttributeType * newAttribute = this->xml.allocate_attribute(this->newString(name), this->newString(value));
+	XmlAttributeType * newAttribute = this->xml->allocate_attribute(this->newString(name), this->newString(value));
 	node->append_attribute(newAttribute);
 	return newAttribute;
 }
@@ -416,21 +535,10 @@ void GXmlMetaReaderNameTracker::addIndex(const char * name)
 
 
 
-GXmlMetaReader::GXmlMetaReader(IMetaService * service, char * xmlContent, serialization_internal::FuncStreamReadFundamental streamReadFundamental)
-	: service(service), streamReadFundamental(streamReadFundamental), variantTypeMap(defaultVariantTypeMap)
+GXmlMetaReader::GXmlMetaReader(IMetaService * service, XmlNodeType * dataNode, XmlNodeType * classTypeNode, serialization_internal::FuncStreamReadFundamental streamReadFundamental)
+	: service(service), dataNode(dataNode), classTypeNode(classTypeNode), streamReadFundamental(streamReadFundamental), variantTypeMap(defaultVariantTypeMap)
 {
-	this->xml.parse<0>(xmlContent);
-
-	XmlNodeType * rootNode = this->xml.first_node(nameRootNode);
-	checkNode(rootNode, "root");
-
-	XmlNodeType * dataNode = rootNode->first_node(nameDataNode);
-	checkNode(dataNode, "dataNode");
-	
-	this->nodeStack.push(GXmlMetaReaderNameTracker(dataNode));
-
-	this->classTypeNode = rootNode->first_node(nameClassTypesNode);
-	checkNode(this->classTypeNode, "classTypeNode");
+	this->nodeStack.push(GXmlMetaReaderNameTracker(this->dataNode));
 
 	if(this->service) {
 		this->service->addReference();

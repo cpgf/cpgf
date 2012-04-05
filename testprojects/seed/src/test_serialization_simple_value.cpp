@@ -55,8 +55,6 @@ void doTestSimpleValue(IMetaWriter * writer, const READER & reader, const AR & a
 	serializeWriteValue(archiveWriter.get(), "s", s);
 	serializeWriteValue(archiveWriter.get(), "ps", ps);
 
-	writer->flush();
-	
 	ar.rewind();
 	
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, NULL, reader.get()));
@@ -134,11 +132,11 @@ GTEST(testSimpleValue_TextStream)
 
 GTEST(testSimpleValue_XML)
 {
-	stringstream stream;
+	GMetaXmlArchive outputArchive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(stream));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestSimpleValue(writer.get(), MetaReaderGetterXml(NULL, stream), TestArchiveStream<stringstream>(stream));
+	doTestSimpleValue(writer.get(), MetaReaderGetterXml(NULL, outputArchive), TestArchiveStreamNone());
 	
 //	cout << stream.str().c_str() << endl;
 }
