@@ -1,5 +1,5 @@
 #include "testserializationcommon.h"
-#include "gmetaxmlarchive.h"
+#include "cpgf/serialization/gmetaxmlarchive.h"
 
 
 #include <stdio.h>

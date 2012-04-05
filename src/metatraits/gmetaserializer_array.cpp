@@ -1,7 +1,7 @@
 #include "cpgf/metatraits/gmetaserializer.h"
-#include "../../testprojects/seed/src/gmetaarchivecommon.h"
-#include "../../testprojects/seed/src/gmetaarchivereader.h"
-#include "../../testprojects/seed/src/gmetaarchivewriter.h"
+#include "cpgf/serialization/gmetaarchivecommon.h"
+#include "cpgf/serialization/gmetaarchivereader.h"
+#include "cpgf/serialization/gmetaarchivewriter.h"
 
 
 #include <string>
@@ -76,7 +76,9 @@ public:
 	virtual void G_API_CC readObject(const char * name, IMetaArchiveReader * archiveReader, IMetaReader * metaReader, void * instance, IMetaClass * /*metaClass*/) {
 		uint32_t length = metaReader->beginReadArray(name);
 		
-		GASSERT(length == this->elementCount);
+		if(length != this->elementCount) {
+			GASSERT(false);
+		}
 
 		GMetaTypeData typeData = this->metaType.getData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {

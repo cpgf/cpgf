@@ -13,22 +13,6 @@ struct IMetaConverter : public IExtendObject
 };
 
 
-class GMetaConverterDefault : public IMetaConverter
-{
-	G_INTERFACE_IMPL_OBJECT
-	G_INTERFACE_IMPL_EXTENDOBJECT
-	
-public:
-	virtual gapi_bool G_API_CC canToCString() {
-		return false;
-	}
-	virtual const char * G_API_CC toCString(const void * /*instance*/, gapi_bool * needFree, IMemoryAllocator * /*allocator*/) {
-		*needFree = false;
-
-		return NULL;
-	}
-};
-
 template <typename T>
 struct GMetaTraitsCreateConverter
 {

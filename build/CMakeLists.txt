@@ -71,8 +71,17 @@ set(SRC_META
 	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
 	${SRC_PATH}/scriptbind/gscriptbindutil.cpp
 	
-	${SRC_PATH}/metatraits/gmetaserializer_string.cpp
 	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
+	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
+	${SRC_PATH}/metatraits/gmetaserializer_string.cpp
+	${SRC_PATH}/metatraits/gmetaserializer_trapall.cpp
+	
+	${SRC_PATH}/serialization/gmetaarchivecommon.cpp
+	${SRC_PATH}/serialization/gmetaarchivereader.cpp
+	${SRC_PATH}/serialization/gmetaarchivetypemap.cpp
+	${SRC_PATH}/serialization/gmetaarchivewriter.cpp
+	${SRC_PATH}/serialization/gmetatextstreamarchive.cpp
+	${SRC_PATH}/serialization/gmetaxmlarchive.cpp
 )
 
 file(GLOB GLOB_SAMPLEREFLECTION ${SAMPLE_REFLECT_PATH}/*.cpp)
@@ -362,6 +371,10 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/scriptbind/metadata/stl/*.cpp
 	)
 
+	partUnitTest("test_serialization"
+		${TEST_PATH}/serialization/*.cpp
+	)
+
 	if(HAS_LUA LESS 1)
 		message(WARNING "Can't find Lua for unit test. Unit test will not include Lua binding test.")
 	endif(HAS_LUA LESS 1)
@@ -390,6 +403,7 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/scriptbind/general/*.cpp
 		${TEST_PATH}/scriptbind/metadata/*.cpp
 		${TEST_PATH}/scriptbind/metadata/stl/*.cpp
+		${TEST_PATH}/serialization/*.cpp
 	)
 
 	set(GLOB_TEST_LUA )

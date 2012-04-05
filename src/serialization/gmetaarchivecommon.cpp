@@ -1,5 +1,5 @@
-#include "gmetaarchivecommon.h"
-#include "gmetaarchivecommonimpl.h"
+#include "cpgf/serialization/gmetaarchivecommon.h"
+#include "../pinclude/gmetaarchivecommonimpl.h"
 
 #include "cpgf/gstdint.h"
 #include "cpgf/gmetaapiutil.h"

@@ -1,17 +1,17 @@
 #ifndef __TESTSERIALIZATIONCOMMON_H
 #define __TESTSERIALIZATIONCOMMON_H
 
-#include "gmetaarchivereader.h"
-#include "gmetaarchivewriter.h"
+#include "cpgf/serialization/gmetaarchivereader.h"
+#include "cpgf/serialization/gmetaarchivewriter.h"
 
-#include "gmetatextstreamarchive.h"
-#include "gmetaxmlarchive.h"
+#include "cpgf/serialization/gmetatextstreamarchive.h"
+#include "cpgf/serialization/gmetaxmlarchive.h"
 
 
 #include "cpgf/metatraits/gmetaserializer_string.h"
 #include "cpgf/metatraits/gmetaserializer_array.h"
 
-#include "unittestbase.h"
+#include "../unittestbase.h"
 
 #include <string>
 

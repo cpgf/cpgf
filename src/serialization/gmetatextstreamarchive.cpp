@@ -1,6 +1,6 @@
-#include "gmetatextstreamarchive.h"
-#include "gmetaarchivereader.h"
-#include "gmetaarchivewriter.h"
+#include "cpgf/serialization/gmetatextstreamarchive.h"
+#include "cpgf/serialization/gmetaarchivereader.h"
+#include "cpgf/serialization/gmetaarchivewriter.h"
 
 
 namespace cpgf {

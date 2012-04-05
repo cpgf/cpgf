@@ -2,9 +2,9 @@
 #define __GMETATEXTSTREAMARCHIVE_H
 
 
-#include "gmetaarchivetypemap.h"
-#include "gmetaarchivecommon.h"
-#include "gmetastreamfundamental.h"
+#include "cpgf/serialization/gmetaarchivetypemap.h"
+#include "cpgf/serialization/gmetaarchivecommon.h"
+#include "cpgf/serialization/gmetastreamfundamental.h"
 
 
 namespace cpgf {

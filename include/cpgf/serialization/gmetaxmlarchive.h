@@ -1,7 +1,7 @@
 #ifndef __GMETAXmlARCHIVE_H
 #define __GMETAXmlARCHIVE_H
 
-#include "gmetastreamfundamental.h"
+#include "cpgf/serialization/gmetastreamfundamental.h"
 
 
 namespace cpgf {

@@ -1,7 +1,8 @@
 #ifndef __GMETASTREAMFUNDAMENTAL_H
 #define __GMETASTREAMFUNDAMENTAL_H
 
-#include "gmetaarchivetypemap.h"
+#include "cpgf/serialization/gmetaarchivetypemap.h"
+
 #include "cpgf/gvariant.h"
 
 #include <ostream>

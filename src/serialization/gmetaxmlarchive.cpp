@@ -1,7 +1,7 @@
-#include "gmetaxmlarchive.h"
-#include "gmetaarchivecommon.h"
-#include "gmetaarchivereader.h"
-#include "gmetaarchivewriter.h"
+#include "cpgf/serialization/gmetaxmlarchive.h"
+#include "cpgf/serialization/gmetaarchivecommon.h"
+#include "cpgf/serialization/gmetaarchivereader.h"
+#include "cpgf/serialization/gmetaarchivewriter.h"
 
 #include "cpgf/thirdparty/rapidxml/rapidxml.hpp"
 #include "cpgf/thirdparty/rapidxml/rapidxml_print.hpp"

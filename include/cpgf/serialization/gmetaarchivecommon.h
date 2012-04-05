@@ -1,7 +1,7 @@
 #ifndef __GMETAARCHIVECOMMON_H
 #define __GMETAARCHIVECOMMON_H
 
-#include "gmetaarchivetypemap.h"
+#include "cpgf/serialization/gmetaarchivetypemap.h"
 
 #include "cpgf/gflags.h"
 #include "cpgf/gmetaapi.h"

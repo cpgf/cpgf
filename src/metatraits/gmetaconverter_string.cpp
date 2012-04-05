@@ -6,8 +6,11 @@
 
 namespace cpgf {
 
-class GMetaConverterStdString : public GMetaConverterDefault
+class GMetaConverterStdString : public IMetaConverter
 {
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
+	
 public:
 	virtual gapi_bool G_API_CC canToCString() {
 		return true;
