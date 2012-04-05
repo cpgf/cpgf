@@ -302,7 +302,66 @@ if(${HAS_UNITTEST})
 	endif(${UTEST_EXIST} STREQUAL "UTEST_EXIST-NOTFOUND")
 endif(${HAS_UNITTEST})
 
+macro(globAndAppendFiles fileList)
+	set(globAndAppendFiles_patterns ${ARGN})
+	file(GLOB temp ${globAndAppendFiles_patterns})
+	list(APPEND ${fileList} ${temp})
+endmacro()
+
+macro(partUnitTest target)
+	set(partUnitTest_patterns ${ARGN})
+
+	set(UNITTEST_FRAMEWORK_SUBDIR Posix)
+	if(WIN32)
+		set(UNITTEST_FRAMEWORK_SUBDIR Win32)
+	endif(WIN32)
+
+	set(fileList ${TEST_PATH}/testmain.cpp)
+	
+	globAndAppendFiles(fileList
+		${UNIT_TEST_DIR}/src/*.cpp
+		${UNIT_TEST_DIR}/src/${UNITTEST_FRAMEWORK_SUBDIR}/*.cpp
+	)
+
+	globAndAppendFiles(fileList ${partUnitTest_patterns})
+
+	add_executable(
+		${target}
+		EXCLUDE_FROM_ALL
+			${fileList}
+	)
+
+	set_target_properties(
+		${target}
+		PROPERTIES
+		OUTPUT_NAME ${target}
+		COMPILE_FLAGS ${TEST_COMPILE_FLAGS}
+	)
+	target_link_libraries(${target} ${TARGET_LIB} ${LUA_LIB} ${V8_LIB})
+endmacro()
+
 if(${HAS_UNITTEST})
+	partUnitTest("test_misc"
+		${TEST_PATH}/misc/*.cpp
+		${TEST_PATH}/callback/*.cpp
+	)
+
+	partUnitTest("test_reflection"
+		${TEST_PATH}/reflection/*.cpp
+	)
+
+	partUnitTest("test_scriptbind"
+		${TEST_PATH}/scriptbind/*.cpp
+		${TEST_PATH}/scriptbind/general/*.cpp
+		${TEST_PATH}/scriptbind/luabind/*.cpp
+		${TEST_PATH}/scriptbind/v8bind/*.cpp
+	)
+
+	partUnitTest("test_metadata_stl"
+		${TEST_PATH}/scriptbind/*.cpp
+		${TEST_PATH}/scriptbind/metadata/stl/*.cpp
+	)
+
 	if(HAS_LUA LESS 1)
 		message(WARNING "Can't find Lua for unit test. Unit test will not include Lua binding test.")
 	endif(HAS_LUA LESS 1)
@@ -318,16 +377,12 @@ if(${HAS_UNITTEST})
 		set(UNITTEST_FRAMEWORK_SUBDIR Win32)
 	endif(WIN32)
 
-	file(GLOB GLOB_UNITTEST_FRAMEWORK
+	globAndAppendFiles(SRC_UNITTEST_FRAMEWORK
 		${UNIT_TEST_DIR}/src/*.cpp
 		${UNIT_TEST_DIR}/src/${UNITTEST_FRAMEWORK_SUBDIR}/*.cpp
 	)
 
-	set(SRC_UNITTEST_FRAMEWORK
-		${GLOB_UNITTEST_FRAMEWORK}
-	)
-
-	file(GLOB GLOB_TEST_SRC
+	globAndAppendFiles(GLOB_TEST_SRC
 		${TEST_PATH}/misc/*.cpp
 		${TEST_PATH}/reflection/*.cpp
 		${TEST_PATH}/callback/*.cpp
@@ -339,14 +394,14 @@ if(${HAS_UNITTEST})
 
 	set(GLOB_TEST_LUA )
 	if(HAS_LUA)
-		file(GLOB GLOB_TEST_LUA
+		globAndAppendFiles(GLOB_TEST_LUA
 			${TEST_PATH}/scriptbind/luabind/*.cpp
 		)
 	endif(HAS_LUA)
 
 	set(GLOB_TEST_V8 )
 	if(HAS_V8)
-		file(GLOB GLOB_TEST_V8
+		globAndAppendFiles(GLOB_TEST_V8
 			${TEST_PATH}/scriptbind/v8bind/*.cpp
 		)
 	endif(HAS_V8)
