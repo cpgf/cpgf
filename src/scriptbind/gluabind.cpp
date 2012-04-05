@@ -714,11 +714,11 @@ bool converterToLua(lua_State * L, GScriptBindingParam * param, const GVariant &
 		return false;
 	}
 
-	if(converter->canToCString()) {
+	if(isMetaConverterCanRead(converter->capabilityForCString())) {
 		gapi_bool needFree;
 		
 		GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
-		const char * s = converter->toCString(objectAddressFromVariant(value), &needFree, allocator.get());
+		const char * s = converter->readCString(objectAddressFromVariant(value), &needFree, allocator.get());
 
 		if(s != NULL) {
 			lua_pushstring(L, s);

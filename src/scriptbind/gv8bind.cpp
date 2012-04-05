@@ -814,11 +814,11 @@ void doBindAccessible(GScriptBindingParam * param, Local<Object> container,
 Handle<Value> converterToV8(GScriptBindingParam * param, const GVariant & value, IMetaConverter * converter)
 {
 	if(converter != NULL) {
-		if(converter->canToCString()) {
+		if(isMetaConverterCanRead(converter->capabilityForCString())) {
 			gapi_bool needFree;
 
 			GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
-			const char * s = converter->toCString(objectAddressFromVariant(value), &needFree, allocator.get());
+			const char * s = converter->readCString(objectAddressFromVariant(value), &needFree, allocator.get());
 
 			if(s != NULL) {
 				Handle<Value> value = String::New(s);
