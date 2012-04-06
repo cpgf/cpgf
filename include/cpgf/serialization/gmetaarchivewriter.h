@@ -57,10 +57,7 @@ struct IMetaArchiveWriter : public IExtendObject
 struct IMetaSerializerWriter : public IExtendObject
 {
 	virtual void G_API_CC writeObjectMembers(GMetaArchiveWriterParam * param) = 0;
-	
 	virtual void G_API_CC writeMember(GMetaArchiveWriterParam * param, IMetaAccessible * accessible) = 0;
-	virtual void G_API_CC beginWriteObject(GMetaArchiveWriterParam * param) = 0;
-	virtual void G_API_CC endWriteObject(GMetaArchiveWriterParam * param) = 0;
 };
 
 

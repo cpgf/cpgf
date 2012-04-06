@@ -37,8 +37,6 @@ public:
 	virtual void G_API_CC trackPointer(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, uint32_t pointers);
 	
 	virtual void G_API_CC writeObjectMembers(GMetaArchiveWriterParam * param);
-	virtual void G_API_CC beginWriteObject(GMetaArchiveWriterParam * param);
-	virtual void G_API_CC endWriteObject(GMetaArchiveWriterParam * param);
 
 protected:
 	void writeObjectHelper(const char * name, const void * instance, const GMetaType & metaType, IMetaClass * metaClass, IMetaSerializer * serializer, uint32_t pointers);
@@ -61,6 +59,8 @@ protected:
 	
 	bool checkTrackedPointer(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, uint32_t pointers);
 	void checkBeginWriteObject(GMetaArchiveWriterParam * param);
+	void doBeginWriteObject(GMetaArchiveWriterParam * param);
+	void doEndWriteObject(GMetaArchiveWriterParam * param);
 
 private:
 	GMetaArchiveConfig config;
@@ -267,7 +267,7 @@ void GMetaArchiveWriter::writeObjectHelper(const char * name, const void * insta
 	this->doWriteObjectHierarchy(&param, &baseClassMap);
 
 	if(this->serializeHeader.needEnd()) {
-		this->endWriteObject(&param);
+		this->doEndWriteObject(&param);
 	}
 }
 
@@ -559,7 +559,7 @@ GMetaArchiveWriterClassTypeTracker * GMetaArchiveWriter::getClassTypeTracker()
 void GMetaArchiveWriter::checkBeginWriteObject(GMetaArchiveWriterParam * param)
 {
 	if(this->serializeHeader.needBegin()) {
-		this->beginWriteObject(param);
+		this->doBeginWriteObject(param);
 		this->serializeHeader.addedHeader();
 	}
 }
@@ -569,14 +569,14 @@ void G_API_CC GMetaArchiveWriter::writeObjectMembers(GMetaArchiveWriterParam * p
 	this->doDirectWriteObjectWithoutBase(param);
 }
 
-void G_API_CC GMetaArchiveWriter::beginWriteObject(GMetaArchiveWriterParam * param)
+void GMetaArchiveWriter::doBeginWriteObject(GMetaArchiveWriterParam * param)
 {
 	this->trackPointer(param->archiveID, param->instance, param->metaClass, param->serializer, param->pointers);
 	
 	this->writer->beginWriteObject(param->name, param->archiveID, param->classTypeID);
 }
 
-void G_API_CC GMetaArchiveWriter::endWriteObject(GMetaArchiveWriterParam * param)
+void GMetaArchiveWriter::doEndWriteObject(GMetaArchiveWriterParam * param)
 {
 	this->writer->endWriteObject(param->name, param->archiveID, param->classTypeID);
 }

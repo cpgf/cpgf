@@ -64,10 +64,7 @@ struct IMetaArchiveReader : public IExtendObject
 struct IMetaSerializerReader : public IExtendObject
 {
 	virtual void G_API_CC readObjectMembers(GMetaArchiveReaderParam * param) = 0;
-	
 	virtual void G_API_CC readMember(GMetaArchiveReaderParam * param, IMetaAccessible * accessible) = 0;
-	virtual uint32_t G_API_CC beginReadObject(GMetaArchiveReaderParam * param) = 0;
-	virtual void G_API_CC endReadObject(GMetaArchiveReaderParam * param) = 0;
 };
 
 

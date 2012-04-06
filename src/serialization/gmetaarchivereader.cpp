@@ -34,8 +34,6 @@ public:
 	virtual void G_API_CC trackPointer(uint32_t archiveID, void * instance);
 
 	virtual void G_API_CC readObjectMembers(GMetaArchiveReaderParam * param);
-	virtual uint32_t G_API_CC beginReadObject(GMetaArchiveReaderParam * param);
-	virtual void G_API_CC endReadObject(GMetaArchiveReaderParam * param);
 	
 	virtual IMemoryAllocator * G_API_CC getAllocator();
 	
@@ -56,6 +54,8 @@ protected:
 	GMetaArchiveReaderClassTypeTracker * getClassTypeTracker();
 
 	void checkBeginReadObject(GMetaArchiveReaderParam * param);
+	uint32_t doBeginReadObject(GMetaArchiveReaderParam * param);
+	void doEndReadObject(GMetaArchiveReaderParam * param);
 
 private:
 	GMetaArchiveConfig config;
@@ -216,7 +216,7 @@ void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, 
 	void * p = this->doReadObject(&param, &baseClassMap);
 
 	if(this->serializeHeader.needEnd()) {
-		this->endReadObject(&param);
+		this->doEndReadObject(&param);
 	}
 
 	return p;
@@ -225,20 +225,6 @@ void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, 
 void G_API_CC GMetaArchiveReader::readObjectMembers(GMetaArchiveReaderParam * param)
 {
 	this->doDirectReadObjectWithoutBase(param);
-}
-
-uint32_t G_API_CC GMetaArchiveReader::beginReadObject(GMetaArchiveReaderParam * param)
-{
-	uint32_t archiveID = this->reader->beginReadObject(param->name);
-
-	this->trackPointer(archiveID, param->instance);
-	
-	return archiveID;
-}
-
-void GMetaArchiveReader::endReadObject(GMetaArchiveReaderParam * param)
-{
-	this->reader->endReadObject(param->name);
 }
 
 void * GMetaArchiveReader::doReadObject(GMetaArchiveReaderParam * param, GBaseClassMap * baseClassMap)
@@ -502,9 +488,23 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 void GMetaArchiveReader::checkBeginReadObject(GMetaArchiveReaderParam * param)
 {
 	if(this->serializeHeader.needBegin()) {
-		this->beginReadObject(param);
+		this->doBeginReadObject(param);
 		this->serializeHeader.addedHeader();
 	}
+}
+
+uint32_t GMetaArchiveReader::doBeginReadObject(GMetaArchiveReaderParam * param)
+{
+	uint32_t archiveID = this->reader->beginReadObject(param->name);
+
+	this->trackPointer(archiveID, param->instance);
+	
+	return archiveID;
+}
+
+void GMetaArchiveReader::doEndReadObject(GMetaArchiveReaderParam * param)
+{
+	this->reader->endReadObject(param->name);
 }
 
 bool GMetaArchiveReader::checkUntrackPointer(const char * name, void * address)
