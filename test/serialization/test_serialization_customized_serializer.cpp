@@ -24,9 +24,10 @@ public:
 	B() : b(0) {}
 
 	int b;
+	string bs;
 };
 
-class C : public A
+class C : public B
 {
 public:
 	C() : c(0) {}
@@ -34,13 +35,15 @@ public:
 	int c;
 };
 
-class D : public C
+class R : public C
 {
 public:
-	D() : d(0) {}
-
-	int d;
+	R() {}
 };
+
+A * pa = NULL;
+B * pb = NULL;
+C * pc = NULL;
 
 class MetaSerializerA : public IMetaSerializer
 {
@@ -52,11 +55,14 @@ public:
 		return metaClass->getTypeName();
 	}
 	
-	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, GMetaArchiveWriterParam * param) {
+	virtual void G_API_CC writeObject(IMetaArchiveWriter * /*archiveWriter*/, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param) {
 		A * instance = static_cast<A *>(const_cast<void *>(param->instance));
+		
+		GEQUAL(pa, instance);
+
 		int temp = instance->a;
 		instance->a = temp * 2;
-		archiveWriter->writeObjectMembers(param);
+		serializerWriter->writeObjectMembers(param);
 		instance->a = temp;
 	}
 	
@@ -64,8 +70,53 @@ public:
 		return metaClass->createInstance();
 	}
 
-	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, GMetaArchiveReaderParam * param) {
-		archiveReader->readObjectMembers(param);
+	virtual void G_API_CC readObject(IMetaArchiveReader * /*archiveReader*/, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) {
+		serializerReader->readObjectMembers(param);
+	}
+};
+
+class MetaSerializerB : public IMetaSerializer
+{
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
+	
+public:
+	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * /*archiveWriter*/, const void * /*instance*/, IMetaClass * metaClass) {
+		return metaClass->getTypeName();
+	}
+	
+	virtual void G_API_CC writeObject(IMetaArchiveWriter * /*archiveWriter*/, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param) {
+		B * instance = static_cast<B *>(const_cast<void *>(param->instance));
+		
+		GEQUAL(pb, instance);
+
+		GScopedInterface<IMetaAccessible> accessible;
+		uint32_t i;
+		uint32_t count;
+
+		count = param->metaClass->getFieldCount();
+		for(i = 0; i < count; ++i) {
+			accessible.reset(param->metaClass->getFieldAt(i));
+
+			serializerWriter->writeMember(param, accessible.get());
+		}
+	}
+	
+	virtual void * G_API_CC allocateObject(IMetaArchiveReader * /*archiveReader*/, IMetaClass * metaClass) {
+		return metaClass->createInstance();
+	}
+
+	virtual void G_API_CC readObject(IMetaArchiveReader * /*archiveReader*/, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) {
+		GScopedInterface<IMetaAccessible> accessible;
+		uint32_t i;
+		uint32_t count;
+
+		count = param->metaClass->getFieldCount();
+		for(i = 0; i < count; ++i) {
+			accessible.reset(param->metaClass->getFieldAt(i));
+
+			serializerReader->readMember(param, accessible.get());
+		}
 	}
 };
 
@@ -79,11 +130,14 @@ public:
 		return metaClass->getTypeName();
 	}
 	
-	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, GMetaArchiveWriterParam * param) {
+	virtual void G_API_CC writeObject(IMetaArchiveWriter * /*archiveWriter*/, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param) {
 		C * instance = static_cast<C *>(const_cast<void *>(param->instance));
+		
+		GEQUAL(pc, instance);
+		
 		int temp = instance->c;
 		instance->c = temp * 3;
-		archiveWriter->writeObjectMembers(param);
+		serializerWriter->writeObjectMembers(param);
 		instance->c = temp;
 	}
 	
@@ -91,8 +145,8 @@ public:
 		return metaClass->createInstance();
 	}
 
-	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, GMetaArchiveReaderParam * param) {
-		archiveReader->readObjectMembers(param);
+	virtual void G_API_CC readObject(IMetaArchiveReader * /*archiveReader*/, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) {
+		serializerReader->readObjectMembers(param);
 	}
 };
 
@@ -110,22 +164,20 @@ void register_TestSerializeClass(Define define)
 	
 	classDefineB
 		FIELD(B, b)
+		FIELD(B, bs)
 	;
 	define._class(classDefineB);
 
-	GDefineMetaClass<C, A> classDefineC = GDefineMetaClass<C, A>::declare("TestSerializeClassC");
+	GDefineMetaClass<C, B> classDefineC = GDefineMetaClass<C, B>::declare("TestSerializeClassC");
 	
 	classDefineC
 		FIELD(C, c)
 	;
 	define._class(classDefineC);
 	
-	GDefineMetaClass<D, C> classDefineD = GDefineMetaClass<D, C>::declare("TestSerializeClassD");
+	GDefineMetaClass<R, C> classDefineR = GDefineMetaClass<R, C>::declare("TestSerializeClassR");
 	
-	classDefineD
-		FIELD(D, d)
-	;
-	define._class(classDefineD);
+	define._class(classDefineR);
 	
 }
 
@@ -135,13 +187,19 @@ void doTestCustomizedSerializer(IMetaService * service, IMetaWriter * writer, co
 
 	const char * const serializeObjectName = "customizedSerializer";
 	
-	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassD"));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassR"));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig(), service, writer));
 
-	D instance;
+	R instance;
 	instance.a = 18;
+	instance.b = 28;
+	instance.bs = "what is it";
 	instance.c = 38;
+
+	pa = &instance;
+	pb = &instance;
+	pc = &instance;
 
 	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
@@ -149,10 +207,12 @@ void doTestCustomizedSerializer(IMetaService * service, IMetaWriter * writer, co
 
 	ar.rewind();
 
-	D readInstance;
+	R readInstance;
 
 	serializeReadObject(archiveReader.get(), serializeObjectName, &readInstance, metaClass.get());
 	GEQUAL(18 * 2, readInstance.a);
+	GEQUAL(28, readInstance.b);
+	GEQUAL(string("what is it"), readInstance.bs);
 	GEQUAL(38 * 3, readInstance.c);
 }
 
@@ -204,6 +264,14 @@ struct GMetaTraitsCreateSerializer <A>
 {
 	static IMetaSerializer * createSerializer() {
 		return new MetaSerializerA();
+	}
+};
+
+template <>
+struct GMetaTraitsCreateSerializer <B>
+{
+	static IMetaSerializer * createSerializer() {
+		return new MetaSerializerB();
 	}
 };
 

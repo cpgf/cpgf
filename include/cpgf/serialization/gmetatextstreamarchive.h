@@ -9,6 +9,8 @@
 
 namespace cpgf {
 
+struct IMetaWriter;
+struct IMetaReader;
 
 namespace serialization_internal {
 

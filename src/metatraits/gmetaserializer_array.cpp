@@ -50,7 +50,8 @@ public:
 			}
 	}
 
-	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, GMetaArchiveWriterParam * param) {
+	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * /*serializerWriter*/, GMetaArchiveWriterParam * param) {
+		GScopedInterface<IMetaWriter> metaWriter(archiveWriter->getMetaWriter());
 		metaWriter->beginWriteArray(param->name, this->elementCount);
 
 		GMetaTypeData typeData = this->metaType.getData();
@@ -73,7 +74,8 @@ public:
 		return NULL;
 	}
 
-	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, GMetaArchiveReaderParam * param) {
+	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaSerializerReader * /*serializerReader*/, GMetaArchiveReaderParam * param) {
+		GScopedInterface<IMetaReader> metaReader(archiveReader->getMetaReader());
 		uint32_t length = metaReader->beginReadArray(param->name);
 		
 		if(length != this->elementCount) {

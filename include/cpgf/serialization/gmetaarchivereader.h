@@ -35,8 +35,8 @@ struct IMetaReader : public IObject
 	virtual char * G_API_CC readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID) = 0;
 	virtual void * G_API_CC readNullPointer(const char * name) = 0;
 
-	virtual uint32_t G_API_CC beginReadObject(GMetaArchiveReaderParam * param) = 0;
-	virtual void G_API_CC endReadObject(GMetaArchiveReaderParam * param) = 0;
+	virtual uint32_t G_API_CC beginReadObject(const char * name) = 0;
+	virtual void G_API_CC endReadObject(const char * name) = 0;
 
 	virtual uint32_t G_API_CC readReferenceID(const char * name) = 0;
 	virtual IMetaClass * G_API_CC readClassAndTypeID(uint32_t * outClassTypeID) = 0;
@@ -50,19 +50,26 @@ struct IMetaReader : public IObject
 struct IMetaArchiveReader : public IExtendObject
 {
 	virtual IMetaService * G_API_CC getMetaService() = 0;
+	virtual IMetaReader * G_API_CC getMetaReader() = 0;
 
 	virtual void G_API_CC readData(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
-	
-	virtual void G_API_CC readMember(const char * name, void * instance, IMetaAccessible * accessible) = 0;
 
 	virtual void G_API_CC trackPointer(uint32_t archiveID, void * instance) = 0;
 
-	virtual void G_API_CC readObjectMembers(GMetaArchiveReaderParam * param) = 0;
-	virtual uint32_t G_API_CC beginReadObject(GMetaArchiveReaderParam * param) = 0;
-	virtual void G_API_CC endReadObject(GMetaArchiveReaderParam * param) = 0;
-	
 	virtual IMemoryAllocator * G_API_CC getAllocator() = 0;
 };
+
+
+// used only by serializer
+struct IMetaSerializerReader : public IExtendObject
+{
+	virtual void G_API_CC readObjectMembers(GMetaArchiveReaderParam * param) = 0;
+	
+	virtual void G_API_CC readMember(GMetaArchiveReaderParam * param, IMetaAccessible * accessible) = 0;
+	virtual uint32_t G_API_CC beginReadObject(GMetaArchiveReaderParam * param) = 0;
+	virtual void G_API_CC endReadObject(GMetaArchiveReaderParam * param) = 0;
+};
+
 
 
 IMetaArchiveReader * createMetaArchiveReader(const GMetaArchiveConfig & config, IMetaService * service, IMetaReader * reader);

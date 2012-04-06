@@ -216,8 +216,8 @@ protected:
 	virtual void G_API_CC writeString(const char * name, uint32_t archiveID, const char * value);
 	virtual void G_API_CC writeNullPointer(const char * name);
 	
-	virtual void G_API_CC beginWriteObject(GMetaArchiveWriterParam * param);
-	virtual void G_API_CC endWriteObject(GMetaArchiveWriterParam * param);
+	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID);
+	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID);
 
 	virtual void G_API_CC writeReferenceID(const char * name, uint32_t referenceArchiveID);
 	virtual void G_API_CC writeClassType(uint32_t classTypeID, IMetaClass * metaClass);
@@ -293,8 +293,8 @@ protected:
 	virtual char * G_API_CC readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID);
 	virtual void * G_API_CC readNullPointer(const char * name);
 
-	virtual uint32_t G_API_CC beginReadObject(GMetaArchiveReaderParam * param);
-	virtual void G_API_CC endReadObject(GMetaArchiveReaderParam * param);
+	virtual uint32_t G_API_CC beginReadObject(const char * name);
+	virtual void G_API_CC endReadObject(const char * name);
 
 	virtual uint32_t G_API_CC readReferenceID(const char * name);
 	virtual IMetaClass * G_API_CC readClassAndTypeID(uint32_t * outClassTypeID);
@@ -374,16 +374,16 @@ void G_API_CC GXmlMetaWriter::writeNullPointer(const char * name)
 	this->addType(newNode, ptNull);
 }
 
-void G_API_CC GXmlMetaWriter::beginWriteObject(GMetaArchiveWriterParam * param)
+void G_API_CC GXmlMetaWriter::beginWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID)
 {
-	XmlNodeType * newNode = this->addNode(param->name);
+	XmlNodeType * newNode = this->addNode(name);
 	this->pushNode(newNode);
 	this->addType(newNode, ptObject);
-	this->addIntAttribute(newNode, nameArchiveID, param->archiveID);
-	this->addIntAttribute(newNode, nameClassTypeID, param->classTypeID);
+	this->addIntAttribute(newNode, nameArchiveID, archiveID);
+	this->addIntAttribute(newNode, nameClassTypeID, classTypeID);
 }
 
-void G_API_CC GXmlMetaWriter::endWriteObject(GMetaArchiveWriterParam * /*param*/)
+void G_API_CC GXmlMetaWriter::endWriteObject(const char * /*name*/, uint32_t /*archiveID*/, uint32_t /*classTypeID*/)
 {
 	this->popNode();
 }
@@ -648,24 +648,24 @@ void * G_API_CC GXmlMetaReader::readNullPointer(const char * name)
 	return NULL;
 }
 
-uint32_t G_API_CC GXmlMetaReader::beginReadObject(GMetaArchiveReaderParam * param)
+uint32_t G_API_CC GXmlMetaReader::beginReadObject(const char * name)
 {
-	XmlNodeType * node = this->getNode(param->name);
-	checkNode(node, param->name);
+	XmlNodeType * node = this->getNode(name);
+	checkNode(node, name);
 
 	PermanentType type = this->readType(node);
 	serializeCheckType(type, ptObject);
 
 	uint32_t archiveID = this->getIntAttribute(node, nameArchiveID);
 
-	this->gotoNextNode(node, param->name);
+	this->gotoNextNode(node, name);
 
 	this->pushNode(node);
 
 	return archiveID;
 }
 
-void G_API_CC GXmlMetaReader::endReadObject(GMetaArchiveReaderParam * /*param*/)
+void G_API_CC GXmlMetaReader::endReadObject(const char * /*name*/)
 {
 	this->popNode();
 }

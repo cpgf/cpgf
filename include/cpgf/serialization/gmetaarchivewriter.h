@@ -33,8 +33,8 @@ struct IMetaWriter : public IObject
 	virtual void G_API_CC writeString(const char * name, uint32_t archiveID, const char * value) = 0;
 	virtual void G_API_CC writeNullPointer(const char * name) = 0;
 
-	virtual void G_API_CC beginWriteObject(GMetaArchiveWriterParam * param) = 0;
-	virtual void G_API_CC endWriteObject(GMetaArchiveWriterParam * param) = 0;
+	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID) = 0;
+	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID) = 0;
 
 	virtual void G_API_CC writeReferenceID(const char * name, uint32_t referenceArchiveID) = 0;
 	virtual void G_API_CC writeClassType(uint32_t classTypeID, IMetaClass * metaClass) = 0;
@@ -46,14 +46,19 @@ struct IMetaWriter : public IObject
 struct IMetaArchiveWriter : public IExtendObject
 {
 	virtual IMetaService * G_API_CC getMetaService() = 0;
+	virtual IMetaWriter * G_API_CC getMetaWriter() = 0;
 
 	virtual void G_API_CC writeData(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 	
-	virtual void G_API_CC writeMember(const char * name, const void * instance, IMetaAccessible * accessible) = 0;
-
 	virtual void G_API_CC trackPointer(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, uint32_t pointers) = 0;
+};
 
+// used only by serializer
+struct IMetaSerializerWriter : public IExtendObject
+{
 	virtual void G_API_CC writeObjectMembers(GMetaArchiveWriterParam * param) = 0;
+	
+	virtual void G_API_CC writeMember(GMetaArchiveWriterParam * param, IMetaAccessible * accessible) = 0;
 	virtual void G_API_CC beginWriteObject(GMetaArchiveWriterParam * param) = 0;
 	virtual void G_API_CC endWriteObject(GMetaArchiveWriterParam * param) = 0;
 };
