@@ -122,7 +122,7 @@ void doTestDiamondVirtualBase(IMetaService * service, IMetaWriter * writer, cons
 	readCount = 0;
 	writeCount = 0;
 
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig(), service, writer));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassD"));
 
@@ -136,7 +136,7 @@ void doTestDiamondVirtualBase(IMetaService * service, IMetaWriter * writer, cons
 
 	ar.rewind();
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig(), service, reader.get()));
 	
 	D readInstance;
 	

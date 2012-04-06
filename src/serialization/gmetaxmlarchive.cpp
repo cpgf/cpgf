@@ -92,14 +92,20 @@ GMetaXmlArchiveImplement::GMetaXmlArchiveImplement()
 
 void GMetaXmlArchiveImplement::initializeXml()
 {
-	XmlNodeType * rootNode = this->xml.allocate_node(node_element, this->xml.allocate_string(nameRootNode));
-	this->xml.append_node(rootNode);
+	XmlNodeType * rootNode = this->xml.first_node(nameRootNode);
+	if(rootNode != 0) {
+		this->doLoad(NULL);
+	}
+	else {
+		rootNode = this->xml.allocate_node(node_element, this->xml.allocate_string(nameRootNode));
+		this->xml.append_node(rootNode);
 
-	this->dataNode = this->xml.allocate_node(node_element, this->xml.allocate_string(nameDataNode));
-	rootNode->append_node(this->dataNode);
+		this->dataNode = this->xml.allocate_node(node_element, this->xml.allocate_string(nameDataNode));
+		rootNode->append_node(this->dataNode);
 	
-	this->classTypeNode = this->xml.allocate_node(node_element, this->xml.allocate_string(nameClassTypesNode));
-	rootNode->append_node(this->classTypeNode);
+		this->classTypeNode = this->xml.allocate_node(node_element, this->xml.allocate_string(nameClassTypesNode));
+		rootNode->append_node(this->classTypeNode);
+	}
 }
 
 void GMetaXmlArchiveImplement::loadIntrusive(char * xmlContent)
@@ -140,7 +146,9 @@ xml_document<> * GMetaXmlArchiveImplement::getXml() const
 
 void GMetaXmlArchiveImplement::doLoad(char * xmlContent)
 {
-	this->xml.parse<0>(xmlContent);
+	if(xmlContent != NULL) {
+		this->xml.parse<0>(xmlContent);
+	}
 
 	XmlNodeType * rootNode = this->xml.first_node(nameRootNode);
 	checkNode(rootNode, "root");

@@ -12,7 +12,7 @@ class GMetaConverterStdString : public IMetaConverter
 	G_INTERFACE_IMPL_EXTENDOBJECT
 	
 public:
-	virtual uint32 G_API_CC capabilityForCString() {
+	virtual uint32_t G_API_CC capabilityForCString() {
 		return metaConverterCanReadWrite;
 	}
 	

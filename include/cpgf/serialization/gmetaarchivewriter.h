@@ -16,6 +16,7 @@ struct GMetaArchiveWriterParam
 	const char * name;
 	uint32_t archiveID;
 	const void * instance;
+	const GMetaTypeData * metaType;
 	IMetaClass * metaClass;
 	IMetaSerializer * serializer;
 	uint32_t classTypeID;
@@ -24,6 +25,7 @@ struct GMetaArchiveWriterParam
 
 #pragma pack(pop)
 
+class GMetaArchiveConfig;
 
 struct IMetaWriter : public IObject
 {
@@ -45,18 +47,19 @@ struct IMetaArchiveWriter : public IExtendObject
 {
 	virtual IMetaService * G_API_CC getMetaService() = 0;
 
-	virtual void G_API_CC writeObject(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
+	virtual void G_API_CC writeData(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 	
 	virtual void G_API_CC writeMember(const char * name, const void * instance, IMetaAccessible * accessible) = 0;
 
 	virtual void G_API_CC trackPointer(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, uint32_t pointers) = 0;
 
+	virtual void G_API_CC writeObjectMembers(GMetaArchiveWriterParam * param) = 0;
 	virtual void G_API_CC beginWriteObject(GMetaArchiveWriterParam * param) = 0;
 	virtual void G_API_CC endWriteObject(GMetaArchiveWriterParam * param) = 0;
 };
 
 
-IMetaArchiveWriter * createMetaArchiveWriter(uint32_t config, IMetaService * service, IMetaWriter * writer);
+IMetaArchiveWriter * createMetaArchiveWriter(const GMetaArchiveConfig & config, IMetaService * service, IMetaWriter * writer);
 
 void serializeWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
 void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
@@ -87,7 +90,7 @@ void serializeWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, 
 {
 	GMetaTypeData metaTypeData = createMetaType<T>().getData();
 	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>(GExtendTypeCreateFlag_Serializer).getSerializer());
-	archiveWriter->writeObject(name, serialization_internal::SerializeWriteValueParam<T>::param(object), &metaTypeData, serializer.get());
+	archiveWriter->writeData(name, serialization_internal::SerializeWriteValueParam<T>::param(object), &metaTypeData, serializer.get());
 }
 
 

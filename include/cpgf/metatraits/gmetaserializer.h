@@ -13,6 +13,8 @@ struct IMetaWriter;
 struct IMetaReader;
 struct IMetaClass;
 struct GMetaArchiveWriterParam;
+struct GMetaArchiveReaderParam;
+
 
 struct IMetaSerializer : public IObject
 {
@@ -20,7 +22,7 @@ struct IMetaSerializer : public IObject
 	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaWriter * metaWriter, GMetaArchiveWriterParam * param) = 0;
 	
 	virtual void * G_API_CC allocateObject(IMetaArchiveReader * archiveReader, IMetaClass * metaClass) = 0;
-	virtual void G_API_CC readObject(const char * name, IMetaArchiveReader * archiveReader, IMetaReader * metaReader, void * instance, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, GMetaArchiveReaderParam * param) = 0;
 };
 
 

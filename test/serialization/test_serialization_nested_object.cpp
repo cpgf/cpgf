@@ -96,7 +96,7 @@ void doTestNestedObject(IMetaService * service, IMetaWriter * writer, const READ
 	
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassC"));
 
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig(), service, writer));
 
 	C instance;
 	instance.init();
@@ -111,7 +111,7 @@ void doTestNestedObject(IMetaService * service, IMetaWriter * writer, const READ
 
 	ar.rewind();
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig(), service, reader.get()));
 	
 	C readInstance;
 	

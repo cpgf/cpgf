@@ -17,7 +17,7 @@ void doTestArrayInObject(IMetaService * service, IMetaWriter * writer, const REA
 {
 	const char * const serializeObjectName = "arrayInObject";
 
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig(), service, writer));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeArray"));
 
@@ -28,7 +28,7 @@ void doTestArrayInObject(IMetaService * service, IMetaWriter * writer, const REA
 	
 	ar.rewind();
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig(), service, reader.get()));
 	
 	TestSerializeArray readInstance;
 	

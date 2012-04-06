@@ -26,23 +26,25 @@ public:
 
 	virtual IMetaService * G_API_CC getMetaService();
 
-	virtual void G_API_CC readObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
+	virtual void G_API_CC readData(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
 	
 	virtual void G_API_CC readMember(const char * name, void * instance, IMetaAccessible * accessible);
 
 	virtual void G_API_CC trackPointer(uint32_t archiveID, void * instance);
 
+	virtual void G_API_CC readObjectMembers(GMetaArchiveReaderParam * param);
 	virtual uint32_t G_API_CC beginReadObject(GMetaArchiveReaderParam * param);
 	virtual void G_API_CC endReadObject(GMetaArchiveReaderParam * param);
 	
 	virtual IMemoryAllocator * G_API_CC getAllocator();
 	
 protected:
-	void * readObjectHelper(const char * name, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer);
+	void * readObjectHelper(const char * name, void * instance, const GMetaType & metaType, IMetaClass * metaClass, IMetaSerializer * serializer);
 	
-	void * doReadObject(GMetaArchiveReaderParam * param, IMetaSerializer * serializer, GBaseClassMap * baseClassMap, void * originalInstance, IMetaClass * originalMetaClass);
-	void doDirectReadObject(GMetaArchiveReaderParam * param, GBaseClassMap * baseClassMap, void * originalInstance, IMetaClass * originalMetaClass);
-	void doDirectReadObjectWithoutBase(GMetaArchiveReaderParam * param, void * originalInstance, IMetaClass * originalMetaClass);
+	void * doReadObject(GMetaArchiveReaderParam * param, GBaseClassMap * baseClassMap);
+	void doReadObjectHierarchy(GMetaArchiveReaderParam * param, GBaseClassMap * baseClassMap);
+	void doReadObjectWithoutBase(GMetaArchiveReaderParam * param);
+	void doDirectReadObjectWithoutBase(GMetaArchiveReaderParam * param);
 	
 	void doReadMember(const char * name, void * instance, IMetaAccessible * accessible);
 	
@@ -165,7 +167,7 @@ IMetaService * G_API_CC GMetaArchiveReader::getMetaService()
 	return this->service.get();
 }
 
-void G_API_CC GMetaArchiveReader::readObject(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer)
+void G_API_CC GMetaArchiveReader::readData(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer)
 {
 	GMetaType type(*metaType);
 
@@ -181,7 +183,7 @@ void G_API_CC GMetaArchiveReader::readMember(const char * name, void * instance,
 	this->doReadMember(name, instance, accessible);
 }
 
-void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, IMetaClass * metaClass, IMetaSerializer * serializer)
+void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, const GMetaType & metaType, IMetaClass * metaClass, IMetaSerializer * serializer)
 {
 	if(this->checkUntrackPointer(name, instance)) {
 		return instance;
@@ -191,18 +193,28 @@ void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, 
 
 	GBaseClassMap baseClassMap;
 	GMetaArchiveReaderParam param;
+	GMetaTypeData metaTypeData = metaType.getData();
 	
 	param.name = name;
 	param.instance = instance;
+	param.metaType = &metaTypeData;
 	param.metaClass = metaClass;
+	param.originalInstance = instance;
+	param.originalMetaClass = metaClass;
+	param.serializer = serializer;
 
-	void * p = this->doReadObject(&param, serializer, &baseClassMap, instance, metaClass);
+	void * p = this->doReadObject(&param, &baseClassMap);
 
 	if(this->serializeHeader.needEnd()) {
 		this->endReadObject(&param);
 	}
 
 	return p;
+}
+
+void G_API_CC GMetaArchiveReader::readObjectMembers(GMetaArchiveReaderParam * param)
+{
+	this->doDirectReadObjectWithoutBase(param);
 }
 
 uint32_t G_API_CC GMetaArchiveReader::beginReadObject(GMetaArchiveReaderParam * param)
@@ -219,64 +231,73 @@ void GMetaArchiveReader::endReadObject(GMetaArchiveReaderParam * param)
 	this->reader->endReadObject(param);
 }
 
-void * GMetaArchiveReader::doReadObject(GMetaArchiveReaderParam * param, IMetaSerializer * serializer, GBaseClassMap * baseClassMap, void * originalInstance, IMetaClass * originalMetaClass)
+void * GMetaArchiveReader::doReadObject(GMetaArchiveReaderParam * param, GBaseClassMap * baseClassMap)
 {
-	void * instance = param->instance;
-	if(serializer != NULL) {
-		if(instance == NULL) {
-			instance = serializer->allocateObject(this, param->metaClass);
-		}
-		serializer->readObject(param->name, this, this->reader.get(), instance, param->metaClass);
-	}
-	else {
-		this->doDirectReadObject(param, baseClassMap, originalInstance, originalMetaClass);
-	}
-	return instance;
+	this->doReadObjectHierarchy(param, baseClassMap);
+	return param->instance;
 }
 
-void GMetaArchiveReader::doDirectReadObject(GMetaArchiveReaderParam * param, GBaseClassMap * baseClassMap, void * originalInstance, IMetaClass * originalMetaClass)
+void GMetaArchiveReader::doReadObjectHierarchy(GMetaArchiveReaderParam * param, GBaseClassMap * baseClassMap)
 {
-	GScopedInterface<IMetaClass> baseClass;
-	uint32_t i;
-	uint32_t count;
+	// metaClass can be NULL if serializer is not NULL
+	if(param->metaClass != NULL) {
+		GScopedInterface<IMetaClass> baseClass;
+		uint32_t i;
+		uint32_t count;
+		GScopedInterface<IMetaSerializer> serializer;
 
-	count = param->metaClass->getBaseCount();
-	for(i = 0; i < count; ++i) {
-		baseClass.reset(param->metaClass->getBaseClass(i));
+		count = param->metaClass->getBaseCount();
+		for(i = 0; i < count; ++i) {
+			baseClass.reset(param->metaClass->getBaseClass(i));
 		
-		if(canSerializeBaseClass(this->config, baseClass.get(), param->metaClass)) {
-			void * baseInstance = param->metaClass->castToBase(param->instance, i);
-			if(! baseClassMap->hasMetaClass(baseInstance, baseClass.get())) {
-				baseClassMap->addMetaClass(baseInstance, baseClass.get());
+			if(canSerializeBaseClass(this->config, baseClass.get(), param->metaClass)) {
+				void * baseInstance = param->metaClass->castToBase(param->instance, i);
+				if(! baseClassMap->hasMetaClass(baseInstance, baseClass.get())) {
+					baseClassMap->addMetaClass(baseInstance, baseClass.get());
+					serializer.reset(metaGetItemExtendType(baseClass, GExtendTypeCreateFlag_Serializer).getSerializer());
 				
-				GMetaArchiveReaderParam newParam;
+					GMetaArchiveReaderParam newParam;
+					GMetaType baseMetaType(metaGetItemType(baseClass));
+					GMetaTypeData baseMetaTypeData = baseMetaType.getData();
 				
-				newParam.name = param->name;
-				newParam.instance = baseInstance;
-				newParam.metaClass = baseClass.get();
+					newParam.name = param->name;
+					newParam.instance = baseInstance;
+					newParam.metaType = &baseMetaTypeData;
+					newParam.metaClass = baseClass.get();
+					newParam.originalInstance = param->originalInstance;
+					newParam.originalMetaClass = param->originalMetaClass;
+					newParam.serializer = serializer.get();
 				
-				this->doReadObject(&newParam, NULL, baseClassMap, originalInstance, originalMetaClass);
+					this->doReadObject(&newParam, baseClassMap);
+				}
 			}
 		}
 	}
 
-	this->doDirectReadObjectWithoutBase(param, originalInstance, originalMetaClass);
+	this->doReadObjectWithoutBase(param);
 }
 
-void GMetaArchiveReader::doDirectReadObjectWithoutBase(GMetaArchiveReaderParam * param, void * originalInstance, IMetaClass * originalMetaClass)
+void GMetaArchiveReader::doReadObjectWithoutBase(GMetaArchiveReaderParam * param)
+{
+	if(param->serializer != NULL) {
+		if(param->instance == NULL) {
+			param->instance = param->serializer->allocateObject(this, param->metaClass);
+		}
+		param->serializer->readObject(this, this->reader.get(), param);
+	}
+	else {
+		this->doDirectReadObjectWithoutBase(param);
+	}
+}
+
+void GMetaArchiveReader::doDirectReadObjectWithoutBase(GMetaArchiveReaderParam * param)
 {
 	if(param->instance == NULL) {
 		return;
 	}
 
 	if(this->serializeHeader.needBegin()) {
-		GMetaArchiveReaderParam newParam;
-		
-		newParam.name = param->name;
-		newParam.instance = originalInstance;
-		newParam.metaClass = originalMetaClass;
-		
-		this->beginReadObject(&newParam);
+		this->beginReadObject(param);
 		this->serializeHeader.addedHeader();
 	}
 	
@@ -324,7 +345,7 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 	}
 
 	if(metaType.baseIsArray()) {
-		this->readObjectHelper(name, address, NULL, serializer);
+		this->readObjectHelper(name, address, metaType, NULL, serializer);
 		return;
 	}
 
@@ -361,7 +382,7 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 				metaClass.reset(this->service->findClassByName(metaType.getBaseName()));
 			}
 			if(pointers == 0) {
-				this->readObjectHelper(name, address, metaClass.get(), serializer);
+				this->readObjectHelper(name, address, metaType, metaClass.get(), serializer);
 			}
 			else {
 				void * ptr = *(void **)address;
@@ -393,10 +414,10 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 						ptr = castedPtr;
 						metaClass.reset(castedMetaClass.take());
 					}
-					this->readObjectHelper(name, ptr, metaClass.get(), NULL);
+					this->readObjectHelper(name, ptr, metaType, metaClass.get(), NULL);
 				}
 				else {
-					ptr = this->readObjectHelper(name, ptr, NULL, serializer);
+					ptr = this->readObjectHelper(name, ptr, metaType, NULL, serializer);
 				}
 				*(void **)address = ptr;
 			}
@@ -527,7 +548,7 @@ GMetaArchiveReaderClassTypeTracker * GMetaArchiveReader::getClassTypeTracker()
 }
 
 
-IMetaArchiveReader * createMetaArchiveReader(uint32_t config, IMetaService * service, IMetaReader * reader)
+IMetaArchiveReader * createMetaArchiveReader(const GMetaArchiveConfig & config, IMetaService * service, IMetaReader * reader)
 {
 	return new GMetaArchiveReader(GMetaArchiveConfig(config), service, reader);
 }
@@ -536,7 +557,7 @@ IMetaArchiveReader * createMetaArchiveReader(uint32_t config, IMetaService * ser
 void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaClass * metaClass)
 {
 	GMetaTypeData metaType = metaGetItemType(metaClass).getData();
-	archiveReader->readObject(name, instance, &metaType, NULL);
+	archiveReader->readData(name, instance, &metaType, NULL);
 }
 
 

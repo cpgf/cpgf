@@ -1,5 +1,5 @@
-#BUILD_TARGET=test_serialization
-BUILD_TARGET=test_scriptbind
+BUILD_TARGET=test_serialization
+#BUILD_TARGET=test_scriptbind
 
 if [ $OSTYPE == "cygwin" ]; then
 	mingw32-make mingw TARGET=$BUILD_TARGET

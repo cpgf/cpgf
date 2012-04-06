@@ -62,7 +62,7 @@ public:
 			else {
 				ptr = param->instance;
 			}
-			archiveWriter->writeObject(elementName, ptr, &typeData, this->elementSerializer.get());
+			archiveWriter->writeData(elementName, ptr, &typeData, this->elementSerializer.get());
 			param->instance = static_cast<const char *>(param->instance) + this->elementSize;
 		}
 		
@@ -73,20 +73,21 @@ public:
 		return NULL;
 	}
 
-	virtual void G_API_CC readObject(const char * name, IMetaArchiveReader * archiveReader, IMetaReader * metaReader, void * instance, IMetaClass * /*metaClass*/) {
-		uint32_t length = metaReader->beginReadArray(name);
+	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, GMetaArchiveReaderParam * param) {
+		uint32_t length = metaReader->beginReadArray(param->name);
 		
 		if(length != this->elementCount) {
 			GASSERT(false);
 		}
 
+		void * instance = param->instance;
 		GMetaTypeData typeData = this->metaType.getData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
-			archiveReader->readObject(elementName, instance, &typeData, this->elementSerializer.get());
+			archiveReader->readData(elementName, instance, &typeData, this->elementSerializer.get());
 			instance = static_cast<char *>(instance) + this->elementSize;
 		}
 
-		metaReader->endReadArray(name);
+		metaReader->endReadArray(param->name);
 	}
 	
 private:

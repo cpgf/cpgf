@@ -120,7 +120,7 @@ void doTestCyclicGraph(IMetaService * service, IMetaWriter * writer, const READE
 	
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassA"));
 
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig(), service, writer));
 
 	A instance;
 	instance.init();
@@ -131,7 +131,7 @@ void doTestCyclicGraph(IMetaService * service, IMetaWriter * writer, const READE
 
 	ar.rewind();
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig(), service, reader.get()));
 	
 	A readInstance;
 	

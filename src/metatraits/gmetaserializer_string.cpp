@@ -27,13 +27,13 @@ public:
 		return new std::string;
 	}
 
-	virtual void G_API_CC readObject(const char * name, IMetaArchiveReader * archiveReader, IMetaReader * metaReader, void * instance, IMetaClass * /*metaClass*/) {
+	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaReader * metaReader, GMetaArchiveReaderParam * param) {
 		uint32_t archiveID;
-		char * s = metaReader->readString(name, archiveReader->getAllocator(), &archiveID);
-		*static_cast<std::string *>(instance) = s;
+		char * s = metaReader->readString(param->name, archiveReader->getAllocator(), &archiveID);
+		*static_cast<std::string *>(param->instance) = s;
 		archiveReader->getAllocator()->free(s);
 		
-		archiveReader->trackPointer(archiveID, instance);
+		archiveReader->trackPointer(archiveID, param->instance);
 	}
 };
 

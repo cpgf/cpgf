@@ -17,7 +17,7 @@ void doTestSimpleObject(IMetaService * service, IMetaWriter * writer, const READ
 {
 	const char * const serializeObjectName = "simpleObject";
 	
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig(), service, writer));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClass"));
 
@@ -28,7 +28,7 @@ void doTestSimpleObject(IMetaService * service, IMetaWriter * writer, const READ
 
 	ar.rewind();
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig(), service, reader.get()));
 	
 	TestSerializeClass readInstance;
 	

@@ -20,7 +20,7 @@ namespace {
 template <typename READER, typename AR>
 void doTestMultipleDimensionArray(IMetaService * service, IMetaWriter * writer, const READER & reader, const AR & ar)
 {
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(0, service, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig(), service, writer));
 
 	enum {
 		A1 = 3, A2 = 5,
@@ -61,7 +61,7 @@ void doTestMultipleDimensionArray(IMetaService * service, IMetaWriter * writer, 
 
 	ar.rewind();
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(0, service, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig(), service, reader.get()));
 
 	int ri[A1][A2];
 	string rs2[A1][A2];
