@@ -55,14 +55,14 @@ public:
 		return metaClass->getTypeName();
 	}
 	
-	virtual void G_API_CC writeObject(IMetaArchiveWriter * /*archiveWriter*/, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param) {
+	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param) {
 		A * instance = static_cast<A *>(const_cast<void *>(param->instance));
 		
 		GEQUAL(pa, instance);
 
 		int temp = instance->a;
 		instance->a = temp * 2;
-		serializerWriter->writeObjectMembers(param);
+		metaSerializerWriteObjectMembers(archiveWriter, serializerWriter, param);
 		instance->a = temp;
 	}
 	
@@ -70,8 +70,8 @@ public:
 		return metaClass->createInstance();
 	}
 
-	virtual void G_API_CC readObject(IMetaArchiveReader * /*archiveReader*/, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) {
-		serializerReader->readObjectMembers(param);
+	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) {
+		metaSerializerReadObjectMembers(archiveReader, serializerReader, param);
 	}
 };
 
@@ -130,14 +130,14 @@ public:
 		return metaClass->getTypeName();
 	}
 	
-	virtual void G_API_CC writeObject(IMetaArchiveWriter * /*archiveWriter*/, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param) {
+	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param) {
 		C * instance = static_cast<C *>(const_cast<void *>(param->instance));
 		
 		GEQUAL(pc, instance);
 		
 		int temp = instance->c;
 		instance->c = temp * 3;
-		serializerWriter->writeObjectMembers(param);
+		metaSerializerWriteObjectMembers(archiveWriter, serializerWriter, param);
 		instance->c = temp;
 	}
 	
@@ -145,8 +145,8 @@ public:
 		return metaClass->createInstance();
 	}
 
-	virtual void G_API_CC readObject(IMetaArchiveReader * /*archiveReader*/, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) {
-		serializerReader->readObjectMembers(param);
+	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) {
+		metaSerializerReadObjectMembers(archiveReader, serializerReader, param);
 	}
 };
 
@@ -201,7 +201,7 @@ void doTestCustomizedSerializer(IMetaService * service, IMetaWriter * writer, co
 	pb = &instance;
 	pc = &instance;
 
-	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+	metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig(), service, reader.get()));
 

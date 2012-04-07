@@ -50,14 +50,14 @@ void doTestMultipleDimensionArray(IMetaService * service, IMetaWriter * writer, 
 	LOOP3(B1, B2, B3) po[z1][z2][z3] = &o[z1][z2][z3];
 	LOOP3(B1, B2, B3) { npo[z1][z2][z3] = new TestSerializeClass(); initTestValue(*npo[z1][z2][z3], getTestSeed(z1 * B2 * B3 + z2 * B3 + z3 + 1)); }
 
-	serializeWriteValue(archiveWriter.get(), "i", i);
-	serializeWriteValue(archiveWriter.get(), "l", l);
-	serializeWriteValue(archiveWriter.get(), "s2", s2);
-	serializeWriteValue(archiveWriter.get(), "s", s);
-	serializeWriteValue(archiveWriter.get(), "ps", ps);
-	serializeWriteValue(archiveWriter.get(), "o", o);
-	serializeWriteValue(archiveWriter.get(), "po", po);
-	serializeWriteValue(archiveWriter.get(), "npo", npo);
+	metaArchiveWriteValue(archiveWriter.get(), "i", i);
+	metaArchiveWriteValue(archiveWriter.get(), "l", l);
+	metaArchiveWriteValue(archiveWriter.get(), "s2", s2);
+	metaArchiveWriteValue(archiveWriter.get(), "s", s);
+	metaArchiveWriteValue(archiveWriter.get(), "ps", ps);
+	metaArchiveWriteValue(archiveWriter.get(), "o", o);
+	metaArchiveWriteValue(archiveWriter.get(), "po", po);
+	metaArchiveWriteValue(archiveWriter.get(), "npo", npo);
 
 	ar.rewind();
 
@@ -128,7 +128,7 @@ GTEST(testMultipleDimensionArray_TextStream)
 	
 	doTestMultipleDimensionArray(service.get(), writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
 
-///	cout << stream.str().c_str() << endl;
+//	cout << stream.str().c_str() << endl;
 }
 
 
@@ -146,7 +146,7 @@ GTEST(testMultipleDimensionArray_Xml)
 	
 	doTestMultipleDimensionArray(service.get(), writer.get(), MetaReaderGetterXml(service.get(), outputArchive), TestArchiveStreamNone());
 
-///	cout << stream.str().c_str() << endl;
+//	cout << stream.str().c_str() << endl;
 }
 
 

@@ -55,6 +55,9 @@ extern int defaultVariantTypeMap[];
 GVariantType getVariantTypeFromMap(int * variantTypeMap, int mappedType);
 int getMappedTypeFromMap(int * variantTypeMap, GVariantType vt);
 
+bool permanentTypeIsFundamental(PermanentType type);
+
+
 } // namespace cpgf
 
 

@@ -53,6 +53,10 @@ int getMappedTypeFromMap(int * variantTypeMap, GVariantType vt)
 	return -1;
 }
 
+bool permanentTypeIsFundamental(PermanentType type)
+{
+	return type >= ptBool && type <= ptLongDouble;
+}
 
 
 } // namespace cpgf

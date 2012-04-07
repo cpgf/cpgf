@@ -30,22 +30,36 @@ enum GMetaArchiveItemType {
 };
 
 
+#pragma pack(push, 1)
+#pragma pack(1)
+
+struct GMetaArchiveConfigData
+{
+	uint32_t flags;
+};
+
+#pragma pack(pop)
+
+
 class GMetaArchiveConfig
 {
 private:
 	enum ConfigFlags {
-		macDisableSerializeField = 1 << 0,
-		macDisableSerializeProperty = 1 << 1,
-		macDisableTrackPointers = 1 << 2
+		macAllowSerializeField = 1 << 0,
+		macAllowSerializeProperty = 1 << 1,
+		macAllowTrackPointers = 1 << 2
 	};
 
 	enum {
-		defaultConfig = 0
+		defaultConfig =
+			macAllowSerializeField
+			| macAllowSerializeProperty
+			| macAllowTrackPointers
 	};
 
 public:
 	GMetaArchiveConfig();
-	explicit GMetaArchiveConfig(uint32_t flags);
+	explicit GMetaArchiveConfig(const GMetaArchiveConfigData & data);
 
 	void setAllowTrackPointer(bool allow);
 	bool allowTrackPointer() const;
@@ -56,7 +70,7 @@ public:
 	void setAllowSerializeProperty(bool allow);
 	bool allowSerializeProperty() const;
 
-	uint32_t getFlags() const;
+	GMetaArchiveConfigData getData() const;
 
 private:
 	GFlags<ConfigFlags> flags;

@@ -132,7 +132,7 @@ void doTestDiamondVirtualBase(IMetaService * service, IMetaWriter * writer, cons
 	instance.c = 0x3c;
 	instance.d = 0x4d;
 
-	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+	metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	ar.rewind();
 	

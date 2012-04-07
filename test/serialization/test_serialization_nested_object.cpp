@@ -103,10 +103,10 @@ void doTestNestedObject(IMetaService * service, IMetaWriter * writer, const READ
 
 	C * pinstance = &instance;
 	
-	serializeWriteObjectPointer(archiveWriter.get(), serializeObjectName, pinstance, metaClass.get());
+	metaArchiveWriteObjectPointer(archiveWriter.get(), serializeObjectName, pinstance, metaClass.get());
 	// should error
 //	GBEGIN_EXCEPTION
-//		serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+//		metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 //	GEND_EXCEPTION(...)
 
 	ar.rewind();

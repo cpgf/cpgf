@@ -24,7 +24,7 @@ void doTestArrayInObject(IMetaService * service, IMetaWriter * writer, const REA
 	TestSerializeArray instance;
 	instance.init();
 
-	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+	metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 	
 	ar.rewind();
 	

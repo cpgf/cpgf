@@ -8,6 +8,8 @@
 namespace cpgf {
 
 
+struct GMetaArchiveConfigData;
+
 #pragma pack(push, 1)
 #pragma pack(1)
 
@@ -51,6 +53,8 @@ struct IMetaArchiveReader : public IExtendObject
 {
 	virtual IMetaService * G_API_CC getMetaService() = 0;
 	virtual IMetaReader * G_API_CC getMetaReader() = 0;
+	
+	virtual void G_API_CC getConfig(GMetaArchiveConfigData * outConfigData) = 0;
 
 	virtual void G_API_CC readData(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 
@@ -63,7 +67,6 @@ struct IMetaArchiveReader : public IExtendObject
 // used only by serializer
 struct IMetaSerializerReader : public IExtendObject
 {
-	virtual void G_API_CC readObjectMembers(GMetaArchiveReaderParam * param) = 0;
 	virtual void G_API_CC readMember(GMetaArchiveReaderParam * param, IMetaAccessible * accessible) = 0;
 };
 
@@ -81,6 +84,9 @@ void serializeReadValue(IMetaArchiveReader * archiveReader, const char * name, T
 	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>( GExtendTypeCreateFlag_Serializer).getSerializer());
 	archiveReader->readData(name, &instance, &metaTypeData, serializer.get());
 }
+
+void metaSerializerReadObjectMembers(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param);
+
 
 
 } // namespace cpgf

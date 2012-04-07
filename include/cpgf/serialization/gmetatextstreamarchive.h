@@ -3,12 +3,13 @@
 
 
 #include "cpgf/serialization/gmetaarchivetypemap.h"
-#include "cpgf/serialization/gmetaarchivecommon.h"
 #include "cpgf/serialization/gmetastreamfundamental.h"
 
+#include <iostream>
 
 namespace cpgf {
 
+struct IMetaService;
 struct IMetaWriter;
 struct IMetaReader;
 

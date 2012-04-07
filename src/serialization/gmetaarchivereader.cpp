@@ -27,14 +27,14 @@ public:
 	virtual IMetaService * G_API_CC getMetaService();
 	virtual IMetaReader * G_API_CC getMetaReader();
 
+	virtual void G_API_CC getConfig(GMetaArchiveConfigData * outConfigData);
+	
 	virtual void G_API_CC readData(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
 	
 	virtual void G_API_CC readMember(GMetaArchiveReaderParam * param, IMetaAccessible * accessible);
 
 	virtual void G_API_CC trackPointer(uint32_t archiveID, void * instance);
 
-	virtual void G_API_CC readObjectMembers(GMetaArchiveReaderParam * param);
-	
 	virtual IMemoryAllocator * G_API_CC getAllocator();
 	
 protected:
@@ -176,6 +176,11 @@ IMetaReader * G_API_CC GMetaArchiveReader::getMetaReader()
 	return this->reader.get();
 }
 
+void G_API_CC GMetaArchiveReader::getConfig(GMetaArchiveConfigData * outConfigData)
+{
+	*outConfigData = this->config.getData();
+}
+
 void G_API_CC GMetaArchiveReader::readData(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer)
 {
 	GMetaType type(*metaType);
@@ -220,11 +225,6 @@ void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, 
 	}
 
 	return p;
-}
-
-void G_API_CC GMetaArchiveReader::readObjectMembers(GMetaArchiveReaderParam * param)
-{
-	this->doDirectReadObjectWithoutBase(param);
 }
 
 void * GMetaArchiveReader::doReadObject(GMetaArchiveReaderParam * param, GBaseClassMap * baseClassMap)
@@ -288,36 +288,7 @@ void GMetaArchiveReader::doReadObjectWithoutBase(GMetaArchiveReaderParam * param
 
 void GMetaArchiveReader::doDirectReadObjectWithoutBase(GMetaArchiveReaderParam * param)
 {
-	if(param->instance == NULL) {
-		return;
-	}
-
-	this->checkBeginReadObject(param);
-	
-	GScopedInterface<IMetaAccessible> accessible;
-	uint32_t i;
-	uint32_t count;
-
-	if(this->config.allowSerializeField()) {
-		count = param->metaClass->getFieldCount();
-		for(i = 0; i < count; ++i) {
-			accessible.reset(param->metaClass->getFieldAt(i));
-
-			if(canSerializeField(this->config, accessible.get(), param->metaClass)) {
-				this->doReadMember(param->instance, accessible.get());
-			}
-		}
-	}
-
-	if(this->config.allowSerializeProperty()) {
-		count = param->metaClass->getPropertyCount();
-		for(i = 0; i < count; ++i) {
-			accessible.reset(param->metaClass->getPropertyAt(i));
-			if(canSerializeField(this->config, accessible.get(), param->metaClass)) {
-				this->doReadMember(param->instance, accessible.get());
-			}
-		}
-	}
+	metaSerializerReadObjectMembers(this, this, param);
 }
 
 void GMetaArchiveReader::doReadMember(void * instance, IMetaAccessible * accessible)
@@ -574,6 +545,42 @@ void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, 
 {
 	GMetaTypeData metaType = metaGetItemType(metaClass).getData();
 	archiveReader->readData(name, instance, &metaType, NULL);
+}
+
+void metaSerializerReadObjectMembers(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param)
+{
+	if(param->instance == NULL) {
+		return;
+	}
+
+	GScopedInterface<IMetaAccessible> accessible;
+	uint32_t i;
+	uint32_t count;
+
+	GMetaArchiveConfigData configData;
+	archiveReader->getConfig(&configData);
+	GMetaArchiveConfig config(configData);
+
+	if(config.allowSerializeField()) {
+		count = param->metaClass->getFieldCount();
+		for(i = 0; i < count; ++i) {
+			accessible.reset(param->metaClass->getFieldAt(i));
+
+			if(canSerializeField(config, accessible.get(), param->metaClass)) {
+				serializerReader->readMember(param, accessible.get());
+			}
+		}
+	}
+
+	if(config.allowSerializeProperty()) {
+		count = param->metaClass->getPropertyCount();
+		for(i = 0; i < count; ++i) {
+			accessible.reset(param->metaClass->getPropertyAt(i));
+			if(canSerializeField(config, accessible.get(), param->metaClass)) {
+				serializerReader->readMember(param, accessible.get());
+			}
+		}
+	}
 }
 
 

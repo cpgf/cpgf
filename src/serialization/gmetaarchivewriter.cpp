@@ -30,14 +30,14 @@ public:
 
 	virtual IMetaService * G_API_CC getMetaService();
 	virtual IMetaWriter * G_API_CC getMetaWriter();
+	
+	virtual void G_API_CC getConfig(GMetaArchiveConfigData * outConfigData);
 
 	virtual void G_API_CC writeData(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
 	virtual void G_API_CC writeMember(GMetaArchiveWriterParam * param, IMetaAccessible * accessible);
 
 	virtual void G_API_CC trackPointer(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, uint32_t pointers);
 	
-	virtual void G_API_CC writeObjectMembers(GMetaArchiveWriterParam * param);
-
 protected:
 	void writeObjectHelper(const char * name, const void * instance, const GMetaType & metaType, IMetaClass * metaClass, IMetaSerializer * serializer, uint32_t pointers);
 	
@@ -225,6 +225,11 @@ IMetaWriter * G_API_CC GMetaArchiveWriter::getMetaWriter()
 	return this->writer.get();
 }
 
+void G_API_CC GMetaArchiveWriter::getConfig(GMetaArchiveConfigData * outConfigData)
+{
+	*outConfigData = this->config.getData();
+}
+
 void G_API_CC GMetaArchiveWriter::writeData(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer)
 {
 	GMetaType type(*metaType);
@@ -328,36 +333,7 @@ void GMetaArchiveWriter::doWriteObjectWithoutBase(GMetaArchiveWriterParam * para
 
 void GMetaArchiveWriter::doDirectWriteObjectWithoutBase(GMetaArchiveWriterParam * param)
 {
-	if(param->instance == NULL) {
-		return;
-	}
-	
-	this->checkBeginWriteObject(param);
-
-	GScopedInterface<IMetaAccessible> accessible;
-	uint32_t i;
-	uint32_t count;
-
-	if(this->config.allowSerializeField()) {
-		count = param->metaClass->getFieldCount();
-		for(i = 0; i < count; ++i) {
-			accessible.reset(param->metaClass->getFieldAt(i));
-
-			if(canSerializeField(this->config, accessible.get(), param->metaClass)) {
-				this->doWriteMember(param->instance, accessible.get());
-			}
-		}
-	}
-
-	if(this->config.allowSerializeProperty()) {
-		count = param->metaClass->getPropertyCount();
-		for(i = 0; i < count; ++i) {
-			accessible.reset(param->metaClass->getPropertyAt(i));
-			if(canSerializeField(this->config, accessible.get(), param->metaClass)) {
-				this->doWriteMember(param->instance, accessible.get());
-			}
-		}
-	}
+	metaSerializerWriteObjectMembers(this, this, param);
 }
 
 void GMetaArchiveWriter::doWriteMember(const void * instance, IMetaAccessible * accessible)
@@ -564,11 +540,6 @@ void GMetaArchiveWriter::checkBeginWriteObject(GMetaArchiveWriterParam * param)
 	}
 }
 
-void G_API_CC GMetaArchiveWriter::writeObjectMembers(GMetaArchiveWriterParam * param)
-{
-	this->doDirectWriteObjectWithoutBase(param);
-}
-
 void GMetaArchiveWriter::doBeginWriteObject(GMetaArchiveWriterParam * param)
 {
 	this->trackPointer(param->archiveID, param->instance, param->metaClass, param->serializer, param->pointers);
@@ -587,7 +558,7 @@ IMetaArchiveWriter * createMetaArchiveWriter(const GMetaArchiveConfig & config, 
 }
 
 
-void serializeWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
+void metaArchiveWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
 {
 	GMetaTypeData metaType = metaGetItemType(metaClass).getData();
 	GScopedInterface<IMetaSerializer> serializer;
@@ -597,7 +568,7 @@ void serializeWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * 
 	archiveWriter->writeData(name, instance, &metaType, serializer.get());
 }
 
-void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
+void metaArchiveWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
 {
 	GMetaType metaType(metaGetItemType(metaClass));
 	if(! metaType.isPointer()) {
@@ -609,6 +580,42 @@ void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char 
 		serializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
 	}
 	archiveWriter->writeData(name, instance, &metaTypeData, serializer.get());
+}
+
+void metaSerializerWriteObjectMembers(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param)
+{
+	if(param->instance == NULL) {
+		return;
+	}
+	
+	GScopedInterface<IMetaAccessible> accessible;
+	uint32_t i;
+	uint32_t count;
+
+	GMetaArchiveConfigData configData;
+	archiveWriter->getConfig(&configData);
+	GMetaArchiveConfig config(configData);
+
+	if(config.allowSerializeField()) {
+		count = param->metaClass->getFieldCount();
+		for(i = 0; i < count; ++i) {
+			accessible.reset(param->metaClass->getFieldAt(i));
+
+			if(canSerializeField(config, accessible.get(), param->metaClass)) {
+				serializerWriter->writeMember(param, accessible.get());
+			}
+		}
+	}
+
+	if(config.allowSerializeProperty()) {
+		count = param->metaClass->getPropertyCount();
+		for(i = 0; i < count; ++i) {
+			accessible.reset(param->metaClass->getPropertyAt(i));
+			if(canSerializeField(config, accessible.get(), param->metaClass)) {
+				serializerWriter->writeMember(param, accessible.get());
+			}
+		}
+	}
 }
 
 

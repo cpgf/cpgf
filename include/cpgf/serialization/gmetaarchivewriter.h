@@ -8,6 +8,8 @@
 namespace cpgf {
 
 
+struct GMetaArchiveConfigData;
+
 #pragma pack(push, 1)
 #pragma pack(1)
 
@@ -47,6 +49,8 @@ struct IMetaArchiveWriter : public IExtendObject
 {
 	virtual IMetaService * G_API_CC getMetaService() = 0;
 	virtual IMetaWriter * G_API_CC getMetaWriter() = 0;
+	
+	virtual void G_API_CC getConfig(GMetaArchiveConfigData * outConfigData) = 0;
 
 	virtual void G_API_CC writeData(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 	
@@ -56,21 +60,20 @@ struct IMetaArchiveWriter : public IExtendObject
 // used only by serializer
 struct IMetaSerializerWriter : public IExtendObject
 {
-	virtual void G_API_CC writeObjectMembers(GMetaArchiveWriterParam * param) = 0;
 	virtual void G_API_CC writeMember(GMetaArchiveWriterParam * param, IMetaAccessible * accessible) = 0;
 };
 
 
 IMetaArchiveWriter * createMetaArchiveWriter(const GMetaArchiveConfig & config, IMetaService * service, IMetaWriter * writer);
 
-void serializeWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
-void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
+void metaArchiveWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
+void metaArchiveWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
 
 
 namespace serialization_internal {
 
 template <typename T>
-struct SerializeWriteValueParam
+struct MetaArchiveWriteValueParam
 {
 	static const void * param(const T & object) {
 		return &object;
@@ -78,7 +81,7 @@ struct SerializeWriteValueParam
 };
 
 template <typename T>
-struct SerializeWriteValueParam <T *>
+struct MetaArchiveWriteValueParam <T *>
 {
 	static const void * param(T * object) {
 		return static_cast<void *>(object);
@@ -88,13 +91,14 @@ struct SerializeWriteValueParam <T *>
 } // namespace serialization_internal
 
 template <typename T>
-void serializeWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, const T & object) 
+void metaArchiveWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, const T & object) 
 {
 	GMetaTypeData metaTypeData = createMetaType<T>().getData();
 	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>(GExtendTypeCreateFlag_Serializer).getSerializer());
-	archiveWriter->writeData(name, serialization_internal::SerializeWriteValueParam<T>::param(object), &metaTypeData, serializer.get());
+	archiveWriter->writeData(name, serialization_internal::MetaArchiveWriteValueParam<T>::param(object), &metaTypeData, serializer.get());
 }
 
+void metaSerializerWriteObjectMembers(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param);
 
 
 } // namespace cpgf

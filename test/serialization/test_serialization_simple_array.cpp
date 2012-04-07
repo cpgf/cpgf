@@ -79,27 +79,27 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, const READE
 	INIT(npo, S)
 #undef INIT
 
-	serializeWriteValue(archiveWriter.get(), "b", b);
-	serializeWriteValue(archiveWriter.get(), "c", c);
-	serializeWriteValue(archiveWriter.get(), "wc", wc);
-	serializeWriteValue(archiveWriter.get(), "sc", sc);
-	serializeWriteValue(archiveWriter.get(), "uc", uc);
-	serializeWriteValue(archiveWriter.get(), "si", si);
-	serializeWriteValue(archiveWriter.get(), "usi", usi);
-	serializeWriteValue(archiveWriter.get(), "i", i);
-	serializeWriteValue(archiveWriter.get(), "ui", ui);
-	serializeWriteValue(archiveWriter.get(), "l", l);
-	serializeWriteValue(archiveWriter.get(), "ul", ul);
-	serializeWriteValue(archiveWriter.get(), "ll", ll);
-	serializeWriteValue(archiveWriter.get(), "ull", ull);
-	serializeWriteValue(archiveWriter.get(), "f", f);
-	serializeWriteValue(archiveWriter.get(), "df", df);
-	serializeWriteValue(archiveWriter.get(), "ldf", ldf);
-	serializeWriteValue(archiveWriter.get(), "s", s);
-	serializeWriteValue(archiveWriter.get(), "ps", ps);
-	serializeWriteValue(archiveWriter.get(), "o", o);
-	serializeWriteValue(archiveWriter.get(), "po", po);
-	serializeWriteValue(archiveWriter.get(), "npo", npo);
+	metaArchiveWriteValue(archiveWriter.get(), "b", b);
+	metaArchiveWriteValue(archiveWriter.get(), "c", c);
+	metaArchiveWriteValue(archiveWriter.get(), "wc", wc);
+	metaArchiveWriteValue(archiveWriter.get(), "sc", sc);
+	metaArchiveWriteValue(archiveWriter.get(), "uc", uc);
+	metaArchiveWriteValue(archiveWriter.get(), "si", si);
+	metaArchiveWriteValue(archiveWriter.get(), "usi", usi);
+	metaArchiveWriteValue(archiveWriter.get(), "i", i);
+	metaArchiveWriteValue(archiveWriter.get(), "ui", ui);
+	metaArchiveWriteValue(archiveWriter.get(), "l", l);
+	metaArchiveWriteValue(archiveWriter.get(), "ul", ul);
+	metaArchiveWriteValue(archiveWriter.get(), "ll", ll);
+	metaArchiveWriteValue(archiveWriter.get(), "ull", ull);
+	metaArchiveWriteValue(archiveWriter.get(), "f", f);
+	metaArchiveWriteValue(archiveWriter.get(), "df", df);
+	metaArchiveWriteValue(archiveWriter.get(), "ldf", ldf);
+	metaArchiveWriteValue(archiveWriter.get(), "s", s);
+	metaArchiveWriteValue(archiveWriter.get(), "ps", ps);
+	metaArchiveWriteValue(archiveWriter.get(), "o", o);
+	metaArchiveWriteValue(archiveWriter.get(), "po", po);
+	metaArchiveWriteValue(archiveWriter.get(), "npo", npo);
 
 	ar.rewind();
 

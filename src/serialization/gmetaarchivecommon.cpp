@@ -26,42 +26,44 @@ GMetaArchiveConfig::GMetaArchiveConfig() : flags(defaultConfig)
 {
 }
 
-GMetaArchiveConfig::GMetaArchiveConfig(uint32_t flags) : flags(flags) {
+GMetaArchiveConfig::GMetaArchiveConfig(const GMetaArchiveConfigData & data) : flags(data.flags) {
 }
 
 void GMetaArchiveConfig::setAllowTrackPointer(bool allow)
 {
-	this->flags.setByBool(macDisableTrackPointers, !allow);
+	this->flags.setByBool(macAllowTrackPointers, allow);
 }
 
 bool GMetaArchiveConfig::allowTrackPointer() const
 {
-	return ! this->flags.has(macDisableTrackPointers);
+	return this->flags.has(macAllowTrackPointers);
 }
 
 void GMetaArchiveConfig::setAllowSerializeField(bool allow)
 {
-	this->flags.setByBool(macDisableSerializeField, !allow);
+	this->flags.setByBool(macAllowSerializeField, allow);
 }
 
 bool GMetaArchiveConfig::allowSerializeField() const
 {
-	return ! this->flags.has(macDisableSerializeField);
+	return this->flags.has(macAllowSerializeField);
 }
 
 void GMetaArchiveConfig::setAllowSerializeProperty(bool allow)
 {
-	this->flags.setByBool(macDisableSerializeProperty, !allow);
+	this->flags.setByBool(macAllowSerializeProperty, allow);
 }
 
 bool GMetaArchiveConfig::allowSerializeProperty() const
 {
-	return ! this->flags.has(macDisableSerializeProperty);
+	return this->flags.has(macAllowSerializeProperty);
 }
 
-uint32_t GMetaArchiveConfig::getFlags() const
+GMetaArchiveConfigData GMetaArchiveConfig::getData() const
 {
-	return this->flags;
+	GMetaArchiveConfigData data;
+	data.flags = this->flags;
+	return data;
 }
 
 

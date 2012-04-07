@@ -24,7 +24,7 @@ void doTestSimpleObject(IMetaService * service, IMetaWriter * writer, const READ
 	TestSerializeClass instance;
 	instance.set(38);
 
-	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+	metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	ar.rewind();
 	

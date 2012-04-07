@@ -127,7 +127,7 @@ void doTestCyclicGraph(IMetaService * service, IMetaWriter * writer, const READE
 	
 	GCHECK(instance.verify());
 
-	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+	metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	ar.rewind();
 

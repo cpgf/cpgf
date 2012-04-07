@@ -1,10 +1,89 @@
 #include "cpgf/serialization/gmetatextstreamarchive.h"
 #include "cpgf/serialization/gmetaarchivereader.h"
 #include "cpgf/serialization/gmetaarchivewriter.h"
+#include "cpgf/serialization/gmetaarchivecommon.h"
 
+#include <stack>
 
 namespace cpgf {
 
+
+class GMetaArchiveTypeSession
+{
+private:
+	typedef std::stack<int> StackType;
+
+	enum { typeNone = -1, typeNoneSession = -2 };
+
+public:
+	void beginSession();
+	void endSession();
+	
+	void beginNoneSession();
+	void endNoneSession();
+
+	bool isInSession() const;
+	bool needType() const;
+	void setType(int type);
+	int getType() const;
+
+private:
+	mutable GScopedPointer<StackType> typeStack;
+};
+
+void GMetaArchiveTypeSession::beginSession()
+{
+	if(! this->typeStack) {
+		this->typeStack.reset(new StackType);
+	}
+
+	this->typeStack->push(typeNone);
+}
+
+void GMetaArchiveTypeSession::endSession()
+{
+	this->typeStack->pop();
+}
+
+void GMetaArchiveTypeSession::beginNoneSession()
+{
+	if(! this->typeStack) {
+		this->typeStack.reset(new StackType);
+	}
+
+	this->typeStack->push(typeNoneSession);
+}
+
+void GMetaArchiveTypeSession::endNoneSession()
+{
+	this->typeStack->pop();
+}
+
+bool GMetaArchiveTypeSession::isInSession() const
+{
+	return this->typeStack && ! this->typeStack->empty() && this->typeStack->top() != typeNoneSession;
+}
+
+bool GMetaArchiveTypeSession::needType() const
+{
+	return this->isInSession() && this->typeStack->top() == typeNone;
+}
+
+void GMetaArchiveTypeSession::setType(int type)
+{
+	GASSERT(type != typeNone);
+	GASSERT(this->needType());
+
+	this->typeStack->top() = type;
+}
+
+int GMetaArchiveTypeSession::getType() const
+{
+	GASSERT(this->isInSession());
+	GASSERT(! this->needType());
+
+	return this->typeStack->top();
+}
 
 namespace serialization_internal {
 
@@ -37,6 +116,8 @@ protected:
 	virtual void G_API_CC endWriteArray(const char * name, uint32_t length);
 
 protected:
+	void setTypeInSession(int type);
+
 	void writeDelimiter();
 	void writeType(int permanentType);
 	void doWriteString(const char * s);
@@ -46,6 +127,7 @@ private:
 	serialization_internal::FuncStreamWriteFundamental streamWriteFundamental;
 	int * variantTypeMap;
 	DelimiterType delimiter;
+	GMetaArchiveTypeSession typeSession;
 };
 
 class GTextStreamMetaReader : public IMetaReader
@@ -94,6 +176,8 @@ protected:
 	virtual void G_API_CC endReadArray(const char * name);
 
 protected:
+	PermanentType getTypeInSession(bool removeType);
+
 	void skipDelimiter();
 
 	PermanentType readType();
@@ -105,6 +189,7 @@ private:
 	std::istream & inputStream;
 	serialization_internal::FuncStreamReadFundamental streamReadFundamental;
 	int * variantTypeMap;
+	GMetaArchiveTypeSession typeSession;
 };
 
 
@@ -124,12 +209,29 @@ GTextStreamMetaWriter::GTextStreamMetaWriter(std::ostream & outputStream, serial
 {
 }
 
+void GTextStreamMetaWriter::setTypeInSession(int type)
+{
+	bool needType = true;
+
+	if(this->typeSession.isInSession()) {
+		needType = this->typeSession.needType();
+		if(needType) {
+			this->typeSession.setType(type);
+		}
+	}
+
+	if(needType) {
+		this->writeType(type);
+	}
+}
+
 void G_API_CC GTextStreamMetaWriter::writeFundamental(const char * /*name*/, const GVariantData * value)
 {
 	GVariant v(*value);
 
-	this->writeType(getMappedTypeFromMap(this->variantTypeMap, v.getType()));
-
+	int type = getMappedTypeFromMap(this->variantTypeMap, v.getType());
+	
+	this->setTypeInSession(type);
 	this->writeDelimiter();
 
 	this->streamWriteFundamental(this->outputStream, v);
@@ -160,20 +262,24 @@ void G_API_CC GTextStreamMetaWriter::beginWriteObject(const char * /*name*/, uin
 
 	this->writeType(ptObject);
 	this->writeDelimiter();
+
 	this->outputStream << static_cast<uint32_t>(classTypeID);
 	this->writeDelimiter();
 	this->outputStream << static_cast<uint32_t>(archiveID);
+
+	this->typeSession.beginNoneSession();
 }
 
 void G_API_CC GTextStreamMetaWriter::endWriteObject(const char * /*name*/, uint32_t /*archiveID*/, uint32_t /*classTypeID*/)
 {
 	this->delimiter = dtNewline;
+
+	this->typeSession.endNoneSession();
 }
 
 void G_API_CC GTextStreamMetaWriter::writeReferenceID(const char * /*name*/, uint32_t referenceArchiveID)
 {
 	this->writeType(ptReferenceID);
-	
 	this->writeDelimiter();
 	
 	this->outputStream << static_cast<uint32_t>(referenceArchiveID);
@@ -182,7 +288,6 @@ void G_API_CC GTextStreamMetaWriter::writeReferenceID(const char * /*name*/, uin
 void G_API_CC GTextStreamMetaWriter::writeClassType(uint32_t classTypeID, IMetaClass * metaClass)
 {
 	this->writeType(ptClassType);
-	
 	this->writeDelimiter();
 
 	this->outputStream << static_cast<uint32_t>(classTypeID);
@@ -199,14 +304,16 @@ void G_API_CC GTextStreamMetaWriter::beginWriteArray(const char * /*name*/, uint
 	}
 
 	this->writeType(ptArray);
-	
 	this->writeDelimiter();
 
 	this->outputStream << static_cast<uint32_t>(length);
+
+	this->typeSession.beginSession();
 }
 
 void G_API_CC GTextStreamMetaWriter::endWriteArray(const char * /*name*/, uint32_t /*length*/)
 {
+	this->typeSession.endSession();
 }
 
 void GTextStreamMetaWriter::writeDelimiter()
@@ -252,10 +359,40 @@ GTextStreamMetaReader::GTextStreamMetaReader(IMetaService * service, std::istrea
 	}
 }
 
+PermanentType GTextStreamMetaReader::getTypeInSession(bool removeType)
+{
+	PermanentType type = ptBool;
+
+	bool needType = true;
+
+	if(this->typeSession.isInSession()) {
+		needType = this->typeSession.needType();
+		if(! needType) {
+			type = static_cast<PermanentType>(this->typeSession.getType());
+		}
+	}
+
+	if(needType) {
+		if(removeType) {
+			type = this->readType();
+			
+			if(this->typeSession.isInSession()) {
+				this->typeSession.setType(type);
+			}
+		}
+		else {
+			StreamMarker marker(this);
+			type = this->readType();
+		}
+	}
+
+	return type;
+}
+
 uint32_t G_API_CC GTextStreamMetaReader::getArchiveType(const char * /*name*/)
 {
-	StreamMarker marker(this);
-	PermanentType type = this->readType();
+	PermanentType type = this->getTypeInSession(false);
+
 	switch(type) {
 		case ptNull:
 			return matNull;
@@ -272,7 +409,14 @@ uint32_t G_API_CC GTextStreamMetaReader::getArchiveType(const char * /*name*/)
 		case ptClassType:
 			return matClassType;
 
+		case ptArray:
+			return matCustomized;
+
 		default:
+			if(! permanentTypeIsFundamental(type)) {
+				serializeError(Error_Serialization_TypeMismatch);
+			}
+
 			return matFundamental;
 	}
 }
@@ -292,8 +436,8 @@ uint32_t G_API_CC GTextStreamMetaReader::getClassType(const char * /*name*/)
 
 void G_API_CC GTextStreamMetaReader::readFundamental(const char * /*name*/, GVariantData * outValue)
 {
-	PermanentType type = this->readType();
-	
+	PermanentType type = this->getTypeInSession(true);
+
 	GVariantType vt = getVariantTypeFromMap(this->variantTypeMap, type);
 	if(vt == vtEmpty) {
 		serializeError(Error_Serialization_TypeMismatch);
@@ -339,11 +483,14 @@ uint32_t G_API_CC GTextStreamMetaReader::beginReadObject(const char * /*name*/)
 	
 	this->skipDelimiter();
 
+	this->typeSession.beginNoneSession();
+	
 	return archiveID;
 }
 
 void G_API_CC GTextStreamMetaReader::endReadObject(const char * /*name*/)
 {
+	this->typeSession.endNoneSession();
 }
 
 uint32_t G_API_CC GTextStreamMetaReader::readReferenceID(const char * /*name*/)
@@ -383,14 +530,17 @@ uint32_t G_API_CC GTextStreamMetaReader::beginReadArray(const char * /*name*/)
 	PermanentType type = this->readType();
 	serializeCheckType(type, ptArray);
 
-	uint16_t length;
+	uint32_t length;
 	this->inputStream >> length;
+
+	this->typeSession.beginSession();
 
 	return length;
 }
 
 void G_API_CC GTextStreamMetaReader::endReadArray(const char * /*name*/)
 {
+	this->typeSession.endSession();
 }
 
 void GTextStreamMetaReader::skipDelimiter()

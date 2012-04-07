@@ -135,7 +135,7 @@ void doTestDiamondNonvirtualBase(IMetaService * service, IMetaWriter * writer, c
 	instance.c = 0x3c;
 	instance.d = 0x4d;
 
-	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+	metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	ar.rewind();
 	
