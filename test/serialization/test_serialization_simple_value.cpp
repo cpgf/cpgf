@@ -125,7 +125,7 @@ GTEST(testSimpleValue_TextStream)
 	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(NULL, stream));
 	
 	doTestSimpleValue(writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
-	
+
 //	cout << stream.str().c_str() << endl;
 }
 
@@ -140,6 +140,20 @@ GTEST(testSimpleValue_XML)
 	
 //	cout << stream.str().c_str() << endl;
 }
+
+
+GTEST(testSimpleValue_Json)
+{
+	GMetaJsonArchive outputArchive;
+
+	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
+	
+	doTestSimpleValue(writer.get(), MetaReaderGetterJson(NULL, outputArchive), TestArchiveStreamNone());
+	
+//	outputArchive.saveToStream(cout);
+}
+
+
 
 
 } // unnamed namespace

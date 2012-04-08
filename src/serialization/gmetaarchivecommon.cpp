@@ -21,7 +21,6 @@ void GBaseClassMap::addMetaClass(void * instance, IMetaClass * metaClass)
 }
 
 
-
 GMetaArchiveConfig::GMetaArchiveConfig() : flags(defaultConfig)
 {
 }

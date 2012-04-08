@@ -2,6 +2,7 @@
 #include "cpgf/serialization/gmetaarchivecommon.h"
 #include "cpgf/serialization/gmetaarchivereader.h"
 #include "cpgf/serialization/gmetaarchivewriter.h"
+#include "../pinclude/gmetaarchivecommonimpl.h"
 
 #include "cpgf/thirdparty/rapidxml/rapidxml.hpp"
 #include "cpgf/thirdparty/rapidxml/rapidxml_print.hpp"
@@ -199,6 +200,81 @@ GMetaXmlArchiveImplement * GMetaXmlArchive::getImplement() const
 namespace serialization_internal {
 
 
+class GXmlReaderNodeNameTracker
+{
+private:
+	typedef GStringMap<size_t, GStringMapReuseKey> MapType;
+
+public:
+	explicit GXmlReaderNodeNameTracker(XmlNodeType * node);
+	void free();
+
+	GXmlReaderNodeNameTracker(const GXmlReaderNodeNameTracker & other);
+	GXmlReaderNodeNameTracker & operator = (const GXmlReaderNodeNameTracker & other);
+
+	XmlNodeType * getNode() const;
+
+	size_t getIndex(const char * name) const;
+	void addIndex(const char * name);
+
+private:
+	XmlNodeType * node;
+	MapType * countMap;
+};
+
+
+GXmlReaderNodeNameTracker::GXmlReaderNodeNameTracker(XmlNodeType * node)
+	: node(node), countMap(NULL)
+{
+}
+
+void GXmlReaderNodeNameTracker::free()
+{
+	delete this->countMap;
+	this->countMap = NULL;
+}
+
+GXmlReaderNodeNameTracker::GXmlReaderNodeNameTracker(const GXmlReaderNodeNameTracker & other)
+	: node(other.node), countMap(other.countMap)
+{
+}
+
+GXmlReaderNodeNameTracker & GXmlReaderNodeNameTracker::operator = (const GXmlReaderNodeNameTracker & other)
+{
+	this->node = other.node;
+	this->countMap = other.countMap;
+
+	return *this;
+}
+
+XmlNodeType * GXmlReaderNodeNameTracker::getNode() const
+{
+	return this->node;
+}
+
+size_t GXmlReaderNodeNameTracker::getIndex(const char * name) const
+{
+	if(this->countMap != NULL) {
+		MapType::const_iterator it = this->countMap->find(name);
+		if(it != this->countMap->end()) {
+			return it->second;
+		}
+	}
+
+	return 0;
+}
+
+void GXmlReaderNodeNameTracker::addIndex(const char * name)
+{
+	if(this->countMap == NULL) {
+		this->countMap = new MapType;
+	}
+
+	this->countMap->set(name, this->getIndex(name) + 1);
+}
+
+
+
 class GXmlMetaWriter : public IMetaWriter
 {
 	GMAKE_NONCOPYABLE(GXmlMetaWriter);
@@ -250,34 +326,12 @@ private:
 	stringstream textStream;
 };
 
-class GXmlMetaReaderNameTracker
-{
-private:
-	typedef GStringMap<size_t, GStringMapReuseKey> MapType;
-
-public:
-	explicit GXmlMetaReaderNameTracker(XmlNodeType * node);
-	void free();
-
-	GXmlMetaReaderNameTracker(const GXmlMetaReaderNameTracker & other);
-	GXmlMetaReaderNameTracker & operator = (const GXmlMetaReaderNameTracker & other);
-
-	XmlNodeType * getNode() const;
-
-	size_t getIndex(const char * name) const;
-	void addIndex(const char * name);
-
-private:
-	XmlNodeType * node;
-	MapType * countMap;
-};
-
 class GXmlMetaReader : public IMetaReader
 {
 	GMAKE_NONCOPYABLE(GXmlMetaReader);
 
 private:
-	typedef stack<GXmlMetaReaderNameTracker> ObjectNodeStack;
+	typedef stack<GXmlReaderNodeNameTracker> ObjectNodeStack;
 
 public:
 	GXmlMetaReader(IMetaService * service, XmlNodeType * dataNode, XmlNodeType * classTypeNode, serialization_internal::FuncStreamReadFundamental streamReadFundamental);
@@ -491,62 +545,10 @@ void GXmlMetaWriter::addType(XmlNodeType * node, int permanentType)
 
 
 
-GXmlMetaReaderNameTracker::GXmlMetaReaderNameTracker(XmlNodeType * node)
-	: node(node), countMap(NULL)
-{
-}
-
-void GXmlMetaReaderNameTracker::free()
-{
-	delete this->countMap;
-	this->countMap = NULL;
-}
-
-GXmlMetaReaderNameTracker::GXmlMetaReaderNameTracker(const GXmlMetaReaderNameTracker & other)
-	: node(other.node), countMap(other.countMap)
-{
-}
-
-GXmlMetaReaderNameTracker & GXmlMetaReaderNameTracker::operator = (const GXmlMetaReaderNameTracker & other)
-{
-	this->node = other.node;
-	this->countMap = other.countMap;
-
-	return *this;
-}
-
-XmlNodeType * GXmlMetaReaderNameTracker::getNode() const
-{
-	return this->node;
-}
-
-size_t GXmlMetaReaderNameTracker::getIndex(const char * name) const
-{
-	if(this->countMap != NULL) {
-		MapType::const_iterator it = this->countMap->find(name);
-		if(it != this->countMap->end()) {
-			return it->second;
-		}
-	}
-
-	return 0;
-}
-
-void GXmlMetaReaderNameTracker::addIndex(const char * name)
-{
-	if(this->countMap == NULL) {
-		this->countMap = new MapType;
-	}
-
-	this->countMap->set(name, this->getIndex(name) + 1);
-}
-
-
-
 GXmlMetaReader::GXmlMetaReader(IMetaService * service, XmlNodeType * dataNode, XmlNodeType * classTypeNode, serialization_internal::FuncStreamReadFundamental streamReadFundamental)
 	: service(service), dataNode(dataNode), classTypeNode(classTypeNode), streamReadFundamental(streamReadFundamental), variantTypeMap(defaultVariantTypeMap)
 {
-	this->nodeStack.push(GXmlMetaReaderNameTracker(this->dataNode));
+	this->nodeStack.push(GXmlReaderNodeNameTracker(this->dataNode));
 
 	if(this->service) {
 		this->service->addReference();
@@ -741,12 +743,12 @@ void GXmlMetaReader::setTextStream(const char * text)
 
 XmlNodeType * GXmlMetaReader::getCurrentNode() const
 {
-	return this->nodeStack.top().getNode();;
+	return this->nodeStack.top().getNode();
 }
 
 void GXmlMetaReader::pushNode(XmlNodeType * node)
 {
-	this->nodeStack.push(GXmlMetaReaderNameTracker(node));
+	this->nodeStack.push(GXmlReaderNodeNameTracker(node));
 }
 
 void GXmlMetaReader::popNode()

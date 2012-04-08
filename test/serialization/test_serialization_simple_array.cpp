@@ -247,4 +247,22 @@ GTEST(testSimpleArray_Xml)
 }
 
 
+GTEST(testSimpleArray_Json)
+{
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
+	GMetaJsonArchive outputArchive;
+
+	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
+	
+	doTestSimpleArray(service.get(), writer.get(), MetaReaderGetterJson(service.get(), outputArchive), TestArchiveStreamNone());
+
+//	outputArchive.saveToStream(cout);
+}
+
+
 } // unnamed namespace

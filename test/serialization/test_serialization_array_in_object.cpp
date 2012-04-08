@@ -59,7 +59,7 @@ GTEST(testArrayInObject_TextStream)
 }
 
 
-GTEST(testArrayInObject)
+GTEST(testArrayInObject_Xml)
 {
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
@@ -73,6 +73,25 @@ GTEST(testArrayInObject)
 	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
 	doTestArrayInObject(service.get(), writer.get(), MetaReaderGetterXml(service.get(), outputArchive), TestArchiveStreamNone());
+	
+//	cout << stream.str().c_str() << endl;
+}
+
+
+GTEST(testArrayInObject_Json)
+{
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+	register_TestSerializeArray(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
+	GMetaJsonArchive outputArchive;
+
+	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
+	
+	doTestArrayInObject(service.get(), writer.get(), MetaReaderGetterJson(service.get(), outputArchive), TestArchiveStreamNone());
 	
 //	cout << stream.str().c_str() << endl;
 }

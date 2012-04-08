@@ -31,6 +31,23 @@ IMetaReader * MetaReaderGetterXml::get() const
 }
 
 
+MetaReaderGetterJson::MetaReaderGetterJson(IMetaService * service, GMetaJsonArchive & outputArchive)
+	: service(service), outputArchive(outputArchive)
+{
+}
+
+IMetaReader * MetaReaderGetterJson::get() const
+{
+	if(! this->reader) {
+		stringstream stream;
+		this->outputArchive.saveToStream(stream);
+		this->inputArchive.load(stream.str().c_str());
+		this->reader.reset(cpgf::createJsonMetaReader(this->service, this->inputArchive));
+	}
+	return this->reader.get();
+}
+
+
 void initTestValue(bool & value, long long seed)
 {
 	value = ((seed % 2) != 0);

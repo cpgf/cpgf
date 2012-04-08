@@ -1,5 +1,5 @@
-#ifndef __GMETAXmlARCHIVE_H
-#define __GMETAXmlARCHIVE_H
+#ifndef __GMETAXMLARCHIVE_H
+#define __GMETAXMLARCHIVE_H
 
 #include "cpgf/serialization/gmetastreamfundamental.h"
 

@@ -82,6 +82,11 @@ set(SRC_META
 	${SRC_PATH}/serialization/gmetaarchivewriter.cpp
 	${SRC_PATH}/serialization/gmetatextstreamarchive.cpp
 	${SRC_PATH}/serialization/gmetaxmlarchive.cpp
+	${SRC_PATH}/serialization/gmetajsonarchive.cpp
+	
+	${SRC_PATH}/thirdparty/jsoncpp/json_reader.cpp
+	${SRC_PATH}/thirdparty/jsoncpp/json_value.cpp
+	${SRC_PATH}/thirdparty/jsoncpp/json_writer.cpp
 )
 
 file(GLOB GLOB_SAMPLEREFLECTION ${SAMPLE_REFLECT_PATH}/*.cpp)

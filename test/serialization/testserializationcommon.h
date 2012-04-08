@@ -6,7 +6,7 @@
 
 #include "cpgf/serialization/gmetatextstreamarchive.h"
 #include "cpgf/serialization/gmetaxmlarchive.h"
-
+#include "cpgf/serialization/gmetajsonarchive.h"
 
 #include "cpgf/metatraits/gmetaserializer_string.h"
 #include "cpgf/metatraits/gmetaserializer_array.h"
@@ -67,6 +67,20 @@ private:
 	cpgf::IMetaService * service;
 	cpgf::GMetaXmlArchive & outputArchive;
 	cpgf::GMetaXmlArchive inputArchive;
+	mutable cpgf::GScopedInterface<cpgf::IMetaReader> reader;
+};
+
+class MetaReaderGetterJson
+{
+public:
+	MetaReaderGetterJson(cpgf::IMetaService * service, cpgf::GMetaJsonArchive & outputArchive);
+
+	cpgf::IMetaReader * get() const;
+
+private:
+	cpgf::IMetaService * service;
+	cpgf::GMetaJsonArchive & outputArchive;
+	cpgf::GMetaJsonArchive inputArchive;
 	mutable cpgf::GScopedInterface<cpgf::IMetaReader> reader;
 };
 

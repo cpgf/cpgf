@@ -77,4 +77,22 @@ GTEST(TestSimpleObject_Xml)
 }
 
 
+GTEST(TestSimpleObject_Json)
+{
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
+	GMetaJsonArchive outputArchive;
+
+	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
+	
+	doTestSimpleObject(service.get(), writer.get(), MetaReaderGetterJson(service.get(), outputArchive), TestArchiveStreamNone());
+	
+//	cout << stream.str().c_str() << endl;
+}
+
+
 } // unnamed namespace
