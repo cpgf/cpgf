@@ -282,6 +282,7 @@ private:
 
 public:
 	GJsonMetaWriter(JsonNodeType * dataNode, JsonNodeType * classTypeNode);
+	~GJsonMetaWriter();
 
 protected:
 	G_INTERFACE_IMPL_OBJECT
@@ -304,6 +305,7 @@ private:
 	void pushNode(JsonNodeType * node);
 	void pushNode(JsonNodeType * node, bool isArray);
 	void popNode();
+	void doPopNode();
 
 	JsonNodeType & addNode(const char * name);
 
@@ -381,6 +383,13 @@ GJsonMetaWriter::GJsonMetaWriter(JsonNodeType * dataNode, JsonNodeType * classTy
 	: dataNode(dataNode), classTypeNode(classTypeNode)
 {
 	this->nodeStack.push(GJsonNodeNameTracker(this->dataNode));
+}
+
+GJsonMetaWriter::~GJsonMetaWriter()
+{
+	while(! this->nodeStack.empty()) {
+		this->doPopNode();
+	}
 }
 
 void G_API_CC GJsonMetaWriter::writeFundamental(const char * name, const GVariantData * value)
@@ -484,11 +493,16 @@ void GJsonMetaWriter::popNode()
 {
 	GASSERT(! this->nodeStack.empty());
 
-	this->nodeStack.top().free();
-	this->nodeStack.pop();
+	this->doPopNode();
 
 	// still can't be empty, because there at least be the root node.
 	GASSERT(! this->nodeStack.empty());
+}
+
+void GJsonMetaWriter::doPopNode()
+{
+	this->nodeStack.top().free();
+	this->nodeStack.pop();
 }
 
 JsonNodeType & GJsonMetaWriter::addNode(const char * name)
@@ -736,3 +750,4 @@ JsonNodeType & GJsonMetaReader::getNode(const char * name)
 
 
 } // namespace cpgf
+
