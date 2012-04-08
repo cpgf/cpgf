@@ -11,6 +11,12 @@
 #pragma warning( disable : 4996 )   // disable warning about strdup being deprecated.
 #endif
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4127) // conditional expression is constant
+#endif
+
+
 namespace Json {
 
 static bool isControlCharacter(char ch)

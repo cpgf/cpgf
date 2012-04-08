@@ -73,7 +73,12 @@ namespace metatraits_internal {
 
 IMetaSerializer * doCreateTrapAllSerializer(const GMetaType & metaType, IMetaSerializer * serializer)
 {
-	return new GMetaSerializerTrapAll(metaType, serializer);
+	if(serializer != NULL || canSerializeMetaType(metaType)) {
+		return new GMetaSerializerTrapAll(metaType, serializer);
+	}
+	else {
+		return NULL;
+	}
 }
 
 } // namespace metatraits_internal

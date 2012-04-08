@@ -58,6 +58,16 @@ bool GMetaArchiveConfig::allowSerializeProperty() const
 	return this->flags.has(macAllowSerializeProperty);
 }
 
+void GMetaArchiveConfig::setDefaultSerializeAll(bool defaultSerializeAll)
+{
+	this->flags.setByBool(macDefaultSerializeAll, defaultSerializeAll);
+}
+
+bool GMetaArchiveConfig::defaultSerializeAll() const
+{
+	return this->flags.has(macDefaultSerializeAll);
+}
+
 GMetaArchiveConfigData GMetaArchiveConfig::getData() const
 {
 	GMetaArchiveConfigData data;
@@ -66,7 +76,7 @@ GMetaArchiveConfigData GMetaArchiveConfig::getData() const
 }
 
 
-bool canSerializeItem(const GMetaArchiveConfig & /*config*/, IMetaItem * item)
+bool canSerializeItem(const GMetaArchiveConfig & config, IMetaItem * item)
 {
 	GScopedInterface<IMetaAnnotation> annotation(item->getAnnotation(SerializationAnnotation));
 
@@ -79,6 +89,10 @@ bool canSerializeItem(const GMetaArchiveConfig & /*config*/, IMetaItem * item)
 				return false;
 			}
 		}
+	}
+
+	if(! config.defaultSerializeAll()) {
+		return false;
 	}
 
 	return true;
@@ -98,6 +112,11 @@ bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * acce
 		return false;
 	}
 
+	GMetaType metaType = metaGetItemType(accessible);
+	if(metaType.getPointerDimension() > 1) {
+		return false;
+	}
+
 	return canSerializeItem(config, accessible);
 }
 
@@ -109,6 +128,16 @@ bool canSerializeBaseClass(const GMetaArchiveConfig & /*config*/, IMetaClass * b
 
 	return true;
 }
+
+bool canSerializeMetaType(const GMetaType & metaType)
+{
+	if(metaType.getPointerDimension() > 1) {
+		return false;
+	}
+
+	return true;
+}
+
 
 void serializeCheckType(PermanentType type, PermanentType expected)
 {

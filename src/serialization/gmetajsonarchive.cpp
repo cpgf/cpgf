@@ -27,19 +27,6 @@ namespace {
 
 typedef Json::Value JsonNodeType;
 
-const char * const nameDataNode = "data";
-const char * const nameClassTypesNode = "classtypes";
-
-const char * const nameArchiveID = "id";
-const char * const nameClassTypeID = "cid";
-const char * const nameLength = "len";
-const char * const prefixClassType = "c";
-
-const char * const nameReferenceID = "rid";
-const char * const nameObject = "object";
-const char * const nameString = "string";
-const char * const nameArray = "array";
-
 
 void checkNode(JsonNodeType & node, const char * /*nodeName*/)
 {
@@ -62,13 +49,13 @@ public:
 	void load(const char * jsonContent);
 	void saveToStream(std::ostream & outputStream);
 
-	Value * getDataNode();
-	Value * getClassTypeNode();
+	JsonNodeType * getDataNode();
+	JsonNodeType * getClassTypeNode();
 
 private:
-	Value root;
-	Value * dataNode;
-	Value * classTypeNode;
+	JsonNodeType root;
+	JsonNodeType * dataNode;
+	JsonNodeType * classTypeNode;
 };
 
 
@@ -99,12 +86,12 @@ void GMetaJsonArchiveImplement::saveToStream(std::ostream & outputStream)
 	outputStream << this->root;
 }
 
-Value * GMetaJsonArchiveImplement::getDataNode()
+JsonNodeType * GMetaJsonArchiveImplement::getDataNode()
 {
 	return this->dataNode;
 }
 
-Value * GMetaJsonArchiveImplement::getClassTypeNode()
+JsonNodeType * GMetaJsonArchiveImplement::getClassTypeNode()
 {
 	return this->classTypeNode;
 }
@@ -511,7 +498,7 @@ JsonNodeType & GJsonMetaWriter::addNode(const char * name)
 	if(this->nodeStack.top().isArray()) {
 		size_t index = this->nodeStack.top().getArrayIndex();
 		this->nodeStack.top().addArrayIndex();
-		return currentNode[(Json::Value::UInt)index];
+		return currentNode[(JsonNodeType::UInt)index];
 	}
 	else {
 		return currentNode[this->nodeStack.top().makeName(name)];
@@ -734,7 +721,7 @@ JsonNodeType & GJsonMetaReader::getNode(const char * name, bool moveToNext)
 		if(moveToNext) {
 			this->nodeStack.top().addArrayIndex();
 		}
-		return currentNode[(Json::Value::UInt)index];
+		return currentNode[(JsonNodeType::UInt)index];
 	}
 	else {
 		return currentNode[this->nodeStack.top().makeName(name, moveToNext)];

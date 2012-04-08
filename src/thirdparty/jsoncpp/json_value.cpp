@@ -17,6 +17,12 @@
 #define JSON_ASSERT( condition ) assert( condition );  // @todo <= change this into an exception throw
 #define JSON_ASSERT_MESSAGE( condition, message ) if (!( condition )) throw std::runtime_error( message );
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4127) // conditional expression is constant
+#endif
+
+
 namespace Json {
 
 const Value Value::null;

@@ -885,7 +885,9 @@ public: // overridden from ValueArrayAllocator
 
       ValueIteratorBase();
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-      explicit ValueIteratorBase( const Value::ObjectValues::iterator &current );
+//      explicit ValueIteratorBase( const Value::ObjectValues::iterator &current );
+		// C++ builder failed to compile above line.
+      explicit ValueIteratorBase( const std::map<Value::CZString, Value>::iterator &current );
 #else
       ValueIteratorBase( const ValueInternalArray::IteratorState &state );
       ValueIteratorBase( const ValueInternalMap::IteratorState &state );

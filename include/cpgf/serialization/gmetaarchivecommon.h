@@ -47,7 +47,8 @@ private:
 	enum ConfigFlags {
 		macAllowSerializeField = 1 << 0,
 		macAllowSerializeProperty = 1 << 1,
-		macAllowTrackPointers = 1 << 2
+		macAllowTrackPointers = 1 << 2,
+		macDefaultSerializeAll = 2 << 3
 	};
 
 	enum {
@@ -55,6 +56,7 @@ private:
 			macAllowSerializeField
 			| macAllowSerializeProperty
 			| macAllowTrackPointers
+			| macDefaultSerializeAll
 	};
 
 public:
@@ -70,6 +72,9 @@ public:
 	void setAllowSerializeProperty(bool allow);
 	bool allowSerializeProperty() const;
 
+	void setDefaultSerializeAll(bool defaultSerializeAll);
+	bool defaultSerializeAll() const;
+
 	GMetaArchiveConfigData getData() const;
 
 private:
@@ -81,6 +86,7 @@ bool canSerializeItem(const GMetaArchiveConfig & config, IMetaItem * item);
 bool canSerializeObject(const GMetaArchiveConfig & config, IMetaClass * metaClass);
 bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * accessible, IMetaClass * ownerClass);
 bool canSerializeBaseClass(const GMetaArchiveConfig & config, IMetaClass * baseClass, IMetaClass * metaClass);
+bool canSerializeMetaType(const GMetaType & metaType);
 
 void serializeCheckType(PermanentType type, PermanentType expected);
 

@@ -28,17 +28,6 @@ namespace {
 typedef xml_node<> XmlNodeType;	
 typedef xml_attribute<> XmlAttributeType;
 
-const char * const nameRootNode = "cpgf";
-const char * const nameDataNode = "data";
-const char * const nameClassTypesNode = "classtypes";
-
-const char * const nameType = "t";
-const char * const nameArchiveID = "id";
-const char * const nameReferenceID = "rid";
-const char * const nameClassTypeID = "cid";
-const char * const nameLength = "len";
-const char * const prefixClassType = "c";
-
 
 void checkNode(void * node, const char * /*nodeName*/)
 {

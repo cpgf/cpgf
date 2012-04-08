@@ -15,6 +15,23 @@
 namespace cpgf {
 
 
+const char * const nameRootNode = "cpgf";
+const char * const nameDataNode = "data";
+const char * const nameClassTypesNode = "classtypes";
+
+const char * const nameType = "t";
+const char * const nameArchiveID = "id";
+const char * const nameClassTypeID = "cid";
+const char * const nameLength = "len";
+const char * const prefixClassType = "c";
+
+const char * const nameReferenceID = "rid";
+const char * const nameObject = "object";
+const char * const nameString = "string";
+const char * const nameArray = "array";
+
+
+
 class GBaseClassMap
 {
 private:

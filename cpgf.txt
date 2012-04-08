@@ -1,3 +1,5 @@
+Serialization config should be attributes of meta class, rather than passing to writer/reader.
+
 Features:
 Serialization supports:
 Multiple pointers to same object.
