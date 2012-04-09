@@ -55,6 +55,8 @@ public:
 	
 	GFlags & operator = (const GFlags & other) {
 		this->value = other.value;
+
+		return *this;
 	}
 	
 	operator T () const {

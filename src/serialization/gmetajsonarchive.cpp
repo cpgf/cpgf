@@ -278,8 +278,8 @@ protected:
 	virtual void G_API_CC writeString(const char * name, uint32_t archiveID, const char * value);
 	virtual void G_API_CC writeNullPointer(const char * name);
 	
-	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID);
-	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID);
+	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID, uint32_t version);
+	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID, uint32_t version);
 
 	virtual void G_API_CC writeReferenceID(const char * name, uint32_t referenceArchiveID);
 	virtual void G_API_CC writeClassType(uint32_t classTypeID, IMetaClass * metaClass);
@@ -323,8 +323,8 @@ protected:
 	virtual char * G_API_CC readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID);
 	virtual void * G_API_CC readNullPointer(const char * name);
 
-	virtual uint32_t G_API_CC beginReadObject(const char * name);
-	virtual void G_API_CC endReadObject(const char * name);
+	virtual uint32_t G_API_CC beginReadObject(const char * name, uint32_t * outVersion);
+	virtual void G_API_CC endReadObject(const char * name, uint32_t version);
 
 	virtual uint32_t G_API_CC readReferenceID(const char * name);
 	virtual IMetaClass * G_API_CC readClassAndTypeID(uint32_t * outClassTypeID);
@@ -417,9 +417,10 @@ void G_API_CC GJsonMetaWriter::writeNullPointer(const char * name)
 	this->addNode(name);
 }
 
-void G_API_CC GJsonMetaWriter::beginWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID)
+void G_API_CC GJsonMetaWriter::beginWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID, uint32_t version)
 {
 	JsonNodeType & newNode = this->addNode(name);
+	newNode[nameVersion] = version;
 	newNode[nameArchiveID] = archiveID;
 	newNode[nameClassTypeID] = classTypeID;
 	
@@ -427,7 +428,7 @@ void G_API_CC GJsonMetaWriter::beginWriteObject(const char * name, uint32_t arch
 	this->pushNode(&contentNode);
 }
 
-void G_API_CC GJsonMetaWriter::endWriteObject(const char * /*name*/, uint32_t /*archiveID*/, uint32_t /*classTypeID*/)
+void G_API_CC GJsonMetaWriter::endWriteObject(const char * /*name*/, uint32_t /*archiveID*/, uint32_t /*classTypeID*/, uint32_t /*version*/)
 {
 	this->popNode();
 }
@@ -614,11 +615,13 @@ void * G_API_CC GJsonMetaReader::readNullPointer(const char * name)
 	return NULL;
 }
 
-uint32_t G_API_CC GJsonMetaReader::beginReadObject(const char * name)
+uint32_t G_API_CC GJsonMetaReader::beginReadObject(const char * name, uint32_t * outVersion)
 {
 	JsonNodeType & node = this->getNode(name);
 	checkNode(node, name);
 	
+	*outVersion = node[nameVersion].asUInt();
+
 	uint32_t archiveID = node[nameArchiveID].asUInt();
 	
 	JsonNodeType & contentNode = node[nameObject];
@@ -627,7 +630,7 @@ uint32_t G_API_CC GJsonMetaReader::beginReadObject(const char * name)
 	return archiveID;
 }
 
-void G_API_CC GJsonMetaReader::endReadObject(const char * /*name*/)
+void G_API_CC GJsonMetaReader::endReadObject(const char * /*name*/, uint32_t /*version*/)
 {
 	this->popNode();
 }

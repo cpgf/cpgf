@@ -1,4 +1,3 @@
-#include "cpgf/serialization/gmetaarchivecommon.h"
 #include "../pinclude/gmetaarchivecommonimpl.h"
 
 #include "cpgf/gstdint.h"
@@ -21,11 +20,41 @@ void GBaseClassMap::addMetaClass(void * instance, IMetaClass * metaClass)
 }
 
 
-GMetaArchiveConfig::GMetaArchiveConfig() : flags(defaultConfig)
+GMetaArchiveConfig GMetaArchiveConfigMap::getConfig(IMetaClass * metaClass) const
+{
+	if(metaClass == NULL) {
+		return GMetaArchiveConfig();
+	}
+
+	const char * name = metaClass->getTypeName();
+	MapType::const_iterator it = this->itemMap.find(name);
+	if(it == this->itemMap.end()) {
+		GMetaArchiveConfig config = getItemMetaArchiveConfig(metaClass);
+		this->itemMap.set(name, config);
+		it = this->itemMap.find(name);
+	}
+	
+	return it->second;
+}
+
+
+GMetaArchiveConfig::GMetaArchiveConfig() : version(0), flags(defaultConfig)
 {
 }
 
-GMetaArchiveConfig::GMetaArchiveConfig(const GMetaArchiveConfigData & data) : flags(data.flags) {
+GMetaArchiveConfig::GMetaArchiveConfig(const GMetaArchiveConfigData & data)
+	: version(data.version), flags(data.flags)
+{
+}
+
+void GMetaArchiveConfig::setAllowSerialize(bool allow)
+{
+	this->flags.setByBool(macAllowSerialize, allow);
+}
+
+bool GMetaArchiveConfig::allowSerialize() const
+{
+	return this->flags.has(macAllowSerialize);
 }
 
 void GMetaArchiveConfig::setAllowTrackPointer(bool allow)
@@ -35,7 +64,7 @@ void GMetaArchiveConfig::setAllowTrackPointer(bool allow)
 
 bool GMetaArchiveConfig::allowTrackPointer() const
 {
-	return this->flags.has(macAllowTrackPointers);
+	return this->allowSerialize() && this->flags.has(macAllowTrackPointers);
 }
 
 void GMetaArchiveConfig::setAllowSerializeField(bool allow)
@@ -45,7 +74,7 @@ void GMetaArchiveConfig::setAllowSerializeField(bool allow)
 
 bool GMetaArchiveConfig::allowSerializeField() const
 {
-	return this->flags.has(macAllowSerializeField);
+	return this->allowSerialize() && this->flags.has(macAllowSerializeField);
 }
 
 void GMetaArchiveConfig::setAllowSerializeProperty(bool allow)
@@ -55,7 +84,7 @@ void GMetaArchiveConfig::setAllowSerializeProperty(bool allow)
 
 bool GMetaArchiveConfig::allowSerializeProperty() const
 {
-	return this->flags.has(macAllowSerializeProperty);
+	return this->allowSerialize() && this->flags.has(macAllowSerializeProperty);
 }
 
 void GMetaArchiveConfig::setDefaultSerializeAll(bool defaultSerializeAll)
@@ -68,6 +97,16 @@ bool GMetaArchiveConfig::defaultSerializeAll() const
 	return this->flags.has(macDefaultSerializeAll);
 }
 
+void GMetaArchiveConfig::setVersion(uint32_t version)
+{
+	this->version = version;
+}
+
+uint32_t GMetaArchiveConfig::getVersion() const
+{
+	return this->version;
+}
+
 GMetaArchiveConfigData GMetaArchiveConfig::getData() const
 {
 	GMetaArchiveConfigData data;
@@ -75,6 +114,55 @@ GMetaArchiveConfigData GMetaArchiveConfig::getData() const
 	return data;
 }
 
+
+GMetaArchiveConfig getItemMetaArchiveConfig(IMetaItem * item)
+{
+	GMetaArchiveConfig config;
+
+	if(item != NULL) {
+		GScopedInterface<IMetaAnnotation> annotation(item->getAnnotation(SerializationAnnotation));
+
+		if(annotation) {
+			GScopedInterface<IMetaAnnotationValue> annotationValue;
+		
+			annotationValue.reset(annotation->getValue(SerializationAnnotationEnable));
+			if(annotationValue) {
+				if(! annotationValue->toBoolean()) {
+					config.setAllowSerialize(false);
+				}
+			}
+		
+			annotationValue.reset(annotation->getValue(SerializationAnnotationFields));
+			if(annotationValue) {
+				if(! annotationValue->toBoolean()) {
+					config.setAllowSerializeField(false);
+				}
+			}
+		
+			annotationValue.reset(annotation->getValue(SerializationAnnotationProperties));
+			if(annotationValue) {
+				if(! annotationValue->toBoolean()) {
+					config.setAllowSerializeProperty(false);
+				}
+			}
+		
+			annotationValue.reset(annotation->getValue(SerializationAnnotationTrackPointers));
+			if(annotationValue) {
+				if(! annotationValue->toBoolean()) {
+					config.setAllowTrackPointer(false);
+				}
+			}
+		
+			annotationValue.reset(annotation->getValue(SerializationAnnotationVersion));
+			if(annotationValue) {
+				uint32_t version = annotationValue->toInt32();
+				config.setVersion(version);
+			}
+		}
+	}
+	
+	return config;
+}
 
 bool canSerializeItem(const GMetaArchiveConfig & config, IMetaItem * item)
 {
@@ -120,13 +208,13 @@ bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * acce
 	return canSerializeItem(config, accessible);
 }
 
-bool canSerializeBaseClass(const GMetaArchiveConfig & /*config*/, IMetaClass * baseClass, IMetaClass * /*metaClass*/)
+bool canSerializeBaseClass(const GMetaArchiveConfig & config, IMetaClass * baseClass, IMetaClass * /*metaClass*/)
 {
 	if(baseClass == NULL) {
 		return false;
 	}
 
-	return true;
+	return canSerializeItem(config, baseClass);
 }
 
 bool canSerializeMetaType(const GMetaType & metaType)

@@ -1,14 +1,14 @@
 #ifndef __GMETAARCHIVEWRITER_H
 #define __GMETAARCHIVEWRITER_H
 
+#include "cpgf/serialization/gmetaarchivecommon.h"
+
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gmetatype.h"
 
 
 namespace cpgf {
 
-
-struct GMetaArchiveConfigData;
 
 #pragma pack(push, 1)
 #pragma pack(1)
@@ -23,6 +23,7 @@ struct GMetaArchiveWriterParam
 	IMetaSerializer * serializer;
 	uint32_t classTypeID;
 	uint32_t pointers;
+	GMetaArchiveConfigData config;
 };
 
 #pragma pack(pop)
@@ -35,8 +36,8 @@ struct IMetaWriter : public IObject
 	virtual void G_API_CC writeString(const char * name, uint32_t archiveID, const char * value) = 0;
 	virtual void G_API_CC writeNullPointer(const char * name) = 0;
 
-	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID) = 0;
-	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID) = 0;
+	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID, uint32_t version) = 0;
+	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID, uint32_t version) = 0;
 
 	virtual void G_API_CC writeReferenceID(const char * name, uint32_t referenceArchiveID) = 0;
 	virtual void G_API_CC writeClassType(uint32_t classTypeID, IMetaClass * metaClass) = 0;
@@ -50,8 +51,6 @@ struct IMetaArchiveWriter : public IExtendObject
 	virtual IMetaService * G_API_CC getMetaService() = 0;
 	virtual IMetaWriter * G_API_CC getMetaWriter() = 0;
 	
-	virtual void G_API_CC getConfig(GMetaArchiveConfigData * outConfigData) = 0;
-
 	virtual void G_API_CC writeData(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 	
 	virtual void G_API_CC trackPointer(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, uint32_t pointers) = 0;
@@ -64,7 +63,7 @@ struct IMetaSerializerWriter : public IExtendObject
 };
 
 
-IMetaArchiveWriter * createMetaArchiveWriter(const GMetaArchiveConfig & config, IMetaService * service, IMetaWriter * writer);
+IMetaArchiveWriter * createMetaArchiveWriter(IMetaService * service, IMetaWriter * writer);
 
 void metaArchiveWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
 void metaArchiveWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);

@@ -15,7 +15,7 @@ namespace {
 template <typename READER, typename AR>
 void doTestSimpleValue(IMetaWriter * writer, const READER & reader, const AR & ar)
 {
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig(), NULL, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(NULL, writer));
 
 	bool b = true;
 	char c = 5;
@@ -57,7 +57,7 @@ void doTestSimpleValue(IMetaWriter * writer, const READER & reader, const AR & a
 
 	ar.rewind();
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig(), NULL, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(NULL, reader.get()));
 	
 	bool rb = false;
 	char rc = 0;

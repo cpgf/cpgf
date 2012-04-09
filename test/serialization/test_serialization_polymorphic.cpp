@@ -117,7 +117,7 @@ void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, const READE
 	
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassR"));
 
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig(), service, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service, writer));
 
 	// write
 
@@ -140,7 +140,7 @@ void doTestPolymorphic(IMetaService * service, IMetaWriter * writer, const READE
 	metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance2, metaClass.get());
 
 	// read
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig(), service, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service, reader.get()));
 
 	ar.rewind();
 

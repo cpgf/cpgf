@@ -15,6 +15,10 @@ namespace cpgf {
 
 const char * const SerializationAnnotation = "serialize";
 const char * const SerializationAnnotationEnable = "enable";
+const char * const SerializationAnnotationVersion = "version";
+const char * const SerializationAnnotationFields = "fields";
+const char * const SerializationAnnotationProperties = "properties";
+const char * const SerializationAnnotationTrackPointers = "trackPointers";
 
 
 const uint32_t archiveIDNone = 0;
@@ -35,6 +39,7 @@ enum GMetaArchiveItemType {
 
 struct GMetaArchiveConfigData
 {
+	uint32_t version;
 	uint32_t flags;
 };
 
@@ -45,15 +50,17 @@ class GMetaArchiveConfig
 {
 private:
 	enum ConfigFlags {
-		macAllowSerializeField = 1 << 0,
-		macAllowSerializeProperty = 1 << 1,
-		macAllowTrackPointers = 1 << 2,
-		macDefaultSerializeAll = 2 << 3
+		macAllowSerialize = 1 << 0,
+		macAllowSerializeField = 1 << 1,
+		macAllowSerializeProperty = 1 << 2,
+		macAllowTrackPointers = 1 << 3,
+		macDefaultSerializeAll = 2 << 4
 	};
 
 	enum {
 		defaultConfig =
-			macAllowSerializeField
+			macAllowSerialize
+			| macAllowSerializeField
 			| macAllowSerializeProperty
 			| macAllowTrackPointers
 			| macDefaultSerializeAll
@@ -62,6 +69,9 @@ private:
 public:
 	GMetaArchiveConfig();
 	explicit GMetaArchiveConfig(const GMetaArchiveConfigData & data);
+
+	void setAllowSerialize(bool allow);
+	bool allowSerialize() const;
 
 	void setAllowTrackPointer(bool allow);
 	bool allowTrackPointer() const;
@@ -75,12 +85,18 @@ public:
 	void setDefaultSerializeAll(bool defaultSerializeAll);
 	bool defaultSerializeAll() const;
 
+	void setVersion(uint32_t version);
+	uint32_t getVersion() const;
+
 	GMetaArchiveConfigData getData() const;
 
 private:
+	uint32_t version;
 	GFlags<ConfigFlags> flags;
 };
 
+
+GMetaArchiveConfig getItemMetaArchiveConfig(IMetaItem * item);
 
 bool canSerializeItem(const GMetaArchiveConfig & config, IMetaItem * item);
 bool canSerializeObject(const GMetaArchiveConfig & config, IMetaClass * metaClass);

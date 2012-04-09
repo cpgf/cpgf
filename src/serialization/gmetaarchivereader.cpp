@@ -1,5 +1,4 @@
 #include "cpgf/serialization/gmetaarchivereader.h"
-#include "cpgf/serialization/gmetaarchivecommon.h"
 #include "../pinclude/gmetaarchivecommonimpl.h"
 
 #include "cpgf/gmetaapiutil.h"
@@ -21,14 +20,12 @@ class GMetaArchiveReader : public IMetaArchiveReader, public IMetaSerializerRead
 	G_INTERFACE_IMPL_EXTENDOBJECT
 
 public:
-	GMetaArchiveReader(const GMetaArchiveConfig & config, IMetaService * service, IMetaReader * reader);
+	GMetaArchiveReader(IMetaService * service, IMetaReader * reader);
 	~GMetaArchiveReader();
 
 	virtual IMetaService * G_API_CC getMetaService();
 	virtual IMetaReader * G_API_CC getMetaReader();
 
-	virtual void G_API_CC getConfig(GMetaArchiveConfigData * outConfigData);
-	
 	virtual void G_API_CC readData(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
 	
 	virtual void G_API_CC readMember(GMetaArchiveReaderParam * param, IMetaAccessible * accessible);
@@ -58,13 +55,13 @@ protected:
 	void doEndReadObject(GMetaArchiveReaderParam * param);
 
 private:
-	GMetaArchiveConfig config;
 	GScopedInterface<IMetaService> service;
 	GScopedInterface<IMetaReader> reader;
 	GScopedPointer<GMetaArchiveReaderPointerTracker> pointerSolver;
 	GScopedPointer<GMetaArchiveReaderClassTypeTracker> classTypeTracker;
 	GScopedInterface<IMemoryAllocator> allocator;
 	GClassSerializeHeader serializeHeader;
+	GMetaArchiveConfigMap configMap;
 };
 
 
@@ -150,8 +147,8 @@ void GMetaArchiveReaderClassTypeTracker::addArchiveID(uint32_t archiveID, IMetaC
 }
 
 
-GMetaArchiveReader::GMetaArchiveReader(const GMetaArchiveConfig & config, IMetaService * service, IMetaReader * reader)
-	: config(config), service(service), reader(reader)
+GMetaArchiveReader::GMetaArchiveReader(IMetaService * service, IMetaReader * reader)
+	: service(service), reader(reader)
 {
 	if(this->service) {
 		this->service->addReference();
@@ -174,11 +171,6 @@ IMetaReader * G_API_CC GMetaArchiveReader::getMetaReader()
 {
 	this->reader->addReference();
 	return this->reader.get();
-}
-
-void G_API_CC GMetaArchiveReader::getConfig(GMetaArchiveConfigData * outConfigData)
-{
-	*outConfigData = this->config.getData();
 }
 
 void G_API_CC GMetaArchiveReader::readData(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer)
@@ -217,6 +209,8 @@ void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, 
 	param.originalInstance = instance;
 	param.originalMetaClass = metaClass;
 	param.serializer = serializer;
+	param.config = this->configMap.getConfig(metaClass).getData();
+	param.archiveVersion = param.config.version;
 
 	void * p = this->doReadObject(&param, &baseClassMap);
 
@@ -245,8 +239,10 @@ void GMetaArchiveReader::doReadObjectHierarchy(GMetaArchiveReaderParam * param, 
 		count = param->metaClass->getBaseCount();
 		for(i = 0; i < count; ++i) {
 			baseClass.reset(param->metaClass->getBaseClass(i));
+
+			GMetaArchiveConfig config = this->configMap.getConfig(baseClass.get());
 		
-			if(canSerializeBaseClass(this->config, baseClass.get(), param->metaClass)) {
+			if(canSerializeBaseClass(config, baseClass.get(), param->metaClass)) {
 				void * baseInstance = param->metaClass->castToBase(param->instance, i);
 				if(! baseClassMap->hasMetaClass(baseInstance, baseClass.get())) {
 					baseClassMap->addMetaClass(baseInstance, baseClass.get());
@@ -263,6 +259,8 @@ void GMetaArchiveReader::doReadObjectHierarchy(GMetaArchiveReaderParam * param, 
 					newParam.originalInstance = param->originalInstance;
 					newParam.originalMetaClass = param->originalMetaClass;
 					newParam.serializer = serializer.get();
+					newParam.config = this->configMap.getConfig(baseClass.get()).getData();
+					newParam.archiveVersion = newParam.config.version;
 				
 					this->doReadObject(&newParam, baseClassMap);
 				}
@@ -466,7 +464,7 @@ void GMetaArchiveReader::checkBeginReadObject(GMetaArchiveReaderParam * param)
 
 uint32_t GMetaArchiveReader::doBeginReadObject(GMetaArchiveReaderParam * param)
 {
-	uint32_t archiveID = this->reader->beginReadObject(param->name);
+	uint32_t archiveID = this->reader->beginReadObject(param->name, &param->archiveVersion);
 
 	this->trackPointer(archiveID, param->instance);
 	
@@ -475,7 +473,7 @@ uint32_t GMetaArchiveReader::doBeginReadObject(GMetaArchiveReaderParam * param)
 
 void GMetaArchiveReader::doEndReadObject(GMetaArchiveReaderParam * param)
 {
-	this->reader->endReadObject(param->name);
+	this->reader->endReadObject(param->name, param->config.version);
 }
 
 bool GMetaArchiveReader::checkUntrackPointer(const char * name, void * address)
@@ -535,9 +533,9 @@ GMetaArchiveReaderClassTypeTracker * GMetaArchiveReader::getClassTypeTracker()
 }
 
 
-IMetaArchiveReader * createMetaArchiveReader(const GMetaArchiveConfig & config, IMetaService * service, IMetaReader * reader)
+IMetaArchiveReader * createMetaArchiveReader(IMetaService * service, IMetaReader * reader)
 {
-	return new GMetaArchiveReader(GMetaArchiveConfig(config), service, reader);
+	return new GMetaArchiveReader(service, reader);
 }
 
 
@@ -547,7 +545,7 @@ void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, 
 	archiveReader->readData(name, instance, &metaType, NULL);
 }
 
-void metaSerializerReadObjectMembers(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param)
+void metaSerializerReadObjectMembers(IMetaArchiveReader * /*archiveReader*/, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param)
 {
 	if(param->instance == NULL) {
 		return;
@@ -557,9 +555,7 @@ void metaSerializerReadObjectMembers(IMetaArchiveReader * archiveReader, IMetaSe
 	uint32_t i;
 	uint32_t count;
 
-	GMetaArchiveConfigData configData;
-	archiveReader->getConfig(&configData);
-	GMetaArchiveConfig config(configData);
+	GMetaArchiveConfig config(getItemMetaArchiveConfig(param->metaClass));
 
 	if(config.allowSerializeField()) {
 		count = param->metaClass->getFieldCount();

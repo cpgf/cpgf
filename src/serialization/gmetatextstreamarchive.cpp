@@ -106,8 +106,8 @@ protected:
 	virtual void G_API_CC writeString(const char * name, uint32_t archiveID, const char * value);
 	virtual void G_API_CC writeNullPointer(const char * name);
 	
-	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID);
-	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID);
+	virtual void G_API_CC beginWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID, uint32_t version);
+	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID, uint32_t version);
 
 	virtual void G_API_CC writeReferenceID(const char * name, uint32_t referenceArchiveID);
 	virtual void G_API_CC writeClassType(uint32_t classTypeID, IMetaClass * metaClass);
@@ -165,8 +165,8 @@ protected:
 	virtual char * G_API_CC readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID);
 	virtual void * G_API_CC readNullPointer(const char * name);
 
-	virtual uint32_t G_API_CC beginReadObject(const char * name);
-	virtual void G_API_CC endReadObject(const char * name);
+	virtual uint32_t G_API_CC beginReadObject(const char * name, uint32_t * outVersion);
+	virtual void G_API_CC endReadObject(const char * name, uint32_t version);
 
 	virtual uint32_t G_API_CC readReferenceID(const char * name);
 	virtual IMetaClass * G_API_CC readClassAndTypeID(uint32_t * outClassTypeID);
@@ -253,7 +253,7 @@ void G_API_CC GTextStreamMetaWriter::writeNullPointer(const char * /*name*/)
 	this->writeType(ptNull);
 }
 
-void G_API_CC GTextStreamMetaWriter::beginWriteObject(const char * /*name*/, uint32_t archiveID, uint32_t classTypeID)
+void G_API_CC GTextStreamMetaWriter::beginWriteObject(const char * /*name*/, uint32_t archiveID, uint32_t classTypeID, uint32_t version)
 {
 	if(this->delimiter != dtNone) {
 		this->outputStream << '\n';
@@ -263,14 +263,18 @@ void G_API_CC GTextStreamMetaWriter::beginWriteObject(const char * /*name*/, uin
 	this->writeType(ptObject);
 	this->writeDelimiter();
 
+	this->outputStream << static_cast<uint32_t>(version);
+	this->writeDelimiter();
+
 	this->outputStream << static_cast<uint32_t>(classTypeID);
 	this->writeDelimiter();
+	
 	this->outputStream << static_cast<uint32_t>(archiveID);
-
+	
 	this->typeSession.beginNoneSession();
 }
 
-void G_API_CC GTextStreamMetaWriter::endWriteObject(const char * /*name*/, uint32_t /*archiveID*/, uint32_t /*classTypeID*/)
+void G_API_CC GTextStreamMetaWriter::endWriteObject(const char * /*name*/, uint32_t /*archiveID*/, uint32_t /*classTypeID*/, uint32_t /*version*/)
 {
 	this->delimiter = dtNewline;
 
@@ -427,7 +431,10 @@ uint32_t G_API_CC GTextStreamMetaReader::getClassType(const char * /*name*/)
 	PermanentType type = this->readType();
 	serializeCheckType(type, ptObject);
 
+	uint32_t version;
 	uint32_t classTypeID;
+	this->inputStream >> version;
+	this->skipDelimiter();
 	this->inputStream >> classTypeID;
 	this->skipDelimiter();
 
@@ -467,28 +474,32 @@ void * G_API_CC GTextStreamMetaReader::readNullPointer(const char * /*name*/)
 	return NULL;
 }
 
-uint32_t G_API_CC GTextStreamMetaReader::beginReadObject(const char * /*name*/)
+uint32_t G_API_CC GTextStreamMetaReader::beginReadObject(const char * /*name*/, uint32_t * outVersion)
 {
 	PermanentType type = this->readType();
 	serializeCheckType(type, ptObject);
 
-	uint32_t classTypeID;
-	uint32_t archiveID;
+	uint32_t classTypeID = 0;
+	uint32_t archiveID = 0;
+	uint32_t version = 0;
 
-	this->inputStream >> classTypeID;
+	this->inputStream >> version;
+	this->skipDelimiter();
 	
+	this->inputStream >> classTypeID;
 	this->skipDelimiter();
 	
 	this->inputStream >> archiveID;
-	
 	this->skipDelimiter();
 
 	this->typeSession.beginNoneSession();
+
+	*outVersion = version;
 	
 	return archiveID;
 }
 
-void G_API_CC GTextStreamMetaReader::endReadObject(const char * /*name*/)
+void G_API_CC GTextStreamMetaReader::endReadObject(const char * /*name*/, uint32_t /*version*/)
 {
 	this->typeSession.endNoneSession();
 }

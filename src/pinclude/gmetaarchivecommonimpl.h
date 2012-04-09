@@ -2,6 +2,8 @@
 #define __GMETAARCHIVECOMMONIMPL_H
 
 
+#include "cpgf/serialization/gmetaarchivecommon.h"
+
 #include "cpgf/gflags.h"
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gexception.h"
@@ -19,8 +21,9 @@ const char * const nameRootNode = "cpgf";
 const char * const nameDataNode = "data";
 const char * const nameClassTypesNode = "classtypes";
 
-const char * const nameType = "t";
-const char * const nameArchiveID = "id";
+const char * const nameType = "type";
+const char * const nameVersion = "version";
+const char * const nameArchiveID = "aid";
 const char * const nameClassTypeID = "cid";
 const char * const nameLength = "len";
 const char * const prefixClassType = "c";
@@ -43,6 +46,19 @@ public:
 
 private:
 	MapType itemMap;
+};
+
+
+class GMetaArchiveConfigMap
+{
+private:
+	typedef GStringMap<GMetaArchiveConfig, GStringMapReuseKey> MapType;
+
+public:
+	GMetaArchiveConfig getConfig(IMetaClass * metaClass) const;
+
+private:
+	mutable MapType itemMap;
 };
 
 

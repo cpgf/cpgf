@@ -1,14 +1,14 @@
 #ifndef __GMETAARCHIVEREADER_H
 #define __GMETAARCHIVEREADER_H
 
+#include "cpgf/serialization/gmetaarchivecommon.h"
+
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gmetatype.h"
 
 
 namespace cpgf {
 
-
-struct GMetaArchiveConfigData;
 
 #pragma pack(push, 1)
 #pragma pack(1)
@@ -22,6 +22,8 @@ struct GMetaArchiveReaderParam
 	void * originalInstance;
 	IMetaClass * originalMetaClass;
 	IMetaSerializer * serializer;
+	GMetaArchiveConfigData config;
+	uint32_t archiveVersion;
 };
 
 #pragma pack(pop)
@@ -37,8 +39,8 @@ struct IMetaReader : public IObject
 	virtual char * G_API_CC readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID) = 0;
 	virtual void * G_API_CC readNullPointer(const char * name) = 0;
 
-	virtual uint32_t G_API_CC beginReadObject(const char * name) = 0;
-	virtual void G_API_CC endReadObject(const char * name) = 0;
+	virtual uint32_t G_API_CC beginReadObject(const char * name, uint32_t * outVersion) = 0;
+	virtual void G_API_CC endReadObject(const char * name, uint32_t version) = 0;
 
 	virtual uint32_t G_API_CC readReferenceID(const char * name) = 0;
 	virtual IMetaClass * G_API_CC readClassAndTypeID(uint32_t * outClassTypeID) = 0;
@@ -54,8 +56,6 @@ struct IMetaArchiveReader : public IExtendObject
 	virtual IMetaService * G_API_CC getMetaService() = 0;
 	virtual IMetaReader * G_API_CC getMetaReader() = 0;
 	
-	virtual void G_API_CC getConfig(GMetaArchiveConfigData * outConfigData) = 0;
-
 	virtual void G_API_CC readData(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 
 	virtual void G_API_CC trackPointer(uint32_t archiveID, void * instance) = 0;
@@ -72,7 +72,7 @@ struct IMetaSerializerReader : public IExtendObject
 
 
 
-IMetaArchiveReader * createMetaArchiveReader(const GMetaArchiveConfig & config, IMetaService * service, IMetaReader * reader);
+IMetaArchiveReader * createMetaArchiveReader(IMetaService * service, IMetaReader * reader);
 
 void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaClass * metaClass);
 

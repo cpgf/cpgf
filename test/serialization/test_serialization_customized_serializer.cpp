@@ -189,7 +189,7 @@ void doTestCustomizedSerializer(IMetaService * service, IMetaWriter * writer, co
 	
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassR"));
 
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(GMetaArchiveConfig(), service, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service, writer));
 
 	R instance;
 	instance.a = 18;
@@ -203,7 +203,7 @@ void doTestCustomizedSerializer(IMetaService * service, IMetaWriter * writer, co
 
 	metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(GMetaArchiveConfig(), service, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service, reader.get()));
 
 	ar.rewind();
 

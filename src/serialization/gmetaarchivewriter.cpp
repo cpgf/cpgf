@@ -1,5 +1,4 @@
 #include "cpgf/serialization/gmetaarchivewriter.h"
-#include "cpgf/serialization/gmetaarchivecommon.h"
 #include "../pinclude/gmetaarchivecommonimpl.h"
 
 #include "cpgf/gmetaapiutil.h"
@@ -25,14 +24,12 @@ class GMetaArchiveWriter : public IMetaArchiveWriter, public IMetaSerializerWrit
 	G_INTERFACE_IMPL_EXTENDOBJECT
 
 public:
-	GMetaArchiveWriter(const GMetaArchiveConfig & config, IMetaService * service, IMetaWriter * writer);
+	GMetaArchiveWriter(IMetaService * service, IMetaWriter * writer);
 	~GMetaArchiveWriter();
 
 	virtual IMetaService * G_API_CC getMetaService();
 	virtual IMetaWriter * G_API_CC getMetaWriter();
 	
-	virtual void G_API_CC getConfig(GMetaArchiveConfigData * outConfigData);
-
 	virtual void G_API_CC writeData(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
 	virtual void G_API_CC writeMember(GMetaArchiveWriterParam * param, IMetaAccessible * accessible);
 
@@ -63,13 +60,13 @@ protected:
 	void doEndWriteObject(GMetaArchiveWriterParam * param);
 
 private:
-	GMetaArchiveConfig config;
 	GScopedInterface<IMetaService> service;
 	GScopedInterface<IMetaWriter> writer;
 	uint32_t currentArchiveID;
 	GScopedPointer<GMetaArchiveWriterPointerTracker> pointerSolver;
 	GScopedPointer<GMetaArchiveWriterClassTypeTracker> classTypeTracker;
 	GClassSerializeHeader serializeHeader;
+	GMetaArchiveConfigMap configMap;
 };
 
 
@@ -199,8 +196,8 @@ void GMetaArchiveWriterClassTypeTracker::addClassType(const string & classType, 
 }
 
 
-GMetaArchiveWriter::GMetaArchiveWriter(const GMetaArchiveConfig & config, IMetaService * service, IMetaWriter * writer)
-	: config(config), service(service), writer(writer), currentArchiveID(0)
+GMetaArchiveWriter::GMetaArchiveWriter(IMetaService * service, IMetaWriter * writer)
+	: service(service), writer(writer), currentArchiveID(0)
 {
 	if(this->service) {
 		this->service->addReference();
@@ -223,11 +220,6 @@ IMetaWriter * G_API_CC GMetaArchiveWriter::getMetaWriter()
 {
 	this->writer->addReference();
 	return this->writer.get();
-}
-
-void G_API_CC GMetaArchiveWriter::getConfig(GMetaArchiveConfigData * outConfigData)
-{
-	*outConfigData = this->config.getData();
 }
 
 void G_API_CC GMetaArchiveWriter::writeData(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer)
@@ -269,6 +261,8 @@ void GMetaArchiveWriter::writeObjectHelper(const char * name, const void * insta
 	param.metaClass = castedMetaClass.get();
 	param.pointers = pointers;
 	param.serializer = serializer;
+	param.config = this->configMap.getConfig(castedMetaClass.get()).getData();
+
 	this->doWriteObjectHierarchy(&param, &baseClassMap);
 
 	if(this->serializeHeader.needEnd()) {
@@ -288,8 +282,10 @@ void GMetaArchiveWriter::doWriteObjectHierarchy(GMetaArchiveWriterParam * param,
 		count = param->metaClass->getBaseCount();
 		for(i = 0; i < count; ++i) {
 			baseClass.reset(param->metaClass->getBaseClass(i));
+
+			GMetaArchiveConfig config = this->configMap.getConfig(baseClass.get());
 		
-			if(canSerializeBaseClass(this->config, baseClass.get(), param->metaClass)) {
+			if(canSerializeBaseClass(config, baseClass.get(), param->metaClass)) {
 				void * baseInstance = param->metaClass->castToBase(param->instance, i);
 				if(! baseClassMap->hasMetaClass(baseInstance, baseClass.get())) {
 					baseClassMap->addMetaClass(baseInstance, baseClass.get());
@@ -307,6 +303,8 @@ void GMetaArchiveWriter::doWriteObjectHierarchy(GMetaArchiveWriterParam * param,
 					newParam.metaClass = baseClass.get();
 					newParam.serializer = serializer.get();
 					newParam.pointers = 0;
+					newParam.config = this->configMap.getConfig(baseClass.get()).getData();
+
 					this->doWriteObjectHierarchy(&newParam, baseClassMap);
 				}
 			}
@@ -419,7 +417,9 @@ void GMetaArchiveWriter::doWriteValue(const char * name, const void * address, c
 
 bool GMetaArchiveWriter::checkTrackedPointer(const char * name, uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, uint32_t pointers)
 {
-	if(this->config.allowTrackPointer()) {
+	GMetaArchiveConfig config = this->configMap.getConfig(metaClass);
+
+	if(config.allowTrackPointer()) {
 		const char * typeName = NULL;
 		if(serializer != NULL) {
 			typeName = serializer->getClassTypeName(this, instance, metaClass);
@@ -458,7 +458,9 @@ bool GMetaArchiveWriter::checkTrackedPointer(const char * name, uint32_t archive
 
 void G_API_CC GMetaArchiveWriter::trackPointer(uint32_t archiveID, const void * instance, IMetaClass * metaClass, IMetaSerializer * serializer, uint32_t pointers)
 {
-	if(this->config.allowTrackPointer()) {
+	GMetaArchiveConfig config = this->configMap.getConfig(metaClass);
+
+	if(config.allowTrackPointer()) {
 		const char * typeName = NULL;
 		if(serializer != NULL) {
 			typeName = serializer->getClassTypeName(this, instance, metaClass);
@@ -544,17 +546,17 @@ void GMetaArchiveWriter::doBeginWriteObject(GMetaArchiveWriterParam * param)
 {
 	this->trackPointer(param->archiveID, param->instance, param->metaClass, param->serializer, param->pointers);
 	
-	this->writer->beginWriteObject(param->name, param->archiveID, param->classTypeID);
+	this->writer->beginWriteObject(param->name, param->archiveID, param->classTypeID, param->config.version);
 }
 
 void GMetaArchiveWriter::doEndWriteObject(GMetaArchiveWriterParam * param)
 {
-	this->writer->endWriteObject(param->name, param->archiveID, param->classTypeID);
+	this->writer->endWriteObject(param->name, param->archiveID, param->classTypeID, param->config.version);
 }
 
-IMetaArchiveWriter * createMetaArchiveWriter(const GMetaArchiveConfig & config, IMetaService * service, IMetaWriter * writer)
+IMetaArchiveWriter * createMetaArchiveWriter(IMetaService * service, IMetaWriter * writer)
 {
-	return new GMetaArchiveWriter(config, service, writer);
+	return new GMetaArchiveWriter(service, writer);
 }
 
 
@@ -582,7 +584,7 @@ void metaArchiveWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const cha
 	archiveWriter->writeData(name, instance, &metaTypeData, serializer.get());
 }
 
-void metaSerializerWriteObjectMembers(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param)
+void metaSerializerWriteObjectMembers(IMetaArchiveWriter * /*archiveWriter*/, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param)
 {
 	if(param->instance == NULL) {
 		return;
@@ -592,9 +594,7 @@ void metaSerializerWriteObjectMembers(IMetaArchiveWriter * archiveWriter, IMetaS
 	uint32_t i;
 	uint32_t count;
 
-	GMetaArchiveConfigData configData;
-	archiveWriter->getConfig(&configData);
-	GMetaArchiveConfig config(configData);
+	GMetaArchiveConfig config(getItemMetaArchiveConfig(param->metaClass));
 
 	if(config.allowSerializeField()) {
 		count = param->metaClass->getFieldCount();
