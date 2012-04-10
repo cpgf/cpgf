@@ -115,14 +115,20 @@ void register_TestSerializeClass(Define define)
 }
 
 template <typename READER, typename AR>
-void doTestDiamondVirtualBase(IMetaService * service, IMetaWriter * writer, const READER & reader, const AR & ar)
+void doTestDiamondVirtualBase(IMetaWriter * writer, const READER & reader, const AR & ar)
 {
 	const char * const serializeObjectName = "diamondVirtualBase";
 	
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
 	readCount = 0;
 	writeCount = 0;
 
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassD"));
 
@@ -136,7 +142,7 @@ void doTestDiamondVirtualBase(IMetaService * service, IMetaWriter * writer, cons
 
 	ar.rewind();
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
 	
 	D readInstance;
 	
@@ -152,18 +158,11 @@ void doTestDiamondVirtualBase(IMetaService * service, IMetaWriter * writer, cons
 
 GTEST(testDiamondVirtualBase_TextStream)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	stringstream stream;
 
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
-	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestDiamondVirtualBase(service.get(), writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
+	doTestDiamondVirtualBase(writer.get(), MetaReaderGetter(stream), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }
@@ -171,37 +170,25 @@ GTEST(testDiamondVirtualBase_TextStream)
 
 GTEST(testDiamondVirtualBase_Xml)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	GMetaXmlArchive outputArchive;
 
 	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestDiamondVirtualBase(service.get(), writer.get(), MetaReaderGetterXml(service.get(), outputArchive), TestArchiveStreamNone());
+	doTestDiamondVirtualBase(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
 	
-//	cout << stream.str().c_str() << endl;
+//	outputArchive.saveToStream(cout);
 }
 
 
 GTEST(testDiamondVirtualBase_Json)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	GMetaJsonArchive outputArchive;
 
 	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
 	
-	doTestDiamondVirtualBase(service.get(), writer.get(), MetaReaderGetterJson(service.get(), outputArchive), TestArchiveStreamNone());
+	doTestDiamondVirtualBase(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
 	
-//	cout << stream.str().c_str() << endl;
+//	outputArchive.saveToStream(cout);
 }
 
 

@@ -14,35 +14,49 @@ using namespace cpgf;
 #endif
 
 
-MetaReaderGetterXml::MetaReaderGetterXml(IMetaService * service, GMetaXmlArchive & outputArchive)
-	: service(service), outputArchive(outputArchive)
+MetaReaderGetter::MetaReaderGetter(std::stringstream & outputStream)
+	: outputStream(outputStream)
 {
 }
 
-IMetaReader * MetaReaderGetterXml::get() const
+IMetaReader * MetaReaderGetter::get(IMetaService * service) const
+{
+	if(! this->reader) {
+		this->reader.reset(createTextStreamMetaReader(service, outputStream));
+	}
+
+	return this->reader.get();
+}
+
+MetaReaderGetterXml::MetaReaderGetterXml(GMetaXmlArchive & outputArchive)
+	: outputArchive(outputArchive)
+{
+}
+
+IMetaReader * MetaReaderGetterXml::get(IMetaService * service) const
 {
 	if(! this->reader) {
 		stringstream stream;
 		this->outputArchive.saveToStream(stream);
 		this->inputArchive.loadNonIntrusive(stream.str().c_str());
-		this->reader.reset(cpgf::createXmlMetaReader(this->service, this->inputArchive));
+		this->reader.reset(cpgf::createXmlMetaReader(service, this->inputArchive));
 	}
 	return this->reader.get();
 }
 
 
-MetaReaderGetterJson::MetaReaderGetterJson(IMetaService * service, GMetaJsonArchive & outputArchive)
-	: service(service), outputArchive(outputArchive)
+MetaReaderGetterJson::MetaReaderGetterJson(GMetaJsonArchive & outputArchive)
+	: outputArchive(outputArchive)
 {
 }
 
-IMetaReader * MetaReaderGetterJson::get() const
+IMetaReader * MetaReaderGetterJson::get(IMetaService * service) const
 {
 	if(! this->reader) {
 		stringstream stream;
 		this->outputArchive.saveToStream(stream);
 		this->inputArchive.load(stream.str().c_str());
-		this->reader.reset(cpgf::createJsonMetaReader(this->service, this->inputArchive));
+		this->reader.reset(cpgf::createJsonMetaReader(service, this->inputArchive));
 	}
 	return this->reader.get();
 }

@@ -114,13 +114,19 @@ void register_TestSerializeClass(Define define)
 }
 
 template <typename READER, typename AR>
-void doTestCyclicGraph(IMetaService * service, IMetaWriter * writer, const READER & reader, const AR & ar)
+void doTestCyclicGraph(IMetaWriter * writer, const READER & reader, const AR & ar)
 {
 	const char * const serializeObjectName = "cyclicGraph";
 	
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassA"));
 
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 
 	A instance;
 	instance.init();
@@ -131,7 +137,7 @@ void doTestCyclicGraph(IMetaService * service, IMetaWriter * writer, const READE
 
 	ar.rewind();
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
 	
 	A readInstance;
 	
@@ -144,18 +150,11 @@ void doTestCyclicGraph(IMetaService * service, IMetaWriter * writer, const READE
 
 GTEST(testCyclicGraph_TextStream)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	stringstream stream;
 
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
-	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestCyclicGraph(service.get(), writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
+	doTestCyclicGraph(writer.get(), MetaReaderGetter(stream), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }
@@ -163,17 +162,11 @@ GTEST(testCyclicGraph_TextStream)
 
 GTEST(testCyclicGraph_Xml)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	GMetaXmlArchive outputArchive;
 
 	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestCyclicGraph(service.get(), writer.get(), MetaReaderGetterXml(service.get(), outputArchive), TestArchiveStreamNone());
+	doTestCyclicGraph(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
 	
 //	outputArchive.saveToStream(cout);
 }
@@ -181,17 +174,11 @@ GTEST(testCyclicGraph_Xml)
 
 GTEST(testCyclicGraph_Json)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	GMetaJsonArchive outputArchive;
 
 	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
 	
-	doTestCyclicGraph(service.get(), writer.get(), MetaReaderGetterJson(service.get(), outputArchive), TestArchiveStreamNone());
+	doTestCyclicGraph(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
 	
 //	outputArchive.saveToStream(cout);
 }

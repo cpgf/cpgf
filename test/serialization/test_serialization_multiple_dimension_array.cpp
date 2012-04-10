@@ -18,9 +18,15 @@ using namespace cpgf;
 namespace {
 
 template <typename READER, typename AR>
-void doTestMultipleDimensionArray(IMetaService * service, IMetaWriter * writer, const READER & reader, const AR & ar)
+void doTestMultipleDimensionArray(IMetaWriter * writer, const READER & reader, const AR & ar)
 {
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service, writer));
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 
 	enum {
 		A1 = 3, A2 = 5,
@@ -61,7 +67,7 @@ void doTestMultipleDimensionArray(IMetaService * service, IMetaWriter * writer, 
 
 	ar.rewind();
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
 
 	int ri[A1][A2];
 	string rs2[A1][A2];
@@ -115,18 +121,11 @@ void doTestMultipleDimensionArray(IMetaService * service, IMetaWriter * writer, 
 
 GTEST(testMultipleDimensionArray_TextStream)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	stringstream stream;
 
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
-	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestMultipleDimensionArray(service.get(), writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
+	doTestMultipleDimensionArray(writer.get(), MetaReaderGetter(stream), TestArchiveStream<stringstream>(stream));
 
 //	cout << stream.str().c_str() << endl;
 }
@@ -134,37 +133,25 @@ GTEST(testMultipleDimensionArray_TextStream)
 
 GTEST(testMultipleDimensionArray_Xml)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	GMetaXmlArchive outputArchive;
 
 	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestMultipleDimensionArray(service.get(), writer.get(), MetaReaderGetterXml(service.get(), outputArchive), TestArchiveStreamNone());
+	doTestMultipleDimensionArray(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
 
-//	cout << stream.str().c_str() << endl;
+//	outputArchive.saveToStream(cout);
 }
 
 
 GTEST(testMultipleDimensionArray_Json)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	GMetaJsonArchive outputArchive;
 
 	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
 	
-	doTestMultipleDimensionArray(service.get(), writer.get(), MetaReaderGetterJson(service.get(), outputArchive), TestArchiveStreamNone());
+	doTestMultipleDimensionArray(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
 
-//	cout << stream.str().c_str() << endl;
+//	outputArchive.saveToStream(cout);
 }
 
 

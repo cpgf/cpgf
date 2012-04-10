@@ -90,13 +90,19 @@ void register_TestSerializeClass(Define define)
 }
 
 template <typename READER, typename AR>
-void doTestNestedObject(IMetaService * service, IMetaWriter * writer, const READER & reader, const AR & ar)
+void doTestNestedObject(IMetaWriter * writer, const READER & reader, const AR & ar)
 {
 	const char * const serializeObjectName = "nestedObject";
 	
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassC"));
 
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service, writer));
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 
 	C instance;
 	instance.init();
@@ -111,7 +117,7 @@ void doTestNestedObject(IMetaService * service, IMetaWriter * writer, const READ
 
 	ar.rewind();
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
 	
 	C readInstance;
 	
@@ -122,18 +128,11 @@ void doTestNestedObject(IMetaService * service, IMetaWriter * writer, const READ
 
 GTEST(testNestedObject_TextStream)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	stringstream stream;
 
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
-	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestNestedObject(service.get(), writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
+	doTestNestedObject(writer.get(), MetaReaderGetter(stream), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }
@@ -141,37 +140,25 @@ GTEST(testNestedObject_TextStream)
 
 GTEST(testNestedObject_Xml)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	GMetaXmlArchive outputArchive;
 
 	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestNestedObject(service.get(), writer.get(), MetaReaderGetterXml(service.get(), outputArchive), TestArchiveStreamNone());
+	doTestNestedObject(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
 	
-//	cout << stream.str().c_str() << endl;
+//	outputArchive.saveToStream(cout);
 }
 
 
 GTEST(testNestedObject_Json)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	GMetaJsonArchive outputArchive;
 
 	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
 	
-	doTestNestedObject(service.get(), writer.get(), MetaReaderGetterJson(service.get(), outputArchive), TestArchiveStreamNone());
+	doTestNestedObject(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
 	
-//	cout << stream.str().c_str() << endl;
+//	outputArchive.saveToStream(cout);
 }
 
 

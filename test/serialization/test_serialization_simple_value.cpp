@@ -57,7 +57,7 @@ void doTestSimpleValue(IMetaWriter * writer, const READER & reader, const AR & a
 
 	ar.rewind();
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(NULL, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(NULL, reader.get(NULL)));
 	
 	bool rb = false;
 	char rc = 0;
@@ -122,9 +122,8 @@ GTEST(testSimpleValue_TextStream)
 	stringstream stream;
 
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
-	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(NULL, stream));
 	
-	doTestSimpleValue(writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
+	doTestSimpleValue(writer.get(), MetaReaderGetter(stream), TestArchiveStream<stringstream>(stream));
 
 //	cout << stream.str().c_str() << endl;
 }
@@ -136,9 +135,9 @@ GTEST(testSimpleValue_XML)
 
 	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestSimpleValue(writer.get(), MetaReaderGetterXml(NULL, outputArchive), TestArchiveStreamNone());
+	doTestSimpleValue(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
 	
-//	cout << stream.str().c_str() << endl;
+//	outputArchive.saveToStream(cout);
 }
 
 
@@ -148,7 +147,7 @@ GTEST(testSimpleValue_Json)
 
 	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
 	
-	doTestSimpleValue(writer.get(), MetaReaderGetterJson(NULL, outputArchive), TestArchiveStreamNone());
+	doTestSimpleValue(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
 	
 //	outputArchive.saveToStream(cout);
 }

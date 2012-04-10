@@ -542,7 +542,11 @@ IMetaArchiveReader * createMetaArchiveReader(IMetaService * service, IMetaReader
 void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaClass * metaClass)
 {
 	GMetaTypeData metaType = metaGetItemType(metaClass).getData();
-	archiveReader->readData(name, instance, &metaType, NULL);
+	GScopedInterface<IMetaSerializer> serializer;
+	if(metaClass != NULL) {
+		serializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
+	}
+	archiveReader->readData(name, instance, &metaType, serializer.get());
 }
 
 void metaSerializerReadObjectMembers(IMetaArchiveReader * /*archiveReader*/, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param)

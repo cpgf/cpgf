@@ -16,9 +16,15 @@ using namespace cpgf;
 namespace {
 
 template <typename READER, typename AR>
-void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, const READER & reader, const AR & ar)
+void doTestSimpleArray(IMetaWriter * writer, const READER & reader, const AR & ar)
 {
-	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service, writer));
+	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
+	register_TestSerializeClass(define);
+
+	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+
+	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 
 	enum {
 		A = 3, B = 5, C = 6, D = 7, E = 8, F = 10, G = 11,
@@ -103,7 +109,7 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, const READE
 
 	ar.rewind();
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service, reader.get()));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
 
 	bool rb[A];
 	char rc[B];
@@ -213,53 +219,34 @@ void doTestSimpleArray(IMetaService * service, IMetaWriter * writer, const READE
 
 GTEST(testSimpleArray_TextStream)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	stringstream stream;
 
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
-	GScopedInterface<IMetaReader> reader(createTextStreamMetaReader(service.get(), stream));
 	
-	doTestSimpleArray(service.get(), writer.get(), MetaReaderGetter(reader.get()), TestArchiveStream<stringstream>(stream));
+	doTestSimpleArray(writer.get(), MetaReaderGetter(stream), TestArchiveStream<stringstream>(stream));
 
 //	cout << stream.str().c_str() << endl;
 }
 
 GTEST(testSimpleArray_Xml)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	GMetaXmlArchive outputArchive;
 
 	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestSimpleArray(service.get(), writer.get(), MetaReaderGetterXml(service.get(), outputArchive), TestArchiveStreamNone());
+	doTestSimpleArray(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
 
-//	cout << stream.str().c_str() << endl;
+//	outputArchive.saveToStream(cout);
 }
 
 
 GTEST(testSimpleArray_Json)
 {
-	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
-	register_TestSerializeClass(define);
-
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
-
 	GMetaJsonArchive outputArchive;
 
 	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
 	
-	doTestSimpleArray(service.get(), writer.get(), MetaReaderGetterJson(service.get(), outputArchive), TestArchiveStreamNone());
+	doTestSimpleArray(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
 
 //	outputArchive.saveToStream(cout);
 }

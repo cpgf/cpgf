@@ -16,6 +16,7 @@
 #include "../unittestbase.h"
 
 #include <string>
+#include <sstream>
 
 
 #define FIELD(cls, n) ._field(# n, &cls::n)
@@ -48,23 +49,23 @@ public:
 class MetaReaderGetter
 {
 public:
-	explicit MetaReaderGetter(cpgf::IMetaReader * reader) : reader(reader) {}
+	explicit MetaReaderGetter(std::stringstream & outputStream);
 
-	cpgf::IMetaReader * get() const { return this->reader; }
+	cpgf::IMetaReader * get(cpgf::IMetaService * service) const;
 
 private:
-	cpgf::IMetaReader * reader;
+	std::stringstream & outputStream;
+	mutable cpgf::GScopedInterface<cpgf::IMetaReader> reader;
 };
 
 class MetaReaderGetterXml
 {
 public:
-	MetaReaderGetterXml(cpgf::IMetaService * service, cpgf::GMetaXmlArchive & outputArchive);
+	explicit MetaReaderGetterXml(cpgf::GMetaXmlArchive & outputArchive);
 
-	cpgf::IMetaReader * get() const;
+	cpgf::IMetaReader * get(cpgf::IMetaService * service) const;
 
 private:
-	cpgf::IMetaService * service;
 	cpgf::GMetaXmlArchive & outputArchive;
 	cpgf::GMetaXmlArchive inputArchive;
 	mutable cpgf::GScopedInterface<cpgf::IMetaReader> reader;
@@ -73,12 +74,11 @@ private:
 class MetaReaderGetterJson
 {
 public:
-	MetaReaderGetterJson(cpgf::IMetaService * service, cpgf::GMetaJsonArchive & outputArchive);
+	explicit MetaReaderGetterJson(cpgf::GMetaJsonArchive & outputArchive);
 
-	cpgf::IMetaReader * get() const;
+	cpgf::IMetaReader * get(cpgf::IMetaService * service) const;
 
 private:
-	cpgf::IMetaService * service;
 	cpgf::GMetaJsonArchive & outputArchive;
 	cpgf::GMetaJsonArchive inputArchive;
 	mutable cpgf::GScopedInterface<cpgf::IMetaReader> reader;

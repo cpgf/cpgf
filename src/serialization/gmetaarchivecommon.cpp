@@ -111,6 +111,7 @@ GMetaArchiveConfigData GMetaArchiveConfig::getData() const
 {
 	GMetaArchiveConfigData data;
 	data.flags = this->flags;
+	data.version = this->version;
 	return data;
 }
 
