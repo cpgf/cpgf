@@ -207,7 +207,6 @@ struct IMetaModule : public IExtendObject
 	virtual IMetaClass * G_API_CC getGlobalMetaClass() = 0;
 
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name) = 0;
-	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt) = 0;
 	virtual IMetaClass * G_API_CC findClassByName(const char * name) = 0;
 };
 
@@ -221,7 +220,6 @@ struct IMetaService : public IExtendObject
 	virtual IMemoryAllocator * G_API_CC getAllocator() = 0;
 
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name) = 0;
-	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt) = 0;
 	virtual IMetaClass * G_API_CC findClassByName(const char * name) = 0;
 };
 

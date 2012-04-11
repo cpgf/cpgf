@@ -67,6 +67,17 @@ private:
 	bool freeItems;
 };
 
+class GMetaModuleImplement
+{
+public:
+	GScopedPointer<GMetaTypedItemList> classList;
+	GScopedPointer<GMetaTypedItemList> enumList;
+};
+
+GMetaModule::GMetaModule()
+	: implement(new GMetaModuleImplement)
+{
+}
 
 GMetaModule::~GMetaModule()
 {
@@ -75,8 +86,10 @@ GMetaModule::~GMetaModule()
 
 void GMetaModule::unregisterAll()
 {
-	if(this->classList) {
-		for(GMetaTypedItemList::MapType::const_iterator it = this->classList->getItemMap()->begin(); it != this->classList->getItemMap()->end(); ++it) {
+	if(this->implement->classList) {
+		GScopedPointer<GMetaTypedItemList> tempClassList(this->implement->classList.take());
+		for(GMetaTypedItemList::MapType::const_iterator it = tempClassList->getItemMap()->begin(); it != tempClassList->getItemMap()->end(); ++it) {
+			this->unregisterMetaClass(static_cast<const GMetaClass *>(it->second));
 			static_cast<const GMetaClass *>(it->second)->setModule(NULL);
 		}
 	}
@@ -114,20 +127,20 @@ void GMetaModule::doRegisterMetaClass(const GMetaClass * metaClass)
 		return;
 	}
 
-	if(! this->classList) {
-		this->classList.reset(new GMetaTypedItemList);
+	if(! this->implement->classList) {
+		this->implement->classList.reset(new GMetaTypedItemList);
 	}
 
-	this->classList->add(metaClass);
+	this->implement->classList->add(metaClass);
 }
 
 void GMetaModule::doRegisterMetaEnum(const GMetaEnum * metaEnum)
 {
-	if(! this->enumList) {
-		this->enumList.reset(new GMetaTypedItemList);
+	if(! this->implement->enumList) {
+		this->implement->enumList.reset(new GMetaTypedItemList);
 	}
 
-	this->enumList->add(metaEnum);
+	this->implement->enumList->add(metaEnum);
 }
 
 void GMetaModule::doUnregisterMetaClass(const GMetaClass * metaClass)
@@ -136,15 +149,15 @@ void GMetaModule::doUnregisterMetaClass(const GMetaClass * metaClass)
 		return;
 	}
 
-	if(this->classList) {
-		this->classList->remove(metaClass);
+	if(this->implement->classList) {
+		this->implement->classList->remove(metaClass);
 	}
 }
 
 void GMetaModule::doUnregisterMetaEnum(const GMetaEnum * metaEnum)
 {
-	if(this->enumList) {
-		this->enumList->remove(metaEnum);
+	if(this->implement->enumList) {
+		this->implement->enumList->remove(metaEnum);
 	}
 }
 
@@ -152,12 +165,12 @@ const GMetaTypedItem * GMetaModule::findItemByType(const GTypeInfo & type) const
 {
 	const GMetaTypedItem * item = NULL;
 
-	if(this->classList) {
-		item = this->classList->findByType(type);
+	if(this->implement->classList) {
+		item = this->implement->classList->findByType(type);
 	}
 
-	if(item == NULL && this->enumList) {
-		item = this->enumList->findByType(type);
+	if(item == NULL && this->implement->enumList) {
+		item = this->implement->enumList->findByType(type);
 	}
 
 	return item;
@@ -167,12 +180,12 @@ const GMetaTypedItem * GMetaModule::findItemByName(const char * name) const
 {
 	const GMetaTypedItem * item = NULL;
 
-	if(this->classList) {
-		item = this->classList->findByName(name);
+	if(this->implement->classList) {
+		item = this->implement->classList->findByName(name);
 	}
 
-	if(item == NULL && this->enumList) {
-		item = this->enumList->findByName(name);
+	if(item == NULL && this->implement->enumList) {
+		item = this->implement->enumList->findByName(name);
 	}
 
 	return item;
@@ -180,8 +193,8 @@ const GMetaTypedItem * GMetaModule::findItemByName(const char * name) const
 
 const GMetaClass * GMetaModule::findClassByType(const GTypeInfo & type) const
 {
-	if(this->classList) {
-		return static_cast<const GMetaClass *>(this->classList->findByType(type));
+	if(this->implement->classList) {
+		return static_cast<const GMetaClass *>(this->implement->classList->findByType(type));
 	}
 	else {
 		return NULL;
@@ -190,8 +203,8 @@ const GMetaClass * GMetaModule::findClassByType(const GTypeInfo & type) const
 
 const GMetaClass * GMetaModule::findClassByName(const char * name) const
 {
-	if(this->classList) {
-		return static_cast<const GMetaClass *>(this->classList->findByName(name));
+	if(this->implement->classList) {
+		return static_cast<const GMetaClass *>(this->implement->classList->findByName(name));
 	}
 	else {
 		return NULL;

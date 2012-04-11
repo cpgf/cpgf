@@ -7,11 +7,10 @@
 #include "cpgf/gmetaproperty.h"
 #include "cpgf/gmetafundamental.h"
 #include "cpgf/gmetaapiutil.h"
+#include "cpgf/gmetamodule.h"
 #include "cpgf/gassert.h"
 #include "cpgf/gexception.h"
 #include "cpgf/gapiutil.h"
-
-#include "pinclude/gmetatypereg.h"
 
 #include <string>
 
@@ -538,7 +537,6 @@ protected:
 	virtual IMetaClass * G_API_CC getGlobalMetaClass();
 	
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name);
-	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt);
 	virtual IMetaClass * G_API_CC findClassByName(const char * name);
 };
 
@@ -557,7 +555,6 @@ protected:
 	virtual IMetaClass * G_API_CC getGlobalMetaClass();
 	
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name);
-	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt);
 	virtual IMetaClass * G_API_CC findClassByName(const char * name);
 
 private:
@@ -585,7 +582,6 @@ protected:
 	virtual IMemoryAllocator * G_API_CC getAllocator();
 
 	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name);
-	virtual IMetaFundamental * G_API_CC findFundamental(GVariantType vt);
 	virtual IMetaClass * G_API_CC findClassByName(const char * name);
 
 private:
@@ -1868,20 +1864,9 @@ IMetaTypedItem * G_API_CC ImplGlobalMetaModule::findTypedItemByName(const char *
 {
 	ENTER_META_API()
 
-	const GMetaTypedItem * typedItem = findMetaType(name);
+	const GMetaTypedItem * typedItem = cpgf::getGlobalMetaClass()->getModule()->findItemByName(name);
 
 	return static_cast<IMetaTypedItem *>(metaItemToInterface(typedItem));
-
-	LEAVE_META_API(return NULL)
-}
-
-IMetaFundamental * G_API_CC ImplGlobalMetaModule::findFundamental(GVariantType vt)
-{
-	GASSERT_MSG(vtIsFundamental(vt), "Type must be fundamental");
-
-	ENTER_META_API()
-
-	return doCreateItem<ImplMetaFundamental>(meta_internal::findRegisteredMetaFundamental(vt));
 
 	LEAVE_META_API(return NULL)
 }
@@ -1920,20 +1905,9 @@ IMetaTypedItem * G_API_CC ImplMetaModule::findTypedItemByName(const char * name)
 {
 	ENTER_META_API()
 
-	const GMetaTypedItem * typedItem = findMetaType(name);
+	const GMetaTypedItem * typedItem = cpgf::getGlobalMetaClass()->getModule()->findItemByName(name);
 
 	return static_cast<IMetaTypedItem *>(metaItemToInterface(typedItem));
-
-	LEAVE_META_API(return NULL)
-}
-
-IMetaFundamental * G_API_CC ImplMetaModule::findFundamental(GVariantType vt)
-{
-	GASSERT_MSG(vtIsFundamental(vt), "Type must be fundamental");
-
-	ENTER_META_API()
-
-	return doCreateItem<ImplMetaFundamental>(meta_internal::findRegisteredMetaFundamental(vt));
 
 	LEAVE_META_API(return NULL)
 }
@@ -2006,24 +1980,6 @@ IMetaTypedItem * G_API_CC ImplMetaService::findTypedItemByName(const char * name
 
 	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
 		GScopedInterface<IMetaTypedItem> item((*it)->findTypedItemByName(name));
-		if(item) {
-			return item.take();
-		}
-	}
-
-	return NULL;
-
-	LEAVE_META_API(return NULL)
-}
-
-IMetaFundamental * G_API_CC ImplMetaService::findFundamental(GVariantType vt)
-{
-	GASSERT_MSG(vtIsFundamental(vt), "Type must be fundamental");
-
-	ENTER_META_API()
-
-	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
-		GScopedInterface<IMetaFundamental> item((*it)->findFundamental(vt));
 		if(item) {
 			return item.take();
 		}

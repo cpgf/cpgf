@@ -4,7 +4,6 @@
 
 #include "cpgf/private/gmetadefaultparam_p.h"
 
-#include "pinclude/gmetatypereg.h"
 
 #include <string>
 #include <vector>
@@ -262,6 +261,10 @@ GMetaTypedItem::GMetaTypedItem(const char * name, const GMetaType & itemType, GM
 {
 }
 
+GMetaTypedItem::~GMetaTypedItem()
+{
+}
+
 const GMetaType & GMetaTypedItem::getMetaType() const
 {
 	if(this->implement->itemType.getBaseName() == NULL) {
@@ -340,44 +343,6 @@ void GMetaList::clear()
 {
 	this->itemList.clear();
 	this->instanceList.clear();
-}
-
-
-
-const GMetaTypedItem * findMetaType(const GMetaType & type)
-{
-	return meta_internal::findRegisteredMetaType(type.getBaseType());
-}
-
-const GMetaTypedItem * findMetaType(const char * name)
-{
-	return meta_internal::findRegisteredMetaType(name);
-}
-
-
-const GMetaEnum * findMetaEnum(const GMetaType & type)
-{
-	return meta_internal::findRegisteredMetaEnum(type);
-}
-
-const GMetaEnum * findMetaEnum(const char * name)
-{
-	return meta_internal::findRegisteredMetaEnum(name);
-}
-
-const GMetaFundamental * findMetaFundamental(const GMetaType & type)
-{
-	return meta_internal::findRegisteredMetaFundamental(type);
-}
-
-const GMetaFundamental * findMetaFundamental(const char * name)
-{
-	return meta_internal::findRegisteredMetaFundamental(name);
-}
-
-const GMetaFundamental * findMetaFundamental(GVariantType vt)
-{
-	return meta_internal::findRegisteredMetaFundamental(vt);
 }
 
 

@@ -122,6 +122,7 @@ private:
 
 public:
 	GMetaTypedItem(const char * name, const GMetaType & itemType, GMetaCategory category);
+	virtual ~GMetaTypedItem();
 
 	const GMetaType & getMetaType() const;
 	virtual size_t getTypeSize() const = 0;
@@ -206,16 +207,6 @@ private:
 	std::vector<void *> instanceList;
 };
 
-
-const GMetaTypedItem * findMetaType(const GMetaType & type);
-const GMetaTypedItem * findMetaType(const char * name);
-
-const GMetaEnum * findMetaEnum(const GMetaType & type);
-const GMetaEnum * findMetaEnum(const char * name);
-
-const GMetaFundamental * findMetaFundamental(const GMetaType & type);
-const GMetaFundamental * findMetaFundamental(const char * name);
-const GMetaFundamental * findMetaFundamental(GVariantType vt);
 
 bool metaIsField(int category);
 bool metaIsProperty(int category);

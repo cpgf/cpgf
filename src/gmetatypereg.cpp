@@ -1,4 +1,3 @@
-#include "pinclude/gmetatypereg.h"
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gmetafundamental.h"
 #include "cpgf/gstringmap.h"
@@ -19,19 +18,19 @@ namespace meta_internal {
 namespace {
 	static bool isInFinalizing = false;
 
-	class GMetaTypedItemList
+	class GMetaTypedItemListXXX
 	{
 	public:
 		typedef GStringMap<const GMetaTypedItem *, GStringMapReuseKey> MapType;
 
 	public:
-		GMetaTypedItemList() : freeItems(false) {
+		GMetaTypedItemListXXX() : freeItems(false) {
 		}
 
-		explicit GMetaTypedItemList(bool freeItems) : freeItems(freeItems) {
+		explicit GMetaTypedItemListXXX(bool freeItems) : freeItems(freeItems) {
 		}
 
-		~GMetaTypedItemList() {
+		~GMetaTypedItemListXXX() {
 			isInFinalizing = true;
 
 			if(this->freeItems) {
@@ -77,27 +76,27 @@ namespace {
 		bool freeItems;
 	};
 
-	GMetaTypedItemList * getMetaClassList() {
-		static GMetaTypedItemList metaClassList;
+	GMetaTypedItemListXXX * getMetaClassList() {
+		static GMetaTypedItemListXXX metaClassList;
 
 		return &metaClassList;
 	}
 
-	GMetaTypedItemList * getMetaEnumList() {
-		static GMetaTypedItemList metaEnumList;
+	GMetaTypedItemListXXX * getMetaEnumList() {
+		static GMetaTypedItemListXXX metaEnumList;
 
 		return &metaEnumList;
 	}
 
-	GMetaTypedItemList * getMetaFundamentalList() {
-		static GMetaTypedItemList metaFundamentalList(true);
+	GMetaTypedItemListXXX * getMetaFundamentalList() {
+		static GMetaTypedItemListXXX metaFundamentalList(true);
 
 		return &metaFundamentalList;
 	}
 
 	void registerFundamentalTypes()
 	{
-		GMetaTypedItemList * itemList = getMetaFundamentalList();
+		GMetaTypedItemListXXX * itemList = getMetaFundamentalList();
 
 		itemList->add(new GMetaFundamental((bool *)0, "bool"));
 		itemList->add(new GMetaFundamental((char *)0, "char"));
@@ -206,9 +205,9 @@ const GMetaFundamental * findRegisteredMetaFundamental(const char * name)
 
 const GMetaFundamental * findRegisteredMetaFundamental(GVariantType vt)
 {
-	const GMetaTypedItemList::MapType * itemMap = getMetaFundamentalList()->getItemMap();
+	const GMetaTypedItemListXXX::MapType * itemMap = getMetaFundamentalList()->getItemMap();
 
-	for(GMetaTypedItemList::MapType::const_iterator it = itemMap->begin(); it != itemMap->end(); ++it) {
+	for(GMetaTypedItemListXXX::MapType::const_iterator it = itemMap->begin(); it != itemMap->end(); ++it) {
 		if(static_cast<const GMetaFundamental *>(it->second)->getVariantType() == vt) {
 			return static_cast<const GMetaFundamental *>(it->second);
 		}
@@ -217,43 +216,6 @@ const GMetaFundamental * findRegisteredMetaFundamental(GVariantType vt)
 	return NULL;
 }
 
-
-void registerMetaTypedItem(const GMetaTypedItem * typedItem)
-{
-	switch(typedItem->getCategory()) {
-		case mcatClass:
-			getMetaClassList()->add(typedItem);
-			break;
-
-		case mcatEnum:
-			getMetaEnumList()->add(typedItem);
-			break;
-
-		default:
-			GASSERT_MSG(false, "Registering non-type item.");
-			break;
-	}
-}
-
-void removeMetaTypedItem(const GMetaTypedItem * typedItem)
-{
-	if(isInFinalizing) {
-		return;
-	}
-
-	switch(typedItem->getCategory()) {
-		case mcatClass:
-			getMetaClassList()->remove(typedItem);
-			break;
-
-		case mcatEnum:
-			getMetaEnumList()->remove(typedItem);
-			break;
-
-		default:
-			break;
-	}
-}
 
 
 

@@ -11,11 +11,12 @@ class GMetaEnum;
 class GMetaTypedItem;
 class GTypeInfo;
 
-class GMetaTypedItemList;
+class GMetaModuleImplement;
 
 class GMetaModule
 {
 public:
+	GMetaModule();
 	~GMetaModule();
 
 	void registerMetaClass(const GMetaClass * metaClass);
@@ -37,8 +38,7 @@ private:
 	void doUnregisterMetaEnum(const GMetaEnum * metaEnum);
 	
 private:
-	GScopedPointer<GMetaTypedItemList> classList;
-	GScopedPointer<GMetaTypedItemList> enumList;
+	GScopedPointer<GMetaModuleImplement> implement;
 };
 
 

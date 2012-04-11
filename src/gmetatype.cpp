@@ -5,8 +5,6 @@
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gmetamodule.h"
 
-#include "pinclude/gmetatypereg.h"
-
 #include <vector>
 #include <typeinfo>
 
@@ -258,8 +256,8 @@ void initializeMetaType(GMetaTypeData * data)
 void fixupMetaType(GMetaType * type)
 {
 	if(type->baseName == NULL) {
-		const GMetaTypedItem * item = meta_internal::findRegisteredMetaType(type->getBaseType());
-//		const GMetaTypedItem * item = getGlobalMetaClass()->getModule()->findItemByType(type->getBaseType());
+//		const GMetaTypedItem * item = meta_internal::findRegisteredMetaType(type->getBaseType());
+		const GMetaTypedItem * item = getGlobalMetaClass()->getModule()->findItemByType(type->getBaseType());
 		if(item != NULL) {
 			type->baseName = item->getTypeName().c_str();
 		}
