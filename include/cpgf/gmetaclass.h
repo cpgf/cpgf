@@ -20,6 +20,7 @@
 
 namespace cpgf {
 
+class GMetaModule;
 
 class GMetaClassImplement;
 
@@ -117,6 +118,9 @@ public:
 	size_t getMetaCount() const;
 	const GMetaItem * getMetaAt(size_t index) const;
 
+	void setModule(GMetaModule * module) const;
+	GMetaModule * getModule() const;
+
 public:
 	bool isGlobal() const;
 	bool isAbstract() const;
@@ -197,6 +201,8 @@ private:
 		baseData;
 		
 	GScopedPointer<DerivedListType> derivedList;
+
+	mutable GMetaModule * module;
 	
 	GMetaClassImplement * implement;
 

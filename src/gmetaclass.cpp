@@ -4,6 +4,7 @@
 #include "cpgf/gmetamethod.h"
 #include "cpgf/gmetaoperator.h"
 #include "cpgf/gmetaproperty.h"
+#include "cpgf/gmetamodule.h"
 
 #include "pinclude/gmetatypereg.h"
 
@@ -313,11 +314,15 @@ GMetaClass::~GMetaClass()
 {
 	meta_internal::removeMetaTypedItem(this);
 
+	this->setModule(NULL);
+
 	delete this->implement;
 }
 
 void GMetaClass::initialize()
 {
+	this->module = NULL;
+
 	this->implement = new GMetaClassImplement;
 	this->implement->metaList.setClearOnFree(false);
 
@@ -569,6 +574,8 @@ GMetaClass * GMetaClass::addClass(const GMetaClass * cls)
 {
 	this->addItem(mcatClass, const_cast<GMetaClass *>(cls));
 
+	cls->setModule(this->module);
+	
 	return const_cast<GMetaClass *>(cls);
 }
 
@@ -616,6 +623,34 @@ const GMetaItem * GMetaClass::getMetaAt(size_t index) const
 	this->ensureRegistered();
 
 	return this->implement->metaList.getItemAt(index);
+}
+
+void GMetaClass::setModule(GMetaModule * module) const
+{
+	if(this->module != module) {
+		if(this->module != NULL) {
+			this->module->unregisterMetaClass(this);
+		}
+
+		this->module = module;
+
+		if(this->module != NULL) {
+			this->module->registerMetaClass(this);
+		}
+	}
+	
+	size_t count;
+	size_t i;
+
+	count = this->getClassCount();
+	for(i = 0; i < count; ++i) {
+		this->getClassAt(i)->setModule(module);
+	}
+}
+
+GMetaModule * GMetaClass::getModule() const
+{
+	return this->module;
 }
 
 bool GMetaClass::isGlobal() const
@@ -834,16 +869,28 @@ const GMetaItem * GMetaClass::getItemByName(GMetaCategory listIndex, const char 
 const GMetaClass * findMetaClass(const GMetaType & type)
 {
 	return meta_internal::findRegisteredMetaClass(type);
+//	return getGlobalMetaClass()->getModule()->findClassByType(type.getBaseType());
 }
 
 const GMetaClass * findMetaClass(const char * name)
 {
 	return meta_internal::findRegisteredMetaClass(name);
+//	return getGlobalMetaClass()->getModule()->findClassByName(name);
 }
 
 GMetaClass * getGlobalMetaClass()
 {
 	static GScopedPointer<GMetaClass> global(new GMetaClass((void *)0, new meta_internal::GMetaSuperList, "", NULL, NULL, GMetaPolicyDefault()));
+	static GScopedPointer<GMetaModule> globalModule;
+
+	if(! globalModule) {
+		globalModule.reset(new GMetaModule);
+	}
+
+	if(global->getModule() == NULL) {
+		global->setModule(globalModule.get());
+	}
+
 	return global.get();
 }
 
