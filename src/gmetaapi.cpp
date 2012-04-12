@@ -527,7 +527,7 @@ private:
 class ImplMetaModule : public IMetaModule
 {
 public:
-	ImplMetaModule(GMetaClass * metaClass);
+	ImplMetaModule(GMetaModule * module, GMetaClass * metaClass);
 	~ImplMetaModule();
 
 	G_INTERFACE_IMPL_OBJECT
@@ -540,7 +540,7 @@ protected:
 	virtual IMetaClass * G_API_CC findClassByName(const char * name);
 
 private:
-	GScopedPointer<GMetaModule> module;
+	GMetaModule * module;
 	GMetaClass * metaClass;
 };
 
@@ -1826,11 +1826,11 @@ void * G_API_CC ImplMetaClass::castToDerived(const void * self, uint32_t derived
 
 
 
-ImplMetaModule::ImplMetaModule(GMetaClass * metaClass)
-	: module(new GMetaModule), metaClass(metaClass)
+ImplMetaModule::ImplMetaModule(GMetaModule * module, GMetaClass * metaClass)
+	: module(module), metaClass(metaClass)
 {
 	if(this->metaClass != NULL) {
-//		this->metaClass->setModule(this->module.get());
+		this->metaClass->setModule(this->module);
 	}
 }
 
@@ -1959,12 +1959,12 @@ IMetaClass * G_API_CC ImplMetaService::findClassByName(const char * name)
 
 IMetaModule * getMetaModule()
 {
-	return new ImplMetaModule(getGlobalMetaClass());
+	return new ImplMetaModule(getGlobalMetaClass()->getModule(), getGlobalMetaClass());
 }
 
-IMetaModule * createMetaModule(GMetaClass * metaClass)
+IMetaModule * createMetaModule(GMetaModule * module, GMetaClass * metaClass)
 {
-	return new ImplMetaModule(metaClass);
+	return new ImplMetaModule(module, metaClass);
 }
 
 IMetaService * createMetaService(IMetaModule * primaryModule)

@@ -10,6 +10,27 @@
 namespace cpgf {
 
 
+namespace serialization_internal {
+
+template <typename T>
+struct MetaArchiveWriteValueParam
+{
+	static const void * param(const T & object) {
+		return &object;
+	}
+};
+
+template <typename T>
+struct MetaArchiveWriteValueParam <T *>
+{
+	static const void * param(T * object) {
+		return static_cast<void *>(object);
+	}
+};
+
+} // namespace serialization_internal
+
+
 class GMetaModule;
 
 
@@ -68,32 +89,11 @@ struct IMetaSerializerWriter : public IExtendObject
 
 IMetaArchiveWriter * createMetaArchiveWriter(IMetaService * service, IMetaWriter * writer);
 
-void metaArchiveWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
-void metaArchiveWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
-
-
-namespace serialization_internal {
+void serializeWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
+void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
 
 template <typename T>
-struct MetaArchiveWriteValueParam
-{
-	static const void * param(const T & object) {
-		return &object;
-	}
-};
-
-template <typename T>
-struct MetaArchiveWriteValueParam <T *>
-{
-	static const void * param(T * object) {
-		return static_cast<void *>(object);
-	}
-};
-
-} // namespace serialization_internal
-
-template <typename T>
-void metaArchiveWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, const T & object, const GMetaModule * module)
+void serializeWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, const T & object, const GMetaModule * module)
 {
 	GMetaType metaType = createMetaType<T>();
 	fixupMetaType(&metaType, module);
@@ -103,9 +103,9 @@ void metaArchiveWriteValue(IMetaArchiveWriter * archiveWriter, const char * name
 }
 
 template <typename T>
-void metaArchiveWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, const T & object) 
+void serializeWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, const T & object) 
 {
-	metaArchiveWriteValue(archiveWriter, name, object, NULL);
+	serializeWriteValue(archiveWriter, name, object, NULL);
 }
 
 void metaSerializerWriteObjectMembers(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param);

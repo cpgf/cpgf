@@ -23,8 +23,9 @@ void doTestMultipleDimensionArray(IMetaWriter * writer, const READER & reader, c
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
 
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+	GMetaModule module;
+	GScopedInterface<IMetaModule> moduleInterface(createMetaModule(&module, define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(moduleInterface.get()));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 
@@ -56,14 +57,14 @@ void doTestMultipleDimensionArray(IMetaWriter * writer, const READER & reader, c
 	LOOP3(B1, B2, B3) po[z1][z2][z3] = &o[z1][z2][z3];
 	LOOP3(B1, B2, B3) { npo[z1][z2][z3] = new TestSerializeClass(); initTestValue(*npo[z1][z2][z3], getTestSeed(z1 * B2 * B3 + z2 * B3 + z3 + 1)); }
 
-	metaArchiveWriteValue(archiveWriter.get(), "i", i);
-	metaArchiveWriteValue(archiveWriter.get(), "l", l);
-	metaArchiveWriteValue(archiveWriter.get(), "s2", s2);
-	metaArchiveWriteValue(archiveWriter.get(), "s", s);
-	metaArchiveWriteValue(archiveWriter.get(), "ps", ps);
-	metaArchiveWriteValue(archiveWriter.get(), "o", o);
-	metaArchiveWriteValue(archiveWriter.get(), "po", po);
-	metaArchiveWriteValue(archiveWriter.get(), "npo", npo);
+	serializeWriteValue(archiveWriter.get(), "i", i);
+	serializeWriteValue(archiveWriter.get(), "l", l);
+	serializeWriteValue(archiveWriter.get(), "s2", s2);
+	serializeWriteValue(archiveWriter.get(), "s", s);
+	serializeWriteValue(archiveWriter.get(), "ps", ps);
+	serializeWriteValue(archiveWriter.get(), "o", o, &module);
+	serializeWriteValue(archiveWriter.get(), "po", po, &module);
+	serializeWriteValue(archiveWriter.get(), "npo", npo, &module);
 
 	ar.rewind();
 
@@ -97,9 +98,9 @@ void doTestMultipleDimensionArray(IMetaWriter * writer, const READER & reader, c
 	serializeReadValue(archiveReader.get(), "s2", rs2);
 	serializeReadValue(archiveReader.get(), "s", rs);
 	serializeReadValue(archiveReader.get(), "ps", rps);
-	serializeReadValue(archiveReader.get(), "o", ro);
-	serializeReadValue(archiveReader.get(), "po", rpo);
-	serializeReadValue(archiveReader.get(), "npo", rnpo);
+	serializeReadValue(archiveReader.get(), "o", ro, &module);
+	serializeReadValue(archiveReader.get(), "po", rpo, &module);
+	serializeReadValue(archiveReader.get(), "npo", rnpo, &module);
 
 #define EQ2(v, u, d1, d2) LOOP2(d1, d2) GEQUAL(v[z1][z2], u[z1][z2]);
 	EQ2(i, ri, A1, A2)

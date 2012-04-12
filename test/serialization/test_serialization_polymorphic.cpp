@@ -118,8 +118,9 @@ void doTestPolymorphic(IMetaWriter * writer, const READER & reader, const AR & a
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
 
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+	GMetaModule module;
+	GScopedInterface<IMetaModule> moduleInterface(createMetaModule(&module, define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(moduleInterface.get()));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassR"));
 
@@ -134,7 +135,7 @@ void doTestPolymorphic(IMetaWriter * writer, const READER & reader, const AR & a
 	pb1->a = 15;
 	pb1->b = 16;
 
-	metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance1, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance1, metaClass.get());
 
 	R instance2;
 	instance2.r = 68;
@@ -143,7 +144,7 @@ void doTestPolymorphic(IMetaWriter * writer, const READER & reader, const AR & a
 	pd2->a = 25;
 	pd2->d = 26;
 
-	metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance2, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance2, metaClass.get());
 
 	// read
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));

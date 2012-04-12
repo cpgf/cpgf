@@ -9,6 +9,12 @@
 using namespace std;
 using namespace cpgf;
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4996)
+#endif
+
+
 namespace {
 
 class A0
@@ -56,7 +62,7 @@ public:
 		return metaClass->createInstance();
 	}
 
-	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) {
+	virtual void G_API_CC readObject(IMetaArchiveReader * /*archiveReader*/, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) {
 		GScopedInterface<IMetaAccessible> accessible;
 		uint32_t i;
 		uint32_t count;
@@ -81,9 +87,7 @@ public:
 template <typename Define>
 void register_TestSerializeClass(Define define, int version)
 {
-	char name[100];
-
-	sprintf(name, "TestSerializeClassA%d", version);
+	char * name = "TestSerializeClassA";
 
 	if(version == 0) {
 		GDefineMetaClass<A0> classDefineA = GDefineMetaClass<A0>::declare(name);
@@ -128,34 +132,38 @@ void doTestVersioning(IMetaWriter * writer, const READER & reader, const AR & ar
 	GDefineMetaNamespace define0 = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define0, 0);
 
-	GScopedInterface<IMetaModule> module0(createMetaModule(define0.getMetaClass()));
-	GScopedInterface<IMetaService> service0(createMetaService(module0.get()));
+	GMetaModule module0;
+	GScopedInterface<IMetaModule> moduleInterface0(createMetaModule(&module0, define0.getMetaClass()));
+	GScopedInterface<IMetaService> service0(createMetaService(moduleInterface0.get()));
 
-	GScopedInterface<IMetaClass> metaClass0(service0->findClassByName("TestSerializeClassA0"));
+	GScopedInterface<IMetaClass> metaClass0(service0->findClassByName("TestSerializeClassA"));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter0(createMetaArchiveWriter(service0.get(), writer));
 	
 
-	GDefineMetaNamespace define1 = GDefineMetaNamespace::declare("global1");
+	GDefineMetaNamespace define1 = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define1, 1);
 
-	GScopedInterface<IMetaModule> module1(createMetaModule(define1.getMetaClass()));
-	GScopedInterface<IMetaService> service1(createMetaService(module1.get()));
+	GMetaModule module1;
+	GScopedInterface<IMetaModule> moduleInterface1(createMetaModule(&module1, define1.getMetaClass()));
+	GScopedInterface<IMetaService> service1(createMetaService(moduleInterface1.get()));
 
-	GScopedInterface<IMetaClass> metaClass1(service1->findClassByName("TestSerializeClassA1"));
+	GScopedInterface<IMetaClass> metaClass1(service1->findClassByName("TestSerializeClassA"));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter1(createMetaArchiveWriter(service1.get(), writer));
 	
 
-	GDefineMetaNamespace define2 = GDefineMetaNamespace::declare("global2");
+	GDefineMetaNamespace define2 = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define2, 2);
 
-	GScopedInterface<IMetaModule> module2(createMetaModule(define2.getMetaClass()));
-	GScopedInterface<IMetaService> service2(createMetaService(module2.get()));
+	GMetaModule module2;
+	GScopedInterface<IMetaModule> moduleInterface2(createMetaModule(&module2, define2.getMetaClass()));
+	GScopedInterface<IMetaService> service2(createMetaService(moduleInterface2.get()));
 
-	GScopedInterface<IMetaClass> metaClass2(service2->findClassByName("TestSerializeClassA2"));
+	GScopedInterface<IMetaClass> metaClass2(service2->findClassByName("TestSerializeClassA"));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter2(createMetaArchiveWriter(service2.get(), writer));
+
 
 	A0 a0;
 	A1 a1;
@@ -165,8 +173,8 @@ void doTestVersioning(IMetaWriter * writer, const READER & reader, const AR & ar
 	a1.a = 38;
 	a1.b = 78;
 
-	metaArchiveWriteObjectValue(archiveWriter0.get(), serializeObjectName, &a0, metaClass0.get());
-	metaArchiveWriteObjectValue(archiveWriter1.get(), serializeObjectName, &a1, metaClass1.get());
+	serializeWriteObjectValue(archiveWriter0.get(), serializeObjectName, &a0, metaClass0.get());
+	serializeWriteObjectValue(archiveWriter1.get(), serializeObjectName, &a1, metaClass1.get());
 
 	GScopedInterface<IMetaArchiveReader> archiveReader2(createMetaArchiveReader(service2.get(), reader.get(service2.get())));
 

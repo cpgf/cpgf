@@ -97,8 +97,9 @@ void doTestNestedObject(IMetaWriter * writer, const READER & reader, const AR & 
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
 
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+	GMetaModule module;
+	GScopedInterface<IMetaModule> moduleInterface(createMetaModule(&module, define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(moduleInterface.get()));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassC"));
 
@@ -109,10 +110,10 @@ void doTestNestedObject(IMetaWriter * writer, const READER & reader, const AR & 
 
 	C * pinstance = &instance;
 	
-	metaArchiveWriteObjectPointer(archiveWriter.get(), serializeObjectName, pinstance, metaClass.get());
+	serializeWriteObjectPointer(archiveWriter.get(), serializeObjectName, pinstance, metaClass.get());
 	// should error
 //	GBEGIN_EXCEPTION
-//		metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+//		serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 //	GEND_EXCEPTION(...)
 
 	ar.rewind();

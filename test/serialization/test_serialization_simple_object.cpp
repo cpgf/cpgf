@@ -20,8 +20,9 @@ void doTestSimpleObject(IMetaWriter * writer, const READER & reader, const AR & 
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
 
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+	GMetaModule module;
+	GScopedInterface<IMetaModule> moduleInterface(createMetaModule(&module, define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(moduleInterface.get()));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 
@@ -30,7 +31,7 @@ void doTestSimpleObject(IMetaWriter * writer, const READER & reader, const AR & 
 	TestSerializeClass instance;
 	instance.set(38);
 
-	metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	ar.rewind();
 	

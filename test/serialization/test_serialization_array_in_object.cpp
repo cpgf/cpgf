@@ -21,8 +21,9 @@ void doTestArrayInObject(IMetaWriter * writer, const READER & reader, const AR &
 	register_TestSerializeClass(define);
 	register_TestSerializeArray(define);
 
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+	GMetaModule module;
+	GScopedInterface<IMetaModule> moduleInterface(createMetaModule(&module, define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(moduleInterface.get()));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 
@@ -31,7 +32,7 @@ void doTestArrayInObject(IMetaWriter * writer, const READER & reader, const AR &
 	TestSerializeArray instance;
 	instance.init();
 
-	metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 	
 	ar.rewind();
 	

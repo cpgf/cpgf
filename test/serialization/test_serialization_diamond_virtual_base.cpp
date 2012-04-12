@@ -122,8 +122,9 @@ void doTestDiamondVirtualBase(IMetaWriter * writer, const READER & reader, const
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
 
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+	GMetaModule module;
+	GScopedInterface<IMetaModule> moduleInterface(createMetaModule(&module, define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(moduleInterface.get()));
 
 	readCount = 0;
 	writeCount = 0;
@@ -138,7 +139,7 @@ void doTestDiamondVirtualBase(IMetaWriter * writer, const READER & reader, const
 	instance.c = 0x3c;
 	instance.d = 0x4d;
 
-	metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	ar.rewind();
 	

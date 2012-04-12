@@ -74,11 +74,9 @@ struct IMetaSerializerReader : public IExtendObject
 };
 
 
-
 IMetaArchiveReader * createMetaArchiveReader(IMetaService * service, IMetaReader * reader);
 
 void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaClass * metaClass);
-
 
 template <typename T>
 void serializeReadValue(IMetaArchiveReader * archiveReader, const char * name, T & instance, const GMetaModule * module) 

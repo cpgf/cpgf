@@ -21,8 +21,9 @@ void doTestSimpleArray(IMetaWriter * writer, const READER & reader, const AR & a
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
 
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+	GMetaModule module;
+	GScopedInterface<IMetaModule> moduleInterface(createMetaModule(&module, define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(moduleInterface.get()));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 
@@ -85,27 +86,27 @@ void doTestSimpleArray(IMetaWriter * writer, const READER & reader, const AR & a
 	INIT(npo, S)
 #undef INIT
 
-	metaArchiveWriteValue(archiveWriter.get(), "b", b);
-	metaArchiveWriteValue(archiveWriter.get(), "c", c);
-	metaArchiveWriteValue(archiveWriter.get(), "wc", wc);
-	metaArchiveWriteValue(archiveWriter.get(), "sc", sc);
-	metaArchiveWriteValue(archiveWriter.get(), "uc", uc);
-	metaArchiveWriteValue(archiveWriter.get(), "si", si);
-	metaArchiveWriteValue(archiveWriter.get(), "usi", usi);
-	metaArchiveWriteValue(archiveWriter.get(), "i", i);
-	metaArchiveWriteValue(archiveWriter.get(), "ui", ui);
-	metaArchiveWriteValue(archiveWriter.get(), "l", l);
-	metaArchiveWriteValue(archiveWriter.get(), "ul", ul);
-	metaArchiveWriteValue(archiveWriter.get(), "ll", ll);
-	metaArchiveWriteValue(archiveWriter.get(), "ull", ull);
-	metaArchiveWriteValue(archiveWriter.get(), "f", f);
-	metaArchiveWriteValue(archiveWriter.get(), "df", df);
-	metaArchiveWriteValue(archiveWriter.get(), "ldf", ldf);
-	metaArchiveWriteValue(archiveWriter.get(), "s", s);
-	metaArchiveWriteValue(archiveWriter.get(), "ps", ps);
-	metaArchiveWriteValue(archiveWriter.get(), "o", o);
-	metaArchiveWriteValue(archiveWriter.get(), "po", po);
-	metaArchiveWriteValue(archiveWriter.get(), "npo", npo);
+	serializeWriteValue(archiveWriter.get(), "b", b);
+	serializeWriteValue(archiveWriter.get(), "c", c);
+	serializeWriteValue(archiveWriter.get(), "wc", wc);
+	serializeWriteValue(archiveWriter.get(), "sc", sc);
+	serializeWriteValue(archiveWriter.get(), "uc", uc);
+	serializeWriteValue(archiveWriter.get(), "si", si);
+	serializeWriteValue(archiveWriter.get(), "usi", usi);
+	serializeWriteValue(archiveWriter.get(), "i", i);
+	serializeWriteValue(archiveWriter.get(), "ui", ui);
+	serializeWriteValue(archiveWriter.get(), "l", l);
+	serializeWriteValue(archiveWriter.get(), "ul", ul);
+	serializeWriteValue(archiveWriter.get(), "ll", ll);
+	serializeWriteValue(archiveWriter.get(), "ull", ull);
+	serializeWriteValue(archiveWriter.get(), "f", f);
+	serializeWriteValue(archiveWriter.get(), "df", df);
+	serializeWriteValue(archiveWriter.get(), "ldf", ldf);
+	serializeWriteValue(archiveWriter.get(), "s", s);
+	serializeWriteValue(archiveWriter.get(), "ps", ps);
+	serializeWriteValue(archiveWriter.get(), "o", o, &module);
+	serializeWriteValue(archiveWriter.get(), "po", po, &module);
+	serializeWriteValue(archiveWriter.get(), "npo", npo, &module);
 
 	ar.rewind();
 
@@ -178,9 +179,9 @@ void doTestSimpleArray(IMetaWriter * writer, const READER & reader, const AR & a
 	serializeReadValue(archiveReader.get(), "ldf", rldf);
 	serializeReadValue(archiveReader.get(), "s", rs);
 	serializeReadValue(archiveReader.get(), "ps", rps);
-	serializeReadValue(archiveReader.get(), "o", ro);
-	serializeReadValue(archiveReader.get(), "po", rpo);
-	serializeReadValue(archiveReader.get(), "npo", rnpo);
+	serializeReadValue(archiveReader.get(), "o", ro, &module);
+	serializeReadValue(archiveReader.get(), "po", rpo, &module);
+	serializeReadValue(archiveReader.get(), "npo", rnpo, &module);
 
 #define EQ(v, u, l) LOOP(l) GEQUAL(v[z], u[z]);
 	EQ(b, rb, A)

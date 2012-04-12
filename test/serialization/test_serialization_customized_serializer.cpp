@@ -189,8 +189,9 @@ void doTestCustomizedSerializer(IMetaWriter * writer, const READER & reader, con
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
 
-	GScopedInterface<IMetaModule> module(createMetaModule(define.getMetaClass()));
-	GScopedInterface<IMetaService> service(createMetaService(module.get()));
+	GMetaModule module;
+	GScopedInterface<IMetaModule> moduleInterface(createMetaModule(&module, define.getMetaClass()));
+	GScopedInterface<IMetaService> service(createMetaService(moduleInterface.get()));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassR"));
 
@@ -206,7 +207,7 @@ void doTestCustomizedSerializer(IMetaWriter * writer, const READER & reader, con
 	pb = &instance;
 	pc = &instance;
 
-	metaArchiveWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
 
