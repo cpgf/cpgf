@@ -5,7 +5,9 @@
 #include "cpgf/gclassutil.h"
 #include "cpgf/gifelse.h"
 #include "cpgf/gtypetraits.h"
+#include "cpgf/gmetamodule.h"
 
+#include "cpgf/metatraits/gmetatraitsparam.h"
 #include "cpgf/metatraits/gmetaconverter.h"
 #include "cpgf/metatraits/gmetaserializer.h"
 
@@ -13,6 +15,8 @@
 
 
 namespace cpgf {
+
+class GMetaItem;
 
 const uint32_t GExtendTypeCreateFlag_Converter = 1 << 0;
 const uint32_t GExtendTypeCreateFlag_Serializer = 1 << 1;
@@ -43,23 +47,27 @@ public:
 };
 
 template <typename T>
-void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags)
+void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, const GMetaModule * module)
 {
 	using namespace cpgf;
 
 	data->arraySize = ArraySize<T>::Result;
 	
 	if((createFlags & GExtendTypeCreateFlag_Converter) != 0) {
+		GMetaTraitsParam param;
+		param.module = module;
 		typename WrapExtendType<T>::Result * p = 0;
-		data->converter = metaTraitsCreateConverter(*p);
+		data->converter = metaTraitsCreateConverter(*p, param);
 	}
 	else {
 		data->converter = NULL;
 	}
 	
 	if((createFlags & GExtendTypeCreateFlag_Serializer) != 0) {
+		GMetaTraitsParam param;
+		param.module = module;
 		typename WrapExtendType<T>::Result * p = 0;
-		data->serializer = metaTraitsCreateSerializer(*p);
+		data->serializer = metaTraitsCreateSerializer(*p, param);
 	}
 	else {
 		data->serializer = NULL;
@@ -99,13 +107,29 @@ private:
 };
 
 template <typename T>
-GMetaExtendType createMetaExtendType(uint32_t createFlags)
+GMetaExtendType createMetaExtendType(uint32_t createFlags, const GMetaItem * metaItem)
 {
 	GMetaExtendTypeData typeData;
 
-	meta_internal::deduceMetaExtendTypeData<T>(&typeData, createFlags);
+	meta_internal::deduceMetaExtendTypeData<T>(&typeData, createFlags, getItemModule(metaItem));
 
 	return GMetaExtendType(typeData);
+}
+
+template <typename T>
+GMetaExtendType createMetaExtendType(uint32_t createFlags, const GMetaModule * module)
+{
+	GMetaExtendTypeData typeData;
+
+	meta_internal::deduceMetaExtendTypeData<T>(&typeData, createFlags, module);
+
+	return GMetaExtendType(typeData);
+}
+
+template <typename T>
+GMetaExtendType createMetaExtendType(uint32_t createFlags)
+{
+	return createMetaExtendType<T>(createFlags, (const GMetaItem *)NULL);
 }
 
 template <typename T>

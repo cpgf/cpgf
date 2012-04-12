@@ -524,24 +524,6 @@ private:
 
 
 
-class ImplGlobalMetaModule : public IMetaModule
-{
-public:
-	ImplGlobalMetaModule();
-	~ImplGlobalMetaModule();
-
-	G_INTERFACE_IMPL_OBJECT
-	G_INTERFACE_IMPL_EXTENDOBJECT
-
-protected:
-	virtual IMetaClass * G_API_CC getGlobalMetaClass();
-	
-	virtual IMetaTypedItem * G_API_CC findTypedItemByName(const char * name);
-	virtual IMetaClass * G_API_CC findClassByName(const char * name);
-};
-
-
-
 class ImplMetaModule : public IMetaModule
 {
 public:
@@ -558,6 +540,7 @@ protected:
 	virtual IMetaClass * G_API_CC findClassByName(const char * name);
 
 private:
+	GScopedPointer<GMetaModule> module;
 	GMetaClass * metaClass;
 };
 
@@ -656,7 +639,7 @@ void ImplMetaItem::doGetItemType(GMetaTypeData * outType)
 
 	GMetaType type = this->item->getItemType();
 
-	fixupMetaType(&type);
+	fixupMetaType(&type, this->item);
 
 	*outType = type.getData();
 
@@ -743,7 +726,7 @@ void ImplMetaTypedItem::doGetMetaType(GMetaTypeData * outType)
 
 	GMetaType type = this->getTypedItem()->getMetaType();
 	
-	fixupMetaType(&type);
+	fixupMetaType(&type, this->getTypedItem());
 
 	*outType = type.getData();
 
@@ -828,7 +811,7 @@ void ImplMetaCallable::doGetParamType(GMetaTypeData * outType, uint32_t index)
 
 	GMetaType type = this->getCallable()->getParamType(index);
 
-	fixupMetaType(&type);
+	fixupMetaType(&type, this->getCallable());
 
 	*outType = type.getData();
 
@@ -870,7 +853,7 @@ void ImplMetaCallable::doGetResultType(GMetaTypeData * outType)
 
 	GMetaType type = this->getCallable()->getResultType();
 
-	fixupMetaType(&type);
+	fixupMetaType(&type, this->getCallable());
 
 	*outType = type.getData();
 
@@ -1843,49 +1826,12 @@ void * G_API_CC ImplMetaClass::castToDerived(const void * self, uint32_t derived
 
 
 
-ImplGlobalMetaModule::ImplGlobalMetaModule()
-{
-}
-
-ImplGlobalMetaModule::~ImplGlobalMetaModule()
-{
-}
-
-IMetaClass * G_API_CC ImplGlobalMetaModule::getGlobalMetaClass()
-{
-	ENTER_META_API()
-
-	return new ImplMetaClass(::cpgf::getGlobalMetaClass());
-
-	LEAVE_META_API(return NULL)
-}
-
-IMetaTypedItem * G_API_CC ImplGlobalMetaModule::findTypedItemByName(const char * name)
-{
-	ENTER_META_API()
-
-	const GMetaTypedItem * typedItem = cpgf::getGlobalMetaClass()->getModule()->findItemByName(name);
-
-	return static_cast<IMetaTypedItem *>(metaItemToInterface(typedItem));
-
-	LEAVE_META_API(return NULL)
-}
-
-IMetaClass * G_API_CC ImplGlobalMetaModule::findClassByName(const char * name)
-{
-	ENTER_META_API()
-
-	return doCreateItem<ImplMetaClass>(findMetaClass(name));
-
-	LEAVE_META_API(return NULL)
-}
-
-
-// The implementation is almost same as ImplGlobalMetaModule.
-// May change in the future.
 ImplMetaModule::ImplMetaModule(GMetaClass * metaClass)
-	: metaClass(metaClass)
+	: module(new GMetaModule), metaClass(metaClass)
 {
+	if(this->metaClass != NULL) {
+//		this->metaClass->setModule(this->module.get());
+	}
 }
 
 ImplMetaModule::~ImplMetaModule()
@@ -1905,7 +1851,7 @@ IMetaTypedItem * G_API_CC ImplMetaModule::findTypedItemByName(const char * name)
 {
 	ENTER_META_API()
 
-	const GMetaTypedItem * typedItem = cpgf::getGlobalMetaClass()->getModule()->findItemByName(name);
+	const GMetaTypedItem * typedItem = this->metaClass->getModule()->findItemByName(name);
 
 	return static_cast<IMetaTypedItem *>(metaItemToInterface(typedItem));
 
@@ -1916,7 +1862,7 @@ IMetaClass * G_API_CC ImplMetaModule::findClassByName(const char * name)
 {
 	ENTER_META_API()
 
-	return doCreateItem<ImplMetaClass>(findMetaClass(name));
+	return doCreateItem<ImplMetaClass>(this->metaClass->getModule()->findClassByName(name));
 
 	LEAVE_META_API(return NULL)
 }
@@ -2013,7 +1959,7 @@ IMetaClass * G_API_CC ImplMetaService::findClassByName(const char * name)
 
 IMetaModule * getMetaModule()
 {
-	return new ImplGlobalMetaModule;
+	return new ImplMetaModule(getGlobalMetaClass());
 }
 
 IMetaModule * createMetaModule(GMetaClass * metaClass)

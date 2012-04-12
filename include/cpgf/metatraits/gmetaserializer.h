@@ -14,6 +14,7 @@ struct GMetaArchiveWriterParam;
 struct GMetaArchiveReaderParam;
 struct IMetaSerializerWriter;
 struct IMetaSerializerReader;
+struct GMetaTraitsParam;
 
 
 struct IMetaSerializer : public IObject
@@ -29,15 +30,15 @@ struct IMetaSerializer : public IObject
 template <typename T>
 struct GMetaTraitsCreateSerializer
 {
-	static IMetaSerializer * createSerializer() {
+	static IMetaSerializer * createSerializer(const GMetaTraitsParam &) {
 		return NULL;
 	}
 };
 
 template <typename T>
-inline IMetaSerializer * metaTraitsCreateSerializer(const T &)
+inline IMetaSerializer * metaTraitsCreateSerializer(const T &, const GMetaTraitsParam & param)
 {
-	return GMetaTraitsCreateSerializer<T>::createSerializer();
+	return GMetaTraitsCreateSerializer<T>::createSerializer(param);
 }
 
 

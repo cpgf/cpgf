@@ -6,6 +6,7 @@
 
 namespace cpgf {
 
+class GMetaItem;
 class GMetaClass;
 class GMetaEnum;
 class GMetaTypedItem;
@@ -41,6 +42,7 @@ private:
 	GScopedPointer<GMetaModuleImplement> implement;
 };
 
+GMetaModule * getItemModule(const GMetaItem * metaItem);
 
 
 } // namespace cpgf

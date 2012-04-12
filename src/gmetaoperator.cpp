@@ -232,7 +232,7 @@ GVariant GMetaOperator::execute(void * instance, const GVariant * params, size_t
 
 GMetaExtendType GMetaOperator::getItemExtendType(uint32_t flags) const
 {
-	return this->baseData->getItemExtendType(flags);
+	return this->baseData->getItemExtendType(flags, this);
 }
 
 #define VAR_PARAM_DEFAULT(N, unused) GPP_COMMA_IF(N) const GVariant & p ## N

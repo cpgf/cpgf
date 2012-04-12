@@ -407,7 +407,7 @@ struct GMetaPropertyDataVirtual
 	void (*set)(const void * self, void * instance, const GVariant & v);
 	size_t (*getPropertySize)();
 	void * (*getPropertyAddress)(const void * self, const void * instance);
-	GMetaExtendType (*getItemExtendType)(uint32_t flags);
+	GMetaExtendType (*getItemExtendType)(uint32_t flags, const GMetaItem * metaItem);
 };
 
 class GMetaPropertyDataBase
@@ -425,8 +425,8 @@ public:
 	void * getPropertyAddress(const void * instance) const;
 
 	// must be defined in header to make template function overloading happy.
-	GMetaExtendType getItemExtendType(uint32_t flags) const {
-		return this->virtualFunctions->getItemExtendType(flags);
+	GMetaExtendType getItemExtendType(uint32_t flags, const GMetaItem * metaItem) const {
+		return this->virtualFunctions->getItemExtendType(flags, metaItem);
 	}
 
 protected:
@@ -475,14 +475,14 @@ private:
 		return 0;
 	}
 
-	static GMetaExtendType virtualGetItemExtendType(uint32_t flags)
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags, const GMetaItem * metaItem)
 	{
 		if(GetterType::HasGetter) {
-			return createMetaExtendType<typename GetterType::PropertyType>(flags);
+			return createMetaExtendType<typename GetterType::PropertyType>(flags, metaItem);
 		}
 
 		if(SetterType::HasSetter) {
-			return createMetaExtendType<typename SetterType::PropertyType>(flags);
+			return createMetaExtendType<typename SetterType::PropertyType>(flags, metaItem);
 		}
 
 		return GMetaExtendType();

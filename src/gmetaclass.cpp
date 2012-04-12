@@ -24,7 +24,7 @@
 
 namespace cpgf {
 
-GMetaModule * getGlobalModule();
+GMetaModule * doGetGlobalModule();
 
 namespace meta_internal {
 
@@ -329,7 +329,7 @@ void GMetaClass::initialize()
 
 	this->setupItemLists();
 
-	this->setModule(getGlobalModule());
+	this->setModule(doGetGlobalModule());
 	
 	if(this->superList && this->superList->getCount() > 0) {
 		size_t baseCount = this->superList->getCount();
@@ -374,7 +374,7 @@ size_t GMetaClass::getTypeSize() const
 
 GMetaExtendType GMetaClass::getItemExtendType(uint32_t flags) const
 {
-	return this->baseData->getItemExtendType(flags);
+	return this->baseData->getItemExtendType(flags, this);
 }
 
 const GMetaConstructor * GMetaClass::getConstructorByParamCount(size_t paramCount) const
@@ -653,6 +653,10 @@ void GMetaClass::setModule(GMetaModule * module) const
 
 GMetaModule * GMetaClass::getModule() const
 {
+	if(this->module == NULL) {
+		this->setModule(doGetGlobalModule());
+	}
+
 	return this->module;
 }
 
@@ -871,17 +875,15 @@ const GMetaItem * GMetaClass::getItemByName(GMetaCategory listIndex, const char 
 
 const GMetaClass * findMetaClass(const GMetaType & type)
 {
-//	return meta_internal::findRegisteredMetaClass(type);
 	return getGlobalMetaClass()->getModule()->findClassByType(type.getBaseType());
 }
 
 const GMetaClass * findMetaClass(const char * name)
 {
-//	return meta_internal::findRegisteredMetaClass(name);
 	return getGlobalMetaClass()->getModule()->findClassByName(name);
 }
 
-GMetaModule * getGlobalModule()
+GMetaModule * doGetGlobalModule()
 {
 	static GScopedPointer<GMetaModule> globalModule(new GMetaModule);
 
@@ -891,10 +893,6 @@ GMetaModule * getGlobalModule()
 GMetaClass * getGlobalMetaClass()
 {
 	static GScopedPointer<GMetaClass> global(new GMetaClass((void *)0, NULL, "", NULL, NULL, GMetaPolicyDefault()));
-
-	if(global->getModule() == NULL) {
-		global->setModule(getGlobalModule());
-	}
 
 	return global.get();
 }

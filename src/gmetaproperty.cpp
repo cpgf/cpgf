@@ -92,7 +92,7 @@ const GMetaType & GMetaProperty::getItemType() const
 
 GMetaExtendType GMetaProperty::getItemExtendType(uint32_t flags) const
 {
-	return this->baseData->getItemExtendType(flags);
+	return this->baseData->getItemExtendType(flags, this);
 }
 
 

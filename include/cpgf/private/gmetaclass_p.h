@@ -36,7 +36,7 @@ struct GMetaClassDataVirtual
 	size_t (*getObjectSize)(const void * self);
 	bool (*isAbstract)(const void * self);
 	bool (*isPolymorphic)();
-	GMetaExtendType (*getItemExtendType)(uint32_t flags);
+	GMetaExtendType (*getItemExtendType)(uint32_t flags, const GMetaItem * metaItem);
 };
 
 class GMetaClassDataBase
@@ -55,8 +55,8 @@ public:
 	size_t getObjectSize() const;
 	
 	// must be defined in header to make template function overloading happy.
-	GMetaExtendType getItemExtendType(uint32_t flags) const {
-		return this->virtualFunctions->getItemExtendType(flags);
+	GMetaExtendType getItemExtendType(uint32_t flags, const GMetaItem * metaItem) const {
+		return this->virtualFunctions->getItemExtendType(flags, metaItem);
 	}
 
 	bool isAbstract() const;
@@ -119,8 +119,8 @@ private:
 		return static_cast<const GMetaClassData *>(self)->doGetObjectSize<typename GIfElse<IsGlobal, void, OT>::Result >();
 	}
 
-	static GMetaExtendType virtualGetItemExtendType(uint32_t flags) {
-		return createMetaExtendType<OT>(flags);
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags, const GMetaItem * metaItem) {
+		return createMetaExtendType<OT>(flags, metaItem);
 	}
 
 	static bool virtualIsAbstract(const void * self) {

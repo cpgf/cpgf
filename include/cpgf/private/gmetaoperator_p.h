@@ -259,7 +259,7 @@ struct GMetaOperatorDataVirtual
 	bool (*isParamTransferOwnership)(size_t paramIndex);
 	bool (*isResultTransferOwnership)();
 	GMetaType (*createOperatorMetaType)();
-	GMetaExtendType (*getItemExtendType)(uint32_t flags);
+	GMetaExtendType (*getItemExtendType)(uint32_t flags, const GMetaItem * metaItem);
 };
 
 class GMetaOperatorDataBase
@@ -296,8 +296,8 @@ public:
 	bool isResultTransferOwnership() const;
 
 	// must be defined in header to make template function overloading happy.
-	GMetaExtendType getItemExtendType(uint32_t flags) const {
-		return this->virtualFunctions->getItemExtendType(flags);
+	GMetaExtendType getItemExtendType(uint32_t flags, const GMetaItem * metaItem) const {
+		return this->virtualFunctions->getItemExtendType(flags, metaItem);
 	}
 	
 	GMetaDefaultParamList * getDefaultParamList() const;
@@ -420,9 +420,9 @@ private:
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	static GMetaExtendType virtualGetItemExtendType(uint32_t flags)
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags, const GMetaItem * metaItem)
 	{
-		return createMetaExtendType<FT>(flags);
+		return createMetaExtendType<FT>(flags, metaItem);
 	}
 
 public:
@@ -549,9 +549,9 @@ private:
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	static GMetaExtendType virtualGetItemExtendType(uint32_t flags)
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags, const GMetaItem * metaItem)
 	{
-		return createMetaExtendType<FT>(flags);
+		return createMetaExtendType<FT>(flags, metaItem);
 	}
 
 public:
@@ -716,9 +716,9 @@ private:
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(metaPolicyResultIndex);
 	}
 
-	static GMetaExtendType virtualGetItemExtendType(uint32_t flags)
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags, const GMetaItem * metaItem)
 	{
-		return createMetaExtendType<FT>(flags);
+		return createMetaExtendType<FT>(flags, metaItem);
 	}
 
 public:

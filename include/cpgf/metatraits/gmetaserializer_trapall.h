@@ -17,11 +17,11 @@ IMetaSerializer * doCreateTrapAllSerializer(const GMetaType & metaType, IMetaSer
 } // namespace metatraits_internal
 
 template <typename T>
-IMetaSerializer * createTrapAllSerializer()
+IMetaSerializer * createTrapAllSerializer(const GMetaTraitsParam & param)
 {
 	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>(GExtendTypeCreateFlag_Serializer).getSerializer());
 	GMetaType metaType(createMetaType<T>());
-	fixupMetaType(&metaType);
+	fixupMetaType(&metaType, param.module);
 	return metatraits_internal::doCreateTrapAllSerializer(metaType, serializer.get());
 }
 

@@ -10,6 +10,9 @@
 namespace cpgf {
 
 
+class GMetaModule;
+
+
 #pragma pack(push, 1)
 #pragma pack(1)
 
@@ -90,11 +93,19 @@ struct MetaArchiveWriteValueParam <T *>
 } // namespace serialization_internal
 
 template <typename T>
+void metaArchiveWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, const T & object, const GMetaModule * module)
+{
+	GMetaType metaType = createMetaType<T>();
+	fixupMetaType(&metaType, module);
+	GMetaTypeData metaTypeData = metaType.getData();
+	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>(GExtendTypeCreateFlag_Serializer, module).getSerializer());
+	archiveWriter->writeData(name, serialization_internal::MetaArchiveWriteValueParam<T>::param(object), &metaTypeData, serializer.get());
+}
+
+template <typename T>
 void metaArchiveWriteValue(IMetaArchiveWriter * archiveWriter, const char * name, const T & object) 
 {
-	GMetaTypeData metaTypeData = createMetaType<T>().getData();
-	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>(GExtendTypeCreateFlag_Serializer).getSerializer());
-	archiveWriter->writeData(name, serialization_internal::MetaArchiveWriteValueParam<T>::param(object), &metaTypeData, serializer.get());
+	metaArchiveWriteValue(archiveWriter, name, object, NULL);
 }
 
 void metaSerializerWriteObjectMembers(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param);

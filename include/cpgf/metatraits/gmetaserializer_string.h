@@ -11,7 +11,7 @@ namespace cpgf {
 template <>
 struct GMetaTraitsCreateSerializer <std::string>
 {
-	static IMetaSerializer * createSerializer();
+	static IMetaSerializer * createSerializer(const GMetaTraitsParam &);
 };
 
 

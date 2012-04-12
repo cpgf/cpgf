@@ -86,7 +86,7 @@ size_t GMetaField::getSize() const
 
 GMetaExtendType GMetaField::getItemExtendType(uint32_t flags) const
 {
-	return this->baseData->getItemExtendType(flags);
+	return this->baseData->getItemExtendType(flags, this);
 }
 
 

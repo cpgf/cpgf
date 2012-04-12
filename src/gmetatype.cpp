@@ -256,7 +256,6 @@ void initializeMetaType(GMetaTypeData * data)
 void fixupMetaType(GMetaType * type)
 {
 	if(type->baseName == NULL) {
-//		const GMetaTypedItem * item = meta_internal::findRegisteredMetaType(type->getBaseType());
 		const GMetaTypedItem * item = getGlobalMetaClass()->getModule()->findItemByType(type->getBaseType());
 		if(item != NULL) {
 			type->baseName = item->getTypeName().c_str();
@@ -264,6 +263,24 @@ void fixupMetaType(GMetaType * type)
 	}
 }
 
+void fixupMetaType(GMetaType * type, const GMetaItem * metaItem)
+{
+	if(type->baseName == NULL) {
+		return fixupMetaType(type, getItemModule(metaItem));
+	}
+}
 
+void fixupMetaType(GMetaType * type, const GMetaModule * module)
+{
+	if(type->baseName == NULL) {
+		if(module == NULL) {
+			module = getGlobalMetaClass()->getModule();
+		}
+		const GMetaTypedItem * item = module->findItemByType(type->getBaseType());
+		if(item != NULL) {
+			type->baseName = item->getTypeName().c_str();
+		}
+	}
+}
 
 } // namespace cpgf

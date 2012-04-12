@@ -201,7 +201,7 @@ bool GMetaMethod::isResultTransferOwnership() const
 
 GMetaExtendType GMetaMethod::getItemExtendType(uint32_t flags) const
 {
-	return this->baseData->getItemExtendType(flags);
+	return this->baseData->getItemExtendType(flags, this);
 }
 
 void GMetaMethod::addDefaultParam(const GVariant & v)
@@ -290,7 +290,7 @@ bool GMetaConstructor::isResultTransferOwnership() const
 
 GMetaExtendType GMetaConstructor::getItemExtendType(uint32_t flags) const
 {
-	return this->baseData->getItemExtendType(flags);
+	return this->baseData->getItemExtendType(flags, this);
 }
 
 void GMetaConstructor::addDefaultParam(const GVariant & v)

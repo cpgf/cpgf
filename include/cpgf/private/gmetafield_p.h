@@ -19,7 +19,7 @@ struct GMetaFieldDataVirtual
 	void (*set)(const void * self, void * instance, const GVariant & v);
 	size_t (*getFieldSize)();
 	void * (*getFieldAddress)(const void * self, const void * instance);
-	GMetaExtendType (*getItemExtendType)(uint32_t flags);
+	GMetaExtendType (*getItemExtendType)(uint32_t flags, const GMetaItem * metaItem);
 };
 
 class GMetaFieldDataBase
@@ -37,8 +37,8 @@ public:
 	void * getFieldAddress(const void * instance) const;
 
 	// must be defined in header to make template function overloading happy.
-	GMetaExtendType getItemExtendType(uint32_t flags) const {
-		return this->virtualFunctions->getItemExtendType(flags);
+	GMetaExtendType getItemExtendType(uint32_t flags, const GMetaItem * metaItem) const {
+		return this->virtualFunctions->getItemExtendType(flags, metaItem);
 	}
 
 protected:
@@ -78,9 +78,9 @@ private:
 		return (void *)(static_cast<const GMetaFieldDataGlobal *>(self)->field);
 	}
 	
-	static GMetaExtendType virtualGetItemExtendType(uint32_t flags)
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags, const GMetaItem * metaItem)
 	{
-		return createMetaExtendType<FT>(flags);
+		return createMetaExtendType<FT>(flags, metaItem);
 	}
 
 public:
@@ -159,9 +159,9 @@ private:
 		return &(static_cast<OT *>(const_cast<void *>(instance))->*(static_cast<const GMetaFieldDataMember *>(self)->field));
 	}
 	
-	static GMetaExtendType virtualGetItemExtendType(uint32_t flags)
+	static GMetaExtendType virtualGetItemExtendType(uint32_t flags, const GMetaItem * metaItem)
 	{
-		return createMetaExtendType<FT>(flags);
+		return createMetaExtendType<FT>(flags, metaItem);
 	}
 
 public:

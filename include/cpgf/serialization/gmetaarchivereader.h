@@ -10,6 +10,9 @@
 namespace cpgf {
 
 
+class GMetaModule;
+
+
 #pragma pack(push, 1)
 #pragma pack(1)
 
@@ -78,11 +81,19 @@ void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, 
 
 
 template <typename T>
+void serializeReadValue(IMetaArchiveReader * archiveReader, const char * name, T & instance, const GMetaModule * module) 
+{
+	GMetaType metaType = createMetaType<T>();
+	fixupMetaType(&metaType, module);
+	GMetaTypeData metaTypeData = metaType.getData();
+	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>( GExtendTypeCreateFlag_Serializer, module).getSerializer());
+	archiveReader->readData(name, &instance, &metaTypeData, serializer.get());
+}
+
+template <typename T>
 void serializeReadValue(IMetaArchiveReader * archiveReader, const char * name, T & instance) 
 {
-	GMetaTypeData metaTypeData = createMetaType<T>().getData();
-	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>( GExtendTypeCreateFlag_Serializer).getSerializer());
-	archiveReader->readData(name, &instance, &metaTypeData, serializer.get());
+	serializeReadValue(archiveReader, name, instance, NULL);
 }
 
 void metaSerializerReadObjectMembers(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param);

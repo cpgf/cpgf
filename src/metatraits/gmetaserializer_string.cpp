@@ -40,7 +40,7 @@ public:
 };
 
 
-IMetaSerializer * GMetaTraitsCreateSerializer<std::string>::createSerializer()
+IMetaSerializer * GMetaTraitsCreateSerializer<std::string>::createSerializer(const GMetaTraitsParam &)
 {
 	return new cpgf::GMetaSerializerString;
 }

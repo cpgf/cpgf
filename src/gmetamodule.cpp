@@ -212,5 +212,17 @@ const GMetaClass * GMetaModule::findClassByName(const char * name) const
 }
 
 
+GMetaModule * getItemModule(const GMetaItem * metaItem)
+{
+	while(metaItem != NULL) {
+		if(metaIsClass(metaItem->getCategory())) {
+			return static_cast<const GMetaClass *>(metaItem)->getModule();
+		}
+		metaItem = metaItem->getOwnerItem();
+	}
+
+	return NULL;
+}
+
 
 } // namespace cpgf

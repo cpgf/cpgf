@@ -6,6 +6,8 @@
 
 namespace cpgf {
 
+struct GMetaTraitsParam;
+
 const uint32_t metaConverterCanNothing = 0;
 const uint32_t metaConverterCanRead = 1;
 const uint32_t metaConverterCanWrite = 2;
@@ -22,15 +24,15 @@ struct IMetaConverter : public IExtendObject
 template <typename T>
 struct GMetaTraitsCreateConverter
 {
-	static IMetaConverter * createConverter() {
+	static IMetaConverter * createConverter(const GMetaTraitsParam &) {
 		return NULL;
 	}
 };
 
 template <typename T>
-inline IMetaConverter * metaTraitsCreateConverter(const T &)
+inline IMetaConverter * metaTraitsCreateConverter(const T &, const GMetaTraitsParam & param)
 {
-	return GMetaTraitsCreateConverter<T>::createConverter();
+	return GMetaTraitsCreateConverter<T>::createConverter(param);
 }
 
 inline bool isMetaConverterCanRead(uint32_t flag)

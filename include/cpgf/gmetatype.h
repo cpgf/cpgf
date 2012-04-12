@@ -14,6 +14,8 @@
 
 namespace cpgf {
 
+class GMetaItem;
+class GMetaModule;
 
 #pragma pack(push, 1)
 #pragma pack(1)
@@ -152,6 +154,8 @@ private:
 
 private:
 	friend void fixupMetaType(GMetaType * type);
+	friend void fixupMetaType(GMetaType * type, const GMetaItem * metaItem);
+	friend void fixupMetaType(GMetaType * type, const GMetaModule * module);
 };
 
 template <typename T>
@@ -167,6 +171,8 @@ GMetaType createMetaTypeWithName(const GMetaType & type, const char * name);
 void initializeMetaType(GMetaTypeData * data);
 
 void fixupMetaType(GMetaType * type);
+void fixupMetaType(GMetaType * type, const GMetaItem * metaItem);
+void fixupMetaType(GMetaType * type, const GMetaModule * module);
 
 
 } // namespace cpgf

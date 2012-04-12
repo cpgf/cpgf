@@ -17,7 +17,7 @@ IMetaConverter * createConverterForString();
 template <>
 struct GMetaTraitsCreateConverter <std::string>
 {
-	static IMetaConverter * createConverter() {
+	static IMetaConverter * createConverter(const GMetaTraitsParam &) {
 		return metatraits_internal::createConverterForString();
 	}
 };

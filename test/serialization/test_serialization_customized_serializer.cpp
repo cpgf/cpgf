@@ -265,7 +265,7 @@ namespace cpgf {
 template <>
 struct GMetaTraitsCreateSerializer <A>
 {
-	static IMetaSerializer * createSerializer() {
+	static IMetaSerializer * createSerializer(const GMetaTraitsParam &) {
 		return new MetaSerializerA();
 	}
 };
@@ -273,7 +273,7 @@ struct GMetaTraitsCreateSerializer <A>
 template <>
 struct GMetaTraitsCreateSerializer <B>
 {
-	static IMetaSerializer * createSerializer() {
+	static IMetaSerializer * createSerializer(const GMetaTraitsParam &) {
 		return new MetaSerializerB();
 	}
 };
@@ -281,7 +281,7 @@ struct GMetaTraitsCreateSerializer <B>
 template <>
 struct GMetaTraitsCreateSerializer <C>
 {
-	static IMetaSerializer * createSerializer() {
+	static IMetaSerializer * createSerializer(const GMetaTraitsParam &) {
 		return new MetaSerializerC();
 	}
 };
