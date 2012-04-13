@@ -555,7 +555,10 @@ GXmlMetaReader::~GXmlMetaReader()
 uint32_t G_API_CC GXmlMetaReader::getArchiveType(const char * name)
 {
 	XmlNodeType * node = this->getNode(name);
-	checkNode(node, name);
+	
+	if(node == NULL) {
+		return matMissed;
+	}
 
 	PermanentType type = this->readType(node);
 	switch(type) {

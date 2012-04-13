@@ -54,7 +54,7 @@ GTEST(TestSimpleObject_TextStream)
 
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
 	
-	doTestSimpleObject(writer.get(), MetaReaderGetter(stream), TestArchiveStream<stringstream>(stream));
+	doTestSimpleObject(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

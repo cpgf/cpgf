@@ -53,7 +53,7 @@ GTEST(testArrayInObject_TextStream)
 
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
 	
-	doTestArrayInObject(writer.get(), MetaReaderGetter(stream), TestArchiveStream<stringstream>(stream));
+	doTestArrayInObject(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

@@ -17,7 +17,7 @@ int writeCount = 0;
 class A
 {
 public:
-	A() : a(0) {}
+	A() : a(0), x(0) {}
 	virtual ~A() {}
 
 	int getA() const {
@@ -31,6 +31,7 @@ public:
 	}
 
 	int a;
+	int x;
 };
 
 class B : virtual public A
@@ -52,7 +53,7 @@ public:
 class D : public B, public C
 {
 public:
-	D() : d(0) {}
+	D() : d(0), x(0) {}
 
 	bool operator == (const D & other) const {
 		return
@@ -60,6 +61,8 @@ public:
 			&& this->b == other.b
 			&& this->c == other.c
 			&& this->d == other.d
+			&& this->A::x == other.A::x
+			&& this->D::x == other.D::x
 		;
 	}
 	
@@ -69,10 +72,13 @@ public:
 			&& this->b != other.b
 			&& this->c != other.c
 			&& this->d != other.d
+			&& this->A::x != other.A::x
+			&& this->D::x != other.D::x
 		;
 	}
 	
 	int d;
+	int x;
 };
 
 
@@ -84,6 +90,7 @@ void register_TestSerializeClass(Define define)
 	
 	classDefineA
 		._property("a", &A::getA, &A::setA)
+		FIELD(A, x)
 	;
 
 	define._class(classDefineA);
@@ -108,6 +115,7 @@ void register_TestSerializeClass(Define define)
 	
 	classDefineD
 		FIELD(D, d)
+		FIELD(D, x)
 	;
 
 	define._class(classDefineD);
@@ -138,6 +146,8 @@ void doTestDiamondVirtualBase(IMetaWriter * writer, const READER & reader, const
 	instance.b = 0x2b;
 	instance.c = 0x3c;
 	instance.d = 0x4d;
+	instance.A::x = 8;
+	instance.D::x = 78;
 
 	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
@@ -152,10 +162,13 @@ void doTestDiamondVirtualBase(IMetaWriter * writer, const READER & reader, const
 	serializeReadObject(archiveReader.get(), serializeObjectName, &readInstance, metaClass.get());
 
 	GEQUAL(instance, readInstance);
+	GEQUAL(8, readInstance.A::x);
+	GEQUAL(78, readInstance.D::x);
 
 	GEQUAL(1, readCount);
 	GEQUAL(1, writeCount);
 }
+
 
 GTEST(testDiamondVirtualBase_TextStream)
 {
@@ -163,7 +176,7 @@ GTEST(testDiamondVirtualBase_TextStream)
 
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
 	
-	doTestDiamondVirtualBase(writer.get(), MetaReaderGetter(stream), TestArchiveStream<stringstream>(stream));
+	doTestDiamondVirtualBase(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

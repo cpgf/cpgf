@@ -28,9 +28,9 @@ namespace {
 typedef Json::Value JsonNodeType;
 
 
-void checkNode(JsonNodeType & node, const char * /*nodeName*/)
+void checkNode(JsonNodeType * node, const char * /*nodeName*/)
 {
-	if(node.isNull()) {
+	if(node == NULL) {
 		serializeError(Error_Serialization_InvalidStorage);
 	}
 }
@@ -342,8 +342,8 @@ private:
 	void popNode();
 	void doPopNode();
 	
-	JsonNodeType & getNode(const char * name, bool moveToNext);
-	JsonNodeType & getNode(const char * name);
+	JsonNodeType * getNode(const char * name, bool moveToNext);
+	JsonNodeType * getNode(const char * name);
 
 private:
 	GScopedInterface<IMetaService> service;
@@ -414,7 +414,8 @@ void G_API_CC GJsonMetaWriter::writeString(const char * name, uint32_t archiveID
 
 void G_API_CC GJsonMetaWriter::writeNullPointer(const char * name)
 {
-	this->addNode(name);
+	JsonNodeType & newNode = this->addNode(name);
+	newNode[nameNull] = 1;
 }
 
 void G_API_CC GJsonMetaWriter::beginWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID, uint32_t version)
@@ -526,31 +527,36 @@ GJsonMetaReader::~GJsonMetaReader()
 
 uint32_t G_API_CC GJsonMetaReader::getArchiveType(const char * name)
 {
-	JsonNodeType & node = this->getNode(name, false);
+	JsonNodeType * node = this->getNode(name, false);
 	
-	if(node.isNull()) {
-		return matNull;
+	if(node == NULL) {
+		return matMissed;
 	}
 
-	if(node.isObject()) {
-		if(node.isMember(nameReferenceID)) {
+	if(node->isObject()) {
+		if(node->isMember(nameReferenceID)) {
 			return matReferenceObject;
 		}
 		else {
-			if(node.isMember(nameString) || node.isMember(nameArray)) {
+			if(node->isMember(nameString) || node->isMember(nameArray)) {
 				return matCustomized;
 			}
 			else {
-				return matObject;
+				if(node->isMember(nameNull)) {
+					return matNull;
+				}
+				else {
+					return matObject;
+				}
 			}
 		}
 	}
 
-	if(node.isArray()) {
+	if(node->isArray()) {
 		return matCustomized;
 	}
 
-	if(node.isString()) {
+	if(node->isString()) {
 		return matCustomized;
 	}
 
@@ -559,27 +565,27 @@ uint32_t G_API_CC GJsonMetaReader::getArchiveType(const char * name)
 
 uint32_t G_API_CC GJsonMetaReader::getClassType(const char * name)
 {
-	JsonNodeType & node = this->getNode(name, false);
+	JsonNodeType * node = this->getNode(name, false);
 	checkNode(node, name);
 
-	return node[nameClassTypeID].asUInt();
+	return (*node)[nameClassTypeID].asUInt();
 }
 
 void G_API_CC GJsonMetaReader::readFundamental(const char * name, GVariantData * outValue)
 {
-	JsonNodeType & node = this->getNode(name);
+	JsonNodeType * node = this->getNode(name);
 	checkNode(node, name);
 
 	GVariant v;
-	if(node.isDouble()) {
-		v = node.asDouble();
+	if(node->isDouble()) {
+		v = node->asDouble();
 	}
 	else {
-		if(node.isInt()) {
-			v = node.asInt();
+		if(node->isInt()) {
+			v = node->asInt();
 		}
 		else {
-			v = node.asUInt();
+			v = node->asUInt();
 		}
 	}
 	*outValue = v.takeData();
@@ -587,20 +593,20 @@ void G_API_CC GJsonMetaReader::readFundamental(const char * name, GVariantData *
 
 char * G_API_CC GJsonMetaReader::readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID)
 {
-	JsonNodeType & node = this->getNode(name);
+	JsonNodeType * node = this->getNode(name);
 	checkNode(node, name);
 
 	string s;
 
 	*outArchiveID = archiveIDNone;
 
-	if(node.isString()) {
-		s = node.asString();
+	if(node->isString()) {
+		s = node->asString();
 	}
 	else {
-		if(node.isObject() && node.isMember(nameString)) {
-			s = node[nameString].asString();
-			*outArchiveID = node[nameArchiveID].asUInt();
+		if(node->isObject() && node->isMember(nameString)) {
+			s = (*node)[nameString].asString();
+			*outArchiveID = (*node)[nameArchiveID].asUInt();
 		}
 	}
 
@@ -617,14 +623,14 @@ void * G_API_CC GJsonMetaReader::readNullPointer(const char * name)
 
 uint32_t G_API_CC GJsonMetaReader::beginReadObject(const char * name, uint32_t * outVersion)
 {
-	JsonNodeType & node = this->getNode(name);
+	JsonNodeType * node = this->getNode(name);
 	checkNode(node, name);
 	
-	*outVersion = node[nameVersion].asUInt();
+	*outVersion = (*node)[nameVersion].asUInt();
 
-	uint32_t archiveID = node[nameArchiveID].asUInt();
+	uint32_t archiveID = (*node)[nameArchiveID].asUInt();
 	
-	JsonNodeType & contentNode = node[nameObject];
+	JsonNodeType & contentNode = (*node)[nameObject];
 	this->pushNode(&contentNode);
 
 	return archiveID;
@@ -637,10 +643,10 @@ void G_API_CC GJsonMetaReader::endReadObject(const char * /*name*/, uint32_t /*v
 
 uint32_t G_API_CC GJsonMetaReader::readReferenceID(const char * name)
 {
-	JsonNodeType & node = this->getNode(name);
+	JsonNodeType * node = this->getNode(name);
 	checkNode(node, name);
 	
-	return node[nameReferenceID].asUInt();
+	return (*node)[nameReferenceID].asUInt();
 }
 
 IMetaClass * G_API_CC GJsonMetaReader::readClassAndTypeID(uint32_t * /*outClassTypeID*/)
@@ -667,16 +673,16 @@ IMetaClass * G_API_CC GJsonMetaReader::readClass(uint32_t classTypeID)
 
 uint32_t G_API_CC GJsonMetaReader::beginReadArray(const char * name)
 {
-	JsonNodeType & node = this->getNode(name);
+	JsonNodeType * node = this->getNode(name);
 	checkNode(node, name);
 
-	if(node.isArray()) {
-		this->pushNode(&node, true);
-		return node.size();
+	if(node->isArray()) {
+		this->pushNode(node, true);
+		return node->size();
 	}
 	else {
-		this->pushNode(&node[nameArray], true);
-		return node[nameLength].asUInt();
+		this->pushNode(&(*node)[nameArray], true);
+		return (*node)[nameLength].asUInt();
 	}
 }
 
@@ -716,22 +722,34 @@ void GJsonMetaReader::doPopNode()
 	this->nodeStack.pop();
 }
 
-JsonNodeType & GJsonMetaReader::getNode(const char * name, bool moveToNext)
+JsonNodeType * GJsonMetaReader::getNode(const char * name, bool moveToNext)
 {
-	JsonNodeType & currentNode = *(this->getCurrentNode());
+	JsonNodeType * currentNode = this->getCurrentNode();
 	if(this->nodeStack.top().isArray()) {
 		size_t index = this->nodeStack.top().getArrayIndex();
+		if(index >= currentNode->size()) {
+			return NULL;
+		}
 		if(moveToNext) {
 			this->nodeStack.top().addArrayIndex();
 		}
-		return currentNode[(JsonNodeType::UInt)index];
+		return &(*currentNode)[(JsonNodeType::UInt)index];
 	}
 	else {
-		return currentNode[this->nodeStack.top().makeName(name, moveToNext)];
+		const char * n = this->nodeStack.top().makeName(name, false);
+		if(currentNode->isMember(n)) {
+			if(moveToNext) {
+				this->nodeStack.top().addName(name);
+			}
+			return &(*currentNode)[n];
+		}
+		else {
+			return NULL;
+		}
 	}
 }
 
-JsonNodeType & GJsonMetaReader::getNode(const char * name)
+JsonNodeType * GJsonMetaReader::getNode(const char * name)
 {
 	return this->getNode(name, true);
 }

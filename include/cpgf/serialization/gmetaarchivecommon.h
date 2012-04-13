@@ -26,12 +26,13 @@ const uint32_t archiveIDNone = 0;
 
 
 enum GMetaArchiveItemType {
-	matNull = 0,
-	matObject = 1,
-	matReferenceObject = 2,
-	matClassType = 3,
-	matFundamental = 4,
-	matCustomized = 5,
+	matMissed = 0,
+	matNull = 1,
+	matObject = 2,
+	matReferenceObject = 3,
+	matClassType = 4,
+	matFundamental = 5,
+	matCustomized = 6,
 };
 
 

@@ -180,7 +180,7 @@ GTEST(testPolymorphic_TextStream)
 
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
 	
-	doTestPolymorphic(writer.get(), MetaReaderGetter(stream), TestArchiveStream<stringstream>(stream));
+	doTestPolymorphic(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

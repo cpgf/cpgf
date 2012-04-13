@@ -226,3 +226,37 @@ GMetaModule * getItemModule(const GMetaItem * metaItem)
 
 
 } // namespace cpgf
+
+
+
+/*  not used
+
+	GMetaTypedItemListXXX * getMetaFundamentalList() {
+		static GMetaTypedItemListXXX metaFundamentalList(true);
+
+		return &metaFundamentalList;
+	}
+
+	void registerFundamentalTypes()
+	{
+		GMetaTypedItemListXXX * itemList = getMetaFundamentalList();
+
+		itemList->add(new GMetaFundamental((bool *)0, "bool"));
+		itemList->add(new GMetaFundamental((char *)0, "char"));
+		itemList->add(new GMetaFundamental((wchar_t *)0, "wchar"));
+		itemList->add(new GMetaFundamental((signed char *)0, "s_char"));
+		itemList->add(new GMetaFundamental((unsigned char *)0, "u_char"));
+		itemList->add(new GMetaFundamental((signed short *)0, "s_short"));
+		itemList->add(new GMetaFundamental((unsigned short *)0, "u_short"));
+		itemList->add(new GMetaFundamental((signed int *)0, "s_int"));
+		itemList->add(new GMetaFundamental((unsigned int *)0, "u_int"));
+		itemList->add(new GMetaFundamental((signed long *)0, "s_long"));
+		itemList->add(new GMetaFundamental((unsigned long *)0, "u_long"));
+		itemList->add(new GMetaFundamental((signed long long *)0, "s_longlong"));
+		itemList->add(new GMetaFundamental((unsigned long long *)0, "u_longlong"));
+		itemList->add(new GMetaFundamental((float *)0, "float"));
+		itemList->add(new GMetaFundamental((double *)0, "double"));
+		itemList->add(new GMetaFundamental((long double *)0, "longdouble"));
+	}
+
+*/

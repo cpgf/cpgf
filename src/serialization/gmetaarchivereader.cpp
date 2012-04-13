@@ -342,6 +342,10 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 
 	GMetaArchiveItemType type = static_cast<GMetaArchiveItemType>(this->reader->getArchiveType(name));
 
+	if(type == matMissed) {
+		return;
+	}
+
 	if(type == matClassType) {
 		uint32_t classTypeID = archiveIDNone;
 		GScopedInterface<IMetaClass> metaClass(this->reader->readClassAndTypeID(&classTypeID));

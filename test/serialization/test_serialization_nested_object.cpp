@@ -133,7 +133,7 @@ GTEST(testNestedObject_TextStream)
 
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
 	
-	doTestNestedObject(writer.get(), MetaReaderGetter(stream), TestArchiveStream<stringstream>(stream));
+	doTestNestedObject(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
 	
 //	cout << stream.str().c_str() << endl;
 }

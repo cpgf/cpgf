@@ -44,45 +44,6 @@ public:
 	int c;
 };
 
-class MetaSerializerA : public IMetaSerializer
-{
-	G_INTERFACE_IMPL_OBJECT
-	G_INTERFACE_IMPL_EXTENDOBJECT
-	
-public:
-	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * /*archiveWriter*/, const void * /*instance*/, IMetaClass * metaClass) {
-		return metaClass->getTypeName();
-	}
-	
-	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param) {
-		metaSerializerWriteObjectMembers(archiveWriter, serializerWriter, param);
-	}
-	
-	virtual void * G_API_CC allocateObject(IMetaArchiveReader * /*archiveReader*/, IMetaClass * metaClass) {
-		return metaClass->createInstance();
-	}
-
-	virtual void G_API_CC readObject(IMetaArchiveReader * /*archiveReader*/, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) {
-		GScopedInterface<IMetaAccessible> accessible;
-		uint32_t i;
-		uint32_t count;
-
-		count = param->metaClass->getFieldCount();
-		for(i = 0; i < count; ++i) {
-			accessible.reset(param->metaClass->getFieldAt(i));
-
-			if(param->archiveVersion < 1 && strcmp(accessible->getName(), "b") == 0) {
-				continue;
-			}
-
-			if(param->archiveVersion < 2 && strcmp(accessible->getName(), "c") == 0) {
-				continue;
-			}
-
-			serializerReader->readMember(param, accessible.get());
-		}
-	}
-};
 
 template <typename Define>
 void register_TestSerializeClass(Define define, int version)
@@ -125,7 +86,7 @@ void register_TestSerializeClass(Define define, int version)
 }
 
 template <typename READER, typename AR>
-void doTestVersioning(IMetaWriter * writer, const READER & reader, const AR & ar)
+void doTestOddFields(IMetaWriter * writer, const READER & reader, const AR & ar)
 {
 	const char * const serializeObjectName = "versioning";
 	const char * const className = "TestSerializeClassA";
@@ -177,99 +138,55 @@ void doTestVersioning(IMetaWriter * writer, const READER & reader, const AR & ar
 	serializeWriteObjectValue(archiveWriter0.get(), serializeObjectName, &a0, metaClass0.get());
 	serializeWriteObjectValue(archiveWriter1.get(), serializeObjectName, &a1, metaClass1.get());
 
-	GScopedInterface<IMetaArchiveReader> archiveReader2(createMetaArchiveReader(service2.get(), reader.get(service2.get())));
+	GScopedInterface<IMetaArchiveReader> archiveReader0(createMetaArchiveReader(service0.get(), reader.get(service0.get())));
+	GScopedInterface<IMetaArchiveReader> archiveReader1(createMetaArchiveReader(service1.get(), reader.get(service1.get())));
 
 	ar.rewind();
 
-	A2 readInstance;
+	A1 readInstance;
 	readInstance.a = 9;
 	readInstance.b = 10;
-	readInstance.c = 11;
 	
-	serializeReadObject(archiveReader2.get(), serializeObjectName, &readInstance, metaClass2.get());
+	serializeReadObject(archiveReader1.get(), serializeObjectName, &readInstance, metaClass1.get());
 	
 	GEQUAL(5, readInstance.a);
 	GEQUAL(10, readInstance.b);
-	GEQUAL(11, readInstance.c);
 
-	A2 readInstance2;
-	readInstance2.a = 9;
-	readInstance2.b = 10;
-	readInstance2.c = 68;
+	A0 readInstance0;
+	readInstance0.a = 9;
 	
-	serializeReadObject(archiveReader2.get(), serializeObjectName, &readInstance2, metaClass2.get());
+	serializeReadObject(archiveReader0.get(), serializeObjectName, &readInstance0, metaClass0.get());
 	
-	GEQUAL(38, readInstance2.a);
-	GEQUAL(78, readInstance2.b);
-	GEQUAL(68, readInstance2.c);
-
-}
-
-GTEST(testVersioning_TextStream)
-{
-	stringstream stream;
-
-	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
-	
-	doTestVersioning(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
-	
-//	cout << stream.str().c_str() << endl;
+	GEQUAL(38, readInstance0.a);
 }
 
 
-GTEST(testVersioning_Xml)
+
+GTEST(testOddFields_Xml)
 {
 	GMetaXmlArchive outputArchive;
 
 	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
 	
-	doTestVersioning(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
+	doTestOddFields(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
 	
 //	outputArchive.saveToStream(cout);
 }
 
 
-GTEST(testVersioning_Json)
+GTEST(testOddFields_Json)
 {
 	GMetaJsonArchive outputArchive;
 
 	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
 	
-	doTestVersioning(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
+	doTestOddFields(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
 	
 //	outputArchive.saveToStream(cout);
 }
 
 
+
 } // unnamed namespace
 
-
-namespace cpgf {
-
-template <>
-struct GMetaTraitsCreateSerializer <A0>
-{
-	static IMetaSerializer * createSerializer(const GMetaTraitsParam &) {
-		return new MetaSerializerA();
-	}
-};
-
-template <>
-struct GMetaTraitsCreateSerializer <A1>
-{
-	static IMetaSerializer * createSerializer(const GMetaTraitsParam &) {
-		return new MetaSerializerA();
-	}
-};
-
-template <>
-struct GMetaTraitsCreateSerializer <A2>
-{
-	static IMetaSerializer * createSerializer(const GMetaTraitsParam &) {
-		return new MetaSerializerA();
-	}
-};
-
-
-} // namespace cpgf
 

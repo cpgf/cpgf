@@ -32,6 +32,7 @@ const char * const nameReferenceID = "rid";
 const char * const nameObject = "object";
 const char * const nameString = "string";
 const char * const nameArray = "array";
+const char * const nameNull = "null";
 
 
 

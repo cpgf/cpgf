@@ -14,12 +14,12 @@ using namespace cpgf;
 #endif
 
 
-MetaReaderGetter::MetaReaderGetter(std::stringstream & outputStream)
+MetaReaderGetterStream::MetaReaderGetterStream(std::stringstream & outputStream)
 	: outputStream(outputStream)
 {
 }
 
-IMetaReader * MetaReaderGetter::get(IMetaService * service) const
+IMetaReader * MetaReaderGetterStream::get(IMetaService * service) const
 {
 	if(! this->reader) {
 		this->reader.reset(createTextStreamMetaReader(service, outputStream));

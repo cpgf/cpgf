@@ -46,10 +46,10 @@ public:
 };
 
 
-class MetaReaderGetter
+class MetaReaderGetterStream
 {
 public:
-	explicit MetaReaderGetter(std::stringstream & outputStream);
+	explicit MetaReaderGetterStream(std::stringstream & outputStream);
 
 	cpgf::IMetaReader * get(cpgf::IMetaService * service) const;
 

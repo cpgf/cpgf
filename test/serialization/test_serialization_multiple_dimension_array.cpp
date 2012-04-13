@@ -126,7 +126,7 @@ GTEST(testMultipleDimensionArray_TextStream)
 
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
 	
-	doTestMultipleDimensionArray(writer.get(), MetaReaderGetter(stream), TestArchiveStream<stringstream>(stream));
+	doTestMultipleDimensionArray(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
 
 //	cout << stream.str().c_str() << endl;
 }

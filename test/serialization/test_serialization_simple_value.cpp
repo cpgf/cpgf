@@ -123,7 +123,7 @@ GTEST(testSimpleValue_TextStream)
 
 	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
 	
-	doTestSimpleValue(writer.get(), MetaReaderGetter(stream), TestArchiveStream<stringstream>(stream));
+	doTestSimpleValue(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
 
 //	cout << stream.str().c_str() << endl;
 }
