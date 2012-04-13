@@ -1957,11 +1957,6 @@ IMetaClass * G_API_CC ImplMetaService::findClassByName(const char * name)
 }
 
 
-IMetaModule * getMetaModule()
-{
-	return new ImplMetaModule(getGlobalMetaClass()->getModule(), getGlobalMetaClass());
-}
-
 IMetaModule * createMetaModule(GMetaModule * module, GMetaClass * metaClass)
 {
 	return new ImplMetaModule(module, metaClass);
@@ -1976,7 +1971,7 @@ IMetaService * createMetaService(IMetaModule * primaryModule)
 
 IMetaService * createDefaultMetaService()
 {
-	GScopedInterface<IMetaModule> module(getMetaModule());
+	GScopedInterface<IMetaModule> module(new ImplMetaModule(getGlobalMetaClass()->getModule(), getGlobalMetaClass()));
 	return createMetaService(module.get());
 }
 

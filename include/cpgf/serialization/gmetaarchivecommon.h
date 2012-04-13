@@ -16,6 +16,7 @@ namespace cpgf {
 const char * const SerializationAnnotation = "serialize";
 const char * const SerializationAnnotationEnable = "enable";
 const char * const SerializationAnnotationVersion = "version";
+const char * const SerializationAnnotationDefaultAll = "defaultAll";
 const char * const SerializationAnnotationFields = "fields";
 const char * const SerializationAnnotationProperties = "properties";
 const char * const SerializationAnnotationTrackPointers = "trackPointers";
@@ -98,24 +99,11 @@ private:
 
 GMetaArchiveConfig getItemMetaArchiveConfig(IMetaItem * item);
 
-bool canSerializeItem(const GMetaArchiveConfig & config, IMetaItem * item);
-bool canSerializeObject(const GMetaArchiveConfig & config, IMetaClass * metaClass);
-bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * accessible, IMetaClass * ownerClass);
-bool canSerializeBaseClass(const GMetaArchiveConfig & config, IMetaClass * baseClass, IMetaClass * metaClass);
 bool canSerializeMetaType(const GMetaType & metaType);
 
 void serializeCheckType(PermanentType type, PermanentType expected);
 
-const int Error_Serialization_Begin = 301;
-const int Error_Serialization_TypeMismatch = Error_Serialization_Begin + 0;
-const int Error_Serialization_CannotFindObjectType = Error_Serialization_Begin + 1;
-const int Error_Serialization_MissingMetaClass = Error_Serialization_Begin + 2;
-const int Error_Serialization_UnknownType = Error_Serialization_Begin + 3;
-const int Error_Serialization_InvalidStorage = Error_Serialization_Begin + 4;
-const int Error_Serialization_End = 400;
-
-void serializeError(int errorCode, ...);
-
+void serializeError(int errorCode);
 
 void writeFundamental(void * address, const GMetaType & metaType, const GVariant & v);
 GVariant readFundamental(const void * address, const GMetaType & metaType);

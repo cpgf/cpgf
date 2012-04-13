@@ -87,7 +87,7 @@ public:
 template <typename Define>
 void register_TestSerializeClass(Define define, int version)
 {
-	char * name = "TestSerializeClassA";
+	const char * name = "TestSerializeClassA";
 
 	if(version == 0) {
 		GDefineMetaClass<A0> classDefineA = GDefineMetaClass<A0>::declare(name);

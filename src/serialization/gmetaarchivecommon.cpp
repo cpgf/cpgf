@@ -132,6 +132,13 @@ GMetaArchiveConfig getItemMetaArchiveConfig(IMetaItem * item)
 					config.setAllowSerialize(false);
 				}
 			}
+
+			annotationValue.reset(annotation->getValue(SerializationAnnotationDefaultAll));
+			if(annotationValue) {
+				if(! annotationValue->toBoolean()) {
+					config.setDefaultSerializeAll(false);
+				}
+			}
 		
 			annotationValue.reset(annotation->getValue(SerializationAnnotationFields));
 			if(annotationValue) {
@@ -235,9 +242,9 @@ void serializeCheckType(PermanentType type, PermanentType expected)
 	}
 }
 
-void serializeError(int errorCode, ...)
+void serializeError(int errorCode)
 {
-	raiseFormatException(errorCode, "Serialize error: %d.", errorCode);
+	raiseCoreException(errorCode);
 }
 
 #if defined(_MSC_VER)

@@ -224,8 +224,6 @@ struct IMetaService : public IExtendObject
 };
 
 
-IMetaModule * getMetaModule();
-
 class GMetaClass;
 class GMetaModule;
 IMetaModule * createMetaModule(GMetaModule * module, GMetaClass * metaClass);

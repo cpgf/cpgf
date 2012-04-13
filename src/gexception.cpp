@@ -82,6 +82,13 @@ namespace {
 		{ Error_ScriptBinding_AccessMemberWithWrongObject,		"Access class member with wrong object." },
 		{ Error_ScriptBinding_CantBindRaw, 						"Failed to bind raw data." },
 
+		{ Error_Serialization_TypeMismatch,			"Type mismatch when reading serialized object." },
+		{ Error_Serialization_CannotFindObjectType,	"Can't find object type." },
+		{ Error_Serialization_MissingMetaClass,		"Meta class type is missing." },
+		{ Error_Serialization_UnknownType,			"Unknow meta type." },
+		{ Error_Serialization_InvalidStorage,			"Serializing storage is corrupted." },
+
+
 		{ -1, NULL },
 
 		{ Error_Meta_WrongArity, "Wrong argument count. Expect: %d, but get: %d." },

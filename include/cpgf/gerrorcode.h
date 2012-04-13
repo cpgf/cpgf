@@ -46,6 +46,14 @@ const int Error_ScriptBinding_AccessMemberWithWrongObject	= Error_ScriptBinding_
 const int Error_ScriptBinding_CantBindRaw			= Error_ScriptBinding_Begin + 15;
 const int Error_ScriptBinding_End			= 300;
 
+const int Error_Serialization_Begin = 301;
+const int Error_Serialization_TypeMismatch = Error_Serialization_Begin + 0;
+const int Error_Serialization_CannotFindObjectType = Error_Serialization_Begin + 1;
+const int Error_Serialization_MissingMetaClass = Error_Serialization_Begin + 2;
+const int Error_Serialization_UnknownType = Error_Serialization_Begin + 3;
+const int Error_Serialization_InvalidStorage = Error_Serialization_Begin + 4;
+const int Error_Serialization_End = 400;
+
 
 } // namespace cpgf
 

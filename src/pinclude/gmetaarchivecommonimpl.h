@@ -118,6 +118,12 @@ private:
 };
 
 
+bool canSerializeItem(const GMetaArchiveConfig & config, IMetaItem * item);
+bool canSerializeObject(const GMetaArchiveConfig & config, IMetaClass * metaClass);
+bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * accessible, IMetaClass * ownerClass);
+bool canSerializeBaseClass(const GMetaArchiveConfig & config, IMetaClass * baseClass, IMetaClass * metaClass);
+
+
 
 } // namespace cpgf
 
