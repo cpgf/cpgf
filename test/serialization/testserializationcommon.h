@@ -11,8 +11,6 @@
 #include "cpgf/metatraits/gmetaserializer_string.h"
 #include "cpgf/metatraits/gmetaserializer_array.h"
 
-#include "cpgf/serialization/gmetaarchivecommon.h"
-
 #include "../unittestbase.h"
 
 #include <string>

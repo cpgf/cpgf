@@ -399,7 +399,7 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 				void * ptr = *(void **)address;
 				if(metaClass) {
 					if(ptr == NULL) {
-						uint32_t classTypeID = this->reader->getClassType(name);
+						uint32_t classTypeID = this->reader->getClassTypeID(name);
 						if(classTypeID != archiveIDNone) {
 							IMetaClass * storedMetaClass = this->getClassTypeTracker()->getMetaClass(classTypeID);
 							

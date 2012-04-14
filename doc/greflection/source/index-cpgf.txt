@@ -1,15 +1,17 @@
 <{filename name=cpgf-index }>
 
-<{title}>cpgf library -- a free C++ open source library for reflection, script binding, callbacks <{/title}>
+<{title}>cpgf library -- a free C++ open source library for reflection, serialization, script binding, callbacks <{/title}>
 
 
-<h1>cpgf library -- a free C++ open source library for reflection, script binding, callbacks </h1>
+<h1>cpgf library -- a free C++ open source library for reflection, serialization, script binding, callbacks </h1>
 
 <{autobr}>
 cpgf is a free, open source and cross platform C++ library.
 cpgf is composed by several independent components:
 <{autoul}>
 	cpgf reflection -- a library to add	reflection feature to C++.
+	
+	cpgf serialization -- a library to save and load C++ data and objects to persistent storage.
 	
 	cpgf script binding -- a script binding engine to bind Lua and Google V8 Javascript to C++. It's based on the reflection library.
 	
@@ -21,7 +23,8 @@ cpgf is composed by several independent components:
 <{/autoul}>
 The goal of cpgf is to extend C++ language with a lot of easy to use features which are only available in other higher level languages and absence in C++.
 cpgf provides a very easy to use callback system, which is common used in C# and script languages.
-cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? now we have it in C++!
+cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? Now we have it in C++!
+cpgf provides a very easy to use serialization system. Want the serialization system in C# and Java? Now we have it in C++!
 cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding engine uses the reflection system extensively.
 Want to use OpenGL in Lua and Javascrit? It can't be easier using cpgf.
 
@@ -54,6 +57,20 @@ Want to use OpenGL in Lua and Javascrit? It can't be easier using cpgf.
 	Support multiple inheritance.
 	Support default parameters for constructor, method, and operators.
 	For more information, please read cpgf reflection related documentation.
+<{/autoul}>
+
+<h3>Quick facts of serialization library</h3>
+<{autoul}>
+	As powerful as the serialization system in Java and C#.
+	Serialize object graph.
+	Correctly resolve multiple pointers to same object.
+	Serialize polymorphic objects.
+	Serialize C++ array.
+	Very extensible. The library supports customized serializer to serialize special data type manually.
+	Storage format agnostic.
+	Versioning.
+	Doesn't require extra intervention. Serialization only depends on relection meta data.
+	For more information, please read cpgf serialization related documentation.
 <{/autoul}>
 
 <h3>Quick facts of script binding library</h3>

@@ -159,7 +159,7 @@ protected:
 	G_INTERFACE_IMPL_OBJECT
 
 	virtual uint32_t G_API_CC getArchiveType(const char * name);
-	virtual uint32_t G_API_CC getClassType(const char * name);
+	virtual uint32_t G_API_CC getClassTypeID(const char * name);
 	
 	virtual void G_API_CC readFundamental(const char * name, GVariantData * outValue);
 	virtual char * G_API_CC readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID);
@@ -425,7 +425,7 @@ uint32_t G_API_CC GTextStreamMetaReader::getArchiveType(const char * /*name*/)
 	}
 }
 
-uint32_t G_API_CC GTextStreamMetaReader::getClassType(const char * /*name*/)
+uint32_t G_API_CC GTextStreamMetaReader::getClassTypeID(const char * /*name*/)
 {
 	StreamMarker marker(this);
 	PermanentType type = this->readType();

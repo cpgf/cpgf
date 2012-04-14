@@ -235,7 +235,7 @@ bool canSerializeMetaType(const GMetaType & metaType)
 }
 
 
-void serializeCheckType(PermanentType type, PermanentType expected)
+void serializeCheckType(int type, int expected)
 {
 	if(type != expected) {
 		serializeError(Error_Serialization_TypeMismatch);

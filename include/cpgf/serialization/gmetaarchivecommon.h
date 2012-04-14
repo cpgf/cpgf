@@ -1,13 +1,9 @@
 #ifndef __GMETAARCHIVECOMMON_H
 #define __GMETAARCHIVECOMMON_H
 
-#include "cpgf/serialization/gmetaarchivetypemap.h"
-
 #include "cpgf/gflags.h"
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gexception.h"
-
-#include "cpgf/gstringmap.h"
 
 
 namespace cpgf {
@@ -102,7 +98,7 @@ GMetaArchiveConfig getItemMetaArchiveConfig(IMetaItem * item);
 
 bool canSerializeMetaType(const GMetaType & metaType);
 
-void serializeCheckType(PermanentType type, PermanentType expected);
+void serializeCheckType(int type, int expected);
 
 void serializeError(int errorCode);
 
