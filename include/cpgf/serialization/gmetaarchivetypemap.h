@@ -2,6 +2,8 @@
 #define __GMETAARCHIVETYPEMAP_H
 
 
+#include "cpgf/gtypetraits.h"
+#include "cpgf/gifelse.h"
 #include "cpgf/gvartypedata.h"
 
 
@@ -9,13 +11,40 @@ namespace cpgf {
 
 
 template <typename T>
-struct PermenentTypeMap
+struct PermanentTypeMap
 {
 	typedef T Result;
 };
 
 template <>
-struct PermenentTypeMap <wchar_t>
+struct PermanentTypeMap <wchar_t>
+{
+	typedef short Result;
+};
+
+
+template <typename T>
+struct PromotedPermenentTypeMap
+{
+	typedef typename GIfElse<
+		IsUnknownSign<T>::Result,
+			T,
+			typename GIfElse<
+				IsFloat<T>::Result,
+					long double,
+					typename GIfElse<
+						IsSigned<T>::Result,
+						long long,
+						unsigned long long
+					>::Result
+			>::Result
+	>::Result
+	Result
+	;
+};
+
+template <>
+struct PromotedPermenentTypeMap <wchar_t>
 {
 	typedef short Result;
 };

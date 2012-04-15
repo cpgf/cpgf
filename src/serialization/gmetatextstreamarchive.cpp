@@ -2,6 +2,7 @@
 #include "cpgf/serialization/gmetaarchivereader.h"
 #include "cpgf/serialization/gmetaarchivewriter.h"
 #include "cpgf/serialization/gmetaarchivecommon.h"
+#include "cpgf/serialization/gmetaarchivetypemap.h"
 
 #include <stack>
 
@@ -600,6 +601,17 @@ char * GTextStreamMetaReader::doReadString(IMemoryAllocator * allocator)
 
 
 } // namespace serialization_internal
+
+
+IMetaWriter * createTextStreamMetaWriter(std::ostream & outputStream)
+{
+	return serialization_internal::doCreateTextStreamMetaWriter(outputStream, &streamWriteFundamental<PromotedPermenentTypeMap>);
+}
+
+IMetaReader * createTextStreamMetaReader(IMetaService * service, std::istream & inputStream)
+{
+	return serialization_internal::doCreateTextStreamMetaReader(service, inputStream, &streamReadFundamental<PromotedPermenentTypeMap>);
+}
 
 
 } // namespace cpgf

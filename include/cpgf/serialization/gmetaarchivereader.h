@@ -67,11 +67,14 @@ struct IMetaArchiveReader : public IExtendObject
 };
 
 
-// used only by serializer
+// used by serializer
 struct IMetaSerializerReader : public IExtendObject
 {
 	virtual void G_API_CC readMember(GMetaArchiveReaderParam * param, IMetaAccessible * accessible) = 0;
 };
+
+// used by serializer
+void metaSerializerReadObjectMembers(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param);
 
 
 IMetaArchiveReader * createMetaArchiveReader(IMetaService * service, IMetaReader * reader);
@@ -79,7 +82,7 @@ IMetaArchiveReader * createMetaArchiveReader(IMetaService * service, IMetaReader
 void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaClass * metaClass);
 
 template <typename T>
-void serializeReadValue(IMetaArchiveReader * archiveReader, const char * name, T & instance, const GMetaModule * module) 
+void serializeReadData(IMetaArchiveReader * archiveReader, const char * name, T & instance, const GMetaModule * module) 
 {
 	GMetaType metaType = createMetaType<T>();
 	fixupMetaType(&metaType, module);
@@ -89,12 +92,10 @@ void serializeReadValue(IMetaArchiveReader * archiveReader, const char * name, T
 }
 
 template <typename T>
-void serializeReadValue(IMetaArchiveReader * archiveReader, const char * name, T & instance) 
+void serializeReadData(IMetaArchiveReader * archiveReader, const char * name, T & instance) 
 {
-	serializeReadValue(archiveReader, name, instance, NULL);
+	serializeReadData(archiveReader, name, instance, NULL);
 }
-
-void metaSerializerReadObjectMembers(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param);
 
 
 

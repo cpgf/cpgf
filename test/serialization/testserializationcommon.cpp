@@ -38,7 +38,7 @@ IMetaReader * MetaReaderGetterXml::get(IMetaService * service) const
 	if(! this->reader) {
 		stringstream stream;
 		this->outputArchive.saveToStream(stream);
-		this->inputArchive.loadNonIntrusive(stream.str().c_str());
+		this->inputArchive.load(stream.str().c_str());
 		this->reader.reset(cpgf::createXmlMetaReader(service, this->inputArchive));
 	}
 	return this->reader.get();

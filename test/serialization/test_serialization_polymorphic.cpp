@@ -135,7 +135,7 @@ void doTestPolymorphic(IMetaWriter * writer, const READER & reader, const AR & a
 	pb1->a = 15;
 	pb1->b = 16;
 
-	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance1, metaClass.get());
+	serializeWriteObject(archiveWriter.get(), serializeObjectName, &instance1, metaClass.get());
 
 	R instance2;
 	instance2.r = 68;
@@ -144,7 +144,7 @@ void doTestPolymorphic(IMetaWriter * writer, const READER & reader, const AR & a
 	pd2->a = 25;
 	pd2->d = 26;
 
-	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance2, metaClass.get());
+	serializeWriteObject(archiveWriter.get(), serializeObjectName, &instance2, metaClass.get());
 
 	// read
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
@@ -187,25 +187,25 @@ GTEST(testPolymorphic_TextStream)
 
 GTEST(testPolymorphic_Xml)
 {
-	GMetaXmlArchive outputArchive;
+	GMetaXmlArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
 	
-	doTestPolymorphic(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
+	doTestPolymorphic(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
 	
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 
 GTEST(testPolymorphic_Json)
 {
-	GMetaJsonArchive outputArchive;
+	GMetaJsonArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
 	
-	doTestPolymorphic(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
+	doTestPolymorphic(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
 	
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 

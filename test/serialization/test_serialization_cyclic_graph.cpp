@@ -134,7 +134,7 @@ void doTestCyclicGraph(IMetaWriter * writer, const READER & reader, const AR & a
 	
 	GCHECK(instance.verify());
 
-	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+	serializeWriteObject(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	ar.rewind();
 
@@ -163,25 +163,25 @@ GTEST(testCyclicGraph_TextStream)
 
 GTEST(testCyclicGraph_Xml)
 {
-	GMetaXmlArchive outputArchive;
+	GMetaXmlArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
 	
-	doTestCyclicGraph(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
+	doTestCyclicGraph(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
 	
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 
 GTEST(testCyclicGraph_Json)
 {
-	GMetaJsonArchive outputArchive;
+	GMetaJsonArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
 	
-	doTestCyclicGraph(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
+	doTestCyclicGraph(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
 	
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 

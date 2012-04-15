@@ -14,14 +14,6 @@ struct IMetaService;
 class GMetaJsonArchive;
 
 
-namespace serialization_internal {
-
-	IMetaWriter * doCreateJsonMetaWriter(const GMetaJsonArchive & jsonArchive);
-	IMetaReader * doCreateJsonMetaReader(IMetaService * service, const GMetaJsonArchive & jsonArchive);
-
-} // namespace serialization_internal
-
-
 class GMetaJsonArchiveImplement;
 
 class GMetaJsonArchive
@@ -41,15 +33,9 @@ private:
 };
 
 
-inline IMetaWriter * createJsonMetaWriter(const GMetaJsonArchive & jsonArchive)
-{
-	return serialization_internal::doCreateJsonMetaWriter(jsonArchive);
-}
+IMetaWriter * createJsonMetaWriter(const GMetaJsonArchive & jsonArchive);
 
-inline IMetaReader * createJsonMetaReader(IMetaService * service, const GMetaJsonArchive & jsonArchive)
-{
-	return serialization_internal::doCreateJsonMetaReader(service, jsonArchive);
-}
+IMetaReader * createJsonMetaReader(IMetaService * service, const GMetaJsonArchive & jsonArchive);
 
 
 } // namespace cpgf

@@ -110,11 +110,11 @@ void doTestNestedObject(IMetaWriter * writer, const READER & reader, const AR & 
 
 	C * pinstance = &instance;
 	
-	serializeWriteObjectPointer(archiveWriter.get(), serializeObjectName, pinstance, metaClass.get());
+	serializeWriteData(archiveWriter.get(), serializeObjectName, pinstance, &module);
 	// should error
-//	GBEGIN_EXCEPTION
-//		serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
-//	GEND_EXCEPTION(...)
+	GBEGIN_EXCEPTION
+		serializeWriteData(archiveWriter.get(), serializeObjectName, instance, &module);
+	GEND_EXCEPTION(...)
 
 	ar.rewind();
 
@@ -141,25 +141,25 @@ GTEST(testNestedObject_TextStream)
 
 GTEST(testNestedObject_Xml)
 {
-	GMetaXmlArchive outputArchive;
+	GMetaXmlArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
 	
-	doTestNestedObject(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
+	doTestNestedObject(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
 	
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 
 GTEST(testNestedObject_Json)
 {
-	GMetaJsonArchive outputArchive;
+	GMetaJsonArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
 	
-	doTestNestedObject(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
+	doTestNestedObject(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
 	
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 

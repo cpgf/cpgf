@@ -57,14 +57,14 @@ void doTestMultipleDimensionArray(IMetaWriter * writer, const READER & reader, c
 	LOOP3(B1, B2, B3) po[z1][z2][z3] = &o[z1][z2][z3];
 	LOOP3(B1, B2, B3) { npo[z1][z2][z3] = new TestSerializeClass(); initTestValue(*npo[z1][z2][z3], getTestSeed(z1 * B2 * B3 + z2 * B3 + z3 + 1)); }
 
-	serializeWriteValue(archiveWriter.get(), "i", i);
-	serializeWriteValue(archiveWriter.get(), "l", l);
-	serializeWriteValue(archiveWriter.get(), "s2", s2);
-	serializeWriteValue(archiveWriter.get(), "s", s);
-	serializeWriteValue(archiveWriter.get(), "ps", ps);
-	serializeWriteValue(archiveWriter.get(), "o", o, &module);
-	serializeWriteValue(archiveWriter.get(), "po", po, &module);
-	serializeWriteValue(archiveWriter.get(), "npo", npo, &module);
+	serializeWriteData(archiveWriter.get(), "i", i);
+	serializeWriteData(archiveWriter.get(), "l", l);
+	serializeWriteData(archiveWriter.get(), "s2", s2);
+	serializeWriteData(archiveWriter.get(), "s", s);
+	serializeWriteData(archiveWriter.get(), "ps", ps);
+	serializeWriteData(archiveWriter.get(), "o", o, &module);
+	serializeWriteData(archiveWriter.get(), "po", po, &module);
+	serializeWriteData(archiveWriter.get(), "npo", npo, &module);
 
 	ar.rewind();
 
@@ -93,14 +93,14 @@ void doTestMultipleDimensionArray(IMetaWriter * writer, const READER & reader, c
 	LOOP3(B1, B2, B3) rpo[z1][z2][z3] = NULL;
 	LOOP3(B1, B2, B3) rnpo[z1][z2][z3] = NULL;
 
-	serializeReadValue(archiveReader.get(), "i", ri);
-	serializeReadValue(archiveReader.get(), "l", rl);
-	serializeReadValue(archiveReader.get(), "s2", rs2);
-	serializeReadValue(archiveReader.get(), "s", rs);
-	serializeReadValue(archiveReader.get(), "ps", rps);
-	serializeReadValue(archiveReader.get(), "o", ro, &module);
-	serializeReadValue(archiveReader.get(), "po", rpo, &module);
-	serializeReadValue(archiveReader.get(), "npo", rnpo, &module);
+	serializeReadData(archiveReader.get(), "i", ri);
+	serializeReadData(archiveReader.get(), "l", rl);
+	serializeReadData(archiveReader.get(), "s2", rs2);
+	serializeReadData(archiveReader.get(), "s", rs);
+	serializeReadData(archiveReader.get(), "ps", rps);
+	serializeReadData(archiveReader.get(), "o", ro, &module);
+	serializeReadData(archiveReader.get(), "po", rpo, &module);
+	serializeReadData(archiveReader.get(), "npo", rnpo, &module);
 
 #define EQ2(v, u, d1, d2) LOOP2(d1, d2) GEQUAL(v[z1][z2], u[z1][z2]);
 	EQ2(i, ri, A1, A2)
@@ -134,25 +134,25 @@ GTEST(testMultipleDimensionArray_TextStream)
 
 GTEST(testMultipleDimensionArray_Xml)
 {
-	GMetaXmlArchive outputArchive;
+	GMetaXmlArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
 	
-	doTestMultipleDimensionArray(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
+	doTestMultipleDimensionArray(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
 
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 
 GTEST(testMultipleDimensionArray_Json)
 {
-	GMetaJsonArchive outputArchive;
+	GMetaJsonArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
 	
-	doTestMultipleDimensionArray(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
+	doTestMultipleDimensionArray(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
 
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 

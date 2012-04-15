@@ -207,7 +207,7 @@ void doTestCustomizedSerializer(IMetaWriter * writer, const READER & reader, con
 	pb = &instance;
 	pc = &instance;
 
-	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+	serializeWriteObject(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
 
@@ -236,25 +236,25 @@ GTEST(testCustomizedSerializer_TextStream)
 
 GTEST(testCustomizedSerializer_Xml)
 {
-	GMetaXmlArchive outputArchive;
+	GMetaXmlArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
 	
-	doTestCustomizedSerializer(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
+	doTestCustomizedSerializer(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
 	
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 
 GTEST(testCustomizedSerializer_Json)
 {
-	GMetaJsonArchive outputArchive;
+	GMetaJsonArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
 	
-	doTestCustomizedSerializer(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
+	doTestCustomizedSerializer(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
 	
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 

@@ -353,19 +353,6 @@ private:
 };
 
 
-IMetaWriter * doCreateJsonMetaWriter(const GMetaJsonArchive & jsonArchive)
-{
-	jsonArchive.getImplement()->initializeJson();
-
-	return new GJsonMetaWriter(jsonArchive.getImplement()->getDataNode(), jsonArchive.getImplement()->getClassTypeNode());
-}
-
-IMetaReader * doCreateJsonMetaReader(IMetaService * service, const GMetaJsonArchive & jsonArchive)
-{
-	return new GJsonMetaReader(service, jsonArchive.getImplement()->getDataNode(), jsonArchive.getImplement()->getClassTypeNode());
-}
-
-
 GJsonMetaWriter::GJsonMetaWriter(JsonNodeType * dataNode, JsonNodeType * classTypeNode)
 	: dataNode(dataNode), classTypeNode(classTypeNode)
 {
@@ -755,6 +742,19 @@ JsonNodeType * GJsonMetaReader::getNode(const char * name)
 }
 
 } // namespace serialization_internal
+
+
+IMetaWriter * createJsonMetaWriter(const GMetaJsonArchive & jsonArchive)
+{
+	jsonArchive.getImplement()->initializeJson();
+
+	return new serialization_internal::GJsonMetaWriter(jsonArchive.getImplement()->getDataNode(), jsonArchive.getImplement()->getClassTypeNode());
+}
+
+IMetaReader * createJsonMetaReader(IMetaService * service, const GMetaJsonArchive & jsonArchive)
+{
+	return new serialization_internal::GJsonMetaReader(service, jsonArchive.getImplement()->getDataNode(), jsonArchive.getImplement()->getClassTypeNode());
+}
 
 
 } // namespace cpgf

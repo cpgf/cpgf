@@ -36,24 +36,24 @@ void doTestSimpleValue(IMetaWriter * writer, const READER & reader, const AR & a
 	string s = "abc";
 	string * ps = &s;
 
-	serializeWriteValue(archiveWriter.get(), "b", b);
-	serializeWriteValue(archiveWriter.get(), "c", c);
-	serializeWriteValue(archiveWriter.get(), "wc", wc);
-	serializeWriteValue(archiveWriter.get(), "sc", sc);
-	serializeWriteValue(archiveWriter.get(), "uc", uc);
-	serializeWriteValue(archiveWriter.get(), "si", si);
-	serializeWriteValue(archiveWriter.get(), "usi", usi);
-	serializeWriteValue(archiveWriter.get(), "i", i);
-	serializeWriteValue(archiveWriter.get(), "ui", ui);
-	serializeWriteValue(archiveWriter.get(), "l", l);
-	serializeWriteValue(archiveWriter.get(), "ul", ul);
-	serializeWriteValue(archiveWriter.get(), "ll", ll);
-	serializeWriteValue(archiveWriter.get(), "ull", ull);
-	serializeWriteValue(archiveWriter.get(), "f", f);
-	serializeWriteValue(archiveWriter.get(), "df", df);
-	serializeWriteValue(archiveWriter.get(), "ldf", ldf);
-	serializeWriteValue(archiveWriter.get(), "s", s);
-	serializeWriteValue(archiveWriter.get(), "ps", ps);
+	serializeWriteData(archiveWriter.get(), "b", b);
+	serializeWriteData(archiveWriter.get(), "c", c);
+	serializeWriteData(archiveWriter.get(), "wc", wc);
+	serializeWriteData(archiveWriter.get(), "sc", sc);
+	serializeWriteData(archiveWriter.get(), "uc", uc);
+	serializeWriteData(archiveWriter.get(), "si", si);
+	serializeWriteData(archiveWriter.get(), "usi", usi);
+	serializeWriteData(archiveWriter.get(), "i", i);
+	serializeWriteData(archiveWriter.get(), "ui", ui);
+	serializeWriteData(archiveWriter.get(), "l", l);
+	serializeWriteData(archiveWriter.get(), "ul", ul);
+	serializeWriteData(archiveWriter.get(), "ll", ll);
+	serializeWriteData(archiveWriter.get(), "ull", ull);
+	serializeWriteData(archiveWriter.get(), "f", f);
+	serializeWriteData(archiveWriter.get(), "df", df);
+	serializeWriteData(archiveWriter.get(), "ldf", ldf);
+	serializeWriteData(archiveWriter.get(), "s", s);
+	serializeWriteData(archiveWriter.get(), "ps", ps);
 
 	ar.rewind();
 	
@@ -78,24 +78,24 @@ void doTestSimpleValue(IMetaWriter * writer, const READER & reader, const AR & a
 	string rs = "";
 	string * rps = NULL;
 
-	serializeReadValue(archiveReader.get(), "b", rb);
-	serializeReadValue(archiveReader.get(), "c", rc);
-	serializeReadValue(archiveReader.get(), "wc", rwc);
-	serializeReadValue(archiveReader.get(), "sc", rsc);
-	serializeReadValue(archiveReader.get(), "uc", ruc);
-	serializeReadValue(archiveReader.get(), "si", rsi);
-	serializeReadValue(archiveReader.get(), "usi", rusi);
-	serializeReadValue(archiveReader.get(), "i", ri);
-	serializeReadValue(archiveReader.get(), "ui", rui);
-	serializeReadValue(archiveReader.get(), "l", rl);
-	serializeReadValue(archiveReader.get(), "ul", rul);
-	serializeReadValue(archiveReader.get(), "ll", rll);
-	serializeReadValue(archiveReader.get(), "ull", rull);
-	serializeReadValue(archiveReader.get(), "f", rf);
-	serializeReadValue(archiveReader.get(), "df", rdf);
-	serializeReadValue(archiveReader.get(), "ldf", rldf);
-	serializeReadValue(archiveReader.get(), "s", rs);
-	serializeReadValue(archiveReader.get(), "ps", rps);
+	serializeReadData(archiveReader.get(), "b", rb);
+	serializeReadData(archiveReader.get(), "c", rc);
+	serializeReadData(archiveReader.get(), "wc", rwc);
+	serializeReadData(archiveReader.get(), "sc", rsc);
+	serializeReadData(archiveReader.get(), "uc", ruc);
+	serializeReadData(archiveReader.get(), "si", rsi);
+	serializeReadData(archiveReader.get(), "usi", rusi);
+	serializeReadData(archiveReader.get(), "i", ri);
+	serializeReadData(archiveReader.get(), "ui", rui);
+	serializeReadData(archiveReader.get(), "l", rl);
+	serializeReadData(archiveReader.get(), "ul", rul);
+	serializeReadData(archiveReader.get(), "ll", rll);
+	serializeReadData(archiveReader.get(), "ull", rull);
+	serializeReadData(archiveReader.get(), "f", rf);
+	serializeReadData(archiveReader.get(), "df", rdf);
+	serializeReadData(archiveReader.get(), "ldf", rldf);
+	serializeReadData(archiveReader.get(), "s", rs);
+	serializeReadData(archiveReader.get(), "ps", rps);
 
 	GEQUAL(b, rb);
 	GEQUAL(c, rc);
@@ -131,25 +131,25 @@ GTEST(testSimpleValue_TextStream)
 
 GTEST(testSimpleValue_XML)
 {
-	GMetaXmlArchive outputArchive;
+	GMetaXmlArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
 	
-	doTestSimpleValue(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
+	doTestSimpleValue(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
 	
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 
 GTEST(testSimpleValue_Json)
 {
-	GMetaJsonArchive outputArchive;
+	GMetaJsonArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
 	
-	doTestSimpleValue(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
+	doTestSimpleValue(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
 	
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 

@@ -560,7 +560,7 @@ IMetaArchiveWriter * createMetaArchiveWriter(IMetaService * service, IMetaWriter
 }
 
 
-void serializeWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
+void serializeWriteObject(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
 {
 	GMetaTypeData metaType = metaGetItemType(metaClass).getData();
 	GScopedInterface<IMetaSerializer> serializer;
@@ -568,20 +568,6 @@ void serializeWriteObjectValue(IMetaArchiveWriter * archiveWriter, const char * 
 		serializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
 	}
 	archiveWriter->writeData(name, instance, &metaType, serializer.get());
-}
-
-void serializeWriteObjectPointer(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
-{
-	GMetaType metaType(metaGetItemType(metaClass));
-	if(! metaType.isPointer()) {
-		metaType.addPointer();
-	}
-	GMetaTypeData metaTypeData = metaType.getData();
-	GScopedInterface<IMetaSerializer> serializer;
-	if(metaClass != NULL) {
-		serializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
-	}
-	archiveWriter->writeData(name, instance, &metaTypeData, serializer.get());
 }
 
 void metaSerializerWriteObjectMembers(IMetaArchiveWriter * /*archiveWriter*/, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param)

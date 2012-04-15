@@ -135,8 +135,8 @@ void doTestOddFields(IMetaWriter * writer, const READER & reader, const AR & ar)
 	a1.a = 38;
 	a1.b = 78;
 
-	serializeWriteObjectValue(archiveWriter0.get(), serializeObjectName, &a0, metaClass0.get());
-	serializeWriteObjectValue(archiveWriter1.get(), serializeObjectName, &a1, metaClass1.get());
+	serializeWriteObject(archiveWriter0.get(), serializeObjectName, &a0, metaClass0.get());
+	serializeWriteObject(archiveWriter1.get(), serializeObjectName, &a1, metaClass1.get());
 
 	GScopedInterface<IMetaArchiveReader> archiveReader0(createMetaArchiveReader(service0.get(), reader.get(service0.get())));
 	GScopedInterface<IMetaArchiveReader> archiveReader1(createMetaArchiveReader(service1.get(), reader.get(service1.get())));
@@ -164,25 +164,25 @@ void doTestOddFields(IMetaWriter * writer, const READER & reader, const AR & ar)
 
 GTEST(testOddFields_Xml)
 {
-	GMetaXmlArchive outputArchive;
+	GMetaXmlArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
 	
-	doTestOddFields(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
+	doTestOddFields(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
 	
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 
 GTEST(testOddFields_Json)
 {
-	GMetaJsonArchive outputArchive;
+	GMetaJsonArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
 	
-	doTestOddFields(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
+	doTestOddFields(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
 	
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 

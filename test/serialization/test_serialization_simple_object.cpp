@@ -31,7 +31,7 @@ void doTestSimpleObject(IMetaWriter * writer, const READER & reader, const AR & 
 	TestSerializeClass instance;
 	instance.set(38);
 
-	serializeWriteObjectValue(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
+	serializeWriteObject(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
 	ar.rewind();
 	
@@ -61,25 +61,25 @@ GTEST(TestSimpleObject_TextStream)
 
 GTEST(TestSimpleObject_Xml)
 {
-	GMetaXmlArchive outputArchive;
+	GMetaXmlArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
 	
-	doTestSimpleObject(writer.get(), MetaReaderGetterXml(outputArchive), TestArchiveStreamNone());
+	doTestSimpleObject(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
 	
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 
 GTEST(TestSimpleObject_Json)
 {
-	GMetaJsonArchive outputArchive;
+	GMetaJsonArchive archive;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(outputArchive));
+	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
 	
-	doTestSimpleObject(writer.get(), MetaReaderGetterJson(outputArchive), TestArchiveStreamNone());
+	doTestSimpleObject(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
 	
-//	outputArchive.saveToStream(cout);
+//	archive.saveToStream(cout);
 }
 
 

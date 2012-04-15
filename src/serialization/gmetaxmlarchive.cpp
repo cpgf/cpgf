@@ -2,6 +2,7 @@
 #include "cpgf/serialization/gmetaarchivecommon.h"
 #include "cpgf/serialization/gmetaarchivereader.h"
 #include "cpgf/serialization/gmetaarchivewriter.h"
+#include "cpgf/serialization/gmetaarchivetypemap.h"
 #include "../pinclude/gmetaarchivecommonimpl.h"
 
 #include "cpgf/thirdparty/rapidxml/rapidxml.hpp"
@@ -22,6 +23,7 @@ using namespace rapidxml;
 
 
 namespace cpgf {
+
 
 namespace {
 
@@ -58,7 +60,7 @@ public:
 	void initializeXml();
 
 	void loadIntrusive(char * xmlContent);
-	void loadNonIntrusive(const char * xmlContent);
+	void load(const char * xmlContent);
 	void saveToStream(std::ostream & outputStream);
 
 	XmlNodeType * getDataNode() const;
@@ -104,7 +106,7 @@ void GMetaXmlArchiveImplement::loadIntrusive(char * xmlContent)
 	this->doLoad(xmlContent);
 }
 
-void GMetaXmlArchiveImplement::loadNonIntrusive(const char * xmlContent)
+void GMetaXmlArchiveImplement::load(const char * xmlContent)
 {
 	this->intrusiveXmlContent = xmlContent;
 	this->doLoad(&this->intrusiveXmlContent[0]);
@@ -166,10 +168,10 @@ void GMetaXmlArchive::loadIntrusive(char * xmlContent) const
 	this->implement->loadIntrusive(xmlContent);
 }
 
-void GMetaXmlArchive::loadNonIntrusive(const char * xmlContent) const
+void GMetaXmlArchive::load(const char * xmlContent) const
 {
 	this->implement.reset(new GMetaXmlArchiveImplement);
-	this->implement->loadNonIntrusive(xmlContent);
+	this->implement->load(xmlContent);
 }
 
 void GMetaXmlArchive::saveToStream(std::ostream & outputStream) const
@@ -805,5 +807,17 @@ PermanentType GXmlMetaReader::readType(XmlNodeType * node)
 } // namespace serialization_internal
 
 
+
+IMetaWriter * createXmlMetaWriter(const GMetaXmlArchive & xmlArchive)
+{
+	return serialization_internal::doCreateXmlMetaWriter(xmlArchive, &streamWriteFundamental<PromotedPermenentTypeMap>);
+}
+
+IMetaReader * createXmlMetaReader(IMetaService * service, const GMetaXmlArchive & xmlArchive)
+{
+	return serialization_internal::doCreateXmlMetaReader(service, xmlArchive, &streamReadFundamental<PromotedPermenentTypeMap>);
+}
+
+	
 } // namespace cpgf
 
