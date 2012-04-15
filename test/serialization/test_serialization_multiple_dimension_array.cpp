@@ -17,8 +17,8 @@ using namespace cpgf;
 
 namespace {
 
-template <typename READER, typename AR>
-void doTestMultipleDimensionArray(IMetaWriter * writer, const READER & reader, const AR & ar)
+template <typename AR>
+void doTestMultipleDimensionArray(IMetaStorageWriter * writer, IMetaStorageReader * reader, const AR & ar)
 {
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
@@ -66,9 +66,9 @@ void doTestMultipleDimensionArray(IMetaWriter * writer, const READER & reader, c
 	serializeWriteData(archiveWriter.get(), "po", po, &module);
 	serializeWriteData(archiveWriter.get(), "npo", npo, &module);
 
-	ar.rewind();
+	TestArchiveTraits<AR>::rewind(ar);
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader));
 
 	int ri[A1][A2];
 	string rs2[A1][A2];
@@ -124,9 +124,10 @@ GTEST(testMultipleDimensionArray_TextStream)
 {
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaStorageWriter> writer(createTextStreamStorageWriter(stream));
+	GScopedInterface<IMetaStorageReader> reader(createTextStreamStorageReader(stream));
 	
-	doTestMultipleDimensionArray(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
+	doTestMultipleDimensionArray(writer.get(), reader.get(), stream);
 
 //	cout << stream.str().c_str() << endl;
 }
@@ -134,25 +135,27 @@ GTEST(testMultipleDimensionArray_TextStream)
 
 GTEST(testMultipleDimensionArray_Xml)
 {
-	GMetaXmlArchive archive;
+	GMetaXmlStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createXmlStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createXmlStorageReader(storage));
 	
-	doTestMultipleDimensionArray(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
+	doTestMultipleDimensionArray(writer.get(), reader.get(), storage);
 
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 
 GTEST(testMultipleDimensionArray_Json)
 {
-	GMetaJsonArchive archive;
+	GMetaJsonStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createJsonStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createJsonStorageReader(storage));
 	
-	doTestMultipleDimensionArray(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
+	doTestMultipleDimensionArray(writer.get(), reader.get(), storage);
 
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 

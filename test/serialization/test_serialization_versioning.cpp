@@ -124,8 +124,8 @@ void register_TestSerializeClass(Define define, int version)
 	
 }
 
-template <typename READER, typename AR>
-void doTestVersioning(IMetaWriter * writer, const READER & reader, const AR & ar)
+template <typename AR>
+void doTestVersioning(IMetaStorageWriter * writer, IMetaStorageReader * reader, const AR & ar)
 {
 	const char * const serializeObjectName = "versioning";
 	const char * const className = "TestSerializeClassA";
@@ -177,9 +177,9 @@ void doTestVersioning(IMetaWriter * writer, const READER & reader, const AR & ar
 	serializeWriteObject(archiveWriter0.get(), serializeObjectName, &a0, metaClass0.get());
 	serializeWriteObject(archiveWriter1.get(), serializeObjectName, &a1, metaClass1.get());
 
-	GScopedInterface<IMetaArchiveReader> archiveReader2(createMetaArchiveReader(service2.get(), reader.get(service2.get())));
+	GScopedInterface<IMetaArchiveReader> archiveReader2(createMetaArchiveReader(service2.get(), reader));
 
-	ar.rewind();
+	TestArchiveTraits<AR>::rewind(ar);
 
 	A2 readInstance;
 	readInstance.a = 9;
@@ -209,9 +209,10 @@ GTEST(testVersioning_TextStream)
 {
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaStorageWriter> writer(createTextStreamStorageWriter(stream));
+	GScopedInterface<IMetaStorageReader> reader(createTextStreamStorageReader(stream));
 	
-	doTestVersioning(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
+	doTestVersioning(writer.get(), reader.get(), stream);
 	
 //	cout << stream.str().c_str() << endl;
 }
@@ -219,25 +220,27 @@ GTEST(testVersioning_TextStream)
 
 GTEST(testVersioning_Xml)
 {
-	GMetaXmlArchive archive;
+	GMetaXmlStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createXmlStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createXmlStorageReader(storage));
 	
-	doTestVersioning(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
+	doTestVersioning(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 
 GTEST(testVersioning_Json)
 {
-	GMetaJsonArchive archive;
+	GMetaJsonStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createJsonStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createJsonStorageReader(storage));
 	
-	doTestVersioning(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
+	doTestVersioning(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 

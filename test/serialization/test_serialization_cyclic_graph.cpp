@@ -113,8 +113,8 @@ void register_TestSerializeClass(Define define)
 	
 }
 
-template <typename READER, typename AR>
-void doTestCyclicGraph(IMetaWriter * writer, const READER & reader, const AR & ar)
+template <typename AR>
+void doTestCyclicGraph(IMetaStorageWriter * writer, IMetaStorageReader * reader, const AR & ar)
 {
 	const char * const serializeObjectName = "cyclicGraph";
 	
@@ -136,9 +136,9 @@ void doTestCyclicGraph(IMetaWriter * writer, const READER & reader, const AR & a
 
 	serializeWriteObject(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
-	ar.rewind();
+	TestArchiveTraits<AR>::rewind(ar);
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader));
 	
 	A readInstance;
 	
@@ -153,9 +153,10 @@ GTEST(testCyclicGraph_TextStream)
 {
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaStorageWriter> writer(createTextStreamStorageWriter(stream));
+	GScopedInterface<IMetaStorageReader> reader(createTextStreamStorageReader(stream));
 	
-	doTestCyclicGraph(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
+	doTestCyclicGraph(writer.get(), reader.get(), stream);
 	
 //	cout << stream.str().c_str() << endl;
 }
@@ -163,25 +164,27 @@ GTEST(testCyclicGraph_TextStream)
 
 GTEST(testCyclicGraph_Xml)
 {
-	GMetaXmlArchive archive;
+	GMetaXmlStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createXmlStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createXmlStorageReader(storage));
 	
-	doTestCyclicGraph(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
+	doTestCyclicGraph(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 
 GTEST(testCyclicGraph_Json)
 {
-	GMetaJsonArchive archive;
+	GMetaJsonStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createJsonStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createJsonStorageReader(storage));
 	
-	doTestCyclicGraph(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
+	doTestCyclicGraph(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 

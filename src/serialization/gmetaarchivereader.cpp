@@ -20,11 +20,11 @@ class GMetaArchiveReader : public IMetaArchiveReader, public IMetaSerializerRead
 	G_INTERFACE_IMPL_EXTENDOBJECT
 
 public:
-	GMetaArchiveReader(IMetaService * service, IMetaReader * reader);
+	GMetaArchiveReader(IMetaService * service, IMetaStorageReader * reader);
 	~GMetaArchiveReader();
 
 	virtual IMetaService * G_API_CC getMetaService();
-	virtual IMetaReader * G_API_CC getMetaReader();
+	virtual IMetaStorageReader * G_API_CC getMetaReader();
 
 	virtual void G_API_CC readData(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
 	
@@ -56,7 +56,7 @@ protected:
 
 private:
 	GScopedInterface<IMetaService> service;
-	GScopedInterface<IMetaReader> reader;
+	GScopedInterface<IMetaStorageReader> reader;
 	GScopedPointer<GMetaArchiveReaderPointerTracker> pointerSolver;
 	GScopedPointer<GMetaArchiveReaderClassTypeTracker> classTypeTracker;
 	GScopedInterface<IMemoryAllocator> allocator;
@@ -147,7 +147,7 @@ void GMetaArchiveReaderClassTypeTracker::addArchiveID(uint32_t archiveID, IMetaC
 }
 
 
-GMetaArchiveReader::GMetaArchiveReader(IMetaService * service, IMetaReader * reader)
+GMetaArchiveReader::GMetaArchiveReader(IMetaService * service, IMetaStorageReader * reader)
 	: service(service), reader(reader)
 {
 	if(this->service) {
@@ -167,7 +167,7 @@ IMetaService * G_API_CC GMetaArchiveReader::getMetaService()
 	return this->service.get();
 }
 
-IMetaReader * G_API_CC GMetaArchiveReader::getMetaReader()
+IMetaStorageReader * G_API_CC GMetaArchiveReader::getMetaReader()
 {
 	this->reader->addReference();
 	return this->reader.get();
@@ -348,7 +348,7 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 
 	if(type == matClassType) {
 		uint32_t classTypeID = archiveIDNone;
-		GScopedInterface<IMetaClass> metaClass(this->reader->readClassAndTypeID(&classTypeID));
+		GScopedInterface<IMetaClass> metaClass(this->reader->readMetaClassAndTypeID(this->service.get(), &classTypeID));
 		type = static_cast<GMetaArchiveItemType>(this->reader->getArchiveType(name));
 		if(metaClass && classTypeID != archiveIDNone && ! this->getClassTypeTracker()->hasArchiveID(classTypeID)) {
 			this->getClassTypeTracker()->addArchiveID(classTypeID, metaClass.get());
@@ -404,7 +404,7 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 							IMetaClass * storedMetaClass = this->getClassTypeTracker()->getMetaClass(classTypeID);
 							
 							if(storedMetaClass == NULL) {
-								metaClass.reset(this->reader->readClass(classTypeID));
+								metaClass.reset(this->reader->readMetaClass(this->service.get(), classTypeID));
 								storedMetaClass = metaClass.get();
 								if(storedMetaClass == NULL) {
 									serializeError(Error_Serialization_CannotFindObjectType);
@@ -537,7 +537,7 @@ GMetaArchiveReaderClassTypeTracker * GMetaArchiveReader::getClassTypeTracker()
 }
 
 
-IMetaArchiveReader * createMetaArchiveReader(IMetaService * service, IMetaReader * reader)
+IMetaArchiveReader * createMetaArchiveReader(IMetaService * service, IMetaStorageReader * reader)
 {
 	return new GMetaArchiveReader(service, reader);
 }

@@ -31,9 +31,7 @@ struct GMetaArchiveReaderParam
 
 #pragma pack(pop)
 
-class GMetaArchiveConfig;
-
-struct IMetaReader : public IObject
+struct IMetaStorageReader : public IObject
 {
 	virtual uint32_t G_API_CC getArchiveType(const char * name) = 0;
 	virtual uint32_t G_API_CC getClassTypeID(const char * name) = 0;
@@ -46,8 +44,8 @@ struct IMetaReader : public IObject
 	virtual void G_API_CC endReadObject(const char * name, uint32_t version) = 0;
 
 	virtual uint32_t G_API_CC readReferenceID(const char * name) = 0;
-	virtual IMetaClass * G_API_CC readClassAndTypeID(uint32_t * outClassTypeID) = 0;
-	virtual IMetaClass * G_API_CC readClass(uint32_t classTypeID) = 0;
+	virtual IMetaClass * G_API_CC readMetaClassAndTypeID(IMetaService * service, uint32_t * outClassTypeID) = 0;
+	virtual IMetaClass * G_API_CC readMetaClass(IMetaService * service, uint32_t classTypeID) = 0;
 
 	virtual uint32_t G_API_CC beginReadArray(const char * name) = 0;
 	virtual void G_API_CC endReadArray(const char * name) = 0;
@@ -57,7 +55,7 @@ struct IMetaReader : public IObject
 struct IMetaArchiveReader : public IExtendObject
 {
 	virtual IMetaService * G_API_CC getMetaService() = 0;
-	virtual IMetaReader * G_API_CC getMetaReader() = 0;
+	virtual IMetaStorageReader * G_API_CC getMetaReader() = 0;
 	
 	virtual void G_API_CC readData(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 
@@ -77,7 +75,7 @@ struct IMetaSerializerReader : public IExtendObject
 void metaSerializerReadObjectMembers(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param);
 
 
-IMetaArchiveReader * createMetaArchiveReader(IMetaService * service, IMetaReader * reader);
+IMetaArchiveReader * createMetaArchiveReader(IMetaService * service, IMetaStorageReader * reader);
 
 void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaClass * metaClass);
 

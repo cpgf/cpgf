@@ -85,8 +85,8 @@ void register_TestSerializeClass(Define define, int version)
 	
 }
 
-template <typename READER, typename AR>
-void doTestOddFields(IMetaWriter * writer, const READER & reader, const AR & ar)
+template <typename AR>
+void doTestOddFields(IMetaStorageWriter * writer, IMetaStorageReader * reader, const AR & ar)
 {
 	const char * const serializeObjectName = "versioning";
 	const char * const className = "TestSerializeClassA";
@@ -138,10 +138,10 @@ void doTestOddFields(IMetaWriter * writer, const READER & reader, const AR & ar)
 	serializeWriteObject(archiveWriter0.get(), serializeObjectName, &a0, metaClass0.get());
 	serializeWriteObject(archiveWriter1.get(), serializeObjectName, &a1, metaClass1.get());
 
-	GScopedInterface<IMetaArchiveReader> archiveReader0(createMetaArchiveReader(service0.get(), reader.get(service0.get())));
-	GScopedInterface<IMetaArchiveReader> archiveReader1(createMetaArchiveReader(service1.get(), reader.get(service1.get())));
+	GScopedInterface<IMetaArchiveReader> archiveReader0(createMetaArchiveReader(service0.get(), reader));
+	GScopedInterface<IMetaArchiveReader> archiveReader1(createMetaArchiveReader(service1.get(), reader));
 
-	ar.rewind();
+	TestArchiveTraits<AR>::rewind(ar);
 
 	A1 readInstance;
 	readInstance.a = 9;
@@ -164,25 +164,27 @@ void doTestOddFields(IMetaWriter * writer, const READER & reader, const AR & ar)
 
 GTEST(testOddFields_Xml)
 {
-	GMetaXmlArchive archive;
+	GMetaXmlStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createXmlStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createXmlStorageReader(storage));
 	
-	doTestOddFields(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
+	doTestOddFields(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 
 GTEST(testOddFields_Json)
 {
-	GMetaJsonArchive archive;
+	GMetaJsonStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createJsonStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createJsonStorageReader(storage));
 	
-	doTestOddFields(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
+	doTestOddFields(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 

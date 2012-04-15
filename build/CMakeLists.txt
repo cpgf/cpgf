@@ -80,9 +80,9 @@ set(SRC_META
 	${SRC_PATH}/serialization/gmetaarchivereader.cpp
 	${SRC_PATH}/serialization/gmetaarchivetypemap.cpp
 	${SRC_PATH}/serialization/gmetaarchivewriter.cpp
-	${SRC_PATH}/serialization/gmetatextstreamarchive.cpp
-	${SRC_PATH}/serialization/gmetaxmlarchive.cpp
-	${SRC_PATH}/serialization/gmetajsonarchive.cpp
+	${SRC_PATH}/serialization/gmetastorage_json.cpp
+	${SRC_PATH}/serialization/gmetastorage_textstream.cpp
+	${SRC_PATH}/serialization/gmetastorage_xml.cpp
 	
 	${SRC_PATH}/thirdparty/jsoncpp/json_reader.cpp
 	${SRC_PATH}/thirdparty/jsoncpp/json_value.cpp

@@ -12,8 +12,8 @@ using namespace cpgf;
 
 namespace {
 
-template <typename READER, typename AR>
-void doTestSimpleObject(IMetaWriter * writer, const READER & reader, const AR & ar)
+template <typename AR>
+void doTestSimpleObject(IMetaStorageWriter * writer, IMetaStorageReader * reader, const AR & ar)
 {
 	const char * const serializeObjectName = "simpleObject";
 	
@@ -33,9 +33,9 @@ void doTestSimpleObject(IMetaWriter * writer, const READER & reader, const AR & 
 
 	serializeWriteObject(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
-	ar.rewind();
+	TestArchiveTraits<AR>::rewind(ar);
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader));
 	
 	TestSerializeClass readInstance;
 	
@@ -52,34 +52,37 @@ GTEST(TestSimpleObject_TextStream)
 {
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaStorageWriter> writer(createTextStreamStorageWriter(stream));
+	GScopedInterface<IMetaStorageReader> reader(createTextStreamStorageReader(stream));
 	
-	doTestSimpleObject(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
+	doTestSimpleObject(writer.get(), reader.get(), stream);
 	
 //	cout << stream.str().c_str() << endl;
 }
 
 GTEST(TestSimpleObject_Xml)
 {
-	GMetaXmlArchive archive;
+	GMetaXmlStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createXmlStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createXmlStorageReader(storage));
 	
-	doTestSimpleObject(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
+	doTestSimpleObject(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 
 GTEST(TestSimpleObject_Json)
 {
-	GMetaJsonArchive archive;
+	GMetaJsonStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createJsonStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createJsonStorageReader(storage));
 	
-	doTestSimpleObject(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
+	doTestSimpleObject(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 

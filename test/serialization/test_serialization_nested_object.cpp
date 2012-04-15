@@ -89,8 +89,8 @@ void register_TestSerializeClass(Define define)
 	
 }
 
-template <typename READER, typename AR>
-void doTestNestedObject(IMetaWriter * writer, const READER & reader, const AR & ar)
+template <typename AR>
+void doTestNestedObject(IMetaStorageWriter * writer, IMetaStorageReader * reader, const AR & ar)
 {
 	const char * const serializeObjectName = "nestedObject";
 	
@@ -116,9 +116,9 @@ void doTestNestedObject(IMetaWriter * writer, const READER & reader, const AR & 
 		serializeWriteData(archiveWriter.get(), serializeObjectName, instance, &module);
 	GEND_EXCEPTION(...)
 
-	ar.rewind();
+	TestArchiveTraits<AR>::rewind(ar);
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader));
 	
 	C readInstance;
 	
@@ -131,9 +131,10 @@ GTEST(testNestedObject_TextStream)
 {
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaStorageWriter> writer(createTextStreamStorageWriter(stream));
+	GScopedInterface<IMetaStorageReader> reader(createTextStreamStorageReader(stream));
 	
-	doTestNestedObject(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
+	doTestNestedObject(writer.get(), reader.get(), stream);
 	
 //	cout << stream.str().c_str() << endl;
 }
@@ -141,25 +142,27 @@ GTEST(testNestedObject_TextStream)
 
 GTEST(testNestedObject_Xml)
 {
-	GMetaXmlArchive archive;
+	GMetaXmlStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createXmlStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createXmlStorageReader(storage));
 	
-	doTestNestedObject(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
+	doTestNestedObject(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 
 GTEST(testNestedObject_Json)
 {
-	GMetaJsonArchive archive;
+	GMetaJsonStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createJsonStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createJsonStorageReader(storage));
 	
-	doTestNestedObject(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
+	doTestNestedObject(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 

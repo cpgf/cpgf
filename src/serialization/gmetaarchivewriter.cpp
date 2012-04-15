@@ -24,11 +24,11 @@ class GMetaArchiveWriter : public IMetaArchiveWriter, public IMetaSerializerWrit
 	G_INTERFACE_IMPL_EXTENDOBJECT
 
 public:
-	GMetaArchiveWriter(IMetaService * service, IMetaWriter * writer);
+	GMetaArchiveWriter(IMetaService * service, IMetaStorageWriter * writer);
 	~GMetaArchiveWriter();
 
 	virtual IMetaService * G_API_CC getMetaService();
-	virtual IMetaWriter * G_API_CC getMetaWriter();
+	virtual IMetaStorageWriter * G_API_CC getMetaWriter();
 	
 	virtual void G_API_CC writeData(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
 	virtual void G_API_CC writeMember(GMetaArchiveWriterParam * param, IMetaAccessible * accessible);
@@ -61,7 +61,7 @@ protected:
 
 private:
 	GScopedInterface<IMetaService> service;
-	GScopedInterface<IMetaWriter> writer;
+	GScopedInterface<IMetaStorageWriter> writer;
 	uint32_t currentArchiveID;
 	GScopedPointer<GMetaArchiveWriterPointerTracker> pointerSolver;
 	GScopedPointer<GMetaArchiveWriterClassTypeTracker> classTypeTracker;
@@ -196,7 +196,7 @@ void GMetaArchiveWriterClassTypeTracker::addClassType(const string & classType, 
 }
 
 
-GMetaArchiveWriter::GMetaArchiveWriter(IMetaService * service, IMetaWriter * writer)
+GMetaArchiveWriter::GMetaArchiveWriter(IMetaService * service, IMetaStorageWriter * writer)
 	: service(service), writer(writer), currentArchiveID(0)
 {
 	if(this->service) {
@@ -216,7 +216,7 @@ IMetaService * G_API_CC GMetaArchiveWriter::getMetaService()
 	return this->service.get();
 }
 
-IMetaWriter * G_API_CC GMetaArchiveWriter::getMetaWriter()
+IMetaStorageWriter * G_API_CC GMetaArchiveWriter::getMetaWriter()
 {
 	this->writer->addReference();
 	return this->writer.get();
@@ -495,7 +495,7 @@ uint32_t GMetaArchiveWriter::getClassTypeID(const void * instance, IMetaClass * 
 				else {
 					classTypeID = this->getNextArchiveID();
 					this->getClassTypeTracker()->addClassType(typeName, classTypeID);
-					this->writer->writeClassType(classTypeID, castedMetaClass.get());
+					this->writer->writeMetaClass(classTypeID, castedMetaClass.get());
 				}
 				*outCastedMetaClass = castedMetaClass.take();
 			}
@@ -554,7 +554,7 @@ void GMetaArchiveWriter::doEndWriteObject(GMetaArchiveWriterParam * param)
 	this->writer->endWriteObject(param->name, param->archiveID, param->classTypeID, param->config.version);
 }
 
-IMetaArchiveWriter * createMetaArchiveWriter(IMetaService * service, IMetaWriter * writer)
+IMetaArchiveWriter * createMetaArchiveWriter(IMetaService * service, IMetaStorageWriter * writer)
 {
 	return new GMetaArchiveWriter(service, writer);
 }

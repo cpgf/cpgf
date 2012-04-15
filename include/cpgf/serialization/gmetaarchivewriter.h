@@ -52,9 +52,7 @@ struct GMetaArchiveWriterParam
 
 #pragma pack(pop)
 
-class GMetaArchiveConfig;
-
-struct IMetaWriter : public IObject
+struct IMetaStorageWriter : public IObject
 {
 	virtual void G_API_CC writeFundamental(const char * name, const GVariantData * value) = 0;
 	virtual void G_API_CC writeString(const char * name, uint32_t archiveID, const char * value) = 0;
@@ -64,7 +62,7 @@ struct IMetaWriter : public IObject
 	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID, uint32_t version) = 0;
 
 	virtual void G_API_CC writeReferenceID(const char * name, uint32_t referenceArchiveID) = 0;
-	virtual void G_API_CC writeClassType(uint32_t classTypeID, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC writeMetaClass(uint32_t classTypeID, IMetaClass * metaClass) = 0;
 
 	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length) = 0;
 	virtual void G_API_CC endWriteArray(const char * name, uint32_t length) = 0;
@@ -73,7 +71,7 @@ struct IMetaWriter : public IObject
 struct IMetaArchiveWriter : public IExtendObject
 {
 	virtual IMetaService * G_API_CC getMetaService() = 0;
-	virtual IMetaWriter * G_API_CC getMetaWriter() = 0;
+	virtual IMetaStorageWriter * G_API_CC getMetaWriter() = 0;
 	
 	virtual void G_API_CC writeData(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 	
@@ -90,7 +88,7 @@ struct IMetaSerializerWriter : public IExtendObject
 void metaSerializerWriteObjectMembers(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param);
 
 
-IMetaArchiveWriter * createMetaArchiveWriter(IMetaService * service, IMetaWriter * writer);
+IMetaArchiveWriter * createMetaArchiveWriter(IMetaService * service, IMetaStorageWriter * writer);
 
 void serializeWriteObject(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass);
 

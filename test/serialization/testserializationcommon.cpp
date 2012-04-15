@@ -1,9 +1,6 @@
 #include "testserializationcommon.h"
-#include "cpgf/serialization/gmetaxmlarchive.h"
-
 
 #include <stdio.h>
-
 
 using namespace std;
 using namespace cpgf;
@@ -12,54 +9,6 @@ using namespace cpgf;
 #pragma warning(push)
 #pragma warning(disable:4996)
 #endif
-
-
-MetaReaderGetterStream::MetaReaderGetterStream(std::stringstream & outputStream)
-	: outputStream(outputStream)
-{
-}
-
-IMetaReader * MetaReaderGetterStream::get(IMetaService * service) const
-{
-	if(! this->reader) {
-		this->reader.reset(createTextStreamMetaReader(service, outputStream));
-	}
-
-	return this->reader.get();
-}
-
-MetaReaderGetterXml::MetaReaderGetterXml(GMetaXmlArchive & outputArchive)
-	: outputArchive(outputArchive)
-{
-}
-
-IMetaReader * MetaReaderGetterXml::get(IMetaService * service) const
-{
-	if(! this->reader) {
-		stringstream stream;
-		this->outputArchive.saveToStream(stream);
-		this->inputArchive.load(stream.str().c_str());
-		this->reader.reset(cpgf::createXmlMetaReader(service, this->inputArchive));
-	}
-	return this->reader.get();
-}
-
-
-MetaReaderGetterJson::MetaReaderGetterJson(GMetaJsonArchive & outputArchive)
-	: outputArchive(outputArchive)
-{
-}
-
-IMetaReader * MetaReaderGetterJson::get(IMetaService * service) const
-{
-	if(! this->reader) {
-		stringstream stream;
-		this->outputArchive.saveToStream(stream);
-		this->inputArchive.load(stream.str().c_str());
-		this->reader.reset(cpgf::createJsonMetaReader(service, this->inputArchive));
-	}
-	return this->reader.get();
-}
 
 
 void initTestValue(bool & value, long long seed)
@@ -111,13 +60,10 @@ void initTestValue(long double & value, long long seed)
 
 long long getTestSeed(int n)
 {
-return n;
-/*
 	long long seed = 0x739521LL;
 	
 	seed <<= (n % 32);
 	seed += n;
 
 	return seed;
-*/	
 }

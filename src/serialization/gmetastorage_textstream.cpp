@@ -1,4 +1,4 @@
-#include "cpgf/serialization/gmetatextstreamarchive.h"
+#include "cpgf/serialization/gmetastorage_textstream.h"
 #include "cpgf/serialization/gmetaarchivereader.h"
 #include "cpgf/serialization/gmetaarchivewriter.h"
 #include "cpgf/serialization/gmetaarchivecommon.h"
@@ -88,7 +88,7 @@ int GMetaArchiveTypeSession::getType() const
 
 namespace serialization_internal {
 
-class GTextStreamMetaWriter : public IMetaWriter
+class GTextStreamMetaWriter : public IMetaStorageWriter
 {
 	GMAKE_NONCOPYABLE(GTextStreamMetaWriter);
 
@@ -111,7 +111,7 @@ protected:
 	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID, uint32_t version);
 
 	virtual void G_API_CC writeReferenceID(const char * name, uint32_t referenceArchiveID);
-	virtual void G_API_CC writeClassType(uint32_t classTypeID, IMetaClass * metaClass);
+	virtual void G_API_CC writeMetaClass(uint32_t classTypeID, IMetaClass * metaClass);
 
 	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length);
 	virtual void G_API_CC endWriteArray(const char * name, uint32_t length);
@@ -131,7 +131,7 @@ private:
 	GMetaArchiveTypeSession typeSession;
 };
 
-class GTextStreamMetaReader : public IMetaReader
+class GTextStreamMetaReader : public IMetaStorageReader
 {
 	GMAKE_NONCOPYABLE(GTextStreamMetaReader);
 
@@ -154,7 +154,7 @@ private:
     friend class StreamMarker;
 
 public:
-	GTextStreamMetaReader(IMetaService * service, std::istream & inputStream, serialization_internal::FuncStreamReadFundamental streamReadFundamental);
+	GTextStreamMetaReader(std::istream & inputStream, serialization_internal::FuncStreamReadFundamental streamReadFundamental);
 
 protected:
 	G_INTERFACE_IMPL_OBJECT
@@ -170,8 +170,8 @@ protected:
 	virtual void G_API_CC endReadObject(const char * name, uint32_t version);
 
 	virtual uint32_t G_API_CC readReferenceID(const char * name);
-	virtual IMetaClass * G_API_CC readClassAndTypeID(uint32_t * outClassTypeID);
-	virtual IMetaClass * G_API_CC readClass(uint32_t classTypeID);
+	virtual IMetaClass * G_API_CC readMetaClassAndTypeID(IMetaService * service, uint32_t * outClassTypeID);
+	virtual IMetaClass * G_API_CC readMetaClass(IMetaService * service, uint32_t classTypeID);
 
 	virtual uint32_t G_API_CC beginReadArray(const char * name);
 	virtual void G_API_CC endReadArray(const char * name);
@@ -186,7 +186,6 @@ protected:
 	char * doReadString(IMemoryAllocator * allocator);
 
 private:
-	GScopedInterface<IMetaService> service;
 	std::istream & inputStream;
 	serialization_internal::FuncStreamReadFundamental streamReadFundamental;
 	int * variantTypeMap;
@@ -194,14 +193,14 @@ private:
 };
 
 
-IMetaWriter * doCreateTextStreamMetaWriter(std::ostream & outputStream, FuncStreamWriteFundamental func)
+IMetaStorageWriter * doCreateTextStreamMetaWriter(std::ostream & outputStream, FuncStreamWriteFundamental func)
 {
 	return new GTextStreamMetaWriter(outputStream, func);
 }
 
-IMetaReader * doCreateTextStreamMetaReader(IMetaService * service, std::istream & inputStream, FuncStreamReadFundamental func)
+IMetaStorageReader * doCreateTextStreamMetaReader(std::istream & inputStream, FuncStreamReadFundamental func)
 {
-	return new GTextStreamMetaReader(service, inputStream, func);
+	return new GTextStreamMetaReader(inputStream, func);
 }
 
 
@@ -290,7 +289,7 @@ void G_API_CC GTextStreamMetaWriter::writeReferenceID(const char * /*name*/, uin
 	this->outputStream << static_cast<uint32_t>(referenceArchiveID);
 }
 
-void G_API_CC GTextStreamMetaWriter::writeClassType(uint32_t classTypeID, IMetaClass * metaClass)
+void G_API_CC GTextStreamMetaWriter::writeMetaClass(uint32_t classTypeID, IMetaClass * metaClass)
 {
 	this->writeType(ptClassType);
 	this->writeDelimiter();
@@ -356,12 +355,9 @@ void GTextStreamMetaWriter::doWriteString(const char * s)
 
 
 
-GTextStreamMetaReader::GTextStreamMetaReader(IMetaService * service, std::istream & inputStream, serialization_internal::FuncStreamReadFundamental streamReadFundamental)
-	: service(service), inputStream(inputStream), streamReadFundamental(streamReadFundamental), variantTypeMap(defaultVariantTypeMap)
+GTextStreamMetaReader::GTextStreamMetaReader(std::istream & inputStream, serialization_internal::FuncStreamReadFundamental streamReadFundamental)
+	: inputStream(inputStream), streamReadFundamental(streamReadFundamental), variantTypeMap(defaultVariantTypeMap)
 {
-	if(this->service) {
-		this->service->addReference();
-	}
 }
 
 PermanentType GTextStreamMetaReader::getTypeInSession(bool removeType)
@@ -518,7 +514,7 @@ uint32_t G_API_CC GTextStreamMetaReader::readReferenceID(const char * /*name*/)
 	return referenceArchiveID;
 }
 
-IMetaClass * G_API_CC GTextStreamMetaReader::readClassAndTypeID(uint32_t * outClassTypeID)
+IMetaClass * G_API_CC GTextStreamMetaReader::readMetaClassAndTypeID(IMetaService * service, uint32_t * outClassTypeID)
 {
 	PermanentType type = this->readType();
 	serializeCheckType(type, ptClassType);
@@ -529,10 +525,10 @@ IMetaClass * G_API_CC GTextStreamMetaReader::readClassAndTypeID(uint32_t * outCl
 	*outClassTypeID = id;
 	
 	GScopedArray<char> classType(this->doReadString(NULL));
-	return this->service->findClassByName(classType.get());
+	return service->findClassByName(classType.get());
 }
 
-IMetaClass * G_API_CC GTextStreamMetaReader::readClass(uint32_t /*classTypeID*/)
+IMetaClass * G_API_CC GTextStreamMetaReader::readMetaClass(IMetaService * /*service*/, uint32_t /*classTypeID*/)
 {
 	return NULL;
 }
@@ -603,14 +599,14 @@ char * GTextStreamMetaReader::doReadString(IMemoryAllocator * allocator)
 } // namespace serialization_internal
 
 
-IMetaWriter * createTextStreamMetaWriter(std::ostream & outputStream)
+IMetaStorageWriter * createTextStreamStorageWriter(std::ostream & outputStream)
 {
 	return serialization_internal::doCreateTextStreamMetaWriter(outputStream, &streamWriteFundamental<PromotedPermenentTypeMap>);
 }
 
-IMetaReader * createTextStreamMetaReader(IMetaService * service, std::istream & inputStream)
+IMetaStorageReader * createTextStreamStorageReader(std::istream & inputStream)
 {
-	return serialization_internal::doCreateTextStreamMetaReader(service, inputStream, &streamReadFundamental<PromotedPermenentTypeMap>);
+	return serialization_internal::doCreateTextStreamMetaReader(inputStream, &streamReadFundamental<PromotedPermenentTypeMap>);
 }
 
 

@@ -15,8 +15,8 @@ using namespace cpgf;
 
 namespace {
 
-template <typename READER, typename AR>
-void doTestSimpleArray(IMetaWriter * writer, const READER & reader, const AR & ar)
+template <typename AR>
+void doTestSimpleArray(IMetaStorageWriter * writer, IMetaStorageReader * reader, const AR & ar)
 {
 	GDefineMetaNamespace define = GDefineMetaNamespace::declare("global");
 	register_TestSerializeClass(define);
@@ -108,9 +108,9 @@ void doTestSimpleArray(IMetaWriter * writer, const READER & reader, const AR & a
 	serializeWriteData(archiveWriter.get(), "po", po, &module);
 	serializeWriteData(archiveWriter.get(), "npo", npo, &module);
 
-	ar.rewind();
+	TestArchiveTraits<AR>::rewind(ar);
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader));
 
 	bool rb[A];
 	char rc[B];
@@ -222,34 +222,37 @@ GTEST(testSimpleArray_TextStream)
 {
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaStorageWriter> writer(createTextStreamStorageWriter(stream));
+	GScopedInterface<IMetaStorageReader> reader(createTextStreamStorageReader(stream));
 	
-	doTestSimpleArray(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
+	doTestSimpleArray(writer.get(), reader.get(), stream);
 
 //	cout << stream.str().c_str() << endl;
 }
 
 GTEST(testSimpleArray_Xml)
 {
-	GMetaXmlArchive archive;
+	GMetaXmlStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createXmlStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createXmlStorageReader(storage));
 	
-	doTestSimpleArray(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
+	doTestSimpleArray(writer.get(), reader.get(), storage);
 
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 
 GTEST(testSimpleArray_Json)
 {
-	GMetaJsonArchive archive;
+	GMetaJsonStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createJsonStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createJsonStorageReader(storage));
 	
-	doTestSimpleArray(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
+	doTestSimpleArray(writer.get(), reader.get(), storage);
 
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 

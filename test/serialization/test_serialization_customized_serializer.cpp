@@ -181,8 +181,8 @@ void register_TestSerializeClass(Define define)
 	
 }
 
-template <typename READER, typename AR>
-void doTestCustomizedSerializer(IMetaWriter * writer, const READER & reader, const AR & ar)
+template <typename AR>
+void doTestCustomizedSerializer(IMetaStorageWriter * writer, IMetaStorageReader * reader, const AR & ar)
 {
 	const char * const serializeObjectName = "customizedSerializer";
 	
@@ -209,9 +209,9 @@ void doTestCustomizedSerializer(IMetaWriter * writer, const READER & reader, con
 
 	serializeWriteObject(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader));
 
-	ar.rewind();
+	TestArchiveTraits<AR>::rewind(ar);
 
 	R readInstance;
 
@@ -226,9 +226,10 @@ GTEST(testCustomizedSerializer_TextStream)
 {
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaStorageWriter> writer(createTextStreamStorageWriter(stream));
+	GScopedInterface<IMetaStorageReader> reader(createTextStreamStorageReader(stream));
 	
-	doTestCustomizedSerializer(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
+	doTestCustomizedSerializer(writer.get(), reader.get(), stream);
 	
 //	cout << stream.str().c_str() << endl;
 }
@@ -236,25 +237,27 @@ GTEST(testCustomizedSerializer_TextStream)
 
 GTEST(testCustomizedSerializer_Xml)
 {
-	GMetaXmlArchive archive;
+	GMetaXmlStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createXmlStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createXmlStorageReader(storage));
 	
-	doTestCustomizedSerializer(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
+	doTestCustomizedSerializer(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 
 GTEST(testCustomizedSerializer_Json)
 {
-	GMetaJsonArchive archive;
+	GMetaJsonStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createJsonStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createJsonStorageReader(storage));
 	
-	doTestCustomizedSerializer(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
+	doTestCustomizedSerializer(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 

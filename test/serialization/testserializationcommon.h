@@ -4,9 +4,9 @@
 #include "cpgf/serialization/gmetaarchivereader.h"
 #include "cpgf/serialization/gmetaarchivewriter.h"
 
-#include "cpgf/serialization/gmetatextstreamarchive.h"
-#include "cpgf/serialization/gmetaxmlarchive.h"
-#include "cpgf/serialization/gmetajsonarchive.h"
+#include "cpgf/serialization/gmetastorage_textstream.h"
+#include "cpgf/serialization/gmetastorage_xml.h"
+#include "cpgf/serialization/gmetastorage_json.h"
 
 #include "cpgf/metatraits/gmetaserializer_string.h"
 #include "cpgf/metatraits/gmetaserializer_array.h"
@@ -19,67 +19,20 @@
 
 #define FIELD(cls, n) ._field(# n, &cls::n)
 
-template <typename STREAM>
-class TestArchiveStream
-{
-public:
-	explicit TestArchiveStream(STREAM & stream) : stream(stream) {}
-	
-	void rewind() const {
-		this->stream.seekg(0);
-	}
 
-private:
-	TestArchiveStream & operator = (const TestArchiveStream &);
-	
-private:
-	STREAM & stream;
-};
-
-class TestArchiveStreamNone
+template <typename T>
+struct TestArchiveTraits
 {
-public:
-	void rewind() const {
+	static void rewind(const T &) {
 	}
 };
 
-
-class MetaReaderGetterStream
+template <>
+struct TestArchiveTraits <std::stringstream>
 {
-public:
-	explicit MetaReaderGetterStream(std::stringstream & outputStream);
-
-	cpgf::IMetaReader * get(cpgf::IMetaService * service) const;
-
-private:
-	std::stringstream & outputStream;
-	mutable cpgf::GScopedInterface<cpgf::IMetaReader> reader;
-};
-
-class MetaReaderGetterXml
-{
-public:
-	explicit MetaReaderGetterXml(cpgf::GMetaXmlArchive & outputArchive);
-
-	cpgf::IMetaReader * get(cpgf::IMetaService * service) const;
-
-private:
-	cpgf::GMetaXmlArchive & outputArchive;
-	cpgf::GMetaXmlArchive inputArchive;
-	mutable cpgf::GScopedInterface<cpgf::IMetaReader> reader;
-};
-
-class MetaReaderGetterJson
-{
-public:
-	explicit MetaReaderGetterJson(cpgf::GMetaJsonArchive & outputArchive);
-
-	cpgf::IMetaReader * get(cpgf::IMetaService * service) const;
-
-private:
-	cpgf::GMetaJsonArchive & outputArchive;
-	cpgf::GMetaJsonArchive inputArchive;
-	mutable cpgf::GScopedInterface<cpgf::IMetaReader> reader;
+	static void rewind(const std::stringstream & stream) {
+		const_cast<std::stringstream &>(stream).seekg(0);
+	}
 };
 
 

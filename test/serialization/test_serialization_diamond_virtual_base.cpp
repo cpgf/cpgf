@@ -122,8 +122,8 @@ void register_TestSerializeClass(Define define)
 
 }
 
-template <typename READER, typename AR>
-void doTestDiamondVirtualBase(IMetaWriter * writer, const READER & reader, const AR & ar)
+template <typename AR>
+void doTestDiamondVirtualBase(IMetaStorageWriter * writer, IMetaStorageReader * reader, const AR & ar)
 {
 	const char * const serializeObjectName = "diamondVirtualBase";
 	
@@ -151,9 +151,9 @@ void doTestDiamondVirtualBase(IMetaWriter * writer, const READER & reader, const
 
 	serializeWriteObject(archiveWriter.get(), serializeObjectName, &instance, metaClass.get());
 
-	ar.rewind();
+	TestArchiveTraits<AR>::rewind(ar);
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader.get(service.get())));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader));
 	
 	D readInstance;
 	
@@ -174,9 +174,10 @@ GTEST(testDiamondVirtualBase_TextStream)
 {
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaStorageWriter> writer(createTextStreamStorageWriter(stream));
+	GScopedInterface<IMetaStorageReader> reader(createTextStreamStorageReader(stream));
 	
-	doTestDiamondVirtualBase(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
+	doTestDiamondVirtualBase(writer.get(), reader.get(), stream);
 	
 //	cout << stream.str().c_str() << endl;
 }
@@ -184,25 +185,27 @@ GTEST(testDiamondVirtualBase_TextStream)
 
 GTEST(testDiamondVirtualBase_Xml)
 {
-	GMetaXmlArchive archive;
+	GMetaXmlStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createXmlStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createXmlStorageReader(storage));
 	
-	doTestDiamondVirtualBase(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
+	doTestDiamondVirtualBase(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 
 GTEST(testDiamondVirtualBase_Json)
 {
-	GMetaJsonArchive archive;
+	GMetaJsonStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createJsonStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createJsonStorageReader(storage));
 	
-	doTestDiamondVirtualBase(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
+	doTestDiamondVirtualBase(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 

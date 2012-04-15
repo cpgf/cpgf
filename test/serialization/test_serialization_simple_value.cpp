@@ -12,8 +12,8 @@ using namespace cpgf;
 
 namespace {
 
-template <typename READER, typename AR>
-void doTestSimpleValue(IMetaWriter * writer, const READER & reader, const AR & ar)
+template <typename AR>
+void doTestSimpleValue(IMetaStorageWriter * writer, IMetaStorageReader * reader, const AR & ar)
 {
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(NULL, writer));
 
@@ -55,9 +55,9 @@ void doTestSimpleValue(IMetaWriter * writer, const READER & reader, const AR & a
 	serializeWriteData(archiveWriter.get(), "s", s);
 	serializeWriteData(archiveWriter.get(), "ps", ps);
 
-	ar.rewind();
+	TestArchiveTraits<AR>::rewind(ar);
 	
-	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(NULL, reader.get(NULL)));
+	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(NULL, reader));
 	
 	bool rb = false;
 	char rc = 0;
@@ -121,9 +121,10 @@ GTEST(testSimpleValue_TextStream)
 {
 	stringstream stream;
 
-	GScopedInterface<IMetaWriter> writer(createTextStreamMetaWriter(stream));
+	GScopedInterface<IMetaStorageWriter> writer(createTextStreamStorageWriter(stream));
+	GScopedInterface<IMetaStorageReader> reader(createTextStreamStorageReader(stream));
 	
-	doTestSimpleValue(writer.get(), MetaReaderGetterStream(stream), TestArchiveStream<stringstream>(stream));
+	doTestSimpleValue(writer.get(), reader.get(), stream);
 
 //	cout << stream.str().c_str() << endl;
 }
@@ -131,25 +132,27 @@ GTEST(testSimpleValue_TextStream)
 
 GTEST(testSimpleValue_XML)
 {
-	GMetaXmlArchive archive;
+	GMetaXmlStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createXmlMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createXmlStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createXmlStorageReader(storage));
 	
-	doTestSimpleValue(writer.get(), MetaReaderGetterXml(archive), TestArchiveStreamNone());
+	doTestSimpleValue(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 
 GTEST(testSimpleValue_Json)
 {
-	GMetaJsonArchive archive;
+	GMetaJsonStorage storage;
 
-	GScopedInterface<IMetaWriter> writer(createJsonMetaWriter(archive));
+	GScopedInterface<IMetaStorageWriter> writer(createJsonStorageWriter(storage));
+	GScopedInterface<IMetaStorageReader> reader(createJsonStorageReader(storage));
 	
-	doTestSimpleValue(writer.get(), MetaReaderGetterJson(archive), TestArchiveStreamNone());
+	doTestSimpleValue(writer.get(), reader.get(), storage);
 	
-//	archive.saveToStream(cout);
+//	storage.saveToStream(cout);
 }
 
 

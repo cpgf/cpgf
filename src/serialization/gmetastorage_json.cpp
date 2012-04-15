@@ -1,4 +1,4 @@
-#include "cpgf/serialization/gmetajsonarchive.h"
+#include "cpgf/serialization/gmetastorage_json.h"
 #include "cpgf/serialization/gmetaarchivecommon.h"
 #include "cpgf/serialization/gmetaarchivereader.h"
 #include "cpgf/serialization/gmetaarchivewriter.h"
@@ -39,10 +39,10 @@ void checkNode(JsonNodeType * node, const char * /*nodeName*/)
 } // unnamed namespace
 
 
-class GMetaJsonArchiveImplement
+class GMetaJsonStorageImplement
 {
 public:
-	GMetaJsonArchiveImplement();
+	GMetaJsonStorageImplement();
 
 	void initializeJson();
 
@@ -59,18 +59,18 @@ private:
 };
 
 
-GMetaJsonArchiveImplement::GMetaJsonArchiveImplement()
+GMetaJsonStorageImplement::GMetaJsonStorageImplement()
 	: dataNode(NULL), classTypeNode(NULL)
 {
 }
 
-void GMetaJsonArchiveImplement::initializeJson()
+void GMetaJsonStorageImplement::initializeJson()
 {
 	this->dataNode = &this->root[nameDataNode];
 	this->classTypeNode = &this->root[nameClassTypesNode];
 }
 
-void GMetaJsonArchiveImplement::load(const char * jsonContent)
+void GMetaJsonStorageImplement::load(const char * jsonContent)
 {
 	Reader reader;
 	bool ok = reader.parse(jsonContent, this->root);
@@ -81,45 +81,45 @@ void GMetaJsonArchiveImplement::load(const char * jsonContent)
 	this->initializeJson();
 }
 
-void GMetaJsonArchiveImplement::saveToStream(std::ostream & outputStream)
+void GMetaJsonStorageImplement::saveToStream(std::ostream & outputStream)
 {
 	outputStream << this->root;
 }
 
-JsonNodeType * GMetaJsonArchiveImplement::getDataNode()
+JsonNodeType * GMetaJsonStorageImplement::getDataNode()
 {
 	return this->dataNode;
 }
 
-JsonNodeType * GMetaJsonArchiveImplement::getClassTypeNode()
+JsonNodeType * GMetaJsonStorageImplement::getClassTypeNode()
 {
 	return this->classTypeNode;
 }
 
 
-GMetaJsonArchive::GMetaJsonArchive()
+GMetaJsonStorage::GMetaJsonStorage()
 {
 }
 
-GMetaJsonArchive::~GMetaJsonArchive()
+GMetaJsonStorage::~GMetaJsonStorage()
 {
 }
 
-void GMetaJsonArchive::load(const char * jsonContent) const
+void GMetaJsonStorage::load(const char * jsonContent) const
 {
-	this->implement.reset(new GMetaJsonArchiveImplement);
+	this->implement.reset(new GMetaJsonStorageImplement);
 	this->implement->load(jsonContent);
 }
 
-void GMetaJsonArchive::saveToStream(std::ostream & outputStream) const
+void GMetaJsonStorage::saveToStream(std::ostream & outputStream) const
 {
 	this->implement->saveToStream(outputStream);
 }
 
-GMetaJsonArchiveImplement * GMetaJsonArchive::getImplement() const
+GMetaJsonStorageImplement * GMetaJsonStorage::getImplement() const
 {
 	if(! this->implement) {
-		this->implement.reset(new GMetaJsonArchiveImplement);
+		this->implement.reset(new GMetaJsonStorageImplement);
 	}
 	return this->implement.get();
 }
@@ -260,16 +260,16 @@ void GJsonNodeNameTracker::addArrayIndex()
 }
 
 
-class GJsonMetaWriter : public IMetaWriter
+class GJsonStorageWriter : public IMetaStorageWriter
 {
-	GMAKE_NONCOPYABLE(GJsonMetaWriter);
+	GMAKE_NONCOPYABLE(GJsonStorageWriter);
 
 private:
 	typedef stack<GJsonNodeNameTracker> ObjectNodeStack;
 
 public:
-	GJsonMetaWriter(JsonNodeType * dataNode, JsonNodeType * classTypeNode);
-	~GJsonMetaWriter();
+	GJsonStorageWriter(JsonNodeType * dataNode, JsonNodeType * classTypeNode);
+	~GJsonStorageWriter();
 
 protected:
 	G_INTERFACE_IMPL_OBJECT
@@ -282,7 +282,7 @@ protected:
 	virtual void G_API_CC endWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID, uint32_t version);
 
 	virtual void G_API_CC writeReferenceID(const char * name, uint32_t referenceArchiveID);
-	virtual void G_API_CC writeClassType(uint32_t classTypeID, IMetaClass * metaClass);
+	virtual void G_API_CC writeMetaClass(uint32_t classTypeID, IMetaClass * metaClass);
 
 	virtual void G_API_CC beginWriteArray(const char * name, uint32_t length);
 	virtual void G_API_CC endWriteArray(const char * name, uint32_t length);
@@ -302,16 +302,16 @@ private:
 	ObjectNodeStack nodeStack;
 };
 
-class GJsonMetaReader : public IMetaReader
+class GJsonStorageReader : public IMetaStorageReader
 {
-	GMAKE_NONCOPYABLE(GJsonMetaReader);
+	GMAKE_NONCOPYABLE(GJsonStorageReader);
 
 private:
 	typedef stack<GJsonNodeNameTracker> ObjectNodeStack;
 
 public:
-	GJsonMetaReader(IMetaService * service, JsonNodeType * dataNode, JsonNodeType * classTypeNode);
-	~GJsonMetaReader();
+	GJsonStorageReader(JsonNodeType * dataNode, JsonNodeType * classTypeNode);
+	~GJsonStorageReader();
 
 protected:
 	G_INTERFACE_IMPL_OBJECT
@@ -327,8 +327,8 @@ protected:
 	virtual void G_API_CC endReadObject(const char * name, uint32_t version);
 
 	virtual uint32_t G_API_CC readReferenceID(const char * name);
-	virtual IMetaClass * G_API_CC readClassAndTypeID(uint32_t * outClassTypeID);
-	virtual IMetaClass * G_API_CC readClass(uint32_t classTypeID);
+	virtual IMetaClass * G_API_CC readMetaClassAndTypeID(IMetaService * service, uint32_t * outClassTypeID);
+	virtual IMetaClass * G_API_CC readMetaClass(IMetaService * service, uint32_t classTypeID);
 
 	virtual uint32_t G_API_CC beginReadArray(const char * name);
 	virtual void G_API_CC endReadArray(const char * name);
@@ -346,27 +346,26 @@ private:
 	JsonNodeType * getNode(const char * name);
 
 private:
-	GScopedInterface<IMetaService> service;
 	JsonNodeType * dataNode;
 	JsonNodeType * classTypeNode;
 	ObjectNodeStack nodeStack;
 };
 
 
-GJsonMetaWriter::GJsonMetaWriter(JsonNodeType * dataNode, JsonNodeType * classTypeNode)
+GJsonStorageWriter::GJsonStorageWriter(JsonNodeType * dataNode, JsonNodeType * classTypeNode)
 	: dataNode(dataNode), classTypeNode(classTypeNode)
 {
 	this->nodeStack.push(GJsonNodeNameTracker(this->dataNode));
 }
 
-GJsonMetaWriter::~GJsonMetaWriter()
+GJsonStorageWriter::~GJsonStorageWriter()
 {
 	while(! this->nodeStack.empty()) {
 		this->doPopNode();
 	}
 }
 
-void G_API_CC GJsonMetaWriter::writeFundamental(const char * name, const GVariantData * value)
+void G_API_CC GJsonStorageWriter::writeFundamental(const char * name, const GVariantData * value)
 {
 	GVariant v(*value);
 
@@ -392,20 +391,20 @@ void G_API_CC GJsonMetaWriter::writeFundamental(const char * name, const GVarian
 	}
 }
 
-void G_API_CC GJsonMetaWriter::writeString(const char * name, uint32_t archiveID, const char * value)
+void G_API_CC GJsonStorageWriter::writeString(const char * name, uint32_t archiveID, const char * value)
 {
 	JsonNodeType & newNode = this->addNode(name);
 	newNode[nameString] = value;
 	newNode[nameArchiveID] = archiveID;
 }
 
-void G_API_CC GJsonMetaWriter::writeNullPointer(const char * name)
+void G_API_CC GJsonStorageWriter::writeNullPointer(const char * name)
 {
 	JsonNodeType & newNode = this->addNode(name);
 	newNode[nameNull] = 1;
 }
 
-void G_API_CC GJsonMetaWriter::beginWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID, uint32_t version)
+void G_API_CC GJsonStorageWriter::beginWriteObject(const char * name, uint32_t archiveID, uint32_t classTypeID, uint32_t version)
 {
 	JsonNodeType & newNode = this->addNode(name);
 	newNode[nameVersion] = version;
@@ -416,18 +415,18 @@ void G_API_CC GJsonMetaWriter::beginWriteObject(const char * name, uint32_t arch
 	this->pushNode(&contentNode);
 }
 
-void G_API_CC GJsonMetaWriter::endWriteObject(const char * /*name*/, uint32_t /*archiveID*/, uint32_t /*classTypeID*/, uint32_t /*version*/)
+void G_API_CC GJsonStorageWriter::endWriteObject(const char * /*name*/, uint32_t /*archiveID*/, uint32_t /*classTypeID*/, uint32_t /*version*/)
 {
 	this->popNode();
 }
 
-void G_API_CC GJsonMetaWriter::writeReferenceID(const char * name, uint32_t referenceArchiveID)
+void G_API_CC GJsonStorageWriter::writeReferenceID(const char * name, uint32_t referenceArchiveID)
 {
 	JsonNodeType & newNode = this->addNode(name);
 	newNode[nameReferenceID] = referenceArchiveID;
 }
 
-void G_API_CC GJsonMetaWriter::writeClassType(uint32_t classTypeID, IMetaClass * metaClass)
+void G_API_CC GJsonStorageWriter::writeMetaClass(uint32_t classTypeID, IMetaClass * metaClass)
 {
 	stringstream stream;
 	stream << prefixClassType << classTypeID;
@@ -436,7 +435,7 @@ void G_API_CC GJsonMetaWriter::writeClassType(uint32_t classTypeID, IMetaClass *
 	currentNode[stream.str()] = metaClass->getTypeName();
 }
 
-void G_API_CC GJsonMetaWriter::beginWriteArray(const char * name, uint32_t length)
+void G_API_CC GJsonStorageWriter::beginWriteArray(const char * name, uint32_t length)
 {
 	JsonNodeType & newNode = this->addNode(name);
 	newNode[nameLength] = length;
@@ -445,27 +444,27 @@ void G_API_CC GJsonMetaWriter::beginWriteArray(const char * name, uint32_t lengt
 	this->pushNode(&contentNode, true);
 }
 
-void G_API_CC GJsonMetaWriter::endWriteArray(const char * /*name*/, uint32_t /*length*/)
+void G_API_CC GJsonStorageWriter::endWriteArray(const char * /*name*/, uint32_t /*length*/)
 {
 	this->popNode();
 }
 
-JsonNodeType * GJsonMetaWriter::getCurrentNode() const
+JsonNodeType * GJsonStorageWriter::getCurrentNode() const
 {
 	return this->nodeStack.top().getNode();
 }
 
-void GJsonMetaWriter::pushNode(JsonNodeType * node)
+void GJsonStorageWriter::pushNode(JsonNodeType * node)
 {
 	this->nodeStack.push(GJsonNodeNameTracker(node));
 }
 
-void GJsonMetaWriter::pushNode(JsonNodeType * node, bool isArray)
+void GJsonStorageWriter::pushNode(JsonNodeType * node, bool isArray)
 {
 	this->nodeStack.push(GJsonNodeNameTracker(node, isArray));
 }
 
-void GJsonMetaWriter::popNode()
+void GJsonStorageWriter::popNode()
 {
 	GASSERT(! this->nodeStack.empty());
 
@@ -475,13 +474,13 @@ void GJsonMetaWriter::popNode()
 	GASSERT(! this->nodeStack.empty());
 }
 
-void GJsonMetaWriter::doPopNode()
+void GJsonStorageWriter::doPopNode()
 {
 	this->nodeStack.top().free();
 	this->nodeStack.pop();
 }
 
-JsonNodeType & GJsonMetaWriter::addNode(const char * name)
+JsonNodeType & GJsonStorageWriter::addNode(const char * name)
 {
 	JsonNodeType & currentNode = *(this->getCurrentNode());
 	if(this->nodeStack.top().isArray()) {
@@ -495,24 +494,20 @@ JsonNodeType & GJsonMetaWriter::addNode(const char * name)
 }
 
 
-GJsonMetaReader::GJsonMetaReader(IMetaService * service, JsonNodeType * dataNode, JsonNodeType * classTypeNode)
-	: service(service), dataNode(dataNode), classTypeNode(classTypeNode)
+GJsonStorageReader::GJsonStorageReader(JsonNodeType * dataNode, JsonNodeType * classTypeNode)
+	: dataNode(dataNode), classTypeNode(classTypeNode)
 {
 	this->nodeStack.push(GJsonNodeNameTracker(this->dataNode));
-
-	if(this->service) {
-		this->service->addReference();
-	}
 }
 
-GJsonMetaReader::~GJsonMetaReader()
+GJsonStorageReader::~GJsonStorageReader()
 {
 	while(! this->nodeStack.empty()) {
 		this->doPopNode();
 	}
 }
 
-uint32_t G_API_CC GJsonMetaReader::getArchiveType(const char * name)
+uint32_t G_API_CC GJsonStorageReader::getArchiveType(const char * name)
 {
 	JsonNodeType * node = this->getNode(name, false);
 	
@@ -550,7 +545,7 @@ uint32_t G_API_CC GJsonMetaReader::getArchiveType(const char * name)
 	return matFundamental;
 }
 
-uint32_t G_API_CC GJsonMetaReader::getClassTypeID(const char * name)
+uint32_t G_API_CC GJsonStorageReader::getClassTypeID(const char * name)
 {
 	JsonNodeType * node = this->getNode(name, false);
 	checkNode(node, name);
@@ -558,7 +553,7 @@ uint32_t G_API_CC GJsonMetaReader::getClassTypeID(const char * name)
 	return (*node)[nameClassTypeID].asUInt();
 }
 
-void G_API_CC GJsonMetaReader::readFundamental(const char * name, GVariantData * outValue)
+void G_API_CC GJsonStorageReader::readFundamental(const char * name, GVariantData * outValue)
 {
 	JsonNodeType * node = this->getNode(name);
 	checkNode(node, name);
@@ -578,7 +573,7 @@ void G_API_CC GJsonMetaReader::readFundamental(const char * name, GVariantData *
 	*outValue = v.takeData();
 }
 
-char * G_API_CC GJsonMetaReader::readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID)
+char * G_API_CC GJsonStorageReader::readString(const char * name, IMemoryAllocator * allocator, uint32_t * outArchiveID)
 {
 	JsonNodeType * node = this->getNode(name);
 	checkNode(node, name);
@@ -602,13 +597,13 @@ char * G_API_CC GJsonMetaReader::readString(const char * name, IMemoryAllocator 
 	return result;
 }
 
-void * G_API_CC GJsonMetaReader::readNullPointer(const char * name)
+void * G_API_CC GJsonStorageReader::readNullPointer(const char * name)
 {
 	this->getNode(name);
 	return NULL;
 }
 
-uint32_t G_API_CC GJsonMetaReader::beginReadObject(const char * name, uint32_t * outVersion)
+uint32_t G_API_CC GJsonStorageReader::beginReadObject(const char * name, uint32_t * outVersion)
 {
 	JsonNodeType * node = this->getNode(name);
 	checkNode(node, name);
@@ -623,12 +618,12 @@ uint32_t G_API_CC GJsonMetaReader::beginReadObject(const char * name, uint32_t *
 	return archiveID;
 }
 
-void G_API_CC GJsonMetaReader::endReadObject(const char * /*name*/, uint32_t /*version*/)
+void G_API_CC GJsonStorageReader::endReadObject(const char * /*name*/, uint32_t /*version*/)
 {
 	this->popNode();
 }
 
-uint32_t G_API_CC GJsonMetaReader::readReferenceID(const char * name)
+uint32_t G_API_CC GJsonStorageReader::readReferenceID(const char * name)
 {
 	JsonNodeType * node = this->getNode(name);
 	checkNode(node, name);
@@ -636,12 +631,12 @@ uint32_t G_API_CC GJsonMetaReader::readReferenceID(const char * name)
 	return (*node)[nameReferenceID].asUInt();
 }
 
-IMetaClass * G_API_CC GJsonMetaReader::readClassAndTypeID(uint32_t * /*outClassTypeID*/)
+IMetaClass * G_API_CC GJsonStorageReader::readMetaClassAndTypeID(IMetaService * /*service*/, uint32_t * /*outClassTypeID*/)
 {
 	return NULL;
 }
 
-IMetaClass * G_API_CC GJsonMetaReader::readClass(uint32_t classTypeID)
+IMetaClass * G_API_CC GJsonStorageReader::readMetaClass(IMetaService * service, uint32_t classTypeID)
 {
 	stringstream stream;
 	stream << prefixClassType << classTypeID;
@@ -651,14 +646,14 @@ IMetaClass * G_API_CC GJsonMetaReader::readClass(uint32_t classTypeID)
 	
 	if(! node.isNull()) {
 		string s = node.asString();
-		return this->service->findClassByName(s.c_str());
+		return service->findClassByName(s.c_str());
 	}
 	else {
 		return NULL;
 	}
 }
 
-uint32_t G_API_CC GJsonMetaReader::beginReadArray(const char * name)
+uint32_t G_API_CC GJsonStorageReader::beginReadArray(const char * name)
 {
 	JsonNodeType * node = this->getNode(name);
 	checkNode(node, name);
@@ -673,27 +668,27 @@ uint32_t G_API_CC GJsonMetaReader::beginReadArray(const char * name)
 	}
 }
 
-void G_API_CC GJsonMetaReader::endReadArray(const char * /*name*/)
+void G_API_CC GJsonStorageReader::endReadArray(const char * /*name*/)
 {
 	this->popNode();
 }
 
-JsonNodeType * GJsonMetaReader::getCurrentNode() const
+JsonNodeType * GJsonStorageReader::getCurrentNode() const
 {
 	return this->nodeStack.top().getNode();
 }
 
-void GJsonMetaReader::pushNode(JsonNodeType * node)
+void GJsonStorageReader::pushNode(JsonNodeType * node)
 {
 	this->nodeStack.push(GJsonNodeNameTracker(node));
 }
 
-void GJsonMetaReader::pushNode(JsonNodeType * node, bool isArray)
+void GJsonStorageReader::pushNode(JsonNodeType * node, bool isArray)
 {
 	this->nodeStack.push(GJsonNodeNameTracker(node, isArray));
 }
 
-void GJsonMetaReader::popNode()
+void GJsonStorageReader::popNode()
 {
 	GASSERT(! this->nodeStack.empty());
 
@@ -703,13 +698,13 @@ void GJsonMetaReader::popNode()
 	GASSERT(! this->nodeStack.empty());
 }
 
-void GJsonMetaReader::doPopNode()
+void GJsonStorageReader::doPopNode()
 {
 	this->nodeStack.top().free();
 	this->nodeStack.pop();
 }
 
-JsonNodeType * GJsonMetaReader::getNode(const char * name, bool moveToNext)
+JsonNodeType * GJsonStorageReader::getNode(const char * name, bool moveToNext)
 {
 	JsonNodeType * currentNode = this->getCurrentNode();
 	if(this->nodeStack.top().isArray()) {
@@ -736,7 +731,7 @@ JsonNodeType * GJsonMetaReader::getNode(const char * name, bool moveToNext)
 	}
 }
 
-JsonNodeType * GJsonMetaReader::getNode(const char * name)
+JsonNodeType * GJsonStorageReader::getNode(const char * name)
 {
 	return this->getNode(name, true);
 }
@@ -744,16 +739,16 @@ JsonNodeType * GJsonMetaReader::getNode(const char * name)
 } // namespace serialization_internal
 
 
-IMetaWriter * createJsonMetaWriter(const GMetaJsonArchive & jsonArchive)
+IMetaStorageWriter * createJsonStorageWriter(const GMetaJsonStorage & jsonStorage)
 {
-	jsonArchive.getImplement()->initializeJson();
+	jsonStorage.getImplement()->initializeJson();
 
-	return new serialization_internal::GJsonMetaWriter(jsonArchive.getImplement()->getDataNode(), jsonArchive.getImplement()->getClassTypeNode());
+	return new serialization_internal::GJsonStorageWriter(jsonStorage.getImplement()->getDataNode(), jsonStorage.getImplement()->getClassTypeNode());
 }
 
-IMetaReader * createJsonMetaReader(IMetaService * service, const GMetaJsonArchive & jsonArchive)
+IMetaStorageReader * createJsonStorageReader(const GMetaJsonStorage & jsonStorage)
 {
-	return new serialization_internal::GJsonMetaReader(service, jsonArchive.getImplement()->getDataNode(), jsonArchive.getImplement()->getClassTypeNode());
+	return new serialization_internal::GJsonStorageReader(jsonStorage.getImplement()->getDataNode(), jsonStorage.getImplement()->getClassTypeNode());
 }
 
 

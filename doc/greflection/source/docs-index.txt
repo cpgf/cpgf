@@ -43,7 +43,7 @@
 <{sc}>
 
 <{autoul}>
-	<a href="docs-cpgf-serialization-meta-archive-writer-reader.html">Create archive reader/writer and meta reader writer </a>
+	<a href="docs-cpgf-serialization-storage-archive-writer-reader.html">Create archive reader/writer and storage reader/writer </a>
 	<a href="docs-cpgf-serialization-save-load.html">Serialize and deserialize objects </a>
 <{/autoul}>
 
