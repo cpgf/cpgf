@@ -350,6 +350,10 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 		uint32_t classTypeID = archiveIDNone;
 		GScopedInterface<IMetaClass> metaClass(this->reader->readMetaClassAndTypeID(this->service.get(), &classTypeID));
 		type = static_cast<GMetaArchiveItemType>(this->reader->getArchiveType(name));
+		
+		// according to GMetaArchiveWriter, a class type can't follow another class type.
+		GASSERT(type != matClassType);
+
 		if(metaClass && classTypeID != archiveIDNone && ! this->getClassTypeTracker()->hasArchiveID(classTypeID)) {
 			this->getClassTypeTracker()->addArchiveID(classTypeID, metaClass.get());
 		}
