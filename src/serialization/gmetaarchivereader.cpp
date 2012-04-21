@@ -557,7 +557,7 @@ void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, 
 	archiveReader->readData(name, instance, &metaType, serializer.get());
 }
 
-void metaSerializerReadObjectMembers(IMetaArchiveReader * /*archiveReader*/, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param)
+void metaSerializerReadObjectMembers(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param)
 {
 	if(param->instance == NULL) {
 		return;
@@ -568,13 +568,14 @@ void metaSerializerReadObjectMembers(IMetaArchiveReader * /*archiveReader*/, IMe
 	uint32_t count;
 
 	GMetaArchiveConfig config(getItemMetaArchiveConfig(param->metaClass));
+	GScopedInterface<IMetaService> service(archiveReader->getMetaService());
 
 	if(config.allowSerializeField()) {
 		count = param->metaClass->getFieldCount();
 		for(i = 0; i < count; ++i) {
 			accessible.reset(param->metaClass->getFieldAt(i));
 
-			if(canSerializeField(config, accessible.get(), param->metaClass)) {
+			if(canSerializeField(config, accessible.get(), service.get())) {
 				serializerReader->readMember(param, accessible.get());
 			}
 		}
@@ -584,7 +585,7 @@ void metaSerializerReadObjectMembers(IMetaArchiveReader * /*archiveReader*/, IMe
 		count = param->metaClass->getPropertyCount();
 		for(i = 0; i < count; ++i) {
 			accessible.reset(param->metaClass->getPropertyAt(i));
-			if(canSerializeField(config, accessible.get(), param->metaClass)) {
+			if(canSerializeField(config, accessible.get(), service.get())) {
 				serializerReader->readMember(param, accessible.get());
 			}
 		}

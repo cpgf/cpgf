@@ -570,7 +570,7 @@ void serializeWriteObject(IMetaArchiveWriter * archiveWriter, const char * name,
 	archiveWriter->writeData(name, instance, &metaType, serializer.get());
 }
 
-void metaSerializerWriteObjectMembers(IMetaArchiveWriter * /*archiveWriter*/, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param)
+void metaSerializerWriteObjectMembers(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param)
 {
 	if(param->instance == NULL) {
 		return;
@@ -581,13 +581,14 @@ void metaSerializerWriteObjectMembers(IMetaArchiveWriter * /*archiveWriter*/, IM
 	uint32_t count;
 
 	GMetaArchiveConfig config(getItemMetaArchiveConfig(param->metaClass));
+	GScopedInterface<IMetaService> service(archiveWriter->getMetaService());
 
 	if(config.allowSerializeField()) {
 		count = param->metaClass->getFieldCount();
 		for(i = 0; i < count; ++i) {
 			accessible.reset(param->metaClass->getFieldAt(i));
 
-			if(canSerializeField(config, accessible.get(), param->metaClass)) {
+			if(canSerializeField(config, accessible.get(), service.get())) {
 				serializerWriter->writeMember(param, accessible.get());
 			}
 		}
@@ -597,7 +598,7 @@ void metaSerializerWriteObjectMembers(IMetaArchiveWriter * /*archiveWriter*/, IM
 		count = param->metaClass->getPropertyCount();
 		for(i = 0; i < count; ++i) {
 			accessible.reset(param->metaClass->getPropertyAt(i));
-			if(canSerializeField(config, accessible.get(), param->metaClass)) {
+			if(canSerializeField(config, accessible.get(), service.get())) {
 				serializerWriter->writeMember(param, accessible.get());
 			}
 		}

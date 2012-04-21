@@ -16,6 +16,7 @@ set(TARGET_SAMPLELUA samplelua)
 set(TARGET_SAMPLEREFLECTION samplereflection)
 set(TARGET_SAMPLEOPENGL sampleopengl)
 set(TARGET_SAMPLEBOX2D samplebox2d)
+set(TARGET_SAMPLESERIALIZATION sampleserialization)
 set(TARGET_UNITTEST test)
 
 set(OUTNAME_LIB cpgf)
@@ -23,6 +24,7 @@ set(OUTNAME_SAMPLELUA samplelua)
 set(OUTNAME_SAMPLEREFLECTION samplereflection)
 set(OUTNAME_SAMPLEOPENGL sampleopengl)
 set(OUTNAME_SAMPLEBOX2D samplebox2d)
+set(OUTNAME_SAMPLESERIALIZATION sampleserialization)
 set(OUTNAME_UNITTEST test)
 
 set(ROOT_PATH ${PROJECT_SOURCE_DIR}/..)
@@ -31,7 +33,6 @@ set(LIB_PATH ${ROOT_PATH}/lib)
 
 set(SRC_PATH ${ROOT_PATH}/src)
 set(SAMPLE_ROOT ${ROOT_PATH}/samples)
-set(SAMPLE_REFLECT_PATH ${SAMPLE_ROOT}/reflection)
 set(SAMPLE_BIND_PATH ${SAMPLE_ROOT}/scriptbind)
 
 set(TEST_PATH ${ROOT_PATH}/test)
@@ -89,12 +90,18 @@ set(SRC_META
 	${SRC_PATH}/thirdparty/jsoncpp/json_writer.cpp
 )
 
-file(GLOB GLOB_SAMPLEREFLECTION ${SAMPLE_REFLECT_PATH}/*.cpp)
+file(GLOB GLOB_SAMPLEREFLECTION ${SAMPLE_ROOT}/reflection/*.cpp)
 set(SRC_SAMPLEREFLECTION
 	${SAMPLE_ROOT}/samplemain.cpp
 	
 	${GLOB_SAMPLEREFLECTION}
 )
+
+file(GLOB GLOB_SAMPLESERIALIZATION ${SAMPLE_ROOT}/serialization/*.cpp)
+set(SRC_SAMPLESERIALIZATION
+	${GLOB_SAMPLESERIALIZATION}
+)
+
 
 set(SRC_LUA_BIND )
 set(SRC_V8_BIND )
@@ -193,6 +200,22 @@ set_target_properties(
 )
 
 target_link_libraries(${TARGET_SAMPLEREFLECTION} ${TARGET_LIB})
+
+# sample serialization
+add_executable(
+	${TARGET_SAMPLESERIALIZATION}
+	EXCLUDE_FROM_ALL
+		${SRC_SAMPLESERIALIZATION}
+)
+
+set_target_properties(
+	${TARGET_SAMPLESERIALIZATION}
+	PROPERTIES
+	OUTPUT_NAME ${OUTNAME_SAMPLESERIALIZATION}
+	COMPILE_FLAGS ${TEST_COMPILE_FLAGS}
+)
+
+target_link_libraries(${TARGET_SAMPLESERIALIZATION} ${TARGET_LIB})
 
 # sample Lua
 if(${HAS_LUA})

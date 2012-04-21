@@ -199,7 +199,7 @@ bool canSerializeObject(const GMetaArchiveConfig & config, IMetaClass * metaClas
 	return canSerializeItem(config, metaClass);
 }
 
-bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * accessible, IMetaClass * /*ownerClass*/)
+bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * accessible, IMetaService * service)
 {
 	if(! accessible->canGet()) {
 		return false;
@@ -209,8 +209,15 @@ bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * acce
 	}
 
 	GMetaType metaType = metaGetItemType(accessible);
-	if(metaType.getPointerDimension() > 1) {
+	if(! canSerializeMetaType(metaType)) {
 		return false;
+	}
+
+	if(metaType.getBaseName() != NULL) {
+		GScopedInterface<IMetaClass> metaClass(service->findClassByName(metaType.getBaseName()));
+		if(! canSerializeObject(config, metaClass.get())) {
+			return false;
+		}
 	}
 
 	return canSerializeItem(config, accessible);
@@ -229,6 +236,10 @@ bool canSerializeMetaType(const GMetaType & metaType)
 {
 	if(metaType.getPointerDimension() > 1) {
 		return false;
+	}
+
+	if(metaType.getPointerDimension() > 0) {
+		return metaType.baseIsClass();
 	}
 
 	return true;
