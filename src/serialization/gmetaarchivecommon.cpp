@@ -313,7 +313,7 @@ GVariant readFundamental(const void * address, const GMetaType & metaType)
 				return *(GFixedTypeFloat64::Signed *)(address);
 
 			default:
-				if(size == sizeof(long double)) { // long double has vary size on GCC...
+				if(metaType.getVariantType() == vtLongDouble) { // long double has vary size on GCC...
 					return *(GFixedTypeFloat80::Signed *)(address);
 					break;
 				}
@@ -411,7 +411,7 @@ void writeFundamental(void * address, const GMetaType & metaType, const GVariant
 				break;
 
 			default:
-				if(size == sizeof(long double)) { // long double has vary size on GCC...
+				if(metaType.getVariantType() == vtLongDouble) { // long double has vary size on GCC...
 					*(GFixedTypeFloat80::Signed *)(address) = fromVariant<GFixedTypeFloat80::Signed>(v);
 					break;
 				}

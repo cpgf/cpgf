@@ -82,6 +82,8 @@ public:
 	
 	GSharedInterface & operator = (GSharedInterface other) {
 		this->swap(other);
+		
+		return *this;
 	}
 	
 	~GSharedInterface() {

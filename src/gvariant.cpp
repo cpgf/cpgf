@@ -58,7 +58,7 @@ unsigned int getVariantTypeSize(GVariantType type)
 			return sizeof(double);
 
 		case vtLongDouble:
-			return sizeof(long double);
+			return 0; // sizeof(long double); on iOS, long double is 16 bytes which is too big.
 
 		case vtShadow:
 		case vtObject:
