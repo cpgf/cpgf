@@ -6,12 +6,16 @@ It's written in (almostly) standard C++ and doesn't require any preprocess or to
 
 
 Version:
-	1.3.0
+	1.4.0
 
 		
 Libraries:
 	cpgf reflection -- a library to add	reflection feature to C++.
 	
+	cpgf serialization -- a library to save C++ data and objects to	persistent storage
+		and then load back.
+		It's based on the reflection library.
+
 	cpgf script binding -- a script binding engine to bind Lua and Google V8 to C++.
 		It's based on the reflection library.
 	
@@ -46,9 +50,7 @@ Learning the library:
 
 	The fastest way to get start with the library is to read the sample code
 	in the folder "samples".
-	The sample code was originally written for test purpose, so they are not
-	as easy to read as you expect. But they covers most features so it's
-	a good kick off.
+	The samples cover most features so it's	a good kick off.
 	
 	If you want to read more sample code, read the code in the folder "test".
 	They are for unit test. They are much more difficult to read and
@@ -72,6 +74,8 @@ Build the library:
 	The library uses CMake as the build system.
 	A makefile is provided to wrap the CMake build.
 	To build the library, open command line terminal, go to folder "build",
+	
+	The library requires C++ exception and RTTI are enabled.
 	
 	make PLATFORM
 		

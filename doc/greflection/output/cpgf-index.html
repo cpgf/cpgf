@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="maintpl.css" />
-<title>cpgf library -- a free C++ open source library for reflection, script binding, callbacks</title>
+<title>cpgf library -- a free C++ open source library for reflection, serialization, script binding, callbacks</title>
 </head>
 <body><div style="width:900px">
 
@@ -19,11 +19,13 @@
 
 
 
-<h1>cpgf library -- a free C++ open source library for reflection, script binding, callbacks </h1>
+<h1>cpgf library -- a free C++ open source library for reflection, serialization, script binding, callbacks </h1>
 
 cpgf is a free, open source and cross platform C++ library.<br />
 cpgf is composed by several independent components:<br />
 <ul><li>	cpgf reflection -- a library to add	reflection feature to C++.
+</li>	
+<li>	cpgf serialization -- a library to save C++ data and objects to persistent storage and then load back.
 </li>	
 <li>	cpgf script binding -- a script binding engine to bind Lua and Google V8 Javascript to C++. It's based on the reflection library.
 </li>	
@@ -34,11 +36,12 @@ cpgf is composed by several independent components:<br />
 <li>	cpgf meta data generator tool -- a Perl script to automatically generate meta data from Doxygen XML files.
 </li></ul>The goal of cpgf is to extend C++ language with a lot of easy to use features which are only available in other higher level languages and absence in C++.<br />
 cpgf provides a very easy to use callback system, which is common used in C# and script languages.<br />
-cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? now we have it in C++!<br />
+cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? Now we have it in C++!<br />
+cpgf provides a very easy to use serialization system. Want the serialization system in C# and Java? Now we have it in C++!<br />
 cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding engine uses the reflection system extensively.<br />
 Want to use OpenGL in Lua and Javascrit? It can't be easier using cpgf.<br />
 <br />
-<b>Vesion 1.3.0 is released on Feb.26, 2012. </b><br />
+<b>Vesion 1.4.0 is released on Apr.22, 2012. </b><br />
 <br />
 
 <h3>Key features</h3>
@@ -63,6 +66,18 @@ Want to use OpenGL in Lua and Javascrit? It can't be easier using cpgf.<br />
 </li><li>	Support multiple inheritance.
 </li><li>	Support default parameters for constructor, method, and operators.
 </li><li>	For more information, please read cpgf reflection related documentation.
+</li></ul>
+<h3>Quick facts of serialization library</h3>
+<ul><li>	As powerful as the serialization system in Java and C#.
+</li><li>	Serialize object graph.
+</li><li>	Correctly resolve multiple pointers to same object.
+</li><li>	Serialize polymorphic objects.
+</li><li>	Serialize C++ array.
+</li><li>	Very extensible. The library supports customized serializer to serialize special data type manually.
+</li><li>	Storage format agnostic.
+</li><li>	Versioning.
+</li><li>	Doesn't require extra intervention. Serialization only depends on relection meta data.
+</li><li>	For more information, please read cpgf serialization related documentation.
 </li></ul>
 <h3>Quick facts of script binding library</h3>
 <ul><li>	Very easy and simple to use. Any reflected meta data can be bound to scripts.

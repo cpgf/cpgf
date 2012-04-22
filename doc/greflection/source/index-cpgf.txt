@@ -11,7 +11,7 @@ cpgf is composed by several independent components:
 <{autoul}>
 	cpgf reflection -- a library to add	reflection feature to C++.
 	
-	cpgf serialization -- a library to save and load C++ data and objects to persistent storage.
+	cpgf serialization -- a library to save C++ data and objects to persistent storage and then load back.
 	
 	cpgf script binding -- a script binding engine to bind Lua and Google V8 Javascript to C++. It's based on the reflection library.
 	
@@ -28,7 +28,7 @@ cpgf provides a very easy to use serialization system. Want the serialization sy
 cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding engine uses the reflection system extensively.
 Want to use OpenGL in Lua and Javascrit? It can't be easier using cpgf.
 
-<b>Vesion 1.3.0 is released on Feb.26, 2012. </b>
+<b>Vesion 1.4.0 is released on Apr.22, 2012. </b>
 
 <{/autobr}>
 

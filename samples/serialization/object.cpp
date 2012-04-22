@@ -139,11 +139,13 @@ void doTestObject(IMetaStorageWriter * writer, IMetaStorageReader * reader)
 	instance.notSerializedN = 38;
 	instance.pp = (void **)50;
 
+	serializeWriteData(archiveWriter.get(), "mystring", string("This is a string"));
 	serializeWriteObject(archiveWriter.get(), "myobj", &instance, metaClass.get());
 
 	GScopedInterface<IMetaArchiveReader> archiveReader(createMetaArchiveReader(service.get(), reader));
 	
 	MyObject readInstance;
+	string s;
 
 	// In real code, we don't need to set the values before deserialization
 	// We set the values here just for demonstration purpose,
@@ -156,8 +158,11 @@ void doTestObject(IMetaStorageWriter * writer, IMetaStorageReader * reader)
 	readInstance.pn = (int *)0xfead;
 	readInstance.pp = (void **)0xbed;
 	
+	serializeReadData(archiveReader.get(), "mystring", s);
 	serializeReadObject(archiveReader.get(), "myobj", &readInstance, metaClass.get());
 
+	check(s == "This is a string"); // has read string
+	
 	check(readInstance.n == 5); // has read n
 	check(readInstance.s == "cpgf serialization library"); // has read s
 

@@ -5,7 +5,7 @@
 
 <h3>Download cpgf library</h3>
 <{autobr}>
-<a href="/download/cpgf_1_3_0.zip">Zip file, 508 kb, version 1.3.0</a>
+<a href="/download/cpgf_1_4_0.zip">Zip file, 668 kb, version 1.4.0</a>
 
 <{/autobr}>
 

@@ -174,6 +174,10 @@ GMetaArchiveConfig getItemMetaArchiveConfig(IMetaItem * item)
 
 bool canSerializeItem(const GMetaArchiveConfig & config, IMetaItem * item)
 {
+	if(item == NULL) {
+		return false;
+	}
+
 	GScopedInterface<IMetaAnnotation> annotation(item->getAnnotation(SerializationAnnotation));
 
 	if(! annotation) {
@@ -201,6 +205,10 @@ bool canSerializeObject(const GMetaArchiveConfig & config, IMetaClass * metaClas
 
 bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * accessible, IMetaService * service)
 {
+	if(accessible == NULL) {
+		return false;
+	}
+
 	if(! accessible->canGet()) {
 		return false;
 	}

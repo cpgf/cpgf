@@ -1,6 +1,6 @@
-2012-04-21 version 1.4.0
+2012-04-22 version 1.4.0
 	Added serialization library.
-	Added meta traits.
+	Added meta traits for script binding and serialization.
 	The old meta converter of std::string is refactored to meta traits.
 	Now GVariant supports wide string.
 	Fixed a bug that annotation interface may point to NULL meta annotation.

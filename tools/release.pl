@@ -44,7 +44,7 @@ my $patternList = [
 		%defaultConfig,
 
 		path => "include/cpgf",
-		files => [ '*.h', '*.cpp' ],
+		files => [ '*.h', '*.hpp', '*.cpp', '*.inl' ],
 		excludePath => [ 'game' ],
 		recursive => 1,
 	},
@@ -53,7 +53,7 @@ my $patternList = [
 		%defaultConfig,
 
 		path => "src",
-		files => [ '*.h', '*.cpp' ],
+		files => [ '*.h', '*.hpp', '*.cpp', '*.inl' ],
 		excludePath => [ 'game' ],
 		recursive => 1,
 	},
