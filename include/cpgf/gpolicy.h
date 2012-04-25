@@ -34,13 +34,13 @@ struct MergePolicy
 template <typename Policy, typename Rule>
 struct PolicyHasRule
 {
-	G_STATIC_CONSTANT(bool, Result = (TypeList_IndexOf<typename Policy::Rules, Rule>::Result >= 0));
+	G_STATIC_CONSTANT(bool, Result = ((TypeList_IndexOf<typename Policy::Rules, Rule>::Result) >= 0));
 };
 
 template <typename Policy, typename Rule>
 struct PolicyNotHasRule
 {
-	G_STATIC_CONSTANT(bool, Result = (TypeList_IndexOf<typename Policy::Rules, Rule>::Result < 0));
+	G_STATIC_CONSTANT(bool, Result = ((TypeList_IndexOf<typename Policy::Rules, Rule>::Result) < 0));
 };
 
 template <typename Policy, template <int> class IndexedPolicyItem>

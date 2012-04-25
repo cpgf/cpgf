@@ -81,9 +81,9 @@ sub write
 {
 	my ($self) = @_;
 
-	my $className = $self->{_class}->getName;
-	$className = "#global" unless defined $className;
-	Util::trace("Writing class $className.");
+#	my $className = $self->{_class}->getName;
+#	$className = "#global" unless defined $className;
+#	Util::trace("Writing class $className.");
 
 	$self->writeConstructor() if($self->allowedMetaData(Item::catConstructor));
 	$self->writeField() if($self->allowedMetaData(Item::catField));

@@ -38,7 +38,7 @@ sub doHeaderReplace
 {
 	my ($fileName) = @_;
 
-	$fileName =~ s!.*Box2D[^/]*/Box2D!Box2D!i;
+	$fileName =~ s!/interface/!/include/!i;
 
 	return $fileName;
 }

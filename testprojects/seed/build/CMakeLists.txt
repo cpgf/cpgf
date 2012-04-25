@@ -115,7 +115,7 @@ include_directories(
 	${SEED_PATH}/src
 
 	${ROOT_PATH}/testprojects/metagen_wxwidgets/cpp/include
-	/Source/wxWidgets/include
+	e:/SourceCode/cpp/wxWidgets/include
 )
 if(${HAS_LUA})
 	include_directories(${LUA_INC})

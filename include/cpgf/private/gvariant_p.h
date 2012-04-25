@@ -94,7 +94,7 @@ private:
 	typedef typename GIfElse<IsEnum<To>::Result, long long, To>::Result U;
 public:
 	static To cast(const From & v) {
-		return (To)((U)(v));
+		return (To)((U)(const_cast<From &>(v)));
 	}
 };
 
@@ -273,7 +273,9 @@ struct InitVariantSelector
 
 		switch(static_cast<int>(vtGetType(typeData))) {
 			case vtBool:
-				v.data.valueBool = variant_internal::CastVariantHelper<T, bool>::cast(value);
+				// convert to long long then convert to bool because C++ allows bool to be convert to int
+				// and that may cause ambiguous for a class that has cast operator to int, pointer, but no cast to bool.
+				v.data.valueBool = (bool)variant_internal::CastVariantHelper<T, long long>::cast(value);
 				break;
 
 			case vtChar:
