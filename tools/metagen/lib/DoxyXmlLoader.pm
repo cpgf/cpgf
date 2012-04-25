@@ -111,6 +111,8 @@ sub parseFile
 		return 0;
 	}
 
+	Util::trace("Parsing $fileName.");
+
 	my $parser = new XML::DOM::Parser;
 	my $doc = $parser->parsefile ($fileName);
 	$self->parse($doc, dirname($fileName));

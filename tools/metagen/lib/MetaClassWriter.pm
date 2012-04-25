@@ -81,6 +81,10 @@ sub write
 {
 	my ($self) = @_;
 
+	my $className = $self->{_class}->getName;
+	$className = "#global" unless defined $className;
+	Util::trace("Writing class $className.");
+
 	$self->writeConstructor() if($self->allowedMetaData(Item::catConstructor));
 	$self->writeField() if($self->allowedMetaData(Item::catField));
 	$self->writeMethod() if($self->allowedMetaData(Item::catMethod));
@@ -160,7 +164,7 @@ sub writeMethod
 		my $item = $_;
 		my $name = $item->getName;
 		my $overload = $methodOverload{$name} > 1;
-		
+
 		$item = $self->doCallback($item);
 		
 		next if($self->skipItem);

@@ -32,6 +32,7 @@ if(MSVC)
 endif(MSVC)
 
 file(GLOB GLOB_SEED ${SEED_SRC_PATH}/*.cpp)
+file(GLOB GLOB_WX ${ROOT_PATH}/testprojects/metagen_wxwidgets/cpp/src/*.cpp)
 
 set(HAS_UNITTEST 1)
 if(${HAS_UNITTEST})
@@ -57,6 +58,7 @@ set(SRC_UNITTEST_FRAMEWORK
 
 set(SRC_META
 	${GLOB_SEED}
+	${GLOB_WX}
 	
 	${SRC_UNITTEST_FRAMEWORK}
 
@@ -75,19 +77,31 @@ set(SRC_META
 	${SRC_PATH}/gmetamethod.cpp
 	${SRC_PATH}/gmetaoperator.cpp
 	${SRC_PATH}/gmetaproperty.cpp
+	${SRC_PATH}/gmetamodule.cpp
 	${SRC_PATH}/gmetatype.cpp
-	${SRC_PATH}/gmetatypereg.cpp
 	${SRC_PATH}/gvariant.cpp
-	
-	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
-	${SRC_PATH}/metatraits/gmetaserializer_string.cpp
-	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
-	${SRC_PATH}/metatraits/gmetaserializer_trapall.cpp
 
 	${SRC_PATH}/scriptbind/gbindcommon.cpp
 	${SRC_PATH}/scriptbind/gscriptbind.cpp
 	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
 	${SRC_PATH}/scriptbind/gscriptbindutil.cpp
+	
+	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
+	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
+	${SRC_PATH}/metatraits/gmetaserializer_string.cpp
+	${SRC_PATH}/metatraits/gmetaserializer_trapall.cpp
+	
+	${SRC_PATH}/serialization/gmetaarchivecommon.cpp
+	${SRC_PATH}/serialization/gmetaarchivereader.cpp
+	${SRC_PATH}/serialization/gmetaarchivetypemap.cpp
+	${SRC_PATH}/serialization/gmetaarchivewriter.cpp
+	${SRC_PATH}/serialization/gmetastorage_json.cpp
+	${SRC_PATH}/serialization/gmetastorage_textstream.cpp
+	${SRC_PATH}/serialization/gmetastorage_xml.cpp
+	
+	${SRC_PATH}/thirdparty/jsoncpp/json_reader.cpp
+	${SRC_PATH}/thirdparty/jsoncpp/json_value.cpp
+	${SRC_PATH}/thirdparty/jsoncpp/json_writer.cpp
 	
 #	${SRC_PATH}/scriptbind/gluabind.cpp
 #	${SRC_PATH}/scriptbind/gv8bind.cpp
@@ -99,6 +113,9 @@ include_directories(
 	${SRC_PATH}
 	${ROOT_PATH}/test
 	${SEED_PATH}/src
+
+	${ROOT_PATH}/testprojects/metagen_wxwidgets/cpp/include
+	/Source/wxWidgets/include
 )
 if(${HAS_LUA})
 	include_directories(${LUA_INC})

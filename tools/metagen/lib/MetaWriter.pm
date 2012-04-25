@@ -31,7 +31,11 @@ sub write
 	my ($self) = @_;
 	my @createFunctionNames = ();
 
+	Util::trace("Building file information.");
+
 	$self->buildFileWriterList();
+
+	Util::trace("Writing files.");
 
 	foreach(@{$self->{_fileWriterList}}) {
 		my $fileWriter = $_;

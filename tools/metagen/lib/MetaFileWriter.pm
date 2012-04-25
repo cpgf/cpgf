@@ -86,6 +86,7 @@ sub writeHeader
 	
 	mkpath(File::Spec->catfile($self->{_config}->{headerOutput}, ''));
 	my $outFileName = $self->makeOutputFileName($self->{_config}->{headerExtension});
+	Util::trace("Writing header $outFileName.");
 	Util::writeToFile($outFileName, $cw->getText);
 }
 
@@ -147,6 +148,7 @@ sub writeSource
 	
 	mkpath(File::Spec->catfile($self->{_config}->{sourceOutput}, ''));
 	my $outFileName = File::Spec->catfile($self->{_config}->{sourceOutput}, $self->getDestFileName()) . $self->{_config}->{sourceExtension};
+	Util::trace("Writing source $outFileName.");
 	Util::writeToFile($outFileName, $cw->getText);
 }
 

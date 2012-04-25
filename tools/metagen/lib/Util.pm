@@ -44,6 +44,8 @@ our @EXPORT = qw(
 	&normalizeSymbol
 
 	&sortClassList
+
+	&trace
 );
 
 my $currentUniqueID = 0;
@@ -345,6 +347,7 @@ sub writeDefaultParams
 
 		while($index >= 0 && $paramList->[$index]->hasDefaultValue) {
 			$writer->out("._default(copyVariantFromCopyable(" . $paramList->[$index]->getDefaultValue . "))\n");
+			--$index;
 		}
 
 		$writer->decIndent;
@@ -397,6 +400,13 @@ sub sortClassList
 	return $newList;
 }
 
+
+sub trace
+{
+	my ($message) = @_;
+
+	print $message, "\n";
+}
 
 
 1;
