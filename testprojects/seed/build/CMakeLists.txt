@@ -58,7 +58,7 @@ set(SRC_UNITTEST_FRAMEWORK
 
 set(SRC_META
 	${GLOB_SEED}
-	${GLOB_WX}
+#	${GLOB_WX}
 	
 	${SRC_UNITTEST_FRAMEWORK}
 
@@ -116,6 +116,7 @@ include_directories(
 
 	${ROOT_PATH}/testprojects/metagen_wxwidgets/cpp/include
 	e:/SourceCode/cpp/wxWidgets/include
+	/Source/wxWidgets/include
 )
 if(${HAS_LUA})
 	include_directories(${LUA_INC})
@@ -158,3 +159,4 @@ set_target_properties(
 	COMPILE_FLAGS ${SEED_COMPILE_FLAGS}
 )
 
+target_link_libraries(${TARGET} D:/Source/wxWidgets/lib/gcc_dll/libwxmsw29u.a)

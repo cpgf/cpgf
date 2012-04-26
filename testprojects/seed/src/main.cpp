@@ -8,6 +8,7 @@
 #include "unittestbase.h"
 
 #include "cpgf/gvariant.h"
+#include "cpgf/gmetadefine.h"
 
 //#include "wx/string.h"
 
@@ -18,25 +19,37 @@ class A
 {
 public:
 	A() {}
+	A(void *) {}
+	A(char *) {}
 	
 	operator void * () { return NULL; }
 	operator char * () { return NULL; }
 
 private:
-	A(int);
+	A & operator = (int);
+	explicit A(int);
 };
+
+void abc(const A &)
+{
+}
 
 void test()
 {
 	A s;
 	GVariant v(s);
 //	copyVariantFromCopyable(());
+
+	GDefineMetaGlobal define;
+	define
+		._method("abc", &abc, GMetaPolicyCopyAllConstReference())
+	;
 }
 
 
 int main(int /*argc*/, char * /*argv*/[])
 {
-//	test();
+	test();
 	
 	UnitTest::RunAllTests();
 
