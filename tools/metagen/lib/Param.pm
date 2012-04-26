@@ -11,6 +11,7 @@ sub new
 	my $self = {
 		_name => undef,
 		_type => undef,
+		_array => undef,
 		_defaultValue => undef,
 
 		%args
@@ -23,6 +24,7 @@ sub new
 
 sub getName { return shift->{_name}; }
 sub getType { return shift->{_type}; }
+sub getArray { return shift->{_array}; }
 sub getDefaultValue { return shift->{_defaultValue}; }
 sub hasDefaultValue { return defined shift->{_defaultValue}; }
 

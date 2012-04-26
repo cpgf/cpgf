@@ -755,13 +755,13 @@ struct CheckIsConvertibleToCharPointer
 };
 
 template <typename T>
-T castFromString(const char * s, typename GEnableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
+T castFromString(char * s, typename GEnableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
 {
 	return T(s);
 }
 
 template <typename T>
-T castFromString(const char * /*s*/, typename GDisableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
+T castFromString(char * /*s*/, typename GDisableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
 {
 	raiseCoreException(Error_Variant_FailCast);
 	return *(typename RemoveReference<T>::Result *)(0);
@@ -774,13 +774,13 @@ struct CheckIsConvertibleToWideCharPointer
 };
 
 template <typename T>
-T castFromWideString(const wchar_t * s, typename GEnableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result * = 0)
+T castFromWideString(wchar_t * s, typename GEnableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result * = 0)
 {
 	return T(s);
 }
 
 template <typename T>
-T castFromWideString(const wchar_t * /*s*/, typename GDisableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result * = 0)
+T castFromWideString(wchar_t * /*s*/, typename GDisableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result * = 0)
 {
 	raiseCoreException(Error_Variant_FailCast);
 	return *(typename RemoveReference<T>::Result *)(0);
@@ -866,10 +866,10 @@ struct CastFromVariant
 				return *variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::cast(v.data.shadowObject->getObject());
 			
 			case vtString:
-				return castFromString<ResultType>(static_cast<std::string *>(v.data.shadowObject->getObject())->c_str());
+				return castFromString<ResultType>(const_cast<char *>(static_cast<std::string *>(v.data.shadowObject->getObject())->c_str()));
 
 			case vtWideString:
-				return castFromWideString<ResultType>(static_cast<std::wstring *>(v.data.shadowObject->getObject())->c_str());
+				return castFromWideString<ResultType>(const_cast<wchar_t *>(static_cast<std::wstring *>(v.data.shadowObject->getObject())->c_str()));
 
 			case vtInterface:
 				return variant_internal::CastVariantHelper<IObject *, ResultType>::cast(v.data.valueInterface);

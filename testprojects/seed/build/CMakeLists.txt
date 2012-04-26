@@ -58,10 +58,11 @@ set(SRC_UNITTEST_FRAMEWORK
 
 set(SRC_META
 	${GLOB_SEED}
-#	${GLOB_WX}
+	${GLOB_WX}
 	
 	${SRC_UNITTEST_FRAMEWORK}
-
+)
+set(XXX
 	${SRC_PATH}/gapiutil.cpp
 	${SRC_PATH}/gbytearray.cpp
 	${SRC_PATH}/gexception.cpp
@@ -159,4 +160,8 @@ set_target_properties(
 	COMPILE_FLAGS ${SEED_COMPILE_FLAGS}
 )
 
-target_link_libraries(${TARGET} D:/Source/wxWidgets/lib/gcc_dll/libwxmsw29u.a)
+target_link_libraries(
+	${TARGET}
+#	D:/Source/wxWidgets/lib/gcc_dll/libwxmsw29u.a
+	E:/SourceCode/CPP/wxWidgets/lib/gcc_dll/libwxmsw29u.a
+)

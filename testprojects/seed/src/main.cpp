@@ -19,15 +19,15 @@ class A
 {
 public:
 	A() {}
-	A(void *) {}
-	A(char *) {}
+	A(char) {}
+	A(wchar_t *) {}
 	
 	operator void * () { return NULL; }
 	operator char * () { return NULL; }
 
 private:
 	A & operator = (int);
-	explicit A(int);
+//	explicit A(int);
 };
 
 void abc(const A &)

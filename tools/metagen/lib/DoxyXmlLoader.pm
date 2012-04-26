@@ -358,6 +358,7 @@ sub parseParams
 		my $param = new Param(
 			_name => Util::getNodeText(Util::getNode($node, 'declname')),
 			_type => Util::getNodeText(Util::getNode($node, 'type')),
+			_array => Util::getNodeText(Util::getNode($node, 'array')),
 			_defaultValue => Util::getNodeText(Util::getNode($node, 'defval'))
 		);
 		$item->addParam($param);

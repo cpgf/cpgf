@@ -359,7 +359,10 @@ sub writeParam
 {
 	my ($writer, $param, $withName) = @_;
 	
-	$writer->out($param->getType . ($withName ? ' ' . $param->getName : ''));
+	my $type = $param->getType;
+	$type .= $param->getArray if defined $param->getArray;
+	
+	$writer->out($type . ($withName ? ' ' . $param->getName : ''));
 }
 
 sub writeAutoComment
