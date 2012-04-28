@@ -136,7 +136,8 @@ sub writeSource
 		Util::createMetaClass($self->{_config}, $cw, $class, '_d', $class->getPolicyRules());
 		
 		my $callFunc = $self->createFunctionName($class, $self->{_config}->{metaClassFunctionPrefix});
-		$cw->out("$callFunc(0, _d, NULL, GMetaPolicyCopyAllConstReference());\n");
+#		$cw->out("$callFunc(0, _d, NULL, GMetaPolicyCopyAllConstReference());\n");
+		$cw->out("$callFunc(0, _d, NULL, GMetaPolicyDefault());\n");
 		$cw->out("return _d.getMetaInfo();\n");
 		
 		$cw->endBlock();

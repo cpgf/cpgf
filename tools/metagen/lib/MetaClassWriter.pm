@@ -110,6 +110,7 @@ sub writeConstructor
 		
 		next if($self->skipItem);
 		
+		next if($item->isTemplate);
 		next unless($self->canWrite($item));
 		
 		$cw->out($action . "<void * (");
@@ -274,6 +275,7 @@ sub writeOperator
 		
 		next if($self->skipItem);
 		
+		next if($item->isTemplate);
 		next unless($self->canWrite($item));
 		
 		$cw->out($action . "<" . $item->getReturnType . " (*)(");
