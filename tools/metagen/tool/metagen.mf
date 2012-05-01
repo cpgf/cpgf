@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Main-Class: metagen
+Class-path: . js.jar
+Implementation-Version: 1.0
+Implementation-Title: MetaGen for cpgf library
+Implementation-Vendor: Wang Qi
+Implementation-URL: http://www.kbasm.com
