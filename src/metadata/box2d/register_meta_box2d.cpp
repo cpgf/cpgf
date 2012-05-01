@@ -22,6 +22,6 @@ G_AUTO_RUN_BEFORE_MAIN()
 } // unnamed namespace
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 

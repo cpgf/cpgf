@@ -49,7 +49,7 @@ void buildMetaClass_B2StackEntry(const cpgf::GMetaDataConfigFlags & config, D _d
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 

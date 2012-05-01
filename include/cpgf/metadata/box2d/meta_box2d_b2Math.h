@@ -175,7 +175,7 @@ void buildMetaClass_B2Vec3(const cpgf::GMetaDataConfigFlags & config, D _d, cons
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 

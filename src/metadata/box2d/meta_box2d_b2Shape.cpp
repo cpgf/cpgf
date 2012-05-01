@@ -28,6 +28,6 @@ GDefineMetaInfo createMetaClass_B2Shape()
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 

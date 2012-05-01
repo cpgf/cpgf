@@ -56,7 +56,7 @@ void buildMetaClass_B2Pair(const cpgf::GMetaDataConfigFlags & config, D _d, cons
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 

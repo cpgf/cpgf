@@ -68,6 +68,6 @@ GDefineMetaInfo createMetaClass_B2Vec3()
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 

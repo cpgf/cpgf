@@ -20,6 +20,6 @@ GDefineMetaInfo createMetaClass_B2TimeStep()
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 

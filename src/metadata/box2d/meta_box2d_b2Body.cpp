@@ -36,6 +36,6 @@ GDefineMetaInfo createMetaClass_B2BodyDef()
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 

@@ -50,7 +50,7 @@ void buildMetaClass_B2World(const cpgf::GMetaDataConfigFlags & config, D _d, con
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 

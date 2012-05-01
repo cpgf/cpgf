@@ -60,7 +60,7 @@ void buildMetaClass_B2PrismaticJointDef(const cpgf::GMetaDataConfigFlags & confi
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 

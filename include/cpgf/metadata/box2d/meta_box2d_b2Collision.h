@@ -20,11 +20,11 @@ void buildMetaClass_Global_b2collision(const cpgf::GMetaDataConfigFlags & config
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _field(replaceName("b2_nullFeature", _r), &b2_nullFeature, _p);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("b2GetPointStates", _r), (void (*) (b2PointState, b2PointState, const b2Manifold *, const b2Manifold *))&b2GetPointStates, _p);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("b2GetPointStates", _r), (void (*) (b2PointState[b2_maxManifoldPoints], b2PointState[b2_maxManifoldPoints], const b2Manifold *, const b2Manifold *))&b2GetPointStates, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("b2CollideCircles", _r), (void (*) (b2Manifold *, const b2CircleShape *, const b2Transform &, const b2CircleShape *, const b2Transform &))&b2CollideCircles, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("b2CollidePolygonAndCircle", _r), (void (*) (b2Manifold *, const b2PolygonShape *, const b2Transform &, const b2CircleShape *, const b2Transform &))&b2CollidePolygonAndCircle, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("b2CollidePolygons", _r), (void (*) (b2Manifold *, const b2PolygonShape *, const b2Transform &, const b2PolygonShape *, const b2Transform &))&b2CollidePolygons, _p);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("b2ClipSegmentToLine", _r), (int32 (*) (b2ClipVertex, const b2ClipVertex, const b2Vec2 &, float32))&b2ClipSegmentToLine, _p);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("b2ClipSegmentToLine", _r), (int32 (*) (b2ClipVertex[2], const b2ClipVertex[2], const b2Vec2 &, float32))&b2ClipSegmentToLine, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("b2TestOverlap", _r), (bool (*) (const b2Shape *, const b2Shape *, const b2Transform &, const b2Transform &))&b2TestOverlap, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("b2TestOverlap", _r), (bool (*) (const b2AABB &, const b2AABB &))&b2TestOverlap, _p);
     _d.CPGF_MD_TEMPLATE _enum<b2PointState>(replaceName("b2PointState", _r))
@@ -144,7 +144,7 @@ void buildMetaClass_B2WorldManifold(const cpgf::GMetaDataConfigFlags & config, D
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 

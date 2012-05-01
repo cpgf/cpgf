@@ -33,7 +33,7 @@ void buildMetaClass_B2CircleShape(const cpgf::GMetaDataConfigFlags & config, D _
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 

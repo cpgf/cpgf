@@ -26,7 +26,7 @@ void buildMetaClass_B2PolygonAndCircleContact(const cpgf::GMetaDataConfigFlags &
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 

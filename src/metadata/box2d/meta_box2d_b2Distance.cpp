@@ -52,6 +52,6 @@ GDefineMetaInfo createMetaClass_B2SimplexCache()
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 

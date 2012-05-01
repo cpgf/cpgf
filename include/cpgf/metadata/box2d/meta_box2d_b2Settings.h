@@ -24,7 +24,7 @@ void buildMetaClass_Global_b2settings(const cpgf::GMetaDataConfigFlags & config,
     _d.CPGF_MD_TEMPLATE _method(replaceName("b2Free", _r), (void (*) (void *))&b2Free, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("b2MixFriction", _r), (float32 (*) (float32, float32))&b2MixFriction, _p);
     _d.CPGF_MD_TEMPLATE _method(replaceName("b2MixRestitution", _r), (float32 (*) (float32, float32))&b2MixRestitution, _p);
-    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalDefine_box2d_3", _r))
+    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalDefine_box2d_1", _r))
         ._element(replaceName("b2_maxFloat", _r), b2_maxFloat)
         ._element(replaceName("b2_epsilon", _r), b2_epsilon)
         ._element(replaceName("b2_pi", _r), b2_pi)
@@ -63,7 +63,7 @@ void buildMetaClass_B2Version(const cpgf::GMetaDataConfigFlags & config, D _d, c
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 

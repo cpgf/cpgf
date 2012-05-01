@@ -15,6 +15,7 @@
 
 #include "cpgf/metadata/opengl/gmetadata_openglut.h"
 
+#include "cpgf/gapi.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
 
@@ -31,37 +32,37 @@ namespace {
 
 struct GlutScriptCallbackData
 {
-	GSharedInteface<IScriptFunction> display; // for glutDisplayFunc
-	GSharedInteface<IScriptFunction> reshape; // for glutReshapeFunc
-	GSharedInteface<IScriptFunction> keyboard; // for glutKeyboardFunc
-	GSharedInteface<IScriptFunction> mouse; // for glutMouseFunc
-	GSharedInteface<IScriptFunction> motion; // for glutMotionFunc
-	GSharedInteface<IScriptFunction> passiveMotion; // for glutPassiveMotionFunc
-	GSharedInteface<IScriptFunction> entry; // for glutEntryFunc
-	GSharedInteface<IScriptFunction> visibility; // for glutVisibilityFunc
-	GSharedInteface<IScriptFunction> idle; // for glutIdleFunc
-	GSharedInteface<IScriptFunction> timer; // for glutTimerFunc
-	GSharedInteface<IScriptFunction> menuState; // for glutMenuStateFunc
+	GSharedInterface<IScriptFunction> display; // for glutDisplayFunc
+	GSharedInterface<IScriptFunction> reshape; // for glutReshapeFunc
+	GSharedInterface<IScriptFunction> keyboard; // for glutKeyboardFunc
+	GSharedInterface<IScriptFunction> mouse; // for glutMouseFunc
+	GSharedInterface<IScriptFunction> motion; // for glutMotionFunc
+	GSharedInterface<IScriptFunction> passiveMotion; // for glutPassiveMotionFunc
+	GSharedInterface<IScriptFunction> entry; // for glutEntryFunc
+	GSharedInterface<IScriptFunction> visibility; // for glutVisibilityFunc
+	GSharedInterface<IScriptFunction> idle; // for glutIdleFunc
+	GSharedInterface<IScriptFunction> timer; // for glutTimerFunc
+	GSharedInterface<IScriptFunction> menuState; // for glutMenuStateFunc
 
 #if (GLUT_API_VERSION >= 2)
-	GSharedInteface<IScriptFunction> special; // for glutSpecialFunc
-	GSharedInteface<IScriptFunction> spaceballMotion; // for glutSpaceballMotionFunc
-	GSharedInteface<IScriptFunction> spaceballRotate; // for glutSpaceballRotateFunc
-	GSharedInteface<IScriptFunction> spaceballButton; // for glutSpaceballButtonFunc
-	GSharedInteface<IScriptFunction> buttonBox; // for glutButtonBoxFunc
-	GSharedInteface<IScriptFunction> dials; // for glutDialsFunc
-	GSharedInteface<IScriptFunction> tabletMotion; // for glutTabletMotionFunc
-	GSharedInteface<IScriptFunction> tabletButton; // for glutTabletButtonFunc
+	GSharedInterface<IScriptFunction> special; // for glutSpecialFunc
+	GSharedInterface<IScriptFunction> spaceballMotion; // for glutSpaceballMotionFunc
+	GSharedInterface<IScriptFunction> spaceballRotate; // for glutSpaceballRotateFunc
+	GSharedInterface<IScriptFunction> spaceballButton; // for glutSpaceballButtonFunc
+	GSharedInterface<IScriptFunction> buttonBox; // for glutButtonBoxFunc
+	GSharedInterface<IScriptFunction> dials; // for glutDialsFunc
+	GSharedInterface<IScriptFunction> tabletMotion; // for glutTabletMotionFunc
+	GSharedInterface<IScriptFunction> tabletButton; // for glutTabletButtonFunc
 #if (GLUT_API_VERSION >= 3)
-	GSharedInteface<IScriptFunction> overlayDisplay; // for glutOverlayDisplayFunc
-	GSharedInteface<IScriptFunction> menuStatus; // for glutMenuStatusFunc
+	GSharedInterface<IScriptFunction> overlayDisplay; // for glutOverlayDisplayFunc
+	GSharedInterface<IScriptFunction> menuStatus; // for glutMenuStatusFunc
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-	GSharedInteface<IScriptFunction> windowStatus; // for glutWindowStatusFunc
+	GSharedInterface<IScriptFunction> windowStatus; // for glutWindowStatusFunc
 #endif
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
-	GSharedInteface<IScriptFunction> keyboardUp; // for glutKeyboardUpFunc
-	GSharedInteface<IScriptFunction> specialUp; // for glutSpecialUpFunc
-	GSharedInteface<IScriptFunction> joystick; // for glutJoystickFunc
+	GSharedInterface<IScriptFunction> keyboardUp; // for glutKeyboardUpFunc
+	GSharedInterface<IScriptFunction> specialUp; // for glutSpecialUpFunc
+	GSharedInterface<IScriptFunction> joystick; // for glutJoystickFunc
 #endif
 #endif
 #endif

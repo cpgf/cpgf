@@ -76,6 +76,6 @@ GDefineMetaInfo createMetaClass_B2RayCastCallback()
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 

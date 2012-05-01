@@ -55,7 +55,7 @@ void buildMetaClass_B2TOIOutput(const cpgf::GMetaDataConfigFlags & config, D _d,
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 

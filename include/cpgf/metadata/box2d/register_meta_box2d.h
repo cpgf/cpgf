@@ -205,7 +205,7 @@ void registerMain_box2d(Meta _d)
     ;
 }
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 

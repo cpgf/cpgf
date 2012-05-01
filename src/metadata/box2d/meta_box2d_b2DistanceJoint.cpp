@@ -28,6 +28,6 @@ GDefineMetaInfo createMetaClass_B2DistanceJointDef()
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 

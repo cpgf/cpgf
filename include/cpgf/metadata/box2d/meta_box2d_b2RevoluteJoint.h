@@ -59,7 +59,7 @@ void buildMetaClass_B2RevoluteJointDef(const cpgf::GMetaDataConfigFlags & config
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 

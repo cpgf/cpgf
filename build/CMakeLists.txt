@@ -254,6 +254,10 @@ if(${HAS_GLUT})
 		${SRC_PATH}/metadata/opengl/gmetadata_openglut.cpp
 		${TEST_PATH}/scriptbind/bind_common.cpp
 		${TEST_PATH}/scriptbind/testscriptbindmetadata.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata1.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata2.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata3.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata4.cpp
 	)
 
 	add_executable(
@@ -294,6 +298,10 @@ if(${HAS_BOX2D})
 		${SRC_PATH}/metadata/opengl/gmetadata_openglut.cpp
 		${TEST_PATH}/scriptbind/bind_common.cpp
 		${TEST_PATH}/scriptbind/testscriptbindmetadata.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata1.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata2.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata3.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata4.cpp
 	)
 
 	add_executable(

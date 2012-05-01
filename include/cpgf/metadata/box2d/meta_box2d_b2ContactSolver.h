@@ -69,7 +69,7 @@ void buildMetaClass_B2ContactSolver(const cpgf::GMetaDataConfigFlags & config, D
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 

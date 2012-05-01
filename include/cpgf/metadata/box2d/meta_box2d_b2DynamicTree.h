@@ -19,7 +19,7 @@ void buildMetaClass_Global_b2dynamictree(const cpgf::GMetaDataConfigFlags & conf
     (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalDefine_box2d_1", _r))
+    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalDefine_box2d_3", _r))
         ._element(replaceName("b2_nullNode", _r), b2_nullNode)
     ;
 }
@@ -58,7 +58,7 @@ void buildMetaClass_B2DynamicTreeNode(const cpgf::GMetaDataConfigFlags & config,
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 

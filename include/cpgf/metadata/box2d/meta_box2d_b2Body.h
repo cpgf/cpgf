@@ -116,7 +116,7 @@ void buildMetaClass_B2BodyDef(const cpgf::GMetaDataConfigFlags & config, D _d, c
 }
 
 
-} // namespace meta_box2d 
+} // namespace meta_box2d
 
 
 
