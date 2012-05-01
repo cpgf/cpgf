@@ -290,7 +290,7 @@ public class DoxygenXmlParser {
 				return destructor;
 			}
 			
-			if(Util.getBaseName(this.getCurrentClass().getName()).equals(name)) { // constructor
+			if(Util.getItemBaseName(this.getCurrentClass().getName()).equals(name)) { // constructor
 				Constructor constructor = new Constructor();
 				this.doParseParams(node, constructor);
 				this.doParseTemplateParams(node, constructor);

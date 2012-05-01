@@ -75,13 +75,36 @@ public class Item {
 		this.owner = owner;
 	}
 
-	public boolean isConstructor() { return this.getCategory() == EnumCategory.Constructor; }
-	public boolean isDestructor() { return this.getCategory() == EnumCategory.Destructor; }
-	public boolean isClass() { return this.getCategory() == EnumCategory.Class; }
-	public boolean isConstant() { return this.getCategory() == EnumCategory.Constant; }
-	public boolean isEnum() { return this.getCategory() == EnumCategory.Enum; }
-	public boolean isField() { return this.getCategory() == EnumCategory.Field; }
-	public boolean isMethod() { return this.getCategory() == EnumCategory.Method; }
-	public boolean isOperator() { return this.getCategory() == EnumCategory.Operator; }
+	public boolean isConstructor() {
+		return this.getCategory() == EnumCategory.Constructor;
+	}
+	
+	public boolean isDestructor() {
+		return this.getCategory() == EnumCategory.Destructor;
+	}
+	
+	public boolean isClass() {
+		return this.getCategory() == EnumCategory.Class;
+	}
+	
+	public boolean isConstant() {
+		return this.getCategory() == EnumCategory.Constant;
+	}
+	
+	public boolean isEnum() {
+		return this.getCategory() == EnumCategory.Enum;
+	}
+	
+	public boolean isField() {
+		return this.getCategory() == EnumCategory.Field;
+	}
+	
+	public boolean isMethod() {
+		return this.getCategory() == EnumCategory.Method;
+	}
+	
+	public boolean isOperator() {
+		return this.getCategory() == EnumCategory.Operator;
+	}
 
 }

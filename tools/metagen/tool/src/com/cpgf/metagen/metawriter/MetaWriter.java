@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.cpgf.metagen.Config;
 import com.cpgf.metagen.Util;
+import com.cpgf.metagen.codewriter.CppWriter;
 import com.cpgf.metagen.doxyxmlparser.FileMap;
 import com.cpgf.metagen.metadata.CppClass;
 
@@ -14,8 +15,8 @@ public class MetaWriter {
 	private List<CppClass> classList;
 	private Config config;
 	private FileMap fileMap;
-	
-	public MetaWriter(List<CppClass> classList, FileMap fileMap, Config config) {
+
+	public MetaWriter(Config config, List<CppClass> classList, FileMap fileMap) {
 		this.classList = classList;
 		this.fileMap = fileMap;
 		this.config = config;
@@ -56,53 +57,53 @@ public class MetaWriter {
 		}
 		
 		String outFileName = Util.concatFileName(this.config.headerOutput, this.getMainFileName()) + ".h";
-		CppWriter cw = new CppWriter();
+		CppWriter codeWriter = new CppWriter();
 
-		Util.writeAutoComment(cw);	
+		WriterUtil.writeCommentForAutoGeneration(codeWriter);	
 
-		cw.beginIncludeGuard(Util.normalizeSymbol(this.getMainFileName()) + "_H");
+		codeWriter.beginIncludeGuard(Util.normalizeSymbol(this.getMainFileName()) + "_H");
 
-		cw.include("cpgf/gmetadefine.h");
+		codeWriter.include("cpgf/gmetadefine.h");
 
-		cw.out("\n\n");
+		codeWriter.out("\n\n");
 		
-		cw.useNamespace("cpgf");
-		cw.out("\n");
+		codeWriter.useNamespace("cpgf");
+		codeWriter.out("\n");
 
-		cw.beginNamespace(this.config.cppNamespace);
+		codeWriter.beginNamespace(this.config.cppNamespace);
 		
 		List<String> sortedCreateFunctionNames = Util.sortStringList(createFunctionNames);
 
 		for(String funcName : sortedCreateFunctionNames) {
-			cw.out("GDefineMetaInfo " + funcName + "();\n");
+			codeWriter.out("GDefineMetaInfo " + funcName + "();\n");
 		}
 		
-		cw.out("\n\n");
+		codeWriter.out("\n\n");
 
-		cw.out("template <typename Meta>\n");
-		cw.out("void " + this.getMainFunctionName() + "(Meta _d)\n");
+		codeWriter.out("template <typename Meta>\n");
+		codeWriter.out("void " + this.getMainFunctionName() + "(Meta _d)\n");
 
-		cw.beginBlock();
+		codeWriter.beginBlock();
 
-		cw.out("_d\n");
+		codeWriter.out("_d\n");
 
-		cw.incIndent();
+		codeWriter.incIndent();
 
 		for(String funcName : sortedCreateFunctionNames) {
-			cw.out("._class(" + funcName + "())\n");
+			codeWriter.out("._class(" + funcName + "())\n");
 		}
-		cw.decIndent();
-		cw.out(";\n");
+		codeWriter.decIndent();
+		codeWriter.out(";\n");
 
-		cw.endBlock();
+		codeWriter.endBlock();
 		
-		cw.out("\n");
+		codeWriter.out("\n");
 		
-		cw.endNamespace(this.config.cppNamespace);
+		codeWriter.endNamespace(this.config.cppNamespace);
 
-		cw.endIncludeGuard();	
+		codeWriter.endIncludeGuard();	
 
-		Util.writeTextToFile(outFileName, cw.getText());
+		Util.writeTextToFile(outFileName, codeWriter.getText());
 	}
 
 	private void createMainSource(List<String> createFunctionNames) throws Exception {
@@ -111,60 +112,60 @@ public class MetaWriter {
 		}
 		
 		String outFileName = Util.concatFileName(this.config.sourceOutput, this.getMainFileName()) + ".cpp";
-		CppWriter cw = new CppWriter();
+		CppWriter codeWriter = new CppWriter();
 
-		Util.writeAutoComment(cw);	
+		WriterUtil.writeCommentForAutoGeneration(codeWriter);	
 
-		cw.include(this.config.metaHeaderPath + this.getMainFileName() + ".h");
-		cw.include("cpgf/gmetadefine.h");
-		cw.include("cpgf/goutmain.h");
+		codeWriter.include(this.config.metaHeaderPath + this.getMainFileName() + ".h");
+		codeWriter.include("cpgf/gmetadefine.h");
+		codeWriter.include("cpgf/goutmain.h");
 
-		cw.out("\n\n");
+		codeWriter.out("\n\n");
 		
-		cw.useNamespace("cpgf");
-		cw.out("\n");
+		codeWriter.useNamespace("cpgf");
+		codeWriter.out("\n");
 
-		cw.beginNamespace(this.config.cppNamespace);
+		codeWriter.beginNamespace(this.config.cppNamespace);
 		
-		cw.beginNamespace("");
+		codeWriter.beginNamespace("");
 
-		cw.out("G_AUTO_RUN_BEFORE_MAIN()\n");
+		codeWriter.out("G_AUTO_RUN_BEFORE_MAIN()\n");
 
-		cw.beginBlock();
+		codeWriter.beginBlock();
 
 		CppClass global = new CppClass(null);
-		Util.defineMetaClass(this.config, cw, global, "_d", "define");
+		WriterUtil.defineMetaClass(this.config, codeWriter, global, "_d", "define");
 
-		cw.out(this.getMainFunctionName() + "(_d);\n");
+		codeWriter.out(this.getMainFunctionName() + "(_d);\n");
 
-		cw.endBlock();
-		cw.out("\n");
+		codeWriter.endBlock();
+		codeWriter.out("\n");
 
-		cw.endNamespace("");
+		codeWriter.endNamespace("");
 		
-		cw.endNamespace(this.config.cppNamespace);
+		codeWriter.endNamespace(this.config.cppNamespace);
 
-		Util.writeTextToFile(outFileName, cw.getText());
+		Util.writeTextToFile(outFileName, codeWriter.getText());
 	}
 
 	private void buildFileWriterList()
 	{
-		HashMap<String, MetaFileWriter> fm = new HashMap<String, MetaFileWriter>();
+		HashMap<String, MetaFileWriter> locationFileWriterMap = new HashMap<String, MetaFileWriter>();
 
 		for(CppClass item : this.classList) {
 			String location = item.getLocation();
 			String key = location.toLowerCase();
 
-			if(! fm.containsKey(key)) {
+			if(! locationFileWriterMap.containsKey(key)) {
 				MetaFileWriter fileWriter = new MetaFileWriter(
+					this.config,
 					location,
-					this.fileMap.getFileMap().get(location),
-					this.config
+					this.fileMap.getFileMap().get(location)
 				);
-				fm.put(key, fileWriter);
+				locationFileWriterMap.put(key, fileWriter);
 				this.fileWriterList.add(fileWriter);
 			}
-			fm.get(key).addClass(item);
+			locationFileWriterMap.get(key).addClass(item);
 		}
 	}
 

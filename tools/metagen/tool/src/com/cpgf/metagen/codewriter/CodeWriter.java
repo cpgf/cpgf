@@ -1,4 +1,4 @@
-package com.cpgf.metagen.metawriter;
+package com.cpgf.metagen.codewriter;
 
 public class CodeWriter {
 	private int indent;

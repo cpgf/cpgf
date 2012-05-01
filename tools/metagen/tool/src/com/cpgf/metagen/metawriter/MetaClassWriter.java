@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.cpgf.metagen.Config;
 import com.cpgf.metagen.Util;
+import com.cpgf.metagen.codewriter.CppWriter;
 import com.cpgf.metagen.metadata.Constant;
 import com.cpgf.metagen.metadata.Constructor;
 import com.cpgf.metagen.metadata.CppClass;
@@ -30,15 +31,15 @@ public class MetaClassWriter {
 	
 	private OutputCallbackData callbackData;
 	
-	public MetaClassWriter(CppClass cppClass, CppWriter codeWriter, Config config) {
+	public MetaClassWriter(Config config, CppWriter codeWriter, CppClass cppClass) {
 		this.initialize(cppClass, codeWriter, config, "_d", "D::ClassType");
 	}
 	
-	public MetaClassWriter(CppClass cppClass, CppWriter codeWriter, Config config, String define, String classType) {
+	public MetaClassWriter(Config config, CppWriter codeWriter, CppClass cppClass, String define, String classType) {
 		this.initialize(cppClass, codeWriter, config, define, classType);
 	}
 	
-	public void initialize(CppClass cppClass, CppWriter codeWriter, Config config, String define, String classType) {
+	private void initialize(CppClass cppClass, CppWriter codeWriter, Config config, String define, String classType) {
 		this.cppClass = cppClass;
 		this.codeWriter = codeWriter;
 		this.config = config;
@@ -164,10 +165,10 @@ public class MetaClassWriter {
 			}
 			
 			this.codeWriter.out(action + "<void * (");
-			Util.writeParamList(this.codeWriter, item.getParameterList(), false);
+			WriterUtil.writeParamList(this.codeWriter, item.getParameterList(), false);
 			this.codeWriter.out(")>(_p)");
 			
-			Util.writeDefaultParams(this.codeWriter, item.getParameterList());
+			WriterUtil.writeDefaultParams(this.codeWriter, item.getParameterList());
 		}
 	}
 
@@ -227,7 +228,7 @@ public class MetaClassWriter {
 			this.codeWriter.out("(" + this.getReplace(name) + ", ");
 			if(overload) {
 				this.codeWriter.out("(" + item.getResultType().getFullType() + " (" + prefix + "*) (");
-				Util.writeParamList(this.codeWriter, item.getParameterList(), false);
+				WriterUtil.writeParamList(this.codeWriter, item.getParameterList(), false);
 				this.codeWriter.out(")");
 				if(!item.isStatic() && item.isConst()) {
 					this.codeWriter.out(" const");
@@ -236,7 +237,7 @@ public class MetaClassWriter {
 			}
 			this.codeWriter.out("&" + prefix + name + ", _p)");
 
-			Util.writeDefaultParams(this.codeWriter, item.getParameterList());
+			WriterUtil.writeDefaultParams(this.codeWriter, item.getParameterList());
 		}
 	}
 
@@ -339,7 +340,7 @@ public class MetaClassWriter {
 				if(item.hasParameter() && hasSelf) {
 					this.codeWriter.out(", ");
 				}
-				Util.writeParamList(this.codeWriter, item.getParameterList(), false);
+				WriterUtil.writeParamList(this.codeWriter, item.getParameterList(), false);
 			}
 			this.codeWriter.out(")>(");
 			int realParamCount = item.getParameterList().size();
@@ -368,14 +369,13 @@ public class MetaClassWriter {
 					opText = op + "H";
 				}
 				else {
-//					print "OP....  ", realParamCount, "  ", op, "\n";
 				}
 			}
 			opText = opText.replaceAll("H", "mopHolder");
 			this.codeWriter.out(opText + ", ");
 			this.codeWriter.out("_p)");
 			
-			Util.writeDefaultParams(this.codeWriter, item.getParameterList());
+			WriterUtil.writeDefaultParams(this.codeWriter, item.getParameterList());
 		}
 	}
 
@@ -392,11 +392,11 @@ public class MetaClassWriter {
 			
 			this.codeWriter.beginBlock();
 			
-			Util.defineMetaClass(this.config, this.codeWriter, item, "_nd", "declare");
+			WriterUtil.defineMetaClass(this.config, this.codeWriter, item, "_nd", "declare");
 			MetaClassWriter writer = new MetaClassWriter(
-				item,
-				this.codeWriter,
 				this.config,
+				this.codeWriter,
+				item,
 				"_nd",
 				item.getName()
 			);

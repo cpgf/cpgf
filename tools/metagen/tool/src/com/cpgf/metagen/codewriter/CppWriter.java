@@ -1,4 +1,4 @@
-package com.cpgf.metagen.metawriter;
+package com.cpgf.metagen.codewriter;
 
 public class CppWriter extends CodeWriter {
 	public void beginIncludeGuard(String name) {

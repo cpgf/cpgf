@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.cpgf.metagen.Config;
 import com.cpgf.metagen.Util;
+import com.cpgf.metagen.codewriter.CppWriter;
 import com.cpgf.metagen.doxyxmlparser.FileInfo;
 import com.cpgf.metagen.metadata.CppClass;
 
@@ -14,7 +15,7 @@ public class MetaFileWriter {
 	private List<CppClass> classList;
 	private String sourceFileName;
 	
-	public MetaFileWriter(String sourceFileName, FileInfo fileInfo, Config config) {
+	public MetaFileWriter(Config config, String sourceFileName, FileInfo fileInfo) {
 		this.sourceFileName = sourceFileName;
 		this.fileInfo = fileInfo;
 		this.config = config;
@@ -27,52 +28,48 @@ public class MetaFileWriter {
 	}
 
 	public void writeHeader() throws Exception {
-		CppWriter cw = new CppWriter();
+		CppWriter codeWriter = new CppWriter();
 
-		Util.writeAutoComment(cw);	
+		WriterUtil.writeCommentForAutoGeneration(codeWriter);	
 
-		cw.beginIncludeGuard(Util.normalizeSymbol(this.getDestFileName()) + "_H");
+		codeWriter.beginIncludeGuard(Util.normalizeSymbol(this.getDestFileName()) + "_H");
 
-		cw.include("cpgf/gmetadefine.h");
-		cw.include("cpgf/metadata/gnamereplacer.h");
-		cw.include("cpgf/metadata/gmetadataconfig.h");
-		cw.include("cpgf/metadata/private/gmetadata_header.h");
-		cw.out("\n\n");
+		codeWriter.include("cpgf/gmetadefine.h");
+		codeWriter.include("cpgf/metadata/gnamereplacer.h");
+		codeWriter.include("cpgf/metadata/gmetadataconfig.h");
+		codeWriter.include("cpgf/metadata/private/gmetadata_header.h");
+		codeWriter.out("\n\n");
 				
-		cw.beginNamespace(this.config.cppNamespace);
+		codeWriter.beginNamespace(this.config.cppNamespace);
 
 		List<CppClass>  sortedClassList = Util.sortClassList(this.classList);
 		for(CppClass cppClass : sortedClassList) {
-			MetaClassWriter writer = new MetaClassWriter(
-				cppClass,
-				cw,
-				this.config
-			);
+			MetaClassWriter writer = new MetaClassWriter(this.config, codeWriter, cppClass);
 			
 			String funcName = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
 
-			this.beginMetaFunction(cw, funcName);
+			this.beginMetaFunction(codeWriter, funcName);
 			writer.write();
-			this.endMetaFunction(cw);
+			this.endMetaFunction(codeWriter);
 			
-			cw.out("\n\n");
+			codeWriter.out("\n\n");
 		}
 
-		cw.endNamespace(this.config.cppNamespace);
+		codeWriter.endNamespace(this.config.cppNamespace);
 		
 		for(String ns : this.fileInfo.getNamespaceList()) {
-			cw.useNamespace(ns);
+			codeWriter.useNamespace(ns);
 		}
 		
-		cw.out("\n\n");
-		cw.include("cpgf/metadata/private/gmetadata_footer.h");
+		codeWriter.out("\n\n");
+		codeWriter.include("cpgf/metadata/private/gmetadata_footer.h");
 		
-		cw.endIncludeGuard();
+		codeWriter.endIncludeGuard();
 		
 		Util.forceCreateDirectories(this.config.headerOutput);
 		String outFileName = this.makeOutputFileName(this.config.headerExtension);
 		Util.trace("Writing header " + outFileName);
-		Util.writeTextToFile(outFileName, cw.getText());
+		Util.writeTextToFile(outFileName, codeWriter.getText());
 	}
 
 	public void writeSource(List<String> createFunctionNames) throws Exception { 
@@ -80,33 +77,33 @@ public class MetaFileWriter {
 			return;
 		}
 		
-		CppWriter cw = new CppWriter();
+		CppWriter codeWriter = new CppWriter();
 
-		Util.writeAutoComment(cw);	
+		WriterUtil.writeCommentForAutoGeneration(codeWriter);	
 
 		if(this.config.sourceHeaderCode != null) {
-			cw.out(this.config.sourceHeaderCode);
-			cw.out("\n");
+			codeWriter.out(this.config.sourceHeaderCode);
+			codeWriter.out("\n");
 		}
 		if(this.config.sourceHeaderReplacer != null) {
 			String fileName = this.sourceFileName;
 			fileName.replaceAll("\\\\", "/");
 			fileName = this.config.sourceHeaderReplacer.replaceSourceHeader(fileName);
-			cw.include(fileName);
-			cw.out("\n");
+			codeWriter.include(fileName);
+			codeWriter.out("\n");
 		}
 		else {
-			cw.include(this.sourceFileName);
+			codeWriter.include(this.sourceFileName);
 		}
-		cw.include(this.config.metaHeaderPath + this.getDestFileName() + ".h");
-		cw.out("\n");
-		cw.include("cpgf/gmetapolicy.h");
-		cw.out("\n");
+		codeWriter.include(this.config.metaHeaderPath + this.getDestFileName() + ".h");
+		codeWriter.out("\n");
+		codeWriter.include("cpgf/gmetapolicy.h");
+		codeWriter.out("\n");
 		
-		cw.useNamespace("cpgf");
-		cw.out("\n");
+		codeWriter.useNamespace("cpgf");
+		codeWriter.out("\n");
 
-		cw.beginNamespace(this.config.cppNamespace);
+		codeWriter.beginNamespace(this.config.cppNamespace);
 		
 		List<CppClass>  sortedClassList = Util.sortClassList(this.classList);
 		for(CppClass cppClass : sortedClassList) {
@@ -117,28 +114,28 @@ public class MetaFileWriter {
 			String funcName = this.createFunctionName(cppClass, this.config.metaClassCreatePrefix);
 			createFunctionNames.add(funcName);
 
-			cw.out("GDefineMetaInfo " + funcName + "()\n");
+			codeWriter.out("GDefineMetaInfo " + funcName + "()\n");
 			
-			cw.beginBlock();
+			codeWriter.beginBlock();
 			
-			Util.createMetaClass(this.config, cw, cppClass, "_d", cppClass.getPolicyRules());
+			WriterUtil.createMetaClass(this.config, codeWriter, cppClass, "_d", cppClass.getPolicyRules());
 			
 			String callFunc = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
-			cw.out(callFunc + "(0, _d, NULL, GMetaPolicyCopyAllConstReference());\n");
-//			cw.out(callFunc + "(0, _d, NULL, GMetaPolicyDefault());\n");
-			cw.out("return _d.getMetaInfo();\n");
+			codeWriter.out(callFunc + "(0, _d, NULL, GMetaPolicyCopyAllConstReference());\n");
+//			codeWriter.out(callFunc + "(0, _d, NULL, GMetaPolicyDefault());\n");
+			codeWriter.out("return _d.getMetaInfo();\n");
 			
-			cw.endBlock();
+			codeWriter.endBlock();
 
-			cw.out("\n\n");
+			codeWriter.out("\n\n");
 		}
 		
-		cw.endNamespace(this.config.cppNamespace);
+		codeWriter.endNamespace(this.config.cppNamespace);
 		
 		Util.forceCreateDirectories(this.config.sourceOutput);
 		String outFileName = Util.concatFileName(this.config.sourceOutput, this.getDestFileName()) + this.config.sourceExtension;
 		Util.trace("Writing source " + outFileName);
-		Util.writeTextToFile(outFileName, cw.getText());
+		Util.writeTextToFile(outFileName, codeWriter.getText());
 	}
 
 	private String createFunctionName(CppClass cppClass, String prefix) {
@@ -146,23 +143,23 @@ public class MetaFileWriter {
 		if(! cppClass.isGlobal()) {
 			className = cppClass.getName();
 		}
-		className = Util.getBaseName(className);
+		className = Util.getItemBaseName(className);
 		className = Util.upcaseFirst(className);
 			
 		return prefix + className;
 	}
 
-	private void beginMetaFunction(CppWriter cw, String name) {
-		cw.out("template <typename D, typename Policy>\n");
-		cw.out("void " + name + "(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)\n");
-		cw.beginBlock();
-		cw.out("(void)config; (void)_d; (void)_r; (void)_d; (void)_p;\n");
-		cw.useNamespace("cpgf");
-		cw.out("\n");
+	private void beginMetaFunction(CppWriter codeWriter, String name) {
+		codeWriter.out("template <typename D, typename Policy>\n");
+		codeWriter.out("void " + name + "(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)\n");
+		codeWriter.beginBlock();
+		codeWriter.out("(void)config; (void)_d; (void)_r; (void)_d; (void)_p;\n");
+		codeWriter.useNamespace("cpgf");
+		codeWriter.out("\n");
 	}
 
-	private void endMetaFunction(CppWriter cw) {
-		cw.endBlock();
+	private void endMetaFunction(CppWriter codeWriter) {
+		codeWriter.endBlock();
 	}
 
 	private String makeOutputFileName(String extension) {
