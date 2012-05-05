@@ -8,5 +8,6 @@ public enum EnumCategory {
 	Enum,
 	Field,
 	Method,
-	Operator
+	Operator,
+	Typedef
 }

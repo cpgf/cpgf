@@ -18,8 +18,8 @@ public class MetaInfo {
     public void fixup() {
     	this.doFixupGlobals();
     	this.doFixupBaseClasses();
-    	this.doFixupOwnerClasses();
     	this.doFixupInnerClasses();
+    	this.doFixupOwnerClasses();
     }
 
     private void doFixupGlobals() {
@@ -40,6 +40,7 @@ public class MetaInfo {
     			this.doFixupGlobalItems(globalMap, c.getOperatorList());
     			this.doFixupGlobalItems(globalMap, c.getEnumList());
     			this.doFixupGlobalItems(globalMap, c.getConstantList());
+    			this.doFixupGlobalItems(globalMap, c.getTypedefList());
 
     			this.classList.remove(i);
     			finished = false;
@@ -66,6 +67,7 @@ public class MetaInfo {
     
     private void doFixupBaseClasses() {
     	for(CppClass c : this.classList) {
+//System.out.println(c.getName());
     		for(DeferClass deferClass : c.getBaseClassList()) {
     			deferClass.resolve(this.classList);
     		}

@@ -7,8 +7,6 @@ import com.cpgf.metagen.Util;
 import com.cpgf.metagen.codewriter.CodeWriter;
 import com.cpgf.metagen.codewriter.CppWriter;
 import com.cpgf.metagen.metadata.CppClass;
-import com.cpgf.metagen.metadata.DeferClass;
-import com.cpgf.metagen.metadata.EnumVisibility;
 import com.cpgf.metagen.metadata.Parameter;
 
 public class WriterUtil {
@@ -66,12 +64,9 @@ public class WriterUtil {
 			}
 		}
 		else {
-			String typeName = "GDefineMetaClass<" + cppClass.getName();
-			for(DeferClass deferClass : cppClass.getBaseClassList()) {
-				if(deferClass.getCppClass().getVisibility() == EnumVisibility.Public) {
-					typeName = typeName + ", " + Util.getItemBaseName(deferClass.getCppClass().getName());
-				}
-			}
+			String typeName = "GDefineMetaClass<" + cppClass.getQualifiedName();
+
+			typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
 			
 			typeName = typeName + ">";
 			String policy = "";
@@ -80,11 +75,11 @@ public class WriterUtil {
 			}
 			if(config.metaNamespace != null) {
 				codeWriter.out("GDefineMetaNamespace _ns = GDefineMetaNamespace::" + action + "(" + namespace + ");\n");
-				codeWriter.out(typeName +  " " + varName + " = " + typeName + policy + "::declare(\"" + Util.getItemBaseName(cppClass.getName()) + "\");\n");
+				codeWriter.out(typeName +  " " + varName + " = " + typeName + policy + "::declare(\"" + cppClass.getPrimaryName() + "\");\n");
 				codeWriter.out("_ns._class(" + varName + ");\n");
 			}
 			else {
-				codeWriter.out(typeName +  " " + varName + " = " + typeName + policy + "::" + action + "(\"" + Util.getItemBaseName(cppClass.getName()) + "\");\n");
+				codeWriter.out(typeName +  " " + varName + " = " + typeName + policy + "::" + action + "(\"" + cppClass.getPrimaryName() + "\");\n");
 			}
 		}
 	}
@@ -94,19 +89,16 @@ public class WriterUtil {
 			codeWriter.out("GDefineMetaGlobalDangle " + varName + " = GDefineMetaGlobalDangle::dangle();\n");
 		}
 		else {
-			String typeName = "GDefineMetaClass<" + cppClass.getName();
-			for(DeferClass deferClass : cppClass.getBaseClassList()) {
-				if(deferClass.getCppClass().getVisibility() == EnumVisibility.Public) {
-					typeName = typeName + ", " + Util.getItemBaseName(deferClass.getCppClass().getName());
-				}
-			}
+			String typeName = "GDefineMetaClass<" + cppClass.getLiteralName();
+			
+			typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
 			
 			typeName = typeName + ">";
 			String policy = "";
 			if(rules != null && rules.size() > 0) {
 				policy = "::Policy<MakePolicy<" + Util.joinStringList(", ", rules) + "> >";
 			}
-			codeWriter.out(typeName +  " " + varName + " = " + typeName + policy + "::declare(\"" + Util.getItemBaseName(cppClass.getName()) + "\");\n");
+			codeWriter.out(typeName +  " " + varName + " = " + typeName + policy + "::declare(\"" + cppClass.getPrimaryName() + "\");\n");
 		}
 	}
 	

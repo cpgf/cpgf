@@ -1,27 +1,27 @@
 var config = {
-	projectID : "box2d",
+	projectID : "wxwidgets",
 
-	headerOutput : "../../../include/cpgf/metadata/box2d",
-	sourceOutput : "../../../src/metadata/box2d",
+	headerOutput : "cpp/include",
+	sourceOutput : "cpp/src",
 	
 	metaOutputCallback : processCallback,
 	
-	cppNamespace : "meta_box2d",
+	cppNamespace : "meta_wxwidgets",
 	
 	metaClassFunctionPrefix : "buildMetaClass_",
 	metaClassCreatePrefix : "createMetaClass_",
 
 	metaClassMainRegisterPrefix : "registerMain_",
 
-	sourceFilePrefix : "meta_box2d_",
-	mainSourceFile : "register_meta_box2d",
+	sourceFilePrefix : "meta_wxwidgets_",
+	mainSourceFile : "register_meta_wxwidgets",
 
 	autoRegisterToGlobal : true,
 	
-	metaNamespace : "box2d",
-	sourceHeaderCode : "#include \"Box2D/Box2D.h\"",
+	metaNamespace : "wxwidgets",
+	sourceHeaderCode : "#include \"wx/wx.h\"",
 	sourceHeaderReplacer : doHeaderReplace,
-	metaHeaderPath : "cpgf/metadata/box2d/",
+	metaHeaderPath : "",
 };
 
 var re_doHeaderReplace = new RegExp(".*Box2D[^/]*/Box2D", "i");

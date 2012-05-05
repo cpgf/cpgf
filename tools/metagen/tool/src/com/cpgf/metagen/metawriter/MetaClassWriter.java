@@ -177,7 +177,7 @@ public class MetaClassWriter {
 		String action = this.getAction("_field");
 
 		for(CppField item : this.cppClass.getFieldList()) {
-			String name = item.getName();
+			String name = item.getPrimaryName();
 			
 			this.doCallback(item);
 			
@@ -202,7 +202,7 @@ public class MetaClassWriter {
 		HashMap<String, Integer> methodOverload = new HashMap<String, Integer>();
 
 		for(CppMethod item : this.cppClass.getMethodList()) {
-			String name = item.getName();
+			String name = item.getPrimaryName();
 			Integer count = methodOverload.get(name);
 			if(count == null) {
 				count = new Integer(0);
@@ -212,7 +212,7 @@ public class MetaClassWriter {
 		}
 
 		for(CppMethod item : this.cppClass.getMethodList()) {
-			String name = item.getName();
+			String name = item.getPrimaryName();
 			Integer overloadCount = methodOverload.get(name);
 			boolean overload = (overloadCount != null && overloadCount.intValue() > 1);
 
@@ -247,7 +247,7 @@ public class MetaClassWriter {
 		String action = this.getAction("_enum");
 
 		for(CppEnum item : this.cppClass.getEnumList()) {
-			String name = item.getName();
+			String name = item.getPrimaryName();
 			
 			this.doCallback(item);
 			
@@ -295,7 +295,7 @@ public class MetaClassWriter {
 				continue;
 			}
 			
-			this.codeWriter.out("._element(" + this.getReplace(item.getName()) + ", " + item.getName() + ")\n");
+			this.codeWriter.out("._element(" + this.getReplace(item.getPrimaryName()) + ", " + item.getPrimaryName() + ")\n");
 		}
 		
 		this.codeWriter.decIndent();
@@ -398,7 +398,7 @@ public class MetaClassWriter {
 				this.codeWriter,
 				item,
 				"_nd",
-				item.getName()
+				item.getLiteralName()
 			);
 			writer.write();
 			this.codeWriter.out(action + "(_nd);\n");

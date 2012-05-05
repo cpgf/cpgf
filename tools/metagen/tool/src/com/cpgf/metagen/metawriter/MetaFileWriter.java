@@ -44,6 +44,10 @@ public class MetaFileWriter {
 
 		List<CppClass>  sortedClassList = Util.sortClassList(this.classList);
 		for(CppClass cppClass : sortedClassList) {
+			if(! cppClass.canGenerateMetaCode()) {
+				continue;
+			}
+			
 			MetaClassWriter writer = new MetaClassWriter(this.config, codeWriter, cppClass);
 			
 			String funcName = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
@@ -107,6 +111,10 @@ public class MetaFileWriter {
 		
 		List<CppClass>  sortedClassList = Util.sortClassList(this.classList);
 		for(CppClass cppClass : sortedClassList) {
+			if(! cppClass.canGenerateMetaCode()) {
+				continue;
+			}
+			
 			if(cppClass.isTemplate()) {
 				continue;
 			}
@@ -117,12 +125,11 @@ public class MetaFileWriter {
 			codeWriter.out("GDefineMetaInfo " + funcName + "()\n");
 			
 			codeWriter.beginBlock();
-			
+
 			WriterUtil.createMetaClass(this.config, codeWriter, cppClass, "_d", cppClass.getPolicyRules());
 			
 			String callFunc = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
 			codeWriter.out(callFunc + "(0, _d, NULL, GMetaPolicyCopyAllConstReference());\n");
-//			codeWriter.out(callFunc + "(0, _d, NULL, GMetaPolicyDefault());\n");
 			codeWriter.out("return _d.getMetaInfo();\n");
 			
 			codeWriter.endBlock();
@@ -141,9 +148,8 @@ public class MetaFileWriter {
 	private String createFunctionName(CppClass cppClass, String prefix) {
 		String className = this.getGlobalPostfix();
 		if(! cppClass.isGlobal()) {
-			className = cppClass.getName();
+			className = cppClass.getPrimaryName();
 		}
-		className = Util.getItemBaseName(className);
 		className = Util.upcaseFirst(className);
 			
 		return prefix + className;

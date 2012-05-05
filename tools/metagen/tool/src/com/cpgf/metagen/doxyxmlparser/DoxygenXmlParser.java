@@ -30,6 +30,7 @@ import com.cpgf.metagen.metadata.MetaInfo;
 import com.cpgf.metagen.metadata.Operator;
 import com.cpgf.metagen.metadata.Parameter;
 import com.cpgf.metagen.metadata.ParameteredItem;
+import com.cpgf.metagen.metadata.Typedef;
 
 public class DoxygenXmlParser {
 	private Config config;
@@ -103,7 +104,7 @@ public class DoxygenXmlParser {
 	private CppType getType(Node node) {
 		String baseType = Util.getNodeText(Util.getNode(node, "type"));
 		String array = Util.getNodeText(Util.getNode(node, "array"));
-		
+
 		return new CppType(baseType, array);
 	}
 	
@@ -183,6 +184,10 @@ public class DoxygenXmlParser {
 		if(kind.equals("class")) {
 			this.doParseClass(node, location);
 		}
+		else if(kind.equals("union")) {
+			// we can't handle union for now because union will cause compile error in type traits
+///			this.doParseClass(node, location);
+		}
 		else if(kind.equals("struct")) {
 			this.doParseClass(node, location);
 		}
@@ -205,6 +210,8 @@ public class DoxygenXmlParser {
 			this.doParseInnerClasses(node);
 			this.doParseAllSectionDef(node, location);
 			this.doParseTemplateParams(node, cppClass);
+
+			this.resolveNamespace(cppClass);
 		}
 		finally {
 			this.leaveClass();
@@ -270,6 +277,9 @@ public class DoxygenXmlParser {
 			else if(kind.equals("define")) {
 				item = this.doParseConstant(child, name);
 			}
+			else if(kind.equals("typedef")) {
+				item = this.doParseTypedef(child, name);
+			}
 			else if(kind.equals("enumvalue")) {
 			}
 			
@@ -280,7 +290,7 @@ public class DoxygenXmlParser {
 			}
 		}
 	}
-	
+
 	private Item doParseMethod(Node node, String name) {
 		if(! this.getCurrentClass().isGlobal()) {
 			if(name.indexOf('~') >= 0) {
@@ -290,11 +300,12 @@ public class DoxygenXmlParser {
 				return destructor;
 			}
 			
-			if(Util.getItemBaseName(this.getCurrentClass().getName()).equals(name)) { // constructor
+			if(this.getCurrentClass().getPrimaryName().equals(name)) { // constructor
 				Constructor constructor = new Constructor();
 				this.doParseParams(node, constructor);
 				this.doParseTemplateParams(node, constructor);
 				this.getCurrentClass().getConstructorList().add(constructor);
+				constructor.setExplicit(Util.isValueYes(Util.getAttribute(node, "explicit")));
 
 				return constructor;
 			}
@@ -323,6 +334,7 @@ public class DoxygenXmlParser {
 			return operator;
 		}
 
+		// method
 		CppMethod method = new CppMethod(
 			name,
 			new CppType(Util.getNodeText(Util.getNode(node, "type")))
@@ -343,10 +355,7 @@ public class DoxygenXmlParser {
 		for(Node child : Util.getChildNodesByName(node, "param")) {
 			Parameter param = new Parameter(
 					Util.getNodeText(Util.getNode(child, "declname")),
-					new CppType(
-							Util.getNodeText(Util.getNode(child, "type")),
-							Util.getNodeText(Util.getNode(child, "array"))
-					),
+					this.getType(child),
 					Util.getNodeText(Util.getNode(child, "defval"))
 				);
 			item.getParameterList().add(param);
@@ -362,10 +371,7 @@ public class DoxygenXmlParser {
 		for(Node child : Util.getChildNodesByName(node, "param")) {
 			Parameter param = new Parameter(
 					Util.getNodeText(Util.getNode(child, "declname")),
-					new CppType(
-							Util.getNodeText(Util.getNode(child, "type")),
-							Util.getNodeText(Util.getNode(child, "array"))
-					),
+					this.getType(child),
 					Util.getNodeText(Util.getNode(child, "defval"))
 				);
 			item.getTemplateParameterList().add(param);
@@ -391,23 +397,31 @@ public class DoxygenXmlParser {
 					Util.getNodeText(Util.getNode(child, "initializer"))
 			);
 		}
-		
+
 		return cppEnum;
 	}
-	
+
 	private Item doParseConstant(Node node, String name) {
 		if(Util.getNode(node, "param") != null) {
 			return null;
 		}
-		
+
 		Constant constant = new Constant(
 				Util.getNodeText(Util.getNode(node, "name")),
 				Util.getNodeText(Util.getNode(node, "initializer"))
 		);
-		
+
 		this.getCurrentClass().getConstantList().add(constant);
-		
+
 		return constant;
+	}
+
+	private Item doParseTypedef(Node node, String name) {
+		Typedef typedef = new Typedef(name, this.getType(node));
+		
+		this.getCurrentClass().getTypedefList().add(typedef);
+		
+		return typedef;
 	}
 	
 }

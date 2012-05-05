@@ -64,7 +64,7 @@ public class MetagenMain {
 		this.parseCommandLine(args);
 
 		Config config = new Config();
-		
+
 		List<JavascriptConfigLoader> configLoaderList = new ArrayList<JavascriptConfigLoader>();
 		try {
 			for(String configFileName : this.configFileNameList) {

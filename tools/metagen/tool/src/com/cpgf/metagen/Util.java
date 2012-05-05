@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.cpgf.metagen.metadata.CppClass;
+import com.cpgf.metagen.metadata.DeferClass;
+import com.cpgf.metagen.metadata.EnumVisibility;
 import com.cpgf.metagen.metadata.Item;
 
 public class Util {
@@ -37,7 +37,7 @@ public class Util {
 	public static String getAttribute(Node node, String attributeName) {
 		return node.getAttributes().getNamedItem(attributeName).getNodeValue();
 	}
-	
+
 	public static Node getNode(Node node, String nodeName) {
 		List<Node> childList = getChildNodesByName(node, nodeName);
 		if(childList.size() > 0) {
@@ -88,20 +88,9 @@ public class Util {
 		return ! value.toLowerCase().equals("no");
 	}
 	
-	public static String getItemBaseName(String name) {
-		Pattern pattern = Pattern.compile("^.*\\b(\\w+)$");
-		Matcher matcher = pattern.matcher(name);
-		if(matcher.matches()) {
-			return matcher.group(1);
-		}
-		else {
-			return name;
-		}
-	}
-	
 	public static <T extends Item> Item findItemByName(List<T> itemList, String name) {
 		for(int i = 0; i < itemList.size(); ++i) {
-			String itemName = itemList.get(i).getName();
+			String itemName = itemList.get(i).getLiteralName();
 			if(itemName != null && itemName.equals(name)) {
 				return itemList.get(i);
 			}
@@ -196,13 +185,7 @@ public class Util {
 
 			@Override
 			public int compare(CppClass o1, CppClass o2) {
-				if(o1.getName() == null) {
-					return -1;
-				}
-				if(o2.getName() == null) {
-					return 1;
-				}
-				return o1.getName().compareTo(o2.getName());
+				return o1.getQualifiedName().compareTo(o2.getQualifiedName());
 			}
 		}
 		);
@@ -225,13 +208,25 @@ public class Util {
 			return s.substring(0, 1).toUpperCase() + s.substring(1);
 		}
 	}
-	
+
 	public static String concatFileName(String path, String fileName) {
 		return new File(path, fileName).getAbsolutePath();
 	}
-	
+
 	public static void forceCreateDirectories(String path) {
 		(new File(path, "")).mkdirs();
+	}
+
+	public static String generateBaseClassList(List<DeferClass> baseClassList) {
+		String typeName = "";
+
+		for(DeferClass deferClass : baseClassList) {
+			if(deferClass.getVisibility() == EnumVisibility.Public) {
+				typeName = typeName + ", " + deferClass.getName();
+			}
+		}
+		
+		return typeName;
 	}
 
 }

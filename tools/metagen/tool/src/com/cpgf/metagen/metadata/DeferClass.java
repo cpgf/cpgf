@@ -37,4 +37,8 @@ public class DeferClass {
 		return visibility;
 	}
 
+	public String getName() {
+		return name;
+	}
+
 }

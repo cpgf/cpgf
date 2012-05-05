@@ -13,6 +13,7 @@ public class CppClass extends ParameteredItem {
 	private List<Operator> operatorList;
 	private List<DeferClass> classList;
 	private List<DeferClass> baseClassList;
+	private List<Typedef> typedefList;
 	
 	private boolean isInner;
 
@@ -25,6 +26,7 @@ public class CppClass extends ParameteredItem {
 		this.methodList = new ArrayList<CppMethod>();
 		this.enumList = new ArrayList<CppEnum>();
 		this.operatorList = new ArrayList<Operator>();
+		this.typedefList = new ArrayList<Typedef>();
 		this.classList = new ArrayList<DeferClass>();
 		this.baseClassList = new ArrayList<DeferClass>();
 	}
@@ -61,12 +63,16 @@ public class CppClass extends ParameteredItem {
 		return operatorList;
 	}
 
+	public List<Typedef> getTypedefList() {
+		return typedefList;
+	}
+
 	public List<DeferClass> getClassList() {
 		return classList;
 	}
 	
 	public boolean isGlobal() {
-		return this.getName() == null;
+		return this.getPrimaryName().equals("");
 	}
 
 	public List<DeferClass> getBaseClassList() {
@@ -127,6 +133,7 @@ public class CppClass extends ParameteredItem {
 		this.doFixupOwners(this.enumList);
 		this.doFixupOwners(this.operatorList);
 		this.doFixupOwners(this.constantList);
+		this.doFixupOwners(this.typedefList);
 		
 		for(DeferClass deferClass : this.classList) {
 			deferClass.getCppClass().setOwner(this);
@@ -147,6 +154,16 @@ public class CppClass extends ParameteredItem {
 		}
 		
 		return false;
+	}
+	
+	public boolean canGenerateMetaCode() {
+		return this.constructorList.size() > 0
+				|| this.fieldList.size() > 0
+				|| this.methodList.size() > 0
+				|| this.enumList.size() > 0
+				|| this.operatorList.size() > 0
+				|| this.constantList.size() > 0
+			;
 	}
 	
 	public List<String> getPolicyRules() {
@@ -182,5 +199,5 @@ public class CppClass extends ParameteredItem {
 		
 		return rules;
 	}
-	
+
 }

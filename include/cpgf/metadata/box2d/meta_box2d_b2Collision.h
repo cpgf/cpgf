@@ -37,6 +37,19 @@ void buildMetaClass_Global_b2collision(const cpgf::GMetaDataConfigFlags & config
 
 
 template <typename D, typename Policy>
+void buildMetaClass_Features(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
+{
+    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
+    using namespace cpgf;
+    
+    _d.CPGF_MD_TEMPLATE _field(replaceName("referenceEdge", _r), &D::ClassType::referenceEdge, _p);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("incidentEdge", _r), &D::ClassType::incidentEdge, _p);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("incidentVertex", _r), &D::ClassType::incidentVertex, _p);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("flip", _r), &D::ClassType::flip, _p);
+}
+
+
+template <typename D, typename Policy>
 void buildMetaClass_B2AABB(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
 {
     (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
@@ -61,19 +74,6 @@ void buildMetaClass_B2ClipVertex(const cpgf::GMetaDataConfigFlags & config, D _d
     
     _d.CPGF_MD_TEMPLATE _field(replaceName("v", _r), &D::ClassType::v, _p);
     _d.CPGF_MD_TEMPLATE _field(replaceName("id", _r), &D::ClassType::id, _p);
-}
-
-
-template <typename D, typename Policy>
-void buildMetaClass_Features(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
-{
-    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
-    using namespace cpgf;
-    
-    _d.CPGF_MD_TEMPLATE _field(replaceName("referenceEdge", _r), &D::ClassType::referenceEdge, _p);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("incidentEdge", _r), &D::ClassType::incidentEdge, _p);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("incidentVertex", _r), &D::ClassType::incidentVertex, _p);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("flip", _r), &D::ClassType::flip, _p);
 }
 
 

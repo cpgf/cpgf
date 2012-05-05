@@ -1,8 +1,13 @@
 package com.cpgf.metagen.metadata;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class Item {
-	private String name;
+	private String literalName;
+	private String primaryName;
+	private String qualifiedName;
 	private EnumCategory category;
 	private EnumVisibility visibility;
 	private String location;
@@ -10,14 +15,65 @@ public class Item {
 	private boolean isStatic;
 	private boolean isConst;
 	private CppClass owner;
-	
+
 	protected Item(EnumCategory category, String name) {
+		if(name == null) {
+			name = "";
+		}
+
 		this.category = category;
-		this.name = name;
+		this.literalName = name;
+		this.primaryName = getItemBaseName(name);
 	}
 
-	public String getName() {
-		return name;
+	private static String getItemBaseName(String name) {
+		if(name == null) {
+			return "";
+		}
+		if(name.indexOf('@') >= 0) {
+			return "";
+		}
+		
+		Pattern pattern = Pattern.compile("^.*\\b(\\w+)$");
+		Matcher matcher = pattern.matcher(name);
+		if(matcher.matches()) {
+			return matcher.group(1);
+		}
+		else {
+			return name;
+		}
+	}
+	
+	public String getPrimaryName() {
+		return primaryName;
+	}
+
+	public String getLiteralName() {
+		return literalName;
+	}
+
+	public String getQualifiedName() {
+		if(this.qualifiedName == null) {
+			this.qualifiedName = this.getPrimaryName();
+			CppClass parent = this.getOwner();
+			if(parent == null) {
+				if(! this.getNamespace().equals("")) {
+					this.qualifiedName = this.getNamespace() + "::" + this.qualifiedName;
+				}
+			}
+			else {
+				while(parent != null) {
+					String parentQualifiedname = parent.getQualifiedName();
+					if(parentQualifiedname == null || parentQualifiedname.equals("")) {
+						break;
+					}
+					this.qualifiedName = parentQualifiedname + "::" + this.qualifiedName;
+					parent = parent.getOwner();
+				}
+			}
+		}
+		
+		return this.qualifiedName;
 	}
 
 	public EnumCategory getCategory() {
@@ -31,23 +87,27 @@ public class Item {
 	public void setVisibility(EnumVisibility visibility) {
 		this.visibility = visibility;
 	}
-	
+
 	public String getLocation() {
 		return location;
 	}
-	
+
 	public void setLocation(String location) {
 		this.location = location;
 	}
 
 	public String getNamespace() {
-		return namespace;
+		if(this.namespace == null) {
+			this.namespace = "";
+		}
+
+		return this.namespace;
 	}
 
 	public void setNamespace(String namespace) {
 		this.namespace = namespace;
 		if(this.namespace != null) {
-			this.name = this.namespace + "::" + name;
+			this.primaryName = this.namespace + "::" + primaryName;
 		}
 	}
 

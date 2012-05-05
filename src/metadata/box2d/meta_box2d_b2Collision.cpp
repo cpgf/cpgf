@@ -20,6 +20,14 @@ GDefineMetaInfo createMetaClass_Global_b2collision()
 }
 
 
+GDefineMetaInfo createMetaClass_Features()
+{
+    GDefineMetaClass<b2ContactID::Features> _d = GDefineMetaClass<b2ContactID::Features>::declare("Features");
+    buildMetaClass_Features(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    return _d.getMetaInfo();
+}
+
+
 GDefineMetaInfo createMetaClass_B2AABB()
 {
     GDefineMetaClass<b2AABB> _d = GDefineMetaClass<b2AABB>::declare("b2AABB");
@@ -32,14 +40,6 @@ GDefineMetaInfo createMetaClass_B2ClipVertex()
 {
     GDefineMetaClass<b2ClipVertex> _d = GDefineMetaClass<b2ClipVertex>::declare("b2ClipVertex");
     buildMetaClass_B2ClipVertex(0, _d, NULL, GMetaPolicyCopyAllConstReference());
-    return _d.getMetaInfo();
-}
-
-
-GDefineMetaInfo createMetaClass_Features()
-{
-    GDefineMetaClass<b2ContactID::Features> _d = GDefineMetaClass<b2ContactID::Features>::declare("Features");
-    buildMetaClass_Features(0, _d, NULL, GMetaPolicyCopyAllConstReference());
     return _d.getMetaInfo();
 }
 
