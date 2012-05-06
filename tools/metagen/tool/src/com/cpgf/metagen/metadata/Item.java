@@ -79,6 +79,41 @@ public class Item {
 
 		return this.qualifiedName;
 	}
+	
+	public String getPrefixName() {
+		String prefix = this.getFullNamespace();
+if(true) return prefix;
+		if(prefix.equals("")) {
+			return this.getPrimaryName();
+		}
+		else {
+			if(this.getPrimaryName().equals("")) {
+				return prefix;
+			}
+			else {
+				return prefix + "::" + this.getPrimaryName();
+			}
+		}
+	}
+	
+	public String getFullNamespace() {
+		String prefix = "";
+		if(this.owner != null) {
+			prefix = this.owner.getFullNamespace();
+		}
+		
+		if(prefix.equals("")) {
+			return this.getNamespace();
+		}
+		else {
+			if(this.getNamespace().equals("")) {
+				return prefix;
+			}
+			else {
+				return prefix + "::" + this.getNamespace();
+			}
+		}
+	}
 
 	public EnumCategory getCategory() {
 		return category;

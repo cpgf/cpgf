@@ -28,13 +28,13 @@ public class MetaClassWriter {
 	
 	private String define;
 	private String classType;
-	
+
 	private OutputCallbackData callbackData;
 	
 	public MetaClassWriter(Config config, CppWriter codeWriter, CppClass cppClass) {
 		this.initialize(cppClass, codeWriter, config, "_d", "D::ClassType");
 	}
-	
+
 	public MetaClassWriter(Config config, CppWriter codeWriter, CppClass cppClass, String define, String classType) {
 		this.initialize(cppClass, codeWriter, config, define, classType);
 	}
@@ -141,7 +141,7 @@ public class MetaClassWriter {
 		if(this.allowedMetaData(EnumCategory.Operator)) {
 			this.writeOperator();
 		}
-		
+
 		if(this.allowedMetaData(EnumCategory.Class)) {
 			this.writeClass();
 		}
@@ -265,7 +265,7 @@ public class MetaClassWriter {
 			this.codeWriter.out(action + "<" + typeName + ">(" + this.getReplace(name) + ")\n");
 			this.codeWriter.incIndent();
 				for(EnumValue value : item.getValueList()) {
-					String n = value.getName();
+					String n = value.getQualifiedName();
 					this.codeWriter.out("._element(" + this.getReplace(n) + ", " + prefix + n + ")\n");
 				}
 			this.codeWriter.decIndent();
@@ -345,7 +345,7 @@ public class MetaClassWriter {
 						hasSelf = true;
 					}
 				}
-				
+
 				if(op.equals("++") || op.equals("--")) {
 				}
 				else {

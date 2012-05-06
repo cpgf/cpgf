@@ -40,6 +40,12 @@ public class MetaFileWriter {
 		codeWriter.include("cpgf/metadata/private/gmetadata_header.h");
 		codeWriter.out("\n\n");
 				
+		for(String ns : this.fileInfo.getNamespaceList()) {
+			codeWriter.useNamespace(ns);
+		}
+		
+		codeWriter.out("\n\n");
+
 		codeWriter.beginNamespace(this.config.cppNamespace);
 
 		List<CppClass>  sortedClassList = Util.sortClassList(this.classList);
@@ -60,10 +66,6 @@ public class MetaFileWriter {
 		}
 
 		codeWriter.endNamespace(this.config.cppNamespace);
-		
-		for(String ns : this.fileInfo.getNamespaceList()) {
-			codeWriter.useNamespace(ns);
-		}
 		
 		codeWriter.out("\n\n");
 		codeWriter.include("cpgf/metadata/private/gmetadata_footer.h");

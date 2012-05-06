@@ -32,7 +32,7 @@ if(MSVC)
 endif(MSVC)
 
 file(GLOB GLOB_SEED ${SEED_SRC_PATH}/*.cpp)
-file(GLOB GLOB_WX ${ROOT_PATH}/testprojects/metagen_wxwidgets/cpp/src/*.cpp)
+file(GLOB GLOB_WX ${ROOT_PATH}/testprojects/metagen_sfml/cpp/src/*.cpp)
 
 set(HAS_UNITTEST 1)
 if(${HAS_UNITTEST})

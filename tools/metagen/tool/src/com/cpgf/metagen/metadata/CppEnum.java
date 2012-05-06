@@ -17,7 +17,7 @@ public class CppEnum extends Item {
 	}
 
 	public void addValue(String name, String value) {
-		valueList.add(new EnumValue(name, value));
+		valueList.add(new EnumValue(this, name, value));
 	}
 
 }

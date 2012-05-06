@@ -16,6 +16,8 @@ public class CppClass extends ParameteredItem {
 	private List<Typedef> typedefList;
 	
 	private boolean isInner;
+	
+	private ClassTraits traits;
 
 	public CppClass(String name) {
 		super(EnumCategory.Class, name);
@@ -134,7 +136,7 @@ public class CppClass extends ParameteredItem {
 		this.doFixupOwners(this.operatorList);
 		this.doFixupOwners(this.constantList);
 		this.doFixupOwners(this.typedefList);
-		
+
 		for(DeferClass deferClass : this.classList) {
 			deferClass.getCppClass().setOwner(this);
 		}
@@ -147,13 +149,7 @@ public class CppClass extends ParameteredItem {
 	}
 	
 	public boolean isAbstract() {
-		for(CppMethod method : this.methodList) {
-			if(method.isPureVirtual()) {
-				return true;
-			}
-		}
-		
-		return false;
+		return this.getTraits().isAbstract();
 	}
 	
 	public boolean canGenerateMetaCode() {
@@ -166,33 +162,34 @@ public class CppClass extends ParameteredItem {
 			;
 	}
 	
-	private boolean isCopyConstructorAbsent() {
-		for(Constructor c : this.getConstructorList()) {
-			if(c.isCopyConstructor()) {
-				if(c.getVisibility() != EnumVisibility.Public) {
-					return true;
-				}
-			}
-		}
+	public List<String> getPolicyRules() {
+		List<String> rules = new ArrayList<String>();
+
+		this.getTraits().getRules(rules);
 		
-		for(DeferClass deferClass : this.getBaseClassList()) {
-			if(deferClass.getCppClass() != null) {
-				if(deferClass.getCppClass().isCopyConstructorAbsent()) {
-					return true;
-				}
+		return rules;
+	}
+
+	private boolean checkAbstract() {
+		for(CppMethod method : this.methodList) {
+			if(method.isPureVirtual()) {
+				return true;
 			}
 		}
 		
 		return false;
 	}
 	
-	public List<String> getPolicyRules() {
-		List<String> rules = new ArrayList<String>();
-
+	private boolean checkDestructorHidden() {
 		if(this.getDestructor() != null && this.getDestructor().getVisibility() != EnumVisibility.Public) {
-			rules.add("GMetaRuleDestructorAbsent");
+			return true;
 		}
+		else {
+			return false;
+		}
+	}
 
+	private boolean checkDefaultConstructorHidden() {
 		boolean hasDefaultCtor = false;
 		boolean hasNonDefaultCtor = false;
 		boolean hasNonPublicDefaultCtor = false;
@@ -209,19 +206,47 @@ public class CppClass extends ParameteredItem {
 		}
 
 		if(hasNonPublicDefaultCtor || (!hasDefaultCtor && hasNonDefaultCtor)) {
-			rules.add("GMetaRuleDefaultConstructorAbsent");
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	private boolean checkCopyConstructorHidden() {
+		for(Constructor c : this.getConstructorList()) {
+			if(c.isCopyConstructor()) {
+				if(c.getVisibility() != EnumVisibility.Public) {
+					return true;
+				}
+			}
 		}
 		
-		if(this.isCopyConstructorAbsent()) {
-			rules.add("GMetaRuleCopyConstructorAbsent");
+		for(DeferClass deferClass : this.getBaseClassList()) {
+			if(deferClass.getCppClass() != null) {
+				if(deferClass.getCppClass().checkCopyConstructorHidden()) {
+					return true;
+				}
+			}
 		}
+		
+		return false;
+	}
+	
+	private void loadTraits(ClassTraits traits) {
+		traits.setAbstract(this.checkAbstract());
+		traits.setDestructorHidden(this.checkDestructorHidden());
+		traits.setDefaultConstructorHidden(this.checkDefaultConstructorHidden());
+		traits.setCopyConstructorHidden(this.checkCopyConstructorHidden());
+	}
 
-		if(this.isAbstract()) {
-			rules.add("GMetaRuleDefaultConstructorAbsent");
-			rules.add("GMetaRuleCopyConstructorAbsent");
+	public ClassTraits getTraits() {
+		if(this.traits == null) {
+			ClassTraits t = new ClassTraits();
+			this.loadTraits(t);
+			this.traits = t;
 		}
-		
-		return rules;
+		return this.traits;
 	}
 
 }
