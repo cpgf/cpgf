@@ -2,23 +2,26 @@ package com.cpgf.metagen.metadata;
 
 public class CppType {
 	private String baseType;
-	private String array;
+	private Item owner;
 
 	public CppType(String baseType) {
 		this.baseType = baseType;
 	}
-	
+
 	public CppType(String baseType, String array) {
-		this.baseType = baseType;
-		this.array = array;
+		this.baseType = baseType + (array == null ? "" : array);
 	}
 	
 	public String getFullType() {
-		return this.baseType + (this.array == null ? "" : this.array);
+		return this.baseType;
 	}
 	
-	public String toString() {
-		return this.getFullType();
+	public Item getOwner() {
+		return owner;
 	}
-	
+
+	public void setOwner(Item owner) {
+		this.owner = owner;
+	}
+
 }

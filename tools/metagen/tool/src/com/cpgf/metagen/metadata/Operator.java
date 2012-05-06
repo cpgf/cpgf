@@ -10,7 +10,7 @@ public class Operator extends ParameteredItem {
 	}
 
 	public String getOperator() {
-		return super.getPrimaryName();
+		return this.getLiteralName();
 	}
 
 	public CppType getResultType() {

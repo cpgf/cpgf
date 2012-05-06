@@ -166,6 +166,26 @@ public class CppClass extends ParameteredItem {
 			;
 	}
 	
+	private boolean isCopyConstructorAbsent() {
+		for(Constructor c : this.getConstructorList()) {
+			if(c.isCopyConstructor()) {
+				if(c.getVisibility() != EnumVisibility.Public) {
+					return true;
+				}
+			}
+		}
+		
+		for(DeferClass deferClass : this.getBaseClassList()) {
+			if(deferClass.getCppClass() != null) {
+				if(deferClass.getCppClass().isCopyConstructorAbsent()) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
 	public List<String> getPolicyRules() {
 		List<String> rules = new ArrayList<String>();
 
@@ -177,7 +197,7 @@ public class CppClass extends ParameteredItem {
 		boolean hasNonDefaultCtor = false;
 		boolean hasNonPublicDefaultCtor = false;
 		for(Constructor c : this.getConstructorList()) {
-			if(! c.hasParameter()) {
+			if(c.isDefaultConstructor()) {
 				hasDefaultCtor = true;
 				if(c.getVisibility() != EnumVisibility.Public) {
 					hasNonPublicDefaultCtor = true;
@@ -190,6 +210,10 @@ public class CppClass extends ParameteredItem {
 
 		if(hasNonPublicDefaultCtor || (!hasDefaultCtor && hasNonDefaultCtor)) {
 			rules.add("GMetaRuleDefaultConstructorAbsent");
+		}
+		
+		if(this.isCopyConstructorAbsent()) {
+			rules.add("GMetaRuleCopyConstructorAbsent");
 		}
 
 		if(this.isAbstract()) {

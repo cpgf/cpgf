@@ -67,7 +67,6 @@ public class MetaInfo {
     
     private void doFixupBaseClasses() {
     	for(CppClass c : this.classList) {
-//System.out.println(c.getName());
     		for(DeferClass deferClass : c.getBaseClassList()) {
     			deferClass.resolve(this.classList);
     		}

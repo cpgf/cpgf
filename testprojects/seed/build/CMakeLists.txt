@@ -61,8 +61,7 @@ set(SRC_META
 	${GLOB_WX}
 	
 	${SRC_UNITTEST_FRAMEWORK}
-)
-set(XXX
+
 	${SRC_PATH}/gapiutil.cpp
 	${SRC_PATH}/gbytearray.cpp
 	${SRC_PATH}/gexception.cpp
@@ -118,6 +117,8 @@ include_directories(
 	${ROOT_PATH}/testprojects/metagen_wxwidgets/cpp/include
 	e:/SourceCode/cpp/wxWidgets/include
 	/Source/wxWidgets/include
+	e:/SourceCode/cpp/SFML-1.6/include
+	../../metagen_sfml/cpp/include
 )
 if(${HAS_LUA})
 	include_directories(${LUA_INC})
@@ -163,5 +164,5 @@ set_target_properties(
 target_link_libraries(
 	${TARGET}
 #	D:/Source/wxWidgets/lib/gcc_dll/libwxmsw29u.a
-	E:/SourceCode/CPP/wxWidgets/lib/gcc_dll/libwxmsw29u.a
+#	E:/SourceCode/CPP/wxWidgets/lib/gcc_dll/libwxmsw29u.a
 )

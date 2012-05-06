@@ -340,7 +340,7 @@ struct InitVariantSelector
 				break;
 
 			case vtShadow:
-				initShadowObject<Copyable && !IsArray<T>::Result>(v, value);
+				initShadowObject<Copyable && !IsArray<T>::Result && !IsReference<T>::Result>(v, value);
 				break;
 
 			case vtInterface:
@@ -516,7 +516,7 @@ struct InitVariantSelector <Copyable, T, typename GEnableIfResult<IsSameType<T, 
 template <bool Copyable, typename T>
 void InitVariant(GVariant & v, const GVarTypeData & typeData, const typename RemoveReference<T>::Result & value)
 {
-	InitVariantSelector<Copyable, T>::init(v, typeData, value);
+	InitVariantSelector<Copyable && !IsReference<T>::Result, typename RemoveReference<T>::Result>::init(v, typeData, value);
 }
 
 

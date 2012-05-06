@@ -1,2 +1,2 @@
-#java -cp ../js.jar -jar ../metagen.jar --config config.wxwidgets.hs --xml xml/index.xml
+#java -cp ../js.jar -jar ../metagen.jar --config config.wxwidgets.js --xml xml/index.xml
 java -cp "../../tools/metagen/tool/bin;../../tools/metagen/js.jar" metagen --config config.wxwidgets.js --xml xml/index.xml

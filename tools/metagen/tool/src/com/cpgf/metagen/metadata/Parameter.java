@@ -4,11 +4,14 @@ public class Parameter {
 	private String name;
 	private CppType type;
 	private String defaultValue;
+	private ParameteredItem owner;
 
-	public Parameter(String name, CppType type, String defaultValue) {
+	public Parameter(String name, CppType type, String defaultValue, ParameteredItem owner) {
 		this.name = name;
 		this.type = type;
 		this.defaultValue = defaultValue;
+		this.owner = owner;
+		this.type.setOwner(this.owner);
 	}
 
 	public String getName() {
@@ -25,5 +28,13 @@ public class Parameter {
 
 	public boolean hasDefaultValue() {
 		return this.defaultValue != null;
+	}
+
+	public ParameteredItem getOwner() {
+		return owner;
+	}
+
+	public void setOwner(ParameteredItem owner) {
+		this.owner = owner;
 	}
 }

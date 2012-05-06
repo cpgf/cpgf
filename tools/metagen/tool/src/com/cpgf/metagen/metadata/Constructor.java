@@ -14,4 +14,20 @@ public class Constructor extends ParameteredItem {
 	public void setExplicit(boolean isExplicit) {
 		this.isExplicit = isExplicit;
 	}
+	
+	public boolean isDefaultConstructor() {
+		return ! this.hasParameter();
+	}
+
+	public boolean isCopyConstructor() {
+		if(this.getParameterList().size() == 1 && this.getOwner() != null) {
+			String paramType = this.getParameterList().get(0).getType().getFullType();
+			return paramType.indexOf("const") >= 0
+					&& paramType.indexOf(this.getOwner().getPrimaryName()) >= 0
+					&& paramType.indexOf('&') > 0
+				;
+		}
+		
+		return false;
+	}
 }

@@ -55,6 +55,10 @@ public class Item {
 	public String getQualifiedName() {
 		if(this.qualifiedName == null) {
 			this.qualifiedName = this.getPrimaryName();
+			if(this.qualifiedName.equals("")) {
+				return this.qualifiedName;
+			}
+
 			CppClass parent = this.getOwner();
 			if(parent == null) {
 				if(! this.getNamespace().equals("")) {
@@ -72,7 +76,7 @@ public class Item {
 				}
 			}
 		}
-		
+
 		return this.qualifiedName;
 	}
 
@@ -106,9 +110,6 @@ public class Item {
 
 	public void setNamespace(String namespace) {
 		this.namespace = namespace;
-		if(this.namespace != null) {
-			this.primaryName = this.namespace + "::" + primaryName;
-		}
 	}
 
 	public boolean isStatic() {

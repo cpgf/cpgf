@@ -311,11 +311,11 @@ public class DoxygenXmlParser {
 			}
 		}
 
-		Pattern pattern = Pattern.compile("^.*\\boperator(\\b.*)$");
+		Pattern pattern = Pattern.compile("^.*\\boperator(.*)$");
 		Matcher matcher = pattern.matcher(name);
 		if(matcher.matches()) { // operator
 			String op = matcher.group(1);
-			op.replaceAll("\\s", "");
+//			op.replaceAll("\\s", "");
 			Operator operator = new Operator(
 					op, 
 					new CppType(Util.getNodeText(Util.getNode(node, "type")))
@@ -350,13 +350,14 @@ public class DoxygenXmlParser {
 
 		return method;
 	}
-	
+
 	private void doParseParams(Node node, ParameteredItem item) {
 		for(Node child : Util.getChildNodesByName(node, "param")) {
 			Parameter param = new Parameter(
 					Util.getNodeText(Util.getNode(child, "declname")),
 					this.getType(child),
-					Util.getNodeText(Util.getNode(child, "defval"))
+					Util.getNodeText(Util.getNode(child, "defval")),
+					item
 				);
 			item.getParameterList().add(param);
 		}
@@ -372,7 +373,8 @@ public class DoxygenXmlParser {
 			Parameter param = new Parameter(
 					Util.getNodeText(Util.getNode(child, "declname")),
 					this.getType(child),
-					Util.getNodeText(Util.getNode(child, "defval"))
+					Util.getNodeText(Util.getNode(child, "defval")),
+					item
 				);
 			item.getTemplateParameterList().add(param);
 		}

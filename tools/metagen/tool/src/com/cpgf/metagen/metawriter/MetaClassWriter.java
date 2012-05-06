@@ -261,7 +261,7 @@ public class MetaClassWriter {
 				name = "GlobalEnum_"  + this.config.projectID + "_" + Util.getUniqueID();
 				typeName = "long long";
 			}
-			
+
 			this.codeWriter.out(action + "<" + typeName + ">(" + this.getReplace(name) + ")\n");
 			this.codeWriter.incIndent();
 				for(EnumValue value : item.getValueList()) {
@@ -312,66 +312,76 @@ public class MetaClassWriter {
 				continue;
 			}
 
-			this.codeWriter.out(action + "<" + item.getResultType().getFullType() + " (*)(");
-			
-			String op = item.getOperator();
-			
 			boolean isStatic = (this.cppClass.isGlobal() || item.isStatic());
-			boolean isFunctor = op.equals("()");
-			boolean hasSelf = false;
-			
-			if(! isFunctor) {
-				if(! isStatic) {
-					if(item.isConst()) {
-						this.codeWriter.out("const cpgf::GMetaSelf &");
-					}
-					else {
-						this.codeWriter.out("cpgf::GMetaSelf");
-					}
-					
-					hasSelf = true;
-				}
-			}
-			
-			String opText = "";
-			if(op.equals("++") || op.equals("--")) {
-			}
-			else {
-				if(item.hasParameter() && hasSelf) {
-					this.codeWriter.out(", ");
-				}
-				WriterUtil.writeParamList(this.codeWriter, item.getParameterList(), false);
-			}
-			this.codeWriter.out(")>(");
 			int realParamCount = item.getParameterList().size();
 			if(! isStatic) {
 				++realParamCount;
 			}
-			if(isFunctor) {
-				opText = "H(H)";
-			}
-			else if(op.equals("[]")) {
-				opText = "H[0]";
-			}
-			else if(op.matches("\\w") && realParamCount == 1) { // type convert T()
+
+			String op = item.getOperator();
+			
+			boolean isTypeConvert = op.matches(".*\\w+.*"); // && realParamCount == 1; // type convert T()
+			String opText = "";
+			
+			if(isTypeConvert) {
+				this.codeWriter.out(action + "<" + op + " (GMetaSelf)>(");
 				opText = "H()";
 			}
 			else {
-				if(realParamCount == 2) {
-					if(op.equals("++") || op.equals("--")) {
-						opText = "H" + op;
-					}
-					else {
-						opText = "H " + op + " H";
+				this.codeWriter.out(action + "<" + item.getResultType().getFullType() + " (*)(");
+				
+				boolean isFunctor = op.equals("()");
+				boolean hasSelf = false;
+				
+				if(! isFunctor) {
+					if(! isStatic) {
+						if(item.isConst()) {
+							this.codeWriter.out("const cpgf::GMetaSelf &");
+						}
+						else {
+							this.codeWriter.out("cpgf::GMetaSelf");
+						}
+						
+						hasSelf = true;
 					}
 				}
-				else if(realParamCount == 1) {
-					opText = op + "H";
+				
+				if(op.equals("++") || op.equals("--")) {
 				}
 				else {
+					if(item.hasParameter() && hasSelf) {
+						this.codeWriter.out(", ");
+					}
+					WriterUtil.writeParamList(this.codeWriter, item.getParameterList(), false);
+				}
+				this.codeWriter.out(")>(");
+				if(isFunctor) {
+					opText = "H(H)";
+				}
+				else if(op.equals("[]")) {
+					opText = "H[0]";
+				}
+				else if(op.matches("\\w") && realParamCount == 1) { // type convert T()
+					opText = "H()";
+				}
+				else {
+					if(realParamCount == 2) {
+						if(op.equals("++") || op.equals("--")) {
+							opText = "H" + op;
+						}
+						else {
+							opText = "H " + op + " H";
+						}
+					}
+					else if(realParamCount == 1) {
+						opText = op + "H";
+					}
+					else {
+					}
 				}
 			}
-			opText = opText.replaceAll("H", "mopHolder");
+
+			opText = opText.replaceAll("\\bH\\b", "mopHolder");
 			this.codeWriter.out(opText + ", ");
 			this.codeWriter.out("_p)");
 			

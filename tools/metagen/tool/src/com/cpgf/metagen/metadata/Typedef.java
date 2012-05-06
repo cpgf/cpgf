@@ -7,6 +7,7 @@ public class Typedef extends Item {
 		super(EnumCategory.Typedef, name);
 		
 		this.type = type;
+		this.type.setOwner(this);
 	}
 
 	public CppType getType() {

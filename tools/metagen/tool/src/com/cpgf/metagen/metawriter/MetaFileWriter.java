@@ -129,7 +129,7 @@ public class MetaFileWriter {
 			WriterUtil.createMetaClass(this.config, codeWriter, cppClass, "_d", cppClass.getPolicyRules());
 			
 			String callFunc = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
-			codeWriter.out(callFunc + "(0, _d, NULL, GMetaPolicyCopyAllConstReference());\n");
+			codeWriter.out(callFunc + "(0, _d, NULL, " + this.config.defaultMetaPolicy + ");\n");
 			codeWriter.out("return _d.getMetaInfo();\n");
 			
 			codeWriter.endBlock();
