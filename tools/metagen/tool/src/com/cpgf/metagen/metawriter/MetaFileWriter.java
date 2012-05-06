@@ -74,7 +74,6 @@ public class MetaFileWriter {
 		
 		Util.forceCreateDirectories(this.config.headerOutput);
 		String outFileName = this.makeOutputFileName(this.config.headerExtension);
-		Util.trace("Writing header " + outFileName);
 		Util.writeTextToFile(outFileName, codeWriter.getText());
 	}
 
@@ -143,7 +142,6 @@ public class MetaFileWriter {
 		
 		Util.forceCreateDirectories(this.config.sourceOutput);
 		String outFileName = Util.concatFileName(this.config.sourceOutput, this.getDestFileName()) + this.config.sourceExtension;
-		Util.trace("Writing source " + outFileName);
 		Util.writeTextToFile(outFileName, codeWriter.getText());
 	}
 

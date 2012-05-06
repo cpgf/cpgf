@@ -22,22 +22,22 @@ void buildMetaClass_Global_b2joint(const cpgf::GMetaDataConfigFlags & config, D 
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _enum<b2JointType>(replaceName("b2JointType", _r))
-        ._element(replaceName("e_unknownJoint", _r), e_unknownJoint)
-        ._element(replaceName("e_revoluteJoint", _r), e_revoluteJoint)
-        ._element(replaceName("e_prismaticJoint", _r), e_prismaticJoint)
-        ._element(replaceName("e_distanceJoint", _r), e_distanceJoint)
-        ._element(replaceName("e_pulleyJoint", _r), e_pulleyJoint)
-        ._element(replaceName("e_mouseJoint", _r), e_mouseJoint)
-        ._element(replaceName("e_gearJoint", _r), e_gearJoint)
-        ._element(replaceName("e_lineJoint", _r), e_lineJoint)
-        ._element(replaceName("e_weldJoint", _r), e_weldJoint)
-        ._element(replaceName("e_frictionJoint", _r), e_frictionJoint)
+        ._element(replaceName("e_unknownJoint", _r), b2JointType::e_unknownJoint)
+        ._element(replaceName("e_revoluteJoint", _r), b2JointType::e_revoluteJoint)
+        ._element(replaceName("e_prismaticJoint", _r), b2JointType::e_prismaticJoint)
+        ._element(replaceName("e_distanceJoint", _r), b2JointType::e_distanceJoint)
+        ._element(replaceName("e_pulleyJoint", _r), b2JointType::e_pulleyJoint)
+        ._element(replaceName("e_mouseJoint", _r), b2JointType::e_mouseJoint)
+        ._element(replaceName("e_gearJoint", _r), b2JointType::e_gearJoint)
+        ._element(replaceName("e_lineJoint", _r), b2JointType::e_lineJoint)
+        ._element(replaceName("e_weldJoint", _r), b2JointType::e_weldJoint)
+        ._element(replaceName("e_frictionJoint", _r), b2JointType::e_frictionJoint)
     ;
     _d.CPGF_MD_TEMPLATE _enum<b2LimitState>(replaceName("b2LimitState", _r))
-        ._element(replaceName("e_inactiveLimit", _r), e_inactiveLimit)
-        ._element(replaceName("e_atLowerLimit", _r), e_atLowerLimit)
-        ._element(replaceName("e_atUpperLimit", _r), e_atUpperLimit)
-        ._element(replaceName("e_equalLimits", _r), e_equalLimits)
+        ._element(replaceName("e_inactiveLimit", _r), b2LimitState::e_inactiveLimit)
+        ._element(replaceName("e_atLowerLimit", _r), b2LimitState::e_atLowerLimit)
+        ._element(replaceName("e_atUpperLimit", _r), b2LimitState::e_atUpperLimit)
+        ._element(replaceName("e_equalLimits", _r), b2LimitState::e_equalLimits)
     ;
 }
 

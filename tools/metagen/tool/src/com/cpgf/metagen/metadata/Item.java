@@ -82,7 +82,6 @@ public class Item {
 	
 	public String getPrefixName() {
 		String prefix = this.getFullNamespace();
-if(true) return prefix;
 		if(prefix.equals("")) {
 			return this.getPrimaryName();
 		}

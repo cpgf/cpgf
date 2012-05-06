@@ -11,18 +11,18 @@ import com.cpgf.metagen.metawriter.MetaWriter;
 public class MetagenMain {
 	private List<String> xmlFileNameList;
 	private List<String> configFileNameList;
-	
+
 	private void usage() {
 		System.out.println("Usage:");
 		System.out.println("  megagen --xml Xml1 [Xml2 Xml3...] --config Config1 [Config2 Config3...]");
 		System.exit(1);
 	}
-	
+
 	private void error(String message) {
 		System.out.println(message);
 		System.exit(1);
 	}
-	
+
 	private void parseCommandLine(String[] args) throws Exception {
 		this.xmlFileNameList = new ArrayList<String>();
 		this.configFileNameList = new ArrayList<String>();
@@ -30,7 +30,7 @@ public class MetagenMain {
 		if(args.length == 0) {
 			this.usage();
 		}
-		
+
 		List<String> currentList = null;
 		for(String arg : args) {
 			if(arg.indexOf('-') == 0) {
@@ -72,19 +72,19 @@ public class MetagenMain {
 				configLoaderList.add(configLoader);
 				configLoader.load(configFileName);
 			}
-	
-			for(String xmlFileName : this.xmlFileNameList) {
-				MetaInfo metaInfo = new MetaInfo();
-				FileMap fileMap = new FileMap();
-				(new DoxygenXmlParser(config, metaInfo, fileMap, xmlFileName)).parseFile();
 
-				metaInfo.fixup();
-				
-				MetaWriter metaWriter = new MetaWriter(config, metaInfo.getClassList(), fileMap);
-		
-				metaWriter.write();
+			MetaInfo metaInfo = new MetaInfo();
+			FileMap fileMap = new FileMap();
+
+			for(String xmlFileName : this.xmlFileNameList) {
+				(new DoxygenXmlParser(config, metaInfo, fileMap, xmlFileName)).parseFile();
 			}
-			
+
+			metaInfo.fixup();
+
+			MetaWriter metaWriter = new MetaWriter(config, metaInfo.getClassList(), fileMap);
+			metaWriter.write();
+
 			RunStats.report();
 		}
 		finally {

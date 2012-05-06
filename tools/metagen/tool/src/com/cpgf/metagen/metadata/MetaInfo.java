@@ -14,7 +14,7 @@ public class MetaInfo {
     public List<CppClass> getClassList() {
         return this.classList;
     }
-    
+
     public void fixup() {
     	this.doFixupGlobals();
     	this.doFixupBaseClasses();

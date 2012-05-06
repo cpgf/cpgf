@@ -22,9 +22,9 @@ void buildMetaClass_Global_b2body(const cpgf::GMetaDataConfigFlags & config, D _
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _enum<b2BodyType>(replaceName("b2BodyType", _r))
-        ._element(replaceName("b2_staticBody", _r), b2_staticBody)
-        ._element(replaceName("b2_kinematicBody", _r), b2_kinematicBody)
-        ._element(replaceName("b2_dynamicBody", _r), b2_dynamicBody)
+        ._element(replaceName("b2_staticBody", _r), b2BodyType::b2_staticBody)
+        ._element(replaceName("b2_kinematicBody", _r), b2BodyType::b2_kinematicBody)
+        ._element(replaceName("b2_dynamicBody", _r), b2BodyType::b2_dynamicBody)
     ;
 }
 

@@ -128,6 +128,7 @@ public class Util {
 
 		if(file.exists()) {
 			if(content.replaceAll("\\s+$", "").equals(readTextFromFile(fileName).replaceAll("\\s+$", ""))) {
+				trace("Skip " + fileName);
 				RunStats.countWrittenFile(false);
 				return false;
 			}
@@ -140,6 +141,7 @@ public class Util {
 	    	bufferWriter.close();
 	    }
 
+		trace("Written " + fileName);
 		RunStats.countWrittenFile(true);
 		return true;
 	}

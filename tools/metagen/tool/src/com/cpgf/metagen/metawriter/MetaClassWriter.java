@@ -250,7 +250,7 @@ public class MetaClassWriter {
 			String name = item.getPrimaryName();
 			
 			this.doCallback(item);
-			
+
 			if(this.shouldSkipItem(item)) {
 				continue;
 			}
@@ -265,8 +265,7 @@ public class MetaClassWriter {
 			this.codeWriter.out(action + "<" + typeName + ">(" + this.getReplace(name) + ")\n");
 			this.codeWriter.incIndent();
 				for(EnumValue value : item.getValueList()) {
-					String n = value.getQualifiedName();
-					this.codeWriter.out("._element(" + this.getReplace(n) + ", " + prefix + n + ")\n");
+					this.codeWriter.out("._element(" + this.getReplace(value.getName()) + ", " + prefix + value.getQualifiedName() + ")\n");
 				}
 			this.codeWriter.decIndent();
 			this.codeWriter.out(";\n");

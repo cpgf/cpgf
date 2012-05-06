@@ -7,7 +7,7 @@ public class ClassTraits {
 	private boolean destructorHidden;
 	private boolean defaultConstructorHidden;
 	private boolean copyConstructorHidden;
-	
+
 	public void getRules(List<String> rules) {
 		if(this.isDestructorHidden()) {
 			rules.add("GMetaRuleDestructorAbsent");

@@ -48,11 +48,11 @@ void buildMetaClass_B2TOIOutput(const cpgf::GMetaDataConfigFlags & config, D _d,
     _d.CPGF_MD_TEMPLATE _field(replaceName("state", _r), &D::ClassType::state, _p);
     _d.CPGF_MD_TEMPLATE _field(replaceName("t", _r), &D::ClassType::t, _p);
     _d.CPGF_MD_TEMPLATE _enum<typename D::ClassType::State>(replaceName("State", _r))
-        ._element(replaceName("e_unknown", _r), D::ClassType::e_unknown)
-        ._element(replaceName("e_failed", _r), D::ClassType::e_failed)
-        ._element(replaceName("e_overlapped", _r), D::ClassType::e_overlapped)
-        ._element(replaceName("e_touching", _r), D::ClassType::e_touching)
-        ._element(replaceName("e_separated", _r), D::ClassType::e_separated)
+        ._element(replaceName("e_unknown", _r), D::ClassType::State::e_unknown)
+        ._element(replaceName("e_failed", _r), D::ClassType::State::e_failed)
+        ._element(replaceName("e_overlapped", _r), D::ClassType::State::e_overlapped)
+        ._element(replaceName("e_touching", _r), D::ClassType::State::e_touching)
+        ._element(replaceName("e_separated", _r), D::ClassType::State::e_separated)
     ;
 }
 
