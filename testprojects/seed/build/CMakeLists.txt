@@ -25,6 +25,8 @@ set(TEST_PATH ${ROOT_PATH}/test)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN_PATH})
 
+set(CPP_SOURCE_PATH d:/Source)
+
 ### build
 
 if(MSVC)
@@ -115,9 +117,8 @@ include_directories(
 	${SEED_PATH}/src
 
 	${ROOT_PATH}/testprojects/metagen_wxwidgets/cpp/include
-	e:/SourceCode/cpp/wxWidgets/include
-	/Source/wxWidgets/include
-	e:/SourceCode/cpp/SFML-1.6/include
+	${CPP_SOURCE_PATH}/wxWidgets/include
+	${CPP_SOURCE_PATH}/SFML-1.6/include
 	../../metagen_sfml/cpp/include
 )
 if(${HAS_LUA})
@@ -163,6 +164,5 @@ set_target_properties(
 
 target_link_libraries(
 	${TARGET}
-#	D:/Source/wxWidgets/lib/gcc_dll/libwxmsw29u.a
-#	E:/SourceCode/CPP/wxWidgets/lib/gcc_dll/libwxmsw29u.a
+#	${CPP_SOURCE_PATH}/wxWidgets/lib/gcc_dll/libwxmsw29u.a
 )

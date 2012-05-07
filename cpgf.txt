@@ -1,11 +1,7 @@
-Serialization config should be attributes of meta class, rather than passing to writer/reader.
-
-Features:
-Serialization supports:
-Multiple pointers to same object.
-Diamond multiple inheritance. Only serialize one copy of same data.
-
 Todo:
+
+1, Metagen, should parse method parameter types to give appropriate meta policy, such as whether an object is copyable.
+2, Metagen, should generate meta code for template class.
 
 1, In reflection, now finding base class is depending on global classes. Not fine. Should find base class in the most outter class recursively.
 1, Metagen, needs to parse Doxygen document for annotation.
@@ -16,3 +12,4 @@ Todo:
 4, Define meta data for C library?
 
 Done:
+Serialization config should be attributes of meta class, rather than passing to writer/reader.

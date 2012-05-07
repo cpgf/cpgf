@@ -227,7 +227,11 @@ public class MetaClassWriter {
 			this.codeWriter.out(action);
 			this.codeWriter.out("(" + this.getReplace(name) + ", ");
 			if(overload) {
-				this.codeWriter.out("(" + item.getResultType().getFullType() + " (" + prefix + "*) (");
+				String typePrefix = prefix;
+				if(item.isStatic()) {
+					typePrefix = "";
+				}
+				this.codeWriter.out("(" + item.getResultType().getFullType() + " (" + typePrefix + "*) (");
 				WriterUtil.writeParamList(this.codeWriter, item.getParameterList(), false);
 				this.codeWriter.out(")");
 				if(!item.isStatic() && item.isConst()) {
