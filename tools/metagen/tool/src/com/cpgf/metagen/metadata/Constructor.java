@@ -1,10 +1,10 @@
 package com.cpgf.metagen.metadata;
 
-public class Constructor extends ParameteredItem {
+public class Constructor extends CppInvokable {
 	private boolean isExplicit;
 
 	public Constructor() {
-		super(EnumCategory.Constructor, "");
+		super(EnumCategory.Constructor, "", null);
 	}
 
 	public boolean isExplicit() {

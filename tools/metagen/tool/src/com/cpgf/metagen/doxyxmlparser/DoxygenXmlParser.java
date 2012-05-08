@@ -153,7 +153,7 @@ public class DoxygenXmlParser {
 		if(nodeList.getLength() == 0) {
 			error("Invalid Doxygen XML format.");
 		}
-		
+
 		Node root = nodeList.item(0);
 		NodeList childList = root.getChildNodes();
 		for(int i = 0; i < childList.getLength(); ++i) {
@@ -315,7 +315,6 @@ public class DoxygenXmlParser {
 		Matcher matcher = pattern.matcher(name);
 		if(matcher.matches()) { // operator
 			String op = matcher.group(1);
-//			op.replaceAll("\\s", "");
 			Operator operator = new Operator(
 					op, 
 					new CppType(Util.getNodeText(Util.getNode(node, "type")))

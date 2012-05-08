@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.mozilla.javascript.ast.KeywordLiteral;
-
 public class ParserUtil {
 	public static List<String> splitTypeTokenLiterals(String statement) {
 		List<String> tokenList = new ArrayList<String>();

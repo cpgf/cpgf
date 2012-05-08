@@ -45,4 +45,34 @@ public class TestParsedType {
 		assertFalse(type.isArray());
 	}
 	
+
+	@Test
+	public void testPointerAndReference() {
+		ParsedType type;
+
+		type = new ParsedType(" int ");
+		assertEquals(type.getReference(), EnumCompoundType.None);
+		assertEquals(type.getRValueReference(), EnumCompoundType.None);
+		assertEquals(type.getPointerCount(), 0);
+
+		type = new ParsedType(" int * &");
+		assertEquals(type.getReference(), EnumCompoundType.NoCV);
+		assertEquals(type.getRValueReference(), EnumCompoundType.None);
+		assertEquals(type.getPointerCount(), 1);
+		assertEquals(type.getPointerAt(0), EnumCompoundType.NoCV);
+
+		type = new ParsedType(" const int * volatile * * const volatile");
+		assertEquals(type.getReference(), EnumCompoundType.None);
+		assertEquals(type.getRValueReference(), EnumCompoundType.None);
+		assertEquals(type.getPointerCount(), 3);
+		assertEquals(type.getPointerAt(0), EnumCompoundType.Const);
+		assertEquals(type.getPointerAt(1), EnumCompoundType.Volatile);
+		assertEquals(type.getPointerAt(2), EnumCompoundType.NoCV);
+
+		type = new ParsedType(" int const & volatile");
+		assertEquals(type.getReference(), EnumCompoundType.Const);
+		assertEquals(type.getRValueReference(), EnumCompoundType.None);
+		assertEquals(type.getPointerCount(), 0);
+	}
+
 }

@@ -9,8 +9,9 @@ public class ParsedType {
 
 	private String baseType;
 	private List<String> arrayDimensions;
-	private boolean isLValueReference;
-	private boolean isRValueReference;
+	private List<EnumCompoundType> pointers;
+	private EnumCompoundType reference;
+	private EnumCompoundType rValueReference;
 
 	public ParsedType(String literalType) {
 		this.literalType = literalType;
@@ -56,15 +57,17 @@ public class ParsedType {
 		ParserUtil.normalizeUnusedKeyword(this.tokenList);
 		
 		this.baseType = findBaseType(this.tokenList);
-		this.arrayDimensions = checkArrayDimensions(this.tokenList);
-		this.checkReference();
+		this.arrayDimensions = parseArrayDimensions(this.tokenList);
+		this.parsePointerAndReference();
 	}
 
-	private void checkReference() {
-		this.isLValueReference = false;
-		this.isRValueReference = false;
+	private void parsePointerAndReference() {
+		this.reference = EnumCompoundType.None;
+		this.rValueReference = EnumCompoundType.None;
 
 		int nestedDepth = 0;
+		
+		EnumCompoundType cv = EnumCompoundType.NoCV;
 		
 		for(int i = 0; i < this.tokenList.size(); ++i) {
 			TypeToken token = tokenList.get(i);
@@ -75,13 +78,29 @@ public class ParsedType {
 			else if(token.isRightBracket()) {
 				--nestedDepth;
 			}
-			
+
 			if(nestedDepth == 0) {
-				if(token.getKind() == EnumTypeTokenKind.Reference) {
-					this.isLValueReference = true;
+				if(token.getKind() == EnumTypeTokenKind.Const) {
+					cv = EnumCompoundType.add(cv, EnumCompoundType.Const);
 				}
-				else if(token.getKind() == EnumTypeTokenKind.RValueReference) {
-					this.isRValueReference = true;
+				else if(token.getKind() == EnumTypeTokenKind.Volatile) {
+					cv = EnumCompoundType.add(cv, EnumCompoundType.Volatile);
+				}
+				else if(token.isPointerOrReference()) {
+					if(token.getKind() == EnumTypeTokenKind.Pointer) {
+						if(this.pointers == null) {
+							this.pointers = new ArrayList<EnumCompoundType>();
+						}
+						this.pointers.add(cv);
+					}
+					else if(token.getKind() == EnumTypeTokenKind.Reference) {
+						this.reference = cv;
+					}
+					else if(token.getKind() == EnumTypeTokenKind.RValueReference) {
+						this.rValueReference = cv;
+					}
+
+					cv = EnumCompoundType.NoCV;
 				}
 			}
 		}
@@ -97,7 +116,7 @@ public class ParsedType {
 		return "";
 	}
 
-	private static List<String> checkArrayDimensions(List<TypeToken> tokenList) {
+	private static List<String> parseArrayDimensions(List<TypeToken> tokenList) {
 		List<String> dimensions = null;
 		int count = tokenList.size();
 		int nestedDepth = 0;
@@ -142,11 +161,35 @@ public class ParsedType {
 		return dimensions;
 	}
 
-	public boolean isLValueReference() {
-		return isLValueReference;
+	public EnumCompoundType getReference() {
+		return reference;
 	}
 
-	public boolean isRValueReference() {
-		return isRValueReference;
+	public EnumCompoundType getRValueReference() {
+		return rValueReference;
 	}
+
+	public int getPointerCount() {
+		if(this.pointers == null) {
+			return 0;
+		}
+		else {
+			return this.pointers.size();
+		}
+	}
+
+	public EnumCompoundType getPointerAt(int index) {
+		return this.pointers.get(index);
+	}
+
+	public boolean isPointer() {
+		return this.getPointerCount() > 0;
+	}
+
+	public boolean isPointerOrReference() {
+		return this.isPointer()
+			|| this.getReference() != EnumCompoundType.None
+			|| this.getRValueReference() != EnumCompoundType.None;
+	}
+
 }
