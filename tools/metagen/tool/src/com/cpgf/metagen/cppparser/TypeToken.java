@@ -3,7 +3,7 @@ package com.cpgf.metagen.cppparser;
 public class TypeToken {
 	private String token;
 	private EnumTypeTokenKind kind;
-	
+
 	public TypeToken(String token) {
 		this.token = token;
 		this.kind = ParserUtil.getTypeTokenKind(token);
@@ -26,6 +26,18 @@ public class TypeToken {
 	public boolean isConstOrVolatile() {
 		return this.getKind() == EnumTypeTokenKind.Const
 			|| this.getKind() == EnumTypeTokenKind.Volatile;
+	}
+
+	public boolean isLeftBracket() {
+		return this.getKind() == EnumTypeTokenKind.LeftAngle
+			|| this.getKind() == EnumTypeTokenKind.LeftParenthesis
+			|| this.getKind() == EnumTypeTokenKind.LeftSquare;
+	}
+
+	public boolean isRightBracket() {
+		return this.getKind() == EnumTypeTokenKind.RightAngle
+			|| this.getKind() == EnumTypeTokenKind.RightParenthesis
+			|| this.getKind() == EnumTypeTokenKind.RightSquare;
 	}
 
 }

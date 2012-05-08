@@ -10,7 +10,7 @@ public class ParserUtil {
 	public static List<String> splitTypeTokenLiterals(String statement) {
 		List<String> tokenList = new ArrayList<String>();
 
-		StringTokenizer tokenizer = new StringTokenizer(statement, " \t\n*&<>,", true);
+		StringTokenizer tokenizer = new StringTokenizer(statement, " \t\n*&<>[](),", true);
 
 		while(tokenizer.hasMoreTokens()) {
 			String token = tokenizer.nextToken();
@@ -52,6 +52,10 @@ public class ParserUtil {
 		EnumTypeTokenKind.Reference,
 		EnumTypeTokenKind.LeftAngle,
 		EnumTypeTokenKind.RightAngle,
+		EnumTypeTokenKind.LeftSquare,
+		EnumTypeTokenKind.RightSquare,
+		EnumTypeTokenKind.LeftParenthesis,
+		EnumTypeTokenKind.RightParenthesis,
 		EnumTypeTokenKind.Comma,
 		EnumTypeTokenKind.Const,
 		EnumTypeTokenKind.Volatile,
@@ -63,6 +67,10 @@ public class ParserUtil {
 		"&",
 		"<",
 		">",
+		"[",
+		"]",
+		"(",
+		")",
 		",",
 		"const",
 		"volatile",
@@ -94,12 +102,12 @@ public class ParserUtil {
 	}
 	
 	// move "const" to right most until it's next to * or &
-	public static boolean normalizeConst(List<TypeToken> tokenList) {
+	private static boolean normalizeConst(List<TypeToken> tokenList) {
 		return doNormalizeConstVolatile(tokenList, EnumTypeTokenKind.Const);
 	}
 
 	// move "volatile" to right most until it's next to * or &
-	public static boolean normalizeVolatile(List<TypeToken> tokenList) {
+	private static boolean normalizeVolatile(List<TypeToken> tokenList) {
 		return doNormalizeConstVolatile(tokenList, EnumTypeTokenKind.Volatile);
 	}
 	
@@ -127,10 +135,10 @@ public class ParserUtil {
 			
 			while(nextIndex >= 0) {
 				TypeToken nextToken = tokenList.get(nextIndex);
-				if(nextToken.getKind() == EnumTypeTokenKind.RightAngle) {
+				if(nextToken.isRightBracket()) {
 					++nestedDepth;
 				}
-				else if(nextToken.getKind() == EnumTypeTokenKind.LeftAngle) {
+				else if(nextToken.isLeftBracket()) {
 					if(nestedDepth == 0) { // int <const...
 						break;
 					}

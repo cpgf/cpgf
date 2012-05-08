@@ -6,6 +6,10 @@ public enum EnumTypeTokenKind {
 	Reference, // &
 	LeftAngle, // <
 	RightAngle, // >
+	LeftSquare, // [
+	RightSquare, // ]
+	LeftParenthesis, // (
+	RightParenthesis, // )
 	Comma, // ,
 	Const, // const
 	Volatile, // volatile
