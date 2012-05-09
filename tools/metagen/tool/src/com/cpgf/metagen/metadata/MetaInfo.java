@@ -6,9 +6,11 @@ import java.util.List;
 
 public class MetaInfo {
     private List<CppClass> classList;
+	private TypeSolver typeSolver;
 
     public MetaInfo() {
         this.classList = new ArrayList<CppClass>();
+		this.typeSolver = new TypeSolver();
     }
 
     public List<CppClass> getClassList() {
@@ -93,5 +95,9 @@ public class MetaInfo {
     		c.fixupOwners();
     	}
     }
+
+	public TypeSolver getTypeSolver() {
+		return typeSolver;
+	}
 
 }

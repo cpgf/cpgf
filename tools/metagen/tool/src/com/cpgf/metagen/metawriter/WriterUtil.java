@@ -45,7 +45,7 @@ public class WriterUtil {
 	}
 
 	public static void writeParam(CodeWriter writer, Parameter param, boolean withName) {
-		String type = param.getType().getFullType();
+		String type = param.getType().getLiteralType();
 		
 		writer.out(type + (withName ? " " + param.getName() : ""));
 	}

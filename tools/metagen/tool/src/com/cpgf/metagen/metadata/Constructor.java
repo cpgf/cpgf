@@ -21,13 +21,21 @@ public class Constructor extends CppInvokable {
 
 	public boolean isCopyConstructor() {
 		if(this.getParameterList().size() == 1 && this.getOwner() != null) {
-			String paramType = this.getParameterList().get(0).getType().getFullType();
-			return paramType.indexOf("const") >= 0
-					&& paramType.indexOf(this.getOwner().getPrimaryName()) >= 0
-					&& paramType.indexOf('&') > 0
-				;
+			CppType type = this.getParameterList().get(0).getType();
+			return type.isConstValueReference() && type.getLiteralType().indexOf(this.getOwner().getPrimaryName()) >= 0;
 		}
-		
+		else {
+			return false;
+		}
+	}
+	
+	public boolean isTypeConverter() {
+		if(! this.isCopyConstructor()) {
+			if(this.getNonDefaultParameterCount() == 1 && this.getOwner() != null) {
+				return true;
+			}
+		}
+
 		return false;
 	}
 }

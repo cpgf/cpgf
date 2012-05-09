@@ -105,7 +105,7 @@ public class DoxygenXmlParser {
 		String baseType = Util.getNodeText(Util.getNode(node, "type"));
 		String array = Util.getNodeText(Util.getNode(node, "array"));
 
-		return new CppType(baseType, array);
+		return new CppType(this.metaInfo.getTypeSolver(), baseType, array);
 	}
 	
 	private String getLocation(Node node) {
@@ -317,14 +317,14 @@ public class DoxygenXmlParser {
 			String op = matcher.group(1);
 			Operator operator = new Operator(
 					op, 
-					new CppType(Util.getNodeText(Util.getNode(node, "type")))
+					new CppType(this.metaInfo.getTypeSolver(), Util.getNodeText(Util.getNode(node, "type")))
 			);
 
 			operator.setStatic(Util.isValueYes(Util.getAttribute(node, "static")));
 			operator.setConst(Util.isValueYes(Util.getAttribute(node, "const")));
 
 			if(operator.getResultType().equals("")) { // type convertion operator, T()
-				operator.setResultType(new CppType(operator.getOperator()));
+				operator.setResultType(new CppType(this.metaInfo.getTypeSolver(), operator.getOperator()));
 			}
 			this.doParseParams(node, operator);
 			this.doParseTemplateParams(node, operator);
@@ -336,7 +336,7 @@ public class DoxygenXmlParser {
 		// method
 		CppMethod method = new CppMethod(
 			name,
-			new CppType(Util.getNodeText(Util.getNode(node, "type")))
+			new CppType(this.metaInfo.getTypeSolver(), Util.getNodeText(Util.getNode(node, "type")))
 		);
 		method.setStatic(Util.isValueYes(Util.getAttribute(node, "static")));
 		method.setConst(Util.isValueYes(Util.getAttribute(node, "const")));

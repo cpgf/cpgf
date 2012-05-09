@@ -23,12 +23,32 @@ public class ParsedType {
 		return literalType;
 	}
 
+	public void setLiteralType(String literalType) {
+		this.literalType = literalType;
+	}
+	
 	public String getBaseType() {
 		return baseType;
 	}
+	
+	public String getNormalizedType() {
+		String result = "";
+		
+		TypeToken previousToken = null;
 
-	public void setLiteralType(String literalType) {
-		this.literalType = literalType;
+		for(int i = 0; i < this.tokenList.size(); ++i) {
+			TypeToken token = this.tokenList.get(i);
+			if(previousToken != null) {
+				if(previousToken.isLiteralText() && token.isLiteralText()
+						|| previousToken.getKind() == EnumTypeTokenKind.RightAngle && token.getKind() == EnumTypeTokenKind.RightAngle) {
+					result = result + " ";
+				}
+			}
+			result = result + token.getToken();
+			previousToken = token;
+		}
+		
+		return result;
 	}
 	
 	public int getArrayDimension() {
@@ -71,7 +91,7 @@ public class ParsedType {
 		
 		for(int i = 0; i < this.tokenList.size(); ++i) {
 			TypeToken token = tokenList.get(i);
-			
+
 			if(token.isLeftBracket()) {
 				++nestedDepth;
 			}

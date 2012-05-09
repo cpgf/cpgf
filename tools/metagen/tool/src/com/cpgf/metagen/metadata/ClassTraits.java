@@ -7,6 +7,7 @@ public class ClassTraits {
 	private boolean destructorHidden;
 	private boolean defaultConstructorHidden;
 	private boolean copyConstructorHidden;
+	private boolean hasTypeConvertConstructor;
 
 	public void getRules(List<String> rules) {
 		if(this.isDestructorHidden()) {
@@ -57,6 +58,14 @@ public class ClassTraits {
 
 	public void setCopyConstructorHidden(boolean copyConstructorHidden) {
 		this.copyConstructorHidden = copyConstructorHidden;
+	}
+
+	public boolean isHasTypeConvertConstructor() {
+		return hasTypeConvertConstructor;
+	}
+
+	public void setHasTypeConvertConstructor(boolean hasTypeConvertConstructor) {
+		this.hasTypeConvertConstructor = hasTypeConvertConstructor;
 	}
 
 }

@@ -48,4 +48,18 @@ public class ParameteredItem extends Item {
 		return this.templateParameterList.size() > 0;
 	}
 
+	public int getNonDefaultParameterCount() {
+		int count = 0;
+		
+		for(Parameter param : this.parameterList) {
+			if(param.hasDefaultValue()) {
+				break;
+			}
+			else {
+				++count;
+			}
+		}
+		
+		return count;
+	}
 }

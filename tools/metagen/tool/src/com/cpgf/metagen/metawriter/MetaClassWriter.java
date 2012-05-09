@@ -231,7 +231,7 @@ public class MetaClassWriter {
 				if(item.isStatic()) {
 					typePrefix = "";
 				}
-				this.codeWriter.out("(" + item.getResultType().getFullType() + " (" + typePrefix + "*) (");
+				this.codeWriter.out("(" + item.getResultType().getLiteralType() + " (" + typePrefix + "*) (");
 				WriterUtil.writeParamList(this.codeWriter, item.getParameterList(), false);
 				this.codeWriter.out(")");
 				if(!item.isStatic() && item.isConst()) {
@@ -331,7 +331,7 @@ public class MetaClassWriter {
 				opText = "H()";
 			}
 			else {
-				this.codeWriter.out(action + "<" + item.getResultType().getFullType() + " (*)(");
+				this.codeWriter.out(action + "<" + item.getResultType().getLiteralType() + " (*)(");
 				
 				boolean isFunctor = op.equals("()");
 				boolean hasSelf = false;

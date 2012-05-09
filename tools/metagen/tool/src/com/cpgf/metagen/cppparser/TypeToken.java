@@ -40,4 +40,10 @@ public class TypeToken {
 			|| this.getKind() == EnumTypeTokenKind.RightSquare;
 	}
 
+	public boolean isLiteralText() {
+		return this.getKind() == EnumTypeTokenKind.Const
+			|| this.getKind() == EnumTypeTokenKind.Volatile
+			|| this.getKind() == EnumTypeTokenKind.Symbol;
+	}
+
 }

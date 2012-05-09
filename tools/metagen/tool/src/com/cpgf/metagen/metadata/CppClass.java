@@ -18,7 +18,7 @@ public class CppClass extends ParameteredItem {
 	private boolean isInner;
 	
 	private ClassTraits traits;
-
+	
 	public CppClass(String name) {
 		super(EnumCategory.Class, name);
 
@@ -236,11 +236,22 @@ public class CppClass extends ParameteredItem {
 		return false;
 	}
 	
+	private boolean checkHasTypeConverterConstructor() {
+		for(Constructor c : this.getConstructorList()) {
+			if(c.isTypeConverter()) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	private void loadTraits(ClassTraits traits) {
 		traits.setAbstract(this.checkAbstract());
 		traits.setDestructorHidden(this.checkDestructorHidden());
 		traits.setDefaultConstructorHidden(this.checkDefaultConstructorHidden());
 		traits.setCopyConstructorHidden(this.checkCopyConstructorHidden());
+		traits.setHasTypeConvertConstructor(this.checkHasTypeConverterConstructor());
 	}
 
 	public ClassTraits getTraits() {
