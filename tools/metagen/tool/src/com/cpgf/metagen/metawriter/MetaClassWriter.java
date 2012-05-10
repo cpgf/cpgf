@@ -385,9 +385,9 @@ public class MetaClassWriter {
 			}
 
 			opText = opText.replaceAll("\\bH\\b", "mopHolder");
-			this.codeWriter.out(opText + ", ");
-			this.codeWriter.out("_p)");
-			
+			this.codeWriter.out(opText);
+			this.codeWriter.out(", _p)");
+
 			WriterUtil.writeDefaultParams(this.codeWriter, item.getParameterList());
 		}
 	}

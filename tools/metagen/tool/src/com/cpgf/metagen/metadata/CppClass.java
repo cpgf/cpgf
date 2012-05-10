@@ -165,12 +165,9 @@ public class CppClass extends ParameteredItem {
 			;
 	}
 	
-	public List<String> getPolicyRules() {
-		List<String> rules = new ArrayList<String>();
-
+	@Override
+	public void getPolicyRules(List<String> rules) {
 		this.getTraits().getRules(rules);
-		
-		return rules;
 	}
 
 	private boolean checkAbstract() {

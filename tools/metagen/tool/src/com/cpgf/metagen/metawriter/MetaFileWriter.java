@@ -127,7 +127,7 @@ public class MetaFileWriter {
 			
 			codeWriter.beginBlock();
 
-			WriterUtil.createMetaClass(this.config, codeWriter, cppClass, "_d", cppClass.getPolicyRules());
+			WriterUtil.createMetaClass(this.config, codeWriter, cppClass, "_d");
 			
 			String callFunc = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
 			codeWriter.out(callFunc + "(0, _d, NULL, " + this.config.defaultMetaPolicy + ");\n");

@@ -7,14 +7,19 @@ import java.util.List;
 public class MetaInfo {
     private List<CppClass> classList;
 	private TypeSolver typeSolver;
+    private List<CppClass> allClassList;
 
     public MetaInfo() {
         this.classList = new ArrayList<CppClass>();
-		this.typeSolver = new TypeSolver();
+		this.typeSolver = new TypeSolver(this);
     }
 
     public List<CppClass> getClassList() {
         return this.classList;
+    }
+
+    public List<CppClass> getAllClassList() {
+        return this.allClassList;
     }
 
     public void fixup() {
@@ -22,6 +27,29 @@ public class MetaInfo {
     	this.doFixupBaseClasses();
     	this.doFixupInnerClasses();
     	this.doFixupOwnerClasses();
+    	this.doBuildAllClassList();
+    }
+    
+    private void doBuildAllClassList() {
+    	this.allClassList = new ArrayList<CppClass>();
+    	
+    	for(CppClass c : this.classList) {
+    		this.doBuildAllClassListForSingleClass(c);
+    	}
+    }
+
+    private void doBuildAllClassListForSingleClass(CppClass cppClass) {
+    	if(cppClass == null) {
+    		return;
+    	}
+
+    	if(! cppClass.isGlobal()) {
+    		this.allClassList.add(cppClass);
+    	}
+
+    	for(DeferClass c : cppClass.getClassList()) {
+    		this.doBuildAllClassListForSingleClass(c.getCppClass());
+    	}
     }
 
     private void doFixupGlobals() {
@@ -100,4 +128,15 @@ public class MetaInfo {
 		return typeSolver;
 	}
 
+	public CppClass findClassByName(String name) {
+		String re = "\\b" + name + "$";
+		
+		for(CppClass cppClass : this.allClassList) {
+			if(cppClass.getQualifiedName().matches(re)) {
+				return cppClass;
+			}
+		}
+		
+		return null;
+	}
 }

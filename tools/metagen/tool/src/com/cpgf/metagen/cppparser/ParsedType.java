@@ -68,6 +68,37 @@ public class ParsedType {
 		return this.arrayDimensions.get(index);
 	}
 
+	public EnumCompoundType getReference() {
+		return reference;
+	}
+
+	public EnumCompoundType getRValueReference() {
+		return rValueReference;
+	}
+
+	public int getPointerCount() {
+		if(this.pointers == null) {
+			return 0;
+		}
+		else {
+			return this.pointers.size();
+		}
+	}
+
+	public EnumCompoundType getPointerAt(int index) {
+		return this.pointers.get(index);
+	}
+
+	public boolean isPointer() {
+		return this.getPointerCount() > 0;
+	}
+
+	public boolean isPointerOrReference() {
+		return this.isPointer()
+			|| this.getReference() != EnumCompoundType.None
+			|| this.getRValueReference() != EnumCompoundType.None;
+	}
+
 	private void doParse() {
 		this.tokenList = ParserUtil.splitTypeTokens(ParserUtil.splitTypeTokenLiterals(this.literalType));
 
@@ -179,37 +210,6 @@ public class ParsedType {
 		}
 
 		return dimensions;
-	}
-
-	public EnumCompoundType getReference() {
-		return reference;
-	}
-
-	public EnumCompoundType getRValueReference() {
-		return rValueReference;
-	}
-
-	public int getPointerCount() {
-		if(this.pointers == null) {
-			return 0;
-		}
-		else {
-			return this.pointers.size();
-		}
-	}
-
-	public EnumCompoundType getPointerAt(int index) {
-		return this.pointers.get(index);
-	}
-
-	public boolean isPointer() {
-		return this.getPointerCount() > 0;
-	}
-
-	public boolean isPointerOrReference() {
-		return this.isPointer()
-			|| this.getReference() != EnumCompoundType.None
-			|| this.getRValueReference() != EnumCompoundType.None;
 	}
 
 }

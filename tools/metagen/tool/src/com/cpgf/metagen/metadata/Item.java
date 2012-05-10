@@ -1,5 +1,6 @@
 package com.cpgf.metagen.metadata;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,6 +113,9 @@ public class Item {
 				return prefix + "::" + this.getNamespace();
 			}
 		}
+	}
+	
+	public void getPolicyRules(List<String> rules) {
 	}
 
 	public EnumCategory getCategory() {

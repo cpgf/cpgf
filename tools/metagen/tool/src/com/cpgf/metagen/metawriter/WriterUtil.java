@@ -1,5 +1,6 @@
 package com.cpgf.metagen.metawriter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.cpgf.metagen.Config;
@@ -51,7 +52,8 @@ public class WriterUtil {
 	}
 
 	public static void defineMetaClass(Config config, CppWriter codeWriter, CppClass cppClass, String varName, String action) {
-		List<String> rules = cppClass.getPolicyRules();
+		List<String> rules = new ArrayList<String>();
+		cppClass.getPolicyRules(rules);
 		
 		String namespace = "\"" + ((config.metaNamespace != null) ? config.metaNamespace : "") + "\"";
 		
@@ -84,7 +86,10 @@ public class WriterUtil {
 		}
 	}
 
-	public static void createMetaClass(Config config, CodeWriter codeWriter, CppClass cppClass, String varName, List<String> rules) {
+	public static void createMetaClass(Config config, CodeWriter codeWriter, CppClass cppClass, String varName) {
+		List<String> rules = new ArrayList<String>();
+		cppClass.getPolicyRules(rules);
+		
 		if(cppClass.isGlobal()) {
 			codeWriter.out("GDefineMetaGlobalDangle " + varName + " = GDefineMetaGlobalDangle::dangle();\n");
 		}

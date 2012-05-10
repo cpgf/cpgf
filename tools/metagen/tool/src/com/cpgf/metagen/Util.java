@@ -231,4 +231,34 @@ public class Util {
 		return typeName;
 	}
 
+	public static <T> void swapListItems(List<T> list, int a, int b) {
+		T temp = list.get(a);
+		list.set(a, list.get(b));
+		list.set(b, temp);
+	}
+
+	public static <T> int findInArray(T[] array, T item) {
+		for(int i = 0; i < array.length; ++i) {
+			if(array[i].equals(item)) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	public static <T> void addToList(List<T> list, T item) {
+		if(item == null) {
+			return;
+		}
+
+		for(T d : list) {
+			if(d.equals(item)) {
+				return;
+			}
+		}
+
+		list.add(item);
+	}
+
 }

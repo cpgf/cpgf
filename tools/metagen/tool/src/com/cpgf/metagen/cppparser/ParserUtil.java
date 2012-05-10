@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import com.cpgf.metagen.Util;
+import com.cpgf.metagen.metadata.ClassTraits;
+import com.cpgf.metagen.metadata.CppType;
+
 public class ParserUtil {
 	public static List<String> splitTypeTokenLiterals(String statement) {
 		List<String> tokenList = new ArrayList<String>();
@@ -83,22 +87,6 @@ public class ParserUtil {
 		return EnumTypeTokenKind.Symbol;
 	}
 
-	public static <T> void swapListItems(List<T> list, int a, int b) {
-		T temp = list.get(a);
-		list.set(a, list.get(b));
-		list.set(b, temp);
-	}
-	
-	public static <T> int findInArray(T[] array, T item) {
-		for(int i = 0; i < array.length; ++i) {
-			if(array[i].equals(item)) {
-				return i;
-			}
-		}
-		
-		return -1;
-	}
-	
 	// move "const" to right most until it's next to * or &
 	private static boolean normalizeConst(List<TypeToken> tokenList) {
 		return doNormalizeConstVolatile(tokenList, EnumTypeTokenKind.Const);
@@ -145,7 +133,7 @@ public class ParserUtil {
 				}
 
 				if(nestedDepth != 0 || ! nextToken.isPointerOrReference()) {
-					swapListItems(tokenList, constIndex, nextIndex);
+					Util.swapListItems(tokenList, constIndex, nextIndex);
 					constIndex = nextIndex;
 
 					if(! did) {
@@ -190,7 +178,7 @@ public class ParserUtil {
 				nextToken = tokenList.get(i + 1); 
 			}
 			
-			if(nextToken == null || findInArray(signedUnsignedTypes, nextToken.getToken()) < 0) {
+			if(nextToken == null || Util.findInArray(signedUnsignedTypes, nextToken.getToken()) < 0) {
 				tokenList.add(i + 1, new TypeToken("int"));
 				did = true;
 			}
@@ -246,7 +234,7 @@ public class ParserUtil {
 				continue;
 			}
 			
-			if(findInArray(keywordToDiscard, token.getToken()) < 0) {
+			if(Util.findInArray(keywordToDiscard, token.getToken()) < 0) {
 				continue;
 			}
 			
@@ -258,6 +246,32 @@ public class ParserUtil {
 		return did;
 	}
 	
+	private static String composePolicyRuleForParameter(String rule, int parameterIndex) {
+		return rule + "<" + parameterIndex + ">";
+	}
 	
-	
+	public static void getPolicyRuleForParameter(List<String> rules, CppType type, int parameterIndex) {
+		ClassTraits traits = type.getClassTraits();
+		ParsedType parsedType = type.getParsedType();
+
+		if(traits != null) {
+			if(type.isConstValueReference()) {
+				if(traits.isHasTypeConvertConstructor() && !traits.isCopyConstructorHidden()) {
+					Util.addToList(rules, composePolicyRuleForParameter("GMetaRuleCopyConstReference", parameterIndex));
+				}
+				
+				return;
+			}
+			
+			if(parsedType.isPointerOrReference()) {
+				return;
+			}
+			
+			if(traits.isCopyConstructorHidden()) {
+				Util.addToList(rules, composePolicyRuleForParameter("GMetaRuleParamNoncopyable", parameterIndex));
+			}
+			
+		}
+	}
+
 }

@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.cpgf.metagen.Util;
+
 public class TestParserUtil {
 
 	@Test
@@ -76,14 +78,14 @@ public class TestParserUtil {
 		assertEquals(list.get(3), "d");
 		assertEquals(list.get(4), "e");
 
-		ParserUtil.swapListItems(list, 0, 1);
+		Util.swapListItems(list, 0, 1);
 		assertEquals(list.get(0), "b");
 		assertEquals(list.get(1), "a");
 		assertEquals(list.get(2), "c");
 		assertEquals(list.get(3), "d");
 		assertEquals(list.get(4), "e");
 
-		ParserUtil.swapListItems(list, 0, 4);
+		Util.swapListItems(list, 0, 4);
 		assertEquals(list.get(0), "e");
 		assertEquals(list.get(1), "a");
 		assertEquals(list.get(2), "c");
