@@ -7,7 +7,11 @@ import com.cpgf.metagen.Config;
 import com.cpgf.metagen.Util;
 import com.cpgf.metagen.codewriter.CodeWriter;
 import com.cpgf.metagen.codewriter.CppWriter;
+import com.cpgf.metagen.cppparser.ParsedType;
+import com.cpgf.metagen.cppparser.ParserUtil;
+import com.cpgf.metagen.metadata.ClassTraits;
 import com.cpgf.metagen.metadata.CppClass;
+import com.cpgf.metagen.metadata.CppType;
 import com.cpgf.metagen.metadata.Item;
 import com.cpgf.metagen.metadata.Parameter;
 
@@ -132,6 +136,30 @@ public class WriterUtil {
 		}
 		else {
 			return "";
+		}
+	}
+
+	public static void getPolicyRuleForParameter(List<String> rules, CppType type, int parameterIndex) {
+		ClassTraits traits = type.getClassTraits();
+		ParsedType parsedType = type.getParsedType();
+	
+		if(traits != null) {
+			if(type.isConstValueReference()) {
+				if(traits.isHasTypeConvertConstructor() && !traits.isCopyConstructorHidden()) {
+					Util.addToList(rules, ParserUtil.composePolicyRuleForParameter("GMetaRuleCopyConstReference", parameterIndex));
+				}
+				
+				return;
+			}
+			
+			if(parsedType.isPointer()) {
+				return;
+			}
+			
+			if(traits.isCopyConstructorHidden()) {
+				Util.addToList(rules, ParserUtil.composePolicyRuleForParameter("GMetaRuleParamNoncopyable", parameterIndex));
+			}
+			
 		}
 	}
 	

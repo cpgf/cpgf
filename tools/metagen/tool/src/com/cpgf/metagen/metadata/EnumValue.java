@@ -16,7 +16,7 @@ public class EnumValue {
 	}
 	
 	public String getQualifiedName() {
-		String n = this.owner.getPrefixName();
+		String n = this.owner.getFullNamespace();
 		if(! n.equals("")) {
 			return n + "::" + this.getName();
 		}

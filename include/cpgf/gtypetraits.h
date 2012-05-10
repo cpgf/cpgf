@@ -489,6 +489,7 @@ struct IsConvertible <From, To, typename GEnableIfResult<
 		IsVoid<From>,
 		IsVoid<To>,
 		IsAbstractClass<From>,
+		IsAbstractClass<To>,
 		IsArray<From>,
 		IsArray<To>
 	>

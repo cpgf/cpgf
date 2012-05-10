@@ -22,6 +22,8 @@ var config = {
 	sourceHeaderCode : "#include \"sfml/Audio.hpp\"" + "\n#include \"sfml/Config.hpp\"" + "\n#include \"sfml/Graphics.hpp\"" + "\n#include \"sfml/Network.hpp\"" + "\n#include \"sfml/System.hpp\"" + "\n#include \"sfml/Window.hpp\"",
 	sourceHeaderReplacer : doHeaderReplace,
 	metaHeaderPath : "",
+	
+	excludeCompound : [ "unix" ],
 };
 
 var re_doHeaderReplace = new RegExp(".*Box2D[^/]*/Box2D", "i");
@@ -37,5 +39,5 @@ function processCallback(item, data)
 
 function doHeaderReplace(fileName)
 {
-	return fileName.replace(re_doHeaderReplace, "Box2D");
+	return fileName.replace(re_doHeaderReplace, "Box2D").replace("Unix", "Win32");
 }

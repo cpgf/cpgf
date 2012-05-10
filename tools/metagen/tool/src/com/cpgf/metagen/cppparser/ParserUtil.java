@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import com.cpgf.metagen.Util;
-import com.cpgf.metagen.metadata.ClassTraits;
-import com.cpgf.metagen.metadata.CppType;
 
 public class ParserUtil {
 	public static List<String> splitTypeTokenLiterals(String statement) {
@@ -246,32 +244,8 @@ public class ParserUtil {
 		return did;
 	}
 	
-	private static String composePolicyRuleForParameter(String rule, int parameterIndex) {
+	public static String composePolicyRuleForParameter(String rule, int parameterIndex) {
 		return rule + "<" + parameterIndex + ">";
-	}
-	
-	public static void getPolicyRuleForParameter(List<String> rules, CppType type, int parameterIndex) {
-		ClassTraits traits = type.getClassTraits();
-		ParsedType parsedType = type.getParsedType();
-
-		if(traits != null) {
-			if(type.isConstValueReference()) {
-				if(traits.isHasTypeConvertConstructor() && !traits.isCopyConstructorHidden()) {
-					Util.addToList(rules, composePolicyRuleForParameter("GMetaRuleCopyConstReference", parameterIndex));
-				}
-				
-				return;
-			}
-			
-			if(parsedType.isPointerOrReference()) {
-				return;
-			}
-			
-			if(traits.isCopyConstructorHidden()) {
-				Util.addToList(rules, composePolicyRuleForParameter("GMetaRuleParamNoncopyable", parameterIndex));
-			}
-			
-		}
 	}
 
 }

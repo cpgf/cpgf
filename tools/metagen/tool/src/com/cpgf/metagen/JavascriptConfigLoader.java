@@ -1,10 +1,12 @@
 package com.cpgf.metagen;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.Map;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 
@@ -101,6 +103,22 @@ public class JavascriptConfigLoader implements IOutputCallback, ISourceHeaderRep
 		}
 
 		if(this.setField(field, boolean.class, propertyName, value)) {
+			return;
+		}
+
+		if(field.getType().isArray()) {
+			if(! (value instanceof NativeArray)) {
+				this.error("Property " + propertyName + " must be an array.");
+			}
+			
+			NativeArray na = (NativeArray)(value);
+			int count = (int)na.getLength();
+			Object[] array = na.toArray();
+			Object obj = Array.newInstance(field.getType().getComponentType(), count);
+			for(int i = 0; i < count; ++i) {
+				Array.set(obj, i, array[i]);
+			}
+			field.set(this.config, obj);
 			return;
 		}
 		

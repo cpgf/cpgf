@@ -33,6 +33,9 @@ public class Config {
 			EnumCategory.Operator
 	};
 	
+	public String[] excludeCompound = {
+	};
+	
 	// Prefix for auto generated functions.
 	// See the meta data for Box2D to see how they are used.
 	public String metaClassFunctionPrefix = "buildMetaClass_";

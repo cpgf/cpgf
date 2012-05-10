@@ -93,6 +93,11 @@ public class ParsedType {
 		return this.getPointerCount() > 0;
 	}
 
+	public boolean isReference() {
+		return this.getReference() != EnumCompoundType.None
+			|| this.getRValueReference() != EnumCompoundType.None;
+	}
+
 	public boolean isPointerOrReference() {
 		return this.isPointer()
 			|| this.getReference() != EnumCompoundType.None

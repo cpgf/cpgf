@@ -2,7 +2,7 @@ package com.cpgf.metagen.metadata;
 
 import java.util.List;
 
-import com.cpgf.metagen.cppparser.ParserUtil;
+import com.cpgf.metagen.metawriter.WriterUtil;
 
 public class CppInvokable extends ParameteredItem {
 	private CppType resultType;
@@ -24,11 +24,11 @@ public class CppInvokable extends ParameteredItem {
 	@Override
 	public void getPolicyRules(List<String> rules) {
 		if(this.resultType != null) {
-			ParserUtil.getPolicyRuleForParameter(rules, this.resultType, -1);
+			WriterUtil.getPolicyRuleForParameter(rules, this.resultType, -1);
 		}
 		
 		for(int i = 0; i < this.getParameterList().size(); ++i) {
-			ParserUtil.getPolicyRuleForParameter(rules, this.getParameterList().get(i).getType(), i);
+			WriterUtil.getPolicyRuleForParameter(rules, this.getParameterList().get(i).getType(), i);
 		}
 	}
 

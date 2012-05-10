@@ -7,6 +7,7 @@ import java.util.List;
 import com.cpgf.metagen.Config;
 import com.cpgf.metagen.Util;
 import com.cpgf.metagen.codewriter.CppWriter;
+import com.cpgf.metagen.doxyxmlparser.FileInfo;
 import com.cpgf.metagen.doxyxmlparser.FileMap;
 import com.cpgf.metagen.metadata.CppClass;
 
@@ -156,11 +157,16 @@ public class MetaWriter {
 			String location = item.getLocation();
 			String key = location.toLowerCase();
 
+			FileInfo fileInfo = this.fileMap.getFileMap().get(location);
+			if(fileInfo == null) {
+				continue;
+			}
+			
 			if(! locationFileWriterMap.containsKey(key)) {
 				MetaFileWriter fileWriter = new MetaFileWriter(
 					this.config,
 					location,
-					this.fileMap.getFileMap().get(location)
+					fileInfo
 				);
 				locationFileWriterMap.put(key, fileWriter);
 				this.fileWriterList.add(fileWriter);
