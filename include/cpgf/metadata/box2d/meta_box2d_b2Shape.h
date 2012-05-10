@@ -8,6 +8,7 @@
 #include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
+#include "cpgf/gmetapolicy.h"
 
 
 
@@ -15,32 +16,32 @@
 namespace meta_box2d { 
 
 
-template <typename D, typename Policy>
-void buildMetaClass_B2MassData(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
+template <typename D>
+void buildMetaClass_B2MassData(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
 {
-    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
+    (void)config; (void)_d; (void)_r; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field(replaceName("mass", _r), &D::ClassType::mass, _p);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("center", _r), &D::ClassType::center, _p);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("I", _r), &D::ClassType::I, _p);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("mass", _r), &D::ClassType::mass);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("center", _r), &D::ClassType::center);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("I", _r), &D::ClassType::I);
 }
 
 
-template <typename D, typename Policy>
-void buildMetaClass_B2Shape(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
+template <typename D>
+void buildMetaClass_B2Shape(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
 {
-    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
+    (void)config; (void)_d; (void)_r; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field(replaceName("m_type", _r), &D::ClassType::m_type, _p);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("m_radius", _r), &D::ClassType::m_radius, _p);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("Clone", _r), &D::ClassType::Clone, _p);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetType", _r), &D::ClassType::GetType, _p);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("TestPoint", _r), &D::ClassType::TestPoint, _p);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("RayCast", _r), &D::ClassType::RayCast, _p);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("ComputeAABB", _r), &D::ClassType::ComputeAABB, _p);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("ComputeMass", _r), &D::ClassType::ComputeMass, _p);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("m_type", _r), &D::ClassType::m_type);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("m_radius", _r), &D::ClassType::m_radius);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("Clone", _r), &D::ClassType::Clone);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("GetType", _r), &D::ClassType::GetType);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("TestPoint", _r), &D::ClassType::TestPoint);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("RayCast", _r), &D::ClassType::RayCast);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("ComputeAABB", _r), &D::ClassType::ComputeAABB);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("ComputeMass", _r), &D::ClassType::ComputeMass);
     _d.CPGF_MD_TEMPLATE _enum<typename D::ClassType::Type>(replaceName("Type", _r))
         ._element(replaceName("e_unknown", _r), D::ClassType::Type::e_unknown)
         ._element(replaceName("e_circle", _r), D::ClassType::Type::e_circle)

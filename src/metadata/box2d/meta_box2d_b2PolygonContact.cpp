@@ -5,8 +5,6 @@
 
 #include "cpgf/metadata/box2d/meta_box2d_b2PolygonContact.h"
 
-#include "cpgf/gmetapolicy.h"
-
 using namespace cpgf;
 
 namespace meta_box2d { 
@@ -15,7 +13,7 @@ namespace meta_box2d {
 GDefineMetaInfo createMetaClass_B2PolygonContact()
 {
     GDefineMetaClass<b2PolygonContact, b2Contact> _d = GDefineMetaClass<b2PolygonContact, b2Contact>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2PolygonContact");
-    buildMetaClass_B2PolygonContact(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    buildMetaClass_B2PolygonContact(0, _d, NULL);
     return _d.getMetaInfo();
 }
 

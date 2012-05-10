@@ -5,8 +5,6 @@
 
 #include "cpgf/metadata/box2d/meta_box2d_b2CircleShape.h"
 
-#include "cpgf/gmetapolicy.h"
-
 using namespace cpgf;
 
 namespace meta_box2d { 
@@ -15,7 +13,7 @@ namespace meta_box2d {
 GDefineMetaInfo createMetaClass_B2CircleShape()
 {
     GDefineMetaClass<b2CircleShape, b2Shape> _d = GDefineMetaClass<b2CircleShape, b2Shape>::declare("b2CircleShape");
-    buildMetaClass_B2CircleShape(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    buildMetaClass_B2CircleShape(0, _d, NULL);
     return _d.getMetaInfo();
 }
 

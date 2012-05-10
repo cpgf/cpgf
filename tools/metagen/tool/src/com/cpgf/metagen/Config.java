@@ -21,9 +21,6 @@ public class Config {
 	public boolean allowProtected = false;
 	public boolean allowPrivate = false;
 	
-	// default meta policy when generate meta class
-	public String defaultMetaPolicy = "GMetaPolicyCopyAllConstReference()";
-
 	// Specify the meta data categories that are allowed to generate meta data
 	public EnumCategory[] allowedMetaData = {
 			EnumCategory.Constructor,

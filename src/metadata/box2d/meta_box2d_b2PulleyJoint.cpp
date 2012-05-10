@@ -5,8 +5,6 @@
 
 #include "cpgf/metadata/box2d/meta_box2d_b2PulleyJoint.h"
 
-#include "cpgf/gmetapolicy.h"
-
 using namespace cpgf;
 
 namespace meta_box2d { 
@@ -15,7 +13,7 @@ namespace meta_box2d {
 GDefineMetaInfo createMetaClass_Global_b2pulleyjoint()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_b2pulleyjoint(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    buildMetaClass_Global_b2pulleyjoint(0, _d, NULL);
     return _d.getMetaInfo();
 }
 
@@ -23,7 +21,7 @@ GDefineMetaInfo createMetaClass_Global_b2pulleyjoint()
 GDefineMetaInfo createMetaClass_B2PulleyJoint()
 {
     GDefineMetaClass<b2PulleyJoint, b2Joint> _d = GDefineMetaClass<b2PulleyJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2PulleyJoint");
-    buildMetaClass_B2PulleyJoint(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    buildMetaClass_B2PulleyJoint(0, _d, NULL);
     return _d.getMetaInfo();
 }
 
@@ -31,7 +29,7 @@ GDefineMetaInfo createMetaClass_B2PulleyJoint()
 GDefineMetaInfo createMetaClass_B2PulleyJointDef()
 {
     GDefineMetaClass<b2PulleyJointDef, b2JointDef> _d = GDefineMetaClass<b2PulleyJointDef, b2JointDef>::declare("b2PulleyJointDef");
-    buildMetaClass_B2PulleyJointDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    buildMetaClass_B2PulleyJointDef(0, _d, NULL);
     return _d.getMetaInfo();
 }
 

@@ -8,6 +8,7 @@
 #include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
+#include "cpgf/gmetapolicy.h"
 
 
 
@@ -15,17 +16,17 @@
 namespace meta_box2d { 
 
 
-template <typename D, typename Policy>
-void buildMetaClass_Global_b2settings(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
+template <typename D>
+void buildMetaClass_Global_b2settings(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
 {
-    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
+    (void)config; (void)_d; (void)_r; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field(replaceName("b2_version", _r), &b2_version, _p);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("b2Alloc", _r), (void * (*) (int32))&b2Alloc, _p);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("b2Free", _r), (void (*) (void *))&b2Free, _p);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("b2MixFriction", _r), (float32 (*) (float32, float32))&b2MixFriction, _p);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("b2MixRestitution", _r), (float32 (*) (float32, float32))&b2MixRestitution, _p);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("b2_version", _r), &b2_version);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("b2Alloc", _r), (void * (*) (int32))&b2Alloc);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("b2Free", _r), (void (*) (void *))&b2Free);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("b2MixFriction", _r), (float32 (*) (float32, float32))&b2MixFriction);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("b2MixRestitution", _r), (float32 (*) (float32, float32))&b2MixRestitution);
     _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalDefine_box2d_1", _r))
         ._element(replaceName("b2_maxFloat", _r), b2_maxFloat)
         ._element(replaceName("b2_epsilon", _r), b2_epsilon)
@@ -53,15 +54,15 @@ void buildMetaClass_Global_b2settings(const cpgf::GMetaDataConfigFlags & config,
 }
 
 
-template <typename D, typename Policy>
-void buildMetaClass_B2Version(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)
+template <typename D>
+void buildMetaClass_B2Version(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
 {
-    (void)config; (void)_d; (void)_r; (void)_d; (void)_p;
+    (void)config; (void)_d; (void)_r; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field(replaceName("major", _r), &D::ClassType::major, _p);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("minor", _r), &D::ClassType::minor, _p);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("revision", _r), &D::ClassType::revision, _p);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("major", _r), &D::ClassType::major);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("minor", _r), &D::ClassType::minor);
+    _d.CPGF_MD_TEMPLATE _field(replaceName("revision", _r), &D::ClassType::revision);
 }
 
 

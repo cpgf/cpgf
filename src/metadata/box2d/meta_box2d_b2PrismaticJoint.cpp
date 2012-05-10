@@ -5,8 +5,6 @@
 
 #include "cpgf/metadata/box2d/meta_box2d_b2PrismaticJoint.h"
 
-#include "cpgf/gmetapolicy.h"
-
 using namespace cpgf;
 
 namespace meta_box2d { 
@@ -15,7 +13,7 @@ namespace meta_box2d {
 GDefineMetaInfo createMetaClass_B2PrismaticJoint()
 {
     GDefineMetaClass<b2PrismaticJoint, b2Joint> _d = GDefineMetaClass<b2PrismaticJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2PrismaticJoint");
-    buildMetaClass_B2PrismaticJoint(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    buildMetaClass_B2PrismaticJoint(0, _d, NULL);
     return _d.getMetaInfo();
 }
 
@@ -23,7 +21,7 @@ GDefineMetaInfo createMetaClass_B2PrismaticJoint()
 GDefineMetaInfo createMetaClass_B2PrismaticJointDef()
 {
     GDefineMetaClass<b2PrismaticJointDef, b2JointDef> _d = GDefineMetaClass<b2PrismaticJointDef, b2JointDef>::declare("b2PrismaticJointDef");
-    buildMetaClass_B2PrismaticJointDef(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    buildMetaClass_B2PrismaticJointDef(0, _d, NULL);
     return _d.getMetaInfo();
 }
 

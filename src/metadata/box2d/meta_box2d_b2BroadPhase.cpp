@@ -5,8 +5,6 @@
 
 #include "cpgf/metadata/box2d/meta_box2d_b2BroadPhase.h"
 
-#include "cpgf/gmetapolicy.h"
-
 using namespace cpgf;
 
 namespace meta_box2d { 
@@ -15,7 +13,7 @@ namespace meta_box2d {
 GDefineMetaInfo createMetaClass_Global_b2broadphase()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_b2broadphase(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    buildMetaClass_Global_b2broadphase(0, _d, NULL);
     return _d.getMetaInfo();
 }
 
@@ -23,7 +21,7 @@ GDefineMetaInfo createMetaClass_Global_b2broadphase()
 GDefineMetaInfo createMetaClass_B2BroadPhase()
 {
     GDefineMetaClass<b2BroadPhase> _d = GDefineMetaClass<b2BroadPhase>::declare("b2BroadPhase");
-    buildMetaClass_B2BroadPhase(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    buildMetaClass_B2BroadPhase(0, _d, NULL);
     return _d.getMetaInfo();
 }
 
@@ -31,7 +29,7 @@ GDefineMetaInfo createMetaClass_B2BroadPhase()
 GDefineMetaInfo createMetaClass_B2Pair()
 {
     GDefineMetaClass<b2Pair> _d = GDefineMetaClass<b2Pair>::declare("b2Pair");
-    buildMetaClass_B2Pair(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    buildMetaClass_B2Pair(0, _d, NULL);
     return _d.getMetaInfo();
 }
 

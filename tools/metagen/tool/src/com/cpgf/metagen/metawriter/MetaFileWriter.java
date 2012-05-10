@@ -38,6 +38,7 @@ public class MetaFileWriter {
 		codeWriter.include("cpgf/metadata/gnamereplacer.h");
 		codeWriter.include("cpgf/metadata/gmetadataconfig.h");
 		codeWriter.include("cpgf/metadata/private/gmetadata_header.h");
+		codeWriter.include("cpgf/gmetapolicy.h");
 		codeWriter.out("\n\n");
 				
 		for(String ns : this.fileInfo.getNamespaceList()) {
@@ -102,8 +103,6 @@ public class MetaFileWriter {
 		}
 		codeWriter.include(this.config.metaHeaderPath + this.getDestFileName() + ".h");
 		codeWriter.out("\n");
-		codeWriter.include("cpgf/gmetapolicy.h");
-		codeWriter.out("\n");
 		
 		codeWriter.useNamespace("cpgf");
 		codeWriter.out("\n");
@@ -130,7 +129,7 @@ public class MetaFileWriter {
 			WriterUtil.createMetaClass(this.config, codeWriter, cppClass, "_d");
 			
 			String callFunc = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
-			codeWriter.out(callFunc + "(0, _d, NULL, " + this.config.defaultMetaPolicy + ");\n");
+			codeWriter.out(callFunc + "(0, _d, NULL);\n");
 			codeWriter.out("return _d.getMetaInfo();\n");
 			
 			codeWriter.endBlock();
@@ -156,10 +155,10 @@ public class MetaFileWriter {
 	}
 
 	private void beginMetaFunction(CppWriter codeWriter, String name) {
-		codeWriter.out("template <typename D, typename Policy>\n");
-		codeWriter.out("void " + name + "(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r, const Policy & _p)\n");
+		codeWriter.out("template <typename D>\n");
+		codeWriter.out("void " + name + "(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)\n");
 		codeWriter.beginBlock();
-		codeWriter.out("(void)config; (void)_d; (void)_r; (void)_d; (void)_p;\n");
+		codeWriter.out("(void)config; (void)_d; (void)_r; (void)_d;\n");
 		codeWriter.useNamespace("cpgf");
 		codeWriter.out("\n");
 	}

@@ -5,8 +5,6 @@
 
 #include "cpgf/metadata/box2d/meta_box2d_b2TimeStep.h"
 
-#include "cpgf/gmetapolicy.h"
-
 using namespace cpgf;
 
 namespace meta_box2d { 
@@ -15,7 +13,7 @@ namespace meta_box2d {
 GDefineMetaInfo createMetaClass_B2TimeStep()
 {
     GDefineMetaClass<b2TimeStep> _d = GDefineMetaClass<b2TimeStep>::declare("b2TimeStep");
-    buildMetaClass_B2TimeStep(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    buildMetaClass_B2TimeStep(0, _d, NULL);
     return _d.getMetaInfo();
 }
 

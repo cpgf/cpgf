@@ -166,7 +166,7 @@ public class MetaClassWriter {
 			
 			this.codeWriter.out(action + "<void * (");
 			WriterUtil.writeParamList(this.codeWriter, item.getParameterList(), false);
-			this.codeWriter.out(")>(_p)");
+			this.codeWriter.out(")>(" + WriterUtil.getPolicyText(item, false) + ")");
 			
 			WriterUtil.writeDefaultParams(this.codeWriter, item.getParameterList());
 		}
@@ -191,7 +191,7 @@ public class MetaClassWriter {
 			
 			this.codeWriter.out(action);
 			this.codeWriter.out("(" + this.getReplace(name) + ", ");
-			this.codeWriter.out("&" + prefix + name + ", _p);\n");
+			this.codeWriter.out("&" + prefix + name + WriterUtil.getPolicyText(item) + ");\n");
 		}
 	}
 
@@ -239,7 +239,7 @@ public class MetaClassWriter {
 				}
 				this.codeWriter.out(")");
 			}
-			this.codeWriter.out("&" + prefix + name + ", _p)");
+			this.codeWriter.out("&" + prefix + name + WriterUtil.getPolicyText(item) + ")");
 
 			WriterUtil.writeDefaultParams(this.codeWriter, item.getParameterList());
 		}
@@ -386,7 +386,7 @@ public class MetaClassWriter {
 
 			opText = opText.replaceAll("\\bH\\b", "mopHolder");
 			this.codeWriter.out(opText);
-			this.codeWriter.out(", _p)");
+			this.codeWriter.out(WriterUtil.getPolicyText(item) + ")");
 
 			WriterUtil.writeDefaultParams(this.codeWriter, item.getParameterList());
 		}

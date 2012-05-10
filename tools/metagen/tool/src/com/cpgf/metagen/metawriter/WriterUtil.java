@@ -8,6 +8,7 @@ import com.cpgf.metagen.Util;
 import com.cpgf.metagen.codewriter.CodeWriter;
 import com.cpgf.metagen.codewriter.CppWriter;
 import com.cpgf.metagen.metadata.CppClass;
+import com.cpgf.metagen.metadata.Item;
 import com.cpgf.metagen.metadata.Parameter;
 
 public class WriterUtil {
@@ -104,6 +105,33 @@ public class WriterUtil {
 				policy = "::Policy<MakePolicy<" + Util.joinStringList(", ", rules) + "> >";
 			}
 			codeWriter.out(typeName +  " " + varName + " = " + typeName + policy + "::declare(\"" + cppClass.getPrimaryName() + "\");\n");
+		}
+	}
+	
+	public static String getPolicyText(Item item) {
+		return getPolicyText(item, true);
+	}
+
+	public static String getPolicyText(Item item, boolean prefixWithComma) {
+		List<String> rules = new ArrayList<String>();
+		
+		item.getPolicyRules(rules);
+		
+		if(rules.size() > 0) {
+			String rulesText = "";
+			for(String s : rules) {
+				if(rulesText.length() > 0) {
+					rulesText = rulesText + ", ";
+				}
+				rulesText = rulesText + "cpgf::" + s;
+			}
+			return (prefixWithComma ? ", " : "")
+					+ "cpgf::MakePolicy<"
+					+ rulesText
+					+ " >()";
+		}
+		else {
+			return "";
 		}
 	}
 	

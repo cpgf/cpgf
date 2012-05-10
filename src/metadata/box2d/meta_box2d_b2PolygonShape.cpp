@@ -5,8 +5,6 @@
 
 #include "cpgf/metadata/box2d/meta_box2d_b2PolygonShape.h"
 
-#include "cpgf/gmetapolicy.h"
-
 using namespace cpgf;
 
 namespace meta_box2d { 
@@ -15,7 +13,7 @@ namespace meta_box2d {
 GDefineMetaInfo createMetaClass_B2PolygonShape()
 {
     GDefineMetaClass<b2PolygonShape, b2Shape> _d = GDefineMetaClass<b2PolygonShape, b2Shape>::declare("b2PolygonShape");
-    buildMetaClass_B2PolygonShape(0, _d, NULL, GMetaPolicyCopyAllConstReference());
+    buildMetaClass_B2PolygonShape(0, _d, NULL);
     return _d.getMetaInfo();
 }
 
