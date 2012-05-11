@@ -144,6 +144,10 @@ public class CppClass extends ParameteredItem {
 		for(DeferClass deferClass : this.classList) {
 			deferClass.getCppClass().setOwner(this);
 		}
+
+		for(DeferClass deferClass : this.classList) {
+			deferClass.getCppClass().fixupOwners();
+		}
 	}
 
 	private <T extends Item> void doFixupOwners(List<T> itemList) {
@@ -264,52 +268,99 @@ public class CppClass extends ParameteredItem {
 		return this.traits;
 	}
 	
-	public void resolveTypesForInnerClass() {
-		Map<String, String> innerClassMap = new HashMap<String, String>();
+	public void resolveTypesForClass() {
+		Map<String, String> typeMap = new HashMap<String, String>();
+		Map<String, String> valueMap = new HashMap<String, String>();
+		this.doResolveTypesForClass(typeMap, valueMap);
+	}
+	
+	public void doResolveTypesForClass(Map<String, String> typeMap, Map<String, String> valueMap) {
+		this.doBuildinnerTypeMap(typeMap, null);
+		this.doBuildInnerTypeMap(typeMap);
+		this.doBuildInnerValueMap(typeMap, valueMap);
 		
-		this.doBuildInnerClassMap(innerClassMap, null);
-		
-		this.doResolveTypesForInner(innerClassMap, this.getConstructorList());
-		this.doResolveTypesForInner(innerClassMap, this.getMethodList());
-		this.doResolveTypesForInner(innerClassMap, this.getOperatorList());
+		this.doResolveTypesForInner(typeMap, valueMap, this.getConstructorList());
+		this.doResolveTypesForInner(typeMap, valueMap, this.getMethodList());
+		this.doResolveTypesForInner(typeMap, valueMap, this.getOperatorList());
 
 		for(DeferClass deferClass : this.getClassList()) {
-			deferClass.getCppClass().resolveTypesForInnerClass();
+			deferClass.getCppClass().doResolveTypesForClass(typeMap, valueMap);
 		}
 	}
 	
-	private <T extends CppInvokable> void doResolveTypesForInner(Map<String, String> innerClassMap, List<T> list) {
+	private <T extends CppInvokable> void doResolveTypesForInner(Map<String, String> typeMap, Map<String, String> valueMap, List<T> list) {
 		for(T item : list) {
-			this.doResolveTypeForInvokable(innerClassMap, item);
+			this.doResolveTypeForInvokable(typeMap, valueMap, item);
 		}
 	}
 	
-	private void doResolveTypeForInvokable(Map<String, String> innerClassMap, CppInvokable item) {
-		this.doResolveType(innerClassMap, item.getResultType());
+	private void doResolveTypeForInvokable(Map<String, String> typeMap, Map<String, String> valueMap, CppInvokable item) {
+		this.doResolveType(typeMap, item.getResultType());
 		for(Parameter param : item.getParameterList()) {
-			this.doResolveType(innerClassMap, param.getType());
-		}
-	}
-	
-	private void doResolveType(Map<String, String> innerClassMap, CppType type) {
-		if(type != null) {
-			if(innerClassMap.containsKey(type.getLiteralType())) {
-				type.setLiteralType(innerClassMap.get(type.getLiteralType()));
+			this.doResolveType(typeMap, param.getType());
+			
+			if(param.hasDefaultValue()) {
+				if(valueMap.containsKey(param.getDefaultValue())) {
+					param.setDefaultValue(valueMap.get(param.getDefaultValue()));
+				}
 			}
 		}
 	}
 	
-	private void doBuildInnerClassMap(Map<String, String> innerClassMap, String outterName) {
+	private void doResolveType(Map<String, String> typeMap, CppType type) {
+		if(type != null) {
+			if(typeMap.containsKey(type.getLiteralType())) {
+				type.setLiteralType(typeMap.get(type.getLiteralType()));
+			}
+		}
+	}
+	
+	private void doBuildinnerTypeMap(Map<String, String> typeMap, String outterName) {
 		if(outterName != null) {
 			outterName = outterName + "::" + this.getPrimaryName();
-			innerClassMap.put(this.getPrimaryName(), outterName);
+			typeMap.put(this.getPrimaryName(), outterName);
 		}
 		else {
 			outterName = this.getPrimaryName();
 		}
 		
 		for(DeferClass deferClass : this.getClassList()) {
-			deferClass.getCppClass().doBuildInnerClassMap(innerClassMap, outterName);
+			deferClass.getCppClass().doBuildinnerTypeMap(typeMap, outterName);
+		}
+	}
+	
+	private void doBuildInnerTypeMap(Map<String, String> typeMap) {
+		String outterName = Util.getItemBaseName(this.getPrimaryName());
+		outterName = Util.selectString(typeMap.get(outterName), outterName);
+		
+		for(DeferClass deferClass : this.getClassList()) {
+			deferClass.getCppClass().doBuildInnerTypeMap(typeMap);
+		}
+		
+		for(Typedef typedef : this.getTypedefList()) {
+			String name = typedef.getPrimaryName();
+			typeMap.put(name, outterName + "::" + name);
+		}
+		
+		for(CppEnum cppEnum : this.getEnumList()) {
+			String name = cppEnum.getPrimaryName();
+			typeMap.put(name, outterName + "::" + name);
+		}
+	}
+	
+	private void doBuildInnerValueMap(Map<String, String> typeMap, Map<String, String> valueMap) {
+		String outterName = Util.getItemBaseName(this.getPrimaryName());
+		outterName = Util.selectString(typeMap.get(outterName), outterName);
+		
+		for(DeferClass deferClass : this.getClassList()) {
+			deferClass.getCppClass().doBuildInnerValueMap(typeMap, valueMap);
+		}
+		
+		for(CppEnum cppEnum : this.getEnumList()) {
+			for(EnumValue value : cppEnum.getValueList()) {
+				String name = value.getName();
+				valueMap.put(name, outterName + "::" + name);
+			}
 		}
 	}
 	

@@ -26,6 +26,10 @@ public class Parameter {
 		return defaultValue;
 	}
 	
+	public void setDefaultValue(String defaultValue) {
+		this.defaultValue = defaultValue;
+	}
+
 	public void clearDefaultValue() {
 		this.defaultValue = null;
 	}
@@ -41,4 +45,5 @@ public class Parameter {
 	public void setOwner(ParameteredItem owner) {
 		this.owner = owner;
 	}
+
 }

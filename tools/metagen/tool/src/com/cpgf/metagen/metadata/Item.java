@@ -1,8 +1,8 @@
 package com.cpgf.metagen.metadata;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import com.cpgf.metagen.Util;
 
 
 public class Item {
@@ -24,27 +24,9 @@ public class Item {
 
 		this.category = category;
 		this.literalName = name;
-		this.primaryName = getItemBaseName(name);
+		this.primaryName = Util.getItemBaseName(name);
 	}
 
-	private static String getItemBaseName(String name) {
-		if(name == null) {
-			return "";
-		}
-		if(name.indexOf('@') >= 0) {
-			return "";
-		}
-		
-		Pattern pattern = Pattern.compile("^.*\\b(\\w+)$");
-		Matcher matcher = pattern.matcher(name);
-		if(matcher.matches()) {
-			return matcher.group(1);
-		}
-		else {
-			return name;
-		}
-	}
-	
 	public String getPrimaryName() {
 		return primaryName;
 	}

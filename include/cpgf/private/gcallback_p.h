@@ -136,16 +136,14 @@ struct ReturnType <void>
 
 // traits to construct default return value
 // and avoid "invalid value-initialization of reference types" error in GCC when return type is reference
+// Note this references to NULL address. It's fine because it should be never executed.
+// Using NULL pointer instead of the object value can avoid compile error if T has non-default constructor (can't construct via default constructor).
 template <typename T>
 struct ConstructDefault
 {
 	static T construct() {
-#ifndef G_COMPILER_CPPBUILDER
-		return typename RemoveConstVolatile<T>::Result();
-#else
-		typename RemoveConstVolatile<T>::Result x;
-        return x;
-#endif
+		typename RemoveConstVolatile<T>::Result * x = 0;
+		return *x;
 	}
 };
 

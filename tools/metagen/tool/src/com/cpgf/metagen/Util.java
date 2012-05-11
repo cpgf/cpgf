@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -259,6 +261,28 @@ public class Util {
 		}
 
 		list.add(item);
+	}
+	
+	public static String selectString(String a, String b) {
+		return a != null ? a : b;
+	}
+
+	public static String getItemBaseName(String name) {
+		if(name == null) {
+			return "";
+		}
+		if(name.indexOf('@') >= 0) {
+			return "";
+		}
+		
+		Pattern pattern = Pattern.compile("^.*\\b(\\w+)$");
+		Matcher matcher = pattern.matcher(name);
+		if(matcher.matches()) {
+			return matcher.group(1);
+		}
+		else {
+			return name;
+		}
 	}
 
 }

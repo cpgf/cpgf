@@ -31,7 +31,7 @@ public class MetaInfo {
     	
     	for(CppClass c : this.classList) {
     		if(! c.isGlobal()) {
-    			c.resolveTypesForInnerClass();
+    			c.resolveTypesForClass();
     		}
     	}
     }
@@ -135,7 +135,7 @@ public class MetaInfo {
 	}
 
 	public CppClass findClassByName(String name) {
-		String re = "\\b" + name + "$";
+		String re = ".*\\b" + name + "$";
 		
 		for(CppClass cppClass : this.allClassList) {
 			if(cppClass.getQualifiedName().matches(re)) {

@@ -25,8 +25,8 @@ set(TEST_PATH ${ROOT_PATH}/test)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN_PATH})
 
-#set(CPP_SOURCE_PATH e:/SourceCode/cpp)
-set(CPP_SOURCE_PATH d:/source)
+set(CPP_SOURCE_PATH e:/SourceCode/cpp)
+#set(CPP_SOURCE_PATH d:/source)
 
 ### build
 
