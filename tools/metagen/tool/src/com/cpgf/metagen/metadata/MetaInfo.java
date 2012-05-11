@@ -28,6 +28,12 @@ public class MetaInfo {
     	this.doFixupInnerClasses();
     	this.doFixupOwnerClasses();
     	this.doBuildAllClassList();
+    	
+    	for(CppClass c : this.classList) {
+    		if(! c.isGlobal()) {
+    			c.resolveTypesForInnerClass();
+    		}
+    	}
     }
     
     private void doBuildAllClassList() {

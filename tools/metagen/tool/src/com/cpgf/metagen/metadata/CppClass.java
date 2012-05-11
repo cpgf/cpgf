@@ -1,7 +1,11 @@
 package com.cpgf.metagen.metadata;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.cpgf.metagen.Util;
 
 public class CppClass extends ParameteredItem {
 	private List<Constructor> constructorList;
@@ -259,5 +263,54 @@ public class CppClass extends ParameteredItem {
 		}
 		return this.traits;
 	}
+	
+	public void resolveTypesForInnerClass() {
+		Map<String, String> innerClassMap = new HashMap<String, String>();
+		
+		this.doBuildInnerClassMap(innerClassMap, null);
+		
+		this.doResolveTypesForInner(innerClassMap, this.getConstructorList());
+		this.doResolveTypesForInner(innerClassMap, this.getMethodList());
+		this.doResolveTypesForInner(innerClassMap, this.getOperatorList());
 
+		for(DeferClass deferClass : this.getClassList()) {
+			deferClass.getCppClass().resolveTypesForInnerClass();
+		}
+	}
+	
+	private <T extends CppInvokable> void doResolveTypesForInner(Map<String, String> innerClassMap, List<T> list) {
+		for(T item : list) {
+			this.doResolveTypeForInvokable(innerClassMap, item);
+		}
+	}
+	
+	private void doResolveTypeForInvokable(Map<String, String> innerClassMap, CppInvokable item) {
+		this.doResolveType(innerClassMap, item.getResultType());
+		for(Parameter param : item.getParameterList()) {
+			this.doResolveType(innerClassMap, param.getType());
+		}
+	}
+	
+	private void doResolveType(Map<String, String> innerClassMap, CppType type) {
+		if(type != null) {
+			if(innerClassMap.containsKey(type.getLiteralType())) {
+				type.setLiteralType(innerClassMap.get(type.getLiteralType()));
+			}
+		}
+	}
+	
+	private void doBuildInnerClassMap(Map<String, String> innerClassMap, String outterName) {
+		if(outterName != null) {
+			outterName = outterName + "::" + this.getPrimaryName();
+			innerClassMap.put(this.getPrimaryName(), outterName);
+		}
+		else {
+			outterName = this.getPrimaryName();
+		}
+		
+		for(DeferClass deferClass : this.getClassList()) {
+			deferClass.getCppClass().doBuildInnerClassMap(innerClassMap, outterName);
+		}
+	}
+	
 }

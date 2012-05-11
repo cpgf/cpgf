@@ -25,6 +25,10 @@ public class Parameter {
 	public String getDefaultValue() {
 		return defaultValue;
 	}
+	
+	public void clearDefaultValue() {
+		this.defaultValue = null;
+	}
 
 	public boolean hasDefaultValue() {
 		return this.defaultValue != null;

@@ -27,6 +27,18 @@ public class ParameteredItem extends Item {
 	public List<Parameter> getTemplateParameterList() {
 		return templateParameterList;
 	}
+	
+	public boolean removeParameterDefaultValue() {
+		for(Parameter param : this.parameterList) {
+			if(param.hasDefaultValue()) {
+				param.clearDefaultValue();
+				
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	public boolean isVirtual() {
 		return isVirtual || this.isPureVirtual();

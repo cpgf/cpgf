@@ -21,6 +21,10 @@ public class CppType {
 	public String getLiteralType() {
 		return this.parsedType.getLiteralType();
 	}
+	
+	public void setLiteralType(String literalType) {
+		this.parsedType.setLiteralType(literalType);
+	}
 
 	// use to identify the type
 	public String getQualifiedBaseType() {

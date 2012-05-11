@@ -19,25 +19,30 @@ var config = {
 	autoRegisterToGlobal : true,
 	
 	metaNamespace : "sfml",
-	sourceHeaderCode : "#include \"sfml/Audio.hpp\"" + "\n#include \"sfml/Config.hpp\"" + "\n#include \"sfml/Graphics.hpp\"" + "\n#include \"sfml/Network.hpp\"" + "\n#include \"sfml/System.hpp\"" + "\n#include \"sfml/Window.hpp\"",
+	sourceHeaderCode : "#include \"SFML/Audio.hpp\"" + "\n#include \"SFML/Config.hpp\"" + "\n#include \"SFML/Graphics.hpp\"" + "\n#include \"SFML/Network.hpp\"" + "\n#include \"SFML/System.hpp\"" + "\n#include \"SFML/Window.hpp\"",
 	sourceHeaderReplacer : doHeaderReplace,
 	metaHeaderPath : "",
 	
 	excludeCompound : [ "unix" ],
 };
 
-var re_doHeaderReplace = new RegExp(".*Box2D[^/]*/Box2D", "i");
+var re_doHeaderReplace = new RegExp(".*include/SFML", "i");
 
 function processCallback(item, data)
 {
 	if(item.isMethod()) {
-		if(item.getPrimaryName() == "GetMaxMotorForce") {
-			data.skipBind = true;
+		var owner = item.getOwner();
+		if(owner) {
+			if(owner.getPrimaryName() == "Font") {
+				if(item.getPrimaryName() == "LoadFromFile" || item.getPrimaryName() == "LoadFromMemory") {
+					while(item.removeParameterDefaultValue()) {}
+				}
+			}
 		}
 	}
 }
 
 function doHeaderReplace(fileName)
 {
-	return fileName.replace(re_doHeaderReplace, "Box2D").replace("Unix", "Win32");
+	return fileName.replace(re_doHeaderReplace, "SFML").replace("Unix", "Win32");
 }
