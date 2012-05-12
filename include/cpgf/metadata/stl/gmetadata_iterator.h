@@ -77,8 +77,8 @@ template <typename T, typename MetaDefine, typename Policy>
 void doBuildIteratorCommon(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & /*policy*/, const GMetaDataNameReplacer * replacer)
 {
 	define
-		.CPGF_MD_TEMPLATE _operator<T & (GMetaSelf, const T &)>(mopHolder == mopHolder)
-		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder != mopHolder)
+		.CPGF_MD_TEMPLATE _operator<bool (GMetaSelf, const T &)>(mopHolder == mopHolder)
+		.CPGF_MD_TEMPLATE _operator<bool (GMetaSelf, const T &)>(mopHolder != mopHolder)
 		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(++mopHolder)
 		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf)>(mopHolder++)
 	;
@@ -136,11 +136,11 @@ void doBuildIterator(const GMetaDataConfigFlags & config, MetaDefine define, con
 		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder += mopHolder)
 		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder - mopHolder)
 		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder -= mopHolder)
-		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, int)>(mopHolder[mopHolder])
-		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder < mopHolder)
-		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder <= mopHolder)
-		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder > mopHolder)
-		.CPGF_MD_TEMPLATE _operator<typename AddReference<T>::Result (GMetaSelf, const T &)>(mopHolder >= mopHolder)
+		.CPGF_MD_TEMPLATE _operator<typename AddReference<typename T::value_type>::Result (GMetaSelf, int)>(mopHolder[mopHolder])
+		.CPGF_MD_TEMPLATE _operator<bool (GMetaSelf, const T &)>(mopHolder < mopHolder)
+		.CPGF_MD_TEMPLATE _operator<bool (GMetaSelf, const T &)>(mopHolder <= mopHolder)
+		.CPGF_MD_TEMPLATE _operator<bool (GMetaSelf, const T &)>(mopHolder > mopHolder)
+		.CPGF_MD_TEMPLATE _operator<bool (GMetaSelf, const T &)>(mopHolder >= mopHolder)
 	;
 
 	if(metaDataConfigIsScriptable(config)) {

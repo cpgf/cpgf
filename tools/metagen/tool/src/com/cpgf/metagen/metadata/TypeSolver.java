@@ -7,11 +7,13 @@ import com.cpgf.metagen.cppparser.ParsedType;
 
 public class TypeSolver {
 	private MetaInfo metaInfo;
+	private PredefinedClassTraitsList predefinedClassTraits;
 	private Map<String, ParsedType> parsedTypeMap;
 	private Map<String, ClassTraits> classTraitsMap;
 	
-	public TypeSolver(MetaInfo metaInfo) {
+	public TypeSolver(MetaInfo metaInfo, PredefinedClassTraitsList predefinedClassTraits) {
 		this.metaInfo = metaInfo;
+		this.predefinedClassTraits = predefinedClassTraits;
 		this.parsedTypeMap = new HashMap<String, ParsedType>();
 		this.classTraitsMap = new HashMap<String, ClassTraits>();
 	}
@@ -29,6 +31,10 @@ public class TypeSolver {
 
 	public ClassTraits getClassTraits(String qualifiedType) {
 		ClassTraits traits = this.classTraitsMap.get(qualifiedType);
+
+		if(traits == null) {
+			traits = this.predefinedClassTraits.findTraits(qualifiedType);
+		}
 
 		if(traits == null) {
 			CppClass cppClass = this.metaInfo.findClassByName(qualifiedType);

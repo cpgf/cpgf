@@ -73,7 +73,7 @@ public class MetagenMain {
 				configLoader.load(configFileName);
 			}
 
-			MetaInfo metaInfo = new MetaInfo();
+			MetaInfo metaInfo = new MetaInfo(config);
 			FileMap fileMap = new FileMap();
 
 			for(String xmlFileName : this.xmlFileNameList) {

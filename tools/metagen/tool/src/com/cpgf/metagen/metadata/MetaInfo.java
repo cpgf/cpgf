@@ -4,14 +4,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.cpgf.metagen.Config;
+
 public class MetaInfo {
+	private Config config;
     private List<CppClass> classList;
 	private TypeSolver typeSolver;
     private List<CppClass> allClassList;
 
-    public MetaInfo() {
+    public MetaInfo(Config config) {
+    	this.config = config;
+    	
         this.classList = new ArrayList<CppClass>();
-		this.typeSolver = new TypeSolver(this);
+		this.typeSolver = new TypeSolver(this, this.config.classTraits);
     }
 
     public List<CppClass> getClassList() {

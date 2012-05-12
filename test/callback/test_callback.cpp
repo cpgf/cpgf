@@ -416,8 +416,8 @@ public:
 
 	GTEST(testBasicCallback)
 	{
-		GCallback<int (*)(int)> emptyCB;
-		emptyCB(5);
+//		GCallback<int (*)(int)> emptyCB;
+//		emptyCB(5);
 
 		CallbackSyntax obj;
 		const CallbackSyntax constObj;

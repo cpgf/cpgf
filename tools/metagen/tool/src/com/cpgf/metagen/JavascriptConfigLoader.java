@@ -10,6 +10,7 @@ import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 
+import com.cpgf.metagen.metadata.ClassTraits;
 import com.cpgf.metagen.metadata.Item;
 import com.cpgf.metagen.metawriter.callback.IOutputCallback;
 import com.cpgf.metagen.metawriter.callback.ISourceHeaderReplacer;
@@ -106,6 +107,76 @@ public class JavascriptConfigLoader implements IOutputCallback, ISourceHeaderRep
 			return;
 		}
 
+		if(checkArrayField(field, propertyName, value)) {
+			return;
+		}
+
+		if(checkCallbackField(field, propertyName, value)) {
+			return;
+		}
+
+		if(checkSpecialField(field, propertyName, value)) {
+			return;
+		}
+
+		this.error("Unknow value type for property " + propertyName);
+	}
+
+	private boolean checkSpecialField(Field field, String propertyName, Object value) throws Exception {
+		if(propertyName.equals("classTraits")) {
+			this.loadClassTraits(field, propertyName, value);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private void loadClassTraits(Field field, String propertyName, Object value) throws Exception {
+		if(! (value instanceof NativeArray)) {
+			this.error("Property " + propertyName + " must be an array.");
+		}
+		
+		NativeArray na = (NativeArray)(value);
+		Object[] array = na.toArray();
+		for(Object item : array) {
+			if(! (item instanceof NativeObject)) {
+				this.error("Elements of " + propertyName + " must be object.");
+			}
+
+			String pattern = null;
+			ClassTraits traits = null;
+			
+			for(Map.Entry<Object, Object> entry : ((NativeObject)item).entrySet()) {
+				String key = (String)(entry.getKey());
+				Object propertyValue = entry.getValue();
+				
+				if(key.equals("pattern")) {
+					pattern = (String)propertyValue;
+				}
+				else if(key.equals("traits")) {
+					if(! (propertyValue instanceof NativeObject)) {
+						this.error("Traits must be object.");
+					}
+					if(traits == null) {
+						traits = new ClassTraits();
+					}
+					for(Map.Entry<Object, Object> traitsEntry : ((NativeObject)propertyValue).entrySet()) {
+						String traitsKey = (String)(traitsEntry.getKey());
+						Boolean traitsValue = (Boolean)(traitsEntry.getValue());
+						ClassTraits.class.getMethod("set" + Util.upcaseFirst(traitsKey), boolean.class).invoke(traits, traitsValue);
+					}
+				}
+			}
+			
+			if(pattern == null) {
+				this.error("Traits must have pattern.");
+			}
+			
+			this.config.classTraits.addTraits(pattern, traits);
+		}
+	}
+	
+	private boolean checkArrayField(Field field, String propertyName, Object value) throws Exception {
 		if(field.getType().isArray()) {
 			if(! (value instanceof NativeArray)) {
 				this.error("Property " + propertyName + " must be an array.");
@@ -119,9 +190,14 @@ public class JavascriptConfigLoader implements IOutputCallback, ISourceHeaderRep
 				Array.set(obj, i, array[i]);
 			}
 			field.set(this.config, obj);
-			return;
+			
+			return true;
 		}
 		
+		return false;
+	}
+
+	private boolean checkCallbackField(Field field, String propertyName, Object value) throws Exception {
 		if(field.getType().equals(IOutputCallback.class)) {
 			if(value != null) {
 				if(! (value instanceof Function)) {
@@ -131,7 +207,7 @@ public class JavascriptConfigLoader implements IOutputCallback, ISourceHeaderRep
 				this.jsOutputCallback = (Function)value;
 				this.config.metaOutputCallback = this;
 			}
-			return;
+			return true;
 		}
 
 		if(field.getType().equals(ISourceHeaderReplacer.class)) {
@@ -143,10 +219,10 @@ public class JavascriptConfigLoader implements IOutputCallback, ISourceHeaderRep
 				this.jsReplaceSourceHeader = (Function)value;
 				this.config.sourceHeaderReplacer = this;
 			}
-			return;
+			return true;
 		}
-
-		this.error("Unknow value type for property " + propertyName);
+		
+		return false;
 	}
 
 	private static Class<?>[][] compatibleTypes = {

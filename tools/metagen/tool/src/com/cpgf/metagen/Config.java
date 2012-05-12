@@ -1,6 +1,7 @@
 package com.cpgf.metagen;
 
 import com.cpgf.metagen.metadata.EnumCategory;
+import com.cpgf.metagen.metadata.PredefinedClassTraitsList;
 import com.cpgf.metagen.metawriter.callback.IOutputCallback;
 import com.cpgf.metagen.metawriter.callback.ISourceHeaderReplacer;
 
@@ -82,5 +83,7 @@ public class Config {
 	// All meta data will be put into the namespace (pseudo class).
 	// null for no namespace.
 	public String metaNamespace = null;
+	
+	public PredefinedClassTraitsList classTraits = new PredefinedClassTraitsList();
 
 }

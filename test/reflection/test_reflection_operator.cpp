@@ -384,21 +384,19 @@ G_AUTO_RUN_BEFORE_MAIN()
 {
 	using namespace cpgf;
 
-	GDefineMetaClass<CLASS2>
-		::define(NAME_CLASS2)
+	GDefineMetaClass<CLASS2> define = GDefineMetaClass<CLASS2>::define(NAME_CLASS2);
 
-		// other
+	// other
 
-		._operator<int * (const GMetaSelf &)> (& mopHolder)
-		._operator<int (const GMetaSelf &)> (* mopHolder)
-		._operator<CLASS2 & (*)(GMetaSelf, int)>((mopHolder , mopHolder))
-		._operator<std::string (GMetaSelf, int)>(mopHolder[0])
-		._operator<int * (*)(GMetaSelf)>(mopHolder->mopHolder)
-		._operator<int (*)(GMetaSelf, int CLASS2::*)>(mopHolder->*mopHolder)
-		._operator<std::string (GMetaSelf)>(mopHolder())
-		._operator<int (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference())
-		._operator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder))
-	;
+	define._operator<int * (GMetaSelf)> (& mopHolder);
+	define._operator<int (const GMetaSelf &)> (* mopHolder);
+	define._operator<CLASS2 & (*)(GMetaSelf, int)>((mopHolder , mopHolder));
+	define._operator<std::string (GMetaSelf, int)>(mopHolder[0]);
+	define._operator<int * (*)(GMetaSelf)>(mopHolder->mopHolder);
+	define._operator<int (*)(GMetaSelf, int CLASS2::*)>(mopHolder->*mopHolder);
+	define._operator<std::string (GMetaSelf)>(mopHolder());
+	define._operator<int (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference());
+	define._operator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder));
 }
 
 

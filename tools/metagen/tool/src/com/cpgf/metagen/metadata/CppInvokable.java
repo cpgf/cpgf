@@ -23,9 +23,6 @@ public class CppInvokable extends ParameteredItem {
 
 	@Override
 	public void getPolicyRules(List<String> rules) {
-if(this.getPrimaryName().equals("GetWorkingDirectory")) {
-	int n = 0;
-}
 		if(this.resultType != null) {
 			WriterUtil.getPolicyRuleForParameter(rules, this.resultType, -1);
 		}

@@ -62,58 +62,67 @@ inline GVariant convertSelf(const GVariant & param)
 	}
 }
 
-template <typename OT, typename Executer, bool firstSelf, bool secondSelf>
+template <typename OT, typename Executer, typename Policy, bool firstSelf, bool secondSelf>
 struct MetaBinaryOperator
 {
 	GASSERT_STATIC(sizeof(OT) == 0);
 };
 
-template <typename OT, typename Executer>
-struct MetaBinaryOperator <OT, Executer, true, false>
+template <typename OT, typename Executer, typename Policy>
+struct MetaBinaryOperator <OT, Executer, Policy, true, false>
 {
 	static GVariant invoke(const GVariant & left, const GVariant & right) {
 		return Executer::template invoke<typename ConvertReference<OT, Executer::IsConst0>::ObjectReference, typename Executer::FunctionTraits::ArgList::Arg1>
-			(fromVariant<typename ConvertReference<OT, Executer::IsConst0>::SelfReference>(convertSelf(left)), fromVariant<typename Executer::FunctionTraits::ArgList::Arg1>(right));
+			(
+				fromVariant<typename ConvertReference<OT, Executer::IsConst0>::SelfReference, typename SelectFromVariantPolicy<Policy, 0>::Result>(convertSelf(left)),
+				fromVariant<typename Executer::FunctionTraits::ArgList::Arg1, typename SelectFromVariantPolicy<Policy, 1>::Result>(right)
+			);
 	}
 };
 
-template <typename OT, typename Executer>
-struct MetaBinaryOperator <OT, Executer, false, true>
+template <typename OT, typename Executer, typename Policy>
+struct MetaBinaryOperator <OT, Executer, Policy, false, true>
 {
 	static GVariant invoke(const GVariant & left, const GVariant & right) {
 		return Executer::template invoke<typename Executer::FunctionTraits::ArgList::Arg0, typename ConvertReference<OT, Executer::IsConst1>::ObjectReference>
-			(fromVariant<typename Executer::FunctionTraits::ArgList::Arg0>(left), fromVariant<typename ConvertReference<OT, Executer::IsConst1>::SelfReference>(convertSelf(right)));
+			(
+				fromVariant<typename Executer::FunctionTraits::ArgList::Arg0, typename SelectFromVariantPolicy<Policy, 0>::Result>(left),
+				fromVariant<typename ConvertReference<OT, Executer::IsConst1>::SelfReference, typename SelectFromVariantPolicy<Policy, 1>::Result>(convertSelf(right))
+			);
 	}
 };
 
-template <typename OT, typename Executer>
-struct MetaBinaryOperator <OT, Executer, false, false>
+template <typename OT, typename Executer, typename Policy>
+struct MetaBinaryOperator <OT, Executer, Policy, false, false>
 {
 	static GVariant invoke(const GVariant & left, const GVariant & right) {
 		return Executer::template invoke<typename Executer::FunctionTraits::ArgList::Arg0, typename Executer::FunctionTraits::ArgList::Arg1>
-			(fromVariant<typename Executer::FunctionTraits::ArgList::Arg0>(left), fromVariant<typename Executer::FunctionTraits::ArgList::Arg1>(right));
+			(
+				fromVariant<typename Executer::FunctionTraits::ArgList::Arg0, typename SelectFromVariantPolicy<Policy, 0>::Result>(left),
+				fromVariant<typename Executer::FunctionTraits::ArgList::Arg1, typename SelectFromVariantPolicy<Policy, 1>::Result>(right)
+			);
 	}
 };
 
 
-template <typename OT, typename Executer, bool isSelf>
+template <typename OT, typename Executer, typename Policy, bool isSelf>
 struct MetaUnaryOperator;
 
-template <typename OT, typename Executer>
-struct MetaUnaryOperator <OT, Executer, true>
+template <typename OT, typename Executer, typename Policy>
+struct MetaUnaryOperator <OT, Executer, Policy, true>
 {
 	static GVariant invoke(const GVariant & param) {
 		return Executer::template invoke<typename ConvertReference<OT, Executer::IsConst0>::ObjectReference>
-			(fromVariant<typename ConvertReference<OT, Executer::IsConst0>::SelfReference>(convertSelf(param)));
+			(fromVariant<typename ConvertReference<OT, Executer::IsConst0>::SelfReference, typename SelectFromVariantPolicy<Policy, 0>::Result>(convertSelf(param)));
 	}
 };
 
-template <typename OT, typename Executer>
-struct MetaUnaryOperator <OT, Executer, false>
+template <typename OT, typename Executer, typename Policy>
+struct MetaUnaryOperator <OT, Executer, Policy, false>
 {
 	static GVariant invoke(const GVariant & param) {
 		return Executer::template invoke<typename Executer::FunctionTraits::ArgList::Arg0>
-			(fromVariant<typename Executer::FunctionTraits::ArgList::Arg0>(param));
+			(fromVariant<typename Executer::FunctionTraits::ArgList::Arg0, typename SelectFromVariantPolicy<Policy, 0>::Result>(param));
 	}
 };
 
@@ -140,17 +149,19 @@ struct CheckHasResult
 	G_STATIC_CONSTANT(bool, Result = FT::HasResult);
 };
 
-template <GMetaOpType Op, typename FT, typename EnableIf = void>
+template <GMetaOpType Op, typename FT, typename Policy, typename EnableIf = void>
 struct MetaOperatorExecuter;
 
 #define DEF_BINARY_FULL(OP, EXP) \
-	template <typename FT> struct MetaOperatorExecuter <OP, FT, typename GEnableIfResult<CheckHasResult<FT> >::Result> : public MetaBinaryOperatorExecuter<FT>	{ \
+	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy, typename GEnableIfResult<CheckHasResult<FT> >::Result> : public MetaBinaryOperatorExecuter<FT>	{ \
 		template <typename P0, typename P1> static GVariant invoke(P0 p0, P1 p1) { \
-			GVarTypeData data = GVarTypeData(); \
-			deduceVariantType<typename FT::ResultType>(data, true); \
-			return GVariant(data, EXP); \
+			GVarTypeData typeData = GVarTypeData(); \
+			deduceVariantType<typename FT::ResultType>(typeData, ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
+			GVariant v; \
+			variant_internal::InitVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result, typename FT::ResultType>(v, typeData, (EXP)); \
+			return v; \
 	} }; \
-	template <typename FT> struct MetaOperatorExecuter <OP, FT, typename GDisableIfResult<CheckHasResult<FT> >::Result> : public MetaBinaryOperatorExecuter<FT> { \
+	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy, typename GDisableIfResult<CheckHasResult<FT> >::Result> : public MetaBinaryOperatorExecuter<FT> { \
 		template <typename P0, typename P1> static GVariant invoke(P0 p0, P1 p1) { \
 			EXP; return GVariant(); \
 	} };
@@ -205,13 +216,15 @@ DEF_BINARY(mopPointerMember, ->*)
 
 
 #define DEF_UNARY(OP, EXP) \
-	template <typename FT> struct MetaOperatorExecuter <OP, FT> : public MetaUnaryOperatorExecuter<FT> { \
+	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy> : public MetaUnaryOperatorExecuter<FT> { \
 		template <typename P0> static GVariant invoke(P0 p) { \
-			GVarTypeData data = GVarTypeData(); \
-			deduceVariantType<typename FT::ResultType>(data, true); \
-			return GVariant(data, EXP); \
+			GVarTypeData typeData = GVarTypeData(); \
+			deduceVariantType<typename FT::ResultType>(typeData, ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
+			GVariant v; \
+			variant_internal::InitVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result, typename FT::ResultType>(v, typeData, (EXP)); \
+			return v; \
 	} }; \
-	template <typename FT> struct MetaOperatorExecuter <OP, FT, typename GDisableIfResult<CheckHasResult<FT> >::Result> : public MetaUnaryOperatorExecuter<FT> { \
+	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy, typename GDisableIfResult<CheckHasResult<FT> >::Result> : public MetaUnaryOperatorExecuter<FT> { \
 		template <typename P0> static GVariant invoke(P0 p) { \
 			EXP; return GVariant(); \
 	} };
@@ -228,7 +241,7 @@ DEF_UNARY(mopLogicNot, !p)
 
 DEF_UNARY(mopBitNot, ~p)
 
-DEF_UNARY(mopAddress, &p)
+DEF_UNARY(mopAddress, p.operator&())
 DEF_UNARY(mopDerefer, *p)
 
 DEF_UNARY(mopCast, (typename FT::ResultType)(p))
@@ -398,7 +411,8 @@ private:
 
 	static GVariant virtualInvoke2(const GVariant & p0, const GVariant & p1) {
 		return MetaBinaryOperator<OT,
-			MetaOperatorExecuter<Op, FT>,
+			MetaOperatorExecuter<Op, FT, Policy>,
+			Policy,
 			CheckOperatorSelf<typename FT::ArgList::Arg0>::IsSelf,
 			CheckOperatorSelf<typename FT::ArgList::Arg1>::IsSelf
 		>::invoke(p0, p1);
@@ -528,7 +542,8 @@ private:
 
 	static GVariant virtualInvoke(const GVariant & p0) {
 		return MetaUnaryOperator<OT,
-			MetaOperatorExecuter<Op, FT>,
+			MetaOperatorExecuter<Op, FT, Policy>,
+			Policy,
 			CheckOperatorSelf<typename FT::ArgList::Arg0>::IsSelf
 		>::invoke(p0);
 	}

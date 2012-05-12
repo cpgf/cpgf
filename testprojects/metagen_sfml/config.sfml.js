@@ -23,7 +23,11 @@ var config = {
 	sourceHeaderReplacer : doHeaderReplace,
 	metaHeaderPath : "",
 	
-	excludeCompound : [ "unix" ],
+	classTraits : [
+		{ pattern : ".*\\b[io]stream$", traits : { copyConstructorHidden : true }  },
+		{ pattern : ".*\\bstring$", traits : { hasTypeConvertConstructor : true }  },
+	],
+
 };
 
 var re_doHeaderReplace = new RegExp(".*include/SFML", "i");

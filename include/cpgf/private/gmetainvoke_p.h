@@ -22,12 +22,18 @@ namespace cpgf {
 
 namespace meta_internal {
 
+template <typename Policy, int N>
+struct SelectFromVariantPolicy
+{
+	typedef typename GIfElseResult<PolicyHasRule<Policy, GMetaRuleCopyConstReference<N> >, VarantCastCopyConstRef, VarantCastKeepConstRef>::Result Result;
+};
+
 
 #define REF_CALL_HELPER_CAST(N, unused) \
-	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, typename GIfElseResult<PolicyHasRule<Policy, GMetaRuleCopyConstReference<N> >, VarantCastCopyConstRef, VarantCastKeepConstRef>::Result >(*params[N])
+	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result >(*params[N])
 
 #define REF_CALL_HELPER_CAST_EXPLICIT_THIS_HELPER(N) \
-	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, typename GIfElseResult<PolicyHasRule<Policy, GMetaRuleCopyConstReference<N> >, VarantCastCopyConstRef, VarantCastKeepConstRef>::Result >(*params[N - 1])
+	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result >(*params[N - 1])
 
 #define REF_CALL_HELPER_CAST_EXPLICIT_THIS_EMPTY(N)
 

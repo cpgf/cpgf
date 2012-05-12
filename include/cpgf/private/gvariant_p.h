@@ -618,10 +618,10 @@ struct CanCastFromVariant
 				return variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::CanCast;
 
 			case vtString:
-				return IsConvertible<char *, typename RemoveReference<ResultType>::Result>::Result || IsConvertible<const char *, typename RemoveReference<ResultType>::Result>::Result;
+				return IsConvertible<char *, ResultType>::Result || IsConvertible<const char *, ResultType>::Result;
 
 			case vtWideString:
-				return IsConvertible<wchar_t *, typename RemoveReference<ResultType>::Result>::Result || IsConvertible<const wchar_t *, typename RemoveReference<ResultType>::Result>::Result;
+				return IsConvertible<wchar_t *, ResultType>::Result || IsConvertible<const wchar_t *, ResultType>::Result;
 
 			case vtInterface:
 				return variant_internal::CastVariantHelper<IObject *, typename RemoveReference<ResultType>::Result *>::CanCast;

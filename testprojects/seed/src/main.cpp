@@ -9,9 +9,15 @@
 
 #include "cpgf/gvariant.h"
 #include "cpgf/gmetadefine.h"
+#include "cpgf/gtypetraits.h"
+#include "cpgf/gmetapolicy.h"
+
+#include "boost/type_traits/is_convertible.hpp"
+#include "SFML/Graphics.hpp"
 
 //#include "wx/string.h"
 
+using namespace std;
 using namespace cpgf;
 
 
@@ -30,8 +36,30 @@ private:
 //	explicit A(int);
 };
 
-void abc(const A &)
+class B
 {
+protected:
+	B() {}
+	
+private:
+	B(const B &);
+	B & operator = (const B &);
+};
+
+class C : public B
+{
+};
+
+B& operator >>(B& Stream, B& Address)
+{
+	return Stream;
+}
+
+std::istream & abc(std::istream & a)
+{
+//	cout << IsConvertible<char *, sf::RenderWindow &>::Result;
+//	cout << boost::is_convertible<char *, sf::RenderWindow &>::value;
+	return a;
 }
 
 void test()
@@ -42,7 +70,8 @@ void test()
 
 	GDefineMetaGlobal define;
 	define
-		._method("abc", &abc, GMetaPolicyCopyAllConstReference())
+		._method("abc", &abc) //, MakePolicy<GMetaRuleParamNoncopyable<-1>, GMetaRuleParamNoncopyable<0> >())
+    	._operator<B & (*)(B &, B &)>(mopHolder >> mopHolder, MakePolicy<GMetaRuleParamNoncopyable<-1>, GMetaRuleParamNoncopyable<0>, GMetaRuleParamNoncopyable<1> >())
 	;
 }
 
