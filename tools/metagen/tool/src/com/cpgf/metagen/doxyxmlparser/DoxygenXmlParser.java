@@ -179,8 +179,13 @@ public class DoxygenXmlParser {
 		}
 
 		String fileName = (new File(this.basePath, refid + ".xml")).getAbsolutePath();
-		DoxygenXmlParser parser = new DoxygenXmlParser(this.config, this.metaInfo, this.fileMap, fileName);
-		parser.parseFile();
+		if(this.config.parseFileNameCallback != null) {
+			fileName = this.config.parseFileNameCallback.handleParseFileName(fileName);
+		}
+		if(fileName != null && fileName.length() > 0) {
+			DoxygenXmlParser parser = new DoxygenXmlParser(this.config, this.metaInfo, this.fileMap, fileName);
+			parser.parseFile();
+		}
 	}
 
 	private void doParseCompounddef(Node node) {

@@ -13,16 +13,18 @@ import org.mozilla.javascript.Scriptable;
 import com.cpgf.metagen.metadata.ClassTraits;
 import com.cpgf.metagen.metadata.Item;
 import com.cpgf.metagen.metawriter.callback.IOutputCallback;
+import com.cpgf.metagen.metawriter.callback.IParseFileName;
 import com.cpgf.metagen.metawriter.callback.ISourceHeaderReplacer;
 import com.cpgf.metagen.metawriter.callback.OutputCallbackData;
 
-public class JavascriptConfigLoader implements IOutputCallback, ISourceHeaderReplacer {
+public class JavascriptConfigLoader implements IOutputCallback, ISourceHeaderReplacer, IParseFileName {
 	private static Context context;
 	private static Scriptable scope;
 	private Config config;
 	
 	private Function jsReplaceSourceHeader;
 	private Function jsOutputCallback;
+	private Function jsHandleParseFileName;
 	
 	public JavascriptConfigLoader(Config config) {
 		this.config = config;
@@ -43,6 +45,15 @@ public class JavascriptConfigLoader implements IOutputCallback, ISourceHeaderRep
 			Object[] args = { item, data };
 			this.jsOutputCallback.call(context, scope, scope, args);
 		}
+	}
+
+	@Override
+	public String handleParseFileName(String fileName) {
+		if(this.jsHandleParseFileName != null) {
+			Object[] args = { fileName };
+			fileName = (String)(this.jsHandleParseFileName.call(context, scope, scope, args));
+		}
+		return fileName;
 	}
 
 	public void load(String configFileName) throws Exception {
@@ -218,6 +229,18 @@ public class JavascriptConfigLoader implements IOutputCallback, ISourceHeaderRep
 				
 				this.jsReplaceSourceHeader = (Function)value;
 				this.config.sourceHeaderReplacer = this;
+			}
+			return true;
+		}
+		
+		if(field.getType().equals(IParseFileName.class)) {
+			if(value != null) {
+				if(! (value instanceof Function)) {
+					this.error("Property " + propertyName + " must be a function.");
+				}
+				
+				this.jsHandleParseFileName = (Function)value;
+				this.config.parseFileNameCallback = this;
 			}
 			return true;
 		}

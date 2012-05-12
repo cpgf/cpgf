@@ -86,8 +86,8 @@
 		typedef FunctionType * FunctionPointer; \
 		CB_DEF_MEMBER(N) \
 		CB_DEF_GLOBAL(N) \
-		template <typename RR> int doInvoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT) GPP_COMMA_IF(N) typename GEnableIfResult<IsSameType<RR, void> >::Result * = 0) const { if(this->getBase()) { ((FunctionPointer)(this->getBase()->getInvoke()))(this->getBase() GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } else { invokeEmptyCallback(); } return 0; } \
-		template <typename RR> RT doInvoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT) GPP_COMMA_IF(N) typename GDisableIfResult<IsSameType<RR, void> >::Result * = 0) const { if(this->getBase()) { return ((FunctionPointer)(this->getBase()->getInvoke()))(this->getBase() GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } else { return callback_internal::ConstructDefault<RT>::construct(); } } \
+		template <typename RR> int doInvoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT) GPP_COMMA_IF(N) typename GEnableIfResult<IsSameType<RR, void> >::Result * = 0) const { if(this->getBase()) { ((FunctionPointer)(this->getBase()->getInvoke()))(this->getBase() GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } else { invokeEmptyCallback<int>(); } return 0; } \
+		template <typename RR> RT doInvoke(GPP_REPEAT(N, CB_PARAM_TYPEVALUE, PT) GPP_COMMA_IF(N) typename GDisableIfResult<IsSameType<RR, void> >::Result * = 0) const { if(this->getBase()) { return ((FunctionPointer)(this->getBase()->getInvoke()))(this->getBase() GPP_COMMA_IF(N) GPP_REPEAT(N, CB_PARAM_PASSVALUE, PT)); } else { return invokeEmptyCallback<RT>(); } } \
 		template<typename OT, typename FT>	void init(OT * instance, const FT & func) { \
 			this->setBase(this->allocator.template newObject<typename GCallbackMember<OT, FT>::Type >(instance, func)); \
 		} \
@@ -135,28 +135,10 @@ struct ReturnType <void>
 	typedef int Result;
 };
 
-inline void invokeEmptyCallback() {
+template <typename T>
+inline T invokeEmptyCallback() {
 	throw std:: runtime_error("Invoking uninitialized callback.");
 }
-
-template <typename T>
-struct ConstructDefault
-{
-	static T construct() {
-		invokeEmptyCallback();
-
-		typename RemoveConstVolatile<T>::Result * x = 0;
-		return *x;
-	}
-};
-
-template <typename T> struct ConstructDefault <T &> {
-	static T & construct() {
-		invokeEmptyCallback();
-
-		return *static_cast<T *>(0);
-	}
-};
 
 template <bool tooBig>
 struct CBInplaceMeasure;

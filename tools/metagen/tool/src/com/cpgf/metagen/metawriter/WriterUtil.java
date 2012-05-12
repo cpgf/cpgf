@@ -80,14 +80,8 @@ public class WriterUtil {
 			if(rules != null && rules.size() > 0) {
 				policy = "::Policy<MakePolicy<" + Util.joinStringList(", ", rules) + "> >";
 			}
-			if(config.metaNamespace != null) {
-				codeWriter.out("GDefineMetaNamespace _ns = GDefineMetaNamespace::" + action + "(" + namespace + ");\n");
-				codeWriter.out(typeName +  " " + varName + " = " + typeName + policy + "::declare(\"" + cppClass.getPrimaryName() + "\");\n");
-				codeWriter.out("_ns._class(" + varName + ");\n");
-			}
-			else {
-				codeWriter.out(typeName +  " " + varName + " = " + typeName + policy + "::" + action + "(\"" + cppClass.getPrimaryName() + "\");\n");
-			}
+
+			codeWriter.out(typeName +  " " + varName + " = " + typeName + policy + "::" + action + "(\"" + cppClass.getPrimaryName() + "\");\n");
 		}
 	}
 

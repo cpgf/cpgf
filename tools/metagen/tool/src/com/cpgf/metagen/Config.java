@@ -3,6 +3,7 @@ package com.cpgf.metagen;
 import com.cpgf.metagen.metadata.EnumCategory;
 import com.cpgf.metagen.metadata.PredefinedClassTraitsList;
 import com.cpgf.metagen.metawriter.callback.IOutputCallback;
+import com.cpgf.metagen.metawriter.callback.IParseFileName;
 import com.cpgf.metagen.metawriter.callback.ISourceHeaderReplacer;
 
 public class Config {
@@ -71,6 +72,8 @@ public class Config {
 	
 	// See Box2D generator.
 	public ISourceHeaderReplacer sourceHeaderReplacer = null;
+	
+	public IParseFileName parseFileNameCallback = null;
 	
 	// A string of path that will be put in front of auto generated header.
 	// See Box2D generator.

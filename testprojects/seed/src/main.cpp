@@ -76,8 +76,11 @@ void test()
 }
 
 
+void rrr();
 int main(int /*argc*/, char * /*argv*/[])
 {
+//    rrr();
+
 	test();
 	
 	UnitTest::RunAllTests();

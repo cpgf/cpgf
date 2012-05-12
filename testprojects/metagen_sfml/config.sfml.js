@@ -29,6 +29,7 @@ var config = {
 		{ pattern : ".*\\bUTF\\d+String$", traits : { hasTypeConvertConstructor : true }  },
 	],
 
+	parseFileNameCallback : doParseFileNameCallback
 };
 
 var re_doHeaderReplace = new RegExp(".*include/SFML", "i");
@@ -50,4 +51,13 @@ function processCallback(item, data)
 function doHeaderReplace(fileName)
 {
 	return fileName.replace(re_doHeaderReplace, "SFML").replace("Unix", "Win32");
+}
+
+function doParseFileNameCallback(fileName)
+{
+	if(fileName.indexOf("unix") >= 0) {
+		fileName = null;
+	}
+	
+	return fileName;
 }
