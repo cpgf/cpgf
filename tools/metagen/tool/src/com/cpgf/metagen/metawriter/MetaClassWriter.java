@@ -315,7 +315,7 @@ public class MetaClassWriter {
 				continue;
 			}
 
-			boolean isStatic = (this.cppClass.isGlobal() || item.isStatic());
+			boolean isStatic = item.isStatic();
 			int realParamCount = item.getParameterList().size();
 			if(! isStatic) {
 				++realParamCount;
@@ -333,19 +333,15 @@ public class MetaClassWriter {
 			else {
 				this.codeWriter.out(action + "<" + item.getResultType().getLiteralType() + " (*)(");
 				
-				boolean isFunctor = op.equals("()");
-				boolean hasSelf = false;
-				
-				if(! isFunctor) {
-					if(! isStatic) {
-						if(item.isConst()) {
-							this.codeWriter.out("const cpgf::GMetaSelf &");
-						}
-						else {
-							this.codeWriter.out("cpgf::GMetaSelf");
-						}
-						
-						hasSelf = true;
+				boolean isFunctor = item.isFunctor();
+				boolean hasSelf = item.hasSelf();
+
+				if(hasSelf) {
+					if(item.isConst()) {
+						this.codeWriter.out("const cpgf::GMetaSelf &");
+					}
+					else {
+						this.codeWriter.out("cpgf::GMetaSelf");
 					}
 				}
 

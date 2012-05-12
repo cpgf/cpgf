@@ -31,10 +31,10 @@ void buildMetaClass_Global_b2collision(const cpgf::GMetaDataConfigFlags & config
     _d.CPGF_MD_TEMPLATE _method(replaceName("b2TestOverlap", _r), (bool (*) (const b2Shape *, const b2Shape *, const b2Transform &, const b2Transform &))&b2TestOverlap);
     _d.CPGF_MD_TEMPLATE _method(replaceName("b2TestOverlap", _r), (bool (*) (const b2AABB &, const b2AABB &))&b2TestOverlap);
     _d.CPGF_MD_TEMPLATE _enum<b2PointState>(replaceName("b2PointState", _r))
-        ._element(replaceName("b2_nullState", _r), b2PointState::b2_nullState)
-        ._element(replaceName("b2_addState", _r), b2PointState::b2_addState)
-        ._element(replaceName("b2_persistState", _r), b2PointState::b2_persistState)
-        ._element(replaceName("b2_removeState", _r), b2PointState::b2_removeState)
+        ._element(replaceName("b2_nullState", _r), b2_nullState)
+        ._element(replaceName("b2_addState", _r), b2_addState)
+        ._element(replaceName("b2_persistState", _r), b2_persistState)
+        ._element(replaceName("b2_removeState", _r), b2_removeState)
     ;
 }
 
@@ -92,9 +92,9 @@ void buildMetaClass_B2Manifold(const cpgf::GMetaDataConfigFlags & config, D _d, 
     _d.CPGF_MD_TEMPLATE _field(replaceName("type", _r), &D::ClassType::type);
     _d.CPGF_MD_TEMPLATE _field(replaceName("pointCount", _r), &D::ClassType::pointCount);
     _d.CPGF_MD_TEMPLATE _enum<typename D::ClassType::Type>(replaceName("Type", _r))
-        ._element(replaceName("e_circles", _r), D::ClassType::Type::e_circles)
-        ._element(replaceName("e_faceA", _r), D::ClassType::Type::e_faceA)
-        ._element(replaceName("e_faceB", _r), D::ClassType::Type::e_faceB)
+        ._element(replaceName("e_circles", _r), D::ClassType::e_circles)
+        ._element(replaceName("e_faceA", _r), D::ClassType::e_faceA)
+        ._element(replaceName("e_faceB", _r), D::ClassType::e_faceB)
     ;
 }
 

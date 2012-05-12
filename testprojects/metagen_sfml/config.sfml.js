@@ -25,7 +25,8 @@ var config = {
 	
 	classTraits : [
 		{ pattern : ".*\\b[io]stream$", traits : { copyConstructorHidden : true }  },
-		{ pattern : ".*\\bstring$", traits : { hasTypeConvertConstructor : true }  },
+		{ pattern : ".*\\bw?string$", traits : { hasTypeConvertConstructor : true }  },
+		{ pattern : ".*\\bUTF\\d+String$", traits : { hasTypeConvertConstructor : true }  },
 	],
 
 };

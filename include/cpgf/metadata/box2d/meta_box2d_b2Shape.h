@@ -43,10 +43,10 @@ void buildMetaClass_B2Shape(const cpgf::GMetaDataConfigFlags & config, D _d, con
     _d.CPGF_MD_TEMPLATE _method(replaceName("ComputeAABB", _r), &D::ClassType::ComputeAABB);
     _d.CPGF_MD_TEMPLATE _method(replaceName("ComputeMass", _r), &D::ClassType::ComputeMass);
     _d.CPGF_MD_TEMPLATE _enum<typename D::ClassType::Type>(replaceName("Type", _r))
-        ._element(replaceName("e_unknown", _r), D::ClassType::Type::e_unknown)
-        ._element(replaceName("e_circle", _r), D::ClassType::Type::e_circle)
-        ._element(replaceName("e_polygon", _r), D::ClassType::Type::e_polygon)
-        ._element(replaceName("e_typeCount", _r), D::ClassType::Type::e_typeCount)
+        ._element(replaceName("e_unknown", _r), D::ClassType::e_unknown)
+        ._element(replaceName("e_circle", _r), D::ClassType::e_circle)
+        ._element(replaceName("e_polygon", _r), D::ClassType::e_polygon)
+        ._element(replaceName("e_typeCount", _r), D::ClassType::e_typeCount)
     ;
 }
 

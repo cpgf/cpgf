@@ -111,6 +111,18 @@ public class Item {
 	public void setVisibility(EnumVisibility visibility) {
 		this.visibility = visibility;
 	}
+	
+	public boolean isPublic() {
+		return this.visibility == EnumVisibility.Public;
+	}
+
+	public boolean isProtected() {
+		return this.visibility == EnumVisibility.Protected;
+	}
+
+	public boolean isPrivate() {
+		return this.visibility == EnumVisibility.Private;
+	}
 
 	public String getLocation() {
 		return location;
@@ -133,7 +145,7 @@ public class Item {
 	}
 
 	public boolean isStatic() {
-		return isStatic;
+		return isStatic || this.owner.isGlobal();
 	}
 
 	public void setStatic(boolean isStatic) {

@@ -2,7 +2,9 @@ package com.cpgf.metagen.metadata;
 
 import java.util.List;
 
-import com.cpgf.metagen.metawriter.WriterUtil;
+import com.cpgf.metagen.Util;
+import com.cpgf.metagen.cppparser.ParsedType;
+import com.cpgf.metagen.cppparser.ParserUtil;
 
 public class CppInvokable extends ParameteredItem {
 	private CppType resultType;
@@ -24,11 +26,41 @@ public class CppInvokable extends ParameteredItem {
 	@Override
 	public void getPolicyRules(List<String> rules) {
 		if(this.resultType != null) {
-			WriterUtil.getPolicyRuleForParameter(rules, this.resultType, -1);
+			getPolicyRuleForParameter(rules, this.resultType, -1);
 		}
 		
+		int indexOffset = this.getParameterPolicyRuleStartIndex();
+		
 		for(int i = 0; i < this.getParameterList().size(); ++i) {
-			WriterUtil.getPolicyRuleForParameter(rules, this.getParameterList().get(i).getType(), i);
+			getPolicyRuleForParameter(rules, this.getParameterList().get(i).getType(), i + indexOffset);
+		}
+	}
+	
+	protected int getParameterPolicyRuleStartIndex() {
+		return 0;
+	}
+
+	private static void getPolicyRuleForParameter(List<String> rules, CppType type, int parameterIndex) {
+		ClassTraits traits = type.getClassTraits();
+		ParsedType parsedType = type.getParsedType();
+
+		if(traits != null) {
+			if(type.isConstValueReference()) {
+				if(traits.isHasTypeConvertConstructor() && !traits.isCopyConstructorHidden()) {
+					Util.addToList(rules, ParserUtil.composePolicyRuleForParameter("GMetaRuleCopyConstReference", parameterIndex));
+				}
+				
+				return;
+			}
+			
+			if(parsedType.isPointer()) {
+				return;
+			}
+			
+			if(traits.isCopyConstructorHidden()) {
+				Util.addToList(rules, ParserUtil.composePolicyRuleForParameter("GMetaRuleParamNoncopyable", parameterIndex));
+			}
+			
 		}
 	}
 
