@@ -71,6 +71,7 @@ set(SRC_META
 	${SRC_PATH}/scriptbind/gscriptbind.cpp
 	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
 	${SRC_PATH}/scriptbind/gscriptbindutil.cpp
+	${SRC_PATH}/scriptbind/gscriptrunner.cpp
 	
 	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
 	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
@@ -110,12 +111,14 @@ set(SRC_GLUT )
 if(${HAS_LUA})
 	set(SRC_LUA_BIND
 		${SRC_PATH}/scriptbind/gluabind.cpp
+		${SRC_PATH}/scriptbind/gluarunner.cpp
 	)
 endif(${HAS_LUA})
 
 if(${HAS_V8})
 	set(SRC_V8_BIND
 		${SRC_PATH}/scriptbind/gv8bind.cpp
+		${SRC_PATH}/scriptbind/gv8runner.cpp
 	)
 endif(${HAS_V8})
 

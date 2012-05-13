@@ -156,6 +156,12 @@ public:
 	typedef std::multimap<const char *, GMetaItem *, meta_internal::CStringCompare> MapType;
 
 public:
+	void clear() {
+		this->itemList.clear();
+		this->itemMap.clear();
+	}
+
+public:
 	ListType itemList;
 	MapType itemMap;
 };
@@ -274,7 +280,7 @@ void GMetaInternalItemList::extractTo(GMetaInternalItemList * master)
 	for(meta_internal::GMetaItemListImplement::ListType::iterator it = this->implement->itemList.begin(); it != this->implement->itemList.end(); ++it) {
 		master->addItem(*it);
 	}
-	this->implement->itemList.clear();
+	this->implement->clear();
 }
 
 void GMetaInternalItemList::clearList()
@@ -286,7 +292,7 @@ void GMetaInternalItemList::clearList()
 			}
 		}
 	}
-	this->implement->itemList.clear();
+	this->implement->clear();
 }
 
 

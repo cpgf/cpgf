@@ -51,6 +51,8 @@ void GMetaClassTraveller::Node::retain()
 
 GMetaClassTraveller::GMetaClassTraveller(IMetaClass * metaClass, void * instance)
 {
+	GASSERT(metaClass != NULL);
+
 	metaClass->addReference();
 
 	this->traversal.push_back(Node(metaClass, instance, NULL));
@@ -72,7 +74,11 @@ IMetaClass * GMetaClassTraveller::next(void ** outInstance, IMetaClass ** outDer
 	Node node = this->traversal.front();
 	this->traversal.pop_front();
 	for(uint32_t i = 0; i < node.metaClass->getBaseCount(); ++i) {
-		this->traversal.push_back(Node(node.metaClass->getBaseClass(i), node.metaClass->castToBase(node.instance, i), node.metaClass));
+		GScopedInterface<IMetaClass> baseClass(node.metaClass->getBaseClass(i));
+		if(baseClass) {
+			baseClass->addReference();
+			this->traversal.push_back(Node(baseClass.get(), node.metaClass->castToBase(node.instance, i), node.metaClass));
+		}
 	}
 	
 	if(outInstance != NULL) {

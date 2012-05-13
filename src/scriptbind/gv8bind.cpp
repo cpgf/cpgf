@@ -1458,8 +1458,10 @@ Handle<FunctionTemplate> createClassTemplate(GScriptBindingParam * param, const 
 
 	if(metaClass->getBaseCount() > 0) {
 		GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(0));
-		Handle<FunctionTemplate> baseFunctionTemplate = createClassTemplate(param, baseClass->getName(), baseClass.get());
-		functionTemplate->Inherit(baseFunctionTemplate);
+		if(baseClass) {
+			Handle<FunctionTemplate> baseFunctionTemplate = createClassTemplate(param, baseClass->getName(), baseClass.get());
+			functionTemplate->Inherit(baseFunctionTemplate);
+		}
 	}
 
 	Local<Function> classFunction = functionTemplate->GetFunction();

@@ -152,8 +152,10 @@ public:
 
 class GScriptObject
 {
-public:
+protected:
 	GScriptObject(const GScriptConfig & config);
+
+public:
 	virtual ~GScriptObject();
 
 	const GScriptConfig & getConfig() const;

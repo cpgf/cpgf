@@ -36,12 +36,17 @@ var re_doHeaderReplace = new RegExp(".*include/SFML", "i");
 
 function processCallback(item, data)
 {
+	item.replaceInType("\\bSFML_API\\b", "");
+
 	if(item.isMethod()) {
 		var owner = item.getOwner();
 		if(owner) {
 			if(owner.getPrimaryName() == "Font") {
+				// The default parameter is using private member in Font, we can't use it.
 				if(item.getPrimaryName() == "LoadFromFile" || item.getPrimaryName() == "LoadFromMemory") {
 					while(item.removeParameterDefaultValue()) {}
+					item.removeParameter("CharSize");
+					item.removeParameter("Charset");
 				}
 			}
 		}

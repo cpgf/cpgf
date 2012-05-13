@@ -64,5 +64,15 @@ public class CppInvokable extends ParameteredItem {
 		}
 	}
 
+	@Override
+	public void replaceInType(String pattern, String substitute)
+	{
+		super.replaceInType(pattern, substitute);
+
+		if(this.resultType != null) {
+			this.resultType.setLiteralType(this.resultType.getLiteralType().replaceAll(pattern, substitute));
+		}
+	}
+	
 
 }

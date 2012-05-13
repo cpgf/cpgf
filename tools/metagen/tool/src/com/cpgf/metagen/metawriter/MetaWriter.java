@@ -86,15 +86,9 @@ public class MetaWriter {
 
 		codeWriter.beginBlock();
 
-		codeWriter.out("_d\n");
-
-		codeWriter.incIndent();
-
 		for(String funcName : sortedCreateFunctionNames) {
-			codeWriter.out("._class(" + funcName + "())\n");
+			codeWriter.out("_d._class(" + funcName + "());\n");
 		}
-		codeWriter.decIndent();
-		codeWriter.out(";\n");
 
 		codeWriter.endBlock();
 		

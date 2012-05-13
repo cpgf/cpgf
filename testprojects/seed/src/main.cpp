@@ -64,6 +64,8 @@ std::istream & abc(std::istream & a)
 
 void test()
 {
+	sf::Font::GetDefaultFont();
+
 	A s;
 	GVariant v(s);
 //	copyVariantFromCopyable(());
@@ -76,10 +78,10 @@ void test()
 }
 
 
-void rrr();
+void samplemain();
 int main(int /*argc*/, char * /*argv*/[])
 {
-//    rrr();
+	samplemain();
 
 	test();
 	

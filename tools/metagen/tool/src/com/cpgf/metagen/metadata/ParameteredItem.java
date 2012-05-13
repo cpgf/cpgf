@@ -28,18 +28,6 @@ public class ParameteredItem extends Item {
 		return templateParameterList;
 	}
 	
-	public boolean removeParameterDefaultValue() {
-		for(Parameter param : this.parameterList) {
-			if(param.hasDefaultValue()) {
-				param.clearDefaultValue();
-				
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	public boolean isVirtual() {
 		return isVirtual || this.isPureVirtual();
 	}
@@ -74,4 +62,42 @@ public class ParameteredItem extends Item {
 		
 		return count;
 	}
+
+	public boolean removeParameterDefaultValue() {
+		for(Parameter param : this.parameterList) {
+			if(param.hasDefaultValue()) {
+				param.clearDefaultValue();
+				
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public void removeParameter(String name) {
+		for(int i = 0; i < this.parameterList.size(); ++i) {
+			Parameter param = this.parameterList.get(i);
+			if(param.getName().equals(name)) {
+				this.parameterList.remove(i);
+				
+				return;
+			}
+		}
+	}
+
+	public void removeParameterAt(int index) {
+		this.parameterList.remove(index);
+	}
+
+	@Override
+	public void replaceInType(String pattern, String substitute)
+	{
+		super.replaceInType(pattern, substitute);
+		
+		for(Parameter param : this.parameterList) {
+			param.getType().setLiteralType(param.getType().getLiteralType().replaceAll(pattern, substitute));
+		}
+	}
+	
 }

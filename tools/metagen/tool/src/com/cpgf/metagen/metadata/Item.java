@@ -200,4 +200,8 @@ public class Item {
 		return this.getCategory() == EnumCategory.Operator;
 	}
 
+	public void replaceInType(String pattern, String substitute)
+	{
+	}
+
 }
