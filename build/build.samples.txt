@@ -1,0 +1,186 @@
+set(TARGET_SAMPLELUA samplelua)
+set(TARGET_SAMPLEREFLECTION samplereflection)
+set(TARGET_SAMPLEOPENGL sampleopengl)
+set(TARGET_SAMPLEBOX2D samplebox2d)
+set(TARGET_SAMPLESERIALIZATION sampleserialization)
+
+set(OUTNAME_SAMPLELUA samplelua)
+set(OUTNAME_SAMPLEREFLECTION samplereflection)
+set(OUTNAME_SAMPLEOPENGL sampleopengl)
+set(OUTNAME_SAMPLEBOX2D samplebox2d)
+set(OUTNAME_SAMPLESERIALIZATION sampleserialization)
+
+set(SAMPLE_ROOT ${ROOT_PATH}/samples)
+set(SAMPLE_BIND_PATH ${SAMPLE_ROOT}/scriptbind)
+
+
+set(SAMPLE_COMPILE_FLAGS " ")
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(SAMPLE_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
+
+	if(SUPPORT_GCC_0X)
+		if(MINGW)
+			set(SAMPLE_COMPILE_FLAGS "${SAMPLE_COMPILE_FLAGS} -std=gnu++0x")
+		endif(MINGW)
+
+		if(NOT MINGW)
+			set(SAMPLE_COMPILE_FLAGS "${SAMPLE_COMPILE_FLAGS} -std=c++0x")
+		endif(NOT MINGW)
+	endif(SUPPORT_GCC_0X)
+
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+
+file(GLOB GLOB_SAMPLEREFLECTION ${SAMPLE_ROOT}/reflection/*.cpp)
+set(SRC_SAMPLEREFLECTION
+	${SAMPLE_ROOT}/samplemain.cpp
+	
+	${GLOB_SAMPLEREFLECTION}
+)
+
+file(GLOB GLOB_SAMPLESERIALIZATION ${SAMPLE_ROOT}/serialization/*.cpp)
+set(SRC_SAMPLESERIALIZATION
+	${GLOB_SAMPLESERIALIZATION}
+)
+
+
+# sample reflection
+add_executable(
+	${TARGET_SAMPLEREFLECTION}
+	EXCLUDE_FROM_ALL
+		${SRC_SAMPLEREFLECTION}
+)
+
+set_target_properties(
+	${TARGET_SAMPLEREFLECTION}
+	PROPERTIES
+	OUTPUT_NAME ${OUTNAME_SAMPLEREFLECTION}
+	COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
+)
+
+target_link_libraries(${TARGET_SAMPLEREFLECTION} ${TARGET_LIB})
+
+# sample serialization
+add_executable(
+	${TARGET_SAMPLESERIALIZATION}
+	EXCLUDE_FROM_ALL
+		${SRC_SAMPLESERIALIZATION}
+)
+
+set_target_properties(
+	${TARGET_SAMPLESERIALIZATION}
+	PROPERTIES
+	OUTPUT_NAME ${OUTNAME_SAMPLESERIALIZATION}
+	COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
+)
+
+target_link_libraries(${TARGET_SAMPLESERIALIZATION} ${TARGET_LIB})
+
+# sample Lua
+if(${HAS_LUA})
+	file(GLOB GLOB_SAMPLELUA ${SAMPLE_BIND_PATH}/luabind/*.cpp)
+	set(SRC_SAMPLELUA
+		${SAMPLE_ROOT}/samplemain.cpp
+	
+		${SAMPLE_BIND_PATH}/testscriptbindmetadata.cpp
+	
+		${GLOB_SAMPLELUA}
+	)
+
+	add_executable(
+		${TARGET_SAMPLELUA}
+		EXCLUDE_FROM_ALL
+			${SRC_SAMPLELUA}
+	)
+
+	set_target_properties(
+		${TARGET_SAMPLELUA}
+		PROPERTIES
+		OUTPUT_NAME ${OUTNAME_SAMPLELUA}
+		COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
+	)
+
+	target_link_libraries(${TARGET_SAMPLELUA} ${TARGET_LIB} ${LUA_LIB})
+endif(${HAS_LUA})
+
+
+# sample opengl
+if(${HAS_GLUT})
+	file(GLOB GLOB_SAMPLEOPENGL ${SAMPLE_ROOT}/opengl/*.cpp)
+	set(SRC_SAMPLEOPENGL
+		${GLOB_SAMPLEOPENGL}
+		
+		${SRC_PATH}/metadata/opengl/gmetadata_openglut.cpp
+		${TEST_PATH}/scriptbind/bind_common.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata1.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata2.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata3.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata4.cpp
+	)
+
+	add_executable(
+		${TARGET_SAMPLEOPENGL}
+		EXCLUDE_FROM_ALL
+			${SRC_SAMPLEOPENGL}
+	)
+
+	include_directories(${GLUT_INC})
+
+	set_target_properties(
+		${TARGET_SAMPLEOPENGL}
+		PROPERTIES
+		OUTPUT_NAME ${OUTNAME_SAMPLEOPENGL}
+		COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
+	)
+
+	add_definitions(-DFREEGLUT_EXPORTS)
+	
+	target_link_libraries(${TARGET_SAMPLEOPENGL} ${TARGET_LIB} ${GLUT_LIB} ${LUA_LIB} ${V8_LIB})
+endif(${HAS_GLUT})
+
+
+# sample Box2D
+if(${HAS_BOX2D})
+	file(GLOB GLOB_SAMPLEBOX2D ${SAMPLE_ROOT}/box2d/*.cpp)
+	file(GLOB GLOB_METABOX2D ${SRC_PATH}/metadata/box2d/*.cpp)
+	set(SRC_SAMPLEBOX2D
+		${GLOB_SAMPLEBOX2D}
+		${GLOB_METABOX2D}
+		
+		${SAMPLE_ROOT}/opengl/registergl.cpp
+		${SAMPLE_ROOT}/opengl/registerglu.cpp
+		${SAMPLE_ROOT}/opengl/registerglut.cpp
+		${SAMPLE_ROOT}/opengl/registerglut2.cpp
+		${SAMPLE_ROOT}/opengl/registerglut3.cpp
+		
+		${SRC_PATH}/metadata/opengl/gmetadata_openglut.cpp
+		${TEST_PATH}/scriptbind/bind_common.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata1.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata2.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata3.cpp
+		${TEST_PATH}/scriptbind/testscriptbindmetadata4.cpp
+	)
+
+	add_executable(
+		${TARGET_SAMPLEBOX2D}
+		EXCLUDE_FROM_ALL
+			${SRC_SAMPLEBOX2D}
+	)
+
+	include_directories(${GLUT_INC})
+	include_directories(${BOX2D_INC})
+
+	set_target_properties(
+		${TARGET_SAMPLEBOX2D}
+		PROPERTIES
+		OUTPUT_NAME ${OUTNAME_SAMPLEBOX2D}
+		COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
+	)
+
+	add_definitions(-DFREEGLUT_EXPORTS)
+	
+	target_link_libraries(${TARGET_SAMPLEBOX2D} ${TARGET_LIB} ${GLUT_LIB} ${BOX2D_LIB} ${LUA_LIB} ${V8_LIB})
+endif(${HAS_BOX2D})
+

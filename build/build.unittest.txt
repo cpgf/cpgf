@@ -1,0 +1,198 @@
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
+	if(TEST_GCOV)
+		set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0 -fprofile-arcs -ftest-coverage")
+	endif(TEST_GCOV)
+
+	if(SUPPORT_GCC_0X)
+		if(MINGW)
+			set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=gnu++0x")
+		endif(MINGW)
+
+		if(NOT MINGW)
+			set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=c++0x")
+		endif(NOT MINGW)
+	endif(SUPPORT_GCC_0X)
+
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(MSVC)
+	set(UNITTEST_COMPILE_FLAGS "-W4 -Wp64 -bigobj")
+endif(MSVC)
+
+
+
+### unit test
+
+set(HAS_UNITTEST 1)
+if((not DEFINED UNIT_TEST_DIR) OR (UNIT_TEST_DIR STREQUAL ""))
+	set(HAS_UNITTEST 0)
+endif((not DEFINED UNIT_TEST_DIR) OR (UNIT_TEST_DIR STREQUAL ""))
+
+if(${HAS_UNITTEST})
+	find_file(UTEST_EXIST
+		NAMES "UnitTest++.h"
+		PATHS ${UNIT_TEST_DIR}/src NO_DEFAULT_PATH
+	)
+
+	if(${UTEST_EXIST} STREQUAL "UTEST_EXIST-NOTFOUND")
+		set(HAS_UNITTEST 0)
+
+		message(WARNING "Can't find UnitTest++ in ${UNIT_TEST_DIR}")
+	endif(${UTEST_EXIST} STREQUAL "UTEST_EXIST-NOTFOUND")
+endif(${HAS_UNITTEST})
+
+macro(globAndAppendFiles fileList)
+	set(globAndAppendFiles_patterns ${ARGN})
+	file(GLOB temp ${globAndAppendFiles_patterns})
+	list(APPEND ${fileList} ${temp})
+endmacro()
+
+macro(partUnitTest target)
+	set(partUnitTest_patterns ${ARGN})
+
+	set(UNITTEST_FRAMEWORK_SUBDIR Posix)
+	if(WIN32)
+		set(UNITTEST_FRAMEWORK_SUBDIR Win32)
+	endif(WIN32)
+
+	set(fileList ${TEST_PATH}/testmain.cpp)
+	
+	globAndAppendFiles(fileList
+		${UNIT_TEST_DIR}/src/*.cpp
+		${UNIT_TEST_DIR}/src/${UNITTEST_FRAMEWORK_SUBDIR}/*.cpp
+	)
+
+	globAndAppendFiles(fileList ${partUnitTest_patterns})
+
+	add_executable(
+		${target}
+		EXCLUDE_FROM_ALL
+			${fileList}
+	)
+
+	set_target_properties(
+		${target}
+		PROPERTIES
+		OUTPUT_NAME ${target}
+		COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
+	)
+	target_link_libraries(${target} ${TARGET_LIB} ${LUA_LIB} ${V8_LIB})
+endmacro()
+
+if(${HAS_UNITTEST})
+	partUnitTest("test_misc"
+		${TEST_PATH}/misc/*.cpp
+		${TEST_PATH}/callback/*.cpp
+	)
+
+	partUnitTest("test_reflection"
+		${TEST_PATH}/reflection/*.cpp
+	)
+
+	partUnitTest("test_scriptbind"
+		${TEST_PATH}/scriptbind/*.cpp
+		${TEST_PATH}/scriptbind/general/*.cpp
+		${TEST_PATH}/scriptbind/luabind/*.cpp
+		${TEST_PATH}/scriptbind/v8bind/*.cpp
+	)
+
+	partUnitTest("test_metadata_stl"
+		${TEST_PATH}/scriptbind/*.cpp
+		${TEST_PATH}/scriptbind/metadata/stl/*.cpp
+	)
+
+	partUnitTest("test_serialization"
+		${TEST_PATH}/serialization/*.cpp
+	)
+
+	if(HAS_LUA LESS 1)
+		message(WARNING "Can't find Lua for unit test. Unit test will not include Lua binding test.")
+	endif(HAS_LUA LESS 1)
+
+	if(HAS_V8 LESS 1)
+		message(WARNING "Can't find V8 for unit test. Unit test will not include V8 binding test.")
+	endif(HAS_V8 LESS 1)
+
+
+	set(UNITTEST_FRAMEWORK_SUBDIR Posix)
+
+	if(WIN32)
+		set(UNITTEST_FRAMEWORK_SUBDIR Win32)
+	endif(WIN32)
+
+	globAndAppendFiles(SRC_UNITTEST_FRAMEWORK
+		${UNIT_TEST_DIR}/src/*.cpp
+		${UNIT_TEST_DIR}/src/${UNITTEST_FRAMEWORK_SUBDIR}/*.cpp
+	)
+
+	globAndAppendFiles(GLOB_TEST_SRC
+		${TEST_PATH}/misc/*.cpp
+		${TEST_PATH}/reflection/*.cpp
+		${TEST_PATH}/callback/*.cpp
+		${TEST_PATH}/scriptbind/*.cpp
+		${TEST_PATH}/scriptbind/general/*.cpp
+		${TEST_PATH}/scriptbind/metadata/*.cpp
+		${TEST_PATH}/scriptbind/metadata/stl/*.cpp
+		${TEST_PATH}/serialization/*.cpp
+	)
+
+	set(GLOB_TEST_LUA )
+	if(HAS_LUA)
+		globAndAppendFiles(GLOB_TEST_LUA
+			${TEST_PATH}/scriptbind/luabind/*.cpp
+		)
+	endif(HAS_LUA)
+
+	set(GLOB_TEST_V8 )
+	if(HAS_V8)
+		globAndAppendFiles(GLOB_TEST_V8
+			${TEST_PATH}/scriptbind/v8bind/*.cpp
+		)
+	endif(HAS_V8)
+
+	set(SRC_TEST_SRC
+		${TEST_PATH}/testmain.cpp
+		
+		${GLOB_TEST_SRC}
+
+		${GLOB_TEST_LUA}
+		${GLOB_TEST_V8}
+		
+		${SRC_LIB}
+
+		${SRC_UNITTEST_FRAMEWORK}
+	)
+
+	include_directories(${UNIT_TEST_DIR}/src)
+
+	add_definitions(-DENABLE_LUA=${HAS_LUA} -DENABLE_V8=${HAS_V8})
+
+	add_executable(
+		${TARGET_UNITTEST}
+		EXCLUDE_FROM_ALL
+			${SRC_TEST_SRC}
+	)
+
+	if(CMAKE_COMPILER_IS_GNUCC)
+		if(TEST_GCOV)
+			target_link_libraries(${TARGET_UNITTEST} gcov)
+		endif(TEST_GCOV)
+	endif(CMAKE_COMPILER_IS_GNUCC)
+
+	if(HAS_LUA)
+		target_link_libraries(${TARGET_UNITTEST} ${LUA_LIB})
+	endif(HAS_LUA)
+	if(HAS_V8)
+		target_link_libraries(${TARGET_UNITTEST} ${V8_LIB})
+	endif(HAS_V8)
+	
+	set_target_properties(
+		${TARGET_UNITTEST}
+		PROPERTIES
+		OUTPUT_NAME ${OUTNAME_UNITTEST}
+		COMPILE_FLAGS ${UNITTEST_COMPILE_FLAGS}
+	)
+
+endif(${HAS_UNITTEST})
+

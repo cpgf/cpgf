@@ -1,0 +1,117 @@
+set(TARGET_LIB lib)
+set(OUTNAME_LIB cpgf)
+
+set(SRC_META
+	${SRC_PATH}/gapiutil.cpp
+	${SRC_PATH}/gbytearray.cpp
+	${SRC_PATH}/gexception.cpp
+	${SRC_PATH}/gmetaannotation.cpp
+	${SRC_PATH}/gmetaapi.cpp
+	${SRC_PATH}/gmetaclass.cpp
+	${SRC_PATH}/gmetaclasstraveller.cpp
+	${SRC_PATH}/gmetacommon.cpp
+	${SRC_PATH}/gmetaenum.cpp
+	${SRC_PATH}/gmetaextendtype.cpp
+	${SRC_PATH}/gmetafield.cpp
+	${SRC_PATH}/gmetafundamental.cpp
+	${SRC_PATH}/gmetamethod.cpp
+	${SRC_PATH}/gmetaoperator.cpp
+	${SRC_PATH}/gmetaproperty.cpp
+	${SRC_PATH}/gmetamodule.cpp
+	${SRC_PATH}/gmetatype.cpp
+	${SRC_PATH}/gvariant.cpp
+
+	${SRC_PATH}/scriptbind/gbindcommon.cpp
+	${SRC_PATH}/scriptbind/gscriptbind.cpp
+	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
+	${SRC_PATH}/scriptbind/gscriptbindutil.cpp
+	${SRC_PATH}/scriptbind/gscriptrunner.cpp
+	
+	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
+	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
+	${SRC_PATH}/metatraits/gmetaserializer_string.cpp
+	${SRC_PATH}/metatraits/gmetaserializer_trapall.cpp
+	
+	${SRC_PATH}/serialization/gmetaarchivecommon.cpp
+	${SRC_PATH}/serialization/gmetaarchivereader.cpp
+	${SRC_PATH}/serialization/gmetaarchivetypemap.cpp
+	${SRC_PATH}/serialization/gmetaarchivewriter.cpp
+	${SRC_PATH}/serialization/gmetastorage_json.cpp
+	${SRC_PATH}/serialization/gmetastorage_textstream.cpp
+	${SRC_PATH}/serialization/gmetastorage_xml.cpp
+	
+	${SRC_PATH}/thirdparty/jsoncpp/json_reader.cpp
+	${SRC_PATH}/thirdparty/jsoncpp/json_value.cpp
+	${SRC_PATH}/thirdparty/jsoncpp/json_writer.cpp
+)
+
+set(SRC_LUA_BIND )
+set(SRC_V8_BIND )
+set(SRC_GLUT )
+
+if(${HAS_LUA})
+	set(SRC_LUA_BIND
+		${SRC_PATH}/scriptbind/gluabind.cpp
+		${SRC_PATH}/scriptbind/gluarunner.cpp
+	)
+endif(${HAS_LUA})
+
+if(${HAS_V8})
+	set(SRC_V8_BIND
+		${SRC_PATH}/scriptbind/gv8bind.cpp
+		${SRC_PATH}/scriptbind/gv8runner.cpp
+	)
+endif(${HAS_V8})
+
+set(SRC_LIB
+	${SRC_META}
+	
+	${SRC_LUA_BIND}
+	${SRC_V8_BIND}
+)
+
+
+include_directories(../include)
+if(${HAS_LUA})
+	include_directories(${LUA_INC})
+endif(${HAS_LUA})
+
+if(${HAS_V8})
+	include_directories(${V8_INC})
+endif(${HAS_V8})
+
+
+
+set(LIB_COMPILE_FLAGS " ")
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(LIB_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
+
+	if(SUPPORT_GCC_0X)
+		if(MINGW)
+			set(LIB_COMPILE_FLAGS "${LIB_COMPILE_FLAGS} -std=gnu++0x")
+		endif(MINGW)
+
+		if(NOT MINGW)
+			set(LIB_COMPILE_FLAGS "${LIB_COMPILE_FLAGS} -std=c++0x")
+		endif(NOT MINGW)
+	endif(SUPPORT_GCC_0X)
+
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(MSVC)
+	set(LIB_COMPILE_FLAGS "-W4 -Wp64")
+endif(MSVC)
+
+add_library(
+	${TARGET_LIB}
+		STATIC
+		${SRC_LIB}
+)
+
+set_target_properties(
+	${TARGET_LIB}
+	PROPERTIES
+	OUTPUT_NAME ${OUTNAME_LIB}
+	ARCHIVE_OUTPUT_DIRECTORY ${LIB_PATH}
+	COMPILE_FLAGS ${LIB_COMPILE_FLAGS}
+)

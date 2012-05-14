@@ -1,0 +1,25 @@
+set(CMAKE_BUILD_TYPE Release)
+
+if(${BUILD_DEBUG})
+	set(CMAKE_BUILD_TYPE Debug)
+	message(STATUS "Build as debug.")
+endif(${BUILD_DEBUG})
+
+set(TARGET_UNITTEST test)
+
+set(OUTNAME_UNITTEST test)
+
+set(ROOT_PATH ${PROJECT_SOURCE_DIR}/..)
+set(BIN_PATH ${PROJECT_SOURCE_DIR}/bin)
+set(LIB_PATH ${ROOT_PATH}/lib)
+
+set(SRC_PATH ${ROOT_PATH}/src)
+
+set(TEST_PATH ${ROOT_PATH}/test)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN_PATH})
+
+if(MSVC)
+	add_definitions(-D_SECURE_SCL=0 -D_HAS_ITERATOR_DEBUGGING=0)
+endif(MSVC)
+
