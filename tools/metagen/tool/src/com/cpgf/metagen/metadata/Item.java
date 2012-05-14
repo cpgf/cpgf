@@ -167,6 +167,16 @@ public class Item {
 	public void setOwner(CppClass owner) {
 		this.owner = owner;
 	}
+	
+	public CppClass getRootOwner() {
+		CppClass owner = this.owner;
+
+		while(owner.getOwner() != null) {
+			owner = owner.getOwner();
+		}
+
+		return owner;
+	}
 
 	public boolean isConstructor() {
 		return this.getCategory() == EnumCategory.Constructor;

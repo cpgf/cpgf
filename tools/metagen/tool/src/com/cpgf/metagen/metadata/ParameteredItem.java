@@ -75,13 +75,13 @@ public class ParameteredItem extends Item {
 		return false;
 	}
 
-	public void removeParameter(String name) {
+	public void removeParameter(String paramName) {
 		for(int i = 0; i < this.parameterList.size(); ++i) {
 			Parameter param = this.parameterList.get(i);
-			if(param.getName().equals(name)) {
+			if(param.getName().equals(paramName)) {
 				this.parameterList.remove(i);
 				
-				return;
+				break;
 			}
 		}
 	}
@@ -90,6 +90,25 @@ public class ParameteredItem extends Item {
 		this.parameterList.remove(index);
 	}
 
+	public void setParameterDefaultValue(String paramName, String value) {
+		for(int i = 0; i < this.parameterList.size(); ++i) {
+			Parameter param = this.parameterList.get(i);
+			if(param.getName().equals(paramName)) {
+				param.setDefaultValue(value);
+				
+				break;
+			}
+		}
+	}
+
+	public void setParameterDefaultValueAt(int index, String value) {
+		if(index < 0) {
+			index += this.parameterList.size();
+		}
+		Parameter param = this.parameterList.get(index);
+		param.setDefaultValue(value);
+	}
+	
 	@Override
 	public void replaceInType(String pattern, String substitute)
 	{

@@ -12,7 +12,7 @@
 #include "cpgf/gtypetraits.h"
 #include "cpgf/gmetapolicy.h"
 
-#include "boost/type_traits/is_convertible.hpp"
+//#include "boost/type_traits/is_convertible.hpp"
 #include "SFML/Graphics.hpp"
 
 //#include "wx/string.h"

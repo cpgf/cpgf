@@ -8,13 +8,17 @@ import com.cpgf.metagen.Util;
 import com.cpgf.metagen.codewriter.CppWriter;
 import com.cpgf.metagen.doxyxmlparser.FileInfo;
 import com.cpgf.metagen.metadata.CppClass;
+import com.cpgf.metagen.metadata.Item;
+import com.cpgf.metagen.metawriter.callback.IOutputCallback;
+import com.cpgf.metagen.metawriter.callback.OutputCallbackData;
 
 public class MetaFileWriter {
 	private FileInfo fileInfo;
 	private Config config;
 	private List<CppClass> classList;
 	private String sourceFileName;
-	
+	private OutputCallbackData callbackData;
+
 	public MetaFileWriter(Config config, String sourceFileName, FileInfo fileInfo) {
 		this.sourceFileName = sourceFileName;
 		this.fileInfo = fileInfo;
@@ -25,6 +29,20 @@ public class MetaFileWriter {
 	
 	public void addClass(CppClass cppClass) {
 		this.classList.add(cppClass);
+	}
+
+	private void doCallback(Item item) {
+		IOutputCallback callback = this.config.metaOutputCallback;
+
+		if(callback != null) {
+			this.callbackData = new OutputCallbackData();
+			callback.outputCallback(item, this.callbackData);
+		}
+		else {
+			if(this.callbackData == null) {
+				this.callbackData = new OutputCallbackData();
+			}
+		}
 	}
 
 	public void writeHeader() throws Exception {
@@ -51,13 +69,23 @@ public class MetaFileWriter {
 
 		List<CppClass>  sortedClassList = Util.sortClassList(this.classList);
 		for(CppClass cppClass : sortedClassList) {
-			if(! cppClass.canGenerateMetaCode()) {
+			this.doCallback(cppClass);
+
+			if(this.callbackData.isSkipBind()) {
 				continue;
 			}
 			
+			if(! cppClass.canGenerateMetaCode()) {
+				continue;
+			}
+
 			MetaClassWriter writer = new MetaClassWriter(this.config, codeWriter, cppClass);
 			
 			String funcName = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
+			
+			if(this.callbackData.getHeaderCode() != null) {
+				codeWriter.out(this.callbackData.getHeaderCode() + "\n\n");
+			}
 
 			this.beginMetaFunction(codeWriter, funcName);
 			writer.write();
@@ -111,6 +139,12 @@ public class MetaFileWriter {
 		
 		List<CppClass>  sortedClassList = Util.sortClassList(this.classList);
 		for(CppClass cppClass : sortedClassList) {
+			this.doCallback(cppClass);
+
+			if(this.callbackData.isSkipBind()) {
+				continue;
+			}
+			
 			if(! cppClass.canGenerateMetaCode()) {
 				continue;
 			}
@@ -121,6 +155,10 @@ public class MetaFileWriter {
 
 			String funcName = this.createFunctionName(cppClass, this.config.metaClassCreatePrefix);
 			createFunctionNames.add(funcName);
+
+			if(this.callbackData.getSourceCode() != null) {
+				codeWriter.out(this.callbackData.getSourceCode() + "\n\n");
+			}
 
 			codeWriter.out("GDefineMetaInfo " + funcName + "()\n");
 			
