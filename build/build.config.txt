@@ -42,6 +42,12 @@ set(HAS_BOX2D
 	1
 )
 
+# whether we have SFML library
+set(HAS_SFML
+	1
+)
+
+
 
 ### Lua config
 
@@ -116,4 +122,37 @@ if(MSVC)
 endif(MSVC)
 
 set(BOX2D_INC ${BOX2D_DIR}/)
+
+
+
+
+### SFML config
+
+set(SFML_DIR
+	e:/SourceCode/cpp/SFML-1.6
+)
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(SFML_LIB_DIR ${SFML_DIR}/lib/gcc)
+	set(SFML_LIB
+		${SFML_LIB_DIR}/libsfml-audio-d.a
+		${SFML_LIB_DIR}/libsfml-graphics-d.a
+		${SFML_LIB_DIR}/libsfml-network-d.a
+		${SFML_LIB_DIR}/libsfml-system-d.a
+		${SFML_LIB_DIR}/libsfml-window-d.a
+	)
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(MSVC)
+	set(SFML_LIB_DIR ${SFML_DIR}/lib/vc2008)
+	set(SFML_LIB
+		${SFML_LIB_DIR}/sfml-audio-d.lib
+		${SFML_LIB_DIR}/sfml-graphics-d.lib
+		${SFML_LIB_DIR}/sfml-network-d.lib
+		${SFML_LIB_DIR}/sfml-system-d.lib
+		${SFML_LIB_DIR}/sfml-window-d.lib
+	)
+endif(MSVC)
+
+set(SFML_INC ${SFML_DIR}/include)
+
 

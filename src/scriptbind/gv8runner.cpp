@@ -6,6 +6,9 @@
 
 #include "v8.h"
 
+#include <stdexcept>
+
+
 using namespace v8;
 
 namespace cpgf {
@@ -85,8 +88,7 @@ void GV8ScriptRunnerImplement::executeString(const char * code)
 
 void GV8ScriptRunnerImplement::error(const char * message) const
 {
-	fprintf(stderr, "%s\n", message);
-	throw message;
+	throw std::runtime_error(message);
 }
 
 

@@ -1,8 +1,8 @@
 var config = {
 	projectID : "sfml",
 
-	headerOutput : "cpp/include",
-	sourceOutput : "cpp/src",
+	headerOutput : "../../../include/cpgf/metadata/sfml",
+	sourceOutput : "../../../src/metadata/sfml",
 	
 	metaOutputCallback : processCallback,
 	
@@ -21,7 +21,7 @@ var config = {
 	metaNamespace : "sfml",
 	sourceHeaderCode : "#include \"SFML/Audio.hpp\"" + "\n#include \"SFML/Config.hpp\"" + "\n#include \"SFML/Graphics.hpp\"" + "\n#include \"SFML/Network.hpp\"" + "\n#include \"SFML/System.hpp\"" + "\n#include \"SFML/Window.hpp\"",
 	sourceHeaderReplacer : doHeaderReplace,
-	metaHeaderPath : "",
+	metaHeaderPath : "cpgf/metadata/sfml/",
 	
 	classTraits : [
 		{ pattern : ".*\\b[io]stream$", traits : { copyConstructorHidden : true }  },
@@ -48,7 +48,7 @@ function processCallback(item, data)
 		var owner = item.getOwner();
 		if(owner) {
 			if(owner.getPrimaryName() == "Font") {
-				// The default parameter is using private member in Font, we can't use it.
+				// The default parameter is using private member in Font, we can't use it directly.
 				if(item.getPrimaryName() == "LoadFromFile" || item.getPrimaryName() == "LoadFromMemory") {
 					item.setParameterDefaultValueAt(-1, "cpgf_meta_ourDefaultCharset");
 				}

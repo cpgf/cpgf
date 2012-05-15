@@ -24,7 +24,7 @@ public:
 
 public:
 	void executeString(const char * code);
-	void executeFile(const char * fileName);
+	bool executeFile(const char * fileName);
 
 	IScriptObject * getScripeObject();
 

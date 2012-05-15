@@ -6,6 +6,9 @@
 
 #include "cpgf/metadata/util/gmetadata_bytearray.h"
 
+#include <iostream>
+
+
 using namespace cpgf;
 using namespace std;
 

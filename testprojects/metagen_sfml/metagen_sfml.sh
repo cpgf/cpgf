@@ -1,2 +1,0 @@
-#java -cp ../js.jar -jar ../metagen.jar --config config.sfml.js --xml xml/index.xml
-java -cp "../../tools/metagen/tool/bin;../../tools/metagen/js.jar" metagen --config config.sfml.js --xml xml/index.xml

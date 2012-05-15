@@ -7,7 +7,7 @@ function doMain()
 	var MyPai = 3.14159;
 
 	// Create the window of the application
-	var App = new sfml.RenderWindow(new sfml.VideoMode(800, 600, 32), "SFML Pong");
+	var App = new sfml.RenderWindow(new sfml.VideoMode(800, 600, 32), "SFML Pong -- cpgf SFML binding demo -- V8 Javascript");
 
 	// Load the sounds used in the game
 	var BallSoundBuffer = new sfml.SoundBuffer();

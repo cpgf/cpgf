@@ -6,6 +6,8 @@
 
 #include "lua.hpp"
 
+#include <stdexcept>
+
 
 namespace cpgf {
 
@@ -54,7 +56,7 @@ void GLuaScriptRunnerImplement::executeString(const char * code)
 void GLuaScriptRunnerImplement::checkError(int errorCode) const
 {
 	if(errorCode != 0) {
-		throw lua_tostring(this->luaState, -1);
+		throw std::runtime_error(lua_tostring(this->luaState, -1));
 	}
 }
 

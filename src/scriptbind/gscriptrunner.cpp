@@ -62,11 +62,14 @@ void GScriptRunner::executeString(const char * code)
 	this->implement->executeString(code);
 }
 
-void GScriptRunner::executeFile(const char * fileName)
+bool GScriptRunner::executeFile(const char * fileName)
 {
 	ifstream stream;
 
 	stream.open(fileName, ios::binary);
+	if(! stream.good()) {
+		return false;
+	}
 	stream.seekg(0, ios::end);
 	long len = stream.tellg();
 	stream.clear();
@@ -78,6 +81,8 @@ void GScriptRunner::executeFile(const char * fileName)
 	buffer[len] = 0;
 
 	this->implement->executeString(buffer.get());
+	
+	return true;
 }
 
 IScriptObject * GScriptRunner::getScripeObject()
