@@ -82,7 +82,7 @@ public class MetagenMain {
 
 			metaInfo.fixup();
 
-			MetaWriter metaWriter = new MetaWriter(config, metaInfo.getClassList(), fileMap);
+			MetaWriter metaWriter = new MetaWriter(config, metaInfo, fileMap);
 			metaWriter.write();
 
 			RunStats.report();

@@ -161,9 +161,6 @@ public class CppClass extends ParameteredItem {
 	}
 	
 	public boolean canGenerateMetaCode() {
-		if(this.isTemplate()) {
-			return false;
-		}
 		return this.constructorList.size() > 0
 				|| this.fieldList.size() > 0
 				|| this.methodList.size() > 0

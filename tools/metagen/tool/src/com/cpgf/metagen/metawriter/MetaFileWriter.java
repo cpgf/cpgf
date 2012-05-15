@@ -9,17 +9,22 @@ import com.cpgf.metagen.codewriter.CppWriter;
 import com.cpgf.metagen.doxyxmlparser.FileInfo;
 import com.cpgf.metagen.metadata.CppClass;
 import com.cpgf.metagen.metadata.Item;
+import com.cpgf.metagen.metadata.MetaInfo;
+import com.cpgf.metagen.metadata.Parameter;
+import com.cpgf.metagen.metadata.TemplateInstance;
 import com.cpgf.metagen.metawriter.callback.IOutputCallback;
 import com.cpgf.metagen.metawriter.callback.OutputCallbackData;
 
 public class MetaFileWriter {
 	private FileInfo fileInfo;
 	private Config config;
+	private MetaInfo metaInfo;
 	private List<CppClass> classList;
 	private String sourceFileName;
 	private OutputCallbackData callbackData;
 
-	public MetaFileWriter(Config config, String sourceFileName, FileInfo fileInfo) {
+	public MetaFileWriter(Config config, MetaInfo metaInfo, String sourceFileName, FileInfo fileInfo) {
+		this.metaInfo = metaInfo;
 		this.sourceFileName = sourceFileName;
 		this.fileInfo = fileInfo;
 		this.config = config;
@@ -87,7 +92,7 @@ public class MetaFileWriter {
 				codeWriter.out(this.callbackData.getHeaderCode() + "\n\n");
 			}
 
-			this.beginMetaFunction(codeWriter, funcName);
+			this.beginMetaFunction(codeWriter, funcName, cppClass);
 			writer.write();
 			this.endMetaFunction(codeWriter);
 			
@@ -149,8 +154,13 @@ public class MetaFileWriter {
 				continue;
 			}
 			
+			List<TemplateInstance> templateInstanceList = null;
+			
 			if(cppClass.isTemplate()) {
-				continue;
+				templateInstanceList = this.metaInfo.findTemplateInstances(cppClass);
+				if(templateInstanceList == null) {
+					continue;
+				}
 			}
 
 			String funcName = this.createFunctionName(cppClass, this.config.metaClassCreatePrefix);
@@ -164,11 +174,8 @@ public class MetaFileWriter {
 			
 			codeWriter.beginBlock();
 
-			WriterUtil.createMetaClass(this.config, codeWriter, cppClass, "_d");
-			
 			String callFunc = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
-			codeWriter.out(callFunc + "(0, _d, NULL);\n");
-			codeWriter.out("return _d.getMetaInfo();\n");
+			WriterUtil.createMetaClass(codeWriter, cppClass, "_d", callFunc, templateInstanceList);
 			
 			codeWriter.endBlock();
 
@@ -192,8 +199,14 @@ public class MetaFileWriter {
 		return prefix + className;
 	}
 
-	private void beginMetaFunction(CppWriter codeWriter, String name) {
-		codeWriter.out("template <typename D>\n");
+	private void beginMetaFunction(CppWriter codeWriter, String name, CppClass cppClass) {
+		codeWriter.out("template <typename D");
+		if(cppClass.isTemplate()) {
+			for(Parameter param : cppClass.getTemplateParameterList()) {
+				codeWriter.out(", typename " + param.getName());
+			}
+		}
+		codeWriter.out(">\n");
 		codeWriter.out("void " + name + "(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)\n");
 		codeWriter.beginBlock();
 		codeWriter.out("(void)config; (void)_d; (void)_r; (void)_d;\n");

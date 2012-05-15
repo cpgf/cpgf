@@ -29,7 +29,13 @@ var config = {
 		{ pattern : ".*\\bUTF\\d+String$", traits : { hasTypeConvertConstructor : true }  },
 	],
 
-	parseFileNameCallback : doParseFileNameCallback
+	parseFileNameCallback : doParseFileNameCallback,
+
+	predefinedTemplateInstances : [
+		"Rect<int>", "Rect<float>",
+		"Vector2<int>", "Vector2<float>",
+		"Vector3<int>", "Vector3<float>",
+	]
 };
 
 var re_doHeaderReplace = new RegExp(".*include/SFML", "i");

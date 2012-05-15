@@ -10,6 +10,7 @@ import com.cpgf.metagen.codewriter.CppWriter;
 import com.cpgf.metagen.metadata.CppClass;
 import com.cpgf.metagen.metadata.Item;
 import com.cpgf.metagen.metadata.Parameter;
+import com.cpgf.metagen.metadata.TemplateInstance;
 
 public class WriterUtil {
 
@@ -85,24 +86,57 @@ public class WriterUtil {
 		}
 	}
 
-	public static void createMetaClass(Config config, CodeWriter codeWriter, CppClass cppClass, String varName) {
+	public static void createMetaClass(CppWriter codeWriter, CppClass cppClass, String varName, String callFunc, List<TemplateInstance> templateInstanceList) {
 		List<String> rules = new ArrayList<String>();
 		cppClass.getPolicyRules(rules);
 		
 		if(cppClass.isGlobal()) {
 			codeWriter.out("GDefineMetaGlobalDangle " + varName + " = GDefineMetaGlobalDangle::dangle();\n");
+			
+			codeWriter.out(callFunc + "(0, _d, NULL);\n");
+			codeWriter.out("return _d.getMetaInfo();\n");
 		}
 		else {
-			String typeName = "GDefineMetaClass<" + cppClass.getLiteralName();
-			
-			typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
-			
-			typeName = typeName + ">";
-			String policy = "";
-			if(rules != null && rules.size() > 0) {
-				policy = "::Policy<MakePolicy<" + Util.joinStringList(", ", rules) + "> >";
+			if(cppClass.isTemplate()) {
+				codeWriter.out("GDefineMetaGlobalDangle " + varName + " = GDefineMetaGlobalDangle::dangle();\n");
+
+				for(TemplateInstance templateInstance : templateInstanceList) {
+					codeWriter.beginBlock();
+					
+					String typeName = "GDefineMetaClass<" + templateInstance.getFullType();
+					
+					typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
+					
+					typeName = typeName + " >";
+					String policy = "";
+					if(rules != null && rules.size() > 0) {
+						policy = "::Policy<MakePolicy<" + Util.joinStringList(", ", rules) + "> >";
+					}
+					codeWriter.out(typeName +  " _nd = " + typeName + policy + "::declare(\"" + templateInstance.getFullType() + "\");\n");
+					
+					codeWriter.out(callFunc + "<" + typeName + ", " + templateInstance.getTemplateType() + " >(0, _nd, NULL);\n");
+					codeWriter.out(varName + "._class(_nd);\n");
+
+					codeWriter.endBlock();
+				}
+				
+				codeWriter.out("return _d.getMetaInfo();\n");
 			}
-			codeWriter.out(typeName +  " " + varName + " = " + typeName + policy + "::declare(\"" + cppClass.getPrimaryName() + "\");\n");
+			else {
+				String typeName = "GDefineMetaClass<" + cppClass.getLiteralName();
+				
+				typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
+				
+				typeName = typeName + ">";
+				String policy = "";
+				if(rules != null && rules.size() > 0) {
+					policy = "::Policy<MakePolicy<" + Util.joinStringList(", ", rules) + "> >";
+				}
+				codeWriter.out(typeName +  " " + varName + " = " + typeName + policy + "::declare(\"" + cppClass.getPrimaryName() + "\");\n");
+				
+				codeWriter.out(callFunc + "(0, _d, NULL);\n");
+				codeWriter.out("return _d.getMetaInfo();\n");
+			}
 		}
 	}
 	

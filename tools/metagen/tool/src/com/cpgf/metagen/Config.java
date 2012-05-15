@@ -62,7 +62,7 @@ public class Config {
 
 	// Header file extension.
 	public String headerExtension = ".h";
-	
+
 	// Source file extension.
 	public String sourceExtension = ".cpp";
 
@@ -88,5 +88,7 @@ public class Config {
 	public String metaNamespace = null;
 	
 	public PredefinedClassTraitsList classTraits = new PredefinedClassTraitsList();
+	
+	public String[] predefinedTemplateInstances = {};
 
 }

@@ -11,12 +11,15 @@ public class MetaInfo {
     private List<CppClass> classList;
 	private TypeSolver typeSolver;
     private List<CppClass> allClassList;
+    private List<TemplateInstance> templateInstanceList;
 
     public MetaInfo(Config config) {
     	this.config = config;
     	
         this.classList = new ArrayList<CppClass>();
 		this.typeSolver = new TypeSolver(this, this.config.classTraits);
+		
+		this.templateInstanceList = new ArrayList<TemplateInstance>();
     }
 
     public List<CppClass> getClassList() {
@@ -38,6 +41,27 @@ public class MetaInfo {
     		if(! c.isGlobal()) {
     			c.resolveTypesForClass();
     		}
+    	}
+    	
+    	this.doFixupTemplateInstances();
+    }
+    
+    private void doFixupTemplateInstances() {
+    	for(String fullType : this.config.predefinedTemplateInstances) {
+    		this.doFixupTemplateInstance(fullType);
+    	}
+    }
+    
+    private void doFixupTemplateInstance(String fullType) {
+    	int index = fullType.indexOf('<');
+    	if(index <= 0) { // can't be first character too.
+    		return;
+    	}
+    	
+    	String name = fullType.substring(0, index).trim();
+    	CppClass cppClass = this.typeSolver.getCppClass(name);
+    	if(cppClass != null) {
+    		this.templateInstanceList.add(new TemplateInstance(fullType, cppClass));
     	}
     }
     
@@ -149,5 +173,19 @@ public class MetaInfo {
 		}
 		
 		return null;
+	}
+	
+	public List<TemplateInstance> findTemplateInstances(CppClass cppClass) {
+		List<TemplateInstance> list = null;
+		for(TemplateInstance templateInstance : this.templateInstanceList) {
+			if(templateInstance.getTemplateClass() == cppClass) {
+				if(list == null) {
+					list = new ArrayList<TemplateInstance>();
+				}
+				list.add(templateInstance);
+			}
+		}
+
+		return list;
 	}
 }

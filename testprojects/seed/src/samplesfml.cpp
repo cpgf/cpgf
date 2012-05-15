@@ -2,6 +2,7 @@
 #include "cpgf/scriptbind/gv8runner.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"
 #include "cpgf/gmetaapi.h"
+#include "cpgf/gmetadefine.h"
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gapiutil.h"
 
@@ -10,6 +11,7 @@
 #include <cmath>
 #include <iostream>
 
+using namespace std;
 using namespace cpgf;
 
 //	"var clock = new sfml.Clock();"
@@ -18,7 +20,7 @@ const char * jsCode = ""
 	"sfml.Sleep(3);"
 ;
 
-int test()
+int doTest()
 {
 	// Defines PI
 	const float PI = 3.14159f;
@@ -46,8 +48,8 @@ int test()
 
     // Load the text font
     sf::Font Cheeseburger;
-//    if (!Cheeseburger.LoadFromFile("datas/post-fx/cheeseburger.ttf"))
-//        return EXIT_FAILURE;
+    if (!Cheeseburger.LoadFromFile("datas/post-fx/cheeseburger.ttf"))
+        return EXIT_FAILURE;
 
 	// Initialize the end text
 	sf::String End;
@@ -194,21 +196,36 @@ int test()
 	return 0;
 }
 
+void scriptTrace(const char * s)
+{
+	cout << "script message: " << s << endl;
+}
+
 void run(GScriptRunner * runner)
 {
-	test(); return;
+//	doTest(); return;
 
 	GScopedInterface<IMetaService> service(runner->getService());
 	GScopedInterface<IScriptObject> scriptObject(runner->getScripeObject());
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("sfml"));
 	scriptObject->bindClass("sfml", metaClass.get());
+	
+	metaClass.reset(service->findClassByName("test"));
+	scriptObject->bindClass("test", metaClass.get());
 
 //	runner->executeString(jsCode);
-	runner->executeFile("D:\\projects\\cpgf\\trunk\\testprojects\\seed\\sfml.js");
+	runner->executeFile("..\\..\\sfml.js");
 }
 
 void samplemain()
 {
+	GDefineMetaGlobal()
+		._class(
+			GDefineMetaNamespace::declare("test")
+				._method("scriptTrace", &scriptTrace)
+		)
+	;
+
 	GScopedPointer<GScriptRunner> runner;
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
 

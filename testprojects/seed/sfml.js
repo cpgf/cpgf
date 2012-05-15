@@ -33,8 +33,8 @@ function doMain()
 
 	// Load the text font
 	var Cheeseburger = new sfml.Font();
-//	if (!Cheeseburger.LoadFromFile("datas/post-fx/cheeseburger.ttf"))
-//		return EXIT_FAILURE;
+	if (!Cheeseburger.LoadFromFile("datas/post-fx/cheeseburger.ttf"))
+		return EXIT_FAILURE;
 
 	// Initialize the end text
 	var End = new sfml.String();
@@ -59,26 +59,26 @@ function doMain()
 	var LeftPaddleSpeed  = 400.0;
 	var RightPaddleSpeed = 400.0;
 
-/*
+
 	// Define the ball properties
 	var BallSpeed = 400.0;
 	var BallAngle;
 	do
 	{
 		// Make sure the ball initial angle is not too much vertical
-		BallAngle = sfml.Randomizer::Random(0.0, 2 * MyPai);
-	} while (std::abs(std::cos(BallAngle)) < 0.7);
+		BallAngle = sfml.Randomizer.Random(0.0, 2 * MyPai);
+	} while(Math.abs(Math.cos(BallAngle)) < 0.7);
 
-	bool IsPlaying = true;
-	while (App.IsOpened())
+	var IsPlaying = true;
+	while(App.IsOpened())
 	{
 		// Handle events
-		sfml.Event Event;
+		var Event = new sfml.Event();
 		while (App.GetEvent(Event))
 		{
 			// Window closed or escape key pressed : exit
-			if ((Event.Type == sfml.Event::Closed) || 
-			   ((Event.Type == sfml.Event::KeyPressed) && (Event.Key.Code == sfml.Key::Escape)))
+			if ((Event.Type == sfml.Event.Closed) || 
+			   ((Event.Type == sfml.Event.KeyPressed) && (Event.Key.Code == sfml.Escape)))
 			{
 				App.Close();
 				break;
@@ -88,16 +88,16 @@ function doMain()
 		if (IsPlaying)
 		{
 			// Move the player's paddle
-			if (App.GetInput().IsKeyDown(sfml.Key::Up) && (LeftPaddle.GetPosition().y > 5.f))
-				LeftPaddle.Move(0.f, -LeftPaddleSpeed * App.GetFrameTime());
-			if (App.GetInput().IsKeyDown(sfml.Key::Down) && (LeftPaddle.GetPosition().y < App.GetView().GetRect().GetHeight() - LeftPaddle.GetSize().y - 5.f))
-				LeftPaddle.Move(0.f, LeftPaddleSpeed * App.GetFrameTime());
+			if (App.GetInput().IsKeyDown(sfml.Up) && (LeftPaddle.GetPosition().y > 5.0))
+				LeftPaddle.Move(0.0, -LeftPaddleSpeed * App.GetFrameTime());
+			if (App.GetInput().IsKeyDown(sfml.Down) && (LeftPaddle.GetPosition().y < App.GetView().GetRect().GetHeight() - LeftPaddle.GetSize().y - 5.0))
+				LeftPaddle.Move(0.0, LeftPaddleSpeed * App.GetFrameTime());
 
 			// Move the computer's paddle
-			if (((RightPaddleSpeed < 0.f) && (RightPaddle.GetPosition().y > 5.f)) ||
-				((RightPaddleSpeed > 0.f) && (RightPaddle.GetPosition().y < App.GetView().GetRect().GetHeight() - RightPaddle.GetSize().y - 5.f)))
+			if (((RightPaddleSpeed < 0.0) && (RightPaddle.GetPosition().y > 5.0)) ||
+				((RightPaddleSpeed > 0.0) && (RightPaddle.GetPosition().y < App.GetView().GetRect().GetHeight() - RightPaddle.GetSize().y - 5.0)))
 			{
-				RightPaddle.Move(0.f, RightPaddleSpeed * App.GetFrameTime());
+				RightPaddle.Move(0.0, RightPaddleSpeed * App.GetFrameTime());
 			}
 
 			// Update the computer's paddle direction according to the ball position
@@ -111,11 +111,11 @@ function doMain()
 			}
 
 			// Move the ball
-			float Factor = BallSpeed * App.GetFrameTime();
-			Ball.Move(std::cos(BallAngle) * Factor, std::sin(BallAngle) * Factor);
+			var Factor = BallSpeed * App.GetFrameTime();
+			Ball.Move(Math.cos(BallAngle) * Factor, Math.sin(BallAngle) * Factor);
 
 			// Check collisions between the ball and the screen
-			if (Ball.GetPosition().x < 0.f)
+			if (Ball.GetPosition().x < 0.0)
 			{
 				IsPlaying = false;
 				End.SetText("You lost !\n(press escape to exit)");
@@ -125,41 +125,43 @@ function doMain()
 				IsPlaying = false;
 				End.SetText("You won !\n(press escape to exit)");
 			}
-			if (Ball.GetPosition().y < 0.f)
+			if (Ball.GetPosition().y < 0.0)
 			{
 				BallSound.Play();
 				BallAngle = -BallAngle;
-				Ball.SetY(0.1f);
+				Ball.SetY(0.1);
 			}
+
 			if (Ball.GetPosition().y + Ball.GetSize().y > App.GetView().GetRect().GetHeight())
 			{
 				BallSound.Play();
 				BallAngle = -BallAngle;
-				Ball.SetY(App.GetView().GetRect().GetHeight() - Ball.GetSize().y - 0.1f);
+				Ball.SetY(App.GetView().GetRect().GetHeight() - Ball.GetSize().y - 0.1);
 			}
 
 			// Check the collisions between the ball and the paddles
 			// Left Paddle
 			if (Ball.GetPosition().x < LeftPaddle.GetPosition().x + LeftPaddle.GetSize().x && 
-				Ball.GetPosition().x > LeftPaddle.GetPosition().x + (LeftPaddle.GetSize().x / 2.0f) &&
+				Ball.GetPosition().x > LeftPaddle.GetPosition().x + (LeftPaddle.GetSize().x / 2.0) &&
 				Ball.GetPosition().y + Ball.GetSize().y >= LeftPaddle.GetPosition().y &&
 				Ball.GetPosition().y <= LeftPaddle.GetPosition().y + LeftPaddle.GetSize().y)
 			{
 				BallSound.Play();
 				BallAngle = MyPai - BallAngle;
-				Ball.SetX(LeftPaddle.GetPosition().x + LeftPaddle.GetSize().x + 0.1f);
+				Ball.SetX(LeftPaddle.GetPosition().x + LeftPaddle.GetSize().x + 0.1);
 			}
 
 			// Right Paddle
 			if (Ball.GetPosition().x + Ball.GetSize().x > RightPaddle.GetPosition().x &&
-				Ball.GetPosition().x + Ball.GetSize().x < RightPaddle.GetPosition().x + (RightPaddle.GetSize().x / 2.0f) &&
+				Ball.GetPosition().x + Ball.GetSize().x < RightPaddle.GetPosition().x + (RightPaddle.GetSize().x / 2.0) &&
 				Ball.GetPosition().y + Ball.GetSize().y >= RightPaddle.GetPosition().y &&
 				Ball.GetPosition().y <= RightPaddle.GetPosition().y + RightPaddle.GetSize().y)
 			{
 				BallSound.Play();
 				BallAngle = MyPai - BallAngle;
-				Ball.SetX(RightPaddle.GetPosition().x - Ball.GetSize().x - 0.1f);
+				Ball.SetX(RightPaddle.GetPosition().x - Ball.GetSize().x - 0.1);
 			}
+		
 		}
 
 		// Clear the window
@@ -179,6 +181,5 @@ function doMain()
 		App.Display();
 	}
 
-	*/
 }
 

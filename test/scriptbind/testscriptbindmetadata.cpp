@@ -7,6 +7,7 @@
 #include "testscriptbindmetadata.h"
 
 #include <string>
+#include <iostream>
 
 
 using namespace cpgf;

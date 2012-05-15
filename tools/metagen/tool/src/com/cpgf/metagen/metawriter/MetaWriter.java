@@ -10,15 +10,18 @@ import com.cpgf.metagen.codewriter.CppWriter;
 import com.cpgf.metagen.doxyxmlparser.FileInfo;
 import com.cpgf.metagen.doxyxmlparser.FileMap;
 import com.cpgf.metagen.metadata.CppClass;
+import com.cpgf.metagen.metadata.MetaInfo;
 
 public class MetaWriter {
 	private List<MetaFileWriter> fileWriterList;
+	private MetaInfo metaInfo;
 	private List<CppClass> classList;
 	private Config config;
 	private FileMap fileMap;
 
-	public MetaWriter(Config config, List<CppClass> classList, FileMap fileMap) {
-		this.classList = classList;
+	public MetaWriter(Config config, MetaInfo metaInfo, FileMap fileMap) {
+		this.metaInfo = metaInfo;
+		this.classList = this.metaInfo.getClassList();
 		this.fileMap = fileMap;
 		this.config = config;
 
@@ -159,6 +162,7 @@ public class MetaWriter {
 			if(! locationFileWriterMap.containsKey(key)) {
 				MetaFileWriter fileWriter = new MetaFileWriter(
 					this.config,
+					this.metaInfo,
 					location,
 					fileInfo
 				);

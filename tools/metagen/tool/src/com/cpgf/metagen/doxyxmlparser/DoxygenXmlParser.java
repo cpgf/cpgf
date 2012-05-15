@@ -380,9 +380,20 @@ public class DoxygenXmlParser {
 		}
 
 		for(Node child : Util.getChildNodesByName(node, "param")) {
+			String baseType = Util.getNodeText(Util.getNode(child, "type"));
+			String array = Util.getNodeText(Util.getNode(child, "array"));
+			String name = Util.getNodeText(Util.getNode(child, "declname"));
+			
+			if(name == null) {
+				name = baseType;
+				name = name.replaceAll("\\btypename\\b", "");
+				name = name.replaceAll("\\bclass\\b", "");
+				name = name.trim();
+			}
+
 			Parameter param = new Parameter(
-					Util.getNodeText(Util.getNode(child, "declname")),
-					this.getType(child),
+					name,
+					new CppType(this.metaInfo.getTypeSolver(), baseType, array),
 					Util.getNodeText(Util.getNode(child, "defval")),
 					item
 				);

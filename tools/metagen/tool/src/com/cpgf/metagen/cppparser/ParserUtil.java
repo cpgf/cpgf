@@ -1,6 +1,8 @@
 package com.cpgf.metagen.cppparser;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -246,6 +248,67 @@ public class ParserUtil {
 	
 	public static String composePolicyRuleForParameter(String rule, int parameterIndex) {
 		return rule + "<" + parameterIndex + ">";
+	}
+
+	// split the string by delimiter, the delimiter in brackets or quote marks is not counted
+	public static int splitDelimitedString(List<String> tokenList, String s, char delimiter, int startIndex) {
+		String leftBrackets = "{[<(";
+		String rightBrackets = "}]>)";
+		String brackets = leftBrackets + rightBrackets + "\"'";
+		Deque<Character> bracketStack = new ArrayDeque<Character>();
+		String token = "";
+		boolean hasToken = false;
+		for(; startIndex < s.length(); ++startIndex) {
+			char c = s.charAt(startIndex);
+			
+			if(c == delimiter) {
+				if(bracketStack.size() == 0) {
+					tokenList.add(token.trim());
+					token = "";
+					hasToken = false;
+					continue;
+				}
+			}
+			
+			if(brackets.indexOf(c) >= 0) {
+				if(bracketStack.size() > 0) {
+					char openingBracket = bracketStack.peekLast().charValue();
+					if(openingBracket == '"' || openingBracket == '\'') {
+						if(c == openingBracket) {
+							bracketStack.pop();
+						}
+					}
+					else {
+						if(rightBrackets.indexOf(c) >= 0) {
+							if(leftBrackets.indexOf(openingBracket) == rightBrackets.indexOf(c)) {
+								bracketStack.pop();
+							}
+							else {
+								break; // orphan bracket
+							}
+						}
+						else {
+							bracketStack.push(c);
+						}
+					}
+				}
+				else {
+					if(rightBrackets.indexOf(c) >= 0) {
+						break; // orphan bracket
+					}
+					bracketStack.push(c);
+				}
+			}
+			
+			token = token + c;
+			hasToken = true;
+		}
+		
+		if(hasToken) {
+			tokenList.add(token.trim());
+		}
+		
+		return startIndex;
 	}
 
 }

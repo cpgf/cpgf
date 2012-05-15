@@ -316,13 +316,17 @@ public class MetaClassWriter {
 			}
 
 			boolean isStatic = item.isStatic();
+			String op = item.getOperator();
+			
 			int realParamCount = item.getParameterList().size();
 			if(! isStatic) {
 				++realParamCount;
 			}
-
-			String op = item.getOperator();
 			
+			if(op.equals("->")) {
+				realParamCount = 2;
+			}
+
 			boolean isTypeConvert = op.matches(".*\\w+.*"); // && realParamCount == 1; // type convert T()
 			String opText = "";
 			

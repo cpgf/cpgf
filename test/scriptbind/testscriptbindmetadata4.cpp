@@ -13,6 +13,11 @@ namespace testscript {
 
 GScopedInterface<IScriptFunction> testScriptFunction;
 
+void scriptTrace(const char * s)
+{
+	cout << "script message: " << s << endl;
+}
+
 int testAddCallback2(void *)
 {
 	return 0;
@@ -92,6 +97,7 @@ void TestScriptBindMetaData4()
 	buildMetaData_byteArray(byteArrayDefine);
 
 	GDefineMetaGlobal()
+		._method("scriptTrace", &scriptTrace)
 		._method("scriptAssert", &scriptAssert)
 		._method("scriptNot", &scriptNot)
 		._method("testAdd2", &testAdd2)

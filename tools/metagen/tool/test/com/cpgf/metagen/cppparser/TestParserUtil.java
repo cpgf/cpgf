@@ -211,4 +211,42 @@ public class TestParserUtil {
 		assertEquals(tokenList.get(1).getToken(), "def");
 	}
 
+	@Test
+	public void testSplitDelimitedString() {
+		char delimiter = ',';
+		List<String> tokenList;
+		int endIndex;
+		String s;
+		
+		tokenList = new ArrayList<String>();
+		s = "";
+		endIndex = ParserUtil.splitDelimitedString(tokenList, s, delimiter, 0);
+		assertEquals(tokenList.size(), 0);
+		assertEquals(endIndex, s.length());
+		
+		tokenList = new ArrayList<String>();
+		s = "abc  , def";
+		endIndex = ParserUtil.splitDelimitedString(tokenList, s, delimiter, 0);
+		assertEquals(tokenList.size(), 2);
+		assertEquals(endIndex, s.length());
+		assertEquals(tokenList.get(0), "abc");
+		assertEquals(tokenList.get(1), "def");
+		
+		tokenList = new ArrayList<String>();
+		s = "abc <x, y, z>  , def";
+		endIndex = ParserUtil.splitDelimitedString(tokenList, s, delimiter, 0);
+		assertEquals(tokenList.size(), 2);
+		assertEquals(endIndex, s.length());
+		assertEquals(tokenList.get(0), "abc <x, y, z>");
+		assertEquals(tokenList.get(1), "def");
+		
+		tokenList = new ArrayList<String>();
+		s = "abc <x, y, z>  , def }";
+		endIndex = ParserUtil.splitDelimitedString(tokenList, s, delimiter, 0);
+		assertEquals(tokenList.size(), 2);
+		assertEquals(endIndex, s.length() - 1);
+		assertEquals(tokenList.get(0), "abc <x, y, z>");
+		assertEquals(tokenList.get(1), "def");
+	}
+	
 }

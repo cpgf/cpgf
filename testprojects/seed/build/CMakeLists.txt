@@ -88,6 +88,7 @@ set(SRC_META
 	${SRC_PATH}/scriptbind/gscriptbind.cpp
 	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
 	${SRC_PATH}/scriptbind/gscriptbindutil.cpp
+	${SRC_PATH}/scriptbind/gscriptrunner.cpp
 	
 	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
 	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
@@ -107,7 +108,8 @@ set(SRC_META
 	${SRC_PATH}/thirdparty/jsoncpp/json_writer.cpp
 	
 #	${SRC_PATH}/scriptbind/gluabind.cpp
-#	${SRC_PATH}/scriptbind/gv8bind.cpp
+	${SRC_PATH}/scriptbind/gv8bind.cpp
+	${SRC_PATH}/scriptbind/gv8runner.cpp
 )
 
 include_directories(
@@ -166,4 +168,10 @@ set_target_properties(
 target_link_libraries(
 	${TARGET}
 #	${CPP_SOURCE_PATH}/wxWidgets/lib/gcc_dll/libwxmsw29u.a
+	${CPP_SOURCE_PATH}/V8/libv8.a
+	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-audio-d.a
+	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-graphics-d.a
+	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-network-d.a
+	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-system-d.a
+	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-window-d.a
 )

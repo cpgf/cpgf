@@ -6,7 +6,6 @@ CH_DIR = @cmake -E chdir
 ECHO = @cmake -E echo
 
 MK_CACHE = $(MK_DIR) $(CACHE_DIR)
-EXEC_CMAKE = $(CH_DIR) $(CACHE_DIR) $(CMAKE)
 EXEC_BUILD = $(CH_DIR) $(CACHE_DIR)
 
 PROJECT=cpgf
@@ -44,38 +43,39 @@ none: needcmake
 	$(ECHO) 
 	$(ECHO) "Optional TargetToMake"
 	$(ECHO) 
-	$(ECHO) "  TARGET=lib               Build the library. This is the default if TARGET is omitted."
-	$(ECHO) "  TARGET=test              Build the unit test."
-	$(ECHO) "  TARGET=samplereflection  Build the reflection sample application."
-	$(ECHO) "  TARGET=samplelua         Build the Lua binding sample application."
-	$(ECHO) "  TARGET=sampleopengl      Build the Opengl binding sample application."
-	$(ECHO) "  TARGET=samplebox2d       Build the Box2D binding sample application."
-	
+	$(ECHO) "  TARGET=lib                   Build the library. This is the default if TARGET is omitted."
+	$(ECHO) "  TARGET=test                  Build the unit test."
+	$(ECHO) "  TARGET=samplereflection      Build the reflection sample application."
+	$(ECHO) "  TARGET=sampleserialization   Build the serialization sample application."
+	$(ECHO) "  TARGET=samplelua             Build the Lua binding sample application."
+	$(ECHO) "  TARGET=sampleopengl          Build the Opengl binding sample application."
+	$(ECHO) "  TARGET=samplebox2d           Build the Box2D binding sample application."
+
 needcmake:
 	$(ECHO)
 
 auto: needcmake
-	$(MK_CACHE)
-	$(EXEC_CMAKE)
-	$(EXEC_BUILD) make $(TARGET)
+	$(MK_CACHE)_auto
+	$(CH_DIR) $(CACHE_DIR)_auto $(CMAKE)
+	$(EXEC_BUILD)_auto make $(TARGET)
 
 mingw: needcmake
-	$(MK_CACHE)
-	$(EXEC_CMAKE) -G"MinGW Makefiles"
-	$(EXEC_BUILD) mingw32-make $(TARGET)
+	$(MK_CACHE)_mingw
+	$(CH_DIR) $(CACHE_DIR)_mingw $(CMAKE) -G"MinGW Makefiles"
+	$(EXEC_BUILD)_mingw mingw32-make $(TARGET)
 
 nmake: needcmake
 	$(ECHO) NOTE: *****************************
 	$(ECHO) NOTE: If cmake raises errors, try run this in Visual Studio Command Prompt from the VS package.
 	$(ECHO) NOTE: *****************************
-	$(MK_CACHE)
-	$(EXEC_CMAKE) -G"NMake Makefiles"
-	$(EXEC_BUILD) nmake $(TARGET)
+	$(MK_CACHE)_nmake
+	$(CH_DIR) $(CACHE_DIR)_nmake $(CMAKE) -G"NMake Makefiles"
+	$(EXEC_BUILD)_nmake nmake $(TARGET)
 
 linux: needcmake
-	$(MK_CACHE)
-	$(EXEC_CMAKE) -G"Unix Makefiles"
-	$(EXEC_BUILD) make $(TARGET)
+	$(MK_CACHE)_linux
+	$(CH_DIR) $(CACHE_DIR)_linux $(CMAKE) -G"Unix Makefiles"
+	$(EXEC_BUILD)_linux make $(TARGET)
 
 vc05: needcmake
 	$(MK_DIR) $(PROJECT_PREFIX)_vc05
