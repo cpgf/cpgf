@@ -175,7 +175,7 @@ public class MetaFileWriter {
 			codeWriter.beginBlock();
 
 			String callFunc = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
-			WriterUtil.createMetaClass(codeWriter, cppClass, "_d", callFunc, templateInstanceList);
+			WriterUtil.createMetaClass(codeWriter, cppClass, callFunc, templateInstanceList);
 			
 			codeWriter.endBlock();
 

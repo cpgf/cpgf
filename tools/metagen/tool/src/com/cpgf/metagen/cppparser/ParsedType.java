@@ -200,7 +200,7 @@ public class ParsedType {
 					if(nextToken.getKind() == EnumTypeTokenKind.RightSquare) {
 						break;
 					}
-					
+
 					if(dim.length() > 0) {
 						dim = dim + " ";
 					}
