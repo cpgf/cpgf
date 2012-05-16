@@ -2,6 +2,7 @@ package com.cpgf.metagen;
 
 import com.cpgf.metagen.metadata.EnumCategory;
 import com.cpgf.metagen.metadata.PredefinedClassTraitsList;
+import com.cpgf.metagen.metawriter.callback.IInputCallback;
 import com.cpgf.metagen.metawriter.callback.IOutputCallback;
 import com.cpgf.metagen.metawriter.callback.IParseFileName;
 import com.cpgf.metagen.metawriter.callback.ISourceHeaderReplacer;
@@ -55,6 +56,8 @@ public class Config {
 	// Choosing it carefully will avoid namespace clash.
 	// null for no namespace.
 	public String cppNamespace = null;
+	
+	public IInputCallback metaInputCallback = null;
 
 	// A callback sub routine.
 	// See Box2D generator scripts for details.

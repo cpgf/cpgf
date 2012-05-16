@@ -11,18 +11,22 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 
 import com.cpgf.metagen.metadata.ClassTraits;
+import com.cpgf.metagen.metadata.CppClass;
 import com.cpgf.metagen.metadata.Item;
+import com.cpgf.metagen.metawriter.callback.IInputCallback;
 import com.cpgf.metagen.metawriter.callback.IOutputCallback;
 import com.cpgf.metagen.metawriter.callback.IParseFileName;
 import com.cpgf.metagen.metawriter.callback.ISourceHeaderReplacer;
+import com.cpgf.metagen.metawriter.callback.InputCallbackData;
 import com.cpgf.metagen.metawriter.callback.OutputCallbackData;
 
-public class JavascriptConfigLoader implements IOutputCallback, ISourceHeaderReplacer, IParseFileName {
+public class JavascriptConfigLoader implements IInputCallback, IOutputCallback, ISourceHeaderReplacer, IParseFileName {
 	private static Context context;
 	private static Scriptable scope;
 	private Config config;
 	
 	private Function jsReplaceSourceHeader;
+	private Function jsInputCallback;
 	private Function jsOutputCallback;
 	private Function jsHandleParseFileName;
 	
@@ -37,6 +41,14 @@ public class JavascriptConfigLoader implements IOutputCallback, ISourceHeaderRep
 			headerName = (String)(this.jsReplaceSourceHeader.call(context, scope, scope, args));
 		}
 		return headerName;
+	}
+
+	@Override
+	public void inputCallback(CppClass cppClass, InputCallbackData data) {
+		if(this.jsInputCallback != null) {
+			Object[] args = { cppClass, data };
+			this.jsInputCallback.call(context, scope, scope, args);
+		}
 	}
 
 	@Override
@@ -209,6 +221,18 @@ public class JavascriptConfigLoader implements IOutputCallback, ISourceHeaderRep
 	}
 
 	private boolean checkCallbackField(Field field, String propertyName, Object value) throws Exception {
+		if(field.getType().equals(IInputCallback.class)) {
+			if(value != null) {
+				if(! (value instanceof Function)) {
+					this.error("Property " + propertyName + " must be a function.");
+				}
+
+				this.jsInputCallback = (Function)value;
+				this.config.metaInputCallback = this;
+			}
+			return true;
+		}
+
 		if(field.getType().equals(IOutputCallback.class)) {
 			if(value != null) {
 				if(! (value instanceof Function)) {

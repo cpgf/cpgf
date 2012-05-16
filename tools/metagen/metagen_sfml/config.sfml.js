@@ -4,7 +4,8 @@ var config = {
 	headerOutput : "../../../include/cpgf/metadata/sfml",
 	sourceOutput : "../../../src/metadata/sfml",
 	
-	metaOutputCallback : processCallback,
+	metaInputCallback : inputCallback,
+	metaOutputCallback : outputCallback,
 	
 	cppNamespace : "meta_sfml",
 	
@@ -38,9 +39,20 @@ var config = {
 	]
 };
 
-var re_doHeaderReplace = new RegExp(".*include/SFML", "i");
+var re_Win32 = new RegExp("(.*)/Win32/(.*)", "i");
+var re_Unix = new RegExp("/Unix/", "i");
 
-function processCallback(item, data)
+function inputCallback(cppClass, data)
+{
+	var loc = new String(cppClass.getLocation());
+
+	if(loc.match(re_Win32)) {
+		loc = loc.replace(re_Win32, "$1/$2");
+		cppClass.setLocation(loc);
+	}
+}
+
+function outputCallback(item, data)
 {
 	item.replaceInType("\\bSFML_API\\b", "");
 
@@ -77,9 +89,11 @@ function processCallback(item, data)
 	}
 }
 
+var re_doHeaderReplace = new RegExp(".*include/SFML", "i");
+
 function doHeaderReplace(fileName)
 {
-	return fileName.replace(re_doHeaderReplace, "SFML").replace("Unix", "Win32");
+	return new String(fileName).replace(re_doHeaderReplace, "SFML").replace("Unix", "Win32");
 }
 
 function doParseFileNameCallback(fileName)
