@@ -8,6 +8,7 @@ import com.cpgf.metagen.Util;
 import com.cpgf.metagen.codewriter.CppWriter;
 import com.cpgf.metagen.doxyxmlparser.FileInfo;
 import com.cpgf.metagen.metadata.CppClass;
+import com.cpgf.metagen.metadata.CppInvokable;
 import com.cpgf.metagen.metadata.Item;
 import com.cpgf.metagen.metadata.MetaInfo;
 import com.cpgf.metagen.metadata.Parameter;
@@ -50,6 +51,25 @@ public class MetaFileWriter {
 		}
 	}
 
+	private String getCallbackHelpFunctionName(CppInvokable invokable, int paramIndex) {
+		return "callbackHelper_" + invokable.getPrimaryName() + "_" + paramIndex;
+	}
+
+	private void doWriteCallbackHelpsInHeader(CppWriter writer, CppClass cppClass) {
+		List<CppInvokable> invokableList = cppClass.getAllInvokables();
+		for(CppInvokable invokable : invokableList) {
+			if(invokable.hasCallbackParameter()) {
+				int i = -1;
+				for(Parameter param : invokable.getParameterList()) {
+					++i;
+					if(param.getCallback() != null) {
+						writer.out(this.getCallbackHelpFunctionName(invokable, i));
+					}
+				}
+			}
+		}
+	}
+
 	public void writeHeader() throws Exception {
 		CppWriter codeWriter = new CppWriter();
 
@@ -83,8 +103,10 @@ public class MetaFileWriter {
 			if(! cppClass.canGenerateMetaCode()) {
 				continue;
 			}
+			
+			this.doWriteCallbackHelpsInHeader(codeWriter, cppClass);
 
-			MetaClassWriter writer = new MetaClassWriter(this.config, codeWriter, cppClass);
+			MetaClassWriter writer = new MetaClassWriter(this.config, cppClass);
 			
 			String funcName = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
 			
@@ -94,6 +116,7 @@ public class MetaFileWriter {
 
 			this.beginMetaFunction(codeWriter, funcName, cppClass);
 			writer.write();
+			codeWriter.out(writer.getCodeWriter());
 			this.endMetaFunction(codeWriter);
 			
 			codeWriter.out("\n\n");

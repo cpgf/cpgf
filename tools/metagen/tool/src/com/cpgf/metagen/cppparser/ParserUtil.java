@@ -5,8 +5,14 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.cpgf.metagen.Util;
+import com.cpgf.metagen.metadata.CppInvokable;
+import com.cpgf.metagen.metadata.CppType;
+import com.cpgf.metagen.metadata.EnumCategory;
+import com.cpgf.metagen.metadata.Parameter;
 
 public class ParserUtil {
 	public static List<String> splitTypeTokenLiterals(String statement) {
@@ -309,6 +315,40 @@ public class ParserUtil {
 		}
 		
 		return startIndex;
+	}
+
+	public static String getLastWord(String text) {
+		Matcher matcher = Pattern.compile(".*\\b([\\w\\d_]+)[^\\w\\d_]*$").matcher(text);
+		if(matcher.matches()) {
+			return matcher.group(1);
+		}
+		else {
+			return text.trim();
+		}
+	}
+	
+	public static CppInvokable parseFunctionType(String functionType) {
+		CppInvokable method = null;
+		
+		int leftBracketIndex = functionType.indexOf('(');
+		int rightBracketIndex = functionType.lastIndexOf(')');
+		
+		if(leftBracketIndex >= 0 && rightBracketIndex > 0) {
+			String resultType = functionType.substring(0, leftBracketIndex).trim();
+			method = new CppInvokable(EnumCategory.Method, null, new CppType(null, resultType));
+			String parameterText = functionType.substring(leftBracketIndex + 1, rightBracketIndex);
+			List<String> parameters = new ArrayList<String>();
+			splitDelimitedString(parameters, parameterText, ',', 0);
+			
+			for(String param : parameters) {
+				String name = getLastWord(param);
+				int n = param.lastIndexOf(name);
+				String type = param.substring(0, n).trim();
+				method.getParameterList().add(new Parameter(name, new CppType(null, type), null, null));
+			}
+		}
+
+		return method;
 	}
 
 }

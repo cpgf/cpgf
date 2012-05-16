@@ -156,7 +156,18 @@ public class MetaWriter {
 
 		InputCallbackData data = new InputCallbackData();
 		for(CppClass item : this.classList) {
+			String location = item.getLocation();
 			this.config.metaInputCallback.inputCallback(item, data);
+			String newLocation = item.getLocation();
+			
+			// If the location is changed, we must add all namespaces to the new location. 
+			if(!location.equals(newLocation)) {
+				FileInfo fileInfo = this.fileMap.getFileMap().get(location);
+				FileInfo newFileInfo = this.fileMap.getFileMap().get(newLocation);
+				if(newFileInfo != null && fileInfo != null) {
+					newFileInfo.appendNamespaces(fileInfo.getNamespaceList());
+				}
+			}
 		}
 	}
 	

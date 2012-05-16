@@ -10,12 +10,16 @@ public class CppType {
 
 	public CppType(TypeSolver typeSolver, String baseType) {
 		this.typeSolver = typeSolver;
-		this.parsedType = typeSolver.getParsedType(baseType);
+		if(typeSolver != null) {
+			this.parsedType = typeSolver.getParsedType(baseType);
+		}
 	}
 
 	public CppType(TypeSolver typeSolver, String baseType, String array) {
 		this.typeSolver = typeSolver;
-		this.parsedType = typeSolver.getParsedType(baseType + (array == null ? "" : array));
+		if(typeSolver != null) {
+			this.parsedType = typeSolver.getParsedType(baseType + (array == null ? "" : array));
+		}
 	}
 
 	public String getLiteralType() {

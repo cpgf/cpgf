@@ -249,4 +249,11 @@ public class TestParserUtil {
 		assertEquals(tokenList.get(1), "def");
 	}
 	
+	@Test
+	public void testGetLastWord() {
+		assertEquals(ParserUtil.getLastWord(""), "");
+		assertEquals(ParserUtil.getLastWord(" abc "), "abc");
+		assertEquals(ParserUtil.getLastWord("int def "), "def");
+	}
+	
 }

@@ -85,6 +85,16 @@ public class CppClass extends ParameteredItem {
 		return baseClassList;
 	}
 	
+	public List<CppInvokable> getAllInvokables() {
+		List<CppInvokable> list = new ArrayList<CppInvokable>();
+
+		list.addAll(this.constructorList);
+		list.addAll(this.methodList);
+		list.addAll(this.operatorList);
+
+		return list;
+	}
+	
 	public void addItem(Item item) {
 		switch(item.getCategory()) {
 		case Constructor:

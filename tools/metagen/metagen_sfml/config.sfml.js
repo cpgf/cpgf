@@ -87,6 +87,11 @@ function outputCallback(item, data)
 			data.addSourceCode("};");
 		}
 	}
+	else if(item.isConstructor()) {
+		if(item.getOwner().getPrimaryName() == "Thread" && item.hasParameter()) {
+			item.getParameterAt(0).setCallback("void (void * param)");
+		}
+	}
 }
 
 var re_doHeaderReplace = new RegExp(".*include/SFML", "i");

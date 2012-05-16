@@ -19,6 +19,7 @@ import com.cpgf.metagen.metadata.CppClass;
 import com.cpgf.metagen.metadata.DeferClass;
 import com.cpgf.metagen.metadata.EnumVisibility;
 import com.cpgf.metagen.metadata.Item;
+import com.cpgf.metagen.metadata.Parameter;
 
 public class Util {
 	private static int currentUniqueID = 0;
@@ -285,4 +286,24 @@ public class Util {
 		}
 	}
 
+	public static String getParameterText(List<Parameter> parameterList, boolean withType, boolean withName) {
+		String result = "";
+		
+		for(Parameter param : parameterList) {
+			if(result.length() > 0) {
+				result = result + ", ";
+			}
+			if(withType) {
+				result = result + param.getType().getLiteralType();
+			}
+			if(withName) {
+				if(withType) {
+					result = result + " ";
+				}
+				result = result + param.getName();
+			}
+		}
+		
+		return result;
+	}
 }

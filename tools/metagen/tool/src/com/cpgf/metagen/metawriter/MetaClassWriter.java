@@ -31,20 +31,24 @@ public class MetaClassWriter {
 
 	private OutputCallbackData callbackData;
 	
-	public MetaClassWriter(Config config, CppWriter codeWriter, CppClass cppClass) {
-		this.initialize(cppClass, codeWriter, config, "_d", "D::ClassType");
+	public MetaClassWriter(Config config, CppClass cppClass) {
+		this.initialize(cppClass, config, "_d", "D::ClassType");
 	}
 
-	public MetaClassWriter(Config config, CppWriter codeWriter, CppClass cppClass, String define, String classType) {
-		this.initialize(cppClass, codeWriter, config, define, classType);
+	public MetaClassWriter(Config config, CppClass cppClass, String define, String classType) {
+		this.initialize(cppClass, config, define, classType);
 	}
-	
-	private void initialize(CppClass cppClass, CppWriter codeWriter, Config config, String define, String classType) {
+
+	private void initialize(CppClass cppClass, Config config, String define, String classType) {
 		this.cppClass = cppClass;
-		this.codeWriter = codeWriter;
+		this.codeWriter = new CppWriter();
 		this.config = config;
 		this.define = define;
 		this.classType = classType;
+	}
+	
+	public CppWriter getCodeWriter() {
+		return this.codeWriter;
 	}
 	
 	private String getScopePrefix() {
@@ -408,12 +412,12 @@ public class MetaClassWriter {
 			WriterUtil.defineMetaClass(this.config, this.codeWriter, item, "_nd", "declare");
 			MetaClassWriter writer = new MetaClassWriter(
 				this.config,
-				this.codeWriter,
 				item,
 				"_nd",
 				item.getLiteralName()
 			);
 			writer.write();
+			this.codeWriter.out(writer.getCodeWriter());
 			this.codeWriter.out(action + "(_nd);\n");
 			
 			this.codeWriter.endBlock();

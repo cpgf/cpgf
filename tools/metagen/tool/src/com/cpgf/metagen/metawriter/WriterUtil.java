@@ -20,14 +20,7 @@ public class WriterUtil {
 	}
 
 	public static void writeParamList(CodeWriter writer, List<Parameter> paramList, boolean withName) {
-		boolean comma = false;
-		for(Parameter p : paramList) {
-			if(comma) {
-				writer.out(", ");
-			}
-			writeParam(writer, p, withName);
-			comma = true;
-		}
+		writer.out(Util.getParameterText(paramList, true, withName));
 	}
 
 	public static void writeDefaultParams(CodeWriter writer, List<Parameter> paramList) {
@@ -49,12 +42,6 @@ public class WriterUtil {
 			writer.decIndent();
 		}
 		writer.out(";\n");
-	}
-
-	public static void writeParam(CodeWriter writer, Parameter param, boolean withName) {
-		String type = param.getType().getLiteralType();
-		
-		writer.out(type + (withName ? " " + param.getName() : ""));
 	}
 
 	public static void defineMetaClass(Config config, CppWriter codeWriter, CppClass cppClass, String varName, String action) {

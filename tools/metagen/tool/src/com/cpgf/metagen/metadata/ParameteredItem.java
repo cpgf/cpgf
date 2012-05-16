@@ -11,13 +11,21 @@ public class ParameteredItem extends Item {
 
 	public ParameteredItem(EnumCategory category, String name) {
 		super(category, name);
-		
+
 		this.parameterList = new ArrayList<Parameter>();
 		this.templateParameterList = new ArrayList<Parameter>();
 	}
-	
+
 	public boolean hasParameter() {
 		return this.parameterList.size() > 0;
+	}
+	
+	public int getParameterCount() {
+		return this.parameterList.size();
+	}
+	
+	public Parameter getParameterAt(int index) {
+		return this.parameterList.get(index);
 	}
 
 	public List<Parameter> getParameterList() {
@@ -119,4 +127,13 @@ public class ParameteredItem extends Item {
 		}
 	}
 	
+	public boolean hasCallbackParameter() {
+		for(Parameter param : this.parameterList) {
+			if(param.getCallback() != null) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 }

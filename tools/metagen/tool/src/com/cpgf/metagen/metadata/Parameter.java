@@ -1,10 +1,15 @@
 package com.cpgf.metagen.metadata;
 
+import com.cpgf.metagen.MetaException;
+import com.cpgf.metagen.Util;
+import com.cpgf.metagen.cppparser.ParserUtil;
+
 public class Parameter {
 	private String name;
 	private CppType type;
 	private String defaultValue;
 	private ParameteredItem owner;
+	private CppInvokable callback; // used for callback in script binding
 
 	public Parameter(String name, CppType type, String defaultValue, ParameteredItem owner) {
 		this.name = name;
@@ -44,6 +49,20 @@ public class Parameter {
 
 	public void setOwner(ParameteredItem owner) {
 		this.owner = owner;
+	}
+
+	public CppInvokable getCallback() {
+		return callback;
+	}
+
+	public void setCallback(String functionType) throws MetaException {
+		this.callback = null;
+		if(functionType != null && functionType.length() > 0) {
+			this.callback = ParserUtil.parseFunctionType(functionType);
+			if(this.callback == null) {
+				Util.error("Function type is incorrect -- " + functionType);
+			}
+		}
 	}
 
 }

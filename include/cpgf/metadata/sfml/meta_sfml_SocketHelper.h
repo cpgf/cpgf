@@ -33,6 +33,19 @@ void buildMetaClass_Global_sockethelper(const cpgf::GMetaDataConfigFlags & confi
 }
 
 
+template <typename D>
+void buildMetaClass_SocketHelper(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+{
+    (void)config; (void)_d; (void)_r; (void)_d;
+    using namespace cpgf;
+    
+    _d.CPGF_MD_TEMPLATE _method(replaceName("InvalidSocket", _r), &D::ClassType::InvalidSocket);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("Close", _r), &D::ClassType::Close);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("SetBlocking", _r), &D::ClassType::SetBlocking);
+    _d.CPGF_MD_TEMPLATE _method(replaceName("GetErrorStatus", _r), &D::ClassType::GetErrorStatus);
+}
+
+
 } // namespace meta_sfml
 
 
