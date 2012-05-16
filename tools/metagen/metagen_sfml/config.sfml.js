@@ -84,7 +84,7 @@ function doHeaderReplace(fileName)
 
 function doParseFileNameCallback(fileName)
 {
-	if(fileName.indexOf("unix") >= 0) {
+	if(fileName.toLowerCase().indexOf("unix") >= 0) {
 		fileName = null;
 	}
 	

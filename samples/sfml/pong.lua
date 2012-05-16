@@ -1,7 +1,7 @@
 function doMain()
 
 	-- Defines MyPai
-	local MyPai = 3.14159;
+	local MyPai = 3.14159
 
 	-- Create the window of the application
 	local App = sfml.RenderWindow(sfml.VideoMode(800, 600, 32), "SFML Pong -- cpgf SFML binding demo -- Lua")

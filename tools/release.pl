@@ -18,7 +18,7 @@ my %defaultConfig = (
 	path => undef,
 	files => [],
 	excludePath => [],
-	excludeFile => [],
+	excludeFiles => [],
 	recursive => 1,
 	licenseHead => 1,
 );
@@ -62,7 +62,7 @@ my $patternList = [
 		%defaultConfig,
 
 		path => "samples",
-		files => [ '*.h', '*.cpp', 'readme*' ],
+		files => [ '*.h', '*.cpp', 'readme*', '*.js', '*.lua' ],
 		recursive => 1,
 	},
 
@@ -87,7 +87,8 @@ my $patternList = [
 
 		path => "tools/metagen",
 		files => [ '*' ],
-		excludePath => [ 'xml' ],
+		excludeFiles => [ '*.jar', '.classpath', '.project' ],
+		excludePath => [ 'xml', 'bin' ],
 		recursive => 1,
 	},
 
@@ -173,6 +174,7 @@ sub doProcessPattern
 		}
 
 		next unless(matchFileList($file, $pattern->{files}));
+		next if(matchFileList($file, $pattern->{excludeFiles}));
 
 		copy($file, $destFileName);
 		&processDestFile($pattern, $destFileName);
@@ -196,7 +198,7 @@ sub licenseFile
 {
 	my ($destFile) = @_;
 
-	if($destFile =~ /\.(h|cpp)$/i) {
+	if($destFile =~ /\.(h|cpp|java)$/i) {
 		$cppHeadContent = &FilePrefix::prefixLoadHeadContent('licensehead_apache.txt') unless defined $cppHeadContent;
 		&FilePrefix::prefixProcessFile($destFile, $cppHeadContent);
 	}

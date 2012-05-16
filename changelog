@@ -9,6 +9,7 @@ TBD version 1.4.1
 	Fixed a few compile errors when reflecting certain kind of classes.
 	Fixed a bug that cause crash on bad pointer when reflecting nested classes.
 	Fixed a bug that crashes when base class is not reflected in script binding.
+	Fixed a bug in Lua binding that treated nil as 0, not nil will be converted to (void *)0.
 
 2012-04-22 version 1.4.0
 	Added serialization library.

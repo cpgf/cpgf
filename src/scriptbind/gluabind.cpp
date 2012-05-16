@@ -569,7 +569,7 @@ GMetaVariant luaToVariant(lua_State * L, GScriptBindingParam * param, int index)
 
 	switch(type) {
 		case LUA_TNIL:
-			return 0;
+			return (void *)0;
 
 		case LUA_TNUMBER:
 			return lua_tonumber(L, index);
