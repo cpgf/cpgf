@@ -562,7 +562,7 @@ public:
 	GDefineMetaConstructor<ThisType> _constructor() {
 		return GDefineMetaConstructor<ThisType>(
 			this->metaClass,
-			this->metaClass->template addConstructor<ClassType, FT>(GMetaPolicyDefault())
+			this->metaClass->addConstructor(GMetaConstructor::newConstructor<ClassType, FT>(GMetaPolicyDefault()))
 		);
 	}
 
@@ -570,7 +570,23 @@ public:
 	GDefineMetaConstructor<ThisType> _constructor(const Policy & policy) {
 		return GDefineMetaConstructor<ThisType>(
 			this->metaClass,
-			this->metaClass->template addConstructor<ClassType, FT>(policy)
+			this->metaClass->addConstructor(GMetaConstructor::newConstructor<ClassType, FT>(policy))
+		);
+	}
+
+	template <typename FT>
+	GDefineMetaConstructor<ThisType> _constructor(const FT & func) {
+		return GDefineMetaConstructor<ThisType>(
+			this->metaClass,
+			this->metaClass->addConstructor(GMetaConstructor::newConstructor<ClassType, FT>(func, GMetaPolicyDefault()))
+		);
+	}
+
+	template <typename FT, typename Policy>
+	GDefineMetaConstructor<ThisType> _constructor(const FT & func, const Policy & policy) {
+		return GDefineMetaConstructor<ThisType>(
+			this->metaClass,
+			this->metaClass->addConstructor(GMetaConstructor::newConstructor<ClassType, FT>(func, policy))
 		);
 	}
 
@@ -640,7 +656,7 @@ public:
 	GDefineMetaConstructor<ThisType> _constructor() {
 		return GDefineMetaConstructor<ThisType>(
 			this->metaClass,
-			this->metaClass->template addConstructor<ClassType, FT>(GMetaPolicyDefault())
+			this->metaClass->addConstructor(GMetaConstructor::newConstructor<ClassType, FT>(GMetaPolicyDefault()))
 		);
 	}
 
@@ -648,7 +664,23 @@ public:
 	GDefineMetaConstructor<ThisType> _constructor(const Policy & policy) {
 		return GDefineMetaConstructor<ThisType>(
 			this->metaClass,
-			this->metaClass->template addConstructor<ClassType, FT>(policy)
+			this->metaClass->addConstructor(GMetaConstructor::newConstructor<ClassType, FT>(policy))
+		);
+	}
+
+	template <typename FT>
+	GDefineMetaConstructor<ThisType> _constructor(const FT & func) {
+		return GDefineMetaConstructor<ThisType>(
+			this->metaClass,
+			this->metaClass->addConstructor(GMetaConstructor::newConstructor<ClassType, FT>(func, GMetaPolicyDefault()))
+		);
+	}
+
+	template <typename FT, typename Policy>
+	GDefineMetaConstructor<ThisType> _constructor(const FT & func, const Policy & policy) {
+		return GDefineMetaConstructor<ThisType>(
+			this->metaClass,
+			this->metaClass->addConstructor(GMetaConstructor::newConstructor<ClassType, FT>(func, policy))
 		);
 	}
 

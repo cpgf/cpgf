@@ -62,22 +62,6 @@ public:
 
 	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
 
-	template <typename OT, typename Signature, typename Policy>
-	GMetaConstructor * addConstructor(const Policy & policy) {
-		if(this->isGlobal()) {
-			return NULL;
-		}
-		GMetaConstructor * metaConstructor = new GMetaConstructor(
-				GCallback<Signature>(
-					meta_internal::GMetaConstructorInvoker<GFunctionTraits<Signature>::Arity, OT, typename GFunctionTraits<Signature>::ArgList>()
-				),
-				policy
-			);
-		this->addItem(mcatConstructor, metaConstructor);
-
-		return metaConstructor;
-	}
-
 	const GMetaConstructor * getConstructorByParamCount(size_t paramCount) const;
 	size_t getConstructorCount() const;
 	const GMetaConstructor * getConstructorAt(size_t index) const;
@@ -160,6 +144,7 @@ public:
 	
 	void addDerivedClass(const GMetaClass * derived);
 
+	GMetaConstructor * addConstructor(GMetaConstructor * constructor);
 	GMetaField * addField(GMetaField * field);
 	GMetaProperty * addProperty(GMetaProperty * prop);
 	GMetaMethod * addMethod(GMetaMethod * method);

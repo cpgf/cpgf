@@ -79,6 +79,29 @@ private:
 	typedef GMetaCallable super;
 
 public:
+	template <typename OT, typename Signature, typename Policy>
+	static GMetaConstructor * newConstructor(const Policy & policy) {
+		GMetaConstructor * metaConstructor = new GMetaConstructor(
+				GCallback<Signature>(
+					meta_internal::GMetaConstructorInvoker<GFunctionTraits<Signature>::Arity, OT, typename GFunctionTraits<Signature>::ArgList>()
+				),
+				policy
+			);
+
+		return metaConstructor;
+	}
+
+	template <typename OT, typename FT, typename Policy>
+	static GMetaConstructor * newConstructor(const FT & func, const Policy & policy) {
+		GMetaConstructor * metaConstructor = new GMetaConstructor(
+				meta_internal::GMetaMethodCallbackMaker<OT, FT>::make(func),
+				policy
+			);
+
+		return metaConstructor;
+	}
+
+public:
 	template <typename CT, typename Policy>
 	GMetaConstructor(const CT & callback, const Policy & policy)
 		: super(meta_internal::arityToName(CT::TraitsType::Arity).c_str(), createMetaType<typename CT::TraitsType::FullType>(), mcatConstructor),

@@ -421,6 +421,12 @@ void GMetaClass::addDerivedClass(const GMetaClass * derived)
 	this->derivedList->push_back(derived);
 }
 
+GMetaConstructor * GMetaClass::addConstructor(GMetaConstructor * constructor)
+{
+	this->addItem(mcatConstructor, constructor);
+	return constructor;
+}
+
 GMetaField * GMetaClass::addField(GMetaField * field)
 {
 	this->addItem(mcatField, field);

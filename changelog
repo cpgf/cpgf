@@ -4,6 +4,7 @@ TBD version 1.4.1
 	Rewrite the tool metagen in Java.
 	Improved metagen to be able to handle more complicated classes.
 	Added script runner to make executing script easier.
+	Now a normal function can be reflected as meta constructor. Useful to hijack constructors in script binding.
 	Split CMakeLists.txt to several single files for better structure.
 	Added different temporary folders to CMake build.
 	Fixed a few compile errors when reflecting certain kind of classes.
