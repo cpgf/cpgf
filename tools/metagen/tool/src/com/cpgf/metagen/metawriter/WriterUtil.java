@@ -15,19 +15,19 @@ import com.cpgf.metagen.metadata.TemplateInstance;
 public class WriterUtil {
 
 	public static void writeCommentForAutoGeneration(CodeWriter writer) {
-		writer.out("// Auto generated file, don't modify.\n");
-		writer.out("\n");
+		writer.write("// Auto generated file, don't modify.\n");
+		writer.write("\n");
 	}
 
 	public static void writeParamList(CodeWriter writer, List<Parameter> paramList, boolean withName) {
-		writer.out(Util.getParameterText(paramList, true, withName));
+		writer.write(Util.getParameterText(paramList, true, withName));
 	}
 
 	public static void writeDefaultParams(CodeWriter writer, List<Parameter> paramList) {
 		int index = paramList.size() - 1;
 
 		if(index >= 0 && paramList.get(index).hasDefaultValue()) {
-			writer.out("\n");
+			writer.write("\n");
 			writer.incIndent();
 
 			while(index >= 0 && paramList.get(index).hasDefaultValue()) {
@@ -35,13 +35,13 @@ public class WriterUtil {
 				if(value.equals("NULL") || value.equals("nullptr")) {
 					value = "(" + paramList.get(index).getType().getLiteralType() + ")" + value;
 				}
-				writer.out("._default(copyVariantFromCopyable(" + value + "))\n");
+				writer.write("._default(copyVariantFromCopyable(" + value + "))\n");
 				--index;
 			}
 
 			writer.decIndent();
 		}
-		writer.out(";\n");
+		writer.write(";\n");
 	}
 
 	public static void defineMetaClass(Config config, CppWriter codeWriter, CppClass cppClass, String varName, String action) {
@@ -52,10 +52,10 @@ public class WriterUtil {
 		
 		if(cppClass.isGlobal()) {
 			if(config.metaNamespace != null) {
-				codeWriter.out("GDefineMetaNamespace " + varName + " = GDefineMetaNamespace::" + action + "(" + namespace + ");\n");
+				codeWriter.write("GDefineMetaNamespace " + varName + " = GDefineMetaNamespace::" + action + "(" + namespace + ");\n");
 			}
 			else {
-				codeWriter.out("GDefineMetaGlobal " + varName + ";\n");
+				codeWriter.write("GDefineMetaGlobal " + varName + ";\n");
 			}
 		}
 		else {
@@ -69,7 +69,7 @@ public class WriterUtil {
 				policy = "::Policy<MakePolicy<" + Util.joinStringList(", ", rules) + "> >";
 			}
 
-			codeWriter.out(typeName +  " " + varName + " = " + typeName + policy + "::" + action + "(\"" + cppClass.getPrimaryName() + "\");\n");
+			codeWriter.write(typeName +  " " + varName + " = " + typeName + policy + "::" + action + "(\"" + cppClass.getPrimaryName() + "\");\n");
 		}
 	}
 
@@ -89,9 +89,9 @@ public class WriterUtil {
 		cppClass.getPolicyRules(rules);
 		
 		if(cppClass.isGlobal()) {
-			codeWriter.out("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();\n");
+			codeWriter.write("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();\n");
 			
-			codeWriter.out(callFunc + "(0, _d, NULL);\n");
+			codeWriter.write(callFunc + "(0, _d, NULL);\n");
 		}
 		else {
 			String policy = "";
@@ -99,7 +99,7 @@ public class WriterUtil {
 				policy = "::Policy<MakePolicy<" + Util.joinStringList(", ", rules) + "> >";
 			}
 			if(cppClass.isTemplate()) {
-				codeWriter.out("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();\n");
+				codeWriter.write("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();\n");
 
 				for(TemplateInstance templateInstance : templateInstanceList) {
 					codeWriter.beginBlock();
@@ -108,10 +108,10 @@ public class WriterUtil {
 					typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
 					typeName = typeName + " >";
 
-					codeWriter.out(typeName +  " _nd = " + typeName + policy + "::declare(\"" + normalizeClassName(templateInstance.getFullType()) + "\");\n");
+					codeWriter.write(typeName +  " _nd = " + typeName + policy + "::declare(\"" + normalizeClassName(templateInstance.getFullType()) + "\");\n");
 					
-					codeWriter.out(callFunc + "<" + typeName + ", " + templateInstance.getTemplateType() + " >(0, _nd, NULL);\n");
-					codeWriter.out("_d._class(_nd);\n");
+					codeWriter.write(callFunc + "<" + typeName + ", " + templateInstance.getTemplateType() + " >(0, _nd, NULL);\n");
+					codeWriter.write("_d._class(_nd);\n");
 
 					codeWriter.endBlock();
 				}
@@ -120,13 +120,13 @@ public class WriterUtil {
 				String typeName = "GDefineMetaClass<" + cppClass.getLiteralName();
 				typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
 				typeName = typeName + ">";
-				codeWriter.out(typeName +  " _d = " + typeName + policy + "::declare(\"" + cppClass.getPrimaryName() + "\");\n");
+				codeWriter.write(typeName +  " _d = " + typeName + policy + "::declare(\"" + cppClass.getPrimaryName() + "\");\n");
 				
-				codeWriter.out(callFunc + "(0, _d, NULL);\n");
+				codeWriter.write(callFunc + "(0, _d, NULL);\n");
 			}
 		}
 		
-		codeWriter.out("return _d.getMetaInfo();\n");
+		codeWriter.write("return _d.getMetaInfo();\n");
 	}
 	
 	public static String getPolicyText(Item item) {
@@ -155,5 +155,4 @@ public class WriterUtil {
 			return "";
 		}
 	}
-	
 }

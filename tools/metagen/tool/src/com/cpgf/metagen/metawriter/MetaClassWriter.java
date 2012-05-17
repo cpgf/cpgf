@@ -31,24 +31,20 @@ public class MetaClassWriter {
 
 	private OutputCallbackData callbackData;
 	
-	public MetaClassWriter(Config config, CppClass cppClass) {
-		this.initialize(cppClass, config, "_d", "D::ClassType");
+	public MetaClassWriter(Config config, CppWriter codeWriter, CppClass cppClass) {
+		this.initialize(config, codeWriter, cppClass, "_d", "D::ClassType");
 	}
 
-	public MetaClassWriter(Config config, CppClass cppClass, String define, String classType) {
-		this.initialize(cppClass, config, define, classType);
+	public MetaClassWriter(Config config, CppWriter codeWriter, CppClass cppClass, String define, String classType) {
+		this.initialize(config, codeWriter, cppClass, define, classType);
 	}
 
-	private void initialize(CppClass cppClass, Config config, String define, String classType) {
+	private void initialize(Config config, CppWriter codeWriter, CppClass cppClass, String define, String classType) {
 		this.cppClass = cppClass;
-		this.codeWriter = new CppWriter();
+		this.codeWriter = codeWriter;
 		this.config = config;
 		this.define = define;
 		this.classType = classType;
-	}
-	
-	public CppWriter getCodeWriter() {
-		return this.codeWriter;
 	}
 	
 	private String getScopePrefix() {
@@ -168,9 +164,9 @@ public class MetaClassWriter {
 				continue;
 			}
 			
-			this.codeWriter.out(action + "<void * (");
+			this.codeWriter.write(action + "<void * (");
 			WriterUtil.writeParamList(this.codeWriter, item.getParameterList(), false);
-			this.codeWriter.out(")>(" + WriterUtil.getPolicyText(item, false) + ")");
+			this.codeWriter.write(")>(" + WriterUtil.getPolicyText(item, false) + ")");
 			
 			WriterUtil.writeDefaultParams(this.codeWriter, item.getParameterList());
 		}
@@ -193,9 +189,9 @@ public class MetaClassWriter {
 				continue;
 			}
 			
-			this.codeWriter.out(action);
-			this.codeWriter.out("(" + this.getReplace(name) + ", ");
-			this.codeWriter.out("&" + prefix + name + WriterUtil.getPolicyText(item) + ");\n");
+			this.codeWriter.write(action);
+			this.codeWriter.write("(" + this.getReplace(name) + ", ");
+			this.codeWriter.write("&" + prefix + name + WriterUtil.getPolicyText(item) + ");\n");
 		}
 	}
 
@@ -228,22 +224,22 @@ public class MetaClassWriter {
 			
 			overload = overload || this.cppClass.isGlobal();
 
-			this.codeWriter.out(action);
-			this.codeWriter.out("(" + this.getReplace(name) + ", ");
+			this.codeWriter.write(action);
+			this.codeWriter.write("(" + this.getReplace(name) + ", ");
 			if(overload) {
 				String typePrefix = prefix;
 				if(item.isStatic()) {
 					typePrefix = "";
 				}
-				this.codeWriter.out("(" + item.getResultType().getLiteralType() + " (" + typePrefix + "*) (");
+				this.codeWriter.write("(" + item.getResultType().getLiteralType() + " (" + typePrefix + "*) (");
 				WriterUtil.writeParamList(this.codeWriter, item.getParameterList(), false);
-				this.codeWriter.out(")");
+				this.codeWriter.write(")");
 				if(!item.isStatic() && item.isConst()) {
-					this.codeWriter.out(" const");
+					this.codeWriter.write(" const");
 				}
-				this.codeWriter.out(")");
+				this.codeWriter.write(")");
 			}
-			this.codeWriter.out("&" + prefix + name + WriterUtil.getPolicyText(item) + ")");
+			this.codeWriter.write("&" + prefix + name + WriterUtil.getPolicyText(item) + ")");
 
 			WriterUtil.writeDefaultParams(this.codeWriter, item.getParameterList());
 		}
@@ -270,13 +266,13 @@ public class MetaClassWriter {
 				typeName = "long long";
 			}
 
-			this.codeWriter.out(action + "<" + typeName + ">(" + this.getReplace(name) + ")\n");
+			this.codeWriter.write(action + "<" + typeName + ">(" + this.getReplace(name) + ")\n");
 			this.codeWriter.incIndent();
 				for(EnumValue value : item.getValueList()) {
-					this.codeWriter.out("._element(" + this.getReplace(value.getName()) + ", " + prefix + value.getQualifiedName() + ")\n");
+					this.codeWriter.write("._element(" + this.getReplace(value.getName()) + ", " + prefix + value.getQualifiedName() + ")\n");
 				}
 			this.codeWriter.decIndent();
-			this.codeWriter.out(";\n");
+			this.codeWriter.write(";\n");
 		}
 	}
 
@@ -287,7 +283,7 @@ public class MetaClassWriter {
 			return;
 		}
 
-		this.codeWriter.out(action + "<long long>(" + this.getReplace("GlobalDefine_" + this.config.projectID + "_" + Util.getUniqueID()) + ")\n");
+		this.codeWriter.write(action + "<long long>(" + this.getReplace("GlobalDefine_" + this.config.projectID + "_" + Util.getUniqueID()) + ")\n");
 		this.codeWriter.incIndent();
 
 		for(Constant item : this.cppClass.getConstantList()) {
@@ -302,11 +298,11 @@ public class MetaClassWriter {
 				continue;
 			}
 			
-			this.codeWriter.out("._element(" + this.getReplace(item.getPrimaryName()) + ", " + item.getPrimaryName() + ")\n");
+			this.codeWriter.write("._element(" + this.getReplace(item.getPrimaryName()) + ", " + item.getPrimaryName() + ")\n");
 		}
 		
 		this.codeWriter.decIndent();
-		this.codeWriter.out(";\n");
+		this.codeWriter.write(";\n");
 	}
 
 	private void writeOperator() {
@@ -335,21 +331,21 @@ public class MetaClassWriter {
 			String opText = "";
 			
 			if(isTypeConvert) {
-				this.codeWriter.out(action + "<" + op + " (GMetaSelf)>(");
+				this.codeWriter.write(action + "<" + op + " (GMetaSelf)>(");
 				opText = "H()";
 			}
 			else {
-				this.codeWriter.out(action + "<" + item.getResultType().getLiteralType() + " (*)(");
+				this.codeWriter.write(action + "<" + item.getResultType().getLiteralType() + " (*)(");
 				
 				boolean isFunctor = item.isFunctor();
 				boolean hasSelf = item.hasSelf();
 
 				if(hasSelf) {
 					if(item.isConst()) {
-						this.codeWriter.out("const cpgf::GMetaSelf &");
+						this.codeWriter.write("const cpgf::GMetaSelf &");
 					}
 					else {
-						this.codeWriter.out("cpgf::GMetaSelf");
+						this.codeWriter.write("cpgf::GMetaSelf");
 					}
 				}
 
@@ -357,11 +353,11 @@ public class MetaClassWriter {
 				}
 				else {
 					if(item.hasParameter() && hasSelf) {
-						this.codeWriter.out(", ");
+						this.codeWriter.write(", ");
 					}
 					WriterUtil.writeParamList(this.codeWriter, item.getParameterList(), false);
 				}
-				this.codeWriter.out(")>(");
+				this.codeWriter.write(")>(");
 				if(isFunctor) {
 					opText = "H(H)";
 				}
@@ -389,8 +385,8 @@ public class MetaClassWriter {
 			}
 
 			opText = opText.replaceAll("\\bH\\b", "mopHolder");
-			this.codeWriter.out(opText);
-			this.codeWriter.out(WriterUtil.getPolicyText(item) + ")");
+			this.codeWriter.write(opText);
+			this.codeWriter.write(WriterUtil.getPolicyText(item) + ")");
 
 			WriterUtil.writeDefaultParams(this.codeWriter, item.getParameterList());
 		}
@@ -410,15 +406,15 @@ public class MetaClassWriter {
 			this.codeWriter.beginBlock();
 			
 			WriterUtil.defineMetaClass(this.config, this.codeWriter, item, "_nd", "declare");
-			MetaClassWriter writer = new MetaClassWriter(
+			MetaClassWriter classWriter = new MetaClassWriter(
 				this.config,
+				this.codeWriter,
 				item,
 				"_nd",
 				item.getLiteralName()
 			);
-			writer.write();
-			this.codeWriter.out(writer.getCodeWriter());
-			this.codeWriter.out(action + "(_nd);\n");
+			classWriter.write();
+			this.codeWriter.write(action + "(_nd);\n");
 			
 			this.codeWriter.endBlock();
 		}

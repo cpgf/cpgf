@@ -71,33 +71,33 @@ public class MetaWriter {
 
 		codeWriter.include("cpgf/gmetadefine.h");
 
-		codeWriter.out("\n\n");
+		codeWriter.write("\n\n");
 		
 		codeWriter.useNamespace("cpgf");
-		codeWriter.out("\n");
+		codeWriter.write("\n");
 
 		codeWriter.beginNamespace(this.config.cppNamespace);
 		
 		List<String> sortedCreateFunctionNames = Util.sortStringList(createFunctionNames);
 
 		for(String funcName : sortedCreateFunctionNames) {
-			codeWriter.out("GDefineMetaInfo " + funcName + "();\n");
+			codeWriter.write("GDefineMetaInfo " + funcName + "();\n");
 		}
 		
-		codeWriter.out("\n\n");
+		codeWriter.write("\n\n");
 
-		codeWriter.out("template <typename Meta>\n");
-		codeWriter.out("void " + this.getMainFunctionName() + "(Meta _d)\n");
+		codeWriter.write("template <typename Meta>\n");
+		codeWriter.write("void " + this.getMainFunctionName() + "(Meta _d)\n");
 
 		codeWriter.beginBlock();
 
 		for(String funcName : sortedCreateFunctionNames) {
-			codeWriter.out("_d._class(" + funcName + "());\n");
+			codeWriter.write("_d._class(" + funcName + "());\n");
 		}
 
 		codeWriter.endBlock();
 		
-		codeWriter.out("\n");
+		codeWriter.write("\n");
 		
 		codeWriter.endNamespace(this.config.cppNamespace);
 
@@ -120,26 +120,26 @@ public class MetaWriter {
 		codeWriter.include("cpgf/gmetadefine.h");
 		codeWriter.include("cpgf/goutmain.h");
 
-		codeWriter.out("\n\n");
+		codeWriter.write("\n\n");
 		
 		codeWriter.useNamespace("cpgf");
-		codeWriter.out("\n");
+		codeWriter.write("\n");
 
 		codeWriter.beginNamespace(this.config.cppNamespace);
 		
 		codeWriter.beginNamespace("");
 
-		codeWriter.out("G_AUTO_RUN_BEFORE_MAIN()\n");
+		codeWriter.write("G_AUTO_RUN_BEFORE_MAIN()\n");
 
 		codeWriter.beginBlock();
 
 		CppClass global = new CppClass(null);
 		WriterUtil.defineMetaClass(this.config, codeWriter, global, "_d", "define");
 
-		codeWriter.out(this.getMainFunctionName() + "(_d);\n");
+		codeWriter.write(this.getMainFunctionName() + "(_d);\n");
 
 		codeWriter.endBlock();
-		codeWriter.out("\n");
+		codeWriter.write("\n");
 
 		codeWriter.endNamespace("");
 		

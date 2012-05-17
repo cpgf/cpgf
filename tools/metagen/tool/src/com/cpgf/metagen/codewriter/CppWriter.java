@@ -6,15 +6,15 @@ public class CppWriter extends CodeWriter {
 		name = name.toUpperCase();
 		name = "__" + name;
 
-		this.out("#ifndef " + name + "\n");
-		this.out("#define " + name + "\n");
-		this.out("\n\n");
+		this.write("#ifndef " + name + "\n");
+		this.write("#define " + name + "\n");
+		this.write("\n\n");
 	}
 
 	public void endIncludeGuard() {
-		this.out("\n\n");
-		this.out("#endif");
-		this.out("\n");
+		this.write("\n\n");
+		this.write("#endif");
+		this.write("\n");
 	}
 
 	public void include(String fileName) {
@@ -25,7 +25,7 @@ public class CppWriter extends CodeWriter {
 		String begin = useBrackets ? "<" : "\"";
 		String end = useBrackets ? ">" : "\"";
 
-		this.out("#include " + begin + fileName + end + "\n");
+		this.write("#include " + begin + fileName + end + "\n");
 	}
 
 	public void beginNamespace(String namespace) {
@@ -33,35 +33,35 @@ public class CppWriter extends CodeWriter {
 			if(! namespace.equals("")) {
 				namespace = namespace + " ";
 			}
-			this.out("namespace " + namespace + "{ \n");
-			this.out("\n\n");
+			this.write("namespace " + namespace + "{ \n");
+			this.write("\n\n");
 		}
 	}
 
 	public void endNamespace(String namespace) {
 		if(namespace != null) {
 			if(namespace.equals("")) {
-				this.out("} // unnamed namespace\n");
+				this.write("} // unnamed namespace\n");
 			}
 			else {
-				this.out("} // namespace " + namespace + "\n");
+				this.write("} // namespace " + namespace + "\n");
 			}
-			this.out("\n\n");
+			this.write("\n\n");
 		}
 	}
 
 	public void useNamespace(String namespace) {
-		this.out("using namespace " + namespace + ";\n");
+		this.write("using namespace " + namespace + ";\n");
 	}
 
 	public void beginBlock() {
-		this.out("{\n");
+		this.write("{\n");
 		this.incIndent();
 	}
 
 	public void endBlock() {
 		this.decIndent();
-		this.out("}\n");
+		this.write("}\n");
 	}
 
 }

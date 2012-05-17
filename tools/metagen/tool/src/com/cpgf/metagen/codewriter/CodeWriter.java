@@ -29,7 +29,11 @@ public class CodeWriter {
 		return indentText;
 	}
 	
-	public void out(String s) {
+	public void write(String s) {
+		if(s == null || s.length() == 0) {
+			return;
+		}
+
 		String indentText = this.getIndentText();
 
 		if(this.text.length() > 0 && this.text.lastIndexOf('\n') == this.text.length() - 1) {
@@ -39,8 +43,17 @@ public class CodeWriter {
 		this.text = this.text + s;
 	}
 	
-	public void out(CodeWriter other) {
-		if(other == null) {
+	public void writeLines(String s) {
+		if(s.length() > 0) {
+			String[] lines = s.split("\n");
+			for(String line : lines) {
+				this.write(line + "\n");
+			}
+		}
+	}
+	
+	public void write(CodeWriter other) {
+		if(other == null || other.getText().length() == 0) {
 			return;
 		}
 
