@@ -19,6 +19,8 @@ var config = {
 
 	autoRegisterToGlobal : true,
 	
+	scriptable : true,
+	
 	metaNamespace : "sfml",
 	sourceHeaderCode : "#include \"SFML/Audio.hpp\"" + "\n#include \"SFML/Config.hpp\"" + "\n#include \"SFML/Graphics.hpp\"" + "\n#include \"SFML/Network.hpp\"" + "\n#include \"SFML/System.hpp\"" + "\n#include \"SFML/Window.hpp\"",
 	sourceHeaderReplacer : doHeaderReplace,

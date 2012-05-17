@@ -16,33 +16,35 @@ import com.cpgf.metagen.metadata.EnumCategory;
 import com.cpgf.metagen.metadata.EnumValue;
 import com.cpgf.metagen.metadata.EnumVisibility;
 import com.cpgf.metagen.metadata.Item;
+import com.cpgf.metagen.metadata.MetaInfo;
 import com.cpgf.metagen.metadata.Operator;
 import com.cpgf.metagen.metadata.ParameteredItem;
-import com.cpgf.metagen.metawriter.callback.IOutputCallback;
 import com.cpgf.metagen.metawriter.callback.OutputCallbackData;
 
 public class MetaClassWriter {
 	private CppClass cppClass;
 	private CppWriter codeWriter;
 	private Config config;
+	private MetaInfo metaInfo;
 	
 	private String define;
 	private String classType;
 
 	private OutputCallbackData callbackData;
 	
-	public MetaClassWriter(Config config, CppWriter codeWriter, CppClass cppClass) {
-		this.initialize(config, codeWriter, cppClass, "_d", "D::ClassType");
+	public MetaClassWriter(Config config, MetaInfo metaInfo, CppWriter codeWriter, CppClass cppClass) {
+		this.initialize(config, metaInfo, codeWriter, cppClass, "_d", "D::ClassType");
 	}
 
-	public MetaClassWriter(Config config, CppWriter codeWriter, CppClass cppClass, String define, String classType) {
-		this.initialize(config, codeWriter, cppClass, define, classType);
+	public MetaClassWriter(Config config, MetaInfo metaInfo, CppWriter codeWriter, CppClass cppClass, String define, String classType) {
+		this.initialize(config, metaInfo, codeWriter, cppClass, define, classType);
 	}
 
-	private void initialize(Config config, CppWriter codeWriter, CppClass cppClass, String define, String classType) {
+	private void initialize(Config config, MetaInfo metaInfo, CppWriter codeWriter, CppClass cppClass, String define, String classType) {
 		this.cppClass = cppClass;
 		this.codeWriter = codeWriter;
 		this.config = config;
+		this.metaInfo = metaInfo;
 		this.define = define;
 		this.classType = classType;
 	}
@@ -80,17 +82,7 @@ public class MetaClassWriter {
 	}
 
 	private void doCallback(Item item) {
-		IOutputCallback callback = this.config.metaOutputCallback;
-
-		if(callback != null) {
-			this.callbackData = new OutputCallbackData();
-			callback.outputCallback(item, this.callbackData);
-		}
-		else {
-			if(this.callbackData == null) {
-				this.callbackData = new OutputCallbackData();
-			}
-		}
+		this.callbackData = this.metaInfo.getCallbackClassMap().getData(item);
 	}
 
 	private boolean skipItem() {
@@ -408,6 +400,7 @@ public class MetaClassWriter {
 			WriterUtil.defineMetaClass(this.config, this.codeWriter, item, "_nd", "declare");
 			MetaClassWriter classWriter = new MetaClassWriter(
 				this.config,
+				this.metaInfo,
 				this.codeWriter,
 				item,
 				"_nd",

@@ -13,12 +13,18 @@ public class CppType {
 		if(typeSolver != null) {
 			this.parsedType = typeSolver.getParsedType(baseType);
 		}
+		else {
+			this.parsedType = new ParsedType(baseType);
+		}
 	}
 
 	public CppType(TypeSolver typeSolver, String baseType, String array) {
 		this.typeSolver = typeSolver;
 		if(typeSolver != null) {
 			this.parsedType = typeSolver.getParsedType(baseType + (array == null ? "" : array));
+		}
+		else {
+			this.parsedType = new ParsedType(baseType);
 		}
 	}
 

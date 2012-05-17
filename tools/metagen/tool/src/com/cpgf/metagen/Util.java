@@ -16,6 +16,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.cpgf.metagen.metadata.CppClass;
+import com.cpgf.metagen.metadata.CppInvokable;
 import com.cpgf.metagen.metadata.DeferClass;
 import com.cpgf.metagen.metadata.EnumVisibility;
 import com.cpgf.metagen.metadata.Item;
@@ -303,6 +304,25 @@ public class Util {
 				result = result + param.getName();
 			}
 		}
+		
+		return result;
+	}
+	
+	public static String getInvokablePrototype(CppInvokable invokable, String name) {
+		if(name == null) {
+			name = invokable.getPrimaryName();
+		}
+		
+		String result = "";
+		
+		if(invokable.getResultType() != null) {
+			result = invokable.getResultType().getLiteralType();
+		}
+		else {
+			result = "void";
+		}
+		
+		result = result + " " + name + "(" + getParameterText(invokable.getParameterList(), true, true) + ")";
 		
 		return result;
 	}

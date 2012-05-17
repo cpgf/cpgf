@@ -94,7 +94,25 @@ public class CppClass extends ParameteredItem {
 
 		return list;
 	}
-	
+
+	public void getAllItems(List<Item> list) {
+		list.addAll(this.constructorList);
+		if(this.destructor != null) {
+			list.add(this.destructor);
+		}
+		list.addAll(this.constantList);
+		list.addAll(this.fieldList);
+		list.addAll(this.methodList);
+		list.addAll(this.enumList);
+		list.addAll(this.operatorList);
+		list.addAll(this.typedefList);
+
+		for(DeferClass deferClass : this.classList) {
+			list.add(deferClass.getCppClass());
+			deferClass.getCppClass().getAllItems(list);
+		}
+	}
+
 	public void addItem(Item item) {
 		switch(item.getCategory()) {
 		case Constructor:

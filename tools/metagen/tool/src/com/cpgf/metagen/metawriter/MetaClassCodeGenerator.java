@@ -11,7 +11,6 @@ import com.cpgf.metagen.metadata.Item;
 import com.cpgf.metagen.metadata.MetaInfo;
 import com.cpgf.metagen.metadata.Parameter;
 import com.cpgf.metagen.metadata.TemplateInstance;
-import com.cpgf.metagen.metawriter.callback.IOutputCallback;
 import com.cpgf.metagen.metawriter.callback.OutputCallbackData;
 
 public class MetaClassCodeGenerator {
@@ -33,17 +32,7 @@ public class MetaClassCodeGenerator {
 	}
 
 	private void doCallback(Item item) {
-		IOutputCallback callback = this.config.metaOutputCallback;
-
-		if(callback != null) {
-			this.callbackData = new OutputCallbackData();
-			callback.outputCallback(item, this.callbackData);
-		}
-		else {
-			if(this.callbackData == null) {
-				this.callbackData = new OutputCallbackData();
-			}
-		}
+		this.callbackData = this.metaInfo.getCallbackClassMap().getData(item);
 	}
 
 	private String getGlobalPostfix() {
@@ -98,7 +87,10 @@ public class MetaClassCodeGenerator {
 	private String doGenerateCallbackWrapperPrototype(CppInvokable invokable, String name) {
 		String result = "";
 		
-		if(invokable.getResultType() != null) {
+		if(invokable.isConstructor()) {
+			result = "void *";
+		}
+		else if(invokable.getResultType() != null) {
 			result = result + invokable.getResultType().getLiteralType();
 		}
 		else {
@@ -109,7 +101,7 @@ public class MetaClassCodeGenerator {
 		
 		boolean first = true;
 		
-		if(! invokable.getOwner().isGlobal()) {
+		if(! invokable.getOwner().isGlobal() && invokable.isMethod()) {
 			result = result + invokable.getOwner().getLiteralName() + " * self";
 			first = false;
 		}
@@ -125,7 +117,7 @@ public class MetaClassCodeGenerator {
 
 			if(param.getCallback() != null) {
 				++callbackIndex;
-				result = result + "IScriptFunction * scriptFunction" + callbackIndex;
+				result = result + "cpgf::IScriptFunction * scriptFunction" + callbackIndex;
 			}
 			else {
 				result = result + param.getType().getLiteralType() + " " + param.getName();
@@ -137,7 +129,17 @@ public class MetaClassCodeGenerator {
 		return result;
 	}
 	
-	private void doGenerateClassCallbackCode(CppInvokable invokable, int index) {
+	private String doGenerateCallbackReflect(CppInvokable invokable, String name) {
+		String result = "";
+		
+		if(invokable.isConstructor()) {
+			result = result + "_d.CPGF_MD_TEMPLATE _constructor(&" + name + ");";
+		}
+		
+		return result;
+	}
+	
+	private String getClassCallbackUniqueName(CppInvokable invokable, int index) {
 		String uniqueName = invokable.getOwner().getPrimaryName();
 		if(invokable.isMethod()) {
 			uniqueName = uniqueName + "_" + invokable.getPrimaryName();
@@ -147,12 +149,58 @@ public class MetaClassCodeGenerator {
 		}
 		uniqueName = uniqueName + "_" + index;
 		
-		String wrapperName = "callbackWrapper_" + uniqueName;
-		String callbackName = "callback_" + uniqueName;
+		return uniqueName;
+	}
+	
+	final private static String CallbackWrapperPrefix = "callbackWrapper_";
+	private String doGenerateCallbackWrapperImplementation(CppInvokable invokable, int index) {
+		String result = "";
+
+		String uniqueName = this.getClassCallbackUniqueName(invokable, index);
+		int callbackIndex = -1;
 		
+		for(Parameter param : invokable.getParameterList()) {
+			if(param.getCallback() == null) {
+				continue;
+			}
+			++callbackIndex;
+			String callbackName = "callback_" + uniqueName + "_p" + callbackIndex;
+result = result + "static IScriptFunction * xxx = NULL;\n"; //temp			
+			result = result + Util.getInvokablePrototype(param.getCallback(), callbackName) + "\n";
+			result = result + "{\n";
+			String body = Util.getParameterText(param.getCallback().getParameterList(), false, true);
+			if(body.length() > 0) {
+				body = ", " + body;
+			}
+			body = "    invokeScriptFunction(" + "xxx" + body + ");\n"; 
+			result = result + body;
+			result = result + "}\n";
+			result = result + "\n";
+
+			String wrapperName = CallbackWrapperPrefix + uniqueName;
+			String wrapperPrototype = this.doGenerateCallbackWrapperPrototype(invokable, wrapperName);
+			result = result + wrapperPrototype + "\n";
+			result = result + "{\n";
+			result = result + "xxx = scriptFunction0; \n";
+			result = result + "";
+			result = result + "}\n";
+			result = result + "\n";
+		}
+		
+		return result;
+	}
+	
+	private void doGenerateClassCallbackCode(CppInvokable invokable, int index) {
+		String uniqueName = this.getClassCallbackUniqueName(invokable, index);
+		
+		String wrapperName = CallbackWrapperPrefix + uniqueName;
 		String wrapperPrototype = this.doGenerateCallbackWrapperPrototype(invokable, wrapperName);
+
+		this.classCode.headerCode = this.appendText(this.classCode.headerCode, wrapperPrototype + ";\n");
 		
-		this.classCode.headerCode = this.classCode.headerCode + wrapperPrototype + ";\n"; 
+		this.extraHeaderCodeInClass = this.extraHeaderCodeInClass + this.doGenerateCallbackReflect(invokable, wrapperName) + "\n";
+		
+		this.classCode.sourceCode = this.appendText(this.classCode.sourceCode, this.doGenerateCallbackWrapperImplementation(invokable, index));
 	}
 	
 	private void generateClassCallbackCode() {
@@ -173,7 +221,7 @@ public class MetaClassCodeGenerator {
 	private void generateClassReflectionHeaderCode() {
 		CppWriter codeWriter = new CppWriter();
 
-		MetaClassWriter classWriter = new MetaClassWriter(this.config, codeWriter, cppClass);
+		MetaClassWriter classWriter = new MetaClassWriter(this.config, this.metaInfo, codeWriter, cppClass);
 		
 		String funcName = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
 
@@ -233,18 +281,12 @@ public class MetaClassCodeGenerator {
 			return;
 		}
 
-		// must process header first because the JS script will be applied
+		if(this.config.scriptable) {
+			this.generateClassCallbackCode();
+		}
+
 		this.generateClassReflectionHeaderCode();
 		this.generateClassReflectionSourceCode();
-		
-		MetaClassCode tempCode = new MetaClassCode(this.classCode);
-		this.classCode.headerCode = "";
-		this.classCode.sourceCode = "";
-
-//		this.generateClassCallbackCode();
-
-		this.classCode.headerCode = this.appendText(this.classCode.headerCode, tempCode.headerCode);
-		this.classCode.sourceCode = this.appendText(this.classCode.sourceCode, tempCode.sourceCode);
 	}
 	
 	public MetaClassCode generateClassMetaCode() {

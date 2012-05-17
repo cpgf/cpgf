@@ -9,6 +9,7 @@
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
+#include "cpgf/scriptbind/gscriptbindapi.h"
 
 
 using namespace sf;

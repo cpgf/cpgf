@@ -93,5 +93,7 @@ public class Config {
 	public PredefinedClassTraitsList classTraits = new PredefinedClassTraitsList();
 	
 	public String[] predefinedTemplateInstances = {};
+	
+	public boolean scriptable = true;
 
 }

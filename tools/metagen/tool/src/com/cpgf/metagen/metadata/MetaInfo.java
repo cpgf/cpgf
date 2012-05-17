@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.cpgf.metagen.Config;
+import com.cpgf.metagen.metawriter.OutputCallbackClassMap;
 
 public class MetaInfo {
 	private Config config;
@@ -12,6 +13,7 @@ public class MetaInfo {
 	private TypeSolver typeSolver;
     private List<CppClass> allClassList;
     private List<TemplateInstance> templateInstanceList;
+    private OutputCallbackClassMap callbackClassMap;
 
     public MetaInfo(Config config) {
     	this.config = config;
@@ -20,6 +22,8 @@ public class MetaInfo {
 		this.typeSolver = new TypeSolver(this, this.config.classTraits);
 		
 		this.templateInstanceList = new ArrayList<TemplateInstance>();
+		
+		this.callbackClassMap = new OutputCallbackClassMap(this.config);
     }
 
     public List<CppClass> getClassList() {
@@ -29,6 +33,10 @@ public class MetaInfo {
     public List<CppClass> getAllClassList() {
         return this.allClassList;
     }
+
+	public OutputCallbackClassMap getCallbackClassMap() {
+		return callbackClassMap;
+	}
 
     public void fixup() {
     	this.doFixupGlobals();
@@ -44,6 +52,8 @@ public class MetaInfo {
     	}
     	
     	this.doFixupTemplateInstances();
+    	
+    	this.callbackClassMap.build(this.getClassList());
     }
     
     private void doFixupTemplateInstances() {
