@@ -326,4 +326,66 @@ public class Util {
 		
 		return result;
 	}
+	
+	private static class RegExpFlags {
+		public boolean replaceAll;
+	};
+	
+	public static Pattern parseRegExp(String s, RegExpFlags outFlags)
+	{
+		String re;
+		int flags = 0;
+
+		outFlags.replaceAll = false;
+		Matcher matcher = Pattern.compile("^[/!](.*)[/!]([imsg]*)$").matcher(s);
+
+		if(matcher.matches()) {
+			re = matcher.group(1);
+			String flagText = matcher.group(2);
+			if(flagText.indexOf('i') >= 0) {
+				flags |= Pattern.CASE_INSENSITIVE;
+			}
+			if(flagText.indexOf('m') >= 0) {
+				flags |= Pattern.MULTILINE;
+			}
+			if(flagText.indexOf('s') >= 0) {
+				flags |= Pattern.DOTALL;
+			}
+			if(flagText.indexOf('g') >= 0) {
+				outFlags.replaceAll = true;
+			}
+		}
+		else {
+			re = s;
+		}
+		
+		return Pattern.compile(re, flags);
+	}
+	
+	public static String replaceStringWithArray(String s, String[] replacers) throws MetaException {
+		if(replacers != null) {
+			if(replacers.length %2 != 0) {
+				error("Replacer must be in even count. In format of [ RegExp, replacer, RegExp, replacer, ... ]");
+			}
+			
+			for(int i = 0; i < replacers.length; i += 2) {
+				s = replaceStringWithRegExp(s, replacers[i], replacers[i + 1]);
+			}
+		}
+		
+		return s;
+	}
+	
+	public static String replaceStringWithRegExp(String s, String re, String replacer) {
+		RegExpFlags flags = new RegExpFlags();
+		Pattern pattern = parseRegExp(re, flags);
+		Matcher matcher = pattern.matcher(s);
+		if(flags.replaceAll) {
+			return matcher.replaceAll(replacer);
+		}
+		else {
+			return matcher.replaceFirst(replacer);
+		}
+	}
+	
 }

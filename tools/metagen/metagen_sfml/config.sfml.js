@@ -4,8 +4,7 @@ var config = {
 	headerOutput : "../../../include/cpgf/metadata/sfml",
 	sourceOutput : "../../../src/metadata/sfml",
 	
-	metaInputCallback : inputCallback,
-	metaOutputCallback : outputCallback,
+	metaItemCallback : processCallback,
 	
 	cppNamespace : "meta_sfml",
 	
@@ -23,7 +22,7 @@ var config = {
 	
 	metaNamespace : "sfml",
 	sourceHeaderCode : "#include \"SFML/Audio.hpp\"" + "\n#include \"SFML/Config.hpp\"" + "\n#include \"SFML/Graphics.hpp\"" + "\n#include \"SFML/Network.hpp\"" + "\n#include \"SFML/System.hpp\"" + "\n#include \"SFML/Window.hpp\"",
-	sourceHeaderReplacer : doHeaderReplace,
+	sourceHeaderReplacer : [ "!.*include/SFML!i", "SFML" ],
 	metaHeaderPath : "cpgf/metadata/sfml/",
 	
 	classTraits : [
@@ -31,8 +30,6 @@ var config = {
 		{ pattern : ".*\\bw?string$", traits : { hasTypeConvertConstructor : true }  },
 		{ pattern : ".*\\bUTF\\d+String$", traits : { hasTypeConvertConstructor : true }  },
 	],
-
-	parseFileNameCallback : doParseFileNameCallback,
 
 	predefinedTemplateInstances : [
 		"Rect<int>", "Rect<float>",
@@ -42,19 +39,8 @@ var config = {
 };
 
 var re_Win32 = new RegExp("(.*)/Win32/(.*)", "i");
-var re_Unix = new RegExp("/Unix/", "i");
 
-function inputCallback(cppClass, data)
-{
-	var loc = new String(cppClass.getLocation());
-
-	if(loc.match(re_Win32)) {
-		loc = loc.replace(re_Win32, "$1/$2");
-		cppClass.setLocation(loc);
-	}
-}
-
-function outputCallback(item, data)
+function processCallback(item, data)
 {
 	item.replaceInType("\\bSFML_API\\b", "");
 
@@ -70,6 +56,13 @@ function outputCallback(item, data)
 		}
 	}
 	else if(item.isClass()) {
+		var loc = new String(item.getLocation());
+
+		if(loc.match(re_Win32)) {
+			loc = loc.replace(re_Win32, "$1/$2");
+			item.setLocation(loc);
+		}
+
 		if(item.getPrimaryName() == "Font") {
 			data.addHeaderCode("extern Uint32 cpgf_meta_ourDefaultCharset[];");
 			data.addSourceCode("Uint32 cpgf_meta_ourDefaultCharset[] = {");
@@ -96,18 +89,3 @@ function outputCallback(item, data)
 	}
 }
 
-var re_doHeaderReplace = new RegExp(".*include/SFML", "i");
-
-function doHeaderReplace(fileName)
-{
-	return new String(fileName).replace(re_doHeaderReplace, "SFML").replace("Unix", "Win32");
-}
-
-function doParseFileNameCallback(fileName)
-{
-	if(fileName.toLowerCase().indexOf("unix") >= 0) {
-		fileName = null;
-	}
-	
-	return fileName;
-}

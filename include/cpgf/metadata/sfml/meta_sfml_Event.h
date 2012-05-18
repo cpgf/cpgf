@@ -36,7 +36,7 @@ void buildMetaClass_Global_event(const cpgf::GMetaDataConfigFlags & config, D _d
         ._element(replaceName("AxisPOV", _r), sf::Joy::AxisPOV)
         ._element(replaceName("AxisCount", _r), sf::Joy::AxisCount)
     ;
-    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalEnum_sfml_1", _r))
+    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalEnum_sfml_2", _r))
         ._element(replaceName("Count", _r), sf::Joy::Count)
         ._element(replaceName("ButtonCount", _r), sf::Joy::ButtonCount)
     ;

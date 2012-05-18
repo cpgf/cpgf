@@ -28,13 +28,13 @@ function doMain()
 		!RightPaddleImage.LoadFromFile("datas/pong/paddle_right.png") ||
 		!BallImage.LoadFromFile("datas/pong/ball.png"))
 	{
-		return EXIT_FAILURE;
+		return sfml.EXIT_FAILURE;
 	}
 
 	// Load the text font
 	var Cheeseburger = new sfml.Font();
 	if (!Cheeseburger.LoadFromFile("datas/post-fx/cheeseburger.ttf"))
-		return EXIT_FAILURE;
+		return sfml.EXIT_FAILURE;
 
 	// Initialize the end text
 	var End = new sfml.String();
@@ -68,7 +68,7 @@ function doMain()
 		// Make sure the ball initial angle is not too much vertical
 		BallAngle = sfml.Randomizer.Random(0.0, 2 * MyPai);
 	} while(Math.abs(Math.cos(BallAngle)) < 0.7);
-
+	
 	var IsPlaying = true;
 	while(App.IsOpened())
 	{

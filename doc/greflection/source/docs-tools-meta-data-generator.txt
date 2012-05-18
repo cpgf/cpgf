@@ -14,13 +14,13 @@
 
 <{autobr}>
 Metagen is a tool to generate meta data from Doxygen XML automatically and generate the corresponding C++ code.
-The tool itself is writter in Perl, tested with Perl 5.8 on Windows and Perl 5.10 on Ubuntu.
-The tool require XML Dom package which may be not in your Perl default installation.
+The tool itself is writter in Java.
 
-To use this tool, you need very basic Perl knowledge to understand the config file format which is a piece of Perl script.
+To use this tool, you need very basic Javascript knowledge to understand the config file format which is a piece of Javascript script.
 
 The tool is in folder cpgf/tools/metagen.
 The Box2D meta data generator is in folder cpgf/tools/metagen/metagen_box2d, there are Doxygen project, metagen config file, and shell script to execute the tool. The are good sample for start.
+Also there is SFML meta data generator.
 
 <{/autobr}>
 
@@ -30,8 +30,8 @@ The Box2D meta data generator is in folder cpgf/tools/metagen/metagen_box2d, the
 
 <{autobr}>
 The tool uses Doxygen XML files for C++ code information.
-The tool only needs the code information, so your C++ code is not necessary Doxygen documented.
-If you are going to generate meta data for a library, all header files with public API should be included in the Doxygen project, otherwise, base classes information may be missed.
+The tool only needs the code information, so your C++ code is not necessary documented.
+If you are going to generate meta data for a library, all header files with public API should be included in the Doxygen project, otherwise, some classes information may be missed.
 
 Below listed Doxygen tags and values which required by metagen and has non-default value.
 
@@ -59,11 +59,11 @@ XML_PROGRAMLISTING = NO
 
 <{autobr}>
 Metagen needs a config file to obtain necessary information.
-The config file itself is a Perl script with a variable named $config, which is a hash reference.
-$config contains several key-value pairs.
+The config file itself is a Javascript script with a variable named "config", which is an Javascript object.
+Variable config contains several key-value pairs.
 
-There is a config.default.pl in the tool package, the keys in it are documented.
-Also config.box2d.pl in Box2D generator is a good use case.
+All properties in the Javascript config file are same name and same meaning with com.cpgf.metagen.Config
+Config.java is well documented.
 
 Beside $config, any valid Perl code can be put into the config file, such as temporary variable, sub routines, etc.
 

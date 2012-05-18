@@ -4,7 +4,7 @@ var config = {
 	headerOutput : "../../../include/cpgf/metadata/box2d",
 	sourceOutput : "../../../src/metadata/box2d",
 	
-	metaOutputCallback : processCallback,
+	metaItemCallback : processCallback,
 	
 	cppNamespace : "meta_box2d",
 	
@@ -20,11 +20,9 @@ var config = {
 	
 	metaNamespace : "box2d",
 	sourceHeaderCode : "#include \"Box2D/Box2D.h\"",
-	sourceHeaderReplacer : doHeaderReplace,
+	sourceHeaderReplacer : [ "!.*Box2D[^/]*/Box2D!i", "Box2D" ],
 	metaHeaderPath : "cpgf/metadata/box2d/",
 };
-
-var re_doHeaderReplace = new RegExp(".*Box2D[^/]*/Box2D", "i");
 
 function processCallback(item, data)
 {
@@ -35,7 +33,3 @@ function processCallback(item, data)
 	}
 }
 
-function doHeaderReplace(fileName)
-{
-	return fileName.replace(re_doHeaderReplace, "Box2D");
-}

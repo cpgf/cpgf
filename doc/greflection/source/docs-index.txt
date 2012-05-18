@@ -60,6 +60,7 @@
 <{sc}>
 
 <{autoul}>
+	<a href="docs-cpgf-metadata-sfml.html">Meta data for SFML -- Simple and Fast Multimedia Library</a>
 	<a href="docs-cpgf-metadata-box2d.html">Meta data for Box2D physics engine </a>
 	<a href="docs-cpgf-metadata-opengl.html">Meta data for OpenGL, GLU, and GLUT </a>
 	<a href="docs-cpgf-metadata-stl.html">Meta data for STL </a>

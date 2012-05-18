@@ -24,7 +24,7 @@ void buildMetaClass_Global_windowstyle(const cpgf::GMetaDataConfigFlags & config
     (void)config; (void)_d; (void)_r; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalEnum_sfml_2", _r))
+    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalEnum_sfml_3", _r))
         ._element(replaceName("None", _r), sf::Style::None)
         ._element(replaceName("Titlebar", _r), sf::Style::Titlebar)
         ._element(replaceName("Resize", _r), sf::Style::Resize)

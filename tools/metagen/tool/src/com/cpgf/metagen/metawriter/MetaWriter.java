@@ -11,7 +11,6 @@ import com.cpgf.metagen.doxyxmlparser.FileInfo;
 import com.cpgf.metagen.doxyxmlparser.FileMap;
 import com.cpgf.metagen.metadata.CppClass;
 import com.cpgf.metagen.metadata.MetaInfo;
-import com.cpgf.metagen.metawriter.callback.InputCallbackData;
 
 public class MetaWriter {
 	private List<MetaFileWriter> fileWriterList;
@@ -35,7 +34,6 @@ public class MetaWriter {
 
 		Util.trace("Building file information.");
 
-		this.preprocess();
 		this.buildFileWriterList();
 
 		Util.trace("Writing files.");
@@ -148,29 +146,6 @@ public class MetaWriter {
 		Util.writeTextToFile(outFileName, codeWriter.getText());
 	}
 
-	private void preprocess()
-	{
-		if(this.config.metaInputCallback == null) {
-			return;
-		}
-
-		InputCallbackData data = new InputCallbackData();
-		for(CppClass item : this.classList) {
-			String location = item.getLocation();
-			this.config.metaInputCallback.inputCallback(item, data);
-			String newLocation = item.getLocation();
-			
-			// If the location is changed, we must add all namespaces to the new location. 
-			if(!location.equals(newLocation)) {
-				FileInfo fileInfo = this.fileMap.getFileMap().get(location);
-				FileInfo newFileInfo = this.fileMap.getFileMap().get(newLocation);
-				if(newFileInfo != null && fileInfo != null) {
-					newFileInfo.appendNamespaces(fileInfo.getNamespaceList());
-				}
-			}
-		}
-	}
-	
 	private void buildFileWriterList()
 	{
 		HashMap<String, MetaFileWriter> locationFileWriterMap = new HashMap<String, MetaFileWriter>();

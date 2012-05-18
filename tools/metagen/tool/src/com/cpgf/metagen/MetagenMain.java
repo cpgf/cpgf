@@ -80,7 +80,7 @@ public class MetagenMain {
 				(new DoxygenXmlParser(config, metaInfo, fileMap, xmlFileName)).parseFile();
 			}
 
-			metaInfo.fixup();
+			metaInfo.fixup(fileMap);
 
 			MetaWriter metaWriter = new MetaWriter(config, metaInfo, fileMap);
 			metaWriter.write();

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.cpgf.metagen.Config;
+import com.cpgf.metagen.doxyxmlparser.FileInfo;
+import com.cpgf.metagen.doxyxmlparser.FileMap;
 import com.cpgf.metagen.metadata.CppClass;
 import com.cpgf.metagen.metadata.Item;
 import com.cpgf.metagen.metawriter.callback.OutputCallbackData;
@@ -21,8 +23,8 @@ public class OutputCallbackClassMap {
 		this.map = new HashMap<Item, OutputCallbackData>();
 	}
 	
-	public void build(List<CppClass> classList) {
-		if(this.config.metaOutputCallback == null) {
+	public void build(List<CppClass> classList, FileMap fileMap) {
+		if(this.config.metaItemCallback == null) {
 			return;
 		}
 
@@ -34,14 +36,27 @@ public class OutputCallbackClassMap {
 		}
 		
 		for(Item item : itemList) {
+			String location = item.getLocation();
+
 			OutputCallbackData data = new OutputCallbackData();
-			this.config.metaOutputCallback.outputCallback(item, data);
+			this.config.metaItemCallback.outputCallback(item, data);
 			this.map.put(item, data);
+
+			String newLocation = item.getLocation();
+			
+			// If the location is changed, we must add all namespaces to the new location. 
+			if(!location.equals(newLocation)) {
+				FileInfo fileInfo = fileMap.getFileMap().get(location);
+				FileInfo newFileInfo = fileMap.getFileMap().get(newLocation);
+				if(newFileInfo != null && fileInfo != null) {
+					newFileInfo.appendNamespaces(fileInfo.getNamespaceList());
+				}
+			}
 		}
 	}
 
 	public OutputCallbackData getData(Item item) {
-		if(this.config.metaOutputCallback == null) {
+		if(this.config.metaItemCallback == null) {
 			return this.callbackData;
 		}
 		else {

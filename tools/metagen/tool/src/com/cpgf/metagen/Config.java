@@ -2,10 +2,7 @@ package com.cpgf.metagen;
 
 import com.cpgf.metagen.metadata.EnumCategory;
 import com.cpgf.metagen.metadata.PredefinedClassTraitsList;
-import com.cpgf.metagen.metawriter.callback.IInputCallback;
 import com.cpgf.metagen.metawriter.callback.IOutputCallback;
-import com.cpgf.metagen.metawriter.callback.IParseFileName;
-import com.cpgf.metagen.metawriter.callback.ISourceHeaderReplacer;
 
 public class Config {
 	// projectID is used as unique ID for meta build function names.
@@ -25,6 +22,7 @@ public class Config {
 	public boolean allowPrivate = false;
 	
 	// Specify the meta data categories that are allowed to generate meta data
+	// NOTE: current you can't change it in Javascript config file.
 	public EnumCategory[] allowedMetaData = {
 			EnumCategory.Constructor,
 			EnumCategory.Destructor,
@@ -34,9 +32,6 @@ public class Config {
 			EnumCategory.Field,
 			EnumCategory.Method,
 			EnumCategory.Operator
-	};
-	
-	public String[] excludeCompound = {
 	};
 	
 	// Prefix for auto generated functions.
@@ -57,11 +52,9 @@ public class Config {
 	// null for no namespace.
 	public String cppNamespace = null;
 	
-	public IInputCallback metaInputCallback = null;
-
-	// A callback sub routine.
-	// See Box2D generator scripts for details.
-	public IOutputCallback metaOutputCallback = null;
+	// A callback called before the items are outputed.
+	// See SFML generator scripts for details.
+	public IOutputCallback metaItemCallback = null;
 
 	// Header file extension.
 	public String headerExtension = ".h";
@@ -73,16 +66,18 @@ public class Config {
 	// Useful if all source files must include extra headers.
 	public String sourceHeaderCode = null;
 	
-	// See Box2D generator.
-	public ISourceHeaderReplacer sourceHeaderReplacer = null;
-	
-	public IParseFileName parseFileNameCallback = null;
-	
+	// See SFML generator.
+	public String[] sourceHeaderReplacer = null;
+
 	// A string of path that will be put in front of auto generated header.
 	// See Box2D generator.
 	public String metaHeaderPath = "";
 	
-	// auto register to global?
+	// auto register to global
+	// If this property is true, .cpp source files will be generated
+	// so the meta data will be auto registered after linked to the .cpp files.
+	// If this property is false, only header files will be generated
+	// so you need to call the reflect function manually.
 	public boolean autoRegisterToGlobal = true;
 	
 	// A string of namespace for meta data.
@@ -94,7 +89,7 @@ public class Config {
 	
 	public String[] predefinedTemplateInstances = {};
 	
-	// not implemented yet.
+	// Not implemented yet. DON'T set it to true.
 	public boolean scriptable = false;
 
 }

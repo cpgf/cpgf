@@ -13,7 +13,6 @@
 #include "cpgf/gmetapolicy.h"
 
 //#include "boost/type_traits/is_convertible.hpp"
-#include "SFML/Graphics.hpp"
 
 //#include "wx/string.h"
 
@@ -64,8 +63,6 @@ std::istream & abc(std::istream & a)
 
 void test()
 {
-	sf::Font::GetDefaultFont();
-
 	A s;
 	GVariant v(s);
 //	copyVariantFromCopyable(());
@@ -78,10 +75,10 @@ void test()
 }
 
 
-void samplemain();
+//void samplemain();
 int main(int /*argc*/, char * /*argv*/[])
 {
-	samplemain();
+//	samplemain();
 
 	test();
 	

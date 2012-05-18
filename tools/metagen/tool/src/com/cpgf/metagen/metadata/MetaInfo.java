@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.cpgf.metagen.Config;
+import com.cpgf.metagen.doxyxmlparser.FileMap;
 import com.cpgf.metagen.metawriter.OutputCallbackClassMap;
 
 public class MetaInfo {
@@ -38,7 +39,7 @@ public class MetaInfo {
 		return callbackClassMap;
 	}
 
-    public void fixup() {
+    public void fixup(FileMap fileMap) {
     	this.doFixupGlobals();
     	this.doFixupBaseClasses();
     	this.doFixupInnerClasses();
@@ -53,7 +54,7 @@ public class MetaInfo {
     	
     	this.doFixupTemplateInstances();
     	
-    	this.callbackClassMap.build(this.getClassList());
+    	this.callbackClassMap.build(this.getClassList(), fileMap);
     }
     
     private void doFixupTemplateInstances() {

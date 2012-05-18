@@ -109,7 +109,7 @@ public class MetaFileWriter {
 		if(this.config.sourceHeaderReplacer != null) {
 			String fileName = this.sourceFileName;
 			fileName.replaceAll("\\\\", "/");
-			fileName = this.config.sourceHeaderReplacer.replaceSourceHeader(fileName);
+			fileName = Util.replaceStringWithArray(fileName, this.config.sourceHeaderReplacer);
 			codeWriter.include(fileName);
 			codeWriter.write("\n");
 		}

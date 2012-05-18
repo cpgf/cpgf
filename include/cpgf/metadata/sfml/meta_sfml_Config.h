@@ -23,7 +23,7 @@ void buildMetaClass_Global_config(const cpgf::GMetaDataConfigFlags & config, D _
     (void)config; (void)_d; (void)_r; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalDefine_sfml_3", _r))
+    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalDefine_sfml_1", _r))
     ;
 }
 
