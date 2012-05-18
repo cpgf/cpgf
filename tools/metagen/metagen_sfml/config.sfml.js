@@ -18,8 +18,8 @@ var config = {
 	mainSourceFile : "register_meta_sfml",
 
 	autoRegisterToGlobal : true,
-	
-	scriptable : true,
+
+	scriptable : false, // not implemented yet.
 	
 	metaNamespace : "sfml",
 	sourceHeaderCode : "#include \"SFML/Audio.hpp\"" + "\n#include \"SFML/Config.hpp\"" + "\n#include \"SFML/Graphics.hpp\"" + "\n#include \"SFML/Network.hpp\"" + "\n#include \"SFML/System.hpp\"" + "\n#include \"SFML/Window.hpp\"",
@@ -90,9 +90,9 @@ function outputCallback(item, data)
 		}
 	}
 	else if(item.isConstructor()) {
-		if(item.getOwner().getPrimaryName() == "Thread" && item.hasParameter()) {
-			item.getParameterAt(0).setCallback("void (void * param)");
-		}
+//		if(item.getOwner().getPrimaryName() == "Thread" && item.hasParameter()) {
+//			item.getParameterAt(0).setCallback("void (void * param)");
+//		}
 	}
 }
 

@@ -94,6 +94,7 @@ public class Config {
 	
 	public String[] predefinedTemplateInstances = {};
 	
-	public boolean scriptable = true;
+	// not implemented yet.
+	public boolean scriptable = false;
 
 }

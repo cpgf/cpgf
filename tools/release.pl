@@ -37,6 +37,7 @@ my $patternList = [
 
 		path => "build",
 		files => [ '*' ],
+		excludeFiles => [ '*.bat' ],
 		recursive => 0,
 	},
 

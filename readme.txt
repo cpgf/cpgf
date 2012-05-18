@@ -6,7 +6,7 @@ It's written in (almostly) standard C++ and doesn't require any preprocess or to
 
 
 Version:
-	1.4.0
+	1.4.1
 
 		
 Libraries:
@@ -24,8 +24,8 @@ Libraries:
 
 	
 	cpgf meta data collection -- a library with built-in meta data support.
-		Now there are meta data for C++ STL, OpenGL, OpenGLU, OpenGLUT
-		and Box2D physical engine.
+		Now there are meta data for C++ STL, OpenGL, OpenGLU, OpenGLUT,
+		Box2D physical engine and SFML graphics and multimedia engine.
 		
 	cpgf meta data generator tool -- a Perl script to automatically generate
 		meta data from Doxygen XML files.

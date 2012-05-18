@@ -9,31 +9,10 @@
 #include "SFML/System/Thread.hpp"
 
 #include "cpgf/metadata/sfml/meta_sfml_Thread.h"
-#include "cpgf/scriptbind/gscriptbindutil.h"
 
-#include <iostream>
-
-
-using namespace std;
 using namespace cpgf;
 
 namespace meta_sfml { 
-
-
-static IScriptFunction * xxx = NULL;
-void callback_Thread_Constructor_0_p0(void * param)
-{
-    invokeScriptFunction(xxx, param);
-}
-
-void * callbackWrapper_Thread_Constructor_0(cpgf::IScriptFunction * scriptFunction0, void * UserData)
-{
-	return new sf::Thread(NULL);
-	cout << "AAAAAAAAAa   " << scriptFunction0 << endl;
-	xxx = scriptFunction0; 
-	return new sf::Thread(&callback_Thread_Constructor_0_p0);
-}
-
 
 
 GDefineMetaInfo createMetaClass_Thread()

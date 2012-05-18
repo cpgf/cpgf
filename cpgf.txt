@@ -13,3 +13,38 @@ Todo:
 
 Done:
 Serialization config should be attributes of meta class, rather than passing to writer/reader.
+
+
+#include "cpgf/gapi.h"
+#include "cpgf/gscopedptr.h"
+#include <map>
+
+typedef GSharedInterface<IScriptFunction> ScriptFunctionType;
+typedef map<void *, ScriptFunctionType> MapType;
+GScopedPointer<MapType> scriptFunctionMap;
+
+void putScriptFunctionToMap(void * address, IScriptFunction * function)
+{
+	if(! scriptFunctionMap) {
+		scriptFunctionMap.reset(new MapType);
+	}
+	(*scriptFunctionMap)[address].reset(function);
+}
+
+IScriptFunction * getScriptFunctionFromMap(void * address)
+{
+	if(! scriptFunctionMap) {
+		return NULL;
+	}
+	IScriptFunction * function = (*scriptFunctionMap)[address].get();
+	function->addReference();
+	return function;
+}
+
+void clearScriptFunctionsInMap()
+{
+	if(scriptFunctionMap) {
+		scriptFunctionMap->clear();
+	}
+}
+
