@@ -19,7 +19,7 @@ cpgf is composed by several independent components:
 	
 	cpgf meta data collection -- a library with built-in meta data support. Now there are meta data for C++ STL, OpenGL, OpenGLU, OpenGLUT, Box2D physical engine and SFML multimedia library.
 	
-	cpgf meta data generator tool -- a Perl script to automatically generate meta data from Doxygen XML files.
+	cpgf meta data generator tool -- a tool written in Java to automatically generate meta data from Doxygen XML files.
 <{/autoul}>
 The goal of cpgf is to extend C++ language with a lot of easy to use features which are only available in other higher level languages and absence in C++.
 cpgf provides a very easy to use callback system, which is common used in C# and script languages.

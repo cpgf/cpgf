@@ -9,10 +9,12 @@ public class Config {
 	// It must be unique among the meta data.
 	public String projectID = "";
 
-	// The directory to create .h files in
+	// The directory to create .h files in.
+	// The tool will create it and its parent directory if it doesn't yet.
 	public String headerOutput = "./output";
 	
 	// The directory to create .cpp files in
+	// The tool will create it and its parent directory if it doesn't yet.
 	public String sourceOutput = "./output";
 
 	// Specify the visibility of what kind of members to be built meta data.

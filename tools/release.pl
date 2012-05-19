@@ -125,9 +125,31 @@ sub doMain
 		&processPattern($_);
 	}
 	
+	&processBuildConfig($destPath . 'build/build.config.txt');
+	
 	mkdir($destPath . 'lib');
 
 	&makeZip;
+}
+
+sub processBuildConfig
+{
+	my ($fileName) = @_;
+	
+	open FH, '<' . $fileName or die "Can't open build config file $fileName to read.\n";
+	my @lines = <FH>;
+	close FH;
+
+	open FH, '>' . $fileName or die "Can't open build config file $fileName to write.\n";
+	foreach(@lines) {
+		my $s = $_;
+		if($s =~ /#release=false/) {
+			$s =~ s/\s*#release=false//;
+			$s =~ s/\b1\b/0/;
+		}
+		print FH $s;
+	}
+	close FH;
 }
 
 sub makeZip

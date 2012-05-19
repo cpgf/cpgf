@@ -65,9 +65,7 @@ Variable config contains several key-value pairs.
 All properties in the Javascript config file are same name and same meaning with com.cpgf.metagen.Config
 Config.java is well documented.
 
-Beside $config, any valid Perl code can be put into the config file, such as temporary variable, sub routines, etc.
-
-Note: don't prefix $config with "my". $config should not be local variable.
+Beside config, any valid Javascript code can be put into the config file, such as temporary variable, functions, etc.
 
 <{/autobr}>
 
@@ -77,9 +75,7 @@ Note: don't prefix $config with "my". $config should not be local variable.
 
 <{autobr}>
 To execute the tool, run,
-perl metagen.pl
-Then it will display usage information.
-Note for Unix/Linux user, don't try to run the script directly. Use Perl to invoke it. There is no the "#!" first line in the script to indicate for the intercepter.
+<{piece}>java -cp js.jar -jar .metagen.jar --config ConfigFileName --xml DoxygenXML.xml <{/piece}>
 
 Metagen takes two must-have options.
 --xml DoxygenXMLFileName
@@ -88,13 +84,8 @@ Metagen takes two must-have options.
 DoxygenXMLFileName can be any valid Doxygen XML file name. But usually it should be the index.xml.
 The tool will parse the XML file, and all XML files it references to. So a index.xml is enough to parse all library.
 
-ConfigFileName is the config Perl script.
+ConfigFileName is the config Javascript.
 
-There are two optional options, --headerOutput and --sourceOutput.
-If they are provided in the command line, they will override the same name config in the config file.
-
-Here is the command line used to generate meta data for Box2D, as an example,
-<{piece}>perl ../metagen.pl --xml xml/index.xml --config config.box2d.pl <{/piece}>
 
 <{/autobr}>
 
@@ -105,15 +96,15 @@ Here is the command line used to generate meta data for Box2D, as an example,
 
 <{autobr}>
 Currently metagen has basic features.
-It succeeds on generating meta data for Box2D physical engine.
+It succeeds on generating meta data for Box2D physical engine and SFML multimedia library.
 So for simple library, the tool should be quite useful. "simple" here means no need for scripting, or need scripting but no event or callback system and no a lot need to override virtual functions in script, etc.
 
 Now the tool can only generate meta data, it can't automatically deal with special case for scripting usage, such as wrap operator to functions.
 
 If you are going to generate meta data to use in script, here are some limitations:
-1, The tool can't wrap operator to functions, such as add "inc" function for "++" operator. This will be supported in near future.
-2, The tool can't help to let script override C++ virtual functions. This will be supported in the future.
-3, The tool can't handle script callback as we did in Glut binding manually. This may be supported in the future.
+1, The tool can't handle script callback as we did in Glut binding manually. This is under working, but not finished yet.
+2, The tool can't wrap operator to functions, such as add "inc" function for "++" operator. This will be supported in near future.
+3, The tool can't help to let script override C++ virtual functions. This will be supported in the future.
 
 The future goal of the tool is to be able to generate script usable meta data for wxWidgets or equivalent complex libraries.
 

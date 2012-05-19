@@ -1,27 +1,18 @@
-set(BUILD_DEBUG
-	0
-)
+set(BUILD_DEBUG	0) #release=false
 
 # set 1 to enable Lua binding, 0 to disable
-set(HAS_LUA
-	1
-)
+set(HAS_LUA	1) #release=false
 
 # set 1 to enable V8 binding, 0 to disable
-set(HAS_V8
-	1
-)
+set(HAS_V8 1) #release=false
 
 # set 1 to enable C++ 0X in GCC, then rvalue reference is enabled
 # 0 to disable rvalue reference
-set(SUPPORT_GCC_0X
-	1
-)
+set(SUPPORT_GCC_0X 1) #release=false
 
-# To enable unit test, change the below folder to UnitTest++.
-set(UNIT_TEST_DIR
-	e:/SourceCode/cpp/UnitTest++
-)
+# set 1 to enable unit tests.
+# it requires UnitTest++ installed.
+set(HAS_UNITTEST 1) #release=false
 
 set(TEST_GCOV 0)
 if(UNIX)
@@ -30,23 +21,26 @@ if(UNIX)
 endif(UNIX)
 
 
+# whether we have GLUT library
+set(HAS_GLUT 1) #release=false
+
 ### Samples config
 
-# whether we have GLUT library
-set(HAS_GLUT
-	1
-)
-
 # whether we have Box2D library
-set(HAS_BOX2D
-	1
-)
+# this value is not used in library, only used in samples
+set(HAS_BOX2D 1) #release=false
 
 # whether we have SFML library
-set(HAS_SFML
-	1
-)
+# this value is not used in library, only used in samples
+set(HAS_SFML 1) #release=false
 
+
+
+### Unit test config
+
+set(UNIT_TEST_DIR
+	e:/SourceCode/cpp/UnitTest++
+)
 
 
 ### Lua config

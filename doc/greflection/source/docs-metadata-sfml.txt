@@ -12,6 +12,8 @@
 The meta data for SFML is a collection of meta data to represent for SFML library.
 Now the supported SFML version is 1.6.
 
+With the meta data, it's a piece of cake to use SFML in Lua or Javascript language.
+
 <{/autobr}>
 
 <table cols="2" style="width:100%">
