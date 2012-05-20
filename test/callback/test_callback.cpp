@@ -62,7 +62,7 @@ public:
 	}
 
 private:
-	CallbackSyntax & operator = (const CallbackSyntax &other) {
+	CallbackSyntax & operator = (const CallbackSyntax & /*other*/) {
 		return *this;
 	}
 
