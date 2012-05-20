@@ -9,7 +9,7 @@ void test__Proto__(TestScriptContext * context)
 	QDO(b = {})
 	QDO(b.__proto__ = a)
 	QASSERT(b.add(5) == 8)
-	
+
 	QDO(f = a.add)
 	QERR(f(5))
 

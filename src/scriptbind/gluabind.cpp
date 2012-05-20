@@ -21,6 +21,13 @@
 #endif
 
 
+#if LUA_VERSION_NUM >= 502
+	#define HAS_LUA_GLOBALSINDEX 0
+#else
+	#define HAS_LUA_GLOBALSINDEX 1
+#endif
+
+
 using namespace std;
 using namespace cpgf::bind_internal;
 
@@ -206,7 +213,6 @@ private:
 private:
 	MapType itemMap;
 	GLuaScriptObject * scriptObject;
-	bool hasPreviousMetatable;
 };
 
 int UserData_gc(lua_State * L);
@@ -260,6 +266,52 @@ void getRefObject(lua_State * L, int ref)
 }
 
 
+/*
+void dumpLuaValue(lua_State * L, int index)
+{
+	int type = lua_type(L, index);
+
+	cout << "XXX ";
+	switch(type) {
+		case LUA_TNIL:
+			cout << "nil";
+			break;
+
+		case LUA_TNUMBER:
+			cout << "Number " << lua_tonumber(L, index);
+			break;
+
+		case LUA_TBOOLEAN:
+			cout << "Boolean " << lua_toboolean(L, index);
+			break;
+
+		case LUA_TSTRING:
+			cout << "String " << lua_tostring(L, index);
+			break;
+
+		case LUA_TUSERDATA:
+			cout << "Userdata " << lua_touserdata(L, index);
+			break;
+
+		case LUA_TFUNCTION:
+			cout << "Function";
+			break;
+
+		case LUA_TLIGHTUSERDATA:
+			break;
+
+		case LUA_TTABLE:
+			cout << "Table" << lua_topointer(L, index);
+			break;
+			
+		case LUA_TTHREAD:
+			break;
+	}
+
+	cout << endl;
+}
+*/
+
 int GlobalAccessor_index(lua_State * L)
 {
 	ENTER_LUA()
@@ -283,7 +335,7 @@ int GlobalAccessor_newindex(lua_State * L)
 }
 
 GLuaGlobalAccessor::GLuaGlobalAccessor(GLuaScriptObject * scriptObject)
-	: scriptObject(scriptObject), hasPreviousMetatable(false)
+	: scriptObject(scriptObject)
 {
 	this->initialize();
 }
@@ -299,8 +351,6 @@ void GLuaGlobalAccessor::doBindAccessible(const char * name, void * instance, IM
 
 	this->itemMap.insert(make_pair(sname, GLuaGlobalAccessorItem(instance, accessible)));
 }
-
-const char * GlobalAccessorPreviousMetaTableKey = "i_gL0b1_Meta_kEY_389172";
 
 int GLuaGlobalAccessor::doIndex()
 {
@@ -339,24 +389,20 @@ int GLuaGlobalAccessor::doNewIndex()
 
 int GLuaGlobalAccessor::doPreviousIndex(const char * name)
 {
-	if(this->hasPreviousMetatable) {
-		lua_State * L = this->scriptObject->implement->luaState;
-		
-		GLuaScopeGuard scopeGuard(this->scriptObject);
-		
-		scopeGuard.keepStack();
+	lua_State * L = this->scriptObject->implement->luaState;
+	
+	this->scriptObject->implement->getTable();
 
-		scopeGuard.rawGet(GlobalAccessorPreviousMetaTableKey);
+	if(lua_isfunction(L, -1)) {
+		lua_pushstring(L, name);
+		lua_call(L, 1, 1);
+		return 1;
+	}
+	if(lua_istable(L, -1)) {
+		lua_pushstring(L, name);
+		lua_rawget(L, -2);
 
-		if(lua_isfunction(L, -1)) {
-			lua_pushstring(L, name);
-			lua_call(L, 1, 1);
-			return 1;
-		}
-		if(lua_istable(L, -1)) {
-			lua_getfield(L, -1, name);
-			return 1;
-		}
+		return 1;
 	}
 
 	return 0;
@@ -364,26 +410,22 @@ int GLuaGlobalAccessor::doPreviousIndex(const char * name)
 
 int GLuaGlobalAccessor::doPreviousNewIndex(const char * name)
 {
-	if(this->hasPreviousMetatable) {
-		lua_State * L = this->scriptObject->implement->luaState;
-		
-		GLuaScopeGuard scopeGuard(this->scriptObject);
+	lua_State * L = this->scriptObject->implement->luaState;
+	
+	this->scriptObject->implement->getTable();
 
-		scopeGuard.keepStack();
+	if(lua_isfunction(L, -1)) {
+		lua_pushstring(L, name);
+		lua_pushvalue(L, -3);
+		lua_call(L, 2, 0);
+		return 1;
+	}
+	if(lua_istable(L, -1)) {
+		lua_pushstring(L, name);
+		lua_pushvalue(L, -3);
+		lua_rawset(L, -3);
 
-		scopeGuard.rawGet(GlobalAccessorPreviousMetaTableKey);
-
-		if(lua_isfunction(L, -1)) {
-			lua_pushstring(L, name);
-			lua_pushvalue(L, -3);
-			lua_call(L, 2, 0);
-			return 1;
-		}
-		if(lua_istable(L, -1)) {
-			lua_pushvalue(L, -2);
-			lua_setfield(L, -2, name);
-			return 1;
-		}
+		return 1;
 	}
 
 	return 0;
@@ -392,28 +434,6 @@ int GLuaGlobalAccessor::doPreviousNewIndex(const char * name)
 void GLuaGlobalAccessor::initialize()
 {
 	lua_State * L = this->scriptObject->implement->luaState;
-
-	this->hasPreviousMetatable = false;
-
-	{
-		GLuaScopeGuard scopeGuard(this->scriptObject);
-		bool ok = false;
-		if(this->scriptObject->isGlobal()) {
-			ok = !! lua_getmetatable(L, LUA_GLOBALSINDEX);
-			if(!ok) {
-				lua_newtable(L);
-			}
-			ok = true;
-		}
-		else {
-			ok = !! lua_getmetatable(L, -1);
-		}
-		if(ok) {
-			scopeGuard.set(GlobalAccessorPreviousMetaTableKey);
-
-			this->hasPreviousMetatable = true;
-		}
-	}
 
 	if(! this->scriptObject->isGlobal()) {
 		this->scriptObject->implement->getTable();
@@ -432,7 +452,13 @@ void GLuaGlobalAccessor::initialize()
 	lua_rawset(L, -3);
 
 	if(this->scriptObject->isGlobal()) {
+#if HAS_LUA_GLOBALSINDEX
 		lua_setmetatable(L, LUA_GLOBALSINDEX);
+#else
+		lua_pushglobaltable(L);
+		lua_pushvalue(L, -2);
+		lua_setmetatable(L, -2);
+#endif
 	}
 	else {
 		lua_setmetatable(L, -2);
@@ -1399,6 +1425,13 @@ void GLuaScriptObjectImplement::getTable() const
 	if(this->ref != LUA_NOREF) {
 		getRefObject(this->luaState, this->ref);
 	}
+	else {
+#if HAS_LUA_GLOBALSINDEX
+		lua_pushvalue(this->luaState, LUA_GLOBALSINDEX);
+#else
+		lua_pushglobaltable(this->luaState);
+#endif
+	}
 }
 
 GMethodListUserData * GLuaScriptObjectImplement::doGetMethodUserData()
@@ -1480,6 +1513,7 @@ void GLuaScopeGuard::get(const char * name)
 
 void GLuaScopeGuard::rawGet(const char * name)
 {
+#if HAS_LUA_GLOBALSINDEX
 	lua_pushstring(this->scope->implement->luaState, name);
 
 	if(scope->isGlobal()) {
@@ -1488,6 +1522,15 @@ void GLuaScopeGuard::rawGet(const char * name)
 	else {
 		lua_rawget(this->scope->implement->luaState, -2);
 	}
+#else
+	if(scope->isGlobal()) {
+		lua_pushglobaltable(this->scope->implement->luaState);
+	}
+
+	lua_pushstring(this->scope->implement->luaState, name);
+	lua_rawget(this->scope->implement->luaState, -2);
+	lua_remove(this->scope->implement->luaState, -2); // remove the global table to balance the stace
+#endif
 }
 
 // function is on stack top

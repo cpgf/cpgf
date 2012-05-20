@@ -12,74 +12,55 @@
 #include "cpgf/gtypetraits.h"
 #include "cpgf/gmetapolicy.h"
 
-//#include "boost/type_traits/is_convertible.hpp"
+#include "cpgf/gmemorypool.h"
 
-//#include "wx/string.h"
+#include <time.h>
 
 using namespace std;
 using namespace cpgf;
+using namespace cpgf::memorypool_internal;
 
-
-class A
+clock_t getTime()
 {
-public:
-	A() {}
-	A(char) {}
-	A(wchar_t *) {}
-	
-	operator void * () { return NULL; }
-	operator char * () { return NULL; }
-
-private:
-	A & operator = (int);
-//	explicit A(int);
-};
-
-class B
-{
-protected:
-	B() {}
-	
-private:
-	B(const B &);
-	B & operator = (const B &);
-};
-
-class C : public B
-{
-};
-
-B& operator >>(B& Stream, B& Address)
-{
-	return Stream;
+	return clock();
 }
 
-std::istream & abc(std::istream & a)
+template <typename T>
+void doTest()
 {
-//	cout << IsConvertible<char *, sf::RenderWindow &>::Result;
-//	cout << boost::is_convertible<char *, sf::RenderWindow &>::value;
-	return a;
+	clock_t t;
+
+	GObjectPool<T> pool;
+	const int times = 1000 * 1000;
+	GScopedArray<T *> pointers(new T *[times]);
+
+	t = getTime();
+	for(int i = 0; i < times; ++i) {
+		pointers[i] = pool.allocate();
+	}
+	for(int i = 0; i < times; ++i) {
+		pool.free(pointers[i]);
+	}
+	cout << "Time0: " << (getTime() - t) << endl;
+
+	t = getTime();
+	for(int i = 0; i < times; ++i) {
+		pointers[i] = new T;
+	}
+	for(int i = 0; i < times; ++i) {
+		delete pointers[i];
+	}
+	cout << "Time1: " << (getTime() - t) << endl;
 }
 
 void test()
 {
-	A s;
-	GVariant v(s);
-//	copyVariantFromCopyable(());
-
-	GDefineMetaGlobal define;
-	define
-		._method("abc", &abc) //, MakePolicy<GMetaRuleParamNoncopyable<-1>, GMetaRuleParamNoncopyable<0> >())
-    	._operator<B & (*)(B &, B &)>(mopHolder >> mopHolder, MakePolicy<GMetaRuleParamNoncopyable<-1>, GMetaRuleParamNoncopyable<0>, GMetaRuleParamNoncopyable<1> >())
-	;
+	doTest<int>();
 }
 
 
-//void samplemain();
 int main(int /*argc*/, char * /*argv*/[])
 {
-//	samplemain();
-
 	test();
 	
 	UnitTest::RunAllTests();

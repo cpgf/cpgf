@@ -4,7 +4,7 @@ var config = {
 	headerOutput : "cpp/include",
 	sourceOutput : "cpp/src",
 	
-	metaOutputCallback : processCallback,
+	metaItemCallback : processCallback,
 	
 	cppNamespace : "meta_wxwidgets",
 	
@@ -20,11 +20,9 @@ var config = {
 	
 	metaNamespace : "wxwidgets",
 	sourceHeaderCode : "#include \"wx/wx.h\"",
-	sourceHeaderReplacer : doHeaderReplace,
+	sourceHeaderReplacer : [ "!.*include/SFML!i", "SFML" ],
 	metaHeaderPath : "",
 };
-
-var re_doHeaderReplace = new RegExp(".*Box2D[^/]*/Box2D", "i");
 
 function processCallback(item, data)
 {
@@ -35,7 +33,3 @@ function processCallback(item, data)
 	}
 }
 
-function doHeaderReplace(fileName)
-{
-	return fileName.replace(re_doHeaderReplace, "Box2D");
-}

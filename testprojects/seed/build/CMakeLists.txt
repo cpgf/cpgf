@@ -3,7 +3,7 @@ project(seedTest)
 cmake_minimum_required(VERSION 2.8)
 
 include(../../../build/build.config.txt)
-set(BUILD_DEBUG 1)
+set(BUILD_DEBUG 0)
 
 set(CMAKE_BUILD_TYPE Release)
 
@@ -25,8 +25,8 @@ set(TEST_PATH ${ROOT_PATH}/test)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN_PATH})
 
-#set(CPP_SOURCE_PATH e:/SourceCode/cpp)
-set(CPP_SOURCE_PATH d:/source)
+set(CPP_SOURCE_PATH e:/SourceCode/cpp)
+#set(CPP_SOURCE_PATH d:/source)
 
 ### build
 
@@ -35,7 +35,8 @@ if(MSVC)
 endif(MSVC)
 
 file(GLOB GLOB_SEED ${SEED_SRC_PATH}/*.cpp)
-file(GLOB GLOB_WX ${ROOT_PATH}/testprojects/metagen_sfml/cpp/src/*.cpp)
+#file(GLOB GLOB_WX ${ROOT_PATH}/testprojects/metagen_sfml/cpp/src/*.cpp)
+#file(GLOB GLOB_WX ${ROOT_PATH}/testprojects/metagen_wxwidgets/cpp/src/*.cpp)
 
 set(HAS_UNITTEST 1)
 if(${HAS_UNITTEST})
@@ -61,9 +62,11 @@ set(SRC_UNITTEST_FRAMEWORK
 
 set(SRC_META
 	${GLOB_SEED}
-	${GLOB_WX}
+#	${GLOB_WX}
 	
 	${SRC_UNITTEST_FRAMEWORK}
+)
+set(XXX	
 
 	${SRC_PATH}/gapiutil.cpp
 	${SRC_PATH}/gbytearray.cpp
@@ -168,10 +171,10 @@ set_target_properties(
 target_link_libraries(
 	${TARGET}
 #	${CPP_SOURCE_PATH}/wxWidgets/lib/gcc_dll/libwxmsw29u.a
-	${CPP_SOURCE_PATH}/V8/libv8.a
-	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-audio-d.a
-	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-graphics-d.a
-	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-network-d.a
-	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-system-d.a
-	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-window-d.a
+#	${CPP_SOURCE_PATH}/V8/libv8.a
+#	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-audio-d.a
+#	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-graphics-d.a
+#	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-network-d.a
+#	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-system-d.a
+#	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-window-d.a
 )

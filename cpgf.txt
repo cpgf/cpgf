@@ -1,18 +1,14 @@
 Todo:
 
-1, Metagen, should parse method parameter types to give appropriate meta policy, such as whether an object is copyable.
-2, Metagen, should generate meta code for template class.
 
 1, In reflection, now finding base class is depending on global classes. Not fine. Should find base class in the most outter class recursively.
 1, Metagen, needs to parse Doxygen document for annotation.
 1, Support script override C++ functions. It's difficult. Adding interceptor in meta system is not enough.
 2, Support object pool in interface based api
-3, Test with Lua 5.2
 1, GVariant passes rvalue reference as value, not efficient, should imporve.
 4, Define meta data for C library?
 
 Done:
-Serialization config should be attributes of meta class, rather than passing to writer/reader.
 
 
 #include "cpgf/gapi.h"

@@ -1093,7 +1093,7 @@ Handle<Value> getNamedMember(GClassUserData * userData, const char * name)
 						boundClass->addReference();
 					}
 					else {
-						if(derived->getBaseCount() > 0) {
+						if(derived->getBaseCount() > 0 && derived->getBaseClass(0)) {
 							// always choose first base because we only support single inheritance in JS
 							boundClass.reset(derived->getBaseClass(0));
 						}
