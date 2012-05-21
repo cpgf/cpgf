@@ -12,32 +12,6 @@ namespace cpgf {
 namespace memorypool_internal {
 
 
-template <unsigned int Size>
-struct GMemoryPoolTrunkAllocator_Heap
-{
-	void * getMemory() const {
-		if(! this->memory) {
-			this->memory.reset(new char[Size]);
-		}
-
-		return this->memory.get();
-	}
-
-private:
-	mutable GScopedArray<char> memory;
-};
-
-template <unsigned int Size>
-struct GMemoryPoolTrunkkAllocator_Inline
-{
-	void * getMemory() const {
-		return &this->memory[0];
-	}
-
-private:
-	mutable char memory[Size];
-};
-
 inline void * poolAddPointer(void * p, int offset)
 {
 	return static_cast<char *>(p) + offset;
@@ -46,35 +20,13 @@ inline void * poolAddPointer(void * p, int offset)
 class GMemoryPoolRange
 {
 public:
-	explicit GMemoryPoolRange(void * start) : start(start), end(NULL) {
-	}
+	explicit GMemoryPoolRange(void * start);
+	GMemoryPoolRange(void * start, void * end);
 
-	GMemoryPoolRange(void * start, void * end) : start(start), end(end) {
-	}
+	GMemoryPoolRange(const GMemoryPoolRange & other);
+	GMemoryPoolRange & operator = (const GMemoryPoolRange & other);
 
-	GMemoryPoolRange(const GMemoryPoolRange & other) : start(other.start), end(other.end) {
-	}
-
-	GMemoryPoolRange & operator = (const GMemoryPoolRange & other) {
-		this->start = other.start;
-		this->end = other.end;
-
-		return *this;
-	}
-
-	bool operator < (const GMemoryPoolRange & other) const {
-		if(this->end == NULL) {
-			return this->start < other.start;
-		}
-		else {
-			if(other.end == NULL) {
-				return other.start >= this->end;
-			}
-			else {
-				return this->start < other.start;
-			}
-		}
-	}
+	bool operator < (const GMemoryPoolRange & other) const;
 
 private:
 	void * start;
@@ -84,222 +36,109 @@ private:
 template <typename T>
 struct GMemoryPoolInitializer
 {
-	static T * init(void * p) {
-		return new (p) T();
+	static void init(void * p) {
+		new (p) T();
 	}
 
-	static void deinit(T * p) {
-		p->~T();
+	static void deinit(void * p) {
+		static_cast<T *>(p)->~T();
 	}
 };
 
 template <>
 struct GMemoryPoolInitializer <void>
 {
-	static void * init(void * p) {
-		return p;
+	static void init(void * /*p*/) {
 	}
 
 	static void deinit(void * /*p*/) {
 	}
 };
 
-template <unsigned int BlockSize, unsigned int BlockCount, typename T, template<unsigned int> class TrunkAllocator = GMemoryPoolTrunkkAllocator_Inline>
-class GMemoryPoolTrunk
-{
-private:
-	typedef unsigned char FreeListType;
+class GMemoryPoolChunk;
 
-	GASSERT_STATIC(BlockCount > 1);
-	GASSERT_STATIC(BlockCount <= (1 << (sizeof(FreeListType) * 8)));
-
-public:
-	GMemoryPoolTrunk() : usedCount(0) {
-		for(unsigned int i = 0; i < BlockCount; ++i) {
-			this->freeList[i] = static_cast<FreeListType>(i);
-		}
-	}
-
-	~GMemoryPoolTrunk() {
-		this->deinitAll();
-	}
-
-	GMemoryPoolRange getRange() const {
-		return GMemoryPoolRange(this->trunkAllocator.getMemory(),
-			poolAddPointer(this->trunkAllocator.getMemory(), BlockCount * BlockSize));
-	}
-
-	bool isFull() const {
-		return this->usedCount == BlockCount;
-	}
-
-	bool isEmpty() const {
-		return this->usedCount == 0;
-	}
-
-	T * allocate() {
-		if(! this->isFull()) {
-			void * p = poolAddPointer(
-				this->trunkAllocator.getMemory(),
-				this->freeList[this->usedCount++] * BlockSize)
-			;
-			return GMemoryPoolInitializer<T>::init(p);
-		}
-		else {
-			return NULL;
-		}
-	}
-
-	void free(T * p) {
-		if(this->ownsPointer(p)) {
-			void * m = this->trunkAllocator.getMemory();
-
-			// GCC will give "invalid use of void" error if we don't convert to char *
-			long offset = static_cast<long>((char *)p - (char *)m);
-			
-			GASSERT(offset % BlockSize == 0);
-
-			GMemoryPoolInitializer<T>::deinit(p);
-
-			--this->usedCount;
-			this->freeList[this->usedCount] = static_cast<FreeListType>(offset / BlockSize);
-		}
-	}
-
-	bool ownsPointer(void * p) const {
-		void * m = this->trunkAllocator.getMemory();
-		return usedCount > 0 && p >= m && p < poolAddPointer(m, BlockSize * BlockCount);
-	}
-
-private:
-	void deinitAll() {
-		if(this->usedCount > 0) {
-			bool usedList[BlockCount];
-			for(unsigned int i = 0; i < BlockCount; ++i) {
-				usedList[i] = true;
-			}
-			for(unsigned int i = this->usedCount; i < BlockCount; ++i) {
-				usedList[this->freeList[i]] = false;
-			}
-			for(unsigned int i = 0; i < BlockCount; ++i) {
-				if(usedList[i]) {
-					void * p = poolAddPointer(
-						this->trunkAllocator.getMemory(),
-						this->freeList[i] * BlockSize)
-					;
-					GMemoryPoolInitializer<T>::deinit(static_cast<T *>(p));
-				}
-			}
-		}
-	}
-
-private:
-	unsigned int usedCount;
-	FreeListType freeList[BlockCount];
-	TrunkAllocator<BlockSize * BlockCount> trunkAllocator;
-};
-
-template <unsigned int BlockSize, unsigned int BlockCount, typename T>
 class GMemoryPoolImplement
 {
 private:
-	typedef GMemoryPoolTrunk<BlockSize, BlockCount, T> TrunkType;
-	typedef std::map<GMemoryPoolRange, TrunkType *> MapType;
-
-	struct GMemoryPoolNode {
-		GMemoryPoolNode() : next(NULL) {}
-
-		TrunkType trunk;
-		GMemoryPoolNode * next;
-	};
+	typedef std::map<GMemoryPoolRange, GMemoryPoolChunk *> MapType;
 
 public:
-	GMemoryPoolImplement() : root(NULL) {
-	}
+	GMemoryPoolImplement(unsigned int blockSize, unsigned int blockCount);
+	~GMemoryPoolImplement();
 
-	~GMemoryPoolImplement() {
-		this->freeAll();
-	}
+	void * allocate();
+	void free(void * p);
 
-	T * allocate() {
-		if(this->freeMap.empty()) {
-			TrunkType * trunk = new TrunkType;
-			this->freeMap[trunk->getRange()] = trunk;
-			return trunk->allocate();
-		}
-		else {
-			typename MapType::iterator it = this->freeMap.begin();
-			TrunkType * trunk = it->second;
-			T * p = trunk->allocate();
-			if(trunk->isFull()) {
-				this->freeMap.erase(it);
-				this->fullMap[trunk->getRange()] = trunk;
-			}
-			return p;
-		}
-	}
-
-	void free(T * p) {
-		GMemoryPoolRange range(p);
-		typename MapType::iterator it;
-		
-		it = this->fullMap.find(range);
-		if(it != this->fullMap.end()) {
-			TrunkType * trunk = it->second;
-			this->fullMap.erase(it);
-			trunk->free(p);
-			this->freeMap[trunk->getRange()] = trunk;
-		}
-		else {
-			it = this->freeMap.find(range);
-			if(it != this->freeMap.end()) {
-				TrunkType * trunk = it->second;
-				trunk->free(p);
-				if(trunk->isEmpty()) {
-					this->freeMap.erase(trunk->getRange());
-					delete trunk;
-				}
-			}
-			else {
-				GASSERT(false);
-			}
-		}
-	}
+	void setInit(void (*funcInit)(void * p));
+	void setDeinit(void (*funcDeinit)(void * p));
 
 private:
-	void freeAll() {
-		this->freeAllMap(&this->fullMap);
-		this->freeAllMap(&this->freeMap);
-	}
-
-	void freeAllMap(MapType * m) {
-		for(typename MapType::iterator it = m->begin(); it != m->end(); ++it) {
-			delete it->second;
-		}
-		m->clear();
-	}
+	void freeAll();
+	void freeAllMap(MapType * m);
 
 private:
-	GMemoryPoolNode * root;
+	const unsigned int blockSize;
+	const unsigned int blockCount;
 	MapType fullMap;
 	MapType freeMap;
+
+	void (*funcInit)(void * p);
+	void (*funcDeinit)(void * p);
 };
 
 
 } // namespace memorypool_internal
 
+const unsigned int MemoryPoolDefaultBlockCount = 256;
 
-template <unsigned int BlockSize, unsigned int BlockCount = 256>
-class GMemoryPool : public memorypool_internal::GMemoryPoolImplement<BlockSize, BlockCount, void> 
+class GMemoryPool
 {
+public:
+	explicit GMemoryPool(unsigned int blockSize, unsigned int blockCount = MemoryPoolDefaultBlockCount)
+		: implement(blockSize, blockCount) {
+	}
+
+	void * allocate() {
+		return this->implement.allocate();
+	}
+
+	void free(void * p) {
+		this->implement.free(p);
+	}
+
+private:
+	memorypool_internal::GMemoryPoolImplement implement;
 };
 
 
-template <typename T, unsigned int ObjectSize = sizeof(T), unsigned int BlockCount = 256>
-class GObjectPool : public memorypool_internal::GMemoryPoolImplement<ObjectSize, BlockCount, T> 
+template <typename T>
+class GObjectPool
 {
+public:
+	explicit GObjectPool(unsigned int objectSize = sizeof(T), unsigned int blockCount = MemoryPoolDefaultBlockCount)
+		: implement(objectSize, blockCount) {
+		this->implement.setInit(memorypool_internal::GMemoryPoolInitializer<T>::init);
+		this->implement.setDeinit(memorypool_internal::GMemoryPoolInitializer<T>::deinit);
+	}
+
+	T * allocate() {
+		return static_cast<T *>(this->implement.allocate());
+	}
+
+	void free(T * p) {
+		this->implement.free(p);
+	}
+
+private:
+	memorypool_internal::GMemoryPoolImplement implement;
 };
 
+
+class GMemoryPoolSingleton
+{
+public:
+	static GMemoryPool * getMemoryPool(unsigned int blockSize, unsigned int blockCount = MemoryPoolDefaultBlockCount);
+};
 
 
 } // namespace cpgf

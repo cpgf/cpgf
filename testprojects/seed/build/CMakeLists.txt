@@ -65,12 +65,13 @@ set(SRC_META
 #	${GLOB_WX}
 	
 	${SRC_UNITTEST_FRAMEWORK}
-)
-set(XXX	
 
 	${SRC_PATH}/gapiutil.cpp
 	${SRC_PATH}/gbytearray.cpp
 	${SRC_PATH}/gexception.cpp
+	${SRC_PATH}/gmemorypool.cpp
+)
+set(XXX	
 	${SRC_PATH}/gmetaannotation.cpp
 	${SRC_PATH}/gmetaapi.cpp
 	${SRC_PATH}/gmetaclass.cpp
