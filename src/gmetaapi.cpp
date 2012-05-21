@@ -85,7 +85,7 @@ protected: \
 	virtual uint32_t G_API_CC getSize() { return this->doGetSize(); }
 
 #define USE_POOL(cls) \
-	void * operator new(size_t size) { \
+	void * operator new(size_t /*size*/) { \
 		return GMemoryPoolManager::getGlobal()->getMemoryPool(sizeof(cls))->allocate(); \
 	} \
 	void operator delete(void * p) { \

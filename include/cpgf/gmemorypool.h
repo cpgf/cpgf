@@ -12,11 +12,6 @@ namespace cpgf {
 namespace memorypool_internal {
 
 
-inline void * poolAddPointer(void * p, int offset)
-{
-	return static_cast<char *>(p) + offset;
-}
-
 class GMemoryPoolRange
 {
 public:

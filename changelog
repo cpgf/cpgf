@@ -1,4 +1,5 @@
 TBD version 1.4.2
+	Added object pool to meta data interface based APIs to reduce memory fragment and improve performance.
 	Added Lua 5.2 support in script binding. Now both Lua 5.1 and 5.2 are supported.
 	Fixed a bug in Lua binding that global accessor uses wrong table.
 

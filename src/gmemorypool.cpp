@@ -77,6 +77,11 @@ bool GMemoryPoolRange::operator < (const GMemoryPoolRange & other) const {
 }
 
 
+inline void * poolAddPointer(void * p, int offset)
+{
+	return static_cast<char *>(p) + offset;
+}
+
 GMemoryPoolChunk::GMemoryPoolChunk(unsigned int blockSize, unsigned int blockCount)
 	: blockSize(blockSize), blockCount(blockCount), usedCount(0), memory(new char[blockSize * blockCount + sizeof(FreeListType) * blockCount]),
 		funcInit(NULL), funcDeinit(NULL) {
