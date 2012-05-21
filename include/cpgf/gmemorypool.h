@@ -134,10 +134,21 @@ private:
 };
 
 
-class GMemoryPoolSingleton
+class GMemoryPoolManagerImplement;
+
+class GMemoryPoolManager
 {
 public:
-	static GMemoryPool * getMemoryPool(unsigned int blockSize, unsigned int blockCount = MemoryPoolDefaultBlockCount);
+	GMemoryPoolManager();
+	~GMemoryPoolManager();
+
+	GMemoryPool * getMemoryPool(unsigned int blockSize, unsigned int blockCount = MemoryPoolDefaultBlockCount);
+
+public:
+	static GMemoryPoolManager * getGlobal();
+
+private:
+	GScopedPointer<GMemoryPoolManagerImplement> implement;
 };
 
 

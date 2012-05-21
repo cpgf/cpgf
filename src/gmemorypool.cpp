@@ -262,40 +262,82 @@ void GMemoryPoolImplement::freeAllMap(MapType * m) {
 } // namespace memorypool_internal
 
 
-namespace {
-
-class PoolMapKey
+class GMemoryPoolManagerImplement
 {
+private:
+	class PoolMapKey {
+	public:
+		PoolMapKey()
+			: blockSize(0), blockCount(0)
+		{
+		}
+
+		PoolMapKey(unsigned int blockSize, unsigned int blockCount)
+			: blockSize(blockSize), blockCount(blockCount)
+		{
+		}
+
+		bool operator < (const PoolMapKey & other) const {
+			return this->blockSize < other.blockSize
+				|| (this->blockSize == other.blockSize && this->blockCount < other.blockCount);
+		}
+
+	private:
+		unsigned int blockSize;
+		unsigned int blockCount;
+	};
+
+
+	typedef map<PoolMapKey, GMemoryPool *> PoolMapType;
+
 public:
-	PoolMapKey()
-		: blockSize(0), blockCount(0)
-	{
+	~GMemoryPoolManagerImplement() {
+		for(PoolMapType::iterator it = this->poolMap.begin(); it != this->poolMap.end(); ++it) {
+			delete it->second;
+		}
 	}
 
-	PoolMapKey(unsigned int blockSize, unsigned int blockCount)
-		: blockSize(blockSize), blockCount(blockCount)
-	{
-	}
-
-	bool operator < (const PoolMapKey & other) {
-		return this->blockSize < other.blockSize
-			|| (this->blockSize == other.blockSize && this->blockCount < other.blockCount);
+	GMemoryPool * getMemoryPool(unsigned int blockSize, unsigned int blockCount) {
+		PoolMapKey key(blockSize, blockCount);
+		GMemoryPool * pool = this->poolMap[key];
+		if(pool == NULL) {
+			pool = new GMemoryPool(blockSize, blockCount);
+			this->poolMap[key] = pool;
+		}
+		return pool;
 	}
 
 private:
-	unsigned int blockSize;
-	unsigned int blockCount;
+	PoolMapType poolMap;
 };
 
-typedef map<PoolMapKey, GMemoryPool *> PoolMapType;
+namespace {
 
-GScopedPointer<PoolMapType> poolMap;
+GScopedPointer<GMemoryPoolManager> globalPool;
 
 } // unnamed namespace
 
-GMemoryPool * GMemoryPoolSingleton::getMemoryPool(unsigned int blockSize, unsigned int blockCount)
+GMemoryPoolManager * GMemoryPoolManager::getGlobal()
 {
-	return NULL;
+	if(! globalPool) {
+		globalPool.reset(new GMemoryPoolManager);
+	}
+
+	return globalPool.get();
+}
+
+GMemoryPoolManager::GMemoryPoolManager()
+	: implement(new GMemoryPoolManagerImplement)
+{
+}
+
+GMemoryPoolManager::~GMemoryPoolManager()
+{
+}
+
+GMemoryPool * GMemoryPoolManager::getMemoryPool(unsigned int blockSize, unsigned int blockCount)
+{
+	return this->implement->getMemoryPool(blockSize, blockCount);
 }
 
 

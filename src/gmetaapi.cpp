@@ -11,6 +11,7 @@
 #include "cpgf/gassert.h"
 #include "cpgf/gexception.h"
 #include "cpgf/gapiutil.h"
+#include "cpgf/gmemorypool.h"
 
 #include <string>
 
@@ -82,6 +83,15 @@ protected: \
 	virtual void G_API_CC set(void * instance, const GVariantData * value) { this->doSet(instance, value); } \
 	virtual void * G_API_CC getAddress(const void * instance) { return this->doGetAddress(instance); } \
 	virtual uint32_t G_API_CC getSize() { return this->doGetSize(); }
+
+#define USE_POOL(cls) \
+	void * operator new(size_t size) { \
+		return GMemoryPoolManager::getGlobal()->getMemoryPool(sizeof(cls))->allocate(); \
+	} \
+	void operator delete(void * p) { \
+		GMemoryPoolManager::getGlobal()->getMemoryPool(sizeof(cls))->free(p); \
+	}
+
 
 namespace cpgf {
 
@@ -161,6 +171,8 @@ private:
 	typedef std::vector<IMetaItem *> ListType;
 
 public:
+	USE_POOL(ImplMetaList)
+
 	ImplMetaList();
 	ImplMetaList(GMetaList * metaList);
 	virtual ~ImplMetaList();
@@ -242,6 +254,8 @@ private:
 	typedef ImplMetaAccessible super;
 
 public:
+	USE_POOL(ImplMetaField)
+
 	ImplMetaField(const GMetaField * field);
 
 	IMPL_ALL
@@ -262,6 +276,8 @@ private:
 	typedef ImplMetaAccessible super;
 
 public:
+	USE_POOL(ImplMetaProperty)
+
 	ImplMetaProperty(const GMetaProperty * prop);
 
 	IMPL_ALL
@@ -283,6 +299,8 @@ private:
 	typedef ImplMetaCallable super;
 
 public:
+	USE_POOL(ImplMetaMethod)
+
 	ImplMetaMethod(const GMetaMethod * method);
 
 	IMPL_ALL
@@ -311,6 +329,8 @@ private:
 	IMPL_CALLABLE
 
 public:
+	USE_POOL(ImplMetaConstructor)
+
 	ImplMetaConstructor(const GMetaConstructor * constructor);
 
 protected:
@@ -336,6 +356,8 @@ private:
 	IMPL_CALLABLE
 
 public:
+	USE_POOL(ImplMetaOperator)
+
 	ImplMetaOperator(const GMetaOperator * op);
 
 protected:
@@ -363,6 +385,8 @@ private:
 	IMPL_TYPEDITEM
 
 public:
+	USE_POOL(ImplMetaFundamental)
+
 	ImplMetaFundamental(const GMetaFundamental * fundamental);
 
 protected:
@@ -384,6 +408,8 @@ private:
 	IMPL_TYPEDITEM
 
 public:
+	USE_POOL(ImplMetaEnum)
+
 	ImplMetaEnum(const GMetaEnum * en);
 
 protected:
@@ -402,6 +428,8 @@ private:
 class ImplMetaAnnotationValue : public IMetaAnnotationValue
 {
 public:
+	USE_POOL(ImplMetaAnnotationValue)
+
 	ImplMetaAnnotationValue(const GAnnotationValue * value);
 
 	G_INTERFACE_IMPL_OBJECT
@@ -428,6 +456,8 @@ private:
 	typedef ImplMetaItem super;
 
 public:
+	USE_POOL(ImplMetaAnnotation)
+
 	ImplMetaAnnotation(const GMetaAnnotation * annotation);
 
 	IMPL_ALL
@@ -453,6 +483,8 @@ private:
 	typedef ImplMetaTypedItem super;
 
 public:
+	USE_POOL(ImplMetaClass)
+
 	ImplMetaClass(const GMetaClass * cls);
 
 	IMPL_ALL
@@ -527,6 +559,8 @@ private:
 class ImplMetaModule : public IMetaModule
 {
 public:
+	USE_POOL(ImplMetaModule)
+
 	ImplMetaModule(GMetaModule * module, GMetaClass * metaClass);
 	~ImplMetaModule();
 
@@ -550,7 +584,10 @@ class ImplMetaService : public IMetaService
 {
 private:
 	typedef std::vector<IMetaModule *> ListType;
+
 public:
+	USE_POOL(ImplMetaService)
+
 	ImplMetaService();
 	~ImplMetaService();
 
