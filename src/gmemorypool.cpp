@@ -161,7 +161,7 @@ void GMemoryPoolChunk::setDeinit(void (*funcDeinit)(void * p)) {
 
 void GMemoryPoolChunk::deinitAll() {
 	if(this->funcDeinit != NULL && this->usedCount > 0) {
-		bool usedList[this->blockCount];
+		bool usedList[(1 << (sizeof(FreeListType) * 8))];
 		for(unsigned int i = 0; i < this->blockCount; ++i) {
 			usedList[i] = true;
 		}
@@ -205,7 +205,7 @@ void * GMemoryPoolImplement::allocate() {
 		return chunk->allocate();
 	}
 	else {
-		typename MapType::iterator it = this->freeMap.begin();
+		MapType::iterator it = this->freeMap.begin();
 		GMemoryPoolChunk * chunk = it->second;
 		void * p = chunk->allocate();
 		if(chunk->isFull()) {
@@ -218,7 +218,7 @@ void * GMemoryPoolImplement::allocate() {
 
 void GMemoryPoolImplement::free(void * p) {
 	GMemoryPoolRange range(p);
-	typename MapType::iterator it;
+	MapType::iterator it;
 		
 	it = this->fullMap.find(range);
 	if(it != this->fullMap.end()) {
@@ -257,7 +257,7 @@ void GMemoryPoolImplement::freeAll() {
 }
 
 void GMemoryPoolImplement::freeAllMap(MapType * m) {
-	for(typename MapType::iterator it = m->begin(); it != m->end(); ++it) {
+	for(MapType::iterator it = m->begin(); it != m->end(); ++it) {
 		delete it->second;
 	}
 	m->clear();

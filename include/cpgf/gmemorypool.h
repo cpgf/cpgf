@@ -3,6 +3,7 @@
 
 #include "cpgf/gassert.h"
 #include "cpgf/gscopedptr.h"
+#include "cpgf/gclassutil.h"
 
 #include <map>
 
@@ -79,6 +80,8 @@ private:
 
 	void (*funcInit)(void * p);
 	void (*funcDeinit)(void * p);
+
+	GMAKE_NONCOPYABLE(GMemoryPoolImplement)
 };
 
 
@@ -103,6 +106,8 @@ public:
 
 private:
 	memorypool_internal::GMemoryPoolImplement implement;
+
+	GMAKE_NONCOPYABLE(GMemoryPool)
 };
 
 
@@ -126,6 +131,8 @@ public:
 
 private:
 	memorypool_internal::GMemoryPoolImplement implement;
+
+	GMAKE_NONCOPYABLE(GObjectPool)
 };
 
 
