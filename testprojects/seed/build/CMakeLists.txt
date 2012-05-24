@@ -35,7 +35,6 @@ if(MSVC)
 endif(MSVC)
 
 file(GLOB GLOB_SEED ${SEED_SRC_PATH}/*.cpp)
-#file(GLOB GLOB_WX ${ROOT_PATH}/testprojects/metagen_sfml/cpp/src/*.cpp)
 #file(GLOB GLOB_WX ${ROOT_PATH}/testprojects/metagen_wxwidgets/cpp/src/*.cpp)
 
 set(HAS_UNITTEST 1)
@@ -54,7 +53,7 @@ if(${HAS_UNITTEST})
 	include_directories(${UNIT_TEST_DIR}/src)
 endif(${HAS_UNITTEST})
 
-include_directories(E:/SourceCode/CPP/boost)
+include_directories(E:/SourceCode/CPP/boost /Python/include)
 
 set(SRC_UNITTEST_FRAMEWORK
 	${GLOB_UNITTEST_FRAMEWORK}
@@ -70,8 +69,6 @@ set(SRC_META
 	${SRC_PATH}/gbytearray.cpp
 	${SRC_PATH}/gexception.cpp
 	${SRC_PATH}/gmemorypool.cpp
-)
-set(XXX	
 	${SRC_PATH}/gmetaannotation.cpp
 	${SRC_PATH}/gmetaapi.cpp
 	${SRC_PATH}/gmetaclass.cpp
@@ -98,7 +95,8 @@ set(XXX
 	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
 	${SRC_PATH}/metatraits/gmetaserializer_string.cpp
 	${SRC_PATH}/metatraits/gmetaserializer_trapall.cpp
-	
+)
+set (XXX
 	${SRC_PATH}/serialization/gmetaarchivecommon.cpp
 	${SRC_PATH}/serialization/gmetaarchivereader.cpp
 	${SRC_PATH}/serialization/gmetaarchivetypemap.cpp
@@ -125,8 +123,6 @@ include_directories(
 
 	${ROOT_PATH}/testprojects/metagen_wxwidgets/cpp/include
 	${CPP_SOURCE_PATH}/wxWidgets/include
-	${CPP_SOURCE_PATH}/SFML-1.6/include
-	../../metagen_sfml/cpp/include
 )
 if(${HAS_LUA})
 	include_directories(${LUA_INC})
@@ -171,11 +167,8 @@ set_target_properties(
 
 target_link_libraries(
 	${TARGET}
+	/Python/libs/python27.lib
+
 #	${CPP_SOURCE_PATH}/wxWidgets/lib/gcc_dll/libwxmsw29u.a
 #	${CPP_SOURCE_PATH}/V8/libv8.a
-#	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-audio-d.a
-#	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-graphics-d.a
-#	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-network-d.a
-#	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-system-d.a
-#	${CPP_SOURCE_PATH}/SFML-1.6/lib/mingw/libsfml-window-d.a
 )
