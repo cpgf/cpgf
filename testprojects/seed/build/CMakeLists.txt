@@ -53,7 +53,7 @@ if(${HAS_UNITTEST})
 	include_directories(${UNIT_TEST_DIR}/src)
 endif(${HAS_UNITTEST})
 
-include_directories(E:/SourceCode/CPP/boost /Python/include)
+include_directories(E:/SourceCode/CPP/boost /Python/include ../../../src)
 
 set(SRC_UNITTEST_FRAMEWORK
 	${GLOB_UNITTEST_FRAMEWORK}
@@ -92,11 +92,11 @@ set(SRC_META
 	${SRC_PATH}/scriptbind/gscriptrunner.cpp
 	
 	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
+)
+set (XXX
 	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
 	${SRC_PATH}/metatraits/gmetaserializer_string.cpp
 	${SRC_PATH}/metatraits/gmetaserializer_trapall.cpp
-)
-set (XXX
 	${SRC_PATH}/serialization/gmetaarchivecommon.cpp
 	${SRC_PATH}/serialization/gmetaarchivereader.cpp
 	${SRC_PATH}/serialization/gmetaarchivetypemap.cpp
@@ -167,7 +167,7 @@ set_target_properties(
 
 target_link_libraries(
 	${TARGET}
-	/Python/libs/python27.lib
+	/Python/libs/python27_d.lib
 
 #	${CPP_SOURCE_PATH}/wxWidgets/lib/gcc_dll/libwxmsw29u.a
 #	${CPP_SOURCE_PATH}/V8/libv8.a
