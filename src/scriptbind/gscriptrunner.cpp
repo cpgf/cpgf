@@ -71,7 +71,7 @@ bool GScriptRunner::executeFile(const char * fileName)
 		return false;
 	}
 	stream.seekg(0, ios::end);
-	long len = stream.tellg();
+	long len = static_cast<long>(stream.tellg());
 	stream.clear();
 	stream.seekg(0, ios::beg);
 	stream.clear();
