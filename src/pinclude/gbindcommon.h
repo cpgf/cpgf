@@ -71,7 +71,6 @@ private:
 
 enum GScriptUserDataType {
 	udtClass,
-	udtMethod,
 	udtMethodList,
 	udtExtendMethod,
 	udtEnum,
@@ -136,26 +135,6 @@ public:
 
 public:
 	GVariant data;
-};
-
-class GMethodUserData : public GScriptUserData
-{
-private:
-	typedef GScriptUserData super;
-
-public:
-	GMethodUserData(GScriptBindingParam * param, void * instance, IMetaMethod * method)
-		: super(udtMethod, param), instance(instance), method(method) {
-		this->method->addReference();
-	}
-
-	virtual ~GMethodUserData() {
-		this->method->releaseReference();
-	}
-
-public:
-	void * instance;
-	IMetaMethod * method;
 };
 
 enum GUserDataMethodType {
