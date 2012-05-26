@@ -1359,28 +1359,10 @@ void bindClassItems(Local<Object> object, GScriptBindingParam * param, IMetaClas
 
 void * invokeConstructor(const Arguments & args, GScriptBindingParam * param, IMetaClass * metaClass)
 {
-	int paramCount = args.Length();
-	void * instance = NULL;
+	InvokeCallableParam callableParam;
+	loadCallableParam(args, param, &callableParam);
 
-	if(paramCount == 0 && metaClass->canCreateInstance()) {
-		instance = metaClass->createInstance();
-	}
-	else {
-		InvokeCallableParam callableParam;
-		loadCallableParam(args, param, &callableParam);
-
-		int maxRankIndex = findAppropriateCallable(param->getService(),
-			makeCallback(metaClass, &IMetaClass::getConstructorAt), metaClass->getConstructorCount(),
-			&callableParam, FindCallablePredict());
-
-		if(maxRankIndex >= 0) {
-			InvokeCallableResult result;
-
-			GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(static_cast<uint32_t>(maxRankIndex)));
-			doInvokeCallable(NULL, constructor.get(), callableParam.paramsData, paramCount, &result);
-			instance = fromVariant<void *>(GVariant(result.resultData));
-		}
-	}
+	void * instance = doInvokeConstructor(param->getService(), metaClass, &callableParam);
 
 	if(instance != NULL) {
 		return instance;

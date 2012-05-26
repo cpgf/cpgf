@@ -928,27 +928,11 @@ int callbackInvokeMethodList(lua_State * L)
 int invokeConstructor(lua_State * L, GScriptBindingParam * param, IMetaClass * metaClass)
 {
 	int paramCount = lua_gettop(L) - 1;
-	void * instance = NULL;
-
-	if(paramCount == 0 && metaClass->canCreateInstance()) {
-		instance = metaClass->createInstance();
-	}
-	else {
-		InvokeCallableParam callableParam;
-		loadCallableParam(L, param, &callableParam, 2, paramCount);
 	
-		int maxRankIndex = findAppropriateCallable(param->getService(),
-			makeCallback(metaClass, &IMetaClass::getConstructorAt), metaClass->getConstructorCount(),
-			&callableParam, FindCallablePredict());
-
-		if(maxRankIndex >= 0) {
-			InvokeCallableResult result;
-		
-			GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(static_cast<uint32_t>(maxRankIndex)));
-			doInvokeCallable(NULL, constructor.get(), callableParam.paramsData, paramCount, &result);
-			instance = fromVariant<void *>(GVariant(result.resultData));
-		}
-	}
+	InvokeCallableParam callableParam;
+	loadCallableParam(L, param, &callableParam, 2, paramCount);
+	
+	void * instance = doInvokeConstructor(param->getService(), metaClass, &callableParam);
 
 	if(instance != NULL) {
 		objectToLua(L, param, instance, metaClass, true, opcvNone, cudtNormal);

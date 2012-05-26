@@ -470,6 +470,7 @@ int findAppropriateCallable(IMetaService * service,
 bool allowInvokeCallable(GClassUserData * userData, IMetaCallable * method);
 bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible);
 
+void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
 void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, size_t paramCount, InvokeCallableResult * result);
 
 void loadMethodList(GMetaClassTraveller * traveller,

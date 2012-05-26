@@ -1,6 +1,7 @@
 #include "../pinclude/gbindcommon.h"
 
 #include "cpgf/gmetaclasstraveller.h"
+#include "cpgf/gcallback.h"
 
 #include <stdarg.h>
 
@@ -427,6 +428,30 @@ bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible)
 	}
 	
 	return true;
+}
+
+void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam)
+{
+	void * instance = NULL;
+
+	if(callableParam->paramCount == 0 && metaClass->canCreateInstance()) {
+		instance = metaClass->createInstance();
+	}
+	else {
+		int maxRankIndex = findAppropriateCallable(service,
+			makeCallback(metaClass, &IMetaClass::getConstructorAt), metaClass->getConstructorCount(),
+			callableParam, FindCallablePredict());
+
+		if(maxRankIndex >= 0) {
+			InvokeCallableResult result;
+		
+			GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(static_cast<uint32_t>(maxRankIndex)));
+			doInvokeCallable(NULL, constructor.get(), callableParam->paramsData, callableParam->paramCount, &result);
+			instance = fromVariant<void *>(GVariant(result.resultData));
+		}
+	}
+	
+	return instance;
 }
 
 void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, size_t paramCount, InvokeCallableResult * result)
