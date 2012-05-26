@@ -6,7 +6,7 @@ It's written in (almostly) standard C++ and doesn't require any preprocess or to
 
 
 Version:
-	1.4.1
+	1.4.2
 
 		
 Libraries:
@@ -16,7 +16,7 @@ Libraries:
 		and then load back.
 		It's based on the reflection library.
 
-	cpgf script binding -- a script binding engine to bind Lua and Google V8 to C++.
+	cpgf script binding -- a script binding engine to bind Lua (5.2 and 5.1) and Google V8 to C++.
 		It's based on the reflection library.
 	
 	cpgf callback -- a callback library to implement signal/slot or callback in C++.
