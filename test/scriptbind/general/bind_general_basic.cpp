@@ -52,6 +52,10 @@ void testValueIsNull(TestScriptContext * context)
 		QDO(imnull = null)
 	}
 	
+	if(context->isPython()) {
+		QDO(imnull = None)
+	}
+	
 	if(context->getBindingLib()) {
 		GCHECK(context->getBindingLib()->valueIsNull("imnull"));
 	}

@@ -7,6 +7,9 @@
 #ifndef ENABLE_V8
 #define ENABLE_V8 1
 #endif
+#ifndef ENABLE_PYTHON
+#define ENABLE_PYTHON 1
+#endif
 
 
 #include "cpgf/gmetaapi.h"
@@ -36,7 +39,7 @@
 namespace testscript {
 
 enum TestScriptLang {
-	tslLua, tslV8
+	tslLua, tslV8, tslPython
 };
 
 enum TestScriptApi {
@@ -86,6 +89,10 @@ public:
 	}
 
 	virtual bool isV8() const {
+		return false;
+	}
+
+	virtual bool isPython() const {
 		return false;
 	}
 

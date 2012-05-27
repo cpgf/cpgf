@@ -14,6 +14,9 @@ string makeObject(const string & name, TestScriptContext * context)
 //		return "function " + name + "() { this.myInt = 20; }";
 		return "function xxx() { this.myInt = 20; }; " + name + " = new xxx();";
 	}
+	if(context->isPython()) {
+		return "" + name + (name == "" ? "" : " = ") + " { 'myInt' : 20 }";
+	}
 
 	return "";
 }

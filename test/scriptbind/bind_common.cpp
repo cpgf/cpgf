@@ -8,6 +8,10 @@
 #include "cpgf/scriptbind/gv8bind.h"
 #endif
 
+#if ENABLE_PYTHON
+#include "cpgf/scriptbind/gpythonbind.h"
+#endif
+
 
 using namespace cpgf;
 using namespace std;
@@ -271,6 +275,75 @@ private:
 #endif
 
 
+#if ENABLE_PYTHON
+
+class TestScriptCoderPython : public TestScriptCoder
+{
+public:
+	virtual std::string getNew() {
+		return "";
+	}
+};
+
+class TestScriptContextPython : public TestScriptContext
+{
+private:
+	typedef TestScriptContext super;
+
+public:
+	TestScriptContextPython(TestScriptApi api)
+		: super(new TestScriptCoderPython), objectLib(NULL), objectApi(NULL)
+	{
+		Py_Initialize();
+
+		if(api == tsaLib) {
+			this->objectLib = PyImport_ImportModule("__main__");
+
+			this->setBinding(cpgf::createPythonScriptObject(this->getService(), this->objectLib, cpgf::GScriptConfig()));
+		}
+
+		if(api == tsaApi) {
+			this->objectApi = PyImport_ImportModule("__main__");
+
+			this->setBinding(cpgf::createPythonScriptObject(this->getService(), this->objectApi, cpgf::GScriptConfig()));
+		}
+	}
+
+	~TestScriptContextPython() {
+		Py_Finalize();
+	}
+
+	virtual bool isPython() const {
+		return true;
+	}
+
+protected:
+	virtual bool doLib(const char * code) const {
+		return checkError(PyRun_SimpleString(code));
+	}
+
+	virtual bool doApi(const char * code) const {
+		return checkError(PyRun_SimpleString(code));
+	}
+
+private:
+	bool checkError(int error) const
+	{
+		if(this->canPrintError() && error < 0) {
+			fprintf(stderr, "Error\n");
+		}
+
+		return error >=0;
+	}
+
+private:
+	PyObject * objectLib;
+	PyObject * objectApi;
+};
+
+#endif
+
+
 TestScriptContext * createTestScriptContext(TestScriptLang lang, TestScriptApi api)
 {
 	switch(lang) {
@@ -284,6 +357,13 @@ TestScriptContext * createTestScriptContext(TestScriptLang lang, TestScriptApi a
 	case tslV8:
 #if ENABLE_V8
 		return new TestScriptContextV8(api);
+#else
+		break;
+#endif
+
+	case tslPython:
+#if ENABLE_PYTHON
+		return new TestScriptContextPython(api);
 #else
 		break;
 #endif

@@ -32,6 +32,9 @@ void doTestGlobal(T * binding, TestScriptContext * context)
 	if(context->isV8()) {
 		QASSERT(data == null)
 	}
+	if(context->isPython()) {
+		QASSERT(data == None)
+	}
 }
 
 void testGlobal(TestScriptContext * context)

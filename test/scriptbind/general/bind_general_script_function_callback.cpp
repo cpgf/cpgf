@@ -13,6 +13,9 @@ string makeFunc(const string & name, TestScriptContext * context)
 	if(context->isV8()) {
 		return "function " + name + "(t, u) { return t + u; }";
 	}
+	if(context->isPython()) {
+		return "def " + name + "(t, u): return t + u";
+	}
 
 	return "";
 }
@@ -55,11 +58,21 @@ void doTestScriptFunctionProperty(T * binding, TestScriptContext * context)
 	(void)binding;
 
 	DO(makeFunc("fcallback", context))
-	QDO(testScriptFunction = fcallback)
+	if(context->isPython()) {
+		QDO(testScriptFunction.__set__(0, fcallback))
+	}
+	else {
+		QDO(testScriptFunction = fcallback)
+	}
 	QDO(a = testExecAddCallback())
 	QASSERT(a == 11)
 
-	DO(string("testScriptFunction = ") + makeFunc("", context) + "")
+	if(context->isPython()) {
+		DO(string("testScriptFunction.__set__(0, lambda t, u : t + u )"))
+	}
+	else {
+		DO(string("testScriptFunction = ") + makeFunc("", context) + "")
+	}
 	QDO(b = testExecAddCallback())
 	QASSERT(b == 11)
 }

@@ -45,7 +45,9 @@ template <typename T>
 struct GPythonScopedPointerDeleter
 {
 	static inline void Delete(T * p) {
-		Py_DECREF(p);
+		if(p != NULL) {
+			Py_DECREF(p);
+		}
 	}
 };
 
@@ -58,9 +60,13 @@ public:
 	}
 
 	virtual ~GMapItemObjectData() {
+		if(this->object != NULL) {
+			Py_DECREF(this->object);
+		}
 	}
 
 	PyObject * getObject() const {
+		Py_INCREF(this->object);
 		return this->object;
 	}
 
@@ -98,6 +104,84 @@ protected:
 private:
 	GScriptUserData * userData;
 };
+
+class GPythonScriptFunction : public GScriptFunction
+{
+public:
+	GPythonScriptFunction(GScriptBindingParam * bindingParam, PyObject * func);
+	virtual ~GPythonScriptFunction();
+
+	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount);
+	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
+
+private:
+	GScriptBindingParam * bindingParam;
+	PyObject * func;
+};
+
+class GPythonScriptObject : public GScriptObject
+{
+private:
+	typedef GScriptObject super;
+
+public:
+	GPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config);
+	virtual ~GPythonScriptObject();
+
+	virtual void bindClass(const char * name, IMetaClass * metaClass);
+	virtual void bindEnum(const char * name, IMetaEnum * metaEnum);
+
+	virtual void bindFundamental(const char * name, const GVariant & value);
+	virtual void bindString(const char * stringName, const char * s);
+	virtual void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership);
+	virtual void bindRaw(const char * name, const GVariant & value);
+	virtual void bindMethod(const char * name, void * instance, IMetaMethod * method);
+	virtual void bindMethodList(const char * name, IMetaList * methodList);
+
+	virtual IMetaClass * getClass(const char * className);
+	virtual IMetaEnum * getEnum(const char * enumName);
+
+	virtual GVariant getFundamental(const char * name);
+	virtual std::string getString(const char * stringName);
+	virtual void * getObject(const char * objectName);
+	virtual GVariant getRaw(const char * name);
+	virtual IMetaMethod * getMethod(const char * methodName, void ** outInstance);
+	virtual IMetaList * getMethodList(const char * methodName);
+
+	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
+
+	virtual GScriptObject * createScriptObject(const char * name);
+	virtual GScriptObject * gainScriptObject(const char * name);
+
+	virtual GScriptFunction * gainScriptFunction(const char * name);
+
+	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount);
+	virtual GMetaVariant invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount);
+
+	virtual void assignValue(const char * fromName, const char * toName);
+	virtual bool valueIsNull(const char * name);
+	virtual void nullifyValue(const char * name);
+
+	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
+
+public:
+	GScriptBindingParam * getParam() const {
+		return this->param;
+	}
+
+	PyObject * getObject() const {
+		return this->object;
+	}
+
+private:
+	GPythonScriptObject(const GPythonScriptObject & other, PyObject * object);
+
+private:
+	PyObject * object;
+	GScriptBindingParam * param;
+	bool freeParam;
+};
+
 
 template <typename T>
 void commonDealloc(PyObject* p)
@@ -371,8 +455,74 @@ PyTypeObject accessibleType = {
 };
 
 
+PyTypeObject rawType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    const_cast<char *>("cpgf.Python.raw"),
+    sizeof(GPythonObject),
+    0,
+    (destructor)&commonDealloc<GPythonObject>,               /* tp_dealloc */
+    0,                                  /* tp_print */
+    0,                                  /* tp_getattr */
+    0,                                  /* tp_setattr */
+    0,                                  /* tp_compare */
+    0, //(reprfunc)func_repr,                   /* tp_repr */
+    0,                                  /* tp_as_number */
+    0,                                  /* tp_as_sequence */
+    0,                                  /* tp_as_mapping */
+    0,                                  /* tp_hash */
+    0,                              /* tp_call */
+    0,                                  /* tp_str */
+	NULL,             /* tp_getattro */
+    NULL,            /* tp_setattro */
+    0,                                  /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT /* | Py_TPFLAGS_HAVE_GC */,/* tp_flags */
+    0,                                  /* tp_doc */
+    0, // (traverseproc)func_traverse,          /* tp_traverse */
+    0,                                  /* tp_clear */
+    0,                                  /* tp_richcompare */
+    0, //offsetof(PyFunctionObject, func_weakreflist), /* tp_weaklistoffset */
+    0,                                  /* tp_iter */
+    0,                                  /* tp_iternext */
+    NULL,                                  /* tp_methods */
+    0, // func_memberlist,              /* tp_members */
+    NULL, //function_getsetlist,                /* tp_getset */
+    0,                                  /* tp_base */
+    0,                                  /* tp_dict */
+    NULL,           /* tp_descr_get */
+    NULL,                                  /* tp_descr_set */
+    0, //offsetof(PyFunctionObject, func_dict),      /* tp_dictoffset */
+    0,                                      /* tp_init */
+    0,                                      /* tp_alloc */
+    0,                                      /* tp_new */
+    0,                                      /* tp_free */
+    0,                                      /* tp_is_gc */
+    0,                                      /* tp_bases */
+    0,                                      /* tp_mro */
+    0,                                      /* tp_cache */
+    0,                                      /* tp_subclasses */
+    0,                                      /* tp_weaklist */
+    0                                       /* tp_del */
+};
+
+PyTypeObject * typeObjects[] = {
+	&functionType, &classType, &objectType, &enumType, &accessibleType, &rawType
+};
+
+const int typeObjectCount = sizeof(typeObjects) / sizeof(typeObjects[0]);
+
+
 GPythonObject * castFromPython(PyObject * object) {
 	return gdynamic_cast<GPythonObject *>(static_cast<GPythonObject *>(object));
+}
+
+GPythonObject * tryCastFromPython(PyObject * object) {
+	for(int i = 0; i <typeObjectCount; ++i) {
+		if(object->ob_type == typeObjects[i]) {
+			return castFromPython(object);
+		}
+	}
+
+	return NULL;
 }
 
 GPythonObject::GPythonObject(GScriptUserData * userData)
@@ -395,6 +545,10 @@ GPythonObject::GPythonObject(GScriptUserData * userData)
 
 		case udtAccessible:
 			typeObject = &accessibleType;
+			break;
+
+		case udtRaw:
+			typeObject = &rawType;
 			break;
 	}
 
@@ -433,6 +587,11 @@ void GPythonObject::initType(PyTypeObject * type)
 }
 
 
+void error(const char * message)
+{
+	PyErr_SetString(PyExc_RuntimeError, message);
+}
+
 GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
 {
 	if(typeItem != NULL) {
@@ -452,11 +611,31 @@ GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
 	}
 
 	if(value->ob_type == &classType) {
+		if(typeItem != NULL) {
+			*typeItem = gdynamic_cast<GClassUserData *>(castFromPython(value)->getUserData())->metaClass;
+			(*typeItem)->addReference();
+		}
 		return sdtClass;
 	}
 
 	if(value->ob_type == &objectType) {
+		if(typeItem != NULL) {
+			*typeItem = gdynamic_cast<GClassUserData *>(castFromPython(value)->getUserData())->metaClass;
+			(*typeItem)->addReference();
+		}
 		return sdtObject;
+	}
+
+	if(value->ob_type == &enumType) {
+		if(typeItem != NULL) {
+			*typeItem = gdynamic_cast<GEnumUserData *>(castFromPython(value)->getUserData())->metaEnum;
+			(*typeItem)->addReference();
+		}
+		return sdtEnum;
+	}
+
+	if(value->ob_type == &rawType) {
+		return sdtRaw;
 	}
 
 	if(value->ob_type == &functionType) {
@@ -471,7 +650,7 @@ GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
 	return sdtScriptObject;
 }
 
-GMetaVariant pythonToVariant(PyObject * value)
+GMetaVariant pythonToVariant(GScriptBindingParam * param, PyObject * value)
 {
 	if(PyNumber_Check(value)) {
 		if(PyBool_Check(value)) {
@@ -495,6 +674,16 @@ GMetaVariant pythonToVariant(PyObject * value)
 		return PyString_AsString(value);
 	}
 	else {
+		GPythonObject * object = tryCastFromPython(value);
+		if(object != NULL) {
+			return userDataToVariant(object->getUserData());
+		}
+
+		if(PyCallable_Check(value)) {
+			GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GPythonScriptFunction(param, value), true));
+			
+			return GMetaVariant(func.get(), GMetaType());
+		}
 	}
 
 	return GMetaVariant();
@@ -648,13 +837,13 @@ PyObject * methodResultToPython(GScriptBindingParam * param, IMetaCallable * cal
 	return Py_None;
 }
 
-void loadMethodParameters(PyObject * args, GVariantData * outputParams)
+void loadMethodParameters(GScriptBindingParam * p, PyObject * args, GVariantData * outputParams)
 {
 	int paramCount = static_cast<int>(PyTuple_Size(args));
 
 	for(int i = 0; i < paramCount; ++i) {
 		PyObject * param = PyTuple_GetItem(args, i);
-		outputParams[i] = pythonToVariant(param).takeData().varData;
+		outputParams[i] = pythonToVariant(p, param).takeData().varData;
 	}
 }
 
@@ -670,7 +859,7 @@ void loadMethodParamTypes(PyObject * args, GBindDataType * outputTypes)
 	}
 }
 
-void loadCallableParam(PyObject * args, InvokeCallableParam * callableParam)
+void loadCallableParam(GScriptBindingParam * param, PyObject * args, InvokeCallableParam * callableParam)
 {
 	int paramCount = static_cast<int>(PyTuple_Size(args));
 
@@ -679,20 +868,38 @@ void loadCallableParam(PyObject * args, InvokeCallableParam * callableParam)
 	}
 
 	callableParam->paramCount = paramCount;
-	loadMethodParameters(args, callableParam->paramsData);
+	loadMethodParameters(param, args, callableParam->paramsData);
 	loadMethodParamTypes(args, callableParam->paramsType);
 }
 
 
 PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObject * keyWords)
 {
-	InvokeCallableParam callableParam;
-	loadCallableParam(args, &callableParam);
+	ENTER_PYTHON()
 
 	GPythonObject * methodObject = castFromPython(callableObject);
 
 	GMethodListUserData * userData = gdynamic_cast<GMethodListUserData *>(methodObject->getUserData());
-	IMetaList * methodList = userData->methodList;
+	GScopedInterface<IMetaList> methodList;
+
+	InvokeCallableParam callableParam;
+	loadCallableParam(userData->getParam(), args, &callableParam);
+
+	void * instance = NULL;
+	if(userData != NULL) {
+//		instance = userData->instance;
+	}
+
+//	GScopedInterface<IMetaList> methodList;
+	if(true) { //namedUserData->metaClass == NULL) {
+		methodList.reset(userData->methodList);
+		methodList->addReference();
+	}
+	//else {
+	//	methodList.reset(createMetaList());
+	//	loadMethodList(methodList.get(), namedUserData->getParam()->getMetaMap(), userData == NULL? namedUserData->metaClass : userData->metaClass,
+	//		instance,  userData, namedUserData->name.c_str());
+	//}
 
 	int maxRank = -1;
 	int maxRankIndex = -1;
@@ -718,17 +925,21 @@ PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObje
 	raiseCoreException(Error_ScriptBinding_CantFindMatchedMethod);
 
 	return Py_None;
+
+	LEAVE_PYTHON(return NULL)
 }
 
 
 PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, PyObject * keyWords)
 {
-	InvokeCallableParam callableParam;
-	loadCallableParam(args, &callableParam);
+	ENTER_PYTHON()
 
 	GPythonObject * cppClass = castFromPython(callableObject);
 	GClassUserData * userData = gdynamic_cast<GClassUserData *>(cppClass->getUserData());
 	
+	InvokeCallableParam callableParam;
+	loadCallableParam(userData->getParam(), args, &callableParam);
+
 	void * instance = doInvokeConstructor(cppClass->getService(), userData->metaClass, &callableParam);
 
 	if(instance != NULL) {
@@ -739,10 +950,14 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	}
 
 	return NULL;
+
+	LEAVE_PYTHON(return NULL)
 }
 
 PyObject * callbackGetAttribute(PyObject * object, PyObject * attrName)
 {
+	ENTER_PYTHON()
+
 	GPythonObject * cppObject = castFromPython(object);
 
 	PyObject * attrObject = doGetAttributeObject(cppObject, attrName);
@@ -751,13 +966,19 @@ PyObject * callbackGetAttribute(PyObject * object, PyObject * attrName)
 	}
 
 	return Py_None;
+
+	LEAVE_PYTHON(return NULL)
 }
 
 int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * value)
 {
+	ENTER_PYTHON()
+
 	GPythonObject * cppObject = castFromPython(object);
 
 	return doSetAttributeObject(cppObject, attrName, value) ? 0 : -1;
+
+	LEAVE_PYTHON(return -1)
 }
 
 bool doSetAttributeObject(GPythonObject * cppObject, PyObject * attrName, PyObject * value)
@@ -765,6 +986,13 @@ bool doSetAttributeObject(GPythonObject * cppObject, PyObject * attrName, PyObje
 	const char * name = PyString_AsString(attrName);
 
 	GClassUserData * userData = gdynamic_cast<GClassUserData *>(cppObject->getUserData());
+
+	if(userData->cv == opcvConst) {
+		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
+
+		return false;
+	}
+
 	GMetaClassTraveller traveller(userData->metaClass, userData->instance);
 
 	void * instance = NULL;
@@ -787,7 +1015,7 @@ bool doSetAttributeObject(GPythonObject * cppObject, PyObject * attrName, PyObje
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 				if(allowAccessData(userData, data.get())) {
-					GVariant v = pythonToVariant(value).getValue();
+					GVariant v = pythonToVariant(userData->getParam(), value).getValue();
 					metaSetValue(data.get(), userData->instance, v);
 					return true;
 				}
@@ -883,6 +1111,7 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 
 				return data->getObject();
 			}
+				break;
 
 			case mmitEnum:
 				if(! userData->isInstance || userData->getParam()->getConfig().allowAccessEnumTypeViaInstance()) {
@@ -934,6 +1163,8 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 
 PyObject * callbackGetEnumValue(PyObject * object, PyObject * attrName)
 {
+	ENTER_PYTHON()
+
 	GPythonObject * cppObject = castFromPython(object);
 	
 	GEnumUserData * userData = gdynamic_cast<GEnumUserData *>(cppObject->getUserData());
@@ -948,17 +1179,25 @@ PyObject * callbackGetEnumValue(PyObject * object, PyObject * attrName)
 	raiseCoreException(Error_ScriptBinding_CantFindEnumKey, *name);
 
 	return Py_None;
+
+	LEAVE_PYTHON(return NULL)
 }
 
 int callbackSetEnumValue(PyObject * object, PyObject * attrName, PyObject * value)
 {
+	ENTER_PYTHON()
+
 	raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
 
 	return -1;
+
+	LEAVE_PYTHON(return -1)
 }
 
 PyObject * callbackAccessibleDescriptorGet(PyObject * self, PyObject * obj, PyObject * pyType)
 {
+	ENTER_PYTHON()
+
 	GPythonObject * cppObject = castFromPython(self);
 	
 	GAccessibleUserData * userData = gdynamic_cast<GAccessibleUserData *>(cppObject->getUserData());
@@ -979,18 +1218,24 @@ PyObject * callbackAccessibleDescriptorGet(PyObject * self, PyObject * obj, PyOb
 		v = Py_None;
 	}
 	return v;
+
+	LEAVE_PYTHON(return NULL)
 }
 
 int callbackAccessibleDescriptorSet(PyObject * self, PyObject * obj, PyObject * value)
 {
+	ENTER_PYTHON()
+
 	GPythonObject * cppObject = castFromPython(self);
 	
 	GAccessibleUserData * userData = gdynamic_cast<GAccessibleUserData *>(cppObject->getUserData());
 
-	GMetaVariant v = pythonToVariant(value);
+	GMetaVariant v = pythonToVariant(userData->getParam(), value);
 	metaSetValue(userData->accessible, userData->instance, v.getValue());
 
 	return 0;
+
+	LEAVE_PYTHON(return 0)
 }
 
 GMetaVariant invokePythonFunctionIndirectly(GScriptBindingParam * bindingParam, PyObject * object, PyObject * func, GMetaVariant const * const * params, size_t paramCount, const char * name)
@@ -1010,6 +1255,7 @@ GMetaVariant invokePythonFunctionIndirectly(GScriptBindingParam * bindingParam, 
 		}
 		for(size_t i = 0; i < paramCount; ++i) {
 			GPythonScopedPointer arg(variantToPython(bindingParam, params[i]->getValue(), params[i]->getType(), false, true));
+Py_INCREF(arg.get());
 			if(!arg) {
 				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
 			}
@@ -1020,7 +1266,7 @@ GMetaVariant invokePythonFunctionIndirectly(GScriptBindingParam * bindingParam, 
 
 		result.reset(PyObject_Call(func, args.get(), NULL));
 
-		return pythonToVariant(result.get());
+		return pythonToVariant(bindingParam, result.get());
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
@@ -1074,95 +1320,15 @@ void doBindAccessible(GScriptBindingParam * param, PyObject * owner, const char 
 }
 
 
-void error(const char * /*message*/)
-{
-}
-
-class GPythonScriptFunction : public GScriptFunction
-{
-public:
-	GPythonScriptFunction(GScriptBindingParam * bindingParam, PyObject * func);
-	virtual ~GPythonScriptFunction();
-
-	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount);
-	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
-
-private:
-	GScriptBindingParam * bindingParam;
-	PyObject * func;
-};
-
-class GPythonScriptObject : public GScriptObject
-{
-private:
-	typedef GScriptObject super;
-
-public:
-	GPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config);
-	virtual ~GPythonScriptObject();
-
-	virtual void bindClass(const char * name, IMetaClass * metaClass);
-	virtual void bindEnum(const char * name, IMetaEnum * metaEnum);
-
-	virtual void bindFundamental(const char * name, const GVariant & value);
-	virtual void bindString(const char * stringName, const char * s);
-	virtual void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership);
-	virtual void bindRaw(const char * name, const GVariant & value);
-	virtual void bindMethod(const char * name, void * instance, IMetaMethod * method);
-	virtual void bindMethodList(const char * name, IMetaList * methodList);
-
-	virtual IMetaClass * getClass(const char * className);
-	virtual IMetaEnum * getEnum(const char * enumName);
-
-	virtual GVariant getFundamental(const char * name);
-	virtual std::string getString(const char * stringName);
-	virtual void * getObject(const char * objectName);
-	virtual GVariant getRaw(const char * name);
-	virtual IMetaMethod * getMethod(const char * methodName, void ** outInstance);
-	virtual IMetaList * getMethodList(const char * methodName);
-
-	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
-
-	virtual GScriptObject * createScriptObject(const char * name);
-	virtual GScriptObject * gainScriptObject(const char * name);
-
-	virtual GScriptFunction * gainScriptFunction(const char * name);
-
-	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount);
-	virtual GMetaVariant invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount);
-
-	virtual void assignValue(const char * fromName, const char * toName);
-	virtual bool valueIsNull(const char * name);
-	virtual void nullifyValue(const char * name);
-
-	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
-
-public:
-	GScriptBindingParam * getParam() const {
-		return this->param;
-	}
-
-	PyObject * getObject() const {
-		return this->object;
-	}
-
-private:
-	GPythonScriptObject(const GPythonScriptObject & other, PyObject * object);
-
-private:
-	PyObject * object;
-	GScriptBindingParam * param;
-	bool freeParam;
-};
-
-
 GPythonScriptFunction::GPythonScriptFunction(GScriptBindingParam * bindingParam, PyObject * func)
 	: bindingParam(bindingParam), func(func)
 {
+	Py_INCREF(func);
 }
 
 GPythonScriptFunction::~GPythonScriptFunction()
 {
+	Py_DECREF(func);
 }
 
 GMetaVariant GPythonScriptFunction::invoke(const GMetaVariant * params, size_t paramCount)
@@ -1208,6 +1374,10 @@ GPythonScriptObject::~GPythonScriptObject()
 GScriptDataType GPythonScriptObject::getType(const char * name, IMetaTypedItem ** outMetaTypeItem)
 {
 	ENTER_PYTHON()
+
+	if(outMetaTypeItem != NULL) {
+		*outMetaTypeItem = NULL;
+	}
 
 	GPythonScopedPointer obj(getObjectAttr(this->object, name));
 	
@@ -1410,7 +1580,7 @@ GVariant GPythonScriptObject::getFundamental(const char * name)
 
 	GPythonScopedPointer obj(getObjectAttr(this->object, name));
 	if(obj && getPythonType(obj.get(), NULL) == sdtFundamental) {
-		return pythonToVariant(obj.get()).getValue();;
+		return pythonToVariant(this->getParam(), obj.get()).getValue();;
 	}
 	else {
 		return GVariant();
@@ -1439,7 +1609,7 @@ void * GPythonScriptObject::getObject(const char * objectName)
 	ENTER_PYTHON()
 
 	GPythonScopedPointer obj(getObjectAttr(this->object, objectName));
-	if(obj && obj->ob_type->ob_type == &objectType) {
+	if(obj && obj->ob_type == &objectType) {
 		return gdynamic_cast<GClassUserData *>(castFromPython(obj.get())->getUserData())->instance;
 	}
 	else {
@@ -1474,7 +1644,7 @@ IMetaMethod * GPythonScriptObject::getMethod(const char * methodName, void ** ou
 	}
 
 	GPythonScopedPointer obj(getObjectAttr(this->object, methodName));
-	if(obj && obj->ob_type->ob_type == &functionType) {
+	if(obj && obj->ob_type == &functionType) {
 		GMethodListUserData * userData = gdynamic_cast<GMethodListUserData *>(castFromPython(obj.get())->getUserData());
 		if(outInstance != NULL) {
 			*outInstance = userData->methodList->getInstanceAt(0);
@@ -1493,7 +1663,7 @@ IMetaList * GPythonScriptObject::getMethodList(const char * methodName)
 	ENTER_PYTHON()
 
 	GPythonScopedPointer obj(getObjectAttr(this->object, methodName));
-	if(obj && obj->ob_type->ob_type == &functionType) {
+	if(obj && obj->ob_type == &functionType) {
 		GMethodListUserData * userData = gdynamic_cast<GMethodListUserData *>(castFromPython(obj.get())->getUserData());
 		userData->methodList->addReference();
 		return userData->methodList;

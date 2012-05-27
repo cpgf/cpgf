@@ -76,6 +76,9 @@ void testGetScriptObject(TestScriptContext * context)
 	if(context->isV8()) {
 		QDO(scope.obj = new TestObject(6));
 	}
+	if(context->isPython()) {
+		QDO(scope['obj'] = TestObject(6));
+	}
 
 	GScriptObject * bindingLib = context->getBindingLib();
 	IScriptObject * bindingApi = context->getBindingApi();
@@ -106,6 +109,7 @@ void testGetScriptObject(TestScriptContext * context)
 	}
 	
 	GCHECK(instance != NULL);
+	if(instance)
 	GCHECK(static_cast<TestObject *>(instance)->value == 6);
 }
 

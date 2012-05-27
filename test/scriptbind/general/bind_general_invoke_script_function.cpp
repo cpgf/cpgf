@@ -21,6 +21,12 @@ void doTestInvokeScriptFunction(T * binding, TestScriptContext * context)
 		QDO(function funcTestData(a) { return a.x + a.name.length; })
 		QDO(function funcNewTestData() { a = new TestData(); a.x = 3; a.name = "def"; return a; })
 	}
+	if(context->isPython()) {
+		QDO(def funcAdd(a, b): return a + b)
+		QDO(def funcLen(a, b): return len(a) + b)
+		QDO(def funcTestData(a): return a.x + len(a.name))
+		QDO(def funcNewTestData() a = TestData() a.x = 3 a.name = "def" return a)
+	}
 
 	GMetaVariant result;
 	
