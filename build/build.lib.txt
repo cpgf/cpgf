@@ -64,11 +64,19 @@ if(${HAS_V8})
 	)
 endif(${HAS_V8})
 
+if(${HAS_PYTHON})
+	set(SRC_PYTHON_BIND
+		${SRC_PATH}/scriptbind/gpythonbind.cpp
+#		${SRC_PATH}/scriptbind/gv8runner.cpp
+	)
+endif(${HAS_V8})
+
 set(SRC_LIB
 	${SRC_META}
 	
 	${SRC_LUA_BIND}
 	${SRC_V8_BIND}
+	${SRC_PYTHON_BIND}
 )
 
 
@@ -80,6 +88,10 @@ endif(${HAS_LUA})
 if(${HAS_V8})
 	include_directories(${V8_INC})
 endif(${HAS_V8})
+
+if(${HAS_PYTHON})
+	include_directories(${PYTHON_INC})
+endif(${HAS_PYTHON})
 
 
 

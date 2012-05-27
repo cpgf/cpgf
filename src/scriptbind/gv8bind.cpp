@@ -1812,7 +1812,7 @@ void GV8ScriptObject::bindObject(const char * objectName, void * instance, IMeta
 
 void GV8ScriptObject::bindRaw(const char * name, const GVariant & value)
 {
-	GASSERT_MSG(vtIsFundamental(vtGetType(value.data.typeData)), "Only fundamental value can be bound via bindFundamental");
+	GASSERT_MSG(variantIsRawData(vtGetType(value.data.typeData)), "Only raw data (pointer, object) can be bound via bindRaw");
 
 	ENTER_V8()
 

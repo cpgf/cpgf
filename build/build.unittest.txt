@@ -76,7 +76,7 @@ macro(partUnitTest target)
 		OUTPUT_NAME ${target}
 		COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
 	)
-	target_link_libraries(${target} ${TARGET_LIB} ${LUA_LIB} ${V8_LIB})
+	target_link_libraries(${target} ${TARGET_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB})
 endmacro()
 
 if(${HAS_UNITTEST})
@@ -185,6 +185,9 @@ if(${HAS_UNITTEST})
 	if(HAS_V8)
 		target_link_libraries(${TARGET_UNITTEST} ${V8_LIB})
 	endif(HAS_V8)
+	if(HAS_PYTHON)
+		target_link_libraries(${TARGET_UNITTEST} ${PYTHON_LIB})
+	endif(HAS_PYTHON)
 	
 	set_target_properties(
 		${TARGET_UNITTEST}
