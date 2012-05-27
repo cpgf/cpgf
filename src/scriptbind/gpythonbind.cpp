@@ -183,7 +183,10 @@ private:
 };
 
 
-template <typename T>
+GPythonObject * castFromPython(PyObject * object) {
+	return gdynamic_cast<GPythonObject *>(static_cast<GPythonObject *>(object));
+}
+
 void commonDealloc(PyObject* p)
 {
     delete castFromPython(p);
@@ -210,7 +213,7 @@ PyTypeObject functionType = {
     const_cast<char *>("cpgf.Python.function"),
     sizeof(GPythonObject),
     0,
-    (destructor)&commonDealloc<GPythonObject>,               /* tp_dealloc */
+    (destructor)&commonDealloc,               /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -260,7 +263,7 @@ PyTypeObject classType = {
     const_cast<char *>("cpgf.Python.class"),
     sizeof(GPythonObject),
     0,
-    (destructor)&commonDealloc<GPythonObject>,               /* tp_dealloc */
+    (destructor)&commonDealloc,               /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -310,7 +313,7 @@ PyTypeObject objectType = {
     const_cast<char *>("cpgf.Python.object"),
     sizeof(GPythonObject),
     0,
-    (destructor)&commonDealloc<GPythonObject>,               /* tp_dealloc */
+    (destructor)&commonDealloc,               /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -360,7 +363,7 @@ PyTypeObject enumType = {
     const_cast<char *>("cpgf.Python.enum"),
     sizeof(GPythonObject),
     0,
-    (destructor)&commonDealloc<GPythonObject>,               /* tp_dealloc */
+    (destructor)&commonDealloc,               /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -410,7 +413,7 @@ PyTypeObject accessibleType = {
     const_cast<char *>("cpgf.Python.accessible"),
     sizeof(GPythonObject),
     0,
-    (destructor)&commonDealloc<GPythonObject>,               /* tp_dealloc */
+    (destructor)&commonDealloc,               /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -460,7 +463,7 @@ PyTypeObject rawType = {
     const_cast<char *>("cpgf.Python.raw"),
     sizeof(GPythonObject),
     0,
-    (destructor)&commonDealloc<GPythonObject>,               /* tp_dealloc */
+    (destructor)&commonDealloc,               /* tp_dealloc */
     0,                                  /* tp_print */
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
@@ -504,16 +507,12 @@ PyTypeObject rawType = {
     0                                       /* tp_del */
 };
 
-PyTypeObject * typeObjects[] = {
+PyTypeObject * const typeObjects[] = {
 	&functionType, &classType, &objectType, &enumType, &accessibleType, &rawType
 };
 
 const int typeObjectCount = sizeof(typeObjects) / sizeof(typeObjects[0]);
 
-
-GPythonObject * castFromPython(PyObject * object) {
-	return gdynamic_cast<GPythonObject *>(static_cast<GPythonObject *>(object));
-}
 
 GPythonObject * tryCastFromPython(PyObject * object) {
 	for(int i = 0; i <typeObjectCount; ++i) {
