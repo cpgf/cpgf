@@ -534,7 +534,7 @@ GPythonObject::GPythonObject(GScriptUserData * userData)
 			typeObject = (gdynamic_cast<GClassUserData *>(userData)->isInstance ? &objectType : &classType);
 			break;
 
-		case udtMethodList:
+		case udtExtendMethod:
 			typeObject = &functionType;
 			break;
 
@@ -638,7 +638,7 @@ GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
 	}
 
 	if(value->ob_type == &functionType) {
-		if(gdynamic_cast<GMethodListUserData *>(castFromPython(value)->getUserData())->methodList->getCount() > 1) {
+		if(gdynamic_cast<GExtendMethodUserData *>(castFromPython(value)->getUserData())->methodList->getCount() > 1) {
 			return sdtMethodList;
 		}
 		else {
@@ -883,27 +883,26 @@ PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObje
 
 	GPythonObject * methodObject = castFromPython(callableObject);
 
-	GMethodListUserData * userData = gdynamic_cast<GMethodListUserData *>(methodObject->getUserData());
-	GScopedInterface<IMetaList> methodList;
+	GExtendMethodUserData * userData = gdynamic_cast<GExtendMethodUserData *>(methodObject->getUserData());
 
 	InvokeCallableParam callableParam;
 	loadCallableParam(userData->getParam(), args, &callableParam);
 
-	void * instance = NULL;
-	if(userData != NULL) {
+	void * instance = userData->baseInstance;
+	if(instance != NULL) {
 //		instance = userData->instance;
 	}
 
-//	GScopedInterface<IMetaList> methodList;
-	if(true) { //namedUserData->metaClass == NULL) {
+	GScopedInterface<IMetaList> methodList;
+//	if(userData->metaClass == NULL) {
 		methodList.reset(userData->methodList);
 		methodList->addReference();
-	}
-	//else {
-	//	methodList.reset(createMetaList());
-	//	loadMethodList(methodList.get(), namedUserData->getParam()->getMetaMap(), userData == NULL? namedUserData->metaClass : userData->metaClass,
-	//		instance,  userData, namedUserData->name.c_str());
-	//}
+//	}
+//	else {
+//		methodList.reset(createMetaList());
+//		loadMethodList(methodList.get(), userData->getParam()->getMetaMap(), userData->metaClass,
+//			instance,  userData, userData->name.c_str());
+//	}
 
 	int maxRank = -1;
 	int maxRankIndex = -1;
@@ -1105,11 +1104,34 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 				GMapItemObjectData * data = gdynamic_cast<GMapItemObjectData *>(mapItem->getData());
 				if(data == NULL) {
 					GScopedInterface<IMetaList> methodList(createMetaList());
-					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name, true);
+//					if(instance == NULL) { // only preload static functions
+						loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name, true);
+//					}
+
+					// select the class to bind to the method (i.e, to call the method, an object must be the class or the class' derived)
+					// that to ensure Arguments::Holder is correct
+					GScopedInterface<IMetaClass> boundClass;
+					if(!derived) {
+						boundClass.reset(metaClass.get());
+						boundClass->addReference();
+					}
+					else {
+						if(derived->getBaseCount() > 0 && derived->getBaseClass(0)) {
+							// always choose first base because we only support single inheritance in JS
+							boundClass.reset(derived->getBaseClass(0));
+						}
+						else {
+							boundClass.reset(derived.get());
+							boundClass->addReference();
+						}
+					}
+
+					GExtendMethodUserData * newUserData = new GExtendMethodUserData(userData->getParam(), boundClass.get(), methodList.get(), name, udmtMethodList);
+					newUserData->baseInstance = instance;
 
 					data = new GMapItemObjectData();
 					mapItem->setData(data);
-					PyObject * methodObject = new GPythonObject(new GMethodListUserData(userData->getParam(), methodList.get(), udmtMethodList));
+					PyObject * methodObject = new GPythonObject(newUserData);
 					data->setObject(methodObject);
 				}
 
@@ -1297,7 +1319,7 @@ PyObject * getObjectAttr(PyObject * owner, const char * name)
 
 void doBindMethodList(GScriptBindingParam * param, PyObject * owner, const char * name, IMetaList * methodList)
 {
-	PyObject * methodObject = new GPythonObject(new GMethodListUserData(param, methodList, udmtMethodList));
+	PyObject * methodObject = new GPythonObject(new GExtendMethodUserData(param, NULL, methodList, name, udmtMethodList));
 
 	setObjectAttr(owner, name, methodObject);
 }
@@ -1649,7 +1671,7 @@ IMetaMethod * GPythonScriptObject::getMethod(const char * methodName, void ** ou
 
 	GPythonScopedPointer obj(getObjectAttr(this->object, methodName));
 	if(obj && obj->ob_type == &functionType) {
-		GMethodListUserData * userData = gdynamic_cast<GMethodListUserData *>(castFromPython(obj.get())->getUserData());
+		GExtendMethodUserData * userData = gdynamic_cast<GExtendMethodUserData *>(castFromPython(obj.get())->getUserData());
 		if(outInstance != NULL) {
 			*outInstance = userData->methodList->getInstanceAt(0);
 		}
@@ -1668,7 +1690,7 @@ IMetaList * GPythonScriptObject::getMethodList(const char * methodName)
 
 	GPythonScopedPointer obj(getObjectAttr(this->object, methodName));
 	if(obj && obj->ob_type == &functionType) {
-		GMethodListUserData * userData = gdynamic_cast<GMethodListUserData *>(castFromPython(obj.get())->getUserData());
+		GExtendMethodUserData * userData = gdynamic_cast<GExtendMethodUserData *>(castFromPython(obj.get())->getUserData());
 		userData->methodList->addReference();
 		return userData->methodList;
 	}
