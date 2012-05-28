@@ -111,6 +111,11 @@ public:
 		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
 	virtual ~GClassUserData();
 
+	GClassUserData(const GClassUserData &);
+
+private:
+	GClassUserData & operator = (const GClassUserData &);
+
 public:
 	IMetaClass * metaClass;
 	union {
@@ -170,7 +175,7 @@ private:
 
 public:
 	GExtendMethodUserData(GScriptBindingParam * param, IMetaClass * metaClass, IMetaList * methodList, const char * name, GUserDataMethodType methodType)
-		: super(udtExtendMethod, param), metaClass(metaClass), methodList(methodList), baseInstance(NULL), name(name), methodType(methodType) {
+		: super(udtExtendMethod, param), metaClass(metaClass), methodList(methodList), name(name), methodType(methodType) {
 		if(this->metaClass != NULL) {
 			this->metaClass->addReference();
 		}
@@ -191,7 +196,6 @@ public:
 public:
 	IMetaClass * metaClass;
 	IMetaList * methodList;
-	void * baseInstance;
 	std::string name;
 	GUserDataMethodType methodType;
 };

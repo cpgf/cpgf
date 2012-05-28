@@ -43,7 +43,7 @@ GTEST(MK(CASE, _V8_Api))
 
 #endif
 
-/*
+
 #if ENABLE_PYTHON
 
 GTEST(MK(CASE, _Python_Lib))
@@ -63,7 +63,7 @@ GTEST(MK(CASE, _Python_Api))
 
 
 #endif
-*/
+
 
 #undef CASE
 #undef MK2

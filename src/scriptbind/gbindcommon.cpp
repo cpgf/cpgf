@@ -38,6 +38,25 @@ GClassUserData::GClassUserData(GScriptBindingParam * param, IMetaClass * metaCla
 	}
 }
 
+GClassUserData::GClassUserData(const GClassUserData & other)
+	: super(udtClass, other.getParam())
+{
+	this->metaClass = other.metaClass;
+	this->instance = other.instance;
+	this->isInstance = other.isInstance;
+	this->allowGC = other.allowGC;
+	this->cv = other.cv;
+	this->dataType = other.dataType;
+
+	if(this->metaClass != NULL) {
+		this->metaClass->addReference();
+	}
+
+	if(this->dataType == cudtByteArray && this->byteArray != NULL) {
+		this->byteArray->addReference();
+	}
+}
+
 GClassUserData::~GClassUserData()
 {
 	switch(dataType) {

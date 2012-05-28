@@ -1079,9 +1079,7 @@ Handle<Value> getNamedMember(GClassUserData * userData, const char * name)
 				GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getData());
 				if(data == NULL) {
 					GScopedInterface<IMetaList> methodList(createMetaList());
-					if(instance == NULL) { // only preload static functions
-						loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name, true);
-					}
+					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name, true);
 
 					data = new GMapItemMethodData;
 					mapItem->setData(data);
@@ -1108,7 +1106,6 @@ Handle<Value> getNamedMember(GClassUserData * userData, const char * name)
 					GMetaMapClass * baseMapClass = getMetaClassMap(userData->getParam(), boundClass.get());
 					data->setTemplate(createMethodTemplate(userData->getParam(), userData->metaClass, userData->instance == NULL, methodList.get(), name,
 						gdynamic_cast<GMapItemClassData *>(baseMapClass->getData())->functionTemplate, udmtInternal, &newUserData));
-					newUserData->baseInstance = userData->instance;
 					newUserData->name = name;
 					data->setUserData(newUserData);
 				}
@@ -1701,7 +1698,7 @@ GScriptObject * GV8ScriptObject::gainScriptObject(const char * name)
 	Local<Object> localObject(Local<Object>::New(this->implement->object));
 
 	Local<Value> value = localObject->Get(String::New(name));
-	if((value->IsObject() || value->IsFunction()) && !isValidObject(value)) {
+	if((value->IsObject() || value->IsFunction())) { // { && !isValidObject(value)) {
 		GV8ScriptObject * binding = new GV8ScriptObject(*this, Local<Object>::Cast(value));
 		binding->owner = this;
 		binding->name = name;

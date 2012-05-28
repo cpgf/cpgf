@@ -53,7 +53,7 @@ if(${HAS_UNITTEST})
 	include_directories(${UNIT_TEST_DIR}/src)
 endif(${HAS_UNITTEST})
 
-include_directories(E:/SourceCode/CPP/boost /tools/Python/include)
+include_directories(E:/SourceCode/CPP/boost /Python/include)
 
 set(SRC_UNITTEST_FRAMEWORK
 	${GLOB_UNITTEST_FRAMEWORK}
@@ -169,8 +169,8 @@ set_target_properties(
 
 target_link_libraries(
 	${TARGET}
-#	/tools/Python/libs/python27_d.lib
-	/tools/Python/libs/libpython27.a
+	/Python/libs/python27_d.lib
+#	/tools/Python/libs/libpython27.a
 
 #	${CPP_SOURCE_PATH}/wxWidgets/lib/gcc_dll/libwxmsw29u.a
 #	${CPP_SOURCE_PATH}/V8/libv8.a

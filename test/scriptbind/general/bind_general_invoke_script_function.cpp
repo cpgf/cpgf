@@ -25,7 +25,7 @@ void doTestInvokeScriptFunction(T * binding, TestScriptContext * context)
 		QDO(def funcAdd(a, b): return a + b)
 		QDO(def funcLen(a, b): return len(a) + b)
 		QDO(def funcTestData(a): return a.x + len(a.name))
-		QDO(def funcNewTestData() a = TestData() a.x = 3 a.name = "def" return a)
+		DO("def funcNewTestData(): \n\ta = TestData() \n\ta.x = 3 \n\ta.name = 'def' \n\treturn a")
 	}
 
 	GMetaVariant result;

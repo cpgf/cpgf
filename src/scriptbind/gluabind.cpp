@@ -1704,11 +1704,11 @@ GScriptObject * GLuaScriptObject::gainScriptObject(const char * name)
 		return NULL;
 	}
 
-	if(isValidMetaTable(this->implement->luaState, -1)) {
-		lua_pop(this->implement->luaState, 1);
+//	if(isValidMetaTable(this->implement->luaState, -1)) {
+//		lua_pop(this->implement->luaState, 1);
 		
-		return NULL;
-	}
+//		return NULL;
+//	}
 
 	GLuaScriptObject * binding = new GLuaScriptObject(*this);
 	binding->owner = this;
