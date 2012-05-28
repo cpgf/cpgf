@@ -638,7 +638,12 @@ GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
 	}
 
 	if(value->ob_type == &functionType) {
-		return sdtMethodList;
+		if(gdynamic_cast<GMethodListUserData *>(castFromPython(value)->getUserData())->methodList->getCount() > 1) {
+			return sdtMethodList;
+		}
+		else {
+			return sdtMethod;
+		}
 	}
 
 	// should be the last
@@ -1384,7 +1389,7 @@ GScriptDataType GPythonScriptObject::getType(const char * name, IMetaTypedItem *
 		return getPythonType(obj.get(), outMetaTypeItem);
 	}
 	else {
-		return sdtUnknown;
+		return sdtNull;
 	}
 
 	LEAVE_PYTHON(return sdtUnknown)
@@ -1745,10 +1750,14 @@ struct Hello
 		delete this->pobj;
 	}
 
-	int greet() {
+	int greet(int i) {
 		cout << "Hello " << this->n << endl;
 		if(this->pobj == NULL) {
 			this->pobj = new Hello(78);
+		}
+
+		if(i != this->n) {
+			cout << "!!! Greet wrong " << endl;
 		}
 
 		return 1999;
@@ -1827,7 +1836,8 @@ void doTestPythonBind()
 		"print h.s \n"
 
 		"print h.pobj \n"
-		"print h.greet() \n"
+		"print h.greet(38) \n"
+		"print Hello(99).greet(99) \n"
 		"print h.pobj.n \n"
 
 		"print h.En.ena \n"

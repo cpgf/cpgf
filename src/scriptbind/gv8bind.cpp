@@ -1079,7 +1079,9 @@ Handle<Value> getNamedMember(GClassUserData * userData, const char * name)
 				GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getData());
 				if(data == NULL) {
 					GScopedInterface<IMetaList> methodList(createMetaList());
-					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name, true);
+					if(instance == NULL) { // only preload static functions
+						loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name, true);
+					}
 
 					data = new GMapItemMethodData;
 					mapItem->setData(data);

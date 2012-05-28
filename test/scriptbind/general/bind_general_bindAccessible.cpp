@@ -18,8 +18,14 @@ void doTestBindAccessible(T * binding, TestScriptContext * context)
 	field.reset(metaClass->getField("data"));
 	binding->bindAccessible("baData", &bound, field.get());
 
-	QDO(baData.x = 38);
-	QDO(baData.name = "aha");
+	if(context->isPython()) {
+		QDO(baData.__get__(0).x = 38);
+		QDO(baData.__get__(0).name = "aha");
+	}
+	else {
+		QDO(baData.x = 38);
+		QDO(baData.name = "aha");
+	}
 
 	GEQUAL(bound.data.x, 38);
 	GEQUAL(bound.data.name, "aha");

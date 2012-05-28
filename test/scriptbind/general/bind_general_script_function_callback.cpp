@@ -14,7 +14,12 @@ string makeFunc(const string & name, TestScriptContext * context)
 		return "function " + name + "(t, u) { return t + u; }";
 	}
 	if(context->isPython()) {
-		return "def " + name + "(t, u): return t + u";
+		if(name == "") {
+			return "lambda t, u: t + u";
+		}
+		else {
+			return "def " + name + "(t, u): return t + u";
+		}
 	}
 
 	return "";
