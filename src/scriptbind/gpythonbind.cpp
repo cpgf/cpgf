@@ -45,9 +45,7 @@ template <typename T>
 struct GPythonScopedPointerDeleter
 {
 	static inline void Delete(T * p) {
-		if(p != NULL) {
-			Py_DECREF(p);
-		}
+		Py_XDECREF(p);
 	}
 };
 
@@ -60,27 +58,21 @@ public:
 	}
 
 	virtual ~GMapItemObjectData() {
-		if(this->object != NULL) {
-			Py_DECREF(this->object);
-		}
+		Py_XDECREF(this->object);
 	}
 
 	PyObject * getObject() const {
-		Py_INCREF(this->object);
+		Py_XINCREF(this->object);
 		return this->object;
 	}
 
 	void setObject(PyObject * object) {
 		if(this->object != object) {
-			if(this->object != NULL) {
-				Py_DECREF(this->object);
-			}
+			Py_XDECREF(this->object);
 			
 			this->object = object;
 			
-			if(this->object != NULL) {
-				Py_INCREF(this->object);
-			}
+			Py_XINCREF(this->object);
 		}
 	}
 
@@ -116,7 +108,6 @@ public:
 	}
 
 	virtual ~GMethodUserData() {
-		// always delete classUserData, so messy!
 		delete this->classUserData;
 
 		if(this->freeData) {
@@ -261,32 +252,32 @@ PyTypeObject functionType = {
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
     0,                                  /* tp_compare */
-    0, //(reprfunc)func_repr,                   /* tp_repr */
+    0,				                   /* tp_repr */
     0,                                  /* tp_as_number */
     0,                                  /* tp_as_sequence */
     0,                                  /* tp_as_mapping */
     0,                                  /* tp_hash */
     &callbackCallMethod,                              /* tp_call */
     0,                                  /* tp_str */
-    0, // PyObject_GenericGetAttr,            /* tp_getattro */
-    0, // PyObject_GenericSetAttr,            /* tp_setattro */
+    0, 						            /* tp_getattro */
+    0, 						            /* tp_setattro */
     0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT /* | Py_TPFLAGS_HAVE_GC */,/* tp_flags */
+    Py_TPFLAGS_DEFAULT, 					/* tp_flags */
     0,                                  /* tp_doc */
-    0, // (traverseproc)func_traverse,          /* tp_traverse */
+    0, 						          /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
-    0, //offsetof(PyFunctionObject, func_weakreflist), /* tp_weaklistoffset */
+    0, 									 /* tp_weaklistoffset */
     0,                                  /* tp_iter */
     0,                                  /* tp_iternext */
     0,                                  /* tp_methods */
-    0, // func_memberlist,              /* tp_members */
-    NULL, //function_getsetlist,                /* tp_getset */
+    0, 					              /* tp_members */
+    NULL, 				                /* tp_getset */
     0,                                  /* tp_base */
     0,                                  /* tp_dict */
-    NULL, //function_descr_get,                 /* tp_descr_get */
+    NULL, 				                 /* tp_descr_get */
     0,                                  /* tp_descr_set */
-    0, //offsetof(PyFunctionObject, func_dict),      /* tp_dictoffset */
+    0, 								      /* tp_dictoffset */
     0,                                      /* tp_init */
     0,                                      /* tp_alloc */
     0,                                      /* tp_new */
@@ -311,7 +302,7 @@ PyTypeObject classType = {
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
     0,                                  /* tp_compare */
-    0, //(reprfunc)func_repr,                   /* tp_repr */
+    0, 				                   /* tp_repr */
     0,                                  /* tp_as_number */
     0,                                  /* tp_as_sequence */
     0,                                  /* tp_as_mapping */
@@ -321,22 +312,22 @@ PyTypeObject classType = {
 	&callbackGetAttribute,             /* tp_getattro */
     &callbackSetAttribute,            /* tp_setattro */
     0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT /* | Py_TPFLAGS_HAVE_GC */,/* tp_flags */
+    Py_TPFLAGS_DEFAULT,					/* tp_flags */
     0,                                  /* tp_doc */
-    0, // (traverseproc)func_traverse,          /* tp_traverse */
+    0, 					          /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
-    0, //offsetof(PyFunctionObject, func_weakreflist), /* tp_weaklistoffset */
+    0, 									 /* tp_weaklistoffset */
     0,                                  /* tp_iter */
     0,                                  /* tp_iternext */
     0,                                  /* tp_methods */
-    0, // func_memberlist,              /* tp_members */
-    NULL, //function_getsetlist,                /* tp_getset */
+    0, 					              /* tp_members */
+    NULL, 				                /* tp_getset */
     0,                                  /* tp_base */
     0,                                  /* tp_dict */
-    NULL, //function_descr_get,                 /* tp_descr_get */
+    NULL, 				                 /* tp_descr_get */
     0,                                  /* tp_descr_set */
-    0, //offsetof(PyFunctionObject, func_dict),      /* tp_dictoffset */
+    0, 							      /* tp_dictoffset */
     0,                                      /* tp_init */
     0,                                      /* tp_alloc */
     0,                                      /* tp_new */
@@ -361,7 +352,7 @@ PyTypeObject objectType = {
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
     0,                                  /* tp_compare */
-    0, //(reprfunc)func_repr,                   /* tp_repr */
+    0, 				                   /* tp_repr */
     0,                                  /* tp_as_number */
     0,                                  /* tp_as_sequence */
     0,                                  /* tp_as_mapping */
@@ -371,22 +362,22 @@ PyTypeObject objectType = {
 	&callbackGetAttribute,             /* tp_getattro */
     &callbackSetAttribute,            /* tp_setattro */
     0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT /* | Py_TPFLAGS_HAVE_GC */,/* tp_flags */
+    Py_TPFLAGS_DEFAULT, 				/* tp_flags */
     0,                                  /* tp_doc */
-    0, // (traverseproc)func_traverse,          /* tp_traverse */
+    0, 						          /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
-    0, //offsetof(PyFunctionObject, func_weakreflist), /* tp_weaklistoffset */
+    0, 									 /* tp_weaklistoffset */
     0,                                  /* tp_iter */
     0,                                  /* tp_iternext */
     0,                                  /* tp_methods */
-    0, // func_memberlist,              /* tp_members */
-    NULL, //function_getsetlist,                /* tp_getset */
+    0, 					              /* tp_members */
+    NULL, 			                /* tp_getset */
     0,                                  /* tp_base */
     0,                                  /* tp_dict */
-    NULL, //function_descr_get,                 /* tp_descr_get */
+    NULL, 			                 /* tp_descr_get */
     0,                                  /* tp_descr_set */
-    0, //offsetof(PyFunctionObject, func_dict),      /* tp_dictoffset */
+    0, 							      /* tp_dictoffset */
     0,                                      /* tp_init */
     0,                                      /* tp_alloc */
     0,                                      /* tp_new */
@@ -411,7 +402,7 @@ PyTypeObject enumType = {
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
     0,                                  /* tp_compare */
-    0, //(reprfunc)func_repr,                   /* tp_repr */
+    0, 				                   /* tp_repr */
     0,                                  /* tp_as_number */
     0,                                  /* tp_as_sequence */
     0,                                  /* tp_as_mapping */
@@ -421,22 +412,22 @@ PyTypeObject enumType = {
 	&callbackGetEnumValue,             /* tp_getattro */
     &callbackSetEnumValue,            /* tp_setattro */
     0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT /* | Py_TPFLAGS_HAVE_GC */,/* tp_flags */
+    Py_TPFLAGS_DEFAULT, 			/* tp_flags */
     0,                                  /* tp_doc */
-    0, // (traverseproc)func_traverse,          /* tp_traverse */
+    0, 				          			/* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
-    0, //offsetof(PyFunctionObject, func_weakreflist), /* tp_weaklistoffset */
+    0, 								 /* tp_weaklistoffset */
     0,                                  /* tp_iter */
     0,                                  /* tp_iternext */
     0,                                  /* tp_methods */
-    0, // func_memberlist,              /* tp_members */
-    NULL, //function_getsetlist,                /* tp_getset */
+    0, 					              /* tp_members */
+    NULL, 				                /* tp_getset */
     0,                                  /* tp_base */
     0,                                  /* tp_dict */
-    NULL, //function_descr_get,                 /* tp_descr_get */
+    NULL, 				                 /* tp_descr_get */
     0,                                  /* tp_descr_set */
-    0, //offsetof(PyFunctionObject, func_dict),      /* tp_dictoffset */
+    0, 							      /* tp_dictoffset */
     0,                                      /* tp_init */
     0,                                      /* tp_alloc */
     0,                                      /* tp_new */
@@ -461,32 +452,32 @@ PyTypeObject accessibleType = {
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
     0,                                  /* tp_compare */
-    0, //(reprfunc)func_repr,                   /* tp_repr */
+    0, 				                   /* tp_repr */
     0,                                  /* tp_as_number */
     0,                                  /* tp_as_sequence */
     0,                                  /* tp_as_mapping */
     0,                                  /* tp_hash */
     0,                              /* tp_call */
     0,                                  /* tp_str */
-	NULL,             /* tp_getattro */
-    NULL,            /* tp_setattro */
+	NULL,           			  /* tp_getattro */
+    NULL,            			/* tp_setattro */
     0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_CLASS /* | Py_TPFLAGS_HAVE_GC */,/* tp_flags */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_CLASS, 	/* tp_flags */
     0,                                  /* tp_doc */
-    0, // (traverseproc)func_traverse,          /* tp_traverse */
+    0, 						          /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
-    0, //offsetof(PyFunctionObject, func_weakreflist), /* tp_weaklistoffset */
+    0, 									 /* tp_weaklistoffset */
     0,                                  /* tp_iter */
     0,                                  /* tp_iternext */
     NULL,                                  /* tp_methods */
-    0, // func_memberlist,              /* tp_members */
-    NULL, //function_getsetlist,                /* tp_getset */
+    0, 						              /* tp_members */
+    NULL, 				                /* tp_getset */
     0,                                  /* tp_base */
     0,                                  /* tp_dict */
     &callbackAccessibleDescriptorGet,           /* tp_descr_get */
     &callbackAccessibleDescriptorSet,                                  /* tp_descr_set */
-    0, //offsetof(PyFunctionObject, func_dict),      /* tp_dictoffset */
+    0, 								      /* tp_dictoffset */
     0,                                      /* tp_init */
     0,                                      /* tp_alloc */
     0,                                      /* tp_new */
@@ -511,32 +502,32 @@ PyTypeObject rawType = {
     0,                                  /* tp_getattr */
     0,                                  /* tp_setattr */
     0,                                  /* tp_compare */
-    0, //(reprfunc)func_repr,                   /* tp_repr */
+    0, 				                   /* tp_repr */
     0,                                  /* tp_as_number */
     0,                                  /* tp_as_sequence */
     0,                                  /* tp_as_mapping */
     0,                                  /* tp_hash */
     0,                              /* tp_call */
     0,                                  /* tp_str */
-	NULL,             /* tp_getattro */
-    NULL,            /* tp_setattro */
+	NULL,           				  /* tp_getattro */
+    NULL,         				   /* tp_setattro */
     0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT /* | Py_TPFLAGS_HAVE_GC */,/* tp_flags */
+    Py_TPFLAGS_DEFAULT, 				/* tp_flags */
     0,                                  /* tp_doc */
-    0, // (traverseproc)func_traverse,          /* tp_traverse */
+    0, 						          /* tp_traverse */
     0,                                  /* tp_clear */
     0,                                  /* tp_richcompare */
-    0, //offsetof(PyFunctionObject, func_weakreflist), /* tp_weaklistoffset */
+    0, 									 /* tp_weaklistoffset */
     0,                                  /* tp_iter */
     0,                                  /* tp_iternext */
     NULL,                                  /* tp_methods */
-    0, // func_memberlist,              /* tp_members */
-    NULL, //function_getsetlist,                /* tp_getset */
+    0, 					              /* tp_members */
+    NULL, 				                /* tp_getset */
     0,                                  /* tp_base */
     0,                                  /* tp_dict */
-    NULL,           /* tp_descr_get */
+    NULL,           						/* tp_descr_get */
     NULL,                                  /* tp_descr_set */
-    0, //offsetof(PyFunctionObject, func_dict),      /* tp_dictoffset */
+    0, 								      /* tp_dictoffset */
     0,                                      /* tp_init */
     0,                                      /* tp_alloc */
     0,                                      /* tp_new */
@@ -632,6 +623,13 @@ void GPythonObject::initType(PyTypeObject * type)
 void error(const char * message)
 {
 	PyErr_SetString(PyExc_RuntimeError, message);
+}
+
+PyObject * pyAddRef(PyObject * obj)
+{
+	Py_XINCREF(obj);
+
+	return obj;
 }
 
 GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
@@ -767,11 +765,11 @@ PyObject * variantToPython(GScriptBindingParam * param, const GVariant & value, 
 	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
 	
 	if(vtIsEmpty(vt)) {
-		return Py_None;
+		return pyAddRef(Py_None);
 	}
 
 	if(vtIsBoolean(vt)) {
-		return fromVariant<bool>(value) ? Py_True : Py_False;
+		return pyAddRef(fromVariant<bool>(value) ? Py_True : Py_False);
 	}
 
 	if(vtIsInteger(vt)) {
@@ -783,7 +781,7 @@ PyObject * variantToPython(GScriptBindingParam * param, const GVariant & value, 
 	}
 
 	if(!vtIsByteArray(vt) && canFromVariant<void *>(value) && objectAddressFromVariant(value) == NULL) {
-		return Py_None;
+		return pyAddRef(Py_None);
 	}
 
 	if(variantIsString(value)) {
@@ -1320,11 +1318,10 @@ GMetaVariant invokePythonFunctionIndirectly(GScriptBindingParam * bindingParam, 
 		}
 		for(size_t i = 0; i < paramCount; ++i) {
 			GPythonScopedPointer arg(variantToPython(bindingParam, params[i]->getValue(), params[i]->getType(), false, true));
-Py_INCREF(arg.get());
 			if(!arg) {
 				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
 			}
-			PyTuple_SetItem(args.get(), start + i, arg.get());
+			PyTuple_SetItem(args.get(), start + i, arg.take());
 		}
 
 		GPythonScopedPointer result;
@@ -1359,9 +1356,8 @@ PyObject * getObjectAttr(PyObject * owner, const char * name)
 	else {
 		if(PyDict_Check(owner)) {
 			PyObject * obj = PyDict_GetItemString(owner, name);
-			if(obj != NULL) {
-				Py_INCREF(obj);
-			}
+			Py_XINCREF(obj);
+
 			return obj;
 		}
 		return NULL;
@@ -1420,12 +1416,12 @@ void doBindAccessible(GScriptBindingParam * param, PyObject * owner, const char 
 GPythonScriptFunction::GPythonScriptFunction(GScriptBindingParam * bindingParam, PyObject * func)
 	: bindingParam(bindingParam), func(func)
 {
-	Py_INCREF(func);
+	Py_XINCREF(this->func);
 }
 
 GPythonScriptFunction::~GPythonScriptFunction()
 {
-	Py_DECREF(func);
+	Py_XDECREF(this->func);
 }
 
 GMetaVariant GPythonScriptFunction::invoke(const GMetaVariant * params, size_t paramCount)
