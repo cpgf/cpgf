@@ -4,7 +4,7 @@
 
 #include "cpgf/scriptbind/gscriptbind.h"
 
-#include "python.h"
+#include "Python.h"
 
 
 namespace cpgf {

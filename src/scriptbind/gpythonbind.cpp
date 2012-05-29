@@ -3,7 +3,7 @@
 #pragma warning(disable:4127) // warning C4127: conditional expression is constant
 #endif
 
-#include "python.h"
+#include "Python.h"
 
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gmetaclasstraveller.h"
