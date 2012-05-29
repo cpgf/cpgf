@@ -44,7 +44,7 @@ GClassUserData::GClassUserData(const GClassUserData & other)
 	this->metaClass = other.metaClass;
 	this->instance = other.instance;
 	this->isInstance = other.isInstance;
-	this->allowGC = other.allowGC;
+	this->allowGC = false; //other.allowGC;
 	this->cv = other.cv;
 	this->dataType = other.dataType;
 

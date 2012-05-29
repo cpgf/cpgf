@@ -95,7 +95,7 @@ private:
 	GScopedPointer<GExtendMethodUserData> methodUserData;
 };
 
-const GScriptUserDataType methodUserType = (GScriptUserDataType)0x50;
+const GScriptUserDataType methodUserType = (GScriptUserDataType)0x10;
 
 class GMethodUserData : public GScriptUserData
 {
@@ -563,7 +563,7 @@ GPythonObject::GPythonObject(GScriptUserData * userData)
 {
 	PyTypeObject * typeObject = NULL;
 
-	switch(userData->getType()) {
+	switch(static_cast<int>(userData->getType())) {
 		case udtClass:
 			typeObject = (gdynamic_cast<GClassUserData *>(userData)->isInstance ? &objectType : &classType);
 			break;
@@ -592,6 +592,7 @@ GPythonObject::GPythonObject(GScriptUserData * userData)
 
 GPythonObject::~GPythonObject()
 {
+	delete this->userData;
 }
 
 IMetaService * GPythonObject::getService() const
@@ -1386,7 +1387,9 @@ bool isValidObject(PyObject * obj)
 
 void doBindMethodList(GScriptBindingParam * param, PyObject * owner, const char * name, IMetaList * methodList)
 {
-	PyObject * methodObject = new GPythonObject(new GMethodUserData(param, NULL, NULL, new GExtendMethodUserData(param, NULL, methodList, name, udmtMethodList), true));
+	GExtendMethodUserData * data = new GExtendMethodUserData(param, NULL, methodList, name, udmtMethodList);
+	GMethodUserData * methodData = new GMethodUserData(param, NULL, NULL, data, true);
+	PyObject * methodObject = new GPythonObject(methodData);
 
 	setObjectAttr(owner, name, methodObject);
 }
