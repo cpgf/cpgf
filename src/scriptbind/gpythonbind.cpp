@@ -592,7 +592,7 @@ GPythonObject::GPythonObject(GScriptUserData * userData)
 
 GPythonObject::~GPythonObject()
 {
-	delete this->userData;
+//	delete this->userData;
 }
 
 IMetaService * GPythonObject::getService() const
