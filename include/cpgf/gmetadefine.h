@@ -10,6 +10,7 @@
 #include "cpgf/gmetaproperty.h"
 #include "cpgf/gglobal.h"
 #include "cpgf/gpp.h"
+#include "cpgf/gsharedptr.h"
 
 
 #define MAX_BASE_COUNT 20
@@ -61,99 +62,7 @@ struct GLazyDefineClassHelper
 template <typename DefineClass>
 void (*GLazyDefineClassHelper<DefineClass>::registerAddress)(DefineClass define) = NULL;
 
-template <typename T>
-class GSharedDataHolder
-{
-public:
-	explicit GSharedDataHolder(T * data) : data(data), referenceCount(1), freeData(true) {
-	}
-
-	GSharedDataHolder(T * data, bool freeData) : data(data), referenceCount(1), freeData(freeData) {
-	}
-
-	~GSharedDataHolder() {
-		if(this->freeData) {
-			delete this->data;
-		}
-	}
-
-	void retain() {
-		++this->referenceCount;
-	}
-
-	void release() {
-		--this->referenceCount;
-		if(this->referenceCount <= 0) {
-			delete this;
-		}
-	}
-
-	T * get() const {
-		return this->data;
-	}
-
-	T * take() {
-		this->freeData = false;
-		return this->data;
-	}
-
-private:
-	T * data;
-	int referenceCount;
-	bool freeData;
-};
-
-template <typename T>
-class GSharedData
-{
-private:
-	typedef GSharedData<T> ThisType;
-
-public:
-	explicit GSharedData(T * p) : holder(new GSharedDataHolder<T>(p)) {
-	}
-
-	explicit GSharedData(T * p, bool freeData) : holder(new GSharedDataHolder<T>(p, freeData)) {
-	}
-
-	~GSharedData() {
-		this->holder->release();
-	}
-
-	GSharedData(const GSharedData & other) : holder(other.holder) {
-		this->holder->retain();
-	}
-
-	GSharedData & operator = (GSharedData other) {
-		other.swap(*this);
-		return *this;
-	}
-
-	void swap(GSharedData & other) {
-		std::swap(this->holder, other.holder);
-	}
-
-	T * operator -> () const {
-		return this->holder->get();
-	}
-
-	T * get() const {
-		return this->holder->get();
-	}
-
-	T * take() {
-		return this->holder->take();
-	}
-
-	void reset(T * p = NULL) {
-		ThisType(p).swap(*this);
-	}
-
-private:
-	GSharedDataHolder<T> * holder;
-};
-
-typedef GSharedData<GMetaClass> GSharedMetaClass;
+typedef GSharedPointer<GMetaClass> GSharedMetaClass;
 
 template <typename T, bool CanDelete>
 struct ObjectDeleter

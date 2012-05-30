@@ -23,13 +23,14 @@ GScriptBindingParam::~GScriptBindingParam()
 
 GClassUserData::GClassUserData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance, bool isInstance,
 	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
-	: super(udtClass, param), metaClass(metaClass), instance(instance), isInstance(isInstance), allowGC(allowGC), cv(cv), dataType(dataType)
+	: super(udtClass, param), metaClass(metaClass), isInstance(isInstance), cv(cv), dataType(dataType),
+		data(new Data(metaClass, instance, dataType == cudtByteArray ? false : allowGC))
 {
 	this->metaClass->addReference();
 
 	switch(dataType) {
 		case cudtByteArray:
-			this->allowGC = false;
+			this->byteArray = static_cast<IByteArray *>(instance);
 			this->byteArray->addReference();
 			break;
 
@@ -42,11 +43,10 @@ GClassUserData::GClassUserData(const GClassUserData & other)
 	: super(udtClass, other.getParam())
 {
 	this->metaClass = other.metaClass;
-	this->instance = other.instance;
 	this->isInstance = other.isInstance;
-	this->allowGC = false; //other.allowGC;
 	this->cv = other.cv;
 	this->dataType = other.dataType;
+	this->data = other.data;
 
 	if(this->metaClass != NULL) {
 		this->metaClass->addReference();
@@ -66,10 +66,6 @@ GClassUserData::~GClassUserData()
 
 		default:
 			break;
-	}
-
-	if(this->allowGC) {
-		this->metaClass->destroyInstance(instance);
 	}
 
 	this->metaClass->releaseReference();
@@ -592,7 +588,7 @@ GMetaVariant userDataToVariant(GScriptUserData * userData)
 			type.addPointer();
 			switch(classData->dataType) {
 				case cudtNormal: {
-					return GMetaVariant(pointerToObjectVariant(classData->instance), type);
+					return GMetaVariant(pointerToObjectVariant(classData->getInstance()), type);
 				}
 
 				case cudtByteArray: {

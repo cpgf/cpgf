@@ -558,7 +558,7 @@ void * luaToObject(lua_State * L, GScriptBindingParam * /*param*/, int index, GM
 				*outType = GMetaType(typeData);
 			}
 
-			return classData->instance;
+			return classData->getInstance();
 		}
 	}
 
@@ -996,7 +996,7 @@ int UserData_call(lua_State * L)
 	GClassUserData * userData = static_cast<GClassUserData *>(lua_touserdata(L, lua_upvalueindex(1)));
 
 
-	if(userData->instance == NULL) { // constructor
+	if(userData->getInstance() == NULL) { // constructor
 		return invokeConstructor(L, userData->getParam(), userData->metaClass);
 	}
 	else {
@@ -1068,7 +1068,7 @@ int UserData_index(lua_State * L)
 	
 	const char * name = lua_tostring(L, -1);
 	
-	GMetaClassTraveller traveller(userData->metaClass, userData->instance);
+	GMetaClassTraveller traveller(userData->metaClass, userData->getInstance());
 	
 	void * instance = NULL;
 	
@@ -1148,7 +1148,7 @@ bool newindexMemberData(lua_State * /*L*/, GClassUserData * userData, const char
 		return false;
 	}
 
-	GMetaClassTraveller traveller(userData->metaClass, userData->instance);
+	GMetaClassTraveller traveller(userData->metaClass, userData->getInstance());
 	
 	void * instance = NULL;
 

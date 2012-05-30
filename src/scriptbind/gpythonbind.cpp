@@ -217,13 +217,16 @@ private:
 };
 
 
+GPythonObject * createPythonObject(GScriptUserData * userData);
+void deletePythonObject(GPythonObject * obj);
+
 GPythonObject * castFromPython(PyObject * object) {
 	return gdynamic_cast<GPythonObject *>(static_cast<GPythonObject *>(object));
 }
 
 void commonDealloc(PyObject* p)
 {
-    delete castFromPython(p);
+    deletePythonObject(castFromPython(p));
 }
 
 PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObject * keyWords);
@@ -558,6 +561,21 @@ GPythonObject * tryCastFromPython(PyObject * object) {
 	return NULL;
 }
 
+GPythonObject * createPythonObject(GScriptUserData * userData)
+{
+	GPythonObject * obj = PyObject_New(GPythonObject, &objectType);
+	new (obj) GPythonObject(userData);
+//cout << "construct refcount: " << obj->ob_refcnt << " " << obj << " " << obj->getUserData()->getType() << endl;
+	return obj;
+}
+
+void deletePythonObject(GPythonObject * obj)
+{
+//cout << "delete refcount: " << obj->ob_refcnt << " " << obj << " " << obj->getUserData()->getType() << endl;
+	obj->~GPythonObject();
+	PyObject_Del(obj);
+}
+
 GPythonObject::GPythonObject(GScriptUserData * userData)
 	: userData(userData)
 {
@@ -592,7 +610,7 @@ GPythonObject::GPythonObject(GScriptUserData * userData)
 
 GPythonObject::~GPythonObject()
 {
-//	delete this->userData;
+	delete this->userData;
 }
 
 IMetaService * GPythonObject::getService() const
@@ -745,7 +763,7 @@ PyObject * objectToPython(GScriptBindingParam * param, void * instance, IMetaCla
 		return Py_None;
 	}
 
-	return new GPythonObject(new GClassUserData(param, metaClass, instance, true, allowGC, cv, dataType));
+	return createPythonObject(new GClassUserData(param, metaClass, instance, true, allowGC, cv, dataType));
 }
 
 PyObject * rawToPython(GScriptBindingParam * param, const GVariant & value)
@@ -753,7 +771,7 @@ PyObject * rawToPython(GScriptBindingParam * param, const GVariant & value)
 	GVariantType vt = value.getType();
 
 	if(param->getConfig().allowAccessRawData() && variantIsRawData(vt)) {
-		PyObject * rawObject = new GPythonObject(new GRawUserData(param, value));
+		PyObject * rawObject = createPythonObject(new GRawUserData(param, value));
 
 		return rawObject;
 	}
@@ -989,7 +1007,7 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	void * instance = doInvokeConstructor(cppClass->getService(), userData->metaClass, &callableParam);
 
 	if(instance != NULL) {
-		return new GPythonObject(new GClassUserData(cppClass->getParam(), userData->metaClass, instance, true, true, opcvNone, cudtNormal));
+		return createPythonObject(new GClassUserData(cppClass->getParam(), userData->metaClass, instance, true, true, opcvNone, cudtNormal));
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1039,7 +1057,7 @@ bool doSetAttributeObject(GPythonObject * cppObject, PyObject * attrName, PyObje
 		return false;
 	}
 
-	GMetaClassTraveller traveller(userData->metaClass, userData->instance);
+	GMetaClassTraveller traveller(userData->metaClass, userData->getInstance());
 
 	void * instance = NULL;
 
@@ -1062,7 +1080,7 @@ bool doSetAttributeObject(GPythonObject * cppObject, PyObject * attrName, PyObje
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 				if(allowAccessData(userData, data.get())) {
 					GVariant v = pythonToVariant(userData->getParam(), value).getValue();
-					metaSetValue(data.get(), userData->instance, v);
+					metaSetValue(data.get(), userData->getInstance(), v);
 					return true;
 				}
 			}
@@ -1098,7 +1116,7 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 	const char * name = PyString_AsString(attrName);
 
 	GClassUserData * userData = gdynamic_cast<GClassUserData *>(cppObject->getUserData());
-	GMetaClassTraveller traveller(userData->metaClass, userData->instance);
+	GMetaClassTraveller traveller(userData->metaClass, userData->getInstance());
 
 	void * instance = NULL;
 	IMetaClass * outDerived;
@@ -1173,7 +1191,7 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 					mapItem->setData(data);
 				}
 
-				return new GPythonObject(new GMethodUserData(userData->getParam(), userData->instance, new GClassUserData(*userData), data->getMethodData()));
+				return createPythonObject(new GMethodUserData(userData->getParam(), userData->getInstance(), new GClassUserData(*userData), data->getMethodData()));
 			}
 				break;
 
@@ -1185,7 +1203,7 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 						mapItem->setData(data);
 						GEnumUserData * newUserData;
 						GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-						GPythonScopedPointer enumObject(new GPythonObject(new GEnumUserData(userData->getParam(), metaEnum.get())));
+						GPythonScopedPointer enumObject(createPythonObject(new GEnumUserData(userData->getParam(), metaEnum.get())));
 						data->setObject(enumObject.get());
 					}
 
@@ -1207,7 +1225,7 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 						data = new GMapItemObjectData;
 						mapItem->setData(data);
 						GScopedInterface<IMetaClass> innerMetaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
-						GPythonScopedPointer classObject(new GPythonObject(new GClassUserData(userData->getParam(), innerMetaClass.get(), NULL, false, false, opcvNone, cudtNormal)));
+						GPythonScopedPointer classObject(createPythonObject(new GClassUserData(userData->getParam(), innerMetaClass.get(), NULL, false, false, opcvNone, cudtNormal)));
 						data->setObject(classObject.get());
 					}
 
@@ -1389,28 +1407,28 @@ void doBindMethodList(GScriptBindingParam * param, PyObject * owner, const char 
 {
 	GExtendMethodUserData * data = new GExtendMethodUserData(param, NULL, methodList, name, udmtMethodList);
 	GMethodUserData * methodData = new GMethodUserData(param, NULL, NULL, data, true);
-	PyObject * methodObject = new GPythonObject(methodData);
+	PyObject * methodObject = createPythonObject(methodData);
 
 	setObjectAttr(owner, name, methodObject);
 }
 
 void doBindClass(GScriptBindingParam * param, PyObject * owner, const char * name, IMetaClass * metaClass)
 {
-	PyObject * classObject = new GPythonObject(new GClassUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal));
+	PyObject * classObject = createPythonObject(new GClassUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal));
 
 	setObjectAttr(owner, name, classObject);
 }
 
 void doBindEnum(GScriptBindingParam * param, PyObject * owner, const char * name, IMetaEnum * metaEnum)
 {
-	PyObject * enumObject = new GPythonObject(new GEnumUserData(param, metaEnum));
+	PyObject * enumObject = createPythonObject(new GEnumUserData(param, metaEnum));
 
 	setObjectAttr(owner, name, enumObject);
 }
 
 void doBindAccessible(GScriptBindingParam * param, PyObject * owner, const char * name, void * instance, IMetaAccessible * accessible)
 {
-	PyObject * accessibleObject = new GPythonObject(new GAccessibleUserData(param, instance, accessible));
+	PyObject * accessibleObject = createPythonObject(new GAccessibleUserData(param, instance, accessible));
 
 	setObjectAttr(owner, name, accessibleObject);
 }
@@ -1713,7 +1731,7 @@ void * GPythonScriptObject::getObject(const char * objectName)
 
 	GPythonScopedPointer obj(getObjectAttr(this->object, objectName));
 	if(obj && obj->ob_type == &objectType) {
-		return gdynamic_cast<GClassUserData *>(castFromPython(obj.get())->getUserData())->instance;
+		return gdynamic_cast<GClassUserData *>(castFromPython(obj.get())->getUserData())->getInstance();
 	}
 	else {
 		return NULL;
@@ -1846,14 +1864,15 @@ struct Hello
 	}
 
 	~Hello() {
+		cout << "Destroying Hello " << this->n << endl;
 		delete this->pobj;
 	}
 
 	int greet(int i) {
-		cout << "Hello " << this->n << endl;
-		if(this->pobj == NULL) {
-			this->pobj = new Hello(78);
-		}
+		cout << "Greeting " << this->n << endl;
+//		if(this->pobj == NULL) {
+//			this->pobj = new Hello(78);
+//		}
 
 		if(i != this->n) {
 			cout << "!!! Greet wrong. Need " << i << ", get " << this->n << endl;

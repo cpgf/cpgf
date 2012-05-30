@@ -7,6 +7,7 @@
 #include "cpgf/gclassutil.h"
 #include "cpgf/gbytearrayapi.h"
 #include "cpgf/gmetaoperatorop.h"
+#include "cpgf/gsharedptr.h"
 
 #include <map>
 #include <vector>
@@ -106,6 +107,24 @@ class GClassUserData : public GScriptUserData
 private:
 	typedef GScriptUserData super;
 
+	class Data {
+	public:
+		Data(IMetaClass * metaClass, void * instance, bool allowGC)
+			: metaClass(metaClass), instance(instance), allowGC(allowGC)
+		{
+		}
+
+		~Data() {
+			if(this->allowGC) {
+				this->metaClass->destroyInstance(instance);
+			}
+		}
+		
+		IMetaClass * metaClass;
+		void * instance;
+		bool allowGC;
+	};
+
 public:
 	GClassUserData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance, bool isInstance,
 		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
@@ -113,19 +132,24 @@ public:
 
 	GClassUserData(const GClassUserData &);
 
+	bool isAllowGC() const {
+		return this->data->allowGC;
+	}
+
+	void * getInstance() const {
+		return this->data->instance;
+	}
+
 private:
 	GClassUserData & operator = (const GClassUserData &);
 
 public:
 	IMetaClass * metaClass;
-	union {
-		void * instance;
-		IByteArray * byteArray;
-	};
+	IByteArray * byteArray;
 	bool isInstance;
-	bool allowGC;
 	ObjectPointerCV cv;
 	ClassUserDataType dataType;
+	GSharedPointer<Data> data;
 };
 
 class GRawUserData : public GScriptUserData
