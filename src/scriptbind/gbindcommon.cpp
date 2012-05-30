@@ -24,7 +24,7 @@ GScriptBindingParam::~GScriptBindingParam()
 GClassUserData::GClassUserData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance, bool isInstance,
 	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
 	: super(udtClass, param), metaClass(metaClass), isInstance(isInstance), cv(cv), dataType(dataType),
-		data(new Data(metaClass, instance, dataType == cudtByteArray ? false : allowGC))
+		data(new GSharedInstance(metaClass, instance, dataType == cudtByteArray ? false : allowGC))
 {
 	this->metaClass->addReference();
 

@@ -103,8 +103,8 @@ private:
 	typedef GScriptUserData super;
 
 public:
-	GMethodUserData(GScriptBindingParam * param, void * instance, GClassUserData * classUserData, GExtendMethodUserData * methodUserData, bool freeData = false)
-		: super(methodUserType, param), instance(instance), classUserData(classUserData), methodUserData(methodUserData), freeData(freeData) {
+	GMethodUserData(GScriptBindingParam * param, GClassUserData * classUserData, GExtendMethodUserData * methodUserData, bool freeData = false)
+		: super(methodUserType, param), classUserData(classUserData), methodUserData(methodUserData), freeData(freeData) {
 	}
 
 	virtual ~GMethodUserData() {
@@ -116,7 +116,6 @@ public:
 	}
 
 public:
-	void * instance;
 	GClassUserData * classUserData;
 	GExtendMethodUserData * methodUserData;
 	bool freeData;
@@ -952,7 +951,11 @@ PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObje
 	InvokeCallableParam callableParam;
 	loadCallableParam(userData->getParam(), args, &callableParam);
 
-	void * instance = userData->instance;
+	void * instance = NULL;
+	
+	if(userData->classUserData != NULL) {
+		instance = userData->classUserData->getInstance();
+	}
 
 	GScopedInterface<IMetaList> methodList;
 	if(userData->classUserData == NULL || userData->classUserData->metaClass == NULL) {
@@ -1191,7 +1194,7 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 					mapItem->setData(data);
 				}
 
-				return createPythonObject(new GMethodUserData(userData->getParam(), userData->getInstance(), new GClassUserData(*userData), data->getMethodData()));
+				return createPythonObject(new GMethodUserData(userData->getParam(), new GClassUserData(*userData), data->getMethodData()));
 			}
 				break;
 
@@ -1406,7 +1409,7 @@ bool isValidObject(PyObject * obj)
 void doBindMethodList(GScriptBindingParam * param, PyObject * owner, const char * name, IMetaList * methodList)
 {
 	GExtendMethodUserData * data = new GExtendMethodUserData(param, NULL, methodList, name, udmtMethodList);
-	GMethodUserData * methodData = new GMethodUserData(param, NULL, NULL, data, true);
+	GMethodUserData * methodData = new GMethodUserData(param, NULL, data, true);
 	PyObject * methodObject = createPythonObject(methodData);
 
 	setObjectAttr(owner, name, methodObject);

@@ -80,6 +80,35 @@ enum GScriptUserDataType {
 	udtRaw
 };
 
+class GSharedInstance {
+public:
+	GSharedInstance()
+		: metaClass(NULL), instance(NULL), allowGC(false)
+	{
+	}
+
+	GSharedInstance(IMetaClass * metaClass, void * instance, bool allowGC)
+		: metaClass(metaClass), instance(instance), allowGC(allowGC)
+	{
+		if(this->metaClass != NULL) {
+			this->metaClass->addReference();
+		}
+	}
+
+	~GSharedInstance() {
+		if(this->metaClass != NULL) {
+			if(this->allowGC) {
+				this->metaClass->destroyInstance(instance);
+			}
+			this->metaClass->releaseReference();
+		}
+	}
+		
+	IMetaClass * metaClass;
+	void * instance;
+	bool allowGC;
+};
+
 class GScriptUserData
 {
 public:
@@ -107,24 +136,6 @@ class GClassUserData : public GScriptUserData
 private:
 	typedef GScriptUserData super;
 
-	class Data {
-	public:
-		Data(IMetaClass * metaClass, void * instance, bool allowGC)
-			: metaClass(metaClass), instance(instance), allowGC(allowGC)
-		{
-		}
-
-		~Data() {
-			if(this->allowGC) {
-				this->metaClass->destroyInstance(instance);
-			}
-		}
-		
-		IMetaClass * metaClass;
-		void * instance;
-		bool allowGC;
-	};
-
 public:
 	GClassUserData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance, bool isInstance,
 		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
@@ -149,7 +160,7 @@ public:
 	bool isInstance;
 	ObjectPointerCV cv;
 	ClassUserDataType dataType;
-	GSharedPointer<Data> data;
+	GSharedPointer<GSharedInstance> data;
 };
 
 class GRawUserData : public GScriptUserData
