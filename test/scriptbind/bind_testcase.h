@@ -2,6 +2,7 @@
 #define MK(a, b) MK2(a, b)
 
 
+/*
 #if ENABLE_LUA
 
 
@@ -40,10 +41,10 @@ GTEST(MK(CASE, _V8_Api))
 	CASE(context.get());
 }
 
-
 #endif
+*/
 
-/*
+
 #if ENABLE_PYTHON
 
 GTEST(MK(CASE, _Python_Lib))
@@ -62,7 +63,7 @@ GTEST(MK(CASE, _Python_Api))
 }
 
 #endif
-*/
+
 
 
 #undef CASE
