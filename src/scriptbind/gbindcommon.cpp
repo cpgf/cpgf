@@ -21,16 +21,22 @@ GScriptBindingParam::~GScriptBindingParam()
 }
 
 
-GClassUserData::GClassUserData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance, bool isInstance,
-	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
-	: super(udtClass, param), metaClass(metaClass), isInstance(isInstance), cv(cv), dataType(dataType),
-		data(new GSharedInstance(metaClass, instance, dataType == cudtByteArray ? false : allowGC))
+GSharedInstance::GSharedInstance()
+	: metaClass(NULL), instance(NULL), isInstance(false), allowGC(false), cv(opcvNone), dataType(cudtNormal)
 {
-	this->metaClass->addReference();
+}
 
+GSharedInstance::GSharedInstance(IMetaClass * metaClass, void * instance, bool isInstance,
+	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+	: metaClass(metaClass), instance(instance), isInstance(isInstance), allowGC(allowGC), cv(cv), dataType(dataType)
+{
+	if(this->metaClass != NULL) {
+		this->metaClass->addReference();
+	}
+	
 	switch(dataType) {
 		case cudtByteArray:
-			this->byteArray = static_cast<IByteArray *>(instance);
+			this->allowGC = false;
 			this->byteArray->addReference();
 			break;
 
@@ -39,26 +45,14 @@ GClassUserData::GClassUserData(GScriptBindingParam * param, IMetaClass * metaCla
 	}
 }
 
-GClassUserData::GClassUserData(const GClassUserData & other)
-	: super(udtClass, other.getParam())
+GSharedInstance::~GSharedInstance()
 {
-	this->metaClass = other.metaClass;
-	this->isInstance = other.isInstance;
-	this->cv = other.cv;
-	this->dataType = other.dataType;
-	this->data = other.data;
-
 	if(this->metaClass != NULL) {
-		this->metaClass->addReference();
+		if(this->allowGC) {
+			this->metaClass->destroyInstance(instance);
+		}
+		this->metaClass->releaseReference();
 	}
-
-	if(this->dataType == cudtByteArray && this->byteArray != NULL) {
-		this->byteArray->addReference();
-	}
-}
-
-GClassUserData::~GClassUserData()
-{
 	switch(dataType) {
 		case cudtByteArray:
 			this->byteArray->releaseReference();
@@ -67,8 +61,27 @@ GClassUserData::~GClassUserData()
 		default:
 			break;
 	}
+}
 
-	this->metaClass->releaseReference();
+
+GClassUserData::GClassUserData(GScriptBindingParam * param)
+	: super(udtClass, param)
+{
+}
+
+GClassUserData::GClassUserData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance, bool isInstance,
+	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+	: super(udtClass, param), data(new GSharedInstance(metaClass, instance, isInstance, allowGC, cv, dataType))
+{
+}
+
+GClassUserData::GClassUserData(const GClassUserData & other)
+	: super(udtClass, other.getParam()), data(other.data)
+{
+}
+
+GClassUserData::~GClassUserData()
+{
 }
 
 
@@ -394,7 +407,7 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallabl
 
 bool allowInvokeCallable(GClassUserData * userData, IMetaCallable * method)
 {
-	if(userData != NULL && userData->isInstance) {
+	if(userData != NULL && userData->data->isInstance) {
 		if(! userData->getParam()->getConfig().allowAccessStaticMethodViaInstance()) {
 			if(method->isStatic()) {
 				return false;
@@ -409,7 +422,7 @@ bool allowInvokeCallable(GClassUserData * userData, IMetaCallable * method)
 	
 	if(userData != NULL) {
 		const GMetaType & methodType = metaGetItemType(method);
-		switch(userData->cv) {
+		switch(userData->data->cv) {
 			case opcvConst:
 				return methodType.isConstFunction();
 				
@@ -429,7 +442,7 @@ bool allowInvokeCallable(GClassUserData * userData, IMetaCallable * method)
 
 bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible)
 {
-	if(userData->isInstance) {
+	if(userData->data->isInstance) {
 		if(! userData->getParam()->getConfig().allowAccessStaticDataViaInstance()) {
 			if(accessible->isStatic()) {
 				return false;
@@ -582,17 +595,17 @@ GMetaVariant userDataToVariant(GScriptUserData * userData)
 		case udtClass: {
 			GClassUserData * classData = static_cast<GClassUserData *>(userData);
 			GMetaTypeData typeData;
-			classData->metaClass->getMetaType(&typeData);
-			metaCheckError(classData->metaClass);
+			classData->data->metaClass->getMetaType(&typeData);
+			metaCheckError(classData->data->metaClass);
 			GMetaType type(typeData);
 			type.addPointer();
-			switch(classData->dataType) {
+			switch(classData->data->dataType) {
 				case cudtNormal: {
 					return GMetaVariant(pointerToObjectVariant(classData->getInstance()), type);
 				}
 
 				case cudtByteArray: {
-					return GMetaVariant(GVariant(classData->byteArray), type);
+					return GMetaVariant(GVariant(classData->data->byteArray), type);
 				}
 			}
 

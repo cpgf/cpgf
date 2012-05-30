@@ -582,7 +582,7 @@ GPythonObject::GPythonObject(GScriptUserData * userData)
 
 	switch(static_cast<int>(userData->getType())) {
 		case udtClass:
-			typeObject = (gdynamic_cast<GClassUserData *>(userData)->isInstance ? &objectType : &classType);
+			typeObject = (gdynamic_cast<GClassUserData *>(userData)->data->isInstance ? &objectType : &classType);
 			break;
 
 		case methodUserType:
@@ -670,7 +670,7 @@ GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
 
 	if(value->ob_type == &classType) {
 		if(typeItem != NULL) {
-			*typeItem = gdynamic_cast<GClassUserData *>(castFromPython(value)->getUserData())->metaClass;
+			*typeItem = gdynamic_cast<GClassUserData *>(castFromPython(value)->getUserData())->data->metaClass;
 			(*typeItem)->addReference();
 		}
 		return sdtClass;
@@ -678,7 +678,7 @@ GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
 
 	if(value->ob_type == &objectType) {
 		if(typeItem != NULL) {
-			*typeItem = gdynamic_cast<GClassUserData *>(castFromPython(value)->getUserData())->metaClass;
+			*typeItem = gdynamic_cast<GClassUserData *>(castFromPython(value)->getUserData())->data->metaClass;
 			(*typeItem)->addReference();
 		}
 		return sdtObject;
@@ -958,13 +958,13 @@ PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObje
 	}
 
 	GScopedInterface<IMetaList> methodList;
-	if(userData->classUserData == NULL || userData->classUserData->metaClass == NULL) {
+	if(userData->classUserData == NULL || userData->classUserData->data->metaClass == NULL) {
 		methodList.reset(userData->methodUserData->methodList);
 		methodList->addReference();
 	}
 	else {
 		methodList.reset(createMetaList());
-		loadMethodList(methodList.get(), userData->getParam()->getMetaMap(), userData->classUserData->metaClass,
+		loadMethodList(methodList.get(), userData->getParam()->getMetaMap(), userData->classUserData->data->metaClass,
 			instance,  userData->classUserData, userData->methodUserData->name.c_str());
 	}
 
@@ -1007,10 +1007,10 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	InvokeCallableParam callableParam;
 	loadCallableParam(userData->getParam(), args, &callableParam);
 
-	void * instance = doInvokeConstructor(cppClass->getService(), userData->metaClass, &callableParam);
+	void * instance = doInvokeConstructor(cppClass->getService(), userData->data->metaClass, &callableParam);
 
 	if(instance != NULL) {
-		return createPythonObject(new GClassUserData(cppClass->getParam(), userData->metaClass, instance, true, true, opcvNone, cudtNormal));
+		return createPythonObject(new GClassUserData(cppClass->getParam(), userData->data->metaClass, instance, true, true, opcvNone, cudtNormal));
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1054,13 +1054,13 @@ bool doSetAttributeObject(GPythonObject * cppObject, PyObject * attrName, PyObje
 
 	GClassUserData * userData = gdynamic_cast<GClassUserData *>(cppObject->getUserData());
 
-	if(userData->cv == opcvConst) {
+	if(userData->data->cv == opcvConst) {
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 
 		return false;
 	}
 
-	GMetaClassTraveller traveller(userData->metaClass, userData->getInstance());
+	GMetaClassTraveller traveller(userData->data->metaClass, userData->getInstance());
 
 	void * instance = NULL;
 
@@ -1119,7 +1119,7 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 	const char * name = PyString_AsString(attrName);
 
 	GClassUserData * userData = gdynamic_cast<GClassUserData *>(cppObject->getUserData());
-	GMetaClassTraveller traveller(userData->metaClass, userData->getInstance());
+	GMetaClassTraveller traveller(userData->data->metaClass, userData->getInstance());
 
 	void * instance = NULL;
 	IMetaClass * outDerived;
@@ -1145,7 +1145,7 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 				if(allowAccessData(userData, data.get())) {
 					GMetaType type;
-					GVariant result = getAccessibleValueAndType(instance, data.get(), &type, userData->cv == opcvConst);
+					GVariant result = getAccessibleValueAndType(instance, data.get(), &type, userData->data->cv == opcvConst);
 					PyObject * fieldObject = variantToPython(userData->getParam(), result, type, false, false);
 					if(fieldObject == NULL) {
 						GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(data, GExtendTypeCreateFlag_Converter).getConverter());
@@ -1199,7 +1199,7 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 				break;
 
 			case mmitEnum:
-				if(! userData->isInstance || userData->getParam()->getConfig().allowAccessEnumTypeViaInstance()) {
+				if(! userData->data->isInstance || userData->getParam()->getConfig().allowAccessEnumTypeViaInstance()) {
 					GMapItemObjectData * data = gdynamic_cast<GMapItemObjectData *>(mapItem->getData());
 					if(data == NULL) {
 						data = new GMapItemObjectData;
@@ -1215,14 +1215,14 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 				break;
 
 			case mmitEnumValue:
-				if(! userData->isInstance || userData->getParam()->getConfig().allowAccessEnumValueViaInstance()) {
+				if(! userData->data->isInstance || userData->getParam()->getConfig().allowAccessEnumValueViaInstance()) {
 					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 					return variantToPython(userData->getParam(), metaGetEnumValue(metaEnum, static_cast<uint32_t>(mapItem->getEnumIndex())), GMetaType(), false, true);
 				}
 				break;
 
 			case mmitClass:
-				if(! userData->isInstance || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
+				if(! userData->data->isInstance || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
 					GMapItemObjectData * data = gdynamic_cast<GMapItemObjectData *>(mapItem->getData());
 					if(data == NULL) {
 						data = new GMapItemObjectData;

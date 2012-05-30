@@ -553,8 +553,8 @@ void * luaToObject(lua_State * L, GScriptBindingParam * /*param*/, int index, GM
 			GClassUserData * classData = static_cast<GClassUserData *>(userData);
 			if(outType != NULL) {
 				GMetaTypeData typeData;
-				classData->metaClass->getMetaType(&typeData);
-				metaCheckError(classData->metaClass);
+				classData->data->metaClass->getMetaType(&typeData);
+				metaCheckError(classData->data->metaClass);
 				*outType = GMetaType(typeData);
 			}
 
@@ -784,11 +784,11 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 				switch(userData->getType()) {
 				case udtClass:
 					if(typeItem != NULL) {
-						*typeItem = gdynamic_cast<GClassUserData *>(userData)->metaClass;
+						*typeItem = gdynamic_cast<GClassUserData *>(userData)->data->metaClass;
 						(*typeItem)->addReference();
 					}
 
-					if(gdynamic_cast<GClassUserData *>(userData)->isInstance) {
+					if(gdynamic_cast<GClassUserData *>(userData)->data->isInstance) {
 						return sdtObject;
 					}
 					else {
@@ -997,7 +997,7 @@ int UserData_call(lua_State * L)
 
 
 	if(userData->getInstance() == NULL) { // constructor
-		return invokeConstructor(L, userData->getParam(), userData->metaClass);
+		return invokeConstructor(L, userData->getParam(), userData->data->metaClass);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_InternalError_WrongFunctor);
@@ -1027,7 +1027,7 @@ bool doIndexMemberData(lua_State * L, GScriptBindingParam * param, IMetaAccessib
 
 bool indexMemberData(lua_State * L, GClassUserData * userData, IMetaAccessible * data, void * instance)
 {
-	return doIndexMemberData(L, userData->getParam(), data, instance, userData->cv == opcvConst);
+	return doIndexMemberData(L, userData->getParam(), data, instance, userData->data->cv == opcvConst);
 }
 
 bool indexMemberEnumType(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem)
@@ -1068,7 +1068,7 @@ int UserData_index(lua_State * L)
 	
 	const char * name = lua_tostring(L, -1);
 	
-	GMetaClassTraveller traveller(userData->metaClass, userData->getInstance());
+	GMetaClassTraveller traveller(userData->data->metaClass, userData->getInstance());
 	
 	void * instance = NULL;
 	
@@ -1109,7 +1109,7 @@ int UserData_index(lua_State * L)
 			}
 
 			case mmitEnum:
-				if(! userData->isInstance || userData->getParam()->getConfig().allowAccessEnumTypeViaInstance()) {
+				if(! userData->data->isInstance || userData->getParam()->getConfig().allowAccessEnumTypeViaInstance()) {
 					if(indexMemberEnumType(L, userData, mapItem)) {
 						return true;
 					}
@@ -1117,7 +1117,7 @@ int UserData_index(lua_State * L)
 				break;
 
 			case mmitEnumValue:
-				if(! userData->isInstance || userData->getParam()->getConfig().allowAccessEnumValueViaInstance()) {
+				if(! userData->data->isInstance || userData->getParam()->getConfig().allowAccessEnumValueViaInstance()) {
 					if(indexMemberEnumValue(L, userData, mapItem)) {
 						return true;
 					}
@@ -1125,7 +1125,7 @@ int UserData_index(lua_State * L)
 				break;
 
 			case mmitClass:
-				if(! userData->isInstance || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
+				if(! userData->data->isInstance || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
 					if(indexMemberClass(L, userData, mapItem)) {
 						return true;
 					}
@@ -1142,13 +1142,13 @@ int UserData_index(lua_State * L)
 
 bool newindexMemberData(lua_State * /*L*/, GClassUserData * userData, const char * name, const GVariant & value)
 {
-	if(userData->cv == opcvConst) {
+	if(userData->data->cv == opcvConst) {
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 
 		return false;
 	}
 
-	GMetaClassTraveller traveller(userData->metaClass, userData->getInstance());
+	GMetaClassTraveller traveller(userData->data->metaClass, userData->getInstance());
 	
 	void * instance = NULL;
 

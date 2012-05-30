@@ -82,30 +82,19 @@ enum GScriptUserDataType {
 
 class GSharedInstance {
 public:
-	GSharedInstance()
-		: metaClass(NULL), instance(NULL), allowGC(false)
-	{
-	}
-
-	GSharedInstance(IMetaClass * metaClass, void * instance, bool allowGC)
-		: metaClass(metaClass), instance(instance), allowGC(allowGC)
-	{
-		if(this->metaClass != NULL) {
-			this->metaClass->addReference();
-		}
-	}
-
-	~GSharedInstance() {
-		if(this->metaClass != NULL) {
-			if(this->allowGC) {
-				this->metaClass->destroyInstance(instance);
-			}
-			this->metaClass->releaseReference();
-		}
-	}
+	GSharedInstance();
+	GSharedInstance(IMetaClass * metaClass, void * instance, bool isInstance,
+		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
+	~GSharedInstance();
 		
 	IMetaClass * metaClass;
-	void * instance;
+	union {
+		void * instance;
+		IByteArray * byteArray;
+	};
+	bool isInstance;
+	ObjectPointerCV cv;
+	ClassUserDataType dataType;
 	bool allowGC;
 };
 
@@ -137,6 +126,7 @@ private:
 	typedef GScriptUserData super;
 
 public:
+	explicit GClassUserData(GScriptBindingParam * param);
 	GClassUserData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance, bool isInstance,
 		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
 	virtual ~GClassUserData();
@@ -155,11 +145,6 @@ private:
 	GClassUserData & operator = (const GClassUserData &);
 
 public:
-	IMetaClass * metaClass;
-	IByteArray * byteArray;
-	bool isInstance;
-	ObjectPointerCV cv;
-	ClassUserDataType dataType;
 	GSharedPointer<GSharedInstance> data;
 };
 

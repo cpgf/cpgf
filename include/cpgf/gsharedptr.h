@@ -1,6 +1,7 @@
 #ifndef __GSHAREDPTR_H
 #define __GSHAREDPTR_H
 
+#include "cpgf/gassert.h"
 
 namespace cpgf {
 
@@ -17,8 +18,10 @@ public:
 	}
 
 	~GSharedDataHolder() {
+		T * p = this->data;
+		this->data = NULL;
 		if(this->freeData) {
-			delete this->data;
+			delete p;
 		}
 	}
 
@@ -29,6 +32,8 @@ public:
 	void release() {
 		--this->referenceCount;
 		if(this->referenceCount <= 0) {
+			GASSERT(this->referenceCount == 0);
+
 			delete this;
 		}
 	}
@@ -57,42 +62,50 @@ private:
 	typedef GSharedPointer<T> ThisType;
 
 public:
-	GSharedPointer() : holder(new sharedpointer_internal::GSharedDataHolder<T>(NULL)) {
+	GSharedPointer() : rawPointer(new sharedpointer_internal::GSharedDataHolder<T>(NULL)) {
 	}
 
-	explicit GSharedPointer(T * p) : holder(new sharedpointer_internal::GSharedDataHolder<T>(p)) {
+	explicit GSharedPointer(T * p) : rawPointer(new sharedpointer_internal::GSharedDataHolder<T>(p)) {
 	}
 
-	explicit GSharedPointer(T * p, bool freeData) : holder(new sharedpointer_internal::GSharedDataHolder<T>(p, freeData)) {
+	explicit GSharedPointer(T * p, bool freeData) : rawPointer(new sharedpointer_internal::GSharedDataHolder<T>(p, freeData)) {
 	}
 
 	~GSharedPointer() {
-		this->holder->release();
+		this->rawPointer->release();
 	}
 
-	GSharedPointer(const GSharedPointer & other) : holder(other.holder) {
-		this->holder->retain();
+	GSharedPointer(const GSharedPointer & other) : rawPointer(other.rawPointer) {
+		this->rawPointer->retain();
 	}
 
 	GSharedPointer & operator = (GSharedPointer other) {
-		other.swap(*this);
+		ThisType(other).swap(*this);
 		return *this;
 	}
 
 	void swap(GSharedPointer & other) {
-		std::swap(this->holder, other.holder);
+		std::swap(this->rawPointer, other.rawPointer);
 	}
 
 	T * operator -> () const {
-		return this->holder->get();
+		return this->rawPointer->get();
 	}
 
 	T * get() const {
-		return this->holder->get();
+		return this->rawPointer->get();
 	}
 
 	T * take() {
-		return this->holder->take();
+		return this->rawPointer->take();
+	}
+
+	inline operator bool() {
+		return this->rawPointer->get() != NULL;
+	}
+
+	inline operator bool() const {
+		return this->rawPointer->get() != NULL;
 	}
 
 	void reset(T * p = NULL) {
@@ -100,7 +113,7 @@ public:
 	}
 
 private:
-	sharedpointer_internal::GSharedDataHolder<T> * holder;
+	sharedpointer_internal::GSharedDataHolder<T> * rawPointer;
 };
 
 

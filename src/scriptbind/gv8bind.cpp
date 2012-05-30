@@ -457,7 +457,7 @@ GScriptDataType getV8Type(Local<Value> value, IMetaTypedItem ** typeItem)
 						switch(userData->getType()) {
 							case udtClass:
 								if(typeItem != NULL) {
-									*typeItem = gdynamic_cast<GClassUserData *>(userData)->metaClass;
+									*typeItem = gdynamic_cast<GClassUserData *>(userData)->data->metaClass;
 									(*typeItem)->addReference();
 								}
 								return sdtClass;
@@ -479,7 +479,7 @@ GScriptDataType getV8Type(Local<Value> value, IMetaTypedItem ** typeItem)
 						case udtClass: {
 							GClassUserData * classData = gdynamic_cast<GClassUserData *>(userData);
 							if(typeItem != NULL) {
-								*typeItem = classData->metaClass;
+								*typeItem = classData->data->metaClass;
 								(*typeItem)->addReference();
 							}
 							if(classData->getInstance() == NULL) {
@@ -639,8 +639,8 @@ void * v8ToObject(Handle<Value> value, GMetaType * outType)
 			GClassUserData * classData = gdynamic_cast<GClassUserData *>(userData);
 			if(outType != NULL) {
 				GMetaTypeData typeData;
-				classData->metaClass->getMetaType(&typeData);
-				metaCheckError(classData->metaClass);
+				classData->data->metaClass->getMetaType(&typeData);
+				metaCheckError(classData->data->metaClass);
 				*outType = GMetaType(typeData);
 			}
 
@@ -897,7 +897,7 @@ Handle<Value> callbackMethodList(const Arguments & args)
 	}
 	else {
 		methodList.reset(createMetaList());
-		loadMethodList(methodList.get(), namedUserData->getParam()->getMetaMap(), userData == NULL? namedUserData->metaClass : userData->metaClass,
+		loadMethodList(methodList.get(), namedUserData->getParam()->getMetaMap(), userData == NULL? namedUserData->metaClass : userData->data->metaClass,
 			instance,  userData, namedUserData->name.c_str());
 	}
 
@@ -1029,7 +1029,7 @@ Handle<ObjectTemplate> createEnumTemplate(GScriptBindingParam * param, IMetaEnum
 
 Handle<Value> getNamedMember(GClassUserData * userData, const char * name)
 {
-	GMetaClassTraveller traveller(userData->metaClass, userData->getInstance());
+	GMetaClassTraveller traveller(userData->data->metaClass, userData->getInstance());
 
 	void * instance = NULL;
 	IMetaClass * outDerived;
@@ -1057,7 +1057,7 @@ Handle<Value> getNamedMember(GClassUserData * userData, const char * name)
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 				if(allowAccessData(userData, data.get())) {
 					GMetaType type;
-					GVariant result = getAccessibleValueAndType(instance, data.get(), &type, userData->cv == opcvConst);
+					GVariant result = getAccessibleValueAndType(instance, data.get(), &type, userData->data->cv == opcvConst);
 					Handle<Value> v = variantToV8(userData->getParam(), result, type, false, false);
 					if(v.IsEmpty()) {
 						GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(data, GExtendTypeCreateFlag_Converter).getConverter());
@@ -1104,7 +1104,7 @@ Handle<Value> getNamedMember(GClassUserData * userData, const char * name)
 					}
 
 					GMetaMapClass * baseMapClass = getMetaClassMap(userData->getParam(), boundClass.get());
-					data->setTemplate(createMethodTemplate(userData->getParam(), userData->metaClass, userData->getInstance() == NULL, methodList.get(), name,
+					data->setTemplate(createMethodTemplate(userData->getParam(), userData->data->metaClass, userData->getInstance() == NULL, methodList.get(), name,
 						gdynamic_cast<GMapItemClassData *>(baseMapClass->getData())->functionTemplate, udmtInternal, &newUserData));
 					newUserData->name = name;
 					data->setUserData(newUserData);
@@ -1114,7 +1114,7 @@ Handle<Value> getNamedMember(GClassUserData * userData, const char * name)
 			}
 
 			case mmitEnum:
-				if(! userData->isInstance || userData->getParam()->getConfig().allowAccessEnumTypeViaInstance()) {
+				if(! userData->data->isInstance || userData->getParam()->getConfig().allowAccessEnumTypeViaInstance()) {
 					GMapItemEnumData * data = gdynamic_cast<GMapItemEnumData *>(mapItem->getData());
 					if(data == NULL) {
 						data = new GMapItemEnumData;
@@ -1132,14 +1132,14 @@ Handle<Value> getNamedMember(GClassUserData * userData, const char * name)
 				break;
 
 			case mmitEnumValue:
-				if(! userData->isInstance || userData->getParam()->getConfig().allowAccessEnumValueViaInstance()) {
+				if(! userData->data->isInstance || userData->getParam()->getConfig().allowAccessEnumValueViaInstance()) {
 					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 					return variantToV8(userData->getParam(), metaGetEnumValue(metaEnum, static_cast<uint32_t>(mapItem->getEnumIndex())), GMetaType(), false, true);
 				}
 				break;
 
 			case mmitClass:
-				if(! userData->isInstance || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
+				if(! userData->data->isInstance || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
 					GScopedInterface<IMetaClass> innerMetaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
 					Handle<FunctionTemplate> functionTemplate = createClassTemplate(userData->getParam(), name, innerMetaClass.get());
 					return functionTemplate->GetFunction();
@@ -1156,7 +1156,7 @@ Handle<Value> getNamedMember(GClassUserData * userData, const char * name)
 
 Handle<Value> setNamedMember(GClassUserData * userData, const char * name, Local<Context> context, Local<Value> value)
 {
-	GMetaClassTraveller traveller(userData->metaClass, userData->getInstance());
+	GMetaClassTraveller traveller(userData->data->metaClass, userData->getInstance());
 
 	void * instance = NULL;
 
@@ -1265,7 +1265,7 @@ Handle<Value> namedMemberSetter(Local<String> prop, Local<Value> value, const Ac
 
 	GClassUserData * userData = static_cast<GClassUserData *>(info.Holder()->GetPointerFromInternalField(0));
 
-	if(userData->cv == opcvConst) {
+	if(userData->data->cv == opcvConst) {
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 
 		return Handle<Value>();
@@ -1290,7 +1290,7 @@ Handle<Array> namedMemberEnumerator(const AccessorInfo & info)
 
 	GClassUserData * userData = static_cast<GClassUserData *>(info.Holder()->GetPointerFromInternalField(0));
 
-	GMetaClassTraveller traveller(userData->metaClass, userData->getInstance());
+	GMetaClassTraveller traveller(userData->data->metaClass, userData->getInstance());
 	GStringMap<bool, GStringMapReuseKey> nameMap;
 	GScopedInterface<IMetaItem> metaItem;
 
@@ -1386,10 +1386,10 @@ Handle<Value> objectConstructor(const Arguments & args)
 	Local<External> data = Local<External>::Cast(args.Data());
 	GClassUserData * userData = static_cast<GClassUserData *>(data->Value());
 
-	void * instance = invokeConstructor(args, userData->getParam(), userData->metaClass);
+	void * instance = invokeConstructor(args, userData->getParam(), userData->data->metaClass);
 	Persistent<Object> self = Persistent<Object>::New(args.Holder());
 
-	GClassUserData * instanceUserData = new GClassUserData(userData->getParam(), userData->metaClass, instance, true, true, opcvNone, cudtNormal);
+	GClassUserData * instanceUserData = new GClassUserData(userData->getParam(), userData->data->metaClass, instance, true, true, opcvNone, cudtNormal);
 	void * key = addUserDataToPool(userData->getParam(), instanceUserData);
 	self.MakeWeak(key, weakHandleCallback);
 
