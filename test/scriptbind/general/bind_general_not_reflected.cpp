@@ -1,6 +1,5 @@
 #include "../testscriptbind.h"
 
-
 namespace {
 
 template <typename T>
@@ -14,17 +13,17 @@ void doTestNotReflected(T * binding, TestScriptContext * context)
 	QASSERT(obj.isRawRef(a))
 	QDO(obj.setRaw(a, 38, "what"))
 
-	QNEWOBJ(obj, TestObject())
-	QDO(b = obj.refRaw())
-	QASSERT(obj.isRawPointer(b))
-	QASSERT(obj.isRawRef(b))
-	QDO(obj.setRaw(b, 19, "how"))
+	QNEWOBJ(obj2, TestObject())
+	QDO(b = obj2.refRaw())
+	QASSERT(obj2.isRawPointer(b))
+	QASSERT(obj2.isRawRef(b))
+	QDO(obj2.setRaw(b, 19, "how"))
 
-	QERR(obj.isRawPointer(0))
-	QERR(obj.isRawPointer("cd"))
+	QERR(obj2.isRawPointer(0))
+	QERR(obj2.isRawPointer("cd"))
 	
-	QERR(obj.isRawRef(0))
-	QERR(obj.isRawRef("cd"))
+	QERR(obj2.isRawRef(0))
+	QERR(obj2.isRawRef("cd"))
 }
 
 void testNotReflected(TestScriptContext * context)

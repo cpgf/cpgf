@@ -24,7 +24,8 @@ void doTestInvokeScriptFunction(T * binding, TestScriptContext * context)
 		QDO(def funcAdd(a, b): return a + b)
 		QDO(def funcLen(a, b): return len(a) + b)
 		QDO(def funcTestData(a): return a.x + len(a.name))
-		DO("def funcNewTestData(): \n\ta = TestData() \n\ta.x = 3 \n\ta.name = 'def' \n\treturn a")
+		QDO(t = None) // we have to use a global variable to reference to the new object, otherwise the returned object will be released after returned.
+		DO("def funcNewTestData(): \n\tglobal t \n\tt = TestData() \n\tt.x = 3 \n\tt.name = 'def' \n\treturn t")
 	}
 
 	GMetaVariant result;
