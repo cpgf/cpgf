@@ -2,7 +2,6 @@
 
 #include "cpgf/scriptbind/gscriptbindutil.h"
 
-
 namespace {
 
 

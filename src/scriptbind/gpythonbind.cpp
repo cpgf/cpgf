@@ -562,17 +562,12 @@ GPythonObject * tryCastFromPython(PyObject * object) {
 
 GPythonObject * createPythonObject(GScriptUserData * userData)
 {
-	GPythonObject * obj = PyObject_New(GPythonObject, &objectType);
-	new (obj) GPythonObject(userData);
-//cout << "construct refcount: " << obj->ob_refcnt << " " << obj << " " << obj->getUserData()->getType() << endl;
-	return obj;
+	return new GPythonObject(userData);
 }
 
 void deletePythonObject(GPythonObject * obj)
 {
-//cout << "delete refcount: " << obj->ob_refcnt << " " << obj << " " << obj->getUserData()->getType() << endl;
-	obj->~GPythonObject();
-	PyObject_Del(obj);
+	delete obj;	
 }
 
 GPythonObject::GPythonObject(GScriptUserData * userData)
