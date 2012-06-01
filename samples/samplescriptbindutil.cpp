@@ -6,6 +6,8 @@
 #include "cpgf/scriptbind/gv8runner.h"
 #endif
 #if ENABLE_PYTHON
+#include "cpgf/scriptbind/gpythonrunner.h"
+#include "Python.h"
 #endif
 
 #include "string.h"
@@ -45,7 +47,10 @@ GScriptRunner * createScriptRunnerFromScriptLanguage(ScriptLanguage lang, IMetaS
 			break;
 
 		case slPython:
-			return NULL;
+#if ENABLE_PYTHON
+			return createPythonScriptRunner(service);
+#endif
+			break;
 	}
 
 	return NULL;
@@ -65,4 +70,34 @@ const char * getLanguageText(ScriptLanguage lang)
 	}
 
 	return "Unknown";
+}
+
+void intializeScriptEngine(ScriptLanguage lang)
+{
+	switch(lang) {
+		case slJavascript:
+			break;
+		
+		case slLua:
+			break;
+
+		case slPython:
+			Py_Initialize();
+			break;
+	}
+}
+
+void finalizeScriptEngine(ScriptLanguage lang)
+{
+	switch(lang) {
+		case slJavascript:
+			break;
+		
+		case slLua:
+			break;
+
+		case slPython:
+			Py_Finalize();
+			break;
+	}
 }

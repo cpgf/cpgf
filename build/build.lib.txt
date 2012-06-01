@@ -67,7 +67,7 @@ endif(${HAS_V8})
 if(${HAS_PYTHON})
 	set(SRC_PYTHON_BIND
 		${SRC_PATH}/scriptbind/gpythonbind.cpp
-#		${SRC_PATH}/scriptbind/gpythonrunner.cpp
+		${SRC_PATH}/scriptbind/gpythonrunner.cpp
 	)
 endif(${HAS_PYTHON})
 

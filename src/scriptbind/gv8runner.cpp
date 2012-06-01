@@ -1,4 +1,4 @@
-#include "cpgf/scriptbind/gluarunner.h"
+#include "cpgf/scriptbind/gscriptrunner.h"
 #include "cpgf/private/gscriptrunner_p.h"
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gv8bind.h"

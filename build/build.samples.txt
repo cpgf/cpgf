@@ -115,12 +115,6 @@ if(${HAS_GLUT})
 		${SAMPLE_ROOT}/samplescriptbindutil.cpp
 		
 		${SRC_PATH}/metadata/opengl/gmetadata_openglut.cpp
-		${TEST_PATH}/scriptbind/bind_common.cpp
-		${TEST_PATH}/scriptbind/testscriptbindmetadata.cpp
-		${TEST_PATH}/scriptbind/testscriptbindmetadata1.cpp
-		${TEST_PATH}/scriptbind/testscriptbindmetadata2.cpp
-		${TEST_PATH}/scriptbind/testscriptbindmetadata3.cpp
-		${TEST_PATH}/scriptbind/testscriptbindmetadata4.cpp
 	)
 
 	add_executable(
@@ -161,12 +155,6 @@ if(${HAS_BOX2D})
 		${SAMPLE_ROOT}/opengl/registerglut3.cpp
 		
 		${SRC_PATH}/metadata/opengl/gmetadata_openglut.cpp
-		${TEST_PATH}/scriptbind/bind_common.cpp
-		${TEST_PATH}/scriptbind/testscriptbindmetadata.cpp
-		${TEST_PATH}/scriptbind/testscriptbindmetadata1.cpp
-		${TEST_PATH}/scriptbind/testscriptbindmetadata2.cpp
-		${TEST_PATH}/scriptbind/testscriptbindmetadata3.cpp
-		${TEST_PATH}/scriptbind/testscriptbindmetadata4.cpp
 	)
 
 	add_executable(
@@ -215,7 +203,7 @@ if(${HAS_SFML})
 		COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
 	)
 
-	target_link_libraries(${TARGET_SAMPLESFML} ${TARGET_LIB} ${SFML_LIB} ${LUA_LIB} ${V8_LIB})
+	target_link_libraries(${TARGET_SAMPLESFML} ${TARGET_LIB} ${SFML_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB})
 endif(${HAS_SFML})
 
 

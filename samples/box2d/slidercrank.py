@@ -1,33 +1,33 @@
 world = 0
 ground = 0
 
-function render()
+def render() :
+	global world
 	gl.glClear(gl.GL_COLOR_BUFFER_BIT + gl.GL_DEPTH_BUFFER_BIT + gl.GL_STENCIL_BUFFER_BIT)
 	world.Step(0.016, 8, 3)
 	world.DrawDebugData()
 	gl.glutSwapBuffers()
-end
 
-function reshape(w, h)
+def reshape(w, h) :
 	gl.glViewport(0, 0, w, h)
 	gl.glMatrixMode(gl.GL_PROJECTION)
 	gl.glLoadIdentity()
 	gl.gluOrtho2D(-25, 25, -5, 45)
-end
 
-function specialKey(key, x, y)
-end
+def specialKey(key, x, y) :
+	return
 
-function keyboard(key, x, y)
-	if(key == 27) then exitDemo() end
-end
+def keyboard(key, x, y) :
+	if(key == 27) : exitDemo()
 
-function timer(value)
+def timer(value) :
 	gl.glutPostRedisplay()
 	gl.glutTimerFunc(value, timer, value)
-end
 
-function setupBox2d() 
+def setupBox2d()  :
+	global world
+	global ground
+
 	gravity = box2d.b2Vec2(0.0, -10.0)
 	world = box2d.b2World(gravity, 1);
 	bd = box2d.b2BodyDef()
@@ -37,7 +37,7 @@ function setupBox2d()
 	ground.CreateFixture(shape, 0.0)
 	prevBody = ground
 
-	-- Define crank.
+	# Define crank.
 	shape = box2d.b2PolygonShape()
 	shape.SetAsBox(0.5, 2.0)
 	bd = box2d.b2BodyDef()
@@ -49,11 +49,11 @@ function setupBox2d()
 	rjd.Initialize(prevBody, body, box2d.b2Vec2(0.0, 5.0))
 	rjd.motorSpeed = 1.0 * box2d.b2_pi
 	rjd.maxMotorTorque = 10000.0
-	rjd.enableMotor = true
+	rjd.enableMotor = True
 	m_joint1 = world.CreateJoint(rjd)
 	prevBody = body
 
-	-- Define follower.
+	# Define follower.
 	shape = box2d.b2PolygonShape()
 	shape.SetAsBox(0.5, 4.0)
 	bd = box2d.b2BodyDef()
@@ -63,11 +63,11 @@ function setupBox2d()
 	body.CreateFixture(shape, 2.0)
 	rjd = box2d.b2RevoluteJointDef()
 	rjd.Initialize(prevBody, body, box2d.b2Vec2(0.0, 9.0))
-	rjd.enableMotor = false
+	rjd.enableMotor = False
 	world.CreateJoint(rjd)
 	prevBody = body
 
-	-- Define piston
+	# Define piston
 	shape = box2d.b2PolygonShape()
 	shape.SetAsBox(1.5, 1.5)
 	bd = box2d.b2BodyDef()
@@ -81,10 +81,10 @@ function setupBox2d()
 	pjd = box2d.b2PrismaticJointDef()
 	pjd.Initialize(ground, body, box2d.b2Vec2(0.0, 17.0), box2d.b2Vec2(0.0, 1.0))
 	pjd.maxMotorForce = 1000.0
-	pjd.enableMotor = true
+	pjd.enableMotor = True
 	m_joint2 = world.CreateJoint(pjd)
 
-	-- Define payload.
+	# Define payload.
 	shape = box2d.b2PolygonShape()
 	shape.SetAsBox(1.5, 1.5)
 	bd = box2d.b2BodyDef()
@@ -92,18 +92,18 @@ function setupBox2d()
 	bd.position.Set(0.0, 23.0)
 	body = world.CreateBody(bd)
 	body.CreateFixture(shape, 2.0)
-end
 
-function getWorld()
+def getWorld() :
+	global world
 	return world
-end
 
-function start()
+def start() :
+	global world
 	gl.glutInit()
 	gl.glutInitDisplayMode(gl.GLUT_DEPTH + gl.GLUT_DOUBLE + gl.GLUT_RGB + gl.GLUT_STENCIL)
 	gl.glutInitWindowPosition(100, 100)
 	gl.glutInitWindowSize(320, 320)
-	gl.glutCreateWindow("cpgf Box2D binding demo -- Lua version")
+	gl.glutCreateWindow("cpgf Box2D binding demo -- Python version")
 	gl.glutDisplayFunc(render)
 	gl.glutReshapeFunc(reshape)
 	gl.glutSpecialFunc(specialKey)
@@ -117,4 +117,3 @@ function start()
 	gl.glHint(gl.GL_POLYGON_SMOOTH_HINT, gl.GL_NICEST)
 
 	gl.glutMainLoop()
-end

@@ -5,7 +5,7 @@
 
 #include "Python.h"
 
-#include "cpgf/gscopedptr.h"
+#include "cpgf/scriptbind/gpythonbind.h"
 #include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gstringmap.h"
 
@@ -36,20 +36,11 @@ using namespace cpgf::bind_internal;
 	__VA_ARGS__;
 
 
-
+int totalPythonObjectCount = 0;
+int pythonObjectCount = 0;
 namespace cpgf {
 
 namespace {
-
-template <typename T>
-struct GPythonScopedPointerDeleter
-{
-	static inline void Delete(T * p) {
-		Py_XDECREF(p);
-	}
-};
-
-typedef GScopedPointer<PyObject, GPythonScopedPointerDeleter<PyObject> > GPythonScopedPointer;
 
 class GMapItemObjectData : public GMetaMapItemData
 {
@@ -600,10 +591,15 @@ GPythonObject::GPythonObject(GScriptUserData * userData)
 	GASSERT(typeObject != NULL);
 
 	this->initType(typeObject);
+
+	++pythonObjectCount;
+	++totalPythonObjectCount;
 }
 
 GPythonObject::~GPythonObject()
 {
+	--pythonObjectCount;
+
 	delete this->userData;
 }
 
@@ -710,6 +706,10 @@ GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
 
 GMetaVariant pythonToVariant(GScriptBindingParam * param, PyObject * value)
 {
+	if(value == NULL) {
+		return GMetaVariant();
+	}
+
 	if(PyNumber_Check(value)) {
 		if(PyBool_Check(value)) {
 			return PyInt_AsLong(value) != 0;
@@ -754,7 +754,7 @@ GMetaVariant pythonToVariant(GScriptBindingParam * param, PyObject * value)
 PyObject * objectToPython(GScriptBindingParam * param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
 {
 	if(instance == NULL) {
-		return Py_None;
+		return pyAddRef(Py_None);
 	}
 
 	return createPythonObject(new GClassUserData(param, metaClass, instance, true, allowGC, cv, dataType));
@@ -896,7 +896,7 @@ PyObject * methodResultToPython(GScriptBindingParam * param, IMetaCallable * cal
 
 	}
 
-	return Py_None;
+	return pyAddRef(Py_None);
 }
 
 void loadMethodParameters(GScriptBindingParam * p, PyObject * args, GVariantData * outputParams)
@@ -935,7 +935,7 @@ void loadCallableParam(GScriptBindingParam * param, PyObject * args, InvokeCalla
 }
 
 
-PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObject * keyWords)
+PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObject * /*keyWords*/)
 {
 	ENTER_PYTHON()
 
@@ -986,13 +986,13 @@ PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObje
 
 	raiseCoreException(Error_ScriptBinding_CantFindMatchedMethod);
 
-	return Py_None;
+	return pyAddRef(Py_None);
 
 	LEAVE_PYTHON(return NULL)
 }
 
 
-PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, PyObject * keyWords)
+PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, PyObject * /*keyWords*/)
 {
 	ENTER_PYTHON()
 
@@ -1027,7 +1027,7 @@ PyObject * callbackGetAttribute(PyObject * object, PyObject * attrName)
 		return attrObject;
 	}
 
-	return Py_None;
+	return pyAddRef(Py_None);
 
 	LEAVE_PYTHON(return NULL)
 }
@@ -1199,7 +1199,6 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 					if(data == NULL) {
 						data = new GMapItemObjectData;
 						mapItem->setData(data);
-						GEnumUserData * newUserData;
 						GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 						GPythonScopedPointer enumObject(createPythonObject(new GEnumUserData(userData->getParam(), metaEnum.get())));
 						data->setObject(enumObject.get());
@@ -1258,12 +1257,12 @@ PyObject * callbackGetEnumValue(PyObject * object, PyObject * attrName)
 
 	raiseCoreException(Error_ScriptBinding_CantFindEnumKey, *name);
 
-	return Py_None;
+	return pyAddRef(Py_None);
 
 	LEAVE_PYTHON(return NULL)
 }
 
-int callbackSetEnumValue(PyObject * object, PyObject * attrName, PyObject * value)
+int callbackSetEnumValue(PyObject * /*object*/, PyObject * /*attrName*/, PyObject * /*value*/)
 {
 	ENTER_PYTHON()
 
@@ -1274,7 +1273,7 @@ int callbackSetEnumValue(PyObject * object, PyObject * attrName, PyObject * valu
 	LEAVE_PYTHON(return -1)
 }
 
-PyObject * callbackAccessibleDescriptorGet(PyObject * self, PyObject * obj, PyObject * pyType)
+PyObject * callbackAccessibleDescriptorGet(PyObject * self, PyObject * /*obj*/, PyObject * /*pyType*/)
 {
 	ENTER_PYTHON()
 
@@ -1295,14 +1294,14 @@ PyObject * callbackAccessibleDescriptorGet(PyObject * self, PyObject * obj, PyOb
 		v = rawToPython(userData->getParam(), result);
 	}
 	if(v == NULL) {
-		v = Py_None;
+		v = pyAddRef(Py_None);
 	}
 	return v;
 
 	LEAVE_PYTHON(return NULL)
 }
 
-int callbackAccessibleDescriptorSet(PyObject * self, PyObject * obj, PyObject * value)
+int callbackAccessibleDescriptorSet(PyObject * self, PyObject * /*obj*/, PyObject * value)
 {
 	ENTER_PYTHON()
 
@@ -1323,7 +1322,7 @@ GMetaVariant invokePythonFunctionIndirectly(GScriptBindingParam * bindingParam, 
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
 	if(PyCallable_Check(func)) {
-		int allParamCount = paramCount;
+		size_t allParamCount = paramCount;
 		if(object != NULL) {
 			++allParamCount;
 		}

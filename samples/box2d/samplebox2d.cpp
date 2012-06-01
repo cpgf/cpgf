@@ -245,6 +245,8 @@ int main(int argc, char * argv[])
 		<< "Don't click X button because GLUT doesn't exit main loop well." << endl
 	;
 
+	intializeScriptEngine(lang);
+
 	GScopedPointer<GScriptRunner> runner;
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	
@@ -272,6 +274,8 @@ int main(int argc, char * argv[])
 	else {
 		cout << "Failed to execute " << fileName << ", maybe it doesn't exist?" << endl;
 	}
+
+	finalizeScriptEngine(lang);
 
 	return 0;
 }

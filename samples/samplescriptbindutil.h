@@ -15,5 +15,8 @@ ScriptLanguage getScriptLanguageFromFileName(const char * fileName);
 cpgf::GScriptRunner * createScriptRunnerFromScriptLanguage(ScriptLanguage lang, cpgf::IMetaService * service);
 const char * getLanguageText(ScriptLanguage lang);
 
+void intializeScriptEngine(ScriptLanguage lang);
+void finalizeScriptEngine(ScriptLanguage lang);
+
 
 #endif

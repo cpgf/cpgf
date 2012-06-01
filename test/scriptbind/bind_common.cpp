@@ -319,14 +319,23 @@ public:
 
 protected:
 	virtual bool doLib(const char * code) const {
-		return checkError(PyRun_SimpleString(code));
+		return this->doCode(code);
 	}
 
 	virtual bool doApi(const char * code) const {
-		return checkError(PyRun_SimpleString(code));
+		return this->doCode(code);
+	}
+	
+private:
+	bool doCode(const char * code) const {
+		return PyRun_SimpleString(code) == 0;
+
+		//GPythonScopedPointer moduleMain(PyImport_ImportModule("__main__"));
+		//GPythonScopedPointer mainDict(PyObject_GetAttrString(moduleMain.get(), "__dict__"));
+		//GPythonScopedPointer result(PyRun_String(code, 0, mainDict.get(), mainDict.get()));
+		//return (bool)result;
 	}
 
-private:
 	bool checkError(int error) const
 	{
 		if(this->canPrintError() && error < 0) {

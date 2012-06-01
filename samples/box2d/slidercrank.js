@@ -1,27 +1,41 @@
+// the test is from SliderCrank.h in Box2D testbed
+
 world = 0
 ground = 0
-function render() {
+
+function render()
+{
 	gl.glClear(gl.GL_COLOR_BUFFER_BIT + gl.GL_DEPTH_BUFFER_BIT + gl.GL_STENCIL_BUFFER_BIT)
 	world.Step(0.016, 8, 3)
 	world.DrawDebugData()
 	gl.glutSwapBuffers()
 }
-function reshape(w, h) {
+
+function reshape(w, h)
+{
 	gl.glViewport(0, 0, w, h)
 	gl.glMatrixMode(gl.GL_PROJECTION)
 	gl.glLoadIdentity()
 	gl.gluOrtho2D(-25, 25, -5, 45)
 }
-function specialKey(key, x, y) {
+
+function specialKey(key, x, y)
+{
 }
-function keyboard(key, x, y) {
+
+function keyboard(key, x, y)
+{
 	if(key == 27) exitDemo();
 }
-function timer(value) {
+
+function timer(value)
+{
 	gl.glutPostRedisplay()
 	gl.glutTimerFunc(value, timer, value)
 }
-function setupBox2d() { // the test is from SliderCrank.h in Box2D testbed
+
+function setupBox2d()
+{
 	gravity = new box2d.b2Vec2(0.0, -10.0)
 	world = new box2d.b2World(gravity, 1)
 	bd = new box2d.b2BodyDef()
@@ -87,10 +101,14 @@ function setupBox2d() { // the test is from SliderCrank.h in Box2D testbed
 	body = world.CreateBody(bd)
 	body.CreateFixture(shape, 2.0)
 }
-function getWorld() {
+
+function getWorld()
+{
 	return world
 }
-function start() {
+
+function start()
+{
 	gl.glutInit()
 	gl.glutInitDisplayMode(gl.GLUT_DEPTH + gl.GLUT_DOUBLE + gl.GLUT_RGB + gl.GLUT_STENCIL)
 	gl.glutInitWindowPosition(100, 100)
