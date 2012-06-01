@@ -1,4 +1,3 @@
-#include "cpgf/scriptbind/gscriptrunner.h"
 #include "cpgf/scriptbind/gv8runner.h"
 #include "cpgf/scriptbind/gluarunner.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"

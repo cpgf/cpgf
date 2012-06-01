@@ -112,6 +112,8 @@ if(${HAS_GLUT})
 	set(SRC_SAMPLEOPENGL
 		${GLOB_SAMPLEOPENGL}
 		
+		${SAMPLE_ROOT}/samplescriptbindutil.cpp
+		
 		${SRC_PATH}/metadata/opengl/gmetadata_openglut.cpp
 		${TEST_PATH}/scriptbind/bind_common.cpp
 		${TEST_PATH}/scriptbind/testscriptbindmetadata.cpp
@@ -138,7 +140,7 @@ if(${HAS_GLUT})
 
 	add_definitions(-DFREEGLUT_EXPORTS)
 	
-	target_link_libraries(${TARGET_SAMPLEOPENGL} ${TARGET_LIB} ${GLUT_LIB} ${LUA_LIB} ${V8_LIB})
+	target_link_libraries(${TARGET_SAMPLEOPENGL} ${TARGET_LIB} ${GLUT_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB})
 endif(${HAS_GLUT})
 
 
@@ -149,6 +151,8 @@ if(${HAS_BOX2D})
 	set(SRC_SAMPLEBOX2D
 		${GLOB_SAMPLEBOX2D}
 		${GLOB_METABOX2D}
+		
+		${SAMPLE_ROOT}/samplescriptbindutil.cpp
 		
 		${SAMPLE_ROOT}/opengl/registergl.cpp
 		${SAMPLE_ROOT}/opengl/registerglu.cpp
@@ -183,7 +187,7 @@ if(${HAS_BOX2D})
 
 	add_definitions(-DFREEGLUT_EXPORTS)
 	
-	target_link_libraries(${TARGET_SAMPLEBOX2D} ${TARGET_LIB} ${GLUT_LIB} ${BOX2D_LIB} ${LUA_LIB} ${V8_LIB})
+	target_link_libraries(${TARGET_SAMPLEBOX2D} ${TARGET_LIB} ${GLUT_LIB} ${BOX2D_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB})
 endif(${HAS_BOX2D})
 
 

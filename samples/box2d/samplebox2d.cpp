@@ -1,6 +1,7 @@
 #include "cpgf/gmetadefine.h"
 
-#include "../../test/scriptbind/bind_common.h"
+#include "../samplescriptbindutil.h"
+#include "cpgf/scriptbind/gscriptbindutil.h"
 
 #include "Box2D/Box2D.h"
 
@@ -210,271 +211,6 @@ void DebugDraw::DrawAABB(b2AABB* aabb, const b2Color& c)
 }
 
 
-const char * luaCode = ""
-	"world = 0 \n"
-	"ground = 0 \n"
-	"function render() \n"
-		"gl.glClear(gl.GL_COLOR_BUFFER_BIT + gl.GL_DEPTH_BUFFER_BIT + gl.GL_STENCIL_BUFFER_BIT) \n"
-		"world.Step(0.016, 8, 3) \n"
-		"world.DrawDebugData() \n"
-		"gl.glutSwapBuffers() \n"
-	"end \n"
-	"function reshape(w, h) \n"
-		"gl.glViewport(0, 0, w, h) \n"
-		"gl.glMatrixMode(gl.GL_PROJECTION) \n"
-		"gl.glLoadIdentity() \n"
-		"gl.gluOrtho2D(-25, 25, -5, 45) \n"
-	"end \n"
-	"function specialKey(key, x, y) \n"
-	"end \n"
-	"function keyboard(key, x, y) \n"
-		"if(key == 27) then exitDemo() end \n"
-	"end \n"
-	"function timer(value) \n"
-		"gl.glutPostRedisplay() \n"
-		"gl.glutTimerFunc(value, timer, value) \n"
-	"end \n"
-	"function setupBox2d() \n" // the test is from SliderCrank.h in Box2D testbed
-		"gravity = box2d.b2Vec2(0.0, -10.0) \n"
-		"world = box2d.b2World(gravity, 1); \n"
-		"bd = box2d.b2BodyDef() \n"
-		"ground = world.CreateBody(bd) \n"
-		"shape = box2d.b2PolygonShape() \n"
-		"shape.SetAsEdge(box2d.b2Vec2(-40.0, 0.0), box2d.b2Vec2(40.0, 0.0)) \n"
-		"ground.CreateFixture(shape, 0.0) \n"
-		"prevBody = ground \n"
-
-		// Define crank.
-		"shape = box2d.b2PolygonShape() \n"
-		"shape.SetAsBox(0.5, 2.0) \n"
-		"bd = box2d.b2BodyDef() \n"
-		"bd.type = box2d.b2_dynamicBody \n"
-		"bd.position.Set(0.0, 7.0) \n"
-		"body = world.CreateBody(bd) \n"
-		"body.CreateFixture(shape, 2.0) \n"
-		"rjd = box2d.b2RevoluteJointDef() \n"
-		"rjd.Initialize(prevBody, body, box2d.b2Vec2(0.0, 5.0)) \n"
-		"rjd.motorSpeed = 1.0 * box2d.b2_pi \n"
-		"rjd.maxMotorTorque = 10000.0 \n"
-		"rjd.enableMotor = true \n"
-		"m_joint1 = world.CreateJoint(rjd) \n"
-		"prevBody = body \n"
-
-		// Define follower.
-		"shape = box2d.b2PolygonShape() \n"
-		"shape.SetAsBox(0.5, 4.0) \n"
-		"bd = box2d.b2BodyDef() \n"
-		"bd.type = box2d.b2_dynamicBody \n"
-		"bd.position.Set(0.0, 13.0) \n"
-		"body = world.CreateBody(bd) \n"
-		"body.CreateFixture(shape, 2.0) \n"
-		"rjd = box2d.b2RevoluteJointDef() \n"
-		"rjd.Initialize(prevBody, body, box2d.b2Vec2(0.0, 9.0)) \n"
-		"rjd.enableMotor = false \n"
-		"world.CreateJoint(rjd) \n"
-		"prevBody = body \n"
-
-		// Define piston
-		"shape = box2d.b2PolygonShape() \n"
-		"shape.SetAsBox(1.5, 1.5) \n"
-		"bd = box2d.b2BodyDef() \n"
-		"bd.type = box2d.b2_dynamicBody \n"
-		"bd.position.Set(0.0, 17.0) \n"
-		"body = world.CreateBody(bd) \n"
-		"body.CreateFixture(shape, 2.0) \n"
-		"rjd = box2d.b2RevoluteJointDef() \n"
-		"rjd.Initialize(prevBody, body, box2d.b2Vec2(0.0, 17.0)) \n"
-		"world.CreateJoint(rjd) \n"
-		"pjd = box2d.b2PrismaticJointDef()\n"
-		"pjd.Initialize(ground, body, box2d.b2Vec2(0.0, 17.0), box2d.b2Vec2(0.0, 1.0)) \n"
-		"pjd.maxMotorForce = 1000.0 \n"
-		"pjd.enableMotor = true \n"
-		"m_joint2 = world.CreateJoint(pjd) \n"
-
-		// Define payload.
-		"shape = box2d.b2PolygonShape() \n"
-		"shape.SetAsBox(1.5, 1.5) \n"
-		"bd = box2d.b2BodyDef() \n"
-		"bd.type = box2d.b2_dynamicBody \n"
-		"bd.position.Set(0.0, 23.0) \n"
-		"body = world.CreateBody(bd) \n"
-		"body.CreateFixture(shape, 2.0) \n"
-	"end \n"
-	"function getWorld() \n"
-		"return world \n"
-	"end \n"
-	"function start() \n"
-		"gl.glutInit() \n"
-		"gl.glutInitDisplayMode(gl.GLUT_DEPTH + gl.GLUT_DOUBLE + gl.GLUT_RGB + gl.GLUT_STENCIL) \n"
-		"gl.glutInitWindowPosition(100, 100) \n"
-		"gl.glutInitWindowSize(320, 320) \n"
-		"gl.glutCreateWindow(\"cpgf Box2D binding demo -- Lua version\") \n"
-		"gl.glutDisplayFunc(render) \n"
-		"gl.glutReshapeFunc(reshape) \n"
-		"gl.glutSpecialFunc(specialKey) \n"
-	    "gl.glutKeyboardFunc(keyboard) \n"
-		"period = 16 \n"
-		"gl.glutTimerFunc(period, timer, period) \n"
-
-		"gl.glShadeModel(gl.GL_SMOOTH) \n"
-	    "gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_NICEST) \n"
-		"gl.glHint(gl.GL_LINE_SMOOTH_HINT, gl.GL_NICEST) \n"
-		"gl.glHint(gl.GL_POLYGON_SMOOTH_HINT, gl.GL_NICEST) \n"
-
-		"gl.glutMainLoop() \n"
-	"end \n"
-;
-
-const char * jsCode = ""
-	"world = 0 \n"
-	"ground = 0 \n"
-	"function render() { \n"
-		"gl.glClear(gl.GL_COLOR_BUFFER_BIT + gl.GL_DEPTH_BUFFER_BIT + gl.GL_STENCIL_BUFFER_BIT) \n"
-		"world.Step(0.016, 8, 3) \n"
-		"world.DrawDebugData() \n"
-		"gl.glutSwapBuffers() \n"
-	"} \n"
-	"function reshape(w, h) { \n"
-		"gl.glViewport(0, 0, w, h) \n"
-		"gl.glMatrixMode(gl.GL_PROJECTION) \n"
-		"gl.glLoadIdentity() \n"
-		"gl.gluOrtho2D(-25, 25, -5, 45) \n"
-	"} \n"
-	"function specialKey(key, x, y) { \n"
-	"} \n"
-	"function keyboard(key, x, y) { \n"
-		"if(key == 27) exitDemo(); \n"
-	"} \n"
-	"function timer(value) { \n"
-		"gl.glutPostRedisplay() \n"
-		"gl.glutTimerFunc(value, timer, value) \n"
-	"} \n"
-	"function setupBox2d() { \n" // the test is from SliderCrank.h in Box2D testbed
-		"gravity = new box2d.b2Vec2(0.0, -10.0) \n"
-		"world = new box2d.b2World(gravity, 1) \n"
-		"bd = new box2d.b2BodyDef() \n"
-		"ground = world.CreateBody(bd) \n"
-		"shape = new box2d.b2PolygonShape() \n"
-		"shape.SetAsEdge(new box2d.b2Vec2(-40.0, 0.0), new box2d.b2Vec2(40.0, 0.0)) \n"
-		"ground.CreateFixture(shape, 0.0) \n"
-		"prevBody = ground \n"
-
-		// Define crank.
-		"shape = new box2d.b2PolygonShape() \n"
-		"shape.SetAsBox(0.5, 2.0) \n"
-		"bd = new box2d.b2BodyDef() \n"
-		"bd.type = box2d.b2_dynamicBody \n"
-		"bd.position.Set(0.0, 7.0) \n"
-		"body = world.CreateBody(bd) \n"
-		"body.CreateFixture(shape, 2.0) \n"
-		"rjd = new box2d.b2RevoluteJointDef() \n"
-		"rjd.Initialize(prevBody, body, new box2d.b2Vec2(0.0, 5.0)) \n"
-		"rjd.motorSpeed = 1.0 * box2d.b2_pi \n"
-		"rjd.maxMotorTorque = 10000.0 \n"
-		"rjd.enableMotor = true \n"
-		"m_joint1 = world.CreateJoint(rjd) \n"
-		"prevBody = body \n"
-
-		// Define follower.
-		"shape = new box2d.b2PolygonShape() \n"
-		"shape.SetAsBox(0.5, 4.0) \n"
-		"bd = new box2d.b2BodyDef() \n"
-		"bd.type = box2d.b2_dynamicBody \n"
-		"bd.position.Set(0.0, 13.0) \n"
-		"body = world.CreateBody(bd) \n"
-		"body.CreateFixture(shape, 2.0) \n"
-		"rjd = new box2d.b2RevoluteJointDef() \n"
-		"rjd.Initialize(prevBody, body, new box2d.b2Vec2(0.0, 9.0)) \n"
-		"rjd.enableMotor = false \n"
-		"world.CreateJoint(rjd) \n"
-		"prevBody = body \n"
-
-		// Define piston
-		"shape = new box2d.b2PolygonShape() \n"
-		"shape.SetAsBox(1.5, 1.5) \n"
-		"bd = new box2d.b2BodyDef() \n"
-		"bd.type = box2d.b2_dynamicBody \n"
-		"bd.position.Set(0.0, 17.0) \n"
-		"body = world.CreateBody(bd) \n"
-		"body.CreateFixture(shape, 2.0) \n"
-		"rjd = new box2d.b2RevoluteJointDef() \n"
-		"rjd.Initialize(prevBody, body, new box2d.b2Vec2(0.0, 17.0)) \n"
-		"world.CreateJoint(rjd) \n"
-		"pjd = new box2d.b2PrismaticJointDef()\n"
-		"pjd.Initialize(ground, body, new box2d.b2Vec2(0.0, 17.0), new box2d.b2Vec2(0.0, 1.0)) \n"
-		"pjd.maxMotorForce = 1000.0 \n"
-		"pjd.enableMotor = true \n"
-		"m_joint2 = world.CreateJoint(pjd) \n"
-
-		// Define payload.
-		"shape = new box2d.b2PolygonShape() \n"
-		"shape.SetAsBox(1.5, 1.5) \n"
-		"bd = new box2d.b2BodyDef() \n"
-		"bd.type = box2d.b2_dynamicBody \n"
-		"bd.position.Set(0.0, 23.0) \n"
-		"body = world.CreateBody(bd) \n"
-		"body.CreateFixture(shape, 2.0) \n"
-	"} \n"
-	"function getWorld() { \n"
-		"return world \n"
-	"} \n"
-	"function start() { \n"
-		"gl.glutInit() \n"
-		"gl.glutInitDisplayMode(gl.GLUT_DEPTH + gl.GLUT_DOUBLE + gl.GLUT_RGB + gl.GLUT_STENCIL) \n"
-		"gl.glutInitWindowPosition(100, 100) \n"
-		"gl.glutInitWindowSize(320, 320) \n"
-		"gl.glutCreateWindow(\"cpgf Box2D binding demo -- V8 JavaScript version\") \n"
-		"gl.glutDisplayFunc(render) \n"
-		"gl.glutReshapeFunc(reshape) \n"
-		"gl.glutSpecialFunc(specialKey) \n"
-	    "gl.glutKeyboardFunc(keyboard) \n"
-		"period = 16 \n"
-		"gl.glutTimerFunc(period, timer, period) \n"
-
-		"gl.glShadeModel(gl.GL_SMOOTH) \n"
-	    "gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_NICEST) \n"
-		"gl.glHint(gl.GL_LINE_SMOOTH_HINT, gl.GL_NICEST) \n"
-		"gl.glHint(gl.GL_POLYGON_SMOOTH_HINT, gl.GL_NICEST) \n"
-
-		"gl.glutMainLoop() \n"
-	"} \n"
-;
-
-
-template <typename Binding>
-void start(Binding * binding, TestScriptContext * c, const GMetaClass * glMetaClass, const GMetaClass * box2dMetaClass)
-{
-	GScopedPointer<TestScriptContext> context(c);
-
-	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(glMetaClass)));
-	binding->bindClass("gl", metaClass.get());
-	
-	metaClass.reset(static_cast<IMetaClass *>(metaItemToInterface(box2dMetaClass)));
-	binding->bindClass("box2d", metaClass.get());
-
-	GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(metaItemToInterface(getGlobalMetaClass()->getMethod("exitDemo"))));
-	binding->bindMethod("exitDemo", NULL, method.get());
-
-	if(context->isLua()) {
-		context->doString(luaCode);
-	}
-
-	if(context->isV8()) {
-		context->doString(jsCode);
-	}
-
-	invokeScriptFunction(binding, "setupBox2d");
-	GMetaVariant mv = invokeScriptFunction(binding, "getWorld");
-	b2World * world = fromVariant<b2World *>(mv.getValue());
-	static DebugDraw debugDraw;
-	debugDraw.SetFlags(b2DebugDraw::e_shapeBit);
-	world->SetDebugDraw(&debugDraw);
-	invokeScriptFunction(binding, "start");
-
-	// should not come here;
-	context.reset();
-};
-
 void exitDemo()
 {
 	exit(0);
@@ -496,33 +232,45 @@ int main(int argc, char * argv[])
 	GDefineMetaGlobal()
 		._method("exitDemo", &exitDemo);
 
-	bool runLua = true;
-
+	const char * fileName = "box2d.js";
+	
 	if(argc > 1) {
-		if(strcmp(argv[1], "v8") == 0) {
-			runLua = false;
-		}
+		fileName = argv[1];
 	}
 
-	if(runLua) {
-		cout << "Running Lua script." << endl;
-	}
-	else {
-		cout << "Running V8 Javascript." << endl;
-	}
-	cout << "If 'v8' is put as the parameter, V8 Javascript will be run." << endl
-		<< endl
-		<< "Press ESC in the window to exit." << endl
+	ScriptLanguage lang = getScriptLanguageFromFileName(fileName);
+	
+	cout << "Running " << getLanguageText(lang) << " script." << endl;
+	cout << "Press ESC in the window to exit." << endl
 		<< "Don't click X button because GLUT doesn't exit main loop well." << endl
 	;
 
-	TestScriptContext * context;
-	context = createTestScriptContext((runLua ? tslLua : tslV8), tsaLib);
-	if(context->getBindingLib()) {
-		start(context->getBindingLib(), context, define.getMetaClass(), getGlobalMetaClass()->getClass("box2d"));
+	GScopedPointer<GScriptRunner> runner;
+	GScopedInterface<IMetaService> service(createDefaultMetaService());
+	
+	runner.reset(createScriptRunnerFromScriptLanguage(lang, service.get()));
+
+	GScopedInterface<IScriptObject> scriptObject(runner->getScripeObject());
+	
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName("box2d"));
+	
+	GScopedInterface<IMetaClass> glMetaClass(static_cast<IMetaClass *>(metaItemToInterface(define.getMetaClass())));
+	scriptObject->bindClass("gl", glMetaClass.get());
+	scriptObject->bindClass("box2d", metaClass.get());
+	GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(metaItemToInterface(getGlobalMetaClass()->getMethod("exitDemo"))));
+	scriptObject->bindMethod("exitDemo", NULL, method.get());
+	
+	if(runner->executeFile(fileName)) {
+		invokeScriptFunction(scriptObject.get(), "setupBox2d");
+		GMetaVariant mv = invokeScriptFunction(scriptObject.get(), "getWorld");
+		b2World * world = fromVariant<b2World *>(mv.getValue());
+		static DebugDraw debugDraw;
+		debugDraw.SetFlags(b2DebugDraw::e_shapeBit);
+		world->SetDebugDraw(&debugDraw);
+		invokeScriptFunction(scriptObject.get(), "start");
 	}
 	else {
-		start(context->getBindingApi(), context, define.getMetaClass(), getGlobalMetaClass()->getClass("box2d"));
+		cout << "Failed to execute " << fileName << ", maybe it doesn't exist?" << endl;
 	}
 
 	return 0;
