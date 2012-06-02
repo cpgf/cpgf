@@ -16,8 +16,11 @@ void registerOpenGLUT(GMetaClass * metaClass);
 void registerOpenGLUT2(GMetaClass * metaClass);
 void registerOpenGLUT3(GMetaClass * metaClass);
 
+ScriptLanguage lang = slJavascript;
+
 void exitDemo()
 {
+	finalizeScriptEngine(lang);
 	exit(0);
 }
 
@@ -40,7 +43,7 @@ int main(int argc, char * argv[])
 		fileName = argv[1];
 	}
 
-	ScriptLanguage lang = getScriptLanguageFromFileName(fileName);
+	lang = getScriptLanguageFromFileName(fileName);
 	
 	cout << "Running " << getLanguageText(lang) << " script." << endl;
 	cout << "Press ESC in the window to exit." << endl

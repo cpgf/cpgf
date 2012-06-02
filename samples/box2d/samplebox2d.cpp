@@ -211,8 +211,11 @@ void DebugDraw::DrawAABB(b2AABB* aabb, const b2Color& c)
 }
 
 
+ScriptLanguage lang = slJavascript;
+
 void exitDemo()
 {
+	finalizeScriptEngine(lang);
 	exit(0);
 }
 
@@ -238,7 +241,7 @@ int main(int argc, char * argv[])
 		fileName = argv[1];
 	}
 
-	ScriptLanguage lang = getScriptLanguageFromFileName(fileName);
+	lang = getScriptLanguageFromFileName(fileName);
 	
 	cout << "Running " << getLanguageText(lang) << " script." << endl;
 	cout << "Press ESC in the window to exit." << endl
@@ -274,8 +277,6 @@ int main(int argc, char * argv[])
 	else {
 		cout << "Failed to execute " << fileName << ", maybe it doesn't exist?" << endl;
 	}
-
-	finalizeScriptEngine(lang);
 
 	return 0;
 }
