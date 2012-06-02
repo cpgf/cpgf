@@ -1166,7 +1166,6 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name, true);
 
 					// select the class to bind to the method (i.e, to call the method, an object must be the class or the class' derived)
-					// that to ensure Arguments::Holder is correct
 					GScopedInterface<IMetaClass> boundClass;
 					if(!derived) {
 						boundClass.reset(metaClass.get());
@@ -1542,7 +1541,6 @@ GScriptObject * GPythonScriptObject::gainScriptObject(const char * name)
 	ENTER_PYTHON()
 
 	PyObject * attr = getObjectAttr(this->object, name);
-//	if(attr != NULL && (attr->ob_type == &objectType || isValidObject(attr))) {
 	if(attr != NULL) {
 		return new GPythonScriptObject(*this, attr);
 	}
@@ -1841,132 +1839,5 @@ IScriptObject * createPythonScriptInterface(IMetaService * service, PyObject * o
 }
 
 } // namespace cpgf
-
-
-int nnn = 58;
-void xxx(int a, const char * b) {
-	cout << "XXX a: " << a << " b: " << b << endl;
-}
-
-struct Hello
-{
-	enum En { ena = 2001, enb };
-
-	Hello() : n(0), b(false), s(""), pobj(NULL) {
-		cout << "Construct Hello()" << endl;
-	}
-
-	explicit Hello(int n) : n(n), b(false), s(""), pobj(NULL) {
-		cout << "Construct Hello(int n) " << n << endl;
-	}
-
-	~Hello() {
-		cout << "Destroying Hello " << this->n << endl;
-		delete this->pobj;
-	}
-
-	int greet(int i) {
-		cout << "Greeting " << this->n << endl;
-//		if(this->pobj == NULL) {
-//			this->pobj = new Hello(78);
-//		}
-
-		if(i != this->n) {
-			cout << "!!! Greet wrong. Need " << i << ", get " << this->n << endl;
-		}
-
-		return 1999;
-	}
-
-	int n;
-	bool b;
-	string s;
-	Hello * pobj;
-};
-
-template <typename D>
-void register_Meta(D define)
-{
-	define._field("nnn", &nnn);
-	define._method("xxx", &xxx);
-
-	GDefineMetaClass<Hello> hello = GDefineMetaClass<Hello>::declare("Hello");
-	hello._constructor<void *()>();
-	hello._constructor<void *(int)>();
-	
-	hello._method("greet", &Hello::greet);
-	
-	hello
-		._field("b", &Hello::b)
-		._field("n", &Hello::n)
-		._field("s", &Hello::s)
-		._field("pobj", &Hello::pobj)
-	;
-
-	hello._enum<Hello::En>("En")
-		._element("ena", Hello::ena)
-		._element("enb", Hello::enb)
-	;
-
-	define._class(hello);
-}
-
-void doTestPythonBind()
-{
-	Py_Initialize();
-
-	GPythonScopedPointer mainObject(PyImport_ImportModule("__main__"));
-	
-	GDefineMetaGlobal global;
-	register_Meta(global);
-
-	GScopedInterface<IMetaService> service(createDefaultMetaService());
-	GScopedInterface<IMetaModule> module(service->getModuleAt(0));
-	GScopedInterface<IMetaClass> globalClass(module->getGlobalMetaClass());
-
-	GScriptBindingParam param(service.get(), GScriptConfig());
-
-	GScopedInterface<IMetaMethod> method;
-
-	method.reset(globalClass->getMethod("xxx"));
-
-	GScopedInterface<IMetaList> methodList(createMetaList());
-	methodList->add(method.get(), NULL);
-	doBindMethodList(&param, mainObject.get(), "xxx", methodList.get());
-
-	GScopedInterface<IMetaClass> metaClass(globalClass->getClass("Hello"));
-	doBindClass(&param, mainObject.get(), metaClass->getName(), metaClass.get());
-
-	GScopedInterface<IMetaAccessible> accessible;
-
-	accessible.reset(globalClass->getField("nnn"));
-	doBindAccessible(&param, mainObject.get(), accessible->getName(), NULL, accessible.get());
-
-	const char * code = ""
-		"xxx(5, 'abc') \n"
-		"h = Hello() \n"
-		"h = Hello(38) \n"
-
-		"h.s = 'This is a string.' \n"
-		"print h.s \n"
-
-		"print h.pobj \n"
-		"print h.greet(38) \n"
-		"print Hello(38).greet(38) \n"
-		"print Hello(99).greet(99) \n"
-		"print h.pobj.n \n"
-
-		"print h.En.ena \n"
-		"print h.ena \n"
-
-		"print nnn.__get__(0) \n"
-		"nnn.__set__(0, 10000) \n"
-	;
-	PyRun_SimpleString(code);
-
-	cout << nnn << endl;
-
-	Py_Finalize();
-}
 
 

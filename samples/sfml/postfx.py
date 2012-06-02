@@ -69,12 +69,13 @@ def doMain() :
 	InfoStr.SetFont(Cheeseburger)
 	InfoStr.SetPosition(20.0, 460.0)
 	InfoStr.SetColor(sfml.Color(200, 100, 150))
-
+	
 	# Start the game loop
 	while App.IsOpened() :
 		# Process events
 		Event = sfml.Event()
 		while App.GetEvent(Event) :
+
 			# Close window : exit
 			if Event.Type == sfml.Event.Closed :
 				App.Close()
@@ -102,20 +103,22 @@ def doMain() :
 			# Get the mouse position in the range [0, 1]
 			X = float(App.GetInput().GetMouseX()) / float(App.GetWidth())
 			Y = float(App.GetInput().GetMouseY()) / float(App.GetHeight())
+			
+			EffectName = EffectIndexes[CurrentEffect]
 
 			# Update the current effect
-			if EffectIndexes[CurrentEffect] == "blur" :     Effects[EffectIndexes[CurrentEffect]].SetParameter("offset", X * Y * 0.1)
-			if EffectIndexes[CurrentEffect] == "colorize" : Effects[EffectIndexes[CurrentEffect]].SetParameter("color", 0.3, X, Y)
-			if EffectIndexes[CurrentEffect] == "fisheye" :  Effects[EffectIndexes[CurrentEffect]].SetParameter("mouse", X, 1.0 - Y)
-			if EffectIndexes[CurrentEffect] == "wave" :     Effects[EffectIndexes[CurrentEffect]].SetParameter("offset", X, Y)
+			if EffectName == "blur" :     Effects[EffectName].SetParameter("offset", X * Y * 0.1)
+			if EffectName == "colorize" : Effects[EffectName].SetParameter("color", 0.3, X, Y)
+			if EffectName == "fisheye" :  Effects[EffectName].SetParameter("mouse", X, 1.0 - Y)
+			if EffectName == "wave" :     Effects[EffectName].SetParameter("offset", X, Y)
 
 			# Clear the window
 			App.Clear()
 
 			# Draw background and apply the post-fx
 			App.Draw(Background)
-			App.Draw(Effects[EffectIndexes[CurrentEffect]])
-
+			App.Draw(Effects[EffectName])
+			
 			# Draw interface strings
 			App.Draw(CurFXStr)
 			App.Draw(InfoStr)

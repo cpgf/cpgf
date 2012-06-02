@@ -186,6 +186,8 @@ if(${HAS_SFML})
 	set(SRC_SAMPLESFML
 		${GLOB_SAMPLESFML}
 		${GLOB_METASFML}
+		
+		${SAMPLE_ROOT}/samplescriptbindutil.cpp
 	)
 
 	add_executable(

@@ -4,6 +4,7 @@
 
 extern int totalPythonObjectCount;
 extern int pythonObjectCount;
+
 int main()
 {
 	int result = UnitTest::RunAllTests();

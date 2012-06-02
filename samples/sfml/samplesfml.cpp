@@ -1,6 +1,5 @@
-#include "cpgf/scriptbind/gv8runner.h"
-#include "cpgf/scriptbind/gluarunner.h"
-#include "cpgf/scriptbind/gpythonrunner.h"
+#include "../samplescriptbindutil.h"
+
 #include "cpgf/scriptbind/gscriptbindapi.h"
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gmetadefine.h"
@@ -36,10 +35,6 @@ void run(GScriptRunner * runner, const char * fileName)
 	}
 }
 
-enum ScriptLanguage {
-	slJavascript, slLua, slPython
-};
-
 int main(int argc, char * argv[])
 {
 	const char * fileName = "sfml.js";
@@ -48,19 +43,9 @@ int main(int argc, char * argv[])
 		fileName = argv[1];
 	}
 	
-	const char * langText = "Javascript";
-	ScriptLanguage lang = slJavascript;
+	ScriptLanguage lang = getScriptLanguageFromFileName(fileName);
 	
-	if(strstr(fileName, ".lua") != NULL) {
-		lang = slLua;
-		langText = "Lua";
-	}
-	if(strstr(fileName, ".py") != NULL) {
-		lang = slPython;
-		langText = "Python";
-	}
-	
-	cout << "Executing file " << fileName << " as " << langText << endl;
+	cout << "Executing file " << fileName << " as " << getLanguageText(lang) << endl;
 
 	GDefineMetaGlobal()
 		._class(
@@ -69,32 +54,15 @@ int main(int argc, char * argv[])
 		)
 	;
 
-	GScopedPointer<GScriptRunner> runner;
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
 
-	if(lang == slPython) {
-		Py_Initialize();
-	}
+	intializeScriptEngine(lang);
 
-	switch(lang) {
-		case slJavascript:
-			runner.reset(createV8ScriptRunner(service.get()));
-			break;
-			
-		case slLua:
-			runner.reset(createLuaScriptRunner(service.get()));
-			break;
-			
-		case slPython:
-			runner.reset(createPythonScriptRunner(service.get()));
-			break;
-	}
+	GScopedPointer<GScriptRunner> runner(createScriptRunnerFromScriptLanguage(lang, service.get()));
 	
 	run(runner.get(), fileName);
 	
-	if(lang == slPython) {
-		Py_Finalize();
-	}
+	finalizeScriptEngine(lang);
 	
 	return 0;
 }

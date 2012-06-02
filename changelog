@@ -1,3 +1,6 @@
+TBD version 1.4.3
+	Added Python script binding for Python 2.7.3.
+
 2012-05-26 version 1.4.2
 	Added object pool to interface based reflection APIs to reduce memory fragment and improve performance.
 	Added Lua 5.2 support in script binding. Now both Lua 5.1 and 5.2 are supported.

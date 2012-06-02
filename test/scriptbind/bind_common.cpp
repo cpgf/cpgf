@@ -292,24 +292,28 @@ private:
 
 public:
 	TestScriptContextPython(TestScriptApi api)
-		: super(new TestScriptCoderPython), objectLib(NULL), objectApi(NULL)
+		: super(new TestScriptCoderPython), moduleMain(NULL), mainDict(NULL)
 	{
-		Py_Initialize();
+		Py_InitializeEx(0);
+
+		this->moduleMain = PyImport_ImportModule("__main__");
+		this->mainDict = PyModule_GetDict(this->moduleMain);
+
+		Py_XINCREF(this->mainDict);
 
 		if(api == tsaLib) {
-			this->objectLib = PyImport_ImportModule("__main__");
-
-			this->setBinding(cpgf::createPythonScriptObject(this->getService(), this->objectLib, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createPythonScriptObject(this->getService(), this->moduleMain, cpgf::GScriptConfig()));
 		}
 
 		if(api == tsaApi) {
-			this->objectApi = PyImport_ImportModule("__main__");
-
-			this->setBinding(cpgf::createPythonScriptObject(this->getService(), this->objectApi, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createPythonScriptInterface(this->getService(), this->moduleMain, cpgf::GScriptConfig()));
 		}
 	}
 
 	~TestScriptContextPython() {
+		Py_XDECREF(this->mainDict);
+		Py_XDECREF(this->moduleMain);
+
 		Py_Finalize();
 	}
 
@@ -330,10 +334,8 @@ private:
 	bool doCode(const char * code) const {
 		return PyRun_SimpleString(code) == 0;
 
-		//GPythonScopedPointer moduleMain(PyImport_ImportModule("__main__"));
-		//GPythonScopedPointer mainDict(PyObject_GetAttrString(moduleMain.get(), "__dict__"));
-		//GPythonScopedPointer result(PyRun_String(code, 0, mainDict.get(), mainDict.get()));
-		//return (bool)result;
+//		GPythonScopedPointer result(PyRun_String(code, Py_file_input, this->mainDict, this->mainDict));
+//		return (bool)result;
 	}
 
 	bool checkError(int error) const
@@ -346,8 +348,8 @@ private:
 	}
 
 private:
-	PyObject * objectLib;
-	PyObject * objectApi;
+	PyObject * moduleMain;
+	PyObject * mainDict;
 };
 
 #endif
@@ -383,6 +385,5 @@ TestScriptContext * createTestScriptContext(TestScriptLang lang, TestScriptApi a
 
 
 } // namespace testscript
-
 
 
