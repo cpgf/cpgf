@@ -1,5 +1,6 @@
 TBD version 1.4.3
 	Added Python script binding for Python 2.7.3.
+	Fixed a bug that the ownerItem in GMetaItem in a dangling define may point to bad pointer.
 
 2012-05-26 version 1.4.2
 	Added object pool to interface based reflection APIs to reduce memory fragment and improve performance.

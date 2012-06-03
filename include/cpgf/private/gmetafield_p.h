@@ -114,12 +114,12 @@ private:
 	}
 
 	template <typename T>
-	void doSet(typename GEnableIf<Writable, T>::Result * /*instance*/, const GVariant & value) const {
+	void doSet(typename GEnableIf<Writable && !IsArray<FT>::Result, T>::Result * /*instance*/, const GVariant & value) const {
 		*(this->field) = fromVariant<FT>(value);
 	}
 
 	template <typename T>
-	void doSet(typename GDisableIf<Writable, T>::Result * /*instance*/, const GVariant & /*value*/) const {
+	void doSet(typename GDisableIf<Writable && !IsArray<FT>::Result, T>::Result * /*instance*/, const GVariant & /*value*/) const {
 		meta_internal::handleForbidAccessError(false);
 	}
 
@@ -132,7 +132,7 @@ class GMetaFieldDataMember : public GMetaFieldDataBase
 {
 private:
 	G_STATIC_CONSTANT(bool, Readable = (PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result));
-	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result)); // && !IsArray<FT>::Result));
+	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result && !IsConst<FT>::Result));
 
 private:
 	static bool virtualCanGet() {
@@ -156,7 +156,7 @@ private:
 	}
 
 	static void * virtualGetFieldAddress(const void * self, const void * instance) {
-		return &(static_cast<OT *>(const_cast<void *>(instance))->*(static_cast<const GMetaFieldDataMember *>(self)->field));
+		return (void *)(&(static_cast<OT *>(const_cast<void *>(instance))->*(static_cast<const GMetaFieldDataMember *>(self)->field)));
 	}
 	
 	static GMetaExtendType virtualGetItemExtendType(uint32_t flags, const GMetaItem * metaItem)

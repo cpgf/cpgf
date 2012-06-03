@@ -1,5 +1,7 @@
 package com.cpgf.metagen.metadata;
 
+import java.util.Map;
+
 import com.cpgf.metagen.cppparser.EnumCompoundType;
 import com.cpgf.metagen.cppparser.ParsedType;
 
@@ -60,6 +62,11 @@ public class CppType {
 
 	public ParsedType getParsedType() {
 		return parsedType;
+	}
+
+	public void replaceToken(Map<String, String> map)
+	{
+		this.parsedType.replaceToken(map);
 	}
 
 }

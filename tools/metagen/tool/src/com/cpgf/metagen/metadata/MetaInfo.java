@@ -3,6 +3,7 @@ package com.cpgf.metagen.metadata;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.cpgf.metagen.Config;
 import com.cpgf.metagen.doxyxmlparser.FileMap;
@@ -45,11 +46,20 @@ public class MetaInfo {
     	this.doFixupInnerClasses();
     	this.doFixupOwnerClasses();
     	this.doBuildAllClassList();
-    	
+
+    	Map<String, String> configTypeMap = null;
+		if(config.parameterTypeReplacer != null) {
+			configTypeMap = new HashMap<String, String>();
+			for(int i = 0; i < config.parameterTypeReplacer.length ; i += 2) {
+				configTypeMap.put(config.parameterTypeReplacer[i], config.parameterTypeReplacer[i + 1]);
+			}
+		}
+		
     	for(CppClass c : this.classList) {
     		if(! c.isGlobal()) {
     			c.resolveTypesForClass();
     		}
+    		c.resolveParameterTypes(configTypeMap, null);
     	}
     	
     	this.doFixupTemplateInstances();

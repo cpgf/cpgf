@@ -1,13 +1,13 @@
 <{filename name=docs-cpgf-script-binding }>
 
-<{title}>cpgf script binding engine -- bind Lua and Google V8 Javascript to C++<{/title}>
+<{title}>cpgf script binding engine -- bind Lua, Google V8 Javascript and Python to C++<{/title}>
 
 
-<h1>script binding engine -- bind Lua and Google V8 Javascript to C++</h1>
+<h1>script binding engine -- bind Lua, Google V8 Javascript and Python to C++</h1>
 
 <{autotoc}>
 
-<{sgroup}>Binding Lua  and Google V8 Javascript engine to C++
+<{sgroup}>Binding Lua, Google V8 Javascript and Python engine to C++
 
 <{sh}> Overview
 <{sc}>
@@ -21,13 +21,13 @@ The binding engine uses reflection meta data as the source.
 <{sc}>
 
 <{autoul}>
-Bind C++ class to Lua and Google V8 Javascript. Then Lua and Javascript can create instance, invoke class member function, get/set class field or property, and more.
-Bind C++ enum type to Lua and V8 Javascript. Then Lua and Javascript can access the enum value by name.
+Bind C++ class to Lua, Google V8 Javascript and Python. Then Lua, Google V8 Javascript and Python can create instance, invoke class member function, get/set class field or property, and more.
+Bind C++ enum type to Lua, Google V8 Javascript and Python. Then Lua, Google V8 Javascript and Python can access the enum value by name.
 Bind C++ functions (global or member) to Lua and V8.
-Bind C++ values to Lua and V8 variable.
+Bind C++ values to Lua, V8 and Python variable.
 Bind C++ operators to Lua (Lua only). The overloaded operators in C++ are bound to Lua together with the class.
-Invoke Lua and V8 Javascript functions from C++.
-Get and set Lua and V8 Javascript value from C++.
+Invoke Lua, Google V8 Javascript and Python functions from C++.
+Get and set Lua, Google V8 Javascript and Python value from C++.
 Transfer binary data between C++ and script.
 Pass script function and object to C++.
 <{/autoul}>
@@ -41,6 +41,8 @@ To binding Lua, include the header,
 cpgf/scriptbind/gluabind.h
 For V8, include the head,
 cpgf/scriptbind/gv8bind.h
+For Python, include the head,
+cpgf/scriptbind/gpythonbind.h
 
 First, we need a GScriptObject or IScriptObject (the interface version) object.
 

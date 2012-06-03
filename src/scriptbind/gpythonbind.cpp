@@ -551,18 +551,7 @@ GPythonObject * tryCastFromPython(PyObject * object) {
 	return NULL;
 }
 
-GPythonObject * createPythonObject(GScriptUserData * userData)
-{
-	return new GPythonObject(userData);
-}
-
-void deletePythonObject(GPythonObject * obj)
-{
-	delete obj;	
-}
-
-GPythonObject::GPythonObject(GScriptUserData * userData)
-	: userData(userData)
+PyTypeObject * getTypeObject(GScriptUserData * userData)
 {
 	PyTypeObject * typeObject = NULL;
 
@@ -587,6 +576,33 @@ GPythonObject::GPythonObject(GScriptUserData * userData)
 			typeObject = &rawType;
 			break;
 	}
+
+	GASSERT(typeObject != NULL);
+
+	return typeObject;
+}
+
+GPythonObject * createPythonObject(GScriptUserData * userData)
+{
+	return new GPythonObject(userData);
+
+//	GPythonObject * obj = PyObject_New(GPythonObject, getTypeObject(userData));
+//	new (obj) GPythonObject(userData);
+//	return obj;
+}
+
+void deletePythonObject(GPythonObject * obj)
+{
+	delete obj;
+
+//	obj->~GPythonObject();
+//	PyObject_Del(obj);
+}
+
+GPythonObject::GPythonObject(GScriptUserData * userData)
+	: userData(userData)
+{
+	PyTypeObject * typeObject = getTypeObject(userData);
 
 	GASSERT(typeObject != NULL);
 

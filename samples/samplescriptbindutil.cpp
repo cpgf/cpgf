@@ -1,3 +1,5 @@
+#define ENABLE_V8 1
+
 #include "samplescriptbindutil.h"
 #if ENABLE_LUA
 #include "cpgf/scriptbind/gluarunner.h"
@@ -82,7 +84,9 @@ void intializeScriptEngine(ScriptLanguage lang)
 			break;
 
 		case slPython:
+#if ENABLE_PYTHON
 			Py_Initialize();
+#endif
 			break;
 	}
 }
@@ -97,7 +101,9 @@ void finalizeScriptEngine(ScriptLanguage lang)
 			break;
 
 		case slPython:
+#if ENABLE_PYTHON
 			Py_Finalize();
+#endif
 			break;
 	}
 }

@@ -13,7 +13,7 @@ cpgf is composed by several independent components:
 	
 	cpgf serialization -- a library to save C++ data and objects to persistent storage and then load back.
 	
-	cpgf script binding -- a script binding engine to bind Lua and Google V8 Javascript to C++. It's based on the reflection library.
+	cpgf script binding -- a script binding engine to connect Lua, Google V8 Javascript and Python to C++. It's based on the reflection library.
 	
 	cpgf callback -- a callback library to implement signal/slot or callback in C++. It's the primary library for other libraries.
 	
@@ -75,12 +75,12 @@ Want to use OpenGL in Lua and Javascrit? It can't be easier using cpgf.
 
 <h3>Quick facts of script binding library</h3>
 <{autoul}>
-	Support Lua 5.2 and 5.1, and Google V8 Javascript.
+	Support Lua 5.2 and 5.1, Google V8 Javascript, and Python 2.7.3.
 	Very easy and simple to use. Any reflected meta data can be bound to scripts.
-	Bind C++ classes, enumerators, functions, variables and operators to Lua and Google V8 Javascript.
-	Invoke Lua and V8 Javascript functions from C++.
+	Bind C++ classes, enumerators, functions, variables and operators to Lua, Google V8 Javascript and Python.
+	Invoke Lua, V8 Javascript and Python functions from C++.
 	Pass function written in script to C++ and used by C++.
-	Get and set Lua and V8 Javascript variables from C++.
+	Get and set Lua, V8 Javascript and Python variables from C++.
 	Transfer arbitrary binary data between C++ and script.
 	Pass arbitrary script function and object to C++.
 	For more information, please read cpgf script binding related documentation.
@@ -138,6 +138,7 @@ Website: <a href="http://www.kbasm.com/">http://www.kbasm.com/</a>
 	Doesn't require Boost library.
 	For Lua binding, Lua library is required.
 	For Google V8 Javascript binding, V8 library is required.
+	For Python binding, Python library is required.
 	If you want to run the unit test, UnitTest++ is required. But usually you don't need to do that.
 	
 <{/autobr}>

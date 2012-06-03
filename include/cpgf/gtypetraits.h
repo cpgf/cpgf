@@ -222,6 +222,12 @@ struct AddReference <T &>
 	typedef T & Result;
 };
 
+template <>
+struct AddReference <void>
+{
+	typedef void Result;
+};
+
 
 
 template <typename T>

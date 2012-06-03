@@ -181,6 +181,10 @@ public class MetaClassWriter {
 				continue;
 			}
 			
+			if(item.isBitField()) {
+				continue;
+			}
+			
 			this.codeWriter.write(action);
 			this.codeWriter.write("(" + this.getReplace(name) + ", ");
 			this.codeWriter.write("&" + prefix + name + WriterUtil.getPolicyText(item) + ");\n");

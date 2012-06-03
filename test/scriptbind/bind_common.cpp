@@ -333,8 +333,15 @@ protected:
 private:
 	bool doCode(const char * code) const {
 		return PyRun_SimpleString(code) == 0;
+		
+		//GPythonScopedPointer codeObject(Py_CompileString(code, "", Py_single_input));
+		//if(! codeObject) {
+		//	return false;
+		//}
+		//GPythonScopedPointer result(PyEval_EvalCode((PyCodeObject *)(codeObject.get()), this->mainDict, this->mainDict));
+		//return (bool)result;
 
-//		GPythonScopedPointer result(PyRun_String(code, Py_file_input, this->mainDict, this->mainDict));
+//		GPythonScopedPointer result(PyRun_String(code, Py_single_input, this->mainDict, this->mainDict));
 //		return (bool)result;
 	}
 

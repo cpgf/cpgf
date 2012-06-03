@@ -70,6 +70,8 @@ public class Config {
 	
 	// See SFML generator.
 	public String[] sourceHeaderReplacer = null;
+	
+	public String[] parameterTypeReplacer = null;
 
 	// A string of path that will be put in front of auto generated header.
 	// See Box2D generator.

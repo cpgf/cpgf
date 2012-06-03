@@ -299,20 +299,24 @@ public class CppClass extends ParameteredItem {
 		this.doResolveTypesForClass(typeMap, valueMap);
 	}
 	
-	public void doResolveTypesForClass(Map<String, String> typeMap, Map<String, String> valueMap) {
-		this.doBuildinnerTypeMap(typeMap, null);
-		this.doBuildInnerTypeMap(typeMap);
-		this.doBuildInnerValueMap(typeMap, valueMap);
-		
+	public void resolveParameterTypes(Map<String, String> typeMap, Map<String, String> valueMap) {
 		this.doResolveTypesForInner(typeMap, valueMap, this.getConstructorList());
 		this.doResolveTypesForInner(typeMap, valueMap, this.getMethodList());
 		this.doResolveTypesForInner(typeMap, valueMap, this.getOperatorList());
+	}
+	
+	private void doResolveTypesForClass(Map<String, String> typeMap, Map<String, String> valueMap) {
+		this.doBuildInnerTypeMap(typeMap, null);
+		this.doBuildInnerTypeMap(typeMap);
+		this.doBuildInnerValueMap(typeMap, valueMap);
+		
+		this.resolveParameterTypes(typeMap, valueMap);
 
 		for(DeferClass deferClass : this.getClassList()) {
 			deferClass.getCppClass().doResolveTypesForClass(typeMap, valueMap);
 		}
 	}
-	
+
 	private <T extends CppInvokable> void doResolveTypesForInner(Map<String, String> typeMap, Map<String, String> valueMap, List<T> list) {
 		for(T item : list) {
 			this.doResolveTypeForInvokable(typeMap, valueMap, item);
@@ -324,7 +328,7 @@ public class CppClass extends ParameteredItem {
 		for(Parameter param : item.getParameterList()) {
 			this.doResolveType(typeMap, param.getType());
 			
-			if(param.hasDefaultValue()) {
+			if(valueMap != null && param.hasDefaultValue()) {
 				if(valueMap.containsKey(param.getDefaultValue())) {
 					param.setDefaultValue(valueMap.get(param.getDefaultValue()));
 				}
@@ -334,13 +338,14 @@ public class CppClass extends ParameteredItem {
 	
 	private void doResolveType(Map<String, String> typeMap, CppType type) {
 		if(type != null) {
-			if(typeMap.containsKey(type.getLiteralType())) {
-				type.setLiteralType(typeMap.get(type.getLiteralType()));
-			}
+			type.replaceToken(typeMap);
+//			if(typeMap.containsKey(type.getLiteralType())) {
+//				type.setLiteralType(typeMap.get(type.getLiteralType()));
+//			}
 		}
 	}
 	
-	private void doBuildinnerTypeMap(Map<String, String> typeMap, String outterName) {
+	private void doBuildInnerTypeMap(Map<String, String> typeMap, String outterName) {
 		if(outterName != null) {
 			outterName = outterName + "::" + this.getPrimaryName();
 			typeMap.put(this.getPrimaryName(), outterName);
@@ -350,7 +355,7 @@ public class CppClass extends ParameteredItem {
 		}
 		
 		for(DeferClass deferClass : this.getClassList()) {
-			deferClass.getCppClass().doBuildinnerTypeMap(typeMap, outterName);
+			deferClass.getCppClass().doBuildInnerTypeMap(typeMap, outterName);
 		}
 	}
 	
@@ -360,6 +365,11 @@ public class CppClass extends ParameteredItem {
 		
 		for(DeferClass deferClass : this.getClassList()) {
 			deferClass.getCppClass().doBuildInnerTypeMap(typeMap);
+		}
+		
+		for(DeferClass deferClass : this.getClassList()) {
+			String name = deferClass.getCppClass().getPrimaryName();
+			typeMap.put(name, outterName + "::" + name);
 		}
 		
 		for(Typedef typedef : this.getTypedefList()) {

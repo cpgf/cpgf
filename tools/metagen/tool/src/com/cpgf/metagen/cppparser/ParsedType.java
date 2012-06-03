@@ -2,6 +2,7 @@ package com.cpgf.metagen.cppparser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ParsedType {
 	private String literalType;
@@ -49,6 +50,27 @@ public class ParsedType {
 		}
 		
 		return result;
+	}
+	
+	public void replaceToken(Map<String, String> map)
+	{
+		boolean modified = false;
+		for(int i = this.tokenList.size() - 1; i >= 0; --i) {
+			TypeToken token = this.tokenList.get(i);
+			if(token.isLiteralText() && map.containsKey(token.getToken())) {
+				modified = true;
+				String newToken = map.get(token.getToken());
+				if(newToken.length() == 0) {
+					this.tokenList.remove(i);
+				}
+				else {
+					token.setToken(newToken);
+				}
+			}
+		}
+		if(modified) {
+			this.literalType = this.getNormalizedType();
+		}
 	}
 	
 	public int getArrayDimension() {

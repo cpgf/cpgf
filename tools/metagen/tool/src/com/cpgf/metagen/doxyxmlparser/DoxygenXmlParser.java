@@ -50,9 +50,10 @@ public class DoxygenXmlParser {
 		this.xmlFileName = xmlFileName;
 		this.xmlFile = new File(this.xmlFileName);
 		this.basePath = this.xmlFile.getParent();
-		
 		this.classStack = new Stack<CppClass>();
 		this.namespaceStack = new Stack<String>();
+		
+		Util.trace("Parsing " + xmlFileName);
 	}
 	
 	public void parseFile() throws Exception {
@@ -397,6 +398,11 @@ public class DoxygenXmlParser {
 		CppField field = new CppField(name, this.getType(node));
 		
 		field.setStatic(Util.isValueYes(Util.getAttribute(node, "static")));
+		
+		Node bitFieldNode = Util.getNode(node, "bitfield");
+		if(bitFieldNode != null) {
+			field.setBitField(Integer.parseInt(Util.getNodeText(bitFieldNode)));
+		}
 
 		this.getCurrentClass().getFieldList().add(field);
 		

@@ -39,9 +39,27 @@ public class Util {
 	}
 
 	public static String getAttribute(Node node, String attributeName) {
-		return node.getAttributes().getNamedItem(attributeName).getNodeValue();
+		Node n = node.getAttributes().getNamedItem(attributeName);
+		if(n != null) {
+			return n.getNodeValue();
+		}
+		else {
+			return null;
+		}
 	}
 
+	public static int getIntAttribute(Node node, String attributeName, int defaultValue) {
+		String value = getAttribute(node, attributeName);
+		if(value == null) {
+			return defaultValue;
+		}
+		return Integer.parseInt(value);
+	}
+
+	public static int getIntAttribute(Node node, String attributeName) {
+		return getIntAttribute(node, attributeName, 0);
+	}
+	
 	public static Node getNode(Node node, String nodeName) {
 		List<Node> childList = getChildNodesByName(node, nodeName);
 		if(childList.size() > 0) {

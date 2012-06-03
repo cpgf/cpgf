@@ -160,8 +160,8 @@ struct ByteArrayCaster
 {
 	G_STATIC_CONSTANT(bool, CanCast = false);
 
-	static To cast(const volatile IByteArray * /*v*/) {
-		raiseCoreException(Error_Variant_CantReferenceToTemp);
+	static typename AddReference<To>::Result cast(const volatile IByteArray * /*v*/) {
+		raiseCoreException(Error_Variant_FailCast);
 		return *(typename RemoveReference<To>::Result *)0xffffff;
 	}
 };
@@ -251,6 +251,26 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 		return *(typename RemoveReference<To>::Result *)0xffffff;
 	}
 };
+
+template <typename From, typename To>
+struct EnforceCastToPointer
+{
+	G_STATIC_CONSTANT(bool, CanCast = false);
+
+	static typename AddReference<To>::Result cast(const From & /*v*/) {
+		raiseCoreException(Error_Variant_FailCast);
+		return *(typename RemoveReference<To>::Result *)0xffffff;
+	}
+};
+
+template <typename From, typename To>
+struct EnforceCastToPointer <From, To *> : public CastVariantHelper<From, To *> {};
+template <typename From, typename To>
+struct EnforceCastToPointer <From, const To *> : public CastVariantHelper<From, const To *> {};
+template <typename From, typename To>
+struct EnforceCastToPointer <From, volatile To *> : public CastVariantHelper<From, volatile To *> {};
+template <typename From, typename To>
+struct EnforceCastToPointer <From, const volatile To *> : public CastVariantHelper<From, const volatile To *> {};
 
 template <bool Copyable, typename T>
 void initShadowObject(GVariant & v, const T & value, typename GEnableIf<Copyable>::Result * = 0)
@@ -624,10 +644,10 @@ struct CanCastFromVariant
 				return IsConvertible<wchar_t *, ResultType>::Result || IsConvertible<const wchar_t *, ResultType>::Result;
 
 			case vtInterface:
-				return variant_internal::CastVariantHelper<IObject *, typename RemoveReference<ResultType>::Result *>::CanCast;
+				return variant_internal::EnforceCastToPointer<IObject *, typename RemoveReference<ResultType>::Result>::CanCast;
 			
 			case vtByteArray:
-				return variant_internal::CastVariantHelper<IByteArray *, typename RemoveReference<ResultType>::Result *>::CanCast;
+				return variant_internal::CastVariantHelper<IByteArray *, typename RemoveReference<ResultType>::Result>::CanCast;
 
 			case vtBool | byPointer:
 				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<bool *, ResultType>::CanCast;
@@ -872,7 +892,7 @@ struct CastFromVariant
 				return castFromWideString<ResultType>(const_cast<wchar_t *>(static_cast<std::wstring *>(v.data.shadowObject->getObject())->c_str()));
 
 			case vtInterface:
-				return variant_internal::CastVariantHelper<IObject *, ResultType>::cast(v.data.valueInterface);
+				return variant_internal::EnforceCastToPointer<IObject *, ResultType>::cast(v.data.valueInterface);
 			
 			case vtByteArray:
 				return variant_internal::CastVariantHelper<IByteArray *, ResultType>::cast(v.data.valueByteArray);

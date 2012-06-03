@@ -2,7 +2,7 @@
 #define MK(a, b) MK2(a, b)
 
 
-/*
+
 #if ENABLE_LUA
 
 
@@ -42,7 +42,6 @@ GTEST(MK(CASE, _V8_Api))
 }
 
 #endif
-*/
 
 
 
