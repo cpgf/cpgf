@@ -75,6 +75,10 @@ GTEST(TestVariant_Cast)
 	CLASS obj;
 	int n = 0;
 
+	CAN_FROM(void *, n);
+	CAN_FROM(CLASS *, 0);
+	NOT_FROM(CLASS *, 1);
+
 	CAN_FROM_CAST(CLASS &, CLASS &, obj);
 	NOT_FROM_CAST(int &, int &, n);
 

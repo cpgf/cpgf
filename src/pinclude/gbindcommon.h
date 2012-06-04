@@ -93,9 +93,9 @@ public:
 		IByteArray * byteArray;
 	};
 	bool isInstance;
+	bool allowGC;
 	ObjectPointerCV cv;
 	ClassUserDataType dataType;
-	bool allowGC;
 };
 
 class GScriptUserData

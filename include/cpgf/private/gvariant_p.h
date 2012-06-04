@@ -253,6 +253,19 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 };
 
 template <typename From, typename To>
+struct CastVariantHelper <From, To *, typename GEnableIfResult<IsInteger<From> >::Result>
+{
+	G_STATIC_CONSTANT(bool, CanCast = true);
+
+	static To * cast(const From & v) {
+		if(v == 0) {
+			return 0;
+		}
+		return VariantCaster<From, To *>::cast(v);
+	}
+};
+
+template <typename From, typename To>
 struct EnforceCastToPointer
 {
 	G_STATIC_CONSTANT(bool, CanCast = false);
@@ -578,46 +591,72 @@ struct CanCastFromVariant
 	typedef typename CastResult<T, Policy>::Result ResultType;
 	typedef typename RemoveReference<T>::Result RefValueType;
 
-	static bool canCast(int vt) {
+	static bool canCast(int vt, const GVariant & v) {
 		switch(static_cast<int>(vt)) {
 			case vtBool:
-				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<bool, ResultType>::CanCast;
+				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<bool, ResultType>::CanCast)
+					|| (IsPointer<ResultType>::Result && v.data.valueBool == 0)
+				;
 
 			case vtChar:
-				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<char, ResultType>::CanCast;
+				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<char, ResultType>::CanCast)
+					|| (IsPointer<ResultType>::Result && v.data.valueChar == 0)
+				;
 
 			case vtWchar:
-				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<wchar_t, ResultType>::CanCast;
+				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<wchar_t, ResultType>::CanCast)
+					|| (IsPointer<ResultType>::Result && v.data.valueWchar == 0)
+				;
 
 			case vtSignedChar:
-				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed char, ResultType>::CanCast;
+				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed char, ResultType>::CanCast)
+					|| (IsPointer<ResultType>::Result && v.data.valueSignedChar == 0)
+				;
 
 			case vtUnsignedChar:
-				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned char, ResultType>::CanCast;
+				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned char, ResultType>::CanCast)
+					|| (IsPointer<ResultType>::Result && v.data.valueUnsignedChar == 0)
+				;
 
 			case vtSignedShort:
-				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed short, ResultType>::CanCast;
+				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed short, ResultType>::CanCast)
+					|| (IsPointer<ResultType>::Result && v.data.valueSignedShort == 0)
+				;
 
 			case vtUnsignedShort:
-				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned short, ResultType>::CanCast;
+				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned short, ResultType>::CanCast)
+					|| (IsPointer<ResultType>::Result && v.data.valueUnsignedShort == 0)
+				;
 
 			case vtSignedInt:
-				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed int, ResultType>::CanCast;
+				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed int, ResultType>::CanCast)
+					|| (IsPointer<ResultType>::Result && v.data.valueSignedInt == 0)
+				;
 
 			case vtUnsignedInt:
-				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned int, ResultType>::CanCast;
+				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned int, ResultType>::CanCast)
+					|| (IsPointer<ResultType>::Result && v.data.valueUnsignedInt == 0)
+				;
 
 			case vtSignedLong:
-				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed long, ResultType>::CanCast;
+				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed long, ResultType>::CanCast)
+					|| (IsPointer<ResultType>::Result && v.data.valueSignedLong == 0)
+				;
 
 			case vtUnsignedLong:
-				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned long, ResultType>::CanCast;
+				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned long, ResultType>::CanCast)
+					|| (IsPointer<ResultType>::Result && v.data.valueUnsignedLong == 0)
+				;
 
 			case vtSignedLongLong:
-				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed long long, ResultType>::CanCast;
+				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed long long, ResultType>::CanCast)
+					|| (IsPointer<ResultType>::Result && v.data.valueSignedLongLong == 0)
+				;
 
 			case vtUnsignedLongLong:
-				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned long long, ResultType>::CanCast;
+				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned long long, ResultType>::CanCast)
+					|| (IsPointer<ResultType>::Result && v.data.valueUnsignedLongLong == 0)
+				;
 
 			case vtFloat:
 				return variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<float, ResultType>::CanCast;

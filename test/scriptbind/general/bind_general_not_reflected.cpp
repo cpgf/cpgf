@@ -19,7 +19,7 @@ void doTestNotReflected(T * binding, TestScriptContext * context)
 	QASSERT(obj2.isRawRef(b))
 	QDO(obj2.setRaw(b, 19, "how"))
 
-	QERR(obj2.isRawPointer(0))
+	QERR(obj2.isRawPointer(18))
 	QERR(obj2.isRawPointer("cd"))
 	
 	QERR(obj2.isRawRef(0))

@@ -8,8 +8,10 @@ extern int pythonObjectCount;
 int main()
 {
 	int result = UnitTest::RunAllTests();
-	std::cout << "totalPythonObjectCount " << totalPythonObjectCount << std::endl;
-	std::cout << "pythonObjectCount " << pythonObjectCount << std::endl;
+
+//	std::cout << "totalPythonObjectCount " << totalPythonObjectCount << std::endl;
+//	std::cout << "pythonObjectCount " << pythonObjectCount << std::endl;
+
 	return result;
 }
 
