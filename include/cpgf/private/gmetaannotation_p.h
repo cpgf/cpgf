@@ -8,19 +8,6 @@ namespace cpgf {
 
 namespace meta_internal {
 
-const GVariantType vtAnnoString = vtUserBegin + 0;
-const GVariantType vtAnnoWideString = vtUserBegin + 1;
-
-inline std::string * duplicateAnnoString(const volatile char * s)
-{
-	return new std::string(const_cast<const char *>(s));
-}
-
-inline std::wstring * duplicateAnnoWideString(const volatile wchar_t * s)
-{
-	return new std::wstring(const_cast<const wchar_t *>(s));
-}
-
 template <typename T>
 struct IsCharArray
 {
@@ -79,8 +66,7 @@ struct InitAnnoVariant <T, typename GEnableIfResult<
 	>::Result>
 {
 	static void init(GVariant & var, const T & value) {
-		vtSetType(var.data.typeData, vtAnnoString);
-		var.data.valueObject = duplicateAnnoString(value);
+		var = createStringVariant(value);
 	}
 };
 
@@ -94,8 +80,7 @@ struct InitAnnoVariant <T, typename GEnableIfResult<
 	>::Result>
 {
 	static void init(GVariant & var, const T & value) {
-		vtSetType(var.data.typeData, vtAnnoString);
-		var.data.valueObject = duplicateAnnoString(value.c_str());
+		var = createStringVariant(value.c_str());
 	}
 };
 
@@ -111,8 +96,7 @@ struct InitAnnoVariant <T, typename GEnableIfResult<
 	>::Result>
 {
 	static void init(GVariant & var, const T & value) {
-		vtSetType(var.data.typeData, vtAnnoWideString);
-		var.data.valueObject = duplicateAnnoWideString(value);
+		var = createWideStringVariant(value);
 	}
 };
 
@@ -126,8 +110,7 @@ struct InitAnnoVariant <T, typename GEnableIfResult<
 	>::Result>
 {
 	static void init(GVariant & var, const T & value) {
-		vtSetType(var.data.typeData, vtAnnoWideString);
-		var.data.valueObject = duplicateAnnoWideString(value.c_str());
+		var = createWideStringVariant(value.c_str());
 	}
 };
 

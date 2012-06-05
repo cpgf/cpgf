@@ -38,17 +38,8 @@ public:
 
 
 GAnnotationValue::GAnnotationValue(const GAnnotationValue & other)
+	: var(other.var)
 {
-	this->var = other.var;
-
-	if(vtGetType(this->var.data.typeData) == meta_internal::vtAnnoString) {
-		this->var.data.valueObject = meta_internal::duplicateAnnoString(const_cast<const std::string *>(static_cast<const volatile std::string *>(other.var.data.valueObject))->c_str());
-	}
-	else {
-		if(vtGetType(this->var.data.typeData) == meta_internal::vtAnnoWideString) {
-			this->var.data.valueObject = meta_internal::duplicateAnnoWideString(const_cast<const std::wstring *>(static_cast<const volatile std::wstring *>(other.var.data.valueObject))->c_str());
-		}
-	}
 }
 
 GAnnotationValue & GAnnotationValue::operator = (GAnnotationValue other)
@@ -60,14 +51,6 @@ GAnnotationValue & GAnnotationValue::operator = (GAnnotationValue other)
 
 GAnnotationValue::~GAnnotationValue()
 {
-	if(vtGetType(this->var.data.typeData) == meta_internal::vtAnnoString) {
-		delete static_cast<const volatile std::string *>(this->var.data.valueObject);
-	}
-	else {
-		if(vtGetType(this->var.data.typeData) == meta_internal::vtAnnoWideString) {
-			delete static_cast<const volatile std::wstring *>(this->var.data.valueObject);
-		}
-	}
 }
 
 void GAnnotationValue::swap(GAnnotationValue & other)
@@ -84,12 +67,12 @@ const GVariant * GAnnotationValue::getVariant() const
 
 bool GAnnotationValue::canToString() const
 {
-	return this->var.getType() == meta_internal::vtAnnoString;
+	return variantIsString(this->var);
 }
 
 bool GAnnotationValue::canToWideString() const
 {
-	return this->var.getType() == meta_internal::vtAnnoWideString;
+	return variantIsWideString(this->var);
 }
 
 bool GAnnotationValue::canToInt() const
@@ -99,12 +82,12 @@ bool GAnnotationValue::canToInt() const
 
 const char * GAnnotationValue::toString() const
 {
-	return const_cast<const std::string *>(static_cast<const volatile std::string *>(this->var.data.valueObject))->c_str();
+	return fromVariant<char *>(this->var);
 }
 
 const wchar_t * GAnnotationValue::toWideString() const
 {
-	return const_cast<const std::wstring *>(static_cast<const volatile std::wstring *>(this->var.data.valueObject))->c_str();
+	return fromVariant<wchar_t *>(this->var);
 }
 
 int GAnnotationValue::toInt() const
