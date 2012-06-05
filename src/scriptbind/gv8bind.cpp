@@ -30,7 +30,7 @@ using namespace v8;
 	} \
 	catch(const GException & e) { strncpy(local_msg, e.getMessage(), 256); local_error = true; } \
 	catch(...) { strcpy(local_msg, "Unknown exception occurred."); local_error = true; } \
-	} if(local_error) { local_msg[255] = 0; ThrowException(String::New(local_msg)); } \
+	} if(local_error) { local_msg[255] = 0; error(local_msg); } \
 	__VA_ARGS__;
 
 
@@ -385,6 +385,11 @@ template <typename T>
 void setObjectSignature(T * object)
 {
 	(*object)->SetHiddenValue(String::New(signatureKey), Int32::New(signatureValue));
+}
+
+void error(const char * message)
+{
+	ThrowException(String::New(message));
 }
 
 bool isValidObject(Handle<Value> object)

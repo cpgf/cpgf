@@ -337,11 +337,8 @@ public class CppClass extends ParameteredItem {
 	}
 	
 	private void doResolveType(Map<String, String> typeMap, CppType type) {
-		if(type != null) {
+		if(type != null && typeMap != null) {
 			type.replaceToken(typeMap);
-//			if(typeMap.containsKey(type.getLiteralType())) {
-//				type.setLiteralType(typeMap.get(type.getLiteralType()));
-//			}
 		}
 	}
 	

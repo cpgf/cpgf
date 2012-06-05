@@ -32,9 +32,12 @@ var config = {
 	],
 
 	predefinedTemplateInstances : [
-		"Rect<int>", "Rect<float>",
-		"Vector2<int>", "Vector2<float>",
-		"Vector3<int>", "Vector3<float>",
+		"Rect<int>", "",
+		"Rect<float>", "",
+		"Vector2<int>", "",
+		"Vector2<float>", "",
+		"Vector3<int>", "",
+		"Vector3<float>", ""
 	]
 };
 

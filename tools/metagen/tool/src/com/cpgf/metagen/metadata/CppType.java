@@ -66,7 +66,14 @@ public class CppType {
 
 	public void replaceToken(Map<String, String> map)
 	{
-		this.parsedType.replaceToken(map);
+		if(this.parsedType != null) {
+			this.parsedType.replaceToken(map);
+		}
+		else {
+			if(map.containsKey(this.getLiteralType())) {
+			this.setLiteralType(map.get(this.getLiteralType()));
+		}
+		}
 	}
 
 }

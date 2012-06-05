@@ -108,7 +108,7 @@ public class WriterUtil {
 					typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
 					typeName = typeName + " >";
 
-					codeWriter.write(typeName +  " _nd = " + typeName + policy + "::declare(\"" + normalizeClassName(templateInstance.getFullType()) + "\");\n");
+					codeWriter.write(typeName +  " _nd = " + typeName + policy + "::declare(\"" + normalizeClassName(templateInstance.getMapName()) + "\");\n");
 					
 					codeWriter.write(callFunc + "<" + typeName + ", " + templateInstance.getTemplateType() + " >(0, _nd, NULL);\n");
 					codeWriter.write("_d._class(_nd);\n");

@@ -59,7 +59,9 @@ public class MetaInfo {
     		if(! c.isGlobal()) {
     			c.resolveTypesForClass();
     		}
-    		c.resolveParameterTypes(configTypeMap, null);
+    		if(configTypeMap != null) {
+    			c.resolveParameterTypes(configTypeMap, null);
+    		}
     	}
     	
     	this.doFixupTemplateInstances();
@@ -68,12 +70,13 @@ public class MetaInfo {
     }
     
     private void doFixupTemplateInstances() {
-    	for(String fullType : this.config.predefinedTemplateInstances) {
-    		this.doFixupTemplateInstance(fullType);
+    	String[] names = this.config.predefinedTemplateInstances;
+    	for(int i = 0; i < names.length; i += 2) {
+    		this.doFixupTemplateInstance(names[i], names[i + 1]);
     	}
     }
     
-    private void doFixupTemplateInstance(String fullType) {
+    private void doFixupTemplateInstance(String fullType, String mapName) {
     	int index = fullType.indexOf('<');
     	if(index <= 0) { // can't be first character too.
     		return;
@@ -82,7 +85,7 @@ public class MetaInfo {
     	String name = fullType.substring(0, index).trim();
     	CppClass cppClass = this.typeSolver.getCppClass(name);
     	if(cppClass != null) {
-    		this.templateInstanceList.add(new TemplateInstance(fullType, cppClass));
+    		this.templateInstanceList.add(new TemplateInstance(fullType, cppClass, mapName));
     	}
     }
     
