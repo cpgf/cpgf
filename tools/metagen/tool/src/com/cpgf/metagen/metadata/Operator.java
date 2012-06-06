@@ -2,6 +2,8 @@ package com.cpgf.metagen.metadata;
 
 
 public class Operator extends CppInvokable {
+	private String self;
+	
 	public Operator(String operator, CppType resultType) {
 		super(EnumCategory.Operator, operator, resultType);
 	}
@@ -21,6 +23,14 @@ public class Operator extends CppInvokable {
 	@Override
 	protected int getParameterPolicyRuleStartIndex() {
 		return this.hasSelf() ? 1 : 0;
+	}
+
+	public String getSelf() {
+		return self;
+	}
+
+	public void setSelf(String self) {
+		this.self = self;
 	}
 
 }

@@ -323,11 +323,16 @@ public class MetaClassWriter {
 				realParamCount = 2;
 			}
 
-			boolean isTypeConvert = op.matches(".*\\w+.*"); // && realParamCount == 1; // type convert T()
+			boolean isTypeConvert = op.matches(".*\\w+.*");
 			String opText = "";
 			
+			String self = item.getSelf();
+			if(self == null) {
+				self = "cpgf::GMetaSelf";
+			}
+			
 			if(isTypeConvert) {
-				this.codeWriter.write(action + "<" + op + " (GMetaSelf)>(");
+				this.codeWriter.write(action + "<" + op + " (" + self + ")>(");
 				opText = "H()";
 			}
 			else {
@@ -338,10 +343,10 @@ public class MetaClassWriter {
 
 				if(hasSelf) {
 					if(item.isConst()) {
-						this.codeWriter.write("const cpgf::GMetaSelf &");
+						this.codeWriter.write("const " + self + " &");
 					}
 					else {
-						this.codeWriter.write("cpgf::GMetaSelf");
+						this.codeWriter.write(self);
 					}
 				}
 
