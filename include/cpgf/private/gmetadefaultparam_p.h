@@ -16,6 +16,8 @@ private:
 	typedef std::vector<GVariant> DefaultValueList;
 
 public:
+	~GMetaDefaultParamList();
+
 	void addDefault(const GVariant & v);
 	const GVariant & getDefault(size_t index);
 	size_t getDefaultCount() const;

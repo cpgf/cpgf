@@ -592,6 +592,8 @@ struct CanCastFromVariant
 	typedef typename RemoveReference<T>::Result RefValueType;
 
 	static bool canCast(int vt, const GVariant & v) {
+		(void)v;
+
 		switch(static_cast<int>(vt)) {
 			case vtBool:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<bool, ResultType>::CanCast)

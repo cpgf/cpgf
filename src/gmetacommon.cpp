@@ -17,6 +17,10 @@ namespace cpgf {
 
 namespace meta_internal {
 
+GMetaDefaultParamList::~GMetaDefaultParamList()
+{
+}
+
 void GMetaDefaultParamList::addDefault(const GVariant & v)
 {
 	this->defaultValueList.push_back(v);
