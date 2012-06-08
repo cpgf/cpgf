@@ -356,9 +356,29 @@ public class CppClass extends ParameteredItem {
 		}
 	}
 	
+	private String normalizeOutterName(String outterName)
+	{
+		if(this.isTemplate()) {
+			outterName = outterName + "<";
+			boolean first = true;
+			for(Parameter param : this.getTemplateParameterList()) {
+				if(!first) {
+					outterName = outterName + ", ";
+				}
+				first = false;
+				outterName = outterName + param.getName();
+			}
+			outterName = outterName + " >";
+		}
+
+		return outterName;
+	}
+	
 	private void doBuildInnerTypeMap(Map<String, String> typeMap) {
 		String outterName = Util.getItemBaseName(this.getPrimaryName());
 		outterName = Util.selectString(typeMap.get(outterName), outterName);
+		
+		outterName = this.normalizeOutterName(outterName);
 		
 		for(DeferClass deferClass : this.getClassList()) {
 			deferClass.getCppClass().doBuildInnerTypeMap(typeMap);
@@ -383,6 +403,8 @@ public class CppClass extends ParameteredItem {
 	private void doBuildInnerValueMap(Map<String, String> typeMap, Map<String, String> valueMap) {
 		String outterName = Util.getItemBaseName(this.getPrimaryName());
 		outterName = Util.selectString(typeMap.get(outterName), outterName);
+		
+		outterName = this.normalizeOutterName(outterName);
 		
 		for(DeferClass deferClass : this.getClassList()) {
 			deferClass.getCppClass().doBuildInnerValueMap(typeMap, valueMap);
