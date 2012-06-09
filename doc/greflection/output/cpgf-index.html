@@ -27,7 +27,7 @@ cpgf is composed by several independent components:<br />
 </li>	
 <li>	cpgf serialization -- a library to save C++ data and objects to persistent storage and then load back.
 </li>	
-<li>	cpgf script binding -- a script binding engine to bind Lua and Google V8 Javascript to C++. It's based on the reflection library.
+<li>	cpgf script binding -- a script binding engine to connect Lua, Google V8 Javascript and Python to C++. It's based on the reflection library.
 </li>	
 <li>	cpgf callback -- a callback library to implement signal/slot or callback in C++. It's the primary library for other libraries.
 </li>	
@@ -41,7 +41,7 @@ cpgf provides a very easy to use serialization system. Want the serialization sy
 cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding engine uses the reflection system extensively.<br />
 Want to use OpenGL in Lua and Javascrit? It can't be easier using cpgf.<br />
 <br />
-<b>Vesion 1.4.2 is released on May.26, 2012. </b><br />
+<b>Vesion 1.4.3 is released on Jun.9, 2012. </b><br />
 <br />
 
 <h3>Key features</h3>
@@ -80,12 +80,12 @@ Want to use OpenGL in Lua and Javascrit? It can't be easier using cpgf.<br />
 </li><li>	For more information, please read cpgf serialization related documentation.
 </li></ul>
 <h3>Quick facts of script binding library</h3>
-<ul><li>	Support Lua 5.2 and 5.1, and Google V8 Javascript.
+<ul><li>	Support Lua 5.2 and 5.1, Google V8 Javascript, and Python 2.7.3.
 </li><li>	Very easy and simple to use. Any reflected meta data can be bound to scripts.
-</li><li>	Bind C++ classes, enumerators, functions, variables and operators to Lua and Google V8 Javascript.
-</li><li>	Invoke Lua and V8 Javascript functions from C++.
+</li><li>	Bind C++ classes, enumerators, functions, variables and operators to Lua, Google V8 Javascript and Python.
+</li><li>	Invoke Lua, V8 Javascript and Python functions from C++.
 </li><li>	Pass function written in script to C++ and used by C++.
-</li><li>	Get and set Lua and V8 Javascript variables from C++.
+</li><li>	Get and set Lua, V8 Javascript and Python variables from C++.
 </li><li>	Transfer arbitrary binary data between C++ and script.
 </li><li>	Pass arbitrary script function and object to C++.
 </li><li>	For more information, please read cpgf script binding related documentation.
@@ -127,6 +127,7 @@ Website: <a href="http://www.kbasm.com/">http://www.kbasm.com/</a><br />
 	Doesn't require Boost library.<br />
 	For Lua binding, Lua library is required.<br />
 	For Google V8 Javascript binding, V8 library is required.<br />
+	For Python binding, Python library is required.<br />
 	If you want to run the unit test, UnitTest++ is required. But usually you don't need to do that.<br />
 	<br />
 	

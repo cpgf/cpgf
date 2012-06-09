@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="maintpl.css" />
-<title>cpgf script binding engine -- bind Lua and Google V8 Javascript to C++</title>
+<title>cpgf script binding engine -- bind Lua, Google V8 Javascript and Python to C++</title>
 </head>
 <body><div style="width:900px">
 
@@ -13,7 +13,7 @@
 
 
 
-<h1>script binding engine -- bind Lua and Google V8 Javascript to C++</h1>
+<h1>script binding engine -- bind Lua, Google V8 Javascript and Python to C++</h1>
 
 
 
@@ -23,7 +23,7 @@
 <p>
 <b>
 <a href="docs-cpgf-script-binding.html#linkid1">
-<strong>Binding Lua  and Google V8 Javascript engine to C++</strong></a></b></p>
+<strong>Binding Lua, Google V8 Javascript and Python engine to C++</strong></a></b></p>
 <div style="margin-left:0px">
 <ul>
 <li>
@@ -52,7 +52,7 @@
 
 
 <p><a name="linkid1"></a></p>
-<h3>Binding Lua  and Google V8 Javascript engine to C++</h3><p><a name="linkid2"></a></p>
+<h3>Binding Lua, Google V8 Javascript and Python engine to C++</h3><p><a name="linkid2"></a></p>
 <p>
 <strong>Overview</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-script-binding.html#top">back top</a></span></p>
 The binding engine uses reflection meta data as the source.<br />
@@ -61,13 +61,13 @@ The binding engine uses reflection meta data as the source.<br />
 <p><a name="linkid3"></a></p>
 <p>
 <strong>What can the binding engine do</strong><span style="margin-left:100px;font-size:small"><a href="docs-cpgf-script-binding.html#top">back top</a></span></p>
-<ul><li>Bind C++ class to Lua and Google V8 Javascript. Then Lua and Javascript can create instance, invoke class member function, get/set class field or property, and more.
-</li><li>Bind C++ enum type to Lua and V8 Javascript. Then Lua and Javascript can access the enum value by name.
+<ul><li>Bind C++ class to Lua, Google V8 Javascript and Python. Then Lua, Google V8 Javascript and Python can create instance, invoke class member function, get/set class field or property, and more.
+</li><li>Bind C++ enum type to Lua, Google V8 Javascript and Python. Then Lua, Google V8 Javascript and Python can access the enum value by name.
 </li><li>Bind C++ functions (global or member) to Lua and V8.
-</li><li>Bind C++ values to Lua and V8 variable.
+</li><li>Bind C++ values to Lua, V8 and Python variable.
 </li><li>Bind C++ operators to Lua (Lua only). The overloaded operators in C++ are bound to Lua together with the class.
-</li><li>Invoke Lua and V8 Javascript functions from C++.
-</li><li>Get and set Lua and V8 Javascript value from C++.
+</li><li>Invoke Lua, Google V8 Javascript and Python functions from C++.
+</li><li>Get and set Lua, Google V8 Javascript and Python value from C++.
 </li><li>Transfer binary data between C++ and script.
 </li><li>Pass script function and object to C++.
 </li></ul>
@@ -79,23 +79,33 @@ To binding Lua, include the header,<br />
 cpgf/scriptbind/gluabind.h<br />
 For V8, include the head,<br />
 cpgf/scriptbind/gv8bind.h<br />
+For Python, include the head,<br />
+cpgf/scriptbind/gpythonbind.h<br />
 <br />
 First, we need a GScriptObject or IScriptObject (the interface version) object.<br />
 <br />
 Lua version:<br />
-GScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig &amp; config);<br />
-IScriptObject * createLuaScriptInterface(IMetaService * service, lua_State * L, const GScriptConfig &amp; config);<br />
-<br />
+<div class="codepiece""> GScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig &amp; config); <br />
+</div><div class="codepiece""> IScriptObject * createLuaScriptInterface(IMetaService * service, lua_State * L, const GScriptConfig &amp; config); <br />
+</div><br />
 The first parameter is a IMetaService. You can call createDefaultMetaService() or createMetaService() to create the service.<br />
 The second parameter is the Lua state.<br />
 The third one is a config. Just call GScriptConfig() to construct default one.<br />
 <br />
 V8 version:<br />
-GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local&lt;v8::Object&gt; object, const GScriptConfig &amp; config);<br />
-IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local&lt;v8::Object&gt; object, const GScriptConfig &amp; config);<br />
-<br />
+<div class="codepiece""> GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local&lt;v8::Object&gt; object, const GScriptConfig &amp; config); <br />
+</div><div class="codepiece""> IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local&lt;v8::Object&gt; object, const GScriptConfig &amp; config); <br />
+</div><br />
 The first parameter is a IMetaService. You can call createDefaultMetaService() or createMetaService() to create the service.<br />
 The second parameter is the V8 global object.<br />
+The third one is a config. Just call GScriptConfig() to construct default one.<br />
+<br />
+Python version:<br />
+<div class="codepiece""> GScriptObject * createPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig &amp; config); <br />
+</div><div class="codepiece""> IScriptObject * createPythonScriptInterface(IMetaService * service, PyObject * object, const GScriptConfig &amp; config); <br />
+</div><br />
+The first parameter is a IMetaService. You can call createDefaultMetaService() or createMetaService() to create the service.<br />
+The second parameter is the Python object. You can use the object __main__ as the root object.<br />
 The third one is a config. Just call GScriptConfig() to construct default one.<br />
 <br />
 <br />

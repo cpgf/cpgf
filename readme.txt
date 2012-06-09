@@ -6,7 +6,7 @@ It's written in (almostly) standard C++ and doesn't require any preprocess or to
 
 
 Version:
-	1.4.2
+	1.4.3
 
 		
 Libraries:
@@ -16,12 +16,12 @@ Libraries:
 		and then load back.
 		It's based on the reflection library.
 
-	cpgf script binding -- a script binding engine to bind Lua (5.2 and 5.1) and Google V8 to C++.
+	cpgf script binding -- a script binding engine to bind Lua (5.2 and 5.1),
+		Google V8 Javascript, and Python (2.7.3) to C++.
 		It's based on the reflection library.
 	
 	cpgf callback -- a callback library to implement signal/slot or callback in C++.
 		It's the primary library for other libraries.
-
 	
 	cpgf meta data collection -- a library with built-in meta data support.
 		Now there are meta data for C++ STL, OpenGL, OpenGLU, OpenGLUT,
@@ -87,12 +87,15 @@ Build the library:
 	
 	If you are using MSVC, run "nmake" instead of "make".
 
-	To build with Lua binding, you must change the variable LUA_DIR
+	To build with Lua binding, you must change the variable HAS_LUA and LUA_DIR
 	in build.config.txt to point to the source code of Lua.
 	
-	To build with Google V8 Javascript binding, you must change the variable V8_DIR
+	To build with Google V8 Javascript binding, you must change the variable HAS_V8 and V8_DIR
 	in build.config.txt to point to the source code of V8.
 
+	To build with Lua binding, you must change the variable HAS_PYTHON and PYTHON_DIR
+	in build.config.txt to point to the source code of Python.
+	
 	To build the unit test and sample code, feed a second parameter
 	
 	make PLATFORM TARGET=TheTarget
@@ -117,6 +120,7 @@ Required third party library -- None for the major libraries.
 	Doesn't require C++0X and TR1 features.
 	For Lua binding, Lua library is required.
 	For Google V8 binding, V8 library is required.
+	For Python binding, Python library is required.
 	If you want to run the unit test, UnitTest++ is required.
 		But usually you don't need to do that.
 	

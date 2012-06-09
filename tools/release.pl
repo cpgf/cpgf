@@ -37,7 +37,7 @@ my $patternList = [
 
 		path => "build",
 		files => [ '*' ],
-		excludeFiles => [ '*.bat' ],
+		excludeFiles => [ '*.bat', 'qtest.sh' ],
 		recursive => 0,
 	},
 
@@ -63,7 +63,7 @@ my $patternList = [
 		%defaultConfig,
 
 		path => "samples",
-		files => [ '*.h', '*.cpp', 'readme*', '*.js', '*.lua' ],
+		files => [ '*.h', '*.cpp', 'readme*', '*.js', '*.lua', '*.py' ],
 		recursive => 1,
 	},
 

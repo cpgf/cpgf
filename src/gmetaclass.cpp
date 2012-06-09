@@ -602,7 +602,7 @@ void GMetaClass::extractTo(GMetaClass * master)
 			this->implement->itemLists[c]->extractTo(master->implement->itemLists[c]);
 		}
 	}
-	for(int i = 0; i < this->implement->metaList.getCount(); ++i) {
+	for(size_t i = 0; i < this->implement->metaList.getCount(); ++i) {
 		GMetaItem * item = this->implement->metaList.getItemAt(i);
 		if(item != NULL) {
 			item->ownerItem = master;

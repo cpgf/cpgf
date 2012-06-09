@@ -52,7 +52,7 @@
 <{sc}>
 
 <{autoul}>
-	<a href="docs-cpgf-script-binding.html">Script binding engine -- bind Lua and Google V8 Javascript to C++ </a>
+	<a href="docs-cpgf-script-binding.html">Script binding engine -- bind Lua, Google V8 Javascript, and Python to C++ </a>
 <{/autoul}>
 
 

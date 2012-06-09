@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="maintpl.css" />
-<title>cpgf script binding -- an open source library to bind Lua and Google V8 Javascript to C++</title>
+<title>cpgf script binding -- an open source library to bind Lua, Google V8 Javascript and Python to C++</title>
 </head>
 <body><div style="width:900px">
 
@@ -19,15 +19,16 @@
 
 
 
-<h1>cpgf script binding -- an open source library to bind Lua and Google V8 Javascript to C++ </h1>
+<h1>cpgf script binding -- an open source library to connect Lua, Google V8 Javascript and Python to C++ </h1>
 
-cpgf script binding library is very easy script binding engine to bind Lua and Google V8 Javascript to C++.<br />
+cpgf script binding library is a very easy to use script binding engine to bind Lua, Google V8 Javascript and Python to C++.<br />
 The library uses reflection meta data extensively.<br />
 <br />
 cpgf script binding is licensed under Apache License, Version 2.0<br />
 <br />
 The supported Lua library is version 5.2 and 5.1<br />
 The supported Google V8 Javascript library is Version 3.4.5<br />
+The supported Python is version 2.7.3.<br />
 <br />
 
 <h3>Key features</h3>
@@ -35,29 +36,35 @@ The supported Google V8 Javascript library is Version 3.4.5<br />
 <ul>
 <li>Bind C++ class to Lua and Google V8 Javascript. Then Lua and Javascript can create instance, invoke class member function, get/set class field or property, and more.
 </li><li>Bind C++ enum type to Lua and V8 Javascript. Then Lua and Javascript can access the enum value by name.
-</li><li>Bind C++ functions (global or member) to Lua and V8.
-</li><li>Bind C++ values to Lua and V8 variable.
+</li><li>Bind C++ functions (global or member) to Lua, V8, and Python.
+</li><li>Bind C++ values to Lua, V8 and Python variable.
 </li><li>Bind C++ operators to Lua (Lua only). The overloaded operators in C++ are bound to Lua together with the class.
-</li><li>Invoke Lua and V8 Javascript functions from C++.
-</li><li>Get and set Lua and V8 Javascript value from C++.
+</li><li>Invoke Lua, V8 Javascript and Python functions from C++.
+</li><li>Get and set Lua, V8 Javascript and Python value from C++.
 </li>
 </ul>
 <h3>Different script language, same API interface!</h3>
 
 <br />
-Though there is very big difference in internal implementation and public API between Lua and Google V8 Javascript, cpgf makes the binding exactly the same.<br />
+Though there is very big difference in internal implementation and public API among Luam Google V8 Javascript and Python, cpgf makes the binding exactly the same.<br />
 We use same data, the reflection meta data, to drive the binding.<br />
 We use same API, only the interface of classes GScriptObject and IScriptObject, to make the binding.<br />
 <br />
 What does that mean?<br />
-It means <b>write your C++ code once, binding to any script languages -- now supported Lua and V8 Javascript, on any platforms -- Windows, Linux, Mac (iOS, iPhone, iPad), VC, gcc, XCode.</b><br />
+It means <b>write your C++ code once, binding to any script languages -- now supported Lua, V8 Javascript and Python, on any platforms -- Windows, Linux, Mac (iOS, iPhone, iPad), VC, gcc, XCode.</b><br />
 <br />
-Are you a game developer? Try this library. Use Lua and Javascript to make your game AI and logic fast and easily.<br />
-Are you a desktop application developer? Try this library. Use Lua and Javascript to extend your application fast and easily.<br />
+Are you a game developer? Try this library. Use Lua, Javascript and Python to make your game AI and logic fast and easily.<br />
+Are you a desktop application developer? Try this library. Use Lua, Javascript and Python to extend your application fast and easily.<br />
 Are you a web developign team? Try this libray. Connect your great web experience to desktop fast and easily.<br />
 <br />
+<br />
 
+<b>Limitations and problems in the script binding ending </b>
 
+<ul><li>Script can't override C++ virtual functions. This may change in the future.
+</li><li>Python binding may (or may not) have memory leaks. Even an empty Py_Intialize and Py_Finalize pair will cause memory leak so it's very difficult to hunt memory leak in the binding.
+</li>
+</ul>
 
 
 

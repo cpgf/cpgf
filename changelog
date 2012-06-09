@@ -1,5 +1,6 @@
-TBD version 1.4.3
-	Added Python script binding for Python 2.7.3.
+2012-06-09 version 1.4.3
+	Added Python script binding for Python 2.7.3. (warning -- may memory leak)
+	Function fromVariant -- now integer 0 can be auto casted to NULL pointer.
 	Fixed a bug that the ownerItem in GMetaItem in a dangling define may point to bad pointer.
 
 2012-05-26 version 1.4.2

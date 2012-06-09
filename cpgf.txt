@@ -1,6 +1,5 @@
 Todo:
 
-1, GVariant should allow a variant of integer 0 to be casted to NULL pointer.
 2, Should support wide string in script binding.
 1, metagen, should auto wrap bitfield with accessor functions.
 
@@ -13,6 +12,8 @@ Todo:
 
 
 Done:
+
+1, GVariant should allow a variant of integer 0 to be casted to NULL pointer.
 
 
 #include "cpgf/gapi.h"

@@ -21,6 +21,12 @@
 
 <h1>cpgf library changes log</h1>
 
+
+<h3>2012-06-09 version 1.4.3 </h3>
+<ul><li>	Added Python script binding for Python 2.7.3. (warning -- may memory leak)
+</li><li>	Function fromVariant -- now integer 0 can be auto casted to NULL pointer.
+</li><li>	Fixed a bug that the ownerItem in GMetaItem in a dangling define may point to bad pointer.
+</li></ul>
 <h3>2012-05-26 version 1.4.2 </h3>
 <ul><li>	Added object pool to interface based reflection APIs to reduce memory fragment and improve performance.
 </li><li>	Added Lua 5.2 support in script binding. Now both Lua 5.1 and 5.2 are supported.

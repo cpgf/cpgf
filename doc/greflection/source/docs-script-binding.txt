@@ -47,19 +47,27 @@ cpgf/scriptbind/gpythonbind.h
 First, we need a GScriptObject or IScriptObject (the interface version) object.
 
 Lua version:
-GScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
-IScriptObject * createLuaScriptInterface(IMetaService * service, lua_State * L, const GScriptConfig & config);
+<{piece}> GScriptObject * createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config); <{/piece}>
+<{piece}> IScriptObject * createLuaScriptInterface(IMetaService * service, lua_State * L, const GScriptConfig & config); <{/piece}>
 
 The first parameter is a IMetaService. You can call createDefaultMetaService() or createMetaService() to create the service.
 The second parameter is the Lua state.
 The third one is a config. Just call GScriptConfig() to construct default one.
 
 V8 version:
-GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
+<{piece}> GScriptObject * createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config); <{/piece}>
+<{piece}> IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config); <{/piece}>
 
 The first parameter is a IMetaService. You can call createDefaultMetaService() or createMetaService() to create the service.
 The second parameter is the V8 global object.
+The third one is a config. Just call GScriptConfig() to construct default one.
+
+Python version:
+<{piece}> GScriptObject * createPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config); <{/piece}>
+<{piece}> IScriptObject * createPythonScriptInterface(IMetaService * service, PyObject * object, const GScriptConfig & config); <{/piece}>
+
+The first parameter is a IMetaService. You can call createDefaultMetaService() or createMetaService() to create the service.
+The second parameter is the Python object. You can use the object __main__ as the root object.
 The third one is a config. Just call GScriptConfig() to construct default one.
 
 
