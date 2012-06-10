@@ -81,6 +81,19 @@ bool testDefaultParam(int type, int i, std::string s, TestObject obj)
 	}
 }
 
+const wchar_t * testWideStringParam(const wchar_t * ws)
+{
+	static const wchar_t * isTrue = L"TRUE";
+	static const wchar_t * isFalse = L"FALSE";
+	
+	if(wstring(ws) == L"WideTest") {
+		return isTrue;
+	}
+	else {
+		return isFalse;
+	}
+}
+
 void TestScriptBindMetaData4()
 {
 	GDefineMetaClass<BasicA>
@@ -117,6 +130,8 @@ void TestScriptBindMetaData4()
 			._default(copyVariantFromCopyable(TestObject(8)))
 			._default(copyVariantFromCopyable(string("abc")))
 			._default(5)
+			
+		._method("testWideStringParam", &testWideStringParam)
 		
 		._enum<TestEnum>(REG_NAME_TestEnum)
 			._element("teCpp", teCpp)

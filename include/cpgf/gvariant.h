@@ -291,13 +291,18 @@ GVariant copyVariantFromCopyable(const T & value)
 GVariant pointerToObjectVariant(void * p);
 void * objectAddressFromVariant(const GVariant & v);
 void * referenceAddressFromVariant(const GVariant & v);
+
 void initializeVarData(GVariantData * data);
 void freeVarData(GVariantData * data);
+
 void initializeVarString(GVariantData * data, const char * s);
 GVariant createStringVariant(const char * s);
+bool variantDataIsString(const GVariantData & v);
 bool variantIsString(const GVariant & v);
+
 void initializeVarWideString(GVariantData * data, const wchar_t * s);
 GVariant createWideStringVariant(const wchar_t * s);
+bool variantDataIsWideString(const GVariantData & v);
 bool variantIsWideString(const GVariant & v);
 
 

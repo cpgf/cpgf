@@ -10,6 +10,17 @@ namespace cpgf {
 
 namespace bind_internal {
 
+// such as 2 or more dimensions pointer
+const int ParamMatchRank_Unknown = 0;
+const int ParamMatchRank_Convert = 50000;
+const int ParamMatchRank_Implicit_Begin = 70000;
+const int ParamMatchRank_Implicit_ByteArrayToPointer = ParamMatchRank_Implicit_Begin + 0;
+const int ParamMatchRank_Implicit_WideStringToString = ParamMatchRank_Implicit_Begin + 1;
+const int ParamMatchRank_Implicit_StringToWideString = ParamMatchRank_Implicit_Begin + 2;
+const int ParamMatchRank_Implicit_End = 80000;
+const int ParamMatchRank_Equal = 100000;
+
+
 GScriptBindingParam::GScriptBindingParam(IMetaService * service, const GScriptConfig & config)
 	: service(service), config(config), metaMap(createMetaMap())
 {
@@ -275,6 +286,69 @@ GMetaMapClass * GMetaMap::findClassMap(IMetaClass * metaClass)
 }
 
 
+InvokeParamRank::InvokeParamRank(size_t paramCount) : paramCount(paramCount)
+{
+	for(size_t i = 0; i < this->paramCount; ++i) {
+		this->ranks[i] = ParamMatchRank_Unknown;
+	}
+}
+
+InvokeParamRank::InvokeParamRank(const InvokeParamRank & other) : paramCount(other.paramCount)
+{
+	for(size_t i = 0; i < this->paramCount; ++i) {
+		this->ranks[i] = other.ranks[i];
+	}
+}
+
+InvokeParamRank & InvokeParamRank::operator = (const InvokeParamRank & other)
+{
+	this->paramCount = other.paramCount;
+
+	for(size_t i = 0; i < this->paramCount; ++i) {
+		this->ranks[i] = other.ranks[i];
+	}
+
+	return *this;
+}
+
+
+InvokeCallableParam::InvokeCallableParam(size_t paramCount)
+	: paramCount(paramCount), paramsRank(paramCount)
+{
+	if(this->paramCount > REF_MAX_ARITY) {
+		raiseCoreException(Error_ScriptBinding_CallMethodWithTooManyParameters);
+	}
+
+	for(size_t i = 0; i < this->paramCount; ++i) {
+		initializeVarData(&this->paramsData[i]);
+	}
+}
+
+InvokeCallableParam::~InvokeCallableParam()
+{
+	for(size_t i = 0; i < this->paramCount; ++i) {
+		freeVarData(&this->paramsData[i]);
+	}
+}
+
+
+InvokeCallableResult::InvokeCallableResult()
+{
+	initializeVarData(&this->resultData);
+}
+
+InvokeCallableResult::~InvokeCallableResult()
+{
+	freeVarData(&this->resultData);
+}
+
+
+bool variantIsScriptRawData(GVariantType vt)
+{
+	vt = vtGetBaseType(vt);
+	return vt == vtPointer || vt == vtObject || vt == vtShadow || vt == vtVoid;
+}
+
 bool metaMapItemIsAccessible(GMetaMapItemType type)
 {
 	return type == mmitField || type == mmitProperty;
@@ -326,7 +400,90 @@ ObjectPointerCV metaTypeToCV(const GMetaType & type)
 	return opcvNone;
 }
 
-int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam)
+
+bool isParamImplicitConvert(int paramRank)
+{
+	return paramRank >= ParamMatchRank_Implicit_Begin && paramRank < ParamMatchRank_Implicit_End;
+}
+
+int rankImplicitConvert(const GVariantData & sourceData, const GMetaType & targetType)
+{
+	GVariantType paramVariantType = vtGetType(sourceData.typeData);
+	if(paramVariantType == vtByteArray) {
+		if(targetType.getVariantType() == vtByteArray) {
+			return ParamMatchRank_Equal;
+		}
+		if(targetType.isPointer()) {
+			return ParamMatchRank_Implicit_ByteArrayToPointer;
+		}
+	}
+
+	if(variantDataIsString(sourceData) && targetType.isWideString()) {
+		return ParamMatchRank_Implicit_StringToWideString;
+	}
+
+	if(variantDataIsWideString(sourceData) && targetType.isString()) {
+		return ParamMatchRank_Implicit_WideStringToString;
+	}
+
+	return ParamMatchRank_Unknown;
+}
+
+int rankCallableParam(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam, size_t paramIndex)
+{
+	GMetaType proto = metaGetParamType(callable, paramIndex);
+	GScriptDataType sdt = callbackParam->paramsType[paramIndex].dataType;
+	
+	if(sdt == sdtNull) {
+		return ParamMatchRank_Equal;
+	}
+	
+	if(proto.isFundamental() && sdt == sdtFundamental) {
+		return ParamMatchRank_Equal;
+	}
+
+	if(sdt == sdtScriptMethod && vtIsInterface(proto.getVariantType())) {
+		return ParamMatchRank_Convert;
+	}
+
+	if(proto.getPointerDimension() > 1) {
+		return ParamMatchRank_Unknown;
+	}
+
+	int implicitRank = rankImplicitConvert(callbackParam->paramsData[paramIndex], proto);
+	if(implicitRank != ParamMatchRank_Unknown) {
+		return implicitRank;
+	}
+
+	// check for meta class
+
+	if(! callbackParam->paramsType[paramIndex].typeItem) {
+		return ParamMatchRank_Unknown;
+	}
+
+	if(metaIsClass(callbackParam->paramsType[paramIndex].typeItem->getCategory())) {
+		GScopedInterface<IMetaTypedItem> protoType(service->findTypedItemByName(proto.getBaseName()));
+		if(! protoType || ! metaIsClass(protoType->getCategory())) {
+			return ParamMatchRank_Unknown;
+		}
+
+		IMetaClass * paramClass = static_cast<IMetaClass *>(callbackParam->paramsType[paramIndex].typeItem.get());
+		IMetaClass * protoClass = static_cast<IMetaClass *>(protoType.get());
+
+		if(paramClass->equals(protoClass)) {
+			return ParamMatchRank_Equal;
+		}
+		else {
+			if(paramClass->isInheritedFrom(protoClass)) {
+				return ParamMatchRank_Convert;
+			}
+		}
+	}
+
+	return ParamMatchRank_Unknown;
+}
+
+int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam, InvokeParamRank * paramsRank)
 {
 	if(!! callable->isVariadic()) {
 		return 0;
@@ -340,65 +497,19 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallabl
 		return -1;
 	}
 
-	for(uint32_t i = 0; i < callbackParam->paramCount; ++i) {
-		bool ok = !! callable->checkParam(&callbackParam->paramsData[i], i);
-		metaCheckError(callable);
-		if(! ok) {
-			return -1;
-		}
-	}
-
 	int rank = 1;
 	
-	const int RankEqual = 10;
-	const int RankConvert = 5;
-
 	for(size_t i = 0; i < callbackParam->paramCount; ++i) {
-		GMetaType proto = metaGetParamType(callable, i);
-		GScriptDataType sdt = callbackParam->paramsType[i].dataType;
-		
-		if(sdt == sdtNull) {
-			rank += RankEqual;
-			continue;
-		}
-		
-		if(proto.isFundamental() && sdt == sdtFundamental) {
-			rank += RankEqual;
-			continue;
-		}
+		int paramRank = rankCallableParam(service, callable, callbackParam, i);
+		rank += paramRank;
+		paramsRank->ranks[i] = paramRank;
 
-		if(sdt == sdtScriptMethod && vtIsInterface(proto.getVariantType())) {
-			rank += RankConvert;
-			continue;
-		}
-
-		if(proto.getPointerDimension() > 1) {
-			continue;
-		}
-
-		if(! callbackParam->paramsType[i].typeItem) {
-			continue;
-		}
-
-		if(metaIsClass(callbackParam->paramsType[i].typeItem->getCategory())) {
-			GScopedInterface<IMetaTypedItem> protoType(service->findTypedItemByName(proto.getBaseName()));
-			if(! protoType || ! metaIsClass(protoType->getCategory())) {
-				continue;
+		if(! isParamImplicitConvert(paramRank)) {
+			bool ok = !! callable->checkParam(&callbackParam->paramsData[i], static_cast<uint32_t>(i));
+			metaCheckError(callable);
+			if(! ok) {
+				return -1;
 			}
-
-			IMetaClass * paramClass = static_cast<IMetaClass *>(callbackParam->paramsType[i].typeItem.get());
-			IMetaClass * protoClass = static_cast<IMetaClass *>(protoType.get());
-
-			if(paramClass->equals(protoClass)) {
-				rank += RankEqual;
-			}
-			else {
-				if(paramClass->isInheritedFrom(protoClass)) {
-					rank += RankConvert;
-				}
-			}
-			
-			continue;
 		}
 	}
 
@@ -474,7 +585,7 @@ void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, Invok
 			InvokeCallableResult result;
 		
 			GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(static_cast<uint32_t>(maxRankIndex)));
-			doInvokeCallable(NULL, constructor.get(), callableParam->paramsData, callableParam->paramCount, &result);
+			doInvokeCallable(NULL, constructor.get(), callableParam, &result);
 			instance = fromVariant<void *>(GVariant(result.resultData));
 		}
 	}
@@ -482,12 +593,48 @@ void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, Invok
 	return instance;
 }
 
-void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, size_t paramCount, InvokeCallableResult * result)
+void convertParam(GVariantData * v, int paramRank, GVariant * holder)
+{
+	switch(paramRank) {
+		case ParamMatchRank_Implicit_ByteArrayToPointer:
+			*holder = GVariant(*v);
+			*v = GVariant(fromVariant<IByteArray *>(*holder)->getMemory()).takeData();
+			break;
+
+		case ParamMatchRank_Implicit_StringToWideString: {
+			*holder = GVariant(*v);
+			initializeVarData(v);
+			const char * s = fromVariant<char *>(*holder);
+			GScopedArray<wchar_t> ws(stringToWideString(s));
+			*v = createWideStringVariant(ws.get()).takeData();
+		}
+			break;
+
+		case ParamMatchRank_Implicit_WideStringToString: {
+			*holder = GVariant(*v);
+			initializeVarData(v);
+			const wchar_t * ws = fromVariant<wchar_t *>(*holder);
+			GScopedArray<char> s(wideStringToString(ws));
+			*v = createStringVariant(s.get()).takeData();
+		}
+			break;
+	}
+}
+
+void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableParam * callableParam, InvokeCallableResult * result)
 {
 	result->resultCount = callable->hasResult() ? 1 : 0;
 	vtInit(result->resultData.typeData);
 
-	callable->execute(&result->resultData, instance, paramsData, static_cast<uint32_t>(paramCount));
+	GVariant holders[REF_MAX_ARITY];
+
+	for(size_t i = 0; i < callableParam->paramCount; ++i) {
+		if(isParamImplicitConvert(callableParam->paramsRank.ranks[i])) {
+			convertParam(&callableParam->paramsData[i], callableParam->paramsRank.ranks[i], &holders[i]);
+		}
+	}
+
+	callable->execute(&result->resultData, instance, callableParam->paramsData, static_cast<uint32_t>(callableParam->paramCount));
 	metaCheckError(callable);
 }
 
@@ -658,6 +805,26 @@ bool shouldRemoveReference(const GMetaType & type)
 	return type.isReference()
 		&& (type.isPointer() || vtIsFundamental(vtGetBaseType(type.getVariantType())))
 		;
+}
+
+wchar_t * stringToWideString(const char * s)
+{
+	size_t len = strlen(s);
+	GScopedArray<wchar_t> ws(new wchar_t[len + 1]);
+	std::fill(ws.get(), ws.get() + len + 1, 0);
+	mbstowcs(ws.get(), s, len);
+
+	return ws.take();
+}
+
+char * wideStringToString(const wchar_t * ws)
+{
+	size_t len = wcslen(ws);
+	GScopedArray<char> s(new char[len + 1]);
+	std::fill(s.get(), s.get() + len + 1, 0);
+	wcstombs(s.get(), ws, len);
+
+	return s.take();
 }
 
 

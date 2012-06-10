@@ -272,9 +272,14 @@ GVariant createStringVariant(const char * s)
 	return v;
 }
 
+bool variantDataIsString(const GVariantData & v)
+{
+	return vtGetType(v.typeData) == vtString || (vtGetPointers(v.typeData) == 1 && vtGetBaseType(v.typeData) == vtChar);
+}
+
 bool variantIsString(const GVariant & v)
 {
-	return v.getType() == vtString || (v.getPointers() == 1 && v.getBaseType() == vtChar);
+	return variantDataIsString(v.data);
 }
 
 void initializeVarWideString(GVariantData * data, const wchar_t * s)
@@ -296,9 +301,14 @@ GVariant createWideStringVariant(const wchar_t * s)
 	return v;
 }
 
+bool variantDataIsWideString(const GVariantData & v)
+{
+	return vtGetType(v.typeData) == vtWideString || (vtGetPointers(v.typeData) == 1 && vtGetBaseType(v.typeData) == vtWchar);
+}
+
 bool variantIsWideString(const GVariant & v)
 {
-	return v.getType() == vtWideString || (v.getPointers() == 1 && v.getBaseType() == vtWchar);
+	return variantDataIsWideString(v.data);
 }
 
 

@@ -8,7 +8,6 @@
 #include "cpgf/gtypelist.h"
 #include "cpgf/genableif.h"
 #include "cpgf/ginterface.h"
-
 #include "cpgf/gbytearrayapi.h"
 
 

@@ -780,7 +780,7 @@ PyObject * rawToPython(GScriptBindingParam * param, const GVariant & value)
 {
 	GVariantType vt = value.getType();
 
-	if(param->getConfig().allowAccessRawData() && variantIsRawData(vt)) {
+	if(param->getConfig().allowAccessRawData() && variantIsScriptRawData(vt)) {
 		PyObject * rawObject = createPythonObject(new GRawUserData(param, value));
 
 		return rawObject;
@@ -815,6 +815,12 @@ PyObject * variantToPython(GScriptBindingParam * param, const GVariant & value, 
 
 	if(variantIsString(value)) {
 		return PyString_FromString(fromVariant<char *>(value));
+	}
+
+	if(variantIsWideString(value)) {
+		const wchar_t * ws = fromVariant<wchar_t *>(value);
+		GScopedArray<char> s(wideStringToString(ws));
+		return PyString_FromString(s.get());
 	}
 
 	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
@@ -939,13 +945,6 @@ void loadMethodParamTypes(PyObject * args, GBindDataType * outputTypes)
 
 void loadCallableParam(GScriptBindingParam * param, PyObject * args, InvokeCallableParam * callableParam)
 {
-	int paramCount = static_cast<int>(PyTuple_Size(args));
-
-	if(paramCount > REF_MAX_ARITY) {
-		raiseCoreException(Error_ScriptBinding_CallMethodWithTooManyParameters);
-	}
-
-	callableParam->paramCount = paramCount;
 	loadMethodParameters(param, args, callableParam->paramsData);
 	loadMethodParamTypes(args, callableParam->paramsType);
 }
@@ -959,7 +958,7 @@ PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObje
 
 	GMethodUserData * userData = gdynamic_cast<GMethodUserData *>(methodObject->getUserData());
 
-	InvokeCallableParam callableParam;
+	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
 	loadCallableParam(userData->getParam(), args, &callableParam);
 
 	void * instance = NULL;
@@ -979,24 +978,14 @@ PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObje
 			instance,  userData->classUserData, userData->methodUserData->name.c_str());
 	}
 
-	int maxRank = -1;
-	int maxRankIndex = -1;
-
-	uint32_t count = methodList->getCount();
-
-	for(uint32_t i = 0; i < count; ++i) {
-		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(methodList->getAt(i)));
-		int rank = rankCallable(methodObject->getService(), meta.get(), &callableParam);
-		if(rank > maxRank) {
-			maxRank = rank;
-			maxRankIndex = static_cast<int>(i);
-		}
-	}
+	int maxRankIndex = findAppropriateCallable(methodObject->getService(),
+		makeCallback(methodList.get(), &IMetaList::getAt), methodList->getCount(),
+		&callableParam, FindCallablePredict());
 
 	if(maxRankIndex >= 0) {
 		InvokeCallableResult result;
 		GScopedInterface<IMetaCallable> callable(gdynamic_cast<IMetaCallable *>(methodList->getAt(maxRankIndex)));
-		doInvokeCallable(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), callable.get(), callableParam.paramsData, callableParam.paramCount, &result);
+		doInvokeCallable(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), callable.get(), &callableParam, &result);
 		return methodResultToPython(methodObject->getUserData()->getParam(), callable.get(), &result);
 	}
 
@@ -1015,7 +1004,7 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	GPythonObject * cppClass = castFromPython(callableObject);
 	GClassUserData * userData = gdynamic_cast<GClassUserData *>(cppClass->getUserData());
 	
-	InvokeCallableParam callableParam;
+	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
 	loadCallableParam(userData->getParam(), args, &callableParam);
 
 	void * instance = doInvokeConstructor(cppClass->getService(), userData->data->metaClass, &callableParam);
@@ -1646,7 +1635,7 @@ void GPythonScriptObject::bindObject(const char * objectName, void * instance, I
 
 void GPythonScriptObject::bindRaw(const char * name, const GVariant & value)
 {
-	GASSERT_MSG(variantIsRawData(vtGetType(value.data.typeData)), "Only raw data (pointer, object) can be bound via bindRaw");
+	GASSERT_MSG(variantIsScriptRawData(vtGetType(value.data.typeData)), "Only raw data (pointer, object) can be bound via bindRaw");
 
 	ENTER_PYTHON()
 

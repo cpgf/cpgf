@@ -629,7 +629,7 @@ bool rawToLua(lua_State * L, GScriptBindingParam * param, const GVariant & value
 {
 	GVariantType vt = value.getType();
 
-	if(param->getConfig().allowAccessRawData() && variantIsRawData(vt)) {
+	if(param->getConfig().allowAccessRawData() && variantIsScriptRawData(vt)) {
 		void * userData = lua_newuserdata(L, sizeof(GRawUserData));
 		new (userData) GRawUserData(param, value);
 
@@ -683,6 +683,13 @@ bool variantToLua(lua_State * L, GScriptBindingParam * param, const GVariant & v
 	if(variantIsString(value)) {
 		lua_pushstring(L, fromVariant<char *>(value));
 
+		return true;
+	}
+
+	if(variantIsWideString(value)) {
+		const wchar_t * ws = fromVariant<wchar_t *>(value);
+		GScopedArray<char> s(wideStringToString(ws));
+		lua_pushstring(L, s.get());
 		return true;
 	}
 
@@ -885,15 +892,10 @@ bool doPushInvokeResult(lua_State * L, GScriptBindingParam * param, IMetaCallabl
 	return true;
 }
 
-void loadCallableParam(lua_State * L, GScriptBindingParam * param, InvokeCallableParam * callableParam, int startIndex, size_t paramCount)
+void loadCallableParam(lua_State * L, GScriptBindingParam * param, InvokeCallableParam * callableParam, int startIndex)
 {
-	if(paramCount > REF_MAX_ARITY) {
-		raiseCoreException(Error_ScriptBinding_CallMethodWithTooManyParameters);
-	}
-
-	callableParam->paramCount = paramCount;
-	loadMethodParameters(L, param, callableParam->paramsData, startIndex, paramCount);
-	loadMethodParamTypes(L, callableParam->paramsType, startIndex, paramCount);
+	loadMethodParameters(L, param, callableParam->paramsData, startIndex, callableParam->paramCount);
+	loadMethodParamTypes(L, callableParam->paramsType, startIndex, callableParam->paramCount);
 }
 
 int callbackInvokeMethodList(lua_State * L)
@@ -903,8 +905,8 @@ int callbackInvokeMethodList(lua_State * L)
 	GMethodListUserData * userData = static_cast<GMethodListUserData *>(lua_touserdata(L, lua_upvalueindex(1)));
 	IMetaList * methodList = userData->methodList;
 
-	InvokeCallableParam callableParam;
-	loadCallableParam(L, userData->getParam(), &callableParam, 1, lua_gettop(L));
+	InvokeCallableParam callableParam(lua_gettop(L));
+	loadCallableParam(L, userData->getParam(), &callableParam, 1);
 	
 	int maxRankIndex = findAppropriateCallable(userData->getParam()->getService(),
 		makeCallback(methodList, &IMetaList::getAt), methodList->getCount(),
@@ -913,7 +915,7 @@ int callbackInvokeMethodList(lua_State * L)
 	if(maxRankIndex >= 0) {
 		InvokeCallableResult result;
 		GScopedInterface<IMetaCallable> callable(gdynamic_cast<IMetaCallable *>(methodList->getAt(maxRankIndex)));
-		doInvokeCallable(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), callable.get(), callableParam.paramsData, lua_gettop(L), &result);
+		doInvokeCallable(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), callable.get(), &callableParam, &result);
 		doPushInvokeResult(L, userData->getParam(), callable.get(), &result);
 		return result.resultCount;
 	}
@@ -929,8 +931,8 @@ int invokeConstructor(lua_State * L, GScriptBindingParam * param, IMetaClass * m
 {
 	int paramCount = lua_gettop(L) - 1;
 	
-	InvokeCallableParam callableParam;
-	loadCallableParam(L, param, &callableParam, 2, paramCount);
+	InvokeCallableParam callableParam(paramCount);
+	loadCallableParam(L, param, &callableParam, 2);
 	
 	void * instance = doInvokeConstructor(param->getService(), metaClass, &callableParam);
 
@@ -958,8 +960,8 @@ int invokeOperator(lua_State * L, GScriptBindingParam * param, void * instance, 
 		paramCount = 1; // Lua pass two parameters to __unm...
 	}
 		
-	InvokeCallableParam callableParam;
-	loadCallableParam(L, param, &callableParam, startIndex, paramCount);
+	InvokeCallableParam callableParam(paramCount);
+	loadCallableParam(L, param, &callableParam, startIndex);
 	
 	int maxRankIndex = findAppropriateCallable(param->getService(),
 		makeCallback(metaClass, &IMetaClass::getOperatorAt), metaClass->getOperatorCount(),
@@ -969,7 +971,7 @@ int invokeOperator(lua_State * L, GScriptBindingParam * param, void * instance, 
 		InvokeCallableResult result;
 
 		GScopedInterface<IMetaOperator> metaOperator(metaClass->getOperatorAt(maxRankIndex));
-		doInvokeCallable(instance, metaOperator.get(), callableParam.paramsData, paramCount, &result);
+		doInvokeCallable(instance, metaOperator.get(), &callableParam, &result);
 		doPushInvokeResult(L, param, metaOperator.get(), &result);
 		return result.resultCount;
 	}
@@ -1812,7 +1814,7 @@ void GLuaScriptObject::bindObject(const char * objectName, void * instance, IMet
 
 void GLuaScriptObject::bindRaw(const char * name, const GVariant & value)
 {
-	GASSERT_MSG(variantIsRawData(vtGetType(value.data.typeData)), "Only raw data (pointer, object) can be bound via bindRaw");
+	GASSERT_MSG(variantIsScriptRawData(vtGetType(value.data.typeData)), "Only raw data (pointer, object) can be bound via bindRaw");
 
 	ENTER_LUA()
 

@@ -126,6 +126,9 @@ public:
 	bool isPointer() const;
 
 	bool isReference() const;
+	
+	bool isString() const;
+	bool isWideString() const;
 
 	unsigned int getPointerDimension() const;
 	

@@ -411,58 +411,64 @@ private:
 	GMetaOpType op;
 };
 
+class InvokeParamRank
+{
+public:
+	explicit InvokeParamRank(size_t paramCount);
+	InvokeParamRank(const InvokeParamRank & other);
+	InvokeParamRank & operator = (const InvokeParamRank & other);
+
+public:
+	size_t paramCount;
+	int ranks[REF_MAX_ARITY];
+};
+
 class InvokeCallableParam
 {
 public:
-	InvokeCallableParam() : paramCount(0) {
-	}
-
-	~InvokeCallableParam() {
-		for(size_t i = 0; i < this->paramCount; ++i) {
-			freeVarData(&this->paramsData[i]);
-		}
-	}
+	explicit InvokeCallableParam(size_t paramCount);
+	~InvokeCallableParam();
 
 public:
 	GVariantData paramsData[REF_MAX_ARITY];
 	GBindDataType paramsType[REF_MAX_ARITY];
 	size_t paramCount;
+	InvokeParamRank paramsRank;
 };
 
 class InvokeCallableResult
 {
 public:
-	~InvokeCallableResult() {
-		freeVarData(&this->resultData);
-	}
+	InvokeCallableResult();
+	~InvokeCallableResult();
 
 public:
 	int resultCount;
 	GVariantData resultData;
 };
 
-inline bool variantIsRawData(GVariantType vt) {
-	vt = vtGetBaseType(vt);
-	return vt == vtPointer || vt == vtObject || vt == vtShadow || vt == vtVoid;
-}
+bool variantIsScriptRawData(GVariantType vt);
 
-int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam);
+int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam, InvokeParamRank * paramsRank);
 
 template <typename Getter, typename Predict>
 int findAppropriateCallable(IMetaService * service,
-	const Getter & getter, size_t count,
+	const Getter & getter, size_t callableCount,
 	InvokeCallableParam * callableParam, Predict predict)
 {
 	int maxRank = -1;
 	int maxRankIndex = -1;
 
-	for(size_t i = 0; i < count; ++i) {
+	InvokeParamRank paramsRank(callableParam->paramCount);
+
+	for(size_t i = 0; i < callableCount; ++i) {
 		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(getter(static_cast<uint32_t>(i))));
 		if(predict(meta.get())) {
-			int rank = rankCallable(service, meta.get(), callableParam);
+			int rank = rankCallable(service, meta.get(), callableParam, &paramsRank);
 			if(rank > maxRank) {
 				maxRank = rank;
 				maxRankIndex = static_cast<int>(i);
+				callableParam->paramsRank = paramsRank;
 			}
 		}
 	}
@@ -474,7 +480,7 @@ bool allowInvokeCallable(GClassUserData * userData, IMetaCallable * method);
 bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible);
 
 void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
-void doInvokeCallable(void * instance, IMetaCallable * callable, GVariantData * paramsData, size_t paramCount, InvokeCallableResult * result);
+void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableParam * callableParam, InvokeCallableResult * result);
 
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
@@ -493,6 +499,14 @@ GMetaVariant userDataToVariant(GScriptUserData * userData);
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);
 
 bool shouldRemoveReference(const GMetaType & type);
+
+// We only apply implicit convert (such as WideString to String) on method parameter.
+// Don't do it for field access because it requires temporary memory allocation which is invalid after the access.
+int rankImplicitConvert(const GVariantData & sourceData, const GMetaType & targetType);
+
+wchar_t * stringToWideString(const char * s);
+char * wideStringToString(const wchar_t * ws);
+
 
 } // namespace bind_internal
 

@@ -152,6 +152,7 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	bindMethod(script, service, "writeNumberToByteArray", "writeNumberToByteArray");
 	bindMethod(script, service, "writeNumberToByteArrayMemory", "writeNumberToByteArrayMemory");
 	bindMethod(script, service, "testDefaultParam", "testDefaultParam");
+	bindMethod(script, service, "testWideStringParam", "testWideStringParam");
 	
 	bindEnum(script, service, REG_NAME_TestEnum, "TestEnum");
 

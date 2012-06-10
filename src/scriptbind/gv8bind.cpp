@@ -550,7 +550,7 @@ Handle<Value> rawToV8(GScriptBindingParam * param, const GVariant & value)
 {
 	GVariantType vt = value.getType();
 
-	if(param->getConfig().allowAccessRawData() && variantIsRawData(vt)) {
+	if(param->getConfig().allowAccessRawData() && variantIsScriptRawData(vt)) {
 		Persistent<Object> self = Persistent<Object>::New(gdynamic_cast<GV8ScriptBindingParam *>(param)->getRawObject());
 
 		GRawUserData * instanceUserData = new GRawUserData(param, value);
@@ -592,6 +592,12 @@ Handle<Value> variantToV8(GScriptBindingParam * param, const GVariant & value, c
 
 	if(variantIsString(value)) {
 		return String::New(fromVariant<char *>(value));
+	}
+
+	if(variantIsWideString(value)) {
+		const wchar_t * ws = fromVariant<wchar_t *>(value);
+		GScopedArray<char> s(wideStringToString(ws));
+		return String::New(s.get());
 	}
 
 	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
@@ -759,11 +765,6 @@ void loadMethodParamTypes(const Arguments & args, GBindDataType * outputTypes)
 
 void loadCallableParam(const Arguments & args, GScriptBindingParam * param, InvokeCallableParam * callableParam)
 {
-	if(args.Length() > REF_MAX_ARITY) {
-		raiseCoreException(Error_ScriptBinding_CallMethodWithTooManyParameters);
-	}
-
-	callableParam->paramCount = args.Length();
 	loadMethodParameters(args, param, callableParam->paramsData);
 	loadMethodParamTypes(args, callableParam->paramsType);
 }
@@ -887,7 +888,7 @@ Handle<Value> callbackMethodList(const Arguments & args)
 	Local<External> data = Local<External>::Cast(args.Data());
 	GExtendMethodUserData * namedUserData = static_cast<GExtendMethodUserData *>(data->Value());
 
-	InvokeCallableParam callableParam;
+	InvokeCallableParam callableParam(args.Length());
 	loadCallableParam(args, namedUserData->getParam(), &callableParam);
 
 	void * instance = NULL;
@@ -906,26 +907,14 @@ Handle<Value> callbackMethodList(const Arguments & args)
 			instance,  userData, namedUserData->name.c_str());
 	}
 
-	int maxRank = -1;
-	int maxRankIndex = -1;
-
-	uint32_t count = methodList->getCount();
-
-	for(uint32_t i = 0; i < count; ++i) {
-		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(methodList->getAt(i)));
-		if(isGlobal || allowInvokeCallable(userData, meta.get())) {
-			int rank = rankCallable(namedUserData->getParam()->getService(), meta.get(), &callableParam);
-			if(rank > maxRank) {
-				maxRank = rank;
-				maxRankIndex = static_cast<int>(i);
-			}
-		}
-	}
+	int maxRankIndex = findAppropriateCallable(namedUserData->getParam()->getService(),
+		makeCallback(methodList.get(), &IMetaList::getAt), methodList->getCount(),
+		&callableParam, FindCallablePredict());
 
 	if(maxRankIndex >= 0) {
 		InvokeCallableResult result;
 		GScopedInterface<IMetaCallable> callable(gdynamic_cast<IMetaCallable *>(methodList->getAt(maxRankIndex)));
-		doInvokeCallable(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), callable.get(), callableParam.paramsData, callableParam.paramCount, &result);
+		doInvokeCallable(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), callable.get(), &callableParam, &result);
 		return methodResultToV8(namedUserData->getParam(), callable.get(), &result);
 	}
 
@@ -1363,7 +1352,7 @@ void bindClassItems(Local<Object> object, GScriptBindingParam * param, IMetaClas
 
 void * invokeConstructor(const Arguments & args, GScriptBindingParam * param, IMetaClass * metaClass)
 {
-	InvokeCallableParam callableParam;
+	InvokeCallableParam callableParam(args.Length());
 	loadCallableParam(args, param, &callableParam);
 
 	void * instance = doInvokeConstructor(param->getService(), metaClass, &callableParam);
@@ -1816,7 +1805,7 @@ void GV8ScriptObject::bindObject(const char * objectName, void * instance, IMeta
 
 void GV8ScriptObject::bindRaw(const char * name, const GVariant & value)
 {
-	GASSERT_MSG(variantIsRawData(vtGetType(value.data.typeData)), "Only raw data (pointer, object) can be bound via bindRaw");
+	GASSERT_MSG(variantIsScriptRawData(vtGetType(value.data.typeData)), "Only raw data (pointer, object) can be bound via bindRaw");
 
 	ENTER_V8()
 

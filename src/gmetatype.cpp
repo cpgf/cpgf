@@ -177,6 +177,20 @@ bool GMetaType::isReference() const
 	return this->hasFlag(meta_internal::mtFlagIsReference);
 }
 
+bool GMetaType::isString() const
+{
+	return (this->getVariantType() == vtString)
+		|| (vtGetBaseType(this->getVariantType()) == vtChar && this->getPointerDimension() == 1)
+	;
+}
+
+bool GMetaType::isWideString() const
+{
+	return (this->getVariantType() == vtWideString)
+		|| (vtGetBaseType(this->getVariantType()) == vtWchar && this->getPointerDimension() == 1)
+	;
+}
+
 unsigned int GMetaType::getPointerDimension() const
 {
 	return vtGetPointers(this->typeData);

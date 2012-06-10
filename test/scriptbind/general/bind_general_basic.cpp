@@ -153,5 +153,14 @@ void testDefaultParameters(TestScriptContext * context)
 #include "../bind_testcase.h"
 
 
+void testWideStringParameter(TestScriptContext * context)
+{
+	QASSERT(testWideStringParam("WideTest") == "TRUE");
+}
+
+#define CASE testWideStringParameter
+#include "../bind_testcase.h"
+
+
 
 }
