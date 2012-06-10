@@ -29,7 +29,7 @@ void buildMetaClass_Packet(const cpgf::GMetaDataConfigFlags & config, D _d, cons
     _d.CPGF_MD_TEMPLATE _method(replaceName("GetData", _r), &D::ClassType::GetData);
     _d.CPGF_MD_TEMPLATE _method(replaceName("GetDataSize", _r), &D::ClassType::GetDataSize);
     _d.CPGF_MD_TEMPLATE _method(replaceName("EndOfPacket", _r), &D::ClassType::EndOfPacket);
-    _d.CPGF_MD_TEMPLATE _operator< bool (GMetaSelf)>(mopHolder(), cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
+    _d.CPGF_MD_TEMPLATE _operator< bool (cpgf::GMetaSelf)>(mopHolder(), cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
     _d.CPGF_MD_TEMPLATE _operator<Packet & (*)(cpgf::GMetaSelf, bool &)>(mopHolder >> mopHolder);
     _d.CPGF_MD_TEMPLATE _operator<Packet & (*)(cpgf::GMetaSelf, Int8 &)>(mopHolder >> mopHolder);
     _d.CPGF_MD_TEMPLATE _operator<Packet & (*)(cpgf::GMetaSelf, Uint8 &)>(mopHolder >> mopHolder);

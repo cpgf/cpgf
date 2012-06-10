@@ -36,11 +36,11 @@ void buildMetaClass_Unicode(const cpgf::GMetaDataConfigFlags & config, D _d, con
         _nd.CPGF_MD_TEMPLATE _constructor<void * (const Unicode::UTF8String &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
         _nd.CPGF_MD_TEMPLATE _constructor<void * (const Unicode::UTF16String &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
         _nd.CPGF_MD_TEMPLATE _constructor<void * (const Unicode::UTF32String &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-        _nd.CPGF_MD_TEMPLATE _operator< std::string (GMetaSelf)>(mopHolder(), cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
-        _nd.CPGF_MD_TEMPLATE _operator< std::wstring (GMetaSelf)>(mopHolder(), cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
-        _nd.CPGF_MD_TEMPLATE _operator< Unicode::UTF8String (GMetaSelf)>(mopHolder(), cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
-        _nd.CPGF_MD_TEMPLATE _operator< Unicode::UTF16String (GMetaSelf)>(mopHolder(), cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
-        _nd.CPGF_MD_TEMPLATE _operator< const Unicode::UTF32String & (GMetaSelf)>(mopHolder(), cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
+        _nd.CPGF_MD_TEMPLATE _operator< std::string (cpgf::GMetaSelf)>(mopHolder(), cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
+        _nd.CPGF_MD_TEMPLATE _operator< std::wstring (cpgf::GMetaSelf)>(mopHolder(), cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
+        _nd.CPGF_MD_TEMPLATE _operator< Unicode::UTF8String (cpgf::GMetaSelf)>(mopHolder(), cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
+        _nd.CPGF_MD_TEMPLATE _operator< Unicode::UTF16String (cpgf::GMetaSelf)>(mopHolder(), cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
+        _nd.CPGF_MD_TEMPLATE _operator< const Unicode::UTF32String & (cpgf::GMetaSelf)>(mopHolder(), cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
 }
