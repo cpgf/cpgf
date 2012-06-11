@@ -764,6 +764,24 @@ bool converterToLua(lua_State * L, GScriptBindingParam * param, const GVariant &
 		}
 	}
 
+	if(isMetaConverterCanRead(converter->capabilityForCWideString())) {
+		gapi_bool needFree;
+		
+		GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
+		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
+
+		if(ws != NULL) {
+			GScopedArray<char> s(wideStringToString(ws));
+			lua_pushstring(L, s.get());
+
+			if(needFree) {
+				allocator->free((void *)ws);
+			}
+
+			return true;
+		}
+	}
+
 	return false;
 }
 

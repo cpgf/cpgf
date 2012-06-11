@@ -838,6 +838,24 @@ Handle<Value> converterToV8(GScriptBindingParam * param, const GVariant & value,
 		}
 	}
 
+	if(isMetaConverterCanRead(converter->capabilityForCWideString())) {
+		gapi_bool needFree;
+		
+		GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
+		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
+
+		if(ws != NULL) {
+			GScopedArray<char> s(wideStringToString(ws));
+			Handle<Value> value = String::New(s.get());
+
+			if(needFree) {
+				allocator->free((void *)ws);
+			}
+
+			return value;
+		}
+	}
+
 	return Handle<Value>();
 }
 

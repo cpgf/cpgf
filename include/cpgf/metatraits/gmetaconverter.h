@@ -18,6 +18,10 @@ struct IMetaConverter : public IExtendObject
 	virtual uint32_t G_API_CC capabilityForCString() = 0;
 	virtual const char * G_API_CC readCString(const void * instance, gapi_bool * needFree, IMemoryAllocator * allocator) = 0;
 	virtual void G_API_CC writeCString(void * instance, const char * str) = 0;
+
+	virtual uint32_t G_API_CC capabilityForCWideString() = 0;
+	virtual const wchar_t * G_API_CC readCWideString(const void * instance, gapi_bool * needFree, IMemoryAllocator * allocator) = 0;
+	virtual void G_API_CC writeCWideString(void * instance, const wchar_t * str) = 0;
 };
 
 

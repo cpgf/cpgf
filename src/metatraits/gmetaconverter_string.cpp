@@ -1,16 +1,15 @@
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/gapiutil.h"
 
+#include "../pinclude/gmetaconverter_default.h"
+
 #include <string>
 
 
 namespace cpgf {
 
-class GMetaConverterStdString : public IMetaConverter
+class GMetaConverterStdString : public GMetaConverterDefault
 {
-	G_INTERFACE_IMPL_OBJECT
-	G_INTERFACE_IMPL_EXTENDOBJECT
-	
 public:
 	virtual uint32_t G_API_CC capabilityForCString() {
 		return metaConverterCanReadWrite;

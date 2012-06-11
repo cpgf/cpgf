@@ -20,10 +20,13 @@ void buildMetaData_CommonContainer(const GMetaDataConfigFlags & /*config*/, Meta
 		.CPGF_MD_TEMPLATE _constructor<void * (const T &)>()
 		.CPGF_MD_TEMPLATE _method(replaceName("begin", replacer), (typename T::iterator (T::*)()) &T::begin)
 		.CPGF_MD_TEMPLATE _method(replaceName("begin", replacer), (typename T::const_iterator (T::*)() const) &T::begin)
-		.CPGF_MD_TEMPLATE _method(replaceName("clear", replacer), &T::clear)
+		.CPGF_MD_TEMPLATE _method(replaceName("clear", replacer), &T::clear) // clear is Dict's default function in Python
+		.CPGF_MD_TEMPLATE _method(replaceName("_clear", replacer), &T::clear)
 		.CPGF_MD_TEMPLATE _method(replaceName("empty", replacer), &T::empty)
 		.CPGF_MD_TEMPLATE _method(replaceName("end", replacer), (typename T::iterator (T::*)()) &T::end)
-		.CPGF_MD_TEMPLATE _method(replaceName("end", replacer), (typename T::const_iterator (T::*)() const) &T::end)
+		.CPGF_MD_TEMPLATE _method(replaceName("end", replacer), (typename T::const_iterator (T::*)() const) &T::end) // end is keyword in Lua
+		.CPGF_MD_TEMPLATE _method(replaceName("_end", replacer), (typename T::iterator (T::*)()) &T::end)
+		.CPGF_MD_TEMPLATE _method(replaceName("_end", replacer), (typename T::const_iterator (T::*)() const) &T::end)
 		.CPGF_MD_TEMPLATE _method(replaceName("erase", replacer), extractFunction1(&T::erase))
 		.CPGF_MD_TEMPLATE _method(replaceName("erase", replacer), extractFunction2(&T::erase))
 		.CPGF_MD_TEMPLATE _method(replaceName("rbegin", replacer), (typename T::reverse_iterator (T::*)()) &T::rbegin)

@@ -890,6 +890,25 @@ PyObject * converterToPython(GScriptBindingParam * param, const GVariant & value
 		}
 	}
 
+	if(isMetaConverterCanRead(converter->capabilityForCWideString())) {
+		gapi_bool needFree;
+		
+		GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
+		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
+
+		if(ws != NULL) {
+			GScopedArray<char> s(wideStringToString(ws));
+
+			PyObject * result = PyString_FromString(s.get());
+
+			if(needFree) {
+				allocator->free((void *)ws);
+			}
+
+			return result;
+		}
+	}
+
 	return NULL;
 }
 

@@ -42,11 +42,6 @@ inline const char * replaceName(const char * name, const GMetaDataNameReplacer *
 	return replacer ? replacer->replace(name) : name;
 }
 
-inline void initializeLuaReplacer(GMetaDataNameReplacer * replacer)
-{
-	replacer->add("end", "_end");
-}
-
 
 } // namespace cpgf
 

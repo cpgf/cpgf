@@ -4,15 +4,27 @@
 namespace {
 
 
-void testGlobalMethod(TestScriptContext * context)
+void testGlobalMethodString(TestScriptContext * context)
 {
-	QASSERT(mtest.hello("world") == "123world");
-	QASSERT(mtest.getStdString(0) == "zero");
-	QASSERT(mtest.getStdString(1) == "one");
+	QASSERT(mtest.getCString(0) == "zero");
+	QASSERT(mtest.getCString(1) == "one");
+	QASSERT(mtest.getStdString("bcd") == "a-bcd");
 }
 
 
-#define CASE testGlobalMethod
+#define CASE testGlobalMethodString
+#include "do_testcase.h"
+
+
+void testGlobalMethodWideString(TestScriptContext * context)
+{
+	QASSERT(mtest.getCWideString(0) == "WideZero");
+	QASSERT(mtest.getCWideString(1) == "WideOne");
+	QASSERT(mtest.getStdWideString("bcd") == "W-bcd");
+}
+
+
+#define CASE testGlobalMethodWideString
 #include "do_testcase.h"
 
 

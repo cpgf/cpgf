@@ -8,17 +8,9 @@ int globalInt = 38;
 const char * globalString = "global";
 std::string globalStdString = "globalStd";
 
-const char * hello(const char * s)
+const char * getCString(int index)
 {
-	static string result;
-	result = "123";
-	result = result + s;
-	return result.c_str();
-}
-
-std::string getStdString(int index)
-{
-	string result;
+	const char * result;
 
 	if(index == 0) {
 		result = "zero";
@@ -27,5 +19,35 @@ std::string getStdString(int index)
 		result = "one";
 	}
 
+	return result;
+}
+
+std::string getStdString(const char * s)
+{
+	string result;
+	result = "a-";
+	result = result + s;
+	return result;
+}
+
+const wchar_t * getCWideString(int index)
+{
+	const wchar_t * result;
+
+	if(index == 0) {
+		result = L"WideZero";
+	}
+	else {
+		result = L"WideOne";
+	}
+
+	return result;
+}
+
+std::wstring getStdWideString(const wchar_t * s)
+{
+	wstring result;
+	result = L"W-";
+	result = result + s;
 	return result;
 }

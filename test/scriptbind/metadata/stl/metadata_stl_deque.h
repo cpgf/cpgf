@@ -9,7 +9,6 @@ template <typename Container, typename Binding>
 void testStlDeque_Helper(Binding * binding, TestScriptContext * c, const char * className, const GTestValueProvider & valueProvider)
 {
 	GMetaDataNameReplacer replacer;
-	initializeLuaReplacer(&replacer);
 	GDefineMetaClass<Container> define = GDefineMetaClass<Container>::declare(className);
 	buildMetaData_deque(define, typename GMetaDataPolicyDeduce<typename Container::value_type>::Result(), &replacer);
 

@@ -419,7 +419,7 @@ void testStlContainer_Clear(TestScriptContext * context, const string & classNam
 	QASSERT(a.size() == 5)
 	QASSERTNOT(a.empty())
 
-	QDO(a.clear())
+	QDO(a._clear())
 	QASSERT(a.size() == 0)
 	QASSERT(a.empty())
 }
