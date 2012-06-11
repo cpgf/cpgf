@@ -8,5 +8,8 @@
 
 #include "cpgf/gmetaclass.h"
 
+void metagenBindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service);
+void metagenBindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service);
+
 
 #endif

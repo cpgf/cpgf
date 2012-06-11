@@ -8,7 +8,6 @@
 using namespace std;
 using namespace cpgf;
 
-namespace testscript {
 
 template <typename T>
 void bindClass(T * script, cpgf::IMetaService * service, const char * metaName, const char * bindName)
@@ -42,12 +41,12 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	bindMethod(script, service, "scriptTrace", "scriptTrace");
 }
 
-void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
+void metagenBindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
 {
 	bindBasicInfo(script, service);
 }
 
-void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
+void metagenBindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
 {
 	bindBasicInfo(script, service);
 }
@@ -81,4 +80,3 @@ G_AUTO_RUN_BEFORE_MAIN()
 }
 
 
-}

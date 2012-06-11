@@ -8,6 +8,8 @@ GTEST(MK(CASE, _V8_Lib))
 {
 	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaLib));
 
+	testscript::bindBasicData(context->getBindingLib(), context->getService());
+
 	CASE(context.get());
 }
 
@@ -15,6 +17,8 @@ GTEST(MK(CASE, _V8_Lib))
 GTEST(MK(CASE, _V8_Api))
 {
 	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaApi));
+
+	testscript::bindBasicData(context->getBindingApi(), context->getService());
 
 	CASE(context.get());
 }
