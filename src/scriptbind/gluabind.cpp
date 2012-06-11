@@ -1164,6 +1164,10 @@ bool newindexMemberData(lua_State * /*L*/, GClassUserData * userData, const char
 		if(mapItem == NULL) {
 			continue;
 		}
+
+		if(mapItem->getType() == mmitEnum || mapItem->getType() == mmitEnumValue) {
+			raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
+		}
 		
 		if(!metaMapItemIsAccessible(mapItem->getType())) {
 			continue;

@@ -1,6 +1,7 @@
 TBD version 1.4.4
 	Script binding supports wide string (wchar_t *) in method parameters and return value.
 	Now in GVariant, when converting vtByteArray to pointer, getMemory won't be auto called. The feature is moved to script binding level.
+	Lua binding, fixed a bug that no exception is throw when assign to enumerator value.
 
 2012-06-09 version 1.4.3
 	Added Python script binding for Python 2.7.3. (warning -- may memory leak)

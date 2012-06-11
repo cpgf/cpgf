@@ -133,10 +133,10 @@ GTEST(TestByteArrayVariantCast)
     GEQUAL(fromVariant<IByteArray *>(v), byteArray.get());
     GEQUAL(fromVariant<const IByteArray *>(v), byteArray.get());
 	
-	GEQUAL(fromVariant<void *>(v), byteArray->getMemory());
-	GEQUAL(fromVariant<const void *>(v), byteArray->getMemory());
-	GEQUAL(fromVariant<const volatile char *>(v), byteArray->getMemory());
-	GEQUAL(fromVariant<const Dummy *>(v), byteArray->getMemory());
+	GEQUAL(fromVariant<void *>(v), byteArray.get());
+	GEQUAL(fromVariant<const void *>(v), byteArray.get());
+	GEQUAL(fromVariant<const volatile char *>(v), (const volatile char *)(byteArray.get()));
+	GEQUAL(fromVariant<const Dummy *>(v), (const Dummy *)(byteArray.get()));
 }
 
 
