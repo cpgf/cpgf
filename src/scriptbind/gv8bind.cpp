@@ -586,7 +586,7 @@ Handle<Value> variantToV8(GScriptBindingParam * param, const GVariant & value, c
 		return Number::New(fromVariant<double>(value));
 	}
 
-	if(!vtIsByteArray(vt) && canFromVariant<void *>(value) && objectAddressFromVariant(value) == NULL) {
+	if(!vtIsInterface(vt) && canFromVariant<void *>(value) && objectAddressFromVariant(value) == NULL) {
 		return Null();
 	}
 
@@ -617,9 +617,10 @@ Handle<Value> variantToV8(GScriptBindingParam * param, const GVariant & value, c
 			if(type.getPointerDimension() == 1 || isReference) {
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
-				if(vtIsByteArray(vt)) {
-					GScopedInterface<IByteArray> ba(value.data.valueByteArray); // free the byte array after return
-					return objectToV8(param, value.data.valueByteArray, gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type), cudtByteArray);
+				if(vtIsInterface(vt)) {
+					GScopedInterface<IObject> ba(value.data.valueInterface);
+					return objectToV8(param, value.data.valueInterface, gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC,
+						metaTypeToCV(type), cudtInterface);
 				}
 				else {
 					return objectToV8(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type), cudtNormal);
@@ -836,23 +837,23 @@ Handle<Value> converterToV8(GScriptBindingParam * param, const GVariant & value,
 				return value;
 			}
 		}
-	}
 
-	if(isMetaConverterCanRead(converter->capabilityForCWideString())) {
-		gapi_bool needFree;
+		if(isMetaConverterCanRead(converter->capabilityForCWideString())) {
+			gapi_bool needFree;
 		
-		GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
-		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
+			GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
+			const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
 
-		if(ws != NULL) {
-			GScopedArray<char> s(wideStringToString(ws));
-			Handle<Value> value = String::New(s.get());
+			if(ws != NULL) {
+				GScopedArray<char> s(wideStringToString(ws));
+				Handle<Value> value = String::New(s.get());
 
-			if(needFree) {
-				allocator->free((void *)ws);
+				if(needFree) {
+					allocator->free((void *)ws);
+				}
+
+				return value;
 			}
-
-			return value;
 		}
 	}
 

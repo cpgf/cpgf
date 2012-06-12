@@ -35,7 +35,7 @@ enum ObjectPointerCV {
 
 enum ClassUserDataType {
 	cudtNormal,
-	cudtByteArray
+	cudtInterface
 };
 
 struct GBindDataType
@@ -90,7 +90,7 @@ public:
 	IMetaClass * metaClass;
 	union {
 		void * instance;
-		IByteArray * byteArray;
+		IObject * interfaceObject;
 	};
 	bool isInstance;
 	bool allowGC;

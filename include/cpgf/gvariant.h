@@ -145,7 +145,6 @@ struct GVariantData
 		
 		variant_internal::IVariantShadowObject * shadowObject;
 		IObject * valueInterface;
-		IByteArray * valueByteArray;
 
 	};
 };

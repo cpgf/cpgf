@@ -809,7 +809,7 @@ PyObject * variantToPython(GScriptBindingParam * param, const GVariant & value, 
 		return PyFloat_FromDouble(fromVariant<double>(value));
 	}
 
-	if(!vtIsByteArray(vt) && canFromVariant<void *>(value) && objectAddressFromVariant(value) == NULL) {
+	if(!vtIsInterface(vt) && canFromVariant<void *>(value) && objectAddressFromVariant(value) == NULL) {
 		return pyAddRef(Py_None);
 	}
 
@@ -840,10 +840,10 @@ PyObject * variantToPython(GScriptBindingParam * param, const GVariant & value, 
 			if(type.getPointerDimension() == 1 || isReference) {
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
-				if(vtIsByteArray(vt)) {
-					GScopedInterface<IByteArray> ba(value.data.valueByteArray); // free the byte array after return
-					return objectToPython(param, value.data.valueByteArray, gdynamic_cast<IMetaClass *>(typedItem.get()),
-						allowGC, metaTypeToCV(type), cudtByteArray);
+				if(vtIsInterface(vt)) {
+					GScopedInterface<IObject> ba(value.data.valueInterface);
+					return objectToPython(param, value.data.valueInterface, gdynamic_cast<IMetaClass *>(typedItem.get()),
+						allowGC, metaTypeToCV(type), cudtInterface);
 				}
 				else {
 					return objectToPython(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()),

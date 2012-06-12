@@ -8,7 +8,6 @@
 #include "cpgf/gtypelist.h"
 #include "cpgf/genableif.h"
 #include "cpgf/ginterface.h"
-#include "cpgf/gbytearrayapi.h"
 
 
 #if defined(_MSC_VER)
@@ -43,7 +42,6 @@ enum GVariantType {
 	vtString = 33,
 	vtWideString = 34,
 	vtInterface = 35, // IObject *
-	vtByteArray = 36, // IByteArray *
 
 	vtUserBegin = 0xff,
 	vtUserEnd = 0x0fff,
@@ -112,10 +110,6 @@ inline void vtSetPointers(GVarTypeData & data, unsigned int pointers) {
 
 inline bool vtIsInterface(int vt) {
 	return vt == vtInterface;
-}
-
-inline bool vtIsByteArray(int vt) {
-	return vt == vtByteArray;
 }
 
 inline void vtInit(GVarTypeData & data) {

@@ -340,14 +340,6 @@ struct InitVariantSelector
 				}
 				break;
 
-			case vtByteArray:
-				v.data.valueByteArray = variant_internal::CastVariantHelper<T, IByteArray *>::cast(value);
-				if(v.data.valueByteArray != NULL) {
-					v.data.valueByteArray->addReference();
-				}
-				break;
-
-
 			case vtBool | byPointer:
 				v.data.ptrBool = variant_internal::CastVariantHelper<T, bool *>::cast(value);
 				break;
@@ -644,9 +636,6 @@ struct CanCastFromVariant
 			case vtInterface:
 				return variant_internal::EnforceCastToPointer<IObject *, typename RemoveReference<ResultType>::Result>::CanCast;
 			
-			case vtByteArray:
-				return variant_internal::EnforceCastToPointer<IByteArray *, typename RemoveReference<ResultType>::Result>::CanCast;
-
 			case vtBool | byPointer:
 				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<bool *, ResultType>::CanCast;
 
@@ -892,9 +881,6 @@ struct CastFromVariant
 			case vtInterface:
 				return variant_internal::EnforceCastToPointer<IObject *, ResultType>::cast(v.data.valueInterface);
 			
-			case vtByteArray:
-				return variant_internal::EnforceCastToPointer<IByteArray *, ResultType>::cast(v.data.valueByteArray);
-
 			case vtBool | byPointer:
 				return variant_internal::CastVariantHelper<bool *, ResultType>::cast(const_cast<bool *>(v.data.ptrBool));
 

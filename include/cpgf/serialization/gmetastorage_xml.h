@@ -2,6 +2,7 @@
 #define __GMETASTORAGE_XML_H
 
 #include "cpgf/serialization/gmetastreamfundamental.h"
+#include "cpgf/gscopedptr.h"
 
 
 namespace cpgf {

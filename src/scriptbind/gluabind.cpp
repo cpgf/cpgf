@@ -674,7 +674,7 @@ bool variantToLua(lua_State * L, GScriptBindingParam * param, const GVariant & v
 		return true;
 	}
 
-	if(!vtIsByteArray(vt) && canFromVariant<void *>(value) && objectAddressFromVariant(value) == NULL) {
+	if(!vtIsInterface(vt) && canFromVariant<void *>(value) && objectAddressFromVariant(value) == NULL) {
 		lua_pushnil(L);
 
 		return true;
@@ -712,10 +712,10 @@ bool variantToLua(lua_State * L, GScriptBindingParam * param, const GVariant & v
 			if(type.getPointerDimension() == 1 || isReference) {
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
-				if(vtIsByteArray(vt)) {
-					GScopedInterface<IByteArray> ba(value.data.valueByteArray); // free the byte array after return
-					objectToLua(L, param, value.data.valueByteArray, gdynamic_cast<IMetaClass *>(typedItem.get()),
-						allowGC, metaTypeToCV(type), cudtByteArray);
+				if(vtIsInterface(vt)) {
+					GScopedInterface<IObject> ba(value.data.valueInterface);
+					objectToLua(L, param, value.data.valueInterface, gdynamic_cast<IMetaClass *>(typedItem.get()),
+						allowGC, metaTypeToCV(type), cudtInterface);
 				}
 				else {
 					objectToLua(L, param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()),

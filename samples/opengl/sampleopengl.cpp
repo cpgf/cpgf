@@ -1,6 +1,7 @@
 #include "cpgf/gmetadefine.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/metadata/util/gmetadata_bytearray.h"
+#include "cpgf/gbytearrayapi.h"
 
 #include "../samplescriptbindutil.h"
 

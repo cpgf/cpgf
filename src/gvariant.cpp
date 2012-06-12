@@ -66,7 +66,6 @@ unsigned int getVariantTypeSize(GVariantType type)
 		case vtString:
 		case vtWideString:
 		case vtInterface:
-		case vtByteArray:
 			return sizeof(void *);
 
 		default:
@@ -176,9 +175,6 @@ void GVariant::init()
 	else if(vtIsInterface(vtGetType(this->data.typeData)) && this->data.valueInterface != NULL) {
 		this->data.valueInterface->addReference();
 	}
-	else if(vtIsByteArray(vtGetType(this->data.typeData)) && this->data.valueByteArray != NULL) {
-		this->data.valueByteArray->addReference();
-	}
 }
 
 
@@ -247,9 +243,6 @@ void freeVarData(GVariantData * data)
 	}
 	else if(vtIsInterface(vtGetType(data->typeData)) && data->valueInterface != NULL) {
 		data->valueInterface->releaseReference();
-	}
-	else if(vtIsByteArray(vtGetType(data->typeData)) && data->valueByteArray != NULL) {
-		data->valueByteArray->releaseReference();
 	}
 }
 

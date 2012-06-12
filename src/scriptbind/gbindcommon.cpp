@@ -14,9 +14,8 @@ namespace bind_internal {
 const int ParamMatchRank_Unknown = 0;
 const int ParamMatchRank_Convert = 50000;
 const int ParamMatchRank_Implicit_Begin = 70000;
-const int ParamMatchRank_Implicit_ByteArrayToPointer = ParamMatchRank_Implicit_Begin + 0;
-const int ParamMatchRank_Implicit_WideStringToString = ParamMatchRank_Implicit_Begin + 1;
-const int ParamMatchRank_Implicit_StringToWideString = ParamMatchRank_Implicit_Begin + 2;
+const int ParamMatchRank_Implicit_WideStringToString = ParamMatchRank_Implicit_Begin + 0;
+const int ParamMatchRank_Implicit_StringToWideString = ParamMatchRank_Implicit_Begin + 1;
 const int ParamMatchRank_Implicit_End = 80000;
 const int ParamMatchRank_Equal = 100000;
 
@@ -46,9 +45,11 @@ GSharedInstance::GSharedInstance(IMetaClass * metaClass, void * instance, bool i
 	}
 	
 	switch(dataType) {
-		case cudtByteArray:
+		case cudtInterface:
 			this->allowGC = false;
-			this->byteArray->addReference();
+			if(this->interfaceObject != NULL) {
+				this->interfaceObject->addReference();
+			}
 			break;
 
 		default:
@@ -65,8 +66,10 @@ GSharedInstance::~GSharedInstance()
 		this->metaClass->releaseReference();
 	}
 	switch(dataType) {
-		case cudtByteArray:
-			this->byteArray->releaseReference();
+		case cudtInterface:
+			if(this->interfaceObject != NULL) {
+				this->interfaceObject->releaseReference();
+			}
 			break;
 
 		default:
@@ -408,16 +411,6 @@ bool isParamImplicitConvert(int paramRank)
 
 int rankImplicitConvert(const GVariantData & sourceData, const GMetaType & targetType)
 {
-	GVariantType paramVariantType = vtGetType(sourceData.typeData);
-	if(paramVariantType == vtByteArray) {
-		if(targetType.getVariantType() == vtByteArray) {
-			return ParamMatchRank_Equal;
-		}
-		if(targetType.isPointer()) {
-			return ParamMatchRank_Implicit_ByteArrayToPointer;
-		}
-	}
-
 	if(variantDataIsString(sourceData) && targetType.isWideString()) {
 		return ParamMatchRank_Implicit_StringToWideString;
 	}
@@ -596,11 +589,6 @@ void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, Invok
 void convertParam(GVariantData * v, int paramRank, GVariant * holder)
 {
 	switch(paramRank) {
-		case ParamMatchRank_Implicit_ByteArrayToPointer:
-			*holder = GVariant(*v);
-			*v = GVariant(fromVariant<IByteArray *>(*holder)->getMemory()).takeData();
-			break;
-
 		case ParamMatchRank_Implicit_StringToWideString: {
 			*holder = GVariant(*v);
 			initializeVarData(v);
@@ -750,9 +738,9 @@ GMetaVariant userDataToVariant(GScriptUserData * userData)
 				case cudtNormal: {
 					return GMetaVariant(pointerToObjectVariant(classData->getInstance()), type);
 				}
-
-				case cudtByteArray: {
-					return GMetaVariant(GVariant(classData->data->byteArray), type);
+				
+				case cudtInterface: {
+					return GMetaVariant(GVariant(classData->data->interfaceObject), type);
 				}
 			}
 
