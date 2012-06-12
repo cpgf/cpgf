@@ -7,6 +7,8 @@ using namespace std;
 int globalInt = 38;
 const char * globalString = "global";
 std::string globalStdString = "globalStd";
+std::wstring globalStdWideString = L"globalStdWide";
+int *** globalRaw = (int ***)0x6abcdef;
 
 const char * getCString(int index)
 {
@@ -51,3 +53,10 @@ std::wstring getStdWideString(const wchar_t * s)
 	result = result + s;
 	return result;
 }
+
+bool checkGlobalRaw(const void *** value)
+{
+	return (void *)value == (void *)globalRaw;
+}
+
+

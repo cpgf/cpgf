@@ -346,10 +346,11 @@ InvokeCallableResult::~InvokeCallableResult()
 }
 
 
-bool variantIsScriptRawData(GVariantType vt)
+bool variantIsScriptRawData(GVariantType /*vt*/)
 {
-	vt = vtGetBaseType(vt);
-	return vt == vtPointer || vt == vtObject || vt == vtShadow || vt == vtVoid;
+	return true;
+//	vt = vtGetBaseType(vt);
+//	return vt == vtPointer || vt == vtObject || vt == vtShadow || vt == vtVoid;
 }
 
 bool metaMapItemIsAccessible(GMetaMapItemType type)

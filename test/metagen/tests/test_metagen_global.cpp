@@ -51,10 +51,22 @@ void testGlobalFields(TestScriptContext * context)
 	QASSERT(mtest.globalInt == 38);
 	QASSERT(mtest.globalString == "global");
 	QASSERT(mtest.globalStdString == "globalStd");
+	QASSERT(mtest.globalStdWideString == "globalStdWide");
 }
 
 
 #define CASE testGlobalFields
+#include "do_testcase.h"
+
+
+void testGlobalRaw(TestScriptContext * context)
+{
+	QDO(a = mtest.globalRaw);
+	QASSERT(mtest.checkGlobalRaw(a));
+}
+
+
+#define CASE testGlobalRaw
 #include "do_testcase.h"
 
 

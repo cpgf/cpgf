@@ -27,6 +27,12 @@ var config = {
 	,
 	sourceHeaderReplacer : [ "!.*test/metagen/include!i", "../../include" ],
 	metaHeaderPath : "../include/",
+
+	classTraits : [
+		{ pattern : ".*\\b[io]stream$", traits : { copyConstructorHidden : true }  },
+		{ pattern : ".*\\bw?string$", traits : { hasTypeConvertConstructor : true }  },
+	],
+
 };
 
 function processCallback(item, data)
