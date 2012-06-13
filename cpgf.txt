@@ -1,3 +1,9 @@
+Script binding refactoring:
+1, Add user data for object, so class is different with object. This is important for supporting override C++ method from script.
+2, All object, method, etc, user data, should know the class user data.
+3, Remove V8 GUserDataPool, use shared pointer instead.
+4, Use shared pointer to hold GScriptBindingParam.
+
 Todo:
 
 2, Should support wide string in script binding.
@@ -6,7 +12,6 @@ Todo:
 1, In reflection, now finding base class is depending on global classes. Not fine. Should find base class in the most outter class recursively.
 1, Metagen, needs to parse Doxygen document for annotation.
 1, Support script override C++ functions. It's difficult. Adding interceptor in meta system is not enough.
-2, Support object pool in interface based api
 1, GVariant passes rvalue reference as value, not efficient, should imporve.
 4, Define meta data for C library?
 
@@ -14,6 +19,7 @@ Todo:
 Done:
 
 1, GVariant should allow a variant of integer 0 to be casted to NULL pointer.
+2, Support object pool in interface based api
 
 
 #include "cpgf/gapi.h"
