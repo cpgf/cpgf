@@ -70,6 +70,8 @@ private:
 	GScopedPointer<GMetaMap> metaMap;
 };
 
+typedef GSharedPointer<GScriptBindingParam> GBindingParamPointer;
+
 enum GScriptUserDataType {
 	udtClass,
 	udtMethodList,
@@ -101,7 +103,7 @@ public:
 class GScriptUserData
 {
 public:
-	GScriptUserData(GScriptUserDataType type, GScriptBindingParam * param) : type(type), param(param) {
+	GScriptUserData(GScriptUserDataType type, const GBindingParamPointer & param) : type(type), param(param) {
 	}
 
 	virtual ~GScriptUserData() {
@@ -111,13 +113,13 @@ public:
 		return this->type;
 	}
 
-	GScriptBindingParam * getParam() const {
+	const GBindingParamPointer & getParam() const {
 		return this->param;
 	}
 
 private:
 	GScriptUserDataType type;
-	GScriptBindingParam * param;
+	GBindingParamPointer param;
 };
 
 class GClassUserData : public GScriptUserData
@@ -126,8 +128,8 @@ private:
 	typedef GScriptUserData super;
 
 public:
-	explicit GClassUserData(GScriptBindingParam * param);
-	GClassUserData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance, bool isInstance,
+	explicit GClassUserData(const GBindingParamPointer & param);
+	GClassUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance, bool isInstance,
 		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
 	virtual ~GClassUserData();
 
@@ -154,7 +156,7 @@ private:
 	typedef GScriptUserData super;
 
 public:
-	GRawUserData(GScriptBindingParam * param, const GVariant & v)
+	GRawUserData(const GBindingParamPointer & param, const GVariant & v)
 		: super(udtRaw, param), data(v) {
 	}
 
@@ -174,7 +176,7 @@ private:
 	typedef GScriptUserData super;
 
 public:
-	GMethodListUserData(GScriptBindingParam * param, IMetaList * methodList, GUserDataMethodType methodType)
+	GMethodListUserData(const GBindingParamPointer & param, IMetaList * methodList, GUserDataMethodType methodType)
 		: super(udtMethodList, param), methodList(methodList), methodType(methodType) {
 		this->methodList->addReference();
 	}
@@ -194,7 +196,7 @@ private:
 	typedef GScriptUserData super;
 
 public:
-	GExtendMethodUserData(GScriptBindingParam * param, IMetaClass * metaClass, IMetaList * methodList, const char * name, GUserDataMethodType methodType)
+	GExtendMethodUserData(const GBindingParamPointer & param, IMetaClass * metaClass, IMetaList * methodList, const char * name, GUserDataMethodType methodType)
 		: super(udtExtendMethod, param), metaClass(metaClass), methodList(methodList), name(name), methodType(methodType) {
 		if(this->metaClass != NULL) {
 			this->metaClass->addReference();
@@ -228,7 +230,7 @@ private:
 	typedef GScriptUserData super;
 
 public:
-	GOperatorUserData(GScriptBindingParam * param, void * instance, IMetaClass * metaClass, GMetaOpType op)
+	GOperatorUserData(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, GMetaOpType op)
 		: super(udtOperator, param), instance(instance), metaClass(metaClass), op(op) {
 	}
 
@@ -247,7 +249,7 @@ private:
 	typedef GScriptUserData super;
 
 public:
-	GEnumUserData(GScriptBindingParam * param, IMetaEnum * metaEnum)
+	GEnumUserData(const GBindingParamPointer & param, IMetaEnum * metaEnum)
 		: super(udtEnum, param), metaEnum(metaEnum) {
 		this->metaEnum->addReference();
 	}
@@ -266,7 +268,7 @@ private:
 	typedef GScriptUserData super;
 
 public:
-	GAccessibleUserData(GScriptBindingParam * param, void * instance, IMetaAccessible * accessible)
+	GAccessibleUserData(const GBindingParamPointer & param, void * instance, IMetaAccessible * accessible)
 		: super(udtAccessible, param), instance(instance), accessible(accessible) {
 		this->accessible->addReference();
 	}

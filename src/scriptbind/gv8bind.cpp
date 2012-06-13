@@ -45,14 +45,14 @@ class GV8ScriptBindingParam;
 class GV8ScriptObjectImplement
 {
 public:
-	GV8ScriptObjectImplement(GV8ScriptBindingParam * param, Local<Object> object, bool freeResource);
+	GV8ScriptObjectImplement(const GBindingParamPointer & param, Local<Object> object, bool freeResource);
 	~GV8ScriptObjectImplement();
 
 	void doBindMethodList(const char * name, IMetaList * methodList, GUserDataMethodType methodType);
 	GExtendMethodUserData * doGetMethodUserData(const char * methodName);
 
 public:
-	GV8ScriptBindingParam * param;
+	GBindingParamPointer param;
 	Persistent<Object> object;
 	bool freeResource;
 };
@@ -106,7 +106,7 @@ public:
 	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
 
 public:
-	GV8ScriptBindingParam * getParam() const {
+	const GBindingParamPointer & getParam() const {
 		return this->implement->param;
 	}
 
@@ -357,25 +357,25 @@ private:
 class GV8ScriptFunction : public GScriptFunction
 {
 public:
-	GV8ScriptFunction(GScriptBindingParam * bindingParam, Local<Object> receiver, Local<Value> func);
+	GV8ScriptFunction(const GBindingParamPointer & bindingParam, Local<Object> receiver, Local<Value> func);
 	virtual ~GV8ScriptFunction();
 
 	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount);
 	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
 
 private:
-	GScriptBindingParam * bindingParam;
+	const GBindingParamPointer & bindingParam;
 	Persistent<Object> receiver;
 	Persistent<Function> func;
 };
 
 
 void weakHandleCallback(Persistent<Value> object, void * parameter);
-Handle<FunctionTemplate> createClassTemplate(GScriptBindingParam * param, const char * name, IMetaClass * metaClass);
+Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param, const char * name, IMetaClass * metaClass);
 
-Handle<Value> converterToV8(GScriptBindingParam * param, const GVariant & value, IMetaConverter * converter);
+Handle<Value> converterToV8(const GBindingParamPointer & param, const GVariant & value, IMetaConverter * converter);
 
-GMetaMapClass * getMetaClassMap(GScriptBindingParam * param, IMetaClass * metaClass);
+GMetaMapClass * getMetaClassMap(const GBindingParamPointer & param, IMetaClass * metaClass);
 
 const char * signatureKey = "i_sig_cpgf";
 const int signatureValue = 0x168feed;
@@ -415,14 +415,15 @@ bool isGlobalObject(Handle<Value> object)
 	}
 }
 
-void * addUserDataToPool(GScriptBindingParam * param, GScriptUserData * userData)
+void * addUserDataToPool(const GBindingParamPointer & param, GScriptUserData * userData)
 {
-	return gdynamic_cast<GV8ScriptBindingParam *>(param)->getUserDataPool()->addUserData(userData);
+//	return gdynamic_cast<GV8ScriptBindingParam *>(param.get())->getUserDataPool()->addUserData(userData);
+	return userData;
 }
 
-void removeUserDataFromPool(GScriptBindingParam * param, GScriptUserData * userData)
+void removeUserDataFromPool(const GBindingParamPointer & param, GScriptUserData * userData)
 {
-	gdynamic_cast<GV8ScriptBindingParam *>(param)->getUserDataPool()->removeUserData(userData);
+	gdynamic_cast<GV8ScriptBindingParam *>(param.get())->getUserDataPool()->removeUserData(userData);
 }
 
 GScriptDataType getV8Type(Local<Value> value, IMetaTypedItem ** typeItem)
@@ -525,7 +526,7 @@ GScriptDataType getV8Type(Local<Value> value, IMetaTypedItem ** typeItem)
 	return sdtUnknown;
 }
 
-Handle<Value> objectToV8(GScriptBindingParam * param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+Handle<Value> objectToV8(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
 {
 	if(instance == NULL) {
 		return Handle<Value>();
@@ -546,12 +547,12 @@ Handle<Value> objectToV8(GScriptBindingParam * param, void * instance, IMetaClas
 	return self;
 }
 
-Handle<Value> rawToV8(GScriptBindingParam * param, const GVariant & value)
+Handle<Value> rawToV8(const GBindingParamPointer & param, const GVariant & value)
 {
 	GVariantType vt = value.getType();
 
 	if(param->getConfig().allowAccessRawData() && variantIsScriptRawData(vt)) {
-		Persistent<Object> self = Persistent<Object>::New(gdynamic_cast<GV8ScriptBindingParam *>(param)->getRawObject());
+		Persistent<Object> self = Persistent<Object>::New(gdynamic_cast<GV8ScriptBindingParam *>(param.get())->getRawObject());
 
 		GRawUserData * instanceUserData = new GRawUserData(param, value);
 		void * key = addUserDataToPool(param, instanceUserData);
@@ -566,7 +567,7 @@ Handle<Value> rawToV8(GScriptBindingParam * param, const GVariant & value)
 	return Handle<Value>();
 }
 
-Handle<Value> variantToV8(GScriptBindingParam * param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+Handle<Value> variantToV8(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
 {
 	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
 
@@ -663,7 +664,7 @@ void * v8ToObject(Handle<Value> value, GMetaType * outType)
 	return NULL;
 }
 
-GMetaVariant v8UserDataToVariant(GScriptBindingParam * param, Handle<Value> value)
+GMetaVariant v8UserDataToVariant(const GBindingParamPointer & param, Handle<Value> value)
 {
 	if(value->IsFunction() || value->IsObject()) {
 		Local<Object> obj = value->ToObject();
@@ -683,7 +684,7 @@ GMetaVariant v8UserDataToVariant(GScriptBindingParam * param, Handle<Value> valu
 	return GMetaVariant();
 }
 
-GMetaVariant functionToVariant(GScriptBindingParam * param, Local<Context> context, Handle<Value> value)
+GMetaVariant functionToVariant(const GBindingParamPointer & param, Local<Context> context, Handle<Value> value)
 {
 	if(value->IsFunction()) {
 		GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GV8ScriptFunction(param, context->Global(), Local<Value>::New(value)), true));
@@ -694,7 +695,7 @@ GMetaVariant functionToVariant(GScriptBindingParam * param, Local<Context> conte
 	return GMetaVariant();
 }
 
-GMetaVariant v8ToVariant(GScriptBindingParam * param, Local<Context> context, Handle<Value> value)
+GMetaVariant v8ToVariant(const GBindingParamPointer & param, Local<Context> context, Handle<Value> value)
 {
 	if(value.IsEmpty()) {
 		return GMetaVariant();
@@ -741,14 +742,15 @@ void weakHandleCallback(Persistent<Value> object, void * parameter)
 	GScriptUserData * userData = static_cast<GScriptUserData *>(userDataMap.getValue(parameter));
 
 	if(userData != NULL) {
-		removeUserDataFromPool(userData->getParam(), userData);
+//		removeUserDataFromPool(userData->getParam(), userData);
+		delete userData;
 	}
 
 	object.Dispose();
 	object.Clear();
 }
 
-void loadMethodParameters(const Arguments & args, GScriptBindingParam * param, GVariantData * outputParams)
+void loadMethodParameters(const Arguments & args, const GBindingParamPointer & param, GVariantData * outputParams)
 {
 	for(int i = 0; i < args.Length(); ++i) {
 		outputParams[i] = v8ToVariant(param, args.Holder()->CreationContext(), args[i]).takeData().varData;
@@ -764,7 +766,7 @@ void loadMethodParamTypes(const Arguments & args, GBindDataType * outputTypes)
 	}
 }
 
-void loadCallableParam(const Arguments & args, GScriptBindingParam * param, InvokeCallableParam * callableParam)
+void loadCallableParam(const Arguments & args, const GBindingParamPointer & param, InvokeCallableParam * callableParam)
 {
 	loadMethodParameters(args, param, callableParam->paramsData);
 	loadMethodParamTypes(args, callableParam->paramsType);
@@ -807,7 +809,7 @@ void accessibleSet(Local<String> /*prop*/, Local<Value> value, const AccessorInf
 	LEAVE_V8()
 }
 
-void doBindAccessible(GScriptBindingParam * param, Local<Object> container,
+void doBindAccessible(const GBindingParamPointer & param, Local<Object> container,
 	const char * name, void * instance, IMetaAccessible * accessible)
 {
 	GAccessibleUserData * userData = new GAccessibleUserData(param, instance, accessible);
@@ -818,7 +820,7 @@ void doBindAccessible(GScriptBindingParam * param, Local<Object> container,
 	container->SetAccessor(String::New(name), &accessibleGet, &accessibleSet, data);
 }
 
-Handle<Value> converterToV8(GScriptBindingParam * param, const GVariant & value, IMetaConverter * converter)
+Handle<Value> converterToV8(const GBindingParamPointer & param, const GVariant & value, IMetaConverter * converter)
 {
 	if(converter != NULL) {
 		if(isMetaConverterCanRead(converter->capabilityForCString())) {
@@ -860,7 +862,7 @@ Handle<Value> converterToV8(GScriptBindingParam * param, const GVariant & value,
 	return Handle<Value>();
 }
 
-Handle<Value> methodResultToV8(GScriptBindingParam * param, IMetaCallable * callable, InvokeCallableResult * result)
+Handle<Value> methodResultToV8(const GBindingParamPointer & param, IMetaCallable * callable, InvokeCallableResult * result)
 {
 	if(result->resultCount > 0) {
 		GMetaTypeData typeData;
@@ -943,7 +945,7 @@ Handle<Value> callbackMethodList(const Arguments & args)
 	LEAVE_V8(return Handle<Value>())
 }
 
-Handle<FunctionTemplate> createMethodTemplate(GScriptBindingParam * param, IMetaClass * metaClass, bool isGlobal, IMetaList * methodList,
+Handle<FunctionTemplate> createMethodTemplate(const GBindingParamPointer & param, IMetaClass * metaClass, bool isGlobal, IMetaList * methodList,
 	const char * name, Handle<FunctionTemplate> classTemplate, GUserDataMethodType methodType, GExtendMethodUserData ** outUserData)
 {
 	GExtendMethodUserData * userData = new GExtendMethodUserData(param, metaClass, methodList, name, methodType);
@@ -1024,7 +1026,7 @@ Handle<Array> namedEnumEnumerator(const AccessorInfo & info)
 	LEAVE_V8(return Handle<Array>())
 }
 
-Handle<ObjectTemplate> createEnumTemplate(GScriptBindingParam * param, IMetaEnum * metaEnum,
+Handle<ObjectTemplate> createEnumTemplate(const GBindingParamPointer & param, IMetaEnum * metaEnum,
 	const char * /*name*/, GEnumUserData ** outUserData)
 {
 	GEnumUserData * userData = new GEnumUserData(param, metaEnum);
@@ -1340,7 +1342,7 @@ void accessorNamedMemberSetter(Local<String> prop, Local<Value> value, const Acc
 	namedEnumSetter(prop, value, info);
 }
 
-void bindClassItems(Local<Object> object, GScriptBindingParam * param, IMetaClass * metaClass, bool allowStatic, bool allowMember)
+void bindClassItems(Local<Object> object, const GBindingParamPointer & param, IMetaClass * metaClass, bool allowStatic, bool allowMember)
 {
 	GClassUserData * userData = new GClassUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal);
 	void * key = addUserDataToPool(param, userData);
@@ -1369,7 +1371,7 @@ void bindClassItems(Local<Object> object, GScriptBindingParam * param, IMetaClas
 	}
 }
 
-void * invokeConstructor(const Arguments & args, GScriptBindingParam * param, IMetaClass * metaClass)
+void * invokeConstructor(const Arguments & args, const GBindingParamPointer & param, IMetaClass * metaClass)
 {
 	InvokeCallableParam callableParam(args.Length());
 	loadCallableParam(args, param, &callableParam);
@@ -1414,7 +1416,7 @@ Handle<Value> objectConstructor(const Arguments & args)
 	LEAVE_V8(return Handle<Value>());
 }
 
-GMetaMapClass * getMetaClassMap(GScriptBindingParam * param, IMetaClass * metaClass)
+GMetaMapClass * getMetaClassMap(const GBindingParamPointer & param, IMetaClass * metaClass)
 {
 	GMetaMapClass * map = param->getMetaMap()->findClassMap(metaClass);
 
@@ -1425,7 +1427,7 @@ GMetaMapClass * getMetaClassMap(GScriptBindingParam * param, IMetaClass * metaCl
 	return map;
 }
 
-Handle<FunctionTemplate> createClassTemplate(GScriptBindingParam * param, const char * name, IMetaClass * metaClass)
+Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param, const char * name, IMetaClass * metaClass)
 {
 	GMetaMapClass * map = param->getMetaMap()->findClassMap(metaClass);
 
@@ -1471,24 +1473,20 @@ Handle<FunctionTemplate> createClassTemplate(GScriptBindingParam * param, const 
 	return functionTemplate;
 }
 
-void doBindClass(GScriptBindingParam * param, Local<Object> container, const char * name, IMetaClass * metaClass)
+void doBindClass(const GBindingParamPointer & param, Local<Object> container, const char * name, IMetaClass * metaClass)
 {
 	Handle<FunctionTemplate> functionTemplate = createClassTemplate(param, name, metaClass);
 	container->Set(String::New(name), functionTemplate->GetFunction());
 }
 
 
-GV8ScriptObjectImplement::GV8ScriptObjectImplement(GV8ScriptBindingParam * param, Local<Object> object, bool freeResource)
+GV8ScriptObjectImplement::GV8ScriptObjectImplement(const GBindingParamPointer & param, Local<Object> object, bool freeResource)
 	: param(param), object(Persistent<Object>::New(object)), freeResource(freeResource)
 {
 }
 
 GV8ScriptObjectImplement::~GV8ScriptObjectImplement()
 {
-	if(this->freeResource) {
-		delete this->param;
-	}
-
 	this->object.Dispose();
 }
 
@@ -1499,7 +1497,7 @@ void GV8ScriptObjectImplement::doBindMethodList(const char * name, IMetaList * m
 
 	GExtendMethodUserData * newUserData;
 	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(this->param, NULL, true, methodList, name,
-	Handle<FunctionTemplate>(), methodType, &newUserData);
+		Handle<FunctionTemplate>(), methodType, &newUserData);
 
 	Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
 	setObjectSignature(&func);
@@ -1542,7 +1540,7 @@ bool valueIsCallable(Local<Value> value)
 	return value->IsFunction() || (value->IsObject() && Local<Object>::Cast(value)->IsCallable());
 }
 
-GMetaVariant invokeV8FunctionIndirectly(GScriptBindingParam * bindingParam, Local<Object> object, Local<Value> func, GMetaVariant const * const * params, size_t paramCount, const char * name)
+GMetaVariant invokeV8FunctionIndirectly(const GBindingParamPointer & bindingParam, Local<Object> object, Local<Value> func, GMetaVariant const * const * params, size_t paramCount, const char * name)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1575,7 +1573,7 @@ GMetaVariant invokeV8FunctionIndirectly(GScriptBindingParam * bindingParam, Loca
 }
 
 
-GV8ScriptFunction::GV8ScriptFunction(GScriptBindingParam * bindingParam, Local<Object> receiver, Local<Value> func)
+GV8ScriptFunction::GV8ScriptFunction(const GBindingParamPointer & bindingParam, Local<Object> receiver, Local<Value> func)
 	: bindingParam(bindingParam),
 		receiver(Persistent<Object>::New(Local<Object>::Cast(receiver))),
 		func(Persistent<Function>::New(Local<Function>::Cast(func)))
@@ -1619,7 +1617,7 @@ GMetaVariant GV8ScriptFunction::invokeIndirectly(GMetaVariant const * const * pa
 GV8ScriptObject::GV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config)
 	: super(config)
 {
-	this->implement.reset(new GV8ScriptObjectImplement(new GV8ScriptBindingParam(service, config), object, true));
+	this->implement.reset(new GV8ScriptObjectImplement(GBindingParamPointer(new GV8ScriptBindingParam(service, config)), object, true));
 }
 
 GV8ScriptObject::GV8ScriptObject(const GV8ScriptObject & other, Local<Object> object)
