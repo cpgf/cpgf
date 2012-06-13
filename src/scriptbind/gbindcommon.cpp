@@ -78,12 +78,12 @@ GSharedInstance::~GSharedInstance()
 }
 
 
-GClassUserData::GClassUserData(const GBindingParamPointer & param)
+GClassUserData::GClassUserData(GScriptBindingParam * param)
 	: super(udtClass, param)
 {
 }
 
-GClassUserData::GClassUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance, bool isInstance,
+GClassUserData::GClassUserData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance, bool isInstance,
 	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
 	: super(udtClass, param), data(new GSharedInstance(metaClass, instance, isInstance, allowGC, cv, dataType))
 {

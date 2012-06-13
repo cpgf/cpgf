@@ -94,7 +94,7 @@ private:
 	typedef GScriptUserData super;
 
 public:
-	GMethodUserData(const GBindingParamPointer & param, GClassUserData * classUserData, GExtendMethodUserData * methodUserData, bool freeData = false)
+	GMethodUserData(GScriptBindingParam * param, GClassUserData * classUserData, GExtendMethodUserData * methodUserData, bool freeData = false)
 		: super(methodUserType, param), classUserData(classUserData), methodUserData(methodUserData), freeData(freeData) {
 	}
 
@@ -119,7 +119,7 @@ public:
 	virtual ~GPythonObject();
 
 	IMetaService * getService() const;
-	const GBindingParamPointer & getParam() const;
+	GScriptBindingParam * getParam() const;
 	GScriptUserData * getUserData() const;
 
 protected:
@@ -132,14 +132,14 @@ private:
 class GPythonScriptFunction : public GScriptFunction
 {
 public:
-	GPythonScriptFunction(const GBindingParamPointer & bindingParam, PyObject * func);
+	GPythonScriptFunction(GScriptBindingParam * bindingParam, PyObject * func);
 	virtual ~GPythonScriptFunction();
 
 	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount);
 	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
 
 private:
-	const GBindingParamPointer & bindingParam;
+	GScriptBindingParam * bindingParam;
 	PyObject * func;
 };
 
@@ -189,7 +189,7 @@ public:
 	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
 
 public:
-	const GBindingParamPointer & getParam() const {
+	GScriptBindingParam * getParam() const {
 		return this->param;
 	}
 
@@ -202,7 +202,7 @@ private:
 
 private:
 	PyObject * object;
-	GBindingParamPointer param;
+	GScriptBindingParam * param;
 	bool freeParam;
 };
 
@@ -624,7 +624,7 @@ IMetaService * GPythonObject::getService() const
 	return this->getParam()->getService();
 }
 
-const GBindingParamPointer & GPythonObject::getParam() const
+GScriptBindingParam * GPythonObject::getParam() const
 {
 	return this->userData->getParam();
 }
@@ -720,7 +720,7 @@ GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
 	return sdtScriptObject;
 }
 
-GMetaVariant pythonToVariant(const GBindingParamPointer & param, PyObject * value)
+GMetaVariant pythonToVariant(GScriptBindingParam * param, PyObject * value)
 {
 	if(value == NULL) {
 		return GMetaVariant();
@@ -767,7 +767,7 @@ GMetaVariant pythonToVariant(const GBindingParamPointer & param, PyObject * valu
 	return GMetaVariant();
 }
 
-PyObject * objectToPython(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+PyObject * objectToPython(GScriptBindingParam * param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
 {
 	if(instance == NULL) {
 		return pyAddRef(Py_None);
@@ -776,7 +776,7 @@ PyObject * objectToPython(const GBindingParamPointer & param, void * instance, I
 	return createPythonObject(new GClassUserData(param, metaClass, instance, true, allowGC, cv, dataType));
 }
 
-PyObject * rawToPython(const GBindingParamPointer & param, const GVariant & value)
+PyObject * rawToPython(GScriptBindingParam * param, const GVariant & value)
 {
 	GVariantType vt = value.getType();
 
@@ -789,7 +789,7 @@ PyObject * rawToPython(const GBindingParamPointer & param, const GVariant & valu
 	return NULL;
 }
 
-PyObject * variantToPython(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+PyObject * variantToPython(GScriptBindingParam * param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
 {
 	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
 	
@@ -867,7 +867,7 @@ PyObject * variantToPython(const GBindingParamPointer & param, const GVariant & 
 	return NULL;
 }
 
-PyObject * converterToPython(const GBindingParamPointer & param, const GVariant & value, IMetaConverter * converter)
+PyObject * converterToPython(GScriptBindingParam * param, const GVariant & value, IMetaConverter * converter)
 {
 	if(converter == NULL) {
 		return NULL;
@@ -912,7 +912,7 @@ PyObject * converterToPython(const GBindingParamPointer & param, const GVariant 
 	return NULL;
 }
 
-PyObject * methodResultToPython(const GBindingParamPointer & param, IMetaCallable * callable, InvokeCallableResult * result)
+PyObject * methodResultToPython(GScriptBindingParam * param, IMetaCallable * callable, InvokeCallableResult * result)
 {
 	if(result->resultCount > 0) {
 		GMetaTypeData typeData;
@@ -940,7 +940,7 @@ PyObject * methodResultToPython(const GBindingParamPointer & param, IMetaCallabl
 	return pyAddRef(Py_None);
 }
 
-void loadMethodParameters(const GBindingParamPointer & p, PyObject * args, GVariantData * outputParams)
+void loadMethodParameters(GScriptBindingParam * p, PyObject * args, GVariantData * outputParams)
 {
 	int paramCount = static_cast<int>(PyTuple_Size(args));
 
@@ -962,7 +962,7 @@ void loadMethodParamTypes(PyObject * args, GBindDataType * outputTypes)
 	}
 }
 
-void loadCallableParam(const GBindingParamPointer & param, PyObject * args, InvokeCallableParam * callableParam)
+void loadCallableParam(GScriptBindingParam * param, PyObject * args, InvokeCallableParam * callableParam)
 {
 	loadMethodParameters(param, args, callableParam->paramsData);
 	loadMethodParamTypes(args, callableParam->paramsType);
@@ -1340,7 +1340,7 @@ int callbackAccessibleDescriptorSet(PyObject * self, PyObject * /*obj*/, PyObjec
 	LEAVE_PYTHON(return 0)
 }
 
-GMetaVariant invokePythonFunctionIndirectly(const GBindingParamPointer & bindingParam, PyObject * object, PyObject * func, GMetaVariant const * const * params, size_t paramCount, const char * name)
+GMetaVariant invokePythonFunctionIndirectly(GScriptBindingParam * bindingParam, PyObject * object, PyObject * func, GMetaVariant const * const * params, size_t paramCount, const char * name)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1423,7 +1423,7 @@ bool isValidObject(PyObject * obj)
 	}
 }
 
-void doBindMethodList(const GBindingParamPointer & param, PyObject * owner, const char * name, IMetaList * methodList)
+void doBindMethodList(GScriptBindingParam * param, PyObject * owner, const char * name, IMetaList * methodList)
 {
 	GExtendMethodUserData * data = new GExtendMethodUserData(param, NULL, methodList, name, udmtMethodList);
 	GMethodUserData * methodData = new GMethodUserData(param, NULL, data, true);
@@ -1432,21 +1432,21 @@ void doBindMethodList(const GBindingParamPointer & param, PyObject * owner, cons
 	setObjectAttr(owner, name, methodObject);
 }
 
-void doBindClass(const GBindingParamPointer & param, PyObject * owner, const char * name, IMetaClass * metaClass)
+void doBindClass(GScriptBindingParam * param, PyObject * owner, const char * name, IMetaClass * metaClass)
 {
 	PyObject * classObject = createPythonObject(new GClassUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal));
 
 	setObjectAttr(owner, name, classObject);
 }
 
-void doBindEnum(const GBindingParamPointer & param, PyObject * owner, const char * name, IMetaEnum * metaEnum)
+void doBindEnum(GScriptBindingParam * param, PyObject * owner, const char * name, IMetaEnum * metaEnum)
 {
 	PyObject * enumObject = createPythonObject(new GEnumUserData(param, metaEnum));
 
 	setObjectAttr(owner, name, enumObject);
 }
 
-void doBindAccessible(const GBindingParamPointer & param, PyObject * owner, const char * name, void * instance, IMetaAccessible * accessible)
+void doBindAccessible(GScriptBindingParam * param, PyObject * owner, const char * name, void * instance, IMetaAccessible * accessible)
 {
 	PyObject * accessibleObject = createPythonObject(new GAccessibleUserData(param, instance, accessible));
 
@@ -1454,7 +1454,7 @@ void doBindAccessible(const GBindingParamPointer & param, PyObject * owner, cons
 }
 
 
-GPythonScriptFunction::GPythonScriptFunction(const GBindingParamPointer & bindingParam, PyObject * func)
+GPythonScriptFunction::GPythonScriptFunction(GScriptBindingParam * bindingParam, PyObject * func)
 	: bindingParam(bindingParam), func(func)
 {
 	Py_XINCREF(this->func);
@@ -1489,7 +1489,7 @@ GMetaVariant GPythonScriptFunction::invokeIndirectly(GMetaVariant const * const 
 
 
 GPythonScriptObject::GPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config)
-	: super(config), object(object), param(GBindingParamPointer(new GScriptBindingParam(service, config))), freeParam(true)
+	: super(config), object(object), param(new GScriptBindingParam(service, config)), freeParam(true)
 {
 }
 
@@ -1500,6 +1500,9 @@ GPythonScriptObject::GPythonScriptObject(const GPythonScriptObject & other, PyOb
 
 GPythonScriptObject::~GPythonScriptObject()
 {
+	if(this->freeParam) {
+		delete this->param;
+	}
 }
 
 GScriptDataType GPythonScriptObject::getType(const char * name, IMetaTypedItem ** outMetaTypeItem)
