@@ -1,8 +1,7 @@
 Script binding refactoring:
 1, Add user data for object, so class is different with object. This is important for supporting override C++ method from script.
 2, All object, method, etc, user data, should know the class user data.
-3, Remove V8 GUserDataPool, use shared pointer instead.
-4, Use shared pointer to hold GScriptBindingParam.
+3, Use shared pointer to hold GScriptBindingParam.
 
 Todo:
 
