@@ -80,7 +80,7 @@ public:
 	}
 
 	GSharedPointer & operator = (GSharedPointer other) {
-		ThisType(other).swap(*this);
+		other.swap(*this);
 		return *this;
 	}
 
