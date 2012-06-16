@@ -41,6 +41,7 @@ namespace {
 
 class GV8ScriptObject;
 class GV8ScriptBindingParam;
+class GUserDataPool;
 
 class GV8ScriptObjectImplement
 {
@@ -119,6 +120,7 @@ private:
 
 private:
 	GScopedPointer<GV8ScriptObjectImplement> implement;
+	GSharedPointer<GUserDataPool> userDataPool;
 
 private:
 };
@@ -238,8 +240,9 @@ public:
 		ListType::iterator it = this->userDataList.find(userData);
 		if(it != this->userDataList.end()) {
 			userDataMap.removeValue(userData);
-			delete *it;
+			GScriptUserData * p = *it;
 			this->userDataList.erase(it);
+			delete p;
 		}
 	}
 
@@ -323,8 +326,8 @@ private:
 	typedef GScriptBindingParam super;
 
 public:
-	GV8ScriptBindingParam(IMetaService * service, const GScriptConfig & config)
-		: super(service, config)
+	GV8ScriptBindingParam(IMetaService * service, const GScriptConfig & config, GUserDataPool * userDataPool)
+		: super(service, config), userDataPool(userDataPool)
 	{
 	}
 
@@ -345,12 +348,12 @@ public:
 	}
 
 	GUserDataPool * getUserDataPool() {
-		return &userDataPool;
+		return userDataPool;
 	}
 
 private:
 	Persistent<ObjectTemplate> objectTemplate;
-	GUserDataPool userDataPool;
+	GUserDataPool * userDataPool;
 };
 
 
@@ -1618,13 +1621,13 @@ GMetaVariant GV8ScriptFunction::invokeIndirectly(GMetaVariant const * const * pa
 
 
 GV8ScriptObject::GV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config)
-	: super(config)
+	: super(config), userDataPool(new GUserDataPool())
 {
-	this->implement.reset(new GV8ScriptObjectImplement(GBindingParamPointer(new GV8ScriptBindingParam(service, config)), object, true));
+	this->implement.reset(new GV8ScriptObjectImplement(GBindingParamPointer(new GV8ScriptBindingParam(service, config, userDataPool.get())), object, true));
 }
 
 GV8ScriptObject::GV8ScriptObject(const GV8ScriptObject & other, Local<Object> object)
-	: super(other.implement->param->getConfig())
+	: super(other.implement->param->getConfig()), userDataPool(other.userDataPool)
 {
 	this->implement.reset(new GV8ScriptObjectImplement(other.implement->param, object, false));
 }

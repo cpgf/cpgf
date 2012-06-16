@@ -82,7 +82,7 @@ enum GScriptUserDataType {
 	udtRaw
 };
 
-class GSharedInstance {
+class GSharedInstance : public GNoncopyable {
 public:
 	GSharedInstance();
 	GSharedInstance(IMetaClass * metaClass, void * instance, bool isInstance,

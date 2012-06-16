@@ -64,11 +64,13 @@ GSharedInstance::~GSharedInstance()
 			this->metaClass->destroyInstance(instance);
 		}
 		this->metaClass->releaseReference();
+		this->metaClass = NULL;
 	}
 	switch(dataType) {
 		case cudtInterface:
 			if(this->interfaceObject != NULL) {
 				this->interfaceObject->releaseReference();
+				this->interfaceObject = NULL;
 			}
 			break;
 
