@@ -430,7 +430,7 @@ public:
 	~InvokeCallableParam();
 
 public:
-	GVariantData paramsData[REF_MAX_ARITY];
+	GVariant paramsData[REF_MAX_ARITY];
 	GBindDataType paramsType[REF_MAX_ARITY];
 	size_t paramCount;
 	InvokeParamRank paramsRank;

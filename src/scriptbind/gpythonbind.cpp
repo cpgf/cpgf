@@ -940,13 +940,13 @@ PyObject * methodResultToPython(const GBindingParamPointer & param, IMetaCallabl
 	return pyAddRef(Py_None);
 }
 
-void loadMethodParameters(const GBindingParamPointer & p, PyObject * args, GVariantData * outputParams)
+void loadMethodParameters(const GBindingParamPointer & p, PyObject * args, GVariant * outputParams)
 {
 	int paramCount = static_cast<int>(PyTuple_Size(args));
 
 	for(int i = 0; i < paramCount; ++i) {
 		PyObject * param = PyTuple_GetItem(args, i);
-		outputParams[i] = pythonToVariant(p, param).takeData().varData;
+		outputParams[i] = pythonToVariant(p, param).getValue();
 	}
 }
 

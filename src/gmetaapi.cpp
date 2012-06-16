@@ -309,6 +309,7 @@ public:
 
 protected:
 	virtual void G_API_CC execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount);
+	virtual void G_API_CC executeIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount);
 	virtual void G_API_CC invoke(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount);
 	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount);
 
@@ -335,6 +336,7 @@ public:
 
 protected:
 	virtual void G_API_CC execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount);
+	virtual void G_API_CC executeIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount);
 	virtual void * G_API_CC invoke(const GVariantData * params, uint32_t paramCount);
 	virtual void * G_API_CC invokeIndirectly(GVariantData const * const * params, uint32_t paramCount);
 
@@ -363,6 +365,7 @@ public:
 protected:
 	virtual int32_t G_API_CC getOperator();
 	virtual void G_API_CC execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount);
+	virtual void G_API_CC executeIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount);
 	virtual void G_API_CC invokeUnary(GVariantData * outResult, const GVariantData * p0);
 	virtual void G_API_CC invokeBinary(GVariantData * outResult, const GVariantData * p0, const GVariantData * p1);
 	virtual void G_API_CC invokeFunctor(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount);
@@ -1079,6 +1082,11 @@ void G_API_CC ImplMetaMethod::execute(GVariantData * outResult, void * instance,
 	this->invoke(outResult, instance, params, paramCount);
 }
 
+void G_API_CC ImplMetaMethod::executeIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount)
+{
+	this->invokeIndirectly(outResult, instance, params, paramCount);
+}
+
 void G_API_CC ImplMetaMethod::invoke(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount)
 {
 	GASSERT(paramCount <= REF_MAX_ARITY);
@@ -1138,6 +1146,14 @@ void G_API_CC ImplMetaConstructor::execute(GVariantData * outResult, void * /*in
 	}
 }
 
+void G_API_CC ImplMetaConstructor::executeIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount)
+{
+	if(outResult != NULL) {
+		void * newObj = this->invokeIndirectly(params, paramCount);
+		*outResult = GVariant(newObj).takeData();
+	}
+}
+
 void * G_API_CC ImplMetaConstructor::invoke(const GVariantData * params, uint32_t paramCount)
 {
 	GASSERT(paramCount <= REF_MAX_ARITY);
@@ -1191,6 +1207,11 @@ int32_t G_API_CC ImplMetaOperator::getOperator()
 void G_API_CC ImplMetaOperator::execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount)
 {
 	this->invokeFunctor(outResult, instance, params, paramCount);
+}
+
+void G_API_CC ImplMetaOperator::executeIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount)
+{
+	this->invokeFunctorIndirectly(outResult, instance, params, paramCount);
 }
 
 void G_API_CC ImplMetaOperator::invokeUnary(GVariantData * outResult, const GVariantData * p0)

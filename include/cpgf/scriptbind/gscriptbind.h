@@ -140,7 +140,7 @@ private:
 };
 
 
-class GScriptFunction
+class GScriptFunction : public GNoncopyable
 {
 public:
 	virtual ~GScriptFunction() {}
@@ -150,7 +150,7 @@ public:
 };
 
 
-class GScriptObject
+class GScriptObject : public GNoncopyable
 {
 protected:
 	GScriptObject(const GScriptConfig & config);

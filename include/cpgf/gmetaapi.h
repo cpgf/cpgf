@@ -84,6 +84,7 @@ struct IMetaCallable : public IMetaItem
 	virtual gapi_bool G_API_CC isParamTransferOwnership(uint32_t paramIndex) = 0;
 	virtual gapi_bool G_API_CC isResultTransferOwnership() = 0;
 	virtual void G_API_CC execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC executeIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount) = 0;
 };
 
 struct IMetaMethod : public IMetaCallable

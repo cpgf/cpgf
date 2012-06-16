@@ -323,17 +323,10 @@ InvokeCallableParam::InvokeCallableParam(size_t paramCount)
 	if(this->paramCount > REF_MAX_ARITY) {
 		raiseCoreException(Error_ScriptBinding_CallMethodWithTooManyParameters);
 	}
-
-	for(size_t i = 0; i < this->paramCount; ++i) {
-		initializeVarData(&this->paramsData[i]);
-	}
 }
 
 InvokeCallableParam::~InvokeCallableParam()
 {
-	for(size_t i = 0; i < this->paramCount; ++i) {
-		freeVarData(&this->paramsData[i]);
-	}
 }
 
 
@@ -412,13 +405,13 @@ bool isParamImplicitConvert(int paramRank)
 	return paramRank >= ParamMatchRank_Implicit_Begin && paramRank < ParamMatchRank_Implicit_End;
 }
 
-int rankImplicitConvert(const GVariantData & sourceData, const GMetaType & targetType)
+int rankImplicitConvert(const GVariant & sourceData, const GMetaType & targetType)
 {
-	if(variantDataIsString(sourceData) && targetType.isWideString()) {
+	if(variantIsString(sourceData) && targetType.isWideString()) {
 		return ParamMatchRank_Implicit_StringToWideString;
 	}
 
-	if(variantDataIsWideString(sourceData) && targetType.isString()) {
+	if(variantIsWideString(sourceData) && targetType.isString()) {
 		return ParamMatchRank_Implicit_WideStringToString;
 	}
 
@@ -501,7 +494,7 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallabl
 		paramsRank->ranks[i] = paramRank;
 
 		if(! isParamImplicitConvert(paramRank)) {
-			bool ok = !! callable->checkParam(&callbackParam->paramsData[i], static_cast<uint32_t>(i));
+			bool ok = !! callable->checkParam(&callbackParam->paramsData[i].data, static_cast<uint32_t>(i));
 			metaCheckError(callable);
 			if(! ok) {
 				return -1;
@@ -565,6 +558,29 @@ bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible)
 	return true;
 }
 
+void convertParam(GVariant * v, int paramRank, GVariant * holder)
+{
+	switch(paramRank) {
+		case ParamMatchRank_Implicit_StringToWideString: {
+			*holder = *v;
+			*v = GVariant();
+			const char * s = fromVariant<char *>(*holder);
+			GScopedArray<wchar_t> ws(stringToWideString(s));
+			*v = createWideStringVariant(ws.get());
+		}
+			break;
+
+		case ParamMatchRank_Implicit_WideStringToString: {
+			*holder = *v;
+			*v = GVariant();
+			const wchar_t * ws = fromVariant<wchar_t *>(*holder);
+			GScopedArray<char> s(wideStringToString(ws));
+			*v = createStringVariant(s.get());
+		}
+			break;
+	}
+}
+
 void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam)
 {
 	void * instance = NULL;
@@ -589,29 +605,6 @@ void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, Invok
 	return instance;
 }
 
-void convertParam(GVariantData * v, int paramRank, GVariant * holder)
-{
-	switch(paramRank) {
-		case ParamMatchRank_Implicit_StringToWideString: {
-			*holder = GVariant(*v);
-			initializeVarData(v);
-			const char * s = fromVariant<char *>(*holder);
-			GScopedArray<wchar_t> ws(stringToWideString(s));
-			*v = createWideStringVariant(ws.get()).takeData();
-		}
-			break;
-
-		case ParamMatchRank_Implicit_WideStringToString: {
-			*holder = GVariant(*v);
-			initializeVarData(v);
-			const wchar_t * ws = fromVariant<wchar_t *>(*holder);
-			GScopedArray<char> s(wideStringToString(ws));
-			*v = createStringVariant(s.get()).takeData();
-		}
-			break;
-	}
-}
-
 void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableParam * callableParam, InvokeCallableResult * result)
 {
 	result->resultCount = callable->hasResult() ? 1 : 0;
@@ -625,7 +618,11 @@ void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableP
 		}
 	}
 
-	callable->execute(&result->resultData, instance, callableParam->paramsData, static_cast<uint32_t>(callableParam->paramCount));
+	GVariantData * data[REF_MAX_ARITY];
+	for(size_t i = 0; i < callableParam->paramCount; ++i) {
+		data[i] = & callableParam->paramsData[i].data;
+	}
+	callable->executeIndirectly(&result->resultData, instance, data, static_cast<uint32_t>(callableParam->paramCount));
 	metaCheckError(callable);
 }
 

@@ -751,10 +751,10 @@ void weakHandleCallback(Persistent<Value> object, void * parameter)
 	object.Clear();
 }
 
-void loadMethodParameters(const Arguments & args, const GBindingParamPointer & param, GVariantData * outputParams)
+void loadMethodParameters(const Arguments & args, const GBindingParamPointer & param, GVariant * outputParams)
 {
 	for(int i = 0; i < args.Length(); ++i) {
-		outputParams[i] = v8ToVariant(param, args.Holder()->CreationContext(), args[i]).takeData().varData;
+		outputParams[i] = v8ToVariant(param, args.Holder()->CreationContext(), args[i]).getValue();
 	}
 }
 

@@ -869,10 +869,10 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 	return sdtUnknown;
 }
 
-void loadMethodParameters(lua_State * L, const GBindingParamPointer & param, GVariantData * outputParams, int startIndex, size_t paramCount)
+void loadMethodParameters(lua_State * L, const GBindingParamPointer & param, GVariant * outputParams, int startIndex, size_t paramCount)
 {
 	for(size_t i = 0; i < paramCount; ++i) {
-		outputParams[i] = luaToVariant(L, param, static_cast<int>(i) + startIndex).takeData().varData;
+		outputParams[i] = luaToVariant(L, param, static_cast<int>(i) + startIndex).getValue();
 	}
 }
 
