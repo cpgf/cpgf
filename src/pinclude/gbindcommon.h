@@ -79,7 +79,8 @@ enum GScriptUserDataType {
 	udtEnum,
 	udtOperator,
 	udtAccessible,
-	udtRaw
+	udtRaw,
+	udtMethod
 };
 
 class GSharedInstance : public GNoncopyable {
@@ -170,6 +171,7 @@ enum GUserDataMethodType {
 	udmtInternal
 };
 
+/*
 class GMethodListUserData : public GScriptUserData
 {
 private:
@@ -189,6 +191,7 @@ public:
 	IMetaList * methodList;
 	GUserDataMethodType methodType;
 };
+*/
 
 class GExtendMethodUserData : public GScriptUserData
 {
@@ -215,11 +218,44 @@ public:
 		}
 	}
 
+	GScriptDataType getMethodType() const {
+		if(this->methodList->getCount() > 1) {
+			return sdtMethodList;
+		}
+		else {
+			return sdtMethod;
+		}
+	}
+
 public:
 	IMetaClass * metaClass;
 	IMetaList * methodList;
 	std::string name;
 	GUserDataMethodType methodType;
+};
+
+class GMethodUserData : public GScriptUserData
+{
+private:
+	typedef GScriptUserData super;
+
+public:
+	GMethodUserData(const GBindingParamPointer & param, GClassUserData * classUserData, GExtendMethodUserData * methodUserData, bool freeData = false)
+		: super(udtMethod, param), classUserData(classUserData), methodUserData(methodUserData), freeData(freeData) {
+	}
+
+	virtual ~GMethodUserData() {
+		delete this->classUserData;
+
+		if(this->freeData) {
+			delete this->methodUserData;
+		}
+	}
+
+public:
+	GClassUserData * classUserData;
+	GExtendMethodUserData * methodUserData;
+	bool freeData;
 };
 
 class GOperatorUserData : public GScriptUserData
@@ -341,6 +377,22 @@ inline void swap(GMetaMapItem & a, GMetaMapItem & b)
 }
 
 
+class GMapItemMethodData : public GMetaMapItemData
+{
+public:
+	GExtendMethodUserData * getMethodData() const {
+		return this->methodUserData.get();
+	}
+
+	void setMethodData(GExtendMethodUserData * methodUserData) {
+		this->methodUserData.reset(methodUserData);
+	}
+
+private:
+	GScopedPointer<GExtendMethodUserData> methodUserData;
+};
+
+
 class GMetaMapClass
 {
 public:
@@ -439,12 +491,9 @@ public:
 class InvokeCallableResult
 {
 public:
-	InvokeCallableResult();
-	~InvokeCallableResult();
-
-public:
 	int resultCount;
-	GVariantData resultData;
+	GVariant resultData;
+	GSharedInterface<IMetaCallable> callable;
 };
 
 bool variantIsScriptRawData(GVariantType vt);
@@ -481,6 +530,8 @@ bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible);
 
 void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
 void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableParam * callableParam, InvokeCallableResult * result);
+
+InvokeCallableResult doCallbackMethodList(GClassUserData * objectUserData, GExtendMethodUserData * methodUserData, InvokeCallableParam * callableParam);
 
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,

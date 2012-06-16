@@ -871,7 +871,7 @@ Handle<Value> methodResultToV8(const GBindingParamPointer & param, IMetaCallable
 		callable->getResultType(&typeData);
 		metaCheckError(callable);
 
-		GVariant value = GVariant(result->resultData);
+		GVariant value = result->resultData;
 		Handle<Value> v;
 		v = variantToV8(param, value, GMetaType(typeData), !! callable->isResultTransferOwnership(), false);
 		if(v.IsEmpty()) {
@@ -901,47 +901,20 @@ Handle<Value> callbackMethodList(const Arguments & args)
 		raiseCoreException(Error_ScriptBinding_AccessMemberWithWrongObject);
 	}
 
-	GClassUserData * userData = NULL;
+	GClassUserData * objectUserData = NULL;
 
 	if(!isGlobal) {
-		userData = static_cast<GClassUserData *>(args.Holder()->GetPointerFromInternalField(0));
+		objectUserData = static_cast<GClassUserData *>(args.Holder()->GetPointerFromInternalField(0));
 	}
 
 	Local<External> data = Local<External>::Cast(args.Data());
-	GExtendMethodUserData * namedUserData = static_cast<GExtendMethodUserData *>(data->Value());
+	GExtendMethodUserData * methodUserData = static_cast<GExtendMethodUserData *>(data->Value());
 
 	InvokeCallableParam callableParam(args.Length());
-	loadCallableParam(args, namedUserData->getParam(), &callableParam);
+	loadCallableParam(args, methodUserData->getParam(), &callableParam);
 
-	void * instance = NULL;
-	if(userData != NULL) {
-		instance = userData->getInstance();
-	}
-
-	GScopedInterface<IMetaList> methodList;
-	if(namedUserData->metaClass == NULL) {
-		methodList.reset(namedUserData->methodList);
-		methodList->addReference();
-	}
-	else {
-		methodList.reset(createMetaList());
-		loadMethodList(methodList.get(), namedUserData->getParam()->getMetaMap(), userData == NULL? namedUserData->metaClass : userData->data->metaClass,
-			instance,  userData, namedUserData->name.c_str());
-	}
-
-	int maxRankIndex = findAppropriateCallable(namedUserData->getParam()->getService(),
-		makeCallback(methodList.get(), &IMetaList::getAt), methodList->getCount(),
-		&callableParam, FindCallablePredict());
-
-	if(maxRankIndex >= 0) {
-		InvokeCallableResult result;
-		GScopedInterface<IMetaCallable> callable(gdynamic_cast<IMetaCallable *>(methodList->getAt(maxRankIndex)));
-		doInvokeCallable(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), callable.get(), &callableParam, &result);
-		return methodResultToV8(namedUserData->getParam(), callable.get(), &result);
-	}
-
-	raiseCoreException(Error_ScriptBinding_CantFindMatchedMethod);
-	return Handle<Value>();
+	InvokeCallableResult result = doCallbackMethodList(objectUserData, methodUserData, &callableParam);
+	return methodResultToV8(methodUserData->getParam(), result.callable.get(), &result);
 
 	LEAVE_V8(return Handle<Value>())
 }

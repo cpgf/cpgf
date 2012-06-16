@@ -71,47 +71,6 @@ private:
 	PyObject * object;
 };
 
-class GMapItemMethodData : public GMetaMapItemData
-{
-public:
-	GExtendMethodUserData * getMethodData() const {
-		return this->methodUserData.get();
-	}
-
-	void setMethodData(GExtendMethodUserData * methodUserData) {
-		this->methodUserData.reset(methodUserData);
-	}
-
-private:
-	GScopedPointer<GExtendMethodUserData> methodUserData;
-};
-
-const GScriptUserDataType methodUserType = (GScriptUserDataType)0x10;
-
-class GMethodUserData : public GScriptUserData
-{
-private:
-	typedef GScriptUserData super;
-
-public:
-	GMethodUserData(const GBindingParamPointer & param, GClassUserData * classUserData, GExtendMethodUserData * methodUserData, bool freeData = false)
-		: super(methodUserType, param), classUserData(classUserData), methodUserData(methodUserData), freeData(freeData) {
-	}
-
-	virtual ~GMethodUserData() {
-		delete this->classUserData;
-
-		if(this->freeData) {
-			delete this->methodUserData;
-		}
-	}
-
-public:
-	GClassUserData * classUserData;
-	GExtendMethodUserData * methodUserData;
-	bool freeData;
-};
-
 class GPythonObject : public PyObject
 {
 public:
@@ -560,7 +519,7 @@ PyTypeObject * getTypeObject(GScriptUserData * userData)
 			typeObject = (gdynamic_cast<GClassUserData *>(userData)->data->isInstance ? &objectType : &classType);
 			break;
 
-		case methodUserType:
+		case udtMethod:
 			typeObject = &functionType;
 			break;
 
@@ -920,7 +879,7 @@ PyObject * methodResultToPython(const GBindingParamPointer & param, IMetaCallabl
 		callable->getResultType(&typeData);
 		metaCheckError(callable);
 
-		GVariant value = GVariant(result->resultData);
+		GVariant value = result->resultData;
 		PyObject * v;
 		v = variantToPython(param, value, GMetaType(typeData), !! callable->isResultTransferOwnership(), false);
 		if(v == NULL) {
@@ -980,37 +939,9 @@ PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObje
 	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
 	loadCallableParam(userData->getParam(), args, &callableParam);
 
-	void * instance = NULL;
-	
-	if(userData->classUserData != NULL) {
-		instance = userData->classUserData->getInstance();
-	}
+	InvokeCallableResult result = doCallbackMethodList(userData->classUserData, userData->methodUserData, &callableParam);
 
-	GScopedInterface<IMetaList> methodList;
-	if(userData->classUserData == NULL || userData->classUserData->data->metaClass == NULL) {
-		methodList.reset(userData->methodUserData->methodList);
-		methodList->addReference();
-	}
-	else {
-		methodList.reset(createMetaList());
-		loadMethodList(methodList.get(), userData->getParam()->getMetaMap(), userData->classUserData->data->metaClass,
-			instance,  userData->classUserData, userData->methodUserData->name.c_str());
-	}
-
-	int maxRankIndex = findAppropriateCallable(methodObject->getService(),
-		makeCallback(methodList.get(), &IMetaList::getAt), methodList->getCount(),
-		&callableParam, FindCallablePredict());
-
-	if(maxRankIndex >= 0) {
-		InvokeCallableResult result;
-		GScopedInterface<IMetaCallable> callable(gdynamic_cast<IMetaCallable *>(methodList->getAt(maxRankIndex)));
-		doInvokeCallable(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), callable.get(), &callableParam, &result);
-		return methodResultToPython(methodObject->getUserData()->getParam(), callable.get(), &result);
-	}
-
-	raiseCoreException(Error_ScriptBinding_CantFindMatchedMethod);
-
-	return pyAddRef(Py_None);
+	return methodResultToPython(methodObject->getUserData()->getParam(), result.callable.get(), &result);
 
 	LEAVE_PYTHON(return NULL)
 }

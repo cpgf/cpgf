@@ -330,17 +330,6 @@ InvokeCallableParam::~InvokeCallableParam()
 }
 
 
-InvokeCallableResult::InvokeCallableResult()
-{
-	initializeVarData(&this->resultData);
-}
-
-InvokeCallableResult::~InvokeCallableResult()
-{
-	freeVarData(&this->resultData);
-}
-
-
 bool variantIsScriptRawData(GVariantType /*vt*/)
 {
 	return true;
@@ -608,7 +597,6 @@ void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, Invok
 void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableParam * callableParam, InvokeCallableResult * result)
 {
 	result->resultCount = callable->hasResult() ? 1 : 0;
-	vtInit(result->resultData.typeData);
 
 	GVariant holders[REF_MAX_ARITY];
 
@@ -622,8 +610,43 @@ void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableP
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
 		data[i] = & callableParam->paramsData[i].data;
 	}
-	callable->executeIndirectly(&result->resultData, instance, data, static_cast<uint32_t>(callableParam->paramCount));
+	callable->executeIndirectly(&result->resultData.data, instance, data, static_cast<uint32_t>(callableParam->paramCount));
 	metaCheckError(callable);
+}
+
+InvokeCallableResult doCallbackMethodList(GClassUserData * objectUserData, GExtendMethodUserData * methodUserData, InvokeCallableParam * callableParam)
+{
+	void * instance = NULL;
+	if(objectUserData != NULL) {
+		instance = objectUserData->getInstance();
+	}
+
+	GScopedInterface<IMetaList> methodList;
+	if(methodUserData->metaClass == NULL && methodUserData->methodList != NULL) {
+		methodList.reset(methodUserData->methodList);
+		methodList->addReference();
+	}
+	else {
+		methodList.reset(createMetaList());
+		loadMethodList(methodList.get(), methodUserData->getParam()->getMetaMap(), objectUserData == NULL? methodUserData->metaClass : objectUserData->data->metaClass,
+			instance,  objectUserData, methodUserData->name.c_str());
+	}
+
+	int maxRankIndex = findAppropriateCallable(methodUserData->getParam()->getService(),
+		makeCallback(methodList.get(), &IMetaList::getAt), methodList->getCount(),
+		callableParam, FindCallablePredict());
+
+	if(maxRankIndex >= 0) {
+		InvokeCallableResult result;
+		GScopedInterface<IMetaCallable> callable(gdynamic_cast<IMetaCallable *>(methodList->getAt(maxRankIndex)));
+		doInvokeCallable(methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), callable.get(), callableParam, &result);
+		result.callable.reset(callable.get());
+		return result;
+	}
+
+	raiseCoreException(Error_ScriptBinding_CantFindMatchedMethod);
+
+	return InvokeCallableResult();
 }
 
 void loadMethodList(GMetaClassTraveller * traveller,
