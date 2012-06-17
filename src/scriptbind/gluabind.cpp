@@ -69,7 +69,7 @@ private:
 class GLuaScriptObjectImplement
 {
 public:
-	GLuaScriptObjectImplement(const GBindingParamPointer & param, GLuaScriptObject * binding, lua_State * L, int objectIndex, bool freeResource);
+	GLuaScriptObjectImplement(const GBindingParamPointer & param, GLuaScriptObject * binding, lua_State * L, int objectIndex);
 	
 	~GLuaScriptObjectImplement();
 	
@@ -86,7 +86,6 @@ public:
 	GLuaScriptObject * binding;
 	lua_State * luaState;
 	int ref;
-	bool freeResource;
 
 private:
 	GScopedPointer<GLuaGlobalAccessor> globalAccessor;
@@ -224,6 +223,7 @@ int UserData_operator(lua_State * L);
 void doBindAllOperators(lua_State * L, const GBindingParamPointer & param, void * instance, IMetaClass * metaClass);
 void doBindClass(lua_State * L, const GBindingParamPointer & param, IMetaClass * metaClass);
 void doBindEnum(lua_State * L, const GBindingParamPointer & param, IMetaEnum * metaEnum);
+void doBindMethodList(lua_State * L, const GBindingParamPointer & param, GExtendMethodUserData * data, bool freeData);
 void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const char * name, IMetaList * methodList, GUserDataMethodType methodType);
 
 void initObjectMetaTable(lua_State * L);
@@ -514,8 +514,8 @@ void objectToLua(lua_State * L, const GBindingParamPointer & param, void * insta
 		return;
 	}
 
-	void * userData = lua_newuserdata(L, sizeof(GClassUserData));
-	new (userData) GClassUserData(param, metaClass, instance, true, allowGC, cv, dataType);
+	void * userData = lua_newuserdata(L, sizeof(GObjectUserData));
+	new (userData) GObjectUserData(param, metaClass, instance, true, allowGC, cv, dataType);
 
 	const char * className = metaClass->getName();
 	
@@ -549,12 +549,12 @@ void * luaToObject(lua_State * L, const GBindingParamPointer & /*param*/, int in
 {
 	if(isValidMetaTable(L, index)) {
 		void * userData = lua_touserdata(L, index);
-		if(static_cast<GScriptUserData *>(userData)->getType() == udtClass) {
-			GClassUserData * classData = static_cast<GClassUserData *>(userData);
+		if(static_cast<GScriptUserData *>(userData)->getType() == udtObject) {
+			GObjectUserData * classData = static_cast<GObjectUserData *>(userData);
 			if(outType != NULL) {
 				GMetaTypeData typeData;
-				classData->data->metaClass->getMetaType(&typeData);
-				metaCheckError(classData->data->metaClass);
+				classData->getMetaClass()->getMetaType(&typeData);
+				metaCheckError(classData->getMetaClass());
 				*outType = GMetaType(typeData);
 			}
 
@@ -627,9 +627,7 @@ GMetaVariant luaToVariant(lua_State * L, const GBindingParamPointer & param, int
 
 bool rawToLua(lua_State * L, const GBindingParamPointer & param, const GVariant & value)
 {
-	GVariantType vt = value.getType();
-
-	if(param->getConfig().allowAccessRawData() && variantIsScriptRawData(vt)) {
+	if(param->getConfig().allowAccessRawData()) {
 		void * userData = lua_newuserdata(L, sizeof(GRawUserData));
 		new (userData) GRawUserData(param, value);
 
@@ -807,13 +805,13 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 				void * rawUserData = lua_touserdata(L, index);
 				GScriptUserData * userData = static_cast<GScriptUserData *>(rawUserData);
 				switch(userData->getType()) {
-				case udtClass:
+				case udtObject:
 					if(typeItem != NULL) {
-						*typeItem = gdynamic_cast<GClassUserData *>(userData)->data->metaClass;
+						*typeItem = gdynamic_cast<GObjectUserData *>(userData)->getMetaClass();
 						(*typeItem)->addReference();
 					}
 
-					if(gdynamic_cast<GClassUserData *>(userData)->data->isInstance) {
+					if(gdynamic_cast<GObjectUserData *>(userData)->isInstance()) {
 						return sdtObject;
 					}
 					else {
@@ -825,7 +823,7 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 
 				case udtEnum:
 					if(typeItem != NULL) {
-						*typeItem = gdynamic_cast<GEnumUserData *>(userData)->metaEnum;
+						*typeItem = gdynamic_cast<GEnumUserData *>(userData)->metaEnum.get();
 						(*typeItem)->addReference();
 					}
 					return sdtEnum;
@@ -1001,11 +999,11 @@ int UserData_call(lua_State * L)
 {
 	ENTER_LUA()
 
-	GClassUserData * userData = static_cast<GClassUserData *>(lua_touserdata(L, lua_upvalueindex(1)));
+	GObjectUserData * userData = static_cast<GObjectUserData *>(lua_touserdata(L, lua_upvalueindex(1)));
 
 
 	if(userData->getInstance() == NULL) { // constructor
-		return invokeConstructor(L, userData->getParam(), userData->data->metaClass);
+		return invokeConstructor(L, userData->getParam(), userData->getMetaClass());
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_InternalError_WrongFunctor);
@@ -1033,12 +1031,12 @@ bool doIndexMemberData(lua_State * L, const GBindingParamPointer & param, IMetaA
 	return success;
 }
 
-bool indexMemberData(lua_State * L, GClassUserData * userData, IMetaAccessible * data, void * instance)
+bool indexMemberData(lua_State * L, GObjectUserData * userData, IMetaAccessible * data, void * instance)
 {
-	return doIndexMemberData(L, userData->getParam(), data, instance, userData->data->cv == opcvConst);
+	return doIndexMemberData(L, userData->getParam(), data, instance, userData->getCV() == opcvConst);
 }
 
-bool indexMemberEnumType(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem)
+bool indexMemberEnumType(lua_State * L, GObjectUserData * userData, GMetaMapItem * mapItem)
 {
 	GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 
@@ -1047,7 +1045,7 @@ bool indexMemberEnumType(lua_State * L, GClassUserData * userData, GMetaMapItem 
 	return true;
 }
 
-bool indexMemberEnumValue(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem)
+bool indexMemberEnumValue(lua_State * L, GObjectUserData * userData, GMetaMapItem * mapItem)
 {
 	GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 
@@ -1059,7 +1057,7 @@ bool indexMemberEnumValue(lua_State * L, GClassUserData * userData, GMetaMapItem
 	return true;
 }
 
-bool indexMemberClass(lua_State * L, GClassUserData * userData, GMetaMapItem * mapItem)
+bool indexMemberClass(lua_State * L, GObjectUserData * userData, GMetaMapItem * mapItem)
 {
 	GScopedInterface<IMetaClass> metaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
 
@@ -1072,16 +1070,19 @@ int UserData_index(lua_State * L)
 {
 	ENTER_LUA()
 
-	GClassUserData * userData = static_cast<GClassUserData *>(lua_touserdata(L, -2));
+	GObjectUserData * userData = static_cast<GObjectUserData *>(lua_touserdata(L, -2));
 	
 	const char * name = lua_tostring(L, -1);
 	
-	GMetaClassTraveller traveller(userData->data->metaClass, userData->getInstance());
+	GMetaClassTraveller traveller(userData->getMetaClass(), userData->getInstance());
 	
 	void * instance = NULL;
-	
+	IMetaClass * outDerived;
+
 	for(;;) {
-		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
+		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance, &outDerived));
+		GScopedInterface<IMetaClass> derived(outDerived);
+
 		if(!metaClass) {
 			lua_pushnil(L);
 			return false;
@@ -1110,6 +1111,39 @@ int UserData_index(lua_State * L)
 
 			case mmitMethod:
 			case mmitMethodList: {
+/*
+				GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getData());
+				if(data == NULL) {
+					GScopedInterface<IMetaList> methodList(createMetaList());
+					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name, false);
+
+					// select the class to bind to the method (i.e, to call the method, an object must be the class or the class' derived)
+					GScopedInterface<IMetaClass> boundClass;
+					if(!derived) {
+						boundClass.reset(metaClass.get());
+						boundClass->addReference();
+					}
+					else {
+						if(derived->getBaseCount() > 0 && derived->getBaseClass(0)) {
+							// always choose first base because we only support single inheritance in JS
+							boundClass.reset(derived->getBaseClass(0));
+						}
+						else {
+							boundClass.reset(derived.get());
+							boundClass->addReference();
+						}
+					}
+
+					data = new GMapItemMethodData();
+					data->setMethodData(new GExtendMethodUserData(userData->getParam(), boundClass.get(), methodList.get(), name, udmtMethodList));
+//					data->setMethodData(new GExtendMethodUserData(userData->getParam(), NULL, methodList.get(), name, udmtInternal));
+
+					mapItem->setData(data);
+				}
+				doBindMethodList(L, userData->getParam(), data->getMethodData(), false);
+				return true;
+*/
+
 				GScopedInterface<IMetaList> metaList(createMetaList());
 				loadMethodList(&traveller, metaList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name);
 				doBindMethodList(L, userData->getParam(), name, metaList.get(), udmtInternal);
@@ -1117,7 +1151,7 @@ int UserData_index(lua_State * L)
 			}
 
 			case mmitEnum:
-				if(! userData->data->isInstance || userData->getParam()->getConfig().allowAccessEnumTypeViaInstance()) {
+				if(! userData->isInstance() || userData->getParam()->getConfig().allowAccessEnumTypeViaInstance()) {
 					if(indexMemberEnumType(L, userData, mapItem)) {
 						return true;
 					}
@@ -1125,7 +1159,7 @@ int UserData_index(lua_State * L)
 				break;
 
 			case mmitEnumValue:
-				if(! userData->data->isInstance || userData->getParam()->getConfig().allowAccessEnumValueViaInstance()) {
+				if(! userData->isInstance() || userData->getParam()->getConfig().allowAccessEnumValueViaInstance()) {
 					if(indexMemberEnumValue(L, userData, mapItem)) {
 						return true;
 					}
@@ -1133,7 +1167,7 @@ int UserData_index(lua_State * L)
 				break;
 
 			case mmitClass:
-				if(! userData->data->isInstance || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
+				if(! userData->isInstance() || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
 					if(indexMemberClass(L, userData, mapItem)) {
 						return true;
 					}
@@ -1148,15 +1182,15 @@ int UserData_index(lua_State * L)
 	LEAVE_LUA(L, lua_pushnil(L); return false)
 }
 
-bool newindexMemberData(lua_State * /*L*/, GClassUserData * userData, const char * name, const GVariant & value)
+bool newindexMemberData(lua_State * /*L*/, GObjectUserData * userData, const char * name, const GVariant & value)
 {
-	if(userData->data->cv == opcvConst) {
+	if(userData->getCV() == opcvConst) {
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 
 		return false;
 	}
 
-	GMetaClassTraveller traveller(userData->data->metaClass, userData->getInstance());
+	GMetaClassTraveller traveller(userData->getMetaClass(), userData->getInstance());
 	
 	void * instance = NULL;
 
@@ -1196,7 +1230,7 @@ int UserData_newindex(lua_State * L)
 {
 	ENTER_LUA()
 
-	GClassUserData * userData = static_cast<GClassUserData *>(lua_touserdata(L, -3));
+	GObjectUserData * userData = static_cast<GObjectUserData *>(lua_touserdata(L, -3));
 	
 	const char * name = lua_tostring(L, -2);
 
@@ -1217,7 +1251,7 @@ int UserData_operator(lua_State * L)
 	
 	GOperatorUserData * userData = static_cast<GOperatorUserData *>(lua_touserdata(L, lua_upvalueindex(1)));
 
-	return invokeOperator(L, userData->getParam(), userData->instance, userData->metaClass, userData->op);
+	return invokeOperator(L, userData->getParam(), userData->instance, userData->metaClass.get(), userData->op);
 	
 	LEAVE_LUA(L, return 0)
 }
@@ -1259,8 +1293,8 @@ void doBindAllOperators(lua_State * L, const GBindingParamPointer & param, void 
 
 void doBindClass(lua_State * L, const GBindingParamPointer & param, IMetaClass * metaClass)
 {
-	void * userData = lua_newuserdata(L, sizeof(GClassUserData));
-	new (userData) GClassUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal);
+	void * userData = lua_newuserdata(L, sizeof(GObjectUserData));
+	new (userData) GObjectUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal);
 
 	lua_newtable(L);
 
@@ -1273,11 +1307,10 @@ void doBindClass(lua_State * L, const GBindingParamPointer & param, IMetaClass *
 	lua_setmetatable(L, -2);
 }
 
-void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const char * name, IMetaList * methodList, GUserDataMethodType methodType)
+void doBindMethodList(lua_State * L, const GBindingParamPointer & param, GExtendMethodUserData * data, bool freeData)
 {
 	void * userData = lua_newuserdata(L, sizeof(GMethodUserData));
-	GExtendMethodUserData * data = new GExtendMethodUserData(param, NULL, methodList, name, methodType);
-	new (userData) GMethodUserData(param, NULL, data, true);
+	new (userData) GMethodUserData(param, NULL, data, freeData);
 	
 	lua_newtable(L);
 	
@@ -1286,6 +1319,12 @@ void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const c
 	lua_setmetatable(L, -2);
 	
 	lua_pushcclosure(L, &callbackInvokeMethodList, 1);
+}
+
+void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const char * name, IMetaList * methodList, GUserDataMethodType methodType)
+{
+	GExtendMethodUserData * data = new GExtendMethodUserData(param, NULL, methodList, name, methodType);
+	doBindMethodList(L, param, data, true);
 }
 
 void setMetaTableGC(lua_State * L)
@@ -1391,8 +1430,8 @@ void doBindEnum(lua_State * L, const GBindingParamPointer & param, IMetaEnum * m
 }
 
 
-GLuaScriptObjectImplement::GLuaScriptObjectImplement(const GBindingParamPointer & param, GLuaScriptObject * binding, lua_State * L, int objectIndex, bool freeResource)
-		: param(param), binding(binding), luaState(L), ref(LUA_NOREF), freeResource(freeResource)
+GLuaScriptObjectImplement::GLuaScriptObjectImplement(const GBindingParamPointer & param, GLuaScriptObject * binding, lua_State * L, int objectIndex)
+		: param(param), binding(binding), luaState(L), ref(LUA_NOREF)
 {
 	if(objectIndex != 0) {
 		this->ref = refLua(this->luaState, objectIndex);
@@ -1403,10 +1442,6 @@ GLuaScriptObjectImplement::~GLuaScriptObjectImplement()
 {
 	if(this->ref != LUA_NOREF) {
 		unrefLua(this->luaState, this->ref);
-	}
-
-	if(this->freeResource) {
-//		delete this->param;
 	}
 }
 	
@@ -1608,19 +1643,19 @@ GMetaVariant GLuaScriptFunction::invokeIndirectly(GMetaVariant const * const * p
 GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
 	: super(config)
 {
-	this->implement.reset(new GLuaScriptObjectImplement(GBindingParamPointer(new GScriptBindingParam(service, super::getConfig())), this, L, 0, true));
+	this->implement.reset(new GLuaScriptObjectImplement(GBindingParamPointer(new GScriptBindingParam(service, super::getConfig())), this, L, 0));
 }
 
 GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config, int objectIndex)
 	: super(config)
 {
-	this->implement.reset(new GLuaScriptObjectImplement(GBindingParamPointer(new GScriptBindingParam(service, super::getConfig())), this, L, objectIndex, true));
+	this->implement.reset(new GLuaScriptObjectImplement(GBindingParamPointer(new GScriptBindingParam(service, super::getConfig())), this, L, objectIndex));
 }
 
 GLuaScriptObject::GLuaScriptObject(const GLuaScriptObject & other)
 	: super(other.implement->param->getConfig())
 {
-	this->implement.reset(new GLuaScriptObjectImplement(other.implement->param, this, other.implement->luaState, -1, false));
+	this->implement.reset(new GLuaScriptObjectImplement(other.implement->param, this, other.implement->luaState, -1));
 }
 
 GLuaScriptObject::~GLuaScriptObject()
@@ -1823,8 +1858,6 @@ void GLuaScriptObject::bindObject(const char * objectName, void * instance, IMet
 
 void GLuaScriptObject::bindRaw(const char * name, const GVariant & value)
 {
-	GASSERT_MSG(variantIsScriptRawData(vtGetType(value.data.typeData)), "Only raw data (pointer, object) can be bound via bindRaw");
-
 	ENTER_LUA()
 
 	GLuaScopeGuard scopeGuard(this);
@@ -1897,7 +1930,7 @@ IMetaEnum * GLuaScriptObject::getEnum(const char * enumName)
 		if(static_cast<GScriptUserData *>(userData)->getType() == udtEnum) {
 			GEnumUserData * enumData = static_cast<GEnumUserData *>(userData);
 
-			IMetaEnum * metaEnum = enumData->metaEnum;
+			IMetaEnum * metaEnum = enumData->metaEnum.get();
 			metaEnum->addReference();
 			return metaEnum;
 		}
@@ -2014,7 +2047,7 @@ IMetaList * GLuaScriptObject::getMethodList(const char * methodName)
 	if(userData != NULL) {
 		userData->methodUserData->methodList->addReference();
 
-		return userData->methodUserData->methodList;
+		return userData->methodUserData->methodList.get();
 	}
 	else {
 		return NULL;

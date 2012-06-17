@@ -140,7 +140,8 @@ void testReturnVariant(TestScriptContext * context)
 
 void testDefaultParameters(TestScriptContext * context)
 {
-	QNEWOBJ(a, TestObject(38))
+	QDO(classTestObject = TestObject)
+	QNEWOBJ(a, classTestObject(38))
 	QASSERT(testDefaultParam(0));
 	QASSERT(testDefaultParam(0, 5));
 	QASSERT(testDefaultParam(1, 98));

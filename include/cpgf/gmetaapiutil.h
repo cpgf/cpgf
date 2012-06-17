@@ -12,7 +12,7 @@ namespace cpgf {
 
 
 template <typename Meta>
-void metaCheckError(Meta & meta)
+void metaCheckError(const Meta & meta)
 {
 	if(meta && meta->getErrorCode() != Error_None) {
 		raiseException(meta->getErrorCode(), meta->getErrorMessage());

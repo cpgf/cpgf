@@ -40,16 +40,10 @@ GSharedInstance::GSharedInstance(IMetaClass * metaClass, void * instance, bool i
 	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
 	: metaClass(metaClass), instance(instance), isInstance(isInstance), allowGC(allowGC), cv(cv), dataType(dataType)
 {
-	if(this->metaClass != NULL) {
-		this->metaClass->addReference();
-	}
-	
 	switch(dataType) {
 		case cudtInterface:
 			this->allowGC = false;
-			if(this->interfaceObject != NULL) {
-				this->interfaceObject->addReference();
-			}
+			this->interfaceObject.reset(static_cast<IObject *>(instance));
 			break;
 
 		default:
@@ -59,44 +53,26 @@ GSharedInstance::GSharedInstance(IMetaClass * metaClass, void * instance, bool i
 
 GSharedInstance::~GSharedInstance()
 {
-	if(this->metaClass != NULL) {
+	if(this->metaClass) {
 		if(this->allowGC) {
 			this->metaClass->destroyInstance(instance);
 		}
-		this->metaClass->releaseReference();
-		this->metaClass = NULL;
-	}
-	switch(dataType) {
-		case cudtInterface:
-			if(this->interfaceObject != NULL) {
-				this->interfaceObject->releaseReference();
-				this->interfaceObject = NULL;
-			}
-			break;
-
-		default:
-			break;
 	}
 }
 
 
-GClassUserData::GClassUserData(const GBindingParamPointer & param)
-	: super(udtClass, param)
-{
-}
-
-GClassUserData::GClassUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance, bool isInstance,
+GObjectUserData::GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance, bool isInstance,
 	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
-	: super(udtClass, param), data(new GSharedInstance(metaClass, instance, isInstance, allowGC, cv, dataType))
+	: super(udtObject, param), data(new GSharedInstance(metaClass, instance, isInstance, allowGC, cv, dataType))
 {
 }
 
-GClassUserData::GClassUserData(const GClassUserData & other)
-	: super(udtClass, other.getParam()), data(other.data)
+GObjectUserData::GObjectUserData(const GObjectUserData & other)
+	: super(udtObject, other.getParam()), data(other.data)
 {
 }
 
-GClassUserData::~GClassUserData()
+GObjectUserData::~GObjectUserData()
 {
 }
 
@@ -330,13 +306,6 @@ InvokeCallableParam::~InvokeCallableParam()
 }
 
 
-bool variantIsScriptRawData(GVariantType /*vt*/)
-{
-	return true;
-//	vt = vtGetBaseType(vt);
-//	return vt == vtPointer || vt == vtObject || vt == vtShadow || vt == vtVoid;
-}
-
 bool metaMapItemIsAccessible(GMetaMapItemType type)
 {
 	return type == mmitField || type == mmitProperty;
@@ -494,9 +463,9 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallabl
 	return rank;
 }
 
-bool allowInvokeCallable(GClassUserData * userData, IMetaCallable * method)
+bool allowInvokeCallable(GObjectUserData * userData, IMetaCallable * method)
 {
-	if(userData != NULL && userData->data->isInstance) {
+	if(userData != NULL && userData->isInstance()) {
 		if(! userData->getParam()->getConfig().allowAccessStaticMethodViaInstance()) {
 			if(method->isStatic()) {
 				return false;
@@ -511,7 +480,7 @@ bool allowInvokeCallable(GClassUserData * userData, IMetaCallable * method)
 	
 	if(userData != NULL) {
 		const GMetaType & methodType = metaGetItemType(method);
-		switch(userData->data->cv) {
+		switch(userData->getCV()) {
 			case opcvConst:
 				return methodType.isConstFunction();
 				
@@ -529,9 +498,9 @@ bool allowInvokeCallable(GClassUserData * userData, IMetaCallable * method)
 	return true;
 }
 
-bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible)
+bool allowAccessData(GObjectUserData * userData, IMetaAccessible * accessible)
 {
-	if(userData->data->isInstance) {
+	if(userData->isInstance()) {
 		if(! userData->getParam()->getConfig().allowAccessStaticDataViaInstance()) {
 			if(accessible->isStatic()) {
 				return false;
@@ -614,7 +583,7 @@ void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableP
 	metaCheckError(callable);
 }
 
-InvokeCallableResult doCallbackMethodList(GClassUserData * objectUserData, GExtendMethodUserData * methodUserData, InvokeCallableParam * callableParam)
+InvokeCallableResult doCallbackMethodList(GObjectUserData * objectUserData, GExtendMethodUserData * methodUserData, InvokeCallableParam * callableParam)
 {
 	void * instance = NULL;
 	if(objectUserData != NULL) {
@@ -623,12 +592,12 @@ InvokeCallableResult doCallbackMethodList(GClassUserData * objectUserData, GExte
 
 	GScopedInterface<IMetaList> methodList;
 	if(methodUserData->metaClass == NULL && methodUserData->methodList != NULL) {
-		methodList.reset(methodUserData->methodList);
+		methodList.reset(methodUserData->methodList.get());
 		methodList->addReference();
 	}
 	else {
 		methodList.reset(createMetaList());
-		loadMethodList(methodList.get(), methodUserData->getParam()->getMetaMap(), objectUserData == NULL? methodUserData->metaClass : objectUserData->data->metaClass,
+		loadMethodList(methodList.get(), methodUserData->getParam()->getMetaMap(), objectUserData == NULL? methodUserData->metaClass.get() : objectUserData->getMetaClass(),
 			instance,  objectUserData, methodUserData->name.c_str());
 	}
 
@@ -651,7 +620,7 @@ InvokeCallableResult doCallbackMethodList(GClassUserData * objectUserData, GExte
 
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * methodList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, GClassUserData * userData, const char * methodName, bool allowAny)
+	void * instance, GObjectUserData * userData, const char * methodName, bool allowAny)
 {
 	while(mapItem != NULL) {
 		if(mapItem->getType() == mmitMethod) {
@@ -682,13 +651,13 @@ void loadMethodList(GMetaClassTraveller * traveller,
 
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * methodList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, GClassUserData * userData, const char * methodName)
+	void * instance, GObjectUserData * userData, const char * methodName)
 {
 	loadMethodList(traveller, methodList, metaMap, mapItem, instance, userData, methodName, false);
 }
 
 void loadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * objectMetaClass,
-	void * objectInstance, GClassUserData * userData, const char * methodName)
+	void * objectInstance, GObjectUserData * userData, const char * methodName)
 {
 	GMetaClassTraveller traveller(objectMetaClass, objectInstance);
 	void * instance = NULL;
@@ -750,20 +719,20 @@ GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType)
 GMetaVariant userDataToVariant(GScriptUserData * userData)
 {
 	switch(userData->getType()) {
-		case udtClass: {
-			GClassUserData * classData = static_cast<GClassUserData *>(userData);
+		case udtObject: {
+			GObjectUserData * classData = static_cast<GObjectUserData *>(userData);
 			GMetaTypeData typeData;
-			classData->data->metaClass->getMetaType(&typeData);
-			metaCheckError(classData->data->metaClass);
+			classData->getMetaClass()->getMetaType(&typeData);
+			metaCheckError(classData->getMetaClass());
 			GMetaType type(typeData);
 			type.addPointer();
-			switch(classData->data->dataType) {
+			switch(classData->getDataType()) {
 				case cudtNormal: {
 					return GMetaVariant(pointerToObjectVariant(classData->getInstance()), type);
 				}
 				
 				case cudtInterface: {
-					return GMetaVariant(GVariant(classData->data->interfaceObject), type);
+					return GMetaVariant(GVariant(classData->getInterfaceObject()), type);
 				}
 			}
 

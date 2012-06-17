@@ -33,21 +33,21 @@ public:
 	}
 	
 	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, const void * instance, IMetaClass * metaClass) {
-			if(this->classType == "") {
-				const char * typeName = this->elementSerializer->getClassTypeName(archiveWriter, instance, metaClass);
-				if(typeName != NULL) {
-					char buffer[128];
-					sprintf(buffer, "[%u]", this->elementCount);
-					this->classType = string(typeName) + buffer;
-				}
+		if(this->classType == "") {
+			const char * typeName = this->elementSerializer->getClassTypeName(archiveWriter, instance, metaClass);
+			if(typeName != NULL) {
+				char buffer[128];
+				sprintf(buffer, "[%u]", this->elementCount);
+				this->classType = string(typeName) + buffer;
 			}
-			
-			if(this->classType.size() == 0) {
-				return NULL;
-			}
-			else {
-				return this->classType.c_str();
-			}
+		}
+		
+		if(this->classType.size() == 0) {
+			return NULL;
+		}
+		else {
+			return this->classType.c_str();
+		}
 	}
 
 	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * /*serializerWriter*/, GMetaArchiveWriterParam * param) {

@@ -73,32 +73,13 @@ private:
 typedef GSharedPointer<GScriptBindingParam> GBindingParamPointer;
 
 enum GScriptUserDataType {
-	udtClass,
-	udtMethodList,
+	udtObject,
 	udtExtendMethod,
 	udtEnum,
 	udtOperator,
 	udtAccessible,
 	udtRaw,
 	udtMethod
-};
-
-class GSharedInstance : public GNoncopyable {
-public:
-	GSharedInstance();
-	GSharedInstance(IMetaClass * metaClass, void * instance, bool isInstance,
-		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
-	~GSharedInstance();
-		
-	IMetaClass * metaClass;
-	union {
-		void * instance;
-		IObject * interfaceObject;
-	};
-	bool isInstance;
-	bool allowGC;
-	ObjectPointerCV cv;
-	ClassUserDataType dataType;
 };
 
 class GScriptUserData
@@ -123,31 +104,66 @@ private:
 	GBindingParamPointer param;
 };
 
-class GClassUserData : public GScriptUserData
+class GSharedInstance : public GNoncopyable {
+public:
+	GSharedInstance();
+	GSharedInstance(IMetaClass * metaClass, void * instance, bool isInstance,
+		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
+	~GSharedInstance();
+
+	GSharedInterface<IMetaClass> metaClass;
+	void * instance;
+	GSharedInterface<IObject> interfaceObject;
+	bool isInstance;
+	bool allowGC;
+	ObjectPointerCV cv;
+	ClassUserDataType dataType;
+};
+
+class GObjectUserData : public GScriptUserData
 {
 private:
 	typedef GScriptUserData super;
 
 public:
-	explicit GClassUserData(const GBindingParamPointer & param);
-	GClassUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance, bool isInstance,
+	GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance, bool isInstance,
 		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
-	virtual ~GClassUserData();
+	virtual ~GObjectUserData();
 
-	GClassUserData(const GClassUserData &);
+	GObjectUserData(const GObjectUserData &);
 
-	bool isAllowGC() const {
-		return this->data->allowGC;
+	IMetaClass * getMetaClass() const {
+		return this->data->metaClass.get();
 	}
 
 	void * getInstance() const {
 		return this->data->instance;
 	}
 
-private:
-	GClassUserData & operator = (const GClassUserData &);
+	IObject * getInterfaceObject() const {
+		return this->data->interfaceObject.get();
+	}
 
-public:
+	bool isInstance() const {
+		return this->data->isInstance;
+	}
+
+	bool isAllowGC() const {
+		return this->data->allowGC;
+	}
+
+	ObjectPointerCV getCV() const {
+		return this->data->cv;
+	}
+
+	ClassUserDataType getDataType() const {
+		return this->data->dataType;
+	}
+
+private:
+	GObjectUserData & operator = (const GObjectUserData &);
+
+private:
 	GSharedPointer<GSharedInstance> data;
 };
 
@@ -171,28 +187,6 @@ enum GUserDataMethodType {
 	udmtInternal
 };
 
-/*
-class GMethodListUserData : public GScriptUserData
-{
-private:
-	typedef GScriptUserData super;
-
-public:
-	GMethodListUserData(const GBindingParamPointer & param, IMetaList * methodList, GUserDataMethodType methodType)
-		: super(udtMethodList, param), methodList(methodList), methodType(methodType) {
-		this->methodList->addReference();
-	}
-
-	virtual ~GMethodListUserData() {
-		this->methodList->releaseReference();
-	}
-
-public:
-	IMetaList * methodList;
-	GUserDataMethodType methodType;
-};
-*/
-
 class GExtendMethodUserData : public GScriptUserData
 {
 private:
@@ -201,35 +195,11 @@ private:
 public:
 	GExtendMethodUserData(const GBindingParamPointer & param, IMetaClass * metaClass, IMetaList * methodList, const char * name, GUserDataMethodType methodType)
 		: super(udtExtendMethod, param), metaClass(metaClass), methodList(methodList), name(name), methodType(methodType) {
-		if(this->metaClass != NULL) {
-			this->metaClass->addReference();
-		}
-		if(this->methodList != NULL) {
-			this->methodList->addReference();
-		}
-	}
-
-	virtual ~GExtendMethodUserData() {
-		if(this->metaClass != NULL) {
-			this->metaClass->releaseReference();
-		}
-		if(this->methodList != NULL) {
-			this->methodList->releaseReference();
-		}
-	}
-
-	GScriptDataType getMethodType() const {
-		if(this->methodList->getCount() > 1) {
-			return sdtMethodList;
-		}
-		else {
-			return sdtMethod;
-		}
 	}
 
 public:
-	IMetaClass * metaClass;
-	IMetaList * methodList;
+	GSharedInterface<IMetaClass> metaClass;
+	GSharedInterface<IMetaList> methodList;
 	std::string name;
 	GUserDataMethodType methodType;
 };
@@ -240,7 +210,7 @@ private:
 	typedef GScriptUserData super;
 
 public:
-	GMethodUserData(const GBindingParamPointer & param, GClassUserData * classUserData, GExtendMethodUserData * methodUserData, bool freeData = false)
+	GMethodUserData(const GBindingParamPointer & param, GObjectUserData * classUserData, GExtendMethodUserData * methodUserData, bool freeData = false)
 		: super(udtMethod, param), classUserData(classUserData), methodUserData(methodUserData), freeData(freeData) {
 	}
 
@@ -253,7 +223,7 @@ public:
 	}
 
 public:
-	GClassUserData * classUserData;
+	GObjectUserData * classUserData;
 	GExtendMethodUserData * methodUserData;
 	bool freeData;
 };
@@ -268,12 +238,9 @@ public:
 		: super(udtOperator, param), instance(instance), metaClass(metaClass), op(op) {
 	}
 
-	virtual ~GOperatorUserData() {
-	}
-
 public:
 	void * instance;
-	IMetaClass * metaClass;
+	GSharedInterface<IMetaClass> metaClass;
 	GMetaOpType op;
 };
 
@@ -285,15 +252,10 @@ private:
 public:
 	GEnumUserData(const GBindingParamPointer & param, IMetaEnum * metaEnum)
 		: super(udtEnum, param), metaEnum(metaEnum) {
-		this->metaEnum->addReference();
-	}
-
-	virtual ~GEnumUserData() {
-		this->metaEnum->releaseReference();
 	}
 
 public:
-	IMetaEnum * metaEnum;
+	GSharedInterface<IMetaEnum> metaEnum;
 };
 
 class GAccessibleUserData : public GScriptUserData
@@ -304,16 +266,11 @@ private:
 public:
 	GAccessibleUserData(const GBindingParamPointer & param, void * instance, IMetaAccessible * accessible)
 		: super(udtAccessible, param), instance(instance), accessible(accessible) {
-		this->accessible->addReference();
-	}
-
-	virtual ~GAccessibleUserData() {
-		this->accessible->releaseReference();
 	}
 
 public:
 	void * instance;
-	IMetaAccessible * accessible;
+	GSharedInterface<IMetaAccessible> accessible;
 };
 
 
@@ -496,8 +453,6 @@ public:
 	GSharedInterface<IMetaCallable> callable;
 };
 
-bool variantIsScriptRawData(GVariantType vt);
-
 int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam, InvokeParamRank * paramsRank);
 
 template <typename Getter, typename Predict>
@@ -525,23 +480,23 @@ int findAppropriateCallable(IMetaService * service,
 	return maxRankIndex;
 }
 
-bool allowInvokeCallable(GClassUserData * userData, IMetaCallable * method);
-bool allowAccessData(GClassUserData * userData, IMetaAccessible * accessible);
+bool allowInvokeCallable(GObjectUserData * userData, IMetaCallable * method);
+bool allowAccessData(GObjectUserData * userData, IMetaAccessible * accessible);
 
 void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
 void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableParam * callableParam, InvokeCallableResult * result);
 
-InvokeCallableResult doCallbackMethodList(GClassUserData * objectUserData, GExtendMethodUserData * methodUserData, InvokeCallableParam * callableParam);
+InvokeCallableResult doCallbackMethodList(GObjectUserData * objectUserData, GExtendMethodUserData * methodUserData, InvokeCallableParam * callableParam);
 
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, GClassUserData * userData, const char * methodName, bool allowAny);
+	void * instance, GObjectUserData * userData, const char * methodName, bool allowAny);
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, GClassUserData * userData, const char * methodName);
+	void * instance, GObjectUserData * userData, const char * methodName);
 
 void loadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * objectMetaClass,
-	void * objectInstance, GClassUserData * userData, const char * methodName);
+	void * objectInstance, GObjectUserData * userData, const char * methodName);
 
 GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType);
 
@@ -550,10 +505,6 @@ GMetaVariant userDataToVariant(GScriptUserData * userData);
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);
 
 bool shouldRemoveReference(const GMetaType & type);
-
-// We only apply implicit convert (such as WideString to String) on method parameter.
-// Don't do it for field access because it requires temporary memory allocation which is invalid after the access.
-int rankImplicitConvert(const GVariantData & sourceData, const GMetaType & targetType);
 
 wchar_t * stringToWideString(const char * s);
 char * wideStringToString(const wchar_t * ws);
