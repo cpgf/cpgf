@@ -1041,7 +1041,7 @@ Handle<Value> getNamedMember(GObjectUserData * userData, const char * name)
 			case mmitField:
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				if(allowAccessData(userData, data.get())) {
+				if(allowAccessData(getObjectData(userData), data.get())) {
 					GMetaType type;
 					GVariant result = getAccessibleValueAndType(instance, data.get(), &type, userData->getCV() == opcvConst);
 					Handle<Value> v = variantToV8(userData->getParam(), result, type, false, false);
@@ -1065,7 +1065,7 @@ Handle<Value> getNamedMember(GObjectUserData * userData, const char * name)
 				GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getData());
 				if(data == NULL) {
 					GScopedInterface<IMetaList> methodList(createMetaList());
-					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name, true);
+					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, getObjectData(userData), name, true);
 
 					data = new GMapItemMethodData;
 					mapItem->setData(data);
@@ -1163,7 +1163,7 @@ Handle<Value> setNamedMember(GObjectUserData * userData, const char * name, Loca
 			case mmitField:
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				if(allowAccessData(userData, data.get())) {
+				if(allowAccessData(getObjectData(userData), data.get())) {
 					GVariant v = v8ToVariant(userData->getParam(), context, value).getValue();
 					metaSetValue(data.get(), userData->getInstance(), v);
 					return value;

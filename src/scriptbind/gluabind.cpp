@@ -223,7 +223,7 @@ int UserData_operator(lua_State * L);
 void doBindAllOperators(lua_State * L, const GBindingParamPointer & param, void * instance, IMetaClass * metaClass);
 void doBindClass(lua_State * L, const GBindingParamPointer & param, IMetaClass * metaClass);
 void doBindEnum(lua_State * L, const GBindingParamPointer & param, IMetaEnum * metaEnum);
-void doBindMethodList(lua_State * L, const GBindingParamPointer & param, GExtendMethodUserData * data, bool freeData);
+void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const GSharedExtendMethodUserData & data);
 void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const char * name, IMetaList * methodList, GUserDataMethodType methodType);
 
 void initObjectMetaTable(lua_State * L);
@@ -923,7 +923,8 @@ int callbackInvokeMethodList(lua_State * L)
 	InvokeCallableParam callableParam(lua_gettop(L));
 	loadCallableParam(L, userData->getParam(), &callableParam, 1);
 	
-	InvokeCallableResult result = doCallbackMethodList(userData->getClassUserData(), userData->getMethodUserData(), &callableParam);
+	GObjectUserData data(userData->getParam(), userData->getObjectData());
+	InvokeCallableResult result = doCallbackMethodList(&data, userData->getMethodUserData().get(), &callableParam);
 	
 	doPushInvokeResult(L, userData->getParam(), result.callable.get(), &result);
 	return result.resultCount;
@@ -1086,7 +1087,7 @@ int UserData_index(lua_State * L)
 			case mmitField:
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				if(allowAccessData(userData, data.get())) {
+				if(allowAccessData(getObjectData(userData), data.get())) {
 					if(indexMemberData(L, userData, data.get(), instance)) {
 						return true;
 					}
@@ -1134,7 +1135,7 @@ int UserData_index(lua_State * L)
 */
 
 				GScopedInterface<IMetaList> metaList(createMetaList());
-				loadMethodList(&traveller, metaList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name);
+				loadMethodList(&traveller, metaList.get(), userData->getParam()->getMetaMap(), mapItem, instance, getObjectData(userData), name);
 				doBindMethodList(L, userData->getParam(), name, metaList.get(), udmtInternal);
 				return true;
 			}
@@ -1204,7 +1205,7 @@ bool newindexMemberData(lua_State * /*L*/, GObjectUserData * userData, const cha
 		
 		GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 
-		if(allowAccessData(userData, data.get())) {
+		if(allowAccessData(getObjectData(userData), data.get())) {
 			GVariantData varData = value.getData();
 			data->set(instance, &varData);
 			metaCheckError(data);
@@ -1296,10 +1297,10 @@ void doBindClass(lua_State * L, const GBindingParamPointer & param, IMetaClass *
 	lua_setmetatable(L, -2);
 }
 
-void doBindMethodList(lua_State * L, const GBindingParamPointer & param, GExtendMethodUserData * data, bool freeData)
+void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const GSharedExtendMethodUserData & data)
 {
 	void * userData = lua_newuserdata(L, sizeof(GMethodUserData));
-	new (userData) GMethodUserData(param, NULL, data, freeData);
+	new (userData) GMethodUserData(param, GSharedObjectData(), data);
 	
 	lua_newtable(L);
 	
@@ -1313,7 +1314,7 @@ void doBindMethodList(lua_State * L, const GBindingParamPointer & param, GExtend
 void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const char * name, IMetaList * methodList, GUserDataMethodType methodType)
 {
 	GExtendMethodUserData * data = new GExtendMethodUserData(param, NULL, methodList, name, methodType);
-	doBindMethodList(L, param, data, true);
+	doBindMethodList(L, param, GSharedExtendMethodUserData(data));
 }
 
 void setMetaTableGC(lua_State * L)

@@ -937,7 +937,8 @@ PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObje
 	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
 	loadCallableParam(userData->getParam(), args, &callableParam);
 
-	InvokeCallableResult result = doCallbackMethodList(userData->getClassUserData(), userData->getMethodUserData(), &callableParam);
+	GObjectUserData data(userData->getParam(), userData->getObjectData());
+	InvokeCallableResult result = doCallbackMethodList(&data, userData->getMethodUserData().get(), &callableParam);
 
 	return methodResultToPython(methodObject->getUserData()->getParam(), result.callable.get(), &result);
 
@@ -1029,7 +1030,7 @@ bool doSetAttributeObject(GPythonObject * cppObject, PyObject * attrName, PyObje
 			case mmitField:
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				if(allowAccessData(userData, data.get())) {
+				if(allowAccessData(getObjectData(userData), data.get())) {
 					GVariant v = pythonToVariant(userData->getParam(), value).getValue();
 					metaSetValue(data.get(), userData->getInstance(), v);
 					return true;
@@ -1091,7 +1092,7 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 			case mmitProperty: {
 
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				if(allowAccessData(userData, data.get())) {
+				if(allowAccessData(getObjectData(userData), data.get())) {
 					GMetaType type;
 					GVariant result = getAccessibleValueAndType(instance, data.get(), &type, userData->getCV() == opcvConst);
 					PyObject * fieldObject = variantToPython(userData->getParam(), result, type, false, false);
@@ -1116,7 +1117,7 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 				GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getData());
 				if(data == NULL) {
 					GScopedInterface<IMetaList> methodList(createMetaList());
-					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name, true);
+					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, getObjectData(userData), name, true);
 
 					// select the class to bind to the method (i.e, to call the method, an object must be the class or the class' derived)
 					GScopedInterface<IMetaClass> boundClass;
@@ -1136,12 +1137,12 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 					}
 
 					data = new GMapItemMethodData();
-					data->setMethodData(new GExtendMethodUserData(userData->getParam(), boundClass.get(), methodList.get(), name, udmtInternal));
+					data->setMethodData(GSharedExtendMethodUserData(new GExtendMethodUserData(userData->getParam(), boundClass.get(), methodList.get(), name, udmtInternal)));
 
 					mapItem->setData(data);
 				}
 
-				return createPythonObject(new GMethodUserData(userData->getParam(), new GObjectUserData(*userData), data->getMethodData()));
+				return createPythonObject(new GMethodUserData(userData->getParam(), userData->getObjectData(), data->getMethodData()));
 			}
 				break;
 
@@ -1355,7 +1356,7 @@ bool isValidObject(PyObject * obj)
 void doBindMethodList(const GBindingParamPointer & param, PyObject * owner, const char * name, IMetaList * methodList)
 {
 	GExtendMethodUserData * data = new GExtendMethodUserData(param, NULL, methodList, name, udmtMethodList);
-	GMethodUserData * methodData = new GMethodUserData(param, NULL, data, true);
+	GMethodUserData * methodData = new GMethodUserData(param, GSharedObjectData(), GSharedExtendMethodUserData(data));
 	PyObject * methodObject = createPythonObject(methodData);
 
 	setObjectAttr(owner, name, methodObject);

@@ -82,7 +82,7 @@ enum GScriptUserDataType {
 	udtMethod
 };
 
-class GScriptUserData
+class GScriptUserData : public GNoncopyable
 {
 public:
 	GScriptUserData(GScriptUserDataType type, const GBindingParamPointer & param) : type(type), param(param) {
@@ -104,21 +104,61 @@ private:
 	GBindingParamPointer param;
 };
 
-class GSharedInstance : public GNoncopyable {
+class GObjectData : public GNoncopyable {
 public:
-	GSharedInstance();
-	GSharedInstance(IMetaClass * metaClass, void * instance, bool isInstance,
+	GObjectData();
+	GObjectData(GScriptBindingParam * param,
+		IMetaClass * metaClass, void * instance, bool isInstance,
 		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
-	~GSharedInstance();
+	~GObjectData();
 
+	GScriptBindingParam * getParam() const {
+		return this->param;
+	}
+
+	IMetaClass * getMetaClass() const {
+		return this->metaClass.get();
+	}
+
+	void * getInstance() const {
+		return this->instance;
+	}
+
+	IObject * getInterfaceObject() const {
+		return this->interfaceObject.get();
+	}
+
+	bool isInstance() const {
+		return this->objectIsInstance;
+	}
+
+	bool isAllowGC() const {
+		return this->allowGC;
+	}
+
+	ObjectPointerCV getCV() const {
+		return this->cv;
+	}
+
+	ClassUserDataType getDataType() const {
+		return this->dataType;
+	}
+
+private:
+	GScriptBindingParam * param;
 	GSharedInterface<IMetaClass> metaClass;
 	void * instance;
 	GSharedInterface<IObject> interfaceObject;
-	bool isInstance;
+	bool objectIsInstance;
 	bool allowGC;
 	ObjectPointerCV cv;
 	ClassUserDataType dataType;
+
+private:
+	friend class GObjectUserData;
 };
+
+typedef GSharedPointer<GObjectData> GSharedObjectData;
 
 class GObjectUserData : public GScriptUserData
 {
@@ -128,9 +168,8 @@ private:
 public:
 	GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance, bool isInstance,
 		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
+	GObjectUserData(const GBindingParamPointer & param, const GSharedObjectData & data);
 	virtual ~GObjectUserData();
-
-	GObjectUserData(const GObjectUserData &);
 
 	IMetaClass * getMetaClass() const {
 		return this->data->metaClass.get();
@@ -145,7 +184,7 @@ public:
 	}
 
 	bool isInstance() const {
-		return this->data->isInstance;
+		return this->data->objectIsInstance;
 	}
 
 	bool isAllowGC() const {
@@ -160,11 +199,15 @@ public:
 		return this->data->dataType;
 	}
 
+	const GSharedObjectData & getObjectData() const {
+		return this->data;
+	}
+
 private:
 	GObjectUserData & operator = (const GObjectUserData &);
 
 private:
-	GSharedPointer<GSharedInstance> data;
+	GSharedObjectData data;
 };
 
 class GRawUserData : public GScriptUserData
@@ -228,36 +271,29 @@ private:
 	GUserDataMethodType methodType;
 };
 
+typedef GSharedPointer<GExtendMethodUserData> GSharedExtendMethodUserData;
+
 class GMethodUserData : public GScriptUserData
 {
 private:
 	typedef GScriptUserData super;
 
 public:
-	GMethodUserData(const GBindingParamPointer & param, GObjectUserData * classUserData, GExtendMethodUserData * methodUserData, bool freeData = false)
-		: super(udtMethod, param), classUserData(classUserData), methodUserData(methodUserData), freeData(freeData) {
+	GMethodUserData(const GBindingParamPointer & param, const GSharedObjectData & objectData, const GSharedExtendMethodUserData & methodUserData)
+		: super(udtMethod, param), objectData(objectData), methodUserData(methodUserData) {
 	}
 
-	virtual ~GMethodUserData() {
-		delete this->classUserData;
-
-		if(this->freeData) {
-			delete this->methodUserData;
-		}
+	const GSharedObjectData & getObjectData() const {
+		return this->objectData;
 	}
 
-	GObjectUserData * getClassUserData() const {
-		return this->classUserData;
-	}
-
-	GExtendMethodUserData * getMethodUserData() const {
+	const GSharedExtendMethodUserData & getMethodUserData() const {
 		return this->methodUserData;
 	}
 
 private:
-	GObjectUserData * classUserData;
-	GExtendMethodUserData * methodUserData;
-	bool freeData;
+	GSharedObjectData objectData;
+	GSharedExtendMethodUserData methodUserData;
 };
 
 class GOperatorUserData : public GScriptUserData
@@ -393,16 +429,16 @@ inline void swap(GMetaMapItem & a, GMetaMapItem & b)
 class GMapItemMethodData : public GMetaMapItemData
 {
 public:
-	GExtendMethodUserData * getMethodData() const {
-		return this->methodUserData.get();
+	const GSharedExtendMethodUserData & getMethodData() const {
+		return this->methodUserData;
 	}
 
-	void setMethodData(GExtendMethodUserData * methodUserData) {
-		this->methodUserData.reset(methodUserData);
+	void setMethodData(const GSharedExtendMethodUserData & methodUserData) {
+		this->methodUserData = methodUserData;
 	}
 
 private:
-	GScopedPointer<GExtendMethodUserData> methodUserData;
+	GSharedExtendMethodUserData methodUserData;
 };
 
 
@@ -536,8 +572,8 @@ int findAppropriateCallable(IMetaService * service,
 	return maxRankIndex;
 }
 
-bool allowInvokeCallable(GObjectUserData * userData, IMetaCallable * method);
-bool allowAccessData(GObjectUserData * userData, IMetaAccessible * accessible);
+bool allowInvokeCallable(GObjectData * userData, IMetaCallable * method);
+bool allowAccessData(GObjectData * userData, IMetaAccessible * accessible);
 
 void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
 
@@ -546,10 +582,10 @@ InvokeCallableResult doInvokeOperator(const GBindingParamPointer & param, void *
 
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, GObjectUserData * userData, const char * methodName, bool allowAny);
+	void * instance, GObjectData * userData, const char * methodName, bool allowAny);
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, GObjectUserData * userData, const char * methodName);
+	void * instance, GObjectData * userData, const char * methodName);
 
 GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType);
 
@@ -561,6 +597,9 @@ bool shouldRemoveReference(const GMetaType & type);
 
 wchar_t * stringToWideString(const char * s);
 char * wideStringToString(const wchar_t * ws);
+
+GSharedObjectData getSharedObjectData(GObjectUserData * objectUserData);
+GObjectData * getObjectData(GObjectUserData * objectUserData);
 
 
 } // namespace bind_internal

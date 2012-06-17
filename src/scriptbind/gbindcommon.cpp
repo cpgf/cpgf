@@ -30,14 +30,15 @@ GScriptBindingParam::~GScriptBindingParam()
 }
 
 
-GSharedInstance::GSharedInstance()
-	: metaClass(NULL), instance(NULL), isInstance(false), allowGC(false), cv(opcvNone), dataType(cudtNormal)
+GObjectData::GObjectData()
+	: param(NULL), metaClass(NULL), instance(NULL), objectIsInstance(false), allowGC(false), cv(opcvNone), dataType(cudtNormal)
 {
 }
 
-GSharedInstance::GSharedInstance(IMetaClass * metaClass, void * instance, bool isInstance,
+GObjectData::GObjectData(GScriptBindingParam * param,
+	IMetaClass * metaClass, void * instance, bool isInstance,
 	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
-	: metaClass(metaClass), instance(instance), isInstance(isInstance), allowGC(allowGC), cv(cv), dataType(dataType)
+	: param(param), metaClass(metaClass), instance(instance), objectIsInstance(isInstance), allowGC(allowGC), cv(cv), dataType(dataType)
 {
 	switch(dataType) {
 		case cudtInterface:
@@ -50,7 +51,7 @@ GSharedInstance::GSharedInstance(IMetaClass * metaClass, void * instance, bool i
 	}
 }
 
-GSharedInstance::~GSharedInstance()
+GObjectData::~GObjectData()
 {
 	if(this->metaClass) {
 		if(this->allowGC) {
@@ -62,12 +63,12 @@ GSharedInstance::~GSharedInstance()
 
 GObjectUserData::GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance, bool isInstance,
 	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
-	: super(udtObject, param), data(new GSharedInstance(metaClass, instance, isInstance, allowGC, cv, dataType))
+	: super(udtObject, param), data(new GObjectData(param.get(), metaClass, instance, isInstance, allowGC, cv, dataType))
 {
 }
 
-GObjectUserData::GObjectUserData(const GObjectUserData & other)
-	: super(udtObject, other.getParam()), data(other.data)
+GObjectUserData::GObjectUserData(const GBindingParamPointer & param, const GSharedObjectData & data)
+	: super(udtObject, param), data(data)
 {
 }
 
@@ -113,7 +114,7 @@ GMetaMapItem::~GMetaMapItem()
 GMetaMapItem & GMetaMapItem::operator = (GMetaMapItem other)
 {
 	this->swap(other);
-	
+
 	return *this;
 }
 
@@ -451,7 +452,7 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallabl
 	return rank;
 }
 
-bool allowInvokeCallable(GObjectUserData * userData, IMetaCallable * method)
+bool allowInvokeCallable(GObjectData * userData, IMetaCallable * method)
 {
 	if(userData != NULL && userData->isInstance()) {
 		if(! userData->getParam()->getConfig().allowAccessStaticMethodViaInstance()) {
@@ -486,7 +487,7 @@ bool allowInvokeCallable(GObjectUserData * userData, IMetaCallable * method)
 	return true;
 }
 
-bool allowAccessData(GObjectUserData * userData, IMetaAccessible * accessible)
+bool allowAccessData(GObjectData * userData, IMetaAccessible * accessible)
 {
 	if(userData->isInstance()) {
 		if(! userData->getParam()->getConfig().allowAccessStaticDataViaInstance()) {
@@ -529,7 +530,7 @@ void convertParam(GVariant * v, int paramRank, GVariant * holder)
 
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * methodList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, GObjectUserData * userData, const char * methodName, bool allowAny)
+	void * instance, GObjectData * userData, const char * methodName, bool allowAny)
 {
 	while(mapItem != NULL) {
 		if(mapItem->getType() == mmitMethod) {
@@ -560,13 +561,13 @@ void loadMethodList(GMetaClassTraveller * traveller,
 
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * methodList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, GObjectUserData * userData, const char * methodName)
+	void * instance, GObjectData * userData, const char * methodName)
 {
 	loadMethodList(traveller, methodList, metaMap, mapItem, instance, userData, methodName, false);
 }
 
 void loadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * objectMetaClass,
-	void * objectInstance, GObjectUserData * userData, const char * methodName)
+	void * objectInstance, GObjectData * userData, const char * methodName)
 {
 	GMetaClassTraveller traveller(objectMetaClass, objectInstance);
 	void * instance = NULL;
@@ -655,6 +656,9 @@ void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, Invok
 InvokeCallableResult doCallbackMethodList(GObjectUserData * objectUserData, GExtendMethodUserData * methodUserData, InvokeCallableParam * callableParam)
 {
 	void * instance = NULL;
+	if(objectUserData != NULL && ! objectUserData->getObjectData()) {
+		objectUserData = NULL;
+	}
 	if(objectUserData != NULL) {
 		instance = objectUserData->getInstance();
 	}
@@ -667,7 +671,7 @@ InvokeCallableResult doCallbackMethodList(GObjectUserData * objectUserData, GExt
 	else {
 		methodList.reset(createMetaList());
 		loadMethodList(methodList.get(), methodUserData->getParam()->getMetaMap(), objectUserData == NULL? methodUserData->getMetaClass() : objectUserData->getMetaClass(),
-			instance,  objectUserData, methodUserData->getName().c_str());
+			instance,  getObjectData(objectUserData), methodUserData->getName().c_str());
 	}
 
 	int maxRankIndex = findAppropriateCallable(methodUserData->getParam()->getService(),
@@ -811,6 +815,27 @@ char * wideStringToString(const wchar_t * ws)
 	wcstombs(s.get(), ws, len);
 
 	return s.take();
+}
+
+
+GSharedObjectData getSharedObjectData(GObjectUserData * objectUserData)
+{
+	if(objectUserData != NULL) {
+		return objectUserData->getObjectData();
+	}
+	else {
+		return GSharedObjectData();
+	}
+}
+
+GObjectData * getObjectData(GObjectUserData * objectUserData)
+{
+	if(objectUserData != NULL) {
+		return objectUserData->getObjectData().get();
+	}
+	else {
+		return NULL;
+	}
 }
 
 
