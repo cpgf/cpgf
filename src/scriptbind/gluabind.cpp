@@ -819,11 +819,11 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 					}
 
 				case udtMethod:
-					return methodTypeToUserDataType(gdynamic_cast<GMethodUserData *>(userData)->methodUserData->methodType);
+					return methodTypeToUserDataType(gdynamic_cast<GMethodUserData *>(userData)->getMethodUserData()->getMethodType());
 
 				case udtEnum:
 					if(typeItem != NULL) {
-						*typeItem = gdynamic_cast<GEnumUserData *>(userData)->metaEnum.get();
+						*typeItem = gdynamic_cast<GEnumUserData *>(userData)->getMetaEnum();
 						(*typeItem)->addReference();
 					}
 					return sdtEnum;
@@ -852,7 +852,7 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 				if(userData != NULL) {
 					switch(userData->getType()) {
 					case udtMethod:
-						return methodTypeToUserDataType(gdynamic_cast<GMethodUserData *>(userData)->methodUserData->methodType);
+						return methodTypeToUserDataType(gdynamic_cast<GMethodUserData *>(userData)->getMethodUserData()->getMethodType());
 
 					default:
 						break;
@@ -923,7 +923,7 @@ int callbackInvokeMethodList(lua_State * L)
 	InvokeCallableParam callableParam(lua_gettop(L));
 	loadCallableParam(L, userData->getParam(), &callableParam, 1);
 	
-	InvokeCallableResult result = doCallbackMethodList(userData->classUserData, userData->methodUserData, &callableParam);
+	InvokeCallableResult result = doCallbackMethodList(userData->getClassUserData(), userData->getMethodUserData(), &callableParam);
 	
 	doPushInvokeResult(L, userData->getParam(), result.callable.get(), &result);
 	return result.resultCount;
@@ -967,20 +967,9 @@ int invokeOperator(lua_State * L, const GBindingParamPointer & param, void * ins
 	InvokeCallableParam callableParam(paramCount);
 	loadCallableParam(L, param, &callableParam, startIndex);
 	
-	int maxRankIndex = findAppropriateCallable(param->getService(),
-		makeCallback(metaClass, &IMetaClass::getOperatorAt), metaClass->getOperatorCount(),
-		&callableParam, OperatorCallablePredict(op));
-
-	if(maxRankIndex >= 0) {
-		InvokeCallableResult result;
-
-		GScopedInterface<IMetaOperator> metaOperator(metaClass->getOperatorAt(maxRankIndex));
-		doInvokeCallable(instance, metaOperator.get(), &callableParam, &result);
-		doPushInvokeResult(L, param, metaOperator.get(), &result);
-		return result.resultCount;
-	}
-
-	return 0;
+	InvokeCallableResult result = doInvokeOperator(param, instance, metaClass, op, &callableParam);
+	doPushInvokeResult(L, param, result.callable.get(), &result);
+	return result.resultCount;
 }
 
 int UserData_gc(lua_State * L)
@@ -1251,7 +1240,7 @@ int UserData_operator(lua_State * L)
 	
 	GOperatorUserData * userData = static_cast<GOperatorUserData *>(lua_touserdata(L, lua_upvalueindex(1)));
 
-	return invokeOperator(L, userData->getParam(), userData->instance, userData->metaClass.get(), userData->op);
+	return invokeOperator(L, userData->getParam(), userData->getInstance(), userData->getMetaClass(), userData->getOp());
 	
 	LEAVE_LUA(L, return 0)
 }
@@ -1382,13 +1371,13 @@ int Enum_index(lua_State * L)
 	
 	const char * name = lua_tostring(L, -1);
 
-	int index = userData->metaEnum->findKey(name);
+	int index = userData->getMetaEnum()->findKey(name);
 	if(index < 0) {
 		raiseCoreException(Error_ScriptBinding_CantFindEnumKey, name);
 	}
 	else {
 		GVariantData data;
-		userData->metaEnum->getValue(&data, index);
+		userData->getMetaEnum()->getValue(&data, index);
 		lua_pushinteger(L, fromVariant<lua_Integer>(GVariant(data)));
 	}
 	
@@ -1930,7 +1919,7 @@ IMetaEnum * GLuaScriptObject::getEnum(const char * enumName)
 		if(static_cast<GScriptUserData *>(userData)->getType() == udtEnum) {
 			GEnumUserData * enumData = static_cast<GEnumUserData *>(userData);
 
-			IMetaEnum * metaEnum = enumData->metaEnum.get();
+			IMetaEnum * metaEnum = enumData->getMetaEnum();
 			metaEnum->addReference();
 			return metaEnum;
 		}
@@ -2022,10 +2011,10 @@ IMetaMethod * GLuaScriptObject::getMethod(const char * methodName, void ** outIn
 	GMethodUserData * userData = this->implement->doGetMethodUserData();
 	if(userData != NULL) {
 		if(outInstance != NULL) {
-			*outInstance = userData->methodUserData->methodList->getInstanceAt(0);
+			*outInstance = userData->getMethodUserData()->getMethodList()->getInstanceAt(0);
 		}
 
-		return gdynamic_cast<IMetaMethod *>(userData->methodUserData->methodList->getAt(0));
+		return gdynamic_cast<IMetaMethod *>(userData->getMethodUserData()->getMethodList()->getAt(0));
 	}
 	else {
 		return NULL;
@@ -2045,9 +2034,9 @@ IMetaList * GLuaScriptObject::getMethodList(const char * methodName)
 
 	GMethodUserData * userData = this->implement->doGetMethodUserData();
 	if(userData != NULL) {
-		userData->methodUserData->methodList->addReference();
+		userData->getMethodUserData()->getMethodList()->addReference();
 
-		return userData->methodUserData->methodList.get();
+		return userData->getMethodUserData()->getMethodList();
 	}
 	else {
 		return NULL;

@@ -1143,7 +1143,7 @@ void G_API_CC ImplMetaConstructor::execute(GVariantData * outResult, void * /*in
 	}
 }
 
-void G_API_CC ImplMetaConstructor::executeIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount)
+void G_API_CC ImplMetaConstructor::executeIndirectly(GVariantData * outResult, void * /*instance*/, GVariantData const * const * params, uint32_t paramCount)
 {
 	if(outResult != NULL) {
 		void * newObj = this->invokeIndirectly(params, paramCount);

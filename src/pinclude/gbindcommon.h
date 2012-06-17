@@ -177,7 +177,11 @@ public:
 		: super(udtRaw, param), data(v) {
 	}
 
-public:
+	const GVariant & getData() const {
+		return this->data;
+	}
+
+private:
 	GVariant data;
 };
 
@@ -197,7 +201,27 @@ public:
 		: super(udtExtendMethod, param), metaClass(metaClass), methodList(methodList), name(name), methodType(methodType) {
 	}
 
-public:
+	IMetaClass * getMetaClass() const {
+		return this->metaClass.get();
+	}
+
+	IMetaList * getMethodList() const {
+		return this->methodList.get();
+	}
+
+	const std::string & getName() const {
+		return this->name;
+	}
+
+	void setName(const std::string & name) {
+		this->name = name;
+	}
+
+	GUserDataMethodType getMethodType() const {
+		return this->methodType;
+	}
+
+private:
 	GSharedInterface<IMetaClass> metaClass;
 	GSharedInterface<IMetaList> methodList;
 	std::string name;
@@ -222,7 +246,15 @@ public:
 		}
 	}
 
-public:
+	GObjectUserData * getClassUserData() const {
+		return this->classUserData;
+	}
+
+	GExtendMethodUserData * getMethodUserData() const {
+		return this->methodUserData;
+	}
+
+private:
 	GObjectUserData * classUserData;
 	GExtendMethodUserData * methodUserData;
 	bool freeData;
@@ -238,7 +270,19 @@ public:
 		: super(udtOperator, param), instance(instance), metaClass(metaClass), op(op) {
 	}
 
-public:
+	void * getInstance() const {
+		return this->instance;
+	}
+
+	IMetaClass * getMetaClass() const {
+		return this->metaClass.get();
+	}
+
+	GMetaOpType getOp() const {
+		return this->op;
+	}
+
+private:
 	void * instance;
 	GSharedInterface<IMetaClass> metaClass;
 	GMetaOpType op;
@@ -254,7 +298,11 @@ public:
 		: super(udtEnum, param), metaEnum(metaEnum) {
 	}
 
-public:
+	IMetaEnum * getMetaEnum() const {
+		return this->metaEnum.get();
+	}
+
+private:
 	GSharedInterface<IMetaEnum> metaEnum;
 };
 
@@ -268,7 +316,15 @@ public:
 		: super(udtAccessible, param), instance(instance), accessible(accessible) {
 	}
 
-public:
+	void * getInstance() const {
+		return this->instance;
+	}
+
+	IMetaAccessible * getAccessible() const {
+		return this->accessible.get();
+	}
+
+private:
 	void * instance;
 	GSharedInterface<IMetaAccessible> accessible;
 };
@@ -298,7 +354,7 @@ public:
 	GMetaMapItem();
 	GMetaMapItem(IMetaItem * item, GMetaMapItemType type);
 	GMetaMapItem(size_t enumIndex, IMetaEnum * item);
-	GMetaMapItem(IMetaList * metaList);
+	explicit GMetaMapItem(IMetaList * metaList);
 	GMetaMapItem(const GMetaMapItem & other);
 	~GMetaMapItem();
 
@@ -484,9 +540,9 @@ bool allowInvokeCallable(GObjectUserData * userData, IMetaCallable * method);
 bool allowAccessData(GObjectUserData * userData, IMetaAccessible * accessible);
 
 void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
-void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableParam * callableParam, InvokeCallableResult * result);
 
 InvokeCallableResult doCallbackMethodList(GObjectUserData * objectUserData, GExtendMethodUserData * methodUserData, InvokeCallableParam * callableParam);
+InvokeCallableResult doInvokeOperator(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam);
 
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
@@ -494,9 +550,6 @@ void loadMethodList(GMetaClassTraveller * traveller,
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
 	void * instance, GObjectUserData * userData, const char * methodName);
-
-void loadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * objectMetaClass,
-	void * objectInstance, GObjectUserData * userData, const char * methodName);
 
 GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType);
 

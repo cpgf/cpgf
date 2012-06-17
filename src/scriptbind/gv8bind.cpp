@@ -470,7 +470,7 @@ GScriptDataType getV8Type(Local<Value> value, IMetaTypedItem ** typeItem)
 								return sdtClass;
 
 							case udtExtendMethod:
-								return methodTypeToUserDataType(gdynamic_cast<GExtendMethodUserData *>(userData)->methodType);
+								return methodTypeToUserDataType(gdynamic_cast<GExtendMethodUserData *>(userData)->getMethodType());
 
 							default:
 								break;
@@ -501,7 +501,7 @@ GScriptDataType getV8Type(Local<Value> value, IMetaTypedItem ** typeItem)
 
 						case udtEnum:
 							if(typeItem != NULL) {
-								*typeItem = gdynamic_cast<GEnumUserData *>(userData)->metaEnum.get();
+								*typeItem = gdynamic_cast<GEnumUserData *>(userData)->getMetaEnum();
 								(*typeItem)->addReference();
 							}
 							return sdtEnum;
@@ -777,12 +777,12 @@ Handle<Value> accessibleGet(Local<String> /*prop*/, const AccessorInfo & info)
 	GAccessibleUserData * userData = static_cast<GAccessibleUserData *>(Local<External>::Cast(info.Data())->Value());
 
 	GMetaType type;
-	GVariant result = getAccessibleValueAndType(userData->instance, userData->accessible.get(), &type, false);
+	GVariant result = getAccessibleValueAndType(userData->getInstance(), userData->getAccessible(), &type, false);
 
 	Handle<Value> v;
 	v = variantToV8(userData->getParam(), result, type, false, false);
 	if(v.IsEmpty()) {
-		GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(userData->accessible.get(), GExtendTypeCreateFlag_Converter).getConverter());
+		GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(userData->getAccessible(), GExtendTypeCreateFlag_Converter).getConverter());
 		v = converterToV8(userData->getParam(), result, converter.get());
 	}
 	if(v.IsEmpty()) {
@@ -802,7 +802,7 @@ void accessibleSet(Local<String> /*prop*/, Local<Value> value, const AccessorInf
 	GAccessibleUserData * userData = static_cast<GAccessibleUserData *>(Local<External>::Cast(info.Data())->Value());
 
 	GMetaVariant v = v8ToVariant(userData->getParam(), info.Holder()->CreationContext(), value);
-	metaSetValue(userData->accessible, userData->instance, v.getValue());
+	metaSetValue(userData->getAccessible(), userData->getInstance(), v.getValue());
 
 	LEAVE_V8()
 }
@@ -953,7 +953,7 @@ Handle<Value> namedEnumGetter(Local<String> prop, const AccessorInfo & info)
 	ENTER_V8()
 
 	GEnumUserData * userData = static_cast<GEnumUserData *>(info.Holder()->GetPointerFromInternalField(0));
-	IMetaEnum * metaEnum = userData->metaEnum.get();
+	IMetaEnum * metaEnum = userData->getMetaEnum();
 	String::AsciiValue name(prop);
 	int32_t index = metaEnum->findKey(*name);
 	if(index >= 0) {
@@ -982,7 +982,7 @@ Handle<Array> namedEnumEnumerator(const AccessorInfo & info)
 	ENTER_V8()
 
 	GEnumUserData * userData = static_cast<GEnumUserData *>(info.Holder()->GetPointerFromInternalField(0));
-	IMetaEnum * metaEnum = userData->metaEnum.get();
+	IMetaEnum * metaEnum = userData->getMetaEnum();
 	uint32_t keyCount = metaEnum->getCount();
 
 	HandleScope handleScope;
@@ -1092,7 +1092,7 @@ Handle<Value> getNamedMember(GObjectUserData * userData, const char * name)
 					GMetaMapClass * baseMapClass = getMetaClassMap(userData->getParam(), boundClass.get());
 					data->setTemplate(createMethodTemplate(userData->getParam(), userData->getMetaClass(), userData->getInstance() == NULL, methodList.get(), name,
 						gdynamic_cast<GMapItemClassData *>(baseMapClass->getData())->functionTemplate, udmtInternal, &newUserData));
-					newUserData->name = name;
+					newUserData->setName(name);
 					data->setUserData(newUserData);
 				}
 
@@ -1492,7 +1492,7 @@ GExtendMethodUserData * GV8ScriptObjectImplement::doGetMethodUserData(const char
 					GScriptUserData * userData = static_cast<GScriptUserData *>(Handle<External>::Cast(data)->Value());
 					if(userData->getType() == udtExtendMethod) {
 						GExtendMethodUserData * methodListData = gdynamic_cast<GExtendMethodUserData *>(userData);
-						if(methodListData->methodList) {
+						if(methodListData->getMethodList()) {
 							return methodListData;
 						}
 					}
@@ -1932,12 +1932,12 @@ IMetaMethod * GV8ScriptObject::getMethod(const char * methodName, void ** outIns
 	}
 
 	GExtendMethodUserData * userData = this->implement->doGetMethodUserData(methodName);
-	if(userData != NULL && userData->methodType == udmtMethod) {
+	if(userData != NULL && userData->getMethodType() == udmtMethod) {
 		if(outInstance != NULL) {
-			*outInstance = userData->methodList->getInstanceAt(0);
+			*outInstance = userData->getMethodList()->getInstanceAt(0);
 		}
 
-		return gdynamic_cast<IMetaMethod *>(userData->methodList->getAt(0));
+		return gdynamic_cast<IMetaMethod *>(userData->getMethodList()->getAt(0));
 	}
 	else {
 		return NULL;
@@ -1951,10 +1951,10 @@ IMetaList * GV8ScriptObject::getMethodList(const char * methodName)
 	ENTER_V8()
 
 	GExtendMethodUserData * userData = this->implement->doGetMethodUserData(methodName);
-	if(userData != NULL && userData->methodType == udmtMethodList) {
-		userData->methodList->addReference();
+	if(userData != NULL && userData->getMethodType() == udmtMethodList) {
+		userData->getMethodList()->addReference();
 
-		return userData->methodList.get();
+		return userData->getMethodList();
 	}
 	else {
 		return NULL;
