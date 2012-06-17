@@ -3,6 +3,7 @@
 
 
 #include "cpgf/gclassutil.h"
+#include "cpgf/gapi.h"
 
 #include <deque>
 
@@ -24,13 +25,10 @@ private:
 		Node(const Node & other);
 		Node & operator = (const Node & other);
 
-	private:
-		void retain();
-
 	public:
-		IMetaClass * metaClass;
+		GSharedInterface<IMetaClass> metaClass;
 		void * instance;
-		IMetaClass * derived;
+		GSharedInterface<IMetaClass> derived;
 	};
 	
 	typedef std::deque<Node> ListType;

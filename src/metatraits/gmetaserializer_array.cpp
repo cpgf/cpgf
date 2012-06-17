@@ -29,7 +29,6 @@ public:
 	GMetaSerializerArray(IMetaSerializer * elementSerializer, const GMetaType & metaType, unsigned int elementSize, unsigned int elementCount)
 		: elementSerializer(elementSerializer), metaType(metaType), elementSize(elementSize), elementCount(elementCount)
 	{
-		this->elementSerializer->addReference();
 	}
 	
 	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, const void * instance, IMetaClass * metaClass) {
@@ -93,7 +92,7 @@ public:
 	}
 	
 private:
-	GScopedInterface<IMetaSerializer> elementSerializer;
+	GSharedInterface<IMetaSerializer> elementSerializer;
 	GMetaType metaType;
 	unsigned int elementSize;
 	unsigned int elementCount;

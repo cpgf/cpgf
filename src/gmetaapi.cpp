@@ -168,7 +168,8 @@ private:
 class ImplMetaList : public IMetaList
 {
 private:
-	typedef std::vector<IMetaItem *> ListType;
+	typedef GSharedInterface<IMetaItem> ItemType;
+	typedef std::vector<ItemType> ListType;
 
 public:
 	USE_POOL(ImplMetaList)
@@ -586,7 +587,8 @@ private:
 class ImplMetaService : public IMetaService
 {
 private:
-	typedef std::vector<IMetaModule *> ListType;
+	typedef GSharedInterface<IMetaModule> ItemType;
+	typedef std::vector<ItemType> ListType;
 
 public:
 	USE_POOL(ImplMetaService)
@@ -1027,9 +1029,8 @@ ImplMetaList::~ImplMetaList()
 
 void G_API_CC ImplMetaList::add(IMetaItem * item, void * instance)
 {
-	this->metaList.push_back(item);
+	this->metaList.push_back(ItemType(item));
 	this->instanceList.push_back(instance);
-	item->addReference();
 }
 
 uint32_t G_API_CC ImplMetaList::getCount()
@@ -1039,7 +1040,7 @@ uint32_t G_API_CC ImplMetaList::getCount()
 
 IMetaItem * G_API_CC ImplMetaList::getAt(uint32_t index)
 {
-	IMetaItem * item = this->metaList.at(index);
+	IMetaItem * item = this->metaList.at(index).get();
 	item->addReference();
 	return item;
 }
@@ -1051,10 +1052,6 @@ void * G_API_CC ImplMetaList::getInstanceAt(uint32_t index)
 
 void G_API_CC ImplMetaList::clear()
 {
-	for(ListType::iterator it = this->metaList.begin(); it != this->metaList.end(); ++it) {
-		(*it)->releaseReference();
-	}
-
 	this->metaList.clear();
 	this->instanceList.clear();
 }
@@ -1938,8 +1935,7 @@ ImplMetaService::~ImplMetaService()
 
 void G_API_CC ImplMetaService::addModule(IMetaModule * module)
 {
-	this->moduleList.push_back(module);
-	module->addReference();
+	this->moduleList.push_back(ItemType(module));
 }
 
 uint32_t G_API_CC ImplMetaService::getModuleCount()
@@ -1949,17 +1945,13 @@ uint32_t G_API_CC ImplMetaService::getModuleCount()
 
 IMetaModule * G_API_CC ImplMetaService::getModuleAt(uint32_t index)
 {
-	IMetaModule * module = this->moduleList.at(index);
+	IMetaModule * module = this->moduleList.at(index).get();
 	module->addReference();
 	return module;
 }
 
 void ImplMetaService::clear()
 {
-	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
-		(*it)->releaseReference();
-	}
-
 	this->moduleList.clear();
 }
 

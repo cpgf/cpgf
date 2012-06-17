@@ -8,13 +8,11 @@ namespace cpgf {
 GMetaClassTraveller::Node::Node(IMetaClass * metaClass, void * instance, IMetaClass * derived)
 	: metaClass(metaClass), instance(instance), derived(derived)
 {
-	this->retain();
 }
 
 GMetaClassTraveller::Node::Node(const GMetaClassTraveller::Node & other)
 	: metaClass(other.metaClass), instance(other.instance), derived(other.derived)
 {
-	this->retain();
 }
 
 GMetaClassTraveller::Node & GMetaClassTraveller::Node::operator = (const GMetaClassTraveller::Node & other)
@@ -23,29 +21,11 @@ GMetaClassTraveller::Node & GMetaClassTraveller::Node::operator = (const GMetaCl
 	this->instance = other.instance;
 	this->derived = other.derived;
 
-	this->retain();
-
 	return *this;
 }
 
 GMetaClassTraveller::Node::~Node()
 {
-	if(this->metaClass != NULL) {
-		this->metaClass->releaseReference();
-	}
-	if(this->derived != NULL) {
-		this->derived->releaseReference();
-	}
-}
-
-void GMetaClassTraveller::Node::retain()
-{
-	if(this->metaClass != NULL) {
-		this->metaClass->addReference();
-	}
-	if(this->derived != NULL) {
-		this->derived->addReference();
-	}
 }
 
 
@@ -77,7 +57,7 @@ IMetaClass * GMetaClassTraveller::next(void ** outInstance, IMetaClass ** outDer
 		GScopedInterface<IMetaClass> baseClass(node.metaClass->getBaseClass(i));
 		if(baseClass) {
 			baseClass->addReference();
-			this->traversal.push_back(Node(baseClass.get(), node.metaClass->castToBase(node.instance, i), node.metaClass));
+			this->traversal.push_back(Node(baseClass.get(), node.metaClass->castToBase(node.instance, i), node.metaClass.get()));
 		}
 	}
 	
@@ -86,13 +66,13 @@ IMetaClass * GMetaClassTraveller::next(void ** outInstance, IMetaClass ** outDer
 	}
 
 	if(outDerived != NULL) {
-		*outDerived = node.derived;
-		if(node.derived != NULL) {
+		*outDerived = node.derived.get();
+		if(node.derived) {
 			node.derived->addReference();
 		}
 	}
 	
-	return node.metaClass;
+	return node.metaClass.get();
 }
 
 IMetaClass * GMetaClassTraveller::next(void ** outInstance)

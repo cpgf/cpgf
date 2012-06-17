@@ -65,7 +65,7 @@ public:
 	}
 
 private:
-	GScopedInterface<IMetaService> service;
+	GSharedInterface<IMetaService> service;
 	GScriptConfig config;
 	GScopedPointer<GMetaMap> metaMap;
 };
@@ -322,7 +322,7 @@ public:
 	}
 
 private:
-	IObject * item;
+	GSharedInterface<IObject> item;
 	GMetaMapItemType type;
 	size_t enumIndex;
 	GScopedPointer<GMetaMapItemData> data;

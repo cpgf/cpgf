@@ -15,9 +15,6 @@ public:
 	GMetaSerializerTrapAll(const GMetaType & metaType, IMetaSerializer * serializer)
 		: metaType(metaType), serializer(serializer)
 	{
-		if(this->serializer) {
-			this->serializer->addReference();
-		}
 	}
 
 	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, const void * instance, IMetaClass * metaClass) {
@@ -66,7 +63,7 @@ public:
 
 private:
 	GMetaType metaType;
-	GScopedInterface<IMetaSerializer> serializer;
+	GSharedInterface<IMetaSerializer> serializer;
 };
 
 namespace metatraits_internal {

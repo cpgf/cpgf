@@ -1492,7 +1492,7 @@ GExtendMethodUserData * GV8ScriptObjectImplement::doGetMethodUserData(const char
 					GScriptUserData * userData = static_cast<GScriptUserData *>(Handle<External>::Cast(data)->Value());
 					if(userData->getType() == udtExtendMethod) {
 						GExtendMethodUserData * methodListData = gdynamic_cast<GExtendMethodUserData *>(userData);
-						if(methodListData->methodList != NULL) {
+						if(methodListData->methodList) {
 							return methodListData;
 						}
 					}

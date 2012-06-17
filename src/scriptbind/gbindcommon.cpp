@@ -23,7 +23,6 @@ const int ParamMatchRank_Equal = 100000;
 GScriptBindingParam::GScriptBindingParam(IMetaService * service, const GScriptConfig & config)
 	: service(service), config(config), metaMap(createMetaMap())
 {
-	this->service->addReference();
 }
 
 GScriptBindingParam::~GScriptBindingParam()
@@ -90,36 +89,25 @@ GMetaMapItem::GMetaMapItem()
 GMetaMapItem::GMetaMapItem(IMetaItem * item, GMetaMapItemType type)
 	: item(item), type(type), enumIndex(0)
 {
-	this->item->addReference();
 }
 
 GMetaMapItem::GMetaMapItem(size_t enumIndex, IMetaEnum * item)
 	: item(item), type(mmitEnumValue), enumIndex(enumIndex)
 {
-	this->item->addReference();
 }
 
 GMetaMapItem::GMetaMapItem(IMetaList * metaList)
 	: item(metaList), type(mmitMethodList), enumIndex(0)
 {
-	if(this->item != NULL) {
-		this->item->addReference();
-	}
 }
 
 GMetaMapItem::GMetaMapItem(const GMetaMapItem & other)
 	: item(other.item), type(other.type), enumIndex(other.enumIndex)
 {
-	if(this->item != NULL) {
-		this->item->addReference();
-	}
 }
 
 GMetaMapItem::~GMetaMapItem()
 {
-	if(this->item != NULL) {
-		this->item->releaseReference();
-	}
 }
 
 GMetaMapItem & GMetaMapItem::operator = (GMetaMapItem other)
@@ -145,13 +133,13 @@ GMetaMapItemType GMetaMapItem::getType() const
 
 IObject * GMetaMapItem::getItem() const
 {
-	if(this->item == NULL) {
+	if(! this->item) {
 		return NULL;
 	}
 	
 	this->item->addReference();
 	
-	return this->item;
+	return this->item.get();
 }
 
 
@@ -591,7 +579,7 @@ InvokeCallableResult doCallbackMethodList(GObjectUserData * objectUserData, GExt
 	}
 
 	GScopedInterface<IMetaList> methodList;
-	if(methodUserData->metaClass == NULL && methodUserData->methodList != NULL) {
+	if(! methodUserData->metaClass && methodUserData->methodList) {
 		methodList.reset(methodUserData->methodList.get());
 		methodList->addReference();
 	}
