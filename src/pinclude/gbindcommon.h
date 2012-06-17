@@ -169,7 +169,6 @@ public:
 	GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance, bool isInstance,
 		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
 	GObjectUserData(const GBindingParamPointer & param, const GSharedObjectData & data);
-	virtual ~GObjectUserData();
 
 	IMetaClass * getMetaClass() const {
 		return this->data->metaClass.get();
@@ -488,29 +487,10 @@ private:
 	MapType classMap;
 };
 
-bool metaMapItemIsAccessible(GMetaMapItemType type);
-bool metaMapItemIsInvokable(GMetaMapItemType type);
 GMetaMapItem * findMetaMapItem(GMetaMap * metaMap, IMetaClass * metaClass, const char * itemName);
 
 
 ObjectPointerCV metaTypeToCV(const GMetaType & type);
-
-struct FindCallablePredict {
-	bool operator () (IMetaCallable *) {
-		return true;
-	}
-};
-
-struct OperatorCallablePredict {
-	explicit OperatorCallablePredict(GMetaOpType op) : op(op) {}
-
-	bool operator () (IMetaCallable * t) {
-		return gdynamic_cast<IMetaOperator *>(t)->getOperator() == this->op;
-	}
-
-private:
-	GMetaOpType op;
-};
 
 class InvokeParamRank
 {
@@ -600,6 +580,8 @@ char * wideStringToString(const wchar_t * ws);
 
 GSharedObjectData getSharedObjectData(GObjectUserData * objectUserData);
 GObjectData * getObjectData(GObjectUserData * objectUserData);
+
+IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 
 
 } // namespace bind_internal

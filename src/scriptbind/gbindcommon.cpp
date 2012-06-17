@@ -10,6 +10,24 @@ namespace cpgf {
 
 namespace bind_internal {
 
+struct FindCallablePredict {
+	bool operator () (IMetaCallable *) {
+		return true;
+	}
+};
+
+struct OperatorCallablePredict {
+	explicit OperatorCallablePredict(GMetaOpType op) : op(op) {}
+
+	bool operator () (IMetaCallable * t) {
+		return gdynamic_cast<IMetaOperator *>(t)->getOperator() == this->op;
+	}
+
+private:
+	GMetaOpType op;
+};
+
+
 // such as 2 or more dimensions pointer
 const int ParamMatchRank_Unknown = 0;
 const int ParamMatchRank_Convert = 50000;
@@ -69,10 +87,6 @@ GObjectUserData::GObjectUserData(const GBindingParamPointer & param, IMetaClass 
 
 GObjectUserData::GObjectUserData(const GBindingParamPointer & param, const GSharedObjectData & data)
 	: super(udtObject, param), data(data)
-{
-}
-
-GObjectUserData::~GObjectUserData()
 {
 }
 
@@ -294,16 +308,6 @@ InvokeCallableParam::~InvokeCallableParam()
 {
 }
 
-
-bool metaMapItemIsAccessible(GMetaMapItemType type)
-{
-	return type == mmitField || type == mmitProperty;
-}
-
-bool metaMapItemIsInvokable(GMetaMapItemType type)
-{
-	return type == mmitMethod || type == mmitMethodList;
-}
 
 GMetaMapItem * findMetaMapItem(GMetaMap * metaMap, IMetaClass * metaClass, const char * itemName)
 {
@@ -835,6 +839,24 @@ GObjectData * getObjectData(GObjectUserData * objectUserData)
 	}
 	else {
 		return NULL;
+	}
+}
+
+IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived)
+{
+	if(derived == NULL) {
+		currentClass->addReference();
+		return currentClass;
+	}
+	else {
+		if(derived->getBaseCount() > 0 && derived->getBaseClass(0)) {
+			// always choose first base because we only support single inheritance in script binding
+			return derived->getBaseClass(0);
+		}
+		else {
+			derived->addReference();
+			return derived;
+		}
 	}
 }
 

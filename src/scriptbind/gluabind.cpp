@@ -223,7 +223,7 @@ int UserData_operator(lua_State * L);
 void doBindAllOperators(lua_State * L, const GBindingParamPointer & param, void * instance, IMetaClass * metaClass);
 void doBindClass(lua_State * L, const GBindingParamPointer & param, IMetaClass * metaClass);
 void doBindEnum(lua_State * L, const GBindingParamPointer & param, IMetaEnum * metaEnum);
-void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const GSharedExtendMethodUserData & data);
+void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const GSharedObjectData & objectData, const GSharedExtendMethodUserData & data);
 void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const char * name, IMetaList * methodList, GUserDataMethodType methodType);
 
 void initObjectMetaTable(lua_State * L);
@@ -1101,42 +1101,19 @@ int UserData_index(lua_State * L)
 
 			case mmitMethod:
 			case mmitMethodList: {
-/*
 				GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getData());
 				if(data == NULL) {
 					GScopedInterface<IMetaList> methodList(createMetaList());
-					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, userData, name, false);
+					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, getObjectData(userData), name, true);
 
-					// select the class to bind to the method (i.e, to call the method, an object must be the class or the class' derived)
-					GScopedInterface<IMetaClass> boundClass;
-					if(!derived) {
-						boundClass.reset(metaClass.get());
-						boundClass->addReference();
-					}
-					else {
-						if(derived->getBaseCount() > 0 && derived->getBaseClass(0)) {
-							// always choose first base because we only support single inheritance in JS
-							boundClass.reset(derived->getBaseClass(0));
-						}
-						else {
-							boundClass.reset(derived.get());
-							boundClass->addReference();
-						}
-					}
+					GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass.get(), derived.get()));
 
 					data = new GMapItemMethodData();
-					data->setMethodData(new GExtendMethodUserData(userData->getParam(), boundClass.get(), methodList.get(), name, udmtMethodList));
-//					data->setMethodData(new GExtendMethodUserData(userData->getParam(), NULL, methodList.get(), name, udmtInternal));
+					data->setMethodData(GSharedExtendMethodUserData(new GExtendMethodUserData(userData->getParam(), boundClass.get(), methodList.get(), name, udmtInternal)));
 
 					mapItem->setData(data);
 				}
-				doBindMethodList(L, userData->getParam(), data->getMethodData(), false);
-				return true;
-*/
-
-				GScopedInterface<IMetaList> metaList(createMetaList());
-				loadMethodList(&traveller, metaList.get(), userData->getParam()->getMetaMap(), mapItem, instance, getObjectData(userData), name);
-				doBindMethodList(L, userData->getParam(), name, metaList.get(), udmtInternal);
+				doBindMethodList(L, userData->getParam(), getSharedObjectData(userData), data->getMethodData());
 				return true;
 			}
 
@@ -1195,22 +1172,27 @@ bool newindexMemberData(lua_State * /*L*/, GObjectUserData * userData, const cha
 			continue;
 		}
 
-		if(mapItem->getType() == mmitEnum || mapItem->getType() == mmitEnumValue) {
-			raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
-		}
-		
-		if(!metaMapItemIsAccessible(mapItem->getType())) {
-			continue;
-		}
-		
-		GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
+		switch(mapItem->getType()) {
+			case mmitField:
+			case mmitProperty: {
+				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
+				if(allowAccessData(getObjectData(userData), data.get())) {
+					metaSetValue(data.get(), userData->getInstance(), value);
+					return true;
+				}
+			}
+			   break;
 
-		if(allowAccessData(getObjectData(userData), data.get())) {
-			GVariantData varData = value.getData();
-			data->set(instance, &varData);
-			metaCheckError(data);
+			case mmitMethod:
+			case mmitMethodList:
+			case mmitEnum:
+			case mmitEnumValue:
+			case mmitClass:
+				raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
+				return false;
 
-			return true;
+			default:
+				break;
 		}
 	}
 
@@ -1297,10 +1279,10 @@ void doBindClass(lua_State * L, const GBindingParamPointer & param, IMetaClass *
 	lua_setmetatable(L, -2);
 }
 
-void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const GSharedExtendMethodUserData & data)
+void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const GSharedObjectData & objectData, const GSharedExtendMethodUserData & data)
 {
 	void * userData = lua_newuserdata(L, sizeof(GMethodUserData));
-	new (userData) GMethodUserData(param, GSharedObjectData(), data);
+	new (userData) GMethodUserData(param, objectData, data);
 	
 	lua_newtable(L);
 	
@@ -1314,7 +1296,7 @@ void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const G
 void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const char * name, IMetaList * methodList, GUserDataMethodType methodType)
 {
 	GExtendMethodUserData * data = new GExtendMethodUserData(param, NULL, methodList, name, methodType);
-	doBindMethodList(L, param, GSharedExtendMethodUserData(data));
+	doBindMethodList(L, param, GSharedObjectData(), GSharedExtendMethodUserData(data));
 }
 
 void setMetaTableGC(lua_State * L)

@@ -1024,8 +1024,6 @@ bool doSetAttributeObject(GPythonObject * cppObject, PyObject * attrName, PyObje
 			continue;
 		}
 
-		bool error = false;
-
 		switch(mapItem->getType()) {
 			case mmitField:
 			case mmitProperty: {
@@ -1043,16 +1041,11 @@ bool doSetAttributeObject(GPythonObject * cppObject, PyObject * attrName, PyObje
 			case mmitEnum:
 			case mmitEnumValue:
 			case mmitClass:
-				error = true;
-				break;
+				raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
+				return false;
 
 			default:
 				break;
-		}
-
-		if(error) {
-			raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
-			break;
 		}
 	}
 
@@ -1119,22 +1112,7 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 					GScopedInterface<IMetaList> methodList(createMetaList());
 					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, getObjectData(userData), name, true);
 
-					// select the class to bind to the method (i.e, to call the method, an object must be the class or the class' derived)
-					GScopedInterface<IMetaClass> boundClass;
-					if(!derived) {
-						boundClass.reset(metaClass.get());
-						boundClass->addReference();
-					}
-					else {
-						if(derived->getBaseCount() > 0 && derived->getBaseClass(0)) {
-							// always choose first base because we only support single inheritance in script binding
-							boundClass.reset(derived->getBaseClass(0));
-						}
-						else {
-							boundClass.reset(derived.get());
-							boundClass->addReference();
-						}
-					}
+					GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass.get(), derived.get()));
 
 					data = new GMapItemMethodData();
 					data->setMethodData(GSharedExtendMethodUserData(new GExtendMethodUserData(userData->getParam(), boundClass.get(), methodList.get(), name, udmtInternal)));

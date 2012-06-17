@@ -266,13 +266,13 @@ public:
 	Persistent<FunctionTemplate> functionTemplate;
 };
 
-class GMapItemMethodData : public GMetaMapItemData
+class GMapItemV8MethodData : public GMetaMapItemData
 {
 public:
-	GMapItemMethodData() : userData(NULL) {
+	GMapItemV8MethodData() : userData(NULL) {
 	}
 
-	virtual ~GMapItemMethodData() {
+	virtual ~GMapItemV8MethodData() {
 		this->functionTemplate.Dispose();
 		this->functionTemplate.Clear();
 	}
@@ -1062,32 +1062,16 @@ Handle<Value> getNamedMember(GObjectUserData * userData, const char * name)
 
 			case mmitMethod:
 			case mmitMethodList: {
-				GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getData());
+				GMapItemV8MethodData * data = gdynamic_cast<GMapItemV8MethodData *>(mapItem->getData());
 				if(data == NULL) {
 					GScopedInterface<IMetaList> methodList(createMetaList());
 					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, getObjectData(userData), name, true);
 
-					data = new GMapItemMethodData;
+					data = new GMapItemV8MethodData;
 					mapItem->setData(data);
 					GExtendMethodUserData * newUserData;
 
-					// select the class to bind to the method (i.e, to call the method, an object must be the class or the class' derived)
-					// that to ensure Arguments::Holder is correct
-					GScopedInterface<IMetaClass> boundClass;
-					if(!derived) {
-						boundClass.reset(metaClass.get());
-						boundClass->addReference();
-					}
-					else {
-						if(derived->getBaseCount() > 0 && derived->getBaseClass(0)) {
-							// always choose first base because we only support single inheritance in JS
-							boundClass.reset(derived->getBaseClass(0));
-						}
-						else {
-							boundClass.reset(derived.get());
-							boundClass->addReference();
-						}
-					}
+					GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass.get(), derived.get()));
 
 					GMetaMapClass * baseMapClass = getMetaClassMap(userData->getParam(), boundClass.get());
 					data->setTemplate(createMethodTemplate(userData->getParam(), userData->getMetaClass(), userData->getInstance() == NULL, methodList.get(), name,
@@ -1140,7 +1124,7 @@ Handle<Value> getNamedMember(GObjectUserData * userData, const char * name)
 	return Handle<Value>();
 }
 
-Handle<Value> setNamedMember(GObjectUserData * userData, const char * name, Local<Context> context, Local<Value> value)
+bool setNamedMember(GObjectUserData * userData, const char * name, Local<Context> context, Local<Value> value)
 {
 	GMetaClassTraveller traveller(userData->getMetaClass(), userData->getInstance());
 
@@ -1157,8 +1141,6 @@ Handle<Value> setNamedMember(GObjectUserData * userData, const char * name, Loca
 			continue;
 		}
 
-		bool error = false;
-
 		switch(mapItem->getType()) {
 			case mmitField:
 			case mmitProperty: {
@@ -1166,7 +1148,7 @@ Handle<Value> setNamedMember(GObjectUserData * userData, const char * name, Loca
 				if(allowAccessData(getObjectData(userData), data.get())) {
 					GVariant v = v8ToVariant(userData->getParam(), context, value).getValue();
 					metaSetValue(data.get(), userData->getInstance(), v);
-					return value;
+					return true;
 				}
 			}
 			   break;
@@ -1176,20 +1158,15 @@ Handle<Value> setNamedMember(GObjectUserData * userData, const char * name, Loca
 			case mmitEnum:
 			case mmitEnumValue:
 			case mmitClass:
-				error = true;
-				break;
+				raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
+				return false;
 
 			default:
 				break;
 		}
-
-		if(error) {
-			raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
-			break;
-		}
 	}
 
-	return Handle<Value>();
+	return false;
 }
 
 Handle<Value> staticMemberGetter(Local<String> prop, const AccessorInfo & info)
@@ -1261,7 +1238,11 @@ Handle<Value> namedMemberSetter(Local<String> prop, Local<Value> value, const Ac
 		return Handle<Value>();
 	}
 
-	return setNamedMember(userData, name, info.Holder()->CreationContext(), value);
+	if(setNamedMember(userData, name, info.Holder()->CreationContext(), value)) {
+		return value;
+	}
+
+	return Handle<Value>();
 
 	LEAVE_V8(return Handle<Value>())
 }
