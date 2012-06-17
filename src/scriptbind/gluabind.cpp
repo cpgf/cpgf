@@ -54,14 +54,13 @@ class GLuaGlobalAccessor;
 class GLuaScriptFunction : public GScriptFunction
 {
 public:
-	GLuaScriptFunction(lua_State * L, const GBindingParamPointer & bindingParam, int objectIndex);
+	GLuaScriptFunction(const GBindingParamPointer & bindingParam, int objectIndex);
 	virtual ~GLuaScriptFunction();
 	
 	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount);
 	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
 
 private:
-	lua_State * luaState;
 	const GBindingParamPointer & bindingParam;
 	int ref;
 };
@@ -160,6 +159,26 @@ private:
 };
 
 
+class GLuaScriptBindingParam : public GScriptBindingParam
+{
+private:
+	typedef GScriptBindingParam super;
+
+public:
+	GLuaScriptBindingParam(IMetaService * service, const GScriptConfig & config, lua_State * luaState)
+		: super(service, config), luaState(luaState)
+	{
+	}
+
+	lua_State * getLuaState() const {
+		return this->luaState;
+	}
+
+private:
+	lua_State * luaState;
+};
+
+
 class GLuaScopeGuard
 {
 public:
@@ -220,11 +239,11 @@ int UserData_index(lua_State * L);
 int UserData_newindex(lua_State * L);
 int UserData_operator(lua_State * L);
 
-void doBindAllOperators(lua_State * L, const GBindingParamPointer & param, void * instance, IMetaClass * metaClass);
-void doBindClass(lua_State * L, const GBindingParamPointer & param, IMetaClass * metaClass);
-void doBindEnum(lua_State * L, const GBindingParamPointer & param, IMetaEnum * metaEnum);
-void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const GSharedObjectData & objectData, const GSharedExtendMethodUserData & data);
-void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const char * name, IMetaList * methodList, GUserDataMethodType methodType);
+void doBindAllOperators(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass);
+void doBindClass(const GBindingParamPointer & param, IMetaClass * metaClass);
+void doBindEnum(const GBindingParamPointer & param, IMetaEnum * metaEnum);
+void doBindMethodList(const GBindingParamPointer & param, const GSharedObjectData & objectData, const GSharedExtendMethodUserData & data);
+void doBindMethodList(const GBindingParamPointer & param, const char * name, IMetaList * methodList, GUserDataMethodType methodType);
 
 void initObjectMetaTable(lua_State * L);
 void setMetaTableGC(lua_State * L);
@@ -232,10 +251,10 @@ void setMetaTableCall(lua_State * L, void * userData);
 void setMetaTableSignature(lua_State * L);
 bool isValidMetaTable(lua_State * L, int index);
 
-bool variantToLua(lua_State * L, const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw);
-GMetaVariant luaToVariant(lua_State * L, const GBindingParamPointer & param, int index);
+bool variantToLua(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw);
+GMetaVariant luaToVariant(const GBindingParamPointer & param, int index);
 
-bool doIndexMemberData(lua_State * L, const GBindingParamPointer & param, IMetaAccessible * data, void * instance, bool instanceIsConst);
+bool doIndexMemberData(const GBindingParamPointer & param, IMetaAccessible * data, void * instance, bool instanceIsConst);
 
 void error(lua_State * L, const char * message);
 
@@ -263,6 +282,11 @@ void getRefObject(lua_State * L, int ref)
 	}
 
 	lua_rawgeti(L, RefTable, ref);
+}
+
+lua_State * getLuaState(const GBindingParamPointer & param)
+{
+	return gdynamic_cast<GLuaScriptBindingParam *>(param.get())->getLuaState();
 }
 
 
@@ -361,7 +385,7 @@ int GLuaGlobalAccessor::doIndex()
 	string sname(name);
 	MapType::iterator it = this->itemMap.find(sname);
 	if(it != this->itemMap.end()) {
-		doIndexMemberData(L, this->scriptObject->implement->param, it->second.accessible.get(), it->second.instance, false);
+		doIndexMemberData(this->scriptObject->implement->param, it->second.accessible.get(), it->second.instance, false);
 		return 1;
 	}
 
@@ -377,7 +401,7 @@ int GLuaGlobalAccessor::doNewIndex()
 	string sname(name);
 	MapType::iterator it = this->itemMap.find(sname);
 	if(it != this->itemMap.end()) {
-		GVariant value = luaToVariant(L, this->scriptObject->implement->param, -1).getValue();
+		GVariant value = luaToVariant(this->scriptObject->implement->param, -1).getValue();
 		GVariantData varData = value.getData();
 		it->second.accessible->set(it->second.instance, &varData);
 		metaCheckError(it->second.accessible);
@@ -506,12 +530,14 @@ void error(lua_State * L, const char * message)
 	lua_error(L);
 }
 
-void objectToLua(lua_State * L, const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+bool objectToLua(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
 {
+	lua_State * L = getLuaState(param);
+
 	if(instance == NULL) {
 		lua_pushnil(L);
 
-		return;
+		return true;
 	}
 
 	void * userData = lua_newuserdata(L, sizeof(GObjectUserData));
@@ -540,13 +566,17 @@ void objectToLua(lua_State * L, const GBindingParamPointer & param, void * insta
 		lua_pushvalue(L, -1); // duplicate the meta table
 		lua_setfield(L, LUA_REGISTRYINDEX, metaTableName);
 	}
-	doBindAllOperators(L, param, instance, metaClass);
+	doBindAllOperators(param, instance, metaClass);
 	
 	lua_setmetatable(L, -2);
+
+	return true;
 }
 
-void * luaToObject(lua_State * L, const GBindingParamPointer & /*param*/, int index, GMetaType * outType)
+void * luaToObject(const GBindingParamPointer & param, int index, GMetaType * outType)
 {
+	lua_State * L = getLuaState(param);
+
 	if(isValidMetaTable(L, index)) {
 		void * userData = lua_touserdata(L, index);
 		if(static_cast<GScriptUserData *>(userData)->getType() == udtObject) {
@@ -565,8 +595,10 @@ void * luaToObject(lua_State * L, const GBindingParamPointer & /*param*/, int in
 	return NULL;
 }
 
-GMetaVariant luaUserDataToVariant(lua_State * L, const GBindingParamPointer & /*param*/, int index)
+GMetaVariant luaUserDataToVariant(const GBindingParamPointer & param, int index)
 {
+	lua_State * L = getLuaState(param);
+
 	if(isValidMetaTable(L, index)) {
 		void * userData = lua_touserdata(L, index);
 		return userDataToVariant(static_cast<GScriptUserData *>(userData));
@@ -575,22 +607,26 @@ GMetaVariant luaUserDataToVariant(lua_State * L, const GBindingParamPointer & /*
 	return GMetaVariant();
 }
 
-GMetaVariant functionToVariant(lua_State * L, const GBindingParamPointer & param, int index)
+GMetaVariant functionToVariant(const GBindingParamPointer & param, int index)
 {
-	GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GLuaScriptFunction(L, param, index), true));
+	GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GLuaScriptFunction(param, index), true));
 	
 	return GMetaVariant(func.get(), GMetaType());
 }
 
-GMetaVariant tableToVariant(lua_State * L, const GBindingParamPointer & param, int index)
+GMetaVariant tableToVariant(const GBindingParamPointer & param, int index)
 {
+	lua_State * L = getLuaState(param);
+
 	GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GLuaScriptObject(param->getService(), L, param->getConfig(), index), true));
 	
 	return GMetaVariant(scriptObject.get(), GMetaType());
 }
 
-GMetaVariant luaToVariant(lua_State * L, const GBindingParamPointer & param, int index)
+GMetaVariant luaToVariant(const GBindingParamPointer & param, int index)
 {
+	lua_State * L = getLuaState(param);
+
 	int type = lua_type(L, index);
 
 	switch(type) {
@@ -607,16 +643,16 @@ GMetaVariant luaToVariant(lua_State * L, const GBindingParamPointer & param, int
 			return GMetaVariant(createStringVariant(lua_tostring(L, index)), createMetaType<char *>());
 
 		case LUA_TUSERDATA:
-			return luaUserDataToVariant(L, param, index);
+			return luaUserDataToVariant(param, index);
 
 		case LUA_TFUNCTION:
-			return functionToVariant(L, param, index);
+			return functionToVariant(param, index);
 
 		case LUA_TLIGHTUSERDATA:
 			break;
 
 		case LUA_TTABLE:
-			return tableToVariant(L, param, index);
+			return tableToVariant(param, index);
 			
 		case LUA_TTHREAD:
 			break;
@@ -625,8 +661,10 @@ GMetaVariant luaToVariant(lua_State * L, const GBindingParamPointer & param, int
 	return GMetaVariant();
 }
 
-bool rawToLua(lua_State * L, const GBindingParamPointer & param, const GVariant & value)
+bool rawToLua(const GBindingParamPointer & param, const GVariant & value)
 {
+	lua_State * L = getLuaState(param);
+
 	if(param->getConfig().allowAccessRawData()) {
 		void * userData = lua_newuserdata(L, sizeof(GRawUserData));
 		new (userData) GRawUserData(param, value);
@@ -644,8 +682,10 @@ bool rawToLua(lua_State * L, const GBindingParamPointer & param, const GVariant 
 	return false;
 }
 
-bool variantToLua(lua_State * L, const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+bool variantToLua(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
 {
+	lua_State * L = getLuaState(param);
+
 	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
 	
 	if(vtIsEmpty(vt)) {
@@ -691,56 +731,18 @@ bool variantToLua(lua_State * L, const GBindingParamPointer & param, const GVari
 		return true;
 	}
 
-	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
-		GScopedInterface<IMetaTypedItem> typedItem(param->getService()->findTypedItemByName(type.getBaseName()));
-		if(typedItem) {
-			bool isReference = type.isReference();
-
-			if(type.getPointerDimension() == 0 && !isReference) {
-				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
-				GASSERT_MSG(type.baseIsClass(), "Unknown type");
-
-				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
-				void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-				objectToLua(L, param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type), cudtNormal);
-
-				return true;
-			}
-
-			if(type.getPointerDimension() == 1 || isReference) {
-				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
-
-				if(vtIsInterface(vt)) {
-					GScopedInterface<IObject> ba(value.data.valueInterface);
-					objectToLua(L, param, value.data.valueInterface, gdynamic_cast<IMetaClass *>(typedItem.get()),
-						allowGC, metaTypeToCV(type), cudtInterface);
-				}
-				else {
-					objectToLua(L, param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()),
-						allowGC, metaTypeToCV(type), cudtNormal);
-				}
-
-				return true;
-			}
-		}
-
-		if(bind_internal::shouldRemoveReference(type)) {
-			GMetaType newType(type);
-			newType.removeReference();
-
-			return variantToLua(L, param, value, newType, allowGC, allowRaw);
-		}
-	}
-
-	if(allowRaw) {
-		return rawToLua(L, param, value);
+	bool result;
+	if(variantToScript<bool >(&result, objectToLua, variantToLua, rawToLua, param, value, type, allowGC, allowRaw)) {
+		return true;
 	}
 
 	return false;
 }
 
-bool converterToLua(lua_State * L, const GBindingParamPointer & param, const GVariant & value, IMetaConverter * converter)
+bool converterToLua(const GBindingParamPointer & param, const GVariant & value, IMetaConverter * converter)
 {
+	lua_State * L = getLuaState(param);
+
 	if(converter == NULL) {
 		return false;
 	}
@@ -867,15 +869,17 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 	return sdtUnknown;
 }
 
-void loadMethodParameters(lua_State * L, const GBindingParamPointer & param, GVariant * outputParams, int startIndex, size_t paramCount)
+void loadMethodParameters(const GBindingParamPointer & param, GVariant * outputParams, int startIndex, size_t paramCount)
 {
 	for(size_t i = 0; i < paramCount; ++i) {
-		outputParams[i] = luaToVariant(L, param, static_cast<int>(i) + startIndex).getValue();
+		outputParams[i] = luaToVariant(param, static_cast<int>(i) + startIndex).getValue();
 	}
 }
 
-void loadMethodParamTypes(lua_State * L, GBindDataType * outputTypes, int startIndex, size_t paramCount)
+void loadMethodParamTypes(const GBindingParamPointer & param, GBindDataType * outputTypes, int startIndex, size_t paramCount)
 {
+	lua_State * L = getLuaState(param);
+
 	for(size_t i = 0; i < paramCount; ++i) {
 		IMetaTypedItem * typeItem;
 		outputTypes[i].dataType = getLuaType(L, static_cast<int>(i) + startIndex, &typeItem);
@@ -883,7 +887,7 @@ void loadMethodParamTypes(lua_State * L, GBindDataType * outputTypes, int startI
 	}
 }
 
-bool doPushInvokeResult(lua_State * L, const GBindingParamPointer & param, IMetaCallable * callable, InvokeCallableResult * result)
+bool methodResultToLua(const GBindingParamPointer & param, IMetaCallable * callable, InvokeCallableResult * result)
 {
 	if(result->resultCount > 0) {
 		GMetaTypeData typeData;
@@ -892,13 +896,13 @@ bool doPushInvokeResult(lua_State * L, const GBindingParamPointer & param, IMeta
 		metaCheckError(callable);
 
 		GVariant value = result->resultData;
-		bool success = variantToLua(L, param, value, GMetaType(typeData), !! callable->isResultTransferOwnership(), false);
+		bool success = variantToLua(param, value, GMetaType(typeData), !! callable->isResultTransferOwnership(), false);
 		if(!success) {
 			GScopedInterface<IMetaConverter> converter(metaGetResultExtendType(callable, GExtendTypeCreateFlag_Converter).getConverter());
-			success = converterToLua(L, param, value, converter.get());
+			success = converterToLua(param, value, converter.get());
 		}
 		if(!success) {
-			success = rawToLua(L, param, value);
+			success = rawToLua(param, value);
 		}
 		if(!success) {
 			raiseCoreException(Error_ScriptBinding_FailVariantToScript);
@@ -908,10 +912,10 @@ bool doPushInvokeResult(lua_State * L, const GBindingParamPointer & param, IMeta
 	return true;
 }
 
-void loadCallableParam(lua_State * L, const GBindingParamPointer & param, InvokeCallableParam * callableParam, int startIndex)
+void loadCallableParam(const GBindingParamPointer & param, InvokeCallableParam * callableParam, int startIndex)
 {
-	loadMethodParameters(L, param, callableParam->paramsData, startIndex, callableParam->paramCount);
-	loadMethodParamTypes(L, callableParam->paramsType, startIndex, callableParam->paramCount);
+	loadMethodParameters(param, callableParam->paramsData, startIndex, callableParam->paramCount);
+	loadMethodParamTypes(param, callableParam->paramsType, startIndex, callableParam->paramCount);
 }
 
 int callbackInvokeMethodList(lua_State * L)
@@ -921,28 +925,30 @@ int callbackInvokeMethodList(lua_State * L)
 	GMethodUserData * userData = static_cast<GMethodUserData *>(lua_touserdata(L, lua_upvalueindex(1)));
 
 	InvokeCallableParam callableParam(lua_gettop(L));
-	loadCallableParam(L, userData->getParam(), &callableParam, 1);
+	loadCallableParam(userData->getParam(), &callableParam, 1);
 	
 	GObjectUserData data(userData->getParam(), userData->getObjectData());
 	InvokeCallableResult result = doCallbackMethodList(&data, userData->getMethodUserData().get(), &callableParam);
 	
-	doPushInvokeResult(L, userData->getParam(), result.callable.get(), &result);
+	methodResultToLua(userData->getParam(), result.callable.get(), &result);
 	return result.resultCount;
 
 	LEAVE_LUA(L, return 0)
 }
 
-int invokeConstructor(lua_State * L, const GBindingParamPointer & param, IMetaClass * metaClass)
+int invokeConstructor(const GBindingParamPointer & param, IMetaClass * metaClass)
 {
+	lua_State * L = getLuaState(param);
+
 	int paramCount = lua_gettop(L) - 1;
 	
 	InvokeCallableParam callableParam(paramCount);
-	loadCallableParam(L, param, &callableParam, 2);
+	loadCallableParam(param, &callableParam, 2);
 	
 	void * instance = doInvokeConstructor(param->getService(), metaClass, &callableParam);
 
 	if(instance != NULL) {
-		objectToLua(L, param, instance, metaClass, true, opcvNone, cudtNormal);
+		objectToLua(param, instance, metaClass, true, opcvNone, cudtNormal);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -951,8 +957,10 @@ int invokeConstructor(lua_State * L, const GBindingParamPointer & param, IMetaCl
 	return 1;
 }
 
-int invokeOperator(lua_State * L, const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, GMetaOpType op)
+int invokeOperator(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, GMetaOpType op)
 {
+	lua_State * L = getLuaState(param);
+
 	int paramCount = lua_gettop(L);
 	int startIndex = 1;
 
@@ -966,10 +974,10 @@ int invokeOperator(lua_State * L, const GBindingParamPointer & param, void * ins
 	}
 		
 	InvokeCallableParam callableParam(paramCount);
-	loadCallableParam(L, param, &callableParam, startIndex);
+	loadCallableParam(param, &callableParam, startIndex);
 	
 	InvokeCallableResult result = doInvokeOperator(param, instance, metaClass, op, &callableParam);
-	doPushInvokeResult(L, param, result.callable.get(), &result);
+	methodResultToLua(param, result.callable.get(), &result);
 	return result.resultCount;
 }
 
@@ -993,7 +1001,7 @@ int UserData_call(lua_State * L)
 
 
 	if(userData->getInstance() == NULL) { // constructor
-		return invokeConstructor(L, userData->getParam(), userData->getMetaClass());
+		return invokeConstructor(userData->getParam(), userData->getMetaClass());
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_InternalError_WrongFunctor);
@@ -1004,54 +1012,54 @@ int UserData_call(lua_State * L)
 	LEAVE_LUA(L, return 0)
 }
 
-bool doIndexMemberData(lua_State * L, const GBindingParamPointer & param, IMetaAccessible * data, void * instance, bool instanceIsConst)
+bool doIndexMemberData(const GBindingParamPointer & param, IMetaAccessible * data, void * instance, bool instanceIsConst)
 {
 	GMetaType type;
 	GVariant value = getAccessibleValueAndType(instance, data, &type, instanceIsConst);
 
-	bool success = variantToLua(L, param, value, type, false, false);
+	bool success = variantToLua(param, value, type, false, false);
 	if(!success) {
 		GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(data, GExtendTypeCreateFlag_Converter).getConverter());
-		success = converterToLua(L, param, value, converter.get());
+		success = converterToLua(param, value, converter.get());
 	}
 	if(!success) {
-		success = rawToLua(L, param, value);
+		success = rawToLua(param, value);
 	}
 
 	return success;
 }
 
-bool indexMemberData(lua_State * L, GObjectUserData * userData, IMetaAccessible * data, void * instance)
+bool indexMemberData(GObjectUserData * userData, IMetaAccessible * data, void * instance)
 {
-	return doIndexMemberData(L, userData->getParam(), data, instance, userData->getCV() == opcvConst);
+	return doIndexMemberData(userData->getParam(), data, instance, userData->getCV() == opcvConst);
 }
 
-bool indexMemberEnumType(lua_State * L, GObjectUserData * userData, GMetaMapItem * mapItem)
+bool indexMemberEnumType(GObjectUserData * userData, GMetaMapItem * mapItem)
 {
 	GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 
-	doBindEnum(L, userData->getParam(), metaEnum.get());
+	doBindEnum(userData->getParam(), metaEnum.get());
 
 	return true;
 }
 
-bool indexMemberEnumValue(lua_State * L, GObjectUserData * userData, GMetaMapItem * mapItem)
+bool indexMemberEnumValue(GObjectUserData * userData, GMetaMapItem * mapItem)
 {
 	GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 
 	GVariantData data;
 	metaEnum->getValue(&data, static_cast<uint32_t>(mapItem->getEnumIndex()));
 	metaCheckError(metaEnum);
-	variantToLua(L, userData->getParam(), GVariant(data), GMetaType(), false, true);
+	variantToLua(userData->getParam(), GVariant(data), GMetaType(), false, true);
 
 	return true;
 }
 
-bool indexMemberClass(lua_State * L, GObjectUserData * userData, GMetaMapItem * mapItem)
+bool indexMemberClass(GObjectUserData * userData, GMetaMapItem * mapItem)
 {
 	GScopedInterface<IMetaClass> metaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
 
-	doBindClass(L, userData->getParam(), metaClass.get());
+	doBindClass(userData->getParam(), metaClass.get());
 
 	return true;
 }
@@ -1088,7 +1096,7 @@ int UserData_index(lua_State * L)
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 				if(allowAccessData(getObjectData(userData), data.get())) {
-					if(indexMemberData(L, userData, data.get(), instance)) {
+					if(indexMemberData(userData, data.get(), instance)) {
 						return true;
 					}
 					else {
@@ -1113,13 +1121,13 @@ int UserData_index(lua_State * L)
 
 					mapItem->setData(data);
 				}
-				doBindMethodList(L, userData->getParam(), getSharedObjectData(userData), data->getMethodData());
+				doBindMethodList(userData->getParam(), getSharedObjectData(userData), data->getMethodData());
 				return true;
 			}
 
 			case mmitEnum:
 				if(! userData->isInstance() || userData->getParam()->getConfig().allowAccessEnumTypeViaInstance()) {
-					if(indexMemberEnumType(L, userData, mapItem)) {
+					if(indexMemberEnumType(userData, mapItem)) {
 						return true;
 					}
 				}
@@ -1127,7 +1135,7 @@ int UserData_index(lua_State * L)
 
 			case mmitEnumValue:
 				if(! userData->isInstance() || userData->getParam()->getConfig().allowAccessEnumValueViaInstance()) {
-					if(indexMemberEnumValue(L, userData, mapItem)) {
+					if(indexMemberEnumValue(userData, mapItem)) {
 						return true;
 					}
 				}
@@ -1135,7 +1143,7 @@ int UserData_index(lua_State * L)
 
 			case mmitClass:
 				if(! userData->isInstance() || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
-					if(indexMemberClass(L, userData, mapItem)) {
+					if(indexMemberClass(userData, mapItem)) {
 						return true;
 					}
 				}
@@ -1206,7 +1214,7 @@ int UserData_newindex(lua_State * L)
 	
 	const char * name = lua_tostring(L, -2);
 
-	GVariant value = luaToVariant(L, userData->getParam(), -1).getValue();
+	GVariant value = luaToVariant(userData->getParam(), -1).getValue();
 	
 	if(newindexMemberData(L, userData, name, value)) {
 		return 1;
@@ -1223,13 +1231,15 @@ int UserData_operator(lua_State * L)
 	
 	GOperatorUserData * userData = static_cast<GOperatorUserData *>(lua_touserdata(L, lua_upvalueindex(1)));
 
-	return invokeOperator(L, userData->getParam(), userData->getInstance(), userData->getMetaClass(), userData->getOp());
+	return invokeOperator(userData->getParam(), userData->getInstance(), userData->getMetaClass(), userData->getOp());
 	
 	LEAVE_LUA(L, return 0)
 }
 
-void doBindOperator(lua_State * L, const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, GMetaOpType op)
+void doBindOperator(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, GMetaOpType op)
 {
+	lua_State * L = getLuaState(param);
+
 	for(size_t i = 0; i < sizeof(metaOpTypes) / sizeof(metaOpTypes[0]); ++i) {
 		if(metaOpTypes[i] == op) {
 			lua_pushstring(L, luaOperators[i]);
@@ -1249,7 +1259,7 @@ void doBindOperator(lua_State * L, const GBindingParamPointer & param, void * in
 	}
 }
 
-void doBindAllOperators(lua_State * L, const GBindingParamPointer & param, void * instance, IMetaClass * metaClass)
+void doBindAllOperators(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass)
 {
 	std::vector<uint32_t> boundOperators;
 
@@ -1258,13 +1268,15 @@ void doBindAllOperators(lua_State * L, const GBindingParamPointer & param, void 
 		GScopedInterface<IMetaOperator> item(metaClass->getOperatorAt(i));
 		uint32_t op = item->getOperator();
 		if(std::find(boundOperators.begin(), boundOperators.end(), op) == boundOperators.end()) {
-			doBindOperator(L, param, instance, metaClass, static_cast<GMetaOpType>(op));
+			doBindOperator(param, instance, metaClass, static_cast<GMetaOpType>(op));
 		}
 	}
 }
 
-void doBindClass(lua_State * L, const GBindingParamPointer & param, IMetaClass * metaClass)
+void doBindClass(const GBindingParamPointer & param, IMetaClass * metaClass)
 {
+	lua_State * L = getLuaState(param);
+
 	void * userData = lua_newuserdata(L, sizeof(GObjectUserData));
 	new (userData) GObjectUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal);
 
@@ -1279,8 +1291,10 @@ void doBindClass(lua_State * L, const GBindingParamPointer & param, IMetaClass *
 	lua_setmetatable(L, -2);
 }
 
-void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const GSharedObjectData & objectData, const GSharedExtendMethodUserData & data)
+void doBindMethodList(const GBindingParamPointer & param, const GSharedObjectData & objectData, const GSharedExtendMethodUserData & data)
 {
+	lua_State * L = getLuaState(param);
+
 	void * userData = lua_newuserdata(L, sizeof(GMethodUserData));
 	new (userData) GMethodUserData(param, objectData, data);
 	
@@ -1293,10 +1307,10 @@ void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const G
 	lua_pushcclosure(L, &callbackInvokeMethodList, 1);
 }
 
-void doBindMethodList(lua_State * L, const GBindingParamPointer & param, const char * name, IMetaList * methodList, GUserDataMethodType methodType)
+void doBindMethodList(const GBindingParamPointer & param, const char * name, IMetaList * methodList, GUserDataMethodType methodType)
 {
 	GExtendMethodUserData * data = new GExtendMethodUserData(param, NULL, methodList, name, methodType);
-	doBindMethodList(L, param, GSharedObjectData(), GSharedExtendMethodUserData(data));
+	doBindMethodList(param, GSharedObjectData(), GSharedExtendMethodUserData(data));
 }
 
 void setMetaTableGC(lua_State * L)
@@ -1380,8 +1394,10 @@ int Enum_newindex(lua_State * L)
 	LEAVE_LUA(L, return 0)
 }
 
-void doBindEnum(lua_State * L, const GBindingParamPointer & param, IMetaEnum * metaEnum)
+void doBindEnum(const GBindingParamPointer & param, IMetaEnum * metaEnum)
 {
+	lua_State * L = getLuaState(param);
+
 	void * userData = lua_newuserdata(L, sizeof(GEnumUserData));
 	new (userData) GEnumUserData(param, metaEnum);
 
@@ -1536,15 +1552,17 @@ void GLuaScopeGuard::rawGet(const char * name)
 }
 
 // function is on stack top
-GMetaVariant invokeLuaFunctionIndirectly(lua_State * L, const GBindingParamPointer & bindingParam, GMetaVariant const * const * params, size_t paramCount, const char * name)
+GMetaVariant invokeLuaFunctionIndirectly(const GBindingParamPointer & bindingParam, GMetaVariant const * const * params, size_t paramCount, const char * name)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+
+	lua_State * L = getLuaState(bindingParam);
 
 	int top = lua_gettop(L) - 1;
 
 	if(lua_isfunction(L, -1)) {
 		for(size_t i = 0; i < paramCount; ++i) {
-			if(!variantToLua(L, bindingParam, params[i]->getValue(), params[i]->getType(), false, true)) {
+			if(!variantToLua(bindingParam, params[i]->getValue(), params[i]->getType(), false, true)) {
 				if(i > 0) {
 					lua_pop(L, static_cast<int>(i) - 1);
 				}
@@ -1564,7 +1582,7 @@ GMetaVariant invokeLuaFunctionIndirectly(lua_State * L, const GBindingParamPoint
 			}
 			else {
 				if(resultCount > 0) {
-					return luaToVariant(L, bindingParam, -1);
+					return luaToVariant(bindingParam, -1);
 				}
 			}
 		}
@@ -1577,14 +1595,14 @@ GMetaVariant invokeLuaFunctionIndirectly(lua_State * L, const GBindingParamPoint
 }
 
 
-GLuaScriptFunction::GLuaScriptFunction(lua_State * L, const GBindingParamPointer & bindingParam, int objectIndex)
-	: luaState(L), bindingParam(bindingParam), ref(refLua(L, objectIndex))
+GLuaScriptFunction::GLuaScriptFunction(const GBindingParamPointer & bindingParam, int objectIndex)
+	: bindingParam(bindingParam), ref(refLua(getLuaState(bindingParam), objectIndex))
 {
 }
 
 GLuaScriptFunction::~GLuaScriptFunction()
 {
-	unrefLua(this->luaState, this->ref);
+	unrefLua(getLuaState(this->bindingParam), this->ref);
 }
 	
 GMetaVariant GLuaScriptFunction::invoke(const GMetaVariant * params, size_t paramCount)
@@ -1602,26 +1620,28 @@ GMetaVariant GLuaScriptFunction::invoke(const GMetaVariant * params, size_t para
 
 GMetaVariant GLuaScriptFunction::invokeIndirectly(GMetaVariant const * const * params, size_t paramCount)
 {
+	lua_State * L = getLuaState(this->bindingParam);
+
 	ENTER_LUA()
 
-	getRefObject(this->luaState, this->ref);
+	getRefObject(L, this->ref);
 
-	return invokeLuaFunctionIndirectly(this->luaState, this->bindingParam, params, paramCount, "");
+	return invokeLuaFunctionIndirectly(this->bindingParam, params, paramCount, "");
 	
-	LEAVE_LUA(this->luaState, return GMetaVariant())
+	LEAVE_LUA(L, return GMetaVariant())
 }
 
 
 GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
 	: super(config)
 {
-	this->implement.reset(new GLuaScriptObjectImplement(GBindingParamPointer(new GScriptBindingParam(service, super::getConfig())), this, L, 0));
+	this->implement.reset(new GLuaScriptObjectImplement(GBindingParamPointer(new GLuaScriptBindingParam(service, super::getConfig(), L)), this, L, 0));
 }
 
 GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config, int objectIndex)
 	: super(config)
 {
-	this->implement.reset(new GLuaScriptObjectImplement(GBindingParamPointer(new GScriptBindingParam(service, super::getConfig())), this, L, objectIndex));
+	this->implement.reset(new GLuaScriptObjectImplement(GBindingParamPointer(new GLuaScriptBindingParam(service, super::getConfig(), L)), this, L, objectIndex));
 }
 
 GLuaScriptObject::GLuaScriptObject(const GLuaScriptObject & other)
@@ -1658,7 +1678,7 @@ void GLuaScriptObject::bindClass(const char * name, IMetaClass * metaClass)
 
 	GLuaScopeGuard scopeGuard(this);
 
-	doBindClass(this->implement->luaState, this->implement->param, metaClass);
+	doBindClass(this->implement->param, metaClass);
 	
 	scopeGuard.set(name);
 
@@ -1671,7 +1691,7 @@ void GLuaScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 
 	GLuaScopeGuard scopeGuard(this);
 
-	doBindEnum(this->implement->luaState, this->implement->param, metaEnum);
+	doBindEnum(this->implement->param, metaEnum);
 	
 	scopeGuard.set(name);
 
@@ -1745,7 +1765,7 @@ GScriptFunction * GLuaScriptObject::gainScriptFunction(const char * name)
 
 	scopeGuard.get(name);
 
-	return new GLuaScriptFunction(this->getLuaState(), this->getParam(), -1);
+	return new GLuaScriptFunction(this->getParam(), -1);
 	
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
@@ -1771,7 +1791,7 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const char * name, GMetaVariant 
 
 	scopeGuard.get(name);
 
-	return invokeLuaFunctionIndirectly(this->getLuaState(), this->getParam(), params, paramCount, name);
+	return invokeLuaFunctionIndirectly(this->getParam(), params, paramCount, name);
 	
 	LEAVE_LUA(this->implement->luaState, return GMetaVariant())
 }
@@ -1784,7 +1804,7 @@ void GLuaScriptObject::bindFundamental(const char * name, const GVariant & value
 
 	GLuaScopeGuard scopeGuard(this);
 
-	if(! variantToLua(this->implement->luaState, this->implement->param, value, GMetaType(), false, true)) {
+	if(! variantToLua(this->implement->param, value, GMetaType(), false, true)) {
 		raiseCoreException(Error_ScriptBinding_CantBindFundamental);
 	}
 	
@@ -1821,7 +1841,7 @@ void GLuaScriptObject::bindObject(const char * objectName, void * instance, IMet
 
 	GLuaScopeGuard scopeGuard(this);
 
-	objectToLua(this->implement->luaState, this->implement->param, instance, gdynamic_cast<IMetaClass *>(type), transferOwnership, opcvNone, cudtNormal);
+	objectToLua(this->implement->param, instance, gdynamic_cast<IMetaClass *>(type), transferOwnership, opcvNone, cudtNormal);
 
 	scopeGuard.set(objectName);
 
@@ -1834,7 +1854,7 @@ void GLuaScriptObject::bindRaw(const char * name, const GVariant & value)
 
 	GLuaScopeGuard scopeGuard(this);
 
-	if(! rawToLua(this->implement->luaState, this->implement->param, value)) {
+	if(! rawToLua(this->implement->param, value)) {
 		raiseCoreException(Error_ScriptBinding_CantBindRaw);
 	}
 	
@@ -1856,7 +1876,7 @@ void GLuaScriptObject::bindMethod(const char * name, void * instance, IMetaMetho
 	GScopedInterface<IMetaList> methodList(createMetaList());
 	methodList->add(method, instance);
 
-	doBindMethodList(this->implement->luaState, this->implement->param, name, methodList.get(), udmtMethod);
+	doBindMethodList(this->implement->param, name, methodList.get(), udmtMethod);
 	
 	scopeGuard.set(name);
 	
@@ -1869,7 +1889,7 @@ void GLuaScriptObject::bindMethodList(const char * name, IMetaList * methodList)
 
 	GLuaScopeGuard scopeGuard(this);
 
-	doBindMethodList(this->implement->luaState, this->implement->param, name, methodList, udmtMethodList);
+	doBindMethodList(this->implement->param, name, methodList, udmtMethodList);
 	
 	scopeGuard.set(name);
 	
@@ -1922,7 +1942,7 @@ GVariant GLuaScriptObject::getFundamental(const char * name)
 	scopeGuard.get(name);
 	
 	if(getLuaType(this->implement->luaState, -1, NULL) == sdtFundamental) {
-		return luaToVariant(this->implement->luaState, this->implement->param, -1).getValue();
+		return luaToVariant(this->implement->param, -1).getValue();
 	}
 	else {
 		lua_pop(this->implement->luaState, 1);
@@ -1954,7 +1974,7 @@ void * GLuaScriptObject::getObject(const char * objectName)
 
 	scopeGuard.get(objectName);
 
-	return luaToObject(this->implement->luaState, this->implement->param, -1, NULL);
+	return luaToObject(this->implement->param, -1, NULL);
 	
 	LEAVE_LUA(this->implement->luaState, return NULL)
 }
@@ -1968,7 +1988,7 @@ GVariant GLuaScriptObject::getRaw(const char * name)
 	scopeGuard.get(name);
 	
 	if(getLuaType(this->implement->luaState, -1, NULL) == sdtRaw) {
-		return luaToVariant(this->implement->luaState, this->implement->param, -1).getValue();
+		return luaToVariant(this->implement->param, -1).getValue();
 	}
 	else {
 		lua_pop(this->implement->luaState, 1);

@@ -527,31 +527,6 @@ public:
 
 int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam, InvokeParamRank * paramsRank);
 
-template <typename Getter, typename Predict>
-int findAppropriateCallable(IMetaService * service,
-	const Getter & getter, size_t callableCount,
-	InvokeCallableParam * callableParam, Predict predict)
-{
-	int maxRank = -1;
-	int maxRankIndex = -1;
-
-	InvokeParamRank paramsRank(callableParam->paramCount);
-
-	for(size_t i = 0; i < callableCount; ++i) {
-		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(getter(static_cast<uint32_t>(i))));
-		if(predict(meta.get())) {
-			int rank = rankCallable(service, meta.get(), callableParam, &paramsRank);
-			if(rank > maxRank) {
-				maxRank = rank;
-				maxRankIndex = static_cast<int>(i);
-				callableParam->paramsRank = paramsRank;
-			}
-		}
-	}
-
-	return maxRankIndex;
-}
-
 bool allowInvokeCallable(GObjectData * userData, IMetaCallable * method);
 bool allowAccessData(GObjectData * userData, IMetaAccessible * accessible);
 
@@ -582,6 +557,89 @@ GSharedObjectData getSharedObjectData(GObjectUserData * objectUserData);
 GObjectData * getObjectData(GObjectUserData * objectUserData);
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
+
+
+template <typename Getter, typename Predict>
+int findAppropriateCallable(IMetaService * service,
+	const Getter & getter, size_t callableCount,
+	InvokeCallableParam * callableParam, Predict predict)
+{
+	int maxRank = -1;
+	int maxRankIndex = -1;
+
+	InvokeParamRank paramsRank(callableParam->paramCount);
+
+	for(size_t i = 0; i < callableCount; ++i) {
+		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(getter(static_cast<uint32_t>(i))));
+		if(predict(meta.get())) {
+			int rank = rankCallable(service, meta.get(), callableParam, &paramsRank);
+			if(rank > maxRank) {
+				maxRank = rank;
+				maxRankIndex = static_cast<int>(i);
+				callableParam->paramsRank = paramsRank;
+			}
+		}
+	}
+
+	return maxRankIndex;
+}
+
+
+template <typename RT, typename O, typename V, typename R>
+bool variantToScript(RT * result, const O & funcObjectToScript, const V & funcVariantToScript, const R & funcRawToScript,
+		const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+{
+	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
+
+	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
+		GScopedInterface<IMetaTypedItem> typedItem(param->getService()->findTypedItemByName(type.getBaseName()));
+		if(typedItem) {
+			bool isReference = type.isReference();
+
+			if(type.getPointerDimension() == 0 && !isReference) {
+				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
+				GASSERT_MSG(type.baseIsClass(), "Unknown type");
+
+				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
+				void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
+				*result = funcObjectToScript(param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type), cudtNormal);
+				return true;
+			}
+
+			if(type.getPointerDimension() == 1 || isReference) {
+				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
+
+				if(vtIsInterface(vt)) {
+					GScopedInterface<IObject> ba(value.data.valueInterface);
+					*result = funcObjectToScript(param, value.data.valueInterface, gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC,
+						metaTypeToCV(type), cudtInterface);
+					return true;
+				}
+				else {
+					*result = funcObjectToScript(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type), cudtNormal);
+					return true;
+				}
+			}
+		}
+
+		if(bind_internal::shouldRemoveReference(type)) {
+			GMetaType newType(type);
+			newType.removeReference();
+
+			*result = funcVariantToScript(param, value, newType, allowGC, allowRaw);
+
+			return true;
+		}
+	}
+
+	if(allowRaw) {
+		*result = funcRawToScript(param, value);
+		return true;
+	}
+
+	return false;
+}
+
 
 
 } // namespace bind_internal

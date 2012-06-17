@@ -600,44 +600,9 @@ Handle<Value> variantToV8(const GBindingParamPointer & param, const GVariant & v
 		return String::New(s.get());
 	}
 
-	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
-		GScopedInterface<IMetaTypedItem> typedItem(param->getService()->findTypedItemByName(type.getBaseName()));
-		if(typedItem) {
-			bool isReference = type.isReference();
-
-			if(type.getPointerDimension() == 0 && !isReference) {
-				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
-				GASSERT_MSG(type.baseIsClass(), "Unknown type");
-
-				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
-				void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-				return objectToV8(param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type), cudtNormal);
-			}
-
-			if(type.getPointerDimension() == 1 || isReference) {
-				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
-
-				if(vtIsInterface(vt)) {
-					GScopedInterface<IObject> ba(value.data.valueInterface);
-					return objectToV8(param, value.data.valueInterface, gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC,
-						metaTypeToCV(type), cudtInterface);
-				}
-				else {
-					return objectToV8(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type), cudtNormal);
-				}
-			}
-		}
-
-		if(bind_internal::shouldRemoveReference(type)) {
-			GMetaType newType(type);
-			newType.removeReference();
-
-			return variantToV8(param, value, newType, allowGC, allowRaw);
-		}
-	}
-
-	if(allowRaw) {
-		return rawToV8(param, value);
+	Handle<Value> result;
+	if(variantToScript<Handle<Value> >(&result, objectToV8, variantToV8, rawToV8, param, value, type, allowGC, allowRaw)) {
+		return result;
 	}
 
 	return Handle<Value>();

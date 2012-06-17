@@ -780,45 +780,9 @@ PyObject * variantToPython(const GBindingParamPointer & param, const GVariant & 
 		return PyString_FromString(s.get());
 	}
 
-	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
-		GScopedInterface<IMetaTypedItem> typedItem(param->getService()->findTypedItemByName(type.getBaseName()));
-		if(typedItem) {
-			bool isReference = type.isReference();
-
-			if(type.getPointerDimension() == 0 && !isReference) {
-				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
-				GASSERT_MSG(type.baseIsClass(), "Unknown type");
-
-				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
-				void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-				return objectToPython(param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type), cudtNormal);
-			}
-
-			if(type.getPointerDimension() == 1 || isReference) {
-				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
-
-				if(vtIsInterface(vt)) {
-					GScopedInterface<IObject> ba(value.data.valueInterface);
-					return objectToPython(param, value.data.valueInterface, gdynamic_cast<IMetaClass *>(typedItem.get()),
-						allowGC, metaTypeToCV(type), cudtInterface);
-				}
-				else {
-					return objectToPython(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()),
-						allowGC, metaTypeToCV(type), cudtNormal);
-				}
-			}
-		}
-
-		if(bind_internal::shouldRemoveReference(type)) {
-			GMetaType newType(type);
-			newType.removeReference();
-
-			return variantToPython(param, value, newType, allowGC, allowRaw);
-		}
-	}
-
-	if(allowRaw) {
-		return rawToPython(param, value);
+	PyObject * result = NULL;
+	if(variantToScript<PyObject *>(&result, objectToPython, variantToPython, rawToPython, param, value, type, allowGC, allowRaw)) {
+		return result;
 	}
 
 	return NULL;
