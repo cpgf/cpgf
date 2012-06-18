@@ -585,8 +585,8 @@ int findAppropriateCallable(IMetaService * service,
 }
 
 
-template <typename T>
-bool variantToScript(typename T::ResultType * result,
+template <typename Methods>
+bool variantToScript(typename Methods::ResultType * result,
 	const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
 {
 	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
@@ -602,7 +602,7 @@ bool variantToScript(typename T::ResultType * result,
 
 				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
 				void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-				*result = T::doObjectToScript(param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type), cudtNormal);
+				*result = Methods::doObjectToScript(param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type), cudtNormal);
 				return true;
 			}
 
@@ -611,12 +611,12 @@ bool variantToScript(typename T::ResultType * result,
 
 				if(vtIsInterface(vt)) {
 					GScopedInterface<IObject> ba(value.data.valueInterface);
-					*result = T::doObjectToScript(param, value.data.valueInterface, gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC,
+					*result = Methods::doObjectToScript(param, value.data.valueInterface, gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC,
 						metaTypeToCV(type), cudtInterface);
 					return true;
 				}
 				else {
-					*result = T::doObjectToScript(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type), cudtNormal);
+					*result = Methods::doObjectToScript(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type), cudtNormal);
 					return true;
 				}
 			}
@@ -626,20 +626,121 @@ bool variantToScript(typename T::ResultType * result,
 			GMetaType newType(type);
 			newType.removeReference();
 
-			*result = T::doVariantToScript(param, value, newType, allowGC, allowRaw);
+			*result = Methods::doVariantToScript(param, value, newType, allowGC, allowRaw);
 
 			return true;
 		}
 	}
 
 	if(allowRaw) {
-		*result = T::doRawToScript(param, value);
+		*result = Methods::doRawToScript(param, value);
 		return true;
 	}
 
 	return false;
 }
 
+template <typename Methods>
+bool methodResultToScript(typename Methods::ResultType * result,
+	const GBindingParamPointer & param, IMetaCallable * callable, InvokeCallableResult * resultValue)
+{
+	if(resultValue->resultCount > 0) {
+		GMetaTypeData typeData;
+	
+		callable->getResultType(&typeData);
+		metaCheckError(callable);
+
+		GVariant value = resultValue->resultData;
+		*result = Methods::doVariantToScript(param, value, GMetaType(typeData), !! callable->isResultTransferOwnership(), false);
+		if(! Methods::isSuccessResult(*result)) {
+			GScopedInterface<IMetaConverter> converter(metaGetResultExtendType(callable, GExtendTypeCreateFlag_Converter).getConverter());
+			*result = Methods::doConverterToScript(param, value, converter.get());
+		}
+		if(! Methods::isSuccessResult(*result)) {
+			*result = Methods::doRawToScript(param, value);
+		}
+		if(! Methods::isSuccessResult(*result)) {
+			raiseCoreException(Error_ScriptBinding_FailVariantToScript);
+
+			return false;
+		}
+		
+		return true;
+	}
+	
+	return false;
+}
+
+
+template <typename Methods>
+bool accessibleToScript(typename Methods::ResultType * result,
+	const GBindingParamPointer & param, IMetaAccessible * accessible, void * instance, bool instanceIsConst)
+{
+	GMetaType type;
+	GVariant value = getAccessibleValueAndType(instance, accessible, &type, instanceIsConst);
+
+	*result = Methods::doVariantToScript(param, value, type, false, false);
+	if(! Methods::isSuccessResult(*result)) {
+		GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Converter).getConverter());
+		*result = Methods::doConverterToScript(param, value, converter.get());
+	}
+	if(! Methods::isSuccessResult(*result)) {
+		*result = Methods::doRawToScript(param, value);
+	}
+	if(! Methods::isSuccessResult(*result)) {
+		raiseCoreException(Error_ScriptBinding_FailVariantToScript);
+
+		return false;
+	}
+		
+	return true;
+}
+
+
+template <typename Methods>
+bool converterToScript(typename Methods::ResultType * result,
+	const GBindingParamPointer & param, const GVariant & value, IMetaConverter * converter)
+{
+	if(converter == NULL) {
+		return false;
+	}
+
+	if(isMetaConverterCanRead(converter->capabilityForCString())) {
+		gapi_bool needFree;
+		
+		GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
+		const char * s = converter->readCString(objectAddressFromVariant(value), &needFree, allocator.get());
+
+		if(s != NULL) {
+			*result = Methods::doStringToScript(param, s);
+
+			if(needFree) {
+				allocator->free((void *)s);
+			}
+
+			return true;
+		}
+	}
+
+	if(isMetaConverterCanRead(converter->capabilityForCWideString())) {
+		gapi_bool needFree;
+		
+		GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
+		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
+
+		if(ws != NULL) {
+			*result = Methods::doWideStringToScript(param, ws);
+
+			if(needFree) {
+				allocator->free((void *)ws);
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
 
 
 } // namespace bind_internal

@@ -376,7 +376,6 @@ void weakHandleCallback(Persistent<Value> object, void * parameter);
 Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param, const char * name, IMetaClass * metaClass);
 
 Handle<Value> variantToV8(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw);
-Handle<Value> converterToV8(const GBindingParamPointer & param, const GVariant & value, IMetaConverter * converter);
 
 GMetaMapClass * getMetaClassMap(const GBindingParamPointer & param, IMetaClass * metaClass);
 
@@ -585,6 +584,31 @@ struct GV8Methods
 	{
 		return rawToV8(param, value);
 	}
+
+	static ResultType doConverterToScript(const GBindingParamPointer & param, const GVariant & value, IMetaConverter * converter)
+	{
+		ResultType result;
+		if(converterToScript<GV8Methods>(&result, param, value, converter)) {
+			return result;
+		}
+		return Handle<Value>();
+	}
+
+	static ResultType doStringToScript(const GBindingParamPointer & /*param*/, const char * s)
+	{
+		return String::New(s);
+	}
+
+	static ResultType doWideStringToScript(const GBindingParamPointer & /*param*/, const wchar_t * ws)
+	{
+		GScopedArray<char> s(wideStringToString(ws));
+		return String::New(s.get());
+	}
+
+	static bool isSuccessResult(const ResultType & result)
+	{
+		return ! result.IsEmpty();
+	}
 };
 
 Handle<Value> variantToV8(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
@@ -762,19 +786,11 @@ Handle<Value> accessibleGet(Local<String> /*prop*/, const AccessorInfo & info)
 
 	GAccessibleUserData * userData = static_cast<GAccessibleUserData *>(Local<External>::Cast(info.Data())->Value());
 
-	GMetaType type;
-	GVariant result = getAccessibleValueAndType(userData->getInstance(), userData->getAccessible(), &type, false);
-
-	Handle<Value> v;
-	v = variantToV8(userData->getParam(), result, type, false, false);
-	if(v.IsEmpty()) {
-		GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(userData->getAccessible(), GExtendTypeCreateFlag_Converter).getConverter());
-		v = converterToV8(userData->getParam(), result, converter.get());
+	Handle<Value> r;
+	if(accessibleToScript<GV8Methods>(&r, userData->getParam(), userData->getAccessible(), userData->getInstance(), false)) {
+		return r;
 	}
-	if(v.IsEmpty()) {
-		v = rawToV8(userData->getParam(), result);
-	}
-	return v;
+	return Handle<Value>();
 
 	LEAVE_V8(return Handle<Value>())
 }
@@ -804,71 +820,11 @@ void doBindAccessible(const GBindingParamPointer & param, Local<Object> containe
 	container->SetAccessor(String::New(name), &accessibleGet, &accessibleSet, data);
 }
 
-Handle<Value> converterToV8(const GBindingParamPointer & param, const GVariant & value, IMetaConverter * converter)
-{
-	if(converter != NULL) {
-		if(isMetaConverterCanRead(converter->capabilityForCString())) {
-			gapi_bool needFree;
-
-			GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
-			const char * s = converter->readCString(objectAddressFromVariant(value), &needFree, allocator.get());
-
-			if(s != NULL) {
-				Handle<Value> value = String::New(s);
-
-				if(needFree) {
-					allocator->free((void *)s);
-				}
-
-				return value;
-			}
-		}
-
-		if(isMetaConverterCanRead(converter->capabilityForCWideString())) {
-			gapi_bool needFree;
-		
-			GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
-			const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
-
-			if(ws != NULL) {
-				GScopedArray<char> s(wideStringToString(ws));
-				Handle<Value> value = String::New(s.get());
-
-				if(needFree) {
-					allocator->free((void *)ws);
-				}
-
-				return value;
-			}
-		}
-	}
-
-	return Handle<Value>();
-}
-
 Handle<Value> methodResultToV8(const GBindingParamPointer & param, IMetaCallable * callable, InvokeCallableResult * result)
 {
-	if(result->resultCount > 0) {
-		GMetaTypeData typeData;
-
-		callable->getResultType(&typeData);
-		metaCheckError(callable);
-
-		GVariant value = result->resultData;
-		Handle<Value> v;
-		v = variantToV8(param, value, GMetaType(typeData), !! callable->isResultTransferOwnership(), false);
-		if(v.IsEmpty()) {
-			GScopedInterface<IMetaConverter> converter(metaGetResultExtendType(callable, GExtendTypeCreateFlag_Converter).getConverter());
-			v = converterToV8(param, value, converter.get());
-		}
-		if(v.IsEmpty()) {
-			v = rawToV8(param, value);
-		}
-		if(v.IsEmpty()) {
-			raiseCoreException(Error_ScriptBinding_FailVariantToScript);
-		}
-		return v;
-
+	Handle<Value> r;
+	if(methodResultToScript<GV8Methods>(&r, param, callable, result)) {
+		return r;
 	}
 
 	return Handle<Value>();
@@ -1028,20 +984,11 @@ Handle<Value> getNamedMember(GObjectUserData * userData, const char * name)
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 				if(allowAccessData(getObjectData(userData), data.get())) {
-					GMetaType type;
-					GVariant result = getAccessibleValueAndType(instance, data.get(), &type, userData->getCV() == opcvConst);
-					Handle<Value> v = variantToV8(userData->getParam(), result, type, false, false);
-					if(v.IsEmpty()) {
-						GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(data, GExtendTypeCreateFlag_Converter).getConverter());
-						v = converterToV8(userData->getParam(), result, converter.get());
+					Handle<Value> r;
+					if(accessibleToScript<GV8Methods>(&r, userData->getParam(), data.get(), instance, userData->getCV() == opcvConst)) {
+						return r;
 					}
-					if(v.IsEmpty()) {
-						v = rawToV8(userData->getParam(), result);
-					}
-					if(v.IsEmpty()) {
-						raiseCoreException(Error_ScriptBinding_FailVariantToScript);
-					}
-					return v;
+					return Handle<Value>();
 				}
 			}
 			   break;

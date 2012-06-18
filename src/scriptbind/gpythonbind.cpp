@@ -12,13 +12,6 @@
 #include "../pinclude/gbindcommon.h"
 #include "../pinclude/gscriptbindapiimpl.h"
 
-// test
-#include "cpgf/metatraits/gmetaconverter_string.h"
-#include "cpgf/gmetadefine.h"
-#include <iostream>
-#include <string>
-using namespace std;
-
 
 using namespace cpgf;
 using namespace cpgf::bind_internal;
@@ -766,6 +759,31 @@ struct GPythonMethods
 	{
 		return rawToPython(param, value);
 	}
+
+	static ResultType doConverterToScript(const GBindingParamPointer & param, const GVariant & value, IMetaConverter * converter)
+	{
+		ResultType result;
+		if(converterToScript<GPythonMethods>(&result, param, value, converter)) {
+			return result;
+		}
+		return NULL;
+	}
+
+	static ResultType doStringToScript(const GBindingParamPointer & /*param*/, const char * s)
+	{
+		return PyString_FromString(s);
+	}
+
+	static ResultType doWideStringToScript(const GBindingParamPointer & /*param*/, const wchar_t * ws)
+	{
+		GScopedArray<char> s(wideStringToString(ws));
+		return PyString_FromString(s.get());
+	}
+
+	static bool isSuccessResult(const ResultType & result)
+	{
+		return result != NULL;
+	}
 };
 
 PyObject * variantToPython(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
@@ -810,74 +828,11 @@ PyObject * variantToPython(const GBindingParamPointer & param, const GVariant & 
 	return NULL;
 }
 
-PyObject * converterToPython(const GBindingParamPointer & param, const GVariant & value, IMetaConverter * converter)
-{
-	if(converter == NULL) {
-		return NULL;
-	}
-
-	if(isMetaConverterCanRead(converter->capabilityForCString())) {
-		gapi_bool needFree;
-		
-		GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
-		const char * s = converter->readCString(objectAddressFromVariant(value), &needFree, allocator.get());
-
-		if(s != NULL) {
-			PyObject * result = PyString_FromString(s);
-
-			if(needFree) {
-				allocator->free((void *)s);
-			}
-
-			return result;
-		}
-	}
-
-	if(isMetaConverterCanRead(converter->capabilityForCWideString())) {
-		gapi_bool needFree;
-		
-		GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
-		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
-
-		if(ws != NULL) {
-			GScopedArray<char> s(wideStringToString(ws));
-
-			PyObject * result = PyString_FromString(s.get());
-
-			if(needFree) {
-				allocator->free((void *)ws);
-			}
-
-			return result;
-		}
-	}
-
-	return NULL;
-}
-
 PyObject * methodResultToPython(const GBindingParamPointer & param, IMetaCallable * callable, InvokeCallableResult * result)
 {
-	if(result->resultCount > 0) {
-		GMetaTypeData typeData;
-
-		callable->getResultType(&typeData);
-		metaCheckError(callable);
-
-		GVariant value = result->resultData;
-		PyObject * v;
-		v = variantToPython(param, value, GMetaType(typeData), !! callable->isResultTransferOwnership(), false);
-		if(v == NULL) {
-			GScopedInterface<IMetaConverter> converter(metaGetResultExtendType(callable, GExtendTypeCreateFlag_Converter).getConverter());
-			v = converterToPython(param, value, converter.get());
-		}
-		if(v == NULL) {
-			v = rawToPython(param, value);
-		}
-		if(v == NULL) {
-			raiseCoreException(Error_ScriptBinding_FailVariantToScript);
-		}
-		return v;
-
+	PyObject * r;
+	if(methodResultToScript<GPythonMethods>(&r, param, callable, result)) {
+		return r;
 	}
 
 	return pyAddRef(Py_None);
@@ -1072,20 +1027,11 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 				if(allowAccessData(getObjectData(userData), data.get())) {
-					GMetaType type;
-					GVariant result = getAccessibleValueAndType(instance, data.get(), &type, userData->getCV() == opcvConst);
-					PyObject * fieldObject = variantToPython(userData->getParam(), result, type, false, false);
-					if(fieldObject == NULL) {
-						GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(data, GExtendTypeCreateFlag_Converter).getConverter());
-						fieldObject = converterToPython(userData->getParam(), result, converter.get());
+					PyObject * r;
+					if(accessibleToScript<GPythonMethods>(&r, cppObject->getParam(), data.get(), instance, userData->getCV() == opcvConst)) {
+						return r;
 					}
-					if(fieldObject == NULL) {
-						fieldObject = rawToPython(userData->getParam(), result);
-					}
-					if(fieldObject == NULL) {
-						raiseCoreException(Error_ScriptBinding_FailVariantToScript);
-					}
-					return fieldObject;
+					return r;
 				}
 
 			}
@@ -1198,22 +1144,11 @@ PyObject * callbackAccessibleDescriptorGet(PyObject * self, PyObject * /*obj*/, 
 	
 	GAccessibleUserData * userData = gdynamic_cast<GAccessibleUserData *>(cppObject->getUserData());
 
-	GMetaType type;
-	GVariant result = getAccessibleValueAndType(userData->getInstance(), userData->getAccessible(), &type, false);
-
-	PyObject * v = NULL;
-	v = variantToPython(userData->getParam(), result, type, false, false);
-	if(v == NULL) {
-		GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(userData->getAccessible(), GExtendTypeCreateFlag_Converter).getConverter());
-		v = converterToPython(userData->getParam(), result, converter.get());
+	PyObject * r;
+	if(accessibleToScript<GPythonMethods>(&r, userData->getParam(), userData->getAccessible(), userData->getInstance(), false)) {
+		return r;
 	}
-	if(v == NULL) {
-		v = rawToPython(userData->getParam(), result);
-	}
-	if(v == NULL) {
-		v = pyAddRef(Py_None);
-	}
-	return v;
+	return r;
 
 	LEAVE_PYTHON(return NULL)
 }

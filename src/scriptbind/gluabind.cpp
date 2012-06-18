@@ -700,6 +700,35 @@ struct GLuaMethods
 	{
 		return rawToLua(param, value);
 	}
+
+	static ResultType doConverterToScript(const GBindingParamPointer & param, const GVariant & value, IMetaConverter * converter)
+	{
+		ResultType result;
+		if(converterToScript<GLuaMethods>(&result, param, value, converter)) {
+			return result;
+		}
+		return false;
+	}
+
+	static ResultType doStringToScript(const GBindingParamPointer & param, const char * s)
+	{
+		lua_pushstring(getLuaState(param), s);
+
+		return true;
+	}
+
+	static ResultType doWideStringToScript(const GBindingParamPointer & param, const wchar_t * ws)
+	{
+		GScopedArray<char> s(wideStringToString(ws));
+		lua_pushstring(getLuaState(param), s.get());
+
+		return true;
+	}
+
+	static bool isSuccessResult(const ResultType & result)
+	{
+		return result;
+	}
 };
 
 bool variantToLua(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
@@ -754,52 +783,6 @@ bool variantToLua(const GBindingParamPointer & param, const GVariant & value, co
 	bool result;
 	if(variantToScript<GLuaMethods >(&result, param, value, type, allowGC, allowRaw)) {
 		return true;
-	}
-
-	return false;
-}
-
-bool converterToLua(const GBindingParamPointer & param, const GVariant & value, IMetaConverter * converter)
-{
-	lua_State * L = getLuaState(param);
-
-	if(converter == NULL) {
-		return false;
-	}
-
-	if(isMetaConverterCanRead(converter->capabilityForCString())) {
-		gapi_bool needFree;
-		
-		GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
-		const char * s = converter->readCString(objectAddressFromVariant(value), &needFree, allocator.get());
-
-		if(s != NULL) {
-			lua_pushstring(L, s);
-
-			if(needFree) {
-				allocator->free((void *)s);
-			}
-
-			return true;
-		}
-	}
-
-	if(isMetaConverterCanRead(converter->capabilityForCWideString())) {
-		gapi_bool needFree;
-		
-		GScopedInterface<IMemoryAllocator> allocator(param->getService()->getAllocator());
-		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
-
-		if(ws != NULL) {
-			GScopedArray<char> s(wideStringToString(ws));
-			lua_pushstring(L, s.get());
-
-			if(needFree) {
-				allocator->free((void *)ws);
-			}
-
-			return true;
-		}
 	}
 
 	return false;
@@ -909,27 +892,12 @@ void loadMethodParamTypes(const GBindingParamPointer & param, GBindDataType * ou
 
 bool methodResultToLua(const GBindingParamPointer & param, IMetaCallable * callable, InvokeCallableResult * result)
 {
-	if(result->resultCount > 0) {
-		GMetaTypeData typeData;
-	
-		callable->getResultType(&typeData);
-		metaCheckError(callable);
-
-		GVariant value = result->resultData;
-		bool success = variantToLua(param, value, GMetaType(typeData), !! callable->isResultTransferOwnership(), false);
-		if(!success) {
-			GScopedInterface<IMetaConverter> converter(metaGetResultExtendType(callable, GExtendTypeCreateFlag_Converter).getConverter());
-			success = converterToLua(param, value, converter.get());
-		}
-		if(!success) {
-			success = rawToLua(param, value);
-		}
-		if(!success) {
-			raiseCoreException(Error_ScriptBinding_FailVariantToScript);
-		}
+	bool r;
+	if(methodResultToScript<GLuaMethods>(&r, param, callable, result)) {
+		return r;
 	}
-	
-	return true;
+
+	return false;
 }
 
 void loadCallableParam(const GBindingParamPointer & param, InvokeCallableParam * callableParam, int startIndex)
@@ -1034,19 +1002,11 @@ int UserData_call(lua_State * L)
 
 bool doIndexMemberData(const GBindingParamPointer & param, IMetaAccessible * data, void * instance, bool instanceIsConst)
 {
-	GMetaType type;
-	GVariant value = getAccessibleValueAndType(instance, data, &type, instanceIsConst);
-
-	bool success = variantToLua(param, value, type, false, false);
-	if(!success) {
-		GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(data, GExtendTypeCreateFlag_Converter).getConverter());
-		success = converterToLua(param, value, converter.get());
+	bool r;
+	if(accessibleToScript<GLuaMethods>(&r, param, data, instance, instanceIsConst)) {
+		return r;
 	}
-	if(!success) {
-		success = rawToLua(param, value);
-	}
-
-	return success;
+	return false;
 }
 
 bool indexMemberData(GObjectUserData * userData, IMetaAccessible * data, void * instance)
