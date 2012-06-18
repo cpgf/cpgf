@@ -585,9 +585,9 @@ int findAppropriateCallable(IMetaService * service,
 }
 
 
-template <typename RT, typename O, typename V, typename R>
-bool variantToScript(RT * result, const O & funcObjectToScript, const V & funcVariantToScript, const R & funcRawToScript,
-		const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+template <typename T>
+bool variantToScript(typename T::ResultType * result,
+	const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
 {
 	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
 
@@ -602,7 +602,7 @@ bool variantToScript(RT * result, const O & funcObjectToScript, const V & funcVa
 
 				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
 				void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-				*result = funcObjectToScript(param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type), cudtNormal);
+				*result = T::doObjectToScript(param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type), cudtNormal);
 				return true;
 			}
 
@@ -611,12 +611,12 @@ bool variantToScript(RT * result, const O & funcObjectToScript, const V & funcVa
 
 				if(vtIsInterface(vt)) {
 					GScopedInterface<IObject> ba(value.data.valueInterface);
-					*result = funcObjectToScript(param, value.data.valueInterface, gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC,
+					*result = T::doObjectToScript(param, value.data.valueInterface, gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC,
 						metaTypeToCV(type), cudtInterface);
 					return true;
 				}
 				else {
-					*result = funcObjectToScript(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type), cudtNormal);
+					*result = T::doObjectToScript(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type), cudtNormal);
 					return true;
 				}
 			}
@@ -626,14 +626,14 @@ bool variantToScript(RT * result, const O & funcObjectToScript, const V & funcVa
 			GMetaType newType(type);
 			newType.removeReference();
 
-			*result = funcVariantToScript(param, value, newType, allowGC, allowRaw);
+			*result = T::doVariantToScript(param, value, newType, allowGC, allowRaw);
 
 			return true;
 		}
 	}
 
 	if(allowRaw) {
-		*result = funcRawToScript(param, value);
+		*result = T::doRawToScript(param, value);
 		return true;
 	}
 

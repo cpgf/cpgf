@@ -682,6 +682,26 @@ bool rawToLua(const GBindingParamPointer & param, const GVariant & value)
 	return false;
 }
 
+struct GLuaMethods
+{
+	typedef bool ResultType;
+	
+	static ResultType doObjectToScript(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+	{
+		return objectToLua(param, instance, metaClass, allowGC, cv, dataType);
+	}
+
+	static ResultType doVariantToScript(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+	{
+		return variantToLua(param, value, type, allowGC, allowRaw);
+	}
+	
+	static ResultType doRawToScript(const GBindingParamPointer & param, const GVariant & value)
+	{
+		return rawToLua(param, value);
+	}
+};
+
 bool variantToLua(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
 {
 	lua_State * L = getLuaState(param);
@@ -732,7 +752,7 @@ bool variantToLua(const GBindingParamPointer & param, const GVariant & value, co
 	}
 
 	bool result;
-	if(variantToScript<bool >(&result, objectToLua, variantToLua, rawToLua, param, value, type, allowGC, allowRaw)) {
+	if(variantToScript<GLuaMethods >(&result, param, value, type, allowGC, allowRaw)) {
 		return true;
 	}
 

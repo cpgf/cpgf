@@ -194,6 +194,8 @@ int callbackSetEnumValue(PyObject * object, PyObject * attrName, PyObject * valu
 PyObject * callbackAccessibleDescriptorGet(PyObject * self, PyObject * obj, PyObject * type);
 int callbackAccessibleDescriptorSet(PyObject * self, PyObject * obj, PyObject * value);
 
+PyObject * variantToPython(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw);
+
 PyTypeObject functionType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     const_cast<char *>("cpgf.Python.function"),
@@ -746,6 +748,26 @@ PyObject * rawToPython(const GBindingParamPointer & param, const GVariant & valu
 	return NULL;
 }
 
+struct GPythonMethods
+{
+	typedef PyObject * ResultType;
+	
+	static ResultType doObjectToScript(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+	{
+		return objectToPython(param, instance, metaClass, allowGC, cv, dataType);
+	}
+
+	static ResultType doVariantToScript(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+	{
+		return variantToPython(param, value, type, allowGC, allowRaw);
+	}
+	
+	static ResultType doRawToScript(const GBindingParamPointer & param, const GVariant & value)
+	{
+		return rawToPython(param, value);
+	}
+};
+
 PyObject * variantToPython(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
 {
 	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
@@ -781,7 +803,7 @@ PyObject * variantToPython(const GBindingParamPointer & param, const GVariant & 
 	}
 
 	PyObject * result = NULL;
-	if(variantToScript<PyObject *>(&result, objectToPython, variantToPython, rawToPython, param, value, type, allowGC, allowRaw)) {
+	if(variantToScript<GPythonMethods>(&result, param, value, type, allowGC, allowRaw)) {
 		return result;
 	}
 

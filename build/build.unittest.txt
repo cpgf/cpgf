@@ -94,6 +94,7 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/scriptbind/general/*.cpp
 		${TEST_PATH}/scriptbind/luabind/*.cpp
 		${TEST_PATH}/scriptbind/v8bind/*.cpp
+		${TEST_PATH}/scriptbind/pythonbind/*.cpp
 	)
 
 	partUnitTest("test_metadata_stl"
@@ -163,6 +164,13 @@ if(${HAS_UNITTEST})
 		)
 	endif(HAS_V8)
 
+	set(GLOB_TEST_PYTHON )
+	if(HAS_PYTHON)
+		globAndAppendFiles(GLOB_TEST_PYTHON
+			${TEST_PATH}/scriptbind/pythonbind/*.cpp
+		)
+	endif(HAS_PYTHON)
+
 	set(SRC_TEST_SRC
 		${TEST_PATH}/testmain.cpp
 		
@@ -170,6 +178,7 @@ if(${HAS_UNITTEST})
 
 		${GLOB_TEST_LUA}
 		${GLOB_TEST_V8}
+		${GLOB_TEST_PYTHON}
 		
 		${SRC_LIB}
 

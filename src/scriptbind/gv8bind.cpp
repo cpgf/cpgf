@@ -375,6 +375,7 @@ private:
 void weakHandleCallback(Persistent<Value> object, void * parameter);
 Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param, const char * name, IMetaClass * metaClass);
 
+Handle<Value> variantToV8(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw);
 Handle<Value> converterToV8(const GBindingParamPointer & param, const GVariant & value, IMetaConverter * converter);
 
 GMetaMapClass * getMetaClassMap(const GBindingParamPointer & param, IMetaClass * metaClass);
@@ -566,6 +567,26 @@ Handle<Value> rawToV8(const GBindingParamPointer & param, const GVariant & value
 	return Handle<Value>();
 }
 
+struct GV8Methods
+{
+	typedef Handle<Value> ResultType;
+	
+	static ResultType doObjectToScript(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+	{
+		return objectToV8(param, instance, metaClass, allowGC, cv, dataType);
+	}
+
+	static ResultType doVariantToScript(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+	{
+		return variantToV8(param, value, type, allowGC, allowRaw);
+	}
+	
+	static ResultType doRawToScript(const GBindingParamPointer & param, const GVariant & value)
+	{
+		return rawToV8(param, value);
+	}
+};
+
 Handle<Value> variantToV8(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
 {
 	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
@@ -601,7 +622,7 @@ Handle<Value> variantToV8(const GBindingParamPointer & param, const GVariant & v
 	}
 
 	Handle<Value> result;
-	if(variantToScript<Handle<Value> >(&result, objectToV8, variantToV8, rawToV8, param, value, type, allowGC, allowRaw)) {
+	if(variantToScript<GV8Methods>(&result, param, value, type, allowGC, allowRaw)) {
 		return result;
 	}
 
