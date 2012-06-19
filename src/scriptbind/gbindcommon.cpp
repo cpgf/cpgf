@@ -49,14 +49,14 @@ GScriptBindingParam::~GScriptBindingParam()
 
 
 GObjectData::GObjectData()
-	: param(NULL), metaClass(NULL), instance(NULL), objectIsInstance(false), allowGC(false), cv(opcvNone), dataType(cudtNormal)
+	: param(NULL), metaClass(NULL), instance(NULL), allowGC(false), cv(opcvNone), dataType(cudtNormal)
 {
 }
 
 GObjectData::GObjectData(GScriptBindingParam * param,
-	IMetaClass * metaClass, void * instance, bool isInstance,
+	IMetaClass * metaClass, void * instance,
 	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
-	: param(param), metaClass(metaClass), instance(instance), objectIsInstance(isInstance), allowGC(allowGC), cv(cv), dataType(dataType)
+	: param(param), metaClass(metaClass), instance(instance), allowGC(allowGC), cv(cv), dataType(dataType)
 {
 	switch(dataType) {
 		case cudtInterface:
@@ -79,9 +79,9 @@ GObjectData::~GObjectData()
 }
 
 
-GObjectUserData::GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance, bool isInstance,
+GObjectUserData::GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance,
 	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
-	: super(udtObject, param), data(new GObjectData(param.get(), metaClass, instance, isInstance, allowGC, cv, dataType))
+	: super(udtObject, param), data(new GObjectData(param.get(), metaClass, instance, allowGC, cv, dataType))
 {
 }
 
@@ -741,7 +741,11 @@ GMetaVariant userDataToVariant(GScriptUserData * userData)
 			GMetaType type(typeData);
 			type.addPointer();
 			switch(classData->getDataType()) {
-				case cudtNormal: {
+				case cudtClass:
+					break;
+
+				case cudtNormal:
+				{
 					return GMetaVariant(pointerToObjectVariant(classData->getInstance()), type);
 				}
 				

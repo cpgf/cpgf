@@ -538,7 +538,7 @@ Handle<Value> objectToV8(const GBindingParamPointer & param, void * instance, IM
 	Handle<FunctionTemplate> functionTemplate = mapData->functionTemplate;
 	Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance());
 
-	GObjectUserData * instanceUserData = new GObjectUserData(param, metaClass, instance, true, allowGC, cv, dataType);
+	GObjectUserData * instanceUserData = new GObjectUserData(param, metaClass, instance, allowGC, cv, dataType);
 	void * key = addUserDataToPool(param, instanceUserData);
 	self.MakeWeak(key, weakHandleCallback);
 
@@ -1229,7 +1229,7 @@ void accessorNamedMemberSetter(Local<String> prop, Local<Value> value, const Acc
 
 void bindClassItems(Local<Object> object, const GBindingParamPointer & param, IMetaClass * metaClass, bool allowStatic, bool allowMember)
 {
-	GObjectUserData * userData = new GObjectUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal);
+	GObjectUserData * userData = new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass);
 	void * key = addUserDataToPool(param, userData);
 	Persistent<External> data = Persistent<External>::New(External::New(userData));
 	data.MakeWeak(key, weakHandleCallback);
@@ -1289,7 +1289,7 @@ Handle<Value> objectConstructor(const Arguments & args)
 	void * instance = invokeConstructor(args, userData->getParam(), userData->getMetaClass());
 	Persistent<Object> self = Persistent<Object>::New(args.Holder());
 
-	GObjectUserData * instanceUserData = new GObjectUserData(userData->getParam(), userData->getMetaClass(), instance, true, true, opcvNone, cudtNormal);
+	GObjectUserData * instanceUserData = new GObjectUserData(userData->getParam(), userData->getMetaClass(), instance, true, opcvNone, cudtNormal);
 	void * key = addUserDataToPool(userData->getParam(), instanceUserData);
 	self.MakeWeak(key, weakHandleCallback);
 
@@ -1320,7 +1320,7 @@ Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param,
 		return gdynamic_cast<GMapItemClassData *>(map->getData())->functionTemplate;
 	}
 
-	GObjectUserData * userData = new GObjectUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal);
+	GObjectUserData * userData = new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass);
 	void * key = addUserDataToPool(param, userData);
 	Persistent<External> data = Persistent<External>::New(External::New(userData));
 	data.MakeWeak(key, weakHandleCallback);
@@ -1349,7 +1349,7 @@ Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param,
 	setObjectSignature(&classFunction);
 	bindClassItems(classFunction, param, metaClass, true, false);
 
-	GObjectUserData * classUserData = new GObjectUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal);
+	GObjectUserData * classUserData = new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass);
 	key = addUserDataToPool(param, classUserData);
 	Persistent<External> classData = Persistent<External>::New(External::New(classUserData));
 	classData.MakeWeak(key, weakHandleCallback);

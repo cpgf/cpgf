@@ -727,7 +727,7 @@ PyObject * objectToPython(const GBindingParamPointer & param, void * instance, I
 		return pyAddRef(Py_None);
 	}
 
-	return createPythonObject(new GObjectUserData(param, metaClass, instance, true, allowGC, cv, dataType));
+	return createPythonObject(new GObjectUserData(param, metaClass, instance, allowGC, cv, dataType));
 }
 
 PyObject * rawToPython(const GBindingParamPointer & param, const GVariant & value)
@@ -900,7 +900,7 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	void * instance = doInvokeConstructor(cppClass->getService(), userData->getMetaClass(), &callableParam);
 
 	if(instance != NULL) {
-		return createPythonObject(new GObjectUserData(cppClass->getParam(), userData->getMetaClass(), instance, true, true, opcvNone, cudtNormal));
+		return createPythonObject(new GObjectUserData(cppClass->getParam(), userData->getMetaClass(), instance, true, opcvNone, cudtNormal));
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1085,7 +1085,7 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 						data = new GMapItemObjectData;
 						mapItem->setData(data);
 						GScopedInterface<IMetaClass> innerMetaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
-						GPythonScopedPointer classObject(createPythonObject(new GObjectUserData(userData->getParam(), innerMetaClass.get(), NULL, false, false, opcvNone, cudtNormal)));
+						GPythonScopedPointer classObject(createPythonObject(new GObjectUserData(userData->getParam(), innerMetaClass.get(), NULL, false, opcvNone, cudtClass)));
 						data->setObject(classObject.get());
 					}
 
@@ -1263,7 +1263,7 @@ void doBindMethodList(const GBindingParamPointer & param, PyObject * owner, cons
 
 void doBindClass(const GBindingParamPointer & param, PyObject * owner, const char * name, IMetaClass * metaClass)
 {
-	PyObject * classObject = createPythonObject(new GObjectUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal));
+	PyObject * classObject = createPythonObject(new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass));
 
 	setObjectAttr(owner, name, classObject);
 }

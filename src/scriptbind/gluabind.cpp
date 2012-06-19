@@ -541,7 +541,7 @@ bool objectToLua(const GBindingParamPointer & param, void * instance, IMetaClass
 	}
 
 	void * userData = lua_newuserdata(L, sizeof(GObjectUserData));
-	new (userData) GObjectUserData(param, metaClass, instance, true, allowGC, cv, dataType);
+	new (userData) GObjectUserData(param, metaClass, instance, allowGC, cv, dataType);
 
 	const char * className = metaClass->getName();
 	
@@ -1258,7 +1258,7 @@ void doBindClass(const GBindingParamPointer & param, IMetaClass * metaClass)
 	lua_State * L = getLuaState(param);
 
 	void * userData = lua_newuserdata(L, sizeof(GObjectUserData));
-	new (userData) GObjectUserData(param, metaClass, NULL, false, false, opcvNone, cudtNormal);
+	new (userData) GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass);
 
 	lua_newtable(L);
 

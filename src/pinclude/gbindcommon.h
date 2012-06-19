@@ -34,6 +34,7 @@ enum ObjectPointerCV {
 };
 
 enum ClassUserDataType {
+	cudtClass,
 	cudtNormal,
 	cudtInterface
 };
@@ -108,7 +109,7 @@ class GObjectData : public GNoncopyable {
 public:
 	GObjectData();
 	GObjectData(GScriptBindingParam * param,
-		IMetaClass * metaClass, void * instance, bool isInstance,
+		IMetaClass * metaClass, void * instance,
 		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
 	~GObjectData();
 
@@ -129,7 +130,7 @@ public:
 	}
 
 	bool isInstance() const {
-		return this->objectIsInstance;
+		return this->dataType != cudtClass;
 	}
 
 	bool isAllowGC() const {
@@ -149,7 +150,6 @@ private:
 	GSharedInterface<IMetaClass> metaClass;
 	void * instance;
 	GSharedInterface<IObject> interfaceObject;
-	bool objectIsInstance;
 	bool allowGC;
 	ObjectPointerCV cv;
 	ClassUserDataType dataType;
@@ -166,7 +166,7 @@ private:
 	typedef GScriptUserData super;
 
 public:
-	GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance, bool isInstance,
+	GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance,
 		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
 	GObjectUserData(const GBindingParamPointer & param, const GSharedObjectData & data);
 
@@ -183,7 +183,7 @@ public:
 	}
 
 	bool isInstance() const {
-		return this->data->objectIsInstance;
+		return this->data->isInstance();
 	}
 
 	bool isAllowGC() const {
