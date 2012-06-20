@@ -108,8 +108,58 @@ inline void vtSetPointers(GVarTypeData & data, unsigned int pointers) {
 	data.sizeAndPointers = static_cast<uint8_t>((data.sizeAndPointers & 0xf0) + pointers);
 }
 
-inline bool vtIsInterface(int vt) {
+inline bool vtIsInterface(GVariantType vt) {
 	return vt == vtInterface;
+}
+
+inline bool vtIsEmpty(GVariantType vt) {
+	return vt == vtEmpty;
+}
+
+inline bool vtIsFundamental(GVariantType vt) {
+	return vt >= vtFundamentalBegin && vt <= vtFundamentalEnd;
+}
+
+inline bool vtIsBoolean(GVariantType vt) {
+	return vt == vtBool;
+}
+
+inline bool vtIsInteger(GVariantType vt) {
+	return vt >= vtIntegerBegin && vt <= vtIntegerEnd;
+}
+
+inline bool vtIsSignedInteger(GVariantType vt) {
+	return vt == vtSignedChar
+		|| vt == vtSignedShort
+		|| vt == vtSignedInt
+		|| vt == vtSignedLong
+		|| vt == vtSignedLongLong
+	;
+}
+
+inline bool vtIsUnsignedInteger(GVariantType vt) {
+	return vt == vtUnsignedChar
+		|| vt == vtUnsignedShort
+		|| vt == vtUnsignedInt
+		|| vt == vtUnsignedLong
+		|| vt == vtUnsignedLongLong
+	;
+}
+
+inline bool vtIsReal(GVariantType vt) {
+	return vt >= vtFloat && vt <= vtLongDouble;
+}
+
+inline bool vtIsByPointer(GVariantType vt) {
+	return (vt & byPointer) != 0;
+}
+
+inline bool vtIsByReference(GVariantType vt) {
+	return (vt & byReference) != 0;
+}
+
+inline bool vtIsVoidPointer(GVariantType vt) {
+	return vt == (byPointer | vtVoid);
 }
 
 inline void vtInit(GVarTypeData & data) {

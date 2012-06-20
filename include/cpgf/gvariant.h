@@ -45,57 +45,6 @@ struct GVariantDataHolder
 } // namespace variant_internal
 
 
-inline bool vtIsEmpty(int vt) {
-	return vt == vtEmpty;
-}
-
-inline bool vtIsFundamental(int vt) {
-	return vt >= vtFundamentalBegin && vt <= vtFundamentalEnd;
-}
-
-inline bool vtIsBoolean(int vt) {
-	return vt == vtBool;
-}
-
-inline bool vtIsInteger(int vt) {
-	return vt >= vtIntegerBegin && vt <= vtIntegerEnd;
-}
-
-inline bool vtIsSignedInteger(int vt) {
-	return vt == vtSignedChar
-		|| vt == vtSignedShort
-		|| vt == vtSignedInt
-		|| vt == vtSignedLong
-		|| vt == vtSignedLongLong
-	;
-}
-
-inline bool vtIsUnsignedInteger(int vt) {
-	return vt == vtUnsignedChar
-		|| vt == vtUnsignedShort
-		|| vt == vtUnsignedInt
-		|| vt == vtUnsignedLong
-		|| vt == vtUnsignedLongLong
-	;
-}
-
-inline bool vtIsReal(int vt) {
-	return vt >= vtFloat && vt <= vtLongDouble;
-}
-
-inline bool vtIsByPointer(int vt) {
-	return (vt & byPointer) != 0;
-}
-
-inline bool vtIsByReference(int vt) {
-	return (vt & byReference) != 0;
-}
-
-inline bool vtIsVoidPointer(int vt) {
-	return vt == (byPointer | vtVoid);
-}
-
-
 #pragma pack(push, 1)
 #pragma pack(1)
 struct GVariantData
