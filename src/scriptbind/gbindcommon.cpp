@@ -97,6 +97,22 @@ GObjectUserData::GObjectUserData(const GBindingParamPointer & param, const GShar
 }
 
 
+GMetaMapItemData::GMetaMapItemData()
+{
+}
+
+GMetaMapItemData::~GMetaMapItemData()
+{
+}
+
+GMapItemMethodData::GMapItemMethodData()
+{
+}
+
+GMapItemMethodData::~GMapItemMethodData()
+{
+}
+
 GMetaMap * createMetaMap()
 {
 	return new GMetaMap;
@@ -145,6 +161,7 @@ void GMetaMapItem::swap(GMetaMapItem & other)
 	swap(this->item, other.item);
 	swap(this->type, other.type);
 	swap(this->enumIndex, other.enumIndex);
+	swap(this->data, other.data);
 }
 
 GMetaMapItemType GMetaMapItem::getType() const
@@ -638,6 +655,7 @@ void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableP
 	callable->executeIndirectly(&result->resultData.data, instance, data, static_cast<uint32_t>(callableParam->paramCount));
 	metaCheckError(callable);
 }
+
 
 void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam)
 {

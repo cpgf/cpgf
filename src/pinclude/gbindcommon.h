@@ -379,8 +379,8 @@ enum GMetaMapItemType {
 class GMetaMapItemData
 {
 public:
-	GMetaMapItemData() {}
-	virtual ~GMetaMapItemData() {}
+	GMetaMapItemData();
+	virtual ~GMetaMapItemData();
 };
 
 class GMetaMapItem
@@ -428,6 +428,9 @@ inline void swap(GMetaMapItem & a, GMetaMapItem & b)
 class GMapItemMethodData : public GMetaMapItemData
 {
 public:
+	GMapItemMethodData();
+	virtual ~GMapItemMethodData();
+
 	const GSharedExtendMethodUserData & getMethodData() const {
 		return this->methodUserData;
 	}

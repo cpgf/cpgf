@@ -103,6 +103,12 @@ protected:
 	T * rawPointer;
 };
 
+template <typename T, typename D, typename R>
+inline void swap(GScopedPointer<T, D, R> & a, GScopedPointer<T, D, R> & b)
+{
+	a.swap(b);
+}
+
 
 template <typename T, typename Deleter = GScopedPointerDeleter_DeleteArray<T> >
 class GScopedArray : public GScopedPointer<T, Deleter>

@@ -61,7 +61,7 @@ public:
 	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
 
 private:
-	const GBindingParamPointer & bindingParam;
+	GBindingParamPointer bindingParam;
 	int ref;
 };
 
@@ -1086,7 +1086,8 @@ int UserData_index(lua_State * L)
 					GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass.get(), derived.get()));
 
 					data = new GMapItemMethodData();
-					data->setMethodData(GSharedExtendMethodUserData(new GExtendMethodUserData(userData->getParam(), boundClass.get(), methodList.get(), name, udmtInternal)));
+					GSharedExtendMethodUserData p(new GExtendMethodUserData(userData->getParam(), boundClass.get(), methodList.get(), name, udmtInternal));
+					data->setMethodData(p);
 
 					mapItem->setData(data);
 				}
