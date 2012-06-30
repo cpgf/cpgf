@@ -440,6 +440,9 @@ public:
 	}
 
 private:
+	// We can't make methodUserData with type of GSharedExtendMethodUserData
+	// Otherwise, it will have circle reference with GScriptBindingParam and cause memory leak.
+	// Indeed all derived classes from GMetaMapItemData should not hold shared pointer to any user data.
 	GSharedExtendMethodUserData methodUserData;
 };
 

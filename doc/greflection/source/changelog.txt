@@ -6,6 +6,15 @@
 <h1>cpgf library changes log</h1>
 
 
+<h3>2012-06-30 version 1.4.4 </h3>
+<{autoul}>
+	Script binding supports wide string (wchar_t *) in method parameters and return value.
+	vtByteArray is removed from GVariant.
+	Now script binding doesn't auto convert IByteArray * to void *, the script should use IByteArray::getMemory to pass the pointer.
+	Lua binding, fixed a bug that no exception was thrown when assigning to enumerator value.
+	Refactored the script binding engines.
+<{/autoul}>
+
 <h3>2012-06-09 version 1.4.3 </h3>
 <{autoul}>
 	Added Python script binding for Python 2.7.3. (warning -- may memory leak)

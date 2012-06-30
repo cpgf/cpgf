@@ -28,7 +28,7 @@ cpgf makes binding Lua, Google V8 Javascript, and Python to C++ a piece of cake!
 cpgf provides a very easy to use callback system, which is commonly used in C# and script languages.
 Want to use OpenGL, Box2D and SFML in Lua, Javascript and Python? It is very simple and easy using cpgf.
 
-<b>Vesion 1.4.3 is released on Jun.9, 2012. </b>
+<b>Vesion 1.4.4 is released on Jun.30, 2012. </b>
 
 <{/autobr}>
 
@@ -101,12 +101,6 @@ Want to use OpenGL, Box2D and SFML in Lua, Javascript and Python? It is very sim
 <h3>License</h3>
 <{autobr}>
 	Apache License, Version 2.0
-
-<{/autobr}>
-
-<h3>Library version</h3>
-<{autobr}>
-	1.3.0
 
 <{/autobr}>
 
