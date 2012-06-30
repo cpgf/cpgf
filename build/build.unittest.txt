@@ -80,6 +80,27 @@ macro(partUnitTest target)
 endmacro()
 
 if(${HAS_UNITTEST})
+	set(GLOB_TEST_LUA )
+	if(HAS_LUA)
+		globAndAppendFiles(GLOB_TEST_LUA
+			${TEST_PATH}/scriptbind/luabind/*.cpp
+		)
+	endif(HAS_LUA)
+
+	set(GLOB_TEST_V8 )
+	if(HAS_V8)
+		globAndAppendFiles(GLOB_TEST_V8
+			${TEST_PATH}/scriptbind/v8bind/*.cpp
+		)
+	endif(HAS_V8)
+
+	set(GLOB_TEST_PYTHON )
+	if(HAS_PYTHON)
+		globAndAppendFiles(GLOB_TEST_PYTHON
+			${TEST_PATH}/scriptbind/pythonbind/*.cpp
+		)
+	endif(HAS_PYTHON)
+
 	partUnitTest("test_misc"
 		${TEST_PATH}/misc/*.cpp
 		${TEST_PATH}/callback/*.cpp
@@ -92,9 +113,9 @@ if(${HAS_UNITTEST})
 	partUnitTest("test_scriptbind"
 		${TEST_PATH}/scriptbind/*.cpp
 		${TEST_PATH}/scriptbind/general/*.cpp
-		${TEST_PATH}/scriptbind/luabind/*.cpp
-		${TEST_PATH}/scriptbind/v8bind/*.cpp
-		${TEST_PATH}/scriptbind/pythonbind/*.cpp
+		GLOB_TEST_LUA
+		GLOB_TEST_V8
+		GLOB_TEST_PYTHON
 	)
 
 	partUnitTest("test_metadata_stl"
@@ -149,27 +170,6 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/metagen/src/*.cpp
 		${TEST_PATH}/metagen/metadata/src/*.cpp
 	)
-
-	set(GLOB_TEST_LUA )
-	if(HAS_LUA)
-		globAndAppendFiles(GLOB_TEST_LUA
-			${TEST_PATH}/scriptbind/luabind/*.cpp
-		)
-	endif(HAS_LUA)
-
-	set(GLOB_TEST_V8 )
-	if(HAS_V8)
-		globAndAppendFiles(GLOB_TEST_V8
-			${TEST_PATH}/scriptbind/v8bind/*.cpp
-		)
-	endif(HAS_V8)
-
-	set(GLOB_TEST_PYTHON )
-	if(HAS_PYTHON)
-		globAndAppendFiles(GLOB_TEST_PYTHON
-			${TEST_PATH}/scriptbind/pythonbind/*.cpp
-		)
-	endif(HAS_PYTHON)
 
 	set(SRC_TEST_SRC
 		${TEST_PATH}/testmain.cpp
