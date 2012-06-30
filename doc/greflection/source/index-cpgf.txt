@@ -21,12 +21,12 @@ cpgf is composed by several independent components:
 	
 	cpgf meta data generator tool -- a tool written in Java to automatically generate meta data from Doxygen XML files.
 <{/autoul}>
-The goal of cpgf is to extend C++ language with a lot of easy to use features which are only available in other higher level languages and absence in C++.
-cpgf provides a very easy to use callback system, which is common used in C# and script languages.
-cpgf provides a powerful reflection and meta data system. Ever envy the reflection system in C# and Java? Now we have it in C++!
-cpgf provides a very easy to use serialization system. Want the serialization system in C# and Java? Now we have it in C++!
-cpgf makes binding Lua and Google V8 to C++ a piece of cake! The script binding engine uses the reflection system extensively.
-Want to use OpenGL in Lua and Javascrit? It can't be easier using cpgf.
+The goal of cpgf is to extend C++ language with lots of easy to use features, which are only available in other higher level languages and absent  in C++.
+cpgf provides a powerful reflection and meta data system. Have you ever envied the reflection system in C# and Java? Now we have it in C++!
+cpgf provides a very easy to use serialization system. Want the the same serialization system that is in C# and Java? Now we have it in C++!
+cpgf makes binding Lua, Google V8 Javascript, and Python to C++ a piece of cake! The script binding engine extensively uses the reflection system.
+cpgf provides a very easy to use callback system, which is commonly used in C# and script languages.
+Want to use OpenGL, Box2D and SFML in Lua, Javascript and Python? It is very simple and easy using cpgf.
 
 <b>Vesion 1.4.3 is released on Jun.9, 2012. </b>
 

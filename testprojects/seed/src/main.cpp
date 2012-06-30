@@ -63,7 +63,7 @@ void doTestPythonBind();
 int main(int /*argc*/, char * /*argv*/[])
 {
 //	test();
-	doTestPythonBind();
+//	doTestPythonBind();
 	
 	UnitTest::RunAllTests();
 

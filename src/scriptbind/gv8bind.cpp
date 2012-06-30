@@ -125,10 +125,12 @@ private:
 };
 
 
-template <typename KeyType, typename ValueType>
 class GUserDataMap
 {
 private:
+	typedef void * KeyType;
+	typedef void * ValueType;
+
 	typedef map<KeyType, ValueType> KeyValueMap;
 	typedef map<ValueType, KeyType> ValueKeyMap;
 
@@ -164,7 +166,7 @@ public:
 	}
 
 	void removeValue(ValueType value) {
-		typename ValueKeyMap::iterator it = this->valueMap.find(value);
+		ValueKeyMap::iterator it = this->valueMap.find(value);
 		if(it != this->valueMap.end()) {
 			this->keyMap.erase(this->keyMap.find(it->second));
 			this->valueMap.erase(it);
@@ -172,7 +174,7 @@ public:
 	}
 
 	KeyType getKey(ValueType value) const {
-		typename ValueKeyMap::iterator it = this->valueMap.find(value);
+		ValueKeyMap::iterator it = this->valueMap.find(value);
 		if(it != this->valueMap.end()) {
 			return it->second;
 		}
@@ -182,7 +184,7 @@ public:
 	}
 
 	ValueType getValue(KeyType key) const {
-		typename KeyValueMap::const_iterator it = this->keyMap.find(key);
+		KeyValueMap::const_iterator it = this->keyMap.find(key);
 		if(it == this->keyMap.end()) {
 			return (ValueType)0;
 		}
@@ -208,8 +210,7 @@ private:
 	mutable ValueKeyMap valueMap;
 };
 
-typedef GUserDataMap<void *, void *> GV8UserDataMap;
-GV8UserDataMap userDataMap;
+GUserDataMap userDataMap;
 
 
 class GUserDataPool

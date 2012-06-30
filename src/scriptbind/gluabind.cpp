@@ -215,7 +215,6 @@ private:
 
 public:
 	explicit GLuaGlobalAccessor(GLuaScriptObject * scriptObject);
-	~GLuaGlobalAccessor();
 	void doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
 
 	int doIndex();
@@ -223,7 +222,6 @@ public:
 
 private:
 	void initialize();
-	void destroy();
 
 	int doPreviousIndex(const char * name);
 	int doPreviousNewIndex(const char * name);
@@ -364,11 +362,6 @@ GLuaGlobalAccessor::GLuaGlobalAccessor(GLuaScriptObject * scriptObject)
 	this->initialize();
 }
 
-GLuaGlobalAccessor::~GLuaGlobalAccessor()
-{
-	this->destroy();
-}
-
 void GLuaGlobalAccessor::doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible)
 {
 	string sname(name);
@@ -487,10 +480,6 @@ void GLuaGlobalAccessor::initialize()
 	else {
 		lua_setmetatable(L, -2);
 	}
-}
-
-void GLuaGlobalAccessor::destroy()
-{
 }
 
 
@@ -890,6 +879,12 @@ void loadMethodParamTypes(const GBindingParamPointer & param, GBindDataType * ou
 	}
 }
 
+void loadCallableParam(const GBindingParamPointer & param, InvokeCallableParam * callableParam, int startIndex)
+{
+	loadMethodParameters(param, callableParam->paramsData, startIndex, callableParam->paramCount);
+	loadMethodParamTypes(param, callableParam->paramsType, startIndex, callableParam->paramCount);
+}
+
 bool methodResultToLua(const GBindingParamPointer & param, IMetaCallable * callable, InvokeCallableResult * result)
 {
 	bool r;
@@ -898,12 +893,6 @@ bool methodResultToLua(const GBindingParamPointer & param, IMetaCallable * calla
 	}
 
 	return false;
-}
-
-void loadCallableParam(const GBindingParamPointer & param, InvokeCallableParam * callableParam, int startIndex)
-{
-	loadMethodParameters(param, callableParam->paramsData, startIndex, callableParam->paramCount);
-	loadMethodParamTypes(param, callableParam->paramsType, startIndex, callableParam->paramCount);
 }
 
 int callbackInvokeMethodList(lua_State * L)
@@ -960,7 +949,7 @@ int invokeOperator(const GBindingParamPointer & param, void * instance, IMetaCla
 	if(op == mopNeg) {
 		paramCount = 1; // Lua pass two parameters to __unm...
 	}
-		
+
 	InvokeCallableParam callableParam(paramCount);
 	loadCallableParam(param, &callableParam, startIndex);
 	
