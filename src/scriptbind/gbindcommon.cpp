@@ -681,7 +681,7 @@ void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, Invok
 	return instance;
 }
 
-InvokeCallableResult doCallbackMethodList(GObjectUserData * objectUserData, GExtendMethodUserData * methodUserData, InvokeCallableParam * callableParam)
+InvokeCallableResult doCallbackMethodList(const GBindingParamPointer & param, GObjectUserData * objectUserData, const GMethodData & methodData, InvokeCallableParam * callableParam)
 {
 	void * instance = NULL;
 	if(objectUserData != NULL && ! objectUserData->getObjectData()) {
@@ -692,17 +692,17 @@ InvokeCallableResult doCallbackMethodList(GObjectUserData * objectUserData, GExt
 	}
 
 	GScopedInterface<IMetaList> methodList;
-	if(! methodUserData->getMetaClass() && methodUserData->getMethodList()) {
-		methodList.reset(methodUserData->getMethodList());
+	if(! methodData.getMetaClass() && methodData.getMethodList()) {
+		methodList.reset(methodData.getMethodList());
 		methodList->addReference();
 	}
 	else {
 		methodList.reset(createMetaList());
-		loadMethodList(methodList.get(), methodUserData->getParam()->getMetaMap(), objectUserData == NULL? methodUserData->getMetaClass() : objectUserData->getMetaClass(),
-			instance,  getObjectData(objectUserData), methodUserData->getName().c_str());
+		loadMethodList(methodList.get(), param->getMetaMap(), objectUserData == NULL? methodData.getMetaClass() : objectUserData->getMetaClass(),
+			instance,  getObjectData(objectUserData), methodData.getName().c_str());
 	}
 
-	int maxRankIndex = findAppropriateCallable(methodUserData->getParam()->getService(),
+	int maxRankIndex = findAppropriateCallable(param->getService(),
 		makeCallback(methodList.get(), &IMetaList::getAt), methodList->getCount(),
 		callableParam, FindCallablePredict());
 

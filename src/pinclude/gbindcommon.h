@@ -233,14 +233,15 @@ enum GUserDataMethodType {
 	udmtInternal
 };
 
-class GExtendMethodUserData : public GScriptUserData
-{
-private:
-	typedef GScriptUserData super;
 
+class GMethodData
+{
 public:
-	GExtendMethodUserData(const GBindingParamPointer & param, IMetaClass * metaClass, IMetaList * methodList, const char * name, GUserDataMethodType methodType)
-		: super(udtExtendMethod, param), metaClass(metaClass), methodList(methodList), name(name), methodType(methodType) {
+	GMethodData() {
+	}
+
+	GMethodData(IMetaClass * metaClass, IMetaList * methodList, const char * name, GUserDataMethodType methodType)
+		: metaClass(metaClass), methodList(methodList), name(name), methodType(methodType) {
 	}
 
 	IMetaClass * getMetaClass() const {
@@ -255,7 +256,7 @@ public:
 		return this->name;
 	}
 
-	void setName(const std::string & name) {
+	void setName(const std::string & name) const {
 		this->name = name;
 	}
 
@@ -266,11 +267,9 @@ public:
 private:
 	GSharedInterface<IMetaClass> metaClass;
 	GSharedInterface<IMetaList> methodList;
-	std::string name;
+	mutable std::string name;
 	GUserDataMethodType methodType;
 };
-
-typedef GSharedPointer<GExtendMethodUserData> GSharedExtendMethodUserData;
 
 class GMethodUserData : public GScriptUserData
 {
@@ -278,21 +277,39 @@ private:
 	typedef GScriptUserData super;
 
 public:
-	GMethodUserData(const GBindingParamPointer & param, const GSharedObjectData & objectData, const GSharedExtendMethodUserData & methodUserData)
-		: super(udtMethod, param), objectData(objectData), methodUserData(methodUserData) {
+	GMethodUserData(const GBindingParamPointer & param, IMetaClass * metaClass, IMetaList * methodList, const char * name, GUserDataMethodType methodType)
+		: super(udtExtendMethod, param), data(metaClass, methodList, name, methodType) {
+	}
+
+	const GMethodData & getMethodData() const {
+		return this->data;
+	}
+
+private:
+	GMethodData data;
+};
+
+class GObjectMethodUserData : public GScriptUserData
+{
+private:
+	typedef GScriptUserData super;
+
+public:
+	GObjectMethodUserData(const GBindingParamPointer & param, const GSharedObjectData & objectData, const GMethodData & methodData)
+		: super(udtMethod, param), objectData(objectData), methodData(methodData) {
 	}
 
 	const GSharedObjectData & getObjectData() const {
 		return this->objectData;
 	}
 
-	const GSharedExtendMethodUserData & getMethodUserData() const {
-		return this->methodUserData;
+	const GMethodData & getMethodData() const {
+		return this->methodData;
 	}
 
 private:
 	GSharedObjectData objectData;
-	GSharedExtendMethodUserData methodUserData;
+	GMethodData methodData;
 };
 
 class GOperatorUserData : public GScriptUserData
@@ -431,19 +448,16 @@ public:
 	GMapItemMethodData();
 	virtual ~GMapItemMethodData();
 
-	const GSharedExtendMethodUserData & getMethodData() const {
-		return this->methodUserData;
+	const GMethodData & getMethodData() const {
+		return this->methodData;
 	}
 
-	void setMethodData(const GSharedExtendMethodUserData & methodUserData) {
-		this->methodUserData = methodUserData;
+	void setMethodData(const GMethodData & methodData) {
+		this->methodData = methodData;
 	}
 
 private:
-	// We can't make methodUserData with type of GSharedExtendMethodUserData
-	// Otherwise, it will have circle reference with GScriptBindingParam and cause memory leak.
-	// Indeed all derived classes from GMetaMapItemData should not hold shared pointer to any user data.
-	GSharedExtendMethodUserData methodUserData;
+	GMethodData methodData;
 };
 
 
@@ -538,7 +552,7 @@ bool allowAccessData(GObjectData * userData, IMetaAccessible * accessible);
 
 void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
 
-InvokeCallableResult doCallbackMethodList(GObjectUserData * objectUserData, GExtendMethodUserData * methodUserData, InvokeCallableParam * callableParam);
+InvokeCallableResult doCallbackMethodList(const GBindingParamPointer & param, GObjectUserData * objectUserData, const GMethodData & methodData, InvokeCallableParam * callableParam);
 InvokeCallableResult doInvokeOperator(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam);
 
 void loadMethodList(GMetaClassTraveller * traveller,

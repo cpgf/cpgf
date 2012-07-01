@@ -658,7 +658,7 @@ GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
 	}
 
 	if(value->ob_type == &functionType) {
-		if(gdynamic_cast<GMethodUserData *>(castFromPython(value)->getUserData())->getMethodUserData()->getMethodList()->getCount() > 1) {
+		if(gdynamic_cast<GObjectMethodUserData *>(castFromPython(value)->getUserData())->getMethodData().getMethodList()->getCount() > 1) {
 			return sdtMethodList;
 		}
 		else {
@@ -873,13 +873,13 @@ PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObje
 
 	GPythonObject * methodObject = castFromPython(callableObject);
 
-	GMethodUserData * userData = gdynamic_cast<GMethodUserData *>(methodObject->getUserData());
+	GObjectMethodUserData * userData = gdynamic_cast<GObjectMethodUserData *>(methodObject->getUserData());
 
 	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
 	loadCallableParam(userData->getParam(), args, &callableParam);
 
 	GObjectUserData data(userData->getParam(), userData->getObjectData());
-	InvokeCallableResult result = doCallbackMethodList(&data, userData->getMethodUserData().get(), &callableParam);
+	InvokeCallableResult result = doCallbackMethodList(userData->getParam(), &data, userData->getMethodData(), &callableParam);
 
 	return methodResultToPython(methodObject->getUserData()->getParam(), result.callable.get(), &result);
 
@@ -1047,12 +1047,12 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 					GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass.get(), derived.get()));
 
 					data = new GMapItemMethodData();
-					data->setMethodData(GSharedExtendMethodUserData(new GExtendMethodUserData(userData->getParam(), boundClass.get(), methodList.get(), name, udmtInternal)));
+					data->setMethodData(GMethodData(boundClass.get(), methodList.get(), name, udmtInternal));
 
 					mapItem->setData(data);
 				}
 
-				return createPythonObject(new GMethodUserData(userData->getParam(), userData->getObjectData(), data->getMethodData()));
+				return createPythonObject(new GObjectMethodUserData(userData->getParam(), userData->getObjectData(), data->getMethodData()));
 			}
 				break;
 
@@ -1254,8 +1254,8 @@ bool isValidObject(PyObject * obj)
 
 void doBindMethodList(const GBindingParamPointer & param, PyObject * owner, const char * name, IMetaList * methodList)
 {
-	GExtendMethodUserData * data = new GExtendMethodUserData(param, NULL, methodList, name, udmtMethodList);
-	GMethodUserData * methodData = new GMethodUserData(param, GSharedObjectData(), GSharedExtendMethodUserData(data));
+	GMethodData data = GMethodData(NULL, methodList, name, udmtMethodList);
+	GObjectMethodUserData * methodData = new GObjectMethodUserData(param, GSharedObjectData(), data);
 	PyObject * methodObject = createPythonObject(methodData);
 
 	setObjectAttr(owner, name, methodObject);
@@ -1612,11 +1612,11 @@ IMetaMethod * GPythonScriptObject::getMethod(const char * methodName, void ** ou
 
 	GPythonScopedPointer obj(getObjectAttr(this->object, methodName));
 	if(obj && obj->ob_type == &functionType) {
-		GMethodUserData * userData = gdynamic_cast<GMethodUserData *>(castFromPython(obj.get())->getUserData());
+		GObjectMethodUserData * userData = gdynamic_cast<GObjectMethodUserData *>(castFromPython(obj.get())->getUserData());
 		if(outInstance != NULL) {
-			*outInstance = userData->getMethodUserData()->getMethodList()->getInstanceAt(0);
+			*outInstance = userData->getMethodData().getMethodList()->getInstanceAt(0);
 		}
-		return gdynamic_cast<IMetaMethod *>(userData->getMethodUserData()->getMethodList()->getAt(0));
+		return gdynamic_cast<IMetaMethod *>(userData->getMethodData().getMethodList()->getAt(0));
 	}
 	else {
 		return NULL;
@@ -1631,9 +1631,9 @@ IMetaList * GPythonScriptObject::getMethodList(const char * methodName)
 
 	GPythonScopedPointer obj(getObjectAttr(this->object, methodName));
 	if(obj && obj->ob_type == &functionType) {
-		GMethodUserData * userData = gdynamic_cast<GMethodUserData *>(castFromPython(obj.get())->getUserData());
-		userData->getMethodUserData()->getMethodList()->addReference();
-		return userData->getMethodUserData()->getMethodList();
+		GObjectMethodUserData * userData = gdynamic_cast<GObjectMethodUserData *>(castFromPython(obj.get())->getUserData());
+		userData->getMethodData().getMethodList()->addReference();
+		return userData->getMethodData().getMethodList();
 	}
 	else {
 		return NULL;

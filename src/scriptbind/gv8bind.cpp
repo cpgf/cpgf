@@ -50,7 +50,7 @@ public:
 	~GV8ScriptObjectImplement();
 
 	void doBindMethodList(const char * name, IMetaList * methodList, GUserDataMethodType methodType);
-	GExtendMethodUserData * doGetMethodUserData(const char * methodName);
+	GMethodUserData * doGetMethodUserData(const char * methodName);
 
 public:
 	GBindingParamPointer param;
@@ -282,13 +282,13 @@ public:
 		this->functionTemplate = Persistent<FunctionTemplate>::New(newTemplate);
 	}
 
-	void setUserData(GExtendMethodUserData * userData) {
+	void setUserData(GMethodUserData * userData) {
 		this->userData = userData;
 	}
 
 public:
 	Persistent<FunctionTemplate> functionTemplate;
-	GExtendMethodUserData * userData;
+	GMethodUserData * userData;
 };
 
 class GMapItemEnumData : public GMetaMapItemData
@@ -471,7 +471,7 @@ GScriptDataType getV8Type(Local<Value> value, IMetaTypedItem ** typeItem)
 								return sdtClass;
 
 							case udtExtendMethod:
-								return methodTypeToUserDataType(gdynamic_cast<GExtendMethodUserData *>(userData)->getMethodType());
+								return methodTypeToUserDataType(gdynamic_cast<GMethodUserData *>(userData)->getMethodData().getMethodType());
 
 							default:
 								break;
@@ -848,21 +848,21 @@ Handle<Value> callbackMethodList(const Arguments & args)
 	}
 
 	Local<External> data = Local<External>::Cast(args.Data());
-	GExtendMethodUserData * methodUserData = static_cast<GExtendMethodUserData *>(data->Value());
+	GMethodUserData * methodUserData = static_cast<GMethodUserData *>(data->Value());
 
 	InvokeCallableParam callableParam(args.Length());
 	loadCallableParam(args, methodUserData->getParam(), &callableParam);
 
-	InvokeCallableResult result = doCallbackMethodList(objectUserData, methodUserData, &callableParam);
+	InvokeCallableResult result = doCallbackMethodList(methodUserData->getParam(), objectUserData, methodUserData->getMethodData(), &callableParam);
 	return methodResultToV8(methodUserData->getParam(), result.callable.get(), &result);
 
 	LEAVE_V8(return Handle<Value>())
 }
 
 Handle<FunctionTemplate> createMethodTemplate(const GBindingParamPointer & param, IMetaClass * metaClass, bool isGlobal, IMetaList * methodList,
-	const char * name, Handle<FunctionTemplate> classTemplate, GUserDataMethodType methodType, GExtendMethodUserData ** outUserData)
+	const char * name, Handle<FunctionTemplate> classTemplate, GUserDataMethodType methodType, GMethodUserData ** outUserData)
 {
-	GExtendMethodUserData * userData = new GExtendMethodUserData(param, metaClass, methodList, name, methodType);
+	GMethodUserData * userData = new GMethodUserData(param, metaClass, methodList, name, methodType);
 	if(outUserData != NULL) {
 		*outUserData = userData;
 	}
@@ -882,7 +882,7 @@ Handle<FunctionTemplate> createMethodTemplate(const GBindingParamPointer & param
 
 	Local<Function> func = functionTemplate->GetFunction();
 	setObjectSignature(&func);
-	GExtendMethodUserData * funcUserData = new GExtendMethodUserData(param, metaClass, methodList, name, methodType);
+	GMethodUserData * funcUserData = new GMethodUserData(param, metaClass, methodList, name, methodType);
 	Persistent<External> funcData = Persistent<External>::New(External::New(funcUserData));
 	void * key = addUserDataToPool(param, funcUserData);
 	funcData.MakeWeak(key, weakHandleCallback);
@@ -1003,14 +1003,14 @@ Handle<Value> getNamedMember(GObjectUserData * userData, const char * name)
 
 					data = new GMapItemV8MethodData;
 					mapItem->setData(data);
-					GExtendMethodUserData * newUserData;
+					GMethodUserData * newUserData;
 
 					GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass.get(), derived.get()));
 
 					GMetaMapClass * baseMapClass = getMetaClassMap(userData->getParam(), boundClass.get());
 					data->setTemplate(createMethodTemplate(userData->getParam(), userData->getMetaClass(), userData->getInstance() == NULL, methodList.get(), name,
 						gdynamic_cast<GMapItemClassData *>(baseMapClass->getData())->functionTemplate, udmtInternal, &newUserData));
-					newUserData->setName(name);
+					newUserData->getMethodData().setName(name);
 					data->setUserData(newUserData);
 				}
 
@@ -1381,7 +1381,7 @@ void GV8ScriptObjectImplement::doBindMethodList(const char * name, IMetaList * m
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->object));
 
-	GExtendMethodUserData * newUserData;
+	GMethodUserData * newUserData;
 	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(this->param, NULL, true, methodList, name,
 	Handle<FunctionTemplate>(), methodType, &newUserData);
 
@@ -1392,7 +1392,7 @@ void GV8ScriptObjectImplement::doBindMethodList(const char * name, IMetaList * m
 	localObject->Set(String::New(name), func);
 }
 
-GExtendMethodUserData * GV8ScriptObjectImplement::doGetMethodUserData(const char * methodName)
+GMethodUserData * GV8ScriptObjectImplement::doGetMethodUserData(const char * methodName)
 {
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->object));
@@ -1406,8 +1406,8 @@ GExtendMethodUserData * GV8ScriptObjectImplement::doGetMethodUserData(const char
 				if(data->IsExternal()) {
 					GScriptUserData * userData = static_cast<GScriptUserData *>(Handle<External>::Cast(data)->Value());
 					if(userData->getType() == udtExtendMethod) {
-						GExtendMethodUserData * methodListData = gdynamic_cast<GExtendMethodUserData *>(userData);
-						if(methodListData->getMethodList()) {
+						GMethodUserData * methodListData = gdynamic_cast<GMethodUserData *>(userData);
+						if(methodListData->getMethodData().getMethodList()) {
 							return methodListData;
 						}
 					}
@@ -1846,13 +1846,13 @@ IMetaMethod * GV8ScriptObject::getMethod(const char * methodName, void ** outIns
 		*outInstance = NULL;
 	}
 
-	GExtendMethodUserData * userData = this->implement->doGetMethodUserData(methodName);
-	if(userData != NULL && userData->getMethodType() == udmtMethod) {
+	GMethodUserData * userData = this->implement->doGetMethodUserData(methodName);
+	if(userData != NULL && userData->getMethodData().getMethodType() == udmtMethod) {
 		if(outInstance != NULL) {
-			*outInstance = userData->getMethodList()->getInstanceAt(0);
+			*outInstance = userData->getMethodData().getMethodList()->getInstanceAt(0);
 		}
 
-		return gdynamic_cast<IMetaMethod *>(userData->getMethodList()->getAt(0));
+		return gdynamic_cast<IMetaMethod *>(userData->getMethodData().getMethodList()->getAt(0));
 	}
 	else {
 		return NULL;
@@ -1865,11 +1865,11 @@ IMetaList * GV8ScriptObject::getMethodList(const char * methodName)
 {
 	ENTER_V8()
 
-	GExtendMethodUserData * userData = this->implement->doGetMethodUserData(methodName);
-	if(userData != NULL && userData->getMethodType() == udmtMethodList) {
-		userData->getMethodList()->addReference();
+	GMethodUserData * userData = this->implement->doGetMethodUserData(methodName);
+	if(userData != NULL && userData->getMethodData().getMethodType() == udmtMethodList) {
+		userData->getMethodData().getMethodList()->addReference();
 
-		return userData->getMethodList();
+		return userData->getMethodData().getMethodList();
 	}
 	else {
 		return NULL;

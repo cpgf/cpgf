@@ -76,7 +76,7 @@ public:
 	
 	void getTable() const;
 
-	GMethodUserData * doGetMethodUserData();
+	GObjectMethodUserData * doGetMethodUserData();
 
 	GLuaGlobalAccessor * getGlobalAccessor();
 
@@ -240,7 +240,7 @@ int UserData_operator(lua_State * L);
 void doBindAllOperators(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass);
 void doBindClass(const GBindingParamPointer & param, IMetaClass * metaClass);
 void doBindEnum(const GBindingParamPointer & param, IMetaEnum * metaEnum);
-void doBindMethodList(const GBindingParamPointer & param, const GSharedObjectData & objectData, const GSharedExtendMethodUserData & data);
+void doBindMethodList(const GBindingParamPointer & param, const GSharedObjectData & objectData, const GMethodData & data);
 void doBindMethodList(const GBindingParamPointer & param, const char * name, IMetaList * methodList, GUserDataMethodType methodType);
 
 void initObjectMetaTable(lua_State * L);
@@ -813,7 +813,7 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 					}
 
 				case udtMethod:
-					return methodTypeToUserDataType(gdynamic_cast<GMethodUserData *>(userData)->getMethodUserData()->getMethodType());
+					return methodTypeToUserDataType(gdynamic_cast<GObjectMethodUserData *>(userData)->getMethodData().getMethodType());
 
 				case udtEnum:
 					if(typeItem != NULL) {
@@ -846,7 +846,7 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 				if(userData != NULL) {
 					switch(userData->getType()) {
 					case udtMethod:
-						return methodTypeToUserDataType(gdynamic_cast<GMethodUserData *>(userData)->getMethodUserData()->getMethodType());
+						return methodTypeToUserDataType(gdynamic_cast<GObjectMethodUserData *>(userData)->getMethodData().getMethodType());
 
 					default:
 						break;
@@ -899,13 +899,13 @@ int callbackInvokeMethodList(lua_State * L)
 {
 	ENTER_LUA()
 
-	GMethodUserData * userData = static_cast<GMethodUserData *>(lua_touserdata(L, lua_upvalueindex(1)));
+	GObjectMethodUserData * userData = static_cast<GObjectMethodUserData *>(lua_touserdata(L, lua_upvalueindex(1)));
 
 	InvokeCallableParam callableParam(lua_gettop(L));
 	loadCallableParam(userData->getParam(), &callableParam, 1);
 	
 	GObjectUserData data(userData->getParam(), userData->getObjectData());
-	InvokeCallableResult result = doCallbackMethodList(&data, userData->getMethodUserData().get(), &callableParam);
+	InvokeCallableResult result = doCallbackMethodList(userData->getParam(), &data, userData->getMethodData(), &callableParam);
 	
 	methodResultToLua(userData->getParam(), result.callable.get(), &result);
 	return result.resultCount;
@@ -1086,8 +1086,7 @@ int UserData_index(lua_State * L)
 					GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass.get(), derived.get()));
 
 					data = new GMapItemMethodData();
-					GSharedExtendMethodUserData p(new GExtendMethodUserData(userData->getParam(), boundClass.get(), methodList.get(), name, udmtInternal));
-					data->setMethodData(p);
+					data->setMethodData(GMethodData(boundClass.get(), methodList.get(), name, udmtInternal));
 
 					mapItem->setData(data);
 				}
@@ -1261,12 +1260,12 @@ void doBindClass(const GBindingParamPointer & param, IMetaClass * metaClass)
 	lua_setmetatable(L, -2);
 }
 
-void doBindMethodList(const GBindingParamPointer & param, const GSharedObjectData & objectData, const GSharedExtendMethodUserData & data)
+void doBindMethodList(const GBindingParamPointer & param, const GSharedObjectData & objectData, const GMethodData & data)
 {
 	lua_State * L = getLuaState(param);
 
-	void * userData = lua_newuserdata(L, sizeof(GMethodUserData));
-	new (userData) GMethodUserData(param, objectData, data);
+	void * userData = lua_newuserdata(L, sizeof(GObjectMethodUserData));
+	new (userData) GObjectMethodUserData(param, objectData, data);
 	
 	lua_newtable(L);
 	
@@ -1279,8 +1278,8 @@ void doBindMethodList(const GBindingParamPointer & param, const GSharedObjectDat
 
 void doBindMethodList(const GBindingParamPointer & param, const char * name, IMetaList * methodList, GUserDataMethodType methodType)
 {
-	GExtendMethodUserData * data = new GExtendMethodUserData(param, NULL, methodList, name, methodType);
-	doBindMethodList(param, GSharedObjectData(), GSharedExtendMethodUserData(data));
+	GMethodData data = GMethodData(NULL, methodList, name, methodType);
+	doBindMethodList(param, GSharedObjectData(), data);
 }
 
 void setMetaTableGC(lua_State * L)
@@ -1422,7 +1421,7 @@ void GLuaScriptObjectImplement::getTable() const
 	}
 }
 
-GMethodUserData * GLuaScriptObjectImplement::doGetMethodUserData()
+GObjectMethodUserData * GLuaScriptObjectImplement::doGetMethodUserData()
 {
 	if(lua_type(this->luaState, -1) != LUA_TFUNCTION) {
 		return NULL;
@@ -1437,7 +1436,7 @@ GMethodUserData * GLuaScriptObjectImplement::doGetMethodUserData()
 		GScriptUserData * userData = static_cast<GScriptUserData *>(rawUserData);
 
 		if(userData->getType() == udtMethod) {
-			GMethodUserData * methodListData = static_cast<GMethodUserData *>(userData);
+			GObjectMethodUserData * methodListData = static_cast<GObjectMethodUserData *>(userData);
 			return methodListData;
 		}
 	}
@@ -1981,13 +1980,13 @@ IMetaMethod * GLuaScriptObject::getMethod(const char * methodName, void ** outIn
 		*outInstance = NULL;
 	}
 
-	GMethodUserData * userData = this->implement->doGetMethodUserData();
+	GObjectMethodUserData * userData = this->implement->doGetMethodUserData();
 	if(userData != NULL) {
 		if(outInstance != NULL) {
-			*outInstance = userData->getMethodUserData()->getMethodList()->getInstanceAt(0);
+			*outInstance = userData->getMethodData().getMethodList()->getInstanceAt(0);
 		}
 
-		return gdynamic_cast<IMetaMethod *>(userData->getMethodUserData()->getMethodList()->getAt(0));
+		return gdynamic_cast<IMetaMethod *>(userData->getMethodData().getMethodList()->getAt(0));
 	}
 	else {
 		return NULL;
@@ -2005,11 +2004,11 @@ IMetaList * GLuaScriptObject::getMethodList(const char * methodName)
 
 	scopeGuard.get(methodName);
 
-	GMethodUserData * userData = this->implement->doGetMethodUserData();
+	GObjectMethodUserData * userData = this->implement->doGetMethodUserData();
 	if(userData != NULL) {
-		userData->getMethodUserData()->getMethodList()->addReference();
+		userData->getMethodData().getMethodList()->addReference();
 
-		return userData->getMethodUserData()->getMethodList();
+		return userData->getMethodData().getMethodList();
 	}
 	else {
 		return NULL;
