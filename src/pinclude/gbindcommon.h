@@ -24,8 +24,6 @@ namespace bind_internal {
 
 class GMetaMap;
 
-GMetaMap * createMetaMap();
-
 enum ObjectPointerCV {
 	opcvNone,
 	opcvConst,
@@ -39,13 +37,21 @@ enum ClassUserDataType {
 	cudtInterface
 };
 
-struct GBindDataType
-{
-	GScriptDataType dataType;
-	GScopedInterface<IMetaTypedItem> typeItem;
+enum GScriptUserDataType {
+	udtObject,
+	udtExtendMethod,
+	udtEnum,
+	udtOperator,
+	udtAccessible,
+	udtRaw,
+	udtMethod
 };
 
-class GScriptUserData;
+enum GUserDataMethodType {
+	udmtMethod,
+	udmtMethodList,
+	udmtInternal
+};
 
 class GScriptBindingParam : public GNoncopyable
 {
@@ -73,49 +79,13 @@ private:
 
 typedef GSharedPointer<GScriptBindingParam> GBindingParamPointer;
 
-enum GScriptUserDataType {
-	udtObject,
-	udtExtendMethod,
-	udtEnum,
-	udtOperator,
-	udtAccessible,
-	udtRaw,
-	udtMethod
-};
-
-class GScriptUserData : public GNoncopyable
+class GObjectData
 {
 public:
-	GScriptUserData(GScriptUserDataType type, const GBindingParamPointer & param) : type(type), param(param) {
-	}
-
-	virtual ~GScriptUserData() {
-	}
-
-	GScriptUserDataType getType() const {
-		return this->type;
-	}
-
-	const GBindingParamPointer & getParam() const {
-		return this->param;
-	}
-
-private:
-	GScriptUserDataType type;
-	GBindingParamPointer param;
-};
-
-class GObjectData : public GNoncopyable {
-public:
 	GObjectData();
-	GObjectData(GScriptBindingParam * param,
-		IMetaClass * metaClass, void * instance,
+	GObjectData(IMetaClass * metaClass, void * instance,
 		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
 	~GObjectData();
-
-	GScriptBindingParam * getParam() const {
-		return this->param;
-	}
 
 	IMetaClass * getMetaClass() const {
 		return this->metaClass.get();
@@ -146,100 +116,19 @@ public:
 	}
 
 private:
-	GScriptBindingParam * param;
 	GSharedInterface<IMetaClass> metaClass;
 	void * instance;
 	GSharedInterface<IObject> interfaceObject;
 	bool allowGC;
 	ObjectPointerCV cv;
 	ClassUserDataType dataType;
-
-private:
-	friend class GObjectUserData;
 };
 
 typedef GSharedPointer<GObjectData> GSharedObjectData;
 
-class GObjectUserData : public GScriptUserData
-{
-private:
-	typedef GScriptUserData super;
-
-public:
-	GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance,
-		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
-	GObjectUserData(const GBindingParamPointer & param, const GSharedObjectData & data);
-
-	IMetaClass * getMetaClass() const {
-		return this->data->metaClass.get();
-	}
-
-	void * getInstance() const {
-		return this->data->instance;
-	}
-
-	IObject * getInterfaceObject() const {
-		return this->data->interfaceObject.get();
-	}
-
-	bool isInstance() const {
-		return this->data->isInstance();
-	}
-
-	bool isAllowGC() const {
-		return this->data->allowGC;
-	}
-
-	ObjectPointerCV getCV() const {
-		return this->data->cv;
-	}
-
-	ClassUserDataType getDataType() const {
-		return this->data->dataType;
-	}
-
-	const GSharedObjectData & getObjectData() const {
-		return this->data;
-	}
-
-private:
-	GObjectUserData & operator = (const GObjectUserData &);
-
-private:
-	GSharedObjectData data;
-};
-
-class GRawUserData : public GScriptUserData
-{
-private:
-	typedef GScriptUserData super;
-
-public:
-	GRawUserData(const GBindingParamPointer & param, const GVariant & v)
-		: super(udtRaw, param), data(v) {
-	}
-
-	const GVariant & getData() const {
-		return this->data;
-	}
-
-private:
-	GVariant data;
-};
-
-enum GUserDataMethodType {
-	udmtMethod,
-	udmtMethodList,
-	udmtInternal
-};
-
-
 class GMethodData
 {
 public:
-	GMethodData() {
-	}
-
 	GMethodData(IMetaClass * metaClass, IMetaList * methodList, const char * name, GUserDataMethodType methodType)
 		: metaClass(metaClass), methodList(methodList), name(name), methodType(methodType) {
 	}
@@ -269,6 +158,64 @@ private:
 	GSharedInterface<IMetaList> methodList;
 	mutable std::string name;
 	GUserDataMethodType methodType;
+};
+
+class GScriptUserData : public GNoncopyable
+{
+public:
+	GScriptUserData(GScriptUserDataType type, const GBindingParamPointer & param) : type(type), param(param) {
+	}
+
+	virtual ~GScriptUserData() {
+	}
+
+	GScriptUserDataType getType() const {
+		return this->type;
+	}
+
+	const GBindingParamPointer & getParam() const {
+		return this->param;
+	}
+
+private:
+	GScriptUserDataType type;
+	GBindingParamPointer param;
+};
+
+class GObjectUserData : public GScriptUserData
+{
+private:
+	typedef GScriptUserData super;
+
+public:
+	GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance,
+		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
+	GObjectUserData(const GBindingParamPointer & param, const GSharedObjectData & data);
+
+	const GSharedObjectData & getObjectData() const {
+		return this->data;
+	}
+
+private:
+	GSharedObjectData data;
+};
+
+class GRawUserData : public GScriptUserData
+{
+private:
+	typedef GScriptUserData super;
+
+public:
+	GRawUserData(const GBindingParamPointer & param, const GVariant & v)
+		: super(udtRaw, param), data(v) {
+	}
+
+	const GVariant & getData() const {
+		return this->data;
+	}
+
+private:
+	GVariant data;
 };
 
 class GMethodUserData : public GScriptUserData
@@ -396,8 +343,8 @@ enum GMetaMapItemType {
 class GMetaMapItemData
 {
 public:
-	GMetaMapItemData();
-	virtual ~GMetaMapItemData();
+	GMetaMapItemData() {}
+	virtual ~GMetaMapItemData() {}
 };
 
 class GMetaMapItem
@@ -441,25 +388,20 @@ inline void swap(GMetaMapItem & a, GMetaMapItem & b)
 	a.swap(b);
 }
 
-
 class GMapItemMethodData : public GMetaMapItemData
 {
 public:
-	GMapItemMethodData();
-	virtual ~GMapItemMethodData();
+	explicit GMapItemMethodData(const GMethodData & methodData)
+		: methodData(methodData) {
+	}
 
 	const GMethodData & getMethodData() const {
 		return this->methodData;
 	}
 
-	void setMethodData(const GMethodData & methodData) {
-		this->methodData = methodData;
-	}
-
 private:
 	GMethodData methodData;
 };
-
 
 class GMetaMapClass
 {
@@ -491,7 +433,6 @@ private:
 	GScopedPointer<GMetaMapItemData> data;
 };
 
-
 class GMetaMap
 {
 private:
@@ -507,11 +448,6 @@ private:
 	MapType classMap;
 };
 
-GMetaMapItem * findMetaMapItem(GMetaMap * metaMap, IMetaClass * metaClass, const char * itemName);
-
-
-ObjectPointerCV metaTypeToCV(const GMetaType & type);
-
 class InvokeParamRank
 {
 public:
@@ -524,6 +460,12 @@ public:
 	int ranks[REF_MAX_ARITY];
 };
 
+struct CallableParamDataType
+{
+	GScriptDataType dataType;
+	GScopedInterface<IMetaTypedItem> typeItem;
+};
+
 class InvokeCallableParam
 {
 public:
@@ -532,7 +474,7 @@ public:
 
 public:
 	GVariant paramsData[REF_MAX_ARITY];
-	GBindDataType paramsType[REF_MAX_ARITY];
+	CallableParamDataType paramsType[REF_MAX_ARITY];
 	size_t paramCount;
 	InvokeParamRank paramsRank;
 };
@@ -545,10 +487,15 @@ public:
 	GSharedInterface<IMetaCallable> callable;
 };
 
+GMetaMap * createMetaMap();
+
+GMetaMapItem * findMetaMapItem(GMetaMap * metaMap, IMetaClass * metaClass, const char * itemName);
+
+ObjectPointerCV metaTypeToCV(const GMetaType & type);
+
 int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam, InvokeParamRank * paramsRank);
 
-bool allowInvokeCallable(GObjectData * userData, IMetaCallable * method);
-bool allowAccessData(GObjectData * userData, IMetaAccessible * accessible);
+bool allowAccessData(const GScriptConfig & config, GObjectData * userData, IMetaAccessible * accessible);
 
 void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
 
@@ -556,11 +503,8 @@ InvokeCallableResult doCallbackMethodList(const GBindingParamPointer & param, GO
 InvokeCallableResult doInvokeOperator(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam);
 
 void loadMethodList(GMetaClassTraveller * traveller,
-	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, GObjectData * userData, const char * methodName, bool allowAny);
-void loadMethodList(GMetaClassTraveller * traveller,
-	IMetaList * metaList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, GObjectData * userData, const char * methodName);
+	IMetaList * methodList, GMetaMap * metaMap, GMetaMapItem * mapItem,
+	void * instance, const char * methodName);
 
 GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType);
 

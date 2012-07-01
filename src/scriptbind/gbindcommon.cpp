@@ -55,14 +55,13 @@ GScriptBindingParam::~GScriptBindingParam()
 
 
 GObjectData::GObjectData()
-	: param(NULL), metaClass(NULL), instance(NULL), allowGC(false), cv(opcvNone), dataType(cudtNormal)
+	: metaClass(NULL), instance(NULL), allowGC(false), cv(opcvNone), dataType(cudtNormal)
 {
 }
 
-GObjectData::GObjectData(GScriptBindingParam * param,
-	IMetaClass * metaClass, void * instance,
+GObjectData::GObjectData(IMetaClass * metaClass, void * instance,
 	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
-	: param(param), metaClass(metaClass), instance(instance), allowGC(allowGC), cv(cv), dataType(dataType)
+	: metaClass(metaClass), instance(instance), allowGC(allowGC), cv(cv), dataType(dataType)
 {
 	switch(dataType) {
 		case cudtInterface:
@@ -87,7 +86,7 @@ GObjectData::~GObjectData()
 
 GObjectUserData::GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance,
 	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
-	: super(udtObject, param), data(new GObjectData(param.get(), metaClass, instance, allowGC, cv, dataType))
+	: super(udtObject, param), data(new GObjectData(metaClass, instance, allowGC, cv, dataType))
 {
 }
 
@@ -96,22 +95,6 @@ GObjectUserData::GObjectUserData(const GBindingParamPointer & param, const GShar
 {
 }
 
-
-GMetaMapItemData::GMetaMapItemData()
-{
-}
-
-GMetaMapItemData::~GMetaMapItemData()
-{
-}
-
-GMapItemMethodData::GMapItemMethodData()
-{
-}
-
-GMapItemMethodData::~GMapItemMethodData()
-{
-}
 
 GMetaMap * createMetaMap()
 {
@@ -479,10 +462,10 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallabl
 	return rank;
 }
 
-bool allowInvokeCallable(GObjectData * userData, IMetaCallable * method)
+bool allowInvokeCallable(const GScriptConfig & config, GObjectData * userData, IMetaCallable * method)
 {
 	if(userData != NULL && userData->isInstance()) {
-		if(! userData->getParam()->getConfig().allowAccessStaticMethodViaInstance()) {
+		if(! config.allowAccessStaticMethodViaInstance()) {
 			if(method->isStatic()) {
 				return false;
 			}
@@ -514,10 +497,10 @@ bool allowInvokeCallable(GObjectData * userData, IMetaCallable * method)
 	return true;
 }
 
-bool allowAccessData(GObjectData * userData, IMetaAccessible * accessible)
+bool allowAccessData(const GScriptConfig & config, GObjectData * userData, IMetaAccessible * accessible)
 {
 	if(userData->isInstance()) {
-		if(! userData->getParam()->getConfig().allowAccessStaticDataViaInstance()) {
+		if(! config.allowAccessStaticDataViaInstance()) {
 			if(accessible->isStatic()) {
 				return false;
 			}
@@ -555,14 +538,14 @@ void convertParam(GVariant * v, int paramRank, GVariant * holder)
 	}
 }
 
-void loadMethodList(GMetaClassTraveller * traveller,
+void doLoadMethodList(const GScriptConfig & config, GMetaClassTraveller * traveller,
 	IMetaList * methodList, GMetaMap * metaMap, GMetaMapItem * mapItem,
 	void * instance, GObjectData * userData, const char * methodName, bool allowAny)
 {
 	while(mapItem != NULL) {
 		if(mapItem->getType() == mmitMethod) {
 			GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
-			if(allowAny || allowInvokeCallable(userData, method.get())) {
+			if(allowAny || allowInvokeCallable(config, userData, method.get())) {
 				methodList->add(method.get(), instance);
 			}
 		}
@@ -571,7 +554,7 @@ void loadMethodList(GMetaClassTraveller * traveller,
 				GScopedInterface<IMetaList> newMethodList(gdynamic_cast<IMetaList *>(mapItem->getItem()));
 				for(uint32_t i = 0; i < newMethodList->getCount(); ++i) {
 					GScopedInterface<IMetaItem> item(newMethodList->getAt(i));
-					if(allowAny || allowInvokeCallable(userData, gdynamic_cast<IMetaMethod *>(item.get()))) {
+					if(allowAny || allowInvokeCallable(config, userData, gdynamic_cast<IMetaMethod *>(item.get()))) {
 						methodList->add(item.get(), instance);
 					}
 				}
@@ -588,12 +571,12 @@ void loadMethodList(GMetaClassTraveller * traveller,
 
 void loadMethodList(GMetaClassTraveller * traveller,
 	IMetaList * methodList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, GObjectData * userData, const char * methodName)
+	void * instance, const char * methodName)
 {
-	loadMethodList(traveller, methodList, metaMap, mapItem, instance, userData, methodName, false);
+	doLoadMethodList(GScriptConfig(), traveller, methodList, metaMap, mapItem, instance, NULL, methodName, true);
 }
 
-void loadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * objectMetaClass,
+void callbackLoadMethodList(const GScriptConfig & config, IMetaList * methodList, GMetaMap * metaMap, IMetaClass * objectMetaClass,
 	void * objectInstance, GObjectData * userData, const char * methodName)
 {
 	GMetaClassTraveller traveller(objectMetaClass, objectInstance);
@@ -621,7 +604,7 @@ void loadMethodList(IMetaList * methodList, GMetaMap * metaMap, IMetaClass * obj
 
 			case mmitMethod:
 			case mmitMethodList: {
-				loadMethodList(&traveller, methodList, metaMap, mapItem, instance, userData, methodName);
+				doLoadMethodList(config, &traveller, methodList, metaMap, mapItem, instance, userData, methodName, false);
 				return;
 			}
 
@@ -688,7 +671,7 @@ InvokeCallableResult doCallbackMethodList(const GBindingParamPointer & param, GO
 		objectUserData = NULL;
 	}
 	if(objectUserData != NULL) {
-		instance = objectUserData->getInstance();
+		instance = objectUserData->getObjectData()->getInstance();
 	}
 
 	GScopedInterface<IMetaList> methodList;
@@ -698,7 +681,7 @@ InvokeCallableResult doCallbackMethodList(const GBindingParamPointer & param, GO
 	}
 	else {
 		methodList.reset(createMetaList());
-		loadMethodList(methodList.get(), param->getMetaMap(), objectUserData == NULL? methodData.getMetaClass() : objectUserData->getMetaClass(),
+		callbackLoadMethodList(param->getConfig(), methodList.get(), param->getMetaMap(), objectUserData == NULL? methodData.getMetaClass() : objectUserData->getObjectData()->getMetaClass(),
 			instance,  getObjectData(objectUserData), methodData.getName().c_str());
 	}
 
@@ -760,21 +743,21 @@ GMetaVariant userDataToVariant(GScriptUserData * userData)
 		case udtObject: {
 			GObjectUserData * classData = static_cast<GObjectUserData *>(userData);
 			GMetaTypeData typeData;
-			classData->getMetaClass()->getMetaType(&typeData);
-			metaCheckError(classData->getMetaClass());
+			classData->getObjectData()->getMetaClass()->getMetaType(&typeData);
+			metaCheckError(classData->getObjectData()->getMetaClass());
 			GMetaType type(typeData);
 			type.addPointer();
-			switch(classData->getDataType()) {
+			switch(classData->getObjectData()->getDataType()) {
 				case cudtClass:
 					break;
 
 				case cudtNormal:
 				{
-					return GMetaVariant(pointerToObjectVariant(classData->getInstance()), type);
+					return GMetaVariant(pointerToObjectVariant(classData->getObjectData()->getInstance()), type);
 				}
 				
 				case cudtInterface: {
-					return GMetaVariant(GVariant(classData->getInterfaceObject()), type);
+					return GMetaVariant(GVariant(classData->getObjectData()->getInterfaceObject()), type);
 				}
 			}
 

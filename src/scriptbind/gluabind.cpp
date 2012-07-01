@@ -572,12 +572,12 @@ void * luaToObject(const GBindingParamPointer & param, int index, GMetaType * ou
 			GObjectUserData * classData = static_cast<GObjectUserData *>(userData);
 			if(outType != NULL) {
 				GMetaTypeData typeData;
-				classData->getMetaClass()->getMetaType(&typeData);
-				metaCheckError(classData->getMetaClass());
+				classData->getObjectData()->getMetaClass()->getMetaType(&typeData);
+				metaCheckError(classData->getObjectData()->getMetaClass());
 				*outType = GMetaType(typeData);
 			}
 
-			return classData->getInstance();
+			return classData->getObjectData()->getInstance();
 		}
 	}
 
@@ -801,11 +801,11 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 				switch(userData->getType()) {
 				case udtObject:
 					if(typeItem != NULL) {
-						*typeItem = gdynamic_cast<GObjectUserData *>(userData)->getMetaClass();
+						*typeItem = gdynamic_cast<GObjectUserData *>(userData)->getObjectData()->getMetaClass();
 						(*typeItem)->addReference();
 					}
 
-					if(gdynamic_cast<GObjectUserData *>(userData)->isInstance()) {
+					if(gdynamic_cast<GObjectUserData *>(userData)->getObjectData()->isInstance()) {
 						return sdtObject;
 					}
 					else {
@@ -868,7 +868,7 @@ void loadMethodParameters(const GBindingParamPointer & param, GVariant * outputP
 	}
 }
 
-void loadMethodParamTypes(const GBindingParamPointer & param, GBindDataType * outputTypes, int startIndex, size_t paramCount)
+void loadMethodParamTypes(const GBindingParamPointer & param, CallableParamDataType * outputTypes, int startIndex, size_t paramCount)
 {
 	lua_State * L = getLuaState(param);
 
@@ -977,8 +977,8 @@ int UserData_call(lua_State * L)
 	GObjectUserData * userData = static_cast<GObjectUserData *>(lua_touserdata(L, lua_upvalueindex(1)));
 
 
-	if(userData->getInstance() == NULL) { // constructor
-		return invokeConstructor(userData->getParam(), userData->getMetaClass());
+	if(userData->getObjectData()->getInstance() == NULL) { // constructor
+		return invokeConstructor(userData->getParam(), userData->getObjectData()->getMetaClass());
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_InternalError_WrongFunctor);
@@ -1000,7 +1000,7 @@ bool doIndexMemberData(const GBindingParamPointer & param, IMetaAccessible * dat
 
 bool indexMemberData(GObjectUserData * userData, IMetaAccessible * data, void * instance)
 {
-	return doIndexMemberData(userData->getParam(), data, instance, userData->getCV() == opcvConst);
+	return doIndexMemberData(userData->getParam(), data, instance, userData->getObjectData()->getCV() == opcvConst);
 }
 
 bool indexMemberEnumType(GObjectUserData * userData, GMetaMapItem * mapItem)
@@ -1041,7 +1041,7 @@ int UserData_index(lua_State * L)
 	
 	const char * name = lua_tostring(L, -1);
 	
-	GMetaClassTraveller traveller(userData->getMetaClass(), userData->getInstance());
+	GMetaClassTraveller traveller(userData->getObjectData()->getMetaClass(), userData->getObjectData()->getInstance());
 	
 	void * instance = NULL;
 	IMetaClass * outDerived;
@@ -1064,7 +1064,7 @@ int UserData_index(lua_State * L)
 			case mmitField:
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				if(allowAccessData(getObjectData(userData), data.get())) {
+				if(allowAccessData(userData->getParam()->getConfig(), getObjectData(userData), data.get())) {
 					if(indexMemberData(userData, data.get(), instance)) {
 						return true;
 					}
@@ -1081,12 +1081,11 @@ int UserData_index(lua_State * L)
 				GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getData());
 				if(data == NULL) {
 					GScopedInterface<IMetaList> methodList(createMetaList());
-					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, getObjectData(userData), name, true);
+					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, name);
 
 					GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass.get(), derived.get()));
 
-					data = new GMapItemMethodData();
-					data->setMethodData(GMethodData(boundClass.get(), methodList.get(), name, udmtInternal));
+					data = new GMapItemMethodData(GMethodData(boundClass.get(), methodList.get(), name, udmtInternal));
 
 					mapItem->setData(data);
 				}
@@ -1095,7 +1094,7 @@ int UserData_index(lua_State * L)
 			}
 
 			case mmitEnum:
-				if(! userData->isInstance() || userData->getParam()->getConfig().allowAccessEnumTypeViaInstance()) {
+				if(! userData->getObjectData()->isInstance() || userData->getParam()->getConfig().allowAccessEnumTypeViaInstance()) {
 					if(indexMemberEnumType(userData, mapItem)) {
 						return true;
 					}
@@ -1103,7 +1102,7 @@ int UserData_index(lua_State * L)
 				break;
 
 			case mmitEnumValue:
-				if(! userData->isInstance() || userData->getParam()->getConfig().allowAccessEnumValueViaInstance()) {
+				if(! userData->getObjectData()->isInstance() || userData->getParam()->getConfig().allowAccessEnumValueViaInstance()) {
 					if(indexMemberEnumValue(userData, mapItem)) {
 						return true;
 					}
@@ -1111,7 +1110,7 @@ int UserData_index(lua_State * L)
 				break;
 
 			case mmitClass:
-				if(! userData->isInstance() || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
+				if(! userData->getObjectData()->isInstance() || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
 					if(indexMemberClass(userData, mapItem)) {
 						return true;
 					}
@@ -1128,13 +1127,13 @@ int UserData_index(lua_State * L)
 
 bool newindexMemberData(lua_State * /*L*/, GObjectUserData * userData, const char * name, const GVariant & value)
 {
-	if(userData->getCV() == opcvConst) {
+	if(userData->getObjectData()->getCV() == opcvConst) {
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 
 		return false;
 	}
 
-	GMetaClassTraveller traveller(userData->getMetaClass(), userData->getInstance());
+	GMetaClassTraveller traveller(userData->getObjectData()->getMetaClass(), userData->getObjectData()->getInstance());
 	
 	void * instance = NULL;
 
@@ -1153,8 +1152,8 @@ bool newindexMemberData(lua_State * /*L*/, GObjectUserData * userData, const cha
 			case mmitField:
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				if(allowAccessData(getObjectData(userData), data.get())) {
-					metaSetValue(data.get(), userData->getInstance(), value);
+				if(allowAccessData(userData->getParam()->getConfig(), getObjectData(userData), data.get())) {
+					metaSetValue(data.get(), userData->getObjectData()->getInstance(), value);
 					return true;
 				}
 			}
