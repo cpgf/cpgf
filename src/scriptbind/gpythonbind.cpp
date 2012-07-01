@@ -879,7 +879,7 @@ PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObje
 	loadCallableParam(userData->getParam(), args, &callableParam);
 
 	GObjectUserData data(userData->getParam(), userData->getObjectData());
-	InvokeCallableResult result = doCallbackMethodList(userData->getParam(), &data, userData->getMethodData(), &callableParam);
+	InvokeCallableResult result = doInvokeMethodList(userData->getParam(), &data, userData->getMethodData(), &callableParam);
 
 	return methodResultToPython(methodObject->getUserData()->getParam(), result.callable.get(), &result);
 

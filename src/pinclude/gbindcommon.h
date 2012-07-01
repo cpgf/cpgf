@@ -3,14 +3,10 @@
 
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/gglobal.h"
-#include "cpgf/gflags.h"
-#include "cpgf/gclassutil.h"
-#include "cpgf/gbytearrayapi.h"
 #include "cpgf/gmetaoperatorop.h"
 #include "cpgf/gsharedptr.h"
 
 #include <map>
-#include <vector>
 #include <string>
 
 
@@ -18,9 +14,7 @@ namespace cpgf {
 
 class GMetaClassTraveller;
 
-
 namespace bind_internal {
-
 
 class GMetaMap;
 
@@ -28,7 +22,7 @@ enum ObjectPointerCV {
 	opcvNone,
 	opcvConst,
 	opcvVolatile,
-	opcvConstVolatile,
+	opcvConstVolatile
 };
 
 enum ClassUserDataType {
@@ -53,7 +47,7 @@ enum GUserDataMethodType {
 	udmtInternal
 };
 
-class GScriptBindingParam : public GNoncopyable
+class GScriptBindingParam
 {
 public:
 	GScriptBindingParam(IMetaService * service, const GScriptConfig & config);
@@ -145,10 +139,6 @@ public:
 		return this->name;
 	}
 
-	void setName(const std::string & name) const {
-		this->name = name;
-	}
-
 	GUserDataMethodType getMethodType() const {
 		return this->methodType;
 	}
@@ -156,7 +146,7 @@ public:
 private:
 	GSharedInterface<IMetaClass> metaClass;
 	GSharedInterface<IMetaList> methodList;
-	mutable std::string name;
+	std::string name;
 	GUserDataMethodType methodType;
 };
 
@@ -457,11 +447,12 @@ public:
 
 public:
 	size_t paramCount;
-	int ranks[REF_MAX_ARITY];
+	mutable int ranks[REF_MAX_ARITY];
 };
 
-struct CallableParamDataType
+class CallableParamDataType
 {
+public:
 	GScriptDataType dataType;
 	GScopedInterface<IMetaTypedItem> typeItem;
 };
@@ -487,19 +478,17 @@ public:
 	GSharedInterface<IMetaCallable> callable;
 };
 
-GMetaMap * createMetaMap();
 
 GMetaMapItem * findMetaMapItem(GMetaMap * metaMap, IMetaClass * metaClass, const char * itemName);
 
 ObjectPointerCV metaTypeToCV(const GMetaType & type);
 
-int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam, InvokeParamRank * paramsRank);
+int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, const InvokeParamRank * paramsRank);
 
-bool allowAccessData(const GScriptConfig & config, GObjectData * userData, IMetaAccessible * accessible);
+bool allowAccessData(const GScriptConfig & config, const GObjectData * userData, IMetaAccessible * accessible);
 
 void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
-
-InvokeCallableResult doCallbackMethodList(const GBindingParamPointer & param, GObjectUserData * objectUserData, const GMethodData & methodData, InvokeCallableParam * callableParam);
+InvokeCallableResult doInvokeMethodList(const GBindingParamPointer & param, const GObjectUserData * objectUserData, const GMethodData & methodData, InvokeCallableParam * callableParam);
 InvokeCallableResult doInvokeOperator(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam);
 
 void loadMethodList(GMetaClassTraveller * traveller,
@@ -508,7 +497,7 @@ void loadMethodList(GMetaClassTraveller * traveller,
 
 GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType);
 
-GMetaVariant userDataToVariant(GScriptUserData * userData);
+GMetaVariant userDataToVariant(const GScriptUserData * userData);
 
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);
 
@@ -517,8 +506,8 @@ bool shouldRemoveReference(const GMetaType & type);
 wchar_t * stringToWideString(const char * s);
 char * wideStringToString(const wchar_t * ws);
 
-GSharedObjectData getSharedObjectData(GObjectUserData * objectUserData);
-GObjectData * getObjectData(GObjectUserData * objectUserData);
+GSharedObjectData getSharedObjectData(const GObjectUserData * objectUserData);
+GObjectData * getObjectData(const GObjectUserData * objectUserData);
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 

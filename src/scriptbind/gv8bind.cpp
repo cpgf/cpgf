@@ -853,7 +853,7 @@ Handle<Value> callbackMethodList(const Arguments & args)
 	InvokeCallableParam callableParam(args.Length());
 	loadCallableParam(args, methodUserData->getParam(), &callableParam);
 
-	InvokeCallableResult result = doCallbackMethodList(methodUserData->getParam(), objectUserData, methodUserData->getMethodData(), &callableParam);
+	InvokeCallableResult result = doInvokeMethodList(methodUserData->getParam(), objectUserData, methodUserData->getMethodData(), &callableParam);
 	return methodResultToV8(methodUserData->getParam(), result.callable.get(), &result);
 
 	LEAVE_V8(return Handle<Value>())
@@ -1011,7 +1011,6 @@ Handle<Value> getNamedMember(GObjectUserData * userData, const char * name)
 					data->setTemplate(createMethodTemplate(userData->getParam(), userData->getObjectData()->getMetaClass(),
 						userData->getObjectData()->getInstance() == NULL, methodList.get(), name,
 						gdynamic_cast<GMapItemClassData *>(baseMapClass->getData())->functionTemplate, udmtInternal, &newUserData));
-					newUserData->getMethodData().setName(name);
 					data->setUserData(newUserData);
 				}
 
@@ -1384,7 +1383,7 @@ void GV8ScriptObjectImplement::doBindMethodList(const char * name, IMetaList * m
 
 	GMethodUserData * newUserData;
 	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(this->param, NULL, true, methodList, name,
-	Handle<FunctionTemplate>(), methodType, &newUserData);
+		Handle<FunctionTemplate>(), methodType, &newUserData);
 
 	Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
 	setObjectSignature(&func);

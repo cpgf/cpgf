@@ -905,7 +905,7 @@ int callbackInvokeMethodList(lua_State * L)
 	loadCallableParam(userData->getParam(), &callableParam, 1);
 	
 	GObjectUserData data(userData->getParam(), userData->getObjectData());
-	InvokeCallableResult result = doCallbackMethodList(userData->getParam(), &data, userData->getMethodData(), &callableParam);
+	InvokeCallableResult result = doInvokeMethodList(userData->getParam(), &data, userData->getMethodData(), &callableParam);
 	
 	methodResultToLua(userData->getParam(), result.callable.get(), &result);
 	return result.resultCount;

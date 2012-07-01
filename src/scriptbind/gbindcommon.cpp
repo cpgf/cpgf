@@ -45,7 +45,7 @@ const int ParamMatchRank_Equal = 100000;
 
 
 GScriptBindingParam::GScriptBindingParam(IMetaService * service, const GScriptConfig & config)
-	: service(service), config(config), metaMap(createMetaMap())
+	: service(service), config(config), metaMap(new GMetaMap)
 {
 }
 
@@ -95,11 +95,6 @@ GObjectUserData::GObjectUserData(const GBindingParamPointer & param, const GShar
 {
 }
 
-
-GMetaMap * createMetaMap()
-{
-	return new GMetaMap;
-}
 
 GMetaMapItem::GMetaMapItem()
 	: item(NULL), type(mmitNone), enumIndex(0)
@@ -233,7 +228,7 @@ void GMetaMapClass::buildMap(IMetaClass * metaClass)
 			GMetaMapItem & item = it->second;
 			if(item.getType() == mmitMethod) {
 				GScopedInterface<IMetaList> metaList(createMetaList());
-				GScopedInterface<IMetaItem> metaItem(static_cast<IMetaItem *>(item.getItem()));
+				GScopedInterface<IMetaItem> metaItem(gdynamic_cast<IMetaItem *>(item.getItem()));
 				metaList->add(metaItem.get(), NULL);
 				metaList->add(method.get(), NULL);
 				this->itemMap[name] = GMetaMapItem(metaList.get());
@@ -241,7 +236,7 @@ void GMetaMapClass::buildMap(IMetaClass * metaClass)
 			else {
 				GASSERT(item.getType() == mmitMethodList);
 				
-				GScopedInterface<IMetaList> metaList(static_cast<IMetaList *>(item.getItem()));
+				GScopedInterface<IMetaList> metaList(gdynamic_cast<IMetaList *>(item.getItem()));
 				metaList->add(method.get(), NULL);
 			}
 		}
@@ -375,7 +370,7 @@ int rankImplicitConvert(const GVariant & sourceData, const GMetaType & targetTyp
 	return ParamMatchRank_Unknown;
 }
 
-int rankCallableParam(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam, size_t paramIndex)
+int rankCallableParam(IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, size_t paramIndex)
 {
 	GMetaType proto = metaGetParamType(callable, paramIndex);
 	GScriptDataType sdt = callbackParam->paramsType[paramIndex].dataType;
@@ -429,7 +424,7 @@ int rankCallableParam(IMetaService * service, IMetaCallable * callable, InvokeCa
 	return ParamMatchRank_Unknown;
 }
 
-int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallableParam * callbackParam, InvokeParamRank * paramsRank)
+int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, const InvokeParamRank * paramsRank)
 {
 	if(!! callable->isVariadic()) {
 		return 0;
@@ -462,7 +457,7 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, InvokeCallabl
 	return rank;
 }
 
-bool allowInvokeCallable(const GScriptConfig & config, GObjectData * userData, IMetaCallable * method)
+bool allowInvokeCallable(const GScriptConfig & config, const GObjectData * userData, IMetaCallable * method)
 {
 	if(userData != NULL && userData->isInstance()) {
 		if(! config.allowAccessStaticMethodViaInstance()) {
@@ -497,7 +492,7 @@ bool allowInvokeCallable(const GScriptConfig & config, GObjectData * userData, I
 	return true;
 }
 
-bool allowAccessData(const GScriptConfig & config, GObjectData * userData, IMetaAccessible * accessible)
+bool allowAccessData(const GScriptConfig & config, const GObjectData * userData, IMetaAccessible * accessible)
 {
 	if(userData->isInstance()) {
 		if(! config.allowAccessStaticDataViaInstance()) {
@@ -540,7 +535,7 @@ void convertParam(GVariant * v, int paramRank, GVariant * holder)
 
 void doLoadMethodList(const GScriptConfig & config, GMetaClassTraveller * traveller,
 	IMetaList * methodList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, GObjectData * userData, const char * methodName, bool allowAny)
+	void * instance, const GObjectData * userData, const char * methodName, bool allowAny)
 {
 	while(mapItem != NULL) {
 		if(mapItem->getType() == mmitMethod) {
@@ -577,7 +572,7 @@ void loadMethodList(GMetaClassTraveller * traveller,
 }
 
 void callbackLoadMethodList(const GScriptConfig & config, IMetaList * methodList, GMetaMap * metaMap, IMetaClass * objectMetaClass,
-	void * objectInstance, GObjectData * userData, const char * methodName)
+	void * objectInstance, const GObjectData * userData, const char * methodName)
 {
 	GMetaClassTraveller traveller(objectMetaClass, objectInstance);
 	void * instance = NULL;
@@ -664,7 +659,7 @@ void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, Invok
 	return instance;
 }
 
-InvokeCallableResult doCallbackMethodList(const GBindingParamPointer & param, GObjectUserData * objectUserData, const GMethodData & methodData, InvokeCallableParam * callableParam)
+InvokeCallableResult doInvokeMethodList(const GBindingParamPointer & param, const GObjectUserData * objectUserData, const GMethodData & methodData, InvokeCallableParam * callableParam)
 {
 	void * instance = NULL;
 	if(objectUserData != NULL && ! objectUserData->getObjectData()) {
@@ -681,7 +676,8 @@ InvokeCallableResult doCallbackMethodList(const GBindingParamPointer & param, GO
 	}
 	else {
 		methodList.reset(createMetaList());
-		callbackLoadMethodList(param->getConfig(), methodList.get(), param->getMetaMap(), objectUserData == NULL? methodData.getMetaClass() : objectUserData->getObjectData()->getMetaClass(),
+		callbackLoadMethodList(param->getConfig(), methodList.get(), param->getMetaMap(),
+			objectUserData == NULL? methodData.getMetaClass() : objectUserData->getObjectData()->getMetaClass(),
 			instance,  getObjectData(objectUserData), methodData.getName().c_str());
 	}
 
@@ -737,11 +733,11 @@ GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType)
 	}
 }
 
-GMetaVariant userDataToVariant(GScriptUserData * userData)
+GMetaVariant userDataToVariant(const GScriptUserData * userData)
 {
 	switch(userData->getType()) {
 		case udtObject: {
-			GObjectUserData * classData = static_cast<GObjectUserData *>(userData);
+			const GObjectUserData * classData = static_cast<const GObjectUserData *>(userData);
 			GMetaTypeData typeData;
 			classData->getObjectData()->getMetaClass()->getMetaType(&typeData);
 			metaCheckError(classData->getObjectData()->getMetaClass());
@@ -765,7 +761,7 @@ GMetaVariant userDataToVariant(GScriptUserData * userData)
 		}
 
 		case udtRaw: {
-			GRawUserData * rawData = static_cast<GRawUserData *>(userData);
+			const GRawUserData * rawData = static_cast<const GRawUserData *>(userData);
 			return GMetaVariant(rawData->getData(), GMetaType());
 		}
 
@@ -833,7 +829,7 @@ char * wideStringToString(const wchar_t * ws)
 }
 
 
-GSharedObjectData getSharedObjectData(GObjectUserData * objectUserData)
+GSharedObjectData getSharedObjectData(const GObjectUserData * objectUserData)
 {
 	if(objectUserData != NULL) {
 		return objectUserData->getObjectData();
@@ -843,7 +839,7 @@ GSharedObjectData getSharedObjectData(GObjectUserData * objectUserData)
 	}
 }
 
-GObjectData * getObjectData(GObjectUserData * objectUserData)
+GObjectData * getObjectData(const GObjectUserData * objectUserData)
 {
 	if(objectUserData != NULL) {
 		return objectUserData->getObjectData().get();

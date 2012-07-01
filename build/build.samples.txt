@@ -1,3 +1,4 @@
+set(TARGET_SAMPLETUTORIALS tutorials)
 set(TARGET_SAMPLELUA samplelua)
 set(TARGET_SAMPLEREFLECTION samplereflection)
 set(TARGET_SAMPLESERIALIZATION sampleserialization)
@@ -5,6 +6,7 @@ set(TARGET_SAMPLEOPENGL sampleopengl)
 set(TARGET_SAMPLEBOX2D samplebox2d)
 set(TARGET_SAMPLESFML samplesfml)
 
+set(OUTNAME_SAMPLETUTORIALS tutorials)
 set(OUTNAME_SAMPLELUA samplelua)
 set(OUTNAME_SAMPLEREFLECTION samplereflection)
 set(OUTNAME_SAMPLESERIALIZATION sampleserialization)
@@ -77,6 +79,28 @@ set_target_properties(
 )
 
 target_link_libraries(${TARGET_SAMPLESERIALIZATION} ${TARGET_LIB})
+
+# sample tutorials
+	file(GLOB GLOB_SAMPLETUTORIALS ${SAMPLE_ROOT}/tutorials/*.cpp)
+	set(SRC_SAMPLETUTORIALS
+		${GLOB_SAMPLETUTORIALS}
+	)
+
+	add_executable(
+		${TARGET_SAMPLETUTORIALS}
+		EXCLUDE_FROM_ALL
+			${SRC_SAMPLETUTORIALS}
+	)
+
+	set_target_properties(
+		${TARGET_SAMPLETUTORIALS}
+		PROPERTIES
+		OUTPUT_NAME ${OUTNAME_SAMPLETUTORIALS}
+		COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
+	)
+
+	target_link_libraries(${TARGET_SAMPLETUTORIALS} ${TARGET_LIB} ${LUA_LIB})
+
 
 # sample Lua
 if(${HAS_LUA})

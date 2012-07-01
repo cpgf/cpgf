@@ -113,9 +113,9 @@ if(${HAS_UNITTEST})
 	partUnitTest("test_scriptbind"
 		${TEST_PATH}/scriptbind/*.cpp
 		${TEST_PATH}/scriptbind/general/*.cpp
-		GLOB_TEST_LUA
-		GLOB_TEST_V8
-		GLOB_TEST_PYTHON
+		${GLOB_TEST_LUA}
+		${GLOB_TEST_V8}
+		${GLOB_TEST_PYTHON}
 	)
 
 	partUnitTest("test_metadata_stl"
