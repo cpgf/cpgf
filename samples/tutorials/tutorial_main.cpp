@@ -2,7 +2,7 @@
 
 using namespace std;
 
-#define EXEC(n) cout << "Tutorial " << # n << endl; run_ ## n();
+#define EXEC(n) cout << endl << "***** Tutorial " << # n << endl; run_ ## n();
 
 
 void run_a01();
