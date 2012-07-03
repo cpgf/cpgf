@@ -1,9 +1,9 @@
 
 /*
 NOTE: This tutorial must be executed after tutorial a01.
-This tutorial will use the meta data registered in a01.
+This tutorial uses the meta data registered in a01.
 
-This tutorial will demonstrate how to use interface based API
+This tutorial demonstrates how to use interface based API
 to access meta data in global repository.
 */
 
@@ -53,14 +53,13 @@ void run_a03()
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
 
 	GScopedInterface<IMetaModule> globalModule(service->getModuleAt(0));
-	GScopedInterface<IMetaClass> globalMetaClass(globalModule->getGlobalMetaClass());
-	GScopedInterface<IMetaClass> pointMetaClass(globalMetaClass->getClass("Point"));
-//	GScopedInterface<IMetaClass> pointMetaClass(service->findClassByName("Point"));
+	GScopedInterface<IMetaClass> pointMetaClass(service->findClassByName("Point"));
 
 	GScopedInterface<IMetaMethod> method;
 	GScopedInterface<IMetaField> field;
 	GVariant value;
 
+	GScopedInterface<IMetaClass> globalMetaClass(globalModule->getGlobalMetaClass());
 	method.reset(globalMetaClass->getMethod("greeting"));
 	metaInvokeMethod(method, NULL, "world");
 

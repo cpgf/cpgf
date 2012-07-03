@@ -1,6 +1,6 @@
 
 /*
-This tutorial will demonstrate how to reflect meta data to a temporary meta class.
+This tutorial demonstrates how to reflect meta data to a temporary meta class.
 After used the meta data, the meta class will be destroyed so nothing pollutes
 the global repository.
 */
@@ -19,25 +19,23 @@ void greeting(const char * message)
 	cout << "I love local data, " << message << endl;
 }
 
-class Point
+class Single
 {
 public:
-	Point() : x(0), y(0) {
+	Single() : x(0) {
 	}
 
-	Point(int x, int y) : x(x), y(y) {
+	explicit Single(int x) : x(x) {
 	}
 
 public:
 	int x;
-	int y;
 };
 
 template <typename Define>
 void reflectPoint(Define define)
 {
-	define._field("x", &Point::x);
-	define._field("y", &Point::y);
+	define._field("x", &Single::x);
 }
 
 
@@ -46,7 +44,7 @@ void reflectPoint(Define define)
 
 void run_a02()
 {
-	GDefineMetaClass<Point> defineForPoint = GDefineMetaClass<Point>::declare("Point");
+	GDefineMetaClass<Single> defineForPoint = GDefineMetaClass<Single>::declare("Single");
 
 	reflectPoint(defineForPoint);
 
@@ -69,7 +67,7 @@ void run_a02()
 	// Reflect global function to the virtual namespace "ns".
 	defineForNamespace._method("greeting", &greeting);
 
-	// Insert meta class for Point.
+	// Insert meta class for Single.
 	defineForNamespace._class(defineForPoint);
 
 	// Now we have build all meta data and insert to the virtual namespace.
@@ -82,15 +80,15 @@ void run_a02()
 	const GMetaMethod * greetingMethod = nsMetaClass->getMethod("greeting");
 	greetingMethod->invoke(NULL, "yes, exactly");
 
-	const GMetaClass * pointMetaClass = nsMetaClass->getClass("Point");
+	const GMetaClass * singleMetaClass = nsMetaClass->getClass("Single");
 	const GMetaField * field;
 	GVariant value;
 
-	Point point(6, 8);
+	Single single(6);
 
-	field = pointMetaClass->getField("x");
-	value = field->get(&point);
-	cout << "point.x is " << fromVariant<int>(value) << " (should be 6)" << endl;
+	field = singleMetaClass->getField("x");
+	value = field->get(&single);
+	cout << "single.x is " << fromVariant<int>(value) << " (should be 6)" << endl;
 }
 
 
