@@ -2,14 +2,14 @@
 
 using namespace std;
 
-#define EXEC(n) cout << endl << "***** Tutorial " << # n << endl; run_ ## n();
+#define EXEC(n) void run_ ## n(); cout << endl << "***** Tutorial " << # n << endl; run_ ## n();
 
-
-void run_a01();
 
 int main()
 {
 	EXEC(a01);
+	EXEC(a02);
+	EXEC(a03);
 
 	return 0;
 }

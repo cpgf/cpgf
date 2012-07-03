@@ -1,22 +1,31 @@
 
 /*
 This tutorial is the very first step to learn how to build meta data.
-All the libraries, cpgf reflection, cpgf serialization, cpgf script binding, are heavily depending on meta data.
+All the libraries, cpgf reflection, cpgf serialization, cpgf script binding,
+are heavily depending on meta data.
+
+This tutorial will demonstrate:
+1, Reflect global method.
+2, Reflect class, object method, and object field.
+3, Add meta data to global repository.
+4, Use the meta data.
+
+Please keep in mind, though the first step is to add meta data to global repository,
+it's highly recommended to avoid polluting the global repository when possible.
+We will learn how to use meta data locally in other tutorials.
 */
 
 // This header must be included to build meta data
 #include "cpgf/gmetadefine.h"
 
-// This header is not a must
-#include "cpgf/goutmain.h"
-
 #include <iostream>
 using namespace std;
 
+// The namespace for cpgf library.
 using namespace cpgf;
 
 // We use unnamed namespace to avoid name clash with other tutorials.
-// The namespace has nothing with reflection.
+// The namespace has nothing with the tutorial.
 namespace {
 
 // The global function we will reflect for.
@@ -101,10 +110,10 @@ void run_a01()
 	// Reflect global function to global meta class.
 	defineForGlobal._method("greeting", &greeting);
 
-	// Insert meta class for Point to global.
+	// Register meta class for Point to global.
 	defineForGlobal._class(defineForPoint);
 
-	// Now we have build all meta data and insert to global meta data repository.
+	// Now we have build all meta data and register to global meta data repository.
 	// We don't need defineForGlobal any more.
 	// We can get back the global meta class in a global way.
 
@@ -156,13 +165,14 @@ void run_a01()
 	Point * p;
 
 	// Create an instance with default constructor.
-	// createInstance doesn't need the default ctro to be reflected.
+	// createInstance doesn't need the default ctor to be reflected.
 	p = static_cast<Point *>(pointMetaClass->createInstance());
 	cout << "createInstance -- point.x is " << p->x << " (should be 0)" << endl;
 	// Don't forget to free the object once we don't need it.
 	pointMetaClass->destroyInstance(p);
 
-	// Get the meta constructor of void *(int, int). 0 is the index. If there is another meta constructor in front of this one in the meta data, the index should be 1.
+	// Get the meta constructor of void *(int, int). 0 is the index.
+	// If there is another meta constructor in front of this one in the meta data, the index should be 1.
 	const GMetaConstructor * constructor = pointMetaClass->getConstructorAt(0);
 	p = static_cast<Point *>(constructor->invoke(3, 8));
 	cout << "constructor -- point.x is " << p->x << " (should be 3)" << endl;
