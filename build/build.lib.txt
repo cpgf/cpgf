@@ -27,6 +27,7 @@ set(SRC_META
 	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
 	${SRC_PATH}/scriptbind/gscriptbindutil.cpp
 	${SRC_PATH}/scriptbind/gscriptrunner.cpp
+	${SRC_PATH}/scriptbind/gscriptwrapper.cpp
 	
 	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
 	${SRC_PATH}/metatraits/gmetaconverter_widestring.cpp

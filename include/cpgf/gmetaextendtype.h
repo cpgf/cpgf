@@ -10,6 +10,7 @@
 #include "cpgf/metatraits/gmetatraitsparam.h"
 #include "cpgf/metatraits/gmetaconverter.h"
 #include "cpgf/metatraits/gmetaserializer.h"
+#include "cpgf/metatraits/gmetascriptwrapper.h"
 
 #include <string.h>
 
@@ -20,6 +21,7 @@ class GMetaItem;
 
 const uint32_t GExtendTypeCreateFlag_Converter = 1 << 0;
 const uint32_t GExtendTypeCreateFlag_Serializer = 1 << 1;
+const uint32_t GExtendTypeCreateFlag_ScriptWrapper = 1 << 2;
 
 #pragma pack(push, 1)
 #pragma pack(1)
@@ -28,6 +30,7 @@ struct GMetaExtendTypeData
 	uint32_t arraySize;
 	IMetaConverter * converter;
 	IMetaSerializer * serializer;
+	IMetaScriptWrapper * scriptWrapper;
 };
 #pragma pack(pop)
 
@@ -62,7 +65,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 	else {
 		data->converter = NULL;
 	}
-	
+
 	if((createFlags & GExtendTypeCreateFlag_Serializer) != 0) {
 		GMetaTraitsParam param;
 		param.module = module;
@@ -71,6 +74,16 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 	}
 	else {
 		data->serializer = NULL;
+	}
+
+	if((createFlags & GExtendTypeCreateFlag_ScriptWrapper) != 0) {
+		GMetaTraitsParam param;
+		param.module = module;
+		typename WrapExtendType<T>::Result * p = 0;
+		data->scriptWrapper = metaTraitsCreateScriptWrapper(*p, param);
+	}
+	else {
+		data->scriptWrapper = NULL;
 	}
 }
 
@@ -95,6 +108,7 @@ public:
 	uint32_t getArraySize() const;
 	IMetaConverter * getConverter() const;
 	IMetaSerializer * getSerializer() const;
+	IMetaScriptWrapper * getScriptWrapper() const;
 	
 	GMetaExtendTypeData takeData();
 

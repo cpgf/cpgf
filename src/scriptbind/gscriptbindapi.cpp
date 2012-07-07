@@ -341,6 +341,21 @@ IScriptObject * G_API_CC ImplScriptObject::gainScriptObject(const char * name)
 	LEAVE_BINDING_API(return NULL)
 }
 
+IScriptFunction * G_API_CC ImplScriptObject::gainScriptFunction(const char * name)
+{
+	ENTER_BINDING_API()
+
+	GScriptFunction * func = this->scriptObject->gainScriptFunction(name);
+	if(func == NULL) {
+		return NULL;
+	}
+	else {
+		return new ImplScriptFunction(func, true);
+	}
+
+	LEAVE_BINDING_API(return NULL)
+}
+
 void G_API_CC ImplScriptObject::invoke(GMetaVarData * outResult, const char * name, const GMetaVarData * params, uint32_t paramCount)
 {
 	ENTER_BINDING_API()

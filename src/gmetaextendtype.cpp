@@ -24,6 +24,7 @@ namespace {
 		data->arraySize = 0;
 		data->converter = NULL;
 		data->serializer = NULL;
+		data->scriptWrapper = NULL;
 	}
 } // unnamed namespace
 
@@ -60,12 +61,14 @@ void GMetaExtendType::doRetainInterfaces()
 {
 	retainInterface(this->data.converter);
 	retainInterface(this->data.serializer);
+	retainInterface(this->data.scriptWrapper);
 }
 
 void GMetaExtendType::doReleaseInterfaces()
 {
 	releaseInterface(this->data.converter);
 	releaseInterface(this->data.serializer);
+	releaseInterface(this->data.scriptWrapper);
 }
 
 void GMetaExtendType::swap(GMetaExtendType & other)
@@ -105,6 +108,17 @@ IMetaSerializer * GMetaExtendType::getSerializer() const
 	if(this->data.serializer != NULL) {
 		this->data.serializer->addReference();
 		return this->data.serializer;
+	}
+	else {
+		return NULL;
+	}
+}
+
+IMetaScriptWrapper * GMetaExtendType::getScriptWrapper() const
+{
+	if(this->data.scriptWrapper != NULL) {
+		this->data.scriptWrapper->addReference();
+		return this->data.scriptWrapper;
 	}
 	else {
 		return NULL;

@@ -64,6 +64,8 @@ struct IScriptObject : public IExtendObject
 	virtual IScriptObject * G_API_CC createScriptObject(const char * name) = 0;
 	virtual IScriptObject * G_API_CC gainScriptObject(const char * name) = 0;
 	
+	virtual IScriptFunction * G_API_CC gainScriptFunction(const char * name) = 0;
+	
 	virtual void G_API_CC invoke(GMetaVarData * outResult, const char * name, const GMetaVarData * params, uint32_t paramCount) = 0;
 	virtual void G_API_CC invokeIndirectly(GMetaVarData * outResult, const char * name, GMetaVarData const * const * params, uint32_t paramCount) = 0;
 
