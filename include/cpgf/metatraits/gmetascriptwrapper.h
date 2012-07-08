@@ -26,7 +26,7 @@ struct GMetaTraitsCreateScriptWrapper
 };
 
 template <typename T>
-inline IMetaScriptWrapper * metaTraitsCreateScriptWrapper(const T &, const GMetaTraitsParam & param)
+inline IMetaScriptWrapper * metaTraitsCreateScriptWrapper(const GMetaTraitsParam & param, ...)
 {
 	return GMetaTraitsCreateScriptWrapper<T>::createScriptWrapper(param);
 }

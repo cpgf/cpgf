@@ -81,8 +81,6 @@ private:
 
 public:
 	void setScriptValue(const char * name, const GVariant & value);
-
-protected:
 	IScriptFunction * getScriptFunction(const char * name);
 
 private:
@@ -94,7 +92,7 @@ class GObjectData : public GNoncopyable, public IScriptDataStorage
 	G_INTERFACE_IMPL_OBJECT
 
 public:
-	GObjectData(IMetaClass * metaClass, void * instance,
+	GObjectData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance,
 		bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType);
 	~GObjectData();
 
@@ -126,16 +124,22 @@ public:
 		return this->dataType;
 	}
 
+	void setScriptValue(const char * name, const GVariant & value);
+
 protected:
 	virtual IScriptFunction * G_API_CC getScriptFunction(const char * name);
 
+	GScriptDataStorage * getAppropriateDataStorage() const;
+
 private:
+	GScriptBindingParam * param;
 	GSharedInterface<IMetaClass> metaClass;
 	void * instance;
 	GSharedInterface<IObject> interfaceObject;
 	bool allowGC;
 	ObjectPointerCV cv;
 	ObjectUserDataType dataType;
+	mutable GScopedPointer<GScriptDataStorage> dataStorage;
 };
 
 typedef GSharedPointer<GObjectData> GSharedObjectData;
@@ -435,12 +439,25 @@ public:
 		return &this->itemMap;
 	}
 
+	bool hasDataStorage() const {
+		return this->dataStorage;
+	}
+
+	GScriptDataStorage * getDataStorage() const {
+		if(! this->dataStorage) {
+			this->dataStorage.reset(new GScriptDataStorage());
+		}
+
+		return this->dataStorage.get();
+	}
+
 private:
 	void buildMap(IMetaClass * metaClass);
 
 private:
 	MapType itemMap;
 	GScopedPointer<GMetaMapItemData> data;
+	mutable GScopedPointer<GScriptDataStorage> dataStorage;
 };
 
 class GMetaMap

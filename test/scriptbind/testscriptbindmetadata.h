@@ -7,6 +7,7 @@
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
+#include "cpgf/scriptbind/gscriptwrapper.h"
 
 
 #include <string.h>
@@ -490,6 +491,24 @@ int testAdd2(int a, int b);
 int testAddN(const cpgf::GMetaVariadicParam * params);
 int testAddCallback(cpgf::IScriptFunction * scriptFunction);
 int testExecAddCallback();
+
+
+class ScriptOverrideBase
+{
+public:
+	virtual int getValue() {
+		return 1;
+	}
+};
+
+class ScriptOverride : public ScriptOverrideBase, public cpgf::GScriptWrapper
+{
+private:
+	typedef ScriptOverrideBase super;
+
+public:
+	virtual int getValue();
+};
 
 
 }

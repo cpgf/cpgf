@@ -68,16 +68,20 @@ IScriptFunction * GScriptDataStorage::getScriptFunction(const char * name)
 	MapType::iterator it = this->dataMap->find(name);
 	if(it != this->dataMap->end()) {
 		if(vtIsInterface(it->second.getType())) {
-			return gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
+			IScriptFunction * func = gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
+			if(func != NULL) {
+				func->addReference();
+			}
+			return func;
 		}
 	}
 	return NULL;
 }
 
 
-GObjectData::GObjectData(IMetaClass * metaClass, void * instance,
+GObjectData::GObjectData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance,
 	bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
-	: metaClass(metaClass), instance(instance), allowGC(allowGC), cv(cv), dataType(dataType)
+	: param(param), metaClass(metaClass), instance(instance), allowGC(allowGC), cv(cv), dataType(dataType)
 {
 	switch(dataType) {
 		case cudtInterface:
@@ -87,6 +91,13 @@ GObjectData::GObjectData(IMetaClass * metaClass, void * instance,
 
 		default:
 			break;
+	}
+
+	if(this->isInstance()) {
+		GScopedInterface<IMetaScriptWrapper> scriptWrapper(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_ScriptWrapper).getScriptWrapper());
+		if(scriptWrapper) {
+			scriptWrapper->setScriptDataStorage(instance, this);
+		}
 	}
 }
 
@@ -99,15 +110,50 @@ GObjectData::~GObjectData()
 	}
 }
 
+GScriptDataStorage * GObjectData::getAppropriateDataStorage() const
+{
+	if(! this->isInstance()) {
+		GMetaMapClass * mapClass = this->param->getMetaMap()->findClassMap(this->metaClass.get());
+		return mapClass->getDataStorage();
+	}
+	else {
+		if(! this->dataStorage) {
+			this->dataStorage.reset(new GScriptDataStorage());
+		}
+		return this->dataStorage.get();
+	}
+}
+
+void GObjectData::setScriptValue(const char * name, const GVariant & value)
+{
+	GScriptDataStorage * storage = this->getAppropriateDataStorage();
+	storage->setScriptValue(name, value);
+}
+
 IScriptFunction * G_API_CC GObjectData::getScriptFunction(const char * name)
 {
-	return NULL;
+	IScriptFunction * func = NULL;
+	
+	if(this->isInstance()) {
+		if(this->dataStorage) {
+			func = this->dataStorage->getScriptFunction(name);
+		}
+	}
+
+	if(func == NULL) {
+		GMetaMapClass * mapClass = this->param->getMetaMap()->findClassMap(this->metaClass.get());
+		if(mapClass->hasDataStorage()) {
+			func = mapClass->getDataStorage()->getScriptFunction(name);;
+		}
+	}
+
+	return func;
 }
 
 
 GObjectUserData::GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance,
 	bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
-	: super(udtObject, param), data(new GObjectData(metaClass, instance, allowGC, cv, dataType))
+	: super(udtObject, param), data(new GObjectData(param.get(), metaClass, instance, allowGC, cv, dataType))
 {
 }
 
@@ -924,6 +970,9 @@ bool doSetFieldValue(GObjectUserData * userData, const char * name, const GVaria
 
 			case mmitMethod:
 			case mmitMethodList:
+				userData->getObjectData()->setScriptValue(name, value);
+				return true;
+
 			case mmitEnum:
 			case mmitEnumValue:
 			case mmitClass:

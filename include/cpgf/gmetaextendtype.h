@@ -80,7 +80,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 		GMetaTraitsParam param;
 		param.module = module;
 		typename WrapExtendType<T>::Result * p = 0;
-		data->scriptWrapper = metaTraitsCreateScriptWrapper(*p, param);
+		data->scriptWrapper = metaTraitsCreateScriptWrapper<typename WrapExtendType<T>::Result>(param, p);
 	}
 	else {
 		data->scriptWrapper = NULL;

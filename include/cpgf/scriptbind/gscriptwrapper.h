@@ -4,6 +4,7 @@
 
 #include "cpgf/metatraits/gmetascriptwrapper.h"
 #include "cpgf/gapi.h"
+#include "cpgf/gtypetraits.h"
 
 
 namespace cpgf {
@@ -18,16 +19,38 @@ struct IScriptDataStorage : public IObject
 class GScriptWrapper
 {
 public:
+	GScriptWrapper();
+
 	IScriptFunction * getScriptFunction(const char * name);
 
 	void setScriptDataStorage(IScriptDataStorage * scriptDataStorage);
 
 private:
-	GSharedInterface<IScriptDataStorage> scriptDataStorage;
+	IScriptDataStorage * scriptDataStorage;
 };
 
 
-IMetaScriptWrapper * metaTraitsCreateScriptWrapper(const GScriptWrapper & wrapper, const GMetaTraitsParam & param);
+namespace scriptbind_internal {
+
+	typedef void * (*CasterType)(void *);
+
+	template <typename From, typename To>
+	struct InstanceCaster
+	{
+		static void * cast(void * instance) {
+			return static_cast<To *>(static_cast<From *>(instance));
+		}
+	};
+
+	IMetaScriptWrapper * doCreateScriptWrapper(CasterType caster);
+
+} // namespace scriptbind_internal
+
+template <typename T>
+IMetaScriptWrapper * metaTraitsCreateScriptWrapper(const GMetaTraitsParam &, typename GEnableIfResult<IsConvertible<const T &, const GScriptWrapper &>, GScriptWrapper >::Result *)
+{
+	return scriptbind_internal::doCreateScriptWrapper(&scriptbind_internal::InstanceCaster<T, GScriptWrapper>::cast);
+}
 
 
 

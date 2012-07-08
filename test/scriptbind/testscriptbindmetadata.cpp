@@ -19,6 +19,7 @@ void TestScriptBindMetaData1();
 void TestScriptBindMetaData2();
 void TestScriptBindMetaData3();
 void TestScriptBindMetaData4();
+void TestScriptBindMetaData5();
 
 int TestObject::staticValue = 0;
 
@@ -115,6 +116,7 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	bindClass(script, service, "testscript::DeriveC", "DeriveC");
 	bindClass(script, service, "testscript::DeriveD", "DeriveD");
 	bindClass(script, service, "testscript::DeriveE", "DeriveE");
+	bindClass(script, service, "testscript::ScriptOverride", "ScriptOverride");
 
 	bindClass(script, service, REG_NAME_BasicA, "BasicA");
 	
@@ -216,6 +218,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 	TestScriptBindMetaData2();
 	TestScriptBindMetaData3();
 	TestScriptBindMetaData4();
+	TestScriptBindMetaData5();
 }
 
 

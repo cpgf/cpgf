@@ -7,27 +7,9 @@
 namespace cpgf {
 
 
-namespace {
-
-class GMetaScriptWrapper : public IMetaScriptWrapper
+GScriptWrapper::GScriptWrapper()
+	: scriptDataStorage(NULL)
 {
-	G_INTERFACE_IMPL_OBJECT
-
-public:
-	explicit GMetaScriptWrapper(const GScriptWrapper & wrapper) : wrapper(wrapper) {
-	}
-	
-	virtual void G_API_CC setScriptDataStorage(void * instance, IScriptDataStorage * scriptDataStorage) {
-		static_cast<GScriptWrapper *>(instance)->setScriptDataStorage(scriptDataStorage);
-	}
-
-private:
-	const GScriptWrapper & wrapper;	
-
-	GMAKE_NONCOPYABLE(GMetaScriptWrapper);
-};
-
-
 }
 
 IScriptFunction * GScriptWrapper::getScriptFunction(const char * name)
@@ -42,19 +24,40 @@ IScriptFunction * GScriptWrapper::getScriptFunction(const char * name)
 
 void GScriptWrapper::setScriptDataStorage(IScriptDataStorage * scriptDataStorage)
 {
-	this->scriptDataStorage.reset(scriptDataStorage);
+	this->scriptDataStorage = scriptDataStorage;
 }
 
 
-IMetaScriptWrapper * metaTraitsCreateScriptWrapper(const GScriptWrapper & wrapper, const GMetaTraitsParam &)
+namespace scriptbind_internal {
+
+class GMetaScriptWrapper : public IMetaScriptWrapper
 {
-	return new GMetaScriptWrapper(wrapper);
+	G_INTERFACE_IMPL_OBJECT
+
+public:
+	explicit GMetaScriptWrapper(CasterType caster) : caster(caster) {
+	}
+
+	virtual void G_API_CC setScriptDataStorage(void * instance, IScriptDataStorage * scriptDataStorage) {
+		static_cast<GScriptWrapper *>(this->caster(instance))->setScriptDataStorage(scriptDataStorage);
+	}
+
+private:
+	CasterType caster;
+
+	GMAKE_NONCOPYABLE(GMetaScriptWrapper);
+};
+
+
+IMetaScriptWrapper * doCreateScriptWrapper(CasterType caster)
+{
+	return new GMetaScriptWrapper(caster);
 }
+
+} // namespace scriptbind_internal
 
 
 
 } // namespace cpgf
-
-
 
 
