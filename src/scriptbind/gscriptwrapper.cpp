@@ -17,8 +17,8 @@ public:
 	explicit GMetaScriptWrapper(const GScriptWrapper & wrapper) : wrapper(wrapper) {
 	}
 	
-	virtual void G_API_CC setScriptObject(void * instance, IScriptObject * scriptObject) {
-		static_cast<GScriptWrapper *>(instance)->setScriptObject(scriptObject);
+	virtual void G_API_CC setScriptDataStorage(void * instance, IScriptDataStorage * scriptDataStorage) {
+		static_cast<GScriptWrapper *>(instance)->setScriptDataStorage(scriptDataStorage);
 	}
 
 private:
@@ -32,17 +32,17 @@ private:
 
 IScriptFunction * GScriptWrapper::getScriptFunction(const char * name)
 {
-	if(this->scriptObject) {
-		return this->scriptObject->gainScriptFunction(name);
+	if(this->scriptDataStorage) {
+		return this->scriptDataStorage->getScriptFunction(name);
 	}
 	else {
 		return NULL;
 	}
 }
 
-void GScriptWrapper::setScriptObject(IScriptObject * scriptObject)
+void GScriptWrapper::setScriptDataStorage(IScriptDataStorage * scriptDataStorage)
 {
-	this->scriptObject.reset(scriptObject);
+	this->scriptDataStorage.reset(scriptDataStorage);
 }
 
 

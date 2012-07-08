@@ -8,12 +8,12 @@
 namespace cpgf {
 
 
-struct IScriptObject;
+struct IScriptDataStorage;
 struct GMetaTraitsParam;
 
 struct IMetaScriptWrapper : public IObject
 {
-	virtual void G_API_CC setScriptObject(void * instance, IScriptObject * scriptObject) = 0;
+	virtual void G_API_CC setScriptDataStorage(void * instance, IScriptDataStorage * scriptDataStorage) = 0;
 };
 
 

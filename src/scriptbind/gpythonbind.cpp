@@ -179,7 +179,6 @@ PyObject * callbackGetAttribute(PyObject * object, PyObject * attrName);
 int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * value);
 
 PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName);
-bool doSetAttributeObject(GPythonObject * cppObject, PyObject * attrName, PyObject * value);
 
 PyObject * callbackGetEnumValue(PyObject * object, PyObject * attrName);
 int callbackSetEnumValue(PyObject * object, PyObject * attrName, PyObject * value);
@@ -721,7 +720,7 @@ GMetaVariant pythonToVariant(const GBindingParamPointer & param, PyObject * valu
 	return GMetaVariant();
 }
 
-PyObject * objectToPython(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+PyObject * objectToPython(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
 {
 	if(instance == NULL) {
 		return pyAddRef(Py_None);
@@ -745,7 +744,7 @@ struct GPythonMethods
 {
 	typedef PyObject * ResultType;
 	
-	static ResultType doObjectToScript(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+	static ResultType doObjectToScript(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
 	{
 		return objectToPython(param, instance, metaClass, allowGC, cv, dataType);
 	}
@@ -900,7 +899,7 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	void * instance = doInvokeConstructor(cppClass->getService(), userData->getObjectData()->getMetaClass(), &callableParam);
 
 	if(instance != NULL) {
-		return createPythonObject(new GObjectUserData(cppClass->getParam(), userData->getObjectData()->getMetaClass(), instance, true, opcvNone, cudtNormal));
+		return createPythonObject(new GObjectUserData(cppClass->getParam(), userData->getObjectData()->getMetaClass(), instance, true, opcvNone, cudtObject));
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -932,65 +931,16 @@ int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * valu
 	ENTER_PYTHON()
 
 	GPythonObject * cppObject = castFromPython(object);
-
-	return doSetAttributeObject(cppObject, attrName, value) ? 0 : -1;
-
-	LEAVE_PYTHON(return -1)
-}
-
-bool doSetAttributeObject(GPythonObject * cppObject, PyObject * attrName, PyObject * value)
-{
+	GObjectUserData * userData = gdynamic_cast<GObjectUserData *>(cppObject->getUserData());
 	const char * name = PyString_AsString(attrName);
 
-	GObjectUserData * userData = gdynamic_cast<GObjectUserData *>(cppObject->getUserData());
-
-	if(userData->getObjectData()->getCV() == opcvConst) {
-		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
-
-		return false;
+	if(doSetFieldValue(userData, name, pythonToVariant(userData->getParam(), value).getValue())) {
+		return 0;
 	}
 
-	GMetaClassTraveller traveller(userData->getObjectData()->getMetaClass(), userData->getObjectData()->getInstance());
+	return -1;
 
-	void * instance = NULL;
-
-	for(;;) {
-		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
-		if(!metaClass) {
-			break;
-		}
-
-		GMetaMapItem * mapItem = findMetaMapItem(userData->getParam()->getMetaMap(), metaClass.get(), name);
-		if(mapItem == NULL) {
-			continue;
-		}
-
-		switch(mapItem->getType()) {
-			case mmitField:
-			case mmitProperty: {
-				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				if(allowAccessData(userData->getParam()->getConfig(), getObjectData(userData), data.get())) {
-					GVariant v = pythonToVariant(userData->getParam(), value).getValue();
-					metaSetValue(data.get(), userData->getObjectData()->getInstance(), v);
-					return true;
-				}
-			}
-			   break;
-
-			case mmitMethod:
-			case mmitMethodList:
-			case mmitEnum:
-			case mmitEnumValue:
-			case mmitClass:
-				raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
-				return false;
-
-			default:
-				break;
-		}
-	}
-
-	return false;
+	LEAVE_PYTHON(return -1)
 }
 
 PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
@@ -1475,7 +1425,7 @@ void GPythonScriptObject::bindObject(const char * objectName, void * instance, I
 {
 	ENTER_PYTHON()
 
-	setObjectAttr(this->object, objectName, objectToPython(this->param, instance, type, transferOwnership, opcvNone, cudtNormal));
+	setObjectAttr(this->object, objectName, objectToPython(this->param, instance, type, transferOwnership, opcvNone, cudtObject));
 
 	LEAVE_PYTHON()
 }

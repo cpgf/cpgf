@@ -54,13 +54,29 @@ GScriptBindingParam::~GScriptBindingParam()
 }
 
 
-GObjectData::GObjectData()
-	: metaClass(NULL), instance(NULL), allowGC(false), cv(opcvNone), dataType(cudtNormal)
+void GScriptDataStorage::setScriptValue(const char * name, const GVariant & value)
 {
+	if(! this->dataMap) {
+		this->dataMap.reset(new MapType());
+	}
+
+	(*(this->dataMap))[name] = value;
 }
 
+IScriptFunction * GScriptDataStorage::getScriptFunction(const char * name)
+{
+	MapType::iterator it = this->dataMap->find(name);
+	if(it != this->dataMap->end()) {
+		if(vtIsInterface(it->second.getType())) {
+			return gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
+		}
+	}
+	return NULL;
+}
+
+
 GObjectData::GObjectData(IMetaClass * metaClass, void * instance,
-	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+	bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
 	: metaClass(metaClass), instance(instance), allowGC(allowGC), cv(cv), dataType(dataType)
 {
 	switch(dataType) {
@@ -83,9 +99,14 @@ GObjectData::~GObjectData()
 	}
 }
 
+IScriptFunction * G_API_CC GObjectData::getScriptFunction(const char * name)
+{
+	return NULL;
+}
+
 
 GObjectUserData::GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance,
-	bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+	bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
 	: super(udtObject, param), data(new GObjectData(metaClass, instance, allowGC, cv, dataType))
 {
 }
@@ -747,7 +768,7 @@ GMetaVariant userDataToVariant(const GScriptUserData * userData)
 				case cudtClass:
 					break;
 
-				case cudtNormal:
+				case cudtObject:
 				{
 					return GMetaVariant(pointerToObjectVariant(classData->getObjectData()->getInstance()), type);
 				}
@@ -863,6 +884,54 @@ IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived)
 		else {
 			derived->addReference();
 			return derived;
+		}
+	}
+}
+
+bool doSetFieldValue(GObjectUserData * userData, const char * name, const GVariant & value)
+{
+	if(userData->getObjectData()->getCV() == opcvConst) {
+		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
+
+		return false;
+	}
+
+	GMetaClassTraveller traveller(userData->getObjectData()->getMetaClass(), userData->getObjectData()->getInstance());
+	
+	void * instance = NULL;
+
+	for(;;) {
+		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
+		if(!metaClass) {
+			return false;
+		}
+		
+		GMetaMapItem * mapItem = findMetaMapItem(userData->getParam()->getMetaMap(), metaClass.get(), name);
+		if(mapItem == NULL) {
+			continue;
+		}
+
+		switch(mapItem->getType()) {
+			case mmitField:
+			case mmitProperty: {
+				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
+				if(allowAccessData(userData->getParam()->getConfig(), getObjectData(userData), data.get())) {
+					metaSetValue(data.get(), userData->getObjectData()->getInstance(), value);
+					return true;
+				}
+			}
+			   break;
+
+			case mmitMethod:
+			case mmitMethodList:
+			case mmitEnum:
+			case mmitEnumValue:
+			case mmitClass:
+				raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
+				return false;
+
+			default:
+				break;
 		}
 	}
 }

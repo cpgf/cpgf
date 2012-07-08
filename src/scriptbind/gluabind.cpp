@@ -519,7 +519,7 @@ void error(lua_State * L, const char * message)
 	lua_error(L);
 }
 
-bool objectToLua(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+bool objectToLua(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
 {
 	lua_State * L = getLuaState(param);
 
@@ -675,7 +675,7 @@ struct GLuaMethods
 {
 	typedef bool ResultType;
 	
-	static ResultType doObjectToScript(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+	static ResultType doObjectToScript(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
 	{
 		return objectToLua(param, instance, metaClass, allowGC, cv, dataType);
 	}
@@ -925,7 +925,7 @@ int invokeConstructor(const GBindingParamPointer & param, IMetaClass * metaClass
 	void * instance = doInvokeConstructor(param->getService(), metaClass, &callableParam);
 
 	if(instance != NULL) {
-		objectToLua(param, instance, metaClass, true, opcvNone, cudtNormal);
+		objectToLua(param, instance, metaClass, true, opcvNone, cudtObject);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1125,55 +1125,6 @@ int UserData_index(lua_State * L)
 	LEAVE_LUA(L, lua_pushnil(L); return false)
 }
 
-bool newindexMemberData(lua_State * /*L*/, GObjectUserData * userData, const char * name, const GVariant & value)
-{
-	if(userData->getObjectData()->getCV() == opcvConst) {
-		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
-
-		return false;
-	}
-
-	GMetaClassTraveller traveller(userData->getObjectData()->getMetaClass(), userData->getObjectData()->getInstance());
-	
-	void * instance = NULL;
-
-	for(;;) {
-		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
-		if(!metaClass) {
-			return false;
-		}
-		
-		GMetaMapItem * mapItem = findMetaMapItem(userData->getParam()->getMetaMap(), metaClass.get(), name);
-		if(mapItem == NULL) {
-			continue;
-		}
-
-		switch(mapItem->getType()) {
-			case mmitField:
-			case mmitProperty: {
-				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				if(allowAccessData(userData->getParam()->getConfig(), getObjectData(userData), data.get())) {
-					metaSetValue(data.get(), userData->getObjectData()->getInstance(), value);
-					return true;
-				}
-			}
-			   break;
-
-			case mmitMethod:
-			case mmitMethodList:
-			case mmitEnum:
-			case mmitEnumValue:
-			case mmitClass:
-				raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
-				return false;
-
-			default:
-				break;
-		}
-	}
-
-}
-
 int UserData_newindex(lua_State * L)
 {
 	ENTER_LUA()
@@ -1182,9 +1133,7 @@ int UserData_newindex(lua_State * L)
 	
 	const char * name = lua_tostring(L, -2);
 
-	GVariant value = luaToVariant(userData->getParam(), -1).getValue();
-	
-	if(newindexMemberData(L, userData, name, value)) {
+	if(doSetFieldValue(userData, name, luaToVariant(userData->getParam(), -1).getValue())) {
 		return 1;
 	}
 
@@ -1809,7 +1758,7 @@ void GLuaScriptObject::bindObject(const char * objectName, void * instance, IMet
 
 	GLuaScopeGuard scopeGuard(this);
 
-	objectToLua(this->implement->param, instance, gdynamic_cast<IMetaClass *>(type), transferOwnership, opcvNone, cudtNormal);
+	objectToLua(this->implement->param, instance, gdynamic_cast<IMetaClass *>(type), transferOwnership, opcvNone, cudtObject);
 
 	scopeGuard.set(objectName);
 

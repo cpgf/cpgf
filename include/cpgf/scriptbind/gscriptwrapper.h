@@ -3,21 +3,27 @@
 
 
 #include "cpgf/metatraits/gmetascriptwrapper.h"
+#include "cpgf/gapi.h"
 
 
 namespace cpgf {
 
 struct IScriptFunction;
 
+struct IScriptDataStorage : public IObject
+{
+	virtual IScriptFunction * G_API_CC getScriptFunction(const char * name) = 0;
+};
+
 class GScriptWrapper
 {
 public:
 	IScriptFunction * getScriptFunction(const char * name);
 
-	void setScriptObject(IScriptObject * scriptObject);
+	void setScriptDataStorage(IScriptDataStorage * scriptDataStorage);
 
 private:
-	GSharedInterface<IScriptObject> scriptObject;
+	GSharedInterface<IScriptDataStorage> scriptDataStorage;
 };
 
 

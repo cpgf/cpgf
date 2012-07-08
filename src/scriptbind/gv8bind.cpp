@@ -528,7 +528,7 @@ GScriptDataType getV8Type(Local<Value> value, IMetaTypedItem ** typeItem)
 	return sdtUnknown;
 }
 
-Handle<Value> objectToV8(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+Handle<Value> objectToV8(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
 {
 	if(instance == NULL) {
 		return Handle<Value>();
@@ -571,7 +571,7 @@ struct GV8Methods
 {
 	typedef Handle<Value> ResultType;
 	
-	static ResultType doObjectToScript(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType)
+	static ResultType doObjectToScript(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
 	{
 		return objectToV8(param, instance, metaClass, allowGC, cv, dataType);
 	}
@@ -1058,51 +1058,6 @@ Handle<Value> getNamedMember(GObjectUserData * userData, const char * name)
 	return Handle<Value>();
 }
 
-bool setNamedMember(GObjectUserData * userData, const char * name, Local<Context> context, Local<Value> value)
-{
-	GMetaClassTraveller traveller(userData->getObjectData()->getMetaClass(), userData->getObjectData()->getInstance());
-
-	void * instance = NULL;
-
-	for(;;) {
-		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
-		if(!metaClass) {
-			break;
-		}
-
-		GMetaMapItem * mapItem = findMetaMapItem(userData->getParam()->getMetaMap(), metaClass.get(), name);
-		if(mapItem == NULL) {
-			continue;
-		}
-
-		switch(mapItem->getType()) {
-			case mmitField:
-			case mmitProperty: {
-				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				if(allowAccessData(userData->getParam()->getConfig(), getObjectData(userData), data.get())) {
-					GVariant v = v8ToVariant(userData->getParam(), context, value).getValue();
-					metaSetValue(data.get(), userData->getObjectData()->getInstance(), v);
-					return true;
-				}
-			}
-			   break;
-
-			case mmitMethod:
-			case mmitMethodList:
-			case mmitEnum:
-			case mmitEnumValue:
-			case mmitClass:
-				raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
-				return false;
-
-			default:
-				break;
-		}
-	}
-
-	return false;
-}
-
 Handle<Value> staticMemberGetter(Local<String> prop, const AccessorInfo & info)
 {
 	ENTER_V8()
@@ -1126,7 +1081,7 @@ void staticMemberSetter(Local<String> prop, Local<Value> value, const AccessorIn
 	String::Utf8Value utf8_prop(prop);
 	const char * name = *utf8_prop;
 
-	setNamedMember(userData, name, info.Holder()->CreationContext(), value);
+	doSetFieldValue(userData, name, v8ToVariant(userData->getParam(), info.Holder()->CreationContext(), value).getValue());
 
 	LEAVE_V8()
 }
@@ -1172,7 +1127,8 @@ Handle<Value> namedMemberSetter(Local<String> prop, Local<Value> value, const Ac
 		return Handle<Value>();
 	}
 
-	if(setNamedMember(userData, name, info.Holder()->CreationContext(), value)) {
+
+	if(doSetFieldValue(userData, name, v8ToVariant(userData->getParam(), info.Holder()->CreationContext(), value).getValue())) {
 		return value;
 	}
 
@@ -1290,7 +1246,7 @@ Handle<Value> objectConstructor(const Arguments & args)
 	void * instance = invokeConstructor(args, userData->getParam(), userData->getObjectData()->getMetaClass());
 	Persistent<Object> self = Persistent<Object>::New(args.Holder());
 
-	GObjectUserData * instanceUserData = new GObjectUserData(userData->getParam(), userData->getObjectData()->getMetaClass(), instance, true, opcvNone, cudtNormal);
+	GObjectUserData * instanceUserData = new GObjectUserData(userData->getParam(), userData->getObjectData()->getMetaClass(), instance, true, opcvNone, cudtObject);
 	void * key = addUserDataToPool(userData->getParam(), instanceUserData);
 	self.MakeWeak(key, weakHandleCallback);
 
@@ -1701,7 +1657,7 @@ void GV8ScriptObject::bindObject(const char * objectName, void * instance, IMeta
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->implement->object));
 
-	Handle<Value> obj = objectToV8(this->implement->param, instance, type, transferOwnership, opcvNone, cudtNormal);
+	Handle<Value> obj = objectToV8(this->implement->param, instance, type, transferOwnership, opcvNone, cudtObject);
 	localObject->Set(String::New(objectName), obj);
 
 	LEAVE_V8()

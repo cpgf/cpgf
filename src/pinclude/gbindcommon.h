@@ -2,6 +2,7 @@
 #define __GBINDCOMMON_H
 
 #include "cpgf/scriptbind/gscriptbind.h"
+#include "cpgf/scriptbind/gscriptwrapper.h"
 #include "cpgf/gglobal.h"
 #include "cpgf/gmetaoperatorop.h"
 #include "cpgf/gsharedptr.h"
@@ -25,9 +26,9 @@ enum ObjectPointerCV {
 	opcvConstVolatile
 };
 
-enum ClassUserDataType {
+enum ObjectUserDataType {
 	cudtClass,
-	cudtNormal,
+	cudtObject,
 	cudtInterface
 };
 
@@ -73,12 +74,28 @@ private:
 
 typedef GSharedPointer<GScriptBindingParam> GBindingParamPointer;
 
-class GObjectData
+class GScriptDataStorage
 {
+private:
+	typedef std::map<std::string, GVariant> MapType;
+
 public:
-	GObjectData();
+	void setScriptValue(const char * name, const GVariant & value);
+
+protected:
+	IScriptFunction * getScriptFunction(const char * name);
+
+private:
+	GScopedPointer<MapType> dataMap;
+};
+
+class GObjectData : public GNoncopyable, public IScriptDataStorage
+{
+	G_INTERFACE_IMPL_OBJECT
+
+public:
 	GObjectData(IMetaClass * metaClass, void * instance,
-		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
+		bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType);
 	~GObjectData();
 
 	IMetaClass * getMetaClass() const {
@@ -105,9 +122,12 @@ public:
 		return this->cv;
 	}
 
-	ClassUserDataType getDataType() const {
+	ObjectUserDataType getDataType() const {
 		return this->dataType;
 	}
+
+protected:
+	virtual IScriptFunction * G_API_CC getScriptFunction(const char * name);
 
 private:
 	GSharedInterface<IMetaClass> metaClass;
@@ -115,7 +135,7 @@ private:
 	GSharedInterface<IObject> interfaceObject;
 	bool allowGC;
 	ObjectPointerCV cv;
-	ClassUserDataType dataType;
+	ObjectUserDataType dataType;
 };
 
 typedef GSharedPointer<GObjectData> GSharedObjectData;
@@ -179,7 +199,7 @@ private:
 
 public:
 	GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance,
-		bool allowGC, ObjectPointerCV cv, ClassUserDataType dataType);
+		bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType);
 	GObjectUserData(const GBindingParamPointer & param, const GSharedObjectData & data);
 
 	const GSharedObjectData & getObjectData() const {
@@ -393,7 +413,7 @@ private:
 	GMethodData methodData;
 };
 
-class GMetaMapClass
+class GMetaMapClass : public GNoncopyable
 {
 public:
 	typedef std::map<const char *, GMetaMapItem, meta_internal::CStringCompare> MapType;
@@ -511,6 +531,7 @@ GObjectData * getObjectData(const GObjectUserData * objectUserData);
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 
+bool doSetFieldValue(GObjectUserData * userData, const char * name, const GVariant & value);
 
 template <typename Getter, typename Predict>
 int findAppropriateCallable(IMetaService * service,
@@ -555,7 +576,7 @@ bool variantToScript(typename Methods::ResultType * result,
 
 				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
 				void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-				*result = Methods::doObjectToScript(param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type), cudtNormal);
+				*result = Methods::doObjectToScript(param, instance, gdynamic_cast<IMetaClass *>(typedItem.get()), true, metaTypeToCV(type), cudtObject);
 				return true;
 			}
 
@@ -569,7 +590,7 @@ bool variantToScript(typename Methods::ResultType * result,
 					return true;
 				}
 				else {
-					*result = Methods::doObjectToScript(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type), cudtNormal);
+					*result = Methods::doObjectToScript(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type), cudtObject);
 					return true;
 				}
 			}
