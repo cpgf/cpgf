@@ -26,7 +26,7 @@ public:
 	void setScriptDataStorage(IScriptDataStorage * scriptDataStorage);
 
 private:
-	IScriptDataStorage * scriptDataStorage;
+	GSharedInterface<IScriptDataStorage> scriptDataStorage;
 };
 
 

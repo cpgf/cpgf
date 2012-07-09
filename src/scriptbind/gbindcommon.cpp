@@ -79,6 +79,48 @@ IScriptFunction * GScriptDataStorage::getScriptFunction(const char * name)
 }
 
 
+GScriptDataExtendStorage::GScriptDataExtendStorage(GScriptBindingParam * param, IMetaClass * metaClass, bool isInstance)
+	: param(param), metaClass(metaClass), isInstance(isInstance)
+{
+}
+
+void GScriptDataExtendStorage::setScriptValue(const char * name, const GVariant & value)
+{
+	GScriptDataStorage * storage = NULL;
+	if(! this->isInstance) {
+		GMetaMapClass * mapClass = this->param->getMetaMap()->findClassMap(this->metaClass.get());
+		storage = mapClass->getDataStorage();
+	}
+	else {
+		if(! this->dataStorage) {
+			this->dataStorage.reset(new GScriptDataStorage());
+		}
+		storage = this->dataStorage.get();
+	}
+	storage->setScriptValue(name, value);
+}
+
+IScriptFunction * G_API_CC GScriptDataExtendStorage::getScriptFunction(const char * name)
+{
+	IScriptFunction * func = NULL;
+	
+	if(this->isInstance) {
+		if(this->dataStorage) {
+			func = this->dataStorage->getScriptFunction(name);
+		}
+	}
+
+	if(func == NULL) {
+		GMetaMapClass * mapClass = this->param->getMetaMap()->findClassMap(this->metaClass.get());
+		if(mapClass->hasDataStorage()) {
+			func = mapClass->getDataStorage()->getScriptFunction(name);;
+		}
+	}
+
+	return func;
+}
+
+
 GObjectData::GObjectData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance,
 	bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
 	: param(param), metaClass(metaClass), instance(instance), allowGC(allowGC), cv(cv), dataType(dataType)
@@ -96,7 +138,7 @@ GObjectData::GObjectData(GScriptBindingParam * param, IMetaClass * metaClass, vo
 	if(this->isInstance()) {
 		GScopedInterface<IMetaScriptWrapper> scriptWrapper(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_ScriptWrapper).getScriptWrapper());
 		if(scriptWrapper) {
-			scriptWrapper->setScriptDataStorage(instance, this);
+			scriptWrapper->setScriptDataStorage(instance, this->getDataStorage());
 		}
 	}
 }
@@ -110,44 +152,17 @@ GObjectData::~GObjectData()
 	}
 }
 
-GScriptDataStorage * GObjectData::getAppropriateDataStorage() const
+IScriptDataExtendStorage * GObjectData::getDataStorage() const
 {
-	if(! this->isInstance()) {
-		GMetaMapClass * mapClass = this->param->getMetaMap()->findClassMap(this->metaClass.get());
-		return mapClass->getDataStorage();
+	if(! this->dataStorage) {
+		this->dataStorage.reset(new GScriptDataExtendStorage(this->param, this->metaClass.get(), this->isInstance()));
 	}
-	else {
-		if(! this->dataStorage) {
-			this->dataStorage.reset(new GScriptDataStorage());
-		}
-		return this->dataStorage.get();
-	}
+	return this->dataStorage.get();
 }
 
 void GObjectData::setScriptValue(const char * name, const GVariant & value)
 {
-	GScriptDataStorage * storage = this->getAppropriateDataStorage();
-	storage->setScriptValue(name, value);
-}
-
-IScriptFunction * G_API_CC GObjectData::getScriptFunction(const char * name)
-{
-	IScriptFunction * func = NULL;
-	
-	if(this->isInstance()) {
-		if(this->dataStorage) {
-			func = this->dataStorage->getScriptFunction(name);
-		}
-	}
-
-	if(func == NULL) {
-		GMetaMapClass * mapClass = this->param->getMetaMap()->findClassMap(this->metaClass.get());
-		if(mapClass->hasDataStorage()) {
-			func = mapClass->getDataStorage()->getScriptFunction(name);;
-		}
-	}
-
-	return func;
+	this->getDataStorage()->setScriptValue(name, value);
 }
 
 

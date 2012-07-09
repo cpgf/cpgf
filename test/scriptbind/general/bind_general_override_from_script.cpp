@@ -2,6 +2,7 @@
 
 #include "cpgf/scriptbind/gscriptbindutil.h"
 
+
 #include <iostream>
 using namespace std;
 
@@ -26,9 +27,7 @@ void doTestOverrideCppFunctionFromScriptClass(T * binding, TestScriptContext * c
 	QDO(ScriptOverride.getValue = funcOverride)
 	QASSERT(a.getValue() == 18);
 
-if(context->isPython()) return;
 	ScriptOverride * objA = static_cast<ScriptOverride *>(binding->getObject("a"));
-cout << typeid(objA).name() << endl;
 	GEQUAL(18, objA->getValue());
 }
 
@@ -68,6 +67,10 @@ void doTestOverrideCppFunctionFromScriptObject(T * binding, TestScriptContext * 
 	QASSERT(a.getValue() == 1);
 	QDO(a.getValue = funcOverride)
 	QASSERT(a.getValue() == 38);
+
+//	ScriptOverride * objA = static_cast<ScriptOverride *>(binding->getObject("a"));
+//cout << objA->getValue() << endl;
+//	GEQUAL(38, objA->getValue());
 }
 
 void testOverrideCppFunctionFromScriptObject(TestScriptContext * context)

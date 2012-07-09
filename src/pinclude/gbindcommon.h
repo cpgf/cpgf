@@ -87,7 +87,31 @@ private:
 	GScopedPointer<MapType> dataMap;
 };
 
-class GObjectData : public GNoncopyable, public IScriptDataStorage
+struct IScriptDataExtendStorage : public IScriptDataStorage
+{
+	// This is internal interface, so we don't need to keep API compatible.
+	virtual void setScriptValue(const char * name, const GVariant & value) = 0;
+};
+
+class GScriptDataExtendStorage : public IScriptDataExtendStorage
+{
+	G_INTERFACE_IMPL_OBJECT
+
+public:
+	GScriptDataExtendStorage(GScriptBindingParam * param, IMetaClass * metaClass, bool isInstance);
+
+protected:
+	void setScriptValue(const char * name, const GVariant & value);
+	virtual IScriptFunction * G_API_CC getScriptFunction(const char * name);
+
+private:
+	GScriptBindingParam * param;
+	GSharedInterface<IMetaClass> metaClass;
+	bool isInstance;
+	mutable GScopedPointer<GScriptDataStorage> dataStorage;
+};
+
+class GObjectData : public GNoncopyable
 {
 	G_INTERFACE_IMPL_OBJECT
 
@@ -127,9 +151,7 @@ public:
 	void setScriptValue(const char * name, const GVariant & value);
 
 protected:
-	virtual IScriptFunction * G_API_CC getScriptFunction(const char * name);
-
-	GScriptDataStorage * getAppropriateDataStorage() const;
+	IScriptDataExtendStorage * getDataStorage() const;
 
 private:
 	GScriptBindingParam * param;
@@ -139,7 +161,7 @@ private:
 	bool allowGC;
 	ObjectPointerCV cv;
 	ObjectUserDataType dataType;
-	mutable GScopedPointer<GScriptDataStorage> dataStorage;
+	mutable GScopedInterface<IScriptDataExtendStorage> dataStorage;
 };
 
 typedef GSharedPointer<GObjectData> GSharedObjectData;

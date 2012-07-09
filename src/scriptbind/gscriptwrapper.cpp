@@ -24,7 +24,7 @@ IScriptFunction * GScriptWrapper::getScriptFunction(const char * name)
 
 void GScriptWrapper::setScriptDataStorage(IScriptDataStorage * scriptDataStorage)
 {
-	this->scriptDataStorage = scriptDataStorage;
+	this->scriptDataStorage.reset(scriptDataStorage);
 }
 
 
