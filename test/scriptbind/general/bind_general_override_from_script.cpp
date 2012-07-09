@@ -2,11 +2,14 @@
 
 #include "cpgf/scriptbind/gscriptbindutil.h"
 
+#include <iostream>
+using namespace std;
+
 namespace {
 
 
 template <typename T>
-void doTestOverrideCppFunctionFromScriptClass(T * , TestScriptContext * context)
+void doTestOverrideCppFunctionFromScriptClass(T * binding, TestScriptContext * context)
 {
 	if(context->isLua()) {
 		QDO(function funcOverride(my) return 18 end)
@@ -22,6 +25,11 @@ void doTestOverrideCppFunctionFromScriptClass(T * , TestScriptContext * context)
 	QASSERT(a.getValue() == 1);
 	QDO(ScriptOverride.getValue = funcOverride)
 	QASSERT(a.getValue() == 18);
+
+if(context->isPython()) return;
+	ScriptOverride * objA = static_cast<ScriptOverride *>(binding->getObject("a"));
+cout << typeid(objA).name() << endl;
+	GEQUAL(18, objA->getValue());
 }
 
 void testOverrideCppFunctionFromScriptClass(TestScriptContext * context)
@@ -44,7 +52,7 @@ void testOverrideCppFunctionFromScriptClass(TestScriptContext * context)
 
 
 template <typename T>
-void doTestOverrideCppFunctionFromScriptObject(T * , TestScriptContext * context)
+void doTestOverrideCppFunctionFromScriptObject(T * binding, TestScriptContext * context)
 {
 	if(context->isLua()) {
 		QDO(function funcOverride(my) return 38 end)

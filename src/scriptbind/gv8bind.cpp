@@ -1184,7 +1184,7 @@ void accessorNamedMemberSetter(Local<String> prop, Local<Value> value, const Acc
 	namedEnumSetter(prop, value, info);
 }
 
-void bindClassItems(Local<Object> object, const GBindingParamPointer & param, IMetaClass * metaClass, bool allowStatic, bool allowMember)
+void bindClassItems(Local<Object> object, const GBindingParamPointer & param, IMetaClass * metaClass)
 {
 	GObjectUserData * userData = new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass);
 	void * key = addUserDataToPool(param, userData);
@@ -1195,7 +1195,7 @@ void bindClassItems(Local<Object> object, const GBindingParamPointer & param, IM
 	uint32_t count = metaClass->getMetaCount();
 	for(uint32_t i = 0; i < count; ++i) {
 		item.reset(metaClass->getMetaAt(i));
-		if(allowStatic && item->isStatic()) {
+		if(item->isStatic()) {
 			object->SetAccessor(String::New(item->getName()), &staticMemberGetter, &staticMemberSetter, data);
 			if(metaIsEnum(item->getCategory())) {
 				IMetaEnum * metaEnum = gdynamic_cast<IMetaEnum *>(item.get());
@@ -1206,8 +1206,9 @@ void bindClassItems(Local<Object> object, const GBindingParamPointer & param, IM
 			}
 		}
 		else {
-			if(allowMember && !item->isStatic()) {
-				object->SetAccessor(String::New(item->getName()), &namedMemberGetter, &accessorNamedMemberSetter, data);
+			// to allow override method with script function
+			if(metaIsMethod(item->getCategory())) {
+				object->SetAccessor(String::New(item->getName()), NULL, &staticMemberSetter, data);
 			}
 		}
 	}
@@ -1304,7 +1305,7 @@ Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param,
 
 	Local<Function> classFunction = functionTemplate->GetFunction();
 	setObjectSignature(&classFunction);
-	bindClassItems(classFunction, param, metaClass, true, false);
+	bindClassItems(classFunction, param, metaClass);
 //	functionTemplate->PrototypeTemplate()->SetNamedPropertyHandler(&namedMemberGetter, &namedMemberSetter, NULL, NULL, &namedMemberEnumerator);
 
 	GObjectUserData * classUserData = new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass);
