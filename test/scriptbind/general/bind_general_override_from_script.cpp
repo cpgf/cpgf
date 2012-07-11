@@ -1,10 +1,8 @@
+#include "../testscriptbindmetadata5.h"
 #include "../testscriptbind.h"
 
 #include "cpgf/scriptbind/gscriptbindutil.h"
 
-
-#include <iostream>
-using namespace std;
 
 namespace {
 
@@ -13,17 +11,17 @@ template <typename T>
 void doTestOverrideCppFunctionFromScriptClass(T * binding, TestScriptContext * context)
 {
 	if(context->isLua()) {
-		QDO(function funcOverride(my) return 18 end)
+		QDO(function funcOverride(me) return me.n + 15 end)
 	}
 	if(context->isV8()) {
-		QDO(function funcOverride(my) { return 18; })
+		QDO(function funcOverride(me) { return me.n + 15; })
 	}
 	if(context->isPython()) {
-		QDO(def funcOverride(my): return 18)
+		QDO(def funcOverride(me): return me.n + 15)
 	}
 
-	QNEWOBJ(a, ScriptOverride())
-	QASSERT(a.getValue() == 1);
+	QNEWOBJ(a, ScriptOverride(3))
+	QASSERT(a.getValue() == 3);
 	QDO(ScriptOverride.getValue = funcOverride)
 	QASSERT(a.getValue() == 18);
 
@@ -54,23 +52,34 @@ template <typename T>
 void doTestOverrideCppFunctionFromScriptObject(T * binding, TestScriptContext * context)
 {
 	if(context->isLua()) {
-		QDO(function funcOverride(my) return 38 end)
+		QDO(function funcOverrideA(me) return 38 end)
+		QDO(function funcOverrideB(me) return 18 end)
 	}
 	if(context->isV8()) {
-		QDO(function funcOverride(my) { return 38; })
+		QDO(function funcOverrideA(me) { return 38; })
+		QDO(function funcOverrideB(me) { return 18; })
 	}
 	if(context->isPython()) {
-		QDO(def funcOverride(my): return 38)
+		QDO(def funcOverrideA(me): return 38)
+		QDO(def funcOverrideB(me): return 18)
 	}
 
 	QNEWOBJ(a, ScriptOverride())
 	QASSERT(a.getValue() == 1);
-	QDO(a.getValue = funcOverride)
-	QASSERT(a.getValue() == 38);
+	QDO(a.getValue = funcOverrideA)
 
-//	ScriptOverride * objA = static_cast<ScriptOverride *>(binding->getObject("a"));
-//cout << objA->getValue() << endl;
-//	GEQUAL(38, objA->getValue());
+	QNEWOBJ(b, ScriptOverride())
+	QASSERT(b.getValue() == 1);
+	QDO(b.getValue = funcOverrideB)
+
+	QASSERT(a.getValue() == 38);
+	QASSERT(b.getValue() == 18);
+
+	ScriptOverrideBase * objA = static_cast<ScriptOverrideBase *>(static_cast<ScriptOverride *>(binding->getObject("a")));
+	GEQUAL(38, objA->getValue());
+
+	ScriptOverride * objB = static_cast<ScriptOverride *>(binding->getObject("b"));
+	GEQUAL(18, objB->getValue());
 }
 
 void testOverrideCppFunctionFromScriptObject(TestScriptContext * context)

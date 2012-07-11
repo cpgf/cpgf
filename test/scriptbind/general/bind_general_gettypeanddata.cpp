@@ -1,4 +1,5 @@
 #include "../testscriptbind.h"
+#include "../testscriptbindmetadata2.h"
 
 
 #define RITEM tempItem = (IMetaTypedItem *)100

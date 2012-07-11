@@ -1,3 +1,6 @@
+TBD version 1.4.5
+	In script binding, now script function cans override C++ functions.
+
 2012-07-07 version 1.4.4
 	Script binding supports wide string (wchar_t *) in method parameters and return value.
 	vtByteArray is removed from GVariant.

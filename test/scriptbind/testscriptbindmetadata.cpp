@@ -5,6 +5,7 @@
 #include "cpgf/goutmain.h"
 
 #include "testscriptbindmetadata.h"
+#include "testscriptbindmetadata2.h"
 
 #include <string>
 #include <iostream>

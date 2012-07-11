@@ -1,4 +1,5 @@
-#include "testscriptbindmetadata.h"
+#include "testscriptbindmetadata5.h"
+#include "bind_common.h"
 #include "cpgf/gmetadefine.h"
 
 using namespace cpgf;
@@ -21,7 +22,9 @@ void TestScriptBindMetaData5()
 {
 	GDefineMetaClass<ScriptOverride>
 		::define("testscript::ScriptOverride")
+		._constructor<void * (int)>()
 		._method("getValue", &ScriptOverride::getValue)
+		._field("n", &ScriptOverride::n)
 	;
 }
 

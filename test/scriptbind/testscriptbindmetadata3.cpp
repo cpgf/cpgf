@@ -1,4 +1,4 @@
-#include "testscriptbindmetadata.h"
+#include "testscriptbindmetadata3.h"
 #include "cpgf/gmetadefine.h"
 
 using namespace cpgf;

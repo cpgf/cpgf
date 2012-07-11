@@ -1,4 +1,5 @@
-#include "testscriptbindmetadata.h"
+#include "testscriptbindmetadata4.h"
+#include "testscriptbindmetadata2.h"
 #include "cpgf/gmetadefine.h"
 
 #include "cpgf/gbytearray.h"

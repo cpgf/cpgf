@@ -1,4 +1,5 @@
 #include "../testscriptbind.h"
+#include "../testscriptbindmetadata2.h"
 
 #include "cpgf/scriptbind/gscriptbindutil.h"
 
