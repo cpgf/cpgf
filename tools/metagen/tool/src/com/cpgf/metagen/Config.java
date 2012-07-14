@@ -88,12 +88,14 @@ public class Config {
 	// All meta data will be put into the namespace (pseudo class).
 	// null for no namespace.
 	public String metaNamespace = null;
-	
+
 	public PredefinedClassTraitsList classTraits = new PredefinedClassTraitsList();
 	
 	public String[] predefinedTemplateInstances = {};
 	
 	// Not implemented yet. DON'T set it to true.
 	public boolean scriptable = false;
+	
+	public String scriptClassWrapperPostfix = "Wrapper";
 
 }

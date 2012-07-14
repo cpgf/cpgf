@@ -12,8 +12,12 @@ namespace meta_box2d {
 
 GDefineMetaInfo createMetaClass_B2ContactManager()
 {
-    GDefineMetaClass<b2ContactManager> _d = GDefineMetaClass<b2ContactManager>::declare("b2ContactManager");
-    buildMetaClass_B2ContactManager(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2ContactManager> _nd = GDefineMetaClass<b2ContactManager>::declare("b2ContactManager");
+        buildMetaClass_B2ContactManager(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

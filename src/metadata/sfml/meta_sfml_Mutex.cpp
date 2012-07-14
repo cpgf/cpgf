@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_Mutex()
 {
-    GDefineMetaClass<sf::Mutex> _d = GDefineMetaClass<sf::Mutex>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("Mutex");
-    buildMetaClass_Mutex(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Mutex> _nd = GDefineMetaClass<sf::Mutex>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("Mutex");
+        buildMetaClass_Mutex(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

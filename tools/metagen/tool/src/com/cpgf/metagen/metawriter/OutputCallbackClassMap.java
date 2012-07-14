@@ -43,9 +43,9 @@ public class OutputCallbackClassMap {
 			this.map.put(item, data);
 
 			String newLocation = item.getLocation();
-			
+
 			// If the location is changed, we must add all namespaces to the new location. 
-			if(!location.equals(newLocation)) {
+			if(! location.equals(newLocation)) {
 				FileInfo fileInfo = fileMap.getFileMap().get(location);
 				FileInfo newFileInfo = fileMap.getFileMap().get(newLocation);
 				if(newFileInfo != null && fileInfo != null) {

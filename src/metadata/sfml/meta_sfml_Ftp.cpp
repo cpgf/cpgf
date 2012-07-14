@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_Ftp()
 {
-    GDefineMetaClass<sf::Ftp> _d = GDefineMetaClass<sf::Ftp>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("Ftp");
-    buildMetaClass_Ftp(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Ftp> _nd = GDefineMetaClass<sf::Ftp>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("Ftp");
+        buildMetaClass_Ftp(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

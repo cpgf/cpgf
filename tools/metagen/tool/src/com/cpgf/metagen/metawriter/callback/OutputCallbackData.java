@@ -1,11 +1,13 @@
 package com.cpgf.metagen.metawriter.callback;
 
 import com.cpgf.metagen.Util;
+import com.cpgf.metagen.metadata.ClassWrapperConfig;
 
 public class OutputCallbackData {
 	private boolean skipBind;
 	private String headerCode;
 	private String sourceCode;
+	private ClassWrapperConfig wrapperConfig;
 	
 	public OutputCallbackData() {
 		this.skipBind = false;
@@ -19,7 +21,6 @@ public class OutputCallbackData {
 		this.skipBind = skipBind;
 	}
 	
-	// used by Javascript callback
 	public void trace(String message) {
 		Util.trace(message);
 	}
@@ -46,5 +47,16 @@ public class OutputCallbackData {
 
 	public String getSourceCode() {
 		return sourceCode;
+	}
+
+	public boolean wrapClass() {
+		return this.wrapperConfig != null && this.wrapperConfig.isWrapClass();
+	}
+	
+	public ClassWrapperConfig getWrapperConfig() {
+		if(this.wrapperConfig == null) {
+			this.wrapperConfig = new ClassWrapperConfig();
+		}
+		return this.wrapperConfig;
 	}
 }

@@ -12,16 +12,24 @@ namespace meta_box2d {
 
 GDefineMetaInfo createMetaClass_B2MouseJoint()
 {
-    GDefineMetaClass<b2MouseJoint, b2Joint> _d = GDefineMetaClass<b2MouseJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2MouseJoint");
-    buildMetaClass_B2MouseJoint(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2MouseJoint, b2Joint> _nd = GDefineMetaClass<b2MouseJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2MouseJoint");
+        buildMetaClass_B2MouseJoint(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2MouseJointDef()
 {
-    GDefineMetaClass<b2MouseJointDef, b2JointDef> _d = GDefineMetaClass<b2MouseJointDef, b2JointDef>::declare("b2MouseJointDef");
-    buildMetaClass_B2MouseJointDef(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2MouseJointDef, b2JointDef> _nd = GDefineMetaClass<b2MouseJointDef, b2JointDef>::declare("b2MouseJointDef");
+        buildMetaClass_B2MouseJointDef(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

@@ -32,6 +32,10 @@ public class ParsedType {
 		return baseType;
 	}
 	
+	public boolean isVoid() {
+		return this.literalType.equals("void");
+	}
+	
 	public String getNormalizedType() {
 		String result = "";
 		

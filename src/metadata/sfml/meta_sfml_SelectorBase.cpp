@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_SelectorBase()
 {
-    GDefineMetaClass<sf::SelectorBase> _d = GDefineMetaClass<sf::SelectorBase>::declare("SelectorBase");
-    buildMetaClass_SelectorBase(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::SelectorBase> _nd = GDefineMetaClass<sf::SelectorBase>::declare("SelectorBase");
+        buildMetaClass_SelectorBase(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

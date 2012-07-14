@@ -12,8 +12,12 @@ namespace meta_box2d {
 
 GDefineMetaInfo createMetaClass_B2PolygonShape()
 {
-    GDefineMetaClass<b2PolygonShape, b2Shape> _d = GDefineMetaClass<b2PolygonShape, b2Shape>::declare("b2PolygonShape");
-    buildMetaClass_B2PolygonShape(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2PolygonShape, b2Shape> _nd = GDefineMetaClass<b2PolygonShape, b2Shape>::declare("b2PolygonShape");
+        buildMetaClass_B2PolygonShape(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

@@ -20,16 +20,24 @@ GDefineMetaInfo createMetaClass_Global_b2body()
 
 GDefineMetaInfo createMetaClass_B2Body()
 {
-    GDefineMetaClass<b2Body> _d = GDefineMetaClass<b2Body>::Policy<MakePolicy<GMetaRuleDestructorAbsent, GMetaRuleDefaultConstructorAbsent> >::declare("b2Body");
-    buildMetaClass_B2Body(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2Body> _nd = GDefineMetaClass<b2Body>::Policy<MakePolicy<GMetaRuleDestructorAbsent, GMetaRuleDefaultConstructorAbsent> >::declare("b2Body");
+        buildMetaClass_B2Body(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2BodyDef()
 {
-    GDefineMetaClass<b2BodyDef> _d = GDefineMetaClass<b2BodyDef>::declare("b2BodyDef");
-    buildMetaClass_B2BodyDef(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2BodyDef> _nd = GDefineMetaClass<b2BodyDef>::declare("b2BodyDef");
+        buildMetaClass_B2BodyDef(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

@@ -25,8 +25,12 @@ GDefineMetaInfo createMetaClass_Global_sockethelper()
 
 GDefineMetaInfo createMetaClass_SocketHelper()
 {
-    GDefineMetaClass<sf::SocketHelper> _d = GDefineMetaClass<sf::SocketHelper>::declare("SocketHelper");
-    buildMetaClass_SocketHelper(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::SocketHelper> _nd = GDefineMetaClass<sf::SocketHelper>::declare("SocketHelper");
+        buildMetaClass_SocketHelper(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

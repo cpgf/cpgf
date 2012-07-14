@@ -12,8 +12,12 @@ namespace meta_box2d {
 
 GDefineMetaInfo createMetaClass_B2CircleShape()
 {
-    GDefineMetaClass<b2CircleShape, b2Shape> _d = GDefineMetaClass<b2CircleShape, b2Shape>::declare("b2CircleShape");
-    buildMetaClass_B2CircleShape(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2CircleShape, b2Shape> _nd = GDefineMetaClass<b2CircleShape, b2Shape>::declare("b2CircleShape");
+        buildMetaClass_B2CircleShape(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

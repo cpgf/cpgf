@@ -12,16 +12,24 @@ namespace meta_box2d {
 
 GDefineMetaInfo createMetaClass_B2PrismaticJoint()
 {
-    GDefineMetaClass<b2PrismaticJoint, b2Joint> _d = GDefineMetaClass<b2PrismaticJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2PrismaticJoint");
-    buildMetaClass_B2PrismaticJoint(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2PrismaticJoint, b2Joint> _nd = GDefineMetaClass<b2PrismaticJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2PrismaticJoint");
+        buildMetaClass_B2PrismaticJoint(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2PrismaticJointDef()
 {
-    GDefineMetaClass<b2PrismaticJointDef, b2JointDef> _d = GDefineMetaClass<b2PrismaticJointDef, b2JointDef>::declare("b2PrismaticJointDef");
-    buildMetaClass_B2PrismaticJointDef(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2PrismaticJointDef, b2JointDef> _nd = GDefineMetaClass<b2PrismaticJointDef, b2JointDef>::declare("b2PrismaticJointDef");
+        buildMetaClass_B2PrismaticJointDef(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

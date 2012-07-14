@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_Listener()
 {
-    GDefineMetaClass<sf::Listener> _d = GDefineMetaClass<sf::Listener>::declare("Listener");
-    buildMetaClass_Listener(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Listener> _nd = GDefineMetaClass<sf::Listener>::declare("Listener");
+        buildMetaClass_Listener(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

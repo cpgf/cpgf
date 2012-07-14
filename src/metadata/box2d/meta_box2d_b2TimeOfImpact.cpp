@@ -20,16 +20,24 @@ GDefineMetaInfo createMetaClass_Global_b2timeofimpact()
 
 GDefineMetaInfo createMetaClass_B2TOIInput()
 {
-    GDefineMetaClass<b2TOIInput> _d = GDefineMetaClass<b2TOIInput>::declare("b2TOIInput");
-    buildMetaClass_B2TOIInput(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2TOIInput> _nd = GDefineMetaClass<b2TOIInput>::declare("b2TOIInput");
+        buildMetaClass_B2TOIInput(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2TOIOutput()
 {
-    GDefineMetaClass<b2TOIOutput> _d = GDefineMetaClass<b2TOIOutput>::declare("b2TOIOutput");
-    buildMetaClass_B2TOIOutput(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2TOIOutput> _nd = GDefineMetaClass<b2TOIOutput>::declare("b2TOIOutput");
+        buildMetaClass_B2TOIOutput(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

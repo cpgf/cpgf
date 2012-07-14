@@ -25,8 +25,12 @@ GDefineMetaInfo createMetaClass_Global_color()
 
 GDefineMetaInfo createMetaClass_Color()
 {
-    GDefineMetaClass<sf::Color> _d = GDefineMetaClass<sf::Color>::declare("Color");
-    buildMetaClass_Color(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Color> _nd = GDefineMetaClass<sf::Color>::declare("Color");
+        buildMetaClass_Color(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

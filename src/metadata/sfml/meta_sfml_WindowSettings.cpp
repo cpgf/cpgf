@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_WindowSettings()
 {
-    GDefineMetaClass<sf::WindowSettings> _d = GDefineMetaClass<sf::WindowSettings>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("WindowSettings");
-    buildMetaClass_WindowSettings(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::WindowSettings> _nd = GDefineMetaClass<sf::WindowSettings>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("WindowSettings");
+        buildMetaClass_WindowSettings(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

@@ -22,6 +22,8 @@ public class MetaClassCodeGenerator {
 	private String sourceFileName;
 	
 	private String extraHeaderCodeInClass;
+	
+	private ClassWrapperWriter wrapperWriter;
 
 	public MetaClassCodeGenerator(Config config, MetaInfo metaInfo, CppClass cppClass, String sourceFileName) {
 		this.config = config;
@@ -232,9 +234,15 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 		this.beginMetaFunction(codeWriter, funcName, cppClass);
 		classWriter.write();
 		
-		codeWriter.writeLines(this.extraHeaderCodeInClass);
-		
+		codeWriter.writeMultipleLines(this.extraHeaderCodeInClass);
+
 		this.endMetaFunction(codeWriter);
+		
+		if(this.callbackData.wrapClass()) {
+			codeWriter.write("\n\n");
+			this.wrapperWriter = new ClassWrapperWriter(this.config, this.callbackData.getWrapperConfig(), codeWriter, this.cppClass);
+			this.wrapperWriter.writeClassWrapper();
+		}
 		
 		this.classCode.headerCode = this.appendText(this.classCode.headerCode, codeWriter.getText());
 	}
@@ -258,12 +266,27 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 			codeWriter.write(this.callbackData.getSourceCode() + "\n\n");
 		}
 
+		if(this.wrapperWriter != null) {
+			this.wrapperWriter.writeStaticInitializer(codeWriter);
+			codeWriter.writeLine("");
+		}
+
 		codeWriter.write("GDefineMetaInfo " + funcName + "()\n");
-		
+
 		codeWriter.beginBlock();
 
 		String callFunc = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
+
 		WriterUtil.createMetaClass(codeWriter, cppClass, callFunc, templateInstanceList);
+
+		if(this.wrapperWriter != null) {
+			codeWriter.beginBlock();
+			this.wrapperWriter.setCodeWriter(codeWriter);
+			this.wrapperWriter.writeCreation(callFunc);
+			codeWriter.endBlock();
+		}
+
+		codeWriter.write("return _d.getMetaInfo();\n");
 		
 		codeWriter.endBlock();
 

@@ -361,8 +361,10 @@ public class DoxygenXmlParser {
 					this.getType(child),
 					Util.getNodeText(Util.getNode(child, "defval")),
 					item
-				);
-			item.getParameterList().add(param);
+			);
+			if(! param.getType().isVoid()) {
+				item.getParameterList().add(param);
+			}
 		}
 	}
 	

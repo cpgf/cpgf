@@ -12,16 +12,24 @@ namespace meta_box2d {
 
 GDefineMetaInfo createMetaClass_B2FrictionJoint()
 {
-    GDefineMetaClass<b2FrictionJoint, b2Joint> _d = GDefineMetaClass<b2FrictionJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2FrictionJoint");
-    buildMetaClass_B2FrictionJoint(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2FrictionJoint, b2Joint> _nd = GDefineMetaClass<b2FrictionJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2FrictionJoint");
+        buildMetaClass_B2FrictionJoint(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2FrictionJointDef()
 {
-    GDefineMetaClass<b2FrictionJointDef, b2JointDef> _d = GDefineMetaClass<b2FrictionJointDef, b2JointDef>::declare("b2FrictionJointDef");
-    buildMetaClass_B2FrictionJointDef(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2FrictionJointDef, b2JointDef> _nd = GDefineMetaClass<b2FrictionJointDef, b2JointDef>::declare("b2FrictionJointDef");
+        buildMetaClass_B2FrictionJointDef(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

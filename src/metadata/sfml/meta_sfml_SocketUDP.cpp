@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_SocketUDP()
 {
-    GDefineMetaClass<sf::SocketUDP> _d = GDefineMetaClass<sf::SocketUDP>::declare("SocketUDP");
-    buildMetaClass_SocketUDP(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::SocketUDP> _nd = GDefineMetaClass<sf::SocketUDP>::declare("SocketUDP");
+        buildMetaClass_SocketUDP(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

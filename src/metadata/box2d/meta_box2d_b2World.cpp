@@ -12,8 +12,12 @@ namespace meta_box2d {
 
 GDefineMetaInfo createMetaClass_B2World()
 {
-    GDefineMetaClass<b2World> _d = GDefineMetaClass<b2World>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2World");
-    buildMetaClass_B2World(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2World> _nd = GDefineMetaClass<b2World>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2World");
+        buildMetaClass_B2World(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

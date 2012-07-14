@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_SocketTCP()
 {
-    GDefineMetaClass<sf::SocketTCP> _d = GDefineMetaClass<sf::SocketTCP>::declare("SocketTCP");
-    buildMetaClass_SocketTCP(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::SocketTCP> _nd = GDefineMetaClass<sf::SocketTCP>::declare("SocketTCP");
+        buildMetaClass_SocketTCP(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

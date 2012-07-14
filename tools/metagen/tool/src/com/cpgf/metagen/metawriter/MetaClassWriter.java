@@ -14,7 +14,6 @@ import com.cpgf.metagen.metadata.CppMethod;
 import com.cpgf.metagen.metadata.DeferClass;
 import com.cpgf.metagen.metadata.EnumCategory;
 import com.cpgf.metagen.metadata.EnumValue;
-import com.cpgf.metagen.metadata.EnumVisibility;
 import com.cpgf.metagen.metadata.Item;
 import com.cpgf.metagen.metadata.MetaInfo;
 import com.cpgf.metagen.metadata.Operator;
@@ -66,13 +65,6 @@ public class MetaClassWriter {
 		}
 	}
 
-	private boolean canWrite(Item item) {
-		return this.config.allowPublic && item.getVisibility() == EnumVisibility.Public
-				|| this.config.allowProtected && item.getVisibility() == EnumVisibility.Protected
-				|| this.config.allowPrivate && item.getVisibility() == EnumVisibility.Private
-		;
-	}
-
 	private String getAction(String name) {
 		return this.define + ".CPGF_MD_TEMPLATE " + name;
 	}
@@ -101,12 +93,12 @@ public class MetaClassWriter {
 	
 	private boolean shouldSkipItem(Item item)
 	{
-		return this.skipItem() || ! this.canWrite(item);
+		return this.skipItem() || ! Util.allowMetaData(this.config, item);
 	}
 
 	private boolean shouldSkipItem(ParameteredItem item)
 	{
-		return this.skipItem() || ! this.canWrite(item) || item.isTemplate();
+		return this.skipItem() || ! Util.allowMetaData(this.config, item) || item.isTemplate();
 	}
 	
 	public void write() {

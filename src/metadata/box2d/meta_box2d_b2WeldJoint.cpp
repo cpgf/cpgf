@@ -12,16 +12,24 @@ namespace meta_box2d {
 
 GDefineMetaInfo createMetaClass_B2WeldJoint()
 {
-    GDefineMetaClass<b2WeldJoint, b2Joint> _d = GDefineMetaClass<b2WeldJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2WeldJoint");
-    buildMetaClass_B2WeldJoint(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2WeldJoint, b2Joint> _nd = GDefineMetaClass<b2WeldJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2WeldJoint");
+        buildMetaClass_B2WeldJoint(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2WeldJointDef()
 {
-    GDefineMetaClass<b2WeldJointDef, b2JointDef> _d = GDefineMetaClass<b2WeldJointDef, b2JointDef>::declare("b2WeldJointDef");
-    buildMetaClass_B2WeldJointDef(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2WeldJointDef, b2JointDef> _nd = GDefineMetaClass<b2WeldJointDef, b2JointDef>::declare("b2WeldJointDef");
+        buildMetaClass_B2WeldJointDef(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

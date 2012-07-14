@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_VideoMode()
 {
-    GDefineMetaClass<sf::VideoMode> _d = GDefineMetaClass<sf::VideoMode>::declare("VideoMode");
-    buildMetaClass_VideoMode(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::VideoMode> _nd = GDefineMetaClass<sf::VideoMode>::declare("VideoMode");
+        buildMetaClass_VideoMode(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

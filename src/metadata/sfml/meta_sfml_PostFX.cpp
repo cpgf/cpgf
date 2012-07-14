@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_PostFX()
 {
-    GDefineMetaClass<sf::PostFX, sf::Drawable> _d = GDefineMetaClass<sf::PostFX, sf::Drawable>::declare("PostFX");
-    buildMetaClass_PostFX(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::PostFX, sf::Drawable> _nd = GDefineMetaClass<sf::PostFX, sf::Drawable>::declare("PostFX");
+        buildMetaClass_PostFX(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

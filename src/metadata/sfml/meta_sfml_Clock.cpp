@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_Clock()
 {
-    GDefineMetaClass<sf::Clock> _d = GDefineMetaClass<sf::Clock>::declare("Clock");
-    buildMetaClass_Clock(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Clock> _nd = GDefineMetaClass<sf::Clock>::declare("Clock");
+        buildMetaClass_Clock(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

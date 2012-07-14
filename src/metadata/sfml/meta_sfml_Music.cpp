@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_Music()
 {
-    GDefineMetaClass<sf::Music, sf::SoundStream> _d = GDefineMetaClass<sf::Music, sf::SoundStream>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("Music");
-    buildMetaClass_Music(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Music, sf::SoundStream> _nd = GDefineMetaClass<sf::Music, sf::SoundStream>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("Music");
+        buildMetaClass_Music(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

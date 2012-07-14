@@ -54,6 +54,10 @@ public class CppType {
 	public void setOwner(Item owner) {
 		this.owner = owner;
 	}
+	
+	public boolean isVoid() {
+		return this.parsedType.isVoid();
+	}
 
 	public boolean isConstValueReference() {
 		return ! this.parsedType.isPointer()

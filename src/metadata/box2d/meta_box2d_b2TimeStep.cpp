@@ -12,8 +12,12 @@ namespace meta_box2d {
 
 GDefineMetaInfo createMetaClass_B2TimeStep()
 {
-    GDefineMetaClass<b2TimeStep> _d = GDefineMetaClass<b2TimeStep>::declare("b2TimeStep");
-    buildMetaClass_B2TimeStep(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2TimeStep> _nd = GDefineMetaClass<b2TimeStep>::declare("b2TimeStep");
+        buildMetaClass_B2TimeStep(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

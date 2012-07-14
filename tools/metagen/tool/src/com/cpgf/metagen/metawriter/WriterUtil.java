@@ -98,9 +98,9 @@ public class WriterUtil {
 			if(rules != null && rules.size() > 0) {
 				policy = "::Policy<MakePolicy<" + Util.joinStringList(", ", rules) + "> >";
 			}
-			if(cppClass.isTemplate()) {
-				codeWriter.write("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();\n");
 
+			codeWriter.write("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();\n");
+			if(cppClass.isTemplate()) {
 				for(TemplateInstance templateInstance : templateInstanceList) {
 					codeWriter.beginBlock();
 					
@@ -117,16 +117,19 @@ public class WriterUtil {
 				}
 			}
 			else {
+				codeWriter.beginBlock();
+
 				String typeName = "GDefineMetaClass<" + cppClass.getLiteralName();
 				typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
 				typeName = typeName + ">";
-				codeWriter.write(typeName +  " _d = " + typeName + policy + "::declare(\"" + cppClass.getPrimaryName() + "\");\n");
+				codeWriter.write(typeName +  " _nd = " + typeName + policy + "::declare(\"" + cppClass.getPrimaryName() + "\");\n");
 				
-				codeWriter.write(callFunc + "(0, _d, NULL);\n");
+				codeWriter.write(callFunc + "(0, _nd, NULL);\n");
+				codeWriter.write("_d._class(_nd);\n");
+
+				codeWriter.endBlock();
 			}
 		}
-		
-		codeWriter.write("return _d.getMetaInfo();\n");
 	}
 	
 	public static String getPolicyText(Item item) {

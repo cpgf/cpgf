@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_Packet()
 {
-    GDefineMetaClass<sf::Packet> _d = GDefineMetaClass<sf::Packet>::declare("Packet");
-    buildMetaClass_Packet(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Packet> _nd = GDefineMetaClass<sf::Packet>::declare("Packet");
+        buildMetaClass_Packet(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

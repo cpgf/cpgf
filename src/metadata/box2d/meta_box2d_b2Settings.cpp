@@ -20,8 +20,12 @@ GDefineMetaInfo createMetaClass_Global_b2settings()
 
 GDefineMetaInfo createMetaClass_B2Version()
 {
-    GDefineMetaClass<b2Version> _d = GDefineMetaClass<b2Version>::declare("b2Version");
-    buildMetaClass_B2Version(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2Version> _nd = GDefineMetaClass<b2Version>::declare("b2Version");
+        buildMetaClass_B2Version(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

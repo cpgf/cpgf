@@ -12,16 +12,24 @@ namespace meta_box2d {
 
 GDefineMetaInfo createMetaClass_B2GearJoint()
 {
-    GDefineMetaClass<b2GearJoint, b2Joint> _d = GDefineMetaClass<b2GearJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2GearJoint");
-    buildMetaClass_B2GearJoint(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2GearJoint, b2Joint> _nd = GDefineMetaClass<b2GearJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2GearJoint");
+        buildMetaClass_B2GearJoint(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2GearJointDef()
 {
-    GDefineMetaClass<b2GearJointDef, b2JointDef> _d = GDefineMetaClass<b2GearJointDef, b2JointDef>::declare("b2GearJointDef");
-    buildMetaClass_B2GearJointDef(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2GearJointDef, b2JointDef> _nd = GDefineMetaClass<b2GearJointDef, b2JointDef>::declare("b2GearJointDef");
+        buildMetaClass_B2GearJointDef(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

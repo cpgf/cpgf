@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_Unicode()
 {
-    GDefineMetaClass<sf::Unicode> _d = GDefineMetaClass<sf::Unicode>::declare("Unicode");
-    buildMetaClass_Unicode(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Unicode> _nd = GDefineMetaClass<sf::Unicode>::declare("Unicode");
+        buildMetaClass_Unicode(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

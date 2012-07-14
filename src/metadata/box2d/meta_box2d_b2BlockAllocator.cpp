@@ -20,8 +20,12 @@ GDefineMetaInfo createMetaClass_Global_b2blockallocator()
 
 GDefineMetaInfo createMetaClass_B2BlockAllocator()
 {
-    GDefineMetaClass<b2BlockAllocator> _d = GDefineMetaClass<b2BlockAllocator>::declare("b2BlockAllocator");
-    buildMetaClass_B2BlockAllocator(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2BlockAllocator> _nd = GDefineMetaClass<b2BlockAllocator>::declare("b2BlockAllocator");
+        buildMetaClass_B2BlockAllocator(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

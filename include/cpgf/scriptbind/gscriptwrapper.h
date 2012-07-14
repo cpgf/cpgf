@@ -29,6 +29,20 @@ private:
 	GSharedInterface<IScriptDataStorage> scriptDataStorage;
 };
 
+class GScriptWrapperReentryGuard
+{
+public:
+	explicit GScriptWrapperReentryGuard(bool * sentinel) : sentinel(sentinel) {
+		*sentinel = false;
+	}
+
+	~GScriptWrapperReentryGuard() {
+		*sentinel = true;
+	}
+
+private:
+	bool * sentinel;
+};
 
 namespace scriptbind_internal {
 

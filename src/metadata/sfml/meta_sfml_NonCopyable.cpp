@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_NonCopyable()
 {
-    GDefineMetaClass<sf::NonCopyable> _d = GDefineMetaClass<sf::NonCopyable>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("NonCopyable");
-    buildMetaClass_NonCopyable(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::NonCopyable> _nd = GDefineMetaClass<sf::NonCopyable>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("NonCopyable");
+        buildMetaClass_NonCopyable(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

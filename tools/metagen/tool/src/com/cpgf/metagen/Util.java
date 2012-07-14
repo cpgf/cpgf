@@ -315,7 +315,7 @@ public class Util {
 			if(withType) {
 				result = result + param.getType().getLiteralType();
 			}
-			if(withName) {
+			if(withName && param.getName() != null) {
 				if(withType) {
 					result = result + " ";
 				}
@@ -404,6 +404,13 @@ public class Util {
 		else {
 			return matcher.replaceFirst(replacer);
 		}
+	}
+
+	public static boolean allowMetaData(Config config, Item item) {
+		return config.allowPublic && item.getVisibility() == EnumVisibility.Public
+				|| config.allowProtected && item.getVisibility() == EnumVisibility.Protected
+				|| config.allowPrivate && item.getVisibility() == EnumVisibility.Private
+		;
 	}
 	
 }

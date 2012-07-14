@@ -20,16 +20,24 @@ GDefineMetaInfo createMetaClass_Global_b2pulleyjoint()
 
 GDefineMetaInfo createMetaClass_B2PulleyJoint()
 {
-    GDefineMetaClass<b2PulleyJoint, b2Joint> _d = GDefineMetaClass<b2PulleyJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2PulleyJoint");
-    buildMetaClass_B2PulleyJoint(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2PulleyJoint, b2Joint> _nd = GDefineMetaClass<b2PulleyJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2PulleyJoint");
+        buildMetaClass_B2PulleyJoint(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2PulleyJointDef()
 {
-    GDefineMetaClass<b2PulleyJointDef, b2JointDef> _d = GDefineMetaClass<b2PulleyJointDef, b2JointDef>::declare("b2PulleyJointDef");
-    buildMetaClass_B2PulleyJointDef(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2PulleyJointDef, b2JointDef> _nd = GDefineMetaClass<b2PulleyJointDef, b2JointDef>::declare("b2PulleyJointDef");
+        buildMetaClass_B2PulleyJointDef(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

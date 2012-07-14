@@ -64,4 +64,9 @@ public class CppWriter extends CodeWriter {
 		this.write("}\n");
 	}
 
+	public void endBlock(String append) {
+		this.decIndent();
+		this.write("}" + append + "\n");
+	}
+
 }

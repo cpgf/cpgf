@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_SoundBufferRecorder()
 {
-    GDefineMetaClass<sf::SoundBufferRecorder, sf::SoundRecorder> _d = GDefineMetaClass<sf::SoundBufferRecorder, sf::SoundRecorder>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("SoundBufferRecorder");
-    buildMetaClass_SoundBufferRecorder(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::SoundBufferRecorder, sf::SoundRecorder> _nd = GDefineMetaClass<sf::SoundBufferRecorder, sf::SoundRecorder>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("SoundBufferRecorder");
+        buildMetaClass_SoundBufferRecorder(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

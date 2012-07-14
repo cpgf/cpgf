@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_Shape()
 {
-    GDefineMetaClass<sf::Shape, sf::Drawable> _d = GDefineMetaClass<sf::Shape, sf::Drawable>::declare("Shape");
-    buildMetaClass_Shape(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Shape, sf::Drawable> _nd = GDefineMetaClass<sf::Shape, sf::Drawable>::declare("Shape");
+        buildMetaClass_Shape(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

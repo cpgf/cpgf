@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_Context()
 {
-    GDefineMetaClass<sf::Context> _d = GDefineMetaClass<sf::Context>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("Context");
-    buildMetaClass_Context(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Context> _nd = GDefineMetaClass<sf::Context>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("Context");
+        buildMetaClass_Context(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

@@ -20,16 +20,24 @@ GDefineMetaInfo createMetaClass_Global_b2stackallocator()
 
 GDefineMetaInfo createMetaClass_B2StackAllocator()
 {
-    GDefineMetaClass<b2StackAllocator> _d = GDefineMetaClass<b2StackAllocator>::declare("b2StackAllocator");
-    buildMetaClass_B2StackAllocator(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2StackAllocator> _nd = GDefineMetaClass<b2StackAllocator>::declare("b2StackAllocator");
+        buildMetaClass_B2StackAllocator(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2StackEntry()
 {
-    GDefineMetaClass<b2StackEntry> _d = GDefineMetaClass<b2StackEntry>::declare("b2StackEntry");
-    buildMetaClass_B2StackEntry(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2StackEntry> _nd = GDefineMetaClass<b2StackEntry>::declare("b2StackEntry");
+        buildMetaClass_B2StackEntry(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

@@ -34,8 +34,12 @@ Uint32 cpgf_meta_ourDefaultCharset[] = {
 
 GDefineMetaInfo createMetaClass_Font()
 {
-    GDefineMetaClass<sf::Font, sf::Resource< Font >> _d = GDefineMetaClass<sf::Font, sf::Resource< Font >>::declare("Font");
-    buildMetaClass_Font(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Font, sf::Resource< Font >> _nd = GDefineMetaClass<sf::Font, sf::Resource< Font >>::declare("Font");
+        buildMetaClass_Font(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

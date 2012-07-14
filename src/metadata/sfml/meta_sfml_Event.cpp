@@ -25,8 +25,12 @@ GDefineMetaInfo createMetaClass_Global_event()
 
 GDefineMetaInfo createMetaClass_Event()
 {
-    GDefineMetaClass<sf::Event> _d = GDefineMetaClass<sf::Event>::declare("Event");
-    buildMetaClass_Event(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Event> _nd = GDefineMetaClass<sf::Event>::declare("Event");
+        buildMetaClass_Event(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

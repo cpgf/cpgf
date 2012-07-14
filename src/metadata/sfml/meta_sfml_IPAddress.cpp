@@ -25,8 +25,12 @@ GDefineMetaInfo createMetaClass_Global_ipaddress()
 
 GDefineMetaInfo createMetaClass_IPAddress()
 {
-    GDefineMetaClass<sf::IPAddress> _d = GDefineMetaClass<sf::IPAddress>::declare("IPAddress");
-    buildMetaClass_IPAddress(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::IPAddress> _nd = GDefineMetaClass<sf::IPAddress>::declare("IPAddress");
+        buildMetaClass_IPAddress(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

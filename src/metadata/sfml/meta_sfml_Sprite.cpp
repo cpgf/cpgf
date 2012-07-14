@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_Sprite()
 {
-    GDefineMetaClass<sf::Sprite, sf::Drawable> _d = GDefineMetaClass<sf::Sprite, sf::Drawable>::declare("Sprite");
-    buildMetaClass_Sprite(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Sprite, sf::Drawable> _nd = GDefineMetaClass<sf::Sprite, sf::Drawable>::declare("Sprite");
+        buildMetaClass_Sprite(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

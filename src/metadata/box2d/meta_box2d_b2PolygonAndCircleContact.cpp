@@ -12,8 +12,12 @@ namespace meta_box2d {
 
 GDefineMetaInfo createMetaClass_B2PolygonAndCircleContact()
 {
-    GDefineMetaClass<b2PolygonAndCircleContact, b2Contact> _d = GDefineMetaClass<b2PolygonAndCircleContact, b2Contact>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2PolygonAndCircleContact");
-    buildMetaClass_B2PolygonAndCircleContact(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2PolygonAndCircleContact, b2Contact> _nd = GDefineMetaClass<b2PolygonAndCircleContact, b2Contact>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2PolygonAndCircleContact");
+        buildMetaClass_B2PolygonAndCircleContact(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

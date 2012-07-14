@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_RenderWindow()
 {
-    GDefineMetaClass<sf::RenderWindow, sf::Window, sf::RenderTarget> _d = GDefineMetaClass<sf::RenderWindow, sf::Window, sf::RenderTarget>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("RenderWindow");
-    buildMetaClass_RenderWindow(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::RenderWindow, sf::Window, sf::RenderTarget> _nd = GDefineMetaClass<sf::RenderWindow, sf::Window, sf::RenderTarget>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("RenderWindow");
+        buildMetaClass_RenderWindow(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

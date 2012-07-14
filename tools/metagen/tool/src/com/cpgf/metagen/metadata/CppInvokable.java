@@ -22,6 +22,10 @@ public class CppInvokable extends ParameteredItem {
 	public void setResultType(CppType resultType) {
 		this.resultType = resultType;
 	}
+	
+	public boolean hasResult() {
+		return ! this.resultType.isVoid();
+	}
 
 	@Override
 	public void getPolicyRules(List<String> rules) {

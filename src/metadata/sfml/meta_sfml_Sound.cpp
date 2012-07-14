@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_Sound()
 {
-    GDefineMetaClass<sf::Sound, sf::AudioResource> _d = GDefineMetaClass<sf::Sound, sf::AudioResource>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("Sound");
-    buildMetaClass_Sound(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Sound, sf::AudioResource> _nd = GDefineMetaClass<sf::Sound, sf::AudioResource>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("Sound");
+        buildMetaClass_Sound(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

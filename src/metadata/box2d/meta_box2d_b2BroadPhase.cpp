@@ -20,16 +20,24 @@ GDefineMetaInfo createMetaClass_Global_b2broadphase()
 
 GDefineMetaInfo createMetaClass_B2BroadPhase()
 {
-    GDefineMetaClass<b2BroadPhase> _d = GDefineMetaClass<b2BroadPhase>::declare("b2BroadPhase");
-    buildMetaClass_B2BroadPhase(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2BroadPhase> _nd = GDefineMetaClass<b2BroadPhase>::declare("b2BroadPhase");
+        buildMetaClass_B2BroadPhase(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2Pair()
 {
-    GDefineMetaClass<b2Pair> _d = GDefineMetaClass<b2Pair>::declare("b2Pair");
-    buildMetaClass_B2Pair(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2Pair> _nd = GDefineMetaClass<b2Pair>::declare("b2Pair");
+        buildMetaClass_B2Pair(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

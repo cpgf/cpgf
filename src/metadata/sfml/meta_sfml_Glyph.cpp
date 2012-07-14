@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_Glyph()
 {
-    GDefineMetaClass<sf::Glyph> _d = GDefineMetaClass<sf::Glyph>::declare("Glyph");
-    buildMetaClass_Glyph(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Glyph> _nd = GDefineMetaClass<sf::Glyph>::declare("Glyph");
+        buildMetaClass_Glyph(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

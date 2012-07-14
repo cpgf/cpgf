@@ -43,7 +43,11 @@ public class CodeWriter {
 		this.text = this.text + s;
 	}
 	
-	public void writeLines(String s) {
+	public void writeLine(String s) {
+		this.write(s + "\n");
+	}
+	
+	public void writeMultipleLines(String s) {
 		if(s.length() > 0) {
 			String[] lines = s.split("\n");
 			for(String line : lines) {

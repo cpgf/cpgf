@@ -46,6 +46,15 @@ public class MetaFileWriter {
 		return classCode;
 	}
 	
+	private boolean shouldWrapClass() {
+		for(CppClass cppClass : this.classList) {
+			if(this.metaInfo.getCallbackClassMap().getData(cppClass).wrapClass()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void writeHeader() throws Exception {
 		CppWriter codeWriter = new CppWriter();
 
@@ -60,6 +69,10 @@ public class MetaFileWriter {
 		codeWriter.include("cpgf/gmetapolicy.h");
 		if(this.config.scriptable) {
 			codeWriter.include("cpgf/scriptbind/gscriptbindapi.h");
+		}
+		if(this.shouldWrapClass()) {
+			codeWriter.include("cpgf/scriptbind/gscriptbindutil.h");
+			codeWriter.include("cpgf/scriptbind/gscriptwrapper.h");
 		}
 		codeWriter.write("\n\n");
 				

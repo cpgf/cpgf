@@ -25,8 +25,12 @@ GDefineMetaInfo createMetaClass_Global_drawable()
 
 GDefineMetaInfo createMetaClass_Drawable()
 {
-    GDefineMetaClass<sf::Drawable> _d = GDefineMetaClass<sf::Drawable>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("Drawable");
-    buildMetaClass_Drawable(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Drawable> _nd = GDefineMetaClass<sf::Drawable>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("Drawable");
+        buildMetaClass_Drawable(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

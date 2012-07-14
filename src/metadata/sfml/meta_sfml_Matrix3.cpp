@@ -17,8 +17,12 @@ namespace meta_sfml {
 
 GDefineMetaInfo createMetaClass_Matrix3()
 {
-    GDefineMetaClass<sf::Matrix3> _d = GDefineMetaClass<sf::Matrix3>::declare("Matrix3");
-    buildMetaClass_Matrix3(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<sf::Matrix3> _nd = GDefineMetaClass<sf::Matrix3>::declare("Matrix3");
+        buildMetaClass_Matrix3(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

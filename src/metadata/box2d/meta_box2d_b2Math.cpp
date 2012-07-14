@@ -20,48 +20,72 @@ GDefineMetaInfo createMetaClass_Global_b2math()
 
 GDefineMetaInfo createMetaClass_B2Mat22()
 {
-    GDefineMetaClass<b2Mat22> _d = GDefineMetaClass<b2Mat22>::declare("b2Mat22");
-    buildMetaClass_B2Mat22(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2Mat22> _nd = GDefineMetaClass<b2Mat22>::declare("b2Mat22");
+        buildMetaClass_B2Mat22(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2Mat33()
 {
-    GDefineMetaClass<b2Mat33> _d = GDefineMetaClass<b2Mat33>::declare("b2Mat33");
-    buildMetaClass_B2Mat33(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2Mat33> _nd = GDefineMetaClass<b2Mat33>::declare("b2Mat33");
+        buildMetaClass_B2Mat33(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2Sweep()
 {
-    GDefineMetaClass<b2Sweep> _d = GDefineMetaClass<b2Sweep>::declare("b2Sweep");
-    buildMetaClass_B2Sweep(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2Sweep> _nd = GDefineMetaClass<b2Sweep>::declare("b2Sweep");
+        buildMetaClass_B2Sweep(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2Transform()
 {
-    GDefineMetaClass<b2Transform> _d = GDefineMetaClass<b2Transform>::declare("b2Transform");
-    buildMetaClass_B2Transform(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2Transform> _nd = GDefineMetaClass<b2Transform>::declare("b2Transform");
+        buildMetaClass_B2Transform(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2Vec2()
 {
-    GDefineMetaClass<b2Vec2> _d = GDefineMetaClass<b2Vec2>::declare("b2Vec2");
-    buildMetaClass_B2Vec2(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2Vec2> _nd = GDefineMetaClass<b2Vec2>::declare("b2Vec2");
+        buildMetaClass_B2Vec2(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_B2Vec3()
 {
-    GDefineMetaClass<b2Vec3> _d = GDefineMetaClass<b2Vec3>::declare("b2Vec3");
-    buildMetaClass_B2Vec3(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<b2Vec3> _nd = GDefineMetaClass<b2Vec3>::declare("b2Vec3");
+        buildMetaClass_B2Vec3(0, _nd, NULL);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
