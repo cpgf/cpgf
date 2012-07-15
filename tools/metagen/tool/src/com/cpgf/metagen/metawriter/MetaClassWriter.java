@@ -103,35 +103,35 @@ public class MetaClassWriter {
 	
 	public void write() {
 		if(this.allowedMetaData(EnumCategory.Constructor)) {
-			this.writeConstructor();
+			this.writeConstructors();
 		}
 		
 		if(this.allowedMetaData(EnumCategory.Field)) {
-			this.writeField();
+			this.writeFields();
 		}
 		
 		if(this.allowedMetaData(EnumCategory.Method)) {
-			this.writeMethod();
+			this.writeMethods();
 		}
 		
 		if(this.allowedMetaData(EnumCategory.Enum)) {
-			this.writeEnum();
+			this.writeEnumerators();
 		}
 		
 		if(this.allowedMetaData(EnumCategory.Constant)) {
-			this.writeConstant();
+			this.writeConstants();
 		}
 		
 		if(this.allowedMetaData(EnumCategory.Operator)) {
-			this.writeOperator();
+			this.writeOperators();
 		}
 
 		if(this.allowedMetaData(EnumCategory.Class)) {
-			this.writeClass();
+			this.writeClasses();
 		}
 	}
 	
-	private void writeConstructor() {
+	private void writeConstructors() {
 		String action = this.getAction("_constructor");
 
 		if(this.cppClass.isGlobal()) {
@@ -156,7 +156,7 @@ public class MetaClassWriter {
 		}
 	}
 
-	private void writeField() {
+	private void writeFields() {
 		String prefix = this.getScopePrefix();
 		String action = this.getAction("_field");
 
@@ -183,7 +183,7 @@ public class MetaClassWriter {
 		}
 	}
 
-	private void writeMethod() {
+	private void writeMethods() {
 		String prefix = this.getScopePrefix();
 		String action = this.getAction("_method");
 
@@ -233,7 +233,7 @@ public class MetaClassWriter {
 		}
 	}
 
-	private void writeEnum() {
+	private void writeEnumerators() {
 		String typePrefix = this.getScopePrefix("typename ");
 		String prefix = this.getScopePrefix();
 		String action = this.getAction("_enum");
@@ -264,7 +264,7 @@ public class MetaClassWriter {
 		}
 	}
 
-	private void writeConstant() {
+	private void writeConstants() {
 		String action = this.getAction("_enum");
 
 		if(this.cppClass.getConstantList().size() == 0) {
@@ -293,7 +293,7 @@ public class MetaClassWriter {
 		this.codeWriter.writeLine(";");
 	}
 
-	private void writeOperator() {
+	private void writeOperators() {
 		String action = this.getAction("_operator");
 
 		for(Operator item : this.cppClass.getOperatorList()) {
@@ -385,7 +385,7 @@ public class MetaClassWriter {
 		}
 	}
 
-	private void writeClass() {
+	private void writeClasses() {
 		String action = this.getAction("_class");
 
 		for(DeferClass deferClass : this.cppClass.getClassList()) {

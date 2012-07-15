@@ -37,7 +37,7 @@ void buildMetaClass_ResourcePtr(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("OnResourceDestroyed", &D::ClassType::OnResourceDestroyed);
     _d.CPGF_MD_TEMPLATE _operator<ResourcePtr< T > & (*)(cpgf::GMetaSelf, const ResourcePtr< T > &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<ResourcePtr< T > & (*)(cpgf::GMetaSelf, const T *)>(mopHolder = mopHolder);
-    _d.CPGF_MD_TEMPLATE _operator< const T * (cpgf::GMetaSelf)>(mopHolder(), cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
+    _d.CPGF_MD_TEMPLATE _operator< const T * (cpgf::GMetaSelf)>(mopHolder());
     _d.CPGF_MD_TEMPLATE _operator<const T & (*)(const cpgf::GMetaSelf &)>(*mopHolder);
     _d.CPGF_MD_TEMPLATE _operator<const T * (*)(const cpgf::GMetaSelf &)>(mopHolder -> mopHolder);
 }

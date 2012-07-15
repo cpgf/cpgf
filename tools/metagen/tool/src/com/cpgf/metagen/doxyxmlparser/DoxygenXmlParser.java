@@ -327,7 +327,7 @@ public class DoxygenXmlParser {
 			operator.setStatic(Util.isValueYes(Util.getAttribute(node, "static")));
 			operator.setConst(Util.isValueYes(Util.getAttribute(node, "const")));
 
-			if(operator.getResultType().equals("")) { // type convertion operator, T()
+			if(operator.getResultType().isEmpty()) { // type convertion operator, T()
 				operator.setResultType(new CppType(this.metaInfo.getTypeSolver(), operator.getOperator()));
 			}
 			this.doParseParams(node, operator);

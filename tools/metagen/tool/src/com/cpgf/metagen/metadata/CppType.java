@@ -59,6 +59,10 @@ public class CppType {
 		return this.parsedType.isVoid();
 	}
 
+	public boolean isEmpty() {
+		return this.parsedType.isEmpty();
+	}
+	
 	public boolean isConstValueReference() {
 		return ! this.parsedType.isPointer()
 			&& (this.parsedType.getReference() == EnumCompoundType.Const);
