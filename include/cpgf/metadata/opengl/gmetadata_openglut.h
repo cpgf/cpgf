@@ -2,7 +2,6 @@
 #define __GMETADATA_OPENGLUT_H
 
 
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 
 #include "cpgf/scriptbind/gscriptbindapi.h"
@@ -51,7 +50,7 @@ void helper_glutJoystickFunc(IScriptFunction * scriptFunction, int pollInterval)
 
 
 template <typename MetaDefine>
-void doBuildMetaData_open_glut_constants(const GMetaDataConfigFlags & /*config*/, MetaDefine define, const GMetaDataNameReplacer * replacer)
+void doBuildMetaData_open_glut_constants(const GMetaDataConfigFlags & /*config*/, MetaDefine define)
 {
 	define.CPGF_MD_TEMPLATE _enum<int>("glut_enum")
 
@@ -330,7 +329,7 @@ void doBuildMetaData_open_glut_constants(const GMetaDataConfigFlags & /*config*/
 }
 
 template <typename MetaDefine>
-void doBuildMetaData_open_glut_functions(const GMetaDataConfigFlags & /*config*/, MetaDefine define, const GMetaDataNameReplacer * replacer)
+void doBuildMetaData_open_glut_functions(const GMetaDataConfigFlags & /*config*/, MetaDefine define)
 {
 	/* GLUT initialization sub-API. */
 	GM(glutInit)
@@ -525,44 +524,44 @@ void doBuildMetaData_open_glut_functions(const GMetaDataConfigFlags & /*config*/
 void helper_glutInit();
 
 template <typename MetaDefine>
-void doBuildMetaData_open_glut_helpers(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer)
+void doBuildMetaData_open_glut_helpers(const GMetaDataConfigFlags & config, MetaDefine define)
 {
 	if(! metaDataConfigIsScriptable(config)) {
 		return;
 	}
 
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutInit", replacer), &helper_glutInit);
+	define.CPGF_MD_TEMPLATE _method("glutInit", &helper_glutInit);
 
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutDisplayFunc", replacer), &helper_glutDisplayFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutReshapeFunc", replacer), &helper_glutReshapeFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutKeyboardFunc", replacer), &helper_glutKeyboardFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutMouseFunc", replacer), &helper_glutMouseFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutMotionFunc", replacer), &helper_glutMotionFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutPassiveMotionFunc", replacer), &helper_glutPassiveMotionFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutEntryFunc", replacer), &helper_glutEntryFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutVisibilityFunc", replacer), &helper_glutVisibilityFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutIdleFunc", replacer), &helper_glutIdleFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutTimerFunc", replacer), &helper_glutTimerFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutMenuStateFunc", replacer), &helper_glutMenuStateFunc);
+	define.CPGF_MD_TEMPLATE _method("glutDisplayFunc", &helper_glutDisplayFunc);
+	define.CPGF_MD_TEMPLATE _method("glutReshapeFunc", &helper_glutReshapeFunc);
+	define.CPGF_MD_TEMPLATE _method("glutKeyboardFunc", &helper_glutKeyboardFunc);
+	define.CPGF_MD_TEMPLATE _method("glutMouseFunc", &helper_glutMouseFunc);
+	define.CPGF_MD_TEMPLATE _method("glutMotionFunc", &helper_glutMotionFunc);
+	define.CPGF_MD_TEMPLATE _method("glutPassiveMotionFunc", &helper_glutPassiveMotionFunc);
+	define.CPGF_MD_TEMPLATE _method("glutEntryFunc", &helper_glutEntryFunc);
+	define.CPGF_MD_TEMPLATE _method("glutVisibilityFunc", &helper_glutVisibilityFunc);
+	define.CPGF_MD_TEMPLATE _method("glutIdleFunc", &helper_glutIdleFunc);
+	define.CPGF_MD_TEMPLATE _method("glutTimerFunc", &helper_glutTimerFunc);
+	define.CPGF_MD_TEMPLATE _method("glutMenuStateFunc", &helper_glutMenuStateFunc);
 	#if (GLUT_API_VERSION >= 2)
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutSpecialFunc", replacer), &helper_glutSpecialFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutSpaceballMotionFunc", replacer), &helper_glutSpaceballMotionFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutSpaceballRotateFunc", replacer), &helper_glutSpaceballRotateFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutSpaceballButtonFunc", replacer), &helper_glutSpaceballButtonFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutButtonBoxFunc", replacer), &helper_glutButtonBoxFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutDialsFunc", replacer), &helper_glutDialsFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutTabletMotionFunc", replacer), &helper_glutTabletMotionFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutTabletButtonFunc", replacer), &helper_glutTabletButtonFunc);
+	define.CPGF_MD_TEMPLATE _method("glutSpecialFunc", &helper_glutSpecialFunc);
+	define.CPGF_MD_TEMPLATE _method("glutSpaceballMotionFunc", &helper_glutSpaceballMotionFunc);
+	define.CPGF_MD_TEMPLATE _method("glutSpaceballRotateFunc", &helper_glutSpaceballRotateFunc);
+	define.CPGF_MD_TEMPLATE _method("glutSpaceballButtonFunc", &helper_glutSpaceballButtonFunc);
+	define.CPGF_MD_TEMPLATE _method("glutButtonBoxFunc", &helper_glutButtonBoxFunc);
+	define.CPGF_MD_TEMPLATE _method("glutDialsFunc", &helper_glutDialsFunc);
+	define.CPGF_MD_TEMPLATE _method("glutTabletMotionFunc", &helper_glutTabletMotionFunc);
+	define.CPGF_MD_TEMPLATE _method("glutTabletButtonFunc", &helper_glutTabletButtonFunc);
 	#if (GLUT_API_VERSION >= 3)
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutMenuStatusFunc", replacer), &helper_glutMenuStatusFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutOverlayDisplayFunc", replacer), &helper_glutOverlayDisplayFunc);
+	define.CPGF_MD_TEMPLATE _method("glutMenuStatusFunc", &helper_glutMenuStatusFunc);
+	define.CPGF_MD_TEMPLATE _method("glutOverlayDisplayFunc", &helper_glutOverlayDisplayFunc);
 	#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 9)
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutWindowStatusFunc", replacer), &helper_glutWindowStatusFunc);
+	define.CPGF_MD_TEMPLATE _method("glutWindowStatusFunc", &helper_glutWindowStatusFunc);
 	#endif
 	#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutKeyboardUpFunc", replacer), &helper_glutKeyboardUpFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutSpecialUpFunc", replacer), &helper_glutSpecialUpFunc);
-	define.CPGF_MD_TEMPLATE _method(replaceName("glutJoystickFunc", replacer), &helper_glutJoystickFunc);
+	define.CPGF_MD_TEMPLATE _method("glutKeyboardUpFunc", &helper_glutKeyboardUpFunc);
+	define.CPGF_MD_TEMPLATE _method("glutSpecialUpFunc", &helper_glutSpecialUpFunc);
+	define.CPGF_MD_TEMPLATE _method("glutJoystickFunc", &helper_glutJoystickFunc);
 	#endif
 	#endif
 	#endif
@@ -570,11 +569,11 @@ void doBuildMetaData_open_glut_helpers(const GMetaDataConfigFlags & config, Meta
 }
 
 template <typename MetaDefine>
-void doBuildMetaData_open_glut(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer)
+void doBuildMetaData_open_glut(const GMetaDataConfigFlags & config, MetaDefine define)
 {
-	doBuildMetaData_open_glut_constants(config, define, replacer);
-	doBuildMetaData_open_glut_functions(config, define, replacer);
-	doBuildMetaData_open_glut_helpers(config, define, replacer);
+	doBuildMetaData_open_glut_constants(config, define);
+	doBuildMetaData_open_glut_functions(config, define);
+	doBuildMetaData_open_glut_helpers(config, define);
 }
 
 
@@ -582,55 +581,55 @@ void doBuildMetaData_open_glut(const GMetaDataConfigFlags & config, MetaDefine d
 
 
 template <typename MetaDefine>
-void buildMetaData_open_glut_constants(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_open_glut_constants(const GMetaDataConfigFlags & config, MetaDefine define)
 {
-	metadata_internal::doBuildMetaData_open_glut_constants(config, define, replacer);
+	metadata_internal::doBuildMetaData_open_glut_constants(config, define);
 }
 
 template <typename MetaDefine>
-void buildMetaData_open_glut_constants(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_open_glut_constants(MetaDefine define)
 {
-	buildMetaData_open_glut_constants(mdcScriptable | mdcAutoProperty, define, replacer);
-}
-
-
-template <typename MetaDefine>
-void buildMetaData_open_glut_functions(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
-{
-	metadata_internal::doBuildMetaData_open_glut_functions(config, define, replacer);
-}
-
-template <typename MetaDefine>
-void buildMetaData_open_glut_functions(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
-{
-	buildMetaData_open_glut_functions(mdcScriptable | mdcAutoProperty, define, replacer);
+	buildMetaData_open_glut_constants(mdcScriptable | mdcAutoProperty, define);
 }
 
 
 template <typename MetaDefine>
-void buildMetaData_open_glut_helpers(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_open_glut_functions(const GMetaDataConfigFlags & config, MetaDefine define)
 {
-	metadata_internal::doBuildMetaData_open_glut_helpers(config, define, replacer);
+	metadata_internal::doBuildMetaData_open_glut_functions(config, define);
 }
 
 template <typename MetaDefine>
-void buildMetaData_open_glut_helpers(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_open_glut_functions(MetaDefine define)
 {
-	buildMetaData_open_glut_helpers(mdcScriptable | mdcAutoProperty, define, replacer);
+	buildMetaData_open_glut_functions(mdcScriptable | mdcAutoProperty, define);
+}
+
+
+template <typename MetaDefine>
+void buildMetaData_open_glut_helpers(const GMetaDataConfigFlags & config, MetaDefine define)
+{
+	metadata_internal::doBuildMetaData_open_glut_helpers(config, define);
+}
+
+template <typename MetaDefine>
+void buildMetaData_open_glut_helpers(MetaDefine define)
+{
+	buildMetaData_open_glut_helpers(mdcScriptable | mdcAutoProperty, define);
 }
 
 
 // all in one register
 template <typename MetaDefine>
-void buildMetaData_open_glut(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_open_glut(const GMetaDataConfigFlags & config, MetaDefine define)
 {
-	metadata_internal::doBuildMetaData_open_glut(config, define, replacer);
+	metadata_internal::doBuildMetaData_open_glut(config, define);
 }
 
 template <typename MetaDefine>
-void buildMetaData_open_glut(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_open_glut(MetaDefine define)
 {
-	buildMetaData_open_glut(mdcScriptable | mdcAutoProperty, define, replacer);
+	buildMetaData_open_glut(mdcScriptable | mdcAutoProperty, define);
 }
 
 

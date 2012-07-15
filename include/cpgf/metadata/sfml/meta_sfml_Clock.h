@@ -5,7 +5,6 @@
 
 
 #include "cpgf/gmetadefine.h"
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
@@ -18,14 +17,14 @@ namespace meta_sfml {
 
 
 template <typename D>
-void buildMetaClass_Clock(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_Clock(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetElapsedTime", _r), &D::ClassType::GetElapsedTime);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("Reset", _r), &D::ClassType::Reset);
+    _d.CPGF_MD_TEMPLATE _method("GetElapsedTime", &D::ClassType::GetElapsedTime);
+    _d.CPGF_MD_TEMPLATE _method("Reset", &D::ClassType::Reset);
 }
 
 

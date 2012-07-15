@@ -16,7 +16,7 @@ namespace meta_test {
 GDefineMetaInfo createMetaClass_Global_global()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_global(0, _d, NULL);
+    buildMetaClass_Global_global(0, _d);
     return _d.getMetaInfo();
 }
 

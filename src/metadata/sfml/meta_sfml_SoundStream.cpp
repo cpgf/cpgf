@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_SoundStream()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::SoundStream> _nd = GDefineMetaClass<sf::SoundStream>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent, GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("SoundStream");
-        buildMetaClass_SoundStream(0, _nd, NULL);
+        buildMetaClass_SoundStream(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

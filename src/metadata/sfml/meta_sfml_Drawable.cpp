@@ -18,7 +18,7 @@ namespace meta_sfml {
 GDefineMetaInfo createMetaClass_Global_drawable()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_drawable(0, _d, NULL);
+    buildMetaClass_Global_drawable(0, _d);
     return _d.getMetaInfo();
 }
 
@@ -28,7 +28,7 @@ GDefineMetaInfo createMetaClass_Drawable()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Drawable> _nd = GDefineMetaClass<sf::Drawable>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("Drawable");
-        buildMetaClass_Drawable(0, _nd, NULL);
+        buildMetaClass_Drawable(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

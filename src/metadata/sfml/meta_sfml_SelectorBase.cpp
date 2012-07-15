@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_SelectorBase()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::SelectorBase> _nd = GDefineMetaClass<sf::SelectorBase>::declare("SelectorBase");
-        buildMetaClass_SelectorBase(0, _nd, NULL);
+        buildMetaClass_SelectorBase(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

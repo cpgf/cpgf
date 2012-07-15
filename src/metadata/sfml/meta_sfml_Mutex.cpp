@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Mutex()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Mutex> _nd = GDefineMetaClass<sf::Mutex>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("Mutex");
-        buildMetaClass_Mutex(0, _nd, NULL);
+        buildMetaClass_Mutex(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

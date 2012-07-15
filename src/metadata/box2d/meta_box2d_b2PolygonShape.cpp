@@ -15,7 +15,7 @@ GDefineMetaInfo createMetaClass_B2PolygonShape()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<b2PolygonShape, b2Shape> _nd = GDefineMetaClass<b2PolygonShape, b2Shape>::declare("b2PolygonShape");
-        buildMetaClass_B2PolygonShape(0, _nd, NULL);
+        buildMetaClass_B2PolygonShape(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

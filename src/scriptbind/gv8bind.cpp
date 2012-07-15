@@ -1306,7 +1306,6 @@ Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param,
 	Local<Function> classFunction = functionTemplate->GetFunction();
 	setObjectSignature(&classFunction);
 	bindClassItems(classFunction, param, metaClass);
-//	functionTemplate->PrototypeTemplate()->SetNamedPropertyHandler(&namedMemberGetter, &namedMemberSetter, NULL, NULL, &namedMemberEnumerator);
 
 	GObjectUserData * classUserData = new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass);
 	key = addUserDataToPool(param, classUserData);

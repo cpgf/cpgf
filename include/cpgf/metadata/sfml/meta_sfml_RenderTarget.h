@@ -5,7 +5,6 @@
 
 
 #include "cpgf/gmetadefine.h"
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
@@ -18,21 +17,21 @@ namespace meta_sfml {
 
 
 template <typename D>
-void buildMetaClass_RenderTarget(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_RenderTarget(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method(replaceName("Clear", _r), &D::ClassType::Clear)
+    _d.CPGF_MD_TEMPLATE _method("Clear", &D::ClassType::Clear)
         ._default(copyVariantFromCopyable(Color(0, 0, 0)))
     ;
-    _d.CPGF_MD_TEMPLATE _method(replaceName("Draw", _r), &D::ClassType::Draw);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetWidth", _r), &D::ClassType::GetWidth);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetHeight", _r), &D::ClassType::GetHeight);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("SetView", _r), &D::ClassType::SetView);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetView", _r), &D::ClassType::GetView);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetDefaultView", _r), &D::ClassType::GetDefaultView);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("PreserveOpenGLStates", _r), &D::ClassType::PreserveOpenGLStates);
+    _d.CPGF_MD_TEMPLATE _method("Draw", &D::ClassType::Draw);
+    _d.CPGF_MD_TEMPLATE _method("GetWidth", &D::ClassType::GetWidth);
+    _d.CPGF_MD_TEMPLATE _method("GetHeight", &D::ClassType::GetHeight);
+    _d.CPGF_MD_TEMPLATE _method("SetView", &D::ClassType::SetView);
+    _d.CPGF_MD_TEMPLATE _method("GetView", &D::ClassType::GetView);
+    _d.CPGF_MD_TEMPLATE _method("GetDefaultView", &D::ClassType::GetDefaultView);
+    _d.CPGF_MD_TEMPLATE _method("PreserveOpenGLStates", &D::ClassType::PreserveOpenGLStates);
 }
 
 

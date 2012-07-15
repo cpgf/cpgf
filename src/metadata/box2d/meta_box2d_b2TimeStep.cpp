@@ -15,7 +15,7 @@ GDefineMetaInfo createMetaClass_B2TimeStep()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<b2TimeStep> _nd = GDefineMetaClass<b2TimeStep>::declare("b2TimeStep");
-        buildMetaClass_B2TimeStep(0, _nd, NULL);
+        buildMetaClass_B2TimeStep(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

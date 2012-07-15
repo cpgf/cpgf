@@ -5,7 +5,6 @@
 
 
 #include "cpgf/gmetadefine.h"
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
@@ -17,22 +16,22 @@ namespace meta_box2d {
 
 
 template <typename D>
-void buildMetaClass_B2CircleShape(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_B2CircleShape(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
-    _d.CPGF_MD_TEMPLATE _field(replaceName("m_p", _r), &D::ClassType::m_p);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("Clone", _r), &D::ClassType::Clone);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("TestPoint", _r), &D::ClassType::TestPoint);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("RayCast", _r), &D::ClassType::RayCast);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("ComputeAABB", _r), &D::ClassType::ComputeAABB);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("ComputeMass", _r), &D::ClassType::ComputeMass);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetSupport", _r), &D::ClassType::GetSupport);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetSupportVertex", _r), &D::ClassType::GetSupportVertex);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetVertexCount", _r), &D::ClassType::GetVertexCount);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetVertex", _r), &D::ClassType::GetVertex);
+    _d.CPGF_MD_TEMPLATE _field("m_p", &D::ClassType::m_p);
+    _d.CPGF_MD_TEMPLATE _method("Clone", &D::ClassType::Clone);
+    _d.CPGF_MD_TEMPLATE _method("TestPoint", &D::ClassType::TestPoint);
+    _d.CPGF_MD_TEMPLATE _method("RayCast", &D::ClassType::RayCast);
+    _d.CPGF_MD_TEMPLATE _method("ComputeAABB", &D::ClassType::ComputeAABB);
+    _d.CPGF_MD_TEMPLATE _method("ComputeMass", &D::ClassType::ComputeMass);
+    _d.CPGF_MD_TEMPLATE _method("GetSupport", &D::ClassType::GetSupport);
+    _d.CPGF_MD_TEMPLATE _method("GetSupportVertex", &D::ClassType::GetSupportVertex);
+    _d.CPGF_MD_TEMPLATE _method("GetVertexCount", &D::ClassType::GetVertexCount);
+    _d.CPGF_MD_TEMPLATE _method("GetVertex", &D::ClassType::GetVertex);
 }
 
 

@@ -63,7 +63,6 @@ public class MetaFileWriter {
 		codeWriter.beginIncludeGuard(Util.normalizeSymbol(this.getDestFileName()) + "_H");
 
 		codeWriter.include("cpgf/gmetadefine.h");
-		codeWriter.include("cpgf/metadata/gnamereplacer.h");
 		codeWriter.include("cpgf/metadata/gmetadataconfig.h");
 		codeWriter.include("cpgf/metadata/private/gmetadata_header.h");
 		codeWriter.include("cpgf/gmetapolicy.h");
@@ -74,13 +73,15 @@ public class MetaFileWriter {
 			codeWriter.include("cpgf/scriptbind/gscriptbindutil.h");
 			codeWriter.include("cpgf/scriptbind/gscriptwrapper.h");
 		}
-		codeWriter.write("\n\n");
+		codeWriter.writeLine("");
+		codeWriter.writeLine("");
 				
 		for(String ns : this.fileInfo.getNamespaceList()) {
 			codeWriter.useNamespace(ns);
 		}
 		
-		codeWriter.write("\n\n");
+		codeWriter.writeLine("");
+		codeWriter.writeLine("");
 
 		codeWriter.beginNamespace(this.config.cppNamespace);
 
@@ -90,13 +91,15 @@ public class MetaFileWriter {
 			if(classCode.headerCode.length() > 0) {
 				codeWriter.write(this.getClassCode(cppClass).headerCode);
 			
-				codeWriter.write("\n\n");
+				codeWriter.writeLine("");
+				codeWriter.writeLine("");
 			}
 		}
 
 		codeWriter.endNamespace(this.config.cppNamespace);
 		
-		codeWriter.write("\n\n");
+		codeWriter.writeLine("");
+		codeWriter.writeLine("");
 		codeWriter.include("cpgf/metadata/private/gmetadata_footer.h");
 		
 		codeWriter.endIncludeGuard();
@@ -117,23 +120,23 @@ public class MetaFileWriter {
 
 		if(this.config.sourceHeaderCode != null) {
 			codeWriter.write(this.config.sourceHeaderCode);
-			codeWriter.write("\n");
+			codeWriter.writeLine("");
 		}
 		if(this.config.sourceHeaderReplacer != null) {
 			String fileName = this.sourceFileName;
 			fileName.replaceAll("\\\\", "/");
 			fileName = Util.replaceStringWithArray(fileName, this.config.sourceHeaderReplacer);
 			codeWriter.include(fileName);
-			codeWriter.write("\n");
+			codeWriter.writeLine("");
 		}
 		else {
 			codeWriter.include(this.sourceFileName);
 		}
 		codeWriter.include(this.config.metaHeaderPath + this.getDestFileName() + ".h");
-		codeWriter.write("\n");
+		codeWriter.writeLine("");
 		
 		codeWriter.useNamespace("cpgf");
-		codeWriter.write("\n");
+		codeWriter.writeLine("");
 
 		codeWriter.beginNamespace(this.config.cppNamespace);
 		
@@ -145,7 +148,8 @@ public class MetaFileWriter {
 				
 				createFunctionNames.add(classCode.createFunctionName);
 
-				codeWriter.write("\n\n");
+				codeWriter.writeLine("");
+				codeWriter.writeLine("");
 			}
 		}
 		

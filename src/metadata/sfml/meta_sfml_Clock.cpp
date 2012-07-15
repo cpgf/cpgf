@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Clock()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Clock> _nd = GDefineMetaClass<sf::Clock>::declare("Clock");
-        buildMetaClass_Clock(0, _nd, NULL);
+        buildMetaClass_Clock(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

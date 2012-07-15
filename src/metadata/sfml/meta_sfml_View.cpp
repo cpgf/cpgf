@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_View()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::View> _nd = GDefineMetaClass<sf::View>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("View");
-        buildMetaClass_View(0, _nd, NULL);
+        buildMetaClass_View(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

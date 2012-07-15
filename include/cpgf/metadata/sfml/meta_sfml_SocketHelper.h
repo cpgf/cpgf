@@ -5,7 +5,6 @@
 
 
 #include "cpgf/gmetadefine.h"
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
@@ -19,30 +18,30 @@ namespace meta_sfml {
 
 
 template <typename D>
-void buildMetaClass_Global_sockethelper(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_Global_sockethelper(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _enum<Status>(replaceName("Status", _r))
-        ._element(replaceName("Done", _r), sf::Socket::Done)
-        ._element(replaceName("NotReady", _r), sf::Socket::NotReady)
-        ._element(replaceName("Disconnected", _r), sf::Socket::Disconnected)
-        ._element(replaceName("Error", _r), sf::Socket::Error)
+    _d.CPGF_MD_TEMPLATE _enum<Status>("Status")
+        ._element("Done", sf::Socket::Done)
+        ._element("NotReady", sf::Socket::NotReady)
+        ._element("Disconnected", sf::Socket::Disconnected)
+        ._element("Error", sf::Socket::Error)
     ;
 }
 
 
 template <typename D>
-void buildMetaClass_SocketHelper(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_SocketHelper(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method(replaceName("InvalidSocket", _r), &D::ClassType::InvalidSocket);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("Close", _r), &D::ClassType::Close);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("SetBlocking", _r), &D::ClassType::SetBlocking);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetErrorStatus", _r), &D::ClassType::GetErrorStatus);
+    _d.CPGF_MD_TEMPLATE _method("InvalidSocket", &D::ClassType::InvalidSocket);
+    _d.CPGF_MD_TEMPLATE _method("Close", &D::ClassType::Close);
+    _d.CPGF_MD_TEMPLATE _method("SetBlocking", &D::ClassType::SetBlocking);
+    _d.CPGF_MD_TEMPLATE _method("GetErrorStatus", &D::ClassType::GetErrorStatus);
 }
 
 

@@ -67,12 +67,12 @@ public class MetaClassCodeGenerator {
 				codeWriter.write(", typename " + param.getName());
 			}
 		}
-		codeWriter.write(">\n");
-		codeWriter.write("void " + name + "(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)\n");
+		codeWriter.writeLine(">");
+		codeWriter.writeLine("void " + name + "(const cpgf::GMetaDataConfigFlags & config, D _d)");
 		codeWriter.beginBlock();
-		codeWriter.write("(void)config; (void)_d; (void)_r; (void)_d;\n");
+		codeWriter.writeLine("(void)config; (void)_d; (void)_d;");
 		codeWriter.useNamespace("cpgf");
-		codeWriter.write("\n");
+		codeWriter.writeLine("");
 	}
 
 	private void endMetaFunction(CppWriter codeWriter) {
@@ -239,9 +239,10 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 		this.endMetaFunction(codeWriter);
 		
 		if(this.callbackData.wrapClass()) {
-			codeWriter.write("\n\n");
-			this.wrapperWriter = new ClassWrapperWriter(this.config, this.callbackData.getWrapperConfig(), codeWriter, this.cppClass);
-			this.wrapperWriter.writeClassWrapper();
+			codeWriter.writeLine("");
+			codeWriter.writeLine("");
+			this.wrapperWriter = new ClassWrapperWriter(this.config, this.callbackData.getWrapperConfig(), this.cppClass);
+			this.wrapperWriter.writeClassWrapper(codeWriter);
 		}
 		
 		this.classCode.headerCode = this.appendText(this.classCode.headerCode, codeWriter.getText());
@@ -271,7 +272,7 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 			codeWriter.writeLine("");
 		}
 
-		codeWriter.write("GDefineMetaInfo " + funcName + "()\n");
+		codeWriter.writeLine("GDefineMetaInfo " + funcName + "()");
 
 		codeWriter.beginBlock();
 
@@ -281,12 +282,11 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 
 		if(this.wrapperWriter != null) {
 			codeWriter.beginBlock();
-			this.wrapperWriter.setCodeWriter(codeWriter);
-			this.wrapperWriter.writeCreation(callFunc);
+			this.wrapperWriter.writeCreation(codeWriter, callFunc);
 			codeWriter.endBlock();
 		}
 
-		codeWriter.write("return _d.getMetaInfo();\n");
+		codeWriter.writeLine("return _d.getMetaInfo();");
 		
 		codeWriter.endBlock();
 

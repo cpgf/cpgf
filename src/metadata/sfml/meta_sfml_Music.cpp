@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Music()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Music, sf::SoundStream> _nd = GDefineMetaClass<sf::Music, sf::SoundStream>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("Music");
-        buildMetaClass_Music(0, _nd, NULL);
+        buildMetaClass_Music(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

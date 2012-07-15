@@ -5,7 +5,6 @@
 
 
 #include "cpgf/gmetadefine.h"
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
@@ -17,50 +16,50 @@ namespace meta_box2d {
 
 
 template <typename D>
-void buildMetaClass_Global_b2pulleyjoint(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_Global_b2pulleyjoint(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field(replaceName("b2_minPulleyLength", _r), &b2_minPulleyLength);
+    _d.CPGF_MD_TEMPLATE _field("b2_minPulleyLength", &b2_minPulleyLength);
 }
 
 
 template <typename D>
-void buildMetaClass_B2PulleyJoint(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_B2PulleyJoint(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetAnchorA", _r), &D::ClassType::GetAnchorA);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetAnchorB", _r), &D::ClassType::GetAnchorB);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetReactionForce", _r), &D::ClassType::GetReactionForce);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetReactionTorque", _r), &D::ClassType::GetReactionTorque);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetGroundAnchorA", _r), &D::ClassType::GetGroundAnchorA);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetGroundAnchorB", _r), &D::ClassType::GetGroundAnchorB);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetLength1", _r), &D::ClassType::GetLength1);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetLength2", _r), &D::ClassType::GetLength2);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetRatio", _r), &D::ClassType::GetRatio);
+    _d.CPGF_MD_TEMPLATE _method("GetAnchorA", &D::ClassType::GetAnchorA);
+    _d.CPGF_MD_TEMPLATE _method("GetAnchorB", &D::ClassType::GetAnchorB);
+    _d.CPGF_MD_TEMPLATE _method("GetReactionForce", &D::ClassType::GetReactionForce);
+    _d.CPGF_MD_TEMPLATE _method("GetReactionTorque", &D::ClassType::GetReactionTorque);
+    _d.CPGF_MD_TEMPLATE _method("GetGroundAnchorA", &D::ClassType::GetGroundAnchorA);
+    _d.CPGF_MD_TEMPLATE _method("GetGroundAnchorB", &D::ClassType::GetGroundAnchorB);
+    _d.CPGF_MD_TEMPLATE _method("GetLength1", &D::ClassType::GetLength1);
+    _d.CPGF_MD_TEMPLATE _method("GetLength2", &D::ClassType::GetLength2);
+    _d.CPGF_MD_TEMPLATE _method("GetRatio", &D::ClassType::GetRatio);
 }
 
 
 template <typename D>
-void buildMetaClass_B2PulleyJointDef(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_B2PulleyJointDef(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
-    _d.CPGF_MD_TEMPLATE _field(replaceName("groundAnchorA", _r), &D::ClassType::groundAnchorA);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("groundAnchorB", _r), &D::ClassType::groundAnchorB);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("localAnchorA", _r), &D::ClassType::localAnchorA);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("localAnchorB", _r), &D::ClassType::localAnchorB);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("lengthA", _r), &D::ClassType::lengthA);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("maxLengthA", _r), &D::ClassType::maxLengthA);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("lengthB", _r), &D::ClassType::lengthB);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("maxLengthB", _r), &D::ClassType::maxLengthB);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("ratio", _r), &D::ClassType::ratio);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("Initialize", _r), &D::ClassType::Initialize);
+    _d.CPGF_MD_TEMPLATE _field("groundAnchorA", &D::ClassType::groundAnchorA);
+    _d.CPGF_MD_TEMPLATE _field("groundAnchorB", &D::ClassType::groundAnchorB);
+    _d.CPGF_MD_TEMPLATE _field("localAnchorA", &D::ClassType::localAnchorA);
+    _d.CPGF_MD_TEMPLATE _field("localAnchorB", &D::ClassType::localAnchorB);
+    _d.CPGF_MD_TEMPLATE _field("lengthA", &D::ClassType::lengthA);
+    _d.CPGF_MD_TEMPLATE _field("maxLengthA", &D::ClassType::maxLengthA);
+    _d.CPGF_MD_TEMPLATE _field("lengthB", &D::ClassType::lengthB);
+    _d.CPGF_MD_TEMPLATE _field("maxLengthB", &D::ClassType::maxLengthB);
+    _d.CPGF_MD_TEMPLATE _field("ratio", &D::ClassType::ratio);
+    _d.CPGF_MD_TEMPLATE _method("Initialize", &D::ClassType::Initialize);
 }
 
 

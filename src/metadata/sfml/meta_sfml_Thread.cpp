@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Thread()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Thread> _nd = GDefineMetaClass<sf::Thread>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("Thread");
-        buildMetaClass_Thread(0, _nd, NULL);
+        buildMetaClass_Thread(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_SocketTCP()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::SocketTCP> _nd = GDefineMetaClass<sf::SocketTCP>::declare("SocketTCP");
-        buildMetaClass_SocketTCP(0, _nd, NULL);
+        buildMetaClass_SocketTCP(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

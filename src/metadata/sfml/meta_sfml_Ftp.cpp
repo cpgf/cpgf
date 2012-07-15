@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Ftp()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Ftp> _nd = GDefineMetaClass<sf::Ftp>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("Ftp");
-        buildMetaClass_Ftp(0, _nd, NULL);
+        buildMetaClass_Ftp(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

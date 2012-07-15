@@ -18,7 +18,7 @@ namespace meta_sfml {
 GDefineMetaInfo createMetaClass_Global_color()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_color(0, _d, NULL);
+    buildMetaClass_Global_color(0, _d);
     return _d.getMetaInfo();
 }
 
@@ -28,7 +28,7 @@ GDefineMetaInfo createMetaClass_Color()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Color> _nd = GDefineMetaClass<sf::Color>::declare("Color");
-        buildMetaClass_Color(0, _nd, NULL);
+        buildMetaClass_Color(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

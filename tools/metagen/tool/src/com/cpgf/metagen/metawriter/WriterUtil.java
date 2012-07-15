@@ -15,8 +15,8 @@ import com.cpgf.metagen.metadata.TemplateInstance;
 public class WriterUtil {
 
 	public static void writeCommentForAutoGeneration(CodeWriter writer) {
-		writer.write("// Auto generated file, don't modify.\n");
-		writer.write("\n");
+		writer.writeLine("// Auto generated file, don't modify.");
+		writer.writeLine("");
 	}
 
 	public static void writeParamList(CodeWriter writer, List<Parameter> paramList, boolean withName) {
@@ -27,7 +27,7 @@ public class WriterUtil {
 		int index = paramList.size() - 1;
 
 		if(index >= 0 && paramList.get(index).hasDefaultValue()) {
-			writer.write("\n");
+			writer.writeLine("");
 			writer.incIndent();
 
 			while(index >= 0 && paramList.get(index).hasDefaultValue()) {
@@ -35,13 +35,13 @@ public class WriterUtil {
 				if(value.equals("NULL") || value.equals("nullptr")) {
 					value = "(" + paramList.get(index).getType().getLiteralType() + ")" + value;
 				}
-				writer.write("._default(copyVariantFromCopyable(" + value + "))\n");
+				writer.writeLine("._default(copyVariantFromCopyable(" + value + "))");
 				--index;
 			}
 
 			writer.decIndent();
 		}
-		writer.write(";\n");
+		writer.writeLine(";");
 	}
 
 	public static void defineMetaClass(Config config, CppWriter codeWriter, CppClass cppClass, String varName, String action) {
@@ -52,10 +52,10 @@ public class WriterUtil {
 		
 		if(cppClass.isGlobal()) {
 			if(config.metaNamespace != null) {
-				codeWriter.write("GDefineMetaNamespace " + varName + " = GDefineMetaNamespace::" + action + "(" + namespace + ");\n");
+				codeWriter.writeLine("GDefineMetaNamespace " + varName + " = GDefineMetaNamespace::" + action + "(" + namespace + ");");
 			}
 			else {
-				codeWriter.write("GDefineMetaGlobal " + varName + ";\n");
+				codeWriter.writeLine("GDefineMetaGlobal " + varName + ";");
 			}
 		}
 		else {
@@ -69,7 +69,7 @@ public class WriterUtil {
 				policy = "::Policy<MakePolicy<" + Util.joinStringList(", ", rules) + "> >";
 			}
 
-			codeWriter.write(typeName +  " " + varName + " = " + typeName + policy + "::" + action + "(\"" + cppClass.getPrimaryName() + "\");\n");
+			codeWriter.writeLine(typeName +  " " + varName + " = " + typeName + policy + "::" + action + "(\"" + cppClass.getPrimaryName() + "\");");
 		}
 	}
 
@@ -89,9 +89,9 @@ public class WriterUtil {
 		cppClass.getPolicyRules(rules);
 		
 		if(cppClass.isGlobal()) {
-			codeWriter.write("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();\n");
+			codeWriter.writeLine("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();");
 			
-			codeWriter.write(callFunc + "(0, _d, NULL);\n");
+			codeWriter.writeLine(callFunc + "(0, _d);");
 		}
 		else {
 			String policy = "";
@@ -99,7 +99,7 @@ public class WriterUtil {
 				policy = "::Policy<MakePolicy<" + Util.joinStringList(", ", rules) + "> >";
 			}
 
-			codeWriter.write("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();\n");
+			codeWriter.writeLine("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();");
 			if(cppClass.isTemplate()) {
 				for(TemplateInstance templateInstance : templateInstanceList) {
 					codeWriter.beginBlock();
@@ -108,10 +108,10 @@ public class WriterUtil {
 					typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
 					typeName = typeName + " >";
 
-					codeWriter.write(typeName +  " _nd = " + typeName + policy + "::declare(\"" + normalizeClassName(templateInstance.getMapName()) + "\");\n");
+					codeWriter.writeLine(typeName +  " _nd = " + typeName + policy + "::declare(\"" + normalizeClassName(templateInstance.getMapName()) + "\");");
 					
-					codeWriter.write(callFunc + "<" + typeName + ", " + templateInstance.getTemplateType() + " >(0, _nd, NULL);\n");
-					codeWriter.write("_d._class(_nd);\n");
+					codeWriter.writeLine(callFunc + "<" + typeName + ", " + templateInstance.getTemplateType() + " >(0, _nd);");
+					codeWriter.writeLine("_d._class(_nd);");
 
 					codeWriter.endBlock();
 				}
@@ -122,10 +122,10 @@ public class WriterUtil {
 				String typeName = "GDefineMetaClass<" + cppClass.getLiteralName();
 				typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
 				typeName = typeName + ">";
-				codeWriter.write(typeName +  " _nd = " + typeName + policy + "::declare(\"" + cppClass.getPrimaryName() + "\");\n");
+				codeWriter.writeLine(typeName +  " _nd = " + typeName + policy + "::declare(\"" + cppClass.getPrimaryName() + "\");");
 				
-				codeWriter.write(callFunc + "(0, _nd, NULL);\n");
-				codeWriter.write("_d._class(_nd);\n");
+				codeWriter.writeLine(callFunc + "(0, _nd);");
+				codeWriter.writeLine("_d._class(_nd);");
 
 				codeWriter.endBlock();
 			}

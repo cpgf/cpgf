@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Packet()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Packet> _nd = GDefineMetaClass<sf::Packet>::declare("Packet");
-        buildMetaClass_Packet(0, _nd, NULL);
+        buildMetaClass_Packet(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

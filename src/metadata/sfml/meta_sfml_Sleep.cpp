@@ -18,7 +18,7 @@ namespace meta_sfml {
 GDefineMetaInfo createMetaClass_Global_sleep()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_sleep(0, _d, NULL);
+    buildMetaClass_Global_sleep(0, _d);
     return _d.getMetaInfo();
 }
 

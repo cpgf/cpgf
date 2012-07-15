@@ -5,7 +5,6 @@
 
 
 #include "cpgf/gmetadefine.h"
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
@@ -17,43 +16,43 @@ namespace meta_box2d {
 
 
 template <typename D>
-void buildMetaClass_Global_b2timeofimpact(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_Global_b2timeofimpact(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method(replaceName("b2TimeOfImpact", _r), (void (*) (b2TOIOutput *, const b2TOIInput *))&b2TimeOfImpact);
+    _d.CPGF_MD_TEMPLATE _method("b2TimeOfImpact", (void (*) (b2TOIOutput *, const b2TOIInput *))&b2TimeOfImpact);
 }
 
 
 template <typename D>
-void buildMetaClass_B2TOIInput(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_B2TOIInput(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field(replaceName("proxyA", _r), &D::ClassType::proxyA);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("proxyB", _r), &D::ClassType::proxyB);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("sweepA", _r), &D::ClassType::sweepA);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("sweepB", _r), &D::ClassType::sweepB);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("tMax", _r), &D::ClassType::tMax);
+    _d.CPGF_MD_TEMPLATE _field("proxyA", &D::ClassType::proxyA);
+    _d.CPGF_MD_TEMPLATE _field("proxyB", &D::ClassType::proxyB);
+    _d.CPGF_MD_TEMPLATE _field("sweepA", &D::ClassType::sweepA);
+    _d.CPGF_MD_TEMPLATE _field("sweepB", &D::ClassType::sweepB);
+    _d.CPGF_MD_TEMPLATE _field("tMax", &D::ClassType::tMax);
 }
 
 
 template <typename D>
-void buildMetaClass_B2TOIOutput(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_B2TOIOutput(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field(replaceName("state", _r), &D::ClassType::state);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("t", _r), &D::ClassType::t);
-    _d.CPGF_MD_TEMPLATE _enum<typename D::ClassType::State>(replaceName("State", _r))
-        ._element(replaceName("e_unknown", _r), D::ClassType::e_unknown)
-        ._element(replaceName("e_failed", _r), D::ClassType::e_failed)
-        ._element(replaceName("e_overlapped", _r), D::ClassType::e_overlapped)
-        ._element(replaceName("e_touching", _r), D::ClassType::e_touching)
-        ._element(replaceName("e_separated", _r), D::ClassType::e_separated)
+    _d.CPGF_MD_TEMPLATE _field("state", &D::ClassType::state);
+    _d.CPGF_MD_TEMPLATE _field("t", &D::ClassType::t);
+    _d.CPGF_MD_TEMPLATE _enum<typename D::ClassType::State>("State")
+        ._element("e_unknown", D::ClassType::e_unknown)
+        ._element("e_failed", D::ClassType::e_failed)
+        ._element("e_overlapped", D::ClassType::e_overlapped)
+        ._element("e_touching", D::ClassType::e_touching)
+        ._element("e_separated", D::ClassType::e_separated)
     ;
 }
 

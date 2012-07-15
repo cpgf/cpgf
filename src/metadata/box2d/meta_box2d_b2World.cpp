@@ -15,7 +15,7 @@ GDefineMetaInfo createMetaClass_B2World()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<b2World> _nd = GDefineMetaClass<b2World>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2World");
-        buildMetaClass_B2World(0, _nd, NULL);
+        buildMetaClass_B2World(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

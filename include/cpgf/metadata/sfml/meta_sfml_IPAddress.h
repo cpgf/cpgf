@@ -5,7 +5,6 @@
 
 
 #include "cpgf/gmetadefine.h"
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
@@ -18,9 +17,9 @@ namespace meta_sfml {
 
 
 template <typename D>
-void buildMetaClass_Global_ipaddress(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_Global_ipaddress(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _operator< std::istream & (*)(std::istream &, IPAddress &)>(mopHolder >> mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<0> >());
@@ -29,9 +28,9 @@ void buildMetaClass_Global_ipaddress(const cpgf::GMetaDataConfigFlags & config, 
 
 
 template <typename D>
-void buildMetaClass_IPAddress(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_IPAddress(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
@@ -39,12 +38,12 @@ void buildMetaClass_IPAddress(const cpgf::GMetaDataConfigFlags & config, D _d, c
     _d.CPGF_MD_TEMPLATE _constructor<void * (const char *)>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (Uint8, Uint8, Uint8, Uint8)>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (Uint32)>();
-    _d.CPGF_MD_TEMPLATE _field(replaceName("LocalHost", _r), &D::ClassType::LocalHost);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("IsValid", _r), &D::ClassType::IsValid);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("ToString", _r), &D::ClassType::ToString);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("ToInteger", _r), &D::ClassType::ToInteger);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetLocalAddress", _r), &D::ClassType::GetLocalAddress);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetPublicAddress", _r), &D::ClassType::GetPublicAddress)
+    _d.CPGF_MD_TEMPLATE _field("LocalHost", &D::ClassType::LocalHost);
+    _d.CPGF_MD_TEMPLATE _method("IsValid", &D::ClassType::IsValid);
+    _d.CPGF_MD_TEMPLATE _method("ToString", &D::ClassType::ToString);
+    _d.CPGF_MD_TEMPLATE _method("ToInteger", &D::ClassType::ToInteger);
+    _d.CPGF_MD_TEMPLATE _method("GetLocalAddress", &D::ClassType::GetLocalAddress);
+    _d.CPGF_MD_TEMPLATE _method("GetPublicAddress", &D::ClassType::GetPublicAddress)
         ._default(copyVariantFromCopyable(0.f))
     ;
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const IPAddress &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());

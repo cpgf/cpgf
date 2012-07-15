@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Context()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Context> _nd = GDefineMetaClass<sf::Context>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("Context");
-        buildMetaClass_Context(0, _nd, NULL);
+        buildMetaClass_Context(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_PostFX()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::PostFX, sf::Drawable> _nd = GDefineMetaClass<sf::PostFX, sf::Drawable>::declare("PostFX");
-        buildMetaClass_PostFX(0, _nd, NULL);
+        buildMetaClass_PostFX(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

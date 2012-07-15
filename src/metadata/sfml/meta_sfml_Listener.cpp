@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Listener()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Listener> _nd = GDefineMetaClass<sf::Listener>::declare("Listener");
-        buildMetaClass_Listener(0, _nd, NULL);
+        buildMetaClass_Listener(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

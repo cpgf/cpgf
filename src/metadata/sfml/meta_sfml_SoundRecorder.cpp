@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_SoundRecorder()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::SoundRecorder> _nd = GDefineMetaClass<sf::SoundRecorder>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent, GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("SoundRecorder");
-        buildMetaClass_SoundRecorder(0, _nd, NULL);
+        buildMetaClass_SoundRecorder(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

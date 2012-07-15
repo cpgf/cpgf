@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Lock()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Lock> _nd = GDefineMetaClass<sf::Lock>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("Lock");
-        buildMetaClass_Lock(0, _nd, NULL);
+        buildMetaClass_Lock(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

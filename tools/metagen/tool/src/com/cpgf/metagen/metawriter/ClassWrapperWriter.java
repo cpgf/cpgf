@@ -13,14 +13,12 @@ import com.cpgf.metagen.metadata.CppMethod;
 public class ClassWrapperWriter {
 	private Config config;
 	private ClassWrapperConfig wrapperConfig;
-	private CppWriter codeWriter;
 	private CppClass cppClass;
 	private List<CppMethod> overrideMethodList;
 
-	public ClassWrapperWriter(Config config, ClassWrapperConfig wrapperConfig, CppWriter codeWriter, CppClass cppClass) {
+	public ClassWrapperWriter(Config config, ClassWrapperConfig wrapperConfig, CppClass cppClass) {
 		this.config = config;
 		this.cppClass = cppClass;
-		this.codeWriter = codeWriter;
 		this.wrapperConfig = wrapperConfig;
 		
 		this.buidOverrideMethodList();
@@ -43,31 +41,27 @@ public class ClassWrapperWriter {
 		}
 	}
 
-	public void setCodeWriter(CppWriter codeWriter) {
-		this.codeWriter = codeWriter;
-	}
+	public void writeClassWrapper(CppWriter codeWriter) {
+		codeWriter.write("class " + this.getWrapperName() + " : public " + this.cppClass.getLiteralName() + ", public cpgf::GScriptWrapper ");
+		codeWriter.writeLine("{");
+		codeWriter.writeLine("public:");
+		codeWriter.incIndent();
 
-	public void writeClassWrapper() {
-		this.codeWriter.write("class " + this.getWrapperName() + " : public " + this.cppClass.getLiteralName() + ", public cpgf::GScriptWrapper ");
-		this.codeWriter.writeLine("{");
-		this.codeWriter.writeLine("public:");
-		this.codeWriter.incIndent();
-
-		this.codeWriter.writeLine("static bool " + this.getGuardName() + "[" + this.overrideMethodList.size() + "];");
+		codeWriter.writeLine("static bool " + this.getGuardName() + "[" + this.overrideMethodList.size() + "];");
 
 		for(int i = 0; i < this.overrideMethodList.size(); ++i) {
-			this.codeWriter.writeLine("");
+			codeWriter.writeLine("");
 			CppMethod cppMethod = this.overrideMethodList.get(i);
-			this.codeWriter.writeLine(Util.getInvokablePrototype(cppMethod, cppMethod.getLiteralName()));
-			this.codeWriter.beginBlock();
+			codeWriter.writeLine(Util.getInvokablePrototype(cppMethod, cppMethod.getLiteralName()));
+			codeWriter.beginBlock();
 				String paramText = Util.getParameterText(cppMethod.getParameterList(), false, true);
 				String sentinel = this.getGuardName() + "[" + i + "]";
-				this.codeWriter.writeLine("if(" + sentinel + ")");
-				this.codeWriter.beginBlock();
-					this.codeWriter.writeLine("cpgf::GScriptWrapperReentryGuard guard(&" + sentinel + ");");
-					this.codeWriter.writeLine("cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction(\"" + cppMethod.getLiteralName() + "\"));");
-					this.codeWriter.writeLine("if(func)");
-					this.codeWriter.beginBlock();
+				codeWriter.writeLine("if(" + sentinel + ")");
+				codeWriter.beginBlock();
+					codeWriter.writeLine("cpgf::GScriptWrapperReentryGuard guard(&" + sentinel + ");");
+					codeWriter.writeLine("cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction(\"" + cppMethod.getLiteralName() + "\"));");
+					codeWriter.writeLine("if(func)");
+					codeWriter.beginBlock();
 						String invoke = "cpgf::invokeScriptFunction(func.get(), this";
 						if(cppMethod.hasParameter()) {
 							invoke = invoke + ", " + paramText;
@@ -77,29 +71,29 @@ public class ClassWrapperWriter {
 							invoke = "return cpgf::fromVariant<" + cppMethod.getResultType().getLiteralType() + " >(" + invoke + ".getValue())";
 						}
 						invoke = invoke + ";";
-						this.codeWriter.writeLine(invoke);
+						codeWriter.writeLine(invoke);
 						if(! cppMethod.hasResult()) {
-							this.codeWriter.writeLine("return;");
+							codeWriter.writeLine("return;");
 						}
-					this.codeWriter.endBlock();
-				this.codeWriter.endBlock();
+					codeWriter.endBlock();
+				codeWriter.endBlock();
 				if(cppMethod.isPureVirtual()) {
-					this.codeWriter.writeLine("throw \"Abstract method\";");
+					codeWriter.writeLine("throw \"Abstract method\";");
 				}
 				else {
 					invoke = this.cppClass.getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
 					if(cppMethod.hasResult()) {
 						invoke = "return " + invoke;
 					}
-					this.codeWriter.writeLine(invoke);
+					codeWriter.writeLine(invoke);
 				}
-			this.codeWriter.endBlock("");
+			codeWriter.endBlock("");
 		}
-		this.codeWriter.decIndent();
-		this.codeWriter.writeLine("};");
+		codeWriter.decIndent();
+		codeWriter.writeLine("};");
 	}
 	
-	public void writeCreation(String callFunc) {
+	public void writeCreation(CppWriter codeWriter, String callFunc) {
 		List<String> rules = new ArrayList<String>();
 		this.cppClass.getPolicyRules(rules);
 
@@ -110,10 +104,10 @@ public class ClassWrapperWriter {
 		
 		String typeName = "GDefineMetaClass<" + this.getWrapperName() + ", " + this.cppClass.getLiteralName() + ">";
 
-		this.codeWriter.write(typeName +  " _nd = " + typeName + policy + "::declare(\"" + this.getWrapperName() + "\");\n");
+		codeWriter.writeLine(typeName +  " _nd = " + typeName + policy + "::declare(\"" + this.getWrapperName() + "\");");
 		
-		this.codeWriter.write(callFunc + "(0, _nd, NULL);\n");
-		this.codeWriter.write("_d._class(_nd);\n");
+		codeWriter.writeLine(callFunc + "(0, _nd);");
+		codeWriter.writeLine("_d._class(_nd);");
 	}
 
 	public void writeStaticInitializer(CppWriter codeWriter) {

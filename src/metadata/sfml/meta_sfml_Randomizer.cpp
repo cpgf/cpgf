@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Randomizer()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Randomizer> _nd = GDefineMetaClass<sf::Randomizer>::declare("Randomizer");
-        buildMetaClass_Randomizer(0, _nd, NULL);
+        buildMetaClass_Randomizer(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

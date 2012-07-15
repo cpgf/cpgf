@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Glyph()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Glyph> _nd = GDefineMetaClass<sf::Glyph>::declare("Glyph");
-        buildMetaClass_Glyph(0, _nd, NULL);
+        buildMetaClass_Glyph(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

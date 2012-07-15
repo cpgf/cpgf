@@ -5,7 +5,6 @@
 
 
 #include "cpgf/gmetadefine.h"
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
@@ -17,47 +16,47 @@ namespace meta_box2d {
 
 
 template <typename D>
-void buildMetaClass_Global_b2dynamictree(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_Global_b2dynamictree(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalDefine_box2d_3", _r))
-        ._element(replaceName("b2_nullNode", _r), b2_nullNode)
+    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalDefine_box2d_3")
+        ._element("b2_nullNode", b2_nullNode)
     ;
 }
 
 
 template <typename D>
-void buildMetaClass_B2DynamicTree(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_B2DynamicTree(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
-    _d.CPGF_MD_TEMPLATE _method(replaceName("CreateProxy", _r), &D::ClassType::CreateProxy);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("DestroyProxy", _r), &D::ClassType::DestroyProxy);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("MoveProxy", _r), &D::ClassType::MoveProxy);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("Rebalance", _r), &D::ClassType::Rebalance);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetUserData", _r), &D::ClassType::GetUserData);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetFatAABB", _r), &D::ClassType::GetFatAABB);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("ComputeHeight", _r), (int32 (D::ClassType::*) () const)&D::ClassType::ComputeHeight);
+    _d.CPGF_MD_TEMPLATE _method("CreateProxy", &D::ClassType::CreateProxy);
+    _d.CPGF_MD_TEMPLATE _method("DestroyProxy", &D::ClassType::DestroyProxy);
+    _d.CPGF_MD_TEMPLATE _method("MoveProxy", &D::ClassType::MoveProxy);
+    _d.CPGF_MD_TEMPLATE _method("Rebalance", &D::ClassType::Rebalance);
+    _d.CPGF_MD_TEMPLATE _method("GetUserData", &D::ClassType::GetUserData);
+    _d.CPGF_MD_TEMPLATE _method("GetFatAABB", &D::ClassType::GetFatAABB);
+    _d.CPGF_MD_TEMPLATE _method("ComputeHeight", (int32 (D::ClassType::*) () const)&D::ClassType::ComputeHeight);
 }
 
 
 template <typename D>
-void buildMetaClass_B2DynamicTreeNode(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_B2DynamicTreeNode(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field(replaceName("aabb", _r), &D::ClassType::aabb);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("userData", _r), &D::ClassType::userData);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("parent", _r), &D::ClassType::parent);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("next", _r), &D::ClassType::next);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("child1", _r), &D::ClassType::child1);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("child2", _r), &D::ClassType::child2);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("IsLeaf", _r), &D::ClassType::IsLeaf);
+    _d.CPGF_MD_TEMPLATE _field("aabb", &D::ClassType::aabb);
+    _d.CPGF_MD_TEMPLATE _field("userData", &D::ClassType::userData);
+    _d.CPGF_MD_TEMPLATE _field("parent", &D::ClassType::parent);
+    _d.CPGF_MD_TEMPLATE _field("next", &D::ClassType::next);
+    _d.CPGF_MD_TEMPLATE _field("child1", &D::ClassType::child1);
+    _d.CPGF_MD_TEMPLATE _field("child2", &D::ClassType::child2);
+    _d.CPGF_MD_TEMPLATE _method("IsLeaf", &D::ClassType::IsLeaf);
 }
 
 

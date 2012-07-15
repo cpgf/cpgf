@@ -18,7 +18,7 @@ namespace meta_sfml {
 GDefineMetaInfo createMetaClass_Global_event()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_event(0, _d, NULL);
+    buildMetaClass_Global_event(0, _d);
     return _d.getMetaInfo();
 }
 
@@ -28,7 +28,7 @@ GDefineMetaInfo createMetaClass_Event()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Event> _nd = GDefineMetaClass<sf::Event>::declare("Event");
-        buildMetaClass_Event(0, _nd, NULL);
+        buildMetaClass_Event(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

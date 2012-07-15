@@ -15,7 +15,7 @@ GDefineMetaInfo createMetaClass_B2MassData()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<b2MassData> _nd = GDefineMetaClass<b2MassData>::declare("b2MassData");
-        buildMetaClass_B2MassData(0, _nd, NULL);
+        buildMetaClass_B2MassData(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();
@@ -27,7 +27,7 @@ GDefineMetaInfo createMetaClass_B2Shape()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<b2Shape> _nd = GDefineMetaClass<b2Shape>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("b2Shape");
-        buildMetaClass_B2Shape(0, _nd, NULL);
+        buildMetaClass_B2Shape(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

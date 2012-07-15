@@ -2,7 +2,6 @@
 #define __GMETADATA_OPENGL_H
 
 
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 
 #include "cpgf/gbytearray.h"
@@ -18,7 +17,7 @@ namespace metadata_internal {
 
 
 template <typename MetaDefine>
-void doBuildMetaData_open_gl_constants(const GMetaDataConfigFlags & /*config*/, MetaDefine define, const GMetaDataNameReplacer * replacer)
+void doBuildMetaData_open_gl_constants(const GMetaDataConfigFlags & /*config*/, MetaDefine define)
 {
 	define.CPGF_MD_TEMPLATE _enum<int>("gl_enum")
 
@@ -1117,7 +1116,7 @@ void doBuildMetaData_open_gl_constants(const GMetaDataConfigFlags & /*config*/, 
 }
 
 template <typename MetaDefine>
-void doBuildMetaData_open_gl_functions(const GMetaDataConfigFlags & /*config*/, MetaDefine define, const GMetaDataNameReplacer * replacer)
+void doBuildMetaData_open_gl_functions(const GMetaDataConfigFlags & /*config*/, MetaDefine define)
 {
 	GM(glAccum)
 	GM(glAlphaFunc)
@@ -1468,10 +1467,10 @@ inline IByteArray * helper_createByteArrayWithLength(size_t length)
 }
 
 template <typename MetaDefine>
-void doBuildMetaData_open_gl(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer)
+void doBuildMetaData_open_gl(const GMetaDataConfigFlags & config, MetaDefine define)
 {
-	doBuildMetaData_open_gl_constants(config, define, replacer);
-	doBuildMetaData_open_gl_functions(config, define, replacer);
+	doBuildMetaData_open_gl_constants(config, define);
+	doBuildMetaData_open_gl_functions(config, define);
 
 	if(metaDataConfigIsScriptable(config)) {
 		define.CPGF_MD_TEMPLATE _method("createByteArray", &helper_createByteArray);
@@ -1485,15 +1484,15 @@ void doBuildMetaData_open_gl(const GMetaDataConfigFlags & config, MetaDefine def
 
 
 template <typename MetaDefine>
-void buildMetaData_open_gl(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_open_gl(const GMetaDataConfigFlags & config, MetaDefine define)
 {
-	metadata_internal::doBuildMetaData_open_gl(config, define, replacer);
+	metadata_internal::doBuildMetaData_open_gl(config, define);
 }
 
 template <typename MetaDefine>
-void buildMetaData_open_gl(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_open_gl(MetaDefine define)
 {
-	buildMetaData_open_gl(mdcScriptable | mdcAutoProperty, define, replacer);
+	buildMetaData_open_gl(mdcScriptable | mdcAutoProperty, define);
 }
 
 

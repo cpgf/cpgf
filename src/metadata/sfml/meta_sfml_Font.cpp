@@ -37,7 +37,7 @@ GDefineMetaInfo createMetaClass_Font()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Font, sf::Resource< Font >> _nd = GDefineMetaClass<sf::Font, sf::Resource< Font >>::declare("Font");
-        buildMetaClass_Font(0, _nd, NULL);
+        buildMetaClass_Font(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

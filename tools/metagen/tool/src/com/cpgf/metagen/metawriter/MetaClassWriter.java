@@ -70,7 +70,7 @@ public class MetaClassWriter {
 	}
 
 	private String getReplace(String name) {
-		return "replaceName(\"" + name + "\", _r)";
+		return "\"" + name + "\"";
 	}
 
 	private void doCallback(Item item) {
@@ -179,7 +179,7 @@ public class MetaClassWriter {
 			
 			this.codeWriter.write(action);
 			this.codeWriter.write("(" + this.getReplace(name) + ", ");
-			this.codeWriter.write("&" + prefix + name + WriterUtil.getPolicyText(item) + ");\n");
+			this.codeWriter.writeLine("&" + prefix + name + WriterUtil.getPolicyText(item) + ");");
 		}
 	}
 
@@ -254,13 +254,13 @@ public class MetaClassWriter {
 				typeName = "long long";
 			}
 
-			this.codeWriter.write(action + "<" + typeName + ">(" + this.getReplace(name) + ")\n");
+			this.codeWriter.writeLine(action + "<" + typeName + ">(" + this.getReplace(name) + ")");
 			this.codeWriter.incIndent();
 				for(EnumValue value : item.getValueList()) {
-					this.codeWriter.write("._element(" + this.getReplace(value.getName()) + ", " + prefix + value.getQualifiedName() + ")\n");
+					this.codeWriter.writeLine("._element(" + this.getReplace(value.getName()) + ", " + prefix + value.getQualifiedName() + ")");
 				}
 			this.codeWriter.decIndent();
-			this.codeWriter.write(";\n");
+			this.codeWriter.writeLine(";");
 		}
 	}
 
@@ -271,7 +271,7 @@ public class MetaClassWriter {
 			return;
 		}
 
-		this.codeWriter.write(action + "<long long>(" + this.getReplace("GlobalDefine_" + this.config.projectID + "_" + Util.getUniqueID()) + ")\n");
+		this.codeWriter.writeLine(action + "<long long>(" + this.getReplace("GlobalDefine_" + this.config.projectID + "_" + Util.getUniqueID()) + ")");
 		this.codeWriter.incIndent();
 
 		for(Constant item : this.cppClass.getConstantList()) {
@@ -286,11 +286,11 @@ public class MetaClassWriter {
 				continue;
 			}
 			
-			this.codeWriter.write("._element(" + this.getReplace(item.getPrimaryName()) + ", " + item.getPrimaryName() + ")\n");
+			this.codeWriter.writeLine("._element(" + this.getReplace(item.getPrimaryName()) + ", " + item.getPrimaryName() + ")");
 		}
 		
 		this.codeWriter.decIndent();
-		this.codeWriter.write(";\n");
+		this.codeWriter.writeLine(";");
 	}
 
 	private void writeOperator() {
@@ -408,7 +408,7 @@ public class MetaClassWriter {
 				item.getLiteralName()
 			);
 			classWriter.write();
-			this.codeWriter.write(action + "(_nd);\n");
+			this.codeWriter.writeLine(action + "(_nd);");
 			
 			this.codeWriter.endBlock();
 		}

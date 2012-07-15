@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Http()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Http> _nd = GDefineMetaClass<sf::Http>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("Http");
-        buildMetaClass_Http(0, _nd, NULL);
+        buildMetaClass_Http(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

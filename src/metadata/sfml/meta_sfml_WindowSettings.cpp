@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_WindowSettings()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::WindowSettings> _nd = GDefineMetaClass<sf::WindowSettings>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("WindowSettings");
-        buildMetaClass_WindowSettings(0, _nd, NULL);
+        buildMetaClass_WindowSettings(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

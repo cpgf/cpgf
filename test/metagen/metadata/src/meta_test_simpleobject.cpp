@@ -15,24 +15,36 @@ namespace meta_test {
 
 GDefineMetaInfo createMetaClass_SimpleAtom()
 {
-    GDefineMetaClass<SimpleAtom> _d = GDefineMetaClass<SimpleAtom>::declare("SimpleAtom");
-    buildMetaClass_SimpleAtom(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<SimpleAtom> _nd = GDefineMetaClass<SimpleAtom>::declare("SimpleAtom");
+        buildMetaClass_SimpleAtom(0, _nd);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_SimpleData()
 {
-    GDefineMetaClass<SimpleData> _d = GDefineMetaClass<SimpleData>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("SimpleData");
-    buildMetaClass_SimpleData(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<SimpleData> _nd = GDefineMetaClass<SimpleData>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("SimpleData");
+        buildMetaClass_SimpleData(0, _nd);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 
 
 GDefineMetaInfo createMetaClass_SimpleObject()
 {
-    GDefineMetaClass<SimpleObject> _d = GDefineMetaClass<SimpleObject>::declare("SimpleObject");
-    buildMetaClass_SimpleObject(0, _d, NULL);
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<SimpleObject> _nd = GDefineMetaClass<SimpleObject>::declare("SimpleObject");
+        buildMetaClass_SimpleObject(0, _nd);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

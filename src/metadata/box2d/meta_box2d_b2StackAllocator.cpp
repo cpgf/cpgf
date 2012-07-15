@@ -13,7 +13,7 @@ namespace meta_box2d {
 GDefineMetaInfo createMetaClass_Global_b2stackallocator()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_b2stackallocator(0, _d, NULL);
+    buildMetaClass_Global_b2stackallocator(0, _d);
     return _d.getMetaInfo();
 }
 
@@ -23,7 +23,7 @@ GDefineMetaInfo createMetaClass_B2StackAllocator()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<b2StackAllocator> _nd = GDefineMetaClass<b2StackAllocator>::declare("b2StackAllocator");
-        buildMetaClass_B2StackAllocator(0, _nd, NULL);
+        buildMetaClass_B2StackAllocator(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();
@@ -35,7 +35,7 @@ GDefineMetaInfo createMetaClass_B2StackEntry()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<b2StackEntry> _nd = GDefineMetaClass<b2StackEntry>::declare("b2StackEntry");
-        buildMetaClass_B2StackEntry(0, _nd, NULL);
+        buildMetaClass_B2StackEntry(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

@@ -5,7 +5,6 @@
 
 
 #include "cpgf/gmetadefine.h"
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
@@ -18,9 +17,9 @@ namespace meta_sfml {
 
 
 template <typename D>
-void buildMetaClass_WindowSettings(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_WindowSettings(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (unsigned int, unsigned int, unsigned int)>()
@@ -28,9 +27,9 @@ void buildMetaClass_WindowSettings(const cpgf::GMetaDataConfigFlags & config, D 
         ._default(copyVariantFromCopyable(8))
         ._default(copyVariantFromCopyable(24))
     ;
-    _d.CPGF_MD_TEMPLATE _field(replaceName("DepthBits", _r), &D::ClassType::DepthBits);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("StencilBits", _r), &D::ClassType::StencilBits);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("AntialiasingLevel", _r), &D::ClassType::AntialiasingLevel);
+    _d.CPGF_MD_TEMPLATE _field("DepthBits", &D::ClassType::DepthBits);
+    _d.CPGF_MD_TEMPLATE _field("StencilBits", &D::ClassType::StencilBits);
+    _d.CPGF_MD_TEMPLATE _field("AntialiasingLevel", &D::ClassType::AntialiasingLevel);
 }
 
 

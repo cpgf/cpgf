@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Input()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Input, sf::WindowListener> _nd = GDefineMetaClass<sf::Input, sf::WindowListener>::Policy<MakePolicy<GMetaRuleCopyConstructorAbsent> >::declare("Input");
-        buildMetaClass_Input(0, _nd, NULL);
+        buildMetaClass_Input(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

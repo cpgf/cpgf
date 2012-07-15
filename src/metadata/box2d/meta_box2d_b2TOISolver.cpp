@@ -15,7 +15,7 @@ GDefineMetaInfo createMetaClass_B2TOISolver()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<b2TOISolver> _nd = GDefineMetaClass<b2TOISolver>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2TOISolver");
-        buildMetaClass_B2TOISolver(0, _nd, NULL);
+        buildMetaClass_B2TOISolver(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

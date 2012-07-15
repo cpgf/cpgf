@@ -20,12 +20,12 @@ GDefineMetaInfo createMetaClass_Rect()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<Rect<int> > _nd = GDefineMetaClass<Rect<int> >::declare("Rect_int");
-        buildMetaClass_Rect<GDefineMetaClass<Rect<int> >, int >(0, _nd, NULL);
+        buildMetaClass_Rect<GDefineMetaClass<Rect<int> >, int >(0, _nd);
         _d._class(_nd);
     }
     {
         GDefineMetaClass<Rect<float> > _nd = GDefineMetaClass<Rect<float> >::declare("Rect_float");
-        buildMetaClass_Rect<GDefineMetaClass<Rect<float> >, float >(0, _nd, NULL);
+        buildMetaClass_Rect<GDefineMetaClass<Rect<float> >, float >(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

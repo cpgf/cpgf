@@ -5,7 +5,6 @@
 
 
 #include "cpgf/gmetadefine.h"
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
@@ -18,22 +17,22 @@ namespace meta_sfml {
 
 
 template <typename D>
-void buildMetaClass_VideoMode(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_VideoMode(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (unsigned int, unsigned int, unsigned int)>()
         ._default(copyVariantFromCopyable(32))
     ;
-    _d.CPGF_MD_TEMPLATE _field(replaceName("Width", _r), &D::ClassType::Width);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("Height", _r), &D::ClassType::Height);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("BitsPerPixel", _r), &D::ClassType::BitsPerPixel);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("IsValid", _r), &D::ClassType::IsValid);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetDesktopMode", _r), &D::ClassType::GetDesktopMode);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetMode", _r), &D::ClassType::GetMode);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetModesCount", _r), &D::ClassType::GetModesCount);
+    _d.CPGF_MD_TEMPLATE _field("Width", &D::ClassType::Width);
+    _d.CPGF_MD_TEMPLATE _field("Height", &D::ClassType::Height);
+    _d.CPGF_MD_TEMPLATE _field("BitsPerPixel", &D::ClassType::BitsPerPixel);
+    _d.CPGF_MD_TEMPLATE _method("IsValid", &D::ClassType::IsValid);
+    _d.CPGF_MD_TEMPLATE _method("GetDesktopMode", &D::ClassType::GetDesktopMode);
+    _d.CPGF_MD_TEMPLATE _method("GetMode", &D::ClassType::GetMode);
+    _d.CPGF_MD_TEMPLATE _method("GetModesCount", &D::ClassType::GetModesCount);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const VideoMode &)>(mopHolder == mopHolder);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const VideoMode &)>(mopHolder != mopHolder);
 }

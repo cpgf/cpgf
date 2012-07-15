@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Shape()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Shape, sf::Drawable> _nd = GDefineMetaClass<sf::Shape, sf::Drawable>::declare("Shape");
-        buildMetaClass_Shape(0, _nd, NULL);
+        buildMetaClass_Shape(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

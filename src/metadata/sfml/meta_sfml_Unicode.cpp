@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Unicode()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Unicode> _nd = GDefineMetaClass<sf::Unicode>::declare("Unicode");
-        buildMetaClass_Unicode(0, _nd, NULL);
+        buildMetaClass_Unicode(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

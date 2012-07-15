@@ -8,9 +8,8 @@
 template <typename Container, typename Binding>
 void testStlList_Helper(Binding * binding, TestScriptContext * c, const char * className, const GTestValueProvider & valueProvider)
 {
-	GMetaDataNameReplacer replacer;
 	GDefineMetaClass<Container> define = GDefineMetaClass<Container>::declare(className);
-	buildMetaData_list(define, typename GMetaDataPolicyDeduce<typename Container::value_type>::Result(), &replacer);
+	buildMetaData_list(define, typename GMetaDataPolicyDeduce<typename Container::value_type>::Result());
 
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(define.getMetaClass())));
 	binding->bindClass(className, metaClass.get());

@@ -5,7 +5,6 @@
 
 
 #include "cpgf/gmetadefine.h"
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
@@ -18,12 +17,12 @@ namespace meta_sfml {
 
 
 template <typename D>
-void buildMetaClass_WindowListener(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_WindowListener(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method(replaceName("OnEvent", _r), &D::ClassType::OnEvent);
+    _d.CPGF_MD_TEMPLATE _method("OnEvent", &D::ClassType::OnEvent);
 }
 
 

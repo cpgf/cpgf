@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_AudioResource()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::AudioResource> _nd = GDefineMetaClass<sf::AudioResource>::Policy<MakePolicy<GMetaRuleDestructorAbsent, GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("AudioResource");
-        buildMetaClass_AudioResource(0, _nd, NULL);
+        buildMetaClass_AudioResource(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

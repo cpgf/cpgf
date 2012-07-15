@@ -18,7 +18,7 @@ namespace meta_sfml {
 GDefineMetaInfo createMetaClass_Global_windowstyle()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_windowstyle(0, _d, NULL);
+    buildMetaClass_Global_windowstyle(0, _d);
     return _d.getMetaInfo();
 }
 

@@ -18,7 +18,7 @@ namespace meta_sfml {
 GDefineMetaInfo createMetaClass_Global_ipaddress()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_ipaddress(0, _d, NULL);
+    buildMetaClass_Global_ipaddress(0, _d);
     return _d.getMetaInfo();
 }
 
@@ -28,7 +28,7 @@ GDefineMetaInfo createMetaClass_IPAddress()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::IPAddress> _nd = GDefineMetaClass<sf::IPAddress>::declare("IPAddress");
-        buildMetaClass_IPAddress(0, _nd, NULL);
+        buildMetaClass_IPAddress(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

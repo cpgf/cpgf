@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_String()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::String, sf::Drawable> _nd = GDefineMetaClass<sf::String, sf::Drawable>::declare("String");
-        buildMetaClass_String(0, _nd, NULL);
+        buildMetaClass_String(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

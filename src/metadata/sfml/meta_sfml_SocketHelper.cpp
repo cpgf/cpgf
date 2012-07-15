@@ -18,7 +18,7 @@ namespace meta_sfml {
 GDefineMetaInfo createMetaClass_Global_sockethelper()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_sockethelper(0, _d, NULL);
+    buildMetaClass_Global_sockethelper(0, _d);
     return _d.getMetaInfo();
 }
 
@@ -28,7 +28,7 @@ GDefineMetaInfo createMetaClass_SocketHelper()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::SocketHelper> _nd = GDefineMetaClass<sf::SocketHelper>::declare("SocketHelper");
-        buildMetaClass_SocketHelper(0, _nd, NULL);
+        buildMetaClass_SocketHelper(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

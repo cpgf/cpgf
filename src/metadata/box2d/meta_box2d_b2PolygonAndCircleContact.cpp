@@ -15,7 +15,7 @@ GDefineMetaInfo createMetaClass_B2PolygonAndCircleContact()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<b2PolygonAndCircleContact, b2Contact> _nd = GDefineMetaClass<b2PolygonAndCircleContact, b2Contact>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2PolygonAndCircleContact");
-        buildMetaClass_B2PolygonAndCircleContact(0, _nd, NULL);
+        buildMetaClass_B2PolygonAndCircleContact(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

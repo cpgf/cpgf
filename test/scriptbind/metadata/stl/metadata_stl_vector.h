@@ -8,10 +8,9 @@
 template <typename Container, typename Binding>
 void testStlVector_Helper(Binding * binding, TestScriptContext * c, const char * className, const GTestValueProvider & valueProvider)
 {
-	GMetaDataNameReplacer replacer;
 	GDefineMetaClass<Container> define = GDefineMetaClass<Container>::declare(className);
 	typename GMetaDataPolicyDeduce<typename Container::value_type>::Result p;
-	buildMetaData_vector(define, p, &replacer);
+	buildMetaData_vector(define, p);
 
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(define.getMetaClass())));
 	binding->bindClass(className, metaClass.get());

@@ -18,7 +18,7 @@ namespace meta_sfml {
 GDefineMetaInfo createMetaClass_Global_vector2()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_vector2(0, _d, NULL);
+    buildMetaClass_Global_vector2(0, _d);
     return _d.getMetaInfo();
 }
 
@@ -28,12 +28,12 @@ GDefineMetaInfo createMetaClass_Vector2()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<Vector2<int> > _nd = GDefineMetaClass<Vector2<int> >::declare("Vector2_int");
-        buildMetaClass_Vector2<GDefineMetaClass<Vector2<int> >, int >(0, _nd, NULL);
+        buildMetaClass_Vector2<GDefineMetaClass<Vector2<int> >, int >(0, _nd);
         _d._class(_nd);
     }
     {
         GDefineMetaClass<Vector2<float> > _nd = GDefineMetaClass<Vector2<float> >::declare("Vector2_float");
-        buildMetaClass_Vector2<GDefineMetaClass<Vector2<float> >, float >(0, _nd, NULL);
+        buildMetaClass_Vector2<GDefineMetaClass<Vector2<float> >, float >(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

@@ -5,7 +5,6 @@
 
 
 #include "cpgf/gmetadefine.h"
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
@@ -17,19 +16,19 @@ namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_SimpleAtom(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_SimpleAtom(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field(replaceName("value", _r), &D::ClassType::value);
+    _d.CPGF_MD_TEMPLATE _field("value", &D::ClassType::value);
 }
 
 
 template <typename D>
-void buildMetaClass_SimpleData(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_SimpleData(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (int, const std::string &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >())
@@ -37,27 +36,27 @@ void buildMetaClass_SimpleData(const cpgf::GMetaDataConfigFlags & config, D _d, 
         ._default(copyVariantFromCopyable(0))
     ;
     _d.CPGF_MD_TEMPLATE _constructor<void * (const SimpleData &)>();
-    _d.CPGF_MD_TEMPLATE _field(replaceName("n", _r), &D::ClassType::n);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("s", _r), &D::ClassType::s);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("ws", _r), &D::ClassType::ws);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("atom", _r), &D::ClassType::atom);
+    _d.CPGF_MD_TEMPLATE _field("n", &D::ClassType::n);
+    _d.CPGF_MD_TEMPLATE _field("s", &D::ClassType::s);
+    _d.CPGF_MD_TEMPLATE _field("ws", &D::ClassType::ws);
+    _d.CPGF_MD_TEMPLATE _field("atom", &D::ClassType::atom);
 }
 
 
 template <typename D>
-void buildMetaClass_SimpleObject(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_SimpleObject(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field(replaceName("data", _r), &D::ClassType::data);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("getData", _r), &D::ClassType::getData);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("getDataPtr", _r), &D::ClassType::getDataPtr);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("setData", _r), &D::ClassType::setData);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("setDataPtr", _r), &D::ClassType::setDataPtr);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("checkData", _r), (bool (D::ClassType::*) (int) const)&D::ClassType::checkData);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("checkData", _r), (bool (D::ClassType::*) (const std::string &) const)&D::ClassType::checkData, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method(replaceName("checkAtom", _r), &D::ClassType::checkAtom);
+    _d.CPGF_MD_TEMPLATE _field("data", &D::ClassType::data);
+    _d.CPGF_MD_TEMPLATE _method("getData", &D::ClassType::getData);
+    _d.CPGF_MD_TEMPLATE _method("getDataPtr", &D::ClassType::getDataPtr);
+    _d.CPGF_MD_TEMPLATE _method("setData", &D::ClassType::setData);
+    _d.CPGF_MD_TEMPLATE _method("setDataPtr", &D::ClassType::setDataPtr);
+    _d.CPGF_MD_TEMPLATE _method("checkData", (bool (D::ClassType::*) (int) const)&D::ClassType::checkData);
+    _d.CPGF_MD_TEMPLATE _method("checkData", (bool (D::ClassType::*) (const std::string &) const)&D::ClassType::checkData, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("checkAtom", &D::ClassType::checkAtom);
 }
 
 

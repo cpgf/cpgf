@@ -5,7 +5,6 @@
 
 
 #include "cpgf/gmetadefine.h"
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
@@ -17,49 +16,49 @@ namespace meta_box2d {
 
 
 template <typename D>
-void buildMetaClass_B2Contact(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_B2Contact(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetManifold", _r), (b2Manifold * (D::ClassType::*) ())&D::ClassType::GetManifold);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetManifold", _r), (const b2Manifold * (D::ClassType::*) () const)&D::ClassType::GetManifold);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetWorldManifold", _r), &D::ClassType::GetWorldManifold);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("IsTouching", _r), &D::ClassType::IsTouching);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("SetEnabled", _r), &D::ClassType::SetEnabled);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("IsEnabled", _r), &D::ClassType::IsEnabled);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetNext", _r), (b2Contact * (D::ClassType::*) ())&D::ClassType::GetNext);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetNext", _r), (const b2Contact * (D::ClassType::*) () const)&D::ClassType::GetNext);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetFixtureA", _r), (b2Fixture * (D::ClassType::*) ())&D::ClassType::GetFixtureA);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetFixtureA", _r), (const b2Fixture * (D::ClassType::*) () const)&D::ClassType::GetFixtureA);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetFixtureB", _r), (b2Fixture * (D::ClassType::*) ())&D::ClassType::GetFixtureB);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("GetFixtureB", _r), (const b2Fixture * (D::ClassType::*) () const)&D::ClassType::GetFixtureB);
-    _d.CPGF_MD_TEMPLATE _method(replaceName("Evaluate", _r), &D::ClassType::Evaluate);
+    _d.CPGF_MD_TEMPLATE _method("GetManifold", (b2Manifold * (D::ClassType::*) ())&D::ClassType::GetManifold);
+    _d.CPGF_MD_TEMPLATE _method("GetManifold", (const b2Manifold * (D::ClassType::*) () const)&D::ClassType::GetManifold);
+    _d.CPGF_MD_TEMPLATE _method("GetWorldManifold", &D::ClassType::GetWorldManifold);
+    _d.CPGF_MD_TEMPLATE _method("IsTouching", &D::ClassType::IsTouching);
+    _d.CPGF_MD_TEMPLATE _method("SetEnabled", &D::ClassType::SetEnabled);
+    _d.CPGF_MD_TEMPLATE _method("IsEnabled", &D::ClassType::IsEnabled);
+    _d.CPGF_MD_TEMPLATE _method("GetNext", (b2Contact * (D::ClassType::*) ())&D::ClassType::GetNext);
+    _d.CPGF_MD_TEMPLATE _method("GetNext", (const b2Contact * (D::ClassType::*) () const)&D::ClassType::GetNext);
+    _d.CPGF_MD_TEMPLATE _method("GetFixtureA", (b2Fixture * (D::ClassType::*) ())&D::ClassType::GetFixtureA);
+    _d.CPGF_MD_TEMPLATE _method("GetFixtureA", (const b2Fixture * (D::ClassType::*) () const)&D::ClassType::GetFixtureA);
+    _d.CPGF_MD_TEMPLATE _method("GetFixtureB", (b2Fixture * (D::ClassType::*) ())&D::ClassType::GetFixtureB);
+    _d.CPGF_MD_TEMPLATE _method("GetFixtureB", (const b2Fixture * (D::ClassType::*) () const)&D::ClassType::GetFixtureB);
+    _d.CPGF_MD_TEMPLATE _method("Evaluate", &D::ClassType::Evaluate);
 }
 
 
 template <typename D>
-void buildMetaClass_B2ContactEdge(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_B2ContactEdge(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field(replaceName("other", _r), &D::ClassType::other);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("contact", _r), &D::ClassType::contact);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("prev", _r), &D::ClassType::prev);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("next", _r), &D::ClassType::next);
+    _d.CPGF_MD_TEMPLATE _field("other", &D::ClassType::other);
+    _d.CPGF_MD_TEMPLATE _field("contact", &D::ClassType::contact);
+    _d.CPGF_MD_TEMPLATE _field("prev", &D::ClassType::prev);
+    _d.CPGF_MD_TEMPLATE _field("next", &D::ClassType::next);
 }
 
 
 template <typename D>
-void buildMetaClass_B2ContactRegister(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_B2ContactRegister(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field(replaceName("createFcn", _r), &D::ClassType::createFcn);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("destroyFcn", _r), &D::ClassType::destroyFcn);
-    _d.CPGF_MD_TEMPLATE _field(replaceName("primary", _r), &D::ClassType::primary);
+    _d.CPGF_MD_TEMPLATE _field("createFcn", &D::ClassType::createFcn);
+    _d.CPGF_MD_TEMPLATE _field("destroyFcn", &D::ClassType::destroyFcn);
+    _d.CPGF_MD_TEMPLATE _field("primary", &D::ClassType::primary);
 }
 
 

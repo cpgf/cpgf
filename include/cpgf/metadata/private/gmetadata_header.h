@@ -20,8 +20,8 @@
 #endif
 
 
-#define M(Type, Name) define.CPGF_MD_TEMPLATE _method(replaceName(# Name, replacer), &Type::Name);
-#define GM(Name) define.CPGF_MD_TEMPLATE _method(replaceName(# Name, replacer), &Name);
+#define M(Type, Name) define.CPGF_MD_TEMPLATE _method(# Name, &Type::Name);
+#define GM(Name) define.CPGF_MD_TEMPLATE _method(# Name, &Name);
 
-#define ENUM_VALUE(Type, Name) .CPGF_MD_TEMPLATE _element(replaceName(# Name, replacer), Type::Name)
-#define GENUM_VALUE(Name) .CPGF_MD_TEMPLATE _element(replaceName(# Name, replacer), Name)
+#define ENUM_VALUE(Type, Name) .CPGF_MD_TEMPLATE _element(# Name, Type::Name)
+#define GENUM_VALUE(Name) .CPGF_MD_TEMPLATE _element(# Name, Name)

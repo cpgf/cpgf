@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_RenderTarget()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::RenderTarget> _nd = GDefineMetaClass<sf::RenderTarget>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("RenderTarget");
-        buildMetaClass_RenderTarget(0, _nd, NULL);
+        buildMetaClass_RenderTarget(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

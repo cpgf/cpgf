@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_SocketUDP()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::SocketUDP> _nd = GDefineMetaClass<sf::SocketUDP>::declare("SocketUDP");
-        buildMetaClass_SocketUDP(0, _nd, NULL);
+        buildMetaClass_SocketUDP(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

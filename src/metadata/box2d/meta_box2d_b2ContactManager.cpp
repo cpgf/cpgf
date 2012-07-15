@@ -15,7 +15,7 @@ GDefineMetaInfo createMetaClass_B2ContactManager()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<b2ContactManager> _nd = GDefineMetaClass<b2ContactManager>::declare("b2ContactManager");
-        buildMetaClass_B2ContactManager(0, _nd, NULL);
+        buildMetaClass_B2ContactManager(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

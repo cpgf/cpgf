@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_NonCopyable()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::NonCopyable> _nd = GDefineMetaClass<sf::NonCopyable>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("NonCopyable");
-        buildMetaClass_NonCopyable(0, _nd, NULL);
+        buildMetaClass_NonCopyable(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

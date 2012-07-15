@@ -69,33 +69,35 @@ public class MetaWriter {
 
 		codeWriter.include("cpgf/gmetadefine.h");
 
-		codeWriter.write("\n\n");
+		codeWriter.writeLine("");
+		codeWriter.writeLine("");
 		
 		codeWriter.useNamespace("cpgf");
-		codeWriter.write("\n");
+		codeWriter.writeLine("");
 
 		codeWriter.beginNamespace(this.config.cppNamespace);
 		
 		List<String> sortedCreateFunctionNames = Util.sortStringList(createFunctionNames);
 
 		for(String funcName : sortedCreateFunctionNames) {
-			codeWriter.write("GDefineMetaInfo " + funcName + "();\n");
+			codeWriter.writeLine("GDefineMetaInfo " + funcName + "();");
 		}
 		
-		codeWriter.write("\n\n");
+		codeWriter.writeLine("");
+		codeWriter.writeLine("");
 
-		codeWriter.write("template <typename Meta>\n");
-		codeWriter.write("void " + this.getMainFunctionName() + "(Meta _d)\n");
+		codeWriter.writeLine("template <typename Meta>");
+		codeWriter.writeLine("void " + this.getMainFunctionName() + "(Meta _d)");
 
 		codeWriter.beginBlock();
 
 		for(String funcName : sortedCreateFunctionNames) {
-			codeWriter.write("_d._class(" + funcName + "());\n");
+			codeWriter.writeLine("_d._class(" + funcName + "());");
 		}
 
 		codeWriter.endBlock();
 		
-		codeWriter.write("\n");
+		codeWriter.writeLine("");
 		
 		codeWriter.endNamespace(this.config.cppNamespace);
 
@@ -118,26 +120,27 @@ public class MetaWriter {
 		codeWriter.include("cpgf/gmetadefine.h");
 		codeWriter.include("cpgf/goutmain.h");
 
-		codeWriter.write("\n\n");
+		codeWriter.writeLine("");
+		codeWriter.writeLine("");
 		
 		codeWriter.useNamespace("cpgf");
-		codeWriter.write("\n");
+		codeWriter.writeLine("");
 
 		codeWriter.beginNamespace(this.config.cppNamespace);
 		
 		codeWriter.beginNamespace("");
 
-		codeWriter.write("G_AUTO_RUN_BEFORE_MAIN()\n");
+		codeWriter.writeLine("G_AUTO_RUN_BEFORE_MAIN()");
 
 		codeWriter.beginBlock();
 
 		CppClass global = new CppClass(null);
 		WriterUtil.defineMetaClass(this.config, codeWriter, global, "_d", "define");
 
-		codeWriter.write(this.getMainFunctionName() + "(_d);\n");
+		codeWriter.writeLine(this.getMainFunctionName() + "(_d);");
 
 		codeWriter.endBlock();
-		codeWriter.write("\n");
+		codeWriter.writeLine("");
 
 		codeWriter.endNamespace("");
 		

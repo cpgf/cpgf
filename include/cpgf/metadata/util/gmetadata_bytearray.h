@@ -4,7 +4,6 @@
 
 #include "cpgf/gmetadefine.h"
 
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 
 
@@ -16,7 +15,7 @@ namespace metadata_internal {
 
 
 template <typename T, typename MetaDefine>
-void doBuildMetaData_byteArray(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer)
+void doBuildMetaData_byteArray(const GMetaDataConfigFlags & config, MetaDefine define)
 {
 	M(T, getMemory)
 	
@@ -67,15 +66,15 @@ void doBuildMetaData_byteArray(const GMetaDataConfigFlags & config, MetaDefine d
 
 
 template <typename MetaDefine>
-void buildMetaData_byteArray(const GMetaDataConfigFlags & config, MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_byteArray(const GMetaDataConfigFlags & config, MetaDefine define)
 {
-	metadata_internal::doBuildMetaData_byteArray<typename MetaDefine::ClassType>(config, define, replacer);
+	metadata_internal::doBuildMetaData_byteArray<typename MetaDefine::ClassType>(config, define);
 }
 
 template <typename MetaDefine>
-void buildMetaData_byteArray(MetaDefine define, const GMetaDataNameReplacer * replacer = NULL)
+void buildMetaData_byteArray(MetaDefine define)
 {
-	buildMetaData_byteArray(mdcAutoProperty, define, replacer);
+	buildMetaData_byteArray(mdcAutoProperty, define);
 }
 
 

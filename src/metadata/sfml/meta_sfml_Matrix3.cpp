@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Matrix3()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Matrix3> _nd = GDefineMetaClass<sf::Matrix3>::declare("Matrix3");
-        buildMetaClass_Matrix3(0, _nd, NULL);
+        buildMetaClass_Matrix3(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

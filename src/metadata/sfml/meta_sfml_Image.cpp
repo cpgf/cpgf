@@ -20,7 +20,7 @@ GDefineMetaInfo createMetaClass_Image()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<sf::Image, sf::Resource< Image >> _nd = GDefineMetaClass<sf::Image, sf::Resource< Image >>::declare("Image");
-        buildMetaClass_Image(0, _nd, NULL);
+        buildMetaClass_Image(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

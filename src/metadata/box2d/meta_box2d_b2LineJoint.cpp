@@ -15,7 +15,7 @@ GDefineMetaInfo createMetaClass_B2LineJoint()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<b2LineJoint, b2Joint> _nd = GDefineMetaClass<b2LineJoint, b2Joint>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("b2LineJoint");
-        buildMetaClass_B2LineJoint(0, _nd, NULL);
+        buildMetaClass_B2LineJoint(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();
@@ -27,7 +27,7 @@ GDefineMetaInfo createMetaClass_B2LineJointDef()
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
         GDefineMetaClass<b2LineJointDef, b2JointDef> _nd = GDefineMetaClass<b2LineJointDef, b2JointDef>::declare("b2LineJointDef");
-        buildMetaClass_B2LineJointDef(0, _nd, NULL);
+        buildMetaClass_B2LineJointDef(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

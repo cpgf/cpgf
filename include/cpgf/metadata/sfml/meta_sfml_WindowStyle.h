@@ -5,7 +5,6 @@
 
 
 #include "cpgf/gmetadefine.h"
-#include "cpgf/metadata/gnamereplacer.h"
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
@@ -19,17 +18,17 @@ namespace meta_sfml {
 
 
 template <typename D>
-void buildMetaClass_Global_windowstyle(const cpgf::GMetaDataConfigFlags & config, D _d, const cpgf::GMetaDataNameReplacer * _r)
+void buildMetaClass_Global_windowstyle(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
-    (void)config; (void)_d; (void)_r; (void)_d;
+    (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _enum<long long>(replaceName("GlobalEnum_sfml_3", _r))
-        ._element(replaceName("None", _r), sf::Style::None)
-        ._element(replaceName("Titlebar", _r), sf::Style::Titlebar)
-        ._element(replaceName("Resize", _r), sf::Style::Resize)
-        ._element(replaceName("Close", _r), sf::Style::Close)
-        ._element(replaceName("Fullscreen", _r), sf::Style::Fullscreen)
+    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalEnum_sfml_3")
+        ._element("None", sf::Style::None)
+        ._element("Titlebar", sf::Style::Titlebar)
+        ._element("Resize", sf::Style::Resize)
+        ._element("Close", sf::Style::Close)
+        ._element("Fullscreen", sf::Style::Fullscreen)
     ;
 }
 
