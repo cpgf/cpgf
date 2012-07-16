@@ -37,9 +37,17 @@ var config = {
 
 function processCallback(item, data)
 {
+	var name = item.getPrimaryName();
+
 	if(item.isMethod()) {
-		if(item.getPrimaryName() == "GetMaxMotorForce") {
+		if(name == "GetMaxMotorForce") {
 			data.skipBind = true;
+		}
+	}
+
+	if(item.isClass()) {
+		if(name == "SimpleOverride") {
+			data.getWrapperConfig().setWrapClass(true);
 		}
 	}
 }

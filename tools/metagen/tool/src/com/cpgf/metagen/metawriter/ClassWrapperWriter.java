@@ -7,6 +7,7 @@ import com.cpgf.metagen.Config;
 import com.cpgf.metagen.Util;
 import com.cpgf.metagen.codewriter.CppWriter;
 import com.cpgf.metagen.metadata.ClassWrapperConfig;
+import com.cpgf.metagen.metadata.Constructor;
 import com.cpgf.metagen.metadata.CppClass;
 import com.cpgf.metagen.metadata.CppMethod;
 
@@ -29,7 +30,7 @@ public class ClassWrapperWriter {
 	}
 	
 	private String getGuardName() {
-		return "_cpgf_override_method_is_invoking_script";
+		return "_cpgf_override_method_is_in_script";
 	}
 	
 	private void buidOverrideMethodList() {
@@ -48,49 +49,65 @@ public class ClassWrapperWriter {
 		codeWriter.incIndent();
 
 		codeWriter.writeLine("static bool " + this.getGuardName() + "[" + this.overrideMethodList.size() + "];");
+		
+		for(Constructor ctor : this.cppClass.getConstructorList()) {
+			codeWriter.writeLine("");
+			this.doWriteConstructor(codeWriter, ctor);
+		}
 
 		for(int i = 0; i < this.overrideMethodList.size(); ++i) {
 			codeWriter.writeLine("");
 			CppMethod cppMethod = this.overrideMethodList.get(i);
-			codeWriter.writeLine(Util.getInvokablePrototype(cppMethod, cppMethod.getLiteralName()));
-			codeWriter.beginBlock();
-				String paramText = Util.getParameterText(cppMethod.getParameterList(), false, true);
-				String sentinel = this.getGuardName() + "[" + i + "]";
-				codeWriter.writeLine("if(" + sentinel + ")");
-				codeWriter.beginBlock();
-					codeWriter.writeLine("cpgf::GScriptWrapperReentryGuard guard(&" + sentinel + ");");
-					codeWriter.writeLine("cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction(\"" + cppMethod.getLiteralName() + "\"));");
-					codeWriter.writeLine("if(func)");
-					codeWriter.beginBlock();
-						String invoke = "cpgf::invokeScriptFunction(func.get(), this";
-						if(cppMethod.hasParameter()) {
-							invoke = invoke + ", " + paramText;
-						}
-						invoke = invoke + ")";
-						if(cppMethod.hasResult()) {
-							invoke = "return cpgf::fromVariant<" + cppMethod.getResultType().getLiteralType() + " >(" + invoke + ".getValue())";
-						}
-						invoke = invoke + ";";
-						codeWriter.writeLine(invoke);
-						if(! cppMethod.hasResult()) {
-							codeWriter.writeLine("return;");
-						}
-					codeWriter.endBlock();
-				codeWriter.endBlock();
-				if(cppMethod.isPureVirtual()) {
-					codeWriter.writeLine("throw \"Abstract method\";");
-				}
-				else {
-					invoke = this.cppClass.getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
-					if(cppMethod.hasResult()) {
-						invoke = "return " + invoke;
-					}
-					codeWriter.writeLine(invoke);
-				}
-			codeWriter.endBlock("");
+			this.doWriteOverrideMethod(codeWriter, cppMethod, i);
 		}
 		codeWriter.decIndent();
 		codeWriter.writeLine("};");
+	}
+
+	private void doWriteConstructor(CppWriter codeWriter, Constructor ctor) {
+		codeWriter.writeLine(this.getWrapperName() + "(" + Util.getParameterText(ctor.getParameterList(), true, true, true) + ")");
+		codeWriter.incIndent();
+		codeWriter.writeLine(": " + this.cppClass.getLiteralName() + "(" + Util.getParameterText(ctor.getParameterList(), false, true) + ") {}");
+		codeWriter.decIndent();
+	}
+	
+	private void doWriteOverrideMethod(CppWriter codeWriter, CppMethod cppMethod, int order) {
+		codeWriter.writeLine(Util.getInvokablePrototype(cppMethod, cppMethod.getLiteralName()));
+		codeWriter.beginBlock();
+			String paramText = Util.getParameterText(cppMethod.getParameterList(), false, true);
+			String sentinel = this.getGuardName() + "[" + order + "]";
+			codeWriter.writeLine("if(! " + sentinel + ")");
+			codeWriter.beginBlock();
+				codeWriter.writeLine("cpgf::GScriptWrapperReentryGuard guard(&" + sentinel + ");");
+				codeWriter.writeLine("cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction(\"" + cppMethod.getLiteralName() + "\"));");
+				codeWriter.writeLine("if(func)");
+				codeWriter.beginBlock();
+					String invoke = "cpgf::invokeScriptFunction(func.get(), this";
+					if(cppMethod.hasParameter()) {
+						invoke = invoke + ", " + paramText;
+					}
+					invoke = invoke + ")";
+					if(cppMethod.hasResult()) {
+						invoke = "return cpgf::fromVariant<" + cppMethod.getResultType().getLiteralType() + " >(" + invoke + ".getValue())";
+					}
+					invoke = invoke + ";";
+					codeWriter.writeLine(invoke);
+					if(! cppMethod.hasResult()) {
+						codeWriter.writeLine("return;");
+					}
+				codeWriter.endBlock();
+			codeWriter.endBlock();
+			if(cppMethod.isPureVirtual()) {
+				codeWriter.writeLine("throw \"Abstract method\";");
+			}
+			else {
+				invoke = this.cppClass.getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
+				if(cppMethod.hasResult()) {
+					invoke = "return " + invoke;
+				}
+				codeWriter.writeLine(invoke);
+			}
+		codeWriter.endBlock("");
 	}
 	
 	public void writeCreation(CppWriter codeWriter, String callFunc) {

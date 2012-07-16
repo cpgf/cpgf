@@ -305,7 +305,7 @@ public class Util {
 		}
 	}
 
-	public static String getParameterText(List<Parameter> parameterList, boolean withType, boolean withName) {
+	public static String getParameterText(List<Parameter> parameterList, boolean withType, boolean withName, boolean withDefaultValue) {
 		String result = "";
 		
 		for(Parameter param : parameterList) {
@@ -321,12 +321,20 @@ public class Util {
 				}
 				result = result + param.getName();
 			}
+			if(withDefaultValue && param.hasDefaultValue()) {
+				result = result + " = " + param.getDefaultValue();
+			}
 		}
 		
 		return result;
 	}
+
+	public static String getParameterText(List<Parameter> parameterList, boolean withType, boolean withName) {
+		return getParameterText(parameterList, withType, withName, false);
+		
+	}
 	
-	public static String getInvokablePrototype(CppInvokable invokable, String name) {
+	public static String getInvokablePrototype(CppInvokable invokable, String name, boolean withDefaultValue) {
 		if(name == null) {
 			name = invokable.getPrimaryName();
 		}
@@ -340,9 +348,13 @@ public class Util {
 			result = "void";
 		}
 		
-		result = result + " " + name + "(" + getParameterText(invokable.getParameterList(), true, true) + ")";
+		result = result + " " + name + "(" + getParameterText(invokable.getParameterList(), true, true, withDefaultValue) + ")";
 		
 		return result;
+	}
+	
+	public static String getInvokablePrototype(CppInvokable invokable, String name) {
+		return getInvokablePrototype(invokable, name, true);
 	}
 	
 	private static class RegExpFlags {

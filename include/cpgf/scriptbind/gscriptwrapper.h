@@ -33,11 +33,11 @@ class GScriptWrapperReentryGuard
 {
 public:
 	explicit GScriptWrapperReentryGuard(bool * sentinel) : sentinel(sentinel) {
-		*sentinel = false;
+		*sentinel = true;
 	}
 
 	~GScriptWrapperReentryGuard() {
-		*sentinel = true;
+		*sentinel = false;
 	}
 
 private:
