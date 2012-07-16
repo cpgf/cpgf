@@ -26,10 +26,10 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScr
 	QNEWOBJ(a, mtest.SimpleOverrideWrapper(3))
 	QASSERT(a.getValue() == 3);
 	QDO(mtest.SimpleOverrideWrapper.getValue = funcOverride)
-//	QASSERT(a.getValue() == 18);
+	QASSERT(a.getValue() == 18);
 
-	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));
-	cout << objA->getValue() << endl;
+//	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));
+//	cout << objA->getValue() << endl;
 //	GEQUAL(18, objA->getValue());
 }
 
