@@ -537,7 +537,8 @@ Handle<Value> objectToV8(const GBindingParamPointer & param, void * instance, IM
 	GMetaMapClass * map = getMetaClassMap(param, metaClass);
 	GMapItemClassData * mapData = gdynamic_cast<GMapItemClassData *>(map->getData());
 	Handle<FunctionTemplate> functionTemplate = mapData->functionTemplate;
-	Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance());
+	Handle<Value> external = External::New(&signatureKey);
+	Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance(1, &external));
 
 	GObjectUserData * instanceUserData = new GObjectUserData(param, metaClass, instance, allowGC, cv, dataType);
 	void * key = addUserDataToPool(param, instanceUserData);
@@ -1241,18 +1242,25 @@ Handle<Value> objectConstructor(const Arguments & args)
 		return ThrowException(String::New("Cannot call constructor as function"));
 	}
 
-	Local<External> data = Local<External>::Cast(args.Data());
-	GObjectUserData * userData = static_cast<GObjectUserData *>(data->Value());
-
-	void * instance = invokeConstructor(args, userData->getParam(), userData->getObjectData()->getMetaClass());
 	Persistent<Object> self = Persistent<Object>::New(args.Holder());
 
-	GObjectUserData * instanceUserData = new GObjectUserData(userData->getParam(), userData->getObjectData()->getMetaClass(), instance, true, opcvNone, cudtObject);
-	void * key = addUserDataToPool(userData->getParam(), instanceUserData);
-	self.MakeWeak(key, weakHandleCallback);
+	if(args.Length() == 1 && args[0]->IsExternal() && External::Unwrap(args[0]) == &signatureKey) {
+		// Here means this constructor is called when wrapping an existing object, so we don't create new object.
+		// See function objectToV8
+	}
+	else {
+		Local<External> data = Local<External>::Cast(args.Data());
+		GObjectUserData * userData = static_cast<GObjectUserData *>(data->Value());
 
-	self->SetPointerInInternalField(0, instanceUserData);
-	setObjectSignature(&self);
+		void * instance = invokeConstructor(args, userData->getParam(), userData->getObjectData()->getMetaClass());
+
+		GObjectUserData * instanceUserData = new GObjectUserData(userData->getParam(), userData->getObjectData()->getMetaClass(), instance, true, opcvNone, cudtObject);
+		void * key = addUserDataToPool(userData->getParam(), instanceUserData);
+		self.MakeWeak(key, weakHandleCallback);
+
+		self->SetPointerInInternalField(0, instanceUserData);
+		setObjectSignature(&self);
+	}
 
 	return self;
 
