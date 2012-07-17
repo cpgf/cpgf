@@ -17,8 +17,8 @@ namespace metadata_internal {
 template <typename T, typename MetaDefine, typename Policy>
 void doBuildMetaData_list(const GMetaDataConfigFlags & config, MetaDefine define, const Policy & policy)
 {
-	metadata_internal::buildMetaData_CommonContainer<T>(config, define, policy;
-	metadata_internal::buildMetaData_CommonIterators<T>(config, define, policy;
+	metadata_internal::buildMetaData_CommonContainer<T>(config, define, policy);
+	metadata_internal::buildMetaData_CommonIterators<T>(config, define, policy);
 
 	define
 		.CPGF_MD_TEMPLATE _method("assign", (void (T::*)(typename T::size_type, const typename T::value_type &)) &T::assign, policy)

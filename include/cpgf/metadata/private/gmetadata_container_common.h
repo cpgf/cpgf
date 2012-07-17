@@ -34,7 +34,7 @@ void buildMetaData_CommonContainer(const GMetaDataConfigFlags & /*config*/, Meta
 		.CPGF_MD_TEMPLATE _method("rend", (typename T::reverse_iterator (T::*)()) &T::rend)
 		.CPGF_MD_TEMPLATE _method("rend", (typename T::const_reverse_iterator (T::*)() const) &T::rend)
 		.CPGF_MD_TEMPLATE _method("size", &T::size)
-		.CPGF_MD_TEMPLATE _method(swap", (void (T::*)(T &)) &T::swap)
+		.CPGF_MD_TEMPLATE _method("swap", (void (T::*)(T &)) &T::swap)
 	;
 }
 
@@ -49,7 +49,7 @@ void buildMetaData_CommonIterators(const GMetaDataConfigFlags & config, MetaDefi
 		)
 		.CPGF_MD_TEMPLATE _class(
 			buildMetaData_constIterator(
-				config, GDefineMetaClass<typename T::const_iterator>::declare("const_iterator")), policy
+				config, GDefineMetaClass<typename T::const_iterator>::declare("const_iterator"), policy
 			)
 		)
 		.CPGF_MD_TEMPLATE _class(
