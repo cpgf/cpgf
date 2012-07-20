@@ -21,7 +21,7 @@ class GScriptWrapper
 public:
 	GScriptWrapper();
 
-	IScriptFunction * getScriptFunction(const char * name);
+	IScriptFunction * getScriptFunction(const char * name) const;
 
 	void setScriptDataStorage(IScriptDataStorage * scriptDataStorage);
 

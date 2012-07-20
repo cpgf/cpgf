@@ -132,14 +132,18 @@ public class MetaClassWriter {
 	}
 	
 	private void writeConstructors() {
-		String action = this.getAction("_constructor");
-
 		if(this.cppClass.isGlobal()) {
 			return;
 		}
 		if(this.cppClass.isAbstract()) {
 			return;
 		}
+		
+		this.writeConstructorsBind();
+	}
+
+	public void writeConstructorsBind() {
+		String action = this.getAction("_constructor");
 
 		for(Constructor item : this.cppClass.getConstructorList()) {
 			this.doCallback(item);

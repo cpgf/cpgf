@@ -12,10 +12,10 @@ GScriptWrapper::GScriptWrapper()
 {
 }
 
-IScriptFunction * GScriptWrapper::getScriptFunction(const char * name)
+IScriptFunction * GScriptWrapper::getScriptFunction(const char * name) const
 {
 	if(this->scriptDataStorage) {
-		return this->scriptDataStorage->getScriptFunction(name);
+		return const_cast<IScriptDataStorage *>(this->scriptDataStorage.get())->getScriptFunction(name);
 	}
 	else {
 		return NULL;

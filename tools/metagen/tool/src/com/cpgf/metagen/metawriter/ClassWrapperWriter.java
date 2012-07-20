@@ -25,7 +25,7 @@ public class ClassWrapperWriter {
 		this.buidOverrideMethodList();
 	}
 
-	private String getWrapperName() {
+	public String getWrapperName() {
 		return this.wrapperConfig.makeWrapName(this.config, this.cppClass);
 	}
 	
@@ -42,28 +42,6 @@ public class ClassWrapperWriter {
 		}
 	}
 
-	public void writeClassWrapper(CppWriter codeWriter) {
-		codeWriter.write("class " + this.getWrapperName() + " : public " + this.cppClass.getLiteralName() + ", public cpgf::GScriptWrapper ");
-		codeWriter.writeLine("{");
-		codeWriter.writeLine("public:");
-		codeWriter.incIndent();
-
-		codeWriter.writeLine("static bool " + this.getGuardName() + "[" + this.overrideMethodList.size() + "];");
-		
-		for(Constructor ctor : this.cppClass.getConstructorList()) {
-			codeWriter.writeLine("");
-			this.doWriteConstructor(codeWriter, ctor);
-		}
-
-		for(int i = 0; i < this.overrideMethodList.size(); ++i) {
-			codeWriter.writeLine("");
-			CppMethod cppMethod = this.overrideMethodList.get(i);
-			this.doWriteOverrideMethod(codeWriter, cppMethod, i);
-		}
-		codeWriter.decIndent();
-		codeWriter.writeLine("};");
-	}
-
 	private void doWriteConstructor(CppWriter codeWriter, Constructor ctor) {
 		codeWriter.writeLine(this.getWrapperName() + "(" + Util.getParameterText(ctor.getParameterList(), true, true, true) + ")");
 		codeWriter.incIndent();
@@ -72,7 +50,11 @@ public class ClassWrapperWriter {
 	}
 	
 	private void doWriteOverrideMethod(CppWriter codeWriter, CppMethod cppMethod, int order) {
-		codeWriter.writeLine(Util.getInvokablePrototype(cppMethod, cppMethod.getLiteralName()));
+		String prototype = Util.getInvokablePrototype(cppMethod, cppMethod.getLiteralName());
+		if(cppMethod.isConst()) {
+			prototype = prototype + " const";
+		}
+		codeWriter.writeLine(prototype);
 		codeWriter.beginBlock();
 			String paramText = Util.getParameterText(cppMethod.getParameterList(), false, true);
 			String sentinel = this.getGuardName() + "[" + order + "]";
@@ -110,6 +92,28 @@ public class ClassWrapperWriter {
 		codeWriter.endBlock("");
 	}
 	
+	public void writeClassWrapper(CppWriter codeWriter) {
+		codeWriter.write("class " + this.getWrapperName() + " : public " + this.cppClass.getLiteralName() + ", public cpgf::GScriptWrapper ");
+		codeWriter.writeLine("{");
+		codeWriter.writeLine("public:");
+		codeWriter.incIndent();
+
+		codeWriter.writeLine("static bool " + this.getGuardName() + "[" + this.overrideMethodList.size() + "];");
+		
+		for(Constructor ctor : this.cppClass.getConstructorList()) {
+			codeWriter.writeLine("");
+			this.doWriteConstructor(codeWriter, ctor);
+		}
+
+		for(int i = 0; i < this.overrideMethodList.size(); ++i) {
+			codeWriter.writeLine("");
+			CppMethod cppMethod = this.overrideMethodList.get(i);
+			this.doWriteOverrideMethod(codeWriter, cppMethod, i);
+		}
+		codeWriter.decIndent();
+		codeWriter.writeLine("};");
+	}
+
 	public void writeCreation(CppWriter codeWriter, String callFunc) {
 		List<String> rules = new ArrayList<String>();
 		this.cppClass.getPolicyRules(rules);

@@ -1,5 +1,6 @@
 TBD version 1.4.5
-	In script binding, now script function cans override C++ functions.
+	Fixed a bug that in V8 binding, passing existing C++ object to script will cause a new object is created.
+	In script binding, now script function can override C++ virtual member functions.
 	Removed meta name replacer.
 
 2012-07-07 version 1.4.4

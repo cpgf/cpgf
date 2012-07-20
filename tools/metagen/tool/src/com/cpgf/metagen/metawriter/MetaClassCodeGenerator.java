@@ -50,14 +50,18 @@ public class MetaClassCodeGenerator {
 		return Util.normalizeSymbol(s);
 	}
 
-	private String createFunctionName(CppClass cppClass, String prefix) {
+	private String createFunctionName(String cppClassName, boolean isGlobal, String prefix) {
 		String className = this.getGlobalPostfix();
-		if(! cppClass.isGlobal()) {
-			className = cppClass.getPrimaryName();
+		if(! isGlobal) {
+			className = cppClassName;
 		}
 		className = Util.upcaseFirst(className);
 			
 		return prefix + className;
+	}
+
+	private String createFunctionName(CppClass cppClass, String prefix) {
+		return this.createFunctionName(cppClass.getPrimaryName(), cppClass.isGlobal(), prefix);
 	}
 
 	private void beginMetaFunction(CppWriter codeWriter, String name, CppClass cppClass) {
@@ -223,7 +227,7 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 	private void generateClassReflectionHeaderCode() {
 		CppWriter codeWriter = new CppWriter();
 
-		MetaClassWriter classWriter = new MetaClassWriter(this.config, this.metaInfo, codeWriter, cppClass);
+		MetaClassWriter classWriter = new MetaClassWriter(this.config, this.metaInfo, codeWriter, this.cppClass);
 		
 		String funcName = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
 
@@ -241,11 +245,42 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 		if(this.callbackData.wrapClass()) {
 			codeWriter.writeLine("");
 			codeWriter.writeLine("");
-			this.wrapperWriter = new ClassWrapperWriter(this.config, this.callbackData.getWrapperConfig(), this.cppClass);
-			this.wrapperWriter.writeClassWrapper(codeWriter);
+			
+			this.writeClassWrapper(codeWriter);
 		}
 		
 		this.classCode.headerCode = this.appendText(this.classCode.headerCode, codeWriter.getText());
+	}
+	
+	private void writeClassWrapper(CppWriter codeWriter) {
+		this.wrapperWriter = new ClassWrapperWriter(this.config, this.callbackData.getWrapperConfig(), this.cppClass);
+		this.wrapperWriter.writeClassWrapper(codeWriter);
+		
+		codeWriter.writeLine("");
+		codeWriter.writeLine("");
+
+		MetaClassWriter classWriter = new MetaClassWriter(this.config, this.metaInfo, codeWriter, this.cppClass);
+		
+		String funcName = this.createFunctionName(this.wrapperWriter.getWrapperName(), false, this.config.metaClassFunctionPrefix);
+		
+		this.beginMetaFunction(codeWriter, funcName, cppClass);
+
+		if(this.cppClass.isAbstract()) {
+			classWriter.writeConstructorsBind();
+		}
+
+		codeWriter.writeLine("");
+
+		String callFuncName = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
+		codeWriter.write(callFuncName + "<D");
+		if(cppClass.isTemplate()) {
+			for(Parameter param : cppClass.getTemplateParameterList()) {
+				codeWriter.write(", " + param.getName());
+			}
+		}
+		codeWriter.writeLine(">(config, _d);");
+
+		this.endMetaFunction(codeWriter);
 	}
 	
 	private void generateClassReflectionSourceCode() {
@@ -282,7 +317,8 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 
 		if(this.wrapperWriter != null) {
 			codeWriter.beginBlock();
-			this.wrapperWriter.writeCreation(codeWriter, callFunc);
+			String wrapperFuncName = this.createFunctionName(this.wrapperWriter.getWrapperName(), false, this.config.metaClassFunctionPrefix);
+			this.wrapperWriter.writeCreation(codeWriter, wrapperFuncName);
 			codeWriter.endBlock();
 		}
 
