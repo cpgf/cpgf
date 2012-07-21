@@ -52,6 +52,17 @@ public:
 };
 
 
+template <typename D>
+void buildMetaClass_SimpleOverrideWrapper(const cpgf::GMetaDataConfigFlags & config, D _d)
+{
+    (void)config; (void)_d; (void)_d;
+    using namespace cpgf;
+    
+    
+    buildMetaClass_SimpleOverride<D>(config, _d);
+}
+
+
 } // namespace meta_test
 
 

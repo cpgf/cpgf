@@ -25,7 +25,7 @@ GDefineMetaInfo createMetaClass_SimpleOverride()
     }
     {
         GDefineMetaClass<SimpleOverrideWrapper, SimpleOverride> _nd = GDefineMetaClass<SimpleOverrideWrapper, SimpleOverride>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("SimpleOverrideWrapper");
-        buildMetaClass_SimpleOverride(0, _nd);
+        buildMetaClass_SimpleOverrideWrapper(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

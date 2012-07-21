@@ -113,7 +113,7 @@ IScriptFunction * G_API_CC GScriptDataExtendStorage::getScriptFunction(const cha
 	if(func == NULL) {
 		GMetaMapClass * mapClass = this->param->getMetaMap()->findClassMap(this->metaClass.get());
 		if(mapClass->hasDataStorage()) {
-			func = mapClass->getDataStorage()->getScriptFunction(name);;
+			func = mapClass->getDataStorage()->getScriptFunction(name);
 		}
 	}
 
