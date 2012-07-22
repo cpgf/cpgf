@@ -27,13 +27,18 @@ public:
 	}
 
 	void release() {
-		if(this->referenceCount > 0) {
-			--this->referenceCount;
-		}
+		GASSERT(this->referenceCount > 0);
+
+		--this->referenceCount;
+
 		if(this->referenceCount == 0) {
+			// Prefetch weak reference count because "this" maybe freed in doFreeData if RC is 0 and weak RC is 1.
+			// If weak RC is already 0 before doFreeData, doFreeData will not free "this", so it's safe to free "this" if weakRC is 0.
+			unsigned int weakRC = this->weakReferenceCount;
+
 			this->doFreeData();
 
-			if(this->weakReferenceCount == 0) {
+			if(weakRC == 0) {
 				delete this;
 			}
 		}
@@ -44,8 +49,12 @@ public:
 	}
 
 	void weakRelease() {
-		if(this->weakReferenceCount > 0) {
-			--this->weakReferenceCount;
+		GASSERT(this->weakReferenceCount > 0);
+
+		--this->weakReferenceCount;
+
+		if(this->weakReferenceCount == 0 && this->referenceCount == 0) {
+			delete this;
 		}
 	}
 

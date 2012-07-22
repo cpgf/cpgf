@@ -131,7 +131,7 @@ GTEST(TestSharedPointer_Object)
 }
 
 
-GTEST(TestSharedPointer_DataInvector)
+GTEST(TestSharedPointer_DataInVector)
 {
 	const int iteral = 100;
 

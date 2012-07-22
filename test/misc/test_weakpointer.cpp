@@ -83,6 +83,7 @@ GTEST(TestWeakPointer_Simple)
 
 GTEST(TestWeakPointer_NullWeakPointer)
 {
+
 	int count = 0;
 
 	{
@@ -106,6 +107,33 @@ GTEST(TestWeakPointer_NullWeakPointer)
 	}
 	GEQUAL(0, count);
 
+}
+
+
+GTEST(TestWeakPointer_DataInVector)
+{
+	const int iteral = 100;
+
+	int count = 0;
+
+	{
+		vector<SharedA> va;
+		vector<SharedB> vb;
+
+		for(int i = 0; i <iteral; ++i) {
+			SharedA pa(new TestA(&count));
+			va.push_back(pa);
+		
+			WeakA wa(pa);
+
+			SharedB pb(new TestB(&count, wa));
+
+			pa->setB(pb);
+			vb.push_back(pb);
+		}
+		GEQUAL(iteral * 2, count);
+    }
+	GEQUAL(0, count);
 }
 
 
