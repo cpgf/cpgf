@@ -61,7 +61,7 @@ public:
 	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
 
 private:
-	GBindingParamPointer bindingParam;
+	GWeakBindingParamPointer bindingParam;
 	int ref;
 };
 
@@ -266,7 +266,7 @@ int refLua(lua_State * L, int objectIndex)
 
 void unrefLua(lua_State * L, int ref)
 {
-	if(ref == LUA_NOREF) {
+	if(ref == LUA_NOREF || L == NULL) {
 		return;
 	}
 
@@ -284,7 +284,12 @@ void getRefObject(lua_State * L, int ref)
 
 lua_State * getLuaState(const GBindingParamPointer & param)
 {
-	return gdynamic_cast<GLuaScriptBindingParam *>(param.get())->getLuaState();
+	if(! param) {
+		return NULL;
+	}
+	else {
+		return gdynamic_cast<GLuaScriptBindingParam *>(param.get())->getLuaState();
+	}
 }
 
 
@@ -1473,6 +1478,10 @@ GMetaVariant invokeLuaFunctionIndirectly(const GBindingParamPointer & bindingPar
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
+	if(! bindingParam) {
+		raiseCoreException(Error_ScriptBinding_NoContext);
+	}
+
 	lua_State * L = getLuaState(bindingParam);
 
 	int top = lua_gettop(L) - 1;
@@ -1519,7 +1528,7 @@ GLuaScriptFunction::GLuaScriptFunction(const GBindingParamPointer & bindingParam
 
 GLuaScriptFunction::~GLuaScriptFunction()
 {
-	unrefLua(getLuaState(this->bindingParam), this->ref);
+	unrefLua(getLuaState(this->bindingParam.get()), this->ref);
 }
 	
 GMetaVariant GLuaScriptFunction::invoke(const GMetaVariant * params, size_t paramCount)
@@ -1537,13 +1546,13 @@ GMetaVariant GLuaScriptFunction::invoke(const GMetaVariant * params, size_t para
 
 GMetaVariant GLuaScriptFunction::invokeIndirectly(GMetaVariant const * const * params, size_t paramCount)
 {
-	lua_State * L = getLuaState(this->bindingParam);
+	lua_State * L = getLuaState(this->bindingParam.get());
 
 	ENTER_LUA()
 
 	getRefObject(L, this->ref);
 
-	return invokeLuaFunctionIndirectly(this->bindingParam, params, paramCount, "");
+	return invokeLuaFunctionIndirectly(this->bindingParam.get(), params, paramCount, "");
 	
 	LEAVE_LUA(L, return GMetaVariant())
 }

@@ -73,6 +73,7 @@ private:
 };
 
 typedef GSharedPointer<GScriptBindingParam> GBindingParamPointer;
+typedef GWeakPointer<GScriptBindingParam> GWeakBindingParamPointer;
 
 class GScriptDataStorage
 {

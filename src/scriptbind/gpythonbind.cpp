@@ -91,7 +91,7 @@ public:
 	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
 
 private:
-	GBindingParamPointer bindingParam;
+	GWeakBindingParamPointer bindingParam;
 	PyObject * func;
 };
 
@@ -1122,6 +1122,10 @@ GMetaVariant invokePythonFunctionIndirectly(const GBindingParamPointer & binding
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
+	if(! bindingParam) {
+		raiseCoreException(Error_ScriptBinding_NoContext);
+	}
+
 	if(PyCallable_Check(func)) {
 		size_t allParamCount = paramCount;
 		if(object != NULL) {
@@ -1260,7 +1264,7 @@ GMetaVariant GPythonScriptFunction::invokeIndirectly(GMetaVariant const * const 
 {
 	ENTER_PYTHON()
 
-	return invokePythonFunctionIndirectly(this->bindingParam, NULL, this->func, params, paramCount, "");
+	return invokePythonFunctionIndirectly(this->bindingParam.get(), NULL, this->func, params, paramCount, "");
 
 	LEAVE_PYTHON(return GMetaVariant())
 }

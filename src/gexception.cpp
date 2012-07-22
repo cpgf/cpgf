@@ -81,6 +81,7 @@ namespace {
 		{ Error_ScriptBinding_CantBindFundamental,				"Failed to bind fundamental variable" },
 		{ Error_ScriptBinding_AccessMemberWithWrongObject,		"Access class member with wrong object." },
 		{ Error_ScriptBinding_CantBindRaw, 						"Failed to bind raw data." },
+		{ Error_ScriptBinding_NoContext,						"Script context doesn't exist." },
 
 		{ Error_Serialization_TypeMismatch,			"Type mismatch when reading serialized object." },
 		{ Error_Serialization_CannotFindObjectType,	"Can't find object type." },

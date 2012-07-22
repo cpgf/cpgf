@@ -367,7 +367,7 @@ public:
 	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
 
 private:
-	GBindingParamPointer bindingParam;
+	GWeakBindingParamPointer bindingParam;
 	Persistent<Object> receiver;
 	Persistent<Function> func;
 };
@@ -1395,6 +1395,10 @@ GMetaVariant invokeV8FunctionIndirectly(const GBindingParamPointer & bindingPara
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
+	if(! bindingParam) {
+		raiseCoreException(Error_ScriptBinding_NoContext);
+	}
+
 	if(valueIsCallable(func)) {
 		Handle<Value> v8Params[REF_MAX_ARITY];
 		for(size_t i = 0; i < paramCount; ++i) {
@@ -1459,7 +1463,7 @@ GMetaVariant GV8ScriptFunction::invokeIndirectly(GMetaVariant const * const * pa
 	HandleScope handleScope;
 
 	Local<Object> receiver = Local<Object>::New(this->receiver);
-	return invokeV8FunctionIndirectly(this->bindingParam, receiver, Local<Value>::New(this->func), params, paramCount, "");
+	return invokeV8FunctionIndirectly(this->bindingParam.get(), receiver, Local<Value>::New(this->func), params, paramCount, "");
 
 	LEAVE_V8(return GMetaVariant())
 }
