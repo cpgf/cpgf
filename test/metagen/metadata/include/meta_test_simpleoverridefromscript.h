@@ -23,15 +23,15 @@ void buildMetaClass_SimpleOverride(const cpgf::GMetaDataConfigFlags & config, D 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _constructor<void * (int)>();
     _d.CPGF_MD_TEMPLATE _field("n", &D::ClassType::n);
     _d.CPGF_MD_TEMPLATE _method("getValue", &D::ClassType::getValue);
+    _d.CPGF_MD_TEMPLATE _method("getName", &D::ClassType::getName);
 }
 
 
 class SimpleOverrideWrapper : public SimpleOverride, public cpgf::GScriptWrapper {
 public:
-    static bool _cpgf_override_method_is_in_script[1];
+    static bool _cpgf_override_method_is_in_script[2];
     
     SimpleOverrideWrapper(int n)
         : SimpleOverride(n) {}
@@ -49,6 +49,20 @@ public:
         }
         return SimpleOverride::getValue();
     }
+    
+    std::string getName()
+    {
+        if(! _cpgf_override_method_is_in_script[1])
+        {
+            cpgf::GScriptWrapperReentryGuard guard(&_cpgf_override_method_is_in_script[1]);
+            cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getName"));
+            if(func)
+            {
+                return cpgf::fromVariant<std::string >(cpgf::invokeScriptFunction(func.get(), this).getValue());
+            }
+        }
+        throw "Abstract method";
+    }
 };
 
 
@@ -58,6 +72,7 @@ void buildMetaClass_SimpleOverrideWrapper(const cpgf::GMetaDataConfigFlags & con
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _constructor<void * (int)>();
     
     buildMetaClass_SimpleOverride<D>(config, _d);
 }

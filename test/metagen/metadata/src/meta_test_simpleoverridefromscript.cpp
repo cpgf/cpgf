@@ -13,18 +13,18 @@ using namespace cpgf;
 namespace meta_test { 
 
 
-bool SimpleOverrideWrapper::_cpgf_override_method_is_in_script[1] = { false };
+bool SimpleOverrideWrapper::_cpgf_override_method_is_in_script[2] = { false };
 
 GDefineMetaInfo createMetaClass_SimpleOverride()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<SimpleOverride> _nd = GDefineMetaClass<SimpleOverride>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("SimpleOverride");
+        GDefineMetaClass<SimpleOverride> _nd = GDefineMetaClass<SimpleOverride>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("SimpleOverride");
         buildMetaClass_SimpleOverride(0, _nd);
         _d._class(_nd);
     }
     {
-        GDefineMetaClass<SimpleOverrideWrapper, SimpleOverride> _nd = GDefineMetaClass<SimpleOverrideWrapper, SimpleOverride>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("SimpleOverrideWrapper");
+        GDefineMetaClass<SimpleOverrideWrapper, SimpleOverride> _nd = GDefineMetaClass<SimpleOverrideWrapper, SimpleOverride>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("SimpleOverrideWrapper");
         buildMetaClass_SimpleOverrideWrapper(0, _nd);
         _d._class(_nd);
     }

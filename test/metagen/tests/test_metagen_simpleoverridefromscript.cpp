@@ -4,6 +4,7 @@
 
 
 using namespace meta_test;
+using namespace std;
 
 namespace {
 
@@ -12,18 +13,18 @@ template <typename T>
 void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScriptContext * context)
 {
 	if(context->isLua()) {
-		QDO(function funcOverride(me) return me.getValue() + 15 end)
+		QDO(function overrideGetValue(me) return me.getValue() + 15 end)
 	}
 	if(context->isV8()) {
-		QDO(function funcOverride(me) { return me.getValue() + 15; })
+		QDO(function overrideGetValue(me) { return me.getValue() + 15; })
 	}
 	if(context->isPython()) {
-		QDO(def funcOverride(me): return me.getValue() + 15)
+		QDO(def overrideGetValue(me): return me.getValue() + 15)
 	}
 
 	QNEWOBJ(a, mtest.SimpleOverrideWrapper(3))
 	QASSERT(a.getValue() == 3);
-	QDO(mtest.SimpleOverrideWrapper.getValue = funcOverride)
+	QDO(mtest.SimpleOverrideWrapper.getValue = overrideGetValue)
 	QASSERT(a.getValue() == 18);
 	
 	QNEWOBJ(b, mtest.SimpleOverrideWrapper(5))
@@ -55,25 +56,33 @@ template <typename T>
 void doTestSimpleOverrideFromScript_OverrideFromScriptObject(T * binding, TestScriptContext * context)
 {
 	if(context->isLua()) {
-		QDO(function funcOverride(me) return me.getValue() + 5 end)
+		QDO(function overrideGetValue(me) return me.getValue() + 5 end)
+		QDO(function overrideGetName(me) return "abc" end)
 	}
 	if(context->isV8()) {
-		QDO(function funcOverride(me) { return me.getValue() + 5; })
+		QDO(function overrideGetValue(me) { return me.getValue() + 5; })
+		QDO(function overrideGetName(me) { return "abc"; })
 	}
 	if(context->isPython()) {
-		QDO(def funcOverride(me): return me.getValue() + 5)
+		QDO(def overrideGetValue(me): return me.getValue() + 5)
+		QDO(def overrideGetName(me): return "abc")
 	}
 
 	QNEWOBJ(a, mtest.SimpleOverrideWrapper(2))
 	QASSERT(a.getValue() == 2);
-	QDO(a.getValue = funcOverride);
+	QDO(a.getValue = overrideGetValue);
 	QASSERT(a.getValue() == 7);
-
+	
 	QNEWOBJ(b, mtest.SimpleOverrideWrapper(6))
 	QASSERT(b.getValue() == 6);
 
 	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));
 	GEQUAL(7, objA->getValue());
+	
+	QDO(a.getName = overrideGetName);
+	QASSERT(a.getName() == "abc");
+
+	GEQUAL(string("abc"), objA->getName());
 }
 
 void testSimpleOverrideFromScript_OverrideFromScriptObject(TestScriptContext * context)
