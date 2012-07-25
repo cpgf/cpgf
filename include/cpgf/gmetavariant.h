@@ -30,7 +30,8 @@ public:
 		fixupMetaType(&this->type);
 	}
 
-	GMetaVariant(const GMetaVarData & data) : value(data.varData), type(data.typeData) {
+	GMetaVariant(GMetaVarData data) : value(data.varData), type(data.typeData) {
+		freeVarData(&data.varData);
 	}
 
 	GMetaVariant(const GVariant & v, const GMetaType & type) : value(v), type(type) {
