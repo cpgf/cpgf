@@ -14,6 +14,7 @@
 namespace cpgf {
 
 class GMetaClassTraveller;
+class GScriptCoreService;
 
 namespace bind_internal {
 
@@ -66,10 +67,15 @@ public:
 		return this->metaMap.get();
 	}
 
+	void bindScriptCoreService(GScriptObject * scriptObject, const char * bindName);
+
 private:
 	GSharedInterface<IMetaService> service;
 	GScriptConfig config;
 	GScopedPointer<GMetaMap> metaMap;
+	
+	GScopedPointer<GScriptCoreService> scriptCoreService;
+	GScopedPointer<GMetaClass> scriptCoreServiceMetaClass;
 };
 
 typedef GSharedPointer<GScriptBindingParam> GBindingParamPointer;
@@ -92,6 +98,7 @@ struct IScriptDataExtendStorage : public IScriptDataStorage
 {
 	// This is internal interface, so we don't need to keep API compatible.
 	virtual void setScriptValue(const char * name, const GVariant & value) = 0;
+	virtual void setClassDataStorage(GScriptDataStorage * classDataStorage) = 0;
 };
 
 class GScriptDataExtendStorage : public IScriptDataExtendStorage
@@ -102,14 +109,16 @@ public:
 	GScriptDataExtendStorage(GScriptBindingParam * param, IMetaClass * metaClass, bool isInstance);
 
 protected:
-	void setScriptValue(const char * name, const GVariant & value);
+	virtual void setScriptValue(const char * name, const GVariant & value);
+	virtual void setClassDataStorage(GScriptDataStorage * classDataStorage);
 	virtual IScriptFunction * G_API_CC getScriptFunction(const char * name);
 
 private:
 	GScriptBindingParam * param;
 	GSharedInterface<IMetaClass> metaClass;
 	bool isInstance;
-	mutable GScopedPointer<GScriptDataStorage> dataStorage;
+	mutable GScopedPointer<GScriptDataStorage> instanceDataStorage;
+	GScriptDataStorage * classDataStorage;
 };
 
 class GObjectData : public GNoncopyable
@@ -163,6 +172,7 @@ private:
 	ObjectPointerCV cv;
 	ObjectUserDataType dataType;
 	mutable GScopedInterface<IScriptDataExtendStorage> dataStorage;
+	mutable GScopedPointer<GScriptDataStorage> classDataStorage;
 };
 
 typedef GSharedPointer<GObjectData> GSharedObjectData;
@@ -631,6 +641,17 @@ bool variantToScript(typename Methods::ResultType * result,
 				}
 				else {
 					*result = Methods::doObjectToScript(param, fromVariant<void *>(value), gdynamic_cast<IMetaClass *>(typedItem.get()), allowGC, metaTypeToCV(type), cudtObject);
+					return true;
+				}
+			}
+		}
+		else {
+			if(vtIsInterface(vt)) {
+				IObject * obj = fromVariant<IObject *>(value);
+				if(dynamic_cast<IMetaClass *>(obj)) { // !!! GUID
+					IMetaClass * metaClass = dynamic_cast<IMetaClass *>(obj);
+					*result = Methods::doClassToScript(param, metaClass);
+
 					return true;
 				}
 			}

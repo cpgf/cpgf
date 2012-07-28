@@ -54,7 +54,7 @@ GVariant scriptGetFundamental(IScriptObject * scriptObject, const char * name);
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject);
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject);
 
-void injectMetaClassToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance);
+void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance);
 
 
 } // namespace cpgf

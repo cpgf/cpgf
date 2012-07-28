@@ -418,6 +418,15 @@ void G_API_CC ImplScriptObject::nullifyValue(const char * name)
 	LEAVE_BINDING_API()
 }
 
+void G_API_CC ImplScriptObject::bindCoreService(const char * name)
+{
+	ENTER_BINDING_API()
+
+	this->scriptObject->bindCoreService(name);
+
+	LEAVE_BINDING_API()
+}
+
 
 
 } // namespace cpfg

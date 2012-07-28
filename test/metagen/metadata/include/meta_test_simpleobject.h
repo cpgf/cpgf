@@ -10,9 +10,21 @@
 #include "cpgf/gmetapolicy.h"
 
 
+using namespace cpgf;
 
 
 namespace meta_test { 
+
+
+template <typename D>
+void buildMetaClass_Global_simpleobject(const cpgf::GMetaDataConfigFlags & config, D _d)
+{
+    (void)config; (void)_d; (void)_d;
+    using namespace cpgf;
+    
+    _d.CPGF_MD_TEMPLATE _method("getSimpleObjectClass", (cpgf::IMetaClass * (*) (cpgf::IMetaClass *))&getSimpleObjectClass);
+    _d.CPGF_MD_TEMPLATE _method("metaClassIsSimpleObject", (bool (*) (cpgf::IMetaClass *))&metaClassIsSimpleObject);
+}
 
 
 template <typename D>

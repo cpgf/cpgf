@@ -139,6 +139,8 @@ public:
 	virtual bool valueIsNull(const char * name);
 	virtual void nullifyValue(const char * name);
 
+	virtual void bindCoreService(const char * name);
+
 public:
 	lua_State * getLuaState() const {
 		return this->implement->luaState;
@@ -679,7 +681,7 @@ bool rawToLua(const GBindingParamPointer & param, const GVariant & value)
 struct GLuaMethods
 {
 	typedef bool ResultType;
-	
+
 	static ResultType doObjectToScript(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
 	{
 		return objectToLua(param, instance, metaClass, allowGC, cv, dataType);
@@ -702,6 +704,12 @@ struct GLuaMethods
 			return result;
 		}
 		return false;
+	}
+
+	static ResultType doClassToScript(const GBindingParamPointer & param, IMetaClass * metaClass)
+	{
+		doBindClass(param, metaClass);
+		return true;
 	}
 
 	static ResultType doStringToScript(const GBindingParamPointer & param, const char * s)
@@ -2014,6 +2022,16 @@ void GLuaScriptObject::nullifyValue(const char * name)
 
 	LEAVE_LUA(this->implement->luaState)
 }
+
+void GLuaScriptObject::bindCoreService(const char * name)
+{
+	ENTER_LUA()
+
+	this->implement->param->bindScriptCoreService(this, name);
+
+	LEAVE_LUA(this->implement->luaState)
+}
+
 
 
 } // unnamed namespace

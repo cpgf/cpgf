@@ -70,6 +70,19 @@ void testSimpleObject_SetData(TestScriptContext * context)
 #include "do_testcase.h"
 
 
+void testSimpleObject_metaClass(TestScriptContext * context)
+{
+	QASSERT(mtest.metaClassIsSimpleObject(mtest.SimpleObject));
+	QASSERT(mtest.metaClassIsSimpleObject(mtest.getSimpleObjectClass(mtest.SimpleObject)));
+	QDO(cls = mtest.getSimpleObjectClass(mtest.SimpleObject));
+	QNEWOBJ(a, cls());
+}
+
+
+#define CASE testSimpleObject_metaClass
+#include "do_testcase.h"
+
+
 
 
 }

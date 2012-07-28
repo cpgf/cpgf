@@ -13,6 +13,14 @@ using namespace cpgf;
 namespace meta_test { 
 
 
+GDefineMetaInfo createMetaClass_Global_simpleobject()
+{
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    buildMetaClass_Global_simpleobject(0, _d);
+    return _d.getMetaInfo();
+}
+
+
 GDefineMetaInfo createMetaClass_SimpleAtom()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();

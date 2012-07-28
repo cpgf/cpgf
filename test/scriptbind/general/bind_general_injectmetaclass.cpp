@@ -19,7 +19,7 @@ void doTestInjectMetaClass(IScriptObject * binding, TestScriptContext * context)
 	TestObject obj(38);
 	TestObject::staticValue = 6;
 	
-	injectMetaClassToScript(binding, metaClass.get(), &obj);
+	injectObjectToScript(binding, metaClass.get(), &obj);
 	
 	QASSERT(methodConst() == 0)
 	QASSERT(incStaticValue() == 7)
@@ -27,7 +27,7 @@ void doTestInjectMetaClass(IScriptObject * binding, TestScriptContext * context)
 
 	metaClass.reset(context->getService()->findClassByName(REG_NAME_BasicA));
 	
-	injectMetaClassToScript(binding, metaClass.get(), NULL);
+	injectObjectToScript(binding, metaClass.get(), NULL);
 	
 	QASSERT(BasicEnum.a == 1);
 	QASSERT(BasicEnum.b == 2);

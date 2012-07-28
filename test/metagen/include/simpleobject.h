@@ -36,5 +36,12 @@ public:
 	SimpleData data;
 };
 
+namespace cpgf {
+struct IMetaClass;
+}
+
+cpgf::IMetaClass * getSimpleObjectClass(cpgf::IMetaClass * metaClass);
+bool metaClassIsSimpleObject(cpgf::IMetaClass * metaClass); 
+
 
 #endif

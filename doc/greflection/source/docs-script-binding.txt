@@ -271,12 +271,12 @@ Note: the returned interface will not own the scriptObject. The caller should de
 <{piece}>IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject); <{/piece}>
 If freeObject is true, the returned interface will free the script object.
 
-<{piece}>void injectMetaClassToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance); <{/piece}>
-Inject a class to the script. It will bind all methods, enumerators, nested class, in metaClass, to scriptObject in global scope.
+<{piece}>void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance); <{/piece}>
+Inject an C++ object to the script. It will bind all methods, enumerators, nested class, in metaClass, to scriptObject directly.
 "instance" is the object if metaClass is not global.
 The function is usually only useful to bind the whole global meta class.
 So if metaClass is a top level global class, calling
-<{piece}>injectMetaClassToScript(myScriptObject, globalClass, NULL); <{/piece}>
+<{piece}>injectObjectToScript(myScriptObject, globalClass, NULL); <{/piece}>
 will bind everything in the meta system to the script.
 
 <{/autobr}>

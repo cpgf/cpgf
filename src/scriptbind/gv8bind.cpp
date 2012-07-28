@@ -105,6 +105,8 @@ public:
 
 	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
 
+	virtual void bindCoreService(const char * name);
+
 public:
 	const GBindingParamPointer & getParam() const {
 		return this->implement->param;
@@ -596,6 +598,12 @@ struct GV8Methods
 		return Handle<Value>();
 	}
 
+	static ResultType doClassToScript(const GBindingParamPointer & param, IMetaClass * metaClass)
+	{
+		Handle<FunctionTemplate> functionTemplate = createClassTemplate(param, metaClass->getName(), metaClass);
+		return functionTemplate->GetFunction();
+	}
+
 	static ResultType doStringToScript(const GBindingParamPointer & /*param*/, const char * s)
 	{
 		return String::New(s);
@@ -675,32 +683,34 @@ void * v8ToObject(Handle<Value> value, GMetaType * outType)
 	return NULL;
 }
 
-GMetaVariant v8UserDataToVariant(const GBindingParamPointer & param, Handle<Value> value)
+GMetaVariant v8UserDataToVariant(const GBindingParamPointer & param, Local<Context> context, Handle<Value> value)
 {
 	if(value->IsFunction() || value->IsObject()) {
 		Local<Object> obj = value->ToObject();
 		if(isValidObject(obj)) {
 			GScriptUserData * userData = static_cast<GScriptUserData *>(obj->GetPointerFromInternalField(0));
+			if(userData == NULL) { // value maybe an IMetaClass
+				Handle<Value> data = obj->GetHiddenValue(String::New(userDataKey));
+				if(! data.IsEmpty() && data->IsExternal()) {
+					userData = static_cast<GScriptUserData *>(Handle<External>::Cast(data)->Value());
+				}
+			}
 			if(userData != NULL) {
 				return userDataToVariant(userData);
 			}
 		}
 		else {
-			GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GV8ScriptObject(param->getService(), obj, param->getConfig()), true));
+			if(value->IsFunction()) {
+				GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GV8ScriptFunction(param, context->Global(), Local<Value>::New(value)), true));
 
-			return GMetaVariant(scriptObject.get(), GMetaType());
+				return GMetaVariant(func.get(), GMetaType());
+			}
+			else {
+				GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GV8ScriptObject(param->getService(), obj, param->getConfig()), true));
+
+				return GMetaVariant(scriptObject.get(), GMetaType());
+			}
 		}
-	}
-
-	return GMetaVariant();
-}
-
-GMetaVariant functionToVariant(const GBindingParamPointer & param, Local<Context> context, Handle<Value> value)
-{
-	if(value->IsFunction()) {
-		GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GV8ScriptFunction(param, context->Global(), Local<Value>::New(value)), true));
-
-		return GMetaVariant(func.get(), GMetaType());
 	}
 
 	return GMetaVariant();
@@ -737,12 +747,8 @@ GMetaVariant v8ToVariant(const GBindingParamPointer & param, Local<Context> cont
 		return value->Uint32Value();
 	}
 
-	if(value->IsFunction()) {
-		return functionToVariant(param, context, value);
-	}
-
-	if(value->IsObject()) {
-		return v8UserDataToVariant(param, value);
+	if(value->IsFunction() || value->IsObject()) {
+		return v8UserDataToVariant(param, context, value);
 	}
 
 	return GMetaVariant();
@@ -1881,6 +1887,15 @@ void GV8ScriptObject::nullifyValue(const char * name)
 	Local<Object> localObject(Local<Object>::New(this->implement->object));
 
 	localObject->Set(String::New(name), Null());
+
+	LEAVE_V8()
+}
+
+void GV8ScriptObject::bindCoreService(const char * name)
+{
+	ENTER_V8()
+
+	this->implement->param->bindScriptCoreService(this, name);
 
 	LEAVE_V8()
 }

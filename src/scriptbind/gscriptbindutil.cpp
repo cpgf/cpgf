@@ -69,7 +69,7 @@ IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject)
 	return scriptObjectToInterface(scriptObject, false);
 }
 
-void injectMetaClassToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance)
+void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance)
 {
 	GScopedInterface<IObject> metaObject;
 	

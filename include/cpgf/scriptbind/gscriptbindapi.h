@@ -73,6 +73,8 @@ struct IScriptObject : public IExtendObject
 	virtual gapi_bool G_API_CC valueIsNull(const char * name) = 0;
 	virtual void G_API_CC nullifyValue(const char * name) = 0;
 
+	virtual void G_API_CC bindCoreService(const char * name) = 0;
+	
 };
 
 

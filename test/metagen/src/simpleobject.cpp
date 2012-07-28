@@ -1,4 +1,9 @@
 #include "../include/simpleobject.h"
+#include "cpgf/gmetaapi.h"
+
+using namespace std;
+using namespace cpgf;
+
 
 SimpleData::SimpleData(int n, const std::string & s)
 	: n(n), s(s), ws(L"")
@@ -47,3 +52,13 @@ bool SimpleObject::checkAtom(long value) const
 	return this->data.atom.value == value;
 }
 
+
+cpgf::IMetaClass * getSimpleObjectClass(cpgf::IMetaClass * metaClass)
+{
+	return metaClass;
+}
+
+bool metaClassIsSimpleObject(IMetaClass * metaClass)
+{
+	return string(metaClass->getName()) == "SimpleObject";
+}

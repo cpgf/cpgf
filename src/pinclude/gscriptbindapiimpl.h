@@ -115,6 +115,8 @@ protected:
 	virtual gapi_bool G_API_CC valueIsNull(const char * name);
 	virtual void G_API_CC nullifyValue(const char * name);
 
+	virtual void G_API_CC bindCoreService(const char * name);
+
 private:
 	GScriptObject * scriptObject;
 	bool freeObject;

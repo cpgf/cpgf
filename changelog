@@ -1,3 +1,7 @@
+TBD version 1.4.6
+	Now script can pass bound meta class to C++. In script, func(CppClass), in C++, func(IMetaClass * cppClass).
+	Rename function injectMetaClassToScript to injectObjectToScript which is more appropriate.
+
 2012-07-28 version 1.4.5
 	Fixed a bug that in V8 binding, passing existing C++ object to script will cause a new object is created.
 	In script binding, now script function can override C++ virtual member functions.

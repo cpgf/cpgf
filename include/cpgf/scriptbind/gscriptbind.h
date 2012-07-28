@@ -200,6 +200,8 @@ public:
 	virtual bool valueIsNull(const char * name) = 0;
 	virtual void nullifyValue(const char * name) = 0;
 
+	virtual void bindCoreService(const char * name) = 0;
+
 protected:
 	const char * getName() const;
 

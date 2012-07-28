@@ -22,13 +22,17 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScr
 		QDO(def overrideGetValue(me): return me.getValue() + 15)
 	}
 
-	QNEWOBJ(a, mtest.SimpleOverrideWrapper(3))
+	QDO(DerivedClass = cpgf.cloneClass(mtest.SimpleOverrideWrapper))
+	QNEWOBJ(a, DerivedClass(3))
 	QASSERT(a.getValue() == 3);
-	QDO(mtest.SimpleOverrideWrapper.getValue = overrideGetValue)
+	QDO(DerivedClass.getValue = overrideGetValue)
 	QASSERT(a.getValue() == 18);
 	
-	QNEWOBJ(b, mtest.SimpleOverrideWrapper(5))
+	QNEWOBJ(b, DerivedClass(5))
 	QASSERT(b.getValue() == 20);
+
+//	QNEWOBJ(c, mtest.SimpleOverrideWrapper(3))
+//	QASSERT(c.getValue() == 3);
 
 	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));
 	GEQUAL(18, objA->getValue());

@@ -140,6 +140,8 @@ public:
 
 	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
 
+	virtual void bindCoreService(const char * name);
+
 public:
 	const GBindingParamPointer & getParam() const {
 		return this->param;
@@ -766,6 +768,12 @@ struct GPythonMethods
 			return result;
 		}
 		return NULL;
+	}
+
+	static ResultType doClassToScript(const GBindingParamPointer & param, IMetaClass * metaClass)
+	{
+		PyObject * classObject = createPythonObject(new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass));
+		return classObject;
 	}
 
 	static ResultType doStringToScript(const GBindingParamPointer & /*param*/, const char * s)
@@ -1623,6 +1631,15 @@ void GPythonScriptObject::nullifyValue(const char * name)
 	ENTER_PYTHON()
 
 	setObjectAttr(this->object, name, Py_None);
+
+	LEAVE_PYTHON()
+}
+
+void GPythonScriptObject::bindCoreService(const char * name)
+{
+	ENTER_PYTHON()
+
+	this->getParam()->bindScriptCoreService(this, name);
 
 	LEAVE_PYTHON()
 }

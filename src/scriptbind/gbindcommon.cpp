@@ -2,6 +2,7 @@
 
 #include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gcallback.h"
+#include "cpgf/scriptbind/gscriptservice.h"
 
 #include <stdarg.h>
 #include <stdlib.h>
@@ -13,6 +14,9 @@
 
 
 namespace cpgf {
+
+GScriptCoreService * doCreateScriptCoreService(GScriptObject * scriptObject);
+GMetaClass * doBindScriptCoreService(GScriptObject * scriptObject, const char * bindName, GScriptCoreService * scriptCoreService);
 
 namespace bind_internal {
 
@@ -53,6 +57,16 @@ GScriptBindingParam::~GScriptBindingParam()
 {
 }
 
+void GScriptBindingParam::bindScriptCoreService(GScriptObject * scriptObject, const char * bindName)
+{
+	if(this->scriptCoreService) {
+		return;
+	}
+
+	this->scriptCoreService.reset(doCreateScriptCoreService(scriptObject));
+	this->scriptCoreServiceMetaClass.reset(doBindScriptCoreService(scriptObject, bindName, this->scriptCoreService.get()));
+}
+
 
 void GScriptDataStorage::setScriptValue(const char * name, const GVariant & value)
 {
@@ -65,14 +79,17 @@ void GScriptDataStorage::setScriptValue(const char * name, const GVariant & valu
 
 IScriptFunction * GScriptDataStorage::getScriptFunction(const char * name)
 {
-	MapType::iterator it = this->dataMap->find(name);
-	if(it != this->dataMap->end()) {
-		if(vtIsInterface(it->second.getType())) {
-			IScriptFunction * func = gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
-			if(func != NULL) {
-				func->addReference();
+	if(this->dataMap)
+	{
+		MapType::iterator it = this->dataMap->find(name);
+		if(it != this->dataMap->end()) {
+			if(vtIsInterface(it->second.getType())) {
+				IScriptFunction * func = gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
+				if(func != NULL) {
+					func->addReference();
+				}
+				return func;
 			}
-			return func;
 		}
 	}
 	return NULL;
@@ -92,12 +109,19 @@ void GScriptDataExtendStorage::setScriptValue(const char * name, const GVariant 
 		storage = mapClass->getDataStorage();
 	}
 	else {
-		if(! this->dataStorage) {
-			this->dataStorage.reset(new GScriptDataStorage());
+		if(! this->instanceDataStorage) {
+			this->instanceDataStorage.reset(new GScriptDataStorage());
 		}
-		storage = this->dataStorage.get();
+		storage = this->instanceDataStorage.get();
 	}
-	storage->setScriptValue(name, value);
+	if(storage != NULL) {
+		storage->setScriptValue(name, value);
+	}
+}
+
+void GScriptDataExtendStorage::setClassDataStorage(GScriptDataStorage * classDataStorage)
+{
+	this->classDataStorage = classDataStorage;
 }
 
 IScriptFunction * G_API_CC GScriptDataExtendStorage::getScriptFunction(const char * name)
@@ -105,8 +129,8 @@ IScriptFunction * G_API_CC GScriptDataExtendStorage::getScriptFunction(const cha
 	IScriptFunction * func = NULL;
 	
 	if(this->isInstance) {
-		if(this->dataStorage) {
-			func = this->dataStorage->getScriptFunction(name);
+		if(this->instanceDataStorage) {
+			func = this->instanceDataStorage->getScriptFunction(name);
 		}
 	}
 
@@ -145,6 +169,10 @@ GObjectData::GObjectData(GScriptBindingParam * param, IMetaClass * metaClass, vo
 
 GObjectData::~GObjectData()
 {
+	if(this->dataStorage) {
+		this->dataStorage->setClassDataStorage(NULL);
+	}
+
 	if(this->metaClass) {
 		if(this->allowGC) {
 			this->metaClass->destroyInstance(instance);
@@ -155,6 +183,7 @@ GObjectData::~GObjectData()
 IScriptDataExtendStorage * GObjectData::getDataStorage() const
 {
 	if(! this->dataStorage) {
+		this->classDataStorage.reset(new GScriptDataStorage());
 		this->dataStorage.reset(new GScriptDataExtendStorage(this->param, this->metaClass.get(), this->isInstance()));
 	}
 	return this->dataStorage.get();
@@ -827,16 +856,13 @@ GMetaVariant userDataToVariant(const GScriptUserData * userData)
 			type.addPointer();
 			switch(classData->getObjectData()->getDataType()) {
 				case cudtClass:
-					break;
+					return GMetaVariant(classData->getObjectData()->getMetaClass(), type);
 
 				case cudtObject:
-				{
 					return GMetaVariant(pointerToObjectVariant(classData->getObjectData()->getInstance()), type);
-				}
 				
-				case cudtInterface: {
+				case cudtInterface:
 					return GMetaVariant(GVariant(classData->getObjectData()->getInterfaceObject()), type);
-				}
 			}
 
 			break;
