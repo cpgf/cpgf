@@ -87,6 +87,18 @@ private:
 	bool freeData;
 };
 
+template <typename T>
+GSharedDataHolder<T> * createSharedDataHolder(T * p)
+{
+	return new GSharedDataHolder<T>(p);
+}
+
+template <typename T>
+GSharedDataHolder<T> * createSharedDataHolder(T * p, bool freeData)
+{
+	return new GSharedDataHolder<T>(p, freeData);
+}
+
 } // namespace sharedpointer_internal
 
 template <typename T>
@@ -102,10 +114,10 @@ public:
 	GSharedPointer() : rawPointer(NULL) {
 	}
 
-	explicit GSharedPointer(T * p) : rawPointer(new sharedpointer_internal::GSharedDataHolder<T>(p)) {
+	explicit GSharedPointer(T * p) : rawPointer(sharedpointer_internal::createSharedDataHolder(p)) {
 	}
 
-	GSharedPointer(T * p, bool freeData) : rawPointer(new sharedpointer_internal::GSharedDataHolder<T>(p, freeData)) {
+	GSharedPointer(T * p, bool freeData) : rawPointer(sharedpointer_internal::createSharedDataHolder(p, freeData)) {
 	}
 
 	explicit GSharedPointer(const GWeakPointer<T> & weakPointer);

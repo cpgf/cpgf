@@ -445,7 +445,7 @@ public:
 	
 
 protected:
-	GDefineMetaClass() : super(meta_internal::GSharedMetaClass(NULL), NULL) {
+	GDefineMetaClass() : super(meta_internal::GSharedMetaClass(), NULL) {
 	}
 
 	explicit GDefineMetaClass(GMetaClass * metaClass) : super(meta_internal::GSharedMetaClass(metaClass), metaClass) {

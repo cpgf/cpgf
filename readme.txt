@@ -2,11 +2,11 @@ cpgf library
 
 
 cpgf library is a cross platform C++ library for reflection, callback, script binding.
-It's written in (almostly) standard C++ and doesn't require any preprocess or tools.
+It's written in standard C++ and doesn't require any preprocess or tools.
 
 
 Version:
-	1.4.4
+	1.4.5
 
 		
 Libraries:
