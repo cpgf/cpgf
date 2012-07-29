@@ -68,16 +68,21 @@ void GScriptBindingParam::bindScriptCoreService(GScriptObject * scriptObject, co
 }
 
 
-void GScriptDataStorage::setScriptValue(const char * name, const GVariant & value)
+void GScriptDataHolder::requireDataMap()
 {
 	if(! this->dataMap) {
 		this->dataMap.reset(new MapType());
 	}
+}
+
+void GScriptDataHolder::setScriptValue(const char * name, const GVariant & value)
+{
+	this->requireDataMap();
 
 	(*(this->dataMap))[name] = value;
 }
 
-IScriptFunction * GScriptDataStorage::getScriptFunction(const char * name)
+IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
 {
 	if(this->dataMap)
 	{
@@ -95,24 +100,30 @@ IScriptFunction * GScriptDataStorage::getScriptFunction(const char * name)
 	return NULL;
 }
 
+void GScriptDataHolder::merge(const GScriptDataHolder * other)
+{
+	if(other->dataMap) {
+		this->requireDataMap();
+		this->dataMap->insert(other->dataMap->begin(), other->dataMap->end());
+	}
+}
+
 
 GScriptDataExtendStorage::GScriptDataExtendStorage(GScriptBindingParam * param, IMetaClass * metaClass, bool isInstance)
 	: param(param), metaClass(metaClass), isInstance(isInstance)
 {
+//	this->isInstance = true;
 }
 
 void GScriptDataExtendStorage::setScriptValue(const char * name, const GVariant & value)
 {
-	GScriptDataStorage * storage = NULL;
+	GScriptDataHolder * storage = NULL;
 	if(! this->isInstance) {
 		GMetaMapClass * mapClass = this->param->getMetaMap()->findClassMap(this->metaClass.get());
 		storage = mapClass->getDataStorage();
 	}
 	else {
-		if(! this->instanceDataStorage) {
-			this->instanceDataStorage.reset(new GScriptDataStorage());
-		}
-		storage = this->instanceDataStorage.get();
+		storage = this->getDataHolder();
 	}
 	if(storage != NULL) {
 		storage->setScriptValue(name, value);
@@ -134,9 +145,31 @@ IScriptFunction * G_API_CC GScriptDataExtendStorage::getScriptFunction(const cha
 		if(mapClass->hasDataStorage()) {
 			func = mapClass->getDataStorage()->getScriptFunction(name);
 		}
+		
+		if(this->classDataStorage) {
+//			func = this->classDataStorage->getScriptFunction(name);
+		}
 	}
 
 	return func;
+}
+
+bool GScriptDataExtendStorage::hasDataHolder()
+{
+	return this->instanceDataStorage;
+}
+
+GScriptDataHolder * GScriptDataExtendStorage::getDataHolder()
+{
+	if(! this->instanceDataStorage) {
+		this->instanceDataStorage.reset(new GScriptDataHolder());
+	}
+	return this->instanceDataStorage.get();
+}
+
+void GScriptDataExtendStorage::setClassDataStorage(IScriptDataExtendStorage * classDataStorage)
+{
+	this->classDataStorage.reset(classDataStorage);
 }
 
 
@@ -182,6 +215,13 @@ IScriptDataExtendStorage * GObjectData::getDataStorage() const
 void GObjectData::setScriptValue(const char * name, const GVariant & value)
 {
 	this->getDataStorage()->setScriptValue(name, value);
+}
+
+void GObjectData::mergeDataStorage(const GObjectData * other)
+{
+	if(other->dataStorage && other->dataStorage->hasDataHolder()) {
+		this->getDataStorage()->getDataHolder()->merge(other->dataStorage->getDataHolder());
+	}
 }
 
 
@@ -1013,6 +1053,14 @@ bool doSetFieldValue(GObjectUserData * userData, const char * name, const GVaria
 			default:
 				break;
 		}
+	}
+}
+
+void instanceCreated(GObjectUserData * instanceUserData, GObjectUserData * classUserData)
+{
+	if(instanceUserData != NULL && classUserData != NULL) {
+//		instanceUserData->getObjectData()->mergeDataStorage(classUserData->getObjectData().get());
+		instanceUserData->getObjectData()->getDataStorage()->setClassDataStorage(classUserData->getObjectData()->getDataStorage());
 	}
 }
 

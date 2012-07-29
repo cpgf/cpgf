@@ -81,7 +81,7 @@ private:
 typedef GSharedPointer<GScriptBindingParam> GBindingParamPointer;
 typedef GWeakPointer<GScriptBindingParam> GWeakBindingParamPointer;
 
-class GScriptDataStorage
+class GScriptDataHolder
 {
 private:
 	typedef std::map<std::string, GVariant> MapType;
@@ -89,6 +89,10 @@ private:
 public:
 	void setScriptValue(const char * name, const GVariant & value);
 	IScriptFunction * getScriptFunction(const char * name);
+	void merge(const GScriptDataHolder * other);
+
+private:
+	void requireDataMap();
 
 private:
 	GScopedPointer<MapType> dataMap;
@@ -98,6 +102,9 @@ struct IScriptDataExtendStorage : public IScriptDataStorage
 {
 	// This is internal interface, so we don't need to keep API compatible.
 	virtual void setScriptValue(const char * name, const GVariant & value) = 0;
+	virtual bool hasDataHolder() = 0;
+	virtual GScriptDataHolder * getDataHolder() = 0;
+	virtual void setClassDataStorage(IScriptDataExtendStorage * classDataStorage) = 0;
 };
 
 class GScriptDataExtendStorage : public IScriptDataExtendStorage
@@ -110,13 +117,16 @@ public:
 protected:
 	virtual void setScriptValue(const char * name, const GVariant & value);
 	virtual IScriptFunction * G_API_CC getScriptFunction(const char * name);
+	virtual bool hasDataHolder();
+	virtual GScriptDataHolder * getDataHolder();
+	virtual void setClassDataStorage(IScriptDataExtendStorage * classDataStorage);
 
 private:
 	GScriptBindingParam * param;
 	GSharedInterface<IMetaClass> metaClass;
 	bool isInstance;
-	mutable GScopedPointer<GScriptDataStorage> instanceDataStorage;
-	GScriptDataStorage * classDataStorage;
+	mutable GScopedPointer<GScriptDataHolder> instanceDataStorage;
+	GSharedInterface<IScriptDataExtendStorage> classDataStorage;
 };
 
 class GObjectData : public GNoncopyable
@@ -158,7 +168,8 @@ public:
 
 	void setScriptValue(const char * name, const GVariant & value);
 
-protected:
+	void mergeDataStorage(const GObjectData * other);
+
 	IScriptDataExtendStorage * getDataStorage() const;
 
 private:
@@ -473,9 +484,9 @@ public:
 		return this->dataStorage;
 	}
 
-	GScriptDataStorage * getDataStorage() const {
+	GScriptDataHolder * getDataStorage() const {
 		if(! this->dataStorage) {
-			this->dataStorage.reset(new GScriptDataStorage());
+			this->dataStorage.reset(new GScriptDataHolder());
 		}
 
 		return this->dataStorage.get();
@@ -487,7 +498,7 @@ private:
 private:
 	MapType itemMap;
 	GScopedPointer<GMetaMapItemData> data;
-	mutable GScopedPointer<GScriptDataStorage> dataStorage;
+	mutable GScopedPointer<GScriptDataHolder> dataStorage;
 };
 
 class GMetaMap
@@ -579,6 +590,8 @@ GObjectData * getObjectData(const GObjectUserData * objectUserData);
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 
 bool doSetFieldValue(GObjectUserData * userData, const char * name, const GVariant & value);
+
+void instanceCreated(GObjectUserData * instanceUserData, GObjectUserData * classUserData);
 
 template <typename Getter, typename Predict>
 int findAppropriateCallable(IMetaService * service,

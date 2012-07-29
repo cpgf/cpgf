@@ -899,15 +899,17 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	ENTER_PYTHON()
 
 	GPythonObject * cppClass = castFromPython(callableObject);
-	GObjectUserData * userData = gdynamic_cast<GObjectUserData *>(cppClass->getUserData());
+	GObjectUserData * classUserData = gdynamic_cast<GObjectUserData *>(cppClass->getUserData());
 	
 	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
-	loadCallableParam(userData->getParam(), args, &callableParam);
+	loadCallableParam(classUserData->getParam(), args, &callableParam);
 
-	void * instance = doInvokeConstructor(cppClass->getService(), userData->getObjectData()->getMetaClass(), &callableParam);
+	void * instance = doInvokeConstructor(cppClass->getService(), classUserData->getObjectData()->getMetaClass(), &callableParam);
 
 	if(instance != NULL) {
-		return createPythonObject(new GObjectUserData(cppClass->getParam(), userData->getObjectData()->getMetaClass(), instance, true, opcvNone, cudtObject));
+		GObjectUserData * instanceUserData = new GObjectUserData(cppClass->getParam(), classUserData->getObjectData()->getMetaClass(), instance, true, opcvNone, cudtObject);
+		instanceCreated(instanceUserData, classUserData);
+		return createPythonObject(instanceUserData);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);

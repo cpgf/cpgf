@@ -265,7 +265,11 @@ public:
 		this->functionTemplate = Persistent<FunctionTemplate>::New(newTemplate);
 	}
 
-public:
+	const Persistent<FunctionTemplate> & getFunctionTemplate() const {
+		return this->functionTemplate;
+	}
+
+private:
 	Persistent<FunctionTemplate> functionTemplate;
 };
 
@@ -376,6 +380,7 @@ private:
 
 
 void weakHandleCallback(Persistent<Value> object, void * parameter);
+Handle<FunctionTemplate> doCreateClassTemplate(const GBindingParamPointer & param, const char * name, IMetaClass * metaClass);
 Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param, const char * name, IMetaClass * metaClass);
 
 Handle<Value> variantToV8(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw);
@@ -538,7 +543,7 @@ Handle<Value> objectToV8(const GBindingParamPointer & param, void * instance, IM
 
 	GMetaMapClass * map = getMetaClassMap(param, metaClass);
 	GMapItemClassData * mapData = gdynamic_cast<GMapItemClassData *>(map->getData());
-	Handle<FunctionTemplate> functionTemplate = mapData->functionTemplate;
+	Handle<FunctionTemplate> functionTemplate = mapData->getFunctionTemplate();
 	Handle<Value> external = External::New(&signatureKey);
 	Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance(1, &external));
 
@@ -1017,7 +1022,7 @@ Handle<Value> getNamedMember(GObjectUserData * userData, const char * name)
 					GMetaMapClass * baseMapClass = getMetaClassMap(userData->getParam(), boundClass.get());
 					data->setTemplate(createMethodTemplate(userData->getParam(), userData->getObjectData()->getMetaClass(),
 						userData->getObjectData()->getInstance() == NULL, methodList.get(), name,
-						gdynamic_cast<GMapItemClassData *>(baseMapClass->getData())->functionTemplate, udmtInternal, &newUserData));
+						gdynamic_cast<GMapItemClassData *>(baseMapClass->getData())->getFunctionTemplate(), udmtInternal, &newUserData));
 					data->setUserData(newUserData);
 				}
 
@@ -1254,12 +1259,13 @@ Handle<Value> objectConstructor(const Arguments & args)
 	}
 	else {
 		Local<External> data = Local<External>::Cast(args.Data());
-		GObjectUserData * userData = static_cast<GObjectUserData *>(data->Value());
+		GObjectUserData * classUserData = static_cast<GObjectUserData *>(data->Value());
 
-		void * instance = invokeConstructor(args, userData->getParam(), userData->getObjectData()->getMetaClass());
+		void * instance = invokeConstructor(args, classUserData->getParam(), classUserData->getObjectData()->getMetaClass());
 
-		GObjectUserData * instanceUserData = new GObjectUserData(userData->getParam(), userData->getObjectData()->getMetaClass(), instance, true, opcvNone, cudtObject);
-		void * key = addUserDataToPool(userData->getParam(), instanceUserData);
+		GObjectUserData * instanceUserData = new GObjectUserData(classUserData->getParam(), classUserData->getObjectData()->getMetaClass(), instance, true, opcvNone, cudtObject);
+		instanceCreated(instanceUserData, classUserData);
+		void * key = addUserDataToPool(classUserData->getParam(), instanceUserData);
 		self.MakeWeak(key, weakHandleCallback);
 
 		self->SetPointerInInternalField(0, instanceUserData);
@@ -1282,14 +1288,8 @@ GMetaMapClass * getMetaClassMap(const GBindingParamPointer & param, IMetaClass *
 	return map;
 }
 
-Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param, const char * name, IMetaClass * metaClass)
+Handle<FunctionTemplate> doCreateClassTemplate(const GBindingParamPointer & param, const char * name, IMetaClass * metaClass)
 {
-	GMetaMapClass * map = param->getMetaMap()->findClassMap(metaClass);
-
-	if(map->getData() != NULL) {
-		return gdynamic_cast<GMapItemClassData *>(map->getData())->functionTemplate;
-	}
-
 	GObjectUserData * userData = new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass);
 	void * key = addUserDataToPool(param, userData);
 	Persistent<External> data = Persistent<External>::New(External::New(userData));
@@ -1302,10 +1302,6 @@ Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param,
 	instanceTemplate->SetInternalFieldCount(1);
 
 	instanceTemplate->SetNamedPropertyHandler(&namedMemberGetter, &namedMemberSetter, NULL, NULL, &namedMemberEnumerator);
-
-	GMapItemClassData * mapData = new GMapItemClassData;
-	mapData->setTemplate(functionTemplate);
-	map->setData(mapData);
 
 	if(metaClass->getBaseCount() > 0) {
 		GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(0));
@@ -1324,6 +1320,23 @@ Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param,
 	Persistent<External> classData = Persistent<External>::New(External::New(classUserData));
 	classData.MakeWeak(key, weakHandleCallback);
 	classFunction->SetHiddenValue(String::New(userDataKey), classData);
+
+	return functionTemplate;
+}
+
+Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param, const char * name, IMetaClass * metaClass)
+{
+	GMetaMapClass * map = param->getMetaMap()->findClassMap(metaClass);
+
+	if(map->getData() != NULL) {
+		return gdynamic_cast<GMapItemClassData *>(map->getData())->getFunctionTemplate();
+	}
+
+	Handle<FunctionTemplate> functionTemplate = doCreateClassTemplate(param, name, metaClass);
+
+	GMapItemClassData * mapData = new GMapItemClassData;
+	mapData->setTemplate(functionTemplate);
+	map->setData(mapData);
 
 	return functionTemplate;
 }

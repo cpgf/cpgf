@@ -23,11 +23,16 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScr
 	}
 
 	QDO(DerivedClass = cpgf.cloneClass(mtest.SimpleOverrideWrapper))
+if(context->isV8()) {
+	binding = binding;
+}
 	QNEWOBJ(a, DerivedClass(3))
 	QASSERT(a.getValue() == 3);
 	QDO(DerivedClass.getValue = overrideGetValue)
+//QNEWOBJ(a, DerivedClass(3))
 	QASSERT(a.getValue() == 18);
-	
+//	QDO(scriptTrace("" + a.getValue()));
+
 	QNEWOBJ(b, DerivedClass(5))
 	QASSERT(b.getValue() == 20);
 

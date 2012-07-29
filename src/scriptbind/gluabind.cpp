@@ -526,14 +526,14 @@ void error(lua_State * L, const char * message)
 	lua_error(L);
 }
 
-bool objectToLua(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
+GObjectUserData * objectToLua(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
 {
 	lua_State * L = getLuaState(param);
 
 	if(instance == NULL) {
 		lua_pushnil(L);
 
-		return true;
+		return NULL;
 	}
 
 	void * userData = lua_newuserdata(L, sizeof(GObjectUserData));
@@ -566,7 +566,7 @@ bool objectToLua(const GBindingParamPointer & param, void * instance, IMetaClass
 	
 	lua_setmetatable(L, -2);
 
-	return true;
+	return static_cast<GObjectUserData *>(userData);
 }
 
 void * luaToObject(const GBindingParamPointer & param, int index, GMetaType * outType)
@@ -684,7 +684,8 @@ struct GLuaMethods
 
 	static ResultType doObjectToScript(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
 	{
-		return objectToLua(param, instance, metaClass, allowGC, cv, dataType);
+		objectToLua(param, instance, metaClass, allowGC, cv, dataType);
+		return true;
 	}
 
 	static ResultType doVariantToScript(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
@@ -926,19 +927,20 @@ int callbackInvokeMethodList(lua_State * L)
 	LEAVE_LUA(L, return 0)
 }
 
-int invokeConstructor(const GBindingParamPointer & param, IMetaClass * metaClass)
+int invokeConstructor(GObjectUserData * classUserData)
 {
-	lua_State * L = getLuaState(param);
+	lua_State * L = getLuaState(classUserData->getParam());
 
 	int paramCount = lua_gettop(L) - 1;
 	
 	InvokeCallableParam callableParam(paramCount);
-	loadCallableParam(param, &callableParam, 2);
+	loadCallableParam(classUserData->getParam(), &callableParam, 2);
 	
-	void * instance = doInvokeConstructor(param->getService(), metaClass, &callableParam);
+	void * instance = doInvokeConstructor(classUserData->getParam()->getService(), classUserData->getObjectData()->getMetaClass(), &callableParam);
 
 	if(instance != NULL) {
-		objectToLua(param, instance, metaClass, true, opcvNone, cudtObject);
+		GObjectUserData * instanceUserData = objectToLua(classUserData->getParam(), instance, classUserData->getObjectData()->getMetaClass(), true, opcvNone, cudtObject);
+		instanceCreated(instanceUserData, classUserData);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -991,7 +993,7 @@ int UserData_call(lua_State * L)
 
 
 	if(userData->getObjectData()->getInstance() == NULL) { // constructor
-		return invokeConstructor(userData->getParam(), userData->getObjectData()->getMetaClass());
+		return invokeConstructor(userData);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_InternalError_WrongFunctor);
