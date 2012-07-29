@@ -119,11 +119,6 @@ void GScriptDataExtendStorage::setScriptValue(const char * name, const GVariant 
 	}
 }
 
-void GScriptDataExtendStorage::setClassDataStorage(GScriptDataStorage * classDataStorage)
-{
-	this->classDataStorage = classDataStorage;
-}
-
 IScriptFunction * G_API_CC GScriptDataExtendStorage::getScriptFunction(const char * name)
 {
 	IScriptFunction * func = NULL;
@@ -169,10 +164,6 @@ GObjectData::GObjectData(GScriptBindingParam * param, IMetaClass * metaClass, vo
 
 GObjectData::~GObjectData()
 {
-	if(this->dataStorage) {
-		this->dataStorage->setClassDataStorage(NULL);
-	}
-
 	if(this->metaClass) {
 		if(this->allowGC) {
 			this->metaClass->destroyInstance(instance);
@@ -183,7 +174,6 @@ GObjectData::~GObjectData()
 IScriptDataExtendStorage * GObjectData::getDataStorage() const
 {
 	if(! this->dataStorage) {
-		this->classDataStorage.reset(new GScriptDataStorage());
 		this->dataStorage.reset(new GScriptDataExtendStorage(this->param, this->metaClass.get(), this->isInstance()));
 	}
 	return this->dataStorage.get();
@@ -766,7 +756,7 @@ void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, Invok
 			instance = fromVariant<void *>(GVariant(result.resultData));
 		}
 	}
-	
+
 	return instance;
 }
 

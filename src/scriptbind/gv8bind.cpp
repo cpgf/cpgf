@@ -1232,9 +1232,7 @@ void * invokeConstructor(const Arguments & args, const GBindingParamPointer & pa
 		return instance;
 	}
 	else {
-		// Unlike Lua, we should not raise exception because interface (such as IByteArray) will always fail
-		// to construct called from objectToV8, returning NULL is OK
-		//raiseCoreException(Error_ScriptBinding_FailConstructObject);
+		raiseCoreException(Error_ScriptBinding_InternalError_WrongFunctor);
 	}
 
 	return NULL;

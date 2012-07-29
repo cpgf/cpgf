@@ -98,7 +98,6 @@ struct IScriptDataExtendStorage : public IScriptDataStorage
 {
 	// This is internal interface, so we don't need to keep API compatible.
 	virtual void setScriptValue(const char * name, const GVariant & value) = 0;
-	virtual void setClassDataStorage(GScriptDataStorage * classDataStorage) = 0;
 };
 
 class GScriptDataExtendStorage : public IScriptDataExtendStorage
@@ -110,7 +109,6 @@ public:
 
 protected:
 	virtual void setScriptValue(const char * name, const GVariant & value);
-	virtual void setClassDataStorage(GScriptDataStorage * classDataStorage);
 	virtual IScriptFunction * G_API_CC getScriptFunction(const char * name);
 
 private:
@@ -172,7 +170,6 @@ private:
 	ObjectPointerCV cv;
 	ObjectUserDataType dataType;
 	mutable GScopedInterface<IScriptDataExtendStorage> dataStorage;
-	mutable GScopedPointer<GScriptDataStorage> classDataStorage;
 };
 
 typedef GSharedPointer<GObjectData> GSharedObjectData;
