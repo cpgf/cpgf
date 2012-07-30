@@ -742,6 +742,11 @@ PyObject * rawToPython(const GBindingParamPointer & param, const GVariant & valu
 	return NULL;
 }
 
+PyObject * createClassObject(const GBindingParamPointer & param, IMetaClass * metaClass)
+{
+	return createPythonObject(new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass));
+}
+
 struct GPythonMethods
 {
 	typedef PyObject * ResultType;
@@ -772,7 +777,7 @@ struct GPythonMethods
 
 	static ResultType doClassToScript(const GBindingParamPointer & param, IMetaClass * metaClass)
 	{
-		PyObject * classObject = createPythonObject(new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass));
+		PyObject * classObject = createClassObject(param, metaClass);
 		return classObject;
 	}
 
@@ -1044,7 +1049,7 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 						data = new GMapItemObjectData;
 						mapItem->setData(data);
 						GScopedInterface<IMetaClass> innerMetaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
-						GPythonScopedPointer classObject(createPythonObject(new GObjectUserData(userData->getParam(), innerMetaClass.get(), NULL, false, opcvNone, cudtClass)));
+						GPythonScopedPointer classObject(createClassObject(userData->getParam(), innerMetaClass.get()));
 						data->setObject(classObject.get());
 					}
 
@@ -1226,7 +1231,7 @@ void doBindMethodList(const GBindingParamPointer & param, PyObject * owner, cons
 
 void doBindClass(const GBindingParamPointer & param, PyObject * owner, const char * name, IMetaClass * metaClass)
 {
-	PyObject * classObject = createPythonObject(new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass));
+	PyObject * classObject = createClassObject(param, metaClass);
 
 	setObjectAttr(owner, name, classObject);
 }

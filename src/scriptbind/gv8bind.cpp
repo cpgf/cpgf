@@ -1196,31 +1196,26 @@ void accessorNamedMemberSetter(Local<String> prop, Local<Value> value, const Acc
 	namedEnumSetter(prop, value, info);
 }
 
-void bindClassItems(Local<Object> object, const GBindingParamPointer & param, IMetaClass * metaClass)
+void bindClassItems(Local<Object> object, const GBindingParamPointer & param, IMetaClass * metaClass, Persistent<External> objectData)
 {
-	GObjectUserData * userData = new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass);
-	void * key = addUserDataToPool(param, userData);
-	Persistent<External> data = Persistent<External>::New(External::New(userData));
-	data.MakeWeak(key, weakHandleCallback);
-
 	GScopedInterface<IMetaItem> item;
 	uint32_t count = metaClass->getMetaCount();
 	for(uint32_t i = 0; i < count; ++i) {
 		item.reset(metaClass->getMetaAt(i));
 		if(item->isStatic()) {
-			object->SetAccessor(String::New(item->getName()), &staticMemberGetter, &staticMemberSetter, data);
+			object->SetAccessor(String::New(item->getName()), &staticMemberGetter, &staticMemberSetter, objectData);
 			if(metaIsEnum(item->getCategory())) {
 				IMetaEnum * metaEnum = gdynamic_cast<IMetaEnum *>(item.get());
 				uint32_t keyCount = metaEnum->getCount();
 				for(uint32_t k = 0; k < keyCount; ++k) {
-					object->SetAccessor(String::New(metaEnum->getKey(k)), &staticMemberGetter, &staticMemberSetter, data);
+					object->SetAccessor(String::New(metaEnum->getKey(k)), &staticMemberGetter, &staticMemberSetter, objectData);
 				}
 			}
 		}
 		else {
 			// to allow override method with script function
 			if(metaIsMethod(item->getCategory())) {
-				object->SetAccessor(String::New(item->getName()), NULL, &staticMemberSetter, data);
+				object->SetAccessor(String::New(item->getName()), NULL, &staticMemberSetter, objectData);
 			}
 		}
 	}
@@ -1313,13 +1308,9 @@ Handle<FunctionTemplate> doCreateClassTemplate(const GBindingParamPointer & para
 
 	Local<Function> classFunction = functionTemplate->GetFunction();
 	setObjectSignature(&classFunction);
-	bindClassItems(classFunction, param, metaClass);
+	bindClassItems(classFunction, param, metaClass, data);
 
-	GObjectUserData * classUserData = new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass);
-	key = addUserDataToPool(param, classUserData);
-	Persistent<External> classData = Persistent<External>::New(External::New(classUserData));
-	classData.MakeWeak(key, weakHandleCallback);
-	classFunction->SetHiddenValue(String::New(userDataKey), classData);
+	classFunction->SetHiddenValue(String::New(userDataKey), data);
 
 	return functionTemplate;
 }
