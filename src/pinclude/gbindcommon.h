@@ -131,8 +131,6 @@ private:
 
 class GObjectData : public GNoncopyable
 {
-	G_INTERFACE_IMPL_OBJECT
-
 public:
 	GObjectData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance,
 		bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType);

@@ -7,41 +7,37 @@ namespace cpgf {
 
 namespace sharedpointer_internal {
 
-template <typename T>
-class GSharedDataHolder
+class GSharedCounter
 {
 public:
-	explicit GSharedDataHolder(T * data)
-		: data(data), referenceCount(1), weakReferenceCount(0), freeData(true) {
+	explicit GSharedCounter()
+		: referenceCount(1), weakReferenceCount(0), freeData(true) {
 	}
 
-	GSharedDataHolder(T * data, bool freeData)
-		: data(data), referenceCount(1), weakReferenceCount(0), freeData(freeData) {
+	explicit GSharedCounter(bool freeData)
+		: referenceCount(1), weakReferenceCount(0), freeData(freeData) {
 	}
 
-	~GSharedDataHolder() {
+	~GSharedCounter() {
 	}
 
 	void retain() {
 		++this->referenceCount;
 	}
 
-	void release() {
+	bool release() {
 		GASSERT(this->referenceCount > 0);
 
 		--this->referenceCount;
 
 		if(this->referenceCount == 0) {
-			// Prefetch weak reference count because "this" maybe freed in doFreeData if RC is 0 and weak RC is 1.
-			// If weak RC is already 0 before doFreeData, doFreeData will not free "this", so it's safe to free "this" if weakRC is 0.
-			unsigned int weakRC = this->weakReferenceCount;
-
-			this->doFreeData();
-
-			if(weakRC == 0) {
+			bool freeIt = this->freeData;
+			if(this->weakReferenceCount == 0) {
 				delete this;
 			}
+			return freeIt;
 		}
+		return false;
 	}
 
 	void weakRetain() {
@@ -62,42 +58,15 @@ public:
 		return this->referenceCount > 0;
 	}
 
-	T * get() const {
-		return this->data;
-	}
-
-	T * take() {
+	void take() {
 		this->freeData = false;
-		return this->data;
 	}
 
 private:
-	void doFreeData() {
-		T * p = this->data;
-		this->data = NULL;
-		if(this->freeData) {
-			delete p;
-		}
-	}
-
-private:
-	T * data;
 	unsigned int referenceCount;
 	unsigned int weakReferenceCount;
 	bool freeData;
 };
-
-template <typename T>
-GSharedDataHolder<T> * createSharedDataHolder(T * p)
-{
-	return new GSharedDataHolder<T>(p);
-}
-
-template <typename T>
-GSharedDataHolder<T> * createSharedDataHolder(T * p, bool freeData)
-{
-	return new GSharedDataHolder<T>(p, freeData);
-}
 
 } // namespace sharedpointer_internal
 
@@ -111,64 +80,75 @@ private:
 	typedef GSharedPointer<T> ThisType;
 
 public:
-	GSharedPointer() : rawPointer(NULL) {
+	GSharedPointer() : data(NULL), counter(NULL) {
 	}
 
-	explicit GSharedPointer(T * p) : rawPointer(sharedpointer_internal::createSharedDataHolder(p)) {
+	explicit GSharedPointer(T * p) : data(p), counter(new sharedpointer_internal::GSharedCounter()) {
 	}
 
-	GSharedPointer(T * p, bool freeData) : rawPointer(sharedpointer_internal::createSharedDataHolder(p, freeData)) {
+	GSharedPointer(T * p, bool freeData) : data(p), counter(new sharedpointer_internal::GSharedCounter(freeData)) {
 	}
 
 	explicit GSharedPointer(const GWeakPointer<T> & weakPointer);
 
 	~GSharedPointer() {
-		if(this->rawPointer != NULL) {
-			this->rawPointer->release();
+		if(this->counter != NULL) {
+			if(this->counter->release()) {
+				delete this->data;
+			}
 		}
 	}
 
-	GSharedPointer(const GSharedPointer & other) : rawPointer(other.rawPointer) {
-		if(this->rawPointer != NULL) {
-			this->rawPointer->retain();
+	GSharedPointer(const GSharedPointer<T> & other) : data(other.data), counter(other.counter) {
+		if(this->counter != NULL) {
+			this->counter->retain();
 		}
 	}
 
-	GSharedPointer & operator = (GSharedPointer other) {
-		other.swap(*this);
+	GSharedPointer & operator = (GSharedPointer<T> other) {
+		ThisType(other).swap(*this);
 		return *this;
 	}
 
 	void swap(GSharedPointer & other) {
-		std::swap(this->rawPointer, other.rawPointer);
+		using std::swap;
+
+		swap(this->data, other.data);
+		swap(this->counter, other.counter);
 	}
 
 	T * operator -> () const {
-		return this->rawPointer->get();
+		return this->data;
 	}
 
 	T * get() const {
-		return this->rawPointer->get();
+		return this->data;
 	}
 
 	T * take() {
-		return this->rawPointer->take();
+		this->counter->take();
+		return this->data;
 	}
 
 	inline operator bool() {
-		return this->rawPointer != NULL && this->rawPointer->get() != NULL;
+		return this->data != NULL;
 	}
 
 	inline operator bool() const {
-		return this->rawPointer != NULL && this->rawPointer->get() != NULL;
+		return this->data != NULL;
 	}
 
-	void reset(T * p = NULL) {
+	void reset(T * p) {
 		ThisType(p).swap(*this);
 	}
 
+	void reset() {
+		ThisType().swap(*this);
+	}
+
 private:
-	sharedpointer_internal::GSharedDataHolder<T> * rawPointer;
+	T * data;
+	sharedpointer_internal::GSharedCounter * counter;
 
 private:
 	template <typename U>
@@ -184,34 +164,37 @@ private:
 	typedef GSharedPointer<T> StrongType;
 
 public:
-	GWeakPointer() : rawPointer(NULL) {
+	GWeakPointer() : data(NULL), counter(NULL) {
 	}
 
-	explicit GWeakPointer(StrongType p) : rawPointer(p.rawPointer) {
-		this->rawPointer->weakRetain();
+	explicit GWeakPointer(StrongType p) : data(p.get()), counter(p.counter) {
+		this->counter->weakRetain();
 	}
 
 	~GWeakPointer() {
-		if(this->rawPointer != NULL) {
-			this->rawPointer->weakRelease();
+		if(this->counter != NULL) {
+			this->counter->weakRelease();
 		}
 	}
 
-	GWeakPointer(const GWeakPointer & other) : rawPointer(other.rawPointer) {
-		this->rawPointer->weakRetain();
+	GWeakPointer(const GWeakPointer & other) : data(other.data), counter(other.counter) {
+		this->counter->weakRetain();
 	}
 
-	GWeakPointer & operator = (GWeakPointer other) {
-		other.swap(*this);
+	GWeakPointer & operator = (const GWeakPointer & other) {
+		ThisType(other).swap(*this);
 		return *this;
 	}
 
 	void swap(GWeakPointer & other) {
-		std::swap(this->rawPointer, other.rawPointer);
+		using std::swap;
+
+		swap(this->data, other.data);
+		swap(this->counter, other.counter);
 	}
 
 	StrongType get() const {
-		if(this->rawPointer->hasStrongReference()) {
+		if(this->counter->hasStrongReference()) {
 			return StrongType(*this);
 		}
 		else {
@@ -220,11 +203,11 @@ public:
 	}
 
 	inline operator bool() {
-		return this->rawPointer->get() != NULL;
+		return this->counter->hasStrongReference() && this->data != NULL;
 	}
 
 	inline operator bool() const {
-		return this->rawPointer->get() != NULL;
+		return this->counter->hasStrongReference() && this->data != NULL;
 	}
 
 	void reset(StrongType p) {
@@ -232,7 +215,8 @@ public:
 	}
 
 private:
-	sharedpointer_internal::GSharedDataHolder<T> * rawPointer;
+	T * data;
+	sharedpointer_internal::GSharedCounter * counter;
 
 private:
 	template <typename U>
@@ -241,10 +225,10 @@ private:
 
 template<typename T>
 GSharedPointer<T>::GSharedPointer(const GWeakPointer<T> & weakPointer)
-	: rawPointer(weakPointer.rawPointer)
+	: data(weakPointer.data), counter(weakPointer.counter)
 {
-	if(this->rawPointer != NULL) {
-		this->rawPointer->retain();
+	if(this->counter != NULL) {
+		this->counter->retain();
 	}
 }
 
