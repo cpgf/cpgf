@@ -21,15 +21,32 @@ public:
 		++*counter;
 	}
 
-	~TestData() {
+	virtual ~TestData() {
 		--*counter;
+	}
+
+	virtual int getID() {
+		return 0;
 	}
 
 private:
 	int * counter;
 };
 
+class TestData2 : public TestData
+{
+public:
+	explicit TestData2(int * counter) : TestData(counter) {
+	}
+
+	virtual int getID() {
+		return 1;
+	}
+
+};
+
 typedef GSharedPointer<TestData> SP;
+typedef GSharedPointer<TestData2> SP2;
 
 class TestObject
 {
@@ -146,6 +163,30 @@ GTEST(TestSharedPointer_DataInVector)
 		}
 		GEQUAL(iteral, count);
     }
+	GEQUAL(0, count);
+}
+
+
+GTEST(TestSharedPointer_DifferentSP)
+{
+	int count = 0;
+
+	{
+		SP2 sp2(new TestData2(&count));
+		GEQUAL(1, count);
+
+		SP sp(sp2);
+		GEQUAL(1, count);
+	}
+	GEQUAL(0, count);
+
+	{
+		SP sp(new TestData2(&count));
+		GEQUAL(1, count);
+
+		SP2 sp2(SharedStaticCast<TestData2>(sp));
+		GEQUAL(1, count);
+	}
 	GEQUAL(0, count);
 }
 

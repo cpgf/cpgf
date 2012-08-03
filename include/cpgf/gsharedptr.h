@@ -68,6 +68,11 @@ private:
 	bool freeData;
 };
 
+struct StaticCastTag {};
+struct ConstCastTag {};
+struct DynamicCastTag {};
+
+
 } // namespace sharedpointer_internal
 
 template <typename T>
@@ -86,7 +91,12 @@ public:
 	explicit GSharedPointer(T * p) : data(p), counter(new sharedpointer_internal::GSharedCounter()) {
 	}
 
-	GSharedPointer(T * p, bool freeData) : data(p), counter(new sharedpointer_internal::GSharedCounter(freeData)) {
+	template <typename U>
+	explicit GSharedPointer(U * p) : data(p), counter(new sharedpointer_internal::GSharedCounter()) {
+	}
+
+	template <typename U>
+	GSharedPointer(U * p, bool freeData) : data(p), counter(new sharedpointer_internal::GSharedCounter(freeData)) {
 	}
 
 	explicit GSharedPointer(const GWeakPointer<T> & weakPointer);
@@ -99,15 +109,54 @@ public:
 		}
 	}
 
-	GSharedPointer(const GSharedPointer<T> & other) : data(other.data), counter(other.counter) {
+	GSharedPointer(const GSharedPointer & other) : data(other.data), counter(other.counter) {
 		if(this->counter != NULL) {
 			this->counter->retain();
 		}
 	}
 
-	GSharedPointer & operator = (GSharedPointer<T> other) {
+	template <typename U>
+	GSharedPointer(const GSharedPointer<U> & other) : data(other.data), counter(other.counter) {
+		if(this->counter != NULL) {
+			this->counter->retain();
+		}
+	}
+
+	template <typename U>
+	GSharedPointer(const GSharedPointer<U> & other, sharedpointer_internal::StaticCastTag) : data(static_cast<T *>(other.data)), counter(other.counter) {
+		if(this->counter != NULL) {
+			this->counter->retain();
+		}
+	}
+
+	template <typename U>
+	GSharedPointer(const GSharedPointer<U> & other, sharedpointer_internal::ConstCastTag) : data(const_cast<T *>(other.data)), counter(other.counter) {
+		if(this->counter != NULL) {
+			this->counter->retain();
+		}
+	}
+
+	template <typename U>
+	GSharedPointer(const GSharedPointer<U> & other, sharedpointer_internal::DynamicCastTag) : data(dynamic_cast<T *>(other.data)), counter(other.counter) {
+		if(this->data != NULL && this->counter != NULL) {
+			this->counter->retain();
+		}
+	}
+
+	GSharedPointer & operator = (const GSharedPointer & other) {
 		ThisType(other).swap(*this);
 		return *this;
+	}
+
+	template <typename U>
+	GSharedPointer & operator = (const GSharedPointer<U> & other) {
+		ThisType(other).swap(*this);
+		return *this;
+	}
+
+	template <typename U>
+	bool operator == (GSharedPointer<U> other) {
+		return this->data == other.data && this->counter == other.counter;
 	}
 
 	void swap(GSharedPointer & other) {
@@ -152,6 +201,9 @@ private:
 
 private:
 	template <typename U>
+	friend class GSharedPointer;
+
+	template <typename U>
 	friend class GWeakPointer;
 };
 
@@ -167,7 +219,7 @@ public:
 	GWeakPointer() : data(NULL), counter(NULL) {
 	}
 
-	explicit GWeakPointer(StrongType p) : data(p.get()), counter(p.counter) {
+	explicit GWeakPointer(GSharedPointer<T> p) : data(p.get()), counter(p.counter) {
 		this->counter->weakRetain();
 	}
 
@@ -181,9 +233,25 @@ public:
 		this->counter->weakRetain();
 	}
 
+	template <typename U>
+	GWeakPointer(const GWeakPointer<U> & other) : data(other.data), counter(other.counter) {
+		this->counter->weakRetain();
+	}
+
 	GWeakPointer & operator = (const GWeakPointer & other) {
 		ThisType(other).swap(*this);
 		return *this;
+	}
+
+	template <typename U>
+	GWeakPointer & operator = (const GWeakPointer<U> & other) {
+		ThisType(other).swap(*this);
+		return *this;
+	}
+
+	template <typename U>
+	bool operator == (GWeakPointer<U> other) {
+		return this->data == other.data && this->counter == other.counter;
 	}
 
 	void swap(GWeakPointer & other) {
@@ -221,6 +289,9 @@ private:
 private:
 	template <typename U>
 	friend class GSharedPointer;
+
+	template <typename U>
+	friend class GWeakPointer;
 };
 
 template<typename T>
@@ -230,6 +301,24 @@ GSharedPointer<T>::GSharedPointer(const GWeakPointer<T> & weakPointer)
 	if(this->counter != NULL) {
 		this->counter->retain();
 	}
+}
+
+template<typename T, typename U>
+GSharedPointer<T> SharedStaticCast(const GSharedPointer<U> & other)
+{
+	return GSharedPointer<T>(other, sharedpointer_internal::StaticCastTag());
+}
+
+template<typename T, typename U>
+GSharedPointer<T> SharedConstCast(const GSharedPointer<U> & other)
+{
+	return GSharedPointer<T>(other, sharedpointer_internal::ConstCastTag());
+}
+
+template<typename T, typename U>
+GSharedPointer<T> SharedDynamicCast(const GSharedPointer<U> & other)
+{
+	return GSharedPointer<T>(other, sharedpointer_internal::DynamicCastTag());
 }
 
 

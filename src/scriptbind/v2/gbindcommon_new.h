@@ -35,6 +35,18 @@ typedef GSharedPointer<GBindingContext> GContextPointer;
 typedef GWeakPointer<GBindingContext> GWeakContextPointer;
 
 
+enum ObjectPointerCV {
+	opcvNone,
+	opcvConst,
+	opcvVolatile,
+	opcvConstVolatile
+};
+
+enum ObjectUserDataType {
+	cudtObject,
+	cudtInterface
+};
+
 enum GUserDataType {
 	udtObject,
 	udtClass,
@@ -90,6 +102,52 @@ public:
 
 private:
 	GSharedInterface<IMetaClass> metaClass;
+};
+
+typedef GSharedPointer<GClassUserData> GClassUserDataPointer;
+
+
+class GObjectUserData : public GUserData
+{
+private:
+	typedef GUserData super;
+
+public:
+	GObjectUserData(const GContextPointer & context, const GClassUserDataPointer & classUserData, void * instance,
+		bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType);
+	~GObjectUserData();
+
+	IMetaClass * getMetaClass() const {
+		return this->classUserData->getMetaClass();
+	}
+
+	void * getInstance() const {
+		return this->instance;
+	}
+
+	IObject * getInterfaceObject() const {
+		return this->interfaceObject.get();
+	}
+
+	bool isAllowGC() const {
+		return this->allowGC;
+	}
+
+	ObjectPointerCV getCV() const {
+		return this->cv;
+	}
+
+	ObjectUserDataType getDataType() const {
+		return this->dataType;
+	}
+
+private:
+	GClassUserDataPointer classUserData;
+	void * instance;
+	GSharedInterface<IObject> interfaceObject;
+	bool allowGC;
+	ObjectPointerCV cv;
+	ObjectUserDataType dataType;
 };
 
 

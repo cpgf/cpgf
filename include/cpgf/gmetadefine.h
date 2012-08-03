@@ -606,7 +606,7 @@ public:
 	}
 
 protected:
-	GDefineMetaDangle() : super(meta_internal::GSharedMetaClass(NULL), NULL) {
+	GDefineMetaDangle() : super(meta_internal::GSharedMetaClass(), NULL) {
 	}
 
 	explicit GDefineMetaDangle(GMetaClass * metaClass) : super(meta_internal::GSharedMetaClass(metaClass, false), metaClass) {
