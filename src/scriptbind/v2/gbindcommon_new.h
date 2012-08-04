@@ -56,6 +56,12 @@ enum GMetaMapItemType {
 	mmitNone = 100,
 };
 
+enum GGlueDataMethodType {
+	gdmtMethod,
+	gdmtMethodList,
+	gdmtInternal
+};
+
 class GMetaMapItem
 {
 public:
@@ -229,6 +235,40 @@ private:
 };
 
 typedef GSharedPointer<GObjectGlueData> GObjectGlueDataPointer;
+
+
+class GMethodGlueData : public GGlueData
+{
+private:
+	typedef GGlueData super;
+
+public:
+	GMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classData, IMetaList * methodList, const char * name, GGlueDataMethodType methodType)
+		: super(gdtMethod, context), classGlueData(classGlueData), methodList(methodList), name(name), methodType(methodType) {
+	}
+
+	const GClassGlueDataPointer & getClassData() const {
+		return this->classGlueData;
+	}
+
+	IMetaList * getMethodList() const {
+		return this->methodList.get();
+	}
+
+	const std::string & getName() const {
+		return this->name;
+	}
+
+	GGlueDataMethodType getMethodType() const {
+		return this->methodType;
+	}
+
+private:
+	GClassGlueDataPointer classGlueData;
+	GSharedInterface<IMetaList> methodList;
+	std::string name;
+	GGlueDataMethodType methodType;
+};
 
 
 class GRawGlueData : public GGlueData
