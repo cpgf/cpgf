@@ -284,6 +284,53 @@ private:
 typedef GSharedPointer<GMethodGlueData> GMethodGlueDataPointer;
 
 
+class GEnumGlueData : public GGlueData
+{
+private:
+	typedef GGlueData super;
+
+public:
+	GEnumGlueData(const GContextPointer & context, IMetaEnum * metaEnum)
+		: super(gdtEnum, context), metaEnum(metaEnum) {
+	}
+
+	IMetaEnum * getMetaEnum() const {
+		return this->metaEnum.get();
+	}
+
+private:
+	GSharedInterface<IMetaEnum> metaEnum;
+};
+
+typedef GSharedPointer<GEnumGlueData> GEnumGlueDataPointer;
+
+
+class GAccessibleGlueData : public GGlueData
+{
+private:
+	typedef GGlueData super;
+
+public:
+	GAccessibleGlueData(const GContextPointer & context, void * instance, IMetaAccessible * accessible)
+		: super(gdtAccessible, context), instance(instance), accessible(accessible) {
+	}
+
+	void * getInstance() const {
+		return this->instance;
+	}
+
+	IMetaAccessible * getAccessible() const {
+		return this->accessible.get();
+	}
+
+private:
+	void * instance;
+	GSharedInterface<IMetaAccessible> accessible;
+};
+
+typedef GSharedPointer<GAccessibleGlueData> GAccessibleGlueDataPointer;
+
+
 class GRawGlueData : public GGlueData
 {
 private:
@@ -330,6 +377,8 @@ public:
 		IMetaList * methodList, const char * name, GGlueDataMethodType methodType);
 
 	GRawGlueDataPointer newRawGlueData(const GContextPointer & context, const GVariant & data);
+	
+	GAccessibleGlueDataPointer newAccessibleGlueData(const GContextPointer & context, void * instance, IMetaAccessible * accessible);
 
 private:
 	GSharedInterface<IMetaService> service;
@@ -424,7 +473,8 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeC
 bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessible * accessible);
 
 void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
-InvokeCallableResult doInvokeMethodList(const GContextPointer & context, const GGlueDataPointer & objectOrClassData,
+InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
+										const GObjectGlueDataPointer & objectData,
 										const GMethodGlueDataPointer & methodData, InvokeCallableParam * callableParam);
 
 bool shouldRemoveReference(const GMetaType & type);
@@ -436,12 +486,8 @@ GMetaVariant glueDataToVariant(const GGlueDataPointer & glueData);
 
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);
 
-void loadMethodList(const GContextPointer & context, GMetaClassTraveller * traveller,
-	IMetaList * methodList, GMetaMapItem * mapItem,
-	void * instance, const char * methodName);
-
-void loadMethodList(const GContextPointer & context, IMetaList * methodList, const GGlueDataPointer & objectOrClassData,
-	void * objectInstance, const char * methodName);
+void loadMethodList(const GContextPointer & context, IMetaList * methodList, const GClassGlueDataPointer & classData,
+			const GObjectGlueDataPointer & objectData, const char * methodName);
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 

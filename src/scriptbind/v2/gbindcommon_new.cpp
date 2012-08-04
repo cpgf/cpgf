@@ -311,8 +311,7 @@ GClassGlueDataPointer GBindingContext::newClassGlueData(const GContextPointer & 
 GClassGlueDataPointer GBindingContext::requireClassGlueData(const GContextPointer & context, IMetaClass * metaClass)
 {
 	if(this->classPool->hasMetaClass(metaClass)) {
-		GClassGlueDataPointer data(new GClassGlueData(context, metaClass));
-		return data;
+		return this->classPool->getMetaClass(metaClass);
 	}
 	else {
 		return this->newClassGlueData(context, metaClass);
@@ -337,6 +336,12 @@ GRawGlueDataPointer GBindingContext::newRawGlueData(const GContextPointer & cont
 {
 	GRawGlueDataPointer rawData(new GRawGlueData(context, data));
 	return rawData;
+}
+
+GAccessibleGlueDataPointer GBindingContext::newAccessibleGlueData(const GContextPointer & context, void * instance, IMetaAccessible * accessible)
+{
+	GAccessibleGlueDataPointer accessibleData(new GAccessibleGlueData(context, instance, accessible));
+	return accessibleData;
 }
 
 
@@ -519,7 +524,7 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeC
 
 bool allowInvokeCallable(const GScriptConfig & config, const GGlueDataPointer & glueData, IMetaCallable * method)
 {
-	if(getGlueDataInstance(glueData) == NULL) {
+	if(getGlueDataInstance(glueData) != NULL) {
 		if(! config.allowAccessStaticMethodViaInstance()) {
 			if(method->isStatic()) {
 				return false;
@@ -639,23 +644,21 @@ void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, Invok
 	return instance;
 }
 
-InvokeCallableResult doInvokeMethodList(const GContextPointer & context, const GGlueDataPointer & objectOrClassData,
+InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
+										const GObjectGlueDataPointer & objectData,
 										const GMethodGlueDataPointer & methodData, InvokeCallableParam * callableParam)
 {
-	void * instance = getGlueDataInstance(objectOrClassData);
+	void * instance = getGlueDataInstance(objectData);
 
 	GScopedInterface<IMetaList> methodList;
-	if((! methodData->getClassData() || ! methodData->getClassData()->getMetaClass()) && methodData->getMethodList()) {
+	if((! methodData->getClassData() || ! methodData->getClassData()->getMetaClass()) && methodData->getMethodList()->getCount() > 0) {
 		methodList.reset(methodData->getMethodList());
 		methodList->addReference();
 	}
 	else {
 		methodList.reset(createMetaList());
-	//	callbackLoadMethodList(param->getConfig(), methodList.get(), param->getMetaMap(),
-	//		objectUserData == NULL? methodData->getClassData()->getMetaClass() : objectUserData->getObjectData()->getMetaClass(),
-	//		instance,  getObjectData(objectUserData), methodData.getName().c_str());
-		loadMethodList(context, methodList.get(), objectOrClassData,
-			instance, methodData->getName().c_str());
+		loadMethodList(context, methodList.get(), methodData->getClassData(),
+			objectData, methodData->getName().c_str());
 	}
 
 	int maxRankIndex = findAppropriateCallable(context->getService(),
@@ -809,28 +812,10 @@ void doLoadMethodList(const GContextPointer & context, GMetaClassTraveller * tra
 	}
 }
 
-void loadMethodList(const GContextPointer & context, GMetaClassTraveller * traveller,
-	IMetaList * methodList, GMetaMapItem * mapItem,
-	void * instance, const char * methodName)
+void loadMethodList(const GContextPointer & context, IMetaList * methodList, const GClassGlueDataPointer & classData,
+			const GObjectGlueDataPointer & objectData, const char * methodName)
 {
-	doLoadMethodList(context, traveller, methodList, mapItem, instance, GGlueDataPointer(), methodName, true);
-}
-
-void loadMethodList(const GContextPointer & context, IMetaList * methodList, const GGlueDataPointer & objectOrClassData,
-	void * objectInstance, const char * methodName)
-{
-	GClassGlueDataPointer classData;
-	GObjectGlueDataPointer objectData;
-	if(objectOrClassData->getType() == gdtObject) {
-		objectData = sharedStaticCast<GObjectGlueData>(objectOrClassData);
-		classData = objectData->getClassData();
-	}
-	else {
-		GASSERT(objectOrClassData->getType() == gdtClass);
-		classData = sharedStaticCast<GClassGlueData>(objectOrClassData);
-	}
-
-	GMetaClassTraveller traveller(classData->getMetaClass(), objectInstance);
+	GMetaClassTraveller traveller(classData->getMetaClass(), objectData? objectData->getInstance() : NULL);
 	void * instance = NULL;
 
 	for(;;) {

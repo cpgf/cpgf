@@ -11,13 +11,13 @@ void testMisc(TestScriptContext * context)
 
 	QDO(scriptTrace("Olay olay"));
 
-	//QNEWOBJ(a, mtest.SimpleObject());
-	//QDO(a.data.n = 38);
-	//QDO(a.data.s = "abc");
-	//QDO(a.data.atom.value = 58);
-	//QASSERT(a.checkData(38));
-	//QASSERT(a.checkData("abc"));
-	//QASSERT(a.checkAtom(58));
+	QNEWOBJ(a, mtest.SimpleObject());
+	QDO(a.data.n = 38);
+	QDO(a.data.s = "abc");
+	QDO(a.data.atom.value = 58);
+	QASSERT(a.checkData(38));
+	QASSERT(a.checkData("abc"));
+	QASSERT(a.checkAtom(58));
 }
 
 
