@@ -31,6 +31,7 @@ set(SRC_META
 	${SRC_PATH}/scriptbind/gscriptservice.cpp
 
 ${SRC_PATH}/scriptbind/v2/gbindcommon_new.cpp
+${SRC_PATH}/scriptbind/v2/gv8bind_new.cpp
 	
 	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
 	${SRC_PATH}/metatraits/gmetaconverter_widestring.cpp

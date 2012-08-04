@@ -7,29 +7,16 @@
 #include "cpgf/gmetaoperatorop.h"
 #include "cpgf/gsharedptr.h"
 
+#include <map>
+
 
 namespace cpgf {
 
 namespace _bind_internal {
 
-class GBindingContext
-{
-public:
-	GBindingContext(IMetaService * service, const GScriptConfig & config);
-	virtual ~GBindingContext();
+class GClassPool;
 
-	IMetaService * getService() const {
-		return this->service.get();
-	}
-
-	const GScriptConfig & getConfig() const {
-		return this->config;
-	}
-
-private:
-	GSharedInterface<IMetaService> service;
-	GScriptConfig config;
-};
+class GBindingContext;
 
 typedef GSharedPointer<GBindingContext> GContextPointer;
 typedef GWeakPointer<GBindingContext> GWeakContextPointer;
@@ -42,34 +29,106 @@ enum ObjectPointerCV {
 	opcvConstVolatile
 };
 
-enum ObjectUserDataType {
-	cudtObject,
-	cudtInterface
+enum ObjectGlueDataType {
+	ogdtNormal,
+	ogdtInterface
 };
 
-enum GUserDataType {
-	udtObject,
-	udtClass,
-	udtExtendMethod,
-	udtEnum,
-	udtOperator,
-	udtAccessible,
-	udtRaw,
-	udtMethod
+enum GGlueDataType {
+	gdtObject,
+	gdtClass,
+	gdtExtendMethod,
+	gdtEnum,
+	gdtOperator,
+	gdtAccessible,
+	gdtRaw,
+	gdtMethod
 };
 
-class GUserData : public GNoncopyable
+enum GMetaMapItemType {
+	mmitMethod = 0,
+	mmitMethodList = 1,
+	mmitProperty = 2,
+	mmitField = 3,
+	mmitEnum = 4,
+	mmitEnumValue = 5,
+	mmitClass = 6,
+	mmitNone = 100,
+};
+
+class GMetaMapItem
 {
 public:
-	GUserData(GUserDataType type, const GContextPointer & context)
+	GMetaMapItem();
+	GMetaMapItem(IMetaItem * item, GMetaMapItemType type);
+	GMetaMapItem(size_t enumIndex, IMetaEnum * item);
+	explicit GMetaMapItem(IMetaList * metaList);
+	GMetaMapItem(const GMetaMapItem & other);
+	~GMetaMapItem();
+
+	GMetaMapItem & operator = (GMetaMapItem other);
+
+	void swap(GMetaMapItem & other);
+
+	GMetaMapItemType getType() const;
+	IObject * getItem() const;
+
+	size_t getEnumIndex() const {
+		return this->enumIndex;
+	}
+
+private:
+	GSharedInterface<IObject> item;
+	GMetaMapItemType type;
+	size_t enumIndex;
+};
+
+inline void swap(GMetaMapItem & a, GMetaMapItem & b)
+{
+	a.swap(b);
+}
+
+class GMetaMapClass : public GNoncopyable
+{
+public:
+	typedef std::map<const char *, GMetaMapItem, meta_internal::CStringCompare> MapType;
+
+public:
+	GMetaMapClass(IMetaClass * metaClass);
+
+	GMetaMapItem * findItem(const char * name);
+
+	const MapType * getMap() const {
+		return &this->itemMap;
+	}
+
+private:
+	void buildMap(IMetaClass * metaClass);
+
+private:
+	MapType itemMap;
+};
+
+
+class GUserData
+{
+public:
+	GUserData() {}
+	virtual ~GUserData() {}
+};
+
+class GGlueData : public GNoncopyable
+{
+public:
+	GGlueData(GGlueDataType type, const GContextPointer & context)
 		: type(type), context(GWeakContextPointer(context))
 	{
 	}
 
-	virtual ~GUserData() {
+	virtual ~GGlueData() {
 	}
 
-	GUserDataType getType() const {
+	GGlueDataType getType() const {
 		return this->type;
 	}
 
@@ -77,22 +136,29 @@ public:
 		return GContextPointer(this->context);
 	}
 
+	bool isInvalid() const {
+		return this->context.expired();
+	}
+
 private:
-	GUserDataType type;
+	GGlueDataType type;
 	GWeakContextPointer context;
 };
 
-typedef GSharedPointer<GUserData> GUserDataPointer;
+typedef GSharedPointer<GGlueData> GGlueDataPointer;
 
+class GMetaMapClass;
 
-class GClassUserData : public GUserData
+typedef GSharedPointer<GMetaMapClass> GMetaMapClassPointer;
+
+class GClassGlueData : public GGlueData
 {
 private:
-	typedef GUserData super;
+	typedef GGlueData super;
 
 public:
-	GClassUserData(const GContextPointer & context, IMetaClass * metaClass)
-		: super(udtClass, context), metaClass(metaClass)
+	GClassGlueData(const GContextPointer & context, IMetaClass * metaClass)
+		: super(gdtClass, context), metaClass(metaClass)
 	{
 	}
 
@@ -100,25 +166,37 @@ public:
 		return this->metaClass.get();
 	}
 
+	void setUserData(GUserData * userData) const {
+		this->userData.reset(userData);
+	}
+
+	GUserData * getUserData() const {
+		return this->userData.get();
+	}
+
+	const GMetaMapClassPointer & getClassMap() const;
+
 private:
 	GSharedInterface<IMetaClass> metaClass;
+	mutable GMetaMapClassPointer classMap;
+	mutable GScopedPointer<GUserData> userData;
 };
 
-typedef GSharedPointer<GClassUserData> GClassUserDataPointer;
+typedef GSharedPointer<GClassGlueData> GClassGlueDataPointer;
 
 
-class GObjectUserData : public GUserData
+class GObjectGlueData : public GGlueData
 {
 private:
-	typedef GUserData super;
+	typedef GGlueData super;
 
 public:
-	GObjectUserData(const GContextPointer & context, const GClassUserDataPointer & classUserData, void * instance,
-		bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType);
-	~GObjectUserData();
+	GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, void * instance,
+		bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType);
+	~GObjectGlueData();
 
-	IMetaClass * getMetaClass() const {
-		return this->classUserData->getMetaClass();
+	const GClassGlueDataPointer & getClassData() const {
+		return this->classGlueData;
 	}
 
 	void * getInstance() const {
@@ -137,20 +215,369 @@ public:
 		return this->cv;
 	}
 
-	ObjectUserDataType getDataType() const {
+	ObjectGlueDataType getDataType() const {
 		return this->dataType;
 	}
 
 private:
-	GClassUserDataPointer classUserData;
+	GClassGlueDataPointer classGlueData;
 	void * instance;
 	GSharedInterface<IObject> interfaceObject;
 	bool allowGC;
 	ObjectPointerCV cv;
-	ObjectUserDataType dataType;
+	ObjectGlueDataType dataType;
 };
 
+typedef GSharedPointer<GObjectGlueData> GObjectGlueDataPointer;
 
+
+class GRawGlueData : public GGlueData
+{
+private:
+	typedef GGlueData super;
+
+public:
+	GRawGlueData(const GContextPointer & context, const GVariant & data)
+		: super(gdtClass, context), data(data)
+	{
+	}
+
+	const GVariant & getData() const {
+		return this->data;
+	}
+
+private:
+	GVariant data;
+};
+
+typedef GSharedPointer<GRawGlueData> GRawGlueDataPointer;
+
+
+class GBindingContext
+{
+public:
+	GBindingContext(IMetaService * service, const GScriptConfig & config);
+	virtual ~GBindingContext();
+
+	IMetaService * getService() const {
+		return this->service.get();
+	}
+
+	const GScriptConfig & getConfig() const {
+		return this->config;
+	}
+
+	GClassGlueDataPointer newClassGlueData(const GContextPointer & context, IMetaClass * metaClass);
+	GClassGlueDataPointer requireClassGlueData(const GContextPointer & context, IMetaClass * metaClass);
+
+	GObjectGlueDataPointer newObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classData, void * instance,
+		bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType);
+	
+	GRawGlueDataPointer newRawGlueData(const GContextPointer & context, const GVariant & data);
+
+private:
+	GSharedInterface<IMetaService> service;
+	GScriptConfig config;
+	GScopedPointer<GClassPool> classPool;
+};
+
+class GGlueDataWrapper
+{
+public:
+	virtual ~GGlueDataWrapper() {
+	}
+
+	virtual GGlueDataPointer getData() = 0;
+
+	template <typename T>
+	GSharedPointer<T> getAs() {
+		return sharedStaticCast<T>(this->getData());
+	}
+};
+
+template <typename T>
+class GGlueDataWrapperImplement : public GGlueDataWrapper
+{
+public:
+	explicit GGlueDataWrapperImplement(const T & p) : dataPointer(p) {
+	}
+
+	virtual GGlueDataPointer getData() {
+		return sharedStaticCast<GGlueData>(this->dataPointer);
+	}
+
+private:
+	T dataPointer;
+};
+
+class InvokeParamRank
+{
+public:
+	explicit InvokeParamRank(size_t paramCount);
+	InvokeParamRank(const InvokeParamRank & other);
+	InvokeParamRank & operator = (const InvokeParamRank & other);
+
+public:
+	size_t paramCount;
+	mutable int ranks[REF_MAX_ARITY];
+};
+
+class CallableParamDataType
+{
+public:
+	GScriptDataType dataType;
+	GScopedInterface<IMetaTypedItem> typeItem;
+};
+
+class InvokeCallableParam
+{
+public:
+	explicit InvokeCallableParam(size_t paramCount);
+	~InvokeCallableParam();
+
+public:
+	GVariant paramsData[REF_MAX_ARITY];
+	CallableParamDataType paramsType[REF_MAX_ARITY];
+	size_t paramCount;
+	InvokeParamRank paramsRank;
+};
+
+class InvokeCallableResult
+{
+public:
+	int resultCount;
+	GVariant resultData;
+	GSharedInterface<IMetaCallable> callable;
+};
+
+template <typename T>
+GGlueDataWrapper * newGlueDataWrapper(const T & p)
+{
+	return new GGlueDataWrapperImplement<T>(p);
+}
+
+inline void freeGlueDataPointer(GGlueDataWrapper * p)
+{
+	delete p;
+}
+
+ObjectPointerCV metaTypeToCV(const GMetaType & type);
+
+int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, const InvokeParamRank * paramsRank);
+
+bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessible * accessible);
+
+void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
+
+wchar_t * stringToWideString(const char * s);
+char * wideStringToString(const wchar_t * ws);
+
+GMetaVariant glueDataToVariant(const GGlueDataPointer & glueData);
+
+GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);
+
+bool doSetFieldValue(const GGlueDataPointer & glueData, const char * name, const GVariant & value);
+
+ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData);
+void * getGlueDataInstance(const GGlueDataPointer & glueData);
+IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData);
+
+
+template <typename Getter, typename Predict>
+int findAppropriateCallable(IMetaService * service,
+	const Getter & getter, size_t callableCount,
+	InvokeCallableParam * callableParam, Predict predict)
+{
+	int maxRank = -1;
+	int maxRankIndex = -1;
+
+	InvokeParamRank paramsRank(callableParam->paramCount);
+
+	for(size_t i = 0; i < callableCount; ++i) {
+		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(getter(static_cast<uint32_t>(i))));
+		if(predict(meta.get())) {
+			int rank = rankCallable(service, meta.get(), callableParam, &paramsRank);
+			if(rank > maxRank) {
+				maxRank = rank;
+				maxRankIndex = static_cast<int>(i);
+				callableParam->paramsRank = paramsRank;
+			}
+		}
+	}
+
+	return maxRankIndex;
+}
+
+
+template <typename Methods>
+bool variantToScript(typename Methods::ResultType * result,
+	const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+{
+	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
+
+	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
+		GScopedInterface<IMetaTypedItem> typedItem(context->getService()->findTypedItemByName(type.getBaseName()));
+		if(typedItem) {
+			bool isReference = type.isReference();
+
+			if(type.getPointerDimension() == 0 && !isReference) {
+				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
+				GASSERT_MSG(type.baseIsClass(), "Unknown type");
+
+				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
+				void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
+				*result = Methods::doObjectToScript(context, context->newClassGlueData(context, gdynamic_cast<IMetaClass *>(typedItem.get())),
+					instance, true, metaTypeToCV(type), ogdtNormal);
+				return true;
+			}
+
+			if(type.getPointerDimension() == 1 || isReference) {
+				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
+
+				if(vtIsInterface(vt)) {
+					GScopedInterface<IObject> ba(value.data.valueInterface);
+					*result = Methods::doObjectToScript(context, context->newClassGlueData(context, gdynamic_cast<IMetaClass *>(typedItem.get())),
+						value.data.valueInterface, allowGC,	metaTypeToCV(type), ogdtInterface);
+					return true;
+				}
+				else {
+					*result = Methods::doObjectToScript(context, context->newClassGlueData(context, gdynamic_cast<IMetaClass *>(typedItem.get())),
+						fromVariant<void *>(value), allowGC, metaTypeToCV(type), ogdtNormal);
+					return true;
+				}
+			}
+		}
+		else {
+			if(vtIsInterface(vt)) {
+				IObject * obj = fromVariant<IObject *>(value);
+				if(dynamic_cast<IMetaClass *>(obj)) { // !!! GUID
+					IMetaClass * metaClass = dynamic_cast<IMetaClass *>(obj);
+					*result = Methods::doClassToScript(context, metaClass);
+
+					return true;
+				}
+			}
+		}
+
+		if(bind_internal::shouldRemoveReference(type)) {
+			GMetaType newType(type);
+			newType.removeReference();
+
+			*result = Methods::doVariantToScript(context, value, newType, allowGC, allowRaw);
+
+			return true;
+		}
+	}
+
+	if(allowRaw) {
+		*result = Methods::doRawToScript(context, value);
+		return true;
+	}
+
+	return false;
+}
+
+template <typename Methods>
+bool methodResultToScript(typename Methods::ResultType * result,
+	const GContextPointer & context, IMetaCallable * callable, InvokeCallableResult * resultValue)
+{
+	if(resultValue->resultCount > 0) {
+		GMetaTypeData typeData;
+	
+		callable->getResultType(&typeData);
+		metaCheckError(callable);
+
+		GVariant value = resultValue->resultData;
+		*result = Methods::doVariantToScript(context, value, GMetaType(typeData), !! callable->isResultTransferOwnership(), false);
+		if(! Methods::isSuccessResult(*result)) {
+			GScopedInterface<IMetaConverter> converter(metaGetResultExtendType(callable, GExtendTypeCreateFlag_Converter).getConverter());
+			*result = Methods::doConverterToScript(context, value, converter.get());
+		}
+		if(! Methods::isSuccessResult(*result)) {
+			*result = Methods::doRawToScript(context, value);
+		}
+		if(! Methods::isSuccessResult(*result)) {
+			raiseCoreException(Error_ScriptBinding_FailVariantToScript);
+
+			return false;
+		}
+		
+		return true;
+	}
+	
+	return false;
+}
+
+
+template <typename Methods>
+bool accessibleToScript(typename Methods::ResultType * result,
+	const GContextPointer & context, IMetaAccessible * accessible, void * instance, bool instanceIsConst)
+{
+	GMetaType type;
+	GVariant value = getAccessibleValueAndType(instance, accessible, &type, instanceIsConst);
+
+	*result = Methods::doVariantToScript(context, value, type, false, false);
+	if(! Methods::isSuccessResult(*result)) {
+		GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Converter).getConverter());
+		*result = Methods::doConverterToScript(context, value, converter.get());
+	}
+	if(! Methods::isSuccessResult(*result)) {
+		*result = Methods::doRawToScript(context, value);
+	}
+	if(! Methods::isSuccessResult(*result)) {
+		raiseCoreException(Error_ScriptBinding_FailVariantToScript);
+
+		return false;
+	}
+		
+	return true;
+}
+
+
+template <typename Methods>
+bool converterToScript(typename Methods::ResultType * result,
+	const GContextPointer & context, const GVariant & value, IMetaConverter * converter)
+{
+	if(converter == NULL) {
+		return false;
+	}
+
+	if(isMetaConverterCanRead(converter->capabilityForCString())) {
+		gapi_bool needFree;
+		
+		GScopedInterface<IMemoryAllocator> allocator(context->getService()->getAllocator());
+		const char * s = converter->readCString(objectAddressFromVariant(value), &needFree, allocator.get());
+
+		if(s != NULL) {
+			*result = Methods::doStringToScript(context, s);
+
+			if(needFree) {
+				allocator->free((void *)s);
+			}
+
+			return true;
+		}
+	}
+
+	if(isMetaConverterCanRead(converter->capabilityForCWideString())) {
+		gapi_bool needFree;
+		
+		GScopedInterface<IMemoryAllocator> allocator(context->getService()->getAllocator());
+		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
+
+		if(ws != NULL) {
+			*result = Methods::doWideStringToScript(context, ws);
+
+			if(needFree) {
+				allocator->free((void *)ws);
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
 
 
 } // namespace _bind_internal

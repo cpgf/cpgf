@@ -380,8 +380,8 @@ private:
 
 
 void weakHandleCallback(Persistent<Value> object, void * parameter);
-Handle<FunctionTemplate> doCreateClassTemplate(const GBindingParamPointer & param, const char * name, IMetaClass * metaClass);
-Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param, const char * name, IMetaClass * metaClass);
+Handle<FunctionTemplate> doCreateClassTemplate(const GBindingParamPointer & param, IMetaClass * metaClass);
+Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param, IMetaClass * metaClass);
 
 Handle<Value> variantToV8(const GBindingParamPointer & param, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw);
 
@@ -605,7 +605,7 @@ struct GV8Methods
 
 	static ResultType doClassToScript(const GBindingParamPointer & param, IMetaClass * metaClass)
 	{
-		Handle<FunctionTemplate> functionTemplate = createClassTemplate(param, metaClass->getName(), metaClass);
+		Handle<FunctionTemplate> functionTemplate = createClassTemplate(param, metaClass);
 		return functionTemplate->GetFunction();
 	}
 
@@ -1057,7 +1057,7 @@ Handle<Value> getNamedMember(GObjectUserData * userData, const char * name)
 			case mmitClass:
 				if(! userData->getObjectData()->isInstance() || userData->getParam()->getConfig().allowAccessClassViaInstance()) {
 					GScopedInterface<IMetaClass> innerMetaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
-					Handle<FunctionTemplate> functionTemplate = createClassTemplate(userData->getParam(), name, innerMetaClass.get());
+					Handle<FunctionTemplate> functionTemplate = createClassTemplate(userData->getParam(), innerMetaClass.get());
 					return functionTemplate->GetFunction();
 				}
 				break;
@@ -1196,7 +1196,7 @@ void accessorNamedMemberSetter(Local<String> prop, Local<Value> value, const Acc
 	namedEnumSetter(prop, value, info);
 }
 
-void bindClassItems(Local<Object> object, const GBindingParamPointer & param, IMetaClass * metaClass, Persistent<External> objectData)
+void bindClassItems(Local<Object> object, IMetaClass * metaClass, Persistent<External> objectData)
 {
 	GScopedInterface<IMetaItem> item;
 	uint32_t count = metaClass->getMetaCount();
@@ -1277,13 +1277,13 @@ GMetaMapClass * getMetaClassMap(const GBindingParamPointer & param, IMetaClass *
 	GMetaMapClass * map = param->getMetaMap()->findClassMap(metaClass);
 
 	if(map->getData() == NULL) {
-		createClassTemplate(param, metaClass->getName(), metaClass);
+		createClassTemplate(param, metaClass);
 	}
 
 	return map;
 }
 
-Handle<FunctionTemplate> doCreateClassTemplate(const GBindingParamPointer & param, const char * name, IMetaClass * metaClass)
+Handle<FunctionTemplate> doCreateClassTemplate(const GBindingParamPointer & param, IMetaClass * metaClass)
 {
 	GObjectUserData * userData = new GObjectUserData(param, metaClass, NULL, false, opcvNone, cudtClass);
 	void * key = addUserDataToPool(param, userData);
@@ -1291,7 +1291,7 @@ Handle<FunctionTemplate> doCreateClassTemplate(const GBindingParamPointer & para
 	data.MakeWeak(key, weakHandleCallback);
 
 	Handle<FunctionTemplate> functionTemplate = FunctionTemplate::New(objectConstructor, data);
-	functionTemplate->SetClassName(String::New(name));
+	functionTemplate->SetClassName(String::New(metaClass->getName()));
 
 	Local<ObjectTemplate> instanceTemplate = functionTemplate->InstanceTemplate();
 	instanceTemplate->SetInternalFieldCount(1);
@@ -1301,21 +1301,21 @@ Handle<FunctionTemplate> doCreateClassTemplate(const GBindingParamPointer & para
 	if(metaClass->getBaseCount() > 0) {
 		GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(0));
 		if(baseClass) {
-			Handle<FunctionTemplate> baseFunctionTemplate = createClassTemplate(param, baseClass->getName(), baseClass.get());
+			Handle<FunctionTemplate> baseFunctionTemplate = createClassTemplate(param, baseClass.get());
 			functionTemplate->Inherit(baseFunctionTemplate);
 		}
 	}
 
 	Local<Function> classFunction = functionTemplate->GetFunction();
 	setObjectSignature(&classFunction);
-	bindClassItems(classFunction, param, metaClass, data);
+	bindClassItems(classFunction, metaClass, data);
 
 	classFunction->SetHiddenValue(String::New(userDataKey), data);
 
 	return functionTemplate;
 }
 
-Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param, const char * name, IMetaClass * metaClass)
+Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param, IMetaClass * metaClass)
 {
 	GMetaMapClass * map = param->getMetaMap()->findClassMap(metaClass);
 
@@ -1323,7 +1323,7 @@ Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param,
 		return gdynamic_cast<GMapItemClassData *>(map->getData())->getFunctionTemplate();
 	}
 
-	Handle<FunctionTemplate> functionTemplate = doCreateClassTemplate(param, name, metaClass);
+	Handle<FunctionTemplate> functionTemplate = doCreateClassTemplate(param, metaClass);
 
 	GMapItemClassData * mapData = new GMapItemClassData;
 	mapData->setTemplate(functionTemplate);
@@ -1334,7 +1334,7 @@ Handle<FunctionTemplate> createClassTemplate(const GBindingParamPointer & param,
 
 void doBindClass(const GBindingParamPointer & param, Local<Object> container, const char * name, IMetaClass * metaClass)
 {
-	Handle<FunctionTemplate> functionTemplate = createClassTemplate(param, name, metaClass);
+	Handle<FunctionTemplate> functionTemplate = createClassTemplate(param, metaClass);
 	container->Set(String::New(name), functionTemplate->GetFunction());
 }
 
@@ -1723,6 +1723,8 @@ void GV8ScriptObject::bindMethodList(const char * name, IMetaList * methodList)
 
 IMetaClass * GV8ScriptObject::getClass(const char * className)
 {
+	ENTER_V8()
+
 	IMetaTypedItem * typedItem = NULL;
 
 	GScriptDataType sdt = this->getType(className, &typedItem);
@@ -1732,10 +1734,14 @@ IMetaClass * GV8ScriptObject::getClass(const char * className)
 	}
 
 	return NULL;
+
+	LEAVE_V8(return NULL)
 }
 
 IMetaEnum * GV8ScriptObject::getEnum(const char * enumName)
 {
+	ENTER_V8()
+
 	IMetaTypedItem * typedItem = NULL;
 
 	GScriptDataType sdt = this->getType(enumName, &typedItem);
@@ -1745,6 +1751,8 @@ IMetaEnum * GV8ScriptObject::getEnum(const char * enumName)
 	}
 
 	return NULL;
+
+	LEAVE_V8(return NULL)
 }
 
 GVariant GV8ScriptObject::getFundamental(const char * name)

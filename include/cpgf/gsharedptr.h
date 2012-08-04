@@ -62,6 +62,10 @@ public:
 		this->freeData = false;
 	}
 
+	bool unique() const {
+		return this->referenceCount == 1;
+	}
+
 private:
 	unsigned int referenceCount;
 	unsigned int weakReferenceCount;
@@ -187,6 +191,10 @@ public:
 		return this->data != NULL;
 	}
 
+	bool unique() const {
+		return this->counter->unique();
+	}
+
 	void reset(T * p) {
 		ThisType(p).swap(*this);
 	}
@@ -278,6 +286,10 @@ public:
 		return this->counter->hasStrongReference() && this->data != NULL;
 	}
 
+	bool expired() const {
+		return ! this->counter->hasStrongReference();
+	}
+
 	void reset(StrongType p) {
 		ThisType(p).swap(*this);
 	}
@@ -304,19 +316,19 @@ GSharedPointer<T>::GSharedPointer(const GWeakPointer<T> & weakPointer)
 }
 
 template<typename T, typename U>
-GSharedPointer<T> SharedStaticCast(const GSharedPointer<U> & other)
+GSharedPointer<T> sharedStaticCast(const GSharedPointer<U> & other)
 {
 	return GSharedPointer<T>(other, sharedpointer_internal::StaticCastTag());
 }
 
 template<typename T, typename U>
-GSharedPointer<T> SharedConstCast(const GSharedPointer<U> & other)
+GSharedPointer<T> sharedConstCast(const GSharedPointer<U> & other)
 {
 	return GSharedPointer<T>(other, sharedpointer_internal::ConstCastTag());
 }
 
 template<typename T, typename U>
-GSharedPointer<T> SharedDynamicCast(const GSharedPointer<U> & other)
+GSharedPointer<T> sharedDynamicCast(const GSharedPointer<U> & other)
 {
 	return GSharedPointer<T>(other, sharedpointer_internal::DynamicCastTag());
 }

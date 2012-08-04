@@ -17,6 +17,10 @@ using namespace cpgf;
 using namespace std;
 
 
+namespace cpgf {
+	GScriptObject * new_createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
+}
+
 namespace testscript {
 
 
@@ -233,7 +237,7 @@ public:
 		Local<Object> global = context->Global();
 
 		if(api == tsaLib) {
-			this->setBinding(cpgf::createV8ScriptObject(this->getService(), global, GScriptConfig()));
+			this->setBinding(cpgf::new_createV8ScriptObject(this->getService(), global, GScriptConfig()));
 		}
 
 		if(api == tsaApi) {
