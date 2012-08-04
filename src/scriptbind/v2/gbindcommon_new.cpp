@@ -596,6 +596,13 @@ void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, Invok
 	return instance;
 }
 
+bool shouldRemoveReference(const GMetaType & type)
+{
+	return type.isReference()
+		&& (type.isPointer() || vtIsFundamental(vtGetBaseType(type.getVariantType())))
+		;
+}
+
 wchar_t * stringToWideString(const char * s)
 {
 	size_t len = strlen(s);
@@ -619,6 +626,7 @@ char * wideStringToString(const wchar_t * ws)
 GMetaVariant glueDataToVariant(const GGlueDataPointer & glueData)
 {
 	if(glueData) {
+
 		switch(glueData->getType()) {
 			case gdtClass: {
 				GClassGlueDataPointer classData = sharedStaticCast<GClassGlueData>(glueData);;

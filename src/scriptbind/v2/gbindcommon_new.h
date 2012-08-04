@@ -409,6 +409,8 @@ bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessi
 
 void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
 
+bool shouldRemoveReference(const GMetaType & type);
+
 wchar_t * stringToWideString(const char * s);
 char * wideStringToString(const wchar_t * ws);
 
@@ -499,7 +501,7 @@ bool variantToScript(typename Methods::ResultType * result,
 			}
 		}
 
-		if(bind_internal::shouldRemoveReference(type)) {
+		if(shouldRemoveReference(type)) {
 			GMetaType newType(type);
 			newType.removeReference();
 
