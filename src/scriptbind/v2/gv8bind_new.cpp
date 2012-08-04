@@ -127,6 +127,9 @@ public:
 	}
 
 private:
+	void doBindMethodList(const char * name, IMetaList * methodList, GGlueDataMethodType methodType);
+
+private:
 	GV8ScriptObject(const GV8ScriptObject & other, Local<Object> object);
 
 private:
@@ -173,6 +176,8 @@ private:
 
 Handle<Value> variantToV8(const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw);
 Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData);
+
+void loadCallableParam(const Arguments & args, const GContextPointer & context, InvokeCallableParam * callableParam);
 
 
 //*********************************************
@@ -399,7 +404,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 		return Handle<Value>();
 	}
 
-	Handle<FunctionTemplate> functionTemplate = gdynamic_cast<GFunctionTemplateUserData *>(classData->getUserData())->getFunctionTemplate();
+	Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, classData);
 	Handle<Value> external = External::New(&signatureKey);
 	Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance(1, &external));
 
@@ -524,6 +529,79 @@ Handle<Value> variantToV8(const GContextPointer & context, const GVariant & valu
 	return Handle<Value>();
 }
 
+Handle<Value> methodResultToV8(const GContextPointer & context, IMetaCallable * callable, InvokeCallableResult * result)
+{
+	Handle<Value> r;
+	if(methodResultToScript<GV8Methods>(&r, context, callable, result)) {
+		return r;
+	}
+
+	return Handle<Value>();
+}
+
+Handle<Value> callbackMethodList(const Arguments & args)
+{
+	ENTER_V8()
+
+	bool isGlobal = isGlobalObject(args.Holder());
+
+	if(!isGlobal && !isValidObject(args.Holder())) {
+		raiseCoreException(Error_ScriptBinding_AccessMemberWithWrongObject);
+	}
+
+	GGlueDataWrapper * dataWrapper = NULL;
+
+	if(!isGlobal) {
+		dataWrapper = static_cast<GGlueDataWrapper *>(args.Holder()->GetPointerFromInternalField(0));
+	}
+	GGlueDataPointer objectOrClassData;
+	if(dataWrapper != NULL) {
+		objectOrClassData = dataWrapper->getData();
+	}
+
+	Local<External> data = Local<External>::Cast(args.Data());
+	GGlueDataWrapper * methodDataWrapper = static_cast<GGlueDataWrapper *>(data->Value());
+	GMethodGlueDataPointer methodData(methodDataWrapper->getAs<GMethodGlueData>());
+
+	InvokeCallableParam callableParam(args.Length());
+	loadCallableParam(args, methodData->getContext(), &callableParam);
+
+	InvokeCallableResult result = doInvokeMethodList(methodData->getContext(), objectOrClassData, methodData, &callableParam);
+	return methodResultToV8(methodData->getContext(), result.callable.get(), &result);
+
+	LEAVE_V8(return Handle<Value>())
+}
+
+Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData, bool isGlobal, IMetaList * methodList,
+	const char * name, Handle<FunctionTemplate> classTemplate, GGlueDataMethodType methodType)
+{
+	GMethodGlueDataPointer glueData = context->newMethodGlueData(context, classData, methodList, name, methodType);
+	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(glueData);
+
+	Persistent<External> data = Persistent<External>::New(External::New(dataWrapper));
+	data.MakeWeak(dataWrapper, weakHandleCallback);
+
+	Handle<FunctionTemplate> functionTemplate;
+	if(! classData || classData->getMetaClass() == NULL || isGlobal) {
+		functionTemplate = FunctionTemplate::New(callbackMethodList, data);
+	}
+	else {
+		functionTemplate = FunctionTemplate::New(callbackMethodList, data, Signature::New(classTemplate));
+	}
+	functionTemplate->SetClassName(String::New(name));
+
+	Local<Function> func = functionTemplate->GetFunction();
+	setObjectSignature(&func);
+	
+	GGlueDataWrapper * funcDataWrapper = newGlueDataWrapper(glueData);
+
+	Persistent<External> funcData = Persistent<External>::New(External::New(funcDataWrapper));
+	funcData.MakeWeak(funcDataWrapper, weakHandleCallback);
+	func->SetHiddenValue(String::New(userDataKey), funcData);
+
+	return functionTemplate;
+}
+
 Handle<Value> getNamedMember(const GGlueDataPointer & glueData, const char * name)
 {
 	bool isInstance = (glueData->getType() == gdtObject);
@@ -578,30 +656,27 @@ Handle<Value> getNamedMember(const GGlueDataPointer & glueData, const char * nam
 			}
 			   break;
 
-/*
 			case mmitMethod:
 			case mmitMethodList: {
-				GMapItemV8MethodData * data = gdynamic_cast<GMapItemV8MethodData *>(mapItem->getData());
-				if(data == NULL) {
+				GFunctionTemplateUserData * userData = gdynamic_cast<GFunctionTemplateUserData *>(mapItem->getUserData());
+				if(userData == NULL) {
 					GScopedInterface<IMetaList> methodList(createMetaList());
-					loadMethodList(&traveller, methodList.get(), userData->getParam()->getMetaMap(), mapItem, instance, name);
-
-					data = new GMapItemV8MethodData;
-					mapItem->setData(data);
-					GMethodUserData * newUserData;
+					loadMethodList(context, &traveller, methodList.get(), mapItem, instance, name);
 
 					GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass.get(), derived.get()));
 
-					GMetaMapClass * baseMapClass = getMetaClassMap(userData->getParam(), boundClass.get());
-					data->setTemplate(createMethodTemplate(userData->getParam(), userData->getObjectData()->getMetaClass(),
-						userData->getObjectData()->getInstance() == NULL, methodList.get(), name,
-						gdynamic_cast<GMapItemClassData *>(baseMapClass->getData())->getFunctionTemplate(), udmtInternal, &newUserData));
-					data->setUserData(newUserData);
+					Handle<FunctionTemplate> functionTemplate = createMethodTemplate(context, classData,
+						! isInstance, methodList.get(), name,
+						createClassTemplate(context, context->requireClassGlueData(context, boundClass.get())), gdmtInternal);
+					GFunctionTemplateUserData * data = new GFunctionTemplateUserData(functionTemplate);
+					mapItem->setUserData(data);
+					userData = gdynamic_cast<GFunctionTemplateUserData *>(mapItem->getUserData());
 				}
 
-				return data->functionTemplate->GetFunction();
+				return userData->getFunctionTemplate()->GetFunction();
 			}
 
+/*
 			case mmitEnum:
 				if(! userData->getObjectData()->isInstance() || config.allowAccessEnumTypeViaInstance()) {
 					GMapItemEnumData * data = gdynamic_cast<GMapItemEnumData *>(mapItem->getData());
@@ -860,11 +935,13 @@ void bindClassItems(Local<Object> object, IMetaClass * metaClass, Persistent<Ext
 	}
 }
 
-Handle<FunctionTemplate> doCreateClassTemplate(const GContextPointer & context, GGlueDataWrapper * dataWrapper, const GClassGlueDataPointer & classData)
+Handle<FunctionTemplate> doCreateClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData)
 {
 	if(classData->getUserData() != NULL) {
 		return gdynamic_cast<GFunctionTemplateUserData *>(classData->getUserData())->getFunctionTemplate();
 	}
+
+	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(classData);
 
 	IMetaClass * metaClass = classData->getMetaClass();
 
@@ -885,8 +962,7 @@ Handle<FunctionTemplate> doCreateClassTemplate(const GContextPointer & context, 
 		GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(0));
 		if(baseClass) {
 			GClassGlueDataPointer baseClassData = context->requireClassGlueData(context, baseClass.get());
-			GGlueDataWrapper * baseDataWrapper = newGlueDataWrapper(baseClassData);
-			Handle<FunctionTemplate> baseFunctionTemplate = doCreateClassTemplate(context, baseDataWrapper, baseClassData);
+			Handle<FunctionTemplate> baseFunctionTemplate = doCreateClassTemplate(context, baseClassData);
 			functionTemplate->Inherit(baseFunctionTemplate);
 		}
 	}
@@ -902,8 +978,7 @@ Handle<FunctionTemplate> doCreateClassTemplate(const GContextPointer & context, 
 
 Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData)
 {
-	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(classData);
-	return doCreateClassTemplate(context, dataWrapper, classData);
+	return doCreateClassTemplate(context, classData);
 }
 
 void doBindClass(const GContextPointer & context, Local<Object> container, const char * name, IMetaClass * metaClass)
@@ -1021,9 +1096,7 @@ GScriptDataType GV8ScriptObject::getType(const char * name, IMetaTypedItem ** ou
 	Local<Object> localObject(Local<Object>::New(this->object));
 
 	Local<Value> obj = localObject->Get(String::New(name));
-	// TBD
-	//return getV8Type(obj, outMetaTypeItem);
-	return sdtUnknown;
+	return getV8Type(obj, outMetaTypeItem);
 
 	LEAVE_V8(return sdtUnknown)
 }
@@ -1143,12 +1216,23 @@ void GV8ScriptObject::bindMethod(const char * name, void * instance, IMetaMethod
 {
 	ENTER_V8()
 
+	if(method->isStatic()) {
+		instance = NULL;
+	}
+
+	GScopedInterface<IMetaList> methodList(createMetaList());
+	methodList->add(method, instance);
+
+	this->doBindMethodList(name, methodList.get(), gdmtMethod);
+
 	LEAVE_V8()
 }
 
 void GV8ScriptObject::bindMethodList(const char * name, IMetaList * methodList)
 {
 	ENTER_V8()
+
+	this->doBindMethodList(name, methodList, gdmtMethodList);
 
 	LEAVE_V8()
 }
@@ -1243,6 +1327,21 @@ void GV8ScriptObject::bindCoreService(const char * name)
 	ENTER_V8()
 
 	LEAVE_V8()
+}
+
+void GV8ScriptObject::doBindMethodList(const char * name, IMetaList * methodList, GGlueDataMethodType methodType)
+{
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(this->object));
+
+	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(this->context, GClassGlueDataPointer(), true, methodList, name,
+		Handle<FunctionTemplate>(), methodType);
+
+	Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
+	setObjectSignature(&func);
+	func.MakeWeak(NULL, weakHandleCallback);
+
+	localObject->Set(String::New(name), func);
 }
 
 

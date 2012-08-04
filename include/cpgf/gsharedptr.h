@@ -227,7 +227,7 @@ public:
 	GWeakPointer() : data(NULL), counter(NULL) {
 	}
 
-	explicit GWeakPointer(GSharedPointer<T> p) : data(p.get()), counter(p.counter) {
+	explicit GWeakPointer(const GSharedPointer<T> & p) : data(p.get()), counter(p.counter) {
 		this->counter->weakRetain();
 	}
 

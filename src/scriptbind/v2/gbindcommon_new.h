@@ -12,6 +12,8 @@
 
 namespace cpgf {
 
+class GMetaClassTraveller;
+
 namespace _bind_internal {
 
 class GClassPool;
@@ -62,6 +64,13 @@ enum GGlueDataMethodType {
 	gdmtInternal
 };
 
+class GUserData
+{
+public:
+	GUserData() {}
+	virtual ~GUserData() {}
+};
+
 class GMetaMapItem
 {
 public:
@@ -83,10 +92,19 @@ public:
 		return this->enumIndex;
 	}
 
+	void setUserData(GUserData * userData) const {
+		this->userData.reset(userData);
+	}
+
+	GUserData * getUserData() const {
+		return this->userData.get();
+	}
+
 private:
 	GSharedInterface<IObject> item;
 	GMetaMapItemType type;
 	size_t enumIndex;
+	mutable GScopedPointer<GUserData> userData;
 };
 
 inline void swap(GMetaMapItem & a, GMetaMapItem & b)
@@ -115,13 +133,6 @@ private:
 	MapType itemMap;
 };
 
-
-class GUserData
-{
-public:
-	GUserData() {}
-	virtual ~GUserData() {}
-};
 
 class GGlueData : public GNoncopyable
 {
@@ -243,7 +254,7 @@ private:
 	typedef GGlueData super;
 
 public:
-	GMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classData, IMetaList * methodList, const char * name, GGlueDataMethodType methodType)
+	GMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, IMetaList * methodList, const char * name, GGlueDataMethodType methodType)
 		: super(gdtMethod, context), classGlueData(classGlueData), methodList(methodList), name(name), methodType(methodType) {
 	}
 
@@ -269,6 +280,8 @@ private:
 	std::string name;
 	GGlueDataMethodType methodType;
 };
+
+typedef GSharedPointer<GMethodGlueData> GMethodGlueDataPointer;
 
 
 class GRawGlueData : public GGlueData
@@ -313,6 +326,9 @@ public:
 	GObjectGlueDataPointer newObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classData, void * instance,
 		bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType);
 	
+	GMethodGlueDataPointer newMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classData,
+		IMetaList * methodList, const char * name, GGlueDataMethodType methodType);
+
 	GRawGlueDataPointer newRawGlueData(const GContextPointer & context, const GVariant & data);
 
 private:
@@ -408,6 +424,8 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeC
 bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessible * accessible);
 
 void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
+InvokeCallableResult doInvokeMethodList(const GContextPointer & context, const GGlueDataPointer & objectOrClassData,
+										const GMethodGlueDataPointer & methodData, InvokeCallableParam * callableParam);
 
 bool shouldRemoveReference(const GMetaType & type);
 
@@ -417,6 +435,15 @@ char * wideStringToString(const wchar_t * ws);
 GMetaVariant glueDataToVariant(const GGlueDataPointer & glueData);
 
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);
+
+void loadMethodList(const GContextPointer & context, GMetaClassTraveller * traveller,
+	IMetaList * methodList, GMetaMapItem * mapItem,
+	void * instance, const char * methodName);
+
+void loadMethodList(const GContextPointer & context, IMetaList * methodList, const GGlueDataPointer & objectOrClassData,
+	void * objectInstance, const char * methodName);
+
+IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 
 bool doSetFieldValue(const GGlueDataPointer & glueData, const char * name, const GVariant & value);
 
