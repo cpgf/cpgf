@@ -128,7 +128,7 @@ public:
 
 private:
 	void doBindMethodList(const char * name, IMetaList * methodList, GGlueDataMethodType methodType);
-	GMethodGlueDataPointer GV8ScriptObject::doGetMethodData(const char * methodName);
+	GMethodGlueDataPointer doGetMethodData(const char * methodName);
 
 private:
 	GV8ScriptObject(const GV8ScriptObject & other, Local<Object> object);
