@@ -3,6 +3,7 @@
 #include "cpgf/gstringmap.h"
 #include "cpgf/gcallback.h"
 #include "cpgf/gmetaclasstraveller.h"
+#include "cpgf/scriptbind/gscriptservice.h"
 
 #include <vector>
 
@@ -10,6 +11,9 @@ using namespace std;
 
 
 namespace cpgf {
+
+GScriptCoreService * doCreateScriptCoreService(GScriptObject * scriptObject);
+GMetaClass * doBindScriptCoreService(GScriptObject * scriptObject, const char * bindName, GScriptCoreService * scriptCoreService);
 
 namespace _bind_internal {
 
@@ -263,6 +267,19 @@ const GMetaMapClassPointer & GClassGlueData::getClassMap() const
 	return this->classMap;
 }
 
+GScriptDataHolder * GClassGlueData::getDataHolder() const
+{
+	return this->dataHolder.get();
+}
+
+GScriptDataHolder * GClassGlueData::requireDataHolder() const
+{
+	if(! this->dataHolder) {
+		this->dataHolder.reset(new GScriptDataHolder());
+	}
+	return this->dataHolder.get();
+}
+
 
 GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, void * instance,
 	bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType)
@@ -277,11 +294,6 @@ GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGl
 		default:
 			break;
 	}
-
-	GScopedInterface<IMetaScriptWrapper> scriptWrapper(metaGetItemExtendType(this->classGlueData->getMetaClass(), GExtendTypeCreateFlag_ScriptWrapper).getScriptWrapper());
-	if(scriptWrapper) {
-//		scriptWrapper->setScriptDataStorage(instance, this->getDataStorage());
-	}
 }
 
 GObjectGlueData::~GObjectGlueData()
@@ -289,6 +301,86 @@ GObjectGlueData::~GObjectGlueData()
 	if(this->allowGC) {
 		this->classGlueData->getMetaClass()->destroyInstance(this->instance);
 	}
+}
+
+GScriptDataHolder * GObjectGlueData::getDataHolder() const
+{
+	return this->dataHolder.get();
+}
+
+GScriptDataHolder * GObjectGlueData::requireDataHolder() const
+{
+	if(! this->dataHolder) {
+		this->dataHolder.reset(new GScriptDataHolder());
+	}
+	return this->dataHolder.get();
+}
+
+void GObjectGlueData::setWeakThis(const GWeakObjectGlueDataPointer & weakThis)
+{
+	this->weakThis = weakThis;
+
+	GScopedInterface<IMetaScriptWrapper> scriptWrapper(metaGetItemExtendType(this->classGlueData->getMetaClass(), GExtendTypeCreateFlag_ScriptWrapper).getScriptWrapper());
+	if(scriptWrapper) {
+		if(! this->dataStorage) {
+			this->dataStorage.reset(new GScriptDataStorage(GObjectGlueDataPointer(this->weakThis)));
+		}
+		scriptWrapper->setScriptDataStorage(this->instance, this->dataStorage.get());
+	}
+}
+
+
+GScriptDataStorage::GScriptDataStorage(const GObjectGlueDataPointer & object)
+	: object(object)
+{
+}
+
+IScriptFunction * G_API_CC GScriptDataStorage::getScriptFunction(const char * name)
+{
+	if(this->object.expired()) {
+		return NULL;
+	}
+	
+	GObjectGlueDataPointer obj(object);
+	IScriptFunction * func = NULL;
+	if(obj->getDataHolder() != NULL) {
+		func = obj->getDataHolder()->getScriptFunction(name);
+	}
+	if(func == NULL && obj->getClassData()->getDataHolder() != NULL) {
+		func = obj->getClassData()->getDataHolder()->getScriptFunction(name);
+	}
+	return func;
+}
+
+void GScriptDataHolder::requireDataMap()
+{
+	if(! this->dataMap) {
+		this->dataMap.reset(new MapType());
+	}
+}
+
+void GScriptDataHolder::setScriptValue(const char * name, const GVariant & value)
+{
+	this->requireDataMap();
+
+	(*(this->dataMap))[name] = value;
+}
+
+IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
+{
+	if(this->dataMap) {
+		MapType::iterator it = this->dataMap->find(name);
+		if(it != this->dataMap->end()) {
+			if(vtIsInterface(it->second.getType())) {
+				IScriptFunction * func = gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
+				if(func != NULL) {
+					func->addReference();
+				}
+				return func;
+			}
+		}
+	}
+	return NULL;
 }
 
 
@@ -300,6 +392,17 @@ GBindingContext::GBindingContext(IMetaService * service, const GScriptConfig & c
 GBindingContext::~GBindingContext()
 {
 }
+
+void GBindingContext::bindScriptCoreService(GScriptObject * scriptObject, const char * bindName)
+{
+	if(this->scriptCoreService) {
+		return;
+	}
+
+	this->scriptCoreService.reset(doCreateScriptCoreService(scriptObject));
+	this->scriptCoreServiceMetaClass.reset(doBindScriptCoreService(scriptObject, bindName, this->scriptCoreService.get()));
+}
+
 
 GClassGlueDataPointer GBindingContext::newClassGlueData(const GContextPointer & context, IMetaClass * metaClass)
 {
@@ -322,6 +425,7 @@ GObjectGlueDataPointer GBindingContext::newObjectGlueData(const GContextPointer 
 	bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType)
 {
 	GObjectGlueDataPointer data(new GObjectGlueData(context, classData, instance, allowGC, cv, dataType));
+	data->setWeakThis(GWeakObjectGlueDataPointer(data));
 	return data;
 }
 
@@ -332,16 +436,22 @@ GMethodGlueDataPointer GBindingContext::newMethodGlueData(const GContextPointer 
 	return data;
 }
 
-GRawGlueDataPointer GBindingContext::newRawGlueData(const GContextPointer & context, const GVariant & data)
+GEnumGlueDataPointer GBindingContext::newEnumGlueData(const GContextPointer & context, IMetaEnum * metaEnum)
 {
-	GRawGlueDataPointer rawData(new GRawGlueData(context, data));
-	return rawData;
+	GEnumGlueDataPointer enumData(new GEnumGlueData(context, metaEnum));
+	return enumData;
 }
 
 GAccessibleGlueDataPointer GBindingContext::newAccessibleGlueData(const GContextPointer & context, void * instance, IMetaAccessible * accessible)
 {
 	GAccessibleGlueDataPointer accessibleData(new GAccessibleGlueData(context, instance, accessible));
 	return accessibleData;
+}
+
+GRawGlueDataPointer GBindingContext::newRawGlueData(const GContextPointer & context, const GVariant & data)
+{
+	GRawGlueDataPointer rawData(new GRawGlueData(context, data));
+	return rawData;
 }
 
 
@@ -708,7 +818,6 @@ char * wideStringToString(const wchar_t * ws)
 GMetaVariant glueDataToVariant(const GGlueDataPointer & glueData)
 {
 	if(glueData) {
-
 		switch(glueData->getType()) {
 			case gdtClass: {
 				GClassGlueDataPointer classData = sharedStaticCast<GClassGlueData>(glueData);;
@@ -873,6 +982,24 @@ IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived)
 	}
 }
 
+void setValueToScriptDataHolder(const GGlueDataPointer & glueData, const char * name, const GVariant & value)
+{
+	GScriptDataHolder * dataHolder = NULL;
+	
+	if(glueData->getType() == gdtObject) {
+		dataHolder = sharedStaticCast<GObjectGlueData>(glueData)->requireDataHolder();
+	}
+	else {
+		if(glueData->getType() == gdtClass) {
+			dataHolder = sharedStaticCast<GClassGlueData>(glueData)->requireDataHolder();
+		}
+	}
+	
+	if(dataHolder != NULL) {
+		dataHolder->setScriptValue(name, value);
+	}
+}
+
 bool doSetFieldValue(const GGlueDataPointer & glueData, const char * name, const GVariant & value)
 {
 	if(getGlueDataCV(glueData) == opcvConst) {
@@ -927,10 +1054,10 @@ bool doSetFieldValue(const GGlueDataPointer & glueData, const char * name, const
 			}
 			   break;
 
-//			case mmitMethod:
-//			case mmitMethodList:
-//				userData->getObjectData()->setScriptValue(name, value);
-//				return true;
+			case mmitMethod:
+			case mmitMethodList:
+				setValueToScriptDataHolder(glueData, name, value);
+				return true;
 
 			case mmitEnum:
 			case mmitEnumValue:

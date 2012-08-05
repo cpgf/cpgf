@@ -13,12 +13,14 @@
 namespace cpgf {
 
 class GMetaClassTraveller;
+class GScriptCoreService;
 
 namespace _bind_internal {
 
 class GClassPool;
 
 class GBindingContext;
+class GScriptDataHolder;
 
 typedef GSharedPointer<GBindingContext> GContextPointer;
 typedef GWeakPointer<GBindingContext> GWeakContextPointer;
@@ -173,12 +175,13 @@ class GClassGlueData : public GGlueData
 private:
 	typedef GGlueData super;
 
-public:
+private:
 	GClassGlueData(const GContextPointer & context, IMetaClass * metaClass)
 		: super(gdtClass, context), metaClass(metaClass)
 	{
 	}
 
+public:
 	IMetaClass * getMetaClass() const {
 		return this->metaClass.get();
 	}
@@ -192,24 +195,38 @@ public:
 	}
 
 	const GMetaMapClassPointer & getClassMap() const;
+	
+	GScriptDataHolder * getDataHolder() const;
+	GScriptDataHolder * requireDataHolder() const;
 
 private:
 	GSharedInterface<IMetaClass> metaClass;
 	mutable GMetaMapClassPointer classMap;
 	mutable GScopedPointer<GUserData> userData;
+	mutable GScopedPointer<GScriptDataHolder> dataHolder;
+
+private:
+	friend class GBindingContext;
 };
 
 typedef GSharedPointer<GClassGlueData> GClassGlueDataPointer;
 
+
+class GObjectGlueData;
+
+typedef GSharedPointer<GObjectGlueData> GObjectGlueDataPointer;
+typedef GWeakPointer<GObjectGlueData> GWeakObjectGlueDataPointer;
 
 class GObjectGlueData : public GGlueData
 {
 private:
 	typedef GGlueData super;
 
-public:
+private:
 	GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, void * instance,
 		bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType);
+
+public:		
 	~GObjectGlueData();
 
 	const GClassGlueDataPointer & getClassData() const {
@@ -236,6 +253,12 @@ public:
 		return this->dataType;
 	}
 
+	GScriptDataHolder * getDataHolder() const;
+	GScriptDataHolder * requireDataHolder() const;
+	
+private:
+	void setWeakThis(const GWeakObjectGlueDataPointer & weakThis);
+
 private:
 	GClassGlueDataPointer classGlueData;
 	void * instance;
@@ -243,9 +266,13 @@ private:
 	bool allowGC;
 	ObjectPointerCV cv;
 	ObjectGlueDataType dataType;
-};
+	mutable GScopedPointer<GScriptDataHolder> dataHolder;
+	GWeakObjectGlueDataPointer weakThis;
+	GScopedInterface<IScriptDataStorage> dataStorage;
 
-typedef GSharedPointer<GObjectGlueData> GObjectGlueDataPointer;
+private:
+	friend class GBindingContext;
+};
 
 
 class GMethodGlueData : public GGlueData
@@ -253,11 +280,12 @@ class GMethodGlueData : public GGlueData
 private:
 	typedef GGlueData super;
 
-public:
+private:
 	GMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, IMetaList * methodList, const char * name, GGlueDataMethodType methodType)
 		: super(gdtMethod, context), classGlueData(classGlueData), methodList(methodList), name(name), methodType(methodType) {
 	}
 
+public:
 	const GClassGlueDataPointer & getClassData() const {
 		return this->classGlueData;
 	}
@@ -279,6 +307,9 @@ private:
 	GSharedInterface<IMetaList> methodList;
 	std::string name;
 	GGlueDataMethodType methodType;
+
+private:
+	friend class GBindingContext;
 };
 
 typedef GSharedPointer<GMethodGlueData> GMethodGlueDataPointer;
@@ -289,17 +320,21 @@ class GEnumGlueData : public GGlueData
 private:
 	typedef GGlueData super;
 
-public:
+private:
 	GEnumGlueData(const GContextPointer & context, IMetaEnum * metaEnum)
 		: super(gdtEnum, context), metaEnum(metaEnum) {
 	}
 
+public:
 	IMetaEnum * getMetaEnum() const {
 		return this->metaEnum.get();
 	}
 
 private:
 	GSharedInterface<IMetaEnum> metaEnum;
+
+private:
+	friend class GBindingContext;
 };
 
 typedef GSharedPointer<GEnumGlueData> GEnumGlueDataPointer;
@@ -310,11 +345,12 @@ class GAccessibleGlueData : public GGlueData
 private:
 	typedef GGlueData super;
 
-public:
+private:
 	GAccessibleGlueData(const GContextPointer & context, void * instance, IMetaAccessible * accessible)
 		: super(gdtAccessible, context), instance(instance), accessible(accessible) {
 	}
 
+public:
 	void * getInstance() const {
 		return this->instance;
 	}
@@ -326,6 +362,9 @@ public:
 private:
 	void * instance;
 	GSharedInterface<IMetaAccessible> accessible;
+
+private:
+	friend class GBindingContext;
 };
 
 typedef GSharedPointer<GAccessibleGlueData> GAccessibleGlueDataPointer;
@@ -336,21 +375,61 @@ class GRawGlueData : public GGlueData
 private:
 	typedef GGlueData super;
 
-public:
+private:
 	GRawGlueData(const GContextPointer & context, const GVariant & data)
-		: super(gdtClass, context), data(data)
+		: super(gdtRaw, context), data(data)
 	{
 	}
 
+public:
 	const GVariant & getData() const {
 		return this->data;
 	}
 
 private:
 	GVariant data;
+
+private:
+	friend class GBindingContext;
 };
 
 typedef GSharedPointer<GRawGlueData> GRawGlueDataPointer;
+
+
+class GScriptDataStorage : public IScriptDataStorage
+{
+	G_INTERFACE_IMPL_OBJECT
+
+private:
+	explicit GScriptDataStorage(const GObjectGlueDataPointer & object);
+
+protected:
+	virtual IScriptFunction * G_API_CC getScriptFunction(const char * name);
+
+private:
+	GWeakObjectGlueDataPointer object;
+
+private:
+	friend class GBindingContext;
+	friend class GObjectGlueData;
+};
+
+
+class GScriptDataHolder
+{
+private:
+	typedef std::map<std::string, GVariant> MapType;
+
+public:
+	void setScriptValue(const char * name, const GVariant & value);
+	IScriptFunction * getScriptFunction(const char * name);
+
+private:
+	void requireDataMap();
+
+private:
+	GScopedPointer<MapType> dataMap;
+};
 
 
 class GBindingContext
@@ -367,6 +446,9 @@ public:
 		return this->config;
 	}
 
+	void bindScriptCoreService(GScriptObject * scriptObject, const char * bindName);
+
+public:
 	GClassGlueDataPointer newClassGlueData(const GContextPointer & context, IMetaClass * metaClass);
 	GClassGlueDataPointer requireClassGlueData(const GContextPointer & context, IMetaClass * metaClass);
 
@@ -375,15 +457,20 @@ public:
 	
 	GMethodGlueDataPointer newMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classData,
 		IMetaList * methodList, const char * name, GGlueDataMethodType methodType);
+	
+	GEnumGlueDataPointer newEnumGlueData(const GContextPointer & context, IMetaEnum * metaEnum);
+
+	GAccessibleGlueDataPointer newAccessibleGlueData(const GContextPointer & context, void * instance, IMetaAccessible * accessible);
 
 	GRawGlueDataPointer newRawGlueData(const GContextPointer & context, const GVariant & data);
-	
-	GAccessibleGlueDataPointer newAccessibleGlueData(const GContextPointer & context, void * instance, IMetaAccessible * accessible);
 
 private:
 	GSharedInterface<IMetaService> service;
 	GScriptConfig config;
 	GScopedPointer<GClassPool> classPool;
+	
+	GScopedPointer<GScriptCoreService> scriptCoreService;
+	GScopedPointer<GMetaClass> scriptCoreServiceMetaClass;
 };
 
 class GGlueDataWrapper

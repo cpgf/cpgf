@@ -18,6 +18,11 @@ void testMisc(TestScriptContext * context)
 	QASSERT(a.checkData(38));
 	QASSERT(a.checkData("abc"));
 	QASSERT(a.checkAtom(58));
+
+	QASSERT(mtest.GlobalEnum.globalEnumA == 5);
+	QASSERT(mtest.GlobalEnum.globalEnumB == 8);
+	QASSERT(mtest.globalEnumA == 5);
+	QASSERT(mtest.globalEnumB == 8);
 }
 
 

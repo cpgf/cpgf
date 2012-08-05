@@ -128,6 +128,7 @@ public:
 
 private:
 	void doBindMethodList(const char * name, IMetaList * methodList, GGlueDataMethodType methodType);
+	GMethodGlueDataPointer GV8ScriptObject::doGetMethodData(const char * methodName);
 
 private:
 	GV8ScriptObject(const GV8ScriptObject & other, Local<Object> object);
@@ -171,6 +172,28 @@ public:
 
 private:
 	Persistent<FunctionTemplate> functionTemplate;
+};
+
+
+class GObjectTemplateUserData : public GUserData
+{
+public:
+	explicit GObjectTemplateUserData(Handle<ObjectTemplate> objectTemplate)
+		: objectTemplate(Persistent<ObjectTemplate>::New(objectTemplate))
+	{
+	}
+
+	virtual ~GObjectTemplateUserData() {
+		this->objectTemplate.Dispose();
+		this->objectTemplate.Clear();
+	}
+
+	Local<ObjectTemplate> getObjectTemplate() const {
+		return Local<ObjectTemplate>::New(this->objectTemplate);
+	}
+
+private:
+	Persistent<ObjectTemplate> objectTemplate;
 };
 
 
@@ -285,34 +308,28 @@ GScriptDataType getV8Type(Local<Value> value, IMetaTypedItem ** typeItem)
 				}
 
 			}
-/*			else {
+			else {
 				GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(obj->GetPointerFromInternalField(0));
 				if(dataWrapper != NULL) {
 					switch(dataWrapper->getData()->getType()) {
 						case gdtObject: {
-							GObjectUserData * classData = gdynamic_cast<GObjectUserData *>(userData);
 							if(typeItem != NULL) {
-								*typeItem = classData->getObjectData()->getMetaClass();
+								*typeItem = dataWrapper->getAs<GObjectGlueData>()->getClassData()->getMetaClass();
 								(*typeItem)->addReference();
 							}
-							if(classData->getObjectData()->getInstance() == NULL) {
-								return sdtClass;
-							}
-							else {
-								return sdtObject;
-							}
+							return sdtObject;
 						}
 
 						break;
 
-						case udtEnum:
+						case gdtEnum:
 							if(typeItem != NULL) {
-								*typeItem = gdynamic_cast<GEnumUserData *>(userData)->getMetaEnum();
+								*typeItem = dataWrapper->getAs<GEnumGlueData>()->getMetaEnum();
 								(*typeItem)->addReference();
 							}
 							return sdtEnum;
 
-					    case udtRaw:
+					    case gdtRaw:
 					    	return sdtRaw;
 
 						default:
@@ -320,7 +337,6 @@ GScriptDataType getV8Type(Local<Value> value, IMetaTypedItem ** typeItem)
 					}
 				}
 			}
-*/
 		}
 
 		if(value->IsFunction()) {
@@ -360,6 +376,12 @@ GMetaVariant v8UserDataToVariant(const GContextPointer & context, Local<Context>
 		Local<Object> obj = value->ToObject();
 		if(isValidObject(obj)) {
 			GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(obj->GetPointerFromInternalField(0));
+			if(dataWrapper == NULL) { // value maybe an IMetaClass
+				Handle<Value> data = obj->GetHiddenValue(String::New(userDataKey));
+				if(! data.IsEmpty() && data->IsExternal()) {
+					dataWrapper = static_cast<GGlueDataWrapper *>(Handle<External>::Cast(data)->Value());
+				}
+			}
 			GGlueDataPointer glueData = dataWrapper->getData();
 			return glueDataToVariant(glueData);
 		}
@@ -713,22 +735,27 @@ Handle<Array> namedEnumEnumerator(const AccessorInfo & info)
 	LEAVE_V8(return Handle<Array>())
 }
 
-//Handle<ObjectTemplate> createEnumTemplate(const GContextPointer & context, IMetaEnum * metaEnum,
-//	GEnumUserData ** outUserData)
-//{
-//	GEnumUserData * userData = new GEnumUserData(param, metaEnum);
-//	addUserDataToPool(param, userData);
-//	if(outUserData != NULL) {
-//		*outUserData = userData;
-//	}
-//
-//	Handle<ObjectTemplate> objectTemplate = ObjectTemplate::New();
-//	objectTemplate->SetInternalFieldCount(1);
-//	objectTemplate->SetNamedPropertyHandler(&namedEnumGetter, &namedEnumSetter, NULL, NULL, &namedEnumEnumerator);
-//
-//	return objectTemplate;
-//}
-//
+Handle<ObjectTemplate> createEnumTemplate(const GContextPointer & context, IMetaEnum * metaEnum)
+{
+	Handle<ObjectTemplate> objectTemplate = ObjectTemplate::New();
+	objectTemplate->SetInternalFieldCount(1);
+	objectTemplate->SetNamedPropertyHandler(&namedEnumGetter, &namedEnumSetter, NULL, NULL, &namedEnumEnumerator);
+
+	return objectTemplate;
+}
+
+Persistent<Object> doBindEnum(const GContextPointer & context, Handle<ObjectTemplate> objectTemplate, IMetaEnum * metaEnum)
+{
+	Persistent<Object> obj = Persistent<Object>::New(objectTemplate->NewInstance());
+	GEnumGlueDataPointer enumGlueData(context->newEnumGlueData(context, metaEnum));
+	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(enumGlueData);
+	obj->SetPointerInInternalField(0, dataWrapper);
+	obj.MakeWeak(dataWrapper, weakHandleCallback);
+	setObjectSignature(&obj);
+
+	return obj;
+}
+
 Handle<Value> getNamedMember(const GGlueDataPointer & glueData, const char * name)
 {
 	bool isInstance = (glueData->getType() == gdtObject);
@@ -792,40 +819,34 @@ Handle<Value> getNamedMember(const GGlueDataPointer & glueData, const char * nam
 					Handle<FunctionTemplate> functionTemplate = createMethodTemplate(context, classData,
 						! isInstance, NULL, name,
 						createClassTemplate(context, context->requireClassGlueData(context, boundClass.get())), gdmtInternal);
-					GFunctionTemplateUserData * data = new GFunctionTemplateUserData(functionTemplate);
-					mapItem->setUserData(data);
-					userData = gdynamic_cast<GFunctionTemplateUserData *>(mapItem->getUserData());
+					userData = new GFunctionTemplateUserData(functionTemplate);
+					mapItem->setUserData(userData);
 				}
 
 				return userData->getFunctionTemplate()->GetFunction();
 			}
 
-/*
 			case mmitEnum:
-				if(! userData->getObjectData()->isInstance() || config.allowAccessEnumTypeViaInstance()) {
-					GMapItemEnumData * data = gdynamic_cast<GMapItemEnumData *>(mapItem->getData());
-					if(data == NULL) {
-						data = new GMapItemEnumData;
-						mapItem->setData(data);
-						GEnumUserData * newUserData;
-						GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-						data->setTemplate(createEnumTemplate(userData->getParam(), metaEnum.get(), name, &newUserData));
-						data->setUserData(newUserData);
+				if(! isInstance || config.allowAccessEnumTypeViaInstance()) {
+					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
+					GObjectTemplateUserData * userData = gdynamic_cast<GObjectTemplateUserData *>(mapItem->getUserData());
+					if(userData == NULL) {
+						Handle<ObjectTemplate> objectTemplate = createEnumTemplate(context, metaEnum.get());
+						userData = new GObjectTemplateUserData(objectTemplate);
+						mapItem->setUserData(userData);
 					}
-					Local<Object> obj = data->objectTemplate->NewInstance();
-					obj->SetPointerInInternalField(0, data->getUserData());
-					setObjectSignature(&obj);
+					Persistent<Object> obj = doBindEnum(context, userData->getObjectTemplate(), metaEnum.get());
 					return obj;
 				}
 				break;
 
 			case mmitEnumValue:
-				if(! userData->getObjectData()->isInstance() || config.allowAccessEnumValueViaInstance()) {
+				if(! isInstance || config.allowAccessEnumValueViaInstance()) {
 					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-					return variantToV8(userData->getParam(), metaGetEnumValue(metaEnum, static_cast<uint32_t>(mapItem->getEnumIndex())), GMetaType(), false, true);
+					return variantToV8(context, metaGetEnumValue(metaEnum, static_cast<uint32_t>(mapItem->getEnumIndex())), GMetaType(), false, true);
 				}
 				break;
-*/
+
 			case mmitClass:
 				if(! isInstance || config.allowAccessClassViaInstance()) {
 					GScopedInterface<IMetaClass> innerMetaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
@@ -1119,7 +1140,7 @@ bool valueIsCallable(Local<Value> value)
 GMetaVariant invokeV8FunctionIndirectly(const GContextPointer & context, Local<Object> object, Local<Value> func, GMetaVariant const * const * params, size_t paramCount, const char * name)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
-/*
+
 	if(! context) {
 		raiseCoreException(Error_ScriptBinding_NoContext);
 	}
@@ -1148,7 +1169,7 @@ GMetaVariant invokeV8FunctionIndirectly(const GContextPointer & context, Local<O
 	else {
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
 	}
-*/
+
 	return GMetaVariant();
 }
 
@@ -1241,6 +1262,14 @@ void GV8ScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 {
 	ENTER_V8()
 
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(this->object));
+
+	Handle<ObjectTemplate> objectTemplate = createEnumTemplate(this->context, metaEnum);
+
+	Persistent<Object> obj = doBindEnum(this->context, objectTemplate, metaEnum);
+
+	localObject->Set(String::New(name), obj);
 
 	LEAVE_V8()
 }
@@ -1532,7 +1561,21 @@ IMetaMethod * GV8ScriptObject::getMethod(const char * methodName, void ** outIns
 {
 	ENTER_V8()
 
-	return NULL;
+	if(outInstance != NULL) {
+		*outInstance = NULL;
+	}
+
+	GMethodGlueDataPointer methodData = this->doGetMethodData(methodName);
+	if(methodData && methodData->getMethodType() == gdmtMethod) {
+		if(outInstance != NULL) {
+			*outInstance = methodData->getMethodList()->getInstanceAt(0);
+		}
+
+		return gdynamic_cast<IMetaMethod *>(methodData->getMethodList()->getAt(0));
+	}
+	else {
+		return NULL;
+	}
 
 	LEAVE_V8(return NULL)
 }
@@ -1541,7 +1584,15 @@ IMetaList * GV8ScriptObject::getMethodList(const char * methodName)
 {
 	ENTER_V8()
 
-	return NULL;
+	GMethodGlueDataPointer methodData = this->doGetMethodData(methodName);
+	if(methodData && methodData->getMethodType() == gdmtMethodList) {
+		methodData->getMethodList()->addReference();
+
+		return methodData->getMethodList();
+	}
+	else {
+		return NULL;
+	}
 
 	LEAVE_V8(return NULL)
 }
@@ -1550,12 +1601,24 @@ void GV8ScriptObject::assignValue(const char * fromName, const char * toName)
 {
 	ENTER_V8()
 
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(this->object));
+
+	Local<Value> value = localObject->Get(String::New(fromName));
+	localObject->Set(String::New(toName), value);
+
 	LEAVE_V8()
 }
 
 bool GV8ScriptObject::valueIsNull(const char * name)
 {
 	ENTER_V8()
+
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(this->object));
+
+	Local<Value> value = localObject->Get(String::New(name));
+	return value.IsEmpty() || value->IsUndefined() || value->IsNull();
 
 	LEAVE_V8(return false)
 }
@@ -1564,12 +1627,19 @@ void GV8ScriptObject::nullifyValue(const char * name)
 {
 	ENTER_V8()
 
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(this->object));
+
+	localObject->Set(String::New(name), Null());
+
 	LEAVE_V8()
 }
 
 void GV8ScriptObject::bindCoreService(const char * name)
 {
 	ENTER_V8()
+
+	this->context->bindScriptCoreService(this, name);
 
 	LEAVE_V8()
 }
@@ -1587,6 +1657,34 @@ void GV8ScriptObject::doBindMethodList(const char * name, IMetaList * methodList
 	func.MakeWeak(NULL, weakHandleCallback);
 
 	localObject->Set(String::New(name), func);
+}
+
+GMethodGlueDataPointer GV8ScriptObject::doGetMethodData(const char * methodName)
+{
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(this->object));
+
+	Local<Value> value = localObject->Get(String::New(methodName));
+	if(isValidObject(value)) {
+		Local<Object> obj = Local<Object>::Cast(value);
+		if(obj->InternalFieldCount() == 0) {
+			Handle<Value> data = obj->GetHiddenValue(String::New(userDataKey));
+			if(! data.IsEmpty()) {
+				if(data->IsExternal()) {
+					GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(Handle<External>::Cast(data)->Value());
+					if(dataWrapper->getData()->getType() == gdtMethod) {
+						GMethodGlueDataPointer methodData(dataWrapper->getAs<GMethodGlueData>());
+						if(methodData->getMethodList()) {
+							return methodData;
+						}
+					}
+				}
+			}
+
+		}
+	}
+
+	return GMethodGlueDataPointer();
 }
 
 

@@ -228,7 +228,9 @@ public:
 	}
 
 	explicit GWeakPointer(const GSharedPointer<T> & p) : data(p.get()), counter(p.counter) {
-		this->counter->weakRetain();
+		if(this->counter != NULL) {
+			this->counter->weakRetain();
+		}
 	}
 
 	~GWeakPointer() {
@@ -238,12 +240,16 @@ public:
 	}
 
 	GWeakPointer(const GWeakPointer & other) : data(other.data), counter(other.counter) {
-		this->counter->weakRetain();
+		if(this->counter != NULL) {
+			this->counter->weakRetain();
+		}
 	}
 
 	template <typename U>
 	GWeakPointer(const GWeakPointer<U> & other) : data(other.data), counter(other.counter) {
-		this->counter->weakRetain();
+		if(this->counter != NULL) {
+			this->counter->weakRetain();
+		}
 	}
 
 	GWeakPointer & operator = (const GWeakPointer & other) {
@@ -270,7 +276,7 @@ public:
 	}
 
 	StrongType get() const {
-		if(this->counter->hasStrongReference()) {
+		if(this->counter != NULL && this->counter->hasStrongReference()) {
 			return StrongType(*this);
 		}
 		else {
@@ -279,15 +285,15 @@ public:
 	}
 
 	inline operator bool() {
-		return this->counter->hasStrongReference() && this->data != NULL;
+		return this->counter != NULL && this->counter->hasStrongReference() && this->data != NULL;
 	}
 
 	inline operator bool() const {
-		return this->counter->hasStrongReference() && this->data != NULL;
+		return this->counter != NULL && this->counter->hasStrongReference() && this->data != NULL;
 	}
 
 	bool expired() const {
-		return ! this->counter->hasStrongReference();
+		return this->counter == NULL || ! this->counter->hasStrongReference();
 	}
 
 	void reset(StrongType p) {
