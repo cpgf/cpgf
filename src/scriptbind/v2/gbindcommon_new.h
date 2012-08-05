@@ -210,6 +210,7 @@ private:
 };
 
 typedef GSharedPointer<GClassGlueData> GClassGlueDataPointer;
+typedef GWeakPointer<GClassGlueData> GWeakClassGlueDataPointer;
 
 
 class GObjectGlueData;
@@ -229,8 +230,8 @@ private:
 public:		
 	~GObjectGlueData();
 
-	const GClassGlueDataPointer & getClassData() const {
-		return this->classGlueData;
+	GClassGlueDataPointer getClassData() const {
+		return this->classGlueData.get();
 	}
 
 	void * getInstance() const {
@@ -260,7 +261,7 @@ private:
 	void setWeakThis(const GWeakObjectGlueDataPointer & weakThis);
 
 private:
-	GClassGlueDataPointer classGlueData;
+	GWeakClassGlueDataPointer classGlueData;
 	void * instance;
 	GSharedInterface<IObject> interfaceObject;
 	bool allowGC;
@@ -286,8 +287,8 @@ private:
 	}
 
 public:
-	const GClassGlueDataPointer & getClassData() const {
-		return this->classGlueData;
+	GClassGlueDataPointer getClassData() const {
+		return this->classGlueData.get();
 	}
 
 	IMetaList * getMethodList() const {
@@ -303,7 +304,7 @@ public:
 	}
 
 private:
-	GClassGlueDataPointer classGlueData;
+	GWeakClassGlueDataPointer classGlueData;
 	GSharedInterface<IMetaList> methodList;
 	std::string name;
 	GGlueDataMethodType methodType;

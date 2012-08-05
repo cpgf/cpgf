@@ -299,7 +299,7 @@ GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGl
 GObjectGlueData::~GObjectGlueData()
 {
 	if(this->allowGC) {
-		this->classGlueData->getMetaClass()->destroyInstance(this->instance);
+		this->getClassData()->getMetaClass()->destroyInstance(this->instance);
 	}
 }
 
@@ -320,7 +320,7 @@ void GObjectGlueData::setWeakThis(const GWeakObjectGlueDataPointer & weakThis)
 {
 	this->weakThis = weakThis;
 
-	GScopedInterface<IMetaScriptWrapper> scriptWrapper(metaGetItemExtendType(this->classGlueData->getMetaClass(), GExtendTypeCreateFlag_ScriptWrapper).getScriptWrapper());
+	GScopedInterface<IMetaScriptWrapper> scriptWrapper(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ScriptWrapper).getScriptWrapper());
 	if(scriptWrapper) {
 		if(! this->dataStorage) {
 			this->dataStorage.reset(new GScriptDataStorage(GObjectGlueDataPointer(this->weakThis)));
