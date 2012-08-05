@@ -78,6 +78,7 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptObject(T * binding, TestSc
 	}
 
 	QNEWOBJ(a, mtest.SimpleOverrideWrapper(2))
+	
 	QASSERT(a.getValue() == 2);
 	QDO(a.getValue = overrideGetValue);
 	QASSERT(a.getValue() == 7);
@@ -88,7 +89,7 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptObject(T * binding, TestSc
 //	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));
 //	GEQUAL(7, objA->getValue());
 	
-//	QDO(a.getName = overrideGetName);
+	QDO(a.getName = overrideGetName);
 	QASSERT(a.getName() == "abc");
 
 //	GEQUAL(string("abc"), objA->getName());

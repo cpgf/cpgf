@@ -76,7 +76,8 @@ private:
 
 bool GClassPool::hasMetaClass(IMetaClass * metaClass) const
 {
-	return this->getClassItem(metaClass) != NULL;
+	GClassItem * item = this->getClassItem(metaClass);
+	return item != NULL && item->getClassGlueData();
 }
 
 void GClassPool::addMetaClass(const GClassGlueDataPointer & classGlueData)

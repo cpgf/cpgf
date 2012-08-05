@@ -10,7 +10,7 @@ public:
 
 	virtual int getValue();
 
-	virtual std::string getName() = 0;
+	virtual std::string getName() { return ""; }
 
 //private:
 	int n;

@@ -23,6 +23,7 @@ void buildMetaClass_SimpleOverride(const cpgf::GMetaDataConfigFlags & config, D 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _constructor<void * (int)>();
     _d.CPGF_MD_TEMPLATE _field("n", &D::ClassType::n);
     _d.CPGF_MD_TEMPLATE _method("getValue", &D::ClassType::getValue);
     _d.CPGF_MD_TEMPLATE _method("getName", &D::ClassType::getName);
@@ -61,7 +62,7 @@ public:
                 return cpgf::fromVariant<std::string >(cpgf::invokeScriptFunction(func.get(), this).getValue());
             }
         }
-        throw "Abstract method";
+        return SimpleOverride::getName();
     }
 };
 
@@ -72,7 +73,6 @@ void buildMetaClass_SimpleOverrideWrapper(const cpgf::GMetaDataConfigFlags & con
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _constructor<void * (int)>();
     
     buildMetaClass_SimpleOverride<D>(config, _d);
 }
