@@ -455,6 +455,14 @@ GRawGlueDataPointer GBindingContext::newRawGlueData(const GContextPointer & cont
 	return rawData;
 }
 
+void GBindingContext::dataWrapperCreated(GGlueDataWrapper * dataWrapper)
+{
+}
+
+void GBindingContext::dataWrapperDestroyed(GGlueDataWrapper * dataWrapper)
+{
+}
+
 
 InvokeParamRank::InvokeParamRank(size_t paramCount) : paramCount(paramCount)
 {

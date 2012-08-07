@@ -433,6 +433,43 @@ private:
 };
 
 
+class GGlueDataWrapper
+{
+public:
+	virtual ~GGlueDataWrapper() {
+	}
+
+	virtual GGlueDataPointer getData() = 0;
+
+	template <typename T>
+	GSharedPointer<T> getAs() {
+		return sharedStaticCast<T>(this->getData());
+	}
+};
+
+template <typename T>
+class GGlueDataWrapperImplement : public GGlueDataWrapper
+{
+public:
+	explicit GGlueDataWrapperImplement(const T & p) : dataPointer(p) {
+		GASSERT((bool)p);
+
+//		this->dataPointer->getContext()->dataWrapperCreated(this);
+	}
+
+	virtual ~GGlueDataWrapperImplement() {
+//		this->dataPointer->getContext()->dataWrapperDestroyed(this);
+	}
+
+	virtual GGlueDataPointer getData() {
+		return sharedStaticCast<GGlueData>(this->dataPointer);
+	}
+
+private:
+	T dataPointer;
+};
+
+
 class GBindingContext
 {
 public:
@@ -466,42 +503,22 @@ public:
 	GRawGlueDataPointer newRawGlueData(const GContextPointer & context, const GVariant & data);
 
 private:
+	void dataWrapperCreated(GGlueDataWrapper * dataWrapper);
+	void dataWrapperDestroyed(GGlueDataWrapper * dataWrapper);
+
+private:
 	GSharedInterface<IMetaService> service;
 	GScriptConfig config;
 	GScopedPointer<GClassPool> classPool;
 	
 	GScopedPointer<GScriptCoreService> scriptCoreService;
 	GScopedPointer<GMetaClass> scriptCoreServiceMetaClass;
-};
-
-class GGlueDataWrapper
-{
-public:
-	virtual ~GGlueDataWrapper() {
-	}
-
-	virtual GGlueDataPointer getData() = 0;
-
-	template <typename T>
-	GSharedPointer<T> getAs() {
-		return sharedStaticCast<T>(this->getData());
-	}
-};
-
-template <typename T>
-class GGlueDataWrapperImplement : public GGlueDataWrapper
-{
-public:
-	explicit GGlueDataWrapperImplement(const T & p) : dataPointer(p) {
-	}
-
-	virtual GGlueDataPointer getData() {
-		return sharedStaticCast<GGlueData>(this->dataPointer);
-	}
 
 private:
-	T dataPointer;
+	template <typename T>
+	friend class GGlueDataWrapperImplement;
 };
+
 
 class InvokeParamRank
 {

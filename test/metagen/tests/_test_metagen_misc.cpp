@@ -4,9 +4,11 @@
 namespace {
 
 
-void testMisc(TestScriptContext * context)
+void testMetaGenMisc(TestScriptContext * context)
 {
+return;
 	QNEWOBJ(a, mtest.SimpleData());
+	QDO(a.n = 0);
 	QASSERT(a.n == 0);
 
 	QDO(scriptTrace("Olay olay"));
@@ -26,7 +28,7 @@ void testMisc(TestScriptContext * context)
 }
 
 
-#define CASE testMisc
+#define CASE testMetaGenMisc
 #include "do_testcase.h"
 
 
