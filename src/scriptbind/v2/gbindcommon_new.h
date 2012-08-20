@@ -3,6 +3,7 @@
 
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
+#include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gglobal.h"
 #include "cpgf/gmetaoperatorop.h"
 #include "cpgf/gsharedptr.h"
@@ -41,7 +42,6 @@ enum ObjectGlueDataType {
 enum GGlueDataType {
 	gdtObject,
 	gdtClass,
-	gdtExtendMethod,
 	gdtEnum,
 	gdtOperator,
 	gdtAccessible,
@@ -630,8 +630,7 @@ int findAppropriateCallable(IMetaService * service,
 
 
 template <typename Methods>
-bool variantToScript(typename Methods::ResultType * result,
-	const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+typename Methods::ResultType variantToScript(const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
 {
 	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
 
@@ -646,9 +645,8 @@ bool variantToScript(typename Methods::ResultType * result,
 
 				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
 				void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-				*result = Methods::doObjectToScript(context, context->newClassGlueData(context, gdynamic_cast<IMetaClass *>(typedItem.get())),
+				return Methods::doObjectToScript(context, context->newClassGlueData(context, gdynamic_cast<IMetaClass *>(typedItem.get())),
 					instance, true, metaTypeToCV(type), ogdtNormal);
-				return true;
 			}
 
 			if(type.getPointerDimension() == 1 || isReference) {
@@ -656,14 +654,12 @@ bool variantToScript(typename Methods::ResultType * result,
 
 				if(vtIsInterface(vt)) {
 					GScopedInterface<IObject> ba(value.data.valueInterface);
-					*result = Methods::doObjectToScript(context, context->newClassGlueData(context, gdynamic_cast<IMetaClass *>(typedItem.get())),
+					return Methods::doObjectToScript(context, context->newClassGlueData(context, gdynamic_cast<IMetaClass *>(typedItem.get())),
 						value.data.valueInterface, allowGC,	metaTypeToCV(type), ogdtInterface);
-					return true;
 				}
 				else {
-					*result = Methods::doObjectToScript(context, context->newClassGlueData(context, gdynamic_cast<IMetaClass *>(typedItem.get())),
+					return Methods::doObjectToScript(context, context->newClassGlueData(context, gdynamic_cast<IMetaClass *>(typedItem.get())),
 						fromVariant<void *>(value), allowGC, metaTypeToCV(type), ogdtNormal);
-					return true;
 				}
 			}
 		}
@@ -672,9 +668,7 @@ bool variantToScript(typename Methods::ResultType * result,
 				IObject * obj = fromVariant<IObject *>(value);
 				if(dynamic_cast<IMetaClass *>(obj)) { // !!! GUID
 					IMetaClass * metaClass = dynamic_cast<IMetaClass *>(obj);
-					*result = Methods::doClassToScript(context, metaClass);
-
-					return true;
+					return Methods::doClassToScript(context, metaClass);
 				}
 			}
 		}
@@ -683,23 +677,19 @@ bool variantToScript(typename Methods::ResultType * result,
 			GMetaType newType(type);
 			newType.removeReference();
 
-			*result = Methods::doVariantToScript(context, value, newType, allowGC, allowRaw);
-
-			return true;
+			return Methods::doVariantToScript(context, value, newType, allowGC, allowRaw);
 		}
 	}
 
 	if(allowRaw) {
-		*result = Methods::doRawToScript(context, value);
-		return true;
+		return Methods::doRawToScript(context, value);
 	}
 
-	return false;
+	return typename Methods::ResultType();
 }
 
 template <typename Methods>
-bool methodResultToScript(typename Methods::ResultType * result,
-	const GContextPointer & context, IMetaCallable * callable, InvokeCallableResult * resultValue)
+typename Methods::ResultType methodResultToScript(const GContextPointer & context, IMetaCallable * callable, InvokeCallableResult * resultValue)
 {
 	if(resultValue->resultCount > 0) {
 		GMetaTypeData typeData;
@@ -707,59 +697,55 @@ bool methodResultToScript(typename Methods::ResultType * result,
 		callable->getResultType(&typeData);
 		metaCheckError(callable);
 
-		GVariant value = resultValue->resultData;
-		*result = Methods::doVariantToScript(context, value, GMetaType(typeData), !! callable->isResultTransferOwnership(), false);
-		if(! Methods::isSuccessResult(*result)) {
-			GScopedInterface<IMetaConverter> converter(metaGetResultExtendType(callable, GExtendTypeCreateFlag_Converter).getConverter());
-			*result = Methods::doConverterToScript(context, value, converter.get());
-		}
-		if(! Methods::isSuccessResult(*result)) {
-			*result = Methods::doRawToScript(context, value);
-		}
-		if(! Methods::isSuccessResult(*result)) {
-			raiseCoreException(Error_ScriptBinding_FailVariantToScript);
+		typename Methods::ResultType result;
 
-			return false;
+		GVariant value = resultValue->resultData;
+		result = Methods::doVariantToScript(context, value, GMetaType(typeData), !! callable->isResultTransferOwnership(), false);
+		if(! Methods::isSuccessResult(result)) {
+			GScopedInterface<IMetaConverter> converter(metaGetResultExtendType(callable, GExtendTypeCreateFlag_Converter).getConverter());
+			result = Methods::doConverterToScript(context, value, converter.get());
+		}
+		if(! Methods::isSuccessResult(result)) {
+			result = Methods::doRawToScript(context, value);
+		}
+		if(! Methods::isSuccessResult(result)) {
+			raiseCoreException(Error_ScriptBinding_FailVariantToScript);
 		}
 		
-		return true;
+		return result;
 	}
 	
-	return false;
+	return typename Methods::ResultType();
 }
 
 
 template <typename Methods>
-bool accessibleToScript(typename Methods::ResultType * result,
-	const GContextPointer & context, IMetaAccessible * accessible, void * instance, bool instanceIsConst)
+typename Methods::ResultType accessibleToScript(const GContextPointer & context, IMetaAccessible * accessible, void * instance, bool instanceIsConst)
 {
 	GMetaType type;
 	GVariant value = getAccessibleValueAndType(instance, accessible, &type, instanceIsConst);
 
-	*result = Methods::doVariantToScript(context, value, type, false, false);
-	if(! Methods::isSuccessResult(*result)) {
+	typename Methods::ResultType result = Methods::doVariantToScript(context, value, type, false, false);
+	if(! Methods::isSuccessResult(result)) {
 		GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Converter).getConverter());
-		*result = Methods::doConverterToScript(context, value, converter.get());
+		result = Methods::doConverterToScript(context, value, converter.get());
 	}
-	if(! Methods::isSuccessResult(*result)) {
-		*result = Methods::doRawToScript(context, value);
+	if(! Methods::isSuccessResult(result)) {
+		result = Methods::doRawToScript(context, value);
 	}
-	if(! Methods::isSuccessResult(*result)) {
+	if(! Methods::isSuccessResult(result)) {
 		raiseCoreException(Error_ScriptBinding_FailVariantToScript);
-
-		return false;
 	}
 		
-	return true;
+	return result;
 }
 
 
 template <typename Methods>
-bool converterToScript(typename Methods::ResultType * result,
-	const GContextPointer & context, const GVariant & value, IMetaConverter * converter)
+typename Methods::ResultType converterToScript(const GContextPointer & context, const GVariant & value, IMetaConverter * converter)
 {
 	if(converter == NULL) {
-		return false;
+		return typename Methods::ResultType();
 	}
 
 	if(isMetaConverterCanRead(converter->capabilityForCString())) {
@@ -769,13 +755,13 @@ bool converterToScript(typename Methods::ResultType * result,
 		const char * s = converter->readCString(objectAddressFromVariant(value), &needFree, allocator.get());
 
 		if(s != NULL) {
-			*result = Methods::doStringToScript(context, s);
+			typename Methods::ResultType result = Methods::doStringToScript(context, s);
 
 			if(needFree) {
 				allocator->free((void *)s);
 			}
 
-			return true;
+			return result;
 		}
 	}
 
@@ -786,18 +772,103 @@ bool converterToScript(typename Methods::ResultType * result,
 		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
 
 		if(ws != NULL) {
-			*result = Methods::doWideStringToScript(context, ws);
+			typename Methods::ResultType result = Methods::doWideStringToScript(context, ws);
 
 			if(needFree) {
 				allocator->free((void *)ws);
 			}
 
-			return true;
+			return result;
 		}
 	}
 
-	return false;
+	return typename Methods::ResultType();
 }
+
+template <typename Methods>
+typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueData, const char * name)
+{
+	bool isInstance = (glueData->getType() == gdtObject);
+	GClassGlueDataPointer classData;
+	GObjectGlueDataPointer objectData;
+	if(glueData->getType() == gdtObject) {
+		objectData = sharedStaticCast<GObjectGlueData>(glueData);
+		classData = objectData->getClassData();
+	}
+	else {
+		GASSERT(glueData->getType() == gdtClass);
+		classData = sharedStaticCast<GClassGlueData>(glueData);
+	}
+
+	const GScriptConfig & config = classData->getContext()->getConfig();
+	GContextPointer context = classData->getContext();
+
+	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstance(glueData));
+
+	void * instance = NULL;
+	IMetaClass * outDerived;
+
+	for(;;) {
+		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance, &outDerived));
+		GScopedInterface<IMetaClass> derived(outDerived);
+
+		if(!metaClass) {
+			break;
+		}
+
+		GMetaMapClassPointer mapClass = classData->getClassMap();
+		if(! mapClass) {
+			continue;
+		}
+
+		GMetaMapItem * mapItem = mapClass->findItem(name);
+		if(mapItem == NULL) {
+			continue;
+		}
+
+		switch(mapItem->getType()) {
+			case mmitField:
+			case mmitProperty: {
+				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
+				if(allowAccessData(config, isInstance, data.get())) {
+					return accessibleToScript<Methods>(context, data.get(), instance, getGlueDataCV(glueData) == opcvConst);
+				}
+			}
+			   break;
+
+			case mmitMethod:
+			case mmitMethodList: {
+				return Methods::doMethodsToScript(classData, mapItem, name, &traveller, metaClass.get(), derived.get(), isInstance);
+			}
+
+			case mmitEnum:
+				if(! isInstance || config.allowAccessEnumTypeViaInstance()) {
+					return Methods::doEnumToScript(classData, mapItem, name);
+				}
+				break;
+
+			case mmitEnumValue:
+				if(! isInstance || config.allowAccessEnumValueViaInstance()) {
+					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
+					return Methods::doVariantToScript(context, metaGetEnumValue(metaEnum, static_cast<uint32_t>(mapItem->getEnumIndex())), GMetaType(), false, true);
+				}
+				break;
+
+			case mmitClass:
+				if(! isInstance || config.allowAccessClassViaInstance()) {
+					GScopedInterface<IMetaClass> innerMetaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
+					return Methods::doClassToScript(context, innerMetaClass.get());
+				}
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	return typename Methods::ResultType();
+}
+
 
 
 } // namespace _bind_internal

@@ -342,7 +342,7 @@ IScriptFunction * G_API_CC GScriptDataStorage::getScriptFunction(const char * na
 		return NULL;
 	}
 	
-	GObjectGlueDataPointer obj(object);
+	GObjectGlueDataPointer obj(this->object);
 	IScriptFunction * func = NULL;
 	if(obj->getDataHolder() != NULL) {
 		func = obj->getDataHolder()->getScriptFunction(name);

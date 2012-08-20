@@ -1,5 +1,4 @@
 #include "cpgf/scriptbind/gscriptbind.h"
-#include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gstringmap.h"
 #include "../../pinclude/gscriptbindapiimpl.h"
 
@@ -199,6 +198,10 @@ private:
 
 Handle<Value> variantToV8(const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw);
 Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData);
+Persistent<Object> doBindEnum(const GContextPointer & context, Handle<ObjectTemplate> objectTemplate, IMetaEnum * metaEnum);
+Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData, bool isGlobal, IMetaList * methodList,
+	const char * name, Handle<FunctionTemplate> classTemplate, GGlueDataMethodType methodType);
+Handle<ObjectTemplate> createEnumTemplate(const GContextPointer & context, IMetaEnum * metaEnum);
 
 void loadCallableParam(const Arguments & args, const GContextPointer & context, InvokeCallableParam * callableParam);
 
@@ -297,9 +300,6 @@ GScriptDataType getV8Type(Local<Value> value, IMetaTypedItem ** typeItem)
 									(*typeItem)->addReference();
 								}
 								return sdtClass;
-
-							case gdtExtendMethod:
-//								return methodTypeToUserDataType(gdynamic_cast<GMethodUserData *>(userData)->getMethodData().getMethodType());
 
 							default:
 								break;
@@ -499,11 +499,7 @@ struct GV8Methods
 
 	static ResultType doConverterToScript(const GContextPointer & context, const GVariant & value, IMetaConverter * converter)
 	{
-		ResultType result;
-		if(converterToScript<GV8Methods>(&result, context, value, converter)) {
-			return result;
-		}
-		return Handle<Value>();
+		return converterToScript<GV8Methods>(context, value, converter);
 	}
 
 	static ResultType doClassToScript(const GContextPointer & context, IMetaClass * metaClass)
@@ -527,6 +523,38 @@ struct GV8Methods
 	{
 		return ! result.IsEmpty();
 	}
+
+	static ResultType doMethodsToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem,
+		const char * methodName, GMetaClassTraveller * /*traveller*/,
+		IMetaClass * metaClass, IMetaClass * derived, bool isInstance)
+	{
+		GFunctionTemplateUserData * userData = gdynamic_cast<GFunctionTemplateUserData *>(mapItem->getUserData());
+		if(userData == NULL) {
+			GContextPointer context = classData->getContext();
+			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
+			Handle<FunctionTemplate> functionTemplate = createMethodTemplate(context, classData,
+				! isInstance, NULL, methodName,
+				createClassTemplate(context, context->requireClassGlueData(context, boundClass.get())), gdmtInternal);
+			userData = new GFunctionTemplateUserData(functionTemplate);
+			mapItem->setUserData(userData);
+		}
+
+		return userData->getFunctionTemplate()->GetFunction();
+	}
+
+	static ResultType doEnumToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem, const char * enumName)
+	{
+		GContextPointer context = classData->getContext();
+		GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
+		GObjectTemplateUserData * userData = gdynamic_cast<GObjectTemplateUserData *>(mapItem->getUserData());
+		if(userData == NULL) {
+			Handle<ObjectTemplate> objectTemplate = createEnumTemplate(context, metaEnum.get());
+			userData = new GObjectTemplateUserData(objectTemplate);
+			mapItem->setUserData(userData);
+		}
+		return doBindEnum(context, userData->getObjectTemplate(), metaEnum.get());
+	}
+
 };
 
 Handle<Value> variantToV8(const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
@@ -563,12 +591,7 @@ Handle<Value> variantToV8(const GContextPointer & context, const GVariant & valu
 		return String::New(s.get());
 	}
 
-	Handle<Value> result;
-	if(variantToScript<GV8Methods>(&result, context, value, type, allowGC, allowRaw)) {
-		return result;
-	}
-
-	return Handle<Value>();
+	return variantToScript<GV8Methods>(context, value, type, allowGC, allowRaw);
 }
 
 Handle<Value> accessibleGet(Local<String> /*prop*/, const AccessorInfo & info)
@@ -578,11 +601,7 @@ Handle<Value> accessibleGet(Local<String> /*prop*/, const AccessorInfo & info)
 	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(Local<External>::Cast(info.Data())->Value());
 	GAccessibleGlueDataPointer accessibleGlueData(dataWrapper->getAs<GAccessibleGlueData>());
 
-	Handle<Value> r;
-	if(accessibleToScript<GV8Methods>(&r, accessibleGlueData->getContext(), accessibleGlueData->getAccessible(), accessibleGlueData->getInstance(), false)) {
-		return r;
-	}
-	return Handle<Value>();
+	return accessibleToScript<GV8Methods>(accessibleGlueData->getContext(), accessibleGlueData->getAccessible(), accessibleGlueData->getInstance(), false);
 
 	LEAVE_V8(return Handle<Value>())
 }
@@ -613,16 +632,6 @@ void doBindAccessible(const GContextPointer & context, Local<Object> container,
 	container->SetAccessor(String::New(name), &accessibleGet, &accessibleSet, data);
 }
 
-Handle<Value> methodResultToV8(const GContextPointer & context, IMetaCallable * callable, InvokeCallableResult * result)
-{
-	Handle<Value> r;
-	if(methodResultToScript<GV8Methods>(&r, context, callable, result)) {
-		return r;
-	}
-
-	return Handle<Value>();
-}
-
 Handle<Value> callbackMethodList(const Arguments & args)
 {
 	ENTER_V8()
@@ -651,7 +660,7 @@ Handle<Value> callbackMethodList(const Arguments & args)
 	loadCallableParam(args, methodData->getContext(), &callableParam);
 
 	InvokeCallableResult result = doInvokeMethodList(methodData->getContext(), objectData, methodData, &callableParam);
-	return methodResultToV8(methodData->getContext(), result.callable.get(), &result);
+	return methodResultToScript<GV8Methods>(methodData->getContext(), result.callable.get(), &result);
 
 	LEAVE_V8(return Handle<Value>())
 }
@@ -758,109 +767,7 @@ Persistent<Object> doBindEnum(const GContextPointer & context, Handle<ObjectTemp
 
 Handle<Value> getNamedMember(const GGlueDataPointer & glueData, const char * name)
 {
-	bool isInstance = (glueData->getType() == gdtObject);
-	GClassGlueDataPointer classData;
-	GObjectGlueDataPointer objectData;
-	if(glueData->getType() == gdtObject) {
-		objectData = sharedStaticCast<GObjectGlueData>(glueData);
-		classData = objectData->getClassData();
-	}
-	else {
-		GASSERT(glueData->getType() == gdtClass);
-		classData = sharedStaticCast<GClassGlueData>(glueData);
-	}
-
-	const GScriptConfig & config = classData->getContext()->getConfig();
-	GContextPointer context = classData->getContext();
-
-	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstance(glueData));
-
-	void * instance = NULL;
-	IMetaClass * outDerived;
-
-	for(;;) {
-		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance, &outDerived));
-		GScopedInterface<IMetaClass> derived(outDerived);
-
-		if(!metaClass) {
-			break;
-		}
-
-		GMetaMapClassPointer mapClass = classData->getClassMap();
-		if(! mapClass) {
-			continue;
-		}
-
-		GMetaMapItem * mapItem = mapClass->findItem(name);
-		if(mapItem == NULL) {
-			continue;
-		}
-
-		switch(mapItem->getType()) {
-			case mmitField:
-			case mmitProperty: {
-				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				if(allowAccessData(config, isInstance, data.get())) {
-					Handle<Value> r;
-					if(accessibleToScript<GV8Methods>(&r, context, data.get(), instance, getGlueDataCV(glueData) == opcvConst)) {
-						return r;
-					}
-					return Handle<Value>();
-				}
-			}
-			   break;
-
-			case mmitMethod:
-			case mmitMethodList: {
-				GFunctionTemplateUserData * userData = gdynamic_cast<GFunctionTemplateUserData *>(mapItem->getUserData());
-				if(userData == NULL) {
-					GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass.get(), derived.get()));
-
-					Handle<FunctionTemplate> functionTemplate = createMethodTemplate(context, classData,
-						! isInstance, NULL, name,
-						createClassTemplate(context, context->requireClassGlueData(context, boundClass.get())), gdmtInternal);
-					userData = new GFunctionTemplateUserData(functionTemplate);
-					mapItem->setUserData(userData);
-				}
-
-				return userData->getFunctionTemplate()->GetFunction();
-			}
-
-			case mmitEnum:
-				if(! isInstance || config.allowAccessEnumTypeViaInstance()) {
-					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-					GObjectTemplateUserData * userData = gdynamic_cast<GObjectTemplateUserData *>(mapItem->getUserData());
-					if(userData == NULL) {
-						Handle<ObjectTemplate> objectTemplate = createEnumTemplate(context, metaEnum.get());
-						userData = new GObjectTemplateUserData(objectTemplate);
-						mapItem->setUserData(userData);
-					}
-					Persistent<Object> obj = doBindEnum(context, userData->getObjectTemplate(), metaEnum.get());
-					return obj;
-				}
-				break;
-
-			case mmitEnumValue:
-				if(! isInstance || config.allowAccessEnumValueViaInstance()) {
-					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-					return variantToV8(context, metaGetEnumValue(metaEnum, static_cast<uint32_t>(mapItem->getEnumIndex())), GMetaType(), false, true);
-				}
-				break;
-
-			case mmitClass:
-				if(! isInstance || config.allowAccessClassViaInstance()) {
-					GScopedInterface<IMetaClass> innerMetaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
-					Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, context->requireClassGlueData(context, innerMetaClass.get()));
-					return functionTemplate->GetFunction();
-				}
-				break;
-
-			default:
-				break;
-		}
-	}
-
-	return Handle<Value>();
+	return namedMemberToScript<GV8Methods>(glueData, name);
 }
 
 void loadMethodParameters(const Arguments & args, const GContextPointer & context, GVariant * outputParams)
@@ -1140,6 +1047,7 @@ bool valueIsCallable(Local<Value> value)
 GMetaVariant invokeV8FunctionIndirectly(const GContextPointer & context, Local<Object> object, Local<Value> func, GMetaVariant const * const * params, size_t paramCount, const char * name)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+	GASSERT(! object->IsNull());
 
 	if(! context) {
 		raiseCoreException(Error_ScriptBinding_NoContext);
@@ -1183,6 +1091,7 @@ GV8ScriptFunction::GV8ScriptFunction(const GContextPointer & context, Local<Obje
 		receiver(Persistent<Object>::New(Local<Object>::Cast(receiver))),
 		func(Persistent<Function>::New(Local<Function>::Cast(func)))
 {
+	GASSERT(! receiver->IsNull());
 }
 
 GV8ScriptFunction::~GV8ScriptFunction()
