@@ -10,6 +10,8 @@ public:
 
 	virtual int getValue();
 
+	virtual int getAnother() { return 1; }
+
 	virtual std::string getName() { return ""; }
 
 //private:

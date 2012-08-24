@@ -26,13 +26,14 @@ void buildMetaClass_SimpleOverride(const cpgf::GMetaDataConfigFlags & config, D 
     _d.CPGF_MD_TEMPLATE _constructor<void * (int)>();
     _d.CPGF_MD_TEMPLATE _field("n", &D::ClassType::n);
     _d.CPGF_MD_TEMPLATE _method("getValue", &D::ClassType::getValue);
+    _d.CPGF_MD_TEMPLATE _method("getAnother", &D::ClassType::getAnother);
     _d.CPGF_MD_TEMPLATE _method("getName", &D::ClassType::getName);
 }
 
 
 class SimpleOverrideWrapper : public SimpleOverride, public cpgf::GScriptWrapper {
 public:
-    static bool _cpgf_override_method_is_in_script[2];
+    static bool _cpgf_override_method_is_in_script[3];
     
     SimpleOverrideWrapper(int n)
         : SimpleOverride(n) {}
@@ -51,11 +52,25 @@ public:
         return SimpleOverride::getValue();
     }
     
-    std::string getName()
+    int getAnother()
     {
         if(! _cpgf_override_method_is_in_script[1])
         {
             cpgf::GScriptWrapperReentryGuard guard(&_cpgf_override_method_is_in_script[1]);
+            cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getAnother"));
+            if(func)
+            {
+                return cpgf::fromVariant<int >(cpgf::invokeScriptFunction(func.get(), this).getValue());
+            }
+        }
+        return SimpleOverride::getAnother();
+    }
+    
+    std::string getName()
+    {
+        if(! _cpgf_override_method_is_in_script[2])
+        {
+            cpgf::GScriptWrapperReentryGuard guard(&_cpgf_override_method_is_in_script[2]);
             cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getName"));
             if(func)
             {

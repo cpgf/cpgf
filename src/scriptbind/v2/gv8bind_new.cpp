@@ -6,6 +6,8 @@
 
 #include "gbindcommon_new.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace cpgf::_bind_internal;
 using namespace v8;
@@ -537,6 +539,7 @@ struct GV8Methods
 				createClassTemplate(context, context->requireClassGlueData(context, boundClass.get())), gdmtInternal);
 			userData = new GFunctionTemplateUserData(functionTemplate);
 			mapItem->setUserData(userData);
+cout << "Method: " << methodName << "  " << classData->getMetaClass()->getName() << "  " << context->requireClassGlueData(context, boundClass.get())->getUserData() << endl;
 		}
 
 		return userData->getFunctionTemplate()->GetFunction();
@@ -1063,16 +1066,14 @@ GMetaVariant invokeV8FunctionIndirectly(const GContextPointer & context, Local<O
 		}
 
 		Local<Value> result;
-		Handle<Object> receiver = object;
-
 		if(func->IsFunction()) {
-			result = Local<Function>::Cast(func)->Call(receiver, static_cast<int>(paramCount), v8Params);
+			result = Local<Function>::Cast(func)->Call(object, static_cast<int>(paramCount), v8Params);
 		}
 		else {
-			result = Local<Object>::Cast(func)->CallAsFunction(receiver, static_cast<int>(paramCount), v8Params);
+			result = Local<Object>::Cast(func)->CallAsFunction(object, static_cast<int>(paramCount), v8Params);
 		}
 
-		return v8ToVariant(context, receiver->CreationContext(), result);
+		return v8ToVariant(context, object->CreationContext(), result);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);

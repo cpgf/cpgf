@@ -364,7 +364,7 @@ void GScriptDataHolder::setScriptValue(const char * name, const GVariant & value
 {
 	this->requireDataMap();
 
-	(*(this->dataMap))[name] = value;
+	this->dataMap->insert(MapValueType(name, value));
 }
 
 IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)

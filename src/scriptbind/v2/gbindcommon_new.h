@@ -420,6 +420,7 @@ class GScriptDataHolder
 {
 private:
 	typedef std::map<std::string, GVariant> MapType;
+	typedef std::pair<std::string, GVariant> MapValueType;
 
 public:
 	void setScriptValue(const char * name, const GVariant & value);
