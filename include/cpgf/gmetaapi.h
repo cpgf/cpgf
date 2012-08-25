@@ -15,6 +15,7 @@ struct IMetaAnnotation;
 
 struct IMetaItem : public IExtendObject
 {
+	virtual IMetaItem * G_API_CC clone() = 0;
 	virtual const char * G_API_CC getName() = 0;
 	virtual const char * G_API_CC getQualifiedName() = 0;
 	virtual IMetaItem * G_API_CC getOwnerItem() = 0;

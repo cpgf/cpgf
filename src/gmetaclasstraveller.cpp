@@ -47,6 +47,10 @@ GMetaClassTraveller::~GMetaClassTraveller()
 	
 IMetaClass * GMetaClassTraveller::next(void ** outInstance, IMetaClass ** outDerived)
 {
+	if(outDerived != NULL) {
+		*outDerived = NULL;
+	}
+	
 	if(this->traversal.empty()) {
 		return NULL;
 	}

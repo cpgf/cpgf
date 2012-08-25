@@ -6,7 +6,6 @@
 
 #include "gbindcommon_new.h"
 
-#include <iostream>
 
 using namespace std;
 using namespace cpgf::_bind_internal;
@@ -40,7 +39,7 @@ namespace {
 // Declarations
 //*********************************************
 
-class GV8BindingContext : public GBindingContext
+class GV8BindingContext : public GBindingContext, public GShareFromBase
 {
 private:
 	typedef GBindingContext super;
@@ -452,7 +451,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 	Handle<Value> external = External::New(&signatureKey);
 	Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance(1, &external));
 
-	GObjectGlueDataPointer objectData(context->newObjectGlueData(context, classData, instance, allowGC, cv, dataType));
+	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, allowGC, cv, dataType));
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(objectData);
 	self.MakeWeak(dataWrapper, weakHandleCallback);
 
@@ -467,7 +466,7 @@ Handle<Value> rawToV8(const GContextPointer & context, const GVariant & value)
 	if(context->getConfig().allowAccessRawData()) {
 		Persistent<Object> self = Persistent<Object>::New(sharedStaticCast<GV8BindingContext>(context)->getRawObject());
 
-		GRawGlueDataPointer rawData(context->newRawGlueData(context, value));
+		GRawGlueDataPointer rawData(context->newRawGlueData(value));
 		GGlueDataWrapper * dataWrapper = newGlueDataWrapper(rawData);
 		self.MakeWeak(dataWrapper, weakHandleCallback);
 
@@ -506,7 +505,7 @@ struct GV8Methods
 
 	static ResultType doClassToScript(const GContextPointer & context, IMetaClass * metaClass)
 	{
-		Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, context->newClassGlueData(context, metaClass));
+		Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, context->requireClassGlueData(metaClass));
 		return functionTemplate->GetFunction();
 	}
 
@@ -536,10 +535,9 @@ struct GV8Methods
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 			Handle<FunctionTemplate> functionTemplate = createMethodTemplate(context, classData,
 				! isInstance, NULL, methodName,
-				createClassTemplate(context, context->requireClassGlueData(context, boundClass.get())), gdmtInternal);
+				createClassTemplate(context, context->requireClassGlueData(boundClass.get())), gdmtInternal);
 			userData = new GFunctionTemplateUserData(functionTemplate);
 			mapItem->setUserData(userData);
-cout << "Method: " << methodName << "  " << classData->getMetaClass()->getName() << "  " << context->requireClassGlueData(context, boundClass.get())->getUserData() << endl;
 		}
 
 		return userData->getFunctionTemplate()->GetFunction();
@@ -627,7 +625,7 @@ void accessibleSet(Local<String> /*prop*/, Local<Value> value, const AccessorInf
 void doBindAccessible(const GContextPointer & context, Local<Object> container,
 	const char * name, void * instance, IMetaAccessible * accessible)
 {
-	GAccessibleGlueDataPointer accessibleData(context->newAccessibleGlueData(context, instance, accessible));
+	GAccessibleGlueDataPointer accessibleData(context->newAccessibleGlueData(instance, accessible));
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(accessibleData);
 	Persistent<External> data = Persistent<External>::New(External::New(dataWrapper));
 	data.MakeWeak(dataWrapper, weakHandleCallback);
@@ -671,7 +669,7 @@ Handle<Value> callbackMethodList(const Arguments & args)
 Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData, bool isGlobal, IMetaList * methodList,
 	const char * name, Handle<FunctionTemplate> classTemplate, GGlueDataMethodType methodType)
 {
-	GMethodGlueDataPointer glueData = context->newMethodGlueData(context, classData, methodList, name, methodType);
+	GMethodGlueDataPointer glueData = context->newMethodGlueData(classData, methodList, name, methodType);
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(glueData);
 
 	Persistent<External> data = Persistent<External>::New(External::New(dataWrapper));
@@ -759,7 +757,7 @@ Handle<ObjectTemplate> createEnumTemplate(const GContextPointer & context, IMeta
 Persistent<Object> doBindEnum(const GContextPointer & context, Handle<ObjectTemplate> objectTemplate, IMetaEnum * metaEnum)
 {
 	Persistent<Object> obj = Persistent<Object>::New(objectTemplate->NewInstance());
-	GEnumGlueDataPointer enumGlueData(context->newEnumGlueData(context, metaEnum));
+	GEnumGlueDataPointer enumGlueData(context->newEnumGlueData(metaEnum));
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(enumGlueData);
 	obj->SetPointerInInternalField(0, dataWrapper);
 	obj.MakeWeak(dataWrapper, weakHandleCallback);
@@ -833,7 +831,7 @@ Handle<Value> objectConstructor(const Arguments & args)
 
 		void * instance = invokeConstructor(args, classData->getContext(), classData->getMetaClass());
 
-		GObjectGlueDataPointer objectData = classData->getContext()->newObjectGlueData(classData->getContext(), classData, instance, true, opcvNone, ogdtNormal);
+		GObjectGlueDataPointer objectData = classData->getContext()->newObjectGlueData(classData, instance, true, opcvNone, ogdtNormal);
 		GGlueDataWrapper * objectWrapper = newGlueDataWrapper(objectData);
 		self.MakeWeak(objectWrapper, weakHandleCallback);
 
@@ -1016,7 +1014,7 @@ Handle<FunctionTemplate> doCreateClassTemplate(const GContextPointer & context, 
 	if(metaClass->getBaseCount() > 0) {
 		GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(0));
 		if(baseClass) {
-			GClassGlueDataPointer baseClassData = context->requireClassGlueData(context, baseClass.get());
+			GClassGlueDataPointer baseClassData = context->requireClassGlueData(baseClass.get());
 			Handle<FunctionTemplate> baseFunctionTemplate = doCreateClassTemplate(context, baseClassData);
 			functionTemplate->Inherit(baseFunctionTemplate);
 		}
@@ -1038,7 +1036,7 @@ Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, co
 
 void doBindClass(const GContextPointer & context, Local<Object> container, const char * name, IMetaClass * metaClass)
 {
-	Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, context->newClassGlueData(context, metaClass));
+	Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, context->newClassGlueData(metaClass));
 	container->Set(String::New(name), functionTemplate->GetFunction());
 }
 
@@ -1322,7 +1320,7 @@ void GV8ScriptObject::bindObject(const char * objectName, void * instance, IMeta
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->object));
 
-	Handle<Value> obj = objectToV8(this->context, this->context->requireClassGlueData(this->context, type), instance, transferOwnership, opcvNone, ogdtNormal);
+	Handle<Value> obj = objectToV8(this->context, this->context->requireClassGlueData(type), instance, transferOwnership, opcvNone, ogdtNormal);
 	localObject->Set(String::New(objectName), obj);
 
 	LEAVE_V8()

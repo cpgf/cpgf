@@ -32,6 +32,7 @@
 
 #define IMPL_ITEM \
 protected: \
+	virtual IMetaItem * G_API_CC clone() { return this->doClone(); } \
 	virtual const char * G_API_CC getName() { return this->doGetName(); } \
 	virtual const char * G_API_CC getQualifiedName() { return this->doGetQualifiedName(); } \
 	virtual IMetaItem * G_API_CC getOwnerItem() { return this->doGetOwnerItem(); } \
@@ -110,6 +111,7 @@ public:
 	}
 
 protected:
+	IMetaItem * doClone();
 	const char * doGetName();
 	const char * doGetQualifiedName();
 	IMetaItem * doGetOwnerItem();
@@ -644,6 +646,11 @@ void loadMetaList(IMetaList * metaList, GMetaList * rawMetaList)
 ImplMetaItem::ImplMetaItem(const GMetaItem * item)
 	: item(item)
 {
+}
+
+IMetaItem * ImplMetaItem::doClone()
+{
+	return metaItemToInterface(this->item);
 }
 
 const char * ImplMetaItem::doGetName()

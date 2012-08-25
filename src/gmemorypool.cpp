@@ -1,5 +1,7 @@
 #include "cpgf/gmemorypool.h"
+#include "cpgf/gcompiler.h"
 
+#include <string.h>
 
 using namespace std;
 
@@ -143,6 +145,11 @@ void GMemoryPoolChunk::free(void * p) {
 
 		--this->usedCount;
 		this->freeList[this->usedCount] = static_cast<FreeListType>(offset / this->blockSize);
+
+#if G_DEBUG
+		memset(p, 0xbd, this->blockSize);
+#endif
+
 	}
 }
 

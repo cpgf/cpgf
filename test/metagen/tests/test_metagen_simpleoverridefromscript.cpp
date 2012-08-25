@@ -2,8 +2,6 @@
 #include "../include/simpleoverridefromscript.h"
 #include "../metadata/include/meta_test_simpleoverridefromscript.h"
 
-#include <iostream>
-
 
 using namespace meta_test;
 using namespace std;
@@ -14,6 +12,7 @@ namespace {
 template <typename T>
 void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScriptContext * context)
 {
+if(context->getBindingApi()) return;
 	if(context->isLua()) {
 		QDO(function overrideGetValue(me) return me.getValue() + 15 end)
 		QDO(function overrideGetName(me) return "abc" end)
@@ -28,28 +27,23 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScr
 	}
 
 	QDO(DerivedClass = cpgf.cloneClass(mtest.SimpleOverrideWrapper))
-if(context->isV8()) {
-	binding = binding;
-}
+
 	QNEWOBJ(a, DerivedClass(3))
 	QASSERT(a.getValue() == 3);
 	QDO(DerivedClass.getValue = overrideGetValue)
-//QNEWOBJ(a, DerivedClass(3))
 	QASSERT(a.getValue() == 18);
-//	QDO(scriptTrace("" + a.getValue()));
 
 	QNEWOBJ(b, DerivedClass(5))
 	QASSERT(b.getValue() == 20);
 
-//	QNEWOBJ(c, mtest.SimpleOverrideWrapper(3))
-//	QASSERT(c.getValue() == 3);
+	QNEWOBJ(c, mtest.SimpleOverrideWrapper(3))
+	QASSERT(c.getValue() == 3);
 
 	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));
 	GEQUAL(18, objA->getValue());
 	
 //	QDO(DerivedClass.getName = overrideGetName);
 //	QASSERT(a.getName() == "abc");
-
 }
 
 void testSimpleOverrideFromScript_OverrideFromScriptClass(TestScriptContext * context)
@@ -66,8 +60,8 @@ void testSimpleOverrideFromScript_OverrideFromScriptClass(TestScriptContext * co
 	}
 }
 
-//#define CASE testSimpleOverrideFromScript_OverrideFromScriptClass
-//#include "do_testcase.h"
+#define CASE testSimpleOverrideFromScript_OverrideFromScriptClass
+#include "do_testcase.h"
 
 
 template <typename T>
@@ -94,29 +88,23 @@ if(context->getBindingApi()) {
 
 	QNEWOBJ(a, mtest.SimpleOverrideWrapper(2))
 	
-//	QASSERT(a.getValue() == 2);
+	QASSERT(a.getValue() == 2);
 	QDO(a.getValue = overrideGetValue);
-//	QASSERT(a.getValue() == 7);
-	QDO(a.getValue());
-cout << "HHHHHHHHHHHHHH" << endl;	
-//	QNEWOBJ(b, mtest.SimpleOverrideWrapper(6))
-//	QASSERT(b.getValue() == 6);
+	QASSERT(a.getValue() == 7);
 
-//	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));
-//	GEQUAL(7, objA->getValue());
+	QNEWOBJ(b, mtest.SimpleOverrideWrapper(6))
+	QASSERT(b.getValue() == 6);
 
-	QDO(a.getName());
+	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));
+	GEQUAL(7, objA->getValue());
 
-//	QDO(a.getAnother = overrideGetAnother);
-//	QASSERT(a.getAnother() == 2);
-	QDO(a.getAnother());
+	QDO(a.getAnother = overrideGetAnother);
+	QASSERT(a.getAnother() == 2);
 
-//	QDO(a.getName());
+	QDO(a.getName = overrideGetName);
+	QASSERT(a.getName() == "abc");
 
-//	QDO(a.getName = overrideGetName);
-//	QASSERT(a.getName() == "abc");
-
-//	GEQUAL(string("abc"), objA->getName());
+	GEQUAL(string("abc"), objA->getName());
 }
 
 void testSimpleOverrideFromScript_OverrideFromScriptObject(TestScriptContext * context)

@@ -16,7 +16,7 @@ void buildMetaClass_GScriptCoreService(D _d)
 
 GMetaClass * doBindScriptCoreService(GScriptObject * scriptObject, const char * bindName, GScriptCoreService * scriptCoreService)
 {
-	GDefineMetaClass<GScriptCoreService> define = GDefineMetaClass<GScriptCoreService>::Policy<GMetaPolicyNoDefaultConstructor>::declare("GScriptCoreService");
+	GDefineMetaClass<GScriptCoreService> define = GDefineMetaClass<GScriptCoreService>::Policy<GMetaPolicyNoDefaultAndCopyConstructor>::declare("GScriptCoreService");
 	buildMetaClass_GScriptCoreService(define);
 
 	GScopedInterface<IScriptObject> scriptObjectInterface( scriptObjectToInterface(scriptObject, false));
@@ -44,9 +44,14 @@ GScriptCoreService::GScriptCoreService(GScriptObject * scriptObject)
 {
 }
 
+GScriptCoreService::~GScriptCoreService()
+{
+}
+
 IMetaClass * GScriptCoreService::cloneClass(IMetaClass * metaClass)
 {
-	return metaClass;
+	this->previousClonedMetaClass.reset(gdynamic_cast<IMetaClass *>(metaClass->clone()));
+	return this->previousClonedMetaClass.get();
 }
 
 

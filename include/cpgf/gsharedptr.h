@@ -5,6 +5,13 @@
 
 namespace cpgf {
 
+template <typename T>
+class GSharedPointer;
+template <typename T>
+class GShareFromThis;
+class GShareFromBase;
+
+
 namespace sharedpointer_internal {
 
 class GSharedCounter
@@ -77,7 +84,30 @@ struct ConstCastTag {};
 struct DynamicCastTag {};
 
 
+template <typename T, typename U>
+void enableShareFromThis(const GSharedPointer<T> * sp, const U * self, typename GEnableIf<IsConvertible<U, GShareFromThis<U> >::Result >::Result * = 0)
+{
+	if(self != NULL) {
+		self->enableShareFromThis(sp);
+	}
+}
+
+template <typename T, typename U>
+void enableShareFromThis(const GSharedPointer<T> * sp, const U * self, typename GEnableIf<IsConvertible<U, GShareFromBase >::Result >::Result * = 0)
+{
+	if(self != NULL) {
+		self->enableShareFromThis(sp);
+	}
+}
+
+template <typename T, typename U>
+void enableShareFromThis(const GSharedPointer<T> *, const U *, typename GDisableIf<IsConvertible<U, GShareFromThis<U> >::Result || IsConvertible<U, GShareFromBase >::Result >::Result * = 0)
+{
+}
+
+
 } // namespace sharedpointer_internal
+
 
 template <typename T>
 class GWeakPointer;
@@ -93,14 +123,17 @@ public:
 	}
 
 	explicit GSharedPointer(T * p) : data(p), counter(new sharedpointer_internal::GSharedCounter()) {
+		sharedpointer_internal::enableShareFromThis(this, p);
 	}
 
 	template <typename U>
 	explicit GSharedPointer(U * p) : data(p), counter(new sharedpointer_internal::GSharedCounter()) {
+		sharedpointer_internal::enableShareFromThis(this, p);
 	}
 
 	template <typename U>
 	GSharedPointer(U * p, bool freeData) : data(p), counter(new sharedpointer_internal::GSharedCounter(freeData)) {
+		sharedpointer_internal::enableShareFromThis(this, p);
 	}
 
 	explicit GSharedPointer(const GWeakPointer<T> & weakPointer);
@@ -158,11 +191,6 @@ public:
 		return *this;
 	}
 
-	template <typename U>
-	bool operator == (GSharedPointer<U> other) {
-		return this->data == other.data && this->counter == other.counter;
-	}
-
 	void swap(GSharedPointer & other) {
 		using std::swap;
 
@@ -201,6 +229,16 @@ public:
 
 	void reset() {
 		ThisType().swap(*this);
+	}
+
+	template <typename U>
+	bool isBefore(const GSharedPointer<U> & other) const {
+		return this->counter < other.counter;
+	}
+
+	template <typename U>
+	bool isBefore(const GWeakPointer<U> & other) const {
+		return this->counter < other.counter;
 	}
 
 private:
@@ -263,11 +301,6 @@ public:
 		return *this;
 	}
 
-	template <typename U>
-	bool operator == (GWeakPointer<U> other) {
-		return this->data == other.data && this->counter == other.counter;
-	}
-
 	void swap(GWeakPointer & other) {
 		using std::swap;
 
@@ -300,6 +333,16 @@ public:
 		ThisType(p).swap(*this);
 	}
 
+	template <typename U>
+	bool isBefore(const GSharedPointer<U> & other) const {
+		return this->counter < other.counter;
+	}
+
+	template <typename U>
+	bool isBefore(const GWeakPointer<U> & other) const {
+		return this->counter < other.counter;
+	}
+
 private:
 	T * data;
 	sharedpointer_internal::GSharedCounter * counter;
@@ -312,7 +355,31 @@ private:
 	friend class GWeakPointer;
 };
 
-template<typename T>
+template <typename T>
+class GShareFromThis
+{
+public:
+	GSharedPointer<T> shareFromThis() const {
+		return GSharedPointer<T>(this->weakThis);
+	}
+
+public:
+	template <typename U>
+	void enableShareFromThis(const GSharedPointer<U> * self) const {
+		if(this->weakThis.expired()) {
+			this->weakThis = GWeakPointer<T>(GSharedPointer<T>(*self));
+		}
+	}
+
+private:
+	mutable GWeakPointer<T> weakThis;
+};
+
+class GShareFromBase
+{
+};
+
+template <typename T>
 GSharedPointer<T>::GSharedPointer(const GWeakPointer<T> & weakPointer)
 	: data(weakPointer.data), counter(weakPointer.counter)
 {
@@ -321,23 +388,60 @@ GSharedPointer<T>::GSharedPointer(const GWeakPointer<T> & weakPointer)
 	}
 }
 
-template<typename T, typename U>
+template <typename T, typename U>
+bool operator == (const GSharedPointer<T> & a, const GSharedPointer<U> & b)
+{
+	return a.get() == b.get();
+}
+
+template <typename T, typename U>
+bool operator == (const GWeakPointer<T> & a, const GWeakPointer<U> & b)
+{
+	return a.get() == b.get();
+}
+
+template <typename T, typename U>
+bool operator != (const GSharedPointer<T> & a, const GSharedPointer<U> & b)
+{
+	return a.get() == b.get();
+}
+
+template <typename T, typename U>
+bool operator != (const GWeakPointer<T> & a, const GWeakPointer<U> & b)
+{
+	return a.get() == b.get();
+}
+
+template <typename T, typename U>
+bool operator < (const GSharedPointer<T> & a, const GSharedPointer<U> & b)
+{
+	return a.isBefore(b);
+}
+
+template <typename T, typename U>
+bool operator < (const GWeakPointer<T> & a, const GWeakPointer<U> & b)
+{
+	return a.isBefore(b);
+}
+
+template <typename T, typename U>
 GSharedPointer<T> sharedStaticCast(const GSharedPointer<U> & other)
 {
 	return GSharedPointer<T>(other, sharedpointer_internal::StaticCastTag());
 }
 
-template<typename T, typename U>
+template <typename T, typename U>
 GSharedPointer<T> sharedConstCast(const GSharedPointer<U> & other)
 {
 	return GSharedPointer<T>(other, sharedpointer_internal::ConstCastTag());
 }
 
-template<typename T, typename U>
+template <typename T, typename U>
 GSharedPointer<T> sharedDynamicCast(const GSharedPointer<U> & other)
 {
 	return GSharedPointer<T>(other, sharedpointer_internal::DynamicCastTag());
 }
+
 
 
 } // namespace cpgf

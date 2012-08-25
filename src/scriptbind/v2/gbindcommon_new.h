@@ -18,8 +18,6 @@ class GScriptCoreService;
 
 namespace _bind_internal {
 
-class GClassPool;
-
 class GBindingContext;
 class GScriptDataHolder;
 
@@ -155,8 +153,8 @@ public:
 		return GContextPointer(this->context);
 	}
 
-	bool isInvalid() const {
-		return this->context.expired();
+	bool isValid() const {
+		return ! this->context.expired();
 	}
 
 private:
@@ -170,16 +168,16 @@ class GMetaMapClass;
 
 typedef GSharedPointer<GMetaMapClass> GMetaMapClassPointer;
 
-class GClassGlueData : public GGlueData
+class GClassGlueData : public GGlueData, public GShareFromThis<GClassGlueData>
 {
 private:
 	typedef GGlueData super;
 
 private:
-	GClassGlueData(const GContextPointer & context, IMetaClass * metaClass)
-		: super(gdtClass, context), metaClass(metaClass)
-	{
-	}
+	GClassGlueData(const GContextPointer & context, IMetaClass * metaClass);
+
+public:
+	~GClassGlueData();
 
 public:
 	IMetaClass * getMetaClass() const {
@@ -218,7 +216,7 @@ class GObjectGlueData;
 typedef GSharedPointer<GObjectGlueData> GObjectGlueDataPointer;
 typedef GWeakPointer<GObjectGlueData> GWeakObjectGlueDataPointer;
 
-class GObjectGlueData : public GGlueData
+class GObjectGlueData : public GGlueData, public GShareFromThis<GObjectGlueData>
 {
 private:
 	typedef GGlueData super;
@@ -258,7 +256,7 @@ public:
 	GScriptDataHolder * requireDataHolder() const;
 	
 private:
-	void setWeakThis(const GWeakObjectGlueDataPointer & weakThis);
+	void initialize();
 
 private:
 	GWeakClassGlueDataPointer classGlueData;
@@ -268,7 +266,6 @@ private:
 	ObjectPointerCV cv;
 	ObjectGlueDataType dataType;
 	mutable GScopedPointer<GScriptDataHolder> dataHolder;
-	GWeakObjectGlueDataPointer weakThis;
 	GScopedInterface<IScriptDataStorage> dataStorage;
 
 private:
@@ -470,8 +467,9 @@ private:
 	T dataPointer;
 };
 
+class GClassPool;
 
-class GBindingContext
+class GBindingContext : public GShareFromThis<GBindingContext>
 {
 public:
 	GBindingContext(IMetaService * service, const GScriptConfig & config);
@@ -488,24 +486,27 @@ public:
 	void bindScriptCoreService(GScriptObject * scriptObject, const char * bindName);
 
 public:
-	GClassGlueDataPointer newClassGlueData(const GContextPointer & context, IMetaClass * metaClass);
-	GClassGlueDataPointer requireClassGlueData(const GContextPointer & context, IMetaClass * metaClass);
+	GClassGlueDataPointer newClassGlueData(IMetaClass * metaClass);
+	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
+	GClassGlueDataPointer requireClassGlueData(IMetaClass * metaClass);
 
-	GObjectGlueDataPointer newObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classData, void * instance,
+	GObjectGlueDataPointer newObjectGlueData(const GClassGlueDataPointer & classData, void * instance,
 		bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType);
 	
-	GMethodGlueDataPointer newMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classData,
+	GMethodGlueDataPointer newMethodGlueData(const GClassGlueDataPointer & classData,
 		IMetaList * methodList, const char * name, GGlueDataMethodType methodType);
 	
-	GEnumGlueDataPointer newEnumGlueData(const GContextPointer & context, IMetaEnum * metaEnum);
+	GEnumGlueDataPointer newEnumGlueData(IMetaEnum * metaEnum);
 
-	GAccessibleGlueDataPointer newAccessibleGlueData(const GContextPointer & context, void * instance, IMetaAccessible * accessible);
+	GAccessibleGlueDataPointer newAccessibleGlueData(void * instance, IMetaAccessible * accessible);
 
-	GRawGlueDataPointer newRawGlueData(const GContextPointer & context, const GVariant & data);
+	GRawGlueDataPointer newRawGlueData(const GVariant & data);
 
 private:
 	void dataWrapperCreated(GGlueDataWrapper * dataWrapper);
 	void dataWrapperDestroyed(GGlueDataWrapper * dataWrapper);
+
+	GClassPool * getClassPool();
 
 private:
 	GSharedInterface<IMetaService> service;
@@ -518,6 +519,9 @@ private:
 private:
 	template <typename T>
 	friend class GGlueDataWrapperImplement;
+
+	friend class GClassGlueData;
+	friend class GObjectGlueData;
 };
 
 
@@ -638,6 +642,7 @@ typename Methods::ResultType variantToScript(const GContextPointer & context, co
 	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
 		GScopedInterface<IMetaTypedItem> typedItem(context->getService()->findTypedItemByName(type.getBaseName()));
 		if(typedItem) {
+			void * instance;
 			bool isReference = type.isReference();
 
 			if(type.getPointerDimension() == 0 && !isReference) {
@@ -645,8 +650,8 @@ typename Methods::ResultType variantToScript(const GContextPointer & context, co
 				GASSERT_MSG(type.baseIsClass(), "Unknown type");
 
 				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
-				void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-				return Methods::doObjectToScript(context, context->newClassGlueData(context, gdynamic_cast<IMetaClass *>(typedItem.get())),
+				instance = metaClass->cloneInstance(objectAddressFromVariant(value));
+				return Methods::doObjectToScript(context, context->getOrNewClassData(instance, gdynamic_cast<IMetaClass *>(typedItem.get())),
 					instance, true, metaTypeToCV(type), ogdtNormal);
 			}
 
@@ -654,13 +659,15 @@ typename Methods::ResultType variantToScript(const GContextPointer & context, co
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
 				if(vtIsInterface(vt)) {
+					instance = value.data.valueInterface;
 					GScopedInterface<IObject> ba(value.data.valueInterface);
-					return Methods::doObjectToScript(context, context->newClassGlueData(context, gdynamic_cast<IMetaClass *>(typedItem.get())),
-						value.data.valueInterface, allowGC,	metaTypeToCV(type), ogdtInterface);
+					return Methods::doObjectToScript(context, context->getOrNewClassData(instance, gdynamic_cast<IMetaClass *>(typedItem.get())),
+						instance, allowGC,	metaTypeToCV(type), ogdtInterface);
 				}
 				else {
-					return Methods::doObjectToScript(context, context->newClassGlueData(context, gdynamic_cast<IMetaClass *>(typedItem.get())),
-						fromVariant<void *>(value), allowGC, metaTypeToCV(type), ogdtNormal);
+					instance = fromVariant<void *>(value);
+					return Methods::doObjectToScript(context, context->getOrNewClassData(instance, gdynamic_cast<IMetaClass *>(typedItem.get())),
+						instance, allowGC, metaTypeToCV(type), ogdtNormal);
 				}
 			}
 		}
