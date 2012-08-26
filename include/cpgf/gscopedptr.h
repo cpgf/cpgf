@@ -45,7 +45,9 @@ public:
 	}
 
 	~GScopedPointer() {
-		Deleter::Delete(this->rawPointer);
+		T * p = this->rawPointer;
+		this->rawPointer = NULL;
+		Deleter::Delete(p);
 	}
 
 	inline void reset(T * p = NULL) {

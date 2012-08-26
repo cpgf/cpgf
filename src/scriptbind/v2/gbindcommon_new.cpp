@@ -72,12 +72,13 @@ public:
 	void classCreated(const GClassGlueDataPointer & classData);
 	void classDestroyed(IMetaClass * metaClass);
 
-	GClassGlueDataPointer findClassData(IMetaClass * metaClass);
+	GClassGlueDataPointer findClassDataByPointer(IMetaClass * metaClass);
+	GClassGlueDataPointer findClassDataByName(IMetaClass * metaClass);
 	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
 
 private:
 	InstanceMapType instanceMap;
-//	ClassNameMapType classNameMap;
+	ClassNameMapType classNameMap;
 	ClassPointerMapType classPointerMap;
 	GBindingContext * context;
 };
@@ -235,13 +236,32 @@ void GMetaMapClass::buildMap(IMetaClass * metaClass)
 }
 
 
-const GMetaMapClassPointer & GClassGlueData::getClassMap() const
+GMetaMap::GMetaMap()
 {
-	if(! this->classMap) {
-		this->classMap.reset(new GMetaMapClass(this->getMetaClass()));
-	}
-	return this->classMap;
 }
+
+GMetaMap::~GMetaMap()
+{
+	for(MapType::iterator it = this->classMap.begin(); it != this->classMap.end(); ++it) {
+		delete it->second;
+	}
+}
+
+GMetaMapClass * GMetaMap::getClassMap(IMetaClass * metaClass)
+{
+	using namespace std;
+	
+	const char * name = metaClass->getQualifiedName();
+	MapType::iterator it = this->classMap.find(name);
+	
+	if(it != this->classMap.end()) {
+		return it->second;
+	}
+	else {
+		return this->classMap.insert(MapType::value_type(name, new GMetaMapClass(metaClass))).first->second;
+	}
+}
+
 
 GScriptDataHolder * GClassGlueData::getDataHolder() const
 {
@@ -264,7 +284,9 @@ GClassGlueData::GClassGlueData(const GContextPointer & context, IMetaClass * met
 
 GClassGlueData::~GClassGlueData()
 {
-	this->getContext()->getClassPool()->classDestroyed(this->metaClass.get());
+	if(this->isValid()) {
+		this->getContext()->getClassPool()->classDestroyed(this->metaClass.get());
+	}
 }
 
 
@@ -394,9 +416,9 @@ void GClassPool::objectDestroyed(void * instance)
 
 void GClassPool::classCreated(const GClassGlueDataPointer & classData)
 {
-	//if(this->classNameMap.find(classData->getMetaClass()->getQualifiedName()) == this->classNameMap.end()) {
-	//	this->classNameMap.set(classData->getMetaClass()->getQualifiedName(), GWeakClassGlueDataPointer(classData));
-	//}
+	if(this->classNameMap.find(classData->getMetaClass()->getQualifiedName()) == this->classNameMap.end()) {
+		this->classNameMap.set(classData->getMetaClass()->getQualifiedName(), GWeakClassGlueDataPointer(classData));
+	}
 	
 	if(this->classPointerMap.find(classData->getMetaClass()) == this->classPointerMap.end()) {
 		this->classPointerMap[classData->getMetaClass()] = GWeakClassGlueDataPointer(classData);
@@ -405,11 +427,11 @@ void GClassPool::classCreated(const GClassGlueDataPointer & classData)
 
 void GClassPool::classDestroyed(IMetaClass * metaClass)
 {
-//	this->classNameMap.remove(metaClass->getQualifiedName());
+	this->classNameMap.remove(metaClass->getQualifiedName());
 	this->classPointerMap.erase(metaClass);
 }
 
-GClassGlueDataPointer GClassPool::findClassData(IMetaClass * metaClass)
+GClassGlueDataPointer GClassPool::findClassDataByPointer(IMetaClass * metaClass)
 {
 	ClassPointerMapType::iterator classPointerIterator = this->classPointerMap.find(metaClass);
 	if(classPointerIterator != this->classPointerMap.end()) {
@@ -421,15 +443,20 @@ GClassGlueDataPointer GClassPool::findClassData(IMetaClass * metaClass)
 		}
 	}
 	
-	//ClassNameMapType::iterator classIterator = this->classNameMap.find(metaClass->getQualifiedName());
-	//if(classIterator != this->classNameMap.end()) {
-	//	if(classIterator->second.expired()) {
-	//		this->classNameMap.remove(metaClass->getQualifiedName());
-	//	}
-	//	else {
-	//		return classIterator->second.get();
-	//	}
-	//}
+	return GClassGlueDataPointer();
+}
+
+GClassGlueDataPointer GClassPool::findClassDataByName(IMetaClass * metaClass)
+{
+	ClassNameMapType::iterator classIterator = this->classNameMap.find(metaClass->getQualifiedName());
+	if(classIterator != this->classNameMap.end()) {
+		if(classIterator->second.expired()) {
+			this->classNameMap.remove(metaClass->getQualifiedName());
+		}
+		else {
+			return classIterator->second.get();
+		}
+	}
 
 	return GClassGlueDataPointer();
 }
@@ -448,11 +475,40 @@ GClassGlueDataPointer GClassPool::getOrNewClassData(void * instance, IMetaClass 
 		}
 	}
 	
-	GClassGlueDataPointer classData = this->findClassData(metaClass);
+	GClassGlueDataPointer classData = this->findClassDataByPointer(metaClass);
 	if(! classData) {
 		classData = this->context->newClassGlueData(metaClass);
 	}
 	return classData;
+}
+
+
+GGlueDataWrapperPool::GGlueDataWrapperPool()
+	: active(true)
+{
+}
+
+GGlueDataWrapperPool::~GGlueDataWrapperPool()
+{
+	this->active = false;
+	for(SetType::iterator it = this->wrapperSet.begin(); it != this->wrapperSet.end(); ++it) {
+//		freeGlueDataWrapper(*it);
+	}
+}
+
+void GGlueDataWrapperPool::dataWrapperCreated(GGlueDataWrapper * dataWrapper)
+{
+	if(this->active) {
+		GASSERT(this->wrapperSet.find(dataWrapper) == this->wrapperSet.end());
+		this->wrapperSet.insert(dataWrapper);
+	}
+}
+
+void GGlueDataWrapperPool::dataWrapperDestroyed(GGlueDataWrapper * dataWrapper)
+{
+	if(this->active) {
+		this->wrapperSet.erase(dataWrapper);
+	}
 }
 
 
@@ -495,7 +551,17 @@ GClassGlueDataPointer GBindingContext::getOrNewClassData(void * instance, IMetaC
 
 GClassGlueDataPointer GBindingContext::requireClassGlueData(IMetaClass * metaClass)
 {
-	GClassGlueDataPointer classData = this->classPool->findClassData(metaClass);
+	GClassGlueDataPointer classData = this->classPool->findClassDataByPointer(metaClass);
+	if(! classData) {
+		classData = this->newClassGlueData(metaClass);
+	}
+
+	return classData;
+}
+
+GClassGlueDataPointer GBindingContext::requireAnyClassGlueData(IMetaClass * metaClass)
+{
+	GClassGlueDataPointer classData = this->classPool->findClassDataByName(metaClass);
 	if(! classData) {
 		classData = this->newClassGlueData(metaClass);
 	}
@@ -537,12 +603,9 @@ GRawGlueDataPointer GBindingContext::newRawGlueData(const GVariant & data)
 	return rawData;
 }
 
-void GBindingContext::dataWrapperCreated(GGlueDataWrapper * dataWrapper)
+GMetaMapClass * GBindingContext::getClassMap(IMetaClass * metaClass)
 {
-}
-
-void GBindingContext::dataWrapperDestroyed(GGlueDataWrapper * dataWrapper)
-{
+	return this->metaMap.getClassMap(metaClass);
 }
 
 
@@ -858,7 +921,7 @@ InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
 	}
 	else {
 		methodList.reset(createMetaList());
-		loadMethodList(context, methodList.get(), methodData->getClassData(),
+		loadMethodList(context, methodList.get(), objectData ? objectData->getClassData() : methodData->getClassData(),
 			objectData, methodData->getName().c_str());
 	}
 
@@ -1008,7 +1071,7 @@ void doLoadMethodList(const GContextPointer & context, GMetaClassTraveller * tra
 			break;
 		}
 		GClassGlueDataPointer classData = context->requireClassGlueData(metaClass.get());
-		mapItem = classData->getClassMap()->findItem(methodName);
+		mapItem = context->getClassMap(classData->getMetaClass())->findItem(methodName);
 	}
 }
 
@@ -1024,7 +1087,7 @@ void loadMethodList(const GContextPointer & context, IMetaList * methodList, con
 			break;
 		}
 
-		GMetaMapClassPointer mapClass(context->requireClassGlueData(metaClass.get())->getClassMap());
+		GMetaMapClass * mapClass = context->getClassMap(metaClass.get());
 		if(! mapClass) {
 			continue;
 		}
@@ -1115,7 +1178,7 @@ bool doSetFieldValue(const GGlueDataPointer & glueData, const char * name, const
 	GContextPointer context = classData->getContext();
 
 	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstance(glueData));
-	
+
 	void * instance = NULL;
 
 	for(;;) {
@@ -1124,7 +1187,7 @@ bool doSetFieldValue(const GGlueDataPointer & glueData, const char * name, const
 			return false;
 		}
 		
-		GMetaMapClassPointer mapClass = classData->getClassMap();
+		GMetaMapClass * mapClass = classData->getContext()->getClassMap(classData->getMetaClass());
 		if(! mapClass) {
 			continue;
 		}
@@ -1198,6 +1261,23 @@ IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData)
 	}
 
 	return NULL;
+}
+
+GScriptDataType methodTypeToGlueDataType(GGlueDataMethodType methodType)
+{
+	switch(methodType) {
+		case gdmtMethod:
+			return sdtMethod;
+
+		case gdmtMethodList:
+			return sdtMethodList;
+
+		case gdmtInternal:
+			return sdtScriptMethod;
+
+		default:
+			return sdtUnknown;
+	}
 }
 
 

@@ -9,6 +9,7 @@
 #include "cpgf/gsharedptr.h"
 
 #include <map>
+#include <set>
 
 
 namespace cpgf {
@@ -126,11 +127,35 @@ public:
 		return &this->itemMap;
 	}
 
+	void setUserData(GUserData * data) {
+		this->userData.reset(data);
+	}
+
+	GUserData * getUserData() const {
+		return this->userData.get();
+	}
+
 private:
 	void buildMap(IMetaClass * metaClass);
 
 private:
 	MapType itemMap;
+	GScopedPointer<GUserData> userData;
+};
+
+class GMetaMap
+{
+private:
+	typedef std::map<const char *, GMetaMapClass *, meta_internal::CStringCompare> MapType;
+
+public:
+	GMetaMap();
+	~GMetaMap();
+
+	GMetaMapClass * getClassMap(IMetaClass * metaClass);
+
+private:
+	MapType classMap;
 };
 
 
@@ -164,10 +189,6 @@ private:
 
 typedef GSharedPointer<GGlueData> GGlueDataPointer;
 
-class GMetaMapClass;
-
-typedef GSharedPointer<GMetaMapClass> GMetaMapClassPointer;
-
 class GClassGlueData : public GGlueData, public GShareFromThis<GClassGlueData>
 {
 private:
@@ -184,23 +205,11 @@ public:
 		return this->metaClass.get();
 	}
 
-	void setUserData(GUserData * userData) const {
-		this->userData.reset(userData);
-	}
-
-	GUserData * getUserData() const {
-		return this->userData.get();
-	}
-
-	const GMetaMapClassPointer & getClassMap() const;
-	
 	GScriptDataHolder * getDataHolder() const;
 	GScriptDataHolder * requireDataHolder() const;
 
 private:
 	GSharedInterface<IMetaClass> metaClass;
-	mutable GMetaMapClassPointer classMap;
-	mutable GScopedPointer<GUserData> userData;
 	mutable GScopedPointer<GScriptDataHolder> dataHolder;
 
 private:
@@ -229,7 +238,7 @@ public:
 	~GObjectGlueData();
 
 	GClassGlueDataPointer getClassData() const {
-		return this->classGlueData.get();
+		return this->classGlueData;
 	}
 
 	void * getInstance() const {
@@ -259,7 +268,7 @@ private:
 	void initialize();
 
 private:
-	GWeakClassGlueDataPointer classGlueData;
+	GClassGlueDataPointer classGlueData;
 	void * instance;
 	GSharedInterface<IObject> interfaceObject;
 	bool allowGC;
@@ -452,11 +461,9 @@ public:
 	explicit GGlueDataWrapperImplement(const T & p) : dataPointer(p) {
 		GASSERT((bool)p);
 
-//		this->dataPointer->getContext()->dataWrapperCreated(this);
 	}
 
 	virtual ~GGlueDataWrapperImplement() {
-//		this->dataPointer->getContext()->dataWrapperDestroyed(this);
 	}
 
 	virtual GGlueDataPointer getData() {
@@ -466,6 +473,25 @@ public:
 private:
 	T dataPointer;
 };
+
+
+class GGlueDataWrapperPool
+{
+private:
+	typedef std::set<GGlueDataWrapper *> SetType;
+
+public:
+	GGlueDataWrapperPool();
+	~GGlueDataWrapperPool();
+	
+	void dataWrapperCreated(GGlueDataWrapper * dataWrapper);
+	void dataWrapperDestroyed(GGlueDataWrapper * dataWrapper);
+
+private:
+	bool active;
+	SetType wrapperSet;
+};
+
 
 class GClassPool;
 
@@ -483,12 +509,15 @@ public:
 		return this->config;
 	}
 
+	GMetaMapClass * getClassMap(IMetaClass * metaClass);
+	
 	void bindScriptCoreService(GScriptObject * scriptObject, const char * bindName);
 
 public:
 	GClassGlueDataPointer newClassGlueData(IMetaClass * metaClass);
 	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
 	GClassGlueDataPointer requireClassGlueData(IMetaClass * metaClass);
+	GClassGlueDataPointer requireAnyClassGlueData(IMetaClass * metaClass);
 
 	GObjectGlueDataPointer newObjectGlueData(const GClassGlueDataPointer & classData, void * instance,
 		bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType);
@@ -503,9 +532,6 @@ public:
 	GRawGlueDataPointer newRawGlueData(const GVariant & data);
 
 private:
-	void dataWrapperCreated(GGlueDataWrapper * dataWrapper);
-	void dataWrapperDestroyed(GGlueDataWrapper * dataWrapper);
-
 	GClassPool * getClassPool();
 
 private:
@@ -515,6 +541,7 @@ private:
 	
 	GScopedPointer<GScriptCoreService> scriptCoreService;
 	GScopedPointer<GMetaClass> scriptCoreServiceMetaClass;
+	GMetaMap metaMap;
 
 private:
 	template <typename T>
@@ -571,9 +598,27 @@ GGlueDataWrapper * newGlueDataWrapper(const T & p)
 	return new GGlueDataWrapperImplement<T>(p);
 }
 
-inline void freeGlueDataPointer(GGlueDataWrapper * p)
+template <typename T>
+GGlueDataWrapper * newGlueDataWrapper(const T & p, GGlueDataWrapperPool * pool)
+{
+	GGlueDataWrapper * wrapper = newGlueDataWrapper(p);
+	if(pool != NULL) {
+		pool->dataWrapperCreated(wrapper);
+	}
+	return wrapper;
+}
+
+inline void freeGlueDataWrapper(GGlueDataWrapper * p)
 {
 	delete p;
+}
+
+inline void freeGlueDataWrapper(GGlueDataWrapper * p, GGlueDataWrapperPool * pool)
+{
+	if(pool != NULL) {
+		pool->dataWrapperDestroyed(p);
+	}
+	freeGlueDataWrapper(p);
 }
 
 ObjectPointerCV metaTypeToCV(const GMetaType & type);
@@ -607,6 +652,7 @@ ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData);
 void * getGlueDataInstance(const GGlueDataPointer & glueData);
 IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData);
 
+GScriptDataType methodTypeToGlueDataType(GGlueDataMethodType methodType);
 
 template <typename Getter, typename Predict>
 int findAppropriateCallable(IMetaService * service,
@@ -824,7 +870,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 			break;
 		}
 
-		GMetaMapClassPointer mapClass = classData->getClassMap();
+		GMetaMapClass * mapClass = context->getClassMap(metaClass.get());
 		if(! mapClass) {
 			continue;
 		}

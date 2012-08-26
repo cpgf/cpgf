@@ -1215,7 +1215,7 @@ void bindClassItems(Local<Object> object, IMetaClass * metaClass, Persistent<Ext
 		else {
 			// to allow override method with script function
 			if(metaIsMethod(item->getCategory())) {
-				object->SetAccessor(String::New(item->getName()), NULL, &staticMemberSetter, objectData);
+				object->SetAccessor(String::New(item->getName()), &staticMemberGetter, &staticMemberSetter, objectData);
 			}
 		}
 	}

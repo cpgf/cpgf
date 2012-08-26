@@ -94,6 +94,7 @@ protected: \
 	}
 
 
+
 namespace cpgf {
 
 
