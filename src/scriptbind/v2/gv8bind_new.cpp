@@ -119,6 +119,8 @@ public:
 	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
 
 	virtual void bindCoreService(const char * name);
+	
+	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass);
 
 public:
 	const GContextPointer & getContext() const {
@@ -1021,7 +1023,7 @@ Handle<FunctionTemplate> doCreateClassTemplate(const GContextPointer & context, 
 	if(metaClass->getBaseCount() > 0) {
 		GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(0));
 		if(baseClass) {
-			GClassGlueDataPointer baseClassData = context->requireAnyClassGlueData(baseClass.get());
+			GClassGlueDataPointer baseClassData = context->requireOriginalClassGlueData(baseClass.get());
 			Handle<FunctionTemplate> baseFunctionTemplate = doCreateClassTemplate(context, baseClassData);
 			functionTemplate->Inherit(baseFunctionTemplate);
 		}
@@ -1559,6 +1561,20 @@ void GV8ScriptObject::bindCoreService(const char * name)
 	LEAVE_V8()
 }
 
+IMetaClass * GV8ScriptObject::cloneMetaClass(IMetaClass * metaClass)
+{
+	ENTER_V8()
+
+	IMetaClass * newMetaClass = gdynamic_cast<IMetaClass *>(metaClass->clone());
+
+	this->context->requireOriginalClassGlueData(metaClass);
+	this->context->newClassGlueData(newMetaClass);
+
+	return newMetaClass;
+
+	LEAVE_V8(return NULL)
+}
+
 void GV8ScriptObject::doBindMethodList(const char * name, IMetaList * methodList, GGlueDataMethodType methodType)
 {
 	HandleScope handleScope;
@@ -1612,6 +1628,8 @@ GScriptObject * new_createV8ScriptObject(IMetaService * service, Local<Object> o
 	return new GV8ScriptObject(service, object, config);
 }
 
+
+G_GUARD_LIBRARY_LIFE
 
 
 } // namespace cpgf

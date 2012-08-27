@@ -202,6 +202,8 @@ public:
 
 	virtual void bindCoreService(const char * name) = 0;
 
+	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) { return metaClass; }
+
 protected:
 	const char * getName() const;
 

@@ -517,7 +517,7 @@ public:
 	GClassGlueDataPointer newClassGlueData(IMetaClass * metaClass);
 	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
 	GClassGlueDataPointer requireClassGlueData(IMetaClass * metaClass);
-	GClassGlueDataPointer requireAnyClassGlueData(IMetaClass * metaClass);
+	GClassGlueDataPointer requireOriginalClassGlueData(IMetaClass * metaClass);
 
 	GObjectGlueDataPointer newObjectGlueData(const GClassGlueDataPointer & classData, void * instance,
 		bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType);

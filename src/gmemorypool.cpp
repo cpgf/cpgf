@@ -8,7 +8,6 @@ using namespace std;
 
 namespace cpgf {
 
-G_GUARD_LIBRARY_LIFE
 
 namespace memorypool_internal {
 
@@ -355,6 +354,8 @@ GMemoryPool * GMemoryPoolManager::getMemoryPool(unsigned int blockSize, unsigned
 	return this->implement->getMemoryPool(blockSize, blockCount);
 }
 
+
+G_GUARD_LIBRARY_LIFE
 
 
 } // namespace cpgf

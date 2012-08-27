@@ -50,7 +50,7 @@ GScriptCoreService::~GScriptCoreService()
 
 IMetaClass * GScriptCoreService::cloneClass(IMetaClass * metaClass)
 {
-	this->previousClonedMetaClass.reset(gdynamic_cast<IMetaClass *>(metaClass->clone()));
+	this->previousClonedMetaClass.reset(this->scriptObject->cloneMetaClass(metaClass));
 	return this->previousClonedMetaClass.get();
 }
 

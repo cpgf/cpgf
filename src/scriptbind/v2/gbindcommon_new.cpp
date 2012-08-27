@@ -432,7 +432,6 @@ void GClassPool::classCreated(const GClassGlueDataPointer & classData)
 void GClassPool::classDestroyed(IMetaClass * metaClass)
 {
 	if(isLibraryLive()) {
-		this->classNameMap.remove(metaClass->getQualifiedName());
 		this->classPointerMap.erase(metaClass);
 	}
 }
@@ -558,6 +557,11 @@ GClassGlueDataPointer GBindingContext::getOrNewClassData(void * instance, IMetaC
 GClassGlueDataPointer GBindingContext::requireClassGlueData(IMetaClass * metaClass)
 {
 	GClassGlueDataPointer classData = this->classPool->findClassDataByPointer(metaClass);
+	
+	if(! classData) {
+		classData = this->classPool->findClassDataByName(metaClass);
+	}
+	
 	if(! classData) {
 		classData = this->newClassGlueData(metaClass);
 	}
@@ -565,9 +569,10 @@ GClassGlueDataPointer GBindingContext::requireClassGlueData(IMetaClass * metaCla
 	return classData;
 }
 
-GClassGlueDataPointer GBindingContext::requireAnyClassGlueData(IMetaClass * metaClass)
+GClassGlueDataPointer GBindingContext::requireOriginalClassGlueData(IMetaClass * metaClass)
 {
 	GClassGlueDataPointer classData = this->classPool->findClassDataByName(metaClass);
+	
 	if(! classData) {
 		classData = this->newClassGlueData(metaClass);
 	}
@@ -1076,8 +1081,7 @@ void doLoadMethodList(const GContextPointer & context, GMetaClassTraveller * tra
 		if(!metaClass) {
 			break;
 		}
-		GClassGlueDataPointer classData = context->requireClassGlueData(metaClass.get());
-		mapItem = context->getClassMap(classData->getMetaClass())->findItem(methodName);
+		mapItem = context->getClassMap(metaClass.get())->findItem(methodName);
 	}
 }
 

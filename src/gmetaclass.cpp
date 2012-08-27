@@ -25,7 +25,6 @@
 
 namespace cpgf {
 
-G_GUARD_LIBRARY_LIFE
 
 GMetaModule * doGetGlobalModule();
 
@@ -917,6 +916,9 @@ GMetaClass * getGlobalMetaClass()
 
 	return global.get();
 }
+
+
+G_GUARD_LIBRARY_LIFE
 
 
 } // namespace cpgf
