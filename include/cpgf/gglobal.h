@@ -14,6 +14,18 @@ T gdynamic_cast(P p)
 	return static_cast<T>(p);
 }
 
+void shutDownLibrary();
+bool isLibraryLive();
+
+struct LibraryLifeGuard
+{
+	~LibraryLifeGuard() {
+		shutDownLibrary();
+	}
+};
+
+#define G_GUARD_LIBRARY_LIFE namespace { LibraryLifeGuard _libraryGuard; }
+
 
 } // namespace cpgf
 

@@ -12,6 +12,8 @@ using namespace std;
 
 namespace cpgf {
 
+G_GUARD_LIBRARY_LIFE
+
 GScriptCoreService * doCreateScriptCoreService(GScriptObject * scriptObject);
 GMetaClass * doBindScriptCoreService(GScriptObject * scriptObject, const char * bindName, GScriptCoreService * scriptCoreService);
 
@@ -409,9 +411,11 @@ void GClassPool::objectCreated(const GObjectGlueDataPointer & objectData)
 
 void GClassPool::objectDestroyed(void * instance)
 {
-	GASSERT(this->instanceMap.find(instance) != instanceMap.end());
+	if(isLibraryLive()) {
+		GASSERT(this->instanceMap.find(instance) != instanceMap.end());
 
-	this->instanceMap.erase(instance);
+		this->instanceMap.erase(instance);
+	}
 }
 
 void GClassPool::classCreated(const GClassGlueDataPointer & classData)
@@ -427,8 +431,10 @@ void GClassPool::classCreated(const GClassGlueDataPointer & classData)
 
 void GClassPool::classDestroyed(IMetaClass * metaClass)
 {
-	this->classNameMap.remove(metaClass->getQualifiedName());
-	this->classPointerMap.erase(metaClass);
+	if(isLibraryLive()) {
+		this->classNameMap.remove(metaClass->getQualifiedName());
+		this->classPointerMap.erase(metaClass);
+	}
 }
 
 GClassGlueDataPointer GClassPool::findClassDataByPointer(IMetaClass * metaClass)
@@ -492,7 +498,7 @@ GGlueDataWrapperPool::~GGlueDataWrapperPool()
 {
 	this->active = false;
 	for(SetType::iterator it = this->wrapperSet.begin(); it != this->wrapperSet.end(); ++it) {
-//		freeGlueDataWrapper(*it);
+		freeGlueDataWrapper(*it);
 	}
 }
 

@@ -5,6 +5,7 @@
 #include "cpgf/gmetamethod.h"
 #include "cpgf/gmetaoperator.h"
 #include "cpgf/gmetaproperty.h"
+#include "cpgf/gglobal.h"
 
 
 #include <string>
@@ -23,6 +24,8 @@
 
 
 namespace cpgf {
+
+G_GUARD_LIBRARY_LIFE
 
 GMetaModule * doGetGlobalModule();
 

@@ -1,11 +1,14 @@
 #include "cpgf/gmemorypool.h"
 #include "cpgf/gcompiler.h"
+#include "cpgf/gglobal.h"
 
 #include <string.h>
 
 using namespace std;
 
 namespace cpgf {
+
+G_GUARD_LIBRARY_LIFE
 
 namespace memorypool_internal {
 
