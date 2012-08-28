@@ -1,6 +1,6 @@
 #include "cpgf/gmemorypool.h"
 #include "cpgf/gcompiler.h"
-#include "cpgf/gglobal.h"
+#include "pinclude/gstaticuninitializerorders.h"
 
 #include <string.h>
 
@@ -327,17 +327,18 @@ private:
 
 namespace {
 
-GScopedPointer<GMemoryPoolManager> globalPool;
+GMemoryPoolManager * globalPool = NULL;
 
 } // unnamed namespace
 
 GMemoryPoolManager * GMemoryPoolManager::getGlobal()
 {
-	if(! globalPool) {
-		globalPool.reset(new GMemoryPoolManager);
+	if(globalPool == NULL && isLibraryLive()) {
+		globalPool = new GMemoryPoolManager();
+		addOrderedStaticUninitializer(suo_MemoryPool, makeUninitializerDeleter(&globalPool));
 	}
 
-	return globalPool.get();
+	return globalPool;
 }
 
 GMemoryPoolManager::GMemoryPoolManager()

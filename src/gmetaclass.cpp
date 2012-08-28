@@ -5,7 +5,7 @@
 #include "cpgf/gmetamethod.h"
 #include "cpgf/gmetaoperator.h"
 #include "cpgf/gmetaproperty.h"
-#include "cpgf/gglobal.h"
+#include "pinclude/gstaticuninitializerorders.h"
 
 
 #include <string>
@@ -912,9 +912,13 @@ GMetaModule * doGetGlobalModule()
 
 GMetaClass * getGlobalMetaClass()
 {
-	static GScopedPointer<GMetaClass> global(new GMetaClass((void *)0, NULL, "", NULL, NULL, GMetaPolicyDefault()));
+	static GMetaClass * global = NULL;
+	if(global == NULL && isLibraryLive()) {
+		global = new GMetaClass((void *)0, NULL, "", NULL, NULL, GMetaPolicyDefault());
+		addOrderedStaticUninitializer(suo_MetaClass, makeUninitializerDeleter(&global));
+	}
 
-	return global.get();
+	return global;
 }
 
 

@@ -4,7 +4,7 @@ set(OUTNAME_LIB cpgf)
 set(SRC_META
 	${SRC_PATH}/gapiutil.cpp
 	${SRC_PATH}/gbytearray.cpp
-	${SRC_PATH}/gglobal.cpp
+	${SRC_PATH}/glifecycle.cpp
 	${SRC_PATH}/gmemorypool.cpp
 	${SRC_PATH}/gexception.cpp
 	${SRC_PATH}/gmetaannotation.cpp

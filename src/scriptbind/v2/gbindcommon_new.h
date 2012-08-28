@@ -25,6 +25,11 @@ class GScriptDataHolder;
 typedef GSharedPointer<GBindingContext> GContextPointer;
 typedef GWeakPointer<GBindingContext> GWeakContextPointer;
 
+class GClassGlueData;
+
+typedef GSharedPointer<GClassGlueData> GClassGlueDataPointer;
+typedef GWeakPointer<GClassGlueData> GWeakClassGlueDataPointer;
+
 
 enum ObjectPointerCV {
 	opcvNone,
@@ -135,10 +140,15 @@ public:
 		return this->userData.get();
 	}
 
+	IMetaClass * getMetaClass() const {
+		return this->metaClass.get();
+	}
+
 private:
 	void buildMap(IMetaClass * metaClass);
 
 private:
+	GSharedInterface<IMetaClass> metaClass;
 	MapType itemMap;
 	GScopedPointer<GUserData> userData;
 };
@@ -215,9 +225,6 @@ private:
 private:
 	friend class GBindingContext;
 };
-
-typedef GSharedPointer<GClassGlueData> GClassGlueDataPointer;
-typedef GWeakPointer<GClassGlueData> GWeakClassGlueDataPointer;
 
 
 class GObjectGlueData;

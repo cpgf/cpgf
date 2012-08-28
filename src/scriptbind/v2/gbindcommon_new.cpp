@@ -4,8 +4,11 @@
 #include "cpgf/gcallback.h"
 #include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/scriptbind/gscriptservice.h"
+#include "cpgf/glifecycle.h"
 
 #include <vector>
+
+#include <iostream>
 
 using namespace std;
 
@@ -154,6 +157,7 @@ IObject * GMetaMapItem::getItem() const
 
 
 GMetaMapClass::GMetaMapClass(IMetaClass * metaClass)
+	: metaClass(metaClass)
 {
 	this->buildMap(metaClass);
 }
@@ -557,9 +561,14 @@ GClassGlueDataPointer GBindingContext::getOrNewClassData(void * instance, IMetaC
 GClassGlueDataPointer GBindingContext::requireClassGlueData(IMetaClass * metaClass)
 {
 	GClassGlueDataPointer classData = this->classPool->findClassDataByPointer(metaClass);
+if(classData) cout << "ByPointer*: " << metaClass->getName() << " " << metaClass << "  " << classData->getMetaClass() << endl;
 	
 	if(! classData) {
 		classData = this->classPool->findClassDataByName(metaClass);
+		if(classData && classData->getMetaClass() != metaClass) {
+			classData.reset();
+		}
+if(classData) cout << "Byname: " << metaClass->getName() << " " << metaClass << "  " << classData->getMetaClass() << endl;
 	}
 	
 	if(! classData) {
