@@ -74,11 +74,11 @@ public:
 
 	void objectCreated(const GObjectGlueDataPointer & objectData);
 	void objectDestroyed(void * instance);
-	void classCreated(const GClassGlueDataPointer & classData);
 	void classDestroyed(IMetaClass * metaClass);
 
 	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass, GClassTag tag = anyClassTag);
+	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
 
 private:
 	InstanceMapType instanceMap;
@@ -419,10 +419,6 @@ void GClassPool::objectDestroyed(void * instance)
 	}
 }
 
-void GClassPool::classCreated(const GClassGlueDataPointer & classData)
-{
-}
-
 void GClassPool::classDestroyed(IMetaClass * metaClass)
 {
 	if(isLibraryLive()) {
@@ -465,7 +461,7 @@ GClassGlueDataPointer GClassPool::getClassData(IMetaClass * metaClass, GClassTag
 	}
 	ClassMapItemType & item = it->second;
 
-	if(tag != anyClassTag && tag != newClassTag) {
+	if(tag != anyClassTag) {
 		if(tag < item.size()) {
 			GClassGlueDataPointer & classData = item[tag];
 			if(classData) {
@@ -474,12 +470,6 @@ GClassGlueDataPointer GClassPool::getClassData(IMetaClass * metaClass, GClassTag
 		}
 	}
 	else {
-		if(tag == newClassTag) {
-			tag = 1;
-		}
-		else {
-			tag = 0;
-		}
 		GClassTag emptyTag = anyClassTag;
 		for(tag = 0; tag < item.size(); ++tag) {
 			if(! item[tag]) {
@@ -501,11 +491,34 @@ GClassGlueDataPointer GClassPool::getClassData(IMetaClass * metaClass, GClassTag
 	while(tag >= item.size()) {
 		item.push_back(GClassGlueDataPointer());
 	}
-	item[tag] = this->context->newClassGlueData(metaClass);
+	item[tag] = this->context->createClassGlueData(metaClass);
 	item[tag]->setTag(tag);
 	return item[tag];
 }
 
+GClassGlueDataPointer GClassPool::newClassData(IMetaClass * metaClass)
+{
+	ClassMapType::iterator it = this->classMap.find(metaClass->getQualifiedName());
+	if(it == this->classMap.end()) {
+		this->classMap.set(metaClass->getQualifiedName(), ClassMapItemType());
+		it = this->classMap.find(metaClass->getQualifiedName());
+	}
+	ClassMapItemType & item = it->second;
+
+	GClassTag tag = 1;
+	for(tag = 0; tag < item.size(); ++tag) {
+		if(! item[tag]) {
+			break;
+		}
+	}
+	
+	while(tag >= item.size()) {
+		item.push_back(GClassGlueDataPointer());
+	}
+	item[tag] = this->context->createClassGlueData(metaClass);
+	item[tag]->setTag(tag);
+	return item[tag];
+}
 
 GGlueDataWrapperPool::GGlueDataWrapperPool()
 	: active(true)
@@ -561,10 +574,9 @@ GClassPool * GBindingContext::getClassPool()
 	return this->classPool.get();
 }
 
-GClassGlueDataPointer GBindingContext::newClassGlueData(IMetaClass * metaClass)
+GClassGlueDataPointer GBindingContext::createClassGlueData(IMetaClass * metaClass)
 {
 	GClassGlueDataPointer data(new GClassGlueData(this->shareFromThis(), metaClass));
-	this->classPool->classCreated(data);
 	return data;
 }
 
@@ -576,6 +588,11 @@ GClassGlueDataPointer GBindingContext::getOrNewClassData(void * instance, IMetaC
 GClassGlueDataPointer GBindingContext::getClassData(IMetaClass * metaClass, GClassTag tag)
 {
 	return this->classPool->getClassData(metaClass, tag);
+}
+
+GClassGlueDataPointer GBindingContext::newClassData(IMetaClass * metaClass)
+{
+	return this->classPool->newClassData(metaClass);
 }
 
 GObjectGlueDataPointer GBindingContext::newObjectGlueData(const GClassGlueDataPointer & classData, void * instance,

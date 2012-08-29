@@ -1581,7 +1581,7 @@ IMetaClass * GV8ScriptObject::cloneMetaClass(IMetaClass * metaClass)
 	IMetaClass * newMetaClass = gdynamic_cast<IMetaClass *>(metaClass->clone());
 
 	this->context->getClassData(metaClass);
-	this->context->getClassData(newMetaClass, newClassTag);
+	this->context->newClassData(newMetaClass);
 
 	return newMetaClass;
 

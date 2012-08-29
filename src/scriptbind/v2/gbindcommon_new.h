@@ -197,7 +197,6 @@ typedef GSharedPointer<GGlueData> GGlueDataPointer;
 typedef unsigned int GClassTag;
 const GClassTag originalClassTag = 0; // Can't be modified
 const GClassTag anyClassTag = GClassTag(-1);
-const GClassTag newClassTag = GClassTag(-2);
 
 class GClassGlueData : public GGlueData, public GShareFromThis<GClassGlueData>
 {
@@ -536,9 +535,9 @@ public:
 	void bindScriptCoreService(GScriptObject * scriptObject, const char * bindName);
 
 public:
-	GClassGlueDataPointer newClassGlueData(IMetaClass * metaClass);
 	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass, GClassTag tag = anyClassTag);
+	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
 
 	GObjectGlueDataPointer newObjectGlueData(const GClassGlueDataPointer & classData, void * instance,
 		bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType);
@@ -554,6 +553,7 @@ public:
 
 private:
 	GClassPool * getClassPool();
+	GClassGlueDataPointer createClassGlueData(IMetaClass * metaClass);
 
 private:
 	GSharedInterface<IMetaService> service;
@@ -569,6 +569,7 @@ private:
 
 	friend class GClassGlueData;
 	friend class GObjectGlueData;
+	friend class GClassPool;
 };
 
 
