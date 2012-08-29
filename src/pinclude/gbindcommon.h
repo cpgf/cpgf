@@ -1,6 +1,7 @@
 #ifndef __GBINDCOMMON_H
 #define __GBINDCOMMON_H
 
+#include "cpgf/gmetaclass.h"
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
 #include "cpgf/gglobal.h"

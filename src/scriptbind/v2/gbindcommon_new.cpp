@@ -8,7 +8,6 @@
 
 #include <vector>
 
-#include <iostream>
 
 using namespace std;
 
@@ -66,8 +65,9 @@ class GClassPool
 {
 private:
 	typedef map<void *, GWeakObjectGlueDataPointer> InstanceMapType;
-	typedef GStringMap<GWeakClassGlueDataPointer, GStringMapReuseKey> ClassNameMapType;
-	typedef map<IMetaClass *, GWeakClassGlueDataPointer> ClassPointerMapType;
+	
+	typedef vector<GClassGlueDataPointer> ClassMapItemType;
+	typedef GStringMap<ClassMapItemType, GStringMapReuseKey> ClassMapType;
 
 public:
 	explicit GClassPool(GBindingContext * context);
@@ -77,14 +77,12 @@ public:
 	void classCreated(const GClassGlueDataPointer & classData);
 	void classDestroyed(IMetaClass * metaClass);
 
-	GClassGlueDataPointer findClassDataByPointer(IMetaClass * metaClass);
-	GClassGlueDataPointer findClassDataByName(IMetaClass * metaClass);
 	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
+	GClassGlueDataPointer getClassData(IMetaClass * metaClass, GClassTag tag = anyClassTag);
 
 private:
 	InstanceMapType instanceMap;
-	ClassNameMapType classNameMap;
-	ClassPointerMapType classPointerMap;
+	ClassMapType classMap;
 	GBindingContext * context;
 };
 
@@ -157,7 +155,6 @@ IObject * GMetaMapItem::getItem() const
 
 
 GMetaMapClass::GMetaMapClass(IMetaClass * metaClass)
-	: metaClass(metaClass)
 {
 	this->buildMap(metaClass);
 }
@@ -284,14 +281,14 @@ GScriptDataHolder * GClassGlueData::requireDataHolder() const
 
 
 GClassGlueData::GClassGlueData(const GContextPointer & context, IMetaClass * metaClass)
-	: super(gdtClass, context), metaClass(metaClass)
+	: super(gdtClass, context), metaClass(metaClass), mapClass(metaClass), tag(originalClassTag)
 {
 }
 
 GClassGlueData::~GClassGlueData()
 {
 	if(this->isValid()) {
-		this->getContext()->getClassPool()->classDestroyed(this->metaClass.get());
+		this->getContext()->getClassPool()->classDestroyed(this->getMetaClass());
 	}
 }
 
@@ -424,50 +421,22 @@ void GClassPool::objectDestroyed(void * instance)
 
 void GClassPool::classCreated(const GClassGlueDataPointer & classData)
 {
-	if(this->classNameMap.find(classData->getMetaClass()->getQualifiedName()) == this->classNameMap.end()) {
-		this->classNameMap.set(classData->getMetaClass()->getQualifiedName(), GWeakClassGlueDataPointer(classData));
-	}
-	
-	if(this->classPointerMap.find(classData->getMetaClass()) == this->classPointerMap.end()) {
-		this->classPointerMap[classData->getMetaClass()] = GWeakClassGlueDataPointer(classData);
-	}
 }
 
 void GClassPool::classDestroyed(IMetaClass * metaClass)
 {
 	if(isLibraryLive()) {
-		this->classPointerMap.erase(metaClass);
-	}
-}
-
-GClassGlueDataPointer GClassPool::findClassDataByPointer(IMetaClass * metaClass)
-{
-	ClassPointerMapType::iterator classPointerIterator = this->classPointerMap.find(metaClass);
-	if(classPointerIterator != this->classPointerMap.end()) {
-		if(classPointerIterator->second.expired()) {
-			this->classPointerMap.erase(metaClass);
-		}
-		else {
-			return classPointerIterator->second.get();
+		ClassMapType::iterator it = this->classMap.find(metaClass->getQualifiedName());
+		if(it != this->classMap.end()) {
+			ClassMapItemType & item = it->second;
+			for(ClassMapItemType::iterator it = item.begin(); it != item.end(); ++it) {
+				if((*it)->getMetaClass() == metaClass) {
+					(*it).reset();
+					break;
+				}
+			}
 		}
 	}
-	
-	return GClassGlueDataPointer();
-}
-
-GClassGlueDataPointer GClassPool::findClassDataByName(IMetaClass * metaClass)
-{
-	ClassNameMapType::iterator classIterator = this->classNameMap.find(metaClass->getQualifiedName());
-	if(classIterator != this->classNameMap.end()) {
-		if(classIterator->second.expired()) {
-			this->classNameMap.remove(metaClass->getQualifiedName());
-		}
-		else {
-			return classIterator->second.get();
-		}
-	}
-
-	return GClassGlueDataPointer();
 }
 
 GClassGlueDataPointer GClassPool::getOrNewClassData(void * instance, IMetaClass * metaClass)
@@ -483,12 +452,58 @@ GClassGlueDataPointer GClassPool::getOrNewClassData(void * instance, IMetaClass 
 			}
 		}
 	}
-	
-	GClassGlueDataPointer classData = this->findClassDataByPointer(metaClass);
-	if(! classData) {
-		classData = this->context->newClassGlueData(metaClass);
+
+	return this->getClassData(metaClass);
+}
+
+GClassGlueDataPointer GClassPool::getClassData(IMetaClass * metaClass, GClassTag tag)
+{
+	ClassMapType::iterator it = this->classMap.find(metaClass->getQualifiedName());
+	if(it == this->classMap.end()) {
+		this->classMap.set(metaClass->getQualifiedName(), ClassMapItemType());
+		it = this->classMap.find(metaClass->getQualifiedName());
 	}
-	return classData;
+	ClassMapItemType & item = it->second;
+
+	if(tag != anyClassTag && tag != newClassTag) {
+		if(tag < item.size()) {
+			GClassGlueDataPointer & classData = item[tag];
+			if(classData) {
+				return classData;
+			}
+		}
+	}
+	else {
+		if(tag == newClassTag) {
+			tag = 1;
+		}
+		else {
+			tag = 0;
+		}
+		GClassTag emptyTag = anyClassTag;
+		for(tag = 0; tag < item.size(); ++tag) {
+			if(! item[tag]) {
+				if(emptyTag == anyClassTag) {
+					emptyTag = tag;
+				}
+			}
+			else {
+				if(item[tag]->getMetaClass() == metaClass) {
+					return item[tag];
+				}
+			}
+		}
+		if(emptyTag != anyClassTag) {
+			tag = emptyTag;
+		}
+	}
+	
+	while(tag >= item.size()) {
+		item.push_back(GClassGlueDataPointer());
+	}
+	item[tag] = this->context->newClassGlueData(metaClass);
+	item[tag]->setTag(tag);
+	return item[tag];
 }
 
 
@@ -558,35 +573,9 @@ GClassGlueDataPointer GBindingContext::getOrNewClassData(void * instance, IMetaC
 	return this->classPool->getOrNewClassData(instance, metaClass);
 }
 
-GClassGlueDataPointer GBindingContext::requireClassGlueData(IMetaClass * metaClass)
+GClassGlueDataPointer GBindingContext::getClassData(IMetaClass * metaClass, GClassTag tag)
 {
-	GClassGlueDataPointer classData = this->classPool->findClassDataByPointer(metaClass);
-if(classData) cout << "ByPointer*: " << metaClass->getName() << " " << metaClass << "  " << classData->getMetaClass() << endl;
-	
-	if(! classData) {
-		classData = this->classPool->findClassDataByName(metaClass);
-		if(classData && classData->getMetaClass() != metaClass) {
-			classData.reset();
-		}
-if(classData) cout << "Byname: " << metaClass->getName() << " " << metaClass << "  " << classData->getMetaClass() << endl;
-	}
-	
-	if(! classData) {
-		classData = this->newClassGlueData(metaClass);
-	}
-
-	return classData;
-}
-
-GClassGlueDataPointer GBindingContext::requireOriginalClassGlueData(IMetaClass * metaClass)
-{
-	GClassGlueDataPointer classData = this->classPool->findClassDataByName(metaClass);
-	
-	if(! classData) {
-		classData = this->newClassGlueData(metaClass);
-	}
-
-	return classData;
+	return this->classPool->getClassData(metaClass, tag);
 }
 
 GObjectGlueDataPointer GBindingContext::newObjectGlueData(const GClassGlueDataPointer & classData, void * instance,
@@ -621,11 +610,6 @@ GRawGlueDataPointer GBindingContext::newRawGlueData(const GVariant & data)
 {
 	GRawGlueDataPointer rawData(new GRawGlueData(this->shareFromThis(), data));
 	return rawData;
-}
-
-GMetaMapClass * GBindingContext::getClassMap(IMetaClass * metaClass)
-{
-	return this->metaMap.getClassMap(metaClass);
 }
 
 
@@ -1065,7 +1049,8 @@ GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible
 
 void doLoadMethodList(const GContextPointer & context, GMetaClassTraveller * traveller,
 	IMetaList * methodList, GMetaMapItem * mapItem,
-	void * instance, const GGlueDataPointer & glueData, const char * methodName, bool allowAny)
+	void * instance,
+	const GClassGlueDataPointer & classData, const GGlueDataPointer & glueData, const char * methodName, bool allowAny)
 {
 	while(mapItem != NULL) {
 		if(mapItem->getType() == mmitMethod) {
@@ -1090,7 +1075,7 @@ void doLoadMethodList(const GContextPointer & context, GMetaClassTraveller * tra
 		if(!metaClass) {
 			break;
 		}
-		mapItem = context->getClassMap(metaClass.get())->findItem(methodName);
+		mapItem = classData->getClassMap()->findItem(methodName);
 	}
 }
 
@@ -1106,7 +1091,7 @@ void loadMethodList(const GContextPointer & context, IMetaList * methodList, con
 			break;
 		}
 
-		GMetaMapClass * mapClass = context->getClassMap(metaClass.get());
+		GMetaMapClass * mapClass = classData->getClassMap();
 		if(! mapClass) {
 			continue;
 		}
@@ -1122,7 +1107,7 @@ void loadMethodList(const GContextPointer & context, IMetaList * methodList, con
 
 			case mmitMethod:
 			case mmitMethodList: {
-				doLoadMethodList(context, &traveller, methodList, mapItem, instance, objectData, methodName, false);
+				doLoadMethodList(context, &traveller, methodList, mapItem, instance, classData, objectData, methodName, false);
 				return;
 			}
 
@@ -1206,7 +1191,7 @@ bool doSetFieldValue(const GGlueDataPointer & glueData, const char * name, const
 			return false;
 		}
 		
-		GMetaMapClass * mapClass = classData->getContext()->getClassMap(classData->getMetaClass());
+		GMetaMapClass * mapClass = classData->getClassMap();
 		if(! mapClass) {
 			continue;
 		}

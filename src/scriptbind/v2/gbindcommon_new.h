@@ -4,6 +4,7 @@
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
 #include "cpgf/gmetaclasstraveller.h"
+#include "cpgf/gmetaclass.h"
 #include "cpgf/gglobal.h"
 #include "cpgf/gmetaoperatorop.h"
 #include "cpgf/gsharedptr.h"
@@ -21,14 +22,12 @@ namespace _bind_internal {
 
 class GBindingContext;
 class GScriptDataHolder;
+class GClassPool;
 
 typedef GSharedPointer<GBindingContext> GContextPointer;
 typedef GWeakPointer<GBindingContext> GWeakContextPointer;
 
 class GClassGlueData;
-
-typedef GSharedPointer<GClassGlueData> GClassGlueDataPointer;
-typedef GWeakPointer<GClassGlueData> GWeakClassGlueDataPointer;
 
 
 enum ObjectPointerCV {
@@ -140,15 +139,10 @@ public:
 		return this->userData.get();
 	}
 
-	IMetaClass * getMetaClass() const {
-		return this->metaClass.get();
-	}
-
 private:
 	void buildMap(IMetaClass * metaClass);
 
 private:
-	GSharedInterface<IMetaClass> metaClass;
 	MapType itemMap;
 	GScopedPointer<GUserData> userData;
 };
@@ -199,6 +193,12 @@ private:
 
 typedef GSharedPointer<GGlueData> GGlueDataPointer;
 
+
+typedef unsigned int GClassTag;
+const GClassTag originalClassTag = 0; // Can't be modified
+const GClassTag anyClassTag = GClassTag(-1);
+const GClassTag newClassTag = GClassTag(-2);
+
 class GClassGlueData : public GGlueData, public GShareFromThis<GClassGlueData>
 {
 private:
@@ -215,16 +215,35 @@ public:
 		return this->metaClass.get();
 	}
 
+	GMetaMapClass * getClassMap() const {
+		return &this->mapClass;
+	}
+	
+	GClassTag getTag() const {
+		return this->tag;
+	}
+
 	GScriptDataHolder * getDataHolder() const;
 	GScriptDataHolder * requireDataHolder() const;
 
 private:
+	void setTag(GClassTag tag) {
+		this->tag = tag;
+	}
+		
+private:
 	GSharedInterface<IMetaClass> metaClass;
+	mutable GMetaMapClass mapClass;
 	mutable GScopedPointer<GScriptDataHolder> dataHolder;
+	GClassTag tag;
 
 private:
 	friend class GBindingContext;
+	friend class GClassPool;
 };
+
+typedef GSharedPointer<GClassGlueData> GClassGlueDataPointer;
+typedef GWeakPointer<GClassGlueData> GWeakClassGlueDataPointer;
 
 
 class GObjectGlueData;
@@ -500,8 +519,6 @@ private:
 };
 
 
-class GClassPool;
-
 class GBindingContext : public GShareFromThis<GBindingContext>
 {
 public:
@@ -516,15 +533,12 @@ public:
 		return this->config;
 	}
 
-	GMetaMapClass * getClassMap(IMetaClass * metaClass);
-	
 	void bindScriptCoreService(GScriptObject * scriptObject, const char * bindName);
 
 public:
 	GClassGlueDataPointer newClassGlueData(IMetaClass * metaClass);
 	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
-	GClassGlueDataPointer requireClassGlueData(IMetaClass * metaClass);
-	GClassGlueDataPointer requireOriginalClassGlueData(IMetaClass * metaClass);
+	GClassGlueDataPointer getClassData(IMetaClass * metaClass, GClassTag tag = anyClassTag);
 
 	GObjectGlueDataPointer newObjectGlueData(const GClassGlueDataPointer & classData, void * instance,
 		bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType);
@@ -548,7 +562,6 @@ private:
 	
 	GScopedPointer<GScriptCoreService> scriptCoreService;
 	GScopedPointer<GMetaClass> scriptCoreServiceMetaClass;
-	GMetaMap metaMap;
 
 private:
 	template <typename T>
@@ -877,7 +890,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 			break;
 		}
 
-		GMetaMapClass * mapClass = context->getClassMap(metaClass.get());
+		GMetaMapClass * mapClass = context->getClassData(metaClass.get(), classData->getTag())->getClassMap();
 		if(! mapClass) {
 			continue;
 		}

@@ -2,8 +2,6 @@
 #include "../include/simpleoverridefromscript.h"
 #include "../metadata/include/meta_test_simpleoverridefromscript.h"
 
-#include <iostream>
-
 
 using namespace meta_test;
 using namespace std;
@@ -28,28 +26,23 @@ if(context->getBindingApi()) return;
 		QDO(def overrideGetName(me): return "abc")
 	}
 
-cout << "11111111111" << endl;	
 	QDO(DerivedClass = cpgf.cloneClass(mtest.SimpleOverrideWrapper))
-cout << "222222222" << endl;	
 
-cout << "333" << endl;	
 	QNEWOBJ(a, DerivedClass(3))
 	QASSERT(a.getValue() == 3);
-cout << "555" << endl;	
 	QDO(DerivedClass.getValue = overrideGetValue)
 	QASSERT(a.getValue() == 18);
 
 	QNEWOBJ(b, DerivedClass(5))
 	QASSERT(b.getValue() == 20);
-cout << "HHHHHHHHHHHH" << endl;
 	QNEWOBJ(c, mtest.SimpleOverrideWrapper(3))
 	QASSERT(c.getValue() == 3);
 
 	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));
 	GEQUAL(18, objA->getValue());
 	
-//	QDO(DerivedClass.getName = overrideGetName);
-//	QASSERT(a.getName() == "abc");
+	QDO(DerivedClass.getName = overrideGetName);
+	QASSERT(a.getName() == "abc");
 }
 
 void testSimpleOverrideFromScript_OverrideFromScriptClass(TestScriptContext * context)

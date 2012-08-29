@@ -7,8 +7,6 @@
 
 #include "gbindcommon_new.h"
 
-#include <iostream>
-
 
 using namespace std;
 using namespace cpgf::_bind_internal;
@@ -525,8 +523,7 @@ struct GV8Methods
 
 	static ResultType doClassToScript(const GContextPointer & context, IMetaClass * metaClass)
 	{
-cout << "ClassTo: " << metaClass->getName() << "  " << metaClass << endl;
-		Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, context->requireClassGlueData(metaClass));
+		Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, context->getClassData(metaClass));
 		return functionTemplate->GetFunction();
 	}
 
@@ -556,7 +553,7 @@ cout << "ClassTo: " << metaClass->getName() << "  " << metaClass << endl;
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 			Handle<FunctionTemplate> functionTemplate = createMethodTemplate(context, classData,
 				! isInstance, NULL, methodName,
-				createClassTemplate(context, context->requireClassGlueData(boundClass.get())), gdmtInternal);
+				createClassTemplate(context, context->getClassData(boundClass.get(), classData->getTag())), gdmtInternal);
 			userData = new GFunctionTemplateUserData(functionTemplate);
 			mapItem->setUserData(userData);
 		}
@@ -849,7 +846,7 @@ Handle<Value> objectConstructor(const Arguments & args)
 		Local<External> data = Local<External>::Cast(args.Data());
 		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(data->Value());
 		GClassGlueDataPointer classData = dataWrapper->getAs<GClassGlueData>();
-cout << "Construct: " << classData->getMetaClass()->getName() << "  " << classData->getMetaClass() << endl;
+
 		void * instance = invokeConstructor(args, classData->getContext(), classData->getMetaClass());
 
 		GObjectGlueDataPointer objectData = classData->getContext()->newObjectGlueData(classData, instance, true, opcvNone, ogdtNormal);
@@ -1011,8 +1008,7 @@ void bindClassItems(Local<Object> object, IMetaClass * metaClass, Persistent<Ext
 
 Handle<FunctionTemplate> doCreateClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData)
 {
-if(classData) cout << "CreateClass: " << classData->getMetaClass()->getName() << " " << classData->getMetaClass() << endl;
-	GMetaMapClass * mapClass = context->getClassMap(classData->getMetaClass());
+	GMetaMapClass * mapClass = classData->getClassMap();
 	if(mapClass->getUserData() != NULL) { // && mapClass->getMetaClass() == classData->getMetaClass()) {
 		return gdynamic_cast<GFunctionTemplateUserData *>(mapClass->getUserData())->getFunctionTemplate();
 	}
@@ -1039,7 +1035,7 @@ if(classData) cout << "CreateClass: " << classData->getMetaClass()->getName() <<
 	if(metaClass->getBaseCount() > 0) {
 		GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(0));
 		if(baseClass) {
-			GClassGlueDataPointer baseClassData = context->requireOriginalClassGlueData(baseClass.get());
+			GClassGlueDataPointer baseClassData = context->getClassData(baseClass.get(), classData->getTag());
 			Handle<FunctionTemplate> baseFunctionTemplate = doCreateClassTemplate(context, baseClassData);
 			functionTemplate->Inherit(baseFunctionTemplate);
 		}
@@ -1061,7 +1057,7 @@ Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, co
 
 void doBindClass(const GContextPointer & context, Local<Object> container, const char * name, IMetaClass * metaClass)
 {
-	Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, context->newClassGlueData(metaClass));
+	Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, context->getClassData(metaClass));
 	container->Set(String::New(name), functionTemplate->GetFunction());
 }
 
@@ -1346,7 +1342,7 @@ void GV8ScriptObject::bindObject(const char * objectName, void * instance, IMeta
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->object));
 
-	Handle<Value> obj = objectToV8(this->context, this->context->requireClassGlueData(type), instance, transferOwnership, opcvNone, ogdtNormal);
+	Handle<Value> obj = objectToV8(this->context, this->context->getClassData(type), instance, transferOwnership, opcvNone, ogdtNormal);
 	localObject->Set(String::New(objectName), obj);
 
 	LEAVE_V8()
@@ -1584,10 +1580,8 @@ IMetaClass * GV8ScriptObject::cloneMetaClass(IMetaClass * metaClass)
 
 	IMetaClass * newMetaClass = gdynamic_cast<IMetaClass *>(metaClass->clone());
 
-	this->context->requireOriginalClassGlueData(metaClass);
-	this->context->newClassGlueData(newMetaClass);
-
-cout << "Clone: new " << newMetaClass << "  old: " << metaClass << endl;
+	this->context->getClassData(metaClass);
+	this->context->getClassData(newMetaClass, newClassTag);
 
 	return newMetaClass;
 
