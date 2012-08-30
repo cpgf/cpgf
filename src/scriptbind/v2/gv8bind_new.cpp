@@ -761,6 +761,7 @@ Handle<Array> namedEnumEnumerator(const AccessorInfo & info)
 	return handleScope.Close(metaNames);
 
 	LEAVE_V8(return Handle<Array>())
+
 }
 
 Handle<ObjectTemplate> createEnumTemplate(const GContextPointer & context, IMetaEnum * metaEnum)
@@ -1596,9 +1597,9 @@ void GV8ScriptObject::doBindMethodList(const char * name, IMetaList * methodList
 	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(this->context, GClassGlueDataPointer(), true, methodList, name,
 		Handle<FunctionTemplate>(), methodType);
 
-	Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
+	Local<Function> func = Local<Function>::New(functionTemplate->GetFunction());
 	setObjectSignature(&func);
-	func.MakeWeak(NULL, weakHandleCallback);
+//	func.MakeWeak(NULL, weakHandleCallback);
 
 	localObject->Set(String::New(name), func);
 }

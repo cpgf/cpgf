@@ -249,7 +249,7 @@ public:
 	~GObjectGlueData();
 
 	GClassGlueDataPointer getClassData() const {
-		return this->classGlueData;
+		return this->classGlueData.get();
 	}
 
 	void * getInstance() const {
@@ -279,7 +279,7 @@ private:
 	void initialize();
 
 private:
-	GClassGlueDataPointer classGlueData;
+	GWeakClassGlueDataPointer classGlueData;
 	void * instance;
 	GSharedInterface<IObject> interfaceObject;
 	bool allowGC;
