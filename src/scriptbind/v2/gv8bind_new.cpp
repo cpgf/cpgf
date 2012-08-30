@@ -553,7 +553,7 @@ struct GV8Methods
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 			Handle<FunctionTemplate> functionTemplate = createMethodTemplate(context, classData,
 				! isInstance, NULL, methodName,
-				createClassTemplate(context, context->getClassData(boundClass.get(), classData->getTag())), gdmtInternal);
+				createClassTemplate(context, context->getClassData(boundClass.get())), gdmtInternal);
 			userData = new GFunctionTemplateUserData(functionTemplate);
 			mapItem->setUserData(userData);
 		}
@@ -1035,7 +1035,7 @@ Handle<FunctionTemplate> doCreateClassTemplate(const GContextPointer & context, 
 	if(metaClass->getBaseCount() > 0) {
 		GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(0));
 		if(baseClass) {
-			GClassGlueDataPointer baseClassData = context->getClassData(baseClass.get(), classData->getTag());
+			GClassGlueDataPointer baseClassData = context->getClassData(baseClass.get());
 			Handle<FunctionTemplate> baseFunctionTemplate = doCreateClassTemplate(context, baseClassData);
 			functionTemplate->Inherit(baseFunctionTemplate);
 		}
