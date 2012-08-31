@@ -615,6 +615,18 @@ GGlueDataWrapper * newGlueDataWrapper(const T & p, GGlueDataWrapperPool * pool)
 	return wrapper;
 }
 
+template <typename T>
+GGlueDataWrapper * newGlueDataWrapper(void * address, const T & p)
+{
+	return new (address) GGlueDataWrapperImplement<T>(p);
+}
+
+template <typename T>
+size_t getGlueDataWrapperSize()
+{
+	return sizeof(GGlueDataWrapperImplement<T>);
+}
+
 inline void freeGlueDataWrapper(GGlueDataWrapper * p)
 {
 	delete p;
