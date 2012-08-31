@@ -18,7 +18,12 @@ using namespace std;
 
 
 namespace cpgf {
+#if ENABLE_V8
 	GScriptObject * new_createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
+#endif
+#if ENABLE_LUA
+	GScriptObject * new_createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
+#endif
 }
 
 namespace testscript {
@@ -125,7 +130,7 @@ public:
 			this->luaStateLib = luaL_newstate();
 			luaL_openlibs(this->luaStateLib);
 
-			this->setBinding(cpgf::createLuaScriptObject(this->getService(), this->luaStateLib, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::new_createLuaScriptObject(this->getService(), this->luaStateLib, cpgf::GScriptConfig()));
 		}
 
 		if(api == tsaApi) {

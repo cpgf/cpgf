@@ -93,6 +93,17 @@ void buildMetaClass_SimpleOverrideWrapper(const cpgf::GMetaDataConfigFlags & con
 }
 
 
+template <typename D>
+void buildMetaClass_SimpleOverrideBase(const cpgf::GMetaDataConfigFlags & config, D _d)
+{
+    (void)config; (void)_d; (void)_d;
+    using namespace cpgf;
+    
+    _d.CPGF_MD_TEMPLATE _method("baseOnly", &D::ClassType::baseOnly);
+    _d.CPGF_MD_TEMPLATE _method("getValue", &D::ClassType::getValue);
+}
+
+
 } // namespace meta_test
 
 

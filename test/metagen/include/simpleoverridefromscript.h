@@ -3,7 +3,14 @@
 
 #include <string>
 
-class SimpleOverride
+class SimpleOverrideBase
+{
+public:
+	int baseOnly();
+	virtual int getValue();
+};
+
+class SimpleOverride : public SimpleOverrideBase
 {
 public:
 	explicit SimpleOverride(int n);
@@ -12,7 +19,7 @@ public:
 
 	virtual int getAnother() { return 1; }
 
-	virtual std::string getName() { return ""; }
+	virtual std::string getName();
 
 //private:
 	int n;

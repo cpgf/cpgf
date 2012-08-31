@@ -818,15 +818,7 @@ void * invokeConstructor(const Arguments & args, const GContextPointer & context
 	loadCallableParam(args, context, &callableParam);
 
 	void * instance = doInvokeConstructor(context->getService(), metaClass, &callableParam);
-
-	if(instance != NULL) {
-		return instance;
-	}
-	else {
-		raiseCoreException(Error_ScriptBinding_InternalError_WrongFunctor);
-	}
-
-	return NULL;
+	return instance;
 }
 
 Handle<Value> objectConstructor(const Arguments & args)
@@ -926,12 +918,11 @@ Handle<Value> namedMemberSetter(Local<String> prop, Local<Value> value, const Ac
 
 	if(getGlueDataCV(dataWrapper->getData()) == opcvConst) {
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
-
-		return Handle<Value>();
 	}
-
-	if(doSetFieldValue(dataWrapper->getData(), name, v8ToVariant(dataWrapper->getData()->getContext(), info.Holder()->CreationContext(), value).getValue())) {
-		return value;
+	else {
+		if(doSetFieldValue(dataWrapper->getData(), name, v8ToVariant(dataWrapper->getData()->getContext(), info.Holder()->CreationContext(), value).getValue())) {
+			return value;
+		}
 	}
 
 	return Handle<Value>();
@@ -1007,7 +998,7 @@ void bindClassItems(Local<Object> object, IMetaClass * metaClass, Persistent<Ext
 	}
 }
 
-Handle<FunctionTemplate> doCreateClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData)
+Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData)
 {
 	GMetaMapClass * mapClass = classData->getClassMap();
 	if(mapClass->getUserData() != NULL) { // && mapClass->getMetaClass() == classData->getMetaClass()) {
@@ -1037,7 +1028,7 @@ Handle<FunctionTemplate> doCreateClassTemplate(const GContextPointer & context, 
 		GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(0));
 		if(baseClass) {
 			GClassGlueDataPointer baseClassData = context->getClassData(baseClass.get());
-			Handle<FunctionTemplate> baseFunctionTemplate = doCreateClassTemplate(context, baseClassData);
+			Handle<FunctionTemplate> baseFunctionTemplate = createClassTemplate(context, baseClassData);
 			functionTemplate->Inherit(baseFunctionTemplate);
 		}
 	}
@@ -1049,11 +1040,6 @@ Handle<FunctionTemplate> doCreateClassTemplate(const GContextPointer & context, 
 	classFunction->SetHiddenValue(String::New(userDataKey), data);
 
 	return functionTemplate;
-}
-
-Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData)
-{
-	return doCreateClassTemplate(context, classData);
 }
 
 void doBindClass(const GContextPointer & context, Local<Object> container, const char * name, IMetaClass * metaClass)
@@ -1597,9 +1583,9 @@ void GV8ScriptObject::doBindMethodList(const char * name, IMetaList * methodList
 	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(this->context, GClassGlueDataPointer(), true, methodList, name,
 		Handle<FunctionTemplate>(), methodType);
 
-	Local<Function> func = Local<Function>::New(functionTemplate->GetFunction());
+	Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
 	setObjectSignature(&func);
-//	func.MakeWeak(NULL, weakHandleCallback);
+	func.MakeWeak(NULL, weakHandleCallback);
 
 	localObject->Set(String::New(name), func);
 }

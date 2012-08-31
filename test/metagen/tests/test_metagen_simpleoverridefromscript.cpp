@@ -12,6 +12,7 @@ namespace {
 template <typename T>
 void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScriptContext * context)
 {
+if(context->isLua()) return;
 if(context->getBindingApi()) return;
 	if(context->isLua()) {
 		QDO(function overrideGetValue(me) return me.getValue() + 15 end)
@@ -43,6 +44,8 @@ if(context->getBindingApi()) return;
 	
 	QDO(DerivedClass.getName = overrideGetName);
 	QASSERT(a.getName() == "abc");
+	
+	QASSERT(a.baseOnly() == 38);
 }
 
 void testSimpleOverrideFromScript_OverrideFromScriptClass(TestScriptContext * context)
@@ -66,13 +69,13 @@ void testSimpleOverrideFromScript_OverrideFromScriptClass(TestScriptContext * co
 template <typename T>
 void doTestSimpleOverrideFromScript_OverrideFromScriptObject(T * binding, TestScriptContext * context)
 {
+if(context->isLua()) return;
 if(context->getBindingApi()) {
 	return;
 }
 	if(context->isLua()) {
 		QDO(function overrideGetValue(me) return me.getValue() + 5 end)
 		QDO(function overrideGetName(me) return "abc" end)
-		QDO(function overrideGetAnother(me) return 2 end)
 	}
 	if(context->isV8()) {
 		QDO(function overrideGetValue(me) { return 2 + 5; })
@@ -82,7 +85,6 @@ if(context->getBindingApi()) {
 	if(context->isPython()) {
 		QDO(def overrideGetValue(me): return me.getValue() + 5)
 		QDO(def overrideGetName(me): return "abc")
-		QDO(def overrideGetAnother(me): return 2)
 	}
 
 	QNEWOBJ(a, mtest.SimpleOverrideWrapper(2))
@@ -97,13 +99,12 @@ if(context->getBindingApi()) {
 	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));
 	GEQUAL(7, objA->getValue());
 
-	QDO(a.getAnother = overrideGetAnother);
-	QASSERT(a.getAnother() == 2);
-
 	QDO(a.getName = overrideGetName);
 	QASSERT(a.getName() == "abc");
 
 	GEQUAL(string("abc"), objA->getName());
+
+	QASSERT(a.baseOnly() == 38);
 }
 
 void testSimpleOverrideFromScript_OverrideFromScriptObject(TestScriptContext * context)
