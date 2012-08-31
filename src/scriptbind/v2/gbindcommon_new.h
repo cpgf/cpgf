@@ -46,10 +46,11 @@ enum GGlueDataType {
 	gdtObject,
 	gdtClass,
 	gdtEnum,
-	gdtOperator,
 	gdtAccessible,
 	gdtRaw,
-	gdtMethod
+	gdtMethod,
+	gdtObjectAndMethod, // combination of object and method, only used in Lua binding
+	gdtOperator // only used in Lua binding
 };
 
 enum GMetaMapItemType {
@@ -414,6 +415,70 @@ private:
 typedef GSharedPointer<GRawGlueData> GRawGlueDataPointer;
 
 
+// Only used by Lua binding
+class GObjectAndMethodGlueData : public GGlueData
+{
+private:
+	typedef GGlueData super;
+
+private:
+	GObjectAndMethodGlueData(const GContextPointer & context, const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData)
+		: super(gdtObjectAndMethod, context), objectData(objectData), methodData(methodData)
+	{
+	}
+
+public:
+	GObjectGlueDataPointer getObjectData() const {
+		return this->objectData;
+	}
+
+	GMethodGlueDataPointer getMethodData() const {
+		return this->methodData;
+	}
+
+private:
+	GObjectGlueDataPointer objectData;
+	GMethodGlueDataPointer methodData;
+
+private:
+	friend class GBindingContext;
+};
+
+typedef GSharedPointer<GObjectAndMethodGlueData> GObjectAndMethodGlueDataPointer;
+
+
+// Only used by Lua binding
+class GOperatorGlueData : public GGlueData
+{
+private:
+	typedef GGlueData super;
+
+public:
+	GOperatorGlueData(const GContextPointer & context, void * instance, IMetaClass * metaClass, GMetaOpType op)
+		: super(gdtOperator, context), instance(instance), metaClass(metaClass), op(op) {
+	}
+
+	void * getInstance() const {
+		return this->instance;
+	}
+
+	IMetaClass * getMetaClass() const {
+		return this->metaClass.get();
+	}
+
+	GMetaOpType getOp() const {
+		return this->op;
+	}
+
+private:
+	void * instance;
+	GSharedInterface<IMetaClass> metaClass;
+	GMetaOpType op;
+};
+
+typedef GSharedPointer<GOperatorGlueData> GOperatorGlueDataPointer;
+
+
 class GScriptDataStorage : public IScriptDataStorage
 {
 	G_INTERFACE_IMPL_OBJECT
@@ -536,6 +601,10 @@ public:
 	GAccessibleGlueDataPointer newAccessibleGlueData(void * instance, IMetaAccessible * accessible);
 
 	GRawGlueDataPointer newRawGlueData(const GVariant & data);
+	
+	GObjectAndMethodGlueDataPointer newObjectAndMethodGlueData(const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData);
+
+	GOperatorGlueDataPointer newOperatorGlueData(void * instance, IMetaClass * metaClass, GMetaOpType op);
 
 private:
 	GClassPool * getClassPool();
@@ -624,7 +693,12 @@ GGlueDataWrapper * newGlueDataWrapper(void * address, const T & p)
 template <typename T>
 size_t getGlueDataWrapperSize()
 {
-	return sizeof(GGlueDataWrapperImplement<T>);
+	return sizeof(GGlueDataWrapperImplement<GSharedPointer<T> >);
+}
+
+inline void destroyGlueDataWrapper(GGlueDataWrapper * p)
+{
+	p->~GGlueDataWrapper();
 }
 
 inline void freeGlueDataWrapper(GGlueDataWrapper * p)
@@ -672,6 +746,7 @@ void * getGlueDataInstance(const GGlueDataPointer & glueData);
 IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData);
 
 GScriptDataType methodTypeToGlueDataType(GGlueDataMethodType methodType);
+InvokeCallableResult doInvokeOperator(const GContextPointer & context, void * instance, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam);
 
 template <typename Getter, typename Predict>
 int findAppropriateCallable(IMetaService * service,
@@ -911,7 +986,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 
 			case mmitMethod:
 			case mmitMethodList: {
-				return Methods::doMethodsToScript(classData, mapItem, name, &traveller, metaClass.get(), derived.get(), isInstance);
+				return Methods::doMethodsToScript(classData, mapItem, name, &traveller, metaClass.get(), derived.get(), objectData);
 			}
 
 			case mmitEnum:
@@ -941,6 +1016,23 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 
 	return typename Methods::ResultType();
 }
+
+
+class GMapItemMethodData : public GUserData
+{
+public:
+	explicit GMapItemMethodData(const GMethodGlueDataPointer & methodData)
+		: methodData(methodData) {
+	}
+
+	const GMethodGlueDataPointer & getMethodData() const {
+		return this->methodData;
+	}
+
+private:
+	GMethodGlueDataPointer methodData;
+};
+
 
 
 

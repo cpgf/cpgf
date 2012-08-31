@@ -42,6 +42,18 @@ struct FindCallablePredict {
 	}
 };
 
+struct OperatorCallablePredict {
+	explicit OperatorCallablePredict(GMetaOpType op) : op(op) {}
+
+	bool operator () (IMetaCallable * t) {
+		return gdynamic_cast<IMetaOperator *>(t)->getOperator() == this->op;
+	}
+
+private:
+	GMetaOpType op;
+};
+
+
 class GClassItem
 {
 private:
@@ -453,7 +465,7 @@ GClassPool::ClassMapListType * GClassPool::getList(IMetaClass * metaClass)
 GClassGlueDataPointer * GClassPool::findClassDataByPointer(ClassMapListType * classDataList, IMetaClass * metaClass)
 {
 	for(ClassMapListType::iterator it = classDataList->begin(); it != classDataList->end(); ++it) {
-		if((*it)->getMetaClass() == metaClass) {
+		if(*it && (*it)->getMetaClass() == metaClass) {
 			return &(*it);
 		}
 	}
@@ -625,6 +637,18 @@ GRawGlueDataPointer GBindingContext::newRawGlueData(const GVariant & data)
 {
 	GRawGlueDataPointer rawData(new GRawGlueData(this->shareFromThis(), data));
 	return rawData;
+}
+
+GObjectAndMethodGlueDataPointer GBindingContext::newObjectAndMethodGlueData(const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData)
+{
+	GObjectAndMethodGlueDataPointer objectAndMethodData(new GObjectAndMethodGlueData(this->shareFromThis(), objectData, methodData));
+	return objectAndMethodData;
+}
+
+GOperatorGlueDataPointer GBindingContext::newOperatorGlueData(void * instance, IMetaClass * metaClass, GMetaOpType op)
+{
+	GOperatorGlueDataPointer operatorData(new GOperatorGlueData(this->shareFromThis(), instance, metaClass, op));
+	return operatorData;
 }
 
 
@@ -939,6 +963,8 @@ InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
 		methodList->addReference();
 	}
 	else {
+		// Reloading the method list because the "this" pointer may change and cause the method list invalid.
+		// We should find better way to handle this.
 		methodList.reset(createMetaList());
 		loadMethodList(context, methodList.get(), objectData ? objectData->getClassData() : methodData->getClassData(),
 			objectData, methodData->getName().c_str());
@@ -1297,6 +1323,24 @@ GScriptDataType methodTypeToGlueDataType(GGlueDataMethodType methodType)
 		default:
 			return sdtUnknown;
 	}
+}
+
+InvokeCallableResult doInvokeOperator(const GContextPointer & context, void * instance, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam)
+{
+	int maxRankIndex = findAppropriateCallable(context->getService(),
+		makeCallback(metaClass, &IMetaClass::getOperatorAt), metaClass->getOperatorCount(),
+		callableParam, OperatorCallablePredict(op));
+
+	if(maxRankIndex >= 0) {
+		InvokeCallableResult result;
+
+		GScopedInterface<IMetaOperator> metaOperator(metaClass->getOperatorAt(maxRankIndex));
+		doInvokeCallable(instance, metaOperator.get(), callableParam, &result);
+		result.callable.reset(metaOperator.get());
+		return result;
+	}
+
+	return InvokeCallableResult();
 }
 
 

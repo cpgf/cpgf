@@ -545,14 +545,14 @@ struct GV8Methods
 
 	static ResultType doMethodsToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem,
 		const char * methodName, GMetaClassTraveller * /*traveller*/,
-		IMetaClass * metaClass, IMetaClass * derived, bool isInstance)
+		IMetaClass * metaClass, IMetaClass * derived, const GObjectGlueDataPointer & objectData)
 	{
 		GFunctionTemplateUserData * userData = gdynamic_cast<GFunctionTemplateUserData *>(mapItem->getUserData());
 		if(userData == NULL) {
 			GContextPointer context = classData->getContext();
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 			Handle<FunctionTemplate> functionTemplate = createMethodTemplate(context, classData,
-				! isInstance, NULL, methodName,
+				! objectData, NULL, methodName,
 				createClassTemplate(context, context->getClassData(boundClass.get())), gdmtInternal);
 			userData = new GFunctionTemplateUserData(functionTemplate);
 			mapItem->setUserData(userData);
