@@ -905,9 +905,14 @@ const GMetaClass * findMetaClass(const char * name)
 
 GMetaModule * doGetGlobalModule()
 {
-	static GScopedPointer<GMetaModule> globalModule(new GMetaModule);
+	static GMetaModule * globalModule = NULL;
 
-	return globalModule.get();
+	if(globalModule == NULL && isLibraryLive()) {
+		globalModule = new GMetaModule();
+		addOrderedStaticUninitializer(suo_MetaModuleForGlobalMetaclass, makeUninitializerDeleter(&globalModule));
+	}
+
+	return globalModule;
 }
 
 GMetaClass * getGlobalMetaClass()
@@ -915,7 +920,7 @@ GMetaClass * getGlobalMetaClass()
 	static GMetaClass * global = NULL;
 	if(global == NULL && isLibraryLive()) {
 		global = new GMetaClass((void *)0, NULL, "", NULL, NULL, GMetaPolicyDefault());
-		addOrderedStaticUninitializer(suo_MetaClass, makeUninitializerDeleter(&global));
+		addOrderedStaticUninitializer(suo_GlobalMetaClass, makeUninitializerDeleter(&global));
 	}
 
 	return global;

@@ -5,9 +5,10 @@
 
 namespace cpgf {
 
-const GStaticUninitializationOrderType suo_ScriptDataWrapperPool = 0x5fffffff;
-const GStaticUninitializationOrderType suo_MetaClass = 0x6fffffff;
-const GStaticUninitializationOrderType suo_MemoryPool = 0x7fffffff;
+const GStaticUninitializationOrderType suo_ScriptDataWrapperPool = 0x500000;
+const GStaticUninitializationOrderType suo_GlobalMetaClass = 0x600000;
+const GStaticUninitializationOrderType suo_MetaModuleForGlobalMetaclass = 0x600001;
+const GStaticUninitializationOrderType suo_MemoryPool = 0x700000;
 
 template <typename T>
 class GUninitializerDeleter
