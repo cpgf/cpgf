@@ -648,7 +648,7 @@ bool rawToLua(const GContextPointer & context, const GVariant & value)
 
 		void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GRawGlueData>());
 		GRawGlueDataPointer rawData(context->newRawGlueData(value));
-		GGlueDataWrapper * dataWrapper = newGlueDataWrapper(userData, rawData);
+		newGlueDataWrapper(userData, rawData);
 
 		lua_newtable(L);
 
@@ -730,7 +730,7 @@ struct GLuaMethods
 		return true;
 	}
 	
-	static ResultType doEnumToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem, const char * enumName)
+	static ResultType doEnumToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem, const char * /*enumName*/)
 	{
 		GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 		doBindEnum(classData->getContext(), metaEnum.get());

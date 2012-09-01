@@ -1139,6 +1139,7 @@ GMetaVariant GV8ScriptFunction::invokeIndirectly(GMetaVariant const * const * pa
 GV8ScriptObject::GV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config)
 	: super(config), context(new GV8BindingContext(service, config)), object(Persistent<Object>::New(object))
 {
+	requireV8DataWrapperPool();
 }
 
 GV8ScriptObject::GV8ScriptObject(const GV8ScriptObject & other, Local<Object> object)

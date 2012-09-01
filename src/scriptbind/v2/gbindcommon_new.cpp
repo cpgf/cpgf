@@ -953,7 +953,7 @@ InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
 										const GObjectGlueDataPointer & objectData,
 										const GMethodGlueDataPointer & methodData, InvokeCallableParam * callableParam)
 {
-	void * instance = getGlueDataInstance(objectData);
+//	void * instance = getGlueDataInstance(objectData);
 
 	GScopedInterface<IMetaList> methodList;
 	if((! methodData->getClassData() || ! methodData->getClassData()->getMetaClass()) && methodData->getMethodList()->getCount() > 0) {
