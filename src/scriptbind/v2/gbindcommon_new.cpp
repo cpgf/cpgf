@@ -330,10 +330,10 @@ GObjectGlueData::~GObjectGlueData()
 {
 	if(this->isValid()) {
 		this->getContext()->getClassPool()->objectDestroyed(this->instance);
-	}
-
-	if(this->allowGC) {
-		this->getClassData()->getMetaClass()->destroyInstance(this->instance);
+		
+		if(this->allowGC) {
+			this->getClassData()->getMetaClass()->destroyInstance(this->instance);
+		}
 	}
 }
 

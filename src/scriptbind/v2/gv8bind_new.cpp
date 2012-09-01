@@ -705,11 +705,12 @@ Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, c
 	Local<Function> func = functionTemplate->GetFunction();
 	setObjectSignature(&func);
 	
-	GGlueDataWrapper * funcDataWrapper = newGlueDataWrapper(glueData, v8DataWrapperPool);
+//	GGlueDataWrapper * funcDataWrapper = newGlueDataWrapper(glueData, v8DataWrapperPool);
 
-	Persistent<External> funcData = Persistent<External>::New(External::New(funcDataWrapper));
-	funcData.MakeWeak(funcDataWrapper, weakHandleCallback);
-	func->SetHiddenValue(String::New(userDataKey), funcData);
+//	Persistent<External> funcData = Persistent<External>::New(External::New(funcDataWrapper));
+//	funcData.MakeWeak(funcDataWrapper, weakHandleCallback);
+//	func->SetHiddenValue(String::New(userDataKey), funcData);
+	func->SetHiddenValue(String::New(userDataKey), data);
 
 	return functionTemplate;
 }
@@ -1583,9 +1584,9 @@ void GV8ScriptObject::doBindMethodList(const char * name, IMetaList * methodList
 	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(this->context, GClassGlueDataPointer(), true, methodList, name,
 		Handle<FunctionTemplate>(), methodType);
 
-	Persistent<Function> func = Persistent<Function>::New(functionTemplate->GetFunction());
+	Local<Function> func = Local<Function>::New(functionTemplate->GetFunction());
 	setObjectSignature(&func);
-	func.MakeWeak(NULL, weakHandleCallback);
+//	func.MakeWeak(NULL, weakHandleCallback);
 
 	localObject->Set(String::New(name), func);
 }
