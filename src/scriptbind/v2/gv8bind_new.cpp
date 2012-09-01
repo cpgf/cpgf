@@ -36,15 +36,15 @@ namespace cpgf {
 namespace {
 
 
-GGlueDataWrapperPool * v8DataWrapperPool = NULL;
-
-void requireV8DataWrapperPool()
+GGlueDataWrapperPool * getV8DataWrapperPool()
 {
+	static GGlueDataWrapperPool * v8DataWrapperPool = NULL;
 	if(v8DataWrapperPool == NULL && isLibraryLive()) {
 		v8DataWrapperPool = new GGlueDataWrapperPool();
 		addOrderedStaticUninitializer(suo_ScriptDataWrapperPool, makeUninitializerDeleter(&v8DataWrapperPool));
 	}
 
+	return v8DataWrapperPool;
 }
 
 
@@ -236,7 +236,7 @@ void weakHandleCallback(Persistent<Value> object, void * parameter)
 {
 	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(parameter);
 
-	freeGlueDataWrapper(dataWrapper, v8DataWrapperPool);
+	freeGlueDataWrapper(dataWrapper, getV8DataWrapperPool());
 
 	object.Dispose();
 	object.Clear();
@@ -470,7 +470,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 	Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance(1, &external));
 
 	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, allowGC, cv, dataType));
-	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(objectData, v8DataWrapperPool);
+	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(objectData, getV8DataWrapperPool());
 	self.MakeWeak(dataWrapper, weakHandleCallback);
 
 	self->SetPointerInInternalField(0, dataWrapper);
@@ -485,7 +485,7 @@ Handle<Value> rawToV8(const GContextPointer & context, const GVariant & value)
 		Persistent<Object> self = Persistent<Object>::New(sharedStaticCast<GV8BindingContext>(context)->getRawObject());
 
 		GRawGlueDataPointer rawData(context->newRawGlueData(value));
-		GGlueDataWrapper * dataWrapper = newGlueDataWrapper(rawData, v8DataWrapperPool);
+		GGlueDataWrapper * dataWrapper = newGlueDataWrapper(rawData, getV8DataWrapperPool());
 		self.MakeWeak(dataWrapper, weakHandleCallback);
 
 		self->SetPointerInInternalField(0, dataWrapper);
@@ -644,7 +644,7 @@ void doBindAccessible(const GContextPointer & context, Local<Object> container,
 	const char * name, void * instance, IMetaAccessible * accessible)
 {
 	GAccessibleGlueDataPointer accessibleData(context->newAccessibleGlueData(instance, accessible));
-	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(accessibleData, v8DataWrapperPool);
+	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(accessibleData, getV8DataWrapperPool());
 	Persistent<External> data = Persistent<External>::New(External::New(dataWrapper));
 	data.MakeWeak(dataWrapper, weakHandleCallback);
 
@@ -688,7 +688,7 @@ Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, c
 	const char * name, Handle<FunctionTemplate> classTemplate, GGlueDataMethodType methodType)
 {
 	GMethodGlueDataPointer glueData = context->newMethodGlueData(classData, methodList, name, methodType);
-	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(glueData, v8DataWrapperPool);
+	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(glueData, getV8DataWrapperPool());
 
 	Persistent<External> data = Persistent<External>::New(External::New(dataWrapper));
 	data.MakeWeak(dataWrapper, weakHandleCallback);
@@ -705,7 +705,7 @@ Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, c
 	Local<Function> func = functionTemplate->GetFunction();
 	setObjectSignature(&func);
 	
-//	GGlueDataWrapper * funcDataWrapper = newGlueDataWrapper(glueData, v8DataWrapperPool);
+//	GGlueDataWrapper * funcDataWrapper = newGlueDataWrapper(glueData, getV8DataWrapperPool());
 
 //	Persistent<External> funcData = Persistent<External>::New(External::New(funcDataWrapper));
 //	funcData.MakeWeak(funcDataWrapper, weakHandleCallback);
@@ -778,7 +778,7 @@ Persistent<Object> doBindEnum(const GContextPointer & context, Handle<ObjectTemp
 {
 	Persistent<Object> obj = Persistent<Object>::New(objectTemplate->NewInstance());
 	GEnumGlueDataPointer enumGlueData(context->newEnumGlueData(metaEnum));
-	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(enumGlueData, v8DataWrapperPool);
+	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(enumGlueData, getV8DataWrapperPool());
 	obj->SetPointerInInternalField(0, dataWrapper);
 	obj.MakeWeak(dataWrapper, weakHandleCallback);
 	setObjectSignature(&obj);
@@ -844,7 +844,7 @@ Handle<Value> objectConstructor(const Arguments & args)
 		void * instance = invokeConstructor(args, classData->getContext(), classData->getMetaClass());
 
 		GObjectGlueDataPointer objectData = classData->getContext()->newObjectGlueData(classData, instance, true, opcvNone, ogdtNormal);
-		GGlueDataWrapper * objectWrapper = newGlueDataWrapper(objectData, v8DataWrapperPool);
+		GGlueDataWrapper * objectWrapper = newGlueDataWrapper(objectData, getV8DataWrapperPool());
 		self.MakeWeak(objectWrapper, weakHandleCallback);
 
 		self->SetPointerInInternalField(0, objectWrapper);
@@ -1006,7 +1006,7 @@ Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, co
 		return gdynamic_cast<GFunctionTemplateUserData *>(mapClass->getUserData())->getFunctionTemplate();
 	}
 
-	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(classData, v8DataWrapperPool);
+	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(classData, getV8DataWrapperPool());
 
 	IMetaClass * metaClass = classData->getMetaClass();
 
@@ -1139,13 +1139,11 @@ GMetaVariant GV8ScriptFunction::invokeIndirectly(GMetaVariant const * const * pa
 GV8ScriptObject::GV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config)
 	: super(config), context(new GV8BindingContext(service, config)), object(Persistent<Object>::New(object))
 {
-	requireV8DataWrapperPool();
 }
 
 GV8ScriptObject::GV8ScriptObject(const GV8ScriptObject & other, Local<Object> object)
 	: super(other.context->getConfig()), context(other.context), object(Persistent<Object>::New(object))
 {
-	requireV8DataWrapperPool();
 }
 
 GV8ScriptObject::~GV8ScriptObject()
