@@ -202,7 +202,7 @@ public:
 
 	virtual void bindCoreService(const char * name) = 0;
 
-	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) { return metaClass; }
+	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) { return static_cast<IMetaClass *>(metaClass->clone()); }
 
 protected:
 	const char * getName() const;

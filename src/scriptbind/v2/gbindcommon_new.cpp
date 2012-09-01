@@ -431,8 +431,6 @@ void GClassPool::objectCreated(const GObjectGlueDataPointer & objectData)
 void GClassPool::objectDestroyed(void * instance)
 {
 	if(isLibraryLive()) {
-		GASSERT(this->instanceMap.find(instance) != instanceMap.end());
-
 		this->instanceMap.erase(instance);
 	}
 }

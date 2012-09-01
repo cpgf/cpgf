@@ -132,7 +132,6 @@ private:
 
 private:
 	GContextPointer context;
-	GLuaScriptObject * binding;
 	lua_State * luaState;
 	int ref;
 	GScopedPointer<GLuaGlobalAccessor> globalAccessor;
@@ -865,6 +864,9 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 					case gdtMethod:
 						return methodTypeToGlueDataType(dataWrapper->getAs<GMethodGlueData>()->getMethodType());
 
+					case gdtObjectAndMethod:
+						return methodTypeToGlueDataType(dataWrapper->getAs<GObjectAndMethodGlueData>()->getMethodData()->getMethodType());
+
 					default:
 						break;
 					}
@@ -1438,7 +1440,7 @@ GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const 
 }
 
 GLuaScriptObject::GLuaScriptObject(const GLuaScriptObject & other)
-	: super(other.context->getConfig()), context(other.context), binding(binding), luaState(other.luaState), ref(LUA_NOREF)
+	: super(other.context->getConfig()), context(other.context), luaState(other.luaState), ref(LUA_NOREF)
 {
 	this->ref = refLua(this->luaState, -1);
 }
@@ -1483,8 +1485,8 @@ GMethodGlueDataPointer GLuaScriptObject::doGetMethodUserData()
 		void * rawUserData = lua_touserdata(this->luaState, -1);
 		GGlueDataPointer userData = static_cast<GGlueDataWrapper *>(rawUserData)->getData();
 
-		if(userData->getType() == gdtMethod) {
-			return static_cast<GGlueDataWrapper *>(rawUserData)->getAs<GMethodGlueData>();
+		if(userData->getType() == gdtObjectAndMethod) {
+			return static_cast<GGlueDataWrapper *>(rawUserData)->getAs<GObjectAndMethodGlueData>()->getMethodData();
 		}
 	}
 
@@ -1494,7 +1496,7 @@ GMethodGlueDataPointer GLuaScriptObject::doGetMethodUserData()
 GLuaGlobalAccessor * GLuaScriptObject::getGlobalAccessor()
 {
 	if(! this->globalAccessor) {
-		this->globalAccessor.reset(new GLuaGlobalAccessor(this->binding));
+		this->globalAccessor.reset(new GLuaGlobalAccessor(this));
 	}
 
 	return this->globalAccessor.get();
@@ -1561,11 +1563,11 @@ GScriptObject * GLuaScriptObject::createScriptObject(const char * name)
 		}
 	}
 
-	GLuaScriptObject * binding = new GLuaScriptObject(*this);
-	binding->owner = this;
-	binding->name = name;
+	GLuaScriptObject * newScriptObject = new GLuaScriptObject(*this);
+	newScriptObject->owner = this;
+	newScriptObject->name = name;
 	
-	return binding;
+	return newScriptObject;
 
 	LEAVE_LUA(this->luaState, return NULL)
 }
@@ -1590,11 +1592,11 @@ GScriptObject * GLuaScriptObject::gainScriptObject(const char * name)
 //		return NULL;
 //	}
 
-	GLuaScriptObject * binding = new GLuaScriptObject(*this);
-	binding->owner = this;
-	binding->name = name;
+	GLuaScriptObject * newScriptObject = new GLuaScriptObject(*this);
+	newScriptObject->owner = this;
+	newScriptObject->name = name;
 	
-	return binding;
+	return newScriptObject;
 
 	LEAVE_LUA(this->luaState, return NULL)
 }

@@ -12,7 +12,6 @@ namespace {
 template <typename T>
 void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScriptContext * context)
 {
-if(context->isLua()) return;
 if(context->getBindingApi()) return;
 	if(context->isLua()) {
 		QDO(function overrideGetValue(me) return me.getValue() + 15 end)
@@ -69,7 +68,6 @@ void testSimpleOverrideFromScript_OverrideFromScriptClass(TestScriptContext * co
 template <typename T>
 void doTestSimpleOverrideFromScript_OverrideFromScriptObject(T * binding, TestScriptContext * context)
 {
-if(context->isLua()) return;
 if(context->getBindingApi()) {
 	return;
 }
