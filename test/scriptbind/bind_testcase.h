@@ -13,6 +13,7 @@ GTEST(MK(CASE, _Lua_Lib))
 {
 	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaLib));
 
+	if(!context) return;
 	TEST_BIND(context->getBindingLib(), context->getService());
 
 	CASE(context.get());
@@ -22,6 +23,7 @@ GTEST(MK(CASE, _Lua_Api))
 {
 	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaApi));
 
+	if(!context) return;
 	TEST_BIND(context->getBindingApi(), context->getService());
 
 	CASE(context.get());

@@ -24,6 +24,9 @@ namespace cpgf {
 #if ENABLE_LUA
 	GScriptObject * new_createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
 #endif
+#if ENABLE_PYTHON
+	GScriptObject * new_createPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config);
+#endif
 }
 
 namespace testscript {
@@ -307,7 +310,7 @@ public:
 		Py_XINCREF(this->mainDict);
 
 		if(api == tsaLib) {
-			this->setBinding(cpgf::createPythonScriptObject(this->getService(), this->moduleMain, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::new_createPythonScriptObject(this->getService(), this->moduleMain, cpgf::GScriptConfig()));
 		}
 
 		if(api == tsaApi) {
