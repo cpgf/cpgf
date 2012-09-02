@@ -31,8 +31,6 @@ set(SRC_META
 	${SRC_PATH}/scriptbind/gscriptwrapper.cpp
 	${SRC_PATH}/scriptbind/gscriptservice.cpp
 
-${SRC_PATH}/scriptbind/v2/gbindcommon_new.cpp
-	
 	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
 	${SRC_PATH}/metatraits/gmetaconverter_widestring.cpp
 	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
@@ -58,7 +56,6 @@ set(SRC_GLUT )
 
 if(${HAS_LUA})
 	set(SRC_LUA_BIND
-${SRC_PATH}/scriptbind/v2/gluabind_new.cpp
 		${SRC_PATH}/scriptbind/gluabind.cpp
 		${SRC_PATH}/scriptbind/gluarunner.cpp
 	)
@@ -66,7 +63,6 @@ endif(${HAS_LUA})
 
 if(${HAS_V8})
 	set(SRC_V8_BIND
-${SRC_PATH}/scriptbind/v2/gv8bind_new.cpp
 		${SRC_PATH}/scriptbind/gv8bind.cpp
 		${SRC_PATH}/scriptbind/gv8runner.cpp
 	)
@@ -74,7 +70,6 @@ endif(${HAS_V8})
 
 if(${HAS_PYTHON})
 	set(SRC_PYTHON_BIND
-${SRC_PATH}/scriptbind/v2/gpythonbind_new.cpp
 		${SRC_PATH}/scriptbind/gpythonbind.cpp
 		${SRC_PATH}/scriptbind/gpythonrunner.cpp
 	)

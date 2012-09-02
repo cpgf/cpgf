@@ -17,18 +17,6 @@ using namespace cpgf;
 using namespace std;
 
 
-namespace cpgf {
-#if ENABLE_V8
-	GScriptObject * new_createV8ScriptObject(IMetaService * service, v8::Local<v8::Object> object, const GScriptConfig & config);
-#endif
-#if ENABLE_LUA
-	GScriptObject * new_createLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);
-#endif
-#if ENABLE_PYTHON
-	GScriptObject * new_createPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config);
-#endif
-}
-
 namespace testscript {
 
 
@@ -133,7 +121,7 @@ public:
 			this->luaStateLib = luaL_newstate();
 			luaL_openlibs(this->luaStateLib);
 
-			this->setBinding(cpgf::new_createLuaScriptObject(this->getService(), this->luaStateLib, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createLuaScriptObject(this->getService(), this->luaStateLib, cpgf::GScriptConfig()));
 		}
 
 		if(api == tsaApi) {
@@ -245,7 +233,7 @@ public:
 		Local<Object> global = context->Global();
 
 		if(api == tsaLib) {
-			this->setBinding(cpgf::new_createV8ScriptObject(this->getService(), global, GScriptConfig()));
+			this->setBinding(cpgf::createV8ScriptObject(this->getService(), global, GScriptConfig()));
 		}
 
 		if(api == tsaApi) {
@@ -310,7 +298,7 @@ public:
 		Py_XINCREF(this->mainDict);
 
 		if(api == tsaLib) {
-			this->setBinding(cpgf::new_createPythonScriptObject(this->getService(), this->moduleMain, cpgf::GScriptConfig()));
+			this->setBinding(cpgf::createPythonScriptObject(this->getService(), this->moduleMain, cpgf::GScriptConfig()));
 		}
 
 		if(api == tsaApi) {

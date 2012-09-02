@@ -7,6 +7,7 @@
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gmetavariant.h"
 #include "cpgf/gclassutil.h"
+#include "cpgf/gsharedptr.h"
 
 #include <string>
 #include <algorithm>
@@ -140,20 +141,32 @@ private:
 };
 
 
+namespace bind_internal {
+class GBindingContext;
+} // namespace bind_internal
+
 class GScriptFunction : public GNoncopyable
 {
 public:
-	virtual ~GScriptFunction() {}
+	explicit GScriptFunction(const GSharedPointer<bind_internal::GBindingContext> & context);
+	virtual ~GScriptFunction();
 	
 	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount) = 0;
 	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount) = 0;
+
+protected:
+	GSharedPointer<bind_internal::GBindingContext> getContext();
+
+private:
+	GWeakPointer<bind_internal::GBindingContext> context;
 };
 
 
 class GScriptObject : public GNoncopyable
 {
 protected:
-	GScriptObject(const GScriptConfig & config);
+	GScriptObject(const GSharedPointer<bind_internal::GBindingContext> & context, const GScriptConfig & config);
+	GScriptObject(const GScriptObject & other);
 
 public:
 	virtual ~GScriptObject();
@@ -202,16 +215,19 @@ public:
 
 	virtual void bindCoreService(const char * name) = 0;
 
-	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) { return static_cast<IMetaClass *>(metaClass->clone()); }
+	IMetaClass * cloneMetaClass(IMetaClass * metaClass);
 
 protected:
+	const GSharedPointer<bind_internal::GBindingContext> & getContext();
 	const char * getName() const;
+	void setName(const std::string & newName);
+	void setOwner(GScriptObject * newOwner);
 
 private:
-	GScriptObject(const GScriptObject &);
 	GScriptObject & operator = (const GScriptObject &);
 
-protected:
+private:
+	GSharedPointer<bind_internal::GBindingContext> context;
 	GScriptConfig config;
 	GScriptObject * owner;
 	std::string name;

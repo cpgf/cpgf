@@ -1,24 +1,40 @@
 #include "../pinclude/gbindcommon.h"
 
-#include "cpgf/gmetaclasstraveller.h"
+#include "cpgf/gstringmap.h"
 #include "cpgf/gcallback.h"
+#include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/scriptbind/gscriptservice.h"
+#include "cpgf/glifecycle.h"
 
-#include <stdarg.h>
-#include <stdlib.h>
+#include <vector>
 
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable:4996)
-#endif
+
+using namespace std;
 
 
 namespace cpgf {
+
+G_GUARD_LIBRARY_LIFE
 
 GScriptCoreService * doCreateScriptCoreService(GScriptObject * scriptObject);
 GMetaClass * doBindScriptCoreService(GScriptObject * scriptObject, const char * bindName, GScriptCoreService * scriptCoreService);
 
 namespace bind_internal {
+
+
+//*********************************************
+// Declarations
+//*********************************************
+
+// such as 2 or more dimensions pointer
+const int ParamMatchRank_Unknown = 0;
+const int ParamMatchRank_Convert = 50000;
+const int ParamMatchRank_Implicit_Begin = 70000;
+const int ParamMatchRank_Implicit_WideStringToString = ParamMatchRank_Implicit_Begin + 0;
+const int ParamMatchRank_Implicit_StringToWideString = ParamMatchRank_Implicit_Begin + 1;
+const int ParamMatchRank_Implicit_End = 80000;
+const int ParamMatchRank_Equal = 100000;
+
 
 struct FindCallablePredict {
 	bool operator () (IMetaCallable *) {
@@ -38,203 +54,60 @@ private:
 };
 
 
-// such as 2 or more dimensions pointer
-const int ParamMatchRank_Unknown = 0;
-const int ParamMatchRank_Convert = 50000;
-const int ParamMatchRank_Implicit_Begin = 70000;
-const int ParamMatchRank_Implicit_WideStringToString = ParamMatchRank_Implicit_Begin + 0;
-const int ParamMatchRank_Implicit_StringToWideString = ParamMatchRank_Implicit_Begin + 1;
-const int ParamMatchRank_Implicit_End = 80000;
-const int ParamMatchRank_Equal = 100000;
-
-
-GScriptBindingParam::GScriptBindingParam(IMetaService * service, const GScriptConfig & config)
-	: service(service), config(config), metaMap(new GMetaMap)
+class GClassItem
 {
-}
+private:
+	typedef vector<GClassGlueDataPointer> ListType;
 
-GScriptBindingParam::~GScriptBindingParam()
-{
-}
-
-void GScriptBindingParam::bindScriptCoreService(GScriptObject * scriptObject, const char * bindName)
-{
-	if(this->scriptCoreService) {
-		return;
-	}
-
-	this->scriptCoreService.reset(doCreateScriptCoreService(scriptObject));
-	this->scriptCoreServiceMetaClass.reset(doBindScriptCoreService(scriptObject, bindName, this->scriptCoreService.get()));
-}
-
-
-void GScriptDataHolder::requireDataMap()
-{
-	if(! this->dataMap) {
-		this->dataMap.reset(new MapType());
-	}
-}
-
-void GScriptDataHolder::setScriptValue(const char * name, const GVariant & value)
-{
-	this->requireDataMap();
-
-	(*(this->dataMap))[name] = value;
-}
-
-IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
-{
-	if(this->dataMap)
+public:
+	explicit GClassItem(const GClassGlueDataPointer & classGlueData)
+		: classGlueData(classGlueData)
 	{
-		MapType::iterator it = this->dataMap->find(name);
-		if(it != this->dataMap->end()) {
-			if(vtIsInterface(it->second.getType())) {
-				IScriptFunction * func = gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
-				if(func != NULL) {
-					func->addReference();
-				}
-				return func;
-			}
-		}
 	}
-	return NULL;
-}
 
-void GScriptDataHolder::merge(const GScriptDataHolder * other)
+	const GClassGlueDataPointer & getClassGlueData() const {
+		return this->classGlueData;
+	}
+
+private:
+	GClassGlueDataPointer classGlueData;
+};
+
+class GClassPool
 {
-	if(other->dataMap) {
-		this->requireDataMap();
-		this->dataMap->insert(other->dataMap->begin(), other->dataMap->end());
-	}
-}
-
-
-GScriptDataExtendStorage::GScriptDataExtendStorage(GScriptBindingParam * param, IMetaClass * metaClass, bool isInstance)
-	: param(param), metaClass(metaClass), isInstance(isInstance)
-{
-//	this->isInstance = true;
-}
-
-void GScriptDataExtendStorage::setScriptValue(const char * name, const GVariant & value)
-{
-	GScriptDataHolder * storage = NULL;
-	if(! this->isInstance) {
-		GMetaMapClass * mapClass = this->param->getMetaMap()->findClassMap(this->metaClass.get());
-		storage = mapClass->getDataStorage();
-	}
-	else {
-		storage = this->getDataHolder();
-	}
-	if(storage != NULL) {
-		storage->setScriptValue(name, value);
-	}
-}
-
-IScriptFunction * G_API_CC GScriptDataExtendStorage::getScriptFunction(const char * name)
-{
-	IScriptFunction * func = NULL;
+private:
+	typedef map<void *, GWeakObjectGlueDataPointer> InstanceMapType;
 	
-	if(this->isInstance) {
-		if(this->instanceDataStorage) {
-			func = this->instanceDataStorage->getScriptFunction(name);
-		}
-	}
+	typedef vector<GClassGlueDataPointer> ClassMapListType;
+	typedef GStringMap<ClassMapListType, GStringMapReuseKey> ClassMapType;
 
-	if(func == NULL) {
-		GMetaMapClass * mapClass = this->param->getMetaMap()->findClassMap(this->metaClass.get());
-		if(mapClass->hasDataStorage()) {
-			func = mapClass->getDataStorage()->getScriptFunction(name);
-		}
-		
-		if(this->classDataStorage) {
-//			func = this->classDataStorage->getScriptFunction(name);
-		}
-	}
+public:
+	explicit GClassPool(GBindingContext * context);
 
-	return func;
-}
+	void objectCreated(const GObjectGlueDataPointer & objectData);
+	void objectDestroyed(void * instance);
+	void classDestroyed(IMetaClass * metaClass);
 
-bool GScriptDataExtendStorage::hasDataHolder()
-{
-	return this->instanceDataStorage;
-}
+	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
+	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
+	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
 
-GScriptDataHolder * GScriptDataExtendStorage::getDataHolder()
-{
-	if(! this->instanceDataStorage) {
-		this->instanceDataStorage.reset(new GScriptDataHolder());
-	}
-	return this->instanceDataStorage.get();
-}
+private:
+	ClassMapListType * getList(IMetaClass * metaClass);
+	GClassGlueDataPointer * findClassDataByPointer(ClassMapListType * classDataList, IMetaClass * metaClass);
+	GClassGlueDataPointer createClassDataAtSlot(ClassMapListType * classDataList, IMetaClass * metaClass, size_t slot);
+	size_t getFreeSlot(ClassMapListType * classDataList, size_t startSlot);
 
-void GScriptDataExtendStorage::setClassDataStorage(IScriptDataExtendStorage * classDataStorage)
-{
-	this->classDataStorage.reset(classDataStorage);
-}
+private:
+	InstanceMapType instanceMap;
+	ClassMapType classMap;
+	GBindingContext * context;
+};
 
 
-GObjectData::GObjectData(GScriptBindingParam * param, IMetaClass * metaClass, void * instance,
-	bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
-	: param(param), metaClass(metaClass), instance(instance), allowGC(allowGC), cv(cv), dataType(dataType)
-{
-	switch(dataType) {
-		case cudtInterface:
-			this->allowGC = false;
-			this->interfaceObject.reset(static_cast<IObject *>(instance));
-			break;
-
-		default:
-			break;
-	}
-
-	if(this->isInstance()) {
-		GScopedInterface<IMetaScriptWrapper> scriptWrapper(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_ScriptWrapper).getScriptWrapper());
-		if(scriptWrapper) {
-			scriptWrapper->setScriptDataStorage(instance, this->getDataStorage());
-		}
-	}
-}
-
-GObjectData::~GObjectData()
-{
-	if(this->metaClass) {
-		if(this->allowGC) {
-			this->metaClass->destroyInstance(instance);
-		}
-	}
-}
-
-IScriptDataExtendStorage * GObjectData::getDataStorage() const
-{
-	if(! this->dataStorage) {
-		this->dataStorage.reset(new GScriptDataExtendStorage(this->param, this->metaClass.get(), this->isInstance()));
-	}
-	return this->dataStorage.get();
-}
-
-void GObjectData::setScriptValue(const char * name, const GVariant & value)
-{
-	this->getDataStorage()->setScriptValue(name, value);
-}
-
-void GObjectData::mergeDataStorage(const GObjectData * other)
-{
-	if(other->dataStorage && other->dataStorage->hasDataHolder()) {
-		this->getDataStorage()->getDataHolder()->merge(other->dataStorage->getDataHolder());
-	}
-}
-
-
-GObjectUserData::GObjectUserData(const GBindingParamPointer & param, IMetaClass * metaClass, void * instance,
-	bool allowGC, ObjectPointerCV cv, ObjectUserDataType dataType)
-	: super(udtObject, param), data(new GObjectData(param.get(), metaClass, instance, allowGC, cv, dataType))
-{
-}
-
-GObjectUserData::GObjectUserData(const GBindingParamPointer & param, const GSharedObjectData & data)
-	: super(udtObject, param), data(data)
-{
-}
+//*********************************************
+// Classes implementations
+//*********************************************
 
 
 GMetaMapItem::GMetaMapItem()
@@ -280,7 +153,6 @@ void GMetaMapItem::swap(GMetaMapItem & other)
 	swap(this->item, other.item);
 	swap(this->type, other.type);
 	swap(this->enumIndex, other.enumIndex);
-	swap(this->data, other.data);
 }
 
 GMetaMapItemType GMetaMapItem::getType() const
@@ -396,7 +268,7 @@ GMetaMap::~GMetaMap()
 	}
 }
 
-GMetaMapClass * GMetaMap::findClassMap(IMetaClass * metaClass)
+GMetaMapClass * GMetaMap::getClassMap(IMetaClass * metaClass)
 {
 	using namespace std;
 	
@@ -409,6 +281,372 @@ GMetaMapClass * GMetaMap::findClassMap(IMetaClass * metaClass)
 	else {
 		return this->classMap.insert(MapType::value_type(name, new GMetaMapClass(metaClass))).first->second;
 	}
+}
+
+
+GScriptDataHolder * GClassGlueData::getDataHolder() const
+{
+	return this->dataHolder.get();
+}
+
+GScriptDataHolder * GClassGlueData::requireDataHolder() const
+{
+	if(! this->dataHolder) {
+		this->dataHolder.reset(new GScriptDataHolder());
+	}
+	return this->dataHolder.get();
+}
+
+
+GClassGlueData::GClassGlueData(const GContextPointer & context, IMetaClass * metaClass)
+	: super(gdtClass, context), metaClass(metaClass), mapClass(metaClass)
+{
+}
+
+GClassGlueData::~GClassGlueData()
+{
+	if(this->isValid()) {
+		this->getContext()->getClassPool()->classDestroyed(this->getMetaClass());
+	}
+}
+
+
+GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, void * instance,
+	bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType)
+	: super(gdtObject, context), classGlueData(classGlueData), instance(instance), allowGC(allowGC), cv(cv), dataType(dataType)
+{
+	switch(dataType) {
+		case ogdtInterface:
+			this->allowGC = false;
+			this->interfaceObject.reset(static_cast<IObject *>(instance));
+			break;
+
+		default:
+			break;
+	}
+}
+
+GObjectGlueData::~GObjectGlueData()
+{
+	if(this->isValid()) {
+		this->getContext()->getClassPool()->objectDestroyed(this->instance);
+	}
+		
+	if(this->allowGC) {
+		this->getClassData()->getMetaClass()->destroyInstance(this->instance);
+	}
+}
+
+GScriptDataHolder * GObjectGlueData::getDataHolder() const
+{
+	return this->dataHolder.get();
+}
+
+GScriptDataHolder * GObjectGlueData::requireDataHolder() const
+{
+	if(! this->dataHolder) {
+		this->dataHolder.reset(new GScriptDataHolder());
+	}
+	return this->dataHolder.get();
+}
+
+void GObjectGlueData::initialize()
+{
+	GScopedInterface<IMetaScriptWrapper> scriptWrapper(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ScriptWrapper).getScriptWrapper());
+	if(scriptWrapper) {
+		if(! this->dataStorage) {
+			this->dataStorage.reset(new GScriptDataStorage(GObjectGlueDataPointer(this->shareFromThis())));
+		}
+		scriptWrapper->setScriptDataStorage(this->instance, this->dataStorage.get());
+	}
+}
+
+
+GScriptDataStorage::GScriptDataStorage(const GObjectGlueDataPointer & object)
+	: object(object)
+{
+}
+
+IScriptFunction * G_API_CC GScriptDataStorage::getScriptFunction(const char * name)
+{
+	if(this->object.expired()) {
+		return NULL;
+	}
+	
+	GObjectGlueDataPointer obj(this->object);
+	IScriptFunction * func = NULL;
+	if(obj->getDataHolder() != NULL) {
+		func = obj->getDataHolder()->getScriptFunction(name);
+	}
+	if(func == NULL && obj->getClassData()->getDataHolder() != NULL) {
+		func = obj->getClassData()->getDataHolder()->getScriptFunction(name);
+	}
+	return func;
+}
+
+void GScriptDataHolder::requireDataMap()
+{
+	if(! this->dataMap) {
+		this->dataMap.reset(new MapType());
+	}
+}
+
+void GScriptDataHolder::setScriptValue(const char * name, const GVariant & value)
+{
+	this->requireDataMap();
+
+	this->dataMap->insert(MapValueType(name, value));
+}
+
+IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
+{
+	if(this->dataMap) {
+		MapType::iterator it = this->dataMap->find(name);
+		if(it != this->dataMap->end()) {
+			if(vtIsInterface(it->second.getType())) {
+				IScriptFunction * func = gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
+				if(func != NULL) {
+					func->addReference();
+				}
+				return func;
+			}
+		}
+	}
+	return NULL;
+}
+
+
+GClassPool::GClassPool(GBindingContext * context)
+	: context(context)
+{
+}
+
+void GClassPool::objectCreated(const GObjectGlueDataPointer & objectData)
+{
+	if(this->instanceMap.find(objectData->getInstance()) == instanceMap.end()) {
+		this->instanceMap[objectData->getInstance()] = GWeakObjectGlueDataPointer(objectData);
+	}
+}
+
+void GClassPool::objectDestroyed(void * instance)
+{
+	if(isLibraryLive()) {
+		this->instanceMap.erase(instance);
+	}
+}
+
+void GClassPool::classDestroyed(IMetaClass * metaClass)
+{
+	if(isLibraryLive()) {
+		ClassMapListType * classDataList = this->getList(metaClass);
+		if(classDataList != NULL) {
+			for(ClassMapListType::iterator it = classDataList->begin(); it != classDataList->end(); ++it) {
+				if((*it)->getMetaClass() == metaClass) {
+					(*it).reset();
+					break;
+				}
+			}
+		}
+	}
+}
+
+GClassPool::ClassMapListType * GClassPool::getList(IMetaClass * metaClass)
+{
+	ClassMapType::iterator it = this->classMap.find(metaClass->getQualifiedName());
+	if(it == this->classMap.end()) {
+		this->classMap.set(metaClass->getQualifiedName(), ClassMapListType());
+		it = this->classMap.find(metaClass->getQualifiedName());
+	}
+	return &it->second;
+}
+
+GClassGlueDataPointer * GClassPool::findClassDataByPointer(ClassMapListType * classDataList, IMetaClass * metaClass)
+{
+	for(ClassMapListType::iterator it = classDataList->begin(); it != classDataList->end(); ++it) {
+		if(*it && (*it)->getMetaClass() == metaClass) {
+			return &(*it);
+		}
+	}
+
+	return NULL;
+}
+
+GClassGlueDataPointer GClassPool::createClassDataAtSlot(ClassMapListType * classDataList, IMetaClass * metaClass, size_t slot)
+{
+	while(slot >= classDataList->size()) {
+		classDataList->push_back(GClassGlueDataPointer());
+	}
+	if(! (*classDataList)[slot]) {
+		(*classDataList)[slot] = this->context->createClassGlueData(metaClass);
+	}
+	return (*classDataList)[slot];
+}
+
+size_t GClassPool::getFreeSlot(ClassMapListType * classDataList, size_t startSlot)
+{
+	size_t slot = startSlot;
+	for(; slot < classDataList->size(); ++slot) {
+		if(! (*classDataList)[slot]) {
+			return slot;
+		}
+	}
+	return slot;
+}
+
+GClassGlueDataPointer GClassPool::getOrNewClassData(void * instance, IMetaClass * metaClass)
+{
+	InstanceMapType::iterator instanceIterator = this->instanceMap.find(instance);
+	if(instanceIterator != this->instanceMap.end()) {
+		if(instanceIterator->second.expired()) {
+			this->instanceMap.erase(instanceIterator);
+		}
+		else {
+			if(metaClass->equals(instanceIterator->second.get()->getClassData()->getMetaClass())) {
+				return instanceIterator->second.get()->getClassData();
+			}
+		}
+	}
+
+	return this->getClassData(metaClass);
+}
+
+GClassGlueDataPointer GClassPool::getClassData(IMetaClass * metaClass)
+{
+	ClassMapListType * classDataList = this->getList(metaClass);
+
+	GClassGlueDataPointer * dataPointer = this->findClassDataByPointer(classDataList, metaClass);
+	if(dataPointer != NULL) {
+		return *dataPointer;
+	}
+	
+	return this->createClassDataAtSlot(classDataList, metaClass, 0);
+}
+
+GClassGlueDataPointer GClassPool::newClassData(IMetaClass * metaClass)
+{
+	ClassMapListType * classDataList = this->getList(metaClass);
+	return this->createClassDataAtSlot(classDataList, metaClass, this->getFreeSlot(classDataList, 1));
+}
+
+GGlueDataWrapperPool::GGlueDataWrapperPool()
+	: active(true)
+{
+}
+
+GGlueDataWrapperPool::~GGlueDataWrapperPool()
+{
+	this->active = false;
+	for(SetType::iterator it = this->wrapperSet.begin(); it != this->wrapperSet.end(); ++it) {
+		freeGlueDataWrapper(*it);
+	}
+}
+
+void GGlueDataWrapperPool::dataWrapperCreated(GGlueDataWrapper * dataWrapper)
+{
+	if(this->active) {
+		GASSERT(this->wrapperSet.find(dataWrapper) == this->wrapperSet.end());
+		this->wrapperSet.insert(dataWrapper);
+	}
+}
+
+void GGlueDataWrapperPool::dataWrapperDestroyed(GGlueDataWrapper * dataWrapper)
+{
+	if(this->active) {
+		this->wrapperSet.erase(dataWrapper);
+	}
+}
+
+
+GBindingContext::GBindingContext(IMetaService * service, const GScriptConfig & config)
+	: service(service), config(config)
+{
+	this->classPool.reset(new GClassPool(this));
+}
+
+GBindingContext::~GBindingContext()
+{
+}
+
+void GBindingContext::bindScriptCoreService(GScriptObject * scriptObject, const char * bindName)
+{
+	if(this->scriptCoreService) {
+		return;
+	}
+
+	this->scriptCoreService.reset(doCreateScriptCoreService(scriptObject));
+	this->scriptCoreServiceMetaClass.reset(doBindScriptCoreService(scriptObject, bindName, this->scriptCoreService.get()));
+}
+
+GClassPool * GBindingContext::getClassPool()
+{
+	return this->classPool.get();
+}
+
+GClassGlueDataPointer GBindingContext::createClassGlueData(IMetaClass * metaClass)
+{
+	GClassGlueDataPointer data(new GClassGlueData(this->shareFromThis(), metaClass));
+	return data;
+}
+
+GClassGlueDataPointer GBindingContext::getOrNewClassData(void * instance, IMetaClass * metaClass)
+{
+	return this->classPool->getOrNewClassData(instance, metaClass);
+}
+
+GClassGlueDataPointer GBindingContext::getClassData(IMetaClass * metaClass)
+{
+	return this->classPool->getClassData(metaClass);
+}
+
+GClassGlueDataPointer GBindingContext::newClassData(IMetaClass * metaClass)
+{
+	return this->classPool->newClassData(metaClass);
+}
+
+GObjectGlueDataPointer GBindingContext::newObjectGlueData(const GClassGlueDataPointer & classData, void * instance,
+	bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType)
+{
+	GObjectGlueDataPointer data(new GObjectGlueData(this->shareFromThis(), classData, instance, allowGC, cv, dataType));
+	data->initialize();
+	this->classPool->objectCreated(data);
+	return data;
+}
+
+GMethodGlueDataPointer GBindingContext::newMethodGlueData(const GClassGlueDataPointer & classData,
+	IMetaList * methodList, const char * name, GGlueDataMethodType methodType)
+{
+	GMethodGlueDataPointer data(new GMethodGlueData(this->shareFromThis(), classData, methodList, name, methodType));
+	return data;
+}
+
+GEnumGlueDataPointer GBindingContext::newEnumGlueData(IMetaEnum * metaEnum)
+{
+	GEnumGlueDataPointer enumData(new GEnumGlueData(this->shareFromThis(), metaEnum));
+	return enumData;
+}
+
+GAccessibleGlueDataPointer GBindingContext::newAccessibleGlueData(void * instance, IMetaAccessible * accessible)
+{
+	GAccessibleGlueDataPointer accessibleData(new GAccessibleGlueData(this->shareFromThis(), instance, accessible));
+	return accessibleData;
+}
+
+GRawGlueDataPointer GBindingContext::newRawGlueData(const GVariant & data)
+{
+	GRawGlueDataPointer rawData(new GRawGlueData(this->shareFromThis(), data));
+	return rawData;
+}
+
+GObjectAndMethodGlueDataPointer GBindingContext::newObjectAndMethodGlueData(const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData)
+{
+	GObjectAndMethodGlueDataPointer objectAndMethodData(new GObjectAndMethodGlueData(this->shareFromThis(), objectData, methodData));
+	return objectAndMethodData;
+}
+
+GOperatorGlueDataPointer GBindingContext::newOperatorGlueData(void * instance, IMetaClass * metaClass, GMetaOpType op)
+{
+	GOperatorGlueDataPointer operatorData(new GOperatorGlueData(this->shareFromThis(), instance, metaClass, op));
+	return operatorData;
 }
 
 
@@ -451,18 +689,9 @@ InvokeCallableParam::~InvokeCallableParam()
 }
 
 
-GMetaMapItem * findMetaMapItem(GMetaMap * metaMap, IMetaClass * metaClass, const char * itemName)
-{
-	GMetaMapClass * mapClass = metaMap->findClassMap(metaClass);
-
-	if(mapClass != NULL) {
-		return mapClass->findItem(itemName);
-	}
-	else {
-		return NULL;
-	}
-}
-
+//*********************************************
+// Global function implementations
+//*********************************************
 
 ObjectPointerCV metaTypeToCV(const GMetaType & type)
 {
@@ -598,9 +827,9 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeC
 	return rank;
 }
 
-bool allowInvokeCallable(const GScriptConfig & config, const GObjectData * userData, IMetaCallable * method)
+bool allowInvokeCallable(const GScriptConfig & config, const GGlueDataPointer & glueData, IMetaCallable * method)
 {
-	if(userData != NULL && userData->isInstance()) {
+	if(getGlueDataInstance(glueData) != NULL) {
 		if(! config.allowAccessStaticMethodViaInstance()) {
 			if(method->isStatic()) {
 				return false;
@@ -613,9 +842,10 @@ bool allowInvokeCallable(const GScriptConfig & config, const GObjectData * userD
 		}
 	}
 	
-	if(userData != NULL) {
+	ObjectPointerCV cv = getGlueDataCV(glueData);
+	if(cv != opcvNone) {
 		const GMetaType & methodType = metaGetItemType(method);
-		switch(userData->getCV()) {
+		switch(cv) {
 			case opcvConst:
 				return methodType.isConstFunction();
 				
@@ -633,9 +863,9 @@ bool allowInvokeCallable(const GScriptConfig & config, const GObjectData * userD
 	return true;
 }
 
-bool allowAccessData(const GScriptConfig & config, const GObjectData * userData, IMetaAccessible * accessible)
+bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessible * accessible)
 {
-	if(userData->isInstance()) {
+	if(isInstance) {
 		if(! config.allowAccessStaticDataViaInstance()) {
 			if(accessible->isStatic()) {
 				return false;
@@ -671,87 +901,6 @@ void convertParam(GVariant * v, int paramRank, GVariant * holder)
 			*v = createStringVariant(s.get());
 		}
 			break;
-	}
-}
-
-void doLoadMethodList(const GScriptConfig & config, GMetaClassTraveller * traveller,
-	IMetaList * methodList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, const GObjectData * userData, const char * methodName, bool allowAny)
-{
-	while(mapItem != NULL) {
-		if(mapItem->getType() == mmitMethod) {
-			GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
-			if(allowAny || allowInvokeCallable(config, userData, method.get())) {
-				methodList->add(method.get(), instance);
-			}
-		}
-		else {
-			if(mapItem->getType() == mmitMethodList) {
-				GScopedInterface<IMetaList> newMethodList(gdynamic_cast<IMetaList *>(mapItem->getItem()));
-				for(uint32_t i = 0; i < newMethodList->getCount(); ++i) {
-					GScopedInterface<IMetaItem> item(newMethodList->getAt(i));
-					if(allowAny || allowInvokeCallable(config, userData, gdynamic_cast<IMetaMethod *>(item.get()))) {
-						methodList->add(item.get(), instance);
-					}
-				}
-			}
-		}
-		
-		GScopedInterface<IMetaClass> metaClass(traveller->next(&instance));
-		if(!metaClass) {
-			break;
-		}
-		mapItem = findMetaMapItem(metaMap, metaClass.get(), methodName);
-	}
-}
-
-void loadMethodList(GMetaClassTraveller * traveller,
-	IMetaList * methodList, GMetaMap * metaMap, GMetaMapItem * mapItem,
-	void * instance, const char * methodName)
-{
-	doLoadMethodList(GScriptConfig(), traveller, methodList, metaMap, mapItem, instance, NULL, methodName, true);
-}
-
-void callbackLoadMethodList(const GScriptConfig & config, IMetaList * methodList, GMetaMap * metaMap, IMetaClass * objectMetaClass,
-	void * objectInstance, const GObjectData * userData, const char * methodName)
-{
-	GMetaClassTraveller traveller(objectMetaClass, objectInstance);
-	void * instance = NULL;
-
-	for(;;) {
-		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
-		if(!metaClass) {
-			break;
-		}
-
-		GMetaMapClass * mapClass = metaMap->findClassMap(metaClass.get());
-		if(mapClass == NULL) {
-			continue;
-		}
-		GMetaMapItem * mapItem = mapClass->findItem(methodName);
-		if(mapItem == NULL) {
-			continue;
-		}
-
-		switch(mapItem->getType()) {
-			case mmitField:
-			case mmitProperty:
-			   return;
-
-			case mmitMethod:
-			case mmitMethodList: {
-				doLoadMethodList(config, &traveller, methodList, metaMap, mapItem, instance, userData, methodName, false);
-				return;
-			}
-
-			case mmitEnum:
-			case mmitEnumValue:
-			case mmitClass:
-				return;
-
-			default:
-				break;
-		}
 	}
 }
 
@@ -800,29 +949,26 @@ void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, Invok
 	return instance;
 }
 
-InvokeCallableResult doInvokeMethodList(const GBindingParamPointer & param, const GObjectUserData * objectUserData, const GMethodData & methodData, InvokeCallableParam * callableParam)
+InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
+										const GObjectGlueDataPointer & objectData,
+										const GMethodGlueDataPointer & methodData, InvokeCallableParam * callableParam)
 {
-	void * instance = NULL;
-	if(objectUserData != NULL && ! objectUserData->getObjectData()) {
-		objectUserData = NULL;
-	}
-	if(objectUserData != NULL) {
-		instance = objectUserData->getObjectData()->getInstance();
-	}
+//	void * instance = getGlueDataInstance(objectData);
 
 	GScopedInterface<IMetaList> methodList;
-	if(! methodData.getMetaClass() && methodData.getMethodList()) {
-		methodList.reset(methodData.getMethodList());
+	if((! methodData->getClassData() || ! methodData->getClassData()->getMetaClass()) && methodData->getMethodList()->getCount() > 0) {
+		methodList.reset(methodData->getMethodList());
 		methodList->addReference();
 	}
 	else {
+		// Reloading the method list because the "this" pointer may change and cause the method list invalid.
+		// We should find better way to handle this.
 		methodList.reset(createMetaList());
-		callbackLoadMethodList(param->getConfig(), methodList.get(), param->getMetaMap(),
-			objectUserData == NULL? methodData.getMetaClass() : objectUserData->getObjectData()->getMetaClass(),
-			instance,  getObjectData(objectUserData), methodData.getName().c_str());
+		loadMethodList(context, methodList.get(), objectData ? objectData->getClassData() : methodData->getClassData(),
+			objectData, methodData->getName().c_str());
 	}
 
-	int maxRankIndex = findAppropriateCallable(param->getService(),
+	int maxRankIndex = findAppropriateCallable(context->getService(),
 		makeCallback(methodList.get(), &IMetaList::getAt), methodList->getCount(),
 		callableParam, FindCallablePredict());
 
@@ -839,72 +985,73 @@ InvokeCallableResult doInvokeMethodList(const GBindingParamPointer & param, cons
 	return InvokeCallableResult();
 }
 
-InvokeCallableResult doInvokeOperator(const GBindingParamPointer & param, void * instance, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam)
+bool shouldRemoveReference(const GMetaType & type)
 {
-	int maxRankIndex = findAppropriateCallable(param->getService(),
-		makeCallback(metaClass, &IMetaClass::getOperatorAt), metaClass->getOperatorCount(),
-		callableParam, OperatorCallablePredict(op));
-
-	if(maxRankIndex >= 0) {
-		InvokeCallableResult result;
-
-		GScopedInterface<IMetaOperator> metaOperator(metaClass->getOperatorAt(maxRankIndex));
-		doInvokeCallable(instance, metaOperator.get(), callableParam, &result);
-		result.callable.reset(metaOperator.get());
-		return result;
-	}
-
-	return InvokeCallableResult();
+	return type.isReference()
+		&& (type.isPointer() || vtIsFundamental(vtGetBaseType(type.getVariantType())))
+		;
 }
 
-GScriptDataType methodTypeToUserDataType(GUserDataMethodType methodType)
+wchar_t * stringToWideString(const char * s)
 {
-	switch(methodType) {
-		case udmtMethod:
-			return sdtMethod;
+	size_t len = strlen(s);
+	GScopedArray<wchar_t> ws(new wchar_t[len + 1]);
+	std::fill(ws.get(), ws.get() + len + 1, 0);
+	mbstowcs(ws.get(), s, len);
 
-		case udmtMethodList:
-			return sdtMethodList;
-
-		case udmtInternal:
-			return sdtScriptMethod;
-
-		default:
-			return sdtUnknown;
-	}
+	return ws.take();
 }
 
-GMetaVariant userDataToVariant(const GScriptUserData * userData)
+char * wideStringToString(const wchar_t * ws)
 {
-	switch(userData->getType()) {
-		case udtObject: {
-			const GObjectUserData * classData = static_cast<const GObjectUserData *>(userData);
-			GMetaTypeData typeData;
-			classData->getObjectData()->getMetaClass()->getMetaType(&typeData);
-			metaCheckError(classData->getObjectData()->getMetaClass());
-			GMetaType type(typeData);
-			type.addPointer();
-			switch(classData->getObjectData()->getDataType()) {
-				case cudtClass:
-					return GMetaVariant(classData->getObjectData()->getMetaClass(), type);
+	size_t len = wcslen(ws);
+	GScopedArray<char> s(new char[len + 1]);
+	std::fill(s.get(), s.get() + len + 1, 0);
+	wcstombs(s.get(), ws, len);
 
-				case cudtObject:
-					return GMetaVariant(pointerToObjectVariant(classData->getObjectData()->getInstance()), type);
-				
-				case cudtInterface:
-					return GMetaVariant(GVariant(classData->getObjectData()->getInterfaceObject()), type);
+	return s.take();
+}
+
+GMetaVariant glueDataToVariant(const GGlueDataPointer & glueData)
+{
+	if(glueData) {
+		switch(glueData->getType()) {
+			case gdtClass: {
+				GClassGlueDataPointer classData = sharedStaticCast<GClassGlueData>(glueData);;
+				GMetaTypeData typeData;
+				classData->getMetaClass()->getMetaType(&typeData);
+				metaCheckError(classData->getMetaClass());
+				GMetaType type(typeData);
+				type.addPointer();
+				return GMetaVariant(classData->getMetaClass(), type);
 			}
 
-			break;
-		}
+			case gdtObject: {
+				GObjectGlueDataPointer objectData = sharedStaticCast<GObjectGlueData>(glueData);
+				GMetaTypeData typeData;
+				objectData->getClassData()->getMetaClass()->getMetaType(&typeData);
+				metaCheckError(objectData->getClassData()->getMetaClass());
+				GMetaType type(typeData);
+				type.addPointer();
+				switch(objectData->getDataType()) {
+					case ogdtNormal:
+						return GMetaVariant(pointerToObjectVariant(objectData->getInstance()), type);
+					
+					case ogdtInterface:
+						return GMetaVariant(GVariant(objectData->getInterfaceObject()), type);
+				}
 
-		case udtRaw: {
-			const GRawUserData * rawData = static_cast<const GRawUserData *>(userData);
-			return GMetaVariant(rawData->getData(), GMetaType());
-		}
+				break;
+			}
 
-		default:
-			break;
+			case gdtRaw: {
+				GRawGlueDataPointer rawData = sharedStaticCast<GRawGlueData>(glueData);
+				return GMetaVariant(rawData->getData(), GMetaType());
+			}
+
+			default:
+				break;
+		}
 	}
 
 	return GMetaVariant();
@@ -939,51 +1086,78 @@ GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible
 	return value;
 }
 
-bool shouldRemoveReference(const GMetaType & type)
+void doLoadMethodList(const GContextPointer & context, GMetaClassTraveller * traveller,
+	IMetaList * methodList, GMetaMapItem * mapItem,
+	void * instance,
+	const GClassGlueDataPointer & classData, const GGlueDataPointer & glueData, const char * methodName, bool allowAny)
 {
-	return type.isReference()
-		&& (type.isPointer() || vtIsFundamental(vtGetBaseType(type.getVariantType())))
-		;
-}
-
-wchar_t * stringToWideString(const char * s)
-{
-	size_t len = strlen(s);
-	GScopedArray<wchar_t> ws(new wchar_t[len + 1]);
-	std::fill(ws.get(), ws.get() + len + 1, 0);
-	mbstowcs(ws.get(), s, len);
-
-	return ws.take();
-}
-
-char * wideStringToString(const wchar_t * ws)
-{
-	size_t len = wcslen(ws);
-	GScopedArray<char> s(new char[len + 1]);
-	std::fill(s.get(), s.get() + len + 1, 0);
-	wcstombs(s.get(), ws, len);
-
-	return s.take();
-}
-
-
-GSharedObjectData getSharedObjectData(const GObjectUserData * objectUserData)
-{
-	if(objectUserData != NULL) {
-		return objectUserData->getObjectData();
-	}
-	else {
-		return GSharedObjectData();
+	while(mapItem != NULL) {
+		if(mapItem->getType() == mmitMethod) {
+			GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
+			if(allowAny || allowInvokeCallable(context->getConfig(), glueData, method.get())) {
+				methodList->add(method.get(), instance);
+			}
+		}
+		else {
+			if(mapItem->getType() == mmitMethodList) {
+				GScopedInterface<IMetaList> newMethodList(gdynamic_cast<IMetaList *>(mapItem->getItem()));
+				for(uint32_t i = 0; i < newMethodList->getCount(); ++i) {
+					GScopedInterface<IMetaItem> item(newMethodList->getAt(i));
+					if(allowAny || allowInvokeCallable(context->getConfig(), glueData, gdynamic_cast<IMetaMethod *>(item.get()))) {
+						methodList->add(item.get(), instance);
+					}
+				}
+			}
+		}
+		
+		GScopedInterface<IMetaClass> metaClass(traveller->next(&instance));
+		if(!metaClass) {
+			break;
+		}
+		mapItem = classData->getClassMap()->findItem(methodName);
 	}
 }
 
-GObjectData * getObjectData(const GObjectUserData * objectUserData)
+void loadMethodList(const GContextPointer & context, IMetaList * methodList, const GClassGlueDataPointer & classData,
+			const GObjectGlueDataPointer & objectData, const char * methodName)
 {
-	if(objectUserData != NULL) {
-		return objectUserData->getObjectData().get();
-	}
-	else {
-		return NULL;
+	GMetaClassTraveller traveller(classData->getMetaClass(), objectData? objectData->getInstance() : NULL);
+	void * instance = NULL;
+
+	for(;;) {
+		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
+		if(!metaClass) {
+			break;
+		}
+
+		GMetaMapClass * mapClass = context->getClassData(metaClass.get())->getClassMap();
+		if(! mapClass) {
+			continue;
+		}
+		GMetaMapItem * mapItem = mapClass->findItem(methodName);
+		if(mapItem == NULL) {
+			continue;
+		}
+
+		switch(mapItem->getType()) {
+			case mmitField:
+			case mmitProperty:
+			   return;
+
+			case mmitMethod:
+			case mmitMethodList: {
+				doLoadMethodList(context, &traveller, methodList, mapItem, instance, classData, objectData, methodName, false);
+				return;
+			}
+
+			case mmitEnum:
+			case mmitEnumValue:
+			case mmitClass:
+				return;
+
+			default:
+				break;
+		}
 	}
 }
 
@@ -1005,16 +1179,49 @@ IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived)
 	}
 }
 
-bool doSetFieldValue(GObjectUserData * userData, const char * name, const GVariant & value)
+void setValueToScriptDataHolder(const GGlueDataPointer & glueData, const char * name, const GVariant & value)
 {
-	if(userData->getObjectData()->getCV() == opcvConst) {
+	GScriptDataHolder * dataHolder = NULL;
+	
+	if(glueData->getType() == gdtObject) {
+		dataHolder = sharedStaticCast<GObjectGlueData>(glueData)->requireDataHolder();
+	}
+	else {
+		if(glueData->getType() == gdtClass) {
+			dataHolder = sharedStaticCast<GClassGlueData>(glueData)->requireDataHolder();
+		}
+	}
+	
+	if(dataHolder != NULL) {
+		dataHolder->setScriptValue(name, value);
+	}
+}
+
+bool doSetFieldValue(const GGlueDataPointer & glueData, const char * name, const GVariant & value)
+{
+	if(getGlueDataCV(glueData) == opcvConst) {
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 
 		return false;
 	}
 
-	GMetaClassTraveller traveller(userData->getObjectData()->getMetaClass(), userData->getObjectData()->getInstance());
-	
+	bool isInstance = (glueData->getType() == gdtObject);
+	GClassGlueDataPointer classData;
+	GObjectGlueDataPointer objectData;
+	if(glueData->getType() == gdtObject) {
+		objectData = sharedStaticCast<GObjectGlueData>(glueData);
+		classData = objectData->getClassData();
+	}
+	else {
+		GASSERT(glueData->getType() == gdtClass);
+		classData = sharedStaticCast<GClassGlueData>(glueData);
+	}
+
+	const GScriptConfig & config = classData->getContext()->getConfig();
+	GContextPointer context = classData->getContext();
+
+	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstance(glueData));
+
 	void * instance = NULL;
 
 	for(;;) {
@@ -1023,7 +1230,12 @@ bool doSetFieldValue(GObjectUserData * userData, const char * name, const GVaria
 			return false;
 		}
 		
-		GMetaMapItem * mapItem = findMetaMapItem(userData->getParam()->getMetaMap(), metaClass.get(), name);
+		GMetaMapClass * mapClass = classData->getClassMap();
+		if(! mapClass) {
+			continue;
+		}
+
+		GMetaMapItem * mapItem = mapClass->findItem(name);
 		if(mapItem == NULL) {
 			continue;
 		}
@@ -1032,8 +1244,8 @@ bool doSetFieldValue(GObjectUserData * userData, const char * name, const GVaria
 			case mmitField:
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
-				if(allowAccessData(userData->getParam()->getConfig(), getObjectData(userData), data.get())) {
-					metaSetValue(data.get(), userData->getObjectData()->getInstance(), value);
+				if(allowAccessData(config, isInstance, data.get())) {
+					metaSetValue(data.get(), getGlueDataInstance(glueData), value);
 					return true;
 				}
 			}
@@ -1041,7 +1253,7 @@ bool doSetFieldValue(GObjectUserData * userData, const char * name, const GVaria
 
 			case mmitMethod:
 			case mmitMethodList:
-				userData->getObjectData()->setScriptValue(name, value);
+				setValueToScriptDataHolder(glueData, name, value);
 				return true;
 
 			case mmitEnum:
@@ -1056,22 +1268,85 @@ bool doSetFieldValue(GObjectUserData * userData, const char * name, const GVaria
 	}
 }
 
-void instanceCreated(GObjectUserData * instanceUserData, GObjectUserData * classUserData)
+ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData)
 {
-	if(instanceUserData != NULL && classUserData != NULL) {
-//		instanceUserData->getObjectData()->mergeDataStorage(classUserData->getObjectData().get());
-		instanceUserData->getObjectData()->getDataStorage()->setClassDataStorage(classUserData->getObjectData()->getDataStorage());
+	if(glueData) {
+		if(glueData->getType() == gdtObject) {
+			return sharedStaticCast<GObjectGlueData>(glueData)->getCV();
+		}
+	}
+
+	return opcvNone;
+}
+
+void * getGlueDataInstance(const GGlueDataPointer & glueData)
+{
+	if(glueData) {
+		if(glueData->getType() == gdtObject) {
+			return sharedStaticCast<GObjectGlueData>(glueData)->getInstance();
+		}
+	}
+
+	return NULL;
+}
+
+IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData)
+{
+	if(glueData) {
+		if(glueData->getType() == gdtObject) {
+			return sharedStaticCast<GObjectGlueData>(glueData)->getClassData()->getMetaClass();
+		}
+		else {
+			if(glueData->getType() == gdtClass) {
+				return sharedStaticCast<GClassGlueData>(glueData)->getMetaClass();
+			}
+		}
+	}
+
+	return NULL;
+}
+
+GScriptDataType methodTypeToGlueDataType(GGlueDataMethodType methodType)
+{
+	switch(methodType) {
+		case gdmtMethod:
+			return sdtMethod;
+
+		case gdmtMethodList:
+			return sdtMethodList;
+
+		case gdmtInternal:
+			return sdtScriptMethod;
+
+		default:
+			return sdtUnknown;
 	}
 }
+
+InvokeCallableResult doInvokeOperator(const GContextPointer & context, void * instance, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam)
+{
+	int maxRankIndex = findAppropriateCallable(context->getService(),
+		makeCallback(metaClass, &IMetaClass::getOperatorAt), metaClass->getOperatorCount(),
+		callableParam, OperatorCallablePredict(op));
+
+	if(maxRankIndex >= 0) {
+		InvokeCallableResult result;
+
+		GScopedInterface<IMetaOperator> metaOperator(metaClass->getOperatorAt(maxRankIndex));
+		doInvokeCallable(instance, metaOperator.get(), callableParam, &result);
+		result.callable.reset(metaOperator.get());
+		return result;
+	}
+
+	return InvokeCallableResult();
+}
+
 
 
 } // namespace bind_internal
 
+
 } // namespace cpgf
 
 
-
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 

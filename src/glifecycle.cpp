@@ -72,5 +72,7 @@ void addOrderedStaticUninitializer(GStaticUninitializationOrderType order, const
 	orderedStaticUninitializerManager->add(order, uninitializer);
 }
 
+G_GUARD_LIBRARY_LIFE
+
 
 } // namespace cpgf

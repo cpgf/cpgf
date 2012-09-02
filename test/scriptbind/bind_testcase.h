@@ -13,7 +13,6 @@ GTEST(MK(CASE, _Lua_Lib))
 {
 	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaLib));
 
-	if(!context) return;
 	TEST_BIND(context->getBindingLib(), context->getService());
 
 	CASE(context.get());
@@ -23,7 +22,6 @@ GTEST(MK(CASE, _Lua_Api))
 {
 	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslLua, tsaApi));
 
-	if(!context) return;
 	TEST_BIND(context->getBindingApi(), context->getService());
 
 	CASE(context.get());
@@ -39,8 +37,6 @@ GTEST(MK(CASE, _V8_Lib))
 {
 	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaLib));
 
-	if(!context) return;
-
 	TEST_BIND(context->getBindingLib(), context->getService());
 
 	CASE(context.get());
@@ -50,8 +46,6 @@ GTEST(MK(CASE, _V8_Lib))
 GTEST(MK(CASE, _V8_Api))
 {
 	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslV8, tsaApi));
-
-	if(!context) return;
 
 	TEST_BIND(context->getBindingApi(), context->getService());
 
