@@ -83,10 +83,10 @@ private:
 	Persistent<ObjectTemplate> objectTemplate;
 };
 
-class GV8ScriptObject : public GScriptObject
+class GV8ScriptObject : public GScriptObjectBase
 {
 private:
-	typedef GScriptObject super;
+	typedef GScriptObjectBase super;
 
 public:
 	GV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config);
@@ -146,10 +146,10 @@ private:
 	Persistent<Object> object;
 };
 
-class GV8ScriptFunction : public GScriptFunction
+class GV8ScriptFunction : public GScriptFunctionBase
 {
 private:
-	typedef GScriptFunction super;
+	typedef GScriptFunctionBase super;
 
 public:
 	GV8ScriptFunction(const GContextPointer & context, Local<Object> receiver, Local<Value> func);
@@ -212,7 +212,7 @@ Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, co
 Persistent<Object> doBindEnum(const GContextPointer & context, Handle<ObjectTemplate> objectTemplate, IMetaEnum * metaEnum);
 Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData, bool isGlobal, IMetaList * methodList,
 	const char * name, Handle<FunctionTemplate> classTemplate, GGlueDataMethodType methodType);
-Handle<ObjectTemplate> createEnumTemplate(const GContextPointer & context, IMetaEnum * metaEnum);
+Handle<ObjectTemplate> createEnumTemplate(const GContextPointer & context);
 
 void loadCallableParam(const Arguments & args, const GContextPointer & context, InvokeCallableParam * callableParam);
 
@@ -556,13 +556,13 @@ struct GV8Methods
 		return userData->getFunctionTemplate()->GetFunction();
 	}
 
-	static ResultType doEnumToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem, const char * enumName)
+	static ResultType doEnumToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem, const char * /*enumName*/)
 	{
 		GContextPointer context = classData->getContext();
 		GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 		GObjectTemplateUserData * userData = gdynamic_cast<GObjectTemplateUserData *>(mapItem->getUserData());
 		if(userData == NULL) {
-			Handle<ObjectTemplate> objectTemplate = createEnumTemplate(context, metaEnum.get());
+			Handle<ObjectTemplate> objectTemplate = createEnumTemplate(context);
 			userData = new GObjectTemplateUserData(objectTemplate);
 			mapItem->setUserData(userData);
 		}
@@ -760,7 +760,7 @@ Handle<Array> namedEnumEnumerator(const AccessorInfo & info)
 
 }
 
-Handle<ObjectTemplate> createEnumTemplate(const GContextPointer & context, IMetaEnum * metaEnum)
+Handle<ObjectTemplate> createEnumTemplate(const GContextPointer & /*context*/)
 {
 	Handle<ObjectTemplate> objectTemplate = ObjectTemplate::New();
 	objectTemplate->SetInternalFieldCount(1);
@@ -1177,7 +1177,7 @@ void GV8ScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->object));
 
-	Handle<ObjectTemplate> objectTemplate = createEnumTemplate(this->getContext(), metaEnum);
+	Handle<ObjectTemplate> objectTemplate = createEnumTemplate(this->getContext());
 
 	Persistent<Object> obj = doBindEnum(this->getContext(), objectTemplate, metaEnum);
 

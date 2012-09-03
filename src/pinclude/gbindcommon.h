@@ -714,6 +714,55 @@ inline void freeGlueDataWrapper(GGlueDataWrapper * p, GGlueDataWrapperPool * poo
 	freeGlueDataWrapper(p);
 }
 
+class GScriptObjectBase : public GScriptObject
+{
+private:
+	typedef GScriptObject super;
+
+public:
+	GScriptObjectBase(const GContextPointer & context, const GScriptConfig & config)
+		: super(config), context(context)
+	{
+	}
+
+	GScriptObjectBase(const GScriptObjectBase & other)
+		: super(other), context(other.context)
+	{
+	}
+
+	IMetaClass * cloneMetaClass(IMetaClass * metaClass);
+
+protected:
+	const GContextPointer & getContext() const {
+		return this->context;
+	}
+
+private:
+	GContextPointer context;
+};
+
+
+class GScriptFunctionBase : public GScriptFunction
+{
+private:
+	typedef GScriptFunction super;
+
+public:
+	explicit GScriptFunctionBase(const GContextPointer & context)
+		: context(context)
+	{
+	}
+
+protected:
+	GContextPointer getContext() {
+		return this->context.get();
+	}
+
+private:
+	GWeakContextPointer context;
+};
+
+
 ObjectPointerCV metaTypeToCV(const GMetaType & type);
 
 int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, const InvokeParamRank * paramsRank);

@@ -689,6 +689,17 @@ InvokeCallableParam::~InvokeCallableParam()
 }
 
 
+IMetaClass * GScriptObjectBase::cloneMetaClass(IMetaClass * metaClass)
+{
+	IMetaClass * newMetaClass = gdynamic_cast<IMetaClass *>(metaClass->clone());
+
+	this->context->getClassData(metaClass);
+	this->context->newClassData(newMetaClass);
+
+	return newMetaClass;
+}
+
+
 //*********************************************
 // Global function implementations
 //*********************************************

@@ -7,8 +7,7 @@
 namespace cpgf {
 
 
-GScriptFunction::GScriptFunction(const GSharedPointer<bind_internal::GBindingContext> & context)
-	: context(context)
+GScriptFunction::GScriptFunction()
 {
 }
 
@@ -16,29 +15,19 @@ GScriptFunction::~GScriptFunction()
 {
 }
 
-GSharedPointer<bind_internal::GBindingContext> GScriptFunction::getContext()
-{
-	return this->context.get();
-}
 
-
-GScriptObject::GScriptObject(const GSharedPointer<bind_internal::GBindingContext> & context, const GScriptConfig & config)
-	: context(context), config(config), owner(NULL)
+GScriptObject::GScriptObject(const GScriptConfig & config)
+	: config(config), owner(NULL)
 {
 }
 
 GScriptObject::GScriptObject(const GScriptObject & other)
-	: context(other.context), config(other.config), owner(NULL)
+	: config(other.config), owner(NULL)
 {
 }
 
 GScriptObject::~GScriptObject()
 {
-}
-
-const GSharedPointer<bind_internal::GBindingContext> & GScriptObject::getContext()
-{
-	return this->context;
 }
 
 const GScriptConfig & GScriptObject::getConfig() const
@@ -69,16 +58,6 @@ const char * GScriptObject::getName() const
 void GScriptObject::setName(const std::string & newName)
 {
 	this->name = newName;
-}
-
-IMetaClass * GScriptObject::cloneMetaClass(IMetaClass * metaClass)
-{
-	IMetaClass * newMetaClass = gdynamic_cast<IMetaClass *>(metaClass->clone());
-
-	this->context->getClassData(metaClass);
-	this->context->newClassData(newMetaClass);
-
-	return newMetaClass;
 }
 
 

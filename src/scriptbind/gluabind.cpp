@@ -51,10 +51,10 @@ namespace {
 class GLuaScriptObject;
 class GLuaGlobalAccessor;
 
-class GLuaScriptFunction : public GScriptFunction
+class GLuaScriptFunction : public GScriptFunctionBase
 {
 private:
-	typedef GScriptFunction super;
+	typedef GScriptFunctionBase super;
 
 public:
 	GLuaScriptFunction(const GContextPointer & context, int objectIndex);
@@ -67,10 +67,10 @@ private:
 	int ref;
 };
 
-class GLuaScriptObject : public GScriptObject
+class GLuaScriptObject : public GScriptObjectBase
 {
 private:
-	typedef GScriptObject super;
+	typedef GScriptObjectBase super;
 
 public:
 	GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config);

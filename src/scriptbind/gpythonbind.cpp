@@ -67,10 +67,10 @@ private:
 	GGlueDataPointer glueData;
 };
 
-class GPythonScriptFunction : public GScriptFunction
+class GPythonScriptFunction : public GScriptFunctionBase
 {
 private:
-	typedef GScriptFunction super;
+	typedef GScriptFunctionBase super;
 
 public:
 	GPythonScriptFunction(const GContextPointer & context, PyObject * func);
@@ -83,10 +83,10 @@ private:
 	PyObject * func;
 };
 
-class GPythonScriptObject : public GScriptObject
+class GPythonScriptObject : public GScriptObjectBase
 {
 private:
-	typedef GScriptObject super;
+	typedef GScriptObjectBase super;
 
 public:
 	GPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config);
