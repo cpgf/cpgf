@@ -72,7 +72,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 		._operator<TestObject (const GMetaSelf &)> (! mopHolder)
 		._operator<TestObject (const GMetaSelf &)> (~ mopHolder)
 
-		._operator<int * (const GMetaSelf &)> (& mopHolder)
+		._operator<int * (GMetaSelf)> (& mopHolder)
 		._operator<int (const GMetaSelf &)> (* mopHolder)
 	;
 }
