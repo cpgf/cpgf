@@ -331,7 +331,7 @@ GObjectGlueData::~GObjectGlueData()
 	if(this->isValid()) {
 		this->getContext()->getClassPool()->objectDestroyed(this->instance);
 	}
-		
+	
 	if(this->allowGC) {
 		this->getClassData()->getMetaClass()->destroyInstance(this->instance);
 	}
@@ -536,8 +536,23 @@ GGlueDataWrapperPool::GGlueDataWrapperPool()
 GGlueDataWrapperPool::~GGlueDataWrapperPool()
 {
 	this->active = false;
+
 	for(SetType::iterator it = this->wrapperSet.begin(); it != this->wrapperSet.end(); ++it) {
-		freeGlueDataWrapper(*it);
+		if((*it)->getData()->getType() != gdtClass) {
+			freeGlueDataWrapper(*it);
+			*it = NULL;
+		}
+	}
+
+	/* We must free class data after other data (especially, after object data).
+	   This is because when class data is freed, the meta class maybe freed which object is still using.
+	   Though object holds a shared pointer of class data, the class data may free its nested class which the object is using.
+	   That will cause memory access error.
+	*/
+	for(SetType::iterator it = this->wrapperSet.begin(); it != this->wrapperSet.end(); ++it) {
+		if(*it != NULL) {
+			freeGlueDataWrapper(*it);
+		}
 	}
 }
 

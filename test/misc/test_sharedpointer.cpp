@@ -184,7 +184,7 @@ GTEST(TestSharedPointer_DifferentSP)
 		SP sp(new TestData2(&count));
 		GEQUAL(1, count);
 
-		SP2 sp2(SharedStaticCast<TestData2>(sp));
+		SP2 sp2(sharedStaticCast<TestData2>(sp));
 		GEQUAL(1, count);
 	}
 	GEQUAL(0, count);

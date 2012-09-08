@@ -4,10 +4,10 @@ set(BUILD_DEBUG	1) #release=false
 set(HAS_LUA	1) #release=false
 
 # set 1 to enable V8 binding, 0 to disable
-set(HAS_V8 0) #release=false
+set(HAS_V8 1) #release=false
 
 # set 1 to enable Python binding, 0 to disable
-set(HAS_PYTHON 0) #release=false
+set(HAS_PYTHON 1) #release=false
 
 # set 1 to enable C++ 0X in GCC, then rvalue reference is enabled
 # 0 to disable rvalue reference

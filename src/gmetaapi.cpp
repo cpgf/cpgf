@@ -104,7 +104,8 @@ class ImplMetaItem
 	G_INTERFACE_IMPL_EXTENDOBJECT
 
 public:
-	ImplMetaItem(const GMetaItem * item);
+	ImplMetaItem(const GMetaItem * item, bool freeItem);
+	virtual ~ImplMetaItem();
 
 public:
 	const GMetaItem * doGetItem() const {
@@ -137,6 +138,7 @@ protected:
 
 private:
 	const GMetaItem * item;
+	bool freeItem;
 };
 
 
@@ -146,7 +148,7 @@ private:
 	typedef ImplMetaItem super;
 
 public:
-	ImplMetaTypedItem(const GMetaTypedItem * typedItem);
+	ImplMetaTypedItem(const GMetaTypedItem * typedItem, bool freeItem);
 
 protected:
 	void doGetMetaType(GMetaTypeData * outType);
@@ -209,7 +211,7 @@ private:
 	typedef ImplMetaItem super;
 
 public:
-	ImplMetaCallable(const GMetaCallable * callable);
+	ImplMetaCallable(const GMetaCallable * callable, bool freeItem = false);
 
 protected:
 	void doGetParamType(GMetaTypeData * outType, uint32_t index);
@@ -236,7 +238,7 @@ private:
 	typedef ImplMetaItem super;
 
 public:
-	ImplMetaAccessible(const GMetaAccessible * accessible);
+	ImplMetaAccessible(const GMetaAccessible * accessible, bool freeItem = false);
 
 protected:
 	gapi_bool doCanGet();
@@ -260,7 +262,7 @@ private:
 public:
 	USE_POOL(ImplMetaField)
 
-	ImplMetaField(const GMetaField * field);
+	ImplMetaField(const GMetaField * field, bool freeItem);
 
 	IMPL_ALL
 
@@ -282,7 +284,7 @@ private:
 public:
 	USE_POOL(ImplMetaProperty)
 
-	ImplMetaProperty(const GMetaProperty * prop);
+	ImplMetaProperty(const GMetaProperty * prop, bool freeItem);
 
 	IMPL_ALL
 
@@ -305,7 +307,7 @@ private:
 public:
 	USE_POOL(ImplMetaMethod)
 
-	ImplMetaMethod(const GMetaMethod * method);
+	ImplMetaMethod(const GMetaMethod * method, bool freeItem);
 
 	IMPL_ALL
 
@@ -336,7 +338,7 @@ private:
 public:
 	USE_POOL(ImplMetaConstructor)
 
-	ImplMetaConstructor(const GMetaConstructor * constructor);
+	ImplMetaConstructor(const GMetaConstructor * constructor, bool freeItem);
 
 protected:
 	virtual void G_API_CC execute(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount);
@@ -364,7 +366,7 @@ private:
 public:
 	USE_POOL(ImplMetaOperator)
 
-	ImplMetaOperator(const GMetaOperator * op);
+	ImplMetaOperator(const GMetaOperator * op, bool freeItem);
 
 protected:
 	virtual int32_t G_API_CC getOperator();
@@ -394,7 +396,7 @@ private:
 public:
 	USE_POOL(ImplMetaFundamental)
 
-	ImplMetaFundamental(const GMetaFundamental * fundamental);
+	ImplMetaFundamental(const GMetaFundamental * fundamental, bool freeItem);
 
 protected:
 	virtual void G_API_CC getValue(GVariantData * outResult, const void * instance);
@@ -417,7 +419,7 @@ private:
 public:
 	USE_POOL(ImplMetaEnum)
 
-	ImplMetaEnum(const GMetaEnum * en);
+	ImplMetaEnum(const GMetaEnum * en, bool freeItem);
 
 protected:
 	virtual uint32_t G_API_CC getCount();
@@ -437,7 +439,7 @@ class ImplMetaAnnotationValue : public IMetaAnnotationValue
 public:
 	USE_POOL(ImplMetaAnnotationValue)
 
-	ImplMetaAnnotationValue(const GAnnotationValue * value);
+	ImplMetaAnnotationValue(const GAnnotationValue * value, bool);
 
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
@@ -465,7 +467,7 @@ private:
 public:
 	USE_POOL(ImplMetaAnnotation)
 
-	ImplMetaAnnotation(const GMetaAnnotation * annotation);
+	ImplMetaAnnotation(const GMetaAnnotation * annotation, bool freeItem = false);
 
 	IMPL_ALL
 
@@ -492,7 +494,7 @@ private:
 public:
 	USE_POOL(ImplMetaClass)
 
-	ImplMetaClass(const GMetaClass * cls);
+	ImplMetaClass(const GMetaClass * cls, bool freeItem);
 
 	IMPL_ALL
 	IMPL_TYPEDITEM
@@ -626,7 +628,7 @@ template <typename T, typename P>
 T * doCreateItem(P * p)
 {
 	if(p) {
-		return new T(p);
+		return new T(p, false);
 	}
 	else {
 		return NULL;
@@ -644,9 +646,16 @@ void loadMetaList(IMetaList * metaList, GMetaList * rawMetaList)
 }
 
 
-ImplMetaItem::ImplMetaItem(const GMetaItem * item)
-	: item(item)
+ImplMetaItem::ImplMetaItem(const GMetaItem * item, bool freeItem)
+	: item(item), freeItem(freeItem)
 {
+}
+
+ImplMetaItem::~ImplMetaItem()
+{
+	if(this->freeItem) {
+		delete this->item;
+	}
 }
 
 IMetaItem * ImplMetaItem::doClone()
@@ -763,8 +772,8 @@ gapi_bool ImplMetaItem::doIsStatic()
 
 
 
-ImplMetaTypedItem::ImplMetaTypedItem(const GMetaTypedItem * typedItem)
-	: super(typedItem)
+ImplMetaTypedItem::ImplMetaTypedItem(const GMetaTypedItem * typedItem, bool freeItem)
+	: super(typedItem, freeItem)
 {
 }
 
@@ -848,8 +857,8 @@ void ImplMetaTypedItem::doDestroyInstance(void * instance)
 
 
 
-ImplMetaCallable::ImplMetaCallable(const GMetaCallable * callable)
-	: super(callable)
+ImplMetaCallable::ImplMetaCallable(const GMetaCallable * callable, bool freeItem)
+	: super(callable, freeItem)
 {
 }
 
@@ -958,8 +967,8 @@ gapi_bool ImplMetaCallable::doIsResultTransferOwnership()
 }
 
 
-ImplMetaAccessible::ImplMetaAccessible(const GMetaAccessible * accessible)
-	: super(accessible)
+ImplMetaAccessible::ImplMetaAccessible(const GMetaAccessible * accessible, bool freeItem)
+	: super(accessible, freeItem)
 {
 }
 
@@ -1065,20 +1074,20 @@ void G_API_CC ImplMetaList::clear()
 }
 
 
-ImplMetaField::ImplMetaField(const GMetaField * field)
-	: super(field)
+ImplMetaField::ImplMetaField(const GMetaField * field, bool freeItem)
+	: super(field, freeItem)
 {
 }
 
 
-ImplMetaProperty::ImplMetaProperty(const GMetaProperty * prop)
-	: super(prop)
+ImplMetaProperty::ImplMetaProperty(const GMetaProperty * prop, bool freeItem)
+	: super(prop, freeItem)
 {
 }
 
 
-ImplMetaMethod::ImplMetaMethod(const GMetaMethod * method)
-	: super(method)
+ImplMetaMethod::ImplMetaMethod(const GMetaMethod * method, bool freeItem)
+	: super(method, freeItem)
 {
 }
 
@@ -1138,8 +1147,8 @@ void G_API_CC ImplMetaMethod::invokeIndirectly(GVariantData * outResult, void * 
 
 
 
-ImplMetaConstructor::ImplMetaConstructor(const GMetaConstructor * constructor)
-	: super(constructor)
+ImplMetaConstructor::ImplMetaConstructor(const GMetaConstructor * constructor, bool freeItem)
+	: super(constructor, freeItem)
 {
 }
 
@@ -1195,8 +1204,8 @@ void * G_API_CC ImplMetaConstructor::invokeIndirectly(GVariantData const * const
 
 
 
-ImplMetaOperator::ImplMetaOperator(const GMetaOperator * op)
-	: super(op)
+ImplMetaOperator::ImplMetaOperator(const GMetaOperator * op, bool freeItem)
+	: super(op, freeItem)
 {
 }
 
@@ -1293,8 +1302,8 @@ void G_API_CC ImplMetaOperator::invokeFunctorIndirectly(GVariantData * outResult
 
 
 
-ImplMetaFundamental::ImplMetaFundamental(const GMetaFundamental * fundamental)
-	: super(fundamental)
+ImplMetaFundamental::ImplMetaFundamental(const GMetaFundamental * fundamental, bool freeItem)
+	: super(fundamental, freeItem)
 {
 }
 
@@ -1310,8 +1319,8 @@ void G_API_CC ImplMetaFundamental::getValue(GVariantData * outResult, const void
 }
 
 
-ImplMetaEnum::ImplMetaEnum(const GMetaEnum * en)
-	: super(en)
+ImplMetaEnum::ImplMetaEnum(const GMetaEnum * en, bool freeItem)
+	: super(en, freeItem)
 {
 }
 
@@ -1354,7 +1363,7 @@ int32_t G_API_CC ImplMetaEnum::findKey(const char * key)
 }
 
 
-ImplMetaAnnotationValue::ImplMetaAnnotationValue(const GAnnotationValue * value)
+ImplMetaAnnotationValue::ImplMetaAnnotationValue(const GAnnotationValue * value, bool)
 	: value(value)
 {
 }
@@ -1432,8 +1441,8 @@ gapi_bool G_API_CC ImplMetaAnnotationValue::toBoolean()
 }
 
 
-ImplMetaAnnotation::ImplMetaAnnotation(const GMetaAnnotation * annotation)
-	: super(annotation)
+ImplMetaAnnotation::ImplMetaAnnotation(const GMetaAnnotation * annotation, bool freeItem)
+	: super(annotation, freeItem)
 {
 }
 
@@ -1485,8 +1494,8 @@ IMetaAnnotationValue * G_API_CC ImplMetaAnnotation::getValueAt(uint32_t index)
 
 
 
-ImplMetaClass::ImplMetaClass(const GMetaClass * cls)
-	: super(cls)
+ImplMetaClass::ImplMetaClass(const GMetaClass * cls, bool freeItem)
+	: super(cls, freeItem)
 {
 }
 
@@ -1905,7 +1914,7 @@ IMetaClass * G_API_CC ImplMetaModule::getGlobalMetaClass()
 {
 	ENTER_META_API()
 
-	return new ImplMetaClass(this->metaClass);
+	return new ImplMetaClass(this->metaClass, false);
 
 	LEAVE_META_API(return NULL)
 }
@@ -2039,39 +2048,40 @@ IMetaList * createMetaList()
 	return new ImplMetaList;
 }
 
-IMetaItem * metaItemToInterface(const GMetaItem * item)
+IMetaItem * metaItemToInterface(const GMetaItem * item, bool freeItem)
 {
+	if(freeItem) if(item == (void *)0x021ae470 || item == (void *)0x021ce470) __asm int 3;
 	if(item == NULL) {
 		return NULL;
 	}
 
 	switch(item->getCategory()) {
 		case mcatFundamental:
-			return new ImplMetaFundamental(static_cast<const GMetaFundamental *>(item));
+			return new ImplMetaFundamental(static_cast<const GMetaFundamental *>(item), freeItem);
 
 		case mcatField:
-			return new ImplMetaField(static_cast<const GMetaField *>(item));
+			return new ImplMetaField(static_cast<const GMetaField *>(item), freeItem);
 
 		case mcatProperty:
-			return new ImplMetaProperty(static_cast<const GMetaProperty *>(item));
+			return new ImplMetaProperty(static_cast<const GMetaProperty *>(item), freeItem);
 
 		case mcatMethod:
-			return new ImplMetaMethod(static_cast<const GMetaMethod *>(item));
+			return new ImplMetaMethod(static_cast<const GMetaMethod *>(item), freeItem);
 
 		case mcatEnum:
-			return new ImplMetaEnum(static_cast<const GMetaEnum *>(item));
+			return new ImplMetaEnum(static_cast<const GMetaEnum *>(item), freeItem);
 
 		case mcatOperator:
-			return new ImplMetaOperator(static_cast<const GMetaOperator *>(item));
+			return new ImplMetaOperator(static_cast<const GMetaOperator *>(item), freeItem);
 
 		case mcatConstructor:
-			return new ImplMetaConstructor(static_cast<const GMetaConstructor *>(item));
+			return new ImplMetaConstructor(static_cast<const GMetaConstructor *>(item), freeItem);
 
 		case mcatClass:
-			return new ImplMetaClass(static_cast<const GMetaClass *>(item));
+			return new ImplMetaClass(static_cast<const GMetaClass *>(item), freeItem);
 
 		case mcatAnnotation:
-			return new ImplMetaAnnotation(static_cast<const GMetaAnnotation *>(item));
+			return new ImplMetaAnnotation(static_cast<const GMetaAnnotation *>(item), freeItem);
 
 		default:
 			break;
@@ -2079,6 +2089,11 @@ IMetaItem * metaItemToInterface(const GMetaItem * item)
 	}
 
 	return NULL;
+}
+
+IMetaItem * metaItemToInterface(const GMetaItem * item)
+{
+	return metaItemToInterface(item, false);
 }
 
 const GMetaClass * findAppropriateDerivedClass(const void * instance, const GMetaClass * metaClass, void ** outCastedInstance)

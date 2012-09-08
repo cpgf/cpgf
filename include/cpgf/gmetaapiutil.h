@@ -205,6 +205,7 @@ IMetaClass * metaGetGlobalMetaClass(const Meta & service, size_t index)
 	return module->getGlobalMetaClass();
 }
 
+IMetaItem * metaItemToInterface(const GMetaItem * item, bool freeItem);
 IMetaItem * metaItemToInterface(const GMetaItem * item);
 
 const GMetaClass * findAppropriateDerivedClass(const void * instance, const GMetaClass * metaClass, void ** outCastedInstance);

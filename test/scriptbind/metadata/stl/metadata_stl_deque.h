@@ -11,7 +11,7 @@ void testStlDeque_Helper(Binding * binding, TestScriptContext * c, const char * 
 	GDefineMetaClass<Container> define = GDefineMetaClass<Container>::declare(className);
 	buildMetaData_deque(define, typename GMetaDataPolicyDeduce<typename Container::value_type>::Result());
 
-	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(define.getMetaClass())));
+	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(define.takeMetaClass(), true)));
 	binding->bindClass(className, metaClass.get());
 
 	GScopedPointer<TestScriptContext> context(c);

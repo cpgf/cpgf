@@ -29,10 +29,10 @@ public:
 
 	void add(const GMetaTypedItem * item) {
 		const char * name = item->getTypeName().c_str();
-		MapType::const_iterator it = this->itemMap.find(name);
-		if(it == this->itemMap.end()) {
+//		MapType::const_iterator it = this->itemMap.find(name);
+//		if(it == this->itemMap.end()) {
 			this->itemMap.set(name, item);
-		}
+//		}
 	}
 
 	void remove(const GMetaTypedItem * item) {
