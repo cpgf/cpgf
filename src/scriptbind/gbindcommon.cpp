@@ -533,11 +533,15 @@ GGlueDataWrapperPool::GGlueDataWrapperPool()
 {
 }
 
+typedef vector<GGlueDataWrapper *> TempListType;
 GGlueDataWrapperPool::~GGlueDataWrapperPool()
 {
 	this->active = false;
+	
+	TempListType tempList(this->wrapperSet.begin(), this->wrapperSet.end());
+	this->wrapperSet.clear();
 
-	for(SetType::iterator it = this->wrapperSet.begin(); it != this->wrapperSet.end(); ++it) {
+	for(TempListType::iterator it = tempList.begin(); it != tempList.end(); ++it) {
 		if((*it)->getData()->getType() != gdtClass) {
 			freeGlueDataWrapper(*it);
 			*it = NULL;
@@ -549,7 +553,7 @@ GGlueDataWrapperPool::~GGlueDataWrapperPool()
 	   Though object holds a shared pointer of class data, the class data may free its nested class which the object is using.
 	   That will cause memory access error.
 	*/
-	for(SetType::iterator it = this->wrapperSet.begin(); it != this->wrapperSet.end(); ++it) {
+	for(TempListType::iterator it = tempList.begin(); it != tempList.end(); ++it) {
 		if(*it != NULL) {
 			freeGlueDataWrapper(*it);
 		}

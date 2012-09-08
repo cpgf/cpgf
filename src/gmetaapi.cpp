@@ -2050,7 +2050,6 @@ IMetaList * createMetaList()
 
 IMetaItem * metaItemToInterface(const GMetaItem * item, bool freeItem)
 {
-	if(freeItem) if(item == (void *)0x021ae470 || item == (void *)0x021ce470) __asm int 3;
 	if(item == NULL) {
 		return NULL;
 	}
