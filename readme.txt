@@ -41,7 +41,7 @@ Author and owner:
 
 	
 Website:
-	http://www.kbasm.com/
+	http://www.cpgf.org/
 
 
 Learning the library:
