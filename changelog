@@ -1,5 +1,4 @@
-TBD version 1.5.0
-	Launched new cpgf web site, http://www.cpgf.org
+2012-09-22 version 1.5.0
 	Significantly rewritten the script binding engine. Now the code is much better!
 	Now script can "inherit" from C++ class, in a unified way. Script can call cpgf.cloneClass to do that. See unit tests of metagen.
 	Now script can pass meta class back to C++. In script, func(CppClass), in C++, func(IMetaClass * cppClass).

@@ -1008,38 +1008,6 @@ bool indexMemberData(const GObjectGlueDataPointer & userData, IMetaAccessible * 
 	return doIndexMemberData(userData->getContext(), data, instance, userData->getCV() == opcvConst);
 }
 
-/*
-bool indexMemberEnumType(GObjectUserData * userData, GMetaMapItem * mapItem)
-{
-	GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-
-	doBindEnum(userData->getContext(), metaEnum.get());
-
-	return true;
-}
-
-bool indexMemberEnumValue(GObjectUserData * userData, GMetaMapItem * mapItem)
-{
-	GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-
-	GVariantData data;
-	metaEnum->getValue(&data, static_cast<uint32_t>(mapItem->getEnumIndex()));
-	metaCheckError(metaEnum);
-	variantToLua(userData->getContext(), GVariant(data), GMetaType(), false, true);
-
-	return true;
-}
-
-bool indexMemberClass(GObjectUserData * userData, GMetaMapItem * mapItem)
-{
-	GScopedInterface<IMetaClass> metaClass(gdynamic_cast<IMetaClass *>(mapItem->getItem()));
-
-	doBindClass(userData->getContext(), metaClass.get());
-
-	return true;
-}
-*/
-
 int UserData_index(lua_State * L)
 {
 	ENTER_LUA()

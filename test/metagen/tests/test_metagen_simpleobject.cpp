@@ -9,11 +9,13 @@ void testSimpleData(TestScriptContext * context)
 	QNEWOBJ(a, mtest.SimpleData());
 	QDO(a.n = 38);
 	QDO(a.s = "abc");
+	// not support casting char * to std::wstring yet
 //	QDO(a.ws = "wide");
 	
 	QNEWOBJ(b, mtest.SimpleData(a));
 	QASSERT(b.n == 38);
 	QASSERT(b.s == "abc");
+	// not support casting char * to std::wstring yet
 //	QASSERT(b.ws == "wide");
 }
 

@@ -700,11 +700,6 @@ Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, c
 	Local<Function> func = functionTemplate->GetFunction();
 	setObjectSignature(&func);
 	
-//	GGlueDataWrapper * funcDataWrapper = newGlueDataWrapper(glueData, getV8DataWrapperPool());
-
-//	Persistent<External> funcData = Persistent<External>::New(External::New(funcDataWrapper));
-//	funcData.MakeWeak(funcDataWrapper, weakHandleCallback);
-//	func->SetHiddenValue(String::New(userDataKey), funcData);
 	func->SetHiddenValue(String::New(userDataKey), data);
 
 	return functionTemplate;
@@ -1566,7 +1561,6 @@ void GV8ScriptObject::doBindMethodList(const char * name, IMetaList * methodList
 
 	Local<Function> func = Local<Function>::New(functionTemplate->GetFunction());
 	setObjectSignature(&func);
-//	func.MakeWeak(NULL, weakHandleCallback);
 
 	localObject->Set(String::New(name), func);
 }
