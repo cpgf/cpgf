@@ -103,7 +103,10 @@ if(${HAS_UNITTEST})
 
 	partUnitTest("test_misc"
 		${TEST_PATH}/misc/*.cpp
-		${TEST_PATH}/callback/*.cpp
+	)
+
+	partUnitTest("test_variant"
+		${TEST_PATH}/variant/*.cpp
 	)
 
 	partUnitTest("test_reflection"
@@ -157,8 +160,8 @@ if(${HAS_UNITTEST})
 
 	globAndAppendFiles(GLOB_TEST_SRC
 		${TEST_PATH}/misc/*.cpp
+		${TEST_PATH}/variant/*.cpp
 		${TEST_PATH}/reflection/*.cpp
-		${TEST_PATH}/callback/*.cpp
 		${TEST_PATH}/scriptbind/*.cpp
 		${TEST_PATH}/scriptbind/general/*.cpp
 		${TEST_PATH}/scriptbind/metadata/*.cpp

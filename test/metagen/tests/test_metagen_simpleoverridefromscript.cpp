@@ -26,13 +26,19 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScr
 	}
 
 	QDO(DerivedClass = cpgf.cloneClass(mtest.SimpleOverrideWrapper))
+	QDO(GrandDerivedClass = cpgf.cloneClass(DerivedClass))
 
-	QNEWOBJ(a, DerivedClass(3))
+	QNEWOBJ(a, GrandDerivedClass(3))
 	QASSERT(a.getValue() == 3);
-	QDO(DerivedClass.getValue = overrideGetValue)
+	QDO(GrandDerivedClass.getValue = overrideGetValue)
 	QASSERT(a.getValue() == 18);
+	
+	QNEWOBJ(d, mtest.SimpleOverrideWrapper(3))
+	QASSERT(d.getValue() == 3);
+	QNEWOBJ(d, DerivedClass(3))
+	QASSERT(d.getValue() == 3);
 
-	QNEWOBJ(b, DerivedClass(5))
+	QNEWOBJ(b, GrandDerivedClass(5))
 	QASSERT(b.getValue() == 20);
 	QNEWOBJ(c, mtest.SimpleOverrideWrapper(3))
 	QASSERT(c.getValue() == 3);
@@ -40,7 +46,7 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScr
 	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));
 	GEQUAL(18, objA->getValue());
 	
-	QDO(DerivedClass.getName = overrideGetName);
+	QDO(GrandDerivedClass.getName = overrideGetName);
 	QASSERT(a.getName() == "abc");
 	
 	QASSERT(a.baseOnly() == 38);
