@@ -126,7 +126,7 @@ GVariant::GVariant()
 
 GVariant::GVariant(const GVariantData & data) : data(data)
 {
-	this->init();
+	retainVarData(&this->data);
 
 	if(vtGetSize(this->data.typeData) != variant_internal::getVariantTypeSize(static_cast<GVariantType>(vtGetType(this->data.typeData)))) {
 		variant_internal::adjustVariantType(this);
@@ -135,7 +135,7 @@ GVariant::GVariant(const GVariantData & data) : data(data)
 
 GVariant::GVariant(const GVariant & other) : data(other.data)
 {
-	this->init();
+	retainVarData(&this->data);
 }
 
 GVariant::~GVariant()
@@ -165,16 +165,6 @@ GVariantData GVariant::takeData()
 	vtInit(this->data.typeData);
 
 	return result;
-}
-
-void GVariant::init()
-{
-	if(variant_internal::isVtUsingShadow(vtGetType(this->data.typeData))) {
-		this->data.shadowObject->retain();
-	}
-	else if(vtIsInterface(vtGetType(this->data.typeData)) && this->data.valueInterface != NULL) {
-		this->data.valueInterface->addReference();
-	}
 }
 
 
@@ -236,10 +226,26 @@ void initializeVarData(GVariantData * data)
 	vtInit(data->typeData);
 }
 
+GVariantData copyVarData(GVariantData * data)
+{
+	retainVarData(data);
+	return *data;
+}
+
+void retainVarData(GVariantData * data)
+{
+	if(variant_internal::isVtUsingShadow(vtGetType(data->typeData))) {
+		data->shadowObject->addReference();
+	}
+	else if(vtIsInterface(vtGetType(data->typeData)) && data->valueInterface != NULL) {
+		data->valueInterface->addReference();
+	}
+}
+
 void freeVarData(GVariantData * data)
 {
 	if(variant_internal::isVtUsingShadow(vtGetType(data->typeData))) {
-		data->shadowObject->release();
+		data->shadowObject->releaseReference();
 	}
 	else if(vtIsInterface(vtGetType(data->typeData)) && data->valueInterface != NULL) {
 		data->valueInterface->releaseReference();

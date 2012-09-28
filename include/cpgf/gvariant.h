@@ -2,6 +2,7 @@
 #define __GVARIANT_H
 
 #include "cpgf/gvartypedata.h"
+#include "cpgf/gapiutil.h"
 #include "cpgf/gerrorcode.h"
 #include "cpgf/gclassutil.h"
 #include "cpgf/gifelse.h"
@@ -152,9 +153,6 @@ public:
 
 	GVariantData takeData();
 
-private:
-	void init();
-
 public:
 	GVariantData data;
 
@@ -241,6 +239,8 @@ void * objectAddressFromVariant(const GVariant & v);
 void * referenceAddressFromVariant(const GVariant & v);
 
 void initializeVarData(GVariantData * data);
+GVariantData copyVarData(GVariantData * data);
+void retainVarData(GVariantData * data);
 void freeVarData(GVariantData * data);
 
 void initializeVarString(GVariantData * data, const char * s);

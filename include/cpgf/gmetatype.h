@@ -1,7 +1,7 @@
 #ifndef __GMETATYPE_H
 #define __GMETATYPE_H
 
-#include "cpgf/gvariant.h"
+#include "cpgf/gvartypedata.h"
 #include "cpgf/gstdint.h"
 #include "cpgf/gassert.h"
 #include "cpgf/gclassutil.h"
