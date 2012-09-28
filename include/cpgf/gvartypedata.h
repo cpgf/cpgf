@@ -42,6 +42,7 @@ enum GVariantType {
 	vtString = 33,
 	vtWideString = 34,
 	vtInterface = 35, // IObject *
+	vtTypedVar = 36,
 
 	vtUserBegin = 0xff,
 	vtUserEnd = 0x0fff,
@@ -110,6 +111,10 @@ inline void vtSetPointers(GVarTypeData & data, unsigned int pointers) {
 
 inline bool vtIsInterface(GVariantType vt) {
 	return vt == vtInterface;
+}
+
+inline bool vtIsTypedVar(GVariantType vt) {
+	return vt == vtTypedVar;
 }
 
 inline bool vtIsEmpty(GVariantType vt) {

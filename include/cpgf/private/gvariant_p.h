@@ -6,7 +6,7 @@ namespace variant_internal {
 unsigned int getVariantTypeSize(GVariantType type);
 void adjustVariantType(GVariant * var);
 
-class IVariantShadowObject : public IObject
+struct IVariantShadowObject : public IObject
 {
 public:
 	virtual void * G_API_CC getObject() = 0;
@@ -32,6 +32,13 @@ public:
 private:
 	T obj;
 };
+
+struct IVariantTypedVar : public IObject
+{
+public:
+//	virtual void * G_API_CC getObject() = 0;
+};
+
 
 template <typename T>
 bool isNotPointer() {
@@ -293,6 +300,10 @@ struct InitVariantSelector
 				if(v.data.valueInterface != NULL) {
 					v.data.valueInterface->addReference();
 				}
+				break;
+
+			case vtTypedVar:
+				v.data.valueTypedVar = variant_internal::CastVariantHelper<T, variant_internal::IVariantTypedVar *>::cast(value);
 				break;
 
 			case vtBool | byPointer:
@@ -591,6 +602,9 @@ struct CanCastFromVariant
 			case vtInterface:
 				return variant_internal::EnforceCastToPointer<IObject *, typename RemoveReference<ResultType>::Result>::CanCast;
 			
+			case vtTypedVar:
+				return variant_internal::EnforceCastToPointer<variant_internal::IVariantTypedVar *, typename RemoveReference<ResultType>::Result>::CanCast;
+
 			case vtBool | byPointer:
 				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<bool *, ResultType>::CanCast;
 
@@ -836,6 +850,9 @@ struct CastFromVariant
 			case vtInterface:
 				return variant_internal::EnforceCastToPointer<IObject *, ResultType>::cast(v.data.valueInterface);
 			
+			case vtTypedVar:
+				return variant_internal::EnforceCastToPointer<variant_internal::IVariantTypedVar *, ResultType>::cast(v.data.valueTypedVar);
+
 			case vtBool | byPointer:
 				return variant_internal::CastVariantHelper<bool *, ResultType>::cast(const_cast<bool *>(v.data.ptrBool));
 

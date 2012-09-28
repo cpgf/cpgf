@@ -33,7 +33,8 @@ namespace variant_internal {
 template <bool Copyable, typename T>
 void InitVariant(GVariant & v, const GVarTypeData & typeData, const typename RemoveReference<T>::Result & value);
 
-class IVariantShadowObject;
+struct IVariantShadowObject;
+struct IVariantTypedVar;
 
 struct GVariantDataHolder
 {
@@ -94,6 +95,7 @@ struct GVariantData
 		const volatile void * ptrObject;
 		
 		variant_internal::IVariantShadowObject * shadowObject;
+		variant_internal::IVariantTypedVar * valueTypedVar;
 		IObject * valueInterface;
 
 	};
