@@ -1,9 +1,42 @@
 #include "cpgf/gvariant.h"
+#include "cpgf/gmetatype.h"
 
 
 namespace cpgf {
 
 namespace variant_internal {
+
+class GVariantTypedVar : public IVariantTypedVar
+{
+public:
+	GVariantTypedVar(const GVariant & value, const GMetaType & type);
+	
+	G_INTERFACE_IMPL_OBJECT
+
+protected:
+	virtual void G_API_CC getValue(GVariantData * outValue);
+	virtual void G_API_CC getType(GMetaTypeData * outType);
+	
+private:
+	GVariant value;
+	GMetaType type;
+};
+
+GVariantTypedVar::GVariantTypedVar(const GVariant & value, const GMetaType & type)
+	: value(value), type(type)
+{
+}
+	
+void G_API_CC GVariantTypedVar::getValue(GVariantData * outValue)
+{
+	*outValue = this->value.getData();
+}
+
+void G_API_CC GVariantTypedVar::getType(GMetaTypeData * outType)
+{
+	*outType = this->type.getData();
+}
+
 
 unsigned int getVariantTypeSize(GVariantType type)
 {
@@ -66,6 +99,7 @@ unsigned int getVariantTypeSize(GVariantType type)
 		case vtString:
 		case vtWideString:
 		case vtInterface:
+		case vtTypedVar:
 			return sizeof(void *);
 
 		default:
@@ -308,6 +342,25 @@ bool variantDataIsWideString(const GVariantData & v)
 bool variantIsWideString(const GVariant & v)
 {
 	return variantDataIsWideString(v.data);
+}
+
+
+void initializeVarTypedVariant(GVariantData * data, const GVariant & value, const GMetaType & type)
+{
+	vtInit(data->typeData);
+	vtSetType(data->typeData, vtTypedVar);
+	vtSetSize(data->typeData, variant_internal::getVariantTypeSize(vtTypedVar));
+	vtSetPointers(data->typeData, 0);
+	data->valueTypedVar = new variant_internal::GVariantTypedVar(value, type);
+}
+
+GVariant createTypedVariant(const GVariant & value, const GMetaType & type)
+{
+	GVariant v;
+
+	initializeVarTypedVariant(&v.data, value, type);
+
+	return v;
 }
 
 

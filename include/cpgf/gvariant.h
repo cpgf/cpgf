@@ -25,6 +25,9 @@ struct VarantCastCopyConstRef {};
 class GVariant;
 class GMetaVariant;
 
+class GMetaType;
+struct GMetaTypeData;
+
 template <typename T>
 bool canFromVariant(const GVariant & v);
 
@@ -113,6 +116,7 @@ public:
 
 	template <typename T>
 	GVariant(const T & value) {
+//GASSERT_STATIC((! IsSameType<T, GVariantData>::Result));
 		GVarTypeData typeData;
 		vtInit(typeData);
 		deduceVariantType<T>(typeData);
@@ -254,6 +258,8 @@ void initializeVarWideString(GVariantData * data, const wchar_t * s);
 GVariant createWideStringVariant(const wchar_t * s);
 bool variantDataIsWideString(const GVariantData & v);
 bool variantIsWideString(const GVariant & v);
+
+GVariant createTypedVariant(const GVariant & value, const GMetaType & type);
 
 
 } // namespace cpgf

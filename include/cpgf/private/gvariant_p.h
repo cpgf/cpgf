@@ -36,7 +36,8 @@ private:
 struct IVariantTypedVar : public IObject
 {
 public:
-//	virtual void * G_API_CC getObject() = 0;
+	virtual void G_API_CC getValue(GVariantData * outValue) = 0;
+	virtual void G_API_CC getType(GMetaTypeData * outType) = 0;
 };
 
 
