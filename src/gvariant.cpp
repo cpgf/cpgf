@@ -275,6 +275,9 @@ void retainVarData(GVariantData * data)
 	else if(vtIsInterface(vtGetType(data->typeData)) && data->valueInterface != NULL) {
 		data->valueInterface->addReference();
 	}
+	else if(vtIsTypedVar(vtGetType(data->typeData)) && data->valueTypedVar != NULL) {
+		data->valueTypedVar->addReference();
+	}
 }
 
 void freeVarData(GVariantData * data)
@@ -284,6 +287,9 @@ void freeVarData(GVariantData * data)
 	}
 	else if(vtIsInterface(vtGetType(data->typeData)) && data->valueInterface != NULL) {
 		data->valueInterface->releaseReference();
+	}
+	else if(vtIsTypedVar(vtGetType(data->typeData)) && data->valueTypedVar != NULL) {
+		data->valueTypedVar->releaseReference();
 	}
 }
 
