@@ -41,7 +41,7 @@ int testAddN(const cpgf::GMetaVariadicParam * params)
 
 int testAddCallback(IScriptFunction * scriptFunction)
 {
-	return fromVariant<int>(invokeScriptFunction(scriptFunction, 5, 6).getValue());
+	return fromVariant<int>(invokeScriptFunction(scriptFunction, 5, 6));
 }
 
 template <typename T>

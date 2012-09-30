@@ -5,7 +5,6 @@
 #include "cpgf/scriptbind/gscriptbindapi.h"
 
 #include "cpgf/gmetaapiutil.h"
-#include "cpgf/gmetavariant.h"
 #include "cpgf/gclassutil.h"
 
 #include <string>
@@ -146,8 +145,8 @@ public:
 	GScriptFunction();
 	virtual ~GScriptFunction();
 	
-	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount) = 0;
-	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount) = 0;
+	virtual GVariant invoke(const GVariant * params, size_t paramCount) = 0;
+	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount) = 0;
 };
 
 
@@ -195,8 +194,8 @@ public:
 
 	virtual GScriptFunction * gainScriptFunction(const char * name) = 0;
 	
-	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount) = 0;
-	virtual GMetaVariant invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount) = 0;
+	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount) = 0;
+	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount) = 0;
 
 	virtual void assignValue(const char * fromName, const char * toName) = 0;
 	virtual bool valueIsNull(const char * name) = 0;

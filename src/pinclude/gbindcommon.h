@@ -779,7 +779,7 @@ bool shouldRemoveReference(const GMetaType & type);
 wchar_t * stringToWideString(const char * s);
 char * wideStringToString(const wchar_t * ws);
 
-GMetaVariant glueDataToVariant(const GGlueDataPointer & glueData);
+GVariant glueDataToVariant(const GGlueDataPointer & glueData);
 
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);
 
@@ -874,7 +874,7 @@ typename Methods::ResultType variantToScript(const GContextPointer & context, co
 			GMetaType newType(type);
 			newType.removeReference();
 
-			return Methods::doVariantToScript(context, value, newType, allowGC, allowRaw);
+			return Methods::doVariantToScript(context, createTypedVariant(value, newType), allowGC, allowRaw);
 		}
 	}
 
@@ -897,7 +897,7 @@ typename Methods::ResultType methodResultToScript(const GContextPointer & contex
 		typename Methods::ResultType result;
 
 		GVariant value = resultValue->resultData;
-		result = Methods::doVariantToScript(context, value, GMetaType(typeData), !! callable->isResultTransferOwnership(), false);
+		result = Methods::doVariantToScript(context, createTypedVariant(value, GMetaType(typeData)), !! callable->isResultTransferOwnership(), false);
 		if(! Methods::isSuccessResult(result)) {
 			GScopedInterface<IMetaConverter> converter(metaGetResultExtendType(callable, GExtendTypeCreateFlag_Converter).getConverter());
 			result = Methods::doConverterToScript(context, value, converter.get());
@@ -922,7 +922,7 @@ typename Methods::ResultType accessibleToScript(const GContextPointer & context,
 	GMetaType type;
 	GVariant value = getAccessibleValueAndType(instance, accessible, &type, instanceIsConst);
 
-	typename Methods::ResultType result = Methods::doVariantToScript(context, value, type, false, false);
+	typename Methods::ResultType result = Methods::doVariantToScript(context, createTypedVariant(value, type), false, false);
 	if(! Methods::isSuccessResult(result)) {
 		GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Converter).getConverter());
 		result = Methods::doConverterToScript(context, value, converter.get());
@@ -1047,7 +1047,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 			case mmitEnumValue:
 				if(! isInstance || config.allowAccessEnumValueViaInstance()) {
 					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-					return Methods::doVariantToScript(context, metaGetEnumValue(metaEnum, static_cast<uint32_t>(mapItem->getEnumIndex())), GMetaType(), false, true);
+					return Methods::doVariantToScript(context, metaGetEnumValue(metaEnum, static_cast<uint32_t>(mapItem->getEnumIndex())), false, true);
 				}
 				break;
 

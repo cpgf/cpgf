@@ -2,6 +2,7 @@
 #define __GVARIANT_H
 
 #include "cpgf/gvartypedata.h"
+#include "cpgf/gmetatype.h"
 #include "cpgf/gapiutil.h"
 #include "cpgf/gerrorcode.h"
 #include "cpgf/gclassutil.h"
@@ -266,8 +267,33 @@ bool variantDataIsWideString(const GVariantData & v);
 bool variantIsWideString(const GVariant & v);
 
 GVariant createTypedVariant(const GVariant & value, const GMetaType & type);
+template <typename T>
+GVariant createTypedVariant(const T & value)
+{
+	return createTypedVariant(GVariant(value), createMetaType<T>());
+}
 GVariant getVariantRealValue(const GVariant & value);
 GMetaType getVariantRealMetaType(const GVariant & value);
+
+class GTypedVariant
+{
+public:
+	template <typename T>
+	GTypedVariant(const T & value) : value(createTypedVariant(value)) {}
+
+	operator const GVariant & () const { return this->value; }
+	operator GVariant & () { return this->value; }
+	operator const GVariant * () const { return &this->value; }
+	operator GVariant * () { return &this->value; }
+	const GVariant * operator & () const { return & this->value; }
+	GVariant * operator & () { return & this->value; }
+
+	const GVariant & getValue() const { return this->value; }
+	GVariant & getValue() { return this->value; }
+
+private:
+	GVariant value;
+};
 
 
 } // namespace cpgf

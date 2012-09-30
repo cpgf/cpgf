@@ -1042,7 +1042,7 @@ char * wideStringToString(const wchar_t * ws)
 	return s.take();
 }
 
-GMetaVariant glueDataToVariant(const GGlueDataPointer & glueData)
+GVariant glueDataToVariant(const GGlueDataPointer & glueData)
 {
 	if(glueData) {
 		switch(glueData->getType()) {
@@ -1053,7 +1053,7 @@ GMetaVariant glueDataToVariant(const GGlueDataPointer & glueData)
 				metaCheckError(classData->getMetaClass());
 				GMetaType type(typeData);
 				type.addPointer();
-				return GMetaVariant(classData->getMetaClass(), type);
+				return createTypedVariant(classData->getMetaClass(), type);
 			}
 
 			case gdtObject: {
@@ -1065,10 +1065,10 @@ GMetaVariant glueDataToVariant(const GGlueDataPointer & glueData)
 				type.addPointer();
 				switch(objectData->getDataType()) {
 					case ogdtNormal:
-						return GMetaVariant(pointerToObjectVariant(objectData->getInstance()), type);
+						return createTypedVariant(pointerToObjectVariant(objectData->getInstance()), type);
 					
 					case ogdtInterface:
-						return GMetaVariant(GVariant(objectData->getInterfaceObject()), type);
+						return createTypedVariant(GVariant(objectData->getInterfaceObject()), type);
 				}
 
 				break;
@@ -1076,7 +1076,7 @@ GMetaVariant glueDataToVariant(const GGlueDataPointer & glueData)
 
 			case gdtRaw: {
 				GRawGlueDataPointer rawData = sharedStaticCast<GRawGlueData>(glueData);
-				return GMetaVariant(rawData->getData(), GMetaType());
+				return createTypedVariant(rawData->getData(), GMetaType());
 			}
 
 			default:
@@ -1084,7 +1084,7 @@ GMetaVariant glueDataToVariant(const GGlueDataPointer & glueData)
 		}
 	}
 
-	return GMetaVariant();
+	return GVariant();
 }
 
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst)

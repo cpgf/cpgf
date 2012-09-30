@@ -76,8 +76,8 @@ public:
 	GPythonScriptFunction(const GContextPointer & context, PyObject * func);
 	virtual ~GPythonScriptFunction();
 
-	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount);
-	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
+	virtual GVariant invoke(const GVariant * params, size_t paramCount);
+	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount);
 
 private:
 	PyObject * func;
@@ -119,8 +119,8 @@ public:
 
 	virtual GScriptFunction * gainScriptFunction(const char * name);
 
-	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount);
-	virtual GMetaVariant invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount);
+	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount);
+	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
 
 	virtual void assignValue(const char * fromName, const char * toName);
 	virtual bool valueIsNull(const char * name);
@@ -170,7 +170,7 @@ int callbackSetEnumValue(PyObject * object, PyObject * attrName, PyObject * valu
 PyObject * callbackAccessibleDescriptorGet(PyObject * self, PyObject * obj, PyObject * type);
 int callbackAccessibleDescriptorSet(PyObject * self, PyObject * obj, PyObject * value);
 
-PyObject * variantToPython(const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw);
+PyObject * variantToPython(const GContextPointer & context, const GVariant & data, bool allowGC, bool allowRaw);
 
 PyTypeObject functionType = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -653,10 +653,10 @@ GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
 	return sdtScriptObject;
 }
 
-GMetaVariant pythonToVariant(const GContextPointer & context, PyObject * value)
+GVariant pythonToVariant(const GContextPointer & context, PyObject * value)
 {
 	if(value == NULL) {
-		return GMetaVariant();
+		return GVariant();
 	}
 
 	if(PyNumber_Check(value)) {
@@ -678,7 +678,7 @@ GMetaVariant pythonToVariant(const GContextPointer & context, PyObject * value)
 
 	}
 	else if(PyString_Check(value)) {
-		return GMetaVariant(createStringVariant(PyString_AsString(value)), createMetaType<char *>());
+		return createTypedVariant(createStringVariant(PyString_AsString(value)), createMetaType<char *>());
 	}
 	else {
 		GPythonObject * object = tryCastFromPython(value);
@@ -689,15 +689,15 @@ GMetaVariant pythonToVariant(const GContextPointer & context, PyObject * value)
 		if(PyCallable_Check(value)) {
 			GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GPythonScriptFunction(context, value), true));
 			
-			return GMetaVariant(func.get(), GMetaType());
+			return GVariant(func.get());
 		}
 
 		GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GPythonScriptObject(context->getService(), value, context->getConfig()), true));
 
-		return GMetaVariant(scriptObject.get(), GMetaType());
+		return GVariant(scriptObject.get());
 	}
 
-	return GMetaVariant();
+	return GVariant();
 }
 
 PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataPointer & classData, void * instance, bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType)
@@ -734,9 +734,9 @@ struct GPythonMethods
 		return objectToPython(context, classData, instance, allowGC, cv, dataType);
 	}
 
-	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, bool allowGC, bool allowRaw)
 	{
-		return variantToPython(context, value, type, allowGC, allowRaw);
+		return variantToPython(context, value, allowGC, allowRaw);
 	}
 	
 	static ResultType doRawToScript(const GContextPointer & context, const GVariant & value)
@@ -796,8 +796,11 @@ struct GPythonMethods
 	}
 };
 
-PyObject * variantToPython(const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+PyObject * variantToPython(const GContextPointer & context, const GVariant & data, bool allowGC, bool allowRaw)
 {
+	GVariant value = getVariantRealValue(data);
+	GMetaType type = getVariantRealMetaType(data);
+
 	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
 	
 	if(vtIsEmpty(vt)) {
@@ -850,7 +853,7 @@ void loadMethodParameters(const GContextPointer & context, PyObject * args, GVar
 
 	for(int i = 0; i < paramCount; ++i) {
 		PyObject * c = PyTuple_GetItem(args, i);
-		outputParams[i] = pythonToVariant(context, c).getValue();
+		outputParams[i] = getVariantRealValue(pythonToVariant(context, c));
 	}
 }
 
@@ -941,7 +944,7 @@ int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * valu
 	GGlueDataPointer userData = cppObject->getDataAs<GGlueData>();
 	const char * name = PyString_AsString(attrName);
 
-	if(doSetFieldValue(userData, name, pythonToVariant(userData->getContext(), value).getValue())) {
+	if(doSetFieldValue(userData, name, pythonToVariant(userData->getContext(), value))) {
 		return 0;
 	}
 
@@ -972,7 +975,7 @@ PyObject * callbackGetEnumValue(PyObject * object, PyObject * attrName)
 
 	int32_t index = userData->getMetaEnum()->findKey(name);
 	if(index >= 0) {
-		return variantToPython(userData->getContext(), metaGetEnumValue(userData->getMetaEnum(), index), GMetaType(), true, false);
+		return variantToPython(userData->getContext(), metaGetEnumValue(userData->getMetaEnum(), index), true, false);
 	}
 
 	raiseCoreException(Error_ScriptBinding_CantFindEnumKey, *name);
@@ -1014,15 +1017,15 @@ int callbackAccessibleDescriptorSet(PyObject * self, PyObject * /*obj*/, PyObjec
 	
 	GAccessibleGlueDataPointer userData = cppObject->getDataAs<GAccessibleGlueData>();
 
-	GMetaVariant v = pythonToVariant(userData->getContext(), value);
-	metaSetValue(userData->getAccessible(), userData->getInstance(), v.getValue());
+	GVariant v = pythonToVariant(userData->getContext(), value);
+	metaSetValue(userData->getAccessible(), userData->getInstance(), v);
 
 	return 0;
 
 	LEAVE_PYTHON(return 0)
 }
 
-GMetaVariant invokePythonFunctionIndirectly(const GContextPointer & context, PyObject * object, PyObject * func, GMetaVariant const * const * params, size_t paramCount, const char * name)
+GVariant invokePythonFunctionIndirectly(const GContextPointer & context, PyObject * object, PyObject * func, GVariant const * const * params, size_t paramCount, const char * name)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1042,7 +1045,7 @@ GMetaVariant invokePythonFunctionIndirectly(const GContextPointer & context, PyO
 			PyTuple_SetItem(args.get(), 0, object);
 		}
 		for(size_t i = 0; i < paramCount; ++i) {
-			GPythonScopedPointer arg(variantToPython(context, params[i]->getValue(), params[i]->getType(), false, true));
+			GPythonScopedPointer arg(variantToPython(context, *params[i], false, true));
 			if(!arg) {
 				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
 			}
@@ -1059,7 +1062,7 @@ GMetaVariant invokePythonFunctionIndirectly(const GContextPointer & context, PyO
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
 	}
 
-	return GMetaVariant();
+	return GVariant();
 }
 
 
@@ -1153,11 +1156,11 @@ GPythonScriptFunction::~GPythonScriptFunction()
 	}
 }
 
-GMetaVariant GPythonScriptFunction::invoke(const GMetaVariant * params, size_t paramCount)
+GVariant GPythonScriptFunction::invoke(const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
-	const cpgf::GMetaVariant * variantPointers[REF_MAX_ARITY];
+	const cpgf::GVariant * variantPointers[REF_MAX_ARITY];
 
 	for(size_t i = 0; i < paramCount; ++i) {
 		variantPointers[i] = &params[i];
@@ -1166,13 +1169,13 @@ GMetaVariant GPythonScriptFunction::invoke(const GMetaVariant * params, size_t p
 	return this->invokeIndirectly(variantPointers, paramCount);
 }
 
-GMetaVariant GPythonScriptFunction::invokeIndirectly(GMetaVariant const * const * params, size_t paramCount)
+GVariant GPythonScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
 {
 	ENTER_PYTHON()
 
 	return invokePythonFunctionIndirectly(this->getContext(), NULL, this->func, params, paramCount, "");
 
-	LEAVE_PYTHON(return GMetaVariant())
+	LEAVE_PYTHON(return GVariant())
 }
 
 
@@ -1282,11 +1285,11 @@ GScriptFunction * GPythonScriptObject::gainScriptFunction(const char * name)
 	LEAVE_PYTHON(return NULL)
 }
 
-GMetaVariant GPythonScriptObject::invoke(const char * name, const GMetaVariant * params, size_t paramCount)
+GVariant GPythonScriptObject::invoke(const char * name, const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
-	const cpgf::GMetaVariant * variantPointers[REF_MAX_ARITY];
+	const cpgf::GVariant * variantPointers[REF_MAX_ARITY];
 
 	for(size_t i = 0; i < paramCount; ++i) {
 		variantPointers[i] = &params[i];
@@ -1295,14 +1298,14 @@ GMetaVariant GPythonScriptObject::invoke(const char * name, const GMetaVariant *
 	return this->invokeIndirectly(name, variantPointers, paramCount);
 }
 
-GMetaVariant GPythonScriptObject::invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount)
+GVariant GPythonScriptObject::invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount)
 {
 	ENTER_PYTHON()
 
 	GPythonScopedPointer func(getObjectAttr(this->object, name));
 	return invokePythonFunctionIndirectly(this->getContext(), NULL, func.get(), params, paramCount, name);
 
-	LEAVE_PYTHON(return GMetaVariant())
+	LEAVE_PYTHON(return GVariant())
 }
 
 void GPythonScriptObject::bindFundamental(const char * name, const GVariant & value)
@@ -1311,7 +1314,7 @@ void GPythonScriptObject::bindFundamental(const char * name, const GVariant & va
 
 	ENTER_PYTHON()
 
-	setObjectAttr(this->object, name, variantToPython(this->getContext(), value, GMetaType(), false, true));
+	setObjectAttr(this->object, name, variantToPython(this->getContext(), value, false, true));
 
 	LEAVE_PYTHON()
 }
@@ -1409,7 +1412,7 @@ GVariant GPythonScriptObject::getFundamental(const char * name)
 
 	GPythonScopedPointer obj(getObjectAttr(this->object, name));
 	if(obj && getPythonType(obj.get(), NULL) == sdtFundamental) {
-		return pythonToVariant(this->getContext(), obj.get()).getValue();;
+		return pythonToVariant(this->getContext(), obj.get());
 	}
 	else {
 		return GVariant();

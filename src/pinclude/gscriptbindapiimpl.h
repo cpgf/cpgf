@@ -57,8 +57,8 @@ protected:
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
 
-	virtual void G_API_CC invoke(GMetaVarData * outResult, const GMetaVarData * params, uint32_t paramCount);
-	virtual void G_API_CC invokeIndirectly(GMetaVarData * outResult, GMetaVarData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC invoke(GVariantData * outResult, const GVariantData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, GVariantData const * const * params, uint32_t paramCount);
 
 private:
 	GScriptFunction * scriptFunction;
@@ -108,8 +108,8 @@ protected:
 
 	virtual IScriptFunction * G_API_CC gainScriptFunction(const char * name);
 
-	virtual void G_API_CC invoke(GMetaVarData * outResult, const char * name, const GMetaVarData * params, uint32_t paramCount);
-	virtual void G_API_CC invokeIndirectly(GMetaVarData * outResult, const char * name, GMetaVarData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC invoke(GVariantData * outResult, const char * name, const GVariantData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount);
 
 	virtual void G_API_CC assignValue(const char * fromName, const char * toName);
 	virtual gapi_bool G_API_CC valueIsNull(const char * name);

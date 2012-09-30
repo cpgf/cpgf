@@ -2,7 +2,6 @@
 #define __GSCRIPTBINDAPI_H
 
 #include "cpgf/gmetaapi.h"
-#include "cpgf/gmetavariant.h"
 
 
 namespace cpgf {
@@ -27,8 +26,8 @@ struct IScriptConfig : public IObject
 struct IScriptFunction : public IExtendObject
 {
 public:
-	virtual void G_API_CC invoke(GMetaVarData * outResult, const GMetaVarData * params, uint32_t paramCount) = 0;
-	virtual void G_API_CC invokeIndirectly(GMetaVarData * outResult, GMetaVarData const * const * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invoke(GVariantData * outResult, const GVariantData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, GVariantData const * const * params, uint32_t paramCount) = 0;
 };
 
 
@@ -66,8 +65,8 @@ struct IScriptObject : public IExtendObject
 	
 	virtual IScriptFunction * G_API_CC gainScriptFunction(const char * name) = 0;
 	
-	virtual void G_API_CC invoke(GMetaVarData * outResult, const char * name, const GMetaVarData * params, uint32_t paramCount) = 0;
-	virtual void G_API_CC invokeIndirectly(GMetaVarData * outResult, const char * name, GMetaVarData const * const * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invoke(GVariantData * outResult, const char * name, const GVariantData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount) = 0;
 
 	virtual void G_API_CC assignValue(const char * fromName, const char * toName) = 0;
 	virtual gapi_bool G_API_CC valueIsNull(const char * name) = 0;

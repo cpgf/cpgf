@@ -365,7 +365,7 @@ GVariant createTypedVariant(const GVariant & value, const GMetaType & type)
 {
 	GVariant v;
 
-	initializeVarTypedVariant(&v.refData(), value, type);
+	initializeVarTypedVariant(&v.refData(), getVariantRealValue(value), type);
 
 	return v;
 }
@@ -375,7 +375,7 @@ GVariant getVariantRealValue(const GVariant & value)
 	if(vtIsTypedVar(value.getType())) {
 		GVariantData data;
 		value.getData().valueTypedVar->getValue(&data);
-		return getVariantRealValue(GVariant(data));
+		return GVariant(data);
 	}
 	else {
 		return value;
@@ -387,14 +387,9 @@ GMetaType getVariantRealMetaType(const GVariant & value)
 	if(vtIsTypedVar(value.getType())) {
 		GVariantData data;
 		value.getData().valueTypedVar->getValue(&data);
-		if(vtIsTypedVar(vtGetType(data.typeData))) {
-			return getVariantRealMetaType(GVariant(data));
-		}
-		else {
-			GMetaTypeData type;
-			value.getData().valueTypedVar->getType(&type);
-			return GMetaType(type);
-		}
+		GMetaTypeData type;
+		value.getData().valueTypedVar->getType(&type);
+		return GMetaType(type);
 	}
 	else {
 		return GMetaType();

@@ -57,7 +57,7 @@ IScriptFunction * testScriptFunctionGetter()
 
 int testExecAddCallback()
 {
-	int n = fromVariant<int>(invokeScriptFunction(testScriptFunction.get(), 5, 6).getValue());
+	int n = fromVariant<int>(invokeScriptFunction(testScriptFunction.get(), 5, 6));
 	testScriptFunction.reset(); // destroy it to avoid crash between different script engine such as Lua and V8. It's not a bug
 	return n;
 }

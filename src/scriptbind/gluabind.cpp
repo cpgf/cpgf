@@ -60,8 +60,8 @@ public:
 	GLuaScriptFunction(const GContextPointer & context, int objectIndex);
 	virtual ~GLuaScriptFunction();
 	
-	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount);
-	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
+	virtual GVariant invoke(const GVariant * params, size_t paramCount);
+	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount);
 
 private:
 	int ref;
@@ -108,8 +108,8 @@ public:
 	
 	virtual GScriptFunction * gainScriptFunction(const char * name);
 	
-	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount);
-	virtual GMetaVariant invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount);
+	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount);
+	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
 
 	virtual void assignValue(const char * fromName, const char * toName);
 	virtual bool valueIsNull(const char * name);
@@ -231,8 +231,8 @@ void setMetaTableCall(lua_State * L, void * userData);
 void setMetaTableSignature(lua_State * L);
 bool isValidMetaTable(lua_State * L, int index);
 
-bool variantToLua(const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw);
-GMetaVariant luaToVariant(const GContextPointer & context, int index);
+bool variantToLua(const GContextPointer & context, const GVariant & data, bool allowGC, bool allowRaw);
+GVariant luaToVariant(const GContextPointer & context, int index);
 
 bool doIndexMemberData(const GContextPointer & context, IMetaAccessible * data, void * instance, bool instanceIsConst);
 
@@ -381,7 +381,7 @@ int GLuaGlobalAccessor::doNewIndex()
 	string sname(name);
 	MapType::iterator it = this->itemMap.find(sname);
 	if(it != this->itemMap.end()) {
-		GVariant value = luaToVariant(this->scriptObject->getContext(), -1).getValue();
+		GVariant value = luaToVariant(this->scriptObject->getContext(), -1);
 		GVariantData varData = value.getData();
 		it->second.accessible->set(it->second.instance, &varData);
 		metaCheckError(it->second.accessible);
@@ -572,7 +572,7 @@ void * luaToObject(const GContextPointer & context, int index, GMetaType * outTy
 	return NULL;
 }
 
-GMetaVariant luaUserDataToVariant(const GContextPointer & context, int index)
+GVariant luaUserDataToVariant(const GContextPointer & context, int index)
 {
 	lua_State * L = getLuaState(context);
 
@@ -581,26 +581,26 @@ GMetaVariant luaUserDataToVariant(const GContextPointer & context, int index)
 		return glueDataToVariant(static_cast<GGlueDataWrapper *>(userData)->getData());
 	}
 
-	return GMetaVariant();
+	return GVariant();
 }
 
-GMetaVariant functionToVariant(const GContextPointer & context, int index)
+GVariant functionToVariant(const GContextPointer & context, int index)
 {
 	GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GLuaScriptFunction(context, index), true));
 	
-	return GMetaVariant(func.get(), GMetaType());
+	return GVariant(func.get());
 }
 
-GMetaVariant tableToVariant(const GContextPointer & context, int index)
+GVariant tableToVariant(const GContextPointer & context, int index)
 {
 	lua_State * L = getLuaState(context);
 
 	GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GLuaScriptObject(context->getService(), L, context->getConfig(), index), true));
 	
-	return GMetaVariant(scriptObject.get(), GMetaType());
+	return GVariant(scriptObject.get());
 }
 
-GMetaVariant luaToVariant(const GContextPointer & context, int index)
+GVariant luaToVariant(const GContextPointer & context, int index)
 {
 	lua_State * L = getLuaState(context);
 
@@ -617,7 +617,7 @@ GMetaVariant luaToVariant(const GContextPointer & context, int index)
 			return lua_toboolean(L, index);
 
 		case LUA_TSTRING:
-			return GMetaVariant(createStringVariant(lua_tostring(L, index)), createMetaType<char *>());
+			return createTypedVariant(createStringVariant(lua_tostring(L, index)), createMetaType<char *>());
 
 		case LUA_TUSERDATA:
 			return luaUserDataToVariant(context, index);
@@ -635,7 +635,7 @@ GMetaVariant luaToVariant(const GContextPointer & context, int index)
 			break;
 	}
 
-	return GMetaVariant();
+	return GVariant();
 }
 
 bool rawToLua(const GContextPointer & context, const GVariant & value)
@@ -670,9 +670,9 @@ struct GLuaMethods
 		return true;
 	}
 
-	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, bool allowGC, bool allowRaw)
 	{
-		return variantToLua(context, value, type, allowGC, allowRaw);
+		return variantToLua(context, value, allowGC, allowRaw);
 	}
 	
 	static ResultType doRawToScript(const GContextPointer & context, const GVariant & value)
@@ -736,9 +736,12 @@ struct GLuaMethods
 
 };
 
-bool variantToLua(const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+bool variantToLua(const GContextPointer & context, const GVariant & data, bool allowGC, bool allowRaw)
 {
 	lua_State * L = getLuaState(context);
+
+	GVariant value = getVariantRealValue(data);
+	GMetaType type = getVariantRealMetaType(data);
 
 	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
 	
@@ -880,7 +883,7 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 void loadMethodParameters(const GContextPointer & context, GVariant * outputParams, int startIndex, size_t paramCount)
 {
 	for(size_t i = 0; i < paramCount; ++i) {
-		outputParams[i] = luaToVariant(context, static_cast<int>(i) + startIndex).getValue();
+		outputParams[i] = getVariantRealValue(luaToVariant(context, static_cast<int>(i) + startIndex));
 	}
 }
 
@@ -1035,7 +1038,7 @@ int UserData_newindex(lua_State * L)
 	
 	const char * name = lua_tostring(L, -2);
 
-	if(doSetFieldValue(glueData, name, luaToVariant(glueData->getContext(), -1).getValue())) {
+	if(doSetFieldValue(glueData, name, luaToVariant(glueData->getContext(), -1))) {
 		return 1;
 	}
 
@@ -1309,7 +1312,7 @@ void GLuaScopeGuard::rawGet(const char * name)
 
 
 // function is on stack top
-GMetaVariant invokeLuaFunctionIndirectly(const GContextPointer & context, GMetaVariant const * const * params, size_t paramCount, const char * name)
+GVariant invokeLuaFunctionIndirectly(const GContextPointer & context, GVariant const * const * params, size_t paramCount, const char * name)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1323,7 +1326,7 @@ GMetaVariant invokeLuaFunctionIndirectly(const GContextPointer & context, GMetaV
 
 	if(lua_isfunction(L, -1)) {
 		for(size_t i = 0; i < paramCount; ++i) {
-			if(!variantToLua(context, params[i]->getValue(), params[i]->getType(), false, true)) {
+			if(!variantToLua(context, *params[i], false, true)) {
 				if(i > 0) {
 					lua_pop(L, static_cast<int>(i) - 1);
 				}
@@ -1352,7 +1355,7 @@ GMetaVariant invokeLuaFunctionIndirectly(const GContextPointer & context, GMetaV
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
 	}
 	
-	return GMetaVariant();
+	return GVariant();
 }
 
 
@@ -1366,11 +1369,11 @@ GLuaScriptFunction::~GLuaScriptFunction()
 	unrefLua(getLuaState(this->getContext()), this->ref);
 }
 	
-GMetaVariant GLuaScriptFunction::invoke(const GMetaVariant * params, size_t paramCount)
+GVariant GLuaScriptFunction::invoke(const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
-	const cpgf::GMetaVariant * variantPointers[REF_MAX_ARITY];
+	const cpgf::GVariant * variantPointers[REF_MAX_ARITY];
 
 	for(size_t i = 0; i < paramCount; ++i) {
 		variantPointers[i] = &params[i];
@@ -1379,7 +1382,7 @@ GMetaVariant GLuaScriptFunction::invoke(const GMetaVariant * params, size_t para
 	return this->invokeIndirectly(variantPointers, paramCount);
 }
 
-GMetaVariant GLuaScriptFunction::invokeIndirectly(GMetaVariant const * const * params, size_t paramCount)
+GVariant GLuaScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
 {
 	lua_State * L = getLuaState(this->getContext());
 
@@ -1389,7 +1392,7 @@ GMetaVariant GLuaScriptFunction::invokeIndirectly(GMetaVariant const * const * p
 
 	return invokeLuaFunctionIndirectly(this->getContext(), params, paramCount, "");
 	
-	LEAVE_LUA(L, return GMetaVariant())
+	LEAVE_LUA(L, return GVariant())
 }
 
 
@@ -1573,11 +1576,11 @@ GScriptFunction * GLuaScriptObject::gainScriptFunction(const char * name)
 	LEAVE_LUA(this->luaState, return NULL)
 }
 
-GMetaVariant GLuaScriptObject::invoke(const char * name, const GMetaVariant * params, size_t paramCount)
+GVariant GLuaScriptObject::invoke(const char * name, const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
-	const cpgf::GMetaVariant * variantPointers[REF_MAX_ARITY];
+	const cpgf::GVariant * variantPointers[REF_MAX_ARITY];
 
 	for(size_t i = 0; i < paramCount; ++i) {
 		variantPointers[i] = &params[i];
@@ -1586,7 +1589,7 @@ GMetaVariant GLuaScriptObject::invoke(const char * name, const GMetaVariant * pa
 	return this->invokeIndirectly(name, variantPointers, paramCount);
 }
 
-GMetaVariant GLuaScriptObject::invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount)
+GVariant GLuaScriptObject::invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount)
 {
 	ENTER_LUA()
 
@@ -1596,7 +1599,7 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const char * name, GMetaVariant 
 
 	return invokeLuaFunctionIndirectly(this->getContext(), params, paramCount, name);
 	
-	LEAVE_LUA(this->luaState, return GMetaVariant())
+	LEAVE_LUA(this->luaState, return GVariant())
 }
 
 void GLuaScriptObject::bindFundamental(const char * name, const GVariant & value)
@@ -1607,7 +1610,7 @@ void GLuaScriptObject::bindFundamental(const char * name, const GVariant & value
 
 	GLuaScopeGuard scopeGuard(this);
 
-	if(! variantToLua(this->getContext(), value, GMetaType(), false, true)) {
+	if(! variantToLua(this->getContext(), value, false, true)) {
 		raiseCoreException(Error_ScriptBinding_CantBindFundamental);
 	}
 	
@@ -1745,7 +1748,7 @@ GVariant GLuaScriptObject::getFundamental(const char * name)
 	scopeGuard.get(name);
 	
 	if(getLuaType(this->luaState, -1, NULL) == sdtFundamental) {
-		return luaToVariant(this->getContext(), -1).getValue();
+		return luaToVariant(this->getContext(), -1);
 	}
 	else {
 		lua_pop(this->luaState, 1);
@@ -1791,7 +1794,7 @@ GVariant GLuaScriptObject::getRaw(const char * name)
 	scopeGuard.get(name);
 	
 	if(getLuaType(this->luaState, -1, NULL) == sdtRaw) {
-		return luaToVariant(this->getContext(), -1).getValue();
+		return luaToVariant(this->getContext(), -1);
 	}
 	else {
 		lua_pop(this->luaState, 1);

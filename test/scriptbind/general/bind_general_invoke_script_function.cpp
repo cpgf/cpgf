@@ -29,30 +29,30 @@ void doTestInvokeScriptFunction(T * binding, TestScriptContext * context)
 		DO("def funcNewTestData(): \n\tglobal t \n\tt = TestData() \n\tt.x = 3 \n\tt.name = 'def' \n\treturn t")
 	}
 
-	GMetaVariant result;
+	GVariant result;
 	
 	TestData data;
 	data.x = 5;
 	data.name = "abc";
 	
 	result = invokeScriptFunction(binding, "funcAdd", 8, 2);
-	GEQUAL(fromVariant<int>(result.getValue()), 10);
+	GEQUAL(fromVariant<int>(result), 10);
 		
 	result = invokeScriptFunction(binding, "funcLen", "abc", 2);
-	GEQUAL(fromVariant<int>(result.getValue()), 5);
+	GEQUAL(fromVariant<int>(result), 5);
 
 	result = invokeScriptFunction(binding, "funcTestData", &data);
-	GEQUAL(fromVariant<int>(result.getValue()), 8);
+	GEQUAL(fromVariant<int>(result), 8);
 
 	result = 0;
-	GDIFF(fromVariant<int>(result.getValue()), 8);
+	GDIFF(fromVariant<int>(result), 8);
 
 	result = invokeScriptFunction(binding, "funcTestData", &data);
-	GEQUAL(fromVariant<int>(result.getValue()), 8);
+	GEQUAL(fromVariant<int>(result), 8);
 
 	TestData * pdata;
 	result = invokeScriptFunction(binding, "funcNewTestData");
-	pdata = fromVariant<TestData *>(result.getValue());
+	pdata = fromVariant<TestData *>(result);
 	GEQUAL(pdata->x, 3);
 	GEQUAL(pdata->name, "def");
 }
@@ -80,19 +80,19 @@ void doTestInvokeCppFunction(T * binding, TestScriptContext * context)
 {
 	(void)context;
 
-	GMetaVariant result;
+	GVariant result;
 	
 	result = invokeScriptFunction(binding, "testAdd", 25);
-	GEQUAL(fromVariant<int>(result.getValue()), 38 + 25);
+	GEQUAL(fromVariant<int>(result), 38 + 25);
 		
 	result = invokeScriptFunction(binding, "testAdd", 7, 8);
-	GEQUAL(fromVariant<int>(result.getValue()), 2 + 7 + 8);
+	GEQUAL(fromVariant<int>(result), 2 + 7 + 8);
 
 	result = invokeScriptFunction(binding, "testAdd", 9, 7, 8);
-	GEQUAL(fromVariant<int>(result.getValue()), 3 + 9 + 7 + 8);
+	GEQUAL(fromVariant<int>(result), 3 + 9 + 7 + 8);
 
 	result = invokeScriptFunction(binding, "testAdd", 9, 7, 8, 38, 68);
-	GEQUAL(fromVariant<int>(result.getValue()), 3 + 9 + 7 + 8 + 38 + 68);
+	GEQUAL(fromVariant<int>(result), 3 + 9 + 7 + 8 + 38 + 68);
 }
 
 void testInvokeCppFunction(TestScriptContext * context)

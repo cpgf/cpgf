@@ -46,7 +46,7 @@ public:
             cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getValue"));
             if(func)
             {
-                return cpgf::fromVariant<int >(cpgf::invokeScriptFunction(func.get(), this).getValue());
+                return cpgf::fromVariant<int >(cpgf::invokeScriptFunction(func.get(), this));
             }
         }
         return SimpleOverride::getValue();
@@ -60,7 +60,7 @@ public:
             cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getAnother"));
             if(func)
             {
-                return cpgf::fromVariant<int >(cpgf::invokeScriptFunction(func.get(), this).getValue());
+                return cpgf::fromVariant<int >(cpgf::invokeScriptFunction(func.get(), this));
             }
         }
         return SimpleOverride::getAnother();
@@ -74,7 +74,7 @@ public:
             cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getName"));
             if(func)
             {
-                return cpgf::fromVariant<std::string >(cpgf::invokeScriptFunction(func.get(), this).getValue());
+                return cpgf::fromVariant<std::string >(cpgf::invokeScriptFunction(func.get(), this));
             }
         }
         return SimpleOverride::getName();

@@ -70,7 +70,7 @@ public class ClassWrapperWriter {
 					}
 					invoke = invoke + ")";
 					if(cppMethod.hasResult()) {
-						invoke = "return cpgf::fromVariant<" + cppMethod.getResultType().getLiteralType() + " >(" + invoke + ".getValue())";
+						invoke = "return cpgf::fromVariant<" + cppMethod.getResultType().getLiteralType() + " >(" + invoke + ")";
 					}
 					invoke = invoke + ";";
 					codeWriter.writeLine(invoke);

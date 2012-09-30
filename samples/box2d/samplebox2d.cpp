@@ -267,8 +267,8 @@ int main(int argc, char * argv[])
 	
 	if(runner->executeFile(fileName)) {
 		invokeScriptFunction(scriptObject.get(), "setupBox2d");
-		GMetaVariant mv = invokeScriptFunction(scriptObject.get(), "getWorld");
-		b2World * world = fromVariant<b2World *>(mv.getValue());
+		GVariant mv = invokeScriptFunction(scriptObject.get(), "getWorld");
+		b2World * world = fromVariant<b2World *>(mv);
 		static DebugDraw debugDraw;
 		debugDraw.SetFlags(b2DebugDraw::e_shapeBit);
 		world->SetDebugDraw(&debugDraw);

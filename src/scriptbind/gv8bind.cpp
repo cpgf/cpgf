@@ -119,8 +119,8 @@ public:
 
 	virtual GScriptFunction * gainScriptFunction(const char * name);
 
-	virtual GMetaVariant invoke(const char * name, const GMetaVariant * params, size_t paramCount);
-	virtual GMetaVariant invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount);
+	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount);
+	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
 
 	virtual void assignValue(const char * fromName, const char * toName);
 	virtual bool valueIsNull(const char * name);
@@ -155,8 +155,8 @@ public:
 	GV8ScriptFunction(const GContextPointer & context, Local<Object> receiver, Local<Value> func);
 	virtual ~GV8ScriptFunction();
 
-	virtual GMetaVariant invoke(const GMetaVariant * params, size_t paramCount);
-	virtual GMetaVariant invokeIndirectly(GMetaVariant const * const * params, size_t paramCount);
+	virtual GVariant invoke(const GVariant * params, size_t paramCount);
+	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount);
 
 private:
 	Persistent<Object> receiver;
@@ -207,7 +207,7 @@ private:
 };
 
 
-Handle<Value> variantToV8(const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw);
+Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data, bool allowGC, bool allowRaw);
 Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData);
 Persistent<Object> doBindEnum(const GContextPointer & context, Handle<ObjectTemplate> objectTemplate, IMetaEnum * metaEnum);
 Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData, bool isGlobal, IMetaList * methodList,
@@ -384,7 +384,7 @@ void * v8ToObject(Handle<Value> value, GMetaType * outType)
 	return NULL;
 }
 
-GMetaVariant v8UserDataToVariant(const GContextPointer & context, Local<Context> v8Context, Handle<Value> value)
+GVariant v8UserDataToVariant(const GContextPointer & context, Local<Context> v8Context, Handle<Value> value)
 {
 	if(value->IsFunction() || value->IsObject()) {
 		Local<Object> obj = value->ToObject();
@@ -403,23 +403,23 @@ GMetaVariant v8UserDataToVariant(const GContextPointer & context, Local<Context>
 			if(value->IsFunction()) {
 				GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GV8ScriptFunction(context, v8Context->Global(), Local<Value>::New(value)), true));
 
-				return GMetaVariant(func.get(), GMetaType());
+				return GVariant(func.get());
 			}
 			else {
 				GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GV8ScriptObject(context->getService(), obj, context->getConfig()), true));
 
-				return GMetaVariant(scriptObject.get(), GMetaType());
+				return GVariant(scriptObject.get());
 			}
 		}
 	}
 
-	return GMetaVariant();
+	return GVariant();
 }
 
-GMetaVariant v8ToVariant(const GContextPointer & context, Local<Context> v8Context, Handle<Value> value)
+GVariant v8ToVariant(const GContextPointer & context, Local<Context> v8Context, Handle<Value> value)
 {
 	if(value.IsEmpty()) {
-		return GMetaVariant();
+		return GVariant();
 	}
 
 	if(value->IsBoolean()) {
@@ -440,7 +440,7 @@ GMetaVariant v8ToVariant(const GContextPointer & context, Local<Context> v8Conte
 
 	if(value->IsString()) {
 		String::AsciiValue s(value);
-		return GMetaVariant(createStringVariant(*s), createMetaType<char *>());
+		return createTypedVariant(createStringVariant(*s), createMetaType<char *>());
 	}
 
 	if(value->IsUint32()) {
@@ -451,7 +451,7 @@ GMetaVariant v8ToVariant(const GContextPointer & context, Local<Context> v8Conte
 		return v8UserDataToVariant(context, v8Context, value);
 	}
 
-	return GMetaVariant();
+	return GVariant();
 }
 
 Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPointer & classData, void * instance, bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType)
@@ -501,9 +501,9 @@ struct GV8Methods
 		return objectToV8(context, classData, instance, allowGC, cv, dataType);
 	}
 
-	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, bool allowGC, bool allowRaw)
 	{
-		return variantToV8(context, value, type, allowGC, allowRaw);
+		return variantToV8(context, value, allowGC, allowRaw);
 	}
 	
 	static ResultType doRawToScript(const GContextPointer & context, const GVariant & value)
@@ -571,8 +571,11 @@ struct GV8Methods
 
 };
 
-Handle<Value> variantToV8(const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data, bool allowGC, bool allowRaw)
 {
+	GVariant value = getVariantRealValue(data);
+	GMetaType type = getVariantRealMetaType(data);
+
 	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
 
 	if(vtIsEmpty(vt)) {
@@ -629,8 +632,8 @@ void accessibleSet(Local<String> /*prop*/, Local<Value> value, const AccessorInf
 	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(Local<External>::Cast(info.Data())->Value());
 	GAccessibleGlueDataPointer accessibleGlueData(dataWrapper->getAs<GAccessibleGlueData>());
 
-	GMetaVariant v = v8ToVariant(accessibleGlueData->getContext(), info.Holder()->CreationContext(), value);
-	metaSetValue(accessibleGlueData->getAccessible(), accessibleGlueData->getInstance(), v.getValue());
+	GVariant v = v8ToVariant(accessibleGlueData->getContext(), info.Holder()->CreationContext(), value);
+	metaSetValue(accessibleGlueData->getAccessible(), accessibleGlueData->getInstance(), v);
 
 	LEAVE_V8()
 }
@@ -714,7 +717,7 @@ Handle<Value> namedEnumGetter(Local<String> prop, const AccessorInfo & info)
 	String::AsciiValue name(prop);
 	int32_t index = metaEnum->findKey(*name);
 	if(index >= 0) {
-		return variantToV8(dataWrapper->getData()->getContext(), metaGetEnumValue(metaEnum, index), GMetaType(), true, false);
+		return variantToV8(dataWrapper->getData()->getContext(), metaGetEnumValue(metaEnum, index), true, false);
 	}
 
 	raiseCoreException(Error_ScriptBinding_CantFindEnumKey, *name);
@@ -784,7 +787,7 @@ Handle<Value> getNamedMember(const GGlueDataPointer & glueData, const char * nam
 void loadMethodParameters(const Arguments & args, const GContextPointer & context, GVariant * outputParams)
 {
 	for(int i = 0; i < args.Length(); ++i) {
-		outputParams[i] = v8ToVariant(context, args.Holder()->CreationContext(), args[i]).getValue();
+		outputParams[i] = getVariantRealValue(v8ToVariant(context, args.Holder()->CreationContext(), args[i]));
 	}
 }
 
@@ -871,7 +874,7 @@ void staticMemberSetter(Local<String> prop, Local<Value> value, const AccessorIn
 
 	GContextPointer context = dataWrapper->getData()->getContext();
 
-	doSetFieldValue(dataWrapper->getData(), name, v8ToVariant(context, info.Holder()->CreationContext(), value).getValue());
+	doSetFieldValue(dataWrapper->getData(), name, v8ToVariant(context, info.Holder()->CreationContext(), value));
 
 	LEAVE_V8()
 }
@@ -911,7 +914,7 @@ Handle<Value> namedMemberSetter(Local<String> prop, Local<Value> value, const Ac
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 	}
 	else {
-		if(doSetFieldValue(dataWrapper->getData(), name, v8ToVariant(dataWrapper->getData()->getContext(), info.Holder()->CreationContext(), value).getValue())) {
+		if(doSetFieldValue(dataWrapper->getData(), name, v8ToVariant(dataWrapper->getData()->getContext(), info.Holder()->CreationContext(), value))) {
 			return value;
 		}
 	}
@@ -1044,7 +1047,7 @@ bool valueIsCallable(Local<Value> value)
 	return value->IsFunction() || (value->IsObject() && Local<Object>::Cast(value)->IsCallable());
 }
 
-GMetaVariant invokeV8FunctionIndirectly(const GContextPointer & context, Local<Object> object, Local<Value> func, GMetaVariant const * const * params, size_t paramCount, const char * name)
+GVariant invokeV8FunctionIndirectly(const GContextPointer & context, Local<Object> object, Local<Value> func, GVariant const * const * params, size_t paramCount, const char * name)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 	GASSERT(! object->IsNull());
@@ -1056,7 +1059,7 @@ GMetaVariant invokeV8FunctionIndirectly(const GContextPointer & context, Local<O
 	if(valueIsCallable(func)) {
 		Handle<Value> v8Params[REF_MAX_ARITY];
 		for(size_t i = 0; i < paramCount; ++i) {
-			v8Params[i] = variantToV8(context, params[i]->getValue(), params[i]->getType(), false, true);
+			v8Params[i] = variantToV8(context, *params[i], false, true);
 			if(v8Params[i].IsEmpty()) {
 				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
 			}
@@ -1076,7 +1079,7 @@ GMetaVariant invokeV8FunctionIndirectly(const GContextPointer & context, Local<O
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
 	}
 
-	return GMetaVariant();
+	return GVariant();
 }
 
 
@@ -1100,11 +1103,11 @@ GV8ScriptFunction::~GV8ScriptFunction()
 	this->func.Clear();
 }
 
-GMetaVariant GV8ScriptFunction::invoke(const GMetaVariant * params, size_t paramCount)
+GVariant GV8ScriptFunction::invoke(const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
-	const cpgf::GMetaVariant * variantPointers[REF_MAX_ARITY];
+	const cpgf::GVariant * variantPointers[REF_MAX_ARITY];
 
 	for(size_t i = 0; i < paramCount; ++i) {
 		variantPointers[i] = &params[i];
@@ -1113,7 +1116,7 @@ GMetaVariant GV8ScriptFunction::invoke(const GMetaVariant * params, size_t param
 	return this->invokeIndirectly(variantPointers, paramCount);
 }
 
-GMetaVariant GV8ScriptFunction::invokeIndirectly(GMetaVariant const * const * params, size_t paramCount)
+GVariant GV8ScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
 {
 	ENTER_V8()
 
@@ -1122,7 +1125,7 @@ GMetaVariant GV8ScriptFunction::invokeIndirectly(GMetaVariant const * const * pa
 	Local<Object> receiver = Local<Object>::New(this->receiver);
 	return invokeV8FunctionIndirectly(this->getContext(), receiver, Local<Value>::New(this->func), params, paramCount, "");
 
-	LEAVE_V8(return GMetaVariant())
+	LEAVE_V8(return GVariant())
 }
 
 
@@ -1247,11 +1250,11 @@ GScriptFunction * GV8ScriptObject::gainScriptFunction(const char * name)
 	LEAVE_V8(return NULL)
 }
 
-GMetaVariant GV8ScriptObject::invoke(const char * name, const GMetaVariant * params, size_t paramCount)
+GVariant GV8ScriptObject::invoke(const char * name, const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
-	const cpgf::GMetaVariant * variantPointers[REF_MAX_ARITY];
+	const cpgf::GVariant * variantPointers[REF_MAX_ARITY];
 
 	for(size_t i = 0; i < paramCount; ++i) {
 		variantPointers[i] = &params[i];
@@ -1260,7 +1263,7 @@ GMetaVariant GV8ScriptObject::invoke(const char * name, const GMetaVariant * par
 	return this->invokeIndirectly(name, variantPointers, paramCount);
 }
 
-GMetaVariant GV8ScriptObject::invokeIndirectly(const char * name, GMetaVariant const * const * params, size_t paramCount)
+GVariant GV8ScriptObject::invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount)
 {
 	ENTER_V8()
 
@@ -1271,7 +1274,7 @@ GMetaVariant GV8ScriptObject::invokeIndirectly(const char * name, GMetaVariant c
 
 	return invokeV8FunctionIndirectly(this->getContext(), this->getObject(), func, params, paramCount, name);
 
-	LEAVE_V8(return GMetaVariant())
+	LEAVE_V8(return GVariant())
 }
 
 void GV8ScriptObject::bindFundamental(const char * name, const GVariant & value)
@@ -1283,7 +1286,7 @@ void GV8ScriptObject::bindFundamental(const char * name, const GVariant & value)
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->object));
 
-	localObject->Set(String::New(name), variantToV8(this->getContext(), value, GMetaType(), false, true));
+	localObject->Set(String::New(name), variantToV8(this->getContext(), value, false, true));
 
 	LEAVE_V8()
 }
@@ -1405,7 +1408,7 @@ GVariant GV8ScriptObject::getFundamental(const char * name)
 
 	Local<Value> value = localObject->Get(String::New(name));
 	if(getV8Type(value, NULL) == sdtFundamental) {
-		return v8ToVariant(this->getContext(), this->object->CreationContext(), value).getValue();
+		return v8ToVariant(this->getContext(), this->object->CreationContext(), value);
 	}
 	else {
 		return GVariant();
@@ -1455,7 +1458,7 @@ GVariant GV8ScriptObject::getRaw(const char * name)
 
 	Local<Value> value = localObject->Get(String::New(name));
 	if(getV8Type(value, NULL) == sdtRaw) {
-		return v8ToVariant(this->getContext(), this->object->CreationContext(), value).getValue();
+		return v8ToVariant(this->getContext(), this->object->CreationContext(), value);
 	}
 	else {
 		return GVariant();

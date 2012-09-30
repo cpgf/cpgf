@@ -10,34 +10,34 @@ namespace cpgf {
 
 #define DEF_LOAD_PARAM_HELPER(N, unused) params[N] = &GPP_CONCAT(p, N);
 #define DEF_LOAD_PARAM(N) \
-	const GMetaVariant * params[N == 0 ? 1 : N]; \
+	const GVariant * params[N == 0 ? 1 : N]; \
 	GPP_REPEAT_3(N, DEF_LOAD_PARAM_HELPER, GPP_EMPTY())
 
-#define DEF_LOAD_PARAM_HELPER_API(N, unused) params[N] = GPP_CONCAT(p, N).getData();
+#define DEF_LOAD_PARAM_HELPER_API(N, unused) params[N] = GPP_CONCAT(p, N).getValue().getData();
 #define DEF_LOAD_PARAM_API(N) \
-	GMetaVarData params[N == 0 ? 1 : N]; \
+	GVariantData params[N == 0 ? 1 : N]; \
 	GPP_REPEAT_3(N, DEF_LOAD_PARAM_HELPER_API, GPP_EMPTY())
 
 #define DEF_CALL_HELPER(N, unused) \
-	inline GMetaVariant invokeScriptFunction(GScriptObject * scriptObject, const char * name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
+	inline GVariant invokeScriptFunction(GScriptObject * scriptObject, const char * name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
 		return scriptObject->invokeIndirectly(name, params, N); \
 	} \
-	inline GMetaVariant invokeScriptFunction(IScriptObject * scriptObject, const char * name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
+	inline GVariant invokeScriptFunction(IScriptObject * scriptObject, const char * name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
 		DEF_LOAD_PARAM_API(N) \
-		GMetaVarData result; \
+		GVariantData result; \
 		scriptObject->invoke(&result, name, params, N); \
-		return GMetaVariant(result); \
+		return GVariant(result); \
 	} \
-	inline GMetaVariant invokeScriptFunction(GScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
+	inline GVariant invokeScriptFunction(GScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
 		return scriptFunction->invokeIndirectly(params, N); \
 	} \
-	inline GMetaVariant invokeScriptFunction(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GMetaVariant & p)) { \
+	inline GVariant invokeScriptFunction(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
 		DEF_LOAD_PARAM_API(N) \
-		GMetaVarData result; \
+		GVariantData result; \
 		scriptFunction->invoke(&result, params, N); \
-		return GMetaVariant(result); \
+		return GVariant(result); \
 	}
 
 GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
