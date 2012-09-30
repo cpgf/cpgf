@@ -260,6 +260,8 @@ bool variantDataIsWideString(const GVariantData & v);
 bool variantIsWideString(const GVariant & v);
 
 GVariant createTypedVariant(const GVariant & value, const GMetaType & type);
+GVariant getVariantRealValue(const GVariant & value);
+GMetaType getVariantRealType(const GVariant & value);
 
 
 } // namespace cpgf

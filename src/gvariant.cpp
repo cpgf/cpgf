@@ -25,6 +25,7 @@ private:
 GVariantTypedVar::GVariantTypedVar(const GVariant & value, const GMetaType & type)
 	: value(value), type(type)
 {
+	fixupMetaType(&this->type);
 }
 	
 void G_API_CC GVariantTypedVar::getValue(GVariantData * outValue)
@@ -362,6 +363,31 @@ GVariant createTypedVariant(const GVariant & value, const GMetaType & type)
 
 	return v;
 }
+
+GVariant getVariantRealValue(const GVariant & value)
+{
+	if(vtIsTypedVar(value.getType())) {
+		GVariantData data;
+		fromVariant<variant_internal::IVariantTypedVar *>(value)->getValue(&data);
+		return GVariant(data);
+	}
+	else {
+		return value;
+	}
+}
+
+GMetaType getVariantRealType(const GVariant & value)
+{
+	if(vtIsTypedVar(value.getType())) {
+		GMetaTypeData type;
+		fromVariant<variant_internal::IVariantTypedVar *>(value)->getType(&type);
+		return GMetaType(type);
+	}
+	else {
+		return GMetaType();
+	}
+}
+
 
 
 } // namespace cpgf
