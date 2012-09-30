@@ -269,7 +269,7 @@ void initializeMetaType(GMetaTypeData * data)
 
 void fixupMetaType(GMetaType * type)
 {
-	if(type->baseName == NULL) {
+	if(type->baseName == NULL && ! type->getBaseType().isEmpty()) {
 		const GMetaTypedItem * item = getGlobalMetaClass()->getModule()->findItemByType(type->getBaseType());
 		if(item != NULL) {
 			type->baseName = item->getTypeName().c_str();
@@ -286,7 +286,7 @@ void fixupMetaType(GMetaType * type, const GMetaItem * metaItem)
 
 void fixupMetaType(GMetaType * type, const GMetaModule * module)
 {
-	if(type->baseName == NULL) {
+	if(type->baseName == NULL && ! type->getBaseType().isEmpty()) {
 		if(module == NULL) {
 			module = getGlobalMetaClass()->getModule();
 		}

@@ -153,13 +153,17 @@ public:
 		return vtIsEmpty(this->getType());
 	}
 
-	GVariantData getData() const {
+	const GVariantData & getData() const {
+		return this->data;
+	}
+
+	GVariantData & refData() {
 		return this->data;
 	}
 
 	GVariantData takeData();
 
-public:
+private:
 	GVariantData data;
 
 private:
@@ -183,13 +187,13 @@ void checkFailCast(bool success);
 template <typename T>
 bool canFromVariant(const GVariant & v)
 {
-	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, VarantCastKeepConstRef>::canCast(vtGetType(v.data.typeData), v);
+	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, VarantCastKeepConstRef>::canCast(vtGetType(v.getData().typeData), v);
 }
 
 template <typename T, typename Policy>
 bool canFromVariant(const GVariant & v)
 {
-	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, Policy>::canCast(vtGetType(v.data.typeData), v);
+	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, Policy>::canCast(vtGetType(v.getData().typeData), v);
 }
 
 template <typename T>
@@ -210,7 +214,7 @@ GVariant pointerToRefVariant(T * p)
 	GVariant v(p);
 
 	if(vtIsByPointer(v.getType())) {
-		vtSetType(v.data.typeData, (vtGetType(v.data.typeData) & ~byPointer) | byReference);
+		vtSetType(v.refData().typeData, (vtGetType(v.getData().typeData) & ~byPointer) | byReference);
 	}
 
 	return v;

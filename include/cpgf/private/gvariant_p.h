@@ -208,7 +208,7 @@ struct EnforceCastToPointer <From, const volatile To *> : public CastVariantHelp
 template <bool Copyable, typename T>
 void initShadowObject(GVariant & v, const T & value, typename GEnableIf<Copyable>::Result * = 0)
 {
-	v.data.shadowObject = new variant_internal::GVariantShadowObject<T>(value);
+	v.refData().shadowObject = new variant_internal::GVariantShadowObject<T>(value);
 }
 
 template <bool Copyable, typename T>
@@ -221,75 +221,75 @@ template <bool Copyable, typename T, typename Enable = void>
 struct InitVariantSelector
 {
 	static void init(GVariant & v, const GVarTypeData & typeData, const T & value) {
-		v.data.typeData = typeData;
-		vtSetSize(v.data.typeData, getVariantTypeSize(vtGetType(typeData)));
+		v.refData().typeData = typeData;
+		vtSetSize(v.refData().typeData, getVariantTypeSize(vtGetType(typeData)));
 
 		switch(static_cast<int>(vtGetType(typeData))) {
 			case vtBool:
 				// convert to long long then convert to bool because C++ allows bool to be convert to int
 				// and that may cause ambiguous for a class that has cast operator to int, pointer, but no cast to bool.
-				v.data.valueBool = (bool)variant_internal::CastVariantHelper<T, long long>::cast(value);
+				v.refData().valueBool = (bool)variant_internal::CastVariantHelper<T, long long>::cast(value);
 				break;
 
 			case vtChar:
-				v.data.valueChar = variant_internal::CastVariantHelper<T, char>::cast(value);
+				v.refData().valueChar = variant_internal::CastVariantHelper<T, char>::cast(value);
 				break;
 
 			case vtWchar:
-				v.data.valueWchar = variant_internal::CastVariantHelper<T, wchar_t>::cast(value);
+				v.refData().valueWchar = variant_internal::CastVariantHelper<T, wchar_t>::cast(value);
 				break;
 
 			case vtSignedChar:
-				v.data.valueSignedChar = variant_internal::CastVariantHelper<T, signed char>::cast(value);
+				v.refData().valueSignedChar = variant_internal::CastVariantHelper<T, signed char>::cast(value);
 				break;
 			case vtUnsignedChar:
-				v.data.valueUnsignedChar = variant_internal::CastVariantHelper<T, unsigned char>::cast(value);
+				v.refData().valueUnsignedChar = variant_internal::CastVariantHelper<T, unsigned char>::cast(value);
 				break;
 
 			case vtSignedShort:
-				v.data.valueSignedShort = variant_internal::CastVariantHelper<T, signed short>::cast(value);
+				v.refData().valueSignedShort = variant_internal::CastVariantHelper<T, signed short>::cast(value);
 				break;
 			case vtUnsignedShort:
-				v.data.valueUnsignedShort = variant_internal::CastVariantHelper<T, unsigned short>::cast(value);
+				v.refData().valueUnsignedShort = variant_internal::CastVariantHelper<T, unsigned short>::cast(value);
 				break;
 
 			case vtSignedInt:
-				v.data.valueSignedInt = variant_internal::CastVariantHelper<T, signed int>::cast(value);
+				v.refData().valueSignedInt = variant_internal::CastVariantHelper<T, signed int>::cast(value);
 				break;
 			case vtUnsignedInt:
-				v.data.valueUnsignedInt = variant_internal::CastVariantHelper<T, unsigned int>::cast(value);
+				v.refData().valueUnsignedInt = variant_internal::CastVariantHelper<T, unsigned int>::cast(value);
 				break;
 
 			case vtSignedLong:
-				v.data.valueSignedLong = variant_internal::CastVariantHelper<T, signed long>::cast(value);
+				v.refData().valueSignedLong = variant_internal::CastVariantHelper<T, signed long>::cast(value);
 				break;
 			case vtUnsignedLong:
-				v.data.valueUnsignedLong = variant_internal::CastVariantHelper<T, unsigned long>::cast(value);
+				v.refData().valueUnsignedLong = variant_internal::CastVariantHelper<T, unsigned long>::cast(value);
 				break;
 
 			case vtSignedLongLong:
-				v.data.valueSignedLongLong = variant_internal::CastVariantHelper<T, signed long long>::cast(value);
+				v.refData().valueSignedLongLong = variant_internal::CastVariantHelper<T, signed long long>::cast(value);
 				break;
 			case vtUnsignedLongLong:
-				v.data.valueUnsignedLongLong = variant_internal::CastVariantHelper<T, unsigned long long>::cast(value);
+				v.refData().valueUnsignedLongLong = variant_internal::CastVariantHelper<T, unsigned long long>::cast(value);
 				break;
 
 			case vtFloat:
-				v.data.valueFloat = variant_internal::CastVariantHelper<T, float>::cast(value);
+				v.refData().valueFloat = variant_internal::CastVariantHelper<T, float>::cast(value);
 				break;
 			case vtDouble:
-				v.data.valueDouble = variant_internal::CastVariantHelper<T, double>::cast(value);
+				v.refData().valueDouble = variant_internal::CastVariantHelper<T, double>::cast(value);
 				break;
 			case vtLongDouble:
-				v.data.valueLongDouble = variant_internal::CastVariantHelper<T, long double>::cast(value);
+				v.refData().valueLongDouble = variant_internal::CastVariantHelper<T, long double>::cast(value);
 				break;
 
 			case vtPointer:
-				v.data.valuePointer = variant_internal::CastVariantHelper<T, const volatile void *>::cast(value);
+				v.refData().valuePointer = variant_internal::CastVariantHelper<T, const volatile void *>::cast(value);
 				break;
 
 			case vtObject:
-				v.data.valueObject = variant_internal::CastVariantHelper<T *, const volatile void *>::cast(const_cast<T *>(&value));
+				v.refData().valueObject = variant_internal::CastVariantHelper<T *, const volatile void *>::cast(const_cast<T *>(&value));
 				break;
 
 			case vtShadow:
@@ -297,153 +297,153 @@ struct InitVariantSelector
 				break;
 
 			case vtInterface:
-				v.data.valueInterface = variant_internal::CastVariantHelper<T, IObject *>::cast(value);
-				if(v.data.valueInterface != NULL) {
-					v.data.valueInterface->addReference();
+				v.refData().valueInterface = variant_internal::CastVariantHelper<T, IObject *>::cast(value);
+				if(v.refData().valueInterface != NULL) {
+					v.refData().valueInterface->addReference();
 				}
 				break;
 
 			case vtTypedVar:
-				v.data.valueTypedVar = variant_internal::CastVariantHelper<T, variant_internal::IVariantTypedVar *>::cast(value);
+				v.refData().valueTypedVar = variant_internal::CastVariantHelper<T, variant_internal::IVariantTypedVar *>::cast(value);
 				break;
 
 			case vtBool | byPointer:
-				v.data.ptrBool = variant_internal::CastVariantHelper<T, bool *>::cast(value);
+				v.refData().ptrBool = variant_internal::CastVariantHelper<T, bool *>::cast(value);
 				break;
 
 			case vtChar | byPointer:
-				v.data.ptrChar = variant_internal::CastVariantHelper<T, char *>::cast(value);
+				v.refData().ptrChar = variant_internal::CastVariantHelper<T, char *>::cast(value);
 				break;
 
 			case vtWchar | byPointer:
-				v.data.ptrWchar = variant_internal::CastVariantHelper<T, wchar_t *>::cast(value);
+				v.refData().ptrWchar = variant_internal::CastVariantHelper<T, wchar_t *>::cast(value);
 				break;
 
 			case vtSignedChar | byPointer:
-				v.data.ptrSignedChar = variant_internal::CastVariantHelper<T, signed char *>::cast(value);
+				v.refData().ptrSignedChar = variant_internal::CastVariantHelper<T, signed char *>::cast(value);
 				break;
 			case vtUnsignedChar | byPointer:
-				v.data.ptrUnsignedChar = variant_internal::CastVariantHelper<T, unsigned char *>::cast(value);
+				v.refData().ptrUnsignedChar = variant_internal::CastVariantHelper<T, unsigned char *>::cast(value);
 				break;
 
 			case vtSignedShort | byPointer:
-				v.data.ptrSignedShort = variant_internal::CastVariantHelper<T, signed short *>::cast(value);
+				v.refData().ptrSignedShort = variant_internal::CastVariantHelper<T, signed short *>::cast(value);
 				break;
 			case vtUnsignedShort | byPointer:
-				v.data.ptrUnsignedShort = variant_internal::CastVariantHelper<T, unsigned short *>::cast(value);
+				v.refData().ptrUnsignedShort = variant_internal::CastVariantHelper<T, unsigned short *>::cast(value);
 				break;
 
 			case vtSignedInt | byPointer:
-				v.data.ptrSignedInt = variant_internal::CastVariantHelper<T, signed int *>::cast(value);
+				v.refData().ptrSignedInt = variant_internal::CastVariantHelper<T, signed int *>::cast(value);
 				break;
 			case vtUnsignedInt | byPointer:
-				v.data.ptrUnsignedInt = variant_internal::CastVariantHelper<T, unsigned int *>::cast(value);
+				v.refData().ptrUnsignedInt = variant_internal::CastVariantHelper<T, unsigned int *>::cast(value);
 				break;
 
 			case vtSignedLong | byPointer:
-				v.data.ptrSignedLong = variant_internal::CastVariantHelper<T, signed long *>::cast(value);
+				v.refData().ptrSignedLong = variant_internal::CastVariantHelper<T, signed long *>::cast(value);
 				break;
 			case vtUnsignedLong | byPointer:
-				v.data.ptrUnsignedLong = variant_internal::CastVariantHelper<T, unsigned long *>::cast(value);
+				v.refData().ptrUnsignedLong = variant_internal::CastVariantHelper<T, unsigned long *>::cast(value);
 				break;
 
 			case vtSignedLongLong | byPointer:
-				v.data.ptrSignedLongLong = variant_internal::CastVariantHelper<T, signed long long *>::cast(value);
+				v.refData().ptrSignedLongLong = variant_internal::CastVariantHelper<T, signed long long *>::cast(value);
 				break;
 			case vtUnsignedLongLong | byPointer:
-				v.data.ptrUnsignedLongLong = variant_internal::CastVariantHelper<T, unsigned long long *>::cast(value);
+				v.refData().ptrUnsignedLongLong = variant_internal::CastVariantHelper<T, unsigned long long *>::cast(value);
 				break;
 
 			case vtFloat | byPointer:
-				v.data.ptrFloat = variant_internal::CastVariantHelper<T, float *>::cast(value);
+				v.refData().ptrFloat = variant_internal::CastVariantHelper<T, float *>::cast(value);
 				break;
 			case vtDouble | byPointer:
-				v.data.ptrDouble = variant_internal::CastVariantHelper<T, double *>::cast(value);
+				v.refData().ptrDouble = variant_internal::CastVariantHelper<T, double *>::cast(value);
 				break;
 			case vtLongDouble | byPointer:
-				v.data.ptrLongDouble = variant_internal::CastVariantHelper<T, long double *>::cast(value);
+				v.refData().ptrLongDouble = variant_internal::CastVariantHelper<T, long double *>::cast(value);
 				break;
 
 			case vtVoid | byPointer:
-				v.data.ptrPointer = variant_internal::CastVariantHelper<T, const volatile void *>::cast(value);
+				v.refData().ptrPointer = variant_internal::CastVariantHelper<T, const volatile void *>::cast(value);
 				break;
 
 			case vtPointer | byPointer:
-				v.data.ptrPointer = variant_internal::CastVariantHelper<T, const volatile void *>::cast(value);
+				v.refData().ptrPointer = variant_internal::CastVariantHelper<T, const volatile void *>::cast(value);
 				break;
 
 			case vtObject | byPointer:
-				v.data.ptrObject = variant_internal::CastVariantHelper<T, const volatile void *>::cast(value);
+				v.refData().ptrObject = variant_internal::CastVariantHelper<T, const volatile void *>::cast(value);
 				break;
 
 
 			case vtBool | byReference:
-				v.data.ptrBool = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile bool *>::cast(&value);
+				v.refData().ptrBool = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile bool *>::cast(&value);
 				break;
 
 			case vtChar | byReference:
-				v.data.ptrChar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile char *>::cast(&value);
+				v.refData().ptrChar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile char *>::cast(&value);
 				break;
 
 			case vtWchar | byReference:
-				v.data.ptrWchar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile wchar_t *>::cast(&value);
+				v.refData().ptrWchar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile wchar_t *>::cast(&value);
 				break;
 
 			case vtSignedChar | byReference:
-				v.data.ptrSignedChar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed char *>::cast(&value);
+				v.refData().ptrSignedChar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed char *>::cast(&value);
 				break;
 			case vtUnsignedChar | byReference:
-				v.data.ptrUnsignedChar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned char *>::cast(&value);
+				v.refData().ptrUnsignedChar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned char *>::cast(&value);
 				break;
 
 			case vtSignedShort | byReference:
-				v.data.ptrSignedShort = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed short *>::cast(&value);
+				v.refData().ptrSignedShort = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed short *>::cast(&value);
 				break;
 			case vtUnsignedShort | byReference:
-				v.data.ptrUnsignedShort = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned short *>::cast(&value);
+				v.refData().ptrUnsignedShort = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned short *>::cast(&value);
 				break;
 
 			case vtSignedInt | byReference:
-				v.data.ptrSignedInt = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed int *>::cast(&value);
+				v.refData().ptrSignedInt = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed int *>::cast(&value);
 				break;
 			case vtUnsignedInt | byReference:
-				v.data.ptrUnsignedInt = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned int *>::cast(&value);
+				v.refData().ptrUnsignedInt = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned int *>::cast(&value);
 				break;
 
 			case vtSignedLong | byReference:
-				v.data.ptrSignedLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed long *>::cast(&value);
+				v.refData().ptrSignedLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed long *>::cast(&value);
 				break;
 			case vtUnsignedLong | byReference:
-				v.data.ptrUnsignedLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned long *>::cast(&value);
+				v.refData().ptrUnsignedLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned long *>::cast(&value);
 				break;
 
 			case vtSignedLongLong | byReference:
-				v.data.ptrSignedLongLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed long long *>::cast(&value);
+				v.refData().ptrSignedLongLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed long long *>::cast(&value);
 				break;
 			case vtUnsignedLongLong | byReference:
-				v.data.ptrUnsignedLongLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned long long *>::cast(&value);
+				v.refData().ptrUnsignedLongLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned long long *>::cast(&value);
 				break;
 
 			case vtFloat | byReference:
-				v.data.ptrFloat = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile float *>::cast(&value);
+				v.refData().ptrFloat = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile float *>::cast(&value);
 				break;
 			case vtDouble | byReference:
-				v.data.ptrDouble = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile double *>::cast(&value);
+				v.refData().ptrDouble = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile double *>::cast(&value);
 				break;
 			case vtLongDouble | byReference:
-				v.data.ptrLongDouble = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile long double *>::cast(&value);
+				v.refData().ptrLongDouble = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile long double *>::cast(&value);
 				break;
 
 			case vtVoid | byReference:
-				v.data.ptrPointer = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile void *>::cast(&value);
+				v.refData().ptrPointer = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile void *>::cast(&value);
 				break;
 
 			case vtPointer | byReference:
-				v.data.ptrPointer = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile void *>::cast(&value);
+				v.refData().ptrPointer = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile void *>::cast(&value);
 				break;
 
 			case vtObject | byReference:
-				v.data.ptrObject = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile void *>::cast(const_cast<const volatile typename RemoveReference<T>::Result *>(&value));
+				v.refData().ptrObject = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile void *>::cast(const_cast<const volatile typename RemoveReference<T>::Result *>(&value));
 				break;
 
 			default:
@@ -513,67 +513,67 @@ struct CanCastFromVariant
 		switch(static_cast<int>(vt)) {
 			case vtBool:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<bool, ResultType>::CanCast)
-					|| (IsPointer<ResultType>::Result && v.data.valueBool == 0)
+					|| (IsPointer<ResultType>::Result && v.getData().valueBool == 0)
 				;
 
 			case vtChar:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<char, ResultType>::CanCast)
-					|| (IsPointer<ResultType>::Result && v.data.valueChar == 0)
+					|| (IsPointer<ResultType>::Result && v.getData().valueChar == 0)
 				;
 
 			case vtWchar:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<wchar_t, ResultType>::CanCast)
-					|| (IsPointer<ResultType>::Result && v.data.valueWchar == 0)
+					|| (IsPointer<ResultType>::Result && v.getData().valueWchar == 0)
 				;
 
 			case vtSignedChar:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed char, ResultType>::CanCast)
-					|| (IsPointer<ResultType>::Result && v.data.valueSignedChar == 0)
+					|| (IsPointer<ResultType>::Result && v.getData().valueSignedChar == 0)
 				;
 
 			case vtUnsignedChar:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned char, ResultType>::CanCast)
-					|| (IsPointer<ResultType>::Result && v.data.valueUnsignedChar == 0)
+					|| (IsPointer<ResultType>::Result && v.getData().valueUnsignedChar == 0)
 				;
 
 			case vtSignedShort:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed short, ResultType>::CanCast)
-					|| (IsPointer<ResultType>::Result && v.data.valueSignedShort == 0)
+					|| (IsPointer<ResultType>::Result && v.getData().valueSignedShort == 0)
 				;
 
 			case vtUnsignedShort:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned short, ResultType>::CanCast)
-					|| (IsPointer<ResultType>::Result && v.data.valueUnsignedShort == 0)
+					|| (IsPointer<ResultType>::Result && v.getData().valueUnsignedShort == 0)
 				;
 
 			case vtSignedInt:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed int, ResultType>::CanCast)
-					|| (IsPointer<ResultType>::Result && v.data.valueSignedInt == 0)
+					|| (IsPointer<ResultType>::Result && v.getData().valueSignedInt == 0)
 				;
 
 			case vtUnsignedInt:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned int, ResultType>::CanCast)
-					|| (IsPointer<ResultType>::Result && v.data.valueUnsignedInt == 0)
+					|| (IsPointer<ResultType>::Result && v.getData().valueUnsignedInt == 0)
 				;
 
 			case vtSignedLong:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed long, ResultType>::CanCast)
-					|| (IsPointer<ResultType>::Result && v.data.valueSignedLong == 0)
+					|| (IsPointer<ResultType>::Result && v.getData().valueSignedLong == 0)
 				;
 
 			case vtUnsignedLong:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned long, ResultType>::CanCast)
-					|| (IsPointer<ResultType>::Result && v.data.valueUnsignedLong == 0)
+					|| (IsPointer<ResultType>::Result && v.getData().valueUnsignedLong == 0)
 				;
 
 			case vtSignedLongLong:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<signed long long, ResultType>::CanCast)
-					|| (IsPointer<ResultType>::Result && v.data.valueSignedLongLong == 0)
+					|| (IsPointer<ResultType>::Result && v.getData().valueSignedLongLong == 0)
 				;
 
 			case vtUnsignedLongLong:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<unsigned long long, ResultType>::CanCast)
-					|| (IsPointer<ResultType>::Result && v.data.valueUnsignedLongLong == 0)
+					|| (IsPointer<ResultType>::Result && v.getData().valueUnsignedLongLong == 0)
 				;
 
 			case vtFloat:
@@ -784,189 +784,189 @@ struct CastFromVariant
 	static ResultType cast(const GVariant & v) {
 		checkFailCast(canFromVariant<T>(v));
 
-		switch(static_cast<int>(vtGetType(v.data.typeData))) {
+		switch(static_cast<int>(vtGetType(v.getData().typeData))) {
 			case vtBool:
-				return variant_internal::CastVariantHelper<bool, ResultType>::cast(v.data.valueBool);
+				return variant_internal::CastVariantHelper<bool, ResultType>::cast(v.getData().valueBool);
 
 			case vtChar:
-				return variant_internal::CastVariantHelper<char, ResultType>::cast(v.data.valueChar);
+				return variant_internal::CastVariantHelper<char, ResultType>::cast(v.getData().valueChar);
 
 			case vtWchar:
-				return variant_internal::CastVariantHelper<wchar_t, ResultType>::cast(v.data.valueWchar);
+				return variant_internal::CastVariantHelper<wchar_t, ResultType>::cast(v.getData().valueWchar);
 
 			case vtSignedChar:
-				return variant_internal::CastVariantHelper<signed char, ResultType>::cast(v.data.valueSignedChar);
+				return variant_internal::CastVariantHelper<signed char, ResultType>::cast(v.getData().valueSignedChar);
 
 			case vtUnsignedChar:
-				return variant_internal::CastVariantHelper<unsigned char, ResultType>::cast(v.data.valueUnsignedChar);
+				return variant_internal::CastVariantHelper<unsigned char, ResultType>::cast(v.getData().valueUnsignedChar);
 
 			case vtSignedShort:
-				return variant_internal::CastVariantHelper<signed short, ResultType>::cast(v.data.valueSignedShort);
+				return variant_internal::CastVariantHelper<signed short, ResultType>::cast(v.getData().valueSignedShort);
 
 			case vtUnsignedShort:
-				return variant_internal::CastVariantHelper<unsigned short, ResultType>::cast(v.data.valueUnsignedShort);
+				return variant_internal::CastVariantHelper<unsigned short, ResultType>::cast(v.getData().valueUnsignedShort);
 
 			case vtSignedInt:
-				return variant_internal::CastVariantHelper<signed int, ResultType>::cast(v.data.valueSignedInt);
+				return variant_internal::CastVariantHelper<signed int, ResultType>::cast(v.getData().valueSignedInt);
 
 			case vtUnsignedInt:
-				return variant_internal::CastVariantHelper<unsigned int, ResultType>::cast(v.data.valueUnsignedInt);
+				return variant_internal::CastVariantHelper<unsigned int, ResultType>::cast(v.getData().valueUnsignedInt);
 
 			case vtSignedLong:
-				return variant_internal::CastVariantHelper<signed long, ResultType>::cast(v.data.valueSignedLong);
+				return variant_internal::CastVariantHelper<signed long, ResultType>::cast(v.getData().valueSignedLong);
 
 			case vtUnsignedLong:
-				return variant_internal::CastVariantHelper<unsigned long, ResultType>::cast(v.data.valueUnsignedLong);
+				return variant_internal::CastVariantHelper<unsigned long, ResultType>::cast(v.getData().valueUnsignedLong);
 
 			case vtSignedLongLong:
-				return variant_internal::CastVariantHelper<signed long long, ResultType>::cast(v.data.valueSignedLongLong);
+				return variant_internal::CastVariantHelper<signed long long, ResultType>::cast(v.getData().valueSignedLongLong);
 
 			case vtUnsignedLongLong:
-				return variant_internal::CastVariantHelper<unsigned long long, ResultType>::cast(v.data.valueUnsignedLongLong);
+				return variant_internal::CastVariantHelper<unsigned long long, ResultType>::cast(v.getData().valueUnsignedLongLong);
 
 			case vtFloat:
-				return variant_internal::CastVariantHelper<float, ResultType>::cast(v.data.valueFloat);
+				return variant_internal::CastVariantHelper<float, ResultType>::cast(v.getData().valueFloat);
 
 			case vtDouble:
-				return variant_internal::CastVariantHelper<double, ResultType>::cast(v.data.valueDouble);
+				return variant_internal::CastVariantHelper<double, ResultType>::cast(v.getData().valueDouble);
 
 			case vtLongDouble:
-				return variant_internal::CastVariantHelper<long double, ResultType>::cast(v.data.valueLongDouble);
+				return variant_internal::CastVariantHelper<long double, ResultType>::cast(v.getData().valueLongDouble);
 
 			case vtPointer:
-				return variant_internal::CastVariantHelper<const volatile void *, ResultType>::cast(v.data.valuePointer);
+				return variant_internal::CastVariantHelper<const volatile void *, ResultType>::cast(v.getData().valuePointer);
 
 			case vtObject:
-				return castFromObject<T>(v.data.ptrObject);
+				return castFromObject<T>(v.getData().ptrObject);
 
 			case vtShadow:
-				return *variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::cast(v.data.shadowObject->getObject());
+				return *variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::cast(v.getData().shadowObject->getObject());
 			
 			case vtString:
-				return castFromString<ResultType>(const_cast<char *>(static_cast<std::string *>(v.data.shadowObject->getObject())->c_str()));
+				return castFromString<ResultType>(const_cast<char *>(static_cast<std::string *>(v.getData().shadowObject->getObject())->c_str()));
 
 			case vtWideString:
-				return castFromWideString<ResultType>(const_cast<wchar_t *>(static_cast<std::wstring *>(v.data.shadowObject->getObject())->c_str()));
+				return castFromWideString<ResultType>(const_cast<wchar_t *>(static_cast<std::wstring *>(v.getData().shadowObject->getObject())->c_str()));
 
 			case vtInterface:
-				return variant_internal::EnforceCastToPointer<IObject *, ResultType>::cast(v.data.valueInterface);
+				return variant_internal::EnforceCastToPointer<IObject *, ResultType>::cast(v.getData().valueInterface);
 			
 			case vtTypedVar:
-				return variant_internal::EnforceCastToPointer<variant_internal::IVariantTypedVar *, ResultType>::cast(v.data.valueTypedVar);
+				return variant_internal::EnforceCastToPointer<variant_internal::IVariantTypedVar *, ResultType>::cast(v.getData().valueTypedVar);
 
 			case vtBool | byPointer:
-				return variant_internal::CastVariantHelper<bool *, ResultType>::cast(const_cast<bool *>(v.data.ptrBool));
+				return variant_internal::CastVariantHelper<bool *, ResultType>::cast(const_cast<bool *>(v.getData().ptrBool));
 
 			case vtChar | byPointer:
-				return variant_internal::CastVariantHelper<char *, ResultType>::cast(const_cast<char *>(v.data.ptrChar));
+				return variant_internal::CastVariantHelper<char *, ResultType>::cast(const_cast<char *>(v.getData().ptrChar));
 
 			case vtWchar | byPointer:
-				return variant_internal::CastVariantHelper<wchar_t *, ResultType>::cast(const_cast<wchar_t *>(v.data.ptrWchar));
+				return variant_internal::CastVariantHelper<wchar_t *, ResultType>::cast(const_cast<wchar_t *>(v.getData().ptrWchar));
 
 			case vtSignedChar | byPointer:
-				return variant_internal::CastVariantHelper<signed char *, ResultType>::cast(const_cast<signed char *>(v.data.ptrSignedChar));
+				return variant_internal::CastVariantHelper<signed char *, ResultType>::cast(const_cast<signed char *>(v.getData().ptrSignedChar));
 
 			case vtUnsignedChar | byPointer:
-				return variant_internal::CastVariantHelper<unsigned char *, ResultType>::cast(const_cast<unsigned char *>(v.data.ptrUnsignedChar));
+				return variant_internal::CastVariantHelper<unsigned char *, ResultType>::cast(const_cast<unsigned char *>(v.getData().ptrUnsignedChar));
 
 			case vtSignedShort | byPointer:
-				return variant_internal::CastVariantHelper<signed short *, ResultType>::cast(const_cast<signed short *>(v.data.ptrSignedShort));
+				return variant_internal::CastVariantHelper<signed short *, ResultType>::cast(const_cast<signed short *>(v.getData().ptrSignedShort));
 
 			case vtUnsignedShort | byPointer:
-				return variant_internal::CastVariantHelper<unsigned short *, ResultType>::cast(const_cast<unsigned short *>(v.data.ptrUnsignedShort));
+				return variant_internal::CastVariantHelper<unsigned short *, ResultType>::cast(const_cast<unsigned short *>(v.getData().ptrUnsignedShort));
 
 			case vtSignedInt | byPointer:
-				return variant_internal::CastVariantHelper<signed int *, ResultType>::cast(const_cast<signed int *>(v.data.ptrSignedInt));
+				return variant_internal::CastVariantHelper<signed int *, ResultType>::cast(const_cast<signed int *>(v.getData().ptrSignedInt));
 
 			case vtUnsignedInt | byPointer:
-				return variant_internal::CastVariantHelper<unsigned int *, ResultType>::cast(const_cast<unsigned int *>(v.data.ptrUnsignedInt));
+				return variant_internal::CastVariantHelper<unsigned int *, ResultType>::cast(const_cast<unsigned int *>(v.getData().ptrUnsignedInt));
 
 			case vtSignedLong | byPointer:
-				return variant_internal::CastVariantHelper<signed long *, ResultType>::cast(const_cast<signed long *>(v.data.ptrSignedLong));
+				return variant_internal::CastVariantHelper<signed long *, ResultType>::cast(const_cast<signed long *>(v.getData().ptrSignedLong));
 
 			case vtUnsignedLong | byPointer:
-				return variant_internal::CastVariantHelper<unsigned long *, ResultType>::cast(const_cast<unsigned long *>(v.data.ptrUnsignedLong));
+				return variant_internal::CastVariantHelper<unsigned long *, ResultType>::cast(const_cast<unsigned long *>(v.getData().ptrUnsignedLong));
 
 			case vtSignedLongLong | byPointer:
-				return variant_internal::CastVariantHelper<signed long long *, ResultType>::cast(const_cast<signed long long *>(v.data.ptrSignedLongLong));
+				return variant_internal::CastVariantHelper<signed long long *, ResultType>::cast(const_cast<signed long long *>(v.getData().ptrSignedLongLong));
 
 			case vtUnsignedLongLong | byPointer:
-				return variant_internal::CastVariantHelper<unsigned long long *, ResultType>::cast(const_cast<unsigned long long *>(v.data.ptrUnsignedLongLong));
+				return variant_internal::CastVariantHelper<unsigned long long *, ResultType>::cast(const_cast<unsigned long long *>(v.getData().ptrUnsignedLongLong));
 
 			case vtFloat | byPointer:
-				return variant_internal::CastVariantHelper<float *, ResultType>::cast(const_cast<float *>(v.data.ptrFloat));
+				return variant_internal::CastVariantHelper<float *, ResultType>::cast(const_cast<float *>(v.getData().ptrFloat));
 
 			case vtDouble | byPointer:
-				return variant_internal::CastVariantHelper<double *, ResultType>::cast(const_cast<double *>(v.data.ptrDouble));
+				return variant_internal::CastVariantHelper<double *, ResultType>::cast(const_cast<double *>(v.getData().ptrDouble));
 
 			case vtLongDouble | byPointer:
-				return variant_internal::CastVariantHelper<long double *, ResultType>::cast(const_cast<long double *>(v.data.ptrLongDouble));
+				return variant_internal::CastVariantHelper<long double *, ResultType>::cast(const_cast<long double *>(v.getData().ptrLongDouble));
 
 			case vtVoid | byPointer:
-				return variant_internal::CastVariantHelper<void *, ResultType>::cast(const_cast<void *>(v.data.ptrPointer));
+				return variant_internal::CastVariantHelper<void *, ResultType>::cast(const_cast<void *>(v.getData().ptrPointer));
 
 			case vtPointer | byPointer:
-				return variant_internal::CastVariantHelper<void *, ResultType>::cast(const_cast<void *>(v.data.ptrPointer));
+				return variant_internal::CastVariantHelper<void *, ResultType>::cast(const_cast<void *>(v.getData().ptrPointer));
 
 			case vtObject | byPointer:
-				return variant_internal::CastVariantHelper<void *, ResultType>::cast(const_cast<void *>(v.data.ptrObject));
+				return variant_internal::CastVariantHelper<void *, ResultType>::cast(const_cast<void *>(v.getData().ptrObject));
 
 			case vtBool | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile bool *, const volatile RefValueType *>::cast(v.data.ptrBool));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile bool *, const volatile RefValueType *>::cast(v.getData().ptrBool));
 
 			case vtChar | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile char *, const volatile RefValueType *>::cast(v.data.ptrChar));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile char *, const volatile RefValueType *>::cast(v.getData().ptrChar));
 
 			case vtWchar | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile wchar_t *, const volatile RefValueType *>::cast(v.data.ptrWchar));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile wchar_t *, const volatile RefValueType *>::cast(v.getData().ptrWchar));
 
 			case vtSignedChar | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile signed char *, const volatile RefValueType *>::cast(v.data.ptrSignedChar));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile signed char *, const volatile RefValueType *>::cast(v.getData().ptrSignedChar));
 
 			case vtUnsignedChar | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile unsigned char *, const volatile RefValueType *>::cast(v.data.ptrUnsignedChar));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile unsigned char *, const volatile RefValueType *>::cast(v.getData().ptrUnsignedChar));
 
 			case vtSignedShort | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile signed short *, const volatile RefValueType *>::cast(v.data.ptrSignedShort));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile signed short *, const volatile RefValueType *>::cast(v.getData().ptrSignedShort));
 
 			case vtUnsignedShort | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile unsigned short *, const volatile RefValueType *>::cast(v.data.ptrUnsignedShort));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile unsigned short *, const volatile RefValueType *>::cast(v.getData().ptrUnsignedShort));
 
 			case vtSignedInt | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile signed int *, const volatile RefValueType *>::cast(v.data.ptrSignedInt));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile signed int *, const volatile RefValueType *>::cast(v.getData().ptrSignedInt));
 
 			case vtUnsignedInt | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile unsigned int *, const volatile RefValueType *>::cast(v.data.ptrUnsignedInt));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile unsigned int *, const volatile RefValueType *>::cast(v.getData().ptrUnsignedInt));
 
 			case vtSignedLong | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile signed long *, const volatile RefValueType *>::cast(v.data.ptrSignedLong));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile signed long *, const volatile RefValueType *>::cast(v.getData().ptrSignedLong));
 
 			case vtUnsignedLong | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile unsigned long *, const volatile RefValueType *>::cast(v.data.ptrUnsignedLong));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile unsigned long *, const volatile RefValueType *>::cast(v.getData().ptrUnsignedLong));
 
 			case vtSignedLongLong | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile signed long long *, const volatile RefValueType *>::cast(v.data.ptrSignedLongLong));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile signed long long *, const volatile RefValueType *>::cast(v.getData().ptrSignedLongLong));
 
 			case vtUnsignedLongLong | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile unsigned long long *, const volatile RefValueType *>::cast(v.data.ptrUnsignedLongLong));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile unsigned long long *, const volatile RefValueType *>::cast(v.getData().ptrUnsignedLongLong));
 
 			case vtFloat | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile float *, const volatile RefValueType *>::cast(v.data.ptrFloat));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile float *, const volatile RefValueType *>::cast(v.getData().ptrFloat));
 
 			case vtDouble | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile double *, const volatile RefValueType *>::cast(v.data.ptrDouble));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile double *, const volatile RefValueType *>::cast(v.getData().ptrDouble));
 
 			case vtLongDouble | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile long double *, const volatile RefValueType *>::cast(v.data.ptrLongDouble));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile long double *, const volatile RefValueType *>::cast(v.getData().ptrLongDouble));
 
 			case vtVoid | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile void *, const volatile RefValueType *>::cast(v.data.ptrPointer));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile void *, const volatile RefValueType *>::cast(v.getData().ptrPointer));
 
 			case vtPointer | byReference:
-				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile void *, const volatile RefValueType *>::cast(v.data.ptrPointer));
+				return const_cast<RefValueType &>(*variant_internal::CastVariantHelper<const volatile void *, const volatile RefValueType *>::cast(v.getData().ptrPointer));
 
 			case vtObject | byReference:
-				return castFromObject<T>(v.data.ptrObject);
+				return castFromObject<T>(v.getData().ptrObject);
 		}
 
 		failedCast();

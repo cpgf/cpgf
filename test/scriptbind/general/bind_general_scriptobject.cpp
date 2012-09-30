@@ -30,12 +30,12 @@ void testCreateScriptObject(TestScriptContext * context)
 		GCHECK(bindingApi->valueIsNull("nso"));
 		GScopedInterface<IScriptObject> newScriptObject(bindingApi->createScriptObject("nso"));
 		GVariant v = 38;
-		newScriptObject->bindFundamental("ix", &v.data);
+		newScriptObject->bindFundamental("ix", &v.getData());
 
 		GCHECK(bindingApi->valueIsNull("sec"));
 		GScopedInterface<IScriptObject> secondScriptObject(bindingApi->createScriptObject("sec"));
 		v = 6;
-		secondScriptObject->bindFundamental("iy", &v.data);
+		secondScriptObject->bindFundamental("iy", &v.getData());
 	}
 
 	if(context->isPython()) {
@@ -57,12 +57,12 @@ void testCreateScriptObject(TestScriptContext * context)
 	if(bindingApi != NULL) {
 		GVariant v;
 		GScopedInterface<IScriptObject> newScriptObject(bindingApi->gainScriptObject("nso"));
-		newScriptObject->getFundamental(&v.data, "ix");
+		newScriptObject->getFundamental(&v.refData(), "ix");
 		GCHECK(fromVariant<int>(v) == 38);
 
 		GScopedInterface<IScriptObject> secondScriptObject(bindingApi->gainScriptObject("sec"));
 		v = 0;
-		secondScriptObject->getFundamental(&v.data, "iy");
+		secondScriptObject->getFundamental(&v.refData(), "iy");
 		GCHECK(fromVariant<int>(v) == 6);
 	}
 }
@@ -112,7 +112,7 @@ void testGetScriptObject(TestScriptContext * context)
 		GCHECK(bindingApi->valueIsNull("nso"));
 		GScopedInterface<IScriptObject> newScriptObject(bindingApi->gainScriptObject("scope"));
 		v = GVariant();
-		newScriptObject->getFundamental(&v.data, "i");
+		newScriptObject->getFundamental(&v.refData(), "i");
 		GCHECK(fromVariant<int>(v) == 5);
 		instance = newScriptObject->getObject("obj");
 	}

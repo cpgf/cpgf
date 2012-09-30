@@ -345,7 +345,7 @@ void GMetaArchiveWriter::doWriteMember(const void * instance, IMetaAccessible * 
 	if(isProperty) {
 		if(pointers == 0 && metaType.isFundamental()) {
 			GVariant v(metaGetValue(accessible, instance));
-			this->writer->writeFundamental(name, &v.data);
+			this->writer->writeFundamental(name, &v.getData());
 			return;
 		}
 	}
@@ -393,7 +393,7 @@ void GMetaArchiveWriter::doWriteValue(const char * name, const void * address, c
 
 	if(!isPointer && metaType.isFundamental()) {
 		GVariant v(readFundamental(address, metaType));
-		this->writer->writeFundamental(name, &v.data);
+		this->writer->writeFundamental(name, &v.getData());
 		return;
 	}
 

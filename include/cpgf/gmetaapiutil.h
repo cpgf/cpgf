@@ -76,7 +76,7 @@ GVariant metaGetValue(const Meta & meta, const void * obj)
 {
 	GVariant v;
 
-	const_cast<Meta &>(meta)->get(&v.data, obj);
+	const_cast<Meta &>(meta)->get(&v.refData(), obj);
 	
 	metaCheckError(meta);
 
@@ -181,7 +181,7 @@ GVariant metaGetEnumValue(const Meta & metaEnum, size_t index)
 {
 	GVariant v;
 
-	metaEnum->getValue(&v.data, static_cast<unsigned int>(index));
+	metaEnum->getValue(&v.refData(), static_cast<unsigned int>(index));
 	metaCheckError(metaEnum);
 
 	return v;
@@ -192,7 +192,7 @@ GVariant metaGetAnnotationVariant(const Meta & annotationValue)
 {
 	GVariant v;
 
-	annotationValue->getVariant(&v.data);
+	annotationValue->getVariant(&v.refData());
 	metaCheckError(annotationValue);
 
 	return v;

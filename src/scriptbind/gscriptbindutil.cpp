@@ -54,7 +54,7 @@ GVariant scriptGetFundamental(GScriptObject * scriptObject, const char * name)
 GVariant scriptGetFundamental(IScriptObject * scriptObject, const char * name)
 {
 	GVariant v;
-	scriptObject->getFundamental(&v.data, name);
+	scriptObject->getFundamental(&v.refData(), name);
 	return v;
 }
 

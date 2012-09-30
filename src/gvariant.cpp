@@ -117,12 +117,12 @@ unsigned int getVariantTypeSize(GVariantType type)
 
 void adjustVariantType(GVariant * var)
 {
-	if(! vtIsInteger(vtGetType(var->data.typeData)) || vtGetSize(var->data.typeData) > sizeof(unsigned long long)) {
+	if(! vtIsInteger(vtGetType(var->getData().typeData)) || vtGetSize(var->getData().typeData) > sizeof(unsigned long long)) {
 		raiseCoreException(Error_Variant_FailAdjustTypeSize);
 	}
 
-	unsigned long long value = var->data.valueUnsignedLongLong;
-	switch(vtGetSize(var->data.typeData)) {
+	unsigned long long value = var->getData().valueUnsignedLongLong;
+	switch(vtGetSize(var->getData().typeData)) {
 		case 1:
 			value &= 0xff;
 			break;
@@ -220,7 +220,7 @@ GVariant pointerToRefVariant(const GVariant & p)
 	GVariant v(p);
 
 	if(vtIsByPointer(v.getType())) {
-		vtSetType(v.data.typeData, (vtGetType(v.data.typeData) & ~byPointer) | byReference);
+		vtSetType(v.refData().typeData, (vtGetType(v.getData().typeData) & ~byPointer) | byReference);
 	}
 
 	return v;
@@ -230,9 +230,9 @@ GVariant pointerToObjectVariant(void * p)
 {
 	GVariant result;
 
-	vtSetType(result.data.typeData, vtObject | byPointer);
-	result.data.ptrObject = p;
-	vtSetSize(result.data.typeData, sizeof(void *));
+	vtSetType(result.refData().typeData, vtObject | byPointer);
+	result.refData().ptrObject = p;
+	vtSetSize(result.refData().typeData, sizeof(void *));
 
 	return result;
 }
@@ -240,7 +240,7 @@ GVariant pointerToObjectVariant(void * p)
 void * objectAddressFromVariant(const GVariant & v)
 {
 	if(v.getType() == vtShadow) {
-		return v.data.shadowObject->getObject();
+		return v.getData().shadowObject->getObject();
 	}
 
 	return fromVariant<void *>(v);
@@ -249,7 +249,7 @@ void * objectAddressFromVariant(const GVariant & v)
 void * referenceAddressFromVariant(const GVariant & v)
 {
 	if(vtIsByReference(v.getType())) {
-		return const_cast<void *>(v.data.ptrObject);
+		return const_cast<void *>(v.getData().ptrObject);
 	}
 	else {
 		return objectAddressFromVariant(v);
@@ -301,7 +301,7 @@ GVariant createStringVariant(const char * s)
 {
 	GVariant v;
 
-	initializeVarString(&v.data, s);
+	initializeVarString(&v.refData(), s);
 
 	return v;
 }
@@ -313,7 +313,7 @@ bool variantDataIsString(const GVariantData & v)
 
 bool variantIsString(const GVariant & v)
 {
-	return variantDataIsString(v.data);
+	return variantDataIsString(v.getData());
 }
 
 void initializeVarWideString(GVariantData * data, const wchar_t * s)
@@ -330,7 +330,7 @@ GVariant createWideStringVariant(const wchar_t * s)
 {
 	GVariant v;
 
-	initializeVarWideString(&v.data, s);
+	initializeVarWideString(&v.refData(), s);
 
 	return v;
 }
@@ -342,7 +342,7 @@ bool variantDataIsWideString(const GVariantData & v)
 
 bool variantIsWideString(const GVariant & v)
 {
-	return variantDataIsWideString(v.data);
+	return variantDataIsWideString(v.getData());
 }
 
 
@@ -359,7 +359,7 @@ GVariant createTypedVariant(const GVariant & value, const GMetaType & type)
 {
 	GVariant v;
 
-	initializeVarTypedVariant(&v.data, value, type);
+	initializeVarTypedVariant(&v.refData(), value, type);
 
 	return v;
 }

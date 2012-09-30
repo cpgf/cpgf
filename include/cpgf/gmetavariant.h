@@ -26,40 +26,37 @@ public:
 	}
 
 	template <typename T>
-	GMetaVariant(const T & v) : value(v), type(createMetaType<T>()) {
-		fixupMetaType(&this->type);
+	GMetaVariant(const T & v) : typedValue(createTypedVariant(v, createMetaType<T>())) {
 	}
 
-	GMetaVariant(GMetaVarData data) : value(data.varData), type(data.typeData) {
-		freeVarData(&data.varData);
+	GMetaVariant(GMetaVarData data) : typedValue(createTypedVariant(GVariant(data.varData), GMetaType(data.typeData))) {
 	}
 
-	GMetaVariant(const GVariant & v, const GMetaType & type) : value(v), type(type) {
+	GMetaVariant(const GVariant & v, const GMetaType & type) : typedValue(createTypedVariant(v, type)) {
 	}
 
-	GMetaVariant(const GMetaVariant & other) : value(other.value), type(other.type) {
+	GMetaVariant(const GMetaVariant & other) : typedValue(other.typedValue) {
 	}
 
 	GMetaVariant & operator = (const GMetaVariant & other) {
-		this->value = other.value;
-		this->type = other.type;
+		this->typedValue = other.typedValue;
 
 		return *this;
 	}
 
-	const GVariant & getValue() const {
-		return this->value;
+	GVariant getValue() const {
+		return getVariantRealValue(this->typedValue);
 	}
 
-	const GMetaType & getType() const {
-		return this->type;
+	GMetaType getType() const {
+		return getVariantRealType(this->typedValue);
 	}
 
 	GMetaVarData getData() const {
 		GMetaVarData data;
 
-		data.varData = this->value.getData();
-		data.typeData = this->type.getData();
+		data.varData = this->getValue().getData();
+		data.typeData = this->getType().getData();
 
 		return data;
 	}
@@ -67,8 +64,8 @@ public:
 	GMetaVarData takeData() {
 		GMetaVarData data;
 
-		data.varData = this->value.takeData();
-		data.typeData = this->type.getData();
+		data.varData = this->getValue().takeData();
+		data.typeData = this->getType().getData();
 
 		return data;
 	}
@@ -77,8 +74,7 @@ private:
 	GMetaVariant(const GVariant &);
 
 private:
-	GVariant value;
-	GMetaType type;
+	GVariant typedValue;
 };
 
 

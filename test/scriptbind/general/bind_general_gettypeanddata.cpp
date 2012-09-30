@@ -243,9 +243,9 @@ void testGetFundamental(TestScriptContext * context)
 	}
 	
 	if(context->getBindingApi()) {
-		context->getBindingApi()->getFundamental(&v.data, "f");
+		context->getBindingApi()->getFundamental(&v.refData(), "f");
 		GCHECK(fromVariant<int>(v) == 100);
-		context->getBindingApi()->getFundamental(&v.data, "s");
+		context->getBindingApi()->getFundamental(&v.refData(), "s");
 		GCHECK(v.isEmpty());
 	}
 }

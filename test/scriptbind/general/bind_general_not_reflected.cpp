@@ -46,8 +46,8 @@ void testNotReflected(TestScriptContext * context)
 	if(bindingApi) {
 		doTestNotReflected(bindingApi, context);
 		
-		bindingApi->getRaw(&a.data, "a");
-		bindingApi->getRaw(&b.data, "b");
+		bindingApi->getRaw(&a.refData(), "a");
+		bindingApi->getRaw(&b.refData(), "b");
 	}
 
 	GCHECK(!a.isEmpty());

@@ -1601,7 +1601,7 @@ GMetaVariant GLuaScriptObject::invokeIndirectly(const char * name, GMetaVariant 
 
 void GLuaScriptObject::bindFundamental(const char * name, const GVariant & value)
 {
-	GASSERT_MSG(vtIsFundamental(vtGetType(value.data.typeData)), "Only fundamental value can be bound via bindFundamental");
+	GASSERT_MSG(vtIsFundamental(vtGetType(value.getData().typeData)), "Only fundamental value can be bound via bindFundamental");
 
 	ENTER_LUA()
 
