@@ -25,9 +25,9 @@ namespace cpgf {
 	} \
 	inline GVariant invokeScriptFunction(IScriptObject * scriptObject, const char * name GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
 		DEF_LOAD_PARAM_API(N) \
-		GVariantData result; \
-		scriptObject->invoke(&result, name, params, N); \
-		return GVariant(result); \
+		GVariant result; \
+		scriptObject->invoke(&result.refData(), name, params, N); \
+		return result; \
 	} \
 	inline GVariant invokeScriptFunction(GScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
@@ -35,9 +35,9 @@ namespace cpgf {
 	} \
 	inline GVariant invokeScriptFunction(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
 		DEF_LOAD_PARAM_API(N) \
-		GVariantData result; \
-		scriptFunction->invoke(&result, params, N); \
-		return GVariant(result); \
+		GVariant result; \
+		scriptFunction->invoke(&result.refData(), params, N); \
+		return result; \
 	}
 
 GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
