@@ -30,12 +30,12 @@ void testCreateScriptObject(TestScriptContext * context)
 		GCHECK(bindingApi->valueIsNull("nso"));
 		GScopedInterface<IScriptObject> newScriptObject(bindingApi->createScriptObject("nso"));
 		GVariant v = 38;
-		newScriptObject->bindFundamental("ix", &v.getData());
+		newScriptObject->bindFundamental("ix", &v.refData());
 
 		GCHECK(bindingApi->valueIsNull("sec"));
 		GScopedInterface<IScriptObject> secondScriptObject(bindingApi->createScriptObject("sec"));
 		v = 6;
-		secondScriptObject->bindFundamental("iy", &v.getData());
+		secondScriptObject->bindFundamental("iy", &v.refData());
 	}
 
 	if(context->isPython()) {

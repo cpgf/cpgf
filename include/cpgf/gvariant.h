@@ -156,7 +156,7 @@ public:
 		return vtIsEmpty(this->getType());
 	}
 
-	const GVariantData & getData() const {
+	const GVariantData & refData() const {
 		return this->data;
 	}
 

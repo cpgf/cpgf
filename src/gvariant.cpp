@@ -6,6 +6,14 @@ namespace cpgf {
 
 namespace variant_internal {
 
+
+struct IVariantTypedVar : public IObject
+{
+public:
+	virtual void G_API_CC getValue(GVariantData * outValue) = 0;
+	virtual void G_API_CC getType(GMetaTypeData * outType) = 0;
+};
+
 class GVariantTypedVar : public IVariantTypedVar
 {
 public:
@@ -30,7 +38,7 @@ GVariantTypedVar::GVariantTypedVar(const GVariant & value, const GMetaType & typ
 	
 void G_API_CC GVariantTypedVar::getValue(GVariantData * outValue)
 {
-	*outValue = this->value.getData();
+	*outValue = this->value.refData();
 }
 
 void G_API_CC GVariantTypedVar::getType(GMetaTypeData * outType)
@@ -117,12 +125,12 @@ unsigned int getVariantTypeSize(GVariantType type)
 
 void adjustVariantType(GVariant * var)
 {
-	if(! vtIsInteger(vtGetType(var->getData().typeData)) || vtGetSize(var->getData().typeData) > sizeof(unsigned long long)) {
+	if(! vtIsInteger(vtGetType(var->refData().typeData)) || vtGetSize(var->refData().typeData) > sizeof(unsigned long long)) {
 		raiseCoreException(Error_Variant_FailAdjustTypeSize);
 	}
 
-	unsigned long long value = var->getData().valueUnsignedLongLong;
-	switch(vtGetSize(var->getData().typeData)) {
+	unsigned long long value = var->refData().valueUnsignedLongLong;
+	switch(vtGetSize(var->refData().typeData)) {
 		case 1:
 			value &= 0xff;
 			break;
@@ -220,7 +228,7 @@ GVariant pointerToRefVariant(const GVariant & p)
 	GVariant v(p);
 
 	if(vtIsByPointer(v.getType())) {
-		vtSetType(v.refData().typeData, (vtGetType(v.getData().typeData) & ~byPointer) | byReference);
+		vtSetType(v.refData().typeData, (vtGetType(v.refData().typeData) & ~byPointer) | byReference);
 	}
 
 	return v;
@@ -240,7 +248,7 @@ GVariant pointerToObjectVariant(void * p)
 void * objectAddressFromVariant(const GVariant & v)
 {
 	if(v.getType() == vtShadow) {
-		return v.getData().shadowObject->getObject();
+		return v.refData().shadowObject->getObject();
 	}
 
 	return fromVariant<void *>(v);
@@ -249,7 +257,7 @@ void * objectAddressFromVariant(const GVariant & v)
 void * referenceAddressFromVariant(const GVariant & v)
 {
 	if(vtIsByReference(v.getType())) {
-		return const_cast<void *>(v.getData().ptrObject);
+		return const_cast<void *>(v.refData().ptrObject);
 	}
 	else {
 		return objectAddressFromVariant(v);
@@ -319,7 +327,7 @@ bool variantDataIsString(const GVariantData & v)
 
 bool variantIsString(const GVariant & v)
 {
-	return variantDataIsString(v.getData());
+	return variantDataIsString(v.refData());
 }
 
 void initializeVarWideString(GVariantData * data, const wchar_t * s)
@@ -348,7 +356,7 @@ bool variantDataIsWideString(const GVariantData & v)
 
 bool variantIsWideString(const GVariant & v)
 {
-	return variantDataIsWideString(v.getData());
+	return variantDataIsWideString(v.refData());
 }
 
 
@@ -374,7 +382,7 @@ GVariant getVariantRealValue(const GVariant & value)
 {
 	if(vtIsTypedVar(value.getType())) {
 		GVariantData data;
-		value.getData().valueTypedVar->getValue(&data);
+		value.refData().valueTypedVar->getValue(&data);
 		return GVariant(data);
 	}
 	else {
@@ -385,10 +393,8 @@ GVariant getVariantRealValue(const GVariant & value)
 GMetaType getVariantRealMetaType(const GVariant & value)
 {
 	if(vtIsTypedVar(value.getType())) {
-		GVariantData data;
-		value.getData().valueTypedVar->getValue(&data);
 		GMetaTypeData type;
-		value.getData().valueTypedVar->getType(&type);
+		value.refData().valueTypedVar->getType(&type);
 		return GMetaType(type);
 	}
 	else {

@@ -186,16 +186,16 @@ void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
 	GVariant v;
 
 	v = Magic1;
-	script->bindFundamental("Magic1", &v.getData());
+	script->bindFundamental("Magic1", &v.refData());
 	
 	v = Magic2;
-	script->bindFundamental("Magic2", &v.getData());
+	script->bindFundamental("Magic2", &v.refData());
 	
 	v = Magic3;
-	script->bindFundamental("Magic3", &v.getData());
+	script->bindFundamental("Magic3", &v.refData());
 
 	v = testInt;
-	script->bindFundamental("testInt", &v.getData());
+	script->bindFundamental("testInt", &v.refData());
 }
 
 

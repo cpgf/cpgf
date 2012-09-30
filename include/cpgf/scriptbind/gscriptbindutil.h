@@ -13,7 +13,7 @@ namespace cpgf {
 	const GVariant * params[N == 0 ? 1 : N]; \
 	GPP_REPEAT_3(N, DEF_LOAD_PARAM_HELPER, GPP_EMPTY())
 
-#define DEF_LOAD_PARAM_HELPER_API(N, unused) params[N] = GPP_CONCAT(p, N).getValue().getData();
+#define DEF_LOAD_PARAM_HELPER_API(N, unused) params[N] = GPP_CONCAT(p, N).getValue().refData();
 #define DEF_LOAD_PARAM_API(N) \
 	GVariantData params[N == 0 ? 1 : N]; \
 	GPP_REPEAT_3(N, DEF_LOAD_PARAM_HELPER_API, GPP_EMPTY())

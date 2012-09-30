@@ -86,7 +86,7 @@ GVariant metaGetValue(const Meta & meta, const void * obj)
 template <typename Meta>
 void metaSetValue(const Meta & meta, void * obj, const GVariant & value)
 {
-	GVariantData data(value.getData());
+	GVariantData data(value.refData());
 	const_cast<Meta &>(meta)->set(obj, &data);
 
 	metaCheckError(meta);

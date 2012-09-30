@@ -1279,7 +1279,7 @@ GVariant GV8ScriptObject::invokeIndirectly(const char * name, GVariant const * c
 
 void GV8ScriptObject::bindFundamental(const char * name, const GVariant & value)
 {
-	GASSERT_MSG(vtIsFundamental(vtGetType(value.getData().typeData)), "Only fundamental value can be bound via bindFundamental");
+	GASSERT_MSG(vtIsFundamental(vtGetType(value.refData().typeData)), "Only fundamental value can be bound via bindFundamental");
 
 	ENTER_V8()
 

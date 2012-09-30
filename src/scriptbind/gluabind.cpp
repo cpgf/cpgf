@@ -382,7 +382,7 @@ int GLuaGlobalAccessor::doNewIndex()
 	MapType::iterator it = this->itemMap.find(sname);
 	if(it != this->itemMap.end()) {
 		GVariant value = luaToVariant(this->scriptObject->getContext(), -1);
-		GVariantData varData = value.getData();
+		GVariantData varData = value.refData();
 		it->second.accessible->set(it->second.instance, &varData);
 		metaCheckError(it->second.accessible);
 		return 1;
@@ -1604,7 +1604,7 @@ GVariant GLuaScriptObject::invokeIndirectly(const char * name, GVariant const * 
 
 void GLuaScriptObject::bindFundamental(const char * name, const GVariant & value)
 {
-	GASSERT_MSG(vtIsFundamental(vtGetType(value.getData().typeData)), "Only fundamental value can be bound via bindFundamental");
+	GASSERT_MSG(vtIsFundamental(vtGetType(value.refData().typeData)), "Only fundamental value can be bound via bindFundamental");
 
 	ENTER_LUA()
 

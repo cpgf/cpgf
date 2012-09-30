@@ -848,8 +848,8 @@ typename Methods::ResultType variantToScript(const GContextPointer & context, co
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
 				if(vtIsInterface(vt)) {
-					instance = value.getData().valueInterface;
-					GScopedInterface<IObject> ba(value.getData().valueInterface);
+					instance = value.refData().valueInterface;
+					GScopedInterface<IObject> ba(value.refData().valueInterface);
 					return Methods::doObjectToScript(context, context->getOrNewClassData(instance, gdynamic_cast<IMetaClass *>(typedItem.get())),
 						instance, allowGC,	metaTypeToCV(type), ogdtInterface);
 				}

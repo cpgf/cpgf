@@ -846,7 +846,7 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeC
 		paramsRank->ranks[i] = paramRank;
 
 		if(! isParamImplicitConvert(paramRank)) {
-			bool ok = !! callable->checkParam(&callbackParam->paramsData[i].getData(), static_cast<uint32_t>(i));
+			bool ok = !! callable->checkParam(&callbackParam->paramsData[i].refData(), static_cast<uint32_t>(i));
 			metaCheckError(callable);
 			if(! ok) {
 				return -1;
@@ -948,7 +948,7 @@ void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableP
 
 	const GVariantData * data[REF_MAX_ARITY];
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
-		data[i] = & callableParam->paramsData[i].getData();
+		data[i] = & callableParam->paramsData[i].refData();
 	}
 	callable->executeIndirectly(&result->resultData.refData(), instance, data, static_cast<uint32_t>(callableParam->paramCount));
 	metaCheckError(callable);
