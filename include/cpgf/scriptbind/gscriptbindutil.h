@@ -27,6 +27,7 @@ namespace cpgf {
 		DEF_LOAD_PARAM_API(N) \
 		GVariant result; \
 		scriptObject->invoke(&result.refData(), name, params, N); \
+		metaCheckError(scriptObject); \
 		return result; \
 	} \
 	inline GVariant invokeScriptFunction(GScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
@@ -37,6 +38,7 @@ namespace cpgf {
 		DEF_LOAD_PARAM_API(N) \
 		GVariant result; \
 		scriptFunction->invoke(&result.refData(), params, N); \
+		metaCheckError(scriptFunction); \
 		return result; \
 	}
 

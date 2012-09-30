@@ -95,7 +95,7 @@ void metaSetValue(const Meta & meta, void * obj, const GVariant & value)
 template <typename Meta>
 bool metaCheckParam(const Meta & meta, const GVariant & param, size_t paramIndex)
 {
-	GVariantData data(param.getData());
+	GVariantData data(param.refData());
 	
 	bool ok = !! meta->checkParam(&data, static_cast<uint32_t>(paramIndex));
 
@@ -117,7 +117,7 @@ GMetaType metaGetParamType(const Meta & meta, size_t paramIndex)
 }
 
 
-#define DEF_LOAD_PARAM_HELPER(N, unused) paramData[N] = &GPP_CONCAT(p, N).data;
+#define DEF_LOAD_PARAM_HELPER(N, unused) paramData[N] = &GPP_CONCAT(p, N).refData();
 
 #define DEF_LOAD_PARAM(N) \
 	const GVariantData * paramData[N == 0 ? 1 : N]; \
@@ -128,7 +128,7 @@ GMetaType metaGetParamType(const Meta & meta, size_t paramIndex)
 	GVariant metaInvokeMethod(const Meta & method, void * obj GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
 		GVariant v; \
-		const_cast<Meta &>(method)->invokeIndirectly(&v.data, obj, paramData, N); \
+		const_cast<Meta &>(method)->invokeIndirectly(&v.refData(), obj, paramData, N); \
 		metaCheckError(method); \
 		return v; \
 	} \
@@ -143,7 +143,7 @@ GMetaType metaGetParamType(const Meta & meta, size_t paramIndex)
 	GVariant metaInvokeOperatorFunctor(const Meta & op, void * obj GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
 		GVariant v; \
-		const_cast<Meta &>(op)->invokeFunctorIndirectly(&v.data, obj, paramData, N); \
+		const_cast<Meta &>(op)->invokeFunctorIndirectly(&v.refData(), obj, paramData, N); \
 		metaCheckError(op); \
 		return v; \
 	}
@@ -159,7 +159,7 @@ GVariant metaInvokeOperatorUnary(const Meta & op, const GVariant & p0)
 {
 	GVariant v;
 
-	const_cast<Meta &>(op)->invokeUnary(&v.data, &p0.data);
+	const_cast<Meta &>(op)->invokeUnary(&v.refData(), &p0.refData());
 	metaCheckError(op);
 
 	return v;
@@ -170,7 +170,7 @@ GVariant metaInvokeOperatorBinary(const Meta & op, const GVariant & p0, const GV
 {
 	GVariant v;
 
-	const_cast<Meta &>(op)->invokeBinary(&v.data, &p0.data, &p1.data);
+	const_cast<Meta &>(op)->invokeBinary(&v.refData(), &p0.refData(), &p1.refData());
 	metaCheckError(op);
 
 	return v;
