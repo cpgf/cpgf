@@ -374,20 +374,27 @@ GVariant getVariantRealValue(const GVariant & value)
 {
 	if(vtIsTypedVar(value.getType())) {
 		GVariantData data;
-		fromVariant<variant_internal::IVariantTypedVar *>(value)->getValue(&data);
-		return GVariant(data);
+		value.getData().valueTypedVar->getValue(&data);
+		return getVariantRealValue(GVariant(data));
 	}
 	else {
 		return value;
 	}
 }
 
-GMetaType getVariantRealType(const GVariant & value)
+GMetaType getVariantRealMetaType(const GVariant & value)
 {
 	if(vtIsTypedVar(value.getType())) {
-		GMetaTypeData type;
-		fromVariant<variant_internal::IVariantTypedVar *>(value)->getType(&type);
-		return GMetaType(type);
+		GVariantData data;
+		value.getData().valueTypedVar->getValue(&data);
+		if(vtIsTypedVar(vtGetType(data.typeData))) {
+			return getVariantRealMetaType(GVariant(data));
+		}
+		else {
+			GMetaTypeData type;
+			value.getData().valueTypedVar->getType(&type);
+			return GMetaType(type);
+		}
 	}
 	else {
 		return GMetaType();

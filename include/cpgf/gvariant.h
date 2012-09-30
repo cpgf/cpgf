@@ -31,6 +31,8 @@ struct GMetaTypeData;
 template <typename T>
 bool canFromVariant(const GVariant & v);
 
+GVariant getVariantRealValue(const GVariant & value);
+
 namespace variant_internal {
 
 template <bool Copyable, typename T>
@@ -187,13 +189,13 @@ void checkFailCast(bool success);
 template <typename T>
 bool canFromVariant(const GVariant & v)
 {
-	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, VarantCastKeepConstRef>::canCast(vtGetType(v.getData().typeData), v);
+	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, VarantCastKeepConstRef>::canCast(v);
 }
 
 template <typename T, typename Policy>
 bool canFromVariant(const GVariant & v)
 {
-	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, Policy>::canCast(vtGetType(v.getData().typeData), v);
+	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, Policy>::canCast(v);
 }
 
 template <typename T>
@@ -265,7 +267,7 @@ bool variantIsWideString(const GVariant & v);
 
 GVariant createTypedVariant(const GVariant & value, const GMetaType & type);
 GVariant getVariantRealValue(const GVariant & value);
-GMetaType getVariantRealType(const GVariant & value);
+GMetaType getVariantRealMetaType(const GVariant & value);
 
 
 } // namespace cpgf

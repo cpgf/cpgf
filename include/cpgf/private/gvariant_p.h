@@ -507,10 +507,10 @@ struct CanCastFromVariant
 	typedef typename CastResult<T, Policy>::Result ResultType;
 	typedef typename RemoveReference<T>::Result RefValueType;
 
-	static bool canCast(int vt, const GVariant & v) {
+	static bool canCast(const GVariant & v) {
 		(void)v;
 
-		switch(static_cast<int>(vt)) {
+		switch(static_cast<int>(vtGetType(v.getData().typeData))) {
 			case vtBool:
 				return (variant_internal::isNotPointer<ResultType>() && variant_internal::CastVariantHelper<bool, ResultType>::CanCast)
 					|| (IsPointer<ResultType>::Result && v.getData().valueBool == 0)
@@ -604,7 +604,7 @@ struct CanCastFromVariant
 				return variant_internal::EnforceCastToPointer<IObject *, typename RemoveReference<ResultType>::Result>::CanCast;
 			
 			case vtTypedVar:
-				return variant_internal::EnforceCastToPointer<variant_internal::IVariantTypedVar *, typename RemoveReference<ResultType>::Result>::CanCast;
+				return CanCastFromVariant<T, Policy>::canCast(getVariantRealValue(v));
 
 			case vtBool | byPointer:
 				return variant_internal::isNotFundamental<ResultType>() && variant_internal::CastVariantHelper<bool *, ResultType>::CanCast;
@@ -852,7 +852,7 @@ struct CastFromVariant
 				return variant_internal::EnforceCastToPointer<IObject *, ResultType>::cast(v.getData().valueInterface);
 			
 			case vtTypedVar:
-				return variant_internal::EnforceCastToPointer<variant_internal::IVariantTypedVar *, ResultType>::cast(v.getData().valueTypedVar);
+				return CastFromVariant<T, Policy>::cast(getVariantRealValue(v));
 
 			case vtBool | byPointer:
 				return variant_internal::CastVariantHelper<bool *, ResultType>::cast(const_cast<bool *>(v.getData().ptrBool));

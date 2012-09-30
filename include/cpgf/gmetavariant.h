@@ -49,7 +49,7 @@ public:
 	}
 
 	GMetaType getType() const {
-		return getVariantRealType(this->typedValue);
+		return getVariantRealMetaType(this->typedValue);
 	}
 
 	GMetaVarData getData() const {
