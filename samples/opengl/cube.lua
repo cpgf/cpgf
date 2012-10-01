@@ -17,10 +17,10 @@ colorList = 0
 normalList = 0
 
 function initData()
-	vertexList = gl.createByteArray()
-	indexList = gl.createByteArray()
-	colorList = gl.createByteArray()
-	normalList = gl.createByteArray()
+	vertexList = cpgf.createByteArray()
+	indexList = cpgf.createByteArray()
+	colorList = cpgf.createByteArray()
+	normalList = cpgf.createByteArray()
 
 	vertexList.writeFloat32(0.4)  vertexList.writeFloat32(0.4)  vertexList.writeFloat32(0.4)
 	vertexList.writeFloat32(-0.4)  vertexList.writeFloat32(0.4)  vertexList.writeFloat32(0.4)
@@ -60,7 +60,7 @@ end
 function drawString(str)
 	gl.glPushAttrib(gl.GL_LIGHTING_BIT + gl.GL_CURRENT_BIT)
 	gl.glDisable(gl.GL_LIGHTING)
-	local positionList = gl.createByteArray()
+	local positionList = cpgf.createByteArray()
 	positionList.writeFloat32(-0.6)  positionList.writeFloat32(-0.5)  positionList.writeFloat32(0.5)
 	gl.glRasterPos3fv(positionList.getMemory())
 	for i=1, #str do
@@ -121,13 +121,13 @@ function timer(value)
 end
 
 function initLights()
-	lightAmbient = gl.createByteArray()
+	lightAmbient = cpgf.createByteArray()
 	lightAmbient.writeFloat32(0.6)  lightAmbient.writeFloat32(0.6)  lightAmbient.writeFloat32(0.6)  lightAmbient.writeFloat32(1.0)
-	lightDiffuse = gl.createByteArray()
+	lightDiffuse = cpgf.createByteArray()
 	lightDiffuse.writeFloat32(0.7)  lightDiffuse.writeFloat32(0.7)  lightDiffuse.writeFloat32(0.7)  lightDiffuse.writeFloat32(1.0)
-	lightSpecular = gl.createByteArray()
+	lightSpecular = cpgf.createByteArray()
 	lightSpecular.writeFloat32(1)  lightSpecular.writeFloat32(1)  lightSpecular.writeFloat32(1)  lightSpecular.writeFloat32(1)
-	lightPosition = gl.createByteArray()
+	lightPosition = cpgf.createByteArray()
 	lightPosition.writeFloat32(0)  lightPosition.writeFloat32(1)  lightPosition.writeFloat32(-1)  lightPosition.writeFloat32(1)
 	gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, lightAmbient.getMemory())
 	gl.glLightfv(gl.GL_LIGHT0, gl.GL_DIFFUSE, lightDiffuse.getMemory())

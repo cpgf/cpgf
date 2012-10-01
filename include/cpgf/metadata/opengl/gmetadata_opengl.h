@@ -1456,26 +1456,11 @@ void doBuildMetaData_open_gl_functions(const GMetaDataConfigFlags & /*config*/, 
 	GM(glViewport)
 }
 
-inline IByteArray * helper_createByteArray()
-{
-	return byteArrayToInterface(new GByteArray, true);
-}
-
-inline IByteArray * helper_createByteArrayWithLength(size_t length)
-{
-	return byteArrayToInterface(new GByteArray(length), true);
-}
-
 template <typename MetaDefine>
 void doBuildMetaData_open_gl(const GMetaDataConfigFlags & config, MetaDefine define)
 {
 	doBuildMetaData_open_gl_constants(config, define);
 	doBuildMetaData_open_gl_functions(config, define);
-
-	if(metaDataConfigIsScriptable(config)) {
-		define.CPGF_MD_TEMPLATE _method("createByteArray", &helper_createByteArray);
-		define.CPGF_MD_TEMPLATE _method("createByteArray", &helper_createByteArrayWithLength);
-	}
 
 }
 

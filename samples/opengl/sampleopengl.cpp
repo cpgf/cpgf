@@ -1,7 +1,5 @@
 #include "cpgf/gmetadefine.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
-#include "cpgf/metadata/util/gmetadata_bytearray.h"
-#include "cpgf/gbytearrayapi.h"
 
 #include "../samplescriptbindutil.h"
 
@@ -59,16 +57,13 @@ int main(int argc, char * argv[])
 	runner.reset(createScriptRunnerFromScriptLanguage(lang, service.get()));
 
 	GScopedInterface<IScriptObject> scriptObject(runner->getScripeObject());
+
+	scriptObject->bindCoreService("cpgf");
 	
 	GScopedInterface<IMetaClass> glMetaClass(static_cast<IMetaClass *>(metaItemToInterface(define.getMetaClass())));
 	scriptObject->bindClass("gl", glMetaClass.get());
 	GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(metaItemToInterface(getGlobalMetaClass()->getMethod("exitDemo"))));
 	scriptObject->bindMethod("exitDemo", NULL, method.get());
-	
-	GDefineMetaClass<IByteArray> byteArrayDefine = GDefineMetaClass<IByteArray>::declare("IByteArray");
-	buildMetaData_byteArray(byteArrayDefine);
-	GScopedInterface<IMetaClass> byteArrayMetaClass(static_cast<IMetaClass *>(metaItemToInterface(byteArrayDefine.getMetaClass())));
-	scriptObject->bindClass("IByteArray", byteArrayMetaClass.get());
 	
 	if(runner->executeFile(fileName)) {
 		invokeScriptFunction(scriptObject.get(), "start");

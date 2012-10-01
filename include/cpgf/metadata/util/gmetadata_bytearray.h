@@ -18,6 +18,7 @@ template <typename T, typename MetaDefine>
 void doBuildMetaData_byteArray(const GMetaDataConfigFlags & config, MetaDefine define)
 {
 	M(T, getMemory)
+	M(T, getCurrentMemory)
 	
 	M(T, getPosition)
 	M(T, setPosition)

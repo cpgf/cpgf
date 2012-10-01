@@ -25,10 +25,10 @@ def initData() :
 	global colorList
 	global normalList
 
-	vertexList = gl.createByteArray()
-	indexList = gl.createByteArray()
-	colorList = gl.createByteArray()
-	normalList = gl.createByteArray()
+	vertexList = cpgf.createByteArray()
+	indexList = cpgf.createByteArray()
+	colorList = cpgf.createByteArray()
+	normalList = cpgf.createByteArray()
 
 	vertexList.writeFloat32(0.4)
 	vertexList.writeFloat32(0.4)
@@ -141,7 +141,7 @@ def drawString(s) :
 
 	gl.glPushAttrib(gl.GL_LIGHTING_BIT + gl.GL_CURRENT_BIT)
 	gl.glDisable(gl.GL_LIGHTING)
-	positionList = gl.createByteArray()
+	positionList = cpgf.createByteArray()
 	positionList.writeFloat32(-0.6)
 	positionList.writeFloat32(-0.5)
 	positionList.writeFloat32(0.5)
@@ -228,25 +228,25 @@ def initLights() :
 	global colorList
 	global normalList
 
-	lightAmbient = gl.createByteArray()
+	lightAmbient = cpgf.createByteArray()
 	lightAmbient.writeFloat32(0.6) 
 	lightAmbient.writeFloat32(0.6) 
 	lightAmbient.writeFloat32(0.6) 
 	lightAmbient.writeFloat32(1.0)
 
-	lightDiffuse = gl.createByteArray()
+	lightDiffuse = cpgf.createByteArray()
 	lightDiffuse.writeFloat32(0.7) 
 	lightDiffuse.writeFloat32(0.7) 
 	lightDiffuse.writeFloat32(0.7) 
 	lightDiffuse.writeFloat32(1.0)
 
-	lightSpecular = gl.createByteArray()
+	lightSpecular = cpgf.createByteArray()
 	lightSpecular.writeFloat32(1) 
 	lightSpecular.writeFloat32(1) 
 	lightSpecular.writeFloat32(1) 
 	lightSpecular.writeFloat32(1)
 
-	lightPosition = gl.createByteArray()
+	lightPosition = cpgf.createByteArray()
 	lightPosition.writeFloat32(0) 
 	lightPosition.writeFloat32(1) 
 	lightPosition.writeFloat32(-1) 

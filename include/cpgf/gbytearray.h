@@ -18,6 +18,7 @@ public:
 	~GByteArray();
 
     void * getMemory() const;
+    void * getCurrentMemory() const;
 
     size_t getPosition() const;
     void setPosition(size_t position);

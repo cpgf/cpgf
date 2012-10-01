@@ -8,6 +8,7 @@ namespace cpgf {
 
 struct IByteArray : IExtendObject {
     virtual void * G_API_CC getMemory() = 0;
+    virtual void * G_API_CC getCurrentMemory() = 0;
 
     virtual uint32_t G_API_CC getPosition() = 0;
     virtual void G_API_CC setPosition(uint32_t position) = 0;

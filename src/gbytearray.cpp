@@ -127,6 +127,11 @@ void * GByteArray::getMemory() const
 	return this->implement->getMemory();
 }
 
+void * GByteArray::getCurrentMemory() const
+{
+	return this->implement->getCurrentMemory();
+}
+
 size_t GByteArray::getPosition() const
 {
 	return this->implement->position;
@@ -271,6 +276,7 @@ public:
 
 protected:
     virtual void * G_API_CC getMemory();
+    virtual void * G_API_CC getCurrentMemory();
 
     virtual uint32_t G_API_CC getPosition();
     virtual void G_API_CC setPosition(uint32_t position);
@@ -345,6 +351,15 @@ void * G_API_CC ImplByteArray::getMemory()
 	ENTER_BYTEARRAY_API()
 
     return this->byteArray->getMemory();
+
+    LEAVE_BYTEARRAY_API(return NULL)
+}
+
+void * G_API_CC ImplByteArray::getCurrentMemory()
+{
+	ENTER_BYTEARRAY_API()
+
+    return this->byteArray->getCurrentMemory();
 
     LEAVE_BYTEARRAY_API(return NULL)
 }
