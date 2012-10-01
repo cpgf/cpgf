@@ -135,6 +135,7 @@ public:
 	virtual void * cloneInplace(const void * instance, void * placement) const = 0;
 
 	virtual void destroyInstance(void * instance) const = 0;
+	virtual void destroyInplace(void * instance) const = 0;
 	
 private:
 	mutable std::string typeName;

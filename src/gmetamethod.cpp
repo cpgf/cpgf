@@ -33,9 +33,9 @@ namespace cpgf {
 namespace meta_internal {
 
 
-void GMetaMethodDataBase::deleteObject()
+void GMetaMethodDataBase::deleteSelf()
 {
-	this->virtualFunctions->deleteObject(this);
+	this->virtualFunctions->deleteSelf(this);
 }
 
 size_t GMetaMethodDataBase::getParamCount() const

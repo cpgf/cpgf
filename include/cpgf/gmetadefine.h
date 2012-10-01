@@ -64,21 +64,6 @@ void (*GLazyDefineClassHelper<DefineClass>::registerAddress)(DefineClass define)
 
 typedef GSharedPointer<GMetaClass> GSharedMetaClass;
 
-template <typename T, bool CanDelete>
-struct ObjectDeleter
-{
-	static void deleteObject(void * instance) {
-		delete static_cast<typename GIfElse<IsVoid<T>::Result, char, T>::Result *>(instance);
-	}
-};
-
-template <typename T>
-struct ObjectDeleter <T, false>
-{
-	static void deleteObject(void * /*instance*/) {
-	}
-};
-
 
 } // namespace meta_internal
 
@@ -525,7 +510,7 @@ protected:
 		if(classToAdd == NULL) {
 			classToAdd = new GMetaClass(
 				(ClassType *)0, meta_internal::doMakeSuperList<BaseListType, ClassType>(),
-				className, &meta_internal::ObjectDeleter<ClassType, !PolicyHasRule<P, GMetaRuleDestructorAbsent>::Result>::deleteObject, reg, policy
+				className, reg, policy
 			);
 
 			if(addToGlobal) {
@@ -622,7 +607,7 @@ protected:
 	void init() {
 		this->dangling = true;
 		
-		GMetaClass * metaClass = new GMetaClass((ClassType *)0, new meta_internal::GMetaSuperList, "", NULL, NULL, GMetaPolicyDefault());
+		GMetaClass * metaClass = new GMetaClass((ClassType *)0, new meta_internal::GMetaSuperList, "", NULL, GMetaPolicyDefault());
 
 		this->metaClass.reset(metaClass);
 		this->currentItem = metaClass;

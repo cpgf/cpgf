@@ -121,6 +121,10 @@ public:
 
 	CLASS(const CLASS & other) : n(other.n), s(other.s) {
 	}
+	
+	~CLASS() {
+		this->n = 38;
+	}
 
 	bool operator == (const CLASS & other) const {
 		return this->n == other.n;
@@ -128,6 +132,10 @@ public:
 
 	bool check() const {
 		return this->n == 5 && this->s == "abc";
+	}
+
+	bool checkFreed() const {
+		return this->n == 38;
 	}
 
 public:
@@ -165,7 +173,8 @@ GTEST(Lib_CreateInstance)
 	pobj = (CLASS *)(metaClass->createInplace(inplace));
 	GCHECK(pobj);
 	GCHECK(pobj->check());
-	pobj->~CLASS();
+	metaClass->destroyInplace(pobj);
+	GCHECK(pobj->checkFreed());
 
 	CLASS clone;
 	clone.n = 100;
@@ -184,7 +193,8 @@ GTEST(Lib_CreateInstance)
 	GCHECK(! pobj->check());
 	GEQUAL(*pobj, clone);
 	GEQUAL(pobj->n, 199);
-	pobj->~CLASS();
+	metaClass->destroyInplace(pobj);
+	GCHECK(pobj->checkFreed());
 }
 
 GTEST(API_CreateInstance)
@@ -207,7 +217,8 @@ GTEST(API_CreateInstance)
 	pobj = (CLASS *)(metaClass->createInplace(inplace));
 	GCHECK(pobj);
 	GCHECK(pobj->check());
-	pobj->~CLASS();
+	metaClass->destroyInplace(pobj);
+	GCHECK(pobj->checkFreed());
 
 	CLASS clone;
 	clone.n = 100;
@@ -226,7 +237,8 @@ GTEST(API_CreateInstance)
 	GCHECK(! pobj->check());
 	GEQUAL(*pobj, clone);
 	GEQUAL(pobj->n, 199);
-	pobj->~CLASS();
+	metaClass->destroyInplace(pobj);
+	GCHECK(pobj->checkFreed());
 }
 #undef CLASS
 

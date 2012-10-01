@@ -100,6 +100,10 @@ void GMetaEnum::destroyInstance(void * instance) const
 	delete static_cast<GVariant *>(instance);
 }
 
+void GMetaEnum::destroyInplace(void * instance) const
+{
+}
+
 void GMetaEnum::addEnum(const char * key, const GVariant & value)
 {
 	this->implement->keyNameList.push_back(key);

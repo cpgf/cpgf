@@ -8,9 +8,9 @@ namespace cpgf {
 namespace meta_internal {
 
 
-void GMetaPropertyDataBase::deleteObject()
+void GMetaPropertyDataBase::deleteSelf()
 {
-	this->virtualFunctions->deleteObject(this);
+	this->virtualFunctions->deleteSelf(this);
 }
 
 bool GMetaPropertyDataBase::canGet() const

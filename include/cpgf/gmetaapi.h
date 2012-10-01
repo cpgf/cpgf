@@ -43,6 +43,7 @@ struct IMetaTypedItem : public IMetaItem
 	virtual void * G_API_CC cloneInplace(const void * instance, void * placement) = 0;
 
 	virtual void G_API_CC destroyInstance(void * instance) = 0;
+	virtual void G_API_CC destroyInplace(void * instance) = 0;
 };
 
 struct IMetaList : public IExtendObject

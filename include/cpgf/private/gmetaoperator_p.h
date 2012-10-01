@@ -253,7 +253,7 @@ DEF_UNARY(mopMember, p.operator->())
 
 struct GMetaOperatorDataVirtual
 {
-	void (*deleteObject)(void * self);
+	void (*deleteSelf)(void * self);
 	
 	GVariant (*invoke)(const GVariant & p0);
 	GVariant (*invoke2)(const GVariant & p0, const GVariant & p1);
@@ -278,7 +278,7 @@ struct GMetaOperatorDataVirtual
 class GMetaOperatorDataBase
 {
 public:
-	void deleteObject();
+	void deleteSelf();
 
 	GMetaOpType getOperator() const;
 

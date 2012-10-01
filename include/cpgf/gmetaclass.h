@@ -35,10 +35,9 @@ private:
 
 public:
 	template <typename ClassT, typename Policy>
-	GMetaClass(ClassT *, meta_internal::GMetaSuperList * superList, const char * name, void (*destroy)(void *), void (*metaRegister)(GMetaClass *), const Policy &)
+	GMetaClass(ClassT *, meta_internal::GMetaSuperList * superList, const char * name, void (*metaRegister)(GMetaClass *), const Policy &)
 		:	super(name, createMetaType<ClassT>(), mcatClass),
 			intialized(false),
-			destroy(destroy),
 			metaRegister(metaRegister),
 			superList(superList),
 			baseData(new meta_internal::GMetaClassData<ClassT, Policy>()) {
@@ -57,6 +56,7 @@ public:
 	virtual void * cloneInplace(const void * instance, void * placement) const;
 
 	virtual void destroyInstance(void * instance) const;
+	virtual void destroyInplace(void * instance) const;
 
 	virtual size_t getTypeSize() const;
 
@@ -173,7 +173,6 @@ private:
 
 private:
 	mutable bool intialized;
-	void (*destroy)(void *);
 	void (*metaRegister)(GMetaClass * metaClass);
 
 	GScopedPointer<meta_internal::GMetaSuperList> superList;

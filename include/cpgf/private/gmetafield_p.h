@@ -12,7 +12,7 @@ namespace meta_internal {
 
 struct GMetaFieldDataVirtual
 {
-	void (*deleteObject)(void * self);
+	void (*deleteSelf)(void * self);
 	bool (*canGet)();
 	bool (*canSet)();
 	GVariant (*get)(const void * self, const void * instance);
@@ -25,7 +25,7 @@ struct GMetaFieldDataVirtual
 class GMetaFieldDataBase
 {
 public:
-	void deleteObject();
+	void deleteSelf();
 
 	bool canGet() const;
 	bool canSet() const;

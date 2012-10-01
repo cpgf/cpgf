@@ -27,7 +27,7 @@ template <typename T>
 struct GScopedPointerDeleter_BaseMeta
 {
 	static inline void Delete(T * p) {
-		p->deleteObject();
+		p->deleteSelf();
 	}
 };
 

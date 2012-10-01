@@ -29,7 +29,7 @@ std::string arityToName(int arity);
 
 struct GMetaMethodDataVirtual
 {
-	void (*deleteObject)(void * self);
+	void (*deleteSelf)(void * self);
 	size_t (*getParamCount)();
 	bool (*hasResult)();
 	GMetaType (*getParamType)(size_t index);
@@ -47,7 +47,7 @@ struct GMetaMethodDataVirtual
 class GMetaMethodDataBase
 {
 public:
-	void deleteObject();
+	void deleteSelf();
 
 	size_t getParamCount() const;
 	bool hasResult() const;

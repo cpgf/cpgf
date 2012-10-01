@@ -13,9 +13,9 @@ namespace cpgf {
 namespace meta_internal {
 
 
-void GMetaOperatorDataBase::deleteObject()
+void GMetaOperatorDataBase::deleteSelf()
 {
-	this->virtualFunctions->deleteObject(this);
+	this->virtualFunctions->deleteSelf(this);
 }
 
 GMetaOpType GMetaOperatorDataBase::getOperator() const

@@ -26,13 +26,15 @@ namespace meta_internal {
 
 struct GMetaClassDataVirtual
 {
-	void (*deleteObject)(void * self);
+	void (*deleteSelf)(void * self);
 	bool (*canCreateInstance)();
 	bool (*canCopyInstance)();
 	void * (*createInstance)(const void * self);
 	void * (*createInplace)(const void * self, void * placement);
 	void * (*cloneInstance)(const void * self, const void * instance);
 	void * (*cloneInplace)(const void * self, const void * instance, void * placement);
+	void (*destroyInstance)(void * instance);
+	void (*destroyInplace)(void * instance);
 	size_t (*getObjectSize)(const void * self);
 	bool (*isAbstract)(const void * self);
 	bool (*isPolymorphic)();
@@ -42,7 +44,7 @@ struct GMetaClassDataVirtual
 class GMetaClassDataBase
 {
 public:
-	void deleteObject();
+	void deleteSelf();
 	
 	bool canCreateInstance() const;
 	bool canCopyInstance() const;
@@ -51,6 +53,9 @@ public:
 	void * createInplace(void * placement) const;
 	void * cloneInstance(const void * instance) const;
 	void * cloneInplace(const void * instance, void * placement) const;
+
+	void destroyInstance(void * instance) const;
+	void destroyInplace(void * instance) const;
 
 	size_t getObjectSize() const;
 	
@@ -66,6 +71,39 @@ protected:
 	GMetaClassDataVirtual * virtualFunctions;
 };
 
+template <typename T, bool CanDelete>
+struct ObjectDeleter
+{
+	static void destroyInstance(void * instance) {
+		delete static_cast<T *>(instance);
+	}
+
+	static void destroyInplace(void * instance) {
+		(void)instance;
+		static_cast<T *>(instance)->~T();
+	}
+};
+
+template <typename T>
+struct ObjectDeleter <T, false>
+{
+	static void destroyInstance(void * /*instance*/) {
+	}
+
+	static void destroyInplace(void * /*instance*/) {
+	}
+};
+
+template <bool CanDelete>
+struct ObjectDeleter <void, CanDelete>
+{
+	static void destroyInstance(void * /*instance*/) {
+	}
+
+	static void destroyInplace(void * /*instance*/) {
+	}
+};
+
 template <typename OT, typename Policy>
 class GMetaClassData : public GMetaClassDataBase
 {
@@ -76,6 +114,8 @@ private:
 	G_STATIC_CONSTANT(bool, NoCopyConstructor = (PolicyHasRule<Policy, GMetaRuleCopyConstructorAbsent>::Result));
 	G_STATIC_CONSTANT(bool, CanDefaultConstruct = (!IsGlobal && !IsAbstract && !NoDefaultConstructor));
 	G_STATIC_CONSTANT(bool, CanCopyConstruct = (!IsGlobal && !IsAbstract && !NoCopyConstructor));
+
+	typedef ObjectDeleter<OT, !PolicyHasRule<Policy, GMetaRuleDestructorAbsent>::Result> Deleter;
 
 private:
 	static void errorAbstract() {
@@ -115,6 +155,14 @@ private:
 		return static_cast<const GMetaClassData *>(self)->doCloneInplace<typename GIfElse<CanCopyConstruct, void, int>::Result >(instance, placement);
 	}
 
+	static void virtualDestroyInstance(void * instance) {
+		Deleter::destroyInstance(instance);
+	}
+
+	static void virtualDestroyInplace(void * instance) {
+		Deleter::destroyInplace(instance);
+	}
+
 	static size_t virtualGetObjectSize(const void * self) {
 		return static_cast<const GMetaClassData *>(self)->doGetObjectSize<typename GIfElse<IsGlobal, void, OT>::Result >();
 	}
@@ -141,6 +189,8 @@ public:
 			&virtualCreateInplace,
 			&virtualCloneInstance,
 			&virtualCloneInplace,
+			&virtualDestroyInstance,
+			&virtualDestroyInplace,
 			&virtualGetObjectSize,
 			&virtualIsAbstract,
 			&virtualPolymorphic,

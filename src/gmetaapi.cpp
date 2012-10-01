@@ -60,7 +60,8 @@ protected: \
 	virtual void * G_API_CC createInplace(void * placement) { return this->doCreateInplace(placement); } \
 	virtual void * G_API_CC cloneInstance(const void * instance) { return this->doCloneInstance(instance); } \
 	virtual void * G_API_CC cloneInplace(const void * instance, void * placement) { return this->doCloneInplace(instance, placement); } \
-	virtual void G_API_CC destroyInstance(void * instance) { this->doDestroyInstance(instance); }
+	virtual void G_API_CC destroyInstance(void * instance) { this->doDestroyInstance(instance); } \
+	virtual void G_API_CC destroyInplace(void * instance) { this->doDestroyInplace(instance); }
 
 #define IMPL_CALLABLE \
 protected: \
@@ -162,6 +163,7 @@ protected:
 	void * doCloneInplace(const void * instance, void * placement);
 
 	void doDestroyInstance(void * instance);
+	void doDestroyInplace(void * instance);
 
 private:
 	const GMetaTypedItem * getTypedItem() const {
@@ -851,6 +853,15 @@ void ImplMetaTypedItem::doDestroyInstance(void * instance)
 	ENTER_META_API()
 
 	this->getTypedItem()->destroyInstance(instance);
+
+	LEAVE_META_API()
+}
+
+void ImplMetaTypedItem::doDestroyInplace(void * instance)
+{
+	ENTER_META_API()
+
+	this->getTypedItem()->destroyInplace(instance);
 
 	LEAVE_META_API()
 }

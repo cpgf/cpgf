@@ -35,6 +35,7 @@ public:
 	virtual void * cloneInstance(const void * instance) const;
 	virtual void * cloneInplace(const void * instance, void * placement) const;
 	virtual void destroyInstance(void * instance) const;
+	virtual void destroyInplace(void * instance) const;
 	
 	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
 

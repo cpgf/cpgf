@@ -31,9 +31,9 @@ GMetaModule * doGetGlobalModule();
 namespace meta_internal {
 
 
-void GMetaClassDataBase::deleteObject()
+void GMetaClassDataBase::deleteSelf()
 {
-	this->virtualFunctions->deleteObject(this);
+	this->virtualFunctions->deleteSelf(this);
 }
 
 bool GMetaClassDataBase::canCreateInstance() const
@@ -64,6 +64,16 @@ void * GMetaClassDataBase::cloneInstance(const void * instance) const
 void * GMetaClassDataBase::cloneInplace(const void * instance, void * placement) const
 {
 	return this->virtualFunctions->cloneInplace(this, instance, placement);
+}
+
+void GMetaClassDataBase::destroyInstance(void * instance) const
+{
+	return this->virtualFunctions->destroyInstance(instance);
+}
+
+void GMetaClassDataBase::destroyInplace(void * instance) const
+{
+	return this->virtualFunctions->destroyInplace(instance);
 }
 
 size_t GMetaClassDataBase::getObjectSize() const
@@ -375,6 +385,14 @@ void * GMetaClass::cloneInplace(const void * instance, void * placement) const
 	return this->baseData->cloneInplace(instance, placement);
 }
 
+void GMetaClass::destroyInstance(void * instance) const {
+	this->baseData->destroyInstance(instance);
+}
+
+void GMetaClass::destroyInplace(void * instance) const {
+	this->baseData->destroyInplace(instance);
+}
+
 size_t GMetaClass::getTypeSize() const
 {
 	return this->baseData->getObjectSize();
@@ -409,10 +427,6 @@ size_t GMetaClass::getConstructorCount() const
 const GMetaConstructor * GMetaClass::getConstructorAt(size_t index) const
 {
 	return static_cast<const GMetaConstructor *>(this->getItemAt(mcatConstructor, index));
-}
-
-void GMetaClass::destroyInstance(void * instance) const {
-	this->destroy(instance);
 }
 
 void GMetaClass::addDerivedClass(const GMetaClass * derived)
@@ -919,7 +933,7 @@ GMetaClass * getGlobalMetaClass()
 {
 	static GMetaClass * global = NULL;
 	if(global == NULL && isLibraryLive()) {
-		global = new GMetaClass((void *)0, NULL, "", NULL, NULL, GMetaPolicyDefault());
+		global = new GMetaClass((void *)0, NULL, "", NULL, GMetaPolicyDefault());
 		addOrderedStaticUninitializer(suo_GlobalMetaClass, makeUninitializerDeleter(&global));
 	}
 
