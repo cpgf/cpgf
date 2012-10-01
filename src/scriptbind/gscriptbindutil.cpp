@@ -12,6 +12,45 @@ using namespace cpgf::bind_internal;
 namespace cpgf {
 
 
+#define DEF_LOAD_PARAM_HELPER(N, unused) params[N] = &GPP_CONCAT(p, N);
+#define DEF_LOAD_PARAM(N) \
+	const GVariant * params[N == 0 ? 1 : N]; \
+	GPP_REPEAT_3(N, DEF_LOAD_PARAM_HELPER, GPP_EMPTY())
+
+#define DEF_LOAD_PARAM_HELPER_API(N, unused) params[N] = GPP_CONCAT(p, N).getValue().refData();
+#define DEF_LOAD_PARAM_API(N) \
+	GVariantData params[N == 0 ? 1 : N]; \
+	GPP_REPEAT_3(N, DEF_LOAD_PARAM_HELPER_API, GPP_EMPTY())
+
+#define DEF_CALL_HELPER(N, unused) \
+	GVariant invokeScriptFunction(GScriptObject * scriptObject, const char * functionName GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
+		DEF_LOAD_PARAM(N) \
+		return scriptObject->invokeIndirectly(functionName, params, N); \
+	} \
+	GVariant invokeScriptFunction(IScriptObject * scriptObject, const char * functionName GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
+		DEF_LOAD_PARAM_API(N) \
+		GVariant result; \
+		GSharedInterface<IScriptObject> holder(scriptObject); /* Hold the object so metaCheckError won't crash if scriptObject is freed in invoke */ \
+		scriptObject->invoke(&result.refData(), functionName, params, N); \
+		metaCheckError(scriptObject); \
+		return result; \
+	} \
+	GVariant invokeScriptFunction(GScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
+		DEF_LOAD_PARAM(N) \
+		return scriptFunction->invokeIndirectly(params, N); \
+	} \
+	GVariant invokeScriptFunction(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
+		DEF_LOAD_PARAM_API(N) \
+		GVariant result; \
+		GSharedInterface<IScriptFunction> holder(scriptFunction); /* Hold the function so metaCheckError won't crash if scriptFunction is freed in invoke */ \
+		scriptFunction->invoke(&result.refData(), params, N); \
+		metaCheckError(scriptFunction); \
+		return result; \
+	}
+
+GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
+
+
 inline bool isCSymbol(unsigned char c) {
     return isalpha(c) || c == '_' || isdigit(c);
 }

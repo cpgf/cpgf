@@ -217,7 +217,7 @@ GVariant pointerToRefVariant(T * p)
 	GVariant v(p);
 
 	if(vtIsByPointer(v.getType())) {
-		vtSetType(v.refData().typeData, (vtGetType(v.getData().typeData) & ~byPointer) | byReference);
+		vtSetType(v.refData().typeData, (vtGetType(v.refData().typeData) & ~byPointer) | byReference);
 	}
 
 	return v;

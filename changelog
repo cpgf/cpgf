@@ -1,6 +1,7 @@
 TBD version 1.5.1
 	Removed class GMetaVariant and file gmetavariant.h
 	Added new variant type vtTypedVar to support holding meta type in GVariant.
+	Fixed a bug that invokeScriptFunction may crash if the calling function or object is freed during the function call.
 
 2012-09-22 version 1.5.0
 	Significantly rewritten the script binding engine. Now the code is much better!

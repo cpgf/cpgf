@@ -849,7 +849,7 @@ typename Methods::ResultType variantToScript(const GContextPointer & context, co
 
 				if(vtIsInterface(vt)) {
 					instance = value.refData().valueInterface;
-					GScopedInterface<IObject> ba(value.refData().valueInterface);
+					GScopedInterface<IObject> releaseIt(value.refData().valueInterface); // auto release the reference
 					return Methods::doObjectToScript(context, context->getOrNewClassData(instance, gdynamic_cast<IMetaClass *>(typedItem.get())),
 						instance, allowGC,	metaTypeToCV(type), ogdtInterface);
 				}
