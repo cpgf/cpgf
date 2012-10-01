@@ -21,10 +21,16 @@ GPP_REPEAT_2(REF_MAX_ARITY, DECLARE_CALL_HELPER, GPP_EMPTY())
 GVariant scriptGetFundamental(GScriptObject * scriptObject, const char * name);
 GVariant scriptGetFundamental(IScriptObject * scriptObject, const char * name);
 
+GScriptObject * createOrGetScriptObject(GScriptObject * scriptObject, const char * name);
+IScriptObject * createOrGetScriptObject(IScriptObject * scriptObject, const char * name);
+
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject);
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject);
 
-void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance);
+void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
+void injectObjectToScript(GScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
+void injectObjectToScript(IScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
+void injectObjectToScript(GScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
 
 
 } // namespace cpgf

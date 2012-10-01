@@ -45,16 +45,7 @@ GMetaClass * doBindScriptCoreService(GScriptObject * scriptObject, const char * 
 	GDefineMetaClass<GScriptCoreService> define = GDefineMetaClass<GScriptCoreService>::Policy<GMetaPolicyNoDefaultAndCopyConstructor>::declare("GScriptCoreService");
 	buildMetaClass_GScriptCoreService(define);
 
-	GScopedInterface<IScriptObject> scriptObjectInterface( scriptObjectToInterface(scriptObject, false));
-	GScopedInterface<IMetaItem> metaItem(metaItemToInterface(define.getMetaClass()));
-	IMetaClass * metaClassInterface = static_cast<IMetaClass *>(metaItem.get());
-	
-	if(bindName == NULL) {
-		injectObjectToScript(scriptObjectInterface.get(), metaClassInterface, scriptCoreService);
-	}
-	else {
-		scriptObject->bindObject(bindName, scriptCoreService, metaClassInterface, false);
-	}
+	injectObjectToScript(scriptObject, define.getMetaClass(), scriptCoreService, bindName);
 
 	return define.takeMetaClass();
 }

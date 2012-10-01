@@ -108,11 +108,35 @@ IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject)
 	return scriptObjectToInterface(scriptObject, false);
 }
 
-void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance)
+GScriptObject * createOrGetScriptObject(GScriptObject * scriptObject, const char * name)
+{
+	GScriptObject * object = scriptObject->gainScriptObject(name);
+	if(object == NULL) {
+		object = scriptObject->createScriptObject(name);
+	}
+	return object;
+}
+
+IScriptObject * createOrGetScriptObject(IScriptObject * scriptObject, const char * name)
+{
+	IScriptObject * object = scriptObject->gainScriptObject(name);
+	if(object == NULL) {
+		object = scriptObject->createScriptObject(name);
+	}
+	return object;
+}
+
+void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName)
 {
 	GScopedInterface<IObject> metaObject;
 	
 	GMetaMapClass mapClass(metaClass);
+	
+	GScopedInterface<IScriptObject> namespaceHolder;
+	if(namespaceName != NULL && *namespaceName) {
+		namespaceHolder.reset(createOrGetScriptObject(scriptObject, namespaceName));
+		scriptObject = namespaceHolder.get();
+	}
 	
 	const GMetaMapClass::MapType * mapData = mapClass.getMap();
 	for(GMetaMapClass::MapType::const_iterator it = mapData->begin(); it != mapData->end(); ++it) {
@@ -150,6 +174,24 @@ void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, 
 		}
 	}
 	
+}
+
+void injectObjectToScript(GScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName)
+{
+	GScopedInterface<IScriptObject> scriptObjectInterface(scriptObjectToInterface(scriptObject));
+	injectObjectToScript(scriptObjectInterface.get(), metaClass, instance, namespaceName);
+}
+
+void injectObjectToScript(IScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName)
+{
+	GScopedInterface<IMetaClass> metaClassInterface(static_cast<IMetaClass *>(metaItemToInterface(metaClass)));
+	injectObjectToScript(scriptObject, metaClassInterface.get(), instance, namespaceName);
+}
+
+void injectObjectToScript(GScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName)
+{
+	GScopedInterface<IMetaClass> metaClassInterface(static_cast<IMetaClass *>(metaItemToInterface(metaClass)));
+	injectObjectToScript(scriptObject, metaClassInterface.get(), instance, namespaceName);
 }
 
 

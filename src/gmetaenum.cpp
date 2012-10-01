@@ -100,7 +100,7 @@ void GMetaEnum::destroyInstance(void * instance) const
 	delete static_cast<GVariant *>(instance);
 }
 
-void GMetaEnum::destroyInplace(void * instance) const
+void GMetaEnum::destroyInplace(void * /*instance*/) const
 {
 }
 
