@@ -542,7 +542,7 @@ GGlueDataWrapperPool::~GGlueDataWrapperPool()
 	this->wrapperSet.clear();
 
 	for(TempListType::iterator it = tempList.begin(); it != tempList.end(); ++it) {
-		if((*it)->getData()->getType() != gdtClass) {
+		if((*it)->getData() && (*it)->getData()->getType() != gdtClass) {
 			freeGlueDataWrapper(*it);
 			*it = NULL;
 		}

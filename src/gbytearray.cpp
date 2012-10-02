@@ -1,5 +1,4 @@
 #include "cpgf/gbytearray.h"
-#include "cpgf/gbytearrayapi.h"
 #include "cpgf/gexception.h"
 #include "cpgf/gapiutil.h"
 

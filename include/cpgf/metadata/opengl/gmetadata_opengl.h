@@ -5,7 +5,6 @@
 #include "cpgf/metadata/gmetadataconfig.h"
 
 #include "cpgf/gbytearray.h"
-#include "cpgf/gbytearrayapi.h"
 
 #include "cpgf/metadata/private/gmetadata_header.h"
 

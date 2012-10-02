@@ -17,10 +17,10 @@ normalList = 0
 
 function initData()
 {
-	vertexList = cpgf.createByteArray()
-	indexList = cpgf.createByteArray()
-	colorList = cpgf.createByteArray()
-	normalList = cpgf.createByteArray()
+	vertexList = new cpgf.GByteArray()
+	indexList = new cpgf.GByteArray()
+	colorList = new cpgf.GByteArray()
+	normalList = new cpgf.GByteArray()
 
 	vertexList.writeFloat32(0.4)
 	vertexList.writeFloat32(0.4)
@@ -127,7 +127,7 @@ function drawString(str)
 {
 	gl.glPushAttrib(gl.GL_LIGHTING_BIT + gl.GL_CURRENT_BIT)
 	gl.glDisable(gl.GL_LIGHTING)
-	var positionList = cpgf.createByteArray()
+	var positionList = new cpgf.GByteArray()
 	positionList.writeFloat32(-0.6)  
 	positionList.writeFloat32(-0.5)  
 	positionList.writeFloat32(0.5)
@@ -196,25 +196,25 @@ function timer(value)
 
 function initLights()
 {
-	lightAmbient = cpgf.createByteArray()
+	lightAmbient = new cpgf.GByteArray()
 	lightAmbient.writeFloat32(0.6) 
 	lightAmbient.writeFloat32(0.6) 
 	lightAmbient.writeFloat32(0.6) 
 	lightAmbient.writeFloat32(1.0)
 
-	lightDiffuse = cpgf.createByteArray()
+	lightDiffuse = new cpgf.GByteArray()
 	lightDiffuse.writeFloat32(0.7) 
 	lightDiffuse.writeFloat32(0.7) 
 	lightDiffuse.writeFloat32(0.7) 
 	lightDiffuse.writeFloat32(1.0)
 
-	lightSpecular = cpgf.createByteArray()
+	lightSpecular = new cpgf.GByteArray()
 	lightSpecular.writeFloat32(1) 
 	lightSpecular.writeFloat32(1) 
 	lightSpecular.writeFloat32(1) 
 	lightSpecular.writeFloat32(1)
 
-	lightPosition = cpgf.createByteArray()
+	lightPosition = new cpgf.GByteArray()
 	lightPosition.writeFloat32(0) 
 	lightPosition.writeFloat32(1) 
 	lightPosition.writeFloat32(-1) 

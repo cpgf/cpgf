@@ -38,14 +38,8 @@ void testCreateScriptObject(TestScriptContext * context)
 		secondScriptObject->bindFundamental("iy", &v.refData());
 	}
 
-	if(context->isPython()) {
-		QASSERT(nso['ix'] == 38);
-		QASSERT(sec['iy'] == 6);
-	}
-	else {
-		QASSERT(nso.ix == 38);
-		QASSERT(sec.iy == 6);
-	}
+	QASSERT(nso.ix == 38);
+	QASSERT(sec.iy == 6);
 
 	if(bindingLib != NULL) {
 		GScopedPointer<GScriptObject> firstScriptObject(bindingLib->gainScriptObject("nso"));

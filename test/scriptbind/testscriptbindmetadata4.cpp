@@ -3,7 +3,6 @@
 #include "cpgf/gmetadefine.h"
 
 #include "cpgf/gbytearray.h"
-#include "cpgf/gbytearrayapi.h"
 
 #include "cpgf/metadata/util/gmetadata_bytearray.h"
 

@@ -2,7 +2,6 @@
 
 #include "cpgf/gsharedptr.h"
 #include "cpgf/gbytearray.h"
-#include "cpgf/gbytearrayapi.h"
 #include "cpgf/gvariant.h"
 
 #include <vector>

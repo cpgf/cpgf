@@ -5,7 +5,6 @@
 
 #include "cpgf/metadata/util/gmetadata_bytearray.h"
 #include "cpgf/gbytearray.h"
-#include "cpgf/gbytearrayapi.h"
 
 #include "cpgf/metadata/private/gmetadata_header.h"
 
@@ -35,9 +34,13 @@ void buildMetaClass_GScriptCoreService(D _d)
 	_d.CPGF_MD_TEMPLATE _method("createByteArray", &createByteArray);
 	_d.CPGF_MD_TEMPLATE _method("createByteArray", &createByteArrayWithLength);
 
-	GDefineMetaClass<IByteArray> byteArrayDefine = GDefineMetaClass<IByteArray>::declare("IByteArray");
-	buildMetaData_byteArray(byteArrayDefine);
-	_d.CPGF_MD_TEMPLATE _class(byteArrayDefine);
+	GDefineMetaClass<GByteArray> gbyteArrayDefine = GDefineMetaClass<GByteArray>::Policy<GMetaPolicyNoCopyConstructor>::declare("GByteArray");
+	buildMetaData_byteArray(gbyteArrayDefine);
+	_d.CPGF_MD_TEMPLATE _class(gbyteArrayDefine);
+
+	GDefineMetaClass<IByteArray> ibyteArrayDefine = GDefineMetaClass<IByteArray>::declare("IByteArray");
+	buildMetaData_byteArray(ibyteArrayDefine);
+	_d.CPGF_MD_TEMPLATE _class(ibyteArrayDefine);
 }
 
 GMetaClass * doBindScriptCoreService(GScriptObject * scriptObject, const char * bindName, GScriptCoreService * scriptCoreService)

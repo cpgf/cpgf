@@ -48,6 +48,7 @@ GGlueDataWrapperPool * getPythonDataWrapperPool()
 class GPythonObject : public PyObject, public GGlueDataWrapper
 {
 public:
+	GPythonObject() {}
 	explicit GPythonObject(const GGlueDataPointer & glueData);
 	virtual ~GPythonObject();
 
@@ -60,11 +61,21 @@ public:
 		return sharedStaticCast<T>(this->getData());
 	}
 
-protected:
 	void initType(PyTypeObject * type);
 
 private:
 	GGlueDataPointer glueData;
+};
+
+class GPythonAnyObject : public GPythonObject
+{
+public:
+	GPythonAnyObject();
+	virtual ~GPythonAnyObject();
+	PyObject * getDict();
+
+private:
+	PyObject * dict;
 };
 
 class GPythonScriptFunction : public GScriptFunctionBase
@@ -161,6 +172,9 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 
 PyObject * callbackGetAttribute(PyObject * object, PyObject * attrName);
 int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * value);
+
+PyObject * callbackAnyObjectGetAttribute(PyObject * object, PyObject * attrName);
+int callbackAnyObjectSetAttribute(PyObject * object, PyObject * attrName, PyObject * value);
 
 PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName);
 
@@ -471,6 +485,57 @@ PyTypeObject rawType = {
     0                                       /* tp_del */
 };
 
+
+PyTypeObject emptyObjectType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    const_cast<char *>("cpgf.Python.emptyObject"),
+    sizeof(GPythonAnyObject),
+    0,
+    (destructor)&commonDealloc,               /* tp_dealloc */
+    0,                                  /* tp_print */
+    0,                                  /* tp_getattr */
+    0,                                  /* tp_setattr */
+    0,                                  /* tp_compare */
+    0, 				                   /* tp_repr */
+    0,                                  /* tp_as_number */
+    0,                                  /* tp_as_sequence */
+    0,                                  /* tp_as_mapping */
+    0,                                  /* tp_hash */
+    0,                              /* tp_call */
+    0,                                  /* tp_str */
+	&callbackAnyObjectGetAttribute,             /* tp_getattro */
+    &callbackAnyObjectSetAttribute,            /* tp_setattro */
+    0,                                  /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT, 				/* tp_flags */
+    0,                                  /* tp_doc */
+    0, 						          /* tp_traverse */
+    0,                                  /* tp_clear */
+    0,                                  /* tp_richcompare */
+    0, 									 /* tp_weaklistoffset */
+    0,                                  /* tp_iter */
+    0,                                  /* tp_iternext */
+    0,                                  /* tp_methods */
+    0, 					              /* tp_members */
+    NULL, 			                /* tp_getset */
+	NULL,                                  /* tp_base */
+    0,                                  /* tp_dict */
+    NULL, 			                 /* tp_descr_get */
+    0,                                  /* tp_descr_set */
+    0, 							      /* tp_dictoffset */
+    0,                                      /* tp_init */
+    0,                                      /* tp_alloc */
+    0,                                      /* tp_new */
+    0,                                      /* tp_free */
+    0,                                      /* tp_is_gc */
+    0,                                      /* tp_bases */
+    0,                                      /* tp_mro */
+    0,                                      /* tp_cache */
+    0,                                      /* tp_subclasses */
+    0,                                      /* tp_weaklist */
+    0                                       /* tp_del */
+};
+
+
 PyTypeObject * const typeObjects[] = {
 	&functionType, &classType, &objectType, &enumType, &accessibleType, &rawType
 };
@@ -534,6 +599,13 @@ GPythonObject * createPythonObject(const GGlueDataPointer & glueData)
 //	return obj;
 }
 
+GPythonObject * createEmptyPythonObject()
+{
+	GPythonObject * object = new GPythonAnyObject();
+	getPythonDataWrapperPool()->dataWrapperCreated(object);
+	return object;
+}
+
 void deletePythonObject(GPythonObject * object)
 {
 	getPythonDataWrapperPool()->dataWrapperDestroyed(object);
@@ -580,6 +652,23 @@ void GPythonObject::initType(PyTypeObject * type)
     }
 
 	PyObject_INIT(this, type);
+}
+
+
+GPythonAnyObject::GPythonAnyObject()
+	: dict(PyDict_New())
+{
+	this->initType(&emptyObjectType);
+}
+
+GPythonAnyObject::~GPythonAnyObject()
+{
+//		Py_XDECREF(this->dict);
+}
+
+PyObject * GPythonAnyObject::getDict()
+{
+	return this->dict;
 }
 
 
@@ -1025,6 +1114,27 @@ int callbackAccessibleDescriptorSet(PyObject * self, PyObject * /*obj*/, PyObjec
 	LEAVE_PYTHON(return 0)
 }
 
+PyObject * callbackAnyObjectGetAttribute(PyObject * object, PyObject * attrName)
+{
+	ENTER_PYTHON()
+
+	PyObject * obj = PyDict_GetItem(static_cast<GPythonAnyObject *>(object)->getDict(), attrName);
+	Py_XINCREF(obj);
+
+	return obj;
+
+	LEAVE_PYTHON(return NULL)
+}
+
+int callbackAnyObjectSetAttribute(PyObject * object, PyObject * attrName, PyObject * value)
+{
+	ENTER_PYTHON()
+
+	return PyDict_SetItem(static_cast<GPythonAnyObject *>(object)->getDict(), attrName, value);
+
+	LEAVE_PYTHON(return -1)
+}
+
 GVariant invokePythonFunctionIndirectly(const GContextPointer & context, PyObject * object, PyObject * func, GVariant const * const * params, size_t paramCount, const char * name)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
@@ -1240,7 +1350,7 @@ GScriptObject * GPythonScriptObject::createScriptObject(const char * name)
 		return NULL;
 	}
 
-	PyObject * dict = PyDict_New();
+	PyObject * dict = createEmptyPythonObject(); // PyDict_New();
 	setObjectAttr(this->object, name, dict);
 	setObjectSignature(dict);
 	GPythonScriptObject * newScriptObject = new GPythonScriptObject(*this, dict);

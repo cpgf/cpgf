@@ -2,7 +2,6 @@
 
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gbytearray.h"
-#include "cpgf/gbytearrayapi.h"
 #include "cpgf/gvariant.h"
 
 using namespace cpgf;
