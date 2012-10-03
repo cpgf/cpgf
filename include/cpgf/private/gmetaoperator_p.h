@@ -674,13 +674,13 @@ private:
 	}
 
 	static GVariant virtualInvoke(const GVariant & p0) {
-		return virtualInvokeFunctor(fromVariant<void *>(p0), NULL, 0);
+		return virtualInvokeFunctor(objectAddressFromVariant(p0), NULL, 0);
 	}
 
 	static GVariant virtualInvoke2(const GVariant & p0, const GVariant & p1) {
 		const GVariant * params = &p1;
 
-		return virtualInvokeFunctor(fromVariant<void *>(p0), &params, 1);
+		return virtualInvokeFunctor(objectAddressFromVariant(p0), &params, 1);
 	}
 
 	static GVariant virtualInvokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) {

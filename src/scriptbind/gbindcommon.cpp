@@ -966,7 +966,7 @@ void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, Invok
 		
 			GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(static_cast<uint32_t>(maxRankIndex)));
 			doInvokeCallable(NULL, constructor.get(), callableParam, &result);
-			instance = fromVariant<void *>(GVariant(result.resultData));
+			instance = objectAddressFromVariant(GVariant(result.resultData));
 		}
 	}
 

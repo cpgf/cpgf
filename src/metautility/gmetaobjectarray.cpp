@@ -181,7 +181,7 @@ GVariant GMetaObjectArray::getItem(uint32_t index) const
 
 void GMetaObjectArray::setItem(uint32_t index, const GVariant & value)
 {
-	void * object = fromVariant<void *>(value);
+	void * object = objectAddressFromVariant(value);
 	this->implement->setObject(index, object);
 }
 

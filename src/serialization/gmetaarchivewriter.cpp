@@ -364,12 +364,12 @@ void GMetaArchiveWriter::doWriteMember(const void * instance, IMetaAccessible * 
 				if(ptr == NULL) { // this happens when accessible is a property with both getter and setter.
 					GVariant v(metaGetValue(accessible, instance));
 					if(canFromVariant<void *>(v)) {
-						ptr = fromVariant<void *>(v);
+						ptr = objectAddressFromVariant(v);
 					}
 				}
 			}
 			else {
-				ptr = fromVariant<void *>(metaGetValue(accessible, instance));
+				ptr = objectAddressFromVariant(metaGetValue(accessible, instance));
 			}
 		}
 

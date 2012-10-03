@@ -259,7 +259,7 @@ GVariant GMetaOperator::invokeFunctor(const GVariant & instance, GPP_REPEAT(REF_
 		paramCount = this->baseData->getDefaultParamList()->loadDefaultParams(params, paramCount, this->baseData->getParamCount());
 	}
 
-	return this->baseData->invokeFunctor(fromVariant<void *>(instance), params, paramCount);
+	return this->baseData->invokeFunctor(objectAddressFromVariant(instance), params, paramCount);
 }
 
 

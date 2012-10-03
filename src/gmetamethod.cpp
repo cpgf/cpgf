@@ -24,7 +24,7 @@
 		if(this->baseData->hasDefaultParam()) { \
 			passedParamCount = this->baseData->getDefaultParamList()->loadDefaultParams(params, N, this->baseData->getParamCount()); \
 		} \
-		return fromVariant<void *>(this->baseData->invoke(NULL, params, passedParamCount)); \
+		return objectAddressFromVariant(this->baseData->invoke(NULL, params, passedParamCount)); \
 	}
 
 namespace cpgf {

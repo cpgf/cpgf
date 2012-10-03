@@ -834,8 +834,6 @@ typename Methods::ResultType variantToScript(const GContextPointer & context, co
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 				GASSERT_MSG(type.baseIsClass(), "Unknown type");
 
-//				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
-//				void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
 				return Methods::doObjectToScript(context, context->getOrNewClassData(objectAddressFromVariant(value), gdynamic_cast<IMetaClass *>(typedItem.get())),
 					value, false, metaTypeToCV(type));
 			}

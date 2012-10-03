@@ -1191,7 +1191,7 @@ void * G_API_CC ImplMetaConstructor::invoke(const GVariantData * params, uint32_
 		variants[i] = GVariant(params[i]);
 	}
 
-	return fromVariant<void *>(this->getConstructor()->execute(NULL, variants, paramCount));
+	return objectAddressFromVariant(this->getConstructor()->execute(NULL, variants, paramCount));
 
 	LEAVE_META_API(return NULL)
 }
@@ -1208,7 +1208,7 @@ void * G_API_CC ImplMetaConstructor::invokeIndirectly(GVariantData const * const
 		variants[i] = GVariant(*params[i]);
 	}
 
-	return fromVariant<void *>(this->getConstructor()->execute(NULL, variants, paramCount));
+	return objectAddressFromVariant(this->getConstructor()->execute(NULL, variants, paramCount));
 
 	LEAVE_META_API(return NULL)
 }
