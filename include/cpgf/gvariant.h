@@ -119,7 +119,8 @@ public:
 
 	template <typename T>
 	GVariant(const T & value) {
-//GASSERT_STATIC((! IsSameType<T, GVariantData>::Result));
+		GASSERT_STATIC((! IsSameType<T, GVariantData>::Result));
+
 		GVarTypeData typeData;
 		vtInit(typeData);
 		deduceVariantType<T>(typeData);

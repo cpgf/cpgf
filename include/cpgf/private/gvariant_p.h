@@ -833,7 +833,7 @@ struct CastFromVariant
 				return castFromObject<T>(v.refData().ptrObject);
 
 			case vtShadow:
-				return *variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::cast(v.refData().shadowObject->getObject());
+				return castFromObject<T>(v.refData().shadowObject->getObject());
 			
 			case vtString:
 				return castFromString<ResultType>(const_cast<char *>(static_cast<std::string *>(v.refData().shadowObject->getObject())->c_str()));
