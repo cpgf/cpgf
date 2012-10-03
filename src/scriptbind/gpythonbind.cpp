@@ -789,13 +789,13 @@ GVariant pythonToVariant(const GContextPointer & context, PyObject * value)
 	return GVariant();
 }
 
-PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataPointer & classData, void * instance, bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType)
+PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, bool allowGC, ObjectPointerCV cv)
 {
-	if(instance == NULL) {
+	if(objectAddressFromVariant(instance) == NULL) {
 		return pyAddRef(Py_None);
 	}
 
-	return createPythonObject(context->newObjectGlueData(classData, instance, allowGC, cv, dataType));
+	return createPythonObject(context->newObjectGlueData(classData, instance, allowGC, cv));
 }
 
 PyObject * rawToPython(const GContextPointer & context, const GVariant & value)
@@ -818,9 +818,9 @@ struct GPythonMethods
 {
 	typedef PyObject * ResultType;
 	
-	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData, void * instance, bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType)
+	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, bool allowGC, ObjectPointerCV cv)
 	{
-		return objectToPython(context, classData, instance, allowGC, cv, dataType);
+		return objectToPython(context, classData, instance, allowGC, cv);
 	}
 
 	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, bool allowGC, bool allowRaw)
@@ -998,7 +998,7 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	void * instance = doInvokeConstructor(cppClass->getService(), classUserData->getMetaClass(), &callableParam);
 
 	if(instance != NULL) {
-		return createPythonObject(context->newObjectGlueData(classUserData, instance, true, opcvNone, ogdtNormal));
+		return createPythonObject(context->newObjectGlueData(classUserData, instance, true, opcvNone));
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1093,7 +1093,7 @@ PyObject * callbackAccessibleDescriptorGet(PyObject * self, PyObject * /*obj*/, 
 	
 	GAccessibleGlueDataPointer userData = cppObject->getDataAs<GAccessibleGlueData>();
 
-	return accessibleToScript<GPythonMethods>(userData->getContext(), userData->getAccessible(), userData->getInstance(), false);
+	return accessibleToScript<GPythonMethods>(userData->getContext(), userData->getAccessible(), userData->getInstanceAddress(), false);
 
 	LEAVE_PYTHON(return NULL)
 }
@@ -1107,7 +1107,7 @@ int callbackAccessibleDescriptorSet(PyObject * self, PyObject * /*obj*/, PyObjec
 	GAccessibleGlueDataPointer userData = cppObject->getDataAs<GAccessibleGlueData>();
 
 	GVariant v = pythonToVariant(userData->getContext(), value);
-	metaSetValue(userData->getAccessible(), userData->getInstance(), v);
+	metaSetValue(userData->getAccessible(), userData->getInstanceAddress(), v);
 
 	return 0;
 
@@ -1451,7 +1451,7 @@ void GPythonScriptObject::bindObject(const char * objectName, void * instance, I
 {
 	ENTER_PYTHON()
 
-	setObjectAttr(this->object, objectName, objectToPython(this->getContext(), this->getContext()->getClassData(type), instance, transferOwnership, opcvNone, ogdtNormal));
+	setObjectAttr(this->object, objectName, objectToPython(this->getContext(), this->getContext()->getClassData(type), instance, transferOwnership, opcvNone));
 
 	LEAVE_PYTHON()
 }
@@ -1552,7 +1552,7 @@ void * GPythonScriptObject::getObject(const char * objectName)
 
 	GPythonScopedPointer obj(getObjectAttr(this->object, objectName));
 	if(obj && obj->ob_type == &objectType) {
-		return castFromPython(obj.get())->getDataAs<GObjectGlueData>()->getInstance();
+		return castFromPython(obj.get())->getDataAs<GObjectGlueData>()->getInstanceAddress();
 	}
 	else {
 		return NULL;

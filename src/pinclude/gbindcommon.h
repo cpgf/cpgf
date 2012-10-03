@@ -37,11 +37,6 @@ enum ObjectPointerCV {
 	opcvConstVolatile
 };
 
-enum ObjectGlueDataType {
-	ogdtNormal,
-	ogdtInterface
-};
-
 enum GGlueDataType {
 	gdtObject,
 	gdtClass,
@@ -243,8 +238,8 @@ private:
 	typedef GGlueData super;
 
 private:
-	GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, void * instance,
-		bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType);
+	GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, const GVariant & instance,
+		bool allowGC, ObjectPointerCV cv);
 
 public:		
 	~GObjectGlueData();
@@ -253,12 +248,12 @@ public:
 		return this->classGlueData;
 	}
 
-	void * getInstance() const {
+	const GVariant & getInstance() const {
 		return this->instance;
 	}
 
-	IObject * getInterfaceObject() const {
-		return this->interfaceObject.get();
+	void * getInstanceAddress() const {
+		return objectAddressFromVariant(this->instance);
 	}
 
 	bool isAllowGC() const {
@@ -269,10 +264,6 @@ public:
 		return this->cv;
 	}
 
-	ObjectGlueDataType getDataType() const {
-		return this->dataType;
-	}
-
 	GScriptDataHolder * getDataHolder() const;
 	GScriptDataHolder * requireDataHolder() const;
 	
@@ -281,11 +272,9 @@ private:
 
 private:
 	GClassGlueDataPointer classGlueData;
-	void * instance;
-	GSharedInterface<IObject> interfaceObject;
+	GVariant instance;
 	bool allowGC;
 	ObjectPointerCV cv;
-	ObjectGlueDataType dataType;
 	mutable GScopedPointer<GScriptDataHolder> dataHolder;
 	GScopedInterface<IScriptDataStorage> dataStorage;
 
@@ -365,13 +354,17 @@ private:
 	typedef GGlueData super;
 
 private:
-	GAccessibleGlueData(const GContextPointer & context, void * instance, IMetaAccessible * accessible)
+	GAccessibleGlueData(const GContextPointer & context, const GVariant & instance, IMetaAccessible * accessible)
 		: super(gdtAccessible, context), instance(instance), accessible(accessible) {
 	}
 
 public:
-	void * getInstance() const {
+	const GVariant & getInstance() const {
 		return this->instance;
+	}
+
+	void * getInstanceAddress() const {
+		return objectAddressFromVariant(this->instance);
 	}
 
 	IMetaAccessible * getAccessible() const {
@@ -379,7 +372,7 @@ public:
 	}
 
 private:
-	void * instance;
+	GVariant instance;
 	GSharedInterface<IMetaAccessible> accessible;
 
 private:
@@ -454,12 +447,16 @@ private:
 	typedef GGlueData super;
 
 public:
-	GOperatorGlueData(const GContextPointer & context, void * instance, IMetaClass * metaClass, GMetaOpType op)
+	GOperatorGlueData(const GContextPointer & context, const GVariant & instance, IMetaClass * metaClass, GMetaOpType op)
 		: super(gdtOperator, context), instance(instance), metaClass(metaClass), op(op) {
 	}
 
-	void * getInstance() const {
+	const GVariant & getInstance() const {
 		return this->instance;
+	}
+
+	void * getInstanceAddress() const {
+		return objectAddressFromVariant(this->instance);
 	}
 
 	IMetaClass * getMetaClass() const {
@@ -471,7 +468,7 @@ public:
 	}
 
 private:
-	void * instance;
+	GVariant instance;
 	GSharedInterface<IMetaClass> metaClass;
 	GMetaOpType op;
 };
@@ -590,8 +587,8 @@ public:
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
 	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
 
-	GObjectGlueDataPointer newObjectGlueData(const GClassGlueDataPointer & classData, void * instance,
-		bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType);
+	GObjectGlueDataPointer newObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
+		bool allowGC, ObjectPointerCV cv);
 	
 	GMethodGlueDataPointer newMethodGlueData(const GClassGlueDataPointer & classData,
 		IMetaList * methodList, const char * name, GGlueDataMethodType methodType);
@@ -831,33 +828,27 @@ typename Methods::ResultType variantToScript(const GContextPointer & context, co
 	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
 		GScopedInterface<IMetaTypedItem> typedItem(context->getService()->findTypedItemByName(type.getBaseName()));
 		if(typedItem) {
-			void * instance;
 			bool isReference = type.isReference();
 
 			if(type.getPointerDimension() == 0 && !isReference) {
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 				GASSERT_MSG(type.baseIsClass(), "Unknown type");
 
-				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
-				instance = metaClass->cloneInstance(objectAddressFromVariant(value));
-				return Methods::doObjectToScript(context, context->getOrNewClassData(instance, gdynamic_cast<IMetaClass *>(typedItem.get())),
-					instance, true, metaTypeToCV(type), ogdtNormal);
+//				IMetaClass * metaClass = gdynamic_cast<IMetaClass *>(typedItem.get());
+//				void * instance = metaClass->cloneInstance(objectAddressFromVariant(value));
+				return Methods::doObjectToScript(context, context->getOrNewClassData(objectAddressFromVariant(value), gdynamic_cast<IMetaClass *>(typedItem.get())),
+					value, false, metaTypeToCV(type));
 			}
 
 			if(type.getPointerDimension() == 1 || isReference) {
 				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
+				GScopedInterface<IObject> releaseIt;
 				if(vtIsInterface(vt)) {
-					instance = value.refData().valueInterface;
-					GScopedInterface<IObject> releaseIt(value.refData().valueInterface); // auto release the reference
-					return Methods::doObjectToScript(context, context->getOrNewClassData(instance, gdynamic_cast<IMetaClass *>(typedItem.get())),
-						instance, allowGC,	metaTypeToCV(type), ogdtInterface);
+					releaseIt.reset(value.refData().valueInterface); // auto release the reference
 				}
-				else {
-					instance = fromVariant<void *>(value);
-					return Methods::doObjectToScript(context, context->getOrNewClassData(instance, gdynamic_cast<IMetaClass *>(typedItem.get())),
-						instance, allowGC, metaTypeToCV(type), ogdtNormal);
-				}
+				return Methods::doObjectToScript(context, context->getOrNewClassData(objectAddressFromVariant(value), gdynamic_cast<IMetaClass *>(typedItem.get())),
+					value, allowGC, metaTypeToCV(type));
 			}
 		}
 		else {

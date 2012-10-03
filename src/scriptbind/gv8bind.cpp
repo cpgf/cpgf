@@ -377,7 +377,7 @@ void * v8ToObject(Handle<Value> value, GMetaType * outType)
 				*outType = GMetaType(typeData);
 			}
 
-			return objectData->getInstance();
+			return objectData->getInstanceAddress();
 		}
 	}
 
@@ -454,9 +454,9 @@ GVariant v8ToVariant(const GContextPointer & context, Local<Context> v8Context, 
 	return GVariant();
 }
 
-Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPointer & classData, void * instance, bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType)
+Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, bool allowGC, ObjectPointerCV cv)
 {
-	if(instance == NULL) {
+	if(objectAddressFromVariant(instance) == NULL) {
 		return Handle<Value>();
 	}
 
@@ -464,7 +464,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 	Handle<Value> external = External::New(&signatureKey);
 	Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance(1, &external));
 
-	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, allowGC, cv, dataType));
+	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, allowGC, cv));
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(objectData, getV8DataWrapperPool());
 	self.MakeWeak(dataWrapper, weakHandleCallback);
 
@@ -496,9 +496,9 @@ struct GV8Methods
 {
 	typedef Handle<Value> ResultType;
 	
-	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData, void * instance, bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType)
+	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, bool allowGC, ObjectPointerCV cv)
 	{
-		return objectToV8(context, classData, instance, allowGC, cv, dataType);
+		return objectToV8(context, classData, instance, allowGC, cv);
 	}
 
 	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, bool allowGC, bool allowRaw)
@@ -618,7 +618,7 @@ Handle<Value> accessibleGet(Local<String> /*prop*/, const AccessorInfo & info)
 	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(Local<External>::Cast(info.Data())->Value());
 	GAccessibleGlueDataPointer accessibleGlueData(dataWrapper->getAs<GAccessibleGlueData>());
 
-	return accessibleToScript<GV8Methods>(accessibleGlueData->getContext(), accessibleGlueData->getAccessible(), accessibleGlueData->getInstance(), false);
+	return accessibleToScript<GV8Methods>(accessibleGlueData->getContext(), accessibleGlueData->getAccessible(), accessibleGlueData->getInstanceAddress(), false);
 
 	LEAVE_V8(return Handle<Value>())
 }
@@ -633,7 +633,7 @@ void accessibleSet(Local<String> /*prop*/, Local<Value> value, const AccessorInf
 	GAccessibleGlueDataPointer accessibleGlueData(dataWrapper->getAs<GAccessibleGlueData>());
 
 	GVariant v = v8ToVariant(accessibleGlueData->getContext(), info.Holder()->CreationContext(), value);
-	metaSetValue(accessibleGlueData->getAccessible(), accessibleGlueData->getInstance(), v);
+	metaSetValue(accessibleGlueData->getAccessible(), accessibleGlueData->getInstanceAddress(), v);
 
 	LEAVE_V8()
 }
@@ -836,7 +836,7 @@ Handle<Value> objectConstructor(const Arguments & args)
 
 		void * instance = invokeConstructor(args, classData->getContext(), classData->getMetaClass());
 
-		GObjectGlueDataPointer objectData = classData->getContext()->newObjectGlueData(classData, instance, true, opcvNone, ogdtNormal);
+		GObjectGlueDataPointer objectData = classData->getContext()->newObjectGlueData(classData, instance, true, opcvNone);
 		GGlueDataWrapper * objectWrapper = newGlueDataWrapper(objectData, getV8DataWrapperPool());
 		self.MakeWeak(objectWrapper, weakHandleCallback);
 
@@ -1322,7 +1322,7 @@ void GV8ScriptObject::bindObject(const char * objectName, void * instance, IMeta
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->object));
 
-	Handle<Value> obj = objectToV8(this->getContext(), this->getContext()->getClassData(type), instance, transferOwnership, opcvNone, ogdtNormal);
+	Handle<Value> obj = objectToV8(this->getContext(), this->getContext()->getClassData(type), instance, transferOwnership, opcvNone);
 	localObject->Set(String::New(objectName), obj);
 
 	LEAVE_V8()

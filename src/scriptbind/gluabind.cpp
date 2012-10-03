@@ -506,18 +506,18 @@ void error(lua_State * L, const char * message)
 	lua_error(L);
 }
 
-void objectToLua(const GContextPointer & context, const GClassGlueDataPointer & classData, void * instance, bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType)
+void objectToLua(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, bool allowGC, ObjectPointerCV cv)
 {
 	lua_State * L = getLuaState(context);
 
-	if(instance == NULL) {
+	if(objectAddressFromVariant(instance) == NULL) {
 		lua_pushnil(L);
 
 		return;
 	}
 
 	void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GObjectGlueData>());
-	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, allowGC, cv, dataType));
+	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, allowGC, cv));
 	newGlueDataWrapper(userData, objectData);
 
 	IMetaClass * metaClass = classData->getMetaClass();
@@ -545,7 +545,7 @@ void objectToLua(const GContextPointer & context, const GClassGlueDataPointer & 
 		lua_pushvalue(L, -1); // duplicate the meta table
 		lua_setfield(L, LUA_REGISTRYINDEX, metaTableName);
 	}
-	doBindAllOperators(context, instance, metaClass);
+	doBindAllOperators(context, objectAddressFromVariant(instance), metaClass);
 	
 	lua_setmetatable(L, -2);
 }
@@ -565,7 +565,7 @@ void * luaToObject(const GContextPointer & context, int index, GMetaType * outTy
 				*outType = GMetaType(typeData);
 			}
 
-			return objectData->getInstance();
+			return objectData->getInstanceAddress();
 		}
 	}
 
@@ -664,9 +664,9 @@ struct GLuaMethods
 {
 	typedef bool ResultType;
 
-	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData, void * instance, bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType)
+	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, bool allowGC, ObjectPointerCV cv)
 	{
-		objectToLua(context, classData, instance, allowGC, cv, dataType);
+		objectToLua(context, classData, instance, allowGC, cv);
 		return true;
 	}
 
@@ -938,7 +938,7 @@ int invokeConstructor(const GClassGlueDataPointer & classUserData)
 	void * instance = doInvokeConstructor(classUserData->getContext()->getService(), classUserData->getMetaClass(), &callableParam);
 
 	if(instance != NULL) {
-		objectToLua(classUserData->getContext(), classUserData, instance, true, opcvNone, ogdtNormal);
+		objectToLua(classUserData->getContext(), classUserData, instance, true, opcvNone);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1053,7 +1053,7 @@ int UserData_operator(lua_State * L)
 	
 	GOperatorGlueDataPointer glueData = static_cast<GGlueDataWrapper *>(lua_touserdata(L, lua_upvalueindex(1)))->getAs<GOperatorGlueData>();
 
-	return invokeOperator(glueData->getContext(), glueData->getInstance(), glueData->getMetaClass(), glueData->getOp());
+	return invokeOperator(glueData->getContext(), glueData->getInstanceAddress(), glueData->getMetaClass(), glueData->getOp());
 	
 	LEAVE_LUA(L, return 0)
 }
@@ -1647,7 +1647,7 @@ void GLuaScriptObject::bindObject(const char * objectName, void * instance, IMet
 
 	GLuaScopeGuard scopeGuard(this);
 
-	objectToLua(this->getContext(), this->getContext()->getClassData(type), instance, transferOwnership, opcvNone, ogdtNormal);
+	objectToLua(this->getContext(), this->getContext()->getClassData(type), instance, transferOwnership, opcvNone);
 
 	scopeGuard.set(objectName);
 

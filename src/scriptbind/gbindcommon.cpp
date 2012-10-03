@@ -311,29 +311,23 @@ GClassGlueData::~GClassGlueData()
 }
 
 
-GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, void * instance,
-	bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType)
-	: super(gdtObject, context), classGlueData(classGlueData), instance(instance), allowGC(allowGC), cv(cv), dataType(dataType)
+GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, const GVariant & instance,
+	bool allowGC, ObjectPointerCV cv)
+	: super(gdtObject, context), classGlueData(classGlueData), instance(instance), allowGC(allowGC), cv(cv)
 {
-	switch(dataType) {
-		case ogdtInterface:
-			this->allowGC = false;
-			this->interfaceObject.reset(static_cast<IObject *>(instance));
-			break;
-
-		default:
-			break;
+	if(vtIsInterface(instance.getType())) {
+		this->allowGC = false;
 	}
 }
 
 GObjectGlueData::~GObjectGlueData()
 {
 	if(this->isValid()) {
-		this->getContext()->getClassPool()->objectDestroyed(this->instance);
+		this->getContext()->getClassPool()->objectDestroyed(this->getInstanceAddress());
 	}
 	
 	if(this->allowGC) {
-		this->getClassData()->getMetaClass()->destroyInstance(this->instance);
+		this->getClassData()->getMetaClass()->destroyInstance(this->getInstanceAddress());
 	}
 }
 
@@ -357,7 +351,7 @@ void GObjectGlueData::initialize()
 		if(! this->dataStorage) {
 			this->dataStorage.reset(new GScriptDataStorage(GObjectGlueDataPointer(this->shareFromThis())));
 		}
-		scriptWrapper->setScriptDataStorage(this->instance, this->dataStorage.get());
+		scriptWrapper->setScriptDataStorage(this->getInstanceAddress(), this->dataStorage.get());
 	}
 }
 
@@ -423,8 +417,8 @@ GClassPool::GClassPool(GBindingContext * context)
 
 void GClassPool::objectCreated(const GObjectGlueDataPointer & objectData)
 {
-	if(this->instanceMap.find(objectData->getInstance()) == instanceMap.end()) {
-		this->instanceMap[objectData->getInstance()] = GWeakObjectGlueDataPointer(objectData);
+	if(this->instanceMap.find(objectData->getInstanceAddress()) == instanceMap.end()) {
+		this->instanceMap[objectData->getInstanceAddress()] = GWeakObjectGlueDataPointer(objectData);
 	}
 }
 
@@ -622,10 +616,10 @@ GClassGlueDataPointer GBindingContext::newClassData(IMetaClass * metaClass)
 	return this->classPool->newClassData(metaClass);
 }
 
-GObjectGlueDataPointer GBindingContext::newObjectGlueData(const GClassGlueDataPointer & classData, void * instance,
-	bool allowGC, ObjectPointerCV cv, ObjectGlueDataType dataType)
+GObjectGlueDataPointer GBindingContext::newObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
+	bool allowGC, ObjectPointerCV cv)
 {
-	GObjectGlueDataPointer data(new GObjectGlueData(this->shareFromThis(), classData, instance, allowGC, cv, dataType));
+	GObjectGlueDataPointer data(new GObjectGlueData(this->shareFromThis(), classData, instance, allowGC, cv));
 	data->initialize();
 	this->classPool->objectCreated(data);
 	return data;
@@ -1063,15 +1057,7 @@ GVariant glueDataToVariant(const GGlueDataPointer & glueData)
 				metaCheckError(objectData->getClassData()->getMetaClass());
 				GMetaType type(typeData);
 				type.addPointer();
-				switch(objectData->getDataType()) {
-					case ogdtNormal:
-						return createTypedVariant(pointerToObjectVariant(objectData->getInstance()), type);
-					
-					case ogdtInterface:
-						return createTypedVariant(GVariant(objectData->getInterfaceObject()), type);
-				}
-
-				break;
+				return createTypedVariant(objectData->getInstance(), type);
 			}
 
 			case gdtRaw: {
@@ -1151,7 +1137,7 @@ void doLoadMethodList(const GContextPointer & context, GMetaClassTraveller * tra
 void loadMethodList(const GContextPointer & context, IMetaList * methodList, const GClassGlueDataPointer & classData,
 			const GObjectGlueDataPointer & objectData, const char * methodName)
 {
-	GMetaClassTraveller traveller(classData->getMetaClass(), objectData? objectData->getInstance() : NULL);
+	GMetaClassTraveller traveller(classData->getMetaClass(), objectData? objectData->getInstanceAddress() : NULL);
 	void * instance = NULL;
 
 	for(;;) {
@@ -1313,7 +1299,7 @@ void * getGlueDataInstance(const GGlueDataPointer & glueData)
 {
 	if(glueData) {
 		if(glueData->getType() == gdtObject) {
-			return sharedStaticCast<GObjectGlueData>(glueData)->getInstance();
+			return sharedStaticCast<GObjectGlueData>(glueData)->getInstanceAddress();
 		}
 	}
 
