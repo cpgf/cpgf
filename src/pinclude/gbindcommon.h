@@ -875,6 +875,52 @@ typename Methods::ResultType variantToScript(const GContextPointer & context, co
 	return typename Methods::ResultType();
 }
 
+
+template <typename Methods>
+typename Methods::ResultType converterToScript(const GContextPointer & context, const GVariant & value, IMetaConverter * converter)
+{
+	if(converter == NULL) {
+		return typename Methods::ResultType();
+	}
+
+	if(isMetaConverterCanRead(converter->capabilityForCString())) {
+		gapi_bool needFree;
+		
+		GScopedInterface<IMemoryAllocator> allocator(context->getService()->getAllocator());
+		const char * s = converter->readCString(objectAddressFromVariant(value), &needFree, allocator.get());
+
+		if(s != NULL) {
+			typename Methods::ResultType result = Methods::doStringToScript(context, s);
+
+			if(needFree) {
+				allocator->free((void *)s);
+			}
+
+			return result;
+		}
+	}
+
+	if(isMetaConverterCanRead(converter->capabilityForCWideString())) {
+		gapi_bool needFree;
+		
+		GScopedInterface<IMemoryAllocator> allocator(context->getService()->getAllocator());
+		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
+
+		if(ws != NULL) {
+			typename Methods::ResultType result = Methods::doWideStringToScript(context, ws);
+
+			if(needFree) {
+				allocator->free((void *)ws);
+			}
+
+			return result;
+		}
+	}
+
+	return typename Methods::ResultType();
+}
+
+
 template <typename Methods>
 typename Methods::ResultType methodResultToScript(const GContextPointer & context, IMetaCallable * callable, InvokeCallableResult * resultValue)
 {
@@ -929,50 +975,6 @@ typename Methods::ResultType accessibleToScript(const GContextPointer & context,
 	return result;
 }
 
-
-template <typename Methods>
-typename Methods::ResultType converterToScript(const GContextPointer & context, const GVariant & value, IMetaConverter * converter)
-{
-	if(converter == NULL) {
-		return typename Methods::ResultType();
-	}
-
-	if(isMetaConverterCanRead(converter->capabilityForCString())) {
-		gapi_bool needFree;
-		
-		GScopedInterface<IMemoryAllocator> allocator(context->getService()->getAllocator());
-		const char * s = converter->readCString(objectAddressFromVariant(value), &needFree, allocator.get());
-
-		if(s != NULL) {
-			typename Methods::ResultType result = Methods::doStringToScript(context, s);
-
-			if(needFree) {
-				allocator->free((void *)s);
-			}
-
-			return result;
-		}
-	}
-
-	if(isMetaConverterCanRead(converter->capabilityForCWideString())) {
-		gapi_bool needFree;
-		
-		GScopedInterface<IMemoryAllocator> allocator(context->getService()->getAllocator());
-		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
-
-		if(ws != NULL) {
-			typename Methods::ResultType result = Methods::doWideStringToScript(context, ws);
-
-			if(needFree) {
-				allocator->free((void *)ws);
-			}
-
-			return result;
-		}
-	}
-
-	return typename Methods::ResultType();
-}
 
 template <typename Methods>
 typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueData, const char * name)
