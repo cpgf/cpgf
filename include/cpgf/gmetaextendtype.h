@@ -11,6 +11,7 @@
 #include "cpgf/metatraits/gmetaconverter.h"
 #include "cpgf/metatraits/gmetaserializer.h"
 #include "cpgf/metatraits/gmetascriptwrapper.h"
+#include "cpgf/metatraits/gmetasharedptrtraits.h"
 
 #include <string.h>
 
@@ -22,6 +23,7 @@ class GMetaItem;
 const uint32_t GExtendTypeCreateFlag_Converter = 1 << 0;
 const uint32_t GExtendTypeCreateFlag_Serializer = 1 << 1;
 const uint32_t GExtendTypeCreateFlag_ScriptWrapper = 1 << 2;
+const uint32_t GExtendTypeCreateFlag_SharedPointerTraits = 1 << 3;
 
 #pragma pack(push, 1)
 #pragma pack(1)
@@ -31,6 +33,7 @@ struct GMetaExtendTypeData
 	IMetaConverter * converter;
 	IMetaSerializer * serializer;
 	IMetaScriptWrapper * scriptWrapper;
+	IMetaSharedPointerTraits * sharedPointerTraits;
 };
 #pragma pack(pop)
 
@@ -49,6 +52,7 @@ public:
 		Result;
 };
 
+// Note: all the meta traits are for the raw type, not including any pointers or reference.
 template <typename T>
 void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, const GMetaModule * module)
 {
@@ -85,6 +89,16 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 	else {
 		data->scriptWrapper = NULL;
 	}
+
+	if((createFlags & GExtendTypeCreateFlag_SharedPointerTraits) != 0) {
+		GMetaTraitsParam param;
+		param.module = module;
+		typename WrapExtendType<T>::Result * p = 0;
+		data->sharedPointerTraits = metaTraitsCreateSharedPointerTraits<typename WrapExtendType<T>::Result>(*p, param);
+	}
+	else {
+		data->sharedPointerTraits = NULL;
+	}
 }
 
 
@@ -109,6 +123,7 @@ public:
 	IMetaConverter * getConverter() const;
 	IMetaSerializer * getSerializer() const;
 	IMetaScriptWrapper * getScriptWrapper() const;
+	IMetaSharedPointerTraits * getSharedPointerTraits() const;
 	
 	GMetaExtendTypeData takeData();
 

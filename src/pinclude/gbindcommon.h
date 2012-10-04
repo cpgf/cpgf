@@ -65,6 +65,11 @@ enum GGlueDataMethodType {
 	gdmtInternal
 };
 
+enum GBindValueFlags {
+	bvfAllowGC = 1 << 0,
+	bvfAllowRaw = 1 << 1
+};
+
 class GUserData
 {
 public:
@@ -833,26 +838,14 @@ typename Methods::ResultType variantToScript(const GContextPointer & context, co
 	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
 		GScopedInterface<IMetaTypedItem> typedItem(context->getService()->findTypedItemByName(type.getBaseName()));
 		if(typedItem) {
-			bool isReference = type.isReference();
+			GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
-			if(type.getPointerDimension() == 0 && !isReference) {
-				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
-				GASSERT_MSG(type.baseIsClass(), "Unknown type");
-
-				return Methods::doObjectToScript(context, context->getOrNewClassData(objectAddressFromVariant(value), gdynamic_cast<IMetaClass *>(typedItem.get())),
-					value, false, metaTypeToCV(type));
+			GScopedInterface<IObject> releaseIt;
+			if(vtIsInterface(vt)) {
+				releaseIt.reset(value.refData().valueInterface); // auto release the reference
 			}
-
-			if(type.getPointerDimension() == 1 || isReference) {
-				GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
-
-				GScopedInterface<IObject> releaseIt;
-				if(vtIsInterface(vt)) {
-					releaseIt.reset(value.refData().valueInterface); // auto release the reference
-				}
-				return Methods::doObjectToScript(context, context->getOrNewClassData(objectAddressFromVariant(value), gdynamic_cast<IMetaClass *>(typedItem.get())),
-					value, allowGC, metaTypeToCV(type));
-			}
+			return Methods::doObjectToScript(context, context->getOrNewClassData(objectAddressFromVariant(value), gdynamic_cast<IMetaClass *>(typedItem.get())),
+				value, allowGC, metaTypeToCV(type));
 		}
 		else {
 			if(vtIsInterface(vt)) {
@@ -894,7 +887,7 @@ typename Methods::ResultType methodResultToScript(const GContextPointer & contex
 		result = Methods::doVariantToScript(context, createTypedVariant(value, GMetaType(typeData)), !! callable->isResultTransferOwnership(), false);
 		if(! Methods::isSuccessResult(result)) {
 			GScopedInterface<IMetaConverter> converter(metaGetResultExtendType(callable, GExtendTypeCreateFlag_Converter).getConverter());
-			result = Methods::doConverterToScript(context, value, converter.get());
+			result = converterToScript<Methods>(context, value, converter.get());
 		}
 		if(! Methods::isSuccessResult(result)) {
 			result = Methods::doRawToScript(context, value);
@@ -919,7 +912,7 @@ typename Methods::ResultType accessibleToScript(const GContextPointer & context,
 	typename Methods::ResultType result = Methods::doVariantToScript(context, createTypedVariant(value, type), false, false);
 	if(! Methods::isSuccessResult(result)) {
 		GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Converter).getConverter());
-		result = Methods::doConverterToScript(context, value, converter.get());
+		result = converterToScript<Methods>(context, value, converter.get());
 	}
 	if(! Methods::isSuccessResult(result)) {
 		result = Methods::doRawToScript(context, value);

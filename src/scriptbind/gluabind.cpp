@@ -684,11 +684,6 @@ struct GLuaMethods
 		return rawToLua(context, value);
 	}
 
-	static ResultType doConverterToScript(const GContextPointer & context, const GVariant & value, IMetaConverter * converter)
-	{
-		return converterToScript<GLuaMethods>(context, value, converter);
-	}
-
 	static ResultType doClassToScript(const GContextPointer & context, IMetaClass * metaClass)
 	{
 		doBindClass(context, metaClass);

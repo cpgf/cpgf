@@ -514,11 +514,6 @@ struct GV8Methods
 		return rawToV8(context, value);
 	}
 
-	static ResultType doConverterToScript(const GContextPointer & context, const GVariant & value, IMetaConverter * converter)
-	{
-		return converterToScript<GV8Methods>(context, value, converter);
-	}
-
 	static ResultType doClassToScript(const GContextPointer & context, IMetaClass * metaClass)
 	{
 		Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, context->getClassData(metaClass));

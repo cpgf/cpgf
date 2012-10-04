@@ -837,11 +837,6 @@ struct GPythonMethods
 		return rawToPython(context, value);
 	}
 
-	static ResultType doConverterToScript(const GContextPointer & context, const GVariant & value, IMetaConverter * converter)
-	{
-		return converterToScript<GPythonMethods>(context, value, converter);
-	}
-
 	static ResultType doClassToScript(const GContextPointer & context, IMetaClass * metaClass)
 	{
 		PyObject * classObject = createClassObject(context, metaClass);
