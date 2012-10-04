@@ -384,7 +384,7 @@ void * v8ToObject(Handle<Value> value, GMetaType * outType)
 	return NULL;
 }
 
-GVariant v8UserDataToVariant(const GContextPointer & context, Local<Context> v8Context, Handle<Value> value)
+GVariant v8UserDataToVariant(const GContextPointer & context, Local<Context> v8Context, Handle<Value> value, GGlueDataPointer * outputGlueData)
 {
 	if(value->IsFunction() || value->IsObject()) {
 		Local<Object> obj = value->ToObject();
@@ -397,6 +397,9 @@ GVariant v8UserDataToVariant(const GContextPointer & context, Local<Context> v8C
 				}
 			}
 			GGlueDataPointer glueData = dataWrapper->getData();
+			if(outputGlueData != NULL) {
+				*outputGlueData = glueData;
+			}
 			return glueDataToVariant(glueData);
 		}
 		else {
@@ -416,7 +419,7 @@ GVariant v8UserDataToVariant(const GContextPointer & context, Local<Context> v8C
 	return GVariant();
 }
 
-GVariant v8ToVariant(const GContextPointer & context, Local<Context> v8Context, Handle<Value> value)
+GVariant v8ToVariant(const GContextPointer & context, Local<Context> v8Context, Handle<Value> value, GGlueDataPointer * outputGlueData)
 {
 	if(value.IsEmpty()) {
 		return GVariant();
@@ -448,7 +451,7 @@ GVariant v8ToVariant(const GContextPointer & context, Local<Context> v8Context, 
 	}
 
 	if(value->IsFunction() || value->IsObject()) {
-		return v8UserDataToVariant(context, v8Context, value);
+		return v8UserDataToVariant(context, v8Context, value, outputGlueData);
 	}
 
 	return GVariant();
@@ -632,7 +635,7 @@ void accessibleSet(Local<String> /*prop*/, Local<Value> value, const AccessorInf
 	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(Local<External>::Cast(info.Data())->Value());
 	GAccessibleGlueDataPointer accessibleGlueData(dataWrapper->getAs<GAccessibleGlueData>());
 
-	GVariant v = v8ToVariant(accessibleGlueData->getContext(), info.Holder()->CreationContext(), value);
+	GVariant v = v8ToVariant(accessibleGlueData->getContext(), info.Holder()->CreationContext(), value, NULL);
 	metaSetValue(accessibleGlueData->getAccessible(), accessibleGlueData->getInstanceAddress(), v);
 
 	LEAVE_V8()
@@ -784,26 +787,14 @@ Handle<Value> getNamedMember(const GGlueDataPointer & glueData, const char * nam
 	return namedMemberToScript<GV8Methods>(glueData, name);
 }
 
-void loadMethodParameters(const Arguments & args, const GContextPointer & context, GVariant * outputParams)
-{
-	for(int i = 0; i < args.Length(); ++i) {
-		outputParams[i] = getVariantRealValue(v8ToVariant(context, args.Holder()->CreationContext(), args[i]));
-	}
-}
-
-void loadMethodParamTypes(const Arguments & args, CallableParamDataType * outputTypes)
-{
-	for(int i = 0; i < args.Length(); ++i) {
-		IMetaTypedItem * typeItem;
-		outputTypes[i].dataType = getV8Type(args[i], &typeItem);
-		outputTypes[i].typeItem.reset(typeItem);
-	}
-}
-
 void loadCallableParam(const Arguments & args, const GContextPointer & context, InvokeCallableParam * callableParam)
 {
-	loadMethodParameters(args, context, callableParam->paramsData);
-	loadMethodParamTypes(args, callableParam->paramsType);
+	for(int i = 0; i < args.Length(); ++i) {
+		callableParam->params[i].value = getVariantRealValue(v8ToVariant(context, args.Holder()->CreationContext(), args[i], &callableParam->params[i].glueData));
+		IMetaTypedItem * typeItem;
+		callableParam->params[i].dataType = getV8Type(args[i], &typeItem);
+		callableParam->params[i].typeItem.reset(typeItem);
+	}
 }
 
 void * invokeConstructor(const Arguments & args, const GContextPointer & context, IMetaClass * metaClass)
@@ -874,7 +865,7 @@ void staticMemberSetter(Local<String> prop, Local<Value> value, const AccessorIn
 
 	GContextPointer context = dataWrapper->getData()->getContext();
 
-	doSetFieldValue(dataWrapper->getData(), name, v8ToVariant(context, info.Holder()->CreationContext(), value));
+	doSetFieldValue(dataWrapper->getData(), name, v8ToVariant(context, info.Holder()->CreationContext(), value, NULL));
 
 	LEAVE_V8()
 }
@@ -914,7 +905,7 @@ Handle<Value> namedMemberSetter(Local<String> prop, Local<Value> value, const Ac
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 	}
 	else {
-		if(doSetFieldValue(dataWrapper->getData(), name, v8ToVariant(dataWrapper->getData()->getContext(), info.Holder()->CreationContext(), value))) {
+		if(doSetFieldValue(dataWrapper->getData(), name, v8ToVariant(dataWrapper->getData()->getContext(), info.Holder()->CreationContext(), value, NULL))) {
 			return value;
 		}
 	}
@@ -1073,7 +1064,7 @@ GVariant invokeV8FunctionIndirectly(const GContextPointer & context, Local<Objec
 			result = Local<Object>::Cast(func)->CallAsFunction(object, static_cast<int>(paramCount), v8Params);
 		}
 
-		return v8ToVariant(context, object->CreationContext(), result);
+		return v8ToVariant(context, object->CreationContext(), result, NULL);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
@@ -1408,7 +1399,7 @@ GVariant GV8ScriptObject::getFundamental(const char * name)
 
 	Local<Value> value = localObject->Get(String::New(name));
 	if(getV8Type(value, NULL) == sdtFundamental) {
-		return v8ToVariant(this->getContext(), this->object->CreationContext(), value);
+		return v8ToVariant(this->getContext(), this->object->CreationContext(), value, NULL);
 	}
 	else {
 		return GVariant();
@@ -1458,7 +1449,7 @@ GVariant GV8ScriptObject::getRaw(const char * name)
 
 	Local<Value> value = localObject->Get(String::New(name));
 	if(getV8Type(value, NULL) == sdtRaw) {
-		return v8ToVariant(this->getContext(), this->object->CreationContext(), value);
+		return v8ToVariant(this->getContext(), this->object->CreationContext(), value, NULL);
 	}
 	else {
 		return GVariant();

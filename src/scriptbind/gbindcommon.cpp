@@ -767,7 +767,7 @@ int rankImplicitConvert(const GVariant & sourceData, const GMetaType & targetTyp
 int rankCallableParam(IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, size_t paramIndex)
 {
 	GMetaType proto = metaGetParamType(callable, paramIndex);
-	GScriptDataType sdt = callbackParam->paramsType[paramIndex].dataType;
+	GScriptDataType sdt = callbackParam->params[paramIndex].dataType;
 	
 	if(sdt == sdtNull) {
 		return ParamMatchRank_Equal;
@@ -785,24 +785,24 @@ int rankCallableParam(IMetaService * service, IMetaCallable * callable, const In
 		return ParamMatchRank_Unknown;
 	}
 
-	int implicitRank = rankImplicitConvert(callbackParam->paramsData[paramIndex], proto);
+	int implicitRank = rankImplicitConvert(callbackParam->params[paramIndex].value, proto);
 	if(implicitRank != ParamMatchRank_Unknown) {
 		return implicitRank;
 	}
 
 	// check for meta class
 
-	if(! callbackParam->paramsType[paramIndex].typeItem) {
+	if(! callbackParam->params[paramIndex].typeItem) {
 		return ParamMatchRank_Unknown;
 	}
 
-	if(metaIsClass(callbackParam->paramsType[paramIndex].typeItem->getCategory())) {
+	if(metaIsClass(callbackParam->params[paramIndex].typeItem->getCategory())) {
 		GScopedInterface<IMetaTypedItem> protoType(service->findTypedItemByName(proto.getBaseName()));
 		if(! protoType || ! metaIsClass(protoType->getCategory())) {
 			return ParamMatchRank_Unknown;
 		}
 
-		IMetaClass * paramClass = static_cast<IMetaClass *>(callbackParam->paramsType[paramIndex].typeItem.get());
+		IMetaClass * paramClass = static_cast<IMetaClass *>(callbackParam->params[paramIndex].typeItem.get());
 		IMetaClass * protoClass = static_cast<IMetaClass *>(protoType.get());
 
 		if(paramClass->equals(protoClass)) {
@@ -840,7 +840,7 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeC
 		paramsRank->ranks[i] = paramRank;
 
 		if(! isParamImplicitConvert(paramRank)) {
-			bool ok = !! callable->checkParam(&callbackParam->paramsData[i].refData(), static_cast<uint32_t>(i));
+			bool ok = !! callable->checkParam(&callbackParam->params[i].value.refData(), static_cast<uint32_t>(i));
 			metaCheckError(callable);
 			if(! ok) {
 				return -1;
@@ -936,16 +936,22 @@ void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableP
 
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
 		if(isParamImplicitConvert(callableParam->paramsRank.ranks[i])) {
-			convertParam(&callableParam->paramsData[i], callableParam->paramsRank.ranks[i], &holders[i]);
+			convertParam(&callableParam->params[i].value, callableParam->paramsRank.ranks[i], &holders[i]);
 		}
 	}
 
 	const GVariantData * data[REF_MAX_ARITY];
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
-		data[i] = & callableParam->paramsData[i].refData();
+		data[i] = & callableParam->params[i].value.refData();
 	}
 	callable->executeIndirectly(&result->resultData.refData(), instance, data, static_cast<uint32_t>(callableParam->paramCount));
 	metaCheckError(callable);
+
+	for(size_t i = 0; i < callableParam->paramCount; ++i) {
+		if(callable->isParamTransferOwnership(i) && callableParam->params[i].glueData && callableParam->params[i].glueData->getType() == gdtObject) {
+			static_cast<GObjectGlueData *>(callableParam->params[i].glueData.get())->setAllowGC(false);
+		}
+	}
 }
 
 
@@ -977,8 +983,6 @@ InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
 										const GObjectGlueDataPointer & objectData,
 										const GMethodGlueDataPointer & methodData, InvokeCallableParam * callableParam)
 {
-//	void * instance = getGlueDataInstance(objectData);
-
 	GScopedInterface<IMetaList> methodList;
 	if((! methodData->getClassData() || ! methodData->getClassData()->getMetaClass()) && methodData->getMethodList()->getCount() > 0) {
 		methodList.reset(methodData->getMethodList());

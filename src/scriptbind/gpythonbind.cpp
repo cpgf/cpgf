@@ -742,7 +742,7 @@ GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
 	return sdtScriptObject;
 }
 
-GVariant pythonToVariant(const GContextPointer & context, PyObject * value)
+GVariant pythonToVariant(const GContextPointer & context, PyObject * value, GGlueDataPointer * outputGlueData)
 {
 	if(value == NULL) {
 		return GVariant();
@@ -772,7 +772,11 @@ GVariant pythonToVariant(const GContextPointer & context, PyObject * value)
 	else {
 		GPythonObject * object = tryCastFromPython(value);
 		if(object != NULL) {
-			return glueDataToVariant(object->getData());
+			GGlueDataPointer glueData = object->getData();
+			if(outputGlueData != NULL) {
+				*outputGlueData = glueData;
+			}
+			return glueDataToVariant(glueData);
 		}
 
 		if(PyCallable_Check(value)) {
@@ -936,32 +940,17 @@ PyObject * methodResultToPython(const GContextPointer & context, IMetaCallable *
 	}
 }
 
-void loadMethodParameters(const GContextPointer & context, PyObject * args, GVariant * outputParams)
+void loadCallableParam(const GContextPointer & context, PyObject * args, InvokeCallableParam * callableParam)
 {
 	int paramCount = static_cast<int>(PyTuple_Size(args));
 
 	for(int i = 0; i < paramCount; ++i) {
 		PyObject * c = PyTuple_GetItem(args, i);
-		outputParams[i] = getVariantRealValue(pythonToVariant(context, c));
-	}
-}
-
-void loadMethodParamTypes(PyObject * args, CallableParamDataType * outputTypes)
-{
-	int paramCount = static_cast<int>(PyTuple_Size(args));
-
-	for(int i = 0; i < paramCount; ++i) {
+		callableParam->params[i].value = getVariantRealValue(pythonToVariant(context, c, &callableParam->params[i].glueData));
 		IMetaTypedItem * typeItem;
-		PyObject * context = PyTuple_GetItem(args, i);
-		outputTypes[i].dataType = getPythonType(context, &typeItem);
-		outputTypes[i].typeItem.reset(typeItem);
+		callableParam->params[i].dataType = getPythonType(c, &typeItem);
+		callableParam->params[i].typeItem.reset(typeItem);
 	}
-}
-
-void loadCallableParam(const GContextPointer & context, PyObject * args, InvokeCallableParam * callableParam)
-{
-	loadMethodParameters(context, args, callableParam->paramsData);
-	loadMethodParamTypes(args, callableParam->paramsType);
 }
 
 
@@ -1033,7 +1022,7 @@ int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * valu
 	GGlueDataPointer userData = cppObject->getDataAs<GGlueData>();
 	const char * name = PyString_AsString(attrName);
 
-	if(doSetFieldValue(userData, name, pythonToVariant(userData->getContext(), value))) {
+	if(doSetFieldValue(userData, name, pythonToVariant(userData->getContext(), value, NULL))) {
 		return 0;
 	}
 
@@ -1106,7 +1095,7 @@ int callbackAccessibleDescriptorSet(PyObject * self, PyObject * /*obj*/, PyObjec
 	
 	GAccessibleGlueDataPointer userData = cppObject->getDataAs<GAccessibleGlueData>();
 
-	GVariant v = pythonToVariant(userData->getContext(), value);
+	GVariant v = pythonToVariant(userData->getContext(), value, NULL);
 	metaSetValue(userData->getAccessible(), userData->getInstanceAddress(), v);
 
 	return 0;
@@ -1166,7 +1155,7 @@ GVariant invokePythonFunctionIndirectly(const GContextPointer & context, PyObjec
 
 		result.reset(PyObject_Call(func, args.get(), NULL));
 
-		return pythonToVariant(context, result.get());
+		return pythonToVariant(context, result.get(), NULL);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
@@ -1522,7 +1511,7 @@ GVariant GPythonScriptObject::getFundamental(const char * name)
 
 	GPythonScopedPointer obj(getObjectAttr(this->object, name));
 	if(obj && getPythonType(obj.get(), NULL) == sdtFundamental) {
-		return pythonToVariant(this->getContext(), obj.get());
+		return pythonToVariant(this->getContext(), obj.get(), NULL);
 	}
 	else {
 		return GVariant();

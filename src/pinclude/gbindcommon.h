@@ -260,6 +260,10 @@ public:
 		return this->allowGC;
 	}
 
+	void setAllowGC(bool allow) {
+		this->allowGC = allow;
+	}
+
 	ObjectPointerCV getCV() const {
 		return this->cv;
 	}
@@ -637,9 +641,11 @@ public:
 	mutable int ranks[REF_MAX_ARITY];
 };
 
-class CallableParamDataType
+class CallableParamData
 {
 public:
+	GVariant value;
+	GGlueDataPointer glueData;
 	GScriptDataType dataType;
 	GScopedInterface<IMetaTypedItem> typeItem;
 };
@@ -651,8 +657,7 @@ public:
 	~InvokeCallableParam();
 
 public:
-	GVariant paramsData[REF_MAX_ARITY];
-	CallableParamDataType paramsType[REF_MAX_ARITY];
+	CallableParamData params[REF_MAX_ARITY];
 	size_t paramCount;
 	InvokeParamRank paramsRank;
 };
