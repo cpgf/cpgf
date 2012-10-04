@@ -8,6 +8,7 @@
 #include "cpgf/gglobal.h"
 #include "cpgf/gmetaoperatorop.h"
 #include "cpgf/gsharedptr.h"
+#include "cpgf/gflags.h"
 
 #include <map>
 #include <set>
@@ -65,10 +66,12 @@ enum GGlueDataMethodType {
 	gdmtInternal
 };
 
-enum GBindValueFlags {
+enum GBindValueFlagValues {
 	bvfAllowGC = 1 << 0,
 	bvfAllowRaw = 1 << 1
 };
+
+typedef GFlags<GBindValueFlagValues> GBindValueFlags;
 
 class GUserData
 {
@@ -244,7 +247,7 @@ private:
 
 private:
 	GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, const GVariant & instance,
-		bool allowGC, ObjectPointerCV cv);
+		const GBindValueFlags & flags, ObjectPointerCV cv);
 
 public:		
 	~GObjectGlueData();
@@ -262,11 +265,11 @@ public:
 	}
 
 	bool isAllowGC() const {
-		return this->allowGC;
+		return this->flags.has(bvfAllowGC);
 	}
 
 	void setAllowGC(bool allow) {
-		this->allowGC = allow;
+		this->flags.setByBool(bvfAllowGC, allow);
 	}
 
 	ObjectPointerCV getCV() const {
@@ -282,7 +285,7 @@ private:
 private:
 	GClassGlueDataPointer classGlueData;
 	GVariant instance;
-	bool allowGC;
+	GBindValueFlags flags;
 	ObjectPointerCV cv;
 	mutable GScopedPointer<GScriptDataHolder> dataHolder;
 	GScopedInterface<IScriptDataStorage> dataStorage;
@@ -597,7 +600,7 @@ public:
 	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
 
 	GObjectGlueDataPointer newObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
-		bool allowGC, ObjectPointerCV cv);
+		const GBindValueFlags & flags, ObjectPointerCV cv);
 	
 	GMethodGlueDataPointer newMethodGlueData(const GClassGlueDataPointer & classData,
 		IMetaList * methodList, const char * name, GGlueDataMethodType methodType);
@@ -831,7 +834,7 @@ int findAppropriateCallable(IMetaService * service,
 
 
 template <typename Methods>
-typename Methods::ResultType variantToScript(const GContextPointer & context, const GVariant & value, const GMetaType & type, bool allowGC, bool allowRaw)
+typename Methods::ResultType variantToScript(const GContextPointer & context, const GVariant & value, const GMetaType & type, const GBindValueFlags & flags)
 {
 	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
 
@@ -845,7 +848,7 @@ typename Methods::ResultType variantToScript(const GContextPointer & context, co
 				releaseIt.reset(value.refData().valueInterface); // auto release the reference
 			}
 			return Methods::doObjectToScript(context, context->getOrNewClassData(objectAddressFromVariant(value), gdynamic_cast<IMetaClass *>(typedItem.get())),
-				value, allowGC, metaTypeToCV(type));
+				value, flags, metaTypeToCV(type));
 		}
 		else {
 			if(vtIsInterface(vt)) {
@@ -861,11 +864,11 @@ typename Methods::ResultType variantToScript(const GContextPointer & context, co
 			GMetaType newType(type);
 			newType.removeReference();
 
-			return Methods::doVariantToScript(context, createTypedVariant(value, newType), allowGC, allowRaw);
+			return Methods::doVariantToScript(context, createTypedVariant(value, newType), flags);
 		}
 	}
 
-	if(allowRaw) {
+	if(flags.has(bvfAllowRaw)) {
 		return Methods::doRawToScript(context, value);
 	}
 
@@ -884,7 +887,9 @@ typename Methods::ResultType methodResultToScript(const GContextPointer & contex
 		typename Methods::ResultType result;
 
 		GVariant value = resultValue->resultData;
-		result = Methods::doVariantToScript(context, createTypedVariant(value, GMetaType(typeData)), !! callable->isResultTransferOwnership(), false);
+		GBindValueFlags flags;
+		flags.setByBool(bvfAllowGC, !! callable->isResultTransferOwnership());
+		result = Methods::doVariantToScript(context, createTypedVariant(value, GMetaType(typeData)), flags);
 		if(! Methods::isSuccessResult(result)) {
 			GScopedInterface<IMetaConverter> converter(metaGetResultExtendType(callable, GExtendTypeCreateFlag_Converter).getConverter());
 			result = converterToScript<Methods>(context, value, converter.get());
@@ -909,7 +914,7 @@ typename Methods::ResultType accessibleToScript(const GContextPointer & context,
 	GMetaType type;
 	GVariant value = getAccessibleValueAndType(instance, accessible, &type, instanceIsConst);
 
-	typename Methods::ResultType result = Methods::doVariantToScript(context, createTypedVariant(value, type), false, false);
+	typename Methods::ResultType result = Methods::doVariantToScript(context, createTypedVariant(value, type), GBindValueFlags());
 	if(! Methods::isSuccessResult(result)) {
 		GScopedInterface<IMetaConverter> converter(metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Converter).getConverter());
 		result = converterToScript<Methods>(context, value, converter.get());
@@ -1034,7 +1039,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 			case mmitEnumValue:
 				if(! isInstance || config.allowAccessEnumValueViaInstance()) {
 					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-					return Methods::doVariantToScript(context, metaGetEnumValue(metaEnum, static_cast<uint32_t>(mapItem->getEnumIndex())), false, true);
+					return Methods::doVariantToScript(context, metaGetEnumValue(metaEnum, static_cast<uint32_t>(mapItem->getEnumIndex())), GBindValueFlags(bvfAllowRaw));
 				}
 				break;
 

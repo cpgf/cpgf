@@ -231,7 +231,7 @@ void setMetaTableCall(lua_State * L, void * userData);
 void setMetaTableSignature(lua_State * L);
 bool isValidMetaTable(lua_State * L, int index);
 
-bool variantToLua(const GContextPointer & context, const GVariant & data, bool allowGC, bool allowRaw);
+bool variantToLua(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags);
 GVariant luaToVariant(const GContextPointer & context, int index, GGlueDataPointer * outputGlueData);
 
 bool doIndexMemberData(const GContextPointer & context, IMetaAccessible * data, void * instance, bool instanceIsConst);
@@ -506,7 +506,7 @@ void error(lua_State * L, const char * message)
 	lua_error(L);
 }
 
-void objectToLua(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, bool allowGC, ObjectPointerCV cv)
+void objectToLua(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv)
 {
 	lua_State * L = getLuaState(context);
 
@@ -517,7 +517,7 @@ void objectToLua(const GContextPointer & context, const GClassGlueDataPointer & 
 	}
 
 	void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GObjectGlueData>());
-	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, allowGC, cv));
+	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, flags, cv));
 	newGlueDataWrapper(userData, objectData);
 
 	IMetaClass * metaClass = classData->getMetaClass();
@@ -668,15 +668,15 @@ struct GLuaMethods
 {
 	typedef bool ResultType;
 
-	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, bool allowGC, ObjectPointerCV cv)
+	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv)
 	{
-		objectToLua(context, classData, instance, allowGC, cv);
+		objectToLua(context, classData, instance, flags, cv);
 		return true;
 	}
 
-	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, bool allowGC, bool allowRaw)
+	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, const GBindValueFlags & flags)
 	{
-		return variantToLua(context, value, allowGC, allowRaw);
+		return variantToLua(context, value, flags);
 	}
 	
 	static ResultType doRawToScript(const GContextPointer & context, const GVariant & value)
@@ -735,7 +735,7 @@ struct GLuaMethods
 
 };
 
-bool variantToLua(const GContextPointer & context, const GVariant & data, bool allowGC, bool allowRaw)
+bool variantToLua(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags)
 {
 	lua_State * L = getLuaState(context);
 
@@ -787,7 +787,7 @@ bool variantToLua(const GContextPointer & context, const GVariant & data, bool a
 		return true;
 	}
 
-	return variantToScript<GLuaMethods >(context, value, type, allowGC, allowRaw);
+	return variantToScript<GLuaMethods >(context, value, type, flags);
 }
 
 GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
@@ -925,7 +925,7 @@ int invokeConstructor(const GClassGlueDataPointer & classUserData)
 	void * instance = doInvokeConstructor(classUserData->getContext()->getService(), classUserData->getMetaClass(), &callableParam);
 
 	if(instance != NULL) {
-		objectToLua(classUserData->getContext(), classUserData, instance, true, opcvNone);
+		objectToLua(classUserData->getContext(), classUserData, instance, GBindValueFlags(bvfAllowGC), opcvNone);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1313,7 +1313,7 @@ GVariant invokeLuaFunctionIndirectly(const GContextPointer & context, GVariant c
 
 	if(lua_isfunction(L, -1)) {
 		for(size_t i = 0; i < paramCount; ++i) {
-			if(!variantToLua(context, *params[i], false, true)) {
+			if(!variantToLua(context, *params[i], GBindValueFlags(bvfAllowRaw))) {
 				if(i > 0) {
 					lua_pop(L, static_cast<int>(i) - 1);
 				}
@@ -1597,7 +1597,7 @@ void GLuaScriptObject::bindFundamental(const char * name, const GVariant & value
 
 	GLuaScopeGuard scopeGuard(this);
 
-	if(! variantToLua(this->getContext(), value, false, true)) {
+	if(! variantToLua(this->getContext(), value, GBindValueFlags(bvfAllowRaw))) {
 		raiseCoreException(Error_ScriptBinding_CantBindFundamental);
 	}
 	
@@ -1634,7 +1634,9 @@ void GLuaScriptObject::bindObject(const char * objectName, void * instance, IMet
 
 	GLuaScopeGuard scopeGuard(this);
 
-	objectToLua(this->getContext(), this->getContext()->getClassData(type), instance, transferOwnership, opcvNone);
+	GBindValueFlags flags;
+	flags.setByBool(bvfAllowGC, transferOwnership);
+	objectToLua(this->getContext(), this->getContext()->getClassData(type), instance, flags, opcvNone);
 
 	scopeGuard.set(objectName);
 

@@ -184,7 +184,7 @@ int callbackSetEnumValue(PyObject * object, PyObject * attrName, PyObject * valu
 PyObject * callbackAccessibleDescriptorGet(PyObject * self, PyObject * obj, PyObject * type);
 int callbackAccessibleDescriptorSet(PyObject * self, PyObject * obj, PyObject * value);
 
-PyObject * variantToPython(const GContextPointer & context, const GVariant & data, bool allowGC, bool allowRaw);
+PyObject * variantToPython(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags);
 
 PyTypeObject functionType = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -793,13 +793,13 @@ GVariant pythonToVariant(const GContextPointer & context, PyObject * value, GGlu
 	return GVariant();
 }
 
-PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, bool allowGC, ObjectPointerCV cv)
+PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv)
 {
 	if(objectAddressFromVariant(instance) == NULL) {
 		return pyAddRef(Py_None);
 	}
 
-	return createPythonObject(context->newObjectGlueData(classData, instance, allowGC, cv));
+	return createPythonObject(context->newObjectGlueData(classData, instance, flags, cv));
 }
 
 PyObject * rawToPython(const GContextPointer & context, const GVariant & value)
@@ -822,14 +822,14 @@ struct GPythonMethods
 {
 	typedef PyObject * ResultType;
 	
-	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, bool allowGC, ObjectPointerCV cv)
+	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv)
 	{
-		return objectToPython(context, classData, instance, allowGC, cv);
+		return objectToPython(context, classData, instance, flags, cv);
 	}
 
-	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, bool allowGC, bool allowRaw)
+	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, const GBindValueFlags & flags)
 	{
-		return variantToPython(context, value, allowGC, allowRaw);
+		return variantToPython(context, value, flags);
 	}
 	
 	static ResultType doRawToScript(const GContextPointer & context, const GVariant & value)
@@ -884,7 +884,7 @@ struct GPythonMethods
 	}
 };
 
-PyObject * variantToPython(const GContextPointer & context, const GVariant & data, bool allowGC, bool allowRaw)
+PyObject * variantToPython(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags)
 {
 	GVariant value = getVariantRealValue(data);
 	GMetaType type = getVariantRealMetaType(data);
@@ -921,7 +921,7 @@ PyObject * variantToPython(const GContextPointer & context, const GVariant & dat
 		return PyString_FromString(s.get());
 	}
 
-	return variantToScript<GPythonMethods>(context, value, type, allowGC, allowRaw);
+	return variantToScript<GPythonMethods>(context, value, type, flags);
 }
 
 PyObject * methodResultToPython(const GContextPointer & context, IMetaCallable * callable, InvokeCallableResult * result)
@@ -1048,7 +1048,7 @@ PyObject * callbackGetEnumValue(PyObject * object, PyObject * attrName)
 
 	int32_t index = userData->getMetaEnum()->findKey(name);
 	if(index >= 0) {
-		return variantToPython(userData->getContext(), metaGetEnumValue(userData->getMetaEnum(), index), true, false);
+		return variantToPython(userData->getContext(), metaGetEnumValue(userData->getMetaEnum(), index), GBindValueFlags());
 	}
 
 	raiseCoreException(Error_ScriptBinding_CantFindEnumKey, *name);
@@ -1139,7 +1139,7 @@ GVariant invokePythonFunctionIndirectly(const GContextPointer & context, PyObjec
 			PyTuple_SetItem(args.get(), 0, object);
 		}
 		for(size_t i = 0; i < paramCount; ++i) {
-			GPythonScopedPointer arg(variantToPython(context, *params[i], false, true));
+			GPythonScopedPointer arg(variantToPython(context, *params[i], GBindValueFlags(bvfAllowRaw)));
 			if(!arg) {
 				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
 			}
@@ -1408,7 +1408,7 @@ void GPythonScriptObject::bindFundamental(const char * name, const GVariant & va
 
 	ENTER_PYTHON()
 
-	setObjectAttr(this->object, name, variantToPython(this->getContext(), value, false, true));
+	setObjectAttr(this->object, name, variantToPython(this->getContext(), value, GBindValueFlags(bvfAllowRaw)));
 
 	LEAVE_PYTHON()
 }
@@ -1435,7 +1435,9 @@ void GPythonScriptObject::bindObject(const char * objectName, void * instance, I
 {
 	ENTER_PYTHON()
 
-	setObjectAttr(this->object, objectName, objectToPython(this->getContext(), this->getContext()->getClassData(type), instance, transferOwnership, opcvNone));
+	GBindValueFlags flags;
+	flags.setByBool(bvfAllowGC, transferOwnership);
+	setObjectAttr(this->object, objectName, objectToPython(this->getContext(), this->getContext()->getClassData(type), instance, flags, opcvNone));
 
 	LEAVE_PYTHON()
 }

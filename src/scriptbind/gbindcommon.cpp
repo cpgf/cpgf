@@ -312,11 +312,11 @@ GClassGlueData::~GClassGlueData()
 
 
 GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, const GVariant & instance,
-	bool allowGC, ObjectPointerCV cv)
-	: super(gdtObject, context), classGlueData(classGlueData), instance(instance), allowGC(allowGC), cv(cv)
+	const GBindValueFlags & flags, ObjectPointerCV cv)
+	: super(gdtObject, context), classGlueData(classGlueData), instance(instance), flags(flags), cv(cv)
 {
 	if(vtIsInterface(instance.getType())) {
-		this->allowGC = false;
+		this->flags.clear(bvfAllowGC);
 	}
 }
 
@@ -326,7 +326,7 @@ GObjectGlueData::~GObjectGlueData()
 		this->getContext()->getClassPool()->objectDestroyed(this->getInstanceAddress());
 	}
 	
-	if(this->allowGC) {
+	if(this->isAllowGC()) {
 		this->getClassData()->getMetaClass()->destroyInstance(this->getInstanceAddress());
 	}
 }
@@ -617,9 +617,9 @@ GClassGlueDataPointer GBindingContext::newClassData(IMetaClass * metaClass)
 }
 
 GObjectGlueDataPointer GBindingContext::newObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
-	bool allowGC, ObjectPointerCV cv)
+	const GBindValueFlags & flags, ObjectPointerCV cv)
 {
-	GObjectGlueDataPointer data(new GObjectGlueData(this->shareFromThis(), classData, instance, allowGC, cv));
+	GObjectGlueDataPointer data(new GObjectGlueData(this->shareFromThis(), classData, instance, flags, cv));
 	data->initialize();
 	this->classPool->objectCreated(data);
 	return data;

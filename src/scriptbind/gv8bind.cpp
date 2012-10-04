@@ -207,7 +207,7 @@ private:
 };
 
 
-Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data, bool allowGC, bool allowRaw);
+Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags);
 Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData);
 Persistent<Object> doBindEnum(const GContextPointer & context, Handle<ObjectTemplate> objectTemplate, IMetaEnum * metaEnum);
 Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData, bool isGlobal, IMetaList * methodList,
@@ -457,7 +457,7 @@ GVariant v8ToVariant(const GContextPointer & context, Local<Context> v8Context, 
 	return GVariant();
 }
 
-Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, bool allowGC, ObjectPointerCV cv)
+Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv)
 {
 	if(objectAddressFromVariant(instance) == NULL) {
 		return Handle<Value>();
@@ -467,7 +467,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 	Handle<Value> external = External::New(&signatureKey);
 	Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance(1, &external));
 
-	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, allowGC, cv));
+	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, flags, cv));
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(objectData, getV8DataWrapperPool());
 	self.MakeWeak(dataWrapper, weakHandleCallback);
 
@@ -499,14 +499,14 @@ struct GV8Methods
 {
 	typedef Handle<Value> ResultType;
 	
-	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, bool allowGC, ObjectPointerCV cv)
+	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv)
 	{
-		return objectToV8(context, classData, instance, allowGC, cv);
+		return objectToV8(context, classData, instance, flags, cv);
 	}
 
-	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, bool allowGC, bool allowRaw)
+	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, const GBindValueFlags & flags)
 	{
-		return variantToV8(context, value, allowGC, allowRaw);
+		return variantToV8(context, value, flags);
 	}
 	
 	static ResultType doRawToScript(const GContextPointer & context, const GVariant & value)
@@ -569,7 +569,7 @@ struct GV8Methods
 
 };
 
-Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data, bool allowGC, bool allowRaw)
+Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags)
 {
 	GVariant value = getVariantRealValue(data);
 	GMetaType type = getVariantRealMetaType(data);
@@ -606,7 +606,7 @@ Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data
 		return String::New(s.get());
 	}
 
-	return variantToScript<GV8Methods>(context, value, type, allowGC, allowRaw);
+	return variantToScript<GV8Methods>(context, value, type, flags);
 }
 
 Handle<Value> accessibleGet(Local<String> /*prop*/, const AccessorInfo & info)
@@ -715,7 +715,7 @@ Handle<Value> namedEnumGetter(Local<String> prop, const AccessorInfo & info)
 	String::AsciiValue name(prop);
 	int32_t index = metaEnum->findKey(*name);
 	if(index >= 0) {
-		return variantToV8(dataWrapper->getData()->getContext(), metaGetEnumValue(metaEnum, index), true, false);
+		return variantToV8(dataWrapper->getData()->getContext(), metaGetEnumValue(metaEnum, index), GBindValueFlags());
 	}
 
 	raiseCoreException(Error_ScriptBinding_CantFindEnumKey, *name);
@@ -822,7 +822,7 @@ Handle<Value> objectConstructor(const Arguments & args)
 
 		void * instance = invokeConstructor(args, classData->getContext(), classData->getMetaClass());
 
-		GObjectGlueDataPointer objectData = classData->getContext()->newObjectGlueData(classData, instance, true, opcvNone);
+		GObjectGlueDataPointer objectData = classData->getContext()->newObjectGlueData(classData, instance, GBindValueFlags(bvfAllowGC), opcvNone);
 		GGlueDataWrapper * objectWrapper = newGlueDataWrapper(objectData, getV8DataWrapperPool());
 		self.MakeWeak(objectWrapper, weakHandleCallback);
 
@@ -1045,7 +1045,7 @@ GVariant invokeV8FunctionIndirectly(const GContextPointer & context, Local<Objec
 	if(valueIsCallable(func)) {
 		Handle<Value> v8Params[REF_MAX_ARITY];
 		for(size_t i = 0; i < paramCount; ++i) {
-			v8Params[i] = variantToV8(context, *params[i], false, true);
+			v8Params[i] = variantToV8(context, *params[i], GBindValueFlags(bvfAllowRaw));
 			if(v8Params[i].IsEmpty()) {
 				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
 			}
@@ -1272,7 +1272,7 @@ void GV8ScriptObject::bindFundamental(const char * name, const GVariant & value)
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->object));
 
-	localObject->Set(String::New(name), variantToV8(this->getContext(), value, false, true));
+	localObject->Set(String::New(name), variantToV8(this->getContext(), value, GBindValueFlags(bvfAllowRaw)));
 
 	LEAVE_V8()
 }
@@ -1308,7 +1308,9 @@ void GV8ScriptObject::bindObject(const char * objectName, void * instance, IMeta
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->object));
 
-	Handle<Value> obj = objectToV8(this->getContext(), this->getContext()->getClassData(type), instance, transferOwnership, opcvNone);
+	GBindValueFlags flags;
+	flags.setByBool(bvfAllowGC, transferOwnership);
+	Handle<Value> obj = objectToV8(this->getContext(), this->getContext()->getClassData(type), instance, flags, opcvNone);
 	localObject->Set(String::New(objectName), obj);
 
 	LEAVE_V8()
