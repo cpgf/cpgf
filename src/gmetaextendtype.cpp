@@ -125,6 +125,18 @@ IMetaScriptWrapper * GMetaExtendType::getScriptWrapper() const
 	}
 }
 
+IMetaSharedPointerTraits * GMetaExtendType::getSharedPointerTraits() const
+{
+	if(this->data.sharedPointerTraits != NULL) {
+		this->data.sharedPointerTraits->addReference();
+		return this->data.sharedPointerTraits;
+	}
+	else {
+		return NULL;
+	}
+}
+
+
 
 } // namespace cpgf
 

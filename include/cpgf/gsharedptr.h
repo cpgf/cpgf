@@ -2,6 +2,9 @@
 #define __GSHAREDPTR_H
 
 #include "cpgf/gassert.h"
+#include "cpgf/genableif.h"
+#include "cpgf/gtypetraits.h"
+
 
 namespace cpgf {
 

@@ -20,10 +20,7 @@ var config = {
 	
 	metaNamespace : "metatest",
 	sourceHeaderCode : "" +
-		"#include \"cpgf/metatraits/gmetaconverter_string.h\"\n" +
-		"#include \"cpgf/metatraits/gmetaconverter_widestring.h\"\n" +
-		"#include \"cpgf/metatraits/gmetaserializer_string.h\"\n"
-
+		"#include \"../../../testmetatraits.h\"\n"
 	,
 	sourceHeaderReplacer : [ "!.*test/metagen/include!i", "../../include" ],
 	metaHeaderPath : "../include/",

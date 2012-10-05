@@ -184,7 +184,7 @@ int callbackSetEnumValue(PyObject * object, PyObject * attrName, PyObject * valu
 PyObject * callbackAccessibleDescriptorGet(PyObject * self, PyObject * obj, PyObject * type);
 int callbackAccessibleDescriptorSet(PyObject * self, PyObject * obj, PyObject * value);
 
-PyObject * variantToPython(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags);
+PyObject * variantToPython(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData);
 
 PyTypeObject functionType = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -793,19 +793,28 @@ GVariant pythonToVariant(const GContextPointer & context, PyObject * value, GGlu
 	return GVariant();
 }
 
-PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv)
+PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataPointer & classData,
+						  const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
 {
 	if(objectAddressFromVariant(instance) == NULL) {
 		return pyAddRef(Py_None);
 	}
 
-	return createPythonObject(context->newObjectGlueData(classData, instance, flags, cv));
+	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, flags, cv));
+	if(outputGlueData != NULL) {
+		*outputGlueData = objectData;
+	}
+	return createPythonObject(objectData);
 }
 
-PyObject * rawToPython(const GContextPointer & context, const GVariant & value)
+PyObject * rawToPython(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
 {
 	if(context->getConfig().allowAccessRawData()) {
-		PyObject * rawObject = createPythonObject(context->newRawGlueData(value));
+		GRawGlueDataPointer rawData(context->newRawGlueData(value));
+		if(outputGlueData != NULL) {
+			*outputGlueData = rawData;
+		}
+		PyObject * rawObject = createPythonObject(rawData);
 
 		return rawObject;
 	}
@@ -822,19 +831,20 @@ struct GPythonMethods
 {
 	typedef PyObject * ResultType;
 	
-	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData, const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv)
+	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData,
+		const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
 	{
-		return objectToPython(context, classData, instance, flags, cv);
+		return objectToPython(context, classData, instance, flags, cv, outputGlueData);
 	}
 
-	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, const GBindValueFlags & flags)
+	static ResultType doVariantToScript(const GContextPointer & context, const GVariant & value, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData)
 	{
-		return variantToPython(context, value, flags);
+		return variantToPython(context, value, flags, outputGlueData);
 	}
 	
-	static ResultType doRawToScript(const GContextPointer & context, const GVariant & value)
+	static ResultType doRawToScript(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
 	{
-		return rawToPython(context, value);
+		return rawToPython(context, value, outputGlueData);
 	}
 
 	static ResultType doClassToScript(const GContextPointer & context, IMetaClass * metaClass)
@@ -884,7 +894,7 @@ struct GPythonMethods
 	}
 };
 
-PyObject * variantToPython(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags)
+PyObject * variantToPython(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData)
 {
 	GVariant value = getVariantRealValue(data);
 	GMetaType type = getVariantRealMetaType(data);
@@ -921,7 +931,7 @@ PyObject * variantToPython(const GContextPointer & context, const GVariant & dat
 		return PyString_FromString(s.get());
 	}
 
-	return variantToScript<GPythonMethods>(context, value, type, flags);
+	return complexVariantToScript<GPythonMethods>(context, value, type, flags, outputGlueData);
 }
 
 PyObject * methodResultToPython(const GContextPointer & context, IMetaCallable * callable, InvokeCallableResult * result)
@@ -1048,7 +1058,7 @@ PyObject * callbackGetEnumValue(PyObject * object, PyObject * attrName)
 
 	int32_t index = userData->getMetaEnum()->findKey(name);
 	if(index >= 0) {
-		return variantToPython(userData->getContext(), metaGetEnumValue(userData->getMetaEnum(), index), GBindValueFlags());
+		return variantToPython(userData->getContext(), metaGetEnumValue(userData->getMetaEnum(), index), GBindValueFlags(), NULL);
 	}
 
 	raiseCoreException(Error_ScriptBinding_CantFindEnumKey, *name);
@@ -1139,7 +1149,7 @@ GVariant invokePythonFunctionIndirectly(const GContextPointer & context, PyObjec
 			PyTuple_SetItem(args.get(), 0, object);
 		}
 		for(size_t i = 0; i < paramCount; ++i) {
-			GPythonScopedPointer arg(variantToPython(context, *params[i], GBindValueFlags(bvfAllowRaw)));
+			GPythonScopedPointer arg(variantToPython(context, *params[i], GBindValueFlags(bvfAllowRaw), NULL));
 			if(!arg) {
 				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
 			}
@@ -1408,7 +1418,7 @@ void GPythonScriptObject::bindFundamental(const char * name, const GVariant & va
 
 	ENTER_PYTHON()
 
-	setObjectAttr(this->object, name, variantToPython(this->getContext(), value, GBindValueFlags(bvfAllowRaw)));
+	setObjectAttr(this->object, name, variantToPython(this->getContext(), value, GBindValueFlags(bvfAllowRaw), NULL));
 
 	LEAVE_PYTHON()
 }
@@ -1437,7 +1447,7 @@ void GPythonScriptObject::bindObject(const char * objectName, void * instance, I
 
 	GBindValueFlags flags;
 	flags.setByBool(bvfAllowGC, transferOwnership);
-	setObjectAttr(this->object, objectName, objectToPython(this->getContext(), this->getContext()->getClassData(type), instance, flags, opcvNone));
+	setObjectAttr(this->object, objectName, objectToPython(this->getContext(), this->getContext()->getClassData(type), instance, flags, opcvNone, NULL));
 
 	LEAVE_PYTHON()
 }
@@ -1446,7 +1456,7 @@ void GPythonScriptObject::bindRaw(const char * name, const GVariant & value)
 {
 	ENTER_PYTHON()
 
-	setObjectAttr(this->object, name, rawToPython(this->getContext(), value));
+	setObjectAttr(this->object, name, rawToPython(this->getContext(), value, NULL));
 
 	LEAVE_PYTHON()
 }

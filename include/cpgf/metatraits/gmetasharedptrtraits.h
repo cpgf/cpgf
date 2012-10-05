@@ -11,7 +11,7 @@ struct GMetaTraitsParam;
 
 struct IMetaSharedPointerTraits : public IExtendObject
 {
-	virtual void * G_API_CC getPointer(const void * sharedPointer) = 0;
+	virtual void * G_API_CC getPointer(void * sharedPointer) = 0;
 	virtual void G_API_CC getMetaType(GMetaTypeData * outType) = 0;
 };
 
@@ -19,7 +19,7 @@ struct IMetaSharedPointerTraits : public IExtendObject
 template <typename T>
 struct GMetaTraitsCreateSharedPointerTraits
 {
-	static IMetaSharedPointerTraits * createTraits(const GMetaTraitsParam &) {
+	static IMetaSharedPointerTraits * createSharedPointerTraits(const GMetaTraitsParam &) {
 		return NULL;
 	}
 };
@@ -27,7 +27,7 @@ struct GMetaTraitsCreateSharedPointerTraits
 template <typename T>
 inline IMetaSharedPointerTraits * metaTraitsCreateSharedPointerTraits(const T &, const GMetaTraitsParam & param)
 {
-	return GMetaTraitsCreateSharedPointerTraits<T>::createTraits(param);
+	return GMetaTraitsCreateSharedPointerTraits<T>::createSharedPointerTraits(param);
 }
 
 

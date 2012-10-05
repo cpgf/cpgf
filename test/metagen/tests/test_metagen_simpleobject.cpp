@@ -85,6 +85,22 @@ void testSimpleObject_metaClass(TestScriptContext * context)
 #include "do_testcase.h"
 
 
+void testSimpleObject_Data_GScopedPointer(TestScriptContext * context)
+{
+	QNEWOBJ(a, mtest.createSharedSimpleObject());
+	QDO(a.data.n = 38);
+	QDO(a.data.s = "abc");
+	QDO(a.data.atom.value = 58);
+	QASSERT(a.checkData(38));
+	QASSERT(a.checkData("abc"));
+	QASSERT(a.checkAtom(58));
+}
+
+
+#define CASE testSimpleObject_Data_GScopedPointer
+#include "do_testcase.h"
+
+
 
 
 }

@@ -1,7 +1,10 @@
 #ifndef __SIMPLEOBJECT_H
 #define __SIMPLEOBJECT_H
 
+#include "cpgf/gsharedptr.h"
+
 #include <string>
+
 
 struct SimpleAtom
 {
@@ -42,6 +45,7 @@ struct IMetaClass;
 
 cpgf::IMetaClass * getSimpleObjectClass(cpgf::IMetaClass * metaClass);
 bool metaClassIsSimpleObject(cpgf::IMetaClass * metaClass); 
+cpgf::GSharedPointer<SimpleObject> createSharedSimpleObject();
 
 
 #endif

@@ -64,3 +64,8 @@ bool metaClassIsSimpleObject(IMetaClass * metaClass)
 {
 	return string(metaClass->getName()) == "SimpleObject";
 }
+
+cpgf::GSharedPointer<SimpleObject> createSharedSimpleObject()
+{
+	return cpgf::GSharedPointer<SimpleObject>(new SimpleObject);
+}
