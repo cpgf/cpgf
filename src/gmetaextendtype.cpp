@@ -25,6 +25,7 @@ namespace {
 		data->converter = NULL;
 		data->serializer = NULL;
 		data->scriptWrapper = NULL;
+		data->sharedPointerTraits = NULL;
 	}
 } // unnamed namespace
 
@@ -62,6 +63,7 @@ void GMetaExtendType::doRetainInterfaces()
 	retainInterface(this->data.converter);
 	retainInterface(this->data.serializer);
 	retainInterface(this->data.scriptWrapper);
+	retainInterface(this->data.sharedPointerTraits);
 }
 
 void GMetaExtendType::doReleaseInterfaces()
@@ -69,6 +71,7 @@ void GMetaExtendType::doReleaseInterfaces()
 	releaseInterface(this->data.converter);
 	releaseInterface(this->data.serializer);
 	releaseInterface(this->data.scriptWrapper);
+	releaseInterface(this->data.sharedPointerTraits);
 }
 
 void GMetaExtendType::swap(GMetaExtendType & other)
