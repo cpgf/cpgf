@@ -55,6 +55,8 @@ bool SimpleObject::checkAtom(long value) const
 
 cpgf::IMetaClass * getSimpleObjectClass(cpgf::IMetaClass * metaClass)
 {
+	metaClass->addReference();
+
 	return metaClass;
 }
 

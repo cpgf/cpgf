@@ -947,7 +947,7 @@ void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableP
 	callable->executeIndirectly(&result->resultData.refData(), instance, data, static_cast<uint32_t>(callableParam->paramCount));
 	metaCheckError(callable);
 
-	for(size_t i = 0; i < callableParam->paramCount; ++i) {
+	for(uint32_t i = 0; i < callableParam->paramCount; ++i) {
 		if(callable->isParamTransferOwnership(i) && callableParam->params[i].glueData && callableParam->params[i].glueData->getType() == gdtObject) {
 			static_cast<GObjectGlueData *>(callableParam->params[i].glueData.get())->setAllowGC(false);
 		}

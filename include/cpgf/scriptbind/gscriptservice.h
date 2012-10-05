@@ -22,7 +22,6 @@ private:
 
 private:
 	GScriptObject * scriptObject;
-	GScopedInterface<IMetaClass> previousClonedMetaClass;
 
 private:
 	friend GScriptCoreService * doCreateScriptCoreService(GScriptObject * scriptObject);

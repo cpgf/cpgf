@@ -843,10 +843,6 @@ typename Methods::ResultType variantToScript(const GContextPointer & context, co
 		if(typedItem) {
 			GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
-			GScopedInterface<IObject> releaseIt;
-			if(vtIsInterface(vt)) {
-				releaseIt.reset(value.refData().valueInterface); // auto release the reference
-			}
 			return Methods::doObjectToScript(context, context->getOrNewClassData(objectAddressFromVariant(value), gdynamic_cast<IMetaClass *>(typedItem.get())),
 				value, flags, metaTypeToCV(type));
 		}
@@ -933,6 +929,13 @@ typename Methods::ResultType methodResultToScript(const GContextPointer & contex
 		typename Methods::ResultType result;
 
 		GVariant value = resultValue->resultData;
+
+		GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
+		GScopedInterface<IObject> releaseIt;
+		if(vtIsInterface(vt)) {
+			releaseIt.reset(value.refData().valueInterface); // auto release the reference
+		}
+
 		GBindValueFlags flags;
 		flags.setByBool(bvfAllowGC, !! callable->isResultTransferOwnership());
 		result = Methods::doVariantToScript(context, createTypedVariant(value, GMetaType(typeData)), flags);
