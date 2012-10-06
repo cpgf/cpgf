@@ -768,7 +768,7 @@ int rankImplicitConvertForSharedPointer(const GGlueDataPointer & valueGlueData, 
 {
 	IMetaSharedPointerTraits * paramSharedPointerTraits = getGlueDataSharedPointerTraits(valueGlueData);
 	if(paramSharedPointerTraits != NULL) {
-		GSharedInterface<IMetaSharedPointerTraits> sharedPointerTraits(targetExtendType.getSharedPointerTraits());
+		GScopedInterface<IMetaSharedPointerTraits> sharedPointerTraits(targetExtendType.getSharedPointerTraits());
 		if(! sharedPointerTraits) {
 			return ValueMatchRank_Implicit_SharedPointerToRaw;
 		}
