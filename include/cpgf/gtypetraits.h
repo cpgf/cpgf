@@ -331,6 +331,9 @@ template <typename T> struct ExtractRawType <T volatile> { typedef typename Extr
 template <typename T> struct ExtractRawType <T const volatile> { typedef typename ExtractRawType<T>::Result Result; };
 template <typename T> struct ExtractRawType <T *> { typedef typename ExtractRawType<T>::Result Result; };
 template <typename T> struct ExtractRawType <T &> { typedef typename ExtractRawType<T>::Result Result; };
+#if G_SUPPORT_RVALUE_REFERENCE
+template <typename T> struct ExtractRawType <T &&> { typedef typename ExtractRawType<T>::Result Result; };
+#endif
 
 
 

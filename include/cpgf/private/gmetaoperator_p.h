@@ -396,10 +396,10 @@ private:
 	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
 		switch(index) {
 		case 0:
-			return createMetaExtendType<typename FT::ArgList::Arg0>();
+			return createMetaExtendType<typename FT::ArgList::Arg0>(flags);
 
 		case 1:
-			return createMetaExtendType<typename FT::ArgList::Arg1>();
+			return createMetaExtendType<typename FT::ArgList::Arg1>(flags);
 		}
 
 		operatorIndexOutOfBound(index, 2);
@@ -522,6 +522,7 @@ private:
 	static GMetaType virtualGetParamType(size_t index) {
 		switch(index) {
 		case 0:
+
 			return createMetaType<typename FT::ArgList::Arg0>();
 		}
 
@@ -545,7 +546,7 @@ private:
 	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
 		switch(index) {
 		case 0:
-			return createMetaExtendType<typename FT::ArgList::Arg0>();
+			return createMetaExtendType<typename FT::ArgList::Arg0>(flags);
 		}
 
 		operatorIndexOutOfBound(index, 1);
