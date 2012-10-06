@@ -1024,10 +1024,14 @@ int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * valu
 	ENTER_PYTHON()
 
 	GPythonObject * cppObject = castFromPython(object);
-	GGlueDataPointer userData = cppObject->getDataAs<GGlueData>();
+	GGlueDataPointer instanceGlueData = cppObject->getDataAs<GGlueData>();
 	const char * name = PyString_AsString(attrName);
 
-	if(doSetFieldValue(userData, name, pythonToVariant(userData->getContext(), value, NULL))) {
+	GVariant v;
+	GGlueDataPointer valueGlueData;
+
+	v = pythonToVariant(instanceGlueData->getContext(), value, &valueGlueData);
+	if(setValueOnNamedMember(instanceGlueData, name, v, valueGlueData)) {
 		return 0;
 	}
 

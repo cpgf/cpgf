@@ -26,15 +26,14 @@ namespace bind_internal {
 // Declarations
 //*********************************************
 
-// such as 2 or more dimensions pointer
-const int ParamMatchRank_Unknown = 0;
-const int ParamMatchRank_Convert = 50000;
-const int ParamMatchRank_Implicit_Begin = 70000;
-const int ParamMatchRank_Implicit_WideStringToString = ParamMatchRank_Implicit_Begin + 0;
-const int ParamMatchRank_Implicit_StringToWideString = ParamMatchRank_Implicit_Begin + 1;
-const int ParamMatchRank_Implicit_SharedPointerToRaw = ParamMatchRank_Implicit_Begin + 2;
-const int ParamMatchRank_Implicit_End = 80000;
-const int ParamMatchRank_Equal = 100000;
+const int ValueMatchRank_Unknown = 0; // such as 2 or more dimensions pointer
+const int ValueMatchRank_Convert = 50000;
+const int ValueMatchRank_Implicit_Begin = 70000;
+const int ValueMatchRank_Implicit_WideStringToString = ValueMatchRank_Implicit_Begin + 0;
+const int ValueMatchRank_Implicit_StringToWideString = ValueMatchRank_Implicit_Begin + 1;
+const int ValueMatchRank_Implicit_SharedPointerToRaw = ValueMatchRank_Implicit_Begin + 2;
+const int ValueMatchRank_Implicit_End = 80000;
+const int ValueMatchRank_Equal = 100000;
 
 
 struct FindCallablePredict {
@@ -667,7 +666,7 @@ GOperatorGlueDataPointer GBindingContext::newOperatorGlueData(void * instance, I
 InvokeParamRank::InvokeParamRank(size_t paramCount) : paramCount(paramCount)
 {
 	for(size_t i = 0; i < this->paramCount; ++i) {
-		this->ranks[i] = ParamMatchRank_Unknown;
+		this->ranks[i] = ValueMatchRank_Unknown;
 	}
 }
 
@@ -749,29 +748,44 @@ ObjectPointerCV metaTypeToCV(const GMetaType & type)
 
 bool isParamImplicitConvert(int paramRank)
 {
-	return paramRank >= ParamMatchRank_Implicit_Begin && paramRank < ParamMatchRank_Implicit_End;
+	return paramRank >= ValueMatchRank_Implicit_Begin && paramRank < ValueMatchRank_Implicit_End;
 }
 
-int rankImplicitConvert(IMetaCallable * callable, const InvokeCallableParam * callbackParam, size_t paramIndex, const GMetaType & targetType)
+int rankImplicitConvertForString(const GVariant & sourceData, const GMetaType & targetType)
 {
-	const GVariant & sourceData = callbackParam->params[paramIndex].value;
 	if(variantIsString(sourceData) && targetType.isWideString()) {
-		return ParamMatchRank_Implicit_StringToWideString;
+		return ValueMatchRank_Implicit_StringToWideString;
 	}
 
 	if(variantIsWideString(sourceData) && targetType.isString()) {
-		return ParamMatchRank_Implicit_WideStringToString;
+		return ValueMatchRank_Implicit_WideStringToString;
 	}
 
-	IMetaSharedPointerTraits * paramSharedPointerTraits = getGlueDataSharedPointerTraits(callbackParam->params[paramIndex].glueData);
+	return ValueMatchRank_Unknown;
+}
+
+int rankImplicitConvertForSharedPointer(const GGlueDataPointer & valueGlueData, const GMetaExtendType & targetExtendType)
+{
+	IMetaSharedPointerTraits * paramSharedPointerTraits = getGlueDataSharedPointerTraits(valueGlueData);
 	if(paramSharedPointerTraits != NULL) {
-		GSharedInterface<IMetaSharedPointerTraits> sharedPointerTraits(metaGetParamExtendType(callable, GExtendTypeCreateFlag_SharedPointerTraits, paramIndex).getSharedPointerTraits());
+		GSharedInterface<IMetaSharedPointerTraits> sharedPointerTraits(targetExtendType.getSharedPointerTraits());
 		if(! sharedPointerTraits) {
-			return ParamMatchRank_Implicit_SharedPointerToRaw;
+			return ValueMatchRank_Implicit_SharedPointerToRaw;
 		}
 	}
 
-	return ParamMatchRank_Unknown;
+	return ValueMatchRank_Unknown;
+}
+
+int rankCallableImplicitConvert(IMetaCallable * callable, const InvokeCallableParam * callbackParam, size_t paramIndex, const GMetaType & targetType)
+{
+	int rank = rankImplicitConvertForString(callbackParam->params[paramIndex].value, targetType);
+	if(rank == ValueMatchRank_Unknown) {
+		rank = rankImplicitConvertForSharedPointer(callbackParam->params[paramIndex].glueData,
+			metaGetParamExtendType(callable, GExtendTypeCreateFlag_SharedPointerTraits, paramIndex));
+	}
+	
+	return rank;
 }
 
 int rankCallableParam(IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, size_t paramIndex)
@@ -780,52 +794,52 @@ int rankCallableParam(IMetaService * service, IMetaCallable * callable, const In
 	GScriptDataType sdt = callbackParam->params[paramIndex].dataType;
 	
 	if(sdt == sdtNull) {
-		return ParamMatchRank_Equal;
+		return ValueMatchRank_Equal;
 	}
 	
 	if(proto.isFundamental() && sdt == sdtFundamental) {
-		return ParamMatchRank_Equal;
+		return ValueMatchRank_Equal;
 	}
 
 	if(sdt == sdtScriptMethod && vtIsInterface(proto.getVariantType())) {
-		return ParamMatchRank_Convert;
+		return ValueMatchRank_Convert;
 	}
 
 	if(proto.getPointerDimension() > 1) {
-		return ParamMatchRank_Unknown;
+		return ValueMatchRank_Unknown;
 	}
 
-	int implicitRank = rankImplicitConvert(callable, callbackParam, paramIndex, proto);
-	if(implicitRank != ParamMatchRank_Unknown) {
+	int implicitRank = rankCallableImplicitConvert(callable, callbackParam, paramIndex, proto);
+	if(implicitRank != ValueMatchRank_Unknown) {
 		return implicitRank;
 	}
 
 	// check for meta class
 
 	if(! callbackParam->params[paramIndex].typeItem) {
-		return ParamMatchRank_Unknown;
+		return ValueMatchRank_Unknown;
 	}
 
 	if(metaIsClass(callbackParam->params[paramIndex].typeItem->getCategory())) {
 		GScopedInterface<IMetaTypedItem> protoType(service->findTypedItemByName(proto.getBaseName()));
 		if(! protoType || ! metaIsClass(protoType->getCategory())) {
-			return ParamMatchRank_Unknown;
+			return ValueMatchRank_Unknown;
 		}
 
 		IMetaClass * paramClass = static_cast<IMetaClass *>(callbackParam->params[paramIndex].typeItem.get());
 		IMetaClass * protoClass = static_cast<IMetaClass *>(protoType.get());
 
 		if(paramClass->equals(protoClass)) {
-			return ParamMatchRank_Equal;
+			return ValueMatchRank_Equal;
 		}
 		else {
 			if(paramClass->isInheritedFrom(protoClass)) {
-				return ParamMatchRank_Convert;
+				return ValueMatchRank_Convert;
 			}
 		}
 	}
 
-	return ParamMatchRank_Unknown;
+	return ValueMatchRank_Unknown;
 }
 
 int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, const InvokeParamRank * paramsRank)
@@ -915,33 +929,51 @@ bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessi
 	return true;
 }
 
-void convertParam(GVariant * v, int paramRank, GVariant * holder, InvokeCallableParam * callableParam, size_t paramIndex)
+bool implicitConvertForString(int rank, GVariant * v, GVariant * holder)
 {
-	switch(paramRank) {
-		case ParamMatchRank_Implicit_StringToWideString: {
+	switch(rank) {
+		case ValueMatchRank_Implicit_StringToWideString: {
 			*holder = *v;
 			*v = GVariant();
 			const char * s = fromVariant<char *>(*holder);
 			GScopedArray<wchar_t> ws(stringToWideString(s));
 			*v = createWideStringVariant(ws.get());
-		}
-			break;
 
-		case ParamMatchRank_Implicit_WideStringToString: {
+			return true;
+		}
+
+		case ValueMatchRank_Implicit_WideStringToString: {
 			*holder = *v;
 			*v = GVariant();
 			const wchar_t * ws = fromVariant<wchar_t *>(*holder);
 			GScopedArray<char> s(wideStringToString(ws));
 			*v = createStringVariant(s.get());
-		}
-			break;
 
-		case ParamMatchRank_Implicit_SharedPointerToRaw: {
-			*holder = *v;
-			IMetaSharedPointerTraits * paramSharedPointerTraits = getGlueDataSharedPointerTraits(callableParam->params[paramIndex].glueData);
-			*v = paramSharedPointerTraits->getPointer(objectAddressFromVariant(*v));
+			return true;
 		}
-			break;
+	}
+
+	return false;
+}
+
+bool implicitConvertForSharedPointer(int rank, GVariant * v, const GGlueDataPointer & valueGlueData)
+{
+	switch(rank) {
+		case ValueMatchRank_Implicit_SharedPointerToRaw: {
+			IMetaSharedPointerTraits * paramSharedPointerTraits = getGlueDataSharedPointerTraits(valueGlueData);
+			*v = paramSharedPointerTraits->getPointer(objectAddressFromVariant(*v));
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void implicitConvertCallableParam(GVariant * v, int paramRank, GVariant * holder, InvokeCallableParam * callableParam, size_t paramIndex)
+{
+	if(! implicitConvertForString(paramRank, v, holder)) {
+		implicitConvertForSharedPointer(paramRank, v, callableParam->params[paramIndex].glueData);
 	}
 }
 
@@ -953,7 +985,7 @@ void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableP
 
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
 		if(isParamImplicitConvert(callableParam->paramsRank.ranks[i])) {
-			convertParam(&callableParam->params[i].value, callableParam->paramsRank.ranks[i], &holders[i], callableParam, i);
+			implicitConvertCallableParam(&callableParam->params[i].value, callableParam->paramsRank.ranks[i], &holders[i], callableParam, i);
 		}
 	}
 
@@ -1234,30 +1266,38 @@ void setValueToScriptDataHolder(const GGlueDataPointer & glueData, const char * 
 	}
 }
 
-bool doSetFieldValue(const GGlueDataPointer & glueData, const char * name, const GVariant & value)
+void doSetValueOnAccessible(IMetaAccessible * accessible, const GGlueDataPointer & instanceGlueData, GVariant value, const GGlueDataPointer & valueGlueData)
 {
-	if(getGlueDataCV(glueData) == opcvConst) {
+	int rank = rankImplicitConvertForSharedPointer(valueGlueData, metaGetItemExtendType(accessible, GExtendTypeCreateFlag_SharedPointerTraits));
+	implicitConvertForSharedPointer(rank, &value, valueGlueData);
+
+	metaSetValue(accessible, getGlueDataInstance(instanceGlueData), value);
+}
+
+bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char * name, const GVariant & value, const GGlueDataPointer & valueGlueData)
+{
+	if(getGlueDataCV(instanceGlueData) == opcvConst) {
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 
 		return false;
 	}
 
-	bool isInstance = (glueData->getType() == gdtObject);
+	bool isInstance = (instanceGlueData->getType() == gdtObject);
 	GClassGlueDataPointer classData;
 	GObjectGlueDataPointer objectData;
-	if(glueData->getType() == gdtObject) {
-		objectData = sharedStaticCast<GObjectGlueData>(glueData);
+	if(instanceGlueData->getType() == gdtObject) {
+		objectData = sharedStaticCast<GObjectGlueData>(instanceGlueData);
 		classData = objectData->getClassData();
 	}
 	else {
-		GASSERT(glueData->getType() == gdtClass);
-		classData = sharedStaticCast<GClassGlueData>(glueData);
+		GASSERT(instanceGlueData->getType() == gdtClass);
+		classData = sharedStaticCast<GClassGlueData>(instanceGlueData);
 	}
 
 	const GScriptConfig & config = classData->getContext()->getConfig();
 	GContextPointer context = classData->getContext();
 
-	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstance(glueData));
+	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstance(instanceGlueData));
 
 	void * instance = NULL;
 
@@ -1282,7 +1322,7 @@ bool doSetFieldValue(const GGlueDataPointer & glueData, const char * name, const
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 				if(allowAccessData(config, isInstance, data.get())) {
-					metaSetValue(data.get(), getGlueDataInstance(glueData), value);
+					doSetValueOnAccessible(data.get(), instanceGlueData, value, valueGlueData);
 					return true;
 				}
 			}
@@ -1290,7 +1330,7 @@ bool doSetFieldValue(const GGlueDataPointer & glueData, const char * name, const
 
 			case mmitMethod:
 			case mmitMethodList:
-				setValueToScriptDataHolder(glueData, name, value);
+				setValueToScriptDataHolder(instanceGlueData, name, value);
 				return true;
 
 			case mmitEnum:

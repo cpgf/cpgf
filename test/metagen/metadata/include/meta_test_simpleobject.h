@@ -66,6 +66,7 @@ void buildMetaClass_SimpleObject(const cpgf::GMetaDataConfigFlags & config, D _d
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _field("data", &D::ClassType::data);
+    _d.CPGF_MD_TEMPLATE _field("pobj", &D::ClassType::pobj);
     _d.CPGF_MD_TEMPLATE _method("getData", &D::ClassType::getData);
     _d.CPGF_MD_TEMPLATE _method("getDataPtr", &D::ClassType::getDataPtr);
     _d.CPGF_MD_TEMPLATE _method("setData", &D::ClassType::setData);

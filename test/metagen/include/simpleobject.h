@@ -37,6 +37,7 @@ public:
 
 public:
 	SimpleData data;
+	SimpleObject * pobj;
 };
 
 namespace cpgf {

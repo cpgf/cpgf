@@ -821,7 +821,7 @@ void loadMethodList(const GContextPointer & context, IMetaList * methodList, con
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 
-bool doSetFieldValue(const GGlueDataPointer & glueData, const char * name, const GVariant & value);
+bool setValueOnNamedMember(const GGlueDataPointer & glueData, const char * name, const GVariant & value, const GGlueDataPointer & valueGlueData);
 
 ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData);
 void * getGlueDataInstance(const GGlueDataPointer & glueData);

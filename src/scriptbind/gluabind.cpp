@@ -1031,11 +1031,15 @@ int UserData_newindex(lua_State * L)
 {
 	ENTER_LUA()
 
-	GGlueDataPointer glueData = static_cast<GGlueDataWrapper *>(lua_touserdata(L, -3))->getData();
+	GGlueDataPointer instanceGlueData = static_cast<GGlueDataWrapper *>(lua_touserdata(L, -3))->getData();
 	
 	const char * name = lua_tostring(L, -2);
 
-	if(doSetFieldValue(glueData, name, luaToVariant(glueData->getContext(), -1, NULL))) {
+	GVariant value;
+	GGlueDataPointer valueGlueData;
+
+	value = luaToVariant(instanceGlueData->getContext(), -1, &valueGlueData);
+	if(setValueOnNamedMember(instanceGlueData, name, value, valueGlueData)) {
 		return 1;
 	}
 

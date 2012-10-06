@@ -870,7 +870,12 @@ void staticMemberSetter(Local<String> prop, Local<Value> value, const AccessorIn
 
 	GContextPointer context = dataWrapper->getData()->getContext();
 
-	doSetFieldValue(dataWrapper->getData(), name, v8ToVariant(context, info.Holder()->CreationContext(), value, NULL));
+	GVariant v;
+	GGlueDataPointer valueGlueData;
+
+	v = v8ToVariant(context, info.Holder()->CreationContext(), value, &valueGlueData);
+
+	setValueOnNamedMember(dataWrapper->getData(), name, v, valueGlueData);
 
 	LEAVE_V8()
 }
@@ -910,7 +915,11 @@ Handle<Value> namedMemberSetter(Local<String> prop, Local<Value> value, const Ac
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 	}
 	else {
-		if(doSetFieldValue(dataWrapper->getData(), name, v8ToVariant(dataWrapper->getData()->getContext(), info.Holder()->CreationContext(), value, NULL))) {
+		GVariant v;
+		GGlueDataPointer valueGlueData;
+
+		v = v8ToVariant(dataWrapper->getData()->getContext(), info.Holder()->CreationContext(), value, &valueGlueData);
+		if(setValueOnNamedMember(dataWrapper->getData(), name, v, valueGlueData)) {
 			return value;
 		}
 	}
