@@ -967,6 +967,9 @@ typename Methods::ResultType sharedPointerTraitsToScript(const GContextPointer &
 			case gdtRaw:
 				sharedStaticCast<GRawGlueData>(glueData)->setSharedPointerTraits(sharedPointerTraits);
 				break;
+
+			default:
+				break;
 		}
 	}
 

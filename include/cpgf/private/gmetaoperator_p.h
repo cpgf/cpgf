@@ -684,7 +684,7 @@ private:
 			++index;
 		}
 #define REF_GETPARAM_EXTENDTYPE_HELPER(N, unused) \
-	case N: return createMetaExtendType<typename TypeList_GetWithDefault<typename CallbackT::TraitsType::ArgTypeList, N>::Result>(flags);
+	case N: return createMetaExtendType<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>(flags);
 
 		switch(index) {
 			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_EXTENDTYPE_HELPER, GPP_EMPTY)
