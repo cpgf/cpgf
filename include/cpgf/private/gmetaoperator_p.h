@@ -267,6 +267,7 @@ struct GMetaOperatorDataVirtual
 	GMetaType (*getParamType)(size_t index);
 	GMetaType (*getResultType)();
 	GMetaExtendType (*getResultExtendType)(uint32_t flags);
+	GMetaExtendType (*getParamExtendType)(uint32_t flags, size_t index);
 	bool (*isVariadic)();
 	bool (*checkParam)(const GVariant & param, size_t paramIndex);
 	bool (*isParamTransferOwnership)(size_t paramIndex);
@@ -291,6 +292,10 @@ public:
 	
 	GMetaExtendType getResultExtendType(uint32_t flags) const {
 		return this->virtualFunctions->getResultExtendType(flags);
+	}
+
+	GMetaExtendType getParamExtendType(uint32_t flags, size_t index) const {
+		return this->virtualFunctions->getParamExtendType(flags, index);
 	}
 
 	bool isVariadic() const;
@@ -388,6 +393,20 @@ private:
 		return createMetaExtendType<typename FT::ResultType>(flags);
 	}
 	
+	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
+		switch(index) {
+		case 0:
+			return createMetaExtendType<typename FT::ArgList::Arg0>();
+
+		case 1:
+			return createMetaExtendType<typename FT::ArgList::Arg1>();
+		}
+
+		operatorIndexOutOfBound(index, 2);
+
+		return GMetaExtendType();
+	}
+
 	static bool virtualIsVariadic() {
 		return false;
 	}
@@ -456,6 +475,7 @@ public:
 			&virtualGetParamType,
 			&virtualGetResultType,
 			&virtualGetResultExtendType,
+			&virtualGetParamExtendType,
 			&virtualIsVariadic,
 			&virtualCheckParam,
 			&virtualIsParamTransferOwnership,
@@ -522,6 +542,17 @@ private:
 		return createMetaExtendType<typename FT::ResultType>(flags);
 	}
 	
+	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
+		switch(index) {
+		case 0:
+			return createMetaExtendType<typename FT::ArgList::Arg0>();
+		}
+
+		operatorIndexOutOfBound(index, 1);
+
+		return GMetaExtendType();
+	}
+
 	static bool virtualIsVariadic() {
 		return false;
 	}
@@ -586,6 +617,7 @@ public:
 			&virtualGetParamType,
 			&virtualGetResultType,
 			&virtualGetResultExtendType,
+			&virtualGetParamExtendType,
 			&virtualIsVariadic,
 			&virtualCheckParam,
 			&virtualIsParamTransferOwnership,
@@ -646,7 +678,25 @@ private:
 	static GMetaExtendType virtualGetResultExtendType(uint32_t flags) {
 		return createMetaExtendType<typename FT::ResultType>(flags);
 	}
+
+	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
+		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
+			++index;
+		}
+#define REF_GETPARAM_EXTENDTYPE_HELPER(N, unused) \
+	case N: return createMetaExtendType<typename TypeList_GetWithDefault<typename CallbackT::TraitsType::ArgTypeList, N>::Result>(flags);
+
+		switch(index) {
+			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_EXTENDTYPE_HELPER, GPP_EMPTY)
+
+			default:
+				raiseCoreException(Error_Meta_ParamOutOfIndex);
+				return GMetaExtendType();
+		}
+#undef REF_GETPARAM_EXTENDTYPE_HELPER
+	}
 	
+
 	static bool virtualIsVariadic() {
 		return IsVariadicFunction<FT>::Result;
 	}
@@ -753,6 +803,7 @@ public:
 			&virtualGetParamType,
 			&virtualGetResultType,
 			&virtualGetResultExtendType,
+			&virtualGetParamExtendType,
 			&virtualIsVariadic,
 			&virtualCheckParam,
 			&virtualIsParamTransferOwnership,

@@ -101,6 +101,36 @@ void testSimpleObject_Data_GScopedPointer(TestScriptContext * context)
 #include "do_testcase.h"
 
 
+void testSimpleObject_Data_GScopedPointerGetPointer(TestScriptContext * context)
+{
+	QNEWOBJ(b, mtest.createSharedSimpleObject());
+	QDO(a = mtest.getSharedSimpleObject(b));
+	QDO(a.data.n = 38);
+	QDO(a.data.s = "abc");
+	QDO(a.data.atom.value = 58);
+	QASSERT(a.checkData(38));
+	QASSERT(a.checkData("abc"));
+	QASSERT(a.checkAtom(58));
+}
+
+
+#define CASE testSimpleObject_Data_GScopedPointerGetPointer
+#include "do_testcase.h"
+
+
+void testSimpleObject_Data_GScopedPointerGetN(TestScriptContext * context)
+{
+	QNEWOBJ(a, mtest.createSharedSimpleObject());
+	QDO(a.data.n = 98);
+	QASSERT(mtest.getSimpleObjectPointerN(a) == 98);
+	QASSERT(mtest.getSimpleObjectN(a) == 98);
+}
+
+
+#define CASE testSimpleObject_Data_GScopedPointerGetN
+#include "do_testcase.h"
+
+
 
 
 }

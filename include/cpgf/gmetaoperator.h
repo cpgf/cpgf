@@ -50,6 +50,7 @@ public:
 	virtual bool hasResult() const;
 	virtual GMetaType getResultType() const;
 	virtual GMetaExtendType getResultExtendType(uint32_t flags) const;
+	virtual GMetaExtendType getParamExtendType(uint32_t flags, size_t index) const;
 	virtual bool isVariadic() const;
 
 	virtual bool checkParam(const GVariant & param, size_t paramIndex) const;

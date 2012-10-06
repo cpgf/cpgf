@@ -826,6 +826,7 @@ bool doSetFieldValue(const GGlueDataPointer & glueData, const char * name, const
 ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData);
 void * getGlueDataInstance(const GGlueDataPointer & glueData);
 IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData);
+IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer & glueData);
 
 GScriptDataType methodTypeToGlueDataType(GGlueDataMethodType methodType);
 InvokeCallableResult doInvokeOperator(const GContextPointer & context, void * instance, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam);

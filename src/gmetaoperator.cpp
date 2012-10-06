@@ -190,6 +190,11 @@ GMetaExtendType GMetaOperator::getResultExtendType(uint32_t flags) const
 	return this->baseData->getResultExtendType(flags);
 }
 
+GMetaExtendType GMetaOperator::getParamExtendType(uint32_t flags, size_t index) const
+{
+	return this->baseData->getParamExtendType(flags, index);
+}
+
 bool GMetaOperator::isVariadic() const
 {
 	return this->baseData->isVariadic();

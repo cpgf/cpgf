@@ -22,8 +22,11 @@ namespace cpgf {
 namespace meta_internal {
 
 
-#define REF_GETPARAM_HELPER(N, unused) \
+#define REF_GETPARAM_TYPE_HELPER(N, unused) \
 	case N: return createMetaType<typename TypeList_GetWithDefault<typename CallbackT::TraitsType::ArgTypeList, N>::Result>();
+
+#define REF_GETPARAM_EXTENDTYPE_HELPER(N, unused) \
+	case N: return createMetaExtendType<typename TypeList_GetWithDefault<typename CallbackT::TraitsType::ArgTypeList, N>::Result>(flags);
 
 std::string arityToName(int arity);
 
@@ -35,6 +38,7 @@ struct GMetaMethodDataVirtual
 	GMetaType (*getParamType)(size_t index);
 	GMetaType (*getResultType)();
 	GMetaExtendType (*getResultExtendType)(uint32_t flags);
+	GMetaExtendType (*getParamExtendType)(uint32_t flags, size_t index);
 	bool (*isVariadic)();
 	bool (*isExplicitThis)();
 	GVariant (*invoke)(const void * self, void * instance, GVariant const * const * params, size_t paramCount);
@@ -56,6 +60,10 @@ public:
 	
 	GMetaExtendType getResultExtendType(uint32_t flags) const {
 		return this->virtualFunctions->getResultExtendType(flags);
+	}
+	
+	GMetaExtendType getParamExtendType(uint32_t flags, size_t index) const {
+		return this->virtualFunctions->getParamExtendType(flags, index);
 	}
 
 	bool isVariadic() const;
@@ -107,7 +115,7 @@ private:
 			++index;
 		}
 		switch(index) {
-			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_HELPER, GPP_EMPTY)
+			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_TYPE_HELPER, GPP_EMPTY)
 
 			default:
 				raiseCoreException(Error_Meta_ParamOutOfIndex);
@@ -121,6 +129,19 @@ private:
 
 	static GMetaExtendType virtualGetResultExtendType(uint32_t flags) {
 		return createMetaExtendType<typename CallbackT::TraitsType::ResultType>(flags);
+	}
+	
+	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
+		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
+			++index;
+		}
+		switch(index) {
+			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_EXTENDTYPE_HELPER, GPP_EMPTY)
+
+			default:
+				raiseCoreException(Error_Meta_ParamOutOfIndex);
+				return GMetaExtendType();
+		}
 	}
 	
 	static bool virtualIsVariadic() {
@@ -205,6 +226,7 @@ public:
 			&virtualGetParamType,
 			&virtualGetResultType,
 			&virtualGetResultExtendType,
+			&virtualGetParamExtendType,
 			&virtualIsVariadic,
 			&virtualIsExplicitThis,
 			&virtualInvoke,
@@ -335,7 +357,8 @@ GPP_REPEAT_2(REF_MAX_ARITY, REF_CONSTRUCTOR_INVOKE, GPP_EMPTY)
 
 #undef REF_CALL_LOAD_PARAM
 #undef REF_CONSTRUCTOR_INVOKE
-#undef REF_GETPARAM_HELPER
+#undef REF_GETPARAM_TYPE_HELPER
+#undef REF_GETPARAM_EXTENDTYPE_HELPER
 #undef REF_PARAM_TYPEVALUE
 
 

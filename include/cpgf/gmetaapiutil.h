@@ -72,6 +72,20 @@ GMetaExtendType metaGetResultExtendType(const Meta & meta, uint32_t flags)
 }
 
 template <typename Meta>
+GMetaExtendType metaGetParamExtendType(const Meta & meta, uint32_t flags, uint32_t index)
+{
+	GMetaExtendTypeData typeData;
+
+	const_cast<Meta &>(meta)->getParamExtendType(&typeData, flags, index);
+
+	GMetaExtendType type(typeData);
+	
+	metaCheckError(meta);
+
+	return type;
+}
+
+template <typename Meta>
 GVariant metaGetValue(const Meta & meta, const void * obj)
 {
 	GVariant v;

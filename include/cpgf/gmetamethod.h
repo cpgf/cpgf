@@ -44,6 +44,7 @@ public:
 	virtual bool hasResult() const;
 	virtual GMetaType getResultType() const;
 	virtual GMetaExtendType getResultExtendType(uint32_t flags) const;
+	virtual GMetaExtendType getParamExtendType(uint32_t flags, size_t index) const;
 	virtual bool isVariadic() const;
 
 
@@ -114,6 +115,7 @@ public:
 	virtual bool hasResult() const;
 	virtual GMetaType getResultType() const;
 	virtual GMetaExtendType getResultExtendType(uint32_t flags) const;
+	virtual GMetaExtendType getParamExtendType(uint32_t flags, size_t index) const;
 	virtual bool isVariadic() const;
 
 	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;

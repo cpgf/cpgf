@@ -81,6 +81,7 @@ struct IMetaCallable : public IMetaItem
 	virtual gapi_bool G_API_CC hasResult() = 0;
 	virtual void G_API_CC getResultType(GMetaTypeData * outType) = 0;
 	virtual void G_API_CC getResultExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags) = 0;
+	virtual void G_API_CC getParamExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags, uint32_t index) = 0;
 	virtual gapi_bool G_API_CC isVariadic() = 0;
 	virtual gapi_bool G_API_CC checkParam(const GVariantData * param, uint32_t paramIndex) = 0;
 	virtual gapi_bool G_API_CC isParamTransferOwnership(uint32_t paramIndex) = 0;

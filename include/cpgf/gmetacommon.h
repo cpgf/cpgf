@@ -177,6 +177,7 @@ public:
 	virtual bool hasResult() const = 0;
 	virtual GMetaType getResultType() const = 0;
 	virtual GMetaExtendType getResultExtendType(uint32_t flags) const = 0;
+	virtual GMetaExtendType getParamExtendType(uint32_t flags, size_t index) const = 0;
 	virtual bool isVariadic() const = 0;
 	virtual bool checkParam(const GVariant & param, size_t paramIndex) const = 0;
 	virtual bool isParamTransferOwnership(size_t paramIndex) const = 0;

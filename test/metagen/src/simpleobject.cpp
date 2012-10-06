@@ -69,3 +69,18 @@ cpgf::GSharedPointer<SimpleObject> createSharedSimpleObject()
 {
 	return cpgf::GSharedPointer<SimpleObject>(new SimpleObject);
 }
+
+SimpleObject * getSharedSimpleObject(cpgf::GSharedPointer<SimpleObject> sp)
+{
+	return sp.get();
+}
+
+int getSimpleObjectPointerN(SimpleObject * object)
+{
+	return object->data.n;
+}
+
+int getSimpleObjectN(const SimpleObject & object)
+{
+	return object.data.n;
+}

@@ -158,6 +158,11 @@ GMetaExtendType GMetaMethod::getResultExtendType(uint32_t flags) const
 	return this->baseData->getResultExtendType(flags);
 }
 
+GMetaExtendType GMetaMethod::getParamExtendType(uint32_t flags, size_t index) const
+{
+	return this->baseData->getParamExtendType(flags, index);
+}
+
 bool GMetaMethod::isVariadic() const
 {
 	return this->baseData->isVariadic();
@@ -249,6 +254,11 @@ GMetaExtendType GMetaConstructor::getResultExtendType(uint32_t flags) const
 	GASSERT_MSG(metaIsClass(this->getOwnerItem()->getCategory()), "Constructor must be owned by class.");
 
 	return static_cast<const GMetaClass *>(this->getOwnerItem())->getItemExtendType(flags);
+}
+
+GMetaExtendType GMetaConstructor::getParamExtendType(uint32_t flags, size_t index) const
+{
+	return this->baseData->getParamExtendType(flags, index);
 }
 
 bool GMetaConstructor::isVariadic() const
