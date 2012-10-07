@@ -75,6 +75,26 @@ SimpleObject * getSharedSimpleObject(cpgf::GSharedPointer<SimpleObject> sp)
 	return sp.get();
 }
 
+CPP11_SP createCpp11SharedSimpleObject()
+{
+	return CPP11_SP(new SimpleObject);
+}
+
+SimpleObject * getCpp11SharedSimpleObject(CPP11_SP sp)
+{
+	return sp.get();
+}
+
+BOOST_SP createBoostSharedSimpleObject()
+{
+	return BOOST_SP(new SimpleObject);
+}
+
+SimpleObject * getBoostSharedSimpleObject(BOOST_SP sp)
+{
+	return sp.get();
+}
+
 int getSimpleObjectPointerN(SimpleObject * object)
 {
 	return object->data.n;

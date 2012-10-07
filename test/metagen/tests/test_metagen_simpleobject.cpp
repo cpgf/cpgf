@@ -145,6 +145,125 @@ void testSimpleObject_Data_AssignGScopedPointerToField(TestScriptContext * conte
 #include "do_testcase.h"
 
 
+void testSimpleObject_Data_Cpp11SharedPtr(TestScriptContext * context)
+{
+	QDO(a = mtest.createCpp11SharedSimpleObject());
+	QDO(a.data.n = 38);
+	QDO(a.data.s = "abc");
+	QDO(a.data.atom.value = 58);
+	QASSERT(a.checkData(38));
+	QASSERT(a.checkData("abc"));
+	QASSERT(a.checkAtom(58));
+}
+
+
+#define CASE testSimpleObject_Data_Cpp11SharedPtr
+#include "do_testcase.h"
+
+
+void testSimpleObject_Data_Cpp11SharedPtrGetPointer(TestScriptContext * context)
+{
+	QDO(b = mtest.createCpp11SharedSimpleObject());
+	QDO(a = mtest.getCpp11SharedSimpleObject(b));
+	QDO(a.data.n = 38);
+	QDO(a.data.s = "abc");
+	QDO(a.data.atom.value = 58);
+	QASSERT(a.checkData(38));
+	QASSERT(a.checkData("abc"));
+	QASSERT(a.checkAtom(58));
+}
+
+
+#define CASE testSimpleObject_Data_Cpp11SharedPtrGetPointer
+#include "do_testcase.h"
+
+
+void testSimpleObject_Data_Cpp11SharedPtrGetN(TestScriptContext * context)
+{
+	QDO(a = mtest.createCpp11SharedSimpleObject());
+	QDO(a.data.n = 98);
+	QASSERT(mtest.getSimpleObjectPointerN(a) == 98);
+	QASSERT(mtest.getSimpleObjectN(a) == 98);
+}
+
+
+#define CASE testSimpleObject_Data_Cpp11SharedPtrGetN
+#include "do_testcase.h"
+
+
+void testSimpleObject_Data_AssignCpp11SharedPtrToField(TestScriptContext * context)
+{
+	QNEWOBJ(obj, mtest.SimpleObject());
+	QDO(a = mtest.createCpp11SharedSimpleObject());
+	QDO(a.data.n = 58);
+	QDO(obj.pobj = a);
+	QASSERT(obj.pobj.data.n == 58);
+}
+
+
+#define CASE testSimpleObject_Data_AssignCpp11SharedPtrToField
+#include "do_testcase.h"
+
+
+void testSimpleObject_Data_BoostSharedPtr(TestScriptContext * context)
+{
+	QDO(a = mtest.createBoostSharedSimpleObject());
+	QDO(a.data.n = 38);
+	QDO(a.data.s = "abc");
+	QDO(a.data.atom.value = 58);
+	QASSERT(a.checkData(38));
+	QASSERT(a.checkData("abc"));
+	QASSERT(a.checkAtom(58));
+}
+
+
+#define CASE testSimpleObject_Data_BoostSharedPtr
+#include "do_testcase.h"
+
+
+void testSimpleObject_Data_BoostSharedPtrGetPointer(TestScriptContext * context)
+{
+	QDO(b = mtest.createBoostSharedSimpleObject());
+	QDO(a = mtest.getBoostSharedSimpleObject(b));
+	QDO(a.data.n = 38);
+	QDO(a.data.s = "abc");
+	QDO(a.data.atom.value = 58);
+	QASSERT(a.checkData(38));
+	QASSERT(a.checkData("abc"));
+	QASSERT(a.checkAtom(58));
+}
+
+
+#define CASE testSimpleObject_Data_BoostSharedPtrGetPointer
+#include "do_testcase.h"
+
+
+void testSimpleObject_Data_BoostSharedPtrGetN(TestScriptContext * context)
+{
+	QDO(a = mtest.createBoostSharedSimpleObject());
+	QDO(a.data.n = 98);
+	QASSERT(mtest.getSimpleObjectPointerN(a) == 98);
+	QASSERT(mtest.getSimpleObjectN(a) == 98);
+}
+
+
+#define CASE testSimpleObject_Data_BoostSharedPtrGetN
+#include "do_testcase.h"
+
+
+void testSimpleObject_Data_AssignBoostSharedPtrToField(TestScriptContext * context)
+{
+	QNEWOBJ(obj, mtest.SimpleObject());
+	QDO(a = mtest.createBoostSharedSimpleObject());
+	QDO(a.data.n = 58);
+	QDO(obj.pobj = a);
+	QASSERT(obj.pobj.data.n == 58);
+}
+
+
+#define CASE testSimpleObject_Data_AssignBoostSharedPtrToField
+#include "do_testcase.h"
+
 
 }
 

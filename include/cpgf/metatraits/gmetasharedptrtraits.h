@@ -16,6 +16,31 @@ struct IMetaSharedPointerTraits : public IExtendObject
 };
 
 
+namespace gmetasharedptrtraits_internal {
+
+template <typename T, typename SP>
+class GMetaTraitsCreateSharedPointerTraitsGeneral : public IMetaSharedPointerTraits
+{
+private:
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
+	
+protected:	
+	virtual void * G_API_CC getPointer(void * sharedPointer) {
+		return static_cast<SP *>(sharedPointer)->get();
+	}
+	
+	virtual void G_API_CC getMetaType(GMetaTypeData * outType) {
+		GMetaType type = createMetaType<T>();
+		fixupMetaType(&type);
+		*outType = type.getData();
+	}
+};
+
+
+} // namespace gmetasharedptrtraits_internal
+
+
 template <typename T>
 struct GMetaTraitsCreateSharedPointerTraits
 {

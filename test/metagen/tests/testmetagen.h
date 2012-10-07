@@ -12,4 +12,5 @@ void metagenBindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * ser
 void metagenBindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service);
 
 
+
 #endif

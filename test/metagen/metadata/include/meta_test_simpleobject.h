@@ -26,6 +26,10 @@ void buildMetaClass_Global_simpleobject(const cpgf::GMetaDataConfigFlags & confi
     _d.CPGF_MD_TEMPLATE _method("metaClassIsSimpleObject", (bool (*) (cpgf::IMetaClass *))&metaClassIsSimpleObject);
     _d.CPGF_MD_TEMPLATE _method("createSharedSimpleObject", (cpgf::GSharedPointer< SimpleObject > (*) ())&createSharedSimpleObject);
     _d.CPGF_MD_TEMPLATE _method("getSharedSimpleObject", (SimpleObject * (*) (cpgf::GSharedPointer< SimpleObject >))&getSharedSimpleObject);
+    _d.CPGF_MD_TEMPLATE _method("createCpp11SharedSimpleObject", (CPP11_SP (*) ())&createCpp11SharedSimpleObject);
+    _d.CPGF_MD_TEMPLATE _method("getCpp11SharedSimpleObject", (SimpleObject * (*) (CPP11_SP))&getCpp11SharedSimpleObject);
+    _d.CPGF_MD_TEMPLATE _method("createBoostSharedSimpleObject", (BOOST_SP (*) ())&createBoostSharedSimpleObject);
+    _d.CPGF_MD_TEMPLATE _method("getBoostSharedSimpleObject", (SimpleObject * (*) (BOOST_SP))&getBoostSharedSimpleObject);
     _d.CPGF_MD_TEMPLATE _method("getSimpleObjectPointerN", (int (*) (SimpleObject *))&getSimpleObjectPointerN);
     _d.CPGF_MD_TEMPLATE _method("getSimpleObjectN", (int (*) (const SimpleObject &))&getSimpleObjectN);
 }

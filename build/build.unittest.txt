@@ -189,8 +189,11 @@ if(${HAS_UNITTEST})
 	)
 
 	include_directories(${UNIT_TEST_DIR}/src)
+if(${HAS_BOOST})
+	include_directories(${BOOST_INC})
+endif(${HAS_BOOST})
 
-	add_definitions(-DENABLE_LUA=${HAS_LUA} -DENABLE_V8=${HAS_V8} -DENABLE_PYTHON=${HAS_PYTHON})
+	add_definitions(-DENABLE_LUA=${HAS_LUA} -DENABLE_V8=${HAS_V8} -DENABLE_PYTHON=${HAS_PYTHON} -DENABLE_BOOST=${HAS_BOOST})
 
 	add_executable(
 		${TARGET_UNITTEST}

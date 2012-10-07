@@ -17,6 +17,9 @@ set(SUPPORT_GCC_0X 1) #release=false
 # it requires UnitTest++ installed.
 set(HAS_UNITTEST 1) #release=false
 
+# set 1 to enable Boost library, 0 to disable. This is only used in unit test.
+set(HAS_BOOST 1) #release=false
+
 set(TEST_GCOV 0)
 if(UNIX)
 	# disable gcov on Linux, otherwise, valgrind will become super slow.
@@ -171,3 +174,10 @@ endif(MSVC)
 set(SFML_INC ${SFML_DIR}/include)
 
 
+### Boost config
+
+set(BOOST_DIR
+	e:/SourceCode/cpp/boost
+)
+
+set(BOOST_INC ${BOOST_DIR})
