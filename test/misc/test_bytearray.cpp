@@ -113,31 +113,6 @@ GTEST(TestByteArray)
     testByteArray(byteArray.get());
 }
 
-GTEST(TestByteArrayInterface)
-{
-	GScopedInterface<IByteArray> byteArray(byteArrayToInterface(new GByteArray, true));
-
-    testByteArray(byteArray.get());
-}
-
-struct Dummy {};
-
-GTEST(TestByteArrayVariantCast)
-{
-	GScopedInterface<IByteArray> byteArray(byteArrayToInterface(new GByteArray, true));
-	GVariant v;
-
-    v = (const volatile IByteArray *)(byteArray.get());
-
-    GEQUAL(fromVariant<IByteArray *>(v), byteArray.get());
-    GEQUAL(fromVariant<const IByteArray *>(v), byteArray.get());
-	
-	GEQUAL(fromVariant<void *>(v), byteArray.get());
-	GEQUAL(fromVariant<const void *>(v), byteArray.get());
-	GEQUAL(fromVariant<const volatile char *>(v), (const volatile char *)(byteArray.get()));
-	GEQUAL(fromVariant<const Dummy *>(v), (const Dummy *)(byteArray.get()));
-}
-
 
 
 } }

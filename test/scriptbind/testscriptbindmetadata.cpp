@@ -160,8 +160,8 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	bindEnum(script, service, REG_NAME_TestEnum, "TestEnum");
 
 	bindProperty(script, service, NULL, "testScriptFunction", "testScriptFunction");
-	
-	bindClass(script, service, "IByteArray", "IByteArray");
+
+	bindClass(script, service, "GByteArray", "GByteArray");
 }
 
 

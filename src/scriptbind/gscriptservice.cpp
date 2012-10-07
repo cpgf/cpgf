@@ -8,20 +8,22 @@
 
 #include "cpgf/metadata/private/gmetadata_header.h"
 
+#include "cpgf/metatraits/gmetasharedptrtraits_gsharedpointer.h"
+
 
 namespace cpgf {
 
 
 namespace {
 
-IByteArray * createByteArray()
+GSharedPointer<GByteArray> createByteArray()
 {
-	return byteArrayToInterface(new GByteArray, true);
+	return GSharedPointer<GByteArray>(new GByteArray);
 }
 
-IByteArray * createByteArrayWithLength(size_t length)
+GSharedPointer<GByteArray> createByteArrayWithLength(size_t length)
 {
-	return byteArrayToInterface(new GByteArray(length), true);
+	return GSharedPointer<GByteArray>(new GByteArray(length));
 }
 
 } // unnamed namespace
@@ -37,10 +39,6 @@ void buildMetaClass_GScriptCoreService(D _d)
 	GDefineMetaClass<GByteArray> gbyteArrayDefine = GDefineMetaClass<GByteArray>::Policy<GMetaPolicyNoCopyConstructor>::declare("GByteArray");
 	buildMetaData_byteArray(gbyteArrayDefine);
 	_d.CPGF_MD_TEMPLATE _class(gbyteArrayDefine);
-
-	GDefineMetaClass<IByteArray> ibyteArrayDefine = GDefineMetaClass<IByteArray>::declare("IByteArray");
-	buildMetaData_byteArray(ibyteArrayDefine);
-	_d.CPGF_MD_TEMPLATE _class(ibyteArrayDefine);
 }
 
 GMetaClass * doBindScriptCoreService(GScriptObject * scriptObject, const char * bindName, GScriptCoreService * scriptCoreService)

@@ -26,12 +26,12 @@ int testAddCallback2(void *)
 	return 0;
 }
 
-IByteArray * createByteArray()
+GSharedPointer<GByteArray> createByteArray()
 {
-	return byteArrayToInterface(new GByteArray, true);
+	return GSharedPointer<GByteArray>(new GByteArray);
 }
 
-void writeNumberToByteArray(int n, IByteArray * ba)
+void writeNumberToByteArray(int n, GByteArray * ba)
 {
 	ba->writeInt32(n);
 	ba->writeInt32(n * 2);
@@ -109,7 +109,7 @@ void TestScriptBindMetaData4()
 			._element("c", BasicA::c)
 	;
 
-	GDefineMetaClass<IByteArray> byteArrayDefine = GDefineMetaClass<IByteArray>::define("IByteArray");
+	GDefineMetaClass<GByteArray> byteArrayDefine = GDefineMetaClass<GByteArray>::Policy<GMetaPolicyNoCopyConstructor>::define("GByteArray");
 	buildMetaData_byteArray(byteArrayDefine);
 
 	GDefineMetaGlobal()
@@ -122,7 +122,7 @@ void TestScriptBindMetaData4()
 		._method("testAddCallback", &testAddCallback)
 		._method("testExecAddCallback", &testExecAddCallback)
 		
-		._method("createByteArray", &createByteArray, GMetaPolicyTransferResultOwnership())
+		._method("createByteArray", &createByteArray)
 		._method("writeNumberToByteArray", &writeNumberToByteArray)
 		._method("writeNumberToByteArrayMemory", &writeNumberToByteArrayMemory)
 
