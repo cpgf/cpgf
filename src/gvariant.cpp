@@ -247,10 +247,6 @@ GVariant pointerToObjectVariant(void * p)
 
 void * objectAddressFromVariant(const GVariant & v)
 {
-	if(v.getType() == vtShadow) {
-		return v.refData().shadowObject->getObject();
-	}
-
 	return fromVariant<void *>(v);
 }
 
