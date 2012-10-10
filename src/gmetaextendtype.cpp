@@ -38,17 +38,18 @@ GMetaExtendType::GMetaExtendType()
 GMetaExtendType::GMetaExtendType(const GMetaExtendTypeData & data)
 	: data(data)
 {
+	retainExtendTypeData(&this->data);
 }
 
 GMetaExtendType::GMetaExtendType(const GMetaExtendType & other)
 	: data(other.data)
 {
-	this->doRetainInterfaces();
+	retainExtendTypeData(&this->data);
 }
 
 GMetaExtendType::~GMetaExtendType()
 {
-	this->doReleaseInterfaces();
+	releaseExtendTypeData(&this->data);
 }
 
 GMetaExtendType & GMetaExtendType::operator = (GMetaExtendType other)
@@ -58,27 +59,21 @@ GMetaExtendType & GMetaExtendType::operator = (GMetaExtendType other)
 	return *this;
 }
 
-void GMetaExtendType::doRetainInterfaces()
-{
-	retainInterface(this->data.converter);
-	retainInterface(this->data.serializer);
-	retainInterface(this->data.scriptWrapper);
-	retainInterface(this->data.sharedPointerTraits);
-}
-
-void GMetaExtendType::doReleaseInterfaces()
-{
-	releaseInterface(this->data.converter);
-	releaseInterface(this->data.serializer);
-	releaseInterface(this->data.scriptWrapper);
-	releaseInterface(this->data.sharedPointerTraits);
-}
-
 void GMetaExtendType::swap(GMetaExtendType & other)
 {
 	using std::swap;
 	
 	swap(this->data, other.data);
+}
+
+const GMetaExtendTypeData & GMetaExtendType::refData() const
+{
+	return this->data;
+}
+
+GMetaExtendTypeData & GMetaExtendType::refData()
+{
+	return this->data;
 }
 
 GMetaExtendTypeData GMetaExtendType::takeData()
@@ -137,6 +132,22 @@ IMetaSharedPointerTraits * GMetaExtendType::getSharedPointerTraits() const
 	else {
 		return NULL;
 	}
+}
+
+void retainExtendTypeData(GMetaExtendTypeData * data)
+{
+	retainInterface(data->converter);
+	retainInterface(data->serializer);
+	retainInterface(data->scriptWrapper);
+	retainInterface(data->sharedPointerTraits);
+}
+
+void releaseExtendTypeData(GMetaExtendTypeData * data)
+{
+	releaseInterface(data->converter);
+	releaseInterface(data->serializer);
+	releaseInterface(data->scriptWrapper);
+	releaseInterface(data->sharedPointerTraits);
 }
 
 

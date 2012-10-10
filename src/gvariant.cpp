@@ -169,7 +169,7 @@ GVariant::GVariant()
 
 GVariant::GVariant(const GVariantData & data) : data(data)
 {
-	retainVarData(&this->data);
+	retainVariantData(&this->data);
 
 	if(vtGetSize(this->data.typeData) != variant_internal::getVariantTypeSize(static_cast<GVariantType>(vtGetType(this->data.typeData)))) {
 		variant_internal::adjustVariantType(this);
@@ -178,12 +178,12 @@ GVariant::GVariant(const GVariantData & data) : data(data)
 
 GVariant::GVariant(const GVariant & other) : data(other.data)
 {
-	retainVarData(&this->data);
+	retainVariantData(&this->data);
 }
 
 GVariant::~GVariant()
 {
-	freeVarData(&this->data);
+	releaseVariantData(&this->data);
 }
 
 GVariant & GVariant::operator = (GVariant other)
@@ -267,11 +267,11 @@ void initializeVarData(GVariantData * data)
 
 GVariantData copyVarData(GVariantData * data)
 {
-	retainVarData(data);
+	retainVariantData(data);
 	return *data;
 }
 
-void retainVarData(GVariantData * data)
+void retainVariantData(GVariantData * data)
 {
 	if(variant_internal::isVtUsingShadow(vtGetType(data->typeData))) {
 		data->shadowObject->addReference();
@@ -284,7 +284,7 @@ void retainVarData(GVariantData * data)
 	}
 }
 
-void freeVarData(GVariantData * data)
+void releaseVariantData(GVariantData * data)
 {
 	if(variant_internal::isVtUsingShadow(vtGetType(data->typeData))) {
 		data->shadowObject->releaseReference();

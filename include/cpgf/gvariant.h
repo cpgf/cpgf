@@ -254,8 +254,8 @@ void * referenceAddressFromVariant(const GVariant & v);
 
 void initializeVarData(GVariantData * data);
 GVariantData copyVarData(GVariantData * data);
-void retainVarData(GVariantData * data);
-void freeVarData(GVariantData * data);
+void retainVariantData(GVariantData * data);
+void releaseVariantData(GVariantData * data);
 
 void initializeVarString(GVariantData * data, const char * s);
 GVariant createStringVariant(const char * s);

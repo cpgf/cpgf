@@ -34,12 +34,9 @@ GMetaType metaGetItemType(const Meta & meta)
 template <typename Meta>
 GMetaExtendType metaGetItemExtendType(const Meta & meta, uint32_t flags)
 {
-	GMetaExtendTypeData typeData;
+	GMetaExtendType type;
 
-	const_cast<Meta &>(meta)->getItemExtendType(&typeData, flags);
-
-	GMetaExtendType type(typeData);
-	
+	const_cast<Meta &>(meta)->getItemExtendType(&type.refData(), flags);
 	metaCheckError(meta);
 
 	return type;
@@ -60,12 +57,9 @@ GMetaType metaGetResultType(const Meta & meta)
 template <typename Meta>
 GMetaExtendType metaGetResultExtendType(const Meta & meta, uint32_t flags)
 {
-	GMetaExtendTypeData typeData;
+	GMetaExtendType type;
 
-	const_cast<Meta &>(meta)->getResultExtendType(&typeData, flags);
-
-	GMetaExtendType type(typeData);
-	
+	const_cast<Meta &>(meta)->getResultExtendType(&type.refData(), flags);
 	metaCheckError(meta);
 
 	return type;
@@ -74,12 +68,9 @@ GMetaExtendType metaGetResultExtendType(const Meta & meta, uint32_t flags)
 template <typename Meta>
 GMetaExtendType metaGetParamExtendType(const Meta & meta, uint32_t flags, uint32_t index)
 {
-	GMetaExtendTypeData typeData;
+	GMetaExtendType type;
 
-	const_cast<Meta &>(meta)->getParamExtendType(&typeData, flags, index);
-
-	GMetaExtendType type(typeData);
-	
+	const_cast<Meta &>(meta)->getParamExtendType(&type.refData(), flags, index);
 	metaCheckError(meta);
 
 	return type;

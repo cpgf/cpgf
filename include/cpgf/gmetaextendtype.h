@@ -125,11 +125,9 @@ public:
 	IMetaScriptWrapper * getScriptWrapper() const;
 	IMetaSharedPointerTraits * getSharedPointerTraits() const;
 	
+	const GMetaExtendTypeData & refData() const;
+	GMetaExtendTypeData & refData();
 	GMetaExtendTypeData takeData();
-
-private:
-	void doRetainInterfaces();
-	void doReleaseInterfaces();
 
 private:
 	GMetaExtendTypeData data;
@@ -167,6 +165,8 @@ GMetaExtendType createMetaExtendType()
 	return createMetaExtendType<T>(0);
 }
 
+void retainExtendTypeData(GMetaExtendTypeData * data);
+void releaseExtendTypeData(GMetaExtendTypeData * data);
 
 
 } // namespace cpgf
