@@ -53,7 +53,7 @@ public:
 		GScopedInterface<IMetaStorageWriter> metaWriter(archiveWriter->getMetaWriter());
 		metaWriter->beginWriteArray(param->name, this->elementCount);
 
-		GMetaTypeData typeData = this->metaType.getData();
+		GMetaTypeData typeData = this->metaType.refData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
 			const void * ptr;
 			if(this->metaType.isPointer() && ! this->metaType.baseIsArray()) {
@@ -82,7 +82,7 @@ public:
 		}
 
 		void * instance = param->instance;
-		GMetaTypeData typeData = this->metaType.getData();
+		GMetaTypeData typeData = this->metaType.refData();
 		for(unsigned int i = 0; i < this->elementCount; ++i) {
 			archiveReader->readData(elementName, instance, &typeData, this->elementSerializer.get());
 			instance = static_cast<char *>(instance) + this->elementSize;

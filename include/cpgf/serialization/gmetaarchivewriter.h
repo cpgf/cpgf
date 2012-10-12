@@ -97,7 +97,7 @@ void serializeWriteData(IMetaArchiveWriter * archiveWriter, const char * name, c
 {
 	GMetaType metaType = createMetaType<T>();
 	fixupMetaType(&metaType, module);
-	GMetaTypeData metaTypeData = metaType.getData();
+	GMetaTypeData metaTypeData = metaType.refData();
 	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>(GExtendTypeCreateFlag_Serializer, module).getSerializer());
 	archiveWriter->writeData(name, serialization_internal::MetaArchiveWriteValueParam<T>::param(data), &metaTypeData, serializer.get());
 }

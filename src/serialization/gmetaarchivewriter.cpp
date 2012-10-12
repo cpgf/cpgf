@@ -251,7 +251,7 @@ void GMetaArchiveWriter::writeObjectHelper(const char * name, const void * insta
 
 	GBaseClassMap baseClassMap;
 	GMetaArchiveWriterParam param;
-	GMetaTypeData metaTypeData = metaType.getData();
+	GMetaTypeData metaTypeData = metaType.refData();
 	
 	param.name = name;
 	param.archiveID = archiveID;
@@ -292,7 +292,7 @@ void GMetaArchiveWriter::doWriteObjectHierarchy(GMetaArchiveWriterParam * param,
 					serializer.reset(metaGetItemExtendType(baseClass, GExtendTypeCreateFlag_Serializer).getSerializer());
 					
 					GMetaType baseMetaType(metaGetItemType(baseClass));
-					GMetaTypeData baseMetaTypeData = baseMetaType.getData();
+					GMetaTypeData baseMetaTypeData = baseMetaType.refData();
 
 					GMetaArchiveWriterParam newParam;
 					newParam.name = param->name;
@@ -562,7 +562,7 @@ IMetaArchiveWriter * createMetaArchiveWriter(IMetaService * service, IMetaStorag
 
 void serializeWriteObject(IMetaArchiveWriter * archiveWriter, const char * name, void * instance, IMetaClass * metaClass)
 {
-	GMetaTypeData metaType = metaGetItemType(metaClass).getData();
+	GMetaTypeData metaType = metaGetItemType(metaClass).refData();
 	GScopedInterface<IMetaSerializer> serializer;
 	if(metaClass != NULL) {
 		serializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());

@@ -15,23 +15,24 @@ namespace cpgf {
 
 
 GMetaType::GMetaType()
-	: baseName(NULL), flags(0), baseType()
 {
-	vtInit(typeData);
+	vtInit(data.typeData);
+	data.baseName = NULL;
+	data.flags = 0;
 }
 
-GMetaType::GMetaType(const GMetaTypeData & data)
-	: baseName(data.baseName), flags(data.flags), typeData(data.typeData), baseType()
+GMetaType::GMetaType(const GMetaTypeData & typeData)
+	: data(typeData), baseType()
 {
 }
 
-GMetaType::GMetaType(const GMetaTypeData & data, const GTypeInfo & baseType)
-	: baseName(data.baseName), flags(data.flags), typeData(data.typeData), baseType(baseType)
+GMetaType::GMetaType(const GMetaTypeData & typeData, const GTypeInfo & baseType)
+	: data(typeData), baseType(baseType)
 {
 }
 
 GMetaType::GMetaType(const GMetaType & other)
-	: baseName(other.baseName), flags(other.flags), typeData(other.typeData), baseType(other.baseType)
+	: data(other.data), baseType(other.baseType)
 {
 }
 
@@ -42,9 +43,7 @@ GMetaType::~GMetaType()
 GMetaType & GMetaType::operator = (const GMetaType & other)
 {
 	if(this != &other) {
-		this->baseName = other.baseName;
-		this->flags = other.flags;
-		this->typeData = other.typeData;
+		this->data = other.data;
 		this->baseType = other.baseType;
 	}
 
@@ -67,8 +66,8 @@ bool GMetaType::operator == (const GMetaType & other) const
 		}
 	}
 
-	if(this->baseName != NULL && other.baseName != NULL) {
-		return strcmp(this->baseName, other.baseName) == 0;
+	if(this->data.baseName != NULL && other.data.baseName != NULL) {
+		return strcmp(this->data.baseName, other.data.baseName) == 0;
 	}
 
 	if(!this->baseType.isEmpty() && !other.baseType.isEmpty()) {
@@ -85,12 +84,17 @@ bool GMetaType::operator != (const GMetaType & other) const
 
 bool GMetaType::isEmpty() const
 {
-	return vtIsEmpty(vtGetType(this->typeData));
+	return vtIsEmpty(vtGetType(this->data.typeData));
+}
+
+bool GMetaType::hasFlag(unsigned int flag) const
+{
+	return (this->data.flags & flag) == flag;
 }
 
 const char * GMetaType::getBaseName() const
 {
-	return this->baseName;
+	return this->data.baseName;
 }
 
 const GTypeInfo & GMetaType::getBaseType() const
@@ -193,71 +197,70 @@ bool GMetaType::isWideString() const
 
 unsigned int GMetaType::getPointerDimension() const
 {
-	return vtGetPointers(this->typeData);
+	return vtGetPointers(this->data.typeData);
 }
 
 GVariantType GMetaType::getVariantType() const
 {
-	return vtGetType(this->typeData);
+	return vtGetType(this->data.typeData);
 }
 
 size_t GMetaType::getVariantSize() const
 {
-	return vtGetSize(this->typeData);
+	return vtGetSize(this->data.typeData);
 }
 
-GMetaTypeData GMetaType::getData() const
+const GMetaTypeData & GMetaType::refData() const
 {
-	GMetaTypeData data;
-	
-	data.baseName = this->baseName;
-	data.flags = static_cast<uint32_t>(this->flags);
-	data.typeData = this->typeData;
-	
-	return data;
+	return this->data;
+}
+
+GMetaTypeData & GMetaType::refData()
+{
+	return this->data;
 }
 
 void GMetaType::addPointer()
 {
-	vtSetPointers(this->typeData, vtGetPointers(this->typeData) + 1);
-	vtSetType(this->typeData, vtGetType(this->typeData) | byPointer);
-	this->flags |= meta_internal::mtFlagIsPointer;
+	vtSetPointers(this->data.typeData, vtGetPointers(this->data.typeData) + 1);
+	vtSetType(this->data.typeData, vtGetType(this->data.typeData) | byPointer);
+	this->data.flags |= meta_internal::mtFlagIsPointer;
 }
 
 void GMetaType::addPointerToConst()
 {
 	this->addPointer();
-	this->flags |= meta_internal::mtFlagIsPointerToConst;
+	this->data.flags |= meta_internal::mtFlagIsPointerToConst;
 }
 
 void GMetaType::addPointerToVolatile()
 {
 	this->addPointer();
-	this->flags |= meta_internal::mtFlagIsPointerToVolatile;
+	this->data.flags |= meta_internal::mtFlagIsPointerToVolatile;
 }
 
 void GMetaType::addPointerToConstVolatile()
 {
 	this->addPointer();
-	this->flags |= meta_internal::mtFlagIsPointerToConstVolatile;
+	this->data.flags |= meta_internal::mtFlagIsPointerToConstVolatile;
 }
 
 void GMetaType::addConst()
 {
-	this->flags |= meta_internal::mtFlagIsConst;
+	this->data.flags |= meta_internal::mtFlagIsConst;
 }
 
 void GMetaType::removeReference()
 {
-	this->flags &= ~meta_internal::mtFlagIsReference;
-	vtSetType(this->typeData, vtGetType(this->typeData) & ~byReference);
+	this->data.flags &= ~meta_internal::mtFlagIsReference;
+	vtSetType(this->data.typeData, vtGetType(this->data.typeData) & ~byReference);
 }
 
 GMetaType createMetaTypeWithName(const GMetaType & type, const char * name)
 {
-	GMetaTypeData data = type.getData();
-	data.baseName = name;
-	return GMetaType(data, type.getBaseType());
+	GMetaTypeData newData = type.refData();
+	newData.baseName = name;
+	return GMetaType(newData, type.getBaseType());
 }
 
 void initializeMetaType(GMetaTypeData * data)
@@ -269,30 +272,30 @@ void initializeMetaType(GMetaTypeData * data)
 
 void fixupMetaType(GMetaType * type)
 {
-	if(type->baseName == NULL && ! type->getBaseType().isEmpty()) {
+	if(type->refData().baseName == NULL && ! type->getBaseType().isEmpty()) {
 		const GMetaTypedItem * item = getGlobalMetaClass()->getModule()->findItemByType(type->getBaseType());
 		if(item != NULL) {
-			type->baseName = item->getTypeName().c_str();
+			type->refData().baseName = item->getTypeName().c_str();
 		}
 	}
 }
 
 void fixupMetaType(GMetaType * type, const GMetaItem * metaItem)
 {
-	if(type->baseName == NULL) {
+	if(type->refData().baseName == NULL) {
 		return fixupMetaType(type, getItemModule(metaItem));
 	}
 }
 
 void fixupMetaType(GMetaType * type, const GMetaModule * module)
 {
-	if(type->baseName == NULL && ! type->getBaseType().isEmpty()) {
+	if(type->refData().baseName == NULL && ! type->getBaseType().isEmpty()) {
 		if(module == NULL) {
 			module = getGlobalMetaClass()->getModule();
 		}
 		const GMetaTypedItem * item = module->findItemByType(type->getBaseType());
 		if(item != NULL) {
-			type->baseName = item->getTypeName().c_str();
+			type->refData().baseName = item->getTypeName().c_str();
 		}
 	}
 }

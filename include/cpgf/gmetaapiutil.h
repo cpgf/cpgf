@@ -22,13 +22,13 @@ void metaCheckError(const Meta & meta)
 template <typename Meta>
 GMetaType metaGetItemType(const Meta & meta)
 {
-	GMetaTypeData typeData;
+	GMetaType type;
 
-	const_cast<Meta &>(meta)->getItemType(&typeData);
+	const_cast<Meta &>(meta)->getItemType(&type.refData());
 	
 	metaCheckError(meta);
 
-	return GMetaType(typeData);
+	return type;
 }
 
 template <typename Meta>
@@ -45,13 +45,13 @@ GMetaExtendType metaGetItemExtendType(const Meta & meta, uint32_t flags)
 template <typename Meta>
 GMetaType metaGetResultType(const Meta & meta)
 {
-	GMetaTypeData typeData;
+	GMetaType type;
 
-	const_cast<Meta &>(meta)->getResultType(&typeData);
+	const_cast<Meta &>(meta)->getResultType(&type.refData());
 	
 	metaCheckError(meta);
 
-	return GMetaType(typeData);
+	return type;
 }
 
 template <typename Meta>
@@ -112,13 +112,13 @@ bool metaCheckParam(const Meta & meta, const GVariant & param, size_t paramIndex
 template <typename Meta>
 GMetaType metaGetParamType(const Meta & meta, size_t paramIndex)
 {
-	GMetaTypeData typeData;
+	GMetaType type;
 
-	const_cast<Meta &>(meta)->getParamType(&typeData, static_cast<uint32_t>(paramIndex));
+	const_cast<Meta &>(meta)->getParamType(&type.refData(), static_cast<uint32_t>(paramIndex));
 	
 	metaCheckError(meta);
 
-	return GMetaType(typeData);
+	return type;
 }
 
 

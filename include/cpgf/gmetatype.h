@@ -135,7 +135,8 @@ public:
 	GVariantType getVariantType() const;
 	size_t getVariantSize() const;
 
-	GMetaTypeData getData() const;
+	const GMetaTypeData & refData() const;
+	GMetaTypeData & refData();
 
 	void addPointer();
 	void addPointerToConst();
@@ -145,20 +146,11 @@ public:
 	void removeReference();
 
 private:
-	bool hasFlag(unsigned int flag) const {
-		return (this->flags & flag) == flag;
-	}
+	bool hasFlag(unsigned int flag) const;
 
 private:
-	const char * baseName;
-	int flags;
-	GVarTypeData typeData;
+	GMetaTypeData data;
 	GTypeInfo baseType;
-
-private:
-	friend void fixupMetaType(GMetaType * type);
-	friend void fixupMetaType(GMetaType * type, const GMetaItem * metaItem);
-	friend void fixupMetaType(GMetaType * type, const GMetaModule * module);
 };
 
 template <typename T>

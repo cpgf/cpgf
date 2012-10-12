@@ -43,7 +43,7 @@ void G_API_CC GVariantTypedVar::getValue(GVariantData * outValue)
 
 void G_API_CC GVariantTypedVar::getType(GMetaTypeData * outType)
 {
-	*outType = this->type.getData();
+	*outType = this->type.refData();
 }
 
 

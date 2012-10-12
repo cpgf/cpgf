@@ -704,7 +704,7 @@ void ImplMetaItem::doGetItemType(GMetaTypeData * outType)
 
 	fixupMetaType(&type, this->item);
 
-	*outType = type.getData();
+	*outType = type.refData();
 
 	LEAVE_META_API()
 }
@@ -791,7 +791,7 @@ void ImplMetaTypedItem::doGetMetaType(GMetaTypeData * outType)
 	
 	fixupMetaType(&type, this->getTypedItem());
 
-	*outType = type.getData();
+	*outType = type.refData();
 
 	LEAVE_META_API()
 }
@@ -885,7 +885,7 @@ void ImplMetaCallable::doGetParamType(GMetaTypeData * outType, uint32_t index)
 
 	fixupMetaType(&type, this->getCallable());
 
-	*outType = type.getData();
+	*outType = type.refData();
 
 	LEAVE_META_API()
 }
@@ -927,7 +927,7 @@ void ImplMetaCallable::doGetResultType(GMetaTypeData * outType)
 
 	fixupMetaType(&type, this->getCallable());
 
-	*outType = type.getData();
+	*outType = type.refData();
 
 	LEAVE_META_API()
 }

@@ -200,7 +200,7 @@ void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, 
 
 	GBaseClassMap baseClassMap;
 	GMetaArchiveReaderParam param;
-	GMetaTypeData metaTypeData = metaType.getData();
+	GMetaTypeData metaTypeData = metaType.refData();
 	
 	param.name = name;
 	param.instance = instance;
@@ -250,7 +250,7 @@ void GMetaArchiveReader::doReadObjectHierarchy(GMetaArchiveReaderParam * param, 
 				
 					GMetaArchiveReaderParam newParam;
 					GMetaType baseMetaType(metaGetItemType(baseClass));
-					GMetaTypeData baseMetaTypeData = baseMetaType.getData();
+					GMetaTypeData baseMetaTypeData = baseMetaType.refData();
 				
 					newParam.name = param->name;
 					newParam.instance = baseInstance;
@@ -549,7 +549,7 @@ IMetaArchiveReader * createMetaArchiveReader(IMetaService * service, IMetaStorag
 
 void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, void * instance, IMetaClass * metaClass)
 {
-	GMetaTypeData metaType = metaGetItemType(metaClass).getData();
+	GMetaTypeData metaType = metaGetItemType(metaClass).refData();
 	GScopedInterface<IMetaSerializer> serializer;
 	if(metaClass != NULL) {
 		serializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());

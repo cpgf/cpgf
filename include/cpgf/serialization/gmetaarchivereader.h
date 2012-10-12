@@ -84,7 +84,7 @@ void serializeReadData(IMetaArchiveReader * archiveReader, const char * name, T 
 {
 	GMetaType metaType = createMetaType<T>();
 	fixupMetaType(&metaType, module);
-	GMetaTypeData metaTypeData = metaType.getData();
+	GMetaTypeData metaTypeData = metaType.refData();
 	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>( GExtendTypeCreateFlag_Serializer, module).getSerializer());
 	archiveReader->readData(name, &instance, &metaTypeData, serializer.get());
 }

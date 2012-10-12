@@ -27,7 +27,7 @@ public:
 	}
 	
 	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * /*serializerWriter*/, GMetaArchiveWriterParam * param) {
-		GMetaTypeData typeData = this->metaType.getData();
+		GMetaTypeData typeData = this->metaType.refData();
 		archiveWriter->writeData(param->name, param->instance, &typeData, this->serializer.get());
 	}
 	
@@ -53,7 +53,7 @@ public:
 	}
 
 	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaSerializerReader * /*serializerReader*/, GMetaArchiveReaderParam * param) {
-		GMetaTypeData typeData = this->metaType.getData();
+		GMetaTypeData typeData = this->metaType.refData();
 		void * ptr = param->instance;
 		if(this->metaType.isPointer()) {
 			ptr = &param->instance;

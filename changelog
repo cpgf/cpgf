@@ -7,7 +7,7 @@ TBD version 1.5.1
 	Fixed a bug that invokeScriptFunction may crash if the calling function or object is freed during the function call.
 	Fixed a bug that GVariant converts shadow object to wrong pointer. (It was assumed to convert to value, now it can be converted to pointer)
 	Fixed a bug that the meta policy transfer object owner ship doesn't work for method parameter in script binding.
-	Removed gbytearrayapi.h, merged the code to gbytearray.h
+	Removed gbytearrayapi.h, removed IByteArray to minimum the API interface.
 
 2012-09-22 version 1.5.0
 	Significantly rewritten the script binding engine. Now the code is much better!

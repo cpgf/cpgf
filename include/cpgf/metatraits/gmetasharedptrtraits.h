@@ -33,7 +33,7 @@ protected:
 	virtual void G_API_CC getMetaType(GMetaTypeData * outType) {
 		GMetaType type = createMetaType<T>();
 		fixupMetaType(&type);
-		*outType = type.getData();
+		*outType = type.refData();
 	}
 };
 
