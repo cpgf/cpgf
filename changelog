@@ -1,4 +1,4 @@
-TBD version 1.5.1
+2012-10-13 version 1.5.1
 	Support shared pointer in script binding. There are meta traits for shared pointer in C++11, Boost, and cpgf.
 	Removed class GMetaVariant and file gmetavariant.h
 	Added new variant type vtTypedVar to support holding meta type in GVariant.
