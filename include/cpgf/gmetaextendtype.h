@@ -136,21 +136,21 @@ private:
 template <typename T>
 GMetaExtendType createMetaExtendType(uint32_t createFlags, const GMetaItem * metaItem)
 {
-	GMetaExtendTypeData typeData;
+	GMetaExtendType type;
 
-	meta_internal::deduceMetaExtendTypeData<T>(&typeData, createFlags, getItemModule(metaItem));
+	meta_internal::deduceMetaExtendTypeData<T>(&type.refData(), createFlags, getItemModule(metaItem));
 
-	return GMetaExtendType(typeData);
+	return type;
 }
 
 template <typename T>
 GMetaExtendType createMetaExtendType(uint32_t createFlags, const GMetaModule * module)
 {
-	GMetaExtendTypeData typeData;
+	GMetaExtendType type;
 
-	meta_internal::deduceMetaExtendTypeData<T>(&typeData, createFlags, module);
+	meta_internal::deduceMetaExtendTypeData<T>(&type.refData(), createFlags, module);
 
-	return GMetaExtendType(typeData);
+	return type;
 }
 
 template <typename T>
