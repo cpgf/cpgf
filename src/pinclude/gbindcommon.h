@@ -1011,14 +1011,20 @@ template <typename Methods>
 typename Methods::ResultType methodResultToScript(const GContextPointer & context, IMetaCallable * callable, InvokeCallableResult * resultValue)
 {
 	if(resultValue->resultCount > 0) {
-		GMetaTypeData typeData;
-	
-		callable->getResultType(&typeData);
-		metaCheckError(callable);
-
 		typename Methods::ResultType result;
 
 		GVariant value = resultValue->resultData;
+		GMetaType type;
+
+		if(vtIsTypedVar(resultValue->resultData.getType())) {
+			value = getVariantRealValue(resultValue->resultData);
+			type = getVariantRealMetaType(resultValue->resultData);
+		}
+		else {
+			value = resultValue->resultData;
+			callable->getResultType(&type.refData());
+			metaCheckError(callable);
+		}
 
 		GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
 		GScopedInterface<IObject> releaseIt;
@@ -1028,7 +1034,7 @@ typename Methods::ResultType methodResultToScript(const GContextPointer & contex
 
 		GBindValueFlags flags;
 		flags.setByBool(bvfAllowGC, !! callable->isResultTransferOwnership());
-		result = Methods::doVariantToScript(context, createTypedVariant(value, GMetaType(typeData)), flags, NULL);
+		result = Methods::doVariantToScript(context, createTypedVariant(value, type), flags, NULL);
 
 		if(! Methods::isSuccessResult(result)) {
 			result = extendVariantToScript<Methods>(context,
@@ -1052,9 +1058,9 @@ typename Methods::ResultType accessibleToScript(const GContextPointer & context,
 	typename Methods::ResultType result = Methods::doVariantToScript(context, createTypedVariant(value, type), GBindValueFlags(), NULL);
 
 	if(! Methods::isSuccessResult(result)) {
-			result = extendVariantToScript<Methods>(context,
-				metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Converter | GExtendTypeCreateFlag_SharedPointerTraits),
-				value, GBindValueFlags());
+		result = extendVariantToScript<Methods>(context,
+			metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Converter | GExtendTypeCreateFlag_SharedPointerTraits),
+			value, GBindValueFlags());
 	}
 		
 	return result;

@@ -12,6 +12,7 @@ class GMetaObjectArray
 {
 public:
 	explicit GMetaObjectArray(IMetaClass * metaClass);
+	~GMetaObjectArray();
 
 	void * getMemory() const;
 

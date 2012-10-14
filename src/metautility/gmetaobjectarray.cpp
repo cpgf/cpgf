@@ -59,17 +59,18 @@ void GMetaObjectArrayImplement::setObject(uint32_t index, void * object)
 		return;
 	}
 
-	this->requireMemory(index);
-	void * newObject = this->getObject(index);
-	this->metaClass->cloneInplace(object, newObject);
-	if(this->objectCount < index) {
-		this->objectCount = index;
+	this->requireMemory(index + 1);
+	if(this->objectCount <= index) {
+		this->objectCount = index + 1;
 	}
+	void * newObject = this->getObject(index);
+	this->metaClass->destroyInplace(newObject);
+	this->metaClass->cloneInplace(object, newObject);
 }
 
 void * GMetaObjectArrayImplement::getObject(uint32_t index) const
 {
-	if(index < this->objectSize) {
+	if(index < this->objectCount) {
 		return this->doGetObject(index);
 	}
 	else {
@@ -79,7 +80,7 @@ void * GMetaObjectArrayImplement::getObject(uint32_t index) const
 
 uint32_t GMetaObjectArrayImplement::getObjectCount() const
 {
-	return this->objectSize;
+	return this->objectCount;
 }
 
 const GMetaType & GMetaObjectArrayImplement::getMetaType() const
@@ -160,6 +161,10 @@ void GMetaObjectArrayImplement::doFreeObjects(void * head, uint32_t startIndex, 
 
 GMetaObjectArray::GMetaObjectArray(IMetaClass * metaClass)
 	: implement(new GMetaObjectArrayImplement(metaClass))
+{
+}
+
+GMetaObjectArray::~GMetaObjectArray()
 {
 }
 

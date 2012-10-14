@@ -245,6 +245,17 @@ GVariant pointerToObjectVariant(void * p)
 	return result;
 }
 
+GVariant objectToVariant(void * object)
+{
+	GVariant result;
+
+	vtSetType(result.refData().typeData, vtObject);
+	result.refData().ptrObject = object;
+	vtSetSize(result.refData().typeData, sizeof(void *));
+
+	return result;
+}
+
 void * objectAddressFromVariant(const GVariant & v)
 {
 	return fromVariant<void *>(v);

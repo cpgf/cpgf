@@ -718,6 +718,21 @@ struct CanCastFromVariant
 	}
 };
 
+#define M_CanCastFromVariant(T) template <typename Policy> struct CanCastFromVariant <T, Policy> { \
+	static bool canCast(const GVariant & v) { return true; } };
+
+M_CanCastFromVariant(GVariant)
+M_CanCastFromVariant(const GVariant)
+M_CanCastFromVariant(volatile GVariant)
+M_CanCastFromVariant(const volatile GVariant)
+M_CanCastFromVariant(GVariant &)
+M_CanCastFromVariant(const GVariant &)
+M_CanCastFromVariant(volatile GVariant &)
+M_CanCastFromVariant(const volatile GVariant &)
+
+#undef M_CanCastFromVariant
+
+
 template <typename T>
 struct CheckIsConvertibleToCharPointer
 {
@@ -967,6 +982,27 @@ struct CastFromVariant
 	}
 };
 
+#define M_CastFromVariant(T) template <typename Policy> struct CastFromVariant <T, Policy> { \
+	typedef T ResultType; \
+	static T cast(const GVariant & v) { return v; } };
+
+M_CastFromVariant(GVariant)
+M_CastFromVariant(const GVariant)
+M_CastFromVariant(volatile GVariant)
+M_CastFromVariant(const volatile GVariant)
+
+#undef M_CastFromVariant
+
+#define M_CastFromVariant(T) template <typename Policy> struct CastFromVariant <T, Policy> { \
+	typedef T ResultType; \
+	static T cast(const GVariant & v) { return const_cast<T>(v); } };
+
+M_CastFromVariant(GVariant &)
+M_CastFromVariant(const GVariant &)
+M_CastFromVariant(volatile GVariant &)
+M_CastFromVariant(const volatile GVariant &)
+
+#undef M_CastFromVariant
 
 
 } // namespace variant_internal

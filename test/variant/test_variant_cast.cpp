@@ -83,6 +83,23 @@ GTEST(TestVariant_Cast)
 }
 
 
+GTEST(TestVariant_CastFromVariant)
+{
+	GVariant value;
+	GVariant casted;
+	
+	value = 1999;
+
+	casted = fromVariant<GVariant>(value);
+	GEQUAL(1999, fromVariant<int>(casted));
+
+	casted = fromVariant<GVariant &>(value);
+	GEQUAL(1999, fromVariant<int>(casted));
+
+	casted = fromVariant<const GVariant &>(value);
+	GEQUAL(1999, fromVariant<int>(casted));
+}
+
 
 
 } }

@@ -249,6 +249,7 @@ GVariant copyVariantFromCopyable(const T & value)
 }
 
 GVariant pointerToObjectVariant(void * p);
+GVariant objectToVariant(void * object);
 void * objectAddressFromVariant(const GVariant & v);
 void * referenceAddressFromVariant(const GVariant & v);
 

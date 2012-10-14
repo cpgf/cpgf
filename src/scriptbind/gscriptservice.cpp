@@ -5,6 +5,8 @@
 
 #include "cpgf/metadata/util/gmetadata_bytearray.h"
 #include "cpgf/gbytearray.h"
+#include "cpgf/metadata/util/gmetadata_metaobjectarray.h"
+#include "cpgf/metautility/gmetaobjectarray.h"
 
 #include "cpgf/metadata/private/gmetadata_header.h"
 
@@ -26,6 +28,11 @@ GSharedPointer<GByteArray> createByteArrayWithLength(size_t length)
 	return GSharedPointer<GByteArray>(new GByteArray(length));
 }
 
+GSharedPointer<GMetaObjectArray> createObjectArray(IMetaClass * metaClass)
+{
+	return GSharedPointer<GMetaObjectArray>(new GMetaObjectArray(metaClass));
+}
+
 } // unnamed namespace
 
 template <typename D>
@@ -35,10 +42,15 @@ void buildMetaClass_GScriptCoreService(D _d)
 
 	_d.CPGF_MD_TEMPLATE _method("createByteArray", &createByteArray);
 	_d.CPGF_MD_TEMPLATE _method("createByteArray", &createByteArrayWithLength);
+	_d.CPGF_MD_TEMPLATE _method("createObjectArray", &createObjectArray);
 
 	GDefineMetaClass<GByteArray> gbyteArrayDefine = GDefineMetaClass<GByteArray>::Policy<GMetaPolicyNoCopyConstructor>::declare("GByteArray");
 	buildMetaData_byteArray(gbyteArrayDefine);
 	_d.CPGF_MD_TEMPLATE _class(gbyteArrayDefine);
+
+	GDefineMetaClass<GMetaObjectArray> gobjectArrayDefine = GDefineMetaClass<GMetaObjectArray>::Policy<GMetaPolicyNoDefaultAndCopyConstructor>::declare("GMetaObjectArray");
+	buildMetaData_metaObjectArray(gobjectArrayDefine);
+	_d.CPGF_MD_TEMPLATE _class(gobjectArrayDefine);
 }
 
 GMetaClass * doBindScriptCoreService(GScriptObject * scriptObject, const char * bindName, GScriptCoreService * scriptCoreService)

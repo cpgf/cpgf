@@ -782,7 +782,7 @@ int rankCallableImplicitConvert(IMetaCallable * callable, const InvokeCallablePa
 	int rank = rankImplicitConvertForString(callbackParam->params[paramIndex].value, targetType);
 	if(rank == ValueMatchRank_Unknown) {
 		rank = rankImplicitConvertForSharedPointer(callbackParam->params[paramIndex].glueData,
-			metaGetParamExtendType(callable, GExtendTypeCreateFlag_SharedPointerTraits, paramIndex));
+			metaGetParamExtendType(callable, GExtendTypeCreateFlag_SharedPointerTraits, static_cast<uint32_t>(paramIndex)));
 	}
 	
 	return rank;
@@ -1129,22 +1129,16 @@ GVariant glueDataToVariant(const GGlueDataPointer & glueData)
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst)
 {
 	GVariant value;
-	GMetaTypeData typeData;
 
-	accessible->getItemType(&typeData);
+	accessible->getItemType(&outType->refData());
 	metaCheckError(accessible);
-
-	*outType = GMetaType(typeData);
 
 	void * address = accessible->getAddress(instance);
 	if(address != NULL && !outType->isPointer() && outType->baseIsClass()) {
-		value = address;
+		value = objectToVariant(address);
 
 		if(instanceIsConst) {
-			outType->addPointerToConst();
-		}
-		else {
-			outType->addPointer();
+			outType->addConst();
 		}
 	}
 	else {

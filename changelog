@@ -1,3 +1,6 @@
+TBD version 1.5.2
+	Now fromVariant<GVariant>(variant) will return variant directly.
+
 2012-10-13 version 1.5.1
 	Support shared pointer in script binding. There are meta traits for shared pointer in C++11, Boost, and cpgf.
 	Removed class GMetaVariant and file gmetavariant.h

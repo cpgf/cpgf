@@ -31,6 +31,8 @@ set(SRC_META
 	${SRC_PATH}/scriptbind/gscriptwrapper.cpp
 	${SRC_PATH}/scriptbind/gscriptservice.cpp
 
+	${SRC_PATH}/metautility/gmetaobjectarray.cpp
+	
 	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
 	${SRC_PATH}/metatraits/gmetaconverter_widestring.cpp
 	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
