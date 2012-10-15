@@ -719,7 +719,7 @@ struct CanCastFromVariant
 };
 
 #define M_CanCastFromVariant(T) template <typename Policy> struct CanCastFromVariant <T, Policy> { \
-	static bool canCast(const GVariant & v) { return true; } };
+	static bool canCast(const GVariant &) { return true; } };
 
 M_CanCastFromVariant(GVariant)
 M_CanCastFromVariant(const GVariant)

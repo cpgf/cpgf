@@ -3,7 +3,6 @@
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/metautility/gmetaobjectarray.h"
 
-#include <iostream>
 
 using namespace std;
 using namespace cpgf;
@@ -120,8 +119,35 @@ GTEST(Test_MetaObjectArray_getItem)
 
 	GMetaObjectArray oa(metaClass.get());
 	oa.setItem(0, TestItem(38, "abc"));
+	oa.setItem(1, TestItem(98, "def"));
+	oa.setItem(2, TestItem(1999, "what"));
+	
 	item = static_cast<TestItem *>(objectAddressFromVariant(oa.getItem(0)));
 	GCHECK(item->check(38, "abc"));
+	item = static_cast<TestItem *>(objectAddressFromVariant(oa.getItem(1)));
+	GCHECK(item->check(98, "def"));
+	item = static_cast<TestItem *>(objectAddressFromVariant(oa.getItem(2)));
+	GCHECK(item->check(1999, "what"));
+}
+
+
+GTEST(Test_MetaObjectArray_getLotsOfItem)
+{
+	GScopedInterface<IMetaClass> metaClass(createMetaObjectArrayMetaClass());
+
+	TestItem * item;
+
+	GMetaObjectArray oa(metaClass.get());
+	const int COUNT = 1000;
+
+	for(int i = 0; i < COUNT; ++i) {
+		oa.setItem(i, TestItem(i, ""));
+	}
+	
+	for(int i = 0; i < COUNT; ++i) {
+		item = static_cast<TestItem *>(objectAddressFromVariant(oa.getItem(i)));
+		GCHECK(item->check(i, ""));
+	}
 }
 
 

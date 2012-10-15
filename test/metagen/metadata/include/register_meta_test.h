@@ -14,6 +14,7 @@ namespace meta_test {
 
 GDefineMetaInfo createMetaClass_Global_global();
 GDefineMetaInfo createMetaClass_Global_simpleobject();
+GDefineMetaInfo createMetaClass_Global_testobjectarray();
 GDefineMetaInfo createMetaClass_OAData();
 GDefineMetaInfo createMetaClass_OAObject();
 GDefineMetaInfo createMetaClass_SimpleAtom();
@@ -28,6 +29,7 @@ void registerMain_metatest(Meta _d)
 {
     _d._class(createMetaClass_Global_global());
     _d._class(createMetaClass_Global_simpleobject());
+    _d._class(createMetaClass_Global_testobjectarray());
     _d._class(createMetaClass_OAData());
     _d._class(createMetaClass_OAObject());
     _d._class(createMetaClass_SimpleAtom());

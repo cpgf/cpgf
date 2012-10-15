@@ -16,6 +16,17 @@ namespace meta_test {
 
 
 template <typename D>
+void buildMetaClass_Global_testobjectarray(const cpgf::GMetaDataConfigFlags & config, D _d)
+{
+    (void)config; (void)_d; (void)_d;
+    using namespace cpgf;
+    
+    _d.CPGF_MD_TEMPLATE _method("getOAObjectN", (int (*) (OAObject *))&getOAObjectN);
+    _d.CPGF_MD_TEMPLATE _method("getOAObjectS", (std::string (*) (const OAObject &))&getOAObjectS);
+}
+
+
+template <typename D>
 void buildMetaClass_OAData(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
     (void)config; (void)_d; (void)_d;

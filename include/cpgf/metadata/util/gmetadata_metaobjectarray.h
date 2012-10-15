@@ -17,11 +17,10 @@ namespace metadata_internal {
 template <typename T, typename MetaDefine>
 void doBuildMetaData_metaObjectArray(const GMetaDataConfigFlags & /*config*/, MetaDefine define)
 {
-	M(T, getMemory)
-	
 	M(T, getItem)
 	M(T, setItem)
 
+	M(T, getCount)
 }
 
 

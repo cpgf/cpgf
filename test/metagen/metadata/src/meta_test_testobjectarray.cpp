@@ -11,6 +11,14 @@ using namespace cpgf;
 namespace meta_test { 
 
 
+GDefineMetaInfo createMetaClass_Global_testobjectarray()
+{
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    buildMetaClass_Global_testobjectarray(0, _d);
+    return _d.getMetaInfo();
+}
+
+
 GDefineMetaInfo createMetaClass_OAData()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();

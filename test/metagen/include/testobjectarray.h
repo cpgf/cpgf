@@ -42,7 +42,13 @@ public:
 	OADataPointer data;
 };
 
+inline int getOAObjectN(OAObject * obj) {
+	return obj->data->n;
+}
 
+inline std::string getOAObjectS(const OAObject & obj) {
+	return obj.data->s;
+}
 
 
 #endif

@@ -5,6 +5,20 @@
 
 #include <stdlib.h>
 
+namespace {
+
+struct CFreeGuard
+{
+public:
+	explicit CFreeGuard(void * p) : p(p) {}
+	~CFreeGuard() {
+		free(this->p);
+	}
+private:
+	void * p;
+};
+
+} // unnamed namespace
 
 namespace cpgf {
 
@@ -132,13 +146,14 @@ void GMetaObjectArrayImplement::doSetCapacity(uint32_t newCapacity)
 	
 	if(newCapacity < this->objectCount) {
 		this->doFreeObjects(this->buffer, newCapacity, this->objectCount);
+		this->objectCount = newCapacity;
 	}
 	
-	void * newBuffer = realloc(this->buffer, newCapacity * this->objectSize);
+	void * newBuffer = malloc(newCapacity * this->objectSize);
 
-	if(this->buffer != newBuffer) {
-		uint32_t minCount = std::min(this->objectCount, newCapacity);
-		for(uint32_t i = 0; i < minCount; ++i) {
+	if(this->buffer != NULL) {
+		CFreeGuard freeGuard(this->buffer);
+		for(uint32_t i = 0; i < this->objectCount; ++i) {
 			this->metaClass->cloneInplace(this->doGetAddress(this->buffer, i), this->doGetAddress(newBuffer, i));
 		}
 		
@@ -166,11 +181,6 @@ GMetaObjectArray::GMetaObjectArray(IMetaClass * metaClass)
 
 GMetaObjectArray::~GMetaObjectArray()
 {
-}
-
-void * GMetaObjectArray::getMemory() const
-{
-	return this->implement->getBuffer();
 }
 
 GVariant GMetaObjectArray::getItem(uint32_t index) const

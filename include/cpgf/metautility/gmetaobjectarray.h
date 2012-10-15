@@ -14,8 +14,6 @@ public:
 	explicit GMetaObjectArray(IMetaClass * metaClass);
 	~GMetaObjectArray();
 
-	void * getMemory() const;
-
 	GVariant getItem(uint32_t index) const;
 	void setItem(uint32_t index, const GVariant & value);
 	
