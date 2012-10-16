@@ -22,6 +22,7 @@ void buildMetaClass_Global_testobjectarray(const cpgf::GMetaDataConfigFlags & co
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("getOAObjectN", (int (*) (OAObject *))&getOAObjectN);
+    _d.CPGF_MD_TEMPLATE _method("getOAObjectN", (int (*) (OAObject *, int))&getOAObjectN);
     _d.CPGF_MD_TEMPLATE _method("getOAObjectS", (std::string (*) (const OAObject &))&getOAObjectS);
 }
 

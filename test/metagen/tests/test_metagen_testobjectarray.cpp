@@ -19,16 +19,18 @@ void testObjectArray(TestScriptContext * context)
 	QDO(oa.setItem(1, obj));
 	QNEWOBJ(obj, mtest.OAObject(0, ""));
 	QDO(oa.setItem(2, obj));
-//QDO(scriptTrace("" .. oa.getItem(0).data.n));
+
 	QASSERT(oa.getItem(0).data.n == 98);
 	QASSERT(oa.getItem(0).data.s == "def");
 	QASSERT(mtest.getOAObjectN(oa.getItem(0)) == 98);
 	QASSERT(mtest.getOAObjectS(oa.getItem(0)) == "def");
-return;
+	QASSERT(mtest.getOAObjectN(oa.getItem(0), 0) == 98); // equivalent to (&oa[0])[0]
+
 	QASSERT(oa.getItem(1).data.n == 38);
 	QASSERT(oa.getItem(1).data.s == "abc");
 	QASSERT(mtest.getOAObjectN(oa.getItem(1)) == 38);
 	QASSERT(mtest.getOAObjectS(oa.getItem(1)) == "abc");
+	QASSERT(mtest.getOAObjectN(oa.getItem(0), 1) == 38); // equivalent to (&oa[0])[1]
 
 	QDO(oa.getItem(2).data.n = 1999);
 	QDO(oa.getItem(2).data.s = "what");
@@ -36,6 +38,8 @@ return;
 	QASSERT(oa.getItem(2).data.s == "what");
 	QASSERT(mtest.getOAObjectN(oa.getItem(2)) == 1999);
 	QASSERT(mtest.getOAObjectS(oa.getItem(2)) == "what");
+	QASSERT(mtest.getOAObjectN(oa.getItem(0), 2) == 1999); // equivalent to (&oa[0])[2]
+	QASSERT(mtest.getOAObjectN(oa.getItem(1), 1) == 1999); // equivalent to (&oa[1])[1]
 }
 
 #define CASE testObjectArray

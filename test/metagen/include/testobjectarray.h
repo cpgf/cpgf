@@ -46,6 +46,10 @@ inline int getOAObjectN(OAObject * obj) {
 	return obj->data->n;
 }
 
+inline int getOAObjectN(OAObject * obj, int index) {
+	return obj[index].data->n;
+}
+
 inline std::string getOAObjectS(const OAObject & obj) {
 	return obj.data->s;
 }
