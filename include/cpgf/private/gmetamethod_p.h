@@ -42,7 +42,7 @@ struct GMetaMethodDataVirtual
 	bool (*isVariadic)();
 	bool (*isExplicitThis)();
 	GVariant (*invoke)(const void * self, void * instance, GVariant const * const * params, size_t paramCount);
-	bool (*checkParam)(const void * self, const GVariant & param, size_t paramIndex);
+	bool (*checkParam)(const GVariant & param, size_t paramIndex);
 	bool (*isParamTransferOwnership)(size_t paramIndex);
 	bool (*isResultTransferOwnership)();
 	GMetaExtendType (*getItemExtendType)(uint32_t flags, const GMetaItem * metaItem);
@@ -153,14 +153,7 @@ private:
 	}
 
 	static GVariant virtualInvoke(const void * self, void * instance, GVariant const * const * params, size_t paramCount) {
-		if(!(
-				static_cast<const GMetaMethodData *>(self)->isVariadic()
-				|| paramCount == static_cast<const GMetaMethodData *>(self)->getParamCount()
-				|| (paramCount == static_cast<const GMetaMethodData *>(self)->getParamCount() - 1 && PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result)
-			)
-		) {
-			raiseCoreException(Error_Meta_WrongArity, static_cast<const GMetaMethodData *>(self)->getParamCount(), paramCount);
-		}
+		checkInvokingArity(paramCount, virtualGetParamCount(), virtualIsVariadic());
 
 		static_cast<const GMetaMethodData *>(self)->callback.setObject(instance);
 		return GMetaInvokeHelper<CallbackType,
@@ -173,13 +166,14 @@ private:
 		>::invoke(instance, static_cast<const GMetaMethodData *>(self)->callback, params, paramCount);
 	}
 
-	static bool virtualCheckParam(const void * self, const GVariant & param, size_t paramIndex) {
-		if(static_cast<const GMetaMethodData *>(self)->isVariadic()) {
+	static bool virtualCheckParam(const GVariant & param, size_t paramIndex) {
+		if(virtualIsVariadic() && paramIndex + 1 >= virtualGetParamCount()) {
 			return true;
 		}
-
-		if(paramIndex >= static_cast<const GMetaMethodData *>(self)->getParamCount()) {
-			return false;
+		else {
+			if(paramIndex >= virtualGetParamCount()) {
+				return false;
+			}
 		}
 
 		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {

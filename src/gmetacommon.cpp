@@ -165,6 +165,17 @@ void * newZeroBuffer(void * buffer, size_t size, void * copy)
 	return result;
 }
 
+void checkInvokingArity(size_t invokingParamCount, size_t prototypeParamCount, bool isVariadic)
+{
+	if((isVariadic && invokingParamCount + 1 >= prototypeParamCount)
+		|| (! isVariadic && invokingParamCount == prototypeParamCount)) {
+	}
+	else {
+		raiseCoreException(Error_Meta_WrongArity, prototypeParamCount, invokingParamCount);
+	}
+}
+
+
 } // namespace meta_internal
 
 

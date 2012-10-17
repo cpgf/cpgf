@@ -706,8 +706,13 @@ private:
 	case N: return canFromVariant<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>(param);
 
 	static bool virtualCheckParam(const GVariant & param, size_t paramIndex) {
-		if(paramIndex >= virtualGetParamCount()) {
-			return false;
+		if(virtualIsVariadic() && paramIndex + 1 >= virtualGetParamCount()) {
+			return true;
+		}
+		else {
+			if(paramIndex >= virtualGetParamCount()) {
+				return false;
+			}
 		}
 
 		switch(paramIndex) {
@@ -735,14 +740,7 @@ private:
 	}
 
 	static GVariant virtualInvokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) {
-		if(!(
-				virtualIsVariadic()
-				|| paramCount == virtualGetParamCount()
-				|| (paramCount == virtualGetParamCount() - 1 && PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result)
-			)
-		) {
-			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(), paramCount);
-		}
+		checkInvokingArity(paramCount, virtualGetParamCount(), virtualIsVariadic());
 
 		return GMetaInvokeHelper<OT,
 			FT,
@@ -757,9 +755,7 @@ private:
 	static GVariant virtualExecute(const void * self, void * instance, const GVariant * params, size_t paramCount) {
 		GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
-		if(!virtualIsVariadic() && paramCount != virtualGetParamCount()) {
-			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(), paramCount);
-		}
+		checkInvokingArity(paramCount, virtualGetParamCount(), virtualIsVariadic());
 
 		const cpgf::GVariant * variantPointers[REF_MAX_ARITY];
 

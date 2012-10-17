@@ -75,7 +75,7 @@ GVariant GMetaMethodDataBase::invoke(void * instance, GVariant const * const * p
 
 bool GMetaMethodDataBase::checkParam(const GVariant & param, size_t paramIndex) const
 {
-	return this->virtualFunctions->checkParam(this, param, paramIndex);
+	return this->virtualFunctions->checkParam(param, paramIndex);
 }
 
 bool GMetaMethodDataBase::isParamTransferOwnership(size_t paramIndex) const
