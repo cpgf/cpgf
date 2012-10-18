@@ -324,7 +324,7 @@ GTEST(Lib_ParamType)
 
 	METHOD(methodSum);
 	GCHECK(method->isVariadic());
-	GEQUAL(method->getParamCount(), 1);
+	GEQUAL(method->getParamCount(), 0);
 	GEQUAL(method->getParamType(0), createMetaType<const GMetaVariadicParam *>());
 
 	METHOD(methodExplicitThis);

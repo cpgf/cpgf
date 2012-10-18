@@ -645,7 +645,11 @@ private:
 	}
 
 	static size_t virtualGetParamCount() {
-		return FT::Arity;
+		size_t paramCount = FT::Arity;
+		if(paramCount > 0 && virtualIsVariadic()) {
+			--paramCount;
+		}
+		return paramCount;
 	}
 
 	static bool virtualIsParamSelf(size_t /*paramIndex*/) {

@@ -91,6 +91,15 @@ int methodExplicitThis(CLASS * self, int n)
 	return self->fieldMethodInt + n;
 }
 
+int methodExplicitThisSum(CLASS * self, int n, const GMetaVariadicParam * params)
+{
+	int total = self->fieldMethodInt + n;
+	for(size_t i = 0; i < params->paramCount; ++i) {
+		total += cpgf::fromVariant<int>(*(params->params[i]));
+	}
+
+	return total;
+}
 
 struct methodFunctor
 {
@@ -127,6 +136,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 		._method("methodSum", &CLASS::methodSum)
 		._method("methodGetNCData", &CLASS::methodGetNCData, GMetaPolicyAllParamNoncopyable())
 		._method("methodExplicitThis", &methodExplicitThis, GMetaPolicyExplicitThis())
+		._method("methodExplicitThisSum", &methodExplicitThisSum, GMetaPolicyExplicitThis())
 		._method("methodFunctor", GCallback<int(CLASS *, int, const string &)>(methodFunctor()), MakePolicy<GMetaRuleCopyConstReference<2>, GMetaRuleExplicitThis>())
 	;
 }
@@ -170,6 +180,9 @@ GTEST(Lib_Exists)
 	METHOD(methodExplicitThis);
 	GCHECK(method);
 
+	METHOD(methodExplicitThisSum);
+	GCHECK(method);
+	
 	METHOD(methodFunctor);
 	GCHECK(method);
 }
@@ -217,6 +230,9 @@ GTEST(API_Exists)
 	METHOD(methodExplicitThis);
 	GCHECK(method);
 
+	METHOD(methodExplicitThisSum);
+	GCHECK(method);
+	
 	METHOD(methodFunctor);
 	GCHECK(method);
 }
@@ -270,6 +286,10 @@ GTEST(Lib_ResultType)
 	GCHECK(method->hasResult());
 
 	METHOD(methodExplicitThis);
+	GEQUAL(method->getResultType(), createMetaType<int>());
+	GCHECK(method->hasResult());
+
+	METHOD(methodExplicitThisSum);
 	GEQUAL(method->getResultType(), createMetaType<int>());
 	GCHECK(method->hasResult());
 
@@ -334,11 +354,16 @@ GTEST(Lib_ParamType)
 
 	METHOD(methodSum);
 	GCHECK(method->isVariadic());
-	GEQUAL(method->getParamCount(), 1);
+	GEQUAL(method->getParamCount(), 0);
 	GEQUAL(method->getParamType(0), createMetaType<const GMetaVariadicParam *>());
 
 	METHOD(methodExplicitThis);
 	GCHECK(! method->isVariadic());
+	GEQUAL(method->getParamCount(), 1);
+	GEQUAL(method->getParamType(0), createMetaType<int>());
+
+	METHOD(methodExplicitThisSum);
+	GCHECK(method->isVariadic());
 	GEQUAL(method->getParamCount(), 1);
 	GEQUAL(method->getParamType(0), createMetaType<int>());
 
@@ -415,6 +440,10 @@ GTEST(Lib_CheckParam)
 	METHOD(methodExplicitThis);
 	GCHECK(method->checkParam(38, 0));
 
+	METHOD(methodExplicitThisSum);
+	GCHECK(method->checkParam(38, 0));
+	GCHECK(method->checkParam(38, 20));
+
 	METHOD(methodFunctor);
 	GCHECK(method->checkParam(38, 0));
 	GCHECK(method->checkParam("abc", 1));
@@ -489,6 +518,10 @@ GTEST(API_CheckParam)
 
 	METHOD(methodExplicitThis);
 	GCHECK(metaCheckParam(method, 38, 0));
+
+	METHOD(methodExplicitThisSum);
+	GCHECK(metaCheckParam(method, 38, 0));
+	GCHECK(metaCheckParam(method, 38, 20));
 
 	METHOD(methodFunctor);
 	GCHECK(metaCheckParam(method, 38, 0));
@@ -592,6 +625,10 @@ GTEST(Lib_Invoke)
 	pobj->fieldMethodInt = 17;
 	METHOD(methodExplicitThis);
 	GEQUAL(fromVariant<int>(method->invoke(pobj, 38)), 17 + 38);
+
+	pobj->fieldMethodInt = 17;
+	METHOD(methodExplicitThisSum);
+	GEQUAL(fromVariant<int>(method->invoke(pobj, 38, 69, 58)), 17 + 38 + 69 + 58);
 
 	pobj->fieldMethodInt = 17;
 	pobj->fieldMethodString = "abc";
@@ -699,6 +736,10 @@ GTEST(API_Invoke)
 	pobj->fieldMethodInt = 17;
 	METHOD(methodExplicitThis);
 	GEQUAL(fromVariant<int>(metaInvokeMethod(method, pobj, 38)), 17 + 38);
+
+	pobj->fieldMethodInt = 17;
+	METHOD(methodExplicitThisSum);
+	GEQUAL(fromVariant<int>(metaInvokeMethod(method, pobj, 38, 69, 58)), 17 + 38 + 69 + 58);
 
 	pobj->fieldMethodInt = 17;
 	pobj->fieldMethodString = "abc";

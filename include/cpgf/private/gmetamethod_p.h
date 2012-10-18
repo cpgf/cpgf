@@ -103,7 +103,14 @@ private:
 
 private:
 	static size_t virtualGetParamCount() {
-		return PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result ? TraitsType::Arity - 1 : TraitsType::Arity;
+		size_t paramCount = TraitsType::Arity;
+		if(paramCount > 0 && PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
+			--paramCount;
+		}
+		if(paramCount > 0 && virtualIsVariadic()) {
+			--paramCount;
+		}
+		return paramCount;
 	}
 
 	static bool virtualHasResult() {

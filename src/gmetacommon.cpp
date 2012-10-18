@@ -167,7 +167,7 @@ void * newZeroBuffer(void * buffer, size_t size, void * copy)
 
 void checkInvokingArity(size_t invokingParamCount, size_t prototypeParamCount, bool isVariadic)
 {
-	if((isVariadic && invokingParamCount + 1 >= prototypeParamCount)
+	if((isVariadic && invokingParamCount >= prototypeParamCount)
 		|| (! isVariadic && invokingParamCount == prototypeParamCount)) {
 	}
 	else {

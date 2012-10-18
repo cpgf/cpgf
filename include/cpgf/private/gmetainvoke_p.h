@@ -43,9 +43,7 @@ struct GMetaInvokeHelper;
 
 #define REF_CALL_HELPER_CAST_EXPLICIT_THIS_HELPER(N) \
 	GPP_COMMA() fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result >(*params[N - 1])
-
 #define REF_CALL_HELPER_CAST_EXPLICIT_THIS_EMPTY(N)
-
 #define REF_CALL_HELPER_CAST_EXPLICIT_THIS(N, unused) GPP_IF(N, REF_CALL_HELPER_CAST_EXPLICIT_THIS_HELPER, REF_CALL_HELPER_CAST_EXPLICIT_THIS_EMPTY)(N)
 
 #define REF_CALL_HELPER(N, unused) \
@@ -104,14 +102,16 @@ struct GMetaInvokeHelper;
 			callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST_VARIADIC, GPP_EMPTY) &variadicParams); \
 			return GVariant(); \
 		} \
-	}; \
+	};
+
+#define I_REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER(N, M) \
 	template <typename CT, typename FT, typename RT, typename Policy> \
 	struct GMetaInvokeHelper <CT, FT, N, RT, Policy, true, true> { \
 		static GVariant invoke(void * instance, const CT & callback, GVariant const * const * params, size_t paramCount) { \
 			GMetaVariadicParam variadicParams; \
 			variadicParams.params = &params[N -1]; \
 			variadicParams.paramCount = paramCount; \
-			return createVariant<PolicyIsCopyable<Policy>::Result, RT>(callback((typename CT::TraitsType::ArgList::Arg0)(instance), GPP_REPEAT(N, REF_CALL_HELPER_CAST_VARIADIC, GPP_EMPTY) &variadicParams), PolicyIsCopyable<Policy>::Result); \
+			return createVariant<PolicyIsCopyable<Policy>::Result, RT>(callback((typename CT::TraitsType::ArgList::Arg0)(instance), GPP_REPEAT(M, REF_CALL_HELPER_CAST_VARIADIC, GPP_EMPTY) &variadicParams), PolicyIsCopyable<Policy>::Result); \
 		} \
 	}; \
 	template <typename CT, typename FT, typename Policy> \
@@ -120,13 +120,16 @@ struct GMetaInvokeHelper;
 			GMetaVariadicParam variadicParams; \
 			variadicParams.params = &params[N -1]; \
 			variadicParams.paramCount = paramCount; \
-			callback((typename CT::TraitsType::ArgList::Arg0)(instance), GPP_REPEAT(N, REF_CALL_HELPER_CAST_VARIADIC, GPP_EMPTY) &variadicParams); \
+			callback((typename CT::TraitsType::ArgList::Arg0)(instance), GPP_REPEAT(M, REF_CALL_HELPER_CAST_VARIADIC, GPP_EMPTY) &variadicParams); \
 			return GVariant(); \
 		} \
 	};
+#define REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER_EMPTY(N, unused)
+#define REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER(N, unused) GPP_IF(N, I_REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER, REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER_EMPTY)(N, GPP_DEC(N))
 
 GPP_REPEAT_2(REF_MAX_ARITY, REF_CALL_HELPER, GPP_EMPTY)
 GPP_REPEAT_2(REF_MAX_ARITY, REF_CALL_VARIADIC_HELPER, GPP_EMPTY)
+GPP_REPEAT_2(REF_MAX_ARITY, REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER, GPP_EMPTY)
 
 template <typename FunctionTraits>
 struct CheckVariadicArity
@@ -169,7 +172,12 @@ void checkInvokingArity(size_t invokingParamCount, size_t prototypeParamCount, b
 #undef REF_CALL_HELPER_CAST_EXPLICIT_THIS
 #undef REF_CALL_HELPER_CAST_EXPLICIT_THIS_HELPER
 #undef REF_CALL_HELPER_CAST_EXPLICIT_THIS_EMPTY
-
+#undef REF_CALL_HELPER_CAST_VARIADIC_HELPER
+#undef REF_CALL_HELPER_CAST_VARIADIC_EMPTY
+#undef REF_CALL_HELPER_CAST_VARIADIC
+#undef I_REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER
+#undef REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER_EMPTY
+#undef REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER
 
 #if defined(_MSC_VER)
 #pragma warning(pop)
