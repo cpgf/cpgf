@@ -710,7 +710,7 @@ private:
 	case N: return canFromVariant<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>(param);
 
 	static bool virtualCheckParam(const GVariant & param, size_t paramIndex) {
-		if(virtualIsVariadic() && paramIndex + 1 >= virtualGetParamCount()) {
+		if(virtualIsVariadic() && paramIndex >= virtualGetParamCount()) {
 			return true;
 		}
 		else {

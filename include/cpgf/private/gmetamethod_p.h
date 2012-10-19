@@ -174,7 +174,7 @@ private:
 	}
 
 	static bool virtualCheckParam(const GVariant & param, size_t paramIndex) {
-		if(virtualIsVariadic() && paramIndex + 1 >= virtualGetParamCount()) {
+		if(virtualIsVariadic() && paramIndex >= virtualGetParamCount()) {
 			return true;
 		}
 		else {

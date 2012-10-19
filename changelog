@@ -1,6 +1,7 @@
 TBD version 1.5.2
 	Now fromVariant<GVariant>(variant) will return variant directly.
 	Added GMetaObjectArray to C++ object array in script.
+	Improved reflecting for variadic functions, now suppport non-variadic parameters. E.g, int myVariadicFunc(int a, const char * b, GMetaVariadicParam * v);
 
 2012-10-13 version 1.5.1
 	Support shared pointer in script binding. There are meta traits for shared pointer in C++11, Boost, and cpgf.
