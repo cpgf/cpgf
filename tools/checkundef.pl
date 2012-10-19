@@ -25,6 +25,9 @@ sub processFile
 		my $ln = $_;
 		
 		if($ln =~ /^\s*#\s*define\s+(\w+)/) {
+			if($ln =~ /define\s+__\S+_H/) {
+				next;
+			}
 			$defines{$1} = 1;
 			$fullDefines{$1} = -1;
 		}
