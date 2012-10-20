@@ -52,6 +52,16 @@ bool SimpleObject::checkAtom(long value) const
 	return this->data.atom.value == value;
 }
 
+SimpleData & SimpleObject::operator() ()
+{
+	return this->data;
+}
+
+const SimpleData & SimpleObject::operator() () const
+{
+	return this->data;
+}
+
 
 cpgf::IMetaClass * getSimpleObjectClass(cpgf::IMetaClass * metaClass)
 {

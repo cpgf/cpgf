@@ -657,7 +657,7 @@ private:
 	}
 
 	static GMetaType virtualGetParamType(size_t index) {
-		if(index < static_cast<size_t>(FT::Arity)) {
+		if((int)index < static_cast<int>(FT::Arity)) {
 			switch(index) {
 #define REF_GETPARAM_HELPER(N, unused) \
 	case N: return createMetaType<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>();

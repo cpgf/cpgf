@@ -78,6 +78,8 @@ void buildMetaClass_SimpleObject(const cpgf::GMetaDataConfigFlags & config, D _d
     _d.CPGF_MD_TEMPLATE _method("checkData", (bool (D::ClassType::*) (int) const)&D::ClassType::checkData);
     _d.CPGF_MD_TEMPLATE _method("checkData", (bool (D::ClassType::*) (const std::string &) const)&D::ClassType::checkData, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("checkAtom", &D::ClassType::checkAtom);
+    _d.CPGF_MD_TEMPLATE _operator<SimpleData & (*)()>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _operator<const SimpleData & (*)()>(mopHolder(mopHolder));
 }
 
 

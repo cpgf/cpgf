@@ -44,6 +44,9 @@ public:
 	bool checkData(int n) const;
 	bool checkData(const std::string & s) const;
 	bool checkAtom(long value) const;
+	
+	SimpleData & operator() ();
+	const SimpleData & operator() () const;
 
 public:
 	SimpleData data;
