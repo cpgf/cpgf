@@ -58,7 +58,7 @@ int main(int argc, char * argv[])
 
 	GScopedInterface<IScriptObject> scriptObject(runner->getScripeObject());
 
-	scriptObject->bindCoreService("cpgf");
+	scriptObject->bindCoreService("cpgf", NULL);
 	
 	GScopedInterface<IMetaClass> glMetaClass(static_cast<IMetaClass *>(metaItemToInterface(define.getMetaClass())));
 	scriptObject->bindClass("gl", glMetaClass.get());

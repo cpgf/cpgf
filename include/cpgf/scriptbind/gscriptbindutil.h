@@ -29,6 +29,9 @@ void injectObjectToScript(GScriptObject * scriptObject, IMetaClass * metaClass, 
 void injectObjectToScript(IScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
 void injectObjectToScript(GScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
 
+// We can't do this for GScriptObject because if namespaces is NULL, we can't return owner of GScriptObject (we can't share the ownership)
+IScriptObject * createScriptObject(IScriptObject * owner, const char * namespaces);
+
 
 } // namespace cpgf
 

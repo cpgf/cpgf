@@ -9,10 +9,12 @@
 
 #include <string>
 #include <algorithm>
+#include <vector>
 
 
 namespace cpgf {
 
+struct IScriptLibraryLoader;
 
 enum GScriptDataType {
 	sdtUnknown = 0,
@@ -200,7 +202,9 @@ public:
 	virtual bool valueIsNull(const char * name) = 0;
 	virtual void nullifyValue(const char * name) = 0;
 
-	virtual void bindCoreService(const char * name) = 0;
+	virtual void bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader) = 0;
+	
+	virtual void holdObject(IObject * object);
 
 	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) = 0;
 
@@ -219,6 +223,7 @@ private:
 	GScriptConfig config;
 	GScriptObject * owner;
 	std::string name;
+	std::vector<GSharedInterface<IObject> > objectHolder;
 };
 
 

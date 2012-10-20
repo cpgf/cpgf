@@ -96,6 +96,12 @@ GScriptObject * GScriptObject::createScriptObject(const char * name)
 	}
 }
 
+void GScriptObject::holdObject(IObject * object)
+{
+	this->objectHolder.push_back(GSharedInterface<IObject>(object));
+}
+
+
 
 } // namespace cpgf
 

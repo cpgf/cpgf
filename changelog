@@ -4,6 +4,8 @@ TBD version 1.5.2
 	Improved reflecting for variadic functions, now suppport non-variadic parameters. E.g, int myVariadicFunc(int a, const char * b, GMetaVariadicParam * v);
 	Removed function gainScriptObject from GScriptObject and IScriptObject. Now createScriptObject can return the existing script object.
 	Now dotted nested namespace can be passed to createScriptObject. E.g, createScriptObject("a.b.c"), then script can use the script object a.b.c
+	Added function holdObject to GScriptObject and IScriptObject to hold meta data which is created dynamically.
+	Added function loadLibrary in script binding core service to load libraries at runtime from within script.
 
 2012-10-13 version 1.5.1
 	Support shared pointer in script binding. There are meta traits for shared pointer in C++11, Boost, and cpgf.

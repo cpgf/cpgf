@@ -6,6 +6,7 @@
 
 namespace cpgf {
 
+struct IScriptLibraryLoader;
 
 struct IScriptConfig : public IObject
 {
@@ -71,7 +72,8 @@ struct IScriptObject : public IExtendObject
 	virtual gapi_bool G_API_CC valueIsNull(const char * name) = 0;
 	virtual void G_API_CC nullifyValue(const char * name) = 0;
 
-	virtual void G_API_CC bindCoreService(const char * name) = 0;
+	virtual void G_API_CC bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader) = 0;
+	virtual void G_API_CC holdObject(IObject * object) = 0;
 	
 };
 

@@ -138,7 +138,7 @@ public:
 
 	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
 
-	virtual void bindCoreService(const char * name);
+	virtual void bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 
 public:
 	PyObject * getObject() const {
@@ -1637,11 +1637,11 @@ void GPythonScriptObject::nullifyValue(const char * name)
 	LEAVE_PYTHON()
 }
 
-void GPythonScriptObject::bindCoreService(const char * name)
+void GPythonScriptObject::bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
 {
 	ENTER_PYTHON()
 
-	this->getContext()->bindScriptCoreService(this, name);
+	this->getContext()->bindScriptCoreService(this, name, libraryLoader);
 
 	LEAVE_PYTHON()
 }

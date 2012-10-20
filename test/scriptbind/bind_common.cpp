@@ -52,14 +52,14 @@ void TestScriptContext::setBinding(cpgf::GScriptObject * binding)
 {
 	this->bindingLib.reset(binding);
 
-	binding->bindCoreService("cpgf");
+	binding->bindCoreService("cpgf", NULL);
 }
 
 void TestScriptContext::setBinding(cpgf::IScriptObject * binding)
 {
 	this->bindingApi.reset(binding);
 
-	binding->bindCoreService("cpgf");
+	binding->bindCoreService("cpgf", NULL);
 }
 
 bool TestScriptContext::doString(const std::string & code) const

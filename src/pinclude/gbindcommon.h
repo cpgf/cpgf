@@ -615,7 +615,7 @@ public:
 		return this->config;
 	}
 
-	void bindScriptCoreService(GScriptObject * scriptObject, const char * bindName);
+	void bindScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader);
 
 public:
 	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);

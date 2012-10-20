@@ -4,7 +4,8 @@ namespace {
 
 void testByteArrayInScript(TestScriptContext * context)
 {
-	QDO(a = createByteArray())
+	QDO(cpgf.loadLibrary("cpgf", "builtin.arrays.bytearray"))
+	QDO(a = cpgf.createByteArray())
 	QDO(a.setLength(10))
 
 	QDO(writeNumberToByteArray(38, a))

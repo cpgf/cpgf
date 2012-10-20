@@ -151,7 +151,6 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	bindMethod(script, service, "scriptNot", "scriptNot");
 	bindMethod(script, service, "testExecAddCallback", "testExecAddCallback");
 	
-	bindMethod(script, service, "createByteArray", "createByteArray");
 	bindMethod(script, service, "writeNumberToByteArray", "writeNumberToByteArray");
 	bindMethod(script, service, "writeNumberToByteArrayMemory", "writeNumberToByteArrayMemory");
 	bindMethod(script, service, "testDefaultParam", "testDefaultParam");
@@ -160,8 +159,6 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	bindEnum(script, service, REG_NAME_TestEnum, "TestEnum");
 
 	bindProperty(script, service, NULL, "testScriptFunction", "testScriptFunction");
-
-	bindClass(script, service, "GByteArray", "GByteArray");
 }
 
 

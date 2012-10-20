@@ -114,7 +114,7 @@ public:
 	virtual bool valueIsNull(const char * name);
 	virtual void nullifyValue(const char * name);
 
-	virtual void bindCoreService(const char * name);
+	virtual void bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 
 public:
 	lua_State * getLuaState() const {
@@ -1874,11 +1874,11 @@ void GLuaScriptObject::nullifyValue(const char * name)
 	LEAVE_LUA(this->luaState)
 }
 
-void GLuaScriptObject::bindCoreService(const char * name)
+void GLuaScriptObject::bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
 {
 	ENTER_LUA()
 
-	this->getContext()->bindScriptCoreService(this, name);
+	this->getContext()->bindScriptCoreService(this, name, libraryLoader);
 
 	LEAVE_LUA(this->luaState)
 }

@@ -131,8 +131,15 @@ void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, 
 				scriptObject->bindMethod(normalizeReflectName(name).c_str(), instance, gdynamic_cast<IMetaMethod *>(metaObject.get()));
 				break;
 
-			case mmitMethodList:
-				scriptObject->bindMethodList(normalizeReflectName(name).c_str(), gdynamic_cast<IMetaList *>(metaObject.get()));
+			case mmitMethodList: {
+				IMetaList * metaList = gdynamic_cast<IMetaList *>(metaObject.get());
+				GScopedInterface<IMetaList> newMetaList(createMetaList());
+				for(uint32_t i = 0; i < metaList->getCount(); ++i) {
+					GScopedInterface<IMetaItem> metaItem(metaList->getAt(i));
+					newMetaList->add(metaItem.get(), instance);
+				}
+				scriptObject->bindMethodList(normalizeReflectName(name).c_str(), newMetaList.get());
+			}
 				break;
 
 			case mmitProperty:
@@ -176,6 +183,16 @@ void injectObjectToScript(GScriptObject * scriptObject, GMetaClass * metaClass, 
 	injectObjectToScript(scriptObject, metaClassInterface.get(), instance, namespaceName);
 }
 
+IScriptObject * createScriptObject(IScriptObject * owner, const char * namespaces)
+{
+	if(namespaces == NULL || *namespaces == 0) {
+		owner->addReference();
+		return owner;
+	}
+	else {
+		return owner->createScriptObject(namespaces);
+	}
+}
 
 
 } // namespace cpgf

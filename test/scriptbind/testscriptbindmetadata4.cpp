@@ -26,11 +26,6 @@ int testAddCallback2(void *)
 	return 0;
 }
 
-GSharedPointer<GByteArray> createByteArray()
-{
-	return GSharedPointer<GByteArray>(new GByteArray);
-}
-
 void writeNumberToByteArray(int n, GByteArray * ba)
 {
 	ba->writeInt32(n);
@@ -122,7 +117,6 @@ void TestScriptBindMetaData4()
 		._method("testAddCallback", &testAddCallback)
 		._method("testExecAddCallback", &testExecAddCallback)
 		
-		._method("createByteArray", &createByteArray)
 		._method("writeNumberToByteArray", &writeNumberToByteArray)
 		._method("writeNumberToByteArrayMemory", &writeNumberToByteArrayMemory)
 

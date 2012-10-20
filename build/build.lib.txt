@@ -30,6 +30,7 @@ set(SRC_META
 	${SRC_PATH}/scriptbind/gscriptrunner.cpp
 	${SRC_PATH}/scriptbind/gscriptwrapper.cpp
 	${SRC_PATH}/scriptbind/gscriptservice.cpp
+	${SRC_PATH}/scriptbind/gscriptlibraryapi.cpp
 
 	${SRC_PATH}/metautility/gmetaobjectarray.cpp
 	

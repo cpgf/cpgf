@@ -127,7 +127,7 @@ public:
 
 	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
 
-	virtual void bindCoreService(const char * name);
+	virtual void bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 	
 public:
 	Local<Object> getObject() const {
@@ -1538,11 +1538,11 @@ void GV8ScriptObject::nullifyValue(const char * name)
 	LEAVE_V8()
 }
 
-void GV8ScriptObject::bindCoreService(const char * name)
+void GV8ScriptObject::bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
 {
 	ENTER_V8()
 
-	this->getContext()->bindScriptCoreService(this, name);
+	this->getContext()->bindScriptCoreService(this, name, libraryLoader);
 
 	LEAVE_V8()
 }

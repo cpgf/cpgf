@@ -403,15 +403,23 @@ void G_API_CC ImplScriptObject::nullifyValue(const char * name)
 	LEAVE_BINDING_API()
 }
 
-void G_API_CC ImplScriptObject::bindCoreService(const char * name)
+void G_API_CC ImplScriptObject::bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
 {
 	ENTER_BINDING_API()
 
-	this->scriptObject->bindCoreService(name);
+	this->scriptObject->bindCoreService(name, libraryLoader);
 
 	LEAVE_BINDING_API()
 }
 
+void G_API_CC ImplScriptObject::holdObject(IObject * object)
+{
+	ENTER_BINDING_API()
+
+	this->scriptObject->holdObject(object);
+
+	LEAVE_BINDING_API()
+}
 
 
 } // namespace cpfg

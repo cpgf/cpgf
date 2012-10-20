@@ -11,6 +11,7 @@ namespace {
 
 void testObjectArray(TestScriptContext * context)
 {
+	QDO(cpgf.loadLibrary("cpgf", "builtin.arrays.objectarray"))
 	QDO(oa = cpgf.createObjectArray(mtest.OAObject));
 	
 	QNEWOBJ(obj, mtest.OAObject(98, "def"));

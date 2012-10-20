@@ -16,7 +16,7 @@ namespace cpgf {
 
 G_GUARD_LIBRARY_LIFE
 
-GScriptCoreService * doCreateScriptCoreService(GScriptObject * scriptObject);
+GScriptCoreService * doCreateScriptCoreService(GScriptObject * scriptObject, IScriptLibraryLoader * libraryLoader);
 GMetaClass * doBindScriptCoreService(GScriptObject * scriptObject, const char * bindName, GScriptCoreService * scriptCoreService);
 
 namespace bind_internal {
@@ -580,13 +580,13 @@ GBindingContext::~GBindingContext()
 {
 }
 
-void GBindingContext::bindScriptCoreService(GScriptObject * scriptObject, const char * bindName)
+void GBindingContext::bindScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader)
 {
 	if(this->scriptCoreService) {
 		return;
 	}
 
-	this->scriptCoreService.reset(doCreateScriptCoreService(scriptObject));
+	this->scriptCoreService.reset(doCreateScriptCoreService(scriptObject, libraryLoader));
 	this->scriptCoreServiceMetaClass.reset(doBindScriptCoreService(scriptObject, bindName, this->scriptCoreService.get()));
 }
 
