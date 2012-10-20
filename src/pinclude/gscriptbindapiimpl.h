@@ -104,7 +104,6 @@ protected:
 	virtual IMetaList * G_API_CC getMethodList(const char * methodName);
 
 	virtual IScriptObject * G_API_CC createScriptObject(const char * name);
-	virtual IScriptObject * G_API_CC gainScriptObject(const char * name);
 
 	virtual IScriptFunction * G_API_CC gainScriptFunction(const char * name);
 

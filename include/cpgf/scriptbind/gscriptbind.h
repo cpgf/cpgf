@@ -189,8 +189,7 @@ public:
 
 	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem) = 0;
 
-	virtual GScriptObject * createScriptObject(const char * name) = 0;
-	virtual GScriptObject * gainScriptObject(const char * name) = 0;
+	virtual GScriptObject * createScriptObject(const char * name);
 
 	virtual GScriptFunction * gainScriptFunction(const char * name) = 0;
 	
@@ -204,6 +203,9 @@ public:
 	virtual void bindCoreService(const char * name) = 0;
 
 	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) = 0;
+
+protected:
+	virtual GScriptObject * doCreateScriptObject(const char * name) = 0;
 
 protected:
 	const char * getName() const;

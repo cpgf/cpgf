@@ -114,8 +114,7 @@ public:
 
 	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
 
-	virtual GScriptObject * createScriptObject(const char * name);
-	virtual GScriptObject * gainScriptObject(const char * name);
+	virtual GScriptObject * doCreateScriptObject(const char * name);
 
 	virtual GScriptFunction * gainScriptFunction(const char * name);
 
@@ -1189,7 +1188,7 @@ void GV8ScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 	LEAVE_V8()
 }
 
-GScriptObject * GV8ScriptObject::createScriptObject(const char * name)
+GScriptObject * GV8ScriptObject::doCreateScriptObject(const char * name)
 {
 	ENTER_V8()
 
@@ -1201,28 +1200,7 @@ GScriptObject * GV8ScriptObject::createScriptObject(const char * name)
 		return NULL;
 	}
 
-	Handle<ObjectTemplate> objectTemplate = ObjectTemplate::New();
-	Local<Object> obj = objectTemplate->NewInstance();
-	localObject->Set(String::New(name), obj);
-
-	GV8ScriptObject * binding = new GV8ScriptObject(*this, obj);
-	binding->setOwner(this);
-	binding->setName(name);
-
-	return binding;
-
-	LEAVE_V8(return NULL)
-}
-
-GScriptObject * GV8ScriptObject::gainScriptObject(const char * name)
-{
-	ENTER_V8()
-
-	HandleScope handleScope;
-	Local<Object> localObject(Local<Object>::New(this->object));
-
-	Local<Value> value = localObject->Get(String::New(name));
-	if((value->IsObject() || value->IsFunction())) {
+	if((value->IsObject() || value->IsFunction())) { // already exists
 		GV8ScriptObject * binding = new GV8ScriptObject(*this, Local<Object>::Cast(value));
 		binding->setOwner(this);
 		binding->setName(name);
@@ -1230,7 +1208,15 @@ GScriptObject * GV8ScriptObject::gainScriptObject(const char * name)
 		return binding;
 	}
 	else {
-		return NULL;
+		Handle<ObjectTemplate> objectTemplate = ObjectTemplate::New();
+		Local<Object> obj = objectTemplate->NewInstance();
+		localObject->Set(String::New(name), obj);
+
+		GV8ScriptObject * binding = new GV8ScriptObject(*this, obj);
+		binding->setOwner(this);
+		binding->setName(name);
+
+		return binding;
 	}
 
 	LEAVE_V8(return NULL)

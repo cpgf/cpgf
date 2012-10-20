@@ -103,8 +103,7 @@ public:
 	
 	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
 
-	virtual GScriptObject * createScriptObject(const char * name);
-	virtual GScriptObject * gainScriptObject(const char * name);
+	virtual GScriptObject * doCreateScriptObject(const char * name);
 	
 	virtual GScriptFunction * gainScriptFunction(const char * name);
 	
@@ -1511,7 +1510,7 @@ void GLuaScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 	LEAVE_LUA(this->luaState)
 }
 
-GScriptObject * GLuaScriptObject::createScriptObject(const char * name)
+GScriptObject * GLuaScriptObject::doCreateScriptObject(const char * name)
 {
 	ENTER_LUA()
 	
@@ -1526,33 +1525,10 @@ GScriptObject * GLuaScriptObject::createScriptObject(const char * name)
 		scopeGuard.get(name);
 	}
 	else {
-		if(isValidMetaTable(this->luaState, -1)) {
+		if(getLuaType(this->luaState, -1, NULL) != sdtScriptObject) {
 			lua_pop(this->luaState, 1);
 			return NULL;
 		}
-	}
-
-	GLuaScriptObject * newScriptObject = new GLuaScriptObject(*this);
-	newScriptObject->setOwner(this);
-	newScriptObject->setName(name);
-	
-	return newScriptObject;
-
-	LEAVE_LUA(this->luaState, return NULL)
-}
-
-GScriptObject * GLuaScriptObject::gainScriptObject(const char * name)
-{
-	ENTER_LUA()
-	
-	GLuaScopeGuard scopeGuard(this);
-
-	scopeGuard.get(name);
-
-	if(lua_isnil(this->luaState, -1)) {
-		lua_pop(this->luaState, 1);
-		
-		return NULL;
 	}
 
 	GLuaScriptObject * newScriptObject = new GLuaScriptObject(*this);

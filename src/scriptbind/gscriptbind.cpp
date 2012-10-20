@@ -60,6 +60,42 @@ void GScriptObject::setName(const std::string & newName)
 	this->name = newName;
 }
 
+GScriptObject * GScriptObject::createScriptObject(const char * name)
+{
+	const int delimiter = '.';
+	if(strchr(name, delimiter) == NULL) {
+		return this->doCreateScriptObject(name);
+	}
+	else {
+		size_t len = strlen(name);
+		GScopedArray<char> tempName(new char[len + 1]);
+		memmove(tempName.get(), name, len + 1);
+		char * next;
+		char * head = tempName.get();
+		GScopedPointer<GScriptObject> scriptObject;
+		while(true) {
+			next = strchr(head, delimiter);
+			if(next != NULL) {
+				*next = '\0';
+			}
+			GScriptObject * obj = scriptObject.get();
+			if(obj == NULL) {
+				obj = this;
+			}
+			scriptObject.reset(obj->doCreateScriptObject(head));
+			if(! scriptObject) {
+				break;
+			}
+			if(next == NULL) {
+				break;
+			}
+			++next;
+			head = next;
+		}
+		return scriptObject.take();
+	}
+}
+
 
 } // namespace cpgf
 

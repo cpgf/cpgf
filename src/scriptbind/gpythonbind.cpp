@@ -125,8 +125,7 @@ public:
 
 	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
 
-	virtual GScriptObject * createScriptObject(const char * name);
-	virtual GScriptObject * gainScriptObject(const char * name);
+	virtual GScriptObject * doCreateScriptObject(const char * name);
 
 	virtual GScriptFunction * gainScriptFunction(const char * name);
 
@@ -1213,11 +1212,12 @@ bool isValidObject(PyObject * obj)
 	GPythonScopedPointer signature(getObjectAttr(obj, signatureName));
 
 	if(signature) {
-		return (strcmp(signatureValue, PyString_AsString(signature.get())) == 0);
+		const char * name = PyString_AsString(signature.get());
+		if(name != NULL) {
+			return (strcmp(signatureValue, name) == 0);
+		}
 	}
-	else {
-		return false;
-	}
+	return false;
 }
 
 void doBindMethodList(const GContextPointer & context, PyObject * owner, const char * name, IMetaList * methodList, GGlueDataMethodType methodType)
@@ -1339,39 +1339,27 @@ void GPythonScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 	LEAVE_PYTHON()
 }
 
-GScriptObject * GPythonScriptObject::createScriptObject(const char * name)
-{
-	ENTER_PYTHON()
-
-	GPythonScopedPointer existObject(getObjectAttr(this->object, name));
-	if(existObject) {
-		return NULL;
-	}
-
-	PyObject * dict = createEmptyPythonObject(); // PyDict_New();
-	setObjectAttr(this->object, name, dict);
-	setObjectSignature(dict);
-	GPythonScriptObject * newScriptObject = new GPythonScriptObject(*this, dict);
-	newScriptObject->setOwner(this);
-	newScriptObject->setName(name);
-	return newScriptObject;
-
-	LEAVE_PYTHON(return NULL)
-}
-
-GScriptObject * GPythonScriptObject::gainScriptObject(const char * name)
+GScriptObject * GPythonScriptObject::doCreateScriptObject(const char * name)
 {
 	ENTER_PYTHON()
 
 	PyObject * attr = getObjectAttr(this->object, name);
 	if(attr != NULL) {
-		GPythonScriptObject * newScriptObject = new GPythonScriptObject(*this, attr);
+		if(getPythonType(attr, NULL) == sdtScriptObject) {
+			GPythonScriptObject * newScriptObject = new GPythonScriptObject(*this, attr);
+			newScriptObject->setOwner(this);
+			newScriptObject->setName(name);
+			return newScriptObject;
+		}
+	}
+	else {
+		PyObject * dict = createEmptyPythonObject(); // PyDict_New();
+		setObjectAttr(this->object, name, dict);
+		setObjectSignature(dict);
+		GPythonScriptObject * newScriptObject = new GPythonScriptObject(*this, dict);
 		newScriptObject->setOwner(this);
 		newScriptObject->setName(name);
 		return newScriptObject;
-	}
-	else {
-		return NULL;
 	}
 
 	LEAVE_PYTHON(return NULL)

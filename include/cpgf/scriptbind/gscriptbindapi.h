@@ -61,7 +61,6 @@ struct IScriptObject : public IExtendObject
 	virtual uint32_t G_API_CC getType(const char * name, IMetaTypedItem ** outMetaTypeItem) = 0;
 
 	virtual IScriptObject * G_API_CC createScriptObject(const char * name) = 0;
-	virtual IScriptObject * G_API_CC gainScriptObject(const char * name) = 0;
 	
 	virtual IScriptFunction * G_API_CC gainScriptFunction(const char * name) = 0;
 	

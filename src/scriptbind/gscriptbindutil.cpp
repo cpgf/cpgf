@@ -108,24 +108,6 @@ IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject)
 	return scriptObjectToInterface(scriptObject, false);
 }
 
-GScriptObject * createOrGetScriptObject(GScriptObject * scriptObject, const char * name)
-{
-	GScriptObject * object = scriptObject->gainScriptObject(name);
-	if(object == NULL) {
-		object = scriptObject->createScriptObject(name);
-	}
-	return object;
-}
-
-IScriptObject * createOrGetScriptObject(IScriptObject * scriptObject, const char * name)
-{
-	IScriptObject * object = scriptObject->gainScriptObject(name);
-	if(object == NULL) {
-		object = scriptObject->createScriptObject(name);
-	}
-	return object;
-}
-
 void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName)
 {
 	GScopedInterface<IObject> metaObject;
@@ -134,7 +116,7 @@ void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, 
 	
 	GScopedInterface<IScriptObject> namespaceHolder;
 	if(namespaceName != NULL && *namespaceName) {
-		namespaceHolder.reset(createOrGetScriptObject(scriptObject, namespaceName));
+		namespaceHolder.reset(scriptObject->createScriptObject(namespaceName));
 		scriptObject = namespaceHolder.get();
 	}
 	

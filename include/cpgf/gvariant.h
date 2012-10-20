@@ -227,7 +227,7 @@ GVariant pointerToRefVariant(T * p)
 GVariant pointerToRefVariant(const GVariant & p);
 
 template <bool Copyable, typename T>
-typename GEnableIf<! IsReference<T>::Result, GVariant>::Result createVariant(const T & value, bool copyObject = false)
+typename GDisableIf<IsReference<T>::Result, GVariant>::Result createVariant(const T & value, bool copyObject = false)
 {
 	GVarTypeData typeData;
 	deduceVariantType<T>(typeData, copyObject);
