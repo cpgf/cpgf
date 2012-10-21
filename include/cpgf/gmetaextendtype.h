@@ -107,7 +107,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 		GMetaTraitsParam param;
 		param.module = module;
 		typename WrapExtendType<T>::Result * p = 0;
-		data->objectLifeManager = metaTraitsCreateObjectLifeManager(p, param);
+		data->objectLifeManager = metaTraitsCreateObjectLifeManager(param, p);
 	}
 	else {
 		data->objectLifeManager = NULL;

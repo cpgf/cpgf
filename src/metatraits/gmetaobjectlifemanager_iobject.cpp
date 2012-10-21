@@ -28,7 +28,7 @@ protected:
 } // unnamed namespace
 
 
-IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(IObject *, const GMetaTraitsParam & /*param*/)
+IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, IObject *)
 {
 	return new GMetaObjectLifeManagerIObject();
 }

@@ -10,7 +10,7 @@ struct GMetaTraitsParam;
 struct IMetaClass;
 struct IMetaObjectLifeManager;
 
-IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(IObject *, const GMetaTraitsParam & /*param*/);
+IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, IObject *);
 
 
 } // namespace cpgf

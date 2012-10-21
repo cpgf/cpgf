@@ -4,7 +4,7 @@
 
 namespace cpgf {
 
-IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(void *, const GMetaTraitsParam & /*param*/)
+IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, ...)
 {
 	return NULL;
 }

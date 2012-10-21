@@ -16,7 +16,7 @@ struct IMetaObjectLifeManager : public IObject
 };
 
 
-IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(void *, const GMetaTraitsParam & /*param*/);
+IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, ...);
 
 void metaTraitsRetainObject(IMetaObjectLifeManager * traits, void * object, IMetaClass * metaClass);
 void metaTraitsReleaseObject(IMetaObjectLifeManager * traits, void * object, IMetaClass * metaClass);

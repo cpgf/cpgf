@@ -15,6 +15,7 @@ public:
 	explicit MyInterfaceHolder(cpgf::IObject * object)
 		: object(object)
 	{
+		object->releaseReference();
 	}
 	
 private:
