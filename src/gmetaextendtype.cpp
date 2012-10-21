@@ -26,6 +26,7 @@ namespace {
 		data->serializer = NULL;
 		data->scriptWrapper = NULL;
 		data->sharedPointerTraits = NULL;
+		data->objectLifeManager = NULL;
 	}
 } // unnamed namespace
 
@@ -134,12 +135,25 @@ IMetaSharedPointerTraits * GMetaExtendType::getSharedPointerTraits() const
 	}
 }
 
+IMetaObjectLifeManager * GMetaExtendType::getObjectLifeManager() const
+{
+	if(this->data.objectLifeManager != NULL) {
+		this->data.objectLifeManager->addReference();
+		return this->data.objectLifeManager;
+	}
+	else {
+		return NULL;
+	}
+}
+
+
 void retainExtendTypeData(GMetaExtendTypeData * data)
 {
 	retainInterface(data->converter);
 	retainInterface(data->serializer);
 	retainInterface(data->scriptWrapper);
 	retainInterface(data->sharedPointerTraits);
+	retainInterface(data->objectLifeManager);
 }
 
 void releaseExtendTypeData(GMetaExtendTypeData * data)
@@ -148,6 +162,7 @@ void releaseExtendTypeData(GMetaExtendTypeData * data)
 	releaseInterface(data->serializer);
 	releaseInterface(data->scriptWrapper);
 	releaseInterface(data->sharedPointerTraits);
+	releaseInterface(data->objectLifeManager);
 }
 
 

@@ -12,6 +12,7 @@
 #include "cpgf/metatraits/gmetaserializer.h"
 #include "cpgf/metatraits/gmetascriptwrapper.h"
 #include "cpgf/metatraits/gmetasharedptrtraits.h"
+#include "cpgf/metatraits/gmetaobjectlifemanager.h"
 
 #include <string.h>
 
@@ -24,6 +25,7 @@ const uint32_t GExtendTypeCreateFlag_Converter = 1 << 0;
 const uint32_t GExtendTypeCreateFlag_Serializer = 1 << 1;
 const uint32_t GExtendTypeCreateFlag_ScriptWrapper = 1 << 2;
 const uint32_t GExtendTypeCreateFlag_SharedPointerTraits = 1 << 3;
+const uint32_t GExtendTypeCreateFlag_ObjectLifeManager = 1 << 4;
 
 #pragma pack(push, 1)
 #pragma pack(1)
@@ -34,6 +36,7 @@ struct GMetaExtendTypeData
 	IMetaSerializer * serializer;
 	IMetaScriptWrapper * scriptWrapper;
 	IMetaSharedPointerTraits * sharedPointerTraits;
+	IMetaObjectLifeManager * objectLifeManager;
 };
 #pragma pack(pop)
 
@@ -99,6 +102,16 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 	else {
 		data->sharedPointerTraits = NULL;
 	}
+
+	if((createFlags & GExtendTypeCreateFlag_ObjectLifeManager) != 0) {
+		GMetaTraitsParam param;
+		param.module = module;
+		typename WrapExtendType<T>::Result * p = 0;
+		data->objectLifeManager = metaTraitsCreateObjectLifeManager(p, param);
+	}
+	else {
+		data->objectLifeManager = NULL;
+	}
 }
 
 
@@ -124,6 +137,7 @@ public:
 	IMetaSerializer * getSerializer() const;
 	IMetaScriptWrapper * getScriptWrapper() const;
 	IMetaSharedPointerTraits * getSharedPointerTraits() const;
+	IMetaObjectLifeManager * getObjectLifeManager() const;
 	
 	const GMetaExtendTypeData & refData() const;
 	GMetaExtendTypeData & refData();

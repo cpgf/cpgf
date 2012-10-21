@@ -189,13 +189,14 @@ public class CppClass extends ParameteredItem {
 	}
 	
 	public boolean canGenerateMetaCode() {
-		return this.constructorList.size() > 0
-				|| this.fieldList.size() > 0
-				|| this.methodList.size() > 0
-				|| this.enumList.size() > 0
-				|| this.operatorList.size() > 0
-				|| this.constantList.size() > 0
-			;
+		return true;
+//		return this.constructorList.size() > 0
+//				|| this.fieldList.size() > 0
+//				|| this.methodList.size() > 0
+//				|| this.enumList.size() > 0
+//				|| this.operatorList.size() > 0
+//				|| this.constantList.size() > 0
+//			;
 	}
 	
 	@Override

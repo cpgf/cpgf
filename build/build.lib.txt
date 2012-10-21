@@ -39,6 +39,8 @@ set(SRC_META
 	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
 	${SRC_PATH}/metatraits/gmetaserializer_string.cpp
 	${SRC_PATH}/metatraits/gmetaserializer_trapall.cpp
+	${SRC_PATH}/metatraits/gmetaobjectlifemanager.cpp
+	${SRC_PATH}/metatraits/gmetaobjectlifemanager_iobject.cpp
 	
 	${SRC_PATH}/serialization/gmetaarchivecommon.cpp
 	${SRC_PATH}/serialization/gmetaarchivereader.cpp

@@ -237,12 +237,13 @@ typename GDisableIf<IsReference<T>::Result, GVariant>::Result createVariant(cons
 }
 
 template <bool Copyable, typename T>
-typename GEnableIf<IsReference<T>::Result, GVariant>::Result createVariant(T value, bool copyObject = false)
+typename GEnableIf<IsReference<T>::Result, GVariant>::Result createVariant(T value, bool /*copyObject*/ = false)
 {
+	// Ignore Copyable and copyObject since we don't copy a reference.
 	GVarTypeData typeData;
-	deduceVariantType<T>(typeData, copyObject);
+	deduceVariantType<T>(typeData, false);
 	GVariant v;
-	variant_internal::InitVariant<Copyable, typename variant_internal::DeducePassType<T>::PassType>(v, typeData, value);
+	variant_internal::InitVariant<false, typename variant_internal::DeducePassType<T>::PassType>(v, typeData, value);
 	return v;
 }
 

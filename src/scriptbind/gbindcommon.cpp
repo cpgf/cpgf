@@ -318,6 +318,11 @@ GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGl
 	if(vtIsInterface(instance.getType())) {
 		this->flags.clear(bvfAllowGC);
 	}
+	
+	if(this->isAllowGC()) {
+		GScopedInterface<IMetaObjectLifeManager> objectLifeManager(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
+		metaTraitsRetainObject(objectLifeManager.get(), this->getInstanceAddress(), this->getClassData()->getMetaClass());
+	}
 }
 
 GObjectGlueData::~GObjectGlueData()
@@ -327,7 +332,8 @@ GObjectGlueData::~GObjectGlueData()
 	}
 	
 	if(this->isAllowGC()) {
-		this->getClassData()->getMetaClass()->destroyInstance(this->getInstanceAddress());
+		GScopedInterface<IMetaObjectLifeManager> objectLifeManager(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
+		metaTraitsReleaseObject(objectLifeManager.get(), this->getInstanceAddress(), this->getClassData()->getMetaClass());
 	}
 }
 

@@ -15,7 +15,7 @@ protected: \
 
 #define G_INTERFACE_IMPL_OBJECT \
 protected: \
-	GImplObject ginterface_implObject; \
+	cpgf::GImplObject ginterface_implObject; \
 	G_INTERFACE_IMPL_OBJECT_DERIVED
 
 #define G_INTERFACE_IMPL_EXTENDOBJECT_DERIVED \
@@ -25,7 +25,7 @@ protected: \
 
 #define G_INTERFACE_IMPL_EXTENDOBJECT \
 protected: \
-	GImplExtendObject ginterface_implExtendObject; \
+	cpgf::GImplExtendObject ginterface_implExtendObject; \
 	G_INTERFACE_IMPL_EXTENDOBJECT_DERIVED
 
 namespace cpgf {
