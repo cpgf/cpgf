@@ -648,7 +648,6 @@ private:
 	GScopedPointer<GClassPool> classPool;
 	
 	GScopedPointer<GScriptCoreService> scriptCoreService;
-	GScopedPointer<GMetaClass> scriptCoreServiceMetaClass;
 
 private:
 	template <typename T>

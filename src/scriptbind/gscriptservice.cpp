@@ -45,24 +45,23 @@ void buildMetaClass_GScriptCoreService(D _d)
     _d.CPGF_MD_TEMPLATE _method("loadLibrary", &D::ClassType::loadLibrary);
 }
 
-GMetaClass * doBindScriptCoreService(GScriptObject * scriptObject, const char * bindName, GScriptCoreService * scriptCoreService)
+GScriptCoreService * doBindScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader)
 {
+	GScopedPointer<GScriptCoreService> coreService(new GScriptCoreService(scriptObject, bindName, libraryLoader));
+
 	GDefineMetaClass<GScriptCoreService> define = GDefineMetaClass<GScriptCoreService>::Policy<GMetaPolicyNoDefaultAndCopyConstructor>::declare("GScriptCoreService");
 	buildMetaClass_GScriptCoreService(define);
 
-	injectObjectToScript(scriptObject, define.getMetaClass(), scriptCoreService, bindName);
+	injectObjectToScript(scriptObject, define.getMetaClass(), coreService.get(), bindName);
 
-	return define.takeMetaClass();
-}
+	scriptObject->holdObject(metaItemToInterface(define.takeMetaClass(), true));
 
-GScriptCoreService * doCreateScriptCoreService(GScriptObject * scriptObject, IScriptLibraryLoader * libraryLoader)
-{
-	return new GScriptCoreService(scriptObject, libraryLoader);
+	return coreService.take();
 }
 
 
-GScriptCoreService::GScriptCoreService(GScriptObject * scriptObject, IScriptLibraryLoader * libraryLoader)
-	: scriptObject(scriptObject), libraryLoader(libraryLoader)
+GScriptCoreService::GScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader)
+	: scriptObject(scriptObject), bindName(bindName), libraryLoader(libraryLoader)
 {
 }
 
@@ -80,6 +79,10 @@ bool GScriptCoreService::loadLibrary(const char * namespaces, const GMetaVariadi
 	if(! this->libraryLoader) {
 		this->libraryLoader.reset(createBuiltinLibraries());
 		this->libraryLoader->releaseReference();
+	}
+
+	if(namespaces == NULL) {
+		namespaces = this->bindName.c_str();
 	}
 
 	GScopedInterface<IScriptObject> owner(scriptObjectToInterface(this->scriptObject, false));

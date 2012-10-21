@@ -747,6 +747,10 @@ GVariant pythonToVariant(const GContextPointer & context, PyObject * value, GGlu
 		return GVariant();
 	}
 
+	if(value == Py_None) {
+		return GVariant((void *)0);
+	}
+
 	if(PyNumber_Check(value)) {
 		if(PyBool_Check(value)) {
 			return PyInt_AsLong(value) != 0;

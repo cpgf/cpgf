@@ -4,6 +4,8 @@
 
 #include "cpgf/gapi.h"
 
+#include <string>
+
 
 namespace cpgf {
 
@@ -18,17 +20,18 @@ public:
 	~GScriptCoreService();
 	
 private:
-	GScriptCoreService(GScriptObject * scriptObject, IScriptLibraryLoader * libraryLoader);
+	GScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader);
 
 	IMetaClass * cloneClass(IMetaClass * metaClass);
 	bool loadLibrary(const char * namespaces, const GMetaVariadicParam * libraryNames);
 
 private:
 	GScriptObject * scriptObject;
+	std::string bindName;
 	GSharedInterface<IScriptLibraryLoader> libraryLoader;
 
 private:
-	friend GScriptCoreService * doCreateScriptCoreService(GScriptObject * scriptObject, IScriptLibraryLoader * libraryLoader);
+	friend GScriptCoreService * doBindScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader);
 
 	template <typename D>
 	friend void buildMetaClass_GScriptCoreService(D _d);
