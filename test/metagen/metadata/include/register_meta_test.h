@@ -25,6 +25,8 @@ GDefineMetaInfo createMetaClass_SimpleData();
 GDefineMetaInfo createMetaClass_SimpleObject();
 GDefineMetaInfo createMetaClass_SimpleOverride();
 GDefineMetaInfo createMetaClass_SimpleOverrideBase();
+GDefineMetaInfo createMetaClass_TestMethodMethodClass();
+GDefineMetaInfo createMetaClass_TestMethodMethodData();
 
 
 template <typename Meta>
@@ -43,6 +45,8 @@ void registerMain_metatest(Meta _d)
     _d._class(createMetaClass_SimpleObject());
     _d._class(createMetaClass_SimpleOverride());
     _d._class(createMetaClass_SimpleOverrideBase());
+    _d._class(createMetaClass_TestMethodMethodClass());
+    _d._class(createMetaClass_TestMethodMethodData());
 }
 
 } // namespace meta_test
