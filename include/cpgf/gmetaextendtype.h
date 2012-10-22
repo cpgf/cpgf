@@ -44,18 +44,25 @@ struct GMetaExtendTypeData
 namespace meta_internal {
 
 template <typename T>
-struct WrapExtendType
+struct WrapExtendTypeForSerializer
 {
 private:
 	typedef typename ExtractRawType<T>::Result Raw;
 
 public:
-	typedef
-		typename GIfElse<IsVoid<Raw>::Result, int, Raw>::Result
-		Result;
+	typedef typename GIfElse<IsVoid<Raw>::Result, int, Raw>::Result Result;
 };
 
-// Note: all the meta traits are for the raw type, not including any pointers or reference.
+template <typename T>
+struct WrapExtendType
+{
+private:
+	typedef typename RemoveReference<T>::Result U;
+
+public:
+	typedef typename GIfElse<IsVoid<U>::Result, int, U>::Result Result;
+};
+
 template <typename T>
 void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, const GMetaModule * module)
 {
@@ -76,7 +83,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 	if((createFlags & GExtendTypeCreateFlag_Serializer) != 0) {
 		GMetaTraitsParam param;
 		param.module = module;
-		typename WrapExtendType<T>::Result * p = 0;
+		typename WrapExtendTypeForSerializer<T>::Result * p = 0;
 		data->serializer = metaTraitsCreateSerializer(*p, param);
 	}
 	else {
