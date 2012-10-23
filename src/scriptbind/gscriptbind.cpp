@@ -73,7 +73,7 @@ GScriptObject * GScriptObject::createScriptObject(const char * name)
 		char * next;
 		char * head = tempName.get();
 		GScopedPointer<GScriptObject> scriptObject;
-		while(true) {
+		for(;;) {
 			next = strchr(head, delimiter);
 			if(next != NULL) {
 				*next = '\0';

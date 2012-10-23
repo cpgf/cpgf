@@ -712,7 +712,7 @@ void ImplMetaItem::doGetItemType(GMetaTypeData * outType)
 void ImplMetaItem::doGetItemExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags)
 {
 	ENTER_META_API()
-	
+
 	GMetaExtendType extendType = this->item->getItemExtendType(flags);
 
 	*outExtendType = extendType.takeData();

@@ -11,17 +11,17 @@ class GMetaObjectLifeManagerDefault : public IMetaObjectLifeManager
 	G_INTERFACE_IMPL_OBJECT
 
 protected:
-	virtual void G_API_CC retainObject(void * object) {
+	virtual void G_API_CC retainObject(void *) {
 	}
 	
-	virtual void G_API_CC releaseObject(void * object) {
+	virtual void G_API_CC releaseObject(void *) {
 	}
 	
 	virtual void G_API_CC freeObject(void * object, IMetaClass * metaClass) {
 		metaClass->destroyInstance(object);
 	}
 
-	virtual void G_API_CC returnedFromMethod(void * object) {
+	virtual void G_API_CC returnedFromMethod(void *) {
 	}
 };
 
