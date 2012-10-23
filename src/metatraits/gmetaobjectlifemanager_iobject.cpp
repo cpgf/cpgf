@@ -41,6 +41,11 @@ IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsPara
 	return new GMetaObjectLifeManagerIObject();
 }
 
+IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, IObject **)
+{
+	return new GMetaObjectLifeManagerIObject();
+}
+
 
 
 } // namespace cpgf

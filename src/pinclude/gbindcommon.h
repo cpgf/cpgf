@@ -1055,7 +1055,6 @@ typename Methods::ResultType methodResultToScript(const GContextPointer & contex
 			metaCheckError(callable);
 		}
 
-		GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
 		void * instance = NULL;
 		if(canFromVariant<void *>(value)) {
 			instance = objectAddressFromVariant(value);

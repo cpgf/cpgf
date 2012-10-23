@@ -11,6 +11,7 @@ struct IMetaClass;
 struct IMetaObjectLifeManager;
 
 IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, IObject *);
+IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, IObject **);
 
 
 } // namespace cpgf
