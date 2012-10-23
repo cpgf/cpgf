@@ -10,6 +10,8 @@
 #include "cpgf/gsharedptr.h"
 #include "cpgf/gflags.h"
 
+#include "cpgf/metatraits/gmetaobjectlifemanager_iobject.h"
+
 #include <map>
 #include <set>
 
@@ -830,6 +832,8 @@ IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer
 GScriptDataType methodTypeToGlueDataType(GGlueDataMethodType methodType);
 InvokeCallableResult doInvokeOperator(const GContextPointer & context, void * instance, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam);
 
+IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & value);
+
 template <typename Getter, typename Predict>
 int findAppropriateCallable(IMetaService * service,
 	const Getter & getter, size_t callableCount,
@@ -1005,6 +1009,32 @@ typename Methods::ResultType extendVariantToScript(const GContextPointer & conte
 	return result;
 }
 
+class GReturnedFromMethodObjectGuard
+{
+public:
+	explicit GReturnedFromMethodObjectGuard(void * instance)
+		: instance(instance)
+	{
+	}
+
+	~GReturnedFromMethodObjectGuard() {
+		if(this->objectLifeManager && this->instance != NULL) {
+			this->objectLifeManager->returnedFromMethod(this->instance);
+		}
+	}
+
+	void reset(IMetaObjectLifeManager * objectLifeManager) {
+		this->objectLifeManager.reset(objectLifeManager);
+	}
+
+	IMetaObjectLifeManager * getObjectLifeManager() const {
+		return this->objectLifeManager.get();
+	}
+
+private:
+	GScopedInterface<IMetaObjectLifeManager> objectLifeManager;
+	void * instance;
+};
 
 template <typename Methods>
 typename Methods::ResultType methodResultToScript(const GContextPointer & context, IMetaCallable * callable, InvokeCallableResult * resultValue)
@@ -1026,9 +1056,14 @@ typename Methods::ResultType methodResultToScript(const GContextPointer & contex
 		}
 
 		GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
-		GScopedInterface<IObject> releaseIt;
-		if(vtIsInterface(vt)) {
-			releaseIt.reset(value.refData().valueInterface); // auto release the reference
+		void * instance = NULL;
+		if(canFromVariant<void *>(value)) {
+			instance = objectAddressFromVariant(value);
+		}
+		GReturnedFromMethodObjectGuard objectGuard(instance);
+		objectGuard.reset(createObjectLifeManagerForInterface(value));
+		if(objectGuard.getObjectLifeManager() == NULL) {
+			objectGuard.reset(metaGetResultExtendType(callable, GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
 		}
 
 		GBindValueFlags flags;

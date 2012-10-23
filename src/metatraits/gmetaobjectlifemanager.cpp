@@ -4,26 +4,40 @@
 
 namespace cpgf {
 
-IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, ...)
-{
-	return NULL;
-}
+namespace {
 
-void metaTraitsRetainObject(IMetaObjectLifeManager * traits, void * object, IMetaClass * metaClass)
+class GMetaObjectLifeManagerDefault : public IMetaObjectLifeManager
 {
-	if(traits != NULL) {
-		traits->retainObject(object, metaClass);
-	}
-}
+	G_INTERFACE_IMPL_OBJECT
 
-void metaTraitsReleaseObject(IMetaObjectLifeManager * traits, void * object, IMetaClass * metaClass)
-{
-	if(traits != NULL) {
-		traits->releaseObject(object, metaClass);
+protected:
+	virtual void G_API_CC retainObject(void * object) {
 	}
-	else {
+	
+	virtual void G_API_CC releaseObject(void * object) {
+	}
+	
+	virtual void G_API_CC freeObject(void * object, IMetaClass * metaClass) {
 		metaClass->destroyInstance(object);
 	}
+
+	virtual void G_API_CC returnedFromMethod(void * object) {
+	}
+};
+
+GScopedInterface<IMetaObjectLifeManager> defaultObjectLifeManager;
+
+} // unnamed namespace
+
+
+
+IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, ...)
+{
+	if(! defaultObjectLifeManager) {
+		defaultObjectLifeManager.reset(new GMetaObjectLifeManagerDefault());
+	}
+	defaultObjectLifeManager->addReference();
+	return defaultObjectLifeManager.get();
 }
 
 

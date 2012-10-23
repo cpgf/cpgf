@@ -6,6 +6,8 @@
 #include "cpgf/scriptbind/gscriptservice.h"
 #include "cpgf/glifecycle.h"
 
+#include "cpgf/metatraits/gmetatraitsparam.h"
+
 #include <vector>
 
 
@@ -314,14 +316,11 @@ GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGl
 	const GBindValueFlags & flags, ObjectPointerCV cv)
 	: super(gdtObject, context), classGlueData(classGlueData), instance(instance), flags(flags), cv(cv)
 {
-	if(vtIsInterface(instance.getType())) {
-		this->flags.clear(bvfAllowGC);
+	GScopedInterface<IMetaObjectLifeManager> objectLifeManager(createObjectLifeManagerForInterface(this->instance));
+	if(! objectLifeManager) {
+		objectLifeManager.reset(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
 	}
-	
-	if(this->isAllowGC()) {
-		GScopedInterface<IMetaObjectLifeManager> objectLifeManager(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
-		metaTraitsRetainObject(objectLifeManager.get(), this->getInstanceAddress(), this->getClassData()->getMetaClass());
-	}
+	objectLifeManager->retainObject(this->getInstanceAddress());
 }
 
 GObjectGlueData::~GObjectGlueData()
@@ -330,9 +329,13 @@ GObjectGlueData::~GObjectGlueData()
 		this->getContext()->getClassPool()->objectDestroyed(this->getInstanceAddress());
 	}
 	
+	GScopedInterface<IMetaObjectLifeManager> objectLifeManager(createObjectLifeManagerForInterface(this->instance));
+	if(! objectLifeManager) {
+		objectLifeManager.reset(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
+	}
+	objectLifeManager->releaseObject(this->getInstanceAddress());
 	if(this->isAllowGC()) {
-		GScopedInterface<IMetaObjectLifeManager> objectLifeManager(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
-		metaTraitsReleaseObject(objectLifeManager.get(), this->getInstanceAddress(), this->getClassData()->getMetaClass());
+		objectLifeManager->freeObject(this->getInstanceAddress(), this->getClassData()->getMetaClass());
 	}
 }
 
@@ -1432,6 +1435,15 @@ InvokeCallableResult doInvokeOperator(const GContextPointer & context, void * in
 	return InvokeCallableResult();
 }
 
+IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & value)
+{
+	if(vtIsInterface(value.getType())) {
+		return metaTraitsCreateObjectLifeManager(GMetaTraitsParam(), (IObject *)NULL);
+	}
+	else {
+		return NULL;
+	}
+}
 
 
 } // namespace bind_internal

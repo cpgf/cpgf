@@ -11,15 +11,14 @@ struct IMetaClass;
 
 struct IMetaObjectLifeManager : public IObject
 {
-	virtual void G_API_CC retainObject(void * object, IMetaClass * metaClass) = 0;
-	virtual void G_API_CC releaseObject(void * object, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC retainObject(void * object) = 0;
+	virtual void G_API_CC releaseObject(void * object) = 0;
+	virtual void G_API_CC freeObject(void * object, IMetaClass * metaClass) = 0;
+	virtual void G_API_CC returnedFromMethod(void * object) = 0;
 };
 
 
 IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, ...);
-
-void metaTraitsRetainObject(IMetaObjectLifeManager * traits, void * object, IMetaClass * metaClass);
-void metaTraitsReleaseObject(IMetaObjectLifeManager * traits, void * object, IMetaClass * metaClass);
 
 
 } // namespace cpgf
