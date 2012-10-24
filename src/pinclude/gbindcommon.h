@@ -305,6 +305,7 @@ private:
 	mutable GScopedPointer<GScriptDataHolder> dataHolder;
 	GScopedInterface<IScriptDataStorage> dataStorage;
 	GSharedInterface<IMetaSharedPointerTraits> sharedPointerTraits;
+	GScopedInterface<IMetaObjectLifeManager> objectLifeManager;
 
 private:
 	friend class GBindingContext;

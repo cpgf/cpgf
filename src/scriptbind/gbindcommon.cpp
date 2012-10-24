@@ -316,26 +316,22 @@ GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGl
 	const GBindValueFlags & flags, ObjectPointerCV cv)
 	: super(gdtObject, context), classGlueData(classGlueData), instance(instance), flags(flags), cv(cv)
 {
-	GScopedInterface<IMetaObjectLifeManager> objectLifeManager(createObjectLifeManagerForInterface(this->instance));
-	if(! objectLifeManager) {
-		objectLifeManager.reset(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
+	this->objectLifeManager.reset(createObjectLifeManagerForInterface(this->instance));
+	if(! this->objectLifeManager) {
+		this->objectLifeManager.reset(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
 	}
-	objectLifeManager->retainObject(this->getInstanceAddress());
+	this->objectLifeManager->retainObject(this->getInstanceAddress());
 }
 
 GObjectGlueData::~GObjectGlueData()
 {
+	this->objectLifeManager->releaseObject(this->getInstanceAddress());
+	if(this->isAllowGC()) {
+		this->objectLifeManager->freeObject(this->getInstanceAddress(), this->getClassData()->getMetaClass());
+	}
+
 	if(this->isValid()) {
 		this->getContext()->getClassPool()->objectDestroyed(this->getInstanceAddress());
-	}
-	
-	GScopedInterface<IMetaObjectLifeManager> objectLifeManager(createObjectLifeManagerForInterface(this->instance));
-	if(! objectLifeManager) {
-		objectLifeManager.reset(metaGetItemExtendType(this->getClassData()->getMetaClass(), GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
-	}
-	objectLifeManager->releaseObject(this->getInstanceAddress());
-	if(this->isAllowGC()) {
-		objectLifeManager->freeObject(this->getInstanceAddress(), this->getClassData()->getMetaClass());
 	}
 }
 
