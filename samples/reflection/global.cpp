@@ -90,7 +90,7 @@ void doTestAPI()
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	testCheckAssert(service);
 
-	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service.get(), 0));
 	testCheckAssert(metaClass);
 	std::cout << "API: " << metaClass->getName() << std::endl;
 
@@ -100,39 +100,39 @@ void doTestAPI()
 	{
 		width = 0;
 		field.reset(metaClass->getField("width")); testCheckAssert(field);
-		metaSetValue(field, NULL, 123);
+		metaSetValue(field.get(), NULL, 123);
 		testCheckEqual(width, 123);
-		testCheckEqual(width, fromVariant<int>(metaGetValue(field, NULL)));
+		testCheckEqual(width, fromVariant<int>(metaGetValue(field.get(), NULL)));
 	}
 
 	{
 		name = "";
 		field.reset(metaClass->getField("name")); testCheckAssert(field);
-		metaSetValue(field, NULL, "new name");
+		metaSetValue(field.get(), NULL, "new name");
 		testCheckStringEqual(name, "new name");
-		std::string s = fromVariant<std::string>(metaGetValue(field, NULL));
+		std::string s = fromVariant<std::string>(metaGetValue(field.get(), NULL));
 		testCheckStringEqual(name, s);
 	}
 
 	{
 		field.reset(metaClass->getField("data")); testCheckAssert(field);
 		TestData localdata(3, "Fake dummy data");
-		metaSetValue(field, NULL, localdata);
+		metaSetValue(field.get(), NULL, localdata);
 		testCheckEqual(data, localdata);
-		testCheckEqual(data, fromVariant<TestData>(metaGetValue(field, NULL)));
+		testCheckEqual(data, fromVariant<TestData>(metaGetValue(field.get(), NULL)));
 	}
 
 	{
 		stats = 0;
 		field.reset(metaClass->getField("stats")); testCheckAssert(field);
-		metaSetValue(field, NULL, 567);
+		metaSetValue(field.get(), NULL, 567);
 		testCheckEqual(stats, 567);
-		testCheckEqual(stats, fromVariant<int>(metaGetValue(field, NULL)));
+		testCheckEqual(stats, fromVariant<int>(metaGetValue(field.get(), NULL)));
 	}
 
 	{
 		method.reset(metaClass->getMethod("addNumber")); testCheckAssert(method);
-		int n = fromVariant<int>(metaInvokeMethod(method, NULL, 38888, 16888));
+		int n = fromVariant<int>(metaInvokeMethod(method.get(), NULL, 38888, 16888));
 		testCheckEqual(n, addNumber(38888, 16888));
 	}
 

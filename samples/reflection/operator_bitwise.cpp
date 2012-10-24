@@ -121,7 +121,7 @@ void doTestAPI()
 		metaOperator.reset(getOperator(mopHolder & mopHolder, metaClass, 0)); testCheckAssert(metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaInvokeOperatorBinary(metaOperator, obj, 3));
+		TestObject res = fromVariant<TestObject>(metaInvokeOperatorBinary(metaOperator.get(), obj, 3));
 		testCheckEqual(res, back & 3);
 		metaClass->destroyInstance(obj);
 	}
@@ -130,7 +130,7 @@ void doTestAPI()
 		metaOperator.reset(getOperator(mopHolder | mopHolder, metaClass, 0)); testCheckAssert(metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaInvokeOperatorBinary(metaOperator, obj, 3));
+		TestObject res = fromVariant<TestObject>(metaInvokeOperatorBinary(metaOperator.get(), obj, 3));
 		testCheckEqual(res, back | 3);
 		metaClass->destroyInstance(obj);
 	}
@@ -139,7 +139,7 @@ void doTestAPI()
 		metaOperator.reset(getOperator(mopHolder ^ mopHolder, metaClass, 0)); testCheckAssert(metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaInvokeOperatorBinary(metaOperator, obj, 3));
+		TestObject res = fromVariant<TestObject>(metaInvokeOperatorBinary(metaOperator.get(), obj, 3));
 		testCheckEqual(res, back ^ 3);
 		metaClass->destroyInstance(obj);
 	}
@@ -148,7 +148,7 @@ void doTestAPI()
 		metaOperator.reset(getOperator(mopHolder >> mopHolder, metaClass, 0)); testCheckAssert(metaOperator);
 		void * obj = metaClass->createInstance();
 		TestObject back(*(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaInvokeOperatorBinary(metaOperator, obj, 3));
+		TestObject res = fromVariant<TestObject>(metaInvokeOperatorBinary(metaOperator.get(), obj, 3));
 		testCheckEqual(res, back >> 3);
 		metaClass->destroyInstance(obj);
 	}
@@ -157,7 +157,7 @@ void doTestAPI()
 		metaOperator.reset(getOperator(mopHolder << mopHolder, metaClass, 0)); testCheckAssert(metaOperator);
 		void * obj = metaClass->createInstance();
 		const TestObject back(*(TestObject *)obj);
-		TestObject res = fromVariant<TestObject>(metaInvokeOperatorBinary(metaOperator, obj, 3));
+		TestObject res = fromVariant<TestObject>(metaInvokeOperatorBinary(metaOperator.get(), obj, 3));
 		testCheckEqual(res, back << 3);
 		metaClass->destroyInstance(obj);
 	}

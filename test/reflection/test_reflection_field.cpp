@@ -454,26 +454,26 @@ GTEST(API_Set)
 	GDIFF(pobj->fieldNoncopyableData, valueNoncopyableData);
 
 	FIELD(fieldInt);
-	metaSetValue(field, pobj, valueInt);
+	metaSetValue(field.get(), pobj, valueInt);
 	GEQUAL(valueInt, pobj->fieldInt);
 	
 	FIELD(fieldString);
-	metaSetValue(field, pobj, valueString);
+	metaSetValue(field.get(), pobj, valueString);
 	GEQUAL(valueString, pobj->fieldString);
 	
 	FIELD(fieldData);
-	metaSetValue(field, pobj, valueData);
+	metaSetValue(field.get(), pobj, valueData);
 	GEQUAL(valueData, pobj->fieldData);
 	
 	FIELD(fieldReadonlyInt);
-	EXCEPT_META(metaSetValue(field, pobj, valueReadonlyInt))
+	EXCEPT_META(metaSetValue(field.get(), pobj, valueReadonlyInt))
 	
 	FIELD(fieldWriteonlyString);
-	metaSetValue(field, pobj, valueWriteonlyString);
+	metaSetValue(field.get(), pobj, valueWriteonlyString);
 	GEQUAL(valueWriteonlyString, pobj->fieldWriteonlyString);
 	
 	FIELD(fieldNoncopyableData);
-	EXCEPT_META(metaSetValue(field, pobj, valueNoncopyableData))
+	EXCEPT_META(metaSetValue(field.get(), pobj, valueNoncopyableData))
 }
 
 
@@ -549,22 +549,22 @@ GTEST(API_Get)
 	pobj->fieldNoncopyableData = valueNoncopyableData;
 	
 	FIELD(fieldInt);
-	GEQUAL(fromVariant<int>(metaGetValue(field, pobj)), valueInt);
+	GEQUAL(fromVariant<int>(metaGetValue(field.get(), pobj)), valueInt);
 	
 	FIELD(fieldString);
-	GEQUAL(fromVariant<string>(metaGetValue(field, pobj)), valueString);
+	GEQUAL(fromVariant<string>(metaGetValue(field.get(), pobj)), valueString);
 	
 	FIELD(fieldData);
-	GEQUAL(fromVariant<CLASS_DATA>(metaGetValue(field, pobj)), valueData);
+	GEQUAL(fromVariant<CLASS_DATA>(metaGetValue(field.get(), pobj)), valueData);
 	
 	FIELD(fieldReadonlyInt);
-	GEQUAL(fromVariant<int>(metaGetValue(field, pobj)), valueReadonlyInt);
+	GEQUAL(fromVariant<int>(metaGetValue(field.get(), pobj)), valueReadonlyInt);
 	
 	FIELD(fieldWriteonlyString);
-	EXCEPT_META(metaGetValue(field, pobj))
+	EXCEPT_META(metaGetValue(field.get(), pobj))
 	
 	FIELD(fieldNoncopyableData);
-	EXCEPT_META(metaGetValue(field, pobj))
+	EXCEPT_META(metaGetValue(field.get(), pobj))
 }
 
 

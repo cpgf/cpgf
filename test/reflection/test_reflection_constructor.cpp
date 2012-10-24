@@ -334,61 +334,61 @@ GTEST(API_CheckParam)
 	GScopedInterface<IMetaConstructor> ctor;
 
 	CTOR(0);
-	GCHECK(! metaCheckParam(ctor, 38, 0));
-	GCHECK(! metaCheckParam(ctor, "", 1));
+	GCHECK(! metaCheckParam(ctor.get(), 38, 0));
+	GCHECK(! metaCheckParam(ctor.get(), "", 1));
 
 	CTOR(1);
-	GCHECK(metaCheckParam(ctor, CLASS(), 0));
-	GCHECK(! metaCheckParam(ctor, "", 0));
-	GCHECK(! metaCheckParam(ctor, "", 1));
+	GCHECK(metaCheckParam(ctor.get(), CLASS(), 0));
+	GCHECK(! metaCheckParam(ctor.get(), "", 0));
+	GCHECK(! metaCheckParam(ctor.get(), "", 1));
 
 	CTOR(2);
-	GCHECK(metaCheckParam(ctor, 19, 0));
-	GCHECK(! metaCheckParam(ctor, "", 0));
-	GCHECK(! metaCheckParam(ctor, "", 1));
+	GCHECK(metaCheckParam(ctor.get(), 19, 0));
+	GCHECK(! metaCheckParam(ctor.get(), "", 0));
+	GCHECK(! metaCheckParam(ctor.get(), "", 1));
 
 	CTOR(3);
-	GCHECK(metaCheckParam(ctor, "a", 0));
-	GCHECK(metaCheckParam(ctor, string("bc"), 0));
-	GCHECK(! metaCheckParam(ctor, 3, 1));
-	GCHECK(! metaCheckParam(ctor, "", 1));
+	GCHECK(metaCheckParam(ctor.get(), "a", 0));
+	GCHECK(metaCheckParam(ctor.get(), string("bc"), 0));
+	GCHECK(! metaCheckParam(ctor.get(), 3, 1));
+	GCHECK(! metaCheckParam(ctor.get(), "", 1));
 
 	CTOR(4);
-	GCHECK(metaCheckParam(ctor, 19, 0));
-	GCHECK(metaCheckParam(ctor, "a", 1));
-	GCHECK(metaCheckParam(ctor, string("bc"), 1));
-	GCHECK(! metaCheckParam(ctor, "", 0));
-	GCHECK(! metaCheckParam(ctor, 38, 1));
+	GCHECK(metaCheckParam(ctor.get(), 19, 0));
+	GCHECK(metaCheckParam(ctor.get(), "a", 1));
+	GCHECK(metaCheckParam(ctor.get(), string("bc"), 1));
+	GCHECK(! metaCheckParam(ctor.get(), "", 0));
+	GCHECK(! metaCheckParam(ctor.get(), 38, 1));
 
 	CTOR(5);
-	GCHECK(metaCheckParam(ctor, CLASS_DATA(), 0));
-	GCHECK(! metaCheckParam(ctor, "", 0));
-	GCHECK(! metaCheckParam(ctor, "", 1));
+	GCHECK(metaCheckParam(ctor.get(), CLASS_DATA(), 0));
+	GCHECK(! metaCheckParam(ctor.get(), "", 0));
+	GCHECK(! metaCheckParam(ctor.get(), "", 1));
 
 	CTOR(6);
-	GCHECK(metaCheckParam(ctor, (CLASS_DATA *)0, 0));
-	GCHECK(metaCheckParam(ctor, "abc", 0)); // dangerous
-	GCHECK(! metaCheckParam(ctor, "", 1));
+	GCHECK(metaCheckParam(ctor.get(), (CLASS_DATA *)0, 0));
+	GCHECK(metaCheckParam(ctor.get(), "abc", 0)); // dangerous
+	GCHECK(! metaCheckParam(ctor.get(), "", 1));
 
 	CTOR(7);
-	GCHECK(metaCheckParam(ctor, "abc", 0));
-	GCHECK(metaCheckParam(ctor, 50, 1));
-	GCHECK(metaCheckParam(ctor, 50, 10));
-	GCHECK(metaCheckParam(ctor, 50, 100));
-	GCHECK(metaCheckParam(ctor, 50, 1000));
+	GCHECK(metaCheckParam(ctor.get(), "abc", 0));
+	GCHECK(metaCheckParam(ctor.get(), 50, 1));
+	GCHECK(metaCheckParam(ctor.get(), 50, 10));
+	GCHECK(metaCheckParam(ctor.get(), 50, 100));
+	GCHECK(metaCheckParam(ctor.get(), 50, 1000));
 
 	CTOR(8);
-	GCHECK(metaCheckParam(ctor, 19, 0));
-	GCHECK(metaCheckParam(ctor, "a", 1));
-	GCHECK(metaCheckParam(ctor, string("bc"), 1));
-	GCHECK(! metaCheckParam(ctor, "", 0));
-	GCHECK(! metaCheckParam(ctor, 38, 1));
+	GCHECK(metaCheckParam(ctor.get(), 19, 0));
+	GCHECK(metaCheckParam(ctor.get(), "a", 1));
+	GCHECK(metaCheckParam(ctor.get(), string("bc"), 1));
+	GCHECK(! metaCheckParam(ctor.get(), "", 0));
+	GCHECK(! metaCheckParam(ctor.get(), 38, 1));
 
 #if G_SUPPORT_RVALUE_REFERENCE
 	CTOR(R_INDEX);
-	GCHECK(metaCheckParam(ctor, CLASS(), 0));
-	GCHECK(! metaCheckParam(ctor, "", 0));
-	GCHECK(! metaCheckParam(ctor, "", 1));
+	GCHECK(metaCheckParam(ctor.get(), CLASS(), 0));
+	GCHECK(! metaCheckParam(ctor.get(), "", 0));
+	GCHECK(! metaCheckParam(ctor.get(), "", 1));
 #endif
 }
 
@@ -498,86 +498,86 @@ GTEST(API_Construct)
 	CLASS * pobj;
 
 	CTOR(0);
-	pobj = (CLASS * )metaInvokeConstructor(ctor);
+	pobj = (CLASS * )metaInvokeConstructor(ctor.get());
 	GEQUAL(pobj->ci, 0);
 	GEQUAL(pobj->cs, "");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaInvokeConstructor(ctor, 1));
+	EXCEPT_META(metaInvokeConstructor(ctor.get(), 1));
 
 	CLASS clone(8, "clone me");
 
 	CTOR(1);
-	pobj = (CLASS * )metaInvokeConstructor(ctor, clone);
+	pobj = (CLASS * )metaInvokeConstructor(ctor.get(), clone);
 	GEQUAL(pobj->ci, 8);
 	GEQUAL(pobj->cs, "clone me");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaInvokeConstructor(ctor, clone, ""));
+	EXCEPT_META(metaInvokeConstructor(ctor.get(), clone, ""));
 
 	CTOR(2);
-	pobj = (CLASS * )metaInvokeConstructor(ctor, 5);
+	pobj = (CLASS * )metaInvokeConstructor(ctor.get(), 5);
 	GEQUAL(pobj->ci, 5);
 	GEQUAL(pobj->cs, "");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaInvokeConstructor(ctor, 1, 2));
+	EXCEPT_META(metaInvokeConstructor(ctor.get(), 1, 2));
 
 	CTOR(3);
-	pobj = (CLASS * )metaInvokeConstructor(ctor, "haha");
+	pobj = (CLASS * )metaInvokeConstructor(ctor.get(), "haha");
 	GEQUAL(pobj->ci, 0);
 	GEQUAL(pobj->cs, "haha");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaInvokeConstructor(ctor, 1));
+	EXCEPT_META(metaInvokeConstructor(ctor.get(), 1));
 
 	CTOR(4);
-	pobj = (CLASS * )metaInvokeConstructor(ctor, 2, "another");
+	pobj = (CLASS * )metaInvokeConstructor(ctor.get(), 2, "another");
 	GEQUAL(pobj->ci, 2);
 	GEQUAL(pobj->cs, "another");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaInvokeConstructor(ctor));
+	EXCEPT_META(metaInvokeConstructor(ctor.get()));
 
 	CLASS_DATA data("oh", 38);
 
 	CTOR(5);
-	pobj = (CLASS * )metaInvokeConstructor(ctor, data);
+	pobj = (CLASS * )metaInvokeConstructor(ctor.get(), data);
 	GEQUAL(pobj->ci, 38);
 	GEQUAL(pobj->cs, "oh");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaInvokeConstructor(ctor));
+	EXCEPT_META(metaInvokeConstructor(ctor.get()));
 
 	data = CLASS_DATA("?", 1999);
 
 	CTOR(6);
-	pobj = (CLASS * )metaInvokeConstructor(ctor, &data);
+	pobj = (CLASS * )metaInvokeConstructor(ctor.get(), &data);
 	GEQUAL(pobj->ci, 1999);
 	GEQUAL(pobj->cs, "?");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaInvokeConstructor(ctor));
+	EXCEPT_META(metaInvokeConstructor(ctor.get()));
 
 	CTOR(7);
-	pobj = (CLASS * )metaInvokeConstructor(ctor);
+	pobj = (CLASS * )metaInvokeConstructor(ctor.get());
 	GEQUAL(pobj->ci, 0);
 	GEQUAL(pobj->cs, "Sum");
 	metaClass->destroyInstance(pobj);
 	
 	CTOR(7);
-	pobj = (CLASS * )metaInvokeConstructor(ctor, 1, 2, 3, 5, 6, 7, 8, 9, 10);
+	pobj = (CLASS * )metaInvokeConstructor(ctor.get(), 1, 2, 3, 5, 6, 7, 8, 9, 10);
 	GEQUAL(pobj->ci, 1 + 2 + 3 + 5 + 6 + 7 + 8 + 9 + 10);
 	GEQUAL(pobj->cs, "Sum");
 	metaClass->destroyInstance(pobj);
 
 	CTOR(8);
-	pobj = (CLASS * )metaInvokeConstructor(ctor, 2, "another");
+	pobj = (CLASS * )metaInvokeConstructor(ctor.get(), 2, "another");
 	GEQUAL(pobj->ci, 2);
 	GEQUAL(pobj->cs, "another");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaInvokeConstructor(ctor));
+	EXCEPT_META(metaInvokeConstructor(ctor.get()));
 
 #if G_SUPPORT_RVALUE_REFERENCE
 	CTOR(R_INDEX);
-	pobj = (CLASS * )metaInvokeConstructor(ctor, clone);
+	pobj = (CLASS * )metaInvokeConstructor(ctor.get(), clone);
 	GEQUAL(pobj->ci, 8);
 	GEQUAL(pobj->cs, "clone me");
 	metaClass->destroyInstance(pobj);
-	EXCEPT_META(metaInvokeConstructor(ctor, clone, ""));
+	EXCEPT_META(metaInvokeConstructor(ctor.get(), clone, ""));
 #endif
 }
 

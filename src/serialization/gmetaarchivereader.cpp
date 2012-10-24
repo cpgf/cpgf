@@ -246,10 +246,10 @@ void GMetaArchiveReader::doReadObjectHierarchy(GMetaArchiveReaderParam * param, 
 				void * baseInstance = param->metaClass->castToBase(param->instance, i);
 				if(! baseClassMap->hasMetaClass(baseInstance, baseClass.get())) {
 					baseClassMap->addMetaClass(baseInstance, baseClass.get());
-					serializer.reset(metaGetItemExtendType(baseClass, GExtendTypeCreateFlag_Serializer).getSerializer());
+					serializer.reset(metaGetItemExtendType(baseClass.get(), GExtendTypeCreateFlag_Serializer).getSerializer());
 				
 					GMetaArchiveReaderParam newParam;
-					GMetaType baseMetaType(metaGetItemType(baseClass));
+					GMetaType baseMetaType(metaGetItemType(baseClass.get()));
 					GMetaTypeData baseMetaTypeData = baseMetaType.refData();
 				
 					newParam.name = param->name;

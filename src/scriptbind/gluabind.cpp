@@ -383,7 +383,7 @@ int GLuaGlobalAccessor::doNewIndex()
 		GVariant value = luaToVariant(this->scriptObject->getContext(), -1, NULL);
 		GVariantData varData = value.refData();
 		it->second.accessible->set(it->second.instance, &varData);
-		metaCheckError(it->second.accessible);
+		metaCheckError(it->second.accessible.get());
 		return 1;
 	}
 

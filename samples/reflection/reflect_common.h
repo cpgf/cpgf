@@ -133,16 +133,16 @@ inline void checkEnum(Meta & metaEnum, const char * prefix)
 
 	testCheckAssert(valueCount > 0);
 
-	int startValue = fromVariant<int>(metaGetEnumValue(metaEnum, 0));
-	int endValue = fromVariant<int>(metaGetEnumValue(metaEnum, valueCount - 1));
+	int startValue = fromVariant<int>(metaGetEnumValue(metaEnum.get(), 0));
+	int endValue = fromVariant<int>(metaGetEnumValue(metaEnum.get(), valueCount - 1));
 	size_t step = valueCount == 1 ? 0 : (endValue - startValue) / (valueCount - 1);
-	testCheckEqual(fromVariant<int>(metaGetEnumValue(metaEnum, valueCount - 1)), static_cast<int>(startValue + (valueCount - 1) * step));
+	testCheckEqual(fromVariant<int>(metaGetEnumValue(metaEnum.get(), valueCount - 1)), static_cast<int>(startValue + (valueCount - 1) * step));
 
 	char name[100];
 	for(unsigned int i = 0; i < valueCount; ++i) {
 		sprintf(name, "%s%d", prefix, i);
 		testCheckStringEqual(metaEnum->getKey(i), name);
-		testCheckEqual(fromVariant<int>(metaGetEnumValue(metaEnum, i)), static_cast<int>(startValue + i * step));
+		testCheckEqual(fromVariant<int>(metaGetEnumValue(metaEnum.get(), i)), static_cast<int>(startValue + i * step));
 	}
 }
 

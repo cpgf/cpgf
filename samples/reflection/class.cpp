@@ -164,11 +164,11 @@ void doTestAPI()
 	testCheckAssert(! metaClass->canCopyInstance());
 	testBeginException;
 		metaClass->createInstance();
-		metaCheckError(metaClass);
+		metaCheckError(metaClass.get());
 	testEndException(GException);
 	testBeginException;
 		metaClass->createInplace(buffer);
-		metaCheckError(metaClass);
+		metaCheckError(metaClass.get());
 	testEndException(GException);
 
 	metaClass.reset(service->findClassByName("class::TestNoDefaultConstructor"));
@@ -178,11 +178,11 @@ void doTestAPI()
 	testCheckAssert(!! metaClass->canCopyInstance());
 	testBeginException;
 		metaClass->createInstance();
-		metaCheckError(metaClass);
+		metaCheckError(metaClass.get());
 	testEndException(GException);
 	testBeginException;
 		metaClass->createInplace(buffer);
-		metaCheckError(metaClass);
+		metaCheckError(metaClass.get());
 	testEndException(GException);
 
 	metaClass.reset(service->findClassByName("class::TestNoCopyConstructor"));
@@ -192,11 +192,11 @@ void doTestAPI()
 	testCheckAssert(! metaClass->canCopyInstance());
 	testBeginException;
 		metaClass->cloneInstance(NULL);
-		metaCheckError(metaClass);
+		metaCheckError(metaClass.get());
 	testEndException(GException);
 	testBeginException;
 		metaClass->cloneInplace(NULL, buffer);
-		metaCheckError(metaClass);
+		metaCheckError(metaClass.get());
 	testEndException(GException);
 
 	metaClass.reset(service->findClassByName("class::TestNoDefaultAndCopyConstructor"));
@@ -206,11 +206,11 @@ void doTestAPI()
 	testCheckAssert(! metaClass->canCopyInstance());
 	testBeginException;
 		metaClass->cloneInstance(NULL);
-		metaCheckError(metaClass);
+		metaCheckError(metaClass.get());
 	testEndException(GException);
 	testBeginException;
 		metaClass->cloneInplace(NULL, buffer);
-		metaCheckError(metaClass);
+		metaCheckError(metaClass.get());
 	testEndException(GException);
 
 }

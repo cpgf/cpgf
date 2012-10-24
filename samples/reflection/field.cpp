@@ -177,12 +177,12 @@ void doTestAPI()
 
 	{
 		field.reset(metaClass->getField("width")); testCheckAssert(field);
-		metaCheckError(field);
+		metaCheckError(field.get());
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
-		metaSetValue(field, obj, 123);
+		metaSetValue(field.get(), obj, 123);
 		testCheckEqual(pobj->width, 123);
-		testCheckEqual(pobj->width, fromVariant<int>(metaGetValue(field, obj)));
+		testCheckEqual(pobj->width, fromVariant<int>(metaGetValue(field.get(), obj)));
 		metaClass->destroyInstance(obj);
 	}
 
@@ -190,9 +190,9 @@ void doTestAPI()
 		field.reset(metaClass->getField("name")); testCheckAssert(field);
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
-		metaSetValue(field, obj, "new name");
+		metaSetValue(field.get(), obj, "new name");
 		testCheckStringEqual(pobj->name, "new name");
-		std::string s = fromVariant<std::string>(metaGetValue(field, obj));
+		std::string s = fromVariant<std::string>(metaGetValue(field.get(), obj));
 		testCheckStringEqual(pobj->name, s);
 		metaClass->destroyInstance(obj);
 	}
@@ -202,9 +202,9 @@ void doTestAPI()
 		void * obj = metaClass->createInstance();
 		TestObject * pobj = (TestObject *)obj;
 		TestData data(3, "Fake dummy data");
-		metaSetValue(field, obj, data);
+		metaSetValue(field.get(), obj, data);
 		testCheckEqual(pobj->data, data);
-		testCheckEqual(pobj->data, fromVariant<TestData>(metaGetValue(field, obj)));
+		testCheckEqual(pobj->data, fromVariant<TestData>(metaGetValue(field.get(), obj)));
 		metaClass->destroyInstance(obj);
 	}
 
@@ -213,11 +213,11 @@ void doTestAPI()
 		void * obj = metaClass->createInstance();
 		
 		testBeginException;
-			metaSetValue(field, obj, 1);
+			metaSetValue(field.get(), obj, 1);
 		testEndException(GException);
 
 		testBeginException;
-			metaGetValue(field, obj);
+			metaGetValue(field.get(), obj);
 		testEndException(GException);
 
 		TestNoncopyable * p = static_cast<TestNoncopyable *>(field->getAddress(obj));
@@ -228,9 +228,9 @@ void doTestAPI()
 
 	{
 		field.reset(metaClass->getField("stats")); testCheckAssert(field);
-		metaSetValue(field, NULL, 567);
+		metaSetValue(field.get(), NULL, 567);
 		testCheckEqual(TestObject::stats, 567);
-		testCheckEqual(TestObject::stats, fromVariant<int>(metaGetValue(field, NULL)));
+		testCheckEqual(TestObject::stats, fromVariant<int>(metaGetValue(field.get(), NULL)));
 	}
 
 	{
@@ -240,12 +240,12 @@ void doTestAPI()
 
 		pobj->width = 5;
 
-		metaSetValue(field, obj, GCallback<int (const std::string &)>(*pobj));
+		metaSetValue(field.get(), obj, GCallback<int (const std::string &)>(*pobj));
 
 		GCallback<int (const std::string &)> * pcb = static_cast<GCallback<int (const std::string &)> *>(field->getAddress(obj));
 		testCheckEqual((*pcb)("abc"), pobj->callback("abc"));
 
-		GCallback<int (const std::string &)> cb = fromVariant<GCallback<int (const std::string &)> >(metaGetValue(field, obj));
+		GCallback<int (const std::string &)> cb = fromVariant<GCallback<int (const std::string &)> >(metaGetValue(field.get(), obj));
 		testCheckEqual(cb("abc"), pobj->callback("abc"));
 
 		metaClass->destroyInstance(obj);

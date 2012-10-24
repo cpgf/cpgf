@@ -210,7 +210,7 @@ void testItem(cpgf::IMetaItem * item)
 			GEQUAL(value->toInt32(), static_cast<int>(item->getCategory()));
 
 			value.reset(anno->getValue("dog")); GCHECK(value);
-			TestData data = fromVariant<TestData>(metaGetAnnotationVariant(value));
+			TestData data = fromVariant<TestData>(metaGetAnnotationVariant(value.get()));
 			GEQUAL(data, TestData(item->getCategory(), item->getName()));
 		}
 	}

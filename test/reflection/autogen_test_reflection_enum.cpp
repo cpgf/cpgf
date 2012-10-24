@@ -71,7 +71,7 @@ GTEST(API_Exists)
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service.get(), 0));
 	GCHECK(metaClass);
 
 	GScopedInterface<IMetaEnum> en;
@@ -104,7 +104,7 @@ GTEST(API_GetCount)
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service.get(), 0));
 	GCHECK(metaClass);
 
 	GScopedInterface<IMetaEnum> en;
@@ -146,7 +146,7 @@ GTEST(API_GetKey)
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service.get(), 0));
 	GCHECK(metaClass);
 
 	GScopedInterface<IMetaEnum> en;
@@ -195,23 +195,23 @@ GTEST(API_GetValue)
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service.get(), 0));
 	GCHECK(metaClass);
 
 	GScopedInterface<IMetaEnum> en;
 
 	ENUM(EnumFirst);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 0)), ws1);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 1)), ws2);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 2)), ws3);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 3)), ws4);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 0)), ws1);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 1)), ws2);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 2)), ws3);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 3)), ws4);
 
 	ENUM(EnumSecond);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 0)), bs1);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 1)), bs2);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 2)), bs3);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 3)), bs4);
-	GEQUAL(fromVariant<long long>(metaGetEnumValue(en, 4)), bs5);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 0)), bs1);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 1)), bs2);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 2)), bs3);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 3)), bs4);
+	GEQUAL(fromVariant<long long>(metaGetEnumValue(en.get(), 4)), bs5);
 }
 
 
@@ -244,7 +244,7 @@ GTEST(API_FindKey)
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	GCHECK(service);
 
-	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> metaClass(metaGetGlobalMetaClass(service.get(), 0));
 	GCHECK(metaClass);
 
 	GScopedInterface<IMetaEnum> en;

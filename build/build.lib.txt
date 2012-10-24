@@ -9,6 +9,7 @@ set(SRC_META
 	${SRC_PATH}/gexception.cpp
 	${SRC_PATH}/gmetaannotation.cpp
 	${SRC_PATH}/gmetaapi.cpp
+	${SRC_PATH}/gmetaapiutil.cpp
 	${SRC_PATH}/gmetaclass.cpp
 	${SRC_PATH}/gmetaclasstraveller.cpp
 	${SRC_PATH}/gmetacommon.cpp

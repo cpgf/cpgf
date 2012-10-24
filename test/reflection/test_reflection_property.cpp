@@ -467,29 +467,29 @@ GTEST(API_Set)
 	GDIFF(pobj->propExplicit, valueExplicit);
 
 	PROP(propInt);
-	metaSetValue(prop, pobj, valueInt);
+	metaSetValue(prop.get(), pobj, valueInt);
 	GEQUAL(valueInt, pobj->propInt);
 	
 	PROP(propString);
-	metaSetValue(prop, pobj, valueString);
+	metaSetValue(prop.get(), pobj, valueString);
 	GEQUAL(valueString + ";", pobj->propString);
 	
 	PROP(propData);
-	metaSetValue(prop, pobj, valueData);
+	metaSetValue(prop.get(), pobj, valueData);
 	GEQUAL(valueData, pobj->propData);
 	
 	PROP(propReadonlyInt);
-	EXCEPT_META(metaSetValue(prop, pobj, valueReadonlyInt))
+	EXCEPT_META(metaSetValue(prop.get(), pobj, valueReadonlyInt))
 	
 	PROP(propWriteonlyString);
-	metaSetValue(prop, pobj, valueWriteonlyString);
+	metaSetValue(prop.get(), pobj, valueWriteonlyString);
 	GEQUAL(valueWriteonlyString, pobj->propWriteonlyString);
 	
 	PROP(propNoncopyableData);
-	EXCEPT_META(metaSetValue(prop, pobj, valueNoncopyableData))
+	EXCEPT_META(metaSetValue(prop.get(), pobj, valueNoncopyableData))
 
 	PROP(propExplicit);
-	metaSetValue(prop, pobj, valueExplicit);
+	metaSetValue(prop.get(), pobj, valueExplicit);
 	GEQUAL(valueExplicit, pobj->propExplicit);
 }
 
@@ -573,25 +573,25 @@ GTEST(API_Get)
 	pobj->propExplicit = valueExplicit;
 	
 	PROP(propInt);
-	GEQUAL(fromVariant<int>(metaGetValue(prop, pobj)), valueInt + 1);
+	GEQUAL(fromVariant<int>(metaGetValue(prop.get(), pobj)), valueInt + 1);
 	
 	PROP(propString);
-	GEQUAL(fromVariant<string>(metaGetValue(prop, pobj)), valueString);
+	GEQUAL(fromVariant<string>(metaGetValue(prop.get(), pobj)), valueString);
 	
 	PROP(propData);
-	GEQUAL(fromVariant<CLASS_DATA>(metaGetValue(prop, pobj)), valueData);
+	GEQUAL(fromVariant<CLASS_DATA>(metaGetValue(prop.get(), pobj)), valueData);
 	
 	PROP(propReadonlyInt);
-	GEQUAL(fromVariant<int>(metaGetValue(prop, pobj)), valueReadonlyInt);
+	GEQUAL(fromVariant<int>(metaGetValue(prop.get(), pobj)), valueReadonlyInt);
 	
 	PROP(propWriteonlyString);
-	EXCEPT_META(metaGetValue(prop, pobj))
+	EXCEPT_META(metaGetValue(prop.get(), pobj))
 	
 	PROP(propNoncopyableData);
-	EXCEPT_META(metaGetValue(prop, pobj))
+	EXCEPT_META(metaGetValue(prop.get(), pobj))
 	
 	PROP(propExplicit);
-	GEQUAL(fromVariant<int>(metaGetValue(prop, pobj)), valueExplicit);
+	GEQUAL(fromVariant<int>(metaGetValue(prop.get(), pobj)), valueExplicit);
 }
 
 

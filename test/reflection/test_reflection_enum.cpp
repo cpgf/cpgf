@@ -197,17 +197,17 @@ GTEST(API_GetValue)
 	GScopedInterface<IMetaEnum> en;
 
 	ENUM(EnumFirst);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 0)), CLASS::ws1);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 1)), CLASS::ws2);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 2)), CLASS::ws3);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 3)), CLASS::ws4);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 0)), CLASS::ws1);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 1)), CLASS::ws2);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 2)), CLASS::ws3);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 3)), CLASS::ws4);
 
 	ENUM(EnumSecond);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 0)), CLASS::bs1);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 1)), CLASS::bs2);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 2)), CLASS::bs3);
-	GEQUAL(fromVariant<int>(metaGetEnumValue(en, 3)), CLASS::bs4);
-	GEQUAL(fromVariant<long long>(metaGetEnumValue(en, 4)), CLASS::bs5);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 0)), CLASS::bs1);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 1)), CLASS::bs2);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 2)), CLASS::bs3);
+	GEQUAL(fromVariant<int>(metaGetEnumValue(en.get(), 3)), CLASS::bs4);
+	GEQUAL(fromVariant<long long>(metaGetEnumValue(en.get(), 4)), CLASS::bs5);
 }
 
 

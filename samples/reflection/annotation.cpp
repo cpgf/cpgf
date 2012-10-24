@@ -141,7 +141,7 @@ void testItem(cpgf::IMetaItem * item)
 			testCheckEqual(value->toInt32(), static_cast<int>(item->getCategory()));
 
 			value.reset(anno->getValue("dog")); testCheckAssert(value);
-			TestData data = fromVariant<TestData>(metaGetAnnotationVariant(value));
+			TestData data = fromVariant<TestData>(metaGetAnnotationVariant(value.get()));
 			testCheckEqual(data, TestData(item->getCategory(), item->getName()));
 		}
 	}

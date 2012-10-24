@@ -1166,7 +1166,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 			case mmitEnumValue:
 				if(! isInstance || config.allowAccessEnumValueViaInstance()) {
 					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-					return Methods::doVariantToScript(context, metaGetEnumValue(metaEnum, static_cast<uint32_t>(mapItem->getEnumIndex())), GBindValueFlags(bvfAllowRaw), NULL);
+					return Methods::doVariantToScript(context, metaGetEnumValue(metaEnum.get(), static_cast<uint32_t>(mapItem->getEnumIndex())), GBindValueFlags(bvfAllowRaw), NULL);
 				}
 				break;
 

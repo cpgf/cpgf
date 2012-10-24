@@ -500,78 +500,78 @@ GTEST(API_CheckParam)
 	GScopedInterface<IMetaMethod> method;
 
 	METHOD(methodGetInt);
-	GCHECK(! metaCheckParam(method, 38, 0));
-	GCHECK(! metaCheckParam(method, 38, 50));
+	GCHECK(! metaCheckParam(method.get(), 38, 0));
+	GCHECK(! metaCheckParam(method.get(), 38, 50));
 
 	METHOD(methodAddInt);
-	GCHECK(metaCheckParam(method, 38, 0));
-	GCHECK(! metaCheckParam(method, "d", 0));
-	GCHECK(! metaCheckParam(method, 38, 1));
-	GCHECK(! metaCheckParam(method, 38, 130));
+	GCHECK(metaCheckParam(method.get(), 38, 0));
+	GCHECK(! metaCheckParam(method.get(), "d", 0));
+	GCHECK(! metaCheckParam(method.get(), 38, 1));
+	GCHECK(! metaCheckParam(method.get(), 38, 130));
 
 	METHOD(methodRefString);
-	GCHECK(! metaCheckParam(method, 38, 0));
-	GCHECK(! metaCheckParam(method, 38, 68));
+	GCHECK(! metaCheckParam(method.get(), 38, 0));
+	GCHECK(! metaCheckParam(method.get(), 38, 68));
 
 	METHOD(methodConcatString);
-	GCHECK(metaCheckParam(method, "abc", 0));
-	GCHECK(metaCheckParam(method, string("abc"), 0));
-	GCHECK(! metaCheckParam(method, 3, 0));
-	GCHECK(! metaCheckParam(method, 38, 1));
-	GCHECK(! metaCheckParam(method, 38, 130));
+	GCHECK(metaCheckParam(method.get(), "abc", 0));
+	GCHECK(metaCheckParam(method.get(), string("abc"), 0));
+	GCHECK(! metaCheckParam(method.get(), 3, 0));
+	GCHECK(! metaCheckParam(method.get(), 38, 1));
+	GCHECK(! metaCheckParam(method.get(), 38, 130));
 
 	METHOD(methodAddData);
-	GCHECK(metaCheckParam(method, string("abc"), 0)); // even it passes, it will cause crash if we real do the invoke.
-	GCHECK(metaCheckParam(method, (void *)0, 0)); // again, dangerous
-	GCHECK(metaCheckParam(method, CLASS_DATA(3), 0));
-	GCHECK(! metaCheckParam(method, "abc", 0));
-	GCHECK(! metaCheckParam(method, 38, 1));
-	GCHECK(! metaCheckParam(method, 38, 130));
+	GCHECK(metaCheckParam(method.get(), string("abc"), 0)); // even it passes, it will cause crash if we real do the invoke.
+	GCHECK(metaCheckParam(method.get(), (void *)0, 0)); // again, dangerous
+	GCHECK(metaCheckParam(method.get(), CLASS_DATA(3), 0));
+	GCHECK(! metaCheckParam(method.get(), "abc", 0));
+	GCHECK(! metaCheckParam(method.get(), 38, 1));
+	GCHECK(! metaCheckParam(method.get(), 38, 130));
 
 	METHOD(methodMakeData);
-	GCHECK(metaCheckParam(method, CLASS_DATA(3), 0));
-	GCHECK(! metaCheckParam(method, "abc", 0));
-	GCHECK(! metaCheckParam(method, 38, 1));
+	GCHECK(metaCheckParam(method.get(), CLASS_DATA(3), 0));
+	GCHECK(! metaCheckParam(method.get(), "abc", 0));
+	GCHECK(! metaCheckParam(method.get(), 38, 1));
 
 	METHOD(methodMakeDataByPointer);
-	GCHECK(metaCheckParam(method, (CLASS_DATA *)0, 0));
-	GCHECK(metaCheckParam(method, "abc", 0)); // dangerous
-	GCHECK(metaCheckParam(method, CLASS_DATA(3), 0));
-	GCHECK(! metaCheckParam(method, 38, 1));
+	GCHECK(metaCheckParam(method.get(), (CLASS_DATA *)0, 0));
+	GCHECK(metaCheckParam(method.get(), "abc", 0)); // dangerous
+	GCHECK(metaCheckParam(method.get(), CLASS_DATA(3), 0));
+	GCHECK(! metaCheckParam(method.get(), 38, 1));
 
 	METHOD(methodManyParams);
-	GCHECK(metaCheckParam(method, 98765321L, 0));
-	GCHECK(metaCheckParam(method, 98765321L, 1));
-	GCHECK(metaCheckParam(method, 98765321L, 2));
-	GCHECK(metaCheckParam(method, 98765321L, 3));
-	GCHECK(metaCheckParam(method, 98765321.5, 3));
+	GCHECK(metaCheckParam(method.get(), 98765321L, 0));
+	GCHECK(metaCheckParam(method.get(), 98765321L, 1));
+	GCHECK(metaCheckParam(method.get(), 98765321L, 2));
+	GCHECK(metaCheckParam(method.get(), 98765321L, 3));
+	GCHECK(metaCheckParam(method.get(), 98765321.5, 3));
 
 	METHOD(methodSum);
-	GCHECK(metaCheckParam(method, 38, 0));
-	GCHECK(metaCheckParam(method, "abc", 1));
-	GCHECK(metaCheckParam(method, 38, 10));
-	GCHECK(metaCheckParam(method, 38, 100));
-	GCHECK(metaCheckParam(method, 38, 1000));
+	GCHECK(metaCheckParam(method.get(), 38, 0));
+	GCHECK(metaCheckParam(method.get(), "abc", 1));
+	GCHECK(metaCheckParam(method.get(), 38, 10));
+	GCHECK(metaCheckParam(method.get(), 38, 100));
+	GCHECK(metaCheckParam(method.get(), 38, 1000));
 
 	METHOD(methodManySum);
-	GCHECK(! metaCheckParam(method, 38, 0));
-	GCHECK(metaCheckParam(method, 38, 1));
-	GCHECK(! metaCheckParam(method, "abc", 2));
-	GCHECK(metaCheckParam(method, 38, 10));
-	GCHECK(metaCheckParam(method, 38, 100));
-	GCHECK(metaCheckParam(method, 38, 1000));
+	GCHECK(! metaCheckParam(method.get(), 38, 0));
+	GCHECK(metaCheckParam(method.get(), 38, 1));
+	GCHECK(! metaCheckParam(method.get(), "abc", 2));
+	GCHECK(metaCheckParam(method.get(), 38, 10));
+	GCHECK(metaCheckParam(method.get(), 38, 100));
+	GCHECK(metaCheckParam(method.get(), 38, 1000));
 
 	METHOD(methodExplicitThis);
-	GCHECK(metaCheckParam(method, 38, 0));
+	GCHECK(metaCheckParam(method.get(), 38, 0));
 
 	METHOD(methodExplicitThisSum);
-	GCHECK(! metaCheckParam(method, 38, 0));
-	GCHECK(metaCheckParam(method, 38, 1));
-	GCHECK(metaCheckParam(method, 38, 20));
+	GCHECK(! metaCheckParam(method.get(), 38, 0));
+	GCHECK(metaCheckParam(method.get(), 38, 1));
+	GCHECK(metaCheckParam(method.get(), 38, 20));
 
 	METHOD(methodFunctor);
-	GCHECK(metaCheckParam(method, 38, 0));
-	GCHECK(metaCheckParam(method, "abc", 1));
+	GCHECK(metaCheckParam(method.get(), 38, 0));
+	GCHECK(metaCheckParam(method.get(), "abc", 1));
 }
 #endif
 
@@ -714,39 +714,39 @@ GTEST(API_Invoke)
 
 	pobj->fieldMethodInt = 910;
 	METHOD(methodGetInt);
-	GEQUAL(fromVariant<int>(metaInvokeMethod(method, pobj)), 910);
-	EXCEPT_META(metaInvokeMethod(method, pobj, 1));
+	GEQUAL(fromVariant<int>(metaInvokeMethod(method.get(), pobj)), 910);
+	EXCEPT_META(metaInvokeMethod(method.get(), pobj, 1));
 
 	METHOD(methodAddInt);
-	metaInvokeMethod(method, pobj, 2);
+	metaInvokeMethod(method.get(), pobj, 2);
 	GEQUAL(pobj->fieldMethodInt, 912);
-	EXCEPT_META(metaInvokeMethod(method, pobj));
+	EXCEPT_META(metaInvokeMethod(method.get(), pobj));
 
 	pobj->fieldMethodString = "";
 	METHOD(methodRefString);
-	string & refString = fromVariant<string &>(metaInvokeMethod(method, pobj));
+	string & refString = fromVariant<string &>(metaInvokeMethod(method.get(), pobj));
 	GEQUAL(&pobj->fieldMethodString, &refString);
 	refString = "reffff";
 	GEQUAL(pobj->fieldMethodString, "reffff");
-	EXCEPT_META(metaInvokeMethod(method, pobj, 1));
+	EXCEPT_META(metaInvokeMethod(method.get(), pobj, 1));
 
 	pobj->fieldMethodString = "a";
 	METHOD(methodConcatString);
-	string s = fromVariant<string>(metaInvokeMethod(method, pobj, "bc"));
+	string s = fromVariant<string>(metaInvokeMethod(method.get(), pobj, "bc"));
 	GEQUAL(s, "abc");
 	GEQUAL(pobj->fieldMethodString, "abc");
-	EXCEPT_META(metaInvokeMethod(method, pobj, 1, 2));
+	EXCEPT_META(metaInvokeMethod(method.get(), pobj, 1, 2));
 
 	pobj->fieldMethodString = "bc";
 	pobj->fieldMethodInt = 6;
 	CLASS_DATA data("a", 5);
 	METHOD(methodAddData);
-	CLASS_DATA newData = fromVariant<CLASS_DATA>(metaInvokeMethod(method, pobj, data));
+	CLASS_DATA newData = fromVariant<CLASS_DATA>(metaInvokeMethod(method.get(), pobj, data));
 	GEQUAL(data.s, "a");
 	GEQUAL(data.i, 5);
 	GEQUAL(newData.s, "abc");
 	GEQUAL(newData.i, 11);
-	EXCEPT_META(metaInvokeMethod(method, pobj, 1, 3));
+	EXCEPT_META(metaInvokeMethod(method.get(), pobj, 1, 3));
 
 	pobj->fieldMethodString = "abc";
 	pobj->fieldMethodInt = 6;
@@ -754,10 +754,10 @@ GTEST(API_Invoke)
 	GDIFF(data.s, "abc");
 	GDIFF(data.i, 6);
 	METHOD(methodMakeData);
-	metaInvokeMethod(method, pobj, data);
+	metaInvokeMethod(method.get(), pobj, data);
 	GEQUAL(data.s, "abc");
 	GEQUAL(data.i, 6);
-	EXCEPT_META(metaInvokeMethod(method, pobj));
+	EXCEPT_META(metaInvokeMethod(method.get(), pobj));
 
 	pobj->fieldMethodString = "abc";
 	pobj->fieldMethodInt = 6;
@@ -765,40 +765,40 @@ GTEST(API_Invoke)
 	GDIFF(data.s, "abc");
 	GDIFF(data.i, 6);
 	METHOD(methodMakeDataByPointer);
-	metaInvokeMethod(method, pobj, &data);
+	metaInvokeMethod(method.get(), pobj, &data);
 	GEQUAL(data.s, "abc");
 	GEQUAL(data.i, 6);
-	EXCEPT_META(metaInvokeMethod(method, pobj, 1, 5));
+	EXCEPT_META(metaInvokeMethod(method.get(), pobj, 1, 5));
 
 	METHOD(methodGetNCData);
 	{
-		const NC_DATA & nc = fromVariant<const NC_DATA &>(metaInvokeMethod(method, NULL, 1));
+		const NC_DATA & nc = fromVariant<const NC_DATA &>(metaInvokeMethod(method.get(), NULL, 1));
 		GEQUAL(nc.i, 1);
 	}
 	{
-		const NC_DATA & nc = fromVariant<const NC_DATA &>(metaInvokeMethod(method, NULL, 5));
+		const NC_DATA & nc = fromVariant<const NC_DATA &>(metaInvokeMethod(method.get(), NULL, 5));
 		GEQUAL(nc.i, 5);
 	}
 	
 	METHOD(methodManyParams);
-	metaInvokeMethod(method, pobj, 'A', 38, 9876532198765321LL, 1.99, "Many", "Too Many", CLASS_DATA("Data", 8));
-	EXCEPT_META(metaInvokeMethod(method, pobj, 1));
+	metaInvokeMethod(method.get(), pobj, 'A', 38, 9876532198765321LL, 1.99, "Many", "Too Many", CLASS_DATA("Data", 8));
+	EXCEPT_META(metaInvokeMethod(method.get(), pobj, 1));
 
 	METHOD(methodSum);
-	GEQUAL(fromVariant<int>(metaInvokeMethod(method, pobj)), (0));
-	GEQUAL(fromVariant<int>(metaInvokeMethod(method, pobj, 1, 2, 3)), (1 + 2 + 3));
-	GEQUAL(fromVariant<int>(metaInvokeMethod(method, pobj,
+	GEQUAL(fromVariant<int>(metaInvokeMethod(method.get(), pobj)), (0));
+	GEQUAL(fromVariant<int>(metaInvokeMethod(method.get(), pobj, 1, 2, 3)), (1 + 2 + 3));
+	GEQUAL(fromVariant<int>(metaInvokeMethod(method.get(), pobj,
 		18, 56, 102, 192, 3103, 39, 52, 691, 819, 130, 397, 19385
 		)), (
 		18 + 56 + 102 + 192 + 3103 + 39 + 52 + 691 + 819 + 130 + 397 + 19385
 		));
 
 	METHOD(methodManySum);
-	EXCEPT_META(fromVariant<int>(metaInvokeMethod(method, pobj)));
+	EXCEPT_META(fromVariant<int>(metaInvokeMethod(method.get(), pobj)));
 	int result = 0;
-	metaInvokeMethod(method, pobj, &result, 1, 2, 3);
+	metaInvokeMethod(method.get(), pobj, &result, 1, 2, 3);
 	GEQUAL(result, (1 + 2 + 3));
-	metaInvokeMethod(method, pobj, &result,
+	metaInvokeMethod(method.get(), pobj, &result,
 		18, 56, 102, 192, 3103, 39, 52, 691, 819, 130, 397, 19385
 		);
 	GEQUAL(result, (
@@ -807,18 +807,18 @@ GTEST(API_Invoke)
 
 	pobj->fieldMethodInt = 17;
 	METHOD(methodExplicitThis);
-	GEQUAL(fromVariant<int>(metaInvokeMethod(method, pobj, 38)), 17 + 38);
+	GEQUAL(fromVariant<int>(metaInvokeMethod(method.get(), pobj, 38)), 17 + 38);
 
 	pobj->fieldMethodInt = 17;
 	METHOD(methodExplicitThisSum);
 	result = 0;
-	metaInvokeMethod(method, pobj, &result, 38, 69, 58);
+	metaInvokeMethod(method.get(), pobj, &result, 38, 69, 58);
 	GEQUAL(result, 17 + 38 + 69 + 58);
 
 	pobj->fieldMethodInt = 17;
 	pobj->fieldMethodString = "abc";
 	METHOD(methodFunctor);
-	GEQUAL(fromVariant<int>(metaInvokeMethod(method, pobj, 38, "hello")), 17 + 38 + 3 + 5);
+	GEQUAL(fromVariant<int>(metaInvokeMethod(method.get(), pobj, 38, "hello")), 17 + 38 + 3 + 5);
 }
 #endif
 
