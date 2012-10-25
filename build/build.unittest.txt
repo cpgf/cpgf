@@ -183,8 +183,6 @@ if(${HAS_UNITTEST})
 		${GLOB_TEST_V8}
 		${GLOB_TEST_PYTHON}
 		
-		${SRC_LIB}
-
 		${SRC_UNITTEST_FRAMEWORK}
 	)
 
@@ -200,6 +198,8 @@ endif(${HAS_BOOST})
 		EXCLUDE_FROM_ALL
 			${SRC_TEST_SRC}
 	)
+	
+	target_link_libraries(${TARGET_UNITTEST} ${TARGET_LIB})
 
 	if(CMAKE_COMPILER_IS_GNUCC)
 		if(TEST_GCOV)
