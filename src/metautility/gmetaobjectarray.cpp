@@ -1,5 +1,6 @@
 #include "cpgf/metautility/gmetaobjectarray.h"
 #include "cpgf/gmetaapiutil.h"
+#include "cpgf/gmetacommon.h"
 
 #include <algorithm>
 
@@ -194,10 +195,18 @@ GVariant GMetaObjectArray::getItem(uint32_t index) const
 	}
 }
 
-void GMetaObjectArray::setItem(uint32_t index, const GVariant & value)
+void GMetaObjectArray::setItem(uint32_t index, const GVariant & value, const GMetaVariadicParam * moreValues)
 {
 	void * object = objectAddressFromVariant(value);
 	this->implement->setObject(index, object);
+
+	if(moreValues != NULL) {
+		for(uint32_t i = 0; i < moreValues->paramCount; ++i) {
+			++index;
+			object = objectAddressFromVariant(*(moreValues->params[i]));
+			this->implement->setObject(index, object);
+		}
+	}
 }
 
 uint32_t GMetaObjectArray::getCount() const

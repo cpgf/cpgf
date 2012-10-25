@@ -1,7 +1,7 @@
 #include "test_misc_common.h"
 
 #include "cpgf/gsharedptr.h"
-#include "cpgf/gbytearray.h"
+#include "cpgf/metautility/gmetabytearray.h"
 #include "cpgf/gvariant.h"
 
 #include <vector>

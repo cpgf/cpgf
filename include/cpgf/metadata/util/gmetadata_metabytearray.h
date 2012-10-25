@@ -1,5 +1,5 @@
-#ifndef __GMETADATA_BYTEARRAY_H
-#define __GMETADATA_BYTEARRAY_H
+#ifndef __GMETADATA_METABYTEARRAY_H
+#define __GMETADATA_METABYTEARRAY_H
 
 
 #include "cpgf/gmetadefine.h"

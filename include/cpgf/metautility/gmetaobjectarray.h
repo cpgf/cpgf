@@ -6,6 +6,8 @@
 
 namespace cpgf {
 
+struct GMetaVariadicParam;
+
 class GMetaObjectArrayImplement;
 
 class GMetaObjectArray
@@ -15,7 +17,7 @@ public:
 	~GMetaObjectArray();
 
 	GVariant getItem(uint32_t index) const;
-	void setItem(uint32_t index, const GVariant & value);
+	void setItem(uint32_t index, const GVariant & value, const GMetaVariadicParam * moreValues = NULL);
 	
 	uint32_t getCount() const;
 

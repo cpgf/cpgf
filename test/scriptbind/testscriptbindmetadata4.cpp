@@ -2,9 +2,8 @@
 #include "testscriptbindmetadata2.h"
 #include "cpgf/gmetadefine.h"
 
-#include "cpgf/gbytearray.h"
-
-#include "cpgf/metadata/util/gmetadata_bytearray.h"
+#include "cpgf/metautility/gmetabytearray.h"
+#include "cpgf/metadata/util/gmetadata_metabytearray.h"
 
 #include <iostream>
 
@@ -26,7 +25,7 @@ int testAddCallback2(void *)
 	return 0;
 }
 
-void writeNumberToByteArray(int n, GByteArray * ba)
+void writeNumberToByteArray(int n, GMetaByteArray * ba)
 {
 	ba->writeInt32(n);
 	ba->writeInt32(n * 2);
@@ -103,9 +102,6 @@ void TestScriptBindMetaData4()
 			._element("b", BasicA::b)
 			._element("c", BasicA::c)
 	;
-
-	GDefineMetaClass<GByteArray> byteArrayDefine = GDefineMetaClass<GByteArray>::Policy<GMetaPolicyNoCopyConstructor>::define("GByteArray");
-	buildMetaData_byteArray(byteArrayDefine);
 
 	GDefineMetaGlobal()
 		._method("scriptTrace", &scriptTrace)

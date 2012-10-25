@@ -3,9 +3,9 @@
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/gmetadefine.h"
 
-#include "cpgf/metadata/util/gmetadata_bytearray.h"
-#include "cpgf/gbytearray.h"
+#include "cpgf/metadata/util/gmetadata_metabytearray.h"
 #include "cpgf/metadata/util/gmetadata_metaobjectarray.h"
+#include "cpgf/metautility/gmetabytearray.h"
 #include "cpgf/metautility/gmetaobjectarray.h"
 
 #include "cpgf/scriptbind/gscriptlibraryapi.h"
@@ -21,14 +21,14 @@ IScriptLibraryLoader * createBuiltinLibraries();
 
 namespace {
 
-GSharedPointer<GByteArray> createByteArray()
+GSharedPointer<GMetaByteArray> createByteArray()
 {
-	return GSharedPointer<GByteArray>(new GByteArray);
+	return GSharedPointer<GMetaByteArray>(new GMetaByteArray);
 }
 
-GSharedPointer<GByteArray> createByteArrayWithLength(size_t length)
+GSharedPointer<GMetaByteArray> createByteArrayWithLength(size_t length)
 {
-	return GSharedPointer<GByteArray>(new GByteArray(length));
+	return GSharedPointer<GMetaByteArray>(new GMetaByteArray(length));
 }
 
 GSharedPointer<GMetaObjectArray> createObjectArray(IMetaClass * metaClass)
@@ -103,7 +103,7 @@ bool loadByteArray(IScriptObject * owner, const char * namespaces, const char * 
 	ns._method("createByteArray", &createByteArray);
 	ns._method("createByteArray", &createByteArrayWithLength);
 
-	GDefineMetaClass<GByteArray> gbyteArrayDefine = GDefineMetaClass<GByteArray>::Policy<GMetaPolicyNoCopyConstructor>::declare("GByteArray");
+	GDefineMetaClass<GMetaByteArray> gbyteArrayDefine = GDefineMetaClass<GMetaByteArray>::Policy<GMetaPolicyNoCopyConstructor>::declare("GMetaByteArray");
 	buildMetaData_byteArray(gbyteArrayDefine);
 	ns._class(gbyteArrayDefine);
 	

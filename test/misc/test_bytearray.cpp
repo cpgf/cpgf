@@ -1,7 +1,7 @@
 #include "test_misc_common.h"
 
 #include "cpgf/gscopedptr.h"
-#include "cpgf/gbytearray.h"
+#include "cpgf/metautility/gmetabytearray.h"
 #include "cpgf/gvariant.h"
 
 using namespace cpgf;
@@ -108,7 +108,7 @@ void testByteArray(T * byteArray)
 
 GTEST(TestByteArray)
 {
-	GScopedPointer<GByteArray> byteArray(new GByteArray);
+	GScopedPointer<GMetaByteArray> byteArray(new GMetaByteArray);
 
     testByteArray(byteArray.get());
 }

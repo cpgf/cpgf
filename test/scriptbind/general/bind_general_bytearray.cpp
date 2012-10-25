@@ -5,6 +5,7 @@ namespace {
 void testByteArrayInScript(TestScriptContext * context)
 {
 	QDO(cpgf.loadLibrary("cpgf", "builtin.arrays.bytearray"))
+	
 	QDO(a = cpgf.createByteArray())
 	QDO(a.setLength(10))
 
@@ -21,6 +22,23 @@ void testByteArrayInScript(TestScriptContext * context)
 }
 
 #define CASE testByteArrayInScript
+#include "../bind_testcase.h"
+
+
+void testByteArrayInScriptWriteVariadic(TestScriptContext * context)
+{
+	QDO(cpgf.loadLibrary("cpgf", "builtin.arrays.bytearray"))
+	
+	QDO(a = cpgf.createByteArray())
+	QDO(a.writeInt32(38, 78, 98))
+	QASSERT(a.getPosition() == 12)
+	QDO(a.setPosition(0))
+	QASSERT(a.readInt32() == 38)
+	QASSERT(a.readInt32() == 78)
+	QASSERT(a.readInt32() == 98)
+}
+
+#define CASE testByteArrayInScriptWriteVariadic
 #include "../bind_testcase.h"
 
 

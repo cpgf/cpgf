@@ -3,7 +3,6 @@ set(OUTNAME_LIB cpgf)
 
 set(SRC_META
 	${SRC_PATH}/gapiutil.cpp
-	${SRC_PATH}/gbytearray.cpp
 	${SRC_PATH}/glifecycle.cpp
 	${SRC_PATH}/gmemorypool.cpp
 	${SRC_PATH}/gexception.cpp
@@ -33,6 +32,7 @@ set(SRC_META
 	${SRC_PATH}/scriptbind/gscriptservice.cpp
 	${SRC_PATH}/scriptbind/gscriptlibraryapi.cpp
 
+	${SRC_PATH}/metautility/gmetabytearray.cpp
 	${SRC_PATH}/metautility/gmetaobjectarray.cpp
 	
 	${SRC_PATH}/metatraits/gmetaconverter_string.cpp

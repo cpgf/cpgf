@@ -19,10 +19,9 @@ void testObjectArray(TestScriptContext * context)
 	
 	QNEWOBJ(obj, mtest.OAObject(98, "def"));
 	QDO(oa.setItem(0, obj));
-	QNEWOBJ(obj, mtest.OAObject(38, "abc"));
-	QDO(oa.setItem(1, obj));
-	QNEWOBJ(obj, mtest.OAObject(0, ""));
-	QDO(oa.setItem(2, obj));
+	QNEWOBJ(obj1, mtest.OAObject(38, "abc"));
+	QNEWOBJ(obj2, mtest.OAObject(0, ""));
+	QDO(oa.setItem(1, obj1, obj2)); // set at index 1 and 2
 
 	QASSERT(oa.getItem(0).data.n == 98);
 	QASSERT(oa.getItem(0).data.s == "def");

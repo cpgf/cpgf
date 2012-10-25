@@ -1,6 +1,8 @@
-#include "cpgf/gbytearray.h"
+#include "cpgf/metautility/gmetabytearray.h"
 #include "cpgf/gexception.h"
 #include "cpgf/gapiutil.h"
+#include "cpgf/gvariant.h"
+#include "cpgf/gmetacommon.h"
 
 #include <vector>
 
@@ -11,18 +13,18 @@ using namespace std;
 
 namespace cpgf {
 
-class GByteArrayImplement
+class GMetaByteArrayImplement
 {
 public:
 	typedef unsigned char ByteType;
 	typedef vector<ByteType> ArrayType;
 
 public:
-	GByteArrayImplement()
+	GMetaByteArrayImplement()
     	: byteArray(), length(0), position(0) {
     }
 
-    explicit GByteArrayImplement(size_t length)
+    explicit GMetaByteArrayImplement(size_t length)
     	: byteArray(length + 1), length(length), position(0) {
         this->byteArray[0] = 0;
     }
@@ -60,13 +62,31 @@ public:
     }
 
     template <typename T>
-    void write(T value) {
-    	this->needSpace(sizeof(T));
+    void write(T value, const GMetaVariadicParam * moreValues) {
+    	uint32_t valueCount = 1;
+    	if(moreValues != NULL) {
+    		valueCount += moreValues->paramCount;
+    	}
 
-        *reinterpret_cast<T *>(
-        	static_cast<uint8_t *>(this->getMemory()) + this->position
-        ) = value;
-        this->position += sizeof(T);
+    	this->needSpace(sizeof(T) * valueCount);
+
+    	int i = 0;
+    	for(;;) {
+	        *reinterpret_cast<T *>(
+    	    	static_cast<uint8_t *>(this->getMemory()) + this->position
+        	) = value;
+	        this->position += sizeof(T);
+
+	        --valueCount;
+	        if(valueCount == 0) {
+	        	break;
+	        }
+	    	if(moreValues != NULL) {
+    			value = fromVariant<T>(*(moreValues->params[i]));
+    			++i;
+    		}
+        }
+
         if(this->position == this->length) {
         	*static_cast<uint8_t *>(this->getCurrentMemory()) = 0;
         }
@@ -107,157 +127,157 @@ public:
     size_t position;
 };
 
-GByteArray::GByteArray()
-	: implement(new GByteArrayImplement())
+GMetaByteArray::GMetaByteArray()
+	: implement(new GMetaByteArrayImplement())
 {
 }
 
-GByteArray::GByteArray(size_t length)
-	: implement(new GByteArrayImplement(length))
+GMetaByteArray::GMetaByteArray(size_t length)
+	: implement(new GMetaByteArrayImplement(length))
 {
 }
 
-GByteArray::~GByteArray()
+GMetaByteArray::~GMetaByteArray()
 {
 }
 
-void * GByteArray::getMemory() const
+void * GMetaByteArray::getMemory() const
 {
 	return this->implement->getMemory();
 }
 
-void * GByteArray::getCurrentMemory() const
+void * GMetaByteArray::getCurrentMemory() const
 {
 	return this->implement->getCurrentMemory();
 }
 
-size_t GByteArray::getPosition() const
+size_t GMetaByteArray::getPosition() const
 {
 	return this->implement->position;
 }
 
-void GByteArray::setPosition(size_t position)
+void GMetaByteArray::setPosition(size_t position)
 {
 	this->implement->setPosition(position);
 }
 
-size_t GByteArray::getLength() const
+size_t GMetaByteArray::getLength() const
 {
 	return this->implement->length;
 }
 
-void GByteArray::setLength(size_t length) const
+void GMetaByteArray::setLength(size_t length) const
 {
 	this->implement->setLength(length);
 }
 
-int8_t GByteArray::readInt8() const
+int8_t GMetaByteArray::readInt8() const
 {
 	return this->implement->read<int8_t>();
 }
 
-int16_t GByteArray::readInt16() const
+int16_t GMetaByteArray::readInt16() const
 {
 	return this->implement->read<int16_t>();
 }
 
-int32_t GByteArray::readInt32() const
+int32_t GMetaByteArray::readInt32() const
 {
 	return this->implement->read<int32_t>();
 }
 
-int64_t GByteArray::readInt64() const
+int64_t GMetaByteArray::readInt64() const
 {
 	return this->implement->read<int64_t>();
 }
 
 
-uint8_t GByteArray::readUint8() const
+uint8_t GMetaByteArray::readUint8() const
 {
 	return this->implement->read<uint8_t>();
 }
 
-uint16_t GByteArray::readUint16() const
+uint16_t GMetaByteArray::readUint16() const
 {
 	return this->implement->read<uint16_t>();
 }
 
-uint32_t GByteArray::readUint32() const
+uint32_t GMetaByteArray::readUint32() const
 {
 	return this->implement->read<uint32_t>();
 }
 
-uint64_t GByteArray::readUint64() const
+uint64_t GMetaByteArray::readUint64() const
 {
 	return this->implement->read<uint64_t>();
 }
 
-float GByteArray::readFloat32() const
+float GMetaByteArray::readFloat32() const
 {
 	return this->implement->read<float>();
 }
 
-double GByteArray::readFloat64() const
+double GMetaByteArray::readFloat64() const
 {
 	return this->implement->read<double>();
 }
 
-void GByteArray::readBuffer(void * buffer, size_t length) const
+void GMetaByteArray::readBuffer(void * buffer, size_t length) const
 {
     this->implement->readBuffer(buffer, length);
 }
 
-void GByteArray::writeInt8(int8_t value)
+void GMetaByteArray::writeInt8(int8_t value, const GMetaVariadicParam * moreValues)
 {
-	this->implement->write<int8_t>(value);
+	this->implement->write<int8_t>(value, moreValues);
 }
 
-void GByteArray::writeInt16(int16_t value)
+void GMetaByteArray::writeInt16(int16_t value, const GMetaVariadicParam * moreValues)
 {
-	this->implement->write<int16_t>(value);
+	this->implement->write<int16_t>(value, moreValues);
 }
 
-void GByteArray::writeInt32(int32_t value)
+void GMetaByteArray::writeInt32(int32_t value, const GMetaVariadicParam * moreValues)
 {
-	this->implement->write<int32_t>(value);
+	this->implement->write<int32_t>(value, moreValues);
 }
 
-void GByteArray::writeInt64(int64_t value)
+void GMetaByteArray::writeInt64(int64_t value, const GMetaVariadicParam * moreValues)
 {
-	this->implement->write<int64_t>(value);
+	this->implement->write<int64_t>(value, moreValues);
 }
 
-void GByteArray::writeUint8(uint8_t value)
+void GMetaByteArray::writeUint8(uint8_t value, const GMetaVariadicParam * moreValues)
 {
-	this->implement->write<uint8_t>(value);
+	this->implement->write<uint8_t>(value, moreValues);
 }
 
-void GByteArray::writeUint16(uint16_t value)
+void GMetaByteArray::writeUint16(uint16_t value, const GMetaVariadicParam * moreValues)
 {
-	this->implement->write<uint16_t>(value);
+	this->implement->write<uint16_t>(value, moreValues);
 }
 
-void GByteArray::writeUint32(uint32_t value)
+void GMetaByteArray::writeUint32(uint32_t value, const GMetaVariadicParam * moreValues)
 {
-	this->implement->write<uint32_t>(value);
+	this->implement->write<uint32_t>(value, moreValues);
 }
 
-void GByteArray::writeUint64(uint64_t value)
+void GMetaByteArray::writeUint64(uint64_t value, const GMetaVariadicParam * moreValues)
 {
-	this->implement->write<uint64_t>(value);
+	this->implement->write<uint64_t>(value, moreValues);
 }
 
-void GByteArray::writeFloat32(float value)
+void GMetaByteArray::writeFloat32(float value, const GMetaVariadicParam * moreValues)
 {
-	this->implement->write<float>(value);
+	this->implement->write<float>(value, moreValues);
 }
 
-void GByteArray::writeFloat64(double value)
+void GMetaByteArray::writeFloat64(double value, const GMetaVariadicParam * moreValues)
 {
-	this->implement->write<double>(value);
+	this->implement->write<double>(value, moreValues);
 }
 
-void GByteArray::writeBuffer(const void * buffer, size_t length)
+void GMetaByteArray::writeBuffer(const void * buffer, size_t length)
 {
     this->implement->writeBuffer(buffer, length);
 }

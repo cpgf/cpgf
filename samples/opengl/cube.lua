@@ -137,6 +137,8 @@ function initLights()
 end
 
 function start()
+	cpgf.loadLibrary(nil, "builtin.arrays.bytearray")
+
 	initData()
 	gl.glutInit()
 	gl.glutInitDisplayMode(gl.GLUT_DEPTH + gl.GLUT_DOUBLE + gl.GLUT_RGB + gl.GLUT_STENCIL)

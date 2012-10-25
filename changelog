@@ -8,6 +8,8 @@ TBD version 1.5.2
 	Added function loadLibrary in script binding core service to load libraries at runtime from within script.
 	Added meta traits to manage object lifetime. Now script engine can handle cpgf interfaces correctly.
 	Fixed a bug that in Python binding, None value is not handled when passing from script to C++ and it was converted to wrong GVariant.
+	Changed the utility functions in gmetaapiutil.h from template to non-template, to keep the API minimal.
+	Moved and renamed gbytearray.h|cpp to metautility/gmetabytearray.h|cpp, and renamed class GByteArray and GMetaByteArray.
 
 2012-10-13 version 1.5.1
 	Support shared pointer in script binding. There are meta traits for shared pointer in C++11, Boost, and cpgf.
