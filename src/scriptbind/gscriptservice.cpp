@@ -54,7 +54,8 @@ GScriptCoreService * doBindScriptCoreService(GScriptObject * scriptObject, const
 
 	injectObjectToScript(scriptObject, define.getMetaClass(), coreService.get(), bindName);
 
-	scriptObject->holdObject(metaItemToInterface(define.takeMetaClass(), true));
+	GScopedInterface<IMetaItem> metaItem(metaItemToInterface(define.takeMetaClass(), true));
+	scriptObject->holdObject(metaItem.get());
 
 	return coreService.take();
 }
