@@ -10,8 +10,6 @@
 #include "cpgf/gsharedptr.h"
 #include "cpgf/gflags.h"
 
-#include "cpgf/metatraits/gmetaobjectlifemanager_iobject.h"
-
 #include <map>
 #include <set>
 

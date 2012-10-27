@@ -1,15 +1,14 @@
 #ifndef __TESTSERIALIZATIONCOMMON_H
 #define __TESTSERIALIZATIONCOMMON_H
 
+#include "../testmetatraits.h"
+
 #include "cpgf/serialization/gmetaarchivereader.h"
 #include "cpgf/serialization/gmetaarchivewriter.h"
 
 #include "cpgf/serialization/gmetastorage_textstream.h"
 #include "cpgf/serialization/gmetastorage_xml.h"
 #include "cpgf/serialization/gmetastorage_json.h"
-
-#include "cpgf/metatraits/gmetaserializer_string.h"
-#include "cpgf/metatraits/gmetaserializer_array.h"
 
 #include "../unittestbase.h"
 

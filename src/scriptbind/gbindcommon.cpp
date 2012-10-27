@@ -6,6 +6,7 @@
 #include "cpgf/scriptbind/gscriptservice.h"
 #include "cpgf/glifecycle.h"
 
+#include "cpgf/metatraits/gmetaobjectlifemanager_iobject.h"
 #include "cpgf/metatraits/gmetatraitsparam.h"
 
 #include <vector>
