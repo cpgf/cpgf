@@ -8,11 +8,7 @@
 
 namespace cpgf {
 
-template <>
-struct GMetaTraitsCreateSerializer <std::string>
-{
-	static IMetaSerializer * createSerializer(const GMetaTraitsParam &);
-};
+IMetaSerializer * metaTraitsCreateSerializer(const GMetaTraitsParam &, const volatile std::string *);
 
 
 } // namespace cpgf

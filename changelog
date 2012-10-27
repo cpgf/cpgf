@@ -1,15 +1,16 @@
 TBD version 1.5.2
-	Now fromVariant<GVariant>(variant) will return variant directly.
+	Added function loadLibrary in script binding core service to load libraries at runtime from within script.
 	Added GMetaObjectArray to C++ object array in script.
 	Improved reflecting for variadic functions, now suppport non-variadic parameters. E.g, int myVariadicFunc(int a, const char * b, GMetaVariadicParam * v);
-	Removed function gainScriptObject from GScriptObject and IScriptObject. Now createScriptObject can return the existing script object.
 	Now dotted nested namespace can be passed to createScriptObject. E.g, createScriptObject("a.b.c"), then script can use the script object a.b.c
 	Added function holdObject to GScriptObject and IScriptObject to hold meta data which is created dynamically.
-	Added function loadLibrary in script binding core service to load libraries at runtime from within script.
 	Added meta traits to manage object lifetime. Now script engine can handle cpgf interfaces correctly.
+	Now fromVariant<GVariant>(variant) will return variant directly.
 	Fixed a bug that in Python binding, None value is not handled when passing from script to C++ and it was converted to wrong GVariant.
 	Changed the utility functions in gmetaapiutil.h from template to non-template, to keep the API minimal.
 	Moved and renamed gbytearray.h|cpp to metautility/gmetabytearray.h|cpp, and renamed class GByteArray and GMetaByteArray.
+	Removed function gainScriptObject from GScriptObject and IScriptObject. Now createScriptObject can return the existing script object.
+	Improved meta traits.
 
 2012-10-13 version 1.5.1
 	Support shared pointer in script binding. There are meta traits for shared pointer in C++11, Boost, and cpgf.

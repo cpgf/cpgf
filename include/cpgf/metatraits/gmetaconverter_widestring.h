@@ -8,20 +8,7 @@
 
 namespace cpgf {
 
-namespace metatraits_internal {
-
-IMetaConverter * createConverterForWideString();
-
-} // namespace metatraits_internal
-
-template <>
-struct GMetaTraitsCreateConverter <std::wstring>
-{
-	static IMetaConverter * createConverter(const GMetaTraitsParam &) {
-		return metatraits_internal::createConverterForWideString();
-	}
-};
-
+IMetaConverter * metaTraitsCreateConverter(const GMetaTraitsParam &, const volatile std::wstring *);
 
 
 

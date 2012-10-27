@@ -14,9 +14,9 @@ namespace metatraits_internal {
 IMetaSerializer * createArraySerializer(IMetaSerializer * elementSerializer, const GMetaType & metaType, unsigned int elementSize, unsigned int elementCount);
 
 template <typename T>
-IMetaSerializer * metaTraitsCreateSerializerForArray(const T & a, const GMetaTraitsParam & param)
+IMetaSerializer * metaTraitsCreateSerializerForArray(const GMetaTraitsParam & param, const T & a)
 {
-	IMetaSerializer * serializer = metaTraitsCreateSerializer(a, param);
+	IMetaSerializer * serializer = createSerializerFromMetaTraits(param, &a);
 	
 	if(serializer == NULL) {
 		serializer = createTrapAllSerializer<T>(param);
@@ -26,10 +26,10 @@ IMetaSerializer * metaTraitsCreateSerializerForArray(const T & a, const GMetaTra
 }
 
 template <typename T, int N>
-IMetaSerializer * metaTraitsCreateSerializerForArray(const T (&)[N], const GMetaModule * module)
+IMetaSerializer * metaTraitsCreateSerializerForArray(const GMetaModule * module, const T (&)[N])
 {
 	T * p = 0;
-	GScopedInterface<IMetaSerializer> elementSerializer(metaTraitsCreateSerializerForArray(*p, module));
+	GScopedInterface<IMetaSerializer> elementSerializer(metaTraitsCreateSerializerForArray(module, *p));
 	return createArraySerializer(elementSerializer.get(), createMetaType<T>(), sizeof(T), N);
 }
 
@@ -40,7 +40,7 @@ struct GMetaTraitsCreateSerializer <T[N]>
 {
 	static IMetaSerializer * createSerializer(const GMetaTraitsParam & param) {
 		T * p = 0;
-		GScopedInterface<IMetaSerializer> elementSerializer(metatraits_internal::metaTraitsCreateSerializerForArray(*p, param));
+		GScopedInterface<IMetaSerializer> elementSerializer(metatraits_internal::metaTraitsCreateSerializerForArray(param, *p));
 		return metatraits_internal::createArraySerializer(elementSerializer.get(), createMetaType<T>(), sizeof(T), N);
 	}
 };

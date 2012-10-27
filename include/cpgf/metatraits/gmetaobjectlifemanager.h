@@ -18,8 +18,36 @@ struct IMetaObjectLifeManager : public IObject
 };
 
 
-IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, ...);
+template <typename T>
+struct GMetaTraitsCreateObjectLifeManager
+{
+	static IMetaObjectLifeManager * createObjectLifeManager(const GMetaTraitsParam &) {
+		return NULL;
+	}
+};
 
+namespace metatraits_internal {
+	IMetaObjectLifeManager * createDefaultObjectLifeManagerFromMetaTraits();
+} // namespace metatraits_internal
+
+
+inline IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, ...)
+{
+	return NULL;
+}
+
+template <typename T>
+IMetaObjectLifeManager * createObjectLifeManagerFromMetaTraits(const GMetaTraitsParam & param, T * p)
+{
+	IMetaObjectLifeManager * objectLifeManager = metaTraitsCreateObjectLifeManager(param, p);
+	if(objectLifeManager == NULL) {
+		objectLifeManager = GMetaTraitsCreateObjectLifeManager<T>::createObjectLifeManager(param);
+	}
+	if(objectLifeManager == NULL) {
+		objectLifeManager = metatraits_internal::createDefaultObjectLifeManagerFromMetaTraits();
+	}
+	return objectLifeManager;
+}
 
 } // namespace cpgf
 

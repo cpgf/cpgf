@@ -8,6 +8,8 @@
 
 namespace cpgf {
 
+namespace {
+
 class GMetaConverterStdWideString : public GMetaConverterDefault
 {
 public:
@@ -27,14 +29,13 @@ public:
 
 };
 
-namespace metatraits_internal {
+} // unnamed namespace
 
-IMetaConverter * createConverterForWideString()
+
+IMetaConverter * metaTraitsCreateConverter(const GMetaTraitsParam &, const volatile std::wstring *)
 {
-	return new GMetaConverterStdWideString;
+	return new GMetaConverterStdWideString();
 }
-
-} // namespace metatraits_internal
 
 
 

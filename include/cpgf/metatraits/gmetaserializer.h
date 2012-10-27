@@ -35,10 +35,19 @@ struct GMetaTraitsCreateSerializer
 	}
 };
 
-template <typename T>
-inline IMetaSerializer * metaTraitsCreateSerializer(const T &, const GMetaTraitsParam & param)
+inline IMetaSerializer * metaTraitsCreateSerializer(const GMetaTraitsParam &, ...)
 {
-	return GMetaTraitsCreateSerializer<T>::createSerializer(param);
+	return NULL;
+}
+
+template <typename T>
+IMetaSerializer * createSerializerFromMetaTraits(const GMetaTraitsParam & param, T * p)
+{
+	IMetaSerializer * serializer = metaTraitsCreateSerializer(param, p);
+	if(serializer == NULL) {
+		serializer = GMetaTraitsCreateSerializer<T>::createSerializer(param);
+	}
+	return serializer;
 }
 
 

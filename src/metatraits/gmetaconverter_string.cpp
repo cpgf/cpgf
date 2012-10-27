@@ -8,6 +8,8 @@
 
 namespace cpgf {
 
+namespace {
+
 class GMetaConverterStdString : public GMetaConverterDefault
 {
 public:
@@ -27,14 +29,12 @@ public:
 
 };
 
-namespace metatraits_internal {
+} // unnamed namespace
 
-IMetaConverter * createConverterForString()
+IMetaConverter * metaTraitsCreateConverter(const GMetaTraitsParam &, const volatile std::string *)
 {
-	return new GMetaConverterStdString;
+	return new GMetaConverterStdString();
 }
-
-} // namespace metatraits_internal
 
 
 

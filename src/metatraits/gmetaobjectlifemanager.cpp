@@ -31,7 +31,9 @@ GScopedInterface<IMetaObjectLifeManager> defaultObjectLifeManager;
 
 
 
-IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, ...)
+namespace metatraits_internal {
+
+IMetaObjectLifeManager * createDefaultObjectLifeManagerFromMetaTraits()
 {
 	if(! defaultObjectLifeManager) {
 		defaultObjectLifeManager.reset(new GMetaObjectLifeManagerDefault());
@@ -39,6 +41,8 @@ IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsPara
 	defaultObjectLifeManager->addReference();
 	return defaultObjectLifeManager.get();
 }
+
+} // namespace metatraits_internal
 
 
 } // namespace cpgf

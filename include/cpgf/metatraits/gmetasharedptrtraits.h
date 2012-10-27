@@ -49,10 +49,19 @@ struct GMetaTraitsCreateSharedPointerTraits
 	}
 };
 
-template <typename T>
-inline IMetaSharedPointerTraits * metaTraitsCreateSharedPointerTraits(const T &, const GMetaTraitsParam & param)
+inline IMetaSharedPointerTraits * metaTraitsCreateSharedPointerTraits(const GMetaTraitsParam &, ...)
 {
-	return GMetaTraitsCreateSharedPointerTraits<T>::createSharedPointerTraits(param);
+	return NULL;
+}
+
+template <typename T>
+IMetaSharedPointerTraits * createSharedPointerTraitsFromMetaTraits(const GMetaTraitsParam & param, T * p)
+{
+	IMetaSharedPointerTraits * sharedPointerTraits = metaTraitsCreateSharedPointerTraits(param, p);
+	if(sharedPointerTraits == NULL) {
+		sharedPointerTraits = GMetaTraitsCreateSharedPointerTraits<T>::createSharedPointerTraits(param);
+	}
+	return sharedPointerTraits;
 }
 
 

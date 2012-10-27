@@ -33,11 +33,21 @@ struct GMetaTraitsCreateConverter
 	}
 };
 
-template <typename T>
-inline IMetaConverter * metaTraitsCreateConverter(const T &, const GMetaTraitsParam & param)
+inline IMetaConverter * metaTraitsCreateConverter(const GMetaTraitsParam &, ...)
 {
-	return GMetaTraitsCreateConverter<T>::createConverter(param);
+	return NULL;
 }
+
+template <typename T>
+IMetaConverter * createConverterFromMetaTraits(const GMetaTraitsParam & param, T * p)
+{
+	IMetaConverter * converter = metaTraitsCreateConverter(param, p);
+	if(converter == NULL) {
+		converter = GMetaTraitsCreateConverter<T>::createConverter(param);
+	}
+	return converter;
+}
+
 
 inline bool isMetaConverterCanRead(uint32_t flag)
 {

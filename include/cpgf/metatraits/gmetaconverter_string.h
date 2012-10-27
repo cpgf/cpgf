@@ -8,21 +8,7 @@
 
 namespace cpgf {
 
-namespace metatraits_internal {
-
-IMetaConverter * createConverterForString();
-
-} // namespace metatraits_internal
-
-template <>
-struct GMetaTraitsCreateConverter <std::string>
-{
-	static IMetaConverter * createConverter(const GMetaTraitsParam &) {
-		return metatraits_internal::createConverterForString();
-	}
-};
-
-
+IMetaConverter * metaTraitsCreateConverter(const GMetaTraitsParam &, const volatile std::string *);
 
 
 } // namespace cpgf

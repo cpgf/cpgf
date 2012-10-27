@@ -63,7 +63,7 @@ public:
 
     template <typename T>
     void write(T value, const GMetaVariadicParam * moreValues) {
-    	uint32_t valueCount = 1;
+    	size_t valueCount = 1;
     	if(moreValues != NULL) {
     		valueCount += moreValues->paramCount;
     	}

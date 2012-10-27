@@ -74,7 +74,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 		GMetaTraitsParam param;
 		param.module = module;
 		typename WrapExtendType<T>::Result * p = 0;
-		data->converter = metaTraitsCreateConverter(*p, param);
+		data->converter = createConverterFromMetaTraits(param, p);
 	}
 	else {
 		data->converter = NULL;
@@ -84,7 +84,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 		GMetaTraitsParam param;
 		param.module = module;
 		typename WrapExtendTypeForSerializer<T>::Result * p = 0;
-		data->serializer = metaTraitsCreateSerializer(*p, param);
+		data->serializer = createSerializerFromMetaTraits(param, p);
 	}
 	else {
 		data->serializer = NULL;
@@ -104,7 +104,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 		GMetaTraitsParam param;
 		param.module = module;
 		typename WrapExtendType<T>::Result * p = 0;
-		data->sharedPointerTraits = metaTraitsCreateSharedPointerTraits<typename WrapExtendType<T>::Result>(*p, param);
+		data->sharedPointerTraits = createSharedPointerTraitsFromMetaTraits(param, p);
 	}
 	else {
 		data->sharedPointerTraits = NULL;
@@ -114,7 +114,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 		GMetaTraitsParam param;
 		param.module = module;
 		typename WrapExtendType<T>::Result * p = 0;
-		data->objectLifeManager = metaTraitsCreateObjectLifeManager(param, p);
+		data->objectLifeManager = createObjectLifeManagerFromMetaTraits(param, p);
 	}
 	else {
 		data->objectLifeManager = NULL;
