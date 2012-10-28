@@ -1,7 +1,43 @@
 #include "cpgf/gmetaapiutil.h"
+#include "cpgf/gmetaclass.h"
 
 
 namespace cpgf {
+
+
+#define DEF_LOAD_PARAM_HELPER(N, unused) paramData[N] = &GPP_CONCAT(p, N).refData();
+
+#define DEF_LOAD_PARAM(N) \
+	const GVariantData * paramData[N == 0 ? 1 : N]; \
+	GPP_REPEAT_3(N, DEF_LOAD_PARAM_HELPER, GPP_EMPTY())
+
+#define DEF_CALL_HELPER(N, unused) \
+	GVariant metaInvokeMethod(IMetaMethod * method, void * obj GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GVariant & p)) { \
+		DEF_LOAD_PARAM(N) \
+		GVariant v; \
+		method->invokeIndirectly(&v.refData(), obj, paramData, N); \
+		metaCheckError(method); \
+		return v; \
+	} \
+	void * metaInvokeConstructor(IMetaConstructor * constructor GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p)) { \
+		DEF_LOAD_PARAM(N) \
+		void * obj = constructor->invokeIndirectly(paramData, N); \
+		metaCheckError(constructor); \
+		return obj; \
+	} \
+	GVariant metaInvokeOperatorFunctor(IMetaOperator * op, void * obj GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p)) { \
+		DEF_LOAD_PARAM(N) \
+		GVariant v; \
+		op->invokeFunctorIndirectly(&v.refData(), obj, paramData, N); \
+		metaCheckError(op); \
+		return v; \
+	}
+
+GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
+
+#undef DEF_CALL_HELPER
+#undef DEF_LOAD_PARAM
+#undef DEF_LOAD_PARAM_HELPER
 
 
 void metaCheckError(IExtendObject * object)
@@ -146,39 +182,140 @@ IMetaClass * metaGetGlobalMetaClass(IMetaService * service, size_t index)
 }
 
 
-#define DEF_LOAD_PARAM_HELPER(N, unused) paramData[N] = &GPP_CONCAT(p, N).refData();
-
-#define DEF_LOAD_PARAM(N) \
-	const GVariantData * paramData[N == 0 ? 1 : N]; \
-	GPP_REPEAT_3(N, DEF_LOAD_PARAM_HELPER, GPP_EMPTY())
-
-#define DEF_CALL_HELPER(N, unused) \
-	GVariant metaInvokeMethod(IMetaMethod * method, void * obj GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GVariant & p)) { \
-		DEF_LOAD_PARAM(N) \
-		GVariant v; \
-		method->invokeIndirectly(&v.refData(), obj, paramData, N); \
-		metaCheckError(method); \
-		return v; \
-	} \
-	void * metaInvokeConstructor(IMetaConstructor * constructor GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p)) { \
-		DEF_LOAD_PARAM(N) \
-		void * obj = constructor->invokeIndirectly(paramData, N); \
-		metaCheckError(constructor); \
-		return obj; \
-	} \
-	GVariant metaInvokeOperatorFunctor(IMetaOperator * op, void * obj GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p)) { \
-		DEF_LOAD_PARAM(N) \
-		GVariant v; \
-		op->invokeFunctorIndirectly(&v.refData(), obj, paramData, N); \
-		metaCheckError(op); \
-		return v; \
+const GMetaClass * findAppropriateDerivedClass(const void * instance, const GMetaClass * metaClass, void ** outCastedInstance)
+{
+	if(outCastedInstance != NULL) {
+		*outCastedInstance = const_cast<void *>(instance);
 	}
 
-GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
+	if(! metaClass->isPolymorphic()) {
+		return metaClass;
+	}
 
-#undef DEF_CALL_HELPER
-#undef DEF_LOAD_PARAM
-#undef DEF_LOAD_PARAM_HELPER
+	const GMetaClass * currentClass = metaClass;
+
+	for(;;) {
+		void * derivedInstance = NULL;
+		size_t derivedCount = currentClass->getDerivedCount();
+
+		for(size_t i = 0; i < derivedCount; ++i) {
+			derivedInstance = currentClass->castToDerived(instance, i);
+			if(derivedInstance != NULL) {
+				currentClass = currentClass->getDerivedClass(i);
+				instance = derivedInstance;
+				break;
+			}
+		}
+
+		if(derivedInstance == NULL) {
+			break;
+		}
+	}
+
+	if(outCastedInstance != NULL) {
+		*outCastedInstance = const_cast<void *>(instance);
+	}
+	return currentClass;
+}
+
+IMetaClass * findAppropriateDerivedClass(const void * instance, IMetaClass * metaClass, void ** outCastedInstance)
+{
+	if(outCastedInstance != NULL) {
+		*outCastedInstance = const_cast<void *>(instance);
+	}
+
+	if(! metaClass->isPolymorphic()) {
+		metaClass->addReference();
+		return metaClass;
+	}
+
+	metaClass->addReference();
+	GScopedInterface<IMetaClass> currentClass(metaClass);
+
+	for(;;) {
+		void * derivedInstance = NULL;
+		uint32_t derivedCount = currentClass->getDerivedCount();
+
+		for(uint32_t i = 0; i < derivedCount; ++i) {
+			derivedInstance = currentClass->castToDerived(instance, i);
+			if(derivedInstance != NULL) {
+				currentClass.reset(currentClass->getDerivedClass(i));
+				instance = derivedInstance;
+				break;
+			}
+		}
+
+		if(derivedInstance == NULL) {
+			break;
+		}
+	}
+
+	if(outCastedInstance != NULL) {
+		*outCastedInstance = const_cast<void *>(instance);
+	}
+	return currentClass.take();
+}
+
+void * doMetaCastToBase(void * instance, IMetaClass * currentClass, IMetaClass * targetBaseClass)
+{
+	if(currentClass->equals(targetBaseClass)) {
+		return instance;
+	}
+	
+	for(uint32_t i = 0; i < currentClass->getBaseCount(); ++i) {
+		GScopedInterface<IMetaClass> base(currentClass->getBaseClass(i));
+		if(! base) {
+			continue;
+		}
+		
+		void * castedInstance = doMetaCastToBase(currentClass->castToBase(instance, i), base.get(), targetBaseClass);
+		if(castedInstance != NULL) {
+			return castedInstance;
+		}
+	}
+	
+	return NULL;
+}
+
+void * metaCastToBase(void * instance, IMetaClass * currentClass, IMetaClass * targetBaseClass)
+{
+	if(instance == NULL) {
+		return instance;
+	}
+	
+	return doMetaCastToBase(instance, currentClass, targetBaseClass);
+}
+
+void * doMetaCastToDerived(void * instance, IMetaClass * currentClass, IMetaClass * targetDerivedClass)
+{
+	if(currentClass->equals(targetDerivedClass)) {
+		return instance;
+	}
+	
+	for(uint32_t i = 0; i < currentClass->getDerivedCount(); ++i) {
+		GScopedInterface<IMetaClass> derived(currentClass->getDerivedClass(i));
+		if(! derived) {
+			continue;
+		}
+		
+		void * castedInstance = doMetaCastToDerived(currentClass->castToDerived(instance, i), derived.get(), targetDerivedClass);
+		if(castedInstance != NULL) {
+			return castedInstance;
+		}
+	}
+	
+	return NULL;
+}
+
+void * metaCastToDerived(void * instance, IMetaClass * currentClass, IMetaClass * targetDerivedClass)
+{
+	if(instance == NULL) {
+		return instance;
+	}
+	
+	return doMetaCastToDerived(instance, currentClass, targetDerivedClass);
+}
+
 
 
 } // namespace cpgf

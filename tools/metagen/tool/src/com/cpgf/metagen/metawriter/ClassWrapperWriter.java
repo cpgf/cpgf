@@ -6,6 +6,7 @@ import java.util.List;
 import com.cpgf.metagen.Config;
 import com.cpgf.metagen.Util;
 import com.cpgf.metagen.codewriter.CppWriter;
+import com.cpgf.metagen.metadata.ClassTraits;
 import com.cpgf.metagen.metadata.ClassWrapperConfig;
 import com.cpgf.metagen.metadata.Constructor;
 import com.cpgf.metagen.metadata.CppClass;
@@ -115,8 +116,11 @@ public class ClassWrapperWriter {
 	}
 
 	public void writeCreation(CppWriter codeWriter, String callFunc) {
+		ClassTraits newTraits = new ClassTraits();
+		this.cppClass.getTraits().assignTo(newTraits);
+		newTraits.setAbstract(false);
 		List<String> rules = new ArrayList<String>();
-		this.cppClass.getPolicyRules(rules);
+		newTraits.getRules(rules);
 
 		String policy = "";
 		if(rules != null && rules.size() > 0) {

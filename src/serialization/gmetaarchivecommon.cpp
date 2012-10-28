@@ -10,13 +10,13 @@ namespace cpgf {
 
 bool GBaseClassMap::hasMetaClass(void * instance, IMetaClass * metaClass) const
 {
-	MapType::const_iterator it = this->itemMap.find(metaClass->getTypeName());
+	MapType::const_iterator it = this->itemMap.find(metaClass->getQualifiedName());
 	return it != this->itemMap.end() && it->second == instance;
 }
 
 void GBaseClassMap::addMetaClass(void * instance, IMetaClass * metaClass)
 {
-	this->itemMap.set(metaClass->getTypeName(), instance);
+	this->itemMap.set(metaClass->getQualifiedName(), instance);
 }
 
 
@@ -26,7 +26,7 @@ GMetaArchiveConfig GMetaArchiveConfigMap::getConfig(IMetaClass * metaClass) cons
 		return GMetaArchiveConfig();
 	}
 
-	const char * name = metaClass->getTypeName();
+	const char * name = metaClass->getQualifiedName();
 	MapType::const_iterator it = this->itemMap.find(name);
 	if(it == this->itemMap.end()) {
 		GMetaArchiveConfig config = getItemMetaArchiveConfig(metaClass);

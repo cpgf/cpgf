@@ -264,6 +264,11 @@ std::string GMetaItem::makeQualifiedName(const char * delimiter) const
 	return result;
 }
 
+bool GMetaItem::equals(const GMetaItem * other) const
+{
+	return this->getQualifiedName() == other->getQualifiedName();
+}
+
 void GMetaItem::setName(const char * name)
 {
 	this->implement->name = name;
@@ -283,20 +288,11 @@ GMetaTypedItem::~GMetaTypedItem()
 const GMetaType & GMetaTypedItem::getMetaType() const
 {
 	if(this->implement->itemType.getBaseName() == NULL) {
-		this->implement->itemType = createMetaTypeWithName(this->implement->itemType, this->getTypeName().c_str());
+		this->implement->itemType = createMetaTypeWithName(this->implement->itemType, this->getQualifiedName().c_str());
 	}
 
 	return this->getItemType();
 }
-
-const std::string & GMetaTypedItem::getTypeName() const
-{
-	if(this->typeName == "") {
-		meta_internal::makeFullName(this, &this->typeName, ".");
-	}
-	return this->typeName;
-}
-
 
 
 GMetaAccessible::GMetaAccessible(const char * name, const GMetaType & itemType, GMetaCategory category)

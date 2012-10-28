@@ -13,8 +13,15 @@ namespace meta_test {
 
 
 GDefineMetaInfo createMetaClass_Global_global();
+GDefineMetaInfo createMetaClass_Global_metagen_multiple_inheritance_cast();
 GDefineMetaInfo createMetaClass_Global_simpleobject();
 GDefineMetaInfo createMetaClass_Global_testobjectarray();
+GDefineMetaInfo createMetaClass_MetagenNonconstructable();
+GDefineMetaInfo createMetaClass_MultipleInheritanceCastA();
+GDefineMetaInfo createMetaClass_MultipleInheritanceCastB();
+GDefineMetaInfo createMetaClass_MultipleInheritanceCastC();
+GDefineMetaInfo createMetaClass_MultipleInheritanceCastD();
+GDefineMetaInfo createMetaClass_MultipleInheritanceCastR();
 GDefineMetaInfo createMetaClass_MyInterfaceHolder();
 GDefineMetaInfo createMetaClass_MyInterfaceObject();
 GDefineMetaInfo createMetaClass_OAData();
@@ -33,8 +40,15 @@ template <typename Meta>
 void registerMain_metatest(Meta _d)
 {
     _d._class(createMetaClass_Global_global());
+    _d._class(createMetaClass_Global_metagen_multiple_inheritance_cast());
     _d._class(createMetaClass_Global_simpleobject());
     _d._class(createMetaClass_Global_testobjectarray());
+    _d._class(createMetaClass_MetagenNonconstructable());
+    _d._class(createMetaClass_MultipleInheritanceCastA());
+    _d._class(createMetaClass_MultipleInheritanceCastB());
+    _d._class(createMetaClass_MultipleInheritanceCastC());
+    _d._class(createMetaClass_MultipleInheritanceCastD());
+    _d._class(createMetaClass_MultipleInheritanceCastR());
     _d._class(createMetaClass_MyInterfaceHolder());
     _d._class(createMetaClass_MyInterfaceObject());
     _d._class(createMetaClass_OAData());

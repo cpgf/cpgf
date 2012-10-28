@@ -801,15 +801,6 @@ void loadCallableParam(const Arguments & args, const GContextPointer & context, 
 	}
 }
 
-void * invokeConstructor(const Arguments & args, const GContextPointer & context, IMetaClass * metaClass)
-{
-	InvokeCallableParam callableParam(args.Length());
-	loadCallableParam(args, context, &callableParam);
-
-	void * instance = doInvokeConstructor(context->getService(), metaClass, &callableParam);
-	return instance;
-}
-
 Handle<Value> objectConstructor(const Arguments & args)
 {
 	ENTER_V8()
@@ -828,15 +819,24 @@ Handle<Value> objectConstructor(const Arguments & args)
 		Local<External> data = Local<External>::Cast(args.Data());
 		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(data->Value());
 		GClassGlueDataPointer classData = dataWrapper->getAs<GClassGlueData>();
+		GContextPointer context = classData->getContext();
 
-		void * instance = invokeConstructor(args, classData->getContext(), classData->getMetaClass());
+		InvokeCallableParam callableParam(args.Length());
+		loadCallableParam(args, context, &callableParam);
 
-		GObjectGlueDataPointer objectData = classData->getContext()->newObjectGlueData(classData, instance, GBindValueFlags(bvfAllowGC), opcvNone);
-		GGlueDataWrapper * objectWrapper = newGlueDataWrapper(objectData, getV8DataWrapperPool());
-		self.MakeWeak(objectWrapper, weakHandleCallback);
+		void * instance = doInvokeConstructor(context->getService(), classData->getMetaClass(), &callableParam);
 
-		self->SetPointerInInternalField(0, objectWrapper);
-		setObjectSignature(&self);
+		if(instance != NULL) {
+			GObjectGlueDataPointer objectData = context->newObjectGlueData(classData, instance, GBindValueFlags(bvfAllowGC), opcvNone);
+			GGlueDataWrapper * objectWrapper = newGlueDataWrapper(objectData, getV8DataWrapperPool());
+			self.MakeWeak(objectWrapper, weakHandleCallback);
+
+			self->SetPointerInInternalField(0, objectWrapper);
+			setObjectSignature(&self);
+		}
+		else {
+			raiseCoreException(Error_ScriptBinding_FailConstructObject);
+		}
 	}
 
 	return self;

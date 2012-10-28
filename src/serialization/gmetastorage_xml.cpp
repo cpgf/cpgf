@@ -444,7 +444,7 @@ void G_API_CC GXmlStorageWriter::writeMetaClass(uint32_t classTypeID, IMetaClass
 	this->clearTextStream();
 	this->textStream << prefixClassType << classTypeID;
 
-	XmlNodeType * newNode = this->xml->allocate_node(node_element, this->newString(this->textStream.str().c_str()), metaClass->getTypeName());
+	XmlNodeType * newNode = this->xml->allocate_node(node_element, this->newString(this->textStream.str().c_str()), metaClass->getQualifiedName());
 	this->classTypeNode->append_node(newNode);
 	this->addType(newNode, ptClassType);
 	this->addIntAttribute(newNode, nameArchiveID, classTypeID);

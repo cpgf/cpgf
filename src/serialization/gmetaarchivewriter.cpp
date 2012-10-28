@@ -425,7 +425,7 @@ bool GMetaArchiveWriter::checkTrackedPointer(const char * name, uint32_t archive
 			typeName = serializer->getClassTypeName(this, instance, metaClass);
 		}
 		if(typeName == NULL && metaClass != NULL) {
-			typeName = metaClass->getTypeName();
+			typeName = metaClass->getQualifiedName();
 		}
 
 		if(typeName == NULL) {
@@ -466,7 +466,7 @@ void G_API_CC GMetaArchiveWriter::trackPointer(uint32_t archiveID, const void * 
 			typeName = serializer->getClassTypeName(this, instance, metaClass);
 		}
 		if(typeName == NULL && metaClass != NULL) {
-			typeName = metaClass->getTypeName();
+			typeName = metaClass->getQualifiedName();
 		}
 
 		if(typeName != NULL) {
@@ -488,7 +488,7 @@ uint32_t GMetaArchiveWriter::getClassTypeID(const void * instance, IMetaClass * 
 			void * castedPtr;
 			GScopedInterface<IMetaClass> castedMetaClass(findAppropriateDerivedClass(instance, metaClass, &castedPtr));
 			if(! castedMetaClass->equals(metaClass)) {
-				const char * typeName = castedMetaClass->getTypeName();
+				const char * typeName = castedMetaClass->getQualifiedName();
 				if(this->getClassTypeTracker()->hasClassType(typeName)) {
 					classTypeID = this->getClassTypeTracker()->getArchiveID(typeName);
 				}

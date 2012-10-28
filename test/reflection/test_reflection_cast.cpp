@@ -320,6 +320,76 @@ GTEST(testFindAppropriateDerivedClassApi)
 	PTREQUAL(result, pd);
 }
 
+GTEST(testMetaCastToBase)
+{
+	GDefineMetaNamespace ns = GDefineMetaNamespace::declare("ns");
+	reflectCast(ns);
+	
+	GScopedInterface<IMetaClass> nsClass(static_cast<IMetaClass *>(metaItemToInterface(ns.getMetaClass())));
+	GScopedInterface<IMetaClass> classR(nsClass->getClass("R"));
+	GScopedInterface<IMetaClass> classA(nsClass->getClass("A"));
+	GScopedInterface<IMetaClass> classB(nsClass->getClass("B"));
+	GScopedInterface<IMetaClass> classC(nsClass->getClass("C"));
+	GScopedInterface<IMetaClass> classD(nsClass->getClass("D"));
+
+	D d;
+
+	R * pr = &d;
+	A * pa = &d;
+	B * pb = &d;
+	C * pc = &d;
+	D * pd = &d;
+
+	void * result;
+
+	result = metaCastToBase(pd, classD.get(), classR.get());
+	PTREQUAL(result, pr);
+
+	result = metaCastToBase(pd, classD.get(), classA.get());
+	PTREQUAL(result, pa);
+
+	result = metaCastToBase(pd, classD.get(), classB.get());
+	PTREQUAL(result, pb);
+
+	result = metaCastToBase(pd, classD.get(), classC.get());
+	PTREQUAL(result, pc);
+}
+
+GTEST(testMetaCastToDerived)
+{
+	GDefineMetaNamespace ns = GDefineMetaNamespace::declare("ns");
+	reflectCast(ns);
+	
+	GScopedInterface<IMetaClass> nsClass(static_cast<IMetaClass *>(metaItemToInterface(ns.getMetaClass())));
+	GScopedInterface<IMetaClass> classR(nsClass->getClass("R"));
+	GScopedInterface<IMetaClass> classA(nsClass->getClass("A"));
+	GScopedInterface<IMetaClass> classB(nsClass->getClass("B"));
+	GScopedInterface<IMetaClass> classC(nsClass->getClass("C"));
+	GScopedInterface<IMetaClass> classD(nsClass->getClass("D"));
+
+	D d;
+
+	R * pr = &d;
+	A * pa = &d;
+	B * pb = &d;
+	C * pc = &d;
+	D * pd = &d;
+
+	void * result;
+
+	result = metaCastToDerived(pr, classR.get(), classA.get());
+	PTREQUAL(result, pa);
+
+	result = metaCastToDerived(pr, classR.get(), classB.get());
+	PTREQUAL(result, pb);
+
+	result = metaCastToDerived(pr, classR.get(), classC.get());
+	PTREQUAL(result, pc);
+
+	result = metaCastToDerived(pr, classR.get(), classD.get());
+	PTREQUAL(result, pd);
+}
+
 
 
 } }

@@ -178,12 +178,20 @@ public class MetaClassWriter {
 			}
 			
 			if(item.isBitField()) {
-				continue;
+				CppField field = (CppField)(item);
+				if(WriterUtil.shouldGenerateBitfieldWrapper(this.config, field)) {
+					this.codeWriter.writeLine(this.getAction("_property") + "(" + this.getReplace(name)
+							+ ", &" + WriterUtil.getBitfieldWrapperGetterName(field)
+							+ ", &" + WriterUtil.getBitfieldWrapperSetterName(field)
+							+ ", MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());"
+							);
+				}
 			}
-			
-			this.codeWriter.write(action);
-			this.codeWriter.write("(" + this.getReplace(name) + ", ");
-			this.codeWriter.writeLine("&" + prefix + name + WriterUtil.getPolicyText(item) + ");");
+			else {
+				this.codeWriter.write(action);
+				this.codeWriter.write("(" + this.getReplace(name) + ", ");
+				this.codeWriter.writeLine("&" + prefix + name + WriterUtil.getPolicyText(item) + ");");
+			}
 		}
 	}
 

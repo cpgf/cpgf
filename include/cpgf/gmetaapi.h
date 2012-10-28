@@ -35,7 +35,7 @@ struct IMetaTypedItem : public IMetaItem
 	virtual void G_API_CC getMetaType(GMetaTypeData * outType) = 0;
 	virtual uint32_t G_API_CC getTypeSize() = 0;
 
-	virtual const char * G_API_CC getTypeName() = 0;
+	virtual const char * G_API_CC getQualifiedName() = 0;
 
 	virtual void * G_API_CC createInstance() = 0;
 	virtual void * G_API_CC createInplace(void * placement) = 0;

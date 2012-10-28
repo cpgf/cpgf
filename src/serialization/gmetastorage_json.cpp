@@ -432,7 +432,7 @@ void G_API_CC GJsonStorageWriter::writeMetaClass(uint32_t classTypeID, IMetaClas
 	stream << prefixClassType << classTypeID;
 
 	JsonNodeType & currentNode = *(this->classTypeNode);
-	currentNode[stream.str()] = metaClass->getTypeName();
+	currentNode[stream.str()] = metaClass->getQualifiedName();
 }
 
 void G_API_CC GJsonStorageWriter::beginWriteArray(const char * name, uint32_t length)

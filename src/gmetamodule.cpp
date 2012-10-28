@@ -28,7 +28,7 @@ public:
 	}
 
 	void add(const GMetaTypedItem * item) {
-		const char * name = item->getTypeName().c_str();
+		const char * name = item->getQualifiedName().c_str();
 //		MapType::const_iterator it = this->itemMap.find(name);
 //		if(it == this->itemMap.end()) {
 			this->itemMap.set(name, item);
@@ -36,7 +36,7 @@ public:
 	}
 
 	void remove(const GMetaTypedItem * item) {
-		this->itemMap.remove(item->getTypeName().c_str());
+		this->itemMap.remove(item->getQualifiedName().c_str());
 	}
 
 	const GMetaTypedItem * findByType(const GTypeInfo & type) const {

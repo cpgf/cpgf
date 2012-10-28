@@ -297,7 +297,7 @@ void G_API_CC GTextStreamMetaWriter::writeMetaClass(uint32_t classTypeID, IMetaC
 	this->outputStream << static_cast<uint32_t>(classTypeID);
 	this->writeDelimiter();
 	
-	this->doWriteString(metaClass->getTypeName());
+	this->doWriteString(metaClass->getQualifiedName());
 }
 
 void G_API_CC GTextStreamMetaWriter::beginWriteArray(const char * /*name*/, uint32_t length)

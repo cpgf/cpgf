@@ -11,6 +11,15 @@
 namespace cpgf {
 
 
+#define DEF_CALL_HELPER(N, unused) \
+	GVariant metaInvokeMethod(IMetaMethod * method, void * obj GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GVariant & p)); \
+	void * metaInvokeConstructor(IMetaConstructor * constructor GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p)); \
+	GVariant metaInvokeOperatorFunctor(IMetaOperator * op, void * obj GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p));
+
+GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
+
+#undef DEF_CALL_HELPER
+
 void metaCheckError(IExtendObject * object);
 
 GMetaType metaGetItemType(IMetaItem * item);
@@ -41,15 +50,8 @@ IMetaItem * metaItemToInterface(const GMetaItem * item);
 const GMetaClass * findAppropriateDerivedClass(const void * instance, const GMetaClass * metaClass, void ** outCastedInstance);
 IMetaClass * findAppropriateDerivedClass(const void * instance, IMetaClass * metaClass, void ** outCastedInstance);
 
-
-#define DEF_CALL_HELPER(N, unused) \
-	GVariant metaInvokeMethod(IMetaMethod * method, void * obj GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GVariant & p)); \
-	void * metaInvokeConstructor(IMetaConstructor * constructor GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p)); \
-	GVariant metaInvokeOperatorFunctor(IMetaOperator * op, void * obj GPP_REPEAT_TAIL_PARAMS(N, const GVariant & p));
-
-GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
-
-#undef DEF_CALL_HELPER
+void * metaCastToBase(void * instance, IMetaClass * currentClass, IMetaClass * targetBaseClass);
+void * metaCastToDerived(void * instance, IMetaClass * currentClass, IMetaClass * targetDerivedClass);
 
 
 } // namespace cpgf

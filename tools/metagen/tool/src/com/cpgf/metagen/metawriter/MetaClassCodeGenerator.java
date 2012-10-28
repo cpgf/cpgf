@@ -6,7 +6,9 @@ import com.cpgf.metagen.Config;
 import com.cpgf.metagen.Util;
 import com.cpgf.metagen.codewriter.CppWriter;
 import com.cpgf.metagen.metadata.CppClass;
+import com.cpgf.metagen.metadata.CppField;
 import com.cpgf.metagen.metadata.CppInvokable;
+import com.cpgf.metagen.metadata.DeferClass;
 import com.cpgf.metagen.metadata.Item;
 import com.cpgf.metagen.metadata.MetaInfo;
 import com.cpgf.metagen.metadata.Parameter;
@@ -224,6 +226,38 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 		}
 	}
 	
+	private void generateBitfieldsWrapperFunctions(CppClass cls) {
+		List<CppField> fieldList = cls.getFieldList();
+		CppWriter codeWriter = new CppWriter();
+		for(CppField field : fieldList) {
+			if(! WriterUtil.shouldGenerateBitfieldWrapper(this.config, field)) {
+				continue;
+			}
+			
+			// getter
+			codeWriter.write("inline " + field.getType().getLiteralType() + " ");
+			codeWriter.write(WriterUtil.getBitfieldWrapperGetterName(field) + "(" + field.getOwner().getQualifiedName() + " * self) ");
+			codeWriter.beginBlock();
+			codeWriter.writeLine("return self->" + field.getLiteralName() + ";");
+			codeWriter.endBlock();
+			
+			codeWriter.writeLine("");
+
+			// setter
+			codeWriter.write("inline void ");
+			codeWriter.write(WriterUtil.getBitfieldWrapperSetterName(field) + "(" + field.getOwner().getQualifiedName() + " * self, ");
+			codeWriter.write(field.getType().getLiteralType() + " value) ");
+			codeWriter.beginBlock();
+			codeWriter.writeLine("self->" + field.getLiteralName() + " = value;");
+			codeWriter.endBlock();
+		}
+		this.classCode.headerCode = this.appendText(this.classCode.headerCode, codeWriter.getText());
+		
+		for(DeferClass innerClass : cls.getClassList()) {
+			generateBitfieldsWrapperFunctions(innerClass.getCppClass());
+		}
+	}
+	
 	private void generateClassReflectionHeaderCode() {
 		CppWriter codeWriter = new CppWriter();
 
@@ -343,6 +377,8 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 		if(this.config.scriptable) {
 			this.generateClassCallbackCode();
 		}
+		
+		this.generateBitfieldsWrapperFunctions(this.cppClass);
 
 		this.generateClassReflectionHeaderCode();
 		this.generateClassReflectionSourceCode();

@@ -6,11 +6,12 @@ TBD version 1.5.2
 	Added function holdObject to GScriptObject and IScriptObject to hold meta data which is created dynamically.
 	Added meta traits to manage object lifetime. Now script engine can handle cpgf interfaces correctly.
 	Now fromVariant<GVariant>(variant) will return variant directly.
-	Fixed a bug that in Python binding, None value is not handled when passing from script to C++ and it was converted to wrong GVariant.
 	Changed the utility functions in gmetaapiutil.h from template to non-template, to keep the API minimal.
 	Moved and renamed gbytearray.h|cpp to metautility/gmetabytearray.h|cpp, and renamed class GByteArray and GMetaByteArray.
 	Removed function gainScriptObject from GScriptObject and IScriptObject. Now createScriptObject can return the existing script object.
 	Improved meta traits.
+	Fixed a bug that in Python binding, None value is not handled when passing from script to C++ and it was converted to wrong GVariant.
+	Fixed a bug that in V8 Javascript binding, there is null pointer crash if the object constructor returns NULL. Now an exception is raised instead of crash.
 
 2012-10-13 version 1.5.1
 	Support shared pointer in script binding. There are meta traits for shared pointer in C++11, Boost, and cpgf.

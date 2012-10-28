@@ -8,6 +8,14 @@ public class ClassTraits {
 	private boolean defaultConstructorHidden;
 	private boolean copyConstructorHidden;
 	private boolean hasTypeConvertConstructor;
+	
+	public void assignTo(ClassTraits other) {
+		other.isAbstract = this.isAbstract;
+		other.destructorHidden = this.destructorHidden;
+		other.defaultConstructorHidden = this.defaultConstructorHidden;
+		other.copyConstructorHidden = this.copyConstructorHidden;
+		other.hasTypeConvertConstructor = this.hasTypeConvertConstructor;
+	}
 
 	public void getRules(List<String> rules) {
 		if(this.isDestructorHidden()) {

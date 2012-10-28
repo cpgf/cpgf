@@ -275,7 +275,7 @@ void fixupMetaType(GMetaType * type)
 	if(type->refData().baseName == NULL && ! type->getBaseType().isEmpty()) {
 		const GMetaTypedItem * item = getGlobalMetaClass()->getModule()->findItemByType(type->getBaseType());
 		if(item != NULL) {
-			type->refData().baseName = item->getTypeName().c_str();
+			type->refData().baseName = item->getQualifiedName().c_str();
 		}
 	}
 }
@@ -295,7 +295,7 @@ void fixupMetaType(GMetaType * type, const GMetaModule * module)
 		}
 		const GMetaTypedItem * item = module->findItemByType(type->getBaseType());
 		if(item != NULL) {
-			type->refData().baseName = item->getTypeName().c_str();
+			type->refData().baseName = item->getQualifiedName().c_str();
 		}
 	}
 }

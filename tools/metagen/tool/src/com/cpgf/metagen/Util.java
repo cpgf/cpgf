@@ -185,7 +185,9 @@ public class Util {
 	}
 
 	public static String normalizeSymbol(String s) {
-		return s.replaceAll("\\.", "_");
+		s = s.replaceAll("::", "_");
+		s = s.replaceAll("\\.", "_");
+		return s;
 	}
 	
 	public static String getBaseFileName(String fileName) {

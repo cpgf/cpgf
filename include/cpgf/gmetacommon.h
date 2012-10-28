@@ -88,6 +88,8 @@ public:
 	const std::string & getName() const;
 	const std::string & getQualifiedName() const;
 	std::string makeQualifiedName(const char * delimiter) const;
+	
+	bool equals(const GMetaItem * other) const;
 
 	const GMetaAnnotation * getAnnotation(const char * name) const;
 	size_t getAnnotationCount() const;
@@ -127,8 +129,6 @@ public:
 	const GMetaType & getMetaType() const;
 	virtual size_t getTypeSize() const = 0;
 
-	const std::string & getTypeName() const;
-
 	virtual void * createInstance() const = 0;
 	virtual void * createInplace(void * placement) const = 0;
 	virtual void * cloneInstance(const void * instance) const = 0;
@@ -136,9 +136,6 @@ public:
 
 	virtual void destroyInstance(void * instance) const = 0;
 	virtual void destroyInplace(void * instance) const = 0;
-	
-private:
-	mutable std::string typeName;
 };
 
 

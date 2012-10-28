@@ -55,7 +55,6 @@ protected: \
 protected: \
 	virtual void G_API_CC getMetaType(GMetaTypeData * outType) { this->doGetMetaType(outType); } \
 	virtual uint32_t G_API_CC getTypeSize() { return this->doGetTypeSize(); } \
-	virtual const char * G_API_CC getTypeName() { return this->doGetTypeName(); } \
 	virtual void * G_API_CC createInstance() { return this->doCreateInstance(); } \
 	virtual void * G_API_CC createInplace(void * placement) { return this->doCreateInplace(placement); } \
 	virtual void * G_API_CC cloneInstance(const void * instance) { return this->doCloneInstance(instance); } \
@@ -155,8 +154,6 @@ public:
 protected:
 	void doGetMetaType(GMetaTypeData * outType);
 	uint32_t doGetTypeSize();
-
-	const char * doGetTypeName();
 
 	void * doCreateInstance();
 	void * doCreateInplace(void * placement);
@@ -803,15 +800,6 @@ uint32_t ImplMetaTypedItem::doGetTypeSize()
 	return static_cast<uint32_t>(this->getTypedItem()->getTypeSize());
 
 	LEAVE_META_API(return 0)
-}
-
-const char * ImplMetaTypedItem::doGetTypeName()
-{
-	ENTER_META_API()
-
-	return this->getTypedItem()->getTypeName().c_str();
-
-	LEAVE_META_API(return NULL)
 }
 
 void * ImplMetaTypedItem::doCreateInstance()
@@ -2117,80 +2105,6 @@ IMetaItem * metaItemToInterface(const GMetaItem * item, bool freeItem)
 IMetaItem * metaItemToInterface(const GMetaItem * item)
 {
 	return metaItemToInterface(item, false);
-}
-
-const GMetaClass * findAppropriateDerivedClass(const void * instance, const GMetaClass * metaClass, void ** outCastedInstance)
-{
-	if(outCastedInstance != NULL) {
-		*outCastedInstance = const_cast<void *>(instance);
-	}
-
-	if(! metaClass->isPolymorphic()) {
-		return metaClass;
-	}
-
-	const GMetaClass * currentClass = metaClass;
-
-	for(;;) {
-		void * derivedInstance = NULL;
-		size_t derivedCount = currentClass->getDerivedCount();
-
-		for(size_t i = 0; i < derivedCount; ++i) {
-			derivedInstance = currentClass->castToDerived(instance, i);
-			if(derivedInstance != NULL) {
-				currentClass = currentClass->getDerivedClass(i);
-				instance = derivedInstance;
-				break;
-			}
-		}
-
-		if(derivedInstance == NULL) {
-			break;
-		}
-	}
-
-	if(outCastedInstance != NULL) {
-		*outCastedInstance = const_cast<void *>(instance);
-	}
-	return currentClass;
-}
-
-IMetaClass * findAppropriateDerivedClass(const void * instance, IMetaClass * metaClass, void ** outCastedInstance)
-{
-	if(outCastedInstance != NULL) {
-		*outCastedInstance = const_cast<void *>(instance);
-	}
-
-	if(! metaClass->isPolymorphic()) {
-		metaClass->addReference();
-		return metaClass;
-	}
-
-	metaClass->addReference();
-	GScopedInterface<IMetaClass> currentClass(metaClass);
-
-	for(;;) {
-		void * derivedInstance = NULL;
-		uint32_t derivedCount = currentClass->getDerivedCount();
-
-		for(uint32_t i = 0; i < derivedCount; ++i) {
-			derivedInstance = currentClass->castToDerived(instance, i);
-			if(derivedInstance != NULL) {
-				currentClass.reset(currentClass->getDerivedClass(i));
-				instance = derivedInstance;
-				break;
-			}
-		}
-
-		if(derivedInstance == NULL) {
-			break;
-		}
-	}
-
-	if(outCastedInstance != NULL) {
-		*outCastedInstance = const_cast<void *>(instance);
-	}
-	return currentClass.take();
 }
 
 

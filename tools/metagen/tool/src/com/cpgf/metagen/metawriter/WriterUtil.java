@@ -8,6 +8,7 @@ import com.cpgf.metagen.Util;
 import com.cpgf.metagen.codewriter.CodeWriter;
 import com.cpgf.metagen.codewriter.CppWriter;
 import com.cpgf.metagen.metadata.CppClass;
+import com.cpgf.metagen.metadata.CppField;
 import com.cpgf.metagen.metadata.Item;
 import com.cpgf.metagen.metadata.Parameter;
 import com.cpgf.metagen.metadata.TemplateInstance;
@@ -159,5 +160,20 @@ public class WriterUtil {
 		}
 	}
 	
-	
+	private static String getBitfieldWrapperName(CppField field) {
+		return "bItFiEldWrapper_" + Util.normalizeSymbol(field.getQualifiedName());
+	}
+
+	public static String getBitfieldWrapperGetterName(CppField field) {
+		return getBitfieldWrapperName(field) + "_getter";
+	}
+
+	public static String getBitfieldWrapperSetterName(CppField field) {
+		return getBitfieldWrapperName(field) + "_setter";
+	}
+
+	public static boolean shouldGenerateBitfieldWrapper(Config config, CppField field) {
+		return field.isBitField() && Util.allowMetaData(config, field) && !field.getOwner().isTemplate();
+	}
+
 }

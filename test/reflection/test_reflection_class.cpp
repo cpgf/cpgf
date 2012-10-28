@@ -53,7 +53,7 @@ GTEST(Lib_BasicInfo)
 	GCHECK(! metaClass->isGlobal());
 	GCHECK(metaClass->canCreateInstance());
 	GCHECK(metaClass->canCopyInstance());
-	GCHECK(metaClass->isSameClass(findMetaClass(NAME(ClassBase))));
+	GCHECK(metaClass->equals(findMetaClass(NAME(ClassBase))));
 	GCHECK(! metaClass->getBaseClass(0));
 	GEQUAL(metaClass->getBaseCount(), 0);
 	GCHECK(! metaClass->isInheritedFrom(NULL));
@@ -65,7 +65,7 @@ GTEST(Lib_BasicInfo)
 	GCHECK(metaClass->isAbstract());
 	GCHECK(! metaClass->canCreateInstance());
 	GCHECK(! metaClass->canCopyInstance());
-	GCHECK(metaClass->isSameClass(findMetaClass(NAME(ClassAbstract))));
+	GCHECK(metaClass->equals(findMetaClass(NAME(ClassAbstract))));
 	GCHECK(! metaClass->getBaseClass(0));
 	GEQUAL(metaClass->getBaseCount(), 0);
 	GCHECK(! metaClass->isInheritedFrom(NULL));

@@ -719,11 +719,6 @@ bool GMetaClass::canCopyInstance() const
 	return this->baseData->canCopyInstance();
 }
 
-bool GMetaClass::isSameClass(const GMetaClass * other) const
-{
-	return this == other;
-}
-
 bool GMetaClass::equals(const GMetaClass * other) const
 {
 	return this == other;
@@ -765,7 +760,7 @@ bool GMetaClass::isInheritedFrom(const GMetaClass * ancient) const
 		const GMetaClass * superClass = this->getBaseClass(i);
 
 		while(superClass != NULL) {
-			if(superClass->isSameClass(ancient)) {
+			if(superClass->equals(ancient)) {
 				return true;
 			}
 

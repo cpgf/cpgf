@@ -51,7 +51,7 @@ class MetaSerializerA : public IMetaSerializer
 	
 public:
 	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * /*archiveWriter*/, const void * /*instance*/, IMetaClass * metaClass) {
-		return metaClass->getTypeName();
+		return metaClass->getQualifiedName();
 	}
 	
 	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * serializerWriter, GMetaArchiveWriterParam * param) {
