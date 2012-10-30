@@ -781,12 +781,45 @@ int rankImplicitConvertForSharedPointer(const GGlueDataPointer & valueGlueData, 
 	return ValueMatchRank_Unknown;
 }
 
-int rankCallableImplicitConvert(IMetaCallable * callable, const InvokeCallableParam * callbackParam, size_t paramIndex, const GMetaType & targetType)
+int rankImplicitConvertForMetaClass(IMetaItem * sourceType, IMetaItem * targetType)
+{
+
+	if(sourceType == NULL || targetType == NULL) {
+		return ValueMatchRank_Unknown;
+	}
+
+	if(! metaIsClass(sourceType->getCategory()) || ! metaIsClass(targetType->getCategory())) {
+		return ValueMatchRank_Unknown;
+	}
+
+	IMetaClass * sourceClass = static_cast<IMetaClass *>(sourceType);
+	IMetaClass * targetClass = static_cast<IMetaClass *>(targetType);
+
+	if(sourceClass->equals(targetClass)) {
+		return ValueMatchRank_Equal;
+	}
+	else {
+		if(sourceClass->isInheritedFrom(targetClass)) {
+			return ValueMatchRank_Convert;
+		}
+	}
+	
+	return ValueMatchRank_Unknown;
+}
+
+int rankCallableImplicitConvert(IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, size_t paramIndex, const GMetaType & targetType)
 {
 	int rank = rankImplicitConvertForString(callbackParam->params[paramIndex].value, targetType);
 	if(rank == ValueMatchRank_Unknown) {
 		rank = rankImplicitConvertForSharedPointer(callbackParam->params[paramIndex].glueData,
 			metaGetParamExtendType(callable, GExtendTypeCreateFlag_SharedPointerTraits, static_cast<uint32_t>(paramIndex)));
+	}
+
+	if(rank == ValueMatchRank_Unknown) {
+		if(callbackParam->params[paramIndex].typeItem) {
+			GScopedInterface<IMetaTypedItem> protoType(service->findTypedItemByName(targetType.getBaseName()));
+			return rankImplicitConvertForMetaClass(callbackParam->params[paramIndex].typeItem.get(), protoType.get());
+		}
 	}
 	
 	return rank;
@@ -813,34 +846,9 @@ int rankCallableParam(IMetaService * service, IMetaCallable * callable, const In
 		return ValueMatchRank_Unknown;
 	}
 
-	int implicitRank = rankCallableImplicitConvert(callable, callbackParam, paramIndex, proto);
+	int implicitRank = rankCallableImplicitConvert(service, callable, callbackParam, paramIndex, proto);
 	if(implicitRank != ValueMatchRank_Unknown) {
 		return implicitRank;
-	}
-
-	// check for meta class
-
-	if(! callbackParam->params[paramIndex].typeItem) {
-		return ValueMatchRank_Unknown;
-	}
-
-	if(metaIsClass(callbackParam->params[paramIndex].typeItem->getCategory())) {
-		GScopedInterface<IMetaTypedItem> protoType(service->findTypedItemByName(proto.getBaseName()));
-		if(! protoType || ! metaIsClass(protoType->getCategory())) {
-			return ValueMatchRank_Unknown;
-		}
-
-		IMetaClass * paramClass = static_cast<IMetaClass *>(callbackParam->params[paramIndex].typeItem.get());
-		IMetaClass * protoClass = static_cast<IMetaClass *>(protoType.get());
-
-		if(paramClass->equals(protoClass)) {
-			return ValueMatchRank_Equal;
-		}
-		else {
-			if(paramClass->isInheritedFrom(protoClass)) {
-				return ValueMatchRank_Convert;
-			}
-		}
 	}
 
 	return ValueMatchRank_Unknown;
@@ -974,10 +982,10 @@ bool implicitConvertForSharedPointer(int rank, GVariant * v, const GGlueDataPoin
 	return false;
 }
 
-void implicitConvertCallableParam(GVariant * v, int paramRank, GVariant * holder, InvokeCallableParam * callableParam, size_t paramIndex)
+void implicitConvertCallableParam(int rank, GVariant * v, GVariant * holder, const GGlueDataPointer & valueGlueData)
 {
-	if(! implicitConvertForString(paramRank, v, holder)) {
-		implicitConvertForSharedPointer(paramRank, v, callableParam->params[paramIndex].glueData);
+	if(! implicitConvertForString(rank, v, holder)) {
+		implicitConvertForSharedPointer(rank, v, valueGlueData);
 	}
 }
 
@@ -989,7 +997,7 @@ void doInvokeCallable(void * instance, IMetaCallable * callable, InvokeCallableP
 
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
 		if(isParamImplicitConvert(callableParam->paramsRank.ranks[i])) {
-			implicitConvertCallableParam(&callableParam->params[i].value, callableParam->paramsRank.ranks[i], &holders[i], callableParam, i);
+			implicitConvertCallableParam(callableParam->paramsRank.ranks[i], &callableParam->params[i].value, &holders[i], callableParam->params[i].glueData);
 		}
 	}
 

@@ -395,11 +395,13 @@ GVariant v8UserDataToVariant(const GContextPointer & context, Local<Context> v8C
 					dataWrapper = static_cast<GGlueDataWrapper *>(Handle<External>::Cast(data)->Value());
 				}
 			}
-			GGlueDataPointer glueData = dataWrapper->getData();
-			if(outputGlueData != NULL) {
-				*outputGlueData = glueData;
+			if(dataWrapper != NULL) {
+				GGlueDataPointer glueData = dataWrapper->getData();
+				if(outputGlueData != NULL) {
+					*outputGlueData = glueData;
+				}
+				return glueDataToVariant(glueData);
 			}
-			return glueDataToVariant(glueData);
 		}
 		else {
 			if(value->IsFunction()) {

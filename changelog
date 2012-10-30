@@ -1,6 +1,7 @@
 TBD version 1.5.2
 	Added function loadLibrary in script binding core service to load libraries at runtime from within script.
 	Added GMetaObjectArray to C++ object array in script.
+	Metagen -- reflect bitfield as property by adding getter and setter functions.
 	Improved reflecting for variadic functions, now suppport non-variadic parameters. E.g, int myVariadicFunc(int a, const char * b, GMetaVariadicParam * v);
 	Now dotted nested namespace can be passed to createScriptObject. E.g, createScriptObject("a.b.c"), then script can use the script object a.b.c
 	Added function holdObject to GScriptObject and IScriptObject to hold meta data which is created dynamically.
