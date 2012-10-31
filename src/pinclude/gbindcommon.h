@@ -12,6 +12,7 @@
 
 #include <map>
 #include <set>
+#include <algorithm>
 
 
 namespace cpgf {
@@ -659,17 +660,13 @@ private:
 	friend class GClassPool;
 };
 
-
-class InvokeParamRank
+class ConvertRank
 {
 public:
-	explicit InvokeParamRank(size_t paramCount);
-	InvokeParamRank(const InvokeParamRank & other);
-	InvokeParamRank & operator = (const InvokeParamRank & other);
+	ConvertRank();
 
 public:
-	size_t paramCount;
-	mutable int ranks[REF_MAX_ARITY];
+	int weight;
 };
 
 class CallableParamData
@@ -690,7 +687,7 @@ public:
 public:
 	CallableParamData params[REF_MAX_ARITY];
 	size_t paramCount;
-	InvokeParamRank paramsRank;
+	ConvertRank paramRanks[REF_MAX_ARITY];
 };
 
 class InvokeCallableResult
@@ -798,7 +795,7 @@ private:
 
 ObjectPointerCV metaTypeToCV(const GMetaType & type);
 
-int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, const InvokeParamRank * paramsRank);
+int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, ConvertRank * paramRanks);
 
 bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessible * accessible);
 
@@ -841,16 +838,16 @@ int findAppropriateCallable(IMetaService * service,
 	int maxRank = -1;
 	int maxRankIndex = -1;
 
-	InvokeParamRank paramsRank(callableParam->paramCount);
+	ConvertRank paramRanks[REF_MAX_ARITY];
 
 	for(size_t i = 0; i < callableCount; ++i) {
 		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(getter(static_cast<uint32_t>(i))));
 		if(predict(meta.get())) {
-			int rank = rankCallable(service, meta.get(), callableParam, &paramsRank);
-			if(rank > maxRank) {
-				maxRank = rank;
+			int weight = rankCallable(service, meta.get(), callableParam, paramRanks);
+			if(weight > maxRank) {
+				maxRank = weight;
 				maxRankIndex = static_cast<int>(i);
-				callableParam->paramsRank = paramsRank;
+				std::copy(paramRanks, paramRanks + callableParam->paramCount, callableParam->paramRanks);
 			}
 		}
 	}
