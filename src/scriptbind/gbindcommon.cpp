@@ -34,6 +34,8 @@ const int ValueMatchRank_Implicit_Begin = 70000;
 const int ValueMatchRank_Implicit_WideStringToString = ValueMatchRank_Implicit_Begin + 0;
 const int ValueMatchRank_Implicit_StringToWideString = ValueMatchRank_Implicit_Begin + 1;
 const int ValueMatchRank_Implicit_SharedPointerToRaw = ValueMatchRank_Implicit_Begin + 2;
+const int ValueMatchRank_Implicit_CastToBase = ValueMatchRank_Implicit_Begin + 3;
+const int ValueMatchRank_Implicit_CastToDerived = ValueMatchRank_Implicit_Begin + 4;
 const int ValueMatchRank_Implicit_End = 80000;
 const int ValueMatchRank_Equal = 100000;
 
@@ -830,7 +832,15 @@ void rankImplicitConvertForMetaClass(ConvertRank * outputRank, IMetaItem * sourc
 	}
 	else {
 		if(sourceClass->isInheritedFrom(targetClass)) {
-			outputRank->weight = ValueMatchRank_Convert;
+			outputRank->weight = ValueMatchRank_Implicit_CastToBase;
+		}
+		else if(targetClass->isInheritedFrom(sourceClass)) {
+			outputRank->weight = ValueMatchRank_Implicit_CastToDerived;
+		}
+		
+		if(outputRank->weight != ValueMatchRank_Unknown) {
+			outputRank->sourceClass.reset(sourceClass);
+			outputRank->targetClass.reset(targetClass);
 		}
 	}
 }
@@ -952,10 +962,31 @@ bool implicitConvertForSharedPointer(const ConvertRank & rank, GVariant * v, con
 	return false;
 }
 
+bool implicitConvertForMetaClassCast(const ConvertRank & rank, GVariant * v)
+{
+	switch(rank.weight) {
+		case ValueMatchRank_Implicit_CastToBase: {
+			*v = metaCastToBase(objectAddressFromVariant(*v), rank.sourceClass.get(), rank.targetClass.get());
+
+			return true;
+		}
+
+		case ValueMatchRank_Implicit_CastToDerived: {
+			*v = metaCastToDerived(objectAddressFromVariant(*v), rank.sourceClass.get(), rank.targetClass.get());
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void implicitConvertCallableParam(const ConvertRank & rank, GVariant * v, GVariant * holder, const GGlueDataPointer & valueGlueData)
 {
 	if(! implicitConvertForString(rank, v, holder)) {
-		implicitConvertForSharedPointer(rank, v, valueGlueData);
+		if(! implicitConvertForSharedPointer(rank, v, valueGlueData)) {
+			implicitConvertForMetaClassCast(rank, v);
+		}
 	}
 }
 

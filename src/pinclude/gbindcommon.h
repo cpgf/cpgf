@@ -667,6 +667,8 @@ public:
 
 public:
 	int weight;
+	GSharedInterface<IMetaClass> sourceClass;
+	GSharedInterface<IMetaClass> targetClass;
 };
 
 class CallableParamData
