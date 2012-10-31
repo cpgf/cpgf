@@ -13,6 +13,7 @@ TBD version 1.5.2
 	Improved meta traits.
 	Fixed a bug that in Python binding, None value is not handled when passing from script to C++ and it was converted to wrong GVariant.
 	Fixed a bug that in V8 Javascript binding, there is null pointer crash if the object constructor returns NULL. Now an exception is raised instead of crash.
+	Fixed a bug that function isInheritedFrom in GMetaClass and IMetaClass works wrong.
 
 2012-10-13 version 1.5.1
 	Support shared pointer in script binding. There are meta traits for shared pointer in C++11, Boost, and cpgf.

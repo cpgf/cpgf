@@ -1862,8 +1862,13 @@ gapi_bool G_API_CC ImplMetaClass::isInheritedFrom(IMetaClass * ancient)
 
 	for(uint32_t i = 0; i < this->getBaseCount(); ++i) {
 		item.reset(this->getBaseClass(i));
-		if(item && ancient->equals(item.get())) {
-			return true;
+		if(item) {
+			if(item->equals(ancient)) {
+				return true;
+			}
+			if(item->isInheritedFrom(ancient)) {
+				return true;
+			}
 		}
 	}
 

@@ -759,12 +759,14 @@ bool GMetaClass::isInheritedFrom(const GMetaClass * ancient) const
 	for(unsigned int i = 0; i < this->getBaseCount(); ++i) {
 		const GMetaClass * superClass = this->getBaseClass(i);
 
-		while(superClass != NULL) {
+		if(superClass != NULL) {
 			if(superClass->equals(ancient)) {
 				return true;
 			}
 
-			superClass = superClass->getBaseClass(i);
+			if(superClass->isInheritedFrom(ancient)) {
+				return true;
+			}
 		}
 	}
 
