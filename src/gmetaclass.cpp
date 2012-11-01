@@ -154,6 +154,23 @@ const GMetaClassCasterBase * GMetaSuperList::getCaster(size_t index) const
 	}
 }
 
+bool GMetaSuperList::hasAddedDerived(size_t index) const
+{
+	if(index >= this->getCount()) {
+		return false;
+	}
+	else {
+		return this->implement->superList[index].hasAddedDerived();
+	}
+}
+
+void GMetaSuperList::setAddedDerived(size_t index, bool addedDerived)
+{
+	if(index < this->getCount()) {
+		this->implement->superList[index].setAddedDerived(addedDerived);
+	}
+}
+
 GMetaSuperListItem * GMetaSuperList::doAdd(const GMetaSuperListItem & item)
 {
 	this->implement->superList.push_back(item);
@@ -348,16 +365,6 @@ void GMetaClass::initialize()
 	this->setupItemLists();
 
 	this->setModule(doGetGlobalModule());
-	
-	if(this->superList && this->superList->getCount() > 0) {
-		size_t baseCount = this->superList->getCount();
-		for(size_t i = 0; i < baseCount; ++i) {
-			GMetaClass * baseClass = const_cast<GMetaClass *>(this->superList->getSuper(i));
-			if(baseClass != NULL) {
-				baseClass->addDerivedClass(this);
-			}
-		}
-	}
 }
 
 void GMetaClass::rebindName(const char * name)
@@ -726,16 +733,22 @@ bool GMetaClass::equals(const GMetaClass * other) const
 
 const GMetaClass * GMetaClass::getBaseClass(size_t baseIndex) const
 {
-	return this->superList->getSuper(baseIndex);
+	this->ensureRegistered();
+
+	return const_cast<GMetaClass *>(this->superList->getSuper(baseIndex));
 }
 
 size_t GMetaClass::getBaseCount() const
 {
+	this->ensureRegistered();
+
 	return this->superList->getCount();
 }
 
 const GMetaClass * GMetaClass::getDerivedClass(size_t derivedIndex) const
 {
+	this->ensureRegistered();
+
 	if(this->derivedList) {
 		return this->derivedList->at(derivedIndex);
 	}
@@ -746,12 +759,34 @@ const GMetaClass * GMetaClass::getDerivedClass(size_t derivedIndex) const
 
 size_t GMetaClass::getDerivedCount() const
 {
+	this->ensureRegistered();
+
 	if(this->derivedList) {
 		return this->derivedList->size();
 	}
 	else {
 		return 0;
 	}
+}
+
+bool GMetaClass::fixupHierarchy()
+{
+	bool didIt = false;
+
+	if(this->superList && this->superList->getCount() > 0) {
+		size_t baseCount = this->superList->getCount();
+		for(size_t i = 0; i < baseCount; ++i) {
+			GMetaClass * baseClass = const_cast<GMetaClass *>(this->superList->getSuper(i));
+			if(baseClass != NULL && ! this->superList->hasAddedDerived(i)) {
+				baseClass->addDerivedClass(this);
+				this->superList->setAddedDerived(i, true);
+
+				didIt = true;
+			}
+		}
+	}
+
+	return didIt;
 }
 
 bool GMetaClass::isInheritedFrom(const GMetaClass * ancient) const
@@ -839,6 +874,10 @@ void GMetaClass::ensureRegistered() const
 		}
 
 		this->intialized = true;
+	}
+
+	if(this->module != NULL && ! this->module->hasInitializedMetaClasses()) {
+		this->module->initializeMetaClasses();
 	}
 }
 

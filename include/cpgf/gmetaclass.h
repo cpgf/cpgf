@@ -169,6 +169,7 @@ private:
 
 private:
 	void rebindName(const char * name);
+	bool fixupHierarchy();
 
 private:
 	mutable bool intialized;
@@ -188,6 +189,7 @@ private:
 
 private:
 	friend class GDefineMetaGlobal;
+	friend class GMetaModule;
 };
 
 

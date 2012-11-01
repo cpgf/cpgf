@@ -29,6 +29,12 @@ public:
 	const GMetaClass * findClassByType(const GTypeInfo & type) const;
 	const GMetaClass * findClassByName(const char * name) const;
 
+	void initializeMetaClasses();
+
+	bool hasInitializedMetaClasses() const {
+		return this->initializedMetaClasses;
+	}
+
 private:
 	void unregisterAll();
 
@@ -40,6 +46,7 @@ private:
 	
 private:
 	GScopedPointer<GMetaModuleImplement> implement;
+	bool initializedMetaClasses;
 };
 
 GMetaModule * getItemModule(const GMetaItem * metaItem);

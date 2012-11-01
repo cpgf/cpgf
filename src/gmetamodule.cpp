@@ -75,7 +75,7 @@ public:
 };
 
 GMetaModule::GMetaModule()
-	: implement(new GMetaModuleImplement)
+	: implement(new GMetaModuleImplement), initializedMetaClasses(false)
 {
 }
 
@@ -211,6 +211,22 @@ const GMetaClass * GMetaModule::findClassByName(const char * name) const
 	}
 }
 
+void GMetaModule::initializeMetaClasses()
+{
+	if(! hasInitializedMetaClasses() && this->implement->classList) {
+		bool didIt = false;
+		do {
+			didIt = false;
+			for(GMetaTypedItemList::MapType::const_iterator it = this->implement->classList->getItemMap()->begin(); it != this->implement->classList->getItemMap()->end(); ++it) {
+				if(const_cast<GMetaClass *>(static_cast<const GMetaClass *>(it->second))->fixupHierarchy()) {
+					didIt = true;
+				}
+			}
+		} while(didIt);
+
+		initializedMetaClasses = true;
+	}
+}
 
 GMetaModule * getItemModule(const GMetaItem * metaItem)
 {

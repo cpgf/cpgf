@@ -405,7 +405,7 @@ class GMetaSuperListItem
 {
 public:
 	GMetaSuperListItem(GMetaClass * superClass, const GMetaType & type, GMetaClassCasterBase * caster)
-		: superClass(superClass), type(type), caster(caster) {
+		: superClass(superClass), type(type), caster(caster), addedDerived(false) {
 	}
 
 	void freeList() {
@@ -424,10 +424,19 @@ public:
 		return this->caster;
 	}
 
+	bool hasAddedDerived() const {
+		return this->addedDerived;
+	}
+
+	void setAddedDerived(bool addedDerived) {
+		this->addedDerived = addedDerived;
+	}
+
 private:
 	mutable const GMetaClass * superClass;
 	GMetaType type;
 	GMetaClassCasterBase * caster;
+	bool addedDerived;
 };
 
 class GMetaSuperListImplement;
@@ -441,6 +450,8 @@ public:
 	size_t getCount() const;
 	const GMetaClass * getSuper(size_t index) const;
 	const GMetaClassCasterBase * getCaster(size_t index) const;
+	bool hasAddedDerived(size_t index) const;
+	void setAddedDerived(size_t index, bool addedDerived);
 
 	template <typename ClassType, typename BaseType>
 	GMetaSuperListItem * add() {
