@@ -89,8 +89,7 @@ inline MultipleInheritanceCastR * getMultipleInheritanceCastDAsR()
 
 inline bool checkMultipleInheritanceCastRAsD(MultipleInheritanceCastD * d)
 {
-return true;
-//	return d->isD() && typeid(*d) == typeid(MultipleInheritanceCastD);
+	return d->isD() && typeid(*d) == typeid(MultipleInheritanceCastD);
 }
 
 

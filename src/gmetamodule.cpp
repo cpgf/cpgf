@@ -102,9 +102,9 @@ void GMetaModule::registerMetaClass(const GMetaClass * metaClass)
 	size_t count;
 	size_t i;
 
-	count = metaClass->getEnumCount();
+	count = metaClass->doGetItemCount(mcatEnum);
 	for(i = 0; i < count; ++i) {
-		doRegisterMetaEnum(metaClass->getEnumAt(i));
+		doRegisterMetaEnum(static_cast<const GMetaEnum *>(metaClass->doGetItemAt(mcatEnum, i)));
 	}
 }
 
@@ -115,9 +115,9 @@ void GMetaModule::unregisterMetaClass(const GMetaClass * metaClass)
 	size_t count;
 	size_t i;
 
-	count = metaClass->getEnumCount();
+	count = metaClass->doGetItemCount(mcatEnum);
 	for(i = 0; i < count; ++i) {
-		doUnregisterMetaEnum(metaClass->getEnumAt(i));
+		doUnregisterMetaEnum(static_cast<const GMetaEnum *>(metaClass->doGetItemAt(mcatEnum, i)));
 	}
 }
 

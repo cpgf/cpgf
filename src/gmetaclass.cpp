@@ -686,9 +686,9 @@ void GMetaClass::setModule(GMetaModule * module) const
 	size_t count;
 	size_t i;
 
-	count = this->getClassCount();
+	count = this->doGetItemCount(mcatClass);
 	for(i = 0; i < count; ++i) {
-		this->getClassAt(i)->setModule(module);
+		static_cast<const GMetaClass *>(this->doGetItemAt(mcatClass, i))->setModule(module);
 	}
 }
 
@@ -908,6 +908,11 @@ size_t GMetaClass::getItemCount(GMetaCategory listIndex) const
 {
 	this->ensureRegistered();
 
+	return this->doGetItemCount(listIndex);
+}
+
+size_t GMetaClass::doGetItemCount(GMetaCategory listIndex) const
+{
 	return this->implement->itemLists[listIndex]->getCount();
 }
 
@@ -915,6 +920,11 @@ const GMetaItem * GMetaClass::getItemAt(GMetaCategory listIndex, size_t index) c
 {
 	this->ensureRegistered();
 
+	return this->doGetItemAt(listIndex, index);
+}
+
+const GMetaItem * GMetaClass::doGetItemAt(GMetaCategory listIndex, size_t index) const
+{
 	return this->implement->itemLists[listIndex]->getItemAt(index);
 }
 

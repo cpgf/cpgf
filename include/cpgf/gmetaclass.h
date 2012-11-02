@@ -156,7 +156,9 @@ public:
 private:
 	void addItem(GMetaCategory listIndex, GMetaItem * item);
 	size_t getItemCount(GMetaCategory listIndex) const;
+	size_t doGetItemCount(GMetaCategory listIndex) const; // not trigger module initialization
 	const GMetaItem * getItemAt(GMetaCategory listIndex, size_t index) const;
+	const GMetaItem * doGetItemAt(GMetaCategory listIndex, size_t index) const; // not trigger module initialization
 	const GMetaItem * getItemByName(GMetaCategory listIndex, const char * name, bool findSuper, void ** outInstance) const;
 
 private:
