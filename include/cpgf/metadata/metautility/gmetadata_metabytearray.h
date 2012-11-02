@@ -67,15 +67,15 @@ void doBuildMetaData_byteArray(const GMetaDataConfigFlags & config, MetaDefine d
 
 
 template <typename MetaDefine>
-void buildMetaData_byteArray(const GMetaDataConfigFlags & config, MetaDefine define)
+void buildMetaData_metaByteArray(const GMetaDataConfigFlags & config, MetaDefine define)
 {
 	metadata_internal::doBuildMetaData_byteArray<typename MetaDefine::ClassType>(config, define);
 }
 
 template <typename MetaDefine>
-void buildMetaData_byteArray(MetaDefine define)
+void buildMetaData_metaByteArray(MetaDefine define)
 {
-	buildMetaData_byteArray(mdcAutoProperty, define);
+	buildMetaData_metaByteArray(mdcAutoProperty, define);
 }
 
 

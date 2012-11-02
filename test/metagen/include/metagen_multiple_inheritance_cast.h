@@ -13,6 +13,7 @@
 class MultipleInheritanceCastR
 {
 public:
+	virtual ~MultipleInheritanceCastR() {}
 	virtual bool isR() const { return true; }
 	virtual bool isA() const { return false; }
 	virtual bool isB() const { return false; }

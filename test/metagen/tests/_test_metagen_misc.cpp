@@ -11,8 +11,6 @@ return;
 	QDO(a.n = 0);
 	QASSERT(a.n == 0);
 
-	QDO(scriptTrace("Olay olay"));
-
 	QNEWOBJ(a, mtest.SimpleObject());
 	QDO(a.data.n = 38);
 	QDO(a.data.s = "abc");
