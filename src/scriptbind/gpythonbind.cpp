@@ -992,7 +992,7 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
 	loadCallableParam(context, args, &callableParam);
 
-	void * instance = doInvokeConstructor(cppClass->getService(), classUserData->getMetaClass(), &callableParam);
+	void * instance = doInvokeConstructor(context, cppClass->getService(), classUserData->getMetaClass(), &callableParam);
 
 	if(instance != NULL) {
 		return createPythonObject(context->newObjectGlueData(classUserData, instance, true, opcvNone));

@@ -1,7 +1,7 @@
 TBD version 1.5.2
 	Added function loadLibrary in script binding core service to load libraries at runtime from within script.
 	Added GMetaObjectArray to C++ object array in script.
-	Metagen -- reflect bitfield as property by adding getter and setter functions.
+	Metagen can reflect bitfield as property by adding getter and setter functions.
 	Improved reflecting for variadic functions, now suppport non-variadic parameters. E.g, int myVariadicFunc(int a, const char * b, GMetaVariadicParam * v);
 	Now dotted nested namespace can be passed to createScriptObject. E.g, createScriptObject("a.b.c"), then script can use the script object a.b.c
 	Added function holdObject to GScriptObject and IScriptObject to hold meta data which is created dynamically.
@@ -9,6 +9,7 @@ TBD version 1.5.2
 	Now fromVariant<GVariant>(variant) will return variant directly.
 	Changed the utility functions in gmetaapiutil.h from template to non-template, to keep the API minimal.
 	Moved and renamed gbytearray.h|cpp to metautility/gmetabytearray.h|cpp, and renamed class GByteArray and GMetaByteArray.
+	Now when passing to method parameter, or setting to field, object pointer can be casted correctly according to the class hierarchy. This is useful in multiple inheritance.
 	Removed function gainScriptObject from GScriptObject and IScriptObject. Now createScriptObject can return the existing script object.
 	Improved meta traits.
 	Now in reflection, the base meta class can be resolved correctly even it's reflected later than derived classes.

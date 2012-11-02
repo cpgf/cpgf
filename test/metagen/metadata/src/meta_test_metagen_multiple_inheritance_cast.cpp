@@ -67,6 +67,18 @@ GDefineMetaInfo createMetaClass_MultipleInheritanceCastD()
 }
 
 
+GDefineMetaInfo createMetaClass_MultipleInheritanceCastFieldData()
+{
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<MultipleInheritanceCastFieldData> _nd = GDefineMetaClass<MultipleInheritanceCastFieldData>::declare("MultipleInheritanceCastFieldData");
+        buildMetaClass_MultipleInheritanceCastFieldData(0, _nd);
+        _d._class(_nd);
+    }
+    return _d.getMetaInfo();
+}
+
+
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastR()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();

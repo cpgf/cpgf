@@ -22,8 +22,10 @@ void buildMetaClass_Global_metagen_multiple_inheritance_cast(const cpgf::GMetaDa
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("getMultipleInheritanceCastD", (MultipleInheritanceCastD * (*) ())&getMultipleInheritanceCastD);
+    _d.CPGF_MD_TEMPLATE _method("getMultipleInheritanceCastDSharedPointer", (cpgf::GSharedPointer< MultipleInheritanceCastD > (*) ())&getMultipleInheritanceCastDSharedPointer);
     _d.CPGF_MD_TEMPLATE _method("checkMultipleInheritanceCastDAsR", (bool (*) (MultipleInheritanceCastR *))&checkMultipleInheritanceCastDAsR);
     _d.CPGF_MD_TEMPLATE _method("getMultipleInheritanceCastDAsR", (MultipleInheritanceCastR * (*) ())&getMultipleInheritanceCastDAsR);
+    _d.CPGF_MD_TEMPLATE _method("getMultipleInheritanceCastDAsRSharedPointer", (cpgf::GSharedPointer< MultipleInheritanceCastR > (*) ())&getMultipleInheritanceCastDAsRSharedPointer);
     _d.CPGF_MD_TEMPLATE _method("checkMultipleInheritanceCastRAsD", (bool (*) (MultipleInheritanceCastD *))&checkMultipleInheritanceCastRAsD);
 }
 
@@ -86,6 +88,20 @@ void buildMetaClass_MultipleInheritanceCastD(const cpgf::GMetaDataConfigFlags & 
     _d.CPGF_MD_TEMPLATE _method("isB", &D::ClassType::isB);
     _d.CPGF_MD_TEMPLATE _method("isC", &D::ClassType::isC);
     _d.CPGF_MD_TEMPLATE _method("isD", &D::ClassType::isD);
+}
+
+
+template <typename D>
+void buildMetaClass_MultipleInheritanceCastFieldData(const cpgf::GMetaDataConfigFlags & config, D _d)
+{
+    (void)config; (void)_d; (void)_d;
+    using namespace cpgf;
+    
+    _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
+    _d.CPGF_MD_TEMPLATE _field("rawD", &D::ClassType::rawD);
+    _d.CPGF_MD_TEMPLATE _field("rawR", &D::ClassType::rawR);
+    _d.CPGF_MD_TEMPLATE _method("checkD", &D::ClassType::checkD);
+    _d.CPGF_MD_TEMPLATE _method("checkR", &D::ClassType::checkR);
 }
 
 

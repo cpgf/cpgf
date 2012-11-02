@@ -826,7 +826,7 @@ Handle<Value> objectConstructor(const Arguments & args)
 		InvokeCallableParam callableParam(args.Length());
 		loadCallableParam(args, context, &callableParam);
 
-		void * instance = doInvokeConstructor(context->getService(), classData->getMetaClass(), &callableParam);
+		void * instance = doInvokeConstructor(context, context->getService(), classData->getMetaClass(), &callableParam);
 
 		if(instance != NULL) {
 			GObjectGlueDataPointer objectData = context->newObjectGlueData(classData, instance, GBindValueFlags(bvfAllowGC), opcvNone);

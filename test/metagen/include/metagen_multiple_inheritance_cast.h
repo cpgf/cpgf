@@ -1,9 +1,14 @@
 #ifndef __METAGEN_MULTIPLE_INHERITANCE_CAST_H
 #define __METAGEN_MULTIPLE_INHERITANCE_CAST_H
 
+#include "cpgf/gsharedptr.h"
 
 #include <typeinfo>
 
+// R->A
+// A->B
+// A->C
+// D->(B, C)
 
 class MultipleInheritanceCastR
 {
@@ -70,6 +75,22 @@ public:
 	int e[10];
 };
 
+struct MultipleInheritanceCastFieldData
+{
+	MultipleInheritanceCastFieldData() : rawD(NULL), rawR(NULL) {}
+
+	bool checkD() const {
+		return this->rawD->isD() && typeid(*(this->rawD)) == typeid(MultipleInheritanceCastD);
+	}
+
+	bool checkR() const {
+		return this->rawR->isD() && typeid(*(this->rawR)) == typeid(MultipleInheritanceCastD);
+	}
+
+	MultipleInheritanceCastD * rawD;
+	MultipleInheritanceCastR * rawR;
+};
+
 inline MultipleInheritanceCastD * getMultipleInheritanceCastD()
 {
 	static MultipleInheritanceCastD d;
@@ -77,14 +98,25 @@ inline MultipleInheritanceCastD * getMultipleInheritanceCastD()
 	return pd;
 }
 
+inline cpgf::GSharedPointer<MultipleInheritanceCastD> getMultipleInheritanceCastDSharedPointer()
+{
+	return cpgf::GSharedPointer<MultipleInheritanceCastD>(new MultipleInheritanceCastD());
+}
+
 inline bool checkMultipleInheritanceCastDAsR(MultipleInheritanceCastR * r)
 {
 	return r->isD() && typeid(*r) == typeid(MultipleInheritanceCastD);
 }
 
+
 inline MultipleInheritanceCastR * getMultipleInheritanceCastDAsR()
 {
 	return getMultipleInheritanceCastD();
+}
+
+inline cpgf::GSharedPointer<MultipleInheritanceCastR> getMultipleInheritanceCastDAsRSharedPointer()
+{
+	return cpgf::GSharedPointer<MultipleInheritanceCastR>(new MultipleInheritanceCastD());
 }
 
 inline bool checkMultipleInheritanceCastRAsD(MultipleInheritanceCastD * d)

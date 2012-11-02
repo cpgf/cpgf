@@ -801,7 +801,7 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeC
 
 bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessible * accessible);
 
-void * doInvokeConstructor(IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
+void * doInvokeConstructor(const GContextPointer & context, IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam);
 InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
 										const GObjectGlueDataPointer & objectData,
 										const GMethodGlueDataPointer & methodData, InvokeCallableParam * callableParam);

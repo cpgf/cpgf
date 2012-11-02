@@ -927,14 +927,16 @@ int invokeConstructor(const GClassGlueDataPointer & classUserData)
 	lua_State * L = getLuaState(classUserData->getContext());
 
 	int paramCount = lua_gettop(L) - 1;
-	
+
+	const GContextPointer & context	(classUserData->getContext());
+
 	InvokeCallableParam callableParam(paramCount);
-	loadCallableParam(classUserData->getContext(), &callableParam, 2);
+	loadCallableParam(context, &callableParam, 2);
 	
-	void * instance = doInvokeConstructor(classUserData->getContext()->getService(), classUserData->getMetaClass(), &callableParam);
+	void * instance = doInvokeConstructor(context, context->getService(), classUserData->getMetaClass(), &callableParam);
 
 	if(instance != NULL) {
-		objectToLua(classUserData->getContext(), classUserData, instance, GBindValueFlags(bvfAllowGC), opcvNone, NULL);
+		objectToLua(context, classUserData, instance, GBindValueFlags(bvfAllowGC), opcvNone, NULL);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);

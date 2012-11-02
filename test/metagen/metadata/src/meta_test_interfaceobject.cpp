@@ -27,7 +27,7 @@ GDefineMetaInfo createMetaClass_MyInterfaceObject()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<MyInterfaceObject> _nd = GDefineMetaClass<MyInterfaceObject>::declare("MyInterfaceObject");
+        GDefineMetaClass<MyInterfaceObject, IObject> _nd = GDefineMetaClass<MyInterfaceObject, IObject>::declare("MyInterfaceObject");
         buildMetaClass_MyInterfaceObject(0, _nd);
         _d._class(_nd);
     }
