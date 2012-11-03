@@ -16,6 +16,8 @@ IMetaSerializer * createArraySerializer(IMetaSerializer * elementSerializer, con
 template <typename T>
 IMetaSerializer * metaTraitsCreateSerializerForArray(const GMetaTraitsParam & param, const T & a)
 {
+	using namespace cpgf_metatraits;
+
 	IMetaSerializer * serializer = createSerializerFromMetaTraits(param, &a);
 	
 	if(serializer == NULL) {
@@ -35,20 +37,22 @@ IMetaSerializer * metaTraitsCreateSerializerForArray(const GMetaModule * module,
 
 } // namespace metatraits_internal
 
+} // namespace cpgf
+
+
+namespace cpgf_metatraits {
+
 template <typename T, int N>
 struct GMetaTraitsCreateSerializer <T[N]>
 {
-	static IMetaSerializer * createSerializer(const GMetaTraitsParam & param) {
+	static cpgf::IMetaSerializer * createSerializer(const cpgf::GMetaTraitsParam & param) {
 		T * p = 0;
-		GScopedInterface<IMetaSerializer> elementSerializer(metatraits_internal::metaTraitsCreateSerializerForArray(param, *p));
-		return metatraits_internal::createArraySerializer(elementSerializer.get(), createMetaType<T>(), sizeof(T), N);
+		cpgf::GScopedInterface<cpgf::IMetaSerializer> elementSerializer(cpgf::metatraits_internal::metaTraitsCreateSerializerForArray(param, *p));
+		return cpgf::metatraits_internal::createArraySerializer(elementSerializer.get(), cpgf::createMetaType<T>(), sizeof(T), N);
 	}
 };
 
-
-
-
-} // namespace cpgf
+} // namespace cpgf_metatraits
 
 
 

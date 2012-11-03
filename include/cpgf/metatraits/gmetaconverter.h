@@ -25,30 +25,6 @@ struct IMetaConverter : public IExtendObject
 };
 
 
-template <typename T>
-struct GMetaTraitsCreateConverter
-{
-	static IMetaConverter * createConverter(const GMetaTraitsParam &) {
-		return NULL;
-	}
-};
-
-inline IMetaConverter * metaTraitsCreateConverter(const GMetaTraitsParam &, ...)
-{
-	return NULL;
-}
-
-template <typename T>
-IMetaConverter * createConverterFromMetaTraits(const GMetaTraitsParam & param, T * p)
-{
-	IMetaConverter * converter = metaTraitsCreateConverter(param, p);
-	if(converter == NULL) {
-		converter = GMetaTraitsCreateConverter<T>::createConverter(param);
-	}
-	return converter;
-}
-
-
 inline bool isMetaConverterCanRead(uint32_t flag)
 {
 	return flag == metaConverterCanRead || flag == metaConverterCanReadWrite;
@@ -63,6 +39,32 @@ inline bool isMetaConverterCanWrite(uint32_t flag)
 } // namespace cpgf
 
 
+namespace cpgf_metatraits {
+
+template <typename T>
+struct GMetaTraitsCreateConverter
+{
+	static cpgf::IMetaConverter * createConverter(const cpgf::GMetaTraitsParam &) {
+		return NULL;
+	}
+};
+
+inline cpgf::IMetaConverter * metaTraitsCreateConverter(const cpgf::GMetaTraitsParam &, ...)
+{
+	return NULL;
+}
+
+template <typename T>
+cpgf::IMetaConverter * createConverterFromMetaTraits(const cpgf::GMetaTraitsParam & param, T * p)
+{
+	cpgf::IMetaConverter * converter = metaTraitsCreateConverter(param, p);
+	if(converter == NULL) {
+		converter = GMetaTraitsCreateConverter<T>::createConverter(param);
+	}
+	return converter;
+}
+
+} // namespace cpgf_metatraits
 
 
 #endif

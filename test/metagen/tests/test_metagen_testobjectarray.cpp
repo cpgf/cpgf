@@ -44,7 +44,8 @@ void testObjectArray(TestScriptContext * context)
 	QASSERT(mtest.getOAObjectN(oa.getItem(0), 2) == 1999); // equivalent to (&oa[0])[2]
 	QASSERT(mtest.getOAObjectN(oa.getItem(1), 1) == 1999); // equivalent to (&oa[1])[1]
 
-//	QDO(cpgf.loadLibrary(null, "builtin.debug"));
+	QDO(cpgf.loadLibrary(null, "builtin.debug"));
+//	QDO(cpgf.debugBreak(0, "abc"));
 //	QDO(cpgf.traceErrorLine("!!!!!!!!!!AAAAAAAAAAAAAAAAAAAAAAAA"));
 }
 

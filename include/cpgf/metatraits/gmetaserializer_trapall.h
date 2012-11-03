@@ -12,17 +12,17 @@ class GMetaType;
 
 namespace metatraits_internal {
 
-IMetaSerializer * doCreateTrapAllSerializer(const GMetaType & metaType, IMetaSerializer * serializer);
+cpgf::IMetaSerializer * doCreateTrapAllSerializer(const cpgf::GMetaType & metaType, cpgf::IMetaSerializer * serializer);
 
 } // namespace metatraits_internal
 
 template <typename T>
-IMetaSerializer * createTrapAllSerializer(const GMetaTraitsParam & param)
+cpgf::IMetaSerializer * createTrapAllSerializer(const cpgf::GMetaTraitsParam & param)
 {
-	GScopedInterface<IMetaSerializer> serializer(createMetaExtendType<T>(GExtendTypeCreateFlag_Serializer).getSerializer());
-	GMetaType metaType(createMetaType<T>());
-	fixupMetaType(&metaType, param.module);
-	return metatraits_internal::doCreateTrapAllSerializer(metaType, serializer.get());
+	cpgf::GScopedInterface<cpgf::IMetaSerializer> serializer(cpgf::createMetaExtendType<T>(cpgf::GExtendTypeCreateFlag_Serializer).getSerializer());
+	cpgf::GMetaType metaType(cpgf::createMetaType<T>());
+	cpgf::fixupMetaType(&metaType, param.module);
+	return cpgf::metatraits_internal::doCreateTrapAllSerializer(metaType, serializer.get());
 }
 
 

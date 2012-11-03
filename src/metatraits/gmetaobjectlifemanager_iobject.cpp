@@ -35,17 +35,20 @@ protected:
 
 } // unnamed namespace
 
-
-IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, IObject *)
-{
-	return new GMetaObjectLifeManagerIObject();
-}
-
-IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const GMetaTraitsParam & /*param*/, IObject **)
-{
-	return new GMetaObjectLifeManagerIObject();
-}
-
-
-
 } // namespace cpgf
+
+
+namespace cpgf_metatraits {
+
+cpgf::IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const cpgf::GMetaTraitsParam & /*param*/, cpgf::IObject *)
+{
+	return new cpgf::GMetaObjectLifeManagerIObject();
+}
+
+cpgf::IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const cpgf::GMetaTraitsParam & /*param*/, cpgf::IObject **)
+{
+	return new cpgf::GMetaObjectLifeManagerIObject();
+}
+
+
+} // namespace cpgf_metatraits

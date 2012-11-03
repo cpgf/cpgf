@@ -6,19 +6,18 @@
 #include <boost/shared_ptr.hpp>
 
 
-namespace cpgf {
+namespace cpgf_metatraits {
 
 template <typename T>
 struct GMetaTraitsCreateSharedPointerTraits <boost::shared_ptr<T> >
 {
-	static IMetaSharedPointerTraits * createSharedPointerTraits(const GMetaTraitsParam &) {
-		return new gmetasharedptrtraits_internal::GMetaTraitsCreateSharedPointerTraitsGeneral<T, boost::shared_ptr<T> >();
+	static cpgf::IMetaSharedPointerTraits * createSharedPointerTraits(const cpgf::GMetaTraitsParam &) {
+		return new cpgf::gmetasharedptrtraits_internal::GMetaTraitsCreateSharedPointerTraitsGeneral<T, boost::shared_ptr<T> >();
 	}
 };
 
 
-
-} // namespace cpgf
+} // namespace cpgf_metatraits
 
 
 #endif

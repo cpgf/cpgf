@@ -66,7 +66,7 @@ public:
 template <typename T>
 void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, const GMetaModule * module)
 {
-	using namespace cpgf;
+	using namespace cpgf_metatraits;
 
 	data->arraySize = ArraySize<T>::Result;
 	

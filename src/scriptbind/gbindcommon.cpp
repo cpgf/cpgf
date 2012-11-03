@@ -1480,6 +1480,8 @@ InvokeCallableResult doInvokeOperator(const GContextPointer & context, void * in
 
 IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & value)
 {
+	using namespace cpgf_metatraits;
+
 	if(vtIsInterface(value.getType())) {
 		return metaTraitsCreateObjectLifeManager(GMetaTraitsParam(), (IObject *)NULL);
 	}

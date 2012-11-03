@@ -247,7 +247,7 @@ GTEST(testVersioning_Json)
 } // unnamed namespace
 
 
-namespace cpgf {
+namespace cpgf_metatraits {
 
 template <>
 struct GMetaTraitsCreateSerializer <A0>
@@ -274,5 +274,5 @@ struct GMetaTraitsCreateSerializer <A2>
 };
 
 
-} // namespace cpgf
+} // namespace cpgf_metatraits
 

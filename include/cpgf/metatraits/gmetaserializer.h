@@ -27,32 +27,36 @@ struct IMetaSerializer : public IObject
 };
 
 
+
+} // namespace cpgf
+
+
+namespace cpgf_metatraits {
+
 template <typename T>
 struct GMetaTraitsCreateSerializer
 {
-	static IMetaSerializer * createSerializer(const GMetaTraitsParam &) {
+	static cpgf::IMetaSerializer * createSerializer(const cpgf::GMetaTraitsParam &) {
 		return NULL;
 	}
 };
 
-inline IMetaSerializer * metaTraitsCreateSerializer(const GMetaTraitsParam &, ...)
+inline cpgf::IMetaSerializer * metaTraitsCreateSerializer(const cpgf::GMetaTraitsParam &, ...)
 {
 	return NULL;
 }
 
 template <typename T>
-IMetaSerializer * createSerializerFromMetaTraits(const GMetaTraitsParam & param, T * p)
+cpgf::IMetaSerializer * createSerializerFromMetaTraits(const cpgf::GMetaTraitsParam & param, T * p)
 {
-	IMetaSerializer * serializer = metaTraitsCreateSerializer(param, p);
+	cpgf::IMetaSerializer * serializer = metaTraitsCreateSerializer(param, p);
 	if(serializer == NULL) {
 		serializer = GMetaTraitsCreateSerializer<T>::createSerializer(param);
 	}
 	return serializer;
 }
 
-
-
-} // namespace cpgf
+} // namespace cpgf_metatraits
 
 
 

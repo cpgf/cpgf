@@ -39,13 +39,15 @@ public:
 	}
 };
 
+} // namespace cpgf
 
-IMetaSerializer * metaTraitsCreateSerializer(const GMetaTraitsParam &, const volatile std::string *)
+
+namespace cpgf_metatraits {
+
+cpgf::IMetaSerializer * metaTraitsCreateSerializer(const cpgf::GMetaTraitsParam &, const volatile std::string *)
 {
 	return new cpgf::GMetaSerializerString;
 }
 
-
-
-} // namespace cpgf
+} // namespace cpgf_metatraits
 

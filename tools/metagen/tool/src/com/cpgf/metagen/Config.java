@@ -64,6 +64,10 @@ public class Config {
 	// Source file extension.
 	public String sourceExtension = ".cpp";
 
+	// A string of C++ code that will be put in front of all header files.
+	// Useful if all header files must include extra headers.
+	public String headerHeaderCode = null;
+	
 	// A string of C++ code that will be put in front of all source files.
 	// Useful if all source files must include extra headers.
 	public String sourceHeaderCode = null;

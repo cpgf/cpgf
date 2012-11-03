@@ -6,12 +6,12 @@
 #include <string>
 
 
-namespace cpgf {
+namespace cpgf_metatraits {
 
-IMetaSerializer * metaTraitsCreateSerializer(const GMetaTraitsParam &, const volatile std::string *);
+cpgf::IMetaSerializer * metaTraitsCreateSerializer(const cpgf::GMetaTraitsParam &, const volatile std::string *);
 
 
-} // namespace cpgf
+} // namespace cpgf_metatraits
 
 
 #endif

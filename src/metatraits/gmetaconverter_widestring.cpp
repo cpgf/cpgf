@@ -31,13 +31,15 @@ public:
 
 } // unnamed namespace
 
+} // namespace cpgf
 
-IMetaConverter * metaTraitsCreateConverter(const GMetaTraitsParam &, const volatile std::wstring *)
+
+namespace cpgf_metatraits {
+
+cpgf::IMetaConverter * metaTraitsCreateConverter(const cpgf::GMetaTraitsParam &, const volatile std::wstring *)
 {
-	return new GMetaConverterStdWideString();
+	return new cpgf::GMetaConverterStdWideString();
 }
 
-
-
-} // namespace cpgf
+} // namespace cpgf_metatraits
 

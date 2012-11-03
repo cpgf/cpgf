@@ -62,6 +62,10 @@ public class MetaFileWriter {
 
 		codeWriter.beginIncludeGuard(Util.normalizeSymbol(this.getDestFileName()) + "_H");
 
+		if(this.config.headerHeaderCode != null) {
+			codeWriter.write(this.config.headerHeaderCode);
+			codeWriter.writeLine("");
+		}
 		codeWriter.include("cpgf/gmetadefine.h");
 		codeWriter.include("cpgf/metadata/gmetadataconfig.h");
 		codeWriter.include("cpgf/metadata/private/gmetadata_header.h");
