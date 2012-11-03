@@ -664,6 +664,8 @@ class ConvertRank
 {
 public:
 	ConvertRank();
+	
+	void reset();
 
 public:
 	int weight;

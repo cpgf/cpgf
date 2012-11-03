@@ -670,10 +670,16 @@ GOperatorGlueDataPointer GBindingContext::newOperatorGlueData(void * instance, I
 
 
 ConvertRank::ConvertRank()
-	: weight(ValueMatchRank_Unknown)
 {
+	this->reset();
 }
 
+void ConvertRank::reset()
+{
+	this->weight = ValueMatchRank_Unknown;
+	this->sourceClass.reset();
+	this->targetClass.reset();
+}
 
 InvokeCallableParam::InvokeCallableParam(size_t paramCount)
 	: paramCount(paramCount)
@@ -864,6 +870,8 @@ void rankCallableImplicitConvert(ConvertRank * outputRank, IMetaService * servic
 
 void rankCallableParam(ConvertRank * outputRank, IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, size_t paramIndex)
 {
+	outputRank->reset();
+
 	GMetaType proto = metaGetParamType(callable, paramIndex);
 	GScriptDataType sdt = callbackParam->params[paramIndex].dataType;
 	
