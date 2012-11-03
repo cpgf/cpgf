@@ -365,6 +365,8 @@ void GMetaClass::initialize()
 	this->setupItemLists();
 
 	this->setModule(doGetGlobalModule());
+
+	this->fixupHierarchy();
 }
 
 void GMetaClass::rebindName(const char * name)

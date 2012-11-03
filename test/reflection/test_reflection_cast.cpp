@@ -12,6 +12,7 @@ namespace Test_Cast { namespace {
 class R
 {
 public:
+	virtual ~R() {}
 	int r[20];
 };
 
