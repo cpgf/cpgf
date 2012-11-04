@@ -65,8 +65,9 @@ set(SRC_META
 	
 	${SRC_UNITTEST_FRAMEWORK}
 
+)
+set (XXX
 	${SRC_PATH}/gapiutil.cpp
-	${SRC_PATH}/gbytearray.cpp
 	${SRC_PATH}/gexception.cpp
 	${SRC_PATH}/gmemorypool.cpp
 	${SRC_PATH}/gmetaannotation.cpp
@@ -94,8 +95,7 @@ set(SRC_META
 	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
 
 	${SRC_PATH}/scriptbind/gpythonbind.cpp
-)
-set (XXX
+	
 	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
 	${SRC_PATH}/metatraits/gmetaserializer_string.cpp
 	${SRC_PATH}/metatraits/gmetaserializer_trapall.cpp
@@ -170,7 +170,7 @@ set_target_properties(
 target_link_libraries(
 	${TARGET}
 #	/Python/libs/python27_d.lib
-	/tools/Python/libs/libpython27.a
+#	/tools/Python/libs/libpython27.a
 
 #	${CPP_SOURCE_PATH}/wxWidgets/lib/gcc_dll/libwxmsw29u.a
 #	${CPP_SOURCE_PATH}/V8/libv8.a

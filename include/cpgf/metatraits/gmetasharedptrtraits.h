@@ -46,33 +46,38 @@ protected:
 
 namespace cpgf_metatraits {
 
-template <typename T>
-struct GMetaTraitsCreateSharedPointerTraits
-{
-	static cpgf::IMetaSharedPointerTraits * createSharedPointerTraits(const cpgf::GMetaTraitsParam &) {
-		return NULL;
-	}
-};
-
 inline cpgf::IMetaSharedPointerTraits * metaTraitsCreateSharedPointerTraits(const cpgf::GMetaTraitsParam &, ...)
 {
 	return NULL;
-}
-
-template <typename T>
-cpgf::IMetaSharedPointerTraits * createSharedPointerTraitsFromMetaTraits(const cpgf::GMetaTraitsParam & param, T * p)
-{
-	cpgf::IMetaSharedPointerTraits * sharedPointerTraits = metaTraitsCreateSharedPointerTraits(param, p);
-	if(sharedPointerTraits == NULL) {
-		sharedPointerTraits = GMetaTraitsCreateSharedPointerTraits<T>::createSharedPointerTraits(param);
-	}
-	return sharedPointerTraits;
 }
 
 
 } // namespace cpgf_metatraits
 
 
+namespace cpgf {
+
+template <typename T, typename Enabled = void>
+struct GMetaTraitsCreateSharedPointerTraits
+{
+	static IMetaSharedPointerTraits * createSharedPointerTraits(const GMetaTraitsParam &) {
+		return NULL;
+	}
+};
+
+template <typename T>
+IMetaSharedPointerTraits * createSharedPointerTraitsFromMetaTraits(const GMetaTraitsParam & param, T * p)
+{
+	using namespace cpgf_metatraits;
+
+	IMetaSharedPointerTraits * sharedPointerTraits = metaTraitsCreateSharedPointerTraits(param, p);
+	if(sharedPointerTraits == NULL) {
+		sharedPointerTraits = GMetaTraitsCreateSharedPointerTraits<T>::createSharedPointerTraits(param);
+	}
+	return sharedPointerTraits;
+}
+
+} // namespace cpgf
 
 
 #endif

@@ -38,6 +38,7 @@ using namespace cpgf::bind_internal;
 #define LEAVE_LUA(L, ...) \
 	} \
 	catch(const GException & e) { strncpy(local_msg, e.getMessage(), 256); local_error = true; } \
+	catch(const exception & e) { strncpy(local_msg, e.what(), 256); local_error = true; } \
 	catch(...) { strcpy(local_msg, "Unknown exception occurred."); local_error = true; } \
 	} if(local_error) { local_msg[255] = 0; error(L, local_msg); } \
 	__VA_ARGS__;

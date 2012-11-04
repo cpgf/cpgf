@@ -16,8 +16,6 @@ IMetaSerializer * createArraySerializer(IMetaSerializer * elementSerializer, con
 template <typename T>
 IMetaSerializer * metaTraitsCreateSerializerForArray(const GMetaTraitsParam & param, const T & a)
 {
-	using namespace cpgf_metatraits;
-
 	IMetaSerializer * serializer = createSerializerFromMetaTraits(param, &a);
 	
 	if(serializer == NULL) {
@@ -37,13 +35,9 @@ IMetaSerializer * metaTraitsCreateSerializerForArray(const GMetaModule * module,
 
 } // namespace metatraits_internal
 
-} // namespace cpgf
-
-
-namespace cpgf_metatraits {
 
 template <typename T, int N>
-struct GMetaTraitsCreateSerializer <T[N]>
+struct GMetaTraitsCreateSerializer <T[N], void>
 {
 	static cpgf::IMetaSerializer * createSerializer(const cpgf::GMetaTraitsParam & param) {
 		T * p = 0;
@@ -52,7 +46,8 @@ struct GMetaTraitsCreateSerializer <T[N]>
 	}
 };
 
-} // namespace cpgf_metatraits
+
+} // namespace cpgf
 
 
 

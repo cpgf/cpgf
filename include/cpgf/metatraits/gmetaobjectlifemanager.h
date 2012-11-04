@@ -28,34 +28,40 @@ namespace metatraits_internal {
 
 namespace cpgf_metatraits {
 
-template <typename T>
-struct GMetaTraitsCreateObjectLifeManager
-{
-	static cpgf::IMetaObjectLifeManager * createObjectLifeManager(const cpgf::GMetaTraitsParam &) {
-		return NULL;
-	}
-};
-
 inline cpgf::IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const cpgf::GMetaTraitsParam & /*param*/, ...)
 {
 	return NULL;
 }
 
-template <typename T>
-cpgf::IMetaObjectLifeManager * createObjectLifeManagerFromMetaTraits(const cpgf::GMetaTraitsParam & param, T * p)
+} // namespace cpgf_metatraits
+
+
+namespace cpgf {
+
+template <typename T, typename Enabled = void>
+struct GMetaTraitsCreateObjectLifeManager
 {
-	cpgf::IMetaObjectLifeManager * objectLifeManager = metaTraitsCreateObjectLifeManager(param, p);
+	static IMetaObjectLifeManager * createObjectLifeManager(const GMetaTraitsParam &) {
+		return NULL;
+	}
+};
+
+template <typename T>
+IMetaObjectLifeManager * createObjectLifeManagerFromMetaTraits(const GMetaTraitsParam & param, T * p)
+{
+	using namespace cpgf_metatraits;
+
+	IMetaObjectLifeManager * objectLifeManager = metaTraitsCreateObjectLifeManager(param, p);
 	if(objectLifeManager == NULL) {
 		objectLifeManager = GMetaTraitsCreateObjectLifeManager<T>::createObjectLifeManager(param);
 	}
 	if(objectLifeManager == NULL) {
-		objectLifeManager = cpgf::metatraits_internal::createDefaultObjectLifeManagerFromMetaTraits();
+		objectLifeManager = metatraits_internal::createDefaultObjectLifeManagerFromMetaTraits();
 	}
 	return objectLifeManager;
 }
 
-
-} // namespace cpgf_metatraits
+} // namespace cpgf
 
 
 #endif

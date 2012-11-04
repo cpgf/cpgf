@@ -8,7 +8,7 @@
 
 namespace cpgf_metatraits {
 
-cpgf::IMetaSerializer * metaTraitsCreateSerializer(const cpgf::GMetaTraitsParam &, const volatile std::string *);
+cpgf::IMetaSerializer * metaTraitsCreateSerializer(const cpgf::GMetaTraitsParam &, std::string *);
 
 
 } // namespace cpgf_metatraits

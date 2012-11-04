@@ -44,7 +44,7 @@ public:
 
 namespace cpgf_metatraits {
 
-cpgf::IMetaSerializer * metaTraitsCreateSerializer(const cpgf::GMetaTraitsParam &, const volatile std::string *)
+cpgf::IMetaSerializer * metaTraitsCreateSerializer(const cpgf::GMetaTraitsParam &, std::string *)
 {
 	return new cpgf::GMetaSerializerString;
 }

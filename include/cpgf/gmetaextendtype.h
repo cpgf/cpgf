@@ -44,7 +44,7 @@ struct GMetaExtendTypeData
 namespace meta_internal {
 
 template <typename T>
-struct WrapExtendTypeForSerializer
+struct WrapRawExtendType
 {
 private:
 	typedef typename ExtractRawType<T>::Result Raw;
@@ -66,8 +66,6 @@ public:
 template <typename T>
 void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, const GMetaModule * module)
 {
-	using namespace cpgf_metatraits;
-
 	data->arraySize = ArraySize<T>::Result;
 	
 	if((createFlags & GExtendTypeCreateFlag_Converter) != 0) {
@@ -83,7 +81,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 	if((createFlags & GExtendTypeCreateFlag_Serializer) != 0) {
 		GMetaTraitsParam param;
 		param.module = module;
-		typename WrapExtendTypeForSerializer<T>::Result * p = 0;
+		typename WrapRawExtendType<T>::Result * p = 0;
 		data->serializer = createSerializerFromMetaTraits(param, p);
 	}
 	else {
@@ -113,7 +111,7 @@ void deduceMetaExtendTypeData(GMetaExtendTypeData * data, uint32_t createFlags, 
 	if((createFlags & GExtendTypeCreateFlag_ObjectLifeManager) != 0) {
 		GMetaTraitsParam param;
 		param.module = module;
-		typename WrapExtendType<T>::Result * p = 0;
+		typename WrapRawExtendType<T>::Result * p = 0;
 		data->objectLifeManager = createObjectLifeManagerFromMetaTraits(param, p);
 	}
 	else {

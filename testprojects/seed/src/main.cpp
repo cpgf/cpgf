@@ -7,63 +7,45 @@
 
 #include "unittestbase.h"
 
-#include "cpgf/gvariant.h"
-#include "cpgf/gmetadefine.h"
-#include "cpgf/gtypetraits.h"
-#include "cpgf/gmetapolicy.h"
-
-#include "cpgf/gmemorypool.h"
-
 #include <time.h>
 
 using namespace std;
-using namespace cpgf;
-using namespace cpgf::memorypool_internal;
 
-clock_t getTime()
-{
-	return clock();
+namespace NSA {
+struct MyClass {};
 }
 
-template <typename T>
+void test(int, NSA::MyClass *) {
+	cout << "MyClass function" << endl;
+}
+
+namespace NSB {
+void test(int, ...) {
+	cout << "General function" << endl;
+}
+}
+
+struct MyClass2 : public NSA::MyClass {};
+
+namespace NSC {
+void doIt()
+{
+	using namespace NSB;
+	
+	MyClass2 * b = 0;
+	
+	test(0, b);
+}
+}
+
 void doTest()
 {
-	clock_t t;
+	NSC::doIt();
+};
 
-	GObjectPool<T> pool;
-	const int times = 1000 * 1000;
-	GScopedArray<T *> pointers(new T *[times]);
-
-	t = getTime();
-	for(int i = 0; i < times; ++i) {
-		pointers[i] = pool.allocate();
-	}
-	for(int i = 0; i < times; ++i) {
-		pool.free(pointers[i]);
-	}
-	cout << "Time0: " << (getTime() - t) << endl;
-
-	t = getTime();
-	for(int i = 0; i < times; ++i) {
-		pointers[i] = new T;
-	}
-	for(int i = 0; i < times; ++i) {
-		delete pointers[i];
-	}
-	cout << "Time1: " << (getTime() - t) << endl;
-}
-
-void test()
-{
-	doTest<int>();
-}
-
-
-void doTestPythonBind();
 int main(int /*argc*/, char * /*argv*/[])
 {
-//	test();
-//	doTestPythonBind();
+	doTest();
 	
 	UnitTest::RunAllTests();
 

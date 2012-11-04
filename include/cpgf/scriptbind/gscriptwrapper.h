@@ -61,18 +61,14 @@ namespace scriptbind_internal {
 } // namespace scriptbind_internal
 
 
-} // namespace cpgf
-
-
-namespace cpgf_metatraits {
-
 template <typename T>
 cpgf::IMetaScriptWrapper * metaTraitsCreateScriptWrapper(const cpgf::GMetaTraitsParam &, typename cpgf::GEnableIfResult<cpgf::IsConvertible<const T &, const cpgf::GScriptWrapper &>, cpgf::GScriptWrapper >::Result *)
 {
 	return cpgf::scriptbind_internal::doCreateScriptWrapper(&cpgf::scriptbind_internal::InstanceCaster<T, cpgf::GScriptWrapper>::cast);
 }
 
-} // namespace cpgf_metatraits
+
+} // namespace cpgf
 
 
 

@@ -6,17 +6,17 @@
 #include <memory>
 
 
-namespace cpgf_metatraits {
+namespace cpgf {
 
 template <typename T>
-struct GMetaTraitsCreateSharedPointerTraits <std::shared_ptr<T> >
+struct GMetaTraitsCreateSharedPointerTraits <std::shared_ptr<T>, void >
 {
-	static cpgf::IMetaSharedPointerTraits * createSharedPointerTraits(const cpgf::GMetaTraitsParam &) {
-		return new cpgf::gmetasharedptrtraits_internal::GMetaTraitsCreateSharedPointerTraitsGeneral<T, std::shared_ptr<T> >();
+	static IMetaSharedPointerTraits * createSharedPointerTraits(const GMetaTraitsParam &) {
+		return new gmetasharedptrtraits_internal::GMetaTraitsCreateSharedPointerTraitsGeneral<T, std::shared_ptr<T> >();
 	}
 };
 
-} // namespace cpgf_metatraits
+} // namespace cpgf
 
 
 #endif

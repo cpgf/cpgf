@@ -26,38 +26,41 @@ struct IMetaSerializer : public IObject
 	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) = 0;
 };
 
-
-
 } // namespace cpgf
 
 
 namespace cpgf_metatraits {
-
-template <typename T>
-struct GMetaTraitsCreateSerializer
-{
-	static cpgf::IMetaSerializer * createSerializer(const cpgf::GMetaTraitsParam &) {
-		return NULL;
-	}
-};
 
 inline cpgf::IMetaSerializer * metaTraitsCreateSerializer(const cpgf::GMetaTraitsParam &, ...)
 {
 	return NULL;
 }
 
-template <typename T>
-cpgf::IMetaSerializer * createSerializerFromMetaTraits(const cpgf::GMetaTraitsParam & param, T * p)
+} // namespace cpgf_metatraits
+
+namespace cpgf {
+
+template <typename T, typename Enabled = void>
+struct GMetaTraitsCreateSerializer
 {
-	cpgf::IMetaSerializer * serializer = metaTraitsCreateSerializer(param, p);
+	static IMetaSerializer * createSerializer(const GMetaTraitsParam &) {
+		return NULL;
+	}
+};
+
+template <typename T>
+IMetaSerializer * createSerializerFromMetaTraits(const GMetaTraitsParam & param, T * p)
+{
+	using namespace cpgf_metatraits;
+
+	IMetaSerializer * serializer = metaTraitsCreateSerializer(param, p);
 	if(serializer == NULL) {
 		serializer = GMetaTraitsCreateSerializer<T>::createSerializer(param);
 	}
 	return serializer;
 }
 
-} // namespace cpgf_metatraits
-
+} // namespace cpgf
 
 
 #endif
