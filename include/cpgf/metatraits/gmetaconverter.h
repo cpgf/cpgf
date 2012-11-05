@@ -27,16 +27,6 @@ struct IMetaConverter : public IExtendObject
 } // namespace cpgf
 
 
-namespace cpgf_metatraits {
-
-inline cpgf::IMetaConverter * metaTraitsCreateConverter(const cpgf::GMetaTraitsParam &, ...)
-{
-	return NULL;
-}
-
-} // namespace cpgf_metatraits
-
-
 namespace cpgf {
 
 inline bool isMetaConverterCanRead(uint32_t flag)
@@ -59,15 +49,9 @@ struct GMetaTraitsCreateConverter
 };
 
 template <typename T>
-IMetaConverter * createConverterFromMetaTraits(const GMetaTraitsParam & param, T * p)
+IMetaConverter * createConverterFromMetaTraits(const GMetaTraitsParam & param, T *)
 {
-	using namespace cpgf_metatraits;
-
-	IMetaConverter * converter = metaTraitsCreateConverter(param, p);
-	if(converter == NULL) {
-		converter = GMetaTraitsCreateConverter<T>::createConverter(param);
-	}
-	return converter;
+	return GMetaTraitsCreateConverter<T>::createConverter(param);
 }
 
 } // namespace cpgf

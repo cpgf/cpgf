@@ -29,15 +29,6 @@ struct IMetaSerializer : public IObject
 } // namespace cpgf
 
 
-namespace cpgf_metatraits {
-
-inline cpgf::IMetaSerializer * metaTraitsCreateSerializer(const cpgf::GMetaTraitsParam &, ...)
-{
-	return NULL;
-}
-
-} // namespace cpgf_metatraits
-
 namespace cpgf {
 
 template <typename T, typename Enabled = void>
@@ -49,15 +40,9 @@ struct GMetaTraitsCreateSerializer
 };
 
 template <typename T>
-IMetaSerializer * createSerializerFromMetaTraits(const GMetaTraitsParam & param, T * p)
+IMetaSerializer * createSerializerFromMetaTraits(const GMetaTraitsParam & param, T *)
 {
-	using namespace cpgf_metatraits;
-
-	IMetaSerializer * serializer = metaTraitsCreateSerializer(param, p);
-	if(serializer == NULL) {
-		serializer = GMetaTraitsCreateSerializer<T>::createSerializer(param);
-	}
-	return serializer;
+	return GMetaTraitsCreateSerializer<T>::createSerializer(param);
 }
 
 } // namespace cpgf
