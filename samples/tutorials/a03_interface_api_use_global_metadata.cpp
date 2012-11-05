@@ -87,7 +87,7 @@ void run_a03()
 	GScopedInterface<IMetaModule> globalModule(service->getModuleAt(0));
 	GScopedInterface<IMetaClass> globalMetaClass(globalModule->getGlobalMetaClass());
 	method.reset(globalMetaClass->getMethod("greeting"));
-	metaInvokeMethod(method, NULL, "world");
+	metaInvokeMethod(method.get(), NULL, "world");
 
 	GScopedInterface<IMetaClass> pointMetaClass(service->findClassByName("Point"));
 
@@ -99,17 +99,17 @@ void run_a03()
 	// The interface based API uses GVariantData and GMetaTypeData to gain the binary compatibility.
 	// Fortunately, in the header gmetaapiutil.h, there are a bunch of utility functions to hide the conversion
 	// between GVariant and GVariantData, GMetaType and GMetaTypeData.
-	value = metaGetValue(field, &point);
+	value = metaGetValue(field.get(), &point);
 	cout << "point.x is " << fromVariant<int>(value) << " (should be 5)" << endl;
 
 	method.reset(pointMetaClass->getMethod("extend"));
 	// Another handy utility function to invoke the method.
-	metaInvokeMethod(method, &point, 2);
-	cout << "After extend, point.x is " << fromVariant<int>(metaGetValue(field, &point)) << " (should be 10)" << endl;
+	metaInvokeMethod(method.get(), &point, 2);
+	cout << "After extend, point.x is " << fromVariant<int>(metaGetValue(field.get(), &point)) << " (should be 10)" << endl;
 
 
 	method.reset(pointMetaClass->getMethod("getArea"));
-	value = metaInvokeMethod(method, &point);
+	value = metaInvokeMethod(method.get(), &point);
 	cout << "The area is " << fromVariant<int>(value) << " (should be 160)" << endl;
 
 	Point * p;
@@ -119,7 +119,7 @@ void run_a03()
 	pointMetaClass->destroyInstance(p);
 
 	GScopedInterface<IMetaConstructor> constructor(pointMetaClass->getConstructorAt(0));
-	p = static_cast<Point *>(metaInvokeConstructor(constructor, 3, 8));
+	p = static_cast<Point *>(metaInvokeConstructor(constructor.get(), 3, 8));
 	cout << "constructor -- point.x is " << p->x << " (should be 3)" << endl;
 	pointMetaClass->destroyInstance(p);
 

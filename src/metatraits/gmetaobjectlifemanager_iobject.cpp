@@ -3,8 +3,6 @@
 #include "cpgf/gapiutil.h"
 #include "cpgf/gmetaapi.h"
 
-#include "cpgf/metatraits/gmetaobjectlifemanager.h"
-
 
 namespace cpgf {
 
@@ -14,13 +12,16 @@ class GMetaObjectLifeManagerIObject : public IMetaObjectLifeManager
 {
 	G_INTERFACE_IMPL_OBJECT
 
+public:
+	explicit GMetaObjectLifeManagerIObject(const GTypeConverterCallback & caster) : caster(caster) {}
+
 protected:
 	virtual void G_API_CC retainObject(void * object) {
-		static_cast<IObject *>(object)->addReference();
+		static_cast<IObject *>(this->caster(object))->addReference();
 	}
 	
 	virtual void G_API_CC releaseObject(void * object) {
-		static_cast<IObject *>(object)->releaseReference();
+		static_cast<IObject *>(this->caster(object))->releaseReference();
 	}
 	
 	virtual void G_API_CC freeObject(void * object, IMetaClass *) {
@@ -30,25 +31,23 @@ protected:
 	virtual void G_API_CC returnedFromMethod(void * object) {
 		releaseObject(object);
 	}
+
+private:
+	GTypeConverterCallback caster;
 };
 
 
 } // unnamed namespace
 
+namespace metatraits_internal {
+
+	IMetaObjectLifeManager * doCreateObjectLifeManagerForIObject(const GTypeConverterCallback & caster)
+	{
+		return new cpgf::GMetaObjectLifeManagerIObject(caster);
+	}
+
+} // namespace metatraits_internal
+
+
 } // namespace cpgf
 
-
-namespace cpgf_metatraits {
-
-cpgf::IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const cpgf::GMetaTraitsParam & /*param*/, cpgf::IObject *)
-{
-	return new cpgf::GMetaObjectLifeManagerIObject();
-}
-
-cpgf::IMetaObjectLifeManager * metaTraitsCreateObjectLifeManager(const cpgf::GMetaTraitsParam & /*param*/, cpgf::IObject **)
-{
-	return new cpgf::GMetaObjectLifeManagerIObject();
-}
-
-
-} // namespace cpgf_metatraits

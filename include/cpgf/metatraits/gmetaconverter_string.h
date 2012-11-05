@@ -6,12 +6,26 @@
 #include <string>
 
 
-namespace cpgf_metatraits {
+namespace cpgf {
 
-cpgf::IMetaConverter * metaTraitsCreateConverter(const cpgf::GMetaTraitsParam &, const volatile std::string *);
+namespace metatraits_internal {
+
+	IMetaConverter * doCreateConverterForStdString();
+
+} // namespace metatraits_internal
 
 
-} // namespace cpgf_metatraits
+template <>
+struct GMetaTraitsCreateConverter <std::string>
+{
+	static IMetaConverter * createConverter(const GMetaTraitsParam &) {
+		return metatraits_internal::doCreateConverterForStdString();
+	}
+};
+
+
+
+} // namespace cpgf
 
 
 

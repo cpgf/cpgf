@@ -6,12 +6,23 @@
 #include <string>
 
 
-namespace cpgf_metatraits {
+namespace cpgf {
 
-cpgf::IMetaSerializer * metaTraitsCreateSerializer(const cpgf::GMetaTraitsParam &, std::string *);
+namespace metatraits_internal {
 
+	IMetaSerializer * doCreateSerializerForStdString();
 
-} // namespace cpgf_metatraits
+} // namespace metatraits_internal
+
+template <>
+struct GMetaTraitsCreateSerializer <std::string, void>
+{
+	static IMetaSerializer * createSerializer(const GMetaTraitsParam &) {
+		return metatraits_internal::doCreateSerializerForStdString();
+	}
+};
+
+} // namespace cpgf
 
 
 #endif

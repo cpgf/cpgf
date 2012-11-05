@@ -31,15 +31,16 @@ public:
 
 } // unnamed namespace
 
+namespace metatraits_internal {
+
+	IMetaConverter * doCreateConverterForStdWideString()
+	{
+		return new GMetaConverterStdWideString();
+	}
+
+} // namespace metatraits_internal
+
+
 } // namespace cpgf
 
-
-namespace cpgf_metatraits {
-
-cpgf::IMetaConverter * metaTraitsCreateConverter(const cpgf::GMetaTraitsParam &, const volatile std::wstring *)
-{
-	return new cpgf::GMetaConverterStdWideString();
-}
-
-} // namespace cpgf_metatraits
 
