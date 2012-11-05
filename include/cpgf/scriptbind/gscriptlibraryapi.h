@@ -11,6 +11,7 @@
 
 namespace cpgf {
 
+class GScriptObject;
 struct IScriptObject;
 
 struct IScriptLibraryLoader : public IExtendObject
@@ -54,7 +55,7 @@ private:
 };
 
 
-typedef GCallback<bool (IScriptObject * owner, const char * namespaces, const char * libraryName)> GScriptLibraryLoaderCallback;
+typedef GCallback<bool (GScriptObject * scriptObject, const char * namespaces, const char * libraryName)> GScriptLibraryLoaderCallback;
 
 class GScriptLibraryNamedLoaderHandler : public IScriptLibraryLoaderHandler
 {
@@ -64,6 +65,8 @@ private:
 	typedef std::map<std::string, GScriptLibraryLoaderCallback> MapType;
 
 public:
+	explicit GScriptLibraryNamedLoaderHandler(GScriptObject * scriptObject);
+	
 	void addHandler(const char * libraryName, const GScriptLibraryLoaderCallback & callback);
 	
 protected:
@@ -75,6 +78,7 @@ private:
 	bool doLoadPackageOrLibrary(GScriptLibraryLoader * loader, IScriptObject * owner, const char * namespaces, const std::string & packageOrLibraryName);
 
 private:
+	GScriptObject * scriptObject;
 	MapType nameCallbackMap;
 };
 

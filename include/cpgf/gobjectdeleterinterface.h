@@ -1,0 +1,42 @@
+#ifndef __GOBJECTDELETERINTERFACE_H
+#define __GOBJECTDELETERINTERFACE_H
+
+
+#include "cpgf/gapiutil.h"
+#include "cpgf/gtypeutil.h"
+
+
+namespace cpgf {
+
+class GObjectDeleterInterface : public IObject
+{
+	G_INTERFACE_IMPL_OBJECT
+	
+public:
+	GObjectDeleterInterface(const GTypeDeleterCallback & deleter, void * instance)
+		: deleter(deleter), instance(instance)
+	{
+	}
+	
+	~GObjectDeleterInterface() {
+		this->deleter(this->instance);
+	}
+	
+private:
+	GTypeDeleterCallback deleter;
+	void * instance;
+};
+
+template <typename T>
+IObject * createObjectDeleterInterface(T * instance)
+{
+	return new GObjectDeleterInterface(GTypeDeleter_Delete<T>(), instance);
+}
+
+
+} // namespace cpgf
+
+
+
+#endif
+

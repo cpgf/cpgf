@@ -22,7 +22,6 @@ public:
 private:
 	GScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader);
 
-	IMetaClass * cloneClass(IMetaClass * metaClass);
 	bool loadLibrary(const char * namespaces, const GMetaVariadicParam * libraryNames);
 
 private:

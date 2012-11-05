@@ -15,12 +15,11 @@
 namespace cpgf {
 
 
-IScriptLibraryLoader * createBuiltinLibraries();
+IScriptLibraryLoader * createBuiltinLibraries(GScriptObject * scriptObject);
 
 template <typename D>
 void buildMetaClass_GScriptCoreService(D _d)
 {
-    _d.CPGF_MD_TEMPLATE _method("cloneClass", &D::ClassType::cloneClass);
     _d.CPGF_MD_TEMPLATE _method("loadLibrary", &D::ClassType::loadLibrary);
 }
 
@@ -49,16 +48,11 @@ GScriptCoreService::~GScriptCoreService()
 {
 }
 
-IMetaClass * GScriptCoreService::cloneClass(IMetaClass * metaClass)
-{
-	return this->scriptObject->cloneMetaClass(metaClass);
-}
-
 bool GScriptCoreService::loadLibrary(const char * namespaces, const GMetaVariadicParam * libraryNames)
 {
 	if(! this->libraryLoader) {
-		this->libraryLoader.reset(createBuiltinLibraries());
-		this->libraryLoader->releaseReference();
+		GScopedInterface<IScriptLibraryLoader> loader(createBuiltinLibraries(this->scriptObject));
+		this->libraryLoader.reset(loader.get());
 	}
 
 	if(namespaces == NULL) {

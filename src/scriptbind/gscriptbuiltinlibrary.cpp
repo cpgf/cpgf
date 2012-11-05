@@ -3,11 +3,14 @@
 #include "cpgf/metadata/metautility/gmetadata_metabytearray.h"
 #include "cpgf/metadata/metautility/gmetadata_metaobjectarray.h"
 #include "cpgf/metadata/metautility/gmetadata_metadebug.h"
+#include "cpgf/metadata/metautility/gmetadata_metacore.h"
 #include "cpgf/metautility/gmetabytearray.h"
 #include "cpgf/metautility/gmetaobjectarray.h"
 #include "cpgf/metautility/gmetadebug.h"
+#include "cpgf/metautility/gmetacore.h"
 
 #include "cpgf/scriptbind/gscriptlibraryapi.h"
+#include "cpgf/gobjectdeleterinterface.h"
 
 #include "cpgf/metadata/private/gmetadata_header.h"
 
@@ -16,8 +19,6 @@
 
 namespace cpgf {
 
-
-IScriptLibraryLoader * createBuiltinLibraries();
 
 namespace {
 
@@ -39,7 +40,24 @@ GSharedPointer<GMetaObjectArray> createObjectArray(IMetaClass * metaClass)
 } // unnamed namespace
 
 
-bool loadByteArray(IScriptObject * owner, const char * namespaces, const char * /*libraryName*/)
+bool loadCore(GScriptObject * scriptObject, const char * namespaces, const char * /*libraryName*/)
+{
+	GScopedPointer<GMetaCore> core(new GMetaCore(scriptObject));
+
+	GDefineMetaClass<GMetaCore> define = GDefineMetaClass<GMetaCore>::Policy<GMetaPolicyNoDefaultAndCopyConstructor>::declare("GMetaCore");
+	buildMetaData_metaCore(define);
+
+	injectObjectToScript(scriptObject, define.getMetaClass(), core.get(), namespaces);
+
+	GScopedInterface<IMetaItem> metaItem(metaItemToInterface(define.takeMetaClass(), true));
+	scriptObject->holdObject(metaItem.get());
+	GSharedInterface<IObject> metaObject(createObjectDeleterInterface(core.take()));
+	scriptObject->holdObject(metaObject.get());
+	
+	return true;
+}
+
+bool loadByteArray(GScriptObject * scriptObject, const char * namespaces, const char * /*libraryName*/)
 {
 	GDefineMetaNamespace ns = GDefineMetaNamespace::declare("");
 	
@@ -51,13 +69,13 @@ bool loadByteArray(IScriptObject * owner, const char * namespaces, const char * 
 	ns._class(gbyteArrayDefine);
 	
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(ns.takeMetaClass(), true)));
-	owner->holdObject(metaClass.get());
-	injectObjectToScript(owner, metaClass.get(), NULL, namespaces);
+	scriptObject->holdObject(metaClass.get());
+	injectObjectToScript(scriptObject, metaClass.get(), NULL, namespaces);
 	
 	return true;
 }
 
-bool loadObjectArray(IScriptObject * owner, const char * namespaces, const char * /*libraryName*/)
+bool loadObjectArray(GScriptObject * scriptObject, const char * namespaces, const char * /*libraryName*/)
 {
 	GDefineMetaNamespace ns = GDefineMetaNamespace::declare("");
 	
@@ -68,34 +86,35 @@ bool loadObjectArray(IScriptObject * owner, const char * namespaces, const char 
 	ns._class(gobjectArrayDefine);
 	
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(ns.takeMetaClass(), true)));
-	owner->holdObject(metaClass.get());
-	injectObjectToScript(owner, metaClass.get(), NULL, namespaces);
+	scriptObject->holdObject(metaClass.get());
+	injectObjectToScript(scriptObject, metaClass.get(), NULL, namespaces);
 	
 	return true;
 }
 
-bool loadDebug(IScriptObject * owner, const char * namespaces, const char * /*libraryName*/)
+bool loadDebug(GScriptObject * scriptObject, const char * namespaces, const char * /*libraryName*/)
 {
 	GDefineMetaClass<GMetaDebug> debugDefine = GDefineMetaClass<GMetaDebug>::declare("GMetaDebug");
 	buildMetaData_metaDebug(debugDefine);
 	
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(debugDefine.takeMetaClass(), true)));
-	owner->holdObject(metaClass.get());
-	injectObjectToScript(owner, metaClass.get(), NULL, namespaces);
+	scriptObject->holdObject(metaClass.get());
+	injectObjectToScript(scriptObject, metaClass.get(), NULL, namespaces);
 	
 	return true;
 }
 
 void initializeBuiltinLibraries(GScriptLibraryNamedLoaderHandler * libraryHandler)
 {
+	libraryHandler->addHandler("builtin.core", GScriptLibraryLoaderCallback(&loadCore));
 	libraryHandler->addHandler("builtin.arrays.bytearray", GScriptLibraryLoaderCallback(&loadByteArray));
 	libraryHandler->addHandler("builtin.arrays.objectarray", GScriptLibraryLoaderCallback(&loadObjectArray));
 	libraryHandler->addHandler("builtin.debug", GScriptLibraryLoaderCallback(&loadDebug));
 }
 
-IScriptLibraryLoader * createBuiltinLibraries()
+IScriptLibraryLoader * createBuiltinLibraries(GScriptObject * scriptObject)
 {
-	GScriptLibraryNamedLoaderHandler * namedLoader = new GScriptLibraryNamedLoaderHandler();
+	GScriptLibraryNamedLoaderHandler * namedLoader = new GScriptLibraryNamedLoaderHandler(scriptObject);
 	GScopedInterface<IScriptLibraryLoaderHandler> namedLoaderInterface(namedLoader);
 	initializeBuiltinLibraries(namedLoader);
 	GScriptLibraryLoader * loader = new GScriptLibraryLoader();

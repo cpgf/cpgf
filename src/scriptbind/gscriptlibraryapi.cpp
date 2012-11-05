@@ -44,6 +44,11 @@ void GScriptLibraryLoader::addHandler(IScriptLibraryLoaderHandler * handler)
 }
 
 
+GScriptLibraryNamedLoaderHandler::GScriptLibraryNamedLoaderHandler(GScriptObject * scriptObject)
+	: scriptObject(scriptObject)
+{
+}
+
 void GScriptLibraryNamedLoaderHandler::addHandler(const char * libraryName, const GScriptLibraryLoaderCallback & callback)
 {
 	this->nameCallbackMap[libraryName] = callback;
@@ -69,7 +74,7 @@ bool GScriptLibraryNamedLoaderHandler::doLoadPackage(GScriptLibraryLoader * load
 
 	for(MapType::iterator it = this->nameCallbackMap.begin(); it != this->nameCallbackMap.end(); ++it) {
 		if(it->first.find(name) == 0) {
-			if(it->second(owner, namespaces, it->first.c_str())) {
+			if(it->second(this->scriptObject, namespaces, it->first.c_str())) {
 				loader->loaded(it->first.c_str());
 				success = true;
 			}
@@ -83,7 +88,7 @@ bool GScriptLibraryNamedLoaderHandler::doLoadSingleLibrary(GScriptLibraryLoader 
 {
 	MapType::iterator it = this->nameCallbackMap.find(libraryName);
 	if(it != this->nameCallbackMap.end()) {
-		if(it->second(owner, namespaces, libraryName.c_str())) {
+		if(it->second(this->scriptObject, namespaces, libraryName.c_str())) {
 			loader->loaded(libraryName);
 			return true;
 		}

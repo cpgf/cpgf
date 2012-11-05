@@ -1,5 +1,5 @@
-#ifndef __GTYPECONVERTER_H
-#define __GTYPECONVERTER_H
+#ifndef __GTYPEUTIL_H
+#define __GTYPEUTIL_H
 
 #include "cpgf/gcallback.h"
 
@@ -13,6 +13,17 @@ struct GTypeConverter
 {
 	void * operator() (void * p) const {
 		return static_cast<To>(static_cast<From>(p));
+	}
+};
+
+
+typedef GCallback<void (void *)> GTypeDeleterCallback;
+
+template <typename T>
+struct GTypeDeleter_Delete
+{
+	void operator() (void * p) const {
+		delete static_cast<T *>(p);
 	}
 };
 

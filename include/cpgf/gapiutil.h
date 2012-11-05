@@ -80,7 +80,6 @@ private:
 	GScopedPointer<ErrorInfo> errorInfo;
 };
 
-
 class GImplMemoryAllocator : public GImplObject, public IMemoryAllocator
 {
 	G_INTERFACE_IMPL_OBJECT
@@ -90,8 +89,6 @@ protected:
 	virtual void G_API_CC free(void * p);
 	virtual void * G_API_CC reallocate(void * p, uint32_t size);
 };
-
-
 
 
 } // namespace cpgf
