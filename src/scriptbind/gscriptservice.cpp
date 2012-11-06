@@ -20,7 +20,8 @@ IScriptLibraryLoader * createBuiltinLibraries(GScriptObject * scriptObject);
 template <typename D>
 void buildMetaClass_GScriptCoreService(D _d)
 {
-    _d.CPGF_MD_TEMPLATE _method("loadLibrary", &D::ClassType::loadLibrary);
+    _d.CPGF_MD_TEMPLATE _method("import", &D::ClassType::loadLibrary);
+    _d.CPGF_MD_TEMPLATE _method("_import", &D::ClassType::loadLibrary);
 }
 
 GScriptCoreService * doBindScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader)

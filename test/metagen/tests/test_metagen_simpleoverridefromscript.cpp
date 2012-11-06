@@ -25,7 +25,7 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScr
 		QDO(def overrideGetName(me): return "abc")
 	}
 
-	QDO(cpgf.loadLibrary("cpgf", "builtin.core"));
+	QDO(cpgf._import("cpgf", "builtin.core"));
 	QDO(DerivedClass = cpgf.cloneClass(mtest.SimpleOverrideWrapper))
 	QDO(GrandDerivedClass = cpgf.cloneClass(DerivedClass))
 

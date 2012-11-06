@@ -14,7 +14,7 @@ void testObjectArray(TestScriptContext * context)
 	if(context->isPython()) {
 		QDO(null = None);
 	}
-	QDO(cpgf.loadLibrary(null, "builtin.arrays.objectarray"));
+	QDO(cpgf._import(null, "builtin.collections.objectarray"));
 	QDO(oa = cpgf.createObjectArray(mtest.OAObject));
 	
 	QNEWOBJ(obj, mtest.OAObject(98, "def"));
@@ -44,7 +44,7 @@ void testObjectArray(TestScriptContext * context)
 	QASSERT(mtest.getOAObjectN(oa.getItem(0), 2) == 1999); // equivalent to (&oa[0])[2]
 	QASSERT(mtest.getOAObjectN(oa.getItem(1), 1) == 1999); // equivalent to (&oa[1])[1]
 
-	QDO(cpgf.loadLibrary(null, "builtin.debug"));
+	QDO(cpgf._import(null, "builtin.debug"));
 //	QDO(cpgf.debugBreak(0, "abc"));
 //	QDO(cpgf.traceErrorLine("!!!!!!!!!!AAAAAAAAAAAAAAAAAAAAAAAA"));
 }

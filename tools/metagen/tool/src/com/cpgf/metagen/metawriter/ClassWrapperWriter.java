@@ -78,12 +78,12 @@ public class ClassWrapperWriter {
 					if(! cppMethod.hasResult()) {
 						codeWriter.writeLine("return;");
 					}
+					if(cppMethod.isPureVirtual()) {
+						codeWriter.writeLine("throw \"Abstract method\";");
+					}
 				codeWriter.endBlock();
 			codeWriter.endBlock();
-			if(cppMethod.isPureVirtual()) {
-				codeWriter.writeLine("throw \"Abstract method\";");
-			}
-			else {
+			if(! cppMethod.isPureVirtual()) {
 				invoke = this.cppClass.getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
 				if(cppMethod.hasResult()) {
 					invoke = "return " + invoke;

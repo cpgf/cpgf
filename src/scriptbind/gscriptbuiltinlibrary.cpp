@@ -107,8 +107,8 @@ bool loadDebug(GScriptObject * scriptObject, const char * namespaces, const char
 void initializeBuiltinLibraries(GScriptLibraryNamedLoaderHandler * libraryHandler)
 {
 	libraryHandler->addHandler("builtin.core", GScriptLibraryLoaderCallback(&loadCore));
-	libraryHandler->addHandler("builtin.arrays.bytearray", GScriptLibraryLoaderCallback(&loadByteArray));
-	libraryHandler->addHandler("builtin.arrays.objectarray", GScriptLibraryLoaderCallback(&loadObjectArray));
+	libraryHandler->addHandler("builtin.collections.bytearray", GScriptLibraryLoaderCallback(&loadByteArray));
+	libraryHandler->addHandler("builtin.collections.objectarray", GScriptLibraryLoaderCallback(&loadObjectArray));
 	libraryHandler->addHandler("builtin.debug", GScriptLibraryLoaderCallback(&loadDebug));
 }
 

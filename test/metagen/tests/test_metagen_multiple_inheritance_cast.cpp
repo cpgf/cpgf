@@ -66,7 +66,7 @@ void metagenTest_MultipleInheritanceCast_SetSharedPointerAsField(TestScriptConte
 
 void metagenTest_MultipleInheritanceCast_Cast(TestScriptContext * context)
 {
-	QDO(cpgf.loadLibrary("cpgf", "builtin.core"));
+	QDO(cpgf._import("cpgf", "builtin.core"));
 
 	QDO(r = mtest.getMultipleInheritanceCastDAsR());
 	QERR(r.iAmD());

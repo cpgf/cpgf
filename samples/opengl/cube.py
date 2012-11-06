@@ -267,7 +267,7 @@ def start() :
 	global colorList
 	global normalList
 
-	cpgf.loadLibrary(None, "builtin.arrays.bytearray")
+	cpgf._import(None, "builtin.collections.bytearray")
 
 	initData()
 	gl.glutInit()

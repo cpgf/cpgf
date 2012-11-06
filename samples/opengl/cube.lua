@@ -137,7 +137,7 @@ function initLights()
 end
 
 function start()
-	cpgf.loadLibrary(nil, "builtin.arrays.bytearray")
+	cpgf.import(nil, "builtin.collections.bytearray")
 
 	initData()
 	gl.glutInit()

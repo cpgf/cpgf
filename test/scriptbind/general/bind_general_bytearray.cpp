@@ -4,7 +4,7 @@ namespace {
 
 void testByteArrayInScript(TestScriptContext * context)
 {
-	QDO(cpgf.loadLibrary("cpgf", "builtin.arrays.bytearray"))
+	QDO(cpgf._import("cpgf", "builtin.collections.bytearray"))
 	
 	QDO(a = cpgf.createByteArray())
 	QDO(a.setLength(10))
@@ -27,7 +27,7 @@ void testByteArrayInScript(TestScriptContext * context)
 
 void testByteArrayInScriptWriteVariadic(TestScriptContext * context)
 {
-	QDO(cpgf.loadLibrary("cpgf", "builtin.arrays.bytearray"))
+	QDO(cpgf._import("cpgf", "builtin.collections.bytearray"))
 	
 	QDO(a = cpgf.createByteArray())
 	QDO(a.writeInt32(38, 78, 98))

@@ -229,7 +229,7 @@ function initLights()
 
 function start()
 {
-	cpgf.loadLibrary(null, "builtin.arrays.bytearray")
+	cpgf.import(null, "builtin.collections.bytearray")
 
 	initData()
 	gl.glutInit()
