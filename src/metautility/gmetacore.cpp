@@ -26,13 +26,25 @@ GVariant GMetaCore::cast(const GVariant & instance, IMetaClass * targetMetaClass
 			void * ptr = objectAddressFromVariant(instance);
 			void * oldPtr = ptr;
 			if(ptr != NULL) {
-				ptr = metaCastToDerived(oldPtr, sourceClass.get(), targetMetaClass);
-				if(ptr == NULL) {
-					ptr = metaCastToBase(oldPtr, sourceClass.get(), targetMetaClass);
+				GMetaType targetType;
+				if(targetMetaClass != NULL) {
+					ptr = metaCastToDerived(oldPtr, sourceClass.get(), targetMetaClass);
+					if(ptr == NULL) {
+						ptr = metaCastToBase(oldPtr, sourceClass.get(), targetMetaClass);
+					}
+					targetType = metaGetItemType(targetMetaClass);
+				}
+				else {
+					GScopedInterface<IMetaClass> derivedClass(findAppropriateDerivedClass(oldPtr, sourceClass.get(), &ptr));
+					if(derivedClass) {
+						targetType = metaGetItemType(derivedClass.get());
+					}
+					else {
+						ptr = NULL;
+					}
 				}
 
 				if(ptr != NULL) {
-					GMetaType targetType(metaGetItemType(targetMetaClass));
 					targetType.addPointer();
 					return createTypedVariant(pointerToObjectVariant(ptr), targetType);
 				}

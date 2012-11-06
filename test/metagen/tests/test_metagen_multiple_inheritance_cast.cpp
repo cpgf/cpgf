@@ -73,6 +73,9 @@ void metagenTest_MultipleInheritanceCast_Cast(TestScriptContext * context)
 
 	QDO(d = cpgf.cast(r, mtest.MultipleInheritanceCastD));
 	QASSERT(d.iAmD());
+
+	QDO(d2 = cpgf.cast(r));
+	QASSERT(d2.iAmD());
 }
 
 #define CASE metagenTest_MultipleInheritanceCast_Cast

@@ -184,12 +184,15 @@ if(${HAS_UNITTEST})
 		${GLOB_TEST_PYTHON}
 		
 		${SRC_UNITTEST_FRAMEWORK}
+
+#		${SRC_LIB}
 	)
 
 	include_directories(${UNIT_TEST_DIR}/src)
-if(${HAS_BOOST})
-	include_directories(${BOOST_INC})
-endif(${HAS_BOOST})
+
+	if(${HAS_BOOST})
+		include_directories(${BOOST_INC})
+	endif(${HAS_BOOST})
 
 	add_definitions(-DENABLE_LUA=${HAS_LUA} -DENABLE_V8=${HAS_V8} -DENABLE_PYTHON=${HAS_PYTHON} -DENABLE_BOOST=${HAS_BOOST})
 

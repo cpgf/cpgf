@@ -14,7 +14,7 @@ class GMetaCore
 public:
 	explicit GMetaCore(GScriptObject * scriptObject);
 	IMetaClass * cloneClass(IMetaClass * metaClass);
-	GVariant cast(const GVariant & instance, IMetaClass * targetMetaClass);
+	GVariant cast(const GVariant & instance, IMetaClass * targetMetaClass = NULL);
 
 private:
 	GScriptObject * scriptObject;
