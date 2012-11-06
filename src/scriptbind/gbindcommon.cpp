@@ -853,7 +853,7 @@ void rankImplicitConvertForMetaClass(ConvertRank * outputRank, IMetaItem * sourc
 
 void rankCallableImplicitConvert(ConvertRank * outputRank, IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, size_t paramIndex, const GMetaType & targetType)
 {
-	rankImplicitConvertForString(outputRank, callbackParam->params[paramIndex].value, targetType);
+	rankImplicitConvertForString(outputRank, getVariantRealValue(callbackParam->params[paramIndex].value), targetType);
 	
 	if(outputRank->weight == ValueMatchRank_Unknown) {
 		rankImplicitConvertForSharedPointer(outputRank, callbackParam->params[paramIndex].glueData,

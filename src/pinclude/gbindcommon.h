@@ -766,6 +766,12 @@ public:
 
 	IMetaClass * cloneMetaClass(IMetaClass * metaClass);
 
+	IMetaService * getMetaService() {
+		IMetaService * service = this->context->getService();
+		service->addReference();
+		return service;
+	}
+
 protected:
 	const GContextPointer & getContext() const {
 		return this->context;

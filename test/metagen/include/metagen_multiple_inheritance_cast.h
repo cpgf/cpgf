@@ -73,6 +73,8 @@ public:
 	virtual bool isC() const { return false; }
 	virtual bool isD() const { return true; }
 
+	bool iAmD() const { return true; }
+
 	int e[10];
 };
 

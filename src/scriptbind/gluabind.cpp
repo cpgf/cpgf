@@ -894,7 +894,7 @@ void loadCallableParam(const GContextPointer & context, InvokeCallableParam * ca
 	lua_State * L = getLuaState(context);
 
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
-		callableParam->params[i].value = getVariantRealValue(luaToVariant(context, static_cast<int>(i) + startIndex, &callableParam->params[i].glueData));
+		callableParam->params[i].value = luaToVariant(context, static_cast<int>(i) + startIndex, &callableParam->params[i].glueData);
 		IMetaTypedItem * typeItem;
 		callableParam->params[i].dataType = getLuaType(L, static_cast<int>(i) + startIndex, &typeItem);
 		callableParam->params[i].typeItem.reset(typeItem);

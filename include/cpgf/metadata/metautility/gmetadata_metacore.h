@@ -18,6 +18,7 @@ template <typename T, typename MetaDefine>
 void doBuildMetaData_metaCore(const GMetaDataConfigFlags & /*config*/, MetaDefine define)
 {
 	M(T, cloneClass)
+	M(T, cast)
 }
 
 

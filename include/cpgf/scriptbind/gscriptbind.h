@@ -203,6 +203,8 @@ public:
 	virtual void nullifyValue(const char * name) = 0;
 
 	virtual void bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader) = 0;
+
+	virtual IMetaService * getMetaService() = 0;
 	
 	virtual void holdObject(IObject * object);
 

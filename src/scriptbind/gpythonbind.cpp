@@ -958,7 +958,7 @@ void loadCallableParam(const GContextPointer & context, PyObject * args, InvokeC
 
 	for(int i = 0; i < paramCount; ++i) {
 		PyObject * c = PyTuple_GetItem(args, i);
-		callableParam->params[i].value = getVariantRealValue(pythonToVariant(context, c, &callableParam->params[i].glueData));
+		callableParam->params[i].value = pythonToVariant(context, c, &callableParam->params[i].glueData);
 		IMetaTypedItem * typeItem;
 		callableParam->params[i].dataType = getPythonType(c, &typeItem);
 		callableParam->params[i].typeItem.reset(typeItem);

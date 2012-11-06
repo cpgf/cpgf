@@ -88,6 +88,7 @@ void buildMetaClass_MultipleInheritanceCastD(const cpgf::GMetaDataConfigFlags & 
     _d.CPGF_MD_TEMPLATE _method("isB", &D::ClassType::isB);
     _d.CPGF_MD_TEMPLATE _method("isC", &D::ClassType::isC);
     _d.CPGF_MD_TEMPLATE _method("isD", &D::ClassType::isD);
+    _d.CPGF_MD_TEMPLATE _method("iAmD", &D::ClassType::iAmD);
 }
 
 

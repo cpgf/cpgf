@@ -64,6 +64,21 @@ void metagenTest_MultipleInheritanceCast_SetSharedPointerAsField(TestScriptConte
 #include "do_testcase.h"
 
 
+void metagenTest_MultipleInheritanceCast_Cast(TestScriptContext * context)
+{
+	QDO(cpgf.loadLibrary("cpgf", "builtin.core"));
+
+	QDO(r = mtest.getMultipleInheritanceCastDAsR());
+	QERR(r.iAmD());
+
+	QDO(d = cpgf.cast(r, mtest.MultipleInheritanceCastD));
+	QASSERT(d.iAmD());
+}
+
+#define CASE metagenTest_MultipleInheritanceCast_Cast
+#include "do_testcase.h"
+
+
 GTEST(metagenTest_MultipleInheritanceCast_isInheritedFrom_Lib)
 {
 	const GMetaClass * metaClassR = findMetaClass("MultipleInheritanceCastR");
