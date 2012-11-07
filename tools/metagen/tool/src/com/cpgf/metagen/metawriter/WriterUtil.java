@@ -9,6 +9,7 @@ import com.cpgf.metagen.codewriter.CodeWriter;
 import com.cpgf.metagen.codewriter.CppWriter;
 import com.cpgf.metagen.metadata.CppClass;
 import com.cpgf.metagen.metadata.CppField;
+import com.cpgf.metagen.metadata.CppMethod;
 import com.cpgf.metagen.metadata.Item;
 import com.cpgf.metagen.metadata.Parameter;
 import com.cpgf.metagen.metadata.TemplateInstance;
@@ -175,5 +176,33 @@ public class WriterUtil {
 	public static boolean shouldGenerateBitfieldWrapper(Config config, CppField field) {
 		return field.isBitField() && Util.allowMetaData(config, field) && !field.getOwner().isTemplate();
 	}
+
+	public static String getReflectionAction(String define, String name) {
+		return define + ".CPGF_MD_TEMPLATE " + name;
+	}
+	
+	public static void reflectMethod(CppWriter codeWriter, String define, String scopePrefix, CppMethod method, String name, boolean usePrototype) {
+		String action = getReflectionAction(define, "_method");
+
+		codeWriter.write(action);
+		codeWriter.write("(" + Util.quoteText(name) + ", ");
+		if(usePrototype) {
+			String typePrefix = scopePrefix;
+			if(method.isStatic()) {
+				typePrefix = "";
+			}
+			codeWriter.write("(" + method.getResultType().getLiteralType() + " (" + typePrefix + "*) (");
+			writeParamList(codeWriter, method.getParameterList(), false);
+			codeWriter.write(")");
+			if(!method.isStatic() && method.isConst()) {
+				codeWriter.write(" const");
+			}
+			codeWriter.write(")");
+		}
+		codeWriter.write("&" + scopePrefix + name + getPolicyText(method) + ")");
+
+		writeDefaultParams(codeWriter, method.getParameterList());
+	}
+	
 
 }

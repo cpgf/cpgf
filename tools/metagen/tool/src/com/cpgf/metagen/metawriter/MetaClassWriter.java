@@ -65,14 +65,6 @@ public class MetaClassWriter {
 		}
 	}
 
-	private String getAction(String name) {
-		return this.define + ".CPGF_MD_TEMPLATE " + name;
-	}
-
-	private String getReplace(String name) {
-		return "\"" + name + "\"";
-	}
-
 	private void doCallback(Item item) {
 		this.callbackData = this.metaInfo.getCallbackClassMap().getData(item);
 	}
@@ -143,7 +135,7 @@ public class MetaClassWriter {
 	}
 
 	public void writeConstructorsBind() {
-		String action = this.getAction("_constructor");
+		String action = WriterUtil.getReflectionAction(this.define, "_constructor");
 
 		for(Constructor item : this.cppClass.getConstructorList()) {
 			this.doCallback(item);
@@ -162,7 +154,7 @@ public class MetaClassWriter {
 
 	private void writeFields() {
 		String prefix = this.getScopePrefix();
-		String action = this.getAction("_field");
+		String action = WriterUtil.getReflectionAction(this.define, "_field");
 
 		for(CppField item : this.cppClass.getFieldList()) {
 			String name = item.getPrimaryName();
@@ -180,7 +172,7 @@ public class MetaClassWriter {
 			if(item.isBitField()) {
 				CppField field = (CppField)(item);
 				if(WriterUtil.shouldGenerateBitfieldWrapper(this.config, field)) {
-					this.codeWriter.writeLine(this.getAction("_property") + "(" + this.getReplace(name)
+					this.codeWriter.writeLine(WriterUtil.getReflectionAction(this.define, "_property") + "(" + Util.quoteText(name)
 							+ ", &" + WriterUtil.getBitfieldWrapperGetterName(field)
 							+ ", &" + WriterUtil.getBitfieldWrapperSetterName(field)
 							+ ", MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());"
@@ -189,15 +181,14 @@ public class MetaClassWriter {
 			}
 			else {
 				this.codeWriter.write(action);
-				this.codeWriter.write("(" + this.getReplace(name) + ", ");
+				this.codeWriter.write("(" + Util.quoteText(name) + ", ");
 				this.codeWriter.writeLine("&" + prefix + name + WriterUtil.getPolicyText(item) + ");");
 			}
 		}
 	}
 
 	private void writeMethods() {
-		String prefix = this.getScopePrefix();
-		String action = this.getAction("_method");
+		String scopePrefix = this.getScopePrefix();
 
 		HashMap<String, Integer> methodOverload = new HashMap<String, Integer>();
 
@@ -223,32 +214,15 @@ public class MetaClassWriter {
 			}
 			
 			overload = overload || this.cppClass.isGlobal();
-
-			this.codeWriter.write(action);
-			this.codeWriter.write("(" + this.getReplace(name) + ", ");
-			if(overload) {
-				String typePrefix = prefix;
-				if(item.isStatic()) {
-					typePrefix = "";
-				}
-				this.codeWriter.write("(" + item.getResultType().getLiteralType() + " (" + typePrefix + "*) (");
-				WriterUtil.writeParamList(this.codeWriter, item.getParameterList(), false);
-				this.codeWriter.write(")");
-				if(!item.isStatic() && item.isConst()) {
-					this.codeWriter.write(" const");
-				}
-				this.codeWriter.write(")");
-			}
-			this.codeWriter.write("&" + prefix + name + WriterUtil.getPolicyText(item) + ")");
-
-			WriterUtil.writeDefaultParams(this.codeWriter, item.getParameterList());
+			
+			WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, name, overload);
 		}
 	}
 
 	private void writeEnumerators() {
 		String typePrefix = this.getScopePrefix("typename ");
 		String prefix = this.getScopePrefix();
-		String action = this.getAction("_enum");
+		String action = WriterUtil.getReflectionAction(this.define, "_enum");
 
 		for(CppEnum item : this.cppClass.getEnumList()) {
 			String name = item.getPrimaryName();
@@ -266,10 +240,10 @@ public class MetaClassWriter {
 				typeName = "long long";
 			}
 
-			this.codeWriter.writeLine(action + "<" + typeName + ">(" + this.getReplace(name) + ")");
+			this.codeWriter.writeLine(action + "<" + typeName + ">(" + Util.quoteText(name) + ")");
 			this.codeWriter.incIndent();
 				for(EnumValue value : item.getValueList()) {
-					this.codeWriter.writeLine("._element(" + this.getReplace(value.getName()) + ", " + prefix + value.getQualifiedName() + ")");
+					this.codeWriter.writeLine("._element(" + Util.quoteText(value.getName()) + ", " + prefix + value.getQualifiedName() + ")");
 				}
 			this.codeWriter.decIndent();
 			this.codeWriter.writeLine(";");
@@ -277,13 +251,13 @@ public class MetaClassWriter {
 	}
 
 	private void writeConstants() {
-		String action = this.getAction("_enum");
+		String action = WriterUtil.getReflectionAction(this.define, "_enum");
 
 		if(this.cppClass.getConstantList().size() == 0) {
 			return;
 		}
 
-		this.codeWriter.writeLine(action + "<long long>(" + this.getReplace("GlobalDefine_" + this.config.projectID + "_" + Util.getUniqueID()) + ")");
+		this.codeWriter.writeLine(action + "<long long>(" + Util.quoteText("GlobalDefine_" + this.config.projectID + "_" + Util.getUniqueID()) + ")");
 		this.codeWriter.incIndent();
 
 		for(Constant item : this.cppClass.getConstantList()) {
@@ -298,7 +272,7 @@ public class MetaClassWriter {
 				continue;
 			}
 			
-			this.codeWriter.writeLine("._element(" + this.getReplace(item.getPrimaryName()) + ", " + item.getPrimaryName() + ")");
+			this.codeWriter.writeLine("._element(" + Util.quoteText(item.getPrimaryName()) + ", " + item.getPrimaryName() + ")");
 		}
 		
 		this.codeWriter.decIndent();
@@ -306,7 +280,7 @@ public class MetaClassWriter {
 	}
 
 	private void writeOperators() {
-		String action = this.getAction("_operator");
+		String action = WriterUtil.getReflectionAction(this.define, "_operator");
 
 		for(Operator item : this.cppClass.getOperatorList()) {
 			this.doCallback(item);
@@ -398,7 +372,7 @@ public class MetaClassWriter {
 	}
 
 	private void writeClasses() {
-		String action = this.getAction("_class");
+		String action = WriterUtil.getReflectionAction(this.define, "_class");
 
 		for(DeferClass deferClass : this.cppClass.getClassList()) {
 			CppClass item = deferClass.getCppClass();

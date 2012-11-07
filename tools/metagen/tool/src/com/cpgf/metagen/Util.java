@@ -38,6 +38,10 @@ public class Util {
 		throw new MetaException(message);
 	}
 
+	public static String quoteText(String text) {
+		return "\"" + text + "\"";
+	}
+
 	public static String getAttribute(Node node, String attributeName) {
 		Node n = node.getAttributes().getNamedItem(attributeName);
 		if(n != null) {
