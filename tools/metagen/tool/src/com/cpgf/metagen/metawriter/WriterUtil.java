@@ -181,6 +181,10 @@ public class WriterUtil {
 		return define + ".CPGF_MD_TEMPLATE " + name;
 	}
 	
+	public static String getMethodSuperName(CppMethod method) {
+		return "super_" + method.getPrimaryName();
+	}
+	
 	public static void reflectMethod(CppWriter codeWriter, String define, String scopePrefix, CppMethod method, String name, boolean usePrototype) {
 		String action = getReflectionAction(define, "_method");
 

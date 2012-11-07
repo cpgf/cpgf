@@ -304,6 +304,9 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 		}
 
 		codeWriter.writeLine("");
+		
+		this.wrapperWriter.writeSuperMethodBind(codeWriter);
+		codeWriter.writeLine("");
 
 		String callFuncName = this.createFunctionName(cppClass, this.config.metaClassFunctionPrefix);
 		codeWriter.write(callFuncName + "<D");
@@ -334,11 +337,6 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 
 		if(this.callbackData.getSourceCode() != null) {
 			codeWriter.write(this.callbackData.getSourceCode() + "\n\n");
-		}
-
-		if(this.wrapperWriter != null) {
-			this.wrapperWriter.writeStaticInitializer(codeWriter);
-			codeWriter.writeLine("");
 		}
 
 		codeWriter.writeLine("GDefineMetaInfo " + funcName + "()");

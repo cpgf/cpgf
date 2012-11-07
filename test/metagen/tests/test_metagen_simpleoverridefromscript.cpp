@@ -13,15 +13,15 @@ template <typename T>
 void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScriptContext * context)
 {
 	if(context->isLua()) {
-		QDO(function overrideGetValue(me) return me.getValue() + 15 end)
+		QDO(function overrideGetValue(me) return me.super_getValue() + 15 end)
 		QDO(function overrideGetName(me) return "abc" end)
 	}
 	if(context->isV8()) {
-		QDO(function overrideGetValue(me) { return me.getValue() + 15; })
+		QDO(function overrideGetValue(me) { return me.super_getValue() + 15; })
 		QDO(function overrideGetName(me) { return "abc"; })
 	}
 	if(context->isPython()) {
-		QDO(def overrideGetValue(me): return me.getValue() + 15)
+		QDO(def overrideGetValue(me): return me.super_getValue() + 15)
 		QDO(def overrideGetName(me): return "abc")
 	}
 
@@ -75,7 +75,7 @@ template <typename T>
 void doTestSimpleOverrideFromScript_OverrideFromScriptObject(T * binding, TestScriptContext * context)
 {
 	if(context->isLua()) {
-		QDO(function overrideGetValue(me) return me.getValue() + 5 end)
+		QDO(function overrideGetValue(me) return me.super_getValue() + 5 end)
 		QDO(function overrideGetName(me) return "abc" end)
 	}
 	if(context->isV8()) {
@@ -84,7 +84,7 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptObject(T * binding, TestSc
 		QDO(function overrideGetAnother(me) { return 2; })
 	}
 	if(context->isPython()) {
-		QDO(def overrideGetValue(me): return me.getValue() + 5)
+		QDO(def overrideGetValue(me): return me.super_getValue() + 5)
 		QDO(def overrideGetName(me): return "abc")
 	}
 

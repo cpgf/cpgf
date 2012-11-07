@@ -30,10 +30,6 @@ public class ClassWrapperWriter {
 		return this.wrapperConfig.makeWrapName(this.config, this.cppClass);
 	}
 	
-	private String getGuardName() {
-		return "_cpgf_override_method_is_in_script";
-	}
-	
 	private void buidOverrideMethodList() {
 		this.overrideMethodList = new ArrayList<CppMethod>();
 		for(CppMethod cppMethod : this.cppClass.getMethodList()) {
@@ -55,35 +51,52 @@ public class ClassWrapperWriter {
 		if(cppMethod.isConst()) {
 			prototype = prototype + " const";
 		}
+		String paramText = Util.getParameterText(cppMethod.getParameterList(), false, true);
 		codeWriter.writeLine(prototype);
 		codeWriter.beginBlock();
-			String paramText = Util.getParameterText(cppMethod.getParameterList(), false, true);
-			String sentinel = this.getGuardName() + "[" + order + "]";
-			codeWriter.writeLine("if(! " + sentinel + ")");
+			codeWriter.writeLine("cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction(\"" + cppMethod.getLiteralName() + "\"));");
+			codeWriter.writeLine("if(func)");
 			codeWriter.beginBlock();
-				codeWriter.writeLine("cpgf::GScriptWrapperReentryGuard guard(&" + sentinel + ");");
-				codeWriter.writeLine("cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction(\"" + cppMethod.getLiteralName() + "\"));");
-				codeWriter.writeLine("if(func)");
-				codeWriter.beginBlock();
-					String invoke = "cpgf::invokeScriptFunction(func.get(), this";
-					if(cppMethod.hasParameter()) {
-						invoke = invoke + ", " + paramText;
-					}
-					invoke = invoke + ")";
-					if(cppMethod.hasResult()) {
-						invoke = "return cpgf::fromVariant<" + cppMethod.getResultType().getLiteralType() + " >(" + invoke + ")";
-					}
-					invoke = invoke + ";";
-					codeWriter.writeLine(invoke);
-					if(! cppMethod.hasResult()) {
-						codeWriter.writeLine("return;");
-					}
-					if(cppMethod.isPureVirtual()) {
-						codeWriter.writeLine("throw \"Abstract method\";");
-					}
-				codeWriter.endBlock();
+				String invoke = "cpgf::invokeScriptFunction(func.get(), this";
+				if(cppMethod.hasParameter()) {
+					invoke = invoke + ", " + paramText;
+				}
+				invoke = invoke + ")";
+				if(cppMethod.hasResult()) {
+					invoke = "return cpgf::fromVariant<" + cppMethod.getResultType().getLiteralType() + " >(" + invoke + ")";
+				}
+				invoke = invoke + ";";
+				codeWriter.writeLine(invoke);
+				if(! cppMethod.hasResult()) {
+					codeWriter.writeLine("return;");
+				}
 			codeWriter.endBlock();
-			if(! cppMethod.isPureVirtual()) {
+			if(cppMethod.isPureVirtual()) {
+				if(cppMethod.isPureVirtual()) {
+					codeWriter.writeLine("throw \"Abstract method\";");
+				}
+			}
+			else {
+				invoke = this.cppClass.getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
+				if(cppMethod.hasResult()) {
+					invoke = "return " + invoke;
+				}
+				codeWriter.writeLine(invoke);
+			}
+		codeWriter.endBlock("");
+
+		prototype = Util.getInvokablePrototype(cppMethod, WriterUtil.getMethodSuperName(cppMethod));
+		if(cppMethod.isConst()) {
+			prototype = prototype + " const";
+		}
+		codeWriter.writeLine(prototype);
+		codeWriter.beginBlock();
+			if(cppMethod.isPureVirtual()) {
+				if(cppMethod.isPureVirtual()) {
+					codeWriter.writeLine("throw \"Abstract method\";");
+				}
+			}
+			else {
 				invoke = this.cppClass.getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
 				if(cppMethod.hasResult()) {
 					invoke = "return " + invoke;
@@ -93,14 +106,19 @@ public class ClassWrapperWriter {
 		codeWriter.endBlock("");
 	}
 	
+	public void writeSuperMethodBind(CppWriter codeWriter) {
+		for(int i = 0; i < this.overrideMethodList.size(); ++i) {
+			CppMethod cppMethod = this.overrideMethodList.get(i);
+			WriterUtil.reflectMethod(codeWriter, "_d", "D::ClassType::", cppMethod, WriterUtil.getMethodSuperName(cppMethod), true);
+		}
+	}
+	
 	public void writeClassWrapper(CppWriter codeWriter) {
 		codeWriter.write("class " + this.getWrapperName() + " : public " + this.cppClass.getLiteralName() + ", public cpgf::GScriptWrapper ");
 		codeWriter.writeLine("{");
 		codeWriter.writeLine("public:");
 		codeWriter.incIndent();
 
-		codeWriter.writeLine("static bool " + this.getGuardName() + "[" + this.overrideMethodList.size() + "];");
-		
 		for(Constructor ctor : this.cppClass.getConstructorList()) {
 			codeWriter.writeLine("");
 			this.doWriteConstructor(codeWriter, ctor);
@@ -135,8 +153,4 @@ public class ClassWrapperWriter {
 		codeWriter.writeLine("_d._class(_nd);");
 	}
 
-	public void writeStaticInitializer(CppWriter codeWriter) {
-		codeWriter.writeLine("bool " + this.getWrapperName() + "::" + this.getGuardName() + "[" + this.overrideMethodList.size() + "] = { false };");
-	}
-	
 }

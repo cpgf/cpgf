@@ -11,8 +11,6 @@ using namespace cpgf;
 namespace meta_test { 
 
 
-bool SimpleOverrideWrapper::_cpgf_override_method_is_in_script[3] = { false };
-
 GDefineMetaInfo createMetaClass_SimpleOverride()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
