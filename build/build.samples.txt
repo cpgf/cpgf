@@ -5,6 +5,7 @@ set(TARGET_SAMPLESERIALIZATION sampleserialization)
 set(TARGET_SAMPLEOPENGL sampleopengl)
 set(TARGET_SAMPLEBOX2D samplebox2d)
 set(TARGET_SAMPLESFML samplesfml)
+set(TARGET_SAMPLEIRRLICHT sampleirrlicht)
 
 set(OUTNAME_SAMPLETUTORIALS tutorials)
 set(OUTNAME_SAMPLELUA samplelua)
@@ -13,6 +14,7 @@ set(OUTNAME_SAMPLESERIALIZATION sampleserialization)
 set(OUTNAME_SAMPLEOPENGL sampleopengl)
 set(OUTNAME_SAMPLEBOX2D samplebox2d)
 set(OUTNAME_SAMPLESFML samplesfml)
+set(OUTNAME_SAMPLEIRRLICHT sampleirrlichtl)
 
 set(SAMPLE_ROOT ${ROOT_PATH}/samples)
 set(SAMPLE_BIND_PATH ${SAMPLE_ROOT}/scriptbind)
@@ -230,6 +232,36 @@ if(${HAS_SFML})
 	)
 
 	target_link_libraries(${TARGET_SAMPLESFML} ${TARGET_LIB} ${SFML_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB})
+endif(${HAS_SFML})
+
+
+# sample irrlicht
+if(${HAS_IRRLICHT})
+	file(GLOB GLOB_SAMPLEIRRLICHT ${SAMPLE_ROOT}/irrlicht/*.cpp)
+	file(GLOB GLOB_METAIRRLICHT ${SRC_PATH}/metadata/irrlicht/*.cpp)
+	set(SRC_SAMPLEIRRLICHT
+		${GLOB_SAMPLEIRRLICHT}
+		${GLOB_METAIRRLICHT}
+		
+		${SAMPLE_ROOT}/samplescriptbindutil.cpp
+	)
+
+	add_executable(
+		${TARGET_SAMPLEIRRLICHT}
+		EXCLUDE_FROM_ALL
+			${SRC_SAMPLEIRRLICHT}
+	)
+
+	include_directories(${IRRLICHT_INC})
+
+	set_target_properties(
+		${TARGET_SAMPLESFML}
+		PROPERTIES
+		OUTPUT_NAME ${OUTNAME_SAMPLEIRRLICHT}
+		COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
+	)
+
+	target_link_libraries(${TARGET_SAMPLEIRRLICHT} ${TARGET_LIB} ${IRRLICHT_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB})
 endif(${HAS_SFML})
 
 

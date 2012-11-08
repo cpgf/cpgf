@@ -40,6 +40,10 @@ set(HAS_BOX2D 1) #release=false
 # this value is not used in library, only used in samples
 set(HAS_SFML 1) #release=false
 
+# whether we have irrlicht library
+# this value is not used in library, only used in samples
+set(HAS_IRRLICHT 1) #release=false
+
 
 
 ### Unit test config
@@ -172,6 +176,22 @@ if(MSVC)
 endif(MSVC)
 
 set(SFML_INC ${SFML_DIR}/include)
+
+
+### irrlicht config
+
+set(IRRLICHT_DIR
+	E:/SourceCode/CPP/irrlicht-1.7.3
+)
+if(CMAKE_COMPILER_IS_GNUCC)
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(MSVC)
+	set(IRRLICHT_LIB_DIR ${IRRLICHT_DIR}/lib/Win32-visualstudio)
+	set(IRRLICHT_LIB ${IRRLICHT_LIB_DIR}/Irrlicht.lib)
+endif(MSVC)
+
+set(IRRLICHT_INC ${IRRLICHT_DIR}/include)
 
 
 ### Boost config
