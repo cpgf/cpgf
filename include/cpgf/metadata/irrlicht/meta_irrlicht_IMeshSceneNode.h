@@ -24,10 +24,10 @@ void buildMetaClass_IMeshSceneNode(const cpgf::GMetaDataConfigFlags & config, D 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("getMesh", &D::ClassType::getMesh);
-    _d.CPGF_MD_TEMPLATE _method("isReadOnlyMaterials", &D::ClassType::isReadOnlyMaterials);
     _d.CPGF_MD_TEMPLATE _method("setMesh", &D::ClassType::setMesh);
+    _d.CPGF_MD_TEMPLATE _method("getMesh", &D::ClassType::getMesh);
     _d.CPGF_MD_TEMPLATE _method("setReadOnlyMaterials", &D::ClassType::setReadOnlyMaterials);
+    _d.CPGF_MD_TEMPLATE _method("isReadOnlyMaterials", &D::ClassType::isReadOnlyMaterials);
 }
 
 

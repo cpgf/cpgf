@@ -24,7 +24,16 @@ void buildMetaClass_IParticleSystemSceneNode(const cpgf::GMetaDataConfigFlags & 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _method("setParticleSize", &D::ClassType::setParticleSize)
+        ._default(copyVariantFromCopyable(core::dimension2d< f32 >(5.0f, 5.0f)))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("setParticlesAreGlobal", &D::ClassType::setParticlesAreGlobal)
+        ._default(copyVariantFromCopyable(true))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("getEmitter", &D::ClassType::getEmitter);
+    _d.CPGF_MD_TEMPLATE _method("setEmitter", &D::ClassType::setEmitter);
     _d.CPGF_MD_TEMPLATE _method("addAffector", &D::ClassType::addAffector);
+    _d.CPGF_MD_TEMPLATE _method("removeAllAffectors", &D::ClassType::removeAllAffectors);
     _d.CPGF_MD_TEMPLATE _method("createAnimatedMeshSceneNodeEmitter", &D::ClassType::createAnimatedMeshSceneNodeEmitter)
         ._default(copyVariantFromCopyable(core::dimension2df(5.0f, 5.0f)))
         ._default(copyVariantFromCopyable(core::dimension2df(5.0f, 5.0f)))
@@ -40,13 +49,6 @@ void buildMetaClass_IParticleSystemSceneNode(const cpgf::GMetaDataConfigFlags & 
         ._default(copyVariantFromCopyable(100.0f))
         ._default(copyVariantFromCopyable(core::vector3df(0.0f, 0.03f, 0.0f)))
         ._default(copyVariantFromCopyable(true))
-    ;
-    _d.CPGF_MD_TEMPLATE _method("createAttractionAffector", &D::ClassType::createAttractionAffector)
-        ._default(copyVariantFromCopyable(true))
-        ._default(copyVariantFromCopyable(true))
-        ._default(copyVariantFromCopyable(true))
-        ._default(copyVariantFromCopyable(true))
-        ._default(copyVariantFromCopyable(1.0f))
     ;
     _d.CPGF_MD_TEMPLATE _method("createBoxEmitter", &D::ClassType::createBoxEmitter)
         ._default(copyVariantFromCopyable(core::dimension2df(5.0f, 5.0f)))
@@ -73,14 +75,6 @@ void buildMetaClass_IParticleSystemSceneNode(const cpgf::GMetaDataConfigFlags & 
         ._default(copyVariantFromCopyable(5))
         ._default(copyVariantFromCopyable(core::vector3df(0.0f, 0.03f, 0.0f)))
         ._default(copyVariantFromCopyable(false))
-    ;
-    _d.CPGF_MD_TEMPLATE _method("createFadeOutParticleAffector", &D::ClassType::createFadeOutParticleAffector)
-        ._default(copyVariantFromCopyable(1000))
-        ._default(copyVariantFromCopyable(video::SColor(0, 0, 0, 0)))
-    ;
-    _d.CPGF_MD_TEMPLATE _method("createGravityAffector", &D::ClassType::createGravityAffector)
-        ._default(copyVariantFromCopyable(1000))
-        ._default(copyVariantFromCopyable(core::vector3df(0.0f,-0.03f, 0.0f)))
     ;
     _d.CPGF_MD_TEMPLATE _method("createMeshEmitter", &D::ClassType::createMeshEmitter)
         ._default(copyVariantFromCopyable(core::dimension2df(5.0f, 5.0f)))
@@ -122,13 +116,6 @@ void buildMetaClass_IParticleSystemSceneNode(const cpgf::GMetaDataConfigFlags & 
         ._default(copyVariantFromCopyable(5))
         ._default(copyVariantFromCopyable(core::vector3df(0.0f, 0.03f, 0.0f)))
     ;
-    _d.CPGF_MD_TEMPLATE _method("createRotationAffector", &D::ClassType::createRotationAffector)
-        ._default(copyVariantFromCopyable(core::vector3df(0.0f, 0.0f, 0.0f)))
-        ._default(copyVariantFromCopyable(core::vector3df(5.0f, 5.0f, 5.0f)))
-    ;
-    _d.CPGF_MD_TEMPLATE _method("createScaleParticleAffector", &D::ClassType::createScaleParticleAffector)
-        ._default(copyVariantFromCopyable(core::dimension2df(1.0f, 1.0f)))
-    ;
     _d.CPGF_MD_TEMPLATE _method("createSphereEmitter", &D::ClassType::createSphereEmitter)
         ._default(copyVariantFromCopyable(core::dimension2df(5.0f, 5.0f)))
         ._default(copyVariantFromCopyable(core::dimension2df(5.0f, 5.0f)))
@@ -141,14 +128,27 @@ void buildMetaClass_IParticleSystemSceneNode(const cpgf::GMetaDataConfigFlags & 
         ._default(copyVariantFromCopyable(5))
         ._default(copyVariantFromCopyable(core::vector3df(0.0f, 0.03f, 0.0f)))
     ;
-    _d.CPGF_MD_TEMPLATE _method("getEmitter", &D::ClassType::getEmitter);
-    _d.CPGF_MD_TEMPLATE _method("removeAllAffectors", &D::ClassType::removeAllAffectors);
-    _d.CPGF_MD_TEMPLATE _method("setEmitter", &D::ClassType::setEmitter);
-    _d.CPGF_MD_TEMPLATE _method("setParticlesAreGlobal", &D::ClassType::setParticlesAreGlobal)
+    _d.CPGF_MD_TEMPLATE _method("createAttractionAffector", &D::ClassType::createAttractionAffector)
         ._default(copyVariantFromCopyable(true))
+        ._default(copyVariantFromCopyable(true))
+        ._default(copyVariantFromCopyable(true))
+        ._default(copyVariantFromCopyable(true))
+        ._default(copyVariantFromCopyable(1.0f))
     ;
-    _d.CPGF_MD_TEMPLATE _method("setParticleSize", &D::ClassType::setParticleSize)
-        ._default(copyVariantFromCopyable(core::dimension2d< f32 >(5.0f, 5.0f)))
+    _d.CPGF_MD_TEMPLATE _method("createScaleParticleAffector", &D::ClassType::createScaleParticleAffector)
+        ._default(copyVariantFromCopyable(core::dimension2df(1.0f, 1.0f)))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("createFadeOutParticleAffector", &D::ClassType::createFadeOutParticleAffector)
+        ._default(copyVariantFromCopyable(1000))
+        ._default(copyVariantFromCopyable(video::SColor(0, 0, 0, 0)))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("createGravityAffector", &D::ClassType::createGravityAffector)
+        ._default(copyVariantFromCopyable(1000))
+        ._default(copyVariantFromCopyable(core::vector3df(0.0f,-0.03f, 0.0f)))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("createRotationAffector", &D::ClassType::createRotationAffector)
+        ._default(copyVariantFromCopyable(core::vector3df(0.0f, 0.0f, 0.0f)))
+        ._default(copyVariantFromCopyable(core::vector3df(5.0f, 5.0f, 5.0f)))
     ;
 }
 

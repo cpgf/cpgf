@@ -58,37 +58,37 @@ void buildMetaClass_IGUITable(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("addColumn", &D::ClassType::addColumn)
         ._default(copyVariantFromCopyable(-1))
     ;
-    _d.CPGF_MD_TEMPLATE _method("addRow", &D::ClassType::addRow);
-    _d.CPGF_MD_TEMPLATE _method("clear", &D::ClassType::clear);
-    _d.CPGF_MD_TEMPLATE _method("clearRows", &D::ClassType::clearRows);
+    _d.CPGF_MD_TEMPLATE _method("removeColumn", &D::ClassType::removeColumn);
+    _d.CPGF_MD_TEMPLATE _method("getColumnCount", &D::ClassType::getColumnCount);
+    _d.CPGF_MD_TEMPLATE _method("setActiveColumn", &D::ClassType::setActiveColumn)
+        ._default(copyVariantFromCopyable(false))
+    ;
     _d.CPGF_MD_TEMPLATE _method("getActiveColumn", &D::ClassType::getActiveColumn);
     _d.CPGF_MD_TEMPLATE _method("getActiveColumnOrdering", &D::ClassType::getActiveColumnOrdering);
-    _d.CPGF_MD_TEMPLATE _method("getCellData", &D::ClassType::getCellData);
-    _d.CPGF_MD_TEMPLATE _method("getCellText", &D::ClassType::getCellText);
-    _d.CPGF_MD_TEMPLATE _method("getColumnCount", &D::ClassType::getColumnCount);
-    _d.CPGF_MD_TEMPLATE _method("getDrawFlags", &D::ClassType::getDrawFlags);
-    _d.CPGF_MD_TEMPLATE _method("getRowCount", &D::ClassType::getRowCount);
-    _d.CPGF_MD_TEMPLATE _method("getSelected", &D::ClassType::getSelected);
+    _d.CPGF_MD_TEMPLATE _method("setColumnWidth", &D::ClassType::setColumnWidth);
+    _d.CPGF_MD_TEMPLATE _method("setResizableColumns", &D::ClassType::setResizableColumns);
     _d.CPGF_MD_TEMPLATE _method("hasResizableColumns", &D::ClassType::hasResizableColumns);
+    _d.CPGF_MD_TEMPLATE _method("setColumnOrdering", &D::ClassType::setColumnOrdering);
+    _d.CPGF_MD_TEMPLATE _method("getSelected", &D::ClassType::getSelected);
+    _d.CPGF_MD_TEMPLATE _method("setSelected", &D::ClassType::setSelected);
+    _d.CPGF_MD_TEMPLATE _method("getRowCount", &D::ClassType::getRowCount);
+    _d.CPGF_MD_TEMPLATE _method("addRow", &D::ClassType::addRow);
+    _d.CPGF_MD_TEMPLATE _method("removeRow", &D::ClassType::removeRow);
+    _d.CPGF_MD_TEMPLATE _method("clearRows", &D::ClassType::clearRows);
+    _d.CPGF_MD_TEMPLATE _method("swapRows", &D::ClassType::swapRows);
     _d.CPGF_MD_TEMPLATE _method("orderRows", &D::ClassType::orderRows)
         ._default(copyVariantFromCopyable(EGOM_NONE))
         ._default(copyVariantFromCopyable(-1))
     ;
-    _d.CPGF_MD_TEMPLATE _method("removeColumn", &D::ClassType::removeColumn);
-    _d.CPGF_MD_TEMPLATE _method("removeRow", &D::ClassType::removeRow);
-    _d.CPGF_MD_TEMPLATE _method("setActiveColumn", &D::ClassType::setActiveColumn)
-        ._default(copyVariantFromCopyable(false))
-    ;
-    _d.CPGF_MD_TEMPLATE _method("setCellColor", &D::ClassType::setCellColor);
-    _d.CPGF_MD_TEMPLATE _method("setCellData", &D::ClassType::setCellData);
     _d.CPGF_MD_TEMPLATE _method("setCellText", (void (D::ClassType::*) (u32, u32, const core::stringw &))&D::ClassType::setCellText);
     _d.CPGF_MD_TEMPLATE _method("setCellText", (void (D::ClassType::*) (u32, u32, const core::stringw &, video::SColor))&D::ClassType::setCellText);
-    _d.CPGF_MD_TEMPLATE _method("setColumnOrdering", &D::ClassType::setColumnOrdering);
-    _d.CPGF_MD_TEMPLATE _method("setColumnWidth", &D::ClassType::setColumnWidth);
+    _d.CPGF_MD_TEMPLATE _method("setCellData", &D::ClassType::setCellData);
+    _d.CPGF_MD_TEMPLATE _method("setCellColor", &D::ClassType::setCellColor);
+    _d.CPGF_MD_TEMPLATE _method("getCellText", &D::ClassType::getCellText);
+    _d.CPGF_MD_TEMPLATE _method("getCellData", &D::ClassType::getCellData);
+    _d.CPGF_MD_TEMPLATE _method("clear", &D::ClassType::clear);
     _d.CPGF_MD_TEMPLATE _method("setDrawFlags", &D::ClassType::setDrawFlags);
-    _d.CPGF_MD_TEMPLATE _method("setResizableColumns", &D::ClassType::setResizableColumns);
-    _d.CPGF_MD_TEMPLATE _method("setSelected", &D::ClassType::setSelected);
-    _d.CPGF_MD_TEMPLATE _method("swapRows", &D::ClassType::swapRows);
+    _d.CPGF_MD_TEMPLATE _method("getDrawFlags", &D::ClassType::getDrawFlags);
 }
 
 

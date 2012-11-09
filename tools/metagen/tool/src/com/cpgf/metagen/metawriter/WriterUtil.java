@@ -61,7 +61,11 @@ public class WriterUtil {
 			}
 		}
 		else {
-			String typeName = "GDefineMetaClass<" + cppClass.getQualifiedName();
+			String prefix = "";
+			if(cppClass.getOwner() != null && cppClass.getOwner().isTemplate()) {
+				prefix = "typename ";
+			}
+			String typeName = "GDefineMetaClass<" + prefix + cppClass.getQualifiedName();
 
 			typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
 			

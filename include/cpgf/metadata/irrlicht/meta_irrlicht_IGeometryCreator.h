@@ -12,8 +12,8 @@
 
 
 using namespace irr;
-using namespace irr::scene;
 using namespace irr::video;
+using namespace irr::scene;
 
 
 namespace meta_irrlicht { 
@@ -25,6 +25,14 @@ void buildMetaClass_IGeometryCreator(const cpgf::GMetaDataConfigFlags & config, 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _method("createCubeMesh", &D::ClassType::createCubeMesh)
+        ._default(copyVariantFromCopyable(core::vector3df(5.f, 5.f, 5.f)))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("createHillPlaneMesh", &D::ClassType::createHillPlaneMesh);
+    _d.CPGF_MD_TEMPLATE _method("createPlaneMesh", &D::ClassType::createPlaneMesh);
+    _d.CPGF_MD_TEMPLATE _method("createTerrainMesh", &D::ClassType::createTerrainMesh)
+        ._default(copyVariantFromCopyable(false))
+    ;
     _d.CPGF_MD_TEMPLATE _method("createArrowMesh", &D::ClassType::createArrowMesh)
         ._default(copyVariantFromCopyable(0xFFFFFFFF))
         ._default(copyVariantFromCopyable(0xFFFFFFFF))
@@ -35,28 +43,20 @@ void buildMetaClass_IGeometryCreator(const cpgf::GMetaDataConfigFlags & config, 
         ._default(copyVariantFromCopyable(8))
         ._default(copyVariantFromCopyable(4))
     ;
-    _d.CPGF_MD_TEMPLATE _method("createConeMesh", &D::ClassType::createConeMesh)
-        ._default(copyVariantFromCopyable(0.f))
-        ._default(copyVariantFromCopyable(video::SColor(0xffffffff)))
-        ._default(copyVariantFromCopyable(video::SColor(0xffffffff)))
-    ;
-    _d.CPGF_MD_TEMPLATE _method("createCubeMesh", &D::ClassType::createCubeMesh)
-        ._default(copyVariantFromCopyable(core::vector3df(5.f, 5.f, 5.f)))
+    _d.CPGF_MD_TEMPLATE _method("createSphereMesh", &D::ClassType::createSphereMesh)
+        ._default(copyVariantFromCopyable(16))
+        ._default(copyVariantFromCopyable(16))
+        ._default(copyVariantFromCopyable(5.f))
     ;
     _d.CPGF_MD_TEMPLATE _method("createCylinderMesh", &D::ClassType::createCylinderMesh)
         ._default(copyVariantFromCopyable(0.f))
         ._default(copyVariantFromCopyable(true))
         ._default(copyVariantFromCopyable(video::SColor(0xffffffff)))
     ;
-    _d.CPGF_MD_TEMPLATE _method("createHillPlaneMesh", &D::ClassType::createHillPlaneMesh);
-    _d.CPGF_MD_TEMPLATE _method("createPlaneMesh", &D::ClassType::createPlaneMesh);
-    _d.CPGF_MD_TEMPLATE _method("createSphereMesh", &D::ClassType::createSphereMesh)
-        ._default(copyVariantFromCopyable(16))
-        ._default(copyVariantFromCopyable(16))
-        ._default(copyVariantFromCopyable(5.f))
-    ;
-    _d.CPGF_MD_TEMPLATE _method("createTerrainMesh", &D::ClassType::createTerrainMesh)
-        ._default(copyVariantFromCopyable(false))
+    _d.CPGF_MD_TEMPLATE _method("createConeMesh", &D::ClassType::createConeMesh)
+        ._default(copyVariantFromCopyable(0.f))
+        ._default(copyVariantFromCopyable(video::SColor(0xffffffff)))
+        ._default(copyVariantFromCopyable(video::SColor(0xffffffff)))
     ;
     _d.CPGF_MD_TEMPLATE _method("createVolumeLightMesh", &D::ClassType::createVolumeLightMesh)
         ._default(copyVariantFromCopyable(core::vector3df(1.f, 1.2f, 1.f)))

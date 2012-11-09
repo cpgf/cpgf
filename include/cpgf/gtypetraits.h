@@ -470,6 +470,13 @@ struct IsAbstractClass
 #endif
 
 
+template <typename T>
+struct IsFunction
+{
+	G_STATIC_CONSTANT(bool, Result = GFunctionTraits<T>::IsFunction);
+};
+
+
 #if defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable:4244)
@@ -500,7 +507,9 @@ struct IsConvertible <From, To, typename GEnableIfResult<
 		IsAbstractClass<From>,
 		IsAbstractClass<To>,
 		IsArray<From>,
-		IsArray<To>
+		IsArray<To>,
+		IsFunction<From>,
+		IsFunction<To>
 	>
 	>::Result>
 {
@@ -517,13 +526,6 @@ struct IsConvertible
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
-
-
-template <typename T>
-struct IsFunction
-{
-	G_STATIC_CONSTANT(bool, Result = GFunctionTraits<T>::IsFunction);
-};
 
 
 #if defined(_MSC_VER)

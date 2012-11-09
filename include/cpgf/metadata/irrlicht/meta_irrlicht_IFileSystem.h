@@ -12,8 +12,8 @@
 
 
 using namespace irr;
-using namespace irr::io;
 using namespace irr::video;
+using namespace irr::io;
 
 
 namespace meta_irrlicht { 
@@ -25,10 +25,30 @@ void buildMetaClass_IFileSystem(const cpgf::GMetaDataConfigFlags & config, D _d)
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("addArchiveLoader", &D::ClassType::addArchiveLoader);
+    _d.CPGF_MD_TEMPLATE _method("createAndOpenFile", &D::ClassType::createAndOpenFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("createMemoryReadFile", &D::ClassType::createMemoryReadFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >())
+        ._default(copyVariantFromCopyable(false))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("createLimitReadFile", &D::ClassType::createLimitReadFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("createMemoryWriteFile", &D::ClassType::createMemoryWriteFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >())
+        ._default(copyVariantFromCopyable(false))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("createAndWriteFile", &D::ClassType::createAndWriteFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
+        ._default(copyVariantFromCopyable(false))
+    ;
     _d.CPGF_MD_TEMPLATE _method("addFileArchive", &D::ClassType::addFileArchive, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
         ._default(copyVariantFromCopyable(""))
         ._default(copyVariantFromCopyable(EFAT_UNKNOWN))
+        ._default(copyVariantFromCopyable(true))
+        ._default(copyVariantFromCopyable(true))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("addArchiveLoader", &D::ClassType::addArchiveLoader);
+    _d.CPGF_MD_TEMPLATE _method("getFileArchiveCount", &D::ClassType::getFileArchiveCount);
+    _d.CPGF_MD_TEMPLATE _method("removeFileArchive", (bool (D::ClassType::*) (u32))&D::ClassType::removeFileArchive);
+    _d.CPGF_MD_TEMPLATE _method("removeFileArchive", (bool (D::ClassType::*) (const path &))&D::ClassType::removeFileArchive, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("moveFileArchive", &D::ClassType::moveFileArchive);
+    _d.CPGF_MD_TEMPLATE _method("getFileArchive", &D::ClassType::getFileArchive);
+    _d.CPGF_MD_TEMPLATE _method("addZipFileArchive", &D::ClassType::addZipFileArchive)
         ._default(copyVariantFromCopyable(true))
         ._default(copyVariantFromCopyable(true))
     ;
@@ -40,49 +60,29 @@ void buildMetaClass_IFileSystem(const cpgf::GMetaDataConfigFlags & config, D _d)
         ._default(copyVariantFromCopyable(true))
         ._default(copyVariantFromCopyable(true))
     ;
-    _d.CPGF_MD_TEMPLATE _method("addZipFileArchive", &D::ClassType::addZipFileArchive)
-        ._default(copyVariantFromCopyable(true))
-        ._default(copyVariantFromCopyable(true))
-    ;
+    _d.CPGF_MD_TEMPLATE _method("getWorkingDirectory", &D::ClassType::getWorkingDirectory, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
     _d.CPGF_MD_TEMPLATE _method("changeWorkingDirectoryTo", &D::ClassType::changeWorkingDirectoryTo, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("createAndOpenFile", &D::ClassType::createAndOpenFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("createAndWriteFile", &D::ClassType::createAndWriteFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
-        ._default(copyVariantFromCopyable(false))
+    _d.CPGF_MD_TEMPLATE _method("getAbsolutePath", &D::ClassType::getAbsolutePath, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("getFileDir", &D::ClassType::getFileDir, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("getFileBasename", &D::ClassType::getFileBasename, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
+        ._default(copyVariantFromCopyable(true))
     ;
-    _d.CPGF_MD_TEMPLATE _method("createEmptyAttributes", &D::ClassType::createEmptyAttributes)
-        ._default(copyVariantFromCopyable(0))
+    _d.CPGF_MD_TEMPLATE _method("flattenFilename", &D::ClassType::flattenFilename, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >())
+        ._default(copyVariantFromCopyable("/"))
     ;
-    _d.CPGF_MD_TEMPLATE _method("createEmptyFileList", &D::ClassType::createEmptyFileList, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("createFileList", &D::ClassType::createFileList);
-    _d.CPGF_MD_TEMPLATE _method("createLimitReadFile", &D::ClassType::createLimitReadFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("createMemoryReadFile", &D::ClassType::createMemoryReadFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >())
-        ._default(copyVariantFromCopyable(false))
-    ;
-    _d.CPGF_MD_TEMPLATE _method("createMemoryWriteFile", &D::ClassType::createMemoryWriteFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >())
-        ._default(copyVariantFromCopyable(false))
-    ;
+    _d.CPGF_MD_TEMPLATE _method("createEmptyFileList", &D::ClassType::createEmptyFileList, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("setFileListSystem", &D::ClassType::setFileListSystem);
+    _d.CPGF_MD_TEMPLATE _method("existFile", &D::ClassType::existFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("createXMLReader", (IXMLReader * (D::ClassType::*) (const path &))&D::ClassType::createXMLReader, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("createXMLReader", (IXMLReader * (D::ClassType::*) (IReadFile *))&D::ClassType::createXMLReader);
     _d.CPGF_MD_TEMPLATE _method("createXMLReaderUTF8", (IXMLReaderUTF8 * (D::ClassType::*) (const path &))&D::ClassType::createXMLReaderUTF8, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("createXMLReaderUTF8", (IXMLReaderUTF8 * (D::ClassType::*) (IReadFile *))&D::ClassType::createXMLReaderUTF8);
     _d.CPGF_MD_TEMPLATE _method("createXMLWriter", (IXMLWriter * (D::ClassType::*) (const path &))&D::ClassType::createXMLWriter, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("createXMLWriter", (IXMLWriter * (D::ClassType::*) (IWriteFile *))&D::ClassType::createXMLWriter);
-    _d.CPGF_MD_TEMPLATE _method("existFile", &D::ClassType::existFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("flattenFilename", &D::ClassType::flattenFilename, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >())
-        ._default(copyVariantFromCopyable("/"))
+    _d.CPGF_MD_TEMPLATE _method("createEmptyAttributes", &D::ClassType::createEmptyAttributes)
+        ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _method("getAbsolutePath", &D::ClassType::getAbsolutePath, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("getFileArchive", &D::ClassType::getFileArchive);
-    _d.CPGF_MD_TEMPLATE _method("getFileArchiveCount", &D::ClassType::getFileArchiveCount);
-    _d.CPGF_MD_TEMPLATE _method("getFileBasename", &D::ClassType::getFileBasename, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
-        ._default(copyVariantFromCopyable(true))
-    ;
-    _d.CPGF_MD_TEMPLATE _method("getFileDir", &D::ClassType::getFileDir, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("getWorkingDirectory", &D::ClassType::getWorkingDirectory, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
-    _d.CPGF_MD_TEMPLATE _method("moveFileArchive", &D::ClassType::moveFileArchive);
-    _d.CPGF_MD_TEMPLATE _method("removeFileArchive", (bool (D::ClassType::*) (u32))&D::ClassType::removeFileArchive);
-    _d.CPGF_MD_TEMPLATE _method("removeFileArchive", (bool (D::ClassType::*) (const path &))&D::ClassType::removeFileArchive, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("setFileListSystem", &D::ClassType::setFileListSystem);
 }
 
 

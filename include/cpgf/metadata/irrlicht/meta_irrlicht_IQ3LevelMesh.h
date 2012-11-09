@@ -24,11 +24,11 @@ void buildMetaClass_IQ3LevelMesh(const cpgf::GMetaDataConfigFlags & config, D _d
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("getEntityList", &D::ClassType::getEntityList);
     _d.CPGF_MD_TEMPLATE _method("getShader", (const quake3::IShader * (D::ClassType::*) (const c8 *, bool))&D::ClassType::getShader)
         ._default(copyVariantFromCopyable(true))
     ;
     _d.CPGF_MD_TEMPLATE _method("getShader", (const quake3::IShader * (D::ClassType::*) (u32) const)&D::ClassType::getShader);
+    _d.CPGF_MD_TEMPLATE _method("getEntityList", &D::ClassType::getEntityList);
 }
 
 

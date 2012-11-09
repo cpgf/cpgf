@@ -24,15 +24,15 @@ void buildMetaClass_SParticle(const cpgf::GMetaDataConfigFlags & config, D _d)
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field("color", &D::ClassType::color);
-    _d.CPGF_MD_TEMPLATE _field("endTime", &D::ClassType::endTime);
     _d.CPGF_MD_TEMPLATE _field("pos", &D::ClassType::pos);
-    _d.CPGF_MD_TEMPLATE _field("size", &D::ClassType::size);
-    _d.CPGF_MD_TEMPLATE _field("startColor", &D::ClassType::startColor);
-    _d.CPGF_MD_TEMPLATE _field("startSize", &D::ClassType::startSize);
-    _d.CPGF_MD_TEMPLATE _field("startTime", &D::ClassType::startTime);
-    _d.CPGF_MD_TEMPLATE _field("startVector", &D::ClassType::startVector);
     _d.CPGF_MD_TEMPLATE _field("vector", &D::ClassType::vector);
+    _d.CPGF_MD_TEMPLATE _field("startTime", &D::ClassType::startTime);
+    _d.CPGF_MD_TEMPLATE _field("endTime", &D::ClassType::endTime);
+    _d.CPGF_MD_TEMPLATE _field("color", &D::ClassType::color);
+    _d.CPGF_MD_TEMPLATE _field("startColor", &D::ClassType::startColor);
+    _d.CPGF_MD_TEMPLATE _field("startVector", &D::ClassType::startVector);
+    _d.CPGF_MD_TEMPLATE _field("size", &D::ClassType::size);
+    _d.CPGF_MD_TEMPLATE _field("startSize", &D::ClassType::startSize);
 }
 
 

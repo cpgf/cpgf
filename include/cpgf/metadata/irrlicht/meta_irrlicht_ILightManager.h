@@ -24,12 +24,12 @@ void buildMetaClass_ILightManager(const cpgf::GMetaDataConfigFlags & config, D _
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("OnNodePostRender", &D::ClassType::OnNodePostRender);
-    _d.CPGF_MD_TEMPLATE _method("OnNodePreRender", &D::ClassType::OnNodePreRender);
-    _d.CPGF_MD_TEMPLATE _method("OnPostRender", &D::ClassType::OnPostRender);
     _d.CPGF_MD_TEMPLATE _method("OnPreRender", &D::ClassType::OnPreRender);
-    _d.CPGF_MD_TEMPLATE _method("OnRenderPassPostRender", &D::ClassType::OnRenderPassPostRender);
+    _d.CPGF_MD_TEMPLATE _method("OnPostRender", &D::ClassType::OnPostRender);
     _d.CPGF_MD_TEMPLATE _method("OnRenderPassPreRender", &D::ClassType::OnRenderPassPreRender);
+    _d.CPGF_MD_TEMPLATE _method("OnRenderPassPostRender", &D::ClassType::OnRenderPassPostRender);
+    _d.CPGF_MD_TEMPLATE _method("OnNodePreRender", &D::ClassType::OnNodePreRender);
+    _d.CPGF_MD_TEMPLATE _method("OnNodePostRender", &D::ClassType::OnNodePostRender);
 }
 
 

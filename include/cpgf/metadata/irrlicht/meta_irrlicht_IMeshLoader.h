@@ -25,8 +25,8 @@ void buildMetaClass_IMeshLoader(const cpgf::GMetaDataConfigFlags & config, D _d)
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("createMesh", &D::ClassType::createMesh);
     _d.CPGF_MD_TEMPLATE _method("isALoadableFileExtension", &D::ClassType::isALoadableFileExtension, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("createMesh", &D::ClassType::createMesh);
 }
 
 

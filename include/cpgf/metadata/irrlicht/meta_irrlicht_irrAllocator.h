@@ -39,8 +39,8 @@ void buildMetaClass_IrrAllocator(const cpgf::GMetaDataConfigFlags & config, D _d
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("allocate", &D::ClassType::allocate);
-    _d.CPGF_MD_TEMPLATE _method("construct", &D::ClassType::construct);
     _d.CPGF_MD_TEMPLATE _method("deallocate", &D::ClassType::deallocate);
+    _d.CPGF_MD_TEMPLATE _method("construct", &D::ClassType::construct);
     _d.CPGF_MD_TEMPLATE _method("destruct", &D::ClassType::destruct);
 }
 
@@ -52,8 +52,8 @@ void buildMetaClass_IrrAllocatorFast(const cpgf::GMetaDataConfigFlags & config, 
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("allocate", &D::ClassType::allocate);
-    _d.CPGF_MD_TEMPLATE _method("construct", &D::ClassType::construct);
     _d.CPGF_MD_TEMPLATE _method("deallocate", &D::ClassType::deallocate);
+    _d.CPGF_MD_TEMPLATE _method("construct", &D::ClassType::construct);
     _d.CPGF_MD_TEMPLATE _method("destruct", &D::ClassType::destruct);
 }
 

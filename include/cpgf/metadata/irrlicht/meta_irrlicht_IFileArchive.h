@@ -24,6 +24,10 @@ void buildMetaClass_Global_ifilearchive(const cpgf::GMetaDataConfigFlags & confi
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _enum<EFileSystemType>("EFileSystemType")
+        ._element("FILESYSTEM_NATIVE", irr::io::FILESYSTEM_NATIVE)
+        ._element("FILESYSTEM_VIRTUAL", irr::io::FILESYSTEM_VIRTUAL)
+    ;
     _d.CPGF_MD_TEMPLATE _enum<E_FILE_ARCHIVE_TYPE>("E_FILE_ARCHIVE_TYPE")
         ._element("EFAT_ZIP", irr::io::EFAT_ZIP)
         ._element("EFAT_GZIP", irr::io::EFAT_GZIP)
@@ -32,10 +36,6 @@ void buildMetaClass_Global_ifilearchive(const cpgf::GMetaDataConfigFlags & confi
         ._element("EFAT_NPK", irr::io::EFAT_NPK)
         ._element("EFAT_TAR", irr::io::EFAT_TAR)
         ._element("EFAT_UNKNOWN", irr::io::EFAT_UNKNOWN)
-    ;
-    _d.CPGF_MD_TEMPLATE _enum<EFileSystemType>("EFileSystemType")
-        ._element("FILESYSTEM_NATIVE", irr::io::FILESYSTEM_NATIVE)
-        ._element("FILESYSTEM_VIRTUAL", irr::io::FILESYSTEM_VIRTUAL)
     ;
 }
 
@@ -46,11 +46,11 @@ void buildMetaClass_IArchiveLoader(const cpgf::GMetaDataConfigFlags & config, D 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("createArchive", (IFileArchive * (D::ClassType::*) (const path &, bool, bool) const)&D::ClassType::createArchive, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("createArchive", (IFileArchive * (D::ClassType::*) (io::IReadFile *, bool, bool) const)&D::ClassType::createArchive);
     _d.CPGF_MD_TEMPLATE _method("isALoadableFileFormat", (bool (D::ClassType::*) (const path &) const)&D::ClassType::isALoadableFileFormat, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("isALoadableFileFormat", (bool (D::ClassType::*) (io::IReadFile *) const)&D::ClassType::isALoadableFileFormat);
     _d.CPGF_MD_TEMPLATE _method("isALoadableFileFormat", (bool (D::ClassType::*) (E_FILE_ARCHIVE_TYPE) const)&D::ClassType::isALoadableFileFormat);
+    _d.CPGF_MD_TEMPLATE _method("createArchive", (IFileArchive * (D::ClassType::*) (const path &, bool, bool) const)&D::ClassType::createArchive, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("createArchive", (IFileArchive * (D::ClassType::*) (io::IReadFile *, bool, bool) const)&D::ClassType::createArchive);
 }
 
 

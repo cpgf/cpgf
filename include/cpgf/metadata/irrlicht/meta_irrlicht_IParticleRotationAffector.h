@@ -24,11 +24,11 @@ void buildMetaClass_IParticleRotationAffector(const cpgf::GMetaDataConfigFlags &
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _method("setPivotPoint", &D::ClassType::setPivotPoint);
+    _d.CPGF_MD_TEMPLATE _method("setSpeed", &D::ClassType::setSpeed);
     _d.CPGF_MD_TEMPLATE _method("getPivotPoint", &D::ClassType::getPivotPoint);
     _d.CPGF_MD_TEMPLATE _method("getSpeed", &D::ClassType::getSpeed);
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
-    _d.CPGF_MD_TEMPLATE _method("setPivotPoint", &D::ClassType::setPivotPoint);
-    _d.CPGF_MD_TEMPLATE _method("setSpeed", &D::ClassType::setSpeed);
 }
 
 

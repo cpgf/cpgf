@@ -23,11 +23,11 @@ void buildMetaClass_IOSOperator(const cpgf::GMetaDataConfigFlags & config, D _d)
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("copyToClipboard", &D::ClassType::copyToClipboard);
     _d.CPGF_MD_TEMPLATE _method("getOperationSystemVersion", &D::ClassType::getOperationSystemVersion);
+    _d.CPGF_MD_TEMPLATE _method("copyToClipboard", &D::ClassType::copyToClipboard);
+    _d.CPGF_MD_TEMPLATE _method("getTextFromClipboard", &D::ClassType::getTextFromClipboard);
     _d.CPGF_MD_TEMPLATE _method("getProcessorSpeedMHz", &D::ClassType::getProcessorSpeedMHz);
     _d.CPGF_MD_TEMPLATE _method("getSystemMemory", &D::ClassType::getSystemMemory);
-    _d.CPGF_MD_TEMPLATE _method("getTextFromClipboard", &D::ClassType::getTextFromClipboard);
 }
 
 

@@ -29,10 +29,10 @@ void buildMetaClass_ISceneNodeAnimator(const cpgf::GMetaDataConfigFlags & config
     _d.CPGF_MD_TEMPLATE _method("createClone", &D::ClassType::createClone)
         ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
-    _d.CPGF_MD_TEMPLATE _method("hasFinished", &D::ClassType::hasFinished);
     _d.CPGF_MD_TEMPLATE _method("isEventReceiverEnabled", &D::ClassType::isEventReceiverEnabled);
     _d.CPGF_MD_TEMPLATE _method("OnEvent", &D::ClassType::OnEvent);
+    _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
+    _d.CPGF_MD_TEMPLATE _method("hasFinished", &D::ClassType::hasFinished);
 }
 
 

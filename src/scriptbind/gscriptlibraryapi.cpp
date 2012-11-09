@@ -67,7 +67,7 @@ bool GScriptLibraryNamedLoaderHandler::handleLoadingScriptLibrary(GScriptLibrary
 	return this->doLoadPackageOrLibrary(loader, owner, namespaces, name);
 }
 
-bool GScriptLibraryNamedLoaderHandler::doLoadPackage(GScriptLibraryLoader * loader, IScriptObject * owner, const char * namespaces, const std::string & packageName)
+bool GScriptLibraryNamedLoaderHandler::doLoadPackage(GScriptLibraryLoader * loader, IScriptObject * /*owner*/, const char * namespaces, const std::string & packageName)
 {
 	string name = packageName + ".";
 	bool success = false;
@@ -84,7 +84,7 @@ bool GScriptLibraryNamedLoaderHandler::doLoadPackage(GScriptLibraryLoader * load
 	return success;
 }
 
-bool GScriptLibraryNamedLoaderHandler::doLoadSingleLibrary(GScriptLibraryLoader * loader, IScriptObject * owner, const char * namespaces, const std::string & libraryName)
+bool GScriptLibraryNamedLoaderHandler::doLoadSingleLibrary(GScriptLibraryLoader * loader, IScriptObject * /*owner*/, const char * namespaces, const std::string & libraryName)
 {
 	MapType::iterator it = this->nameCallbackMap.find(libraryName);
 	if(it != this->nameCallbackMap.end()) {

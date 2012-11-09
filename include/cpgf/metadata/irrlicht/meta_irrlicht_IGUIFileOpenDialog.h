@@ -24,8 +24,8 @@ void buildMetaClass_IGUIFileOpenDialog(const cpgf::GMetaDataConfigFlags & config
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("getDirectoryName", &D::ClassType::getDirectoryName, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
     _d.CPGF_MD_TEMPLATE _method("getFileName", &D::ClassType::getFileName);
+    _d.CPGF_MD_TEMPLATE _method("getDirectoryName", &D::ClassType::getDirectoryName, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
 }
 
 

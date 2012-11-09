@@ -26,28 +26,13 @@ void buildMetaClass_IShaderConstantSetCallBack(const cpgf::GMetaDataConfigFlags 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("OnSetConstants", &D::ClassType::OnSetConstants);
     _d.CPGF_MD_TEMPLATE _method("OnSetMaterial", &D::ClassType::OnSetMaterial);
+    _d.CPGF_MD_TEMPLATE _method("OnSetConstants", &D::ClassType::OnSetConstants);
 }
 
 
 class IShaderConstantSetCallBackWrapper : public irr::video::IShaderConstantSetCallBack, public cpgf::GScriptWrapper {
 public:
-    
-    void OnSetConstants(IMaterialRendererServices * services, s32 userData)
-    {
-        cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("OnSetConstants"));
-        if(func)
-        {
-            cpgf::invokeScriptFunction(func.get(), this, services, userData);
-            return;
-        }
-        throw "Abstract method";
-    }
-    void super_OnSetConstants(IMaterialRendererServices * services, s32 userData)
-    {
-        throw "Abstract method";
-    }
     
     void OnSetMaterial(const SMaterial & material)
     {
@@ -63,6 +48,21 @@ public:
     {
         irr::video::IShaderConstantSetCallBack::OnSetMaterial(material);
     }
+    
+    void OnSetConstants(IMaterialRendererServices * services, s32 userData)
+    {
+        cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("OnSetConstants"));
+        if(func)
+        {
+            cpgf::invokeScriptFunction(func.get(), this, services, userData);
+            return;
+        }
+        throw "Abstract method";
+    }
+    void super_OnSetConstants(IMaterialRendererServices * services, s32 userData)
+    {
+        throw "Abstract method";
+    }
 };
 
 
@@ -73,8 +73,8 @@ void buildMetaClass_IShaderConstantSetCallBackWrapper(const cpgf::GMetaDataConfi
     using namespace cpgf;
     
     
-    _d.CPGF_MD_TEMPLATE _method("super_OnSetConstants", (void (D::ClassType::*) (IMaterialRendererServices *, s32))&D::ClassType::super_OnSetConstants);
     _d.CPGF_MD_TEMPLATE _method("super_OnSetMaterial", (void (D::ClassType::*) (const SMaterial &))&D::ClassType::super_OnSetMaterial);
+    _d.CPGF_MD_TEMPLATE _method("super_OnSetConstants", (void (D::ClassType::*) (IMaterialRendererServices *, s32))&D::ClassType::super_OnSetConstants);
     
     buildMetaClass_IShaderConstantSetCallBack<D>(config, _d);
 }

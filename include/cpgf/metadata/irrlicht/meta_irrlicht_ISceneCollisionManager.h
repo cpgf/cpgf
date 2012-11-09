@@ -32,12 +32,11 @@ void buildMetaClass_ISceneCollisionManager(const cpgf::GMetaDataConfigFlags & co
     _d.CPGF_MD_TEMPLATE _method("getRayFromScreenCoordinates", &D::ClassType::getRayFromScreenCoordinates)
         ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _method("getSceneNodeAndCollisionPointFromRay", &D::ClassType::getSceneNodeAndCollisionPointFromRay)
-        ._default(copyVariantFromCopyable(false))
-        ._default(copyVariantFromCopyable(0))
+    _d.CPGF_MD_TEMPLATE _method("getScreenCoordinatesFrom3DPosition", &D::ClassType::getScreenCoordinatesFrom3DPosition)
         ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _method("getSceneNodeFromCameraBB", &D::ClassType::getSceneNodeFromCameraBB)
+    _d.CPGF_MD_TEMPLATE _method("getSceneNodeFromScreenCoordinatesBB", &D::ClassType::getSceneNodeFromScreenCoordinatesBB)
+        ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(0))
     ;
@@ -46,12 +45,13 @@ void buildMetaClass_ISceneCollisionManager(const cpgf::GMetaDataConfigFlags & co
         ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _method("getSceneNodeFromScreenCoordinatesBB", &D::ClassType::getSceneNodeFromScreenCoordinatesBB)
-        ._default(copyVariantFromCopyable(0))
+    _d.CPGF_MD_TEMPLATE _method("getSceneNodeFromCameraBB", &D::ClassType::getSceneNodeFromCameraBB)
         ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _method("getScreenCoordinatesFrom3DPosition", &D::ClassType::getScreenCoordinatesFrom3DPosition)
+    _d.CPGF_MD_TEMPLATE _method("getSceneNodeAndCollisionPointFromRay", &D::ClassType::getSceneNodeAndCollisionPointFromRay)
+        ._default(copyVariantFromCopyable(false))
+        ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(0))
     ;
 }

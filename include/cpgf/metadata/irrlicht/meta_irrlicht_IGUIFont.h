@@ -44,17 +44,17 @@ void buildMetaClass_IGUIFont(const cpgf::GMetaDataConfigFlags & config, D _d)
         ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(false))
     ;
-    _d.CPGF_MD_TEMPLATE _method("getCharacterFromPos", &D::ClassType::getCharacterFromPos);
     _d.CPGF_MD_TEMPLATE _method("getDimension", &D::ClassType::getDimension);
-    _d.CPGF_MD_TEMPLATE _method("getKerningHeight", &D::ClassType::getKerningHeight);
+    _d.CPGF_MD_TEMPLATE _method("getCharacterFromPos", &D::ClassType::getCharacterFromPos);
+    _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
+    _d.CPGF_MD_TEMPLATE _method("setKerningWidth", &D::ClassType::setKerningWidth);
+    _d.CPGF_MD_TEMPLATE _method("setKerningHeight", &D::ClassType::setKerningHeight);
     _d.CPGF_MD_TEMPLATE _method("getKerningWidth", &D::ClassType::getKerningWidth)
         ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
+    _d.CPGF_MD_TEMPLATE _method("getKerningHeight", &D::ClassType::getKerningHeight);
     _d.CPGF_MD_TEMPLATE _method("setInvisibleCharacters", &D::ClassType::setInvisibleCharacters);
-    _d.CPGF_MD_TEMPLATE _method("setKerningHeight", &D::ClassType::setKerningHeight);
-    _d.CPGF_MD_TEMPLATE _method("setKerningWidth", &D::ClassType::setKerningWidth);
 }
 
 

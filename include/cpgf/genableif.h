@@ -47,14 +47,14 @@ struct GNotResult {
 };
 
 
-template <typename T1, typename T2, typename T3 = GTrueResult, typename T4 = GTrueResult, typename T5 = GTrueResult, typename T6 = GTrueResult, typename T7 = GTrueResult>
+template <typename T1, typename T2, typename T3 = GTrueResult, typename T4 = GTrueResult, typename T5 = GTrueResult, typename T6 = GTrueResult, typename T7 = GTrueResult, typename T8 = GTrueResult, typename T9 = GTrueResult, typename T10 = GTrueResult>
 struct GAndResult {
-	G_STATIC_CONSTANT(bool, Result = T1::Result && T2::Result && T3::Result && T4::Result && T5::Result && T6::Result && T7::Result);
+	G_STATIC_CONSTANT(bool, Result = T1::Result && T2::Result && T3::Result && T4::Result && T5::Result && T6::Result && T7::Result && T8::Result && T9::Result && T10::Result);
 };
 
-template <typename T1, typename T2, typename T3 = GFalseResult, typename T4 = GFalseResult, typename T5 = GFalseResult, typename T6 = GFalseResult, typename T7 = GFalseResult>
+template <typename T1, typename T2, typename T3 = GFalseResult, typename T4 = GFalseResult, typename T5 = GFalseResult, typename T6 = GFalseResult, typename T7 = GFalseResult, typename T8 = GFalseResult, typename T9 = GFalseResult, typename T10 = GFalseResult>
 struct GOrResult {
-	G_STATIC_CONSTANT(bool, Result = T1::Result || T2::Result || T3::Result || T4::Result || T5::Result || T6::Result || T7::Result);
+	G_STATIC_CONSTANT(bool, Result = T1::Result || T2::Result || T3::Result || T4::Result || T5::Result || T6::Result || T7::Result || T8::Result || T9::Result || T10::Result);
 };
 
 

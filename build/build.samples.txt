@@ -262,6 +262,6 @@ if(${HAS_IRRLICHT})
 	)
 
 	target_link_libraries(${TARGET_SAMPLEIRRLICHT} ${TARGET_LIB} ${IRRLICHT_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB})
-endif(${HAS_SFML})
+endif(${HAS_IRRLICHT})
 
 

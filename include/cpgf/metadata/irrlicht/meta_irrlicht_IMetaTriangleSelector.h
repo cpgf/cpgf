@@ -25,8 +25,8 @@ void buildMetaClass_IMetaTriangleSelector(const cpgf::GMetaDataConfigFlags & con
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("addTriangleSelector", &D::ClassType::addTriangleSelector);
-    _d.CPGF_MD_TEMPLATE _method("removeAllTriangleSelectors", &D::ClassType::removeAllTriangleSelectors);
     _d.CPGF_MD_TEMPLATE _method("removeTriangleSelector", &D::ClassType::removeTriangleSelector);
+    _d.CPGF_MD_TEMPLATE _method("removeAllTriangleSelectors", &D::ClassType::removeAllTriangleSelectors);
 }
 
 

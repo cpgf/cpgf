@@ -387,7 +387,16 @@ public class CppClass extends ParameteredItem {
 		
 		for(DeferClass deferClass : this.getClassList()) {
 			String name = deferClass.getCppClass().getPrimaryName();
-			typeMap.put(name, outterName + "::" + name);
+			String mapName = outterName + "::" + name;
+			if(this.isTemplate()) {
+				if(deferClass.getCppClass().isTemplate()) {
+					mapName = "template " + mapName;
+				}
+				else {
+					mapName = "typename " + mapName;
+				}
+			}
+			typeMap.put(name, mapName);
 		}
 		
 		for(Typedef typedef : this.getTypedefList()) {

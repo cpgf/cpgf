@@ -24,6 +24,13 @@ void buildMetaClass_Global_ianimatedmeshmd3(const cpgf::GMetaDataConfigFlags & c
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _enum<eMD3Models>("eMD3Models")
+        ._element("EMD3_HEAD", irr::scene::EMD3_HEAD)
+        ._element("EMD3_UPPER", irr::scene::EMD3_UPPER)
+        ._element("EMD3_LOWER", irr::scene::EMD3_LOWER)
+        ._element("EMD3_WEAPON", irr::scene::EMD3_WEAPON)
+        ._element("EMD3_NUMMODELS", irr::scene::EMD3_NUMMODELS)
+    ;
     _d.CPGF_MD_TEMPLATE _enum<EMD3_ANIMATION_TYPE>("EMD3_ANIMATION_TYPE")
         ._element("EMD3_BOTH_DEATH_1", irr::scene::EMD3_BOTH_DEATH_1)
         ._element("EMD3_BOTH_DEAD_1", irr::scene::EMD3_BOTH_DEAD_1)
@@ -52,13 +59,6 @@ void buildMetaClass_Global_ianimatedmeshmd3(const cpgf::GMetaDataConfigFlags & c
         ._element("EMD3_LEGS_TURN", irr::scene::EMD3_LEGS_TURN)
         ._element("EMD3_ANIMATION_COUNT", irr::scene::EMD3_ANIMATION_COUNT)
     ;
-    _d.CPGF_MD_TEMPLATE _enum<eMD3Models>("eMD3Models")
-        ._element("EMD3_HEAD", irr::scene::EMD3_HEAD)
-        ._element("EMD3_UPPER", irr::scene::EMD3_UPPER)
-        ._element("EMD3_LOWER", irr::scene::EMD3_LOWER)
-        ._element("EMD3_WEAPON", irr::scene::EMD3_WEAPON)
-        ._element("EMD3_NUMMODELS", irr::scene::EMD3_NUMMODELS)
-    ;
 }
 
 
@@ -68,9 +68,9 @@ void buildMetaClass_IAnimatedMeshMD3(const cpgf::GMetaDataConfigFlags & config, 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("getOriginalMesh", &D::ClassType::getOriginalMesh);
-    _d.CPGF_MD_TEMPLATE _method("getTagList", &D::ClassType::getTagList);
     _d.CPGF_MD_TEMPLATE _method("setInterpolationShift", &D::ClassType::setInterpolationShift);
+    _d.CPGF_MD_TEMPLATE _method("getTagList", &D::ClassType::getTagList);
+    _d.CPGF_MD_TEMPLATE _method("getOriginalMesh", &D::ClassType::getOriginalMesh);
 }
 
 
@@ -81,9 +81,9 @@ void buildMetaClass_SMD3AnimationInfo(const cpgf::GMetaDataConfigFlags & config,
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _field("first", &D::ClassType::first);
-    _d.CPGF_MD_TEMPLATE _field("fps", &D::ClassType::fps);
-    _d.CPGF_MD_TEMPLATE _field("looping", &D::ClassType::looping);
     _d.CPGF_MD_TEMPLATE _field("num", &D::ClassType::num);
+    _d.CPGF_MD_TEMPLATE _field("looping", &D::ClassType::looping);
+    _d.CPGF_MD_TEMPLATE _field("fps", &D::ClassType::fps);
 }
 
 
@@ -103,17 +103,17 @@ void buildMetaClass_SMD3Header(const cpgf::GMetaDataConfigFlags & config, D _d)
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field("fileName", &D::ClassType::fileName);
-    _d.CPGF_MD_TEMPLATE _field("fileSize", &D::ClassType::fileSize);
-    _d.CPGF_MD_TEMPLATE _field("frameStart", &D::ClassType::frameStart);
     _d.CPGF_MD_TEMPLATE _field("headerID", &D::ClassType::headerID);
-    _d.CPGF_MD_TEMPLATE _field("numFrames", &D::ClassType::numFrames);
-    _d.CPGF_MD_TEMPLATE _field("numMaxSkins", &D::ClassType::numMaxSkins);
-    _d.CPGF_MD_TEMPLATE _field("numMeshes", &D::ClassType::numMeshes);
-    _d.CPGF_MD_TEMPLATE _field("numTags", &D::ClassType::numTags);
-    _d.CPGF_MD_TEMPLATE _field("tagEnd", &D::ClassType::tagEnd);
-    _d.CPGF_MD_TEMPLATE _field("tagStart", &D::ClassType::tagStart);
     _d.CPGF_MD_TEMPLATE _field("Version", &D::ClassType::Version);
+    _d.CPGF_MD_TEMPLATE _field("fileName", &D::ClassType::fileName);
+    _d.CPGF_MD_TEMPLATE _field("numFrames", &D::ClassType::numFrames);
+    _d.CPGF_MD_TEMPLATE _field("numTags", &D::ClassType::numTags);
+    _d.CPGF_MD_TEMPLATE _field("numMeshes", &D::ClassType::numMeshes);
+    _d.CPGF_MD_TEMPLATE _field("numMaxSkins", &D::ClassType::numMaxSkins);
+    _d.CPGF_MD_TEMPLATE _field("frameStart", &D::ClassType::frameStart);
+    _d.CPGF_MD_TEMPLATE _field("tagStart", &D::ClassType::tagStart);
+    _d.CPGF_MD_TEMPLATE _field("tagEnd", &D::ClassType::tagEnd);
+    _d.CPGF_MD_TEMPLATE _field("fileSize", &D::ClassType::fileSize);
 }
 
 
@@ -124,10 +124,10 @@ void buildMetaClass_SMD3Mesh(const cpgf::GMetaDataConfigFlags & config, D _d)
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
-    _d.CPGF_MD_TEMPLATE _field("Buffer", &D::ClassType::Buffer);
-    _d.CPGF_MD_TEMPLATE _field("MD3Header", &D::ClassType::MD3Header);
     _d.CPGF_MD_TEMPLATE _field("Name", &D::ClassType::Name);
+    _d.CPGF_MD_TEMPLATE _field("Buffer", &D::ClassType::Buffer);
     _d.CPGF_MD_TEMPLATE _field("TagList", &D::ClassType::TagList);
+    _d.CPGF_MD_TEMPLATE _field("MD3Header", &D::ClassType::MD3Header);
 }
 
 
@@ -137,11 +137,11 @@ void buildMetaClass_SMD3MeshBuffer(const cpgf::GMetaDataConfigFlags & config, D 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field("Indices", &D::ClassType::Indices);
     _d.CPGF_MD_TEMPLATE _field("MeshHeader", &D::ClassType::MeshHeader);
     _d.CPGF_MD_TEMPLATE _field("Shader", &D::ClassType::Shader);
-    _d.CPGF_MD_TEMPLATE _field("Tex", &D::ClassType::Tex);
+    _d.CPGF_MD_TEMPLATE _field("Indices", &D::ClassType::Indices);
     _d.CPGF_MD_TEMPLATE _field("Vertices", &D::ClassType::Vertices);
+    _d.CPGF_MD_TEMPLATE _field("Tex", &D::ClassType::Tex);
 }
 
 
@@ -155,13 +155,13 @@ void buildMetaClass_SMD3MeshHeader(const cpgf::GMetaDataConfigFlags & config, D 
     _d.CPGF_MD_TEMPLATE _field("meshName", &D::ClassType::meshName);
     _d.CPGF_MD_TEMPLATE _field("numFrames", &D::ClassType::numFrames);
     _d.CPGF_MD_TEMPLATE _field("numShader", &D::ClassType::numShader);
-    _d.CPGF_MD_TEMPLATE _field("numTriangles", &D::ClassType::numTriangles);
     _d.CPGF_MD_TEMPLATE _field("numVertices", &D::ClassType::numVertices);
-    _d.CPGF_MD_TEMPLATE _field("offset_end", &D::ClassType::offset_end);
+    _d.CPGF_MD_TEMPLATE _field("numTriangles", &D::ClassType::numTriangles);
+    _d.CPGF_MD_TEMPLATE _field("offset_triangles", &D::ClassType::offset_triangles);
     _d.CPGF_MD_TEMPLATE _field("offset_shaders", &D::ClassType::offset_shaders);
     _d.CPGF_MD_TEMPLATE _field("offset_st", &D::ClassType::offset_st);
-    _d.CPGF_MD_TEMPLATE _field("offset_triangles", &D::ClassType::offset_triangles);
     _d.CPGF_MD_TEMPLATE _field("vertexStart", &D::ClassType::vertexStart);
+    _d.CPGF_MD_TEMPLATE _field("offset_end", &D::ClassType::offset_end);
 }
 
 
@@ -179,8 +179,8 @@ void buildMetaClass_SMD3QuaternionTag(const cpgf::GMetaDataConfigFlags & config,
     _d.CPGF_MD_TEMPLATE _field("position", &D::ClassType::position);
     _d.CPGF_MD_TEMPLATE _field("rotation", &D::ClassType::rotation);
     _d.CPGF_MD_TEMPLATE _method("setto", &D::ClassType::setto);
-    _d.CPGF_MD_TEMPLATE _operator<SMD3QuaternionTag & (*)(cpgf::GMetaSelf, const SMD3QuaternionTag &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SMD3QuaternionTag &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _operator<SMD3QuaternionTag & (*)(cpgf::GMetaSelf, const SMD3QuaternionTag &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
 }
 
 
@@ -193,12 +193,12 @@ void buildMetaClass_SMD3QuaternionTagList(const cpgf::GMetaDataConfigFlags & con
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (const SMD3QuaternionTagList &)>();
     _d.CPGF_MD_TEMPLATE _method("get", &D::ClassType::get);
-    _d.CPGF_MD_TEMPLATE _method("push_back", &D::ClassType::push_back, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("set_used", &D::ClassType::set_used);
     _d.CPGF_MD_TEMPLATE _method("size", &D::ClassType::size);
-    _d.CPGF_MD_TEMPLATE _operator<SMD3QuaternionTagList & (*)(cpgf::GMetaSelf, const SMD3QuaternionTagList &)>(mopHolder = mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("set_used", &D::ClassType::set_used);
+    _d.CPGF_MD_TEMPLATE _method("push_back", &D::ClassType::push_back, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _operator<const SMD3QuaternionTag & (*)(const cpgf::GMetaSelf &, u32)>(mopHolder[0], cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
     _d.CPGF_MD_TEMPLATE _operator<SMD3QuaternionTag & (*)(cpgf::GMetaSelf, u32)>(mopHolder[0]);
+    _d.CPGF_MD_TEMPLATE _operator<SMD3QuaternionTagList & (*)(cpgf::GMetaSelf, const SMD3QuaternionTagList &)>(mopHolder = mopHolder);
 }
 
 
@@ -219,8 +219,8 @@ void buildMetaClass_SMD3Vertex(const cpgf::GMetaDataConfigFlags & config, D _d)
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field("normal", &D::ClassType::normal);
     _d.CPGF_MD_TEMPLATE _field("position", &D::ClassType::position);
+    _d.CPGF_MD_TEMPLATE _field("normal", &D::ClassType::normal);
 }
 
 
