@@ -23,6 +23,8 @@ public class CppClass extends ParameteredItem {
 	
 	private ClassTraits traits;
 	
+	private String fullQualifiedName;
+	
 	public CppClass(String name) {
 		super(EnumCategory.Class, name);
 
@@ -37,6 +39,47 @@ public class CppClass extends ParameteredItem {
 		this.baseClassList = new ArrayList<DeferClass>();
 	}
 
+	public String getFulltQualifiedName() {
+		if(this.fullQualifiedName == null) {
+			this.fullQualifiedName = this.getPrimaryName();
+			if(this.fullQualifiedName.equals("")) {
+				return this.fullQualifiedName;
+			}
+
+			if(this.isTemplate()) {
+				this.fullQualifiedName = this.fullQualifiedName + "<" + Util.getParameterText(this.getTemplateParameterList(), false, true) + " >";
+			}
+
+			CppClass parent = this.getOwner();
+			if(parent == null) {
+				if(! this.getNamespace().equals("")) {
+					this.fullQualifiedName = this.getNamespace() + "::" + this.fullQualifiedName;
+				}
+			}
+			else {
+				while(parent != null) {
+					String parentQualifiedname = parent.getFulltQualifiedName();
+					if(parentQualifiedname == null || parentQualifiedname.equals("")) {
+						break;
+					}
+					this.fullQualifiedName = parentQualifiedname + "::" + this.fullQualifiedName;
+					parent = parent.getOwner();
+				}
+			}
+			
+//			if(this.getOwner() != null && this.getOwner().isTemplate()) {
+//				if(this.isTemplate()) {
+//					this.fullQualifiedName = "template " + this.fullQualifiedName;
+//				}
+//				else {
+//					this.fullQualifiedName = "typename " + this.fullQualifiedName;
+//				}
+//			}
+		}
+
+		return this.fullQualifiedName;
+	}
+	
 	public List<Constructor> getConstructorList() {
 		return constructorList;
 	}
@@ -385,28 +428,37 @@ public class CppClass extends ParameteredItem {
 			deferClass.getCppClass().doBuildInnerTypeMap(typeMap);
 		}
 		
+		String prefix;
 		for(DeferClass deferClass : this.getClassList()) {
 			String name = deferClass.getCppClass().getPrimaryName();
-			String mapName = outterName + "::" + name;
+			prefix = "";
 			if(this.isTemplate()) {
 				if(deferClass.getCppClass().isTemplate()) {
-					mapName = "template " + mapName;
+					prefix = "template ";
 				}
 				else {
-					mapName = "typename " + mapName;
+					prefix = "typename ";
 				}
 			}
-			typeMap.put(name, mapName);
+			typeMap.put(name, prefix + outterName + "::" + name);
 		}
 		
 		for(Typedef typedef : this.getTypedefList()) {
 			String name = typedef.getPrimaryName();
-			typeMap.put(name, outterName + "::" + name);
+			prefix = "";
+			if(this.isTemplate()) {
+				prefix = "typename ";
+			}
+			typeMap.put(name, prefix + outterName + "::" + name);
 		}
 		
 		for(CppEnum cppEnum : this.getEnumList()) {
 			String name = cppEnum.getPrimaryName();
-			typeMap.put(name, outterName + "::" + name);
+			prefix = "";
+			if(this.isTemplate()) {
+				prefix = "typename ";
+			}
+			typeMap.put(name, prefix + outterName + "::" + name);
 		}
 	}
 	

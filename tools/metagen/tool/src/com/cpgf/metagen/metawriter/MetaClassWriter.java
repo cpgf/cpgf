@@ -391,7 +391,7 @@ public class MetaClassWriter {
 				this.codeWriter,
 				item,
 				"_nd",
-				item.getLiteralName()
+				item.getFulltQualifiedName()
 			);
 			classWriter.write();
 			this.codeWriter.writeLine(action + "(_nd);");

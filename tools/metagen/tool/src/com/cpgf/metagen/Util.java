@@ -21,6 +21,7 @@ import com.cpgf.metagen.metadata.DeferClass;
 import com.cpgf.metagen.metadata.EnumVisibility;
 import com.cpgf.metagen.metadata.Item;
 import com.cpgf.metagen.metadata.Parameter;
+import com.cpgf.metagen.metadata.TemplateInstance;
 
 public class Util {
 	private static int currentUniqueID = 0;
@@ -247,16 +248,39 @@ public class Util {
 		(new File(path, "")).mkdirs();
 	}
 
-	public static String generateBaseClassList(List<DeferClass> baseClassList) {
+	public static String generateBaseClassList(CppClass cppClass, TemplateInstance templateInstance) {
 		String typeName = "";
 
-		for(DeferClass deferClass : baseClassList) {
+		for(DeferClass deferClass : cppClass.getBaseClassList()) {
 			if(deferClass.getVisibility() == EnumVisibility.Public) {
-				typeName = typeName + ", " + deferClass.getName();
+				String baseName = deferClass.getName();
+				
+				if(templateInstance != null && cppClass.isTemplate()) {
+					// check if the class is inherited from a template parameter
+					int index = -1;
+					for(Parameter templateParameter : cppClass.getTemplateParameterList()) {
+						++index;
+						if(baseName.equals(templateParameter.getName())) {
+							if(templateInstance.getArguments().size() > index) {
+								baseName = templateInstance.getArguments().get(index);
+							}
+							else {
+								baseName = templateParameter.getDefaultValue();
+							}
+							break;
+						}
+					}
+				}
+				
+				typeName = typeName + ", " + baseName;
 			}
 		}
 		
 		return typeName;
+	}
+
+	public static String generateBaseClassList(CppClass cppClass) {
+		return generateBaseClassList(cppClass, null);
 	}
 
 	public static <T> void swapListItems(List<T> list, int a, int b) {

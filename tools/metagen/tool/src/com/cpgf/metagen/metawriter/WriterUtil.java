@@ -65,9 +65,9 @@ public class WriterUtil {
 			if(cppClass.getOwner() != null && cppClass.getOwner().isTemplate()) {
 				prefix = "typename ";
 			}
-			String typeName = "GDefineMetaClass<" + prefix + cppClass.getQualifiedName();
+			String typeName = "GDefineMetaClass<" + prefix + cppClass.getFulltQualifiedName();
 
-			typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
+			typeName = typeName + Util.generateBaseClassList(cppClass);
 			
 			typeName = typeName + ">";
 			String policy = "";
@@ -111,7 +111,7 @@ public class WriterUtil {
 					codeWriter.beginBlock();
 					
 					String typeName = "GDefineMetaClass<" + templateInstance.getFullType();
-					typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
+					typeName = typeName + Util.generateBaseClassList(cppClass, templateInstance);
 					typeName = typeName + " >";
 
 					codeWriter.writeLine(typeName +  " _nd = " + typeName + policy + "::declare(\"" + normalizeClassName(templateInstance.getMapName()) + "\");");
@@ -126,7 +126,7 @@ public class WriterUtil {
 				codeWriter.beginBlock();
 
 				String typeName = "GDefineMetaClass<" + cppClass.getLiteralName();
-				typeName = typeName + Util.generateBaseClassList(cppClass.getBaseClassList());
+				typeName = typeName + Util.generateBaseClassList(cppClass);
 				typeName = typeName + ">";
 				codeWriter.writeLine(typeName +  " _nd = " + typeName + policy + "::declare(\"" + cppClass.getPrimaryName() + "\");");
 				
