@@ -30,6 +30,10 @@ var config = {
 		{ pattern : ".*\\bw?string$", traits : { hasTypeConvertConstructor : true }  },
 	],
 
+	predefinedTemplateInstances : [
+		"TemplateClassA<int, char, 5>", "",
+		"TemplateClassB<TemplateBase>", "",
+	],
 };
 
 function processCallback(item, data)
