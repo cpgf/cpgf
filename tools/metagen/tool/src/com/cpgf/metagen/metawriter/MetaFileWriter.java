@@ -16,7 +16,7 @@ public class MetaFileWriter {
 	private FileInfo fileInfo;
 	private Config config;
 	private MetaInfo metaInfo;
-	private List<CppClass> classList;
+	private List<CppClass> masterClassList;
 	private String sourceFileName;
 	private Map<CppClass, MetaClassCode> classCodeMap;
 
@@ -26,13 +26,44 @@ public class MetaFileWriter {
 		this.sourceFileName = sourceFileName;
 		this.fileInfo = fileInfo;
 
-		this.classList = new ArrayList<CppClass>();
+		this.masterClassList = new ArrayList<CppClass>();
 		
 		this.classCodeMap = new HashMap<CppClass, MetaClassCode>();
 	}
 	
 	public void addClass(CppClass cppClass) {
-		this.classList.add(cppClass);
+		this.masterClassList.add(cppClass);
+	}
+	
+	private boolean shouldSplitFile() {
+		for(CppClass cppClass : this.masterClassList) {
+			if(this.metaInfo.getCallbackClassMap().getData(cppClass).isInSeparatedFile()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private List<List<CppClass> > buildSpittedClassList() {
+		List<List<CppClass> > result = new ArrayList<List<CppClass> >();
+		result.add(new ArrayList<CppClass>());
+		
+		for(CppClass cppClass : this.masterClassList) {
+			if(this.metaInfo.getCallbackClassMap().getData(cppClass).isInSeparatedFile()) {
+				List<CppClass> classList = new ArrayList<CppClass>();
+				classList.add(cppClass);
+				result.add(classList);
+			}
+			else {
+				result.get(0).add(cppClass);
+			}
+		}
+
+		if(result.get(0).size() == 0) {
+			result.remove(0);
+		}
+
+		return result;
 	}
 
 	private MetaClassCode getClassCode(CppClass cppClass) {
@@ -46,8 +77,8 @@ public class MetaFileWriter {
 		return classCode;
 	}
 	
-	private boolean shouldWrapClass() {
-		for(CppClass cppClass : this.classList) {
+	private boolean shouldWrapClass(List<CppClass> classList) {
+		for(CppClass cppClass : classList) {
 			if(this.metaInfo.getCallbackClassMap().getData(cppClass).wrapClass()) {
 				return true;
 			}
@@ -55,12 +86,12 @@ public class MetaFileWriter {
 		return false;
 	}
 	
-	public void writeHeader() throws Exception {
+	private void doWriteHeader(List<CppClass> classList, String outputFileName) throws Exception {
 		CppWriter codeWriter = new CppWriter();
 
 		WriterUtil.writeCommentForAutoGeneration(codeWriter);	
 
-		codeWriter.beginIncludeGuard(Util.normalizeSymbol(this.getDestFileName()) + "_H");
+		codeWriter.beginIncludeGuard(Util.normalizeSymbol(outputFileName) + "_H");
 
 		if(this.config.headerHeaderCode != null) {
 			codeWriter.write(this.config.headerHeaderCode);
@@ -73,7 +104,7 @@ public class MetaFileWriter {
 		if(this.config.scriptable) {
 			codeWriter.include("cpgf/scriptbind/gscriptbindapi.h");
 		}
-		if(this.shouldWrapClass()) {
+		if(this.shouldWrapClass(classList)) {
 			codeWriter.include("cpgf/scriptbind/gscriptbindutil.h");
 			codeWriter.include("cpgf/scriptbind/gscriptwrapper.h");
 		}
@@ -89,7 +120,7 @@ public class MetaFileWriter {
 
 		codeWriter.beginNamespace(this.config.cppNamespace);
 
-		List<CppClass>  sortedClassList = Util.sortClassList(this.classList);
+		List<CppClass>  sortedClassList = Util.sortClassList(classList);
 		for(CppClass cppClass : sortedClassList) {
 			MetaClassCode classCode = this.getClassCode(cppClass);
 			if(classCode.headerCode.length() > 0) {
@@ -109,11 +140,23 @@ public class MetaFileWriter {
 		codeWriter.endIncludeGuard();
 		
 		Util.forceCreateDirectories(this.config.headerOutput);
-		String outFileName = this.makeOutputFileName(this.config.headerExtension);
+		String outFileName = Util.concatFileName(this.config.headerOutput, outputFileName) + this.config.headerExtension;
 		Util.writeTextToFile(outFileName, codeWriter.getText());
 	}
 
-	public void writeSource(List<String> createFunctionNames) throws Exception { 
+	public void writeHeader() throws Exception {
+		if(this.shouldSplitFile()) {
+			List<List<CppClass> > splittedClassList = this.buildSpittedClassList();
+			for(int i = 0; i < splittedClassList.size(); ++i) {
+				this.doWriteHeader(splittedClassList.get(i), this.getDestFileName(i));
+			}
+		}
+		else {
+			this.doWriteHeader(this.masterClassList, this.getDestFileName());
+		}
+	}
+
+	private void doWriteSource(List<String> createFunctionNames, List<CppClass> classList, String outputFileName) throws Exception { 
 		if(! this.config.autoRegisterToGlobal) {
 			return;
 		}
@@ -136,7 +179,7 @@ public class MetaFileWriter {
 		else {
 			codeWriter.include(this.sourceFileName);
 		}
-		codeWriter.include(this.config.metaHeaderPath + this.getDestFileName() + ".h");
+		codeWriter.include(this.config.metaHeaderPath + outputFileName + ".h");
 		codeWriter.writeLine("");
 		
 		codeWriter.useNamespace("cpgf");
@@ -144,7 +187,7 @@ public class MetaFileWriter {
 
 		codeWriter.beginNamespace(this.config.cppNamespace);
 		
-		List<CppClass>  sortedClassList = Util.sortClassList(this.classList);
+		List<CppClass>  sortedClassList = Util.sortClassList(classList);
 		for(CppClass cppClass : sortedClassList) {
 			MetaClassCode classCode = this.getClassCode(cppClass);
 			if(classCode.sourceCode.length() > 0) {
@@ -160,22 +203,35 @@ public class MetaFileWriter {
 		codeWriter.endNamespace(this.config.cppNamespace);
 		
 		Util.forceCreateDirectories(this.config.sourceOutput);
-		String outFileName = Util.concatFileName(this.config.sourceOutput, this.getDestFileName()) + this.config.sourceExtension;
+		String outFileName = Util.concatFileName(this.config.sourceOutput, outputFileName) + this.config.sourceExtension;
 		Util.writeTextToFile(outFileName, codeWriter.getText());
 	}
 
-	private String makeOutputFileName(String extension) {
-		return Util.concatFileName(this.config.headerOutput, this.getDestFileName()) + extension;
-	}
-
-	private String getBaseFileName()
-	{
-		return Util.getBaseFileName(this.sourceFileName);
+	public void writeSource(List<String> createFunctionNames) throws Exception {
+		if(this.shouldSplitFile()) {
+			List<List<CppClass> > splittedClassList = this.buildSpittedClassList();
+			for(int i = 0; i < splittedClassList.size(); ++i) {
+				this.doWriteSource(createFunctionNames, splittedClassList.get(i), this.getDestFileName(i));
+			}
+		}
+		else {
+			this.doWriteSource(createFunctionNames, this.masterClassList, this.getDestFileName());
+		}
 	}
 
 	private String getDestFileName()
 	{
-		return this.config.sourceFilePrefix + this.getBaseFileName();
+		return this.config.sourceFilePrefix + Util.getBaseFileName(this.sourceFileName);
+	}
+
+	private String getDestFileName(int index)
+	{
+		if(index == 0) {
+			return this.getDestFileName();
+		}
+		else {
+			return this.getDestFileName() + index;
+		}
 	}
 
 }

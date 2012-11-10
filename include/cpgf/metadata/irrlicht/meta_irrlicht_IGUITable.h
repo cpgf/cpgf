@@ -81,8 +81,8 @@ void buildMetaClass_IGUITable(const cpgf::GMetaDataConfigFlags & config, D _d)
     ;
     _d.CPGF_MD_TEMPLATE _method("setCellColor", &D::ClassType::setCellColor);
     _d.CPGF_MD_TEMPLATE _method("setCellData", &D::ClassType::setCellData);
-    _d.CPGF_MD_TEMPLATE _method("setCellText", (void (D::ClassType::*) (u32, u32, const core::stringw &))&D::ClassType::setCellText);
-    _d.CPGF_MD_TEMPLATE _method("setCellText", (void (D::ClassType::*) (u32, u32, const core::stringw &, video::SColor))&D::ClassType::setCellText);
+    _d.CPGF_MD_TEMPLATE _method("setCellText", (void (D::ClassType::*) (u32, u32, const core::stringw &))&D::ClassType::setCellText, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >());
+    _d.CPGF_MD_TEMPLATE _method("setCellText", (void (D::ClassType::*) (u32, u32, const core::stringw &, video::SColor))&D::ClassType::setCellText, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >());
     _d.CPGF_MD_TEMPLATE _method("setColumnOrdering", &D::ClassType::setColumnOrdering);
     _d.CPGF_MD_TEMPLATE _method("setColumnWidth", &D::ClassType::setColumnWidth);
     _d.CPGF_MD_TEMPLATE _method("setDrawFlags", &D::ClassType::setDrawFlags);

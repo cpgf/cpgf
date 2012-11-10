@@ -18,15 +18,6 @@ using namespace irr::core;
 namespace meta_irrlicht { 
 
 
-template <typename D>
-void buildMetaClass_Global_dimension2d(const cpgf::GMetaDataConfigFlags & config, D _d)
-{
-    (void)config; (void)_d; (void)_d;
-    using namespace cpgf;
-    
-}
-
-
 template <typename D, class T>
 void buildMetaClass_Dimension2d(const cpgf::GMetaDataConfigFlags & config, D _d)
 {

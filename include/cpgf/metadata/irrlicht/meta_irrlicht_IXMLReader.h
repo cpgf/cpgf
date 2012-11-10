@@ -18,15 +18,6 @@ using namespace irr::io;
 namespace meta_irrlicht { 
 
 
-template <typename D>
-void buildMetaClass_Global_ixmlreader(const cpgf::GMetaDataConfigFlags & config, D _d)
-{
-    (void)config; (void)_d; (void)_d;
-    using namespace cpgf;
-    
-}
-
-
 } // namespace meta_irrlicht
 
 

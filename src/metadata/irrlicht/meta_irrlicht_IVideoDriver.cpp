@@ -30,18 +30,6 @@ GDefineMetaInfo createMetaClass_IRenderTarget()
 }
 
 
-GDefineMetaInfo createMetaClass_IVideoDriver()
-{
-    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    {
-        GDefineMetaClass<irr::video::IVideoDriver, irr::IReferenceCounted> _nd = GDefineMetaClass<irr::video::IVideoDriver, irr::IReferenceCounted>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("IVideoDriver");
-        buildMetaClass_IVideoDriver(0, _nd);
-        _d._class(_nd);
-    }
-    return _d.getMetaInfo();
-}
-
-
 GDefineMetaInfo createMetaClass_SOverrideMaterial()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();

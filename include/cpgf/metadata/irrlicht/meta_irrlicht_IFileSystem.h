@@ -26,7 +26,7 @@ void buildMetaClass_IFileSystem(const cpgf::GMetaDataConfigFlags & config, D _d)
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("addArchiveLoader", &D::ClassType::addArchiveLoader);
-    _d.CPGF_MD_TEMPLATE _method("addFileArchive", &D::ClassType::addFileArchive, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
+    _d.CPGF_MD_TEMPLATE _method("addFileArchive", &D::ClassType::addFileArchive, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<4> >())
         ._default(copyVariantFromCopyable(""))
         ._default(copyVariantFromCopyable(EFAT_UNKNOWN))
         ._default(copyVariantFromCopyable(true))

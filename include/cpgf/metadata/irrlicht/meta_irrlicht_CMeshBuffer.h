@@ -18,15 +18,6 @@ using namespace irr::scene;
 namespace meta_irrlicht { 
 
 
-template <typename D>
-void buildMetaClass_Global_cmeshbuffer(const cpgf::GMetaDataConfigFlags & config, D _d)
-{
-    (void)config; (void)_d; (void)_d;
-    using namespace cpgf;
-    
-}
-
-
 template <typename D, class T>
 void buildMetaClass_CMeshBuffer(const cpgf::GMetaDataConfigFlags & config, D _d)
 {

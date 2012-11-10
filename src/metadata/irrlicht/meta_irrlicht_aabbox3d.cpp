@@ -10,14 +10,6 @@ using namespace cpgf;
 namespace meta_irrlicht { 
 
 
-GDefineMetaInfo createMetaClass_Global_aabbox3d()
-{
-    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_aabbox3d(0, _d);
-    return _d.getMetaInfo();
-}
-
-
 GDefineMetaInfo createMetaClass_Aabbox3d()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();

@@ -10,14 +10,6 @@ using namespace cpgf;
 namespace meta_irrlicht { 
 
 
-GDefineMetaInfo createMetaClass_Global_ixmlreader()
-{
-    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_ixmlreader(0, _d);
-    return _d.getMetaInfo();
-}
-
-
 } // namespace meta_irrlicht
 
 

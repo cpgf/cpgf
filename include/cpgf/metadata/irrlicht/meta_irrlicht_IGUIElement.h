@@ -47,7 +47,7 @@ void buildMetaClass_IGUIElement(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getTabGroup", &D::ClassType::getTabGroup);
     _d.CPGF_MD_TEMPLATE _method("getTabOrder", &D::ClassType::getTabOrder);
     _d.CPGF_MD_TEMPLATE _method("getText", &D::ClassType::getText);
-    _d.CPGF_MD_TEMPLATE _method("getToolTipText", &D::ClassType::getToolTipText);
+    _d.CPGF_MD_TEMPLATE _method("getToolTipText", &D::ClassType::getToolTipText, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
     _d.CPGF_MD_TEMPLATE _method("getTypeName", &D::ClassType::getTypeName);
     _d.CPGF_MD_TEMPLATE _method("hasType", &D::ClassType::hasType);

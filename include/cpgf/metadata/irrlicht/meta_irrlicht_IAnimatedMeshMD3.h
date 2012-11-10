@@ -172,8 +172,8 @@ void buildMetaClass_SMD3QuaternionTag(const cpgf::GMetaDataConfigFlags & config,
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (const SMD3QuaternionTag &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _constructor<void * (const core::stringc &)>();
-    _d.CPGF_MD_TEMPLATE _constructor<void * (const core::stringc &, const core::matrix4 &)>();
+    _d.CPGF_MD_TEMPLATE _constructor<void * (const core::stringc &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _constructor<void * (const core::stringc &, const core::matrix4 &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _constructor<void * (const core::vector3df &, const core::vector3df &)>();
     _d.CPGF_MD_TEMPLATE _field("Name", &D::ClassType::Name);
     _d.CPGF_MD_TEMPLATE _field("position", &D::ClassType::position);
@@ -192,7 +192,7 @@ void buildMetaClass_SMD3QuaternionTagList(const cpgf::GMetaDataConfigFlags & con
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (const SMD3QuaternionTagList &)>();
-    _d.CPGF_MD_TEMPLATE _method("get", &D::ClassType::get);
+    _d.CPGF_MD_TEMPLATE _method("get", &D::ClassType::get, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("push_back", &D::ClassType::push_back, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("set_used", &D::ClassType::set_used);
     _d.CPGF_MD_TEMPLATE _method("size", &D::ClassType::size);

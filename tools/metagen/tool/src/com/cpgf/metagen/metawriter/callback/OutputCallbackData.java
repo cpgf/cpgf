@@ -5,12 +5,14 @@ import com.cpgf.metagen.metadata.ClassWrapperConfig;
 
 public class OutputCallbackData {
 	private boolean skipBind;
+	private boolean separatedFile;
 	private String headerCode;
 	private String sourceCode;
 	private ClassWrapperConfig wrapperConfig;
 	
 	public OutputCallbackData() {
 		this.skipBind = false;
+		this.separatedFile = false;
 	}
 
 	public boolean isSkipBind() {
@@ -19,6 +21,14 @@ public class OutputCallbackData {
 
 	public void setSkipBind(boolean skipBind) {
 		this.skipBind = skipBind;
+	}
+	
+	public boolean isInSeparatedFile() {
+		return this.separatedFile;
+	}
+	
+	public void putInSeparatedFile() {
+		this.separatedFile = true;
 	}
 	
 	public void trace(String message) {

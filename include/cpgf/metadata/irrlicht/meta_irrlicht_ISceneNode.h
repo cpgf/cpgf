@@ -21,15 +21,6 @@ namespace meta_irrlicht {
 
 
 template <typename D>
-void buildMetaClass_Global_iscenenode(const cpgf::GMetaDataConfigFlags & config, D _d)
-{
-    (void)config; (void)_d; (void)_d;
-    using namespace cpgf;
-    
-}
-
-
-template <typename D>
 void buildMetaClass_ISceneNode(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
     (void)config; (void)_d; (void)_d;
@@ -86,7 +77,7 @@ void buildMetaClass_ISceneNode(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("setMaterialTexture", &D::ClassType::setMaterialTexture);
     _d.CPGF_MD_TEMPLATE _method("setMaterialType", &D::ClassType::setMaterialType);
     _d.CPGF_MD_TEMPLATE _method("setName", (void (D::ClassType::*) (const c8 *))&D::ClassType::setName);
-    _d.CPGF_MD_TEMPLATE _method("setName", (void (D::ClassType::*) (const core::stringc &))&D::ClassType::setName);
+    _d.CPGF_MD_TEMPLATE _method("setName", (void (D::ClassType::*) (const core::stringc &))&D::ClassType::setName, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("setParent", &D::ClassType::setParent);
     _d.CPGF_MD_TEMPLATE _method("setPosition", &D::ClassType::setPosition);
     _d.CPGF_MD_TEMPLATE _method("setRotation", &D::ClassType::setRotation);
@@ -754,7 +745,7 @@ void buildMetaClass_ISceneNodeWrapper(const cpgf::GMetaDataConfigFlags & config,
     _d.CPGF_MD_TEMPLATE _method("super_setDebugDataVisible", (void (D::ClassType::*) (s32))&D::ClassType::super_setDebugDataVisible);
     _d.CPGF_MD_TEMPLATE _method("super_setID", (void (D::ClassType::*) (s32))&D::ClassType::super_setID);
     _d.CPGF_MD_TEMPLATE _method("super_setName", (void (D::ClassType::*) (const c8 *))&D::ClassType::super_setName);
-    _d.CPGF_MD_TEMPLATE _method("super_setName", (void (D::ClassType::*) (const core::stringc &))&D::ClassType::super_setName);
+    _d.CPGF_MD_TEMPLATE _method("super_setName", (void (D::ClassType::*) (const core::stringc &))&D::ClassType::super_setName, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("super_setParent", (void (D::ClassType::*) (ISceneNode *))&D::ClassType::super_setParent);
     _d.CPGF_MD_TEMPLATE _method("super_setPosition", (void (D::ClassType::*) (const core::vector3df &))&D::ClassType::super_setPosition);
     _d.CPGF_MD_TEMPLATE _method("super_setRotation", (void (D::ClassType::*) (const core::vector3df &))&D::ClassType::super_setRotation);

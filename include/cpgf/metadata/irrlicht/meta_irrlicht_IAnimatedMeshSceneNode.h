@@ -57,7 +57,7 @@ void buildMetaClass_IAnimatedMeshSceneNode(const cpgf::GMetaDataConfigFlags & co
     _d.CPGF_MD_TEMPLATE _method("getJointCount", &D::ClassType::getJointCount);
     _d.CPGF_MD_TEMPLATE _method("getJointNode", (IBoneSceneNode * (D::ClassType::*) (const c8 *))&D::ClassType::getJointNode);
     _d.CPGF_MD_TEMPLATE _method("getJointNode", (IBoneSceneNode * (D::ClassType::*) (u32))&D::ClassType::getJointNode);
-    _d.CPGF_MD_TEMPLATE _method("getMD3TagTransformation", &D::ClassType::getMD3TagTransformation);
+    _d.CPGF_MD_TEMPLATE _method("getMD3TagTransformation", &D::ClassType::getMD3TagTransformation, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("getMesh", &D::ClassType::getMesh);
     _d.CPGF_MD_TEMPLATE _method("getMS3DJointNode", &D::ClassType::getMS3DJointNode);
     _d.CPGF_MD_TEMPLATE _method("getStartFrame", &D::ClassType::getStartFrame);

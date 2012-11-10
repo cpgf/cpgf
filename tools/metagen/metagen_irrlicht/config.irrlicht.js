@@ -31,6 +31,8 @@ var config = {
 		{ pattern : ".*\\bw?string$", traits : { hasTypeConvertConstructor : true }  },
 		{ pattern : ".*\\bUTF\\d+String$", traits : { hasTypeConvertConstructor : true }  },
 		{ pattern : ".*\\bpath$", traits : { hasTypeConvertConstructor : true }  },
+		{ pattern : ".*\\bstringc$", traits : { hasTypeConvertConstructor : true }  },
+		{ pattern : ".*\\bstringw$", traits : { hasTypeConvertConstructor : true }  },
 	],
 
 	predefinedTemplateInstances : [
@@ -79,7 +81,8 @@ function processCallback(item, data)
 	var name = item.getPrimaryName();
 	if(name == "SExposedVideoData"
 		|| name == "irrEmptyStringc"
-		|| name == "isdigit" || name == "isspace" || name == "isupper")
+		|| name == "isdigit" || name == "isspace" || name == "isupper"
+		|| name == "AccessClass")
 	{
 		data.skipBind = true;
 	}
@@ -98,6 +101,9 @@ function processCallback(item, data)
 	if(item.isClass()) {
 		if(wrapperClassNames[name]) {
 			data.getWrapperConfig().setWrapClass(true);
+		}
+		if(name == "IVideoDriver") {
+			data.putInSeparatedFile();
 		}
 	}
 }

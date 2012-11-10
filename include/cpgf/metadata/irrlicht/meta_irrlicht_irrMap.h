@@ -41,16 +41,10 @@ void buildMetaClass_Map(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("swap", &D::ClassType::swap, cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<0> >());
     _d.CPGF_MD_TEMPLATE _operator<typename map<KeyType, ValueType >::AccessClass (*)(cpgf::GMetaSelf, const KeyType &)>(mopHolder[0]);
     {
-        GDefineMetaClass<typename map<KeyType, ValueType >::AccessClass> _nd = GDefineMetaClass<typename map<KeyType, ValueType >::AccessClass>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("AccessClass");
-        _nd.CPGF_MD_TEMPLATE _operator< ValueType (cpgf::GMetaSelf)>(mopHolder());
-        _nd.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf, const ValueType &)>(mopHolder = mopHolder);
-        _d.CPGF_MD_TEMPLATE _class(_nd);
-    }
-    {
         GDefineMetaClass<typename map<KeyType, ValueType >::Iterator> _nd = GDefineMetaClass<typename map<KeyType, ValueType >::Iterator>::declare("Iterator");
         _nd.CPGF_MD_TEMPLATE _constructor<void * ()>();
         _nd.CPGF_MD_TEMPLATE _constructor<void * (typename map<KeyType, ValueType >::Node*)>();
-        _nd.CPGF_MD_TEMPLATE _constructor<void * (const typename list<T >::Iterator&)>();
+        _nd.CPGF_MD_TEMPLATE _constructor<void * (const typename map<KeyType, ValueType >::Iterator&)>();
         _nd.CPGF_MD_TEMPLATE _method("atEnd", &map<KeyType, ValueType >::Iterator::atEnd);
         _nd.CPGF_MD_TEMPLATE _method("getNode", &map<KeyType, ValueType >::Iterator::getNode);
         _nd.CPGF_MD_TEMPLATE _method("reset", &map<KeyType, ValueType >::Iterator::reset)
@@ -60,7 +54,7 @@ void buildMetaClass_Map(const cpgf::GMetaDataConfigFlags & config, D _d)
         _nd.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf)>(mopHolder++);
         _nd.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf)>(mopHolder--);
         _nd.CPGF_MD_TEMPLATE _operator<typename map<KeyType, ValueType >::Node* (*)(cpgf::GMetaSelf)>(mopHolder -> mopHolder);
-        _nd.CPGF_MD_TEMPLATE _operator<typename list<T >::Iterator& (*)(cpgf::GMetaSelf, const typename list<T >::Iterator&)>(mopHolder = mopHolder);
+        _nd.CPGF_MD_TEMPLATE _operator<typename map<KeyType, ValueType >::Iterator& (*)(cpgf::GMetaSelf, const typename map<KeyType, ValueType >::Iterator&)>(mopHolder = mopHolder);
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {

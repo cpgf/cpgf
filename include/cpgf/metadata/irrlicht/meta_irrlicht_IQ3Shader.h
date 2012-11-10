@@ -29,16 +29,16 @@ void buildMetaClass_Global_iq3shader(const cpgf::GMetaDataConfigFlags & config, 
         ._default(copyVariantFromCopyable(false))
     ;
     _d.CPGF_MD_TEMPLATE _method("dumpVarGroup", (void (*) (core::stringc &, const SVarGroup *, s32))&dumpVarGroup);
-    _d.CPGF_MD_TEMPLATE _method("getAsFloat", (f32 (*) (const core::stringc &, u32 &))&getAsFloat);
-    _d.CPGF_MD_TEMPLATE _method("getAsStringList", (void (*) (tStringList &, s32, const core::stringc &, u32 &))&getAsStringList);
-    _d.CPGF_MD_TEMPLATE _method("getAsVector3df", (core::vector3df (*) (const core::stringc &, u32 &))&getAsVector3df);
-    _d.CPGF_MD_TEMPLATE _method("getBlendFunc", (void (*) (const core::stringc &, SBlendFunc &))&getBlendFunc);
-    _d.CPGF_MD_TEMPLATE _method("getCullingFunction", (bool (*) (const core::stringc &))&getCullingFunction);
-    _d.CPGF_MD_TEMPLATE _method("getDepthFunction", (u8 (*) (const core::stringc &))&getDepthFunction);
+    _d.CPGF_MD_TEMPLATE _method("getAsFloat", (f32 (*) (const core::stringc &, u32 &))&getAsFloat, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("getAsStringList", (void (*) (tStringList &, s32, const core::stringc &, u32 &))&getAsStringList, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >());
+    _d.CPGF_MD_TEMPLATE _method("getAsVector3df", (core::vector3df (*) (const core::stringc &, u32 &))&getAsVector3df, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("getBlendFunc", (void (*) (const core::stringc &, SBlendFunc &))&getBlendFunc, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("getCullingFunction", (bool (*) (const core::stringc &))&getCullingFunction, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("getDepthFunction", (u8 (*) (const core::stringc &))&getDepthFunction, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("getMD3Normal", (core::vector3df (*) (u32, u32))&getMD3Normal);
-    _d.CPGF_MD_TEMPLATE _method("getModifierFunc", (void (*) (SModifierFunction &, const core::stringc &, u32 &))&getModifierFunc);
-    _d.CPGF_MD_TEMPLATE _method("getTextures", (void (*) (tTexArray &, const core::stringc &, u32 &, io::IFileSystem *, video::IVideoDriver *))&getTextures);
-    _d.CPGF_MD_TEMPLATE _method("isEqual", (s16 (*) (const core::stringc &, u32 &, const c8 *[], u16))&isEqual);
+    _d.CPGF_MD_TEMPLATE _method("getModifierFunc", (void (*) (SModifierFunction &, const core::stringc &, u32 &))&getModifierFunc, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("getTextures", (void (*) (tTexArray &, const core::stringc &, u32 &, io::IFileSystem *, video::IVideoDriver *))&getTextures, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("isEqual", (s16 (*) (const core::stringc &, u32 &, const c8 *[], u16))&isEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _enum<eQ3MeshIndex>("eQ3MeshIndex")
         ._element("E_Q3_MESH_GEOMETRY", irr::scene::quake3::E_Q3_MESH_GEOMETRY)
         ._element("E_Q3_MESH_ITEMS", irr::scene::quake3::E_Q3_MESH_ITEMS)
@@ -204,7 +204,7 @@ void buildMetaClass_SVarGroup(const cpgf::GMetaDataConfigFlags & config, D _d)
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
     _d.CPGF_MD_TEMPLATE _field("Variable", &D::ClassType::Variable);
-    _d.CPGF_MD_TEMPLATE _method("get", &D::ClassType::get);
+    _d.CPGF_MD_TEMPLATE _method("get", &D::ClassType::get, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
     _d.CPGF_MD_TEMPLATE _method("isDefined", &D::ClassType::isDefined)
         ._default(copyVariantFromCopyable(0))
     ;

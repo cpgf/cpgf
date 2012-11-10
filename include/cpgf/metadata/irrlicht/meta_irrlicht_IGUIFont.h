@@ -39,7 +39,7 @@ void buildMetaClass_IGUIFont(const cpgf::GMetaDataConfigFlags & config, D _d)
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("draw", &D::ClassType::draw)
+    _d.CPGF_MD_TEMPLATE _method("draw", &D::ClassType::draw, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
         ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(false))
