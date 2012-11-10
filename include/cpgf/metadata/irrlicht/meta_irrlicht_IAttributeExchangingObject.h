@@ -38,10 +38,10 @@ void buildMetaClass_IAttributeExchangingObject(const cpgf::GMetaDataConfigFlags 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("serializeAttributes", &D::ClassType::serializeAttributes)
+    _d.CPGF_MD_TEMPLATE _method("deserializeAttributes", &D::ClassType::deserializeAttributes)
         ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _method("deserializeAttributes", &D::ClassType::deserializeAttributes)
+    _d.CPGF_MD_TEMPLATE _method("serializeAttributes", &D::ClassType::serializeAttributes)
         ._default(copyVariantFromCopyable(0))
     ;
 }
@@ -54,8 +54,8 @@ void buildMetaClass_SAttributeReadWriteOptions(const cpgf::GMetaDataConfigFlags 
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
-    _d.CPGF_MD_TEMPLATE _field("Flags", &D::ClassType::Flags);
     _d.CPGF_MD_TEMPLATE _field("Filename", &D::ClassType::Filename);
+    _d.CPGF_MD_TEMPLATE _field("Flags", &D::ClassType::Flags);
 }
 
 

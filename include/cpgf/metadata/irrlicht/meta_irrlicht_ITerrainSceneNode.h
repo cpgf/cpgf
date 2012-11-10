@@ -27,29 +27,18 @@ void buildMetaClass_ITerrainSceneNode(const cpgf::GMetaDataConfigFlags & config,
     
     _d.CPGF_MD_TEMPLATE _method("getBoundingBox", (const core::aabbox3d< f32 > & (D::ClassType::*) () const)&D::ClassType::getBoundingBox);
     _d.CPGF_MD_TEMPLATE _method("getBoundingBox", (const core::aabbox3d< f32 > & (D::ClassType::*) (s32, s32) const)&D::ClassType::getBoundingBox);
+    _d.CPGF_MD_TEMPLATE _method("getCurrentLODOfPatches", &D::ClassType::getCurrentLODOfPatches);
+    _d.CPGF_MD_TEMPLATE _method("getHeight", &D::ClassType::getHeight);
     _d.CPGF_MD_TEMPLATE _method("getIndexCount", &D::ClassType::getIndexCount);
-    _d.CPGF_MD_TEMPLATE _method("getMesh", &D::ClassType::getMesh);
-    _d.CPGF_MD_TEMPLATE _method("getRenderBuffer", &D::ClassType::getRenderBuffer);
-    _d.CPGF_MD_TEMPLATE _method("getMeshBufferForLOD", &D::ClassType::getMeshBufferForLOD)
-        ._default(copyVariantFromCopyable(0))
-    ;
     _d.CPGF_MD_TEMPLATE _method("getIndicesForPatch", &D::ClassType::getIndicesForPatch)
         ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _method("getCurrentLODOfPatches", &D::ClassType::getCurrentLODOfPatches);
-    _d.CPGF_MD_TEMPLATE _method("setLODOfPatch", &D::ClassType::setLODOfPatch)
+    _d.CPGF_MD_TEMPLATE _method("getMesh", &D::ClassType::getMesh);
+    _d.CPGF_MD_TEMPLATE _method("getMeshBufferForLOD", &D::ClassType::getMeshBufferForLOD)
         ._default(copyVariantFromCopyable(0))
     ;
+    _d.CPGF_MD_TEMPLATE _method("getRenderBuffer", &D::ClassType::getRenderBuffer);
     _d.CPGF_MD_TEMPLATE _method("getTerrainCenter", &D::ClassType::getTerrainCenter);
-    _d.CPGF_MD_TEMPLATE _method("getHeight", &D::ClassType::getHeight);
-    _d.CPGF_MD_TEMPLATE _method("setCameraMovementDelta", &D::ClassType::setCameraMovementDelta);
-    _d.CPGF_MD_TEMPLATE _method("setCameraRotationDelta", &D::ClassType::setCameraRotationDelta);
-    _d.CPGF_MD_TEMPLATE _method("setDynamicSelectorUpdate", &D::ClassType::setDynamicSelectorUpdate);
-    _d.CPGF_MD_TEMPLATE _method("overrideLODDistance", &D::ClassType::overrideLODDistance);
-    _d.CPGF_MD_TEMPLATE _method("scaleTexture", &D::ClassType::scaleTexture)
-        ._default(copyVariantFromCopyable(0.0f))
-        ._default(copyVariantFromCopyable(1.0f))
-    ;
     _d.CPGF_MD_TEMPLATE _method("loadHeightMap", &D::ClassType::loadHeightMap)
         ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(video::SColor(255, 255, 255, 255)))
@@ -61,6 +50,17 @@ void buildMetaClass_ITerrainSceneNode(const cpgf::GMetaDataConfigFlags & config,
         ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(16))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("overrideLODDistance", &D::ClassType::overrideLODDistance);
+    _d.CPGF_MD_TEMPLATE _method("scaleTexture", &D::ClassType::scaleTexture)
+        ._default(copyVariantFromCopyable(0.0f))
+        ._default(copyVariantFromCopyable(1.0f))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("setCameraMovementDelta", &D::ClassType::setCameraMovementDelta);
+    _d.CPGF_MD_TEMPLATE _method("setCameraRotationDelta", &D::ClassType::setCameraRotationDelta);
+    _d.CPGF_MD_TEMPLATE _method("setDynamicSelectorUpdate", &D::ClassType::setDynamicSelectorUpdate);
+    _d.CPGF_MD_TEMPLATE _method("setLODOfPatch", &D::ClassType::setLODOfPatch)
+        ._default(copyVariantFromCopyable(0))
     ;
 }
 

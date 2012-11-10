@@ -24,9 +24,9 @@ void buildMetaClass_IParticleBoxEmitter(const cpgf::GMetaDataConfigFlags & confi
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("setBox", &D::ClassType::setBox);
     _d.CPGF_MD_TEMPLATE _method("getBox", &D::ClassType::getBox);
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
+    _d.CPGF_MD_TEMPLATE _method("setBox", &D::ClassType::setBox);
 }
 
 

@@ -26,24 +26,24 @@ void buildMetaClass_CVertexBuffer(const cpgf::GMetaDataConfigFlags & config, D _
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (video::E_VERTEX_TYPE)>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (const IVertexBuffer &)>();
-    _d.CPGF_MD_TEMPLATE _field("Vertices", &D::ClassType::Vertices);
-    _d.CPGF_MD_TEMPLATE _field("MappingHint", &D::ClassType::MappingHint);
     _d.CPGF_MD_TEMPLATE _field("ChangedID", &D::ClassType::ChangedID);
-    _d.CPGF_MD_TEMPLATE _method("setType", &D::ClassType::setType);
-    _d.CPGF_MD_TEMPLATE _method("getData", &D::ClassType::getData);
-    _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
-    _d.CPGF_MD_TEMPLATE _method("stride", &D::ClassType::stride);
-    _d.CPGF_MD_TEMPLATE _method("size", &D::ClassType::size);
-    _d.CPGF_MD_TEMPLATE _method("push_back", &D::ClassType::push_back);
-    _d.CPGF_MD_TEMPLATE _method("getLast", &D::ClassType::getLast);
-    _d.CPGF_MD_TEMPLATE _method("set_used", &D::ClassType::set_used);
-    _d.CPGF_MD_TEMPLATE _method("reallocate", &D::ClassType::reallocate);
+    _d.CPGF_MD_TEMPLATE _field("MappingHint", &D::ClassType::MappingHint);
+    _d.CPGF_MD_TEMPLATE _field("Vertices", &D::ClassType::Vertices);
     _d.CPGF_MD_TEMPLATE _method("allocated_size", &D::ClassType::allocated_size);
-    _d.CPGF_MD_TEMPLATE _method("pointer", &D::ClassType::pointer);
-    _d.CPGF_MD_TEMPLATE _method("getHardwareMappingHint", &D::ClassType::getHardwareMappingHint);
-    _d.CPGF_MD_TEMPLATE _method("setHardwareMappingHint", &D::ClassType::setHardwareMappingHint);
-    _d.CPGF_MD_TEMPLATE _method("setDirty", &D::ClassType::setDirty);
     _d.CPGF_MD_TEMPLATE _method("getChangedID", &D::ClassType::getChangedID);
+    _d.CPGF_MD_TEMPLATE _method("getData", &D::ClassType::getData);
+    _d.CPGF_MD_TEMPLATE _method("getHardwareMappingHint", &D::ClassType::getHardwareMappingHint);
+    _d.CPGF_MD_TEMPLATE _method("getLast", &D::ClassType::getLast);
+    _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
+    _d.CPGF_MD_TEMPLATE _method("pointer", &D::ClassType::pointer);
+    _d.CPGF_MD_TEMPLATE _method("push_back", &D::ClassType::push_back);
+    _d.CPGF_MD_TEMPLATE _method("reallocate", &D::ClassType::reallocate);
+    _d.CPGF_MD_TEMPLATE _method("set_used", &D::ClassType::set_used);
+    _d.CPGF_MD_TEMPLATE _method("setDirty", &D::ClassType::setDirty);
+    _d.CPGF_MD_TEMPLATE _method("setHardwareMappingHint", &D::ClassType::setHardwareMappingHint);
+    _d.CPGF_MD_TEMPLATE _method("setType", &D::ClassType::setType);
+    _d.CPGF_MD_TEMPLATE _method("size", &D::ClassType::size);
+    _d.CPGF_MD_TEMPLATE _method("stride", &D::ClassType::stride);
     _d.CPGF_MD_TEMPLATE _operator<video::S3DVertex & (*)(const cpgf::GMetaSelf &, const u32)>(mopHolder[0]);
 }
 

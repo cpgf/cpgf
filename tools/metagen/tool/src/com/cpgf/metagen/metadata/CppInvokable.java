@@ -3,7 +3,6 @@ package com.cpgf.metagen.metadata;
 import java.util.List;
 
 import com.cpgf.metagen.Util;
-import com.cpgf.metagen.cppparser.ParsedType;
 import com.cpgf.metagen.cppparser.ParserUtil;
 
 public class CppInvokable extends ParameteredItem {
@@ -46,7 +45,6 @@ public class CppInvokable extends ParameteredItem {
 
 	private static void getPolicyRuleForParameter(List<String> rules, CppType type, int parameterIndex) {
 		ClassTraits traits = type.getClassTraits();
-		ParsedType parsedType = type.getParsedType();
 
 		if(traits != null) {
 			if(type.isConstValueReference()) {
@@ -57,7 +55,7 @@ public class CppInvokable extends ParameteredItem {
 				return;
 			}
 			
-			if(parsedType.isPointer()) {
+			if(type.isPointer()) {
 				return;
 			}
 			

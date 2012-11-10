@@ -26,6 +26,14 @@ void buildMetaClass_Global_ieventreceiver(const cpgf::GMetaDataConfigFlags & con
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _enum<E_MOUSE_BUTTON_STATE_MASK>("E_MOUSE_BUTTON_STATE_MASK")
+        ._element("EMBSM_LEFT", irr::EMBSM_LEFT)
+        ._element("EMBSM_RIGHT", irr::EMBSM_RIGHT)
+        ._element("EMBSM_MIDDLE", irr::EMBSM_MIDDLE)
+        ._element("EMBSM_EXTRA1", irr::EMBSM_EXTRA1)
+        ._element("EMBSM_EXTRA2", irr::EMBSM_EXTRA2)
+        ._element("EMBSM_FORCE_32_BIT", irr::EMBSM_FORCE_32_BIT)
+    ;
     _d.CPGF_MD_TEMPLATE _enum<EEVENT_TYPE>("EEVENT_TYPE")
         ._element("EET_GUI_EVENT", irr::EET_GUI_EVENT)
         ._element("EET_MOUSE_INPUT_EVENT", irr::EET_MOUSE_INPUT_EVENT)
@@ -51,14 +59,6 @@ void buildMetaClass_Global_ieventreceiver(const cpgf::GMetaDataConfigFlags & con
         ._element("EMIE_RMOUSE_TRIPLE_CLICK", irr::EMIE_RMOUSE_TRIPLE_CLICK)
         ._element("EMIE_MMOUSE_TRIPLE_CLICK", irr::EMIE_MMOUSE_TRIPLE_CLICK)
         ._element("EMIE_COUNT", irr::EMIE_COUNT)
-    ;
-    _d.CPGF_MD_TEMPLATE _enum<E_MOUSE_BUTTON_STATE_MASK>("E_MOUSE_BUTTON_STATE_MASK")
-        ._element("EMBSM_LEFT", irr::EMBSM_LEFT)
-        ._element("EMBSM_RIGHT", irr::EMBSM_RIGHT)
-        ._element("EMBSM_MIDDLE", irr::EMBSM_MIDDLE)
-        ._element("EMBSM_EXTRA1", irr::EMBSM_EXTRA1)
-        ._element("EMBSM_EXTRA2", irr::EMBSM_EXTRA2)
-        ._element("EMBSM_FORCE_32_BIT", irr::EMBSM_FORCE_32_BIT)
     ;
     _d.CPGF_MD_TEMPLATE _enum<EGUI_EVENT_TYPE>("EGUI_EVENT_TYPE")
         ._element("EGET_ELEMENT_FOCUS_LOST", irr::gui::EGET_ELEMENT_FOCUS_LOST)
@@ -140,42 +140,42 @@ void buildMetaClass_IEventReceiverWrapper(const cpgf::GMetaDataConfigFlags & con
 }
 
 
-inline bool bItFiEldWrapper_SEvent_SEvent_SKeyInput_PressedDown_getter(SEvent::SKeyInput * self) {
+inline bool bItFiEldWrapper_SEvent_SKeyInput_Control_getter(SEvent::SKeyInput * self) {
+    return self->Control;
+}
+
+inline void bItFiEldWrapper_SEvent_SKeyInput_Control_setter(SEvent::SKeyInput * self, bool value) {
+    self->Control = value;
+}
+inline bool bItFiEldWrapper_SEvent_SKeyInput_PressedDown_getter(SEvent::SKeyInput * self) {
     return self->PressedDown;
 }
 
-inline void bItFiEldWrapper_SEvent_SEvent_SKeyInput_PressedDown_setter(SEvent::SKeyInput * self, bool value) {
+inline void bItFiEldWrapper_SEvent_SKeyInput_PressedDown_setter(SEvent::SKeyInput * self, bool value) {
     self->PressedDown = value;
 }
-inline bool bItFiEldWrapper_SEvent_SEvent_SKeyInput_Shift_getter(SEvent::SKeyInput * self) {
+inline bool bItFiEldWrapper_SEvent_SKeyInput_Shift_getter(SEvent::SKeyInput * self) {
     return self->Shift;
 }
 
-inline void bItFiEldWrapper_SEvent_SEvent_SKeyInput_Shift_setter(SEvent::SKeyInput * self, bool value) {
+inline void bItFiEldWrapper_SEvent_SKeyInput_Shift_setter(SEvent::SKeyInput * self, bool value) {
     self->Shift = value;
 }
-inline bool bItFiEldWrapper_SEvent_SEvent_SKeyInput_Control_getter(SEvent::SKeyInput * self) {
+
+
+inline bool bItFiEldWrapper_SEvent_SMouseInput_Control_getter(SEvent::SMouseInput * self) {
     return self->Control;
 }
 
-inline void bItFiEldWrapper_SEvent_SEvent_SKeyInput_Control_setter(SEvent::SKeyInput * self, bool value) {
+inline void bItFiEldWrapper_SEvent_SMouseInput_Control_setter(SEvent::SMouseInput * self, bool value) {
     self->Control = value;
 }
-
-
-inline bool bItFiEldWrapper_SEvent_SEvent_SMouseInput_Shift_getter(SEvent::SMouseInput * self) {
+inline bool bItFiEldWrapper_SEvent_SMouseInput_Shift_getter(SEvent::SMouseInput * self) {
     return self->Shift;
 }
 
-inline void bItFiEldWrapper_SEvent_SEvent_SMouseInput_Shift_setter(SEvent::SMouseInput * self, bool value) {
+inline void bItFiEldWrapper_SEvent_SMouseInput_Shift_setter(SEvent::SMouseInput * self, bool value) {
     self->Shift = value;
-}
-inline bool bItFiEldWrapper_SEvent_SEvent_SMouseInput_Control_getter(SEvent::SMouseInput * self) {
-    return self->Control;
-}
-
-inline void bItFiEldWrapper_SEvent_SEvent_SMouseInput_Control_setter(SEvent::SMouseInput * self, bool value) {
-    self->Control = value;
 }
 
 
@@ -187,70 +187,70 @@ void buildMetaClass_SEvent(const cpgf::GMetaDataConfigFlags & config, D _d)
     
     _d.CPGF_MD_TEMPLATE _field("EventType", &D::ClassType::EventType);
     _d.CPGF_MD_TEMPLATE _field("GUIEvent", &D::ClassType::GUIEvent);
-    _d.CPGF_MD_TEMPLATE _field("MouseInput", &D::ClassType::MouseInput);
-    _d.CPGF_MD_TEMPLATE _field("KeyInput", &D::ClassType::KeyInput);
     _d.CPGF_MD_TEMPLATE _field("JoystickEvent", &D::ClassType::JoystickEvent);
+    _d.CPGF_MD_TEMPLATE _field("KeyInput", &D::ClassType::KeyInput);
     _d.CPGF_MD_TEMPLATE _field("LogEvent", &D::ClassType::LogEvent);
+    _d.CPGF_MD_TEMPLATE _field("MouseInput", &D::ClassType::MouseInput);
     _d.CPGF_MD_TEMPLATE _field("UserEvent", &D::ClassType::UserEvent);
     {
         GDefineMetaClass<SEvent::SGUIEvent> _nd = GDefineMetaClass<SEvent::SGUIEvent>::declare("SGUIEvent");
-        _nd.CPGF_MD_TEMPLATE _field("Caller", &irr::SEvent::SGUIEvent::Caller);
-        _nd.CPGF_MD_TEMPLATE _field("Element", &irr::SEvent::SGUIEvent::Element);
-        _nd.CPGF_MD_TEMPLATE _field("EventType", &irr::SEvent::SGUIEvent::EventType);
+        _nd.CPGF_MD_TEMPLATE _field("Caller", &SEvent::SGUIEvent::Caller);
+        _nd.CPGF_MD_TEMPLATE _field("Element", &SEvent::SGUIEvent::Element);
+        _nd.CPGF_MD_TEMPLATE _field("EventType", &SEvent::SGUIEvent::EventType);
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
         GDefineMetaClass<SEvent::SJoystickEvent> _nd = GDefineMetaClass<SEvent::SJoystickEvent>::declare("SJoystickEvent");
-        _nd.CPGF_MD_TEMPLATE _field("ButtonStates", &irr::SEvent::SJoystickEvent::ButtonStates);
-        _nd.CPGF_MD_TEMPLATE _field("Axis", &irr::SEvent::SJoystickEvent::Axis);
-        _nd.CPGF_MD_TEMPLATE _field("POV", &irr::SEvent::SJoystickEvent::POV);
-        _nd.CPGF_MD_TEMPLATE _field("Joystick", &irr::SEvent::SJoystickEvent::Joystick);
-        _nd.CPGF_MD_TEMPLATE _method("IsButtonPressed", &irr::SEvent::SJoystickEvent::IsButtonPressed);
-        _nd.CPGF_MD_TEMPLATE _enum<long long>("GlobalEnum_irrlicht_2")
-            ._element("NUMBER_OF_BUTTONS", irr::SEvent::SJoystickEvent::NUMBER_OF_BUTTONS)
-            ._element("AXIS_X", irr::SEvent::SJoystickEvent::AXIS_X)
-            ._element("AXIS_Y", irr::SEvent::SJoystickEvent::AXIS_Y)
-            ._element("AXIS_Z", irr::SEvent::SJoystickEvent::AXIS_Z)
-            ._element("AXIS_R", irr::SEvent::SJoystickEvent::AXIS_R)
-            ._element("AXIS_U", irr::SEvent::SJoystickEvent::AXIS_U)
-            ._element("AXIS_V", irr::SEvent::SJoystickEvent::AXIS_V)
-            ._element("NUMBER_OF_AXES", irr::SEvent::SJoystickEvent::NUMBER_OF_AXES)
+        _nd.CPGF_MD_TEMPLATE _field("Axis", &SEvent::SJoystickEvent::Axis);
+        _nd.CPGF_MD_TEMPLATE _field("ButtonStates", &SEvent::SJoystickEvent::ButtonStates);
+        _nd.CPGF_MD_TEMPLATE _field("Joystick", &SEvent::SJoystickEvent::Joystick);
+        _nd.CPGF_MD_TEMPLATE _field("POV", &SEvent::SJoystickEvent::POV);
+        _nd.CPGF_MD_TEMPLATE _method("IsButtonPressed", &SEvent::SJoystickEvent::IsButtonPressed);
+        _nd.CPGF_MD_TEMPLATE _enum<long long>("GlobalEnum_irrlicht_5")
+            ._element("NUMBER_OF_BUTTONS", SEvent::SJoystickEvent::NUMBER_OF_BUTTONS)
+            ._element("AXIS_X", SEvent::SJoystickEvent::AXIS_X)
+            ._element("AXIS_Y", SEvent::SJoystickEvent::AXIS_Y)
+            ._element("AXIS_Z", SEvent::SJoystickEvent::AXIS_Z)
+            ._element("AXIS_R", SEvent::SJoystickEvent::AXIS_R)
+            ._element("AXIS_U", SEvent::SJoystickEvent::AXIS_U)
+            ._element("AXIS_V", SEvent::SJoystickEvent::AXIS_V)
+            ._element("NUMBER_OF_AXES", SEvent::SJoystickEvent::NUMBER_OF_AXES)
         ;
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
         GDefineMetaClass<SEvent::SKeyInput> _nd = GDefineMetaClass<SEvent::SKeyInput>::declare("SKeyInput");
-        _nd.CPGF_MD_TEMPLATE _field("Char", &irr::SEvent::SKeyInput::Char);
-        _nd.CPGF_MD_TEMPLATE _field("Key", &irr::SEvent::SKeyInput::Key);
-        _nd.CPGF_MD_TEMPLATE _property("PressedDown", &bItFiEldWrapper_SEvent_SEvent_SKeyInput_PressedDown_getter, &bItFiEldWrapper_SEvent_SEvent_SKeyInput_PressedDown_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-        _nd.CPGF_MD_TEMPLATE _property("Shift", &bItFiEldWrapper_SEvent_SEvent_SKeyInput_Shift_getter, &bItFiEldWrapper_SEvent_SEvent_SKeyInput_Shift_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-        _nd.CPGF_MD_TEMPLATE _property("Control", &bItFiEldWrapper_SEvent_SEvent_SKeyInput_Control_getter, &bItFiEldWrapper_SEvent_SEvent_SKeyInput_Control_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
+        _nd.CPGF_MD_TEMPLATE _field("Char", &SEvent::SKeyInput::Char);
+        _nd.CPGF_MD_TEMPLATE _property("Control", &bItFiEldWrapper_SEvent_SKeyInput_Control_getter, &bItFiEldWrapper_SEvent_SKeyInput_Control_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
+        _nd.CPGF_MD_TEMPLATE _field("Key", &SEvent::SKeyInput::Key);
+        _nd.CPGF_MD_TEMPLATE _property("PressedDown", &bItFiEldWrapper_SEvent_SKeyInput_PressedDown_getter, &bItFiEldWrapper_SEvent_SKeyInput_PressedDown_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
+        _nd.CPGF_MD_TEMPLATE _property("Shift", &bItFiEldWrapper_SEvent_SKeyInput_Shift_getter, &bItFiEldWrapper_SEvent_SKeyInput_Shift_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
         GDefineMetaClass<SEvent::SLogEvent> _nd = GDefineMetaClass<SEvent::SLogEvent>::declare("SLogEvent");
-        _nd.CPGF_MD_TEMPLATE _field("Text", &irr::SEvent::SLogEvent::Text);
-        _nd.CPGF_MD_TEMPLATE _field("Level", &irr::SEvent::SLogEvent::Level);
+        _nd.CPGF_MD_TEMPLATE _field("Level", &SEvent::SLogEvent::Level);
+        _nd.CPGF_MD_TEMPLATE _field("Text", &SEvent::SLogEvent::Text);
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
         GDefineMetaClass<SEvent::SMouseInput> _nd = GDefineMetaClass<SEvent::SMouseInput>::declare("SMouseInput");
-        _nd.CPGF_MD_TEMPLATE _field("X", &irr::SEvent::SMouseInput::X);
-        _nd.CPGF_MD_TEMPLATE _field("Y", &irr::SEvent::SMouseInput::Y);
-        _nd.CPGF_MD_TEMPLATE _field("Wheel", &irr::SEvent::SMouseInput::Wheel);
-        _nd.CPGF_MD_TEMPLATE _property("Shift", &bItFiEldWrapper_SEvent_SEvent_SMouseInput_Shift_getter, &bItFiEldWrapper_SEvent_SEvent_SMouseInput_Shift_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-        _nd.CPGF_MD_TEMPLATE _property("Control", &bItFiEldWrapper_SEvent_SEvent_SMouseInput_Control_getter, &bItFiEldWrapper_SEvent_SEvent_SMouseInput_Control_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-        _nd.CPGF_MD_TEMPLATE _field("ButtonStates", &irr::SEvent::SMouseInput::ButtonStates);
-        _nd.CPGF_MD_TEMPLATE _field("Event", &irr::SEvent::SMouseInput::Event);
-        _nd.CPGF_MD_TEMPLATE _method("isLeftPressed", &irr::SEvent::SMouseInput::isLeftPressed);
-        _nd.CPGF_MD_TEMPLATE _method("isRightPressed", &irr::SEvent::SMouseInput::isRightPressed);
-        _nd.CPGF_MD_TEMPLATE _method("isMiddlePressed", &irr::SEvent::SMouseInput::isMiddlePressed);
+        _nd.CPGF_MD_TEMPLATE _field("ButtonStates", &SEvent::SMouseInput::ButtonStates);
+        _nd.CPGF_MD_TEMPLATE _property("Control", &bItFiEldWrapper_SEvent_SMouseInput_Control_getter, &bItFiEldWrapper_SEvent_SMouseInput_Control_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
+        _nd.CPGF_MD_TEMPLATE _field("Event", &SEvent::SMouseInput::Event);
+        _nd.CPGF_MD_TEMPLATE _property("Shift", &bItFiEldWrapper_SEvent_SMouseInput_Shift_getter, &bItFiEldWrapper_SEvent_SMouseInput_Shift_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
+        _nd.CPGF_MD_TEMPLATE _field("Wheel", &SEvent::SMouseInput::Wheel);
+        _nd.CPGF_MD_TEMPLATE _field("X", &SEvent::SMouseInput::X);
+        _nd.CPGF_MD_TEMPLATE _field("Y", &SEvent::SMouseInput::Y);
+        _nd.CPGF_MD_TEMPLATE _method("isLeftPressed", &SEvent::SMouseInput::isLeftPressed);
+        _nd.CPGF_MD_TEMPLATE _method("isMiddlePressed", &SEvent::SMouseInput::isMiddlePressed);
+        _nd.CPGF_MD_TEMPLATE _method("isRightPressed", &SEvent::SMouseInput::isRightPressed);
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
         GDefineMetaClass<SEvent::SUserEvent> _nd = GDefineMetaClass<SEvent::SUserEvent>::declare("SUserEvent");
-        _nd.CPGF_MD_TEMPLATE _field("UserData1", &irr::SEvent::SUserEvent::UserData1);
-        _nd.CPGF_MD_TEMPLATE _field("UserData2", &irr::SEvent::SUserEvent::UserData2);
+        _nd.CPGF_MD_TEMPLATE _field("UserData1", &SEvent::SUserEvent::UserData1);
+        _nd.CPGF_MD_TEMPLATE _field("UserData2", &SEvent::SUserEvent::UserData2);
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
 }
@@ -262,12 +262,12 @@ void buildMetaClass_SJoystickInfo(const cpgf::GMetaDataConfigFlags & config, D _
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _field("Axes", &D::ClassType::Axes);
+    _d.CPGF_MD_TEMPLATE _field("Buttons", &D::ClassType::Buttons);
     _d.CPGF_MD_TEMPLATE _field("Joystick", &D::ClassType::Joystick);
     _d.CPGF_MD_TEMPLATE _field("Name", &D::ClassType::Name);
-    _d.CPGF_MD_TEMPLATE _field("Buttons", &D::ClassType::Buttons);
-    _d.CPGF_MD_TEMPLATE _field("Axes", &D::ClassType::Axes);
     _d.CPGF_MD_TEMPLATE _field("PovHat", &D::ClassType::PovHat);
-    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalEnum_irrlicht_3")
+    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalEnum_irrlicht_6")
         ._element("POV_HAT_PRESENT", D::ClassType::POV_HAT_PRESENT)
         ._element("POV_HAT_ABSENT", D::ClassType::POV_HAT_ABSENT)
         ._element("POV_HAT_UNKNOWN", D::ClassType::POV_HAT_UNKNOWN)

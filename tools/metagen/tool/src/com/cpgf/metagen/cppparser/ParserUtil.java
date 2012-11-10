@@ -109,7 +109,7 @@ public class ParserUtil {
 		return did;
 	}
 	
-	// move "const" or "volatile" to right most until it's next to * or &
+	// move "const" or "volatile" to left most until it's next to * or &
 	private static boolean doNormalizeConstVolatile(List<TypeToken> tokenList, EnumTypeTokenKind kindToNormalize) {
 		boolean did = false;
 		
@@ -349,6 +349,51 @@ public class ParserUtil {
 		}
 
 		return method;
+	}
+
+	public static List<String> parseArrayDimensions(List<TypeToken> tokenList) {
+		List<String> dimensions = null;
+		int count = tokenList.size();
+		int nestedDepth = 0;
+
+		for(int i = 0; i < count - 1; ++i) {
+			TypeToken token = tokenList.get(i);
+			
+			if(token.getKind() == EnumTypeTokenKind.LeftAngle || token.getKind() == EnumTypeTokenKind.LeftParenthesis) {
+				++nestedDepth;
+			}
+			
+			if(token.getKind() == EnumTypeTokenKind.RightAngle || token.getKind() == EnumTypeTokenKind.RightParenthesis) {
+				--nestedDepth;
+			}
+			
+			if(nestedDepth == 0 && token.getKind() == EnumTypeTokenKind.LeftSquare) {
+				if(dimensions == null) {
+					dimensions = new ArrayList<String>();
+				}
+
+				String dim = "";
+				int k = i + 1;
+				for(; k < count; ++k) {
+					TypeToken nextToken = tokenList.get(k);
+					if(nextToken.getKind() == EnumTypeTokenKind.RightSquare) {
+						break;
+					}
+
+					if(dim.length() > 0) {
+						dim = dim + " ";
+					}
+					
+					dim = dim + nextToken.getToken();
+				}
+				
+				dimensions.add(dim);
+
+				i = k;
+			}
+		}
+
+		return dimensions;
 	}
 
 }

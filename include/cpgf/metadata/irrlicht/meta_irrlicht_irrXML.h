@@ -65,33 +65,33 @@ void buildMetaClass_IFileReadCallBack(const cpgf::GMetaDataConfigFlags & config,
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("read", &D::ClassType::read);
     _d.CPGF_MD_TEMPLATE _method("getSize", &D::ClassType::getSize);
+    _d.CPGF_MD_TEMPLATE _method("read", &D::ClassType::read);
 }
 
 
-template <typename D, typename char_type, typename super_class>
+template <typename D, class char_type, class super_class>
 void buildMetaClass_IIrrXMLReader(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("read", &D::ClassType::read);
-    _d.CPGF_MD_TEMPLATE _method("getNodeType", &D::ClassType::getNodeType);
     _d.CPGF_MD_TEMPLATE _method("getAttributeCount", &D::ClassType::getAttributeCount);
     _d.CPGF_MD_TEMPLATE _method("getAttributeName", &D::ClassType::getAttributeName);
     _d.CPGF_MD_TEMPLATE _method("getAttributeValue", (const char_type * (D::ClassType::*) (int) const)&D::ClassType::getAttributeValue);
     _d.CPGF_MD_TEMPLATE _method("getAttributeValue", (const char_type * (D::ClassType::*) (const char_type *) const)&D::ClassType::getAttributeValue);
-    _d.CPGF_MD_TEMPLATE _method("getAttributeValueSafe", &D::ClassType::getAttributeValueSafe);
-    _d.CPGF_MD_TEMPLATE _method("getAttributeValueAsInt", (int (D::ClassType::*) (const char_type *) const)&D::ClassType::getAttributeValueAsInt);
-    _d.CPGF_MD_TEMPLATE _method("getAttributeValueAsInt", (int (D::ClassType::*) (int) const)&D::ClassType::getAttributeValueAsInt);
     _d.CPGF_MD_TEMPLATE _method("getAttributeValueAsFloat", (float (D::ClassType::*) (const char_type *) const)&D::ClassType::getAttributeValueAsFloat);
     _d.CPGF_MD_TEMPLATE _method("getAttributeValueAsFloat", (float (D::ClassType::*) (int) const)&D::ClassType::getAttributeValueAsFloat);
-    _d.CPGF_MD_TEMPLATE _method("getNodeName", &D::ClassType::getNodeName);
+    _d.CPGF_MD_TEMPLATE _method("getAttributeValueAsInt", (int (D::ClassType::*) (const char_type *) const)&D::ClassType::getAttributeValueAsInt);
+    _d.CPGF_MD_TEMPLATE _method("getAttributeValueAsInt", (int (D::ClassType::*) (int) const)&D::ClassType::getAttributeValueAsInt);
+    _d.CPGF_MD_TEMPLATE _method("getAttributeValueSafe", &D::ClassType::getAttributeValueSafe);
     _d.CPGF_MD_TEMPLATE _method("getNodeData", &D::ClassType::getNodeData);
-    _d.CPGF_MD_TEMPLATE _method("isEmptyElement", &D::ClassType::isEmptyElement);
-    _d.CPGF_MD_TEMPLATE _method("getSourceFormat", &D::ClassType::getSourceFormat);
+    _d.CPGF_MD_TEMPLATE _method("getNodeName", &D::ClassType::getNodeName);
+    _d.CPGF_MD_TEMPLATE _method("getNodeType", &D::ClassType::getNodeType);
     _d.CPGF_MD_TEMPLATE _method("getParserFormat", &D::ClassType::getParserFormat);
+    _d.CPGF_MD_TEMPLATE _method("getSourceFormat", &D::ClassType::getSourceFormat);
+    _d.CPGF_MD_TEMPLATE _method("isEmptyElement", &D::ClassType::isEmptyElement);
+    _d.CPGF_MD_TEMPLATE _method("read", &D::ClassType::read);
 }
 
 

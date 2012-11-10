@@ -21,7 +21,7 @@ public class TypeSolver {
 	}
 
 	public ParsedType getParsedType(String literalType) {
-		ParsedType type = this.parsedTypeMap.get(literalType);
+		ParsedType type = null; // this.parsedTypeMap.get(literalType);
 
 		if(type == null) {
 			type = new ParsedType(literalType);

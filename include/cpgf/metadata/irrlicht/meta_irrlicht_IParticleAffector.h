@@ -44,9 +44,9 @@ void buildMetaClass_IParticleAffector(const cpgf::GMetaDataConfigFlags & config,
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("affect", &D::ClassType::affect);
-    _d.CPGF_MD_TEMPLATE _method("setEnabled", &D::ClassType::setEnabled);
     _d.CPGF_MD_TEMPLATE _method("getEnabled", &D::ClassType::getEnabled);
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
+    _d.CPGF_MD_TEMPLATE _method("setEnabled", &D::ClassType::setEnabled);
 }
 
 

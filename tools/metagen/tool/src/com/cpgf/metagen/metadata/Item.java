@@ -1,5 +1,6 @@
 package com.cpgf.metagen.metadata;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.cpgf.metagen.Util;
@@ -12,7 +13,7 @@ public class Item {
 	private EnumCategory category;
 	private EnumVisibility visibility;
 	private String location;
-	private String namespace;
+	private List<String> namespaces;
 	private boolean isStatic;
 	private boolean isConst;
 	private CppClass owner;
@@ -25,6 +26,8 @@ public class Item {
 		this.category = category;
 		this.literalName = name;
 		this.primaryName = Util.getItemBaseName(name);
+		
+		this.namespaces = new ArrayList<String>();
 	}
 
 	public String getPrimaryName() {
@@ -37,26 +40,12 @@ public class Item {
 
 	public String getQualifiedName() {
 		if(this.qualifiedName == null) {
-			this.qualifiedName = this.getPrimaryName();
-			if(this.qualifiedName.equals("")) {
-				return this.qualifiedName;
-			}
-
 			CppClass parent = this.getOwner();
-			if(parent == null) {
-				if(! this.getNamespace().equals("")) {
-					this.qualifiedName = this.getNamespace() + "::" + this.qualifiedName;
-				}
+			if(parent == null || parent.isGlobal()) {
+				this.qualifiedName = Util.concatQualifiedName(this.getNamespace(), this.getPrimaryName());
 			}
 			else {
-				while(parent != null) {
-					String parentQualifiedname = parent.getQualifiedName();
-					if(parentQualifiedname == null || parentQualifiedname.equals("")) {
-						break;
-					}
-					this.qualifiedName = parentQualifiedname + "::" + this.qualifiedName;
-					parent = parent.getOwner();
-				}
+				this.qualifiedName = Util.concatQualifiedName(parent.getQualifiedName(), this.getPrimaryName());
 			}
 		}
 
@@ -79,22 +68,14 @@ public class Item {
 	}
 	
 	public String getFullNamespace() {
-		String prefix = "";
-		if(this.owner != null) {
-			prefix = this.owner.getFullNamespace();
-		}
-		
-		if(prefix.equals("")) {
-			return this.getNamespace();
-		}
-		else {
-			if(this.getNamespace().equals("")) {
-				return prefix;
+		String namespace = "";
+		for(String ns : this.namespaces) {
+			if(namespace.length() > 0) {
+				namespace = namespace + "::";
 			}
-			else {
-				return prefix + "::" + this.getNamespace();
-			}
+			namespace = namespace + ns;
 		}
+		return namespace;
 	}
 	
 	public void getPolicyRules(List<String> rules) {
@@ -133,15 +114,12 @@ public class Item {
 	}
 
 	public String getNamespace() {
-		if(this.namespace == null) {
-			this.namespace = "";
-		}
-
-		return this.namespace;
+		return this.namespaces.size() > 0 ? this.namespaces.get(this.namespaces.size() - 1) : "";
 	}
 
-	public void setNamespace(String namespace) {
-		this.namespace = namespace;
+	public void setNamespaces(List<String> namespaces) {
+		this.namespaces.clear();
+		this.namespaces.addAll(namespaces);
 	}
 
 	public boolean isStatic() {
@@ -166,6 +144,7 @@ public class Item {
 
 	public void setOwner(CppClass owner) {
 		this.owner = owner;
+		this.qualifiedName = null;
 	}
 	
 	public CppClass getRootOwner() {

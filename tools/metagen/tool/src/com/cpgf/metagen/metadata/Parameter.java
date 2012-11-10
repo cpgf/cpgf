@@ -16,7 +16,6 @@ public class Parameter {
 		this.type = type;
 		this.defaultValue = defaultValue;
 		this.owner = owner;
-		this.type.setOwner(this.owner);
 	}
 
 	public String getName() {

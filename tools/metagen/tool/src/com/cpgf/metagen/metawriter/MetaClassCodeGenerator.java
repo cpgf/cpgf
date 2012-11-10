@@ -70,7 +70,7 @@ public class MetaClassCodeGenerator {
 		codeWriter.write("template <typename D");
 		if(cppClass.isTemplate()) {
 			for(Parameter param : cppClass.getTemplateParameterList()) {
-				codeWriter.write(", typename " + param.getName());
+				codeWriter.write(", " + param.getType().getLiteralType() + " " + param.getName());
 			}
 		}
 		codeWriter.writeLine(">");

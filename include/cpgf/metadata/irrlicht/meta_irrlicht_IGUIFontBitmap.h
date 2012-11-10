@@ -24,13 +24,13 @@ void buildMetaClass_IGUIFontBitmap(const cpgf::GMetaDataConfigFlags & config, D 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
-    _d.CPGF_MD_TEMPLATE _method("getSpriteBank", &D::ClassType::getSpriteBank);
-    _d.CPGF_MD_TEMPLATE _method("getSpriteNoFromChar", &D::ClassType::getSpriteNoFromChar);
     _d.CPGF_MD_TEMPLATE _method("getKerningWidth", &D::ClassType::getKerningWidth)
         ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(0))
     ;
+    _d.CPGF_MD_TEMPLATE _method("getSpriteBank", &D::ClassType::getSpriteBank);
+    _d.CPGF_MD_TEMPLATE _method("getSpriteNoFromChar", &D::ClassType::getSpriteNoFromChar);
+    _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
 }
 
 

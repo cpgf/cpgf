@@ -15,7 +15,7 @@ public:
 	{
 	};
 
-	void a(TemplateClassInnerA<T> *) {}
+//	void a(TemplateClassInnerA<T> *) {}
 	void a(int) {}
 	void b(Shared *) {}
 	void b(void *) {}
@@ -24,6 +24,9 @@ public:
 struct TemplateBase
 {
 };
+
+namespace NS1 {
+namespace NS2 {
 
 template <typename T>
 struct TemplateClassB : public T
@@ -37,7 +40,8 @@ public:
 	void b(void *) {}
 };
 
-
+}
+}
 
 
 #endif

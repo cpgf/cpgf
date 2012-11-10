@@ -10,6 +10,8 @@
 #include "cpgf/gmetapolicy.h"
 
 
+using namespace NS1;
+using namespace NS1::NS2;
 
 
 namespace meta_test { 
@@ -24,14 +26,13 @@ void buildMetaClass_TemplateBase(const cpgf::GMetaDataConfigFlags & config, D _d
 }
 
 
-template <typename D, typename T, typename U, typename N>
+template <typename D, typename T, typename U, int N>
 void buildMetaClass_TemplateClassA(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("a", (void (D::ClassType::*) (template TemplateClassA<T, U, N >::TemplateClassInnerA<T>*))&D::ClassType::a);
-    _d.CPGF_MD_TEMPLATE _method("a", (void (D::ClassType::*) (int))&D::ClassType::a);
+    _d.CPGF_MD_TEMPLATE _method("a", &D::ClassType::a);
     _d.CPGF_MD_TEMPLATE _method("b", (void (D::ClassType::*) (typename TemplateClassA<T, U, N >::Shared*))&D::ClassType::b);
     _d.CPGF_MD_TEMPLATE _method("b", (void (D::ClassType::*) (void *))&D::ClassType::b);
     {
@@ -47,7 +48,7 @@ void buildMetaClass_TemplateClassB(const cpgf::GMetaDataConfigFlags & config, D 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("b", (void (D::ClassType::*) (typename TemplateClassA<T, U, N >::Shared*))&D::ClassType::b);
+    _d.CPGF_MD_TEMPLATE _method("b", (void (D::ClassType::*) (typename TemplateClassB<T >::Shared*))&D::ClassType::b);
     _d.CPGF_MD_TEMPLATE _method("b", (void (D::ClassType::*) (void *))&D::ClassType::b);
     {
         GDefineMetaClass<typename TemplateClassB<T >::Shared> _nd = GDefineMetaClass<typename TemplateClassB<T >::Shared>::declare("Shared");

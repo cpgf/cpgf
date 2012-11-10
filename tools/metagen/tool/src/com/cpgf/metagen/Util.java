@@ -42,6 +42,16 @@ public class Util {
 	public static String quoteText(String text) {
 		return "\"" + text + "\"";
 	}
+	
+	public static String concatQualifiedName(String qualify, String name)
+	{
+		if(qualify == null || qualify.length() == 0) {
+			return name;
+		}
+		else {
+			return qualify + "::" + name;
+		}
+	}
 
 	public static String getAttribute(Node node, String attributeName) {
 		Node n = node.getAttributes().getNamedItem(attributeName);

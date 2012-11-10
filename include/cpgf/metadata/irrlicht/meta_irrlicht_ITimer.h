@@ -24,15 +24,15 @@ void buildMetaClass_ITimer(const cpgf::GMetaDataConfigFlags & config, D _d)
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("getRealTime", &D::ClassType::getRealTime);
+    _d.CPGF_MD_TEMPLATE _method("getSpeed", &D::ClassType::getSpeed);
     _d.CPGF_MD_TEMPLATE _method("getTime", &D::ClassType::getTime);
-    _d.CPGF_MD_TEMPLATE _method("setTime", &D::ClassType::setTime);
-    _d.CPGF_MD_TEMPLATE _method("stop", &D::ClassType::stop);
-    _d.CPGF_MD_TEMPLATE _method("start", &D::ClassType::start);
+    _d.CPGF_MD_TEMPLATE _method("isStopped", &D::ClassType::isStopped);
     _d.CPGF_MD_TEMPLATE _method("setSpeed", &D::ClassType::setSpeed)
         ._default(copyVariantFromCopyable(1.0f))
     ;
-    _d.CPGF_MD_TEMPLATE _method("getSpeed", &D::ClassType::getSpeed);
-    _d.CPGF_MD_TEMPLATE _method("isStopped", &D::ClassType::isStopped);
+    _d.CPGF_MD_TEMPLATE _method("setTime", &D::ClassType::setTime);
+    _d.CPGF_MD_TEMPLATE _method("start", &D::ClassType::start);
+    _d.CPGF_MD_TEMPLATE _method("stop", &D::ClassType::stop);
     _d.CPGF_MD_TEMPLATE _method("tick", &D::ClassType::tick);
 }
 

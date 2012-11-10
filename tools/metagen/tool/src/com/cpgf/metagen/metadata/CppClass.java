@@ -39,7 +39,7 @@ public class CppClass extends ParameteredItem {
 		this.baseClassList = new ArrayList<DeferClass>();
 	}
 
-	public String getFulltQualifiedName() {
+	public String getFullQualifiedName() {
 		if(this.fullQualifiedName == null) {
 			this.fullQualifiedName = this.getPrimaryName();
 			if(this.fullQualifiedName.equals("")) {
@@ -58,7 +58,7 @@ public class CppClass extends ParameteredItem {
 			}
 			else {
 				while(parent != null) {
-					String parentQualifiedname = parent.getFulltQualifiedName();
+					String parentQualifiedname = parent.getFullQualifiedName();
 					if(parentQualifiedname == null || parentQualifiedname.equals("")) {
 						break;
 					}
@@ -232,14 +232,18 @@ public class CppClass extends ParameteredItem {
 	}
 	
 	public boolean canGenerateMetaCode() {
-		return true;
-//		return this.constructorList.size() > 0
-//				|| this.fieldList.size() > 0
-//				|| this.methodList.size() > 0
-//				|| this.enumList.size() > 0
-//				|| this.operatorList.size() > 0
-//				|| this.constantList.size() > 0
-//			;
+		if(! this.isGlobal()) {
+			return true;
+		}
+		else {
+			return this.constructorList.size() > 0
+					|| this.fieldList.size() > 0
+					|| this.methodList.size() > 0
+					|| this.enumList.size() > 0
+					|| this.operatorList.size() > 0
+					|| this.constantList.size() > 0
+				;
+		}
 	}
 	
 	@Override

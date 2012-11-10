@@ -24,18 +24,12 @@ void buildMetaClass_Global_eshadertypes(const cpgf::GMetaDataConfigFlags & confi
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _field("VERTEX_SHADER_TYPE_NAMES", &VERTEX_SHADER_TYPE_NAMES);
-    _d.CPGF_MD_TEMPLATE _field("PIXEL_SHADER_TYPE_NAMES", &PIXEL_SHADER_TYPE_NAMES);
     _d.CPGF_MD_TEMPLATE _field("GEOMETRY_SHADER_TYPE_NAMES", &GEOMETRY_SHADER_TYPE_NAMES);
-    _d.CPGF_MD_TEMPLATE _enum<E_VERTEX_SHADER_TYPE>("E_VERTEX_SHADER_TYPE")
-        ._element("EVST_VS_1_1", irr::video::EVST_VS_1_1)
-        ._element("EVST_VS_2_0", irr::video::EVST_VS_2_0)
-        ._element("EVST_VS_2_a", irr::video::EVST_VS_2_a)
-        ._element("EVST_VS_3_0", irr::video::EVST_VS_3_0)
-        ._element("EVST_VS_4_0", irr::video::EVST_VS_4_0)
-        ._element("EVST_VS_4_1", irr::video::EVST_VS_4_1)
-        ._element("EVST_VS_5_0", irr::video::EVST_VS_5_0)
-        ._element("EVST_COUNT", irr::video::EVST_COUNT)
+    _d.CPGF_MD_TEMPLATE _field("PIXEL_SHADER_TYPE_NAMES", &PIXEL_SHADER_TYPE_NAMES);
+    _d.CPGF_MD_TEMPLATE _field("VERTEX_SHADER_TYPE_NAMES", &VERTEX_SHADER_TYPE_NAMES);
+    _d.CPGF_MD_TEMPLATE _enum<E_GEOMETRY_SHADER_TYPE>("E_GEOMETRY_SHADER_TYPE")
+        ._element("EGST_GS_4_0", irr::video::EGST_GS_4_0)
+        ._element("EGST_COUNT", irr::video::EGST_COUNT)
     ;
     _d.CPGF_MD_TEMPLATE _enum<E_PIXEL_SHADER_TYPE>("E_PIXEL_SHADER_TYPE")
         ._element("EPST_PS_1_1", irr::video::EPST_PS_1_1)
@@ -51,9 +45,15 @@ void buildMetaClass_Global_eshadertypes(const cpgf::GMetaDataConfigFlags & confi
         ._element("EPST_PS_5_0", irr::video::EPST_PS_5_0)
         ._element("EPST_COUNT", irr::video::EPST_COUNT)
     ;
-    _d.CPGF_MD_TEMPLATE _enum<E_GEOMETRY_SHADER_TYPE>("E_GEOMETRY_SHADER_TYPE")
-        ._element("EGST_GS_4_0", irr::video::EGST_GS_4_0)
-        ._element("EGST_COUNT", irr::video::EGST_COUNT)
+    _d.CPGF_MD_TEMPLATE _enum<E_VERTEX_SHADER_TYPE>("E_VERTEX_SHADER_TYPE")
+        ._element("EVST_VS_1_1", irr::video::EVST_VS_1_1)
+        ._element("EVST_VS_2_0", irr::video::EVST_VS_2_0)
+        ._element("EVST_VS_2_a", irr::video::EVST_VS_2_a)
+        ._element("EVST_VS_3_0", irr::video::EVST_VS_3_0)
+        ._element("EVST_VS_4_0", irr::video::EVST_VS_4_0)
+        ._element("EVST_VS_4_1", irr::video::EVST_VS_4_1)
+        ._element("EVST_VS_5_0", irr::video::EVST_VS_5_0)
+        ._element("EVST_COUNT", irr::video::EVST_COUNT)
     ;
 }
 

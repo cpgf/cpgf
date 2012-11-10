@@ -12,8 +12,8 @@
 
 
 using namespace irr;
-using namespace irr::video;
 using namespace irr::gui;
+using namespace irr::video;
 
 
 namespace meta_irrlicht { 

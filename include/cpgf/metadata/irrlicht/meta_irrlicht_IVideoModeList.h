@@ -24,12 +24,12 @@ void buildMetaClass_IVideoModeList(const cpgf::GMetaDataConfigFlags & config, D 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _method("getDesktopDepth", &D::ClassType::getDesktopDepth);
+    _d.CPGF_MD_TEMPLATE _method("getDesktopResolution", &D::ClassType::getDesktopResolution);
     _d.CPGF_MD_TEMPLATE _method("getVideoModeCount", &D::ClassType::getVideoModeCount);
+    _d.CPGF_MD_TEMPLATE _method("getVideoModeDepth", &D::ClassType::getVideoModeDepth);
     _d.CPGF_MD_TEMPLATE _method("getVideoModeResolution", (core::dimension2d< u32 > (D::ClassType::*) (s32) const)&D::ClassType::getVideoModeResolution);
     _d.CPGF_MD_TEMPLATE _method("getVideoModeResolution", (core::dimension2d< u32 > (D::ClassType::*) (const core::dimension2d< u32 > &, const core::dimension2d< u32 > &) const)&D::ClassType::getVideoModeResolution);
-    _d.CPGF_MD_TEMPLATE _method("getVideoModeDepth", &D::ClassType::getVideoModeDepth);
-    _d.CPGF_MD_TEMPLATE _method("getDesktopResolution", &D::ClassType::getDesktopResolution);
-    _d.CPGF_MD_TEMPLATE _method("getDesktopDepth", &D::ClassType::getDesktopDepth);
 }
 
 

@@ -8,7 +8,6 @@ public class CppField extends Item {
 		super(EnumCategory.Field, name);
 		
 		this.type = type;
-		this.type.setOwner(this);
 	}
 
 	public CppType getType() {

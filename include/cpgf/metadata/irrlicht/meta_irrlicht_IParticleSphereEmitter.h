@@ -24,11 +24,11 @@ void buildMetaClass_IParticleSphereEmitter(const cpgf::GMetaDataConfigFlags & co
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("setCenter", &D::ClassType::setCenter);
-    _d.CPGF_MD_TEMPLATE _method("setRadius", &D::ClassType::setRadius);
     _d.CPGF_MD_TEMPLATE _method("getCenter", &D::ClassType::getCenter);
     _d.CPGF_MD_TEMPLATE _method("getRadius", &D::ClassType::getRadius);
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
+    _d.CPGF_MD_TEMPLATE _method("setCenter", &D::ClassType::setCenter);
+    _d.CPGF_MD_TEMPLATE _method("setRadius", &D::ClassType::setRadius);
 }
 
 

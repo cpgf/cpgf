@@ -141,9 +141,9 @@ public class ParsedType {
 		ParserUtil.normalizeSignedAndUnsigned(this.tokenList);
 		ParserUtil.normalizeShortInt(this.tokenList);
 		ParserUtil.normalizeUnusedKeyword(this.tokenList);
-		
+
 		this.baseType = findBaseType(this.tokenList);
-		this.arrayDimensions = parseArrayDimensions(this.tokenList);
+		this.arrayDimensions = ParserUtil.parseArrayDimensions(this.tokenList);
 		this.parsePointerAndReference();
 	}
 
@@ -200,51 +200,6 @@ public class ParsedType {
 		}
 		
 		return "";
-	}
-
-	private static List<String> parseArrayDimensions(List<TypeToken> tokenList) {
-		List<String> dimensions = null;
-		int count = tokenList.size();
-		int nestedDepth = 0;
-		
-		for(int i = 0; i < count - 1; ++i) {
-			TypeToken token = tokenList.get(i);
-			
-			if(token.getKind() == EnumTypeTokenKind.LeftAngle || token.getKind() == EnumTypeTokenKind.LeftParenthesis) {
-				++nestedDepth;
-			}
-			
-			if(token.getKind() == EnumTypeTokenKind.RightAngle || token.getKind() == EnumTypeTokenKind.RightParenthesis) {
-				--nestedDepth;
-			}
-			
-			if(nestedDepth == 0 && token.getKind() == EnumTypeTokenKind.LeftSquare) {
-				if(dimensions == null) {
-					dimensions = new ArrayList<String>();
-				}
-				
-				String dim = "";
-				int k = i + 1;
-				for(; k < count; ++k) {
-					TypeToken nextToken = tokenList.get(k);
-					if(nextToken.getKind() == EnumTypeTokenKind.RightSquare) {
-						break;
-					}
-
-					if(dim.length() > 0) {
-						dim = dim + " ";
-					}
-					
-					dim = dim + nextToken.getToken();
-				}
-				
-				dimensions.add(dim);
-
-				i = k;
-			}
-		}
-
-		return dimensions;
 	}
 
 }

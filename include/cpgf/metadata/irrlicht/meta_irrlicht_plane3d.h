@@ -34,7 +34,7 @@ void buildMetaClass_Global_plane3d(const cpgf::GMetaDataConfigFlags & config, D 
 }
 
 
-template <typename D, typename T>
+template <typename D, class T>
 void buildMetaClass_Plane3d(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
     (void)config; (void)_d; (void)_d;
@@ -45,24 +45,24 @@ void buildMetaClass_Plane3d(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _constructor<void * (T, T, T, T, T, T)>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (const vector3d< T > &, const vector3d< T > &, const vector3d< T > &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleCopyConstReference<2> >());
     _d.CPGF_MD_TEMPLATE _constructor<void * (const vector3d< T > &, const T)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _field("Normal", &D::ClassType::Normal);
     _d.CPGF_MD_TEMPLATE _field("D", &D::ClassType::D);
+    _d.CPGF_MD_TEMPLATE _field("Normal", &D::ClassType::Normal);
+    _d.CPGF_MD_TEMPLATE _method("classifyPointRelation", &D::ClassType::classifyPointRelation, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("existsIntersection", &D::ClassType::existsIntersection);
+    _d.CPGF_MD_TEMPLATE _method("getDistanceTo", &D::ClassType::getDistanceTo, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("getIntersectionWithLimitedLine", &D::ClassType::getIntersectionWithLimitedLine, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("getIntersectionWithLine", &D::ClassType::getIntersectionWithLine, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("getIntersectionWithPlane", &D::ClassType::getIntersectionWithPlane);
+    _d.CPGF_MD_TEMPLATE _method("getIntersectionWithPlanes", &D::ClassType::getIntersectionWithPlanes);
+    _d.CPGF_MD_TEMPLATE _method("getKnownIntersectionWithLine", &D::ClassType::getKnownIntersectionWithLine, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("getMemberPoint", &D::ClassType::getMemberPoint);
+    _d.CPGF_MD_TEMPLATE _method("isFrontFacing", &D::ClassType::isFrontFacing, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("recalculateD", &D::ClassType::recalculateD, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("setPlane", (void (D::ClassType::*) (const vector3d< T > &, const vector3d< T > &))&D::ClassType::setPlane, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("setPlane", (void (D::ClassType::*) (const vector3d< T > &, T))&D::ClassType::setPlane, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("setPlane", (void (D::ClassType::*) (const vector3d< T > &, const vector3d< T > &, const vector3d< T > &))&D::ClassType::setPlane, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleCopyConstReference<2> >());
-    _d.CPGF_MD_TEMPLATE _method("getIntersectionWithLine", &D::ClassType::getIntersectionWithLine, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("getKnownIntersectionWithLine", &D::ClassType::getKnownIntersectionWithLine, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("getIntersectionWithLimitedLine", &D::ClassType::getIntersectionWithLimitedLine, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("classifyPointRelation", &D::ClassType::classifyPointRelation, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("recalculateD", &D::ClassType::recalculateD, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("getMemberPoint", &D::ClassType::getMemberPoint);
-    _d.CPGF_MD_TEMPLATE _method("existsIntersection", &D::ClassType::existsIntersection);
-    _d.CPGF_MD_TEMPLATE _method("getIntersectionWithPlane", &D::ClassType::getIntersectionWithPlane);
-    _d.CPGF_MD_TEMPLATE _method("getIntersectionWithPlanes", &D::ClassType::getIntersectionWithPlanes);
-    _d.CPGF_MD_TEMPLATE _method("isFrontFacing", &D::ClassType::isFrontFacing, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("getDistanceTo", &D::ClassType::getDistanceTo, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const plane3d< T > &)>(mopHolder == mopHolder);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const plane3d< T > &)>(mopHolder != mopHolder);
+    _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const plane3d< T > &)>(mopHolder == mopHolder);
 }
 
 

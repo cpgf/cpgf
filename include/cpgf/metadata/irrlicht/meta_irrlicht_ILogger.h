@@ -39,7 +39,6 @@ void buildMetaClass_ILogger(const cpgf::GMetaDataConfigFlags & config, D _d)
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("getLogLevel", &D::ClassType::getLogLevel);
-    _d.CPGF_MD_TEMPLATE _method("setLogLevel", &D::ClassType::setLogLevel);
     _d.CPGF_MD_TEMPLATE _method("log", (void (D::ClassType::*) (const c8 *, ELOG_LEVEL))&D::ClassType::log)
         ._default(copyVariantFromCopyable(ELL_INFORMATION))
     ;
@@ -55,6 +54,7 @@ void buildMetaClass_ILogger(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("log", (void (D::ClassType::*) (const wchar_t *, ELOG_LEVEL))&D::ClassType::log)
         ._default(copyVariantFromCopyable(ELL_INFORMATION))
     ;
+    _d.CPGF_MD_TEMPLATE _method("setLogLevel", &D::ClassType::setLogLevel);
 }
 
 

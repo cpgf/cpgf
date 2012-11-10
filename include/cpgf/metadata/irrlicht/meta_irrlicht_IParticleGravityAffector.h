@@ -24,11 +24,11 @@ void buildMetaClass_IParticleGravityAffector(const cpgf::GMetaDataConfigFlags & 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("setTimeForceLost", &D::ClassType::setTimeForceLost);
-    _d.CPGF_MD_TEMPLATE _method("setGravity", &D::ClassType::setGravity);
-    _d.CPGF_MD_TEMPLATE _method("getTimeForceLost", &D::ClassType::getTimeForceLost);
     _d.CPGF_MD_TEMPLATE _method("getGravity", &D::ClassType::getGravity);
+    _d.CPGF_MD_TEMPLATE _method("getTimeForceLost", &D::ClassType::getTimeForceLost);
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
+    _d.CPGF_MD_TEMPLATE _method("setGravity", &D::ClassType::setGravity);
+    _d.CPGF_MD_TEMPLATE _method("setTimeForceLost", &D::ClassType::setTimeForceLost);
 }
 
 

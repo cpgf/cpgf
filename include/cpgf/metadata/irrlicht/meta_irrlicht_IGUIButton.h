@@ -12,8 +12,8 @@
 
 
 using namespace irr;
-using namespace irr::video;
 using namespace irr::gui;
+using namespace irr::video;
 
 
 namespace meta_irrlicht { 
@@ -44,44 +44,44 @@ void buildMetaClass_IGUIButton(const cpgf::GMetaDataConfigFlags & config, D _d)
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("setOverrideFont", &D::ClassType::setOverrideFont)
-        ._default(copyVariantFromCopyable(0))
+    _d.CPGF_MD_TEMPLATE _method("isAlphaChannelUsed", &D::ClassType::isAlphaChannelUsed);
+    _d.CPGF_MD_TEMPLATE _method("isDrawingBorder", &D::ClassType::isDrawingBorder);
+    _d.CPGF_MD_TEMPLATE _method("isPressed", &D::ClassType::isPressed);
+    _d.CPGF_MD_TEMPLATE _method("isPushButton", &D::ClassType::isPushButton);
+    _d.CPGF_MD_TEMPLATE _method("isScalingImage", &D::ClassType::isScalingImage);
+    _d.CPGF_MD_TEMPLATE _method("setDrawBorder", &D::ClassType::setDrawBorder)
+        ._default(copyVariantFromCopyable(true))
     ;
     _d.CPGF_MD_TEMPLATE _method("setImage", (void (D::ClassType::*) (video::ITexture *))&D::ClassType::setImage)
         ._default(copyVariantFromCopyable(0))
     ;
     _d.CPGF_MD_TEMPLATE _method("setImage", (void (D::ClassType::*) (video::ITexture *, const core::rect< s32 > &))&D::ClassType::setImage);
+    _d.CPGF_MD_TEMPLATE _method("setIsPushButton", &D::ClassType::setIsPushButton)
+        ._default(copyVariantFromCopyable(true))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("setOverrideFont", &D::ClassType::setOverrideFont)
+        ._default(copyVariantFromCopyable(0))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("setPressed", &D::ClassType::setPressed)
+        ._default(copyVariantFromCopyable(true))
+    ;
     _d.CPGF_MD_TEMPLATE _method("setPressedImage", (void (D::ClassType::*) (video::ITexture *))&D::ClassType::setPressedImage)
         ._default(copyVariantFromCopyable(0))
     ;
     _d.CPGF_MD_TEMPLATE _method("setPressedImage", (void (D::ClassType::*) (video::ITexture *, const core::rect< s32 > &))&D::ClassType::setPressedImage);
-    _d.CPGF_MD_TEMPLATE _method("setSpriteBank", &D::ClassType::setSpriteBank)
-        ._default(copyVariantFromCopyable(0))
+    _d.CPGF_MD_TEMPLATE _method("setScaleImage", &D::ClassType::setScaleImage)
+        ._default(copyVariantFromCopyable(true))
     ;
     _d.CPGF_MD_TEMPLATE _method("setSprite", &D::ClassType::setSprite)
         ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(video::SColor(255, 255, 255, 255)))
     ;
-    _d.CPGF_MD_TEMPLATE _method("setIsPushButton", &D::ClassType::setIsPushButton)
-        ._default(copyVariantFromCopyable(true))
+    _d.CPGF_MD_TEMPLATE _method("setSpriteBank", &D::ClassType::setSpriteBank)
+        ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _method("setPressed", &D::ClassType::setPressed)
-        ._default(copyVariantFromCopyable(true))
-    ;
-    _d.CPGF_MD_TEMPLATE _method("isPressed", &D::ClassType::isPressed);
     _d.CPGF_MD_TEMPLATE _method("setUseAlphaChannel", &D::ClassType::setUseAlphaChannel)
         ._default(copyVariantFromCopyable(true))
     ;
-    _d.CPGF_MD_TEMPLATE _method("isAlphaChannelUsed", &D::ClassType::isAlphaChannelUsed);
-    _d.CPGF_MD_TEMPLATE _method("isPushButton", &D::ClassType::isPushButton);
-    _d.CPGF_MD_TEMPLATE _method("setDrawBorder", &D::ClassType::setDrawBorder)
-        ._default(copyVariantFromCopyable(true))
-    ;
-    _d.CPGF_MD_TEMPLATE _method("isDrawingBorder", &D::ClassType::isDrawingBorder);
-    _d.CPGF_MD_TEMPLATE _method("setScaleImage", &D::ClassType::setScaleImage)
-        ._default(copyVariantFromCopyable(true))
-    ;
-    _d.CPGF_MD_TEMPLATE _method("isScalingImage", &D::ClassType::isScalingImage);
 }
 
 

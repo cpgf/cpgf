@@ -6,27 +6,26 @@ import com.cpgf.metagen.cppparser.EnumCompoundType;
 import com.cpgf.metagen.cppparser.ParsedType;
 
 public class CppType {
-	private Item owner;
-	TypeSolver typeSolver;
+	private TypeSolver typeSolver;
 	private ParsedType parsedType;
 
-	public CppType(TypeSolver typeSolver, String baseType) {
+	public CppType(TypeSolver typeSolver, String literalType) {
 		this.typeSolver = typeSolver;
 		if(typeSolver != null) {
-			this.parsedType = typeSolver.getParsedType(baseType);
+			this.parsedType = typeSolver.getParsedType(literalType);
 		}
 		else {
-			this.parsedType = new ParsedType(baseType);
+			this.parsedType = new ParsedType(literalType);
 		}
 	}
 
-	public CppType(TypeSolver typeSolver, String baseType, String array) {
+	public CppType(TypeSolver typeSolver, String literalType, String array) {
 		this.typeSolver = typeSolver;
 		if(typeSolver != null) {
-			this.parsedType = typeSolver.getParsedType(baseType + (array == null ? "" : array));
+			this.parsedType = typeSolver.getParsedType(literalType + (array == null ? "" : array));
 		}
 		else {
-			this.parsedType = new ParsedType(baseType);
+			this.parsedType = new ParsedType(literalType + (array == null ? "" : array));
 		}
 	}
 
@@ -47,16 +46,12 @@ public class CppType {
 		return this.typeSolver.getClassTraits(this.getQualifiedBaseType());
 	}
 
-	public Item getOwner() {
-		return owner;
-	}
-
-	public void setOwner(Item owner) {
-		this.owner = owner;
-	}
-	
 	public boolean isVoid() {
 		return this.parsedType.isVoid();
+	}
+
+	public boolean isPointer() {
+		return this.parsedType.isPointer();
 	}
 
 	public boolean isEmpty() {
@@ -68,10 +63,6 @@ public class CppType {
 			&& (this.parsedType.getReference() == EnumCompoundType.Const);
 	}
 
-	public ParsedType getParsedType() {
-		return parsedType;
-	}
-
 	public void replaceToken(Map<String, String> map)
 	{
 		if(this.parsedType != null) {
@@ -79,8 +70,8 @@ public class CppType {
 		}
 		else {
 			if(map.containsKey(this.getLiteralType())) {
-			this.setLiteralType(map.get(this.getLiteralType()));
-		}
+				this.setLiteralType(map.get(this.getLiteralType()));
+			}
 		}
 	}
 

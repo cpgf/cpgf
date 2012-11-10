@@ -24,8 +24,8 @@ void buildMetaClass_IGUICheckBox(const cpgf::GMetaDataConfigFlags & config, D _d
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("setChecked", &D::ClassType::setChecked);
     _d.CPGF_MD_TEMPLATE _method("isChecked", &D::ClassType::isChecked);
+    _d.CPGF_MD_TEMPLATE _method("setChecked", &D::ClassType::setChecked);
 }
 
 

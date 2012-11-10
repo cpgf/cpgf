@@ -1,6 +1,8 @@
 package com.cpgf.metagen.doxyxmlparser;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,7 +43,7 @@ public class DoxygenXmlParser {
 	private File xmlFile;
 	
 	private Stack<CppClass> classStack;
-	private Stack<String> namespaceStack;
+	private List<String> namespaceStack;
 	
 	public DoxygenXmlParser(Config config, MetaInfo metaInfo, FileMap fileMap, String xmlFileName) {
 		this.config = config;
@@ -51,7 +53,7 @@ public class DoxygenXmlParser {
 		this.xmlFile = new File(this.xmlFileName);
 		this.basePath = this.xmlFile.getParent();
 		this.classStack = new Stack<CppClass>();
-		this.namespaceStack = new Stack<String>();
+		this.namespaceStack = new ArrayList<String>();
 		
 		Util.trace("Parsing " + xmlFileName);
 	}
@@ -86,20 +88,11 @@ public class DoxygenXmlParser {
 	}
 	
 	private void enterNamepsace(String namespace) {
-		this.namespaceStack.push(namespace);
+		this.namespaceStack.add(namespace);
 	}
 	
 	private void leaveNamespace() {
-		this.namespaceStack.pop();
-	}
-	
-	private String getCurrentNamespace() {
-		if(this.namespaceStack.empty()) {
-			return null;
-		}
-		else {
-			return this.namespaceStack.peek();
-		}
+		this.namespaceStack.remove(this.namespaceStack.size() - 1);
 	}
 	
 	private CppType getType(Node node) {
@@ -142,7 +135,7 @@ public class DoxygenXmlParser {
 	}
 
 	private void resolveNamespace(Item item) {
-		item.setNamespace(this.getCurrentNamespace());
+		item.setNamespaces(this.namespaceStack);
 	}
 
 	private void doParaseXmlDocument(Document xmlDocument) throws Exception {
@@ -384,6 +377,12 @@ public class DoxygenXmlParser {
 				name = name.replaceAll("\\btypename\\b", "");
 				name = name.replaceAll("\\bclass\\b", "");
 				name = name.trim();
+				if(baseType.matches("\\btypename\\b.*")) {
+					baseType = "typename";
+				}
+				else if(baseType.matches("\\bclass\\b.*")) {
+					baseType = "class";
+				}
 			}
 
 			Parameter param = new Parameter(
