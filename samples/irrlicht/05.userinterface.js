@@ -127,7 +127,7 @@ function start()
 	/* The creation was successful, now we set the event receiver and
 		store pointers to the driver and to the gui environment. */
 
-	device.setWindowCaption("Irrlicht Engine - User Interface Demo");
+	device.setWindowCaption("cpgf Irrlicht Script Binding - User Interface Demo");
 	device.setResizable(true);
 
 	var driver = device.getVideoDriver();

@@ -193,7 +193,7 @@ function start()
 		var fps = driver.getFPS();
 		if (lastFPS != fps)
 		{
-			var str = "Terrain Renderer - Irrlicht Engine [";
+			var str = "Terrain Renderer - cpgf Irrlicht Script Binding [";
 			str = str + driver.getName();
 			str = str + "] FPS:";
 			str = str + fps;

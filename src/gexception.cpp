@@ -48,12 +48,12 @@ void raiseFormatException(int errorCode, const char * message, ...)
 }
 
 namespace {
-	struct ErrorInfo {
+	struct ExceptionErrorInfo {
 		int code;
 		const char * message;
 	};
 
-	const ErrorInfo errorInfoList[] = {
+	const ExceptionErrorInfo errorInfoList[] = {
 		{ Error_Variant_FailCast, "GVariant: cast failure" },
 		{ Error_Variant_CantReferenceToTemp, "GVariant: can't reference to temporary." },
 		{ Error_Variant_FailCopyObject, "GVariant: can't create shadow object for noncopyable object." },

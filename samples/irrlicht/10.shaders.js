@@ -317,7 +317,7 @@ function start()
 
 		if (lastFPS != fps)
 		{
-			var str = "Irrlicht Engine - Vertex and pixel shader example [";
+			var str = "cpgf Irrlicht Script Binding - Vertex and pixel shader example [";
 			str = str + driver.getName();
 			str = str + "] FPS:";
 			str = str + fps;

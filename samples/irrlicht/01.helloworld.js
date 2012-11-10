@@ -5,7 +5,7 @@ function start()
 	if (!device)
 		return 1;
 
-	device.setWindowCaption("Hello World! - Irrlicht Engine Demo");
+	device.setWindowCaption("Hello World! - cpgf Irrlicht Script Binding Demo");
 
 	var driver = device.getVideoDriver();
 	var smgr = device.getSceneManager();
@@ -17,7 +17,7 @@ function start()
 	
 	if(!mesh)
 	{
-		device.drop();
+//		device.drop();
 		return 1;
 	}
 	
@@ -31,7 +31,7 @@ function start()
 	}
 
 
-	smgr.addCameraSceneNode(0, new irr.vector3df(0,30,-40), new irr.vector3df(0,5,0));
+	smgr.addCameraSceneNode(null, new irr.vector3df(0,30,-40), new irr.vector3df(0,5,0));
 
 	while(device.run())
 	{
@@ -43,7 +43,7 @@ function start()
 		driver.endScene();
 	}
 
-	device.drop();
+//	device.drop();
 
 
 	return 0;

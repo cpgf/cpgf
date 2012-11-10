@@ -1,13 +1,15 @@
 TBD version 1.5.2
-	Added function loadLibrary in script binding core service to load libraries at runtime from within script.
+	Added meta data for Irrlicht 3D engine. Now we can use Irrlicht in Lua, Javascript and Python.
+	Added function "import" in script binding core service to load libraries at runtime from within script.
 	Added GMetaObjectArray to use C++ object array in script.
 	Added GMetaDebug to ease debugging script. Now script can set break point (int 3) and trace messages.
 	Added GMetaCore to provide core functions in script. cloneClass was moved to GMetaCore. A new function "cast" was added to cast object from script. To use "cast", RTTI must be enabled in the meta data.
-	Metagen can reflect bitfield as property by adding getter and setter functions.
 	Improved reflecting for variadic functions, now suppport non-variadic parameters. E.g, int myVariadicFunc(int a, const char * b, GMetaVariadicParam * v);
 	Now dotted nested namespace can be passed to createScriptObject. E.g, createScriptObject("a.b.c"), then script can use the script object a.b.c
 	Added function holdObject to GScriptObject and IScriptObject to hold meta data which is created dynamically.
 	Added meta traits to manage object lifetime. Now script engine can handle cpgf interfaces correctly.
+	Metagen can reflect bitfield as property by adding getter and setter functions.
+	Metagen can split large source file to smaller parts.
 	Now fromVariant<GVariant>(variant) will return variant directly.
 	Changed the utility functions in gmetaapiutil.h from template to non-template, to keep the API minimal.
 	Moved and renamed gbytearray.h|cpp to metautility/gmetabytearray.h|cpp, and renamed class GByteArray and GMetaByteArray.

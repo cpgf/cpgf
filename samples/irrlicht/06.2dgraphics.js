@@ -16,7 +16,7 @@ function start()
 	if (device == null)
 		return 1; // could not create selected driver.
 
-	device.setWindowCaption("Irrlicht Engine - 2D Graphics Demo");
+	device.setWindowCaption("cpgf Irrlicht Script Binding - 2D Graphics Demo");
 
 	var driver = device.getVideoDriver();
 

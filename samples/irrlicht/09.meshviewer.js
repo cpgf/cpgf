@@ -680,7 +680,7 @@ function start()
 
 	Device.setResizable(true);
 
-	Device.setWindowCaption("Irrlicht Engine - Loading...");
+	Device.setWindowCaption("cpgf Irrlicht Script Binding - Loading...");
 
 	var driver = Device.getVideoDriver();
 	var env = Device.getGUIEnvironment();

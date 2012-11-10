@@ -90,7 +90,7 @@ function start()
 		return 1; // could not create selected driver.
 
 
-	var tmp = "Irrlicht Joystick Example";
+	var tmp = "cpgf Irrlicht Script Binding Joystick Example";
 	device.setWindowCaption(tmp);
 
 	var driver = device.getVideoDriver();

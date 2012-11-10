@@ -265,7 +265,7 @@ function start()
 
 		if(lastFPS != fps)
 		{
-			var str = "Collision detection example - Irrlicht Engine [";
+			var str = "Collision detection example - cpgf Irrlicht Script Binding [";
 			str = str + driver.getName();
 			str = str + "] FPS:";
 			str = str + fps;

@@ -192,7 +192,7 @@ Sounds a little complicated, but you'll see it isn't:
 		if (driver.getFPS() != lastFPS)
 		{
 			lastFPS = driver.getFPS();
-			var tmp = "Irrlicht SplitScreen-Example (FPS: ";
+			var tmp = "cpgf Irrlicht Script Binding SplitScreen-Example (FPS: ";
 			tmp = tmp + lastFPS;
 			tmp = tmp + ")";
 			device.setWindowCaption(tmp);

@@ -40,7 +40,7 @@ void GImplExtendObject::clearError()
 void GImplExtendObject::handleError(int errorCode, const char * message)
 {
 	if(! this->errorInfo) {
-		this->errorInfo.reset(new ErrorInfo);
+		this->errorInfo.reset(new ExtendObjectErrorInfo);
 	}
 
 	this->errorInfo->errorCode = errorCode;

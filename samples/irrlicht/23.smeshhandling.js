@@ -287,7 +287,7 @@ function start()
  
 	var driver = device.getVideoDriver();
 	var smgr = device.getSceneManager();
-	device.setWindowCaption("Irrlicht Example for SMesh usage.");
+	device.setWindowCaption("cpgf Irrlicht Script Binding Example for SMesh usage.");
 
 	/*
 	Create the custom mesh and initialize with a heightmap

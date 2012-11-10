@@ -165,7 +165,7 @@ function start()
 		var fps = driver.getFPS();
 		if (lastFPS != fps)
 		{
-			var str = "Irrlicht Engine - Render to Texture and Specular Highlights example";
+			var str = "cpgf Irrlicht Script Binding - Render to Texture and Specular Highlights example";
 			str = str + " FPS:";
 			str = str + fps;
 

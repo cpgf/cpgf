@@ -72,6 +72,20 @@ var wrapperClassNames = {
 	IShaderConstantSetCallBack : 1,
 };
 
+var skipedNames = {
+	SExposedVideoData : 1,
+	irrEmptyStringc : 1,
+	isdigit : 1,
+	isspace : 1,
+	isupper : 1,
+	AccessClass : 1,
+	// Below four read/write functions cause link error. It's fine to ignore them since they are irrlicht "internal" functions.
+	createLimitReadFile : 1,
+	createMemoryReadFile : 1,
+	createReadFile : 1,
+	createWriteFile : 1,
+};
+
 
 function processCallback(item, data)
 {
@@ -79,11 +93,7 @@ function processCallback(item, data)
 		data.skipBind = true;
 	}
 	var name = item.getPrimaryName();
-	if(name == "SExposedVideoData"
-		|| name == "irrEmptyStringc"
-		|| name == "isdigit" || name == "isspace" || name == "isupper"
-		|| name == "AccessClass")
-	{
+	if(skipedNames[name]) {
 		data.skipBind = true;
 	}
 	

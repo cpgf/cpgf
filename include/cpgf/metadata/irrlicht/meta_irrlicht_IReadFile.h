@@ -24,9 +24,6 @@ void buildMetaClass_Global_ireadfile(const cpgf::GMetaDataConfigFlags & config, 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("createLimitReadFile", (IReadFile * (*) (const io::path &, IReadFile *, long, long))&createLimitReadFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("createMemoryReadFile", (IReadFile * (*) (void *, long, const io::path &, bool))&createMemoryReadFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >());
-    _d.CPGF_MD_TEMPLATE _method("createReadFile", (IReadFile * (*) (const io::path &))&createReadFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
 }
 
 

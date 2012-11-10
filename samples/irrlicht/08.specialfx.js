@@ -239,7 +239,7 @@ function start()
 
 		if (lastFPS != fps)
 		{
-			var str = "Irrlicht Engine - SpecialFX example [";
+			var str = "cpgf Irrlicht Script Binding - SpecialFX example [";
 			str = str + driver.getName();
 			str = str + "] FPS:";
 			str = str + fps;

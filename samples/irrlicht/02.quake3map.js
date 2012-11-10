@@ -110,7 +110,7 @@ function start()
 
 			if (lastFPS != fps)
 			{
-				var tmp = "Irrlicht Engine - Quake 3 Map example [";
+				var tmp = "cpgf Irrlicht Script Binding Demo - Quake 3 Map example [";
 				tmp = tmp + driver.getName();
 				tmp = tmp + "] fps: ";
 				tmp = tmp + fps;

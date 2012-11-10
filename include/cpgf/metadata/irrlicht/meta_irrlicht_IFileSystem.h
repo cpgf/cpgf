@@ -54,10 +54,6 @@ void buildMetaClass_IFileSystem(const cpgf::GMetaDataConfigFlags & config, D _d)
     ;
     _d.CPGF_MD_TEMPLATE _method("createEmptyFileList", &D::ClassType::createEmptyFileList, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("createFileList", &D::ClassType::createFileList);
-    _d.CPGF_MD_TEMPLATE _method("createLimitReadFile", &D::ClassType::createLimitReadFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("createMemoryReadFile", &D::ClassType::createMemoryReadFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >())
-        ._default(copyVariantFromCopyable(false))
-    ;
     _d.CPGF_MD_TEMPLATE _method("createMemoryWriteFile", &D::ClassType::createMemoryWriteFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >())
         ._default(copyVariantFromCopyable(false))
     ;

@@ -24,7 +24,6 @@ void buildMetaClass_Global_iwritefile(const cpgf::GMetaDataConfigFlags & config,
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("createWriteFile", (IWriteFile * (*) (const io::path &, bool))&createWriteFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
 }
 
 

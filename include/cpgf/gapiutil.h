@@ -62,7 +62,7 @@ private:
 class GImplExtendObject : public GImplObject
 {
 private:
-	struct ErrorInfo {
+	struct ExtendObjectErrorInfo {
 		int32_t errorCode;
 		std::string message;
 	};
@@ -77,7 +77,7 @@ public:
 	const char * getErrorMessage();
 
 private:
-	GScopedPointer<ErrorInfo> errorInfo;
+	GScopedPointer<ExtendObjectErrorInfo> errorInfo;
 };
 
 class GImplMemoryAllocator : public GImplObject, public IMemoryAllocator

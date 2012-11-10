@@ -18,12 +18,14 @@ function overrideISceneNode(node)
 	this.Box.reset(this.Vertices.getItem(0).Pos);
 	for(var i = 1; i < 4; ++i)
 		this.Box.addInternalPoint(this.Vertices.getItem(i).Pos);
-		
+
+	var self = this;
+			
 	node.OnRegisterSceneNode = function(me) {
 		if(me.isVisible())
 			me.getSceneManager().registerNodeForRendering(me);
 
-		me.OnRegisterSceneNode();
+		me.super_OnRegisterSceneNode();
 	}		
 
 	node.render = function(me) {
@@ -34,11 +36,11 @@ function overrideISceneNode(node)
 
 		driver.setMaterial(Material);
 		driver.setTransform(irr.ETS_WORLD, me.getAbsoluteTransformation());
-		driver.drawVertexPrimitiveList(this.Vertices.getItem(0), 4, indicesByteArray.getMemory(), 4, irr.EVT_STANDARD, irr.EPT_TRIANGLES, irr.EIT_16BIT);
+		driver.drawVertexPrimitiveList(self.Vertices.getItem(0), 4, indicesByteArray.getMemory(), 4, irr.EVT_STANDARD, irr.EPT_TRIANGLES, irr.EIT_16BIT);
 	}
 
 	node.getBoundingBox = function(me) {
-		return this.Box;
+		return self.Box;
 	}
 
 	node.getMaterialCount = function(me) {
@@ -46,7 +48,7 @@ function overrideISceneNode(node)
 	}
 
 	node.getMaterial = function(me, i) {
-		return this.Material;
+		return self.Material;
 	}	
 }
 
@@ -135,7 +137,7 @@ function start()
 		driver.endScene();
 		if(++frames == 100)
 		{
-			var str = "Irrlicht Engine [";
+			var str = "cpgf Irrlicht Script Binding Demo [";
 			str = str + driver.getName();
 			str = str + "] FPS:";
 			str = str + driver.getFPS();
