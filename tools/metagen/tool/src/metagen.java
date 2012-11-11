@@ -1,4 +1,4 @@
-import com.cpgf.metagen.MetagenMain;
+import org.cpgf.metagen.MetagenMain;
 
 public class metagen {
 
