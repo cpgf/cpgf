@@ -28,7 +28,7 @@ function makeMyEventReceiver(receiver)
 		return false;
 	}
 
-};
+}
 
 var KeyIsDown = new Array();
 function IsKeyDown(keyCode) {
@@ -98,7 +98,6 @@ function start()
 		if(anim)
 		{
 			n.addAnimator(anim);
-			anim.drop();
 		}
 	}
 
@@ -218,7 +217,7 @@ function start()
 	/*
 	In the end, delete the Irrlicht device.
 	*/
-	device.drop();
+//	device.drop();
 	
 	return 0;
 }

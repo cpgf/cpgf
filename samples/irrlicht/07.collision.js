@@ -276,7 +276,7 @@ function start()
 
 	}
 	
-	device.drop();
+//	device.drop();
 
 	return 0;
 }

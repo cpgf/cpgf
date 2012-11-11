@@ -16,8 +16,9 @@ function overrideISceneNode(node)
 	this.Vertices.setItem(3, new irr.S3DVertex(-10,0,-10, 0,0,1, new irr.SColor(255,0,255,0), 0, 0));
 
 	this.Box.reset(this.Vertices.getItem(0).Pos);
-	for(var i = 1; i < 4; ++i)
+	for(var i = 1; i < 4; ++i) {
 		this.Box.addInternalPoint(this.Vertices.getItem(i).Pos);
+	}
 
 	var self = this;
 			
@@ -56,14 +57,16 @@ function start()
 {
 	// ask user for driver
 	var driverType = irr.driverChoiceConsole();
-	if(driverType == irr.EDT_COUNT)
+	if(driverType == irr.EDT_COUNT) {
 		return 1;
+	}
 
 	// create device
 	var device = irr.createDevice(driverType, new irr.dimension2d_u32(640, 480), 16, false);
 
-	if (device == null)
+	if (device == null) {
 		return 1; // could not create selected driver.
+	}
 
 
 	// create engine and camera
