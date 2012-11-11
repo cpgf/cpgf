@@ -5,9 +5,12 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.cpgf.metagen.Util;
+import org.cpgf.metagen.cppparser.EnumTypeTokenKind;
+import org.cpgf.metagen.cppparser.ParserUtil;
+import org.cpgf.metagen.cppparser.TypeToken;
 import org.junit.Test;
 
-import com.cpgf.metagen.Util;
 
 public class TestParserUtil {
 

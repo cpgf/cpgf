@@ -2,6 +2,8 @@ package com.cpgf.metagen.cppparser;
 
 import static org.junit.Assert.*;
 
+import org.cpgf.metagen.cppparser.EnumCompoundType;
+import org.cpgf.metagen.cppparser.ParsedType;
 import org.junit.Test;
 
 public class TestParsedType {
