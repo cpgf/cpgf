@@ -26,7 +26,7 @@ function overrideShaderCallBack(callback)
 		// set clip matrix
 
 		var worldViewProj = new irr.matrix4();
-//		worldViewProj = driver.getTransform(irr.ETS_PROJECTION);
+		worldViewProj = driver.getTransform(irr.ETS_PROJECTION);
 //		worldViewProj *= driver.getTransform(irr.ETS_VIEW);
 //		worldViewProj *= driver.getTransform(irr.ETS_WORLD);
 
@@ -63,7 +63,7 @@ function overrideShaderCallBack(callback)
 		else
 			services.setVertexShaderConstant(world.pointer(), 10, 4);
 	}
-};
+}
 
 /*
 The next few lines start up the engine just like in most other tutorials
@@ -199,9 +199,11 @@ function start()
 	var newMaterialType1 = 0;
 	var newMaterialType2 = 0;
 
+	// Must put mc outside of if(gpu) block, otherwise, mc maybe GCed.
+	var mc = null;
 	if (gpu)
 	{
-		var mc = new irr.IShaderConstantSetCallBackWrapper();
+		mc = new irr.IShaderConstantSetCallBackWrapper();
 		overrideShaderCallBack(mc);
 
 		// create the shaders depending on if the user wanted high level

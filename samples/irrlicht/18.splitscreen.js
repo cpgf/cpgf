@@ -31,7 +31,7 @@ function overrideEventReceiver(receiver)
 			return camera[3].OnEvent(event);
 		return false;
 	}
-};
+}
 
 /*
 Ok, now the main-function:

@@ -7,7 +7,7 @@ function SMouseState()
 {
 	this.Position = new irr.position2di();
 	this.LeftButtonDown = false;
-};
+}
 
 
 var MouseState = new SMouseState();
@@ -63,7 +63,7 @@ function overrideEventReceiver(receiver)
 		return false;
 	}
 
-};
+}
 
 
 /*

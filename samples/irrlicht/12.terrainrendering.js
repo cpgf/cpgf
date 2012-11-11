@@ -38,7 +38,7 @@ function overrideEventReceiver(receiver, terrain, skybox, skydome)
 
 		return false;
 	}
-};
+}
 
 
 /*

@@ -103,7 +103,7 @@ function overrideEventReceiver(receiver, room, env, driver)
 		return false;
 	}
 
-};
+}
 
 
 /*

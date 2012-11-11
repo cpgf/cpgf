@@ -423,32 +423,32 @@ function overrideEventReceiver(receiver)
 		case GUI_ID_DEBUG_BOUNDING_BOX: // View . Debug Information
 			menu.setItemChecked(menu.getSelectedItem(), !menu.isItemChecked(menu.getSelectedItem()));
 			if (Model)
-				Model.setDebugDataVisible((irr.E_DEBUG_SCENE_TYPE)(Model.isDebugDataVisible()^irr.EDS_BBOX));
+				Model.setDebugDataVisible(Model.isDebugDataVisible()^irr.EDS_BBOX);
 			break;
 		case GUI_ID_DEBUG_NORMALS: // View . Debug Information
 			menu.setItemChecked(menu.getSelectedItem(), !menu.isItemChecked(menu.getSelectedItem()));
 			if (Model)
-				Model.setDebugDataVisible((irr.E_DEBUG_SCENE_TYPE)(Model.isDebugDataVisible()^irr.EDS_NORMALS));
+				Model.setDebugDataVisible(Model.isDebugDataVisible()^irr.EDS_NORMALS);
 			break;
 		case GUI_ID_DEBUG_SKELETON: // View . Debug Information
 			menu.setItemChecked(menu.getSelectedItem(), !menu.isItemChecked(menu.getSelectedItem()));
 			if (Model)
-				Model.setDebugDataVisible((irr.E_DEBUG_SCENE_TYPE)(Model.isDebugDataVisible()^irr.EDS_SKELETON));
+				Model.setDebugDataVisible(Model.isDebugDataVisible()^irr.EDS_SKELETON);
 			break;
 		case GUI_ID_DEBUG_WIRE_OVERLAY: // View . Debug Information
 			menu.setItemChecked(menu.getSelectedItem(), !menu.isItemChecked(menu.getSelectedItem()));
 			if (Model)
-				Model.setDebugDataVisible((irr.E_DEBUG_SCENE_TYPE)(Model.isDebugDataVisible()^irr.EDS_MESH_WIRE_OVERLAY));
+				Model.setDebugDataVisible(Model.isDebugDataVisible()^irr.EDS_MESH_WIRE_OVERLAY);
 			break;
 		case GUI_ID_DEBUG_HALF_TRANSPARENT: // View . Debug Information
 			menu.setItemChecked(menu.getSelectedItem(), !menu.isItemChecked(menu.getSelectedItem()));
 			if (Model)
-				Model.setDebugDataVisible((irr.E_DEBUG_SCENE_TYPE)(Model.isDebugDataVisible()^irr.EDS_HALF_TRANSPARENCY));
+				Model.setDebugDataVisible(Model.isDebugDataVisible()^irr.EDS_HALF_TRANSPARENCY);
 			break;
 		case GUI_ID_DEBUG_BUFFERS_BOUNDING_BOXES: // View . Debug Information
 			menu.setItemChecked(menu.getSelectedItem(), !menu.isItemChecked(menu.getSelectedItem()));
 			if (Model)
-				Model.setDebugDataVisible((irr.E_DEBUG_SCENE_TYPE)(Model.isDebugDataVisible()^irr.EDS_BBOX_BUFFERS));
+				Model.setDebugDataVisible(Model.isDebugDataVisible()^irr.EDS_BBOX_BUFFERS);
 			break;
 		case GUI_ID_DEBUG_ALL: // View . Debug Information
 			menu.setItemChecked(menu.getSelectedItem()-1, true);
