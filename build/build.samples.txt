@@ -14,7 +14,7 @@ set(OUTNAME_SAMPLESERIALIZATION sampleserialization)
 set(OUTNAME_SAMPLEOPENGL sampleopengl)
 set(OUTNAME_SAMPLEBOX2D samplebox2d)
 set(OUTNAME_SAMPLESFML samplesfml)
-set(OUTNAME_SAMPLEIRRLICHT sampleirrlichtl)
+set(OUTNAME_SAMPLEIRRLICHT sampleirrlicht)
 
 set(SAMPLE_ROOT ${ROOT_PATH}/samples)
 set(SAMPLE_BIND_PATH ${SAMPLE_ROOT}/scriptbind)
@@ -255,7 +255,7 @@ if(${HAS_IRRLICHT})
 	include_directories(${IRRLICHT_INC})
 
 	set_target_properties(
-		${TARGET_SAMPLESFML}
+		${TARGET_SAMPLEIRRLICHT}
 		PROPERTIES
 		OUTPUT_NAME ${OUTNAME_SAMPLEIRRLICHT}
 		COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}

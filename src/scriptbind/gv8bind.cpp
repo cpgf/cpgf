@@ -472,7 +472,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 	Handle<Value> external = External::New(&signatureKey);
 	Persistent<Object> self = Persistent<Object>::New(functionTemplate->GetFunction()->NewInstance(1, &external));
 
-	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, flags, cv));
+	GObjectGlueDataPointer objectData(context->newOrReuseObjectGlueData(classData, instance, flags, cv));
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(objectData, getV8DataWrapperPool());
 	self.MakeWeak(dataWrapper, weakHandleCallback);
 

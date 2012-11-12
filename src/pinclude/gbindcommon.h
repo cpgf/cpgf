@@ -626,6 +626,8 @@ public:
 
 	GObjectGlueDataPointer newObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
 		const GBindValueFlags & flags, ObjectPointerCV cv);
+	GObjectGlueDataPointer newOrReuseObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
+		const GBindValueFlags & flags, ObjectPointerCV cv);
 	
 	GMethodGlueDataPointer newMethodGlueData(const GClassGlueDataPointer & classData,
 		IMetaList * methodList, const char * name, GGlueDataMethodType methodType);

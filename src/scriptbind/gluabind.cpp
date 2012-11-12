@@ -518,7 +518,7 @@ void objectToLua(const GContextPointer & context, const GClassGlueDataPointer & 
 	}
 
 	void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GObjectGlueData>());
-	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, flags, cv));
+	GObjectGlueDataPointer objectData(context->newOrReuseObjectGlueData(classData, instance, flags, cv));
 	newGlueDataWrapper(userData, objectData);
 
 	if(outputGlueData != NULL) {

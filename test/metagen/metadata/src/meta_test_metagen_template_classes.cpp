@@ -39,8 +39,8 @@ GDefineMetaInfo createMetaClass_TemplateClassB()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<TemplateClassB<TemplateBase> > _nd = GDefineMetaClass<TemplateClassB<TemplateBase> >::declare("TemplateClassB_TemplateBase");
-        buildMetaClass_TemplateClassB<GDefineMetaClass<TemplateClassB<TemplateBase> >, TemplateBase >(0, _nd);
+        GDefineMetaClass<TemplateClassB<TemplateBase>, TemplateBase > _nd = GDefineMetaClass<TemplateClassB<TemplateBase>, TemplateBase >::declare("TemplateClassB_TemplateBase");
+        buildMetaClass_TemplateClassB<GDefineMetaClass<TemplateClassB<TemplateBase>, TemplateBase >, TemplateBase >(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

@@ -92,6 +92,8 @@ public:
 	void objectDestroyed(void * instance);
 	void classDestroyed(IMetaClass * metaClass);
 
+	GObjectGlueDataPointer findObjectData(const GVariant & instance, const GClassGlueDataPointer & classData, ObjectPointerCV cv);
+
 	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
 	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
@@ -424,8 +426,10 @@ GClassPool::GClassPool(GBindingContext * context)
 
 void GClassPool::objectCreated(const GObjectGlueDataPointer & objectData)
 {
-	if(this->instanceMap.find(objectData->getInstanceAddress()) == instanceMap.end()) {
-		this->instanceMap[objectData->getInstanceAddress()] = GWeakObjectGlueDataPointer(objectData);
+//	void * instance = objectData->getInstanceAddress();
+	void * instance = objectAddressFromVariant(objectData->getInstance());
+	if(this->instanceMap.find(instance) == instanceMap.end()) {
+		this->instanceMap[instance] = GWeakObjectGlueDataPointer(objectData);
 	}
 }
 
@@ -434,6 +438,18 @@ void GClassPool::objectDestroyed(void * instance)
 	if(isLibraryLive()) {
 		this->instanceMap.erase(instance);
 	}
+}
+
+GObjectGlueDataPointer GClassPool::findObjectData(const GVariant & instance, const GClassGlueDataPointer & classData, ObjectPointerCV cv)
+{
+	InstanceMapType::iterator it = this->instanceMap.find(objectAddressFromVariant(instance));
+	if(it != instanceMap.end() && it->second) {
+		GObjectGlueDataPointer data(it->second.get());
+		if(data->getCV() == cv && data->getClassData()->getMetaClass()->equals(classData->getMetaClass())) {
+			return data;
+		}
+	}
+	return GObjectGlueDataPointer();
 }
 
 void GClassPool::classDestroyed(IMetaClass * metaClass)
@@ -628,6 +644,20 @@ GObjectGlueDataPointer GBindingContext::newObjectGlueData(const GClassGlueDataPo
 	GObjectGlueDataPointer data(new GObjectGlueData(this->shareFromThis(), classData, instance, flags, cv));
 	data->initialize();
 	this->classPool->objectCreated(data);
+	return data;
+}
+
+GObjectGlueDataPointer GBindingContext::newOrReuseObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
+	const GBindValueFlags & flags, ObjectPointerCV cv)
+{
+	GObjectGlueDataPointer data(this->classPool->findObjectData(instance, classData, cv));
+
+	if(! data) {
+		data.reset(new GObjectGlueData(this->shareFromThis(), classData, instance, flags, cv));
+		data->initialize();
+		this->classPool->objectCreated(data);
+	}
+
 	return data;
 }
 

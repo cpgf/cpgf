@@ -17,6 +17,7 @@ GDefineMetaInfo createMetaClass_Global_metagen_multiple_inheritance_cast();
 GDefineMetaInfo createMetaClass_Global_simpleobject();
 GDefineMetaInfo createMetaClass_Global_testobjectarray();
 GDefineMetaInfo createMetaClass_MetagenNonconstructable();
+GDefineMetaInfo createMetaClass_MetagenReturnThis();
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastA();
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastB();
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastC();
@@ -48,6 +49,7 @@ void registerMain_metatest(Meta _d)
     _d._class(createMetaClass_Global_simpleobject());
     _d._class(createMetaClass_Global_testobjectarray());
     _d._class(createMetaClass_MetagenNonconstructable());
+    _d._class(createMetaClass_MetagenReturnThis());
     _d._class(createMetaClass_MultipleInheritanceCastA());
     _d._class(createMetaClass_MultipleInheritanceCastB());
     _d._class(createMetaClass_MultipleInheritanceCastC());

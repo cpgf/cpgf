@@ -807,7 +807,7 @@ PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataP
 		return pyAddRef(Py_None);
 	}
 
-	GObjectGlueDataPointer objectData(context->newObjectGlueData(classData, instance, flags, cv));
+	GObjectGlueDataPointer objectData(context->newOrReuseObjectGlueData(classData, instance, flags, cv));
 	if(outputGlueData != NULL) {
 		*outputGlueData = objectData;
 	}
