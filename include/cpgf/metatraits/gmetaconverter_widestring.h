@@ -16,13 +16,17 @@ namespace metatraits_internal {
 
 
 template <>
-struct GMetaTraitsCreateConverter <std::wstring>
+struct GMetaTraitsCreateConverter <std::wstring, void>
 {
 	static IMetaConverter * createConverter(const GMetaTraitsParam &) {
 		return metatraits_internal::doCreateConverterForStdWideString();
 	}
 };
 
+inline IMetaConverter * createConverterFromMetaTraits(const GMetaTraitsParam &, std::wstring *)
+{
+	return metatraits_internal::doCreateConverterForStdWideString();
+}
 
 
 } // namespace cpgf

@@ -1,9 +1,9 @@
 #ifndef __TESTSCRIPTBINDMETADATA1_H
 #define __TESTSCRIPTBINDMETADATA1_H
 
-#include "cpgf/gmetaclass.h"
-
 #include "../testmetatraits.h"
+
+#include "cpgf/gmetaclass.h"
 
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"

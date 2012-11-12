@@ -646,6 +646,11 @@ const GMetaClass * GMetaClass::getClass(const char * name) const
 	return static_cast<const GMetaClass *>(this->getItemByName(mcatClass, name, false, NULL));
 }
 
+const GMetaClass * GMetaClass::doGetClass(const char * name) const
+{
+	return static_cast<const GMetaClass *>(this->doGetItemByName(mcatClass, name, false, NULL));
+}
+
 size_t GMetaClass::getClassCount() const
 {
 	return this->getItemCount(mcatClass);
@@ -933,7 +938,12 @@ const GMetaItem * GMetaClass::doGetItemAt(GMetaCategory listIndex, size_t index)
 const GMetaItem * GMetaClass::getItemByName(GMetaCategory listIndex, const char * name, bool findSuper, void ** outInstance) const
 {
 	this->ensureRegistered();
+	
+	return this->doGetItemByName(listIndex, name, findSuper, outInstance);
+}
 
+const GMetaItem * GMetaClass::doGetItemByName(GMetaCategory listIndex, const char * name, bool findSuper, void ** outInstance) const
+{
 	GMetaInternalItemList * itemList = this->implement->itemLists[listIndex];
 
 	const GMetaItem * result = itemList->getItemByName(name);

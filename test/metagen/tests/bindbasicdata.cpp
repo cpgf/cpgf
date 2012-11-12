@@ -1,3 +1,5 @@
+#include "../../testmetatraits.h"
+
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"
 #include "cpgf/gmetadefine.h"

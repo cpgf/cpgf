@@ -504,7 +504,7 @@ protected:
 		GMetaClass * classToAdd = NULL;
 
 		if(addToGlobal) {
-			classToAdd = const_cast<GMetaClass *>(getGlobalMetaClass()->getClass(className));
+			classToAdd = const_cast<GMetaClass *>(getGlobalMetaClass()->doGetClass(className));
 		}
 
 		if(classToAdd == NULL) {

@@ -153,6 +153,8 @@ public:
 
 	void extractTo(GMetaClass * master);
 
+	const GMetaClass * doGetClass(const char * name) const;
+
 private:
 	void addItem(GMetaCategory listIndex, GMetaItem * item);
 	size_t getItemCount(GMetaCategory listIndex) const;
@@ -160,6 +162,7 @@ private:
 	const GMetaItem * getItemAt(GMetaCategory listIndex, size_t index) const;
 	const GMetaItem * doGetItemAt(GMetaCategory listIndex, size_t index) const; // not trigger module initialization
 	const GMetaItem * getItemByName(GMetaCategory listIndex, const char * name, bool findSuper, void ** outInstance) const;
+	const GMetaItem * doGetItemByName(GMetaCategory listIndex, const char * name, bool findSuper, void ** outInstance) const;  // not trigger module initialization
 
 private:
 	void ensureRegistered() const;

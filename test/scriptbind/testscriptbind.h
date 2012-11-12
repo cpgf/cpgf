@@ -3,6 +3,8 @@
 
 #include "../unittestbase.h"
 
+#include "../testmetatraits.h"
+
 #include "cpgf/gmetaclass.h"
 
 #include "bind_common.h"
