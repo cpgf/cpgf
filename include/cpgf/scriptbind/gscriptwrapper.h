@@ -5,6 +5,7 @@
 #include "cpgf/metatraits/gmetascriptwrapper.h"
 #include "cpgf/gapi.h"
 #include "cpgf/gtypetraits.h"
+#include "cpgf/gsharedinterface.h"
 
 
 namespace cpgf {

@@ -6,6 +6,7 @@
 
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gclassutil.h"
+#include "cpgf/gsharedinterface.h"
 
 #include <string>
 #include <algorithm>

@@ -5,6 +5,8 @@
 #include "cpgf/metatraits/gmetaserializer_trapall.h"
 #include "cpgf/gmetatype.h"
 
+#include "cpgf/gscopedinterface.h"
+
 
 namespace cpgf {
 

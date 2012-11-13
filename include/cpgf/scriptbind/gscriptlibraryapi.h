@@ -3,6 +3,7 @@
 
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gcallback.h"
+#include "cpgf/gsharedinterface.h"
 
 #include <map>
 #include <vector>

@@ -1,6 +1,6 @@
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gmetaclass.h"
-
+#include "cpgf/gscopedinterface.h"
 
 namespace cpgf {
 

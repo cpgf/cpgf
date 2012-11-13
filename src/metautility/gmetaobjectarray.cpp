@@ -1,6 +1,7 @@
 #include "cpgf/metautility/gmetaobjectarray.h"
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gmetacommon.h"
+#include "cpgf/gsharedinterface.h"
 
 #include <algorithm>
 

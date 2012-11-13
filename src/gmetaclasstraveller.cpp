@@ -1,5 +1,6 @@
 #include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gmetaapi.h"
+#include "cpgf/gscopedinterface.h"
 
 
 namespace cpgf {

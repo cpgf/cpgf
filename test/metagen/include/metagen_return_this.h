@@ -14,7 +14,7 @@ public:
 		return this->magic == 0x1b9df282;
 	}
 
-	MetagenReturnThis & selfRef() {
+	const MetagenReturnThis & selfRef() const {
 		return *this;
 	}
 

@@ -12,6 +12,8 @@
 #include "cpgf/gexception.h"
 #include "cpgf/gapiutil.h"
 #include "cpgf/gmemorypool.h"
+#include "cpgf/gscopedinterface.h"
+#include "cpgf/gsharedinterface.h"
 
 #include <string>
 

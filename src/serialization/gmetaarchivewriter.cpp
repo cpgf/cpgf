@@ -3,6 +3,7 @@
 
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gapiutil.h"
+#include "cpgf/gsharedinterface.h"
 
 #include <map>
 #include <string>

@@ -2,7 +2,7 @@
 #include "cpgf/serialization/gmetaarchivecommon.h"
 #include "cpgf/serialization/gmetaarchivereader.h"
 #include "cpgf/serialization/gmetaarchivewriter.h"
-
+#include "cpgf/gsharedinterface.h"
 
 #include <string>
 #include <stdio.h>

@@ -16,6 +16,8 @@
 
 #include "cpgf/metatraits/gmetasharedptrtraits_gsharedpointer.h"
 
+#include "cpgf/gscopedinterface.h"
+
 
 namespace cpgf {
 

@@ -5,6 +5,8 @@
 #include "cpgf/genableif.h"
 #include "cpgf/gtypetraits.h"
 
+#include <algorithm>
+
 
 namespace cpgf {
 
@@ -255,6 +257,12 @@ private:
 	template <typename U>
 	friend class GWeakPointer;
 };
+
+template <typename T>
+void swap(GSharedPointer<T> & a, GSharedPointer<T> & b)
+{
+	a.swap(b);
+}
 
 
 template <typename T>

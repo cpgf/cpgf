@@ -108,6 +108,7 @@ public class MetaFileWriter {
 		if(this.shouldWrapClass(classList)) {
 			codeWriter.include("cpgf/scriptbind/gscriptbindutil.h");
 			codeWriter.include("cpgf/scriptbind/gscriptwrapper.h");
+			codeWriter.include("cpgf/gscopedinterface.h");
 		}
 		codeWriter.writeLine("");
 		codeWriter.writeLine("");

@@ -11,6 +11,8 @@
 
 #include "cpgf/metadata/private/gmetadata_header.h"
 
+#include "cpgf/gscopedinterface.h"
+
 
 namespace cpgf {
 

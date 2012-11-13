@@ -1,8 +1,8 @@
 #ifndef __GSCRIPTSERVICE_H
 #define __GSCRIPTSERVICE_H
 
-
 #include "cpgf/gapi.h"
+#include "cpgf/gsharedinterface.h"
 
 #include <string>
 

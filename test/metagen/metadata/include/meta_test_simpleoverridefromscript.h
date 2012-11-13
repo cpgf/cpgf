@@ -10,6 +10,7 @@
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
+#include "cpgf/gscopedinterface.h"
 
 
 

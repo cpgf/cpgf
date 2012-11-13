@@ -9,6 +9,8 @@
 #include "cpgf/gmetaoperatorop.h"
 #include "cpgf/gsharedptr.h"
 #include "cpgf/gflags.h"
+#include "cpgf/gscopedinterface.h"
+#include "cpgf/gsharedinterface.h"
 
 #include <map>
 #include <set>

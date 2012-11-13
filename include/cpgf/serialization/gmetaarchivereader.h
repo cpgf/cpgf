@@ -5,6 +5,7 @@
 
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gmetatype.h"
+#include "cpgf/gscopedinterface.h"
 
 
 namespace cpgf {

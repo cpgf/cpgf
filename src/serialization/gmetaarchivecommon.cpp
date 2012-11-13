@@ -3,6 +3,7 @@
 #include "cpgf/gstdint.h"
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gfixedtype.h"
+#include "cpgf/gscopedinterface.h"
 
 
 namespace cpgf {

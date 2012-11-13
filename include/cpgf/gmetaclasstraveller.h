@@ -4,6 +4,7 @@
 
 #include "cpgf/gclassutil.h"
 #include "cpgf/gapi.h"
+#include "cpgf/gsharedinterface.h"
 
 #include <deque>
 

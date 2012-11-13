@@ -3,6 +3,7 @@
 
 
 #include "cpgf/gapi.h"
+#include "cpgf/gscopedptr.h"
 
 #include <string>
 

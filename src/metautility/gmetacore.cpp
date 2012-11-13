@@ -1,7 +1,7 @@
 #include "cpgf/metautility/gmetacore.h"
 #include "cpgf/gmetaapi.h"
 #include "cpgf/scriptbind/gscriptbind.h"
-
+#include "cpgf/gscopedinterface.h"
 
 namespace cpgf {
 

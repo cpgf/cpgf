@@ -3,6 +3,7 @@
 
 
 #include "cpgf/gapiutil.h"
+#include "cpgf/gscopedinterface.h"
 
 namespace cpgf {
 
