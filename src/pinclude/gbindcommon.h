@@ -243,6 +243,58 @@ class GObjectGlueData;
 typedef GSharedPointer<GObjectGlueData> GObjectGlueDataPointer;
 typedef GWeakPointer<GObjectGlueData> GWeakObjectGlueDataPointer;
 
+
+class GObjectInstance
+{
+public:
+	GObjectInstance(const GContextPointer & context, const GVariant & instance, const GClassGlueDataPointer & classData, IMetaObjectLifeManager * objectLifeManager, bool allowGC);
+	~GObjectInstance();
+
+	void setDataStorage(IScriptDataStorage * dataStorage);
+		
+	void * getInstanceAddress() const;
+
+	bool isAllowGC() const {
+		return this->allowGC;
+	}
+
+	void setAllowGC(bool allow) {
+		this->allowGC = allow;
+	}
+	
+	IMetaClass * getMetaClass() const {
+		return this->classData->getMetaClass();
+	}
+	
+	GClassGlueDataPointer getClassData() const {
+		return this->classData;
+	}
+
+	GContextPointer getContext() const {
+		return GContextPointer(this->context);
+	}
+
+	GScriptDataHolder * getDataHolder() const;
+	GScriptDataHolder * requireDataHolder() const;
+	
+private:
+	GWeakContextPointer context;
+	GVariant instance;
+	GClassGlueDataPointer classData;
+	GSharedInterface<IMetaObjectLifeManager> objectLifeManager;
+	bool allowGC;
+	bool isSharedPointer;
+	GSharedInterface<IScriptDataStorage> dataStorage;
+	mutable GScopedPointer<GScriptDataHolder> dataHolder;
+	
+private:
+	friend class GObjectGlueData;
+};
+
+typedef GSharedPointer<GObjectInstance> GObjectInstancePointer;
+typedef GWeakPointer<GObjectInstance> GWeakObjectInstancePointer;
+
+
 class GObjectGlueData : public GGlueData, public GShareFromThis<GObjectGlueData>
 {
 private:
@@ -250,6 +302,8 @@ private:
 
 private:
 	GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, const GVariant & instance,
+		const GBindValueFlags & flags, ObjectPointerCV cv);
+	GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, const GObjectInstancePointer & objectInstance,
 		const GBindValueFlags & flags, ObjectPointerCV cv);
 
 public:		
@@ -260,24 +314,24 @@ public:
 	}
 
 	const GVariant & getInstance() const {
-		return this->instance;
+		return this->objectInstance->instance;
 	}
 
 	void * getInstanceAddress() const {
 		if(this->sharedPointerTraits) {
-			return this->sharedPointerTraits->getPointer(objectAddressFromVariant(this->instance));
+			return this->sharedPointerTraits->getPointer(objectAddressFromVariant(this->getInstance()));
 		}
 		else {
-			return objectAddressFromVariant(this->instance);
+			return objectAddressFromVariant(this->getInstance());
 		}
 	}
 
 	bool isAllowGC() const {
-		return this->flags.has(bvfAllowGC);
+		return this->objectInstance->isAllowGC();
 	}
 
 	void setAllowGC(bool allow) {
-		this->flags.setByBool(bvfAllowGC, allow);
+		this->objectInstance->setAllowGC(allow);
 	}
 
 	ObjectPointerCV getCV() const {
@@ -286,27 +340,34 @@ public:
 
 	void setSharedPointerTraits(IMetaSharedPointerTraits * sharedPointerTraits) {
 		this->sharedPointerTraits.reset(sharedPointerTraits);
+		this->objectInstance->isSharedPointer = true;
 	}
 
 	IMetaSharedPointerTraits * getSharedPointerTraits() const {
 		return this->sharedPointerTraits.get();
 	}
 
-	GScriptDataHolder * getDataHolder() const;
-	GScriptDataHolder * requireDataHolder() const;
+	GScriptDataHolder * getDataHolder() const {
+		return this->objectInstance->getDataHolder();
+	}
+	
+	GScriptDataHolder * requireDataHolder() const {
+		return this->objectInstance->requireDataHolder();
+	}
+	
+	GObjectInstancePointer getObjectInstance() const {
+		return this->objectInstance;
+	}
 	
 private:
 	void initialize();
 
 private:
 	GClassGlueDataPointer classGlueData;
-	GVariant instance;
 	GBindValueFlags flags;
 	ObjectPointerCV cv;
-	mutable GScopedPointer<GScriptDataHolder> dataHolder;
-	GScopedInterface<IScriptDataStorage> dataStorage;
+	GObjectInstancePointer objectInstance;
 	GSharedInterface<IMetaSharedPointerTraits> sharedPointerTraits;
-	GScopedInterface<IMetaObjectLifeManager> objectLifeManager;
 
 private:
 	friend class GBindingContext;
@@ -660,6 +721,7 @@ private:
 	friend class GGlueDataWrapperImplement;
 
 	friend class GClassGlueData;
+	friend class GObjectInstance;
 	friend class GObjectGlueData;
 	friend class GClassPool;
 };
