@@ -53,7 +53,7 @@ bool loadCore(GScriptObject * scriptObject, const char * namespaces, const char 
 
 	GScopedInterface<IMetaItem> metaItem(metaItemToInterface(define.takeMetaClass(), true));
 	scriptObject->holdObject(metaItem.get());
-	GSharedInterface<IObject> metaObject(createObjectDeleterInterface(core.take()));
+	GScopedInterface<IObject> metaObject(createObjectDeleterInterface(core.take()));
 	scriptObject->holdObject(metaObject.get());
 	
 	return true;
