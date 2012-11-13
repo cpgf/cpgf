@@ -3,6 +3,8 @@
 
 #include "cpgf/gapi.h"
 
+#include <cstddef>
+
 
 namespace cpgf {
 

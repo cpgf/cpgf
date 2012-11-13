@@ -1,6 +1,9 @@
 #ifndef __GSHAREDINTERFACE_H
 #define __GSHAREDINTERFACE_H
 
+#include <cstddef>
+#include <algorithm>
+
 
 namespace cpgf {
 

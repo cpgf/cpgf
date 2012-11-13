@@ -3,6 +3,9 @@
 
 #include "cpgf/gscopedptr.h"
 
+#include <cstddef>
+#include <algorithm>
+
 
 namespace cpgf {
 

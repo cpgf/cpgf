@@ -2,6 +2,7 @@
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/metautility/gmetaobjectarray.h"
+#include "cpgf/gscopedinterface.h"
 
 
 using namespace std;

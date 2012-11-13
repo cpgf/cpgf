@@ -2,6 +2,7 @@
 
 #include "cpgf/gvariant.h"
 #include "cpgf/gapiutil.h"
+#include "cpgf/gscopedinterface.h"
 
 #define CLASS TestClass_Variant_Interface_ReferenceCount
 

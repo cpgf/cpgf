@@ -3,6 +3,7 @@
 
 #include "cpgf/gmetatype.h"
 #include "cpgf/gmetaextendtype.h"
+#include "cpgf/gscopedinterface.h"
 
 
 namespace cpgf {
