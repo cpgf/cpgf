@@ -21,7 +21,8 @@ GVariant GMetaCore::cast(const GVariant & instance, IMetaClass * targetMetaClass
 	GMetaType type = getVariantRealMetaType(instance);
 	
 	if(canFromVariant<void *>(value) && type.getBaseName() != NULL) {
-		GScopedInterface<IMetaClass> sourceClass(this->scriptObject->getMetaService()->findClassByName(type.getBaseName()));
+		GScopedInterface<IMetaService> metaService(this->scriptObject->getMetaService());
+		GScopedInterface<IMetaClass> sourceClass(metaService->findClassByName(type.getBaseName()));
 		if(sourceClass) {
 			void * ptr = objectAddressFromVariant(instance);
 			void * oldPtr = ptr;
