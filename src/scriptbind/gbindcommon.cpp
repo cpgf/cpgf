@@ -330,13 +330,16 @@ GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGl
 
 GObjectGlueData::~GObjectGlueData()
 {
-	this->objectLifeManager->releaseObject(this->getInstanceAddress());
-	if(this->isAllowGC()) {
-		this->objectLifeManager->freeObject(this->getInstanceAddress(), this->getClassData()->getMetaClass());
-	}
+	// We don't call getInstanceAddress if it's a shared pointer, since we don't own the pointer, so the pointer may already be freed.
+	if(! this->sharedPointerTraits) {
+		this->objectLifeManager->releaseObject(this->getInstanceAddress());
+		if(this->isAllowGC()) {
+			this->objectLifeManager->freeObject(this->getInstanceAddress(), this->getClassData()->getMetaClass());
+		}
 
-	if(this->isValid()) {
-		this->getContext()->getClassPool()->objectDestroyed(this->getInstanceAddress());
+		if(this->isValid()) {
+			this->getContext()->getClassPool()->objectDestroyed(this->getInstanceAddress());
+		}
 	}
 }
 
