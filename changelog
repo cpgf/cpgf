@@ -12,11 +12,12 @@ TBD version 1.5.2
 	Metagen can split large source file to smaller parts.
 	Now fromVariant<GVariant>(variant) will return variant directly.
 	Changed the utility functions in gmetaapiutil.h from template to non-template, to keep the API minimal.
-	Moved and renamed gbytearray.h|cpp to metautility/gmetabytearray.h|cpp, and renamed class GByteArray and GMetaByteArray.
+	Moved and renamed gbytearray.h/cpp to metautility/gmetabytearray.h/cpp, and renamed class GByteArray and GMetaByteArray.
 	Now when passing to method parameter, or setting to field, object pointer can be casted correctly according to the class hierarchy. This is useful in multiple inheritance.
 	Removed function gainScriptObject from GScriptObject and IScriptObject. Now createScriptObject can return the existing script object.
 	Improved meta traits.
 	Now in reflection, the base meta class can be resolved correctly even it's reflected later than derived classes.
+	Fixed a bug that in script, assign an object with another variable with same instance may cause the object be freed.
 	Fixed a bug that in Python binding, None value is not handled when passing from script to C++ and it was converted to wrong GVariant.
 	Fixed a bug that in V8 Javascript binding, there is null pointer crash if the object constructor returns NULL. Now an exception is raised instead of crash.
 	Fixed a bug that function isInheritedFrom in GMetaClass and IMetaClass works wrong.
