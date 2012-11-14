@@ -2,9 +2,11 @@
 #define __TEST_COMMON_H
 
 
+#include "cpgf/metatraits/gmetaconverter_string.h"
 
 #include "cpgf/gmetaapi.h"
 #include "cpgf/scriptbind/gluabind.h"
+#include "cpgf/gscopedinterface.h"
 
 #include "../testscriptbind.h"
 

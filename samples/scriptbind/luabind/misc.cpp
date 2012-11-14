@@ -1,9 +1,12 @@
+#include "cpgf/metatraits/gmetaconverter_string.h"
+
 #include "cpgf/gmetadefine.h"
 #include "cpgf/goutmain.h"
 
 #include "cpgf/gtestutil.h"
 #include "cpgf/scriptbind/gluabind.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
+#include "cpgf/gscopedinterface.h"
 
 #include <iostream>
 #include <string>
@@ -231,7 +234,7 @@ void doTest()
 	GScopedInterface<IMetaService> service(createDefaultMetaService());
 	testCheckAssert(service);
 
-	GScopedInterface<IMetaClass> globalClass(metaGetGlobalMetaClass(service, 0));
+	GScopedInterface<IMetaClass> globalClass(metaGetGlobalMetaClass(service.get(), 0));
 	testCheckAssert(globalClass);
 
 	GScopedPointer<GScriptObject> binding(createLuaScriptObject(service.get(), L, GScriptConfig()));
@@ -293,8 +296,8 @@ void doTest()
 
 	luaL_loadstring(L, code); lua_call(L, 0, LUA_MULTRET);
 
-	GMetaVariant result = invokeScriptFunction(binding.get(), "luaAdd", 8, 2);
-	cout << "Result: " << fromVariant<int>(result.getValue()) << endl;
+	GVariant result = invokeScriptFunction(binding.get(), "luaAdd", 8, 2);
+	cout << "Result: " << fromVariant<int>(result) << endl;
 	cout << binding->getString("lss") << endl;
 	{
 	cout << static_cast<TestObject *>(binding->getObject("newObj"))->width << endl;

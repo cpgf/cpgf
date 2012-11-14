@@ -2,7 +2,9 @@
 #define __TESTSCRIPTBINDMETADATA_H
 
 
+#include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/scriptbind/gscriptbind.h"
+
 
 namespace testscript {
 

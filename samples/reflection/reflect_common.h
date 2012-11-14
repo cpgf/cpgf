@@ -7,6 +7,7 @@
 #include "cpgf/goutmain.h"
 
 #include "cpgf/gmetaapiutil.h"
+#include "cpgf/gscopedinterface.h"
 
 #include <iostream>
 #include <string>

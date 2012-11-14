@@ -34,7 +34,7 @@ int main(int argc, const char * argv[])
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("irrlicht"));
 	
 	scriptObject->bindClass("irr", metaClass.get());
-	
+
 	if(! runner->executeFile(fileName)) {
 		cout << "Failed to execute " << fileName << ", maybe it doesn't exist?" << endl;
 	}
