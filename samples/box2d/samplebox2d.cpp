@@ -2,6 +2,7 @@
 
 #include "../samplescriptbindutil.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
+#include "cpgf/gscopedinterface.h"
 
 #include "Box2D/Box2D.h"
 
@@ -260,6 +261,7 @@ int main(int argc, char * argv[])
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("box2d"));
 	
 	GScopedInterface<IMetaClass> glMetaClass(static_cast<IMetaClass *>(metaItemToInterface(define.getMetaClass())));
+	scriptObject->bindCoreService("cpgf", NULL);
 	scriptObject->bindClass("gl", glMetaClass.get());
 	scriptObject->bindClass("box2d", metaClass.get());
 	GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(metaItemToInterface(getGlobalMetaClass()->getMethod("exitDemo"))));

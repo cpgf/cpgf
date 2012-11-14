@@ -5,8 +5,7 @@
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gapiutil.h"
-
-#include "Python.h"
+#include "cpgf/gscopedinterface.h"
 
 #include <cmath>
 #include <cstring>

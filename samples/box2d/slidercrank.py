@@ -1,3 +1,5 @@
+cpgf._import(None, "builtin")
+
 world = 0
 ground = 0
 
@@ -13,6 +15,8 @@ def reshape(w, h) :
 	gl.glMatrixMode(gl.GL_PROJECTION)
 	gl.glLoadIdentity()
 	gl.gluOrtho2D(-25, 25, -5, 45)
+	a = cpgf.GByteArray()
+	#a = None
 
 def specialKey(key, x, y) :
 	return

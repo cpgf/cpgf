@@ -13,7 +13,7 @@ function start()
 
 	guienv.addStaticText("Hello World! This is the Irrlicht Software renderer!", new irr.rect_s32(10,10,260,22), true);
 
-	var mesh = smgr.getMesh("E:/SourceCode/CPP/irrlicht-1.7.3/media/sydney.md2");
+	var mesh = smgr.getMesh("../../media/sydney.md2");
 	
 	if(!mesh)
 	{
@@ -27,7 +27,7 @@ function start()
 	{
 		node.setMaterialFlag(irr.EMF_LIGHTING, false);
 		node.setMD2Animation(irr.EMAT_STAND);
-		node.setMaterialTexture( 0, driver.getTexture("E:/SourceCode/CPP/irrlicht-1.7.3/media/sydney.bmp") );
+		node.setMaterialTexture( 0, driver.getTexture("../../media/sydney.bmp") );
 	}
 
 

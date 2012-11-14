@@ -1,5 +1,6 @@
 #include "cpgf/gmetadefine.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
+#include "cpgf/gscopedinterface.h"
 
 #include "../samplescriptbindutil.h"
 
