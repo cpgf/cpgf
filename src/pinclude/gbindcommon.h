@@ -284,7 +284,7 @@ private:
 	GSharedInterface<IMetaObjectLifeManager> objectLifeManager;
 	bool allowGC;
 	bool isSharedPointer;
-	GSharedInterface<IScriptDataStorage> dataStorage;
+	GScopedInterface<IScriptDataStorage> dataStorage;
 	mutable GScopedPointer<GScriptDataHolder> dataHolder;
 	
 private:
