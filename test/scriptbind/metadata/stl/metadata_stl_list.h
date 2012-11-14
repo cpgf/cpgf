@@ -27,12 +27,12 @@ void testStlList_Helper(Binding * binding, TestScriptContext * c, const char * c
 	testStlContainer_BackwardIterator(c, className, valueProvider);
 	testStlContainer_ReverseForwardIterator(c, className, valueProvider);
 	testStlContainer_ReverseBackwardIterator(c, className, valueProvider);
-	
+
 	testStlContainer_Swap(c, className, valueProvider);
 	testStlContainer_Erase(c, className, valueProvider);
 	testStlContainer_Insert(c, className, valueProvider);
 	testStlContainer_Clear(c, className, valueProvider);
-	
+
 	testStlContainer_Splice(c, className, valueProvider);
 	testStlContainer_Remove(c, className, valueProvider);
 	testStlContainer_Unique(c, className, valueProvider);

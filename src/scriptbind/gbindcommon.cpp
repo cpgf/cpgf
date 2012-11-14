@@ -356,7 +356,7 @@ GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGl
 
 GObjectGlueData::GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, const GObjectInstancePointer & objectInstance,
 	const GBindValueFlags & flags, ObjectPointerCV cv)
-	: super(gdtObject, context), classGlueData(classGlueData), objectInstance(objectInstance), flags(flags), cv(cv)
+	: super(gdtObject, context), classGlueData(classGlueData), flags(flags), cv(cv), objectInstance(objectInstance)
 {
 }
 
@@ -437,9 +437,12 @@ GClassPool::GClassPool(GBindingContext * context)
 
 void GClassPool::objectCreated(const GObjectInstancePointer & objectData)
 {
-	void * instance = objectData->getInstanceAddress();
-	if(this->instanceMap.find(instance) == instanceMap.end()) {
-		this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
+	// Only store the object data that owns the object
+	if(objectData->isAllowGC()) {
+		void * instance = objectData->getInstanceAddress();
+		if(this->instanceMap.find(instance) == instanceMap.end()) {
+			this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
+		}
 	}
 }
 

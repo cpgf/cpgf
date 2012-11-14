@@ -7,7 +7,7 @@ namespace {
 template <typename Binding>
 void test_stl_list_int(Binding * binding, TestScriptContext * context)
 {
-	testStlList_Helper<list<int> >(binding, context, "vector_int", GTestValueProvider_Int(context));
+	testStlList_Helper<list<int> >(binding, context, "list_int", GTestValueProvider_Int(context));
 }
 
 

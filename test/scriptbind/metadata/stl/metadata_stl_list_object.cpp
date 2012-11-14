@@ -7,7 +7,7 @@ namespace {
 template <typename Binding>
 void test_stl_list_object(Binding * binding, TestScriptContext * context)
 {
-	testStlList_Helper<list<StlTestData> >(binding, context, "vector_obj", GTestValueProvider_TestData(context));
+	testStlList_Helper<list<StlTestData> >(binding, context, "list_obj", GTestValueProvider_TestData(context));
 }
 
 
