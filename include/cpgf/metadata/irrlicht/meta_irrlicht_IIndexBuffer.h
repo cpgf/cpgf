@@ -12,8 +12,8 @@
 
 
 using namespace irr;
-using namespace irr::scene;
 using namespace irr::video;
+using namespace irr::scene;
 
 
 namespace meta_irrlicht { 
@@ -25,22 +25,22 @@ void buildMetaClass_IIndexBuffer(const cpgf::GMetaDataConfigFlags & config, D _d
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("allocated_size", &D::ClassType::allocated_size);
-    _d.CPGF_MD_TEMPLATE _method("getChangedID", &D::ClassType::getChangedID);
     _d.CPGF_MD_TEMPLATE _method("getData", &D::ClassType::getData);
-    _d.CPGF_MD_TEMPLATE _method("getHardwareMappingHint", &D::ClassType::getHardwareMappingHint);
-    _d.CPGF_MD_TEMPLATE _method("getLast", &D::ClassType::getLast);
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
-    _d.CPGF_MD_TEMPLATE _method("pointer", &D::ClassType::pointer);
-    _d.CPGF_MD_TEMPLATE _method("push_back", &D::ClassType::push_back);
-    _d.CPGF_MD_TEMPLATE _method("reallocate", &D::ClassType::reallocate);
-    _d.CPGF_MD_TEMPLATE _method("set_used", &D::ClassType::set_used);
-    _d.CPGF_MD_TEMPLATE _method("setDirty", &D::ClassType::setDirty);
-    _d.CPGF_MD_TEMPLATE _method("setHardwareMappingHint", &D::ClassType::setHardwareMappingHint);
     _d.CPGF_MD_TEMPLATE _method("setType", &D::ClassType::setType);
-    _d.CPGF_MD_TEMPLATE _method("setValue", &D::ClassType::setValue);
-    _d.CPGF_MD_TEMPLATE _method("size", &D::ClassType::size);
     _d.CPGF_MD_TEMPLATE _method("stride", &D::ClassType::stride);
+    _d.CPGF_MD_TEMPLATE _method("size", &D::ClassType::size);
+    _d.CPGF_MD_TEMPLATE _method("push_back", &D::ClassType::push_back);
+    _d.CPGF_MD_TEMPLATE _method("getLast", &D::ClassType::getLast);
+    _d.CPGF_MD_TEMPLATE _method("setValue", &D::ClassType::setValue);
+    _d.CPGF_MD_TEMPLATE _method("set_used", &D::ClassType::set_used);
+    _d.CPGF_MD_TEMPLATE _method("reallocate", &D::ClassType::reallocate);
+    _d.CPGF_MD_TEMPLATE _method("allocated_size", &D::ClassType::allocated_size);
+    _d.CPGF_MD_TEMPLATE _method("pointer", &D::ClassType::pointer);
+    _d.CPGF_MD_TEMPLATE _method("getHardwareMappingHint", &D::ClassType::getHardwareMappingHint);
+    _d.CPGF_MD_TEMPLATE _method("setHardwareMappingHint", &D::ClassType::setHardwareMappingHint);
+    _d.CPGF_MD_TEMPLATE _method("setDirty", &D::ClassType::setDirty);
+    _d.CPGF_MD_TEMPLATE _method("getChangedID", &D::ClassType::getChangedID);
     _d.CPGF_MD_TEMPLATE _operator<u32 (*)(const cpgf::GMetaSelf &, u32)>(mopHolder[0]);
 }
 

@@ -25,12 +25,12 @@ void buildMetaClass_ISceneNodeAnimatorCameraFPS(const cpgf::GMetaDataConfigFlags
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("getMoveSpeed", &D::ClassType::getMoveSpeed);
-    _d.CPGF_MD_TEMPLATE _method("getRotateSpeed", &D::ClassType::getRotateSpeed);
-    _d.CPGF_MD_TEMPLATE _method("setInvertMouse", &D::ClassType::setInvertMouse);
-    _d.CPGF_MD_TEMPLATE _method("setKeyMap", &D::ClassType::setKeyMap);
     _d.CPGF_MD_TEMPLATE _method("setMoveSpeed", &D::ClassType::setMoveSpeed);
+    _d.CPGF_MD_TEMPLATE _method("getRotateSpeed", &D::ClassType::getRotateSpeed);
     _d.CPGF_MD_TEMPLATE _method("setRotateSpeed", &D::ClassType::setRotateSpeed);
+    _d.CPGF_MD_TEMPLATE _method("setKeyMap", &D::ClassType::setKeyMap);
     _d.CPGF_MD_TEMPLATE _method("setVerticalMovement", &D::ClassType::setVerticalMovement);
+    _d.CPGF_MD_TEMPLATE _method("setInvertMouse", &D::ClassType::setInvertMouse);
 }
 
 

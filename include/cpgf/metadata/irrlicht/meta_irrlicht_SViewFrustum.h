@@ -27,20 +27,20 @@ void buildMetaClass_SViewFrustum(const cpgf::GMetaDataConfigFlags & config, D _d
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (const SViewFrustum &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _constructor<void * (const core::matrix4 &)>();
-    _d.CPGF_MD_TEMPLATE _field("boundingBox", &D::ClassType::boundingBox);
     _d.CPGF_MD_TEMPLATE _field("cameraPosition", &D::ClassType::cameraPosition);
     _d.CPGF_MD_TEMPLATE _field("planes", &D::ClassType::planes);
-    _d.CPGF_MD_TEMPLATE _method("clipLine", &D::ClassType::clipLine);
-    _d.CPGF_MD_TEMPLATE _method("getBoundingBox", &D::ClassType::getBoundingBox);
-    _d.CPGF_MD_TEMPLATE _method("getFarLeftDown", &D::ClassType::getFarLeftDown);
-    _d.CPGF_MD_TEMPLATE _method("getFarLeftUp", &D::ClassType::getFarLeftUp);
-    _d.CPGF_MD_TEMPLATE _method("getFarRightDown", &D::ClassType::getFarRightDown);
-    _d.CPGF_MD_TEMPLATE _method("getFarRightUp", &D::ClassType::getFarRightUp);
-    _d.CPGF_MD_TEMPLATE _method("getTransform", (core::matrix4 & (D::ClassType::*) (video::E_TRANSFORMATION_STATE))&D::ClassType::getTransform);
-    _d.CPGF_MD_TEMPLATE _method("getTransform", (const core::matrix4 & (D::ClassType::*) (video::E_TRANSFORMATION_STATE) const)&D::ClassType::getTransform);
-    _d.CPGF_MD_TEMPLATE _method("recalculateBoundingBox", &D::ClassType::recalculateBoundingBox);
+    _d.CPGF_MD_TEMPLATE _field("boundingBox", &D::ClassType::boundingBox);
     _d.CPGF_MD_TEMPLATE _method("setFrom", &D::ClassType::setFrom);
     _d.CPGF_MD_TEMPLATE _method("transform", &D::ClassType::transform);
+    _d.CPGF_MD_TEMPLATE _method("getFarLeftUp", &D::ClassType::getFarLeftUp);
+    _d.CPGF_MD_TEMPLATE _method("getFarLeftDown", &D::ClassType::getFarLeftDown);
+    _d.CPGF_MD_TEMPLATE _method("getFarRightUp", &D::ClassType::getFarRightUp);
+    _d.CPGF_MD_TEMPLATE _method("getFarRightDown", &D::ClassType::getFarRightDown);
+    _d.CPGF_MD_TEMPLATE _method("getBoundingBox", &D::ClassType::getBoundingBox);
+    _d.CPGF_MD_TEMPLATE _method("recalculateBoundingBox", &D::ClassType::recalculateBoundingBox);
+    _d.CPGF_MD_TEMPLATE _method("getTransform", (core::matrix4 & (D::ClassType::*) (video::E_TRANSFORMATION_STATE))&D::ClassType::getTransform);
+    _d.CPGF_MD_TEMPLATE _method("getTransform", (const core::matrix4 & (D::ClassType::*) (video::E_TRANSFORMATION_STATE) const)&D::ClassType::getTransform);
+    _d.CPGF_MD_TEMPLATE _method("clipLine", &D::ClassType::clipLine);
     _d.CPGF_MD_TEMPLATE _enum<typename D::ClassType::VFPLANES>("VFPLANES")
         ._element("VF_FAR_PLANE", D::ClassType::VF_FAR_PLANE)
         ._element("VF_NEAR_PLANE", D::ClassType::VF_NEAR_PLANE)

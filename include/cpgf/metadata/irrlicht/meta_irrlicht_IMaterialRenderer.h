@@ -24,11 +24,11 @@ void buildMetaClass_IMaterialRenderer(const cpgf::GMetaDataConfigFlags & config,
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("getRenderCapability", &D::ClassType::getRenderCapability);
-    _d.CPGF_MD_TEMPLATE _method("isTransparent", &D::ClassType::isTransparent);
-    _d.CPGF_MD_TEMPLATE _method("OnRender", &D::ClassType::OnRender);
     _d.CPGF_MD_TEMPLATE _method("OnSetMaterial", &D::ClassType::OnSetMaterial);
+    _d.CPGF_MD_TEMPLATE _method("OnRender", &D::ClassType::OnRender);
     _d.CPGF_MD_TEMPLATE _method("OnUnsetMaterial", &D::ClassType::OnUnsetMaterial);
+    _d.CPGF_MD_TEMPLATE _method("isTransparent", &D::ClassType::isTransparent);
+    _d.CPGF_MD_TEMPLATE _method("getRenderCapability", &D::ClassType::getRenderCapability);
 }
 
 

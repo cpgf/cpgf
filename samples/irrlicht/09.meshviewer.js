@@ -740,8 +740,8 @@ function start()
 		}
 	}
 
-//	if (xml)
-//		xml.drop(); // don't forget to delete the xml reader
+	if (xml)
+		xml.drop(); // don't forget to delete the xml reader
 
 	/*
 	That wasn't difficult. Now we'll set a nicer font and create the Menu.

@@ -25,20 +25,20 @@ void buildMetaClass_Global_iq3shader(const cpgf::GMetaDataConfigFlags & config, 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _method("isEqual", (s16 (*) (const core::stringc &, u32 &, const c8 *[], u16))&isEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("getAsFloat", (f32 (*) (const core::stringc &, u32 &))&getAsFloat, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("getAsVector3df", (core::vector3df (*) (const core::stringc &, u32 &))&getAsVector3df, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("getAsStringList", (void (*) (tStringList &, s32, const core::stringc &, u32 &))&getAsStringList, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >());
+    _d.CPGF_MD_TEMPLATE _method("getCullingFunction", (bool (*) (const core::stringc &))&getCullingFunction, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("getDepthFunction", (u8 (*) (const core::stringc &))&getDepthFunction, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("getBlendFunc", (void (*) (const core::stringc &, SBlendFunc &))&getBlendFunc, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("getMD3Normal", (core::vector3df (*) (u32, u32))&getMD3Normal);
+    _d.CPGF_MD_TEMPLATE _method("getModifierFunc", (void (*) (SModifierFunction &, const core::stringc &, u32 &))&getModifierFunc, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("dumpVarGroup", (void (*) (core::stringc &, const SVarGroup *, s32))&dumpVarGroup);
     _d.CPGF_MD_TEMPLATE _method("dumpShader", (core::stringc & (*) (core::stringc &, const IShader *, bool))&dumpShader)
         ._default(copyVariantFromCopyable(false))
     ;
-    _d.CPGF_MD_TEMPLATE _method("dumpVarGroup", (void (*) (core::stringc &, const SVarGroup *, s32))&dumpVarGroup);
-    _d.CPGF_MD_TEMPLATE _method("getAsFloat", (f32 (*) (const core::stringc &, u32 &))&getAsFloat, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("getAsStringList", (void (*) (tStringList &, s32, const core::stringc &, u32 &))&getAsStringList, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >());
-    _d.CPGF_MD_TEMPLATE _method("getAsVector3df", (core::vector3df (*) (const core::stringc &, u32 &))&getAsVector3df, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("getBlendFunc", (void (*) (const core::stringc &, SBlendFunc &))&getBlendFunc, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("getCullingFunction", (bool (*) (const core::stringc &))&getCullingFunction, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("getDepthFunction", (u8 (*) (const core::stringc &))&getDepthFunction, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("getMD3Normal", (core::vector3df (*) (u32, u32))&getMD3Normal);
-    _d.CPGF_MD_TEMPLATE _method("getModifierFunc", (void (*) (SModifierFunction &, const core::stringc &, u32 &))&getModifierFunc, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("getTextures", (void (*) (tTexArray &, const core::stringc &, u32 &, io::IFileSystem *, video::IVideoDriver *))&getTextures, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("isEqual", (s16 (*) (const core::stringc &, u32 &, const c8 *[], u16))&isEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _enum<eQ3MeshIndex>("eQ3MeshIndex")
         ._element("E_Q3_MESH_GEOMETRY", irr::scene::quake3::E_Q3_MESH_GEOMETRY)
         ._element("E_Q3_MESH_ITEMS", irr::scene::quake3::E_Q3_MESH_ITEMS)
@@ -98,13 +98,13 @@ void buildMetaClass_IShader(const cpgf::GMetaDataConfigFlags & config, D _d)
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
     _d.CPGF_MD_TEMPLATE _field("ID", &D::ClassType::ID);
-    _d.CPGF_MD_TEMPLATE _field("name", &D::ClassType::name);
     _d.CPGF_MD_TEMPLATE _field("VarGroup", &D::ClassType::VarGroup);
-    _d.CPGF_MD_TEMPLATE _method("getGroup", &D::ClassType::getGroup);
+    _d.CPGF_MD_TEMPLATE _field("name", &D::ClassType::name);
     _d.CPGF_MD_TEMPLATE _method("getGroupSize", &D::ClassType::getGroupSize);
-    _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const IShader &)>(mopHolder < mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("getGroup", &D::ClassType::getGroup);
     _d.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf, const IShader &)>(mopHolder = mopHolder);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const IShader &)>(mopHolder == mopHolder);
+    _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const IShader &)>(mopHolder < mopHolder);
 }
 
 
@@ -134,21 +134,21 @@ void buildMetaClass_Q3LevelLoadParameter(const cpgf::GMetaDataConfigFlags & conf
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
-    _d.CPGF_MD_TEMPLATE _field("alpharef", &D::ClassType::alpharef);
-    _d.CPGF_MD_TEMPLATE _field("cleanUnResolvedMeshes", &D::ClassType::cleanUnResolvedMeshes);
-    _d.CPGF_MD_TEMPLATE _field("defaultFilter", &D::ClassType::defaultFilter);
     _d.CPGF_MD_TEMPLATE _field("defaultLightMapMaterial", &D::ClassType::defaultLightMapMaterial);
     _d.CPGF_MD_TEMPLATE _field("defaultModulate", &D::ClassType::defaultModulate);
+    _d.CPGF_MD_TEMPLATE _field("defaultFilter", &D::ClassType::defaultFilter);
+    _d.CPGF_MD_TEMPLATE _field("patchTesselation", &D::ClassType::patchTesselation);
+    _d.CPGF_MD_TEMPLATE _field("verbose", &D::ClassType::verbose);
+    _d.CPGF_MD_TEMPLATE _field("startTime", &D::ClassType::startTime);
     _d.CPGF_MD_TEMPLATE _field("endTime", &D::ClassType::endTime);
+    _d.CPGF_MD_TEMPLATE _field("mergeShaderBuffer", &D::ClassType::mergeShaderBuffer);
+    _d.CPGF_MD_TEMPLATE _field("cleanUnResolvedMeshes", &D::ClassType::cleanUnResolvedMeshes);
     _d.CPGF_MD_TEMPLATE _field("loadAllShaders", &D::ClassType::loadAllShaders);
     _d.CPGF_MD_TEMPLATE _field("loadSkyShader", &D::ClassType::loadSkyShader);
-    _d.CPGF_MD_TEMPLATE _field("mergeShaderBuffer", &D::ClassType::mergeShaderBuffer);
-    _d.CPGF_MD_TEMPLATE _field("patchTesselation", &D::ClassType::patchTesselation);
-    _d.CPGF_MD_TEMPLATE _field("scriptDir", &D::ClassType::scriptDir);
-    _d.CPGF_MD_TEMPLATE _field("startTime", &D::ClassType::startTime);
-    _d.CPGF_MD_TEMPLATE _field("swapHeader", &D::ClassType::swapHeader);
+    _d.CPGF_MD_TEMPLATE _field("alpharef", &D::ClassType::alpharef);
     _d.CPGF_MD_TEMPLATE _field("swapLump", &D::ClassType::swapLump);
-    _d.CPGF_MD_TEMPLATE _field("verbose", &D::ClassType::verbose);
+    _d.CPGF_MD_TEMPLATE _field("swapHeader", &D::ClassType::swapHeader);
+    _d.CPGF_MD_TEMPLATE _field("scriptDir", &D::ClassType::scriptDir);
 }
 
 
@@ -159,10 +159,10 @@ void buildMetaClass_SBlendFunc(const cpgf::GMetaDataConfigFlags & config, D _d)
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (video::E_MODULATE_FUNC)>();
-    _d.CPGF_MD_TEMPLATE _field("isTransparent", &D::ClassType::isTransparent);
+    _d.CPGF_MD_TEMPLATE _field("type", &D::ClassType::type);
     _d.CPGF_MD_TEMPLATE _field("modulate", &D::ClassType::modulate);
     _d.CPGF_MD_TEMPLATE _field("param0", &D::ClassType::param0);
-    _d.CPGF_MD_TEMPLATE _field("type", &D::ClassType::type);
+    _d.CPGF_MD_TEMPLATE _field("isTransparent", &D::ClassType::isTransparent);
 }
 
 
@@ -173,25 +173,25 @@ void buildMetaClass_SModifierFunction(const cpgf::GMetaDataConfigFlags & config,
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
-    _d.CPGF_MD_TEMPLATE _field("alphagen", &D::ClassType::alphagen);
-    _d.CPGF_MD_TEMPLATE _field("amp", &D::ClassType::amp);
-    _d.CPGF_MD_TEMPLATE _field("base", &D::ClassType::base);
-    _d.CPGF_MD_TEMPLATE _field("bulgeheight", &D::ClassType::bulgeheight);
-    _d.CPGF_MD_TEMPLATE _field("bulgespeed", &D::ClassType::bulgespeed);
-    _d.CPGF_MD_TEMPLATE _field("bulgewidth", &D::ClassType::bulgewidth);
-    _d.CPGF_MD_TEMPLATE _field("count", &D::ClassType::count);
-    _d.CPGF_MD_TEMPLATE _field("div", &D::ClassType::div);
-    _d.CPGF_MD_TEMPLATE _field("frequency", &D::ClassType::frequency);
-    _d.CPGF_MD_TEMPLATE _field("func", &D::ClassType::func);
     _d.CPGF_MD_TEMPLATE _field("masterfunc0", &D::ClassType::masterfunc0);
     _d.CPGF_MD_TEMPLATE _field("masterfunc1", &D::ClassType::masterfunc1);
-    _d.CPGF_MD_TEMPLATE _field("phase", &D::ClassType::phase);
-    _d.CPGF_MD_TEMPLATE _field("rgbgen", &D::ClassType::rgbgen);
+    _d.CPGF_MD_TEMPLATE _field("func", &D::ClassType::func);
     _d.CPGF_MD_TEMPLATE _field("tcgen", &D::ClassType::tcgen);
+    _d.CPGF_MD_TEMPLATE _field("rgbgen", &D::ClassType::rgbgen);
+    _d.CPGF_MD_TEMPLATE _field("alphagen", &D::ClassType::alphagen);
+    _d.CPGF_MD_TEMPLATE _field("base", &D::ClassType::base);
+    _d.CPGF_MD_TEMPLATE _field("bulgewidth", &D::ClassType::bulgewidth);
+    _d.CPGF_MD_TEMPLATE _field("amp", &D::ClassType::amp);
+    _d.CPGF_MD_TEMPLATE _field("bulgeheight", &D::ClassType::bulgeheight);
+    _d.CPGF_MD_TEMPLATE _field("phase", &D::ClassType::phase);
+    _d.CPGF_MD_TEMPLATE _field("frequency", &D::ClassType::frequency);
+    _d.CPGF_MD_TEMPLATE _field("bulgespeed", &D::ClassType::bulgespeed);
     _d.CPGF_MD_TEMPLATE _field("wave", &D::ClassType::wave);
+    _d.CPGF_MD_TEMPLATE _field("div", &D::ClassType::div);
     _d.CPGF_MD_TEMPLATE _field("x", &D::ClassType::x);
     _d.CPGF_MD_TEMPLATE _field("y", &D::ClassType::y);
     _d.CPGF_MD_TEMPLATE _field("z", &D::ClassType::z);
+    _d.CPGF_MD_TEMPLATE _field("count", &D::ClassType::count);
     _d.CPGF_MD_TEMPLATE _method("evaluate", &D::ClassType::evaluate);
 }
 
@@ -204,10 +204,10 @@ void buildMetaClass_SVarGroup(const cpgf::GMetaDataConfigFlags & config, D _d)
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
     _d.CPGF_MD_TEMPLATE _field("Variable", &D::ClassType::Variable);
-    _d.CPGF_MD_TEMPLATE _method("get", &D::ClassType::get, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
     _d.CPGF_MD_TEMPLATE _method("isDefined", &D::ClassType::isDefined)
         ._default(copyVariantFromCopyable(0))
     ;
+    _d.CPGF_MD_TEMPLATE _method("get", &D::ClassType::get, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
     _d.CPGF_MD_TEMPLATE _method("set", &D::ClassType::set)
         ._default(copyVariantFromCopyable(0))
     ;
@@ -234,12 +234,12 @@ void buildMetaClass_SVariable(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _constructor<void * (const c8 *, const c8 *)>()
         ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _field("content", &D::ClassType::content);
     _d.CPGF_MD_TEMPLATE _field("name", &D::ClassType::name);
+    _d.CPGF_MD_TEMPLATE _field("content", &D::ClassType::content);
     _d.CPGF_MD_TEMPLATE _method("clear", &D::ClassType::clear);
     _d.CPGF_MD_TEMPLATE _method("isValid", &D::ClassType::isValid);
-    _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SVariable &)>(mopHolder < mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SVariable &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SVariable &)>(mopHolder < mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
 }
 
 

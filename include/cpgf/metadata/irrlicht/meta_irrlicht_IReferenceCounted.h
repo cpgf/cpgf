@@ -24,10 +24,10 @@ void buildMetaClass_IReferenceCounted(const cpgf::GMetaDataConfigFlags & config,
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
-    _d.CPGF_MD_TEMPLATE _method("drop", &D::ClassType::drop);
-    _d.CPGF_MD_TEMPLATE _method("getDebugName", &D::ClassType::getDebugName);
-    _d.CPGF_MD_TEMPLATE _method("getReferenceCount", &D::ClassType::getReferenceCount);
     _d.CPGF_MD_TEMPLATE _method("grab", &D::ClassType::grab);
+    _d.CPGF_MD_TEMPLATE _method("drop", &D::ClassType::drop);
+    _d.CPGF_MD_TEMPLATE _method("getReferenceCount", &D::ClassType::getReferenceCount);
+    _d.CPGF_MD_TEMPLATE _method("getDebugName", &D::ClassType::getDebugName);
 }
 
 

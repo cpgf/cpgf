@@ -46,17 +46,17 @@ void buildMetaClass_IBoneSceneNode(const cpgf::GMetaDataConfigFlags & config, D 
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _field("positionHint", &D::ClassType::positionHint);
-    _d.CPGF_MD_TEMPLATE _field("rotationHint", &D::ClassType::rotationHint);
     _d.CPGF_MD_TEMPLATE _field("scaleHint", &D::ClassType::scaleHint);
-    _d.CPGF_MD_TEMPLATE _method("getAnimationMode", &D::ClassType::getAnimationMode);
-    _d.CPGF_MD_TEMPLATE _method("getBoneIndex", &D::ClassType::getBoneIndex);
+    _d.CPGF_MD_TEMPLATE _field("rotationHint", &D::ClassType::rotationHint);
     _d.CPGF_MD_TEMPLATE _method("getBoneName", &D::ClassType::getBoneName);
+    _d.CPGF_MD_TEMPLATE _method("getBoneIndex", &D::ClassType::getBoneIndex);
+    _d.CPGF_MD_TEMPLATE _method("setAnimationMode", &D::ClassType::setAnimationMode);
+    _d.CPGF_MD_TEMPLATE _method("getAnimationMode", &D::ClassType::getAnimationMode);
     _d.CPGF_MD_TEMPLATE _method("getBoundingBox", &D::ClassType::getBoundingBox);
-    _d.CPGF_MD_TEMPLATE _method("getSkinningSpace", &D::ClassType::getSkinningSpace);
     _d.CPGF_MD_TEMPLATE _method("OnAnimate", &D::ClassType::OnAnimate);
     _d.CPGF_MD_TEMPLATE _method("render", &D::ClassType::render);
-    _d.CPGF_MD_TEMPLATE _method("setAnimationMode", &D::ClassType::setAnimationMode);
     _d.CPGF_MD_TEMPLATE _method("setSkinningSpace", &D::ClassType::setSkinningSpace);
+    _d.CPGF_MD_TEMPLATE _method("getSkinningSpace", &D::ClassType::getSkinningSpace);
     _d.CPGF_MD_TEMPLATE _method("updateAbsolutePositionOfAllChildren", &D::ClassType::updateAbsolutePositionOfAllChildren);
 }
 

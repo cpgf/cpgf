@@ -50,17 +50,17 @@ void buildMetaClass_SLight(const cpgf::GMetaDataConfigFlags & config, D _d)
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
     _d.CPGF_MD_TEMPLATE _field("AmbientColor", &D::ClassType::AmbientColor);
-    _d.CPGF_MD_TEMPLATE _field("Attenuation", &D::ClassType::Attenuation);
-    _d.CPGF_MD_TEMPLATE _property("CastShadows", &bItFiEldWrapper_SLight_CastShadows_getter, &bItFiEldWrapper_SLight_CastShadows_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
     _d.CPGF_MD_TEMPLATE _field("DiffuseColor", &D::ClassType::DiffuseColor);
-    _d.CPGF_MD_TEMPLATE _field("Direction", &D::ClassType::Direction);
-    _d.CPGF_MD_TEMPLATE _field("Falloff", &D::ClassType::Falloff);
-    _d.CPGF_MD_TEMPLATE _field("InnerCone", &D::ClassType::InnerCone);
-    _d.CPGF_MD_TEMPLATE _field("OuterCone", &D::ClassType::OuterCone);
-    _d.CPGF_MD_TEMPLATE _field("Position", &D::ClassType::Position);
-    _d.CPGF_MD_TEMPLATE _field("Radius", &D::ClassType::Radius);
     _d.CPGF_MD_TEMPLATE _field("SpecularColor", &D::ClassType::SpecularColor);
+    _d.CPGF_MD_TEMPLATE _field("Attenuation", &D::ClassType::Attenuation);
+    _d.CPGF_MD_TEMPLATE _field("OuterCone", &D::ClassType::OuterCone);
+    _d.CPGF_MD_TEMPLATE _field("InnerCone", &D::ClassType::InnerCone);
+    _d.CPGF_MD_TEMPLATE _field("Falloff", &D::ClassType::Falloff);
+    _d.CPGF_MD_TEMPLATE _field("Position", &D::ClassType::Position);
+    _d.CPGF_MD_TEMPLATE _field("Direction", &D::ClassType::Direction);
+    _d.CPGF_MD_TEMPLATE _field("Radius", &D::ClassType::Radius);
     _d.CPGF_MD_TEMPLATE _field("Type", &D::ClassType::Type);
+    _d.CPGF_MD_TEMPLATE _property("CastShadows", &bItFiEldWrapper_SLight_CastShadows_getter, &bItFiEldWrapper_SLight_CastShadows_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
 }
 
 

@@ -43,23 +43,23 @@ void buildMetaClass_ITexture(const cpgf::GMetaDataConfigFlags & config, D _d)
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("getColorFormat", &D::ClassType::getColorFormat);
-    _d.CPGF_MD_TEMPLATE _method("getDriverType", &D::ClassType::getDriverType);
-    _d.CPGF_MD_TEMPLATE _method("getName", &D::ClassType::getName);
-    _d.CPGF_MD_TEMPLATE _method("getOriginalSize", &D::ClassType::getOriginalSize);
-    _d.CPGF_MD_TEMPLATE _method("getPitch", &D::ClassType::getPitch);
-    _d.CPGF_MD_TEMPLATE _method("getSize", &D::ClassType::getSize);
-    _d.CPGF_MD_TEMPLATE _method("hasAlpha", &D::ClassType::hasAlpha);
-    _d.CPGF_MD_TEMPLATE _method("hasMipMaps", &D::ClassType::hasMipMaps);
-    _d.CPGF_MD_TEMPLATE _method("isRenderTarget", &D::ClassType::isRenderTarget);
     _d.CPGF_MD_TEMPLATE _method("lock", &D::ClassType::lock)
         ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(false))
     ;
+    _d.CPGF_MD_TEMPLATE _method("unlock", &D::ClassType::unlock);
+    _d.CPGF_MD_TEMPLATE _method("getOriginalSize", &D::ClassType::getOriginalSize);
+    _d.CPGF_MD_TEMPLATE _method("getSize", &D::ClassType::getSize);
+    _d.CPGF_MD_TEMPLATE _method("getDriverType", &D::ClassType::getDriverType);
+    _d.CPGF_MD_TEMPLATE _method("getColorFormat", &D::ClassType::getColorFormat);
+    _d.CPGF_MD_TEMPLATE _method("getPitch", &D::ClassType::getPitch);
+    _d.CPGF_MD_TEMPLATE _method("hasMipMaps", &D::ClassType::hasMipMaps);
+    _d.CPGF_MD_TEMPLATE _method("hasAlpha", &D::ClassType::hasAlpha);
     _d.CPGF_MD_TEMPLATE _method("regenerateMipMapLevels", &D::ClassType::regenerateMipMapLevels)
         ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _method("unlock", &D::ClassType::unlock);
+    _d.CPGF_MD_TEMPLATE _method("isRenderTarget", &D::ClassType::isRenderTarget);
+    _d.CPGF_MD_TEMPLATE _method("getName", &D::ClassType::getName);
 }
 
 

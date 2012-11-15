@@ -24,11 +24,11 @@ void buildMetaClass_IParticleFadeOutAffector(const cpgf::GMetaDataConfigFlags & 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("getFadeOutTime", &D::ClassType::getFadeOutTime);
-    _d.CPGF_MD_TEMPLATE _method("getTargetColor", &D::ClassType::getTargetColor);
-    _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
-    _d.CPGF_MD_TEMPLATE _method("setFadeOutTime", &D::ClassType::setFadeOutTime);
     _d.CPGF_MD_TEMPLATE _method("setTargetColor", &D::ClassType::setTargetColor);
+    _d.CPGF_MD_TEMPLATE _method("setFadeOutTime", &D::ClassType::setFadeOutTime);
+    _d.CPGF_MD_TEMPLATE _method("getTargetColor", &D::ClassType::getTargetColor);
+    _d.CPGF_MD_TEMPLATE _method("getFadeOutTime", &D::ClassType::getFadeOutTime);
+    _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
 }
 
 

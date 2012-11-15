@@ -24,17 +24,17 @@ void buildMetaClass_IParticleAttractionAffector(const cpgf::GMetaDataConfigFlags
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("getAffectX", &D::ClassType::getAffectX);
-    _d.CPGF_MD_TEMPLATE _method("getAffectY", &D::ClassType::getAffectY);
-    _d.CPGF_MD_TEMPLATE _method("getAffectZ", &D::ClassType::getAffectZ);
-    _d.CPGF_MD_TEMPLATE _method("getAttract", &D::ClassType::getAttract);
-    _d.CPGF_MD_TEMPLATE _method("getPoint", &D::ClassType::getPoint);
-    _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
+    _d.CPGF_MD_TEMPLATE _method("setPoint", &D::ClassType::setPoint);
+    _d.CPGF_MD_TEMPLATE _method("setAttract", &D::ClassType::setAttract);
     _d.CPGF_MD_TEMPLATE _method("setAffectX", &D::ClassType::setAffectX);
     _d.CPGF_MD_TEMPLATE _method("setAffectY", &D::ClassType::setAffectY);
     _d.CPGF_MD_TEMPLATE _method("setAffectZ", &D::ClassType::setAffectZ);
-    _d.CPGF_MD_TEMPLATE _method("setAttract", &D::ClassType::setAttract);
-    _d.CPGF_MD_TEMPLATE _method("setPoint", &D::ClassType::setPoint);
+    _d.CPGF_MD_TEMPLATE _method("getPoint", &D::ClassType::getPoint);
+    _d.CPGF_MD_TEMPLATE _method("getAttract", &D::ClassType::getAttract);
+    _d.CPGF_MD_TEMPLATE _method("getAffectX", &D::ClassType::getAffectX);
+    _d.CPGF_MD_TEMPLATE _method("getAffectY", &D::ClassType::getAffectY);
+    _d.CPGF_MD_TEMPLATE _method("getAffectZ", &D::ClassType::getAffectZ);
+    _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
 }
 
 

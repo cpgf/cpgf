@@ -24,15 +24,15 @@ void buildMetaClass_IVolumeLightSceneNode(const cpgf::GMetaDataConfigFlags & con
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("getFootColor", &D::ClassType::getFootColor);
-    _d.CPGF_MD_TEMPLATE _method("getSubDivideU", &D::ClassType::getSubDivideU);
-    _d.CPGF_MD_TEMPLATE _method("getSubDivideV", &D::ClassType::getSubDivideV);
-    _d.CPGF_MD_TEMPLATE _method("getTailColor", &D::ClassType::getTailColor);
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
-    _d.CPGF_MD_TEMPLATE _method("setFootColor", &D::ClassType::setFootColor);
     _d.CPGF_MD_TEMPLATE _method("setSubDivideU", &D::ClassType::setSubDivideU);
     _d.CPGF_MD_TEMPLATE _method("setSubDivideV", &D::ClassType::setSubDivideV);
+    _d.CPGF_MD_TEMPLATE _method("getSubDivideU", &D::ClassType::getSubDivideU);
+    _d.CPGF_MD_TEMPLATE _method("getSubDivideV", &D::ClassType::getSubDivideV);
+    _d.CPGF_MD_TEMPLATE _method("setFootColor", &D::ClassType::setFootColor);
     _d.CPGF_MD_TEMPLATE _method("setTailColor", &D::ClassType::setTailColor);
+    _d.CPGF_MD_TEMPLATE _method("getFootColor", &D::ClassType::getFootColor);
+    _d.CPGF_MD_TEMPLATE _method("getTailColor", &D::ClassType::getTailColor);
 }
 
 

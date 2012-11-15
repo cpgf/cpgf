@@ -34,13 +34,13 @@ GDefineMetaInfo createMetaClass_IIrrXMLReader()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<IIrrXMLReader<wchar_t, IReferenceCounted> > _nd = GDefineMetaClass<IIrrXMLReader<wchar_t, IReferenceCounted> >::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("IXMLReader");
-        buildMetaClass_IIrrXMLReader<GDefineMetaClass<IIrrXMLReader<wchar_t, IReferenceCounted> >, wchar_t, IReferenceCounted >(0, _nd);
+        GDefineMetaClass<IIrrXMLReader<wchar_t, IReferenceCounted>, IReferenceCounted > _nd = GDefineMetaClass<IIrrXMLReader<wchar_t, IReferenceCounted>, IReferenceCounted >::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("IXMLReader");
+        buildMetaClass_IIrrXMLReader<GDefineMetaClass<IIrrXMLReader<wchar_t, IReferenceCounted>, IReferenceCounted >, wchar_t, IReferenceCounted >(0, _nd);
         _d._class(_nd);
     }
     {
-        GDefineMetaClass<IIrrXMLReader<c8, IReferenceCounted> > _nd = GDefineMetaClass<IIrrXMLReader<c8, IReferenceCounted> >::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("IXMLReaderUTF8");
-        buildMetaClass_IIrrXMLReader<GDefineMetaClass<IIrrXMLReader<c8, IReferenceCounted> >, c8, IReferenceCounted >(0, _nd);
+        GDefineMetaClass<IIrrXMLReader<c8, IReferenceCounted>, IReferenceCounted > _nd = GDefineMetaClass<IIrrXMLReader<c8, IReferenceCounted>, IReferenceCounted >::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent, GMetaRuleCopyConstructorAbsent> >::declare("IXMLReaderUTF8");
+        buildMetaClass_IIrrXMLReader<GDefineMetaClass<IIrrXMLReader<c8, IReferenceCounted>, IReferenceCounted >, c8, IReferenceCounted >(0, _nd);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

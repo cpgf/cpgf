@@ -25,9 +25,9 @@ void buildMetaClass_ISceneUserDataSerializer(const cpgf::GMetaDataConfigFlags & 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("createUserData", &D::ClassType::createUserData);
     _d.CPGF_MD_TEMPLATE _method("OnCreateNode", &D::ClassType::OnCreateNode);
     _d.CPGF_MD_TEMPLATE _method("OnReadUserData", &D::ClassType::OnReadUserData);
+    _d.CPGF_MD_TEMPLATE _method("createUserData", &D::ClassType::createUserData);
 }
 
 

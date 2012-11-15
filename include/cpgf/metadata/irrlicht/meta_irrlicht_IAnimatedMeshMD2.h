@@ -57,10 +57,10 @@ void buildMetaClass_IAnimatedMeshMD2(const cpgf::GMetaDataConfigFlags & config, 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("getAnimationCount", &D::ClassType::getAnimationCount);
-    _d.CPGF_MD_TEMPLATE _method("getAnimationName", &D::ClassType::getAnimationName);
     _d.CPGF_MD_TEMPLATE _method("getFrameLoop", (void (D::ClassType::*) (EMD2_ANIMATION_TYPE, s32 &, s32 &, s32 &) const)&D::ClassType::getFrameLoop);
     _d.CPGF_MD_TEMPLATE _method("getFrameLoop", (bool (D::ClassType::*) (const c8 *, s32 &, s32 &, s32 &) const)&D::ClassType::getFrameLoop);
+    _d.CPGF_MD_TEMPLATE _method("getAnimationCount", &D::ClassType::getAnimationCount);
+    _d.CPGF_MD_TEMPLATE _method("getAnimationName", &D::ClassType::getAnimationName);
 }
 
 

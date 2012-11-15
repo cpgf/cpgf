@@ -25,16 +25,16 @@ void buildMetaClass_IGUISpinBox(const cpgf::GMetaDataConfigFlags & config, D _d)
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("getEditBox", &D::ClassType::getEditBox);
-    _d.CPGF_MD_TEMPLATE _method("getMax", &D::ClassType::getMax);
-    _d.CPGF_MD_TEMPLATE _method("getMin", &D::ClassType::getMin);
-    _d.CPGF_MD_TEMPLATE _method("getStepSize", &D::ClassType::getStepSize);
+    _d.CPGF_MD_TEMPLATE _method("setValue", &D::ClassType::setValue);
     _d.CPGF_MD_TEMPLATE _method("getValue", &D::ClassType::getValue);
-    _d.CPGF_MD_TEMPLATE _method("setDecimalPlaces", &D::ClassType::setDecimalPlaces);
     _d.CPGF_MD_TEMPLATE _method("setRange", &D::ClassType::setRange);
+    _d.CPGF_MD_TEMPLATE _method("getMin", &D::ClassType::getMin);
+    _d.CPGF_MD_TEMPLATE _method("getMax", &D::ClassType::getMax);
     _d.CPGF_MD_TEMPLATE _method("setStepSize", &D::ClassType::setStepSize)
         ._default(copyVariantFromCopyable(1.f))
     ;
-    _d.CPGF_MD_TEMPLATE _method("setValue", &D::ClassType::setValue);
+    _d.CPGF_MD_TEMPLATE _method("setDecimalPlaces", &D::ClassType::setDecimalPlaces);
+    _d.CPGF_MD_TEMPLATE _method("getStepSize", &D::ClassType::getStepSize);
 }
 
 
