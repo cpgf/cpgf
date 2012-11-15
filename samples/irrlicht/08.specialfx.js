@@ -78,7 +78,7 @@ function start()
 	var anim = 0;
 	anim = smgr.createFlyCircleAnimator (new irr.vector3df(0,150,0),250.0);
 	node.addAnimator(anim);
-//	anim.drop();
+	anim.drop();
 
 	// attach billboard to light
 
@@ -129,7 +129,7 @@ function start()
 	var em = ps.createBoxEmitter(new irr.aabbox3d_f32(-7,0,-7,7,1,7), new irr.vector3df(0.0,0.06,0.0), 80,100, new irr.SColor(0,255,255,255), new irr.SColor(0,255,255,255),	800,2000,0, new irr.dimension2df(10.0,10.0), new irr.dimension2df(20.0,20.0));
 
 	ps.setEmitter(em); // this grabs the emitter
-//	em.drop(); // so we can drop it here without deleting it
+	em.drop(); // so we can drop it here without deleting it
 
 	var paf = ps.createFadeOutParticleAffector();
 
@@ -249,7 +249,7 @@ function start()
 		}
 	}
 
-//	device.drop();
+	device.drop();
 
 	return 0;
 }

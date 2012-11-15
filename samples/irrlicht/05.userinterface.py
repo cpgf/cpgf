@@ -115,6 +115,7 @@ def start() :
 			driver.endScene();
 
 
+	device.drop();
 
 	return 0;
 

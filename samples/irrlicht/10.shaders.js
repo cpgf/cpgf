@@ -226,6 +226,7 @@ function start()
 			newMaterialType2 = gpu.addShaderMaterialFromFiles(vsFileName, psFileName, mc, irr.EMT_TRANSPARENT_ADD_COLOR);
 		}
 
+		// Don't drop mc because it's created by "new".
 //		mc.drop();
 	}
 
@@ -248,7 +249,7 @@ function start()
 
 	var anim = smgr.createRotationAnimator(new irr.vector3df(0,0.3,0));
 	node.addAnimator(anim);
-//	anim.drop();
+	anim.drop();
 
 	/*
 	Same for the second cube, but with the second material we created.
@@ -266,7 +267,7 @@ function start()
 
 	anim = smgr.createRotationAnimator(new irr.vector3df(0,0.3,0));
 	node.addAnimator(anim);
-//	anim.drop();
+	anim.drop();
 
 	/*
 	Then we add a third cube without a shader on it, to be able to compare
@@ -329,7 +330,7 @@ function start()
 		}
 	}
 
-//	device.drop();
+	device.drop();
 
 	return 0;
 }

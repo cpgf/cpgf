@@ -38,6 +38,7 @@ def start() :
 	anim = 0;
 	anim = smgr.createFlyCircleAnimator (irr.vector3df(0,150,0),250.0);
 	node.addAnimator(anim);
+	anim.drop();
 
 
 	node = smgr.addBillboardSceneNode(node, irr.dimension2d_f32(50, 50));
@@ -51,6 +52,7 @@ def start() :
 	em = ps.createBoxEmitter(irr.aabbox3d_f32(-7,0,-7,7,1,7), irr.vector3df(0.0,0.06,0.0), 80,100, irr.SColor(0,255,255,255), irr.SColor(0,255,255,255),	800,2000,0, irr.dimension2df(10.0,10.0), irr.dimension2df(20.0,20.0));
 
 	ps.setEmitter(em);
+	em.drop();
 
 	paf = ps.createFadeOutParticleAffector();
 
@@ -106,6 +108,7 @@ def start() :
 				device.setWindowCaption(tmp);
 				lastFPS = fps;
 
+	device.drop();
 
 	return 0;
 

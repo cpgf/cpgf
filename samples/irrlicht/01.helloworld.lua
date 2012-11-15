@@ -16,7 +16,7 @@ function start()
 	local mesh = smgr.getMesh("../../media/sydney.md2")
 	
 	if mesh == nil then
---		device.drop()
+		device.drop()
 		return 1
 	end
 	
@@ -40,7 +40,7 @@ function start()
 		driver.endScene()
 	end
 
---	device.drop()
+	device.drop()
 
 	return 0
 end

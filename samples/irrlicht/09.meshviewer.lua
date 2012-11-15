@@ -547,6 +547,9 @@ function start()
 		end
 	end
 
+	if xml then
+		xml.drop();
+	end
 
 	local skin = env.getSkin();
 	local font = env.getFont("fonthaettenschweiler.bmp");
@@ -693,6 +696,7 @@ function start()
 		end
 	end
 
+	Device.drop();
 	return 0;
 end
 

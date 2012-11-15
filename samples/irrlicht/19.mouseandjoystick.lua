@@ -115,6 +115,7 @@ function start()
 		driver.endScene();
 	end
 
+	device.drop();
 	return 0;
 end
 

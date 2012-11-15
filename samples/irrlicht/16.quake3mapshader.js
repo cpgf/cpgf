@@ -27,7 +27,7 @@ function overrideScreenShotFactory(screenshotFactory, device, templateName, node
 				{
 					var buf = self.FilenameTemplate + "_shot" + (++self.Number) + ".jpg";
 					selfDevice.getVideoDriver().writeImageToFile(image, buf, 85 );
-//					image.drop();
+					image.drop();
 				}
 			}
 			else
@@ -260,7 +260,7 @@ function start()
 	/*
 	In the end, delete the Irrlicht device.
 	*/
-//	device.drop();
+	device.drop();
 
 	return 0;
 }

@@ -130,6 +130,8 @@ function start()
 			newMaterialType1 = gpu.addShaderMaterialFromFiles(vsFileName, psFileName, mc, irr.EMT_SOLID);
 			newMaterialType2 = gpu.addShaderMaterialFromFiles(vsFileName, psFileName, mc, irr.EMT_TRANSPARENT_ADD_COLOR);
 		end
+		
+		-- mc.drop();
 	end
 
 
@@ -143,6 +145,7 @@ function start()
 
 	local anim = smgr.createRotationAnimator(irr.vector3df(0,0.3,0));
 	node.addAnimator(anim);
+	anim.drop();
 
 	node = smgr.addCubeSceneNode(50);
 	node.setPosition(irr.vector3df(0,-10,50));
@@ -154,6 +157,7 @@ function start()
 
 	anim = smgr.createRotationAnimator(irr.vector3df(0,0.3,0));
 	node.addAnimator(anim);
+	anim.drop();
 
 
 	node = smgr.addCubeSceneNode(50);
@@ -196,6 +200,7 @@ function start()
 		end
 	end
 
+	device.drop();
 
 	return 0;
 end

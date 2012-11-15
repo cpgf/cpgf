@@ -212,7 +212,7 @@ function start()
 		driver.endScene();
 	}
 
-//	device.drop();
+	device.drop();
 
 	return 0;
 }

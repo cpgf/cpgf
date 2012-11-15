@@ -199,7 +199,7 @@ Sounds a little complicated, but you'll see it isn't:
 		}
 	}
 	//Delete device
-//	device.drop();
+	device.drop();
 	return 0;
 }
 

@@ -166,7 +166,7 @@ function start()
 	/*
 	In the end, delete the Irrlicht device.
 	*/
-//	device.drop();
+	device.drop();
 
 	return 0;
 }

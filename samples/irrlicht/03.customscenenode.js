@@ -110,10 +110,8 @@ function start()
 		was produced by a createFoo() function. As I shouldn't refer to
 		it again, ensure that I can't by setting to 0.
 		*/
-		// Unlike C++, we don't release the interface. Script will free it in GC.
-//		anim.drop();
-		// Also we can't assign anim to zero, otherwise script may free it during the program running.
-//		anim = 0;
+		anim.drop();
+		anim = null;
 	}
 
 	/*
@@ -122,10 +120,11 @@ function start()
 	scene graph, which prevents the deletion until the graph is deleted or the
 	custom scene node is removed from it.
 	*/
-	// Unlike C++, we don't release the interface. Script will free it in GC.
+	// Don't drop myNode because it's created by new an object.
+	// Script engine will garbage collect it.
 //	myNode.drop();
-	// Also we can't assign myNode to zero, otherwise script may free it during the program running.
-//	myNode = 0; // As I shouldn't refer to it again, ensure that I can't
+	// Also don't set myNode to null, otherwise, it may be GCed.
+//	myNode = null; // As I shouldn't refer to it again, ensure that I can't
 
 	/*
 	Now draw everything and finish.
@@ -150,8 +149,7 @@ function start()
 		}
 	}
 
-	// Unlike C++, we don't release the interface. Script will free it in GC.
-//	device.drop();
+	device.drop();
 	
 	return 0;
 }

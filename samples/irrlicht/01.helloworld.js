@@ -17,7 +17,7 @@ function start()
 	
 	if(!mesh)
 	{
-//		device.drop();
+		device.drop();
 		return 1;
 	}
 	
@@ -43,7 +43,7 @@ function start()
 		driver.endScene();
 	}
 
-//	device.drop();
+	device.drop();
 
 
 	return 0;

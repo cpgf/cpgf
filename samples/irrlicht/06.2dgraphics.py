@@ -52,6 +52,6 @@ def start() :
 
 	return 0;
 
-	#device.drop();
+	device.drop();
 
 start();

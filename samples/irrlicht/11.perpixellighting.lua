@@ -136,6 +136,7 @@ function start()
 		room.setMaterialType(irr.EMT_PARALLAX_MAP_SOLID);
 		room.getMaterial(0).MaterialTypeParam = 0.035;
 
+		tangentMesh.drop();
 	end
 
 	local earthMesh = smgr.getMesh("../../media/earth.x");
@@ -166,7 +167,9 @@ function start()
 
 		local anim = smgr.createRotationAnimator(irr.vector3df(0,0.1,0));
 		sphere.addAnimator(anim);
+		anim.drop();
 
+		tangentSphereMesh.drop();
 	end
 
 	local light1 = smgr.addLightSceneNode(nil, irr.vector3df(0,0,0), irr.SColorf(0.5, 1.0, 0.5, 0.0), 800.0);
@@ -176,6 +179,7 @@ function start()
 
 	local anim = smgr.createFlyCircleAnimator (irr.vector3df(50,300,0),190.0, -0.003);
 	light1.addAnimator(anim);
+	anim.drop();
 
 	local bill = smgr.addBillboardSceneNode(light1, irr.dimension2d_f32(60, 60));
 
@@ -188,6 +192,7 @@ function start()
 
 	anim = smgr.createFlyCircleAnimator(irr.vector3df(0,150,0), 200.0, 0.001, irr.vector3df(0.2, 0.9, 0.0));
 	light2.addAnimator(anim);
+	anim.drop();
 
 	bill = smgr.addBillboardSceneNode(light2, irr.dimension2d_f32(120, 120));
 	bill.setMaterialFlag(irr.EMF_LIGHTING, false);
@@ -202,9 +207,11 @@ function start()
 	em.setMaxStartSize(irr.dimension2d_f32(30.0, 40.0));
 
 	ps.setEmitter(em);
+	em.drop();
 
 	local paf = ps.createFadeOutParticleAffector();
 	ps.addAffector(paf);
+	paf.drop();
 
 	ps.setMaterialFlag(irr.EMF_LIGHTING, false);
 	ps.setMaterialFlag(irr.EMF_ZWRITE_ENABLE, false);
@@ -241,6 +248,7 @@ function start()
 		end
 	end
 
+	device.drop();
 
 	return 0;
 end

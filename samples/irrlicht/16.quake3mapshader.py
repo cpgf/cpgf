@@ -14,6 +14,7 @@ def overrideScreenShotFactory(screenshotFactory, device, templateName, node) :
 					Number = Number + 1;
 					buf = FilenameTemplate + "_shot" + Number + ".jpg";
 					Device.getVideoDriver().writeImageToFile(image, buf, 85 );
+					image.drop();
 			elif event.KeyInput.Key == irr.KEY_F8 :
 				if Node.isDebugDataVisible() :
 					Node.setDebugDataVisible(irr.EDS_OFF);
@@ -116,6 +117,7 @@ def start() :
 			device.setWindowCaption(tmp);
 			lastFPS = fps;
 
+	device.drop();
 
 	return 0;
 

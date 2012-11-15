@@ -58,6 +58,7 @@ function start()
 		local anim = smgr.createFlyCircleAnimator(irr.vector3df(0,0,30), 20.0);
 		if anim then
 			n.addAnimator(anim);
+			anim.drop();
 		end
 	end
 
@@ -133,6 +134,8 @@ function start()
 			lastFPS = fps;
 		end
 	end
+	
+	device.drop();
 	
 	return 0;
 end

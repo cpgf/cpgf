@@ -140,9 +140,9 @@ function start()
 
 	// create collision response animator and attach it to the camera
 	var anim = smgr.createCollisionResponseAnimator(selector, camera, new irr.vector3df(60,100,60),	new irr.vector3df(0,0,0), new irr.vector3df(0,50,0));
-//	selector.drop();
+	selector.drop();
 	camera.addAnimator(anim);
-//	anim.drop();
+	anim.drop();
 
 	/* If you need access to the terrain data you can also do this directly via the following code fragment.
 	*/
@@ -150,7 +150,8 @@ function start()
 	terrain.getMeshBufferForLOD(buffer, 0);
 	var data = buffer.getVertexBuffer().getData();
 	// Work on data or get the IndexBuffer with a similar call.
-//	buffer.drop(); // When done drop the buffer again.
+	// Don't drop it, the script will GC it.
+	//buffer.drop(); // When done drop the buffer again.
 
 	/*
 	To make the user be able to switch between normal and wireframe mode,
@@ -207,7 +208,7 @@ function start()
 		}
 	}
 
-//	device.drop();
+	device.drop();
 	
 	return 0;
 }

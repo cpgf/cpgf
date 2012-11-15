@@ -83,7 +83,7 @@ function overrideEventReceiver(receiver, room, env, driver)
 		{
 			// change selected item in listbox
 
-			var sel = this.ListBox.getSelected();
+			var sel = self.ListBox.getSelected();
 			if (event.KeyInput.Key == irr.KEY_KEY_R)
 				++sel;
 			else
@@ -94,7 +94,7 @@ function overrideEventReceiver(receiver, room, env, driver)
 
 			if (sel > 2) sel = 0;
 			if (sel < 0) sel = 2;
-			this.ListBox.setSelected(sel);
+			self.ListBox.setSelected(sel);
 
 			// set the material which is selected in the listbox
 			self.setMaterial();
@@ -224,7 +224,7 @@ function start()
 		room.getMaterial(0).MaterialTypeParam = 0.035;
 
 		// drop mesh because we created it with a create.. call.
-//		tangentMesh.drop();
+		tangentMesh.drop();
 	}
 
 	/*
@@ -276,10 +276,10 @@ function start()
 		// add rotation animator
 		var anim = smgr.createRotationAnimator(new irr.vector3df(0,0.1,0));
 		sphere.addAnimator(anim);
-//		anim.drop();
+		anim.drop();
 
 		// drop mesh because we created it with a create.. call.
-//		tangentSphereMesh.drop();
+		tangentSphereMesh.drop();
 	}
 
 	/*
@@ -299,7 +299,7 @@ function start()
 	// add fly circle animator to light 1
 	var anim = smgr.createFlyCircleAnimator (new irr.vector3df(50,300,0),190.0, -0.003);
 	light1.addAnimator(anim);
-//	anim.drop();
+	anim.drop();
 
 	// attach billboard to the light
 	var bill = smgr.addBillboardSceneNode(light1, new irr.dimension2d_f32(60, 60));
@@ -328,7 +328,7 @@ function start()
 	// add fly circle animator to light 2
 	anim = smgr.createFlyCircleAnimator(new irr.vector3df(0,150,0), 200.0, 0.001, new irr.vector3df(0.2, 0.9, 0.0));
 	light2.addAnimator(anim);
-//	anim.drop();
+	anim.drop();
 
 	// attach billboard to light
 	bill = smgr.addBillboardSceneNode(light2, new irr.dimension2d_f32(120, 120));
@@ -346,12 +346,12 @@ function start()
 	em.setMaxStartSize(new irr.dimension2d_f32(30.0, 40.0));
 
 	ps.setEmitter(em);
-//	em.drop();
+	em.drop();
 
 	// create and set affector
 	var paf = ps.createFadeOutParticleAffector();
 	ps.addAffector(paf);
-//	paf.drop();
+	paf.drop();
 
 	// adjust some material settings
 	ps.setMaterialFlag(irr.EMF_LIGHTING, false);
@@ -394,7 +394,7 @@ function start()
 		}
 	}
 
-//	device.drop();
+	device.drop();
 
 	return 0;
 }

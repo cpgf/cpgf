@@ -51,7 +51,6 @@ def start() :
 		n.setMaterialFlag(irr.EMF_LIGHTING, False);
 		anim = smgr.createFlyCircleAnimator(irr.vector3df(0,0,30), 20.0);
 		if anim :
-
 			n.addAnimator(anim);
 			anim.drop();
 
@@ -63,6 +62,7 @@ def start() :
 		anim = smgr.createFlyStraightAnimator(irr.vector3df(100,0,60), irr.vector3df(-100,0,60), 3500, True);
 		if anim :
 			anms.addAnimator(anim);
+			anim.drop();
 
 		anms.setMaterialFlag(irr.EMF_LIGHTING, False);
 
@@ -126,6 +126,8 @@ def start() :
 			lastFPS = fps;
 
 
+	
+	device.drop();
 	
 	return 0;
 

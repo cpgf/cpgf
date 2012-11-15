@@ -82,6 +82,8 @@ function start()
 
 	if anim then
 		myNode.addAnimator(anim);
+		anim.drop();
+		anim = nil;
 	end
 
 	local frames = 0;
@@ -104,6 +106,8 @@ function start()
 			frames = 0;
 		end
 	end
+	
+	device.drop();
 	
 	return 0;
 end

@@ -91,11 +91,14 @@ function start()
 	terrain.setTriangleSelector(selector);
 
 	local anim = smgr.createCollisionResponseAnimator(selector, camera, irr.vector3df(60,100,60),	irr.vector3df(0,0,0), irr.vector3df(0,50,0));
+	selector.drop();
 	camera.addAnimator(anim);
+	anim.drop();
 
 	local buffer = irr.CDynamicMeshBuffer(irr.EVT_2TCOORDS, irr.EIT_16BIT);
 	terrain.getMeshBufferForLOD(buffer, 0);
 	local data = buffer.getVertexBuffer().getData();
+	-- buffer.drop();
 
 	driver.setTextureCreationFlag(irr.ETCF_CREATE_MIP_MAPS, false);
 
@@ -134,6 +137,7 @@ function start()
 		end
 	end
 
+	device.drop();
 	
 	return 0;
 end

@@ -103,6 +103,7 @@ def start() :
 		smgr.drawAll();
 		driver.endScene();
 
+	device.drop();
 	return 0;
 
 start();

@@ -125,6 +125,8 @@ def start() :
 		else :
 			newMaterialType1 = gpu.addShaderMaterialFromFiles(vsFileName, psFileName, mc, irr.EMT_SOLID);
 			newMaterialType2 = gpu.addShaderMaterialFromFiles(vsFileName, psFileName, mc, irr.EMT_TRANSPARENT_ADD_COLOR);
+		
+		#mc.drop();
 
 
 	node = smgr.addCubeSceneNode(50);
@@ -137,6 +139,7 @@ def start() :
 
 	anim = smgr.createRotationAnimator(irr.vector3df(0,0.3,0));
 	node.addAnimator(anim);
+	anim.drop();
 
 	node = smgr.addCubeSceneNode(50);
 	node.setPosition(irr.vector3df(0,-10,50));
@@ -148,6 +151,7 @@ def start() :
 
 	anim = smgr.createRotationAnimator(irr.vector3df(0,0.3,0));
 	node.addAnimator(anim);
+	anim.drop();
 
 
 	node = smgr.addCubeSceneNode(50);
@@ -187,6 +191,7 @@ def start() :
 				device.setWindowCaption(tmp);
 				lastFPS = fps;
 
+	device.drop();
 
 	return 0;
 

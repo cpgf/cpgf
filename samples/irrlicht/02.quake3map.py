@@ -45,7 +45,7 @@ def start() :
 				device.setWindowCaption(tmp);
 				lastFPS = fps;
 
-	#device.drop();
+	device.drop();
 	return 0;
 
 

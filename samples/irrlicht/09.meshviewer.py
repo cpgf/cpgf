@@ -534,6 +534,8 @@ def start() :
 			elif "messageText" == xml.getNodeName() :
 				Caption = xml.getAttributeValue("caption");
 
+	if xml :
+		xml.drop();
 
 	skin = env.getSkin();
 	font = env.getFont("fonthaettenschweiler.bmp");
@@ -675,6 +677,7 @@ def start() :
 
 			updateToolBox();
 
+	Device.drop();
 	return 0;
 
 start();

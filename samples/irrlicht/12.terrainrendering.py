@@ -85,11 +85,14 @@ def start() :
 	terrain.setTriangleSelector(selector);
 
 	anim = smgr.createCollisionResponseAnimator(selector, camera, irr.vector3df(60,100,60),	irr.vector3df(0,0,0), irr.vector3df(0,50,0));
+	selector.drop();
 	camera.addAnimator(anim);
+	anim.drop();
 
 	buffer = irr.CDynamicMeshBuffer(irr.EVT_2TCOORDS, irr.EIT_16BIT);
 	terrain.getMeshBufferForLOD(buffer, 0);
 	data = buffer.getVertexBuffer().getData();
+	#buffer.drop();
 
 	driver.setTextureCreationFlag(irr.ETCF_CREATE_MIP_MAPS, False);
 
@@ -125,6 +128,7 @@ def start() :
 				device.setWindowCaption(tmp);
 				lastFPS = fps;
 
+	device.drop();
 	
 	return 0;
 

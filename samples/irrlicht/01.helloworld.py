@@ -17,7 +17,7 @@ def start() :
 	mesh = smgr.getMesh("../../media/sydney.md2")
 	
 	if mesh == None :
-		#device.drop()
+		device.drop()
 		return 1
 	
 	node = smgr.addAnimatedMeshSceneNode( mesh )
@@ -39,7 +39,7 @@ def start() :
 
 		driver.endScene()
 
-	#device.drop()
+	device.drop()
 
 	return 0
 

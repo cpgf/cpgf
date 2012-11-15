@@ -14,6 +14,7 @@ function overrideScreenShotFactory(screenshotFactory, device, templateName, node
 					Number = Number + 1;
 					local buf = FilenameTemplate .. "_shot" .. Number .. ".jpg";
 					Device.getVideoDriver().writeImageToFile(image, buf, 85 );
+					image.drop();
 				end
 			elseif event.KeyInput.Key == irr.KEY_F8 then
 				if Node.isDebugDataVisible() then
@@ -130,6 +131,7 @@ function start()
 		end
 	end
 
+	device.drop();
 
 	return 0;
 end

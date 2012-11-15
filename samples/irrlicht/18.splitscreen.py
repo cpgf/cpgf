@@ -84,6 +84,7 @@ def start() :
 			tmp = tmp + str(lastFPS);
 			tmp = tmp + ")";
 			device.setWindowCaption(tmp);
+	device.drop();
 	return 0;
 
 start();

@@ -946,7 +946,7 @@ function start()
 			Device.yield();
 	}
 
-//	Device.drop();
+	Device.drop();
 	return 0;
 }
 

@@ -36,6 +36,7 @@ function start()
 	test.setPosition(irr.vector3df(-100,0,-100));
 	test.setMaterialFlag(irr.EMF_LIGHTING, false);
 	test.addAnimator(anim);
+	anim.drop();
 
 	device.setWindowCaption("Irrlicht Engine - Render to Texture and Specular Highlights example");
 	
@@ -102,6 +103,7 @@ function start()
 		end
 	end
 
+	device.drop();
 	return 0;
 end
 

@@ -65,7 +65,7 @@ function start()
 	test.setPosition(new irr.vector3df(-100,0,-100));
 	test.setMaterialFlag(irr.EMF_LIGHTING, false); // disable dynamic lighting
 	test.addAnimator(anim);
-//	anim.drop();
+	anim.drop();
 
 	// set window caption
 	device.setWindowCaption("Irrlicht Engine - Render to Texture and Specular Highlights example");
@@ -174,7 +174,7 @@ function start()
 		}
 	}
 
-//	device.drop(); // drop device
+	device.drop(); // drop device
 	return 0;
 }
 

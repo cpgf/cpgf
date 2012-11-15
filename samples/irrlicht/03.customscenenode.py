@@ -85,6 +85,8 @@ def start() :
 
 	if anim :
 		myNode.addAnimator(anim);
+		anim.drop();
+		anim = None;
 		
 	frames = 0;
 	while device.run() :
@@ -104,6 +106,8 @@ def start() :
 
 			device.setWindowCaption(tmp);
 			frames = 0;
+
+	device.drop();
 
 	return 0;
 

@@ -121,6 +121,8 @@ function start()
 		end
 	end
 
+	device.drop();
+	
 	return 0;
 end
 

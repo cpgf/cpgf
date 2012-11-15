@@ -33,6 +33,7 @@ def start() :
 	test.setPosition(irr.vector3df(-100,0,-100));
 	test.setMaterialFlag(irr.EMF_LIGHTING, False);
 	test.addAnimator(anim);
+	anim.drop();
 
 	device.setWindowCaption("Irrlicht Engine - Render to Texture and Specular Highlights example");
 	
@@ -93,6 +94,7 @@ def start() :
 				device.setWindowCaption(tmp);
 				lastFPS = fps;
 
+	device.drop();
 	return 0;
 
 start()

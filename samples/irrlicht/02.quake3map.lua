@@ -54,7 +54,7 @@ function start()
 		end
 	end
 
---	device.drop();
+	device.drop();
 	return 0;
 end
 
