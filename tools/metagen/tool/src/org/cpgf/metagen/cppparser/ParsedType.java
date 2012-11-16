@@ -134,6 +134,15 @@ public class ParsedType {
 			|| this.getRValueReference() != EnumCompoundType.None;
 	}
 
+	public boolean matchSymbol(String symbol) {
+		for(TypeToken token : this.tokenList) {
+			if(token.getKind() == EnumTypeTokenKind.Symbol && token.getToken().equals(symbol)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private void doParse() {
 		this.tokenList = ParserUtil.splitTypeTokens(ParserUtil.splitTypeTokenLiterals(this.literalType));
 

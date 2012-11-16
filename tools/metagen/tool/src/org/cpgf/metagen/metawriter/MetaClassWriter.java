@@ -216,7 +216,7 @@ public class MetaClassWriter {
 			
 			overload = overload || this.cppClass.isGlobal();
 			
-			WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, name, overload);
+			WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, name, name, overload);
 		}
 	}
 
@@ -281,94 +281,19 @@ public class MetaClassWriter {
 	}
 
 	private void writeOperators() {
-		String action = WriterUtil.getReflectionAction(this.define, "_operator");
-
 		for(Operator item : this.cppClass.getOperatorList()) {
 			this.doCallback(item);
 			
 			if(this.shouldSkipItem(item)) {
 				continue;
 			}
-
-			boolean isStatic = item.isStatic();
-			String op = item.getOperator();
 			
-			int realParamCount = item.getParameterList().size();
-			if(! isStatic) {
-				++realParamCount;
-			}
+			OperatorWriter opWriter = new OperatorWriter(this.metaInfo, item);
+			opWriter.writeReflectionCode(this.codeWriter, this.define);
 			
-			if(op.equals("->")) {
-				realParamCount = 2;
+			if(WriterUtil.shouldGenerateOperatorWrapper(this.metaInfo, item)) {
+				opWriter.writeNamedWrapperReflectionCode(this.codeWriter, define);
 			}
-
-			boolean isTypeConvert = op.matches(".*\\w+.*");
-			String opText = "";
-			
-			String self = item.getSelf();
-			if(self == null) {
-				self = "cpgf::GMetaSelf";
-			}
-			
-			if(isTypeConvert) {
-				this.codeWriter.write(action + "<" + op + " (" + self + ")>(");
-				opText = "H()";
-			}
-			else {
-				this.codeWriter.write(action + "<" + item.getResultType().getLiteralType() + " (*)(");
-				
-				boolean isFunctor = item.isFunctor();
-				boolean hasSelf = item.hasSelf();
-
-				if(hasSelf) {
-					if(item.isConst()) {
-						this.codeWriter.write("const " + self + " &");
-					}
-					else {
-						this.codeWriter.write(self);
-					}
-				}
-
-				if(op.equals("++") || op.equals("--")) {
-				}
-				else {
-					if(item.hasParameter() && hasSelf) {
-						this.codeWriter.write(", ");
-					}
-					WriterUtil.writeParamList(this.codeWriter, item.getParameterList(), false);
-				}
-				this.codeWriter.write(")>(");
-				if(isFunctor) {
-					opText = "H(H)";
-				}
-				else if(op.equals("[]")) {
-					opText = "H[0]";
-				}
-				else if(op.matches("\\w") && realParamCount == 1) { // type convert T()
-					opText = "H()";
-				}
-				else {
-					if(realParamCount == 2) {
-						if(op.equals("++") || op.equals("--")) {
-							opText = "H" + op;
-						}
-						else {
-							opText = "H " + op + " H";
-						}
-					}
-					else if(realParamCount == 1) {
-						opText = op + "H";
-					}
-					else {
-					}
-				}
-			}
-
-			opText = opText.replaceAll("\\bH\\b", "mopHolder");
-			this.codeWriter.write(opText);
-			this.codeWriter.write(WriterUtil.getPolicyText(item) + ")");
-
-			WriterUtil.writeDefaultParams(this.codeWriter, item.getParameterList());
 		}
 	}
 

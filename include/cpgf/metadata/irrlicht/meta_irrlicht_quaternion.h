@@ -18,6 +18,38 @@ using namespace irr::core;
 namespace meta_irrlicht { 
 
 
+inline bool opErAToRWrapper_quaternion__opEqual(const quaternion * self, const quaternion & other) {
+    return (*self) == other;
+}
+inline bool opErAToRWrapper_quaternion__opNotEqual(const quaternion * self, const quaternion & other) {
+    return (*self) != other;
+}
+inline quaternion & opErAToRWrapper_quaternion__opAssign(quaternion * self, const quaternion & other) {
+    return (*self) = other;
+}
+inline quaternion & opErAToRWrapper_quaternion__opAssign(quaternion * self, const matrix4 & other) {
+    return (*self) = other;
+}
+inline quaternion opErAToRWrapper_quaternion__opPlus(const quaternion * self, const quaternion & other) {
+    return (*self) + other;
+}
+inline quaternion opErAToRWrapper_quaternion__opStar(const quaternion * self, const quaternion & other) {
+    return (*self) * other;
+}
+inline quaternion opErAToRWrapper_quaternion__opStar(const quaternion * self, f32 s) {
+    return (*self) * s;
+}
+inline quaternion & opErAToRWrapper_quaternion__opStarAssign(quaternion * self, f32 s) {
+    return (*self) *= s;
+}
+inline vector3df opErAToRWrapper_quaternion__opStar(const quaternion * self, const vector3df & v) {
+    return (*self) * v;
+}
+inline quaternion & opErAToRWrapper_quaternion__opStarAssign(quaternion * self, const quaternion & other) {
+    return (*self) *= other;
+}
+
+
 template <typename D>
 void buildMetaClass_Quaternion(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -54,15 +86,25 @@ void buildMetaClass_Quaternion(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("makeIdentity", &D::ClassType::makeIdentity);
     _d.CPGF_MD_TEMPLATE _method("rotationFromTo", &D::ClassType::rotationFromTo);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const quaternion &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const quaternion *, const quaternion &))&opErAToRWrapper_quaternion__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const quaternion &)>(mopHolder != mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const quaternion *, const quaternion &))&opErAToRWrapper_quaternion__opNotEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<quaternion & (*)(cpgf::GMetaSelf, const quaternion &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (quaternion & (*) (quaternion *, const quaternion &))&opErAToRWrapper_quaternion__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<quaternion & (*)(cpgf::GMetaSelf, const matrix4 &)>(mopHolder = mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (quaternion & (*) (quaternion *, const matrix4 &))&opErAToRWrapper_quaternion__opAssign);
     _d.CPGF_MD_TEMPLATE _operator<quaternion (*)(const cpgf::GMetaSelf &, const quaternion &)>(mopHolder + mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opPlus", (quaternion (*) (const quaternion *, const quaternion &))&opErAToRWrapper_quaternion__opPlus, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<quaternion (*)(const cpgf::GMetaSelf &, const quaternion &)>(mopHolder * mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opStar", (quaternion (*) (const quaternion *, const quaternion &))&opErAToRWrapper_quaternion__opStar, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<quaternion (*)(const cpgf::GMetaSelf &, f32)>(mopHolder * mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opStar", (quaternion (*) (const quaternion *, f32))&opErAToRWrapper_quaternion__opStar);
     _d.CPGF_MD_TEMPLATE _operator<quaternion & (*)(cpgf::GMetaSelf, f32)>(mopHolder *= mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opStarAssign", (quaternion & (*) (quaternion *, f32))&opErAToRWrapper_quaternion__opStarAssign);
     _d.CPGF_MD_TEMPLATE _operator<vector3df (*)(const cpgf::GMetaSelf &, const vector3df &)>(mopHolder * mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opStar", (vector3df (*) (const quaternion *, const vector3df &))&opErAToRWrapper_quaternion__opStar);
     _d.CPGF_MD_TEMPLATE _operator<quaternion & (*)(cpgf::GMetaSelf, const quaternion &)>(mopHolder *= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opStarAssign", (quaternion & (*) (quaternion *, const quaternion &))&opErAToRWrapper_quaternion__opStarAssign, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
 }
 
 

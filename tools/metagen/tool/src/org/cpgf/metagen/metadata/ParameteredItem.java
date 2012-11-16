@@ -8,6 +8,7 @@ public class ParameteredItem extends Item {
 	private List<Parameter> templateParameterList;
 	private boolean isVirtual;
 	private boolean isPureVirtual;
+	private boolean isTemplate;
 
 	public ParameteredItem(EnumCategory category, String name) {
 		super(category, name);
@@ -53,7 +54,11 @@ public class ParameteredItem extends Item {
 	}
 
 	public boolean isTemplate() {
-		return this.templateParameterList.size() > 0;
+		return isTemplate || this.templateParameterList.size() > 0;
+	}
+	
+	public void setTemplate(boolean isTemplate) {
+		this.isTemplate = isTemplate;
 	}
 
 	public int getNonDefaultParameterCount() {

@@ -68,6 +68,17 @@ inline void bItFiEldWrapper_SMaterialLayer_TrilinearFilter_setter(SMaterialLayer
 }
 
 
+inline SMaterialLayer & opErAToRWrapper_SMaterialLayer__opAssign(SMaterialLayer * self, const SMaterialLayer & other) {
+    return (*self) = other;
+}
+inline bool opErAToRWrapper_SMaterialLayer__opNotEqual(const SMaterialLayer * self, const SMaterialLayer & b) {
+    return (*self) != b;
+}
+inline bool opErAToRWrapper_SMaterialLayer__opEqual(const SMaterialLayer * self, const SMaterialLayer & b) {
+    return (*self) == b;
+}
+
+
 template <typename D>
 void buildMetaClass_SMaterialLayer(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -87,8 +98,11 @@ void buildMetaClass_SMaterialLayer(const cpgf::GMetaDataConfigFlags & config, D 
     _d.CPGF_MD_TEMPLATE _method("getTextureMatrix", (const core::matrix4 & (D::ClassType::*) () const)&D::ClassType::getTextureMatrix);
     _d.CPGF_MD_TEMPLATE _method("setTextureMatrix", &D::ClassType::setTextureMatrix);
     _d.CPGF_MD_TEMPLATE _operator<SMaterialLayer & (*)(cpgf::GMetaSelf, const SMaterialLayer &)>(mopHolder = mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (SMaterialLayer & (*) (SMaterialLayer *, const SMaterialLayer &))&opErAToRWrapper_SMaterialLayer__opAssign);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SMaterialLayer &)>(mopHolder != mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const SMaterialLayer *, const SMaterialLayer &))&opErAToRWrapper_SMaterialLayer__opNotEqual);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SMaterialLayer &)>(mopHolder == mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const SMaterialLayer *, const SMaterialLayer &))&opErAToRWrapper_SMaterialLayer__opEqual);
 }
 
 

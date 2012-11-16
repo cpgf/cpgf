@@ -16,6 +16,10 @@ public class Operator extends CppInvokable {
 		return this.getOperator().equals("()");
 	}
 	
+	public boolean isTypeConverter() {
+		return this.getOperator().matches(".*\\w+.*");
+	}
+	
 	public boolean hasSelf() {
 		return !this.isFunctor() && !this.isStatic();
 	}

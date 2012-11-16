@@ -366,6 +366,8 @@ public class DoxygenXmlParser {
 		if(node == null) {
 			return;
 		}
+		
+		item.setTemplate(true);
 
 		for(Node child : Util.getChildNodesByName(node, "param")) {
 			String baseType = Util.getNodeText(Util.getNode(child, "type"));

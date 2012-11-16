@@ -11,6 +11,7 @@ import org.cpgf.metagen.metadata.CppInvokable;
 import org.cpgf.metagen.metadata.DeferClass;
 import org.cpgf.metagen.metadata.Item;
 import org.cpgf.metagen.metadata.MetaInfo;
+import org.cpgf.metagen.metadata.Operator;
 import org.cpgf.metagen.metadata.Parameter;
 import org.cpgf.metagen.metadata.TemplateInstance;
 import org.cpgf.metagen.metawriter.callback.OutputCallbackData;
@@ -259,6 +260,24 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 		}
 	}
 	
+	private void generateOperatorWrapperFunctions(CppClass cls) {
+		List<Operator> operatorList = cls.getOperatorList();
+		CppWriter codeWriter = new CppWriter();
+		for(Operator item : operatorList) {
+			if(! WriterUtil.shouldGenerateOperatorWrapper(this.metaInfo, item)) {
+				continue;
+			}
+			
+			OperatorWriter opWriter = new OperatorWriter(this.metaInfo, item);
+			opWriter.writeNamedWrapperFunctionCode(codeWriter);
+		}
+		this.classCode.headerCode = this.appendText(this.classCode.headerCode, codeWriter.getText());
+		
+//		for(DeferClass innerClass : cls.getClassList()) {
+//			generateOperatorWrapperFunctions(innerClass.getCppClass());
+//		}
+	}
+	
 	private void generateClassReflectionHeaderCode() {
 		CppWriter codeWriter = new CppWriter();
 
@@ -378,6 +397,7 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 		}
 		
 		this.generateBitfieldsWrapperFunctions(this.cppClass);
+		this.generateOperatorWrapperFunctions(this.cppClass);
 
 		this.generateClassReflectionHeaderCode();
 		this.generateClassReflectionSourceCode();

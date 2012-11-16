@@ -34,6 +34,16 @@ void buildMetaClass_Global_plane3d(const cpgf::GMetaDataConfigFlags & config, D 
 }
 
 
+template <class T>
+inline bool opErAToRWrapper_plane3d__opEqual(const plane3d<T> * self, const plane3d< T > & other) {
+    return (*self) == other;
+}
+template <class T>
+inline bool opErAToRWrapper_plane3d__opNotEqual(const plane3d<T> * self, const plane3d< T > & other) {
+    return (*self) != other;
+}
+
+
 template <typename D, class T>
 void buildMetaClass_Plane3d(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -62,7 +72,9 @@ void buildMetaClass_Plane3d(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("isFrontFacing", &D::ClassType::isFrontFacing, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("getDistanceTo", &D::ClassType::getDistanceTo, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const plane3d< T > &)>(mopHolder == mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const plane3d<T> *, const plane3d< T > &))&opErAToRWrapper_plane3d__opEqual<T>);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const plane3d< T > &)>(mopHolder != mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const plane3d<T> *, const plane3d< T > &))&opErAToRWrapper_plane3d__opNotEqual<T>);
 }
 
 

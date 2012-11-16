@@ -18,6 +18,11 @@ using namespace irr::scene;
 namespace meta_irrlicht { 
 
 
+inline video::S3DVertex & opErAToRWrapper_CVertexBuffer__opSubscript(const CVertexBuffer * self, const u32 index) {
+    return (*self)[index];
+}
+
+
 template <typename D>
 void buildMetaClass_CVertexBuffer(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -45,6 +50,7 @@ void buildMetaClass_CVertexBuffer(const cpgf::GMetaDataConfigFlags & config, D _
     _d.CPGF_MD_TEMPLATE _method("setDirty", &D::ClassType::setDirty);
     _d.CPGF_MD_TEMPLATE _method("getChangedID", &D::ClassType::getChangedID);
     _d.CPGF_MD_TEMPLATE _operator<video::S3DVertex & (*)(const cpgf::GMetaSelf &, const u32)>(mopHolder[0]);
+    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (video::S3DVertex & (*) (const CVertexBuffer *, const u32))&opErAToRWrapper_CVertexBuffer__opSubscript);
 }
 
 

@@ -35,6 +35,80 @@ void buildMetaClass_Global_irrstring(const cpgf::GMetaDataConfigFlags & config, 
 }
 
 
+template <typename T, typename TAlloc>
+inline string< T, TAlloc > & opErAToRWrapper_string__opAssign(string<T, TAlloc> * self, const string< T, TAlloc > & other) {
+    return (*self) = other;
+}
+template <typename T, typename TAlloc>
+inline string< T, TAlloc > opErAToRWrapper_string__opPlus(const string<T, TAlloc> * self, const string< T, TAlloc > & other) {
+    return (*self) + other;
+}
+template <typename T, typename TAlloc>
+inline T & opErAToRWrapper_string__opSubscript(string<T, TAlloc> * self, const u32 index) {
+    return (*self)[index];
+}
+template <typename T, typename TAlloc>
+inline const T & opErAToRWrapper_string__opSubscript(const string<T, TAlloc> * self, const u32 index) {
+    return (*self)[index];
+}
+template <typename T, typename TAlloc>
+inline bool opErAToRWrapper_string__opEqual(const string<T, TAlloc> * self, const T *const str) {
+    return (*self) == str;
+}
+template <typename T, typename TAlloc>
+inline bool opErAToRWrapper_string__opEqual(const string<T, TAlloc> * self, const string< T, TAlloc > & other) {
+    return (*self) == other;
+}
+template <typename T, typename TAlloc>
+inline bool opErAToRWrapper_string__opLesserEqual(const string<T, TAlloc> * self, const string< T, TAlloc > & other) {
+    return (*self) < other;
+}
+template <typename T, typename TAlloc>
+inline bool opErAToRWrapper_string__opNotEqual(const string<T, TAlloc> * self, const T *const str) {
+    return (*self) != str;
+}
+template <typename T, typename TAlloc>
+inline bool opErAToRWrapper_string__opNotEqual(const string<T, TAlloc> * self, const string< T, TAlloc > & other) {
+    return (*self) != other;
+}
+template <typename T, typename TAlloc>
+inline string< T, TAlloc > & opErAToRWrapper_string__opPlusAssign(string<T, TAlloc> * self, T c) {
+    return (*self) += c;
+}
+template <typename T, typename TAlloc>
+inline string< T, TAlloc > & opErAToRWrapper_string__opPlusAssign(string<T, TAlloc> * self, const T *const c) {
+    return (*self) += c;
+}
+template <typename T, typename TAlloc>
+inline string< T, TAlloc > & opErAToRWrapper_string__opPlusAssign(string<T, TAlloc> * self, const string< T, TAlloc > & other) {
+    return (*self) += other;
+}
+template <typename T, typename TAlloc>
+inline string< T, TAlloc > & opErAToRWrapper_string__opPlusAssign(string<T, TAlloc> * self, const int i) {
+    return (*self) += i;
+}
+template <typename T, typename TAlloc>
+inline string< T, TAlloc > & opErAToRWrapper_string__opPlusAssign(string<T, TAlloc> * self, const unsigned int i) {
+    return (*self) += i;
+}
+template <typename T, typename TAlloc>
+inline string< T, TAlloc > & opErAToRWrapper_string__opPlusAssign(string<T, TAlloc> * self, const long i) {
+    return (*self) += i;
+}
+template <typename T, typename TAlloc>
+inline string< T, TAlloc > & opErAToRWrapper_string__opPlusAssign(string<T, TAlloc> * self, const unsigned long & i) {
+    return (*self) += i;
+}
+template <typename T, typename TAlloc>
+inline string< T, TAlloc > & opErAToRWrapper_string__opPlusAssign(string<T, TAlloc> * self, const double i) {
+    return (*self) += i;
+}
+template <typename T, typename TAlloc>
+inline string< T, TAlloc > & opErAToRWrapper_string__opPlusAssign(string<T, TAlloc> * self, const float i) {
+    return (*self) += i;
+}
+
+
 template <typename D, typename T, typename TAlloc>
 void buildMetaClass_String(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -81,23 +155,41 @@ void buildMetaClass_String(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("validate", &D::ClassType::validate);
     _d.CPGF_MD_TEMPLATE _method("lastChar", &D::ClassType::lastChar);
     _d.CPGF_MD_TEMPLATE _operator<string< T, TAlloc > & (*)(cpgf::GMetaSelf, const string< T, TAlloc > &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (string< T, TAlloc > & (*) (string<T, TAlloc> *, const string< T, TAlloc > &))&opErAToRWrapper_string__opAssign<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<string< T, TAlloc > (*)(const cpgf::GMetaSelf &, const string< T, TAlloc > &)>(mopHolder + mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opPlus", (string< T, TAlloc > (*) (const string<T, TAlloc> *, const string< T, TAlloc > &))&opErAToRWrapper_string__opPlus<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<T & (*)(cpgf::GMetaSelf, const u32)>(mopHolder[0]);
+    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (T & (*) (string<T, TAlloc> *, const u32))&opErAToRWrapper_string__opSubscript<T, TAlloc>);
     _d.CPGF_MD_TEMPLATE _operator<const T & (*)(const cpgf::GMetaSelf &, const u32)>(mopHolder[0]);
+    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (const T & (*) (const string<T, TAlloc> *, const u32))&opErAToRWrapper_string__opSubscript<T, TAlloc>);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const T *const)>(mopHolder == mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const string<T, TAlloc> *, const T *const))&opErAToRWrapper_string__opEqual<T, TAlloc>);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const string< T, TAlloc > &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const string<T, TAlloc> *, const string< T, TAlloc > &))&opErAToRWrapper_string__opEqual<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const string< T, TAlloc > &)>(mopHolder < mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opLesserEqual", (bool (*) (const string<T, TAlloc> *, const string< T, TAlloc > &))&opErAToRWrapper_string__opLesserEqual<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const T *const)>(mopHolder != mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const string<T, TAlloc> *, const T *const))&opErAToRWrapper_string__opNotEqual<T, TAlloc>);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const string< T, TAlloc > &)>(mopHolder != mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const string<T, TAlloc> *, const string< T, TAlloc > &))&opErAToRWrapper_string__opNotEqual<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<string< T, TAlloc > & (*)(cpgf::GMetaSelf, T)>(mopHolder += mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (string< T, TAlloc > & (*) (string<T, TAlloc> *, T))&opErAToRWrapper_string__opPlusAssign<T, TAlloc>);
     _d.CPGF_MD_TEMPLATE _operator<string< T, TAlloc > & (*)(cpgf::GMetaSelf, const T *const)>(mopHolder += mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (string< T, TAlloc > & (*) (string<T, TAlloc> *, const T *const))&opErAToRWrapper_string__opPlusAssign<T, TAlloc>);
     _d.CPGF_MD_TEMPLATE _operator<string< T, TAlloc > & (*)(cpgf::GMetaSelf, const string< T, TAlloc > &)>(mopHolder += mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (string< T, TAlloc > & (*) (string<T, TAlloc> *, const string< T, TAlloc > &))&opErAToRWrapper_string__opPlusAssign<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<string< T, TAlloc > & (*)(cpgf::GMetaSelf, const int)>(mopHolder += mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (string< T, TAlloc > & (*) (string<T, TAlloc> *, const int))&opErAToRWrapper_string__opPlusAssign<T, TAlloc>);
     _d.CPGF_MD_TEMPLATE _operator<string< T, TAlloc > & (*)(cpgf::GMetaSelf, const unsigned int)>(mopHolder += mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (string< T, TAlloc > & (*) (string<T, TAlloc> *, const unsigned int))&opErAToRWrapper_string__opPlusAssign<T, TAlloc>);
     _d.CPGF_MD_TEMPLATE _operator<string< T, TAlloc > & (*)(cpgf::GMetaSelf, const long)>(mopHolder += mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (string< T, TAlloc > & (*) (string<T, TAlloc> *, const long))&opErAToRWrapper_string__opPlusAssign<T, TAlloc>);
     _d.CPGF_MD_TEMPLATE _operator<string< T, TAlloc > & (*)(cpgf::GMetaSelf, const unsigned long &)>(mopHolder += mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (string< T, TAlloc > & (*) (string<T, TAlloc> *, const unsigned long &))&opErAToRWrapper_string__opPlusAssign<T, TAlloc>);
     _d.CPGF_MD_TEMPLATE _operator<string< T, TAlloc > & (*)(cpgf::GMetaSelf, const double)>(mopHolder += mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (string< T, TAlloc > & (*) (string<T, TAlloc> *, const double))&opErAToRWrapper_string__opPlusAssign<T, TAlloc>);
     _d.CPGF_MD_TEMPLATE _operator<string< T, TAlloc > & (*)(cpgf::GMetaSelf, const float)>(mopHolder += mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (string< T, TAlloc > & (*) (string<T, TAlloc> *, const float))&opErAToRWrapper_string__opPlusAssign<T, TAlloc>);
 }
 
 

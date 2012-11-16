@@ -18,6 +18,36 @@ using namespace irr::core;
 namespace meta_irrlicht { 
 
 
+template <class T>
+inline rect< T > opErAToRWrapper_rect__opPlus(const rect<T> * self, const position2d< T > & pos) {
+    return (*self) + pos;
+}
+template <class T>
+inline rect< T > & opErAToRWrapper_rect__opPlusAssign(rect<T> * self, const position2d< T > & pos) {
+    return (*self) += pos;
+}
+template <class T>
+inline rect< T > opErAToRWrapper_rect__opMinus(const rect<T> * self, const position2d< T > & pos) {
+    return (*self) - pos;
+}
+template <class T>
+inline rect< T > & opErAToRWrapper_rect__opMinusAssign(rect<T> * self, const position2d< T > & pos) {
+    return (*self) -= pos;
+}
+template <class T>
+inline bool opErAToRWrapper_rect__opEqual(const rect<T> * self, const rect< T > & other) {
+    return (*self) == other;
+}
+template <class T>
+inline bool opErAToRWrapper_rect__opNotEqual(const rect<T> * self, const rect< T > & other) {
+    return (*self) != other;
+}
+template <class T>
+inline bool opErAToRWrapper_rect__opLesserEqual(const rect<T> * self, const rect< T > & other) {
+    return (*self) < other;
+}
+
+
 template <typename D, class T>
 void buildMetaClass_Rect(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -43,12 +73,19 @@ void buildMetaClass_Rect(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("addInternalPoint", (void (D::ClassType::*) (const position2d< T > &))&D::ClassType::addInternalPoint);
     _d.CPGF_MD_TEMPLATE _method("addInternalPoint", (void (D::ClassType::*) (T, T))&D::ClassType::addInternalPoint);
     _d.CPGF_MD_TEMPLATE _operator<rect< T > (*)(const cpgf::GMetaSelf &, const position2d< T > &)>(mopHolder + mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opPlus", (rect< T > (*) (const rect<T> *, const position2d< T > &))&opErAToRWrapper_rect__opPlus<T>);
     _d.CPGF_MD_TEMPLATE _operator<rect< T > & (*)(cpgf::GMetaSelf, const position2d< T > &)>(mopHolder += mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (rect< T > & (*) (rect<T> *, const position2d< T > &))&opErAToRWrapper_rect__opPlusAssign<T>);
     _d.CPGF_MD_TEMPLATE _operator<rect< T > (*)(const cpgf::GMetaSelf &, const position2d< T > &)>(mopHolder - mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opMinus", (rect< T > (*) (const rect<T> *, const position2d< T > &))&opErAToRWrapper_rect__opMinus<T>);
     _d.CPGF_MD_TEMPLATE _operator<rect< T > & (*)(cpgf::GMetaSelf, const position2d< T > &)>(mopHolder -= mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opMinusAssign", (rect< T > & (*) (rect<T> *, const position2d< T > &))&opErAToRWrapper_rect__opMinusAssign<T>);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const rect< T > &)>(mopHolder == mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const rect<T> *, const rect< T > &))&opErAToRWrapper_rect__opEqual<T>);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const rect< T > &)>(mopHolder != mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const rect<T> *, const rect< T > &))&opErAToRWrapper_rect__opNotEqual<T>);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const rect< T > &)>(mopHolder < mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opLesserEqual", (bool (*) (const rect<T> *, const rect< T > &))&opErAToRWrapper_rect__opLesserEqual<T>);
 }
 
 

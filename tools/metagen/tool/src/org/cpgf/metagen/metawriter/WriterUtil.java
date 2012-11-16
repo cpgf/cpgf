@@ -9,8 +9,11 @@ import org.cpgf.metagen.codewriter.CodeWriter;
 import org.cpgf.metagen.codewriter.CppWriter;
 import org.cpgf.metagen.metadata.CppClass;
 import org.cpgf.metagen.metadata.CppField;
+import org.cpgf.metagen.metadata.CppInvokable;
 import org.cpgf.metagen.metadata.CppMethod;
 import org.cpgf.metagen.metadata.Item;
+import org.cpgf.metagen.metadata.MetaInfo;
+import org.cpgf.metagen.metadata.Operator;
 import org.cpgf.metagen.metadata.Parameter;
 import org.cpgf.metagen.metadata.TemplateInstance;
 
@@ -182,6 +185,18 @@ public class WriterUtil {
 		return field.isBitField() && Util.allowMetaData(config, field) && !field.getOwner().isTemplate();
 	}
 
+	public static String getOperatorWraperName(MetaInfo metaInfo, Operator op) {
+		return "opErAToRWrapper_" + Util.normalizeSymbol(op.getOwner().getQualifiedName()) + "_" + metaInfo.getOperatorNameMap().get(op.getOperator());
+	}
+
+	public static boolean shouldGenerateOperatorWrapper(MetaInfo metaInfo, Operator op) {
+		return Util.allowMetaData(metaInfo.getConfig(), op)
+			&& !op.isTemplate()
+			&& !op.getOperator().equals("->")
+			&& !op.isTypeConverter()
+		;
+	}
+
 	public static String getReflectionAction(String define, String name) {
 		return define + ".CPGF_MD_TEMPLATE " + name;
 	}
@@ -190,11 +205,11 @@ public class WriterUtil {
 		return "super_" + method.getPrimaryName();
 	}
 	
-	public static void reflectMethod(CppWriter codeWriter, String define, String scopePrefix, CppMethod method, String name, boolean usePrototype) {
+	public static void reflectMethod(CppWriter codeWriter, String define, String scopePrefix, CppInvokable method, String reflectName, String methodName, boolean usePrototype) {
 		String action = getReflectionAction(define, "_method");
 
 		codeWriter.write(action);
-		codeWriter.write("(" + Util.quoteText(name) + ", ");
+		codeWriter.write("(" + Util.quoteText(reflectName) + ", ");
 		if(usePrototype) {
 			String typePrefix = scopePrefix;
 			if(method.isStatic()) {
@@ -208,10 +223,9 @@ public class WriterUtil {
 			}
 			codeWriter.write(")");
 		}
-		codeWriter.write("&" + scopePrefix + name + getPolicyText(method) + ")");
+		codeWriter.write("&" + scopePrefix + methodName + getPolicyText(method) + ")");
 
 		writeDefaultParams(codeWriter, method.getParameterList());
 	}
 	
-
 }

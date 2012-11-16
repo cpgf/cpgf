@@ -27,6 +27,11 @@ void buildMetaClass_IVertexManipulator(const cpgf::GMetaDataConfigFlags & config
 }
 
 
+inline void opErAToRWrapper_SVertexColorBrightnessManipulator__opFunction(const SVertexColorBrightnessManipulator * self, video::S3DVertex & vertex) {
+    (*self)(vertex);
+}
+
+
 template <typename D>
 void buildMetaClass_SVertexColorBrightnessManipulator(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -35,6 +40,12 @@ void buildMetaClass_SVertexColorBrightnessManipulator(const cpgf::GMetaDataConfi
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (s32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorBrightnessManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorBrightnessManipulator__opFunction);
+}
+
+
+inline void opErAToRWrapper_SVertexColorContrastBrightnessManipulator__opFunction(const SVertexColorContrastBrightnessManipulator * self, video::S3DVertex & vertex) {
+    (*self)(vertex);
 }
 
 
@@ -46,6 +57,12 @@ void buildMetaClass_SVertexColorContrastBrightnessManipulator(const cpgf::GMetaD
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (f32, s32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorContrastBrightnessManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorContrastBrightnessManipulator__opFunction);
+}
+
+
+inline void opErAToRWrapper_SVertexColorContrastManipulator__opFunction(const SVertexColorContrastManipulator * self, video::S3DVertex & vertex) {
+    (*self)(vertex);
 }
 
 
@@ -57,6 +74,12 @@ void buildMetaClass_SVertexColorContrastManipulator(const cpgf::GMetaDataConfigF
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (f32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorContrastManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorContrastManipulator__opFunction);
+}
+
+
+inline void opErAToRWrapper_SVertexColorDesaturateToAverageManipulator__opFunction(const SVertexColorDesaturateToAverageManipulator * self, video::S3DVertex & vertex) {
+    (*self)(vertex);
 }
 
 
@@ -67,6 +90,12 @@ void buildMetaClass_SVertexColorDesaturateToAverageManipulator(const cpgf::GMeta
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorDesaturateToAverageManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorDesaturateToAverageManipulator__opFunction);
+}
+
+
+inline void opErAToRWrapper_SVertexColorDesaturateToLightnessManipulator__opFunction(const SVertexColorDesaturateToLightnessManipulator * self, video::S3DVertex & vertex) {
+    (*self)(vertex);
 }
 
 
@@ -77,6 +106,12 @@ void buildMetaClass_SVertexColorDesaturateToLightnessManipulator(const cpgf::GMe
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorDesaturateToLightnessManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorDesaturateToLightnessManipulator__opFunction);
+}
+
+
+inline void opErAToRWrapper_SVertexColorDesaturateToLuminanceManipulator__opFunction(const SVertexColorDesaturateToLuminanceManipulator * self, video::S3DVertex & vertex) {
+    (*self)(vertex);
 }
 
 
@@ -87,6 +122,12 @@ void buildMetaClass_SVertexColorDesaturateToLuminanceManipulator(const cpgf::GMe
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorDesaturateToLuminanceManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorDesaturateToLuminanceManipulator__opFunction);
+}
+
+
+inline void opErAToRWrapper_SVertexColorGammaManipulator__opFunction(const SVertexColorGammaManipulator * self, video::S3DVertex & vertex) {
+    (*self)(vertex);
 }
 
 
@@ -98,6 +139,12 @@ void buildMetaClass_SVertexColorGammaManipulator(const cpgf::GMetaDataConfigFlag
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (f32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorGammaManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorGammaManipulator__opFunction);
+}
+
+
+inline void opErAToRWrapper_SVertexColorInterpolateLinearManipulator__opFunction(const SVertexColorInterpolateLinearManipulator * self, video::S3DVertex & vertex) {
+    (*self)(vertex);
 }
 
 
@@ -109,6 +156,12 @@ void buildMetaClass_SVertexColorInterpolateLinearManipulator(const cpgf::GMetaDa
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (video::SColor, f32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorInterpolateLinearManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorInterpolateLinearManipulator__opFunction);
+}
+
+
+inline void opErAToRWrapper_SVertexColorInterpolateQuadraticManipulator__opFunction(const SVertexColorInterpolateQuadraticManipulator * self, video::S3DVertex & vertex) {
+    (*self)(vertex);
 }
 
 
@@ -120,6 +173,12 @@ void buildMetaClass_SVertexColorInterpolateQuadraticManipulator(const cpgf::GMet
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (video::SColor, video::SColor, f32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorInterpolateQuadraticManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorInterpolateQuadraticManipulator__opFunction);
+}
+
+
+inline void opErAToRWrapper_SVertexColorInvertManipulator__opFunction(const SVertexColorInvertManipulator * self, video::S3DVertex & vertex) {
+    (*self)(vertex);
 }
 
 
@@ -130,6 +189,12 @@ void buildMetaClass_SVertexColorInvertManipulator(const cpgf::GMetaDataConfigFla
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorInvertManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorInvertManipulator__opFunction);
+}
+
+
+inline void opErAToRWrapper_SVertexColorScaleManipulator__opFunction(const SVertexColorScaleManipulator * self, video::S3DVertex & vertex) {
+    (*self)(vertex);
 }
 
 
@@ -141,6 +206,12 @@ void buildMetaClass_SVertexColorScaleManipulator(const cpgf::GMetaDataConfigFlag
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (f32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorScaleManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorScaleManipulator__opFunction);
+}
+
+
+inline void opErAToRWrapper_SVertexColorSetAlphaManipulator__opFunction(const SVertexColorSetAlphaManipulator * self, video::S3DVertex & vertex) {
+    (*self)(vertex);
 }
 
 
@@ -152,6 +223,12 @@ void buildMetaClass_SVertexColorSetAlphaManipulator(const cpgf::GMetaDataConfigF
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (u32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorSetAlphaManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorSetAlphaManipulator__opFunction);
+}
+
+
+inline void opErAToRWrapper_SVertexColorSetManipulator__opFunction(const SVertexColorSetManipulator * self, video::S3DVertex & vertex) {
+    (*self)(vertex);
 }
 
 
@@ -163,6 +240,12 @@ void buildMetaClass_SVertexColorSetManipulator(const cpgf::GMetaDataConfigFlags 
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (video::SColor)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorSetManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorSetManipulator__opFunction);
+}
+
+
+inline void opErAToRWrapper_SVertexColorThresholdManipulator__opFunction(const SVertexColorThresholdManipulator * self, video::S3DVertex & vertex) {
+    (*self)(vertex);
 }
 
 
@@ -174,6 +257,7 @@ void buildMetaClass_SVertexColorThresholdManipulator(const cpgf::GMetaDataConfig
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (u8, video::SColor, video::SColor)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorThresholdManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorThresholdManipulator__opFunction);
 }
 
 
@@ -207,6 +291,11 @@ void buildMetaClass_SVertexPositionTransformManipulator(const cpgf::GMetaDataCon
 }
 
 
+inline void opErAToRWrapper_SVertexTCoordsScaleManipulator__opFunction(const SVertexTCoordsScaleManipulator * self, video::S3DVertex2TCoords & vertex) {
+    (*self)(vertex);
+}
+
+
 template <typename D>
 void buildMetaClass_SVertexTCoordsScaleManipulator(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -217,6 +306,7 @@ void buildMetaClass_SVertexTCoordsScaleManipulator(const cpgf::GMetaDataConfigFl
         ._default(copyVariantFromCopyable(1))
     ;
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex2TCoords &)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexTCoordsScaleManipulator *, video::S3DVertex2TCoords &))&opErAToRWrapper_SVertexTCoordsScaleManipulator__opFunction);
 }
 
 

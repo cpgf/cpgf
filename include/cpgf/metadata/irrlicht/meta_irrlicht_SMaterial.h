@@ -173,6 +173,17 @@ inline void bItFiEldWrapper_SMaterial_NormalizeNormals_setter(SMaterial * self, 
 }
 
 
+inline SMaterial & opErAToRWrapper_SMaterial__opAssign(SMaterial * self, const SMaterial & other) {
+    return (*self) = other;
+}
+inline bool opErAToRWrapper_SMaterial__opNotEqual(const SMaterial * self, const SMaterial & b) {
+    return (*self) != b;
+}
+inline bool opErAToRWrapper_SMaterial__opEqual(const SMaterial * self, const SMaterial & b) {
+    return (*self) == b;
+}
+
+
 template <typename D>
 void buildMetaClass_SMaterial(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -213,8 +224,11 @@ void buildMetaClass_SMaterial(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getFlag", &D::ClassType::getFlag);
     _d.CPGF_MD_TEMPLATE _method("isTransparent", &D::ClassType::isTransparent);
     _d.CPGF_MD_TEMPLATE _operator<SMaterial & (*)(cpgf::GMetaSelf, const SMaterial &)>(mopHolder = mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (SMaterial & (*) (SMaterial *, const SMaterial &))&opErAToRWrapper_SMaterial__opAssign);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SMaterial &)>(mopHolder != mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const SMaterial *, const SMaterial &))&opErAToRWrapper_SMaterial__opNotEqual);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SMaterial &)>(mopHolder == mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const SMaterial *, const SMaterial &))&opErAToRWrapper_SMaterial__opEqual);
 }
 
 

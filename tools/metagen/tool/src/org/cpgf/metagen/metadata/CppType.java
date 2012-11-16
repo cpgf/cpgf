@@ -29,6 +29,10 @@ public class CppType {
 			this.parsedType = new ParsedType(literalType + (array == null ? "" : array));
 		}
 	}
+	
+	public ParsedType getParsedType() {
+		return this.parsedType;
+	}
 
 	public String getLiteralType() {
 		return this.parsedType.getLiteralType();

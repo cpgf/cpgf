@@ -18,6 +18,16 @@ using namespace irr::core;
 namespace meta_irrlicht { 
 
 
+template <class T>
+inline bool opErAToRWrapper_triangle3d__opEqual(const triangle3d<T> * self, const triangle3d< T > & other) {
+    return (*self) == other;
+}
+template <class T>
+inline bool opErAToRWrapper_triangle3d__opNotEqual(const triangle3d<T> * self, const triangle3d< T > & other) {
+    return (*self) != other;
+}
+
+
 template <typename D, class T>
 void buildMetaClass_Triangle3d(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -43,7 +53,9 @@ void buildMetaClass_Triangle3d(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getArea", &D::ClassType::getArea);
     _d.CPGF_MD_TEMPLATE _method("set", &D::ClassType::set);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const triangle3d< T > &)>(mopHolder == mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const triangle3d<T> *, const triangle3d< T > &))&opErAToRWrapper_triangle3d__opEqual<T>);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const triangle3d< T > &)>(mopHolder != mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const triangle3d<T> *, const triangle3d< T > &))&opErAToRWrapper_triangle3d__opNotEqual<T>);
 }
 
 

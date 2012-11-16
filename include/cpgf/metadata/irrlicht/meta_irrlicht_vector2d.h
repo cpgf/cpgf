@@ -27,6 +27,124 @@ void buildMetaClass_Global_vector2d(const cpgf::GMetaDataConfigFlags & config, D
 }
 
 
+template <class T>
+inline vector2d< T > opErAToRWrapper_vector2d__opMinus(const vector2d<T> * self) {
+    return -(*self);
+}
+template <class T>
+inline vector2d< T > & opErAToRWrapper_vector2d__opAssign(vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) = other;
+}
+template <class T>
+inline vector2d< T > & opErAToRWrapper_vector2d__opAssign(vector2d<T> * self, const dimension2d< T > & other) {
+    return (*self) = other;
+}
+template <class T>
+inline vector2d< T > opErAToRWrapper_vector2d__opPlus(const vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) + other;
+}
+template <class T>
+inline vector2d< T > opErAToRWrapper_vector2d__opPlus(const vector2d<T> * self, const dimension2d< T > & other) {
+    return (*self) + other;
+}
+template <class T>
+inline vector2d< T > & opErAToRWrapper_vector2d__opPlusAssign(vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) += other;
+}
+template <class T>
+inline vector2d< T > opErAToRWrapper_vector2d__opPlus(const vector2d<T> * self, const T v) {
+    return (*self) + v;
+}
+template <class T>
+inline vector2d< T > & opErAToRWrapper_vector2d__opPlusAssign(vector2d<T> * self, const T v) {
+    return (*self) += v;
+}
+template <class T>
+inline vector2d< T > & opErAToRWrapper_vector2d__opPlusAssign(vector2d<T> * self, const dimension2d< T > & other) {
+    return (*self) += other;
+}
+template <class T>
+inline vector2d< T > opErAToRWrapper_vector2d__opMinus(const vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) - other;
+}
+template <class T>
+inline vector2d< T > opErAToRWrapper_vector2d__opMinus(const vector2d<T> * self, const dimension2d< T > & other) {
+    return (*self) - other;
+}
+template <class T>
+inline vector2d< T > & opErAToRWrapper_vector2d__opMinusAssign(vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) -= other;
+}
+template <class T>
+inline vector2d< T > opErAToRWrapper_vector2d__opMinus(const vector2d<T> * self, const T v) {
+    return (*self) - v;
+}
+template <class T>
+inline vector2d< T > & opErAToRWrapper_vector2d__opMinusAssign(vector2d<T> * self, const T v) {
+    return (*self) -= v;
+}
+template <class T>
+inline vector2d< T > & opErAToRWrapper_vector2d__opMinusAssign(vector2d<T> * self, const dimension2d< T > & other) {
+    return (*self) -= other;
+}
+template <class T>
+inline vector2d< T > opErAToRWrapper_vector2d__opStar(const vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) * other;
+}
+template <class T>
+inline vector2d< T > & opErAToRWrapper_vector2d__opStarAssign(vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) *= other;
+}
+template <class T>
+inline vector2d< T > opErAToRWrapper_vector2d__opStar(const vector2d<T> * self, const T v) {
+    return (*self) * v;
+}
+template <class T>
+inline vector2d< T > & opErAToRWrapper_vector2d__opStarAssign(vector2d<T> * self, const T v) {
+    return (*self) *= v;
+}
+template <class T>
+inline vector2d< T > opErAToRWrapper_vector2d__opDiv(const vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) / other;
+}
+template <class T>
+inline vector2d< T > & opErAToRWrapper_vector2d__opDivAssign(vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) /= other;
+}
+template <class T>
+inline vector2d< T > opErAToRWrapper_vector2d__opDiv(const vector2d<T> * self, const T v) {
+    return (*self) / v;
+}
+template <class T>
+inline vector2d< T > & opErAToRWrapper_vector2d__opDivAssign(vector2d<T> * self, const T v) {
+    return (*self) /= v;
+}
+template <class T>
+inline bool opErAToRWrapper_vector2d_null(const vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) <= other;
+}
+template <class T>
+inline bool opErAToRWrapper_vector2d__opGreaterEqual(const vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) >= other;
+}
+template <class T>
+inline bool opErAToRWrapper_vector2d__opLesserEqual(const vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) < other;
+}
+template <class T>
+inline bool opErAToRWrapper_vector2d__opGreater(const vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) > other;
+}
+template <class T>
+inline bool opErAToRWrapper_vector2d__opEqual(const vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) == other;
+}
+template <class T>
+inline bool opErAToRWrapper_vector2d__opNotEqual(const vector2d<T> * self, const vector2d< T > & other) {
+    return (*self) != other;
+}
+
+
 template <typename D, class T>
 void buildMetaClass_Vector2d(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -60,34 +178,63 @@ void buildMetaClass_Vector2d(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getInterpolated_quadratic", &D::ClassType::getInterpolated_quadratic, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("interpolate", &D::ClassType::interpolate, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > (*)(const cpgf::GMetaSelf &)>(-mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opMinus", (vector2d< T > (*) (const vector2d<T> *))&opErAToRWrapper_vector2d__opMinus<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > & (*)(cpgf::GMetaSelf, const vector2d< T > &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (vector2d< T > & (*) (vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d__opAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > & (*)(cpgf::GMetaSelf, const dimension2d< T > &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (vector2d< T > & (*) (vector2d<T> *, const dimension2d< T > &))&opErAToRWrapper_vector2d__opAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > (*)(const cpgf::GMetaSelf &, const vector2d< T > &)>(mopHolder + mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opPlus", (vector2d< T > (*) (const vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d__opPlus<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > (*)(const cpgf::GMetaSelf &, const dimension2d< T > &)>(mopHolder + mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opPlus", (vector2d< T > (*) (const vector2d<T> *, const dimension2d< T > &))&opErAToRWrapper_vector2d__opPlus<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > & (*)(cpgf::GMetaSelf, const vector2d< T > &)>(mopHolder += mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (vector2d< T > & (*) (vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d__opPlusAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > (*)(const cpgf::GMetaSelf &, const T)>(mopHolder + mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opPlus", (vector2d< T > (*) (const vector2d<T> *, const T))&opErAToRWrapper_vector2d__opPlus<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > & (*)(cpgf::GMetaSelf, const T)>(mopHolder += mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (vector2d< T > & (*) (vector2d<T> *, const T))&opErAToRWrapper_vector2d__opPlusAssign<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > & (*)(cpgf::GMetaSelf, const dimension2d< T > &)>(mopHolder += mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (vector2d< T > & (*) (vector2d<T> *, const dimension2d< T > &))&opErAToRWrapper_vector2d__opPlusAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > (*)(const cpgf::GMetaSelf &, const vector2d< T > &)>(mopHolder - mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opMinus", (vector2d< T > (*) (const vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d__opMinus<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > (*)(const cpgf::GMetaSelf &, const dimension2d< T > &)>(mopHolder - mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opMinus", (vector2d< T > (*) (const vector2d<T> *, const dimension2d< T > &))&opErAToRWrapper_vector2d__opMinus<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > & (*)(cpgf::GMetaSelf, const vector2d< T > &)>(mopHolder -= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opMinusAssign", (vector2d< T > & (*) (vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d__opMinusAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > (*)(const cpgf::GMetaSelf &, const T)>(mopHolder - mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opMinus", (vector2d< T > (*) (const vector2d<T> *, const T))&opErAToRWrapper_vector2d__opMinus<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > & (*)(cpgf::GMetaSelf, const T)>(mopHolder -= mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opMinusAssign", (vector2d< T > & (*) (vector2d<T> *, const T))&opErAToRWrapper_vector2d__opMinusAssign<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > & (*)(cpgf::GMetaSelf, const dimension2d< T > &)>(mopHolder -= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opMinusAssign", (vector2d< T > & (*) (vector2d<T> *, const dimension2d< T > &))&opErAToRWrapper_vector2d__opMinusAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > (*)(const cpgf::GMetaSelf &, const vector2d< T > &)>(mopHolder * mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opStar", (vector2d< T > (*) (const vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d__opStar<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > & (*)(cpgf::GMetaSelf, const vector2d< T > &)>(mopHolder *= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opStarAssign", (vector2d< T > & (*) (vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d__opStarAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > (*)(const cpgf::GMetaSelf &, const T)>(mopHolder * mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opStar", (vector2d< T > (*) (const vector2d<T> *, const T))&opErAToRWrapper_vector2d__opStar<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > & (*)(cpgf::GMetaSelf, const T)>(mopHolder *= mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opStarAssign", (vector2d< T > & (*) (vector2d<T> *, const T))&opErAToRWrapper_vector2d__opStarAssign<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > (*)(const cpgf::GMetaSelf &, const vector2d< T > &)>(mopHolder / mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opDiv", (vector2d< T > (*) (const vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d__opDiv<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > & (*)(cpgf::GMetaSelf, const vector2d< T > &)>(mopHolder /= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opDivAssign", (vector2d< T > & (*) (vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d__opDivAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > (*)(const cpgf::GMetaSelf &, const T)>(mopHolder / mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opDiv", (vector2d< T > (*) (const vector2d<T> *, const T))&opErAToRWrapper_vector2d__opDiv<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector2d< T > & (*)(cpgf::GMetaSelf, const T)>(mopHolder /= mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opDivAssign", (vector2d< T > & (*) (vector2d<T> *, const T))&opErAToRWrapper_vector2d__opDivAssign<T>);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const vector2d< T > &)>(mopHolder <= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("null", (bool (*) (const vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d_null<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const vector2d< T > &)>(mopHolder >= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opGreaterEqual", (bool (*) (const vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d__opGreaterEqual<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const vector2d< T > &)>(mopHolder < mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opLesserEqual", (bool (*) (const vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d__opLesserEqual<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const vector2d< T > &)>(mopHolder > mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opGreater", (bool (*) (const vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d__opGreater<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const vector2d< T > &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d__opEqual<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const vector2d< T > &)>(mopHolder != mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const vector2d<T> *, const vector2d< T > &))&opErAToRWrapper_vector2d__opNotEqual<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
 }
 
 

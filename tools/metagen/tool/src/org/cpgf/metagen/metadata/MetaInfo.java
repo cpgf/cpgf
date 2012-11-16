@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.cpgf.metagen.Config;
 import org.cpgf.metagen.doxyxmlparser.FileMap;
+import org.cpgf.metagen.metawriter.OperatorNameMap;
 import org.cpgf.metagen.metawriter.OutputCallbackClassMap;
 
 
@@ -17,6 +18,7 @@ public class MetaInfo {
     private List<CppClass> allClassList;
     private List<TemplateInstance> templateInstanceList;
     private OutputCallbackClassMap callbackClassMap;
+    private OperatorNameMap operatorNameMap;
 
     public MetaInfo(Config config) {
     	this.config = config;
@@ -27,6 +29,12 @@ public class MetaInfo {
 		this.templateInstanceList = new ArrayList<TemplateInstance>();
 		
 		this.callbackClassMap = new OutputCallbackClassMap(this.config);
+		
+		this.operatorNameMap = new OperatorNameMap();
+    }
+    
+    public Config getConfig() {
+    	return this.config;
     }
 
     public List<CppClass> getClassList() {
@@ -39,6 +47,10 @@ public class MetaInfo {
 
 	public OutputCallbackClassMap getCallbackClassMap() {
 		return callbackClassMap;
+	}
+	
+	public OperatorNameMap getOperatorNameMap() {
+		return this.operatorNameMap;
 	}
 
     public void fixup(FileMap fileMap) {

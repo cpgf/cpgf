@@ -18,6 +18,32 @@ using namespace irr::core;
 namespace meta_irrlicht { 
 
 
+template <class T>
+inline line2d< T > opErAToRWrapper_line2d__opPlus(const line2d<T> * self, const vector2d< T > & point) {
+    return (*self) + point;
+}
+template <class T>
+inline line2d< T > & opErAToRWrapper_line2d__opPlusAssign(line2d<T> * self, const vector2d< T > & point) {
+    return (*self) += point;
+}
+template <class T>
+inline line2d< T > opErAToRWrapper_line2d__opMinus(const line2d<T> * self, const vector2d< T > & point) {
+    return (*self) - point;
+}
+template <class T>
+inline line2d< T > & opErAToRWrapper_line2d__opMinusAssign(line2d<T> * self, const vector2d< T > & point) {
+    return (*self) -= point;
+}
+template <class T>
+inline bool opErAToRWrapper_line2d__opEqual(const line2d<T> * self, const line2d< T > & other) {
+    return (*self) == other;
+}
+template <class T>
+inline bool opErAToRWrapper_line2d__opNotEqual(const line2d<T> * self, const line2d< T > & other) {
+    return (*self) != other;
+}
+
+
 template <typename D, class T>
 void buildMetaClass_Line2d(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -45,11 +71,17 @@ void buildMetaClass_Line2d(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("isPointBetweenStartAndEnd", &D::ClassType::isPointBetweenStartAndEnd, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("getClosestPoint", &D::ClassType::getClosestPoint, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _operator<line2d< T > (*)(const cpgf::GMetaSelf &, const vector2d< T > &)>(mopHolder + mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opPlus", (line2d< T > (*) (const line2d<T> *, const vector2d< T > &))&opErAToRWrapper_line2d__opPlus<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<line2d< T > & (*)(cpgf::GMetaSelf, const vector2d< T > &)>(mopHolder += mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (line2d< T > & (*) (line2d<T> *, const vector2d< T > &))&opErAToRWrapper_line2d__opPlusAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<line2d< T > (*)(const cpgf::GMetaSelf &, const vector2d< T > &)>(mopHolder - mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opMinus", (line2d< T > (*) (const line2d<T> *, const vector2d< T > &))&opErAToRWrapper_line2d__opMinus<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<line2d< T > & (*)(cpgf::GMetaSelf, const vector2d< T > &)>(mopHolder -= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opMinusAssign", (line2d< T > & (*) (line2d<T> *, const vector2d< T > &))&opErAToRWrapper_line2d__opMinusAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const line2d< T > &)>(mopHolder == mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const line2d<T> *, const line2d< T > &))&opErAToRWrapper_line2d__opEqual<T>);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const line2d< T > &)>(mopHolder != mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const line2d<T> *, const line2d< T > &))&opErAToRWrapper_line2d__opNotEqual<T>);
 }
 
 

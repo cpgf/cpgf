@@ -27,6 +27,104 @@ void buildMetaClass_Global_vector3d(const cpgf::GMetaDataConfigFlags & config, D
 }
 
 
+template <class T>
+inline vector3d< T > opErAToRWrapper_vector3d__opMinus(const vector3d<T> * self) {
+    return -(*self);
+}
+template <class T>
+inline vector3d< T > & opErAToRWrapper_vector3d__opAssign(vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) = other;
+}
+template <class T>
+inline vector3d< T > opErAToRWrapper_vector3d__opPlus(const vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) + other;
+}
+template <class T>
+inline vector3d< T > & opErAToRWrapper_vector3d__opPlusAssign(vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) += other;
+}
+template <class T>
+inline vector3d< T > opErAToRWrapper_vector3d__opPlus(const vector3d<T> * self, const T val) {
+    return (*self) + val;
+}
+template <class T>
+inline vector3d< T > & opErAToRWrapper_vector3d__opPlusAssign(vector3d<T> * self, const T val) {
+    return (*self) += val;
+}
+template <class T>
+inline vector3d< T > opErAToRWrapper_vector3d__opMinus(const vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) - other;
+}
+template <class T>
+inline vector3d< T > & opErAToRWrapper_vector3d__opMinusAssign(vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) -= other;
+}
+template <class T>
+inline vector3d< T > opErAToRWrapper_vector3d__opMinus(const vector3d<T> * self, const T val) {
+    return (*self) - val;
+}
+template <class T>
+inline vector3d< T > & opErAToRWrapper_vector3d__opMinusAssign(vector3d<T> * self, const T val) {
+    return (*self) -= val;
+}
+template <class T>
+inline vector3d< T > opErAToRWrapper_vector3d__opStar(const vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) * other;
+}
+template <class T>
+inline vector3d< T > & opErAToRWrapper_vector3d__opStarAssign(vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) *= other;
+}
+template <class T>
+inline vector3d< T > opErAToRWrapper_vector3d__opStar(const vector3d<T> * self, const T v) {
+    return (*self) * v;
+}
+template <class T>
+inline vector3d< T > & opErAToRWrapper_vector3d__opStarAssign(vector3d<T> * self, const T v) {
+    return (*self) *= v;
+}
+template <class T>
+inline vector3d< T > opErAToRWrapper_vector3d__opDiv(const vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) / other;
+}
+template <class T>
+inline vector3d< T > & opErAToRWrapper_vector3d__opDivAssign(vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) /= other;
+}
+template <class T>
+inline vector3d< T > opErAToRWrapper_vector3d__opDiv(const vector3d<T> * self, const T v) {
+    return (*self) / v;
+}
+template <class T>
+inline vector3d< T > & opErAToRWrapper_vector3d__opDivAssign(vector3d<T> * self, const T v) {
+    return (*self) /= v;
+}
+template <class T>
+inline bool opErAToRWrapper_vector3d_null(const vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) <= other;
+}
+template <class T>
+inline bool opErAToRWrapper_vector3d__opGreaterEqual(const vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) >= other;
+}
+template <class T>
+inline bool opErAToRWrapper_vector3d__opLesserEqual(const vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) < other;
+}
+template <class T>
+inline bool opErAToRWrapper_vector3d__opGreater(const vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) > other;
+}
+template <class T>
+inline bool opErAToRWrapper_vector3d__opEqual(const vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) == other;
+}
+template <class T>
+inline bool opErAToRWrapper_vector3d__opNotEqual(const vector3d<T> * self, const vector3d< T > & other) {
+    return (*self) != other;
+}
+
+
 template <typename D, class T>
 void buildMetaClass_Vector3d(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -73,33 +171,54 @@ void buildMetaClass_Vector3d(const cpgf::GMetaDataConfigFlags & config, D _d)
         ._default(copyVariantFromCopyable(vector3d< T >(0, 0, 1)))
     ;
     _d.CPGF_MD_TEMPLATE _method("getAs4Values", &D::ClassType::getAs4Values);
-    _d.CPGF_MD_TEMPLATE _method("getSphericalCoordinateAngles", (vector3d< s32 > (D::ClassType::*) ())&D::ClassType::getSphericalCoordinateAngles);
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > (*)(const cpgf::GMetaSelf &)>(-mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opMinus", (vector3d< T > (*) (const vector3d<T> *))&opErAToRWrapper_vector3d__opMinus<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > & (*)(cpgf::GMetaSelf, const vector3d< T > &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (vector3d< T > & (*) (vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d__opAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > (*)(const cpgf::GMetaSelf &, const vector3d< T > &)>(mopHolder + mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opPlus", (vector3d< T > (*) (const vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d__opPlus<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > & (*)(cpgf::GMetaSelf, const vector3d< T > &)>(mopHolder += mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (vector3d< T > & (*) (vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d__opPlusAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > (*)(const cpgf::GMetaSelf &, const T)>(mopHolder + mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opPlus", (vector3d< T > (*) (const vector3d<T> *, const T))&opErAToRWrapper_vector3d__opPlus<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > & (*)(cpgf::GMetaSelf, const T)>(mopHolder += mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (vector3d< T > & (*) (vector3d<T> *, const T))&opErAToRWrapper_vector3d__opPlusAssign<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > (*)(const cpgf::GMetaSelf &, const vector3d< T > &)>(mopHolder - mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opMinus", (vector3d< T > (*) (const vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d__opMinus<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > & (*)(cpgf::GMetaSelf, const vector3d< T > &)>(mopHolder -= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opMinusAssign", (vector3d< T > & (*) (vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d__opMinusAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > (*)(const cpgf::GMetaSelf &, const T)>(mopHolder - mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opMinus", (vector3d< T > (*) (const vector3d<T> *, const T))&opErAToRWrapper_vector3d__opMinus<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > & (*)(cpgf::GMetaSelf, const T)>(mopHolder -= mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opMinusAssign", (vector3d< T > & (*) (vector3d<T> *, const T))&opErAToRWrapper_vector3d__opMinusAssign<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > (*)(const cpgf::GMetaSelf &, const vector3d< T > &)>(mopHolder * mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opStar", (vector3d< T > (*) (const vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d__opStar<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > & (*)(cpgf::GMetaSelf, const vector3d< T > &)>(mopHolder *= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opStarAssign", (vector3d< T > & (*) (vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d__opStarAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > (*)(const cpgf::GMetaSelf &, const T)>(mopHolder * mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opStar", (vector3d< T > (*) (const vector3d<T> *, const T))&opErAToRWrapper_vector3d__opStar<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > & (*)(cpgf::GMetaSelf, const T)>(mopHolder *= mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opStarAssign", (vector3d< T > & (*) (vector3d<T> *, const T))&opErAToRWrapper_vector3d__opStarAssign<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > (*)(const cpgf::GMetaSelf &, const vector3d< T > &)>(mopHolder / mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opDiv", (vector3d< T > (*) (const vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d__opDiv<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > & (*)(cpgf::GMetaSelf, const vector3d< T > &)>(mopHolder /= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opDivAssign", (vector3d< T > & (*) (vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d__opDivAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > (*)(const cpgf::GMetaSelf &, const T)>(mopHolder / mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opDiv", (vector3d< T > (*) (const vector3d<T> *, const T))&opErAToRWrapper_vector3d__opDiv<T>);
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > & (*)(cpgf::GMetaSelf, const T)>(mopHolder /= mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opDivAssign", (vector3d< T > & (*) (vector3d<T> *, const T))&opErAToRWrapper_vector3d__opDivAssign<T>);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const vector3d< T > &)>(mopHolder <= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("null", (bool (*) (const vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d_null<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const vector3d< T > &)>(mopHolder >= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opGreaterEqual", (bool (*) (const vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d__opGreaterEqual<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const vector3d< T > &)>(mopHolder < mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opLesserEqual", (bool (*) (const vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d__opLesserEqual<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const vector3d< T > &)>(mopHolder > mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opGreater", (bool (*) (const vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d__opGreater<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const vector3d< T > &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d__opEqual<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const vector3d< T > &)>(mopHolder != mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _operator<vector3d< s32 > (*)(const vector3d<s32> &, s32)>(mopHolder / mopHolder);
-    _d.CPGF_MD_TEMPLATE _operator<vector3d< s32 > & (*)(vector3d<s32>, s32)>(mopHolder /= mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const vector3d<T> *, const vector3d< T > &))&opErAToRWrapper_vector3d__opNotEqual<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
 }
 
 

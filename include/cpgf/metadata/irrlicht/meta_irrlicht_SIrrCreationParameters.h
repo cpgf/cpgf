@@ -17,6 +17,11 @@ using namespace irr;
 namespace meta_irrlicht { 
 
 
+inline SIrrlichtCreationParameters & opErAToRWrapper_SIrrlichtCreationParameters__opAssign(SIrrlichtCreationParameters * self, const SIrrlichtCreationParameters & other) {
+    return (*self) = other;
+}
+
+
 template <typename D>
 void buildMetaClass_SIrrlichtCreationParameters(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -44,6 +49,7 @@ void buildMetaClass_SIrrlichtCreationParameters(const cpgf::GMetaDataConfigFlags
     _d.CPGF_MD_TEMPLATE _field("LoggingLevel", &D::ClassType::LoggingLevel);
     _d.CPGF_MD_TEMPLATE _field("SDK_version_do_not_use", &D::ClassType::SDK_version_do_not_use);
     _d.CPGF_MD_TEMPLATE _operator<SIrrlichtCreationParameters & (*)(cpgf::GMetaSelf, const SIrrlichtCreationParameters &)>(mopHolder = mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (SIrrlichtCreationParameters & (*) (SIrrlichtCreationParameters *, const SIrrlichtCreationParameters &))&opErAToRWrapper_SIrrlichtCreationParameters__opAssign);
 }
 
 

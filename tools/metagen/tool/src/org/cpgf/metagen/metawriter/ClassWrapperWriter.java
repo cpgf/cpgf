@@ -110,7 +110,8 @@ public class ClassWrapperWriter {
 	public void writeSuperMethodBind(CppWriter codeWriter) {
 		for(int i = 0; i < this.overrideMethodList.size(); ++i) {
 			CppMethod cppMethod = this.overrideMethodList.get(i);
-			WriterUtil.reflectMethod(codeWriter, "_d", "D::ClassType::", cppMethod, WriterUtil.getMethodSuperName(cppMethod), true);
+			String name = WriterUtil.getMethodSuperName(cppMethod);
+			WriterUtil.reflectMethod(codeWriter, "_d", "D::ClassType::", cppMethod, name, name, true);
 		}
 	}
 	

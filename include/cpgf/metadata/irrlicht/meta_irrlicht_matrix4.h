@@ -28,6 +28,72 @@ void buildMetaClass_Global_matrix4(const cpgf::GMetaDataConfigFlags & config, D 
 }
 
 
+template <class T>
+inline T & opErAToRWrapper_CMatrix4__opFunction(CMatrix4<T> * self, const s32 row, const s32 col) {
+    return (*self)(row, col);
+}
+template <class T>
+inline const T & opErAToRWrapper_CMatrix4__opFunction(const CMatrix4<T> * self, const s32 row, const s32 col) {
+    return (*self)(row, col);
+}
+template <class T>
+inline T & opErAToRWrapper_CMatrix4__opSubscript(CMatrix4<T> * self, u32 index) {
+    return (*self)[index];
+}
+template <class T>
+inline const T & opErAToRWrapper_CMatrix4__opSubscript(const CMatrix4<T> * self, u32 index) {
+    return (*self)[index];
+}
+template <class T>
+inline CMatrix4< T > & opErAToRWrapper_CMatrix4__opAssign(CMatrix4<T> * self, const CMatrix4< T > & other) {
+    return (*self) = other;
+}
+template <class T>
+inline CMatrix4< T > & opErAToRWrapper_CMatrix4__opAssign(CMatrix4<T> * self, const T & scalar) {
+    return (*self) = scalar;
+}
+template <class T>
+inline bool opErAToRWrapper_CMatrix4__opEqual(const CMatrix4<T> * self, const CMatrix4< T > & other) {
+    return (*self) == other;
+}
+template <class T>
+inline bool opErAToRWrapper_CMatrix4__opNotEqual(const CMatrix4<T> * self, const CMatrix4< T > & other) {
+    return (*self) != other;
+}
+template <class T>
+inline CMatrix4< T > opErAToRWrapper_CMatrix4__opPlus(const CMatrix4<T> * self, const CMatrix4< T > & other) {
+    return (*self) + other;
+}
+template <class T>
+inline CMatrix4< T > & opErAToRWrapper_CMatrix4__opPlusAssign(CMatrix4<T> * self, const CMatrix4< T > & other) {
+    return (*self) += other;
+}
+template <class T>
+inline CMatrix4< T > opErAToRWrapper_CMatrix4__opMinus(const CMatrix4<T> * self, const CMatrix4< T > & other) {
+    return (*self) - other;
+}
+template <class T>
+inline CMatrix4< T > & opErAToRWrapper_CMatrix4__opMinusAssign(CMatrix4<T> * self, const CMatrix4< T > & other) {
+    return (*self) -= other;
+}
+template <class T>
+inline CMatrix4< T > opErAToRWrapper_CMatrix4__opStar(const CMatrix4<T> * self, const CMatrix4< T > & other) {
+    return (*self) * other;
+}
+template <class T>
+inline CMatrix4< T > & opErAToRWrapper_CMatrix4__opStarAssign(CMatrix4<T> * self, const CMatrix4< T > & other) {
+    return (*self) *= other;
+}
+template <class T>
+inline CMatrix4< T > opErAToRWrapper_CMatrix4__opStar(const CMatrix4<T> * self, const T & scalar) {
+    return (*self) * scalar;
+}
+template <class T>
+inline CMatrix4< T > & opErAToRWrapper_CMatrix4__opStarAssign(CMatrix4<T> * self, const T & scalar) {
+    return (*self) *= scalar;
+}
+
+
 template <typename D, class T>
 void buildMetaClass_CMatrix4(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -115,21 +181,37 @@ void buildMetaClass_CMatrix4(const cpgf::GMetaDataConfigFlags & config, D _d)
         ._element("EM4CONST_INVERSE_TRANSPOSED", D::ClassType::EM4CONST_INVERSE_TRANSPOSED)
     ;
     _d.CPGF_MD_TEMPLATE _operator<T & (*)(const s32, const s32)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (T & (*) (CMatrix4<T> *, const s32, const s32))&opErAToRWrapper_CMatrix4__opFunction<T>);
     _d.CPGF_MD_TEMPLATE _operator<const T & (*)(const s32, const s32)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (const T & (*) (const CMatrix4<T> *, const s32, const s32))&opErAToRWrapper_CMatrix4__opFunction<T>);
     _d.CPGF_MD_TEMPLATE _operator<T & (*)(cpgf::GMetaSelf, u32)>(mopHolder[0]);
+    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (T & (*) (CMatrix4<T> *, u32))&opErAToRWrapper_CMatrix4__opSubscript<T>);
     _d.CPGF_MD_TEMPLATE _operator<const T & (*)(const cpgf::GMetaSelf &, u32)>(mopHolder[0]);
+    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (const T & (*) (const CMatrix4<T> *, u32))&opErAToRWrapper_CMatrix4__opSubscript<T>);
     _d.CPGF_MD_TEMPLATE _operator<CMatrix4< T > & (*)(cpgf::GMetaSelf, const CMatrix4< T > &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (CMatrix4< T > & (*) (CMatrix4<T> *, const CMatrix4< T > &))&opErAToRWrapper_CMatrix4__opAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<CMatrix4< T > & (*)(cpgf::GMetaSelf, const T &)>(mopHolder = mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (CMatrix4< T > & (*) (CMatrix4<T> *, const T &))&opErAToRWrapper_CMatrix4__opAssign<T>);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const CMatrix4< T > &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const CMatrix4<T> *, const CMatrix4< T > &))&opErAToRWrapper_CMatrix4__opEqual<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const CMatrix4< T > &)>(mopHolder != mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const CMatrix4<T> *, const CMatrix4< T > &))&opErAToRWrapper_CMatrix4__opNotEqual<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<CMatrix4< T > (*)(const cpgf::GMetaSelf &, const CMatrix4< T > &)>(mopHolder + mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opPlus", (CMatrix4< T > (*) (const CMatrix4<T> *, const CMatrix4< T > &))&opErAToRWrapper_CMatrix4__opPlus<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<CMatrix4< T > & (*)(cpgf::GMetaSelf, const CMatrix4< T > &)>(mopHolder += mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opPlusAssign", (CMatrix4< T > & (*) (CMatrix4<T> *, const CMatrix4< T > &))&opErAToRWrapper_CMatrix4__opPlusAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<CMatrix4< T > (*)(const cpgf::GMetaSelf &, const CMatrix4< T > &)>(mopHolder - mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opMinus", (CMatrix4< T > (*) (const CMatrix4<T> *, const CMatrix4< T > &))&opErAToRWrapper_CMatrix4__opMinus<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<CMatrix4< T > & (*)(cpgf::GMetaSelf, const CMatrix4< T > &)>(mopHolder -= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opMinusAssign", (CMatrix4< T > & (*) (CMatrix4<T> *, const CMatrix4< T > &))&opErAToRWrapper_CMatrix4__opMinusAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<CMatrix4< T > (*)(const cpgf::GMetaSelf &, const CMatrix4< T > &)>(mopHolder * mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opStar", (CMatrix4< T > (*) (const CMatrix4<T> *, const CMatrix4< T > &))&opErAToRWrapper_CMatrix4__opStar<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<CMatrix4< T > & (*)(cpgf::GMetaSelf, const CMatrix4< T > &)>(mopHolder *= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opStarAssign", (CMatrix4< T > & (*) (CMatrix4<T> *, const CMatrix4< T > &))&opErAToRWrapper_CMatrix4__opStarAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<CMatrix4< T > (*)(const cpgf::GMetaSelf &, const T &)>(mopHolder * mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opStar", (CMatrix4< T > (*) (const CMatrix4<T> *, const T &))&opErAToRWrapper_CMatrix4__opStar<T>);
     _d.CPGF_MD_TEMPLATE _operator<CMatrix4< T > & (*)(cpgf::GMetaSelf, const T &)>(mopHolder *= mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opStarAssign", (CMatrix4< T > & (*) (CMatrix4<T> *, const T &))&opErAToRWrapper_CMatrix4__opStarAssign<T>);
 }
 
 
