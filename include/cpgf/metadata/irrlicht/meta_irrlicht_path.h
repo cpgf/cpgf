@@ -18,7 +18,7 @@ using namespace irr::io;
 namespace meta_irrlicht { 
 
 
-inline bool opErAToRWrapper_SNamedPath__opLesserEqual(const SNamedPath * self, const SNamedPath & other) {
+inline bool opErAToRWrapper_SNamedPath__opLess(const SNamedPath * self, const SNamedPath & other) {
     return (*self) < other;
 }
 
@@ -35,7 +35,7 @@ void buildMetaClass_SNamedPath(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getPath", &D::ClassType::getPath, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
     _d.CPGF_MD_TEMPLATE _method("getInternalName", &D::ClassType::getInternalName, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SNamedPath &)>(mopHolder < mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opLesserEqual", (bool (*) (const SNamedPath *, const SNamedPath &))&opErAToRWrapper_SNamedPath__opLesserEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opLess", (bool (*) (const SNamedPath *, const SNamedPath &))&opErAToRWrapper_SNamedPath__opLess, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator< core::stringc (cpgf::GMetaSelf)>(mopHolder());
     _d.CPGF_MD_TEMPLATE _operator< core::stringw (cpgf::GMetaSelf)>(mopHolder());
 }

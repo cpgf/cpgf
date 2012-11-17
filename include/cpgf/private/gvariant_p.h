@@ -22,7 +22,7 @@ private:
 
 protected:
 	virtual void * G_API_CC getObject() {
-		return (void *)(&this->obj);
+		return (void *)(getObjectAddress(this->obj));
 	}
 
 public:
@@ -282,7 +282,7 @@ struct InitVariantSelector
 				break;
 
 			case vtObject:
-				v.refData().valueObject = variant_internal::CastVariantHelper<T *, const volatile void *>::cast(const_cast<T *>(&value));
+				v.refData().valueObject = variant_internal::CastVariantHelper<T *, const volatile void *>::cast(const_cast<T *>(getObjectAddress(value)));
 				break;
 
 			case vtShadow:
@@ -371,72 +371,72 @@ struct InitVariantSelector
 
 
 			case vtBool | byReference:
-				v.refData().ptrBool = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile bool *>::cast(&value);
+				v.refData().ptrBool = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile bool *>::cast(getObjectAddress(value));
 				break;
 
 			case vtChar | byReference:
-				v.refData().ptrChar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile char *>::cast(&value);
+				v.refData().ptrChar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile char *>::cast(getObjectAddress(value));
 				break;
 
 			case vtWchar | byReference:
-				v.refData().ptrWchar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile wchar_t *>::cast(&value);
+				v.refData().ptrWchar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile wchar_t *>::cast(getObjectAddress(value));
 				break;
 
 			case vtSignedChar | byReference:
-				v.refData().ptrSignedChar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed char *>::cast(&value);
+				v.refData().ptrSignedChar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed char *>::cast(getObjectAddress(value));
 				break;
 			case vtUnsignedChar | byReference:
-				v.refData().ptrUnsignedChar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned char *>::cast(&value);
+				v.refData().ptrUnsignedChar = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned char *>::cast(getObjectAddress(value));
 				break;
 
 			case vtSignedShort | byReference:
-				v.refData().ptrSignedShort = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed short *>::cast(&value);
+				v.refData().ptrSignedShort = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed short *>::cast(getObjectAddress(value));
 				break;
 			case vtUnsignedShort | byReference:
-				v.refData().ptrUnsignedShort = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned short *>::cast(&value);
+				v.refData().ptrUnsignedShort = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned short *>::cast(getObjectAddress(value));
 				break;
 
 			case vtSignedInt | byReference:
-				v.refData().ptrSignedInt = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed int *>::cast(&value);
+				v.refData().ptrSignedInt = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed int *>::cast(getObjectAddress(value));
 				break;
 			case vtUnsignedInt | byReference:
-				v.refData().ptrUnsignedInt = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned int *>::cast(&value);
+				v.refData().ptrUnsignedInt = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned int *>::cast(getObjectAddress(value));
 				break;
 
 			case vtSignedLong | byReference:
-				v.refData().ptrSignedLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed long *>::cast(&value);
+				v.refData().ptrSignedLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed long *>::cast(getObjectAddress(value));
 				break;
 			case vtUnsignedLong | byReference:
-				v.refData().ptrUnsignedLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned long *>::cast(&value);
+				v.refData().ptrUnsignedLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned long *>::cast(getObjectAddress(value));
 				break;
 
 			case vtSignedLongLong | byReference:
-				v.refData().ptrSignedLongLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed long long *>::cast(&value);
+				v.refData().ptrSignedLongLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile signed long long *>::cast(getObjectAddress(value));
 				break;
 			case vtUnsignedLongLong | byReference:
-				v.refData().ptrUnsignedLongLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned long long *>::cast(&value);
+				v.refData().ptrUnsignedLongLong = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile unsigned long long *>::cast(getObjectAddress(value));
 				break;
 
 			case vtFloat | byReference:
-				v.refData().ptrFloat = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile float *>::cast(&value);
+				v.refData().ptrFloat = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile float *>::cast(getObjectAddress(value));
 				break;
 			case vtDouble | byReference:
-				v.refData().ptrDouble = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile double *>::cast(&value);
+				v.refData().ptrDouble = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile double *>::cast(getObjectAddress(value));
 				break;
 			case vtLongDouble | byReference:
-				v.refData().ptrLongDouble = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile long double *>::cast(&value);
+				v.refData().ptrLongDouble = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile long double *>::cast(getObjectAddress(value));
 				break;
 
 			case vtVoid | byReference:
-				v.refData().ptrPointer = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile void *>::cast(&value);
+				v.refData().ptrPointer = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile void *>::cast(getObjectAddress(value));
 				break;
 
 			case vtPointer | byReference:
-				v.refData().ptrPointer = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile void *>::cast(&value);
+				v.refData().ptrPointer = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile void *>::cast(getObjectAddress(value));
 				break;
 
 			case vtObject | byReference:
-				v.refData().ptrObject = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile void *>::cast(const_cast<const volatile typename RemoveReference<T>::Result *>(&value));
+				v.refData().ptrObject = variant_internal::CastVariantHelper<const volatile typename RemoveReference<T>::Result *, const volatile void *>::cast(const_cast<const volatile typename RemoveReference<T>::Result *>(getObjectAddress(value)));
 				break;
 
 			default:

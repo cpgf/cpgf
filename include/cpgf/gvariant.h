@@ -7,6 +7,7 @@
 #include "cpgf/gerrorcode.h"
 #include "cpgf/gclassutil.h"
 #include "cpgf/gifelse.h"
+#include "cpgf/ggetobjectaddress.h"
 
 #include <string>
 

@@ -19,16 +19,15 @@ public:
 
 protected:
 	virtual void G_API_CC retainObject(void * object) {
-		irr::IReferenceCounted * ppp = static_cast<irr::IReferenceCounted *>(this->caster(object));
-		static_cast<irr::IReferenceCounted *>(this->caster(object))->grab();
+//		static_cast<irr::IReferenceCounted *>(this->caster(object))->grab();
 	}
 	
 	virtual void G_API_CC releaseObject(void * object) {
-		static_cast<irr::IReferenceCounted *>(this->caster(object))->drop();
+//		static_cast<irr::IReferenceCounted *>(this->caster(object))->drop();
 	}
 	
 	virtual void G_API_CC freeObject(void * object, cpgf::IMetaClass *) {
-		releaseObject(object);
+		static_cast<irr::IReferenceCounted *>(this->caster(object))->drop();
 	}
 
 	virtual void G_API_CC returnedFromMethod(void * object) {

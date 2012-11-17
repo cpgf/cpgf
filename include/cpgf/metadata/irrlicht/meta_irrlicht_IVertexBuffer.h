@@ -45,7 +45,7 @@ void buildMetaClass_IVertexBuffer(const cpgf::GMetaDataConfigFlags & config, D _
     _d.CPGF_MD_TEMPLATE _method("setDirty", &D::ClassType::setDirty);
     _d.CPGF_MD_TEMPLATE _method("getChangedID", &D::ClassType::getChangedID);
     _d.CPGF_MD_TEMPLATE _operator<video::S3DVertex & (*)(const cpgf::GMetaSelf &, const u32)>(mopHolder[0]);
-    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (video::S3DVertex & (*) (const IVertexBuffer *, const u32))&opErAToRWrapper_IVertexBuffer__opSubscript);
+    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (video::S3DVertex & (*) (const IVertexBuffer *, const u32))&opErAToRWrapper_IVertexBuffer__opSubscript, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

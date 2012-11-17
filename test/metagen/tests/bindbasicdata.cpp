@@ -40,6 +40,7 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 {
 	bindClass(script, service, "metatest", "mtest");
 	bindMethod(script, service, "scriptAssert", "scriptAssert");
+	bindMethod(script, service, "scriptNot", "scriptNot");
 }
 
 void metagenBindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
@@ -59,10 +60,18 @@ void scriptAssert(bool b)
 	}
 }
 
+void scriptNot(bool b)
+{
+	if(b) {
+		cpgf::raiseException(1, "Script NOT assertion failure!");
+	}
+}
+
 G_AUTO_RUN_BEFORE_MAIN()
 {
 	GDefineMetaGlobal()
 		._method("scriptAssert", &scriptAssert)
+		._method("scriptNot", &scriptNot)
 	;
 }
 

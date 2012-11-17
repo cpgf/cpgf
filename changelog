@@ -9,6 +9,7 @@ TBD version 1.5.2
 	Added function holdObject to GScriptObject and IScriptObject to hold meta data which is created dynamically.
 	Added meta traits to manage object lifetime. Now script engine can handle cpgf interfaces correctly.
 	Metagen can reflect bitfield as property by adding getter and setter functions.
+	Metagen can wrap C++ operator overloading with named function, which is usable by script.
 	Metagen can split large source file to smaller parts.
 	Now fromVariant<GVariant>(variant) will return variant directly.
 	Changed the utility functions in gmetaapiutil.h from template to non-template, to keep the API minimal.
@@ -17,6 +18,7 @@ TBD version 1.5.2
 	Removed function gainScriptObject from GScriptObject and IScriptObject. Now createScriptObject can return the existing script object.
 	Improved meta traits.
 	Now in reflection, the base meta class can be resolved correctly even it's reflected later than derived classes.
+	Now converting an C++ object to GVariant won't trigger any operator & overloading.
 	Fixed a bug that in script, assign an object with another variable with same instance may cause the object be freed.
 	Fixed a bug that in Python binding, None value is not handled when passing from script to C++ and it was converted to wrong GVariant.
 	Fixed a bug that in V8 Javascript binding, there is null pointer crash if the object constructor returns NULL. Now an exception is raised instead of crash.

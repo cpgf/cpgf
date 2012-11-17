@@ -96,7 +96,7 @@ inline void opErAToRWrapper_IShader__opAssign(IShader * self, const IShader & ot
 inline bool opErAToRWrapper_IShader__opEqual(const IShader * self, const IShader & other) {
     return (*self) == other;
 }
-inline bool opErAToRWrapper_IShader__opLesserEqual(const IShader * self, const IShader & other) {
+inline bool opErAToRWrapper_IShader__opLess(const IShader * self, const IShader & other) {
     return (*self) < other;
 }
 
@@ -114,11 +114,11 @@ void buildMetaClass_IShader(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getGroupSize", &D::ClassType::getGroupSize);
     _d.CPGF_MD_TEMPLATE _method("getGroup", &D::ClassType::getGroup);
     _d.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf, const IShader &)>(mopHolder = mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opAssign", (void (*) (IShader *, const IShader &))&opErAToRWrapper_IShader__opAssign);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (void (*) (IShader *, const IShader &))&opErAToRWrapper_IShader__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const IShader &)>(mopHolder == mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const IShader *, const IShader &))&opErAToRWrapper_IShader__opEqual);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const IShader *, const IShader &))&opErAToRWrapper_IShader__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const IShader &)>(mopHolder < mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opLesserEqual", (bool (*) (const IShader *, const IShader &))&opErAToRWrapper_IShader__opLesserEqual);
+    _d.CPGF_MD_TEMPLATE _method("_opLess", (bool (*) (const IShader *, const IShader &))&opErAToRWrapper_IShader__opLess, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -242,7 +242,7 @@ void buildMetaClass_SVarGroupList(const cpgf::GMetaDataConfigFlags & config, D _
 inline bool opErAToRWrapper_SVariable__opEqual(const SVariable * self, const SVariable & other) {
     return (*self) == other;
 }
-inline bool opErAToRWrapper_SVariable__opLesserEqual(const SVariable * self, const SVariable & other) {
+inline bool opErAToRWrapper_SVariable__opLess(const SVariable * self, const SVariable & other) {
     return (*self) < other;
 }
 
@@ -261,9 +261,9 @@ void buildMetaClass_SVariable(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("clear", &D::ClassType::clear);
     _d.CPGF_MD_TEMPLATE _method("isValid", &D::ClassType::isValid);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SVariable &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const SVariable *, const SVariable &))&opErAToRWrapper_SVariable__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const SVariable *, const SVariable &))&opErAToRWrapper_SVariable__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SVariable &)>(mopHolder < mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opLesserEqual", (bool (*) (const SVariable *, const SVariable &))&opErAToRWrapper_SVariable__opLesserEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opLess", (bool (*) (const SVariable *, const SVariable &))&opErAToRWrapper_SVariable__opLess, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
 }
 
 

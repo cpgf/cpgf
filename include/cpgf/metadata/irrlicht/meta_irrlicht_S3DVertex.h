@@ -40,7 +40,7 @@ inline bool opErAToRWrapper_S3DVertex__opEqual(const S3DVertex * self, const S3D
 inline bool opErAToRWrapper_S3DVertex__opNotEqual(const S3DVertex * self, const S3DVertex & other) {
     return (*self) != other;
 }
-inline bool opErAToRWrapper_S3DVertex__opLesserEqual(const S3DVertex * self, const S3DVertex & other) {
+inline bool opErAToRWrapper_S3DVertex__opLess(const S3DVertex * self, const S3DVertex & other) {
     return (*self) < other;
 }
 
@@ -60,11 +60,11 @@ void buildMetaClass_S3DVertex(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _field("TCoords", &D::ClassType::TCoords);
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertex &)>(mopHolder == mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const S3DVertex *, const S3DVertex &))&opErAToRWrapper_S3DVertex__opEqual);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const S3DVertex *, const S3DVertex &))&opErAToRWrapper_S3DVertex__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertex &)>(mopHolder != mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const S3DVertex *, const S3DVertex &))&opErAToRWrapper_S3DVertex__opNotEqual);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const S3DVertex *, const S3DVertex &))&opErAToRWrapper_S3DVertex__opNotEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertex &)>(mopHolder < mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opLesserEqual", (bool (*) (const S3DVertex *, const S3DVertex &))&opErAToRWrapper_S3DVertex__opLesserEqual);
+    _d.CPGF_MD_TEMPLATE _method("_opLess", (bool (*) (const S3DVertex *, const S3DVertex &))&opErAToRWrapper_S3DVertex__opLess, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -74,7 +74,7 @@ inline bool opErAToRWrapper_S3DVertex2TCoords__opEqual(const S3DVertex2TCoords *
 inline bool opErAToRWrapper_S3DVertex2TCoords__opNotEqual(const S3DVertex2TCoords * self, const S3DVertex2TCoords & other) {
     return (*self) != other;
 }
-inline bool opErAToRWrapper_S3DVertex2TCoords__opLesserEqual(const S3DVertex2TCoords * self, const S3DVertex2TCoords & other) {
+inline bool opErAToRWrapper_S3DVertex2TCoords__opLess(const S3DVertex2TCoords * self, const S3DVertex2TCoords & other) {
     return (*self) < other;
 }
 
@@ -96,11 +96,11 @@ void buildMetaClass_S3DVertex2TCoords(const cpgf::GMetaDataConfigFlags & config,
     _d.CPGF_MD_TEMPLATE _field("TCoords2", &D::ClassType::TCoords2);
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertex2TCoords &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const S3DVertex2TCoords *, const S3DVertex2TCoords &))&opErAToRWrapper_S3DVertex2TCoords__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const S3DVertex2TCoords *, const S3DVertex2TCoords &))&opErAToRWrapper_S3DVertex2TCoords__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertex2TCoords &)>(mopHolder != mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const S3DVertex2TCoords *, const S3DVertex2TCoords &))&opErAToRWrapper_S3DVertex2TCoords__opNotEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const S3DVertex2TCoords *, const S3DVertex2TCoords &))&opErAToRWrapper_S3DVertex2TCoords__opNotEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertex2TCoords &)>(mopHolder < mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opLesserEqual", (bool (*) (const S3DVertex2TCoords *, const S3DVertex2TCoords &))&opErAToRWrapper_S3DVertex2TCoords__opLesserEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opLess", (bool (*) (const S3DVertex2TCoords *, const S3DVertex2TCoords &))&opErAToRWrapper_S3DVertex2TCoords__opLess, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -110,7 +110,7 @@ inline bool opErAToRWrapper_S3DVertexTangents__opEqual(const S3DVertexTangents *
 inline bool opErAToRWrapper_S3DVertexTangents__opNotEqual(const S3DVertexTangents * self, const S3DVertexTangents & other) {
     return (*self) != other;
 }
-inline bool opErAToRWrapper_S3DVertexTangents__opLesserEqual(const S3DVertexTangents * self, const S3DVertexTangents & other) {
+inline bool opErAToRWrapper_S3DVertexTangents__opLess(const S3DVertexTangents * self, const S3DVertexTangents & other) {
     return (*self) < other;
 }
 
@@ -145,11 +145,11 @@ void buildMetaClass_S3DVertexTangents(const cpgf::GMetaDataConfigFlags & config,
     _d.CPGF_MD_TEMPLATE _field("Binormal", &D::ClassType::Binormal);
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertexTangents &)>(mopHolder == mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const S3DVertexTangents *, const S3DVertexTangents &))&opErAToRWrapper_S3DVertexTangents__opEqual);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const S3DVertexTangents *, const S3DVertexTangents &))&opErAToRWrapper_S3DVertexTangents__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertexTangents &)>(mopHolder != mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const S3DVertexTangents *, const S3DVertexTangents &))&opErAToRWrapper_S3DVertexTangents__opNotEqual);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const S3DVertexTangents *, const S3DVertexTangents &))&opErAToRWrapper_S3DVertexTangents__opNotEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertexTangents &)>(mopHolder < mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opLesserEqual", (bool (*) (const S3DVertexTangents *, const S3DVertexTangents &))&opErAToRWrapper_S3DVertexTangents__opLesserEqual);
+    _d.CPGF_MD_TEMPLATE _method("_opLess", (bool (*) (const S3DVertexTangents *, const S3DVertexTangents &))&opErAToRWrapper_S3DVertexTangents__opLess, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

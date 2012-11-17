@@ -60,7 +60,7 @@ void buildMetaClass_SLight(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _field("Direction", &D::ClassType::Direction);
     _d.CPGF_MD_TEMPLATE _field("Radius", &D::ClassType::Radius);
     _d.CPGF_MD_TEMPLATE _field("Type", &D::ClassType::Type);
-    _d.CPGF_MD_TEMPLATE _property("CastShadows", &bItFiEldWrapper_SLight_CastShadows_getter, &bItFiEldWrapper_SLight_CastShadows_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("CastShadows", &bItFiEldWrapper_SLight_CastShadows_getter, &bItFiEldWrapper_SLight_CastShadows_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
 }
 
 

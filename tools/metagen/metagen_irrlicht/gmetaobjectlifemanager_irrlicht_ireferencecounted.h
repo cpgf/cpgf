@@ -7,7 +7,7 @@
 #include "cpgf/metatraits/gmetaobjectlifemanager.h"
 #include "cpgf/genableif.h"
 #include "cpgf/gtypetraits.h"
-#include "cpgf/gtypeconverter.h"
+#include "cpgf/gtypeutil.h"
 
 
 namespace cpgf {
@@ -22,7 +22,7 @@ IMetaObjectLifeManager * doCreateObjectLifeManagerForIrrReferenceCounted(const G
 } // namespace irrlicht_internal
 
 template <typename T>
-struct GMetaTraitsCreateObjectLifeManager <T, typename GEnableIfResult<IsConvertible<T, irr::IReferenceCounted> >::Result>
+struct GMetaTraitsCreateObjectLifeManager <T, typename GEnableIfResult<IsConvertible<T *, irr::IReferenceCounted *> >::Result>
 {
 	static IMetaObjectLifeManager * createObjectLifeManager(const GMetaTraitsParam &) {
 		return irrlicht_internal::doCreateObjectLifeManagerForIrrReferenceCounted(GTypeConverter<T *, irr::IReferenceCounted *>());

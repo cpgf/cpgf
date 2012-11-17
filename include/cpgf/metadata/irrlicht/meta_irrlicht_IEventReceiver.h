@@ -207,7 +207,7 @@ void buildMetaClass_SEvent(const cpgf::GMetaDataConfigFlags & config, D _d)
         _nd.CPGF_MD_TEMPLATE _field("POV", &SEvent::SJoystickEvent::POV);
         _nd.CPGF_MD_TEMPLATE _field("Joystick", &SEvent::SJoystickEvent::Joystick);
         _nd.CPGF_MD_TEMPLATE _method("IsButtonPressed", &SEvent::SJoystickEvent::IsButtonPressed);
-        _nd.CPGF_MD_TEMPLATE _enum<long long>("GlobalEnum_irrlicht_2")
+        _nd.CPGF_MD_TEMPLATE _enum<long long>("GlobalEnum_irrlicht_5")
             ._element("NUMBER_OF_BUTTONS", SEvent::SJoystickEvent::NUMBER_OF_BUTTONS)
             ._element("AXIS_X", SEvent::SJoystickEvent::AXIS_X)
             ._element("AXIS_Y", SEvent::SJoystickEvent::AXIS_Y)
@@ -223,9 +223,9 @@ void buildMetaClass_SEvent(const cpgf::GMetaDataConfigFlags & config, D _d)
         GDefineMetaClass<SEvent::SKeyInput> _nd = GDefineMetaClass<SEvent::SKeyInput>::declare("SKeyInput");
         _nd.CPGF_MD_TEMPLATE _field("Char", &SEvent::SKeyInput::Char);
         _nd.CPGF_MD_TEMPLATE _field("Key", &SEvent::SKeyInput::Key);
-        _nd.CPGF_MD_TEMPLATE _property("PressedDown", &bItFiEldWrapper_SEvent_SKeyInput_PressedDown_getter, &bItFiEldWrapper_SEvent_SKeyInput_PressedDown_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-        _nd.CPGF_MD_TEMPLATE _property("Shift", &bItFiEldWrapper_SEvent_SKeyInput_Shift_getter, &bItFiEldWrapper_SEvent_SKeyInput_Shift_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-        _nd.CPGF_MD_TEMPLATE _property("Control", &bItFiEldWrapper_SEvent_SKeyInput_Control_getter, &bItFiEldWrapper_SEvent_SKeyInput_Control_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
+        _nd.CPGF_MD_TEMPLATE _property("PressedDown", &bItFiEldWrapper_SEvent_SKeyInput_PressedDown_getter, &bItFiEldWrapper_SEvent_SKeyInput_PressedDown_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+        _nd.CPGF_MD_TEMPLATE _property("Shift", &bItFiEldWrapper_SEvent_SKeyInput_Shift_getter, &bItFiEldWrapper_SEvent_SKeyInput_Shift_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+        _nd.CPGF_MD_TEMPLATE _property("Control", &bItFiEldWrapper_SEvent_SKeyInput_Control_getter, &bItFiEldWrapper_SEvent_SKeyInput_Control_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
@@ -239,8 +239,8 @@ void buildMetaClass_SEvent(const cpgf::GMetaDataConfigFlags & config, D _d)
         _nd.CPGF_MD_TEMPLATE _field("X", &SEvent::SMouseInput::X);
         _nd.CPGF_MD_TEMPLATE _field("Y", &SEvent::SMouseInput::Y);
         _nd.CPGF_MD_TEMPLATE _field("Wheel", &SEvent::SMouseInput::Wheel);
-        _nd.CPGF_MD_TEMPLATE _property("Shift", &bItFiEldWrapper_SEvent_SMouseInput_Shift_getter, &bItFiEldWrapper_SEvent_SMouseInput_Shift_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-        _nd.CPGF_MD_TEMPLATE _property("Control", &bItFiEldWrapper_SEvent_SMouseInput_Control_getter, &bItFiEldWrapper_SEvent_SMouseInput_Control_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
+        _nd.CPGF_MD_TEMPLATE _property("Shift", &bItFiEldWrapper_SEvent_SMouseInput_Shift_getter, &bItFiEldWrapper_SEvent_SMouseInput_Shift_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+        _nd.CPGF_MD_TEMPLATE _property("Control", &bItFiEldWrapper_SEvent_SMouseInput_Control_getter, &bItFiEldWrapper_SEvent_SMouseInput_Control_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
         _nd.CPGF_MD_TEMPLATE _field("ButtonStates", &SEvent::SMouseInput::ButtonStates);
         _nd.CPGF_MD_TEMPLATE _field("Event", &SEvent::SMouseInput::Event);
         _nd.CPGF_MD_TEMPLATE _method("isLeftPressed", &SEvent::SMouseInput::isLeftPressed);
@@ -268,7 +268,7 @@ void buildMetaClass_SJoystickInfo(const cpgf::GMetaDataConfigFlags & config, D _
     _d.CPGF_MD_TEMPLATE _field("Buttons", &D::ClassType::Buttons);
     _d.CPGF_MD_TEMPLATE _field("Axes", &D::ClassType::Axes);
     _d.CPGF_MD_TEMPLATE _field("PovHat", &D::ClassType::PovHat);
-    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalEnum_irrlicht_3")
+    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalEnum_irrlicht_6")
         ._element("POV_HAT_PRESENT", D::ClassType::POV_HAT_PRESENT)
         ._element("POV_HAT_ABSENT", D::ClassType::POV_HAT_ABSENT)
         ._element("POV_HAT_UNKNOWN", D::ClassType::POV_HAT_UNKNOWN)

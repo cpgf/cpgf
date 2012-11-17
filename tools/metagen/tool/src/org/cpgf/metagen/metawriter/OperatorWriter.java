@@ -1,6 +1,5 @@
 package org.cpgf.metagen.metawriter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.cpgf.metagen.Util;
@@ -123,6 +122,9 @@ public class OperatorWriter {
 		}
 
 		opText = opText.replaceAll("\\bH\\b", "mopHolder");
+		if(op.equals(",")) {
+			opText = "(" + opText + ")"; // one more pair of brackets to avoid compile error
+		}
 		codeWriter.write(opText);
 		codeWriter.write(WriterUtil.getPolicyText(item) + ")");
 
@@ -200,8 +202,6 @@ public class OperatorWriter {
 	}
 
 	public void writeNamedWrapperReflectionCode(CppWriter codeWriter, String define) {
-		String op = item.getOperator();
-		
 		String methodName = WriterUtil.getOperatorWraperName(this.metaInfo, this.item);
 		if(this.templateDependentParameterList != null) {
 			methodName = methodName + "<"
@@ -209,7 +209,7 @@ public class OperatorWriter {
 				+ ">"
 			;
 		}
-		String reflectionName = this.metaInfo.getOperatorNameMap().get(op, this.item.getParameterList().size());
+		String reflectionName = this.metaInfo.getOperatorNameMap().get(this.item);
 
 		String action = WriterUtil.getReflectionAction(define, "_method");
 
@@ -223,7 +223,15 @@ public class OperatorWriter {
 		}
 		codeWriter.write(")");
 		codeWriter.write(")");
-		codeWriter.write("&" + methodName + WriterUtil.getPolicyText(this.item) + ")");
+		codeWriter.write("&" + methodName);
+		item.setIsWrapping(true);
+		String ruleText = WriterUtil.getPolicyRulesText(this.item);
+		item.setIsWrapping(false);
+		if(ruleText.length() > 0) {
+			ruleText = ruleText + ", ";
+		}
+		ruleText = ruleText + "cpgf::GMetaRuleExplicitThis";
+		codeWriter.write(", cpgf::MakePolicy<" + ruleText + " >())");
 
 		WriterUtil.writeDefaultParams(codeWriter, this.item.getParameterList());
 	}

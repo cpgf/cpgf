@@ -17,7 +17,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)
-	set(UNITTEST_COMPILE_FLAGS "-W4 -Wp64 -bigobj")
+	set(UNITTEST_COMPILE_FLAGS "-W4 -Wp64")
 endif(MSVC)
 
 
@@ -185,7 +185,7 @@ if(${HAS_UNITTEST})
 		
 		${SRC_UNITTEST_FRAMEWORK}
 
-#		${SRC_LIB}
+		${SRC_LIB}
 	)
 
 	include_directories(${UNIT_TEST_DIR}/src)
@@ -202,7 +202,7 @@ if(${HAS_UNITTEST})
 			${SRC_TEST_SRC}
 	)
 	
-	target_link_libraries(${TARGET_UNITTEST} ${TARGET_LIB})
+#	target_link_libraries(${TARGET_UNITTEST} ${TARGET_LIB})
 
 	if(CMAKE_COMPILER_IS_GNUCC)
 		if(TEST_GCOV)

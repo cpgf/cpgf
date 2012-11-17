@@ -113,10 +113,10 @@ void buildMetaClass_IRenderTarget(const cpgf::GMetaDataConfigFlags & config, D _
         ._default(copyVariantFromCopyable(ECP_ALL))
     ;
     _d.CPGF_MD_TEMPLATE _field("RenderTexture", &D::ClassType::RenderTexture);
-    _d.CPGF_MD_TEMPLATE _property("TargetType", &bItFiEldWrapper_IRenderTarget_TargetType_getter, &bItFiEldWrapper_IRenderTarget_TargetType_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("ColorMask", &bItFiEldWrapper_IRenderTarget_ColorMask_getter, &bItFiEldWrapper_IRenderTarget_ColorMask_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("BlendFuncSrc", &bItFiEldWrapper_IRenderTarget_BlendFuncSrc_getter, &bItFiEldWrapper_IRenderTarget_BlendFuncSrc_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("BlendFuncDst", &bItFiEldWrapper_IRenderTarget_BlendFuncDst_getter, &bItFiEldWrapper_IRenderTarget_BlendFuncDst_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("TargetType", &bItFiEldWrapper_IRenderTarget_TargetType_getter, &bItFiEldWrapper_IRenderTarget_TargetType_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("ColorMask", &bItFiEldWrapper_IRenderTarget_ColorMask_getter, &bItFiEldWrapper_IRenderTarget_ColorMask_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("BlendFuncSrc", &bItFiEldWrapper_IRenderTarget_BlendFuncSrc_getter, &bItFiEldWrapper_IRenderTarget_BlendFuncSrc_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("BlendFuncDst", &bItFiEldWrapper_IRenderTarget_BlendFuncDst_getter, &bItFiEldWrapper_IRenderTarget_BlendFuncDst_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
     _d.CPGF_MD_TEMPLATE _field("BlendEnable", &D::ClassType::BlendEnable);
 }
 

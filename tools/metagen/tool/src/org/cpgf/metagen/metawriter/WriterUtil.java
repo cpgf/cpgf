@@ -147,18 +147,8 @@ public class WriterUtil {
 	}
 
 	public static String getPolicyText(Item item, boolean prefixWithComma) {
-		List<String> rules = new ArrayList<String>();
-		
-		item.getPolicyRules(rules);
-		
-		if(rules.size() > 0) {
-			String rulesText = "";
-			for(String s : rules) {
-				if(rulesText.length() > 0) {
-					rulesText = rulesText + ", ";
-				}
-				rulesText = rulesText + "cpgf::" + s;
-			}
+		String rulesText = getPolicyRulesText(item);
+		if(rulesText.length() > 0) {
 			return (prefixWithComma ? ", " : "")
 					+ "cpgf::MakePolicy<"
 					+ rulesText
@@ -167,6 +157,24 @@ public class WriterUtil {
 		else {
 			return "";
 		}
+	}
+	
+	public static String getPolicyRulesText(Item item) {
+		List<String> rules = new ArrayList<String>();
+		
+		item.getPolicyRules(rules);
+		
+		String rulesText = "";
+		if(rules.size() > 0) {
+			for(String s : rules) {
+				if(rulesText.length() > 0) {
+					rulesText = rulesText + ", ";
+				}
+				rulesText = rulesText + "cpgf::" + s;
+			}
+		}
+
+		return rulesText;
 	}
 	
 	private static String getBitfieldWrapperName(CppField field) {
@@ -186,7 +194,7 @@ public class WriterUtil {
 	}
 
 	public static String getOperatorWraperName(MetaInfo metaInfo, Operator op) {
-		return "opErAToRWrapper_" + Util.normalizeSymbol(op.getOwner().getQualifiedName()) + "_" + metaInfo.getOperatorNameMap().get(op.getOperator());
+		return "opErAToRWrapper_" + Util.normalizeSymbol(op.getOwner().getQualifiedName()) + "_" + metaInfo.getOperatorNameMap().get(op);
 	}
 
 	public static boolean shouldGenerateOperatorWrapper(MetaInfo metaInfo, Operator op) {

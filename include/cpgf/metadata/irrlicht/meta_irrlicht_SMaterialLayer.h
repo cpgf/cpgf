@@ -88,21 +88,21 @@ void buildMetaClass_SMaterialLayer(const cpgf::GMetaDataConfigFlags & config, D 
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (const SMaterialLayer &)>();
     _d.CPGF_MD_TEMPLATE _field("Texture", &D::ClassType::Texture);
-    _d.CPGF_MD_TEMPLATE _property("TextureWrapU", &bItFiEldWrapper_SMaterialLayer_TextureWrapU_getter, &bItFiEldWrapper_SMaterialLayer_TextureWrapU_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("TextureWrapV", &bItFiEldWrapper_SMaterialLayer_TextureWrapV_getter, &bItFiEldWrapper_SMaterialLayer_TextureWrapV_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("BilinearFilter", &bItFiEldWrapper_SMaterialLayer_BilinearFilter_getter, &bItFiEldWrapper_SMaterialLayer_BilinearFilter_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("TrilinearFilter", &bItFiEldWrapper_SMaterialLayer_TrilinearFilter_getter, &bItFiEldWrapper_SMaterialLayer_TrilinearFilter_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("TextureWrapU", &bItFiEldWrapper_SMaterialLayer_TextureWrapU_getter, &bItFiEldWrapper_SMaterialLayer_TextureWrapU_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("TextureWrapV", &bItFiEldWrapper_SMaterialLayer_TextureWrapV_getter, &bItFiEldWrapper_SMaterialLayer_TextureWrapV_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("BilinearFilter", &bItFiEldWrapper_SMaterialLayer_BilinearFilter_getter, &bItFiEldWrapper_SMaterialLayer_BilinearFilter_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("TrilinearFilter", &bItFiEldWrapper_SMaterialLayer_TrilinearFilter_getter, &bItFiEldWrapper_SMaterialLayer_TrilinearFilter_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
     _d.CPGF_MD_TEMPLATE _field("AnisotropicFilter", &D::ClassType::AnisotropicFilter);
     _d.CPGF_MD_TEMPLATE _field("LODBias", &D::ClassType::LODBias);
     _d.CPGF_MD_TEMPLATE _method("getTextureMatrix", (core::matrix4 & (D::ClassType::*) ())&D::ClassType::getTextureMatrix);
     _d.CPGF_MD_TEMPLATE _method("getTextureMatrix", (const core::matrix4 & (D::ClassType::*) () const)&D::ClassType::getTextureMatrix);
     _d.CPGF_MD_TEMPLATE _method("setTextureMatrix", &D::ClassType::setTextureMatrix);
     _d.CPGF_MD_TEMPLATE _operator<SMaterialLayer & (*)(cpgf::GMetaSelf, const SMaterialLayer &)>(mopHolder = mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opAssign", (SMaterialLayer & (*) (SMaterialLayer *, const SMaterialLayer &))&opErAToRWrapper_SMaterialLayer__opAssign);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (SMaterialLayer & (*) (SMaterialLayer *, const SMaterialLayer &))&opErAToRWrapper_SMaterialLayer__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SMaterialLayer &)>(mopHolder != mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const SMaterialLayer *, const SMaterialLayer &))&opErAToRWrapper_SMaterialLayer__opNotEqual);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const SMaterialLayer *, const SMaterialLayer &))&opErAToRWrapper_SMaterialLayer__opNotEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SMaterialLayer &)>(mopHolder == mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const SMaterialLayer *, const SMaterialLayer &))&opErAToRWrapper_SMaterialLayer__opEqual);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const SMaterialLayer *, const SMaterialLayer &))&opErAToRWrapper_SMaterialLayer__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

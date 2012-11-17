@@ -60,9 +60,9 @@ void buildMetaClass_SSkinMeshBuffer(const cpgf::GMetaDataConfigFlags & config, D
     _d.CPGF_MD_TEMPLATE _field("Material", &D::ClassType::Material);
     _d.CPGF_MD_TEMPLATE _field("VertexType", &D::ClassType::VertexType);
     _d.CPGF_MD_TEMPLATE _field("BoundingBox", &D::ClassType::BoundingBox);
-    _d.CPGF_MD_TEMPLATE _property("MappingHint_Vertex", &bItFiEldWrapper_SSkinMeshBuffer_MappingHint_Vertex_getter, &bItFiEldWrapper_SSkinMeshBuffer_MappingHint_Vertex_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("MappingHint_Index", &bItFiEldWrapper_SSkinMeshBuffer_MappingHint_Index_getter, &bItFiEldWrapper_SSkinMeshBuffer_MappingHint_Index_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("BoundingBoxNeedsRecalculated", &bItFiEldWrapper_SSkinMeshBuffer_BoundingBoxNeedsRecalculated_getter, &bItFiEldWrapper_SSkinMeshBuffer_BoundingBoxNeedsRecalculated_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("MappingHint_Vertex", &bItFiEldWrapper_SSkinMeshBuffer_MappingHint_Vertex_getter, &bItFiEldWrapper_SSkinMeshBuffer_MappingHint_Vertex_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("MappingHint_Index", &bItFiEldWrapper_SSkinMeshBuffer_MappingHint_Index_getter, &bItFiEldWrapper_SSkinMeshBuffer_MappingHint_Index_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("BoundingBoxNeedsRecalculated", &bItFiEldWrapper_SSkinMeshBuffer_BoundingBoxNeedsRecalculated_getter, &bItFiEldWrapper_SSkinMeshBuffer_BoundingBoxNeedsRecalculated_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
     _d.CPGF_MD_TEMPLATE _method("getMaterial", (const video::SMaterial & (D::ClassType::*) () const)&D::ClassType::getMaterial);
     _d.CPGF_MD_TEMPLATE _method("getMaterial", (video::SMaterial & (D::ClassType::*) ())&D::ClassType::getMaterial);
     _d.CPGF_MD_TEMPLATE _method("getVertex", &D::ClassType::getVertex);

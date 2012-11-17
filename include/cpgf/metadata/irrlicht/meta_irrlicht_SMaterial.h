@@ -204,17 +204,17 @@ void buildMetaClass_SMaterial(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _field("Thickness", &D::ClassType::Thickness);
     _d.CPGF_MD_TEMPLATE _field("ZBuffer", &D::ClassType::ZBuffer);
     _d.CPGF_MD_TEMPLATE _field("AntiAliasing", &D::ClassType::AntiAliasing);
-    _d.CPGF_MD_TEMPLATE _property("ColorMask", &bItFiEldWrapper_SMaterial_ColorMask_getter, &bItFiEldWrapper_SMaterial_ColorMask_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("ColorMaterial", &bItFiEldWrapper_SMaterial_ColorMaterial_getter, &bItFiEldWrapper_SMaterial_ColorMaterial_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("Wireframe", &bItFiEldWrapper_SMaterial_Wireframe_getter, &bItFiEldWrapper_SMaterial_Wireframe_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("PointCloud", &bItFiEldWrapper_SMaterial_PointCloud_getter, &bItFiEldWrapper_SMaterial_PointCloud_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("GouraudShading", &bItFiEldWrapper_SMaterial_GouraudShading_getter, &bItFiEldWrapper_SMaterial_GouraudShading_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("Lighting", &bItFiEldWrapper_SMaterial_Lighting_getter, &bItFiEldWrapper_SMaterial_Lighting_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("ZWriteEnable", &bItFiEldWrapper_SMaterial_ZWriteEnable_getter, &bItFiEldWrapper_SMaterial_ZWriteEnable_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("BackfaceCulling", &bItFiEldWrapper_SMaterial_BackfaceCulling_getter, &bItFiEldWrapper_SMaterial_BackfaceCulling_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("FrontfaceCulling", &bItFiEldWrapper_SMaterial_FrontfaceCulling_getter, &bItFiEldWrapper_SMaterial_FrontfaceCulling_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("FogEnable", &bItFiEldWrapper_SMaterial_FogEnable_getter, &bItFiEldWrapper_SMaterial_FogEnable_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _property("NormalizeNormals", &bItFiEldWrapper_SMaterial_NormalizeNormals_getter, &bItFiEldWrapper_SMaterial_NormalizeNormals_setter, MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("ColorMask", &bItFiEldWrapper_SMaterial_ColorMask_getter, &bItFiEldWrapper_SMaterial_ColorMask_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("ColorMaterial", &bItFiEldWrapper_SMaterial_ColorMaterial_getter, &bItFiEldWrapper_SMaterial_ColorMaterial_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("Wireframe", &bItFiEldWrapper_SMaterial_Wireframe_getter, &bItFiEldWrapper_SMaterial_Wireframe_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("PointCloud", &bItFiEldWrapper_SMaterial_PointCloud_getter, &bItFiEldWrapper_SMaterial_PointCloud_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("GouraudShading", &bItFiEldWrapper_SMaterial_GouraudShading_getter, &bItFiEldWrapper_SMaterial_GouraudShading_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("Lighting", &bItFiEldWrapper_SMaterial_Lighting_getter, &bItFiEldWrapper_SMaterial_Lighting_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("ZWriteEnable", &bItFiEldWrapper_SMaterial_ZWriteEnable_getter, &bItFiEldWrapper_SMaterial_ZWriteEnable_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("BackfaceCulling", &bItFiEldWrapper_SMaterial_BackfaceCulling_getter, &bItFiEldWrapper_SMaterial_BackfaceCulling_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("FrontfaceCulling", &bItFiEldWrapper_SMaterial_FrontfaceCulling_getter, &bItFiEldWrapper_SMaterial_FrontfaceCulling_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("FogEnable", &bItFiEldWrapper_SMaterial_FogEnable_getter, &bItFiEldWrapper_SMaterial_FogEnable_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("NormalizeNormals", &bItFiEldWrapper_SMaterial_NormalizeNormals_getter, &bItFiEldWrapper_SMaterial_NormalizeNormals_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
     _d.CPGF_MD_TEMPLATE _method("getTextureMatrix", (core::matrix4 & (D::ClassType::*) (u32))&D::ClassType::getTextureMatrix);
     _d.CPGF_MD_TEMPLATE _method("getTextureMatrix", (const core::matrix4 & (D::ClassType::*) (u32) const)&D::ClassType::getTextureMatrix);
     _d.CPGF_MD_TEMPLATE _method("setTextureMatrix", &D::ClassType::setTextureMatrix);
@@ -224,11 +224,11 @@ void buildMetaClass_SMaterial(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getFlag", &D::ClassType::getFlag);
     _d.CPGF_MD_TEMPLATE _method("isTransparent", &D::ClassType::isTransparent);
     _d.CPGF_MD_TEMPLATE _operator<SMaterial & (*)(cpgf::GMetaSelf, const SMaterial &)>(mopHolder = mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opAssign", (SMaterial & (*) (SMaterial *, const SMaterial &))&opErAToRWrapper_SMaterial__opAssign);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (SMaterial & (*) (SMaterial *, const SMaterial &))&opErAToRWrapper_SMaterial__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SMaterial &)>(mopHolder != mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const SMaterial *, const SMaterial &))&opErAToRWrapper_SMaterial__opNotEqual);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const SMaterial *, const SMaterial &))&opErAToRWrapper_SMaterial__opNotEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SMaterial &)>(mopHolder == mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const SMaterial *, const SMaterial &))&opErAToRWrapper_SMaterial__opEqual);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const SMaterial *, const SMaterial &))&opErAToRWrapper_SMaterial__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

@@ -40,7 +40,7 @@ void buildMetaClass_SVertexColorBrightnessManipulator(const cpgf::GMetaDataConfi
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (s32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorBrightnessManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorBrightnessManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorBrightnessManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorBrightnessManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -57,7 +57,7 @@ void buildMetaClass_SVertexColorContrastBrightnessManipulator(const cpgf::GMetaD
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (f32, s32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorContrastBrightnessManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorContrastBrightnessManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorContrastBrightnessManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorContrastBrightnessManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -74,7 +74,7 @@ void buildMetaClass_SVertexColorContrastManipulator(const cpgf::GMetaDataConfigF
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (f32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorContrastManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorContrastManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorContrastManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorContrastManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -90,7 +90,7 @@ void buildMetaClass_SVertexColorDesaturateToAverageManipulator(const cpgf::GMeta
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorDesaturateToAverageManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorDesaturateToAverageManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorDesaturateToAverageManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorDesaturateToAverageManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -106,7 +106,7 @@ void buildMetaClass_SVertexColorDesaturateToLightnessManipulator(const cpgf::GMe
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorDesaturateToLightnessManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorDesaturateToLightnessManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorDesaturateToLightnessManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorDesaturateToLightnessManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -122,7 +122,7 @@ void buildMetaClass_SVertexColorDesaturateToLuminanceManipulator(const cpgf::GMe
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorDesaturateToLuminanceManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorDesaturateToLuminanceManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorDesaturateToLuminanceManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorDesaturateToLuminanceManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -139,7 +139,7 @@ void buildMetaClass_SVertexColorGammaManipulator(const cpgf::GMetaDataConfigFlag
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (f32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorGammaManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorGammaManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorGammaManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorGammaManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -156,7 +156,7 @@ void buildMetaClass_SVertexColorInterpolateLinearManipulator(const cpgf::GMetaDa
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (video::SColor, f32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorInterpolateLinearManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorInterpolateLinearManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorInterpolateLinearManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorInterpolateLinearManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -173,7 +173,7 @@ void buildMetaClass_SVertexColorInterpolateQuadraticManipulator(const cpgf::GMet
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (video::SColor, video::SColor, f32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorInterpolateQuadraticManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorInterpolateQuadraticManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorInterpolateQuadraticManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorInterpolateQuadraticManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -189,7 +189,7 @@ void buildMetaClass_SVertexColorInvertManipulator(const cpgf::GMetaDataConfigFla
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorInvertManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorInvertManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorInvertManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorInvertManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -206,7 +206,7 @@ void buildMetaClass_SVertexColorScaleManipulator(const cpgf::GMetaDataConfigFlag
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (f32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorScaleManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorScaleManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorScaleManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorScaleManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -223,7 +223,7 @@ void buildMetaClass_SVertexColorSetAlphaManipulator(const cpgf::GMetaDataConfigF
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (u32)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorSetAlphaManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorSetAlphaManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorSetAlphaManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorSetAlphaManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -240,7 +240,7 @@ void buildMetaClass_SVertexColorSetManipulator(const cpgf::GMetaDataConfigFlags 
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (video::SColor)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorSetManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorSetManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorSetManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorSetManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -257,7 +257,7 @@ void buildMetaClass_SVertexColorThresholdManipulator(const cpgf::GMetaDataConfig
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (u8, video::SColor, video::SColor)>();
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorThresholdManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorThresholdManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexColorThresholdManipulator *, video::S3DVertex &))&opErAToRWrapper_SVertexColorThresholdManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 
@@ -306,7 +306,7 @@ void buildMetaClass_SVertexTCoordsScaleManipulator(const cpgf::GMetaDataConfigFl
         ._default(copyVariantFromCopyable(1))
     ;
     _d.CPGF_MD_TEMPLATE _operator<void (*)(video::S3DVertex2TCoords &)>(mopHolder(mopHolder));
-    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexTCoordsScaleManipulator *, video::S3DVertex2TCoords &))&opErAToRWrapper_SVertexTCoordsScaleManipulator__opFunction);
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (void (*) (const SVertexTCoordsScaleManipulator *, video::S3DVertex2TCoords &))&opErAToRWrapper_SVertexTCoordsScaleManipulator__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

@@ -63,6 +63,14 @@ void buildMetaClass_SimpleData(const cpgf::GMetaDataConfigFlags & config, D _d)
 }
 
 
+inline SimpleData & opErAToRWrapper_SimpleObject__opFunction(SimpleObject * self) {
+    return (*self)();
+}
+inline const SimpleData & opErAToRWrapper_SimpleObject__opFunction(const SimpleObject * self) {
+    return (*self)();
+}
+
+
 template <typename D>
 void buildMetaClass_SimpleObject(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -79,7 +87,9 @@ void buildMetaClass_SimpleObject(const cpgf::GMetaDataConfigFlags & config, D _d
     _d.CPGF_MD_TEMPLATE _method("checkData", (bool (D::ClassType::*) (const std::string &) const)&D::ClassType::checkData, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("checkAtom", &D::ClassType::checkAtom);
     _d.CPGF_MD_TEMPLATE _operator<SimpleData & (*)()>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (SimpleData & (*) (SimpleObject *))&opErAToRWrapper_SimpleObject__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<const SimpleData & (*)()>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (const SimpleData & (*) (const SimpleObject *))&opErAToRWrapper_SimpleObject__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

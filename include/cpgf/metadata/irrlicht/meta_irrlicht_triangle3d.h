@@ -53,9 +53,9 @@ void buildMetaClass_Triangle3d(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getArea", &D::ClassType::getArea);
     _d.CPGF_MD_TEMPLATE _method("set", &D::ClassType::set);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const triangle3d< T > &)>(mopHolder == mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const triangle3d<T> *, const triangle3d< T > &))&opErAToRWrapper_triangle3d__opEqual<T>);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const triangle3d<T> *, const triangle3d< T > &))&opErAToRWrapper_triangle3d__opEqual<T>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const triangle3d< T > &)>(mopHolder != mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const triangle3d<T> *, const triangle3d< T > &))&opErAToRWrapper_triangle3d__opNotEqual<T>);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const triangle3d<T> *, const triangle3d< T > &))&opErAToRWrapper_triangle3d__opNotEqual<T>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

@@ -3,6 +3,7 @@ package org.cpgf.metagen.metadata;
 
 public class Operator extends CppInvokable {
 	private String self;
+	private boolean isWrapping;
 	
 	public Operator(String operator, CppType resultType) {
 		super(EnumCategory.Operator, operator, resultType);
@@ -26,7 +27,16 @@ public class Operator extends CppInvokable {
 
 	@Override
 	protected int getParameterPolicyRuleStartIndex() {
-		return this.hasSelf() ? 1 : 0;
+		if(this.hasSelf()) {
+			return 1;
+		}
+		else {
+			// When isWrapping, for functor, we must start from 1 because the first parameter is the explicit this.
+			if(this.isWrapping && this.isFunctor()) {
+				return 1;
+			}
+			return 0;
+		}
 	}
 
 	public String getSelf() {
@@ -37,4 +47,7 @@ public class Operator extends CppInvokable {
 		this.self = self;
 	}
 
+	public void setIsWrapping(boolean isWrapping) {
+		this.isWrapping = isWrapping;
+	}
 }

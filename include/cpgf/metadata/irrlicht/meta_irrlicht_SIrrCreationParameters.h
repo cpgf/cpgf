@@ -49,7 +49,7 @@ void buildMetaClass_SIrrlichtCreationParameters(const cpgf::GMetaDataConfigFlags
     _d.CPGF_MD_TEMPLATE _field("LoggingLevel", &D::ClassType::LoggingLevel);
     _d.CPGF_MD_TEMPLATE _field("SDK_version_do_not_use", &D::ClassType::SDK_version_do_not_use);
     _d.CPGF_MD_TEMPLATE _operator<SIrrlichtCreationParameters & (*)(cpgf::GMetaSelf, const SIrrlichtCreationParameters &)>(mopHolder = mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opAssign", (SIrrlichtCreationParameters & (*) (SIrrlichtCreationParameters *, const SIrrlichtCreationParameters &))&opErAToRWrapper_SIrrlichtCreationParameters__opAssign);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (SIrrlichtCreationParameters & (*) (SIrrlichtCreationParameters *, const SIrrlichtCreationParameters &))&opErAToRWrapper_SIrrlichtCreationParameters__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

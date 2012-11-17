@@ -176,7 +176,7 @@ public class MetaClassWriter {
 					this.codeWriter.writeLine(WriterUtil.getReflectionAction(this.define, "_property") + "(" + Util.quoteText(name)
 							+ ", &" + WriterUtil.getBitfieldWrapperGetterName(field)
 							+ ", &" + WriterUtil.getBitfieldWrapperSetterName(field)
-							+ ", MakePolicy<GMetaRuleGetterExplicitThis, GMetaRuleSetterExplicitThis>());"
+							+ ", cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());"
 							);
 				}
 			}

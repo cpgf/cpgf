@@ -290,7 +290,7 @@ public class DoxygenXmlParser {
 
 	private Item doParseMethod(Node node, String name) {
 		if(! this.getCurrentClass().isGlobal()) {
-			if(name.indexOf('~') >= 0) {
+			if(name.indexOf('~') >= 0 && ! name.matches("operator\\s*~")) {
 				Destructor destructor = new Destructor();
 				this.getCurrentClass().setDestructor(destructor);
 
@@ -310,6 +310,7 @@ public class DoxygenXmlParser {
 
 		Pattern pattern = Pattern.compile("^.*\\boperator(.*)$");
 		Matcher matcher = pattern.matcher(name);
+
 		if(matcher.matches()) { // operator
 			String op = matcher.group(1);
 			Operator operator = new Operator(

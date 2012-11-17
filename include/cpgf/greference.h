@@ -1,8 +1,10 @@
 #ifndef __GREFERENCE_h
 #define __GREFERENCE_h
 
-namespace cpgf {
+#include "cpgf/ggetobjectaddress.h"
 
+
+namespace cpgf {
 
 template <typename T>
 class GReference
@@ -83,14 +85,6 @@ template <typename T>
 inline GReference<const volatile T> makeConstReference(const GReference<const volatile T> & data)
 {
 	return data;
-}
-
-template <typename T>
-inline T * getObjectAddress(T & obj)
-{
-	return reinterpret_cast<T *>(
-		&const_cast<char &>(
-		reinterpret_cast<const volatile char &>(obj)));
 }
 
 

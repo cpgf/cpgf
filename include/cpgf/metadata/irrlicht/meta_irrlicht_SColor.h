@@ -50,10 +50,10 @@ inline bool opErAToRWrapper_SColor__opEqual(const SColor * self, const SColor & 
 inline bool opErAToRWrapper_SColor__opNotEqual(const SColor * self, const SColor & other) {
     return (*self) != other;
 }
-inline bool opErAToRWrapper_SColor__opLesserEqual(const SColor * self, const SColor & other) {
+inline bool opErAToRWrapper_SColor__opLess(const SColor * self, const SColor & other) {
     return (*self) < other;
 }
-inline SColor opErAToRWrapper_SColor__opPlus(const SColor * self, const SColor & other) {
+inline SColor opErAToRWrapper_SColor__opAdd(const SColor * self, const SColor & other) {
     return (*self) + other;
 }
 
@@ -86,13 +86,13 @@ void buildMetaClass_SColor(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getInterpolated", &D::ClassType::getInterpolated, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("getInterpolated_quadratic", &D::ClassType::getInterpolated_quadratic, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SColor &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const SColor *, const SColor &))&opErAToRWrapper_SColor__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const SColor *, const SColor &))&opErAToRWrapper_SColor__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SColor &)>(mopHolder != mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const SColor *, const SColor &))&opErAToRWrapper_SColor__opNotEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const SColor *, const SColor &))&opErAToRWrapper_SColor__opNotEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SColor &)>(mopHolder < mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opLesserEqual", (bool (*) (const SColor *, const SColor &))&opErAToRWrapper_SColor__opLesserEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opLess", (bool (*) (const SColor *, const SColor &))&opErAToRWrapper_SColor__opLess, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<SColor (*)(const cpgf::GMetaSelf &, const SColor &)>(mopHolder + mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opPlus", (SColor (*) (const SColor *, const SColor &))&opErAToRWrapper_SColor__opPlus, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opAdd", (SColor (*) (const SColor *, const SColor &))&opErAToRWrapper_SColor__opAdd, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
 }
 
 
