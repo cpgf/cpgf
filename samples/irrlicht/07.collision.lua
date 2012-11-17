@@ -118,14 +118,9 @@ function start()
 				highlightedSceneNode = nil;
 			end
 
-			local start = camera.getPosition();
-			local target = camera.getTarget();
-			local t = irr.vector3df(target.X - start.X, target.Y - start.Y, target.Z - start.Z);
-			t = t.normalize();
-			local _end = irr.vector3df(start.X + t.X * 1000.0, start.Y + t.Y * 1000.0, start.Z + t.Z * 1000.0);
-			local s = irr.vector3df();
-			local e = irr.vector3df();
-			local ray = irr.line3d_f32(start.X, start.Y, start.Z, _end.X, _end.Y, _end.Z);
+			local s = camera.getPosition();
+			local e = s._opAdd(camera.getTarget()._opSub(s).normalize()._opMul(1000.0));
+			local ray = irr.line3d_f32(s.X, s.Y, s.Z, e.X, e.Y, e.Z);
 
 			local intersection = irr.vector3df();
 			local hitTriangle = irr.triangle3df();

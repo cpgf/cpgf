@@ -437,8 +437,9 @@ GClassPool::GClassPool(GBindingContext * context)
 
 void GClassPool::objectCreated(const GObjectInstancePointer & objectData)
 {
-	// Only store the object data that owns the object
-	if(objectData->isAllowGC()) {
+	// Only store the object data that owns the object (allow gc or it's a shadow object)
+	// If don't check for this, things goes messy if we get the first element address in object array, where two kinds of objects share the same address
+	if(objectData->isAllowGC() || objectData->getInstance().getType() == vtShadow) {
 		void * instance = objectData->getInstanceAddress();
 		if(this->instanceMap.find(instance) == instanceMap.end()) {
 			this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
@@ -667,7 +668,6 @@ GObjectGlueDataPointer GBindingContext::newOrReuseObjectGlueData(const GClassGlu
 	GObjectGlueDataPointer data;
 	if(objectInstance) {
 		data.reset(new GObjectGlueData(this->shareFromThis(), classData, objectInstance, flags, cv));
-//		this->classPool->objectCreated(data);
 	}
 	else {
 		data.reset(new GObjectGlueData(this->shareFromThis(), classData, instance, flags, cv));

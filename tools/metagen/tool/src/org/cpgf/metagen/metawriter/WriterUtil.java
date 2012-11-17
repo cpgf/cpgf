@@ -190,7 +190,7 @@ public class WriterUtil {
 	}
 
 	public static boolean shouldGenerateBitfieldWrapper(Config config, CppField field) {
-		return field.isBitField() && Util.allowMetaData(config, field) && !field.getOwner().isTemplate();
+		return config.wrapBitField && field.isBitField() && Util.allowMetaData(config, field) && !field.getOwner().isTemplate();
 	}
 
 	public static String getOperatorWraperName(MetaInfo metaInfo, Operator op) {
@@ -198,8 +198,10 @@ public class WriterUtil {
 	}
 
 	public static boolean shouldGenerateOperatorWrapper(MetaInfo metaInfo, Operator op) {
-		return Util.allowMetaData(metaInfo.getConfig(), op)
+		return metaInfo.getConfig().wrapOperator
+			&& Util.allowMetaData(metaInfo.getConfig(), op)
 			&& !op.isTemplate()
+			&& !op.getOwner().isGlobal()
 			&& !op.getOperator().equals("->")
 			&& !op.isTypeConverter()
 		;

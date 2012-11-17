@@ -208,14 +208,9 @@ function start()
 		// ISceneCollisionManager::getRayFromScreenCoordinates()
 
 		//ray.end = ray.start + (camera.getTarget() - ray.start).normalize() * 1000.0;
-		var start = camera.getPosition();
-		var target = camera.getTarget();
-		var t = new irr.vector3df(target.X - start.X, target.Y - start.Y, target.Z - start.Z);
-		t = t.normalize();
-		var end = new irr.vector3df(start.X + t.X * 1000.0, start.Y + t.Y * 1000.0, start.Z + t.Z * 1000.0);
-		var s = new irr.vector3df();
-		var e = new irr.vector3df();
-		var ray = new irr.line3d_f32(start.X, start.Y, start.Z, end.X, end.Y, end.Z);
+		var s = camera.getPosition();
+		var e = s._opAdd(camera.getTarget()._opSub(s).normalize()._opMul(1000.0));
+		var ray = new irr.line3d_f32(s.X, s.Y, s.Z, e.X, e.Y, e.Z);
 
 		// Tracks the current intersection point with the level or a mesh
 		var intersection = new irr.vector3df();

@@ -190,52 +190,52 @@ void buildMetaClass_Event(const cpgf::GMetaDataConfigFlags & config, D _d)
     ;
     {
         GDefineMetaClass<Event::JoyButtonEvent> _nd = GDefineMetaClass<Event::JoyButtonEvent>::declare("JoyButtonEvent");
-        _nd.CPGF_MD_TEMPLATE _field("JoystickId", &sf::Event::JoyButtonEvent::JoystickId);
-        _nd.CPGF_MD_TEMPLATE _field("Button", &sf::Event::JoyButtonEvent::Button);
+        _nd.CPGF_MD_TEMPLATE _field("JoystickId", &Event::JoyButtonEvent::JoystickId);
+        _nd.CPGF_MD_TEMPLATE _field("Button", &Event::JoyButtonEvent::Button);
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
         GDefineMetaClass<Event::JoyMoveEvent> _nd = GDefineMetaClass<Event::JoyMoveEvent>::declare("JoyMoveEvent");
-        _nd.CPGF_MD_TEMPLATE _field("JoystickId", &sf::Event::JoyMoveEvent::JoystickId);
-        _nd.CPGF_MD_TEMPLATE _field("Axis", &sf::Event::JoyMoveEvent::Axis);
-        _nd.CPGF_MD_TEMPLATE _field("Position", &sf::Event::JoyMoveEvent::Position);
+        _nd.CPGF_MD_TEMPLATE _field("JoystickId", &Event::JoyMoveEvent::JoystickId);
+        _nd.CPGF_MD_TEMPLATE _field("Axis", &Event::JoyMoveEvent::Axis);
+        _nd.CPGF_MD_TEMPLATE _field("Position", &Event::JoyMoveEvent::Position);
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
         GDefineMetaClass<Event::KeyEvent> _nd = GDefineMetaClass<Event::KeyEvent>::declare("KeyEvent");
-        _nd.CPGF_MD_TEMPLATE _field("Code", &sf::Event::KeyEvent::Code);
-        _nd.CPGF_MD_TEMPLATE _field("Alt", &sf::Event::KeyEvent::Alt);
-        _nd.CPGF_MD_TEMPLATE _field("Control", &sf::Event::KeyEvent::Control);
-        _nd.CPGF_MD_TEMPLATE _field("Shift", &sf::Event::KeyEvent::Shift);
+        _nd.CPGF_MD_TEMPLATE _field("Code", &Event::KeyEvent::Code);
+        _nd.CPGF_MD_TEMPLATE _field("Alt", &Event::KeyEvent::Alt);
+        _nd.CPGF_MD_TEMPLATE _field("Control", &Event::KeyEvent::Control);
+        _nd.CPGF_MD_TEMPLATE _field("Shift", &Event::KeyEvent::Shift);
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
         GDefineMetaClass<Event::MouseButtonEvent> _nd = GDefineMetaClass<Event::MouseButtonEvent>::declare("MouseButtonEvent");
-        _nd.CPGF_MD_TEMPLATE _field("Button", &sf::Event::MouseButtonEvent::Button);
-        _nd.CPGF_MD_TEMPLATE _field("X", &sf::Event::MouseButtonEvent::X);
-        _nd.CPGF_MD_TEMPLATE _field("Y", &sf::Event::MouseButtonEvent::Y);
+        _nd.CPGF_MD_TEMPLATE _field("Button", &Event::MouseButtonEvent::Button);
+        _nd.CPGF_MD_TEMPLATE _field("X", &Event::MouseButtonEvent::X);
+        _nd.CPGF_MD_TEMPLATE _field("Y", &Event::MouseButtonEvent::Y);
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
         GDefineMetaClass<Event::MouseMoveEvent> _nd = GDefineMetaClass<Event::MouseMoveEvent>::declare("MouseMoveEvent");
-        _nd.CPGF_MD_TEMPLATE _field("X", &sf::Event::MouseMoveEvent::X);
-        _nd.CPGF_MD_TEMPLATE _field("Y", &sf::Event::MouseMoveEvent::Y);
+        _nd.CPGF_MD_TEMPLATE _field("X", &Event::MouseMoveEvent::X);
+        _nd.CPGF_MD_TEMPLATE _field("Y", &Event::MouseMoveEvent::Y);
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
         GDefineMetaClass<Event::MouseWheelEvent> _nd = GDefineMetaClass<Event::MouseWheelEvent>::declare("MouseWheelEvent");
-        _nd.CPGF_MD_TEMPLATE _field("Delta", &sf::Event::MouseWheelEvent::Delta);
+        _nd.CPGF_MD_TEMPLATE _field("Delta", &Event::MouseWheelEvent::Delta);
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
         GDefineMetaClass<Event::SizeEvent> _nd = GDefineMetaClass<Event::SizeEvent>::declare("SizeEvent");
-        _nd.CPGF_MD_TEMPLATE _field("Width", &sf::Event::SizeEvent::Width);
-        _nd.CPGF_MD_TEMPLATE _field("Height", &sf::Event::SizeEvent::Height);
+        _nd.CPGF_MD_TEMPLATE _field("Width", &Event::SizeEvent::Width);
+        _nd.CPGF_MD_TEMPLATE _field("Height", &Event::SizeEvent::Height);
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
         GDefineMetaClass<Event::TextEvent> _nd = GDefineMetaClass<Event::TextEvent>::declare("TextEvent");
-        _nd.CPGF_MD_TEMPLATE _field("Unicode", &sf::Event::TextEvent::Unicode);
+        _nd.CPGF_MD_TEMPLATE _field("Unicode", &Event::TextEvent::Unicode);
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
 }

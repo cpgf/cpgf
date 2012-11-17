@@ -16,6 +16,11 @@ using namespace sf;
 namespace meta_sfml { 
 
 
+inline Image & opErAToRWrapper_Image__opAssign(Image * self, const Image & Other) {
+    return (*self) = Other;
+}
+
+
 template <typename D>
 void buildMetaClass_Image(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -56,6 +61,7 @@ void buildMetaClass_Image(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("GetTexCoords", &D::ClassType::GetTexCoords);
     _d.CPGF_MD_TEMPLATE _method("GetValidTextureSize", &D::ClassType::GetValidTextureSize);
     _d.CPGF_MD_TEMPLATE _operator<Image & (*)(cpgf::GMetaSelf, const Image &)>(mopHolder = mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (Image & (*) (Image *, const Image &))&opErAToRWrapper_Image__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

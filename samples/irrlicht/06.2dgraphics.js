@@ -1,7 +1,3 @@
-// Know issues in cpgf script binding
-// The text can't be shown because the Font only accepts wide string.
-
-
 function start()
 {
 	// ask user for driver

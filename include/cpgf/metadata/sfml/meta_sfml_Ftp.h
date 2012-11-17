@@ -54,14 +54,14 @@ void buildMetaClass_Ftp(const cpgf::GMetaDataConfigFlags & config, D _d)
     {
         GDefineMetaClass<Ftp::DirectoryResponse, sf::Ftp::Response> _nd = GDefineMetaClass<Ftp::DirectoryResponse, sf::Ftp::Response>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("DirectoryResponse");
         _nd.CPGF_MD_TEMPLATE _constructor<void * (Ftp::Response)>();
-        _nd.CPGF_MD_TEMPLATE _method("GetDirectory", &sf::Ftp::DirectoryResponse::GetDirectory, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
+        _nd.CPGF_MD_TEMPLATE _method("GetDirectory", &Ftp::DirectoryResponse::GetDirectory, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
         GDefineMetaClass<Ftp::ListingResponse, sf::Ftp::Response> _nd = GDefineMetaClass<Ftp::ListingResponse, sf::Ftp::Response>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("ListingResponse");
         _nd.CPGF_MD_TEMPLATE _constructor<void * (Ftp::Response, const std::vector< char > &)>();
-        _nd.CPGF_MD_TEMPLATE _method("GetCount", &sf::Ftp::ListingResponse::GetCount);
-        _nd.CPGF_MD_TEMPLATE _method("GetFilename", &sf::Ftp::ListingResponse::GetFilename, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
+        _nd.CPGF_MD_TEMPLATE _method("GetCount", &Ftp::ListingResponse::GetCount);
+        _nd.CPGF_MD_TEMPLATE _method("GetFilename", &Ftp::ListingResponse::GetFilename, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
@@ -70,53 +70,53 @@ void buildMetaClass_Ftp(const cpgf::GMetaDataConfigFlags & config, D _d)
             ._default(copyVariantFromCopyable(""))
             ._default(copyVariantFromCopyable(Ftp::Response::InvalidResponse))
         ;
-        _nd.CPGF_MD_TEMPLATE _method("IsOk", &sf::Ftp::Response::IsOk);
-        _nd.CPGF_MD_TEMPLATE _method("GetStatus", &sf::Ftp::Response::GetStatus);
-        _nd.CPGF_MD_TEMPLATE _method("GetMessage", &sf::Ftp::Response::GetMessage, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
-        _nd.CPGF_MD_TEMPLATE _enum<typename sf::Ftp::Response::Status>("Status")
-            ._element("RestartMarkerReply", sf::Ftp::Response::RestartMarkerReply)
-            ._element("ServiceReadySoon", sf::Ftp::Response::ServiceReadySoon)
-            ._element("DataConnectionAlreadyOpened", sf::Ftp::Response::DataConnectionAlreadyOpened)
-            ._element("OpeningDataConnection", sf::Ftp::Response::OpeningDataConnection)
-            ._element("Ok", sf::Ftp::Response::Ok)
-            ._element("PointlessCommand", sf::Ftp::Response::PointlessCommand)
-            ._element("SystemStatus", sf::Ftp::Response::SystemStatus)
-            ._element("DirectoryStatus", sf::Ftp::Response::DirectoryStatus)
-            ._element("FileStatus", sf::Ftp::Response::FileStatus)
-            ._element("HelpMessage", sf::Ftp::Response::HelpMessage)
-            ._element("SystemType", sf::Ftp::Response::SystemType)
-            ._element("ServiceReady", sf::Ftp::Response::ServiceReady)
-            ._element("ClosingConnection", sf::Ftp::Response::ClosingConnection)
-            ._element("DataConnectionOpened", sf::Ftp::Response::DataConnectionOpened)
-            ._element("ClosingDataConnection", sf::Ftp::Response::ClosingDataConnection)
-            ._element("EnteringPassiveMode", sf::Ftp::Response::EnteringPassiveMode)
-            ._element("LoggedIn", sf::Ftp::Response::LoggedIn)
-            ._element("FileActionOk", sf::Ftp::Response::FileActionOk)
-            ._element("DirectoryOk", sf::Ftp::Response::DirectoryOk)
-            ._element("NeedPassword", sf::Ftp::Response::NeedPassword)
-            ._element("NeedAccountToLogIn", sf::Ftp::Response::NeedAccountToLogIn)
-            ._element("NeedInformation", sf::Ftp::Response::NeedInformation)
-            ._element("ServiceUnavailable", sf::Ftp::Response::ServiceUnavailable)
-            ._element("DataConnectionUnavailable", sf::Ftp::Response::DataConnectionUnavailable)
-            ._element("TransferAborted", sf::Ftp::Response::TransferAborted)
-            ._element("FileActionAborted", sf::Ftp::Response::FileActionAborted)
-            ._element("LocalError", sf::Ftp::Response::LocalError)
-            ._element("InsufficientStorageSpace", sf::Ftp::Response::InsufficientStorageSpace)
-            ._element("CommandUnknown", sf::Ftp::Response::CommandUnknown)
-            ._element("ParametersUnknown", sf::Ftp::Response::ParametersUnknown)
-            ._element("CommandNotImplemented", sf::Ftp::Response::CommandNotImplemented)
-            ._element("BadCommandSequence", sf::Ftp::Response::BadCommandSequence)
-            ._element("ParameterNotImplemented", sf::Ftp::Response::ParameterNotImplemented)
-            ._element("NotLoggedIn", sf::Ftp::Response::NotLoggedIn)
-            ._element("NeedAccountToStore", sf::Ftp::Response::NeedAccountToStore)
-            ._element("FileUnavailable", sf::Ftp::Response::FileUnavailable)
-            ._element("PageTypeUnknown", sf::Ftp::Response::PageTypeUnknown)
-            ._element("NotEnoughMemory", sf::Ftp::Response::NotEnoughMemory)
-            ._element("FilenameNotAllowed", sf::Ftp::Response::FilenameNotAllowed)
-            ._element("InvalidResponse", sf::Ftp::Response::InvalidResponse)
-            ._element("ConnectionFailed", sf::Ftp::Response::ConnectionFailed)
-            ._element("ConnectionClosed", sf::Ftp::Response::ConnectionClosed)
-            ._element("InvalidFile", sf::Ftp::Response::InvalidFile)
+        _nd.CPGF_MD_TEMPLATE _method("IsOk", &Ftp::Response::IsOk);
+        _nd.CPGF_MD_TEMPLATE _method("GetStatus", &Ftp::Response::GetStatus);
+        _nd.CPGF_MD_TEMPLATE _method("GetMessage", &Ftp::Response::GetMessage, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
+        _nd.CPGF_MD_TEMPLATE _enum<typename Ftp::Response::Status>("Status")
+            ._element("RestartMarkerReply", Ftp::Response::RestartMarkerReply)
+            ._element("ServiceReadySoon", Ftp::Response::ServiceReadySoon)
+            ._element("DataConnectionAlreadyOpened", Ftp::Response::DataConnectionAlreadyOpened)
+            ._element("OpeningDataConnection", Ftp::Response::OpeningDataConnection)
+            ._element("Ok", Ftp::Response::Ok)
+            ._element("PointlessCommand", Ftp::Response::PointlessCommand)
+            ._element("SystemStatus", Ftp::Response::SystemStatus)
+            ._element("DirectoryStatus", Ftp::Response::DirectoryStatus)
+            ._element("FileStatus", Ftp::Response::FileStatus)
+            ._element("HelpMessage", Ftp::Response::HelpMessage)
+            ._element("SystemType", Ftp::Response::SystemType)
+            ._element("ServiceReady", Ftp::Response::ServiceReady)
+            ._element("ClosingConnection", Ftp::Response::ClosingConnection)
+            ._element("DataConnectionOpened", Ftp::Response::DataConnectionOpened)
+            ._element("ClosingDataConnection", Ftp::Response::ClosingDataConnection)
+            ._element("EnteringPassiveMode", Ftp::Response::EnteringPassiveMode)
+            ._element("LoggedIn", Ftp::Response::LoggedIn)
+            ._element("FileActionOk", Ftp::Response::FileActionOk)
+            ._element("DirectoryOk", Ftp::Response::DirectoryOk)
+            ._element("NeedPassword", Ftp::Response::NeedPassword)
+            ._element("NeedAccountToLogIn", Ftp::Response::NeedAccountToLogIn)
+            ._element("NeedInformation", Ftp::Response::NeedInformation)
+            ._element("ServiceUnavailable", Ftp::Response::ServiceUnavailable)
+            ._element("DataConnectionUnavailable", Ftp::Response::DataConnectionUnavailable)
+            ._element("TransferAborted", Ftp::Response::TransferAborted)
+            ._element("FileActionAborted", Ftp::Response::FileActionAborted)
+            ._element("LocalError", Ftp::Response::LocalError)
+            ._element("InsufficientStorageSpace", Ftp::Response::InsufficientStorageSpace)
+            ._element("CommandUnknown", Ftp::Response::CommandUnknown)
+            ._element("ParametersUnknown", Ftp::Response::ParametersUnknown)
+            ._element("CommandNotImplemented", Ftp::Response::CommandNotImplemented)
+            ._element("BadCommandSequence", Ftp::Response::BadCommandSequence)
+            ._element("ParameterNotImplemented", Ftp::Response::ParameterNotImplemented)
+            ._element("NotLoggedIn", Ftp::Response::NotLoggedIn)
+            ._element("NeedAccountToStore", Ftp::Response::NeedAccountToStore)
+            ._element("FileUnavailable", Ftp::Response::FileUnavailable)
+            ._element("PageTypeUnknown", Ftp::Response::PageTypeUnknown)
+            ._element("NotEnoughMemory", Ftp::Response::NotEnoughMemory)
+            ._element("FilenameNotAllowed", Ftp::Response::FilenameNotAllowed)
+            ._element("InvalidResponse", Ftp::Response::InvalidResponse)
+            ._element("ConnectionFailed", Ftp::Response::ConnectionFailed)
+            ._element("ConnectionClosed", Ftp::Response::ConnectionClosed)
+            ._element("InvalidFile", Ftp::Response::InvalidFile)
         ;
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }

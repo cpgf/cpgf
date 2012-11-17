@@ -392,7 +392,7 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 			return;
 		}
 
-		if(this.config.scriptable) {
+		if(this.config.wrapCallback) {
 			this.generateClassCallbackCode();
 		}
 		

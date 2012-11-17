@@ -10,6 +10,8 @@ class MetagenOperatorOther
 public:
 	MetagenOperatorOther() : value(0) {}
 	explicit MetagenOperatorOther(int value) : value(value) {}
+
+	MetagenOperatorOther & operator = (const MetagenOperatorOther & other) { value = other.value; return *this; }
 	
 	MetagenOperatorOther operator , (int n) const { return MetagenOperatorOther(value + n); }
 	

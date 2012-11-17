@@ -16,6 +16,11 @@ using namespace sf;
 namespace meta_sfml { 
 
 
+inline SoundBuffer & opErAToRWrapper_SoundBuffer__opAssign(SoundBuffer * self, const SoundBuffer & Other) {
+    return (*self) = Other;
+}
+
+
 template <typename D>
 void buildMetaClass_SoundBuffer(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -34,6 +39,7 @@ void buildMetaClass_SoundBuffer(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("GetChannelsCount", &D::ClassType::GetChannelsCount);
     _d.CPGF_MD_TEMPLATE _method("GetDuration", &D::ClassType::GetDuration);
     _d.CPGF_MD_TEMPLATE _operator<SoundBuffer & (*)(cpgf::GMetaSelf, const SoundBuffer &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (SoundBuffer & (*) (SoundBuffer *, const SoundBuffer &))&opErAToRWrapper_SoundBuffer__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1>, cpgf::GMetaRuleExplicitThis >());
 }
 
 

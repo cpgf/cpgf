@@ -15,11 +15,12 @@ var config = {
 
 	sourceFilePrefix : "meta_irrlicht_",
 	mainSourceFile : "register_meta_irrlicht",
+	
+	wrapBitField : true, // default is true
+	wrapOperator : true, // default is true 
 
 	autoRegisterToGlobal : true,
 
-	scriptable : false, // not implemented yet.
-	
 	metaNamespace : "irrlicht",
 	headerHeaderCode : "#include \"gmetaobjectlifemanager_irrlicht_ireferencecounted.h\"",
 	sourceHeaderCode : "#include \"irrlicht.h\"",

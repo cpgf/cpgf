@@ -16,6 +16,17 @@ using namespace sf;
 namespace meta_sfml { 
 
 
+inline bool opErAToRWrapper_SocketTCP__opEqual(const SocketTCP * self, const SocketTCP & Other) {
+    return (*self) == Other;
+}
+inline bool opErAToRWrapper_SocketTCP__opNotEqual(const SocketTCP * self, const SocketTCP & Other) {
+    return (*self) != Other;
+}
+inline bool opErAToRWrapper_SocketTCP__opLess(const SocketTCP * self, const SocketTCP & Other) {
+    return (*self) < Other;
+}
+
+
 template <typename D>
 void buildMetaClass_SocketTCP(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -38,8 +49,11 @@ void buildMetaClass_SocketTCP(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("Close", &D::ClassType::Close);
     _d.CPGF_MD_TEMPLATE _method("IsValid", &D::ClassType::IsValid);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SocketTCP &)>(mopHolder == mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const SocketTCP *, const SocketTCP &))&opErAToRWrapper_SocketTCP__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SocketTCP &)>(mopHolder != mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const SocketTCP *, const SocketTCP &))&opErAToRWrapper_SocketTCP__opNotEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SocketTCP &)>(mopHolder < mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opLess", (bool (*) (const SocketTCP *, const SocketTCP &))&opErAToRWrapper_SocketTCP__opLess, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

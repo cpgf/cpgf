@@ -132,6 +132,26 @@ void buildMetaClass_B2Transform(const cpgf::GMetaDataConfigFlags & config, D _d)
 }
 
 
+inline b2Vec2 opErAToRWrapper_b2Vec2__opMinus(const b2Vec2 * self) {
+    return -(*self);
+}
+inline float32 opErAToRWrapper_b2Vec2__opFunction(const b2Vec2 * self, int32 i) {
+    return (*self)(i);
+}
+inline float32 & opErAToRWrapper_b2Vec2__opFunction(b2Vec2 * self, int32 i) {
+    return (*self)(i);
+}
+inline void opErAToRWrapper_b2Vec2__opAddAssign(b2Vec2 * self, const b2Vec2 & v) {
+    (*self) += v;
+}
+inline void opErAToRWrapper_b2Vec2__opSubAssign(b2Vec2 * self, const b2Vec2 & v) {
+    (*self) -= v;
+}
+inline void opErAToRWrapper_b2Vec2__opMulAssign(b2Vec2 * self, float32 a) {
+    (*self) *= a;
+}
+
+
 template <typename D>
 void buildMetaClass_B2Vec2(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -149,11 +169,31 @@ void buildMetaClass_B2Vec2(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("Normalize", &D::ClassType::Normalize);
     _d.CPGF_MD_TEMPLATE _method("IsValid", &D::ClassType::IsValid);
     _d.CPGF_MD_TEMPLATE _operator<b2Vec2 (*)(const cpgf::GMetaSelf &)>(-mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opMinus", (b2Vec2 (*) (const b2Vec2 *))&opErAToRWrapper_b2Vec2__opMinus, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<float32 (*)(int32)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (float32 (*) (const b2Vec2 *, int32))&opErAToRWrapper_b2Vec2__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<float32 & (*)(int32)>(mopHolder(mopHolder));
+    _d.CPGF_MD_TEMPLATE _method("_opFunction", (float32 & (*) (b2Vec2 *, int32))&opErAToRWrapper_b2Vec2__opFunction, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf, const b2Vec2 &)>(mopHolder += mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opAddAssign", (void (*) (b2Vec2 *, const b2Vec2 &))&opErAToRWrapper_b2Vec2__opAddAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf, const b2Vec2 &)>(mopHolder -= mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opSubAssign", (void (*) (b2Vec2 *, const b2Vec2 &))&opErAToRWrapper_b2Vec2__opSubAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf, float32)>(mopHolder *= mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opMulAssign", (void (*) (b2Vec2 *, float32))&opErAToRWrapper_b2Vec2__opMulAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+}
+
+
+inline b2Vec3 opErAToRWrapper_b2Vec3__opMinus(const b2Vec3 * self) {
+    return -(*self);
+}
+inline void opErAToRWrapper_b2Vec3__opAddAssign(b2Vec3 * self, const b2Vec3 & v) {
+    (*self) += v;
+}
+inline void opErAToRWrapper_b2Vec3__opSubAssign(b2Vec3 * self, const b2Vec3 & v) {
+    (*self) -= v;
+}
+inline void opErAToRWrapper_b2Vec3__opMulAssign(b2Vec3 * self, float32 s) {
+    (*self) *= s;
 }
 
 
@@ -171,9 +211,13 @@ void buildMetaClass_B2Vec3(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("SetZero", &D::ClassType::SetZero);
     _d.CPGF_MD_TEMPLATE _method("Set", &D::ClassType::Set);
     _d.CPGF_MD_TEMPLATE _operator<b2Vec3 (*)(const cpgf::GMetaSelf &)>(-mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opMinus", (b2Vec3 (*) (const b2Vec3 *))&opErAToRWrapper_b2Vec3__opMinus, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf, const b2Vec3 &)>(mopHolder += mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opAddAssign", (void (*) (b2Vec3 *, const b2Vec3 &))&opErAToRWrapper_b2Vec3__opAddAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf, const b2Vec3 &)>(mopHolder -= mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opSubAssign", (void (*) (b2Vec3 *, const b2Vec3 &))&opErAToRWrapper_b2Vec3__opSubAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf, float32)>(mopHolder *= mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opMulAssign", (void (*) (b2Vec3 *, float32))&opErAToRWrapper_b2Vec3__opMulAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

@@ -39,45 +39,45 @@ void buildMetaClass_Http(const cpgf::GMetaDataConfigFlags & config, D _d)
             ._default(copyVariantFromCopyable("/"))
             ._default(copyVariantFromCopyable(Http::Request::Get))
         ;
-        _nd.CPGF_MD_TEMPLATE _method("SetField", &sf::Http::Request::SetField, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
-        _nd.CPGF_MD_TEMPLATE _method("SetMethod", &sf::Http::Request::SetMethod);
-        _nd.CPGF_MD_TEMPLATE _method("SetURI", &sf::Http::Request::SetURI, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-        _nd.CPGF_MD_TEMPLATE _method("SetHttpVersion", &sf::Http::Request::SetHttpVersion);
-        _nd.CPGF_MD_TEMPLATE _method("SetBody", &sf::Http::Request::SetBody, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-        _nd.CPGF_MD_TEMPLATE _enum<typename sf::Http::Request::Method>("Method")
-            ._element("Get", sf::Http::Request::Get)
-            ._element("Post", sf::Http::Request::Post)
-            ._element("Head", sf::Http::Request::Head)
+        _nd.CPGF_MD_TEMPLATE _method("SetField", &Http::Request::SetField, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
+        _nd.CPGF_MD_TEMPLATE _method("SetMethod", &Http::Request::SetMethod);
+        _nd.CPGF_MD_TEMPLATE _method("SetURI", &Http::Request::SetURI, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+        _nd.CPGF_MD_TEMPLATE _method("SetHttpVersion", &Http::Request::SetHttpVersion);
+        _nd.CPGF_MD_TEMPLATE _method("SetBody", &Http::Request::SetBody, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+        _nd.CPGF_MD_TEMPLATE _enum<typename Http::Request::Method>("Method")
+            ._element("Get", Http::Request::Get)
+            ._element("Post", Http::Request::Post)
+            ._element("Head", Http::Request::Head)
         ;
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
         GDefineMetaClass<Http::Response> _nd = GDefineMetaClass<Http::Response>::declare("Response");
         _nd.CPGF_MD_TEMPLATE _constructor<void * ()>();
-        _nd.CPGF_MD_TEMPLATE _method("GetField", &sf::Http::Response::GetField, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1>, cpgf::GMetaRuleCopyConstReference<0> >());
-        _nd.CPGF_MD_TEMPLATE _method("GetStatus", &sf::Http::Response::GetStatus);
-        _nd.CPGF_MD_TEMPLATE _method("GetMajorHttpVersion", &sf::Http::Response::GetMajorHttpVersion);
-        _nd.CPGF_MD_TEMPLATE _method("GetMinorHttpVersion", &sf::Http::Response::GetMinorHttpVersion);
-        _nd.CPGF_MD_TEMPLATE _method("GetBody", &sf::Http::Response::GetBody, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
-        _nd.CPGF_MD_TEMPLATE _enum<typename sf::Http::Response::Status>("Status")
-            ._element("Ok", sf::Http::Response::Ok)
-            ._element("Created", sf::Http::Response::Created)
-            ._element("Accepted", sf::Http::Response::Accepted)
-            ._element("NoContent", sf::Http::Response::NoContent)
-            ._element("MultipleChoices", sf::Http::Response::MultipleChoices)
-            ._element("MovedPermanently", sf::Http::Response::MovedPermanently)
-            ._element("MovedTemporarily", sf::Http::Response::MovedTemporarily)
-            ._element("NotModified", sf::Http::Response::NotModified)
-            ._element("BadRequest", sf::Http::Response::BadRequest)
-            ._element("Unauthorized", sf::Http::Response::Unauthorized)
-            ._element("Forbidden", sf::Http::Response::Forbidden)
-            ._element("NotFound", sf::Http::Response::NotFound)
-            ._element("InternalServerError", sf::Http::Response::InternalServerError)
-            ._element("NotImplemented", sf::Http::Response::NotImplemented)
-            ._element("BadGateway", sf::Http::Response::BadGateway)
-            ._element("ServiceNotAvailable", sf::Http::Response::ServiceNotAvailable)
-            ._element("InvalidResponse", sf::Http::Response::InvalidResponse)
-            ._element("ConnectionFailed", sf::Http::Response::ConnectionFailed)
+        _nd.CPGF_MD_TEMPLATE _method("GetField", &Http::Response::GetField, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1>, cpgf::GMetaRuleCopyConstReference<0> >());
+        _nd.CPGF_MD_TEMPLATE _method("GetStatus", &Http::Response::GetStatus);
+        _nd.CPGF_MD_TEMPLATE _method("GetMajorHttpVersion", &Http::Response::GetMajorHttpVersion);
+        _nd.CPGF_MD_TEMPLATE _method("GetMinorHttpVersion", &Http::Response::GetMinorHttpVersion);
+        _nd.CPGF_MD_TEMPLATE _method("GetBody", &Http::Response::GetBody, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
+        _nd.CPGF_MD_TEMPLATE _enum<typename Http::Response::Status>("Status")
+            ._element("Ok", Http::Response::Ok)
+            ._element("Created", Http::Response::Created)
+            ._element("Accepted", Http::Response::Accepted)
+            ._element("NoContent", Http::Response::NoContent)
+            ._element("MultipleChoices", Http::Response::MultipleChoices)
+            ._element("MovedPermanently", Http::Response::MovedPermanently)
+            ._element("MovedTemporarily", Http::Response::MovedTemporarily)
+            ._element("NotModified", Http::Response::NotModified)
+            ._element("BadRequest", Http::Response::BadRequest)
+            ._element("Unauthorized", Http::Response::Unauthorized)
+            ._element("Forbidden", Http::Response::Forbidden)
+            ._element("NotFound", Http::Response::NotFound)
+            ._element("InternalServerError", Http::Response::InternalServerError)
+            ._element("NotImplemented", Http::Response::NotImplemented)
+            ._element("BadGateway", Http::Response::BadGateway)
+            ._element("ServiceNotAvailable", Http::Response::ServiceNotAvailable)
+            ._element("InvalidResponse", Http::Response::InvalidResponse)
+            ._element("ConnectionFailed", Http::Response::ConnectionFailed)
         ;
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }

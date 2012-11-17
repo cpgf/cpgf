@@ -15,6 +15,9 @@
 namespace meta_test { 
 
 
+inline MetagenOperatorOther & opErAToRWrapper_MetagenOperatorOther__opAssign(MetagenOperatorOther * self, const MetagenOperatorOther & other) {
+    return (*self) = other;
+}
 inline MetagenOperatorOther opErAToRWrapper_MetagenOperatorOther__opComma(const MetagenOperatorOther * self, int n) {
     return (*self) , n;
 }
@@ -47,6 +50,8 @@ void buildMetaClass_MetagenOperatorOther(const cpgf::GMetaDataConfigFlags & conf
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (int)>();
     _d.CPGF_MD_TEMPLATE _field("value", &D::ClassType::value);
+    _d.CPGF_MD_TEMPLATE _operator<MetagenOperatorOther & (*)(cpgf::GMetaSelf, const MetagenOperatorOther &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (MetagenOperatorOther & (*) (MetagenOperatorOther *, const MetagenOperatorOther &))&opErAToRWrapper_MetagenOperatorOther__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<MetagenOperatorOther (*)(const cpgf::GMetaSelf &, int)>((mopHolder , mopHolder));
     _d.CPGF_MD_TEMPLATE _method("_opComma", (MetagenOperatorOther (*) (const MetagenOperatorOther *, int))&opErAToRWrapper_MetagenOperatorOther__opComma, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<int (*)(const cpgf::GMetaSelf &, int)>(mopHolder[0]);

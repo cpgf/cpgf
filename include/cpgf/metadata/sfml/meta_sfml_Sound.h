@@ -16,6 +16,11 @@ using namespace sf;
 namespace meta_sfml { 
 
 
+inline Sound & opErAToRWrapper_Sound__opAssign(Sound * self, const Sound & Other) {
+    return (*self) = Other;
+}
+
+
 template <typename D>
 void buildMetaClass_Sound(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -60,6 +65,7 @@ void buildMetaClass_Sound(const cpgf::GMetaDataConfigFlags & config, D _d)
         ._element("Playing", D::ClassType::Playing)
     ;
     _d.CPGF_MD_TEMPLATE _operator<Sound & (*)(cpgf::GMetaSelf, const Sound &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (Sound & (*) (Sound *, const Sound &))&opErAToRWrapper_Sound__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleParamNoncopyable<-1>, cpgf::GMetaRuleExplicitThis >());
 }
 
 

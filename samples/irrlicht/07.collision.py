@@ -1,3 +1,5 @@
+cpgf._import(None, "builtin.debug");
+
 resourcePath = "E:/SourceCode/CPP/irrlicht-1.7.3/media/";
 ID_IsNotPickable = 0;
 IDFlag_IsPickable = 1;
@@ -117,9 +119,11 @@ def start() :
 			t = irr.vector3df(target.X - _start.X, target.Y - _start.Y, target.Z - _start.Z);
 			t = t.normalize();
 			_end = irr.vector3df(_start.X + t.X * 1000.0, _start.Y + t.Y * 1000.0, _start.Z + t.Z * 1000.0);
-			s = irr.vector3df();
-			e = irr.vector3df();
 			ray = irr.line3d_f32(_start.X, _start.Y, _start.Z, _end.X, _end.Y, _end.Z);
+			
+			s = camera.getPosition();
+			e = s._opAdd(camera.getTarget()._opSub(s).normalize()._opMul(1000.0));
+			ray = irr.line3d_f32(s.X, s.Y, s.Z, e.X, e.Y, e.Z);
 
 			intersection = irr.vector3df();
 			hitTriangle = irr.triangle3df();

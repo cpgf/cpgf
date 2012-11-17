@@ -4,6 +4,19 @@
 namespace {
 
 
+void metagenTest_Operators_Assign(TestScriptContext * context)
+{
+	QNEWOBJ(a, mtest.MetagenOperatorOther(10));
+	QNEWOBJ(b, mtest.MetagenOperatorOther(5));
+	QASSERTNOT(b.value == 10);
+	QDO(b._opAssign(a));
+	QASSERT(b.value == 10);
+}
+
+#define CASE metagenTest_Operators_Assign
+#include "do_testcase.h"
+
+
 void metagenTest_Operators_Comma(TestScriptContext * context)
 {
 	QNEWOBJ(a, mtest.MetagenOperatorOther(10));

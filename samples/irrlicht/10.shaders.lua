@@ -17,8 +17,9 @@ function overrideShaderCallBack(callback)
 		end
 
 
-		local worldViewProj = irr.matrix4();
-		worldViewProj = driver.getTransform(irr.ETS_PROJECTION);
+		local worldViewProj = irr.matrix4(driver.getTransform(irr.ETS_PROJECTION));
+		worldViewProj._opMulAssign(driver.getTransform(irr.ETS_VIEW));
+		worldViewProj._opMulAssign(driver.getTransform(irr.ETS_WORLD));
 
 		if UseHighLevelShaders then
 			services.setVertexShaderConstant("mWorldViewProj", worldViewProj.pointer(), 16);

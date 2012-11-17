@@ -18,8 +18,9 @@ var config = {
 
 	autoRegisterToGlobal : true,
 
-	scriptable : false, // not implemented yet.
-	
+	wrapBitField : true, // default is true
+	wrapOperator : true, // default is true 
+
 	metaNamespace : "sfml",
 	sourceHeaderCode : "#include \"SFML/Audio.hpp\"" + "\n#include \"SFML/Config.hpp\"" + "\n#include \"SFML/Graphics.hpp\"" + "\n#include \"SFML/Network.hpp\"" + "\n#include \"SFML/System.hpp\"" + "\n#include \"SFML/Window.hpp\"",
 	sourceHeaderReplacer : [ "!.*include/SFML!i", "SFML" ],

@@ -27,6 +27,26 @@ void buildMetaClass_Global_ipaddress(const cpgf::GMetaDataConfigFlags & config, 
 }
 
 
+inline bool opErAToRWrapper_IPAddress__opEqual(const IPAddress * self, const IPAddress & Other) {
+    return (*self) == Other;
+}
+inline bool opErAToRWrapper_IPAddress__opNotEqual(const IPAddress * self, const IPAddress & Other) {
+    return (*self) != Other;
+}
+inline bool opErAToRWrapper_IPAddress__opLess(const IPAddress * self, const IPAddress & Other) {
+    return (*self) < Other;
+}
+inline bool opErAToRWrapper_IPAddress__opGreater(const IPAddress * self, const IPAddress & Other) {
+    return (*self) > Other;
+}
+inline bool opErAToRWrapper_IPAddress__opLessEqual(const IPAddress * self, const IPAddress & Other) {
+    return (*self) <= Other;
+}
+inline bool opErAToRWrapper_IPAddress__opGreaterEqual(const IPAddress * self, const IPAddress & Other) {
+    return (*self) >= Other;
+}
+
+
 template <typename D>
 void buildMetaClass_IPAddress(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -47,11 +67,17 @@ void buildMetaClass_IPAddress(const cpgf::GMetaDataConfigFlags & config, D _d)
         ._default(copyVariantFromCopyable(0.f))
     ;
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const IPAddress &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const IPAddress *, const IPAddress &))&opErAToRWrapper_IPAddress__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const IPAddress &)>(mopHolder != mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const IPAddress *, const IPAddress &))&opErAToRWrapper_IPAddress__opNotEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const IPAddress &)>(mopHolder < mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opLess", (bool (*) (const IPAddress *, const IPAddress &))&opErAToRWrapper_IPAddress__opLess, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const IPAddress &)>(mopHolder > mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opGreater", (bool (*) (const IPAddress *, const IPAddress &))&opErAToRWrapper_IPAddress__opGreater, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const IPAddress &)>(mopHolder <= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opLessEqual", (bool (*) (const IPAddress *, const IPAddress &))&opErAToRWrapper_IPAddress__opLessEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const IPAddress &)>(mopHolder >= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opGreaterEqual", (bool (*) (const IPAddress *, const IPAddress &))&opErAToRWrapper_IPAddress__opGreaterEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
 }
 
 

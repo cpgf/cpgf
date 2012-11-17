@@ -16,6 +16,17 @@ using namespace sf;
 namespace meta_sfml { 
 
 
+inline bool opErAToRWrapper_SocketUDP__opEqual(const SocketUDP * self, const SocketUDP & Other) {
+    return (*self) == Other;
+}
+inline bool opErAToRWrapper_SocketUDP__opNotEqual(const SocketUDP * self, const SocketUDP & Other) {
+    return (*self) != Other;
+}
+inline bool opErAToRWrapper_SocketUDP__opLess(const SocketUDP * self, const SocketUDP & Other) {
+    return (*self) < Other;
+}
+
+
 template <typename D>
 void buildMetaClass_SocketUDP(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -34,8 +45,11 @@ void buildMetaClass_SocketUDP(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("IsValid", &D::ClassType::IsValid);
     _d.CPGF_MD_TEMPLATE _method("GetPort", &D::ClassType::GetPort);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SocketUDP &)>(mopHolder == mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const SocketUDP *, const SocketUDP &))&opErAToRWrapper_SocketUDP__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SocketUDP &)>(mopHolder != mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const SocketUDP *, const SocketUDP &))&opErAToRWrapper_SocketUDP__opNotEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SocketUDP &)>(mopHolder < mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opLess", (bool (*) (const SocketUDP *, const SocketUDP &))&opErAToRWrapper_SocketUDP__opLess, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

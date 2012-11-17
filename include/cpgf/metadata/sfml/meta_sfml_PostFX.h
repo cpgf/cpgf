@@ -16,6 +16,11 @@ using namespace sf;
 namespace meta_sfml { 
 
 
+inline PostFX & opErAToRWrapper_PostFX__opAssign(PostFX * self, const PostFX & Other) {
+    return (*self) = Other;
+}
+
+
 template <typename D>
 void buildMetaClass_PostFX(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -33,6 +38,7 @@ void buildMetaClass_PostFX(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("SetTexture", &D::ClassType::SetTexture, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("CanUsePostFX", &D::ClassType::CanUsePostFX);
     _d.CPGF_MD_TEMPLATE _operator<PostFX & (*)(cpgf::GMetaSelf, const PostFX &)>(mopHolder = mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (PostFX & (*) (PostFX *, const PostFX &))&opErAToRWrapper_PostFX__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

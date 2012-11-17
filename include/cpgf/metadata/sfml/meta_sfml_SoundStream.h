@@ -34,8 +34,8 @@ void buildMetaClass_SoundStream(const cpgf::GMetaDataConfigFlags & config, D _d)
     ;
     {
         GDefineMetaClass<SoundStream::Chunk> _nd = GDefineMetaClass<SoundStream::Chunk>::declare("Chunk");
-        _nd.CPGF_MD_TEMPLATE _field("Samples", &sf::SoundStream::Chunk::Samples);
-        _nd.CPGF_MD_TEMPLATE _field("NbSamples", &sf::SoundStream::Chunk::NbSamples);
+        _nd.CPGF_MD_TEMPLATE _field("Samples", &SoundStream::Chunk::Samples);
+        _nd.CPGF_MD_TEMPLATE _field("NbSamples", &SoundStream::Chunk::NbSamples);
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
 }

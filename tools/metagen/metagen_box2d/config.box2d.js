@@ -16,6 +16,9 @@ var config = {
 	sourceFilePrefix : "meta_box2d_",
 	mainSourceFile : "register_meta_box2d",
 
+	wrapBitField : true, // default is true
+	wrapOperator : true, // default is true 
+
 	autoRegisterToGlobal : true,
 	
 	metaNamespace : "box2d",

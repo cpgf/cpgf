@@ -97,8 +97,11 @@ public class Config {
 	
 	public String[] predefinedTemplateInstances = {};
 	
+	public boolean wrapBitField = true;
+	public boolean wrapOperator = true;
+
 	// Not implemented yet. DON'T set it to true.
-	public boolean scriptable = false;
+	public boolean wrapCallback = false;
 	
 	public String scriptClassWrapperPostfix = "Wrapper";
 

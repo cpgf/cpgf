@@ -102,7 +102,7 @@ public class MetaFileWriter {
 		codeWriter.include("cpgf/metadata/gmetadataconfig.h");
 		codeWriter.include("cpgf/metadata/private/gmetadata_header.h");
 		codeWriter.include("cpgf/gmetapolicy.h");
-		if(this.config.scriptable) {
+		if(this.config.wrapCallback) {
 			codeWriter.include("cpgf/scriptbind/gscriptbindapi.h");
 		}
 		if(this.shouldWrapClass(classList)) {

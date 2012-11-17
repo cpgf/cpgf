@@ -16,6 +16,14 @@ using namespace sf;
 namespace meta_sfml { 
 
 
+inline bool opErAToRWrapper_VideoMode__opEqual(const VideoMode * self, const VideoMode & Other) {
+    return (*self) == Other;
+}
+inline bool opErAToRWrapper_VideoMode__opNotEqual(const VideoMode * self, const VideoMode & Other) {
+    return (*self) != Other;
+}
+
+
 template <typename D>
 void buildMetaClass_VideoMode(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
@@ -34,7 +42,9 @@ void buildMetaClass_VideoMode(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("GetMode", &D::ClassType::GetMode);
     _d.CPGF_MD_TEMPLATE _method("GetModesCount", &D::ClassType::GetModesCount);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const VideoMode &)>(mopHolder == mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const VideoMode *, const VideoMode &))&opErAToRWrapper_VideoMode__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const VideoMode &)>(mopHolder != mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const VideoMode *, const VideoMode &))&opErAToRWrapper_VideoMode__opNotEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

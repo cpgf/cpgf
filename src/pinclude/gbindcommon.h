@@ -261,6 +261,10 @@ public:
 	void setAllowGC(bool allow) {
 		this->allowGC = allow;
 	}
+
+	const GVariant & getInstance() const {
+		return this->instance;
+	}
 	
 	IMetaClass * getMetaClass() const {
 		return this->classData->getMetaClass();
