@@ -14,6 +14,7 @@
 
 namespace cpgf {
 
+size_t abstractParameterIndexBase = 0x1000000;
 
 namespace meta_internal {
 
