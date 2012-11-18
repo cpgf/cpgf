@@ -7,7 +7,7 @@ function overrideShaderCallBack(callback)
 	callback.OnSetConstants = function(me, services, userData)
 		local driver = services.getVideoDriver();
 
-		local invWorld = driver.getTransform(irr.ETS_WORLD);
+		local invWorld = irr.matrix4(driver.getTransform(irr.ETS_WORLD));
 		invWorld.makeInverse();
 
 		if UseHighLevelShaders then

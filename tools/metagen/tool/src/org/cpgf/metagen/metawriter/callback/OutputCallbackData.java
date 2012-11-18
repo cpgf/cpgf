@@ -1,5 +1,8 @@
 package org.cpgf.metagen.metawriter.callback;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.cpgf.metagen.Util;
 import org.cpgf.metagen.metadata.ClassWrapperConfig;
 
@@ -9,6 +12,7 @@ public class OutputCallbackData {
 	private String headerCode;
 	private String sourceCode;
 	private ClassWrapperConfig wrapperConfig;
+	private List<String> headerIncludeList;
 	
 	public OutputCallbackData() {
 		this.skipBind = false;
@@ -68,6 +72,17 @@ public class OutputCallbackData {
 			this.wrapperConfig = new ClassWrapperConfig();
 		}
 		return this.wrapperConfig;
+	}
+	
+	public List<String> getHeaderIncludeList() {
+		return this.headerIncludeList;
+	}
+	
+	public void addHeaderInclude(String include) {
+		if(this.headerIncludeList == null) {
+			this.headerIncludeList = new ArrayList<String>();
+		}
+		this.headerIncludeList.add(include);
 	}
 	
 }

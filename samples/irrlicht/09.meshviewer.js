@@ -610,7 +610,7 @@ function overrideEventReceiver(receiver)
 					break;
 				case GUI_ID_BUTTON_SCALE_MUL10:
 					if (Model) {
-						var scale = Model.getScale();
+						var scale = new irr.vector3df(Model.getScale());
 						scale.X = scale.X * 10;
 						scale.Y = scale.Y * 10;
 						scale.Z = scale.Z * 10;
@@ -620,7 +620,7 @@ function overrideEventReceiver(receiver)
 					break;
 				case GUI_ID_BUTTON_SCALE_DIV10:
 					if (Model) {
-						var scale = Model.getScale();
+						var scale = new irr.vector3df(Model.getScale());
 						scale.X = scale.X * 0.1;
 						scale.Y = scale.Y * 0.1;
 						scale.Z = scale.Z * 0.1;

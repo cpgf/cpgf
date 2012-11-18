@@ -50,6 +50,7 @@ none: needcmake
 	$(ECHO) "  TARGET=sampleopengl          Build the Opengl binding sample application."
 	$(ECHO) "  TARGET=samplebox2d           Build the Box2D binding sample application."
 	$(ECHO) "  TARGET=samplesfml            Build the SFML binding sample application."
+	$(ECHO) "  TARGET=sampleirrlicht        Build the Irrlicht binding sample application."
 
 needcmake:
 	$(ECHO)

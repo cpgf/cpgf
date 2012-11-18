@@ -414,13 +414,13 @@ bool operator == (const GWeakPointer<T> & a, const GWeakPointer<U> & b)
 template <typename T, typename U>
 bool operator != (const GSharedPointer<T> & a, const GSharedPointer<U> & b)
 {
-	return a.get() == b.get();
+	return a.get() != b.get();
 }
 
 template <typename T, typename U>
 bool operator != (const GWeakPointer<T> & a, const GWeakPointer<U> & b)
 {
-	return a.get() == b.get();
+	return a.get() != b.get();
 }
 
 template <typename T, typename U>

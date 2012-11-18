@@ -11,6 +11,7 @@ import org.cpgf.metagen.codewriter.CppWriter;
 import org.cpgf.metagen.doxyxmlparser.FileInfo;
 import org.cpgf.metagen.metadata.CppClass;
 import org.cpgf.metagen.metadata.MetaInfo;
+import org.cpgf.metagen.metawriter.callback.OutputCallbackData;
 
 
 public class MetaFileWriter {
@@ -109,6 +110,20 @@ public class MetaFileWriter {
 			codeWriter.include("cpgf/scriptbind/gscriptbindutil.h");
 			codeWriter.include("cpgf/scriptbind/gscriptwrapper.h");
 			codeWriter.include("cpgf/gscopedinterface.h");
+		}
+		List<String> customizedHeaderIncludeList = new ArrayList<String>();
+		for(CppClass cppClass : classList) {
+			OutputCallbackData callbackData = this.metaInfo.getCallbackClassMap().getData(cppClass);
+			if(callbackData != null && callbackData.getHeaderIncludeList() != null) {
+				for(String include : callbackData.getHeaderIncludeList()) {
+					if(customizedHeaderIncludeList.indexOf(include) < 0) {
+						customizedHeaderIncludeList.add(include);
+					}
+				}
+			}
+		}
+		for(String include : customizedHeaderIncludeList) {
+			codeWriter.include(include);
 		}
 		codeWriter.writeLine("");
 		codeWriter.writeLine("");

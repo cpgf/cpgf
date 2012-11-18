@@ -200,6 +200,7 @@ public class WriterUtil {
 	public static boolean shouldGenerateOperatorWrapper(MetaInfo metaInfo, Operator op) {
 		return metaInfo.getConfig().wrapOperator
 			&& Util.allowMetaData(metaInfo.getConfig(), op)
+			&& !metaInfo.getCallbackClassMap().getData(op).isSkipBind()
 			&& !op.isTemplate()
 			&& !op.getOwner().isGlobal()
 			&& !op.getOperator().equals("->")

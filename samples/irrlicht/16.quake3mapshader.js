@@ -188,7 +188,7 @@ function start()
 		we choose a random launch
 	*/
 
-	// this part is not supported yet due to the use of irr::array
+	// this part is not supported yet due to the use of quake3::getAsVector3df, which second parameter is a non-const reference
 
 	/*
 	The mouse cursor needs not to be visible, so we make it invisible.

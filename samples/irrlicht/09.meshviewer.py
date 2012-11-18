@@ -450,7 +450,7 @@ def overrideEventReceiver(receiver) :
 					updateScaleInfo(Model);
 				elif id == GUI_ID_BUTTON_SCALE_MUL10 :
 					if Model != None :
-						scale = Model.getScale();
+						scale = irr.vector3df(Model.getScale());
 						scale.X = scale.X * 10;
 						scale.Y = scale.Y * 10;
 						scale.Z = scale.Z * 10;
@@ -459,7 +459,7 @@ def overrideEventReceiver(receiver) :
 
 				elif id == GUI_ID_BUTTON_SCALE_DIV10 :
 					if Model != None :
-						scale = Model.getScale();
+						scale = irr.vector3df(Model.getScale());
 						scale.X = scale.X * 0.1;
 						scale.Y = scale.Y * 0.1;
 						scale.Z = scale.Z * 0.1;

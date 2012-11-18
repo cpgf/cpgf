@@ -58,6 +58,7 @@ var config = {
 		"plane3d<s32>", "plane3di",
 		"IIrrXMLReader<wchar_t, IReferenceCounted>", "IXMLReader",
 		"IIrrXMLReader<c8, IReferenceCounted>", "IXMLReaderUTF8",
+		"array<irr::scene::quake3::IEntity, irrAllocator<irr::scene::quake3::IEntity> >", "tQ3EntityList"
 	],
 	
 	parameterTypeReplacer : [
@@ -107,6 +108,11 @@ function processCallback(item, data)
 					item.setSelf("vector3d<s32>");
 				}
 			}
+			else if(owner.getPrimaryName() == "array") {
+				if(name == "==" || name == "!=") { // compile error, skip them for now
+					data.skipBind = true;
+				}
+			}
 		}
 	}
 	if(item.isClass()) {
@@ -115,6 +121,9 @@ function processCallback(item, data)
 		}
 		if(name == "IVideoDriver") {
 			data.putInSeparatedFile();
+		}
+		else if(name == "array") {
+			data.addHeaderInclude("IQ3Shader.h");
 		}
 	}
 }

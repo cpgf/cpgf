@@ -462,7 +462,7 @@ function overrideEventReceiver(receiver)
 					updateScaleInfo(Model);
 				elseif id == GUI_ID_BUTTON_SCALE_MUL10 then
 					if Model ~= nil then
-						local scale = Model.getScale();
+						local scale = irr.vector3df(Model.getScale());
 						scale.X = scale.X * 10;
 						scale.Y = scale.Y * 10;
 						scale.Z = scale.Z * 10;
@@ -472,7 +472,7 @@ function overrideEventReceiver(receiver)
 
 				elseif id == GUI_ID_BUTTON_SCALE_DIV10 then
 					if Model ~= nil then
-						local scale = Model.getScale();
+						local scale = irr.vector3df(Model.getScale());
 						scale.X = scale.X * 0.1;
 						scale.Y = scale.Y * 0.1;
 						scale.Z = scale.Z * 0.1;

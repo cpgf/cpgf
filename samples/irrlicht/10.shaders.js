@@ -15,7 +15,7 @@ function overrideShaderCallBack(callback)
 		// if we are using highlevel shaders (the user can select this when
 		// starting the program), we must set the constants by name.
 
-		var invWorld = driver.getTransform(irr.ETS_WORLD);
+		var invWorld = new irr.matrix4(driver.getTransform(irr.ETS_WORLD));
 		invWorld.makeInverse();
 
 		if (UseHighLevelShaders)

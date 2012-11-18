@@ -13,6 +13,7 @@ namespace meta_irrlicht {
 
 
 GDefineMetaInfo createMetaClass_Aabbox3d();
+GDefineMetaInfo createMetaClass_Array();
 GDefineMetaInfo createMetaClass_CDynamicMeshBuffer();
 GDefineMetaInfo createMetaClass_CIndexBuffer();
 GDefineMetaInfo createMetaClass_CMatrix4();
@@ -275,6 +276,7 @@ template <typename Meta>
 void registerMain_irrlicht(Meta _d)
 {
     _d._class(createMetaClass_Aabbox3d());
+    _d._class(createMetaClass_Array());
     _d._class(createMetaClass_CDynamicMeshBuffer());
     _d._class(createMetaClass_CIndexBuffer());
     _d._class(createMetaClass_CMatrix4());

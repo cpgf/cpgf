@@ -9,6 +9,7 @@
 #include "cpgf/metadata/gmetadataconfig.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
+#include "IQ3Shader.h"
 
 
 using namespace irr;
@@ -21,14 +22,6 @@ namespace meta_irrlicht {
 template <class T, typename TAlloc>
 inline const array< T, TAlloc > & opErAToRWrapper_array__opAssign(array<T, TAlloc> * self, const array< T, TAlloc > & other) {
     return (*self) = other;
-}
-template <class T, typename TAlloc>
-inline bool opErAToRWrapper_array__opEqual(const array<T, TAlloc> * self, const array< T, TAlloc > & other) {
-    return (*self) == other;
-}
-template <class T, typename TAlloc>
-inline bool opErAToRWrapper_array__opNotEqual(const array<T, TAlloc> * self, const array< T, TAlloc > & other) {
-    return (*self) != other;
 }
 template <class T, typename TAlloc>
 inline T & opErAToRWrapper_array__opSubscript(array<T, TAlloc> * self, u32 index) {
@@ -85,10 +78,6 @@ void buildMetaClass_Array(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("swap", &D::ClassType::swap);
     _d.CPGF_MD_TEMPLATE _operator<const array< T, TAlloc > & (*)(cpgf::GMetaSelf, const array< T, TAlloc > &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1>, cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("_opAssign", (const array< T, TAlloc > & (*) (array<T, TAlloc> *, const array< T, TAlloc > &))&opErAToRWrapper_array__opAssign<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1>, cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
-    _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const array< T, TAlloc > &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const array<T, TAlloc> *, const array< T, TAlloc > &))&opErAToRWrapper_array__opEqual<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
-    _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const array< T, TAlloc > &)>(mopHolder != mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const array<T, TAlloc> *, const array< T, TAlloc > &))&opErAToRWrapper_array__opNotEqual<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<T & (*)(cpgf::GMetaSelf, u32)>(mopHolder[0]);
     _d.CPGF_MD_TEMPLATE _method("_opSubscript", (T & (*) (array<T, TAlloc> *, u32))&opErAToRWrapper_array__opSubscript<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<const T & (*)(const cpgf::GMetaSelf &, u32)>(mopHolder[0]);

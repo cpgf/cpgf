@@ -21,7 +21,7 @@ def overrideShaderCallBack(callback) :
 		
 		driver = services.getVideoDriver();
 
-		invWorld = driver.getTransform(irr.ETS_WORLD);
+		invWorld = irr.matrix4(driver.getTransform(irr.ETS_WORLD));
 		invWorld.makeInverse();
 
 		if UseHighLevelShaders :
