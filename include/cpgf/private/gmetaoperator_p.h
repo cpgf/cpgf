@@ -269,6 +269,7 @@ struct GMetaOperatorDataVirtual
 	GMetaExtendType (*getResultExtendType)(uint32_t flags);
 	GMetaExtendType (*getParamExtendType)(uint32_t flags, size_t index);
 	bool (*isVariadic)();
+	bool (*isExplicitThis)();
 	bool (*checkParam)(const GVariant & param, size_t paramIndex);
 	bool (*isParamTransferOwnership)(size_t paramIndex);
 	bool (*isResultTransferOwnership)();
@@ -299,6 +300,7 @@ public:
 	}
 
 	bool isVariadic() const;
+	bool isExplicitThis() const;
 
 	bool checkParam(const GVariant & param, size_t paramIndex) const;
 
@@ -411,6 +413,10 @@ private:
 		return false;
 	}
 
+	static bool virtualIsExplicitThis() {
+		return false;
+	}
+
 	static bool virtualCheckParam(const GVariant & param, size_t paramIndex) {
 		switch(paramIndex) {
 		case 0:
@@ -477,6 +483,7 @@ public:
 			&virtualGetResultExtendType,
 			&virtualGetParamExtendType,
 			&virtualIsVariadic,
+			&virtualIsExplicitThis,
 			&virtualCheckParam,
 			&virtualIsParamTransferOwnership,
 			&virtualIsResultTransferOwnership,
@@ -558,6 +565,10 @@ private:
 		return false;
 	}
 
+	static bool virtualIsExplicitThis() {
+		return false;
+	}
+
 	static bool virtualCheckParam(const GVariant & param, size_t paramIndex) {
 		switch(paramIndex) {
 		case 0:
@@ -620,6 +631,7 @@ public:
 			&virtualGetResultExtendType,
 			&virtualGetParamExtendType,
 			&virtualIsVariadic,
+			&virtualIsExplicitThis,
 			&virtualCheckParam,
 			&virtualIsParamTransferOwnership,
 			&virtualIsResultTransferOwnership,
@@ -685,9 +697,8 @@ private:
 	}
 
 	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
-		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
-			++index;
-		}
+		meta_internal::adjustParamIndex<Policy>(index);
+		
 #define REF_GETPARAM_EXTENDTYPE_HELPER(N, unused) \
 	case N: return createMetaExtendType<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>(flags);
 
@@ -704,6 +715,10 @@ private:
 
 	static bool virtualIsVariadic() {
 		return IsVariadicFunction<FT>::Result;
+	}
+
+	static bool virtualIsExplicitThis() {
+		return PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result;
 	}
 
 #define REF_CHECKPARAM_HELPER(N, unused) \
@@ -806,6 +821,7 @@ public:
 			&virtualGetResultExtendType,
 			&virtualGetParamExtendType,
 			&virtualIsVariadic,
+			&virtualIsExplicitThis,
 			&virtualCheckParam,
 			&virtualIsParamTransferOwnership,
 			&virtualIsResultTransferOwnership,

@@ -118,9 +118,8 @@ private:
 	}
 
 	static GMetaType virtualGetParamType(size_t index) {
-		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
-			++index;
-		}
+		meta_internal::adjustParamIndex<Policy>(index);
+
 		switch(index) {
 			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_TYPE_HELPER, GPP_EMPTY)
 
@@ -139,9 +138,7 @@ private:
 	}
 	
 	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
-		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
-			++index;
-		}
+		meta_internal::adjustParamIndex<Policy>(index);
 		switch(index) {
 			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_EXTENDTYPE_HELPER, GPP_EMPTY)
 

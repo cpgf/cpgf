@@ -74,6 +74,7 @@ protected: \
 	virtual void G_API_CC getResultExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags) { this->doGetResultExtendType(outExtendType, flags); } \
 	virtual void G_API_CC getParamExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags, uint32_t index) { this->doGetParamExtendType(outExtendType, flags, index); } \
 	virtual gapi_bool G_API_CC isVariadic() { return this->doIsVariadic(); } \
+	virtual gapi_bool G_API_CC isExplicitThis() { return this->doIsExplicitThis(); } \
 	virtual gapi_bool G_API_CC checkParam(const GVariantData * param, uint32_t paramIndex) { return this->doCheckParam(param, paramIndex); } \
 	virtual gapi_bool G_API_CC isParamTransferOwnership(uint32_t paramIndex) { return this->doIsParamTransferOwnership(paramIndex); } \
 	virtual gapi_bool G_API_CC isResultTransferOwnership() { return this->doIsResultTransferOwnership(); }
@@ -224,6 +225,7 @@ protected:
 	void doGetResultExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags);
 	void doGetParamExtendType(GMetaExtendTypeData * outExtendType, uint32_t flags, uint32_t index);
 	gapi_bool doIsVariadic();
+	gapi_bool doIsExplicitThis();
 	gapi_bool doCheckParam(const GVariantData * param, uint32_t paramIndex);
 	gapi_bool doIsParamTransferOwnership(uint32_t paramIndex);
 	gapi_bool doIsResultTransferOwnership();
@@ -949,6 +951,15 @@ gapi_bool ImplMetaCallable::doIsVariadic()
 	ENTER_META_API()
 
 	return this->getCallable()->isVariadic();
+
+	LEAVE_META_API(return false)
+}
+
+gapi_bool ImplMetaCallable::doIsExplicitThis()
+{
+	ENTER_META_API()
+
+	return this->getCallable()->isExplicitThis();
 
 	LEAVE_META_API(return false)
 }

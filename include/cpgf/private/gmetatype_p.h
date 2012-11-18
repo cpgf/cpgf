@@ -53,23 +53,27 @@ const unsigned int mtFlagIsConst = 1 << 0;
 const unsigned int mtFlagIsVolatile = 1 << 1;
 const unsigned int mtFlagIsConstVolatile = 1 << 2;
 const unsigned int mtFlagIsReference = 1 << 3;
-const unsigned int mtFlagIsPointer = 1 << 4;
-const unsigned int mtFlagIsPointerToConst = 1 << 5;
-const unsigned int mtFlagIsPointerToVolatile = 1 << 6;
-const unsigned int mtFlagIsPointerToConstVolatile = 1 << 7;
-const unsigned int mtFlagIsFunction = 1 << 8;
-const unsigned int mtFlagIsConstFunction = 1 << 9;
-const unsigned int mtFlagIsVolatileFunction = 1 << 10;
-const unsigned int mtFlagIsConstVolatileFunction = 1 << 11;
-const unsigned int mtFlagBaseIsClass = 1 << 12;
-const unsigned int mtFlagBaseIsArray = 1 << 13;
+const unsigned int mtFlagIsReferenceToConst = 1 << 4;
+const unsigned int mtFlagIsReferenceToVolatile = 1 << 5;
+const unsigned int mtFlagIsReferenceToConstVolatile = 1 << 6;
+const unsigned int mtFlagIsPointer = 1 << 7;
+const unsigned int mtFlagIsPointerToConst = 1 << 8;
+const unsigned int mtFlagIsPointerToVolatile = 1 << 9;
+const unsigned int mtFlagIsPointerToConstVolatile = 1 << 10;
+const unsigned int mtFlagIsFunction = 1 << 11;
+const unsigned int mtFlagIsConstFunction = 1 << 12;
+const unsigned int mtFlagIsVolatileFunction = 1 << 13;
+const unsigned int mtFlagIsConstVolatileFunction = 1 << 14;
+const unsigned int mtFlagBaseIsClass = 1 << 15;
+const unsigned int mtFlagBaseIsArray = 1 << 16;
 
 template <typename T>
 struct GMetaTypeDeduce
 {
 private:
 	typedef typename StripBaseType<T>::Result BaseType;
-	typedef typename StripNonPointer<T>::Result NoCV;
+	typedef typename StripNonPointer<T>::Result PointerNoCV;
+	typedef typename RemoveConstVolatile<T>::Result NoCV;
 
 public:
 	enum {
@@ -77,17 +81,24 @@ public:
 			| (IsConst<T>::Result ? mtFlagIsConst : 0)
 			| (IsVolatile<T>::Result ? mtFlagIsVolatile : 0)
 			| (IsConstVolatile<T>::Result ? mtFlagIsConstVolatile : 0)
-			| (IsConst<typename RemovePointer<NoCV>::Result>::Result ? mtFlagIsPointerToConst : 0)
-			| (IsVolatile<typename RemovePointer<NoCV>::Result>::Result ? mtFlagIsPointerToVolatile : 0)
-			| (IsConstVolatile<typename RemovePointer<NoCV>::Result>::Result ? mtFlagIsPointerToConstVolatile : 0)
-			| (IsClass<BaseType>::Result ? mtFlagBaseIsClass : 0)
-			| (IsArray<BaseType>::Result ? mtFlagBaseIsArray : 0)
+
+			| ((PointerDimension<PointerNoCV>::Result > 0) ? mtFlagIsPointer : 0)
+			| (IsConst<typename RemovePointer<PointerNoCV>::Result>::Result ? mtFlagIsPointerToConst : 0)
+			| (IsVolatile<typename RemovePointer<PointerNoCV>::Result>::Result ? mtFlagIsPointerToVolatile : 0)
+			| (IsConstVolatile<typename RemovePointer<PointerNoCV>::Result>::Result ? mtFlagIsPointerToConstVolatile : 0)
+
+			| (IsReference<NoCV>::Result ? mtFlagIsReference : 0)
+			| (IsConst<typename RemoveReference<NoCV>::Result>::Result ? mtFlagIsReferenceToConst : 0)
+			| (IsVolatile<typename RemoveReference<NoCV>::Result>::Result ? mtFlagIsReferenceToVolatile : 0)
+			| (IsConstVolatile<typename RemoveReference<NoCV>::Result>::Result ? mtFlagIsReferenceToConstVolatile : 0)
+
 			| (IsFunction<T>::Result ? mtFlagIsFunction : 0)
 			| (GFunctionTraits<T>::IsConst ? mtFlagIsConstFunction : 0)
 			| (GFunctionTraits<T>::IsVolatile ? mtFlagIsVolatileFunction : 0)
 			| (GFunctionTraits<T>::IsConstVolatile ? mtFlagIsConstVolatileFunction : 0)
-			| (IsReference<T>::Result ? mtFlagIsReference : 0)
-			| ((PointerDimension<NoCV>::Result > 0) ? mtFlagIsPointer : 0)
+
+			| (IsClass<BaseType>::Result ? mtFlagBaseIsClass : 0)
+			| (IsArray<BaseType>::Result ? mtFlagBaseIsArray : 0)
 	};
 
 	static GTypeInfo getBaseType() {

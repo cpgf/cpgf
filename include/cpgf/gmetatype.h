@@ -123,6 +123,10 @@ public:
 	bool isPointerToVolatile() const;
 	bool isPointerToConstVolatile() const;
 
+	bool isReferenceToConst() const;
+	bool isReferenceToVolatile() const;
+	bool isReferenceToConstVolatile() const;
+
 	bool isPointer() const;
 
 	bool isReference() const;

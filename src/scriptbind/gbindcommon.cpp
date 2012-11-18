@@ -769,6 +769,17 @@ ObjectPointerCV metaTypeToCV(const GMetaType & type)
 			return opcvConstVolatile;
 		}
 	}
+	else if(type.isReference()) {
+		if(type.isReferenceToConst()) {
+			return opcvConst;
+		}
+		else if(type.isReferenceToVolatile()) {
+			return opcvVolatile;
+		}
+		else if(type.isReferenceToConstVolatile()) {
+			return opcvConstVolatile;
+		}
+	}
 	else {
 		if(type.isConst()) {
 			return opcvConst;
@@ -802,19 +813,39 @@ bool allowInvokeCallable(const GScriptConfig & config, const GGlueDataPointer & 
 	
 	ObjectPointerCV cv = getGlueDataCV(glueData);
 	if(cv != opcvNone) {
-		const GMetaType & methodType = metaGetItemType(method);
-		switch(cv) {
-			case opcvConst:
-				return methodType.isConstFunction();
-				
-			case opcvVolatile:
-				return methodType.isVolatileFunction();
-				
-			case opcvConstVolatile:
-				return methodType.isConstVolatileFunction();
-				
-			default:
-				break;
+		if(! method->isExplicitThis()) {
+			// normal function
+			GMetaType methodType = metaGetItemType(method);
+			switch(cv) {
+				case opcvConst:
+					return methodType.isConstFunction();
+					
+				case opcvVolatile:
+					return methodType.isVolatileFunction();
+					
+				case opcvConstVolatile:
+					return methodType.isConstVolatileFunction();
+					
+				default:
+					break;
+			}
+		}
+		else {
+			// "explicit this" function
+			GMetaType selfType = metaGetParamType(method, abstractParameterIndexBase);
+			switch(cv) {
+				case opcvConst:
+					return selfType.isPointerToConst() || selfType.isReferenceToConst();
+					
+				case opcvVolatile:
+					return selfType.isPointerToVolatile() || selfType.isReferenceToVolatile();
+					
+				case opcvConstVolatile:
+					return selfType.isPointerToConstVolatile() || selfType.isReferenceToConstVolatile();
+					
+				default:
+					break;
+			}
 		}
 	}
 	

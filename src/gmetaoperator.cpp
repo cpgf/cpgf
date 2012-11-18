@@ -53,6 +53,11 @@ bool GMetaOperatorDataBase::isVariadic() const
 	return this->virtualFunctions->isVariadic();
 }
 
+bool GMetaOperatorDataBase::isExplicitThis() const
+{
+	return this->virtualFunctions->isExplicitThis();
+}
+
 bool GMetaOperatorDataBase::checkParam(const GVariant & param, size_t paramIndex) const
 {
 	return this->virtualFunctions->checkParam(param, paramIndex);
@@ -198,6 +203,11 @@ GMetaExtendType GMetaOperator::getParamExtendType(uint32_t flags, size_t index) 
 bool GMetaOperator::isVariadic() const
 {
 	return this->baseData->isVariadic();
+}
+
+bool GMetaOperator::isExplicitThis() const
+{
+	return this->baseData->isExplicitThis();
 }
 
 bool GMetaOperator::checkParam(const GVariant & param, size_t paramIndex) const

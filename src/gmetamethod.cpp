@@ -168,6 +168,11 @@ bool GMetaMethod::isVariadic() const
 	return this->baseData->isVariadic();
 }
 
+bool GMetaMethod::isExplicitThis() const
+{
+	return this->baseData->isExplicitThis();
+}
+
 GVariant GMetaMethod::execute(void * instance, const GVariant * params, size_t paramCount) const
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
@@ -264,6 +269,11 @@ GMetaExtendType GMetaConstructor::getParamExtendType(uint32_t flags, size_t inde
 bool GMetaConstructor::isVariadic() const
 {
 	return this->baseData->isVariadic();
+}
+
+bool GMetaConstructor::isExplicitThis() const
+{
+	return false;
 }
 
 GVariant GMetaConstructor::execute(void * /*instance*/, const GVariant * params, size_t paramCount) const

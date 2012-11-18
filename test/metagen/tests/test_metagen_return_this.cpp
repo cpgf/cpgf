@@ -12,6 +12,9 @@ void metagenTest_ReturnThis(TestScriptContext * context)
 	QDO(a = a.selfRef());
 	QASSERT(a.check());
 
+	QNEWOBJ(a, mtest.MetagenReturnThis());
+	QASSERT(a.check());
+
 	QDO(a = a.selfPointer());
 	QASSERT(a.check());
 }

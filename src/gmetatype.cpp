@@ -171,6 +171,23 @@ bool GMetaType::isPointerToConstVolatile() const
 	return this->hasFlag(meta_internal::mtFlagIsPointer | meta_internal::mtFlagIsPointerToConstVolatile);
 }
 
+bool GMetaType::isReferenceToConst() const
+{
+	return this->hasFlag(meta_internal::mtFlagIsReference | meta_internal::mtFlagIsReferenceToConst)
+		&& !this->isReferenceToConstVolatile();
+}
+
+bool GMetaType::isReferenceToVolatile() const
+{
+	return this->hasFlag(meta_internal::mtFlagIsReference | meta_internal::mtFlagIsReferenceToVolatile)
+		&& !this->isReferenceToConstVolatile();
+}
+
+bool GMetaType::isReferenceToConstVolatile() const
+{
+	return this->hasFlag(meta_internal::mtFlagIsReference | meta_internal::mtFlagIsReferenceToConstVolatile);
+}
+
 bool GMetaType::isPointer() const
 {
 	return this->hasFlag(meta_internal::mtFlagIsPointer);
