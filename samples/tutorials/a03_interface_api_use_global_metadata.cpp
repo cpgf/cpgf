@@ -9,10 +9,9 @@ to access meta data in global repository.
 
 // We must include this header to use interface based API.
 #include "cpgf/gmetaapi.h"
-
 #include "cpgf/gmetaapiutil.h"
-
 #include "cpgf/gmetaclass.h"
+#include "cpgf/gscopedinterface.h"
 
 #include <iostream>
 using namespace std;
