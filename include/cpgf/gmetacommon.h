@@ -8,6 +8,7 @@
 #include "cpgf/gclassutil.h"
 #include "cpgf/gmetaextendtype.h"
 #include "cpgf/gapi.h"
+#include "cpgf/gmetapolicy.h"
 
 #include "cpgf/private/gmetacommon_p.h"
 
