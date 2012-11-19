@@ -44,9 +44,5 @@ void virtualBaseMetaDeleter(void * self)
 } // namespace cpgf
 
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
-
 
 #endif

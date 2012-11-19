@@ -29,12 +29,12 @@ public:
         this->byteArray[0] = 0;
     }
 
-    void * getMemory() const {
+    void * getPointer() const {
     	return length > 0 ? const_cast<ByteType *>(&byteArray[0]) : NULL;
     }
 
-    void * getCurrentMemory() const {
-       	return static_cast<uint8_t *>(this->getMemory()) + this->position;
+    void * getCurrentPointer() const {
+       	return static_cast<uint8_t *>(this->getPointer()) + this->position;
     }
 
     void setPosition(size_t position) {
@@ -57,7 +57,7 @@ public:
     	size_t currentPosition = this->position;
         this->position += sizeof(T);
         return *reinterpret_cast<T *>(
-        	static_cast<uint8_t *>(this->getMemory()) + currentPosition
+        	static_cast<uint8_t *>(this->getPointer()) + currentPosition
         );
     }
 
@@ -73,7 +73,7 @@ public:
     	int i = 0;
     	for(;;) {
 	        *reinterpret_cast<T *>(
-    	    	static_cast<uint8_t *>(this->getMemory()) + this->position
+    	    	static_cast<uint8_t *>(this->getPointer()) + this->position
         	) = value;
 	        this->position += sizeof(T);
 
@@ -88,22 +88,22 @@ public:
         }
 
         if(this->position == this->length) {
-        	*static_cast<uint8_t *>(this->getCurrentMemory()) = 0;
+        	*static_cast<uint8_t *>(this->getCurrentPointer()) = 0;
         }
     }
 
     void readBuffer(void * buffer, size_t length)
     {
-        memmove(buffer, this->getCurrentMemory(), length);
+        memmove(buffer, this->getCurrentPointer(), length);
         this->position += length;
     }
     void writeBuffer(const void * buffer, size_t length)
     {
         this->needSpace(length);
-        memmove(this->getCurrentMemory(), buffer, length);
+        memmove(this->getCurrentPointer(), buffer, length);
         this->position += length;
         if(this->position == this->length) {
-        	*static_cast<uint8_t *>(this->getCurrentMemory()) = 0;
+        	*static_cast<uint8_t *>(this->getCurrentPointer()) = 0;
         }
     }
 
@@ -141,14 +141,14 @@ GMetaByteArray::~GMetaByteArray()
 {
 }
 
-void * GMetaByteArray::getMemory() const
+void * GMetaByteArray::getPointer() const
 {
-	return this->implement->getMemory();
+	return this->implement->getPointer();
 }
 
-void * GMetaByteArray::getCurrentMemory() const
+void * GMetaByteArray::getCurrentPointer() const
 {
-	return this->implement->getCurrentMemory();
+	return this->implement->getCurrentPointer();
 }
 
 size_t GMetaByteArray::getPosition() const

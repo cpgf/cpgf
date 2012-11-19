@@ -22,7 +22,7 @@ void buildMetaClass_Global_irrcompileconfig(const cpgf::GMetaDataConfigFlags & c
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalDefine_irrlicht_3")
+    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalDefine_irrlicht_6")
     ;
 }
 

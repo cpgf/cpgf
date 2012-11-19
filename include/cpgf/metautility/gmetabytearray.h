@@ -20,8 +20,8 @@ public:
     explicit GMetaByteArray(size_t length);
 	~GMetaByteArray();
 
-    void * getMemory() const;
-    void * getCurrentMemory() const;
+    void * getPointer() const;
+    void * getCurrentPointer() const;
 
     size_t getPosition() const;
     void setPosition(size_t position);

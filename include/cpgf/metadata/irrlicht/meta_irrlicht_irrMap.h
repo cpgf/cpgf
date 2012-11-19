@@ -58,14 +58,10 @@ void buildMetaClass_Map(const cpgf::GMetaDataConfigFlags & config, D _d)
         _nd.CPGF_MD_TEMPLATE _method("atEnd", &map<KeyType, ValueType >::Iterator::atEnd);
         _nd.CPGF_MD_TEMPLATE _method("getNode", &map<KeyType, ValueType >::Iterator::getNode);
         _nd.CPGF_MD_TEMPLATE _operator<typename map<KeyType, ValueType >::Iterator& (*)(cpgf::GMetaSelf, const typename map<KeyType, ValueType >::Iterator&)>(mopHolder = mopHolder);
-        _nd.CPGF_MD_TEMPLATE _method("_opAssign", (typename map<KeyType, ValueType >::Iterator& (*) (map::Iterator *, const typename map<KeyType, ValueType >::Iterator&))&opErAToRWrapper_map_Iterator__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
         _nd.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf)>(mopHolder++);
-        _nd.CPGF_MD_TEMPLATE _method("_opIncSuffix", (void (*) (map::Iterator *))&opErAToRWrapper_map_Iterator__opIncSuffix, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
         _nd.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf)>(mopHolder--);
-        _nd.CPGF_MD_TEMPLATE _method("_opDecSuffix", (void (*) (map::Iterator *))&opErAToRWrapper_map_Iterator__opDecSuffix, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
         _nd.CPGF_MD_TEMPLATE _operator<typename map<KeyType, ValueType >::Node* (*)(cpgf::GMetaSelf)>(mopHolder -> mopHolder);
         _nd.CPGF_MD_TEMPLATE _operator<typename map<KeyType, ValueType >::Node& (*)(cpgf::GMetaSelf)>(*mopHolder);
-        _nd.CPGF_MD_TEMPLATE _method("_opDerefer", (typename map<KeyType, ValueType >::Node& (*) (map::Iterator *))&opErAToRWrapper_map_Iterator__opDerefer, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
@@ -76,12 +72,9 @@ void buildMetaClass_Map(const cpgf::GMetaDataConfigFlags & config, D _d)
         _nd.CPGF_MD_TEMPLATE _method("atEnd", &map<KeyType, ValueType >::ParentFirstIterator::atEnd);
         _nd.CPGF_MD_TEMPLATE _method("getNode", &map<KeyType, ValueType >::ParentFirstIterator::getNode);
         _nd.CPGF_MD_TEMPLATE _operator<typename map<KeyType, ValueType >::ParentFirstIterator& (*)(cpgf::GMetaSelf, const typename map<KeyType, ValueType >::ParentFirstIterator&)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-        _nd.CPGF_MD_TEMPLATE _method("_opAssign", (typename map<KeyType, ValueType >::ParentFirstIterator& (*) (map::ParentFirstIterator *, const typename map<KeyType, ValueType >::ParentFirstIterator&))&opErAToRWrapper_map_ParentFirstIterator__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
         _nd.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf)>(mopHolder++);
-        _nd.CPGF_MD_TEMPLATE _method("_opIncSuffix", (void (*) (map::ParentFirstIterator *))&opErAToRWrapper_map_ParentFirstIterator__opIncSuffix, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
         _nd.CPGF_MD_TEMPLATE _operator<typename map<KeyType, ValueType >::Node* (*)(cpgf::GMetaSelf)>(mopHolder -> mopHolder);
         _nd.CPGF_MD_TEMPLATE _operator<typename map<KeyType, ValueType >::Node& (*)(cpgf::GMetaSelf)>(*mopHolder);
-        _nd.CPGF_MD_TEMPLATE _method("_opDerefer", (typename map<KeyType, ValueType >::Node& (*) (map::ParentFirstIterator *))&opErAToRWrapper_map_ParentFirstIterator__opDerefer, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
     {
@@ -92,12 +85,9 @@ void buildMetaClass_Map(const cpgf::GMetaDataConfigFlags & config, D _d)
         _nd.CPGF_MD_TEMPLATE _method("atEnd", &map<KeyType, ValueType >::ParentLastIterator::atEnd);
         _nd.CPGF_MD_TEMPLATE _method("getNode", &map<KeyType, ValueType >::ParentLastIterator::getNode);
         _nd.CPGF_MD_TEMPLATE _operator<typename map<KeyType, ValueType >::ParentLastIterator& (*)(cpgf::GMetaSelf, const typename map<KeyType, ValueType >::ParentLastIterator&)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-        _nd.CPGF_MD_TEMPLATE _method("_opAssign", (typename map<KeyType, ValueType >::ParentLastIterator& (*) (map::ParentLastIterator *, const typename map<KeyType, ValueType >::ParentLastIterator&))&opErAToRWrapper_map_ParentLastIterator__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
         _nd.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf)>(mopHolder++);
-        _nd.CPGF_MD_TEMPLATE _method("_opIncSuffix", (void (*) (map::ParentLastIterator *))&opErAToRWrapper_map_ParentLastIterator__opIncSuffix, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
         _nd.CPGF_MD_TEMPLATE _operator<typename map<KeyType, ValueType >::Node* (*)(cpgf::GMetaSelf)>(mopHolder -> mopHolder);
         _nd.CPGF_MD_TEMPLATE _operator<typename map<KeyType, ValueType >::Node& (*)(cpgf::GMetaSelf)>(*mopHolder);
-        _nd.CPGF_MD_TEMPLATE _method("_opDerefer", (typename map<KeyType, ValueType >::Node& (*) (map::ParentLastIterator *))&opErAToRWrapper_map_ParentLastIterator__opDerefer, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
         _d.CPGF_MD_TEMPLATE _class(_nd);
     }
 }

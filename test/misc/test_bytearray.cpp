@@ -46,7 +46,7 @@ void testByteArrayNullEnd(T * byteArray)
     byteArray->writeInt8(1);
     byteArray->writeInt8(2);
 
-    p = (char *)(byteArray->getMemory());
+    p = (char *)(byteArray->getPointer());
     GDIFF(*(p + 1), 0);
 
     byteArray->setLength(1);
@@ -54,7 +54,7 @@ void testByteArrayNullEnd(T * byteArray)
 
     byteArray->writeInt8(1);
 
-    p = (char *)(byteArray->getMemory());
+    p = (char *)(byteArray->getPointer());
     GEQUAL(*(p + 1), 0);
 }
 

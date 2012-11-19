@@ -203,6 +203,7 @@ public class WriterUtil {
 			&& !metaInfo.getCallbackClassMap().getData(op).isSkipBind()
 			&& !op.isTemplate()
 			&& !op.getOwner().isGlobal()
+			&& (op.getOwner().getOwner() == null || op.getOwner().getOwner().isGlobal()) // must be top level class, not nested class
 			&& !op.getOperator().equals("->")
 			&& !op.isTypeConverter()
 		;

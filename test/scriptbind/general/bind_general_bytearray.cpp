@@ -15,7 +15,7 @@ void testByteArrayInScript(TestScriptContext * context)
 	QASSERT(a.readInt32() == 38)
 	QASSERT(a.readInt32() == 38 * 2)
 
-	QDO(writeNumberToByteArrayMemory(53, a.getMemory()))
+	QDO(writeNumberToByteArrayMemory(53, a.getPointer()))
 	QDO(a.position = 0)
 	QASSERT(a.readInt32() == 53)
 	QASSERT(a.readInt32() == 53 * 2)

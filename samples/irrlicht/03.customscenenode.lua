@@ -38,7 +38,7 @@ function overrideISceneNode(node)
 
 		driver.setMaterial(Material);
 		driver.setTransform(irr.ETS_WORLD, me.getAbsoluteTransformation());
-		driver.drawVertexPrimitiveList(Vertices.getItem(0), 4, indicesByteArray.getMemory(), 4, irr.EVT_STANDARD, irr.EPT_TRIANGLES, irr.EIT_16BIT);
+		driver.drawVertexPrimitiveList(Vertices.getItem(0), 4, indicesByteArray.getPointer(), 4, irr.EVT_STANDARD, irr.EPT_TRIANGLES, irr.EIT_16BIT);
 	end
 
 	node.getBoundingBox = function(me)

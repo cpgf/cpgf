@@ -17,8 +17,8 @@ namespace metadata_internal {
 template <typename T, typename MetaDefine>
 void doBuildMetaData_byteArray(const GMetaDataConfigFlags & config, MetaDefine define)
 {
-	M(T, getMemory)
-	M(T, getCurrentMemory)
+	M(T, getPointer)
+	M(T, getCurrentPointer)
 	
 	M(T, getPosition)
 	M(T, setPosition)

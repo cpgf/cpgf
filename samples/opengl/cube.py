@@ -145,7 +145,7 @@ def drawString(s) :
 	positionList.writeFloat32(-0.6)
 	positionList.writeFloat32(-0.5)
 	positionList.writeFloat32(0.5)
-	gl.glRasterPos3fv(positionList.getMemory())
+	gl.glRasterPos3fv(positionList.getPointer())
 	for i in range(0, len(s)) :
 		gl.glutBitmapCharacter(gl.GLUT_BITMAP_TIMES_ROMAN_24, ord(s[i]))
 	gl.glEnable(gl.GL_LIGHTING)
@@ -168,10 +168,10 @@ def render() :
 	gl.glPushMatrix()
 	gl.glTranslatef(translateX, translateY, 0)
 	gl.glRotatef(rotate, 1, 0, 1)
-	gl.glVertexPointer(3, gl.GL_FLOAT, 0, vertexList.getMemory())
-	gl.glColorPointer(3, gl.GL_FLOAT, 0, colorList.getMemory())
-	gl.glNormalPointer(gl.GL_FLOAT, 0, normalList.getMemory())
-	gl.glDrawElements(gl.GL_QUADS, 24, gl.GL_UNSIGNED_INT, indexList.getMemory())
+	gl.glVertexPointer(3, gl.GL_FLOAT, 0, vertexList.getPointer())
+	gl.glColorPointer(3, gl.GL_FLOAT, 0, colorList.getPointer())
+	gl.glNormalPointer(gl.GL_FLOAT, 0, normalList.getPointer())
+	gl.glDrawElements(gl.GL_QUADS, 24, gl.GL_UNSIGNED_INT, indexList.getPointer())
 	drawString("Python+OpenGL=Whoa!")
 	gl.glPopMatrix()
 	gl.glDisableClientState(gl.GL_VERTEX_ARRAY)
@@ -252,10 +252,10 @@ def initLights() :
 	lightPosition.writeFloat32(-1) 
 	lightPosition.writeFloat32(1)
 	
-	gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, lightAmbient.getMemory())
-	gl.glLightfv(gl.GL_LIGHT0, gl.GL_DIFFUSE, lightDiffuse.getMemory())
-	gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPECULAR, lightSpecular.getMemory())
-	gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, lightPosition.getMemory())
+	gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, lightAmbient.getPointer())
+	gl.glLightfv(gl.GL_LIGHT0, gl.GL_DIFFUSE, lightDiffuse.getPointer())
+	gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPECULAR, lightSpecular.getPointer())
+	gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, lightPosition.getPointer())
 	gl.glEnable(gl.GL_LIGHT0)
 
 def start() :
