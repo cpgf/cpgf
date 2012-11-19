@@ -72,6 +72,7 @@ my $patternList = [
 
 		path => "test",
 		files => [ '*.h', '*.cpp' ],
+		excludePath => [ 'xml' ],
 		recursive => 1,
 	},
 

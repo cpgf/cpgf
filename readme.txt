@@ -6,7 +6,7 @@ It's written in standard C++ and doesn't require any preprocess or tools.
 
 
 Version:
-	1.5.1
+	1.5.2
 
 		
 Libraries:
@@ -25,9 +25,10 @@ Libraries:
 	
 	cpgf meta data collection -- a library with built-in meta data support.
 		Now there are meta data for C++ STL, OpenGL, OpenGLU, OpenGLUT,
-		Box2D physical engine and SFML graphics and multimedia engine.
+		Box2D physical engine, SFML graphics and multimedia engine and Irrlicht
+		3D render engine.
 		
-	cpgf meta data generator tool -- a Perl script to automatically generate
+	cpgf meta data generator tool -- a tool writen in Java to automatically generate
 		meta data from Doxygen XML files.
 	
 License:
@@ -93,7 +94,7 @@ Build the library:
 	To build with Google V8 Javascript binding, you must change the variable HAS_V8 and V8_DIR
 	in build.config.txt to point to the source code of V8.
 
-	To build with Lua binding, you must change the variable HAS_PYTHON and PYTHON_DIR
+	To build with Python binding, you must change the variable HAS_PYTHON and PYTHON_DIR
 	in build.config.txt to point to the source code of Python.
 	
 	To build the unit test and sample code, feed a second parameter
@@ -101,10 +102,16 @@ Build the library:
 	make PLATFORM TARGET=TheTarget
 
 	TheTarget can be,
-	lib -- Build the library. This is the default if TARGET is omitted.
-	test -- Build the unit test.
-	samplereflection -- Build the reflection sample application.
-	samplelua -- Build the Lua binding sample application.
+	TARGET=lib                   Build the library. This is the default if TARGET is omitted.
+	TARGET=tutorials             Build the tutorials.
+	TARGET=test                  Build the unit test.
+	TARGET=samplereflection      Build the reflection sample application.
+	TARGET=sampleserialization   Build the serialization sample application.
+	TARGET=samplelua             Build the Lua binding sample application.
+	TARGET=sampleopengl          Build the Opengl binding sample application.
+	TARGET=samplebox2d           Build the Box2D binding sample application.
+	TARGET=samplesfml            Build the SFML binding sample application.
+	TARGET=sampleirrlicht        Build the Irrlicht binding sample application.
 	
 
 Compatibility -- Tested compilers and OSes:
