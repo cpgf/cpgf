@@ -1,4 +1,3 @@
-Know issues:
+Sample code for cpgf Irrlicht script binding
 
-No template instialization for irr::array.
-10.shaders.py doesn't render the shader correct.
+Enjoy it!

@@ -12,6 +12,7 @@ world = None;
 def overrideShaderCallBack(callback) :
 	def OnSetConstants(me, services, userData) :
 		global UseHighLevelShaders;
+		global device;
 		
 		global invWorld;
 		global worldViewProj;
@@ -67,12 +68,20 @@ def overrideShaderCallBack(callback) :
 	callback.OnSetConstants = OnSetConstants;
 
 def start() :
+	global UseHighLevelShaders;
+	global device;
+		
+	global invWorld;
+	global worldViewProj;
+	global pos;
+	global col;
+	global world;
+	
 	driverType= irr.driverChoiceConsole();
 	if driverType==irr.EDT_COUNT :
 		return 1;
 
-	if driverType == irr.EDT_DIRECT3D9 or driverType == irr.EDT_OPENGL :
-		device = irr.createDevice(driverType, irr.dimension2d_u32(640, 480));
+	device = irr.createDevice(driverType, irr.dimension2d_u32(640, 480));
 
 	if device == None :
 		return 1;
@@ -112,8 +121,8 @@ def start() :
 
 
 	gpu = driver.getGPUProgrammingServices();
-	newMaterialType1 = 0;
-	newMaterialType2 = 0;
+	newMaterialType1 = None;
+	newMaterialType2 = None;
 
 	mc = None;
 	if gpu != None :
