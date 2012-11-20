@@ -81,6 +81,9 @@ def start() :
 	if driverType==irr.EDT_COUNT :
 		return 1;
 
+	if driverType == irr.EDT_DIRECT3D9 or driverType == irr.EDT_OPENGL :
+		UseHighLevelShaders = True;
+
 	device = irr.createDevice(driverType, irr.dimension2d_u32(640, 480));
 
 	if device == None :

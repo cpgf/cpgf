@@ -77,11 +77,9 @@ function start()
 		return 1;
 
 	// ask the user if we should use high level shaders for this example
-	if (driverType == irr.EDT_DIRECT3D9 ||
-		 driverType == irr.EDT_OPENGL)
+	if (driverType == irr.EDT_DIRECT3D9 || driverType == irr.EDT_OPENGL)
 	{
-// doesn't work :(
-//		UseHighLevelShaders = true;
+		UseHighLevelShaders = true;
 	}
 
 	// create device

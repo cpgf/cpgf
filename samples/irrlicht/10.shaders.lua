@@ -64,8 +64,8 @@ function start()
 	end
 
 	if driverType == irr.EDT_DIRECT3D9 or driverType == irr.EDT_OPENGL then
+		UseHighLevelShaders = true;
 	end
-
 
 	device = irr.createDevice(driverType, irr.dimension2d_u32(640, 480));
 

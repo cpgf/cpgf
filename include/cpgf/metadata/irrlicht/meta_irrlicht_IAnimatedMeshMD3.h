@@ -59,6 +59,8 @@ void buildMetaClass_Global_ianimatedmeshmd3(const cpgf::GMetaDataConfigFlags & c
         ._element("EMD3_LEGS_TURN", irr::scene::EMD3_LEGS_TURN)
         ._element("EMD3_ANIMATION_COUNT", irr::scene::EMD3_ANIMATION_COUNT)
     ;
+    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalDefine_irrlicht_7")
+    ;
 }
 
 
