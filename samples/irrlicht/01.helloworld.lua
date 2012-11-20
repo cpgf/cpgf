@@ -5,7 +5,7 @@ function start()
 		return 1
 	end
 
-	device.setWindowCaption("Hello World! - cpgf Irrlicht Script Binding Demo")
+	device.setWindowCaption("Hello World! - cpgf Irrlicht Lua Binding Demo")
 
 	local driver = device.getVideoDriver()
 	local smgr = device.getSceneManager()

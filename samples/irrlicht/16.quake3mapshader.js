@@ -1,4 +1,5 @@
 cpgf.import(null, "builtin.core");
+cpgf.import(null, "builtin.collections.bytearray");
 
 /*
 A class to produce a series of screenshots
@@ -188,7 +189,40 @@ function start()
 		we choose a random launch
 	*/
 
-	// this part is not supported yet due to the use of quake3::getAsVector3df, which second parameter is a non-const reference
+	if ( mesh )
+	{
+		var entityList = mesh.getEntityList();
+
+		var se = new irr.IShader();
+		se.name = "info_player_deathmatch";
+
+		var index = entityList.binary_search(se);
+		if (index >= 0)
+		{
+			var notEndList;
+			do
+			{
+				var group = entityList._opSubscript(index).getGroup(1);
+
+				var parsepos = cpgf.createByteArray(8);
+				parsepos.writeInt32(0);
+				var pos = irr.getAsVector3df(group.get("origin"), parsepos.getPointer());
+
+				parsepos.setPosition(0);
+				parsepos.writeInt32(0);
+				var angle = irr.getAsFloat(group.get("angle"), parsepos.getPointer());
+
+				var target = new irr.vector3df(0.0, 0.0, 1.0);
+				target.rotateXZBy(angle);
+
+				camera.setPosition(pos);
+				camera.setTarget(pos._opAdd(target));
+
+				++index;
+				notEndList = (index == 2);
+			} while ( notEndList );
+		}
+	}
 
 	/*
 	The mouse cursor needs not to be visible, so we make it invisible.

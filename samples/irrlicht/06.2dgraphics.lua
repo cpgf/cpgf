@@ -10,7 +10,7 @@ function start()
 		return 1;
 	end
 
-	device.setWindowCaption("cpgf Irrlicht Script Binding - 2D Graphics Demo");
+	device.setWindowCaption("cpgf Irrlicht Lua Binding - 2D Graphics Demo");
 
 	local driver = device.getVideoDriver();
 

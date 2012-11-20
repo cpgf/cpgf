@@ -1,6 +1,6 @@
 cpgf._import(None, "builtin.debug");
 
-resourcePath = "E:/SourceCode/CPP/irrlicht-1.7.3/media/";
+resourcePath = "../../media/";
 ID_IsNotPickable = 0;
 IDFlag_IsPickable = 1;
 IDFlag_IsHighlightable = 2;
@@ -145,7 +145,7 @@ def start() :
 			fps = driver.getFPS();
 
 			if lastFPS != fps :
-				tmp = "Collision detection example - cpgf Irrlicht Script Binding [";
+				tmp = "Collision detection example - cpgf Irrlicht Python Binding [";
 				tmp = tmp + driver.getName();
 				tmp = tmp + "] FPS:";
 				tmp = tmp + str(fps);

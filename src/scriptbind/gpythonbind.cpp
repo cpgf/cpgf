@@ -1049,9 +1049,10 @@ int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * valu
 
 PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 {
-	if(PyObject_HasAttr(cppObject->ob_type->tp_dict, attrName)) {
-		return PyObject_GetAttr(cppObject->ob_type->tp_dict, attrName);
-	}
+// If we enable blow code, some common method names such as "get" will be intercepted by Python.
+//	if(PyObject_HasAttr(cppObject->ob_type->tp_dict, attrName)) {
+//		return PyObject_GetAttr(cppObject->ob_type->tp_dict, attrName);
+//	}
 
 	const char * name = PyString_AsString(attrName);
 	return namedMemberToScript<GPythonMethods>(cppObject->getData(), name);

@@ -384,7 +384,7 @@ function start()
 
 		if (lastFPS != fps)
 		{
-			var str = "Per pixel lighting example - cpgf Irrlicht Script Binding [";
+			var str = "Per pixel lighting example - cpgf Irrlicht JavaScript Binding [";
 			str = str + driver.getName();
 			str = str + "] FPS:";
 			str = str + fps;

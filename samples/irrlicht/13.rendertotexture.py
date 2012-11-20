@@ -87,7 +87,7 @@ def start() :
 
 			fps = driver.getFPS();
 			if lastFPS != fps :
-				tmp = "cpgf Irrlicht Script Binding - Render to Texture and Specular Highlights example";
+				tmp = "cpgf Irrlicht Python Binding - Render to Texture and Specular Highlights example";
 				tmp = tmp + " FPS:";
 				tmp = tmp + str(fps);
 

@@ -68,7 +68,7 @@ function start()
 		return 1;
 	end
 
-	device.setWindowCaption("Custom Scene Node - cpgf Irrlicht script binding Demo");
+	device.setWindowCaption("Custom Scene Node - cpgf Irrlicht Lua binding Demo");
 
 	local driver = device.getVideoDriver();
 	local smgr = device.getSceneManager();
@@ -97,7 +97,7 @@ function start()
 		frames = frames + 1;
 		if frames == 100 then
 
-			local str = "cpgf Irrlicht Script Binding Demo [";
+			local str = "cpgf Irrlicht Lua Binding Demo [";
 			str = str .. driver.getName();
 			str = str .. "] FPS:";
 			str = str .. driver.getFPS();

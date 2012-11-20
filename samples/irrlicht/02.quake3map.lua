@@ -41,7 +41,7 @@ function start()
 			local fps = driver.getFPS();
 
 			if lastFPS ~= fps then
-				local tmp = "cpgf Irrlicht Script Binding Demo - Quake 3 Map example [";
+				local tmp = "cpgf Irrlicht Lua Binding Demo - Quake 3 Map example [";
 				tmp = tmp .. driver.getName();
 				tmp = tmp .. "] fps: ";
 				tmp = tmp .. fps;

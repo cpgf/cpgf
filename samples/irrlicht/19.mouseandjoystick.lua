@@ -56,7 +56,7 @@ function start()
 		return 1;
 	end
 
-	local tmp = "cpgf Irrlicht Script Binding Joystick Example";
+	local tmp = "cpgf Irrlicht Lua Binding Joystick Example";
 	device.setWindowCaption(tmp);
 
 	local driver = device.getVideoDriver();

@@ -508,7 +508,7 @@ def start() :
 
 	Device.setResizable(True);
 
-	Device.setWindowCaption("cpgf Irrlicht Script Binding - Loading...");
+	Device.setWindowCaption("cpgf Irrlicht Python Binding - Loading...");
 
 	driver = Device.getVideoDriver();
 	env = Device.getGUIEnvironment();

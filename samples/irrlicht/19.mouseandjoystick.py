@@ -48,7 +48,7 @@ def start() :
 	if device == None :
 		return 1;
 
-	tmp = "cpgf Irrlicht Script Binding Joystick Example";
+	tmp = "cpgf Irrlicht Python Binding Joystick Example";
 	device.setWindowCaption(tmp);
 
 	driver = device.getVideoDriver();

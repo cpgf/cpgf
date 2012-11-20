@@ -102,7 +102,7 @@ function start()
 			local fps = driver.getFPS();
 
 			if lastFPS ~= fps then
-				local str = "cpgf Irrlicht Script Binding - SpecialFX example [";
+				local str = "cpgf Irrlicht Lua Binding - SpecialFX example [";
 				str = str .. driver.getName();
 				str = str .. "] FPS:";
 				str = str .. fps;

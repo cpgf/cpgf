@@ -124,7 +124,7 @@ function start()
 
 			local fps = driver.getFPS();
 			if lastFPS ~= fps then
-				local tmp = "Terrain Renderer - cpgf Irrlicht Script Binding [";
+				local tmp = "Terrain Renderer - cpgf Irrlicht Lua Binding [";
 				tmp = tmp .. driver.getName();
 				tmp = tmp .. "] FPS:";
 				tmp = tmp .. fps;

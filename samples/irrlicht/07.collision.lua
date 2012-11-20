@@ -1,4 +1,4 @@
-local resourcePath = "E:/SourceCode/CPP/irrlicht-1.7.3/media/";
+local resourcePath = "../../media/";
 local ID_IsNotPickable = 0;
 local IDFlag_IsPickable = 1;
 local IDFlag_IsHighlightable = 2;
@@ -146,7 +146,7 @@ function start()
 
 			if lastFPS ~= fps then
 
-				local str = "Collision detection example - cpgf Irrlicht Script Binding [";
+				local str = "Collision detection example - cpgf Irrlicht Lua Binding [";
 				str = str .. driver.getName();
 				str = str .. "] FPS:";
 				str = str .. fps;

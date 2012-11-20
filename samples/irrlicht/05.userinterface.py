@@ -68,7 +68,7 @@ def start() :
 		return 1;
 
 
-	device.setWindowCaption("cpgf Irrlicht Script Binding - User Interface Demo");
+	device.setWindowCaption("cpgf Irrlicht Python Binding - User Interface Demo");
 	device.setResizable(True);
 
 	driver = device.getVideoDriver();

@@ -184,7 +184,7 @@ def start() :
 			fps = driver.getFPS();
 
 			if lastFPS != fps :
-				tmp = "cpgf Irrlicht Script Binding - Vertex and pixel shader example [";
+				tmp = "cpgf Irrlicht Python Binding - Vertex and pixel shader example [";
 				tmp = tmp + driver.getName();
 				tmp = tmp + "] FPS:";
 				tmp = tmp + str(fps);

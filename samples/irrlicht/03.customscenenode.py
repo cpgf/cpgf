@@ -71,7 +71,7 @@ def start() :
 	if device == None :
 		return 1;
 
-	device.setWindowCaption("Custom Scene Node - cpgf Irrlicht script binding Demo");
+	device.setWindowCaption("Custom Scene Node - cpgf Irrlicht Python binding Demo");
 
 	driver = device.getVideoDriver();
 	smgr = device.getSceneManager();
@@ -99,7 +99,7 @@ def start() :
 		frames = frames + 1;
 		if frames == 100 :
 
-			tmp = "cpgf Irrlicht Script Binding Demo [";
+			tmp = "cpgf Irrlicht Python Binding Demo [";
 			tmp = tmp + driver.getName();
 			tmp = tmp + "] FPS:";
 			tmp = tmp + str(driver.getFPS());

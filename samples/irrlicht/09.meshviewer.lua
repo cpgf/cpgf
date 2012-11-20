@@ -518,7 +518,7 @@ function start()
 
 	Device.setResizable(true);
 
-	Device.setWindowCaption("cpgf Irrlicht Script Binding - Loading...");
+	Device.setWindowCaption("cpgf Irrlicht Lua Binding - Loading...");
 
 	local driver = Device.getVideoDriver();
 	local env = Device.getGUIEnvironment();

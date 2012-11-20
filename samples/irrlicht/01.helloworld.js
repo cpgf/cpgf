@@ -5,7 +5,7 @@ function start()
 	if (!device)
 		return 1;
 
-	device.setWindowCaption("Hello World! - cpgf Irrlicht Script Binding Demo");
+	device.setWindowCaption("Hello World! - cpgf Irrlicht JavaScript Binding Demo");
 
 	var driver = device.getVideoDriver();
 	var smgr = device.getSceneManager();

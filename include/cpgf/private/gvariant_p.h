@@ -41,7 +41,7 @@ bool isNotPointer() {
 
 template <typename T>
 bool isNotFundamental() {
-	return ! IsFundamental<typename RemoveReference<T>::Result>::Result;
+	return ! IsFundamental<T>::Result;
 }
 
 template <typename From, typename To>

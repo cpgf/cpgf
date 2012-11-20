@@ -88,7 +88,7 @@ function start()
 
 		if driver.getFPS() ~= lastFPS then
 			lastFPS = driver.getFPS();
-			local tmp = "cpgf Irrlicht Script Binding SplitScreen-Example (FPS: ";
+			local tmp = "cpgf Irrlicht Lua Binding SplitScreen-Example (FPS: ";
 			tmp = tmp .. lastFPS;
 			tmp = tmp .. ")";
 			device.setWindowCaption(tmp);

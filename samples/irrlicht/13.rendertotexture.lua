@@ -93,7 +93,7 @@ function start()
 
 			local fps = driver.getFPS();
 			if lastFPS ~= fps then
-				local tmp = "cpgf Irrlicht Script Binding - Render to Texture and Specular Highlights example";
+				local tmp = "cpgf Irrlicht Lua Binding - Render to Texture and Specular Highlights example";
 				tmp = tmp .. " FPS:";
 				tmp = tmp .. fps;
 

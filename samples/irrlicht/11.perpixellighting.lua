@@ -237,7 +237,7 @@ function start()
 			local fps = driver.getFPS();
 
 			if lastFPS ~= fps then
-				local tmp = "Per pixel lighting example - cpgf Irrlicht Script Binding [";
+				local tmp = "Per pixel lighting example - cpgf Irrlicht Lua Binding [";
 				tmp = tmp .. driver.getName();
 				tmp = tmp .. "] FPS:";
 				tmp = tmp .. fps;

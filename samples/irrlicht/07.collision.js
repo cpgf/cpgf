@@ -1,4 +1,4 @@
-var resourcePath = "E:/SourceCode/CPP/irrlicht-1.7.3/media/";
+var resourcePath = "../../media/";
 
 // I use this ISceneNode ID to indicate a scene node that is
 // not pickable by getSceneNodeAndCollisionPointFromRay()
@@ -260,7 +260,7 @@ function start()
 
 		if(lastFPS != fps)
 		{
-			var str = "Collision detection example - cpgf Irrlicht Script Binding [";
+			var str = "Collision detection example - cpgf Irrlicht JavaScript Binding [";
 			str = str + driver.getName();
 			str = str + "] FPS:";
 			str = str + fps;

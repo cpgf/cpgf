@@ -37,7 +37,7 @@ def start() :
 			fps = driver.getFPS();
 
 			if lastFPS != fps :
-				tmp = "cpgf Irrlicht Script Binding Demo - Quake 3 Map example [";
+				tmp = "cpgf Irrlicht Python Binding Demo - Quake 3 Map example [";
 				tmp = tmp + driver.getName();
 				tmp = tmp + "] fps: ";
 				tmp = tmp + str(fps);

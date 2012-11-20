@@ -69,6 +69,9 @@ GTEST(TestVariant_Cast)
 	CLASS * & rpobj = pobj;
 	CAN_FROM_CAST(CLASS *, CLASS * &, rpobj);
 	CAN_FROM_CAST(CLASS * &, CLASS *, NULL);
+	
+	CAN_FROM_CAST(CLASS &, CLASS *, NULL);
+	CAN_FROM_CAST(int &, void *, NULL);
 
 	GVarTypeData typeData = GVarTypeData();
 	deduceVariantType<CLASS * & >(typeData, true);

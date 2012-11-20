@@ -1,4 +1,6 @@
 cpgf._import(None, "builtin.core");
+cpgf._import(None, "builtin.collections.bytearray");
+cpgf._import(None, "builtin.debug");
 
 def overrideScreenShotFactory(screenshotFactory, device, templateName, node) :
 	Device = device;
@@ -73,6 +75,35 @@ def start() :
 
 	camera = smgr.addCameraSceneNodeFPS();
 
+	if mesh :
+		entityList = mesh.getEntityList();
+
+		se = irr.IShader();
+		se.name = "info_player_deathmatch";
+
+		index = entityList.binary_search(se);
+		if index >= 0 :
+			notEndList = 1;
+			while notEndList :
+				group = entityList._opSubscript(index).getGroup(1);
+
+				parsepos = cpgf.createByteArray(8);
+				parsepos.writeInt32(0);
+				pos = irr.getAsVector3df(group.get("origin"), parsepos.getPointer());
+
+				parsepos.setPosition(0);
+				parsepos.writeInt32(0);
+				angle = irr.getAsFloat(group.get("angle"), parsepos.getPointer());
+
+				target = irr.vector3df(0.0, 0.0, 1.0);
+				target.rotateXZBy(angle);
+
+				camera.setPosition(pos);
+				camera.setTarget(pos._opAdd(target));
+
+				index = index + 1;
+				notEndList = (index == 2);
+	
 	device.getCursorControl().setVisible(False);
 
 	gui.addImage(driver.getTexture("irrlichtlogo2.png"), irr.position2d_s32(10, 10));

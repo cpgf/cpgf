@@ -118,7 +118,7 @@ def start() :
 
 			fps = driver.getFPS();
 			if lastFPS != fps :
-				tmp = "Terrain Renderer - cpgf Irrlicht Script Binding [";
+				tmp = "Terrain Renderer - cpgf Irrlicht Python Binding [";
 				tmp = tmp + driver.getName();
 				tmp = tmp + "] FPS:";
 				tmp = tmp + str(fps);

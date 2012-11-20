@@ -71,7 +71,7 @@ function start()
 
 	// create engine and camera
 
-	device.setWindowCaption("Custom Scene Node - cpgf Irrlicht script binding Demo");
+	device.setWindowCaption("Custom Scene Node - cpgf Irrlicht JavaScript binding Demo");
 
 	var driver = device.getVideoDriver();
 	var smgr = device.getSceneManager();
@@ -139,7 +139,7 @@ function start()
 		driver.endScene();
 		if(++frames == 100)
 		{
-			var str = "cpgf Irrlicht Script Binding Demo [";
+			var str = "cpgf Irrlicht JavaScript Binding Demo [";
 			str = str + driver.getName();
 			str = str + "] FPS:";
 			str = str + driver.getFPS();

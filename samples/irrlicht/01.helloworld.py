@@ -6,7 +6,7 @@ def start() :
 	if device == None :
 		return 1
 
-	device.setWindowCaption("Hello World! - cpgf Irrlicht Script Binding Demo")
+	device.setWindowCaption("Hello World! - cpgf Irrlicht Python Binding Demo")
 
 	driver = device.getVideoDriver()
 	smgr = device.getSceneManager()

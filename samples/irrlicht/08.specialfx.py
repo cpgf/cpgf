@@ -100,7 +100,7 @@ def start() :
 			fps = driver.getFPS();
 
 			if lastFPS != fps :
-				tmp = "cpgf Irrlicht Script Binding - SpecialFX example [";
+				tmp = "cpgf Irrlicht Python Binding - SpecialFX example [";
 				tmp = tmp + driver.getName();
 				tmp = tmp + "] FPS:";
 				tmp = tmp + str(fps);

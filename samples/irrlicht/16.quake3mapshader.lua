@@ -1,4 +1,5 @@
 cpgf.import(nil, "builtin.core");
+cpgf.import(nil, "builtin.collections.bytearray");
 
 function overrideScreenShotFactory(screenshotFactory, device, templateName, node)
 	local Device = device;
@@ -83,6 +84,38 @@ function start()
 	end
 
 	local camera = smgr.addCameraSceneNodeFPS();
+	
+	if mesh then
+		local entityList = mesh.getEntityList();
+
+		local se = irr.IShader();
+		se.name = "info_player_deathmatch";
+
+		local index = entityList.binary_search(se);
+		if index >= 0 then
+			local notEndList;
+			repeat
+				local group = entityList._opSubscript(index).getGroup(1);
+
+				local parsepos = cpgf.createByteArray(8);
+				parsepos.writeInt32(0);
+				local pos = irr.getAsVector3df(group.get("origin"), parsepos.getPointer());
+
+				parsepos.setPosition(0);
+				parsepos.writeInt32(0);
+				local angle = irr.getAsFloat(group.get("angle"), parsepos.getPointer());
+
+				local target = irr.vector3df(0.0, 0.0, 1.0);
+				target.rotateXZBy(angle);
+
+				camera.setPosition(pos);
+				camera.setTarget(pos._opAdd(target));
+
+				index = index + 1;
+				notEndList = (index == 2);
+			until not notEndList;
+		end
+	end
 
 	device.getCursorControl().setVisible(false);
 

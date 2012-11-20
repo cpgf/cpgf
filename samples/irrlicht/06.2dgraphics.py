@@ -8,7 +8,7 @@ def start() :
 	if device == None :
 		return 1;
 
-	device.setWindowCaption("cpgf Irrlicht Script Binding - 2D Graphics Demo");
+	device.setWindowCaption("cpgf Irrlicht Python Binding - 2D Graphics Demo");
 
 	driver = device.getVideoDriver();
 

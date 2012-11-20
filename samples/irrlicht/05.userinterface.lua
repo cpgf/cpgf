@@ -73,7 +73,7 @@ function start()
 		return 1;
 	end
 
-	device.setWindowCaption("cpgf Irrlicht Script Binding - User Interface Demo");
+	device.setWindowCaption("cpgf Irrlicht Lua Binding - User Interface Demo");
 	device.setResizable(true);
 
 	local driver = device.getVideoDriver();

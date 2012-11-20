@@ -205,7 +205,7 @@ function start()
 
 		if (lastFPS != fps)
 		{
-			var tmp = "Movement Example - cpgf Irrlicht Script Binding Demo [";
+			var tmp = "Movement Example - cpgf Irrlicht JavaScript Binding Demo [";
 			tmp = tmp + driver.getName();
 			tmp = tmp + "] fps: ";
 			tmp = tmp + fps;

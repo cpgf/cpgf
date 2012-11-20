@@ -221,7 +221,7 @@ def start() :
 			fps = driver.getFPS();
 
 			if lastFPS != fps :
-				tmp = "Per pixel lighting example - cpgf Irrlicht Script Binding [";
+				tmp = "Per pixel lighting example - cpgf Irrlicht Python Binding [";
 				tmp = tmp + driver.getName();
 				tmp = tmp + "] FPS:";
 				tmp = tmp + str(fps);

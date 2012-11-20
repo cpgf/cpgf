@@ -190,7 +190,7 @@ function start()
 			local fps = driver.getFPS();
 
 			if lastFPS ~= fps then
-				local str = "cpgf Irrlicht Script Binding - Vertex and pixel shader example [";
+				local str = "cpgf Irrlicht Lua Binding - Vertex and pixel shader example [";
 				str = str .. driver.getName();
 				str = str .. "] FPS:";
 				str = str .. fps;

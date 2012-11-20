@@ -80,7 +80,7 @@ def start() :
 
 		if driver.getFPS() != lastFPS :
 			lastFPS = driver.getFPS();
-			tmp = "cpgf Irrlicht Script Binding SplitScreen-Example (FPS: ";
+			tmp = "cpgf Irrlicht Python Binding SplitScreen-Example (FPS: ";
 			tmp = tmp + str(lastFPS);
 			tmp = tmp + ")";
 			device.setWindowCaption(tmp);
