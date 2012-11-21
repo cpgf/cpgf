@@ -47,12 +47,16 @@ void metagenTest_Operators_ArraySet(TestScriptContext * context)
 	QNEWOBJ(index, mtest.MetagenOperatorOther());
 	
 	QNEWOBJ(a, mtest.MetagenOperatorOther(3));
-	QASSERT(a.value == 3);
-	QDO(b = a._opArrayGet(index));
-	QASSERT(b == 3);
+	QASSERT(a.f >= 2.9);
+	QASSERT(a.f <= 3.1);
 	
-	QDO(a._opArraySet(index, 8));
-	QASSERT(a.value == 8);
+	QDO(b = a._opArrayGet(index));
+	QASSERT(b >= 2.9);
+	QASSERT(b <= 3.1);
+	
+	QDO(a._opArraySet(index, 8.0));
+	QASSERT(a.f >= 7.9);
+	QASSERT(a.f <= 8.1);
 }
 
 #define CASE metagenTest_Operators_ArraySet

@@ -9,7 +9,7 @@ class MetagenOperatorOther
 {
 public:
 	MetagenOperatorOther() : value(0) {}
-	explicit MetagenOperatorOther(int value) : value(value) {}
+	explicit MetagenOperatorOther(int value) : value(value), f(value) {}
 
 	MetagenOperatorOther & operator = (const MetagenOperatorOther & other) { value = other.value; return *this; }
 	
@@ -18,7 +18,7 @@ public:
 	int operator [] (int n) const { return value + n; }
 	int operator [] (const std::string & s) const { return value + (int)s.length(); }
 	
-	int & operator [] (const MetagenOperatorOther & n) { (void)n; return value; }
+	float & operator [] (const MetagenOperatorOther & n) { (void)n; return f; }
 	
 	int operator & () { return value + 1; }
 	int operator * () { return value - 1; }
@@ -38,6 +38,7 @@ public:
 
 public:
 	int value;
+	float f;
 };
 
 

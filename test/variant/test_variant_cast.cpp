@@ -117,7 +117,7 @@ GTEST(TestVariant_CastFromFloat)
 
 	GCHECK(value.getType() == (byReference | vtFloat));
 
-	casted = fromVariant<float>(value);
+	casted = fromVariant<double>(value);
 	GCHECK(casted > 4.9f && casted < 5.1f);
 }
 

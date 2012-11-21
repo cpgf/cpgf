@@ -90,12 +90,10 @@ function HeightMap(w, h)
 	this.setAt = function(i, z)
 	{
 		this.data._opArraySet(i, z);
-cpgf.traceLine("" + i + "   " + z + "   " + this.data._opArrayGet(i));
 	}
 
 	this.get = function(x, y)
 	{
-//cpgf.traceLine("" + this.data._opArrayGet(y * this.Width + x));
 		return this.data._opArrayGet(y * this.Width + x);
 	}
 
@@ -227,7 +225,6 @@ function TMesh()
 				var xx = x/this.Width;
 				var yy = y/this.Height;
 
-//cpgf.traceLine("" + x + "  " + z + "  " + y);
 				var v = buf.Vertices._opArrayGet(i++);
 				v.Pos.set(x, this.Scale * z, y);
 				v.Normal.set(hm.getnormal(x, y, this.Scale));
