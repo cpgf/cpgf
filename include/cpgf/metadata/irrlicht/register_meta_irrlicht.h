@@ -17,6 +17,7 @@ GDefineMetaInfo createMetaClass_Array();
 GDefineMetaInfo createMetaClass_CDynamicMeshBuffer();
 GDefineMetaInfo createMetaClass_CIndexBuffer();
 GDefineMetaInfo createMetaClass_CMatrix4();
+GDefineMetaInfo createMetaClass_CMeshBuffer();
 GDefineMetaInfo createMetaClass_CVertexBuffer();
 GDefineMetaInfo createMetaClass_Dimension2d();
 GDefineMetaInfo createMetaClass_Global_coreutil();
@@ -280,6 +281,7 @@ void registerMain_irrlicht(Meta _d)
     _d._class(createMetaClass_CDynamicMeshBuffer());
     _d._class(createMetaClass_CIndexBuffer());
     _d._class(createMetaClass_CMatrix4());
+    _d._class(createMetaClass_CMeshBuffer());
     _d._class(createMetaClass_CVertexBuffer());
     _d._class(createMetaClass_Dimension2d());
     _d._class(createMetaClass_Global_coreutil());

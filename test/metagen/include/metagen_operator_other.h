@@ -18,6 +18,8 @@ public:
 	int operator [] (int n) const { return value + n; }
 	int operator [] (const std::string & s) const { return value + (int)s.length(); }
 	
+	int & operator [] (const MetagenOperatorOther & n) { (void)n; return value; }
+	
 	int operator & () { return value + 1; }
 	int operator * () { return value - 1; }
 	

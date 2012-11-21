@@ -4,6 +4,8 @@
 #include "cpgf/gexception.h"
 #include "cpgf/gmetaapi.h"
 
+#include <iostream>
+
 #define CAN_FROM(to, value) GCHECK(canFromVariant<to>(value)); fromVariant<to>(value)
 #define CAN_FROM_CAST(to, from, value) GCHECK(canFromVariant<to>(static_cast<from>(value))); fromVariant<to>(static_cast<from>(value))
 #define NOT_FROM(to, value) GCHECK(! canFromVariant<to>(value)); \
@@ -101,6 +103,22 @@ GTEST(TestVariant_CastFromVariant)
 
 	casted = fromVariant<const GVariant &>(value);
 	GEQUAL(1999, fromVariant<int>(casted));
+}
+
+
+GTEST(TestVariant_CastFromFloat)
+{
+	GVariant value;
+	float casted;
+
+	float a = 5.0f;
+	value = &a;
+	value.refData().typeData.vt = byReference | vtFloat;
+
+	GCHECK(value.getType() == (byReference | vtFloat));
+
+	casted = fromVariant<float>(value);
+	GCHECK(casted > 4.9f && casted < 5.1f);
 }
 
 

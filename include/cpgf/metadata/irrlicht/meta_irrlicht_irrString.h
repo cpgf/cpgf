@@ -44,11 +44,15 @@ inline string< T, TAlloc > opErAToRWrapper_string__opAdd(const string<T, TAlloc>
     return (*self) + other;
 }
 template <typename T, typename TAlloc>
-inline T & opErAToRWrapper_string__opSubscript(string<T, TAlloc> * self, const u32 index) {
+inline T & opErAToRWrapper_string__opArrayGet(string<T, TAlloc> * self, const u32 index) {
     return (*self)[index];
 }
 template <typename T, typename TAlloc>
-inline const T & opErAToRWrapper_string__opSubscript(const string<T, TAlloc> * self, const u32 index) {
+inline void opErAToRWrapper_string__opArraySet(string<T, TAlloc> * self, const u32 index, const typename cpgf::RemoveReference<T & >::Result & OpsEt_vALue) {
+    (*self)[index] = OpsEt_vALue;
+}
+template <typename T, typename TAlloc>
+inline const T & opErAToRWrapper_string__opArrayGet(const string<T, TAlloc> * self, const u32 index) {
     return (*self)[index];
 }
 template <typename T, typename TAlloc>
@@ -159,9 +163,10 @@ void buildMetaClass_String(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _operator<string< T, TAlloc > (*)(const cpgf::GMetaSelf &, const string< T, TAlloc > &)>(mopHolder + mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("_opAdd", (string< T, TAlloc > (*) (const string<T, TAlloc> *, const string< T, TAlloc > &))&opErAToRWrapper_string__opAdd<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<T & (*)(cpgf::GMetaSelf, const u32)>(mopHolder[0]);
-    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (T & (*) (string<T, TAlloc> *, const u32))&opErAToRWrapper_string__opSubscript<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArrayGet", (T & (*) (string<T, TAlloc> *, const u32))&opErAToRWrapper_string__opArrayGet<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArraySet", (void (*) (string<T, TAlloc> *, const u32, const typename cpgf::RemoveReference<T & >::Result &))&opErAToRWrapper_string__opArraySet<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<const T & (*)(const cpgf::GMetaSelf &, const u32)>(mopHolder[0]);
-    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (const T & (*) (const string<T, TAlloc> *, const u32))&opErAToRWrapper_string__opSubscript<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArrayGet", (const T & (*) (const string<T, TAlloc> *, const u32))&opErAToRWrapper_string__opArrayGet<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const T *const)>(mopHolder == mopHolder);
     _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const string<T, TAlloc> *, const T *const))&opErAToRWrapper_string__opEqual<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const string< T, TAlloc > &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());

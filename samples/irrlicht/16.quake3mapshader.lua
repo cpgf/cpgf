@@ -95,7 +95,7 @@ function start()
 		if index >= 0 then
 			local notEndList;
 			repeat
-				local group = entityList._opSubscript(index).getGroup(1);
+				local group = entityList._opArrayGet(index).getGroup(1);
 
 				local parsepos = cpgf.createByteArray(8);
 				parsepos.writeInt32(0);

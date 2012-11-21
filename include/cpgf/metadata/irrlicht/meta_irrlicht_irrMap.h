@@ -19,7 +19,7 @@ namespace meta_irrlicht {
 
 
 template <class KeyType, class ValueType>
-inline typename map<KeyType, ValueType >::AccessClass opErAToRWrapper_map__opSubscript(map<KeyType, ValueType> * self, const KeyType & k) {
+inline typename map<KeyType, ValueType >::AccessClass opErAToRWrapper_map__opArrayGet(map<KeyType, ValueType> * self, const KeyType & k) {
     return (*self)[k];
 }
 
@@ -46,7 +46,7 @@ void buildMetaClass_Map(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getParentFirstIterator", &D::ClassType::getParentFirstIterator);
     _d.CPGF_MD_TEMPLATE _method("getParentLastIterator", &D::ClassType::getParentLastIterator);
     _d.CPGF_MD_TEMPLATE _operator<typename map<KeyType, ValueType >::AccessClass (*)(cpgf::GMetaSelf, const KeyType &)>(mopHolder[0]);
-    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (typename map<KeyType, ValueType >::AccessClass (*) (map<KeyType, ValueType> *, const KeyType &))&opErAToRWrapper_map__opSubscript<KeyType, ValueType>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArrayGet", (typename map<KeyType, ValueType >::AccessClass (*) (map<KeyType, ValueType> *, const KeyType &))&opErAToRWrapper_map__opArrayGet<KeyType, ValueType>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     {
         GDefineMetaClass<typename map<KeyType, ValueType >::Iterator> _nd = GDefineMetaClass<typename map<KeyType, ValueType >::Iterator>::declare("Iterator");
         _nd.CPGF_MD_TEMPLATE _constructor<void * ()>();

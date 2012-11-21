@@ -17,6 +17,10 @@ public class Operator extends CppInvokable {
 		return this.getOperator().equals("()");
 	}
 	
+	public boolean isArray() {
+		return this.getOperator().equals("[]");
+	}
+	
 	public boolean isTypeConverter() {
 		return this.getOperator().matches(".*\\w+.*");
 	}

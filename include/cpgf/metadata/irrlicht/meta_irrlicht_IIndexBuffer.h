@@ -19,7 +19,7 @@ using namespace irr::scene;
 namespace meta_irrlicht { 
 
 
-inline u32 opErAToRWrapper_IIndexBuffer__opSubscript(const IIndexBuffer * self, u32 index) {
+inline u32 opErAToRWrapper_IIndexBuffer__opArrayGet(const IIndexBuffer * self, u32 index) {
     return (*self)[index];
 }
 
@@ -47,7 +47,7 @@ void buildMetaClass_IIndexBuffer(const cpgf::GMetaDataConfigFlags & config, D _d
     _d.CPGF_MD_TEMPLATE _method("setDirty", &D::ClassType::setDirty);
     _d.CPGF_MD_TEMPLATE _method("getChangedID", &D::ClassType::getChangedID);
     _d.CPGF_MD_TEMPLATE _operator<u32 (*)(const cpgf::GMetaSelf &, u32)>(mopHolder[0]);
-    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (u32 (*) (const IIndexBuffer *, u32))&opErAToRWrapper_IIndexBuffer__opSubscript, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArrayGet", (u32 (*) (const IIndexBuffer *, u32))&opErAToRWrapper_IIndexBuffer__opArrayGet, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

@@ -21,11 +21,17 @@ inline MetagenOperatorOther & opErAToRWrapper_MetagenOperatorOther__opAssign(Met
 inline MetagenOperatorOther opErAToRWrapper_MetagenOperatorOther__opComma(const MetagenOperatorOther * self, int n) {
     return (*self) , n;
 }
-inline int opErAToRWrapper_MetagenOperatorOther__opSubscript(const MetagenOperatorOther * self, int n) {
+inline int opErAToRWrapper_MetagenOperatorOther__opArrayGet(const MetagenOperatorOther * self, int n) {
     return (*self)[n];
 }
-inline int opErAToRWrapper_MetagenOperatorOther__opSubscript(const MetagenOperatorOther * self, const std::string & s) {
+inline int opErAToRWrapper_MetagenOperatorOther__opArrayGet(const MetagenOperatorOther * self, const std::string & s) {
     return (*self)[s];
+}
+inline int & opErAToRWrapper_MetagenOperatorOther__opArrayGet(MetagenOperatorOther * self, const MetagenOperatorOther & n) {
+    return (*self)[n];
+}
+inline void opErAToRWrapper_MetagenOperatorOther__opArraySet(MetagenOperatorOther * self, const MetagenOperatorOther & n, const cpgf::RemoveReference<int & >::Result & OpsEt_vALue) {
+    (*self)[n] = OpsEt_vALue;
 }
 inline int opErAToRWrapper_MetagenOperatorOther__opAddress(MetagenOperatorOther * self) {
     return &(*self);
@@ -55,9 +61,12 @@ void buildMetaClass_MetagenOperatorOther(const cpgf::GMetaDataConfigFlags & conf
     _d.CPGF_MD_TEMPLATE _operator<MetagenOperatorOther (*)(const cpgf::GMetaSelf &, int)>((mopHolder , mopHolder));
     _d.CPGF_MD_TEMPLATE _method("_opComma", (MetagenOperatorOther (*) (const MetagenOperatorOther *, int))&opErAToRWrapper_MetagenOperatorOther__opComma, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<int (*)(const cpgf::GMetaSelf &, int)>(mopHolder[0]);
-    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (int (*) (const MetagenOperatorOther *, int))&opErAToRWrapper_MetagenOperatorOther__opSubscript, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArrayGet", (int (*) (const MetagenOperatorOther *, int))&opErAToRWrapper_MetagenOperatorOther__opArrayGet, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<int (*)(const cpgf::GMetaSelf &, const std::string &)>(mopHolder[0], cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (int (*) (const MetagenOperatorOther *, const std::string &))&opErAToRWrapper_MetagenOperatorOther__opSubscript, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArrayGet", (int (*) (const MetagenOperatorOther *, const std::string &))&opErAToRWrapper_MetagenOperatorOther__opArrayGet, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _operator<int & (*)(cpgf::GMetaSelf, const MetagenOperatorOther &)>(mopHolder[0], cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opArrayGet", (int & (*) (MetagenOperatorOther *, const MetagenOperatorOther &))&opErAToRWrapper_MetagenOperatorOther__opArrayGet, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArraySet", (void (*) (MetagenOperatorOther *, const MetagenOperatorOther &, const cpgf::RemoveReference<int & >::Result &))&opErAToRWrapper_MetagenOperatorOther__opArraySet, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<int (*)(cpgf::GMetaSelf)>(&mopHolder);
     _d.CPGF_MD_TEMPLATE _method("_opAddress", (int (*) (MetagenOperatorOther *))&opErAToRWrapper_MetagenOperatorOther__opAddress, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<int (*)(cpgf::GMetaSelf)>(*mopHolder);

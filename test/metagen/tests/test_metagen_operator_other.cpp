@@ -28,17 +28,34 @@ void metagenTest_Operators_Comma(TestScriptContext * context)
 #include "do_testcase.h"
 
 
-void metagenTest_Operators_Subscript(TestScriptContext * context)
+void metagenTest_Operators_ArrayGet(TestScriptContext * context)
 {
 	QNEWOBJ(a, mtest.MetagenOperatorOther(3));
-	QDO(b = a._opSubscript(5));
+	QDO(b = a._opArrayGet(5));
 	QASSERT(b == 8);
 	
-	QDO(b = a._opSubscript("abcd"));
+	QDO(b = a._opArrayGet("abcd"));
 	QASSERT(b == 7);
 }
 
-#define CASE metagenTest_Operators_Subscript
+#define CASE metagenTest_Operators_ArrayGet
+#include "do_testcase.h"
+
+
+void metagenTest_Operators_ArraySet(TestScriptContext * context)
+{
+	QNEWOBJ(index, mtest.MetagenOperatorOther());
+	
+	QNEWOBJ(a, mtest.MetagenOperatorOther(3));
+	QASSERT(a.value == 3);
+	QDO(b = a._opArrayGet(index));
+	QASSERT(b == 3);
+	
+	QDO(a._opArraySet(index, 8));
+	QASSERT(a.value == 8);
+}
+
+#define CASE metagenTest_Operators_ArraySet
 #include "do_testcase.h"
 
 

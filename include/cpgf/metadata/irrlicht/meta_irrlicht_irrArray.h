@@ -10,6 +10,7 @@
 #include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/gmetapolicy.h"
 #include "IQ3Shader.h"
+#include "SMeshBuffer.h"
 
 
 using namespace irr;
@@ -24,11 +25,15 @@ inline const array< T, TAlloc > & opErAToRWrapper_array__opAssign(array<T, TAllo
     return (*self) = other;
 }
 template <class T, typename TAlloc>
-inline T & opErAToRWrapper_array__opSubscript(array<T, TAlloc> * self, u32 index) {
+inline T & opErAToRWrapper_array__opArrayGet(array<T, TAlloc> * self, u32 index) {
     return (*self)[index];
 }
 template <class T, typename TAlloc>
-inline const T & opErAToRWrapper_array__opSubscript(const array<T, TAlloc> * self, u32 index) {
+inline void opErAToRWrapper_array__opArraySet(array<T, TAlloc> * self, u32 index, const typename cpgf::RemoveReference<T & >::Result & OpsEt_vALue) {
+    (*self)[index] = OpsEt_vALue;
+}
+template <class T, typename TAlloc>
+inline const T & opErAToRWrapper_array__opArrayGet(const array<T, TAlloc> * self, u32 index) {
     return (*self)[index];
 }
 
@@ -79,9 +84,10 @@ void buildMetaClass_Array(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _operator<const array< T, TAlloc > & (*)(cpgf::GMetaSelf, const array< T, TAlloc > &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1>, cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("_opAssign", (const array< T, TAlloc > & (*) (array<T, TAlloc> *, const array< T, TAlloc > &))&opErAToRWrapper_array__opAssign<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1>, cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<T & (*)(cpgf::GMetaSelf, u32)>(mopHolder[0]);
-    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (T & (*) (array<T, TAlloc> *, u32))&opErAToRWrapper_array__opSubscript<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArrayGet", (T & (*) (array<T, TAlloc> *, u32))&opErAToRWrapper_array__opArrayGet<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArraySet", (void (*) (array<T, TAlloc> *, u32, const typename cpgf::RemoveReference<T & >::Result &))&opErAToRWrapper_array__opArraySet<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<const T & (*)(const cpgf::GMetaSelf &, u32)>(mopHolder[0]);
-    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (const T & (*) (const array<T, TAlloc> *, u32))&opErAToRWrapper_array__opSubscript<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArrayGet", (const T & (*) (const array<T, TAlloc> *, u32))&opErAToRWrapper_array__opArrayGet<T, TAlloc>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

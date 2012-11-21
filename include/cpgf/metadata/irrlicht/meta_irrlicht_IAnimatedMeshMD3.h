@@ -59,8 +59,6 @@ void buildMetaClass_Global_ianimatedmeshmd3(const cpgf::GMetaDataConfigFlags & c
         ._element("EMD3_LEGS_TURN", irr::scene::EMD3_LEGS_TURN)
         ._element("EMD3_ANIMATION_COUNT", irr::scene::EMD3_ANIMATION_COUNT)
     ;
-    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalDefine_irrlicht_7")
-    ;
 }
 
 
@@ -196,11 +194,14 @@ void buildMetaClass_SMD3QuaternionTag(const cpgf::GMetaDataConfigFlags & config,
 }
 
 
-inline const SMD3QuaternionTag & opErAToRWrapper_SMD3QuaternionTagList__opSubscript(const SMD3QuaternionTagList * self, u32 index) {
+inline const SMD3QuaternionTag & opErAToRWrapper_SMD3QuaternionTagList__opArrayGet(const SMD3QuaternionTagList * self, u32 index) {
     return (*self)[index];
 }
-inline SMD3QuaternionTag & opErAToRWrapper_SMD3QuaternionTagList__opSubscript(SMD3QuaternionTagList * self, u32 index) {
+inline SMD3QuaternionTag & opErAToRWrapper_SMD3QuaternionTagList__opArrayGet(SMD3QuaternionTagList * self, u32 index) {
     return (*self)[index];
+}
+inline void opErAToRWrapper_SMD3QuaternionTagList__opArraySet(SMD3QuaternionTagList * self, u32 index, const cpgf::RemoveReference<SMD3QuaternionTag & >::Result & OpsEt_vALue) {
+    (*self)[index] = OpsEt_vALue;
 }
 inline SMD3QuaternionTagList & opErAToRWrapper_SMD3QuaternionTagList__opAssign(SMD3QuaternionTagList * self, const SMD3QuaternionTagList & copyMe) {
     return (*self) = copyMe;
@@ -220,9 +221,10 @@ void buildMetaClass_SMD3QuaternionTagList(const cpgf::GMetaDataConfigFlags & con
     _d.CPGF_MD_TEMPLATE _method("set_used", &D::ClassType::set_used);
     _d.CPGF_MD_TEMPLATE _method("push_back", &D::ClassType::push_back, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _operator<const SMD3QuaternionTag & (*)(const cpgf::GMetaSelf &, u32)>(mopHolder[0], cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (const SMD3QuaternionTag & (*) (const SMD3QuaternionTagList *, u32))&opErAToRWrapper_SMD3QuaternionTagList__opSubscript, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1>, cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArrayGet", (const SMD3QuaternionTag & (*) (const SMD3QuaternionTagList *, u32))&opErAToRWrapper_SMD3QuaternionTagList__opArrayGet, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<SMD3QuaternionTag & (*)(cpgf::GMetaSelf, u32)>(mopHolder[0]);
-    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (SMD3QuaternionTag & (*) (SMD3QuaternionTagList *, u32))&opErAToRWrapper_SMD3QuaternionTagList__opSubscript, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArrayGet", (SMD3QuaternionTag & (*) (SMD3QuaternionTagList *, u32))&opErAToRWrapper_SMD3QuaternionTagList__opArrayGet, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArraySet", (void (*) (SMD3QuaternionTagList *, u32, const cpgf::RemoveReference<SMD3QuaternionTag & >::Result &))&opErAToRWrapper_SMD3QuaternionTagList__opArraySet, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<SMD3QuaternionTagList & (*)(cpgf::GMetaSelf, const SMD3QuaternionTagList &)>(mopHolder = mopHolder);
     _d.CPGF_MD_TEMPLATE _method("_opAssign", (SMD3QuaternionTagList & (*) (SMD3QuaternionTagList *, const SMD3QuaternionTagList &))&opErAToRWrapper_SMD3QuaternionTagList__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }

@@ -68,6 +68,11 @@ public class CppType {
 			&& (this.parsedType.getReference() == EnumCompoundType.Const);
 	}
 
+	public boolean isNonConstValueReference() {
+		return ! this.parsedType.isPointer()
+			&& (this.parsedType.getReference() == EnumCompoundType.NoCV);
+	}
+
 	public void replaceToken(Map<String, String> map)
 	{
 		if(this.parsedType != null) {

@@ -85,7 +85,7 @@ def start() :
 		if index >= 0 :
 			notEndList = 1;
 			while notEndList :
-				group = entityList._opSubscript(index).getGroup(1);
+				group = entityList._opArrayGet(index).getGroup(1);
 
 				parsepos = cpgf.createByteArray(8);
 				parsepos.writeInt32(0);

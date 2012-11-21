@@ -146,6 +146,10 @@ public class OperatorWriter {
 			codeWriter.write(" self");
 		}
 	}
+	
+	private boolean shouldGenerateArraySetter() {
+		return this.item.isArray() && this.item.getResultType().isNonConstValueReference();
+	}
 
 	public void writeNamedWrapperFunctionCode(CppWriter codeWriter) {
 		String op = this.item.getOperator();
@@ -168,12 +172,12 @@ public class OperatorWriter {
 		if(this.item.hasResult()) {
 			codeWriter.write("return ");
 		}
-		if(item.isFunctor()) {
+		if(this.item.isFunctor()) {
 			codeWriter.write("(*self)(");
 			codeWriter.write(Util.getParameterText(this.item.getParameterList(), false, true));
 			codeWriter.write(")");
 		}
-		else if(op.equals("[]")) {
+		else if(this.item.isArray()) {
 			codeWriter.write("(*self)[");
 			codeWriter.write(Util.getParameterText(this.item.getParameterList(), false, true));
 			codeWriter.write("]");
@@ -199,6 +203,36 @@ public class OperatorWriter {
 		codeWriter.writeLine(";");
 
 		codeWriter.endBlock();
+		
+		if(this.shouldGenerateArraySetter()) {
+			if(this.templateDependentParameterList != null) {
+				codeWriter.write("template <");
+				codeWriter.write(Util.getParameterText(this.templateDependentParameterList, true, true));
+				codeWriter.writeLine(">");
+			}
+			codeWriter.write("inline void ");
+			codeWriter.write(WriterUtil.getOperatorWraperNamePrefix(this.metaInfo, this.item) + this.metaInfo.getOperatorNameMap().get(this.item, 2) + "(");
+			this.writeSelf(codeWriter, true);
+			codeWriter.write(", ");
+			WriterUtil.writeParamList(codeWriter, this.item.getParameterList(), true);
+			codeWriter.write(", ");
+			codeWriter.write(this.getArraySetterValueType() + " OpsEt_vALue");
+			codeWriter.write(") ");
+			
+			codeWriter.beginBlock();
+			codeWriter.write("(*self)[");
+			codeWriter.write(Util.getParameterText(this.item.getParameterList(), false, true));
+			codeWriter.writeLine("] = OpsEt_vALue;");
+			codeWriter.endBlock();
+		}
+	}
+	
+	private String getArraySetterValueType() {
+		String typename = "";
+		if(this.item.getOwner().isTemplate()) {
+			typename = "typename ";
+		}
+		return "const " + typename + "cpgf::RemoveReference<" + this.item.getResultType().getLiteralType() + " >::Result &";
 	}
 
 	public void writeNamedWrapperReflectionCode(CppWriter codeWriter, String define) {
@@ -221,6 +255,45 @@ public class OperatorWriter {
 			codeWriter.write(", ");
 			WriterUtil.writeParamList(codeWriter, this.item.getParameterList(), false);
 		}
+		codeWriter.write(")");
+		codeWriter.write(")");
+		codeWriter.write("&" + methodName);
+		item.setIsWrapping(true);
+		String ruleText = WriterUtil.getPolicyRulesText(this.item);
+		item.setIsWrapping(false);
+		if(ruleText.length() > 0) {
+			ruleText = ruleText + ", ";
+		}
+		ruleText = ruleText + "cpgf::GMetaRuleExplicitThis";
+		codeWriter.write(", cpgf::MakePolicy<" + ruleText + " >())");
+
+		WriterUtil.writeDefaultParams(codeWriter, this.item.getParameterList());
+		
+		if(this.shouldGenerateArraySetter()) {
+			this.doWriteNamedWrapperReflectionCodeForArraySetter(codeWriter, define);
+		}
+	}
+	
+	private void doWriteNamedWrapperReflectionCodeForArraySetter(CppWriter codeWriter, String define) {
+		String reflectionName = this.metaInfo.getOperatorNameMap().get(this.item, 2);
+		String methodName = WriterUtil.getOperatorWraperNamePrefix(this.metaInfo, this.item) + reflectionName;
+		if(this.templateDependentParameterList != null) {
+			methodName = methodName + "<"
+				+ Util.getParameterText(this.templateDependentParameterList, false, true)
+				+ ">"
+			;
+		}
+
+		String action = WriterUtil.getReflectionAction(define, "_method");
+
+		codeWriter.write(action);
+		codeWriter.write("(" + Util.quoteText(reflectionName) + ", ");
+		codeWriter.write("(void (*) (");
+		this.writeSelf(codeWriter, false);
+		codeWriter.write(", ");
+		WriterUtil.writeParamList(codeWriter, this.item.getParameterList(), false);
+		codeWriter.write(", ");
+		codeWriter.write(this.getArraySetterValueType());
 		codeWriter.write(")");
 		codeWriter.write(")");
 		codeWriter.write("&" + methodName);

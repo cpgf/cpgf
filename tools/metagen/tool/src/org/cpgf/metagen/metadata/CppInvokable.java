@@ -44,7 +44,7 @@ public class CppInvokable extends ParameteredItem {
 		return 0;
 	}
 
-	private static void getPolicyRuleForParameter(List<String> rules, CppType type, int parameterIndex) {
+	public static void getPolicyRuleForParameter(List<String> rules, CppType type, int parameterIndex) {
 		ClassTraits traits = type.getClassTraits();
 
 		if(traits != null) {

@@ -31,13 +31,16 @@ public class OperatorNameMap {
 		this.set(op, -1, name);
 	}
 	
-	public String get(Operator op) {
-		int paramCount = op.getParameterCount();
+	public String get(Operator op, int paramCount) {
 		String name = this.operatorNameMap.get(this.normalizeOperator(op.getOperator(), paramCount));
 		if(name == null) {
 			name = this.operatorNameMap.get(this.normalizeOperator(op.getOperator(), -1));
 		}
 		return name;
+	}
+	
+	public String get(Operator op) {
+		return this.get(op, op.getParameterCount());
 	}
 	
 	private void initOperatorNameMap() {
@@ -89,8 +92,9 @@ public class OperatorNameMap {
 		this.set("--", 1, "_opDecSuffix");
 		
 		this.set(",", "_opComma");
-		this.set("[]", "_opSubscript");
 		this.set("()", "_opFunction");
+		this.set("[]", 1, "_opArrayGet");
+		this.set("[]", 2, "_opArraySet");
 
 		this.set("&", 0, "_opAddress");
 		this.set("*", 0, "_opDerefer");

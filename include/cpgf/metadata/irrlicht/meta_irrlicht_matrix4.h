@@ -37,11 +37,15 @@ inline const T & opErAToRWrapper_CMatrix4__opFunction(const CMatrix4<T> * self, 
     return (*self)(row, col);
 }
 template <class T>
-inline T & opErAToRWrapper_CMatrix4__opSubscript(CMatrix4<T> * self, u32 index) {
+inline T & opErAToRWrapper_CMatrix4__opArrayGet(CMatrix4<T> * self, u32 index) {
     return (*self)[index];
 }
 template <class T>
-inline const T & opErAToRWrapper_CMatrix4__opSubscript(const CMatrix4<T> * self, u32 index) {
+inline void opErAToRWrapper_CMatrix4__opArraySet(CMatrix4<T> * self, u32 index, const typename cpgf::RemoveReference<T & >::Result & OpsEt_vALue) {
+    (*self)[index] = OpsEt_vALue;
+}
+template <class T>
+inline const T & opErAToRWrapper_CMatrix4__opArrayGet(const CMatrix4<T> * self, u32 index) {
     return (*self)[index];
 }
 template <class T>
@@ -185,9 +189,10 @@ void buildMetaClass_CMatrix4(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _operator<const T & (*)(const s32, const s32)>(mopHolder(mopHolder));
     _d.CPGF_MD_TEMPLATE _method("_opFunction", (const T & (*) (const CMatrix4<T> *, const s32, const s32))&opErAToRWrapper_CMatrix4__opFunction<T>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<T & (*)(cpgf::GMetaSelf, u32)>(mopHolder[0]);
-    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (T & (*) (CMatrix4<T> *, u32))&opErAToRWrapper_CMatrix4__opSubscript<T>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArrayGet", (T & (*) (CMatrix4<T> *, u32))&opErAToRWrapper_CMatrix4__opArrayGet<T>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArraySet", (void (*) (CMatrix4<T> *, u32, const typename cpgf::RemoveReference<T & >::Result &))&opErAToRWrapper_CMatrix4__opArraySet<T>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<const T & (*)(const cpgf::GMetaSelf &, u32)>(mopHolder[0]);
-    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (const T & (*) (const CMatrix4<T> *, u32))&opErAToRWrapper_CMatrix4__opSubscript<T>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArrayGet", (const T & (*) (const CMatrix4<T> *, u32))&opErAToRWrapper_CMatrix4__opArrayGet<T>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<CMatrix4< T > & (*)(cpgf::GMetaSelf, const CMatrix4< T > &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("_opAssign", (CMatrix4< T > & (*) (CMatrix4<T> *, const CMatrix4< T > &))&opErAToRWrapper_CMatrix4__opAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<CMatrix4< T > & (*)(cpgf::GMetaSelf, const T &)>(mopHolder = mopHolder);

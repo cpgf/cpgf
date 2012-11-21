@@ -164,17 +164,21 @@ public class WriterUtil {
 		
 		item.getPolicyRules(rules);
 		
-		String rulesText = "";
-		if(rules.size() > 0) {
-			for(String s : rules) {
-				if(rulesText.length() > 0) {
-					rulesText = rulesText + ", ";
+		return stringToCommaText(rules);
+	}
+	
+	public static String stringToCommaText(List<String> strings) {
+		String text = "";
+		if(strings.size() > 0) {
+			for(String s : strings) {
+				if(text.length() > 0) {
+					text = text + ", ";
 				}
-				rulesText = rulesText + "cpgf::" + s;
+				text = text + "cpgf::" + s;
 			}
 		}
 
-		return rulesText;
+		return text;
 	}
 	
 	private static String getBitfieldWrapperName(CppField field) {
@@ -193,8 +197,12 @@ public class WriterUtil {
 		return config.wrapBitField && field.isBitField() && Util.allowMetaData(config, field) && !field.getOwner().isTemplate();
 	}
 
+	public static String getOperatorWraperNamePrefix(MetaInfo metaInfo, Operator op) {
+		return "opErAToRWrapper_" + Util.normalizeSymbol(op.getOwner().getQualifiedName()) + "_";
+	}
+
 	public static String getOperatorWraperName(MetaInfo metaInfo, Operator op) {
-		return "opErAToRWrapper_" + Util.normalizeSymbol(op.getOwner().getQualifiedName()) + "_" + metaInfo.getOperatorNameMap().get(op);
+		return getOperatorWraperNamePrefix(metaInfo, op) + metaInfo.getOperatorNameMap().get(op);
 	}
 
 	public static boolean shouldGenerateOperatorWrapper(MetaInfo metaInfo, Operator op) {

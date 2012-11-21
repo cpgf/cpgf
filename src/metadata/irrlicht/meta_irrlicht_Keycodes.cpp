@@ -1,9 +1,9 @@
 // Auto generated file, don't modify.
 
 #include "irrlicht.h"
-#include "keycodes.h"
+#include "Keycodes.h"
 
-#include "cpgf/metadata/irrlicht/meta_irrlicht_keycodes.h"
+#include "cpgf/metadata/irrlicht/meta_irrlicht_Keycodes.h"
 
 using namespace cpgf;
 

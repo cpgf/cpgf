@@ -18,8 +18,11 @@ using namespace irr::scene;
 namespace meta_irrlicht { 
 
 
-inline video::S3DVertex & opErAToRWrapper_IVertexBuffer__opSubscript(const IVertexBuffer * self, const u32 index) {
+inline video::S3DVertex & opErAToRWrapper_IVertexBuffer__opArrayGet(const IVertexBuffer * self, const u32 index) {
     return (*self)[index];
+}
+inline void opErAToRWrapper_IVertexBuffer__opArraySet(const IVertexBuffer * self, const u32 index, const cpgf::RemoveReference<video::S3DVertex & >::Result & OpsEt_vALue) {
+    (*self)[index] = OpsEt_vALue;
 }
 
 
@@ -45,7 +48,8 @@ void buildMetaClass_IVertexBuffer(const cpgf::GMetaDataConfigFlags & config, D _
     _d.CPGF_MD_TEMPLATE _method("setDirty", &D::ClassType::setDirty);
     _d.CPGF_MD_TEMPLATE _method("getChangedID", &D::ClassType::getChangedID);
     _d.CPGF_MD_TEMPLATE _operator<video::S3DVertex & (*)(const cpgf::GMetaSelf &, const u32)>(mopHolder[0]);
-    _d.CPGF_MD_TEMPLATE _method("_opSubscript", (video::S3DVertex & (*) (const IVertexBuffer *, const u32))&opErAToRWrapper_IVertexBuffer__opSubscript, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArrayGet", (video::S3DVertex & (*) (const IVertexBuffer *, const u32))&opErAToRWrapper_IVertexBuffer__opArrayGet, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _method("_opArraySet", (void (*) (const IVertexBuffer *, const u32, const cpgf::RemoveReference<video::S3DVertex & >::Result &))&opErAToRWrapper_IVertexBuffer__opArraySet, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
 }
 
 

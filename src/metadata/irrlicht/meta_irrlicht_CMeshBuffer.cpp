@@ -10,6 +10,28 @@ using namespace cpgf;
 namespace meta_irrlicht { 
 
 
+GDefineMetaInfo createMetaClass_CMeshBuffer()
+{
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<CMeshBuffer<video::S3DVertex>, irr::scene::IMeshBuffer > _nd = GDefineMetaClass<CMeshBuffer<video::S3DVertex>, irr::scene::IMeshBuffer >::declare("SMeshBuffer");
+        buildMetaClass_CMeshBuffer<GDefineMetaClass<CMeshBuffer<video::S3DVertex>, irr::scene::IMeshBuffer >, video::S3DVertex >(0, _nd);
+        _d._class(_nd);
+    }
+    {
+        GDefineMetaClass<CMeshBuffer<video::S3DVertex2TCoords>, irr::scene::IMeshBuffer > _nd = GDefineMetaClass<CMeshBuffer<video::S3DVertex2TCoords>, irr::scene::IMeshBuffer >::declare("SMeshBufferLightMap");
+        buildMetaClass_CMeshBuffer<GDefineMetaClass<CMeshBuffer<video::S3DVertex2TCoords>, irr::scene::IMeshBuffer >, video::S3DVertex2TCoords >(0, _nd);
+        _d._class(_nd);
+    }
+    {
+        GDefineMetaClass<CMeshBuffer<video::S3DVertexTangents>, irr::scene::IMeshBuffer > _nd = GDefineMetaClass<CMeshBuffer<video::S3DVertexTangents>, irr::scene::IMeshBuffer >::declare("SMeshBufferTangents");
+        buildMetaClass_CMeshBuffer<GDefineMetaClass<CMeshBuffer<video::S3DVertexTangents>, irr::scene::IMeshBuffer >, video::S3DVertexTangents >(0, _nd);
+        _d._class(_nd);
+    }
+    return _d.getMetaInfo();
+}
+
+
 } // namespace meta_irrlicht
 
 

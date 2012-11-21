@@ -202,7 +202,7 @@ function start()
 			var notEndList;
 			do
 			{
-				var group = entityList._opSubscript(index).getGroup(1);
+				var group = entityList._opArrayGet(index).getGroup(1);
 
 				var parsepos = cpgf.createByteArray(8);
 				parsepos.writeInt32(0);
