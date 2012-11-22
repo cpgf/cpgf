@@ -62,7 +62,7 @@ var config = {
 		"array<irr::scene::quake3::IEntity, irrAllocator<irr::scene::quake3::IEntity> >", "tQ3EntityList",
 		"array<video::S3DVertex, irrAllocator<video::S3DVertex> >", "array_S3DVertex",
 		"array<video::S3DVertex2TCoords, irrAllocator<video::S3DVertex2TCoords> >", "array_S3DVertex2TCoords",
-		"array<video::S3DVertexTangents, irrAllocator<video::S3DVertexTangents> >", "array_S3DVertexTangents",
+		"array<scene::ISceneNode *, irrAllocator<scene::ISceneNode *> >", "array_ISceneNodePointer",
 		"array<f32, irrAllocator<f32> >", "array_f32",
 		"array<u16, irrAllocator<u16> >", "array_u16",
 
@@ -135,6 +135,7 @@ function processCallback(item, data)
 		else if(name == "array") {
 			data.addHeaderInclude("IQ3Shader.h");
 			data.addHeaderInclude("SMeshBuffer.h");
+			data.addHeaderInclude("ISceneNode.h");
 		}
 	}
 }

@@ -624,7 +624,7 @@ struct CastFromReference
 				return variant_internal::CastVariantHelper<const void *, RefValueType>::cast(const_cast<const void *>(v.refData().ptrPointer));
 
 			case vtPointer | byReference:
-				return variant_internal::CastVariantHelper<const void *, RefValueType>::cast(const_cast<const void *>(v.refData().ptrPointer));
+				return variant_internal::CastVariantHelper<const void *, RefValueType>::cast(*static_cast<void **>(const_cast<void *>(v.refData().ptrPointer)));
 
 			case vtObject | byReference:
 				return castFromObject<T>(v.refData().ptrObject);

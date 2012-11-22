@@ -11,6 +11,7 @@
 #include "cpgf/gmetapolicy.h"
 #include "IQ3Shader.h"
 #include "SMeshBuffer.h"
+#include "ISceneNode.h"
 
 
 using namespace irr;

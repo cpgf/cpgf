@@ -847,7 +847,8 @@ void * GMetaClass::castFromDerived(const void * derived, size_t derivedIndex) co
 
 	size_t derivedBaseCount = derivedClass->getBaseCount();
 	for(size_t i = 0; i < derivedBaseCount; ++i) {
-		if(derivedClass->getBaseClass(i) == this) {
+		const GMetaClass * baseClass = derivedClass->getBaseClass(i);
+		if(baseClass != NULL && baseClass->equals(this)) {
 			return derivedClass->castToBase(derived, i);
 		}
 	}
@@ -865,7 +866,8 @@ void * GMetaClass::castToDerived(const void * self, size_t derivedIndex) const
 
 	size_t derivedBaseCount = derivedClass->getBaseCount();
 	for(size_t i = 0; i < derivedBaseCount; ++i) {
-		if(derivedClass->getBaseClass(i) == this) {
+		const GMetaClass * baseClass = derivedClass->getBaseClass(i);
+		if(baseClass != NULL && baseClass->equals(this)) {
 			return derivedClass->castFromBase(self, i);
 		}
 	}

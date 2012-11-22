@@ -238,7 +238,7 @@ function start()
 
 	local driver = device.getVideoDriver();
 	local smgr = device.getSceneManager();
-	device.setWindowCaption("Irrlicht Example for SMesh usage.");
+	device.setWindowCaption("cpgf Irrlicht Lua binding Example for SMesh usage.");
 
 	local mesh = TMesh;
 	local hm = createHeightMap(10, 10);

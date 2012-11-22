@@ -29,8 +29,8 @@ GDefineMetaInfo createMetaClass_Array()
         _d._class(_nd);
     }
     {
-        GDefineMetaClass<array<video::S3DVertexTangents, irrAllocator<video::S3DVertexTangents> > > _nd = GDefineMetaClass<array<video::S3DVertexTangents, irrAllocator<video::S3DVertexTangents> > >::declare("array_S3DVertexTangents");
-        buildMetaClass_Array<GDefineMetaClass<array<video::S3DVertexTangents, irrAllocator<video::S3DVertexTangents> > >, video::S3DVertexTangents, irrAllocator<video::S3DVertexTangents>  >(0, _nd);
+        GDefineMetaClass<array<scene::ISceneNode *, irrAllocator<scene::ISceneNode *> > > _nd = GDefineMetaClass<array<scene::ISceneNode *, irrAllocator<scene::ISceneNode *> > >::declare("array_ISceneNodePointer");
+        buildMetaClass_Array<GDefineMetaClass<array<scene::ISceneNode *, irrAllocator<scene::ISceneNode *> > >, scene::ISceneNode *, irrAllocator<scene::ISceneNode *>  >(0, _nd);
         _d._class(_nd);
     }
     {

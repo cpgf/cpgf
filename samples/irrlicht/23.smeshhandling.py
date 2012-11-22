@@ -214,7 +214,7 @@ def start() :
 
 	driver = device.getVideoDriver();
 	smgr = device.getSceneManager();
-	device.setWindowCaption("Irrlicht Example for SMesh usage.");
+	device.setWindowCaption("cpgf Irrlicht Python binding Example for SMesh usage.");
 
 	mesh = createTMesh();
 	hm = createHeightMap(10, 10);
