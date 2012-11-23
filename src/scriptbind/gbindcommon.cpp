@@ -796,56 +796,62 @@ ObjectPointerCV metaTypeToCV(const GMetaType & type)
 }
 
 
-bool allowInvokeCallable(const GScriptConfig & config, const GGlueDataPointer & glueData, IMetaCallable * method)
+ObjectPointerCV getCallableConstness(IMetaCallable * callable)
+{
+	if(! callable->isExplicitThis()) {
+		// normal function
+		GMetaType methodType = metaGetItemType(callable);
+		if(methodType.isConstFunction()) {
+			return opcvConst;
+		}
+					
+		if(methodType.isVolatileFunction()) {
+			return opcvVolatile;
+		}
+					
+		if(methodType.isConstVolatileFunction()) {
+			return opcvConstVolatile;
+		}
+	}
+	else {
+		// "explicit this" function
+		GMetaType selfType = metaGetParamType(callable, abstractParameterIndexBase);
+		if(selfType.isPointerToConst() || selfType.isReferenceToConst()) {
+			return opcvConst;
+		}
+					
+		if(selfType.isPointerToVolatile() || selfType.isReferenceToVolatile()) {
+			return opcvVolatile;
+		}
+					
+		if(selfType.isPointerToConstVolatile() || selfType.isReferenceToConstVolatile()) {
+			return opcvConstVolatile;
+		}
+	}
+
+	return opcvNone;
+}
+
+bool allowInvokeCallable(const GScriptConfig & config, const GGlueDataPointer & glueData, IMetaCallable * callable)
 {
 	if(getGlueDataInstance(glueData) != NULL) {
 		if(! config.allowAccessStaticMethodViaInstance()) {
-			if(method->isStatic()) {
+			if(callable->isStatic()) {
 				return false;
 			}
 		}
 	}
 	else {
-		if(! method->isStatic()) {
+		if(! callable->isStatic()) {
 			return false;
 		}
 	}
 	
 	ObjectPointerCV cv = getGlueDataCV(glueData);
 	if(cv != opcvNone) {
-		if(! method->isExplicitThis()) {
-			// normal function
-			GMetaType methodType = metaGetItemType(method);
-			switch(cv) {
-				case opcvConst:
-					return methodType.isConstFunction();
-					
-				case opcvVolatile:
-					return methodType.isVolatileFunction();
-					
-				case opcvConstVolatile:
-					return methodType.isConstVolatileFunction();
-					
-				default:
-					break;
-			}
-		}
-		else {
-			// "explicit this" function
-			GMetaType selfType = metaGetParamType(method, abstractParameterIndexBase);
-			switch(cv) {
-				case opcvConst:
-					return selfType.isPointerToConst() || selfType.isReferenceToConst();
-					
-				case opcvVolatile:
-					return selfType.isPointerToVolatile() || selfType.isReferenceToVolatile();
-					
-				case opcvConstVolatile:
-					return selfType.isPointerToConstVolatile() || selfType.isReferenceToConstVolatile();
-					
-				default:
-					break;
-			}
+		ObjectPointerCV methodCV = getCallableConstness(callable);
+		if(cv != methodCV) {
+			return false;
 		}
 	}
 	
