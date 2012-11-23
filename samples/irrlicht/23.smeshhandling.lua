@@ -250,6 +250,7 @@ function start()
 
 	local node = smgr.addLightSceneNode(nil, irr.vector3df(0,100,0), irr.SColorf(1.0, 0.6, 0.7, 1.0), 500.0);
 	if node then
+		node.getLightData().Attenuation.set(0.0, 1.0/500.0, 0.0);
 		local anim = smgr.createFlyCircleAnimator(irr.vector3df(0,150,0),250.0);
 		if anim then
 			node.addAnimator(anim);

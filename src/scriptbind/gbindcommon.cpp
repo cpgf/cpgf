@@ -709,9 +709,9 @@ GObjectAndMethodGlueDataPointer GBindingContext::newObjectAndMethodGlueData(cons
 	return objectAndMethodData;
 }
 
-GOperatorGlueDataPointer GBindingContext::newOperatorGlueData(void * instance, IMetaClass * metaClass, GMetaOpType op)
+GOperatorGlueDataPointer GBindingContext::newOperatorGlueData(const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op)
 {
-	GOperatorGlueDataPointer operatorData(new GOperatorGlueData(this->shareFromThis(), instance, metaClass, op));
+	GOperatorGlueDataPointer operatorData(new GOperatorGlueData(this->shareFromThis(), objectData, metaClass, op));
 	return operatorData;
 }
 
@@ -982,7 +982,7 @@ void rankCallableParam(ConvertRank * outputRank, IMetaService * service, IMetaCa
 	rankCallableImplicitConvert(outputRank, service, callable, callbackParam, paramIndex, proto);
 }
 
-int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, ConvertRank * paramRanks)
+int rankCallable(IMetaService * service, const GObjectGlueDataPointer & objectData, IMetaCallable * callable, const InvokeCallableParam * callbackParam, ConvertRank * paramRanks)
 {
 	if(!! callable->isVariadic()) {
 		return 0;
@@ -998,6 +998,15 @@ int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeC
 
 	int rank = 1;
 	
+	ObjectPointerCV cv = getGlueDataCV(objectData);
+	ObjectPointerCV methodCV = getCallableConstness(callable);
+	if(cv == methodCV) {
+		rank += ValueMatchRank_Equal;
+	}
+	else {
+		rank += ValueMatchRank_Convert;
+	}
+
 	for(size_t i = 0; i < callbackParam->paramCount; ++i) {
 		rankCallableParam(&paramRanks[i], service, callable, callbackParam, i);
 		rank += paramRanks[i].weight;
@@ -1138,7 +1147,7 @@ void * doInvokeConstructor(const GContextPointer & context, IMetaService * servi
 		instance = metaClass->createInstance();
 	}
 	else {
-		int maxRankIndex = findAppropriateCallable(service,
+		int maxRankIndex = findAppropriateCallable(service, GObjectGlueDataPointer(),
 			makeCallback(metaClass, &IMetaClass::getConstructorAt), metaClass->getConstructorCount(),
 			callableParam, FindCallablePredict());
 
@@ -1171,7 +1180,7 @@ InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
 			objectData, methodData->getName().c_str());
 	}
 
-	int maxRankIndex = findAppropriateCallable(context->getService(),
+	int maxRankIndex = findAppropriateCallable(context->getService(), objectData,
 		makeCallback(methodList.get(), &IMetaList::getAt), methodList->getCount(),
 		callableParam, FindCallablePredict());
 
@@ -1544,9 +1553,9 @@ GScriptDataType methodTypeToGlueDataType(GGlueDataMethodType methodType)
 	}
 }
 
-InvokeCallableResult doInvokeOperator(const GContextPointer & context, void * instance, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam)
+InvokeCallableResult doInvokeOperator(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam)
 {
-	int maxRankIndex = findAppropriateCallable(context->getService(),
+	int maxRankIndex = findAppropriateCallable(context->getService(), objectData,
 		makeCallback(metaClass, &IMetaClass::getOperatorAt), metaClass->getOperatorCount(),
 		callableParam, OperatorCallablePredict(op));
 
@@ -1554,7 +1563,7 @@ InvokeCallableResult doInvokeOperator(const GContextPointer & context, void * in
 		InvokeCallableResult result;
 
 		GScopedInterface<IMetaOperator> metaOperator(metaClass->getOperatorAt(maxRankIndex));
-		doInvokeCallable(context, instance, metaOperator.get(), callableParam, &result);
+		doInvokeCallable(context, objectData->getInstanceAddress(), metaOperator.get(), callableParam, &result);
 		result.callable.reset(metaOperator.get());
 		return result;
 	}

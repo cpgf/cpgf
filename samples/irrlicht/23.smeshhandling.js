@@ -318,7 +318,7 @@ function start()
 	var node = smgr.addLightSceneNode(0, new irr.vector3df(0,100,0), new irr.SColorf(1.0, 0.6, 0.7, 1.0), 500.0);
 	if (node)
 	{
-//		node.getLightData().Attenuation.set(0.0, 1.0/500.0, 0.0);
+		node.getLightData().Attenuation.set(0.0, 1.0/500.0, 0.0);
 		var anim = smgr.createFlyCircleAnimator(new irr.vector3df(0,150,0),250.0);
 		if (anim)
 		{

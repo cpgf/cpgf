@@ -551,16 +551,16 @@ private:
 	typedef GGlueData super;
 
 public:
-	GOperatorGlueData(const GContextPointer & context, const GVariant & instance, IMetaClass * metaClass, GMetaOpType op)
-		: super(gdtOperator, context), instance(instance), metaClass(metaClass), op(op) {
+	GOperatorGlueData(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op)
+		: super(gdtOperator, context), objectData(objectData), metaClass(metaClass), op(op) {
 	}
 
-	const GVariant & getInstance() const {
-		return this->instance;
+	const GObjectGlueDataPointer & getObjectData() const {
+		return this->objectData;
 	}
 
 	void * getInstanceAddress() const {
-		return objectAddressFromVariant(this->instance);
+		return this->objectData->getInstanceAddress();
 	}
 
 	IMetaClass * getMetaClass() const {
@@ -572,7 +572,7 @@ public:
 	}
 
 private:
-	GVariant instance;
+	GObjectGlueDataPointer objectData;
 	GSharedInterface<IMetaClass> metaClass;
 	GMetaOpType op;
 };
@@ -707,7 +707,7 @@ public:
 	
 	GObjectAndMethodGlueDataPointer newObjectAndMethodGlueData(const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData);
 
-	GOperatorGlueDataPointer newOperatorGlueData(void * instance, IMetaClass * metaClass, GMetaOpType op);
+	GOperatorGlueDataPointer newOperatorGlueData(const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op);
 
 private:
 	GClassPool * getClassPool();
@@ -875,7 +875,7 @@ private:
 
 ObjectPointerCV metaTypeToCV(const GMetaType & type);
 
-int rankCallable(IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, ConvertRank * paramRanks);
+int rankCallable(IMetaService * service, const GObjectGlueDataPointer & objectData, IMetaCallable * callable, const InvokeCallableParam * callbackParam, ConvertRank * paramRanks);
 
 bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessible * accessible);
 
@@ -906,12 +906,13 @@ IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData);
 IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer & glueData);
 
 GScriptDataType methodTypeToGlueDataType(GGlueDataMethodType methodType);
-InvokeCallableResult doInvokeOperator(const GContextPointer & context, void * instance, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam);
+InvokeCallableResult doInvokeOperator(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam);
 
 IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & value);
 
 template <typename Getter, typename Predict>
 int findAppropriateCallable(IMetaService * service,
+	const GObjectGlueDataPointer & objectData,
 	const Getter & getter, size_t callableCount,
 	InvokeCallableParam * callableParam, Predict predict)
 {
@@ -923,7 +924,7 @@ int findAppropriateCallable(IMetaService * service,
 	for(size_t i = 0; i < callableCount; ++i) {
 		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(getter(static_cast<uint32_t>(i))));
 		if(predict(meta.get())) {
-			int weight = rankCallable(service, meta.get(), callableParam, paramRanks);
+			int weight = rankCallable(service, objectData, meta.get(), callableParam, paramRanks);
 			if(weight > maxRank) {
 				maxRank = weight;
 				maxRankIndex = static_cast<int>(i);

@@ -119,7 +119,10 @@ function start()
 			end
 
 			local s = camera.getPosition();
-			local e = s._opAdd(camera.getTarget()._opSub(s).normalize()._opMul(1000.0));
+			--local e = s._opAdd(camera.getTarget()._opSub(s).normalize()._opMul(1000.0));
+			-- We use Lua operator overload to calculate it
+			local e = camera.getTarget() - s;
+			e = s + e.normalize() * 1000.0;
 			local ray = irr.line3d_f32(s.X, s.Y, s.Z, e.X, e.Y, e.Z);
 
 			local intersection = irr.vector3df();

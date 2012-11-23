@@ -109,7 +109,7 @@ function start()
 				target.rotateXZBy(angle);
 
 				camera.setPosition(pos);
-				camera.setTarget(pos._opAdd(target));
+				camera.setTarget(pos + target);
 
 				index = index + 1;
 				notEndList = (index == 2);

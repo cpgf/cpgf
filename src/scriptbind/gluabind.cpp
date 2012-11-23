@@ -219,7 +219,7 @@ int UserData_index(lua_State * L);
 int UserData_newindex(lua_State * L);
 int UserData_operator(lua_State * L);
 
-void doBindAllOperators(const GContextPointer & context, void * instance, IMetaClass * metaClass);
+void doBindAllOperators(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass);
 void doBindClass(const GContextPointer & context, IMetaClass * metaClass);
 void doBindEnum(const GContextPointer & context, IMetaEnum * metaEnum);
 void doBindMethodList(const GContextPointer & context, const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData);
@@ -550,7 +550,7 @@ void objectToLua(const GContextPointer & context, const GClassGlueDataPointer & 
 		lua_pushvalue(L, -1); // duplicate the meta table
 		lua_setfield(L, LUA_REGISTRYINDEX, metaTableName);
 	}
-	doBindAllOperators(context, objectAddressFromVariant(instance), metaClass);
+	doBindAllOperators(context, objectData, metaClass);
 	
 	lua_setmetatable(L, -2);
 }
@@ -946,7 +946,7 @@ int invokeConstructor(const GClassGlueDataPointer & classUserData)
 	return 1;
 }
 
-int invokeOperator(const GContextPointer & context, void * instance, IMetaClass * metaClass, GMetaOpType op)
+int invokeOperator(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op)
 {
 	lua_State * L = getLuaState(context);
 
@@ -965,7 +965,7 @@ int invokeOperator(const GContextPointer & context, void * instance, IMetaClass 
 	InvokeCallableParam callableParam(paramCount);
 	loadCallableParam(context, &callableParam, startIndex);
 	
-	InvokeCallableResult result = doInvokeOperator(context, instance, metaClass, op, &callableParam);
+	InvokeCallableResult result = doInvokeOperator(context, objectData, metaClass, op, &callableParam);
 	methodResultToLua(context, result.callable.get(), &result);
 	return result.resultCount;
 }
@@ -1056,12 +1056,12 @@ int UserData_operator(lua_State * L)
 	
 	GOperatorGlueDataPointer glueData = static_cast<GGlueDataWrapper *>(lua_touserdata(L, lua_upvalueindex(1)))->getAs<GOperatorGlueData>();
 
-	return invokeOperator(glueData->getContext(), glueData->getInstanceAddress(), glueData->getMetaClass(), glueData->getOp());
+	return invokeOperator(glueData->getContext(), glueData->getObjectData(), glueData->getMetaClass(), glueData->getOp());
 	
 	LEAVE_LUA(L, return 0)
 }
 
-void doBindOperator(const GContextPointer & context, void * instance, IMetaClass * metaClass, GMetaOpType op)
+void doBindOperator(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op)
 {
 	lua_State * L = getLuaState(context);
 
@@ -1069,7 +1069,7 @@ void doBindOperator(const GContextPointer & context, void * instance, IMetaClass
 		if(metaOpTypes[i] == op) {
 			lua_pushstring(L, luaOperators[i]);
 			void * userData = lua_newuserdata(L, getGlueDataWrapperSize<GOperatorGlueData>());
-			GOperatorGlueDataPointer operatorData(context->newOperatorGlueData(instance, metaClass, op));
+			GOperatorGlueDataPointer operatorData(context->newOperatorGlueData(objectData, metaClass, op));
 			newGlueDataWrapper(userData, operatorData);
 
 			lua_newtable(L);
@@ -1085,7 +1085,7 @@ void doBindOperator(const GContextPointer & context, void * instance, IMetaClass
 	}
 }
 
-void doBindAllOperators(const GContextPointer & context, void * instance, IMetaClass * metaClass)
+void doBindAllOperators(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass)
 {
 	std::vector<uint32_t> boundOperators;
 
@@ -1094,7 +1094,7 @@ void doBindAllOperators(const GContextPointer & context, void * instance, IMetaC
 		GScopedInterface<IMetaOperator> item(metaClass->getOperatorAt(i));
 		uint32_t op = item->getOperator();
 		if(std::find(boundOperators.begin(), boundOperators.end(), op) == boundOperators.end()) {
-			doBindOperator(context, instance, metaClass, static_cast<GMetaOpType>(op));
+			doBindOperator(context, objectData, metaClass, static_cast<GMetaOpType>(op));
 		}
 	}
 }

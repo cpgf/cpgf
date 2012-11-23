@@ -1,5 +1,5 @@
-TBD version 1.5.2
-	Added meta data for Irrlicht 3D engine. Now we can use Irrlicht in Lua, Javascript and Python.
+2012-11-24 version 1.5.2
+	Added meta data for Irrlicht 3D engine. Now we can use Irrlicht in Lua, JavaScript and Python.
 	Added function "import" in script binding core service to load libraries at runtime from within script.
 	Added GMetaObjectArray to use C++ object array in script.
 	Added GMetaDebug to ease debugging script. Now script can set break point (int 3) and trace messages.
@@ -25,6 +25,7 @@ TBD version 1.5.2
 	Fixed a bug that in V8 Javascript binding, there is null pointer crash if the object constructor returns NULL. Now an exception is raised instead of crash.
 	Fixed a bug that function isInheritedFrom in GMetaClass and IMetaClass works wrong.
 	Fixed a bug that if a GVariant holding a reference to fundamental, when casting it to a fundamental in different type size, the result is wrong.
+	Fixed a bug that script binding doesn't distinguish between functions which are only different in constness.
 
 2012-10-13 version 1.5.1
 	Support shared pointer in script binding. There are meta traits for shared pointer in C++11, Boost, and cpgf.
