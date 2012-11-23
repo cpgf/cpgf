@@ -16,6 +16,7 @@ GDefineMetaInfo createMetaClass_Global_global();
 GDefineMetaInfo createMetaClass_Global_metagen_multiple_inheritance_cast();
 GDefineMetaInfo createMetaClass_Global_simpleobject();
 GDefineMetaInfo createMetaClass_Global_testobjectarray();
+GDefineMetaInfo createMetaClass_MetagenMethodOverload();
 GDefineMetaInfo createMetaClass_MetagenNonconstructable();
 GDefineMetaInfo createMetaClass_MetagenOperatorArithmetic();
 GDefineMetaInfo createMetaClass_MetagenOperatorArithmeticAssign();
@@ -56,6 +57,7 @@ void registerMain_metatest(Meta _d)
     _d._class(createMetaClass_Global_metagen_multiple_inheritance_cast());
     _d._class(createMetaClass_Global_simpleobject());
     _d._class(createMetaClass_Global_testobjectarray());
+    _d._class(createMetaClass_MetagenMethodOverload());
     _d._class(createMetaClass_MetagenNonconstructable());
     _d._class(createMetaClass_MetagenOperatorArithmetic());
     _d._class(createMetaClass_MetagenOperatorArithmeticAssign());

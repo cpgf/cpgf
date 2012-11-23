@@ -283,6 +283,14 @@ function overrideEventReceiver(receiver)
 		return false;
 	end
 
+	local simpleXor = function(a, b)
+		if a == b then
+			return 0;
+		else
+			return b;
+		end
+	end
+
 	local OnMenuItemSelected = function(menu)
 		local id = menu.getItemCommandId(menu.getSelectedItem());
 		local env = Device.getGUIEnvironment();
@@ -318,35 +326,35 @@ function overrideEventReceiver(receiver)
 		elseif id == GUI_ID_DEBUG_BOUNDING_BOX then
 			menu.setItemChecked(menu.getSelectedItem(), not menu.isItemChecked(menu.getSelectedItem()));
 			if Model ~= nil then
-				Model.setDebugDataVisible(Model.isDebugDataVisible() ~= irr.EDS_BBOX);
+				Model.setDebugDataVisible(simpleXor(Model.isDebugDataVisible(), irr.EDS_BBOX));
 			end
 			
 		elseif id == GUI_ID_DEBUG_NORMALS then
 			menu.setItemChecked(menu.getSelectedItem(), not menu.isItemChecked(menu.getSelectedItem()));
 			if Model ~= nil then
-				Model.setDebugDataVisible(Model.isDebugDataVisible() ~= irr.EDS_NORMALS);
+				Model.setDebugDataVisible(simpleXor(Model.isDebugDataVisible(), irr.EDS_NORMALS));
 			end
 			
 		elseif id == GUI_ID_DEBUG_SKELETON then
 			menu.setItemChecked(menu.getSelectedItem(), not menu.isItemChecked(menu.getSelectedItem()));
 			if Model ~= nil then
-				Model.setDebugDataVisible(Model.isDebugDataVisible() ~= irr.EDS_SKELETON);
+				Model.setDebugDataVisible(simpleXor(Model.isDebugDataVisible(), irr.EDS_SKELETON));
 			end
 			
 		elseif id == GUI_ID_DEBUG_WIRE_OVERLAY then
 			menu.setItemChecked(menu.getSelectedItem(), not menu.isItemChecked(menu.getSelectedItem()));
 			if Model ~= nil then
-				Model.setDebugDataVisible(Model.isDebugDataVisible() ~= irr.EDS_MESH_WIRE_OVERLAY);
+				Model.setDebugDataVisible(simpleXor(Model.isDebugDataVisible(), irr.EDS_MESH_WIRE_OVERLAY));
 			end
 		elseif id == GUI_ID_DEBUG_HALF_TRANSPARENT then
 			menu.setItemChecked(menu.getSelectedItem(), not menu.isItemChecked(menu.getSelectedItem()));
 			if Model ~= nil then
-				Model.setDebugDataVisible(Model.isDebugDataVisible() ~= irr.EDS_HALF_TRANSPARENCY);
+				Model.setDebugDataVisible(simpleXor(Model.isDebugDataVisible(), irr.EDS_HALF_TRANSPARENCY));
 			end
 		elseif id == GUI_ID_DEBUG_BUFFERS_BOUNDING_BOXES then
 			menu.setItemChecked(menu.getSelectedItem(), not menu.isItemChecked(menu.getSelectedItem()));
 			if Model ~= nil then
-				Model.setDebugDataVisible(Model.isDebugDataVisible() ~= irr.EDS_BBOX_BUFFERS);
+				Model.setDebugDataVisible(simpleXor(Model.isDebugDataVisible(), irr.EDS_BBOX_BUFFERS));
 			end
 		elseif id == GUI_ID_DEBUG_ALL then
 			menu.setItemChecked(menu.getSelectedItem()-1, true);
