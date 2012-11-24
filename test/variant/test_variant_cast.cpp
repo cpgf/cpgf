@@ -117,8 +117,15 @@ GTEST(TestVariant_CastFromFloat)
 
 	GCHECK(value.getType() == (byReference | vtFloat));
 
-	casted = fromVariant<double>(value);
+	casted = (float)fromVariant<double>(value);
 	GCHECK(casted > 4.9f && casted < 5.1f);
+
+	int b = 3;
+	value = &a;
+	value.refData().typeData.vt = byReference | vtSignedInt;
+	CAN_FROM(void *, value);
+	CAN_FROM(const void *, value);
+	CAN_FROM(const void * const, value);
 }
 
 

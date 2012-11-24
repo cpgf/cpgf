@@ -9,7 +9,7 @@ class MetagenOperatorOther
 {
 public:
 	MetagenOperatorOther() : value(0) {}
-	explicit MetagenOperatorOther(int value) : value(value), f(value) {}
+	explicit MetagenOperatorOther(int value) : value(value), f((float)value) {}
 
 	MetagenOperatorOther & operator = (const MetagenOperatorOther & other) { value = other.value; return *this; }
 	

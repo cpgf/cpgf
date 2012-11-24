@@ -700,7 +700,7 @@ struct CastFromReference
 };
 
 template <typename T, typename Policy>
-struct CastFromReference <T, Policy, typename GEnableIf<IsReference<T>::Result>::Result>
+struct CastFromReference <T, Policy, typename GEnableIf<GOrResult<IsReference<T>, IsPointer<T> >::Result>::Result>
 {
 	typedef typename variant_internal::ArrayToPointer<typename CastResult<T, Policy>::Result>::Result ResultType;
 	typedef typename variant_internal::ArrayToPointer<typename RemoveReference<T>::Result>::Result RefValueType;
