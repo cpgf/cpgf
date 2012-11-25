@@ -8,7 +8,9 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,11 +26,16 @@ import org.w3c.dom.NodeList;
 
 
 public class Util {
-	private static int currentUniqueID = 0;
+	private static Map<String, UniqueID> uniqueIDMap = new HashMap<String, UniqueID>();
 
-	public static int getUniqueID() {
-		++currentUniqueID;
-		return currentUniqueID;
+	public static int getUniqueID(String scope) {
+		if(scope == null || scope.length() == 0) {
+			scope = "global";
+		}
+		if(! uniqueIDMap.containsKey(scope)) {
+			uniqueIDMap.put(scope, new UniqueID());
+		}
+		return uniqueIDMap.get(scope).getNext();
 	}
 	
 	public static void trace(String message) {
@@ -465,4 +472,17 @@ public class Util {
 		;
 	}
 	
+}
+
+class UniqueID {
+	private int currentValue;
+
+	public UniqueID() {
+		this.currentValue = -1;
+	}
+	
+	public int getNext() {
+		++this.currentValue;
+		return this.currentValue;
+	}
 }

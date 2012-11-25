@@ -3,7 +3,7 @@
 #include "irrlicht.h"
 #include "IVideoDriver.h"
 
-#include "cpgf/metadata/irrlicht/meta_irrlicht_IVideoDriver1.h"
+#include "cpgf/metadata/irrlicht/meta_irrlicht_IVideoDriver_IVideoDriver.h"
 
 using namespace cpgf;
 

@@ -237,7 +237,7 @@ public class MetaClassWriter {
 			String typeName = typePrefix + name;
 
 			if(name.indexOf('@') >= 0 || name.equals("")) {
-				name = "GlobalEnum_"  + this.config.projectID + "_" + Util.getUniqueID();
+				name = "GlobalEnum_"  + this.config.projectID + "_" + Util.getUniqueID(this.cppClass.getLocation() + this.cppClass.getFullQualifiedName());
 				typeName = "long long";
 			}
 
@@ -258,7 +258,7 @@ public class MetaClassWriter {
 			return;
 		}
 
-		this.codeWriter.writeLine(action + "<long long>(" + Util.quoteText("GlobalDefine_" + this.config.projectID + "_" + Util.getUniqueID()) + ")");
+		this.codeWriter.writeLine(action + "<long long>(" + Util.quoteText("GlobalDefine_" + this.config.projectID + "_" + Util.getUniqueID(this.cppClass.getLocation() + this.cppClass.getFullQualifiedName())) + ")");
 		this.codeWriter.incIndent();
 
 		for(Constant item : this.cppClass.getConstantList()) {

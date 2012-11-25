@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_IRRLICHT_IVIDEODRIVER1_H
-#define __META_IRRLICHT_IVIDEODRIVER1_H
+#ifndef __META_IRRLICHT_IVIDEODRIVER_IVIDEODRIVER_H
+#define __META_IRRLICHT_IVIDEODRIVER_IVIDEODRIVER_H
 
 
 #include "gmetaobjectlifemanager_irrlicht_ireferencecounted.h"
