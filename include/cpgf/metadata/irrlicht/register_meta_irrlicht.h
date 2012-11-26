@@ -13,6 +13,7 @@ namespace meta_irrlicht {
 
 
 GDefineMetaInfo createMetaClass_Aabbox3d_TemplateInstance_aabbox3d_f32();
+GDefineMetaInfo createMetaClass_Array_TemplateInstance_array_ILightSceneNodePointer();
 GDefineMetaInfo createMetaClass_Array_TemplateInstance_array_ISceneNodePointer();
 GDefineMetaInfo createMetaClass_Array_TemplateInstance_array_S3DVertex();
 GDefineMetaInfo createMetaClass_Array_TemplateInstance_array_S3DVertex2TCoords();
@@ -295,6 +296,7 @@ template <typename Meta>
 void registerMain_irrlicht(Meta _d)
 {
     _d._class(createMetaClass_Aabbox3d_TemplateInstance_aabbox3d_f32());
+    _d._class(createMetaClass_Array_TemplateInstance_array_ILightSceneNodePointer());
     _d._class(createMetaClass_Array_TemplateInstance_array_ISceneNodePointer());
     _d._class(createMetaClass_Array_TemplateInstance_array_S3DVertex());
     _d._class(createMetaClass_Array_TemplateInstance_array_S3DVertex2TCoords());

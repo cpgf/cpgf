@@ -12,6 +12,7 @@
 #include "IQ3Shader.h"
 #include "SMeshBuffer.h"
 #include "ISceneNode.h"
+#include "ILightSceneNode.h"
 
 
 using namespace irr;

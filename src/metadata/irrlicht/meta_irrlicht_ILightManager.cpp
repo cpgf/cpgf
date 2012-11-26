@@ -18,6 +18,11 @@ GDefineMetaInfo createMetaClass_ILightManager()
         buildMetaClass_ILightManager(0, _nd);
         _d._class(_nd);
     }
+    {
+        GDefineMetaClass<ILightManagerWrapper, irr::scene::ILightManager> _nd = GDefineMetaClass<ILightManagerWrapper, irr::scene::ILightManager>::declare("ILightManagerWrapper");
+        buildMetaClass_ILightManagerWrapper(0, _nd);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
 

@@ -65,6 +65,9 @@ var config = {
 		"array<scene::ISceneNode *, irrAllocator<scene::ISceneNode *> >", "array_ISceneNodePointer",
 		"array<f32, irrAllocator<f32> >", "array_f32",
 		"array<u16, irrAllocator<u16> >", "array_u16",
+		"array<scene::ILightSceneNode *, irrAllocator<scene::ILightSceneNode *> >", "array_ILightSceneNodePointer",
+
+//		"list<scene::ISceneNode *>", "list_ISceneNodePointer",
 
 		"CMeshBuffer<video::S3DVertex>", "SMeshBuffer",
 		"CMeshBuffer<video::S3DVertex2TCoords>", "SMeshBufferLightMap",
@@ -82,6 +85,7 @@ var wrapperClassNames = {
 	ISceneNode : 1,
 	IEventReceiver : 1,
 	IShaderConstantSetCallBack : 1,
+	ILightManager : 1,
 };
 
 var skipedNames = {
@@ -135,6 +139,10 @@ function processCallback(item, data)
 		else if(name == "array") {
 			data.addHeaderInclude("IQ3Shader.h");
 			data.addHeaderInclude("SMeshBuffer.h");
+			data.addHeaderInclude("ISceneNode.h");
+			data.addHeaderInclude("ILightSceneNode.h");
+		}
+		else if(name == "list") {
 			data.addHeaderInclude("ISceneNode.h");
 		}
 	}
