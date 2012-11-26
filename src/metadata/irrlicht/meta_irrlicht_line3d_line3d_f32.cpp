@@ -10,7 +10,7 @@ using namespace cpgf;
 namespace meta_irrlicht { 
 
 
-GDefineMetaInfo createMetaClass_Line3d()
+GDefineMetaInfo createMetaClass_Line3d_TemplateInstance_line3d_f32()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
@@ -20,8 +20,6 @@ GDefineMetaInfo createMetaClass_Line3d()
     }
     return _d.getMetaInfo();
 }
-
-
 } // namespace meta_irrlicht
 
 

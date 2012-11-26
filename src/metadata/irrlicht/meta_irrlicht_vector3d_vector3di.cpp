@@ -10,14 +10,16 @@ using namespace cpgf;
 namespace meta_irrlicht { 
 
 
-GDefineMetaInfo createMetaClass_Global_vector3d()
+GDefineMetaInfo createMetaClass_Vector3d_TemplateInstance_vector3di()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_vector3d(0, _d);
+    {
+        GDefineMetaClass<vector3d<s32> > _nd = GDefineMetaClass<vector3d<s32> >::declare("vector3di");
+        buildMetaClass_Vector3d<GDefineMetaClass<vector3d<s32> >, s32 >(0, _nd);
+        _d._class(_nd);
+    }
     return _d.getMetaInfo();
 }
-
-
 } // namespace meta_irrlicht
 
 

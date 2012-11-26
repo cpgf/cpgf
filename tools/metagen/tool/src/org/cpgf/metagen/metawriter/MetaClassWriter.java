@@ -49,6 +49,16 @@ public class MetaClassWriter {
 		this.classType = classType;
 	}
 	
+	private String getUniqueText()
+	{
+		if(this.cppClass.isGlobal()) {
+			return "" + Util.getUniqueID(null);
+		}
+		else {
+			return "" + Util.getUniqueID(this.cppClass.getLocation() + this.cppClass.getFullQualifiedName());
+		}
+	}
+	
 	private String getScopePrefix() {
 		return this.getScopePrefix(null);
 	}
@@ -237,7 +247,7 @@ public class MetaClassWriter {
 			String typeName = typePrefix + name;
 
 			if(name.indexOf('@') >= 0 || name.equals("")) {
-				name = "GlobalEnum_"  + this.config.projectID + "_" + Util.getUniqueID(this.cppClass.getLocation() + this.cppClass.getFullQualifiedName());
+				name = "GlobalEnum_"  + this.config.projectID + "_" + this.getUniqueText();
 				typeName = "long long";
 			}
 
@@ -258,7 +268,7 @@ public class MetaClassWriter {
 			return;
 		}
 
-		this.codeWriter.writeLine(action + "<long long>(" + Util.quoteText("GlobalDefine_" + this.config.projectID + "_" + Util.getUniqueID(this.cppClass.getLocation() + this.cppClass.getFullQualifiedName())) + ")");
+		this.codeWriter.writeLine(action + "<long long>(" + Util.quoteText("GlobalDefine_" + this.config.projectID + "_" + this.getUniqueText()) + ")");
 		this.codeWriter.incIndent();
 
 		for(Constant item : this.cppClass.getConstantList()) {

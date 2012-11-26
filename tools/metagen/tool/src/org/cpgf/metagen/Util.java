@@ -189,6 +189,13 @@ public class Util {
 		RunStats.countWrittenFile(true);
 		return true;
 	}
+	
+	public static void deleteFile(String fileName) {
+		if((new File(fileName)).delete()) {
+			trace("Deleted " + fileName);
+			RunStats.countDeletedFile();
+		}
+	}
 
 	public static String joinStringList(String delimiter, List<String> stringList) {
 		String result = "";

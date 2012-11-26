@@ -41,27 +41,8 @@ public class MetaClassCodeGenerator {
 		this.callbackData = this.metaInfo.getCallbackClassMap().getData(item);
 	}
 
-	private String getGlobalPostfix() {
-		String g = "global_" + this.getFileNameSymbol();
-
-		return g.toLowerCase();
-	}
-
-	private String getFileNameSymbol()
-	{
-		String s = Util.getBaseFileName(this.sourceFileName);
-
-		return Util.normalizeSymbol(s);
-	}
-
 	private String createFunctionName(String cppClassName, boolean isGlobal, String prefix) {
-		String className = this.getGlobalPostfix();
-		if(! isGlobal) {
-			className = cppClassName;
-		}
-		className = Util.upcaseFirst(className);
-			
-		return prefix + className;
+		return WriterUtil.createFunctionName(cppClassName, sourceFileName, isGlobal, prefix);
 	}
 
 	private String createFunctionName(CppClass cppClass, String prefix) {
@@ -344,7 +325,7 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 		List<TemplateInstance> templateInstanceList = null;
 		
 		if(cppClass.isTemplate()) {
-			templateInstanceList = this.metaInfo.findTemplateInstances(cppClass);
+//			templateInstanceList = this.metaInfo.findTemplateInstances(cppClass);
 			if(templateInstanceList == null) {
 				return;
 			}

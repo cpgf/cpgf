@@ -94,7 +94,7 @@ void buildMetaClass_Global_irrmath(const cpgf::GMetaDataConfigFlags & config, D 
     _d.CPGF_MD_TEMPLATE _method("f32_max3", (f32 (*) (const f32, const f32, const f32))&f32_max3);
     _d.CPGF_MD_TEMPLATE _method("f32_min3", (f32 (*) (const f32, const f32, const f32))&f32_min3);
     _d.CPGF_MD_TEMPLATE _method("fract", (f32 (*) (f32))&fract);
-    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalDefine_irrlicht_1")
+    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalDefine_irrlicht_4")
     ;
 }
 

@@ -10,7 +10,7 @@ using namespace cpgf;
 namespace meta_irrlicht { 
 
 
-GDefineMetaInfo createMetaClass_Triangle3d()
+GDefineMetaInfo createMetaClass_Triangle3d_TemplateInstance_triangle3df()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
@@ -18,15 +18,8 @@ GDefineMetaInfo createMetaClass_Triangle3d()
         buildMetaClass_Triangle3d<GDefineMetaClass<triangle3d<f32> >, f32 >(0, _nd);
         _d._class(_nd);
     }
-    {
-        GDefineMetaClass<triangle3d<s32> > _nd = GDefineMetaClass<triangle3d<s32> >::declare("triangle3di");
-        buildMetaClass_Triangle3d<GDefineMetaClass<triangle3d<s32> >, s32 >(0, _nd);
-        _d._class(_nd);
-    }
     return _d.getMetaInfo();
 }
-
-
 } // namespace meta_irrlicht
 
 

@@ -10,6 +10,7 @@ import org.cpgf.metagen.doxyxmlparser.FileInfo;
 import org.cpgf.metagen.doxyxmlparser.FileMap;
 import org.cpgf.metagen.metadata.CppClass;
 import org.cpgf.metagen.metadata.MetaInfo;
+import org.cpgf.metagen.metadata.TemplateInstance;
 
 
 public class MetaWriter {
@@ -47,40 +48,60 @@ public class MetaWriter {
 		HashMap<String, ClassSourceFileWriter> locationSourceFileWriterMap = new HashMap<String, ClassSourceFileWriter>();
 		HashMap<String, ClassHeaderFileWriter> locationHeaderFileWriterMap = new HashMap<String, ClassHeaderFileWriter>();
 
-		for(CppClass item : this.classList) {
-			String location = item.getLocation();
+		for(CppClass cppClass : this.classList) {
+			String location = cppClass.getLocation();
 			String key = location.toLowerCase();
 
 			FileInfo fileInfo = this.fileMap.getFileMap().get(location);
 			if(fileInfo == null) {
 				continue;
 			}
+			
+			if(cppClass.isTemplate()) {
+				List<TemplateInstance> templateInstanceList = this.metaInfo.findTemplateInstances(cppClass);
+				if(templateInstanceList != null) {
+					for(TemplateInstance templateInstance : templateInstanceList) {
+						TemplateInstanceSourceFileWriter templateInstanceSourceFileWriter = new TemplateInstanceSourceFileWriter(this.config, this.metaInfo, fileInfo, location, templateInstance); 
+						this.fileWriterList.add(templateInstanceSourceFileWriter);
+					}
+				}
+			}
+			
+			if(this.metaInfo.getCallbackClassMap().getData(cppClass).isInSeparatedFile()) {
+				ClassSourceFileWriter sourceFileWriter = this.createAndAddSourceFileWriter(fileInfo, location, cppClass);
+				sourceFileWriter.addClass(cppClass);
 
-			if(this.metaInfo.getCallbackClassMap().getData(item).isInSeparatedFile()) {
-				ClassSourceFileWriter sourceFileWriter = new ClassSourceFileWriter(this.config, this.metaInfo, fileInfo, location, this.makeTargetFileName(location, item));
-				sourceFileWriter.addClass(item);
-				this.fileWriterList.add(sourceFileWriter);
-
-				ClassHeaderFileWriter headerFileWriter = new ClassHeaderFileWriter(this.config, this.metaInfo, fileInfo, location, this.makeTargetFileName(location, item));
-				headerFileWriter.addClass(item);
-				this.fileWriterList.add(headerFileWriter);
+				ClassHeaderFileWriter headerFileWriter = this.createAndAddHeaderFileWriter(fileInfo, location, cppClass);
+				headerFileWriter.addClass(cppClass);
 			}
 			else {
 				if(! locationSourceFileWriterMap.containsKey(key)) {
-					ClassSourceFileWriter sourceFileWriter = new ClassSourceFileWriter(this.config, this.metaInfo, fileInfo, location, this.makeTargetFileName(location));
+					ClassSourceFileWriter sourceFileWriter = this.createAndAddSourceFileWriter(fileInfo, location, null);
 					locationSourceFileWriterMap.put(key, sourceFileWriter);
-					this.fileWriterList.add(sourceFileWriter);
 				}
-				locationSourceFileWriterMap.get(key).addClass(item);
+				locationSourceFileWriterMap.get(key).addClass(cppClass);
 				
 				if(! locationHeaderFileWriterMap.containsKey(key)) {
-					ClassHeaderFileWriter headerFileWriter = new ClassHeaderFileWriter(this.config, this.metaInfo, fileInfo, location, this.makeTargetFileName(location));
+					ClassHeaderFileWriter headerFileWriter = this.createAndAddHeaderFileWriter(fileInfo, location, null);
 					locationHeaderFileWriterMap.put(key, headerFileWriter);
-					this.fileWriterList.add(headerFileWriter);
 				}
-				locationHeaderFileWriterMap.get(key).addClass(item);
+				locationHeaderFileWriterMap.get(key).addClass(cppClass);
 			}
 		}
+	}
+	
+	private ClassSourceFileWriter createAndAddSourceFileWriter(FileInfo fileInfo, String location, CppClass cppClass) {
+		ClassSourceFileWriter sourceFileWriter = new ClassSourceFileWriter(this.config, this.metaInfo, fileInfo, location, this.makeTargetFileName(location, cppClass));
+		this.fileWriterList.add(sourceFileWriter);
+		
+		return sourceFileWriter; 
+	}
+	
+	private ClassHeaderFileWriter createAndAddHeaderFileWriter(FileInfo fileInfo, String location, CppClass cppClass) {
+		ClassHeaderFileWriter headerFileWriter = new ClassHeaderFileWriter(this.config, this.metaInfo, fileInfo, location, this.makeTargetFileName(location, cppClass));
+		this.fileWriterList.add(headerFileWriter);
+		
+		return headerFileWriter;
 	}
 	
 	private void buildMainFileWriterList()
@@ -102,6 +123,10 @@ public class MetaWriter {
 
 	private String makeTargetFileName(String sourceFileName, CppClass cppClass)
 	{
+		if(cppClass == null) {
+			return makeTargetFileName(sourceFileName);
+		}
+		
 		String suffix = "_";
 		if(cppClass.isGlobal()) {
 			suffix = suffix + "global";

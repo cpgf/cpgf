@@ -10,7 +10,7 @@ using namespace cpgf;
 namespace meta_irrlicht { 
 
 
-GDefineMetaInfo createMetaClass_Rect()
+GDefineMetaInfo createMetaClass_Rect_TemplateInstance_rect_s32()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
@@ -20,8 +20,6 @@ GDefineMetaInfo createMetaClass_Rect()
     }
     return _d.getMetaInfo();
 }
-
-
 } // namespace meta_irrlicht
 
 

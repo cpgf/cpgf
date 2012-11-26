@@ -24,10 +24,21 @@ public class CodeFileWriter {
 	}
 	
 	public void getCreationFunctionNames(List<String> creationFunctionNames) {
+		if(this.shouldSkip()) {
+			return;
+		}
+		
+		this.doGetCreationFunctionNames(creationFunctionNames);
+	}
+	
+	protected void doGetCreationFunctionNames(List<String> creationFunctionNames) {
 	}
 	
 	public void write() {
+		String fullFileName = Util.concatFileName(this.getOutputDirectory(), this.getOutputFileName());
+		
 		if(this.shouldSkip()) {
+			Util.deleteFile(fullFileName);
 			return;
 		}
 		
@@ -38,7 +49,7 @@ public class CodeFileWriter {
 		try {
 			this.doWrite(codeWriter);
 			Util.forceCreateDirectories(this.getOutputDirectory());
-			Util.writeTextToFile(Util.concatFileName(this.getOutputDirectory(), this.getOutputFileName()), codeWriter.getText());
+			Util.writeTextToFile(fullFileName, codeWriter.getText());
 		}
 		catch(Exception e) {
 			e.printStackTrace();

@@ -44,8 +44,8 @@ GDefineMetaInfo createMetaClass_SimpleObject();
 GDefineMetaInfo createMetaClass_SimpleOverride();
 GDefineMetaInfo createMetaClass_SimpleOverrideBase();
 GDefineMetaInfo createMetaClass_TemplateBase();
-GDefineMetaInfo createMetaClass_TemplateClassA();
-GDefineMetaInfo createMetaClass_TemplateClassB();
+GDefineMetaInfo createMetaClass_TemplateClassA_TemplateInstance_TemplateClassA_int_char_5();
+GDefineMetaInfo createMetaClass_TemplateClassB_TemplateInstance_TemplateClassB_TemplateBase();
 GDefineMetaInfo createMetaClass_TestMethodMethodClass();
 GDefineMetaInfo createMetaClass_TestMethodMethodData();
 
@@ -85,8 +85,8 @@ void registerMain_metatest(Meta _d)
     _d._class(createMetaClass_SimpleOverride());
     _d._class(createMetaClass_SimpleOverrideBase());
     _d._class(createMetaClass_TemplateBase());
-    _d._class(createMetaClass_TemplateClassA());
-    _d._class(createMetaClass_TemplateClassB());
+    _d._class(createMetaClass_TemplateClassA_TemplateInstance_TemplateClassA_int_char_5());
+    _d._class(createMetaClass_TemplateClassB_TemplateInstance_TemplateClassB_TemplateBase());
     _d._class(createMetaClass_TestMethodMethodClass());
     _d._class(createMetaClass_TestMethodMethodData());
 }

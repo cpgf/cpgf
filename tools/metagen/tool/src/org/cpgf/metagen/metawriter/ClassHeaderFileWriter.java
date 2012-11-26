@@ -40,12 +40,12 @@ public class ClassHeaderFileWriter extends CodeFileWriter {
 
 	@Override
 	protected String getOutputFileName() {
-		return this.getDestFileName() + this.getConfig().headerExtension;
+		return this.targetFileName + this.getConfig().headerExtension;
 	}
 	
 	@Override
 	protected void doWrite(CppWriter codeWriter) throws Exception {
-		codeWriter.beginIncludeGuard(Util.normalizeSymbol(this.getDestFileName()) + "_H");
+		codeWriter.beginIncludeGuard(Util.normalizeSymbol(this.targetFileName) + "_H");
 
 		if(this.getConfig().headerHeaderCode != null) {
 			codeWriter.write(this.getConfig().headerHeaderCode);
@@ -127,10 +127,5 @@ public class ClassHeaderFileWriter extends CodeFileWriter {
 			}
 		}
 		return false;
-	}
-	
-	private String getDestFileName()
-	{
-		return this.targetFileName;
 	}
 }

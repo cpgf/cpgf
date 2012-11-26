@@ -83,10 +83,11 @@ public class WriterUtil {
 		}
 	}
 
-	private static String normalizeClassName(String name)
+	public static String normalizeClassName(String name)
 	{
 		name = name.replaceAll("::", "_");
 		name = name.replaceAll(":", "_");
+		name = name.replaceAll(",", "_");
 		name = name.replaceAll("<", "_");
 		name = name.replaceAll(">", "");
 		name = name.replaceAll("\\s", "");
@@ -248,4 +249,28 @@ public class WriterUtil {
 		writeDefaultParams(codeWriter, method.getParameterList());
 	}
 	
+	public static String createFunctionName(String cppClassName, String sourceFileName, boolean isGlobal, String prefix) {
+		String className;
+		if(isGlobal) {
+			className = "global_" + Util.normalizeSymbol(Util.getBaseFileName(sourceFileName));
+			className = className.toLowerCase();
+		}
+		else {
+			className = cppClassName;
+		}
+		className = Util.upcaseFirst(className);
+			
+		return prefix + className;
+	}
+	
+	public static String formatSourceIncludeHeader(Config config, String sourceFileName) throws Exception {
+		String fileName = sourceFileName;
+		if(config.sourceHeaderReplacer != null) {
+			fileName = fileName.replaceAll("\\\\", "/");
+			fileName = Util.replaceStringWithArray(fileName, config.sourceHeaderReplacer);
+		}
+		
+		return fileName;
+	}
+
 }

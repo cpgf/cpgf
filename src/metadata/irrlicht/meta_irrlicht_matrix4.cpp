@@ -18,18 +18,6 @@ GDefineMetaInfo createMetaClass_Global_matrix4()
 }
 
 
-GDefineMetaInfo createMetaClass_CMatrix4()
-{
-    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    {
-        GDefineMetaClass<CMatrix4<f32> > _nd = GDefineMetaClass<CMatrix4<f32> >::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("matrix4");
-        buildMetaClass_CMatrix4<GDefineMetaClass<CMatrix4<f32> >, f32 >(0, _nd);
-        _d._class(_nd);
-    }
-    return _d.getMetaInfo();
-}
-
-
 } // namespace meta_irrlicht
 
 

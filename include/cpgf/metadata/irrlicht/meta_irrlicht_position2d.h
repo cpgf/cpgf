@@ -24,7 +24,7 @@ void buildMetaClass_Global_position2d(const cpgf::GMetaDataConfigFlags & config,
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalDefine_irrlicht_1")
+    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalDefine_irrlicht_6")
     ;
 }
 
