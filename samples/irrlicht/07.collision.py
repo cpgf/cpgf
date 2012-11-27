@@ -122,7 +122,10 @@ def start() :
 			ray = irr.line3d_f32(_start.X, _start.Y, _start.Z, _end.X, _end.Y, _end.Z);
 			
 			s = camera.getPosition();
-			e = s._opAdd(camera.getTarget()._opSub(s).normalize()._opMul(1000.0));
+			#e = s._opAdd(camera.getTarget()._opSub(s).normalize()._opMul(1000.0));
+			#We use Python operator overload to calculate it
+			e = camera.getTarget() - s;
+			e = s + e.normalize() * 1000.0;
 			ray = irr.line3d_f32(s.X, s.Y, s.Z, e.X, e.Y, e.Z);
 
 			intersection = irr.vector3df();

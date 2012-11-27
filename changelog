@@ -1,3 +1,7 @@
+TBD version 1.5.3
+	Python script binding now supports C++ operator overloading.
+	Metagen tool can put template instantiations in separated source file.
+
 2012-11-24 version 1.5.2
 	Added meta data for Irrlicht 3D engine. Now we can use Irrlicht in Lua, JavaScript and Python.
 	18 samples in Irrlicht were converted to Lua, JavaScript and Python.
