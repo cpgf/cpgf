@@ -5,6 +5,7 @@
 #include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/scriptbind/gscriptservice.h"
 #include "cpgf/glifecycle.h"
+#include "cpgf/gerrorcode.h"
 
 #include "cpgf/metatraits/gmetaobjectlifemanager_iobject.h"
 #include "cpgf/metatraits/gmetatraitsparam.h"
@@ -1567,6 +1568,8 @@ InvokeCallableResult doInvokeOperator(const GContextPointer & context, const GOb
 		result.callable.reset(metaOperator.get());
 		return result;
 	}
+
+	raiseCoreException(Error_ScriptBinding_CantFindMatchedOperator);
 
 	return InvokeCallableResult();
 }

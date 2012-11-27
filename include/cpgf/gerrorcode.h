@@ -5,55 +5,56 @@
 namespace cpgf {
 
 
-const int Error_None						= 0;
+extern int Error_None;
 
-const int Error_Variant_Begin				= 1;
-const int Error_Variant_FailCast			= Error_Variant_Begin + 0;
-const int Error_Variant_FailCopyObject		= Error_Variant_Begin + 1;
-const int Error_Variant_CantReferenceToTemp = Error_Variant_Begin + 2;
-const int Error_Variant_FailAdjustTypeSize	= Error_Variant_Begin + 3;
-const int Error_Variant_End					= 100;
+extern int Error_Variant_Begin;
+extern int Error_Variant_FailCast;
+extern int Error_Variant_FailCopyObject;
+extern int Error_Variant_CantReferenceToTemp;
+extern int Error_Variant_FailAdjustTypeSize;
+extern int Error_Variant_End;
 
-const int Error_Meta_Begin					= 101;
-const int Error_Meta_ParamOutOfIndex		= Error_Meta_Begin + 0;
-const int Error_Meta_ReadDenied				= Error_Meta_Begin + 1;
-const int Error_Meta_WriteDenied			= Error_Meta_Begin + 2;
-const int Error_Meta_CannotInitAbstractClass	= Error_Meta_Begin + 3;
-const int Error_Meta_NoDefaultConstructor	= Error_Meta_Begin + 4;
-const int Error_Meta_NoCopyConstructor		= Error_Meta_Begin + 5;
-const int Error_Meta_NotUnaryOperator		= Error_Meta_Begin + 6;
-const int Error_Meta_NotBinaryOperator		= Error_Meta_Begin + 7;
-const int Error_Meta_NotFunctorOperator		= Error_Meta_Begin + 8;
-const int Error_Meta_WrongArity				= Error_Meta_Begin + 9;
-const int Error_Meta_End					= 200;
+extern int Error_Meta_Begin;
+extern int Error_Meta_ParamOutOfIndex;
+extern int Error_Meta_ReadDenied;
+extern int Error_Meta_WriteDenied;
+extern int Error_Meta_CannotInitAbstractClass;
+extern int Error_Meta_NoDefaultexternructor;
+extern int Error_Meta_NoCopyConstructor;
+extern int Error_Meta_NotUnaryOperator;
+extern int Error_Meta_NotBinaryOperator;
+extern int Error_Meta_NotFunctorOperator;
+extern int Error_Meta_WrongArity;
+extern int Error_Meta_End;
 
-const int Error_ScriptBinding_Begin			= 201;
-const int Error_ScriptBinding_InternalError_WrongFunctor= Error_ScriptBinding_Begin + 0;
-const int Error_ScriptBinding_NotSupportedOperator		= Error_ScriptBinding_Begin + 1;
-const int Error_ScriptBinding_FailVariantToScript		= Error_ScriptBinding_Begin + 2;
-const int Error_ScriptBinding_CantFindMatchedMethod		= Error_ScriptBinding_Begin + 3;
-const int Error_ScriptBinding_FailConstructObject		= Error_ScriptBinding_Begin + 4;
-const int Error_ScriptBinding_CantFindEnumKey			= Error_ScriptBinding_Begin + 5;
-const int Error_ScriptBinding_CantAssignToEnumMethodClass	= Error_ScriptBinding_Begin + 6;
-const int Error_ScriptBinding_ScriptMethodParamMismatch	= Error_ScriptBinding_Begin + 7;
-const int Error_ScriptBinding_CantReturnMultipleValue	= Error_ScriptBinding_Begin + 8;
-const int Error_ScriptBinding_CantCallNonfunction		= Error_ScriptBinding_Begin + 9;
-const int Error_ScriptBinding_CantBindFundamental		= Error_ScriptBinding_Begin + 10;
-const int Error_ScriptBinding_ScriptFunctionReturnError	= Error_ScriptBinding_Begin + 11;
-const int Error_ScriptBinding_CantWriteToConstObject	= Error_ScriptBinding_Begin + 12;
-const int Error_ScriptBinding_CallMethodWithTooManyParameters	= Error_ScriptBinding_Begin + 13;
-const int Error_ScriptBinding_AccessMemberWithWrongObject	= Error_ScriptBinding_Begin + 14;
-const int Error_ScriptBinding_CantBindRaw			= Error_ScriptBinding_Begin + 15;
-const int Error_ScriptBinding_NoContext				= Error_ScriptBinding_Begin + 16;
-const int Error_ScriptBinding_End			= 300;
+extern int Error_ScriptBinding_Begin;
+extern int Error_ScriptBinding_InternalError_WrongFunctor;
+extern int Error_ScriptBinding_NotSupportedOperator;
+extern int Error_ScriptBinding_FailVariantToScript;
+extern int Error_ScriptBinding_CantFindMatchedMethod;
+extern int Error_ScriptBinding_FailConstructObject;
+extern int Error_ScriptBinding_CantFindEnumKey;
+extern int Error_ScriptBinding_CantAssignToEnumMethodClass;
+extern int Error_ScriptBinding_ScriptMethodParamMismatch;
+extern int Error_ScriptBinding_CantReturnMultipleValue;
+extern int Error_ScriptBinding_CantCallNonfunction;
+extern int Error_ScriptBinding_CantBindFundamental;
+extern int Error_ScriptBinding_ScriptFunctionReturnError;
+extern int Error_ScriptBinding_CantWriteToConstObject;
+extern int Error_ScriptBinding_CallMethodWithTooManyParameters;
+extern int Error_ScriptBinding_AccessMemberWithWrongObject;
+extern int Error_ScriptBinding_CantBindRaw;
+extern int Error_ScriptBinding_NoContext;
+extern int Error_ScriptBinding_CantFindMatchedOperator;
+extern int Error_ScriptBinding_End;
 
-const int Error_Serialization_Begin = 301;
-const int Error_Serialization_TypeMismatch = Error_Serialization_Begin + 0;
-const int Error_Serialization_CannotFindObjectType = Error_Serialization_Begin + 1;
-const int Error_Serialization_MissingMetaClass = Error_Serialization_Begin + 2;
-const int Error_Serialization_UnknownType = Error_Serialization_Begin + 3;
-const int Error_Serialization_InvalidStorage = Error_Serialization_Begin + 4;
-const int Error_Serialization_End = 400;
+extern int Error_Serialization_Begin;
+extern int Error_Serialization_TypeMismatch;
+extern int Error_Serialization_CannotFindObjectType;
+extern int Error_Serialization_MissingMetaClass;
+extern int Error_Serialization_UnknownType;
+extern int Error_Serialization_InvalidStorage;
+extern int Error_Serialization_End;
 
 
 } // namespace cpgf

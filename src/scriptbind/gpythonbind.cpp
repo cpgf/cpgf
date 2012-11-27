@@ -8,6 +8,7 @@
 #include "cpgf/scriptbind/gpythonbind.h"
 #include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gstringmap.h"
+#include "cpgf/gerrorcode.h"
 
 #include "../pinclude/gbindcommon.h"
 #include "../pinclude/gscriptbindapiimpl.h"
@@ -235,7 +236,8 @@ PyTypeObject functionType = {
     0,                                      /* tp_cache */
     0,                                      /* tp_subclasses */
     0,                                      /* tp_weaklist */
-    0                                       /* tp_del */
+    0,                                      /* tp_del */
+    0                                       /* tp_version_tag */
 };
 
 
@@ -285,9 +287,63 @@ PyTypeObject classType = {
     0,                                      /* tp_cache */
     0,                                      /* tp_subclasses */
     0,                                      /* tp_weaklist */
-    0                                       /* tp_del */
+    0,                                      /* tp_del */
+    0                                       /* tp_version_tag */
 };
 
+template <GMetaOpType op, bool allowRightSelf>
+PyObject * binaryOperator(PyObject * a, PyObject * b);
+
+template <GMetaOpType op>
+PyObject * unaryOperator(PyObject * a);
+
+PyNumberMethods numberMethods = {
+	&binaryOperator<mopAdd, true>, /* nb_add */
+	&binaryOperator<mopSub, true>, /* nb_subtract */
+	&binaryOperator<mopMul, true>, /* nb_multiply */
+	&binaryOperator<mopDiv, true>, /* nb_divide */
+	&binaryOperator<mopMod, true>, /* nb_remainder */
+	0, /* nb_divmod */
+	0, /* nb_power */
+	&unaryOperator<mopNeg>, /* nb_negative */
+	&unaryOperator<mopPlus>, /* nb_positive */
+	0, /* nb_absolute */
+	0, /* nb_nonzero */
+	&unaryOperator<mopBitNot>, /* nb_invert */
+	&binaryOperator<mopBitLeftShift, true>, /* nb_lshift */
+	&binaryOperator<mopBitRightShift, true>, /* nb_rshift */
+	&binaryOperator<mopBitAnd, true>, /* nb_and */
+	&binaryOperator<mopBitXor, true>, /* nb_xor */
+	&binaryOperator<mopBitOr, true>, /* nb_or */
+	0, /* nb_coerce */
+	0, /* nb_int */
+	0, /* nb_long */
+	0, /* nb_float */
+	0, /* nb_oct */
+	0, /* nb_hex */
+    /* Added in release 2.0 */
+	&binaryOperator<mopAddAssign, false>, /* nb_inplace_add */
+	&binaryOperator<mopSubAssign, false>, /* nb_inplace_subtract */
+	&binaryOperator<mopMulAssign, false>, /* nb_inplace_multiply */
+	&binaryOperator<mopDivAssign, false>, /* nb_inplace_divide */
+	&binaryOperator<mopModAssign, false>, /* nb_inplace_remainder */
+	0, /* nb_inplace_power */
+	&binaryOperator<mopBitLeftShiftAssign, false>, /* nb_inplace_lshift */
+	&binaryOperator<mopBitRightShiftAssign, false>, /* nb_inplace_rshift */
+	&binaryOperator<mopBitAndAssign, false>, /* nb_inplace_and */
+	&binaryOperator<mopBitXorAssign, false>, /* nb_inplace_xor */
+	&binaryOperator<mopBitOrAssign, false>, /* nb_inplace_or */
+
+    /* Added in release 2.2 */
+    /* The following require the Py_TPFLAGS_HAVE_CLASS flag */
+	0, /* nb_floor_divide */
+	0, /* nb_true_divide */
+	0, /* nb_inplace_floor_divide */
+	0, /* nb_inplace_true_divide */
+
+    /* Added in release 2.5 */
+	0, /* nb_index */
+};
 
 PyTypeObject objectType = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -300,7 +356,7 @@ PyTypeObject objectType = {
     0,                                  /* tp_setattr */
     0,                                  /* tp_compare */
     0, 				                   /* tp_repr */
-    0,                                  /* tp_as_number */
+    &numberMethods,                                  /* tp_as_number */
     0,                                  /* tp_as_sequence */
     0,                                  /* tp_as_mapping */
     0,                                  /* tp_hash */
@@ -309,7 +365,7 @@ PyTypeObject objectType = {
 	&callbackGetAttribute,             /* tp_getattro */
     &callbackSetAttribute,            /* tp_setattro */
     0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT, 				/* tp_flags */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_CHECKTYPES,	/* tp_flags */
     0,                                  /* tp_doc */
     0, 						          /* tp_traverse */
     0,                                  /* tp_clear */
@@ -335,7 +391,8 @@ PyTypeObject objectType = {
     0,                                      /* tp_cache */
     0,                                      /* tp_subclasses */
     0,                                      /* tp_weaklist */
-    0                                       /* tp_del */
+    0,                                      /* tp_del */
+    0                                       /* tp_version_tag */
 };
 
 
@@ -385,7 +442,8 @@ PyTypeObject enumType = {
     0,                                      /* tp_cache */
     0,                                      /* tp_subclasses */
     0,                                      /* tp_weaklist */
-    0                                       /* tp_del */
+    0,                                      /* tp_del */
+    0                                       /* tp_version_tag */
 };
 
 
@@ -435,7 +493,8 @@ PyTypeObject accessibleType = {
     0,                                      /* tp_cache */
     0,                                      /* tp_subclasses */
     0,                                      /* tp_weaklist */
-    0                                       /* tp_del */
+    0,                                      /* tp_del */
+    0                                       /* tp_version_tag */
 };
 
 
@@ -485,7 +544,8 @@ PyTypeObject rawType = {
     0,                                      /* tp_cache */
     0,                                      /* tp_subclasses */
     0,                                      /* tp_weaklist */
-    0                                       /* tp_del */
+    0,                                      /* tp_del */
+    0                                       /* tp_version_tag */
 };
 
 
@@ -535,7 +595,8 @@ PyTypeObject emptyObjectType = {
     0,                                      /* tp_cache */
     0,                                      /* tp_subclasses */
     0,                                      /* tp_weaklist */
-    0                                       /* tp_del */
+    0,                                      /* tp_del */
+    0                                       /* tp_version_tag */
 };
 
 
@@ -1257,6 +1318,77 @@ void doBindAccessible(const GContextPointer & context, PyObject * owner, const c
 	PyObject * accessibleObject = createPythonObject(context->newAccessibleGlueData(instance, accessible));
 
 	setObjectAttr(owner, name, accessibleObject);
+}
+
+template <GMetaOpType op, bool allowRightSelf>
+PyObject * binaryOperator(PyObject * a, PyObject * b)
+{
+	ENTER_PYTHON()
+	
+	PyObject * self = NULL;
+	PyObject * other = NULL;
+	int selfIndex = 0;
+	int otherIndex = 0;
+
+	if(a->ob_type == &objectType) {
+		self = a;
+		other = b;
+		selfIndex = 0;
+		otherIndex = 1;
+	}
+	else {
+		if(! allowRightSelf) {
+			return NULL;
+		}
+		self = b;
+		other = a;
+		selfIndex = 1;
+		otherIndex = 0;
+	}
+	
+	GObjectGlueDataPointer objectData = castFromPython(self)->getDataAs<GObjectGlueData>();
+	const GContextPointer & context = objectData->getContext();
+
+	InvokeCallableParam callableParam(2);
+	IMetaTypedItem * typeItem;
+
+	callableParam.params[selfIndex].value = pythonToVariant(context, self, &callableParam.params[selfIndex].glueData);
+	callableParam.params[selfIndex].dataType = getPythonType(self, &typeItem);
+	callableParam.params[selfIndex].typeItem.reset(typeItem);
+	
+	callableParam.params[otherIndex].value = pythonToVariant(context, other, &callableParam.params[otherIndex].glueData);
+	callableParam.params[otherIndex].dataType = getPythonType(other, &typeItem);
+	callableParam.params[otherIndex].typeItem.reset(typeItem);
+	
+	InvokeCallableResult result = doInvokeOperator(context, objectData, objectData->getClassData()->getMetaClass(), op, &callableParam);
+	
+	return methodResultToPython(context, result.callable.get(), &result);
+
+	LEAVE_PYTHON(return NULL)
+}
+
+template <GMetaOpType op>
+PyObject * unaryOperator(PyObject * a)
+{
+	ENTER_PYTHON()
+	
+	PyObject * self = a;
+	
+	GObjectGlueDataPointer objectData = castFromPython(self)->getDataAs<GObjectGlueData>();
+	const GContextPointer & context = objectData->getContext();
+
+	InvokeCallableParam callableParam(1);
+	IMetaTypedItem * typeItem;
+
+	callableParam.params[0].value = pythonToVariant(context, self, &callableParam.params[0].glueData);
+	callableParam.params[0].dataType = getPythonType(self, &typeItem);
+	callableParam.params[0].typeItem.reset(typeItem);
+	
+	InvokeCallableResult result = doInvokeOperator(context, objectData, objectData->getClassData()->getMetaClass(), op, &callableParam);
+	
+	return methodResultToPython(context, result.callable.get(), &result);
+
+	LEAVE_PYTHON(return NULL)
 }
 
 

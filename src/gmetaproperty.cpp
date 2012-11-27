@@ -1,5 +1,6 @@
 #include "cpgf/gmetaproperty.h"
 #include "cpgf/gexception.h"
+#include "cpgf/gerrorcode.h"
 
 
 namespace cpgf {

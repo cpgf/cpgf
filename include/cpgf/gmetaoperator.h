@@ -15,6 +15,8 @@
 
 namespace cpgf {
 
+extern int Error_Meta_WrongArity;
+extern int Error_Meta_ParamOutOfIndex;
 
 struct GMetaSelf {};
 

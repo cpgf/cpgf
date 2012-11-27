@@ -2,6 +2,10 @@
 #define MK(a, b) MK2(a, b)
 
 
+#ifndef TEST_BIND
+#define TEST_BIND testscript::bindBasicData
+#endif
+
 #if ENABLE_LUA
 
 
@@ -9,7 +13,7 @@ GTEST(MK(CASE, _Python_Lib))
 {
 	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslPython, tsaLib));
 
-	testscript::bindBasicData(context->getBindingLib(), context->getService());
+	TEST_BIND(context->getBindingLib(), context->getService());
 
 	CASE(context.get());
 }
@@ -18,7 +22,7 @@ GTEST(MK(CASE, _Python_Api))
 {
 	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslPython, tsaApi));
 
-	testscript::bindBasicData(context->getBindingApi(), context->getService());
+	TEST_BIND(context->getBindingApi(), context->getService());
 
 	CASE(context.get());
 }

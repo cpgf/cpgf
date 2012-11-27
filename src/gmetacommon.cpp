@@ -1,6 +1,7 @@
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gmetaannotation.h"
 #include "cpgf/gmetatype.h"
+#include "cpgf/gerrorcode.h"
 
 #include "cpgf/private/gmetadefaultparam_p.h"
 

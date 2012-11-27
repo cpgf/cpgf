@@ -20,6 +20,10 @@
 
 namespace cpgf {
 
+extern int Error_Meta_CannotInitAbstractClass;
+extern int Error_Meta_NoDefaultConstructor;
+extern int Error_Meta_NoCopyConstructor;
+
 const GMetaClass * findMetaClass(const GMetaType & type);
 
 namespace meta_internal {

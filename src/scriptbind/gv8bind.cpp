@@ -1,5 +1,6 @@
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/gstringmap.h"
+#include "cpgf/gerrorcode.h"
 
 #include "v8.h"
 

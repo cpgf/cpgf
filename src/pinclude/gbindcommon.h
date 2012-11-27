@@ -19,6 +19,8 @@
 
 namespace cpgf {
 
+extern int Error_ScriptBinding_FailVariantToScript;
+
 class GMetaClassTraveller;
 class GScriptCoreService;
 

@@ -19,6 +19,8 @@
 
 namespace cpgf {
 
+extern int Error_Meta_ParamOutOfIndex;
+
 namespace meta_internal {
 
 

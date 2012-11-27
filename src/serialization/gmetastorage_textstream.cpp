@@ -3,6 +3,7 @@
 #include "cpgf/serialization/gmetaarchivewriter.h"
 #include "cpgf/serialization/gmetaarchivecommon.h"
 #include "cpgf/serialization/gmetaarchivetypemap.h"
+#include "cpgf/gerrorcode.h"
 
 #include <stack>
 

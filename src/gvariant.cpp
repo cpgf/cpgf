@@ -1,5 +1,6 @@
 #include "cpgf/gvariant.h"
 #include "cpgf/gmetatype.h"
+#include "cpgf/gerrorcode.h"
 
 
 namespace cpgf {

@@ -20,6 +20,7 @@
 
 namespace cpgf {
 
+
 class GMetaModule;
 
 class GMetaClassImplement;

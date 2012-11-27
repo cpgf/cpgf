@@ -4,7 +4,6 @@
 #include "cpgf/gvartypedata.h"
 #include "cpgf/gmetatype.h"
 #include "cpgf/gapiutil.h"
-#include "cpgf/gerrorcode.h"
 #include "cpgf/gclassutil.h"
 #include "cpgf/gifelse.h"
 #include "cpgf/ggetobjectaddress.h"
@@ -20,6 +19,10 @@
 #endif
 
 namespace cpgf {
+
+extern int Error_Variant_CantReferenceToTemp;
+extern int Error_Variant_FailCast;
+extern int Error_Variant_FailCopyObject;
 
 struct VarantCastKeepConstRef {};
 struct VarantCastCopyConstRef {};

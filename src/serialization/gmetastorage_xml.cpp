@@ -3,6 +3,7 @@
 #include "cpgf/serialization/gmetaarchivereader.h"
 #include "cpgf/serialization/gmetaarchivewriter.h"
 #include "cpgf/serialization/gmetaarchivetypemap.h"
+#include "cpgf/gerrorcode.h"
 #include "../pinclude/gmetaarchivecommonimpl.h"
 
 #include "cpgf/thirdparty/rapidxml/rapidxml.hpp"

@@ -4,6 +4,7 @@
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gapiutil.h"
 #include "cpgf/gsharedinterface.h"
+#include "cpgf/gerrorcode.h"
 
 #include <map>
 #include <string>

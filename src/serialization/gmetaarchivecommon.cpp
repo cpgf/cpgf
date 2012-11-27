@@ -4,6 +4,7 @@
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gfixedtype.h"
 #include "cpgf/gscopedinterface.h"
+#include "cpgf/gerrorcode.h"
 
 
 namespace cpgf {

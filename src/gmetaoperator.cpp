@@ -1,4 +1,5 @@
 #include "cpgf/gmetaoperator.h"
+#include "cpgf/gerrorcode.h"
 
 
 #if defined(_MSC_VER)

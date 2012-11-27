@@ -13,6 +13,58 @@
 
 namespace cpgf {
 
+int Error_None						= 0;
+
+int Error_Variant_Begin				= 1;
+int Error_Variant_FailCast			= Error_Variant_Begin + 0;
+int Error_Variant_FailCopyObject		= Error_Variant_Begin + 1;
+int Error_Variant_CantReferenceToTemp = Error_Variant_Begin + 2;
+int Error_Variant_FailAdjustTypeSize	= Error_Variant_Begin + 3;
+int Error_Variant_End					= 100;
+
+int Error_Meta_Begin					= 101;
+int Error_Meta_ParamOutOfIndex		= Error_Meta_Begin + 0;
+int Error_Meta_ReadDenied				= Error_Meta_Begin + 1;
+int Error_Meta_WriteDenied			= Error_Meta_Begin + 2;
+int Error_Meta_CannotInitAbstractClass	= Error_Meta_Begin + 3;
+int Error_Meta_NoDefaultConstructor	= Error_Meta_Begin + 4;
+int Error_Meta_NoCopyConstructor		= Error_Meta_Begin + 5;
+int Error_Meta_NotUnaryOperator		= Error_Meta_Begin + 6;
+int Error_Meta_NotBinaryOperator		= Error_Meta_Begin + 7;
+int Error_Meta_NotFunctorOperator		= Error_Meta_Begin + 8;
+int Error_Meta_WrongArity				= Error_Meta_Begin + 9;
+int Error_Meta_End					= 200;
+
+int Error_ScriptBinding_Begin			= 201;
+int Error_ScriptBinding_InternalError_WrongFunctor= Error_ScriptBinding_Begin + 0;
+int Error_ScriptBinding_NotSupportedOperator		= Error_ScriptBinding_Begin + 1;
+int Error_ScriptBinding_FailVariantToScript		= Error_ScriptBinding_Begin + 2;
+int Error_ScriptBinding_CantFindMatchedMethod		= Error_ScriptBinding_Begin + 3;
+int Error_ScriptBinding_FailConstructObject		= Error_ScriptBinding_Begin + 4;
+int Error_ScriptBinding_CantFindEnumKey			= Error_ScriptBinding_Begin + 5;
+int Error_ScriptBinding_CantAssignToEnumMethodClass	= Error_ScriptBinding_Begin + 6;
+int Error_ScriptBinding_ScriptMethodParamMismatch	= Error_ScriptBinding_Begin + 7;
+int Error_ScriptBinding_CantReturnMultipleValue	= Error_ScriptBinding_Begin + 8;
+int Error_ScriptBinding_CantCallNonfunction		= Error_ScriptBinding_Begin + 9;
+int Error_ScriptBinding_CantBindFundamental		= Error_ScriptBinding_Begin + 10;
+int Error_ScriptBinding_ScriptFunctionReturnError	= Error_ScriptBinding_Begin + 11;
+int Error_ScriptBinding_CantWriteToConstObject	= Error_ScriptBinding_Begin + 12;
+int Error_ScriptBinding_CallMethodWithTooManyParameters	= Error_ScriptBinding_Begin + 13;
+int Error_ScriptBinding_AccessMemberWithWrongObject	= Error_ScriptBinding_Begin + 14;
+int Error_ScriptBinding_CantBindRaw			= Error_ScriptBinding_Begin + 15;
+int Error_ScriptBinding_NoContext				= Error_ScriptBinding_Begin + 16;
+int Error_ScriptBinding_CantFindMatchedOperator		= Error_ScriptBinding_Begin + 17;
+int Error_ScriptBinding_End			= 300;
+
+int Error_Serialization_Begin = 301;
+int Error_Serialization_TypeMismatch = Error_Serialization_Begin + 0;
+int Error_Serialization_CannotFindObjectType = Error_Serialization_Begin + 1;
+int Error_Serialization_MissingMetaClass = Error_Serialization_Begin + 2;
+int Error_Serialization_UnknownType = Error_Serialization_Begin + 3;
+int Error_Serialization_InvalidStorage = Error_Serialization_Begin + 4;
+int Error_Serialization_End = 400;
+
+
 GException::GException(int errorCode, const char * message)
 	: super(message), errorCode(errorCode)
 {
@@ -82,6 +134,7 @@ namespace {
 		{ Error_ScriptBinding_AccessMemberWithWrongObject,		"Access class member with wrong object." },
 		{ Error_ScriptBinding_CantBindRaw, 						"Failed to bind raw data." },
 		{ Error_ScriptBinding_NoContext,						"Script context doesn't exist." },
+		{ Error_ScriptBinding_CantFindMatchedOperator,			"Can't find matched opereator to invoke" },
 
 		{ Error_Serialization_TypeMismatch,			"Type mismatch when reading serialized object." },
 		{ Error_Serialization_CannotFindObjectType,	"Can't find object type." },
