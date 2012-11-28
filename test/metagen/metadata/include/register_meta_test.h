@@ -23,6 +23,7 @@ GDefineMetaInfo createMetaClass_MetagenOperatorArithmeticAssign();
 GDefineMetaInfo createMetaClass_MetagenOperatorBitwise();
 GDefineMetaInfo createMetaClass_MetagenOperatorBitwiseAssign();
 GDefineMetaInfo createMetaClass_MetagenOperatorConstness();
+GDefineMetaInfo createMetaClass_MetagenOperatorInnerClass();
 GDefineMetaInfo createMetaClass_MetagenOperatorLogic();
 GDefineMetaInfo createMetaClass_MetagenOperatorOther();
 GDefineMetaInfo createMetaClass_MetagenOperatorUnary();
@@ -64,6 +65,7 @@ void registerMain_metatest(Meta _d)
     _d._class(createMetaClass_MetagenOperatorBitwise());
     _d._class(createMetaClass_MetagenOperatorBitwiseAssign());
     _d._class(createMetaClass_MetagenOperatorConstness());
+    _d._class(createMetaClass_MetagenOperatorInnerClass());
     _d._class(createMetaClass_MetagenOperatorLogic());
     _d._class(createMetaClass_MetagenOperatorOther());
     _d._class(createMetaClass_MetagenOperatorUnary());

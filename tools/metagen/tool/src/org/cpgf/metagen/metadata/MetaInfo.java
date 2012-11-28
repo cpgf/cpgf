@@ -13,9 +13,9 @@ import org.cpgf.metagen.metawriter.OutputCallbackClassMap;
 
 public class MetaInfo {
 	private Config config;
-    private List<CppClass> classList;
+    private List<CppClass> classList; // top level classes
 	private TypeSolver typeSolver;
-    private List<CppClass> allClassList;
+    private List<CppClass> allClassList; // top level + inner classes
     private List<TemplateInstance> templateInstanceList;
     private OutputCallbackClassMap callbackClassMap;
     private OperatorNameMap operatorNameMap;
@@ -39,10 +39,6 @@ public class MetaInfo {
 
     public List<CppClass> getClassList() {
         return this.classList;
-    }
-
-    public List<CppClass> getAllClassList() {
-        return this.allClassList;
     }
 
 	public OutputCallbackClassMap getCallbackClassMap() {

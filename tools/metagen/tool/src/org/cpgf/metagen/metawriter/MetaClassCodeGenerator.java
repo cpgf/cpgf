@@ -254,9 +254,9 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 		}
 		this.classCode.headerCode = this.appendText(this.classCode.headerCode, codeWriter.getText());
 		
-//		for(DeferClass innerClass : cls.getClassList()) {
-//			generateOperatorWrapperFunctions(innerClass.getCppClass());
-//		}
+		for(DeferClass innerClass : cls.getClassList()) {
+			generateOperatorWrapperFunctions(innerClass.getCppClass());
+		}
 	}
 	
 	private void generateClassReflectionHeaderCode() {
