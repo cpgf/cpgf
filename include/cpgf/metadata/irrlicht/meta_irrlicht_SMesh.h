@@ -27,6 +27,7 @@ void buildMetaClass_SMesh(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
     _d.CPGF_MD_TEMPLATE _field("MeshBuffers", &D::ClassType::MeshBuffers);
     _d.CPGF_MD_TEMPLATE _field("BoundingBox", &D::ClassType::BoundingBox);
+    _d.CPGF_MD_TEMPLATE _method("clear", &D::ClassType::clear);
     _d.CPGF_MD_TEMPLATE _method("getMeshBufferCount", &D::ClassType::getMeshBufferCount);
     _d.CPGF_MD_TEMPLATE _method("getMeshBuffer", (IMeshBuffer * (D::ClassType::*) (u32) const)&D::ClassType::getMeshBuffer);
     _d.CPGF_MD_TEMPLATE _method("getMeshBuffer", (IMeshBuffer * (D::ClassType::*) (const video::SMaterial &) const)&D::ClassType::getMeshBuffer);

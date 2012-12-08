@@ -56,6 +56,11 @@ void buildMetaClass_Global_edriverfeatures(const cpgf::GMetaDataConfigFlags & co
         ._element("EVDF_MRT_COLOR_MASK", irr::video::EVDF_MRT_COLOR_MASK)
         ._element("EVDF_MRT_BLEND_FUNC", irr::video::EVDF_MRT_BLEND_FUNC)
         ._element("EVDF_GEOMETRY_SHADER", irr::video::EVDF_GEOMETRY_SHADER)
+        ._element("EVDF_OCCLUSION_QUERY", irr::video::EVDF_OCCLUSION_QUERY)
+        ._element("EVDF_POLYGON_OFFSET", irr::video::EVDF_POLYGON_OFFSET)
+        ._element("EVDF_BLEND_OPERATIONS", irr::video::EVDF_BLEND_OPERATIONS)
+        ._element("EVDF_TEXTURE_MATRIX", irr::video::EVDF_TEXTURE_MATRIX)
+        ._element("EVDF_CG", irr::video::EVDF_CG)
         ._element("EVDF_COUNT", irr::video::EVDF_COUNT)
     ;
 }

@@ -47,6 +47,8 @@ void buildMetaClass_IGUIButton(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("setOverrideFont", &D::ClassType::setOverrideFont)
         ._default(copyVariantFromCopyable(0))
     ;
+    _d.CPGF_MD_TEMPLATE _method("getOverrideFont", &D::ClassType::getOverrideFont);
+    _d.CPGF_MD_TEMPLATE _method("getActiveFont", &D::ClassType::getActiveFont);
     _d.CPGF_MD_TEMPLATE _method("setImage", (void (D::ClassType::*) (video::ITexture *))&D::ClassType::setImage)
         ._default(copyVariantFromCopyable(0))
     ;

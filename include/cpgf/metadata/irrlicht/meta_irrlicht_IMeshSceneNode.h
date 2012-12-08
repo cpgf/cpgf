@@ -26,6 +26,12 @@ void buildMetaClass_IMeshSceneNode(const cpgf::GMetaDataConfigFlags & config, D 
     
     _d.CPGF_MD_TEMPLATE _method("setMesh", &D::ClassType::setMesh);
     _d.CPGF_MD_TEMPLATE _method("getMesh", &D::ClassType::getMesh);
+    _d.CPGF_MD_TEMPLATE _method("addShadowVolumeSceneNode", &D::ClassType::addShadowVolumeSceneNode)
+        ._default(copyVariantFromCopyable(1000.0f))
+        ._default(copyVariantFromCopyable(true))
+        ._default(copyVariantFromCopyable(-1))
+        ._default(copyVariantFromCopyable(0))
+    ;
     _d.CPGF_MD_TEMPLATE _method("setReadOnlyMaterials", &D::ClassType::setReadOnlyMaterials);
     _d.CPGF_MD_TEMPLATE _method("isReadOnlyMaterials", &D::ClassType::isReadOnlyMaterials);
 }

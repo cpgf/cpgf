@@ -35,6 +35,7 @@ void buildMetaClass_Global_ifilearchive(const cpgf::GMetaDataConfigFlags & confi
         ._element("EFAT_PAK", irr::io::EFAT_PAK)
         ._element("EFAT_NPK", irr::io::EFAT_NPK)
         ._element("EFAT_TAR", irr::io::EFAT_TAR)
+        ._element("EFAT_WAD", irr::io::EFAT_WAD)
         ._element("EFAT_UNKNOWN", irr::io::EFAT_UNKNOWN)
     ;
 }

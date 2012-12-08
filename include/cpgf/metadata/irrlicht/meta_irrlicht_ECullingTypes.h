@@ -30,6 +30,7 @@ void buildMetaClass_Global_ecullingtypes(const cpgf::GMetaDataConfigFlags & conf
         ._element("EAC_BOX", irr::scene::EAC_BOX)
         ._element("EAC_FRUSTUM_BOX", irr::scene::EAC_FRUSTUM_BOX)
         ._element("EAC_FRUSTUM_SPHERE", irr::scene::EAC_FRUSTUM_SPHERE)
+        ._element("EAC_OCC_QUERY", irr::scene::EAC_OCC_QUERY)
     ;
 }
 

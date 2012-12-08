@@ -29,6 +29,7 @@ void buildMetaClass_IGUIEnvironment(const cpgf::GMetaDataConfigFlags & config, D
     _d.CPGF_MD_TEMPLATE _method("drawAll", &D::ClassType::drawAll);
     _d.CPGF_MD_TEMPLATE _method("setFocus", &D::ClassType::setFocus);
     _d.CPGF_MD_TEMPLATE _method("getFocus", &D::ClassType::getFocus);
+    _d.CPGF_MD_TEMPLATE _method("getHovered", &D::ClassType::getHovered);
     _d.CPGF_MD_TEMPLATE _method("removeFocus", &D::ClassType::removeFocus);
     _d.CPGF_MD_TEMPLATE _method("hasFocus", &D::ClassType::hasFocus);
     _d.CPGF_MD_TEMPLATE _method("getVideoDriver", &D::ClassType::getVideoDriver);
@@ -43,6 +44,7 @@ void buildMetaClass_IGUIEnvironment(const cpgf::GMetaDataConfigFlags & config, D
     _d.CPGF_MD_TEMPLATE _method("createImageList", &D::ClassType::createImageList);
     _d.CPGF_MD_TEMPLATE _method("getFont", &D::ClassType::getFont, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("addFont", &D::ClassType::addFont, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("removeFont", &D::ClassType::removeFont);
     _d.CPGF_MD_TEMPLATE _method("getBuiltInFont", &D::ClassType::getBuiltInFont);
     _d.CPGF_MD_TEMPLATE _method("getSpriteBank", &D::ClassType::getSpriteBank, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("addEmptySpriteBank", &D::ClassType::addEmptySpriteBank, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
@@ -78,7 +80,8 @@ void buildMetaClass_IGUIEnvironment(const cpgf::GMetaDataConfigFlags & config, D
         ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(true))
     ;
-    _d.CPGF_MD_TEMPLATE _method("addImage", (IGUIImage * (D::ClassType::*) (const core::rect< s32 > &, IGUIElement *, s32, const wchar_t *))&D::ClassType::addImage)
+    _d.CPGF_MD_TEMPLATE _method("addImage", (IGUIImage * (D::ClassType::*) (const core::rect< s32 > &, IGUIElement *, s32, const wchar_t *, bool))&D::ClassType::addImage)
+        ._default(copyVariantFromCopyable(true))
         ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(-1))
         ._default(copyVariantFromCopyable(0))
@@ -106,6 +109,8 @@ void buildMetaClass_IGUIEnvironment(const cpgf::GMetaDataConfigFlags & config, D
         ._default(copyVariantFromCopyable(0))
     ;
     _d.CPGF_MD_TEMPLATE _method("addFileOpenDialog", &D::ClassType::addFileOpenDialog)
+        ._default(copyVariantFromCopyable(0))
+        ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(-1))
         ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(true))

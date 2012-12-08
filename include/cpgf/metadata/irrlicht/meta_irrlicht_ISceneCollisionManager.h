@@ -33,6 +33,7 @@ void buildMetaClass_ISceneCollisionManager(const cpgf::GMetaDataConfigFlags & co
         ._default(copyVariantFromCopyable(0))
     ;
     _d.CPGF_MD_TEMPLATE _method("getScreenCoordinatesFrom3DPosition", &D::ClassType::getScreenCoordinatesFrom3DPosition)
+        ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(0))
     ;
     _d.CPGF_MD_TEMPLATE _method("getSceneNodeFromScreenCoordinatesBB", &D::ClassType::getSceneNodeFromScreenCoordinatesBB)

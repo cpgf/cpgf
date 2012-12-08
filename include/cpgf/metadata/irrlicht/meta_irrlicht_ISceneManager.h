@@ -141,10 +141,11 @@ void buildMetaClass_ISceneManager(const cpgf::GMetaDataConfigFlags & config, D _
     ;
     _d.CPGF_MD_TEMPLATE _method("addCameraSceneNodeMaya", &D::ClassType::addCameraSceneNodeMaya)
         ._default(copyVariantFromCopyable(true))
+        ._default(copyVariantFromCopyable(70.f))
         ._default(copyVariantFromCopyable(-1))
-        ._default(copyVariantFromCopyable(1500.0f))
-        ._default(copyVariantFromCopyable(200.0f))
-        ._default(copyVariantFromCopyable(-1500.0f))
+        ._default(copyVariantFromCopyable(1500.f))
+        ._default(copyVariantFromCopyable(200.f))
+        ._default(copyVariantFromCopyable(-1500.f))
         ._default(copyVariantFromCopyable(0))
     ;
     _d.CPGF_MD_TEMPLATE _method("addCameraSceneNodeFPS", &D::ClassType::addCameraSceneNodeFPS)
@@ -343,6 +344,11 @@ void buildMetaClass_ISceneManager(const cpgf::GMetaDataConfigFlags & config, D _
         ._default(copyVariantFromCopyable(0))
     ;
     _d.CPGF_MD_TEMPLATE _method("addExternalMeshLoader", &D::ClassType::addExternalMeshLoader);
+    _d.CPGF_MD_TEMPLATE _method("getMeshLoaderCount", &D::ClassType::getMeshLoaderCount);
+    _d.CPGF_MD_TEMPLATE _method("getMeshLoader", &D::ClassType::getMeshLoader);
+    _d.CPGF_MD_TEMPLATE _method("addExternalSceneLoader", &D::ClassType::addExternalSceneLoader);
+    _d.CPGF_MD_TEMPLATE _method("getSceneLoaderCount", &D::ClassType::getSceneLoaderCount);
+    _d.CPGF_MD_TEMPLATE _method("getSceneLoader", &D::ClassType::getSceneLoader);
     _d.CPGF_MD_TEMPLATE _method("getSceneCollisionManager", &D::ClassType::getSceneCollisionManager);
     _d.CPGF_MD_TEMPLATE _method("getMeshManipulator", &D::ClassType::getMeshManipulator);
     _d.CPGF_MD_TEMPLATE _method("addToDeletionQueue", &D::ClassType::addToDeletionQueue);
@@ -363,19 +369,30 @@ void buildMetaClass_ISceneManager(const cpgf::GMetaDataConfigFlags & config, D _
     _d.CPGF_MD_TEMPLATE _method("addSceneNode", &D::ClassType::addSceneNode)
         ._default(copyVariantFromCopyable(0))
     ;
+    _d.CPGF_MD_TEMPLATE _method("createSceneNodeAnimator", &D::ClassType::createSceneNodeAnimator)
+        ._default(copyVariantFromCopyable(0))
+    ;
     _d.CPGF_MD_TEMPLATE _method("createNewSceneManager", &D::ClassType::createNewSceneManager)
         ._default(copyVariantFromCopyable(false))
     ;
-    _d.CPGF_MD_TEMPLATE _method("saveScene", (bool (D::ClassType::*) (const io::path &, ISceneUserDataSerializer *))&D::ClassType::saveScene, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
+    _d.CPGF_MD_TEMPLATE _method("saveScene", (bool (D::ClassType::*) (const io::path &, ISceneUserDataSerializer *, ISceneNode *))&D::ClassType::saveScene, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
+        ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _method("saveScene", (bool (D::ClassType::*) (io::IWriteFile *, ISceneUserDataSerializer *))&D::ClassType::saveScene)
+    _d.CPGF_MD_TEMPLATE _method("saveScene", (bool (D::ClassType::*) (io::IWriteFile *, ISceneUserDataSerializer *, ISceneNode *))&D::ClassType::saveScene)
+        ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _method("loadScene", (bool (D::ClassType::*) (const io::path &, ISceneUserDataSerializer *))&D::ClassType::loadScene, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
+    _d.CPGF_MD_TEMPLATE _method("saveScene", (bool (D::ClassType::*) (io::IXMLWriter *, const io::path &, ISceneUserDataSerializer *, ISceneNode *))&D::ClassType::saveScene, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >())
+        ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(0))
     ;
-    _d.CPGF_MD_TEMPLATE _method("loadScene", (bool (D::ClassType::*) (io::IReadFile *, ISceneUserDataSerializer *))&D::ClassType::loadScene)
+    _d.CPGF_MD_TEMPLATE _method("loadScene", (bool (D::ClassType::*) (const io::path &, ISceneUserDataSerializer *, ISceneNode *))&D::ClassType::loadScene, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
+        ._default(copyVariantFromCopyable(0))
+        ._default(copyVariantFromCopyable(0))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("loadScene", (bool (D::ClassType::*) (io::IReadFile *, ISceneUserDataSerializer *, ISceneNode *))&D::ClassType::loadScene)
+        ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(0))
     ;
     _d.CPGF_MD_TEMPLATE _method("createMeshWriter", &D::ClassType::createMeshWriter);

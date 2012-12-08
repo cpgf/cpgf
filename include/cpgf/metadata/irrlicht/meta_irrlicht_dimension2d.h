@@ -55,12 +55,16 @@ inline dimension2d< T > & opErAToRWrapper_dimension2d__opAddAssign(dimension2d<T
     return (*self) += other;
 }
 template <class T>
+inline dimension2d< T > opErAToRWrapper_dimension2d__opAdd(const dimension2d<T> * self, const dimension2d< T > & other) {
+    return (*self) + other;
+}
+template <class T>
 inline dimension2d< T > & opErAToRWrapper_dimension2d__opSubAssign(dimension2d<T> * self, const dimension2d< T > & other) {
     return (*self) -= other;
 }
 template <class T>
-inline dimension2d< T > opErAToRWrapper_dimension2d__opAdd(const dimension2d<T> * self, const dimension2d< T > & other) {
-    return (*self) + other;
+inline dimension2d< T > opErAToRWrapper_dimension2d__opSub(const dimension2d<T> * self, const dimension2d< T > & other) {
+    return (*self) - other;
 }
 
 
@@ -102,10 +106,12 @@ void buildMetaClass_Dimension2d(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("_opMul", (dimension2d< T > (*) (const dimension2d<T> *, const T &))&opErAToRWrapper_dimension2d__opMul<T>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<dimension2d< T > & (*)(cpgf::GMetaSelf, const dimension2d< T > &)>(mopHolder += mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("_opAddAssign", (dimension2d< T > & (*) (dimension2d<T> *, const dimension2d< T > &))&opErAToRWrapper_dimension2d__opAddAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
-    _d.CPGF_MD_TEMPLATE _operator<dimension2d< T > & (*)(cpgf::GMetaSelf, const dimension2d< T > &)>(mopHolder -= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
-    _d.CPGF_MD_TEMPLATE _method("_opSubAssign", (dimension2d< T > & (*) (dimension2d<T> *, const dimension2d< T > &))&opErAToRWrapper_dimension2d__opSubAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<dimension2d< T > (*)(const cpgf::GMetaSelf &, const dimension2d< T > &)>(mopHolder + mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("_opAdd", (dimension2d< T > (*) (const dimension2d<T> *, const dimension2d< T > &))&opErAToRWrapper_dimension2d__opAdd<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _operator<dimension2d< T > & (*)(cpgf::GMetaSelf, const dimension2d< T > &)>(mopHolder -= mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opSubAssign", (dimension2d< T > & (*) (dimension2d<T> *, const dimension2d< T > &))&opErAToRWrapper_dimension2d__opSubAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
+    _d.CPGF_MD_TEMPLATE _operator<dimension2d< T > (*)(const cpgf::GMetaSelf &, const dimension2d< T > &)>(mopHolder - mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opSub", (dimension2d< T > (*) (const dimension2d<T> *, const dimension2d< T > &))&opErAToRWrapper_dimension2d__opSub<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
 }
 
 

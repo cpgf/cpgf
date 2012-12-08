@@ -36,6 +36,10 @@ void buildMetaClass_SViewFrustum(const cpgf::GMetaDataConfigFlags & config, D _d
     _d.CPGF_MD_TEMPLATE _method("getFarLeftDown", &D::ClassType::getFarLeftDown);
     _d.CPGF_MD_TEMPLATE _method("getFarRightUp", &D::ClassType::getFarRightUp);
     _d.CPGF_MD_TEMPLATE _method("getFarRightDown", &D::ClassType::getFarRightDown);
+    _d.CPGF_MD_TEMPLATE _method("getNearLeftUp", &D::ClassType::getNearLeftUp);
+    _d.CPGF_MD_TEMPLATE _method("getNearLeftDown", &D::ClassType::getNearLeftDown);
+    _d.CPGF_MD_TEMPLATE _method("getNearRightUp", &D::ClassType::getNearRightUp);
+    _d.CPGF_MD_TEMPLATE _method("getNearRightDown", &D::ClassType::getNearRightDown);
     _d.CPGF_MD_TEMPLATE _method("getBoundingBox", &D::ClassType::getBoundingBox);
     _d.CPGF_MD_TEMPLATE _method("recalculateBoundingBox", &D::ClassType::recalculateBoundingBox);
     _d.CPGF_MD_TEMPLATE _method("getTransform", (core::matrix4 & (D::ClassType::*) (video::E_TRANSFORMATION_STATE))&D::ClassType::getTransform);

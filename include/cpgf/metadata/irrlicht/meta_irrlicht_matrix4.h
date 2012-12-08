@@ -126,6 +126,7 @@ void buildMetaClass_CMatrix4(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getRotationDegrees", &D::ClassType::getRotationDegrees);
     _d.CPGF_MD_TEMPLATE _method("setInverseRotationRadians", &D::ClassType::setInverseRotationRadians, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("setInverseRotationDegrees", &D::ClassType::setInverseRotationDegrees, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("setRotationAxisRadians", &D::ClassType::setRotationAxisRadians, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("setScale", (CMatrix4< T > & (D::ClassType::*) (const vector3d< T > &))&D::ClassType::setScale, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("setScale", (CMatrix4< T > & (D::ClassType::*) (const T))&D::ClassType::setScale);
     _d.CPGF_MD_TEMPLATE _method("getScale", &D::ClassType::getScale);
@@ -137,6 +138,7 @@ void buildMetaClass_CMatrix4(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("transformVect", (void (D::ClassType::*) (vector3df &) const)&D::ClassType::transformVect);
     _d.CPGF_MD_TEMPLATE _method("transformVect", (void (D::ClassType::*) (vector3df &, const vector3df &) const)&D::ClassType::transformVect);
     _d.CPGF_MD_TEMPLATE _method("transformVect", (void (D::ClassType::*) (T *, const core::vector3df &) const)&D::ClassType::transformVect);
+    _d.CPGF_MD_TEMPLATE _method("transformVec3", &D::ClassType::transformVec3);
     _d.CPGF_MD_TEMPLATE _method("translateVect", &D::ClassType::translateVect);
     _d.CPGF_MD_TEMPLATE _method("transformPlane", (void (D::ClassType::*) (core::plane3d< f32 > &) const)&D::ClassType::transformPlane);
     _d.CPGF_MD_TEMPLATE _method("transformPlane", (void (D::ClassType::*) (const core::plane3d< f32 > &, core::plane3d< f32 > &) const)&D::ClassType::transformPlane);
@@ -148,6 +150,9 @@ void buildMetaClass_CMatrix4(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getInverse", &D::ClassType::getInverse);
     _d.CPGF_MD_TEMPLATE _method("buildProjectionMatrixPerspectiveFovRH", &D::ClassType::buildProjectionMatrixPerspectiveFovRH);
     _d.CPGF_MD_TEMPLATE _method("buildProjectionMatrixPerspectiveFovLH", &D::ClassType::buildProjectionMatrixPerspectiveFovLH);
+    _d.CPGF_MD_TEMPLATE _method("buildProjectionMatrixPerspectiveFovInfinityLH", &D::ClassType::buildProjectionMatrixPerspectiveFovInfinityLH)
+        ._default(copyVariantFromCopyable(0))
+    ;
     _d.CPGF_MD_TEMPLATE _method("buildProjectionMatrixPerspectiveRH", &D::ClassType::buildProjectionMatrixPerspectiveRH);
     _d.CPGF_MD_TEMPLATE _method("buildProjectionMatrixPerspectiveLH", &D::ClassType::buildProjectionMatrixPerspectiveLH);
     _d.CPGF_MD_TEMPLATE _method("buildProjectionMatrixOrthoLH", &D::ClassType::buildProjectionMatrixOrthoLH);

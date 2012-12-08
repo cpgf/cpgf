@@ -34,6 +34,11 @@ void buildMetaClass_Global_itexture(const cpgf::GMetaDataConfigFlags & config, D
         ._element("ETCF_ALLOW_NON_POWER_2", irr::video::ETCF_ALLOW_NON_POWER_2)
         ._element("ETCF_FORCE_32_BIT_DO_NOT_USE", irr::video::ETCF_FORCE_32_BIT_DO_NOT_USE)
     ;
+    _d.CPGF_MD_TEMPLATE _enum<E_TEXTURE_LOCK_MODE>("E_TEXTURE_LOCK_MODE")
+        ._element("ETLM_READ_WRITE", irr::video::ETLM_READ_WRITE)
+        ._element("ETLM_READ_ONLY", irr::video::ETLM_READ_ONLY)
+        ._element("ETLM_WRITE_ONLY", irr::video::ETLM_WRITE_ONLY)
+    ;
 }
 
 
@@ -45,7 +50,7 @@ void buildMetaClass_ITexture(const cpgf::GMetaDataConfigFlags & config, D _d)
     
     _d.CPGF_MD_TEMPLATE _method("lock", &D::ClassType::lock)
         ._default(copyVariantFromCopyable(0))
-        ._default(copyVariantFromCopyable(false))
+        ._default(copyVariantFromCopyable(ETLM_READ_WRITE))
     ;
     _d.CPGF_MD_TEMPLATE _method("unlock", &D::ClassType::unlock);
     _d.CPGF_MD_TEMPLATE _method("getOriginalSize", &D::ClassType::getOriginalSize);

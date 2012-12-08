@@ -41,6 +41,19 @@ void buildMetaClass_Global_scolor(const cpgf::GMetaDataConfigFlags & config, D _
     _d.CPGF_MD_TEMPLATE _method("getGreen", (u32 (*) (u16))&getGreen);
     _d.CPGF_MD_TEMPLATE _method("getBlue", (u32 (*) (u16))&getBlue);
     _d.CPGF_MD_TEMPLATE _method("getAverage", (s32 (*) (s16))&getAverage);
+    _d.CPGF_MD_TEMPLATE _enum<ECOLOR_FORMAT>("ECOLOR_FORMAT")
+        ._element("ECF_A1R5G5B5", irr::video::ECF_A1R5G5B5)
+        ._element("ECF_R5G6B5", irr::video::ECF_R5G6B5)
+        ._element("ECF_R8G8B8", irr::video::ECF_R8G8B8)
+        ._element("ECF_A8R8G8B8", irr::video::ECF_A8R8G8B8)
+        ._element("ECF_R16F", irr::video::ECF_R16F)
+        ._element("ECF_G16R16F", irr::video::ECF_G16R16F)
+        ._element("ECF_A16B16G16R16F", irr::video::ECF_A16B16G16R16F)
+        ._element("ECF_R32F", irr::video::ECF_R32F)
+        ._element("ECF_G32R32F", irr::video::ECF_G32R32F)
+        ._element("ECF_A32B32G32R32F", irr::video::ECF_A32B32G32R32F)
+        ._element("ECF_UNKNOWN", irr::video::ECF_UNKNOWN)
+    ;
 }
 
 
@@ -85,6 +98,8 @@ void buildMetaClass_SColor(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("set", (void (D::ClassType::*) (u32))&D::ClassType::set);
     _d.CPGF_MD_TEMPLATE _method("getInterpolated", &D::ClassType::getInterpolated, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("getInterpolated_quadratic", &D::ClassType::getInterpolated_quadratic, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("setData", &D::ClassType::setData);
+    _d.CPGF_MD_TEMPLATE _method("getData", &D::ClassType::getData);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SColor &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const SColor *, const SColor &))&opErAToRWrapper_SColor__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const SColor &)>(mopHolder != mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());

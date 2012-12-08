@@ -61,7 +61,7 @@ void buildMetaClass_List(const cpgf::GMetaDataConfigFlags & config, D _d)
         _nd.CPGF_MD_TEMPLATE _operator<typename list<T >::ConstIterator (*)(cpgf::GMetaSelf)>(mopHolder--);
         _nd.CPGF_MD_TEMPLATE _operator<typename list<T >::ConstIterator& (*)(cpgf::GMetaSelf, s32)>(mopHolder += mopHolder);
         _nd.CPGF_MD_TEMPLATE _operator<typename list<T >::ConstIterator (*)(const cpgf::GMetaSelf &, s32)>(mopHolder + mopHolder);
-        _nd.CPGF_MD_TEMPLATE _operator<typename list<T >::ConstIterator& (*)(const cpgf::GMetaSelf &, s32)>(mopHolder -= mopHolder);
+        _nd.CPGF_MD_TEMPLATE _operator<typename list<T >::ConstIterator& (*)(cpgf::GMetaSelf, s32)>(mopHolder -= mopHolder);
         _nd.CPGF_MD_TEMPLATE _operator<typename list<T >::ConstIterator (*)(const cpgf::GMetaSelf &, s32)>(mopHolder - mopHolder);
         _nd.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const typename list<T >::ConstIterator&)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
         _nd.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const typename list<T >::ConstIterator&)>(mopHolder != mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
@@ -81,7 +81,7 @@ void buildMetaClass_List(const cpgf::GMetaDataConfigFlags & config, D _d)
         _nd.CPGF_MD_TEMPLATE _operator<typename list<T >::Iterator (*)(cpgf::GMetaSelf)>(mopHolder--);
         _nd.CPGF_MD_TEMPLATE _operator<typename list<T >::Iterator& (*)(cpgf::GMetaSelf, s32)>(mopHolder += mopHolder);
         _nd.CPGF_MD_TEMPLATE _operator<typename list<T >::Iterator (*)(const cpgf::GMetaSelf &, s32)>(mopHolder + mopHolder);
-        _nd.CPGF_MD_TEMPLATE _operator<typename list<T >::Iterator& (*)(const cpgf::GMetaSelf &, s32)>(mopHolder -= mopHolder);
+        _nd.CPGF_MD_TEMPLATE _operator<typename list<T >::Iterator& (*)(cpgf::GMetaSelf, s32)>(mopHolder -= mopHolder);
         _nd.CPGF_MD_TEMPLATE _operator<typename list<T >::Iterator (*)(const cpgf::GMetaSelf &, s32)>(mopHolder - mopHolder);
         _nd.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const typename list<T >::Iterator&)>(mopHolder == mopHolder);
         _nd.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const typename list<T >::Iterator&)>(mopHolder != mopHolder);

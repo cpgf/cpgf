@@ -104,6 +104,32 @@ void buildMetaClass_IXMLBase(const cpgf::GMetaDataConfigFlags & config, D _d)
 }
 
 
+template <typename T>
+inline void opErAToRWrapper_xmlChar__opAssign(xmlChar<T> * self, int t) {
+    (*self) = t;
+}
+
+
+template <typename D, typename T>
+void buildMetaClass_XmlChar(const cpgf::GMetaDataConfigFlags & config, D _d)
+{
+    (void)config; (void)_d; (void)_d;
+    using namespace cpgf;
+    
+    _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
+    _d.CPGF_MD_TEMPLATE _constructor<void * (char)>();
+    _d.CPGF_MD_TEMPLATE _constructor<void * (wchar_t)>();
+    _d.CPGF_MD_TEMPLATE _constructor<void * (unsigned char)>();
+    _d.CPGF_MD_TEMPLATE _constructor<void * (unsigned short)>();
+    _d.CPGF_MD_TEMPLATE _constructor<void * (unsigned int)>();
+    _d.CPGF_MD_TEMPLATE _constructor<void * (unsigned long)>();
+    _d.CPGF_MD_TEMPLATE _field("c", &D::ClassType::c);
+    _d.CPGF_MD_TEMPLATE _operator< T (cpgf::GMetaSelf)>(mopHolder());
+    _d.CPGF_MD_TEMPLATE _operator<void (*)(cpgf::GMetaSelf, int)>(mopHolder = mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", (void (*) (xmlChar<T> *, int))&opErAToRWrapper_xmlChar__opAssign<T>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
+}
+
+
 } // namespace meta_irrlicht
 
 

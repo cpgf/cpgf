@@ -30,9 +30,12 @@ void buildMetaClass_IParticleSystemSceneNode(const cpgf::GMetaDataConfigFlags & 
     _d.CPGF_MD_TEMPLATE _method("setParticlesAreGlobal", &D::ClassType::setParticlesAreGlobal)
         ._default(copyVariantFromCopyable(true))
     ;
+    _d.CPGF_MD_TEMPLATE _method("clearParticles", &D::ClassType::clearParticles);
+    _d.CPGF_MD_TEMPLATE _method("doParticleSystem", &D::ClassType::doParticleSystem);
     _d.CPGF_MD_TEMPLATE _method("getEmitter", &D::ClassType::getEmitter);
     _d.CPGF_MD_TEMPLATE _method("setEmitter", &D::ClassType::setEmitter);
     _d.CPGF_MD_TEMPLATE _method("addAffector", &D::ClassType::addAffector);
+    _d.CPGF_MD_TEMPLATE _method("getAffectors", &D::ClassType::getAffectors);
     _d.CPGF_MD_TEMPLATE _method("removeAllAffectors", &D::ClassType::removeAllAffectors);
     _d.CPGF_MD_TEMPLATE _method("createAnimatedMeshSceneNodeEmitter", &D::ClassType::createAnimatedMeshSceneNodeEmitter)
         ._default(copyVariantFromCopyable(core::dimension2df(5.0f, 5.0f)))

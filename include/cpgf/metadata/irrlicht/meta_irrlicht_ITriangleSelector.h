@@ -35,6 +35,9 @@ void buildMetaClass_ITriangleSelector(const cpgf::GMetaDataConfigFlags & config,
         ._default(copyVariantFromCopyable(0))
     ;
     _d.CPGF_MD_TEMPLATE _method("getSceneNodeForTriangle", &D::ClassType::getSceneNodeForTriangle);
+    _d.CPGF_MD_TEMPLATE _method("getSelectorCount", &D::ClassType::getSelectorCount);
+    _d.CPGF_MD_TEMPLATE _method("getSelector", (ITriangleSelector * (D::ClassType::*) (u32))&D::ClassType::getSelector);
+    _d.CPGF_MD_TEMPLATE _method("getSelector", (const ITriangleSelector * (D::ClassType::*) (u32) const)&D::ClassType::getSelector);
 }
 
 

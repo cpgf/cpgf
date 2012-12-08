@@ -52,6 +52,9 @@ void buildMetaClass_IParticleEmitter(const cpgf::GMetaDataConfigFlags & config, 
     _d.CPGF_MD_TEMPLATE _method("setMaxStartColor", &D::ClassType::setMaxStartColor);
     _d.CPGF_MD_TEMPLATE _method("setMaxStartSize", &D::ClassType::setMaxStartSize);
     _d.CPGF_MD_TEMPLATE _method("setMinStartSize", &D::ClassType::setMinStartSize);
+    _d.CPGF_MD_TEMPLATE _method("setMinLifeTime", &D::ClassType::setMinLifeTime);
+    _d.CPGF_MD_TEMPLATE _method("setMaxLifeTime", &D::ClassType::setMaxLifeTime);
+    _d.CPGF_MD_TEMPLATE _method("setMaxAngleDegrees", &D::ClassType::setMaxAngleDegrees);
     _d.CPGF_MD_TEMPLATE _method("getDirection", &D::ClassType::getDirection);
     _d.CPGF_MD_TEMPLATE _method("getMinParticlesPerSecond", &D::ClassType::getMinParticlesPerSecond);
     _d.CPGF_MD_TEMPLATE _method("getMaxParticlesPerSecond", &D::ClassType::getMaxParticlesPerSecond);
@@ -59,6 +62,9 @@ void buildMetaClass_IParticleEmitter(const cpgf::GMetaDataConfigFlags & config, 
     _d.CPGF_MD_TEMPLATE _method("getMaxStartColor", &D::ClassType::getMaxStartColor);
     _d.CPGF_MD_TEMPLATE _method("getMaxStartSize", &D::ClassType::getMaxStartSize);
     _d.CPGF_MD_TEMPLATE _method("getMinStartSize", &D::ClassType::getMinStartSize);
+    _d.CPGF_MD_TEMPLATE _method("getMinLifeTime", &D::ClassType::getMinLifeTime);
+    _d.CPGF_MD_TEMPLATE _method("getMaxLifeTime", &D::ClassType::getMaxLifeTime);
+    _d.CPGF_MD_TEMPLATE _method("getMaxAngleDegrees", &D::ClassType::getMaxAngleDegrees);
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
 }
 

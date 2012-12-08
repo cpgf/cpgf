@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_IRRLICHT_IRRCOMPILECONFIG_H
-#define __META_IRRLICHT_IRRCOMPILECONFIG_H
+#ifndef __META_IRRLICHT_IRRPACK_H
+#define __META_IRRLICHT_IRRPACK_H
 
 
 #include "gmetaobjectlifemanager_irrlicht_ireferencecounted.h"
@@ -14,17 +14,6 @@
 
 
 namespace meta_irrlicht { 
-
-
-template <typename D>
-void buildMetaClass_Global_irrcompileconfig(const cpgf::GMetaDataConfigFlags & config, D _d)
-{
-    (void)config; (void)_d; (void)_d;
-    using namespace cpgf;
-    
-    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalDefine_irrlicht_8")
-    ;
-}
 
 
 } // namespace meta_irrlicht

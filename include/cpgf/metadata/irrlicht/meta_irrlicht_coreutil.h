@@ -34,6 +34,12 @@ void buildMetaClass_Global_coreutil(const cpgf::GMetaDataConfigFlags & config, D
     _d.CPGF_MD_TEMPLATE _method("deletePathFromFilename", (io::path & (*) (io::path &))&deletePathFromFilename);
     _d.CPGF_MD_TEMPLATE _method("deletePathFromPath", (io::path & (*) (io::path &, s32))&deletePathFromPath);
     _d.CPGF_MD_TEMPLATE _method("isInSameDirectory", (s32 (*) (const io::path &, const io::path &))&isInSameDirectory, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("splitFilename", (void (*) (const io::path &, io::path *, io::path *, io::path *, bool))&splitFilename, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
+        ._default(copyVariantFromCopyable(false))
+        ._default(copyVariantFromCopyable(0))
+        ._default(copyVariantFromCopyable(0))
+        ._default(copyVariantFromCopyable(0))
+    ;
 }
 
 

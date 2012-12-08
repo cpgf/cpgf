@@ -25,6 +25,7 @@ void buildMetaClass_Global_irrmath(const cpgf::GMetaDataConfigFlags & config, D 
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _field("ROUNDING_ERROR_S32", &ROUNDING_ERROR_S32);
+    _d.CPGF_MD_TEMPLATE _field("ROUNDING_ERROR_S64", &ROUNDING_ERROR_S64);
     _d.CPGF_MD_TEMPLATE _field("ROUNDING_ERROR_f32", &ROUNDING_ERROR_f32);
     _d.CPGF_MD_TEMPLATE _field("ROUNDING_ERROR_f64", &ROUNDING_ERROR_f64);
     _d.CPGF_MD_TEMPLATE _field("PI", &PI);
@@ -46,11 +47,15 @@ void buildMetaClass_Global_irrmath(const cpgf::GMetaDataConfigFlags & config, D 
     _d.CPGF_MD_TEMPLATE _method("equals", (bool (*) (const f32, const f32, const f32))&equals)
         ._default(copyVariantFromCopyable(ROUNDING_ERROR_f32))
     ;
+    _d.CPGF_MD_TEMPLATE _method("equalsByUlp", (bool (*) (f32, f32, int))&equalsByUlp);
     _d.CPGF_MD_TEMPLATE _method("equals", (bool (*) (const s32, const s32, const s32))&equals)
         ._default(copyVariantFromCopyable(ROUNDING_ERROR_S32))
     ;
     _d.CPGF_MD_TEMPLATE _method("equals", (bool (*) (const u32, const u32, const s32))&equals)
         ._default(copyVariantFromCopyable(ROUNDING_ERROR_S32))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("equals", (bool (*) (const s64, const s64, const s64))&equals)
+        ._default(copyVariantFromCopyable(ROUNDING_ERROR_S64))
     ;
     _d.CPGF_MD_TEMPLATE _method("iszero", (bool (*) (const f64, const f64))&iszero)
         ._default(copyVariantFromCopyable(ROUNDING_ERROR_f64))
@@ -65,6 +70,9 @@ void buildMetaClass_Global_irrmath(const cpgf::GMetaDataConfigFlags & config, D 
         ._default(copyVariantFromCopyable(0))
     ;
     _d.CPGF_MD_TEMPLATE _method("iszero", (bool (*) (const u32, const u32))&iszero)
+        ._default(copyVariantFromCopyable(0))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("iszero", (bool (*) (const s64, const s64))&iszero)
         ._default(copyVariantFromCopyable(0))
     ;
     _d.CPGF_MD_TEMPLATE _method("s32_min", (s32 (*) (s32, s32))&s32_min);
@@ -82,6 +90,7 @@ void buildMetaClass_Global_irrmath(const cpgf::GMetaDataConfigFlags & config, D 
     _d.CPGF_MD_TEMPLATE _method("squareroot", (f32 (*) (const f32))&squareroot);
     _d.CPGF_MD_TEMPLATE _method("squareroot", (f64 (*) (const f64))&squareroot);
     _d.CPGF_MD_TEMPLATE _method("squareroot", (s32 (*) (const s32))&squareroot);
+    _d.CPGF_MD_TEMPLATE _method("squareroot", (s64 (*) (const s64))&squareroot);
     _d.CPGF_MD_TEMPLATE _method("reciprocal_squareroot", (f64 (*) (const f64))&reciprocal_squareroot);
     _d.CPGF_MD_TEMPLATE _method("reciprocal_squareroot", (f32 (*) (const f32))&reciprocal_squareroot);
     _d.CPGF_MD_TEMPLATE _method("reciprocal_squareroot", (s32 (*) (const s32))&reciprocal_squareroot);
@@ -94,7 +103,7 @@ void buildMetaClass_Global_irrmath(const cpgf::GMetaDataConfigFlags & config, D 
     _d.CPGF_MD_TEMPLATE _method("f32_max3", (f32 (*) (const f32, const f32, const f32))&f32_max3);
     _d.CPGF_MD_TEMPLATE _method("f32_min3", (f32 (*) (const f32, const f32, const f32))&f32_min3);
     _d.CPGF_MD_TEMPLATE _method("fract", (f32 (*) (f32))&fract);
-    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalDefine_irrlicht_4")
+    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalDefine_irrlicht_7")
     ;
 }
 

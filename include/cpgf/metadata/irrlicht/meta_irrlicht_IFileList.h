@@ -28,6 +28,7 @@ void buildMetaClass_IFileList(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getFileName", &D::ClassType::getFileName, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
     _d.CPGF_MD_TEMPLATE _method("getFullFileName", &D::ClassType::getFullFileName, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
     _d.CPGF_MD_TEMPLATE _method("getFileSize", &D::ClassType::getFileSize);
+    _d.CPGF_MD_TEMPLATE _method("getFileOffset", &D::ClassType::getFileOffset);
     _d.CPGF_MD_TEMPLATE _method("getID", &D::ClassType::getID);
     _d.CPGF_MD_TEMPLATE _method("isDirectory", &D::ClassType::isDirectory);
     _d.CPGF_MD_TEMPLATE _method("findFile", &D::ClassType::findFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())

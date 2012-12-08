@@ -29,6 +29,7 @@ void buildMetaClass_Global_slight(const cpgf::GMetaDataConfigFlags & config, D _
         ._element("ELT_POINT", irr::video::ELT_POINT)
         ._element("ELT_SPOT", irr::video::ELT_SPOT)
         ._element("ELT_DIRECTIONAL", irr::video::ELT_DIRECTIONAL)
+        ._element("ELT_COUNT", irr::video::ELT_COUNT)
     ;
 }
 

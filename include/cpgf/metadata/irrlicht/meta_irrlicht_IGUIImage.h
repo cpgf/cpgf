@@ -26,9 +26,11 @@ void buildMetaClass_IGUIImage(const cpgf::GMetaDataConfigFlags & config, D _d)
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("setImage", &D::ClassType::setImage);
+    _d.CPGF_MD_TEMPLATE _method("getImage", &D::ClassType::getImage);
     _d.CPGF_MD_TEMPLATE _method("setColor", &D::ClassType::setColor);
     _d.CPGF_MD_TEMPLATE _method("setScaleImage", &D::ClassType::setScaleImage);
     _d.CPGF_MD_TEMPLATE _method("setUseAlphaChannel", &D::ClassType::setUseAlphaChannel);
+    _d.CPGF_MD_TEMPLATE _method("getColor", &D::ClassType::getColor);
     _d.CPGF_MD_TEMPLATE _method("isImageScaled", &D::ClassType::isImageScaled);
     _d.CPGF_MD_TEMPLATE _method("isAlphaChannelUsed", &D::ClassType::isAlphaChannelUsed);
 }

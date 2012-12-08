@@ -42,6 +42,8 @@ void buildMetaClass_SKeyMap(const cpgf::GMetaDataConfigFlags & config, D _d)
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
+    _d.CPGF_MD_TEMPLATE _constructor<void * (EKEY_ACTION, EKEY_CODE)>();
     _d.CPGF_MD_TEMPLATE _field("Action", &D::ClassType::Action);
     _d.CPGF_MD_TEMPLATE _field("KeyCode", &D::ClassType::KeyCode);
 }

@@ -19,28 +19,6 @@ namespace meta_irrlicht {
 
 
 template <typename D>
-void buildMetaClass_Global_iimage(const cpgf::GMetaDataConfigFlags & config, D _d)
-{
-    (void)config; (void)_d; (void)_d;
-    using namespace cpgf;
-    
-    _d.CPGF_MD_TEMPLATE _enum<ECOLOR_FORMAT>("ECOLOR_FORMAT")
-        ._element("ECF_A1R5G5B5", irr::video::ECF_A1R5G5B5)
-        ._element("ECF_R5G6B5", irr::video::ECF_R5G6B5)
-        ._element("ECF_R8G8B8", irr::video::ECF_R8G8B8)
-        ._element("ECF_A8R8G8B8", irr::video::ECF_A8R8G8B8)
-        ._element("ECF_R16F", irr::video::ECF_R16F)
-        ._element("ECF_G16R16F", irr::video::ECF_G16R16F)
-        ._element("ECF_A16B16G16R16F", irr::video::ECF_A16B16G16R16F)
-        ._element("ECF_R32F", irr::video::ECF_R32F)
-        ._element("ECF_G32R32F", irr::video::ECF_G32R32F)
-        ._element("ECF_A32B32G32R32F", irr::video::ECF_A32B32G32R32F)
-        ._element("ECF_UNKNOWN", irr::video::ECF_UNKNOWN)
-    ;
-}
-
-
-template <typename D>
 void buildMetaClass_IImage(const cpgf::GMetaDataConfigFlags & config, D _d)
 {
     (void)config; (void)_d; (void)_d;

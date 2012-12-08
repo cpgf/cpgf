@@ -42,6 +42,9 @@ void buildMetaClass_Global_ematerialflags(const cpgf::GMetaDataConfigFlags & con
         ._element("EMF_ANTI_ALIASING", irr::video::EMF_ANTI_ALIASING)
         ._element("EMF_COLOR_MASK", irr::video::EMF_COLOR_MASK)
         ._element("EMF_COLOR_MATERIAL", irr::video::EMF_COLOR_MATERIAL)
+        ._element("EMF_USE_MIP_MAPS", irr::video::EMF_USE_MIP_MAPS)
+        ._element("EMF_BLEND_OPERATION", irr::video::EMF_BLEND_OPERATION)
+        ._element("EMF_POLYGON_OFFSET", irr::video::EMF_POLYGON_OFFSET)
     ;
 }
 

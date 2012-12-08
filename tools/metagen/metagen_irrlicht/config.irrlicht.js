@@ -100,12 +100,17 @@ var skipedNames = {
 	createMemoryReadFile : 1,
 	createReadFile : 1,
 	createWriteFile : 1,
+	//
+	PACK_STRUCT : 1,
 };
 
 
 function processCallback(item, data)
 {
 	if(item.isConstant()) {
+		data.skipBind = true;
+	}
+	if(item.getLocation().match("irrpack")) {
 		data.skipBind = true;
 	}
 	var name = item.getPrimaryName();

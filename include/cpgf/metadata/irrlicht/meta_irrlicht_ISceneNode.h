@@ -545,7 +545,7 @@ public:
         return irr::scene::ISceneNode::getAbsolutePosition();
     }
     
-    void setDebugDataVisible(s32 state)
+    void setDebugDataVisible(u32 state)
     {
         cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("setDebugDataVisible"));
         if(func)
@@ -555,7 +555,7 @@ public:
         }
         irr::scene::ISceneNode::setDebugDataVisible(state);
     }
-    void super_setDebugDataVisible(s32 state)
+    void super_setDebugDataVisible(u32 state)
     {
         irr::scene::ISceneNode::setDebugDataVisible(state);
     }
@@ -737,7 +737,7 @@ void buildMetaClass_ISceneNodeWrapper(const cpgf::GMetaDataConfigFlags & config,
     _d.CPGF_MD_TEMPLATE _method("super_getPosition", (const core::vector3df & (D::ClassType::*) () const)&D::ClassType::super_getPosition);
     _d.CPGF_MD_TEMPLATE _method("super_setPosition", (void (D::ClassType::*) (const core::vector3df &))&D::ClassType::super_setPosition);
     _d.CPGF_MD_TEMPLATE _method("super_getAbsolutePosition", (core::vector3df (D::ClassType::*) () const)&D::ClassType::super_getAbsolutePosition);
-    _d.CPGF_MD_TEMPLATE _method("super_setDebugDataVisible", (void (D::ClassType::*) (s32))&D::ClassType::super_setDebugDataVisible);
+    _d.CPGF_MD_TEMPLATE _method("super_setDebugDataVisible", (void (D::ClassType::*) (u32))&D::ClassType::super_setDebugDataVisible);
     _d.CPGF_MD_TEMPLATE _method("super_setParent", (void (D::ClassType::*) (ISceneNode *))&D::ClassType::super_setParent);
     _d.CPGF_MD_TEMPLATE _method("super_getTriangleSelector", (ITriangleSelector * (D::ClassType::*) () const)&D::ClassType::super_getTriangleSelector);
     _d.CPGF_MD_TEMPLATE _method("super_setTriangleSelector", (void (D::ClassType::*) (ITriangleSelector *))&D::ClassType::super_setTriangleSelector);

@@ -36,6 +36,8 @@ void buildMetaClass_IGUIComboBox(const cpgf::GMetaDataConfigFlags & config, D _d
     _d.CPGF_MD_TEMPLATE _method("getSelected", &D::ClassType::getSelected);
     _d.CPGF_MD_TEMPLATE _method("setSelected", &D::ClassType::setSelected);
     _d.CPGF_MD_TEMPLATE _method("setTextAlignment", &D::ClassType::setTextAlignment);
+    _d.CPGF_MD_TEMPLATE _method("setMaxSelectionRows", &D::ClassType::setMaxSelectionRows);
+    _d.CPGF_MD_TEMPLATE _method("getMaxSelectionRows", &D::ClassType::getMaxSelectionRows);
 }
 
 

@@ -30,6 +30,8 @@ void buildMetaClass_ISceneNodeAnimatorCameraMaya(const cpgf::GMetaDataConfigFlag
     _d.CPGF_MD_TEMPLATE _method("setRotateSpeed", &D::ClassType::setRotateSpeed);
     _d.CPGF_MD_TEMPLATE _method("getZoomSpeed", &D::ClassType::getZoomSpeed);
     _d.CPGF_MD_TEMPLATE _method("setZoomSpeed", &D::ClassType::setZoomSpeed);
+    _d.CPGF_MD_TEMPLATE _method("getDistance", &D::ClassType::getDistance);
+    _d.CPGF_MD_TEMPLATE _method("setDistance", &D::ClassType::setDistance);
 }
 
 

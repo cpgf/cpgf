@@ -27,8 +27,13 @@ void buildMetaClass_IGUIEditBox(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("setOverrideFont", &D::ClassType::setOverrideFont)
         ._default(copyVariantFromCopyable(0))
     ;
+    _d.CPGF_MD_TEMPLATE _method("getOverrideFont", &D::ClassType::getOverrideFont);
+    _d.CPGF_MD_TEMPLATE _method("getActiveFont", &D::ClassType::getActiveFont);
     _d.CPGF_MD_TEMPLATE _method("setOverrideColor", &D::ClassType::setOverrideColor);
+    _d.CPGF_MD_TEMPLATE _method("getOverrideColor", &D::ClassType::getOverrideColor);
     _d.CPGF_MD_TEMPLATE _method("enableOverrideColor", &D::ClassType::enableOverrideColor);
+    _d.CPGF_MD_TEMPLATE _method("isOverrideColorEnabled", &D::ClassType::isOverrideColorEnabled);
+    _d.CPGF_MD_TEMPLATE _method("setDrawBackground", &D::ClassType::setDrawBackground);
     _d.CPGF_MD_TEMPLATE _method("setDrawBorder", &D::ClassType::setDrawBorder);
     _d.CPGF_MD_TEMPLATE _method("setTextAlignment", &D::ClassType::setTextAlignment);
     _d.CPGF_MD_TEMPLATE _method("setWordWrap", &D::ClassType::setWordWrap);

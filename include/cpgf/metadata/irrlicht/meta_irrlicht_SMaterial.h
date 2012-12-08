@@ -24,13 +24,14 @@ void buildMetaClass_Global_smaterial(const cpgf::GMetaDataConfigFlags & config, 
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _field("PolygonOffsetDirectionNames", &PolygonOffsetDirectionNames);
     _d.CPGF_MD_TEMPLATE _field("MATERIAL_MAX_TEXTURES", &MATERIAL_MAX_TEXTURES);
     _d.CPGF_MD_TEMPLATE _field("IdentityMaterial", &IdentityMaterial);
-    _d.CPGF_MD_TEMPLATE _method("pack_texureBlendFunc", (f32 (*) (const E_BLEND_FACTOR, const E_BLEND_FACTOR, const E_MODULATE_FUNC, const u32))&pack_texureBlendFunc)
+    _d.CPGF_MD_TEMPLATE _method("pack_textureBlendFunc", (f32 (*) (const E_BLEND_FACTOR, const E_BLEND_FACTOR, const E_MODULATE_FUNC, const u32))&pack_textureBlendFunc)
         ._default(copyVariantFromCopyable(EAS_TEXTURE))
         ._default(copyVariantFromCopyable(EMFN_MODULATE_1X))
     ;
-    _d.CPGF_MD_TEMPLATE _method("unpack_texureBlendFunc", (void (*) (E_BLEND_FACTOR &, E_BLEND_FACTOR &, E_MODULATE_FUNC &, u32 &, const f32))&unpack_texureBlendFunc);
+    _d.CPGF_MD_TEMPLATE _method("unpack_textureBlendFunc", (void (*) (E_BLEND_FACTOR &, E_BLEND_FACTOR &, E_MODULATE_FUNC &, u32 &, const f32))&unpack_textureBlendFunc);
     _d.CPGF_MD_TEMPLATE _method("textureBlendFunc_hasAlpha", (bool (*) (const E_BLEND_FACTOR))&textureBlendFunc_hasAlpha);
     _d.CPGF_MD_TEMPLATE _enum<E_BLEND_FACTOR>("E_BLEND_FACTOR")
         ._element("EBF_ZERO", irr::video::EBF_ZERO)
@@ -44,6 +45,18 @@ void buildMetaClass_Global_smaterial(const cpgf::GMetaDataConfigFlags & config, 
         ._element("EBF_DST_ALPHA", irr::video::EBF_DST_ALPHA)
         ._element("EBF_ONE_MINUS_DST_ALPHA", irr::video::EBF_ONE_MINUS_DST_ALPHA)
         ._element("EBF_SRC_ALPHA_SATURATE", irr::video::EBF_SRC_ALPHA_SATURATE)
+    ;
+    _d.CPGF_MD_TEMPLATE _enum<E_BLEND_OPERATION>("E_BLEND_OPERATION")
+        ._element("EBO_NONE", irr::video::EBO_NONE)
+        ._element("EBO_ADD", irr::video::EBO_ADD)
+        ._element("EBO_SUBTRACT", irr::video::EBO_SUBTRACT)
+        ._element("EBO_REVSUBTRACT", irr::video::EBO_REVSUBTRACT)
+        ._element("EBO_MIN", irr::video::EBO_MIN)
+        ._element("EBO_MAX", irr::video::EBO_MAX)
+        ._element("EBO_MIN_FACTOR", irr::video::EBO_MIN_FACTOR)
+        ._element("EBO_MAX_FACTOR", irr::video::EBO_MAX_FACTOR)
+        ._element("EBO_MIN_ALPHA", irr::video::EBO_MIN_ALPHA)
+        ._element("EBO_MAX_ALPHA", irr::video::EBO_MAX_ALPHA)
     ;
     _d.CPGF_MD_TEMPLATE _enum<E_MODULATE_FUNC>("E_MODULATE_FUNC")
         ._element("EMFN_MODULATE_1X", irr::video::EMFN_MODULATE_1X)
@@ -91,6 +104,10 @@ void buildMetaClass_Global_smaterial(const cpgf::GMetaDataConfigFlags & config, 
         ._element("ECM_SPECULAR", irr::video::ECM_SPECULAR)
         ._element("ECM_DIFFUSE_AND_AMBIENT", irr::video::ECM_DIFFUSE_AND_AMBIENT)
     ;
+    _d.CPGF_MD_TEMPLATE _enum<E_POLYGON_OFFSET>("E_POLYGON_OFFSET")
+        ._element("EPO_BACK", irr::video::EPO_BACK)
+        ._element("EPO_FRONT", irr::video::EPO_FRONT)
+    ;
 }
 
 
@@ -107,6 +124,27 @@ inline u8 bItFiEldWrapper_SMaterial_ColorMaterial_getter(SMaterial * self) {
 
 inline void bItFiEldWrapper_SMaterial_ColorMaterial_setter(SMaterial * self, u8 value) {
     self->ColorMaterial = value;
+}
+inline E_BLEND_OPERATION bItFiEldWrapper_SMaterial_BlendOperation_getter(SMaterial * self) {
+    return self->BlendOperation;
+}
+
+inline void bItFiEldWrapper_SMaterial_BlendOperation_setter(SMaterial * self, E_BLEND_OPERATION value) {
+    self->BlendOperation = value;
+}
+inline u8 bItFiEldWrapper_SMaterial_PolygonOffsetFactor_getter(SMaterial * self) {
+    return self->PolygonOffsetFactor;
+}
+
+inline void bItFiEldWrapper_SMaterial_PolygonOffsetFactor_setter(SMaterial * self, u8 value) {
+    self->PolygonOffsetFactor = value;
+}
+inline E_POLYGON_OFFSET bItFiEldWrapper_SMaterial_PolygonOffsetDirection_getter(SMaterial * self) {
+    return self->PolygonOffsetDirection;
+}
+
+inline void bItFiEldWrapper_SMaterial_PolygonOffsetDirection_setter(SMaterial * self, E_POLYGON_OFFSET value) {
+    self->PolygonOffsetDirection = value;
 }
 inline bool bItFiEldWrapper_SMaterial_Wireframe_getter(SMaterial * self) {
     return self->Wireframe;
@@ -171,6 +209,13 @@ inline bool bItFiEldWrapper_SMaterial_NormalizeNormals_getter(SMaterial * self) 
 inline void bItFiEldWrapper_SMaterial_NormalizeNormals_setter(SMaterial * self, bool value) {
     self->NormalizeNormals = value;
 }
+inline bool bItFiEldWrapper_SMaterial_UseMipMaps_getter(SMaterial * self) {
+    return self->UseMipMaps;
+}
+
+inline void bItFiEldWrapper_SMaterial_UseMipMaps_setter(SMaterial * self, bool value) {
+    self->UseMipMaps = value;
+}
 
 
 inline SMaterial & opErAToRWrapper_SMaterial__opAssign(SMaterial * self, const SMaterial & other) {
@@ -206,6 +251,9 @@ void buildMetaClass_SMaterial(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _field("AntiAliasing", &D::ClassType::AntiAliasing);
     _d.CPGF_MD_TEMPLATE _property("ColorMask", &bItFiEldWrapper_SMaterial_ColorMask_getter, &bItFiEldWrapper_SMaterial_ColorMask_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
     _d.CPGF_MD_TEMPLATE _property("ColorMaterial", &bItFiEldWrapper_SMaterial_ColorMaterial_getter, &bItFiEldWrapper_SMaterial_ColorMaterial_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("BlendOperation", &bItFiEldWrapper_SMaterial_BlendOperation_getter, &bItFiEldWrapper_SMaterial_BlendOperation_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("PolygonOffsetFactor", &bItFiEldWrapper_SMaterial_PolygonOffsetFactor_getter, &bItFiEldWrapper_SMaterial_PolygonOffsetFactor_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("PolygonOffsetDirection", &bItFiEldWrapper_SMaterial_PolygonOffsetDirection_getter, &bItFiEldWrapper_SMaterial_PolygonOffsetDirection_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
     _d.CPGF_MD_TEMPLATE _property("Wireframe", &bItFiEldWrapper_SMaterial_Wireframe_getter, &bItFiEldWrapper_SMaterial_Wireframe_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
     _d.CPGF_MD_TEMPLATE _property("PointCloud", &bItFiEldWrapper_SMaterial_PointCloud_getter, &bItFiEldWrapper_SMaterial_PointCloud_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
     _d.CPGF_MD_TEMPLATE _property("GouraudShading", &bItFiEldWrapper_SMaterial_GouraudShading_getter, &bItFiEldWrapper_SMaterial_GouraudShading_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
@@ -215,6 +263,7 @@ void buildMetaClass_SMaterial(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _property("FrontfaceCulling", &bItFiEldWrapper_SMaterial_FrontfaceCulling_getter, &bItFiEldWrapper_SMaterial_FrontfaceCulling_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
     _d.CPGF_MD_TEMPLATE _property("FogEnable", &bItFiEldWrapper_SMaterial_FogEnable_getter, &bItFiEldWrapper_SMaterial_FogEnable_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
     _d.CPGF_MD_TEMPLATE _property("NormalizeNormals", &bItFiEldWrapper_SMaterial_NormalizeNormals_getter, &bItFiEldWrapper_SMaterial_NormalizeNormals_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _property("UseMipMaps", &bItFiEldWrapper_SMaterial_UseMipMaps_getter, &bItFiEldWrapper_SMaterial_UseMipMaps_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
     _d.CPGF_MD_TEMPLATE _method("getTextureMatrix", (core::matrix4 & (D::ClassType::*) (u32))&D::ClassType::getTextureMatrix);
     _d.CPGF_MD_TEMPLATE _method("getTextureMatrix", (const core::matrix4 & (D::ClassType::*) (u32) const)&D::ClassType::getTextureMatrix);
     _d.CPGF_MD_TEMPLATE _method("setTextureMatrix", &D::ClassType::setTextureMatrix);

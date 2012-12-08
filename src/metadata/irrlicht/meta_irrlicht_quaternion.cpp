@@ -10,6 +10,14 @@ using namespace cpgf;
 namespace meta_irrlicht { 
 
 
+GDefineMetaInfo createMetaClass_Global_quaternion()
+{
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    buildMetaClass_Global_quaternion(0, _d);
+    return _d.getMetaInfo();
+}
+
+
 GDefineMetaInfo createMetaClass_Quaternion()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();

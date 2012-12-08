@@ -32,18 +32,30 @@ void buildMetaClass_IFileSystem(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("createAndWriteFile", &D::ClassType::createAndWriteFile, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
         ._default(copyVariantFromCopyable(false))
     ;
-    _d.CPGF_MD_TEMPLATE _method("addFileArchive", &D::ClassType::addFileArchive, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<4> >())
+    _d.CPGF_MD_TEMPLATE _method("addFileArchive", (bool (D::ClassType::*) (const path &, bool, bool, E_FILE_ARCHIVE_TYPE, const core::stringc &, IFileArchive **))&D::ClassType::addFileArchive, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<4> >())
+        ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(""))
         ._default(copyVariantFromCopyable(EFAT_UNKNOWN))
         ._default(copyVariantFromCopyable(true))
         ._default(copyVariantFromCopyable(true))
     ;
-    _d.CPGF_MD_TEMPLATE _method("addArchiveLoader", &D::ClassType::addArchiveLoader);
+    _d.CPGF_MD_TEMPLATE _method("addFileArchive", (bool (D::ClassType::*) (IReadFile *, bool, bool, E_FILE_ARCHIVE_TYPE, const core::stringc &, IFileArchive **))&D::ClassType::addFileArchive, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<4> >())
+        ._default(copyVariantFromCopyable(0))
+        ._default(copyVariantFromCopyable(""))
+        ._default(copyVariantFromCopyable(EFAT_UNKNOWN))
+        ._default(copyVariantFromCopyable(true))
+        ._default(copyVariantFromCopyable(true))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("addFileArchive", (bool (D::ClassType::*) (IFileArchive *))&D::ClassType::addFileArchive);
     _d.CPGF_MD_TEMPLATE _method("getFileArchiveCount", &D::ClassType::getFileArchiveCount);
     _d.CPGF_MD_TEMPLATE _method("removeFileArchive", (bool (D::ClassType::*) (u32))&D::ClassType::removeFileArchive);
     _d.CPGF_MD_TEMPLATE _method("removeFileArchive", (bool (D::ClassType::*) (const path &))&D::ClassType::removeFileArchive, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("removeFileArchive", (bool (D::ClassType::*) (const IFileArchive *))&D::ClassType::removeFileArchive);
     _d.CPGF_MD_TEMPLATE _method("moveFileArchive", &D::ClassType::moveFileArchive);
     _d.CPGF_MD_TEMPLATE _method("getFileArchive", &D::ClassType::getFileArchive);
+    _d.CPGF_MD_TEMPLATE _method("addArchiveLoader", &D::ClassType::addArchiveLoader);
+    _d.CPGF_MD_TEMPLATE _method("getArchiveLoaderCount", &D::ClassType::getArchiveLoaderCount);
+    _d.CPGF_MD_TEMPLATE _method("getArchiveLoader", &D::ClassType::getArchiveLoader);
     _d.CPGF_MD_TEMPLATE _method("addZipFileArchive", &D::ClassType::addZipFileArchive)
         ._default(copyVariantFromCopyable(true))
         ._default(copyVariantFromCopyable(true))
@@ -66,6 +78,7 @@ void buildMetaClass_IFileSystem(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("flattenFilename", &D::ClassType::flattenFilename, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >())
         ._default(copyVariantFromCopyable("/"))
     ;
+    _d.CPGF_MD_TEMPLATE _method("getRelativeFilename", &D::ClassType::getRelativeFilename, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("createFileList", &D::ClassType::createFileList);
     _d.CPGF_MD_TEMPLATE _method("createEmptyFileList", &D::ClassType::createEmptyFileList, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("setFileListSystem", &D::ClassType::setFileListSystem);

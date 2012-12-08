@@ -45,11 +45,17 @@ void buildMetaClass_IGUITabControl(const cpgf::GMetaDataConfigFlags & config, D 
     _d.CPGF_MD_TEMPLATE _method("addTab", &D::ClassType::addTab)
         ._default(copyVariantFromCopyable(-1))
     ;
+    _d.CPGF_MD_TEMPLATE _method("insertTab", &D::ClassType::insertTab)
+        ._default(copyVariantFromCopyable(-1))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("removeTab", &D::ClassType::removeTab);
+    _d.CPGF_MD_TEMPLATE _method("clear", &D::ClassType::clear);
     _d.CPGF_MD_TEMPLATE _method("getTabCount", &D::ClassType::getTabCount);
     _d.CPGF_MD_TEMPLATE _method("getTab", &D::ClassType::getTab);
     _d.CPGF_MD_TEMPLATE _method("setActiveTab", (bool (D::ClassType::*) (s32))&D::ClassType::setActiveTab);
-    _d.CPGF_MD_TEMPLATE _method("setActiveTab", (bool (D::ClassType::*) (IGUIElement *))&D::ClassType::setActiveTab);
+    _d.CPGF_MD_TEMPLATE _method("setActiveTab", (bool (D::ClassType::*) (IGUITab *))&D::ClassType::setActiveTab);
     _d.CPGF_MD_TEMPLATE _method("getActiveTab", &D::ClassType::getActiveTab);
+    _d.CPGF_MD_TEMPLATE _method("getTabAt", &D::ClassType::getTabAt);
     _d.CPGF_MD_TEMPLATE _method("setTabHeight", &D::ClassType::setTabHeight);
     _d.CPGF_MD_TEMPLATE _method("getTabHeight", &D::ClassType::getTabHeight);
     _d.CPGF_MD_TEMPLATE _method("setTabMaxWidth", &D::ClassType::setTabMaxWidth);

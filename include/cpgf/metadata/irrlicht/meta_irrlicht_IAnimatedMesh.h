@@ -35,6 +35,7 @@ void buildMetaClass_Global_ianimatedmesh(const cpgf::GMetaDataConfigFlags & conf
         ._element("EAMT_LMTS", irr::scene::EAMT_LMTS)
         ._element("EAMT_CSM", irr::scene::EAMT_CSM)
         ._element("EAMT_OCT", irr::scene::EAMT_OCT)
+        ._element("EAMT_MDL_HALFLIFE", irr::scene::EAMT_MDL_HALFLIFE)
         ._element("EAMT_SKINNED", irr::scene::EAMT_SKINNED)
     ;
 }
@@ -47,6 +48,8 @@ void buildMetaClass_IAnimatedMesh(const cpgf::GMetaDataConfigFlags & config, D _
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("getFrameCount", &D::ClassType::getFrameCount);
+    _d.CPGF_MD_TEMPLATE _method("getAnimationSpeed", &D::ClassType::getAnimationSpeed);
+    _d.CPGF_MD_TEMPLATE _method("setAnimationSpeed", &D::ClassType::setAnimationSpeed);
     _d.CPGF_MD_TEMPLATE _method("getMesh", &D::ClassType::getMesh)
         ._default(copyVariantFromCopyable(-1))
         ._default(copyVariantFromCopyable(-1))

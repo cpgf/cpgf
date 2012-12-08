@@ -30,11 +30,15 @@ void buildMetaClass_SAnimatedMesh(const cpgf::GMetaDataConfigFlags & config, D _
     ;
     _d.CPGF_MD_TEMPLATE _field("Meshes", &D::ClassType::Meshes);
     _d.CPGF_MD_TEMPLATE _field("Box", &D::ClassType::Box);
+    _d.CPGF_MD_TEMPLATE _field("FramesPerSecond", &D::ClassType::FramesPerSecond);
     _d.CPGF_MD_TEMPLATE _field("Type", &D::ClassType::Type);
     _d.CPGF_MD_TEMPLATE _method("getFrameCount", &D::ClassType::getFrameCount);
+    _d.CPGF_MD_TEMPLATE _method("getAnimationSpeed", &D::ClassType::getAnimationSpeed);
+    _d.CPGF_MD_TEMPLATE _method("setAnimationSpeed", &D::ClassType::setAnimationSpeed);
     _d.CPGF_MD_TEMPLATE _method("getMesh", &D::ClassType::getMesh)
         ._default(copyVariantFromCopyable(-1))
         ._default(copyVariantFromCopyable(-1))
+        ._default(copyVariantFromCopyable(255))
     ;
     _d.CPGF_MD_TEMPLATE _method("addMesh", &D::ClassType::addMesh);
     _d.CPGF_MD_TEMPLATE _method("getBoundingBox", &D::ClassType::getBoundingBox);

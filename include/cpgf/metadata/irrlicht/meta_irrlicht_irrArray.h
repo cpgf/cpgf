@@ -49,7 +49,9 @@ void buildMetaClass_Array(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (u32)>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (const array< T, TAlloc > &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("reallocate", &D::ClassType::reallocate);
+    _d.CPGF_MD_TEMPLATE _method("reallocate", &D::ClassType::reallocate)
+        ._default(copyVariantFromCopyable(true))
+    ;
     _d.CPGF_MD_TEMPLATE _method("setAllocStrategy", &D::ClassType::setAllocStrategy)
         ._default(copyVariantFromCopyable(ALLOC_STRATEGY_DOUBLE))
     ;

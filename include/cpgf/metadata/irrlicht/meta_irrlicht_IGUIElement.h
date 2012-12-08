@@ -67,6 +67,7 @@ void buildMetaClass_IGUIElement(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("setID", &D::ClassType::setID);
     _d.CPGF_MD_TEMPLATE _method("OnEvent", &D::ClassType::OnEvent);
     _d.CPGF_MD_TEMPLATE _method("bringToFront", &D::ClassType::bringToFront);
+    _d.CPGF_MD_TEMPLATE _method("sendToBack", &D::ClassType::sendToBack);
     _d.CPGF_MD_TEMPLATE _method("getChildren", &D::ClassType::getChildren);
     _d.CPGF_MD_TEMPLATE _method("getElementFromId", &D::ClassType::getElementFromId)
         ._default(copyVariantFromCopyable(false))
@@ -78,6 +79,9 @@ void buildMetaClass_IGUIElement(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
     _d.CPGF_MD_TEMPLATE _method("hasType", &D::ClassType::hasType);
     _d.CPGF_MD_TEMPLATE _method("getTypeName", &D::ClassType::getTypeName);
+    _d.CPGF_MD_TEMPLATE _method("getName", &D::ClassType::getName);
+    _d.CPGF_MD_TEMPLATE _method("setName", (void (D::ClassType::*) (const c8 *))&D::ClassType::setName);
+    _d.CPGF_MD_TEMPLATE _method("setName", (void (D::ClassType::*) (const core::stringc &))&D::ClassType::setName, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("serializeAttributes", &D::ClassType::serializeAttributes)
         ._default(copyVariantFromCopyable(0))
     ;

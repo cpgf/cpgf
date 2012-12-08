@@ -10,14 +10,6 @@ using namespace cpgf;
 namespace meta_irrlicht { 
 
 
-GDefineMetaInfo createMetaClass_Global_iimage()
-{
-    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_iimage(0, _d);
-    return _d.getMetaInfo();
-}
-
-
 GDefineMetaInfo createMetaClass_IImage()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();

@@ -50,6 +50,7 @@ void buildMetaClass_Global_eguielementtypes(const cpgf::GMetaDataConfigFlags & c
         ._element("EGUIET_TREE_VIEW", irr::gui::EGUIET_TREE_VIEW)
         ._element("EGUIET_WINDOW", irr::gui::EGUIET_WINDOW)
         ._element("EGUIET_ELEMENT", irr::gui::EGUIET_ELEMENT)
+        ._element("EGUIET_ROOT", irr::gui::EGUIET_ROOT)
         ._element("EGUIET_COUNT", irr::gui::EGUIET_COUNT)
         ._element("EGUIET_FORCE_32_BIT", irr::gui::EGUIET_FORCE_32_BIT)
     ;

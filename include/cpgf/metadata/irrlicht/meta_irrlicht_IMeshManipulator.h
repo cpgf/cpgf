@@ -25,8 +25,10 @@ void buildMetaClass_IMeshManipulator(const cpgf::GMetaDataConfigFlags & config, 
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("flipSurfaces", &D::ClassType::flipSurfaces);
-    _d.CPGF_MD_TEMPLATE _method("setVertexColorAlpha", &D::ClassType::setVertexColorAlpha);
-    _d.CPGF_MD_TEMPLATE _method("setVertexColors", &D::ClassType::setVertexColors);
+    _d.CPGF_MD_TEMPLATE _method("setVertexColorAlpha", (void (D::ClassType::*) (IMesh *, s32) const)&D::ClassType::setVertexColorAlpha);
+    _d.CPGF_MD_TEMPLATE _method("setVertexColorAlpha", (void (D::ClassType::*) (IMeshBuffer *, s32) const)&D::ClassType::setVertexColorAlpha);
+    _d.CPGF_MD_TEMPLATE _method("setVertexColors", (void (D::ClassType::*) (IMesh *, video::SColor) const)&D::ClassType::setVertexColors);
+    _d.CPGF_MD_TEMPLATE _method("setVertexColors", (void (D::ClassType::*) (IMeshBuffer *, video::SColor) const)&D::ClassType::setVertexColors);
     _d.CPGF_MD_TEMPLATE _method("recalculateNormals", (void (D::ClassType::*) (IMesh *, bool, bool) const)&D::ClassType::recalculateNormals)
         ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(false))
@@ -35,7 +37,12 @@ void buildMetaClass_IMeshManipulator(const cpgf::GMetaDataConfigFlags & config, 
         ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(false))
     ;
-    _d.CPGF_MD_TEMPLATE _method("recalculateTangents", &D::ClassType::recalculateTangents)
+    _d.CPGF_MD_TEMPLATE _method("recalculateTangents", (void (D::ClassType::*) (IMesh *, bool, bool, bool) const)&D::ClassType::recalculateTangents)
+        ._default(copyVariantFromCopyable(false))
+        ._default(copyVariantFromCopyable(false))
+        ._default(copyVariantFromCopyable(false))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("recalculateTangents", (void (D::ClassType::*) (IMeshBuffer *, bool, bool, bool) const)&D::ClassType::recalculateTangents)
         ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(false))
@@ -52,14 +59,15 @@ void buildMetaClass_IMeshManipulator(const cpgf::GMetaDataConfigFlags & config, 
     _d.CPGF_MD_TEMPLATE _method("transform", (void (D::ClassType::*) (IMesh *, const core::matrix4 &) const)&D::ClassType::transform);
     _d.CPGF_MD_TEMPLATE _method("transform", (void (D::ClassType::*) (IMeshBuffer *, const core::matrix4 &) const)&D::ClassType::transform);
     _d.CPGF_MD_TEMPLATE _method("transformMesh", &D::ClassType::transformMesh);
-    _d.CPGF_MD_TEMPLATE _method("createMeshCopy", &D::ClassType::createMeshCopy);
     _d.CPGF_MD_TEMPLATE _method("makePlanarTextureMapping", (void (D::ClassType::*) (IMesh *, f32) const)&D::ClassType::makePlanarTextureMapping)
         ._default(copyVariantFromCopyable(0.001f))
     ;
     _d.CPGF_MD_TEMPLATE _method("makePlanarTextureMapping", (void (D::ClassType::*) (scene::IMeshBuffer *, f32) const)&D::ClassType::makePlanarTextureMapping)
         ._default(copyVariantFromCopyable(0.001f))
     ;
+    _d.CPGF_MD_TEMPLATE _method("makePlanarTextureMapping", (void (D::ClassType::*) (scene::IMesh *, f32, f32, u8, const core::vector3df &) const)&D::ClassType::makePlanarTextureMapping);
     _d.CPGF_MD_TEMPLATE _method("makePlanarTextureMapping", (void (D::ClassType::*) (scene::IMeshBuffer *, f32, f32, u8, const core::vector3df &) const)&D::ClassType::makePlanarTextureMapping);
+    _d.CPGF_MD_TEMPLATE _method("createMeshCopy", &D::ClassType::createMeshCopy);
     _d.CPGF_MD_TEMPLATE _method("createMeshWithTangents", &D::ClassType::createMeshWithTangents)
         ._default(copyVariantFromCopyable(true))
         ._default(copyVariantFromCopyable(false))
@@ -77,6 +85,7 @@ void buildMetaClass_IMeshManipulator(const cpgf::GMetaDataConfigFlags & config, 
     _d.CPGF_MD_TEMPLATE _method("createAnimatedMesh", &D::ClassType::createAnimatedMesh)
         ._default(copyVariantFromCopyable(scene::EAMT_UNKNOWN))
     ;
+    _d.CPGF_MD_TEMPLATE _method("createForsythOptimizedMesh", &D::ClassType::createForsythOptimizedMesh);
 }
 
 

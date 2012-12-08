@@ -29,7 +29,11 @@ void buildMetaClass_IGeometryCreator(const cpgf::GMetaDataConfigFlags & config, 
         ._default(copyVariantFromCopyable(core::vector3df(5.f, 5.f, 5.f)))
     ;
     _d.CPGF_MD_TEMPLATE _method("createHillPlaneMesh", &D::ClassType::createHillPlaneMesh);
-    _d.CPGF_MD_TEMPLATE _method("createPlaneMesh", &D::ClassType::createPlaneMesh);
+    _d.CPGF_MD_TEMPLATE _method("createPlaneMesh", &D::ClassType::createPlaneMesh)
+        ._default(copyVariantFromCopyable(core::dimension2df(1.f, 1.f)))
+        ._default(copyVariantFromCopyable(0))
+        ._default(copyVariantFromCopyable(core::dimension2du(1, 1)))
+    ;
     _d.CPGF_MD_TEMPLATE _method("createTerrainMesh", &D::ClassType::createTerrainMesh)
         ._default(copyVariantFromCopyable(false))
     ;

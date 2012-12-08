@@ -63,13 +63,17 @@ void buildMetaClass_Line2d(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getLengthSQ", &D::ClassType::getLengthSQ);
     _d.CPGF_MD_TEMPLATE _method("getMiddle", &D::ClassType::getMiddle);
     _d.CPGF_MD_TEMPLATE _method("getVector", &D::ClassType::getVector);
-    _d.CPGF_MD_TEMPLATE _method("intersectWith", &D::ClassType::intersectWith);
+    _d.CPGF_MD_TEMPLATE _method("intersectWith", &D::ClassType::intersectWith)
+        ._default(copyVariantFromCopyable(true))
+    ;
     _d.CPGF_MD_TEMPLATE _method("getUnitVector", &D::ClassType::getUnitVector);
     _d.CPGF_MD_TEMPLATE _method("getAngleWith", &D::ClassType::getAngleWith);
     _d.CPGF_MD_TEMPLATE _method("getPointOrientation", &D::ClassType::getPointOrientation, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("isPointOnLine", &D::ClassType::isPointOnLine, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("isPointBetweenStartAndEnd", &D::ClassType::isPointBetweenStartAndEnd, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("getClosestPoint", &D::ClassType::getClosestPoint, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("getClosestPoint", (vector2d< T > (D::ClassType::*) (const vector2d< T > &, bool) const)&D::ClassType::getClosestPoint, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
+        ._default(copyVariantFromCopyable(true))
+    ;
     _d.CPGF_MD_TEMPLATE _operator<line2d< T > (*)(const cpgf::GMetaSelf &, const vector2d< T > &)>(mopHolder + mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("_opAdd", (line2d< T > (*) (const line2d<T> *, const vector2d< T > &))&opErAToRWrapper_line2d__opAdd<T>, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<line2d< T > & (*)(cpgf::GMetaSelf, const vector2d< T > &)>(mopHolder += mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());

@@ -25,6 +25,7 @@ void buildMetaClass_Global_escenenodetypes(const cpgf::GMetaDataConfigFlags & co
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _enum<ESCENE_NODE_TYPE>("ESCENE_NODE_TYPE")
+        ._element("ESNT_SCENE_MANAGER", irr::scene::ESNT_SCENE_MANAGER)
         ._element("ESNT_CUBE", irr::scene::ESNT_CUBE)
         ._element("ESNT_SPHERE", irr::scene::ESNT_SPHERE)
         ._element("ESNT_TEXT", irr::scene::ESNT_TEXT)

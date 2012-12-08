@@ -24,8 +24,10 @@ void buildMetaClass_IBillboardSceneNode(const cpgf::GMetaDataConfigFlags & confi
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _method("setSize", &D::ClassType::setSize);
-    _d.CPGF_MD_TEMPLATE _method("getSize", &D::ClassType::getSize);
+    _d.CPGF_MD_TEMPLATE _method("setSize", (void (D::ClassType::*) (const core::dimension2d< f32 > &))&D::ClassType::setSize);
+    _d.CPGF_MD_TEMPLATE _method("setSize", (void (D::ClassType::*) (f32, f32, f32))&D::ClassType::setSize);
+    _d.CPGF_MD_TEMPLATE _method("getSize", (const core::dimension2d< f32 > & (D::ClassType::*) () const)&D::ClassType::getSize);
+    _d.CPGF_MD_TEMPLATE _method("getSize", (void (D::ClassType::*) (f32 &, f32 &, f32 &) const)&D::ClassType::getSize);
     _d.CPGF_MD_TEMPLATE _method("setColor", (void (D::ClassType::*) (const video::SColor &))&D::ClassType::setColor);
     _d.CPGF_MD_TEMPLATE _method("setColor", (void (D::ClassType::*) (const video::SColor &, const video::SColor &))&D::ClassType::setColor);
     _d.CPGF_MD_TEMPLATE _method("getColor", &D::ClassType::getColor);

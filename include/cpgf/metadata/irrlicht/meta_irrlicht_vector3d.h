@@ -166,11 +166,12 @@ void buildMetaClass_Vector3d(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getInterpolated_quadratic", &D::ClassType::getInterpolated_quadratic, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("interpolate", &D::ClassType::interpolate, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0>, cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("getHorizontalAngle", &D::ClassType::getHorizontalAngle);
-    _d.CPGF_MD_TEMPLATE _method("getSphericalCoordinateAngles", (vector3d< T > (D::ClassType::*) ())&D::ClassType::getSphericalCoordinateAngles);
+    _d.CPGF_MD_TEMPLATE _method("getSphericalCoordinateAngles", (vector3d< T > (D::ClassType::*) () const)&D::ClassType::getSphericalCoordinateAngles);
     _d.CPGF_MD_TEMPLATE _method("rotationToDirection", &D::ClassType::rotationToDirection, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
         ._default(copyVariantFromCopyable(vector3d< T >(0, 0, 1)))
     ;
     _d.CPGF_MD_TEMPLATE _method("getAs4Values", &D::ClassType::getAs4Values);
+    _d.CPGF_MD_TEMPLATE _method("getAs3Values", &D::ClassType::getAs3Values);
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > (*)(const cpgf::GMetaSelf &)>(-mopHolder);
     _d.CPGF_MD_TEMPLATE _method("_opMinus", (vector3d< T > (*) (const vector3d<T> *))&opErAToRWrapper_vector3d__opMinus<T>, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<vector3d< T > & (*)(cpgf::GMetaSelf, const vector3d< T > &)>(mopHolder = mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());

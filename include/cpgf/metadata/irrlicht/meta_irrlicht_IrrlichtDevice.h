@@ -40,6 +40,9 @@ void buildMetaClass_IrrlichtDevice(const cpgf::GMetaDataConfigFlags & config, D 
     _d.CPGF_MD_TEMPLATE _method("getVideoModeList", &D::ClassType::getVideoModeList);
     _d.CPGF_MD_TEMPLATE _method("getOSOperator", &D::ClassType::getOSOperator);
     _d.CPGF_MD_TEMPLATE _method("getTimer", &D::ClassType::getTimer);
+    _d.CPGF_MD_TEMPLATE _method("getRandomizer", &D::ClassType::getRandomizer);
+    _d.CPGF_MD_TEMPLATE _method("setRandomizer", &D::ClassType::setRandomizer);
+    _d.CPGF_MD_TEMPLATE _method("createDefaultRandomizer", &D::ClassType::createDefaultRandomizer);
     _d.CPGF_MD_TEMPLATE _method("setWindowCaption", &D::ClassType::setWindowCaption);
     _d.CPGF_MD_TEMPLATE _method("isWindowActive", &D::ClassType::isWindowActive);
     _d.CPGF_MD_TEMPLATE _method("isWindowFocused", &D::ClassType::isWindowFocused);

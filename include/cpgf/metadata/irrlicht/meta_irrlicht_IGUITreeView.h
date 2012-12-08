@@ -58,7 +58,9 @@ void buildMetaClass_IGUITreeViewNode(const cpgf::GMetaDataConfigFlags & config, 
     _d.CPGF_MD_TEMPLATE _method("getData2", &D::ClassType::getData2);
     _d.CPGF_MD_TEMPLATE _method("setData2", &D::ClassType::setData2);
     _d.CPGF_MD_TEMPLATE _method("getChildCount", &D::ClassType::getChildCount);
+    _d.CPGF_MD_TEMPLATE _method("clearChildren", &D::ClassType::clearChildren);
     _d.CPGF_MD_TEMPLATE _method("clearChilds", &D::ClassType::clearChilds);
+    _d.CPGF_MD_TEMPLATE _method("hasChildren", &D::ClassType::hasChildren);
     _d.CPGF_MD_TEMPLATE _method("hasChilds", &D::ClassType::hasChilds);
     _d.CPGF_MD_TEMPLATE _method("addChildBack", &D::ClassType::addChildBack)
         ._default(copyVariantFromCopyable(0))

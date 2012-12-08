@@ -181,7 +181,6 @@ void buildMetaClass_SMD3QuaternionTag(const cpgf::GMetaDataConfigFlags & config,
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (const SMD3QuaternionTag &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _constructor<void * (const core::stringc &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _constructor<void * (const core::stringc &, const core::matrix4 &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _constructor<void * (const core::vector3df &, const core::vector3df &)>();
     _d.CPGF_MD_TEMPLATE _field("Name", &D::ClassType::Name);
     _d.CPGF_MD_TEMPLATE _field("position", &D::ClassType::position);

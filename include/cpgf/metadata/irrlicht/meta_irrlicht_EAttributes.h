@@ -49,6 +49,7 @@ void buildMetaClass_Global_eattributes(const cpgf::GMetaDataConfigFlags & config
         ._element("EAT_BINARY", irr::io::EAT_BINARY)
         ._element("EAT_TEXTURE", irr::io::EAT_TEXTURE)
         ._element("EAT_USER_POINTER", irr::io::EAT_USER_POINTER)
+        ._element("EAT_DIMENSION2D", irr::io::EAT_DIMENSION2D)
         ._element("EAT_COUNT", irr::io::EAT_COUNT)
         ._element("EAT_UNKNOWN", irr::io::EAT_UNKNOWN)
     ;

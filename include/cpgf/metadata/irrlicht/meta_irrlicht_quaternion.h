@@ -18,6 +18,17 @@ using namespace irr::core;
 namespace meta_irrlicht { 
 
 
+template <typename D>
+void buildMetaClass_Global_quaternion(const cpgf::GMetaDataConfigFlags & config, D _d)
+{
+    (void)config; (void)_d; (void)_d;
+    using namespace cpgf;
+    
+    _d.CPGF_MD_TEMPLATE _enum<long long>("GlobalDefine_irrlicht_9")
+    ;
+}
+
+
 inline bool opErAToRWrapper_quaternion__opEqual(const quaternion * self, const quaternion & other) {
     return (*self) == other;
 }
@@ -75,11 +86,16 @@ void buildMetaClass_Quaternion(const cpgf::GMetaDataConfigFlags & config, D _d)
     ;
     _d.CPGF_MD_TEMPLATE _method("normalize", &D::ClassType::normalize);
     _d.CPGF_MD_TEMPLATE _method("getMatrix", (matrix4 (D::ClassType::*) () const)&D::ClassType::getMatrix);
-    _d.CPGF_MD_TEMPLATE _method("getMatrix", (void (D::ClassType::*) (matrix4 &, const core::vector3df &) const)&D::ClassType::getMatrix);
+    _d.CPGF_MD_TEMPLATE _method("getMatrix", (void (D::ClassType::*) (matrix4 &, const core::vector3df &) const)&D::ClassType::getMatrix)
+        ._default(copyVariantFromCopyable(core::vector3df()))
+    ;
     _d.CPGF_MD_TEMPLATE _method("getMatrixCenter", &D::ClassType::getMatrixCenter);
     _d.CPGF_MD_TEMPLATE _method("getMatrix_transposed", &D::ClassType::getMatrix_transposed);
     _d.CPGF_MD_TEMPLATE _method("makeInverse", &D::ClassType::makeInverse);
-    _d.CPGF_MD_TEMPLATE _method("slerp", &D::ClassType::slerp);
+    _d.CPGF_MD_TEMPLATE _method("lerp", &D::ClassType::lerp);
+    _d.CPGF_MD_TEMPLATE _method("slerp", &D::ClassType::slerp)
+        ._default(copyVariantFromCopyable(.05f))
+    ;
     _d.CPGF_MD_TEMPLATE _method("fromAngleAxis", &D::ClassType::fromAngleAxis);
     _d.CPGF_MD_TEMPLATE _method("toAngleAxis", &D::ClassType::toAngleAxis);
     _d.CPGF_MD_TEMPLATE _method("toEuler", &D::ClassType::toEuler);

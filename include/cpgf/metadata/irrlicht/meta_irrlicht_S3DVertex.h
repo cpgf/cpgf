@@ -59,6 +59,7 @@ void buildMetaClass_S3DVertex(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _field("Color", &D::ClassType::Color);
     _d.CPGF_MD_TEMPLATE _field("TCoords", &D::ClassType::TCoords);
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
+    _d.CPGF_MD_TEMPLATE _method("getInterpolated", &D::ClassType::getInterpolated);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertex &)>(mopHolder == mopHolder);
     _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const S3DVertex *, const S3DVertex &))&opErAToRWrapper_S3DVertex__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertex &)>(mopHolder != mopHolder);
@@ -95,6 +96,7 @@ void buildMetaClass_S3DVertex2TCoords(const cpgf::GMetaDataConfigFlags & config,
     _d.CPGF_MD_TEMPLATE _constructor<void * (S3DVertex &)>();
     _d.CPGF_MD_TEMPLATE _field("TCoords2", &D::ClassType::TCoords2);
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
+    _d.CPGF_MD_TEMPLATE _method("getInterpolated", &D::ClassType::getInterpolated, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertex2TCoords &)>(mopHolder == mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
     _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const S3DVertex2TCoords *, const S3DVertex2TCoords &))&opErAToRWrapper_S3DVertex2TCoords__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertex2TCoords &)>(mopHolder != mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
@@ -144,6 +146,7 @@ void buildMetaClass_S3DVertexTangents(const cpgf::GMetaDataConfigFlags & config,
     _d.CPGF_MD_TEMPLATE _field("Tangent", &D::ClassType::Tangent);
     _d.CPGF_MD_TEMPLATE _field("Binormal", &D::ClassType::Binormal);
     _d.CPGF_MD_TEMPLATE _method("getType", &D::ClassType::getType);
+    _d.CPGF_MD_TEMPLATE _method("getInterpolated", &D::ClassType::getInterpolated);
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertexTangents &)>(mopHolder == mopHolder);
     _d.CPGF_MD_TEMPLATE _method("_opEqual", (bool (*) (const S3DVertexTangents *, const S3DVertexTangents &))&opErAToRWrapper_S3DVertexTangents__opEqual, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());
     _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const S3DVertexTangents &)>(mopHolder != mopHolder);

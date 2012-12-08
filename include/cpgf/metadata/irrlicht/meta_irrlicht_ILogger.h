@@ -24,6 +24,7 @@ void buildMetaClass_Global_ilogger(const cpgf::GMetaDataConfigFlags & config, D 
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _enum<ELOG_LEVEL>("ELOG_LEVEL")
+        ._element("ELL_DEBUG", irr::ELL_DEBUG)
         ._element("ELL_INFORMATION", irr::ELL_INFORMATION)
         ._element("ELL_WARNING", irr::ELL_WARNING)
         ._element("ELL_ERROR", irr::ELL_ERROR)

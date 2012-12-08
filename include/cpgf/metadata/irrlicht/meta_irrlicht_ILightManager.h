@@ -39,7 +39,7 @@ void buildMetaClass_ILightManager(const cpgf::GMetaDataConfigFlags & config, D _
 class ILightManagerWrapper : public irr::scene::ILightManager, public cpgf::GScriptWrapper {
 public:
     
-    void OnPreRender(core::array< ILightSceneNode * > & lightList)
+    void OnPreRender(core::array< ISceneNode * > & lightList)
     {
         cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("OnPreRender"));
         if(func)
@@ -49,7 +49,7 @@ public:
         }
         throw "Abstract method";
     }
-    void super_OnPreRender(core::array< ILightSceneNode * > & lightList)
+    void super_OnPreRender(core::array< ISceneNode * > & lightList)
     {
         throw "Abstract method";
     }
@@ -138,7 +138,7 @@ void buildMetaClass_ILightManagerWrapper(const cpgf::GMetaDataConfigFlags & conf
     using namespace cpgf;
     
     
-    _d.CPGF_MD_TEMPLATE _method("super_OnPreRender", (void (D::ClassType::*) (core::array< ILightSceneNode * > &))&D::ClassType::super_OnPreRender);
+    _d.CPGF_MD_TEMPLATE _method("super_OnPreRender", (void (D::ClassType::*) (core::array< ISceneNode * > &))&D::ClassType::super_OnPreRender);
     _d.CPGF_MD_TEMPLATE _method("super_OnPostRender", (void (D::ClassType::*) ())&D::ClassType::super_OnPostRender);
     _d.CPGF_MD_TEMPLATE _method("super_OnRenderPassPreRender", (void (D::ClassType::*) (E_SCENE_NODE_RENDER_PASS))&D::ClassType::super_OnRenderPassPreRender);
     _d.CPGF_MD_TEMPLATE _method("super_OnRenderPassPostRender", (void (D::ClassType::*) (E_SCENE_NODE_RENDER_PASS))&D::ClassType::super_OnRenderPassPostRender);

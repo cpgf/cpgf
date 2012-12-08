@@ -23,6 +23,7 @@ void buildMetaClass_IOSOperator(const cpgf::GMetaDataConfigFlags & config, D _d)
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _method("getOperatingSystemVersion", &D::ClassType::getOperatingSystemVersion, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
     _d.CPGF_MD_TEMPLATE _method("getOperationSystemVersion", &D::ClassType::getOperationSystemVersion);
     _d.CPGF_MD_TEMPLATE _method("copyToClipboard", &D::ClassType::copyToClipboard);
     _d.CPGF_MD_TEMPLATE _method("getTextFromClipboard", &D::ClassType::getTextFromClipboard);

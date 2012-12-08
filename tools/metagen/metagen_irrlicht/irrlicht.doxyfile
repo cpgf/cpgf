@@ -675,7 +675,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = E:/SourceCode/CPP/irrlicht-1.7.3/include
+INPUT                  = E:/SourceCode/CPP/irrlicht-1.8/include
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 
@@ -1517,7 +1517,7 @@ SEARCH_INCLUDES        = YES
 # contain include files that are not input files but should be processed by 
 # the preprocessor.
 
-INCLUDE_PATH           = E:/SourceCode/CPP/irrlicht-1.7.3/include
+INCLUDE_PATH           = E:/SourceCode/CPP/irrlicht-1.8/include
 
 # You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard 
 # patterns (like *.h and *.hpp) to filter out the header-files in the 
@@ -1537,7 +1537,8 @@ INCLUDE_FILE_PATTERNS  = *.h
 PREDEFINED             = __WIN32__ \
                          __cplusplus \
                          __WINDOWS__ \
-                         _MSC_VER=1500
+                         _MSC_VER=1500 \
+                         PACK_STRUCT=
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 

@@ -29,6 +29,8 @@ void buildMetaClass_IQ3LevelMesh(const cpgf::GMetaDataConfigFlags & config, D _d
     ;
     _d.CPGF_MD_TEMPLATE _method("getShader", (const quake3::IShader * (D::ClassType::*) (u32) const)&D::ClassType::getShader);
     _d.CPGF_MD_TEMPLATE _method("getEntityList", &D::ClassType::getEntityList);
+    _d.CPGF_MD_TEMPLATE _method("getBrushEntityMesh", (IMesh * (D::ClassType::*) (s32) const)&D::ClassType::getBrushEntityMesh);
+    _d.CPGF_MD_TEMPLATE _method("getBrushEntityMesh", (IMesh * (D::ClassType::*) (quake3::IEntity &) const)&D::ClassType::getBrushEntityMesh);
 }
 
 

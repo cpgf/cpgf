@@ -28,7 +28,9 @@ void buildMetaClass_ISceneNodeAnimatorCameraFPS(const cpgf::GMetaDataConfigFlags
     _d.CPGF_MD_TEMPLATE _method("setMoveSpeed", &D::ClassType::setMoveSpeed);
     _d.CPGF_MD_TEMPLATE _method("getRotateSpeed", &D::ClassType::getRotateSpeed);
     _d.CPGF_MD_TEMPLATE _method("setRotateSpeed", &D::ClassType::setRotateSpeed);
-    _d.CPGF_MD_TEMPLATE _method("setKeyMap", &D::ClassType::setKeyMap);
+    _d.CPGF_MD_TEMPLATE _method("setKeyMap", (void (D::ClassType::*) (SKeyMap *, u32))&D::ClassType::setKeyMap);
+    _d.CPGF_MD_TEMPLATE _method("setKeyMap", (void (D::ClassType::*) (const core::array< SKeyMap > &))&D::ClassType::setKeyMap);
+    _d.CPGF_MD_TEMPLATE _method("getKeyMap", &D::ClassType::getKeyMap);
     _d.CPGF_MD_TEMPLATE _method("setVerticalMovement", &D::ClassType::setVerticalMovement);
     _d.CPGF_MD_TEMPLATE _method("setInvertMouse", &D::ClassType::setInvertMouse);
 }

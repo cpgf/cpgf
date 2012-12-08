@@ -66,6 +66,7 @@ void buildMetaClass_IGUITable(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getActiveColumn", &D::ClassType::getActiveColumn);
     _d.CPGF_MD_TEMPLATE _method("getActiveColumnOrdering", &D::ClassType::getActiveColumnOrdering);
     _d.CPGF_MD_TEMPLATE _method("setColumnWidth", &D::ClassType::setColumnWidth);
+    _d.CPGF_MD_TEMPLATE _method("getColumnWidth", &D::ClassType::getColumnWidth);
     _d.CPGF_MD_TEMPLATE _method("setResizableColumns", &D::ClassType::setResizableColumns);
     _d.CPGF_MD_TEMPLATE _method("hasResizableColumns", &D::ClassType::hasResizableColumns);
     _d.CPGF_MD_TEMPLATE _method("setColumnOrdering", &D::ClassType::setColumnOrdering);

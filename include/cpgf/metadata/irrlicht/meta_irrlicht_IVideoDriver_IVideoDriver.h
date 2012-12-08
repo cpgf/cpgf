@@ -38,6 +38,7 @@ void buildMetaClass_IVideoDriver(const cpgf::GMetaDataConfigFlags & config, D _d
     _d.CPGF_MD_TEMPLATE _method("disableFeature", &D::ClassType::disableFeature)
         ._default(copyVariantFromCopyable(true))
     ;
+    _d.CPGF_MD_TEMPLATE _method("getDriverAttributes", &D::ClassType::getDriverAttributes);
     _d.CPGF_MD_TEMPLATE _method("checkDriverReset", &D::ClassType::checkDriverReset);
     _d.CPGF_MD_TEMPLATE _method("setTransform", &D::ClassType::setTransform);
     _d.CPGF_MD_TEMPLATE _method("getTransform", &D::ClassType::getTransform);
@@ -65,6 +66,24 @@ void buildMetaClass_IVideoDriver(const cpgf::GMetaDataConfigFlags & config, D _d
     _d.CPGF_MD_TEMPLATE _method("removeAllTextures", &D::ClassType::removeAllTextures);
     _d.CPGF_MD_TEMPLATE _method("removeHardwareBuffer", &D::ClassType::removeHardwareBuffer);
     _d.CPGF_MD_TEMPLATE _method("removeAllHardwareBuffers", &D::ClassType::removeAllHardwareBuffers);
+    _d.CPGF_MD_TEMPLATE _method("addOcclusionQuery", &D::ClassType::addOcclusionQuery)
+        ._default(copyVariantFromCopyable(0))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("removeOcclusionQuery", &D::ClassType::removeOcclusionQuery);
+    _d.CPGF_MD_TEMPLATE _method("removeAllOcclusionQueries", &D::ClassType::removeAllOcclusionQueries);
+    _d.CPGF_MD_TEMPLATE _method("runOcclusionQuery", &D::ClassType::runOcclusionQuery)
+        ._default(copyVariantFromCopyable(false))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("runAllOcclusionQueries", &D::ClassType::runAllOcclusionQueries)
+        ._default(copyVariantFromCopyable(false))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("updateOcclusionQuery", &D::ClassType::updateOcclusionQuery)
+        ._default(copyVariantFromCopyable(true))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("updateAllOcclusionQueries", &D::ClassType::updateAllOcclusionQueries)
+        ._default(copyVariantFromCopyable(true))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("getOcclusionQueryResult", &D::ClassType::getOcclusionQueryResult);
     _d.CPGF_MD_TEMPLATE _method("makeColorKeyTexture", (void (D::ClassType::*) (video::ITexture *, video::SColor, bool) const)&D::ClassType::makeColorKeyTexture)
         ._default(copyVariantFromCopyable(false))
     ;
@@ -156,6 +175,7 @@ void buildMetaClass_IVideoDriver(const cpgf::GMetaDataConfigFlags & config, D _d
         ._default(copyVariantFromCopyable(SColor(100, 255, 255, 255)))
     ;
     _d.CPGF_MD_TEMPLATE _method("drawStencilShadowVolume", &D::ClassType::drawStencilShadowVolume)
+        ._default(copyVariantFromCopyable(0))
         ._default(copyVariantFromCopyable(true))
     ;
     _d.CPGF_MD_TEMPLATE _method("drawStencilShadow", &D::ClassType::drawStencilShadow)
@@ -166,6 +186,10 @@ void buildMetaClass_IVideoDriver(const cpgf::GMetaDataConfigFlags & config, D _d
         ._default(copyVariantFromCopyable(false))
     ;
     _d.CPGF_MD_TEMPLATE _method("drawMeshBuffer", &D::ClassType::drawMeshBuffer);
+    _d.CPGF_MD_TEMPLATE _method("drawMeshBufferNormals", &D::ClassType::drawMeshBufferNormals)
+        ._default(copyVariantFromCopyable(0xffffffff))
+        ._default(copyVariantFromCopyable(10.f))
+    ;
     _d.CPGF_MD_TEMPLATE _method("setFog", &D::ClassType::setFog)
         ._default(copyVariantFromCopyable(false))
         ._default(copyVariantFromCopyable(false))
@@ -210,8 +234,8 @@ void buildMetaClass_IVideoDriver(const cpgf::GMetaDataConfigFlags & config, D _d
         ._default(copyVariantFromCopyable(false))
     ;
     _d.CPGF_MD_TEMPLATE _method("createImage", (IImage * (D::ClassType::*) (ECOLOR_FORMAT, const core::dimension2d< u32 > &))&D::ClassType::createImage);
-    _d.CPGF_MD_TEMPLATE _method("createImage", (IImage * (D::ClassType::*) (ECOLOR_FORMAT, IImage *))&D::ClassType::createImage);
-    _d.CPGF_MD_TEMPLATE _method("createImage", (IImage * (D::ClassType::*) (IImage *, const core::position2d< s32 > &, const core::dimension2d< u32 > &))&D::ClassType::createImage);
+    _d.CPGF_MD_TEMPLATE _method("createImage", (_IRR_DEPRECATED_ IImage * (D::ClassType::*) (ECOLOR_FORMAT, IImage *))&D::ClassType::createImage);
+    _d.CPGF_MD_TEMPLATE _method("createImage", (_IRR_DEPRECATED_ IImage * (D::ClassType::*) (IImage *, const core::position2d< s32 > &, const core::dimension2d< u32 > &))&D::ClassType::createImage);
     _d.CPGF_MD_TEMPLATE _method("createImage", (IImage * (D::ClassType::*) (ITexture *, const core::position2d< s32 > &, const core::dimension2d< u32 > &))&D::ClassType::createImage);
     _d.CPGF_MD_TEMPLATE _method("OnResize", &D::ClassType::OnResize);
     _d.CPGF_MD_TEMPLATE _method("addMaterialRenderer", &D::ClassType::addMaterialRenderer)
@@ -221,14 +245,19 @@ void buildMetaClass_IVideoDriver(const cpgf::GMetaDataConfigFlags & config, D _d
     _d.CPGF_MD_TEMPLATE _method("getMaterialRendererCount", &D::ClassType::getMaterialRendererCount);
     _d.CPGF_MD_TEMPLATE _method("getMaterialRendererName", &D::ClassType::getMaterialRendererName);
     _d.CPGF_MD_TEMPLATE _method("setMaterialRendererName", &D::ClassType::setMaterialRendererName);
-    _d.CPGF_MD_TEMPLATE _method("createAttributesFromMaterial", &D::ClassType::createAttributesFromMaterial);
+    _d.CPGF_MD_TEMPLATE _method("createAttributesFromMaterial", &D::ClassType::createAttributesFromMaterial)
+        ._default(copyVariantFromCopyable(0))
+    ;
     _d.CPGF_MD_TEMPLATE _method("fillMaterialStructureFromAttributes", &D::ClassType::fillMaterialStructureFromAttributes);
     _d.CPGF_MD_TEMPLATE _method("getExposedVideoData", &D::ClassType::getExposedVideoData, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
     _d.CPGF_MD_TEMPLATE _method("getDriverType", &D::ClassType::getDriverType);
     _d.CPGF_MD_TEMPLATE _method("getGPUProgrammingServices", &D::ClassType::getGPUProgrammingServices);
     _d.CPGF_MD_TEMPLATE _method("getMeshManipulator", &D::ClassType::getMeshManipulator);
     _d.CPGF_MD_TEMPLATE _method("clearZBuffer", &D::ClassType::clearZBuffer);
-    _d.CPGF_MD_TEMPLATE _method("createScreenShot", &D::ClassType::createScreenShot);
+    _d.CPGF_MD_TEMPLATE _method("createScreenShot", &D::ClassType::createScreenShot)
+        ._default(copyVariantFromCopyable(video::ERT_FRAME_BUFFER))
+        ._default(copyVariantFromCopyable(video::ECF_UNKNOWN))
+    ;
     _d.CPGF_MD_TEMPLATE _method("findTexture", &D::ClassType::findTexture, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("setClipPlane", &D::ClassType::setClipPlane)
         ._default(copyVariantFromCopyable(false))
@@ -244,6 +273,7 @@ void buildMetaClass_IVideoDriver(const cpgf::GMetaDataConfigFlags & config, D _d
     _d.CPGF_MD_TEMPLATE _method("setAmbientLight", &D::ClassType::setAmbientLight, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("setAllowZWriteOnTransparent", &D::ClassType::setAllowZWriteOnTransparent);
     _d.CPGF_MD_TEMPLATE _method("getMaxTextureSize", &D::ClassType::getMaxTextureSize);
+    _d.CPGF_MD_TEMPLATE _method("convertColor", &D::ClassType::convertColor);
 }
 
 

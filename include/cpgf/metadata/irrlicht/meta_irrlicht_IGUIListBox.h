@@ -45,6 +45,7 @@ void buildMetaClass_IGUIListBox(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("addItem", (u32 (D::ClassType::*) (const wchar_t *))&D::ClassType::addItem);
     _d.CPGF_MD_TEMPLATE _method("addItem", (u32 (D::ClassType::*) (const wchar_t *, s32))&D::ClassType::addItem);
     _d.CPGF_MD_TEMPLATE _method("removeItem", &D::ClassType::removeItem);
+    _d.CPGF_MD_TEMPLATE _method("getItemAt", &D::ClassType::getItemAt);
     _d.CPGF_MD_TEMPLATE _method("getIcon", &D::ClassType::getIcon);
     _d.CPGF_MD_TEMPLATE _method("setSpriteBank", &D::ClassType::setSpriteBank);
     _d.CPGF_MD_TEMPLATE _method("clear", &D::ClassType::clear);
@@ -53,8 +54,8 @@ void buildMetaClass_IGUIListBox(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("setSelected", (void (D::ClassType::*) (const wchar_t *))&D::ClassType::setSelected);
     _d.CPGF_MD_TEMPLATE _method("setAutoScrollEnabled", &D::ClassType::setAutoScrollEnabled);
     _d.CPGF_MD_TEMPLATE _method("isAutoScrollEnabled", &D::ClassType::isAutoScrollEnabled);
-    _d.CPGF_MD_TEMPLATE _method("setItemOverrideColor", (void (D::ClassType::*) (u32, const video::SColor &))&D::ClassType::setItemOverrideColor);
-    _d.CPGF_MD_TEMPLATE _method("setItemOverrideColor", (void (D::ClassType::*) (u32, EGUI_LISTBOX_COLOR, const video::SColor &))&D::ClassType::setItemOverrideColor);
+    _d.CPGF_MD_TEMPLATE _method("setItemOverrideColor", (void (D::ClassType::*) (u32, video::SColor))&D::ClassType::setItemOverrideColor);
+    _d.CPGF_MD_TEMPLATE _method("setItemOverrideColor", (void (D::ClassType::*) (u32, EGUI_LISTBOX_COLOR, video::SColor))&D::ClassType::setItemOverrideColor);
     _d.CPGF_MD_TEMPLATE _method("clearItemOverrideColor", (void (D::ClassType::*) (u32))&D::ClassType::clearItemOverrideColor);
     _d.CPGF_MD_TEMPLATE _method("clearItemOverrideColor", (void (D::ClassType::*) (u32, EGUI_LISTBOX_COLOR))&D::ClassType::clearItemOverrideColor);
     _d.CPGF_MD_TEMPLATE _method("hasItemOverrideColor", &D::ClassType::hasItemOverrideColor);

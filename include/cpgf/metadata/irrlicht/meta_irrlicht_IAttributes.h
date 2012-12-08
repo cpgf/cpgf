@@ -44,8 +44,8 @@ void buildMetaClass_IAttributes(const cpgf::GMetaDataConfigFlags & config, D _d)
     ;
     _d.CPGF_MD_TEMPLATE _method("addInt", &D::ClassType::addInt);
     _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (const c8 *, s32))&D::ClassType::setAttribute);
-    _d.CPGF_MD_TEMPLATE _method("getAttributeAsInt", (s32 (D::ClassType::*) (const c8 *))&D::ClassType::getAttributeAsInt);
-    _d.CPGF_MD_TEMPLATE _method("getAttributeAsInt", (s32 (D::ClassType::*) (s32))&D::ClassType::getAttributeAsInt);
+    _d.CPGF_MD_TEMPLATE _method("getAttributeAsInt", (s32 (D::ClassType::*) (const c8 *) const)&D::ClassType::getAttributeAsInt);
+    _d.CPGF_MD_TEMPLATE _method("getAttributeAsInt", (s32 (D::ClassType::*) (s32) const)&D::ClassType::getAttributeAsInt);
     _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (s32, s32))&D::ClassType::setAttribute);
     _d.CPGF_MD_TEMPLATE _method("addFloat", &D::ClassType::addFloat);
     _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (const c8 *, f32))&D::ClassType::setAttribute);
@@ -104,6 +104,11 @@ void buildMetaClass_IAttributes(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getAttributeAsVector3d", (core::vector3df (D::ClassType::*) (const c8 *))&D::ClassType::getAttributeAsVector3d);
     _d.CPGF_MD_TEMPLATE _method("getAttributeAsVector3d", (core::vector3df (D::ClassType::*) (s32))&D::ClassType::getAttributeAsVector3d);
     _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (s32, core::vector3df))&D::ClassType::setAttribute);
+    _d.CPGF_MD_TEMPLATE _method("addVector2d", &D::ClassType::addVector2d);
+    _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (const c8 *, core::vector2df))&D::ClassType::setAttribute);
+    _d.CPGF_MD_TEMPLATE _method("getAttributeAsVector2d", (core::vector2df (D::ClassType::*) (const c8 *))&D::ClassType::getAttributeAsVector2d);
+    _d.CPGF_MD_TEMPLATE _method("getAttributeAsVector2d", (core::vector2df (D::ClassType::*) (s32))&D::ClassType::getAttributeAsVector2d);
+    _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (s32, core::vector2df))&D::ClassType::setAttribute);
     _d.CPGF_MD_TEMPLATE _method("addPosition2d", &D::ClassType::addPosition2d);
     _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (const c8 *, core::position2di))&D::ClassType::setAttribute);
     _d.CPGF_MD_TEMPLATE _method("getAttributeAsPosition2d", (core::position2di (D::ClassType::*) (const c8 *))&D::ClassType::getAttributeAsPosition2d);
@@ -114,6 +119,11 @@ void buildMetaClass_IAttributes(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getAttributeAsRect", (core::rect< s32 > (D::ClassType::*) (const c8 *))&D::ClassType::getAttributeAsRect);
     _d.CPGF_MD_TEMPLATE _method("getAttributeAsRect", (core::rect< s32 > (D::ClassType::*) (s32))&D::ClassType::getAttributeAsRect);
     _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (s32, core::rect< s32 >))&D::ClassType::setAttribute);
+    _d.CPGF_MD_TEMPLATE _method("addDimension2d", &D::ClassType::addDimension2d);
+    _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (const c8 *, core::dimension2d< u32 >))&D::ClassType::setAttribute);
+    _d.CPGF_MD_TEMPLATE _method("getAttributeAsDimension2d", (core::dimension2d< u32 > (D::ClassType::*) (const c8 *))&D::ClassType::getAttributeAsDimension2d);
+    _d.CPGF_MD_TEMPLATE _method("getAttributeAsDimension2d", (core::dimension2d< u32 > (D::ClassType::*) (s32))&D::ClassType::getAttributeAsDimension2d);
+    _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (s32, core::dimension2d< u32 >))&D::ClassType::setAttribute);
     _d.CPGF_MD_TEMPLATE _method("addMatrix", &D::ClassType::addMatrix);
     _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (const c8 *, const core::matrix4 &))&D::ClassType::setAttribute);
     _d.CPGF_MD_TEMPLATE _method("getAttributeAsMatrix", (core::matrix4 (D::ClassType::*) (const c8 *))&D::ClassType::getAttributeAsMatrix);
@@ -149,11 +159,17 @@ void buildMetaClass_IAttributes(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _method("getAttributeAsLine3d", (core::line3df (D::ClassType::*) (const c8 *))&D::ClassType::getAttributeAsLine3d);
     _d.CPGF_MD_TEMPLATE _method("getAttributeAsLine3d", (core::line3df (D::ClassType::*) (s32))&D::ClassType::getAttributeAsLine3d);
     _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (s32, core::line3df))&D::ClassType::setAttribute);
-    _d.CPGF_MD_TEMPLATE _method("addTexture", &D::ClassType::addTexture);
-    _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (const c8 *, video::ITexture *))&D::ClassType::setAttribute);
+    _d.CPGF_MD_TEMPLATE _method("addTexture", &D::ClassType::addTexture, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >())
+        ._default(copyVariantFromCopyable(""))
+    ;
+    _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (const c8 *, video::ITexture *, const io::path &))&D::ClassType::setAttribute, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >())
+        ._default(copyVariantFromCopyable(""))
+    ;
     _d.CPGF_MD_TEMPLATE _method("getAttributeAsTexture", (video::ITexture * (D::ClassType::*) (const c8 *))&D::ClassType::getAttributeAsTexture);
     _d.CPGF_MD_TEMPLATE _method("getAttributeAsTexture", (video::ITexture * (D::ClassType::*) (s32))&D::ClassType::getAttributeAsTexture);
-    _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (s32, video::ITexture *))&D::ClassType::setAttribute);
+    _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (s32, video::ITexture *, const io::path &))&D::ClassType::setAttribute, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<2> >())
+        ._default(copyVariantFromCopyable(""))
+    ;
     _d.CPGF_MD_TEMPLATE _method("addUserPointer", &D::ClassType::addUserPointer);
     _d.CPGF_MD_TEMPLATE _method("setAttribute", (void (D::ClassType::*) (const c8 *, void *))&D::ClassType::setAttribute);
     _d.CPGF_MD_TEMPLATE _method("getAttributeAsUserPointer", (void * (D::ClassType::*) (const c8 *))&D::ClassType::getAttributeAsUserPointer);

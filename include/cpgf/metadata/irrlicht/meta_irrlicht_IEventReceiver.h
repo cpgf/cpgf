@@ -92,8 +92,8 @@ void buildMetaClass_Global_ieventreceiver(const cpgf::GMetaDataConfigFlags & con
         ._element("EGET_TREEVIEW_NODE_DESELECT", irr::gui::EGET_TREEVIEW_NODE_DESELECT)
         ._element("EGET_TREEVIEW_NODE_SELECT", irr::gui::EGET_TREEVIEW_NODE_SELECT)
         ._element("EGET_TREEVIEW_NODE_EXPAND", irr::gui::EGET_TREEVIEW_NODE_EXPAND)
-        ._element("EGET_TREEVIEW_NODE_COLLAPS", irr::gui::EGET_TREEVIEW_NODE_COLLAPS)
         ._element("EGET_TREEVIEW_NODE_COLLAPSE", irr::gui::EGET_TREEVIEW_NODE_COLLAPSE)
+        ._element("EGET_TREEVIEW_NODE_COLLAPS", irr::gui::EGET_TREEVIEW_NODE_COLLAPS)
         ._element("EGET_COUNT", irr::gui::EGET_COUNT)
     ;
 }

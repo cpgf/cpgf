@@ -39,6 +39,7 @@ void buildMetaClass_SIrrlichtCreationParameters(const cpgf::GMetaDataConfigFlags
     _d.CPGF_MD_TEMPLATE _field("Stencilbuffer", &D::ClassType::Stencilbuffer);
     _d.CPGF_MD_TEMPLATE _field("Vsync", &D::ClassType::Vsync);
     _d.CPGF_MD_TEMPLATE _field("AntiAlias", &D::ClassType::AntiAlias);
+    _d.CPGF_MD_TEMPLATE _field("HandleSRGB", &D::ClassType::HandleSRGB);
     _d.CPGF_MD_TEMPLATE _field("WithAlphaChannel", &D::ClassType::WithAlphaChannel);
     _d.CPGF_MD_TEMPLATE _field("Doublebuffer", &D::ClassType::Doublebuffer);
     _d.CPGF_MD_TEMPLATE _field("IgnoreInput", &D::ClassType::IgnoreInput);
@@ -47,6 +48,9 @@ void buildMetaClass_SIrrlichtCreationParameters(const cpgf::GMetaDataConfigFlags
     _d.CPGF_MD_TEMPLATE _field("EventReceiver", &D::ClassType::EventReceiver);
     _d.CPGF_MD_TEMPLATE _field("WindowId", &D::ClassType::WindowId);
     _d.CPGF_MD_TEMPLATE _field("LoggingLevel", &D::ClassType::LoggingLevel);
+    _d.CPGF_MD_TEMPLATE _field("DisplayAdapter", &D::ClassType::DisplayAdapter);
+    _d.CPGF_MD_TEMPLATE _field("DriverMultithreaded", &D::ClassType::DriverMultithreaded);
+    _d.CPGF_MD_TEMPLATE _field("UsePerformanceTimer", &D::ClassType::UsePerformanceTimer);
     _d.CPGF_MD_TEMPLATE _field("SDK_version_do_not_use", &D::ClassType::SDK_version_do_not_use);
     _d.CPGF_MD_TEMPLATE _operator<SIrrlichtCreationParameters & (*)(cpgf::GMetaSelf, const SIrrlichtCreationParameters &)>(mopHolder = mopHolder);
     _d.CPGF_MD_TEMPLATE _method("_opAssign", (SIrrlichtCreationParameters & (*) (SIrrlichtCreationParameters *, const SIrrlichtCreationParameters &))&opErAToRWrapper_SIrrlichtCreationParameters__opAssign, cpgf::MakePolicy<cpgf::GMetaRuleExplicitThis >());

@@ -37,7 +37,7 @@ void buildMetaClass_Global_ivideodriver(const cpgf::GMetaDataConfigFlags & confi
         ._element("ETS_TEXTURE_3", irr::video::ETS_TEXTURE_3)
         ._element("ETS_COUNT", irr::video::ETS_COUNT)
     ;
-    _d.CPGF_MD_TEMPLATE _enum<E_LOST_RESSOURCE>("E_LOST_RESSOURCE")
+    _d.CPGF_MD_TEMPLATE _enum<E_LOST_RESOURCE>("E_LOST_RESOURCE")
         ._element("ELR_DEVICE", irr::video::ELR_DEVICE)
         ._element("ELR_TEXTURES", irr::video::ELR_TEXTURES)
         ._element("ELR_RTTS", irr::video::ELR_RTTS)
@@ -92,6 +92,18 @@ inline E_BLEND_FACTOR bItFiEldWrapper_IRenderTarget_BlendFuncDst_getter(IRenderT
 inline void bItFiEldWrapper_IRenderTarget_BlendFuncDst_setter(IRenderTarget * self, E_BLEND_FACTOR value) {
     self->BlendFuncDst = value;
 }
+inline E_BLEND_OPERATION bItFiEldWrapper_IRenderTarget_BlendOp_getter(IRenderTarget * self) {
+    return self->BlendOp;
+}
+
+inline void bItFiEldWrapper_IRenderTarget_BlendOp_setter(IRenderTarget * self, E_BLEND_OPERATION value) {
+    self->BlendOp = value;
+}
+
+
+inline bool opErAToRWrapper_IRenderTarget__opNotEqual(const IRenderTarget * self, const IRenderTarget & other) {
+    return (*self) != other;
+}
 
 
 template <typename D>
@@ -100,14 +112,14 @@ void buildMetaClass_IRenderTarget(const cpgf::GMetaDataConfigFlags & config, D _
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
-    _d.CPGF_MD_TEMPLATE _constructor<void * (ITexture *, E_COLOR_PLANE, E_BLEND_FACTOR, E_BLEND_FACTOR, bool)>()
-        ._default(copyVariantFromCopyable(false))
+    _d.CPGF_MD_TEMPLATE _constructor<void * (ITexture *, E_COLOR_PLANE, E_BLEND_FACTOR, E_BLEND_FACTOR, E_BLEND_OPERATION)>()
+        ._default(copyVariantFromCopyable(EBO_NONE))
         ._default(copyVariantFromCopyable(EBF_ONE_MINUS_SRC_ALPHA))
         ._default(copyVariantFromCopyable(EBF_ONE))
         ._default(copyVariantFromCopyable(ECP_ALL))
     ;
-    _d.CPGF_MD_TEMPLATE _constructor<void * (E_RENDER_TARGET, E_COLOR_PLANE, E_BLEND_FACTOR, E_BLEND_FACTOR, bool)>()
-        ._default(copyVariantFromCopyable(false))
+    _d.CPGF_MD_TEMPLATE _constructor<void * (E_RENDER_TARGET, E_COLOR_PLANE, E_BLEND_FACTOR, E_BLEND_FACTOR, E_BLEND_OPERATION)>()
+        ._default(copyVariantFromCopyable(EBO_NONE))
         ._default(copyVariantFromCopyable(EBF_ONE_MINUS_SRC_ALPHA))
         ._default(copyVariantFromCopyable(EBF_ONE))
         ._default(copyVariantFromCopyable(ECP_ALL))
@@ -117,7 +129,9 @@ void buildMetaClass_IRenderTarget(const cpgf::GMetaDataConfigFlags & config, D _
     _d.CPGF_MD_TEMPLATE _property("ColorMask", &bItFiEldWrapper_IRenderTarget_ColorMask_getter, &bItFiEldWrapper_IRenderTarget_ColorMask_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
     _d.CPGF_MD_TEMPLATE _property("BlendFuncSrc", &bItFiEldWrapper_IRenderTarget_BlendFuncSrc_getter, &bItFiEldWrapper_IRenderTarget_BlendFuncSrc_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
     _d.CPGF_MD_TEMPLATE _property("BlendFuncDst", &bItFiEldWrapper_IRenderTarget_BlendFuncDst_getter, &bItFiEldWrapper_IRenderTarget_BlendFuncDst_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
-    _d.CPGF_MD_TEMPLATE _field("BlendEnable", &D::ClassType::BlendEnable);
+    _d.CPGF_MD_TEMPLATE _property("BlendOp", &bItFiEldWrapper_IRenderTarget_BlendOp_getter, &bItFiEldWrapper_IRenderTarget_BlendOp_setter, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());
+    _d.CPGF_MD_TEMPLATE _operator<bool (*)(const cpgf::GMetaSelf &, const IRenderTarget &)>(mopHolder != mopHolder, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >());
+    _d.CPGF_MD_TEMPLATE _method("_opNotEqual", (bool (*) (const IRenderTarget *, const IRenderTarget &))&opErAToRWrapper_IRenderTarget__opNotEqual, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1>, cpgf::GMetaRuleExplicitThis >());
 }
 
 

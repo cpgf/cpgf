@@ -10,6 +10,14 @@ using namespace cpgf;
 namespace meta_irrlicht { 
 
 
+GDefineMetaInfo createMetaClass_Global_igpuprogrammingservices()
+{
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    buildMetaClass_Global_igpuprogrammingservices(0, _d);
+    return _d.getMetaInfo();
+}
+
+
 GDefineMetaInfo createMetaClass_IGPUProgrammingServices()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();

@@ -181,7 +181,7 @@ set(SFML_INC ${SFML_DIR}/include)
 ### irrlicht config
 
 set(IRRLICHT_DIR
-	E:/SourceCode/CPP/irrlicht-1.7.3
+	E:/SourceCode/CPP/irrlicht-1.8
 )
 if(CMAKE_COMPILER_IS_GNUCC)
 endif(CMAKE_COMPILER_IS_GNUCC)
