@@ -62,6 +62,10 @@ public:
 		return metaClass->createInstance();
 	}
 
+	virtual void G_API_CC freeObject(IMetaArchiveReader * /*archiveReader*/, IMetaClass * metaClass, void * instance) {
+		metaClass->destroyInstance(instance);
+	}
+
 	virtual void G_API_CC readObject(IMetaArchiveReader * /*archiveReader*/, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) {
 		GScopedInterface<IMetaAccessible> accessible;
 		uint32_t i;

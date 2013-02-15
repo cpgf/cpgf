@@ -53,6 +53,24 @@ public:
 		}
 	}
 
+	virtual void G_API_CC freeObject(IMetaArchiveReader * archiveReader, IMetaClass * metaClass, void * instance) {
+		if(this->serializer) {
+			this->serializer->freeObject(archiveReader, metaClass, instance);
+		}
+		else {
+			GScopedInterface<IMetaClass> metaClassHolder;
+			if(metaClass == NULL && this->metaType.getBaseName() != NULL) {
+				GScopedInterface<IMetaService> service(archiveReader->getMetaService());
+				metaClassHolder.reset(service->findClassByName(this->metaType.getBaseName()));
+				metaClass = metaClassHolder.get();
+			}
+
+			if(metaClass != NULL) {
+				metaClass->destroyInstance(instance);
+			}
+		}
+	}
+
 	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaSerializerReader * /*serializerReader*/, GMetaArchiveReaderParam * param) {
 		GMetaTypeData typeData = this->metaType.refData();
 		void * ptr = param->instance;

@@ -71,9 +71,6 @@ public:
 	TestSerializeClass o[B1][B2][B3];
 	TestSerializeClass * po[B1][B2][B3];
 	TestSerializeClass * npo[B1][B2][B3];
-
-	// not serializable
-	TestSerializeClass * ppo[B1][B2][B3];
 };
 
 
@@ -128,7 +125,6 @@ void register_TestSerializeArray(D define)
 		FIELD(TestSerializeArray, o)
 		FIELD(TestSerializeArray, po)
 		FIELD(TestSerializeArray, npo)
-//		FIELD(TestSerializeArray, ppo)
 	;
 
 	define._class(classDefine);

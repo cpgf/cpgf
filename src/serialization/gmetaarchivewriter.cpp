@@ -356,6 +356,7 @@ void GMetaArchiveWriter::doWriteMember(const void * instance, IMetaAccessible * 
 		GScopedInterface<IMetaSerializer> serializer(metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Serializer).getSerializer());
 		
 		void * ptr;
+		GVariant valueHolder;
 
 		if(metaType.baseIsArray()) {
 			ptr = accessible->getAddress(instance);
@@ -364,9 +365,9 @@ void GMetaArchiveWriter::doWriteMember(const void * instance, IMetaAccessible * 
 			if(pointers == 0) {
 				ptr = accessible->getAddress(instance);
 				if(ptr == NULL) { // this happens when accessible is a property with both getter and setter.
-					GVariant v(metaGetValue(accessible, instance));
-					if(canFromVariant<void *>(v)) {
-						ptr = objectAddressFromVariant(v);
+					valueHolder = GVariant(metaGetValue(accessible, instance));
+					if(canFromVariant<void *>(valueHolder)) {
+						ptr = objectAddressFromVariant(valueHolder);
 					}
 				}
 			}

@@ -15,6 +15,8 @@
 #include <string>
 #include <sstream>
 
+#include <math.h>
+
 
 #define FIELD(cls, n) ._field(# n, &cls::n)
 

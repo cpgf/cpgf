@@ -1,5 +1,6 @@
-TBD version 1.5.3
-	Added include <cstddef> to gcontainer.h to avoid not finding ptrdiff_t error on some system.
+TBD version 1.5.4
+	Improved property supporting in serialization. Now the serialization library can handle properties with getter and setter functions properly.
+	Added including header <cstddef> to gcontainer.h to avoid not finding ptrdiff_t error on some system.
 
 2012-12-09 version 1.5.3
 	Python script binding now supports C++ operator overloading.

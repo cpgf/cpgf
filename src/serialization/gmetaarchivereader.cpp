@@ -291,6 +291,39 @@ void GMetaArchiveReader::doDirectReadObjectWithoutBase(GMetaArchiveReaderParam *
 	metaSerializerReadObjectMembers(this, this, param);
 }
 
+class GMetaSerializerScopedGuard
+{
+public:
+	GMetaSerializerScopedGuard(IMetaArchiveReader * reader, IMetaSerializer * serializer, IMetaClass * metaClass, void * instance)
+		: reader(reader), serializer(serializer), metaClass(metaClass), instance(instance) {
+	}
+
+	~GMetaSerializerScopedGuard() {
+		this->serializer->freeObject(this->reader.get(), this->metaClass.get(), this->instance);
+	}
+
+private:
+	GSharedInterface<IMetaArchiveReader> reader;
+	GSharedInterface<IMetaSerializer> serializer;
+	GSharedInterface<IMetaClass> metaClass;
+	void * instance;
+};
+
+class GMetaClassScopedGuard
+{
+public:
+	GMetaClassScopedGuard(IMetaClass * metaClass, void * instance) : metaClass(metaClass), instance(instance) {
+	}
+
+	~GMetaClassScopedGuard() {
+		this->metaClass->destroyInstance(this->instance);
+	}
+
+private:
+	GSharedInterface<IMetaClass> metaClass;
+	void * instance;
+};
+
 void GMetaArchiveReader::doReadMember(void * instance, IMetaAccessible * accessible)
 {
 	GMetaType metaType = metaGetItemType(accessible);
@@ -311,25 +344,46 @@ void GMetaArchiveReader::doReadMember(void * instance, IMetaAccessible * accessi
 	if(pointers <= 1) {
 		GScopedInterface<IMetaSerializer> serializer(metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Serializer).getSerializer());
 
-		char buffer[64];
 		void * ptr;
 
-		if(metaType.baseIsArray()) {
-			ptr = accessible->getAddress(instance);
-		}
-		else {
-			ptr = accessible->getAddress(instance);
-			if(ptr == NULL) { // this happens when accessible is a property with both getter and setter.
-				ptr = buffer;
+		ptr = accessible->getAddress(instance);
+		if(ptr == NULL) { // this happens when accessible is a property with both getter and setter.
+			if(pointers > 0) {
+				void * buffer[sizeof(void *)];
+				buffer[0] = NULL;
+				this->doReadValue(name, buffer, metaType, serializer.get());
+				metaSetValue(accessible, instance, GVariant(buffer[0]));
+				return;
+			}
+			else {
+				// set value via property setter, we need to create a temporary object.
+				GScopedInterface<IMetaClass> metaClass;
+				if(this->service) {
+					metaClass.reset(this->service->findClassByName(metaType.getBaseName()));
+				}
+				if(serializer) {
+					ptr = serializer->allocateObject(this, metaClass.get());
+					GMetaSerializerScopedGuard guard(this, serializer.get(), metaClass.get(), ptr);
+					this->doReadValue(name, ptr, metaType, serializer.get());
+					metaSetValue(accessible, instance, GVariant(ptr));
+					return;
+				}
+				else if(metaClass) {
+					ptr = metaClass->createInstance();
+					GMetaClassScopedGuard guard(metaClass.get(), ptr);
+					this->doReadValue(name, ptr, metaType, serializer.get());
+					metaSetValue(accessible, instance, GVariant(ptr));
+					return;
+				}
+				else {
+					serializeError(Error_Serialization_TypeMismatch);
+				}
 			}
 		}
 
 		GASSERT(ptr != NULL || serializer);
 
 		this->doReadValue(name, ptr, metaType, serializer.get());
-		if(ptr == buffer) {
-			metaSetValue(accessible, instance, GVariant(ptr));
-		}
 	}
 	else {
 		serializeError(Error_Serialization_TypeMismatch);

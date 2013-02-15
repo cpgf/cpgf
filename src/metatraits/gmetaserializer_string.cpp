@@ -28,6 +28,10 @@ public:
 		return new std::string;
 	}
 
+	virtual void G_API_CC freeObject(IMetaArchiveReader * /*archiveReader*/, IMetaClass * /*metaClass*/, void * instance) {
+		delete static_cast<std::string *>(instance);
+	}
+
 	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaSerializerReader * /*serializerReader*/, GMetaArchiveReaderParam * param) {
 		GScopedInterface<IMetaStorageReader> metaReader(archiveReader->getMetaReader());
 		uint32_t archiveID;

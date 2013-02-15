@@ -70,6 +70,10 @@ public:
 		return metaClass->createInstance();
 	}
 
+	virtual void G_API_CC freeObject(IMetaArchiveReader * /*archiveReader*/, IMetaClass * metaClass, void * instance) {
+		metaClass->destroyInstance(instance);
+	}
+
 	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) {
 		metaSerializerReadObjectMembers(archiveReader, serializerReader, param);
 	}
@@ -104,6 +108,10 @@ public:
 	
 	virtual void * G_API_CC allocateObject(IMetaArchiveReader * /*archiveReader*/, IMetaClass * metaClass) {
 		return metaClass->createInstance();
+	}
+
+	virtual void G_API_CC freeObject(IMetaArchiveReader * /*archiveReader*/, IMetaClass * metaClass, void * instance) {
+		metaClass->destroyInstance(instance);
 	}
 
 	virtual void G_API_CC readObject(IMetaArchiveReader * /*archiveReader*/, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) {
@@ -143,6 +151,10 @@ public:
 	
 	virtual void * G_API_CC allocateObject(IMetaArchiveReader * /*archiveReader*/, IMetaClass * metaClass) {
 		return metaClass->createInstance();
+	}
+
+	virtual void G_API_CC freeObject(IMetaArchiveReader * /*archiveReader*/, IMetaClass * metaClass, void * instance) {
+		metaClass->destroyInstance(instance);
 	}
 
 	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param) {
