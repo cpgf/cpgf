@@ -5,7 +5,6 @@
 #include "cpgf/gpp.h"
 #include "cpgf/gconfig.h"
 #include "cpgf/greference.h"
-#include "cpgf/gcontainer.h"
 #include "cpgf/gtypetraits.h"
 #include "cpgf/genableif.h"
 

@@ -3,6 +3,7 @@
 
 #include "cpgf/gcallback.h"
 #include "cpgf/gfunctiontraits.h"
+#include "cpgf/gcontainer.h"
 
 #include <algorithm>
 
