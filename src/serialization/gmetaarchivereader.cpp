@@ -26,7 +26,7 @@ public:
 	~GMetaArchiveReader();
 
 	virtual IMetaService * G_API_CC getMetaService();
-	virtual IMetaStorageReader * G_API_CC getMetaReader();
+	virtual IMetaStorageReader * G_API_CC getStorageReader();
 
 	virtual void G_API_CC readData(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
 	
@@ -169,7 +169,7 @@ IMetaService * G_API_CC GMetaArchiveReader::getMetaService()
 	return this->service.get();
 }
 
-IMetaStorageReader * G_API_CC GMetaArchiveReader::getMetaReader()
+IMetaStorageReader * G_API_CC GMetaArchiveReader::getStorageReader()
 {
 	this->reader->addReference();
 	return this->reader.get();
@@ -208,8 +208,6 @@ void * GMetaArchiveReader::readObjectHelper(const char * name, void * instance, 
 	param.instance = instance;
 	param.metaType = &metaTypeData;
 	param.metaClass = metaClass;
-	param.originalInstance = instance;
-	param.originalMetaClass = metaClass;
 	param.serializer = serializer;
 	param.config = this->configMap.getConfig(metaClass).getData();
 	param.archiveVersion = param.config.version;
@@ -258,8 +256,6 @@ void GMetaArchiveReader::doReadObjectHierarchy(GMetaArchiveReaderParam * param, 
 					newParam.instance = baseInstance;
 					newParam.metaType = &baseMetaTypeData;
 					newParam.metaClass = baseClass.get();
-					newParam.originalInstance = param->originalInstance;
-					newParam.originalMetaClass = param->originalMetaClass;
 					newParam.serializer = serializer.get();
 					newParam.config = this->configMap.getConfig(baseClass.get()).getData();
 					newParam.archiveVersion = newParam.config.version;
@@ -403,14 +399,14 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 	}
 
 	if(type == matClassType) {
-		uint32_t classTypeID = archiveIDNone;
+		uint32_t classTypeID = classIDNone;
 		GScopedInterface<IMetaClass> metaClass(this->reader->readMetaClassAndTypeID(this->service.get(), &classTypeID));
 		type = static_cast<GMetaArchiveItemType>(this->reader->getArchiveType(name));
 		
 		// according to GMetaArchiveWriter, a class type can't follow another class type.
 		GASSERT(type != matClassType);
 
-		if(metaClass && classTypeID != archiveIDNone && ! this->getClassTypeTracker()->hasArchiveID(classTypeID)) {
+		if(metaClass && classTypeID != classIDNone && ! this->getClassTypeTracker()->hasArchiveID(classTypeID)) {
 			this->getClassTypeTracker()->addArchiveID(classTypeID, metaClass.get());
 		}
 	}
@@ -460,7 +456,7 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 				if(metaClass) {
 					if(ptr == NULL) {
 						uint32_t classTypeID = this->reader->getClassTypeID(name);
-						if(classTypeID != archiveIDNone) {
+						if(classTypeID != classIDNone) {
 							IMetaClass * storedMetaClass = this->getClassTypeTracker()->getMetaClass(classTypeID);
 							
 							if(storedMetaClass == NULL) {
@@ -469,7 +465,7 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 								if(storedMetaClass == NULL) {
 									serializeError(Error_Serialization_CannotFindObjectType);
 								}
-								if(metaClass && classTypeID != archiveIDNone) {
+								if(metaClass && classTypeID != classIDNone) {
 									this->getClassTypeTracker()->addArchiveID(classTypeID, metaClass.get());
 								}
 							}

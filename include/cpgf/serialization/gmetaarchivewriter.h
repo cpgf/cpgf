@@ -42,9 +42,9 @@ struct GMetaArchiveWriterParam
 {
 	const char * name;
 	uint32_t archiveID;
-	const void * instance;
 	const GMetaTypeData * metaType;
 	IMetaClass * metaClass;
+	const void * instance;
 	IMetaSerializer * serializer;
 	uint32_t classTypeID;
 	uint32_t pointers;
@@ -72,7 +72,7 @@ struct IMetaStorageWriter : public IObject
 struct IMetaArchiveWriter : public IExtendObject
 {
 	virtual IMetaService * G_API_CC getMetaService() = 0;
-	virtual IMetaStorageWriter * G_API_CC getMetaWriter() = 0;
+	virtual IMetaStorageWriter * G_API_CC getStorageWriter() = 0;
 	
 	virtual void G_API_CC writeData(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 	

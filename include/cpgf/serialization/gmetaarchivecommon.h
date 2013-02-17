@@ -19,6 +19,7 @@ const char * const SerializationAnnotationTrackPointers = "trackPointers";
 
 
 const uint32_t archiveIDNone = 0;
+const uint32_t classIDNone = 0;
 
 
 enum GMetaArchiveItemType {

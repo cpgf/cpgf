@@ -19,7 +19,7 @@ public:
 	}
 	
 	virtual void G_API_CC writeObject(IMetaArchiveWriter * archiveWriter, IMetaSerializerWriter * /*serializerWriter*/, GMetaArchiveWriterParam * param) {
-		GScopedInterface<IMetaStorageWriter> metaWriter(archiveWriter->getMetaWriter());
+		GScopedInterface<IMetaStorageWriter> metaWriter(archiveWriter->getStorageWriter());
 		archiveWriter->trackPointer(param->archiveID, param->instance, param->metaClass, this, param->pointers);
 		metaWriter->writeString(param->name, param->archiveID, static_cast<const std::string *>(param->instance)->c_str());
 	}
@@ -33,7 +33,7 @@ public:
 	}
 
 	virtual void G_API_CC readObject(IMetaArchiveReader * archiveReader, IMetaSerializerReader * /*serializerReader*/, GMetaArchiveReaderParam * param) {
-		GScopedInterface<IMetaStorageReader> metaReader(archiveReader->getMetaReader());
+		GScopedInterface<IMetaStorageReader> metaReader(archiveReader->getStorageReader());
 		uint32_t archiveID;
 		char * s = metaReader->readString(param->name, archiveReader->getAllocator(), &archiveID);
 		*static_cast<std::string *>(param->instance) = s;

@@ -23,11 +23,9 @@ struct GMetaArchiveReaderParam
 	const GMetaTypeData * metaType;
 	IMetaClass * metaClass;
 	void * instance;
-	void * originalInstance;
-	IMetaClass * originalMetaClass;
 	IMetaSerializer * serializer;
-	GMetaArchiveConfigData config;
 	uint32_t archiveVersion;
+	GMetaArchiveConfigData config;
 };
 
 #pragma pack(pop)
@@ -56,7 +54,7 @@ struct IMetaStorageReader : public IObject
 struct IMetaArchiveReader : public IExtendObject
 {
 	virtual IMetaService * G_API_CC getMetaService() = 0;
-	virtual IMetaStorageReader * G_API_CC getMetaReader() = 0;
+	virtual IMetaStorageReader * G_API_CC getStorageReader() = 0;
 	
 	virtual void G_API_CC readData(const char * name, void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer) = 0;
 

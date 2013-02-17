@@ -30,7 +30,7 @@ public:
 	~GMetaArchiveWriter();
 
 	virtual IMetaService * G_API_CC getMetaService();
-	virtual IMetaStorageWriter * G_API_CC getMetaWriter();
+	virtual IMetaStorageWriter * G_API_CC getStorageWriter();
 	
 	virtual void G_API_CC writeData(const char * name, const void * instance, const GMetaTypeData * metaType, IMetaSerializer * serializer);
 	virtual void G_API_CC writeMember(GMetaArchiveWriterParam * param, IMetaAccessible * accessible);
@@ -218,7 +218,7 @@ IMetaService * G_API_CC GMetaArchiveWriter::getMetaService()
 	return this->service.get();
 }
 
-IMetaStorageWriter * G_API_CC GMetaArchiveWriter::getMetaWriter()
+IMetaStorageWriter * G_API_CC GMetaArchiveWriter::getStorageWriter()
 {
 	this->writer->addReference();
 	return this->writer.get();
@@ -482,7 +482,7 @@ void G_API_CC GMetaArchiveWriter::trackPointer(uint32_t archiveID, const void * 
 
 uint32_t GMetaArchiveWriter::getClassTypeID(const void * instance, IMetaClass * metaClass, uint32_t pointers, IMetaClass ** outCastedMetaClass)
 {
-	uint32_t classTypeID = archiveIDNone;
+	uint32_t classTypeID = classIDNone;
 
 	*outCastedMetaClass = NULL;
 
