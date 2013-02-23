@@ -137,7 +137,7 @@ void register_TestSerializeClass(Define define)
 		._property("dataByConstRef", &TestPropertyClass::getDataByConstRef, &TestPropertyClass::setDataByConstRef)
 		._property("dataByPointer", &TestPropertyClass::getDataByPointer, &TestPropertyClass::setDataByPointer)
 		._property("value", &TestPropertyClass::getValue, &TestPropertyClass::setValue)
-		._property("str", &TestPropertyClass::getStr, &TestPropertyClass::setStr)
+		._property("str", &TestPropertyClass::getStr, &TestPropertyClass::setStr, GMetaPolicyCopyAllConstReference())
 	;
 	define._class(classDefineClass);
 

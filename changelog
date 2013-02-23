@@ -1,4 +1,4 @@
-TBD version 1.5.4
+2013-02-23 version 1.5.4
 	Improved property supporting in serialization. Now the serialization library can handle properties with getter and setter functions properly.
 	Added including header <cstddef> to gcontainer.h to avoid not finding ptrdiff_t error on some system.
 

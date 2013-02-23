@@ -6,7 +6,7 @@ It's written in standard C++ and doesn't require any preprocess or tools.
 
 
 Version:
-	1.5.3
+	1.5.4
 
 		
 Libraries:
