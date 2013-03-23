@@ -184,7 +184,7 @@ struct GlobalCallbackSelector <GFunctionTraitNullType>
 
 template <typename FT>
 typename FunctionCallbackType<FT>::Result
-makeCallback(const FT & func) {
+makeCallback(FT func) {
 	return callback_internal::GlobalCallbackSelector<typename GFunctionTraits<FT>::ObjectType>::makeCallback(func);
 }
 

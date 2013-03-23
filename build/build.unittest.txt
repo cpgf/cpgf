@@ -109,6 +109,10 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/variant/*.cpp
 	)
 
+	partUnitTest("test_accessor"
+		${TEST_PATH}/accessor/*.cpp
+	)
+
 	partUnitTest("test_reflection"
 		${TEST_PATH}/reflection/*.cpp
 	)
@@ -159,6 +163,7 @@ if(${HAS_UNITTEST})
 	)
 
 	globAndAppendFiles(GLOB_TEST_SRC
+		${TEST_PATH}/accessor/*.cpp
 		${TEST_PATH}/misc/*.cpp
 		${TEST_PATH}/variant/*.cpp
 		${TEST_PATH}/reflection/*.cpp
