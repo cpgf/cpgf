@@ -9,8 +9,6 @@ namespace cpgf {
 namespace meta_internal {
 
 
-void handleForbidAccessError(bool isRead);
-
 void * newZeroBuffer(void * buffer, size_t size, void * copy);
 
 class GMetaItemImplement;

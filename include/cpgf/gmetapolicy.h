@@ -3,7 +3,6 @@
 
 #include "cpgf/gpp.h"
 #include "cpgf/gpolicy.h"
-#include "cpgf/gmetacommon.h"
 
 
 #define POLICY_ALL_INDEX_HELPER(N, P) GPP_COMMA_IF(N) P<N>
@@ -105,14 +104,14 @@ typedef MakePolicy<
 
 typedef MakePolicy<
 		GMetaRuleCopyConstReference <metaPolicyResultIndex>,
-		GPP_REPEAT(REF_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaRuleCopyConstReference)
+		GPP_REPEAT(G_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaRuleCopyConstReference)
 	>
 	GMetaPolicyCopyAllConstReference;
 
 
 typedef MakePolicy<
 		GMetaRuleParamNoncopyable <metaPolicyResultIndex>,
-		GPP_REPEAT(REF_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaRuleParamNoncopyable)
+		GPP_REPEAT(G_MAX_ARITY, POLICY_ALL_INDEX_HELPER, GMetaRuleParamNoncopyable)
 	>
 	GMetaPolicyAllParamNoncopyable;
 

@@ -58,17 +58,6 @@ size_t GMetaDefaultParamList::loadDefaultParams(
 	return passedParamCount;
 }
 
-void handleForbidAccessError(bool isRead)
-{
-	if(isRead) {
-		raiseCoreException(Error_Meta_ReadDenied);
-	}
-	else {
-		raiseCoreException(Error_Meta_WriteDenied);
-	}
-
-}
-
 void makeFullName(const GMetaItem * item, std::string * outName, const char * delimiter)
 {
 	*outName = item->getName();

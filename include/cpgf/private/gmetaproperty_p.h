@@ -97,7 +97,7 @@ private:
 	
 	template <typename T>
 	GVariant doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
-		meta_internal::handleForbidAccessError(true);
+		raiseCoreException(Error_Meta_ReadDenied);
 		
 		return GVariant();
 	}
@@ -154,7 +154,7 @@ private:
 
 	template <typename T>
 	GVariant doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
-		meta_internal::handleForbidAccessError(true);
+		raiseCoreException(Error_Meta_ReadDenied);
 		
 		return GVariant();
 	}
@@ -217,7 +217,7 @@ private:
 
 	template <typename T>
 	GVariant doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
-		meta_internal::handleForbidAccessError(true);
+		raiseCoreException(Error_Meta_ReadDenied);
 		
 		return GVariant();
 	}
@@ -290,7 +290,7 @@ private:
 
 	template <typename T>
 	void doSet(typename GDisableIf<Writable, T>::Result * /*instance*/, const GVariant & /*value*/) const {
-		meta_internal::handleForbidAccessError(false);
+		raiseCoreException(Error_Meta_WriteDenied);
 	}
 
 private:
@@ -338,7 +338,7 @@ private:
 
 	template <typename T>
 	void doSet(typename GDisableIf<Writable, T>::Result * /*instance*/, const GVariant & /*value*/) const {
-		meta_internal::handleForbidAccessError(false);
+		raiseCoreException(Error_Meta_WriteDenied);
 	}
 
 private:
@@ -390,7 +390,7 @@ private:
 
 	template <typename T>
 	void doSet(typename GDisableIf<Writable, T>::Result * /*instance*/, const GVariant & /*value*/) const {
-		meta_internal::handleForbidAccessError(false);
+		raiseCoreException(Error_Meta_WriteDenied);
 	}
 
 private:
@@ -470,7 +470,7 @@ private:
 			return sizeof(typename SetterType::PropertyType);
 		}
 
-		meta_internal::handleForbidAccessError(true);
+		raiseCoreException(Error_Meta_ReadDenied);
 		
 		return 0;
 	}

@@ -4,7 +4,12 @@
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gcallback.h"
 #include "cpgf/gifelse.h"
+#include "cpgf/gtypetraits.h"
+#include "cpgf/gassert.h"
+#include "cpgf/gexception.h"
+#include "cpgf/gerrorcode.h"
 #include "cpgf/ggetobjectaddress.h"
+
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -35,13 +40,13 @@ public:
 	}
 
 	PassType get(const void * /*instance*/) const {
-		meta_internal::handleForbidAccessError(true);
+		raiseCoreException(Error_Meta_ReadDenied);
 
 		return ValueType();
 	}
 
 	void * getAddress(const void * /*instance*/) const {
-		meta_internal::handleForbidAccessError(true);
+		raiseCoreException(Error_Meta_ReadDenied);
 
 		return NULL;
 	}
@@ -102,7 +107,7 @@ private:
 	
 	template <typename T>
 	PassType doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
-		meta_internal::handleForbidAccessError(true);
+		raiseCoreException(Error_Meta_ReadDenied);
 		
 		return RemoveReference<ValueType>::Result();
 	}
@@ -163,7 +168,7 @@ private:
 
 	template <typename T>
 	PassType doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
-		meta_internal::handleForbidAccessError(true);
+		raiseCoreException(Error_Meta_ReadDenied);
 		
 		return RemoveReference<ValueType>::Result();
 	}
@@ -226,7 +231,7 @@ private:
 
 	template <typename T>
 	PassType doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
-		meta_internal::handleForbidAccessError(true);
+		raiseCoreException(Error_Meta_ReadDenied);
 		
 		return RemoveReference<ValueType>::Result();
 	}

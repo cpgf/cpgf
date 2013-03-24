@@ -4,6 +4,10 @@
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gcallback.h"
 #include "cpgf/gifelse.h"
+#include "cpgf/gtypetraits.h"
+#include "cpgf/gassert.h"
+#include "cpgf/gexception.h"
+#include "cpgf/gerrorcode.h"
 
 
 #if defined(_MSC_VER)
@@ -35,11 +39,11 @@ public:
 	}
 
 	void set(void * /*instance*/, PassType /*value*/) const {
-		meta_internal::handleForbidAccessError(false);
+		raiseCoreException(Error_Meta_WriteDenied);
 	}
 
 	void * getAddress(void * /*instance*/) const {
-		meta_internal::handleForbidAccessError(false);
+		raiseCoreException(Error_Meta_WriteDenied);
 		return NULL;
 	}
 };
@@ -92,12 +96,12 @@ public:
 private:	
 	template <typename T>
 	void doSet(typename GEnableIf<Writable, T>::Result * /*instance*/, PassType value) const {
-		*(this->setter) = fromVariant<ValueType>(value);
+		*(this->setter) = value;
 	}
 
 	template <typename T>
 	void doSet(typename GDisableIf<Writable, T>::Result * /*instance*/, PassType /*value*/) const {
-		meta_internal::handleForbidAccessError(false);
+		raiseCoreException(Error_Meta_WriteDenied);
 	}
 
 private:
@@ -153,7 +157,7 @@ private:
 
 	template <typename T>
 	void doSet(typename GDisableIf<Writable, T>::Result * /*instance*/, PassType /*value*/) const {
-		meta_internal::handleForbidAccessError(false);
+		raiseCoreException(Error_Meta_WriteDenied);
 	}
 
 private:
@@ -218,7 +222,7 @@ private:
 
 	template <typename T>
 	void doSet(typename GDisableIf<Writable, T>::Result * /*instance*/, PassType /*value*/) const {
-		meta_internal::handleForbidAccessError(false);
+		raiseCoreException(Error_Meta_WriteDenied);
 	}
 
 private:
