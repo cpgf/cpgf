@@ -4,6 +4,8 @@
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gmetatype.h"
 #include "cpgf/gmetapolicy.h"
+#include "cpgf/gexception.h"
+#include "cpgf/gerrorcode.h"
 
 
 namespace cpgf {

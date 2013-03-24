@@ -109,7 +109,7 @@ private:
 	PassType doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
 		raiseCoreException(Error_Meta_ReadDenied);
 		
-		return RemoveReference<ValueType>::Result();
+		return *(typename RemoveReference<ValueType>::Result *)(0);
 	}
 	
 
@@ -170,7 +170,7 @@ private:
 	PassType doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
 		raiseCoreException(Error_Meta_ReadDenied);
 		
-		return RemoveReference<ValueType>::Result();
+		return *(typename RemoveReference<ValueType>::Result *)(0);
 	}
 	
 private:
@@ -233,7 +233,7 @@ private:
 	PassType doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
 		raiseCoreException(Error_Meta_ReadDenied);
 		
-		return RemoveReference<ValueType>::Result();
+		return *(typename RemoveReference<ValueType>::Result *)(0);
 	}
 	
 private:
