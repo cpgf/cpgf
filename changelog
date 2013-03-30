@@ -3,6 +3,7 @@ TBD version 1.5.5
 	Refactored meta property to reuse generic property accessors.
 	Fixed a bug that using function (not pointer) as property accessor may cause wrong address crash in VC.
 	Fixed a bug that using policy GMetaRuleExplicitThis on property setter may cause wrong argument being selected.
+	Fixed a compile error in gstdint.h in VC 2012.
 
 2013-02-23 version 1.5.4
 	Improved property supporting in serialization. Now the serialization library can handle properties with getter and setter functions properly.

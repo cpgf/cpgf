@@ -58,14 +58,14 @@ GTEST(Getter_Global_Function_getA)
 
 GTEST(InstanceGetter_Global_Function_getA)
 {
-	GInstanceGetter<int (*)()> ptr = createInstanceGetter(&getA, NULL);
+	GInstanceGetter<int (*)()> ptr = createInstanceGetter(NULL, &getA);
 	GEQUAL(NULL, ptr.getAddress());
 
 	GEQUAL(1999, ptr.get());
 	GEQUAL(1999, ptr());
 	GEQUAL(1999, ptr);
 
-	GInstanceGetter<int ()> func = createInstanceGetter(getA, NULL);
+	GInstanceGetter<int ()> func = createInstanceGetter(NULL, getA);
 	GEQUAL(NULL, func.getAddress());
 
 	GEQUAL(1999, func.get());
@@ -84,7 +84,7 @@ GTEST(Getter_Global_Function_getObject)
 
 GTEST(InstanceGetter_Global_Function_getObject)
 {
-	GInstanceGetter<TestAccessorObject ()> getter = createInstanceGetter(getObject, NULL);
+	GInstanceGetter<TestAccessorObject ()> getter = createInstanceGetter(NULL, getObject);
 	GEQUAL(NULL, getter.getAddress());
 
 	GEQUAL(38, getter.get().n);
@@ -108,7 +108,7 @@ GTEST(Getter_Global_Function_getByExplicitThis)
 GTEST(InstanceGetter_Global_Function_getByExplicitThis)
 {
 	TestAccessorObject a;
-	GInstanceGetter<int (TestAccessorObject *), GMetaPolicyExplicitThis> getter = createInstanceGetter(getByExplicitThis, &a, GMetaPolicyExplicitThis());
+	GInstanceGetter<int (TestAccessorObject *), GMetaPolicyExplicitThis> getter = createInstanceGetter(&a, getByExplicitThis, GMetaPolicyExplicitThis());
 	GEQUAL(NULL, getter.getAddress());
 
 	a.n = 38;
@@ -139,7 +139,7 @@ GTEST(Getter_Member_Function_getN)
 GTEST(InstanceGetter_Member_Function_getN)
 {
 	GetterData a;
-	GInstanceGetter<int (GetterData::*)() const> getter = createInstanceGetter(&GetterData::getN, &a);
+	GInstanceGetter<int (GetterData::*)() const> getter = createInstanceGetter(&a, &GetterData::getN);
 	GEQUAL(NULL, getter.getAddress());
 
 	a.n = 1;
@@ -173,7 +173,7 @@ GTEST(Getter_Member_Function_getRefN)
 GTEST(InstanceGetter_Member_Function_getRefN)
 {
 	GetterData a;
-	GInstanceGetter<int & (GetterData::*)()> getter = createInstanceGetter(&GetterData::getRefN, &a);
+	GInstanceGetter<int & (GetterData::*)()> getter = createInstanceGetter(&a, &GetterData::getRefN);
 	GEQUAL(NULL, getter.getAddress());
 
 	a.n = 1;

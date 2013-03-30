@@ -26,7 +26,7 @@ GTEST(Getter_Global_Variable_int)
 
 GTEST(InstanceGetter_Global_Variable_int)
 {
-	GInstanceGetter<int *> getter = createInstanceGetter(&globalA, NULL);
+	GInstanceGetter<int *> getter = createInstanceGetter(NULL, &globalA);
 	GEQUAL(&globalA, getter.getAddress());
 
 	globalA = 1;
@@ -55,7 +55,7 @@ GTEST(Getter_Global_Variable_object)
 
 GTEST(InstanceGetter_Global_Variable_object)
 {
-	GInstanceGetter<TestAccessorObject *> getter = createInstanceGetter(&globalObject, NULL);
+	GInstanceGetter<TestAccessorObject *> getter = createInstanceGetter(NULL, &globalObject);
 	GEQUAL(&globalObject, getter.getAddress());
 
 	globalObject.n = 1;
@@ -82,7 +82,7 @@ GTEST(Getter_Global_Variable_const_object)
 
 GTEST(InstanceGetter_Global_Variable_const_object)
 {
-	GInstanceGetter<const TestAccessorObject *> getter = createInstanceGetter(&globalConstObject, NULL);
+	GInstanceGetter<const TestAccessorObject *> getter = createInstanceGetter(NULL, &globalConstObject);
 	GEQUAL(&globalConstObject, getter.getAddress());
 
 	const_cast<TestAccessorObject *>(&globalConstObject)->n = 1;
@@ -111,7 +111,7 @@ GTEST(Getter_Member_Variable_object)
 GTEST(InstanceGetter_Member_Variable_object)
 {
 	TestAccessorObject a;
-	GInstanceGetter<int TestAccessorObject::*> getter = createInstanceGetter(&TestAccessorObject::n, &a);
+	GInstanceGetter<int TestAccessorObject::*> getter = createInstanceGetter(&a, &TestAccessorObject::n);
 	GEQUAL(&a.n, getter.getAddress());
 
 	a.n = 1;
@@ -142,7 +142,7 @@ GTEST(Getter_Member_Variable_const_object)
 GTEST(InstanceGetter_Member_Variable_const_object)
 {
 	const TestAccessorObject a;
-	GInstanceGetter<int TestAccessorObject::*> getter = createInstanceGetter(&TestAccessorObject::n, &a);
+	GInstanceGetter<int TestAccessorObject::*> getter = createInstanceGetter(&a, &TestAccessorObject::n);
 	GEQUAL(&a.n, getter.getAddress());
 
 	const_cast<TestAccessorObject *>(&a)->n = 1;

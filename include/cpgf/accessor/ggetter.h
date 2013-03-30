@@ -248,7 +248,7 @@ private:
 	typedef GGetter<RawGetter, Policy> super;
 
 public:
-	GInstanceGetter(typename super::RawGetterPassType getter, const void * instance) : super(getter), instance(instance) {
+	GInstanceGetter(const void * instance, typename super::RawGetterPassType getter) : super(getter), instance(instance) {
 	}
 	
 	GInstanceGetter(const GInstanceGetter & other) : super(other), instance(other.instance) {
@@ -303,15 +303,15 @@ GGetter<RawGetter, GMetaPolicyDefault> createGetter(const RawGetter & getter)
 }
 
 template <typename RawGetter, typename Policy>
-GInstanceGetter<RawGetter, Policy> createInstanceGetter(const RawGetter & getter, const void * instance, Policy /*policy*/)
+GInstanceGetter<RawGetter, Policy> createInstanceGetter(const void * instance, const RawGetter & getter, Policy /*policy*/)
 {
-	return GInstanceGetter<RawGetter, Policy>(getter, instance);
+	return GInstanceGetter<RawGetter, Policy>(instance, getter);
 }
 
 template <typename RawGetter>
-GInstanceGetter<RawGetter, GMetaPolicyDefault> createInstanceGetter(const RawGetter & getter, const void * instance)
+GInstanceGetter<RawGetter, GMetaPolicyDefault> createInstanceGetter(const void * instance, const RawGetter & getter)
 {
-	return GInstanceGetter<RawGetter, GMetaPolicyDefault>(getter, instance);
+	return GInstanceGetter<RawGetter, GMetaPolicyDefault>(instance, getter);
 }
 
 

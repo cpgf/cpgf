@@ -27,7 +27,7 @@ GTEST(Setter_Global_Variable_int)
 
 GTEST(InstanceSetter_Global_Variable_int)
 {
-	GInstanceSetter<int *> setter = createInstanceSetter(&globalA, NULL);
+	GInstanceSetter<int *> setter = createInstanceSetter(NULL, &globalA);
 	GEQUAL(&globalA, setter.getAddress());
 
 	globalA = 5;
@@ -59,7 +59,7 @@ GTEST(Setter_Global_Variable_object)
 
 GTEST(InstanceSetter_Global_Variable_object)
 {
-	GInstanceSetter<TestAccessorObject *> setter = createInstanceSetter(&globalObject, NULL);
+	GInstanceSetter<TestAccessorObject *> setter = createInstanceSetter(NULL, &globalObject);
 	GEQUAL(&globalObject, setter.getAddress());
 
 	globalObject.n = 5;
@@ -93,7 +93,7 @@ GTEST(Setter_Member_Variable_object)
 GTEST(InstanceSetter_Member_Variable_object)
 {
 	TestAccessorObject a;
-	GInstanceSetter<int TestAccessorObject::*> setter = createInstanceSetter(&TestAccessorObject::n, &a);
+	GInstanceSetter<int TestAccessorObject::*> setter = createInstanceSetter(&a, &TestAccessorObject::n);
 	GEQUAL(&a.n, setter.getAddress());
 
 	a.n = 5;

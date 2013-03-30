@@ -237,7 +237,7 @@ private:
 	typedef GSetter<RawSetter, Policy> super;
 
 public:
-	GInstanceSetter(typename super::RawSetterPassType getter, void * instance) : super(getter), instance(instance) {
+	GInstanceSetter(void * instance, typename super::RawSetterPassType setter) : super(setter), instance(instance) {
 	}
 	
 	GInstanceSetter(const GInstanceSetter & other) : super(other), instance(other.instance) {
@@ -294,15 +294,15 @@ GSetter<RawSetter, GMetaPolicyDefault> createSetter(const RawSetter & setter)
 }
 
 template <typename RawSetter, typename Policy>
-GInstanceSetter<RawSetter, Policy> createInstanceSetter(const RawSetter & setter, void * instance, Policy /*policy*/)
+GInstanceSetter<RawSetter, Policy> createInstanceSetter(void * instance, const RawSetter & setter, Policy /*policy*/)
 {
-	return GInstanceSetter<RawSetter, Policy>(setter, instance);
+	return GInstanceSetter<RawSetter, Policy>(instance, setter);
 }
 
 template <typename RawSetter>
-GInstanceSetter<RawSetter, GMetaPolicyDefault> createInstanceSetter(const RawSetter & setter, void * instance)
+GInstanceSetter<RawSetter, GMetaPolicyDefault> createInstanceSetter(void * instance, const RawSetter & setter)
 {
-	return GInstanceSetter<RawSetter, GMetaPolicyDefault>(setter, instance);
+	return GInstanceSetter<RawSetter, GMetaPolicyDefault>(instance, setter);
 }
 
 

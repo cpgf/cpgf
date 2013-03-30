@@ -70,7 +70,8 @@ public:
 	typedef GSetter<RawSetter, Policy> SetterType;
 	
 public:
-	GInstanceAccessor(RawGetter rawGetter, RawSetter rawSetter, const void * instance) : getter(GetterType(rawGetter)), setter(SetterType(rawSetter)), instance(instance) {
+	GInstanceAccessor(const void * instance, RawGetter rawGetter, RawSetter rawSetter)
+		: instance(instance), getter(GetterType(rawGetter)), setter(SetterType(rawSetter)) {
 	}
 
 	GInstanceAccessor(const GInstanceAccessor & other) : getter(other.getter), setter(other.setter), instance(other.instance) {
@@ -128,9 +129,9 @@ public:
 	}
 	
 private:
+	const void * instance;
 	GetterType getter;
 	SetterType setter;
-	const void * instance;
 };
 
 
@@ -147,15 +148,15 @@ GAccessor<RawGetter, RawSetter, GMetaPolicyDefault> createAccessor(RawGetter raw
 }
 
 template <typename RawGetter, typename RawSetter, typename Policy>
-GInstanceAccessor<RawGetter, RawSetter, Policy> createInstanceAccessor(RawGetter rawGetter, RawSetter rawSetter, const void * instance)
+GInstanceAccessor<RawGetter, RawSetter, Policy> createInstanceAccessor(const void * instance, RawGetter rawGetter, RawSetter rawSetter)
 {
-	return GInstanceAccessor<RawGetter, RawSetter, Policy>(rawGetter, rawSetter, instance);
+	return GInstanceAccessor<RawGetter, RawSetter, Policy>(instance, rawGetter, rawSetter);
 }
 
 template <typename RawGetter, typename RawSetter>
-GInstanceAccessor<RawGetter, RawSetter, GMetaPolicyDefault> createInstanceAccessor(RawGetter rawGetter, RawSetter rawSetter, const void * instance)
+GInstanceAccessor<RawGetter, RawSetter, GMetaPolicyDefault> createInstanceAccessor(const void * instance, RawGetter rawGetter, RawSetter rawSetter)
 {
-	return GInstanceAccessor<RawGetter, RawSetter, GMetaPolicyDefault>(rawGetter, rawSetter, instance);
+	return GInstanceAccessor<RawGetter, RawSetter, GMetaPolicyDefault>(instance, rawGetter, rawSetter);
 }
 
 
