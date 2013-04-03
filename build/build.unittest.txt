@@ -113,6 +113,10 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/accessor/*.cpp
 	)
 
+	partUnitTest("test_tween"
+		${TEST_PATH}/tween/*.cpp
+	)
+
 	partUnitTest("test_reflection"
 		${TEST_PATH}/reflection/*.cpp
 	)
@@ -172,6 +176,7 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/scriptbind/metadata/*.cpp
 		${TEST_PATH}/scriptbind/metadata/stl/*.cpp
 		${TEST_PATH}/serialization/*.cpp
+		${TEST_PATH}/tween/*.cpp
 
 		# metagen
 		${TEST_PATH}/metagen/tests/*.cpp

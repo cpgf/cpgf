@@ -54,6 +54,9 @@ set(SRC_META
 	${SRC_PATH}/serialization/gmetastorage_textstream.cpp
 	${SRC_PATH}/serialization/gmetastorage_xml.cpp
 	
+	${SRC_PATH}/tween/gtween.cpp
+	${SRC_PATH}/tween/gtweenlist.cpp
+	
 	${SRC_PATH}/thirdparty/jsoncpp/json_reader.cpp
 	${SRC_PATH}/thirdparty/jsoncpp/json_value.cpp
 	${SRC_PATH}/thirdparty/jsoncpp/json_writer.cpp

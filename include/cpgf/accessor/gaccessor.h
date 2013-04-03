@@ -3,6 +3,7 @@
 
 #include "cpgf/accessor/ggetter.h"
 #include "cpgf/accessor/gsetter.h"
+#include "cpgf/gifelse.h"
 
 
 #if defined(_MSC_VER)
@@ -25,6 +26,8 @@ class GAccessor
 public:
 	typedef GGetter<RawGetter, Policy> GetterType;
 	typedef GSetter<RawSetter, Policy> SetterType;
+
+	typedef typename GIfElse<GetterType::HasGetter, typename GetterType::ValueType, typename SetterType::ValueType>::Result ValueType;
 	
 public:
 	GAccessor(RawGetter rawGetter, RawSetter rawSetter) : getter(GetterType(rawGetter)), setter(SetterType(rawSetter)) {
@@ -68,13 +71,15 @@ class GInstanceAccessor
 public:
 	typedef GGetter<RawGetter, Policy> GetterType;
 	typedef GSetter<RawSetter, Policy> SetterType;
+
+	typedef typename GIfElse<GetterType::HasGetter, typename GetterType::ValueType, typename SetterType::ValueType>::Result ValueType;
 	
 public:
 	GInstanceAccessor(const void * instance, RawGetter rawGetter, RawSetter rawSetter)
 		: instance(instance), getter(GetterType(rawGetter)), setter(SetterType(rawSetter)) {
 	}
 
-	GInstanceAccessor(const GInstanceAccessor & other) : getter(other.getter), setter(other.setter), instance(other.instance) {
+	GInstanceAccessor(const GInstanceAccessor & other) : instance(other.instance), getter(other.getter), setter(other.setter) {
 	}
 	
 	GInstanceAccessor & operator = (const GInstanceAccessor & other) {
