@@ -24,18 +24,18 @@ public:
 	~GTweenList();
 
 	// Return pointer instead of reference because reference maybe wrongly copied.
-	GTween * createTween();
+	GTween & createTween();
 	
-	GTween * to(GTweenNumber duration);
-	GTween * from(GTweenNumber duration);
+	GTween & to(GTweenNumber duration);
+	GTween & from(GTweenNumber duration);
 
 	template <typename AccessorType>
-	GTween * to(GTweenNumber duration, const AccessorType & accessor, const typename AccessorType::ValueType & target) {
+	GTween & to(GTweenNumber duration, const AccessorType & accessor, const typename AccessorType::ValueType & target) {
 		return this->to(duration)->tween(accessor, target);
 	}
 
 	template <typename AccessorType>
-	GTween * from(GTweenNumber duration, const AccessorType & accessor, const typename AccessorType::ValueType & target) {
+	GTween & from(GTweenNumber duration, const AccessorType & accessor, const typename AccessorType::ValueType & target) {
 		return this->from(duration)->tween(accessor, target);
 	}
 

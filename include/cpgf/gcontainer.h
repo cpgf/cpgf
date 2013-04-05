@@ -9,7 +9,6 @@
 #include <list>
 
 #include <math.h>
-#include <string.h>
 #include <assert.h>
 
 

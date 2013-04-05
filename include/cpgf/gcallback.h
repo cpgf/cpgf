@@ -93,6 +93,10 @@ public:
 		return this->getBase() == NULL;
 	}
 
+	operator bool() const {
+		return ! this->empty();
+	}
+
 };
 
 

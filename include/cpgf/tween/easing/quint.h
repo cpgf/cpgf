@@ -1,11 +1,11 @@
-#ifndef __TWEEN_EASING_QUAD_H
-#define __TWEEN_EASING_QUAD_H
+#ifndef __TWEEN_EASING_QUINT_H
+#define __TWEEN_EASING_QUINT_H
 
 #include "cpgf/tween/gtweeneaseparam.h"
 
 namespace cpgf {
 
-struct QuadEase
+struct QuintEase
 {
 public:
 	static GTweenEaseType easeIn() {
@@ -23,22 +23,22 @@ public:
 private:
 	static GTweenNumber _easeIn(const GTweenEaseParam * param) {
 		GTweenNumber t = param->current / param->total;
-		return t * t;
+		return t * t * t * t * t;
 	}
 	
 	static GTweenNumber _easeOut(const GTweenEaseParam * param) {
-		GTweenNumber t = param->current / param->total;
-		return - t * (t - 2);
+		GTweenNumber t = param->current / param->total - 1;
+		return t * t * t * t * t + 1;
 	}
 	
 	static GTweenNumber _easeInOut(const GTweenEaseParam * param) {
 		GTweenNumber t = param->current / (param->total * 0.5f);
 		if(t < 1.0f) {
-			return 0.5f * t * t;
+			return 0.5f * t * t * t * t * t;
 		}
 		else {
-			t = t - 1.0f;
-			return -0.5f * (t * (t - 2.0f) - 1.0f);
+			t -= 2.0f;
+			return 0.5f * (t * t * t * t * t + 2.0f);
 		}
 	}
 };

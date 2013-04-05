@@ -1,15 +1,8 @@
 #include "cpgf/tween/gtween.h"
+#include "cpgf/tween/easing/linear.h"
 
 namespace cpgf {
 
-namespace {
-
-GTweenNumber defaultEase(const GTweenEaseParam * param)
-{
-	return param->current / param->total;
-}
-
-} // unnamed namespace
 
 namespace tween_internal {
 
@@ -28,6 +21,11 @@ void GTweenItemBase::reverse()
 	this->virtualFunctions->reverse(this);
 }
 
+void GTweenItemBase::rewind()
+{
+	this->virtualFunctions->rewind(this);
+}
+
 const void * GTweenItemBase::getInstance()
 {
 	return this->virtualFunctions->getInstance(this);
@@ -37,7 +35,7 @@ const void * GTweenItemBase::getInstance()
 
 	
 GTween::GTween()
-	: easeCallback(&defaultEase), current(0), total(0), delayTime(0), repeatDelayTime(0), repeatCount(0), flags()
+	: easeCallback(LinearEase::ease()), current(0), total(0), delayTime(0), repeatDelayTime(0), repeatCount(0), flags()
 {
 }
 
@@ -77,6 +75,11 @@ void GTween::tick(GTweenNumber frameTime)
 		this->init();
 	}
 
+	if(this->flags.has(tfRewind)) {
+		this->flags.clear(tfRewind);
+		this->rewindAll();
+	}
+
 	if(this->flags.has(tfWaitForStart)) {
 		this->flags.clear(tfWaitForStart);
 		return;
@@ -108,10 +111,13 @@ void GTween::tick(GTweenNumber frameTime)
 				if(this->flags.has(tfReverseWhenRepeat)) {
 					this->reverseAll();
 				}
+				else {
+					this->flags.set(tfRewind);
+				}
 				if(this->repeatDelayTime > 0) {
 					this->delayTime = this->repeatDelayTime;
 				}
-				if(! this->flags.has(tfImmediateTick)) {
+				if(! this->flags.has(tfImmediateYoyo)) {
 					this->flags.set(tfWaitForStart);
 				}
 			}
@@ -119,6 +125,9 @@ void GTween::tick(GTweenNumber frameTime)
 	}
 
 	if(this->isCompleted()) {
+		if(this->callbackOnComplete) {
+			this->callbackOnComplete();
+		}
 	}
 }
 
@@ -140,12 +149,18 @@ void GTween::reverseAll()
 	}
 }
 
+void GTween::rewindAll()
+{
+	for(ListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
+		(*it)->rewind();
+	}
+}
 
 GTween & GTween::ease(const GTweenEaseType & ease)
 {
 	this->easeCallback = ease;
 	if(this->easeCallback.empty()) {
-		this->easeCallback = &defaultEase;
+		this->easeCallback = LinearEase::ease();
 	}
 	return *this;
 }
@@ -186,21 +201,27 @@ GTween & GTween::repeat(int repeatCount)
 	return *this;
 }
 
-GTween & GTween::yoyo(bool value)
-{
-	this->flags.setByBool(tfReverseWhenRepeat, value);
-	return *this;
-}
-
 GTween & GTween::repeatDelay(GTweenNumber d)
 {
 	this->repeatDelayTime = d;
 	return *this;
 }
 
+GTween & GTween::yoyo(bool value)
+{
+	this->flags.setByBool(tfReverseWhenRepeat, value);
+	return *this;
+}
+
 GTween & GTween::immediateYoyo(bool value)
 {
 	this->flags.setByBool(tfImmediateYoyo, value);
+	return *this;
+}
+
+GTween & GTween::onComplete(const GTweenCallback & value)
+{
+	this->callbackOnComplete = value;
 	return *this;
 }
 

@@ -2,17 +2,14 @@
 #define __GTWEEN_H
 
 #include "cpgf/tween/gtweeneaseparam.h"
-#include "cpgf/gcallback.h"
 #include "cpgf/gcontainer.h"
 #include "cpgf/gflags.h"
+#include "cpgf/gclassutil.h"
 
 #include <algorithm>
 
 
 namespace cpgf {
-
-typedef GTweenNumber (*GTweenEaseFunction)(const GTweenEaseParam *);
-typedef GCallback<GTweenNumber (*)(const GTweenEaseParam *)> GTweenEaseType;
 
 namespace tween_internal {
 
@@ -21,6 +18,7 @@ struct GTweenItemVirtual
 	void (*deleteSelf)(void * self);
 	void (*tick)(void * self, GTweenEaseParam * param, const GTweenEaseType & ease);
 	void (*reverse)(void * self);
+	void (*rewind)(void * self);
 	const void * (*getInstance)(void * self);
 };
 
@@ -30,6 +28,7 @@ public:
 	void deleteSelf();
 	void tick(GTweenEaseParam * param, const GTweenEaseType & ease);
 	void reverse();
+	void rewind();
 	const void * getInstance();
 
 protected:
@@ -57,6 +56,10 @@ private:
 		static_cast<ThisType *>(self)->doReverse();
 	}
 
+	static void virtualRewind(void * self) {
+		static_cast<ThisType *>(self)->doRewind();
+	}
+
 	static const void * virtualGetInstance(void * self) {
 		return static_cast<ThisType *>(self)->doGetInstance();
 	}
@@ -69,6 +72,7 @@ public:
 			&virtualDeleteSelf,
 			&virtualTick,
 			&virtualReverse,
+			&virtualRewind,
 			&virtualGetInstance
 		};
 		this->virtualFunctions = &thisFunctions;
@@ -77,14 +81,19 @@ public:
 protected:
 	void doTick(GTweenEaseParam * param, const GTweenEaseType & ease) {
 		GTweenNumber ratio = ease(param);
-		this->accessor((ValueType)(this->from + this->change * ratio));
+		ValueType value = (ValueType)(this->from + this->change * ratio);
+		this->accessor(value);
 	}
 
 	void doReverse() {
 		using std::swap;
 		swap(this->from, this->to);
 		this->change = -this->change;
-		this->accessor((ValueType)(this->from));
+		this->accessor(this->from);
+	}
+
+	void doRewind() {
+		this->accessor(this->from);
 	}
 
 	const void * doGetInstance() {
@@ -101,7 +110,9 @@ private:
 } // namespace tween_internal
 
 
-class GTween
+typedef GCallback<void ()> GTweenCallback;
+
+class GTween : public GNoncopyable
 {
 private:
 	typedef GWiseList<tween_internal::GTweenItemBase *> ListType;
@@ -115,6 +126,7 @@ private:
 		tfWaitForStart = 1 << 5,
 		tfImmediateTick = 1 << 6,
 		tfImmediateYoyo = 1 << 7,
+		tfRewind = 1 << 8,
 	};
 
 public:
@@ -138,9 +150,11 @@ public:
 	GTween & immediateTick(bool value);
 
 	GTween & repeat(int repeatCount);
-	GTween & yoyo(bool value);
 	GTween & repeatDelay(GTweenNumber d);
+	GTween & yoyo(bool value);
 	GTween & immediateYoyo(bool value);
+
+	GTween & onComplete(const GTweenCallback & value);
 
 	bool isCompleted() const;
 
@@ -149,6 +163,7 @@ public:
 private:
 	void init();
 	void reverseAll();
+	void rewindAll();
 
 private:
 	GTweenEaseType easeCallback;
@@ -160,6 +175,8 @@ private:
 
 	ListType itemList;
 	GFlags<GTweenFlags> flags;
+
+	GTweenCallback callbackOnComplete;
 };
 
 

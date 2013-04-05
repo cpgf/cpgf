@@ -1,0 +1,79 @@
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4996)
+#endif
+
+#include "testcase.h"
+
+#include "sprite.h"
+#include "easeinfo.h"
+#include "testcaseutil.h"
+
+#include "cpgf/tween/gtweenlist.h"
+#include "cpgf/accessor/gaccessor.h"
+
+#if defined(_WIN32)
+    #include <windows.h>
+#endif
+#include <GL/gl.h>
+
+#include <vector>
+
+using namespace cpgf;
+using namespace std;
+
+class TestCaseChart : public TestCase
+{
+private:
+	typedef vector<float> ArrayType;
+
+public:
+	TestCaseChart();
+
+	virtual void render(int viewWidth, int viewHeight);
+	virtual void setEase(int easeIndex);
+
+private:
+	void reset();
+
+private:
+	ArrayType positions;
+};
+
+TestCasePtr createTestCaseChart()
+{
+	return TestCasePtr(new TestCaseChart);
+}
+
+TestCaseChart::TestCaseChart()
+{
+	this->reset();
+}
+
+void TestCaseChart::render(int viewWidth, int viewHeight)
+{
+	size_t count = this->positions.size();
+	if(count == 0) {
+		return;
+	}
+
+    glDisable(GL_LIGHT0);
+    glDisable(GL_LIGHT1);
+    glDisable(GL_LIGHTING);
+
+	glColor3f(0.8f, 0.8f, 0.8f);
+	glVertexPointer(2, GL_FLOAT, 0, &this->positions[0]);
+	glDrawArrays(GL_LINE_STRIP, 0, count / 2);
+}
+
+void TestCaseChart::setEase(int easeIndex)
+{
+	this->reset();
+	calculateEaseChartPositions(this->positions, getEase(easeIndex)->ease, 0.3f, 1.7f);
+}
+
+void TestCaseChart::reset()
+{
+	this->positions.clear();
+}
+
