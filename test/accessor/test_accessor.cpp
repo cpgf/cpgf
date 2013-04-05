@@ -13,7 +13,7 @@ GTEST(Accessor_Getter_Setter)
 {
 	globalA = 0;
 
-	GAccessor<int *, int *> accessor = createAccessor(&globalA, &globalA);
+	GInstanceAccessor<int *, int *> accessor = createInstanceAccessor(&globalA, &globalA);
 	GEQUAL(&globalA, accessor.getAddress(NULL));
 	GEQUAL(0, accessor.get(NULL));
 
@@ -26,7 +26,7 @@ GTEST(InstanceAccessor_Getter_Setter)
 {
 	globalA = 0;
 
-	GInstanceAccessor<int *, int *> accessor = createInstanceAccessor(NULL, &globalA, &globalA);
+	GAccessor<int *, int *> accessor = createAccessor(NULL, &globalA, &globalA);
 	GEQUAL(&globalA, accessor.getAddress());
 	GEQUAL(0, accessor.get());
 
@@ -40,7 +40,7 @@ GTEST(Accessor_Getter_NoSetter)
 {
 	globalA = 0;
 
-	GAccessor<int *, int> accessor = createAccessor(&globalA, 0);
+	GInstanceAccessor<int *, int> accessor = createInstanceAccessor(&globalA, 0);
 	GEQUAL(&globalA, accessor.getAddress(NULL));
 	GEQUAL(0, accessor.get(NULL));
 
@@ -52,7 +52,7 @@ GTEST(InstanceAccessor_Getter_NoSetter)
 {
 	globalA = 0;
 
-	GInstanceAccessor<int *, int> accessor = createInstanceAccessor(NULL, &globalA, 0);
+	GAccessor<int *, int> accessor = createAccessor(NULL, &globalA, 0);
 	GEQUAL(&globalA, accessor.getAddress());
 	GEQUAL(0, accessor.get());
 
@@ -65,7 +65,7 @@ GTEST(Accessor_NoGetter_Setter)
 {
 	globalA = 0;
 
-	GAccessor<int, int *> accessor = createAccessor(0, &globalA);
+	GInstanceAccessor<int, int *> accessor = createInstanceAccessor(0, &globalA);
 	GEQUAL(&globalA, accessor.getAddress(NULL));
 
 	accessor.set(NULL, 5);
@@ -76,7 +76,7 @@ GTEST(InstanceAccessor_NoGetter_Setter)
 {
 	globalA = 0;
 
-	GInstanceAccessor<int, int *> accessor = createInstanceAccessor(NULL, 0, &globalA);
+	GAccessor<int, int *> accessor = createAccessor(NULL, 0, &globalA);
 	GEQUAL(&globalA, accessor.getAddress());
 
 	accessor.set(5);

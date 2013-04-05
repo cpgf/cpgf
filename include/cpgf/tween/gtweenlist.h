@@ -31,12 +31,12 @@ public:
 
 	template <typename AccessorType>
 	GTween & to(GTweenNumber duration, const AccessorType & accessor, const typename AccessorType::ValueType & target) {
-		return this->to(duration)->tween(accessor, target);
+		return this->to(duration).tween(accessor, target);
 	}
 
 	template <typename AccessorType>
 	GTween & from(GTweenNumber duration, const AccessorType & accessor, const typename AccessorType::ValueType & target) {
-		return this->from(duration)->tween(accessor, target);
+		return this->from(duration).tween(accessor, target);
 	}
 
 	void tick(GTweenNumber frameTime);

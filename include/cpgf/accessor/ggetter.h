@@ -26,7 +26,7 @@ namespace cpgf {
 
 
 template <typename RawGetter, typename Policy = GMetaPolicyDefault, typename Enabled = void>
-class GGetter
+class GInstanceGetter
 {
 public:
 	typedef int ValueType;
@@ -36,7 +36,7 @@ public:
 	G_STATIC_CONSTANT(bool, Readable = false);
 
 public:
-	GGetter(const RawGetter & /*getter*/) {
+	GInstanceGetter(const RawGetter & /*getter*/) {
 	}
 
 	PassType get(const void * /*instance*/) const {
@@ -54,7 +54,7 @@ public:
 
 
 template <typename RawGetter, typename Policy>
-class GGetter <RawGetter, Policy, typename GEnableIfResult<
+class GInstanceGetter <RawGetter, Policy, typename GEnableIfResult<
 	GAndResult<
 		GNotResult<IsFunction<RawGetter> >,
 		GNotResult<MemberDataTrait<RawGetter> >,
@@ -77,13 +77,13 @@ public:
 	typedef ValueType & PassType;
 
 public:
-	GGetter(RawGetterPassType getter) : getter(getter) {
+	GInstanceGetter(RawGetterPassType getter) : getter(getter) {
 	}
 
-	GGetter(const GGetter & other) : getter(other.getter) {
+	GInstanceGetter(const GInstanceGetter & other) : getter(other.getter) {
 	}
 
-	GGetter & operator = (const GGetter & other) {
+	GInstanceGetter & operator = (const GInstanceGetter & other) {
 		if(this != &other) {
 			this->getter = other.getter;
 		}
@@ -118,7 +118,7 @@ private:
 };
 
 template <typename RawGetter, typename Policy>
-class GGetter <RawGetter, Policy, typename GEnableIfResult<
+class GInstanceGetter <RawGetter, Policy, typename GEnableIfResult<
 	GAndResult<
 		GNotResult<IsFunction<RawGetter> >,
 		MemberDataTrait<RawGetter>
@@ -138,13 +138,13 @@ public:
 	typedef ValueType PassType;
 
 public:
-	GGetter(RawGetterPassType getter) : getter(getter) {
+	GInstanceGetter(RawGetterPassType getter) : getter(getter) {
 	}
 
-	GGetter(const GGetter & other) : getter(other.getter) {
+	GInstanceGetter(const GInstanceGetter & other) : getter(other.getter) {
 	}
 
-	GGetter & operator = (const GGetter & other) {
+	GInstanceGetter & operator = (const GInstanceGetter & other) {
 		if(this != &other) {
 			this->getter = other.getter;
 		}
@@ -178,7 +178,7 @@ private:
 };
 
 template <typename RawGetter, typename Policy>
-class GGetter <RawGetter, Policy, typename GEnableIfResult<IsFunction<RawGetter> >::Result>
+class GInstanceGetter <RawGetter, Policy, typename GEnableIfResult<IsFunction<RawGetter> >::Result>
 {
 protected:
 	typedef RawGetter RawGetterPassType;	
@@ -194,13 +194,13 @@ public:
 	typedef ValueType PassType;
 
 public:
-	GGetter(RawGetterPassType getter) : callback(makeCallback(getter)) {
+	GInstanceGetter(RawGetterPassType getter) : callback(makeCallback(getter)) {
 	}
 
-	GGetter(const GGetter & other) : callback(other.callback) {
+	GInstanceGetter(const GInstanceGetter & other) : callback(other.callback) {
 	}
 
-	GGetter & operator = (const GGetter & other) {
+	GInstanceGetter & operator = (const GInstanceGetter & other) {
 		if(this != &other) {
 			this->callback = other.callback;
 		}
@@ -242,19 +242,19 @@ private:
 
 
 template <typename RawGetter, typename Policy = GMetaPolicyDefault>
-class GInstanceGetter : public GGetter<RawGetter, Policy>
+class GGetter : public GInstanceGetter<RawGetter, Policy>
 {
 private:
-	typedef GGetter<RawGetter, Policy> super;
+	typedef GInstanceGetter<RawGetter, Policy> super;
 
 public:
-	GInstanceGetter(const void * instance, typename super::RawGetterPassType getter) : super(getter), instance(instance) {
+	GGetter(const void * instance, typename super::RawGetterPassType getter) : super(getter), instance(instance) {
 	}
 	
-	GInstanceGetter(const GInstanceGetter & other) : super(other), instance(other.instance) {
+	GGetter(const GGetter & other) : super(other), instance(other.instance) {
 	}
 	
-	GInstanceGetter & operator = (const GInstanceGetter & other) {
+	GGetter & operator = (const GGetter & other) {
 		super::operator = (other);
 		this->instance = other.instance;
 		
@@ -291,27 +291,27 @@ private:
 
 
 template <typename RawGetter, typename Policy>
-GGetter<RawGetter, Policy> createGetter(const RawGetter & getter, Policy /*policy*/)
+GInstanceGetter<RawGetter, Policy> createInstanceGetter(const RawGetter & getter, Policy /*policy*/)
 {
-	return GGetter<RawGetter, Policy>(getter);
+	return GInstanceGetter<RawGetter, Policy>(getter);
 }
 
 template <typename RawGetter>
-GGetter<RawGetter, GMetaPolicyDefault> createGetter(const RawGetter & getter)
+GInstanceGetter<RawGetter, GMetaPolicyDefault> createInstanceGetter(const RawGetter & getter)
 {
-	return GGetter<RawGetter, GMetaPolicyDefault>(getter);
+	return GInstanceGetter<RawGetter, GMetaPolicyDefault>(getter);
 }
 
 template <typename RawGetter, typename Policy>
-GInstanceGetter<RawGetter, Policy> createInstanceGetter(const void * instance, const RawGetter & getter, Policy /*policy*/)
+GGetter<RawGetter, Policy> createGetter(const void * instance, const RawGetter & getter, Policy /*policy*/)
 {
-	return GInstanceGetter<RawGetter, Policy>(instance, getter);
+	return GGetter<RawGetter, Policy>(instance, getter);
 }
 
 template <typename RawGetter>
-GInstanceGetter<RawGetter, GMetaPolicyDefault> createInstanceGetter(const void * instance, const RawGetter & getter)
+GGetter<RawGetter, GMetaPolicyDefault> createGetter(const void * instance, const RawGetter & getter)
 {
-	return GInstanceGetter<RawGetter, GMetaPolicyDefault>(instance, getter);
+	return GGetter<RawGetter, GMetaPolicyDefault>(instance, getter);
 }
 
 

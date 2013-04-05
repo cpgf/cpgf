@@ -66,12 +66,12 @@ void TestCaseFollow::setEase(int easeIndex)
 	GTweenEaseType ease = getEase(easeIndex)->ease;
 	GTween & tween = GTweenList::getInstance()->to(duration)
 		.ease(ease)
-		.follow(createInstanceAccessor(&this->sprite, &Sprite::getX, &Sprite::setX), createInstanceGetter(&this->target, &Sprite::getX))
-		.follow(createInstanceAccessor(&this->sprite, &Sprite::getY, &Sprite::setY), createInstanceGetter(&this->target, &Sprite::getY))
+		.follow(createAccessor(&this->sprite, &Sprite::getX, &Sprite::setX), createGetter(&this->target, &Sprite::getX))
+		.follow(createAccessor(&this->sprite, &Sprite::getY, &Sprite::setY), createGetter(&this->target, &Sprite::getY))
 	;
 
 	GTween & tween2 = GTweenList::getInstance()->to(duration)
-		.tween(createInstanceAccessor(&this->target, &Sprite::getX, &Sprite::setX), endX)
+		.tween(createAccessor(&this->target, &Sprite::getX, &Sprite::setX), endX)
 	;
 }
 

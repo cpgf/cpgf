@@ -25,7 +25,7 @@ namespace cpgf {
 
 
 template <typename RawSetter, typename Policy = GMetaPolicyDefault, typename Enabled = void>
-class GSetter
+class GInstanceSetter
 {
 public:
 	typedef int ValueType;
@@ -35,7 +35,7 @@ public:
 	G_STATIC_CONSTANT(bool, Writable = false);
 
 public:
-	GSetter(const RawSetter & /*setter*/) {
+	GInstanceSetter(const RawSetter & /*setter*/) {
 	}
 
 	void set(void * /*instance*/, PassType /*value*/) const {
@@ -50,7 +50,7 @@ public:
 
 
 template <typename RawSetter, typename Policy>
-class GSetter <RawSetter, Policy, typename GEnableIfResult<
+class GInstanceSetter <RawSetter, Policy, typename GEnableIfResult<
 	GAndResult<
 		GNotResult<IsFunction<RawSetter> >,
 		GNotResult<MemberDataTrait<RawSetter> >,
@@ -73,13 +73,13 @@ public:
 	typedef const ValueType & PassType;
 
 public:
-	GSetter(RawSetterPassType setter) : setter(setter) {
+	GInstanceSetter(RawSetterPassType setter) : setter(setter) {
 	}
 
-	GSetter(const GSetter & other) : setter(other.setter) {
+	GInstanceSetter(const GInstanceSetter & other) : setter(other.setter) {
 	}
 
-	GSetter & operator = (const GSetter & other) {
+	GInstanceSetter & operator = (const GInstanceSetter & other) {
 		if(this != &other) {
 			this->setter = other.setter;
 		}
@@ -109,7 +109,7 @@ private:
 };
 
 template <typename RawSetter, typename Policy>
-class GSetter <RawSetter, Policy, typename GEnableIfResult<
+class GInstanceSetter <RawSetter, Policy, typename GEnableIfResult<
 	GAndResult<
 		GNotResult<IsFunction<RawSetter> >,
 		MemberDataTrait<RawSetter>
@@ -129,13 +129,13 @@ public:
 	typedef const ValueType & PassType;
 
 public:
-	GSetter(RawSetterPassType setter) : setter(setter) {
+	GInstanceSetter(RawSetterPassType setter) : setter(setter) {
 	}
 
-	GSetter(const GSetter & other) : setter(other.setter) {
+	GInstanceSetter(const GInstanceSetter & other) : setter(other.setter) {
 	}
 
-	GSetter & operator = (const GSetter & other) {
+	GInstanceSetter & operator = (const GInstanceSetter & other) {
 		if(this != &other) {
 			this->setter = other.setter;
 		}
@@ -165,7 +165,7 @@ private:
 };
 
 template <typename RawSetter, typename Policy>
-class GSetter <RawSetter, Policy, typename GEnableIfResult<IsFunction<RawSetter> >::Result>
+class GInstanceSetter <RawSetter, Policy, typename GEnableIfResult<IsFunction<RawSetter> >::Result>
 {
 protected:
 	typedef RawSetter RawSetterPassType;	
@@ -187,13 +187,13 @@ public:
 	typedef ValueType PassType;
 
 public:
-	GSetter(RawSetterPassType setter) : callback(makeCallback(setter)) {
+	GInstanceSetter(RawSetterPassType setter) : callback(makeCallback(setter)) {
 	}
 
-	GSetter(const GSetter & other) : callback(other.callback) {
+	GInstanceSetter(const GInstanceSetter & other) : callback(other.callback) {
 	}
 
-	GSetter & operator = (const GSetter & other) {
+	GInstanceSetter & operator = (const GInstanceSetter & other) {
 		if(this != &other) {
 			this->callback = other.callback;
 		}
@@ -231,19 +231,19 @@ private:
 
 
 template <typename RawSetter, typename Policy = GMetaPolicyDefault>
-class GInstanceSetter : public GSetter<RawSetter, Policy>
+class GSetter : public GInstanceSetter<RawSetter, Policy>
 {
 private:
-	typedef GSetter<RawSetter, Policy> super;
+	typedef GInstanceSetter<RawSetter, Policy> super;
 
 public:
-	GInstanceSetter(void * instance, typename super::RawSetterPassType setter) : super(setter), instance(instance) {
+	GSetter(void * instance, typename super::RawSetterPassType setter) : super(setter), instance(instance) {
 	}
 	
-	GInstanceSetter(const GInstanceSetter & other) : super(other), instance(other.instance) {
+	GSetter(const GSetter & other) : super(other), instance(other.instance) {
 	}
 	
-	GInstanceSetter & operator = (const GInstanceSetter & other) {
+	GSetter & operator = (const GSetter & other) {
 		super::operator = (other);
 		this->instance = other.instance;
 		
@@ -258,7 +258,7 @@ public:
 		this->set(value);
 	}
 	
-	GInstanceSetter & operator = (typename super::PassType value) {
+	GSetter & operator = (typename super::PassType value) {
 		this->set(value);
 		
 		return *this;
@@ -282,27 +282,27 @@ private:
 
 
 template <typename RawSetter, typename Policy>
-GSetter<RawSetter, Policy> createSetter(const RawSetter & setter, Policy /*policy*/)
+GInstanceSetter<RawSetter, Policy> createInstanceSetter(const RawSetter & setter, Policy /*policy*/)
 {
-	return GSetter<RawSetter, Policy>(setter);
+	return GInstanceSetter<RawSetter, Policy>(setter);
 }
 
 template <typename RawSetter>
-GSetter<RawSetter, GMetaPolicyDefault> createSetter(const RawSetter & setter)
+GInstanceSetter<RawSetter, GMetaPolicyDefault> createInstanceSetter(const RawSetter & setter)
 {
-	return GSetter<RawSetter, GMetaPolicyDefault>(setter);
+	return GInstanceSetter<RawSetter, GMetaPolicyDefault>(setter);
 }
 
 template <typename RawSetter, typename Policy>
-GInstanceSetter<RawSetter, Policy> createInstanceSetter(void * instance, const RawSetter & setter, Policy /*policy*/)
+GSetter<RawSetter, Policy> createSetter(void * instance, const RawSetter & setter, Policy /*policy*/)
 {
-	return GInstanceSetter<RawSetter, Policy>(instance, setter);
+	return GSetter<RawSetter, Policy>(instance, setter);
 }
 
 template <typename RawSetter>
-GInstanceSetter<RawSetter, GMetaPolicyDefault> createInstanceSetter(void * instance, const RawSetter & setter)
+GSetter<RawSetter, GMetaPolicyDefault> createSetter(void * instance, const RawSetter & setter)
 {
-	return GInstanceSetter<RawSetter, GMetaPolicyDefault>(instance, setter);
+	return GSetter<RawSetter, GMetaPolicyDefault>(instance, setter);
 }
 
 

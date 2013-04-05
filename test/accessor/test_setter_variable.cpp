@@ -13,7 +13,7 @@ TestAccessorObject globalObject;
 
 GTEST(Setter_Global_Variable_int)
 {
-	GSetter<int *> setter = createSetter(&globalA);
+	GInstanceSetter<int *> setter = createInstanceSetter(&globalA);
 	GEQUAL(&globalA, setter.getAddress(NULL));
 
 	globalA = 5;
@@ -27,7 +27,7 @@ GTEST(Setter_Global_Variable_int)
 
 GTEST(InstanceSetter_Global_Variable_int)
 {
-	GInstanceSetter<int *> setter = createInstanceSetter(NULL, &globalA);
+	GSetter<int *> setter = createSetter(NULL, &globalA);
 	GEQUAL(&globalA, setter.getAddress());
 
 	globalA = 5;
@@ -45,7 +45,7 @@ GTEST(InstanceSetter_Global_Variable_int)
 
 GTEST(Setter_Global_Variable_object)
 {
-	GSetter<TestAccessorObject *> setter = createSetter(&globalObject);
+	GInstanceSetter<TestAccessorObject *> setter = createInstanceSetter(&globalObject);
 	GEQUAL(&globalObject, setter.getAddress(NULL));
 
 	globalObject.n = 5;
@@ -59,7 +59,7 @@ GTEST(Setter_Global_Variable_object)
 
 GTEST(InstanceSetter_Global_Variable_object)
 {
-	GInstanceSetter<TestAccessorObject *> setter = createInstanceSetter(NULL, &globalObject);
+	GSetter<TestAccessorObject *> setter = createSetter(NULL, &globalObject);
 	GEQUAL(&globalObject, setter.getAddress());
 
 	globalObject.n = 5;
@@ -78,7 +78,7 @@ GTEST(InstanceSetter_Global_Variable_object)
 GTEST(Setter_Member_Variable_object)
 {
 	TestAccessorObject a;
-	GSetter<int TestAccessorObject::*> setter = createSetter(&TestAccessorObject::n);
+	GInstanceSetter<int TestAccessorObject::*> setter = createInstanceSetter(&TestAccessorObject::n);
 	GEQUAL(&a.n, setter.getAddress(&a));
 
 	a.n = 5;
@@ -93,7 +93,7 @@ GTEST(Setter_Member_Variable_object)
 GTEST(InstanceSetter_Member_Variable_object)
 {
 	TestAccessorObject a;
-	GInstanceSetter<int TestAccessorObject::*> setter = createInstanceSetter(&a, &TestAccessorObject::n);
+	GSetter<int TestAccessorObject::*> setter = createSetter(&a, &TestAccessorObject::n);
 	GEQUAL(&a.n, setter.getAddress());
 
 	a.n = 5;

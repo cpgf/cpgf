@@ -45,12 +45,12 @@ public:
 
 GTEST(Getter_Global_Function_getA)
 {
-	GGetter<int (*)()> ptr = createGetter(&getA);
+	GInstanceGetter<int (*)()> ptr = createInstanceGetter(&getA);
 	GEQUAL(NULL, ptr.getAddress(NULL));
 
 	GEQUAL(1999, ptr.get(NULL));
 
-	GGetter<int ()> func = createGetter(getA);
+	GInstanceGetter<int ()> func = createInstanceGetter(getA);
 	GEQUAL(NULL, func.getAddress(NULL));
 
 	GEQUAL(1999, func.get(NULL));
@@ -58,14 +58,14 @@ GTEST(Getter_Global_Function_getA)
 
 GTEST(InstanceGetter_Global_Function_getA)
 {
-	GInstanceGetter<int (*)()> ptr = createInstanceGetter(NULL, &getA);
+	GGetter<int (*)()> ptr = createGetter(NULL, &getA);
 	GEQUAL(NULL, ptr.getAddress());
 
 	GEQUAL(1999, ptr.get());
 	GEQUAL(1999, ptr());
 	GEQUAL(1999, ptr);
 
-	GInstanceGetter<int ()> func = createInstanceGetter(NULL, getA);
+	GGetter<int ()> func = createGetter(NULL, getA);
 	GEQUAL(NULL, func.getAddress());
 
 	GEQUAL(1999, func.get());
@@ -76,7 +76,7 @@ GTEST(InstanceGetter_Global_Function_getA)
 
 GTEST(Getter_Global_Function_getObject)
 {
-	GGetter<TestAccessorObject ()> getter = createGetter(getObject);
+	GInstanceGetter<TestAccessorObject ()> getter = createInstanceGetter(getObject);
 	GEQUAL(NULL, getter.getAddress(NULL));
 
 	GEQUAL(38, getter.get(NULL).n);
@@ -84,7 +84,7 @@ GTEST(Getter_Global_Function_getObject)
 
 GTEST(InstanceGetter_Global_Function_getObject)
 {
-	GInstanceGetter<TestAccessorObject ()> getter = createInstanceGetter(NULL, getObject);
+	GGetter<TestAccessorObject ()> getter = createGetter(NULL, getObject);
 	GEQUAL(NULL, getter.getAddress());
 
 	GEQUAL(38, getter.get().n);
@@ -95,7 +95,7 @@ GTEST(InstanceGetter_Global_Function_getObject)
 GTEST(Getter_Global_Function_getByExplicitThis)
 {
 	TestAccessorObject a;
-	GGetter<int (TestAccessorObject *), GMetaPolicyExplicitThis> getter = createGetter(getByExplicitThis, GMetaPolicyExplicitThis());
+	GInstanceGetter<int (TestAccessorObject *), GMetaPolicyExplicitThis> getter = createInstanceGetter(getByExplicitThis, GMetaPolicyExplicitThis());
 	GEQUAL(NULL, getter.getAddress(NULL));
 
 	a.n = 38;
@@ -108,7 +108,7 @@ GTEST(Getter_Global_Function_getByExplicitThis)
 GTEST(InstanceGetter_Global_Function_getByExplicitThis)
 {
 	TestAccessorObject a;
-	GInstanceGetter<int (TestAccessorObject *), GMetaPolicyExplicitThis> getter = createInstanceGetter(&a, getByExplicitThis, GMetaPolicyExplicitThis());
+	GGetter<int (TestAccessorObject *), GMetaPolicyExplicitThis> getter = createGetter(&a, getByExplicitThis, GMetaPolicyExplicitThis());
 	GEQUAL(NULL, getter.getAddress());
 
 	a.n = 38;
@@ -126,7 +126,7 @@ GTEST(InstanceGetter_Global_Function_getByExplicitThis)
 GTEST(Getter_Member_Function_getN)
 {
 	GetterData a;
-	GGetter<int (GetterData::*)() const> getter = createGetter(&GetterData::getN);
+	GInstanceGetter<int (GetterData::*)() const> getter = createInstanceGetter(&GetterData::getN);
 	GEQUAL(NULL, getter.getAddress(NULL));
 
 	a.n = 1;
@@ -139,7 +139,7 @@ GTEST(Getter_Member_Function_getN)
 GTEST(InstanceGetter_Member_Function_getN)
 {
 	GetterData a;
-	GInstanceGetter<int (GetterData::*)() const> getter = createInstanceGetter(&a, &GetterData::getN);
+	GGetter<int (GetterData::*)() const> getter = createGetter(&a, &GetterData::getN);
 	GEQUAL(NULL, getter.getAddress());
 
 	a.n = 1;
@@ -157,7 +157,7 @@ GTEST(InstanceGetter_Member_Function_getN)
 GTEST(Getter_Member_Function_getRefN)
 {
 	GetterData a;
-	GGetter<int & (GetterData::*)()> getter = createGetter(&GetterData::getRefN);
+	GInstanceGetter<int & (GetterData::*)()> getter = createInstanceGetter(&GetterData::getRefN);
 	GEQUAL(NULL, getter.getAddress(NULL));
 
 	a.n = 1;
@@ -173,7 +173,7 @@ GTEST(Getter_Member_Function_getRefN)
 GTEST(InstanceGetter_Member_Function_getRefN)
 {
 	GetterData a;
-	GInstanceGetter<int & (GetterData::*)()> getter = createInstanceGetter(&a, &GetterData::getRefN);
+	GGetter<int & (GetterData::*)()> getter = createGetter(&a, &GetterData::getRefN);
 	GEQUAL(NULL, getter.getAddress());
 
 	a.n = 1;

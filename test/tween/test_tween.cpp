@@ -28,7 +28,7 @@ Pointer createTween()
 	Pointer tween(new GTween);
 	
 	x = 1;
-	tween->tween(createInstanceAccessor(NULL, &x, &x), 5)
+	tween->tween(createAccessor(NULL, &x, &x), 5)
 		.ease(LinearEase::ease())
 		.duration(4)
 		.useFrames(true)
@@ -94,7 +94,7 @@ GTEST(Fake)
 {
 	int x = 1;
 	Pointer tween = createTween();
-	tween->tween(createInstanceAccessor(NULL, &x, &x), 5)
+	tween->tween(createAccessor(NULL, &x, &x), 5)
 		.duration(4)
 //		.backward(true)
 		.useFrames(true)

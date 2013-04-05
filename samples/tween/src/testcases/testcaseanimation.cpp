@@ -64,8 +64,8 @@ void TestCaseAnimation::setEase(int easeIndex)
 	GTweenEaseType ease = getEase(easeIndex)->ease;
 	GTween & tween = GTweenList::getInstance()->to(duration)
 		.ease(ease)
-		.tween(createInstanceAccessor(&this->sprite, &Sprite::getX, &Sprite::setX), endX)
-		.tween(createInstanceAccessor(&this->sprite, &Sprite::getY, &Sprite::setY), endY)
+		.tween(createAccessor(&this->sprite, &Sprite::getX, &Sprite::setX), endX)
+		.tween(createAccessor(&this->sprite, &Sprite::getY, &Sprite::setY), endY)
 	;
 }
 

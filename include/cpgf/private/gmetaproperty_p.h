@@ -26,10 +26,10 @@ namespace cpgf {
 namespace meta_internal {
 
 template <typename Getter, typename Policy>
-class GMetaGetter : public GGetter <Getter, Policy>
+class GMetaGetter : public GInstanceGetter <Getter, Policy>
 {
 private:
-	typedef GGetter <Getter, Policy> super;
+	typedef GInstanceGetter <Getter, Policy> super;
 
 public:
 	GMetaGetter(const Getter & getter) : super(getter) {
@@ -48,10 +48,10 @@ public:
 
 
 template <typename Setter, typename Policy>
-class GMetaSetter : public GSetter <Setter, Policy>
+class GMetaSetter : public GInstanceSetter <Setter, Policy>
 {
 private:
-	typedef GSetter <Setter, Policy> super;
+	typedef GInstanceSetter <Setter, Policy> super;
 
 public:
 	GMetaSetter(const Setter & setter) : super(setter) {
