@@ -17,6 +17,7 @@ void ToolPanel::onTestTypeSelected( wxCommandEvent& event )
 }
 
 TestCasePtr createTestCaseAnimation();
+TestCasePtr createTestCaseFollow();
 TestCasePtr createTestCaseChart();
 TestCasePtr createTestCaseAllCharts();
 
@@ -30,10 +31,14 @@ void ToolPanel::doOnTestTypeSelected()
 			break;
 
 		case 1:
-			testCase = createTestCaseChart();
+			testCase = createTestCaseFollow();
 			break;
 
 		case 2:
+			testCase = createTestCaseChart();
+			break;
+
+		case 3:
 			testCase = createTestCaseAllCharts();
 			break;
 	}

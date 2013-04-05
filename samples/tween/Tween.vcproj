@@ -257,6 +257,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\testcases\testcasefollow.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\testcases\testcaseutil.cpp"
 					>
 				</File>

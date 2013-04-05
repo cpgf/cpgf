@@ -107,6 +107,90 @@ private:
 	ValueType change;
 };
 
+
+template <typename AccessorType, typename TargetGetterType>
+class GTweenFollowItem : public GTweenItemBase
+{
+private:
+	typedef GTweenItemBase super;
+	typedef typename AccessorType::ValueType ValueType;
+	typedef typename TargetGetterType::ValueType TargetValueType;
+	typedef GTweenFollowItem<AccessorType, TargetGetterType> ThisType;
+
+private:
+	static void virtualDeleteSelf(void * self) {
+		delete static_cast<ThisType *>(self);
+	}
+	
+	static void virtualTick(void * self, GTweenEaseParam * param, const GTweenEaseType & ease) {
+		static_cast<ThisType *>(self)->doTick(param, ease);
+	}
+
+	static void virtualReverse(void * self) {
+		static_cast<ThisType *>(self)->doReverse();
+	}
+
+	static void virtualRewind(void * self) {
+		static_cast<ThisType *>(self)->doRewind();
+	}
+
+	static const void * virtualGetInstance(void * self) {
+		return static_cast<ThisType *>(self)->doGetInstance();
+	}
+
+public:
+	GTweenFollowItem(const AccessorType & accessor, const TargetGetterType & TargetGetter)
+		: super(), accessor(accessor), from(accessor()), TargetGetter(TargetGetter), reversed(false)
+	{
+		static GTweenItemVirtual thisFunctions = {
+			&virtualDeleteSelf,
+			&virtualTick,
+			&virtualReverse,
+			&virtualRewind,
+			&virtualGetInstance
+		};
+		this->virtualFunctions = &thisFunctions;
+	}
+
+protected:
+	void doTick(GTweenEaseParam * param, const GTweenEaseType & ease) {
+		GTweenNumber ratio = ease(param);
+		ValueType value;
+		if(this->reversed) {
+			value = (ValueType)((ValueType)(this->TargetGetter()) + (this->from - (ValueType)(this->TargetGetter())) * ratio);
+		}
+		else {
+			value = (ValueType)(this->from + ((ValueType)(this->TargetGetter()) - this->from) * ratio);
+		}
+		this->accessor(value);
+	}
+
+	void doReverse() {
+		this->reversed = ! this->reversed;
+		this->doRewind();
+	}
+
+	void doRewind() {
+		if(this->reversed) {
+			this->accessor(this->TargetGetter());
+		}
+		else {
+			this->accessor(this->from);
+		}
+	}
+
+	const void * doGetInstance() {
+		return this->accessor.getInstance();
+	}
+
+private:
+	AccessorType accessor;
+	ValueType from;
+	TargetGetterType TargetGetter;
+	bool reversed;
+};
+
+
 } // namespace tween_internal
 
 
@@ -139,6 +223,13 @@ public:
 	GTween & tween(const AccessorType & accessor, const typename AccessorType::ValueType & target)
 	{
 		this->itemList.push_back(new tween_internal::GTweenItem<AccessorType>(accessor, target));
+		return *this;
+	}
+
+	template <typename AccessorType, typename TargetGetterType>
+	GTween & follow(const AccessorType & accessor, const TargetGetterType & TargetGetter)
+	{
+		this->itemList.push_back(new tween_internal::GTweenFollowItem<AccessorType, TargetGetterType>(accessor, TargetGetter));
 		return *this;
 	}
 

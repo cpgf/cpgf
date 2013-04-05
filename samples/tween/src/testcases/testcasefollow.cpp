@@ -18,10 +18,10 @@
 
 using namespace cpgf;
 
-class TestCaseAnimation : public TestCase
+class TestCaseFollow : public TestCase
 {
 public:
-	TestCaseAnimation();
+	TestCaseFollow();
 
 	virtual void render(int viewWidth, int viewHeight);
 	virtual void setEase(int easeIndex);
@@ -31,6 +31,7 @@ private:
 
 private:
 	Sprite sprite;
+	Sprite target;
 };
 
 const int startX = 150;
@@ -39,24 +40,25 @@ const int startY = endX;
 const int endY = startX;
 const int duration = 2000;
 
-TestCasePtr createTestCaseAnimation()
+TestCasePtr createTestCaseFollow()
 {
-	return TestCasePtr(new TestCaseAnimation);
+	return TestCasePtr(new TestCaseFollow);
 }
 
-TestCaseAnimation::TestCaseAnimation()
+TestCaseFollow::TestCaseFollow()
 {
 	this->reset();
 }
 
-void TestCaseAnimation::render(int viewWidth, int viewHeight)
+void TestCaseFollow::render(int viewWidth, int viewHeight)
 {
     glEnable(GL_LIGHTING);
 
 	this->sprite.render(viewWidth, viewHeight);
+	this->target.render(viewWidth, viewHeight);
 }
 
-void TestCaseAnimation::setEase(int easeIndex)
+void TestCaseFollow::setEase(int easeIndex)
 {
 	GTweenList::getInstance()->clear();
 	this->reset();
@@ -64,12 +66,16 @@ void TestCaseAnimation::setEase(int easeIndex)
 	GTweenEaseType ease = getEase(easeIndex)->ease;
 	GTween & tween = GTweenList::getInstance()->to(duration)
 		.ease(ease)
-		.tween(createInstanceAccessor(&this->sprite, &Sprite::getX, &Sprite::setX), endX)
-		.tween(createInstanceAccessor(&this->sprite, &Sprite::getY, &Sprite::setY), endY)
+		.follow(createInstanceAccessor(&this->sprite, &Sprite::getX, &Sprite::setX), createInstanceGetter(&this->target, &Sprite::getX))
+		.follow(createInstanceAccessor(&this->sprite, &Sprite::getY, &Sprite::setY), createInstanceGetter(&this->target, &Sprite::getY))
+	;
+
+	GTween & tween2 = GTweenList::getInstance()->to(duration)
+		.tween(createInstanceAccessor(&this->target, &Sprite::getX, &Sprite::setX), endX)
 	;
 }
 
-void TestCaseAnimation::reset()
+void TestCaseFollow::reset()
 {
 	this->sprite.setX(startX);
 	this->sprite.setY(startY);
@@ -77,5 +83,12 @@ void TestCaseAnimation::reset()
 	this->sprite.setAlpha(1.0f);
 	this->sprite.setSize(60);
 	this->sprite.setColor(0x7777ff);
+
+	this->target.setX(startX);
+	this->target.setY(endY);
+	this->target.setZ(0);
+	this->target.setAlpha(1.0f);
+	this->target.setSize(60);
+	this->target.setColor(0xff7777);
 }
 

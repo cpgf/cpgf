@@ -57,8 +57,6 @@ void TestCaseChart::render(int viewWidth, int viewHeight)
 		return;
 	}
 
-    glDisable(GL_LIGHT0);
-    glDisable(GL_LIGHT1);
     glDisable(GL_LIGHTING);
 
 	glColor3f(0.8f, 0.8f, 0.8f);

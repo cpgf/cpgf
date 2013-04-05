@@ -78,8 +78,6 @@ void drawString(const char * str)
 
 void TestCaseAllCharts::render(int viewWidth, int viewHeight)
 {
-    glDisable(GL_LIGHT0);
-    glDisable(GL_LIGHT1);
     glDisable(GL_LIGHTING);
 
 	const int easeCount = getEaseCount();

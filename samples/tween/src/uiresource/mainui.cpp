@@ -26,7 +26,7 @@ ToolPanelRes::ToolPanelRes( wxWindow* parent, wxWindowID id, const wxPoint& pos,
 	wxBoxSizer* bSizer1;
 	bSizer1 = new wxBoxSizer( wxHORIZONTAL );
 	
-	wxString choiceTestTypeChoices[] = { wxT("Animation"), wxT("Chart"), wxT("All Charts") };
+	wxString choiceTestTypeChoices[] = { wxT("Animation"), wxT("Follow"), wxT("Chart"), wxT("All Charts") };
 	int choiceTestTypeNChoices = sizeof( choiceTestTypeChoices ) / sizeof( wxString );
 	choiceTestType = new wxChoice( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, choiceTestTypeNChoices, choiceTestTypeChoices, 0 );
 	choiceTestType->SetSelection( 0 );
