@@ -25,9 +25,7 @@ public:
 
 	virtual void render(int viewWidth, int viewHeight);
 	virtual void setEase(int easeIndex);
-
-private:
-	void reset();
+	virtual void reset();
 
 private:
 	Sprite sprite;
@@ -60,7 +58,6 @@ void TestCaseFollow::render(int viewWidth, int viewHeight)
 
 void TestCaseFollow::setEase(int easeIndex)
 {
-	GTweenList::getInstance()->clear();
 	this->reset();
 
 	GTweenEaseType ease = getEase(easeIndex)->ease;
@@ -77,6 +74,8 @@ void TestCaseFollow::setEase(int easeIndex)
 
 void TestCaseFollow::reset()
 {
+	GTweenList::getInstance()->clear();
+
 	this->sprite.setX(startX);
 	this->sprite.setY(startY);
 	this->sprite.setZ(0);

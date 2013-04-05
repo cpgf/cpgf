@@ -11,6 +11,8 @@
 #include "cpgf/tween/gtweenlist.h"
 #include "cpgf/accessor/gaccessor.h"
 
+#include "wx/log.h"
+
 #if defined(_WIN32)
     #include <windows.h>
 #endif
@@ -25,12 +27,11 @@ public:
 
 	virtual void render(int viewWidth, int viewHeight);
 	virtual void setEase(int easeIndex);
-
-private:
-	void reset();
+	virtual void reset();
 
 private:
 	Sprite sprite;
+	Sprite target;
 };
 
 const int startX = 150;
@@ -54,11 +55,19 @@ void TestCaseAnimation::render(int viewWidth, int viewHeight)
     glEnable(GL_LIGHTING);
 
 	this->sprite.render(viewWidth, viewHeight);
+	this->target.render(viewWidth, viewHeight);
 }
+
+struct OnComplete
+{
+	OnComplete() {}
+	void operator() () const {
+		wxLogDebug("Tween complete");
+	}
+};
 
 void TestCaseAnimation::setEase(int easeIndex)
 {
-	GTweenList::getInstance()->clear();
 	this->reset();
 
 	GTweenEaseType ease = getEase(easeIndex)->ease;
@@ -66,16 +75,26 @@ void TestCaseAnimation::setEase(int easeIndex)
 		.ease(ease)
 		.tween(createAccessor(&this->sprite, &Sprite::getX, &Sprite::setX), endX)
 		.tween(createAccessor(&this->sprite, &Sprite::getY, &Sprite::setY), endY)
+		.onComplete(OnComplete())
 	;
 }
 
 void TestCaseAnimation::reset()
 {
+	GTweenList::getInstance()->clear();
+
 	this->sprite.setX(startX);
 	this->sprite.setY(startY);
 	this->sprite.setZ(0);
 	this->sprite.setAlpha(1.0f);
 	this->sprite.setSize(60);
 	this->sprite.setColor(0x7777ff);
+
+	this->target.setX(endX);
+	this->target.setY(endY);
+	this->target.setZ(0);
+	this->target.setAlpha(0.1f);
+	this->target.setSize(60);
+	this->target.setColor(0x7777ff);
 }
 

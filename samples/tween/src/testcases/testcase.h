@@ -11,6 +11,7 @@ public:
 	virtual bool shouldShowEaseButtons() {
 		return true;
 	}
+	virtual void reset() {}
 };
 
 typedef cpgf::GSharedPointer<TestCase> TestCasePtr;

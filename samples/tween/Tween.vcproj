@@ -118,7 +118,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="E:\SourceCode\CPP\wxWidgets\include"
+				AdditionalIncludeDirectories="E:\SourceCode\CPP\wxWidgets\include;E:\SourceCode\CPP\freeglut\vc\include;./;src/uiresource;src/ui;..\..\include\;src;src/testcases"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -137,9 +137,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Comctl32.lib Rpcrt4.lib wxbase29u.lib wxmsw29u_adv.lib wxmsw29u_aui.lib wxmsw29u_core.lib wxmsw29u_richtext.lib wxpng.lib wxzlib.lib"
+				AdditionalDependencies="Comctl32.lib Rpcrt4.lib wxbase29u.lib wxmsw29u_adv.lib wxmsw29u_aui.lib wxmsw29u_core.lib wxmsw29u_richtext.lib wxmsw29u_gl.lib wxpng.lib wxzlib.lib freeglut.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="E:\SourceCode\CPP\wxWidgets\lib\vc_lib\"
+				AdditionalLibraryDirectories="E:\SourceCode\CPP\freeglut\vc\lib;E:\SourceCode\CPP\wxWidgets\lib\vc_lib\"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"

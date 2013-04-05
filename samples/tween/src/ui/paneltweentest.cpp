@@ -7,6 +7,18 @@
 #include "cpgf/tween/gtweenlist.h"
 #include "cpgf/accessor/gaccessor.h"
 
+#if defined(_WIN32)
+    #include <windows.h>
+#endif
+#include <GL/gl.h>
+#include <GL/glut.h>
+
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4996)
+#endif
+
+
 using namespace cpgf;
 
 PanelTweenTest::PanelTweenTest(wxWindow * parent)
@@ -78,11 +90,35 @@ void PanelTweenTest::setTestCase(const TestCasePtr & testCase)
 	this->Layout();
 }
 
+void drawFrameRate(int frameRate)
+{
+	if(frameRate == 0) {
+		return;
+	}
+
+	char str[100];
+	sprintf(str, "FPS: %d", frameRate);
+
+	glColor4f(0, 1.0f, 0, 0.5f);
+	glPushAttrib(GL_LIGHTING_BIT + GL_CURRENT_BIT);
+	glDisable(GL_LIGHTING);
+	glRasterPos3f(1.8f, 0.05f, 0.0f);
+	int i = 0;
+	while(str[i]) {
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, str[i]);
+		++i;
+	}
+	glEnable(GL_LIGHTING);
+	glPopAttrib();
+}
+
+
 void PanelTweenTest::onRender(int viewWidth, int viewHeight)
 {
 	if(this->testCase) {
 		this->testCase->render(viewWidth, viewHeight);
 	}
+	drawFrameRate(this->timer->getFrameRate());
 }
 
 void PanelTweenTest::onTestCaseChanged(const TestCasePtr & testCase)
@@ -90,9 +126,9 @@ void PanelTweenTest::onTestCaseChanged(const TestCasePtr & testCase)
 	this->setTestCase(testCase);
 }
 
-void PanelTweenTest::onTimer()
+void PanelTweenTest::onTimer(int frameTime)
 {
-	GTweenList::getInstance()->tick((GTweenNumber)FrameTime);
+	GTweenList::getInstance()->tick((GTweenNumber)frameTime);
 
 	this->canvas->Refresh();
 }

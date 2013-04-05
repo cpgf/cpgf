@@ -239,3 +239,13 @@ GTEST(Tween_backward_repeat_yoyo_immediateYoyo)
 	;
 	verify(tween.get(), range(5, 1), range(2, 5), 5, 5, END);
 }
+
+GTEST(Tween_delay_immediateTick)
+{
+	Pointer tween = createTween();
+	tween->delay(3)
+		.immediateTick(true)
+	;
+	verify(tween.get(), 1, 1, 1, range(2, 5), END);
+}
+

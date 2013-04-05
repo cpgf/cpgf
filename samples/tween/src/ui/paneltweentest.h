@@ -35,7 +35,7 @@ private:
 	void onEaseButtonClicked(int easeIndex);
 	void onRender(int viewWidth, int viewHeight);
 	void onTestCaseChanged(const TestCasePtr & testCase);
-	void onTimer();
+	void onTimer(int frameTime);
 	
 private:
 	ToolPanel * toolPanel;

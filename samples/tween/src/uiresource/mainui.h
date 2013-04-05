@@ -15,6 +15,7 @@
 #include <wx/colour.h>
 #include <wx/settings.h>
 #include <wx/choice.h>
+#include <wx/button.h>
 #include <wx/sizer.h>
 #include <wx/panel.h>
 
@@ -46,9 +47,14 @@ class ToolPanelRes : public wxPanel
 	
 	protected:
 		wxChoice* choiceTestType;
+		wxButton* buttonReset;
+		
+		wxButton* buttonBenchmark;
 		
 		// Virtual event handlers, overide them in your derived class
 		virtual void onTestTypeSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onButtonResetClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onButtonBenchmarkClicked( wxCommandEvent& event ) { event.Skip(); }
 		
 	
 	public:

@@ -34,7 +34,7 @@ public:
 	virtual void setEase(int easeIndex);
 
 private:
-	void reset();
+	void clear();
 
 private:
 	ArrayType positions;
@@ -47,7 +47,7 @@ TestCasePtr createTestCaseChart()
 
 TestCaseChart::TestCaseChart()
 {
-	this->reset();
+	this->clear();
 }
 
 void TestCaseChart::render(int viewWidth, int viewHeight)
@@ -66,11 +66,11 @@ void TestCaseChart::render(int viewWidth, int viewHeight)
 
 void TestCaseChart::setEase(int easeIndex)
 {
-	this->reset();
+	this->clear();
 	calculateEaseChartPositions(this->positions, getEase(easeIndex)->ease, 0.3f, 1.7f);
 }
 
-void TestCaseChart::reset()
+void TestCaseChart::clear()
 {
 	this->positions.clear();
 }
