@@ -139,7 +139,7 @@
                     <property name="proportion">0</property>
                     <object class="wxChoice" expanded="1">
                         <property name="bg"></property>
-                        <property name="choices">&quot;Animation&quot; &quot;Follow&quot; &quot;Chart&quot; &quot;All Charts&quot;</property>
+                        <property name="choices">&quot;Animation&quot; &quot;Follow&quot; &quot;Particles&quot; &quot;Chart&quot; &quot;All Charts&quot;</property>
                         <property name="context_help"></property>
                         <property name="context_menu">1</property>
                         <property name="enabled">1</property>

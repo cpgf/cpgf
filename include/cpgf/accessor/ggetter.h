@@ -290,6 +290,53 @@ private:
 };
 
 
+template <typename ValueType>
+class GConstantGetter
+{
+private:
+	typedef const ValueType & PassType;
+
+public:
+	GConstantGetter(ValueType value) : value(value) {
+	}
+	
+	GConstantGetter(const GConstantGetter & other) : value(other.value) {
+	}
+	
+	GConstantGetter & operator = (const GConstantGetter & other) {
+		this->value = other.value;
+		
+		return *this;
+	}
+
+	PassType get() const {
+		return this->value;
+	}
+	
+	PassType operator() () const {
+		return this->get();
+	}
+	
+	operator PassType () const {
+		return this->get();
+	}
+	
+	void * getAddress() const {
+		return NULL;
+	}
+	
+	const void * getInstance() const {
+		return NULL;
+	}
+
+	void setInstance(const void * /*newInstance*/) {
+	}
+	
+private:
+	ValueType value;
+};
+
+
 template <typename RawGetter, typename Policy>
 GInstanceGetter<RawGetter, Policy> createInstanceGetter(const RawGetter & getter, Policy /*policy*/)
 {
@@ -314,6 +361,11 @@ GGetter<RawGetter, GMetaPolicyDefault> createGetter(const void * instance, const
 	return GGetter<RawGetter, GMetaPolicyDefault>(instance, getter);
 }
 
+template <typename ValueType>
+GConstantGetter<ValueType> createConstantGetter(const ValueType & value)
+{
+	return GConstantGetter<ValueType>(value);
+}
 
 
 } // namespace cpgf

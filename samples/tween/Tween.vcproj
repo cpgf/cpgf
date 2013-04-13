@@ -225,6 +225,10 @@
 				Name="cpgf"
 				>
 				<File
+					RelativePath="..\..\src\gexception.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\glifecycle.cpp"
 					>
 				</File>
@@ -258,6 +262,10 @@
 				</File>
 				<File
 					RelativePath=".\src\testcases\testcasefollow.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\testcases\testcaseparticles.cpp"
 					>
 				</File>
 				<File

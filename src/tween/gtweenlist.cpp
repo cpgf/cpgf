@@ -49,7 +49,12 @@ GTween & GTweenList::from(GTweenNumber duration)
 void GTweenList::tick(GTweenNumber frameTime)
 {
 	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end();) {
-		(*it)->tick(frameTime);
+		if((*it)->isUseFrames()) {
+			(*it)->tick(1);
+		}
+		else {
+			(*it)->tick(frameTime);
+		}
 		if((*it)->isCompleted()) {
 			this->tweenPool.free(*it);
 			it = this->tweenList.erase(it);

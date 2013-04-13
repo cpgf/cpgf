@@ -83,6 +83,10 @@ public:
 		this->value &= ~flags;
 	}
 	
+	void toggle(T flags) {
+		this->value ^= flags;
+	}
+	
 	void setByBool(T flags, bool value) {
 		if(value) {
 			this->set(flags);

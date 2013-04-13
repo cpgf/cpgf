@@ -90,6 +90,7 @@ void ToolPanel::onButtonBenchmarkClicked( wxCommandEvent& event )
 
 TestCasePtr createTestCaseAnimation();
 TestCasePtr createTestCaseFollow();
+TestCasePtr createTestCaseParticles();
 TestCasePtr createTestCaseChart();
 TestCasePtr createTestCaseAllCharts();
 
@@ -107,10 +108,14 @@ void ToolPanel::doOnTestTypeSelected()
 			break;
 
 		case 2:
-			testCase = createTestCaseChart();
+			testCase = createTestCaseParticles();
 			break;
 
 		case 3:
+			testCase = createTestCaseChart();
+			break;
+
+		case 4:
 			testCase = createTestCaseAllCharts();
 			break;
 	}

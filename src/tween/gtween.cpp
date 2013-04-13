@@ -16,6 +16,11 @@ void GTweenItemBase::tick(GTweenEaseParam * param, const GTweenEaseType & ease)
 	this->virtualFunctions->tick(this, param, ease);
 }
 
+void GTweenItemBase::init()
+{
+	this->virtualFunctions->init(this);
+}
+
 void GTweenItemBase::reverse()
 {
 	this->virtualFunctions->reverse(this);
@@ -35,7 +40,7 @@ const void * GTweenItemBase::getInstance()
 
 	
 GTween::GTween()
-	: easeCallback(LinearEase::ease()), current(0), total(0), delayTime(0), repeatDelayTime(0), repeatCount(0), flags()
+	: easeCallback(LinearEase::ease()), current(0), total(0), delayTime(0), repeatDelayTime(0), repeatCount(0), cycleCount(0), flags()
 {
 }
 
@@ -52,22 +57,13 @@ void GTween::tick(GTweenNumber frameTime)
 		return;
 	}
 
-	if(this->flags.has(tfUseFrames)) {
-		frameTime = 1;
+	if(this->flags.has(tfPaused)) {
+		return;
 	}
 
-	if(this->delayTime > 0) {
-		if(this->delayTime > frameTime) {
-			this->delayTime -= frameTime;
-			return;
-		}
-		else {
-			frameTime -= this->delayTime;
-			this->delayTime = 0;
-			if(frameTime <= 0) {
-				return;
-			}
-		}
+	this->current += frameTime;
+	if(this->current <= this->delayTime) {
+		return;
 	}
 
 	if(! this->flags.has(tfInited)) {
@@ -75,70 +71,74 @@ void GTween::tick(GTweenNumber frameTime)
 		this->init();
 	}
 
-	if(this->flags.has(tfRewind)) {
-		this->flags.clear(tfRewind);
-		this->rewindAll();
-	}
+	bool shouldFinish = false;
+	bool shouldReverse = false;
+	bool shouldSetValue = true;
+	GTweenNumber t = this->current - this->delayTime;
 
-	if(this->flags.has(tfWaitForStart)) {
-		this->flags.clear(tfWaitForStart);
-		return;
+	if(this->repeatCount == 0) {
+		if(t > this->total) {
+			shouldFinish = true;
+			t = this->total;
+			this->current = t + this->delayTime;
+		}
 	}
-
-	bool finished = false;
-	this->current += frameTime;
-	if(this->current >= this->total) {
-		this->current = this->total;
-		finished = true;
-	}
-
-	GTweenEaseParam param;
-	param.current = this->current;
-	param.total = this->total;
-	for(ListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
-		(*it)->tick(&param, this->easeCallback);
-	}
-
-	if(finished) {
-		if(this->repeatCount >= 0) {
-			--this->repeatCount;
-			if(this->repeatCount <= 0) {
-				this->repeatCount = 0;
-				this->flags.set(tfCompleted);
+	else {
+		GTweenNumber cycleExtra = 0.0f;
+		if(this->cycleCount >= 0) {
+			cycleExtra = this->repeatDelayTime;
+		}
+		GTweenNumber cycleDuration = this->total + cycleExtra;
+		int times = (int)(t / cycleDuration);
+		int ctiimes = times;
+		GTweenNumber remains = t - times * cycleDuration;
+		if(remains > this->total) {
+			return;
+		}
+		if(remains <= 0) {
+			--times;
+			t = this->total;
+		}
+		else {
+			t = remains;
+		}
+		if(times > this->cycleCount) {
+			this->cycleCount = times;
+			if(this->repeatCount < 0) {
 			}
 			else {
-				this->current = 0;
-				if(this->flags.has(tfReverseWhenRepeat)) {
-					this->reverseAll();
+				if(ctiimes > this->repeatCount) {
+					shouldFinish = true;
+					shouldSetValue = false;
 				}
-				else {
-					this->flags.set(tfRewind);
-				}
-				if(this->repeatDelayTime > 0) {
-					this->delayTime = this->repeatDelayTime;
-				}
-				if(! this->flags.has(tfImmediateYoyo)) {
-					this->flags.set(tfWaitForStart);
-				}
+			}
+			if(this->flags.has(tfReverseWhenRepeat)) {
+				shouldReverse = true;
 			}
 		}
 	}
-
-	if(this->isCompleted()) {
+	if(shouldReverse) {
+		this->flags.toggle(tfBackward);
+	}
+	
+	if(this->flags.has(tfBackward)) {
+		t = this->total - t;
+	}
+	
+	if(shouldSetValue) {
+		GTweenEaseParam param;
+		param.current = t;
+		param.total = this->total;
+		for(ListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
+			(*it)->tick(&param, this->easeCallback);
+		}
+	}
+	
+	if(shouldFinish) {
+		this->flags.set(tfCompleted);
 		if(this->callbackOnComplete) {
 			this->callbackOnComplete();
 		}
-	}
-}
-
-void GTween::init()
-{
-	if(! this->flags.has(tfImmediateTick)) {
-		this->flags.set(tfWaitForStart);
-	}
-
-	if(this->flags.has(tfBackward)) {
-		this->reverseAll();
 	}
 }
 
@@ -189,12 +189,6 @@ GTween & GTween::delay(GTweenNumber d)
 	return *this;
 }
 
-GTween & GTween::immediateTick(bool value)
-{
-	this->flags.setByBool(tfImmediateTick, value);
-	return *this;
-}
-
 GTween & GTween::repeat(int repeatCount)
 {
 	this->repeatCount = repeatCount;
@@ -213,26 +207,20 @@ GTween & GTween::yoyo(bool value)
 	return *this;
 }
 
-GTween & GTween::immediateYoyo(bool value)
-{
-	this->flags.setByBool(tfImmediateYoyo, value);
-	return *this;
-}
-
 GTween & GTween::onComplete(const GTweenCallback & value)
 {
 	this->callbackOnComplete = value;
 	return *this;
 }
 
-bool GTween::isRunning() const
+void GTween::pause()
 {
-	return this->flags.has(tfInited);
+	this->flags.set(tfPaused);
 }
 
-bool GTween::isCompleted() const
+void GTween::resume()
 {
-	return this->flags.has(tfCompleted);
+	this->flags.clear(tfPaused);
 }
 
 void GTween::removeOf(const void * instance)
@@ -248,6 +236,13 @@ void GTween::removeOf(const void * instance)
 	}
 	if(this->itemList.empty()) {
 		this->flags.set(tfCompleted);
+	}
+}
+
+void GTween::init()
+{
+	for(ListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
+		(*it)->init();
 	}
 }
 

@@ -89,6 +89,14 @@ public:
 		
 		return *this;
 	}
+	
+	bool canRead() const {
+		return GetterType::Readable;
+	}
+
+	bool canWrite() const {
+		return SetterType::Writable;
+	}
 
 	typename GetterType::PassType get() const {
 		return this->getter.get(this->instance);

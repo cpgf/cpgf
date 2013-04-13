@@ -10,6 +10,7 @@ struct GTweenItemVirtual
 {
 	void (*deleteSelf)(void * self);
 	void (*tick)(void * self, GTweenEaseParam * param, const GTweenEaseType & ease);
+	void (*init)(void * self);
 	void (*reverse)(void * self);
 	void (*rewind)(void * self);
 	const void * (*getInstance)(void * self);
@@ -20,6 +21,7 @@ class GTweenItemBase
 public:
 	void deleteSelf();
 	void tick(GTweenEaseParam * param, const GTweenEaseType & ease);
+	void init();
 	void reverse();
 	void rewind();
 	const void * getInstance();
@@ -45,6 +47,10 @@ private:
 		static_cast<ThisType *>(self)->doTick(param, ease);
 	}
 
+	static void virtualInit(void * self) {
+		static_cast<ThisType *>(self)->doInit();
+	}
+
 	static void virtualReverse(void * self) {
 		static_cast<ThisType *>(self)->doReverse();
 	}
@@ -58,12 +64,13 @@ private:
 	}
 
 public:
-	GTweenItem(const AccessorType & accessor, const ValueType & to)
-		: super(), accessor(accessor), from(accessor()), to(to), change(to - from)
+	GTweenItem(const AccessorType & accessor, const ValueType & from, const ValueType & to)
+		: super(), accessor(accessor), from(from), to(to), change(to - from)
 	{
 		static GTweenItemVirtual thisFunctions = {
 			&virtualDeleteSelf,
 			&virtualTick,
+			&virtualInit,
 			&virtualReverse,
 			&virtualRewind,
 			&virtualGetInstance
@@ -76,6 +83,13 @@ protected:
 		GTweenNumber ratio = ease(param);
 		ValueType value = (ValueType)(this->from + this->change * ratio);
 		this->accessor(value);
+	}
+
+	void doInit() {
+		if(this->accessor.canRead()) {
+			this->from = this->accessor();
+			this->change = this->to - this->from;
+		}
 	}
 
 	void doReverse() {
@@ -119,6 +133,10 @@ private:
 		static_cast<ThisType *>(self)->doTick(param, ease);
 	}
 
+	static void virtualInit(void * self) {
+		static_cast<ThisType *>(self)->doInit();
+	}
+
 	static void virtualReverse(void * self) {
 		static_cast<ThisType *>(self)->doReverse();
 	}
@@ -132,12 +150,13 @@ private:
 	}
 
 public:
-	GTweenFollowItem(const AccessorType & accessor, const TargetGetterType & TargetGetter)
-		: super(), accessor(accessor), from(accessor()), TargetGetter(TargetGetter), reversed(false)
+	GTweenFollowItem(const AccessorType & accessor, const ValueType & from, const TargetGetterType & TargetGetter)
+		: super(), accessor(accessor), from(from), TargetGetter(TargetGetter), reversed(false)
 	{
 		static GTweenItemVirtual thisFunctions = {
 			&virtualDeleteSelf,
 			&virtualTick,
+			&virtualInit,
 			&virtualReverse,
 			&virtualRewind,
 			&virtualGetInstance
@@ -156,6 +175,12 @@ protected:
 			value = (ValueType)(this->from + ((ValueType)(this->TargetGetter()) - this->from) * ratio);
 		}
 		this->accessor(value);
+	}
+
+	void doInit() {
+		if(this->accessor.canRead()) {
+			this->from = this->accessor();
+		}
 	}
 
 	void doReverse() {

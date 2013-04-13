@@ -22,14 +22,12 @@ private:
 
 	enum GTweenFlags {
 		tfInited = 1 << 0,
-		tfCompleted = 1 << 1,
-		tfUseFrames = 1 << 2,
-		tfBackward = 1 << 3,
-		tfReverseWhenRepeat = 1 << 4,
-		tfWaitForStart = 1 << 5,
-		tfImmediateTick = 1 << 6,
-		tfImmediateYoyo = 1 << 7,
-		tfRewind = 1 << 8,
+		tfPaused = 1 << 1,
+		tfCompleted = 1 << 2,
+		tfUseFrames = 1 << 3,
+		tfBackward = 1 << 4,
+		tfReverseWhenRepeat = 1 << 5,
+		tfRewind = 1 << 6,
 	};
 
 public:
@@ -41,14 +39,28 @@ public:
 	template <typename AccessorType>
 	GTween & tween(const AccessorType & accessor, const typename AccessorType::ValueType & target)
 	{
-		this->itemList.push_back(new tween_internal::GTweenItem<AccessorType>(accessor, target));
+		this->itemList.push_back(new tween_internal::GTweenItem<AccessorType>(accessor, accessor(), target));
+		return *this;
+	}
+
+	template <typename AccessorType>
+	GTween & tween(const AccessorType & accessor, const typename AccessorType::ValueType & from, const typename AccessorType::ValueType & target)
+	{
+		this->itemList.push_back(new tween_internal::GTweenItem<AccessorType>(accessor, from, target));
 		return *this;
 	}
 
 	template <typename AccessorType, typename TargetGetterType>
 	GTween & follow(const AccessorType & accessor, const TargetGetterType & TargetGetter)
 	{
-		this->itemList.push_back(new tween_internal::GTweenFollowItem<AccessorType, TargetGetterType>(accessor, TargetGetter));
+		this->itemList.push_back(new tween_internal::GTweenFollowItem<AccessorType, TargetGetterType>(accessor, accessor(), TargetGetter));
+		return *this;
+	}
+
+	template <typename AccessorType, typename TargetGetterType>
+	GTween & follow(const AccessorType & accessor, const typename AccessorType::ValueType & from, const TargetGetterType & TargetGetter)
+	{
+		this->itemList.push_back(new tween_internal::GTweenFollowItem<AccessorType, TargetGetterType>(accessor, from, TargetGetter));
 		return *this;
 	}
 
@@ -57,17 +69,30 @@ public:
 	GTween & backward(bool value);
 	GTween & useFrames(bool value);
 	GTween & delay(GTweenNumber d);
-	GTween & immediateTick(bool value);
 
 	GTween & repeat(int repeatCount);
 	GTween & repeatDelay(GTweenNumber d);
 	GTween & yoyo(bool value);
-	GTween & immediateYoyo(bool value);
 
 	GTween & onComplete(const GTweenCallback & value);
 
-	bool isRunning() const;
-	bool isCompleted() const;
+	void pause();
+	void resume();
+
+	bool isRunning() const
+	{
+		return this->flags.has(tfInited) && ! this->flags.has(tfPaused);
+	}
+
+	bool isCompleted() const
+	{
+		return this->flags.has(tfCompleted);
+	}
+
+	bool isUseFrames() const
+	{
+		return this->flags.has(tfUseFrames);
+	}
 
 	void removeOf(const void * instance);
 
@@ -83,6 +108,7 @@ private:
 	GTweenNumber delayTime;
 	GTweenNumber repeatDelayTime;
 	int repeatCount;
+	int cycleCount;
 
 	ListType itemList;
 	GFlags<GTweenFlags> flags;
