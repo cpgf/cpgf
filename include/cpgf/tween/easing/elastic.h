@@ -8,21 +8,21 @@ namespace cpgf {
 struct ElasticEase
 {
 public:
-	static GTweenEaseType easeIn(GTweenNumber a = 0.0f, GTweenNumber p = 0.0f) {
-		return GTweenEaseType(_easeIn(a, p));
+	static GTweenEaseType easeIn(GTweenNumber amplitude = 0.0f, GTweenNumber period = 0.0f) {
+		return GTweenEaseType(_easeIn(amplitude, period));
 	}
 	
-	static GTweenEaseType easeOut(GTweenNumber a = 0.0f, GTweenNumber p = 0.0f) {
-		return GTweenEaseType(_easeOut(a, p));
+	static GTweenEaseType easeOut(GTweenNumber amplitude = 0.0f, GTweenNumber period = 0.0f) {
+		return GTweenEaseType(_easeOut(amplitude, period));
 	}
 	
-	static GTweenEaseType easeInOut(GTweenNumber a = 0.0f, GTweenNumber p = 0.0f) {
-		return GTweenEaseType(_easeInOut(a, p));
+	static GTweenEaseType easeInOut(GTweenNumber amplitude = 0.0f, GTweenNumber period = 0.0f) {
+		return GTweenEaseType(_easeInOut(amplitude, period));
 	}
 	
 private:
 	struct _easeIn {
-		_easeIn(GTweenNumber a, GTweenNumber p) : a(a), p(p) {}
+		_easeIn(GTweenNumber amplitude, GTweenNumber period) : amplitude(amplitude), period(period) {}
 		
 		GTweenNumber operator() (const GTweenEaseParam * param) const {
 			GTweenNumber s;
@@ -33,8 +33,8 @@ private:
 				return 1.0f;
 			}
 			GTweenNumber t = param->current / param->total;
-			GTweenNumber np = p;
-			GTweenNumber na = a;
+			GTweenNumber np = period;
+			GTweenNumber na = amplitude;
 			if(np == 0.0) {
 				np = param->total * 0.3f;
 			}
@@ -49,12 +49,12 @@ private:
 			return -na * pow(2, 10 * t) * sin((t * param->total - s) * pi2() / np);
 		}
 		
-		GTweenNumber a;
-		GTweenNumber p;
+		GTweenNumber amplitude;
+		GTweenNumber period;
 	};
 	
 	struct _easeOut {
-		_easeOut(GTweenNumber a, GTweenNumber p) : a(a), p(p) {}
+		_easeOut(GTweenNumber amplitude, GTweenNumber period) : amplitude(amplitude), period(period) {}
 		
 		GTweenNumber operator() (const GTweenEaseParam * param) const {
 			GTweenNumber s;
@@ -65,8 +65,8 @@ private:
 				return 1.0f;
 			}
 			GTweenNumber t = param->current / param->total;
-			GTweenNumber np = p;
-			GTweenNumber na = a;
+			GTweenNumber np = period;
+			GTweenNumber na = amplitude;
 			if(np == 0.0) {
 				np = param->total * 0.3f;
 			}
@@ -80,12 +80,12 @@ private:
 			return na * pow(2, -10 * t) * sin((t * param->total - s) * pi2() / np) + 1.0f;
 		}
 		
-		GTweenNumber a;
-		GTweenNumber p;
+		GTweenNumber amplitude;
+		GTweenNumber period;
 	};
 	
 	struct _easeInOut {
-		_easeInOut(GTweenNumber a, GTweenNumber p) : a(a), p(p) {}
+		_easeInOut(GTweenNumber amplitude, GTweenNumber period) : amplitude(amplitude), period(period) {}
 		
 		GTweenNumber operator() (const GTweenEaseParam * param) const {
 			GTweenNumber s;
@@ -96,8 +96,8 @@ private:
 				return 1.0f;
 			}
 			GTweenNumber t = param->current / (param->total * 0.5f);
-			GTweenNumber np = p;
-			GTweenNumber na = a;
+			GTweenNumber np = period;
+			GTweenNumber na = amplitude;
 			if(np == 0.0) {
 				np = param->total * (0.3f * 1.5f);
 			}
@@ -118,8 +118,8 @@ private:
 			}
 		}
 		
-		GTweenNumber a;
-		GTweenNumber p;
+		GTweenNumber amplitude;
+		GTweenNumber period;
 	};
 	
 	static GTweenNumber pi() {

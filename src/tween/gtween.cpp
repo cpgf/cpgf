@@ -225,6 +225,11 @@ GTween & GTween::onComplete(const GTweenCallback & value)
 	return *this;
 }
 
+bool GTween::isRunning() const
+{
+	return this->flags.has(tfInited);
+}
+
 bool GTween::isCompleted() const
 {
 	return this->flags.has(tfCompleted);
