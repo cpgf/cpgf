@@ -6,32 +6,22 @@ namespace cpgf {
 
 namespace tween_internal {
 
-void GTweenItemBase::deleteSelf()
+void GTweenItem::deleteSelf()
 {
 	this->virtualFunctions->deleteSelf(this);
 }
 
-void GTweenItemBase::tick(GTweenEaseParam * param, const GTweenEaseType & ease)
+void GTweenItem::tick(GTweenEaseParam * param, const GTweenEaseType & ease)
 {
 	this->virtualFunctions->tick(this, param, ease);
 }
 
-void GTweenItemBase::init()
+void GTweenItem::init()
 {
 	this->virtualFunctions->init(this);
 }
 
-void GTweenItemBase::reverse()
-{
-	this->virtualFunctions->reverse(this);
-}
-
-void GTweenItemBase::rewind()
-{
-	this->virtualFunctions->rewind(this);
-}
-
-const void * GTweenItemBase::getInstance()
+const void * GTweenItem::getInstance()
 {
 	return this->virtualFunctions->getInstance(this);
 }
@@ -72,7 +62,6 @@ void GTween::tick(GTweenNumber frameTime)
 	}
 
 	bool shouldFinish = false;
-	bool shouldReverse = false;
 	bool shouldSetValue = true;
 	GTweenNumber t = this->current - this->delayTime;
 
@@ -113,18 +102,15 @@ void GTween::tick(GTweenNumber frameTime)
 				}
 			}
 			if(this->flags.has(tfReverseWhenRepeat)) {
-				shouldReverse = true;
+				this->flags.toggle(tfBackward);
 			}
 		}
-	}
-	if(shouldReverse) {
-		this->flags.toggle(tfBackward);
 	}
 	
 	if(this->flags.has(tfBackward)) {
 		t = this->total - t;
 	}
-	
+
 	if(shouldSetValue) {
 		GTweenEaseParam param;
 		param.current = t;
@@ -139,20 +125,6 @@ void GTween::tick(GTweenNumber frameTime)
 		if(this->callbackOnComplete) {
 			this->callbackOnComplete();
 		}
-	}
-}
-
-void GTween::reverseAll()
-{
-	for(ListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
-		(*it)->reverse();
-	}
-}
-
-void GTween::rewindAll()
-{
-	for(ListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
-		(*it)->rewind();
 	}
 }
 

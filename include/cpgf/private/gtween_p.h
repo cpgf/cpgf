@@ -11,19 +11,15 @@ struct GTweenItemVirtual
 	void (*deleteSelf)(void * self);
 	void (*tick)(void * self, GTweenEaseParam * param, const GTweenEaseType & ease);
 	void (*init)(void * self);
-	void (*reverse)(void * self);
-	void (*rewind)(void * self);
 	const void * (*getInstance)(void * self);
 };
 
-class GTweenItemBase
+class GTweenItem
 {
 public:
 	void deleteSelf();
 	void tick(GTweenEaseParam * param, const GTweenEaseType & ease);
 	void init();
-	void reverse();
-	void rewind();
 	const void * getInstance();
 
 protected:
@@ -31,12 +27,12 @@ protected:
 };
 
 template <typename AccessorType>
-class GTweenItem : public GTweenItemBase
+class GTweenTargetItem : public GTweenItem
 {
 private:
-	typedef GTweenItemBase super;
+	typedef GTweenItem super;
 	typedef typename AccessorType::ValueType ValueType;
-	typedef GTweenItem<AccessorType> ThisType;
+	typedef GTweenTargetItem<AccessorType> ThisType;
 
 private:
 	static void virtualDeleteSelf(void * self) {
@@ -51,28 +47,18 @@ private:
 		static_cast<ThisType *>(self)->doInit();
 	}
 
-	static void virtualReverse(void * self) {
-		static_cast<ThisType *>(self)->doReverse();
-	}
-
-	static void virtualRewind(void * self) {
-		static_cast<ThisType *>(self)->doRewind();
-	}
-
 	static const void * virtualGetInstance(void * self) {
 		return static_cast<ThisType *>(self)->doGetInstance();
 	}
 
 public:
-	GTweenItem(const AccessorType & accessor, const ValueType & from, const ValueType & to)
-		: super(), accessor(accessor), from(from), to(to), change(to - from)
+	GTweenTargetItem(const AccessorType & accessor, const ValueType & from, const ValueType & to, bool relative)
+		: super(), accessor(accessor), from(from), to(to), change(to), relative(relative)
 	{
 		static GTweenItemVirtual thisFunctions = {
 			&virtualDeleteSelf,
 			&virtualTick,
 			&virtualInit,
-			&virtualReverse,
-			&virtualRewind,
 			&virtualGetInstance
 		};
 		this->virtualFunctions = &thisFunctions;
@@ -88,19 +74,10 @@ protected:
 	void doInit() {
 		if(this->accessor.canRead()) {
 			this->from = this->accessor();
-			this->change = this->to - this->from;
+			if(! this->relative) {
+				this->change = this->to - this->from;
+			}
 		}
-	}
-
-	void doReverse() {
-		using std::swap;
-		swap(this->from, this->to);
-		this->change = -this->change;
-		this->accessor(this->from);
-	}
-
-	void doRewind() {
-		this->accessor(this->from);
 	}
 
 	const void * doGetInstance() {
@@ -112,14 +89,15 @@ private:
 	ValueType from;
 	ValueType to;
 	ValueType change;
+	bool relative;
 };
 
 
 template <typename AccessorType, typename TargetGetterType>
-class GTweenFollowItem : public GTweenItemBase
+class GTweenFollowItem : public GTweenItem
 {
 private:
-	typedef GTweenItemBase super;
+	typedef GTweenItem super;
 	typedef typename AccessorType::ValueType ValueType;
 	typedef typename TargetGetterType::ValueType TargetValueType;
 	typedef GTweenFollowItem<AccessorType, TargetGetterType> ThisType;
@@ -137,28 +115,18 @@ private:
 		static_cast<ThisType *>(self)->doInit();
 	}
 
-	static void virtualReverse(void * self) {
-		static_cast<ThisType *>(self)->doReverse();
-	}
-
-	static void virtualRewind(void * self) {
-		static_cast<ThisType *>(self)->doRewind();
-	}
-
 	static const void * virtualGetInstance(void * self) {
 		return static_cast<ThisType *>(self)->doGetInstance();
 	}
 
 public:
 	GTweenFollowItem(const AccessorType & accessor, const ValueType & from, const TargetGetterType & TargetGetter)
-		: super(), accessor(accessor), from(from), TargetGetter(TargetGetter), reversed(false)
+		: super(), accessor(accessor), from(from), TargetGetter(TargetGetter)
 	{
 		static GTweenItemVirtual thisFunctions = {
 			&virtualDeleteSelf,
 			&virtualTick,
 			&virtualInit,
-			&virtualReverse,
-			&virtualRewind,
 			&virtualGetInstance
 		};
 		this->virtualFunctions = &thisFunctions;
@@ -167,33 +135,13 @@ public:
 protected:
 	void doTick(GTweenEaseParam * param, const GTweenEaseType & ease) {
 		GTweenNumber ratio = ease(param);
-		ValueType value;
-		if(this->reversed) {
-			value = (ValueType)((ValueType)(this->TargetGetter()) + (this->from - (ValueType)(this->TargetGetter())) * ratio);
-		}
-		else {
-			value = (ValueType)(this->from + ((ValueType)(this->TargetGetter()) - this->from) * ratio);
-		}
+		ValueType value = (ValueType)(this->from + ((ValueType)(this->TargetGetter()) - this->from) * ratio);
 		this->accessor(value);
 	}
 
 	void doInit() {
 		if(this->accessor.canRead()) {
 			this->from = this->accessor();
-		}
-	}
-
-	void doReverse() {
-		this->reversed = ! this->reversed;
-		this->doRewind();
-	}
-
-	void doRewind() {
-		if(this->reversed) {
-			this->accessor(this->TargetGetter());
-		}
-		else {
-			this->accessor(this->from);
 		}
 	}
 
@@ -205,7 +153,6 @@ private:
 	AccessorType accessor;
 	ValueType from;
 	TargetGetterType TargetGetter;
-	bool reversed;
 };
 
 

@@ -65,7 +65,7 @@ void TestCaseParticles::render(int viewWidth, int viewHeight)
 
     glDisable(GL_LIGHTING);
 
-	glColor3f(0.8f, 0.8f, 0.8f);
+	glColor3f(0.0f, 1.0f, 0.0f);
 	glVertexPointer(2, GL_FLOAT, 0, &this->particles[0]);
 	glDrawArrays(GL_LINES, 0, count / 2);
 }
@@ -90,7 +90,7 @@ void TestCaseParticles::setEase(int easeIndex)
 	GTweenEaseType ease = getEase(easeIndex)->ease;
 	GTween & tween = GTweenList::getInstance()->to(duration)
 		.ease(ease)
-		.tween(createAccessor(this, 0, &TestCaseParticles::setRatio), 0.0f, 1.0f)
+		.target(createAccessor(this, 0, &TestCaseParticles::setRatio), 0.0f, 1.0f)
 	;
 }
 
@@ -98,25 +98,28 @@ void TestCaseParticles::reset()
 {
 	GTweenList::getInstance()->clear();
 
-	if(this->particles.size() == 0) {
-		float spaceX = 2.0f / (particleCountInRow + 1);
-		float spaceY = 2.0f / (particleCountInColumn + 1);
+	const float marginX = 0.1f;
+	const float marginY = 0.1f;
+	const float spaceX = (2.0f - marginX * 2) / (particleCountInRow - 1);
+	const float spaceY = (2.0f - marginY * 2) / (particleCountInColumn - 1);
 
-		for(int c = 0; c < particleCountInColumn; ++c) {
-			for(int r = 0; r < particleCountInRow; ++r) {
-				float x = spaceX * (r + 1);
-				float y = spaceY * (c + 1);
-				
-				this->fromTo.push_back(x);
-				this->fromTo.push_back(y);
-				this->fromTo.push_back(1.0f);
-				this->fromTo.push_back(1.0f);
+	this->fromTo.clear();
+	this->particles.clear();
 
-				this->particles.push_back(x);
-				this->particles.push_back(y);
-				this->particles.push_back(x + xOffset);
-				this->particles.push_back(y + yOffset);
-			}
+	for(int c = 0; c < particleCountInColumn; ++c) {
+		for(int r = 0; r < particleCountInRow; ++r) {
+			float x = marginX + spaceX * r;
+			float y = marginY + spaceY * c;
+			
+			this->fromTo.push_back(x);
+			this->fromTo.push_back(y);
+			this->fromTo.push_back(1.0f);
+			this->fromTo.push_back(1.0f);
+
+			this->particles.push_back(x);
+			this->particles.push_back(y);
+			this->particles.push_back(x + xOffset);
+			this->particles.push_back(y + yOffset);
 		}
 	}
 }

@@ -68,7 +68,7 @@ void TestCaseFollow::setEase(int easeIndex)
 	;
 
 	GTween & tween2 = GTweenList::getInstance()->to(duration)
-		.tween(createAccessor(&this->target, &Sprite::getX, &Sprite::setX), endX)
+		.target(createAccessor(&this->target, &Sprite::getX, &Sprite::setX), endX)
 	;
 }
 

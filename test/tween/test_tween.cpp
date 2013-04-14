@@ -28,7 +28,21 @@ Pointer createTween()
 	Pointer tween(new GTween);
 	
 	x = 1;
-	tween->tween(createAccessor(NULL, &x, &x), 5)
+	tween->target(createAccessor(NULL, &x, &x), 5)
+		.ease(LinearEase::ease())
+		.duration(4)
+		.useFrames(true)
+	;
+	
+	return tween;
+}
+
+Pointer createRelativeTween()
+{
+	Pointer tween(new GTween);
+	
+	x = 1;
+	tween->relative(createAccessor(NULL, &x, &x), 4)
 		.ease(LinearEase::ease())
 		.duration(4)
 		.useFrames(true)
@@ -114,11 +128,18 @@ GTEST(Tween_default)
 {
 	Pointer tween = createTween();
 	verify(tween.get(), range(2, 5), 5, END);
+	
+	tween = createRelativeTween();
+	verify(tween.get(), range(2, 5), 5, END);
 }
 
 GTEST(Tween_backward)
 {
 	Pointer tween = createTween();
+	tween->backward(true);
+	verify(tween.get(), range(4, 1), END);
+
+	tween = createRelativeTween();
 	tween->backward(true);
 	verify(tween.get(), range(4, 1), END);
 }
@@ -128,6 +149,10 @@ GTEST(Tween_delay)
 	Pointer tween = createTween();
 	tween->delay(3);
 	verify(tween.get(), 1, 1, 1, range(2, 5), END);
+
+	tween = createRelativeTween();
+	tween->delay(3);
+	verify(tween.get(), 1, 1, 1, range(2, 5), END);
 }
 
 GTEST(Tween_repeat)
@@ -135,11 +160,21 @@ GTEST(Tween_repeat)
 	Pointer tween = createTween();
 	tween->repeat(1);
 	verify(tween.get(), range(2, 5), range(2, 5), 5, 5, END);
+
+	tween = createRelativeTween();
+	tween->repeat(1);
+	verify(tween.get(), range(2, 5), range(2, 5), 5, 5, END);
 }
 
 GTEST(Tween_repeat_repeatDelay)
 {
 	Pointer tween = createTween();
+	tween->repeat(2)
+		.repeatDelay(2)
+	;
+	verify(tween.get(), range(2, 5), 5, 5, range(2, 5), 5, 5, END);
+
+	tween = createRelativeTween();
 	tween->repeat(2)
 		.repeatDelay(2)
 	;
@@ -153,6 +188,12 @@ GTEST(Tween_repeat_yoyo)
 		.yoyo(true)
 	;
 	verify(tween.get(), range(2, 5), range(4, 1), 1, 1, END);
+
+	tween = createRelativeTween();
+	tween->repeat(1)
+		.yoyo(true)
+	;
+	verify(tween.get(), range(2, 5), range(4, 1), 1, 1, END);
 }
 
 GTEST(Tween_repeat_infinitely)
@@ -160,11 +201,21 @@ GTEST(Tween_repeat_infinitely)
 	Pointer tween = createTween();
 	tween->repeat(-1);
 	verify(tween.get(), range(2, 5), range(2, 5), range(2, 5), range(2, 5), range(2, 5), range(2, 5), END);
+
+	tween = createRelativeTween();
+	tween->repeat(-1);
+	verify(tween.get(), range(2, 5), range(2, 5), range(2, 5), range(2, 5), range(2, 5), range(2, 5), END);
 }
 
 GTEST(Tween_backward_delay)
 {
 	Pointer tween = createTween();
+	tween->backward(true)
+		.delay(2)
+	;
+	verify(tween.get(), 1, 1, range(4, 1), END);
+
+	tween = createRelativeTween();
 	tween->backward(true)
 		.delay(2)
 	;
@@ -178,11 +229,24 @@ GTEST(Tween_backward_repeat)
 		.repeat(1)
 	;
 	verify(tween.get(), range(4, 1), range(4, 1), 1, 1, END);
+
+	tween = createRelativeTween();
+	tween->backward(true)
+		.repeat(1)
+	;
+	verify(tween.get(), range(4, 1), range(4, 1), 1, 1, END);
 }
 
 GTEST(Tween_backward_repeat_repleatDelay)
 {
 	Pointer tween = createTween();
+	tween->backward(true)
+		.repeat(1)
+		.repeatDelay(2)
+	;
+	verify(tween.get(), range(4, 1), 1, 1, range(4, 1), 1, 1, END);
+
+	tween = createRelativeTween();
 	tween->backward(true)
 		.repeat(1)
 		.repeatDelay(2)
@@ -198,6 +262,12 @@ GTEST(Tween_backward_repeat_yoyo)
 		.yoyo(true)
 	;
 	verify(tween.get(), range(4, 1), range(2, 5), 5, 5, END);
-}
 
+	tween = createRelativeTween();
+	tween->backward(true)
+		.repeat(1)
+		.yoyo(true)
+	;
+	verify(tween.get(), range(4, 1), range(2, 5), 5, 5, END);
+}
 

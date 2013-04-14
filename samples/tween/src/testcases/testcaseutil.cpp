@@ -16,7 +16,7 @@ void calculateEaseChartPositions(std::vector<float> & positions, const GTweenEas
 	float y = start;
 
 	GTween tweenY;
-	tweenY.tween(createAccessor(NULL, &y, &y), end)
+	tweenY.target(createAccessor(NULL, &y, &y), end)
 		.ease(ease)
 		.duration((float)steps)
 		.useFrames(true)

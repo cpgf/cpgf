@@ -18,7 +18,7 @@ typedef GCallback<void ()> GTweenCallback;
 class GTween : public GNoncopyable
 {
 private:
-	typedef GWiseList<tween_internal::GTweenItemBase *> ListType;
+	typedef GWiseList<tween_internal::GTweenItem *> ListType;
 
 	enum GTweenFlags {
 		tfInited = 1 << 0,
@@ -27,7 +27,6 @@ private:
 		tfUseFrames = 1 << 3,
 		tfBackward = 1 << 4,
 		tfReverseWhenRepeat = 1 << 5,
-		tfRewind = 1 << 6,
 	};
 
 public:
@@ -37,16 +36,30 @@ public:
 	void tick(GTweenNumber frameTime);
 
 	template <typename AccessorType>
-	GTween & tween(const AccessorType & accessor, const typename AccessorType::ValueType & target)
+	GTween & target(const AccessorType & accessor, const typename AccessorType::ValueType & target)
 	{
-		this->itemList.push_back(new tween_internal::GTweenItem<AccessorType>(accessor, accessor(), target));
+		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, accessor(), target, false));
 		return *this;
 	}
 
 	template <typename AccessorType>
-	GTween & tween(const AccessorType & accessor, const typename AccessorType::ValueType & from, const typename AccessorType::ValueType & target)
+	GTween & target(const AccessorType & accessor, const typename AccessorType::ValueType & from, const typename AccessorType::ValueType & target)
 	{
-		this->itemList.push_back(new tween_internal::GTweenItem<AccessorType>(accessor, from, target));
+		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, from, target, false));
+		return *this;
+	}
+
+	template <typename AccessorType>
+	GTween & relative(const AccessorType & accessor, const typename AccessorType::ValueType & target)
+	{
+		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, accessor(), target, true));
+		return *this;
+	}
+
+	template <typename AccessorType>
+	GTween & relative(const AccessorType & accessor, const typename AccessorType::ValueType & from, const typename AccessorType::ValueType & target)
+	{
+		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, from, target, true));
 		return *this;
 	}
 
@@ -98,8 +111,6 @@ public:
 
 private:
 	void init();
-	void reverseAll();
-	void rewindAll();
 
 private:
 	GTweenEaseType easeCallback;
