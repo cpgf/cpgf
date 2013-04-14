@@ -1,39 +1,26 @@
 #ifndef __GTWEEN_H
 #define __GTWEEN_H
 
-#include "cpgf/tween/gtweeneaseparam.h"
+#include "cpgf/tween/gtweencommon.h"
 #include "cpgf/private/gtween_p.h"
 #include "cpgf/gcontainer.h"
-#include "cpgf/gflags.h"
-#include "cpgf/gclassutil.h"
 
 #include <algorithm>
-
 
 namespace cpgf {
 
 
-typedef GCallback<void ()> GTweenCallback;
-
-class GTween : public GNoncopyable
+class GTween : public GTweenable
 {
 private:
+	typedef GTweenable super;
 	typedef GWiseList<tween_internal::GTweenItem *> ListType;
-
-	enum GTweenFlags {
-		tfInited = 1 << 0,
-		tfPaused = 1 << 1,
-		tfCompleted = 1 << 2,
-		tfUseFrames = 1 << 3,
-		tfBackward = 1 << 4,
-		tfReverseWhenRepeat = 1 << 5,
-	};
 
 public:
 	GTween();
 	~GTween();
 
-	void tick(GTweenNumber frameTime);
+	virtual bool removeOf(const void * instance);
 
 	template <typename AccessorType>
 	GTween & target(const AccessorType & accessor, const typename AccessorType::ValueType & target)
@@ -78,53 +65,33 @@ public:
 	}
 
 	GTween & ease(const GTweenEaseType & ease);
-	GTween & duration(GTweenNumber total);
+	GTween & duration(GTweenNumber durationTime);
 	GTween & backward(bool value);
 	GTween & useFrames(bool value);
-	GTween & delay(GTweenNumber d);
+	GTween & delay(GTweenNumber value);
 
 	GTween & repeat(int repeatCount);
-	GTween & repeatDelay(GTweenNumber d);
+	GTween & repeatDelay(GTweenNumber value);
 	GTween & yoyo(bool value);
 
 	GTween & onComplete(const GTweenCallback & value);
-
-	void pause();
-	void resume();
 
 	bool isRunning() const
 	{
 		return this->flags.has(tfInited) && ! this->flags.has(tfPaused);
 	}
 
-	bool isCompleted() const
-	{
-		return this->flags.has(tfCompleted);
-	}
-
-	bool isUseFrames() const
-	{
-		return this->flags.has(tfUseFrames);
-	}
-
-	void removeOf(const void * instance);
+protected:
+	virtual void performTime(GTweenNumber frameTime);
 
 private:
 	void init();
 
 private:
 	GTweenEaseType easeCallback;
-	GTweenNumber current;
-	GTweenNumber total;
-	GTweenNumber delayTime;
-	GTweenNumber repeatDelayTime;
-	int repeatCount;
-	int cycleCount;
+	GTweenNumber durationTime;
 
 	ListType itemList;
-	GFlags<GTweenFlags> flags;
-
-	GTweenCallback callbackOnComplete;
 };
 
 

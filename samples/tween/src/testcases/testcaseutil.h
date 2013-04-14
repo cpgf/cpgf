@@ -1,7 +1,7 @@
 #ifndef __TESTCASEUTIL_H
 #define __TESTCASEUTIL_H
 
-#include "cpgf/tween/gtweeneaseparam.h"
+#include "cpgf/tween/gtweencommon.h"
 
 #include <vector>
 

@@ -11,10 +11,19 @@
 namespace cpgf {
 
 
-class GTweenList
+class GTweenList : public GTweenable
 {
 private:
-	typedef std::list<GTween *> ListType;
+	typedef GTweenable super;
+
+protected:
+	struct TweenData
+	{
+		GTweenNumber startTime;
+		GTweenable * tween;
+	};
+
+	typedef std::list<TweenData> ListType;
 
 public:
 	static GTweenList * getInstance();
@@ -25,7 +34,7 @@ public:
 
 	// Return pointer instead of reference because reference maybe wrongly copied.
 	GTween & createTween();
-	
+
 	GTween & to(GTweenNumber duration);
 	GTween & from(GTweenNumber duration);
 
@@ -39,10 +48,16 @@ public:
 		return this->from(duration).target(accessor, target);
 	}
 
-	void tick(GTweenNumber frameTime);
-
-	void removeTweenOf(const void * instance);
 	void clear();
+
+public:
+	virtual bool removeOf(const void * instance);
+
+protected:
+	virtual void performTime(GTweenNumber frameTime);
+
+protected:
+	void freeTween(GTweenable * tween);
 
 private:
 	ListType tweenList;

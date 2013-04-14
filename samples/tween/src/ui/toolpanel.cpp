@@ -38,22 +38,16 @@ void benchmarkTweens()
 
 	int easeCount = getEaseCount();
 	vector<GTween *> tweens;
-	vector<float> values[3];
 	GTweenList::getInstance()->clear();
 	float x = 0;
 
-	for(int i = 0; i < easeCount; ++i) {
-		for(int k = 0; k < 3; ++k) {
-			values[k].push_back(0);
-		}
-	}
 	for(int i = 0; i < easeCount; ++i) {
 		GTween * tween = &GTweenList::getInstance()->to((float)duration);
 		tweens.push_back(tween);
 		tween->repeat(2);
 		tween->useFrames(true);
 		for(int k = 0; k < 3; ++k) {
-			tween->target(createAccessor(NULL, &values[k][i], &values[k][i]), (float)target);
+			tween->target(createAccessor(NULL, &x, &x), (float)target);
 		}
 	}
 
@@ -63,6 +57,7 @@ void benchmarkTweens()
 			tweens[k]->tick(1);
 		}
 	}
+
 	wxLongLong end = wxGetLocalTimeMillis();
 
 	int dt = (int)((end - start).ToLong());

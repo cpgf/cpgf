@@ -30,7 +30,7 @@ const void * GTweenItem::getInstance()
 
 	
 GTween::GTween()
-	: easeCallback(LinearEase::ease()), current(0), total(0), delayTime(0), repeatDelayTime(0), repeatCount(0), cycleCount(0), flags()
+	: easeCallback(LinearEase::ease()), durationTime(0)
 {
 }
 
@@ -41,21 +41,26 @@ GTween::~GTween()
 	}
 }
 
-void GTween::tick(GTweenNumber frameTime)
+bool GTween::removeOf(const void * instance)
 {
-	if(this->isCompleted()) {
-		return;
+	for(ListType::iterator it = this->itemList.begin(); it != this->itemList.end();) {
+		if((*it)->getInstance() == instance) {
+			(*it)->deleteSelf();
+			it = this->itemList.erase(it);
+		}
+		else {
+			++it;
+		}
+	}
+	if(this->itemList.empty()) {
+		this->flags.set(tfCompleted);
 	}
 
-	if(this->flags.has(tfPaused)) {
-		return;
-	}
+	return this->isCompleted();
+}
 
-	this->current += frameTime;
-	if(this->current <= this->delayTime) {
-		return;
-	}
-
+void GTween::performTime(GTweenNumber frameTime)
+{
 	if(! this->flags.has(tfInited)) {
 		this->flags.set(tfInited);
 		this->init();
@@ -63,13 +68,13 @@ void GTween::tick(GTweenNumber frameTime)
 
 	bool shouldFinish = false;
 	bool shouldSetValue = true;
-	GTweenNumber t = this->current - this->delayTime;
+	GTweenNumber t = this->current;
 
 	if(this->repeatCount == 0) {
-		if(t > this->total) {
+		if(t > this->durationTime) {
 			shouldFinish = true;
-			t = this->total;
-			this->current = t + this->delayTime;
+			t = this->durationTime;
+			this->current = t;
 		}
 	}
 	else {
@@ -77,16 +82,16 @@ void GTween::tick(GTweenNumber frameTime)
 		if(this->cycleCount >= 0) {
 			cycleExtra = this->repeatDelayTime;
 		}
-		GTweenNumber cycleDuration = this->total + cycleExtra;
+		GTweenNumber cycleDuration = this->durationTime + cycleExtra;
 		int times = (int)(t / cycleDuration);
 		int ctiimes = times;
 		GTweenNumber remains = t - times * cycleDuration;
-		if(remains > this->total) {
+		if(remains > this->durationTime) {
 			return;
 		}
 		if(remains <= 0) {
 			--times;
-			t = this->total;
+			t = this->durationTime;
 		}
 		else {
 			t = remains;
@@ -106,25 +111,22 @@ void GTween::tick(GTweenNumber frameTime)
 			}
 		}
 	}
-	
+
 	if(this->flags.has(tfBackward)) {
-		t = this->total - t;
+		t = this->durationTime - t;
 	}
 
 	if(shouldSetValue) {
 		GTweenEaseParam param;
 		param.current = t;
-		param.total = this->total;
+		param.total = this->durationTime;
 		for(ListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
 			(*it)->tick(&param, this->easeCallback);
 		}
 	}
 	
 	if(shouldFinish) {
-		this->flags.set(tfCompleted);
-		if(this->callbackOnComplete) {
-			this->callbackOnComplete();
-		}
+		this->doComplete(true);
 	}
 }
 
@@ -137,9 +139,9 @@ GTween & GTween::ease(const GTweenEaseType & ease)
 	return *this;
 }
 
-GTween & GTween::duration(GTweenNumber total)
+GTween & GTween::duration(GTweenNumber durationTime)
 {
-	this->total = total;
+	this->durationTime = durationTime;
 	return *this;
 }
 
@@ -151,25 +153,25 @@ GTween & GTween::backward(bool value)
 
 GTween & GTween::useFrames(bool value)
 {
-	this->flags.setByBool(tfUseFrames, value);
+	this->setUseFrames(value);
 	return *this;
 }
 
-GTween & GTween::delay(GTweenNumber d)
+GTween & GTween::delay(GTweenNumber value)
 {
-	this->delayTime = d;
+	this->setDelay(value);
 	return *this;
 }
 
 GTween & GTween::repeat(int repeatCount)
 {
-	this->repeatCount = repeatCount;
+	this->setRepeatCount(repeatCount);
 	return *this;
 }
 
-GTween & GTween::repeatDelay(GTweenNumber d)
+GTween & GTween::repeatDelay(GTweenNumber value)
 {
-	this->repeatDelayTime = d;
+	this->setRepeatDelay(value);
 	return *this;
 }
 
@@ -181,34 +183,8 @@ GTween & GTween::yoyo(bool value)
 
 GTween & GTween::onComplete(const GTweenCallback & value)
 {
-	this->callbackOnComplete = value;
+	this->setOnComplete(value);
 	return *this;
-}
-
-void GTween::pause()
-{
-	this->flags.set(tfPaused);
-}
-
-void GTween::resume()
-{
-	this->flags.clear(tfPaused);
-}
-
-void GTween::removeOf(const void * instance)
-{
-	for(ListType::iterator it = this->itemList.begin(); it != this->itemList.end();) {
-		if((*it)->getInstance() == instance) {
-			(*it)->deleteSelf();
-			it = this->itemList.erase(it);
-		}
-		else {
-			++it;
-		}
-	}
-	if(this->itemList.empty()) {
-		this->flags.set(tfCompleted);
-	}
 }
 
 void GTween::init()

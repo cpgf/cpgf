@@ -28,7 +28,11 @@ GTweenList::~GTweenList()
 GTween & GTweenList::createTween()
 {
 	GTween * tween = this->tweenPool.allocate();
-	this->tweenList.push_back(tween);
+	TweenData data;
+	data.startTime = 0;
+	data.tween = tween;
+	tween->useFrames(this->isUseFrames());
+	this->tweenList.push_back(data);
 	return *tween;
 }
 
@@ -46,17 +50,11 @@ GTween & GTweenList::from(GTweenNumber duration)
 	return tween;
 }
 
-void GTweenList::tick(GTweenNumber frameTime)
+void GTweenList::performTime(GTweenNumber frameTime)
 {
 	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end();) {
-		if((*it)->isUseFrames()) {
-			(*it)->tick(1);
-		}
-		else {
-			(*it)->tick(frameTime);
-		}
-		if((*it)->isCompleted()) {
-			this->tweenPool.free(*it);
+		if(this->current >= it->startTime && it->tween->tick(frameTime)) {
+			this->freeTween(it->tween);
 			it = this->tweenList.erase(it);
 		}
 		else {
@@ -65,26 +63,32 @@ void GTweenList::tick(GTweenNumber frameTime)
 	}
 }
 
-void GTweenList::removeTweenOf(const void * instance)
+bool GTweenList::removeOf(const void * instance)
 {
 	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end();) {
-		(*it)->removeOf(instance);
-		if((*it)->isCompleted()) {
-			this->tweenPool.free(*it);
+		if(it->tween->removeOf(instance)) {
+			this->freeTween(it->tween);
 			it = this->tweenList.erase(it);
 		}
 		else {
 			++it;
 		}
 	}
+
+	return false;
 }
 
 void GTweenList::clear()
 {
 	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end(); ++it) {
-		this->tweenPool.free(*it);
+		this->freeTween(it->tween);
 	}
 	this->tweenList.clear();
+}
+
+void GTweenList::freeTween(GTweenable * tween)
+{
+	this->tweenPool.free(static_cast<GTween *>(tween));
 }
 
 

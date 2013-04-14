@@ -1,7 +1,7 @@
 #ifndef __TWEEN_EASING_CIRCLE_H
 #define __TWEEN_EASING_CIRCLE_H
 
-#include "cpgf/tween/gtweeneaseparam.h"
+#include "cpgf/tween/gtweencommon.h"
 
 #include <math.h>
 

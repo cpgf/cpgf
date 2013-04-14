@@ -1,7 +1,7 @@
 #ifndef __TWEEN_EASING_EXPONENT_H
 #define __TWEEN_EASING_EXPONENT_H
 
-#include "cpgf/tween/gtweeneaseparam.h"
+#include "cpgf/tween/gtweencommon.h"
 
 #include <math.h>
 

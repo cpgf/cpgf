@@ -1,7 +1,7 @@
 #ifndef __TWEEN_EASING_BACK_H
 #define __TWEEN_EASING_BACK_H
 
-#include "cpgf/tween/gtweeneaseparam.h"
+#include "cpgf/tween/gtweencommon.h"
 
 namespace cpgf {
 

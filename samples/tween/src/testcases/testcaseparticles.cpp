@@ -42,8 +42,8 @@ private:
 
 const int particleCountInRow = 100;
 const int particleCountInColumn = 100;
-const float xOffset = 0.001f;
-const float yOffset = 0.001f;
+const float xOffset = 0.005f;
+const float yOffset = 0.0f;
 const int duration = 2000;
 
 TestCasePtr createTestCaseParticles()
