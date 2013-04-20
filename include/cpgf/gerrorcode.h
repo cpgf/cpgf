@@ -56,6 +56,9 @@ extern int Error_Serialization_UnknownType;
 extern int Error_Serialization_InvalidStorage;
 extern int Error_Serialization_End;
 
+extern int Error_Tween_Begin;
+extern int Error_Tween_TweenableNotOwnedByTimeline;
+extern int Error_Tween_End ;
 
 } // namespace cpgf
 

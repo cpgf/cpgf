@@ -21,6 +21,7 @@ public:
 	~GTween();
 
 	virtual bool removeOf(const void * instance);
+	virtual GTweenNumber getDuration();
 
 	template <typename AccessorType>
 	GTween & target(const AccessorType & accessor, const typename AccessorType::ValueType & target)
@@ -69,6 +70,8 @@ public:
 	GTween & backward(bool value);
 	GTween & useFrames(bool value);
 	GTween & delay(GTweenNumber value);
+	GTween & timeScale(GTweenNumber value);
+	GTween & immediateTick();
 
 	GTween & repeat(int repeatCount);
 	GTween & repeatDelay(GTweenNumber value);
@@ -82,7 +85,7 @@ public:
 	}
 
 protected:
-	virtual void performTime(GTweenNumber frameTime);
+	virtual void performTime(GTweenNumber frameTime, bool forceReversed);
 
 private:
 	void init();

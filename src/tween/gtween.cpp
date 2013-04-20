@@ -59,7 +59,12 @@ bool GTween::removeOf(const void * instance)
 	return this->isCompleted();
 }
 
-void GTween::performTime(GTweenNumber frameTime)
+GTweenNumber GTween::getDuration()
+{
+	return this->durationTime;
+}
+
+void GTween::performTime(GTweenNumber /*frameTime*/, bool forceReversed)
 {
 	if(! this->flags.has(tfInited)) {
 		this->flags.set(tfInited);
@@ -68,23 +73,20 @@ void GTween::performTime(GTweenNumber frameTime)
 
 	bool shouldFinish = false;
 	bool shouldSetValue = true;
-	GTweenNumber t = this->current;
+	GTweenNumber t = this->currentTime;
 
 	if(this->repeatCount == 0) {
 		if(t > this->durationTime) {
 			shouldFinish = true;
 			t = this->durationTime;
-			this->current = t;
+			this->currentTime = t;
 		}
 	}
 	else {
-		GTweenNumber cycleExtra = 0.0f;
-		if(this->cycleCount >= 0) {
-			cycleExtra = this->repeatDelayTime;
-		}
+		GTweenNumber cycleExtra = this->repeatDelayTime;
 		GTweenNumber cycleDuration = this->durationTime + cycleExtra;
 		int times = (int)(t / cycleDuration);
-		int ctiimes = times;
+		int ctimes = times;
 		GTweenNumber remains = t - times * cycleDuration;
 		if(remains > this->durationTime) {
 			return;
@@ -101,7 +103,7 @@ void GTween::performTime(GTweenNumber frameTime)
 			if(this->repeatCount < 0) {
 			}
 			else {
-				if(ctiimes > this->repeatCount) {
+				if(ctimes > this->repeatCount) {
 					shouldFinish = true;
 					shouldSetValue = false;
 				}
@@ -112,7 +114,7 @@ void GTween::performTime(GTweenNumber frameTime)
 		}
 	}
 
-	if(this->flags.has(tfBackward)) {
+	if(forceReversed || this->flags.has(tfBackward)) {
 		t = this->durationTime - t;
 	}
 
@@ -147,7 +149,7 @@ GTween & GTween::duration(GTweenNumber durationTime)
 
 GTween & GTween::backward(bool value)
 {
-	this->flags.setByBool(tfBackward, value);
+	this->setBackward(value);
 	return *this;
 }
 
@@ -160,6 +162,18 @@ GTween & GTween::useFrames(bool value)
 GTween & GTween::delay(GTweenNumber value)
 {
 	this->setDelay(value);
+	return *this;
+}
+
+GTween & GTween::timeScale(GTweenNumber value)
+{
+	this->setTimeScale(value);
+	return *this;
+}
+
+GTween & GTween::immediateTick()
+{
+	this->doImmediateTick();
 	return *this;
 }
 
@@ -177,7 +191,7 @@ GTween & GTween::repeatDelay(GTweenNumber value)
 
 GTween & GTween::yoyo(bool value)
 {
-	this->flags.setByBool(tfReverseWhenRepeat, value);
+	this->setYoyo(value);
 	return *this;
 }
 

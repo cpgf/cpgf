@@ -33,7 +33,7 @@ private:
 };
 
 const int startX = 150;
-const int endX = 350;
+const int endX = SpriteBoardSize - startX;
 const int startY = endX;
 const int endY = startX;
 const int duration = 2000;
@@ -87,7 +87,7 @@ void TestCaseFollow::reset()
 	this->target.setY(endY);
 	this->target.setZ(0);
 	this->target.setAlpha(1.0f);
-	this->target.setSize(60);
+	this->target.setSize(this->sprite.getSize());
 	this->target.setColor(0xff7777);
 }
 

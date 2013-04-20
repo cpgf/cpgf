@@ -237,7 +237,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\tween\gtimeline.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\tween\gtween.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\tween\gtweencommon.cpp"
 					>
 				</File>
 				<File
@@ -266,6 +274,10 @@
 				</File>
 				<File
 					RelativePath=".\src\testcases\testcaseparticles.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\testcases\testcasetimeline.cpp"
 					>
 				</File>
 				<File

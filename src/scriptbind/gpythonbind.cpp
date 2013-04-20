@@ -1060,7 +1060,7 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	void * instance = doInvokeConstructor(context, cppClass->getService(), classUserData->getMetaClass(), &callableParam);
 
 	if(instance != NULL) {
-		return createPythonObject(context->newObjectGlueData(classUserData, instance, true, opcvNone));
+		return createPythonObject(context->newObjectGlueData(classUserData, instance, GBindValueFlags(bvfAllowGC), opcvNone));
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);

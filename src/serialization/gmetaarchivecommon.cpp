@@ -40,12 +40,12 @@ GMetaArchiveConfig GMetaArchiveConfigMap::getConfig(IMetaClass * metaClass) cons
 }
 
 
-GMetaArchiveConfig::GMetaArchiveConfig() : version(0), flags(defaultConfig)
+GMetaArchiveConfig::GMetaArchiveConfig() : version(0), flags(ConfigFlags(defaultConfig))
 {
 }
 
 GMetaArchiveConfig::GMetaArchiveConfig(const GMetaArchiveConfigData & data)
-	: version(data.version), flags(data.flags)
+	: version(data.version), flags(ConfigFlags(data.flags))
 {
 }
 

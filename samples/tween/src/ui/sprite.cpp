@@ -8,7 +8,7 @@
 #include <GL/glut.h>
 
 Sprite::Sprite()
-	: x(0), y(0), z(0), size(100), color(0), alpha(1), visible(true)
+	: x(0), y(0), z(0), size(100), rotate(0), color(0), alpha(1), visible(true), shape(ssBox)
 {
 }
 
@@ -52,6 +52,16 @@ int Sprite::getSize() const
 	return this->size;
 }
 
+void Sprite::setRotate(float rotate)
+{
+	this->rotate = rotate;
+}
+
+float Sprite::getRotate() const
+{
+	return this->rotate;
+}
+
 void Sprite::setColor(unsigned int color)
 {
 	this->color = color;
@@ -88,6 +98,16 @@ bool Sprite::getVisible() const
 	return this->visible;
 }
 
+void Sprite::setShape(Sprite::Shape shape)
+{
+	this->shape = shape;
+}
+
+Sprite::Shape Sprite::getShape() const
+{
+	return this->shape;
+}
+
 void Sprite::render(int viewWidth, int viewHeight)
 {
 	if(! this->visible) {
@@ -97,18 +117,34 @@ void Sprite::render(int viewWidth, int viewHeight)
 	float tx = this->x;
 	float ty = this->y;
 	float tz = 0;
-	tx /= 500;
-	ty /= 500;
+	tx /= SpriteBoardSize;
+	ty /= SpriteBoardSize;
 	tx *= 2;
 	ty *= 2;
 	float s = this->size;
 	s = s / viewWidth;
+	s *= 2;
 	glPushMatrix();
 
-	glTranslatef(tx, ty, tz);
 	glColor4ub((this->color >> 16) & 0xff, (this->color >> 8) & 0xff, this->color & 0xff, this->alpha * 255);
 
-	glutSolidSphere(s, 36, 18);
+	glTranslatef(tx, ty, tz);
+	glRotatef(rotate, 0, 0, 1);
+
+	switch(this->shape) {
+	case ssBox:
+		glBegin(GL_QUADS);
+		glVertex3f(-s / 2, -s / 2, 0);
+		glVertex3f(s / 2, -s / 2, 0);
+		glVertex3f(s / 2, s / 2, 0);
+		glVertex3f(-s / 2, s / 2, 0);
+		glEnd();
+		break;
+
+	default:
+		glutSolidSphere(s, 36, 18);
+		break;
+	}
 
 	glPopMatrix();
 }

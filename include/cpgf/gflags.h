@@ -1,6 +1,8 @@
 #ifndef __GFLAGS_H
 #define __GFLAGS_H
 
+#include "cpgf/genableif.h"
+#include "cpgf/gtypetraits.h"
 
 namespace cpgf {
 
@@ -37,19 +39,7 @@ public:
 	
 	GFlags(T flags) : value(flags) {
 	}
-	
-	GFlags(int flags) : value(flags) {
-	}
-	
-	GFlags(long long flags) : value(flags) {
-	}
-	
-	GFlags(unsigned int flags) : value(flags) {
-	}
-	
-	GFlags(unsigned long long flags) : value(flags) {
-	}
-	
+
 	GFlags(const GFlags & other) : value(other.value) {
 	}
 	

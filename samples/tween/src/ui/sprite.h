@@ -3,8 +3,16 @@
 
 #include "wx/dc.h"
 
+const int SpriteBoardSize = 500;
+
 class Sprite
 {
+public:
+	enum Shape {
+		ssSphere,
+		ssBox,
+	};
+
 public:
 	Sprite();
 	
@@ -14,6 +22,8 @@ public:
 	int getY() const;
 	void setZ(int z);
 	int getZ() const;
+	void setRotate(float rotate);
+	float getRotate() const;
 	void setSize(int size);
 	int getSize() const;
 	void setColor(unsigned int color);
@@ -23,6 +33,9 @@ public:
 	void setVisible(bool visible);
 	bool getVisible() const;
 
+	void setShape(Shape shape);
+	Shape getShape() const;
+
 	void render(int viewWidth, int viewHeight);
 
 private:
@@ -30,9 +43,11 @@ private:
 	int y;
 	int z;
 	int size;
+	float rotate;
 	unsigned int color;
 	float alpha;
 	bool visible;
+	Shape shape;
 };
 
 

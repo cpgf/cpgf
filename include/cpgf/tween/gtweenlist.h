@@ -4,6 +4,7 @@
 
 #include "cpgf/tween/gtween.h"
 #include "cpgf/gmemorypool.h"
+#include "cpgf/gscopedptr.h"
 
 #include <list>
 
@@ -11,19 +12,30 @@
 namespace cpgf {
 
 
+class GTimeline;
+
 class GTweenList : public GTweenable
 {
 private:
 	typedef GTweenable super;
 
 protected:
-	struct TweenData
+	class TweenableData
 	{
+	public:
+		explicit TweenableData(bool isTimeline);
+		bool isTimeline() const;
+		bool hasAddedToTimeline() const;
+		void addToTimeline();
+	public:
 		GTweenNumber startTime;
-		GTweenable * tween;
+		GTweenable * tweenable;
+	private:
+		GFlags<int> flags;
 	};
 
-	typedef std::list<TweenData> ListType;
+	typedef std::list<TweenableData> ListType;
+
 
 public:
 	static GTweenList * getInstance();
@@ -32,8 +44,8 @@ public:
 	GTweenList();
 	~GTweenList();
 
-	// Return pointer instead of reference because reference maybe wrongly copied.
 	GTween & createTween();
+	GTimeline & createTimeline();
 
 	GTween & to(GTweenNumber duration);
 	GTween & from(GTweenNumber duration);
@@ -52,16 +64,19 @@ public:
 
 public:
 	virtual bool removeOf(const void * instance);
+	virtual GTweenNumber getDuration();
+	virtual void restart();
 
 protected:
-	virtual void performTime(GTweenNumber frameTime);
+	virtual void performTime(GTweenNumber frameTime, bool forceReversed);
 
 protected:
-	void freeTween(GTweenable * tween);
+	void freeTween(GTweenable * tween, bool isTimeline);
 
-private:
-	ListType tweenList;
+protected:
+	GTweenList::ListType tweenList;
 	GObjectPool<GTween> tweenPool;
+	GScopedPointer<GObjectPool<GTimeline> > timelinePool;
 };
 
 

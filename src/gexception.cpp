@@ -64,6 +64,9 @@ int Error_Serialization_UnknownType = Error_Serialization_Begin + 3;
 int Error_Serialization_InvalidStorage = Error_Serialization_Begin + 4;
 int Error_Serialization_End = 400;
 
+int Error_Tween_Begin = 401;
+int Error_Tween_TweenableNotOwnedByTimeline = Error_Tween_Begin + 0;
+int Error_Tween_End = 500;
 
 GException::GException(int errorCode, const char * message)
 	: super(message), errorCode(errorCode)
@@ -141,6 +144,8 @@ namespace {
 		{ Error_Serialization_MissingMetaClass,		"Meta class type is missing." },
 		{ Error_Serialization_UnknownType,			"Unknow meta type." },
 		{ Error_Serialization_InvalidStorage,			"Serializing storage is corrupted." },
+		
+		{ Error_Tween_TweenableNotOwnedByTimeline,		"Tweenable is not owned by the timeline it is adding to." },
 
 
 		{ -1, NULL },

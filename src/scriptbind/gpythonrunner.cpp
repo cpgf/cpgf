@@ -6,9 +6,12 @@
 
 #include <stdexcept>
 
-
 #include <iostream>
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4127) // warning C4127: conditional expression is constant
+#endif
 
 namespace cpgf {
 
