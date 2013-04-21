@@ -20,6 +20,11 @@ TestCase::TestCase()
 {
 }
 
+TestCase::~TestCase()
+{
+	this->setTweenable(NULL);
+}
+
 bool TestCase::shouldShowCommandButtons()
 {
 	return true;
@@ -48,6 +53,7 @@ void TestCase::setEase(int easeIndex)
 void TestCase::setTweenParam(const TweenParam & tweenParam)
 {
 	this->tweenParam = tweenParam;
+	this->resetTweenParam();
 }
 
 void TestCase::resetTweenParam()
@@ -128,18 +134,19 @@ struct OnComplete
 
 void TestCase::setTweenable(GTweenable * tweenable)
 {
+	this->detachCurrentTweenable();
 	this->tweenable = tweenable;
 
 	if(this->tweenable != NULL) {
 		if(dynamic_cast<GTween *>(this->tweenable)) {
-			dynamic_cast<GTween *>(this->tweenable)->onDestroy(makeCallback(this, &TestCase::onTweenableDestroy))
-				.onComplete(OnComplete())
+			dynamic_cast<GTween *>(this->tweenable)->onComplete(OnComplete())
+				.onDestroy(makeCallback(this, &TestCase::onTweenableDestroy))
 				.pause()
 			;
 		}
 		else {
-			dynamic_cast<GTimeline *>(this->tweenable)->onDestroy(makeCallback(this, &TestCase::onTweenableDestroy))
-				.onComplete(OnComplete())
+			dynamic_cast<GTimeline *>(this->tweenable)->onComplete(OnComplete())
+				.onDestroy(makeCallback(this, &TestCase::onTweenableDestroy))
 				.pause()
 			;
 		}
@@ -151,4 +158,16 @@ void TestCase::setTweenable(GTweenable * tweenable)
 void TestCase::onTweenableDestroy()
 {
 	this->tweenable = NULL;
+}
+
+void TestCase::detachCurrentTweenable()
+{
+	if(this->tweenable != NULL) {
+		if(dynamic_cast<GTween *>(this->tweenable)) {
+			dynamic_cast<GTween *>(this->tweenable)->onDestroy(GTweenCallback());
+		}
+		else {
+			dynamic_cast<GTimeline *>(this->tweenable)->onDestroy(GTweenCallback());
+		}
+	}
 }

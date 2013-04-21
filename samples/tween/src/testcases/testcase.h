@@ -24,9 +24,10 @@ class TestCase
 {
 public:
 	TestCase();
+	virtual ~TestCase();
 
 	virtual void render(int viewWidth, int viewHeight) = 0;
-	void setEase(int easeIndex);
+	virtual void setEase(int easeIndex);
 	
 	virtual bool shouldShowCommandButtons();
 	virtual bool shouldShowEaseButtons();
@@ -50,6 +51,7 @@ protected:
 
 private:
 	void onTweenableDestroy();
+	void detachCurrentTweenable();
 
 private:
 	cpgf::GTweenable * tweenable;

@@ -8,10 +8,9 @@ const int SpriteBoardSize = 500;
 class Sprite
 {
 public:
-	enum Shape {
-		ssSphere,
-		ssBox,
-	};
+	// use int instead of enum so we can tween the shape
+	static const int ssSphere = 0;
+	static const int ssBox = 1;
 
 public:
 	Sprite();
@@ -33,8 +32,8 @@ public:
 	void setVisible(bool visible);
 	bool getVisible() const;
 
-	void setShape(Shape shape);
-	Shape getShape() const;
+	void setShape(int shape);
+	int getShape() const;
 
 	void render(int viewWidth, int viewHeight);
 
@@ -47,7 +46,7 @@ private:
 	unsigned int color;
 	float alpha;
 	bool visible;
-	Shape shape;
+	int shape;
 };
 
 

@@ -149,9 +149,6 @@ void GTimeline::performTime(GTweenNumber frameTime, bool forceReversed, bool for
 	bool shouldRestart = false;
 	GTweenNumber t = this->currentTime;
 
-	if(forceReversed) {
-		forceReversed = true;
-	}
 	if(this->repeatCount == 0) {
 		if(t > this->durationTime) {
 			shouldFinish = true;
@@ -184,7 +181,6 @@ void GTimeline::performTime(GTweenNumber frameTime, bool forceReversed, bool for
 				if(ctimes > this->repeatCount) {
 					shouldFinish = true;
 					shouldSetValue = false;
-//					shouldRestart = false;
 				}
 			}
 			if(this->flags.has(tfReverseWhenRepeat)) {

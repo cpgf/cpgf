@@ -56,7 +56,7 @@ const int startX = 150;
 const int endX = SpriteBoardSize - startX;
 const int startY = endX;
 const int endY = startY;
-const int size = 30;
+const int size = 50;
 const int distanceX = (endX - startX) / (SpriteCount - 1);
 const int distanceY = (endY - startY) / (SpriteCount - 1);
 
@@ -100,6 +100,7 @@ void TestCaseTimeline::doReset()
 	this->sprites[1].setSize(size / 2);
 
 	GTimeline & timeline = GTweenList::getInstance()->createTimeline();
+	GTweenNumber t;
 
 	timeline.append(
 		timeline.to(this->getDuration())
@@ -127,7 +128,7 @@ void TestCaseTimeline::doReset()
 			.relative(createAccessor(&this->sprites[2], &Sprite::getX, &Sprite::setX), distanceX)
 	);
 
-	GTweenNumber t = timeline.append(
+	t = timeline.append(
 		timeline.to(this->getDuration())
 			.ease(BounceEase::easeOut())
 			.relative(createAccessor(&this->sprites[0], &Sprite::getY, &Sprite::setY), -100)

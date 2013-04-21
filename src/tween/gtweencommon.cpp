@@ -27,7 +27,7 @@ bool GTweenable::doTick(GTweenNumber frameTime, bool forceReversed, bool forceUs
 
 	if(frameTime > 0) {
 		frameTime *= this->timeScaleTime;
-		this->currentTime += (forceUseFrames || this->flags.has(tfUseFrames)) ? this->timeScaleTime : frameTime;
+		this->currentTime += frameTime;
 
 		if(this->currentTime <= 0) {
 			return false;
@@ -115,7 +115,7 @@ void GTweenable::setDelay(GTweenNumber value)
 {
 	if(this->delayTime != value) {
 		this->delayTime = value;
-		this->currentTime = -value;
+		this->reset();
 	}
 }
 

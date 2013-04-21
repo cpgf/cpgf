@@ -46,7 +46,7 @@ public:
 
 	// return true if the tween is completed
 	bool tick(GTweenNumber frameTime) {
-		return this->doTick(frameTime, false, false);
+		return this->doTick(this->isUseFrames() ? 1.0f : frameTime, false, false);
 	}
 
 	GTweenNumber getTotalDuration();
@@ -74,6 +74,10 @@ public:
 	bool isBackward() const
 	{
 		return this->flags.has(tfBackward);
+	}
+	
+	GTweenNumber getTimeScale() const {
+		return this->timeScaleTime;
 	}
 
 protected:

@@ -96,6 +96,8 @@ void PanelTweenTest::setTestCase(const TestCasePtr & testCase)
 	this->commandPanel->Show(this->testCase->shouldShowCommandButtons());
 	this->easePanel->Show(this->testCase->shouldShowEaseButtons());
 	this->Layout();
+	this->commandPanel->Refresh();
+	this->easePanel->Refresh();
 }
 
 void drawFrameRate(int frameRate)

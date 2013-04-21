@@ -37,6 +37,9 @@ public:
 	virtual bool shouldShowEaseButtons() {
 		return false;
 	}
+	virtual bool shouldShowCommandButtons() {
+		return false;
+	}
 
 private:
 	void populatePositions();

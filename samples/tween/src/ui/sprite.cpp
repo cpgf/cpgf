@@ -98,12 +98,12 @@ bool Sprite::getVisible() const
 	return this->visible;
 }
 
-void Sprite::setShape(Sprite::Shape shape)
+void Sprite::setShape(int shape)
 {
 	this->shape = shape;
 }
 
-Sprite::Shape Sprite::getShape() const
+int Sprite::getShape() const
 {
 	return this->shape;
 }
@@ -142,7 +142,7 @@ void Sprite::render(int viewWidth, int viewHeight)
 		break;
 
 	default:
-		glutSolidSphere(s, 36, 18);
+		glutSolidSphere(s / 2, 36, 18);
 		break;
 	}
 

@@ -32,6 +32,9 @@ public:
 
 	virtual void render(int viewWidth, int viewHeight);
 	virtual void setEase(int easeIndex);
+	virtual bool shouldShowCommandButtons() {
+		return false;
+	}
 
 private:
 	void clear();
