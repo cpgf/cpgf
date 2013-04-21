@@ -23,8 +23,6 @@
 #include "cpgf/tween/easing/quint.h"
 #include "cpgf/tween/easing/sin.h"
 
-#include "wx/log.h"
-
 #if defined(_WIN32)
     #include <windows.h>
 #endif
@@ -40,11 +38,15 @@ public:
 	TestCaseTimeline();
 
 	virtual void render(int viewWidth, int viewHeight);
-	virtual void setEase(int easeIndex);
-	virtual void reset();
 	virtual bool shouldShowEaseButtons() {
 		return false;
 	}
+	virtual bool shouldShowCommandButtons() {
+		return true;
+	}
+
+protected:
+	virtual void doReset();
 
 private:
 	Sprite sprites[SpriteCount];
@@ -57,7 +59,6 @@ const int endY = startY;
 const int size = 30;
 const int distanceX = (endX - startX) / (SpriteCount - 1);
 const int distanceY = (endY - startY) / (SpriteCount - 1);
-const int duration = 1000;
 
 namespace {
 const unsigned int colors[] = {
@@ -73,7 +74,6 @@ TestCasePtr createTestCaseTimeline()
 
 TestCaseTimeline::TestCaseTimeline()
 {
-	this->reset();
 }
 
 void TestCaseTimeline::render(int viewWidth, int viewHeight)
@@ -85,19 +85,7 @@ void TestCaseTimeline::render(int viewWidth, int viewHeight)
     }
 }
 
-void TestCaseTimeline::setEase(int easeIndex)
-{
-}
-
-struct OnComplete
-{
-	OnComplete() {}
-	void operator() () const {
-		wxLogDebug("Timeline complete");
-	}
-};
-
-void TestCaseTimeline::reset()
+void TestCaseTimeline::doReset()
 {
 	for(int i = 0; i < SpriteCount; ++i) {
 		this->sprites[i].setShape(Sprite::ssBox);
@@ -111,28 +99,22 @@ void TestCaseTimeline::reset()
 	}
 	this->sprites[1].setSize(size / 2);
 
-	GTweenList::getInstance()->clear();
-	
-	GTimeline & timeline = GTweenList::getInstance()->createTimeline()
-		.onComplete(OnComplete())
-		.repeat(1)
-		.yoyo(true)
-		.backward(true)
-	;
+	GTimeline & timeline = GTweenList::getInstance()->createTimeline();
 
 	timeline.append(
-		timeline.to(duration)
+		timeline.to(this->getDuration())
 			.ease(ElasticEase::easeIn())
 			.relative(createAccessor(&this->sprites[0], &Sprite::getX, &Sprite::setX), -distanceX)
 	);
 	GTimeline & timeline2 = timeline.createTimeline();
+
 	timeline2.append(
-		timeline2.to(duration)
+		timeline2.to(this->getDuration())
 			.ease(QuintEase::easeIn())
 			.target(createAccessor(&this->sprites[1], &Sprite::getSize, &Sprite::setSize), size)
 	);
 	timeline2.append(
-		timeline2.to(duration)
+		timeline2.to(this->getDuration())
 			.ease(SinEase::easeIn())
 			.target(createAccessor(&this->sprites[1], &Sprite::getRotate, &Sprite::setRotate), 360)
 	);
@@ -140,27 +122,27 @@ void TestCaseTimeline::reset()
 		timeline2
 	);
 	timeline.append(
-		timeline.to(duration)
+		timeline.to(this->getDuration())
 			.ease(CubicEase::easeIn())
 			.relative(createAccessor(&this->sprites[2], &Sprite::getX, &Sprite::setX), distanceX)
 	);
 
 	GTweenNumber t = timeline.append(
-		timeline.to(duration)
+		timeline.to(this->getDuration())
 			.ease(BounceEase::easeOut())
 			.relative(createAccessor(&this->sprites[0], &Sprite::getY, &Sprite::setY), -100)
 	);
 	timeline.setAt(t,
-		timeline.to(duration)
+		timeline.to(this->getDuration())
 			.ease(BounceEase::easeOut())
 			.relative(createAccessor(&this->sprites[1], &Sprite::getY, &Sprite::setY), 100)
 	);
 	timeline.setAt(t,
-		timeline.to(duration)
+		timeline.to(this->getDuration())
 			.ease(BounceEase::easeOut())
 			.relative(createAccessor(&this->sprites[2], &Sprite::getY, &Sprite::setY), -100)
 	);
 
-	timeline.immediateTick();
+	this->setTweenable(&timeline);
 }
 

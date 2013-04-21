@@ -64,7 +64,7 @@ GTweenNumber GTween::getDuration()
 	return this->durationTime;
 }
 
-void GTween::performTime(GTweenNumber /*frameTime*/, bool forceReversed)
+void GTween::performTime(GTweenNumber /*frameTime*/, bool forceReversed, bool /*forceUseFrames*/)
 {
 	if(! this->flags.has(tfInited)) {
 		this->flags.set(tfInited);
@@ -122,6 +122,10 @@ void GTween::performTime(GTweenNumber /*frameTime*/, bool forceReversed)
 		GTweenEaseParam param;
 		param.current = t;
 		param.total = this->durationTime;
+		if(this->durationTime == 0) {
+			param.current = 1.0f;
+			param.total = 1.0f;
+		}
 		for(ListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
 			(*it)->tick(&param, this->easeCallback);
 		}
@@ -173,7 +177,7 @@ GTween & GTween::timeScale(GTweenNumber value)
 
 GTween & GTween::immediateTick()
 {
-	this->doImmediateTick();
+	this->doImmediateTick(this->isBackward());
 	return *this;
 }
 
@@ -198,6 +202,12 @@ GTween & GTween::yoyo(bool value)
 GTween & GTween::onComplete(const GTweenCallback & value)
 {
 	this->setOnComplete(value);
+	return *this;
+}
+
+GTween & GTween::onDestroy(const GTweenCallback & value)
+{
+	this->setOnDestroy(value);
 	return *this;
 }
 

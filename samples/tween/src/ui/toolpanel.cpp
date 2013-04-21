@@ -25,11 +25,6 @@ void ToolPanel::onTestTypeSelected( wxCommandEvent& event )
 	this->doOnTestTypeSelected();
 }
 
-void ToolPanel::onButtonResetClicked( wxCommandEvent& event )
-{
-	this->currentTestCase->reset();
-}
-
 void benchmarkTweens()
 {
 	const int iteration = 1000 * 1000;

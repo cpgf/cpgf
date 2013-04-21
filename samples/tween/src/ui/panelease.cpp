@@ -1,6 +1,8 @@
 #include "panelease.h"
 #include "easeinfo.h"
 
+#include "wx/radiobut.h"
+
 using namespace cpgf;
 
 PanelEase::PanelEase(wxWindow * parent)
@@ -29,16 +31,20 @@ const int EaseButtonStartID = 1000;
 void PanelEase::initEaseButtons(wxSizer * sizer)
 {
 	for(int i = 0; i < getEaseCount(); ++i) {
-		wxButton * button = new wxButton(this, EaseButtonStartID + i, getEase(i)->name, wxDefaultPosition, wxSize(150, 30), 0);
+		wxRadioButton * button = new wxRadioButton(this, EaseButtonStartID + i, getEase(i)->name, wxDefaultPosition, wxSize(150, 30), 0);
 		sizer->Add(button);
-		button->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(PanelEase::onEaseButtonClicked), NULL, this );
+		button->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler(PanelEase::onEaseButtonClicked), NULL, this );
+		if(i == getEaseCount() - 1) {
+			button->SetValue(true);
+			this->easeIndex = i;
+		}
 	}
 }
 
 void PanelEase::onEaseButtonClicked(wxCommandEvent& e)
 {
-	int id = e.GetId() - EaseButtonStartID;
-	this->callbackList.dispatch(id);
+	this->easeIndex = e.GetId() - EaseButtonStartID;
+	this->callbackList.dispatch(this->easeIndex);
 }
 
 void PanelEase::addCallback(const CallbackType & callback)

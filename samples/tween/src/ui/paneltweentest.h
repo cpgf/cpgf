@@ -16,6 +16,7 @@
 class ToolPanel;
 class PanelCanvas;
 class PanelEase;
+class PanelCommand;
 
 class PanelTweenTest : public wxPanel
 {
@@ -41,6 +42,7 @@ private:
 	ToolPanel * toolPanel;
 	PanelEase * easePanel;
 	PanelCanvas * canvas;
+	PanelCommand * commandPanel;
 	TestTimer * timer;
 	TestCasePtr testCase;
 };

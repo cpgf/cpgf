@@ -24,12 +24,14 @@ public:
 	TestCaseFollow();
 
 	virtual void render(int viewWidth, int viewHeight);
-	virtual void setEase(int easeIndex);
-	virtual void reset();
+
+protected:
+	virtual void doReset();
 
 private:
 	Sprite sprite;
 	Sprite target;
+	bool inited;
 };
 
 const int startX = 150;
@@ -43,9 +45,8 @@ TestCasePtr createTestCaseFollow()
 	return TestCasePtr(new TestCaseFollow);
 }
 
-TestCaseFollow::TestCaseFollow()
+TestCaseFollow::TestCaseFollow() : inited(false)
 {
-	this->reset();
 }
 
 void TestCaseFollow::render(int viewWidth, int viewHeight)
@@ -56,26 +57,8 @@ void TestCaseFollow::render(int viewWidth, int viewHeight)
 	this->target.render(viewWidth, viewHeight);
 }
 
-void TestCaseFollow::setEase(int easeIndex)
+void TestCaseFollow::doReset()
 {
-	this->reset();
-
-	GTweenEaseType ease = getEase(easeIndex)->ease;
-	GTween & tween = GTweenList::getInstance()->to(duration)
-		.ease(ease)
-		.follow(createAccessor(&this->sprite, &Sprite::getX, &Sprite::setX), createGetter(&this->target, &Sprite::getX))
-		.follow(createAccessor(&this->sprite, &Sprite::getY, &Sprite::setY), createGetter(&this->target, &Sprite::getY))
-	;
-
-	GTween & tween2 = GTweenList::getInstance()->to(duration)
-		.target(createAccessor(&this->target, &Sprite::getX, &Sprite::setX), endX)
-	;
-}
-
-void TestCaseFollow::reset()
-{
-	GTweenList::getInstance()->clear();
-
 	this->sprite.setX(startX);
 	this->sprite.setY(startY);
 	this->sprite.setZ(0);
@@ -89,5 +72,21 @@ void TestCaseFollow::reset()
 	this->target.setAlpha(1.0f);
 	this->target.setSize(this->sprite.getSize());
 	this->target.setColor(0xff7777);
+
+	GTween & tween = GTweenList::getInstance()->to(duration)
+		.follow(createAccessor(&this->sprite, &Sprite::getX, &Sprite::setX), createGetter(&this->target, &Sprite::getX))
+		.follow(createAccessor(&this->sprite, &Sprite::getY, &Sprite::setY), createGetter(&this->target, &Sprite::getY))
+	;
+
+	if(! inited) {
+		inited = true;
+	}
+	else {
+		GTween & tween2 = GTweenList::getInstance()->to(duration)
+			.target(createAccessor(&this->target, &Sprite::getX, &Sprite::setX), endX)
+		;
+	}
+
+	this->setTweenable(&tween);
 }
 

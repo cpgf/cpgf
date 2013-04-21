@@ -35,9 +35,10 @@ public:
 	GTimeline & yoyo(bool value);
 
 	GTimeline & onComplete(const GTweenCallback & value);
+	GTimeline & onDestroy(const GTweenCallback & value);
 
 protected:
-	virtual void performTime(GTweenNumber frameTime, bool forceReversed);
+	virtual void performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames);
 
 private:
 	void invalidDurationTime();

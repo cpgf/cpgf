@@ -106,7 +106,7 @@ GTimeline & GTimeline::timeScale(GTweenNumber value)
 
 GTimeline & GTimeline::immediateTick()
 {
-	this->doImmediateTick();
+	this->doImmediateTick(this->isBackward());
 	return *this;
 }
 
@@ -134,7 +134,13 @@ GTimeline & GTimeline::onComplete(const GTweenCallback & value)
 	return *this;
 }
 
-void GTimeline::performTime(GTweenNumber frameTime, bool forceReversed)
+GTimeline & GTimeline::onDestroy(const GTweenCallback & value)
+{
+	this->setOnDestroy(value);
+	return *this;
+}
+
+void GTimeline::performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames)
 {
 	this->getDuration();
 
@@ -178,6 +184,7 @@ void GTimeline::performTime(GTweenNumber frameTime, bool forceReversed)
 				if(ctimes > this->repeatCount) {
 					shouldFinish = true;
 					shouldSetValue = false;
+//					shouldRestart = false;
 				}
 			}
 			if(this->flags.has(tfReverseWhenRepeat)) {
@@ -196,9 +203,11 @@ void GTimeline::performTime(GTweenNumber frameTime, bool forceReversed)
 			if(shouldRestart) {
 				it->tweenable->restart();
 			}
-			bool shouldStart = frameTime == 0 || (!reversed && t >= it->startTime) || (reversed && t < it->startTime + it->tweenable->getTotalDuration());
-			if(shouldStart) {
-				it->tweenable->doTick(frameTime, reversed);
+			if(frameTime == 0
+				|| (!reversed && t >= it->startTime)
+				|| (reversed && t < it->startTime + it->tweenable->getTotalDuration())
+			) {
+				it->tweenable->doTick(frameTime, reversed, forceUseFrames || this->isUseFrames());
 			}
 		}
 		if(shouldRestart) {

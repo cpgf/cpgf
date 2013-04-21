@@ -24,6 +24,8 @@ public:
 	~PanelEase();
 
 	void addCallback(const CallbackType & callback);
+
+	int getEaseIndex() const { return this->easeIndex; }
 	
 private:
 	void initEaseButtons(wxSizer * sizer);
@@ -31,6 +33,7 @@ private:
 	
 private:
 	CallbackListType callbackList;
+	int easeIndex;
 };
 
 

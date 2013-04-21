@@ -18,6 +18,9 @@
 #include <wx/button.h>
 #include <wx/sizer.h>
 #include <wx/panel.h>
+#include <wx/statline.h>
+#include <wx/checkbox.h>
+#include <wx/stattext.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -47,20 +50,69 @@ class ToolPanelRes : public wxPanel
 	
 	protected:
 		wxChoice* choiceTestType;
-		wxButton* buttonReset;
 		
 		wxButton* buttonBenchmark;
 		
 		// Virtual event handlers, overide them in your derived class
 		virtual void onTestTypeSelected( wxCommandEvent& event ) { event.Skip(); }
-		virtual void onButtonResetClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onButtonBenchmarkClicked( wxCommandEvent& event ) { event.Skip(); }
 		
 	
 	public:
 		
-		ToolPanelRes( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,38 ), long style = wxTAB_TRAVERSAL );
+		ToolPanelRes( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 696,38 ), long style = wxTAB_TRAVERSAL );
 		~ToolPanelRes();
+	
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class CommandPanelRes
+///////////////////////////////////////////////////////////////////////////////
+class CommandPanelRes : public wxPanel 
+{
+	private:
+	
+	protected:
+		wxButton* buttonPlay;
+		wxButton* buttonPause;
+		wxButton* buttonResume;
+		
+		wxButton* buttonReset;
+		wxStaticLine* m_staticline2;
+		wxCheckBox* checkBoxUseFrames;
+		wxCheckBox* checkBoxBackward;
+		wxStaticText* m_staticText5;
+		wxChoice* choiceDuration;
+		wxStaticText* m_staticText1;
+		wxChoice* choiceDelay;
+		wxStaticText* m_staticText2;
+		wxChoice* choiceTimeScale;
+		wxStaticLine* m_staticline3;
+		wxStaticText* m_staticText3;
+		wxChoice* choiceRepeatCount;
+		wxCheckBox* checkBoxYoyo;
+		wxStaticText* m_staticText4;
+		wxChoice* choiceRepeatDelay;
+		
+		// Virtual event handlers, overide them in your derived class
+		virtual void onButtonPlayClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onButtonPauseClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onButtonResumeClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onButtonResetClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onCheckBoxUseFramesClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onCheckBoxBackwardClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onChoiceDurationSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onChoiceDelaySelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onChoiceTimeScaleSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onChoiceRepeatSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onCheckBoxYoyoClicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onChoiceRepeatDelaySelected( wxCommandEvent& event ) { event.Skip(); }
+		
+	
+	public:
+		
+		CommandPanelRes( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 425,153 ), long style = wxTAB_TRAVERSAL );
+		~CommandPanelRes();
 	
 };
 

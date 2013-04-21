@@ -1,6 +1,7 @@
 #include "paneltweentest.h"
 #include "panelcanvas.h"
 #include "panelease.h"
+#include "panelcommand.h"
 #include "toolpanel.h"
 #include "easeinfo.h"
 
@@ -36,6 +37,9 @@ PanelTweenTest::PanelTweenTest(wxWindow * parent)
 
 	wxBoxSizer * leftSizer;
 	leftSizer = new wxBoxSizer(wxVERTICAL);
+	
+	this->commandPanel = new PanelCommand(this);
+	leftSizer->Add(this->commandPanel, 0, wxEXPAND, 5);
 
 	this->easePanel = new PanelEase(this);
 	leftSizer->Add(this->easePanel, 0, wxEXPAND, 5);
@@ -86,6 +90,10 @@ void PanelTweenTest::end()
 void PanelTweenTest::setTestCase(const TestCasePtr & testCase)
 {
 	this->testCase = testCase;
+	this->testCase->reset();
+	this->testCase->setEase(this->easePanel->getEaseIndex());
+	this->commandPanel->setTestCase(testCase);
+	this->commandPanel->Show(this->testCase->shouldShowCommandButtons());
 	this->easePanel->Show(this->testCase->shouldShowEaseButtons());
 	this->Layout();
 }

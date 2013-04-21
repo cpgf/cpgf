@@ -20,7 +20,6 @@ public:
 
 protected:
 	virtual void onTestTypeSelected( wxCommandEvent& event );
-	virtual void onButtonResetClicked( wxCommandEvent& event );
 	virtual void onButtonBenchmarkClicked( wxCommandEvent& event );
 	
 	void doOnTestTypeSelected();

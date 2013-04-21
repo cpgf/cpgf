@@ -29,8 +29,9 @@ public:
 	TestCaseParticles();
 
 	virtual void render(int viewWidth, int viewHeight);
-	virtual void setEase(int easeIndex);
-	virtual void reset();
+
+protected:
+	virtual void doReset();
 
 private:
 	void setRatio(float ratio);
@@ -53,7 +54,6 @@ TestCasePtr createTestCaseParticles()
 
 TestCaseParticles::TestCaseParticles()
 {
-	this->reset();
 }
 
 void TestCaseParticles::render(int viewWidth, int viewHeight)
@@ -83,21 +83,8 @@ void TestCaseParticles::setRatio(float ratio)
 	}
 }
 
-void TestCaseParticles::setEase(int easeIndex)
+void TestCaseParticles::doReset()
 {
-	this->reset();
-
-	GTweenEaseType ease = getEase(easeIndex)->ease;
-	GTween & tween = GTweenList::getInstance()->to(duration)
-		.ease(ease)
-		.target(createAccessor(this, 0, &TestCaseParticles::setRatio), 0.0f, 1.0f)
-	;
-}
-
-void TestCaseParticles::reset()
-{
-	GTweenList::getInstance()->clear();
-
 	const float marginX = 0.1f;
 	const float marginY = 0.1f;
 	const float spaceX = (2.0f - marginX * 2) / (particleCountInRow - 1);
@@ -122,5 +109,11 @@ void TestCaseParticles::reset()
 			this->particles.push_back(y + yOffset);
 		}
 	}
+
+	GTween & tween = GTweenList::getInstance()->to(duration)
+		.target(createAccessor(this, 0, &TestCaseParticles::setRatio), 0.0f, 1.0f)
+	;
+
+	this->setTweenable(&tween);
 }
 

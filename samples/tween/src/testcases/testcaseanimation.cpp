@@ -11,8 +11,6 @@
 #include "cpgf/tween/gtweenlist.h"
 #include "cpgf/accessor/gaccessor.h"
 
-#include "wx/log.h"
-
 #if defined(_WIN32)
     #include <windows.h>
 #endif
@@ -26,8 +24,9 @@ public:
 	TestCaseAnimation();
 
 	virtual void render(int viewWidth, int viewHeight);
-	virtual void setEase(int easeIndex);
-	virtual void reset();
+
+protected:
+	virtual void doReset();
 
 private:
 	Sprite sprite;
@@ -47,7 +46,6 @@ TestCasePtr createTestCaseAnimation()
 
 TestCaseAnimation::TestCaseAnimation()
 {
-	this->reset();
 }
 
 void TestCaseAnimation::render(int viewWidth, int viewHeight)
@@ -58,37 +56,15 @@ void TestCaseAnimation::render(int viewWidth, int viewHeight)
 	this->target.render(viewWidth, viewHeight);
 }
 
-struct OnComplete
+void TestCaseAnimation::doReset()
 {
-	OnComplete() {}
-	void operator() () const {
-		wxLogDebug("Tween complete");
-	}
-};
-
-void TestCaseAnimation::setEase(int easeIndex)
-{
-	this->reset();
-
-	GTweenEaseType ease = getEase(easeIndex)->ease;
-	GTween & tween = GTweenList::getInstance()->to(duration)
-		.ease(ease)
-		.target(createAccessor(&this->sprite, &Sprite::getX, &Sprite::setX), endX)
-		.target(createAccessor(&this->sprite, &Sprite::getY, &Sprite::setY), endY)
-		.onComplete(OnComplete())
-	;
-}
-
-void TestCaseAnimation::reset()
-{
-	GTweenList::getInstance()->clear();
-
 	this->sprite.setX(startX);
 	this->sprite.setY(startY);
 	this->sprite.setZ(0);
 	this->sprite.setAlpha(1.0f);
 	this->sprite.setSize(60);
 	this->sprite.setColor(0x7777ff);
+	this->sprite.setRotate(0);
 
 	this->target.setX(endX);
 	this->target.setY(endY);
@@ -96,5 +72,13 @@ void TestCaseAnimation::reset()
 	this->target.setAlpha(0.1f);
 	this->target.setSize(this->sprite.getSize());
 	this->target.setColor(0x7777ff);
+
+	GTween & tween = GTweenList::getInstance()->to(duration)
+		.target(createAccessor(&this->sprite, &Sprite::getX, &Sprite::setX), endX)
+		.target(createAccessor(&this->sprite, &Sprite::getY, &Sprite::setY), endY)
+		.target(createAccessor(&this->sprite, &Sprite::getRotate, &Sprite::setRotate), 360)
+	;
+
+	this->setTweenable(&tween);
 }
 

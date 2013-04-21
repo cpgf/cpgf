@@ -10,9 +10,12 @@ GTweenable::GTweenable()
 
 GTweenable::~GTweenable()
 {
+	if(this->callbackOnDestroy) {
+		this->callbackOnDestroy();
+	}
 }
 
-bool GTweenable::doTick(GTweenNumber frameTime, bool forceReversed)
+bool GTweenable::doTick(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames)
 {
 	if(this->isCompleted()) {
 		return true;
@@ -23,14 +26,15 @@ bool GTweenable::doTick(GTweenNumber frameTime, bool forceReversed)
 	}
 
 	if(frameTime > 0) {
-		this->currentTime += (this->flags.has(tfUseFrames) ? 1.0f : frameTime) * this->timeScaleTime;
+		frameTime *= this->timeScaleTime;
+		this->currentTime += (forceUseFrames || this->flags.has(tfUseFrames)) ? this->timeScaleTime : frameTime;
 
 		if(this->currentTime <= 0) {
 			return false;
 		}
 	}
 
-	this->performTime(frameTime, forceReversed);
+	this->performTime(frameTime, forceReversed, forceUseFrames);
 
 	return this->isCompleted();
 }
@@ -58,14 +62,25 @@ void GTweenable::resume()
 void GTweenable::restart()
 {
 	this->currentTime = 0;
-	this->repeatCount = 0;
 	this->cycleCount = 0;
 	this->flags.clear(tfCompleted);
 }
 
-void GTweenable::doImmediateTick()
+void GTweenable::reset()
 {
-	this->tick(0);
+	this->currentTime = -this->delayTime;
+	this->cycleCount = 0;
+	this->flags.clear(tfCompleted);
+}
+
+void GTweenable::doImmediateTick(bool forceReversed)
+{
+	bool paused = this->isPaused();
+	this->flags.clear(tfPaused);
+
+	this->doTick(0, forceReversed, false);
+
+	this->flags.setByBool(tfPaused, paused);
 }
 
 void GTweenable::doComplete(bool emitEvent)
@@ -81,6 +96,11 @@ void GTweenable::setOnComplete(const GTweenCallback & value)
 	this->callbackOnComplete = value;
 }
 
+void GTweenable::setOnDestroy(const GTweenCallback & value)
+{
+	this->callbackOnDestroy = value;
+}
+
 void GTweenable::setBackward(bool value)
 {
 	this->flags.setByBool(tfBackward, value);
@@ -93,8 +113,10 @@ void GTweenable::setUseFrames(bool value)
 
 void GTweenable::setDelay(GTweenNumber value)
 {
-	this->delayTime = value;
-	this->currentTime = -value;
+	if(this->delayTime != value) {
+		this->delayTime = value;
+		this->currentTime = -value;
+	}
 }
 
 void GTweenable::setRepeatCount(int repeatCount)

@@ -78,6 +78,7 @@ public:
 	GTween & yoyo(bool value);
 
 	GTween & onComplete(const GTweenCallback & value);
+	GTween & onDestroy(const GTweenCallback & value);
 
 	bool isRunning() const
 	{
@@ -85,7 +86,7 @@ public:
 	}
 
 protected:
-	virtual void performTime(GTweenNumber frameTime, bool forceReversed);
+	virtual void performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames);
 
 private:
 	void init();

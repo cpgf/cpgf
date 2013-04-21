@@ -46,7 +46,7 @@ public:
 
 	// return true if the tween is completed
 	bool tick(GTweenNumber frameTime) {
-		return this->doTick(frameTime, false);
+		return this->doTick(frameTime, false, false);
 	}
 
 	GTweenNumber getTotalDuration();
@@ -55,6 +55,7 @@ public:
 	void pause();
 	void resume();
 	virtual void restart();
+	virtual void reset();
 
 	bool isPaused() {
 		return this->flags.has(tfPaused);
@@ -70,14 +71,20 @@ public:
 		return this->flags.has(tfUseFrames);
 	}
 
-protected:
-	bool doTick(GTweenNumber frameTime, bool forceReversed);
-	virtual void performTime(GTweenNumber frameTime, bool forceReversed) = 0;
+	bool isBackward() const
+	{
+		return this->flags.has(tfBackward);
+	}
 
 protected:
-	void doImmediateTick();
+	bool doTick(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames);
+	virtual void performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames) = 0;
+
+protected:
+	void doImmediateTick(bool forceReversed);
 	void doComplete(bool emitEvent);
 	void setOnComplete(const GTweenCallback & value);
+	void setOnDestroy(const GTweenCallback & value);
 	void setBackward(bool value);
 	void setUseFrames(bool value);
 	void setDelay(GTweenNumber value);
@@ -96,6 +103,7 @@ protected:
 	GFlags<GTweenFlags> flags;
 
 	GTweenCallback callbackOnComplete;
+	GTweenCallback callbackOnDestroy;
 	
 private:
 	friend class GTimeline;

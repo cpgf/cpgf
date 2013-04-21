@@ -197,6 +197,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\ui\panelcommand.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\ui\panelease.cpp"
 					>
 				</File>
@@ -256,6 +260,10 @@
 			<Filter
 				Name="testcases"
 				>
+				<File
+					RelativePath=".\src\testcases\testcase.cpp"
+					>
+				</File>
 				<File
 					RelativePath=".\src\testcases\testcaseallcharts.cpp"
 					>
