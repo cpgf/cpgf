@@ -1,9 +1,9 @@
 #ifndef __TOOLPANEL_H
 #define __TOOLPANEL_H
 
-#include "mainui.h"
+#include "../uiresource/mainui.h"
 
-#include "testcase.h"
+#include "../testcases/testcase.h"
 #include "cpgf/gcallback.h"
 
 

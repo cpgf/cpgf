@@ -66,7 +66,7 @@ void GTweenable::restart()
 	this->flags.clear(tfCompleted);
 }
 
-void GTweenable::reset()
+void GTweenable::restartWithDelay()
 {
 	this->currentTime = -this->delayTime;
 	this->cycleCount = 0;
@@ -103,10 +103,7 @@ void GTweenable::setUseFrames(bool value)
 
 void GTweenable::setDelay(GTweenNumber value)
 {
-	if(this->delayTime != value) {
-		this->delayTime = value;
-		this->reset();
-	}
+	this->delayTime = value;
 }
 
 void GTweenable::setRepeatCount(int repeatCount)

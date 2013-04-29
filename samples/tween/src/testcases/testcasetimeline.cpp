@@ -5,8 +5,8 @@
 
 #include "testcase.h"
 
-#include "sprite.h"
-#include "easeinfo.h"
+#include "../ui/sprite.h"
+#include "../easeinfo.h"
 
 #include "cpgf/tween/gtimeline.h"
 #include "cpgf/accessor/gaccessor.h"

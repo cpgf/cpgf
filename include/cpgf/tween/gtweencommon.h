@@ -55,7 +55,7 @@ public:
 	void pause();
 	void resume();
 	virtual void restart();
-	virtual void reset();
+	virtual void restartWithDelay();
 
 	bool isPaused() {
 		return this->flags.has(tfPaused);

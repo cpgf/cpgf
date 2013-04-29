@@ -143,12 +143,12 @@ void GTweenList::restart()
 	}
 }
 
-void GTweenList::reset()
+void GTweenList::restartWithDelay()
 {
-	super::reset();
+	super::restartWithDelay();
 
 	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end(); ++it) {
-		it->tweenable->reset();
+		it->tweenable->restartWithDelay();
 	}
 }
 

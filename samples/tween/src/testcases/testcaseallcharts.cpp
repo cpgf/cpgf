@@ -5,8 +5,8 @@
 
 #include "testcase.h"
 
-#include "sprite.h"
-#include "easeinfo.h"
+#include "../ui/sprite.h"
+#include "../easeinfo.h"
 #include "testcaseutil.h"
 
 #include "cpgf/tween/gtweenlist.h"

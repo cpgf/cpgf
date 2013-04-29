@@ -3,7 +3,7 @@
 #include "wx/dcbuffer.h"
 #include "wx/glcanvas.h"
 #include "wx/sizer.h"
- 
+
 #include "GL/glut.h"
 
 
@@ -56,7 +56,7 @@ namespace {
 
 void initGL()
 {
-	char * s = "\0";
+	char * s = (char *)"\0";
 	int n = 0;
 	glutInit(&n, &s);
 
@@ -73,7 +73,7 @@ void initGL()
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
-    glLightfv(GL_LIGHT0, GL_AMBIENT, light0_pos);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light0_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light0_specular);
     glLightfv(GL_LIGHT0, GL_POSITION, light0_pos);
@@ -101,7 +101,7 @@ void PanelCanvas::doPaint()
 {
     wxPaintDC(this);
     SetCurrent(*context);
-	
+
 	if(! initedGL) {
 		initedGL = true;
 		initGL();
@@ -125,7 +125,7 @@ void PanelCanvas::doPaint()
 	this->renderList.dispatch(viewWidth, viewHeight);
 
 	glPopMatrix();
- 
+
     glFlush();
     SwapBuffers();
 }

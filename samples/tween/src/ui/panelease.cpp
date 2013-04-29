@@ -1,5 +1,5 @@
 #include "panelease.h"
-#include "easeinfo.h"
+#include "../easeinfo.h"
 
 #include "wx/radiobut.h"
 

@@ -5,8 +5,8 @@
 
 #include "testcase.h"
 
-#include "sprite.h"
-#include "easeinfo.h"
+#include "../ui/sprite.h"
+#include "../easeinfo.h"
 
 #include "cpgf/tween/gtweenlist.h"
 #include "cpgf/accessor/gaccessor.h"
@@ -81,7 +81,7 @@ void TestCaseFollow::doReset()
 		inited = true;
 	}
 	else {
-		GTween & tween2 = GTweenList::getInstance()->to(this->getDuration())
+		GTweenList::getInstance()->to(this->getDuration())
 			.target(createAccessor(&this->target, &Sprite::getX, &Sprite::setX), endX)
 		;
 	}

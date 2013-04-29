@@ -5,7 +5,7 @@
 
 #include "testcase.h"
 
-#include "easeinfo.h"
+#include "../easeinfo.h"
 #include "cpgf/tween/easing/linear.h"
 
 #include "cpgf/tween/gtween.h"
@@ -90,7 +90,7 @@ void TestCase::resetTweenParam()
 void TestCase::reset()
 {
 	GTweenList::getInstance()->clear();
-	
+
 	this->doReset();
 
 	this->resetTweenParam();
@@ -105,7 +105,7 @@ void TestCase::play()
 	this->reset();
 
 	if(this->tweenable != NULL) {
-		this->tweenable->reset();
+		this->tweenable->restartWithDelay();
 		this->tweenable->resume();
 	}
 }

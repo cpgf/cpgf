@@ -3,7 +3,7 @@
 #include "panelease.h"
 #include "panelcommand.h"
 #include "toolpanel.h"
-#include "easeinfo.h"
+#include "../easeinfo.h"
 
 #include "cpgf/tween/gtweenlist.h"
 #include "cpgf/accessor/gaccessor.h"

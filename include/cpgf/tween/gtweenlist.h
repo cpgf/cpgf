@@ -68,7 +68,7 @@ public:
 	virtual bool removeOf(const void * instance);
 	virtual GTweenNumber getDuration() const;
 	virtual void restart();
-	virtual void reset();
+	virtual void restartWithDelay();
 
 protected:
 	virtual void performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames);

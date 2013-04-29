@@ -1,7 +1,7 @@
 #ifndef __MAINFRAME_H
 #define __MAINFRAME_H
 
-#include "mainui.h"
+#include "../uiresource/mainui.h"
 
 #include "paneltweentest.h"
 
@@ -13,7 +13,7 @@ private:
 
 public:
 	MainFrame();
-	
+
 private:
 	PanelTweenTest * tweenPanel;
 };

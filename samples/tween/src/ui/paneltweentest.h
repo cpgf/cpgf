@@ -7,7 +7,7 @@
 #endif
 
 #include "timer.h"
-#include "testcase.h"
+#include "../testcases/testcase.h"
 
 #include "wx/panel.h"
 #include "wx/sizer.h"
@@ -22,22 +22,22 @@ class PanelTweenTest : public wxPanel
 {
 private:
 	typedef wxPanel super;
-	
+
 public:
 	explicit PanelTweenTest(wxWindow * parent);
 	~PanelTweenTest();
-	
+
 	void start();
 	void end();
 
 	void setTestCase(const TestCasePtr & testCase);
-	
+
 private:
 	void onEaseButtonClicked(int easeIndex);
 	void onRender(int viewWidth, int viewHeight);
 	void onTestCaseChanged(const TestCasePtr & testCase);
 	void onTimer(int frameTime);
-	
+
 private:
 	ToolPanel * toolPanel;
 	PanelEase * easePanel;

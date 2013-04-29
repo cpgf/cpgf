@@ -2,7 +2,7 @@
 
 #include "cpgf/tween/gtweenlist.h"
 #include "cpgf/accessor/gaccessor.h"
-#include "easeinfo.h"
+#include "../easeinfo.h"
 #include "wx/timer.h"
 #include "wx/msgdlg.h"
 #include <vector>
