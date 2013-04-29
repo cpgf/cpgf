@@ -38,7 +38,6 @@ const int startX = 150;
 const int endX = SpriteBoardSize - startX;
 const int startY = endX;
 const int endY = startX;
-const int duration = 2000;
 
 TestCasePtr createTestCaseFollow()
 {
@@ -73,7 +72,7 @@ void TestCaseFollow::doReset()
 	this->target.setSize(this->sprite.getSize());
 	this->target.setColor(0xff7777);
 
-	GTween & tween = GTweenList::getInstance()->to(duration)
+	GTween & tween = GTweenList::getInstance()->to(this->getDuration())
 		.follow(createAccessor(&this->sprite, &Sprite::getX, &Sprite::setX), createGetter(&this->target, &Sprite::getX))
 		.follow(createAccessor(&this->sprite, &Sprite::getY, &Sprite::setY), createGetter(&this->target, &Sprite::getY))
 	;
@@ -82,7 +81,7 @@ void TestCaseFollow::doReset()
 		inited = true;
 	}
 	else {
-		GTween & tween2 = GTweenList::getInstance()->to(duration)
+		GTween & tween2 = GTweenList::getInstance()->to(this->getDuration())
 			.target(createAccessor(&this->target, &Sprite::getX, &Sprite::setX), endX)
 		;
 	}

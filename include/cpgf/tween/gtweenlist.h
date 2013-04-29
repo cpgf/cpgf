@@ -60,11 +60,13 @@ public:
 		return this->from(duration).target(accessor, target);
 	}
 
+	size_t getTweenableCount() const;
 	void clear();
 
 public:
+	void remove(const GTweenable & tweenable);
 	virtual bool removeOf(const void * instance);
-	virtual GTweenNumber getDuration();
+	virtual GTweenNumber getDuration() const;
 	virtual void restart();
 	virtual void reset();
 

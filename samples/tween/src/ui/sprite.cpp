@@ -123,26 +123,26 @@ void Sprite::render(int viewWidth, int viewHeight)
 	ty *= 2;
 	float s = this->size;
 	s = s / viewWidth;
-	s *= 2;
 	glPushMatrix();
 
 	glColor4ub((this->color >> 16) & 0xff, (this->color >> 8) & 0xff, this->color & 0xff, this->alpha * 255);
 
 	glTranslatef(tx, ty, tz);
-	glRotatef(rotate, 0, 0, 1);
+	glRotatef(rotate, 1, 1, 1);
 
 	switch(this->shape) {
 	case ssBox:
-		glBegin(GL_QUADS);
-		glVertex3f(-s / 2, -s / 2, 0);
-		glVertex3f(s / 2, -s / 2, 0);
-		glVertex3f(s / 2, s / 2, 0);
-		glVertex3f(-s / 2, s / 2, 0);
-		glEnd();
+		//glBegin(GL_QUADS);
+		//glVertex3f(-s, -s, 0);
+		//glVertex3f(s, -s, 0);
+		//glVertex3f(s, s, 0);
+		//glVertex3f(-s, s, 0);
+		//glEnd();
+		glutSolidTeapot(s);
 		break;
 
 	default:
-		glutSolidSphere(s / 2, 36, 18);
+		glutSolidSphere(s, 36, 18);
 		break;
 	}
 

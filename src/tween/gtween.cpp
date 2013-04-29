@@ -59,7 +59,7 @@ bool GTween::removeOf(const void * instance)
 	return this->isCompleted();
 }
 
-GTweenNumber GTween::getDuration()
+GTweenNumber GTween::getDuration() const
 {
 	return this->durationTime;
 }
@@ -111,6 +111,10 @@ void GTween::performTime(GTweenNumber /*frameTime*/, bool forceReversed, bool /*
 			if(this->flags.has(tfReverseWhenRepeat)) {
 				this->flags.toggle(tfBackward);
 			}
+			
+			if(this->callbackOnCycleComplete) {
+				this->callbackOnCycleComplete();
+			}
 		}
 	}
 
@@ -128,6 +132,10 @@ void GTween::performTime(GTweenNumber /*frameTime*/, bool forceReversed, bool /*
 		}
 		for(ListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
 			(*it)->tick(&param, this->easeCallback);
+		}
+		
+		if(this->callbackOnUpdate) {
+			this->callbackOnUpdate();
 		}
 	}
 	
@@ -208,6 +216,18 @@ GTween & GTween::onComplete(const GTweenCallback & value)
 GTween & GTween::onDestroy(const GTweenCallback & value)
 {
 	this->setOnDestroy(value);
+	return *this;
+}
+
+GTween & GTween::onUpdate(const GTweenCallback & value)
+{
+	this->setOnUpdate(value);
+	return *this;
+}
+
+GTween & GTween::onCycleComplete(const GTweenCallback & value)
+{
+	this->setOnCycleComplete(value);
 	return *this;
 }
 

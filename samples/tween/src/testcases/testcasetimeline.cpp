@@ -111,21 +111,22 @@ void TestCaseTimeline::doReset()
 
 	timeline2.append(
 		timeline2.to(this->getDuration())
-			.ease(QuintEase::easeIn())
-			.target(createAccessor(&this->sprites[1], &Sprite::getSize, &Sprite::setSize), size)
-	);
-	timeline2.append(
-		timeline2.to(this->getDuration())
 			.ease(SinEase::easeIn())
 			.target(createAccessor(&this->sprites[1], &Sprite::getRotate, &Sprite::setRotate), 360)
 	);
-	timeline.append(
-		timeline2
+	timeline2.prepend(
+		timeline2.to(this->getDuration())
+			.ease(QuintEase::easeIn())
+			.target(createAccessor(&this->sprites[1], &Sprite::getSize, &Sprite::setSize), size)
 	);
-	timeline.append(
+	t = timeline.append(
 		timeline.to(this->getDuration())
 			.ease(CubicEase::easeIn())
 			.relative(createAccessor(&this->sprites[2], &Sprite::getX, &Sprite::setX), distanceX)
+	);
+	timeline.insert(
+		t,
+		timeline2
 	);
 
 	t = timeline.append(

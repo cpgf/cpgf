@@ -18,9 +18,12 @@ public:
 	~GTimeline();
 
 public:
-	virtual GTweenNumber getDuration();
+	virtual GTweenNumber getDuration() const;
+	virtual bool removeOf(const void * instance);
 	
 	GTweenNumber append(const GTweenable & tweenable);
+	void prepend(const GTweenable & tweenable);
+	void insert(GTweenNumber time, const GTweenable & tweenable);
 	void setAt(GTweenNumber time, const GTweenable & tweenable);
 
 public:
@@ -36,6 +39,8 @@ public:
 
 	GTimeline & onComplete(const GTweenCallback & value);
 	GTimeline & onDestroy(const GTweenCallback & value);
+	GTimeline & onUpdate(const GTweenCallback & value);
+	GTimeline & onCycleComplete(const GTweenCallback & value);
 
 protected:
 	virtual void performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames);
@@ -44,7 +49,7 @@ private:
 	void invalidDurationTime();
 
 private:
-	GTweenNumber durationTime;
+	mutable GTweenNumber durationTime;
 };
 
 

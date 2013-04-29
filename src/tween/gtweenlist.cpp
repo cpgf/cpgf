@@ -101,6 +101,19 @@ void GTweenList::performTime(GTweenNumber frameTime, bool /*forceReversed*/, boo
 	}
 }
 
+void GTweenList::remove(const GTweenable & tweenable)
+{
+	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end();) {
+		if(it->tweenable == &tweenable) {
+			this->freeTween(it->tweenable, it->isTimeline());
+			it = this->tweenList.erase(it);
+		}
+		else {
+			++it;
+		}
+	}
+}
+
 bool GTweenList::removeOf(const void * instance)
 {
 	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end();) {
@@ -116,7 +129,7 @@ bool GTweenList::removeOf(const void * instance)
 	return false;
 }
 
-GTweenNumber GTweenList::getDuration()
+GTweenNumber GTweenList::getDuration() const
 {
 	return 0;
 }
@@ -137,6 +150,11 @@ void GTweenList::reset()
 	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end(); ++it) {
 		it->tweenable->reset();
 	}
+}
+
+size_t GTweenList::getTweenableCount() const
+{
+	return this->tweenList.size();
 }
 
 void GTweenList::clear()

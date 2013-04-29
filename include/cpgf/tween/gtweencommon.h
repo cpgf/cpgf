@@ -42,14 +42,14 @@ public:
 	// return true if the tween is completed
 	virtual bool removeOf(const void * instance) = 0;
 
-	virtual GTweenNumber getDuration() = 0;
+	virtual GTweenNumber getDuration() const = 0;
 
 	// return true if the tween is completed
 	bool tick(GTweenNumber frameTime) {
 		return this->doTick(this->isUseFrames() ? 1.0f : frameTime, false, false);
 	}
 
-	GTweenNumber getTotalDuration();
+	GTweenNumber getTotalDuration() const;
 
 public:
 	void pause();
@@ -87,8 +87,6 @@ protected:
 protected:
 	void doImmediateTick(bool forceReversed);
 	void doComplete(bool emitEvent);
-	void setOnComplete(const GTweenCallback & value);
-	void setOnDestroy(const GTweenCallback & value);
 	void setBackward(bool value);
 	void setUseFrames(bool value);
 	void setDelay(GTweenNumber value);
@@ -96,6 +94,11 @@ protected:
 	void setRepeatDelay(GTweenNumber value);
 	void setYoyo(bool value);
 	void setTimeScale(GTweenNumber value);
+	
+	void setOnComplete(const GTweenCallback & value);
+	void setOnDestroy(const GTweenCallback & value);
+	void setOnUpdate(const GTweenCallback & value);
+	void setOnCycleComplete(const GTweenCallback & value);
 
 protected:
 	GTweenNumber currentTime;
@@ -108,6 +111,8 @@ protected:
 
 	GTweenCallback callbackOnComplete;
 	GTweenCallback callbackOnDestroy;
+	GTweenCallback callbackOnUpdate;
+	GTweenCallback callbackOnCycleComplete;
 	
 private:
 	friend class GTimeline;

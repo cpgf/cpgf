@@ -39,7 +39,7 @@ bool GTweenable::doTick(GTweenNumber frameTime, bool forceReversed, bool forceUs
 	return this->isCompleted();
 }
 
-GTweenNumber GTweenable::getTotalDuration()
+GTweenNumber GTweenable::getTotalDuration() const
 {
 	if(this->repeatCount >= 0) {
 		return (this->getDuration() + this->repeatDelayTime) * (this->repeatCount + 1);
@@ -91,16 +91,6 @@ void GTweenable::doComplete(bool emitEvent)
 	}
 }
 
-void GTweenable::setOnComplete(const GTweenCallback & value)
-{
-	this->callbackOnComplete = value;
-}
-
-void GTweenable::setOnDestroy(const GTweenCallback & value)
-{
-	this->callbackOnDestroy = value;
-}
-
 void GTweenable::setBackward(bool value)
 {
 	this->flags.setByBool(tfBackward, value);
@@ -138,6 +128,27 @@ void GTweenable::setTimeScale(GTweenNumber value)
 {
 	this->timeScaleTime = value;
 }
+
+void GTweenable::setOnComplete(const GTweenCallback & value)
+{
+	this->callbackOnComplete = value;
+}
+
+void GTweenable::setOnDestroy(const GTweenCallback & value)
+{
+	this->callbackOnDestroy = value;
+}
+
+void GTweenable::setOnUpdate(const GTweenCallback & value)
+{
+	this->callbackOnUpdate = value;
+}
+
+void GTweenable::setOnCycleComplete(const GTweenCallback & value)
+{
+	this->callbackOnCycleComplete = value;
+}
+
 
 
 } // namespace cpgf

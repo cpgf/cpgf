@@ -21,7 +21,7 @@ public:
 	~GTween();
 
 	virtual bool removeOf(const void * instance);
-	virtual GTweenNumber getDuration();
+	virtual GTweenNumber getDuration() const;
 
 	template <typename AccessorType>
 	GTween & target(const AccessorType & accessor, const typename AccessorType::ValueType & target)
@@ -79,6 +79,8 @@ public:
 
 	GTween & onComplete(const GTweenCallback & value);
 	GTween & onDestroy(const GTweenCallback & value);
+	GTween & onUpdate(const GTweenCallback & value);
+	GTween & onCycleComplete(const GTweenCallback & value);
 
 	bool isRunning() const
 	{

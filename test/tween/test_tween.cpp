@@ -103,27 +103,6 @@ void verify(GTween * tween, ...)
 	}
 }
 
-/*
-GTEST(Fake)
-{
-	int x = 1;
-	Pointer tween = createTween();
-	tween->tween(createAccessor(NULL, &x, &x), 5)
-		.duration(4)
-//		.backward(true)
-		.useFrames(true)
-//		.delay(2)
-		.repeat(2)
-		.yoyo(true)
-//		.repeatDelay(3)
-	;
-	for(int i = 0; i < 20; ++i) {
-		tween->tick(10);
-		cout << i << " : " << x << endl;
-	}
-}
-*/
-
 GTEST(Tween_default)
 {
 	Pointer tween = createTween();
