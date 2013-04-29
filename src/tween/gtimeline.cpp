@@ -19,13 +19,22 @@ void GTimeline::invalidDurationTime()
 	this->durationTime = -1;
 }
 
+void GTimeline::removeForInstance(const void * instance)
+{
+	super::removeForInstance(instance);
+
+	if(this->getTweenableCount() == 0) {
+		this->doComplete(false);
+	}
+}
+
 GTweenNumber GTimeline::getDuration() const
 {
 	if(this->durationTime < 0) {
 		this->durationTime = 0;
 		for(ListType::const_iterator it = this->tweenList.begin(); it != this->tweenList.end(); ++it) {
 			if(it->hasAddedToTimeline()) {
-				GTweenNumber t = it->startTime + it->tweenable->getTotalDuration();
+				GTweenNumber t = it->startTime + it->tweenable->getTotalDuration() + it->tweenable->getDelay();
 				if(t > this->durationTime) {
 					this->durationTime = t;
 				}
@@ -34,17 +43,6 @@ GTweenNumber GTimeline::getDuration() const
 	}
 
 	return this->durationTime;
-}
-
-bool GTimeline::removeOf(const void * instance)
-{
-	super::removeOf(instance);
-
-	if(this->getTweenableCount() == 0) {
-		this->flags.set(tfCompleted);
-	}
-
-	return this->isCompleted();
 }
 
 GTweenNumber GTimeline::append(const GTweenable & tweenable)
@@ -57,7 +55,7 @@ GTweenNumber GTimeline::append(const GTweenable & tweenable)
 		}
 		else {
 			if(it->hasAddedToTimeline()) {
-				GTweenNumber t = it->startTime + it->tweenable->getTotalDuration();
+				GTweenNumber t = it->startTime + it->tweenable->getTotalDuration() + it->tweenable->getDelay();
 				if(t > duration) {
 					duration = t;
 				}
@@ -91,7 +89,7 @@ void GTimeline::prepend(const GTweenable & tweenable)
 		raiseCoreException(Error_Tween_TweenableNotOwnedByTimeline);
 	}
 
-	GTweenNumber duration = tweenable.getTotalDuration();
+	GTweenNumber duration = tweenable.getTotalDuration() + tweenable.getDelay();
 	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end(); ++it) {
 		if(it->tweenable != &tweenable && it->hasAddedToTimeline()) {
 			it->startTime += duration;
@@ -118,11 +116,24 @@ void GTimeline::insert(GTweenNumber time, const GTweenable & tweenable)
 		raiseCoreException(Error_Tween_TweenableNotOwnedByTimeline);
 	}
 
-	GTweenNumber duration = tweenable.getTotalDuration();
+	GTweenNumber minStartTime = -1.0f;
 	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end(); ++it) {
 		if(it->tweenable != &tweenable && it->hasAddedToTimeline()) {
 			if(it->startTime >= time) {
-				it->startTime += duration;
+				if(minStartTime < 0 || it->startTime < minStartTime) {
+					minStartTime = it->startTime;
+				}
+			}
+		}
+	}
+	if(minStartTime >= 0) {
+		GTweenNumber duration = tweenable.getTotalDuration() + tweenable.getDelay();
+		GTweenNumber deltaTime = duration - (minStartTime - time);
+		for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end(); ++it) {
+			if(it->tweenable != &tweenable && it->hasAddedToTimeline()) {
+				if(it->startTime >= time) {
+					it->startTime += deltaTime;
+				}
 			}
 		}
 	}
@@ -147,76 +158,17 @@ void GTimeline::setAt(GTweenNumber time, const GTweenable & tweenable)
 	raiseCoreException(Error_Tween_TweenableNotOwnedByTimeline);
 }
 
-GTimeline & GTimeline::backward(bool value)
+GTweenNumber GTimeline::getStartTime(const GTweenable & tweenable)
 {
-	this->setBackward(value);
-	return *this;
-}
+	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end(); ++it) {
+		if(it->tweenable == &tweenable) {
+			return it->startTime;
+		}
+	}
 
-GTimeline & GTimeline::useFrames(bool value)
-{
-	this->setUseFrames(value);
-	return *this;
-}
-
-GTimeline & GTimeline::delay(GTweenNumber value)
-{
-	this->setDelay(value);
-	return *this;
-}
-
-GTimeline & GTimeline::timeScale(GTweenNumber value)
-{
-	this->setTimeScale(value);
-	return *this;
-}
-
-GTimeline & GTimeline::immediateTick()
-{
-	this->doImmediateTick(this->isBackward());
-	return *this;
-}
-
-GTimeline & GTimeline::repeat(int repeatCount)
-{
-	this->setRepeatCount(repeatCount);
-	return *this;
-}
-
-GTimeline & GTimeline::repeatDelay(GTweenNumber value)
-{
-	this->setRepeatDelay(value);
-	return *this;
-}
-
-GTimeline & GTimeline::yoyo(bool value)
-{
-	this->setYoyo(value);
-	return *this;
-}
-
-GTimeline & GTimeline::onComplete(const GTweenCallback & value)
-{
-	this->setOnComplete(value);
-	return *this;
-}
-
-GTimeline & GTimeline::onDestroy(const GTweenCallback & value)
-{
-	this->setOnDestroy(value);
-	return *this;
-}
-
-GTimeline & GTimeline::onUpdate(const GTweenCallback & value)
-{
-	this->setOnUpdate(value);
-	return *this;
-}
-
-GTimeline & GTimeline::onCycleComplete(const GTweenCallback & value)
-{
-	this->setOnCycleComplete(value);
-	return *this;
+	raiseCoreException(Error_Tween_TweenableNotOwnedByTimeline);
+	
+	return 0;
 }
 
 void GTimeline::performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames)
@@ -262,17 +214,17 @@ void GTimeline::performTime(GTweenNumber frameTime, bool forceReversed, bool for
 					shouldSetValue = false;
 				}
 			}
-			if(this->flags.has(tfReverseWhenRepeat)) {
-				this->flags.toggle(tfBackward);
+			if(this->isYoyo()) {
+				this->toggleBackward();
 			}
 			
-			if(this->callbackOnCycleComplete) {
-				this->callbackOnCycleComplete();
+			if(this->callbackOnRepeat) {
+				this->callbackOnRepeat();
 			}
 		}
 	}
 
-	bool reversed = forceReversed || this->flags.has(tfBackward);
+	bool reversed = forceReversed || this->isBackward();
 	if(reversed) {
 		t = this->durationTime - t;
 	}
@@ -284,7 +236,7 @@ void GTimeline::performTime(GTweenNumber frameTime, bool forceReversed, bool for
 			}
 			if(frameTime == 0
 				|| (!reversed && t >= it->startTime)
-				|| (reversed && t < it->startTime + it->tweenable->getTotalDuration())
+				|| (reversed && t < it->startTime + it->tweenable->getTotalDuration() + it->tweenable->getDelay())
 			) {
 				it->tweenable->doTick(frameTime, reversed, forceUseFrames || this->isUseFrames());
 			}

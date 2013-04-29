@@ -83,6 +83,7 @@ void TestCaseFollow::doReset()
 	else {
 		GTweenList::getInstance()->to(this->getDuration())
 			.target(createAccessor(&this->target, &Sprite::getX, &Sprite::setX), endX)
+			.useFrames(this->useFrames())
 		;
 	}
 

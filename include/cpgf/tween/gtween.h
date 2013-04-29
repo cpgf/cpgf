@@ -20,8 +20,8 @@ public:
 	GTween();
 	~GTween();
 
-	virtual bool removeOf(const void * instance);
 	virtual GTweenNumber getDuration() const;
+	virtual void removeForInstance(const void * instance);
 
 	template <typename AccessorType>
 	GTween & target(const AccessorType & accessor, const typename AccessorType::ValueType & target)
@@ -67,31 +67,24 @@ public:
 
 	GTween & ease(const GTweenEaseType & ease);
 	GTween & duration(GTweenNumber durationTime);
-	GTween & backward(bool value);
-	GTween & useFrames(bool value);
-	GTween & delay(GTweenNumber value);
-	GTween & timeScale(GTweenNumber value);
-	GTween & immediateTick();
 
-	GTween & repeat(int repeatCount);
-	GTween & repeatDelay(GTweenNumber value);
-	GTween & yoyo(bool value);
+	GTween & backward(bool value) { return static_cast<GTween &>(super::backward(value)); }
+	GTween & useFrames(bool value) { return static_cast<GTween &>(super::useFrames(value)); }
+	GTween & delay(GTweenNumber value) { return static_cast<GTween &>(super::delay(value)); }
+	GTween & timeScale(GTweenNumber value) { return static_cast<GTween &>(super::timeScale(value)); }
 
-	GTween & onComplete(const GTweenCallback & value);
-	GTween & onDestroy(const GTweenCallback & value);
-	GTween & onUpdate(const GTweenCallback & value);
-	GTween & onCycleComplete(const GTweenCallback & value);
+	GTween & repeat(int repeatCount) { return static_cast<GTween &>(super::repeat(repeatCount)); }
+	GTween & repeatDelay(GTweenNumber value) { return static_cast<GTween &>(super::repeatDelay(value)); }
+	GTween & yoyo(bool value) { return static_cast<GTween &>(super::yoyo(value)); }
 
-	bool isRunning() const
-	{
-		return this->flags.has(tfInited) && ! this->flags.has(tfPaused);
-	}
+	GTween & onComplete(const GTweenCallback & value) { return static_cast<GTween &>(super::onComplete(value)); }
+	GTween & onDestroy(const GTweenCallback & value) { return static_cast<GTween &>(super::onDestroy(value)); }
+	GTween & onUpdate(const GTweenCallback & value) { return static_cast<GTween &>(super::onUpdate(value)); }
+	GTween & onRepeat(const GTweenCallback & value) { return static_cast<GTween &>(super::onRepeat(value)); }
 
 protected:
 	virtual void performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames);
-
-private:
-	void init();
+	virtual void initialize();
 
 private:
 	GTweenEaseType easeCallback;

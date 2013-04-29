@@ -46,6 +46,10 @@ protected:
 		return this->tweenParam.duration;
 	}
 
+	bool useFrames() const {
+		return this->tweenParam.useFrames;
+	}
+
 	void resetEase();
 	void resetTweenParam();
 

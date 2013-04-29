@@ -39,15 +39,37 @@ bool GTweenable::doTick(GTweenNumber frameTime, bool forceReversed, bool forceUs
 		}
 	}
 
+	if(! this->flags.has(tfInitialized)) {
+		this->flags.set(tfInitialized);
+
+		if(this->callbackOnInitialize) {
+			this->callbackOnInitialize();
+		}
+
+		this->initialize();
+	}
+
 	this->performTime(frameTime, forceReversed, forceUseFrames);
 
 	return this->isCompleted();
 }
 
+void GTweenable::doComplete(bool emitEvent)
+{
+	this->flags.set(tfCompleted);
+	if(emitEvent && this->callbackOnComplete) {
+		this->callbackOnComplete();
+	}
+}
+
+void GTweenable::initialize()
+{
+}
+
 GTweenNumber GTweenable::getTotalDuration() const
 {
 	if(this->repeatCount >= 0) {
-		return (this->getDuration() + this->repeatDelayTime) * (this->repeatCount + 1);
+		return this->getDuration() * (this->repeatCount + 1) + this->repeatDelayTime * this->repeatCount;
 	}
 	else {
 		return this->getDuration() + this->repeatDelayTime;
@@ -66,6 +88,7 @@ void GTweenable::resume()
 
 void GTweenable::restart()
 {
+	this->currentDelayTime = 0;
 	this->currentTime = 0;
 	this->cycleCount = 0;
 	this->flags.clear(tfCompleted);
@@ -77,78 +100,87 @@ void GTweenable::restartWithDelay()
 	this->currentDelayTime = this->delayTime;
 }
 
-void GTweenable::doImmediateTick(bool forceReversed)
+GTweenable & GTweenable::backward(bool value)
+{
+	this->flags.setByBool(tfBackward, value);
+	return *this;
+}
+
+GTweenable & GTweenable::useFrames(bool value)
+{
+	this->flags.setByBool(tfUseFrames, value);
+	return *this;
+}
+
+GTweenable & GTweenable::delay(GTweenNumber value)
+{
+	this->delayTime = value;
+	this->currentDelayTime = value;
+	return *this;
+}
+
+GTweenable & GTweenable::timeScale(GTweenNumber value)
+{
+	this->timeScaleTime = value;
+	return *this;
+}
+
+GTweenable & GTweenable::repeat(int repeatCount)
+{
+	this->repeatCount = repeatCount;
+	return *this;
+}
+
+GTweenable & GTweenable::repeatDelay(GTweenNumber value)
+{
+	this->repeatDelayTime = value;
+	return *this;
+}
+
+GTweenable & GTweenable::yoyo(bool value)
+{
+	this->flags.setByBool(tfReverseWhenRepeat, value);
+	return *this;
+}
+
+GTweenable & GTweenable::onInitialize(const GTweenCallback & value)
+{
+	this->callbackOnInitialize = value;
+	return *this;
+}
+
+GTweenable & GTweenable::onComplete(const GTweenCallback & value)
+{
+	this->callbackOnComplete = value;
+	return *this;
+}
+
+GTweenable & GTweenable::onDestroy(const GTweenCallback & value)
+{
+	this->callbackOnDestroy = value;
+	return *this;
+}
+
+GTweenable & GTweenable::onUpdate(const GTweenCallback & value)
+{
+	this->callbackOnUpdate = value;
+	return *this;
+}
+
+GTweenable & GTweenable::onRepeat(const GTweenCallback & value)
+{
+	this->callbackOnRepeat = value;
+	return *this;
+}
+
+void GTweenable::immediateTick()
 {
 	bool paused = this->isPaused();
 	this->flags.clear(tfPaused);
 
-	this->doTick(0, forceReversed, false);
+	this->doTick(0, this->isBackward(), false);
 
 	this->flags.setByBool(tfPaused, paused);
-}
-
-void GTweenable::doComplete(bool emitEvent)
-{
-	this->flags.set(tfCompleted);
-	if(emitEvent && this->callbackOnComplete) {
-		this->callbackOnComplete();
-	}
-}
-
-void GTweenable::setBackward(bool value)
-{
-	this->flags.setByBool(tfBackward, value);
-}
-
-void GTweenable::setUseFrames(bool value)
-{
-	this->flags.setByBool(tfUseFrames, value);
-}
-
-void GTweenable::setDelay(GTweenNumber value)
-{
-	this->delayTime = value;
-	this->currentDelayTime = value;
-}
-
-void GTweenable::setRepeatCount(int repeatCount)
-{
-	this->repeatCount = repeatCount;
-}
-
-void GTweenable::setRepeatDelay(GTweenNumber value)
-{
-	this->repeatDelayTime = value;
-}
-
-void GTweenable::setYoyo(bool value)
-{
-	this->flags.setByBool(tfReverseWhenRepeat, value);
-}
-
-void GTweenable::setTimeScale(GTweenNumber value)
-{
-	this->timeScaleTime = value;
-}
-
-void GTweenable::setOnComplete(const GTweenCallback & value)
-{
-	this->callbackOnComplete = value;
-}
-
-void GTweenable::setOnDestroy(const GTweenCallback & value)
-{
-	this->callbackOnDestroy = value;
-}
-
-void GTweenable::setOnUpdate(const GTweenCallback & value)
-{
-	this->callbackOnUpdate = value;
-}
-
-void GTweenable::setOnCycleComplete(const GTweenCallback & value)
-{
-	this->callbackOnCycleComplete = value;
 }
 
 

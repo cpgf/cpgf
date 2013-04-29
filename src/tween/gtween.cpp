@@ -41,7 +41,12 @@ GTween::~GTween()
 	}
 }
 
-bool GTween::removeOf(const void * instance)
+GTweenNumber GTween::getDuration() const
+{
+	return this->durationTime;
+}
+
+void GTween::removeForInstance(const void * instance)
 {
 	for(ListType::iterator it = this->itemList.begin(); it != this->itemList.end();) {
 		if((*it)->getInstance() == instance) {
@@ -53,24 +58,12 @@ bool GTween::removeOf(const void * instance)
 		}
 	}
 	if(this->itemList.empty()) {
-		this->flags.set(tfCompleted);
+		this->doComplete(false);
 	}
-
-	return this->isCompleted();
-}
-
-GTweenNumber GTween::getDuration() const
-{
-	return this->durationTime;
 }
 
 void GTween::performTime(GTweenNumber /*frameTime*/, bool forceReversed, bool /*forceUseFrames*/)
 {
-	if(! this->flags.has(tfInited)) {
-		this->flags.set(tfInited);
-		this->init();
-	}
-
 	bool shouldFinish = false;
 	bool shouldSetValue = true;
 	GTweenNumber t = this->currentTime;
@@ -108,17 +101,17 @@ void GTween::performTime(GTweenNumber /*frameTime*/, bool forceReversed, bool /*
 					shouldSetValue = false;
 				}
 			}
-			if(this->flags.has(tfReverseWhenRepeat)) {
-				this->flags.toggle(tfBackward);
+			if(this->isYoyo()) {
+				this->toggleBackward();
 			}
 			
-			if(this->callbackOnCycleComplete) {
-				this->callbackOnCycleComplete();
+			if(this->callbackOnRepeat) {
+				this->callbackOnRepeat();
 			}
 		}
 	}
 
-	if(forceReversed || this->flags.has(tfBackward)) {
+	if(forceReversed || this->isBackward()) {
 		t = this->durationTime - t;
 	}
 
@@ -159,79 +152,7 @@ GTween & GTween::duration(GTweenNumber durationTime)
 	return *this;
 }
 
-GTween & GTween::backward(bool value)
-{
-	this->setBackward(value);
-	return *this;
-}
-
-GTween & GTween::useFrames(bool value)
-{
-	this->setUseFrames(value);
-	return *this;
-}
-
-GTween & GTween::delay(GTweenNumber value)
-{
-	this->setDelay(value);
-	return *this;
-}
-
-GTween & GTween::timeScale(GTweenNumber value)
-{
-	this->setTimeScale(value);
-	return *this;
-}
-
-GTween & GTween::immediateTick()
-{
-	this->doImmediateTick(this->isBackward());
-	return *this;
-}
-
-GTween & GTween::repeat(int repeatCount)
-{
-	this->setRepeatCount(repeatCount);
-	return *this;
-}
-
-GTween & GTween::repeatDelay(GTweenNumber value)
-{
-	this->setRepeatDelay(value);
-	return *this;
-}
-
-GTween & GTween::yoyo(bool value)
-{
-	this->setYoyo(value);
-	return *this;
-}
-
-GTween & GTween::onComplete(const GTweenCallback & value)
-{
-	this->setOnComplete(value);
-	return *this;
-}
-
-GTween & GTween::onDestroy(const GTweenCallback & value)
-{
-	this->setOnDestroy(value);
-	return *this;
-}
-
-GTween & GTween::onUpdate(const GTweenCallback & value)
-{
-	this->setOnUpdate(value);
-	return *this;
-}
-
-GTween & GTween::onCycleComplete(const GTweenCallback & value)
-{
-	this->setOnCycleComplete(value);
-	return *this;
-}
-
-void GTween::init()
+void GTween::initialize()
 {
 	for(ListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
 		(*it)->init();

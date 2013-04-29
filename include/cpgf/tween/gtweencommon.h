@@ -23,9 +23,9 @@ typedef GCallback<void ()> GTweenCallback;
 
 class GTweenable : public GNoncopyable
 {
-protected:
+private:
 	enum GTweenFlags {
-		tfInited = 1 << 0,
+		tfInitialized = 1 << 0,
 		tfPaused = 1 << 1,
 		tfCompleted = 1 << 2,
 		tfUseFrames = 1 << 3,
@@ -39,66 +39,81 @@ protected:
 public:
 	virtual ~GTweenable();
 
-	// return true if the tween is completed
-	virtual bool removeOf(const void * instance) = 0;
+	virtual void removeForInstance(const void * instance) = 0;
 
 	virtual GTweenNumber getDuration() const = 0;
+	GTweenNumber getTotalDuration() const;
 
 	// return true if the tween is completed
 	bool tick(GTweenNumber frameTime) {
 		return this->doTick(this->isUseFrames() ? 1.0f : frameTime, false, false);
 	}
 
-	GTweenNumber getTotalDuration() const;
-
 public:
 	void pause();
 	void resume();
+	void immediateTick();
+
 	virtual void restart();
 	virtual void restartWithDelay();
 
+	GTweenable & backward(bool value);
+	GTweenable & useFrames(bool value);
+	GTweenable & delay(GTweenNumber value);
+	GTweenable & timeScale(GTweenNumber value);
+
+	GTweenable & repeat(int repeatCount);
+	GTweenable & repeatDelay(GTweenNumber value);
+	GTweenable & yoyo(bool value);
+
+	GTweenable & onInitialize(const GTweenCallback & value);
+	GTweenable & onComplete(const GTweenCallback & value);
+	GTweenable & onDestroy(const GTweenCallback & value);
+	GTweenable & onUpdate(const GTweenCallback & value);
+	GTweenable & onRepeat(const GTweenCallback & value);
+	
 	bool isPaused() {
 		return this->flags.has(tfPaused);
 	}
 
-	bool isCompleted() const
-	{
+	bool isCompleted() const {
 		return this->flags.has(tfCompleted);
 	}
 
-	bool isUseFrames() const
-	{
+	bool isUseFrames() const {
 		return this->flags.has(tfUseFrames);
 	}
 
-	bool isBackward() const
-	{
+	bool isBackward() const {
 		return this->flags.has(tfBackward);
 	}
+
+	bool isYoyo() const {
+		return this->flags.has(tfReverseWhenRepeat);
+	}
+
+	bool isRunning() const {
+		return this->flags.has(tfInitialized) && ! this->flags.has(tfPaused);
+	}
 	
+	GTweenNumber getDelay() const {
+		return this->delayTime;
+	}
+
 	GTweenNumber getTimeScale() const {
 		return this->timeScaleTime;
 	}
 
 protected:
 	bool doTick(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames);
-	virtual void performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames) = 0;
-
-protected:
-	void doImmediateTick(bool forceReversed);
 	void doComplete(bool emitEvent);
-	void setBackward(bool value);
-	void setUseFrames(bool value);
-	void setDelay(GTweenNumber value);
-	void setRepeatCount(int repeatCount);
-	void setRepeatDelay(GTweenNumber value);
-	void setYoyo(bool value);
-	void setTimeScale(GTweenNumber value);
 	
-	void setOnComplete(const GTweenCallback & value);
-	void setOnDestroy(const GTweenCallback & value);
-	void setOnUpdate(const GTweenCallback & value);
-	void setOnCycleComplete(const GTweenCallback & value);
+	virtual void performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames) = 0;
+	virtual void initialize();
+
+	void toggleBackward() {
+		this->flags.toggle(tfBackward);
+	}
 
 protected:
 	GTweenNumber currentTime;
@@ -110,10 +125,11 @@ protected:
 	GTweenNumber timeScaleTime;
 	GFlags<GTweenFlags> flags;
 
+	GTweenCallback callbackOnInitialize;
 	GTweenCallback callbackOnComplete;
 	GTweenCallback callbackOnDestroy;
 	GTweenCallback callbackOnUpdate;
-	GTweenCallback callbackOnCycleComplete;
+	GTweenCallback callbackOnRepeat;
 	
 private:
 	friend class GTimeline;

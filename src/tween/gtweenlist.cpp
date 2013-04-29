@@ -114,10 +114,16 @@ void GTweenList::remove(const GTweenable & tweenable)
 	}
 }
 
-bool GTweenList::removeOf(const void * instance)
+GTweenNumber GTweenList::getDuration() const
+{
+	return 0;
+}
+
+void GTweenList::removeForInstance(const void * instance)
 {
 	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end();) {
-		if(it->tweenable->removeOf(instance)) {
+		it->tweenable->removeForInstance(instance);
+		if(it->tweenable->isCompleted()) {
 			this->freeTween(it->tweenable, it->isTimeline());
 			it = this->tweenList.erase(it);
 		}
@@ -125,13 +131,6 @@ bool GTweenList::removeOf(const void * instance)
 			++it;
 		}
 	}
-
-	return false;
-}
-
-GTweenNumber GTweenList::getDuration() const
-{
-	return 0;
 }
 
 void GTweenList::restart()

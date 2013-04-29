@@ -59,30 +59,20 @@ void TestCase::setTweenParam(const TweenParam & tweenParam)
 void TestCase::resetTweenParam()
 {
 	if(this->tweenable != NULL) {
+		this->tweenable->useFrames(this->tweenParam.useFrames);
+		this->tweenable->backward(this->tweenParam.backward);
+		this->tweenable->delay(this->tweenParam.delay);
+		this->tweenable->timeScale(this->tweenParam.timeScale);
+		this->tweenable->repeat(this->tweenParam.repeat);
+		this->tweenable->yoyo(this->tweenParam.yoyo);
+		this->tweenable->repeatDelay(this->tweenParam.repeatDelay);
+
 		if(dynamic_cast<GTween *>(this->tweenable)) {
 			GTween * t = dynamic_cast<GTween *>(this->tweenable);
 			t->duration(this->tweenParam.duration);
-
-			t->useFrames(this->tweenParam.useFrames);
-			t->backward(this->tweenParam.backward);
-			t->delay(this->tweenParam.delay);
-			t->timeScale(this->tweenParam.timeScale);
-			t->repeat(this->tweenParam.repeat);
-			t->yoyo(this->tweenParam.yoyo);
-			t->repeatDelay(this->tweenParam.repeatDelay);
 		}
 		else {
-			GTimeline * t = dynamic_cast<GTimeline *>(this->tweenable);
-
-			t->useFrames(this->tweenParam.useFrames);
-			t->backward(this->tweenParam.backward);
-			t->delay(this->tweenParam.delay);
-			t->timeScale(this->tweenParam.timeScale);
-			t->repeat(this->tweenParam.repeat);
-			t->yoyo(this->tweenParam.yoyo);
-			t->repeatDelay(this->tweenParam.repeatDelay);
-
-			t->immediateTick();
+			this->tweenable->immediateTick();
 		}
 	}
 }

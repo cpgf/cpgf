@@ -7,18 +7,16 @@
 #include <cstdarg>
 #include <vector>
 
-// for test
-#include <iostream>
-
 
 using namespace std;
 using namespace cpgf;
 
 namespace {
-	int x = 1;
+
+int x = 1;
 	
-	const int END = 0;
-}
+const int END = 0;
+
 
 typedef vector<int> ListType;
 typedef GSharedPointer<GTween> Pointer;
@@ -250,3 +248,5 @@ GTEST(Tween_backward_repeat_yoyo)
 	verify(tween.get(), range(4, 1), range(2, 5), 5, 5, END);
 }
 
+
+}

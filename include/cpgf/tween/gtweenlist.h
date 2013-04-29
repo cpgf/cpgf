@@ -65,8 +65,8 @@ public:
 
 public:
 	void remove(const GTweenable & tweenable);
-	virtual bool removeOf(const void * instance);
 	virtual GTweenNumber getDuration() const;
+	virtual void removeForInstance(const void * instance);
 	virtual void restart();
 	virtual void restartWithDelay();
 
