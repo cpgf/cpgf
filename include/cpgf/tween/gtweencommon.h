@@ -103,6 +103,7 @@ protected:
 protected:
 	GTweenNumber currentTime;
 	GTweenNumber delayTime;
+	GTweenNumber currentDelayTime;
 	GTweenNumber repeatDelayTime;
 	int repeatCount;
 	int cycleCount;

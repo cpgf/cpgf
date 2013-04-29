@@ -4,7 +4,7 @@ namespace cpgf {
 
 
 GTweenable::GTweenable()
-	: currentTime(0), delayTime(0), repeatDelayTime(0), repeatCount(0), cycleCount(0), timeScaleTime(1.0f), flags()
+	: currentTime(0), delayTime(0), currentDelayTime(0), repeatDelayTime(0), repeatCount(0), cycleCount(0), timeScaleTime(1.0f), flags()
 {
 }
 
@@ -27,10 +27,15 @@ bool GTweenable::doTick(GTweenNumber frameTime, bool forceReversed, bool forceUs
 
 	if(frameTime > 0) {
 		frameTime *= this->timeScaleTime;
-		this->currentTime += frameTime;
-
-		if(this->currentTime <= 0) {
-			return false;
+		if(this->currentDelayTime > 0) {
+			this->currentDelayTime -= frameTime;
+			if(this->currentDelayTime >= 0) {
+				return false;
+			}
+			this->currentTime = -this->currentDelayTime;
+		}
+		else {
+			this->currentTime += frameTime;
 		}
 	}
 
@@ -68,9 +73,8 @@ void GTweenable::restart()
 
 void GTweenable::restartWithDelay()
 {
-	this->currentTime = -this->delayTime;
-	this->cycleCount = 0;
-	this->flags.clear(tfCompleted);
+	this->restart();
+	this->currentDelayTime = this->delayTime;
 }
 
 void GTweenable::doImmediateTick(bool forceReversed)
@@ -104,6 +108,7 @@ void GTweenable::setUseFrames(bool value)
 void GTweenable::setDelay(GTweenNumber value)
 {
 	this->delayTime = value;
+	this->currentDelayTime = value;
 }
 
 void GTweenable::setRepeatCount(int repeatCount)
