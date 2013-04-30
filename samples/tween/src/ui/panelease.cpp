@@ -9,7 +9,7 @@ PanelEase::PanelEase(wxWindow * parent)
 	: super(parent)
 {
 	wxBoxSizer * mainSizer;
-	mainSizer = new wxBoxSizer(wxVERTICAL);
+	mainSizer = new wxBoxSizer(wxHORIZONTAL);
 
 	wxGridSizer * easeSizer;
 	easeSizer = new wxGridSizer(3, 5, 3);
@@ -32,9 +32,9 @@ void PanelEase::initEaseButtons(wxSizer * sizer)
 {
 	for(int i = 0; i < getEaseCount(); ++i) {
 		wxRadioButton * button = new wxRadioButton(this, EaseButtonStartID + i, getEase(i)->name, wxDefaultPosition, wxSize(150, 30), 0);
-		sizer->Add(button);
+		sizer->Add(button, 0, 0, 5);
 		button->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler(PanelEase::onEaseButtonClicked), NULL, this );
-		if(i == getEaseCount() - 1) {
+		if(i == 18) { // quad-in
 			button->SetValue(true);
 			this->easeIndex = i;
 		}

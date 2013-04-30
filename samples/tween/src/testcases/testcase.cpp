@@ -35,6 +35,11 @@ bool TestCase::shouldShowEaseButtons()
 	return true;
 }
 
+bool TestCase::shouldShowPauseResumeButtons()
+{
+	return true;
+}
+
 void TestCase::resetEase()
 {
 	if(this->tweenable != NULL) {

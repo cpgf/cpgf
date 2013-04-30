@@ -248,5 +248,19 @@ GTEST(Tween_backward_repeat_yoyo)
 	verify(tween.get(), range(4, 1), range(2, 5), 5, 5, END);
 }
 
+GTEST(Tween_parameters)
+{
+	GTween tween;
+	GCHECK(! tween.isBackward());
+	GCHECK(! tween.isCompleted());
+	GCHECK(! tween.isPaused());
+	GCHECK(! tween.isRunning());
+	GCHECK(! tween.isUseFrames());
+	GCHECK(! tween.isYoyo());
+	GCHECK(! tween.isRepeat());
+	GCHECK(! tween.isRepeatInfinitely());
+	GEQUAL(0, tween.getRepeatCount());
+}
+
 
 }

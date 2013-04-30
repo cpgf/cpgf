@@ -49,7 +49,7 @@ GTweenList::~GTweenList()
 	this->clear();
 }
 
-GTween & GTweenList::createTween()
+GTween & GTweenList::tween()
 {
 	GTween * tweenable = this->tweenPool.allocate();
 	TweenableData data(false);
@@ -60,38 +60,25 @@ GTween & GTweenList::createTween()
 	return *tweenable;
 }
 
-GTimeline & GTweenList::createTimeline()
+GTimeline & GTweenList::timeline()
 {
 	if(! this->timelinePool) {
 		this->timelinePool.reset(new GObjectPool<GTimeline>());
 	}
-	GTimeline * timeline = this->timelinePool->allocate();
+	GTimeline * newTimeline = this->timelinePool->allocate();
 	TweenableData data(true);
 	data.startTime = 0;
-	data.tweenable = timeline;
-	timeline->useFrames(this->isUseFrames());
+	data.tweenable = newTimeline;
+	newTimeline->useFrames(this->isUseFrames());
 	this->tweenList.push_back(data);
-	return *timeline;
+	return *newTimeline;
 }
 
-GTween & GTweenList::to(GTweenNumber duration)
-{
-	GTween & tweenable = this->createTween();
-	tweenable.duration(duration);
-	return tweenable;
-}
-
-GTween & GTweenList::from(GTweenNumber duration)
-{
-	GTween & tweenable = this->createTween();
-	tweenable.duration(duration).backward(true);
-	return tweenable;
-}
-
-void GTweenList::performTime(GTweenNumber frameTime, bool /*forceReversed*/, bool /*forceUseFrames*/)
+void GTweenList::performTime(GTweenNumber frameDuration, bool /*forceReversed*/, bool /*forceUseFrames*/)
 {
 	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end();) {
-		if(it->tweenable->tick(frameTime)) {
+		it->tweenable->tick(frameDuration);
+		if(it->tweenable->isCompleted()) {
 			this->freeTween(it->tweenable, it->isTimeline());
 			it = this->tweenList.erase(it);
 		}

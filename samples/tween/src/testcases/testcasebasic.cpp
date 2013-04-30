@@ -18,13 +18,22 @@
 
 using namespace cpgf;
 
-class TestCaseAnimation : public TestCase
+class TestCaseBasic : public TestCase
 {
 public:
-	TestCaseAnimation();
+	TestCaseBasic();
 
 	virtual std::string getDescription();
 	virtual void render(int viewWidth, int viewHeight);
+	virtual bool shouldShowEaseButtons() {
+		return false;
+	}
+	virtual bool shouldShowCommandButtons() {
+		return true;
+	}
+	virtual bool shouldShowPauseResumeButtons() {
+		return false;
+	}
 
 protected:
 	virtual void doReset();
@@ -39,23 +48,25 @@ const int endX = SpriteBoardSize - startX;
 const int startY = endX;
 const int endY = startX;
 
-TestCasePtr createTestCaseAnimation()
+TestCasePtr createTestCaseBasic()
 {
-	return TestCasePtr(new TestCaseAnimation);
+	return TestCasePtr(new TestCaseBasic);
 }
 
-TestCaseAnimation::TestCaseAnimation()
+TestCaseBasic::TestCaseBasic()
 {
 }
 
-std::string TestCaseAnimation::getDescription()
+std::string TestCaseBasic::getDescription()
 {
-	return "Play tweening animation with fixed target.\n"
-		"The ease and tween parameters can be changed in the left panel."
+	return "Very basic animation to show certain tween parameters.\n"
+		"The ease and tween parameters can NOT be changed.\n"
+		"\n"
+		"The code in this test case is very straightforward, unlike the other test cases."
 	;
 }
 
-void TestCaseAnimation::render(int viewWidth, int viewHeight)
+void TestCaseBasic::render(int viewWidth, int viewHeight)
 {
     glEnable(GL_LIGHTING);
 
@@ -63,7 +74,7 @@ void TestCaseAnimation::render(int viewWidth, int viewHeight)
 	this->target.render(viewWidth, viewHeight);
 }
 
-void TestCaseAnimation::doReset()
+void TestCaseBasic::doReset()
 {
 	this->sprite.setX(startX);
 	this->sprite.setY(startY);
@@ -80,12 +91,14 @@ void TestCaseAnimation::doReset()
 	this->target.setSize(this->sprite.getSize());
 	this->target.setColor(0x7777ff);
 
-	GTween & tween = GTweenList::getInstance()->tween()
+	/*GTween & tween = */ GTweenList::getInstance()->tween()
 		.target(createAccessor(&this->sprite, &Sprite::getX, &Sprite::setX), endX)
 		.target(createAccessor(&this->sprite, &Sprite::getY, &Sprite::setY), endY)
 		.target(createAccessor(&this->sprite, &Sprite::getRotate, &Sprite::setRotate), 360)
+		.duration(2000)
+		.repeat(tweenRepeatInfinitely)
+		.backward(true)
+		.yoyo(true)
 	;
-
-	this->setTweenable(&tween);
 }
 

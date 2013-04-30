@@ -21,6 +21,9 @@ typedef GCallback<GTweenNumber (*)(const GTweenEaseParam *)> GTweenEaseType;
 
 typedef GCallback<void ()> GTweenCallback;
 
+const int tweenRepeatInfinitely = -1;
+const int tweenNoRepeat = 0;
+
 class GTweenable : public GNoncopyable
 {
 private:
@@ -44,12 +47,6 @@ public:
 	virtual GTweenNumber getDuration() const = 0;
 	GTweenNumber getTotalDuration() const;
 
-	// return true if the tween is completed
-	bool tick(GTweenNumber frameTime) {
-		return this->doTick(this->isUseFrames() ? 1.0f : frameTime, false, false);
-	}
-
-public:
 	void pause();
 	void resume();
 	void immediateTick();
@@ -57,6 +54,11 @@ public:
 	virtual void restart();
 	virtual void restartWithDelay();
 
+	void tick(GTweenNumber frameDuration) {
+		this->doTick(this->isUseFrames() ? 1.0f : frameDuration, false, false);
+	}
+
+public:
 	GTweenable & backward(bool value);
 	GTweenable & useFrames(bool value);
 	GTweenable & delay(GTweenNumber value);
@@ -71,6 +73,10 @@ public:
 	GTweenable & onDestroy(const GTweenCallback & value);
 	GTweenable & onUpdate(const GTweenCallback & value);
 	GTweenable & onRepeat(const GTweenCallback & value);
+	
+	bool isRunning() const {
+		return this->flags.has(tfInitialized) && ! this->flags.has(tfPaused);
+	}
 	
 	bool isPaused() {
 		return this->flags.has(tfPaused);
@@ -91,11 +97,23 @@ public:
 	bool isYoyo() const {
 		return this->flags.has(tfReverseWhenRepeat);
 	}
-
-	bool isRunning() const {
-		return this->flags.has(tfInitialized) && ! this->flags.has(tfPaused);
+	
+	bool isRepeat() const {
+		return this->repeatCount != tweenNoRepeat;
 	}
 	
+	bool isRepeatInfinitely() const {
+		return this->repeatCount < 0;
+	}
+	
+	int getRepeatCount() const {
+		return this->repeatCount;
+	}
+
+	GTweenNumber getRepeatDelay() const {
+		return this->repeatDelayTime;
+	}
+
 	GTweenNumber getDelay() const {
 		return this->delayTime;
 	}
@@ -105,10 +123,10 @@ public:
 	}
 
 protected:
-	bool doTick(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames);
+	void doTick(GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames);
 	void doComplete(bool emitEvent);
 	
-	virtual void performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames) = 0;
+	virtual void performTime(GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames) = 0;
 	virtual void initialize();
 
 	void toggleBackward() {

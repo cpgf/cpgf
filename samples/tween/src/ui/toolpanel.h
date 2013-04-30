@@ -21,6 +21,7 @@ public:
 protected:
 	virtual void onTestTypeSelected( wxCommandEvent& event );
 	virtual void onButtonBenchmarkClicked( wxCommandEvent& event );
+	virtual void onButtonAboutThisTestCaseClicked( wxCommandEvent& event );
 	
 	void doOnTestTypeSelected();
 

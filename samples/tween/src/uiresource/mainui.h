@@ -14,13 +14,13 @@
 #include <wx/font.h>
 #include <wx/colour.h>
 #include <wx/settings.h>
+#include <wx/stattext.h>
 #include <wx/choice.h>
 #include <wx/button.h>
 #include <wx/sizer.h>
 #include <wx/panel.h>
 #include <wx/statline.h>
 #include <wx/checkbox.h>
-#include <wx/stattext.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -49,12 +49,15 @@ class ToolPanelRes : public wxPanel
 	private:
 	
 	protected:
+		wxStaticText* m_staticText6;
 		wxChoice* choiceTestType;
+		wxButton* buttonAboutTestCase;
 		
 		wxButton* buttonBenchmark;
 		
 		// Virtual event handlers, overide them in your derived class
 		virtual void onTestTypeSelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onButtonAboutThisTestCaseClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onButtonBenchmarkClicked( wxCommandEvent& event ) { event.Skip(); }
 		
 	
@@ -73,11 +76,13 @@ class CommandPanelRes : public wxPanel
 	private:
 	
 	protected:
+		wxStaticLine* m_staticline31;
 		wxButton* buttonPlay;
 		wxButton* buttonPause;
 		wxButton* buttonResume;
 		
 		wxButton* buttonReset;
+		wxBoxSizer* sizerParameters;
 		wxStaticLine* m_staticline2;
 		wxCheckBox* checkBoxUseFrames;
 		wxCheckBox* checkBoxBackward;
@@ -87,12 +92,13 @@ class CommandPanelRes : public wxPanel
 		wxChoice* choiceDelay;
 		wxStaticText* m_staticText2;
 		wxChoice* choiceTimeScale;
-		wxStaticLine* m_staticline3;
+		wxStaticLine* m_staticline4;
 		wxStaticText* m_staticText3;
 		wxChoice* choiceRepeatCount;
 		wxCheckBox* checkBoxYoyo;
 		wxStaticText* m_staticText4;
 		wxChoice* choiceRepeatDelay;
+		wxStaticLine* m_staticline3;
 		
 		// Virtual event handlers, overide them in your derived class
 		virtual void onButtonPlayClicked( wxCommandEvent& event ) { event.Skip(); }
@@ -111,7 +117,7 @@ class CommandPanelRes : public wxPanel
 	
 	public:
 		
-		CommandPanelRes( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 425,153 ), long style = wxTAB_TRAVERSAL );
+		CommandPanelRes( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 422,189 ), long style = wxTAB_TRAVERSAL );
 		~CommandPanelRes();
 	
 };

@@ -17,6 +17,7 @@ public:
 	PanelCommand(wxWindow* parent);
 	
 	void setTestCase(const TestCasePtr & testCase);
+	void showOrHidePauseAndResumeButtons(bool show);
 	
 protected:
 	virtual void onButtonPlayClicked( wxCommandEvent& event );

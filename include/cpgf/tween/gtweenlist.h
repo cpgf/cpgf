@@ -1,7 +1,6 @@
 #ifndef __GTWEENLIST_H
 #define __GTWEENLIST_H
 
-
 #include "cpgf/tween/gtween.h"
 #include "cpgf/gmemorypool.h"
 #include "cpgf/gscopedptr.h"
@@ -44,21 +43,8 @@ public:
 	GTweenList();
 	~GTweenList();
 
-	GTween & createTween();
-	GTimeline & createTimeline();
-
-	GTween & to(GTweenNumber duration);
-	GTween & from(GTweenNumber duration);
-
-	template <typename AccessorType>
-	GTween & to(GTweenNumber duration, const AccessorType & accessor, const typename AccessorType::ValueType & target) {
-		return this->to(duration).target(accessor, target);
-	}
-
-	template <typename AccessorType>
-	GTween & from(GTweenNumber duration, const AccessorType & accessor, const typename AccessorType::ValueType & target) {
-		return this->from(duration).target(accessor, target);
-	}
+	GTween & tween();
+	GTimeline & timeline();
 
 	size_t getTweenableCount() const;
 	void clear();
@@ -71,7 +57,7 @@ public:
 	virtual void restartWithDelay();
 
 protected:
-	virtual void performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames);
+	virtual void performTime(GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames);
 
 protected:
 	void freeTween(GTweenable * tween, bool isTimeline);

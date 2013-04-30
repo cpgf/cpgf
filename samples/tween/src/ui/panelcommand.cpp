@@ -69,6 +69,13 @@ void PanelCommand::setTestCase(const TestCasePtr & testCase)
 	this->testCase->setTweenParam(this->tweenParam);
 }
 
+void PanelCommand::showOrHidePauseAndResumeButtons(bool show)
+{
+	this->buttonPause->Show(show);
+	this->buttonResume->Show(show);
+	this->sizerParameters->Show(show);
+}
+
 void PanelCommand::onButtonPlayClicked( wxCommandEvent& event )
 {
 	this->testCase->play();

@@ -15,27 +15,27 @@ GTweenable::~GTweenable()
 	}
 }
 
-bool GTweenable::doTick(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames)
+void GTweenable::doTick(GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames)
 {
 	if(this->isCompleted()) {
-		return true;
+		return;
 	}
 
 	if(this->isPaused()) {
-		return false;
+		return;
 	}
 
-	if(frameTime > 0) {
-		frameTime *= this->timeScaleTime;
+	if(frameDuration > 0) {
+		frameDuration *= this->timeScaleTime;
 		if(this->currentDelayTime > 0) {
-			this->currentDelayTime -= frameTime;
+			this->currentDelayTime -= frameDuration;
 			if(this->currentDelayTime >= 0) {
-				return false;
+				return;
 			}
 			this->currentTime = -this->currentDelayTime;
 		}
 		else {
-			this->currentTime += frameTime;
+			this->currentTime += frameDuration;
 		}
 	}
 
@@ -49,9 +49,7 @@ bool GTweenable::doTick(GTweenNumber frameTime, bool forceReversed, bool forceUs
 		this->initialize();
 	}
 
-	this->performTime(frameTime, forceReversed, forceUseFrames);
-
-	return this->isCompleted();
+	this->performTime(frameDuration, forceReversed, forceUseFrames);
 }
 
 void GTweenable::doComplete(bool emitEvent)

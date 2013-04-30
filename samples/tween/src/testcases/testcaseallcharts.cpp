@@ -32,6 +32,7 @@ private:
 public:
 	TestCaseAllCharts();
 
+	virtual std::string getDescription();
 	virtual void render(int viewWidth, int viewHeight);
 	virtual void setEase(int easeIndex);
 	virtual bool shouldShowEaseButtons() {
@@ -77,6 +78,11 @@ void drawString(const char * str)
 	}
 	glEnable(GL_LIGHTING);
 	glPopAttrib();
+}
+
+std::string TestCaseAllCharts::getDescription()
+{
+	return "Display charts for all easing function visually.";
 }
 
 void TestCaseAllCharts::render(int viewWidth, int viewHeight)

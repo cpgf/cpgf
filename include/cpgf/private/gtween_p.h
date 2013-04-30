@@ -67,7 +67,7 @@ public:
 protected:
 	void doTick(GTweenEaseParam * param, const GTweenEaseType & ease) {
 		GTweenNumber ratio = ease(param);
-		ValueType value = (ValueType)(this->from + this->change * ratio);
+		ValueType value = (ValueType)(this->from + (this->change * ratio));
 		this->accessor(value);
 	}
 
@@ -135,7 +135,7 @@ public:
 protected:
 	void doTick(GTweenEaseParam * param, const GTweenEaseType & ease) {
 		GTweenNumber ratio = ease(param);
-		ValueType value = (ValueType)(this->from + ((ValueType)(this->TargetGetter()) - this->from) * ratio);
+		ValueType value = (ValueType)(this->from + (((ValueType)(this->TargetGetter()) - this->from) * ratio));
 		this->accessor(value);
 	}
 

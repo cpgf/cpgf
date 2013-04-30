@@ -29,7 +29,7 @@ PanelTweenTest::PanelTweenTest(wxWindow * parent)
 	mainSizer = new wxBoxSizer( wxVERTICAL );
 
 	this->toolPanel = new ToolPanel(this);
-	mainSizer->Add(this->toolPanel);
+	mainSizer->Add(this->toolPanel, 0, wxEXPAND);
 
 	wxBoxSizer * contentSizer;
 	contentSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -92,9 +92,12 @@ void PanelTweenTest::setTestCase(const TestCasePtr & testCase)
 	this->testCase = testCase;
 	this->testCase->reset();
 	this->testCase->setEase(this->easePanel->getEaseIndex());
+
 	this->commandPanel->setTestCase(testCase);
 	this->commandPanel->Show(this->testCase->shouldShowCommandButtons());
+	this->commandPanel->showOrHidePauseAndResumeButtons(this->testCase->shouldShowPauseResumeButtons());
 	this->easePanel->Show(this->testCase->shouldShowEaseButtons());
+	
 	this->Layout();
 	this->commandPanel->Refresh();
 	this->easePanel->Refresh();

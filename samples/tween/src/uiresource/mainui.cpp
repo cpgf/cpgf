@@ -26,13 +26,20 @@ ToolPanelRes::ToolPanelRes( wxWindow* parent, wxWindowID id, const wxPoint& pos,
 	wxBoxSizer* bSizer1;
 	bSizer1 = new wxBoxSizer( wxHORIZONTAL );
 	
-	wxString choiceTestTypeChoices[] = { wxT("Animation"), wxT("Follow"), wxT("Timeline"), wxT("Particles"), wxT("Chart"), wxT("All Charts") };
+	m_staticText6 = new wxStaticText( this, wxID_ANY, wxT("Test case:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText6->Wrap( -1 );
+	bSizer1->Add( m_staticText6, 0, wxALL, 5 );
+	
+	wxString choiceTestTypeChoices[] = { wxT("Basic"), wxT("Animation"), wxT("Follow"), wxT("Timeline"), wxT("Particles (CPU cache friendly)"), wxT("Chart"), wxT("All Charts") };
 	int choiceTestTypeNChoices = sizeof( choiceTestTypeChoices ) / sizeof( wxString );
 	choiceTestType = new wxChoice( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, choiceTestTypeNChoices, choiceTestTypeChoices, 0 );
 	choiceTestType->SetSelection( 0 );
-	choiceTestType->SetMinSize( wxSize( 120,-1 ) );
+	choiceTestType->SetMinSize( wxSize( 150,-1 ) );
 	
 	bSizer1->Add( choiceTestType, 0, wxALL, 5 );
+	
+	buttonAboutTestCase = new wxButton( this, wxID_ANY, wxT("About this test case"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer1->Add( buttonAboutTestCase, 0, wxALL, 5 );
 	
 	
 	bSizer1->Add( 0, 0, 1, wxEXPAND, 5 );
@@ -45,6 +52,7 @@ ToolPanelRes::ToolPanelRes( wxWindow* parent, wxWindowID id, const wxPoint& pos,
 	
 	// Connect Events
 	choiceTestType->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( ToolPanelRes::onTestTypeSelected ), NULL, this );
+	buttonAboutTestCase->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanelRes::onButtonAboutThisTestCaseClicked ), NULL, this );
 	buttonBenchmark->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanelRes::onButtonBenchmarkClicked ), NULL, this );
 }
 
@@ -52,6 +60,7 @@ ToolPanelRes::~ToolPanelRes()
 {
 	// Disconnect Events
 	choiceTestType->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( ToolPanelRes::onTestTypeSelected ), NULL, this );
+	buttonAboutTestCase->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanelRes::onButtonAboutThisTestCaseClicked ), NULL, this );
 	buttonBenchmark->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ToolPanelRes::onButtonBenchmarkClicked ), NULL, this );
 	
 }
@@ -60,6 +69,9 @@ CommandPanelRes::CommandPanelRes( wxWindow* parent, wxWindowID id, const wxPoint
 {
 	wxBoxSizer* bSizer2;
 	bSizer2 = new wxBoxSizer( wxVERTICAL );
+	
+	m_staticline31 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	bSizer2->Add( m_staticline31, 0, wxEXPAND | wxALL, 5 );
 	
 	wxBoxSizer* bSizer3;
 	bSizer3 = new wxBoxSizer( wxHORIZONTAL );
@@ -81,8 +93,10 @@ CommandPanelRes::CommandPanelRes( wxWindow* parent, wxWindowID id, const wxPoint
 	
 	bSizer2->Add( bSizer3, 0, wxEXPAND, 5 );
 	
+	sizerParameters = new wxBoxSizer( wxVERTICAL );
+	
 	m_staticline2 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	bSizer2->Add( m_staticline2, 0, wxEXPAND | wxALL, 5 );
+	sizerParameters->Add( m_staticline2, 0, wxEXPAND | wxALL, 5 );
 	
 	wxBoxSizer* bSizer5;
 	bSizer5 = new wxBoxSizer( wxHORIZONTAL );
@@ -93,7 +107,7 @@ CommandPanelRes::CommandPanelRes( wxWindow* parent, wxWindowID id, const wxPoint
 	checkBoxBackward = new wxCheckBox( this, wxID_ANY, wxT("backward"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer5->Add( checkBoxBackward, 0, wxALL, 5 );
 	
-	bSizer2->Add( bSizer5, 0, wxEXPAND, 5 );
+	sizerParameters->Add( bSizer5, 0, wxEXPAND, 5 );
 	
 	wxBoxSizer* bSizer6;
 	bSizer6 = new wxBoxSizer( wxHORIZONTAL );
@@ -128,10 +142,10 @@ CommandPanelRes::CommandPanelRes( wxWindow* parent, wxWindowID id, const wxPoint
 	choiceTimeScale->SetSelection( 2 );
 	bSizer6->Add( choiceTimeScale, 0, wxALL, 5 );
 	
-	bSizer2->Add( bSizer6, 0, wxEXPAND, 5 );
+	sizerParameters->Add( bSizer6, 0, wxEXPAND, 5 );
 	
-	m_staticline3 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	bSizer2->Add( m_staticline3, 0, wxEXPAND | wxALL, 5 );
+	m_staticline4 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	sizerParameters->Add( m_staticline4, 0, wxEXPAND | wxALL, 5 );
 	
 	wxBoxSizer* bSizer4;
 	bSizer4 = new wxBoxSizer( wxHORIZONTAL );
@@ -159,7 +173,12 @@ CommandPanelRes::CommandPanelRes( wxWindow* parent, wxWindowID id, const wxPoint
 	choiceRepeatDelay->SetSelection( 0 );
 	bSizer4->Add( choiceRepeatDelay, 0, wxALL, 5 );
 	
-	bSizer2->Add( bSizer4, 0, wxEXPAND, 5 );
+	sizerParameters->Add( bSizer4, 0, wxEXPAND, 5 );
+	
+	m_staticline3 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	sizerParameters->Add( m_staticline3, 0, wxEXPAND | wxALL, 5 );
+	
+	bSizer2->Add( sizerParameters, 1, wxEXPAND, 5 );
 	
 	this->SetSizer( bSizer2 );
 	this->Layout();

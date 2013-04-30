@@ -16,7 +16,7 @@ int round(GTweenNumber value)
 GTEST(Timeline_simplest)
 {
 	GTimeline timeline;
-	GTween & tween = timeline.createTween()
+	GTween & tween = timeline.tween()
 		.duration(2)
 	;
 	GEQUAL(2, round(tween.getDuration()));
@@ -30,7 +30,7 @@ GTEST(Timeline_simplest)
 GTEST(Timeline_tween_delay)
 {
 	GTimeline timeline;
-	GTween & tween = timeline.createTween()
+	GTween & tween = timeline.tween()
 		.duration(2)
 		.delay(1)
 	;
@@ -45,7 +45,7 @@ GTEST(Timeline_tween_delay)
 GTEST(Timeline_tween_timeline_delay)
 {
 	GTimeline timeline;
-	GTween & tween = timeline.createTween()
+	GTween & tween = timeline.tween()
 		.duration(2)
 		.delay(1)
 	;
@@ -61,7 +61,7 @@ GTEST(Timeline_tween_timeline_delay)
 GTEST(Timeline_tween_delay_repeat)
 {
 	GTimeline timeline;
-	GTween & tween = timeline.createTween()
+	GTween & tween = timeline.tween()
 		.duration(2)
 		.delay(1)
 		.repeat(1)
@@ -79,34 +79,34 @@ GTEST(Timeline_complex_tweens)
 {
 	GTimeline timeline;
 	timeline.append(
-		timeline.createTween().duration(2)
+		timeline.tween().duration(2)
 	);
 	timeline.prepend(
-		timeline.createTween().duration(3)
+		timeline.tween().duration(3)
 	);
 	timeline.append(
-		timeline.createTween().duration(4)
+		timeline.tween().duration(4)
 	);
 	GEQUAL(9, round(timeline.getDuration()));
 	GEQUAL(9, round(timeline.getTotalDuration()));
 
 	timeline.insert(
 		1,
-		timeline.createTween().duration(4)
+		timeline.tween().duration(4)
 	);
 	GEQUAL(11, round(timeline.getDuration()));
 	GEQUAL(11, round(timeline.getTotalDuration()));
 
 	timeline.setAt(
 		3,
-		timeline.createTween().duration(2)
+		timeline.tween().duration(2)
 	);
 	GEQUAL(11, round(timeline.getDuration()));
 	GEQUAL(11, round(timeline.getTotalDuration()));
 
 	timeline.setAt(
 		3,
-		timeline.createTween().duration(16)
+		timeline.tween().duration(16)
 	);
 	GEQUAL(19, round(timeline.getDuration()));
 	GEQUAL(19, round(timeline.getTotalDuration()));

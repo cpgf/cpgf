@@ -4,6 +4,8 @@
 #include "cpgf/gsharedptr.h"
 #include "cpgf/tween/gtweencommon.h"
 
+#include <string>
+
 struct TweenParam
 {
 	TweenParam()
@@ -26,11 +28,13 @@ public:
 	TestCase();
 	virtual ~TestCase();
 
+	virtual std::string getDescription() = 0;
 	virtual void render(int viewWidth, int viewHeight) = 0;
 	virtual void setEase(int easeIndex);
 	
 	virtual bool shouldShowCommandButtons();
 	virtual bool shouldShowEaseButtons();
+	virtual bool shouldShowPauseResumeButtons();
 	
 	void reset();
 	void play();

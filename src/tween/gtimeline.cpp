@@ -171,7 +171,7 @@ GTweenNumber GTimeline::getStartTime(const GTweenable & tweenable)
 	return 0;
 }
 
-void GTimeline::performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames)
+void GTimeline::performTime(GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames)
 {
 	this->getDuration();
 
@@ -234,11 +234,11 @@ void GTimeline::performTime(GTweenNumber frameTime, bool forceReversed, bool for
 			if(shouldRestart) {
 				it->tweenable->restart();
 			}
-			if(frameTime == 0
+			if(frameDuration == 0
 				|| (!reversed && t >= it->startTime)
 				|| (reversed && t < it->startTime + it->tweenable->getTotalDuration() + it->tweenable->getDelay())
 			) {
-				it->tweenable->doTick(frameTime, reversed, forceUseFrames || this->isUseFrames());
+				it->tweenable->doTick(frameDuration, reversed, forceUseFrames || this->isUseFrames());
 			}
 		}
 		if(shouldRestart) {

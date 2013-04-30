@@ -23,6 +23,7 @@ class TestCaseFollow : public TestCase
 public:
 	TestCaseFollow();
 
+	virtual std::string getDescription();
 	virtual void render(int viewWidth, int viewHeight);
 
 protected:
@@ -46,6 +47,13 @@ TestCasePtr createTestCaseFollow()
 
 TestCaseFollow::TestCaseFollow() : inited(false)
 {
+}
+
+std::string TestCaseFollow::getDescription()
+{
+	return "Play tweening animation with moving target.\n"
+		"The ease and tween parameters can be changed in the left panel."
+	;
 }
 
 void TestCaseFollow::render(int viewWidth, int viewHeight)
@@ -72,7 +80,8 @@ void TestCaseFollow::doReset()
 	this->target.setSize(this->sprite.getSize());
 	this->target.setColor(0xff7777);
 
-	GTween & tween = GTweenList::getInstance()->to(this->getDuration())
+	GTween & tween = GTweenList::getInstance()->tween()
+		.duration(this->getDuration())
 		.follow(createAccessor(&this->sprite, &Sprite::getX, &Sprite::setX), createGetter(&this->target, &Sprite::getX))
 		.follow(createAccessor(&this->sprite, &Sprite::getY, &Sprite::setY), createGetter(&this->target, &Sprite::getY))
 	;
@@ -81,7 +90,8 @@ void TestCaseFollow::doReset()
 		inited = true;
 	}
 	else {
-		GTweenList::getInstance()->to(this->getDuration())
+		GTweenList::getInstance()->tween()
+			.duration(this->getDuration())
 			.target(createAccessor(&this->target, &Sprite::getX, &Sprite::setX), endX)
 			.useFrames(this->useFrames())
 		;

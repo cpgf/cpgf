@@ -30,6 +30,7 @@ private:
 public:
 	TestCaseChart();
 
+	virtual std::string getDescription();
 	virtual void render(int viewWidth, int viewHeight);
 	virtual void setEase(int easeIndex);
 	virtual bool shouldShowCommandButtons() {
@@ -51,6 +52,12 @@ TestCasePtr createTestCaseChart()
 TestCaseChart::TestCaseChart()
 {
 	this->clear();
+}
+
+std::string TestCaseChart::getDescription()
+{
+	return "Display chart for selected easing function."
+	;
 }
 
 void TestCaseChart::render(int viewWidth, int viewHeight)

@@ -44,7 +44,7 @@ public:
 	GTimeline & onRepeat(const GTweenCallback & value) { return static_cast<GTimeline &>(super::onRepeat(value)); }
 
 protected:
-	virtual void performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames);
+	virtual void performTime(GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames);
 
 private:
 	void invalidDurationTime();

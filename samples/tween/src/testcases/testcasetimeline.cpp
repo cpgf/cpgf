@@ -37,6 +37,7 @@ class TestCaseTimeline : public TestCase
 public:
 	TestCaseTimeline();
 
+	virtual std::string getDescription();
 	virtual void render(int viewWidth, int viewHeight);
 	virtual bool shouldShowEaseButtons() {
 		return false;
@@ -52,13 +53,13 @@ private:
 	Sprite sprites[SpriteCount];
 };
 
-const int startX = 150;
+const int startX = 200;
 const int endX = SpriteBoardSize - startX;
-const int startY = endX;
+const int startY = SpriteBoardSize - startX;
 const int endY = startY;
 const int size = 50;
-const int distanceX = (endX - startX) / (SpriteCount - 1);
-const int distanceY = (endY - startY) / (SpriteCount - 1);
+const int distanceX = 100;
+const int distanceY = 100;
 
 namespace {
 const unsigned int colors[] = {
@@ -76,6 +77,13 @@ TestCaseTimeline::TestCaseTimeline()
 {
 }
 
+std::string TestCaseTimeline::getDescription()
+{
+	return "Play animations in a timeline.\n"
+		"Several tweens and nested timelines are on the master timeline."
+	;
+}
+
 void TestCaseTimeline::render(int viewWidth, int viewHeight)
 {
     glEnable(GL_LIGHTING);
@@ -89,7 +97,7 @@ void TestCaseTimeline::doReset()
 {
 	for(int i = 0; i < SpriteCount; ++i) {
 		this->sprites[i].setShape(Sprite::ssBox);
-		this->sprites[i].setX(startX + size * i);
+		this->sprites[i].setX(startX + size * 1.5 * i);
 		this->sprites[i].setY(startY);
 		this->sprites[i].setZ(0);
 		this->sprites[i].setAlpha(1.0f);
@@ -99,28 +107,32 @@ void TestCaseTimeline::doReset()
 	}
 	this->sprites[1].setSize(size / 2);
 
-	GTimeline & timeline = GTweenList::getInstance()->createTimeline();
+	GTimeline & timeline = GTweenList::getInstance()->timeline();
 	GTweenNumber t;
 
 	timeline.append(
-		timeline.to(this->getDuration())
+		timeline.tween()
+			.duration(this->getDuration())
 			.ease(ElasticEase::easeIn())
 			.relative(createAccessor(&this->sprites[0], &Sprite::getX, &Sprite::setX), -distanceX)
 	);
-	GTimeline & timeline2 = timeline.createTimeline();
+	GTimeline & timeline2 = timeline.timeline();
 
 	timeline2.append(
-		timeline2.to(this->getDuration())
+		timeline2.tween()
+			.duration(this->getDuration())
 			.ease(SinEase::easeIn())
 			.target(createAccessor(&this->sprites[1], &Sprite::getRotate, &Sprite::setRotate), 360)
 	);
 	timeline2.prepend(
-		timeline2.to(this->getDuration())
+		timeline2.tween()
+			.duration(this->getDuration())
 			.ease(QuintEase::easeIn())
 			.target(createAccessor(&this->sprites[1], &Sprite::getSize, &Sprite::setSize), size)
 	);
 	t = timeline.append(
-		timeline.to(this->getDuration())
+		timeline.tween()
+			.duration(this->getDuration())
 			.ease(CubicEase::easeIn())
 			.relative(createAccessor(&this->sprites[2], &Sprite::getX, &Sprite::setX), distanceX)
 	);
@@ -130,17 +142,20 @@ void TestCaseTimeline::doReset()
 	);
 
 	t = timeline.append(
-		timeline.to(this->getDuration())
+		timeline.tween()
+			.duration(this->getDuration())
 			.ease(BounceEase::easeOut())
 			.relative(createAccessor(&this->sprites[0], &Sprite::getY, &Sprite::setY), -100)
 	);
 	timeline.setAt(t,
-		timeline.to(this->getDuration())
+		timeline.tween()
+			.duration(this->getDuration())
 			.ease(BounceEase::easeOut())
 			.relative(createAccessor(&this->sprites[1], &Sprite::getY, &Sprite::setY), 100)
 	);
 	timeline.setAt(t,
-		timeline.to(this->getDuration())
+		timeline.tween()
+			.duration(this->getDuration())
 			.ease(BounceEase::easeOut())
 			.relative(createAccessor(&this->sprites[2], &Sprite::getY, &Sprite::setY), -100)
 	);

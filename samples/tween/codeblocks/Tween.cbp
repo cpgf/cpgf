@@ -94,6 +94,7 @@
 		<Unit filename="..\src\testcases\testcase.h" />
 		<Unit filename="..\src\testcases\testcaseallcharts.cpp" />
 		<Unit filename="..\src\testcases\testcaseanimation.cpp" />
+		<Unit filename="..\src\testcases\testcasebasic.cpp" />
 		<Unit filename="..\src\testcases\testcasechart.cpp" />
 		<Unit filename="..\src\testcases\testcasefollow.cpp" />
 		<Unit filename="..\src\testcases\testcaseparticles.cpp" />

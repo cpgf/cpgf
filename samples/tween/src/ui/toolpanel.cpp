@@ -37,8 +37,9 @@ void benchmarkTweens()
 	float x = 0;
 
 	for(int i = 0; i < easeCount; ++i) {
-		GTween * tween = &GTweenList::getInstance()->to((float)duration);
+		GTween * tween = &GTweenList::getInstance()->tween();
 		tweens.push_back(tween);
+		tween->duration((float)duration);
 		tween->repeat(2);
 		tween->useFrames(true);
 		for(int k = 0; k < 3; ++k) {
@@ -78,6 +79,12 @@ void ToolPanel::onButtonBenchmarkClicked( wxCommandEvent& event )
 	benchmarkTweens();
 }
 
+void ToolPanel::onButtonAboutThisTestCaseClicked( wxCommandEvent& event )
+{
+	wxMessageBox(this->currentTestCase->getDescription(), "About the test case");
+}
+
+TestCasePtr createTestCaseBasic();
 TestCasePtr createTestCaseAnimation();
 TestCasePtr createTestCaseFollow();
 TestCasePtr createTestCaseTimeline();
@@ -91,26 +98,30 @@ void ToolPanel::doOnTestTypeSelected()
 	TestCasePtr testCase;
 	switch(selection) {
 		case 0:
-			testCase = createTestCaseAnimation();
+			testCase = createTestCaseBasic();
 			break;
 
 		case 1:
-			testCase = createTestCaseFollow();
+			testCase = createTestCaseAnimation();
 			break;
 
 		case 2:
+			testCase = createTestCaseFollow();
+			break;
+
+		case 3:
 			testCase = createTestCaseTimeline();
 			break;
 			
-		case 3:
+		case 4:
 			testCase = createTestCaseParticles();
 			break;
 
-		case 4:
+		case 5:
 			testCase = createTestCaseChart();
 			break;
 
-		case 5:
+		case 6:
 			testCase = createTestCaseAllCharts();
 			break;
 	}

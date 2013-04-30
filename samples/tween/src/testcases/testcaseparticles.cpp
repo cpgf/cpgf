@@ -28,6 +28,7 @@ class TestCaseParticles : public TestCase
 public:
 	TestCaseParticles();
 
+	virtual std::string getDescription();
 	virtual void render(int viewWidth, int viewHeight);
 
 protected:
@@ -54,6 +55,18 @@ TestCasePtr createTestCaseParticles()
 
 TestCaseParticles::TestCaseParticles()
 {
+}
+
+std::string TestCaseParticles::getDescription()
+{
+	char buffer[100];
+	itoa(particleCountInRow * particleCountInColumn, buffer, 10);
+	return string("Animate ") + buffer + " particles at the same time.\n"
+		"This test demonstrate how to use tween in CPU data cache friendly manner.\n"
+		"\n"
+		"This test maybe not real very CPU cache friendly,\n"
+		"but it demonstrates the idea of how to change lots of properties at once."
+	;
 }
 
 void TestCaseParticles::render(int viewWidth, int viewHeight)
@@ -110,7 +123,9 @@ void TestCaseParticles::doReset()
 		}
 	}
 
-	GTween & tween = GTweenList::getInstance()->to(duration)
+	GTween & tween = GTweenList::getInstance()->tween()
+		// Passing 0 to createAccessor to disable getter.
+		// We don't need getter since we passed 0.0f as "from" to target().
 		.target(createAccessor(this, 0, &TestCaseParticles::setRatio), 0.0f, 1.0f)
 	;
 

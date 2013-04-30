@@ -24,44 +24,44 @@ public:
 	virtual void removeForInstance(const void * instance);
 
 	template <typename AccessorType>
-	GTween & target(const AccessorType & accessor, const typename AccessorType::ValueType & target)
+	GTween & target(const AccessorType & accessor, const typename AccessorType::ValueType & targetValue)
 	{
-		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, accessor(), target, false));
+		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, accessor(), targetValue, false));
 		return *this;
 	}
 
 	template <typename AccessorType>
-	GTween & target(const AccessorType & accessor, const typename AccessorType::ValueType & from, const typename AccessorType::ValueType & target)
+	GTween & target(const AccessorType & accessor, const typename AccessorType::ValueType & from, const typename AccessorType::ValueType & targetValue)
 	{
-		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, from, target, false));
+		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, from, targetValue, false));
 		return *this;
 	}
 
 	template <typename AccessorType>
-	GTween & relative(const AccessorType & accessor, const typename AccessorType::ValueType & target)
+	GTween & relative(const AccessorType & accessor, const typename AccessorType::ValueType & relativeValue)
 	{
-		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, accessor(), target, true));
+		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, accessor(), relativeValue, true));
 		return *this;
 	}
 
 	template <typename AccessorType>
-	GTween & relative(const AccessorType & accessor, const typename AccessorType::ValueType & from, const typename AccessorType::ValueType & target)
+	GTween & relative(const AccessorType & accessor, const typename AccessorType::ValueType & from, const typename AccessorType::ValueType & relativeValue)
 	{
-		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, from, target, true));
+		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, from, relativeValue, true));
 		return *this;
 	}
 
 	template <typename AccessorType, typename TargetGetterType>
-	GTween & follow(const AccessorType & accessor, const TargetGetterType & TargetGetter)
+	GTween & follow(const AccessorType & accessor, const TargetGetterType & targetGetter)
 	{
-		this->itemList.push_back(new tween_internal::GTweenFollowItem<AccessorType, TargetGetterType>(accessor, accessor(), TargetGetter));
+		this->itemList.push_back(new tween_internal::GTweenFollowItem<AccessorType, TargetGetterType>(accessor, accessor(), targetGetter));
 		return *this;
 	}
 
 	template <typename AccessorType, typename TargetGetterType>
-	GTween & follow(const AccessorType & accessor, const typename AccessorType::ValueType & from, const TargetGetterType & TargetGetter)
+	GTween & follow(const AccessorType & accessor, const typename AccessorType::ValueType & from, const TargetGetterType & targetGetter)
 	{
-		this->itemList.push_back(new tween_internal::GTweenFollowItem<AccessorType, TargetGetterType>(accessor, from, TargetGetter));
+		this->itemList.push_back(new tween_internal::GTweenFollowItem<AccessorType, TargetGetterType>(accessor, from, targetGetter));
 		return *this;
 	}
 
@@ -83,7 +83,7 @@ public:
 	GTween & onRepeat(const GTweenCallback & value) { return static_cast<GTween &>(super::onRepeat(value)); }
 
 protected:
-	virtual void performTime(GTweenNumber frameTime, bool forceReversed, bool forceUseFrames);
+	virtual void performTime(GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames);
 	virtual void initialize();
 
 private:
