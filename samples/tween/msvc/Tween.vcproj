@@ -118,7 +118,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="E:\SourceCode\CPP\wxWidgets\include;E:\SourceCode\CPP\freeglut\vc\include;./;src/uiresource;src/ui;..\..\include\;src;src/testcases"
+				AdditionalIncludeDirectories="E:\SourceCode\CPP\wxWidgets\include;E:\SourceCode\CPP\freeglut\vc\include;..\..\..\include\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"

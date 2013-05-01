@@ -40,6 +40,10 @@ public:
 	GFlags(T flags) : value(flags) {
 	}
 
+	template <typename U>
+	GFlags(U flags, typename GEnableIf<IsInteger<U>::Result && !IsSameType<U, T>::Result >::Result * = 0) : value(flags) {
+	}
+
 	GFlags(const GFlags & other) : value(other.value) {
 	}
 	
