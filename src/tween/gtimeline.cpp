@@ -174,14 +174,14 @@ GTweenNumber GTimeline::getStartTime(const GTweenable & tweenable)
 	return 0;
 }
 
-void GTimeline::performTime(GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames)
+void GTimeline::performTime(GTweenNumber elapsed, GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames)
 {
 	this->getDuration();
 
 	bool shouldFinish = false;
 	bool shouldSetValue = true;
 	bool shouldRestart = false;
-	GTweenNumber t = this->elapsedTime;
+	GTweenNumber t = elapsed;
 
 	if(this->repeatCount == 0) {
 		if(t > this->durationTime) {
@@ -198,11 +198,13 @@ void GTimeline::performTime(GTweenNumber frameDuration, bool forceReversed, bool
 			if(remains > this->durationTime) {
 				return;
 			}
-			if(remains <= 0) {
-				--times;
-				t = this->durationTime;
-			}
-			else {
+			//if(t > 0 && remains <= 0)
+			//{
+			//	--times;
+			//	t = this->durationTime;
+			//}
+			//else
+			{
 				t = remains;
 			}
 			if(times > this->cycleCount) {
@@ -237,6 +239,10 @@ void GTimeline::performTime(GTweenNumber frameDuration, bool forceReversed, bool
 	}
 
 	if(shouldSetValue) {
+		bool useFrames = forceUseFrames || this->isUseFrames();
+		if(useFrames && frameDuration > 0) {
+			frameDuration = 1.0f;
+		}
 		for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end(); ++it) {
 			if(shouldRestart) {
 				it->tweenable->restart();
@@ -245,7 +251,13 @@ void GTimeline::performTime(GTweenNumber frameDuration, bool forceReversed, bool
 				|| (!reversed && t >= it->startTime)
 				|| (reversed && t >= it->startTime && t <= it->startTime + it->tweenable->getTotalDuration() + it->tweenable->getDelay())
 			) {
-				it->tweenable->doTick(frameDuration, reversed, forceUseFrames || this->isUseFrames());
+				if(reversed) {
+					it->tweenable->elapsedTime = (it->startTime + it->tweenable->getTotalDuration() + it->tweenable->getDelay() - t) - frameDuration;
+				}
+				else {
+					it->tweenable->elapsedTime = t - it->startTime - frameDuration;
+				}
+				it->tweenable->doTick(frameDuration, reversed, useFrames);
 			}
 		}
 		if(shouldRestart) {

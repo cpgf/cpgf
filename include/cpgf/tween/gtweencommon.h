@@ -57,12 +57,11 @@ public:
 	GTweenNumber getTotalProgress() const;
 	void setTotalProgress(GTweenNumber value);
 
+	void restart();
+	void restartWithDelay();
 	void pause();
 	void resume();
 	void immediateTick();
-
-	virtual void restart();
-	virtual void restartWithDelay();
 
 	void tick(GTweenNumber frameDuration) {
 		this->doTick(this->isUseFrames() ? 1.0f : frameDuration, false, false);
@@ -136,7 +135,9 @@ protected:
 	void doTick(GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames);
 	void doComplete(bool emitEvent);
 	
-	virtual void performTime(GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames) = 0;
+	virtual void performTime(GTweenNumber elapsed, GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames) = 0;
+	virtual void doRestartChildren();
+	virtual void doRestartChildrenWithDelay();
 	virtual void initialize();
 
 	void toggleBackward() {
@@ -146,7 +147,6 @@ protected:
 protected:
 	GTweenNumber elapsedTime;
 	GTweenNumber delayTime;
-	GTweenNumber elapsedDelayTime;
 	GTweenNumber repeatDelayTime;
 	int repeatCount;
 	int cycleCount;

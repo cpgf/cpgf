@@ -74,7 +74,7 @@ GTimeline & GTweenList::timeline()
 	return *newTimeline;
 }
 
-void GTweenList::performTime(GTweenNumber frameDuration, bool /*forceReversed*/, bool /*forceUseFrames*/)
+void GTweenList::performTime(GTweenNumber /*elapsed*/, GTweenNumber frameDuration, bool /*forceReversed*/, bool /*forceUseFrames*/)
 {
 	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end();) {
 		it->tweenable->tick(frameDuration);
@@ -120,19 +120,15 @@ void GTweenList::removeForInstance(const void * instance)
 	}
 }
 
-void GTweenList::restart()
+void GTweenList::doRestartChildren()
 {
-	super::restart();
-
 	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end(); ++it) {
 		it->tweenable->restart();
 	}
 }
 
-void GTweenList::restartWithDelay()
+void GTweenList::doRestartChildrenWithDelay()
 {
-	super::restartWithDelay();
-
 	for(ListType::iterator it = this->tweenList.begin(); it != this->tweenList.end(); ++it) {
 		it->tweenable->restartWithDelay();
 	}

@@ -53,11 +53,11 @@ public:
 	void remove(const GTweenable & tweenable);
 	virtual GTweenNumber getDuration() const;
 	virtual void removeForInstance(const void * instance);
-	virtual void restart();
-	virtual void restartWithDelay();
 
 protected:
-	virtual void performTime(GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames);
+	virtual void performTime(GTweenNumber elapsed, GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames);
+	virtual void doRestartChildren();
+	virtual void doRestartChildrenWithDelay();
 
 protected:
 	void freeTween(GTweenable * tween, bool isTimeline);

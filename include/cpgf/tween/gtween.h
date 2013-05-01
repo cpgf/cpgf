@@ -83,7 +83,7 @@ public:
 	GTween & onRepeat(const GTweenCallback & value) { return static_cast<GTween &>(super::onRepeat(value)); }
 
 protected:
-	virtual void performTime(GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames);
+	virtual void performTime(GTweenNumber elapsed, GTweenNumber frameDuration, bool forceReversed, bool forceUseFrames);
 	virtual void initialize();
 
 private:

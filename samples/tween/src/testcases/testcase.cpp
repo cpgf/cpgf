@@ -64,6 +64,8 @@ void TestCase::setTweenParam(const TweenParam & tweenParam)
 void TestCase::resetTweenParam()
 {
 	if(this->tweenable != NULL) {
+		bool shouldRestart = (this->tweenParam.useFrames != this->tweenable->isUseFrames());
+
 		this->tweenable->useFrames(this->tweenParam.useFrames);
 		this->tweenable->backward(this->tweenParam.backward);
 		this->tweenable->delay(this->tweenParam.delay);
@@ -71,6 +73,10 @@ void TestCase::resetTweenParam()
 		this->tweenable->repeat(this->tweenParam.repeat);
 		this->tweenable->yoyo(this->tweenParam.yoyo);
 		this->tweenable->repeatDelay(this->tweenParam.repeatDelay);
+
+		if(shouldRestart) {
+			this->tweenable->restart();
+		}
 
 		if(dynamic_cast<GTween *>(this->tweenable)) {
 			GTween * t = dynamic_cast<GTween *>(this->tweenable);

@@ -23,9 +23,9 @@ const float TimeScales[] = {
 }
 
 PanelCommand::PanelCommand(wxWindow* parent)
-	: super(parent)
+	: super(parent), enableUpdateCurrentProgressSlider(true), enableUpdateTotalProgressSlider(true)
 {
-	this->progressSlider->SetPageSize(this->progressSlider->GetMax() / 10);
+	this->totalProgressSlider->SetPageSize(this->totalProgressSlider->GetMax() / 10);
 
 	this->timeChoiceList.push_back(this->choiceDuration);
 	this->timeChoiceList.push_back(this->choiceDelay);
@@ -82,11 +82,19 @@ void PanelCommand::showOrHidePauseAndResumeButtons(bool show)
 
 void PanelCommand::tick()
 {
-	cpgf::GTweenable * tweenable = this->testCase->getTweenable();
-	if(tweenable != NULL) {
-		float progress = tweenable->getTotalProgress();
-		progress *= (float)(this->progressSlider->GetMax());
-		this->progressSlider->SetValue((int)progress);
+	if(this->enableUpdateCurrentProgressSlider && this->enableUpdateTotalProgressSlider) {
+		cpgf::GTweenable * tweenable = this->testCase->getTweenable();
+		if(tweenable != NULL) {
+			float progress;
+
+			progress = tweenable->getCurrentProgress();
+			progress *= (float)(this->currentProgressSlider->GetMax());
+			this->currentProgressSlider->SetValue((int)progress);
+
+			progress = tweenable->getTotalProgress();
+			progress *= (float)(this->totalProgressSlider->GetMax());
+			this->totalProgressSlider->SetValue((int)progress);
+		}
 	}
 }
 
@@ -160,16 +168,31 @@ void PanelCommand::onChoiceRepeatDelaySelected( wxCommandEvent& event )
 	this->testCase->setTweenParam(this->tweenParam);
 }
 
-void PanelCommand::onProgressSliderScroll( wxScrollEvent& event )
+void PanelCommand::onCurrentProgressSliderScroll( wxScrollEvent& event )
 {
 	cpgf::GTweenable * tweenable = this->testCase->getTweenable();
 	if(tweenable != NULL) {
-		float progress = (float)(this->progressSlider->GetValue());
-		progress /= (float)(this->progressSlider->GetMax());
+		float progress = (float)(this->currentProgressSlider->GetValue());
+		progress /= (float)(this->totalProgressSlider->GetMax());
+		if(! tweenable->isRunning() || tweenable->isCompleted()) {
+			tweenable->restart();
+		}
+		tweenable->setCurrentProgress(progress);
+		tweenable->immediateTick();
+	}
+}
+
+void PanelCommand::onTotalProgressSliderScroll( wxScrollEvent& event )
+{
+	cpgf::GTweenable * tweenable = this->testCase->getTweenable();
+	if(tweenable != NULL) {
+		float progress = (float)(this->totalProgressSlider->GetValue());
+		progress /= (float)(this->totalProgressSlider->GetMax());
 		if(! tweenable->isRunning() || tweenable->isCompleted()) {
 			tweenable->restart();
 		}
 		tweenable->setTotalProgress(progress);
+		tweenable->immediateTick();
 	}
 }
 

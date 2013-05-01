@@ -10,7 +10,7 @@ namespace cpgf {
 
 
 GTweenable::GTweenable()
-	: elapsedTime(0), delayTime(0), elapsedDelayTime(0), repeatDelayTime(0), repeatCount(0), cycleCount(0), timeScaleTime(1.0f), flags()
+	: elapsedTime(0), delayTime(0), repeatDelayTime(0), repeatCount(0), cycleCount(0), timeScaleTime(1.0f), flags()
 {
 }
 
@@ -31,23 +31,26 @@ void GTweenable::doTick(GTweenNumber frameDuration, bool forceReversed, bool for
 		return;
 	}
 
+	GTweenNumber d = 0.0f;
 	if(frameDuration > 0) {
 		frameDuration *= this->timeScaleTime;
-		if(this->elapsedDelayTime > 0) {
-			this->elapsedDelayTime -= frameDuration;
-			if(this->elapsedDelayTime >= 0) {
-				return;
-			}
-			this->elapsedTime = -this->elapsedDelayTime;
+		this->elapsedTime += frameDuration;
+		if(this->elapsedTime <= this->delayTime) {
+			return;
 		}
-		else {
-			this->elapsedTime += frameDuration;
-		}
+
 		if(this->repeatCount >= 0) {
 			GTweenNumber total = this->getTotalDuration();
-			if(this->elapsedTime > total) {
-				this->elapsedTime = total;
+			if(this->elapsedTime > total + this->delayTime) {
+				this->elapsedTime = total + this->delayTime;
 			}
+		}
+
+		d = this->elapsedTime - this->delayTime;
+	}
+	else {
+		if(this->elapsedTime > this->delayTime) {
+			d = this->elapsedTime - this->delayTime;
 		}
 	}
 
@@ -61,7 +64,7 @@ void GTweenable::doTick(GTweenNumber frameDuration, bool forceReversed, bool for
 		this->initialize();
 	}
 
-	this->performTime(frameDuration, forceReversed, forceUseFrames);
+	this->performTime(d, frameDuration, forceReversed, forceUseFrames);
 }
 
 void GTweenable::doComplete(bool emitEvent)
@@ -71,11 +74,19 @@ void GTweenable::doComplete(bool emitEvent)
 	}
 
 	this->flags.set(tfCompleted);
-	this->elapsedTime = this->getTotalDuration();
+	this->elapsedTime = this->getTotalDuration() + this->delayTime;
 
 	if(emitEvent && this->callbackOnComplete) {
 		this->callbackOnComplete();
 	}
+}
+
+void GTweenable::doRestartChildren()
+{
+}
+
+void GTweenable::doRestartChildrenWithDelay()
+{
 }
 
 void GTweenable::initialize()
@@ -88,18 +99,21 @@ GTweenNumber GTweenable::getTotalDuration() const
 		return this->getDuration() * (this->repeatCount + 1) + this->repeatDelayTime * this->repeatCount;
 	}
 	else {
-		return this->getDuration() + this->repeatDelayTime;
+		return this->getDuration() * 99999999.0f + this->repeatDelayTime * (99999999.0f - 1.0f);
 	}
 }
 
 GTweenNumber GTweenable::getCurrentTime() const
 {
-	if(this->isRepeat()) {
-		GTweenNumber cycleDuration = this->getDuration() + this->repeatDelayTime;
-		return this->elapsedTime - cycleDuration * this->cycleCount;
+	if(this->elapsedTime <= this->delayTime) {
+		return 0.0f;
+	}
+	
+	if(this->cycleCount > 0) {
+		return this->elapsedTime - this->delayTime - (this->getDuration() * this->cycleCount + this->repeatDelayTime * (this->cycleCount - 1));
 	}
 	else {
-		return this->elapsedTime;
+		return this->elapsedTime - this->delayTime;
 	}
 }
 
@@ -112,15 +126,17 @@ void GTweenable::setCurrentTime(GTweenNumber value)
 	if(value > d) {
 		value = d;
 	}
-	if(this->isRepeat()) {
-		value += (d + this->repeatDelayTime) * this->cycleCount;
+	if(this->cycleCount > 0) {
+		value += (d * this->cycleCount + this->repeatDelayTime * (this->cycleCount - 1));
 	}
-	this->elapsedTime = min(value, this->getTotalDuration());
+	this->elapsedTime = min(value, this->getTotalDuration()) + this->delayTime;
+	
+	this->doRestartChildren();
 }
 
 GTweenNumber GTweenable::getTotalTime() const
 {
-	return this->elapsedTime;
+	return this->elapsedTime - this->delayTime;
 }
 
 void GTweenable::setTotalTime(GTweenNumber value)
@@ -128,7 +144,17 @@ void GTweenable::setTotalTime(GTweenNumber value)
 	if(value < 0.0f) {
 		value = 0.0f;
 	}
-	this->elapsedTime = min(value, this->getTotalDuration());
+	this->elapsedTime = min(value, this->getTotalDuration()) + this->delayTime;
+
+	GTweenNumber cycleDuration = this->getDuration() + this->repeatDelayTime;
+	if(cycleDuration > 0) {
+		this->cycleCount = (int)(floor(this->elapsedTime / cycleDuration));
+	}
+	else {
+		this->cycleCount = 0;
+	}
+	
+	this->doRestartChildren();
 }
 
 GTweenNumber GTweenable::getCurrentProgress() const
@@ -171,16 +197,20 @@ void GTweenable::resume()
 
 void GTweenable::restart()
 {
-	this->elapsedDelayTime = 0;
-	this->elapsedTime = 0;
+	this->elapsedTime = this->delayTime;
 	this->cycleCount = 0;
 	this->flags.clear(tfCompleted);
+	
+	this->doRestartChildren();
 }
 
 void GTweenable::restartWithDelay()
 {
-	this->restart();
-	this->elapsedDelayTime = this->delayTime;
+	this->elapsedTime = 0;
+	this->cycleCount = 0;
+	this->flags.clear(tfCompleted);
+	
+	this->doRestartChildrenWithDelay();
 }
 
 GTweenable & GTweenable::backward(bool value)
@@ -198,7 +228,6 @@ GTweenable & GTweenable::useFrames(bool value)
 GTweenable & GTweenable::delay(GTweenNumber value)
 {
 	this->delayTime = value;
-	this->elapsedDelayTime = value;
 	return *this;
 }
 

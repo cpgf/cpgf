@@ -33,7 +33,12 @@ protected:
 	virtual void onChoiceRepeatSelected( wxCommandEvent& event );
 	virtual void onCheckBoxYoyoClicked( wxCommandEvent& event );
 	virtual void onChoiceRepeatDelaySelected( wxCommandEvent& event );
-	virtual void onProgressSliderScroll( wxScrollEvent& event );
+	virtual void onCurrentProgressSliderScroll( wxScrollEvent& event );
+	virtual void onTotalProgressSliderScroll( wxScrollEvent& event );
+	virtual void onCurrentProgressSliderThumbRelease( wxScrollEvent& event ) { this->enableUpdateCurrentProgressSlider = true; }
+	virtual void onCurrentProgressSliderThumbTrack( wxScrollEvent& event ) { this->enableUpdateCurrentProgressSlider = false; }
+	virtual void onTotalProgressSliderThumbRelease( wxScrollEvent& event ) { this->enableUpdateTotalProgressSlider = true; }
+	virtual void onTotalProgressSliderThumbTrack( wxScrollEvent& event ) { this->enableUpdateTotalProgressSlider = false; }
 
 private:
 	void resetTimeChoicesUnit();
@@ -44,6 +49,8 @@ private:
 	TestCasePtr testCase;
 	std::vector<wxChoice *> timeChoiceList;
 	TweenParam tweenParam;
+	bool enableUpdateCurrentProgressSlider;
+	bool enableUpdateTotalProgressSlider;
 };
 
 

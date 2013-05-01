@@ -100,7 +100,10 @@ class CommandPanelRes : public wxPanel
 		wxStaticText* m_staticText4;
 		wxChoice* choiceRepeatDelay;
 		wxStaticLine* m_staticline3;
-		wxSlider* progressSlider;
+		wxStaticText* m_staticText8;
+		wxSlider* currentProgressSlider;
+		wxStaticText* m_staticText7;
+		wxSlider* totalProgressSlider;
 		wxStaticLine* m_staticline5;
 		
 		// Virtual event handlers, overide them in your derived class
@@ -116,12 +119,17 @@ class CommandPanelRes : public wxPanel
 		virtual void onChoiceRepeatSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onCheckBoxYoyoClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onChoiceRepeatDelaySelected( wxCommandEvent& event ) { event.Skip(); }
-		virtual void onProgressSliderScroll( wxScrollEvent& event ) { event.Skip(); }
+		virtual void onCurrentProgressSliderScroll( wxScrollEvent& event ) { event.Skip(); }
+		virtual void onCurrentProgressSliderThumbRelease( wxScrollEvent& event ) { event.Skip(); }
+		virtual void onCurrentProgressSliderThumbTrack( wxScrollEvent& event ) { event.Skip(); }
+		virtual void onTotalProgressSliderScroll( wxScrollEvent& event ) { event.Skip(); }
+		virtual void onTotalProgressSliderThumbRelease( wxScrollEvent& event ) { event.Skip(); }
+		virtual void onTotalProgressSliderThumbTrack( wxScrollEvent& event ) { event.Skip(); }
 		
 	
 	public:
 		
-		CommandPanelRes( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 428,226 ), long style = wxTAB_TRAVERSAL );
+		CommandPanelRes( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 428,267 ), long style = wxTAB_TRAVERSAL );
 		~CommandPanelRes();
 	
 };

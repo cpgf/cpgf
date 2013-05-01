@@ -64,11 +64,11 @@ void GTween::removeForInstance(const void * instance)
 	}
 }
 
-void GTween::performTime(GTweenNumber /*frameDuration*/, bool forceReversed, bool /*forceUseFrames*/)
+void GTween::performTime(GTweenNumber elapsed, GTweenNumber /*frameDuration*/, bool forceReversed, bool /*forceUseFrames*/)
 {
 	bool shouldFinish = false;
 	bool shouldSetValue = true;
-	GTweenNumber t = this->elapsedTime;
+	GTweenNumber t = elapsed;
 
 	if(this->repeatCount == 0) {
 		if(t > this->durationTime) {
