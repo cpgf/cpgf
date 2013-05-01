@@ -46,6 +46,16 @@ public:
 
 	virtual GTweenNumber getDuration() const = 0;
 	GTweenNumber getTotalDuration() const;
+	
+	GTweenNumber getCurrentTime() const;
+	void setCurrentTime(GTweenNumber value);
+	GTweenNumber getTotalTime() const;
+	void setTotalTime(GTweenNumber value);
+
+	GTweenNumber getCurrentProgress() const;
+	void setCurrentProgress(GTweenNumber value);
+	GTweenNumber getTotalProgress() const;
+	void setTotalProgress(GTweenNumber value);
 
 	void pause();
 	void resume();
@@ -134,9 +144,9 @@ protected:
 	}
 
 protected:
-	GTweenNumber currentTime;
+	GTweenNumber elapsedTime;
 	GTweenNumber delayTime;
-	GTweenNumber currentDelayTime;
+	GTweenNumber elapsedDelayTime;
 	GTweenNumber repeatDelayTime;
 	int repeatCount;
 	int cycleCount;

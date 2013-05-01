@@ -1,6 +1,8 @@
 #include "cpgf/tween/gtween.h"
 #include "cpgf/tween/easing/linear.h"
 
+#include <cmath>
+
 namespace cpgf {
 
 
@@ -66,48 +68,52 @@ void GTween::performTime(GTweenNumber /*frameDuration*/, bool forceReversed, boo
 {
 	bool shouldFinish = false;
 	bool shouldSetValue = true;
-	GTweenNumber t = this->currentTime;
+	GTweenNumber t = this->elapsedTime;
 
 	if(this->repeatCount == 0) {
 		if(t > this->durationTime) {
 			shouldFinish = true;
 			t = this->durationTime;
-			this->currentTime = t;
 		}
 	}
 	else {
-		GTweenNumber cycleExtra = this->repeatDelayTime;
-		GTweenNumber cycleDuration = this->durationTime + cycleExtra;
-		int times = (int)(t / cycleDuration);
-		int ctimes = times;
-		GTweenNumber remains = t - times * cycleDuration;
-		if(remains > this->durationTime) {
-			return;
-		}
-		if(remains <= 0) {
-			--times;
-			t = this->durationTime;
-		}
-		else {
-			t = remains;
-		}
-		if(times > this->cycleCount) {
-			this->cycleCount = times;
-			if(this->repeatCount < 0) {
+		GTweenNumber cycleDuration = this->durationTime + this->repeatDelayTime;
+		if(cycleDuration > 0) {
+			int times = (int)(floor(t / cycleDuration));
+			int ctimes = times;
+			GTweenNumber remains = t - times * cycleDuration;
+			if(remains > this->durationTime) {
+				return;
+			}
+			if(remains <= 0) {
+				--times;
+				t = this->durationTime;
 			}
 			else {
-				if(ctimes > this->repeatCount) {
-					shouldFinish = true;
-					shouldSetValue = false;
+				t = remains;
+			}
+			if(times > this->cycleCount) {
+				this->cycleCount = times;
+				if(this->repeatCount < 0) {
+				}
+				else {
+					if(ctimes > this->repeatCount) {
+						shouldFinish = true;
+						shouldSetValue = false;
+					}
+				}
+				if(this->isYoyo()) {
+					this->toggleBackward();
+				}
+				
+				if(this->callbackOnRepeat) {
+					this->callbackOnRepeat();
 				}
 			}
-			if(this->isYoyo()) {
-				this->toggleBackward();
-			}
-			
-			if(this->callbackOnRepeat) {
-				this->callbackOnRepeat();
-			}
+		}
+		else {
+			shouldSetValue = false;
+			shouldFinish = true;
 		}
 	}
 

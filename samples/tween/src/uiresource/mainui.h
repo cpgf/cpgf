@@ -21,6 +21,7 @@
 #include <wx/panel.h>
 #include <wx/statline.h>
 #include <wx/checkbox.h>
+#include <wx/slider.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -99,6 +100,8 @@ class CommandPanelRes : public wxPanel
 		wxStaticText* m_staticText4;
 		wxChoice* choiceRepeatDelay;
 		wxStaticLine* m_staticline3;
+		wxSlider* progressSlider;
+		wxStaticLine* m_staticline5;
 		
 		// Virtual event handlers, overide them in your derived class
 		virtual void onButtonPlayClicked( wxCommandEvent& event ) { event.Skip(); }
@@ -113,11 +116,12 @@ class CommandPanelRes : public wxPanel
 		virtual void onChoiceRepeatSelected( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onCheckBoxYoyoClicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void onChoiceRepeatDelaySelected( wxCommandEvent& event ) { event.Skip(); }
+		virtual void onProgressSliderScroll( wxScrollEvent& event ) { event.Skip(); }
 		
 	
 	public:
 		
-		CommandPanelRes( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 422,189 ), long style = wxTAB_TRAVERSAL );
+		CommandPanelRes( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 428,226 ), long style = wxTAB_TRAVERSAL );
 		~CommandPanelRes();
 	
 };

@@ -18,6 +18,7 @@ public:
 	
 	void setTestCase(const TestCasePtr & testCase);
 	void showOrHidePauseAndResumeButtons(bool show);
+	void tick();
 	
 protected:
 	virtual void onButtonPlayClicked( wxCommandEvent& event );
@@ -32,6 +33,7 @@ protected:
 	virtual void onChoiceRepeatSelected( wxCommandEvent& event );
 	virtual void onCheckBoxYoyoClicked( wxCommandEvent& event );
 	virtual void onChoiceRepeatDelaySelected( wxCommandEvent& event );
+	virtual void onProgressSliderScroll( wxScrollEvent& event );
 
 private:
 	void resetTimeChoicesUnit();

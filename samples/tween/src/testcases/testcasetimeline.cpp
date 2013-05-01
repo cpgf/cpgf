@@ -21,7 +21,7 @@
 #include "cpgf/tween/easing/quad.h"
 #include "cpgf/tween/easing/quart.h"
 #include "cpgf/tween/easing/quint.h"
-#include "cpgf/tween/easing/sin.h"
+#include "cpgf/tween/easing/sine.h"
 
 #if defined(_WIN32)
     #include <windows.h>
@@ -96,7 +96,7 @@ void TestCaseTimeline::render(int viewWidth, int viewHeight)
 void TestCaseTimeline::doReset()
 {
 	for(int i = 0; i < SpriteCount; ++i) {
-		this->sprites[i].setShape(Sprite::ssBox);
+		this->sprites[i].setShape(Sprite::ssTeapot);
 		this->sprites[i].setX(startX + size * 1.5 * i);
 		this->sprites[i].setY(startY);
 		this->sprites[i].setZ(0);
@@ -121,7 +121,7 @@ void TestCaseTimeline::doReset()
 	timeline2.append(
 		timeline2.tween()
 			.duration(this->getDuration())
-			.ease(SinEase::easeIn())
+			.ease(SineEase::easeIn())
 			.target(createAccessor(&this->sprites[1], &Sprite::getRotate, &Sprite::setRotate), 360)
 	);
 	timeline2.prepend(

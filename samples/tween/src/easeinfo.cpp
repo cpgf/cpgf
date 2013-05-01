@@ -10,7 +10,7 @@
 #include "cpgf/tween/easing/quad.h"
 #include "cpgf/tween/easing/quart.h"
 #include "cpgf/tween/easing/quint.h"
-#include "cpgf/tween/easing/sin.h"
+#include "cpgf/tween/easing/sine.h"
 
 using namespace cpgf;
 
@@ -52,9 +52,9 @@ const EaseInfo easeList[] = {
 	{ "Quint-Out", QuintEase::easeOut() },
 	{ "Quint-InOut", QuintEase::easeInOut() },
 	
-	{ "Sin-In", SinEase::easeIn() },
-	{ "Sin-Out", SinEase::easeOut() },
-	{ "Sin-InOut", SinEase::easeInOut() },
+	{ "Sine-In", SineEase::easeIn() },
+	{ "Sine-Out", SineEase::easeOut() },
+	{ "Sine-InOut", SineEase::easeInOut() },
 	
 	{ "Linear", LinearEase::ease() },
 };

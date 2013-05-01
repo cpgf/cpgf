@@ -142,6 +142,8 @@ void PanelTweenTest::onTestCaseChanged(const TestCasePtr & testCase)
 void PanelTweenTest::onTimer(int frameTime)
 {
 	GTweenList::getInstance()->tick((GTweenNumber)frameTime);
+	
+	this->commandPanel->tick();
 
 	this->canvas->Refresh();
 }

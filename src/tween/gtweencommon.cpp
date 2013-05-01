@@ -1,10 +1,16 @@
 #include "cpgf/tween/gtweencommon.h"
 
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+
 namespace cpgf {
 
 
 GTweenable::GTweenable()
-	: currentTime(0), delayTime(0), currentDelayTime(0), repeatDelayTime(0), repeatCount(0), cycleCount(0), timeScaleTime(1.0f), flags()
+	: elapsedTime(0), delayTime(0), elapsedDelayTime(0), repeatDelayTime(0), repeatCount(0), cycleCount(0), timeScaleTime(1.0f), flags()
 {
 }
 
@@ -27,15 +33,21 @@ void GTweenable::doTick(GTweenNumber frameDuration, bool forceReversed, bool for
 
 	if(frameDuration > 0) {
 		frameDuration *= this->timeScaleTime;
-		if(this->currentDelayTime > 0) {
-			this->currentDelayTime -= frameDuration;
-			if(this->currentDelayTime >= 0) {
+		if(this->elapsedDelayTime > 0) {
+			this->elapsedDelayTime -= frameDuration;
+			if(this->elapsedDelayTime >= 0) {
 				return;
 			}
-			this->currentTime = -this->currentDelayTime;
+			this->elapsedTime = -this->elapsedDelayTime;
 		}
 		else {
-			this->currentTime += frameDuration;
+			this->elapsedTime += frameDuration;
+		}
+		if(this->repeatCount >= 0) {
+			GTweenNumber total = this->getTotalDuration();
+			if(this->elapsedTime > total) {
+				this->elapsedTime = total;
+			}
 		}
 	}
 
@@ -54,7 +66,13 @@ void GTweenable::doTick(GTweenNumber frameDuration, bool forceReversed, bool for
 
 void GTweenable::doComplete(bool emitEvent)
 {
+	if(this->isCompleted()) {
+		return;
+	}
+
 	this->flags.set(tfCompleted);
+	this->elapsedTime = this->getTotalDuration();
+
 	if(emitEvent && this->callbackOnComplete) {
 		this->callbackOnComplete();
 	}
@@ -74,6 +92,73 @@ GTweenNumber GTweenable::getTotalDuration() const
 	}
 }
 
+GTweenNumber GTweenable::getCurrentTime() const
+{
+	if(this->isRepeat()) {
+		GTweenNumber cycleDuration = this->getDuration() + this->repeatDelayTime;
+		return this->elapsedTime - cycleDuration * this->cycleCount;
+	}
+	else {
+		return this->elapsedTime;
+	}
+}
+
+void GTweenable::setCurrentTime(GTweenNumber value)
+{
+	if(value < 0.0f) {
+		value = 0.0f;
+	}
+	GTweenNumber d = this->getDuration();
+	if(value > d) {
+		value = d;
+	}
+	if(this->isRepeat()) {
+		value += (d + this->repeatDelayTime) * this->cycleCount;
+	}
+	this->elapsedTime = min(value, this->getTotalDuration());
+}
+
+GTweenNumber GTweenable::getTotalTime() const
+{
+	return this->elapsedTime;
+}
+
+void GTweenable::setTotalTime(GTweenNumber value)
+{
+	if(value < 0.0f) {
+		value = 0.0f;
+	}
+	this->elapsedTime = min(value, this->getTotalDuration());
+}
+
+GTweenNumber GTweenable::getCurrentProgress() const
+{
+	GTweenNumber d = this->getDuration();
+	if(d <= 0.0f) {
+		return 0.0f;
+	}
+	return this->getCurrentTime() / d;
+}
+
+void GTweenable::setCurrentProgress(GTweenNumber value)
+{
+	this->setCurrentTime(value * this->getDuration());
+}
+
+GTweenNumber GTweenable::getTotalProgress() const
+{
+	GTweenNumber d = this->getTotalDuration();
+	if(d <= 0.0f) {
+		return 0.0f;
+	}
+	return this->getTotalTime() / d;
+}
+
+void GTweenable::setTotalProgress(GTweenNumber value)
+{
+	this->setTotalTime(value * this->getTotalDuration());
+}
+
 void GTweenable::pause()
 {
 	this->flags.set(tfPaused);
@@ -86,8 +171,8 @@ void GTweenable::resume()
 
 void GTweenable::restart()
 {
-	this->currentDelayTime = 0;
-	this->currentTime = 0;
+	this->elapsedDelayTime = 0;
+	this->elapsedTime = 0;
 	this->cycleCount = 0;
 	this->flags.clear(tfCompleted);
 }
@@ -95,7 +180,7 @@ void GTweenable::restart()
 void GTweenable::restartWithDelay()
 {
 	this->restart();
-	this->currentDelayTime = this->delayTime;
+	this->elapsedDelayTime = this->delayTime;
 }
 
 GTweenable & GTweenable::backward(bool value)
@@ -113,7 +198,7 @@ GTweenable & GTweenable::useFrames(bool value)
 GTweenable & GTweenable::delay(GTweenNumber value)
 {
 	this->delayTime = value;
-	this->currentDelayTime = value;
+	this->elapsedDelayTime = value;
 	return *this;
 }
 

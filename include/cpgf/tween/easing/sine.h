@@ -1,5 +1,5 @@
-#ifndef __TWEEN_EASING_SIN_H
-#define __TWEEN_EASING_SIN_H
+#ifndef __TWEEN_EASING_SINE_H
+#define __TWEEN_EASING_SINE_H
 
 #include "cpgf/tween/gtweencommon.h"
 
@@ -7,7 +7,7 @@
 
 namespace cpgf {
 
-struct SinEase
+struct SineEase
 {
 public:
 	static GTweenEaseType easeIn() {

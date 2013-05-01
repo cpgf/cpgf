@@ -63,7 +63,7 @@ my $patternList = [
 		%defaultConfig,
 
 		path => "samples",
-		files => [ '*.h', '*.cpp', 'readme*', '*.js', '*.lua', '*.py', '*.vcproj' ],
+		files => [ '*.h', '*.cpp', 'readme*', '*.js', '*.lua', '*.py', '*.vcproj', '*.cbp', '*.fbp' ],
 		recursive => 1,
 	},
 

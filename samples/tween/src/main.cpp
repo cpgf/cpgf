@@ -17,10 +17,3 @@ bool TweenApp::OnInit()
 }
 
 IMPLEMENT_APP(TweenApp)
-#if 0
-int main()
-{
-	testTween();
-	return 0;
-}
-#endif

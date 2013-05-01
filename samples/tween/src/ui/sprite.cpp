@@ -7,8 +7,9 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 
+
 Sprite::Sprite()
-	: x(0), y(0), z(0), size(100), rotate(0), color(0), alpha(1), visible(true), shape(ssBox)
+	: x(0), y(0), z(0), size(100), rotate(0), color(0), alpha(1), visible(true), shape(ssTeapot)
 {
 }
 
@@ -131,13 +132,7 @@ void Sprite::render(int viewWidth, int viewHeight)
 	glRotatef(rotate, 1, 1, 1);
 
 	switch(this->shape) {
-	case ssBox:
-		//glBegin(GL_QUADS);
-		//glVertex3f(-s, -s, 0);
-		//glVertex3f(s, -s, 0);
-		//glVertex3f(s, s, 0);
-		//glVertex3f(-s, s, 0);
-		//glEnd();
+	case ssTeapot:
 		glutSolidTeapot(s);
 		break;
 

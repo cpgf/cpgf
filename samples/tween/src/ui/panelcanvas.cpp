@@ -47,7 +47,7 @@ void PanelCanvas::onPaint(wxPaintEvent & e)
 
 void PanelCanvas::onEraseBackground(wxEraseEvent & e)
 {
-//	e.Skip();
+	e.Skip();
 }
 
 namespace {

@@ -41,6 +41,10 @@ public:
 	void pause();
 	void resume();
 	void setTweenParam(const TweenParam & tweenParam);
+	
+	cpgf::GTweenable * getTweenable() const {
+		return this->tweenable;
+	}
 
 protected:
 	virtual void doReset();

@@ -178,6 +178,12 @@ CommandPanelRes::CommandPanelRes( wxWindow* parent, wxWindowID id, const wxPoint
 	m_staticline3 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	sizerParameters->Add( m_staticline3, 0, wxEXPAND | wxALL, 5 );
 	
+	progressSlider = new wxSlider( this, wxID_ANY, 0, 0, 1000, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
+	sizerParameters->Add( progressSlider, 0, wxALL|wxEXPAND, 5 );
+	
+	m_staticline5 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	sizerParameters->Add( m_staticline5, 0, wxEXPAND | wxALL, 5 );
+	
 	bSizer2->Add( sizerParameters, 1, wxEXPAND, 5 );
 	
 	this->SetSizer( bSizer2 );
@@ -196,6 +202,15 @@ CommandPanelRes::CommandPanelRes( wxWindow* parent, wxWindowID id, const wxPoint
 	choiceRepeatCount->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceRepeatSelected ), NULL, this );
 	checkBoxYoyo->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CommandPanelRes::onCheckBoxYoyoClicked ), NULL, this );
 	choiceRepeatDelay->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceRepeatDelaySelected ), NULL, this );
+	progressSlider->Connect( wxEVT_SCROLL_TOP, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Connect( wxEVT_SCROLL_BOTTOM, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Connect( wxEVT_SCROLL_LINEUP, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Connect( wxEVT_SCROLL_LINEDOWN, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Connect( wxEVT_SCROLL_PAGEUP, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Connect( wxEVT_SCROLL_PAGEDOWN, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Connect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Connect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Connect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
 }
 
 CommandPanelRes::~CommandPanelRes()
@@ -213,5 +228,14 @@ CommandPanelRes::~CommandPanelRes()
 	choiceRepeatCount->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceRepeatSelected ), NULL, this );
 	checkBoxYoyo->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CommandPanelRes::onCheckBoxYoyoClicked ), NULL, this );
 	choiceRepeatDelay->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( CommandPanelRes::onChoiceRepeatDelaySelected ), NULL, this );
+	progressSlider->Disconnect( wxEVT_SCROLL_TOP, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Disconnect( wxEVT_SCROLL_BOTTOM, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Disconnect( wxEVT_SCROLL_LINEUP, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Disconnect( wxEVT_SCROLL_LINEDOWN, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Disconnect( wxEVT_SCROLL_PAGEUP, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Disconnect( wxEVT_SCROLL_PAGEDOWN, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Disconnect( wxEVT_SCROLL_THUMBTRACK, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Disconnect( wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
+	progressSlider->Disconnect( wxEVT_SCROLL_CHANGED, wxScrollEventHandler( CommandPanelRes::onProgressSliderScroll ), NULL, this );
 	
 }

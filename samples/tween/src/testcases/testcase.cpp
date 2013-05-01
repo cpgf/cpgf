@@ -85,6 +85,8 @@ void TestCase::resetTweenParam()
 void TestCase::reset()
 {
 	GTweenList::getInstance()->clear();
+	
+	this->tweenable = NULL;
 
 	this->doReset();
 

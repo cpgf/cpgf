@@ -10,7 +10,7 @@ class Sprite
 public:
 	// use int instead of enum so we can tween the shape
 	static const int ssSphere = 0;
-	static const int ssBox = 1;
+	static const int ssTeapot = 1;
 
 public:
 	Sprite();

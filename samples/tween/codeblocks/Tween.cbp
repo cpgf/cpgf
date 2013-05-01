@@ -16,6 +16,10 @@
 					<Add option="-g" />
 					<Add option="-D__WXDEBUG__" />
 					<Add directory="E:\SourceCode\CPP\wxWidgets\lib\gcc_lib\mswud" />
+					<Add directory="E:\SourceCode\CPP\wxWidgets\include" />
+					<Add directory="E:\SourceCode\CPP\wxWidgets\contrib\include" />
+					<Add directory="D:\projects\cpgf\trunk\include\" />
+					<Add directory="E:\SourceCode\CPP\freeglut\mingw\include" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="E:\SourceCode\CPP\wxWidgets\lib\gcc_lib\mswud" />
@@ -37,6 +41,10 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="E:\SourceCode\CPP\wxWidgets\lib\gcc_lib\mswu" />
+					<Add directory="E:\SourceCode\CPP\wxWidgets\include" />
+					<Add directory="E:\SourceCode\CPP\wxWidgets\contrib\include" />
+					<Add directory="D:\projects\cpgf\trunk\include\" />
+					<Add directory="E:\SourceCode\CPP\freeglut\mingw\include" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="E:\SourceCode\CPP\wxWidgets\lib\gcc_lib\mswu" />

@@ -1,5 +1,7 @@
 #include "panelcommand.h"
 
+#include "cpgf/tween/gtweencommon.h"
+
 using namespace std;
 
 namespace {
@@ -23,6 +25,8 @@ const float TimeScales[] = {
 PanelCommand::PanelCommand(wxWindow* parent)
 	: super(parent)
 {
+	this->progressSlider->SetPageSize(this->progressSlider->GetMax() / 10);
+
 	this->timeChoiceList.push_back(this->choiceDuration);
 	this->timeChoiceList.push_back(this->choiceDelay);
 	this->timeChoiceList.push_back(this->choiceRepeatDelay);
@@ -74,6 +78,16 @@ void PanelCommand::showOrHidePauseAndResumeButtons(bool show)
 	this->buttonPause->Show(show);
 	this->buttonResume->Show(show);
 	this->sizerParameters->Show(show);
+}
+
+void PanelCommand::tick()
+{
+	cpgf::GTweenable * tweenable = this->testCase->getTweenable();
+	if(tweenable != NULL) {
+		float progress = tweenable->getTotalProgress();
+		progress *= (float)(this->progressSlider->GetMax());
+		this->progressSlider->SetValue((int)progress);
+	}
 }
 
 void PanelCommand::onButtonPlayClicked( wxCommandEvent& event )
@@ -144,5 +158,18 @@ void PanelCommand::onChoiceRepeatDelaySelected( wxCommandEvent& event )
 {
 	this->loadTweenParam();
 	this->testCase->setTweenParam(this->tweenParam);
+}
+
+void PanelCommand::onProgressSliderScroll( wxScrollEvent& event )
+{
+	cpgf::GTweenable * tweenable = this->testCase->getTweenable();
+	if(tweenable != NULL) {
+		float progress = (float)(this->progressSlider->GetValue());
+		progress /= (float)(this->progressSlider->GetMax());
+		if(! tweenable->isRunning() || tweenable->isCompleted()) {
+			tweenable->restart();
+		}
+		tweenable->setTotalProgress(progress);
+	}
 }
 
