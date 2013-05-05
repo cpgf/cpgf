@@ -43,9 +43,12 @@ void doTest()
 	NSC::doIt();
 };
 
+void testSpidermonkey();
 int main(int /*argc*/, char * /*argv*/[])
 {
-	doTest();
+//	doTest();
+
+	testSpidermonkey();
 	
 	UnitTest::RunAllTests();
 

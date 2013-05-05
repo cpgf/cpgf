@@ -152,6 +152,7 @@ protected:
 	int cycleCount;
 	GTweenNumber timeScaleTime;
 	GFlags<GTweenFlags> flags;
+	GTweenNumber previousAppliedTime;
 
 	GTweenCallback callbackOnInitialize;
 	GTweenCallback callbackOnComplete;

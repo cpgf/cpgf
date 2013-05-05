@@ -12,6 +12,18 @@ public:
 		return &_ease;
 	}
 	
+	static GTweenEaseType easeIn() {
+		return ease();
+	}
+	
+	static GTweenEaseType easeOut() {
+		return ease();
+	}
+	
+	static GTweenEaseType easeInOut() {
+		return ease();
+	}
+	
 private:
 	static GTweenNumber _ease(const GTweenEaseParam * param) {
 		return param->current / param->total;

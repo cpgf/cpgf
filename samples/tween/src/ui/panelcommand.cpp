@@ -174,7 +174,7 @@ void PanelCommand::onCurrentProgressSliderScroll( wxScrollEvent& event )
 	if(tweenable != NULL) {
 		float progress = (float)(this->currentProgressSlider->GetValue());
 		progress /= (float)(this->totalProgressSlider->GetMax());
-		if(! tweenable->isRunning() || tweenable->isCompleted()) {
+		if(tweenable->isCompleted()) {
 			tweenable->restart();
 		}
 		tweenable->setCurrentProgress(progress);

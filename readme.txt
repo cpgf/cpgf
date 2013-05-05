@@ -6,7 +6,7 @@ It's written in standard C++ and doesn't require any preprocess or tools.
 
 
 Version:
-	1.5.4
+	1.5.5
 
 		
 Libraries:
@@ -30,6 +30,8 @@ Libraries:
 		
 	cpgf meta data generator tool -- a tool writen in Java to automatically generate
 		meta data from Doxygen XML files.
+	
+	cpgf tweening -- a library to implement ease animation in C++.
 	
 License:
 	Apache License, Version 2.0

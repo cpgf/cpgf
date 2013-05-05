@@ -1,6 +1,6 @@
-TBD version 1.5.5
+2013-05-05 version 1.5.5
 	Added tweening and timeline library.
-	Added generic property accessors -- getter and setter.
+	Added generic property accessors, getter and setter.
 	Refactored meta property to reuse generic property accessors.
 	Fixed a bug that using function (not pointer) as property accessor may cause wrong address crash in VC.
 	Fixed a bug that using policy GMetaRuleExplicitThis on property setter may cause wrong argument being selected.

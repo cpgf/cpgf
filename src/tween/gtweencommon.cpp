@@ -8,9 +8,10 @@ using namespace std;
 
 namespace cpgf {
 
+const GTweenNumber invalidPreviousAppliedTime = -1.0f;
 
 GTweenable::GTweenable()
-	: elapsedTime(0), delayTime(0), repeatDelayTime(0), repeatCount(0), cycleCount(0), timeScaleTime(1.0f), flags()
+	: elapsedTime(0), delayTime(0), repeatDelayTime(0), repeatCount(0), cycleCount(0), timeScaleTime(1.0f), flags(), previousAppliedTime(invalidPreviousAppliedTime)
 {
 }
 
@@ -110,7 +111,7 @@ GTweenNumber GTweenable::getCurrentTime() const
 	}
 	
 	if(this->cycleCount > 0) {
-		return this->elapsedTime - this->delayTime - (this->getDuration() * this->cycleCount + this->repeatDelayTime * (this->cycleCount - 1));
+		return this->elapsedTime - this->delayTime - ((this->getDuration() + this->repeatDelayTime) * this->cycleCount);
 	}
 	else {
 		return this->elapsedTime - this->delayTime;
@@ -127,7 +128,7 @@ void GTweenable::setCurrentTime(GTweenNumber value)
 		value = d;
 	}
 	if(this->cycleCount > 0) {
-		value += (d * this->cycleCount + this->repeatDelayTime * (this->cycleCount - 1));
+		value += (d + this->repeatDelayTime) * this->cycleCount;
 	}
 	this->elapsedTime = min(value, this->getTotalDuration()) + this->delayTime;
 	
@@ -198,6 +199,7 @@ void GTweenable::resume()
 void GTweenable::restart()
 {
 	this->elapsedTime = this->delayTime;
+	this->previousAppliedTime = invalidPreviousAppliedTime;
 	this->cycleCount = 0;
 	this->flags.clear(tfCompleted);
 	
@@ -207,6 +209,7 @@ void GTweenable::restart()
 void GTweenable::restartWithDelay()
 {
 	this->elapsedTime = 0;
+	this->previousAppliedTime = invalidPreviousAppliedTime;
 	this->cycleCount = 0;
 	this->flags.clear(tfCompleted);
 	

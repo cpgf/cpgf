@@ -194,36 +194,29 @@ void GTimeline::performTime(GTweenNumber elapsed, GTweenNumber frameDuration, bo
 		if(cycleDuration > 0) {
 			int times = (int)(floor(t / cycleDuration));
 			int ctimes = times;
-			GTweenNumber remains = t - times * cycleDuration;
-			if(remains > this->durationTime) {
-				return;
+			t -= times * cycleDuration;
+			if(t > this->durationTime) {
+				t = this->durationTime;
 			}
-			//if(t > 0 && remains <= 0)
-			//{
-			//	--times;
-			//	t = this->durationTime;
-			//}
-			//else
-			{
-				t = remains;
-			}
-			if(times > this->cycleCount) {
-				this->cycleCount = times;
-				shouldRestart = true;
-				if(this->repeatCount < 0) {
-				}
-				else {
-					if(ctimes > this->repeatCount) {
-						shouldFinish = true;
-						shouldSetValue = false;
+			else {
+				if(times > this->cycleCount) {
+					this->cycleCount = times;
+					shouldRestart = true;
+					if(this->repeatCount < 0) {
 					}
-				}
-				if(this->isYoyo()) {
-					this->toggleBackward();
-				}
-				
-				if(this->callbackOnRepeat) {
-					this->callbackOnRepeat();
+					else {
+						if(ctimes > this->repeatCount) {
+							shouldFinish = true;
+							shouldSetValue = false;
+						}
+					}
+					if(this->isYoyo()) {
+						this->toggleBackward();
+					}
+					
+					if(this->callbackOnRepeat) {
+						this->callbackOnRepeat();
+					}
 				}
 			}
 		}
@@ -238,7 +231,9 @@ void GTimeline::performTime(GTweenNumber elapsed, GTweenNumber frameDuration, bo
 		t = this->durationTime - t;
 	}
 
-	if(shouldSetValue) {
+	if(shouldSetValue && t != this->previousAppliedTime) {
+		this->previousAppliedTime = t;
+
 		bool useFrames = forceUseFrames || this->isUseFrames();
 		if(useFrames && frameDuration > 0) {
 			frameDuration = 1.0f;

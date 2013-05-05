@@ -64,6 +64,7 @@ my $patternList = [
 
 		path => "samples",
 		files => [ '*.h', '*.cpp', 'readme*', '*.js', '*.lua', '*.py', '*.vcproj', '*.cbp', '*.fbp' ],
+		excludePath => [ 'bin', 'obj', 'release', 'debug' ],
 		recursive => 1,
 	},
 
