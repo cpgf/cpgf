@@ -46,6 +46,7 @@ extern int Error_ScriptBinding_AccessMemberWithWrongObject;
 extern int Error_ScriptBinding_CantBindRaw;
 extern int Error_ScriptBinding_NoContext;
 extern int Error_ScriptBinding_CantFindMatchedOperator;
+extern int Error_ScriptBinding_NotSupportedFeature;
 extern int Error_ScriptBinding_End;
 
 extern int Error_Serialization_Begin;

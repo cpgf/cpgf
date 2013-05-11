@@ -54,6 +54,7 @@ int Error_ScriptBinding_AccessMemberWithWrongObject	= Error_ScriptBinding_Begin 
 int Error_ScriptBinding_CantBindRaw			= Error_ScriptBinding_Begin + 15;
 int Error_ScriptBinding_NoContext				= Error_ScriptBinding_Begin + 16;
 int Error_ScriptBinding_CantFindMatchedOperator		= Error_ScriptBinding_Begin + 17;
+int Error_ScriptBinding_NotSupportedFeature		= Error_ScriptBinding_Begin + 18;
 int Error_ScriptBinding_End			= 300;
 
 int Error_Serialization_Begin = 301;
@@ -157,6 +158,7 @@ namespace {
 		{ Error_ScriptBinding_ScriptMethodParamMismatch,		"Can't pass parameter at index %d in function %s" },
 		{ Error_ScriptBinding_ScriptFunctionReturnError,		"Error when calling function %s, message: %s" },
 		{ Error_ScriptBinding_CantReturnMultipleValue,			"Can't return multiple value when calling function %s" },
+		{ Error_ScriptBinding_NotSupportedFeature,				"Feature %s it not supported by script binding for %s" },
 	};
 
 	const char * notFoundErrorMessage = "Can't find error message.";
