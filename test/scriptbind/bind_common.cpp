@@ -41,6 +41,10 @@ std::string TestScriptCoder::newObject(const std::string & lhs, const std::strin
 	return s;
 }
 
+std::string TestScriptCoder::getVarPrefix()
+{
+	return "";
+}
 
 
 TestScriptContext::TestScriptContext(TestScriptCoder * coder)
@@ -372,6 +376,10 @@ public:
 	virtual std::string getNew() {
 		return " new ";
 	}
+	
+	virtual std::string getVarPrefix() {
+		return "var ";
+	}
 };
 
 class SpiderMonkeyEnv
@@ -386,9 +394,9 @@ public:
 	}
 
 	~SpiderMonkeyEnv() {
-		JS_DestroyContext(this->jsContext);
-		JS_DestroyRuntime(this->jsRuntime);
-		JS_ShutDown();
+		//JS_DestroyContext(this->jsContext);
+		//JS_DestroyRuntime(this->jsRuntime);
+		//JS_ShutDown();
 	}
 
 public:

@@ -24,10 +24,12 @@
 
 #define QSTR(...) # __VA_ARGS__
 
+#define VAR context->getCoder()->getVarPrefix()
 #define DO(s) GCHECK(context->doString(s));
 #define ERR(s) GCHECK(context->doError(s));
 #define QDO(...) DO(# __VA_ARGS__)
 #define QERR(...) ERR(# __VA_ARGS__)
+#define QVAR(...) DO(VAR + # __VA_ARGS__)
 
 #define DOASSERT(...) DO(std::string("scriptAssert(") + __VA_ARGS__ + ")")
 #define DOASSERTNOT(...) DO(std::string("scriptNot(") + __VA_ARGS__ + ")")
@@ -59,6 +61,7 @@ public:
 
 	virtual std::string getNew() = 0;
 	virtual std::string newObject(const std::string & lhs, const std::string & className);
+	virtual std::string getVarPrefix();
 };
 
 class TestScriptContext

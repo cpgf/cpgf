@@ -8,8 +8,8 @@ void doTestValueAssign(T * binding, TestScriptContext * context)
 {
 	(void)context;
 
-	QDO(a = "what")
-	QDO(b = 1)
+	QVAR(a = "what")
+	QVAR(b = 1)
 	QASSERT(a == "what")
 	QASSERT(b == 1)
 
@@ -22,8 +22,8 @@ void doTestValueAssign(T * binding, TestScriptContext * context)
 
 void testValueAssign(TestScriptContext * context)
 {
-	QDO(a = "what")
-	QDO(b = 1)
+	QVAR(a = "what")
+	QVAR(b = 1)
 	QASSERT(a == "what")
 	QASSERT(b == 1)
 
