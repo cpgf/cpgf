@@ -13,9 +13,25 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
 
 public class JavascriptConfigLoader implements IOutputCallback {
+    static class Shell extends ScriptableObject {
+
+        @Override
+        public String getClassName() {
+            return "global";
+        }
+
+        public static void print(Context cx, Scriptable thisObj, Object[] args, Function funObj) {
+            for (int i = 0; i < args.length; i++) {
+                String s = Context.toString(args[i]);
+                System.out.print(s);
+            }
+        }
+    }
+
 	private static Context context;
 	private static Scriptable scope;
 	private Config config;
@@ -41,7 +57,10 @@ public class JavascriptConfigLoader implements IOutputCallback {
 			context = Context.enter();
 		}
 		if(scope == null) {
-			scope = context.initStandardObjects();
+  			Shell shell = new Shell();
+  			String[] names = {"print"};
+  			shell.defineFunctionProperties(names, Shell.class, ScriptableObject.DONTENUM);
+ 			scope = context.initStandardObjects(shell);
 		}
 
         context.evaluateString(scope, javascriptCode, configFileName, 1, null);
