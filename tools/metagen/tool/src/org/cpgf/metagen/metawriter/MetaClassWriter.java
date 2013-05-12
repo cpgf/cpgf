@@ -264,18 +264,19 @@ public class MetaClassWriter {
 	private void writeConstants() {
 		String action = WriterUtil.getReflectionAction(this.define, "_enum");
 
-		if(this.cppClass.getConstantList().size() == 0) {
-			return;
-		}
-
-		this.codeWriter.writeLine(action + "<long long>(" + Util.quoteText("GlobalDefine_" + this.config.projectID + "_" + this.getUniqueText()) + ")");
-		this.codeWriter.incIndent();
+		boolean haveItems = false;
 
 		for(Constant item : this.cppClass.getConstantList()) {
 			this.doCallback(item);
 			
 			if(this.shouldSkipItem(item)) {
 				continue;
+			}
+
+			if (!haveItems) {
+		        this.codeWriter.writeLine(action + "<long long>(" + Util.quoteText("GlobalDefine_" + this.config.projectID + "_" + this.getUniqueText()) + ")");
+        		this.codeWriter.incIndent();
+                haveItems = true;
 			}
 			
 			String value = item.getValue();
@@ -285,9 +286,10 @@ public class MetaClassWriter {
 			
 			this.codeWriter.writeLine("._element(" + Util.quoteText(item.getPrimaryName()) + ", " + item.getPrimaryName() + ")");
 		}
-		
-		this.codeWriter.decIndent();
-		this.codeWriter.writeLine(";");
+	    if (haveItems) {
+		    this.codeWriter.decIndent();
+		    this.codeWriter.writeLine(";");
+        }
 	}
 
 	private void writeOperators() {
