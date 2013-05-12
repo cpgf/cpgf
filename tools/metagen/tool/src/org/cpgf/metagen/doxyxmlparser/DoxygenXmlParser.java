@@ -183,7 +183,7 @@ public class DoxygenXmlParser {
 		}
 		else if(kind.equals("union")) {
 			// we can't handle union for now because union will cause compile error in type traits
-///			this.doParseClass(node, location);
+			this.doParseClass(node, location);
 		}
 		else if(kind.equals("struct")) {
 			this.doParseClass(node, location);
