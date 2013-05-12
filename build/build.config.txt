@@ -3,11 +3,14 @@ set(BUILD_DEBUG	1) #release=false
 # set 1 to enable Lua binding, 0 to disable
 set(HAS_LUA	1) #release=false
 
-# set 1 to enable V8 binding, 0 to disable
+# set 1 to enable Google V8 binding, 0 to disable
 set(HAS_V8 1) #release=false
 
 # set 1 to enable Python binding, 0 to disable
 set(HAS_PYTHON 1) #release=false
+
+# set 1 to enable Mozilla SpiderMonkey binding, 0 to disable
+set(HAS_SPIDERMONKEY 1) #release=false
 
 # set 1 to enable C++ 0X in GCC, then rvalue reference is enabled
 # 0 to disable rvalue reference
@@ -106,6 +109,26 @@ endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)
 	set(PYTHON_LIB ${PYTHON_DIR}/libs/python27_d.lib)
+endif(MSVC)
+
+
+
+### SpiderMonkey config
+
+set(SPIDERMONKEY_DIR
+	e:/SourceCode/CPP/xulrunner-sdk
+)
+
+set(SPIDERMONKEY_INC ${SPIDERMONKEY_DIR}/include)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(SPIDERMONKEY_LIB ${SPIDERMONKEY_DIR}/lib/lib.a)
+	set(SPIDERMONKEY_DEFINE )
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(MSVC)
+	set(SPIDERMONKEY_LIB ${SPIDERMONKEY_DIR}/lib/mozjs.lib)
+	set(SPIDERMONKEY_DEFINE -DXP_WIN)
 endif(MSVC)
 
 

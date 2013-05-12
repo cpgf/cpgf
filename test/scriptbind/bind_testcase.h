@@ -81,6 +81,32 @@ GTEST(MK(CASE, _Python_Api))
 
 
 
+#if ENABLE_SPIDERMONKEY
+
+GTEST(MK(CASE, _SpiderMonkey_Lib))
+{
+	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslSpider, tsaLib));
+
+	TEST_BIND(context->getBindingLib(), context->getService());
+
+	CASE(context.get());
+}
+
+
+GTEST(MK(CASE, _SpiderMonkey_Api))
+{
+	GScopedPointer<TestScriptContext> context(createTestScriptContext(tslSpider, tsaApi));
+
+	TEST_BIND(context->getBindingApi(), context->getService());
+
+	CASE(context.get());
+}
+
+#endif
+
+
+
+
 #undef CASE
 #undef MK2
 #undef MK

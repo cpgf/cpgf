@@ -89,12 +89,19 @@ if(${HAS_PYTHON})
 	)
 endif(${HAS_PYTHON})
 
+if(${HAS_SPIDERMONKEY})
+	set(SRC_SPIDERMONKEY_BIND
+		${SRC_PATH}/scriptbind/gspidermonkeybind.cpp
+	)
+endif(${HAS_SPIDERMONKEY})
+
 set(SRC_LIB
 	${SRC_META}
 	
 	${SRC_LUA_BIND}
 	${SRC_V8_BIND}
 	${SRC_PYTHON_BIND}
+	${SRC_SPIDERMONKEY_BIND}
 )
 
 
@@ -110,6 +117,10 @@ endif(${HAS_V8})
 if(${HAS_PYTHON})
 	include_directories(${PYTHON_INC})
 endif(${HAS_PYTHON})
+
+if(${HAS_SPIDERMONKEY})
+	include_directories(${SPIDERMONKEY_INC})
+endif(${HAS_SPIDERMONKEY})
 
 
 
@@ -138,6 +149,8 @@ add_library(
 		STATIC
 		${SRC_LIB}
 )
+
+add_definitions(${SPIDERMONKEY_DEFINE})
 
 set_target_properties(
 	${TARGET_LIB}

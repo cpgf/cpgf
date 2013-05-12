@@ -1,3 +1,6 @@
+TBD version 1.5.6
+	Fixed a compile error when compiling in VC in Win64 mode.
+
 2013-05-05 version 1.5.5
 	Added tweening and timeline library.
 	Added generic property accessors, getter and setter.

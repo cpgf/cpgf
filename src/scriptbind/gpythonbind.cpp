@@ -937,6 +937,11 @@ struct GPythonMethods
 		return result != NULL;
 	}
 
+	static ResultType defaultValue()
+	{
+		return ResultType();
+	}
+
 	static ResultType doMethodsToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem,
 		const char * methodName, GMetaClassTraveller * /*traveller*/,
 		IMetaClass * metaClass, IMetaClass * derived, const GObjectGlueDataPointer & objectData)

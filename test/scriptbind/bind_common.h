@@ -10,6 +10,9 @@
 #ifndef ENABLE_PYTHON
 #define ENABLE_PYTHON 1
 #endif
+#ifndef ENABLE_SPIDERMONKEY
+#define ENABLE_SPIDERMONKEY 1
+#endif
 
 
 #include "cpgf/gmetaapi.h"
@@ -41,7 +44,7 @@
 namespace testscript {
 
 enum TestScriptLang {
-	tslLua, tslV8, tslPython
+	tslLua, tslV8, tslPython, tslSpider
 };
 
 enum TestScriptApi {
@@ -98,6 +101,10 @@ public:
 		return false;
 	}
 
+	virtual bool isSpiderMonkey() const {
+		return false;
+	}
+	
 protected:
 	virtual bool doLib(const char * code) const = 0;
 	virtual bool doApi(const char * code) const = 0;

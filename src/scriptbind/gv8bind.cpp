@@ -551,6 +551,11 @@ struct GV8Methods
 		return ! result.IsEmpty();
 	}
 
+	static ResultType defaultValue()
+	{
+		return ResultType();
+	}
+
 	static ResultType doMethodsToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem,
 		const char * methodName, GMetaClassTraveller * /*traveller*/,
 		IMetaClass * metaClass, IMetaClass * derived, const GObjectGlueDataPointer & objectData)

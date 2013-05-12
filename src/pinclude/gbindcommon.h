@@ -975,7 +975,7 @@ typename Methods::ResultType complexVariantToScript(const GContextPointer & cont
 		return Methods::doRawToScript(context, value, outputGlueData);
 	}
 
-	return typename Methods::ResultType();
+	return typename Methods::defaultValue();
 }
 
 
@@ -1016,7 +1016,7 @@ typename Methods::ResultType converterToScript(const GContextPointer & context, 
 		}
 	}
 
-	return typename Methods::ResultType();
+	return typename Methods::defaultValue();
 }
 
 
@@ -1063,7 +1063,7 @@ template <typename Methods>
 typename Methods::ResultType extendVariantToScript(const GContextPointer & context, const GMetaExtendType & extendType,
 		const GVariant & value, const GBindValueFlags & flags)
 {
-	typename Methods::ResultType result = typename Methods::ResultType();
+	typename Methods::ResultType result = typename Methods::defaultValue();
 
 	GScopedInterface<IMetaConverter> converter(extendType.getConverter());
 	if(converter) {
@@ -1157,7 +1157,7 @@ typename Methods::ResultType methodResultToScript(const GContextPointer & contex
 		return result;
 	}
 
-	return typename Methods::ResultType();
+	return typename Methods::defaultValue();
 }
 
 
@@ -1260,7 +1260,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 		}
 	}
 
-	return typename Methods::ResultType();
+	return typename Methods::defaultValue();
 }
 
 

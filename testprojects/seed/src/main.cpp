@@ -5,8 +5,6 @@
 #include <iostream>
 #include <string>
 
-#include "unittestbase.h"
-
 #include <time.h>
 
 using namespace std;
@@ -50,8 +48,6 @@ int main(int /*argc*/, char * /*argv*/[])
 
 	testSpidermonkey();
 	
-	UnitTest::RunAllTests();
-
 //	_getch();
 	printf("\n");
 

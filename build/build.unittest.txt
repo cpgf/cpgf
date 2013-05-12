@@ -76,7 +76,7 @@ macro(partUnitTest target)
 		OUTPUT_NAME ${target}
 		COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
 	)
-	target_link_libraries(${target} ${TARGET_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB})
+	target_link_libraries(${target} ${TARGET_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB} ${SPIDERMONKEY_LIB} )
 endmacro()
 
 if(${HAS_UNITTEST})
@@ -204,7 +204,7 @@ if(${HAS_UNITTEST})
 		include_directories(${BOOST_INC})
 	endif(${HAS_BOOST})
 
-	add_definitions(-DENABLE_LUA=${HAS_LUA} -DENABLE_V8=${HAS_V8} -DENABLE_PYTHON=${HAS_PYTHON} -DENABLE_BOOST=${HAS_BOOST})
+	add_definitions(-DENABLE_LUA=${HAS_LUA} -DENABLE_V8=${HAS_V8} -DENABLE_PYTHON=${HAS_PYTHON} -DENABLE_SPIDERMONKEY=${HAS_SPIDERMONKEY} -DENABLE_BOOST=${HAS_BOOST})
 
 	add_executable(
 		${TARGET_UNITTEST}

@@ -12,6 +12,10 @@
 #include "cpgf/scriptbind/gpythonbind.h"
 #endif
 
+#if ENABLE_SPIDERMONKEY
+#include "cpgf/scriptbind/gspidermonkeybind.h"
+#endif
+
 
 using namespace cpgf;
 using namespace std;
@@ -358,6 +362,92 @@ private:
 #endif
 
 
+#if ENABLE_SPIDERMONKEY
+
+using namespace JS;
+
+class TestScriptCoderSpiderMonkey : public TestScriptCoder
+{
+public:
+	virtual std::string getNew() {
+		return " new ";
+	}
+};
+
+class SpiderMonkeyEnv
+{
+public:
+	SpiderMonkeyEnv()
+		: jsRuntime(JS_NewRuntime(1024L*1024L, JS_NO_HELPER_THREADS)),
+			jsContext(JS_NewContext(jsRuntime, 8192)),
+			jsGlobal(JS_NewObject(jsContext, NULL, NULL, NULL))
+	{
+		JS_InitStandardClasses(this->jsContext, this->jsGlobal);
+	}
+
+	~SpiderMonkeyEnv() {
+		JS_DestroyContext(this->jsContext);
+		JS_DestroyRuntime(this->jsRuntime);
+		JS_ShutDown();
+	}
+
+public:
+	JSRuntime * jsRuntime;
+	JSContext * jsContext;
+	JSObject  * jsGlobal;
+};
+
+static GScopedPointer<SpiderMonkeyEnv> spiderMonkeyEnv;
+
+class TestScriptContextSpiderMonkey : public TestScriptContext
+{
+private:
+	typedef TestScriptContext super;
+
+public:
+	TestScriptContextSpiderMonkey(TestScriptApi api)
+		: super(new TestScriptCoderSpiderMonkey)
+	{
+		if(! spiderMonkeyEnv) {
+			spiderMonkeyEnv.reset(new SpiderMonkeyEnv());
+		}
+
+		if(api == tsaLib) {
+			this->setBinding(cpgf::createSpiderMonkeyScriptObject(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal, GScriptConfig()));
+		}
+
+		if(api == tsaApi) {
+			this->setBinding(cpgf::createSpiderMonkeyScriptInterface(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal, cpgf::GScriptConfig()));
+		}
+	}
+
+	~TestScriptContextSpiderMonkey() {
+	}
+
+	virtual bool isSpiderMonkey() const {
+		return true;
+	}
+
+protected:
+	virtual bool doLib(const char * code) const {
+		return this->executeString(code, this->canPrintError());
+	}
+
+	virtual bool doApi(const char * code) const {
+		return this->executeString(code, this->canPrintError());
+	}
+
+	bool executeString(const char * source, bool printError) const {
+		jsval result;
+		JSBool success = JS_EvaluateScript(spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal, source, (unsigned int)strlen(source), "script", 1, &result);
+		return success == JS_TRUE;
+	}
+};
+
+
+#endif
+
+
 TestScriptContext * createTestScriptContext(TestScriptLang lang, TestScriptApi api)
 {
 	switch(lang) {
@@ -378,6 +468,13 @@ TestScriptContext * createTestScriptContext(TestScriptLang lang, TestScriptApi a
 	case tslPython:
 #if ENABLE_PYTHON
 		return new TestScriptContextPython(api);
+#else
+		break;
+#endif
+
+	case tslSpider:
+#if ENABLE_SPIDERMONKEY
+		return new TestScriptContextSpiderMonkey(api);
 #else
 		break;
 #endif
