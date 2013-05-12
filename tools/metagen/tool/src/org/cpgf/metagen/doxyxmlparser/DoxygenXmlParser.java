@@ -405,7 +405,7 @@ public class DoxygenXmlParser {
 		
 		Node bitFieldNode = Util.getNode(node, "bitfield");
 		if(bitFieldNode != null) {
-			field.setBitField(Integer.parseInt(Util.getNodeText(bitFieldNode)));
+			field.setBitField(Integer.parseInt(Util.getNodeText(bitFieldNode).trim()));
 		}
 
 		this.getCurrentClass().getFieldList().add(field);
