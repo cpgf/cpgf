@@ -583,6 +583,13 @@ GGlueDataWrapperPool::GGlueDataWrapperPool()
 typedef vector<GGlueDataWrapper *> TempListType;
 GGlueDataWrapperPool::~GGlueDataWrapperPool()
 {
+    this->clear();
+	this->active = false;
+}
+
+typedef vector<GGlueDataWrapper *> TempListType;
+void GGlueDataWrapperPool::clear()
+{
 	this->active = false;
 	
 	TempListType tempList(this->wrapperSet.begin(), this->wrapperSet.end());
@@ -605,6 +612,7 @@ GGlueDataWrapperPool::~GGlueDataWrapperPool()
 			freeGlueDataWrapper(*it);
 		}
 	}
+	this->active = true;
 }
 
 void GGlueDataWrapperPool::dataWrapperCreated(GGlueDataWrapper * dataWrapper)

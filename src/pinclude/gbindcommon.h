@@ -659,6 +659,7 @@ public:
 	void dataWrapperCreated(GGlueDataWrapper * dataWrapper);
 	void dataWrapperDestroyed(GGlueDataWrapper * dataWrapper);
 
+    void clear();
 private:
 	bool active;
 	SetType wrapperSet;
