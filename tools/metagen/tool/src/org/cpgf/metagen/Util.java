@@ -362,7 +362,7 @@ public class Util {
 
 	public static String getParameterText(List<Parameter> parameterList, boolean withType, boolean withName, boolean withDefaultValue) {
 		String result = "";
-		
+	    int counter = 0;	
 		for(Parameter param : parameterList) {
 			if(result.length() > 0) {
 				result = result + ", ";
@@ -374,7 +374,16 @@ public class Util {
 				if(withType) {
 					result = result + " ";
 				}
-				result = result + param.getName();
+				String name = param.getName();
+				if ("" == name) {
+                    name = "__arg"+(counter++);
+				}
+				result = result + name;
+			} else if (withName) {
+				if(withType) {
+					result = result + " ";
+				}
+				result = result + "__arg"+(counter++);
 			}
 			if(withDefaultValue && param.hasDefaultValue()) {
 				result = result + " = " + param.getDefaultValue();
