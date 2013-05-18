@@ -184,6 +184,10 @@ GMetaMapItem * GMetaMapClass::findItem(const char * name)
 void GMetaMapClass::buildMap(IMetaClass * metaClass)
 {
 	using namespace std;
+
+	if(metaClass == NULL) {
+		return;
+	}
 	
 	uint32_t count;
 	uint32_t i;

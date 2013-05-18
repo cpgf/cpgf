@@ -33,7 +33,8 @@ void doTestGetType(T * binding, TestScriptContext * context)
 	GCHECK(string(item->getName()) == REG_NAME_TestObject);
 
 	RITEM;
-	GCHECK(binding->getType("func", &tempItem) == sdtScriptMethod);
+//	GCHECK(binding->getType("func", &tempItem) == sdtScriptMethod);
+	GCHECK(binding->getType("func", &tempItem) == sdtMethod);
 	CHKITEM;
 	GCHECK(! item);
 

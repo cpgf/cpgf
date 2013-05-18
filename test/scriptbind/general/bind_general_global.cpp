@@ -30,7 +30,7 @@ void doTestGlobal(T * binding, TestScriptContext * context)
 	if(context->isLua()) {
 		QASSERT(data == nil)
 	}
-	if(context->isV8()) {
+	if(context->isV8() || context->isSpiderMonkey()) {
 		QASSERT(data == null)
 	}
 	if(context->isPython()) {

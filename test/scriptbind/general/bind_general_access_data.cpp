@@ -7,7 +7,7 @@ namespace {
 template <typename T>
 void doTestAccessData(T * binding, TestScriptContext * context)
 {
-	QNEWOBJ(a, TestObject())
+	QVARNEWOBJ(a, TestObject())
 	QASSERT(a.data.x == 0)
 	QASSERT(a.data.name == "")
 
@@ -27,7 +27,7 @@ void doTestAccessData(T * binding, TestScriptContext * context)
 	GCHECK(obj->data.x == 5);
 	GCHECK(obj->data.name == "script");
 
-	QNEWOBJ(b, TestData())
+	QVARNEWOBJ(b, TestData())
 	QDO(b.x = 96)
 	QDO(b.name = "what")
 	QDO(a.data = b)
@@ -59,14 +59,14 @@ void testAccessData(TestScriptContext * context)
 template <typename T>
 void doTestRefData(T * binding, TestScriptContext * context)
 {
-	QNEWOBJ(a, TestObject())
+	QVARNEWOBJ(a, TestObject())
 	QASSERT(a.data.x == 0)
 	QASSERT(a.data.name == "")
 
 	TestObject * obj;
 	
-	QDO(b = a.refData())
-	QDO(c = a.constRefData())
+	QVAR(b = a.refData())
+	QVAR(c = a.constRefData())
 	
 	obj = static_cast<TestObject *>(binding->getObject("a"));
 	obj->data.x = 38;
@@ -127,9 +127,9 @@ void testRefData(TestScriptContext * context)
 template <typename T>
 void doTestDataConstness(T * binding, TestScriptContext * context)
 {
-	QNEWOBJ(a, TestObject())
+	QVARNEWOBJ(a, TestObject())
 	
-	QDO(b = a.selfConst())
+	QVAR(b = a.selfConst())
 	QASSERT(a.data.x == 0)
 	QASSERT(a.data.name == "")
 

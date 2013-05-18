@@ -208,7 +208,7 @@ class GClassGlueData : public GGlueData, public GShareFromThis<GClassGlueData>
 private:
 	typedef GGlueData super;
 
-private:
+protected:
 	GClassGlueData(const GContextPointer & context, IMetaClass * metaClass);
 
 public:
@@ -1192,6 +1192,10 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 	else {
 		GASSERT(glueData->getType() == gdtClass);
 		classData = sharedStaticCast<GClassGlueData>(glueData);
+	}
+
+	if(! classData->getMetaClass()) {
+		return typename Methods::defaultValue();
 	}
 
 	const GScriptConfig & config = classData->getContext()->getConfig();

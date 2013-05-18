@@ -386,7 +386,7 @@ class SpiderMonkeyRuntime
 {
 public:
 	SpiderMonkeyRuntime()
-		: jsRuntime(JS_NewRuntime(1024L*1024L, JS_NO_HELPER_THREADS))
+		: jsRuntime(JS_NewRuntime(512L * 1024L * 1024L, JS_NO_HELPER_THREADS))
 	{
 	}
 
@@ -418,7 +418,7 @@ public:
 		JS_SetOptions(this->jsContext, JSOPTION_METHODJIT);
 		JS_SetVersion(this->jsContext, JSVERSION_LATEST);
 		JS_SetErrorReporter(this->jsContext, &reportError);
-		this->jsGlobal = JS_NewObject(this->jsContext, NULL, NULL, NULL);
+		this->jsGlobal = createSpiderMonkeyGlobaObject(this->jsContext);
 		JS_InitStandardClasses(this->jsContext, this->jsGlobal);
 	}
 
@@ -432,6 +432,10 @@ public:
 };
 
 static GScopedPointer<SpiderMonkeyEnv> spiderMonkeyEnv;
+
+const char * const SpiderMonkeyNullObjects[] = {
+	"nso", "methodConst", "incStaticValue", "add", "Inner"
+};
 
 class TestScriptContextSpiderMonkey : public TestScriptContext
 {
@@ -451,13 +455,13 @@ public:
 		if(api == tsaLib) {
 			this->setBinding(cpgf::createSpiderMonkeyScriptObject(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal, GScriptConfig()));
 			
-			this->getBindingLib()->nullifyValue("nso");
+			this->nullObjects();
 		}
 
 		if(api == tsaApi) {
 			this->setBinding(cpgf::createSpiderMonkeyScriptInterface(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal, cpgf::GScriptConfig()));
 
-			this->getBindingApi()->nullifyValue("nso");
+			this->nullObjects();
 		}
 	}
 
@@ -481,6 +485,17 @@ protected:
 		jsval result;
 		JSBool success = JS_EvaluateScript(spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal, source, (unsigned int)strlen(source), "script", 1, &result);
 		return success == JS_TRUE;
+	}
+
+	void nullObjects() {
+		for(int i = 0; i < sizeof(SpiderMonkeyNullObjects) / sizeof(SpiderMonkeyNullObjects[0]); ++i) {
+			if(this->getBindingLib()) {
+				this->getBindingLib()->nullifyValue(SpiderMonkeyNullObjects[i]);
+			}
+			else {
+				this->getBindingApi()->nullifyValue(SpiderMonkeyNullObjects[i]);
+			}
+		}
 	}
 };
 

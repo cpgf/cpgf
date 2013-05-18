@@ -6,14 +6,16 @@ namespace {
 
 void doTestInjectMetaClass(IScriptObject * binding, TestScriptContext * context)
 {
+if(! context->isSpiderMonkey()) {
 	QERR(methodConst())
 	QERR(incStaticValue())
 	QERR(add(18))
-	
+
 	QERR(BasicEnum.a == 1)
 	QERR(BasicEnum.b == 2)
 	QERR(BasicEnum.c == 3)
 	QERR(a, Inner())
+}
 
 	GScopedInterface<IMetaClass> metaClass(context->getService()->findClassByName(REG_NAME_TestObject));
 	TestObject obj(38);

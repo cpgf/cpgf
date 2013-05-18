@@ -18,6 +18,7 @@
 
 namespace cpgf {
 
+JSObject * createSpiderMonkeyGlobaObject(JSContext * jsContext);
 GScriptObject * createSpiderMonkeyScriptObject(IMetaService * service, JSContext * jsContext, JSObject  * jsObject, const GScriptConfig & config);
 IScriptObject * createSpiderMonkeyScriptInterface(IMetaService * service, JSContext *jsContext, JSObject  * jsObject, const GScriptConfig & config);
 
