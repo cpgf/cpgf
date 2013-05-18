@@ -34,7 +34,7 @@ public class ClassSourceFileWriter extends CodeFileWriter {
 	
 	@Override
 	public boolean shouldSkip() {
-		if(! this.getConfig().autoRegisterToGlobal) {
+		if(! this.getConfig().generateRegisterHeader) {
 			return true;
 		}
 		for(CppClass cppClass : this.masterClassList) {
