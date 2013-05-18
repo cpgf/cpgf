@@ -15,7 +15,7 @@ void doTestInvokeScriptFunction(T * binding, TestScriptContext * context)
 		QDO(function funcTestData(a) return a.x + string.len(a.name) end)
 		QDO(function funcNewTestData() a = TestData() a.x = 3 a.name = "def" return a end)
 	}
-	if(context->isV8()) {
+	if(context->isV8() || context->isSpiderMonkey()) {
 		QDO(function funcAdd(a, b) { return a + b; })
 		QDO(function funcLen(a, b) { return a.length + b; })
 		QDO(function funcTestData(a) { return a.x + a.name.length; })

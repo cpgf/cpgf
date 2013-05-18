@@ -382,25 +382,51 @@ public:
 	}
 };
 
-class SpiderMonkeyEnv
+class SpiderMonkeyRuntime
 {
 public:
-	SpiderMonkeyEnv()
-		: jsRuntime(JS_NewRuntime(1024L*1024L, JS_NO_HELPER_THREADS)),
-			jsContext(JS_NewContext(jsRuntime, 8192)),
-			jsGlobal(JS_NewObject(jsContext, NULL, NULL, NULL))
+	SpiderMonkeyRuntime()
+		: jsRuntime(JS_NewRuntime(1024L*1024L, JS_NO_HELPER_THREADS))
 	{
-		JS_InitStandardClasses(this->jsContext, this->jsGlobal);
 	}
 
-	~SpiderMonkeyEnv() {
-		//JS_DestroyContext(this->jsContext);
-		//JS_DestroyRuntime(this->jsRuntime);
-		//JS_ShutDown();
+	~SpiderMonkeyRuntime() {
+		JS_DestroyRuntime(this->jsRuntime);
+		JS_ShutDown();
 	}
 
 public:
 	JSRuntime * jsRuntime;
+};
+static GScopedPointer<SpiderMonkeyRuntime> spiderMonkeyRuntime;
+
+void reportError(JSContext *cx, const char *message, JSErrorReport *report)
+{
+//	fprintf(stderr, "SpiderMonkey error: %s\n", message);
+}
+
+class SpiderMonkeyEnv
+{
+public:
+	SpiderMonkeyEnv()
+	{
+		if(!spiderMonkeyRuntime) {
+			spiderMonkeyRuntime.reset(new SpiderMonkeyRuntime);
+		}
+		this->jsContext = JS_NewContext(spiderMonkeyRuntime->jsRuntime, 8192);
+//		JS_SetOptions(this->jsContext, JSOPTION_VAROBJFIX | JSOPTION_METHODJIT);
+		JS_SetOptions(this->jsContext, JSOPTION_METHODJIT);
+		JS_SetVersion(this->jsContext, JSVERSION_LATEST);
+		JS_SetErrorReporter(this->jsContext, &reportError);
+		this->jsGlobal = JS_NewObject(this->jsContext, NULL, NULL, NULL);
+		JS_InitStandardClasses(this->jsContext, this->jsGlobal);
+	}
+
+	~SpiderMonkeyEnv() {
+//		JS_DestroyContext(this->jsContext);
+	}
+
+public:
 	JSContext * jsContext;
 	JSObject  * jsGlobal;
 };
@@ -416,16 +442,22 @@ public:
 	TestScriptContextSpiderMonkey(TestScriptApi api)
 		: super(new TestScriptCoderSpiderMonkey)
 	{
-		if(! spiderMonkeyEnv) {
+		if(! spiderMonkeyEnv)
+		{
+			spiderMonkeyEnv.reset();
 			spiderMonkeyEnv.reset(new SpiderMonkeyEnv());
 		}
 
 		if(api == tsaLib) {
 			this->setBinding(cpgf::createSpiderMonkeyScriptObject(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal, GScriptConfig()));
+			
+			this->getBindingLib()->nullifyValue("nso");
 		}
 
 		if(api == tsaApi) {
 			this->setBinding(cpgf::createSpiderMonkeyScriptInterface(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal, cpgf::GScriptConfig()));
+
+			this->getBindingApi()->nullifyValue("nso");
 		}
 	}
 

@@ -9,14 +9,14 @@ void doTestNotReflected(T * binding, TestScriptContext * context)
 {
 	(void)binding;
 
-	QNEWOBJ(obj, TestObject())
-	QDO(a = obj.pointerRaw())
+	QVARNEWOBJ(obj, TestObject())
+	QVAR(a = obj.pointerRaw())
 	QASSERT(obj.isRawPointer(a))
 	QASSERT(obj.isRawRef(a))
 	QDO(obj.setRaw(a, 38, "what"))
 
-	QNEWOBJ(obj2, TestObject())
-	QDO(b = obj2.refRaw())
+	QVARNEWOBJ(obj2, TestObject())
+	QVAR(b = obj2.refRaw())
 	QASSERT(obj2.isRawPointer(b))
 	QASSERT(obj2.isRawRef(b))
 	QDO(obj2.setRaw(b, 19, "how"))

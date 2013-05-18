@@ -15,11 +15,11 @@ void doTestGetType(T * binding, TestScriptContext * context)
 	GScopedInterface<IMetaTypedItem> item;
 	IMetaTypedItem * tempItem;
 
-	QNEWOBJ(obj, TestObject())
-	QDO(s = "abc")
-	QDO(i = 38)
-	QDO(f = 3.14159265)
-	QDO(func = obj.add)
+	QVARNEWOBJ(obj, TestObject())
+	QVAR(s = "abc")
+	QVAR(i = 38)
+	QVAR(f = 3.14159265)
+	QVAR(func = obj.add)
 
 	RITEM;
 	GCHECK(binding->getType("notExist", &tempItem) == sdtNull);
@@ -201,8 +201,8 @@ void testGetEnum(TestScriptContext * context)
 template <typename T>
 void doTestGetObject(T * binding, TestScriptContext * context)
 {
-	QNEWOBJ(obj, TestObject(99))
-	QDO(f = "abc")
+	QVARNEWOBJ(obj, TestObject(99))
+	QVAR(f = "abc")
 	
 	void * instance;
 
@@ -230,8 +230,8 @@ void testGetObject(TestScriptContext * context)
 
 void testGetFundamental(TestScriptContext * context)
 {
-	QDO(f = 100)
-	QDO(s = "abc")
+	QVAR(f = 100)
+	QVAR(s = "abc")
 	
 	GVariant v;
 
@@ -256,7 +256,7 @@ void testGetFundamental(TestScriptContext * context)
 
 void testGetString(TestScriptContext * context)
 {
-	QDO(oneString = "what")
+	QVAR(oneString = "what")
 
 	if(context->getBindingLib()) {
 		GCHECK(context->getBindingLib()->getString("oneString") == "what");

@@ -10,7 +10,7 @@ string makeFunc(const string & name, TestScriptContext * context)
 	if(context->isLua()) {
 		return "function " + name + "(t, u) return t + u end";
 	}
-	if(context->isV8()) {
+	if(context->isV8() || context->isSpiderMonkey()) {
 		return "function " + name + "(t, u) { return t + u; }";
 	}
 	if(context->isPython()) {

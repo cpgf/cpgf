@@ -10,7 +10,7 @@ string makeObject(const string & name, TestScriptContext * context)
 	if(context->isLua()) {
 		return "" + name + (name == "" ? "" : " = ") + " { myInt = 20 }";
 	}
-	if(context->isV8()) {
+	if(context->isV8() || context->isSpiderMonkey()) {
 //		return "function " + name + "() { this.myInt = 20; }";
 		return "function xxx() { this.myInt = 20; }; " + name + " = new xxx();";
 	}
@@ -31,7 +31,7 @@ void doTestScriptObjectCallback(T * binding, TestScriptContext * context)
 	QDO(b = a.scriptObjectCallback(fcallback))
 	QASSERT(b == 20 + 38)
 	
-	if(context->isV8()) {
+	if(context->isV8() || context->isSpiderMonkey()) {
 		return;
 	}
 

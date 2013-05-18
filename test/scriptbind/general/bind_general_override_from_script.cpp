@@ -13,7 +13,7 @@ void doTestOverrideCppFunctionFromScriptClass(T * binding, TestScriptContext * c
 	if(context->isLua()) {
 		QDO(function funcOverride(me) return me.n + 15 end)
 	}
-	if(context->isV8()) {
+	if(context->isV8() || context->isSpiderMonkey()) {
 		QDO(function funcOverride(me) { return me.n + 15; })
 	}
 	if(context->isPython()) {
@@ -55,7 +55,7 @@ void doTestOverrideCppFunctionFromScriptObject(T * binding, TestScriptContext * 
 		QDO(function funcOverrideA(me) return 38 end)
 		QDO(function funcOverrideB(me) return 18 end)
 	}
-	if(context->isV8()) {
+	if(context->isV8() || context->isSpiderMonkey()) {
 		QDO(function funcOverrideA(me) { return 38; })
 		QDO(function funcOverrideB(me) { return 18; })
 	}

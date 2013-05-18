@@ -6,7 +6,7 @@ namespace {
 
 void testCreateScriptObject(TestScriptContext * context)
 {
-	QNEWOBJ(existObj, TestObject());
+	QVARNEWOBJ(existObj, TestObject());
 
 	GScriptObject * bindingLib = context->getBindingLib();
 	IScriptObject * bindingApi = context->getBindingApi();
@@ -67,14 +67,14 @@ void testCreateScriptObject(TestScriptContext * context)
 
 void testGetScriptObject(TestScriptContext * context)
 {
-	QNEWOBJ(existObj, TestObject());
+	QVARNEWOBJ(existObj, TestObject());
 
-	QDO(scope = {});
+	QVAR(scope = {});
 	if(context->isLua()) {
 		QDO(scope.obj = TestObject(6));
 		QDO(scope.i = 5);
 	}
-	if(context->isV8()) {
+	if(context->isV8() || context->isSpiderMonkey()) {
 		QDO(scope.obj = new TestObject(6));
 		QDO(scope.i = 5);
 	}
@@ -103,7 +103,6 @@ void testGetScriptObject(TestScriptContext * context)
 		GScopedInterface<IScriptObject> existScriptObject(bindingApi->createScriptObject("existObj"));
 //		GCHECK(! existScriptObject);
 
-		GCHECK(bindingApi->valueIsNull("nso"));
 		GScopedInterface<IScriptObject> newScriptObject(bindingApi->createScriptObject("scope"));
 		v = GVariant();
 		newScriptObject->getFundamental(&v.refData(), "i");

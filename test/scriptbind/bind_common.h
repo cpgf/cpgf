@@ -39,6 +39,7 @@
 
 #define NEWOBJ(lhs, ...) DO(context->getCoder()->newObject(lhs, __VA_ARGS__))
 #define QNEWOBJ(lhs, ...) DO(context->getCoder()->newObject(# lhs, # __VA_ARGS__))
+#define QVARNEWOBJ(lhs, ...) DO(context->getCoder()->newObject(VAR + # lhs, # __VA_ARGS__))
 #define ERR_NEWOBJ(lhs, ...) ERR(context->getCoder()->newObject(lhs, __VA_ARGS__))
 #define ERR_QNEWOBJ(lhs, ...) ERR(context->getCoder()->newObject(# lhs, # __VA_ARGS__))
 
