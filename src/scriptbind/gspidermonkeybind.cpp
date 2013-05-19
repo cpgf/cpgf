@@ -320,7 +320,7 @@ void setClassPrivateData(JSContext * jsContext, JSObject * object, void * data)
 	}
 }
 
-void * getClassPrivateData(JSContext * jsContext, JSObject * object)
+void * getClassPrivateData(JSContext * /*jsContext*/, JSObject * object)
 {
 	JSObject * ctor = object; //JS_GetConstructor(jsContext, object);
 	JSObject * proto = ctor; //JS_GetObjectPrototype(jsContext, ctor);
@@ -750,6 +750,7 @@ JsValue objectToSpider(const GSpiderContextPointer & context, const GClassGlueDa
 	createClassBinding(context, NULL, classData->getMetaClass()->getName(), classData);
 	GMetaMapClass * mapClass = classData->getClassMap();
 	JsClassUserData * classUserData = static_cast<JsClassUserData *>(mapClass->getUserData());
+
 	JSObject * object = JS_NewObject(context->getJsContext(), classUserData->getJsClass(), NULL, NULL);
 	setObjectPrivateData(object, objectWrapper);
 
@@ -766,6 +767,10 @@ JSBool propertyGetter(JSContext *jsContext, JSHandleObject obj, JSHandleId id, J
 	}
 	if(idValue.isString()) {
 		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectOrClassPrivateData(jsContext, obj));
+
+		if(dataWrapper == NULL) {
+			return JS_PropertyStub(jsContext, obj, id, vp);
+		}
 
 		if(dataWrapper->getData()->getType() == gdtEnum) {
 			return enumGetter(jsContext, obj, id, vp);
@@ -821,6 +826,10 @@ JSBool propertySetter(JSContext * jsContext, JSHandleObject obj, JSHandleId id, 
 	}
 	if(idValue.isString()) {
 		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectOrClassPrivateData(jsContext, obj));
+		if(dataWrapper == NULL) {
+			return JS_StrictPropertyStub(jsContext, obj, id, strict, vp);
+		}
+
 		if(dataWrapper->getData()->getType() == gdtEnum) {
 			return enumSetter(jsContext, obj, id, strict, vp);
 		}
@@ -1092,13 +1101,25 @@ JSObject * createClassBinding(const GSpiderContextPointer & context, JSObject * 
 		classUserData = new JsClassUserData(name, ckObject);
 		mapClass->setUserData(classUserData);
 
-		JSObject * classObject = JS_InitClass(context->getJsContext(), owner, owner, classUserData->getJsClass(), &objectConstructor, 0, NULL, NULL, NULL, NULL);
+		IMetaClass * metaClass = classData->getMetaClass();
+		JSObject * parent = owner;
+
+		if(metaClass->getBaseCount() > 0) {
+			GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(0));
+			if(baseClass) {
+				GClassGlueDataPointer baseClassData = context->getClassData(baseClass.get());
+				parent = createClassBinding(context, owner, metaClass->getName(), baseClassData);
+//				parent = JS_GetObjectPrototype(context->getJsContext(), parent);
+			}
+		}
+
+		JSObject * classObject = JS_InitClass(context->getJsContext(), owner, parent, classUserData->getJsClass(), &objectConstructor, 0, NULL, NULL, NULL, NULL);
 
 		classUserData->setClassObject(context->getJsContext(), classObject);
 		setClassPrivateData(context->getJsContext(), classObject, dataWrapper);
 
 		JSObject * obj = JS_GetObjectPrototype(context->getJsContext(), classObject);
-		bindClassItems(context, obj, classData->getMetaClass());
+		bindClassItems(context, obj, metaClass);
 
 		return classObject;
 	}
@@ -1121,6 +1142,14 @@ void objectFinalizer(JSFreeOp * /*jsop*/, JSObject * object)
 	}
 }
 
+JSBool jsHasInstance(JSContext * /*jsContext*/, JSHandleObject /*obj*/, JSMutableHandleValue /*vp*/, JSBool * bp)
+{
+	*bp = JS_FALSE;
+
+	return JS_TRUE;
+}
+
+
 static JSClass jsClassTemplate = {
     NULL,  // name
     JSCLASS_HAS_PRIVATE,  // flags
@@ -1132,7 +1161,12 @@ static JSClass jsClassTemplate = {
     JS_ResolveStub, // resolve
     JS_ConvertStub, // convert
     &objectFinalizer, // finalize
-    JSCLASS_NO_OPTIONAL_MEMBERS
+    NULL, // checkAccess
+    NULL, // call
+    NULL, // &jsHasInstance, // hasInstance
+    NULL, // construct
+    NULL, // trace
+	JSCLASS_NO_INTERNAL_MEMBERS
 };
 
 static JSClass jsGlobalClass = { 0 };
@@ -1542,7 +1576,6 @@ void * GSpiderMonkeyScriptObject::getObject(const char * objectName)
 
 	JsValue value;
 	if(JS_GetProperty(this->jsContext, this->jsObject.getJsObject(), objectName, &value)) {
-	JSType type = JS_TypeOfValue(this->jsContext, value);
 		return spiderToObject(value);
 	}
 
@@ -1617,7 +1650,6 @@ void GSpiderMonkeyScriptObject::assignValue(const char * fromName, const char * 
 
 	JsValue value;
 	if(JS_GetProperty(this->jsContext, this->jsObject.getJsObject(), fromName, &value)) {
-		JSType type = JS_TypeOfValue(this->jsContext, value);
 		JS_SetProperty(this->jsContext, this->jsObject.getJsObject(), toName, &value);
 	}
 
@@ -1843,7 +1875,6 @@ void testSpidermonkey()
 	GScopedInterface<IMetaMethod> methodHello(scriptObject->getMethod("hello", NULL));
 	cout << methodHello.get() << endl;
 
-	JSType type = JS_TypeOfValue(jsContext, rval);
 	if(JSVAL_IS_STRING(rval)) {
 		JSString * jsString = rval.toString();
 		const jschar * ws = JS_GetStringCharsZ(jsContext, jsString);

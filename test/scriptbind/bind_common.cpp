@@ -410,7 +410,9 @@ class SpiderMonkeyEnv
 public:
 	SpiderMonkeyEnv()
 	{
-		if(!spiderMonkeyRuntime) {
+		if(!spiderMonkeyRuntime)
+		{
+			spiderMonkeyRuntime.reset();
 			spiderMonkeyRuntime.reset(new SpiderMonkeyRuntime);
 		}
 		this->jsContext = JS_NewContext(spiderMonkeyRuntime->jsRuntime, 8192);
@@ -424,6 +426,11 @@ public:
 
 	~SpiderMonkeyEnv() {
 //		JS_DestroyContext(this->jsContext);
+//		JS_DestroyContextNoGC(this->jsContext);
+	}
+
+	void resetContext() {
+		JS_ClearNonGlobalObject(this->jsContext, this->jsGlobal);
 	}
 
 public:
@@ -451,6 +458,7 @@ public:
 			spiderMonkeyEnv.reset();
 			spiderMonkeyEnv.reset(new SpiderMonkeyEnv());
 		}
+		spiderMonkeyEnv->resetContext();
 
 		if(api == tsaLib) {
 			this->setBinding(cpgf::createSpiderMonkeyScriptObject(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal, GScriptConfig()));
