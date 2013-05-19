@@ -24,8 +24,8 @@ void buildMetaClass_String(const cpgf::GMetaDataConfigFlags & config, D _d)
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (const Unicode::Text &, const Font &, float)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >())
-        ._default(copyVariantFromCopyable(30.f))
-        ._default(copyVariantFromCopyable(Font::GetDefaultFont()))
+//        ._default(copyVariantFromCopyable(30.f))
+//        ._default(copyVariantFromCopyable(Font::GetDefaultFont()))
     ;
     _d.CPGF_MD_TEMPLATE _method("SetText", &D::ClassType::SetText, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
     _d.CPGF_MD_TEMPLATE _method("SetFont", &D::ClassType::SetFont);

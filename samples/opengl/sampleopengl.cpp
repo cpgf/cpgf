@@ -16,11 +16,8 @@ void registerOpenGLUT(GMetaClass * metaClass);
 void registerOpenGLUT2(GMetaClass * metaClass);
 void registerOpenGLUT3(GMetaClass * metaClass);
 
-ScriptLanguage lang = slJavascript;
-
 void exitDemo()
 {
-	finalizeScriptEngine(lang);
 	exit(0);
 }
 
@@ -37,43 +34,20 @@ int main(int argc, char * argv[])
 	GDefineMetaGlobal()
 		._method("exitDemo", &exitDemo);
 
-	const char * fileName = "opengl.js";
-	
-	if(argc > 1) {
-		fileName = argv[1];
-	}
+	ScriptHelper scriptHelper(argc, argv);
 
-	lang = getScriptLanguageFromFileName(fileName);
-	
-	cout << "Running " << getLanguageText(lang) << " script." << endl;
 	cout << "Press ESC in the window to exit." << endl
 		<< "Don't click X button because GLUT doesn't exit main loop well." << endl
 	;
 
-	intializeScriptEngine(lang);
-	
-	GScopedPointer<GScriptRunner> runner;
-	GScopedInterface<IMetaService> service(createDefaultMetaService());
-	
-	runner.reset(createScriptRunnerFromScriptLanguage(lang, service.get()));
-
-	GScopedInterface<IScriptObject> scriptObject(runner->getScripeObject());
-
-	scriptObject->bindCoreService("cpgf", NULL);
-	
 	GScopedInterface<IMetaClass> glMetaClass(static_cast<IMetaClass *>(metaItemToInterface(define.getMetaClass())));
-	scriptObject->bindClass("gl", glMetaClass.get());
+	scriptHelper.borrowScriptObject()->bindClass("gl", glMetaClass.get());
 	GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(metaItemToInterface(getGlobalMetaClass()->getMethod("exitDemo"))));
-	scriptObject->bindMethod("exitDemo", NULL, method.get());
+	scriptHelper.borrowScriptObject()->bindMethod("exitDemo", NULL, method.get());
 	
-	if(runner->executeFile(fileName)) {
-		invokeScriptFunction(scriptObject.get(), "start");
+	if(scriptHelper.execute()) {
+		invokeScriptFunction(scriptHelper.borrowScriptObject(), "start");
 	}
-	else {
-		cout << "Failed to execute " << fileName << ", maybe it doesn't exist?" << endl;
-	}
-	
-	finalizeScriptEngine(lang);
 
 	return 0;
 }

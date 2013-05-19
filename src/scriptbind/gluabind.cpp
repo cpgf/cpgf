@@ -224,7 +224,7 @@ void doBindAllOperators(const GContextPointer & context, const GObjectGlueDataPo
 void doBindClass(const GContextPointer & context, IMetaClass * metaClass);
 void doBindEnum(const GContextPointer & context, IMetaEnum * metaEnum);
 void doBindMethodList(const GContextPointer & context, const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData);
-void doBindMethodList(const GContextPointer & context, const char * name, IMetaList * methodList, GGlueDataMethodType methodType);
+void doBindMethodList(const GContextPointer & context, const char * name, IMetaList * methodList);
 
 void initObjectMetaTable(lua_State * L);
 void setMetaTableGC(lua_State * L);
@@ -734,7 +734,7 @@ struct GLuaMethods
 		GContextPointer context = classData->getContext();
 		if(data == NULL) {
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
-			GMethodGlueDataPointer glueData = context->newMethodGlueData(context->getClassData(boundClass.get()), NULL, methodName, gdmtInternal);
+			GMethodGlueDataPointer glueData = context->newMethodGlueData(context->getClassData(boundClass.get()), NULL, methodName);
 			data = new GMapItemMethodData(glueData);
 			mapItem->setUserData(data);
 		}
@@ -844,7 +844,7 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 					return sdtObject;
 
 				case gdtMethod:
-					return methodTypeToGlueDataType(dataWrapper->getAs<GMethodGlueData>()->getMethodType());
+					return sdtMethod;
 
 				case gdtEnum:
 					if(typeItem != NULL) {
@@ -877,10 +877,10 @@ GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
 				if(dataWrapper != NULL) {
 					switch(dataWrapper->getData()->getType()) {
 					case gdtMethod:
-						return methodTypeToGlueDataType(dataWrapper->getAs<GMethodGlueData>()->getMethodType());
+						return sdtMethod;
 
 					case gdtObjectAndMethod:
-						return methodTypeToGlueDataType(dataWrapper->getAs<GObjectAndMethodGlueData>()->getMethodData()->getMethodType());
+						return sdtMethod;
 
 					default:
 						break;
@@ -1141,9 +1141,9 @@ void doBindMethodList(const GContextPointer & context, const GObjectGlueDataPoin
 	lua_pushcclosure(L, &callbackInvokeMethodList, 1);
 }
 
-void doBindMethodList(const GContextPointer & context, const char * name, IMetaList * methodList, GGlueDataMethodType methodType)
+void doBindMethodList(const GContextPointer & context, const char * name, IMetaList * methodList)
 {
-	GMethodGlueDataPointer methodData = context->newMethodGlueData(GClassGlueDataPointer(), methodList, name, methodType);
+	GMethodGlueDataPointer methodData = context->newMethodGlueData(GClassGlueDataPointer(), methodList, name);
 	doBindMethodList(context, GObjectGlueDataPointer(), methodData);
 }
 
@@ -1670,7 +1670,7 @@ void GLuaScriptObject::bindMethod(const char * name, void * instance, IMetaMetho
 	GScopedInterface<IMetaList> methodList(createMetaList());
 	methodList->add(method, instance);
 
-	doBindMethodList(this->getContext(), name, methodList.get(), gdmtMethod);
+	doBindMethodList(this->getContext(), name, methodList.get());
 	
 	scopeGuard.set(name);
 	
@@ -1683,7 +1683,7 @@ void GLuaScriptObject::bindMethodList(const char * name, IMetaList * methodList)
 
 	GLuaScopeGuard scopeGuard(this);
 
-	doBindMethodList(this->getContext(), name, methodList, gdmtMethodList);
+	doBindMethodList(this->getContext(), name, methodList);
 	
 	scopeGuard.set(name);
 	

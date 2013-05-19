@@ -37,7 +37,7 @@ GDefineMetaInfo createMetaClass_Image();
 GDefineMetaInfo createMetaClass_Input();
 GDefineMetaInfo createMetaClass_Listener();
 GDefineMetaInfo createMetaClass_Lock();
-GDefineMetaInfo createMetaClass_Matrix3();
+//GDefineMetaInfo createMetaClass_Matrix3();
 GDefineMetaInfo createMetaClass_Music();
 GDefineMetaInfo createMetaClass_Mutex();
 GDefineMetaInfo createMetaClass_NonCopyable();
@@ -98,7 +98,7 @@ void registerMain_sfml(Meta _d)
     _d._class(createMetaClass_Input());
     _d._class(createMetaClass_Listener());
     _d._class(createMetaClass_Lock());
-    _d._class(createMetaClass_Matrix3());
+//    _d._class(createMetaClass_Matrix3());
     _d._class(createMetaClass_Music());
     _d._class(createMetaClass_Mutex());
     _d._class(createMetaClass_NonCopyable());

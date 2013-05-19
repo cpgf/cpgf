@@ -1,6 +1,6 @@
 function start()
 {
-	var device = new irr.createDevice(irr.EDT_SOFTWARE, new irr.dimension2d_u32(640, 480), 16, false, false, false, null);
+	var device = irr.createDevice(irr.EDT_SOFTWARE, new irr.dimension2d_u32(640, 480), 16, false, false, false, null);
 
 	if (!device)
 		return 1;

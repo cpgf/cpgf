@@ -795,7 +795,7 @@ GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
 	}
 
 	if(value->ob_type == &functionType) {
-		return methodTypeToGlueDataType(castFromPython(value)->getDataAs<GObjectAndMethodGlueData>()->getMethodData()->getMethodType());
+		return sdtMethod;
 	}
 
 	// should be the last
@@ -951,7 +951,7 @@ struct GPythonMethods
 		if(data == NULL) {
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 
-			data = new GMapItemMethodData(context->newMethodGlueData(context->getClassData(boundClass.get()), NULL, methodName, gdmtInternal));
+			data = new GMapItemMethodData(context->newMethodGlueData(context->getClassData(boundClass.get()), NULL, methodName));
 
 			mapItem->setUserData(data);
 		}
@@ -1295,9 +1295,9 @@ bool isValidObject(PyObject * obj)
 	return false;
 }
 
-void doBindMethodList(const GContextPointer & context, PyObject * owner, const char * name, IMetaList * methodList, GGlueDataMethodType methodType)
+void doBindMethodList(const GContextPointer & context, PyObject * owner, const char * name, IMetaList * methodList)
 {
-	GMethodGlueDataPointer data = context->newMethodGlueData(GClassGlueDataPointer(), methodList, name, methodType);
+	GMethodGlueDataPointer data = context->newMethodGlueData(GClassGlueDataPointer(), methodList, name);
 	GObjectAndMethodGlueDataPointer methodData = context->newObjectAndMethodGlueData(GObjectGlueDataPointer(), data);
 	PyObject * methodObject = createPythonObject(methodData);
 
@@ -1610,7 +1610,7 @@ void GPythonScriptObject::bindMethod(const char * name, void * instance, IMetaMe
 	GScopedInterface<IMetaList> methodList(createMetaList());
 	methodList->add(method, instance);
 
-	doBindMethodList(this->getContext(), this->object, name, methodList.get(), gdmtMethod);
+	doBindMethodList(this->getContext(), this->object, name, methodList.get());
 
 	LEAVE_PYTHON()
 }
@@ -1619,7 +1619,7 @@ void GPythonScriptObject::bindMethodList(const char * name, IMetaList * methodLi
 {
 	ENTER_PYTHON()
 
-	doBindMethodList(this->getContext(), this->object, name, methodList, gdmtMethodList);
+	doBindMethodList(this->getContext(), this->object, name, methodList);
 
 	LEAVE_PYTHON()
 }

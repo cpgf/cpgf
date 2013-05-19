@@ -16,7 +16,7 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScr
 		QDO(function overrideGetValue(me) return me.super_getValue() + 15 end)
 		QDO(function overrideGetName(me) return "abc" end)
 	}
-	if(context->isV8()) {
+	if(context->isV8() || context->isSpiderMonkey()) {
 		QDO(function overrideGetValue(me) { return me.super_getValue() + 15; })
 		QDO(function overrideGetName(me) { return "abc"; })
 	}
@@ -29,19 +29,19 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScr
 	QDO(DerivedClass = cpgf.cloneClass(mtest.SimpleOverrideWrapper))
 	QDO(GrandDerivedClass = cpgf.cloneClass(DerivedClass))
 
-	QNEWOBJ(a, GrandDerivedClass(3))
+	QVARNEWOBJ(a, GrandDerivedClass(3))
 	QASSERT(a.getValue() == 3);
 	QDO(GrandDerivedClass.getValue = overrideGetValue)
 	QASSERT(a.getValue() == 18);
 	
-	QNEWOBJ(d, mtest.SimpleOverrideWrapper(3))
+	QVARNEWOBJ(d, mtest.SimpleOverrideWrapper(3))
 	QASSERT(d.getValue() == 3);
 	QNEWOBJ(d, DerivedClass(3))
 	QASSERT(d.getValue() == 3);
 
-	QNEWOBJ(b, GrandDerivedClass(5))
+	QVARNEWOBJ(b, GrandDerivedClass(5))
 	QASSERT(b.getValue() == 20);
-	QNEWOBJ(c, mtest.SimpleOverrideWrapper(3))
+	QVARNEWOBJ(c, mtest.SimpleOverrideWrapper(3))
 	QASSERT(c.getValue() == 3);
 
 	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));
@@ -78,7 +78,7 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptObject(T * binding, TestSc
 		QDO(function overrideGetValue(me) return me.super_getValue() + 5 end)
 		QDO(function overrideGetName(me) return "abc" end)
 	}
-	if(context->isV8()) {
+	if(context->isV8() || context->isSpiderMonkey()) {
 		QDO(function overrideGetValue(me) { return 2 + 5; })
 		QDO(function overrideGetName(me) { return "abc"; })
 		QDO(function overrideGetAnother(me) { return 2; })
@@ -88,13 +88,13 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptObject(T * binding, TestSc
 		QDO(def overrideGetName(me): return "abc")
 	}
 
-	QNEWOBJ(a, mtest.SimpleOverrideWrapper(2))
+	QVARNEWOBJ(a, mtest.SimpleOverrideWrapper(2))
 	
 	QASSERT(a.getValue() == 2);
 	QDO(a.getValue = overrideGetValue);
 	QASSERT(a.getValue() == 7);
 
-	QNEWOBJ(b, mtest.SimpleOverrideWrapper(6))
+	QVARNEWOBJ(b, mtest.SimpleOverrideWrapper(6))
 	QASSERT(b.getValue() == 6);
 
 	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));

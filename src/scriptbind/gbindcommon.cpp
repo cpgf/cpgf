@@ -689,9 +689,9 @@ GObjectGlueDataPointer GBindingContext::newOrReuseObjectGlueData(const GClassGlu
 }
 
 GMethodGlueDataPointer GBindingContext::newMethodGlueData(const GClassGlueDataPointer & classData,
-	IMetaList * methodList, const char * name, GGlueDataMethodType methodType)
+	IMetaList * methodList, const char * name)
 {
-	GMethodGlueDataPointer data(new GMethodGlueData(this->shareFromThis(), classData, methodList, name, methodType));
+	GMethodGlueDataPointer data(new GMethodGlueData(this->shareFromThis(), classData, methodList, name));
 	return data;
 }
 
@@ -1544,23 +1544,6 @@ IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer
 	}
 
 	return NULL;
-}
-
-GScriptDataType methodTypeToGlueDataType(GGlueDataMethodType methodType)
-{
-	switch(methodType) {
-		case gdmtMethod:
-			return sdtMethod;
-
-		case gdmtMethodList:
-			return sdtMethodList;
-
-		case gdmtInternal:
-			return sdtScriptMethod;
-
-		default:
-			return sdtUnknown;
-	}
 }
 
 InvokeCallableResult doInvokeOperator(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam)

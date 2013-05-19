@@ -160,7 +160,7 @@ if(${HAS_GLUT})
 
 	add_definitions(-DFREEGLUT_EXPORTS)
 	
-	target_link_libraries(${TARGET_SAMPLEOPENGL} ${TARGET_LIB} ${GLUT_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB})
+	target_link_libraries(${TARGET_SAMPLEOPENGL} ${TARGET_LIB} ${GLUT_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB} ${SPIDERMONKEY_LIB} )
 endif(${HAS_GLUT})
 
 
@@ -201,7 +201,7 @@ if(${HAS_BOX2D})
 
 	add_definitions(-DFREEGLUT_EXPORTS)
 	
-	target_link_libraries(${TARGET_SAMPLEBOX2D} ${TARGET_LIB} ${GLUT_LIB} ${BOX2D_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB})
+	target_link_libraries(${TARGET_SAMPLEBOX2D} ${TARGET_LIB} ${GLUT_LIB} ${BOX2D_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB} ${SPIDERMONKEY_LIB} )
 endif(${HAS_BOX2D})
 
 
@@ -231,7 +231,7 @@ if(${HAS_SFML})
 		COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
 	)
 
-	target_link_libraries(${TARGET_SAMPLESFML} ${TARGET_LIB} ${SFML_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB})
+	target_link_libraries(${TARGET_SAMPLESFML} ${TARGET_LIB} ${SFML_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB} ${SPIDERMONKEY_LIB} )
 endif(${HAS_SFML})
 
 
@@ -261,7 +261,7 @@ if(${HAS_IRRLICHT})
 		COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
 	)
 
-	target_link_libraries(${TARGET_SAMPLEIRRLICHT} ${TARGET_LIB} ${IRRLICHT_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB})
+	target_link_libraries(${TARGET_SAMPLEIRRLICHT} ${TARGET_LIB} ${IRRLICHT_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB} ${SPIDERMONKEY_LIB} )
 endif(${HAS_IRRLICHT})
 
 

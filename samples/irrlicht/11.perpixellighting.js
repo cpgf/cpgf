@@ -33,6 +33,7 @@ function overrideEventReceiver(receiver, room, env, driver)
 	if (renderer && renderer.getRenderCapability() == 0)
 		this.ListBox.setSelected(2);
 
+	var self = this;
 	// sets the material of the room mesh the the one set in the
 	// list box.
 	this.setMaterial = function()
@@ -40,7 +41,7 @@ function overrideEventReceiver(receiver, room, env, driver)
 		var type = irr.EMT_SOLID;
 
 		// change material setting
-		switch(this.ListBox.getSelected())
+		switch(self.ListBox.getSelected())
 		{
 		case 0: type = irr.EMT_SOLID;
 			break;
@@ -50,7 +51,7 @@ function overrideEventReceiver(receiver, room, env, driver)
 			break;
 		}
 
-		this.Room.setMaterialType(type);
+		self.Room.setMaterialType(type);
 
 		/*
 		We need to add a warning if the materials will not be able to
@@ -62,24 +63,22 @@ function overrideEventReceiver(receiver, room, env, driver)
 		IMaterialRenderer::getRenderCapability() returns 0 if this is
 		the case.
 		*/
-		var renderer = this.Driver.getMaterialRenderer(type);
+		var renderer = self.Driver.getMaterialRenderer(type);
 
 		// display some problem text when problem
 		if (!renderer || renderer.getRenderCapability() != 0)
-			this.ProblemText.setVisible(true);
+			self.ProblemText.setVisible(true);
 		else
-			this.ProblemText.setVisible(false);
+			self.ProblemText.setVisible(false);
 	}
 
 	// set the material which is selected in the listbox
 	this.setMaterial();
 	
-	var self = this;
-
 	receiver.OnEvent = function(me, event)
 	{
 		// check if user presses the key 'E' or 'R'
-		if (event.EventType == irr.EET_KEY_INPUT_EVENT &&!event.KeyInput.PressedDown && this.Room && this.ListBox)
+		if (event.EventType == irr.EET_KEY_INPUT_EVENT &&!event.KeyInput.PressedDown && self.Room && self.ListBox)
 		{
 			// change selected item in listbox
 

@@ -92,6 +92,7 @@ endif(${HAS_PYTHON})
 if(${HAS_SPIDERMONKEY})
 	set(SRC_SPIDERMONKEY_BIND
 		${SRC_PATH}/scriptbind/gspidermonkeybind.cpp
+		${SRC_PATH}/scriptbind/gspidermonkeyrunner.cpp
 	)
 endif(${HAS_SPIDERMONKEY})
 

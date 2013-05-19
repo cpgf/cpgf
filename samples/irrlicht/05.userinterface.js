@@ -27,12 +27,13 @@ the pointer to the gui environment.
 function makeMyEventReceiver(receiver, context)
 {
 	this.Context = context;
+	var self = this;
 
 	receiver.OnEvent = function(me, event) {
 		if (event.EventType == irr.EET_GUI_EVENT)
 		{
 			var id = event.GUIEvent.Caller.getID();
-			var env = this.Context.device.getGUIEnvironment();
+			var env = self.Context.device.getGUIEnvironment();
 
 			switch(event.GUIEvent.EventType)
 			{
@@ -74,24 +75,24 @@ function makeMyEventReceiver(receiver, context)
 				switch(id)
 				{
 				case GUI_ID_QUIT_BUTTON:
-					this.Context.device.closeDevice();
+					self.Context.device.closeDevice();
 					return true;
 
 				case GUI_ID_NEW_WINDOW_BUTTON:
 					{
-					this.Context.listbox.addItem("Window created");
-					this.Context.counter += 30;
-					if (this.Context.counter > 200)
-						this.Context.counter = 0;
+					self.Context.listbox.addItem("Window created");
+					self.Context.counter += 30;
+					if (self.Context.counter > 200)
+						self.Context.counter = 0;
 
-					var window = env.addWindow(new irr.rect_s32(100 + this.Context.counter, 100 + this.Context.counter, 300 + this.Context.counter, 200 + this.Context.counter), false, "Test window");
+					var window = env.addWindow(new irr.rect_s32(100 + self.Context.counter, 100 + self.Context.counter, 300 + self.Context.counter, 200 + self.Context.counter), false, "Test window");
 
 					env.addStaticText("Please close me", new irr.rect_s32(35,35,140,50), true, false, window);
 					}
 					return true;
 
 				case GUI_ID_FILE_OPEN_BUTTON:
-					this.Context.listbox.addItem("File open");
+					self.Context.listbox.addItem("File open");
 					env.addFileOpenDialog("Please choose a file.");
 					return true;
 

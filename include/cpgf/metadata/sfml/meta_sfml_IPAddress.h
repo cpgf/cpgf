@@ -58,7 +58,7 @@ void buildMetaClass_IPAddress(const cpgf::GMetaDataConfigFlags & config, D _d)
     _d.CPGF_MD_TEMPLATE _constructor<void * (const char *)>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (Uint8, Uint8, Uint8, Uint8)>();
     _d.CPGF_MD_TEMPLATE _constructor<void * (Uint32)>();
-    _d.CPGF_MD_TEMPLATE _field("LocalHost", &D::ClassType::LocalHost);
+//    _d.CPGF_MD_TEMPLATE _field("LocalHost", &D::ClassType::LocalHost);
     _d.CPGF_MD_TEMPLATE _method("IsValid", &D::ClassType::IsValid);
     _d.CPGF_MD_TEMPLATE _method("ToString", &D::ClassType::ToString);
     _d.CPGF_MD_TEMPLATE _method("ToInteger", &D::ClassType::ToInteger);

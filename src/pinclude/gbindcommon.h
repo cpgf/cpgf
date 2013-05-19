@@ -65,12 +65,6 @@ enum GMetaMapItemType {
 	mmitNone = 100,
 };
 
-enum GGlueDataMethodType {
-	gdmtMethod,
-	gdmtMethodList,
-	gdmtInternal
-};
-
 enum GBindValueFlagValues {
 	bvfAllowGC = 1 << 0,
 	bvfAllowRaw = 1 << 1
@@ -386,8 +380,8 @@ private:
 	typedef GGlueData super;
 
 private:
-	GMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, IMetaList * methodList, const char * name, GGlueDataMethodType methodType)
-		: super(gdtMethod, context), classGlueData(classGlueData), methodList(methodList), name(name), methodType(methodType) {
+	GMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, IMetaList * methodList, const char * name)
+		: super(gdtMethod, context), classGlueData(classGlueData), methodList(methodList), name(name) {
 	}
 
 public:
@@ -403,15 +397,10 @@ public:
 		return this->name;
 	}
 
-	GGlueDataMethodType getMethodType() const {
-		return this->methodType;
-	}
-
 private:
 	GWeakClassGlueDataPointer classGlueData;
 	GSharedInterface<IMetaList> methodList;
 	std::string name;
-	GGlueDataMethodType methodType;
 
 private:
 	friend class GBindingContext;
@@ -699,7 +688,7 @@ public:
 		const GBindValueFlags & flags, ObjectPointerCV cv);
 	
 	GMethodGlueDataPointer newMethodGlueData(const GClassGlueDataPointer & classData,
-		IMetaList * methodList, const char * name, GGlueDataMethodType methodType);
+		IMetaList * methodList, const char * name);
 	
 	GEnumGlueDataPointer newEnumGlueData(IMetaEnum * metaEnum);
 
@@ -907,7 +896,6 @@ void * getGlueDataInstance(const GGlueDataPointer & glueData);
 IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData);
 IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer & glueData);
 
-GScriptDataType methodTypeToGlueDataType(GGlueDataMethodType methodType);
 InvokeCallableResult doInvokeOperator(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam);
 
 IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & value);

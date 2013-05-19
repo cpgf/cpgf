@@ -22,11 +22,11 @@ enum GScriptDataType {
 	sdtNull = 1,
 	sdtFundamental = 2, sdtString = 3,
 	sdtClass = 4, sdtObject = 5,
-	sdtMethod = 6, sdtMethodList = 7,
-	sdtEnum = 8,
-	sdtRaw = 9,
+	sdtMethod = 6,
+	sdtEnum = 7,
+	sdtRaw = 8,
 
-	sdtScriptObject = 10, sdtScriptMethod = 11,
+	sdtScriptObject = 9, sdtScriptMethod = 10,
 };
 
 

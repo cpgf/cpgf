@@ -8,6 +8,7 @@ function overrideEventReceiver(receiver, terrain, skybox, skydome)
 	this.Skybox.setVisible(true);
 	this.Skydome.setVisible(false);
 
+	var self = this;
 	receiver.OnEvent = function(me, event)
 	{
 		// check if user presses the key 'W' or 'D'
@@ -16,20 +17,20 @@ function overrideEventReceiver(receiver, terrain, skybox, skydome)
 			switch (event.KeyInput.Key)
 			{
 			case irr.KEY_KEY_W: // switch wire frame mode
-				this.Terrain.setMaterialFlag(irr.EMF_WIREFRAME, !this.Terrain.getMaterial(0).Wireframe);
-				this.Terrain.setMaterialFlag(irr.EMF_POINTCLOUD, false);
+				self.Terrain.setMaterialFlag(irr.EMF_WIREFRAME, !self.Terrain.getMaterial(0).Wireframe);
+				self.Terrain.setMaterialFlag(irr.EMF_POINTCLOUD, false);
 				return true;
 			case irr.KEY_KEY_P: // switch wire frame mode
-				this.Terrain.setMaterialFlag(irr.EMF_POINTCLOUD, !this.Terrain.getMaterial(0).PointCloud);
-				this.Terrain.setMaterialFlag(irr.EMF_WIREFRAME, false);
+				self.Terrain.setMaterialFlag(irr.EMF_POINTCLOUD, !self.Terrain.getMaterial(0).PointCloud);
+				self.Terrain.setMaterialFlag(irr.EMF_WIREFRAME, false);
 				return true;
 			case irr.KEY_KEY_D: // toggle detail map
-				this.Terrain.setMaterialType(this.Terrain.getMaterial(0).MaterialType == irr.EMT_SOLID ? irr.EMT_DETAIL_MAP : irr.EMT_SOLID);
+				self.Terrain.setMaterialType(self.Terrain.getMaterial(0).MaterialType == irr.EMT_SOLID ? irr.EMT_DETAIL_MAP : irr.EMT_SOLID);
 				return true;
 			case irr.KEY_KEY_S: // toggle skies
-				this.showBox=!this.showBox;
-				this.Skybox.setVisible(this.showBox);
-				this.Skydome.setVisible(!this.showBox);
+				self.showBox=!self.showBox;
+				self.Skybox.setVisible(self.showBox);
+				self.Skydome.setVisible(!self.showBox);
 				return true;
 			default:
 				break;

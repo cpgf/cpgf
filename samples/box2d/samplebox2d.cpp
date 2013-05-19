@@ -212,11 +212,8 @@ void DebugDraw::DrawAABB(b2AABB* aabb, const b2Color& c)
 }
 
 
-ScriptLanguage lang = slJavascript;
-
 void exitDemo()
 {
-	finalizeScriptEngine(lang);
 	exit(0);
 }
 
@@ -236,48 +233,28 @@ int main(int argc, char * argv[])
 	GDefineMetaGlobal()
 		._method("exitDemo", &exitDemo);
 
-	const char * fileName = "box2d.js";
+	ScriptHelper scriptHelper(argc, argv);
 	
-	if(argc > 1) {
-		fileName = argv[1];
-	}
-
-	lang = getScriptLanguageFromFileName(fileName);
-	
-	cout << "Running " << getLanguageText(lang) << " script." << endl;
 	cout << "Press ESC in the window to exit." << endl
 		<< "Don't click X button because GLUT doesn't exit main loop well." << endl
 	;
 
-	intializeScriptEngine(lang);
-
-	GScopedPointer<GScriptRunner> runner;
-	GScopedInterface<IMetaService> service(createDefaultMetaService());
-	
-	runner.reset(createScriptRunnerFromScriptLanguage(lang, service.get()));
-
-	GScopedInterface<IScriptObject> scriptObject(runner->getScripeObject());
-	
-	GScopedInterface<IMetaClass> metaClass(service->findClassByName("box2d"));
-	
+	GScopedInterface<IMetaClass> metaClass(scriptHelper.borrowService()->findClassByName("box2d"));
 	GScopedInterface<IMetaClass> glMetaClass(static_cast<IMetaClass *>(metaItemToInterface(define.getMetaClass())));
-	scriptObject->bindCoreService("cpgf", NULL);
-	scriptObject->bindClass("gl", glMetaClass.get());
-	scriptObject->bindClass("box2d", metaClass.get());
+	scriptHelper.borrowScriptObject()->bindCoreService("cpgf", NULL);
+	scriptHelper.borrowScriptObject()->bindClass("gl", glMetaClass.get());
+	scriptHelper.borrowScriptObject()->bindClass("box2d", metaClass.get());
 	GScopedInterface<IMetaMethod> method(static_cast<IMetaMethod *>(metaItemToInterface(getGlobalMetaClass()->getMethod("exitDemo"))));
-	scriptObject->bindMethod("exitDemo", NULL, method.get());
+	scriptHelper.borrowScriptObject()->bindMethod("exitDemo", NULL, method.get());
 	
-	if(runner->executeFile(fileName)) {
-		invokeScriptFunction(scriptObject.get(), "setupBox2d");
-		GVariant mv = invokeScriptFunction(scriptObject.get(), "getWorld");
+	if(scriptHelper.execute()) {
+		invokeScriptFunction(scriptHelper.borrowScriptObject(), "setupBox2d");
+		GVariant mv = invokeScriptFunction(scriptHelper.borrowScriptObject(), "getWorld");
 		b2World * world = fromVariant<b2World *>(mv);
 		static DebugDraw debugDraw;
 		debugDraw.SetFlags(b2DebugDraw::e_shapeBit);
 		world->SetDebugDraw(&debugDraw);
-		invokeScriptFunction(scriptObject.get(), "start");
-	}
-	else {
-		cout << "Failed to execute " << fileName << ", maybe it doesn't exist?" << endl;
+		invokeScriptFunction(scriptHelper.borrowScriptObject(), "start");
 	}
 
 	return 0;

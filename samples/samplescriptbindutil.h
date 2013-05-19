@@ -5,18 +5,26 @@
 
 namespace cpgf {
 	struct IMetaService;
+	struct IScriptObject;
 } // namespace cpgf
 
-enum ScriptLanguage {
-	slJavascript, slLua, slPython
+class ScriptHelperImplement;
+
+class ScriptHelper
+{
+public:
+	ScriptHelper(int argc, char * argv[]);
+	~ScriptHelper();
+
+	bool execute();
+	
+	cpgf::IMetaService * borrowService() const;
+	cpgf::IScriptObject * borrowScriptObject() const;
+	
+private:
+	cpgf::GScopedPointer<ScriptHelperImplement> implement;
 };
 
-ScriptLanguage getScriptLanguageFromFileName(const char * fileName);
-cpgf::GScriptRunner * createScriptRunnerFromScriptLanguage(ScriptLanguage lang, cpgf::IMetaService * service);
-const char * getLanguageText(ScriptLanguage lang);
-
-void intializeScriptEngine(ScriptLanguage lang);
-void finalizeScriptEngine(ScriptLanguage lang);
 
 
 #endif

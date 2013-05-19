@@ -139,7 +139,7 @@ public:
 	}
 
 private:
-	void doBindMethodList(const char * name, IMetaList * methodList, GGlueDataMethodType methodType);
+	void doBindMethodList(const char * name, IMetaList * methodList);
 	GMethodGlueDataPointer doGetMethodData(const char * methodName);
 
 private:
@@ -214,7 +214,7 @@ Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data
 Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData);
 Persistent<Object> doBindEnum(const GContextPointer & context, Handle<ObjectTemplate> objectTemplate, IMetaEnum * metaEnum);
 Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData, bool isGlobal, IMetaList * methodList,
-	const char * name, Handle<FunctionTemplate> classTemplate, GGlueDataMethodType methodType);
+	const char * name, Handle<FunctionTemplate> classTemplate);
 Handle<ObjectTemplate> createEnumTemplate(const GContextPointer & context);
 
 void loadCallableParam(const Arguments & args, const GContextPointer & context, InvokeCallableParam * callableParam);
@@ -316,7 +316,7 @@ GScriptDataType getV8Type(Local<Value> value, IMetaTypedItem ** typeItem)
 								return sdtClass;
 
 							case gdtMethod:
-								return methodTypeToGlueDataType(dataWrapper->getAs<GMethodGlueData>()->getMethodType());
+								return sdtMethod;
 
 							default:
 								break;
@@ -566,7 +566,7 @@ struct GV8Methods
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 			Handle<FunctionTemplate> functionTemplate = createMethodTemplate(context, classData,
 				! objectData, NULL, methodName,
-				createClassTemplate(context, context->getClassData(boundClass.get())), gdmtInternal);
+				createClassTemplate(context, context->getClassData(boundClass.get())));
 			userData = new GFunctionTemplateUserData(functionTemplate);
 			mapItem->setUserData(userData);
 		}
@@ -701,9 +701,9 @@ Handle<Value> callbackMethodList(const Arguments & args)
 }
 
 Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData, bool isGlobal, IMetaList * methodList,
-	const char * name, Handle<FunctionTemplate> classTemplate, GGlueDataMethodType methodType)
+	const char * name, Handle<FunctionTemplate> classTemplate)
 {
-	GMethodGlueDataPointer glueData = context->newMethodGlueData(classData, methodList, name, methodType);
+	GMethodGlueDataPointer glueData = context->newMethodGlueData(classData, methodList, name);
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(glueData, getV8DataWrapperPool());
 
 	Persistent<External> data = Persistent<External>::New(External::New(dataWrapper));
@@ -1355,7 +1355,7 @@ void GV8ScriptObject::bindMethod(const char * name, void * instance, IMetaMethod
 	GScopedInterface<IMetaList> methodList(createMetaList());
 	methodList->add(method, instance);
 
-	this->doBindMethodList(name, methodList.get(), gdmtMethod);
+	this->doBindMethodList(name, methodList.get());
 
 	LEAVE_V8()
 }
@@ -1364,7 +1364,7 @@ void GV8ScriptObject::bindMethodList(const char * name, IMetaList * methodList)
 {
 	ENTER_V8()
 
-	this->doBindMethodList(name, methodList, gdmtMethodList);
+	this->doBindMethodList(name, methodList);
 
 	LEAVE_V8()
 }
@@ -1480,7 +1480,7 @@ IMetaMethod * GV8ScriptObject::getMethod(const char * methodName, void ** outIns
 	}
 
 	GMethodGlueDataPointer methodData = this->doGetMethodData(methodName);
-	if(methodData && methodData->getMethodType() == gdmtMethod) {
+	if(methodData) {
 		if(outInstance != NULL) {
 			*outInstance = methodData->getMethodList()->getInstanceAt(0);
 		}
@@ -1499,7 +1499,7 @@ IMetaList * GV8ScriptObject::getMethodList(const char * methodName)
 	ENTER_V8()
 
 	GMethodGlueDataPointer methodData = this->doGetMethodData(methodName);
-	if(methodData && methodData->getMethodType() == gdmtMethodList) {
+	if(methodData) {
 		methodData->getMethodList()->addReference();
 
 		return methodData->getMethodList();
@@ -1558,13 +1558,13 @@ void GV8ScriptObject::bindCoreService(const char * name, IScriptLibraryLoader * 
 	LEAVE_V8()
 }
 
-void GV8ScriptObject::doBindMethodList(const char * name, IMetaList * methodList, GGlueDataMethodType methodType)
+void GV8ScriptObject::doBindMethodList(const char * name, IMetaList * methodList)
 {
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->object));
 
 	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(this->getContext(), GClassGlueDataPointer(), true, methodList, name,
-		Handle<FunctionTemplate>(), methodType);
+		Handle<FunctionTemplate>());
 
 	Local<Function> func = Local<Function>::New(functionTemplate->GetFunction());
 	setObjectSignature(&func);
