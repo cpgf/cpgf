@@ -213,7 +213,7 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 		List<CppField> fieldList = cls.getFieldList();
 		CppWriter codeWriter = new CppWriter();
 		for(CppField field : fieldList) {
-			if(! WriterUtil.shouldGenerateBitfieldWrapper(this.config, field)) {
+			if(! WriterUtil.shouldGenerateBitfieldWrapper(this.metaInfo, field)) {
 				continue;
 			}
 			

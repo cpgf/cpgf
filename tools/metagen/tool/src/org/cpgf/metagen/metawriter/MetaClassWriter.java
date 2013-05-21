@@ -182,7 +182,7 @@ public class MetaClassWriter {
 			
 			if(item.isBitField()) {
 				CppField field = (CppField)(item);
-				if(WriterUtil.shouldGenerateBitfieldWrapper(this.config, field)) {
+				if(WriterUtil.shouldGenerateBitfieldWrapper(this.metaInfo, field)) {
 					this.codeWriter.writeLine(WriterUtil.getReflectionAction(this.define, "_property") + "(" + Util.quoteText(name)
 							+ ", &" + WriterUtil.getBitfieldWrapperGetterName(field)
 							+ ", &" + WriterUtil.getBitfieldWrapperSetterName(field)
