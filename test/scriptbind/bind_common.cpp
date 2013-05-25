@@ -370,6 +370,33 @@ private:
 
 using namespace JS;
 
+template <int Arity, typename F>
+struct JSNewRuntimeCaller
+{
+};
+
+template <typename F>
+struct JSNewRuntimeCaller <1, F>
+{
+	static JSRuntime * call(F * f) {
+		return f(128L * 1024L * 1024L);
+	}
+};
+
+template <typename F>
+struct JSNewRuntimeCaller <2, F>
+{
+	static JSRuntime * call(F * f) {
+		return f(512L * 1024L * 1024L, JS_NO_HELPER_THREADS);
+	}
+};
+
+template <typename F>
+JSRuntime * callJSNewRuntime(F * f)
+{
+	return JSNewRuntimeCaller<GFunctionTraits<F>::Arity, F>::call(f);
+}
+
 class TestScriptCoderSpiderMonkey : public TestScriptCoder
 {
 public:
@@ -386,7 +413,7 @@ class SpiderMonkeyRuntime
 {
 public:
 	SpiderMonkeyRuntime()
-		: jsRuntime(JS_NewRuntime(512L * 1024L * 1024L))
+		: jsRuntime(callJSNewRuntime(&JS_NewRuntime))
 	{
 	}
 

@@ -7,14 +7,6 @@
 
 #include <string>
 
-// for test
-#include "cpgf/gmetadefine.h"
-#include "cpgf/gmetaapi.h"
-#include "cpgf/gmetaapiutil.h"
-#include "cpgf/gmetaclass.h"
-#include "cpgf/gscopedinterface.h"
-#include "iostream"
-
 #if defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable: 4127 4100 4800 4512 4480 4267)
@@ -56,12 +48,6 @@ namespace {
 	__VA_ARGS__;
 
 typedef JS::Value JsValue;
-
-enum JsClassKind
-{
-	ckObject,
-	ckAccessible
-};
 
 class GScopedJsObject : public GNoncopyable
 {
@@ -106,7 +92,7 @@ private:
 	typedef GStringMap<GAccessibleGlueDataPointer> AccessibleMapType;
 
 public:
-	explicit JsClassUserData(const char * className, JsClassKind kind);
+	explicit JsClassUserData(const char * className);
 	
 	JSClass * getJsClass() {
 		return &this->jsClass;
@@ -310,10 +296,9 @@ void setClassPrivateData(JSContext * jsContext, JSObject * object, void * data)
 		getClassPrivateData(jsContext, object);
 	}
 	JSObject * ctor = JS_GetConstructor(jsContext, object);
-	JSObject * proto = ctor; //JS_GetObjectPrototype(jsContext, ctor);
+	JSObject * proto = ctor;
 	if(proto != NULL) {
 		setPrivateData(&classPrivateDataMap, proto, data);
-//		JS_SetPrivate(proto, data);
 	}
 	else {
 		GASSERT(false);
@@ -322,25 +307,17 @@ void setClassPrivateData(JSContext * jsContext, JSObject * object, void * data)
 
 void * getClassPrivateData(JSContext * /*jsContext*/, JSObject * object)
 {
-	JSObject * ctor = object; //JS_GetConstructor(jsContext, object);
-	JSObject * proto = ctor; //JS_GetObjectPrototype(jsContext, ctor);
-	if(proto == NULL) {
-		return NULL;
-	}
-	return getPrivateData(&classPrivateDataMap, proto);
-//	return JS_GetPrivate(proto);
+	return getPrivateData(&classPrivateDataMap, object);
 }
 
 void setObjectPrivateData(JSObject * object, void * data)
 {
 	setPrivateData(&objectPrivateDataMap, object, data);
-//	JS_SetPrivate(object, data);
 }
 
 void * getObjectPrivateData(JSObject * object)
 {
 	return getPrivateData(&objectPrivateDataMap, object);
-//	return JS_GetPrivate(object);
 }
 
 void * getObjectOrClassPrivateData(JSContext * jsContext, JSObject * object)
@@ -927,59 +904,6 @@ JSBool enumSetter(JSContext * jsContext, JSHandleObject /*obj*/, JSHandleId /*id
 	LEAVE_SPIDERMONKEY(return failedResult())
 }
 
-JSBool accessibleGetter(JSContext *jsContext, JSHandleObject obj, JSHandleId id, JSMutableHandleValue vp)
-{
-	ENTER_SPIDERMONKEY()
-
-	JsValue idValue;
-	if(! JS_IdToValue(jsContext, id, &idValue)) {
-		return failedResult();
-	}
-	if(idValue.isString()) {
-		JSString * jsString = idValue.toString();
-		GScopedArray<char> name(jsStringToString(jsContext, jsString));
-
-		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectPrivateData(obj));
-		if(dataWrapper->getData()->getType() == gdtAccessible) {
-			GAccessibleGlueDataPointer accessibleGlueData = dataWrapper->getAs<GAccessibleGlueData>();
-			vp.set(accessibleToScript<GSpiderMethods>(accessibleGlueData->getContext(), accessibleGlueData->getAccessible(), accessibleGlueData->getInstanceAddress(), false));
-	
-			return JS_TRUE;
-		}
-	}
-
-	return failedResult();
-
-	LEAVE_SPIDERMONKEY(return failedResult())
-}
-
-JSBool accessibleSetter(JSContext * jsContext, JSHandleObject obj, JSHandleId id, JSBool /*strict*/, JSMutableHandleValue vp)
-{
-	ENTER_SPIDERMONKEY()
-
-	JsValue idValue;
-	if(! JS_IdToValue(jsContext, id, &idValue)) {
-		return failedResult();
-	}
-	if(idValue.isString()) {
-		JSString * jsString = idValue.toString();
-		GScopedArray<char> name(jsStringToString(jsContext, jsString));
-
-		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectPrivateData(obj));
-		if(dataWrapper->getData()->getType() == gdtAccessible) {
-			GAccessibleGlueDataPointer accessibleGlueData = dataWrapper->getAs<GAccessibleGlueData>();
-			GVariant v = spiderToVariant(sharedStaticCast<GSpiderBindingContext>(accessibleGlueData->getContext()), vp, NULL);
-			metaSetValue(accessibleGlueData->getAccessible(), accessibleGlueData->getInstanceAddress(), v);
-	
-			return JS_TRUE;
-		}
-	}
-
-	return failedResult();
-
-	LEAVE_SPIDERMONKEY(return failedResult())
-}
-
 static JSClass jsEnumClass = {
     "__internal__enum__",  // name
     JSCLASS_HAS_PRIVATE,  // flags
@@ -1106,7 +1030,7 @@ JSObject * createClassBinding(const GSpiderContextPointer & context, JSObject * 
 	JsClassUserData * classUserData = static_cast<JsClassUserData *>(mapClass->getUserData());
 	if(classUserData == NULL) {
 		GGlueDataWrapper * dataWrapper = newGlueDataWrapper(classData, context->getGlueDataWrapperPool());
-		classUserData = new JsClassUserData(name, ckObject);
+		classUserData = new JsClassUserData(name);
 		mapClass->setUserData(classUserData);
 
 		IMetaClass * metaClass = classData->getMetaClass();
@@ -1117,7 +1041,6 @@ JSObject * createClassBinding(const GSpiderContextPointer & context, JSObject * 
 			if(baseClass) {
 				GClassGlueDataPointer baseClassData = context->getClassData(baseClass.get());
 				parent = createClassBinding(context, owner, metaClass->getName(), baseClassData);
-//				parent = JS_GetObjectPrototype(context->getJsContext(), parent);
 			}
 		}
 
@@ -1205,19 +1128,14 @@ JSObject * getOrCreateGlobalJsObject(JSContext * jsContext, JSObject * jsObject)
 		}
 		GMetaMapClass * mapClass = globalClassData->getClassMap();
 		GGlueDataWrapper * dataWrapper = newGlueDataWrapper(globalClassData);
-		JsClassUserData * classUserData = new JsClassUserData("cpgf_spidermonkey_global", ckObject);
+		JsClassUserData * classUserData = new JsClassUserData("cpgf_spidermonkey_global");
 		mapClass->setUserData(classUserData);
-//		JSObject * global = JS_GetGlobalForScopeChain(jsContext);
 		JSObject * global = JS_NewObject(jsContext, NULL, NULL, NULL);
 		JSObject * classObject = JS_InitClass(jsContext, global, global, classUserData->getJsClass(), NULL, 0, NULL, NULL, NULL, NULL);
 		classUserData->setClassObject(jsContext, classObject);
-//		setClassPrivateData(jsContext, classObject, dataWrapper);
 
 		jsObject = JS_NewObject(jsContext, classUserData->getJsClass(), NULL, NULL);
-//		dataWrapper = newGlueDataWrapper(globalClassData);
 		setObjectPrivateData(jsObject, dataWrapper);
-		
-//jsObject = JS_NewObject(jsContext, NULL, NULL, NULL);
 	}
 	return jsObject;
 }
@@ -1234,7 +1152,7 @@ bool isValidObject(JSContext * jsContext, JSObject * jsObject)
 // Classes implementations
 //*********************************************
 
-JsClassUserData::JsClassUserData(const char * className, JsClassKind /*kind*/)
+JsClassUserData::JsClassUserData(const char * className)
 	: super(), className(new char[strlen(className) + 1]), classObject()
 {
 	strcpy(this->className.get(), className);
@@ -1305,12 +1223,7 @@ GSpiderMonkeyScriptObject::GSpiderMonkeyScriptObject(IMetaService * service, con
 }
 
 GSpiderMonkeyScriptObject::GSpiderMonkeyScriptObject(const GSpiderMonkeyScriptObject & other, JSContext *jsContext, JSObject  * jsObject)
-	: super(other),
-//		GContextPointer(new GSpiderBindingContext(other.getContext()->getService(), other.getConfig(),
-//		jsContext, jsObject)),
-//		sharedStaticCast<GSpiderBindingContext>(other.getContext())->getJsContext(), sharedStaticCast<GSpiderBindingContext>(other.getContext())->getJsGlobalObject())),
-//		other.getConfig()),
-		jsContext(jsContext), jsObject(jsContext, jsObject)
+	: super(other), jsContext(jsContext), jsObject(jsContext, jsObject)
 {
 }
 

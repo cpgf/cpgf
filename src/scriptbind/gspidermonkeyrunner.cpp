@@ -33,6 +33,32 @@ private:
 	JSObject  * jsGlobal;
 };
 
+template <int Arity, typename F>
+struct JSNewRuntimeCaller
+{
+};
+
+template <typename F>
+struct JSNewRuntimeCaller <1, F>
+{
+	static JSRuntime * call(F * f) {
+		return f(128L * 1024L * 1024L);
+	}
+};
+
+template <typename F>
+struct JSNewRuntimeCaller <2, F>
+{
+	static JSRuntime * call(F * f) {
+		return f(128L * 1024L * 1024L, JS_NO_HELPER_THREADS);
+	}
+};
+
+template <typename F>
+JSRuntime * callJSNewRuntime(F * f)
+{
+	return JSNewRuntimeCaller<GFunctionTraits<F>::Arity, F>::call(f);
+}
 
 void reportError(JSContext * /*jsContext*/, const char * message, JSErrorReport * /*report*/)
 {
@@ -40,7 +66,7 @@ void reportError(JSContext * /*jsContext*/, const char * message, JSErrorReport 
 }
 
 GSpiderMonkeyScriptRunnerImplement::GSpiderMonkeyScriptRunnerImplement(IMetaService * service)
-	: super(service), jsRuntime(JS_NewRuntime(128L * 1024L * 1024L))
+	: super(service), jsRuntime(callJSNewRuntime(&JS_NewRuntime))
 {
 	this->jsContext = JS_NewContext(this->jsRuntime, 8192);
 	JS_SetOptions(this->jsContext, JSOPTION_METHODJIT);
