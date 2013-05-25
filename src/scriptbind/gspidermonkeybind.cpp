@@ -398,7 +398,8 @@ struct GSpiderMethods
 
 	static ResultType doWideStringToScript(const GContextPointer & context, const wchar_t * ws)
 	{
-		JSString * jsString = JS_NewUCStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), ws);
+		GScopedArray<char> s(wideStringToString(ws));
+		JSString * jsString = JS_NewStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), s.get());
 		return StringValue(jsString);
 	}
 
@@ -473,7 +474,8 @@ JsValue variantToSpider(const GContextPointer & context, const GVariant & data, 
 
 	if(variantIsWideString(value)) {
 		const wchar_t * ws = fromVariant<wchar_t *>(value);
-		JSString * jsString = JS_NewUCStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), ws);
+		GScopedArray<char> s(wideStringToString(ws));
+		JSString * jsString = JS_NewStringCopyZ(sharedStaticCast<GSpiderBindingContext>(context)->getJsContext(), s.get());
 		return StringValue(jsString);
 	}
 
@@ -509,6 +511,16 @@ GVariant spiderUserDataToVariant(const GSpiderContextPointer & context, JsValue 
 	return GVariant();
 }
 
+char * jsStringToString(JSContext * jsContext, JSString * jsString)
+{
+	char * s = JS_EncodeString(jsContext, jsString);
+	int len = strlen(s);
+	char * ns = new char[len + 1];
+	strcpy(ns, s);
+	JS_free(jsContext, s);
+	return ns;
+}
+
 GVariant spiderToVariant(const GSpiderContextPointer & context, JsValue value, GGlueDataPointer * outputGlueData)
 {
 	if(value.isUndefined()) {
@@ -533,7 +545,7 @@ GVariant spiderToVariant(const GSpiderContextPointer & context, JsValue value, G
 
 	if(value.isString()) {
 		JSString * jsString = value.toString();
-		GScopedArray<char> s(wideStringToString(JS_GetStringCharsZ(context->getJsContext(), jsString)));
+		GScopedArray<char> s(jsStringToString(context->getJsContext(), jsString));
 		return createTypedVariant(createStringVariant(s.get()), createMetaType<char *>());
 	}
 
@@ -773,7 +785,7 @@ JSBool propertyGetter(JSContext *jsContext, JSHandleObject obj, JSHandleId id, J
 		}
 
 		JSString * jsString = idValue.toString();
-		GScopedArray<char> name(wideStringToString(JS_GetStringCharsZ(jsContext, jsString)));
+		GScopedArray<char> name(jsStringToString(jsContext, jsString));
 
 		GClassGlueDataPointer classData;
 		if(dataWrapper->getData()->getType() == gdtObject) {
@@ -831,7 +843,7 @@ JSBool propertySetter(JSContext * jsContext, JSHandleObject obj, JSHandleId id, 
 		}
 	
 		JSString * jsString = idValue.toString();
-		GScopedArray<char> name(wideStringToString(JS_GetStringCharsZ(jsContext, jsString)));
+		GScopedArray<char> name(jsStringToString(jsContext, jsString));
 
 		GClassGlueDataPointer classData;
 		if(dataWrapper->getData()->getType() == gdtObject) {
@@ -885,7 +897,7 @@ JSBool enumGetter(JSContext *jsContext, JSHandleObject obj, JSHandleId id, JSMut
 		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectOrClassPrivateData(jsContext, obj));
 		if(dataWrapper->getData()->getType() == gdtEnum) {
 			JSString * jsString = idValue.toString();
-			GScopedArray<char> name(wideStringToString(JS_GetStringCharsZ(jsContext, jsString)));
+			GScopedArray<char> name(jsStringToString(jsContext, jsString));
 
 			IMetaEnum * metaEnum = dataWrapper->getAs<GEnumGlueData>()->getMetaEnum();
 			int32_t index = metaEnum->findKey(name.get());
@@ -925,7 +937,7 @@ JSBool accessibleGetter(JSContext *jsContext, JSHandleObject obj, JSHandleId id,
 	}
 	if(idValue.isString()) {
 		JSString * jsString = idValue.toString();
-		GScopedArray<char> name(wideStringToString(JS_GetStringCharsZ(jsContext, jsString)));
+		GScopedArray<char> name(jsStringToString(jsContext, jsString));
 
 		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectPrivateData(obj));
 		if(dataWrapper->getData()->getType() == gdtAccessible) {
@@ -951,7 +963,7 @@ JSBool accessibleSetter(JSContext * jsContext, JSHandleObject obj, JSHandleId id
 	}
 	if(idValue.isString()) {
 		JSString * jsString = idValue.toString();
-		GScopedArray<char> name(wideStringToString(JS_GetStringCharsZ(jsContext, jsString)));
+		GScopedArray<char> name(jsStringToString(jsContext, jsString));
 
 		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectPrivateData(obj));
 		if(dataWrapper->getData()->getType() == gdtAccessible) {
@@ -1556,7 +1568,7 @@ std::string GSpiderMonkeyScriptObject::getString(const char * stringName)
 	if(JS_GetProperty(this->jsContext, this->jsObject.getJsObject(), stringName, &value)) {
 		if(value.isString()) {
 			JSString * jsString = value.toString();
-			GScopedArray<char> s(wideStringToString(JS_GetStringCharsZ(this->jsContext, jsString)));
+			GScopedArray<char> s(jsStringToString(this->jsContext, jsString));
 			return s.get();
 		}
 	}

@@ -386,7 +386,7 @@ class SpiderMonkeyRuntime
 {
 public:
 	SpiderMonkeyRuntime()
-		: jsRuntime(JS_NewRuntime(512L * 1024L * 1024L, JS_NO_HELPER_THREADS))
+		: jsRuntime(JS_NewRuntime(512L * 1024L * 1024L))
 	{
 	}
 
@@ -430,7 +430,7 @@ public:
 	}
 
 	void resetContext() {
-		JS_ClearNonGlobalObject(this->jsContext, this->jsGlobal);
+//		JS_ClearNonGlobalObject(this->jsContext, this->jsGlobal);
 	}
 
 public:

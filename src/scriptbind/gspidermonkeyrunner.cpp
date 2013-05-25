@@ -40,7 +40,7 @@ void reportError(JSContext * /*jsContext*/, const char * message, JSErrorReport 
 }
 
 GSpiderMonkeyScriptRunnerImplement::GSpiderMonkeyScriptRunnerImplement(IMetaService * service)
-	: super(service), jsRuntime(JS_NewRuntime(128L * 1024L * 1024L, JS_NO_HELPER_THREADS))
+	: super(service), jsRuntime(JS_NewRuntime(128L * 1024L * 1024L))
 {
 	this->jsContext = JS_NewContext(this->jsRuntime, 8192);
 	JS_SetOptions(this->jsContext, JSOPTION_METHODJIT);
@@ -55,7 +55,7 @@ GSpiderMonkeyScriptRunnerImplement::GSpiderMonkeyScriptRunnerImplement(IMetaServ
 
 GSpiderMonkeyScriptRunnerImplement::~GSpiderMonkeyScriptRunnerImplement()
 {
-	JS_ClearNonGlobalObject(this->jsContext, this->jsGlobal);
+//	JS_ClearNonGlobalObject(this->jsContext, this->jsGlobal);
 	
 	JS_DestroyContext(this->jsContext);
 	JS_DestroyRuntime(this->jsRuntime);
