@@ -491,7 +491,7 @@ GVariant spiderUserDataToVariant(const GSpiderContextPointer & context, JsValue 
 char * jsStringToString(JSContext * jsContext, JSString * jsString)
 {
 	char * s = JS_EncodeString(jsContext, jsString);
-	int len = strlen(s);
+	size_t len = strlen(s);
 	char * ns = new char[len + 1];
 	strcpy(ns, s);
 	JS_free(jsContext, s);
@@ -1100,17 +1100,7 @@ static JSClass jsClassTemplate = {
 	JSCLASS_NO_INTERNAL_MEMBERS
 };
 
-static JSClass jsGlobalClass = { 0 };
 static GClassGlueDataPointer globalClassData;
-
-JSClass * getGlobalClass()
-{
-	if(jsGlobalClass.name == NULL) {
-		jsGlobalClass = jsClassTemplate;
-		jsGlobalClass.name = "cpgf_spidermonkey_global";
-	}
-	return &jsGlobalClass;
-}
 
 class GJsClassGlueData : public GClassGlueData
 {
@@ -1130,7 +1120,8 @@ JSObject * getOrCreateGlobalJsObject(JSContext * jsContext, JSObject * jsObject)
 		GGlueDataWrapper * dataWrapper = newGlueDataWrapper(globalClassData);
 		JsClassUserData * classUserData = new JsClassUserData("cpgf_spidermonkey_global");
 		mapClass->setUserData(classUserData);
-		JSObject * global = JS_NewObject(jsContext, NULL, NULL, NULL);
+		classUserData->getJsClass()->flags |= JSCLASS_GLOBAL_FLAGS;
+		JSObject * global = JS_NewGlobalObject(jsContext, classUserData->getJsClass(), NULL);
 		JSObject * classObject = JS_InitClass(jsContext, global, global, classUserData->getJsClass(), NULL, 0, NULL, NULL, NULL, NULL);
 		classUserData->setClassObject(jsContext, classObject);
 
@@ -1144,7 +1135,7 @@ bool isValidObject(JSContext * jsContext, JSObject * jsObject)
 {
 	return (getObjectOrClassPrivateData(jsContext, jsObject) != NULL
 		|| getFunctionPrivateData(jsObject) != NULL)
-		&& JS_GetClass(jsObject) != &jsGlobalClass;
+		&& JS_GetClass(jsObject) != static_cast<JsClassUserData *>(globalClassData->getClassMap()->getUserData())->getJsClass();
 	;
 }
 
