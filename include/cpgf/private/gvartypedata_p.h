@@ -1,11 +1,14 @@
 #ifndef __GVARTYPEDATA_P_H
 #define __GVARTYPEDATA_P_H
 
+#include "cpgf/gtypetraits.h"
+#include "cpgf/genableif.h"
+
 
 namespace variant_internal {
 
 
-template <typename T>
+template <typename T, typename Enabled = void>
 struct DeduceBasicVariantType {
 	static const GVariantType Result = IsPointer<T>::Result ? vtPointer : vtObject;
 };
@@ -13,7 +16,15 @@ struct DeduceBasicVariantType {
 #define DEDUCEVT(RT, VT) template <> struct DeduceBasicVariantType <RT> { static const GVariantType Result = VT; }
 DEDUCEVT(bool, vtBool);
 DEDUCEVT(char, vtChar);
-DEDUCEVT(wchar_t, vtWchar);
+template <typename T>
+struct DeduceBasicVariantType <T,
+	typename GEnableIf<
+		IsSameType<T, wchar_t>::Result
+		&& !IsSameType<wchar_t, unsigned short>::Result
+		&& !IsSameType<wchar_t, unsigned int>::Result>::Result
+	>
+{ static const GVariantType Result = vtWchar; };
+//DEDUCEVT(wchar_t, vtWchar);
 DEDUCEVT(signed char, vtSignedChar);
 DEDUCEVT(unsigned char, vtUnsignedChar);
 DEDUCEVT(signed short, vtSignedShort);

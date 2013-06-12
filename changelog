@@ -1,6 +1,8 @@
 TBD version 1.5.6
+	Added Mozilla SpiderMonkey JavaScript binding.
 	Remove GGlueDataMethodType from script binding, not method and method list are not distinguished.
 	Fixed a compile error when compiling in VC in Win64 mode.
+	Fixed a compile error when /Zc:wchar_t- is set in VC.
 
 2013-05-05 version 1.5.5
 	Added tweening and timeline library.

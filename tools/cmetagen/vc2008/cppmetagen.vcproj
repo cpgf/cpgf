@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="seedtest"
-	ProjectGUID="{60A22C90-9A64-4027-9997-33ECAA95E642}"
-	RootNamespace="seedtest"
+	Name="cppmetagen"
+	ProjectGUID="{4398AACC-9310-46B4-8612-9BA4C5A746ED}"
+	RootNamespace="cppmetagen"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -41,8 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="D:\projects\cpgf\trunk\include\;&quot;E:\SourceCode\CPP\xulrunner-sdk\include\&quot;;E:\SourceCode\CPP\llvm\build\tools\clang\include\;E:\SourceCode\CPP\llvm\build\include\;E:\SourceCode\CPP\llvm\tools\clang\include\;E:\SourceCode\CPP\llvm\include\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;XP_WIN"
+				AdditionalIncludeDirectories="E:\SourceCode\CPP\llvm_stable\build\tools\clang\include\;E:\SourceCode\CPP\llvm_stable\build\include\;E:\SourceCode\CPP\llvm_stable\tools\clang\include\;E:\SourceCode\CPP\llvm_stable\include\;&quot;$(ProjectDir)\..\..\..\include&quot;;E:\SourceCode\CPP\boost\"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -61,9 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="E:\SourceCode\CPP\xulrunner-sdk\lib\mozjs.lib clang-tblgen.lib clang.lib clangAnalysis.lib clangARCMigrate.lib clangAST.lib clangBasic.lib clangCodeGen.lib clangDriver.lib clangEdit.lib clangFrontend.lib clangFrontendTool.lib clangLex.lib clangParse.lib clangRewriteCore.lib clangRewriteFrontend.lib clangSema.lib clangSerialization.lib clangStaticAnalyzerCheckers.lib clangStaticAnalyzerCore.lib clangStaticAnalyzerFrontend.lib clangTooling.lib llvm-tblgen.lib LLVMAnalysis.lib LLVMArchive.lib LLVMAsmParser.lib LLVMAsmPrinter.lib LLVMBitReader.lib LLVMBitWriter.lib LLVMCodeGen.lib LLVMCore.lib LLVMInstCombine.lib LLVMInstrumentation.lib LLVMipa.lib LLVMipo.lib LLVMLinker.lib LLVMMC.lib LLVMMCParser.lib LLVMObject.lib LLVMScalarOpts.lib LLVMSelectionDAG.lib LLVMSupport.lib LLVMTableGen.lib LLVMTarget.lib LLVMTransformUtils.lib LLVMVectorize.lib LLVMX86AsmParser.lib LLVMX86AsmPrinter.lib LLVMX86CodeGen.lib LLVMX86Desc.lib LLVMX86Disassembler.lib LLVMX86Info.lib LLVMX86Utils.lib"
+				AdditionalDependencies="clangParse.lib clangFrontend.lib clangSema.lib clangAnalysis.lib clangLex.lib clangBasic.lib clangSerialization.lib clangDriver.lib clangAST.lib clangEdit.lib LLVMSupport.lib LLVMCore.lib LLVMMC.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="E:\SourceCode\CPP\llvm\build\lib\Debug\"
+				AdditionalLibraryDirectories="E:\SourceCode\CPP\llvm_stable\build\lib\Debug\;&quot;E:\SourceCode\CPP\boost\bin.v2\libs\regex\build\msvc-9.0express\debug\threading-multi\&quot;;&quot;E:\SourceCode\CPP\boost\bin.v2\libs\filesystem\build\msvc-9.0express\debug\threading-multi\&quot;;&quot;E:\SourceCode\CPP\boost\bin.v2\libs\system\build\msvc-9.0express\debug\threading-multi\&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="D:\projects\cpgf\trunk\include\"
+				AdditionalIncludeDirectories="E:\SourceCode\CPP\llvm_stable\build\tools\clang\include\;E:\SourceCode\CPP\llvm_stable\build\include\;E:\SourceCode\CPP\llvm_stable\tools\clang\include\;E:\SourceCode\CPP\llvm_stable\include\;$(ProjectDir)\..\..\..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -174,33 +174,53 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
+			<File
+				RelativePath="..\src\main.cpp"
+				>
+			</File>
 			<Filter
-				Name="src"
+				Name="parser"
 				>
 				<File
-					RelativePath="..\..\src\main.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\test_clang.cpp"
+					RelativePath="..\src\parser\clangparser.cpp"
 					>
 				</File>
 			</Filter>
 			<Filter
-				Name="cpgf"
+				Name="model"
 				>
-				<Filter
-					Name="scriptbind"
+				<File
+					RelativePath="..\src\model\cppclass.cpp"
 					>
-				</Filter>
-				<Filter
-					Name="metautility"
+				</File>
+				<File
+					RelativePath="..\src\model\cppfield.cpp"
 					>
-				</Filter>
-				<Filter
-					Name="metatraits"
+				</File>
+				<File
+					RelativePath="..\src\model\cppitem.cpp"
 					>
-				</Filter>
+				</File>
+				<File
+					RelativePath="..\src\model\cppnamespace.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\model\cppparam.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\model\cpptype.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\model\fileinfo.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\model\metacontext.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -215,6 +235,10 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<File
+			RelativePath=".\ReadMe.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

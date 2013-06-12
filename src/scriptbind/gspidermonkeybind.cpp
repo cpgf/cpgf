@@ -1100,6 +1100,26 @@ static JSClass jsClassTemplate = {
 	JSCLASS_NO_INTERNAL_MEMBERS
 };
 
+static JSClass globalJsClass = {
+    "cpgf_spidermonkey_global",  // name
+    JSCLASS_GLOBAL_FLAGS | JSCLASS_HAS_PRIVATE,  // flags
+    JS_PropertyStub, // addProperty
+    JS_PropertyStub, // delProperty
+    JS_PropertyStub, // getProperty
+    JS_StrictPropertyStub, // setProperty
+    JS_EnumerateStub, // enumerate
+    JS_ResolveStub, // resolve
+    JS_ConvertStub, // convert
+    NULL, // finalize
+    NULL, // checkAccess
+    NULL, // call
+    NULL, // &jsHasInstance, // hasInstance
+    NULL, // construct
+    NULL, // trace
+	JSCLASS_NO_INTERNAL_MEMBERS
+};
+
+static GScopedJsObject globalObject;
 static GClassGlueDataPointer globalClassData;
 
 class GJsClassGlueData : public GClassGlueData
@@ -1112,20 +1132,24 @@ public:
 JSObject * getOrCreateGlobalJsObject(JSContext * jsContext, JSObject * jsObject)
 {
 	if(jsObject == NULL) {
-		
+		if(globalObject.getJsObject() == NULL) {
+			JSObject * g = JS_NewGlobalObject(jsContext, &globalJsClass, NULL);
+			globalObject.reset(jsContext, g);
+		}
 		if(! globalClassData) {
 			globalClassData.reset(new GJsClassGlueData);
 		}
+
+		JSObject * global = globalObject.getJsObject();
+
 		GMetaMapClass * mapClass = globalClassData->getClassMap();
 		GGlueDataWrapper * dataWrapper = newGlueDataWrapper(globalClassData);
-		JsClassUserData * classUserData = new JsClassUserData("cpgf_spidermonkey_global");
+		JsClassUserData * classUserData = new JsClassUserData("cpgf_spidermonkey_global_object");
 		mapClass->setUserData(classUserData);
-		classUserData->getJsClass()->flags |= JSCLASS_GLOBAL_FLAGS;
-		JSObject * global = JS_NewGlobalObject(jsContext, classUserData->getJsClass(), NULL);
-		JSObject * classObject = JS_InitClass(jsContext, global, global, classUserData->getJsClass(), NULL, 0, NULL, NULL, NULL, NULL);
+		JSObject * classObject = JS_InitClass(jsContext, global, NULL, classUserData->getJsClass(), NULL, 0, NULL, NULL, NULL, NULL);
 		classUserData->setClassObject(jsContext, classObject);
 
-		jsObject = JS_NewObject(jsContext, classUserData->getJsClass(), NULL, NULL);
+		jsObject = JS_NewObject(jsContext, classUserData->getJsClass(), global, global);
 		setObjectPrivateData(jsObject, dataWrapper);
 	}
 	return jsObject;

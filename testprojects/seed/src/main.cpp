@@ -41,13 +41,12 @@ void doTest()
 	NSC::doIt();
 };
 
-void testSpidermonkey();
-int main(int /*argc*/, char * /*argv*/[])
-{
-//	doTest();
+int testClang(int argc, const char ** argv);
 
-	testSpidermonkey();
-	
+int main(int argc, const char * argv[])
+{
+	testClang(argc, argv);
+
 //	_getch();
 	printf("\n");
 

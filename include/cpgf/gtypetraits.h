@@ -6,6 +6,10 @@
 #include "cpgf/gtypelist.h"
 #include "cpgf/gfunctiontraits.h"
 
+#ifdef _MSC_VER
+#include <wchar.h>
+#endif
+
 #ifdef G_COMPILER_CPPBUILDER
 #include <type_traits>
 #endif
