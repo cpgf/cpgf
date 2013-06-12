@@ -176,7 +176,11 @@ string getDeclQualifiedName(NamedDecl * namedDecl)
 	return namedDecl->getQualifiedNameAsString();
 }
 
-
+string removeRecordWords(const string & text)
+{
+	static boost::regex re("\\s*\\b(struct|class|union)\\b\\s*");
+	return boost::regex_replace(text, re, "");
+}
 
 ClangParserImplement::ClangParserImplement(MetaContext * context)
 	: context(context), outputStream(1, false)
@@ -316,19 +320,80 @@ CppNamespace * ClangParserImplement::getCurrentNamespace()
 	return this->namespaceStack.top();
 }
 
+QualType stripType(const QualType & qualType)
+{
+	QualType qType = qualType;
+	SplitQualType splitQualType = qType.split();
+	const Type * t = splitQualType.Ty;
+
+	for(;;) {
+		if(t->isArrayType()) {
+			qType = dyn_cast<ArrayType>(t->getCanonicalTypeInternal())->getElementType();
+		}
+		else if(t->isPointerType()) {
+			qType = dyn_cast<PointerType>(t)->getPointeeType();
+		}
+		else if(t->isReferenceType()) {
+			qType = dyn_cast<ReferenceType>(t)->getPointeeType();
+		}
+		else {
+			break;
+		}
+		splitQualType = qType.split();
+		t = splitQualType.Ty;
+	}
+
+	return qType;
+}
+
 CppType * ClangParserImplement::addType(const QualType & qualType)
 {
 	CppType * type = this->context->createType();
 
 	type->setLiteralName(qualType.getAsString());
-	type->setLiteralName(this->getQualTypeName(qualType));
-	
+	type->setQualifiedName(this->getQualTypeName(qualType));
+	type->setBaseName(this->getQualTypeName(stripType(qualType)));
+
 	QualType qType = qualType;
 	SplitQualType splitQualType = qType.split();
 	const Type * t = splitQualType.Ty;
 
-	const ArrayType * arrayType = dyn_cast<ArrayType>(t);
-	if(arrayType != NULL) {
+	type->setConst(splitQualType.Quals.hasConst());
+	type->setVolatile(splitQualType.Quals.hasVolatile());
+
+	if(t->isArrayType() != NULL) {
+		type->setArray(true);
+	}
+	else {
+		if(t->isFunctionType()) {
+			type->setFunction(true);
+		}
+		else if(t->isFunctionPointerType()) {
+			type->setFunctionPointer(true);
+		}
+		else {
+			if(t->isReferenceType()) {
+				type->setReference(true);
+				qType = dyn_cast<ReferenceType>(t)->getPointeeType();
+				splitQualType = qType.split();
+				t = splitQualType.Ty;
+				type->setReferenceToConst(splitQualType.Quals.hasConst());
+				type->setReferenceToVolatile(splitQualType.Quals.hasVolatile());
+			}
+
+			if(t->isPointerType()) {
+				type->setPointer(true);
+				qType = dyn_cast<PointerType>(t)->getPointeeType();
+				splitQualType = qType.split();
+				t = splitQualType.Ty;
+				type->setPointerToConst(splitQualType.Quals.hasConst());
+				type->setPointerToVolatile(splitQualType.Quals.hasVolatile());
+
+				if(t->isPointerType()) {
+					type->setMultiPointer(true);
+				}
+			}
+		}
 	}
 
 	return type;
@@ -647,6 +712,8 @@ string ClangParserImplement::getQualTypeName(const QualType & qualType)
 	else {
 		qualifiedName = qualType.getAsString();
 	}
+
+	qualifiedName = removeRecordWords(qualifiedName);
 
 	return qualifiedName;
 }
