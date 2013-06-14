@@ -6,8 +6,11 @@
 #include "cppitem.h"
 
 
-class CppInvokable : virtual public CppItem
+class CppInvokable : public CppItem
 {
+private:
+	typedef CppItem super;
+
 public:
 	CppInvokable() : resultType(NULL) {}
 	

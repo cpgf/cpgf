@@ -10,9 +10,9 @@
 #include "../model/cppenum.h"
 #include "../model/cppoperator.h"
 #include "../model/metacontext.h"
-#include "../model/fileinfo.h"
+#include "../model/cppfile.h"
 
-#include "boost/regex.hpp"
+#include "Poco/RegularExpression.h"
 
 #include <stack>
 #include <string>
@@ -56,23 +56,23 @@ public:
 	virtual bool HandleTopLevelDecl(DeclGroupRef) { return true; }
 };
 
-typedef stack<CppNamespace *> NamespaceStackType;
+typedef stack<CppContext *> CppContextStackType;
 
-class NamespaceGuard
+class CppContextGuard
 {
 public:
-	explicit NamespaceGuard(NamespaceStackType * namespaceStack, CppNamespace * ns)
+	explicit CppContextGuard(CppContextStackType * namespaceStack, CppContext * cppContext)
 		: namespaceStack(namespaceStack)
 	{
-		this->namespaceStack->push(ns);
+		this->namespaceStack->push(cppContext);
 	}
 
-	~NamespaceGuard() {
+	~CppContextGuard() {
 		this->namespaceStack->pop();
 	}
 
 private:
-	NamespaceStackType * namespaceStack;
+	CppContextStackType * namespaceStack;
 };
 
 class ClangParserImplement
@@ -88,13 +88,13 @@ private:
 	void compileAST(const char * fileName);
 	void translate();
 
-	CppNamespace * getCurrentNamespace();
+	CppContext * getCurrentCppContext();
 
 	template <typename T>
 	T * addItem(NamedDecl * namedDecl)
 	{
 		T * item = this->context->createItem<T>();
-		this->getCurrentNamespace()->addItem(item);
+		this->getCurrentCppContext()->addItem(item);
 		
 		item->setName(namedDecl->getNameAsString());
 		item->setQualifiedName(namedDecl->getQualifiedNameAsString());
@@ -139,7 +139,7 @@ private:
 
 private:
 	MetaContext * context;
-	NamespaceStackType namespaceStack;
+	CppContextStackType namespaceStack;
 
 	raw_fd_ostream outputStream;
 	DiagnosticOptions diagnosticOptions;
@@ -178,8 +178,10 @@ string getDeclQualifiedName(NamedDecl * namedDecl)
 
 string removeRecordWords(const string & text)
 {
-	static boost::regex re("\\s*\\b(struct|class|union)\\b\\s*");
-	return boost::regex_replace(text, re, "");
+	static Poco::RegularExpression re("(struct|class|union)\\b\\s*");
+	string result(text);
+	re.subst(result, "");
+	return result;
 }
 
 ClangParserImplement::ClangParserImplement(MetaContext * context)
@@ -267,7 +269,7 @@ ClangParserImplement::~ClangParserImplement()
 void ClangParserImplement::parse(const char * fileName)
 {
 	this->context->beginFile(fileName);
-	this->namespaceStack.push(this->context->getCurrentFileInfo()->getGlobalNamespace());
+	this->namespaceStack.push(this->context->getCurrentFileInfo());
 	
 	this->compileAST(fileName);
 	this->translate();
@@ -315,7 +317,7 @@ void ClangParserImplement::translate()
 	}
 }
 
-CppNamespace * ClangParserImplement::getCurrentNamespace()
+CppContext * ClangParserImplement::getCurrentCppContext()
 {
 	return this->namespaceStack.top();
 }
@@ -505,7 +507,7 @@ void ClangParserImplement::parseClass(CXXRecordDecl * classDecl)
 
 	CppClass * cls = this->addItem<CppClass>(classDecl);
 	
-	NamespaceGuard nsGuard(&this->namespaceStack, cls);
+	CppContextGuard nsGuard(&this->namespaceStack, cls);
 
 	this->parseDeclContext(classDecl);
 
@@ -522,7 +524,7 @@ void ClangParserImplement::parseTemplateClass(ClassTemplateDecl * classTemplateD
 
 	CppClass * cls = this->addItem<CppClass>(classTemplateDecl);
 
-	NamespaceGuard nsGuard(&this->namespaceStack, cls);
+	CppContextGuard nsGuard(&this->namespaceStack, cls);
 
 	CXXRecordDecl * classDecl = classTemplateDecl->getTemplatedDecl();
 	this->parseDeclContext(classDecl);
@@ -555,8 +557,9 @@ void ClangParserImplement::parseFunction(FunctionDecl * functionDecl)
 	}
 
 	string name = functionDecl->getNameAsString();
-	static const boost::regex operatorRegex("\\boperator\\b");
-	if(boost::regex_search(name, operatorRegex)) {
+	static const Poco::RegularExpression operatorRegex("\\boperator\\b");
+	Poco::RegularExpression::Match match;
+	if(operatorRegex.match(name, match) != string::npos) {
 		this->parseOperator(functionDecl);
 	}
 	else {
@@ -573,7 +576,7 @@ void ClangParserImplement::parseNamespace(NamespaceDecl * namespaceDecl)
 
 	CppNamespace * ns = this->addItem<CppNamespace>(namespaceDecl);
 	
-	NamespaceGuard nsGuard(&this->namespaceStack, ns);
+	CppContextGuard nsGuard(&this->namespaceStack, ns);
 
 	this->parseDeclContext(namespaceDecl);
 }

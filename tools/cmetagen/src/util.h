@@ -1,6 +1,8 @@
 #ifndef __UTIL_H
 #define __UTIL_H
 
+#include <string>
+
 
 template <typename T>
 void clearPointerContainer(T & container)
@@ -9,6 +11,9 @@ void clearPointerContainer(T & container)
 		delete *it;
 	}
 }
+
+// Replace all '\' with '/'
+std::string normalizePath(const std::string & path);
 
 
 #endif

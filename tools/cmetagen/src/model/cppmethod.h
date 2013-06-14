@@ -6,7 +6,7 @@
 #include "cpptemplateitem.h"
 
 
-class CppMethod : virtual public CppItem, public CppInvokable, public CppTemplateItem
+class CppMethod : public CppInvokable, public CppTemplateItem
 {
 protected:
 	virtual ItemCategory getCategory() const { return icMethod; }

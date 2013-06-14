@@ -19,7 +19,7 @@ void CppClass::doAddItem(CppItem * item)
 {
 	switch(item->getCategory()) {
 		case icConstructor:
-			this->constructorList.push_back(dynamic_cast<CppConstructor *>(item));
+			this->constructorList.push_back(static_cast<CppConstructor *>(item));
 			break;
 
 		case icDestructor:

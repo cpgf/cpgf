@@ -5,25 +5,23 @@
 
 #include "cpgf/gscopedptr.h"
 
-#include "boost/filesystem.hpp"
-
 #include <vector>
 
 class CppType;
-class FileInfo;
+class CppFile;
 
 class MetaContext
 {
 private:
 	typedef std::vector<CppType *> TypeListType;
 	typedef std::vector<CppItem *> ItemListType;
-	typedef std::vector<FileInfo *> FileInfoListType;
+	typedef std::vector<CppFile *> FileInfoListType;
 
 public:
 	MetaContext();
 	~MetaContext();
 	
-	FileInfo * getCurrentFileInfo() const { return this->currentFileInfo; }
+	CppFile * getCurrentFileInfo() const { return this->currentFileInfo; }
 	void beginFile(const char * fileName);
 	void endFile(const char * fileName);
 
@@ -37,7 +35,7 @@ public:
 	}
 	
 private:
-	FileInfo * currentFileInfo;
+	CppFile * currentFileInfo;
 	TypeListType typeList;
 	ItemListType itemList;
 	FileInfoListType fileInfoList;

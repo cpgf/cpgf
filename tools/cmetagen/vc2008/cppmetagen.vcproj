@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="E:\SourceCode\CPP\llvm_stable\build\tools\clang\include\;E:\SourceCode\CPP\llvm_stable\build\include\;E:\SourceCode\CPP\llvm_stable\tools\clang\include\;E:\SourceCode\CPP\llvm_stable\include\;&quot;$(ProjectDir)\..\..\..\include&quot;;E:\SourceCode\CPP\boost\"
+				AdditionalIncludeDirectories="E:\SourceCode\CPP\llvm_stable\build\tools\clang\include\;E:\SourceCode\CPP\llvm_stable\build\include\;E:\SourceCode\CPP\llvm_stable\tools\clang\include\;E:\SourceCode\CPP\llvm_stable\include\;&quot;$(ProjectDir)\..\..\..\include&quot;;E:\SourceCode\CPP\poco\Foundation\include\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,9 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="clangParse.lib clangFrontend.lib clangSema.lib clangAnalysis.lib clangLex.lib clangBasic.lib clangSerialization.lib clangDriver.lib clangAST.lib clangEdit.lib LLVMSupport.lib LLVMCore.lib LLVMMC.lib"
+				AdditionalDependencies="clangParse.lib clangFrontend.lib clangSema.lib clangAnalysis.lib clangLex.lib clangBasic.lib clangSerialization.lib clangDriver.lib clangAST.lib clangEdit.lib LLVMSupport.lib LLVMCore.lib LLVMMC.lib E:\SourceCode\CPP\poco\lib\PocoFoundationd.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="E:\SourceCode\CPP\llvm_stable\build\lib\Debug\;&quot;E:\SourceCode\CPP\boost\bin.v2\libs\regex\build\msvc-9.0express\debug\threading-multi\&quot;;&quot;E:\SourceCode\CPP\boost\bin.v2\libs\filesystem\build\msvc-9.0express\debug\threading-multi\&quot;;&quot;E:\SourceCode\CPP\boost\bin.v2\libs\system\build\msvc-9.0express\debug\threading-multi\&quot;"
+				AdditionalLibraryDirectories="E:\SourceCode\CPP\llvm_stable\build\lib\Debug\"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -178,6 +178,10 @@
 				RelativePath="..\src\main.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\src\util.cpp"
+				>
+			</File>
 			<Filter
 				Name="parser"
 				>
@@ -194,7 +198,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\model\cppcontext.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\model\cppfield.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\model\cppfile.cpp"
 					>
 				</File>
 				<File
@@ -214,11 +226,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\model\fileinfo.cpp"
+					RelativePath="..\src\model\metacontext.cpp"
 					>
 				</File>
+			</Filter>
+			<Filter
+				Name="codewriter"
+				>
 				<File
-					RelativePath="..\src\model\metacontext.cpp"
+					RelativePath="..\src\codewriter\codewriter.cpp"
 					>
 				</File>
 			</Filter>

@@ -14,7 +14,7 @@ enum ItemVisibility
 
 enum ItemCategory
 {
-	icNamespace = 0, icClass, icEnum,
+	icFile, icNamespace, icClass, icEnum,
 	icConstructor, icDestructor,
 	icField, icMethod, icOperator,
 };

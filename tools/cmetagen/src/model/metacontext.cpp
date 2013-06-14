@@ -1,7 +1,7 @@
 #include "metacontext.h"
 #include "cpptype.h"
 #include "cppnamespace.h"
-#include "fileinfo.h"
+#include "cppfile.h"
 
 #include "../util.h"
 
@@ -31,7 +31,7 @@ void MetaContext::beginFile(const char * fileName)
 {
 	GASSERT(this->currentFileInfo == NULL);
 	
-	this->currentFileInfo = new FileInfo(fileName);
+	this->currentFileInfo = new CppFile(fileName);
 	this->fileInfoList.push_back(this->currentFileInfo);
 }
 
