@@ -1,4 +1,11 @@
 #include "cppitem.h"
+#include "cppcontainer.h"
+
+const char * const ItemNames[icCount] = {
+	"File", "Namespace", "Class", "Enum",
+	"Constructor", "Destructor",
+	"Field", "Method", "Operator",
+};
 
 CppItem::CppItem()
 	: visibility(ivPublic), parent(NULL)
@@ -13,6 +20,7 @@ void CppItem::dump(std::ostream & os, int level)
 {
 	this->dumpIndent(os, level);
 	os << "name=" << this->name
+		<< "category=" << ItemNames[this->getCategory()]
 		<< " qualifiedName=" << this->qualifiedName
 		<< " visibility=" << this->visibility
 		<< " static=" << this->isStatic()

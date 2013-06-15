@@ -1,6 +1,6 @@
 #include "cppparam.h"
 
-#include "../util.h"
+#include "util.h"
 
 CppParam::CppParam()
 	: name(), type(NULL)

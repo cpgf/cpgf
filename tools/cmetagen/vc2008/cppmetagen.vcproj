@@ -41,13 +41,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="E:\SourceCode\CPP\llvm_stable\build\tools\clang\include\;E:\SourceCode\CPP\llvm_stable\build\include\;E:\SourceCode\CPP\llvm_stable\tools\clang\include\;E:\SourceCode\CPP\llvm_stable\include\;&quot;$(ProjectDir)\..\..\..\include&quot;;E:\SourceCode\CPP\poco\Foundation\include\"
+				AdditionalIncludeDirectories="E:\SourceCode\CPP\llvm_stable\build\tools\clang\include\;E:\SourceCode\CPP\llvm_stable\build\include\;E:\SourceCode\CPP\llvm_stable\tools\clang\include\;E:\SourceCode\CPP\llvm_stable\include\;E:\SourceCode\CPP\poco\Foundation\include\;&quot;$(ProjectDir)\..\..\..\include&quot;;&quot;$(ProjectDir)\..\src&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				WarningLevel="4"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -122,7 +122,7 @@
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				WarningLevel="4"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -198,6 +198,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\model\cppcontainer.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\model\cppcontext.cpp"
 					>
 				</File>
@@ -225,16 +229,76 @@
 					RelativePath="..\src\model\cpptype.cpp"
 					>
 				</File>
-				<File
-					RelativePath="..\src\model\metacontext.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="codewriter"
 				>
 				<File
 					RelativePath="..\src\codewriter\codewriter.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\codewriter\cppwriter.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="application"
+				>
+				<File
+					RelativePath="..\src\application\application.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="buildermodel"
+				>
+				<File
+					RelativePath="..\src\buildermodel\builderclass.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\buildermodel\builderconstructor.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\buildermodel\buildercontainer.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\buildermodel\buildercontext.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\buildermodel\builderdestructor.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\buildermodel\builderenum.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\buildermodel\builderfield.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\buildermodel\builderfile.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\buildermodel\builderitem.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\buildermodel\buildermethod.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\buildermodel\buildernamespace.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\buildermodel\builderoperator.cpp"
 					>
 				</File>
 			</Filter>

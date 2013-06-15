@@ -5,7 +5,7 @@
 #include "cppenum.h"
 #include "cppoperator.h"
 
-#include "../util.h"
+#include "util.h"
 
 #include "cpgf/gassert.h"
 

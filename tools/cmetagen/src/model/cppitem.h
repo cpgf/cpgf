@@ -14,16 +14,21 @@ enum ItemVisibility
 
 enum ItemCategory
 {
-	icFile, icNamespace, icClass, icEnum,
+	icFile = 0, icNamespace, icClass, icEnum,
 	icConstructor, icDestructor,
 	icField, icMethod, icOperator,
+	icCount
 };
+
+extern const char * const ItemNames[icCount];
 
 enum ItemFlags
 {
 	ifStatic = 1 << 0,
 	ifConst = 1 << 1,
 };
+
+class CppContainer;
 
 class CppItem
 {
@@ -36,8 +41,12 @@ protected:
 public:
 	virtual ~CppItem();
 
-	CppItem * getParent() const { return this->parent; }
-	void setParent(CppItem * parent) { this->parent = parent; }
+	virtual ItemCategory getCategory() const = 0;
+	
+	virtual void dump(std::ostream & os, int level = 0);
+
+	CppContainer * getParent() const { return this->parent; }
+	void setParent(CppContainer * parent) { this->parent = parent; }
 	
 	const std::string & getName() const { return this->name; }
 	void setName(const std::string & name) { this->name = name; }
@@ -50,9 +59,16 @@ public:
 	ItemVisibility getVisibility() const { return this->visibility; }
 	void setVisibility(ItemVisibility visibility) { this->visibility = visibility; }
 
-	virtual ItemCategory getCategory() const = 0;
-	
-	virtual void dump(std::ostream & os, int level = 0);
+	bool isFile() { return this->getCategory() == icFile; }
+	bool isNamespace() { return this->getCategory() == icNamespace; }
+	bool isClass() { return this->getCategory() == icClass; }
+	bool isConstructor() { return this->getCategory() == icConstructor; }
+	bool isDestructor() { return this->getCategory() == icDestructor; }
+	bool isEnum() { return this->getCategory() == icEnum; }
+	bool isField() { return this->getCategory() == icField; }
+	bool isMethod() { return this->getCategory() == icMethod; }
+	bool isOperator() { return this->getCategory() == icOperator; }
+	bool isContainer() { return this->isFile() || this->isNamespace() || this->isClass(); }
 
 protected:
 	Flags & getFlags() { return this->flags; }
@@ -65,7 +81,7 @@ private:
 	std::string qualifiedName;
 	ItemVisibility visibility;
 	Flags flags;
-	CppItem * parent; // either namespace of class
+	CppContainer * parent; // file, namespace or class
 };
 
 

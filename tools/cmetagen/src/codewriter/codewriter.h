@@ -9,11 +9,16 @@ class CodeWriter
 public:
 	CodeWriter();
 	~CodeWriter();
-	
+
+	void setIndent(int indent);	
 	void incIndent();
 	void decIndent();
+	void incIndent(int level);
+	void decIndent(int level);
 	
 	void write(const std::string & text);
+	void writeLine(const std::string & text);
+	void writeBlankLine();
 	
 	const std::string & getText() const;
 

@@ -4,12 +4,12 @@
 #include "cpgf/gscopedptr.h"
 
 class ClangParserImplement;
-class MetaContext;
+class CppContext;
 
 class ClangParser
 {
 public:
-	explicit ClangParser(MetaContext * context);
+	explicit ClangParser(CppContext * context);
 	~ClangParser();
 
 	void parse(const char * fileName);

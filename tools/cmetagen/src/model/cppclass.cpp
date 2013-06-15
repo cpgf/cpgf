@@ -2,7 +2,7 @@
 #include "cppconstructor.h"
 #include "cppdestructor.h"
 
-#include "../util.h"
+#include "util.h"
 
 
 CppClass::CppClass()

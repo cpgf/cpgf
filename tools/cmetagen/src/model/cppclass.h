@@ -2,7 +2,7 @@
 #define __CPPCLASS_H
 
 #include "cpptemplateitem.h"
-#include "cppcontext.h"
+#include "cppcontainer.h"
 
 class CppConstructor;
 class CppDestructor;
@@ -26,10 +26,10 @@ private:
 	std::string qualifiedName;
 };
 
-class CppClass : public CppContext, public CppTemplateItem
+class CppClass : public CppContainer, public CppTemplateItem
 {
 private:
-	typedef CppContext super;
+	typedef CppContainer super;
 
 public:
 	typedef std::vector<CppConstructor *> ConstructorListType;

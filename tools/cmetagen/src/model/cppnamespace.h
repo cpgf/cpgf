@@ -1,13 +1,13 @@
 #ifndef __CPPNAMESPACE_H
 #define __CPPNAMESPACE_H
 
-#include "cppcontext.h"
+#include "cppcontainer.h"
 
 
-class CppNamespace : public CppContext
+class CppNamespace : public CppContainer
 {
 private:
-	typedef CppContext super;
+	typedef CppContainer super;
 	typedef std::vector<CppItem *> ItemListType;
 
 public:

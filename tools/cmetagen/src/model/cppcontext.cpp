@@ -1,80 +1,41 @@
 #include "cppcontext.h"
+#include "cpptype.h"
 #include "cppnamespace.h"
-#include "cppclass.h"
-#include "cppfield.h"
-#include "cppmethod.h"
-#include "cppenum.h"
-#include "cppoperator.h"
+#include "cppfile.h"
 
-#include "../util.h"
+#include "util.h"
 
 #include "cpgf/gassert.h"
 
 
 CppContext::CppContext()
-	: super()
+	: currentFileInfo(NULL)
 {
 }
 
 CppContext::~CppContext()
 {
+	clearPointerContainer(this->typeList);
+	clearPointerContainer(this->itemList);
+	clearPointerContainer(this->fileList);
 }
 
-void CppContext::addItem(CppItem * item)
+CppType * CppContext::createType()
 {
-	this->doAddItem(item);
-	item->setParent(this);
+	CppType * type = new CppType();
+	this->typeList.push_back(type);
+	return type;
 }
 
-void CppContext::doAddItem(CppItem * item)
+void CppContext::beginFile(const char * fileName)
 {
-	switch(item->getCategory()) {
-		case icNamespace:
-			this->namespaceList.push_back(static_cast<CppNamespace *>(item));
-			break;
-
-		case icClass:
-			this->classList.push_back(static_cast<CppClass *>(item));
-			break;
-
-		case icField:
-			this->fieldList.push_back(static_cast<CppField *>(item));
-			break;
-			
-		case icMethod:
-			this->methodList.push_back(static_cast<CppMethod *>(item));
-			break;
-
-		case icEnum:
-			this->enumList.push_back(static_cast<CppEnum *>(item));
-			break;
-
-		case icOperator:
-			this->operatorList.push_back(static_cast<CppOperator *>(item));
-			break;
-
-		default:
-			GASSERT(false);
-			break;
-	}
+	GASSERT(this->currentFileInfo == NULL);
+	
+	this->currentFileInfo = new CppFile(fileName);
+	this->fileList.push_back(this->currentFileInfo);
 }
 
-template <typename T>
-void dumpList(T & itemList, std::ostream & os, int level)
+void CppContext::endFile(const char * /*fileName*/)
 {
-	for(typename T::iterator it = itemList.begin(); it != itemList.end(); ++it) {
-		(*it)->dump(os, level);
-	}
-}
-
-void CppContext::dump(std::ostream & os, int level)
-{
-	int newLevel = level + 1;
-
-	dumpList(this->namespaceList, os, newLevel);
-	dumpList(this->classList, os, newLevel);
-	dumpList(this->fieldList, os, newLevel);
-	dumpList(this->methodList, os, newLevel);
-	dumpList(this->enumList, os, newLevel);
-	dumpList(this->operatorList, os, newLevel);
+	this->currentFileInfo = NULL;
 }

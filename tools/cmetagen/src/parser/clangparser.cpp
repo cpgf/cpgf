@@ -1,16 +1,16 @@
 #include "clangparser.h"
 
-#include "../model/cpptype.h"
-#include "../model/cppnamespace.h"
-#include "../model/cppclass.h"
-#include "../model/cppfield.h"
-#include "../model/cppmethod.h"
-#include "../model/cppconstructor.h"
-#include "../model/cppdestructor.h"
-#include "../model/cppenum.h"
-#include "../model/cppoperator.h"
-#include "../model/metacontext.h"
-#include "../model/cppfile.h"
+#include "model/cpptype.h"
+#include "model/cppnamespace.h"
+#include "model/cppclass.h"
+#include "model/cppfield.h"
+#include "model/cppmethod.h"
+#include "model/cppconstructor.h"
+#include "model/cppdestructor.h"
+#include "model/cppenum.h"
+#include "model/cppoperator.h"
+#include "model/cppcontext.h"
+#include "model/cppfile.h"
 
 #include "Poco/RegularExpression.h"
 
@@ -19,7 +19,7 @@
 
 #if defined(_MSC_VER)
 #pragma warning(push)
-#pragma warning(disable:4146 4800 4244 4150 4624 4355 4291 4996 4345)
+#pragma warning(disable:4146 4800 4244 4150 4624 4355 4291 4996 4345 4127 4510 4610 4512 4100 4245 4189 4389)
 #endif
 
 #include "llvm/Support/Host.h"
@@ -56,29 +56,29 @@ public:
 	virtual bool HandleTopLevelDecl(DeclGroupRef) { return true; }
 };
 
-typedef stack<CppContext *> CppContextStackType;
+typedef stack<CppContainer *> CppContainerStackType;
 
-class CppContextGuard
+class CppContainerGuard
 {
 public:
-	explicit CppContextGuard(CppContextStackType * namespaceStack, CppContext * cppContext)
+	explicit CppContainerGuard(CppContainerStackType * namespaceStack, CppContainer * cppContext)
 		: namespaceStack(namespaceStack)
 	{
 		this->namespaceStack->push(cppContext);
 	}
 
-	~CppContextGuard() {
+	~CppContainerGuard() {
 		this->namespaceStack->pop();
 	}
 
 private:
-	CppContextStackType * namespaceStack;
+	CppContainerStackType * namespaceStack;
 };
 
 class ClangParserImplement
 {
 public:
-	explicit ClangParserImplement(MetaContext * context);
+	explicit ClangParserImplement(CppContext * context);
 	~ClangParserImplement();
 
 	void parse(const char * fileName);
@@ -88,13 +88,13 @@ private:
 	void compileAST(const char * fileName);
 	void translate();
 
-	CppContext * getCurrentCppContext();
+	CppContainer * getCurrentCppContainer();
 
 	template <typename T>
 	T * addItem(NamedDecl * namedDecl)
 	{
 		T * item = this->context->createItem<T>();
-		this->getCurrentCppContext()->addItem(item);
+		this->getCurrentCppContainer()->addItem(item);
 		
 		item->setName(namedDecl->getNameAsString());
 		item->setQualifiedName(namedDecl->getQualifiedNameAsString());
@@ -138,8 +138,8 @@ private:
 	string getTemplateSpecializationName(const TemplateSpecializationType * type);
 
 private:
-	MetaContext * context;
-	CppContextStackType namespaceStack;
+	CppContext * context;
+	CppContainerStackType namespaceStack;
 
 	raw_fd_ostream outputStream;
 	DiagnosticOptions diagnosticOptions;
@@ -184,7 +184,7 @@ string removeRecordWords(const string & text)
 	return result;
 }
 
-ClangParserImplement::ClangParserImplement(MetaContext * context)
+ClangParserImplement::ClangParserImplement(CppContext * context)
 	: context(context), outputStream(1, false)
 {
 	this->setupClang();
@@ -195,7 +195,7 @@ void ClangParserImplement::setupClang()
 	this->compilerInvocation.reset(new CompilerInvocation);
 
 	// we add a customized macro here to distinguish a clreflect parsing process from a compling using clang
-	PreprocessorOptions & preprocessorOptions = this->compilerInvocation->getPreprocessorOpts();
+	//PreprocessorOptions & preprocessorOptions = this->compilerInvocation->getPreprocessorOpts();
 //	preprocessorOptions.addMacroDef("__clcpp_parse__");
 
 	// Add define/undefine macros to the pre-processor
@@ -228,7 +228,7 @@ void ClangParserImplement::setupClang()
 	langOptions.DelayedTemplateParsing = 1;
 
 	// Gather C++ header searches from the command-line
-	HeaderSearchOptions & headerSearchOptions = this->compilerInvocation->getHeaderSearchOpts();
+	//HeaderSearchOptions & headerSearchOptions = this->compilerInvocation->getHeaderSearchOpts();
 	//for (int i = 0; ; i++)
 	//{
 	//	std::string include = args.GetProperty("-i", i);
@@ -317,7 +317,7 @@ void ClangParserImplement::translate()
 	}
 }
 
-CppContext * ClangParserImplement::getCurrentCppContext()
+CppContainer * ClangParserImplement::getCurrentCppContainer()
 {
 	return this->namespaceStack.top();
 }
@@ -507,7 +507,7 @@ void ClangParserImplement::parseClass(CXXRecordDecl * classDecl)
 
 	CppClass * cls = this->addItem<CppClass>(classDecl);
 	
-	CppContextGuard nsGuard(&this->namespaceStack, cls);
+	CppContainerGuard nsGuard(&this->namespaceStack, cls);
 
 	this->parseDeclContext(classDecl);
 
@@ -524,7 +524,7 @@ void ClangParserImplement::parseTemplateClass(ClassTemplateDecl * classTemplateD
 
 	CppClass * cls = this->addItem<CppClass>(classTemplateDecl);
 
-	CppContextGuard nsGuard(&this->namespaceStack, cls);
+	CppContainerGuard nsGuard(&this->namespaceStack, cls);
 
 	CXXRecordDecl * classDecl = classTemplateDecl->getTemplatedDecl();
 	this->parseDeclContext(classDecl);
@@ -559,7 +559,7 @@ void ClangParserImplement::parseFunction(FunctionDecl * functionDecl)
 	string name = functionDecl->getNameAsString();
 	static const Poco::RegularExpression operatorRegex("\\boperator\\b");
 	Poco::RegularExpression::Match match;
-	if(operatorRegex.match(name, match) != string::npos) {
+	if((size_t)(operatorRegex.match(name, match)) != string::npos) {
 		this->parseOperator(functionDecl);
 	}
 	else {
@@ -576,7 +576,7 @@ void ClangParserImplement::parseNamespace(NamespaceDecl * namespaceDecl)
 
 	CppNamespace * ns = this->addItem<CppNamespace>(namespaceDecl);
 	
-	CppContextGuard nsGuard(&this->namespaceStack, ns);
+	CppContainerGuard nsGuard(&this->namespaceStack, ns);
 
 	this->parseDeclContext(namespaceDecl);
 }
@@ -709,7 +709,7 @@ string ClangParserImplement::getQualTypeName(const QualType & qualType)
 		qualifiedName = this->getTemplateSpecializationName(t);
 	}
 	else if(qualType->getAs<TemplateTypeParmType>() != NULL){
-		const TemplateTypeParmType * t = qualType->getAs<TemplateTypeParmType>();
+//		const TemplateTypeParmType * t = qualType->getAs<TemplateTypeParmType>();
 		qualifiedName = qualType.getAsString();
 	}
 	else {
@@ -829,7 +829,7 @@ void ClangParserImplement::parseTemplateParams(TemplateDecl * templateDecl, CppT
 }
 
 
-ClangParser::ClangParser(MetaContext * context)
+ClangParser::ClangParser(CppContext * context)
 	:implement(new ClangParserImplement(context))
 {
 }

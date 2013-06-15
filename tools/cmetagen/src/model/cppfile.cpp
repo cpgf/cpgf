@@ -1,7 +1,7 @@
 #include "cppfile.h"
 #include "cppnamespace.h"
 
-#include "../util.h"
+#include "util.h"
 
 
 CppFile::CppFile(const char * fullFileName)

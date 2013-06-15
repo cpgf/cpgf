@@ -1,15 +1,15 @@
 #ifndef __CPPFILE_H
 #define __CPPFILE_H
 
-#include "cppcontext.h"
+#include "cppcontainer.h"
 
 #include "Poco/Path.h"
 
 
-class CppFile : public CppContext
+class CppFile : public CppContainer
 {
 private:
-	typedef CppContext super;
+	typedef CppContainer super;
 
 public:
 	explicit CppFile(const char * fullFileName);
