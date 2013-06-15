@@ -20,145 +20,6 @@
 using namespace std;
 
 
-CppCodeItem::CppCodeItem()
-	: indent(0)
-{
-}
-
-CppCodeItem::~CppCodeItem()
-{
-}
-
-int CppCodeItem::getIndent() const
-{
-	return this->indent;
-}
-
-void CppCodeItem::incIndent()
-{
-	++this->indent;
-}
-
-void CppCodeItem::decIndent()
-{
-	if(this->indent > 0) {
-		--this->indent;
-	}
-}
-
-
-CppCodeLine::CppCodeLine(const std::string & code)
-	: super(), code(code)
-{
-}
-
-void CppCodeLine::write(CodeWriter * codeWriter)
-{
-	codeWriter->incIndent(this->getIndent());
-
-	codeWriter->writeLine(this->code);
-	
-	codeWriter->decIndent(this->getIndent());
-}
-
-void CppCodeLine::append(const std::string & code)
-{
-	this->code.append(code);
-}
-
-
-CppCodeBlock::CppCodeBlock()
-	: super(), withBracket(true), indentBlock(true)
-{
-}
-
-CppCodeBlock::~CppCodeBlock()
-{
-	clearPointerContainer(this->codeList);
-}
-
-void CppCodeBlock::write(CodeWriter * codeWriter)
-{
-	codeWriter->incIndent(this->getIndent());
-	
-	if(this->withBracket) {
-		codeWriter->writeLine("{");
-	}
-	
-	if(this->indentBlock) {
-		codeWriter->incIndent();
-	}
-
-	for(CodeListType::iterator it = this->codeList.begin(); it != this->codeList.end(); ++it) {
-		(*it)->write(codeWriter);
-	}
-
-	if(this->indentBlock) {
-		codeWriter->decIndent();
-	}
-
-	if(this->withBracket) {
-		codeWriter->writeLine("}");
-	}
-	
-	codeWriter->decIndent(this->getIndent());
-}
-
-CppCodeLine * CppCodeBlock::addLine()
-{
-	return this->addLine("");
-}
-
-CppCodeLine * CppCodeBlock::addLine(const std::string & code)
-{
-	CppCodeLine * line = new CppCodeLine(code);
-	this->codeList.push_back(line);
-	return line;
-}
-
-CppCodeBlock * CppCodeBlock::addBlockWithoutBracket()
-{
-	CppCodeBlock * block = new CppCodeBlock();
-	this->codeList.push_back(block);
-	block->setUseBracket(false);
-	return block;
-}
-
-CppCodeBlock * CppCodeBlock::addBlock()
-{
-	CppCodeBlock * block = new CppCodeBlock();
-	this->codeList.push_back(block);
-	block->setUseBracket(true);
-	return block;
-}
-
-CppCodeBlock * CppCodeBlock::getNamedBlock(const std::string & name)
-{
-	NamedBlockMapType::iterator it = this->namedBlocks.find(name);
-	if(it == this->namedBlocks.end()) {
-		CppCodeBlock * block = new CppCodeBlock();
-		this->codeList.push_back(block);
-		this->namedBlocks.insert(make_pair(name, block));
-		block->setUseBracket(false);
-		block->setIndentBlock(false);
-		return block;
-	}
-	else {
-		return it->second;
-	}
-}
-
-void CppCodeBlock::setUseBracket(bool useBracket)
-{
-	this->withBracket = useBracket;
-}
-
-void CppCodeBlock::setIndentBlock(bool indentBlock)
-{
-	this->indentBlock = indentBlock;
-}
-
-
 CppWriter::CppWriter(const std::string & fileName)
 	: fileName(fileName), wrapperBlock(), mainBlock()
 {
@@ -251,12 +112,12 @@ void CppWriter::tailIncldue(const std::string & fileName)
 	this->addToStringList(&this->tailIncludeList, fileName);
 }
 
-CppCodeBlock * CppWriter::getWrapperBlock()
+CodeBlock * CppWriter::getWrapperBlock()
 {
 	return &this->wrapperBlock;
 }
 
-CppCodeBlock * CppWriter::getMainBlock()
+CodeBlock * CppWriter::getMainBlock()
 {
 	return &this->mainBlock;
 }

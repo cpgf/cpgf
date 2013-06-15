@@ -59,16 +59,16 @@ public:
 	ItemVisibility getVisibility() const { return this->visibility; }
 	void setVisibility(ItemVisibility visibility) { this->visibility = visibility; }
 
-	bool isFile() { return this->getCategory() == icFile; }
-	bool isNamespace() { return this->getCategory() == icNamespace; }
-	bool isClass() { return this->getCategory() == icClass; }
-	bool isConstructor() { return this->getCategory() == icConstructor; }
-	bool isDestructor() { return this->getCategory() == icDestructor; }
-	bool isEnum() { return this->getCategory() == icEnum; }
-	bool isField() { return this->getCategory() == icField; }
-	bool isMethod() { return this->getCategory() == icMethod; }
-	bool isOperator() { return this->getCategory() == icOperator; }
-	bool isContainer() { return this->isFile() || this->isNamespace() || this->isClass(); }
+	bool isFile() const { return this->getCategory() == icFile; }
+	bool isNamespace() const { return this->getCategory() == icNamespace; }
+	bool isClass() const { return this->getCategory() == icClass; }
+	bool isConstructor() const { return this->getCategory() == icConstructor; }
+	bool isDestructor() const { return this->getCategory() == icDestructor; }
+	bool isEnum() const { return this->getCategory() == icEnum; }
+	bool isField() const { return this->getCategory() == icField; }
+	bool isMethod() const { return this->getCategory() == icMethod; }
+	bool isOperator() const { return this->getCategory() == icOperator; }
+	bool isContainer() const { return this->isFile() || this->isNamespace() || this->isClass(); }
 
 protected:
 	Flags & getFlags() { return this->flags; }

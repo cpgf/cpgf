@@ -234,6 +234,10 @@
 				Name="codewriter"
 				>
 				<File
+					RelativePath="..\src\codewriter\codeblock.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\codewriter\codewriter.cpp"
 					>
 				</File>

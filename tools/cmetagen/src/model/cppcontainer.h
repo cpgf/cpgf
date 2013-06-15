@@ -59,8 +59,6 @@ private:
 	OperatorListType operatorList;
 };
 
-const CppContainer * getContainer(const CppItem * cppItem);
-CppContainer * getContainer(CppItem * cppItem);
 
 
 #endif

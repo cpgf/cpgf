@@ -1,9 +1,10 @@
 #ifndef __CPPWRITER_H
 #define __CPPWRITER_H
 
+#include "codeblock.h"
+
 #include <string>
 #include <vector>
-#include <map>
 
 
 /********************************
@@ -31,79 +32,6 @@ Header guard end, it this is a header file
 
 class CodeWriter;
 
-class CppCodeItem
-{
-protected:
-	CppCodeItem();
-
-	int getIndent() const;
-
-public:	
-	virtual ~CppCodeItem();
-	
-	virtual void write(CodeWriter * codeWriter) = 0;
-
-	void incIndent();
-	void decIndent();
-	
-private:
-	int indent;
-};
-
-
-class CppCodeLine : public CppCodeItem
-{
-private:
-	typedef CppCodeItem super;
-	
-protected:
-	explicit CppCodeLine(const std::string & code);
-	
-public:
-	virtual void write(CodeWriter * codeWriter);
-
-	void append(const std::string & code);
-
-private:
-	std::string code;
-
-	friend class CppCodeBlock;
-};
-
-
-class CppCodeBlock : public CppCodeItem
-{
-private:
-	typedef CppCodeItem super;
-	
-	typedef std::vector<CppCodeItem * > CodeListType;
-	typedef std::map<std::string, CppCodeBlock * > NamedBlockMapType;
-	
-protected:
-	CppCodeBlock();
-	~CppCodeBlock();
-	
-public:
-	virtual void write(CodeWriter * codeWriter);
-
-	CppCodeLine * addLine();
-	CppCodeLine * addLine(const std::string & code);
-	CppCodeBlock * addBlockWithoutBracket();
-	CppCodeBlock * addBlock();
-	CppCodeBlock * getNamedBlock(const std::string & name);
-	
-	void setUseBracket(bool useBracket);
-	void setIndentBlock(bool indentBlock);
-
-private:
-	bool withBracket;
-	bool indentBlock;
-	CodeListType codeList;
-	NamedBlockMapType namedBlocks;
-	
-	friend class CppWriter;
-};
-
 
 class CppWriter
 {
@@ -121,8 +49,8 @@ public:
 	void include(const std::string & fileName);
 	void tailIncldue(const std::string & fileName);
 	
-	CppCodeBlock * getWrapperBlock();
-	CppCodeBlock * getMainBlock();
+	CodeBlock * getWrapperBlock();
+	CodeBlock * getMainBlock();
 
 private:
 	void addToStringList(StringListType * stringList, const std::string & s);
@@ -133,8 +61,8 @@ private:
 	StringListType includeList;
 	StringListType usedNamespaceList;
 	StringListType tailIncludeList;
-	CppCodeBlock wrapperBlock;
-	CppCodeBlock mainBlock;
+	CodeBlock wrapperBlock;
+	CodeBlock mainBlock;
 };
 
 struct CppPairWriter

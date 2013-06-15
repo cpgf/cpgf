@@ -36,10 +36,19 @@ void SplittedFile::prepare()
 
 void SplittedFile::writeFile()
 {
+	CppWriter headerWriter("a.h");
+	CppWriter sourceWriter("a.cpp");
+
+	CppPairWriter pairWriter(&headerWriter, & sourceWriter);
+	this->doWriteHeader(&pairWriter);
+	this->doWriteSource(&pairWriter);
 }
 
 void SplittedFile::doWriteHeader(CppPairWriter * writer)
 {
+	for(ItemListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
+		(*it)->writeMetaData(writer);
+	}
 }
 
 void SplittedFile::doWriteSource(CppPairWriter * writer)

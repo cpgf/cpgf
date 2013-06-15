@@ -80,28 +80,3 @@ void CppContainer::dump(std::ostream & os, int level)
 	dumpList(this->operatorList, os, newLevel);
 }
 
-CppContainer * doGetContainer(CppItem * cppItem)
-{
-	if(cppItem != NULL && ! cppItem->isContainer()) {
-		cppItem = cppItem->getParent();
-	}
-	
-	if(cppItem == NULL || ! cppItem->isContainer()) {
-		GASSERT(false);
-
-		return NULL;
-	}
-	else {
-		return static_cast<CppContainer *>(cppItem);
-	}
-}
-
-const CppContainer * getContainer(const CppItem * cppItem)
-{
-	return doGetContainer(const_cast<CppItem *>(cppItem));
-}
-
-CppContainer * getContainer(CppItem * cppItem)
-{
-	return doGetContainer(cppItem);
-}
