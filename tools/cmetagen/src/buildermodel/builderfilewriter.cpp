@@ -55,7 +55,7 @@ void BuilderFileWriter::doWriteHeader()
 {
 	CodeWriter codeWriter;
 	this->getHeaderWriter()->write(&codeWriter);
-	printf("===========Header\n");
+	printf("===========Header %d\n", this->fileIndex);
 	printf("%s\n\n", codeWriter.getText().c_str());
 }
 
@@ -63,7 +63,7 @@ void BuilderFileWriter::doWriteSource()
 {
 	CodeWriter codeWriter;
 	this->getSourceWriter()->write(&codeWriter);
-	printf("===========Source\n");
+	printf("===========Source %d\n", this->fileIndex);
 	printf("%s\n\n", codeWriter.getText().c_str());
 }
 
@@ -123,6 +123,7 @@ void BuilderFileWriter::requireItemConainerFunction(const CppItem * cppItem)
 	if(this->generatedFunctionItemNames.find(reflectionName) != this->generatedFunctionItemNames.end()) {
 		return;
 	}
+	this->generatedFunctionItemNames.insert(reflectionName);
 
 	CodeBlock * codeBlock = this->getFunctionHeaderCodeBlock(cppContainer, ftHeader);
 	const CppClass * cppClass = cppContainer->isClass() ? static_cast<const CppClass *>(cppContainer) : NULL;
@@ -180,5 +181,10 @@ CodeBlock * BuilderFileWriter::getMetaDataCodeBlock(const CppItem * cppItem, Fil
 CodeBlock * BuilderFileWriter::getCodeBlock(FileType fileType)
 {
 	return (fileType == ftHeader ? this->getHeaderWriter() : this->getSourceWriter())->getCodeBlock();
+}
+
+std::string BuilderFileWriter::getReflectionAction(const std::string & name)
+{
+	return "_d.CPGF_MD_TEMPLATE " + name;
 }
 

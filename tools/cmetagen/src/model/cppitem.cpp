@@ -1,6 +1,8 @@
 #include "cppitem.h"
 #include "cppcontainer.h"
 
+#include "util.h"
+
 const char * const ItemNames[icCount] = {
 	"File", "Namespace", "Class", "Enum",
 	"Constructor", "Destructor",
@@ -14,6 +16,12 @@ CppItem::CppItem()
 
 CppItem::~CppItem()
 {
+}
+
+void CppItem::setQualifiedName(const std::string & qualifiedName)
+{
+	this->qualifiedName = qualifiedName;
+	this->name = removeQualifications(this->qualifiedName);
 }
 
 void CppItem::dump(std::ostream & os, int level)

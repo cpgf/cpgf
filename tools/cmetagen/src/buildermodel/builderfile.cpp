@@ -24,18 +24,18 @@ void BuilderFile::doWriteMetaData(BuilderFileWriter * writer)
 void BuilderFile::prepare()
 {
 	this->sortItems();
-	this->generateSplittedFiles();
+	this->createFileWriters();
 	this->builderFileWriterList[0]->prepare();
 }
 
-void BuilderFile::generateSplittedFiles()
+void BuilderFile::createFileWriters()
 {
 	BuilderFileWriter * currentFile = new BuilderFileWriter(0, this->config);
 	this->builderFileWriterList.push_back(currentFile);
 
 	for(ItemListType::iterator it = this->getItemList()->begin(); it != this->getItemList()->end(); ++it) {
 		currentFile->getItemList()->push_back(*it);
-		if(this->config->getMaxItemCountPerFile() > 0 && currentFile->getItemList()->size() > this->config->getMaxItemCountPerFile()) {
+		if(this->config->getMaxItemCountPerFile() > 0 && currentFile->getItemList()->size() >= this->config->getMaxItemCountPerFile()) {
 			currentFile = new BuilderFileWriter(this->builderFileWriterList.size(), this->config);
 			this->builderFileWriterList[this->builderFileWriterList.size() - 1]->setNextFile(currentFile);
 			this->builderFileWriterList.push_back(currentFile);

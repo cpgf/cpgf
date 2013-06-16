@@ -100,6 +100,10 @@ void BuilderContext::flatten(BuilderFile * file)
 void BuilderContext::doFlatten(BuilderFile * file, const CppContainer * cppContainer)
 {
 	for(CppContainer::ItemListType::const_iterator it = cppContainer->getItemList()->begin(); it != cppContainer->getItemList()->end(); ++it) {
+		if(this->shouldSkipItem(*it)) {
+			continue;
+		}
+
 		file->getItemList()->push_back(this->createItem(*it));
 		if((*it)->isContainer()) {
 			this->doFlatten(file, static_cast<const CppContainer *>(*it));
@@ -107,3 +111,15 @@ void BuilderContext::doFlatten(BuilderFile * file, const CppContainer * cppConta
 	}
 }
 
+bool BuilderContext::shouldSkipItem(const CppItem * cppItem)
+{
+	ItemVisibility visibility = cppItem->getVisibility();
+	if((visibility == ivPublic) != this->config->isAllowPublic()
+		|| (visibility == ivProtected) != this->config->isAllowProtected()
+		|| (visibility == ivPrivate) != this->config->isAllowPrivate()
+		) {
+		return true;
+	}
+
+	return false;
+}

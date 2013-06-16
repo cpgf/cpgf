@@ -1,7 +1,10 @@
 #include "builderfield.h"
 #include "builderfilewriter.h"
 #include "model/cppfield.h"
+#include "model/cpptype.h"
 #include "codewriter/cppwriter.h"
+
+#include "Poco/Format.h"
 
 using namespace std;
 
@@ -21,8 +24,9 @@ void BuilderField::doWriteMetaData(BuilderFileWriter * writer)
 	const CppField * cppField = static_cast<const CppField *>(this->getCppItem());
 	CodeBlock * codeBlock = writer->getMetaDataCodeBlock(cppField, BuilderFileWriter::ftHeader);
 
-	string s = "FIELD---";
-	s.append(cppField->getName());
+	string s;
+	Poco::format(s, "%s(\"%s\", &%s);", writer->getReflectionAction("_field"), cppField->getName(), cppField->getQualifiedName());
+
 	codeBlock->addLine(s);
 }
 

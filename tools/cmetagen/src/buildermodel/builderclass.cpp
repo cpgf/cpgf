@@ -24,6 +24,5 @@ BuilderClass::~BuilderClass()
 void BuilderClass::doWriteMetaData(BuilderFileWriter * writer)
 {
 	const CppClass * cppClass = static_cast<const CppClass *>(this->getCppItem());
-	writer->requireItemConainerFunction(cppClass);
 }
 

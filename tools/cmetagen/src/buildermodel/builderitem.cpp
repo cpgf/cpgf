@@ -1,4 +1,5 @@
 #include "builderitem.h"
+#include "builderfilewriter.h"
 #include "model/cppcontainer.h"
 #include "codewriter/codeblock.h"
 
@@ -25,6 +26,8 @@ void BuilderItem::checkBuilderItemCategory(ItemCategory category)
 
 void BuilderItem::writeMetaData(BuilderFileWriter * writer)
 {
+	writer->requireItemConainerFunction(this->getCppItem());
+
 	this->doWriteMetaData(writer);
 }
 

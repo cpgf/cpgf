@@ -44,6 +44,14 @@ std::string normalizeSymbolName(const std::string & name)
 	return result;
 }
 
+std::string removeQualifications(const std::string & name)
+{
+	static Poco::RegularExpression re("^.*\\b(\\w+)\\s*$");
+	string result(name);
+	re.subst(result, "$1");
+	return result;
+}
+
 std::string paramListToString(const CppParamList * paramList, const GFlags<ParamListToStringOption> options)
 {
 	string result;

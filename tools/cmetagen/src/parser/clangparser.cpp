@@ -98,7 +98,6 @@ private:
 		T * item = this->context->createItem<T>();
 		this->getCurrentCppContainer()->addItem(item);
 		
-		item->setName(namedDecl->getNameAsString());
 		item->setQualifiedName(namedDecl->getQualifiedNameAsString());
 
 		item->setVisibility(accessToVisibility(namedDecl->getAccess()));

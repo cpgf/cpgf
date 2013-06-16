@@ -30,7 +30,7 @@ protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);
 
 private:
-	void generateSplittedFiles();
+	void createFileWriters();
 	
 private:
 	const Config * config;

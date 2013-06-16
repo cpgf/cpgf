@@ -21,6 +21,7 @@ std::string removeLastToken(const std::string & s);
 std::string removeAllAfterEqualSign(const std::string & s);
 
 std::string normalizeSymbolName(const std::string & name);
+std::string removeQualifications(const std::string & name);
 
 class CppParamList;
 

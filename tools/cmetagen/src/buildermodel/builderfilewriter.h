@@ -53,6 +53,8 @@ public: // auxiliary functions used by BuilderItem's
 	CodeBlock * getFunctionBodyCodeBlock(const CppItem * cppItem, FileType fileType);
 	CodeBlock * getMetaDataCodeBlock(const CppItem * cppItem, FileType fileType);
 	
+	std::string getReflectionAction(const std::string & name);
+	
 private:
 	CodeBlock * getCodeBlock(FileType fileType);
 

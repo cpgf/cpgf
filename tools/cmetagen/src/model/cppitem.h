@@ -49,9 +49,8 @@ public:
 	void setParent(CppContainer * parent) { this->parent = parent; }
 	
 	const std::string & getName() const { return this->name; }
-	void setName(const std::string & name) { this->name = name; }
 	const std::string & getQualifiedName() const { return this->qualifiedName; }
-	void setQualifiedName(const std::string & qualifiedName) { this->qualifiedName = qualifiedName; }
+	void setQualifiedName(const std::string & qualifiedName);
 	
 	bool isStatic() const { return this->flags.has(ifStatic); }
 	void setStatic(bool value) { this->flags.setByBool(ifStatic, value); }

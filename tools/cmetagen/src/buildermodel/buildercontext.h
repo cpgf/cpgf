@@ -32,6 +32,8 @@ protected:
 
 	BuilderItem * createItem(const CppItem * cppItem);
 
+	bool shouldSkipItem(const CppItem * cppItem);
+
 private:
 	const Config * config;
 	ItemListType itemList;
