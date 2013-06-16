@@ -23,8 +23,20 @@ public:
 	void incIndent();
 	void decIndent();
 	
+	void setIndent(int indent);
+	
 private:
 	int indent;
+};
+
+class CodeIndent
+{
+public:
+	explicit CodeIndent(CodeItem * codeItem) : codeItem(codeItem) { codeItem->incIndent(); }
+	~CodeIndent() { codeItem->decIndent(); }
+	
+private:
+	CodeItem * codeItem;
 };
 
 
@@ -47,6 +59,13 @@ private:
 	friend class CodeBlock;
 };
 
+enum CodeBlockBracket {
+	cbbBracket, cbbWithoutBracket
+};
+
+enum CodeBlockIndent {
+	cbiIndent, cbiWithoutIndent
+};
 
 class CodeBlock : public CodeItem
 {
@@ -58,16 +77,15 @@ private:
 	
 protected:
 	CodeBlock();
-	~CodeBlock();
+	virtual ~CodeBlock();
 	
 public:
 	virtual void write(CodeWriter * codeWriter);
 
 	CodeLine * addLine();
 	CodeLine * addLine(const std::string & code);
-	CodeBlock * addBlockWithoutBracket();
-	CodeBlock * addBlock();
-	CodeBlock * getNamedBlock(const std::string & name);
+	CodeBlock * addBlock(CodeBlockBracket bracket = cbbBracket, CodeBlockIndent indent = cbiIndent);
+	CodeBlock * getNamedBlock(const std::string & name, CodeBlockBracket bracket = cbbBracket, CodeBlockIndent indent = cbiIndent);
 	
 	void setUseBracket(bool useBracket);
 	void setIndentBlock(bool indentBlock);

@@ -9,8 +9,7 @@ class CppTemplateItem
 {
 public:
 	CppParam * addTemplateParam() { return this->paramList.add(); }
-	int getTemplateParamCount() const { return this->paramList.getCount(); }
-	CppParam * getTemplateParam(int i) const { return this->paramList.get(i); }
+	const CppParamList * getTemplateParamList() const { return &this->paramList; }
 	
 private:
 	CppParamList paramList;	

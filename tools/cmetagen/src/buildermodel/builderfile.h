@@ -8,13 +8,13 @@
 
 class Config;
 class BuilderContainer;
-class SplittedFile;
+class BuilderFileWriter;
 
 class BuilderFile : public BuilderContainer
 {
 private:
 	typedef BuilderContainer super;
-	typedef std::vector<SplittedFile *> SplittedFileListType;
+	typedef std::vector<BuilderFileWriter *> BuilderFileWriterListType;
 	
 public:
 	explicit BuilderFile(const CppItem * cppItem);
@@ -27,14 +27,14 @@ public:
 	void outputFiles();
 	
 protected:
-	virtual void doWriteMetaData(CppPairWriter * writer);
+	virtual void doWriteMetaData(BuilderFileWriter * writer);
 
 private:
 	void generateSplittedFiles();
 	
 private:
 	const Config * config;
-	SplittedFileListType splittedFileList;
+	BuilderFileWriterListType builderFileWriterList;
 };
 
 #endif

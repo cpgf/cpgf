@@ -10,7 +10,6 @@ public:
 	CodeWriter();
 	~CodeWriter();
 
-	void setIndent(int indent);	
 	void incIndent();
 	void decIndent();
 	void incIndent(int level);

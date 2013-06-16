@@ -1,4 +1,5 @@
 #include "builderoperator.h"
+#include "builderfilewriter.h"
 #include "codewriter/cppwriter.h"
 
 
@@ -12,7 +13,7 @@ BuilderOperator::~BuilderOperator()
 {
 }
 
-void BuilderOperator::doWriteMetaData(CppPairWriter * writer)
+void BuilderOperator::doWriteMetaData(BuilderFileWriter * writer)
 {
 }
 

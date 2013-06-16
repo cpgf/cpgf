@@ -4,7 +4,7 @@
 #include "model/cppcontext.h"
 #include "model/cppnamespace.h"
 #include "buildermodel/buildercontext.h"
-#include "application/config.h"
+#include "config.h"
 
 #include "codewriter/cppwriter.h"
 #include "codewriter/codewriter.h"
@@ -14,12 +14,12 @@ using namespace std;
 
 void testCppWriter()
 {
-	CppWriter cppWriter("abc.h");
+	CppWriter cppWriter;
 	CodeWriter codeWriter;
 
 	cppWriter.setNamespace("ns");
 	cppWriter.include("def.h");
-	cppWriter.getMainBlock()->addLine("void a();");
+	cppWriter.getCodeBlock()->addLine("void a();");
 
 	cppWriter.write(&codeWriter);
 	cout << codeWriter.getText();
@@ -40,7 +40,7 @@ int main(int argc, char * argv[])
 	BuilderContext builderContext(&config);
 	builderContext.process(&context);
 
-	testCppWriter();
+//	testCppWriter();
 
 //	context.getGlobalNamespace()->dump(std::cout, 0);
 

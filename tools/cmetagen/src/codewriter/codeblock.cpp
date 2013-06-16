@@ -19,6 +19,11 @@ int CodeItem::getIndent() const
 	return this->indent;
 }
 
+void CodeItem::setIndent(int indent)
+{
+	this->indent = indent;
+}
+
 void CodeItem::incIndent()
 {
 	++this->indent;
@@ -87,6 +92,10 @@ void CodeBlock::write(CodeWriter * codeWriter)
 	}
 	
 	codeWriter->decIndent(this->getIndent());
+
+	if(this->withBracket) {
+		codeWriter->writeBlankLine();
+	}
 }
 
 CodeLine * CodeBlock::addLine()
@@ -98,34 +107,30 @@ CodeLine * CodeBlock::addLine(const std::string & code)
 {
 	CodeLine * line = new CodeLine(code);
 	this->codeList.push_back(line);
+	line->setIndent(this->getIndent());
 	return line;
 }
 
-CodeBlock * CodeBlock::addBlockWithoutBracket()
+CodeBlock * CodeBlock::addBlock(CodeBlockBracket bracket, CodeBlockIndent indent)
 {
 	CodeBlock * block = new CodeBlock();
+	block->setIndent(this->getIndent());
 	this->codeList.push_back(block);
-	block->setUseBracket(false);
+	block->setUseBracket(bracket == cbbBracket);
+	block->setIndentBlock(indent == cbiIndent);
 	return block;
 }
 
-CodeBlock * CodeBlock::addBlock()
-{
-	CodeBlock * block = new CodeBlock();
-	this->codeList.push_back(block);
-	block->setUseBracket(true);
-	return block;
-}
-
-CodeBlock * CodeBlock::getNamedBlock(const std::string & name)
+CodeBlock * CodeBlock::getNamedBlock(const std::string & name, CodeBlockBracket bracket, CodeBlockIndent indent)
 {
 	NamedBlockMapType::iterator it = this->namedBlocks.find(name);
 	if(it == this->namedBlocks.end()) {
 		CodeBlock * block = new CodeBlock();
+		block->setIndent(this->getIndent());
 		this->codeList.push_back(block);
 		this->namedBlocks.insert(make_pair(name, block));
-		block->setUseBracket(false);
-		block->setIndentBlock(false);
+		block->setUseBracket(bracket == cbbBracket);
+		block->setIndentBlock(indent == cbiIndent);
 		return block;
 	}
 	else {

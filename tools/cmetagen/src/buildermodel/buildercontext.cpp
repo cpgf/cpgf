@@ -13,7 +13,7 @@
 
 #include "model/cppfile.h"
 #include "model/cppcontext.h"
-#include "application/config.h"
+#include "config.h"
 #include "util.h"
 
 #include "cpgf/gassert.h"
@@ -89,6 +89,7 @@ void BuilderContext::doProcessFile(const CppFile * cppFile)
 
 	this->flatten(file);
 	file->prepare();
+	file->outputFiles();
 }
 
 void BuilderContext::flatten(BuilderFile * file)

@@ -4,7 +4,7 @@
 #include "model/cppitem.h"
 
 
-struct CppPairWriter;
+class BuilderFileWriter;
 class CodeBlock;
 
 class BuilderItem
@@ -15,19 +15,13 @@ public:
 
 	const CppItem * getCppItem() const { return this->cppItem; }
 
-	void writeMetaData(CppPairWriter * writer);
+	void writeMetaData(BuilderFileWriter * writer);
 	
 protected:
-	virtual void doWriteMetaData(CppPairWriter * writer) = 0;
+	virtual void doWriteMetaData(BuilderFileWriter * writer) = 0;
 	
 	void checkBuilderItemCategory(ItemCategory category);
 	
-	CodeBlock * getContainerCodeBlock(CodeBlock * codeBlock);
-	CodeBlock * getHeaderCodeBlock(CodeBlock * codeBlock);
-	CodeBlock * getBodyCodeBlock(CodeBlock * codeBlock);
-	CodeBlock * getFooterCodeBlock(CodeBlock * codeBlock);
-	CodeBlock * getMetaDataCodeBlock(CodeBlock * codeBlock);
-
 private:
 	const CppItem * cppItem;
 };

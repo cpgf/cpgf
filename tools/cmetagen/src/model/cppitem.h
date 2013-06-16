@@ -69,7 +69,8 @@ public:
 	bool isMethod() const { return this->getCategory() == icMethod; }
 	bool isOperator() const { return this->getCategory() == icOperator; }
 	bool isContainer() const { return this->isFile() || this->isNamespace() || this->isClass(); }
-
+	virtual bool isTemplate() const { return false; }
+	
 protected:
 	Flags & getFlags() { return this->flags; }
 	const Flags & getFlags() const { return this->flags; }

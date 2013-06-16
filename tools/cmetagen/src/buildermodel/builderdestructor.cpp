@@ -1,4 +1,5 @@
 #include "builderdestructor.h"
+#include "builderfilewriter.h"
 #include "codewriter/cppwriter.h"
 
 
@@ -12,7 +13,7 @@ BuilderDestructor::~BuilderDestructor()
 {
 }
 
-void BuilderDestructor::doWriteMetaData(CppPairWriter * writer)
+void BuilderDestructor::doWriteMetaData(BuilderFileWriter * writer)
 {
 }
 

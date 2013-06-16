@@ -1,4 +1,5 @@
 #include "buildermethod.h"
+#include "builderfilewriter.h"
 #include "codewriter/cppwriter.h"
 
 
@@ -12,7 +13,7 @@ BuilderMethod::~BuilderMethod()
 {
 }
 
-void BuilderMethod::doWriteMetaData(CppPairWriter * writer)
+void BuilderMethod::doWriteMetaData(BuilderFileWriter * writer)
 {
 }
 

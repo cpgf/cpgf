@@ -4,7 +4,7 @@
 #include "codeblock.h"
 
 #include <string>
-#include <vector>
+#include <set>
 
 
 /********************************
@@ -20,8 +20,7 @@ using namespace list, if any
 
 namespace begin {, if any
 
-code block wrapper, used for generate wrapper code for operators and bit fields
-code block main, used for generate main reflection code
+code
 
 } // namespace end, if any
 
@@ -36,42 +35,31 @@ class CodeWriter;
 class CppWriter
 {
 private:
-	typedef std::vector<std::string> StringListType;
+	typedef std::set<std::string> StringSetType;
 	
 public:
-	explicit CppWriter(const std::string & fileName);
+	explicit CppWriter();
 	~CppWriter();
 	
 	void write(CodeWriter * codeWriter);
 	
+	void setHeaderGuard(const std::string & headerGuard);
 	void setNamespace(const std::string & ns);
 	void useNamespace(const std::string & ns);
 	void include(const std::string & fileName);
 	void tailIncldue(const std::string & fileName);
 	
-	CodeBlock * getWrapperBlock();
-	CodeBlock * getMainBlock();
+	CodeBlock * getCodeBlock();
 
 private:
-	void addToStringList(StringListType * stringList, const std::string & s);
-
-private:
-	std::string fileName;
+	std::string headerGuard;
 	std::string fileNamespace;
-	StringListType includeList;
-	StringListType usedNamespaceList;
-	StringListType tailIncludeList;
-	CodeBlock wrapperBlock;
-	CodeBlock mainBlock;
+	StringSetType includeList;
+	StringSetType usedNamespaceList;
+	StringSetType tailIncludeList;
+	CodeBlock codeBlock;
 };
 
-struct CppPairWriter
-{
-	CppPairWriter(CppWriter * headerWriter, CppWriter * sourceWriter) : headerWriter(headerWriter), sourceWriter(sourceWriter) {}
-
-	CppWriter * headerWriter;
-	CppWriter * sourceWriter;
-};
 
 
 #endif

@@ -12,6 +12,8 @@
 #include "model/cppcontext.h"
 #include "model/cppfile.h"
 
+#include "util.h"
+
 #include "Poco/RegularExpression.h"
 
 #include <stack>
@@ -406,6 +408,8 @@ CppType * ClangParserImplement::addType(const string & name)
 	CppType * type = this->context->createType();
 
 	type->setLiteralName(name);
+	type->setQualifiedName(name);
+	type->setBaseName(name);
 	
 	return type;
 }
@@ -797,9 +801,9 @@ void ClangParserImplement::parseTemplateParams(TemplateDecl * templateDecl, CppT
 		string defaultValue;
 		if(kind == Decl::TemplateTypeParm) {
 			TemplateTypeParmDecl * paramDecl = dyn_cast<TemplateTypeParmDecl>(namedDecl);
-			type = this->addType("");
+			type = this->addType(paramDecl->wasDeclaredWithTypename() ? "typename" : "class");
 			if(paramDecl->hasDefaultArgument()) {
-				defaultValue = paramDecl->getDefaultArgument().getAsString();
+				defaultValue = removeRecordWords(paramDecl->getDefaultArgument().getAsString());
 			}
 		}
 		else if(kind == Decl::NonTypeTemplateParm) {
@@ -811,9 +815,15 @@ void ClangParserImplement::parseTemplateParams(TemplateDecl * templateDecl, CppT
 		}
 		else if(kind == Decl::TemplateTemplateParm) {
 			TemplateTemplateParmDecl * paramDecl = dyn_cast<TemplateTemplateParmDecl>(namedDecl);
-			type = this->addType("");
+			string t = locationToSource(paramDecl->getLocStart(), paramDecl->getLocEnd());
+			t = removeAllAfterEqualSign(t);
+			t = removeLastToken(t);
+			type = this->addType(t);
 			if(paramDecl->hasDefaultArgument()) {
-				defaultValue = this->locationToSource(paramDecl->getDefaultArgument().getSourceRange().getBegin(), paramDecl->getDefaultArgument().getSourceRange().getEnd());
+				defaultValue = this->getTemplateArgumentName(paramDecl->getDefaultArgument().getArgument());
+				if(defaultValue.empty()) {
+					defaultValue = this->locationToSource(paramDecl->getDefaultArgument().getSourceRange().getBegin(), paramDecl->getDefaultArgument().getSourceRange().getEnd());
+				}
 			}
 		}
 		if(type != NULL) {

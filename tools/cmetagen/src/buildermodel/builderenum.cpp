@@ -1,4 +1,5 @@
 #include "builderenum.h"
+#include "builderfilewriter.h"
 #include "codewriter/cppwriter.h"
 
 
@@ -12,7 +13,7 @@ BuilderEnum::~BuilderEnum()
 {
 }
 
-void BuilderEnum::doWriteMetaData(CppPairWriter * writer)
+void BuilderEnum::doWriteMetaData(BuilderFileWriter * writer)
 {
 }
 

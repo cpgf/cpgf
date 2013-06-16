@@ -14,7 +14,7 @@ public:
 	virtual ~BuilderField();
 	
 protected:
-	virtual void doWriteMetaData(CppPairWriter * writer);
+	virtual void doWriteMetaData(BuilderFileWriter * writer);
 };
 
 #endif

@@ -20,22 +20,20 @@
 using namespace std;
 
 
-CppWriter::CppWriter(const std::string & fileName)
-	: fileName(fileName), wrapperBlock(), mainBlock()
+CppWriter::CppWriter()
+	: codeBlock()
 {
-	wrapperBlock.setUseBracket(false);
-	mainBlock.setUseBracket(false);
-	wrapperBlock.setIndentBlock(false);
-	mainBlock.setIndentBlock(false);
+	codeBlock.setUseBracket(false);
+	codeBlock.setIndentBlock(false);
 }
 
 CppWriter::~CppWriter()
 {
 }
 
-void writeIncludeList(const std::vector<std::string> & includeList, CodeWriter * codeWriter)
+void writeIncludeList(const std::set<std::string> & includeList, CodeWriter * codeWriter)
 {
-	for(std::vector<std::string>::const_iterator it = includeList.begin(); it != includeList.end(); ++it) {
+	for(std::set<std::string>::const_iterator it = includeList.begin(); it != includeList.end(); ++it) {
 		codeWriter->writeLine("#include \"" + *it + "\"");
 	}
 	if(! includeList.empty()) {
@@ -48,23 +46,19 @@ void CppWriter::write(CodeWriter * codeWriter)
 	codeWriter->writeLine("// Auto generated file, don't modify.");
 	codeWriter->writeBlankLine();
 
-	string headerGuard;
-	Poco::Path path(this->fileName);
-	string extension = path.getExtension();
-	if(! extension.empty() && extension != "cpp") {
-		headerGuard = "__" + path.getBaseName() + "_" + extension;
-		Poco::toUpperInPlace(headerGuard);
-	}
-
-	if(! headerGuard.empty()) {
-		codeWriter->writeLine("#ifndef " + headerGuard);
-		codeWriter->writeLine("#define " + headerGuard);
+	if(! this->headerGuard.empty()) {
+		string guard;
+		Poco::Path path(this->headerGuard);
+		guard = "__" + path.getBaseName() + "_" + path.getExtension();
+		Poco::toUpperInPlace(guard);
+		codeWriter->writeLine("#ifndef " + guard);
+		codeWriter->writeLine("#define " + guard);
 		codeWriter->writeBlankLine();
 	}
 
 	writeIncludeList(this->includeList, codeWriter);
 
-	for(StringListType::iterator it = this->usedNamespaceList.begin(); it != this->usedNamespaceList.end(); ++it) {
+	for(StringSetType::iterator it = this->usedNamespaceList.begin(); it != this->usedNamespaceList.end(); ++it) {
 		codeWriter->writeLine("using namespace " + *it + ";");
 	}
 	if(! this->usedNamespaceList.empty()) {
@@ -76,8 +70,7 @@ void CppWriter::write(CodeWriter * codeWriter)
 		codeWriter->writeBlankLine();
 	}
 
-	this->wrapperBlock.write(codeWriter);
-	this->mainBlock.write(codeWriter);
+	this->codeBlock.write(codeWriter);
 
 	if(! this->fileNamespace.empty()) {
 		codeWriter->writeBlankLine();
@@ -86,10 +79,15 @@ void CppWriter::write(CodeWriter * codeWriter)
 
 	writeIncludeList(this->tailIncludeList, codeWriter);
 
-	if(! headerGuard.empty()) {
+	if(! this->headerGuard.empty()) {
 		codeWriter->writeBlankLine();
 		codeWriter->writeLine("#endif");
 	}
+}
+
+void CppWriter::setHeaderGuard(const std::string & headerGuard)
+{
+	this->headerGuard = headerGuard;
 }
 
 void CppWriter::setNamespace(const std::string & ns)
@@ -99,32 +97,21 @@ void CppWriter::setNamespace(const std::string & ns)
 
 void CppWriter::useNamespace(const std::string & ns)
 {
-	this->addToStringList(&this->usedNamespaceList, ns);
+	this->usedNamespaceList.insert(ns);
 }
 
 void CppWriter::include(const std::string & fileName)
 {
-	this->addToStringList(&this->includeList, fileName);
+	this->includeList.insert(fileName);
 }
 
 void CppWriter::tailIncldue(const std::string & fileName)
 {
-	this->addToStringList(&this->tailIncludeList, fileName);
+	this->tailIncludeList.insert(fileName);
 }
 
-CodeBlock * CppWriter::getWrapperBlock()
+CodeBlock * CppWriter::getCodeBlock()
 {
-	return &this->wrapperBlock;
+	return &this->codeBlock;
 }
 
-CodeBlock * CppWriter::getMainBlock()
-{
-	return &this->mainBlock;
-}
-
-void CppWriter::addToStringList(StringListType * stringList, const std::string & s)
-{
-	if(std::find(stringList->begin(), stringList->end(), s) == stringList->end()) {
-		stringList->push_back(s);
-	}
-}

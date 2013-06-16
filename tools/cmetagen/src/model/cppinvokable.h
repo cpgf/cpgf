@@ -19,8 +19,7 @@ public:
 	bool hasResultType() const { return this->resultType != NULL; }
 	
 	CppParam * addParam() { return this->paramList.add(); }
-	int getParamCount() const { return this->paramList.getCount(); }
-	CppParam * getParam(int i) const { return this->paramList.get(i); }
+	const CppParamList * getParamList() const { return &this->paramList; }
 	
 	bool isConst() const { return this->getFlags().has(ifConst); }
 	void setConst(bool value) { this->getFlags().setByBool(ifConst, value); }

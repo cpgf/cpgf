@@ -1,4 +1,5 @@
 #include "buildernamespace.h"
+#include "builderfilewriter.h"
 #include "codewriter/cppwriter.h"
 
 
@@ -12,7 +13,7 @@ BuilderNamespace::~BuilderNamespace()
 {
 }
 
-void BuilderNamespace::doWriteMetaData(CppPairWriter * writer)
+void BuilderNamespace::doWriteMetaData(BuilderFileWriter * writer)
 {
 }
 

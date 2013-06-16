@@ -290,6 +290,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\buildermodel\builderfilewriter.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\buildermodel\builderitem.cpp"
 					>
 				</File>

@@ -14,7 +14,7 @@ public:
 	
 	ItemVisibility getVisibility() const { return this->visibility; }
 	void setVisibility(ItemVisibility visibility) { this->visibility = visibility; }
-
+	
 	const std::string & getName() const { return this->name; }
 	void setName(const std::string & name) { this->name = name; }
 	const std::string & getQualifiedName() const { return this->qualifiedName; }
@@ -42,6 +42,8 @@ public:
 	BaseClassListType * getBaseClassList() { return &this->baseClassList; }
 	ConstructorListType * getConstructorList() { return &this->constructorList; }
 	CppDestructor * getDestructor() { return this->destructor; }
+
+	virtual bool isTemplate() const { return this->getTemplateParamList()->getCount() > 0; }
 
 protected:
 	virtual ItemCategory getCategory() const { return icClass; }

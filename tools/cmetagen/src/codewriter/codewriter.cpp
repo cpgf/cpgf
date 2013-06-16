@@ -20,11 +20,6 @@ std::string CodeWriter::getIndentText() const
 	return indentText;
 }
 
-void CodeWriter::setIndent(int indent)
-{
-	this->indent = indent;
-}
-
 void CodeWriter::incIndent()
 {
 	++this->indent;
@@ -39,7 +34,7 @@ void CodeWriter::decIndent()
 
 void CodeWriter::incIndent(int level)
 {
-	this->indent = level;
+	this->indent += level;
 }
 
 void CodeWriter::decIndent(int level)
@@ -58,11 +53,11 @@ void CodeWriter::write(const std::string & s)
 
 	std::string indentText = this->getIndentText();
 
-	if(! this->text.empty() && this->text[this->text.size() - 1] == '\n') {
-		this->text = this->text + indentText;
-	}
+	//if(! this->text.empty() && this->text[this->text.size() - 1] == '\n') {
+	//	this->text = this->text + indentText;
+	//}
 
-	this->text = this->text + s;
+	this->text = this->text + indentText + s;
 }
 
 void CodeWriter::writeLine(const std::string & s)
