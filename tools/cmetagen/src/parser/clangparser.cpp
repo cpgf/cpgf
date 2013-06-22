@@ -31,6 +31,7 @@
 #include "clang/Lex/HeaderSearch.h"
 #include "clang/Parse/ParseAST.h"
 #include "clang/Sema/Sema.h"
+#include "clang/AST/ASTContext.h"
 #include "clang/AST/ASTConsumer.h"
 #include "clang/Basic/FileManager.h"
 #include "clang/Frontend/TextDiagnosticPrinter.h"	
@@ -245,16 +246,16 @@ void ClangParserImplement::setupClang()
 	//	headerSearchOptions.AddPath(include.c_str(), frontend::System, false, false);
 	//}
 
-	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, this->diagnosticOptions);
+	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
 	char * argv = "";
-	this->compilerInstance.createDiagnostics(0, &argv, client, false);
+	this->compilerInstance.createDiagnostics(0, false);
 	this->compilerInstance.getDiagnostics().setSuppressSystemWarnings(true);
 
 	// Setup target options - ensure record layout calculations use the MSVC C++ ABI
 	TargetOptions & target_options = this->compilerInvocation->getTargetOpts();
 	target_options.Triple = getDefaultTargetTriple();
 	target_options.CXXABI = "microsoft";
-	this->targetInfo.reset(TargetInfo::CreateTargetInfo(this->compilerInstance.getDiagnostics(), target_options));
+	this->targetInfo.reset(TargetInfo::CreateTargetInfo(this->compilerInstance.getDiagnostics(), &target_options));
 	this->compilerInstance.setTarget(this->targetInfo.take());
 
 	// Set the invokation on the instance

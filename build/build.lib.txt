@@ -24,6 +24,7 @@ set(SRC_META
 	${SRC_PATH}/gvariant.cpp
 
 	${SRC_PATH}/scriptbind/gbindcommon.cpp
+	${SRC_PATH}/scriptbind/gscriptvalue.cpp
 	${SRC_PATH}/scriptbind/gscriptbind.cpp
 	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
 	${SRC_PATH}/scriptbind/gscriptbindutil.cpp

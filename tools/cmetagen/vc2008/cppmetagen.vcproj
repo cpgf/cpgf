@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="E:\SourceCode\CPP\llvm_stable\build\tools\clang\include\;E:\SourceCode\CPP\llvm_stable\build\include\;E:\SourceCode\CPP\llvm_stable\tools\clang\include\;E:\SourceCode\CPP\llvm_stable\include\;E:\SourceCode\CPP\poco\Foundation\include\;&quot;$(ProjectDir)\..\..\..\include&quot;;&quot;$(ProjectDir)\..\src&quot;"
+				AdditionalIncludeDirectories="E:\SourceCode\CPP\llvm\build\tools\clang\include\;E:\SourceCode\CPP\llvm\build\include\;E:\SourceCode\CPP\llvm\tools\clang\include\;E:\SourceCode\CPP\llvm\include\;E:\SourceCode\CPP\poco\Foundation\include\;&quot;$(ProjectDir)\..\..\..\include&quot;;&quot;$(ProjectDir)\..\src&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,9 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="clangParse.lib clangFrontend.lib clangSema.lib clangAnalysis.lib clangLex.lib clangBasic.lib clangSerialization.lib clangDriver.lib clangAST.lib clangEdit.lib LLVMSupport.lib LLVMCore.lib LLVMMC.lib E:\SourceCode\CPP\poco\lib\PocoFoundationd.lib"
+				AdditionalDependencies="clangParse.lib clangFrontend.lib clangSema.lib clangAnalysis.lib clangLex.lib clangBasic.lib clangSerialization.lib clangDriver.lib clangAST.lib clangEdit.lib LLVMSupport.lib LLVMCore.lib LLVMMC.lib LLVMBitReader.lib LLVMMCParser.lib E:\SourceCode\CPP\poco\lib\PocoFoundationd.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="E:\SourceCode\CPP\llvm_stable\build\lib\Debug\"
+				AdditionalLibraryDirectories="E:\SourceCode\CPP\llvm\build\lib\Debug\"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
