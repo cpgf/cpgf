@@ -1,24 +1,42 @@
 #include "cpgf/scriptbind/gscriptvalue.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"
+#include "cpgf/gmetaapiutil.h"
 #include "cpgf/gmetaapi.h"
+#include "cpgf/gglobal.h"
 
 
 namespace cpgf {
 
 
-GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaClass * metaClass)
-	: type(type), value(value), objectMetaClass(metaClass)
+GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem)
+	: type(type), value(value), metaItem(metaItem)
 {
 }
 
 GScriptValue::GScriptValue(Type type, const GVariant & value)
-	: type(type), value(value), objectMetaClass()
+	: type(type), value(value), metaItem()
 {
 }
 
 GScriptValue::GScriptValue()
-	: type(typeUnknown), value(), objectMetaClass()
+	: type(typeEmpty), value(), metaItem()
 {
+}
+
+GScriptValue::GScriptValue(const GScriptValue & other)
+	: type(other.type), value(other.value), metaItem(other.metaItem)
+{
+}
+
+GScriptValue & GScriptValue::operator = (const GScriptValue & other)
+{
+	if(this != &other) {
+		this->type = other.type;
+		this->value = other.value;
+		this->metaItem = other.metaItem;
+	}
+	
+	return *this;
 }
 
 GScriptValue GScriptValue::fromNull()
@@ -33,22 +51,26 @@ GScriptValue GScriptValue::fromFundamental(const GVariant & fundamental)
 
 GScriptValue GScriptValue::fromString(const char * s)
 {
-	return GScriptValue(typeString, createStringVariant(s));
+	return GScriptValue(typeString, createTypedVariant(createStringVariant(s), createMetaType<char *>()));
 }
 
 GScriptValue GScriptValue::fromMetaClass(IMetaClass * metaClass)
 {
-	return GScriptValue(typeMetaClass, metaClass);
+	GMetaType metaType(metaGetTypedItemMetaType(metaClass));
+	metaType.addPointer();
+	return GScriptValue(typeMetaClass, createTypedVariant(metaClass, metaType));
 }
 
-GScriptValue GScriptValue::fromObject(void * instance, IMetaClass * metaClass)
+GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass)
 {
-	return GScriptValue(typeObject, instance, metaClass);
+	GMetaType metaType(metaGetTypedItemMetaType(metaClass));
+	metaType.addPointer();
+	return GScriptValue(typeObject, createTypedVariant(instance, metaType), metaClass);
 }
 
-GScriptValue GScriptValue::fromMethod(IMetaMethod * method)
+GScriptValue GScriptValue::fromMethod(void * instance, IMetaMethod * method)
 {
-	return GScriptValue(typeMethod, method);
+	return GScriptValue(typeMethod, instance, method);
 }
 
 GScriptValue GScriptValue::fromOverridedMethods(IMetaList * methods)
@@ -66,6 +88,11 @@ GScriptValue GScriptValue::fromRaw(const GVariant & raw)
 	return GScriptValue(typeRaw, raw);
 }
 
+GScriptValue GScriptValue::fromAccessible(void * instance, IMetaAccessible * accessible)
+{
+	return GScriptValue(typeAccessible, instance, accessible);
+}
+
 GScriptValue GScriptValue::fromScriptObject(IScriptObject * scriptObject)
 {
 	return GScriptValue(typeScriptObject, scriptObject);
@@ -76,104 +103,185 @@ GScriptValue GScriptValue::fromScriptMethod(IScriptFunction * scriptFunction)
 	return GScriptValue(typeScriptMethod, scriptFunction);
 }
 
-void checkConvertible(bool can)
-{
-}
-
 void * GScriptValue::toNull() const
 {
-	checkConvertible(this->isNull());
-
 	return NULL;
 }
 
 GVariant GScriptValue::toFundamental() const
 {
-	checkConvertible(this->isFundamental());
-
-	return this->value;
+	if(this->isFundamental()) {
+		return this->value;
+	}
+	else {
+		return GVariant();
+	}
 }
 
 std::string GScriptValue::toString() const
 {
-	checkConvertible(this->isString());
-
-	return fromVariant<char *>(this->value);
+	if(this->isString()) {
+		return fromVariant<char *>(this->value);
+	}
+	else {
+		return "";
+	}
 }
 
 IMetaClass * GScriptValue::toMetaClass() const
 {
-	checkConvertible(this->isMetaClass());
-
-	IMetaClass * metaClass = fromVariant<IMetaClass *>(this->value);
-	metaClass->addReference();
-	return metaClass;
+	if(this->isMetaClass()) {
+		IMetaClass * metaClass = fromVariant<IMetaClass *>(this->value);
+		metaClass->addReference();
+		return metaClass;
+	}
+	else {
+		return NULL;
+	}
 }
 
-void * GScriptValue::toObject(IMetaClass ** metaClass) const
+GVariant GScriptValue::toObject(IMetaClass ** metaClass) const
 {
-	checkConvertible(this->isObject());
-
 	if(metaClass != NULL) {
-		*metaClass = this->objectMetaClass.get();
-		this->objectMetaClass->addReference();
+		*metaClass = NULL;
 	}
 
-	return fromVariant<void *>(this->value);
+	if(this->isObject()) {
+		if(metaClass != NULL) {
+			*metaClass = gdynamic_cast<IMetaClass *>(this->metaItem.get());
+			this->metaItem->addReference();
+		}
+		return this->value;
+	}
+	else {
+		return GVariant();
+	}
 }
 
-IMetaMethod * GScriptValue::toMethod() const
+void * GScriptValue::toObjectAddress(IMetaClass ** metaClass) const
 {
-	checkConvertible(this->isMethod());
+	GVariant instance(this->toObject(metaClass));
+	if(! instance.isEmpty()) {
+		return fromVariant<void *>(instance);
+	}
+	else {
+		return NULL;
+	}
+}
 
-	IMetaMethod * metaMethod = fromVariant<IMetaMethod *>(this->value);
-	metaMethod->addReference();
-	return metaMethod;
+IMetaMethod * GScriptValue::toMethod(void ** outInstance) const
+{
+	if(outInstance != NULL) {
+		*outInstance = NULL;
+	}
+
+	if(this->isMethod()) {
+		IMetaMethod * metaMethod = gdynamic_cast<IMetaMethod *>(this->metaItem.get());
+		metaMethod->addReference();
+		if(outInstance != NULL) {
+			*outInstance = fromVariant<void *>(this->value);
+		}
+		return metaMethod;
+	}
+	else {
+		return NULL;
+	}
 }
 
 IMetaList * GScriptValue::toOverridedMethods() const
 {
-	checkConvertible(this->isOverridedMethods());
-
-	IMetaList * metaList = fromVariant<IMetaList *>(this->value);
-	metaList->addReference();
-	return metaList;
+	if(this->isOverridedMethods()) {
+		IMetaList * metaList = fromVariant<IMetaList *>(this->value);
+		metaList->addReference();
+		return metaList;
+	}
+	else {
+		return NULL;
+	}
 }
 
 IMetaEnum * GScriptValue::toEnum() const
 {
-	checkConvertible(this->isEnum());
-
-	IMetaEnum * metaEnum = fromVariant<IMetaEnum *>(this->value);
-	metaEnum->addReference();
-	return metaEnum;
+	if(this->isEnum()) {
+		IMetaEnum * metaEnum = fromVariant<IMetaEnum *>(this->value);
+		metaEnum->addReference();
+		return metaEnum;
+	}
+	else {
+		return NULL;
+	}
 }
 
 GVariant GScriptValue::toRaw() const
 {
-	checkConvertible(this->isRaw());
+	if(this->isRaw()) {
+		return this->value;
+	}
+	else {
+		return GVariant();
+	}
+}
 
-	return this->value;
+IMetaAccessible * GScriptValue::toAccessible(void ** outInstance) const
+{
+	if(outInstance != NULL) {
+		*outInstance = NULL;
+	}
+
+	if(this->isAccessible()) {
+		IMetaAccessible * accessible = gdynamic_cast<IMetaAccessible *>(this->metaItem.get());
+		accessible->addReference();
+		if(outInstance != NULL) {
+			*outInstance = fromVariant<void *>(this->value);
+		}
+		return accessible;
+	}
+	else {
+		return NULL;
+	}
 }
 
 IScriptObject * GScriptValue::toScriptObject() const
 {
-	checkConvertible(this->isScriptObject());
-
-	IScriptObject * scriptObject = fromVariant<IScriptObject *>(this->value);
-	scriptObject->addReference();
-	return scriptObject;
+	if(this->isScriptObject()) {
+		IScriptObject * scriptObject = fromVariant<IScriptObject *>(this->value);
+		scriptObject->addReference();
+		return scriptObject;
+	}
+	else {
+		return NULL;
+	}
 }
 
 IScriptFunction * GScriptValue::toScriptMethod() const
 {
-	checkConvertible(this->isScriptMethod());
-
-	IScriptFunction * scriptFunction = fromVariant<IScriptFunction *>(this->value);
-	scriptFunction->addReference();
-	return scriptFunction;
+	if(this->isScriptMethod()) {
+		IScriptFunction * scriptFunction = fromVariant<IScriptFunction *>(this->value);
+		scriptFunction->addReference();
+		return scriptFunction;
+	}
+	else {
+		return NULL;
+	}
 }
 
+IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value)
+{
+	if(value.isObject()) {
+		IMetaClass * metaClass;
+		value.toObject(&metaClass);
+		return metaClass;
+	}
+	else if(value.isMetaClass()) {
+		return value.toMetaClass();
+	}
+	else if(value.isEnum()) {
+		return value.toEnum();
+	}
+	else {
+		return NULL;
+	}
+}
 
 
 } // namespace cpgf

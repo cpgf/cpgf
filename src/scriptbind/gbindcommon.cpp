@@ -947,7 +947,7 @@ void rankImplicitConvertForMetaClass(ConvertRank * outputRank, IMetaItem * sourc
 
 void rankCallableImplicitConvert(ConvertRank * outputRank, IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, size_t paramIndex, const GMetaType & targetType)
 {
-	rankImplicitConvertForString(outputRank, getVariantRealValue(callbackParam->params[paramIndex].value), targetType);
+	rankImplicitConvertForString(outputRank, getVariantRealValue(callbackParam->params[paramIndex].value.getValue()), targetType);
 	
 	if(outputRank->weight == ValueMatchRank_Unknown) {
 		rankImplicitConvertForSharedPointer(outputRank, callbackParam->params[paramIndex].glueData,
@@ -955,9 +955,10 @@ void rankCallableImplicitConvert(ConvertRank * outputRank, IMetaService * servic
 	}
 
 	if(outputRank->weight == ValueMatchRank_Unknown) {
-		if(callbackParam->params[paramIndex].typeItem) {
+		GScopedInterface<IMetaTypedItem> typedItem(getTypedItemFromScriptValue(callbackParam->params[paramIndex].value));
+		if(typedItem) {
 			GScopedInterface<IMetaTypedItem> protoType(service->findTypedItemByName(targetType.getBaseName()));
-			rankImplicitConvertForMetaClass(outputRank, callbackParam->params[paramIndex].typeItem.get(), protoType.get());
+			rankImplicitConvertForMetaClass(outputRank, typedItem.get(), protoType.get());
 		}
 	}
 }
@@ -967,19 +968,19 @@ void rankCallableParam(ConvertRank * outputRank, IMetaService * service, IMetaCa
 	outputRank->reset();
 
 	GMetaType proto = metaGetParamType(callable, paramIndex);
-	GScriptDataType sdt = callbackParam->params[paramIndex].dataType;
+	GScriptValue::Type type = callbackParam->params[paramIndex].value.getType();
 	
-	if(sdt == sdtNull) {
+	if(type == GScriptValue::typeNull) {
 		outputRank->weight = ValueMatchRank_Equal;
 		return;
 	}
 	
-	if(proto.isFundamental() && sdt == sdtFundamental) {
+	if(proto.isFundamental() && type == GScriptValue::typeFundamental) {
 		outputRank->weight = ValueMatchRank_Equal;
 		return;
 	}
 
-	if(sdt == sdtScriptMethod && vtIsInterface(proto.getVariantType())) {
+	if(type == GScriptValue::typeScriptMethod && vtIsInterface(proto.getVariantType())) {
 		outputRank->weight = ValueMatchRank_Convert;
 		return;
 	}
@@ -1022,7 +1023,7 @@ int rankCallable(IMetaService * service, const GObjectGlueDataPointer & objectDa
 		rank += paramRanks[i].weight;
 
 		if(! isParamImplicitConvert(paramRanks[i])) {
-			bool ok = !! callable->checkParam(&callbackParam->params[i].value.refData(), static_cast<uint32_t>(i));
+			bool ok = !! callable->checkParam(&callbackParam->params[i].value.getValue().refData(), static_cast<uint32_t>(i));
 			metaCheckError(callable);
 			if(! ok) {
 				return -1;
@@ -1130,13 +1131,13 @@ void doInvokeCallable(const GContextPointer & context, void * instance, IMetaCal
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
 		if(isParamImplicitConvert(callableParam->paramRanks[i])) {
 			implicitConvertCallableParam(context, callableParam->paramRanks[i],
-				&callableParam->params[i].value, &holders[i], metaGetParamType(callable, i), callableParam->params[i].glueData);
+				&callableParam->params[i].value.getValue(), &holders[i], metaGetParamType(callable, i), callableParam->params[i].glueData);
 		}
 	}
 
 	const GVariantData * data[REF_MAX_ARITY];
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
-		data[i] = & callableParam->params[i].value.refData();
+		data[i] = &callableParam->params[i].value.getValue().refData();
 	}
 	callable->executeIndirectly(&result->resultData.refData(), instance, data, static_cast<uint32_t>(callableParam->paramCount));
 	metaCheckError(callable);
@@ -1240,20 +1241,14 @@ GVariant glueDataToVariant(const GGlueDataPointer & glueData)
 		switch(glueData->getType()) {
 			case gdtClass: {
 				GClassGlueDataPointer classData = sharedStaticCast<GClassGlueData>(glueData);;
-				GMetaTypeData typeData;
-				classData->getMetaClass()->getMetaType(&typeData);
-				metaCheckError(classData->getMetaClass());
-				GMetaType type(typeData);
+				GMetaType type(metaGetTypedItemMetaType(classData->getMetaClass()));
 				type.addPointer();
 				return createTypedVariant(classData->getMetaClass(), type);
 			}
 
 			case gdtObject: {
 				GObjectGlueDataPointer objectData = sharedStaticCast<GObjectGlueData>(glueData);
-				GMetaTypeData typeData;
-				objectData->getClassData()->getMetaClass()->getMetaType(&typeData);
-				metaCheckError(objectData->getClassData()->getMetaClass());
-				GMetaType type(typeData);
+				GMetaType type(metaGetTypedItemMetaType(objectData->getClassData()->getMetaClass()));
 				type.addPointer();
 				return createTypedVariant(objectData->getInstance(), type);
 			}
@@ -1269,6 +1264,55 @@ GVariant glueDataToVariant(const GGlueDataPointer & glueData)
 	}
 
 	return GVariant();
+}
+
+GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
+{
+	if(glueData) {
+		switch(glueData->getType()) {
+			case gdtClass: {
+				GClassGlueDataPointer classData = sharedStaticCast<GClassGlueData>(glueData);;
+				return GScriptValue::fromMetaClass(classData->getMetaClass());
+			}
+
+			case gdtObject: {
+				GObjectGlueDataPointer objectData = sharedStaticCast<GObjectGlueData>(glueData);
+				return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass());
+			}
+
+			case gdtRaw: {
+				GRawGlueDataPointer rawData = sharedStaticCast<GRawGlueData>(glueData);
+				return GScriptValue::fromRaw(rawData->getData());
+			}
+
+			case gdtMethod:
+			case gdtObjectAndMethod: {
+				GMethodGlueDataPointer methodGlueData;
+				if(glueData->getType() == gdtMethod) {
+					methodGlueData = sharedStaticCast<GMethodGlueData>(glueData);
+				}
+				else {
+					methodGlueData = sharedStaticCast<GObjectAndMethodGlueData>(glueData)->getMethodData();
+				}
+				if(methodGlueData->getMethodList()->getCount() == 1) {
+					GScopedInterface<IMetaItem> metaItem(methodGlueData->getMethodList()->getAt(0));
+					return GScriptValue::fromMethod(methodGlueData->getMethodList()->getInstanceAt(0),
+						static_cast<IMetaMethod *>(metaItem.get()));
+				}
+				else {
+					return GScriptValue::fromOverridedMethods(methodGlueData->getMethodList());
+				}
+			}
+
+			case gdtEnum:
+				return GScriptValue::fromEnum(sharedStaticCast<GEnumGlueData>(glueData)->getMetaEnum());
+
+			default:
+				break;
+		}
+	}
+
+	return GScriptValue();
 }
 
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst)

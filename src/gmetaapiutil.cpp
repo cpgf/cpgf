@@ -59,6 +59,16 @@ GMetaType metaGetItemType(IMetaItem * item)
 	return type;
 }
 
+GMetaType metaGetTypedItemMetaType(IMetaTypedItem * item)
+{
+	GMetaType type;
+
+	item->getMetaType(&type.refData());
+	metaCheckError(item);
+
+	return type;
+}
+
 GMetaExtendType metaGetItemExtendType(IMetaItem * item, uint32_t flags)
 {
 	GMetaExtendType type;

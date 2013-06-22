@@ -30,6 +30,110 @@ GScriptObject::~GScriptObject()
 {
 }
 
+GScriptValue GScriptObject::getValue(const char * name)
+{
+	return this->doGetValue(name);
+}
+
+void GScriptObject::bindClass(const char * name, IMetaClass * metaClass)
+{
+	this->doBindClass(name, metaClass);
+}
+
+void GScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
+{
+	this->doBindEnum(name, metaEnum);
+}
+
+void GScriptObject::bindFundamental(const char * name, const GVariant & value)
+{
+	this->doBindFundamental(name, value);
+}
+
+void GScriptObject::bindAccessible(const char * name, void * instance, IMetaAccessible * accessible)
+{
+	this->doBindAccessible(name, instance, accessible);
+}
+
+void GScriptObject::bindString(const char * stringName, const char * s)
+{
+	this->doBindString(stringName, s);
+}
+
+void GScriptObject::bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership)
+{
+	this->doBindObject(objectName, instance, type, transferOwnership);
+}
+
+void GScriptObject::bindRaw(const char * name, const GVariant & value)
+{
+	this->doBindRaw(name, value);
+}
+
+void GScriptObject::bindMethod(const char * name, void * instance, IMetaMethod * method)
+{
+	this->doBindMethod(name, instance, method);
+}
+
+void GScriptObject::bindMethodList(const char * name, IMetaList * methodList)
+{
+	this->doBindMethodList(name, methodList);
+}
+
+void GScriptObject::bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
+{
+	this->doBindCoreService(name, libraryLoader);
+}
+
+IMetaClass * GScriptObject::getClass(const char * className)
+{
+	return this->getValue(className).toMetaClass();
+}
+
+IMetaEnum * GScriptObject::getEnum(const char * enumName)
+{
+	return this->getValue(enumName).toEnum();
+}
+
+GVariant GScriptObject::getFundamental(const char * name)
+{
+	return this->getValue(name).toFundamental();
+}
+
+std::string GScriptObject::getString(const char * stringName)
+{
+	return this->getValue(stringName).toString();
+}
+
+void * GScriptObject::getObject(const char * objectName)
+{
+	return this->getValue(objectName).toObjectAddress(NULL);
+}
+
+GVariant GScriptObject::getRaw(const char * name)
+{
+	return this->getValue(name).toRaw();
+}
+
+IMetaMethod * GScriptObject::getMethod(const char * methodName, void ** outInstance)
+{
+	return this->getValue(methodName).toMethod(outInstance);
+}
+
+IMetaList * GScriptObject::getMethodList(const char * methodName)
+{
+	return this->getValue(methodName).toOverridedMethods();
+}
+
+//GScriptDataType GScriptObject::getType(const char * name, IMetaTypedItem ** outMetaTypeItem)
+//{
+//	GScriptValue value(this->getValue(name));
+//	if(outMetaTypeItem != NULL) {
+//		*outMetaTypeItem = getTypedItemFromScriptValue(value);
+//	}
+//	return (GScriptDataType)value.getType();
+//}
+
 const GScriptConfig & GScriptObject::getConfig() const
 {
 	return this->config;

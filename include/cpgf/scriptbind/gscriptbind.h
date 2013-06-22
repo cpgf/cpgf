@@ -3,6 +3,7 @@
 
 
 #include "cpgf/scriptbind/gscriptbindapi.h"
+#include "cpgf/scriptbind/gscriptvalue.h"
 #include "cpgf/scriptbind/gscriptconfig.h"
 
 #include "cpgf/gmetaapiutil.h"
@@ -23,11 +24,11 @@ enum GScriptDataType {
 	sdtNull = 1,
 	sdtFundamental = 2, sdtString = 3,
 	sdtClass = 4, sdtObject = 5,
-	sdtMethod = 6,
-	sdtEnum = 7,
-	sdtRaw = 8,
+	sdtMethod = 6, sdtMethodList = 7,
+	sdtEnum = 8,
+	sdtRaw = 9,
 
-	sdtScriptObject = 9, sdtScriptMethod = 10,
+	sdtScriptObject = 10, sdtScriptMethod = 11,
 };
 
 
@@ -57,27 +58,29 @@ public:
 
 	virtual bool isGlobal() const;
 
-public:	
-	virtual void bindClass(const char * name, IMetaClass * metaClass) = 0;
-	virtual void bindEnum(const char * name, IMetaEnum * metaEnum) = 0;
+public:
+	GScriptValue getValue(const char * name);
 
-	virtual void bindFundamental(const char * name, const GVariant & value) = 0;
-	virtual void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible) = 0;
-	virtual void bindString(const char * stringName, const char * s) = 0;
-	virtual void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership) = 0;
-	virtual void bindRaw(const char * name, const GVariant & value) = 0;
-	virtual void bindMethod(const char * name, void * instance, IMetaMethod * method) = 0;
-	virtual void bindMethodList(const char * name, IMetaList * methodList) = 0;
+	void bindClass(const char * name, IMetaClass * metaClass);
+	void bindEnum(const char * name, IMetaEnum * metaEnum);
 
-	virtual IMetaClass * getClass(const char * className) = 0;
-	virtual IMetaEnum * getEnum(const char * enumName) = 0;
+	void bindFundamental(const char * name, const GVariant & value);
+	void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
+	void bindString(const char * stringName, const char * s);
+	void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership);
+	void bindRaw(const char * name, const GVariant & value);
+	void bindMethod(const char * name, void * instance, IMetaMethod * method);
+	void bindMethodList(const char * name, IMetaList * methodList);
+
+	IMetaClass * getClass(const char * className);
+	IMetaEnum * getEnum(const char * enumName);
 	
-	virtual GVariant getFundamental(const char * name) = 0;
-	virtual std::string getString(const char * stringName) = 0;
-	virtual void * getObject(const char * objectName) = 0;
-	virtual GVariant getRaw(const char * name) = 0;
-	virtual IMetaMethod * getMethod(const char * methodName, void ** outInstance) = 0;
-	virtual IMetaList * getMethodList(const char * methodName) = 0;
+	GVariant getFundamental(const char * name);
+	std::string getString(const char * stringName);
+	void * getObject(const char * objectName);
+	GVariant getRaw(const char * name);
+	IMetaMethod * getMethod(const char * methodName, void ** outInstance);
+	IMetaList * getMethodList(const char * methodName);
 
 	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem) = 0;
 
@@ -92,7 +95,7 @@ public:
 	virtual bool valueIsNull(const char * name) = 0;
 	virtual void nullifyValue(const char * name) = 0;
 
-	virtual void bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader) = 0;
+	void bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 
 	virtual IMetaService * getMetaService() = 0;
 	
@@ -101,6 +104,21 @@ public:
 	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) = 0;
 
 protected:
+	virtual GScriptValue doGetValue(const char * name) = 0;
+
+	virtual void doBindClass(const char * name, IMetaClass * metaClass) = 0;
+	virtual void doBindEnum(const char * name, IMetaEnum * metaEnum) = 0;
+
+	virtual void doBindFundamental(const char * name, const GVariant & value) = 0;
+	virtual void doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible) = 0;
+	virtual void doBindString(const char * stringName, const char * s) = 0;
+	virtual void doBindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership) = 0;
+	virtual void doBindRaw(const char * name, const GVariant & value) = 0;
+	virtual void doBindMethod(const char * name, void * instance, IMetaMethod * method) = 0;
+	virtual void doBindMethodList(const char * name, IMetaList * methodList) = 0;
+	
+	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader) = 0;
+
 	virtual GScriptObject * doCreateScriptObject(const char * name) = 0;
 
 protected:

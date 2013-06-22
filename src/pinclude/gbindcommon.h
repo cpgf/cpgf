@@ -2,6 +2,7 @@
 #define __GBINDCOMMON_H
 
 #include "cpgf/scriptbind/gscriptbind.h"
+#include "cpgf/scriptbind/gscriptvalue.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
 #include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gmetaclass.h"
@@ -737,10 +738,8 @@ public:
 class CallableParamData
 {
 public:
-	GVariant value;
+	GScriptValue value;
 	GGlueDataPointer glueData;
-	GScriptDataType dataType;
-	GScopedInterface<IMetaTypedItem> typeItem;
 };
 
 class InvokeCallableParam
@@ -881,6 +880,7 @@ wchar_t * stringToWideString(const char * s);
 char * wideStringToString(const wchar_t * ws);
 
 GVariant glueDataToVariant(const GGlueDataPointer & glueData);
+GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData);
 
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);
 

@@ -4,8 +4,6 @@
 #include "cpgf/scriptbind/gv8bind.h"
 #include "cpgf/gmetaapi.h"
 
-#include "v8.h"
-
 #include <stdexcept>
 
 

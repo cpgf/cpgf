@@ -23,6 +23,7 @@ GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
 void metaCheckError(IExtendObject * object);
 
 GMetaType metaGetItemType(IMetaItem * item);
+GMetaType metaGetTypedItemMetaType(IMetaTypedItem * item);
 GMetaExtendType metaGetItemExtendType(IMetaItem * item, uint32_t flags);
 
 GMetaType metaGetResultType(IMetaCallable * callable);

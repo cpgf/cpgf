@@ -4,7 +4,16 @@
 
 #include "cpgf/scriptbind/gscriptbind.h"
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4100 4127)
+#endif
+
 #include "v8.h"
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 
 namespace cpgf {

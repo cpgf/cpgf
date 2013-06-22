@@ -205,7 +205,7 @@ void doTestGetObject(T * binding, TestScriptContext * context)
 	QVARNEWOBJ(obj, TestObject(99))
 	QVAR(f = "abc")
 	
-	void * instance;
+	void * instance = NULL;
 
 	instance = binding->getObject("f");
 	GCHECK(instance == NULL);
