@@ -779,95 +779,6 @@ bool variantToLua(const GContextPointer & context, const GVariant & data, const 
 	return complexVariantToScript<GLuaMethods >(context, value, type, flags, outputGlueData);
 }
 
-GScriptDataType getLuaType(lua_State * L, int index, IMetaTypedItem ** typeItem)
-{
-	if(typeItem != NULL) {
-		*typeItem = NULL;
-	}
-	
-	switch(lua_type(L, index)) {
-		case LUA_TNIL:
-			return sdtNull;
-
-		case LUA_TNUMBER:
-		case LUA_TBOOLEAN:
-			return sdtFundamental;
-
-		case LUA_TSTRING:
-			return sdtString;
-
-		case LUA_TUSERDATA:
-			if(isValidMetaTable(L, index)) {
-				void * rawUserData = lua_touserdata(L, index);
-				GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(rawUserData);
-				switch(dataWrapper->getData()->getType()) {
-				case gdtClass:
-					if(typeItem != NULL) {
-						*typeItem = dataWrapper->getAs<GClassGlueData>()->getMetaClass();
-						(*typeItem)->addReference();
-					}
-					return sdtClass;
-
-				case gdtObject:
-					if(typeItem != NULL) {
-						*typeItem = dataWrapper->getAs<GObjectGlueData>()->getClassData()->getMetaClass();
-						(*typeItem)->addReference();
-					}
-
-					return sdtObject;
-
-				case gdtMethod:
-					return sdtMethod;
-
-				case gdtEnum:
-					if(typeItem != NULL) {
-						*typeItem = dataWrapper->getAs<GEnumGlueData>()->getMetaEnum();
-						(*typeItem)->addReference();
-					}
-					return sdtEnum;
-
-				case gdtRaw:
-					return sdtRaw;
-
-				default:
-					break;
-				}
-			}
-			break;
-
-		case LUA_TTABLE:
-			return sdtScriptObject;
-
-		case LUA_TFUNCTION: {
-			lua_getupvalue(L, index, 1);
-			if(lua_isnil(L, -1)) {
-				lua_pop(L, 1);
-			}
-			else {
-				void * rawUserData = lua_touserdata(L, -1);
-				GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(rawUserData);
-
-				if(dataWrapper != NULL) {
-					switch(dataWrapper->getData()->getType()) {
-					case gdtMethod:
-						return sdtMethod;
-
-					case gdtObjectAndMethod:
-						return sdtMethod;
-
-					default:
-						break;
-					}
-				}
-			}
-			return sdtScriptMethod;
-		}
-
-	}
-	
-	return sdtNull;
-}
-
 void loadCallableParam(const GContextPointer & context, InvokeCallableParam * callableParam, int startIndex)
 {
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
@@ -1483,7 +1394,7 @@ GScriptObject * GLuaScriptObject::doCreateScriptObject(const char * name)
 		scopeGuard.get(name);
 	}
 	else {
-		if(getLuaType(this->luaState, -1, NULL) != sdtScriptObject) {
+		if(this->getValue(name).getType() != GScriptValue::typeScriptObject) {
 			lua_pop(this->luaState, 1);
 			return NULL;
 		}

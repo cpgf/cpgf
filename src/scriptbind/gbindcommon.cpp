@@ -1272,7 +1272,7 @@ GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 		switch(glueData->getType()) {
 			case gdtClass: {
 				GClassGlueDataPointer classData = sharedStaticCast<GClassGlueData>(glueData);;
-				return GScriptValue::fromMetaClass(classData->getMetaClass());
+				return GScriptValue::fromClass(classData->getMetaClass());
 			}
 
 			case gdtObject: {

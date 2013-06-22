@@ -19,18 +19,6 @@ namespace cpgf {
 
 struct IScriptLibraryLoader;
 
-enum GScriptDataType {
-	sdtNull = 1,
-	sdtFundamental = 2, sdtString = 3,
-	sdtClass = 4, sdtObject = 5,
-	sdtMethod = 6, sdtMethodList = 7,
-	sdtEnum = 8,
-	sdtRaw = 9,
-
-	sdtScriptObject = 10, sdtScriptMethod = 11,
-};
-
-
 class GScriptFunction : public GNoncopyable
 {
 public:
@@ -100,7 +88,7 @@ public:
 	IMetaMethod * getMethod(const char * methodName, void ** outInstance);
 	IMetaList * getMethodList(const char * methodName);
 
-	GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
+	GScriptValue::Type getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
 
 	bool valueIsNull(const char * name);
 	void nullifyValue(const char * name);

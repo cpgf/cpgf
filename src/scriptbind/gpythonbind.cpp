@@ -737,64 +737,6 @@ PyObject * pyAddRef(PyObject * obj)
 	return obj;
 }
 
-GScriptDataType getPythonType(PyObject * value, IMetaTypedItem ** typeItem)
-{
-	if(typeItem != NULL) {
-		*typeItem = NULL;
-	}
-
-	if(value == Py_None) {
-		return sdtNull;
-	}
-
-	if(PyNumber_Check(value)) {
-		return sdtFundamental;
-	}
-
-	if(PyString_Check(value)) {
-		return sdtString;
-	}
-
-	if(value->ob_type == &classType) {
-		if(typeItem != NULL) {
-			*typeItem = castFromPython(value)->getDataAs<GClassGlueData>()->getMetaClass();
-			(*typeItem)->addReference();
-		}
-		return sdtClass;
-	}
-
-	if(value->ob_type == &objectType) {
-		if(typeItem != NULL) {
-			*typeItem = castFromPython(value)->getDataAs<GObjectGlueData>()->getClassData()->getMetaClass();
-			(*typeItem)->addReference();
-		}
-		return sdtObject;
-	}
-
-	if(value->ob_type == &enumType) {
-		if(typeItem != NULL) {
-			*typeItem = castFromPython(value)->getDataAs<GEnumGlueData>()->getMetaEnum();
-			(*typeItem)->addReference();
-		}
-		return sdtEnum;
-	}
-
-	if(value->ob_type == &rawType) {
-		return sdtRaw;
-	}
-
-	if(value->ob_type == &functionType) {
-		return sdtMethod;
-	}
-
-	// should be the last
-	if(PyCallable_Check(value)) {
-		return sdtScriptMethod;
-	}
-
-	return sdtScriptObject;
-}
-
 GScriptValue pythonToScriptValue(const GContextPointer & context, PyObject * value, GGlueDataPointer * outputGlueData)
 {
 	if(value == NULL) {
@@ -1448,7 +1390,7 @@ GScriptObject * GPythonScriptObject::doCreateScriptObject(const char * name)
 {
 	PyObject * attr = getObjectAttr(this->object, name);
 	if(attr != NULL) {
-		if(getPythonType(attr, NULL) == sdtScriptObject) {
+		if(this->getValue(name).getType() == GScriptValue::typeScriptObject) {
 			GPythonScriptObject * newScriptObject = new GPythonScriptObject(*this, attr);
 			newScriptObject->setOwner(this);
 			newScriptObject->setName(name);

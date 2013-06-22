@@ -50,8 +50,8 @@ void GScriptObject::setValue(const char * name, const GScriptValue & value)
 			this->doBindString(name, value.toString().c_str());
 			break;
 
-		case GScriptValue::typeMetaClass: {
-			GScopedInterface<IMetaClass> metaClass(value.toMetaClass());
+		case GScriptValue::typeClass: {
+			GScopedInterface<IMetaClass> metaClass(value.toClass());
 			this->doBindClass(name, metaClass.get());
 			break;
 		}
@@ -162,7 +162,7 @@ void GScriptObject::bindCoreService(const char * name, IScriptLibraryLoader * li
 
 IMetaClass * GScriptObject::getClass(const char * className)
 {
-	return this->getValue(className).toMetaClass();
+	return this->getValue(className).toClass();
 }
 
 IMetaEnum * GScriptObject::getEnum(const char * enumName)
@@ -200,13 +200,13 @@ IMetaList * GScriptObject::getMethodList(const char * methodName)
 	return this->getValue(methodName).toOverridedMethods();
 }
 
-GScriptDataType GScriptObject::getType(const char * name, IMetaTypedItem ** outMetaTypeItem)
+GScriptValue::Type GScriptObject::getType(const char * name, IMetaTypedItem ** outMetaTypeItem)
 {
 	GScriptValue value(this->getValue(name));
 	if(outMetaTypeItem != NULL) {
 		*outMetaTypeItem = getTypedItemFromScriptValue(value);
 	}
-	return (GScriptDataType)value.getType();
+	return value.getType();
 }
 
 bool GScriptObject::valueIsNull(const char * name)

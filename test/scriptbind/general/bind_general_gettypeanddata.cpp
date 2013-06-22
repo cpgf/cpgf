@@ -22,56 +22,56 @@ void doTestGetType(T * binding, TestScriptContext * context)
 	QVAR(func = obj.add)
 
 	RITEM;
-	GCHECK(binding->getType("notExist", &tempItem) == sdtNull);
+	GCHECK(binding->getType("notExist", &tempItem) == GScriptValue::typeNull);
 	CHKITEM;
 	GCHECK(! item);
 
 	RITEM;
-	GCHECK(binding->getType("obj", &tempItem) == sdtObject);
+	GCHECK(binding->getType("obj", &tempItem) == GScriptValue::typeObject);
 	CHKITEM;
 	GCHECK(item);
 	GCHECK(string(item->getName()) == REG_NAME_TestObject);
 
 	RITEM;
 //	GCHECK(binding->getType("func", &tempItem) == sdtScriptMethod);
-	GCHECK(binding->getType("func", &tempItem) == sdtMethod);
+	GCHECK(binding->getType("func", &tempItem) == GScriptValue::typeMethod);
 	CHKITEM;
 	GCHECK(! item);
 
 	RITEM;
-	GCHECK(binding->getType("TestObject", &tempItem) == sdtClass);
+	GCHECK(binding->getType("TestObject", &tempItem) == GScriptValue::typeClass);
 	CHKITEM;
 	GCHECK(item);
 	GCHECK(string(item->getName()) == REG_NAME_TestObject);
 
 	RITEM;
-	GCHECK(binding->getType("TestEnum", &tempItem) == sdtEnum);
+	GCHECK(binding->getType("TestEnum", &tempItem) == GScriptValue::typeEnum);
 	CHKITEM;
 	GCHECK(item);
 	GCHECK(string(item->getName()) == REG_NAME_TestEnum);
 
 	RITEM;
-	GCHECK(binding->getType("s", &tempItem) == sdtString);
+	GCHECK(binding->getType("s", &tempItem) == GScriptValue::typeString);
 	CHKITEM;
 	GCHECK(! item);
 
 	RITEM;
-	GCHECK(binding->getType("i", &tempItem) == sdtFundamental);
+	GCHECK(binding->getType("i", &tempItem) == GScriptValue::typeFundamental);
 	CHKITEM;
 	GCHECK(! item);
 
 	RITEM;
-	GCHECK(binding->getType("f", &tempItem) == sdtFundamental);
+	GCHECK(binding->getType("f", &tempItem) == GScriptValue::typeFundamental);
 	CHKITEM;
 	GCHECK(! item);
 
 	RITEM;
-	GCHECK(binding->getType("scriptAssert", &tempItem) == sdtMethod);
+	GCHECK(binding->getType("scriptAssert", &tempItem) == GScriptValue::typeMethod);
 	CHKITEM;
 	GCHECK(! item);
 
 	RITEM;
-	GCHECK(binding->getType("testAdd", &tempItem) == sdtMethodList);
+	GCHECK(binding->getType("testAdd", &tempItem) == GScriptValue::typeOverridedMethods);
 	CHKITEM;
 	GCHECK(! item);
 }

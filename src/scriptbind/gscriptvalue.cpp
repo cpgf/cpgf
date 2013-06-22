@@ -60,11 +60,11 @@ GScriptValue GScriptValue::fromString(const char * s)
 	return GScriptValue(typeString, createTypedVariant(createStringVariant(s), createMetaType<char *>()));
 }
 
-GScriptValue GScriptValue::fromMetaClass(IMetaClass * metaClass)
+GScriptValue GScriptValue::fromClass(IMetaClass * metaClass)
 {
 	GMetaType metaType(metaGetTypedItemMetaType(metaClass));
 	metaType.addPointer();
-	return GScriptValue(typeMetaClass, createTypedVariant(metaClass, metaType));
+	return GScriptValue(typeClass, createTypedVariant(metaClass, metaType));
 }
 
 GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership)
@@ -134,9 +134,9 @@ std::string GScriptValue::toString() const
 	}
 }
 
-IMetaClass * GScriptValue::toMetaClass() const
+IMetaClass * GScriptValue::toClass() const
 {
-	if(this->isMetaClass()) {
+	if(this->isClass()) {
 		IMetaClass * metaClass = fromVariant<IMetaClass *>(this->value);
 		metaClass->addReference();
 		return metaClass;
@@ -284,8 +284,8 @@ IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value)
 		value.toObject(&metaClass, NULL);
 		return metaClass;
 	}
-	else if(value.isMetaClass()) {
-		return value.toMetaClass();
+	else if(value.isClass()) {
+		return value.toClass();
 	}
 	else if(value.isEnum()) {
 		return value.toEnum();

@@ -38,15 +38,15 @@ class GScriptValue : GFINAL_BASE(GScriptValue)
 {
 public:
 	enum Type {
-		typeNull = 1,
-		typeFundamental = 2, typeString = 3,
-		typeMetaClass = 4, typeObject = 5,
-		typeMethod = 6, typeOverridedMethods = 7,
-		typeEnum = 8,
-		typeRaw = 9,
-		typeAccessible = 10,
+		typeNull = 0,
+		typeFundamental = 1, typeString = 2,
+		typeClass = 3, typeObject = 4,
+		typeMethod = 5, typeOverridedMethods = 6,
+		typeEnum = 7,
+		typeRaw = 8,
+		typeAccessible = 9,
 
-		typeScriptObject = 11, typeScriptMethod = 12,
+		typeScriptObject = 10, typeScriptMethod = 11,
 	};
 	
 private:
@@ -66,7 +66,7 @@ public:
 	static GScriptValue fromNull();
 	static GScriptValue fromFundamental(const GVariant & fundamental);
 	static GScriptValue fromString(const char * s);
-	static GScriptValue fromMetaClass(IMetaClass * metaClass);
+	static GScriptValue fromClass(IMetaClass * metaClass);
 	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership); // instance can be a void * or a shadow object
 	static GScriptValue fromMethod(void * instance, IMetaMethod * method);
 	static GScriptValue fromOverridedMethods(IMetaList * methods);
@@ -79,7 +79,7 @@ public:
 	void * toNull() const;
 	GVariant toFundamental() const;
 	std::string toString() const;
-	IMetaClass * toMetaClass() const;
+	IMetaClass * toClass() const;
 	GVariant toObject(IMetaClass ** outMetaClass, bool * outTransferOwnership) const;
 	void * toObjectAddress(IMetaClass ** outMetaClass, bool * outTransferOwnership) const;
 	IMetaMethod * toMethod(void ** outInstance) const;
@@ -93,7 +93,7 @@ public:
 	bool isNull() const { return this->type == typeNull; }
 	bool isFundamental() const { return this->type == typeFundamental; }
 	bool isString() const { return this->type == typeString; }
-	bool isMetaClass() const { return this->type == typeMetaClass; }
+	bool isClass() const { return this->type == typeClass; }
 	bool isObject() const { return this->type == typeObject; }
 	bool isMethod() const { return this->type == typeMethod; }
 	bool isOverridedMethods() const { return this->type == typeOverridedMethods; }
