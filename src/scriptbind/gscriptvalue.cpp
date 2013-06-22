@@ -8,23 +8,28 @@
 namespace cpgf {
 
 
+GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, bool transferOwnership)
+	: type(type), value(value), metaItem(metaItem), transferOwnership(transferOwnership)
+{
+}
+
 GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem)
-	: type(type), value(value), metaItem(metaItem)
+	: type(type), value(value), metaItem(metaItem), transferOwnership(false)
 {
 }
 
 GScriptValue::GScriptValue(Type type, const GVariant & value)
-	: type(type), value(value), metaItem()
+	: type(type), value(value), metaItem(), transferOwnership(false)
 {
 }
 
 GScriptValue::GScriptValue()
-	: type(typeEmpty), value(), metaItem()
+	: type(typeNull), value(), metaItem(), transferOwnership(false)
 {
 }
 
 GScriptValue::GScriptValue(const GScriptValue & other)
-	: type(other.type), value(other.value), metaItem(other.metaItem)
+	: type(other.type), value(other.value), metaItem(other.metaItem), transferOwnership(other.transferOwnership)
 {
 }
 
@@ -34,6 +39,7 @@ GScriptValue & GScriptValue::operator = (const GScriptValue & other)
 		this->type = other.type;
 		this->value = other.value;
 		this->metaItem = other.metaItem;
+		this->transferOwnership = other.transferOwnership;
 	}
 	
 	return *this;
@@ -61,11 +67,11 @@ GScriptValue GScriptValue::fromMetaClass(IMetaClass * metaClass)
 	return GScriptValue(typeMetaClass, createTypedVariant(metaClass, metaType));
 }
 
-GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass)
+GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership)
 {
 	GMetaType metaType(metaGetTypedItemMetaType(metaClass));
 	metaType.addPointer();
-	return GScriptValue(typeObject, createTypedVariant(instance, metaType), metaClass);
+	return GScriptValue(typeObject, createTypedVariant(instance, metaType), metaClass, transferOwnership);
 }
 
 GScriptValue GScriptValue::fromMethod(void * instance, IMetaMethod * method)
@@ -140,16 +146,22 @@ IMetaClass * GScriptValue::toMetaClass() const
 	}
 }
 
-GVariant GScriptValue::toObject(IMetaClass ** metaClass) const
+GVariant GScriptValue::toObject(IMetaClass ** outMetaClass, bool * outTransferOwnership) const
 {
-	if(metaClass != NULL) {
-		*metaClass = NULL;
+	if(outMetaClass != NULL) {
+		*outMetaClass = NULL;
+	}
+	if(outTransferOwnership != NULL) {
+		*outTransferOwnership = NULL;
 	}
 
 	if(this->isObject()) {
-		if(metaClass != NULL) {
-			*metaClass = gdynamic_cast<IMetaClass *>(this->metaItem.get());
+		if(outMetaClass != NULL) {
+			*outMetaClass = gdynamic_cast<IMetaClass *>(this->metaItem.get());
 			this->metaItem->addReference();
+		}
+		if(outTransferOwnership != NULL) {
+			*outTransferOwnership = this->transferOwnership;
 		}
 		return this->value;
 	}
@@ -158,9 +170,9 @@ GVariant GScriptValue::toObject(IMetaClass ** metaClass) const
 	}
 }
 
-void * GScriptValue::toObjectAddress(IMetaClass ** metaClass) const
+void * GScriptValue::toObjectAddress(IMetaClass ** outMetaClass, bool * outTransferOwnership) const
 {
-	GVariant instance(this->toObject(metaClass));
+	GVariant instance(this->toObject(outMetaClass, outTransferOwnership));
 	if(! instance.isEmpty()) {
 		return fromVariant<void *>(instance);
 	}
@@ -269,7 +281,7 @@ IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value)
 {
 	if(value.isObject()) {
 		IMetaClass * metaClass;
-		value.toObject(&metaClass);
+		value.toObject(&metaClass, NULL);
 		return metaClass;
 	}
 	else if(value.isMetaClass()) {

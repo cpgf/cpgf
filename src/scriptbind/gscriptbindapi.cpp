@@ -150,7 +150,7 @@ uint32_t G_API_CC ImplScriptObject::getType(const char * name, IMetaTypedItem **
 
 	return this->scriptObject->getType(name, outMetaTypeItem);
 
-	LEAVE_BINDING_API(return sdtUnknown)
+	LEAVE_BINDING_API(return sdtNull)
 }
 
 void G_API_CC ImplScriptObject::bindClass(const char * name, IMetaClass * metaClass)

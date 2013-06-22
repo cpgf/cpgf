@@ -35,6 +35,81 @@ GScriptValue GScriptObject::getValue(const char * name)
 	return this->doGetValue(name);
 }
 
+void GScriptObject::setValue(const char * name, const GScriptValue & value)
+{
+	switch(value.getType()) {
+		case GScriptValue::typeNull:
+			this->doBindNull(name);
+			break;
+
+		case GScriptValue::typeFundamental:
+			this->doBindFundamental(name, value.toFundamental());
+			break;
+
+		case GScriptValue::typeString:
+			this->doBindString(name, value.toString().c_str());
+			break;
+
+		case GScriptValue::typeMetaClass: {
+			GScopedInterface<IMetaClass> metaClass(value.toMetaClass());
+			this->doBindClass(name, metaClass.get());
+			break;
+		}
+
+		case GScriptValue::typeObject: {
+			GScopedInterface<IMetaClass> metaClassGuard;
+			IMetaClass * metaClass;
+			bool transferOwnership;
+			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
+			this->doBindObject(name, instance, metaClass, transferOwnership);
+			break;
+		}
+
+		case GScriptValue::typeMethod: {
+			void * instance;
+			GScopedInterface<IMetaMethod> method(value.toMethod(&instance));
+			this->doBindMethod(name, instance, method.get());
+			break;
+		}
+
+		case GScriptValue::typeOverridedMethods: {
+			GScopedInterface<IMetaList> methodList(value.toOverridedMethods());
+			this->doBindMethodList(name, methodList.get());
+			break;
+		}
+
+		case GScriptValue::typeEnum: {
+			GScopedInterface<IMetaEnum> metaEnum(value.toEnum());
+			this->doBindEnum(name, metaEnum.get());
+			break;
+		}
+
+		case GScriptValue::typeRaw:
+			this->doBindRaw(name, value.toRaw());
+			break;
+
+		case GScriptValue::typeAccessible: {
+			void * instance;
+			GScopedInterface<IMetaAccessible> accessible(value.toAccessible(&instance));
+			this->doBindAccessible(name, instance, accessible.get());
+			break;
+		}
+
+		//case GScriptValue::typeScriptObject: {
+		//	GScopedInterface<IScriptObject> scriptObject(value.toScriptObject());
+		//	this->doBindScriptObject(name, scriptObject.get());
+		//	break;
+		//}
+
+		//case GScriptValue::typeScriptMethod: {
+		//	GScopedInterface<IScriptFunction> scriptMethod(value.toScriptMethod());
+		//	this->doBindScriptFunction(name, scriptMethod.get());
+		//	break;
+		//}
+
+	}
+}
+
 void GScriptObject::bindClass(const char * name, IMetaClass * metaClass)
 {
 	this->doBindClass(name, metaClass);
@@ -107,7 +182,7 @@ std::string GScriptObject::getString(const char * stringName)
 
 void * GScriptObject::getObject(const char * objectName)
 {
-	return this->getValue(objectName).toObjectAddress(NULL);
+	return this->getValue(objectName).toObjectAddress(NULL, NULL);
 }
 
 GVariant GScriptObject::getRaw(const char * name)
@@ -125,14 +200,24 @@ IMetaList * GScriptObject::getMethodList(const char * methodName)
 	return this->getValue(methodName).toOverridedMethods();
 }
 
-//GScriptDataType GScriptObject::getType(const char * name, IMetaTypedItem ** outMetaTypeItem)
-//{
-//	GScriptValue value(this->getValue(name));
-//	if(outMetaTypeItem != NULL) {
-//		*outMetaTypeItem = getTypedItemFromScriptValue(value);
-//	}
-//	return (GScriptDataType)value.getType();
-//}
+GScriptDataType GScriptObject::getType(const char * name, IMetaTypedItem ** outMetaTypeItem)
+{
+	GScriptValue value(this->getValue(name));
+	if(outMetaTypeItem != NULL) {
+		*outMetaTypeItem = getTypedItemFromScriptValue(value);
+	}
+	return (GScriptDataType)value.getType();
+}
+
+bool GScriptObject::valueIsNull(const char * name)
+{
+	return this->getType(name, NULL) == GScriptValue::typeNull;
+}
+
+void GScriptObject::nullifyValue(const char * name)
+{
+	this->setValue(name, GScriptValue::fromNull());
+}
 
 const GScriptConfig & GScriptObject::getConfig() const
 {

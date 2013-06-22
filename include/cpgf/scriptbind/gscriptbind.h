@@ -20,7 +20,6 @@ namespace cpgf {
 struct IScriptLibraryLoader;
 
 enum GScriptDataType {
-	sdtUnknown = 0,
 	sdtNull = 1,
 	sdtFundamental = 2, sdtString = 3,
 	sdtClass = 4, sdtObject = 5,
@@ -60,6 +59,25 @@ public:
 
 public:
 	GScriptValue getValue(const char * name);
+	void setValue(const char * name, const GScriptValue & value);
+
+	virtual GScriptObject * createScriptObject(const char * name);
+
+	virtual GScriptFunction * gainScriptFunction(const char * name) = 0;
+	
+	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount) = 0;
+	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount) = 0;
+
+	virtual void assignValue(const char * fromName, const char * toName) = 0;
+
+	void bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
+
+	virtual IMetaService * getMetaService() = 0;
+	
+	virtual void holdObject(IObject * object);
+
+	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) = 0;
+
 
 	void bindClass(const char * name, IMetaClass * metaClass);
 	void bindEnum(const char * name, IMetaEnum * metaEnum);
@@ -82,26 +100,10 @@ public:
 	IMetaMethod * getMethod(const char * methodName, void ** outInstance);
 	IMetaList * getMethodList(const char * methodName);
 
-	virtual GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem) = 0;
+	GScriptDataType getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
 
-	virtual GScriptObject * createScriptObject(const char * name);
-
-	virtual GScriptFunction * gainScriptFunction(const char * name) = 0;
-	
-	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount) = 0;
-	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount) = 0;
-
-	virtual void assignValue(const char * fromName, const char * toName) = 0;
-	virtual bool valueIsNull(const char * name) = 0;
-	virtual void nullifyValue(const char * name) = 0;
-
-	void bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
-
-	virtual IMetaService * getMetaService() = 0;
-	
-	virtual void holdObject(IObject * object);
-
-	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) = 0;
+	bool valueIsNull(const char * name);
+	void nullifyValue(const char * name);
 
 protected:
 	virtual GScriptValue doGetValue(const char * name) = 0;
@@ -109,6 +111,7 @@ protected:
 	virtual void doBindClass(const char * name, IMetaClass * metaClass) = 0;
 	virtual void doBindEnum(const char * name, IMetaEnum * metaEnum) = 0;
 
+	virtual void doBindNull(const char * name) = 0;
 	virtual void doBindFundamental(const char * name, const GVariant & value) = 0;
 	virtual void doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible) = 0;
 	virtual void doBindString(const char * stringName, const char * s) = 0;
@@ -116,7 +119,7 @@ protected:
 	virtual void doBindRaw(const char * name, const GVariant & value) = 0;
 	virtual void doBindMethod(const char * name, void * instance, IMetaMethod * method) = 0;
 	virtual void doBindMethodList(const char * name, IMetaList * methodList) = 0;
-	
+
 	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader) = 0;
 
 	virtual GScriptObject * doCreateScriptObject(const char * name) = 0;

@@ -900,6 +900,8 @@ InvokeCallableResult doInvokeOperator(const GContextPointer & context, const GOb
 
 IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & value);
 
+IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance);
+
 template <typename Getter, typename Predict>
 int findAppropriateCallable(IMetaService * service,
 	const GObjectGlueDataPointer & objectData,

@@ -38,7 +38,6 @@ class GScriptValue : GFINAL_BASE(GScriptValue)
 {
 public:
 	enum Type {
-		typeEmpty = 0,
 		typeNull = 1,
 		typeFundamental = 2, typeString = 3,
 		typeMetaClass = 4, typeObject = 5,
@@ -51,6 +50,7 @@ public:
 	};
 	
 private:
+	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, bool transferOwnership);
 	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem);
 	GScriptValue(Type type, const GVariant & value);
 	
@@ -67,7 +67,7 @@ public:
 	static GScriptValue fromFundamental(const GVariant & fundamental);
 	static GScriptValue fromString(const char * s);
 	static GScriptValue fromMetaClass(IMetaClass * metaClass);
-	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass); // instance can be a void * or a shadow object
+	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership); // instance can be a void * or a shadow object
 	static GScriptValue fromMethod(void * instance, IMetaMethod * method);
 	static GScriptValue fromOverridedMethods(IMetaList * methods);
 	static GScriptValue fromEnum(IMetaEnum * metaEnum);
@@ -80,8 +80,8 @@ public:
 	GVariant toFundamental() const;
 	std::string toString() const;
 	IMetaClass * toMetaClass() const;
-	GVariant toObject(IMetaClass ** metaClass) const;
-	void * toObjectAddress(IMetaClass ** metaClass) const;
+	GVariant toObject(IMetaClass ** outMetaClass, bool * outTransferOwnership) const;
+	void * toObjectAddress(IMetaClass ** outMetaClass, bool * outTransferOwnership) const;
 	IMetaMethod * toMethod(void ** outInstance) const;
 	IMetaList * toOverridedMethods() const;
 	IMetaEnum * toEnum() const;
@@ -90,7 +90,6 @@ public:
 	IScriptObject * toScriptObject() const;
 	IScriptFunction * toScriptMethod() const;
 	
-	bool isEmpty() const { return this->type == typeEmpty; }
 	bool isNull() const { return this->type == typeNull; }
 	bool isFundamental() const { return this->type == typeFundamental; }
 	bool isString() const { return this->type == typeString; }
@@ -108,6 +107,7 @@ private:
 	Type type;
 	GVariant value;
 	GSharedInterface<IMetaItem> metaItem;
+	bool transferOwnership;
 };
 
 IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value);

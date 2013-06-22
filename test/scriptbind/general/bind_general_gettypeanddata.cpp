@@ -71,7 +71,7 @@ void doTestGetType(T * binding, TestScriptContext * context)
 	GCHECK(! item);
 
 	RITEM;
-	GCHECK(binding->getType("testAdd", &tempItem) == sdtMethod);
+	GCHECK(binding->getType("testAdd", &tempItem) == sdtMethodList);
 	CHKITEM;
 	GCHECK(! item);
 }

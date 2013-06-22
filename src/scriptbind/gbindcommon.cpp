@@ -1277,7 +1277,7 @@ GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 
 			case gdtObject: {
 				GObjectGlueDataPointer objectData = sharedStaticCast<GObjectGlueData>(glueData);
-				return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass());
+				return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), objectData->isAllowGC());
 			}
 
 			case gdtRaw: {
@@ -1618,6 +1618,24 @@ IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & va
 	else {
 		return NULL;
 	}
+}
+
+IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance)
+{
+	if(mapItem->getType() == mmitMethod) {
+		GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
+		IMetaList * methodList = createMetaList();
+		methodList->add(method.get(), instance);
+		return methodList;
+	}
+	else {
+		if(mapItem->getType() == mmitMethodList) {
+			IMetaList * newMethodList = gdynamic_cast<IMetaList *>(mapItem->getItem());
+			return newMethodList;
+		}
+	}
+
+	return NULL;
 }
 
 
