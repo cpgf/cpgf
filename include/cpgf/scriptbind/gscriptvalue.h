@@ -5,6 +5,7 @@
 #include "cpgf/gclassutil.h"
 #include "cpgf/gstdint.h"
 #include "cpgf/gsharedinterface.h"
+#include "cpgf/gflags.h"
 
 #include <string>
 
@@ -27,7 +28,8 @@ struct GScriptValueData
 {
 	uint32_t type;
 	GVariantData value;
-	IMetaClass * metaClass;
+	IMetaItem * metaItem;
+	uint32_t flags;
 };
 #pragma pack(pop)
 
@@ -36,6 +38,11 @@ GMAKE_FINAL(GScriptValue)
 
 class GScriptValue : GFINAL_BASE(GScriptValue)
 {
+private:
+	enum ValueFlags {
+		vfTransferOwnership
+	};
+
 public:
 	enum Type {
 		typeNull = 0,
@@ -56,8 +63,12 @@ private:
 	
 public:
 	GScriptValue();
+	explicit GScriptValue(const GScriptValueData & data);
 	GScriptValue(const GScriptValue & other);
 	GScriptValue & operator = (const GScriptValue & other);
+
+	GScriptValueData getData() const;
+	GScriptValueData takeData();
 
 	Type getType() const { return this->type; }
 	const GVariant & getValue() const { return this->value; }
@@ -107,7 +118,7 @@ private:
 	Type type;
 	GVariant value;
 	GSharedInterface<IMetaItem> metaItem;
-	bool transferOwnership;
+	GFlags<ValueFlags> flags;
 };
 
 IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value);

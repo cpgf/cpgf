@@ -25,7 +25,7 @@ void doTestGlobal(T * binding, TestScriptContext * context)
 	
 	GEQUAL(dataLib->x, 11);
 	
-	binding->nullifyValue("data");
+	scriptSetValue(binding, "data", GScriptValue::fromNull());
 	
 	if(context->isLua()) {
 		QASSERT(data == nil)

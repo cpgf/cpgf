@@ -21,6 +21,11 @@ GPP_REPEAT_2(REF_MAX_ARITY, DECLARE_CALL_HELPER, GPP_EMPTY())
 GVariant scriptGetFundamental(GScriptObject * scriptObject, const char * name);
 GVariant scriptGetFundamental(IScriptObject * scriptObject, const char * name);
 
+GScriptValue scriptGetValue(GScriptObject * scriptObject, const char * name);
+GScriptValue scriptGetValue(IScriptObject * scriptObject, const char * name);
+void scriptSetValue(GScriptObject * scriptObject, const char * name, const GScriptValue & value);
+void scriptSetValue(IScriptObject * scriptObject, const char * name, const GScriptValue & value);
+
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject);
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject);
 

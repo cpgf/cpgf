@@ -144,11 +144,27 @@ gapi_bool G_API_CC ImplScriptObject::isGlobal()
 	LEAVE_BINDING_API(return false)
 }
 
+void G_API_CC ImplScriptObject::getValue(GScriptValueData * outResult, const char * name)
+{
+	GScriptValue value(this->scriptObject->getValue(name));
+	*outResult = value.takeData();
+}
+
+void G_API_CC ImplScriptObject::setValue(const char * name, const GScriptValueData * value)
+{
+	GScriptValue scriptValue(*value);
+	this->scriptObject->setValue(name, scriptValue);
+}
+
 uint32_t G_API_CC ImplScriptObject::getType(const char * name, IMetaTypedItem ** outMetaTypeItem)
 {
 	ENTER_BINDING_API()
 
-	return this->scriptObject->getType(name, outMetaTypeItem);
+	GScriptValue value(this->scriptObject->getValue(name));
+	if(outMetaTypeItem != NULL) {
+		*outMetaTypeItem = getTypedItemFromScriptValue(value);
+	}
+	return value.getType();
 
 	LEAVE_BINDING_API(return GScriptValue::typeNull)
 }
@@ -238,7 +254,7 @@ IMetaClass * G_API_CC ImplScriptObject::getClass(const char * className)
 {
 	ENTER_BINDING_API()
 
-	return this->scriptObject->getClass(className);
+	return this->scriptObject->getValue(className).toClass();
 
 	LEAVE_BINDING_API(return NULL)
 }
@@ -247,7 +263,7 @@ IMetaEnum * G_API_CC ImplScriptObject::getEnum(const char * enumName)
 {
 	ENTER_BINDING_API()
 
-	return this->scriptObject->getEnum(enumName);
+	return this->scriptObject->getValue(enumName).toEnum();
 
 	LEAVE_BINDING_API(return NULL)
 }
@@ -256,7 +272,7 @@ void G_API_CC ImplScriptObject::getFundamental(GVariantData * outResult, const c
 {
 	ENTER_BINDING_API()
 
-	*outResult = this->scriptObject->getFundamental(name).takeData();
+	*outResult = this->scriptObject->getValue(name).toFundamental().takeData();
 
 	LEAVE_BINDING_API()
 }
@@ -265,7 +281,7 @@ char * G_API_CC ImplScriptObject::getString(const char * stringName, IMemoryAllo
 {
 	ENTER_BINDING_API()
 
-	std::string s = this->scriptObject->getString(stringName);
+	std::string s = this->scriptObject->getValue(stringName).toString();
 
 	void * cs = allocator->allocate(static_cast<uint32_t>(s.length() + 1));
 	memmove(cs, s.c_str(), s.length() + 1);
@@ -279,7 +295,7 @@ void * G_API_CC ImplScriptObject::getObject(const char * objectName)
 {
 	ENTER_BINDING_API()
 
-	return this->scriptObject->getObject(objectName);
+	return objectAddressFromVariant(this->scriptObject->getValue(objectName).toObject(NULL, NULL));
 
 	LEAVE_BINDING_API(return NULL)
 }
@@ -288,7 +304,7 @@ void G_API_CC ImplScriptObject::getRaw(GVariantData * outResult, const char * na
 {
 	ENTER_BINDING_API()
 
-	*outResult = this->scriptObject->getRaw(name).takeData();
+	*outResult = this->scriptObject->getValue(name).toRaw().takeData();
 
 	LEAVE_BINDING_API()
 }
@@ -297,7 +313,7 @@ IMetaMethod * G_API_CC ImplScriptObject::getMethod(const char * methodName, void
 {
 	ENTER_BINDING_API()
 
-	return this->scriptObject->getMethod(methodName, outInstance);
+	return this->scriptObject->getValue(methodName).toMethod(outInstance);
 
 	LEAVE_BINDING_API(return NULL)
 }
@@ -306,7 +322,7 @@ IMetaList * G_API_CC ImplScriptObject::getMethodList(const char * methodName)
 {
 	ENTER_BINDING_API()
 
-	return this->scriptObject->getMethodList(methodName);
+	return this->scriptObject->getValue(methodName).toOverridedMethods();
 
 	LEAVE_BINDING_API(return NULL)
 }
@@ -389,7 +405,7 @@ gapi_bool G_API_CC ImplScriptObject::valueIsNull(const char * name)
 {
 	ENTER_BINDING_API()
 
-	return this->scriptObject->valueIsNull(name);
+	return this->scriptObject->getValue(name).isNull();
 
 	LEAVE_BINDING_API(return false)
 }
@@ -398,7 +414,7 @@ void G_API_CC ImplScriptObject::nullifyValue(const char * name)
 {
 	ENTER_BINDING_API()
 
-	this->scriptObject->nullifyValue(name);
+	this->scriptObject->setValue(name, GScriptValue::fromNull());
 
 	LEAVE_BINDING_API()
 }

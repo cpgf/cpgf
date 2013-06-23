@@ -525,10 +525,10 @@ protected:
 	void nullObjects() {
 		for(int i = 0; i < sizeof(SpiderMonkeyNullObjects) / sizeof(SpiderMonkeyNullObjects[0]); ++i) {
 			if(this->getBindingLib()) {
-				this->getBindingLib()->nullifyValue(SpiderMonkeyNullObjects[i]);
+				scriptSetValue(this->getBindingLib(), SpiderMonkeyNullObjects[i], GScriptValue::fromNull());
 			}
 			else {
-				this->getBindingApi()->nullifyValue(SpiderMonkeyNullObjects[i]);
+				scriptSetValue(this->getBindingApi(), SpiderMonkeyNullObjects[i], GScriptValue::fromNull());
 			}
 		}
 	}

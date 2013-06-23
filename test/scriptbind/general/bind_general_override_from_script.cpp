@@ -25,7 +25,7 @@ void doTestOverrideCppFunctionFromScriptClass(T * binding, TestScriptContext * c
 	QDO(ScriptOverride.getValue = funcOverride)
 	QASSERT(a.getValue() == 18);
 
-	ScriptOverride * objA = static_cast<ScriptOverride *>(binding->getObject("a"));
+	ScriptOverride * objA = static_cast<ScriptOverride *>(scriptGetValue(binding, "a").toObjectAddress(NULL, NULL));
 	GEQUAL(18, objA->getValue());
 }
 
@@ -75,10 +75,10 @@ void doTestOverrideCppFunctionFromScriptObject(T * binding, TestScriptContext * 
 	QASSERT(a.getValue() == 38);
 	QASSERT(b.getValue() == 18);
 
-	ScriptOverrideBase * objA = static_cast<ScriptOverrideBase *>(static_cast<ScriptOverride *>(binding->getObject("a")));
+	ScriptOverrideBase * objA = static_cast<ScriptOverrideBase *>(static_cast<ScriptOverride *>(scriptGetValue(binding, "a").toObjectAddress(NULL, NULL)));
 	GEQUAL(38, objA->getValue());
 
-	ScriptOverride * objB = static_cast<ScriptOverride *>(binding->getObject("b"));
+	ScriptOverride * objB = static_cast<ScriptOverride *>(scriptGetValue(binding, "b").toObjectAddress(NULL, NULL));
 	GEQUAL(18, objB->getValue());
 }
 

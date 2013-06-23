@@ -39,15 +39,15 @@ void testNotReflected(TestScriptContext * context)
 	if(bindingLib) {
 		doTestNotReflected(bindingLib, context);
 
-		a = bindingLib->getRaw("a");
-		b = bindingLib->getRaw("b");
+		a = bindingLib->getValue("a").toRaw();
+		b = bindingLib->getValue("b").toRaw();
 	}
 	
 	if(bindingApi) {
 		doTestNotReflected(bindingApi, context);
 		
-		bindingApi->getRaw(&a.refData(), "a");
-		bindingApi->getRaw(&b.refData(), "b");
+		a = scriptGetValue(bindingApi, "a").toRaw();
+		b = scriptGetValue(bindingApi, "b").toRaw();
 	}
 
 	GCHECK(!a.isEmpty());

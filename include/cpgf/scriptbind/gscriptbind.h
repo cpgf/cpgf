@@ -9,6 +9,7 @@
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gsharedinterface.h"
 #include "cpgf/gclassutil.h"
+#include "cpgf/gdeprecated.h"
 
 #include <string>
 #include <algorithm>
@@ -78,20 +79,53 @@ public:
 	void bindMethod(const char * name, void * instance, IMetaMethod * method);
 	void bindMethodList(const char * name, IMetaList * methodList);
 
-	IMetaClass * getClass(const char * className);
-	IMetaEnum * getEnum(const char * enumName);
+	G_DEPRECATED(
+		IMetaClass * getClass(const char * className),
+		"getClass is deprecated. Use getValue().toClass() instead."
+	);
+	G_DEPRECATED(
+		IMetaEnum * getEnum(const char * enumName),
+		"getEnum is deprecated. Use getValue().toEnum() instead."
+	);
 	
-	GVariant getFundamental(const char * name);
-	std::string getString(const char * stringName);
-	void * getObject(const char * objectName);
-	GVariant getRaw(const char * name);
-	IMetaMethod * getMethod(const char * methodName, void ** outInstance);
-	IMetaList * getMethodList(const char * methodName);
+	G_DEPRECATED(
+		GVariant getFundamental(const char * name),
+		"getFundamental is deprecated. Use getValue().toFundamental() instead."
+	);
+	G_DEPRECATED(
+		std::string getString(const char * stringName),
+		"getString is deprecated. Use getValue().toString() instead."
+	);
+	G_DEPRECATED(
+		void * getObject(const char * objectName),
+		"getObject is deprecated. Use getValue().toObject() instead."
+	);
+	G_DEPRECATED(
+		GVariant getRaw(const char * name),
+		"getRaw is deprecated. Use getValue().toRaw() instead."
+	);
+	G_DEPRECATED(
+		IMetaMethod * getMethod(const char * methodName, void ** outInstance),
+		"getMethod is deprecated. Use getValue().toMethod() instead."
+	);
+	G_DEPRECATED(
+		IMetaList * getMethodList(const char * methodName),
+		"getMethodList is deprecated. Use getValue().toOverridedMethods() instead."
+	);
 
-	GScriptValue::Type getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
+	G_DEPRECATED(
+		GScriptValue::Type getType(const char * name, IMetaTypedItem ** outMetaTypeItem),
+		"getType is deprecated. Use getValue().getType() instead."
+	);
 
-	bool valueIsNull(const char * name);
-	void nullifyValue(const char * name);
+	G_DEPRECATED(
+		bool valueIsNull(const char * name),
+		"valueIsNull is deprecated. Use getValue().isNull() instead."
+	);
+	G_DEPRECATED(
+		void nullifyValue(const char * name),
+		"nullifyValue is deprecated. Use setValue(name, GScriptValue::fromNull()) instead."
+	);
 
 protected:
 	virtual GScriptValue doGetValue(const char * name) = 0;
@@ -130,8 +164,6 @@ private:
 
 
 } // namespace cpgf
-
-
 
 
 

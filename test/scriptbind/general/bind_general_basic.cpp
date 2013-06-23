@@ -57,11 +57,11 @@ void testValueIsNull(TestScriptContext * context)
 	}
 	
 	if(context->getBindingLib()) {
-		GCHECK(context->getBindingLib()->valueIsNull("imnull"));
+		GCHECK(scriptGetValue(context->getBindingLib(), "imnull").isNull());
 	}
 	
 	if(context->getBindingApi()) {
-		GCHECK(context->getBindingApi()->valueIsNull("imnull"));
+		GCHECK(scriptGetValue(context->getBindingApi(), "imnull").isNull());
 	}
 }
 

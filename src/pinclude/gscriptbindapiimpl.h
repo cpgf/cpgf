@@ -80,6 +80,9 @@ protected:
 	virtual IScriptObject * G_API_CC getOwner();
 	virtual gapi_bool G_API_CC isGlobal();
 
+	virtual void G_API_CC getValue(GScriptValueData * outResult, const char * name);
+	virtual void G_API_CC setValue(const char * name, const GScriptValueData * value);
+
 	virtual uint32_t G_API_CC getType(const char * name, IMetaTypedItem ** outMetaTypeItem);
 
 	virtual void G_API_CC bindClass(const char * name, IMetaClass * metaClass);

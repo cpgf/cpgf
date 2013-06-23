@@ -87,7 +87,7 @@ std::string normalizeReflectName(const char * name)
 
 GVariant scriptGetFundamental(GScriptObject * scriptObject, const char * name)
 {
-	return scriptObject->getFundamental(name);
+	return scriptObject->getValue(name).toFundamental();
 }
 
 GVariant scriptGetFundamental(IScriptObject * scriptObject, const char * name)
@@ -97,6 +97,28 @@ GVariant scriptGetFundamental(IScriptObject * scriptObject, const char * name)
 	return v;
 }
 
+GScriptValue scriptGetValue(GScriptObject * scriptObject, const char * name)
+{
+	return scriptObject->getValue(name);
+}
+
+GScriptValue scriptGetValue(IScriptObject * scriptObject, const char * name)
+{
+	GScriptValueData data;
+	scriptObject->getValue(&data, name);
+	return GScriptValue(data);
+}
+
+void scriptSetValue(GScriptObject * scriptObject, const char * name, const GScriptValue & value)
+{
+	scriptObject->setValue(name, value);
+}
+
+void scriptSetValue(IScriptObject * scriptObject, const char * name, const GScriptValue & value)
+{
+	GScriptValueData data(value.getData());
+	scriptObject->setValue(name, &data);
+}
 
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject)
 {

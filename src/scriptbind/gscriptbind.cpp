@@ -211,7 +211,7 @@ GScriptValue::Type GScriptObject::getType(const char * name, IMetaTypedItem ** o
 
 bool GScriptObject::valueIsNull(const char * name)
 {
-	return this->getType(name, NULL) == GScriptValue::typeNull;
+	return this->getValue(name).isNull();
 }
 
 void GScriptObject::nullifyValue(const char * name)

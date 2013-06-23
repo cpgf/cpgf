@@ -9,27 +9,39 @@ namespace cpgf {
 
 
 GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, bool transferOwnership)
-	: type(type), value(value), metaItem(metaItem), transferOwnership(transferOwnership)
+	: type(type), value(value), metaItem(metaItem), flags()
 {
+	this->flags.setByBool(vfTransferOwnership, transferOwnership);
 }
 
 GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem)
-	: type(type), value(value), metaItem(metaItem), transferOwnership(false)
+	: type(type), value(value), metaItem(metaItem), flags()
 {
 }
 
 GScriptValue::GScriptValue(Type type, const GVariant & value)
-	: type(type), value(value), metaItem(), transferOwnership(false)
+	: type(type), value(value), metaItem(), flags()
 {
 }
 
 GScriptValue::GScriptValue()
-	: type(typeNull), value(), metaItem(), transferOwnership(false)
+	: type(typeNull), value(), metaItem(), flags()
 {
 }
 
+GScriptValue::GScriptValue(const GScriptValueData & data)
+{
+	this->type = (GScriptValue::Type)(data.type);
+	this->value = GVariant(data.value);
+	this->metaItem.reset(data.metaItem);
+	if(data.metaItem != NULL) {
+		data.metaItem->releaseReference();
+	}
+	this->flags = data.flags;
+}
+
 GScriptValue::GScriptValue(const GScriptValue & other)
-	: type(other.type), value(other.value), metaItem(other.metaItem), transferOwnership(other.transferOwnership)
+	: type(other.type), value(other.value), metaItem(other.metaItem), flags(other.flags)
 {
 }
 
@@ -39,10 +51,33 @@ GScriptValue & GScriptValue::operator = (const GScriptValue & other)
 		this->type = other.type;
 		this->value = other.value;
 		this->metaItem = other.metaItem;
-		this->transferOwnership = other.transferOwnership;
+		this->flags = other.flags;
 	}
 	
 	return *this;
+}
+
+GScriptValueData GScriptValue::getData() const
+{
+	GScriptValueData data;
+	data.type = this->type;
+	data.value = this->value.refData();
+	data.metaItem = this->metaItem.get();
+	if(data.metaItem != NULL) {
+		data.metaItem->addReference();
+	}
+	data.flags = this->flags;
+	return data;
+}
+
+GScriptValueData GScriptValue::takeData()
+{
+	GScriptValueData data;
+	data.type = this->type;
+	data.value = this->value.takeData();
+	data.metaItem = this->metaItem.take();
+	data.flags = this->flags;
+	return data;
 }
 
 GScriptValue GScriptValue::fromNull()
@@ -161,7 +196,7 @@ GVariant GScriptValue::toObject(IMetaClass ** outMetaClass, bool * outTransferOw
 			this->metaItem->addReference();
 		}
 		if(outTransferOwnership != NULL) {
-			*outTransferOwnership = this->transferOwnership;
+			*outTransferOwnership = this->flags.has(vfTransferOwnership);
 		}
 		return this->value;
 	}

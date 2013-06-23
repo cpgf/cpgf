@@ -14,6 +14,7 @@ void doTestGetType(T * binding, TestScriptContext * context)
 {
 	GScopedInterface<IMetaTypedItem> item;
 	IMetaTypedItem * tempItem;
+	GScriptValue value;
 
 	QVARNEWOBJ(obj, TestObject())
 	QVAR(s = "abc")
@@ -22,56 +23,75 @@ void doTestGetType(T * binding, TestScriptContext * context)
 	QVAR(func = obj.add)
 
 	RITEM;
-	GCHECK(binding->getType("notExist", &tempItem) == GScriptValue::typeNull);
+	value = scriptGetValue(binding, "notExist");
+	GCHECK(value.getType() == GScriptValue::typeNull);
+	tempItem = getTypedItemFromScriptValue(value);
 	CHKITEM;
 	GCHECK(! item);
 
 	RITEM;
-	GCHECK(binding->getType("obj", &tempItem) == GScriptValue::typeObject);
+	value = scriptGetValue(binding, "obj");
+	GCHECK(value.getType() == GScriptValue::typeObject);
+	tempItem = getTypedItemFromScriptValue(value);
 	CHKITEM;
 	GCHECK(item);
 	GCHECK(string(item->getName()) == REG_NAME_TestObject);
 
 	RITEM;
-//	GCHECK(binding->getType("func", &tempItem) == sdtScriptMethod);
-	GCHECK(binding->getType("func", &tempItem) == GScriptValue::typeMethod);
+	value = scriptGetValue(binding, "func");
+	GCHECK(value.getType() == GScriptValue::typeMethod);
+	tempItem = getTypedItemFromScriptValue(value);
 	CHKITEM;
 	GCHECK(! item);
 
 	RITEM;
-	GCHECK(binding->getType("TestObject", &tempItem) == GScriptValue::typeClass);
+	value = scriptGetValue(binding, "TestObject");
+	GCHECK(value.getType() == GScriptValue::typeClass);
+	tempItem = getTypedItemFromScriptValue(value);
 	CHKITEM;
 	GCHECK(item);
 	GCHECK(string(item->getName()) == REG_NAME_TestObject);
 
 	RITEM;
-	GCHECK(binding->getType("TestEnum", &tempItem) == GScriptValue::typeEnum);
+	value = scriptGetValue(binding, "TestEnum");
+	GCHECK(value.getType() == GScriptValue::typeEnum);
+	tempItem = getTypedItemFromScriptValue(value);
 	CHKITEM;
 	GCHECK(item);
 	GCHECK(string(item->getName()) == REG_NAME_TestEnum);
 
 	RITEM;
-	GCHECK(binding->getType("s", &tempItem) == GScriptValue::typeString);
+	value = scriptGetValue(binding, "s");
+	GCHECK(value.getType() == GScriptValue::typeString);
+	tempItem = getTypedItemFromScriptValue(value);
 	CHKITEM;
 	GCHECK(! item);
 
 	RITEM;
-	GCHECK(binding->getType("i", &tempItem) == GScriptValue::typeFundamental);
+	value = scriptGetValue(binding, "i");
+	GCHECK(value.getType() == GScriptValue::typeFundamental);
+	tempItem = getTypedItemFromScriptValue(value);
 	CHKITEM;
 	GCHECK(! item);
 
 	RITEM;
-	GCHECK(binding->getType("f", &tempItem) == GScriptValue::typeFundamental);
+	value = scriptGetValue(binding, "f");
+	GCHECK(value.getType() == GScriptValue::typeFundamental);
+	tempItem = getTypedItemFromScriptValue(value);
 	CHKITEM;
 	GCHECK(! item);
 
 	RITEM;
-	GCHECK(binding->getType("scriptAssert", &tempItem) == GScriptValue::typeMethod);
+	value = scriptGetValue(binding, "scriptAssert");
+	GCHECK(value.getType() == GScriptValue::typeMethod);
+	tempItem = getTypedItemFromScriptValue(value);
 	CHKITEM;
 	GCHECK(! item);
 
 	RITEM;
-	GCHECK(binding->getType("testAdd", &tempItem) == GScriptValue::typeOverridedMethods);
+	value = scriptGetValue(binding, "testAdd");
+	GCHECK(value.getType() == GScriptValue::typeOverridedMethods);
+	tempItem = getTypedItemFromScriptValue(value);
 	CHKITEM;
 	GCHECK(! item);
 }
@@ -97,9 +117,9 @@ void doTestGetMethod(T * binding, TestScriptContext * context)
 
 	GScopedInterface<IMetaMethod> method;
 
-	GCHECK(binding->getMethod("notExist", NULL) == NULL);
+	GCHECK(scriptGetValue(binding, "notExist").toMethod(NULL) == NULL);
 	
-	method.reset(binding->getMethod("scriptAssert", NULL));
+	method.reset(scriptGetValue(binding, "scriptAssert").toMethod(NULL));
 	GCHECK(method);
 }
 
@@ -124,9 +144,9 @@ void doTestGetMethodList(T * binding, TestScriptContext * context)
 
 	GScopedInterface<IMetaList> methodList;
 
-	GCHECK(binding->getMethodList("notExist") == NULL);
+	GCHECK(scriptGetValue(binding, "notExist").toOverridedMethods() == NULL);
 	
-	methodList.reset(binding->getMethodList("testAdd"));
+	methodList.reset(scriptGetValue(binding, "testAdd").toOverridedMethods());
 	GCHECK(methodList);
 	GCHECK(methodList->getCount() == 3);
 }
@@ -152,10 +172,10 @@ void doTestGetClass(T * binding, TestScriptContext * context)
 
 	GScopedInterface<IMetaClass> metaClass;
 	
-	metaClass.reset(binding->getClass("TestObject"));
+	metaClass.reset(scriptGetValue(binding, "TestObject").toClass());
 	GCHECK(string(metaClass->getName()) == REG_NAME_TestObject);
 
-	GCHECK(binding->getClass("notExistClass") == NULL);
+	GCHECK(scriptGetValue(binding, "notExistClass").toClass() == NULL);
 }
 
 void testGetClass(TestScriptContext * context)
@@ -179,10 +199,10 @@ void doTestGetEnum(T * binding, TestScriptContext * context)
 
 	GScopedInterface<IMetaEnum> metaEnum;
 
-	metaEnum.reset(binding->getEnum("TestEnum"));
+	metaEnum.reset(scriptGetValue(binding, "TestEnum").toEnum());
 	GCHECK(string(metaEnum->getName()) == REG_NAME_TestEnum);
 
-	GCHECK(binding->getEnum("notExistEnum") == NULL);
+	GCHECK(scriptGetValue(binding, "notExistEnum").toEnum() == NULL);
 }
 
 void testGetEnum(TestScriptContext * context)
@@ -207,10 +227,10 @@ void doTestGetObject(T * binding, TestScriptContext * context)
 	
 	void * instance = NULL;
 
-	instance = binding->getObject("f");
+	instance = scriptGetValue(binding, "f").toObjectAddress(NULL, NULL);
 	GCHECK(instance == NULL);
 		
-	instance = binding->getObject("obj");
+	instance = scriptGetValue(binding, "obj").toObjectAddress(NULL, NULL);
 	GCHECK(instance != NULL);
 	GCHECK(static_cast<TestObject *>(instance)->value == 99);
 }
@@ -237,16 +257,16 @@ void testGetFundamental(TestScriptContext * context)
 	GVariant v;
 
 	if(context->getBindingLib()) {
-		v = context->getBindingLib()->getFundamental("f");
+		v = scriptGetValue(context->getBindingLib(), "f").toFundamental();
 		GCHECK(fromVariant<int>(v) == 100);
-		v = context->getBindingLib()->getFundamental("s");
+		v = scriptGetValue(context->getBindingLib(), "s").toFundamental();
 		GCHECK(v.isEmpty());
 	}
 	
 	if(context->getBindingApi()) {
-		context->getBindingApi()->getFundamental(&v.refData(), "f");
+		v = scriptGetValue(context->getBindingApi(), "f").toFundamental();
 		GCHECK(fromVariant<int>(v) == 100);
-		context->getBindingApi()->getFundamental(&v.refData(), "s");
+		v = scriptGetValue(context->getBindingApi(), "s").toFundamental();
 		GCHECK(v.isEmpty());
 	}
 }
@@ -260,14 +280,11 @@ void testGetString(TestScriptContext * context)
 	QVAR(oneString = "what")
 
 	if(context->getBindingLib()) {
-		GCHECK(context->getBindingLib()->getString("oneString") == "what");
+		GCHECK(scriptGetValue(context->getBindingLib(), "oneString").toString() == "what");
 	}
 	
 	if(context->getBindingApi()) {
-		GScopedInterface<IMemoryAllocator> allocator(context->getService()->getAllocator());
-		char * cs = context->getBindingApi()->getString("oneString", allocator.get());
-		string s = cs;
-		allocator->free(cs);
+		string s = scriptGetValue(context->getBindingApi(), "oneString").toString();
 		GCHECK(s == "what");
 	}
 }
