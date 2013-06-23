@@ -1235,37 +1235,6 @@ char * wideStringToString(const wchar_t * ws)
 	return s.take();
 }
 
-GVariant glueDataToVariant(const GGlueDataPointer & glueData)
-{
-	if(glueData) {
-		switch(glueData->getType()) {
-			case gdtClass: {
-				GClassGlueDataPointer classData = sharedStaticCast<GClassGlueData>(glueData);;
-				GMetaType type(metaGetTypedItemMetaType(classData->getMetaClass()));
-				type.addPointer();
-				return createTypedVariant(classData->getMetaClass(), type);
-			}
-
-			case gdtObject: {
-				GObjectGlueDataPointer objectData = sharedStaticCast<GObjectGlueData>(glueData);
-				GMetaType type(metaGetTypedItemMetaType(objectData->getClassData()->getMetaClass()));
-				type.addPointer();
-				return createTypedVariant(objectData->getInstance(), type);
-			}
-
-			case gdtRaw: {
-				GRawGlueDataPointer rawData = sharedStaticCast<GRawGlueData>(glueData);
-				return createTypedVariant(rawData->getData(), GMetaType());
-			}
-
-			default:
-				break;
-		}
-	}
-
-	return GVariant();
-}
-
 GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 {
 	if(glueData) {

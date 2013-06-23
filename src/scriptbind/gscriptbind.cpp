@@ -95,6 +95,9 @@ void GScriptObject::setValue(const char * name, const GScriptValue & value)
 			break;
 		}
 
+		default:
+			break;
+
 		//case GScriptValue::typeScriptObject: {
 		//	GScopedInterface<IScriptObject> scriptObject(value.toScriptObject());
 		//	this->doBindScriptObject(name, scriptObject.get());

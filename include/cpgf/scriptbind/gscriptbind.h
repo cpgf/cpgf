@@ -31,7 +31,7 @@ public:
 };
 
 
-class GScriptObject
+class GScriptObject : public GNoncopyable
 {
 protected:
 	explicit GScriptObject(const GScriptConfig & config);

@@ -44,7 +44,7 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScr
 	QVARNEWOBJ(c, mtest.SimpleOverrideWrapper(3))
 	QASSERT(c.getValue() == 3);
 
-	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));
+	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(scriptGetValue(binding, "a").toObjectAddress(NULL, NULL));
 	GEQUAL(18, objA->getValue());
 	
 	QDO(GrandDerivedClass.getName = overrideGetName);
@@ -97,7 +97,7 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptObject(T * binding, TestSc
 	QVARNEWOBJ(b, mtest.SimpleOverrideWrapper(6))
 	QASSERT(b.getValue() == 6);
 
-	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(binding->getObject("a"));
+	SimpleOverrideWrapper * objA = static_cast<SimpleOverrideWrapper *>(scriptGetValue(binding, "a").toObjectAddress(NULL, NULL));
 	GEQUAL(7, objA->getValue());
 
 	QDO(a.getName = overrideGetName);

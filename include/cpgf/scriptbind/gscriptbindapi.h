@@ -67,52 +67,52 @@ struct IScriptObject : public IExtendObject
 	virtual void G_API_CC holdObject(IObject * object) = 0;
 	
 	G_DEPRECATED(
-		virtual IMetaClass * G_API_CC getClass(const char * className) = 0,
+		virtual IMetaClass * G_API_CC getClass(const char * className),
 		"getClass is deprecated. Use scriptGetValue().toClass() instead."
-	);
+	) = 0;
 	G_DEPRECATED(
-		virtual IMetaEnum * G_API_CC getEnum(const char * enumName) = 0,
+		virtual IMetaEnum * G_API_CC getEnum(const char * enumName),
 		"getEnum is deprecated. Use scriptGetValue().toEnum() instead."
-	);
+	) = 0;
 	
 	G_DEPRECATED(
-		virtual void G_API_CC getFundamental(GVariantData * outResult, const char * name) = 0,
+		virtual void G_API_CC getFundamental(GVariantData * outResult, const char * name),
 		"getFundamental is deprecated. Use scriptGetValue().toFundamental() instead."
-	);
+	) = 0;
 	G_DEPRECATED(
-		virtual char * G_API_CC getString(const char * stringName, IMemoryAllocator * allocator) = 0,
+		virtual char * G_API_CC getString(const char * stringName, IMemoryAllocator * allocator),
 		"getString is deprecated. Use scriptGetValue().toString() instead."
-	);
+	) = 0;
 	G_DEPRECATED(
-		virtual void * G_API_CC getObject(const char * objectName) = 0,
+		virtual void * G_API_CC getObject(const char * objectName),
 		"getObject is deprecated. Use scriptGetValue().toObject() instead."
-	);
+	) = 0;
 	G_DEPRECATED(
-		virtual void G_API_CC getRaw(GVariantData * outResult, const char * name) = 0,
+		virtual void G_API_CC getRaw(GVariantData * outResult, const char * name),
 		"getRaw is deprecated. Use scriptGetValue().toRaw() instead."
-	);
+	) = 0;
 	G_DEPRECATED(
-		virtual IMetaMethod * G_API_CC getMethod(const char * methodName, void ** outInstance) = 0,
+		virtual IMetaMethod * G_API_CC getMethod(const char * methodName, void ** outInstance),
 		"getMethod is deprecated. Use scriptGetValue().toMethod() instead."
-	);
+	) = 0;
 	G_DEPRECATED(
-		virtual IMetaList * G_API_CC getMethodList(const char * methodName) = 0,
+		virtual IMetaList * G_API_CC getMethodList(const char * methodName),
 		"getMethodList is deprecated. Use scriptGetValue().toOverridedMethods() instead."
-	);
+	) = 0;
 
 	G_DEPRECATED(
-	virtual uint32_t G_API_CC getType(const char * name, IMetaTypedItem ** outMetaTypeItem) = 0,
+		virtual uint32_t G_API_CC getType(const char * name, IMetaTypedItem ** outMetaTypeItem),
 		"getType is deprecated. Use scriptGetValue().getType() instead."
-	);
+	) = 0;
 
 	G_DEPRECATED(
-		virtual gapi_bool G_API_CC valueIsNull(const char * name) = 0,
+		virtual gapi_bool G_API_CC valueIsNull(const char * name),
 		"valueIsNull is deprecated. Use scriptGetValue().isNull() instead."
-	);
+	) = 0;
 	G_DEPRECATED(
-		virtual void G_API_CC nullifyValue(const char * name) = 0,
+		virtual void G_API_CC nullifyValue(const char * name),
 		"nullifyValue is deprecated. Use scriptSetValue(name, GScriptValue::fromNull()) instead."
-	);
+	) = 0;
 	
 };
 

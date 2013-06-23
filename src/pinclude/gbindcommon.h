@@ -879,7 +879,6 @@ bool shouldRemoveReference(const GMetaType & type);
 wchar_t * stringToWideString(const char * s);
 char * wideStringToString(const wchar_t * ws);
 
-GVariant glueDataToVariant(const GGlueDataPointer & glueData);
 GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData);
 
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);

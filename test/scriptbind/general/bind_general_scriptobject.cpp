@@ -51,12 +51,12 @@ void testCreateScriptObject(TestScriptContext * context)
 	if(bindingApi != NULL) {
 		GVariant v;
 		GScopedInterface<IScriptObject> newScriptObject(bindingApi->createScriptObject("nso"));
-		v = scriptGetFundamental(newScriptObject.get(), "ix");
+		v = scriptGetValue(newScriptObject.get(), "ix").toFundamental();
 		GCHECK(fromVariant<int>(v) == 38);
 
 		GScopedInterface<IScriptObject> secondScriptObject(bindingApi->createScriptObject("sec.third.fourth"));
 		v = 0;
-		v = scriptGetFundamental(secondScriptObject.get(), "iy");
+		v = scriptGetValue(secondScriptObject.get(), "iy").toFundamental();
 		GCHECK(fromVariant<int>(v) == 6);
 	}
 }
@@ -104,7 +104,7 @@ void testGetScriptObject(TestScriptContext * context)
 //		GCHECK(! existScriptObject);
 
 		GScopedInterface<IScriptObject> newScriptObject(bindingApi->createScriptObject("scope"));
-		v = scriptGetFundamental(newScriptObject.get(), "i");
+		v = scriptGetValue(newScriptObject.get(), "i").toFundamental();
 		GCHECK(fromVariant<int>(v) == 5);
 		instance = scriptGetValue(newScriptObject.get(), "obj").toObjectAddress(NULL, NULL);
 	}
