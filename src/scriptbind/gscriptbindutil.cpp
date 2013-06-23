@@ -108,6 +108,30 @@ void scriptSetValue(IScriptObject * scriptObject, const char * name, const GScri
 	scriptObject->setValue(name, &data);
 }
 
+GScriptValue scriptGetScriptFunction(GScriptObject * scriptObject, const char * name)
+{
+	return scriptObject->getScriptFunction(name);
+}
+
+GScriptValue scriptGetScriptFunction(IScriptObject * scriptObject, const char * name)
+{
+	GScriptValueData data;
+	scriptObject->getScriptFunction(&data, name);
+	return GScriptValue(data);
+}
+
+GScriptValue scriptCreateScriptObject(GScriptObject * scriptObject, const char * name)
+{
+	return scriptObject->createScriptObject(name);
+}
+
+GScriptValue scriptCreateScriptObject(IScriptObject * scriptObject, const char * name)
+{
+	GScriptValueData data;
+	scriptObject->createScriptObject(&data, name);
+	return GScriptValue(data);
+}
+
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject)
 {
 	return new ImplScriptObject(scriptObject, freeObject);
@@ -126,7 +150,7 @@ void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, 
 	
 	GScopedInterface<IScriptObject> namespaceHolder;
 	if(namespaceName != NULL && *namespaceName) {
-		namespaceHolder.reset(scriptObject->createScriptObject(namespaceName));
+		namespaceHolder.reset(scriptCreateScriptObject(scriptObject, namespaceName).toScriptObject());
 		scriptObject = namespaceHolder.get();
 	}
 	
@@ -200,7 +224,7 @@ IScriptObject * createScriptObject(IScriptObject * owner, const char * namespace
 		return owner;
 	}
 	else {
-		return owner->createScriptObject(namespaces);
+		return scriptCreateScriptObject(owner, namespaces).toScriptObject();
 	}
 }
 

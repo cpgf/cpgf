@@ -97,7 +97,7 @@ public:
 
 	virtual GScriptObject * doCreateScriptObject(const char * name);
 
-	virtual GScriptFunction * gainScriptFunction(const char * name);
+	virtual GScriptValue getScriptFunction(const char * name);
 
 	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount);
 	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
@@ -285,7 +285,7 @@ GScriptValue v8UserDataToScriptValue(const GContextPointer & context, Local<Cont
 			if(value->IsFunction()) {
 				GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GV8ScriptFunction(context, v8Context->Global(), Local<Value>::New(value)), true));
 
-				return GScriptValue::fromScriptMethod(func.get());
+				return GScriptValue::fromScriptFunction(func.get());
 			}
 			else {
 				GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GV8ScriptObject(context->getService(), obj, context->getConfig()), true));
@@ -1086,7 +1086,7 @@ GScriptObject * GV8ScriptObject::doCreateScriptObject(const char * name)
 	}
 }
 
-GScriptFunction * GV8ScriptObject::gainScriptFunction(const char * name)
+GScriptValue GV8ScriptObject::getScriptFunction(const char * name)
 {
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->object));
@@ -1094,10 +1094,11 @@ GScriptFunction * GV8ScriptObject::gainScriptFunction(const char * name)
 	Local<Value> value = localObject->Get(String::New(name));
 
 	if(valueIsCallable(value)) {
-		return new GV8ScriptFunction(this->getContext(), localObject, value);
+		GScopedInterface<IScriptFunction> scriptFunction(new ImplScriptFunction(new GV8ScriptFunction(this->getContext(), localObject, value), true));
+		return GScriptValue::fromScriptFunction(scriptFunction.get());
 	}
 	else {
-		return NULL;
+		return GScriptValue();
 	}
 }
 

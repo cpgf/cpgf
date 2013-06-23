@@ -54,9 +54,9 @@ struct IScriptObject : public IExtendObject
 	virtual void G_API_CC bindMethod(const char * name, void * instance, IMetaMethod * method) = 0;
 	virtual void G_API_CC bindMethodList(const char * name, IMetaList * methodList) = 0;
 	
-	virtual IScriptObject * G_API_CC createScriptObject(const char * name) = 0;
+	virtual void G_API_CC createScriptObject(GScriptValueData * outResult, const char * name) = 0;
 	
-	virtual IScriptFunction * G_API_CC gainScriptFunction(const char * name) = 0;
+	virtual void G_API_CC getScriptFunction(GScriptValueData * outResult, const char * name) = 0;
 	
 	virtual void G_API_CC invoke(GVariantData * outResult, const char * name, const GVariantData * params, uint32_t paramCount) = 0;
 	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount) = 0;

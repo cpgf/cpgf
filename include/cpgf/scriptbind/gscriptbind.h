@@ -50,9 +50,9 @@ public:
 	GScriptValue getValue(const char * name);
 	void setValue(const char * name, const GScriptValue & value);
 
-	virtual GScriptObject * createScriptObject(const char * name);
+	virtual GScriptValue createScriptObject(const char * name);
 
-	virtual GScriptFunction * gainScriptFunction(const char * name) = 0;
+	virtual GScriptValue getScriptFunction(const char * name) = 0;
 	
 	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount) = 0;
 	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount) = 0;

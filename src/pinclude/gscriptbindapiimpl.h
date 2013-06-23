@@ -8,6 +8,11 @@
 
 #include "gbindcommon.h"
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4996)
+#endif
+
 
 #define ENTER_BINDING_API() \
 	this->ginterface_implExtendObject.clearError(); \
@@ -106,9 +111,9 @@ protected:
 	virtual IMetaMethod * G_API_CC getMethod(const char * methodName, void ** outInstance);
 	virtual IMetaList * G_API_CC getMethodList(const char * methodName);
 
-	virtual IScriptObject * G_API_CC createScriptObject(const char * name);
+	virtual void G_API_CC createScriptObject(GScriptValueData * outResult, const char * name);
 
-	virtual IScriptFunction * G_API_CC gainScriptFunction(const char * name);
+	virtual void G_API_CC getScriptFunction(GScriptValueData * outResult, const char * name);
 
 	virtual void G_API_CC invoke(GVariantData * outResult, const char * name, const GVariantData * params, uint32_t paramCount);
 	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount);
@@ -129,6 +134,10 @@ private:
 
 } // namespace cpgf
 
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 
 #endif

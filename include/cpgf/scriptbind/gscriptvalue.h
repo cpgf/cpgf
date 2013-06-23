@@ -53,7 +53,7 @@ public:
 		typeRaw = 8,
 		typeAccessible = 9,
 
-		typeScriptObject = 10, typeScriptMethod = 11,
+		typeScriptObject = 10, typeScriptFunction = 11,
 	};
 	
 private:
@@ -85,7 +85,7 @@ public:
 	static GScriptValue fromRaw(const GVariant & raw);
 	static GScriptValue fromAccessible(void * instance, IMetaAccessible * accessible);
 	static GScriptValue fromScriptObject(IScriptObject * scriptObject);
-	static GScriptValue fromScriptMethod(IScriptFunction * scriptFunction);
+	static GScriptValue fromScriptFunction(IScriptFunction * scriptFunction);
 
 	void * toNull() const;
 	GVariant toFundamental() const;
@@ -99,7 +99,7 @@ public:
 	GVariant toRaw() const;
 	IMetaAccessible * toAccessible(void ** outInstance) const;
 	IScriptObject * toScriptObject() const;
-	IScriptFunction * toScriptMethod() const;
+	IScriptFunction * toScriptFunction() const;
 	
 	bool isNull() const { return this->type == typeNull; }
 	bool isFundamental() const { return this->type == typeFundamental; }
@@ -112,7 +112,7 @@ public:
 	bool isRaw() const { return this->type == typeRaw; }
 	bool isAccessible() const { return this->type == typeAccessible; }
 	bool isScriptObject() const { return this->type == typeScriptObject; }
-	bool isScriptMethod() const { return this->type == typeScriptMethod; }
+	bool isScriptFunction() const { return this->type == typeScriptFunction; }
 	
 private:
 	Type type;

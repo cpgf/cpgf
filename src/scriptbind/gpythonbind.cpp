@@ -110,7 +110,7 @@ public:
 
 	virtual GScriptObject * doCreateScriptObject(const char * name);
 
-	virtual GScriptFunction * gainScriptFunction(const char * name);
+	virtual GScriptValue getScriptFunction(const char * name);
 
 	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount);
 	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
@@ -781,7 +781,7 @@ GScriptValue pythonToScriptValue(const GContextPointer & context, PyObject * val
 		if(PyCallable_Check(value)) {
 			GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GPythonScriptFunction(context, value), true));
 			
-			return GScriptValue::fromScriptMethod(func.get());
+			return GScriptValue::fromScriptFunction(func.get());
 		}
 
 		GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GPythonScriptObject(context->getService(), value, context->getConfig()), true));
@@ -1410,16 +1410,17 @@ GScriptObject * GPythonScriptObject::doCreateScriptObject(const char * name)
 	return NULL;
 }
 
-GScriptFunction * GPythonScriptObject::gainScriptFunction(const char * name)
+GScriptValue GPythonScriptObject::getScriptFunction(const char * name)
 {
 	GPythonScopedPointer func(getObjectAttr(this->object, name));
 	if(func) {
 		if(PyCallable_Check(func.get())) {
-			return new GPythonScriptFunction(this->getContext(), func.take());
+			GScopedInterface<IScriptFunction> scriptFunction(new ImplScriptFunction(new GPythonScriptFunction(this->getContext(), func.take()), true));
+			return GScriptValue::fromScriptFunction(scriptFunction.get());
 		}
 	}
 
-	return NULL;
+	return GScriptValue();
 }
 
 GVariant GPythonScriptObject::invoke(const char * name, const GVariant * params, size_t paramCount)

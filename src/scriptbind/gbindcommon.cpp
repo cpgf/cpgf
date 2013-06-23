@@ -980,7 +980,7 @@ void rankCallableParam(ConvertRank * outputRank, IMetaService * service, IMetaCa
 		return;
 	}
 
-	if(type == GScriptValue::typeScriptMethod && vtIsInterface(proto.getVariantType())) {
+	if(type == GScriptValue::typeScriptFunction && vtIsInterface(proto.getVariantType())) {
 		outputRank->weight = ValueMatchRank_Convert;
 		return;
 	}

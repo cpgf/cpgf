@@ -23,6 +23,12 @@ GScriptValue scriptGetValue(IScriptObject * scriptObject, const char * name);
 void scriptSetValue(GScriptObject * scriptObject, const char * name, const GScriptValue & value);
 void scriptSetValue(IScriptObject * scriptObject, const char * name, const GScriptValue & value);
 
+GScriptValue scriptGetScriptFunction(GScriptObject * scriptObject, const char * name);
+GScriptValue scriptGetScriptFunction(IScriptObject * scriptObject, const char * name);
+
+GScriptValue scriptCreateScriptObject(GScriptObject * scriptObject, const char * name);
+GScriptValue scriptCreateScriptObject(IScriptObject * scriptObject, const char * name);
+
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject);
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject);
 

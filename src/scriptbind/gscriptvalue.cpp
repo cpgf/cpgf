@@ -139,9 +139,9 @@ GScriptValue GScriptValue::fromScriptObject(IScriptObject * scriptObject)
 	return GScriptValue(typeScriptObject, scriptObject);
 }
 
-GScriptValue GScriptValue::fromScriptMethod(IScriptFunction * scriptFunction)
+GScriptValue GScriptValue::fromScriptFunction(IScriptFunction * scriptFunction)
 {
-	return GScriptValue(typeScriptMethod, scriptFunction);
+	return GScriptValue(typeScriptFunction, scriptFunction);
 }
 
 void * GScriptValue::toNull() const
@@ -300,9 +300,9 @@ IScriptObject * GScriptValue::toScriptObject() const
 	}
 }
 
-IScriptFunction * GScriptValue::toScriptMethod() const
+IScriptFunction * GScriptValue::toScriptFunction() const
 {
-	if(this->isScriptMethod()) {
+	if(this->isScriptFunction()) {
 		IScriptFunction * scriptFunction = fromVariant<IScriptFunction *>(this->value);
 		scriptFunction->addReference();
 		return scriptFunction;

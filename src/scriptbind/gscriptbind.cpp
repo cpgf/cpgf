@@ -2,6 +2,7 @@
 #include "cpgf/gglobal.h"
 
 #include "../pinclude/gbindcommon.h"
+#include "../pinclude/gscriptbindapiimpl.h"
 
 
 namespace cpgf {
@@ -252,11 +253,12 @@ void GScriptObject::setName(const std::string & newName)
 	this->name = newName;
 }
 
-GScriptObject * GScriptObject::createScriptObject(const char * name)
+GScriptValue GScriptObject::createScriptObject(const char * name)
 {
+	GScriptObject * object = NULL;
 	const int delimiter = '.';
 	if(strchr(name, delimiter) == NULL) {
-		return this->doCreateScriptObject(name);
+		object = this->doCreateScriptObject(name);
 	}
 	else {
 		size_t len = strlen(name);
@@ -284,7 +286,13 @@ GScriptObject * GScriptObject::createScriptObject(const char * name)
 			++next;
 			head = next;
 		}
-		return scriptObject.take();
+		object = scriptObject.take();
+	}
+	if(object == NULL) {
+		return GScriptValue();
+	}
+	else {
+		return GScriptValue::fromScriptObject(new ImplScriptObject(object, true));
 	}
 }
 

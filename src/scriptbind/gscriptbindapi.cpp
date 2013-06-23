@@ -327,34 +327,22 @@ IMetaList * G_API_CC ImplScriptObject::getMethodList(const char * methodName)
 	LEAVE_BINDING_API(return NULL)
 }
 
-IScriptObject * G_API_CC ImplScriptObject::createScriptObject(const char * name)
+void G_API_CC ImplScriptObject::createScriptObject(GScriptValueData * outResult, const char * name)
 {
 	ENTER_BINDING_API()
 
-	GScriptObject * obj = this->scriptObject->createScriptObject(name);
-	if(obj == NULL) {
-		return NULL;
-	}
-	else {
-		return new ImplScriptObject(obj, true);
-	}
+	*outResult = this->scriptObject->createScriptObject(name).takeData();
 
-	LEAVE_BINDING_API(return NULL)
+	LEAVE_BINDING_API()
 }
 
-IScriptFunction * G_API_CC ImplScriptObject::gainScriptFunction(const char * name)
+void G_API_CC ImplScriptObject::getScriptFunction(GScriptValueData * outResult, const char * name)
 {
 	ENTER_BINDING_API()
 
-	GScriptFunction * func = this->scriptObject->gainScriptFunction(name);
-	if(func == NULL) {
-		return NULL;
-	}
-	else {
-		return new ImplScriptFunction(func, true);
-	}
+	*outResult = this->scriptObject->getScriptFunction(name).takeData();
 
-	LEAVE_BINDING_API(return NULL)
+	LEAVE_BINDING_API()
 }
 
 void G_API_CC ImplScriptObject::invoke(GVariantData * outResult, const char * name, const GVariantData * params, uint32_t paramCount)

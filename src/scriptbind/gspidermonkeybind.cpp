@@ -196,7 +196,7 @@ public:
 
 	virtual GScriptObject * doCreateScriptObject(const char * name);
 
-	virtual GScriptFunction * gainScriptFunction(const char * name);
+	virtual GScriptValue getScriptFunction(const char * name);
 
 	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount);
 	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
@@ -479,7 +479,7 @@ GScriptValue spiderUserDataToScriptValue(const GSpiderContextPointer & context, 
 			if(JS_ObjectIsFunction(context->getJsContext(), object)) {
 				GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GSpiderScriptFunction(context, context->getJsGlobalObject(), object), true));
 
-				return GScriptValue::fromScriptMethod(func.get());
+				return GScriptValue::fromScriptFunction(func.get());
 			}
 			else {
 				GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GSpiderMonkeyScriptObject(context->getService(), context->getConfig(), context->getJsContext(), object), true));
@@ -1189,18 +1189,19 @@ GScriptObject * GSpiderMonkeyScriptObject::doCreateScriptObject(const char * nam
 
 }
 
-GScriptFunction * GSpiderMonkeyScriptObject::gainScriptFunction(const char * name)
+GScriptValue GSpiderMonkeyScriptObject::getScriptFunction(const char * name)
 {
 	JsValue value;
 	if(JS_GetProperty(this->jsContext, this->jsObject.getJsObject(), name, &value)) {
 		if(value.isObject()) {
 			JSObject * object = &value.toObject();
 			if(JS_ObjectIsFunction(this->jsContext, object)) {
-				return new GSpiderScriptFunction(this->getSpiderContext(), this->jsObject.getJsObject(), object);
+				GScopedInterface<IScriptFunction> scriptFunction(new ImplScriptFunction(new GSpiderScriptFunction(this->getSpiderContext(), this->jsObject.getJsObject(), object), true));
+				return GScriptValue::fromScriptFunction(scriptFunction.get());
 			}
 		}
 	}
-	return NULL;
+	return GScriptValue();
 }
 
 GVariant GSpiderMonkeyScriptObject::invoke(const char * name, const GVariant * params, size_t paramCount)

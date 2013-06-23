@@ -84,7 +84,7 @@ public:
 	
 	virtual GScriptObject * doCreateScriptObject(const char * name);
 	
-	virtual GScriptFunction * gainScriptFunction(const char * name);
+	virtual GScriptValue getScriptFunction(const char * name);
 	
 	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount);
 	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
@@ -601,7 +601,7 @@ GScriptValue luaToScriptValue(const GContextPointer & context, int index, GGlueD
 				}
 			}
 			GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GLuaScriptFunction(context, index), true));
-			return GScriptValue::fromScriptMethod(func.get());
+			return GScriptValue::fromScriptFunction(func.get());
 		}
 
 		case LUA_TLIGHTUSERDATA:
@@ -1407,13 +1407,14 @@ GScriptObject * GLuaScriptObject::doCreateScriptObject(const char * name)
 	return newScriptObject;
 }
 
-GScriptFunction * GLuaScriptObject::gainScriptFunction(const char * name)
+GScriptValue GLuaScriptObject::getScriptFunction(const char * name)
 {
 	GLuaScopeGuard scopeGuard(this);
 
 	scopeGuard.get(name);
 
-	return new GLuaScriptFunction(this->getContext(), -1);
+	GScopedInterface<IScriptFunction> scriptFunction(new ImplScriptFunction(new GLuaScriptFunction(this->getContext(), -1), true));
+	return GScriptValue::fromScriptFunction(scriptFunction.get());
 }
 
 GVariant GLuaScriptObject::invoke(const char * name, const GVariant * params, size_t paramCount)
