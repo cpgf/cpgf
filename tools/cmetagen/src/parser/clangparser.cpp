@@ -50,8 +50,6 @@ using namespace llvm;
 using namespace llvm::sys;
 using namespace clang;
 
-ItemVisibility accessToVisibility(AccessSpecifier access);
-
 class EmptyASTConsumer : public ASTConsumer
 {
 public:
@@ -94,15 +92,11 @@ private:
 	CppContainer * getCurrentCppContainer();
 
 	template <typename T>
-	T * addItem(NamedDecl * namedDecl)
+	T * addItem(clang::Decl * decl)
 	{
-		T * item = this->context->createItem<T>();
+		T * item = this->context->createItem<T>(decl);
 		this->getCurrentCppContainer()->addItem(item);
 		
-		item->setQualifiedName(namedDecl->getQualifiedNameAsString());
-
-		item->setVisibility(accessToVisibility(namedDecl->getAccess()));
-
 		return item;
 	}
 
@@ -132,7 +126,7 @@ private:
 	void parseInvokable(FunctionDecl * functionDecl, CppInvokable * invokable);
 	void parseFunctionParams(FunctionDecl * functionDecl, CppInvokable * invokable);
 	void parseFunctionResult(FunctionDecl * functionDecl, CppInvokable * invokable);
-	void parseTemplateParams(TemplateDecl * templateDecl, CppTemplateItem * templateItem);
+//	void parseTemplateParams(TemplateDecl * templateDecl, CppTemplateItem * templateItem);
 
 	string locationToSource(const SourceLocation & begin, const SourceLocation & end);
 	string getTemplateArgumentName(const TemplateArgument & argument);
@@ -152,22 +146,6 @@ private:
 };
 
 
-ItemVisibility accessToVisibility(AccessSpecifier access)
-{
-	switch(access) {
-		case AS_public:
-			return ivPublic;
-
-		case AS_protected:
-			return ivProtected;
-
-		case AS_private:
-			return ivPrivate;
-	}
-
-	return ivPublic;
-}
-
 string getDeclName(NamedDecl * namedDecl)
 {
 	return namedDecl->getNameAsString();
@@ -178,7 +156,7 @@ string getDeclQualifiedName(NamedDecl * namedDecl)
 	return namedDecl->getQualifiedNameAsString();
 }
 
-string removeRecordWords(const string & text)
+string doRemoveRecordWords(const string & text)
 {
 	static Poco::RegularExpression re("(struct|class|union)\\b\\s*");
 	string result(text);
@@ -270,10 +248,11 @@ ClangParserImplement::~ClangParserImplement()
 
 void ClangParserImplement::parse(const char * fileName)
 {
-	this->context->beginFile(fileName);
+	this->compileAST(fileName);
+
+	this->context->beginFile(fileName, this->compilerInstance.getASTContext().getTranslationUnitDecl());
 	this->namespaceStack.push(this->context->getCurrentFileInfo());
 	
-	this->compileAST(fileName);
 	this->translate();
 
 	this->namespaceStack.pop();
@@ -495,8 +474,6 @@ void ClangParserImplement::parseVar(VarDecl * varDecl)
 	CppField * field = this->addItem<CppField>(varDecl);
 	CppType * type = this->addType(varDecl->getType());
 	field->setType(type);
-
-	field->setStatic(true);
 }
 
 void ClangParserImplement::parseClass(CXXRecordDecl * classDecl)
@@ -537,7 +514,7 @@ void ClangParserImplement::parseTemplateClass(ClassTemplateDecl * classTemplateD
 		this->parseBaseClass(cls, &*it);
 	}
 
-	this->parseTemplateParams(classTemplateDecl, cls);
+//	this->parseTemplateParams(classTemplateDecl, cls);
 }
 
 void ClangParserImplement::parseTemplateFunction(FunctionTemplateDecl * functionTemplateDecl)
@@ -548,10 +525,9 @@ void ClangParserImplement::parseTemplateFunction(FunctionTemplateDecl * function
 
 	CppMethod * method = this->addItem<CppMethod>(functionTemplateDecl);
 	FunctionDecl * functionDecl = functionTemplateDecl->getTemplatedDecl();
-	method->setStatic(functionDecl->isGlobal());
 	this->parseFunctionParams(functionDecl, method);
 	this->parseFunctionResult(functionDecl, method);
-	this->parseTemplateParams(functionTemplateDecl, method);
+//	this->parseTemplateParams(functionTemplateDecl, method);
 }
 
 void ClangParserImplement::parseFunction(FunctionDecl * functionDecl)
@@ -657,7 +633,6 @@ void ClangParserImplement::parseBaseClass(CppClass * cls, CXXBaseSpecifier * bas
 
 	BaseClass * baseClass = new BaseClass();
 	cls->getBaseClassList()->push_back(baseClass);
-	baseClass->setVisibility(accessToVisibility(baseSpecifier->getAccessSpecifier()));
 	baseClass->setName(qualType.getAsString());
 	baseClass->setQualifiedName(qualifiedName);
 }
@@ -720,7 +695,7 @@ string ClangParserImplement::getQualTypeName(const QualType & qualType)
 		qualifiedName = qualType.getAsString();
 	}
 
-	qualifiedName = removeRecordWords(qualifiedName);
+	qualifiedName = doRemoveRecordWords(qualifiedName);
 
 	return qualifiedName;
 }
@@ -753,13 +728,6 @@ string ClangParserImplement::locationToSource(const SourceLocation & begin, cons
 void ClangParserImplement::parseInvokable(FunctionDecl * functionDecl, CppInvokable * invokable)
 {
 	CXXMethodDecl * methodDecl = dyn_cast_or_null<CXXMethodDecl>(functionDecl);
-	if(methodDecl != NULL) {
-		invokable->setStatic(methodDecl->isStatic());
-		invokable->setConst((methodDecl->getTypeQualifiers() & Qualifiers::Const) != 0);
-	}
-	else {
-		invokable->setStatic(true);
-	}
 	
 	this->parseFunctionParams(functionDecl, invokable);
 	this->parseFunctionResult(functionDecl, invokable);
@@ -767,76 +735,76 @@ void ClangParserImplement::parseInvokable(FunctionDecl * functionDecl, CppInvoka
 
 void ClangParserImplement::parseFunctionParams(FunctionDecl * functionDecl, CppInvokable * invokable)
 {
-	for(FunctionDecl::param_iterator it = functionDecl->param_begin(); it != functionDecl->param_end(); ++it) {
-		ParmVarDecl * paramVarDecl = *it;
-		
-		CppParam * param = invokable->addParam();
-		param->setName(paramVarDecl->getNameAsString());
-		
-		CppType * type = this->addType(paramVarDecl->getType());
-		param->setType(type);
+	//for(FunctionDecl::param_iterator it = functionDecl->param_begin(); it != functionDecl->param_end(); ++it) {
+	//	ParmVarDecl * paramVarDecl = *it;
+	//	
+	//	CppParam * param = invokable->addParam();
+	//	param->setName(paramVarDecl->getNameAsString());
+	//	
+	//	CppType * type = this->addType(paramVarDecl->getType());
+	//	param->setType(type);
 
-		if(paramVarDecl->hasDefaultArg()) {
-			Expr * expr = paramVarDecl->getDefaultArg();
-			string defaultValue = this->locationToSource(expr->getLocStart(), expr->getLocEnd());
-			param->setDefaultValue(defaultValue);
-		}
-	}
+	//	if(paramVarDecl->hasDefaultArg()) {
+	//		Expr * expr = paramVarDecl->getDefaultArg();
+	//		string defaultValue = this->locationToSource(expr->getLocStart(), expr->getLocEnd());
+	//		param->setDefaultValue(defaultValue);
+	//	}
+	//}
 }
 
 void ClangParserImplement::parseFunctionResult(FunctionDecl * functionDecl, CppInvokable * invokable)
 {
-	CppType * resultType = this->addType(functionDecl->getResultType());
-	invokable->setResultType(resultType);
+	//CppType * resultType = this->addType(functionDecl->getResultType());
+	//invokable->setResultType(resultType);
 }
 
-void ClangParserImplement::parseTemplateParams(TemplateDecl * templateDecl, CppTemplateItem * templateItem)
-{
-	TemplateParameterList * templateParamList = templateDecl->getTemplateParameters();
-	for(TemplateParameterList::iterator it = templateParamList->begin(); it != templateParamList->end(); ++it) {
-		NamedDecl * namedDecl = *it;
-		Decl::Kind kind = namedDecl->getKind();
-
-		CppType * type = NULL;
-		string defaultValue;
-		if(kind == Decl::TemplateTypeParm) {
-			TemplateTypeParmDecl * paramDecl = dyn_cast<TemplateTypeParmDecl>(namedDecl);
-			type = this->addType(paramDecl->wasDeclaredWithTypename() ? "typename" : "class");
-			if(paramDecl->hasDefaultArgument()) {
-				defaultValue = removeRecordWords(paramDecl->getDefaultArgument().getAsString());
-			}
-		}
-		else if(kind == Decl::NonTypeTemplateParm) {
-			NonTypeTemplateParmDecl * paramDecl = dyn_cast<NonTypeTemplateParmDecl>(namedDecl);
-			type = this->addType(paramDecl->getType());
-			if(paramDecl->hasDefaultArgument()) {
-				defaultValue = this->locationToSource(paramDecl->getDefaultArgument()->getLocStart(), paramDecl->getDefaultArgument()->getLocEnd());
-			}
-		}
-		else if(kind == Decl::TemplateTemplateParm) {
-			TemplateTemplateParmDecl * paramDecl = dyn_cast<TemplateTemplateParmDecl>(namedDecl);
-			string t = locationToSource(paramDecl->getLocStart(), paramDecl->getLocEnd());
-			t = removeAllAfterEqualSign(t);
-			t = removeLastToken(t);
-			type = this->addType(t);
-			if(paramDecl->hasDefaultArgument()) {
-				defaultValue = this->getTemplateArgumentName(paramDecl->getDefaultArgument().getArgument());
-				if(defaultValue.empty()) {
-					defaultValue = this->locationToSource(paramDecl->getDefaultArgument().getSourceRange().getBegin(), paramDecl->getDefaultArgument().getSourceRange().getEnd());
-				}
-			}
-		}
-		if(type != NULL) {
-			CppParam * param = templateItem->addTemplateParam();
-			string name = namedDecl->getNameAsString();
-			param->setName(name);
-			param->setType(type);
-			if(! defaultValue.empty()) {
-				param->setDefaultValue(defaultValue);
-			}
-		}
-	}
-}
+//void ClangParserImplement::parseTemplateParams(TemplateDecl * templateDecl, CppTemplateItem * templateItem)
+//{
+//	TemplateParameterList * templateParamList = templateDecl->getTemplateParameters();
+//	for(TemplateParameterList::iterator it = templateParamList->begin(); it != templateParamList->end(); ++it) {
+//		NamedDecl * namedDecl = *it;
+//		Decl::Kind kind = namedDecl->getKind();
+//
+//		CppType * type = NULL;
+//		string defaultValue;
+//		if(kind == Decl::TemplateTypeParm) {
+//			TemplateTypeParmDecl * paramDecl = dyn_cast<TemplateTypeParmDecl>(namedDecl);
+//			type = this->addType(paramDecl->wasDeclaredWithTypename() ? "typename" : "class");
+//			if(paramDecl->hasDefaultArgument()) {
+//				defaultValue = doRemoveRecordWords(paramDecl->getDefaultArgument().getAsString());
+//			}
+//		}
+//		else if(kind == Decl::NonTypeTemplateParm) {
+//			NonTypeTemplateParmDecl * paramDecl = dyn_cast<NonTypeTemplateParmDecl>(namedDecl);
+//			type = this->addType(paramDecl->getType());
+//			if(paramDecl->hasDefaultArgument()) {
+//				defaultValue = this->locationToSource(paramDecl->getDefaultArgument()->getLocStart(), paramDecl->getDefaultArgument()->getLocEnd());
+//			}
+//		}
+//		else if(kind == Decl::TemplateTemplateParm) {
+//			TemplateTemplateParmDecl * paramDecl = dyn_cast<TemplateTemplateParmDecl>(namedDecl);
+//			string t = locationToSource(paramDecl->getLocStart(), paramDecl->getLocEnd());
+//			t = removeAllAfterEqualSign(t);
+//			t = removeLastToken(t);
+//			type = this->addType(t);
+//			if(paramDecl->hasDefaultArgument()) {
+//				defaultValue = this->getTemplateArgumentName(paramDecl->getDefaultArgument().getArgument());
+//				if(defaultValue.empty()) {
+//					defaultValue = this->locationToSource(paramDecl->getDefaultArgument().getSourceRange().getBegin(), paramDecl->getDefaultArgument().getSourceRange().getEnd());
+//				}
+//			}
+//		}
+//		if(type != NULL) {
+//			CppParam * param = templateItem->addTemplateParam();
+//			string name = namedDecl->getNameAsString();
+//			param->setName(name);
+//			param->setType(type);
+//			if(! defaultValue.empty()) {
+//				param->setDefaultValue(defaultValue);
+//			}
+//		}
+//	}
+//}
 
 
 ClangParser::ClangParser(CppContext * context)

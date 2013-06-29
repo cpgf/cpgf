@@ -27,11 +27,11 @@ CppType * CppContext::createType()
 	return type;
 }
 
-void CppContext::beginFile(const char * fileName)
+void CppContext::beginFile(const char * fileName, clang::Decl * decl)
 {
 	GASSERT(this->currentFileInfo == NULL);
 	
-	this->currentFileInfo = new CppFile(fileName);
+	this->currentFileInfo = new CppFile(fileName, decl);
 	this->fileList.push_back(this->currentFileInfo);
 }
 

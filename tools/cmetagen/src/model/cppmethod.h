@@ -3,13 +3,15 @@
 
 #include "cppitem.h"
 #include "cppinvokable.h"
-#include "cpptemplateitem.h"
 
 
-class CppMethod : public CppInvokable, public CppTemplateItem
+class CppMethod : public CppInvokable
 {
+private:
+	typedef CppInvokable super;
+	
 public:
-	virtual bool isTemplate() const { return this->getTemplateParamList()->getCount() > 0; }
+	explicit CppMethod(clang::Decl * decl) : super(decl) {}
 
 protected:
 	virtual ItemCategory getCategory() const { return icMethod; }

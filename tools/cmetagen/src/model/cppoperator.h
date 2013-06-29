@@ -3,13 +3,15 @@
 
 #include "cppitem.h"
 #include "cppinvokable.h"
-#include "cpptemplateitem.h"
 
 
-class CppOperator : public CppInvokable, public CppTemplateItem
+class CppOperator : public CppInvokable
 {
+private:
+	typedef CppInvokable super;
+	
 public:
-	virtual bool isTemplate() const { return this->getTemplateParamList()->getCount() > 0; }
+	explicit CppOperator(clang::Decl * decl) : super(decl) {}
 
 protected:
 	virtual ItemCategory getCategory() const { return icOperator; }

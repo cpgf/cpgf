@@ -1,7 +1,6 @@
 #ifndef __CPPCLASS_H
 #define __CPPCLASS_H
 
-#include "cpptemplateitem.h"
 #include "cppcontainer.h"
 
 class CppConstructor;
@@ -26,7 +25,7 @@ private:
 	std::string qualifiedName;
 };
 
-class CppClass : public CppContainer, public CppTemplateItem
+class CppClass : public CppContainer
 {
 private:
 	typedef CppContainer super;
@@ -36,14 +35,14 @@ public:
 	typedef std::vector<BaseClass *> BaseClassListType;
 	
 public:
-	CppClass();
+	explicit CppClass(clang::Decl * decl);
 	~CppClass();
+	
+	bool isTemplate() const;
 	
 	BaseClassListType * getBaseClassList() { return &this->baseClassList; }
 	ConstructorListType * getConstructorList() { return &this->constructorList; }
 	CppDestructor * getDestructor() { return this->destructor; }
-
-	virtual bool isTemplate() const { return this->getTemplateParamList()->getCount() > 0; }
 
 protected:
 	virtual ItemCategory getCategory() const { return icClass; }

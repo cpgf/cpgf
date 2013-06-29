@@ -16,10 +16,10 @@ class CppOperator;
 
 // A container, from C++ side, is a namespace, class, or function, that can contain other nested stuff.
 // A container in metagen, is only namespace or class, because the nested stuff in a function can't be accessed from outside.
-class CppContainer : public CppItem
+class CppContainer : public CppNamedItem
 {
 private:
-	typedef CppItem super;
+	typedef CppNamedItem super;
 	
 public:
 	typedef std::vector<CppItem *> ItemListType;
@@ -31,7 +31,7 @@ public:
 	typedef std::vector<CppOperator *> OperatorListType;
 
 public:
-	CppContainer();
+	explicit CppContainer(clang::Decl * decl);
 	virtual ~CppContainer();
 
 	void addItem(CppItem * item);

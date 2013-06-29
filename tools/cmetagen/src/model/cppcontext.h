@@ -24,7 +24,7 @@ public:
 	~CppContext();
 	
 	CppFile * getCurrentFileInfo() const { return this->currentFileInfo; }
-	void beginFile(const char * fileName);
+	void beginFile(const char * fileName, clang::Decl * decl);
 	void endFile(const char * fileName);
 	
 	const FileListType * getFileList() const { return &this->fileList; }
@@ -32,8 +32,8 @@ public:
 	CppType * createType();
 
 	template <typename T>
-	T * createItem() {
-		T * item = new T();
+	T * createItem(clang::Decl * decl) {
+		T * item = new T(decl);
 		this->itemList.push_back(item);
 		return item;
 	}

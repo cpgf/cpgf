@@ -11,8 +11,8 @@
 #include "cpgf/gassert.h"
 
 
-CppContainer::CppContainer()
-	: super()
+CppContainer::CppContainer(clang::Decl * decl)
+	: super(decl)
 {
 }
 

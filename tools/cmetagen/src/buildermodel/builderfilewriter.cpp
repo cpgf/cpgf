@@ -129,10 +129,10 @@ void BuilderFileWriter::requireItemConainerFunction(const CppItem * cppItem)
 	const CppClass * cppClass = cppContainer->isClass() ? static_cast<const CppClass *>(cppContainer) : NULL;
 
 	string s = "template <typename D";
-	if(cppClass != NULL && cppClass->isTemplate()) {
-		s.append(", ");
-		s.append(paramListToString(cppClass->getTemplateParamList(), poWithType | poWithName | poWithDefaultValue));
-	}
+	//if(cppClass != NULL && cppClass->isTemplate()) {
+	//	s.append(", ");
+	//	s.append(paramListToString(cppClass->getTemplateParamList(), poWithType | poWithName | poWithDefaultValue));
+	//}
 	s.append(">");
 	codeBlock->addLine(s);
 
@@ -151,7 +151,7 @@ CodeBlock * BuilderFileWriter::getFunctionContainerCodeBlock(const CppItem * cpp
 	string blockName;
 
 	if(cppItem->getParent() == NULL || cppItem->isContainer()) {
-		blockName = cppItem->getQualifiedName();
+		blockName = static_cast<const CppNamedItem *>(cppItem)->getQualifiedName();
 	}
 	else {
 		blockName = cppItem->getParent()->getQualifiedName();

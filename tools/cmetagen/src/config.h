@@ -16,7 +16,7 @@ public:
 			allowProtected(false),
 			allowPrivate(false)
 	{
-maxItemCountPerFile = 3;
+//maxItemCountPerFile = 3;
 	}
 	
 	size_t getMaxItemCountPerFile() const { return this->maxItemCountPerFile; }

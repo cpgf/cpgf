@@ -11,6 +11,7 @@ private:
 	typedef std::vector<CppItem *> ItemListType;
 
 public:
+	explicit CppNamespace(clang::Decl * decl) : super(decl) {}
 
 protected:
 	virtual ItemCategory getCategory() const { return icNamespace; }

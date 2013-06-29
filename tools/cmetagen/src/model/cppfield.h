@@ -5,14 +5,16 @@
 
 class CppType;
 
-class CppField : public CppItem
+class CppField : public CppNamedItem
 {
 private:
-	typedef CppItem super;
+	typedef CppNamedItem super;
 
 public:
-	CppField();
+	explicit CppField(clang::Decl * decl);
 	
+	bool isStatic() const;
+
 	CppType * getType() const { return this->type; }
 	void setType(CppType * type) { this->type = type; }
 	

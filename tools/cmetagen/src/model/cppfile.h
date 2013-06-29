@@ -12,7 +12,7 @@ private:
 	typedef CppContainer super;
 
 public:
-	explicit CppFile(const char * fullFileName);
+	CppFile(const char * fullFileName, clang::Decl * decl);
 	~CppFile();
 
 protected:	

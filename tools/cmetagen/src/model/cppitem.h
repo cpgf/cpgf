@@ -6,6 +6,8 @@
 #include <string>
 #include <ostream>
 
+namespace clang { class Decl; }
+
 
 enum ItemVisibility
 {
@@ -22,21 +24,13 @@ enum ItemCategory
 
 extern const char * const ItemNames[icCount];
 
-enum ItemFlags
-{
-	ifStatic = 1 << 0,
-	ifConst = 1 << 1,
-};
 
 class CppContainer;
 
 class CppItem
 {
 protected:
-	typedef cpgf::GFlags<ItemFlags> Flags;
-	
-protected:
-	CppItem();
+	explicit CppItem(clang::Decl * decl);
 
 public:
 	virtual ~CppItem();
@@ -48,15 +42,7 @@ public:
 	CppContainer * getParent() const { return this->parent; }
 	void setParent(CppContainer * parent) { this->parent = parent; }
 	
-	const std::string & getName() const { return this->name; }
-	const std::string & getQualifiedName() const { return this->qualifiedName; }
-	void setQualifiedName(const std::string & qualifiedName);
-	
-	bool isStatic() const { return this->flags.has(ifStatic); }
-	void setStatic(bool value) { this->flags.setByBool(ifStatic, value); }
-	
-	ItemVisibility getVisibility() const { return this->visibility; }
-	void setVisibility(ItemVisibility visibility) { this->visibility = visibility; }
+	ItemVisibility getVisibility() const;
 
 	bool isFile() const { return this->getCategory() == icFile; }
 	bool isNamespace() const { return this->getCategory() == icNamespace; }
@@ -68,22 +54,41 @@ public:
 	bool isMethod() const { return this->getCategory() == icMethod; }
 	bool isOperator() const { return this->getCategory() == icOperator; }
 	bool isContainer() const { return this->isFile() || this->isNamespace() || this->isClass(); }
-	virtual bool isTemplate() const { return false; }
 	
 protected:
-	Flags & getFlags() { return this->flags; }
-	const Flags & getFlags() const { return this->flags; }
+	clang::Decl * getDecl() const { return this->declaration; }
 	
 	void dumpIndent(std::ostream & os, int level);
 	
 private:
-	std::string name;
-	std::string qualifiedName;
+	clang::Decl * declaration;
 	ItemVisibility visibility;
-	Flags flags;
 	CppContainer * parent; // file, namespace or class
 };
 
+class CppNamedItem : public CppItem
+{
+private:
+	typedef CppItem super;
+
+public:
+	const std::string & getName() const;
+	const std::string & getQualifiedName() const;
+	const std::string & getQualifiedNameWithoutNamespace() const;
+
+	const std::string & getOutputName() const;
+
+protected:
+	explicit CppNamedItem(clang::Decl * decl);
+	
+private:
+	void checkLoadNames() const;
+
+private:
+	mutable std::string name;
+	mutable std::string qualifiedName;
+	mutable std::string qualifiedNameWithoutNamespace;
+};
 
 
 #endif
