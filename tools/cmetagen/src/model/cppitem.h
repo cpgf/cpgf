@@ -22,6 +22,13 @@ enum ItemCategory
 	icCount
 };
 
+enum ItemTextOption
+{
+	itoWithType = 1 << 0,
+	itoWithName = 1 << 1,
+	itoWithDefaultValue = 1 << 2
+};
+
 extern const char * const ItemNames[icCount];
 
 
@@ -30,7 +37,7 @@ class CppContainer;
 class CppItem
 {
 protected:
-	explicit CppItem(clang::Decl * decl);
+	explicit CppItem(const clang::Decl * decl);
 
 public:
 	virtual ~CppItem();
@@ -56,12 +63,12 @@ public:
 	bool isContainer() const { return this->isFile() || this->isNamespace() || this->isClass(); }
 	
 protected:
-	clang::Decl * getDecl() const { return this->declaration; }
+	const clang::Decl * getDecl() const { return this->declaration; }
 	
 	void dumpIndent(std::ostream & os, int level);
 	
 private:
-	clang::Decl * declaration;
+	const clang::Decl * declaration;
 	ItemVisibility visibility;
 	CppContainer * parent; // file, namespace or class
 };
@@ -79,7 +86,7 @@ public:
 	const std::string & getOutputName() const;
 
 protected:
-	explicit CppNamedItem(clang::Decl * decl);
+	explicit CppNamedItem(const clang::Decl * decl);
 	
 private:
 	void checkLoadNames() const;

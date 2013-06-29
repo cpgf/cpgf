@@ -16,16 +16,17 @@
 #include <string>
 
 
-void getNamedDeclNames(clang::NamedDecl * namedDecl,
+void getNamedDeclNames(const clang::NamedDecl * namedDecl,
 	std::string & name,
 	std::string & qualifiedName,
 	std::string & qualifiedNameWithoutNamespace);
 
-std::string	 getNamedDeclOutputName(clang::NamedDecl * namedDecl);
+std::string	 getNamedDeclOutputName(const clang::NamedDecl * namedDecl);
 
 std::string getTemplateSpecializationName(const clang::TemplateSpecializationType * type);
+std::string getTemplateArgumentName(const clang::TemplateArgument & argument);
 
-std::string qualTypeToText(const clang::QualType & qualType);
+std::string qualTypeToText(const clang::QualType & qualType, const std::string &name);
 std::string exprToText(const clang::Expr * expr);
 std::string declToText(const clang::Decl * decl);
 

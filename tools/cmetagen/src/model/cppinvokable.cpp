@@ -1,5 +1,6 @@
 #include "cppinvokable.h"
 #include "cpgf/gassert.h"
+#include "cpputil.h"
 
 #if defined(_MSC_VER)
 #pragma warning(push, 0)
@@ -18,9 +19,10 @@ using namespace llvm;
 using namespace llvm::sys;
 using namespace clang;
 
-FunctionDecl * getFunctionDecl(Decl * decl)
+
+const FunctionDecl * getFunctionDecl(const Decl * decl)
 {
-	FunctionTemplateDecl * functionTemplateDecl = dyn_cast_or_null<FunctionTemplateDecl>(decl);
+	const FunctionTemplateDecl * functionTemplateDecl = dyn_cast_or_null<FunctionTemplateDecl>(decl);
 	if(functionTemplateDecl != NULL) {
 		decl = functionTemplateDecl->getTemplatedDecl();
 	}
@@ -30,19 +32,19 @@ FunctionDecl * getFunctionDecl(Decl * decl)
 	return dyn_cast_or_null<FunctionDecl>(decl);
 }
 
-CXXMethodDecl * getMethodDecl(Decl * decl)
+const CXXMethodDecl * getMethodDecl(const Decl * decl)
 {
 	return dyn_cast_or_null<CXXMethodDecl>(getFunctionDecl(decl));
 }
 
-CppInvokable::CppInvokable(clang::Decl * decl)
+CppInvokable::CppInvokable(const clang::Decl * decl)
 	: super(decl)
 {
 }
 
 bool CppInvokable::isStatic() const
 {
-	CXXMethodDecl * methodDecl = getMethodDecl(this->getDecl());
+	const CXXMethodDecl * methodDecl = getMethodDecl(this->getDecl());
 
 	if(methodDecl != NULL) {
 		return methodDecl->isStatic();
@@ -54,7 +56,7 @@ bool CppInvokable::isStatic() const
 
 bool CppInvokable::isConst() const
 {
-	CXXMethodDecl * methodDecl = getMethodDecl(this->getDecl());
+	const CXXMethodDecl * methodDecl = getMethodDecl(this->getDecl());
 
 	if(methodDecl != NULL) {
 		return methodDecl->isConst();
@@ -66,7 +68,7 @@ bool CppInvokable::isConst() const
 
 bool CppInvokable::isVariadic() const
 {
-	FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
+	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
 	return functionDecl->isVariadic();
 }
 
@@ -77,6 +79,19 @@ bool CppInvokable::isTemplate() const
 
 size_t CppInvokable::getArity() const
 {
-	FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
+	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
 	return functionDecl->param_size();
+}
+
+std::string CppInvokable::getPointeredType() const
+{
+	QualType qualType = getFunctionDecl(this->getDecl())->getType();
+	std::string s;
+	if(this->isStatic()) {
+		s = "*";
+	}
+	else {
+		s = this->getOutputName() + "::*";
+	}
+	return qualTypeToText(qualType, s);
 }

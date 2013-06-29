@@ -29,7 +29,7 @@ string removeRecordWords(const string & text)
 	return result;
 }
 
-void getNamedDeclNames(NamedDecl * namedDecl,
+void getNamedDeclNames(const NamedDecl * namedDecl,
 	std::string & name,
 	std::string & qualifiedName,
 	std::string & qualifiedNameWithoutNamespace)
@@ -66,11 +66,28 @@ void getNamedDeclNames(NamedDecl * namedDecl,
 	}
 }
 
-std::string	 getNamedDeclOutputName(NamedDecl * namedDecl)
+std::string	 getNamedDeclOutputName(const NamedDecl * namedDecl)
 {
 	std::string name, qualifiedName, qualifiedNameWithoutNamespace;
 	getNamedDeclNames(namedDecl, name, qualifiedName, qualifiedNameWithoutNamespace);
 	return qualifiedNameWithoutNamespace;
+}
+
+std::string getTemplateSpecializationName(const TemplateSpecializationType * type)
+{
+	string qualifiedName;
+
+	qualifiedName = type->getTemplateName().getAsTemplateDecl()->getQualifiedNameAsString();
+	qualifiedName += "<";
+	for(unsigned int i = 0; i < type->getNumArgs(); ++i) {
+		if(i > 0) {
+			qualifiedName += ", ";
+		}
+		qualifiedName += getTemplateArgumentName(type->getArg(i));
+	}
+	qualifiedName += " >";
+
+	return qualifiedName;
 }
 
 string getTemplateArgumentName(const TemplateArgument & argument)
@@ -83,7 +100,7 @@ string getTemplateArgumentName(const TemplateArgument & argument)
 			break;
 
 		case TemplateArgument::Type:
-			qualifiedName = qualTypeToText(argument.getAsType());
+			qualifiedName = qualTypeToText(argument.getAsType(), "");
 			break;
 
 		case TemplateArgument::Declaration:
@@ -110,60 +127,84 @@ string getTemplateArgumentName(const TemplateArgument & argument)
 	return qualifiedName;
 }
 
-std::string getTemplateSpecializationName(const TemplateSpecializationType * type)
+// implemented in cpptypeprinter.cpp
+std::string cppPrintQualType(const QualType & qualType, const std::string &name);
+
+std::string qualTypeToText(const clang::QualType & qualType, const std::string &name)
 {
-	string qualifiedName;
+	std::string text;
 
-	qualifiedName = type->getTemplateName().getAsTemplateDecl()->getQualifiedNameAsString();
-	qualifiedName += "<";
-	for(unsigned int i = 0; i < type->getNumArgs(); ++i) {
-		if(i > 0) {
-			qualifiedName += ", ";
-		}
-		qualifiedName += getTemplateArgumentName(type->getArg(i));
-	}
-	qualifiedName += " >";
+	llvm::raw_string_ostream stream(text);
+	LangOptions langOptions;
+	langOptions.CPlusPlus = 1;
+	PrintingPolicy policy(langOptions);
+	policy.SuppressSpecifiers = 0;
+	QualType::print(qualType.split(), stream, policy, name);
 
-	return qualifiedName;
-}
+	return stream.str();
 
-std::string qualTypeToText(const clang::QualType & qualType)
-{
-	string qualifiedName;
+//	return cppPrintQualType(qualType, name);
 
-//qualifiedName = type->getTypeClassName();
-
-	if(qualType->getAsCXXRecordDecl() != NULL) {
-		qualifiedName = getNamedDeclOutputName(qualType->getAsCXXRecordDecl());
-	}
-	else if(qualType->getAs<TemplateSpecializationType>() != NULL){
-		const TemplateSpecializationType * t = qualType->getAs<TemplateSpecializationType>();
-		qualifiedName = getTemplateSpecializationName(t);
-	}
-	else if(qualType->getAs<TemplateTypeParmType>() != NULL){
-//		const TemplateTypeParmType * t = qualType->getAs<TemplateTypeParmType>();
-		qualifiedName = qualType.getAsString();
-	}
-	else {
-		qualifiedName = qualType.getAsString();
-	}
-
-	qualifiedName = removeRecordWords(qualifiedName);
-
-	return qualifiedName;
+//	string qualifiedName;
+//
+////qualifiedName = type->getTypeClassName();
+//
+//	if(qualType->getAsCXXRecordDecl() != NULL) {
+//		qualifiedName = getNamedDeclOutputName(qualType->getAsCXXRecordDecl());
+//	}
+//	else if(qualType->getAs<TemplateSpecializationType>() != NULL){
+//		const TemplateSpecializationType * t = qualType->getAs<TemplateSpecializationType>();
+//		qualifiedName = getTemplateSpecializationName(t);
+//	}
+//	else if(qualType->getAs<TemplateTypeParmType>() != NULL){
+////		const TemplateTypeParmType * t = qualType->getAs<TemplateTypeParmType>();
+//		qualifiedName = qualType.getAsString();
+//	}
+//	else {
+//		qualifiedName = qualType.getAsString();
+//	}
+//
+//	qualifiedName = removeRecordWords(qualifiedName);
+//
+//	return qualifiedName;
 }
 
 std::string exprToText(const clang::Expr * expr)
 {
 	std::string text;
 	raw_string_ostream stream(text);
-	LangOptions lo;
-	expr->printPretty(stream, NULL, PrintingPolicy(lo));
-	return text;
+	LangOptions langOptions;
+	langOptions.CPlusPlus = 1;
+	PrintingPolicy policy(langOptions);
+	policy.SuppressSpecifiers = 0;
+	expr->printPretty(stream, NULL, policy);
+	return stream.str();
+}
+
+std::string namedDeclToText(const NamedDecl * namedDecl)
+{
+	std::string name, qualifiedName, qualifiedNameWithoutNamespace;
+	getNamedDeclNames(namedDecl, name, qualifiedName, qualifiedNameWithoutNamespace);
+	return qualifiedNameWithoutNamespace;
 }
 
 std::string declToText(const clang::Decl * decl)
 {
-	return "";
+	std::string text;
+	raw_string_ostream stream(text);
+	LangOptions langOptions;
+	langOptions.CPlusPlus = 1;
+	PrintingPolicy policy(langOptions);
+	policy.SuppressSpecifiers =0;
+	decl->print(stream, policy, NULL, false);
+	return stream.str();
+
+	//const NamedDecl * namedDecl = dyn_cast<NamedDecl>(decl);
+	//if(namedDecl != NULL) {
+	//	return namedDeclToText(namedDecl);
+	//}
+	//else {
+	//	return "";
+	//}
 }
 

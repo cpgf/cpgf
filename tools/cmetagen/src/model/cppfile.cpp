@@ -4,7 +4,7 @@
 #include "util.h"
 
 
-CppFile::CppFile(const char * fullFileName, clang::Decl * decl)
+CppFile::CppFile(const char * fullFileName, const clang::Decl * decl)
 	: super(decl), fullFileName(fullFileName)
 {
 	this->fullFileName = this->fullFileName.absolute();
@@ -14,3 +14,8 @@ CppFile::CppFile(const char * fullFileName, clang::Decl * decl)
 CppFile::~CppFile()
 {
 }
+
+void CppFile::prepare()
+{
+}
+

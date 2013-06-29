@@ -10,7 +10,7 @@ private:
 	typedef CppItem super;
 
 public:
-	explicit CppDestructor(clang::Decl * decl) : super(decl) {}
+	explicit CppDestructor(const clang::Decl * decl) : super(decl) {}
 
 protected:
 	virtual ItemCategory getCategory() const { return icDestructor; }

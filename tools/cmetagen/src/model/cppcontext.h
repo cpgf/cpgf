@@ -7,13 +7,11 @@
 
 #include <vector>
 
-class CppType;
 class CppFile;
 
 class CppContext
 {
 private:
-	typedef std::vector<CppType *> TypeListType;
 	typedef std::vector<CppItem *> ItemListType;
 	
 public:
@@ -29,8 +27,6 @@ public:
 	
 	const FileListType * getFileList() const { return &this->fileList; }
 
-	CppType * createType();
-
 	template <typename T>
 	T * createItem(clang::Decl * decl) {
 		T * item = new T(decl);
@@ -40,7 +36,6 @@ public:
 	
 private:
 	CppFile * currentFileInfo;
-	TypeListType typeList;
 	ItemListType itemList;
 	FileListType fileList;
 };

@@ -27,7 +27,7 @@ public:
 	typedef std::vector<CppEnumValue> ValueListType;
 
 public:
-	explicit CppEnum(clang::Decl * decl) : super(decl) {}
+	explicit CppEnum(const clang::Decl * decl) : super(decl) {}
 
 	ValueListType * getValueList() { return &this->valueList; }
 	void addValue(const std::string & name, const std::string & qualifiedName) { this->valueList.push_back(CppEnumValue(name, qualifiedName)); }

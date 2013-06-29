@@ -11,7 +11,7 @@ private:
 	typedef CppInvokable super;
 	
 public:
-	explicit CppOperator(clang::Decl * decl) : super(decl) {}
+	explicit CppOperator(const clang::Decl * decl) : super(decl) {}
 
 protected:
 	virtual ItemCategory getCategory() const { return icOperator; }

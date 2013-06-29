@@ -40,7 +40,7 @@ ItemVisibility accessToVisibility(AccessSpecifier access)
 }
 
 
-CppItem::CppItem(clang::Decl * decl)
+CppItem::CppItem(const clang::Decl * decl)
 	: declaration(decl), visibility(ivPublic), parent(NULL)
 {
 }
@@ -72,7 +72,7 @@ void CppItem::dumpIndent(std::ostream & os, int level)
 }
 
 
-CppNamedItem::CppNamedItem(clang::Decl * decl)
+CppNamedItem::CppNamedItem(const clang::Decl * decl)
 	: super(decl)
 {
 }

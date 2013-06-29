@@ -11,8 +11,8 @@ private:
 	typedef CppInvokable super;
 	
 public:
-	explicit CppMethod(clang::Decl * decl) : super(decl) {}
-
+	explicit CppMethod(const clang::Decl * decl);
+	
 protected:
 	virtual ItemCategory getCategory() const { return icMethod; }
 };

@@ -20,7 +20,7 @@ bool compareItem(BuilderItem * itemA, BuilderItem * itemB)
 	const CppItem * cppItemB = itemB->getCppItem();
 
 	if(cppItemA->getParent() != cppItemB->getParent()) {
-		return cppItemA->getParent()->getQualifiedName() < cppItemB->getParent()->getQualifiedName();
+		return cppItemA->getParent()->getQualifiedName() > cppItemB->getParent()->getQualifiedName();
 	}
 
 	return cppItemA->getCategory() < cppItemB->getCategory();

@@ -12,8 +12,10 @@ private:
 	typedef CppContainer super;
 
 public:
-	CppFile(const char * fullFileName, clang::Decl * decl);
+	CppFile(const char * fullFileName, const clang::Decl * decl);
 	~CppFile();
+
+	void prepare();
 
 protected:	
 	virtual ItemCategory getCategory() const { return icFile; }

@@ -129,10 +129,10 @@ void BuilderFileWriter::requireItemConainerFunction(const CppItem * cppItem)
 	const CppClass * cppClass = cppContainer->isClass() ? static_cast<const CppClass *>(cppContainer) : NULL;
 
 	string s = "template <typename D";
-	//if(cppClass != NULL && cppClass->isTemplate()) {
-	//	s.append(", ");
-	//	s.append(paramListToString(cppClass->getTemplateParamList(), poWithType | poWithName | poWithDefaultValue));
-	//}
+	if(cppClass != NULL && cppClass->isTemplate()) {
+		s.append(", ");
+		s.append(cppClass->getTemplateParamList(ItemTextOption(itoWithType | itoWithName | itoWithDefaultValue)));
+	}
 	s.append(">");
 	codeBlock->addLine(s);
 

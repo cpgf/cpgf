@@ -1,6 +1,5 @@
 #include "clangparser.h"
 
-#include "model/cpptype.h"
 #include "model/cppnamespace.h"
 #include "model/cppclass.h"
 #include "model/cppfield.h"
@@ -20,8 +19,7 @@
 #include <string>
 
 #if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable:4146 4800 4244 4150 4624 4355 4291 4996 4345 4127 4510 4610 4512 4100 4245 4189 4389)
+#pragma warning(push, 0)
 #endif
 
 #include "llvm/Support/Host.h"
@@ -100,9 +98,6 @@ private:
 		return item;
 	}
 
-	CppType * addType(const QualType & qualType);
-	CppType * addType(const string & name);
-
 private:
 	void parseDeclContext(DeclContext * declContext);
 
@@ -118,6 +113,7 @@ private:
 	void parseConstructor(CXXConstructorDecl * constructorDecl);
 	void parseDestructor(CXXDestructorDecl * destructorDecl);
 	void parseOperator(FunctionDecl * functionDecl);
+	void parseTemplateOperator(FunctionTemplateDecl * functionTemplateDecl);
 
 	// non-top level parser
 	void parseField(FieldDecl * fieldDecl);
@@ -329,69 +325,69 @@ QualType stripType(const QualType & qualType)
 	return qType;
 }
 
-CppType * ClangParserImplement::addType(const QualType & qualType)
-{
-	CppType * type = this->context->createType();
-
-	type->setLiteralName(qualType.getAsString());
-	type->setQualifiedName(this->getQualTypeName(qualType));
-	type->setBaseName(this->getQualTypeName(stripType(qualType)));
-
-	QualType qType = qualType;
-	SplitQualType splitQualType = qType.split();
-	const Type * t = splitQualType.Ty;
-
-	type->setConst(splitQualType.Quals.hasConst());
-	type->setVolatile(splitQualType.Quals.hasVolatile());
-
-	if(t->isArrayType() != NULL) {
-		type->setArray(true);
-	}
-	else {
-		if(t->isFunctionType()) {
-			type->setFunction(true);
-		}
-		else if(t->isFunctionPointerType()) {
-			type->setFunctionPointer(true);
-		}
-		else {
-			if(t->isReferenceType()) {
-				type->setReference(true);
-				qType = dyn_cast<ReferenceType>(t)->getPointeeType();
-				splitQualType = qType.split();
-				t = splitQualType.Ty;
-				type->setReferenceToConst(splitQualType.Quals.hasConst());
-				type->setReferenceToVolatile(splitQualType.Quals.hasVolatile());
-			}
-
-			if(t->isPointerType()) {
-				type->setPointer(true);
-				qType = dyn_cast<PointerType>(t)->getPointeeType();
-				splitQualType = qType.split();
-				t = splitQualType.Ty;
-				type->setPointerToConst(splitQualType.Quals.hasConst());
-				type->setPointerToVolatile(splitQualType.Quals.hasVolatile());
-
-				if(t->isPointerType()) {
-					type->setMultiPointer(true);
-				}
-			}
-		}
-	}
-
-	return type;
-}
-
-CppType * ClangParserImplement::addType(const string & name)
-{
-	CppType * type = this->context->createType();
-
-	type->setLiteralName(name);
-	type->setQualifiedName(name);
-	type->setBaseName(name);
-	
-	return type;
-}
+//CppType * ClangParserImplement::addType(const QualType & qualType)
+//{
+//	CppType * type = this->context->createType();
+//
+//	type->setLiteralName(qualType.getAsString());
+//	type->setQualifiedName(this->getQualTypeName(qualType));
+//	type->setBaseName(this->getQualTypeName(stripType(qualType)));
+//
+//	QualType qType = qualType;
+//	SplitQualType splitQualType = qType.split();
+//	const Type * t = splitQualType.Ty;
+//
+//	type->setConst(splitQualType.Quals.hasConst());
+//	type->setVolatile(splitQualType.Quals.hasVolatile());
+//
+//	if(t->isArrayType() != NULL) {
+//		type->setArray(true);
+//	}
+//	else {
+//		if(t->isFunctionType()) {
+//			type->setFunction(true);
+//		}
+//		else if(t->isFunctionPointerType()) {
+//			type->setFunctionPointer(true);
+//		}
+//		else {
+//			if(t->isReferenceType()) {
+//				type->setReference(true);
+//				qType = dyn_cast<ReferenceType>(t)->getPointeeType();
+//				splitQualType = qType.split();
+//				t = splitQualType.Ty;
+//				type->setReferenceToConst(splitQualType.Quals.hasConst());
+//				type->setReferenceToVolatile(splitQualType.Quals.hasVolatile());
+//			}
+//
+//			if(t->isPointerType()) {
+//				type->setPointer(true);
+//				qType = dyn_cast<PointerType>(t)->getPointeeType();
+//				splitQualType = qType.split();
+//				t = splitQualType.Ty;
+//				type->setPointerToConst(splitQualType.Quals.hasConst());
+//				type->setPointerToVolatile(splitQualType.Quals.hasVolatile());
+//
+//				if(t->isPointerType()) {
+//					type->setMultiPointer(true);
+//				}
+//			}
+//		}
+//	}
+//
+//	return type;
+//}
+//
+//CppType * ClangParserImplement::addType(const string & name)
+//{
+//	CppType * type = this->context->createType();
+//
+//	type->setLiteralName(name);
+//	type->setQualifiedName(name);
+//	type->setBaseName(name);
+//	
+//	return type;
+//}
 
 void ClangParserImplement::parseDeclContext(DeclContext * declContext)
 {
@@ -472,8 +468,7 @@ void ClangParserImplement::parseVar(VarDecl * varDecl)
 	}
 
 	CppField * field = this->addItem<CppField>(varDecl);
-	CppType * type = this->addType(varDecl->getType());
-	field->setType(type);
+//	CppType * type = this->addType(varDecl->getType());
 }
 
 void ClangParserImplement::parseClass(CXXRecordDecl * classDecl)
@@ -517,17 +512,30 @@ void ClangParserImplement::parseTemplateClass(ClassTemplateDecl * classTemplateD
 //	this->parseTemplateParams(classTemplateDecl, cls);
 }
 
+bool isOperator(const string & name)
+{
+	static const Poco::RegularExpression operatorRegex("\\boperator\\b");
+	Poco::RegularExpression::Match match;
+	return operatorRegex.match(name, match) > 0;
+}
+
 void ClangParserImplement::parseTemplateFunction(FunctionTemplateDecl * functionTemplateDecl)
 {
 	if(functionTemplateDecl == NULL || ! functionTemplateDecl->isFirstDeclaration()) {
 		return;
 	}
 
-	CppMethod * method = this->addItem<CppMethod>(functionTemplateDecl);
-	FunctionDecl * functionDecl = functionTemplateDecl->getTemplatedDecl();
-	this->parseFunctionParams(functionDecl, method);
-	this->parseFunctionResult(functionDecl, method);
-//	this->parseTemplateParams(functionTemplateDecl, method);
+	string name = functionTemplateDecl->getNameAsString();
+	if(isOperator(name) > 0) {
+		this->parseTemplateOperator(functionTemplateDecl);
+	}
+	else {
+		CppMethod * method = this->addItem<CppMethod>(functionTemplateDecl);
+		FunctionDecl * functionDecl = functionTemplateDecl->getTemplatedDecl();
+		this->parseFunctionParams(functionDecl, method);
+		this->parseFunctionResult(functionDecl, method);
+//		this->parseTemplateParams(functionTemplateDecl, method);
+	}
 }
 
 void ClangParserImplement::parseFunction(FunctionDecl * functionDecl)
@@ -537,9 +545,7 @@ void ClangParserImplement::parseFunction(FunctionDecl * functionDecl)
 	}
 
 	string name = functionDecl->getNameAsString();
-	static const Poco::RegularExpression operatorRegex("\\boperator\\b");
-	Poco::RegularExpression::Match match;
-	if((size_t)(operatorRegex.match(name, match)) != string::npos) {
+	if(isOperator(name) > 0) {
 		this->parseOperator(functionDecl);
 	}
 	else {
@@ -602,6 +608,17 @@ void ClangParserImplement::parseOperator(FunctionDecl * functionDecl)
 	this->parseInvokable(functionDecl, op);
 }
 
+void ClangParserImplement::parseTemplateOperator(FunctionTemplateDecl * functionTemplateDecl)
+{
+	if(functionTemplateDecl == NULL || ! functionTemplateDecl->isFirstDeclaration()) {
+		return;
+	}
+
+	CppOperator * op = this->addItem<CppOperator>(functionTemplateDecl);
+	FunctionDecl * functionDecl = functionTemplateDecl->getTemplatedDecl();
+	this->parseInvokable(functionDecl, op);
+}
+
 void ClangParserImplement::parseField(FieldDecl * fieldDecl)
 {
 	if(fieldDecl == NULL) {
@@ -610,8 +627,7 @@ void ClangParserImplement::parseField(FieldDecl * fieldDecl)
 
 	CppField * field = this->addItem<CppField>(fieldDecl);
 
-	CppType * type = this->addType(fieldDecl->getType());
-	field->setType(type);
+//	CppType * type = this->addType(fieldDecl->getType());
 
 	if(fieldDecl->isBitField()) {
 		field->setBitFields(fieldDecl->getBitWidthValue(this->compilerInstance.getASTContext()));

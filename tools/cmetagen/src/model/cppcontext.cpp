@@ -1,5 +1,4 @@
 #include "cppcontext.h"
-#include "cpptype.h"
 #include "cppnamespace.h"
 #include "cppfile.h"
 
@@ -15,27 +14,20 @@ CppContext::CppContext()
 
 CppContext::~CppContext()
 {
-	clearPointerContainer(this->typeList);
 	clearPointerContainer(this->itemList);
 	clearPointerContainer(this->fileList);
-}
-
-CppType * CppContext::createType()
-{
-	CppType * type = new CppType();
-	this->typeList.push_back(type);
-	return type;
 }
 
 void CppContext::beginFile(const char * fileName, clang::Decl * decl)
 {
 	GASSERT(this->currentFileInfo == NULL);
-	
+
 	this->currentFileInfo = new CppFile(fileName, decl);
 	this->fileList.push_back(this->currentFileInfo);
 }
 
 void CppContext::endFile(const char * /*fileName*/)
 {
+	this->currentFileInfo->prepare();
 	this->currentFileInfo = NULL;
 }

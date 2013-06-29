@@ -1,5 +1,4 @@
 #include "cppfield.h"
-#include "cpptype.h"
 
 #if defined(_MSC_VER)
 #pragma warning(push, 0)
@@ -13,9 +12,8 @@
 
 using namespace clang;
 
-
-CppField::CppField(clang::Decl * decl)
-	: super(decl), type(NULL), bitFields(0)
+CppField::CppField(const clang::Decl * decl)
+	: super(decl), bitFields(0)
 {
 }
 
@@ -32,3 +30,4 @@ bool CppField::isStatic() const
 			return true;
 	}
 }
+

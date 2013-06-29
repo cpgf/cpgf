@@ -3,6 +3,9 @@
 
 #include "cppcontainer.h"
 
+#include <string>
+
+
 class CppConstructor;
 class CppDestructor;
 
@@ -35,10 +38,12 @@ public:
 	typedef std::vector<BaseClass *> BaseClassListType;
 	
 public:
-	explicit CppClass(clang::Decl * decl);
+	explicit CppClass(const clang::Decl * decl);
 	~CppClass();
 	
 	bool isTemplate() const;
+	
+	std::string getTemplateParamList(ItemTextOption options) const;
 	
 	BaseClassListType * getBaseClassList() { return &this->baseClassList; }
 	ConstructorListType * getConstructorList() { return &this->constructorList; }

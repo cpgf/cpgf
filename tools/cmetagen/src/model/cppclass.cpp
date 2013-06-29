@@ -1,6 +1,7 @@
 #include "cppclass.h"
 #include "cppconstructor.h"
 #include "cppdestructor.h"
+#include "cpputil.h"
 
 #include "util.h"
 
@@ -15,8 +16,9 @@
 #endif
 
 using namespace clang;
+using namespace std;
 
-CppClass::CppClass(clang::Decl * decl)
+CppClass::CppClass(const clang::Decl * decl)
 	: super(decl), destructor(NULL)
 {
 }
@@ -48,3 +50,51 @@ void CppClass::doAddItem(CppItem * item)
 	}
 }
 
+
+std::string CppClass::getTemplateParamList(ItemTextOption options) const
+{
+	if(! this->isTemplate()) {
+		return "";
+	}
+
+	string text;
+	const TemplateDecl * templateDecl = dyn_cast<TemplateDecl>(this->getDecl());
+	const TemplateParameterList * templateParamList = templateDecl->getTemplateParameters();
+	for(TemplateParameterList::const_iterator it = templateParamList->begin(); it != templateParamList->end(); ++it) {
+		if(! text.empty()) {
+			text.append(", ");
+		}
+
+		const NamedDecl * namedDecl = *it;
+		Decl::Kind kind = namedDecl->getKind();
+
+		string defaultValue;
+		if(kind == Decl::TemplateTypeParm) {
+			const TemplateTypeParmDecl * paramDecl = dyn_cast<TemplateTypeParmDecl>(namedDecl);
+			text.append(paramDecl->wasDeclaredWithTypename() ? "typename " : "class ");
+			text.append(paramDecl->getNameAsString());
+			if(paramDecl->hasDefaultArgument()) {
+				defaultValue = qualTypeToText(paramDecl->getDefaultArgument(), "");
+			}
+		}
+		else if(kind == Decl::NonTypeTemplateParm) {
+			const NonTypeTemplateParmDecl * paramDecl = dyn_cast<NonTypeTemplateParmDecl>(namedDecl);
+			text.append(qualTypeToText(paramDecl->getType(), paramDecl->getNameAsString()));
+			if(paramDecl->hasDefaultArgument()) {
+				defaultValue = exprToText(paramDecl->getDefaultArgument());
+			}
+		}
+		else if(kind == Decl::TemplateTemplateParm) {
+			const TemplateTemplateParmDecl * paramDecl = dyn_cast<TemplateTemplateParmDecl>(namedDecl);
+			text.append(declToText(paramDecl));
+			if(paramDecl->hasDefaultArgument()) {
+				defaultValue = getTemplateArgumentName(paramDecl->getDefaultArgument().getArgument());
+			}
+		}
+		if(! defaultValue.empty()) {
+			text.append(" = " + defaultValue);
+		}
+	}
+
+	return text;
+}

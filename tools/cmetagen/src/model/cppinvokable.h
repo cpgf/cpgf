@@ -1,7 +1,6 @@
 #ifndef __CPPINVOKABLE_H
 #define __CPPINVOKABLE_H
 
-#include "cpptype.h"
 #include "cppitem.h"
 
 
@@ -11,7 +10,7 @@ private:
 	typedef CppNamedItem super;
 
 public:
-	CppInvokable(clang::Decl * decl);
+	explicit CppInvokable(const clang::Decl * decl);
 	
 	bool isStatic() const;
 	bool isConst() const;
@@ -19,6 +18,9 @@ public:
 	bool isTemplate() const;
 
 	size_t getArity() const;
+
+	std::string getPointeredType() const;
+
 };
 
 

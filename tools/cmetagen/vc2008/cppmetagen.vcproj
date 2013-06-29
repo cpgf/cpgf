@@ -222,11 +222,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\model\cppmethod.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\model\cppnamespace.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\src\model\cpptype.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\model\cpptypeprinter.cpp"
 					>
 				</File>
 				<File

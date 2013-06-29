@@ -31,7 +31,7 @@ public:
 	typedef std::vector<CppOperator *> OperatorListType;
 
 public:
-	explicit CppContainer(clang::Decl * decl);
+	explicit CppContainer(const clang::Decl * decl);
 	virtual ~CppContainer();
 
 	void addItem(CppItem * item);
