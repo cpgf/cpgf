@@ -1,6 +1,63 @@
 #include "cpptype.h"
 #include "cpputil.h"
 
+#if defined(_MSC_VER)
+#pragma warning(push, 0)
+#endif
+
+#include "llvm/Support/raw_ostream.h"
+#include "clang/AST/DeclTemplate.h"
+#include "clang/AST/PrettyPrinter.h"
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+
+#include <vector>
+
+using namespace llvm;
+using namespace clang;
+
+
+std::string qualTypeToText(const clang::QualType & qualType, const std::string &name)
+{
+	std::string text;
+
+	llvm::raw_string_ostream stream(text);
+	LangOptions langOptions;
+	langOptions.CPlusPlus = 1;
+	PrintingPolicy policy(langOptions);
+	policy.SuppressSpecifiers = 0;
+	QualType::print(qualType.split(), stream, policy, name);
+
+	return stream.str();
+
+//	return cppPrintQualType(qualType, name);
+
+//	string qualifiedName;
+//
+////qualifiedName = type->getTypeClassName();
+//
+//	if(qualType->getAsCXXRecordDecl() != NULL) {
+//		qualifiedName = getNamedDeclOutputName(qualType->getAsCXXRecordDecl());
+//	}
+//	else if(qualType->getAs<TemplateSpecializationType>() != NULL){
+//		const TemplateSpecializationType * t = qualType->getAs<TemplateSpecializationType>();
+//		qualifiedName = getTemplateSpecializationName(t);
+//	}
+//	else if(qualType->getAs<TemplateTypeParmType>() != NULL){
+////		const TemplateTypeParmType * t = qualType->getAs<TemplateTypeParmType>();
+//		qualifiedName = qualType.getAsString();
+//	}
+//	else {
+//		qualifiedName = qualType.getAsString();
+//	}
+//
+//	qualifiedName = removeRecordWords(qualifiedName);
+//
+//	return qualifiedName;
+}
+
 
 CppType::CppType(const clang::QualType & qualType)
 	: qualType(qualType)
@@ -25,7 +82,7 @@ CppType & CppType::operator = (const CppType & other)
 
 std::string CppType::getQualifiedName(const std::string & placeHolder) const
 {
-	return qualTypeToText(this->qualType, placeHolder);
+	return qualTypeToText(this->qualType.getCanonicalType(), placeHolder);
 }
 
 std::string CppType::getQualifiedName() const
@@ -128,3 +185,18 @@ bool CppType::isFunctionPointer() const
 	return this->qualType->isFunctionPointerType();
 }
 
+bool CppType::isVoid() const
+{
+	return this->qualType->isVoidType();
+}
+
+bool CppType::isFundamental() const
+{
+	return this->qualType->isFundamentalType();
+}
+
+CppType CppType::getNonReferenceType() const
+{
+	clang::QualType type = this->qualType.getNonReferenceType();
+	return CppType(type);
+}

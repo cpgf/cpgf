@@ -42,6 +42,7 @@ public:
 	~CppClass();
 	
 	bool isTemplate() const;
+	bool isChainedTemplate() const;
 	bool isAnonymous() const;
 	
 	std::string getTextOfTemplateParamList(const ItemTextOptionFlags & options) const;

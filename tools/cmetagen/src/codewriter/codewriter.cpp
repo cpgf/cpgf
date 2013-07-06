@@ -57,7 +57,7 @@ void CodeWriter::write(const std::string & s)
 	//	this->text = this->text + indentText;
 	//}
 
-	this->text = this->text + indentText + s;
+	this->text.append(indentText + s);
 }
 
 void CodeWriter::writeLine(const std::string & s)
@@ -65,9 +65,17 @@ void CodeWriter::writeLine(const std::string & s)
 	this->write(s + "\n");
 }
 
-void CodeWriter::writeBlankLine()
+void CodeWriter::ensureBlankLine()
 {
-	this->write("\n");
+	size_t size = this->text.size();
+	int blankLineCount = 0;
+	while(size > 0 && this->text[--size] == '\n') {
+		++blankLineCount;
+	}
+	while(blankLineCount < 2) {
+		this->text.append("\n");
+		++blankLineCount;
+	}
 }
 
 const std::string & CodeWriter::getText() const

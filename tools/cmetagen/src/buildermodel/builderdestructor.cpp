@@ -19,6 +19,11 @@ const CppDestructor * BuilderDestructor::getCppDestructor() const
 	return static_cast<const CppDestructor *>(this->getCppItem());
 }
 
+bool BuilderDestructor::canBind() const
+{
+	return false;
+}
+
 void BuilderDestructor::doWriteMetaData(BuilderFileWriter * writer)
 {
 }

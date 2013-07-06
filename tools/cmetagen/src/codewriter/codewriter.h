@@ -17,7 +17,7 @@ public:
 	
 	void write(const std::string & text);
 	void writeLine(const std::string & text);
-	void writeBlankLine();
+	void ensureBlankLine();
 	
 	const std::string & getText() const;
 

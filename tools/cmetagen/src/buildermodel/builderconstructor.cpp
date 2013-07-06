@@ -3,6 +3,8 @@
 #include "codewriter/cppwriter.h"
 #include "model/cppconstructor.h"
 
+#include "Poco/Format.h"
+
 
 BuilderConstructor::BuilderConstructor(const CppItem * cppItem)
 	: super(cppItem)
@@ -21,5 +23,14 @@ const CppConstructor * BuilderConstructor::getCppConstructor() const
 
 void BuilderConstructor::doWriteMetaData(BuilderFileWriter * writer)
 {
+	const CppConstructor * cppConstructor = this->getCppConstructor();
+	CodeBlock * codeBlock = writer->getReflectionCodeBlock(cppConstructor);
+
+	std::string s = Poco::format("%s<void * (%s)>());",
+		writer->getReflectionAction("_constructor"),
+		cppConstructor->getTextOfParamList(itoWithType)
+	);
+
+	codeBlock->addLine(s);
 }
 

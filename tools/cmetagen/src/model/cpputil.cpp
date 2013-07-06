@@ -1,4 +1,5 @@
 #include "cpputil.h"
+#include "cpptype.h"
 
 #include "Poco/RegularExpression.h"
 
@@ -126,7 +127,7 @@ string getTemplateArgumentName(const TemplateArgument & argument)
 			break;
 
 		case TemplateArgument::Type:
-			qualifiedName = qualTypeToText(argument.getAsType(), "");
+			qualifiedName = CppType(argument.getAsType()).getQualifiedName();
 			break;
 
 		case TemplateArgument::Declaration:
@@ -151,45 +152,6 @@ string getTemplateArgumentName(const TemplateArgument & argument)
 	}
 
 	return qualifiedName;
-}
-
-std::string qualTypeToText(const clang::QualType & qualType, const std::string &name)
-{
-	std::string text;
-
-	llvm::raw_string_ostream stream(text);
-	LangOptions langOptions;
-	langOptions.CPlusPlus = 1;
-	PrintingPolicy policy(langOptions);
-	policy.SuppressSpecifiers = 0;
-	QualType::print(qualType.split(), stream, policy, name);
-
-	return stream.str();
-
-//	return cppPrintQualType(qualType, name);
-
-//	string qualifiedName;
-//
-////qualifiedName = type->getTypeClassName();
-//
-//	if(qualType->getAsCXXRecordDecl() != NULL) {
-//		qualifiedName = getNamedDeclOutputName(qualType->getAsCXXRecordDecl());
-//	}
-//	else if(qualType->getAs<TemplateSpecializationType>() != NULL){
-//		const TemplateSpecializationType * t = qualType->getAs<TemplateSpecializationType>();
-//		qualifiedName = getTemplateSpecializationName(t);
-//	}
-//	else if(qualType->getAs<TemplateTypeParmType>() != NULL){
-////		const TemplateTypeParmType * t = qualType->getAs<TemplateTypeParmType>();
-//		qualifiedName = qualType.getAsString();
-//	}
-//	else {
-//		qualifiedName = qualType.getAsString();
-//	}
-//
-//	qualifiedName = removeRecordWords(qualifiedName);
-//
-//	return qualifiedName;
 }
 
 std::string exprToText(const clang::Expr * expr)

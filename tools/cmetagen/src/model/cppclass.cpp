@@ -19,6 +19,19 @@
 using namespace clang;
 using namespace std;
 
+const CXXRecordDecl * getRecordDecl(const Decl * decl)
+{
+	const CXXRecordDecl * recordDecl;
+	const ClassTemplateDecl * templateDecl = dyn_cast<ClassTemplateDecl>(decl);
+	if(templateDecl != NULL) {
+		recordDecl = templateDecl->getTemplatedDecl();
+	}
+	else {
+		recordDecl = dyn_cast<CXXRecordDecl>(decl);
+	}
+	return recordDecl;
+}
+
 CppClass::CppClass(const clang::Decl * decl)
 	: super(decl), destructor(NULL)
 {
@@ -34,9 +47,22 @@ bool CppClass::isTemplate() const
 	return isa<ClassTemplateDecl>(this->getDecl());
 }
 
+bool CppClass::isChainedTemplate() const
+{
+	if(this->isTemplate()) {
+		return true;
+	}
+	else if(this->getParent()->isClass()) {
+		return static_cast<const CppClass *>(this->getParent())->isChainedTemplate();
+	}
+	else {
+		return false;
+	}
+}
+
 bool CppClass::isAnonymous() const
 {
-	const CXXRecordDecl * cxxRecordDecl = dyn_cast<CXXRecordDecl>(this->getDecl());
+	const CXXRecordDecl * cxxRecordDecl = getRecordDecl(this->getDecl());
 	return cxxRecordDecl->isAnonymousStructOrUnion();
 }
 
@@ -44,7 +70,7 @@ void CppClass::doAddItem(CppItem * item)
 {
 	switch(item->getCategory()) {
 		case icConstructor:
-			this->constructorList.push_back(static_cast<CppConstructor *>(item));
+			this->pushItem(this->constructorList, item);
 			break;
 
 		case icDestructor:
@@ -83,13 +109,13 @@ std::string CppClass::getTextOfTemplateParamList(const ItemTextOptionFlags & opt
 			}
 			text.append(paramDecl->getNameAsString());
 			if(paramDecl->hasDefaultArgument()) {
-				defaultValue = qualTypeToText(paramDecl->getDefaultArgument(), "");
+				defaultValue = CppType(paramDecl->getDefaultArgument()).getQualifiedName();
 			}
 		}
 		else if(kind == Decl::NonTypeTemplateParm) {
 			const NonTypeTemplateParmDecl * paramDecl = dyn_cast<NonTypeTemplateParmDecl>(namedDecl);
 			if(options.has(itoWithType)) {
-				text.append(qualTypeToText(paramDecl->getType(), paramDecl->getNameAsString()));
+				text.append(CppType(paramDecl->getType()).getQualifiedName(paramDecl->getNameAsString()));
 			}
 			else {
 				text.append(paramDecl->getNameAsString());

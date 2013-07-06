@@ -23,6 +23,9 @@ CppContainer::~CppContainer()
 void CppContainer::addItem(CppItem * item)
 {
 	this->itemList.push_back(item);
+	if(item->isNamed()) {
+		++this->itemCount[static_cast<CppNamedItem *>(item)->getQualifiedName()];
+	}
 	this->doAddItem(item);
 	item->setParent(this);
 }
@@ -31,32 +34,43 @@ void CppContainer::doAddItem(CppItem * item)
 {
 	switch(item->getCategory()) {
 		case icNamespace:
-			this->namespaceList.push_back(static_cast<CppNamespace *>(item));
+			this->pushItem(this->namespaceList, item);
 			break;
 
 		case icClass:
-			this->classList.push_back(static_cast<CppClass *>(item));
+			this->pushItem(this->classList, item);
 			break;
 
 		case icField:
-			this->fieldList.push_back(static_cast<CppField *>(item));
+			this->pushItem(this->fieldList, item);
 			break;
 			
 		case icMethod:
-			this->methodList.push_back(static_cast<CppMethod *>(item));
+			this->pushItem(this->methodList, item);
 			break;
 
 		case icEnum:
-			this->enumList.push_back(static_cast<CppEnum *>(item));
+			this->pushItem(this->enumList, item);
 			break;
 
 		case icOperator:
-			this->operatorList.push_back(static_cast<CppOperator *>(item));
+			this->pushItem(this->operatorList, item);
 			break;
 
 		default:
 			GASSERT(false);
 			break;
+	}
+}
+
+int CppContainer::getSameNamedItemCount(const CppNamedItem * item) const
+{
+	ItemCountMap::const_iterator it = this->itemCount.find(item->getQualifiedName());
+	if(it != this->itemCount.end()) {
+		return it->second;
+	}
+	else {
+		return 0;
 	}
 }
 

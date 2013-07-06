@@ -29,11 +29,12 @@ public:
 public:
 	explicit CppEnum(const clang::Decl * decl) : super(decl) {}
 
-	const ValueListType * getValueList() const { return &this->valueList; }
+	const ValueListType * getValueList() const;
+	bool isAnonymous() const;
 		
 protected:
 	virtual ItemCategory getCategory() const { return icEnum; }
-	void addValue(const std::string & name, const std::string & qualifiedName) { this->valueList.push_back(CppEnumValue(name, qualifiedName)); }
+	void addValue(const std::string & name, const std::string & qualifiedName);
 	
 private:
 	ValueListType valueList;

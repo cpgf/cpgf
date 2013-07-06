@@ -84,6 +84,7 @@ public:
 
 	CodeLine * addLine();
 	CodeLine * addLine(const std::string & code);
+	CodeLine * addBlankLine();
 	CodeBlock * addBlock(const cpgf::GFlags<CodeBlockStyle> & flags = 0);
 	CodeBlock * getNamedBlock(const std::string & name, const cpgf::GFlags<CodeBlockStyle> & flags = 0);
 	void ensureNamedBlocks(const std::string & name1, const std::string & name2);

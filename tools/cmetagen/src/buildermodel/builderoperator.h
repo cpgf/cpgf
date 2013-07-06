@@ -24,6 +24,7 @@ private:
 	size_t calculateReflectionParamCount() const;
 	void doWriteReflection(BuilderFileWriter * writer);
 	void doWriteWrapper(BuilderFileWriter * writer);
+	bool shouldGenerateWrapper() const;
 };
 
 #endif

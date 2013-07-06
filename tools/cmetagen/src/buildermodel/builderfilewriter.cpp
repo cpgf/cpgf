@@ -132,17 +132,26 @@ void BuilderFileWriter::requireItemConainerFunction(const CppItem * cppItem)
 	const CppClass * cppClass = cppContainer->isClass() ? static_cast<const CppClass *>(cppContainer) : NULL;
 
 	string s = "template <typename " + D;
-	if(cppClass != NULL && cppClass->isTemplate()) {
+	if(cppClass != NULL && cppClass->isChainedTemplate()) {
 		s.append(", ");
 		s.append(cppClass->getTextOfChainedTemplateParamList(itoWithType | itoWithName | itoWithDefaultValue));
 	}
-	s.append(">");
+	s.append(" >");
 	codeBlock->addLine(s);
 
 	s = "void ";
 	s.append(this->getReflectionFunctionName(cppContainer));
 	s.append("(" + D + " & _d)");
 	codeBlock->addLine(s);
+	
+	CodeBlock * bodyBlock = this->getFunctionBodyCodeBlock(cppContainer, ftHeader);
+	bodyBlock->addLine("using namespace cpgf;");
+	bodyBlock->addBlankLine();
+	
+	// force the block order for each kind of items
+	for(ItemCategory ic = icFirst; ic < icCount; ic = ItemCategory(int(ic) + 1)) {
+		bodyBlock->getNamedBlock(ItemNames[ic]);
+	}
 
 	string creationName = this->getCreationFunctionName(cppContainer);
 }
@@ -154,7 +163,7 @@ CodeBlock * BuilderFileWriter::getFunctionContainerCodeBlock(const CppItem * cpp
 	string blockName;
 
 	if(cppItem->isContainer()) {
-		blockName = static_cast<const CppNamedItem *>(cppItem)->getQualifiedName();
+		blockName = getContainertName(static_cast<const CppContainer *>(cppItem));
 	}
 	else {
 		blockName = cppItem->getNamedParent()->getQualifiedName();

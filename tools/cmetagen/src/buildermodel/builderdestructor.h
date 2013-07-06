@@ -17,6 +17,8 @@ public:
 
 	const CppDestructor * getCppDestructor() const;
 	
+	virtual bool canBind() const;
+
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);
 };

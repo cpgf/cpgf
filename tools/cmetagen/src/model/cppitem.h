@@ -16,7 +16,8 @@ enum ItemVisibility
 
 enum ItemCategory
 {
-	icFile = 0, icNamespace, icClass, icEnum,
+	icFirst = 0,
+	icFile = icFirst, icNamespace, icClass, icEnum,
 	icConstructor, icDestructor,
 	icField, icMethod, icOperator,
 	icCount
@@ -60,7 +61,11 @@ public:
 
 	bool isInMainFile() const { return this->flags.has(ifInMainFile); }
 	
+	int getIndexInCategory() const { return this->indexInCategory; }
+	
 	ItemVisibility getVisibility() const;
+
+	const Config * getConfig() const;
 
 	bool isFile() const { return this->getCategory() == icFile; }
 	bool isNamespace() const { return this->getCategory() == icNamespace; }
@@ -71,7 +76,11 @@ public:
 	bool isField() const { return this->getCategory() == icField; }
 	bool isMethod() const { return this->getCategory() == icMethod; }
 	bool isOperator() const { return this->getCategory() == icOperator; }
-	bool isContainer() const { return this->isFile() || this->isNamespace() || this->isClass(); }
+	
+	bool isGlobal() const;
+
+	virtual bool isContainer() const { return false; }
+	virtual bool isNamed() const { return false; }
 	
 protected:
 	const clang::Decl * getDecl() const { return this->declaration; }
@@ -80,9 +89,9 @@ protected:
 	void setCppContext(const CppContext * cppContext) { this->cppContext = cppContext; }	
 	const CppContext * getCppContext() const { return this->cppContext; }
 	
-	const Config * getConfig() const;
-	
 	void setParent(CppContainer * parent) { this->parent = parent; }
+	
+	void setIndexInCategory(int indexInCategory) { this->indexInCategory = indexInCategory; }
 
 	void setInMainFile(bool inMainFile) { this->flags.setByBool(ifInMainFile, inMainFile); }
 	
@@ -94,6 +103,7 @@ private:
 	const CppContainer * parent; // file, namespace or class
 	const CppContext * cppContext;
 	cpgf::GFlags<ItemFlags> flags;
+	int indexInCategory;
 
 private:
 	friend class CppContext;
@@ -112,6 +122,8 @@ public:
 	const std::string & getQualifiedNameWithoutNamespace() const;
 
 	const std::string & getOutputName() const;
+	
+	virtual bool isNamed() const { return true; }
 
 protected:
 	explicit CppNamedItem(const clang::Decl * decl);

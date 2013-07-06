@@ -14,6 +14,7 @@ public:
 	
 	bool isStatic() const;
 	bool isBitField() const;
+	bool isAnonymousStructOrUnion() const;
 
 	CppType getType() const;
 

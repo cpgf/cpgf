@@ -41,6 +41,11 @@ public:
 
 	bool isFunction() const;
 	bool isFunctionPointer() const;
+
+	bool isVoid() const;
+	bool isFundamental() const;
+
+	CppType getNonReferenceType() const;
 	
 private:
 	clang::QualType qualType;

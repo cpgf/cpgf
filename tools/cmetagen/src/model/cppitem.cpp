@@ -44,7 +44,7 @@ ItemVisibility accessToVisibility(AccessSpecifier access)
 
 
 CppItem::CppItem(const clang::Decl * decl)
-	: declaration(decl), visibility(ivPublic), parent(NULL), cppContext(NULL)
+	: declaration(decl), visibility(ivPublic), parent(NULL), cppContext(NULL), indexInCategory(0)
 {
 }
 
@@ -87,6 +87,11 @@ const clang::ASTContext * CppItem::getASTContext() const
 const Config * CppItem::getConfig() const
 {
 	return this->getCppContext()->getConfig();
+}
+
+bool CppItem::isGlobal() const
+{
+	return ! this->getParent()->isClass();
 }
 
 void CppItem::dump(std::ostream & os, int level) const

@@ -17,9 +17,12 @@
 #pragma warning(pop)
 #endif
 
+#include "Poco/Format.h"
+
 using namespace llvm;
 using namespace llvm::sys;
 using namespace clang;
+using namespace std;
 
 
 const FunctionDecl * getFunctionDecl(const Decl * decl)
@@ -79,10 +82,49 @@ bool CppInvokable::isTemplate() const
 	return isa<FunctionTemplateDecl>(this->getDecl());
 }
 
+bool CppInvokable::isOverloaded() const
+{
+	return this->getParent()->getSameNamedItemCount(this) > 1;
+}
+
+bool CppInvokable::hasResult() const
+{
+	return ! this->getResultType().isVoid();
+}
+
 size_t CppInvokable::getArity() const
 {
 	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
 	return functionDecl->param_size();
+}
+
+CppType CppInvokable::getParamType(size_t index) const
+{
+	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
+	const ParmVarDecl * paramDecl = functionDecl->getParamDecl(index);
+
+	return CppType(paramDecl->getType());
+}
+
+bool CppInvokable::paramHasDefaultValue(size_t index) const
+{
+	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
+	const ParmVarDecl * paramDecl = functionDecl->getParamDecl(index);
+
+	return paramDecl->hasDefaultArg();
+}
+
+std::string CppInvokable::getTextOfParamDeafultValue(size_t index) const
+{
+	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
+	const ParmVarDecl * paramDecl = functionDecl->getParamDecl(index);
+
+	if(paramDecl->hasDefaultArg()) {
+		return exprToText(paramDecl->getDefaultArg());
+	}
+	else {
+		return "";
+	}
 }
 
 std::string CppInvokable::getTextOfPointeredType() const
@@ -97,7 +139,7 @@ std::string CppInvokable::getTextOfPointeredType() const
 		s = this->getParent()->getOutputName() + "::*";
 	}
 
-	return qualTypeToText(qualType, s);
+	return CppType(qualType).getQualifiedName(s);
 }
 
 std::string CppInvokable::getTextOfParamList(const ItemTextOptionFlags & options) const
@@ -105,7 +147,9 @@ std::string CppInvokable::getTextOfParamList(const ItemTextOptionFlags & options
 	std::string text;
 	
 	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
+	int index = -1;
 	for(FunctionDecl::param_const_iterator it = functionDecl->param_begin(); it != functionDecl->param_end(); ++it) {
+		++index;
 		if(! text.empty()) {
 			text.append(",");
 		}
@@ -119,11 +163,20 @@ std::string CppInvokable::getTextOfParamList(const ItemTextOptionFlags & options
 			if(! text.empty()) {
 				text.append(" ");
 			}
-			text.append((*it)->getNameAsString());
+			string name = (*it)->getNameAsString();
+			if(name.empty()) {
+				name = Poco::format("pAr9_Am%d", index);
+			}
+			text.append(name);
 		}
 	}
 
 	return text;
+}
+
+CppType CppInvokable::getFunctionType() const
+{
+	return CppType(getFunctionDecl(this->getDecl())->getType());
 }
 
 CppType CppInvokable::getResultType() const

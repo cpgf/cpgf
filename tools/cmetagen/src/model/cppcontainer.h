@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 
 class CppNamespace;
@@ -20,6 +21,7 @@ class CppContainer : public CppNamedItem
 {
 private:
 	typedef CppNamedItem super;
+	typedef std::map<std::string, int> ItemCountMap;
 	
 public:
 	typedef std::vector<const CppItem *> ItemListType;
@@ -41,13 +43,23 @@ public:
 	const MethodListType * getMethodList() const { return &this->methodList; }
 	const EnumListType * getEnumList() const { return &this->enumList; }
 	const OperatorListType * getOperatorList() const { return &this->operatorList; }
+	
+	int getSameNamedItemCount(const CppNamedItem * item) const;
 
+	virtual bool isContainer() const { return true; }
+	
 	virtual void dump(std::ostream & os, int level) const;
 
 protected:
 	void addItem(CppItem * item);
 
 	virtual void doAddItem(CppItem * item);
+	
+	template <typename T>
+	void pushItem(std::vector<T> & itemList, CppItem * item) {
+		item->setIndexInCategory((int)itemList.size());
+		itemList.push_back(static_cast<T>(const_cast<const CppItem *>(item)));
+	}
 
 private:
 	ItemListType itemList;
@@ -57,6 +69,7 @@ private:
 	MethodListType methodList;
 	EnumListType enumList;
 	OperatorListType operatorList;
+	ItemCountMap itemCount;
 	
 private:
 	friend class ClangParserImplement;

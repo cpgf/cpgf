@@ -43,3 +43,9 @@ CppType CppField::getType() const
 	return CppType(fieldDecl->getType());
 }
 
+bool CppField::isAnonymousStructOrUnion() const
+{
+	const FieldDecl * fieldDecl = dyn_cast_or_null<FieldDecl>(this->getDecl());
+	return (fieldDecl != NULL) && fieldDecl->isAnonymousStructOrUnion();
+}
+

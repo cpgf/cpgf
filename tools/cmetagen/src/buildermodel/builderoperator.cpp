@@ -1,8 +1,12 @@
 #include "builderoperator.h"
 #include "builderfilewriter.h"
+#include "builderutil.h"
 #include "codewriter/cppwriter.h"
 #include "model/cppoperator.h"
+#include "model/cppcontainer.h"
+#include "model/cppclass.h"
 #include "config.h"
+#include "util.h"
 
 #include "Poco/Format.h"
 
@@ -29,7 +33,7 @@ const CppOperator * BuilderOperator::getCppOperator() const
 void BuilderOperator::doWriteMetaData(BuilderFileWriter * writer)
 {
 	this->doWriteReflection(writer);
-	if(this->getConfig()->shouldWrapOperator()) {
+	if(this->shouldGenerateWrapper()) {
 		this->doWriteWrapper(writer);
 	}
 }
@@ -228,7 +232,196 @@ private:
 	MapType operatorNameMap;
 };
 
+struct WriterParam
+{
+	BuilderFileWriter * writer;
+	const CppOperator * cppOperator;
+	string op;
+	string operatorWrapperName;
+	string arraySetterName;
+	string selfParamName;
+	string selfName;
+	string self;
+	string templateLine;
+	bool isIncOrDec;
+	string paramValuesText;
+	size_t realParamCount;
+	bool shouldWrapArraySetter;
+};
+
+namespace {
+
+void writeOperator(const WriterParam * param)
+{
+	CodeBlock * codeBlock = param->writer->getWrapperCodeBlock(param->cppOperator, ftHeader);
+	codeBlock->addLine(param->templateLine);
+	string s;
+	s = param->operatorWrapperName + "(";
+	s.append(param->self);
+	if(param->cppOperator->getArity() > 0 && ! param->isIncOrDec) {
+		s.append(", ");
+		s.append(param->cppOperator->getTextOfParamList(itoWithType | itoWithName | itoWithDefaultValue));
+	}
+	s.append(")");
+	s = param->cppOperator->getResultType().getQualifiedName(s);
+	codeBlock->addLine(s);
+
+	CodeBlock * bodyBlock = codeBlock->addBlock(cbsBracketAndIndent);
+	string paramValuesText = param->cppOperator->getTextOfParamList(itoWithName);
+	s = "";
+
+	if(param->cppOperator->hasResult()) {
+		s.append("return ");
+	}
+
+	if(param->cppOperator->isFunctor()) {
+		s.append(Poco::format("(*%s)(%s)", param->selfName, param->paramValuesText));
+	}
+	else if(param->cppOperator->isArray()) {
+		s.append(Poco::format("(*%s)[%s]", param->selfName, param->paramValuesText));
+	}
+	else {
+		if(param->realParamCount == 2) {
+			if(param->isIncOrDec) {
+				s.append(Poco::format("(*%s)%s", param->selfName, param->op));
+			}
+			else {
+				s.append(Poco::format("(*%s) %s %s", param->selfName, param->op, paramValuesText));
+			}
+		}
+		else if(param->realParamCount == 1) {
+				s.append(Poco::format("%s(*%s)", param->op, param->selfName));
+		}
+	}
+
+	s.append(";");
+	bodyBlock->addLine(s);
+}
+
+void writeArraySetter(const WriterParam * param)
+{
+	if(param->shouldWrapArraySetter) {
+		string s;
+		CodeBlock * setterBlock = param->writer->getWrapperCodeBlock(param->cppOperator, ftHeader)->addBlock();
+		setterBlock->addLine(param->templateLine);
+
+		s = Poco::format("void %s(%s", param->arraySetterName, param->self);
+		if(param->cppOperator->getArity() > 0) {
+			s.append(", ");
+			s.append(param->cppOperator->getTextOfParamList(itoWithType | itoWithName | itoWithDefaultValue));
+		}
+		s.append(Poco::format(", const %s & OpsEt_vALue)", param->cppOperator->getResultType().getNonReferenceType().getQualifiedName()));
+		setterBlock->addLine(s);
+
+		CodeBlock * setterBodyBlock = setterBlock->addBlock(cbsBracketAndIndent);
+		s = Poco::format("(*%s)[%s] = OpsEt_vALue;", param->selfName, param->paramValuesText);
+		setterBodyBlock->addLine(s);
+	}
+}
+
+void writeOperatorReflection(const WriterParam * param)
+{
+	CodeBlock * codeBlock = param->writer->getReflectionCodeBlock(param->cppOperator);
+
+	std::string s = Poco::format("%s(\"%s\", &%s<%s >);",
+		param->writer->getReflectionAction("_method"),
+		OperatorNameMap::getNameMap()->get(param->cppOperator),
+		param->operatorWrapperName,
+		getReflectionClassName(param->cppOperator->getConfig())
+	);
+
+	codeBlock->addLine(s);
+}
+
+void writeArraySetterReflection(const WriterParam * param)
+{
+	if(param->shouldWrapArraySetter) {
+		CodeBlock * codeBlock = param->writer->getReflectionCodeBlock(param->cppOperator);
+
+		std::string s = Poco::format("%s(\"%s\", &%s<%s >);",
+			param->writer->getReflectionAction("_method"),
+			OperatorNameMap::getNameMap()->get(param->cppOperator, 2),
+			param->arraySetterName,
+			getReflectionClassName(param->cppOperator->getConfig())
+		);
+
+		codeBlock->addLine(s);
+	}
+}
+
+}
+
 void BuilderOperator::doWriteWrapper(BuilderFileWriter * writer)
 {
+	WriterParam param;
+	param.writer = writer;
+	const CppOperator * cppOperator = this->getCppOperator();
+	param.cppOperator = cppOperator;
+	string operatorWrapperPrefix = "oPeRat0rWrapPer_" + normalizeSymbolName(cppOperator->getParent()->getQualifiedName());
+	param.operatorWrapperName = Poco::format("%s%s_%i",
+		operatorWrapperPrefix,
+		OperatorNameMap::getNameMap()->get(cppOperator),
+		cppOperator->getIndexInCategory()
+	);
+	param.selfParamName = "TsE1f";
+	param.selfName = "sE1F";
+	param.shouldWrapArraySetter = false;
+
+	param.op = cppOperator->getOperatorName();
+	param.isIncOrDec = (param.op == "++" || param.op == "--");
+
+	param.templateLine = "template <typename " + param.selfParamName;
+
+	if(cppOperator->getParent()->isClass()) {
+		const CppClass * cppClass = static_cast<const CppClass *>(cppOperator->getParent());
+		if(cppClass->isChainedTemplate()) {
+			param.templateLine.append(", ");
+			param.templateLine.append(cppClass->getTextOfChainedTemplateParamList(itoWithType | itoWithName | itoWithDefaultValue));
+		}
+	}
+	param.templateLine.append(">");
+
+	if(cppOperator->isConst()) {
+		param.self.append("const ");
+	}
+	param.self.append(param.selfParamName + " * " + param.selfName);
+
+	param.paramValuesText = cppOperator->getTextOfParamList(itoWithName);
+	param.realParamCount = this->calculateReflectionParamCount();
+
+	if(cppOperator->isArray()
+		&& cppOperator->getResultType().isReference()
+		&& ! cppOperator->getResultType().isReferenceToConst()
+	) {
+		param.shouldWrapArraySetter = true;
+		param.arraySetterName = Poco::format("%s%s_s%i",
+			operatorWrapperPrefix,
+			OperatorNameMap::getNameMap()->get(cppOperator, 2),
+			cppOperator->getIndexInCategory()
+		);
+	}
+
+	writeOperator(&param);
+	writeArraySetter(&param);
+
+	writeOperatorReflection(&param);
+	writeArraySetterReflection(&param);
+}
+
+bool BuilderOperator::shouldGenerateWrapper() const
+{
+	const CppOperator * cppOperator = this->getCppOperator();
+	if(! this->getConfig()->shouldWrapOperator()) {
+		return false;
+	}
+	else if(cppOperator->isTypeConverter()) {
+		return false;
+	}
+	else if(cppOperator->getOperatorName() == "->") {
+		return false;
+	}
+	else {
+		return true;
+	}
 }
 

@@ -93,8 +93,8 @@ void CodeBlock::write(CodeWriter * codeWriter)
 	
 	codeWriter->decIndent(this->getIndent());
 
-	if(this->flags.has(cbsBracket)) {
-		codeWriter->writeBlankLine();
+	if(this->flags.has(cbsBracket) || ! this->codeList.empty()) {
+		codeWriter->ensureBlankLine();
 	}
 }
 
@@ -109,6 +109,11 @@ CodeLine * CodeBlock::addLine(const std::string & code)
 	this->codeList.push_back(line);
 	line->setIndent(this->getIndent());
 	return line;
+}
+
+CodeLine * CodeBlock::addBlankLine()
+{
+	return this->addLine("");
 }
 
 CodeBlock * CodeBlock::addBlock(const cpgf::GFlags<CodeBlockStyle> & flags)

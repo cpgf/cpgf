@@ -35,14 +35,14 @@ void writeIncludeList(const std::set<std::string> & includeList, CodeWriter * co
 		codeWriter->writeLine("#include \"" + *it + "\"");
 	}
 	if(! includeList.empty()) {
-		codeWriter->writeBlankLine();
+		codeWriter->ensureBlankLine();
 	}
 }
 
 void CppWriter::write(CodeWriter * codeWriter)
 {
 	codeWriter->writeLine("// Auto generated file, don't modify.");
-	codeWriter->writeBlankLine();
+	codeWriter->ensureBlankLine();
 
 	if(! this->headerGuard.empty()) {
 		string guard;
@@ -51,7 +51,7 @@ void CppWriter::write(CodeWriter * codeWriter)
 		Poco::toUpperInPlace(guard);
 		codeWriter->writeLine("#ifndef " + guard);
 		codeWriter->writeLine("#define " + guard);
-		codeWriter->writeBlankLine();
+		codeWriter->ensureBlankLine();
 	}
 
 	writeIncludeList(this->includeList, codeWriter);
@@ -60,25 +60,25 @@ void CppWriter::write(CodeWriter * codeWriter)
 		codeWriter->writeLine("using namespace " + *it + ";");
 	}
 	if(! this->usedNamespaceList.empty()) {
-		codeWriter->writeBlankLine();
+		codeWriter->ensureBlankLine();
 	}
 
 	if(! this->fileNamespace.empty()) {
 		codeWriter->writeLine("namespace " + this->fileNamespace + "{");
-		codeWriter->writeBlankLine();
+		codeWriter->ensureBlankLine();
 	}
 
 	this->codeBlock.write(codeWriter);
 
 	if(! this->fileNamespace.empty()) {
-		codeWriter->writeBlankLine();
+		codeWriter->ensureBlankLine();
 		codeWriter->writeLine("} // namespace " + this->fileNamespace);
 	}
 
 	writeIncludeList(this->tailIncludeList, codeWriter);
 
 	if(! this->headerGuard.empty()) {
-		codeWriter->writeBlankLine();
+		codeWriter->ensureBlankLine();
 		codeWriter->writeLine("#endif");
 	}
 }

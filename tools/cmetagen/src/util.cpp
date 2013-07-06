@@ -1,4 +1,5 @@
 #include "util.h"
+#include "config.h"
 
 #include "Poco/String.h"
 #include "Poco/RegularExpression.h"
