@@ -22,19 +22,17 @@ private:
 	typedef CppNamedItem super;
 	
 public:
-	typedef std::vector<CppItem *> ItemListType;
-	typedef std::vector<CppNamespace *> NamespaceListType;
-	typedef std::vector<CppClass *> ClassListType;
-	typedef std::vector<CppField *> FieldListType;
-	typedef std::vector<CppMethod *> MethodListType;
-	typedef std::vector<CppEnum *> EnumListType;
-	typedef std::vector<CppOperator *> OperatorListType;
+	typedef std::vector<const CppItem *> ItemListType;
+	typedef std::vector<const CppNamespace *> NamespaceListType;
+	typedef std::vector<const CppClass *> ClassListType;
+	typedef std::vector<const CppField *> FieldListType;
+	typedef std::vector<const CppMethod *> MethodListType;
+	typedef std::vector<const CppEnum *> EnumListType;
+	typedef std::vector<const CppOperator *> OperatorListType;
 
 public:
 	explicit CppContainer(const clang::Decl * decl);
 	virtual ~CppContainer();
-
-	void addItem(CppItem * item);
 
 	const ItemListType * getItemList() const { return &this->itemList; }
 	const NamespaceListType * getNamespaceList() const { return &this->namespaceList; }
@@ -44,9 +42,11 @@ public:
 	const EnumListType * getEnumList() const { return &this->enumList; }
 	const OperatorListType * getOperatorList() const { return &this->operatorList; }
 
-	virtual void dump(std::ostream & os, int level);
+	virtual void dump(std::ostream & os, int level) const;
 
 protected:
+	void addItem(CppItem * item);
+
 	virtual void doAddItem(CppItem * item);
 
 private:
@@ -57,6 +57,9 @@ private:
 	MethodListType methodList;
 	EnumListType enumList;
 	OperatorListType operatorList;
+	
+private:
+	friend class ClangParserImplement;
 };
 
 

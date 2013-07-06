@@ -30,9 +30,9 @@ protected:
 	void flatten(BuilderFile * file);
 	void doFlatten(BuilderFile * file, const CppContainer * cppContainer);
 
-	BuilderItem * createItem(const CppItem * cppItem);
-
 	bool shouldSkipItem(const CppItem * cppItem);
+	
+	BuilderItem * createItem(const CppItem * cppItem);
 
 private:
 	const Config * config;

@@ -29,6 +29,32 @@ string removeRecordWords(const string & text)
 	return result;
 }
 
+QualType stripType(const QualType & qualType)
+{
+	QualType qType = qualType;
+	SplitQualType splitQualType = qType.split();
+	const Type * t = splitQualType.Ty;
+
+	for(;;) {
+		if(t->isArrayType()) {
+			qType = dyn_cast<ArrayType>(t->getCanonicalTypeInternal())->getElementType();
+		}
+		else if(t->isPointerType()) {
+			qType = dyn_cast<PointerType>(t)->getPointeeType();
+		}
+		else if(t->isReferenceType()) {
+			qType = dyn_cast<ReferenceType>(t)->getPointeeType();
+		}
+		else {
+			break;
+		}
+		splitQualType = qType.split();
+		t = splitQualType.Ty;
+	}
+
+	return qType;
+}
+
 void getNamedDeclNames(const NamedDecl * namedDecl,
 	std::string & name,
 	std::string & qualifiedName,
@@ -126,9 +152,6 @@ string getTemplateArgumentName(const TemplateArgument & argument)
 
 	return qualifiedName;
 }
-
-// implemented in cpptypeprinter.cpp
-std::string cppPrintQualType(const QualType & qualType, const std::string &name);
 
 std::string qualTypeToText(const clang::QualType & qualType, const std::string &name)
 {

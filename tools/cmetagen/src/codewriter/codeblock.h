@@ -1,6 +1,8 @@
 #ifndef __CODEBLOCK_H
 #define __CODEBLOCK_H
 
+#include "cpgf/gflags.h"
+
 #include <string>
 #include <vector>
 #include <map>
@@ -59,12 +61,10 @@ private:
 	friend class CodeBlock;
 };
 
-enum CodeBlockBracket {
-	cbbBracket, cbbWithoutBracket
-};
-
-enum CodeBlockIndent {
-	cbiIndent, cbiWithoutIndent
+enum CodeBlockStyle {
+	cbsBracket = 1 << 0,
+	cbsIndent = 1 << 1,
+	cbsBracketAndIndent = cbsBracket | cbsIndent
 };
 
 class CodeBlock : public CodeItem
@@ -84,15 +84,14 @@ public:
 
 	CodeLine * addLine();
 	CodeLine * addLine(const std::string & code);
-	CodeBlock * addBlock(CodeBlockBracket bracket = cbbBracket, CodeBlockIndent indent = cbiIndent);
-	CodeBlock * getNamedBlock(const std::string & name, CodeBlockBracket bracket = cbbBracket, CodeBlockIndent indent = cbiIndent);
+	CodeBlock * addBlock(const cpgf::GFlags<CodeBlockStyle> & flags = 0);
+	CodeBlock * getNamedBlock(const std::string & name, const cpgf::GFlags<CodeBlockStyle> & flags = 0);
+	void ensureNamedBlocks(const std::string & name1, const std::string & name2);
 	
-	void setUseBracket(bool useBracket);
-	void setIndentBlock(bool indentBlock);
+	void setFlags(const cpgf::GFlags<CodeBlockStyle> & flags);
 
 private:
-	bool withBracket;
-	bool indentBlock;
+	cpgf::GFlags<CodeBlockStyle> flags;
 	CodeListType codeList;
 	NamedBlockMapType namedBlocks;
 	

@@ -6,6 +6,7 @@
 #include <vector>
 
 
+class CppFile;
 class Config;
 class BuilderContainer;
 class BuilderFileWriter;
@@ -20,8 +21,8 @@ public:
 	explicit BuilderFile(const CppItem * cppItem);
 	virtual ~BuilderFile();
 	
-	void setConfig(const Config * config) { this->config = config; }
-
+	const CppFile * getCppFile() const;
+	
 	void prepare();
 	
 	void outputFiles();
@@ -33,7 +34,6 @@ private:
 	void createFileWriters();
 	
 private:
-	const Config * config;
 	BuilderFileWriterListType builderFileWriterList;
 };
 

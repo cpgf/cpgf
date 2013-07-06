@@ -4,6 +4,8 @@
 #include "builderitem.h"
 
 
+class CppField;
+
 class BuilderField : public BuilderItem
 {
 private:
@@ -12,9 +14,15 @@ private:
 public:
 	explicit BuilderField(const CppItem * cppItem);
 	virtual ~BuilderField();
+
+	const CppField * getCppField() const;
+		
+	virtual bool canBind() const;
 	
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);
+	void doWriteReflection(BuilderFileWriter * writer);
+	void doWriteBitFieldWrapper(BuilderFileWriter * writer);
 };
 
 #endif

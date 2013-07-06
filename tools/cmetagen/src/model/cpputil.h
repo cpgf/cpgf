@@ -16,6 +16,8 @@
 #include <string>
 
 
+clang::QualType stripType(const clang::QualType & qualType);
+
 void getNamedDeclNames(const clang::NamedDecl * namedDecl,
 	std::string & name,
 	std::string & qualifiedName,

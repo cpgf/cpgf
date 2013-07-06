@@ -11,7 +11,10 @@ private:
 	typedef CppInvokable super;
 	
 public:
-	explicit CppConstructor(const clang::Decl * decl) : super(decl) {}
+	explicit CppConstructor(const clang::Decl * decl);
+
+	bool isCopyConstructor() const;
+	bool isImplicitTypeConverter() const;
 
 protected:
 	virtual ItemCategory getCategory() const { return icConstructor; }

@@ -17,12 +17,12 @@ Application::~Application()
 
 void Application::run()
 {
-	CppContext context;
+	Config config;
+	CppContext context(&config);
 	ClangParser parser(&context);
 	
 	parser.parse("z.h");
 
-	Config config;
 	BuilderContext builderContext(&config);
 	builderContext.process(&context);
 

@@ -2,6 +2,7 @@
 #define __CPPINVOKABLE_H
 
 #include "cppitem.h"
+#include "cpptype.h"
 
 
 class CppInvokable : public CppNamedItem
@@ -19,8 +20,10 @@ public:
 
 	size_t getArity() const;
 
-	std::string getPointeredType() const;
+	std::string getTextOfPointeredType() const;
+	std::string getTextOfParamList(const ItemTextOptionFlags & options) const;
 
+	CppType getResultType() const;
 };
 
 

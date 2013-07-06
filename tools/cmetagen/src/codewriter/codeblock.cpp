@@ -58,7 +58,7 @@ void CodeLine::append(const std::string & code)
 
 
 CodeBlock::CodeBlock()
-	: super(), withBracket(true), indentBlock(true)
+	: super(), flags()
 {
 }
 
@@ -71,11 +71,11 @@ void CodeBlock::write(CodeWriter * codeWriter)
 {
 	codeWriter->incIndent(this->getIndent());
 	
-	if(this->withBracket) {
+	if(this->flags.has(cbsBracket)) {
 		codeWriter->writeLine("{");
 	}
 	
-	if(this->indentBlock) {
+	if(this->flags.has(cbsIndent)) {
 		codeWriter->incIndent();
 	}
 
@@ -83,17 +83,17 @@ void CodeBlock::write(CodeWriter * codeWriter)
 		(*it)->write(codeWriter);
 	}
 
-	if(this->indentBlock) {
+	if(this->flags.has(cbsIndent)) {
 		codeWriter->decIndent();
 	}
 
-	if(this->withBracket) {
+	if(this->flags.has(cbsBracket)) {
 		codeWriter->writeLine("}");
 	}
 	
 	codeWriter->decIndent(this->getIndent());
 
-	if(this->withBracket) {
+	if(this->flags.has(cbsBracket)) {
 		codeWriter->writeBlankLine();
 	}
 }
@@ -111,40 +111,40 @@ CodeLine * CodeBlock::addLine(const std::string & code)
 	return line;
 }
 
-CodeBlock * CodeBlock::addBlock(CodeBlockBracket bracket, CodeBlockIndent indent)
+CodeBlock * CodeBlock::addBlock(const cpgf::GFlags<CodeBlockStyle> & flags)
 {
 	CodeBlock * block = new CodeBlock();
-	block->setIndent(this->getIndent());
 	this->codeList.push_back(block);
-	block->setUseBracket(bracket == cbbBracket);
-	block->setIndentBlock(indent == cbiIndent);
+	block->setIndent(this->getIndent());
+	block->setFlags(flags);
 	return block;
 }
 
-CodeBlock * CodeBlock::getNamedBlock(const std::string & name, CodeBlockBracket bracket, CodeBlockIndent indent)
+CodeBlock * CodeBlock::getNamedBlock(const std::string & name, const cpgf::GFlags<CodeBlockStyle> & flags)
 {
+	CodeBlock * block = NULL;
 	NamedBlockMapType::iterator it = this->namedBlocks.find(name);
 	if(it == this->namedBlocks.end()) {
-		CodeBlock * block = new CodeBlock();
-		block->setIndent(this->getIndent());
+		block = new CodeBlock();
 		this->codeList.push_back(block);
 		this->namedBlocks.insert(make_pair(name, block));
-		block->setUseBracket(bracket == cbbBracket);
-		block->setIndentBlock(indent == cbiIndent);
-		return block;
 	}
 	else {
-		return it->second;
+		block = it->second;
 	}
+	block->setIndent(this->getIndent());
+	block->setFlags(flags);
+	return block;
 }
 
-void CodeBlock::setUseBracket(bool useBracket)
+void CodeBlock::ensureNamedBlocks(const std::string & name1, const std::string & name2)
 {
-	this->withBracket = useBracket;
+	this->getNamedBlock(name1);
+	this->getNamedBlock(name2);
 }
 
-void CodeBlock::setIndentBlock(bool indentBlock)
+void CodeBlock::setFlags(const cpgf::GFlags<CodeBlockStyle> & flags)
 {
-	this->indentBlock = indentBlock;
+	this->flags = flags;
 }
 

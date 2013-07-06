@@ -4,6 +4,8 @@
 #include "builderitem.h"
 
 
+class CppNamespace;
+
 class BuilderNamespace : public BuilderItem
 {
 private:
@@ -12,7 +14,9 @@ private:
 public:
 	explicit BuilderNamespace(const CppItem * cppItem);
 	virtual ~BuilderNamespace();
-	
+
+	const CppNamespace * getCppNamespace() const;
+		
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);
 };

@@ -175,6 +175,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\src\config.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\main.cpp"
 				>
 			</File>
@@ -195,6 +199,10 @@
 				>
 				<File
 					RelativePath="..\src\model\cppclass.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\model\cppconstructor.cpp"
 					>
 				</File>
 				<File
@@ -230,11 +238,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\model\cpptype.cpp"
+					RelativePath="..\src\model\cppoperator.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\model\cpptypeprinter.cpp"
+					RelativePath="..\src\model\cpptype.cpp"
 					>
 				</File>
 				<File
@@ -303,6 +311,10 @@
 				</File>
 				<File
 					RelativePath="..\src\buildermodel\builderfilewriter.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\buildermodel\builderinvokable.cpp"
 					>
 				</File>
 				<File

@@ -8,36 +8,40 @@
 #include <vector>
 
 class CppFile;
+class Config;
 
 class CppContext
 {
 private:
 	typedef std::vector<CppItem *> ItemListType;
-	
-public:
-	typedef std::vector<CppFile *> FileListType;
 
 public:
-	CppContext();
+	explicit CppContext(const Config * config);
 	~CppContext();
 	
-	CppFile * getCurrentFileInfo() const { return this->currentFileInfo; }
+	CppFile * getCppFile() const { return this->cppFile.get(); }
+	const Config * getConfig() const { return this->config; }
+	
+private:
 	void beginFile(const char * fileName, clang::Decl * decl);
 	void endFile(const char * fileName);
 	
-	const FileListType * getFileList() const { return &this->fileList; }
-
 	template <typename T>
 	T * createItem(clang::Decl * decl) {
 		T * item = new T(decl);
-		this->itemList.push_back(item);
+		this->itemCreated(item);
 		return item;
 	}
 	
+	void itemCreated(CppItem * item);
+	
 private:
-	CppFile * currentFileInfo;
+	cpgf::GScopedPointer<CppFile> cppFile;
 	ItemListType itemList;
-	FileListType fileList;
+	const Config * config;
+	
+private:
+	friend class ClangParserImplement;
 };
 
 

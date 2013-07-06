@@ -15,14 +15,14 @@ class CodeBlock;
 class BuilderItem;
 class Config;
 
+enum FileType {
+	ftHeader, ftSource
+};
+	
 class BuilderFileWriter
 {
 public:
 	typedef std::vector<BuilderItem *> ItemListType;
-	
-	enum FileType {
-		ftHeader, ftSource
-	};
 	
 private:
 	typedef std::set<std::string> StringSetType;
@@ -51,7 +51,10 @@ public: // auxiliary functions used by BuilderItem's
 	CodeBlock * getFunctionContainerCodeBlock(const CppItem * cppItem, FileType fileType);
 	CodeBlock * getFunctionHeaderCodeBlock(const CppItem * cppItem, FileType fileType);
 	CodeBlock * getFunctionBodyCodeBlock(const CppItem * cppItem, FileType fileType);
-	CodeBlock * getMetaDataCodeBlock(const CppItem * cppItem, FileType fileType);
+	
+	CodeBlock * getReflectionCodeBlock(const CppItem * cppItem);
+	
+	CodeBlock * getWrapperCodeBlock(const CppItem * cppItem, FileType fileType);
 	
 	std::string getReflectionAction(const std::string & name);
 	

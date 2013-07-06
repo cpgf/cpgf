@@ -7,27 +7,30 @@
 #include "cpgf/gassert.h"
 
 
-CppContext::CppContext()
-	: currentFileInfo(NULL)
+CppContext::CppContext(const Config * config)
+	: config(config)
 {
 }
 
 CppContext::~CppContext()
 {
 	clearPointerContainer(this->itemList);
-	clearPointerContainer(this->fileList);
 }
 
 void CppContext::beginFile(const char * fileName, clang::Decl * decl)
 {
-	GASSERT(this->currentFileInfo == NULL);
+	GASSERT(! this->cppFile);
 
-	this->currentFileInfo = new CppFile(fileName, decl);
-	this->fileList.push_back(this->currentFileInfo);
+	this->cppFile.reset(new CppFile(fileName, decl));
 }
 
 void CppContext::endFile(const char * /*fileName*/)
 {
-	this->currentFileInfo->prepare();
-	this->currentFileInfo = NULL;
+	this->cppFile->prepare();
+}
+
+void CppContext::itemCreated(CppItem * item)
+{
+	this->itemList.push_back(item);
+	item->setCppContext(this);
 }

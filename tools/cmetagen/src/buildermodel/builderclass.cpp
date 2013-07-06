@@ -21,8 +21,12 @@ BuilderClass::~BuilderClass()
 {
 }
 
+const CppClass * BuilderClass::getCppClass() const
+{
+	return static_cast<const CppClass *>(this->getCppItem());
+}
+
 void BuilderClass::doWriteMetaData(BuilderFileWriter * writer)
 {
-	const CppClass * cppClass = static_cast<const CppClass *>(this->getCppItem());
 }
 

@@ -1,6 +1,7 @@
 #include "builderconstructor.h"
 #include "builderfilewriter.h"
 #include "codewriter/cppwriter.h"
+#include "model/cppconstructor.h"
 
 
 BuilderConstructor::BuilderConstructor(const CppItem * cppItem)
@@ -11,6 +12,11 @@ BuilderConstructor::BuilderConstructor(const CppItem * cppItem)
 
 BuilderConstructor::~BuilderConstructor()
 {
+}
+
+const CppConstructor * BuilderConstructor::getCppConstructor() const
+{
+	return static_cast<const CppConstructor *>(this->getCppItem());
 }
 
 void BuilderConstructor::doWriteMetaData(BuilderFileWriter * writer)

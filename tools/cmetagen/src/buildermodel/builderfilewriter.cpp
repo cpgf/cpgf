@@ -69,8 +69,10 @@ void BuilderFileWriter::doWriteSource()
 
 void BuilderFileWriter::setupFileCodeBlockStructure()
 {
-	this->getCodeBlock(ftHeader)->getNamedBlock(CodeBlockName_WrapperArea, cbbWithoutBracket, cbiWithoutIndent);
-	this->getCodeBlock(ftHeader)->getNamedBlock(CodeBlockName_ReflectionArea, cbbWithoutBracket, cbiWithoutIndent);
+	this->getCodeBlock(ftHeader)->getNamedBlock(CodeBlockName_WrapperArea);
+	this->getCodeBlock(ftHeader)->getNamedBlock(CodeBlockName_ReflectionArea);
+	this->getCodeBlock(ftSource)->getNamedBlock(CodeBlockName_WrapperArea);
+	this->getCodeBlock(ftSource)->getNamedBlock(CodeBlockName_ReflectionArea);
 }
 
 string getContainertName(const CppContainer * cppContainer)
@@ -116,7 +118,7 @@ void BuilderFileWriter::requireItemConainerFunction(const CppItem * cppItem)
 		cppContainer = static_cast<const CppContainer *>(cppItem);
 	}
 	else {
-		cppContainer = cppItem->getParent();
+		cppContainer = cppItem->getNamedParent();
 	}
 
 	string reflectionName = this->getReflectionFunctionName(cppContainer);
@@ -125,20 +127,21 @@ void BuilderFileWriter::requireItemConainerFunction(const CppItem * cppItem)
 	}
 	this->generatedFunctionItemNames.insert(reflectionName);
 
+	const std::string & D = this->config->getMetaDefineParamName();
 	CodeBlock * codeBlock = this->getFunctionHeaderCodeBlock(cppContainer, ftHeader);
 	const CppClass * cppClass = cppContainer->isClass() ? static_cast<const CppClass *>(cppContainer) : NULL;
 
-	string s = "template <typename D";
+	string s = "template <typename " + D;
 	if(cppClass != NULL && cppClass->isTemplate()) {
 		s.append(", ");
-		s.append(cppClass->getTemplateParamList(ItemTextOption(itoWithType | itoWithName | itoWithDefaultValue)));
+		s.append(cppClass->getTextOfChainedTemplateParamList(itoWithType | itoWithName | itoWithDefaultValue));
 	}
 	s.append(">");
 	codeBlock->addLine(s);
 
 	s = "void ";
 	s.append(this->getReflectionFunctionName(cppContainer));
-	s.append("(D & _d)");
+	s.append("(" + D + " & _d)");
 	codeBlock->addLine(s);
 
 	string creationName = this->getCreationFunctionName(cppContainer);
@@ -146,36 +149,42 @@ void BuilderFileWriter::requireItemConainerFunction(const CppItem * cppItem)
 
 CodeBlock * BuilderFileWriter::getFunctionContainerCodeBlock(const CppItem * cppItem, FileType fileType)
 {
-	CodeBlock * codeBlock = this->getCodeBlock(fileType)->getNamedBlock(CodeBlockName_ReflectionArea, cbbWithoutBracket, cbiWithoutIndent);
+	CodeBlock * codeBlock = this->getCodeBlock(fileType)->getNamedBlock(CodeBlockName_ReflectionArea);
 
 	string blockName;
 
-	if(cppItem->getParent() == NULL || cppItem->isContainer()) {
+	if(cppItem->isContainer()) {
 		blockName = static_cast<const CppNamedItem *>(cppItem)->getQualifiedName();
 	}
 	else {
-		blockName = cppItem->getParent()->getQualifiedName();
+		blockName = cppItem->getNamedParent()->getQualifiedName();
 	}
-	return codeBlock->getNamedBlock(blockName, cbbWithoutBracket, cbiWithoutIndent);
+	return codeBlock->getNamedBlock(blockName);
 }
 
 CodeBlock * BuilderFileWriter::getFunctionHeaderCodeBlock(const CppItem * cppItem, FileType fileType)
 {
-	CodeBlock * block = this->getFunctionContainerCodeBlock(cppItem, fileType)->getNamedBlock(CodeBlockName_FunctionHeader, cbbWithoutBracket, cbiWithoutIndent);
-	this->getFunctionContainerCodeBlock(cppItem, fileType)->getNamedBlock(CodeBlockName_FunctionBody);
+	CodeBlock * block = this->getFunctionContainerCodeBlock(cppItem, fileType)->getNamedBlock(CodeBlockName_FunctionHeader);
+	this->getFunctionContainerCodeBlock(cppItem, fileType)->getNamedBlock(CodeBlockName_FunctionBody, cbsBracketAndIndent);
 	return block;
 }
 
 CodeBlock * BuilderFileWriter::getFunctionBodyCodeBlock(const CppItem * cppItem, FileType fileType)
 {
-	this->getFunctionContainerCodeBlock(cppItem, fileType)->getNamedBlock(CodeBlockName_FunctionHeader, cbbWithoutBracket, cbiWithoutIndent);
-	CodeBlock * block = this->getFunctionContainerCodeBlock(cppItem, fileType)->getNamedBlock(CodeBlockName_FunctionBody);
+	this->getFunctionContainerCodeBlock(cppItem, fileType)->getNamedBlock(CodeBlockName_FunctionHeader);
+	CodeBlock * block = this->getFunctionContainerCodeBlock(cppItem, fileType)->getNamedBlock(CodeBlockName_FunctionBody, cbsBracketAndIndent);
 	return block;
 }
 
-CodeBlock * BuilderFileWriter::getMetaDataCodeBlock(const CppItem * cppItem, FileType fileType)
+CodeBlock * BuilderFileWriter::getReflectionCodeBlock(const CppItem * cppItem)
 {
-	return this->getFunctionBodyCodeBlock(cppItem, fileType)->getNamedBlock(ItemNames[cppItem->getCategory()], cbbWithoutBracket, cbiWithoutIndent);
+	return this->getFunctionBodyCodeBlock(cppItem->getNamedParent(), ftHeader)->getNamedBlock(ItemNames[cppItem->getCategory()]);
+}
+
+CodeBlock * BuilderFileWriter::getWrapperCodeBlock(const CppItem * cppItem, FileType fileType)
+{
+	return this->getCodeBlock(fileType)->getNamedBlock(CodeBlockName_WrapperArea)
+		->getNamedBlock(ItemNames[cppItem->getCategory()]);
 }
 
 CodeBlock * BuilderFileWriter::getCodeBlock(FileType fileType)

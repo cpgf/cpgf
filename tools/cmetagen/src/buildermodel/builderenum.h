@@ -4,6 +4,8 @@
 #include "builderitem.h"
 
 
+class CppEnum;
+
 class BuilderEnum : public BuilderItem
 {
 private:
@@ -12,6 +14,8 @@ private:
 public:
 	explicit BuilderEnum(const CppItem * cppItem);
 	virtual ~BuilderEnum();
+	
+	const CppEnum * getCppEnum() const;
 	
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);

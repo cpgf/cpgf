@@ -13,7 +13,7 @@
 using namespace clang;
 
 CppField::CppField(const clang::Decl * decl)
-	: super(decl), bitFields(0)
+	: super(decl)
 {
 }
 
@@ -29,5 +29,17 @@ bool CppField::isStatic() const
 		default:
 			return true;
 	}
+}
+
+bool CppField::isBitField() const
+{
+	const FieldDecl * fieldDecl = dyn_cast_or_null<FieldDecl>(this->getDecl());
+	return (fieldDecl != NULL) && fieldDecl->isBitField();
+}
+
+CppType CppField::getType() const
+{
+	const FieldDecl * fieldDecl = dyn_cast_or_null<FieldDecl>(this->getDecl());
+	return CppType(fieldDecl->getType());
 }
 

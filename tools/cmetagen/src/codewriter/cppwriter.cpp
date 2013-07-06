@@ -23,8 +23,6 @@ using namespace std;
 CppWriter::CppWriter()
 	: codeBlock()
 {
-	codeBlock.setUseBracket(false);
-	codeBlock.setIndentBlock(false);
 }
 
 CppWriter::~CppWriter()

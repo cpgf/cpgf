@@ -1,17 +1,21 @@
 #ifndef __BUILDERMETHOD_H
 #define __BUILDERMETHOD_H
 
-#include "builderitem.h"
+#include "builderinvokable.h"
 
 
-class BuilderMethod : public BuilderItem
+class CppMethod;
+
+class BuilderMethod : public BuilderInvokable
 {
 private:
-	typedef BuilderItem super;
+	typedef BuilderInvokable super;
 	
 public:
 	explicit BuilderMethod(const CppItem * cppItem);
 	virtual ~BuilderMethod();
+	
+	const CppMethod * getCppMethod() const;
 	
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);

@@ -4,6 +4,8 @@
 #include "builderitem.h"
 
 
+class CppClass;
+
 class BuilderClass : public BuilderItem
 {
 private:
@@ -12,6 +14,8 @@ private:
 public:
 	explicit BuilderClass(const CppItem * cppItem);
 	virtual ~BuilderClass();
+	
+	const CppClass * getCppClass() const;
 	
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);

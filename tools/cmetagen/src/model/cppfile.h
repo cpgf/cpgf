@@ -15,7 +15,7 @@ public:
 	CppFile(const char * fullFileName, const clang::Decl * decl);
 	~CppFile();
 
-	void prepare();
+	void prepare() const;
 
 protected:	
 	virtual ItemCategory getCategory() const { return icFile; }

@@ -16,13 +16,18 @@ BuilderMethod::~BuilderMethod()
 {
 }
 
+const CppMethod * BuilderMethod::getCppMethod() const
+{
+	return static_cast<const CppMethod *>(this->getCppItem());
+}
+
 void BuilderMethod::doWriteMetaData(BuilderFileWriter * writer)
 {
-	const CppMethod * cppMethod = static_cast<const CppMethod *>(this->getCppItem());
-	CodeBlock * codeBlock = writer->getMetaDataCodeBlock(cppMethod, BuilderFileWriter::ftHeader);
+	const CppMethod * cppMethod = this->getCppMethod();
+	CodeBlock * codeBlock = writer->getReflectionCodeBlock(cppMethod);
 
 	std::string s;
-	Poco::format(s, "%s(\"%s\", (%s)(&%s));", writer->getReflectionAction("_method"), cppMethod->getName(), cppMethod->getPointeredType(), cppMethod->getOutputName());
+	Poco::format(s, "%s(\"%s\", (%s)(&%s));", writer->getReflectionAction("_method"), cppMethod->getName(), cppMethod->getTextOfPointeredType(), cppMethod->getOutputName());
 
 	codeBlock->addLine(s);
 }

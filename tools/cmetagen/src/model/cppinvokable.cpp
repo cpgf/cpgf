@@ -1,4 +1,5 @@
 #include "cppinvokable.h"
+#include "cppcontainer.h"
 #include "cpgf/gassert.h"
 #include "cpputil.h"
 
@@ -10,6 +11,7 @@
 #include "clang/AST/Decl.h"
 #include "clang/AST/DeclCXX.h"
 #include "clang/AST/DeclTemplate.h"
+#include "clang/AST/ASTContext.h"
 
 #if defined(_MSC_VER)
 #pragma warning(pop)
@@ -83,15 +85,50 @@ size_t CppInvokable::getArity() const
 	return functionDecl->param_size();
 }
 
-std::string CppInvokable::getPointeredType() const
+std::string CppInvokable::getTextOfPointeredType() const
 {
 	QualType qualType = getFunctionDecl(this->getDecl())->getType();
 	std::string s;
+
 	if(this->isStatic()) {
 		s = "*";
 	}
 	else {
-		s = this->getOutputName() + "::*";
+		s = this->getParent()->getOutputName() + "::*";
 	}
+
 	return qualTypeToText(qualType, s);
 }
+
+std::string CppInvokable::getTextOfParamList(const ItemTextOptionFlags & options) const
+{
+	std::string text;
+	
+	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
+	for(FunctionDecl::param_const_iterator it = functionDecl->param_begin(); it != functionDecl->param_end(); ++it) {
+		if(! text.empty()) {
+			text.append(",");
+		}
+		if(options.has(itoWithType)) {
+			if(! text.empty()) {
+				text.append(" ");
+			}
+			text.append(CppType((*it)->getType()).getQualifiedName());
+		}
+		if(options.has(itoWithName)) {
+			if(! text.empty()) {
+				text.append(" ");
+			}
+			text.append((*it)->getNameAsString());
+		}
+	}
+
+	return text;
+}
+
+CppType CppInvokable::getResultType() const
+{
+	QualType qualType = getFunctionDecl(this->getDecl())->getResultType();
+	return CppType(qualType);
+}
+

@@ -13,6 +13,8 @@ private:
 public:
 	explicit CppNamespace(clang::Decl * decl) : super(decl) {}
 
+	bool isAnonymous() const;
+
 protected:
 	virtual ItemCategory getCategory() const { return icNamespace; }
 

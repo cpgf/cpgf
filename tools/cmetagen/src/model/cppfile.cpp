@@ -15,7 +15,7 @@ CppFile::~CppFile()
 {
 }
 
-void CppFile::prepare()
+void CppFile::prepare() const
 {
 }
 

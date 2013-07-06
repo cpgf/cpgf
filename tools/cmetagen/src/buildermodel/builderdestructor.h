@@ -4,6 +4,8 @@
 #include "builderitem.h"
 
 
+class CppDestructor;
+
 class BuilderDestructor : public BuilderItem
 {
 private:
@@ -12,6 +14,8 @@ private:
 public:
 	explicit BuilderDestructor(const CppItem * cppItem);
 	virtual ~BuilderDestructor();
+
+	const CppDestructor * getCppDestructor() const;
 	
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);

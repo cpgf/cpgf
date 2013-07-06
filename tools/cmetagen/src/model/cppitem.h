@@ -6,7 +6,7 @@
 #include <string>
 #include <ostream>
 
-namespace clang { class Decl; }
+namespace clang { class Decl; class ASTContext; }
 
 
 enum ItemVisibility
@@ -29,13 +29,22 @@ enum ItemTextOption
 	itoWithDefaultValue = 1 << 2
 };
 
+typedef cpgf::GFlags<ItemTextOption> ItemTextOptionFlags;
+
 extern const char * const ItemNames[icCount];
 
 
 class CppContainer;
+class CppContext;
+class Config;
 
 class CppItem
 {
+private:
+	enum ItemFlags {
+		ifInMainFile = 1 << 0
+	};
+	
 protected:
 	explicit CppItem(const clang::Decl * decl);
 
@@ -43,11 +52,13 @@ public:
 	virtual ~CppItem();
 
 	virtual ItemCategory getCategory() const = 0;
-	
-	virtual void dump(std::ostream & os, int level = 0);
 
-	CppContainer * getParent() const { return this->parent; }
-	void setParent(CppContainer * parent) { this->parent = parent; }
+	virtual void dump(std::ostream & os, int level = 0) const;
+
+	const CppContainer * getParent() const { return this->parent; }
+	const CppContainer * getNamedParent() const; // return non-anonymous parent
+
+	bool isInMainFile() const { return this->flags.has(ifInMainFile); }
 	
 	ItemVisibility getVisibility() const;
 
@@ -64,13 +75,30 @@ public:
 	
 protected:
 	const clang::Decl * getDecl() const { return this->declaration; }
+	const clang::ASTContext * getASTContext() const;
 	
-	void dumpIndent(std::ostream & os, int level);
+	void setCppContext(const CppContext * cppContext) { this->cppContext = cppContext; }	
+	const CppContext * getCppContext() const { return this->cppContext; }
+	
+	const Config * getConfig() const;
+	
+	void setParent(CppContainer * parent) { this->parent = parent; }
+
+	void setInMainFile(bool inMainFile) { this->flags.setByBool(ifInMainFile, inMainFile); }
+	
+	void dumpIndent(std::ostream & os, int level) const;
 	
 private:
 	const clang::Decl * declaration;
 	ItemVisibility visibility;
-	CppContainer * parent; // file, namespace or class
+	const CppContainer * parent; // file, namespace or class
+	const CppContext * cppContext;
+	cpgf::GFlags<ItemFlags> flags;
+
+private:
+	friend class CppContext;
+	friend class CppContainer;
+	friend class ClangParserImplement;
 };
 
 class CppNamedItem : public CppItem

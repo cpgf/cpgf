@@ -33,7 +33,7 @@ BuilderItem * createBuilderItem(const CppItem * cppItem)
 
 		case icField:
 			return new BuilderField(cppItem);
-			
+
 		case icMethod:
 			return new BuilderMethod(cppItem);
 
@@ -70,21 +70,20 @@ BuilderContext::~BuilderContext()
 
 BuilderItem * BuilderContext::createItem(const CppItem * cppItem)
 {
-	BuilderItem * item = createBuilderItem(cppItem);
-	this->itemList.push_back(item);
-	return item;
+	BuilderItem * builderItem = createBuilderItem(cppItem);
+	builderItem->setConfig(this->config);
+	return builderItem;
 }
 
 void BuilderContext::process(const CppContext * cppContext)
 {
-	for(CppContext::FileListType::const_iterator it = cppContext->getFileList()->begin(); it != cppContext->getFileList()->end(); ++it) {
-		this->doProcessFile(*it);
-	}
+	this->doProcessFile(cppContext->getCppFile());
 }
 
 void BuilderContext::doProcessFile(const CppFile * cppFile)
 {
 	BuilderFile * file = static_cast<BuilderFile *>(this->createItem(cppFile));
+	this->itemList.push_back(file);
 	file->setConfig(this->config);
 
 	this->flatten(file);
@@ -100,11 +99,22 @@ void BuilderContext::flatten(BuilderFile * file)
 void BuilderContext::doFlatten(BuilderFile * file, const CppContainer * cppContainer)
 {
 	for(CppContainer::ItemListType::const_iterator it = cppContainer->getItemList()->begin(); it != cppContainer->getItemList()->end(); ++it) {
+		if(! (*it)->isInMainFile()) {
+			continue;
+		}
 		if(this->shouldSkipItem(*it)) {
 			continue;
 		}
 
-		file->getItemList()->push_back(this->createItem(*it));
+		cpgf::GScopedPointer<BuilderItem> item(this->createItem(*it));
+		if(! item->canBind()) {
+			continue;
+		}
+		if(item->shouldSkipBind()) {
+			continue;
+		}
+		file->getItemList()->push_back(item.get());
+		this->itemList.push_back(item.take());
 		if((*it)->isContainer()) {
 			this->doFlatten(file, static_cast<const CppContainer *>(*it));
 		}
@@ -114,9 +124,9 @@ void BuilderContext::doFlatten(BuilderFile * file, const CppContainer * cppConta
 bool BuilderContext::shouldSkipItem(const CppItem * cppItem)
 {
 	ItemVisibility visibility = cppItem->getVisibility();
-	if((visibility == ivPublic) != this->config->isAllowPublic()
-		|| (visibility == ivProtected) != this->config->isAllowProtected()
-		|| (visibility == ivPrivate) != this->config->isAllowPrivate()
+	if((visibility == ivPublic) != this->config->doesAllowPublic()
+		|| (visibility == ivProtected) != this->config->doesAllowProtected()
+		|| (visibility == ivPrivate) != this->config->doesAllowPrivate()
 		) {
 		return true;
 	}

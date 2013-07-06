@@ -1,5 +1,8 @@
 #include "cppitem.h"
 #include "cppcontainer.h"
+#include "cppclass.h"
+#include "cppnamespace.h"
+#include "cppcontext.h"
 #include "cpputil.h"
 
 #include "util.h"
@@ -41,7 +44,7 @@ ItemVisibility accessToVisibility(AccessSpecifier access)
 
 
 CppItem::CppItem(const clang::Decl * decl)
-	: declaration(decl), visibility(ivPublic), parent(NULL)
+	: declaration(decl), visibility(ivPublic), parent(NULL), cppContext(NULL)
 {
 }
 
@@ -49,12 +52,44 @@ CppItem::~CppItem()
 {
 }
 
+const CppContainer * CppItem::getNamedParent() const
+{
+	const CppContainer * container = this->getParent();
+	for(;;) {
+		if(container->isClass()) {
+			if(! static_cast<const CppClass *>(container)->isAnonymous()) {
+				break;
+			}
+		}
+		else if(container->isNamespace()) {
+			if(! static_cast<const CppNamespace *>(container)->isAnonymous()) {
+				break;
+			}
+		}
+		else {
+			break;
+		}
+		container = container->getParent();
+	}
+	return container;
+}
+
 ItemVisibility CppItem::getVisibility() const
 {
 	return accessToVisibility(this->getDecl()->getAccess());
 }
 
-void CppItem::dump(std::ostream & os, int level)
+const clang::ASTContext * CppItem::getASTContext() const
+{
+	return &this->declaration->getASTContext();
+}
+
+const Config * CppItem::getConfig() const
+{
+	return this->getCppContext()->getConfig();
+}
+
+void CppItem::dump(std::ostream & os, int level) const
 {
 	this->dumpIndent(os, level);
 	os	<< "category=" << ItemNames[this->getCategory()]
@@ -63,7 +98,7 @@ void CppItem::dump(std::ostream & os, int level)
 		<< std::endl;
 }
 
-void CppItem::dumpIndent(std::ostream & os, int level)
+void CppItem::dumpIndent(std::ostream & os, int level) const
 {
 	while(level > 0) {
 		--level;

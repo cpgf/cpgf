@@ -94,6 +94,9 @@ private:
 	{
 		T * item = this->context->createItem<T>(decl);
 		this->getCurrentCppContainer()->addItem(item);
+
+		SourceManager & sm = this->compilerInstance.getSourceManager();
+		item->setInMainFile(this->currentFileID == sm.getFileID(decl->getSourceRange().getBegin()));
 		
 		return item;
 	}
@@ -119,9 +122,6 @@ private:
 	void parseField(FieldDecl * fieldDecl);
 	void parseBaseClass(CppClass * cls, CXXBaseSpecifier * baseSpecifier);
 
-	void parseInvokable(FunctionDecl * functionDecl, CppInvokable * invokable);
-	void parseFunctionParams(FunctionDecl * functionDecl, CppInvokable * invokable);
-	void parseFunctionResult(FunctionDecl * functionDecl, CppInvokable * invokable);
 //	void parseTemplateParams(TemplateDecl * templateDecl, CppTemplateItem * templateItem);
 
 	string locationToSource(const SourceLocation & begin, const SourceLocation & end);
@@ -247,7 +247,7 @@ void ClangParserImplement::parse(const char * fileName)
 	this->compileAST(fileName);
 
 	this->context->beginFile(fileName, this->compilerInstance.getASTContext().getTranslationUnitDecl());
-	this->namespaceStack.push(this->context->getCurrentFileInfo());
+	this->namespaceStack.push(this->context->getCppFile());
 	
 	this->translate();
 
@@ -299,96 +299,6 @@ CppContainer * ClangParserImplement::getCurrentCppContainer()
 	return this->namespaceStack.top();
 }
 
-QualType stripType(const QualType & qualType)
-{
-	QualType qType = qualType;
-	SplitQualType splitQualType = qType.split();
-	const Type * t = splitQualType.Ty;
-
-	for(;;) {
-		if(t->isArrayType()) {
-			qType = dyn_cast<ArrayType>(t->getCanonicalTypeInternal())->getElementType();
-		}
-		else if(t->isPointerType()) {
-			qType = dyn_cast<PointerType>(t)->getPointeeType();
-		}
-		else if(t->isReferenceType()) {
-			qType = dyn_cast<ReferenceType>(t)->getPointeeType();
-		}
-		else {
-			break;
-		}
-		splitQualType = qType.split();
-		t = splitQualType.Ty;
-	}
-
-	return qType;
-}
-
-//CppType * ClangParserImplement::addType(const QualType & qualType)
-//{
-//	CppType * type = this->context->createType();
-//
-//	type->setLiteralName(qualType.getAsString());
-//	type->setQualifiedName(this->getQualTypeName(qualType));
-//	type->setBaseName(this->getQualTypeName(stripType(qualType)));
-//
-//	QualType qType = qualType;
-//	SplitQualType splitQualType = qType.split();
-//	const Type * t = splitQualType.Ty;
-//
-//	type->setConst(splitQualType.Quals.hasConst());
-//	type->setVolatile(splitQualType.Quals.hasVolatile());
-//
-//	if(t->isArrayType() != NULL) {
-//		type->setArray(true);
-//	}
-//	else {
-//		if(t->isFunctionType()) {
-//			type->setFunction(true);
-//		}
-//		else if(t->isFunctionPointerType()) {
-//			type->setFunctionPointer(true);
-//		}
-//		else {
-//			if(t->isReferenceType()) {
-//				type->setReference(true);
-//				qType = dyn_cast<ReferenceType>(t)->getPointeeType();
-//				splitQualType = qType.split();
-//				t = splitQualType.Ty;
-//				type->setReferenceToConst(splitQualType.Quals.hasConst());
-//				type->setReferenceToVolatile(splitQualType.Quals.hasVolatile());
-//			}
-//
-//			if(t->isPointerType()) {
-//				type->setPointer(true);
-//				qType = dyn_cast<PointerType>(t)->getPointeeType();
-//				splitQualType = qType.split();
-//				t = splitQualType.Ty;
-//				type->setPointerToConst(splitQualType.Quals.hasConst());
-//				type->setPointerToVolatile(splitQualType.Quals.hasVolatile());
-//
-//				if(t->isPointerType()) {
-//					type->setMultiPointer(true);
-//				}
-//			}
-//		}
-//	}
-//
-//	return type;
-//}
-//
-//CppType * ClangParserImplement::addType(const string & name)
-//{
-//	CppType * type = this->context->createType();
-//
-//	type->setLiteralName(name);
-//	type->setQualifiedName(name);
-//	type->setBaseName(name);
-//	
-//	return type;
-//}
-
 void ClangParserImplement::parseDeclContext(DeclContext * declContext)
 {
 	for(DeclContext::decl_iterator it = declContext->decls_begin(); it != declContext->decls_end(); ++it) {
@@ -399,11 +309,6 @@ void ClangParserImplement::parseDeclContext(DeclContext * declContext)
 void ClangParserImplement::parseDecl(Decl * decl)
 {
 	if(decl->isInvalidDecl()) {
-		return;
-	}
-
-	SourceManager & sm = this->compilerInstance.getSourceManager();
-	if(this->currentFileID != sm.getFileID(decl->getSourceRange().getBegin())) {
 		return;
 	}
 
@@ -457,6 +362,10 @@ cout << ">>> " << decl->getDeclKindName() << "     " << (dyn_cast<NamedDecl>(dec
 
 		case Decl::CXXDestructor:
 			this->parseDestructor(dyn_cast<CXXDestructorDecl>(decl));
+			break;
+
+		case Decl::CXXConversion:
+			this->parseOperator(dyn_cast<CXXConversionDecl>(decl));
 			break;
 	}
 }
@@ -526,15 +435,12 @@ void ClangParserImplement::parseTemplateFunction(FunctionTemplateDecl * function
 	}
 
 	string name = functionTemplateDecl->getNameAsString();
-	if(isOperator(name) > 0) {
+	if(isOperator(name)) {
 		this->parseTemplateOperator(functionTemplateDecl);
 	}
 	else {
 		CppMethod * method = this->addItem<CppMethod>(functionTemplateDecl);
 		FunctionDecl * functionDecl = functionTemplateDecl->getTemplatedDecl();
-		this->parseFunctionParams(functionDecl, method);
-		this->parseFunctionResult(functionDecl, method);
-//		this->parseTemplateParams(functionTemplateDecl, method);
 	}
 }
 
@@ -545,12 +451,11 @@ void ClangParserImplement::parseFunction(FunctionDecl * functionDecl)
 	}
 
 	string name = functionDecl->getNameAsString();
-	if(isOperator(name) > 0) {
+	if(isOperator(name)) {
 		this->parseOperator(functionDecl);
 	}
 	else {
 		CppMethod * method = this->addItem<CppMethod>(functionDecl);
-		this->parseInvokable(functionDecl, method);
 	}
 }
 
@@ -586,7 +491,6 @@ void ClangParserImplement::parseConstructor(CXXConstructorDecl * constructorDecl
 	}
 
 	CppConstructor * constructor = this->addItem<CppConstructor>(constructorDecl);
-	this->parseFunctionParams(constructorDecl, constructor);
 }
 
 void ClangParserImplement::parseDestructor(CXXDestructorDecl * destructorDecl)
@@ -605,7 +509,6 @@ void ClangParserImplement::parseOperator(FunctionDecl * functionDecl)
 	}
 
 	CppOperator * op = this->addItem<CppOperator>(functionDecl);
-	this->parseInvokable(functionDecl, op);
 }
 
 void ClangParserImplement::parseTemplateOperator(FunctionTemplateDecl * functionTemplateDecl)
@@ -614,9 +517,8 @@ void ClangParserImplement::parseTemplateOperator(FunctionTemplateDecl * function
 		return;
 	}
 
-	CppOperator * op = this->addItem<CppOperator>(functionTemplateDecl);
 	FunctionDecl * functionDecl = functionTemplateDecl->getTemplatedDecl();
-	this->parseInvokable(functionDecl, op);
+	this->parseOperator(functionDecl);
 }
 
 void ClangParserImplement::parseField(FieldDecl * fieldDecl)
@@ -628,10 +530,6 @@ void ClangParserImplement::parseField(FieldDecl * fieldDecl)
 	CppField * field = this->addItem<CppField>(fieldDecl);
 
 //	CppType * type = this->addType(fieldDecl->getType());
-
-	if(fieldDecl->isBitField()) {
-		field->setBitFields(fieldDecl->getBitWidthValue(this->compilerInstance.getASTContext()));
-	}
 }
 
 void ClangParserImplement::parseBaseClass(CppClass * cls, CXXBaseSpecifier * baseSpecifier)
@@ -739,39 +637,6 @@ string ClangParserImplement::locationToSource(const SourceLocation & begin, cons
 	const LangOptions & langOptions = this->compilerInstance.getLangOpts();
     SourceLocation e(Lexer::getLocForEndOfToken(end, 0, *sourceManager, langOptions));
     return std::string(sourceManager->getCharacterData(begin), sourceManager->getCharacterData(e) - sourceManager->getCharacterData(begin));
-}
-
-void ClangParserImplement::parseInvokable(FunctionDecl * functionDecl, CppInvokable * invokable)
-{
-	CXXMethodDecl * methodDecl = dyn_cast_or_null<CXXMethodDecl>(functionDecl);
-	
-	this->parseFunctionParams(functionDecl, invokable);
-	this->parseFunctionResult(functionDecl, invokable);
-}
-
-void ClangParserImplement::parseFunctionParams(FunctionDecl * functionDecl, CppInvokable * invokable)
-{
-	//for(FunctionDecl::param_iterator it = functionDecl->param_begin(); it != functionDecl->param_end(); ++it) {
-	//	ParmVarDecl * paramVarDecl = *it;
-	//	
-	//	CppParam * param = invokable->addParam();
-	//	param->setName(paramVarDecl->getNameAsString());
-	//	
-	//	CppType * type = this->addType(paramVarDecl->getType());
-	//	param->setType(type);
-
-	//	if(paramVarDecl->hasDefaultArg()) {
-	//		Expr * expr = paramVarDecl->getDefaultArg();
-	//		string defaultValue = this->locationToSource(expr->getLocStart(), expr->getLocEnd());
-	//		param->setDefaultValue(defaultValue);
-	//	}
-	//}
-}
-
-void ClangParserImplement::parseFunctionResult(FunctionDecl * functionDecl, CppInvokable * invokable)
-{
-	//CppType * resultType = this->addType(functionDecl->getResultType());
-	//invokable->setResultType(resultType);
 }
 
 //void ClangParserImplement::parseTemplateParams(TemplateDecl * templateDecl, CppTemplateItem * templateItem)

@@ -34,29 +34,37 @@ private:
 	typedef CppContainer super;
 
 public:
-	typedef std::vector<CppConstructor *> ConstructorListType;
-	typedef std::vector<BaseClass *> BaseClassListType;
+	typedef std::vector<const CppConstructor *> ConstructorListType;
+	typedef std::vector<const BaseClass *> BaseClassListType;
 	
 public:
 	explicit CppClass(const clang::Decl * decl);
 	~CppClass();
 	
 	bool isTemplate() const;
+	bool isAnonymous() const;
 	
-	std::string getTemplateParamList(ItemTextOption options) const;
+	std::string getTextOfTemplateParamList(const ItemTextOptionFlags & options) const;
+	std::string getTextOfChainedTemplateParamList(const ItemTextOptionFlags & options) const;
 	
-	BaseClassListType * getBaseClassList() { return &this->baseClassList; }
-	ConstructorListType * getConstructorList() { return &this->constructorList; }
-	CppDestructor * getDestructor() { return this->destructor; }
+	const BaseClassListType * getBaseClassList() const { return &this->baseClassList; }
+	const ConstructorListType * getConstructorList() const { return &this->constructorList; }
+	const CppDestructor * getDestructor() { return this->destructor; }
 
 protected:
+	BaseClassListType * getBaseClassList() { return &this->baseClassList; }
+	ConstructorListType * getConstructorList() { return &this->constructorList; }
+	
 	virtual ItemCategory getCategory() const { return icClass; }
 	virtual void doAddItem(CppItem * item);
 
 private:
 	BaseClassListType baseClassList;
 	ConstructorListType constructorList;
-	CppDestructor * destructor;
+	const CppDestructor * destructor;
+	
+private:
+	friend class ClangParserImplement;
 };
 
 

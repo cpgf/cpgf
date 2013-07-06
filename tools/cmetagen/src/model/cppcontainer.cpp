@@ -63,12 +63,12 @@ void CppContainer::doAddItem(CppItem * item)
 template <typename T>
 void dumpList(T & itemList, std::ostream & os, int level)
 {
-	for(typename T::iterator it = itemList.begin(); it != itemList.end(); ++it) {
+	for(typename T::const_iterator it = itemList.begin(); it != itemList.end(); ++it) {
 		(*it)->dump(os, level);
 	}
 }
 
-void CppContainer::dump(std::ostream & os, int level)
+void CppContainer::dump(std::ostream & os, int level) const
 {
 	int newLevel = level + 1;
 
