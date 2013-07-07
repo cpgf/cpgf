@@ -71,6 +71,30 @@ bool CppInvokable::isConst() const
 	}
 }
 
+bool CppInvokable::isVirtual() const
+{
+	const CXXMethodDecl * methodDecl = getMethodDecl(this->getDecl());
+
+	if(methodDecl != NULL) {
+		return methodDecl->isVirtual();
+	}
+	else {
+		return false;
+	}
+}
+
+bool CppInvokable::isPureVirtual() const
+{
+	const CXXMethodDecl * methodDecl = getMethodDecl(this->getDecl());
+
+	if(methodDecl != NULL) {
+		return methodDecl->isPure();
+	}
+	else {
+		return false;
+	}
+}
+
 bool CppInvokable::isVariadic() const
 {
 	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());

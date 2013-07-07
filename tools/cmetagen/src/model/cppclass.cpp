@@ -19,6 +19,22 @@
 using namespace clang;
 using namespace std;
 
+BaseClass::BaseClass(const clang::CXXBaseSpecifier * baseSpecifier)
+	: baseSpecifier(baseSpecifier)
+{
+}
+
+ItemVisibility accessToVisibility(AccessSpecifier access);
+ItemVisibility BaseClass::getVisibility() const
+{
+	return accessToVisibility(this->baseSpecifier->getAccessSpecifier());
+}
+
+std::string BaseClass::getQualifiedName() const
+{
+	return CppType(this->baseSpecifier->getType()).getQualifiedName();
+}
+
 const CXXRecordDecl * getRecordDecl(const Decl * decl)
 {
 	const CXXRecordDecl * recordDecl;

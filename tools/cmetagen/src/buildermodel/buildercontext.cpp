@@ -93,12 +93,13 @@ void BuilderContext::doProcessFile(const CppFile * cppFile)
 
 void BuilderContext::flatten(BuilderFile * file)
 {
-	this->doFlatten(file, static_cast<const CppContainer *>(file->getCppItem()));
+	this->doFlatten(file, file);
 }
 
-void BuilderContext::doFlatten(BuilderFile * file, const CppContainer * cppContainer)
+void BuilderContext::doFlatten(BuilderFile * file, BuilderContainer * builderContainer)
 {
-	for(CppContainer::ItemListType::const_iterator it = cppContainer->getItemList()->begin(); it != cppContainer->getItemList()->end(); ++it) {
+	for(CppContainer::ItemListType::const_iterator it = builderContainer->getCppContainer()->getItemList()->begin();
+		it != builderContainer->getCppContainer()->getItemList()->end(); ++it) {
 		if(! (*it)->isInMainFile()) {
 			continue;
 		}
@@ -113,10 +114,13 @@ void BuilderContext::doFlatten(BuilderFile * file, const CppContainer * cppConta
 		if(item->shouldSkipBind()) {
 			continue;
 		}
+
 		file->getItemList()->push_back(item.get());
+		BuilderItem * itemPointer = item.get();
 		this->itemList.push_back(item.take());
+		builderContainer->addItem(itemPointer);
 		if((*it)->isContainer()) {
-			this->doFlatten(file, static_cast<const CppContainer *>(*it));
+			this->doFlatten(file, static_cast<BuilderContainer *>(itemPointer));
 		}
 	}
 }

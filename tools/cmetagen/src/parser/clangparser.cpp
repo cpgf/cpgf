@@ -60,18 +60,18 @@ typedef stack<CppContainer *> CppContainerStackType;
 class CppContainerGuard
 {
 public:
-	explicit CppContainerGuard(CppContainerStackType * namespaceStack, CppContainer * cppContext)
-		: namespaceStack(namespaceStack)
+	explicit CppContainerGuard(CppContainerStackType * cppContainerStack, CppContainer * cppContext)
+		: cppContainerStack(cppContainerStack)
 	{
-		this->namespaceStack->push(cppContext);
+		this->cppContainerStack->push(cppContext);
 	}
 
 	~CppContainerGuard() {
-		this->namespaceStack->pop();
+		this->cppContainerStack->pop();
 	}
 
 private:
-	CppContainerStackType * namespaceStack;
+	CppContainerStackType * cppContainerStack;
 };
 
 class ClangParserImplement
@@ -97,7 +97,7 @@ private:
 
 		SourceManager & sm = this->compilerInstance.getSourceManager();
 		item->setInMainFile(this->currentFileID == sm.getFileID(decl->getSourceRange().getBegin()));
-		
+
 		return item;
 	}
 
@@ -131,7 +131,7 @@ private:
 
 private:
 	CppContext * context;
-	CppContainerStackType namespaceStack;
+	CppContainerStackType cppContainerStack;
 
 	raw_fd_ostream outputStream;
 	DiagnosticOptions diagnosticOptions;
@@ -247,11 +247,11 @@ void ClangParserImplement::parse(const char * fileName)
 	this->compileAST(fileName);
 
 	this->context->beginFile(fileName, this->compilerInstance.getASTContext().getTranslationUnitDecl());
-	this->namespaceStack.push(this->context->getCppFile());
+	this->cppContainerStack.push(this->context->getCppFile());
 	
 	this->translate();
 
-	this->namespaceStack.pop();
+	this->cppContainerStack.pop();
 	this->context->endFile(fileName);
 }
 
@@ -296,7 +296,7 @@ void ClangParserImplement::translate()
 
 CppContainer * ClangParserImplement::getCurrentCppContainer()
 {
-	return this->namespaceStack.top();
+	return this->cppContainerStack.top();
 }
 
 void ClangParserImplement::parseDeclContext(DeclContext * declContext)
@@ -376,8 +376,7 @@ void ClangParserImplement::parseVar(VarDecl * varDecl)
 		return;
 	}
 
-	CppField * field = this->addItem<CppField>(varDecl);
-//	CppType * type = this->addType(varDecl->getType());
+	this->addItem<CppField>(varDecl);
 }
 
 void ClangParserImplement::parseClass(CXXRecordDecl * classDecl)
@@ -392,7 +391,7 @@ void ClangParserImplement::parseClass(CXXRecordDecl * classDecl)
 
 	CppClass * cls = this->addItem<CppClass>(classDecl);
 	
-	CppContainerGuard nsGuard(&this->namespaceStack, cls);
+	CppContainerGuard nsGuard(&this->cppContainerStack, cls);
 
 	this->parseDeclContext(classDecl);
 
@@ -409,7 +408,7 @@ void ClangParserImplement::parseTemplateClass(ClassTemplateDecl * classTemplateD
 
 	CppClass * cls = this->addItem<CppClass>(classTemplateDecl);
 
-	CppContainerGuard nsGuard(&this->namespaceStack, cls);
+	CppContainerGuard nsGuard(&this->cppContainerStack, cls);
 
 	CXXRecordDecl * classDecl = classTemplateDecl->getTemplatedDecl();
 	this->parseDeclContext(classDecl);
@@ -439,8 +438,7 @@ void ClangParserImplement::parseTemplateFunction(FunctionTemplateDecl * function
 		this->parseTemplateOperator(functionTemplateDecl);
 	}
 	else {
-		CppMethod * method = this->addItem<CppMethod>(functionTemplateDecl);
-		FunctionDecl * functionDecl = functionTemplateDecl->getTemplatedDecl();
+		this->addItem<CppMethod>(functionTemplateDecl);
 	}
 }
 
@@ -455,7 +453,7 @@ void ClangParserImplement::parseFunction(FunctionDecl * functionDecl)
 		this->parseOperator(functionDecl);
 	}
 	else {
-		CppMethod * method = this->addItem<CppMethod>(functionDecl);
+		this->addItem<CppMethod>(functionDecl);
 	}
 }
 
@@ -467,7 +465,7 @@ void ClangParserImplement::parseNamespace(NamespaceDecl * namespaceDecl)
 
 	CppNamespace * ns = this->addItem<CppNamespace>(namespaceDecl);
 	
-	CppContainerGuard nsGuard(&this->namespaceStack, ns);
+	CppContainerGuard nsGuard(&this->cppContainerStack, ns);
 
 	this->parseDeclContext(namespaceDecl);
 }
@@ -490,7 +488,7 @@ void ClangParserImplement::parseConstructor(CXXConstructorDecl * constructorDecl
 		return;
 	}
 
-	CppConstructor * constructor = this->addItem<CppConstructor>(constructorDecl);
+	this->addItem<CppConstructor>(constructorDecl);
 }
 
 void ClangParserImplement::parseDestructor(CXXDestructorDecl * destructorDecl)
@@ -499,7 +497,7 @@ void ClangParserImplement::parseDestructor(CXXDestructorDecl * destructorDecl)
 		return;
 	}
 
-	CppDestructor * destructor = this->addItem<CppDestructor>(destructorDecl);
+	this->addItem<CppDestructor>(destructorDecl);
 }
 
 void ClangParserImplement::parseOperator(FunctionDecl * functionDecl)
@@ -508,7 +506,7 @@ void ClangParserImplement::parseOperator(FunctionDecl * functionDecl)
 		return;
 	}
 
-	CppOperator * op = this->addItem<CppOperator>(functionDecl);
+	this->addItem<CppOperator>(functionDecl);
 }
 
 void ClangParserImplement::parseTemplateOperator(FunctionTemplateDecl * functionTemplateDecl)
@@ -527,9 +525,7 @@ void ClangParserImplement::parseField(FieldDecl * fieldDecl)
 		return;
 	}
 
-	CppField * field = this->addItem<CppField>(fieldDecl);
-
-//	CppType * type = this->addType(fieldDecl->getType());
+	this->addItem<CppField>(fieldDecl);
 }
 
 void ClangParserImplement::parseBaseClass(CppClass * cls, CXXBaseSpecifier * baseSpecifier)
@@ -545,10 +541,8 @@ void ClangParserImplement::parseBaseClass(CppClass * cls, CXXBaseSpecifier * bas
 		qualifiedName = this->getTemplateSpecializationName(t);
 	}
 
-	BaseClass * baseClass = new BaseClass();
+	BaseClass * baseClass = new BaseClass(baseSpecifier);
 	cls->getBaseClassList()->push_back(baseClass);
-	baseClass->setName(qualType.getAsString());
-	baseClass->setQualifiedName(qualifiedName);
 }
 
 string ClangParserImplement::getTemplateArgumentName(const TemplateArgument & argument)

@@ -5,6 +5,7 @@
 
 #include <string>
 
+namespace clang { class CXXBaseSpecifier; }
 
 class CppConstructor;
 class CppDestructor;
@@ -12,20 +13,14 @@ class CppDestructor;
 class BaseClass
 {
 public:
-	BaseClass() : visibility(ivPublic) {}
+	explicit BaseClass(const clang::CXXBaseSpecifier * baseSpecifier);
 	
-	ItemVisibility getVisibility() const { return this->visibility; }
-	void setVisibility(ItemVisibility visibility) { this->visibility = visibility; }
+	ItemVisibility getVisibility() const;
 	
-	const std::string & getName() const { return this->name; }
-	void setName(const std::string & name) { this->name = name; }
-	const std::string & getQualifiedName() const { return this->qualifiedName; }
-	void setQualifiedName(const std::string & qualifiedName) { this->qualifiedName = qualifiedName; }
+	std::string getQualifiedName() const;
 
 private:
-	ItemVisibility visibility;
-	std::string name;
-	std::string qualifiedName;
+	const clang::CXXBaseSpecifier * baseSpecifier;
 };
 
 class CppClass : public CppContainer

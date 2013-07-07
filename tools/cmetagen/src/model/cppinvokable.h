@@ -17,6 +17,8 @@ public:
 	
 	bool isStatic() const;
 	bool isConst() const;
+	bool isVirtual() const;
+	bool isPureVirtual() const;
 	bool isVariadic() const;
 	bool isTemplate() const;
 	bool isOverloaded() const;

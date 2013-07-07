@@ -7,6 +7,7 @@
 
 
 class BuilderFileWriter;
+class BuilderContainer;
 class CodeBlock;
 class Config;
 
@@ -33,6 +34,8 @@ public:
 	void setConfig(const Config * config) { this->config = config; }
 	const Config * getConfig() const { return this->config; }
 	
+	BuilderContainer * getParent() const { return this->parent; }
+	
 protected:
 	std::string getPolicyText() const;
 	virtual std::string doGetPolicyText() const;
@@ -42,9 +45,16 @@ protected:
 	void checkBuilderItemCategory(ItemCategory category);
 	
 private:
+	void setParent(BuilderContainer * parent) { this->parent = parent; }
+	
+private:
 	const CppItem * cppItem;
 	const Config * config;
 	cpgf::GFlags<BuilderFlags> flags;
+	BuilderContainer * parent;
+	
+private:
+	friend class BuilderContainer;
 };
 
 

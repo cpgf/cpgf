@@ -11,6 +11,7 @@ class CppContext;
 class CppContanier;
 class CppFile;
 class BuilderFile;
+class BuilderContainer;
 class Config;
 
 class BuilderContext
@@ -28,7 +29,7 @@ protected:
 	void doProcessFile(const CppFile * cppFile);
 
 	void flatten(BuilderFile * file);
-	void doFlatten(BuilderFile * file, const CppContainer * cppContainer);
+	void doFlatten(BuilderFile * file, BuilderContainer * builderContainer);
 
 	bool shouldSkipItem(const CppItem * cppItem);
 	

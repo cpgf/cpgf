@@ -26,6 +26,11 @@ const CppMethod * BuilderMethod::getCppMethod() const
 
 void BuilderMethod::doWriteMetaData(BuilderFileWriter * writer)
 {
+	this->doWriterReflection(writer);
+}
+
+void BuilderMethod::doWriterReflection(BuilderFileWriter * writer)
+{
 	const CppMethod * cppMethod = this->getCppMethod();
 	CodeBlock * codeBlock = writer->getReflectionCodeBlock(cppMethod);
 

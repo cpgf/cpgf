@@ -1,15 +1,15 @@
 #ifndef __BUILDERCLASS_H
 #define __BUILDERCLASS_H
 
-#include "builderitem.h"
+#include "buildercontainer.h"
 
 
 class CppClass;
 
-class BuilderClass : public BuilderItem
+class BuilderClass : public BuilderContainer
 {
 private:
-	typedef BuilderItem super;
+	typedef BuilderContainer super;
 	
 public:
 	explicit BuilderClass(const CppItem * cppItem);

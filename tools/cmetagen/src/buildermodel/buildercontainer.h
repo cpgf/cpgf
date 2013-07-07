@@ -6,6 +6,8 @@
 #include <vector>
 
 
+class CppContainer;
+
 class BuilderContainer : public BuilderItem
 {
 private:
@@ -20,6 +22,10 @@ public:
 	
 	ItemListType * getItemList() { return &this->itemList; }
 	const ItemListType * getItemList() const { return &this->itemList; }
+	
+	void addItem(BuilderItem * item);
+	
+	const CppContainer * getCppContainer() const;
 
 	void sortItems();
 	

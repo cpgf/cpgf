@@ -93,7 +93,7 @@ void CodeBlock::write(CodeWriter * codeWriter)
 	
 	codeWriter->decIndent(this->getIndent());
 
-	if(this->flags.has(cbsBracket) || ! this->codeList.empty()) {
+	if(this->flags.has(cbsBracket)) {
 		codeWriter->ensureBlankLine();
 	}
 }

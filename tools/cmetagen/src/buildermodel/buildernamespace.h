@@ -1,15 +1,15 @@
 #ifndef __BUILDERNAMESPACE_H
 #define __BUILDERNAMESPACE_H
 
-#include "builderitem.h"
+#include "buildercontainer.h"
 
 
 class CppNamespace;
 
-class BuilderNamespace : public BuilderItem
+class BuilderNamespace : public BuilderContainer
 {
 private:
-	typedef BuilderItem super;
+	typedef BuilderContainer super;
 	
 public:
 	explicit BuilderNamespace(const CppItem * cppItem);

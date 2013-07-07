@@ -21,6 +21,8 @@ public:
 	
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);
+	
+private:
 	void doWriteReflection(BuilderFileWriter * writer);
 	void doWriteBitFieldWrapper(BuilderFileWriter * writer);
 };

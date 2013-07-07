@@ -28,5 +28,8 @@ const CppClass * BuilderClass::getCppClass() const
 
 void BuilderClass::doWriteMetaData(BuilderFileWriter * writer)
 {
+	const CppClass * cppClass = this->getCppClass();
+	CodeBlock * codeBlock = writer->getFunctionBodyCodeBlock(cppClass, ftHeader);
+	codeBlock->addLine("====================");
 }
 
