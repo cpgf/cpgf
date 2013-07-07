@@ -23,7 +23,7 @@ const CppFile * BuilderFile::getCppFile() const
 	return static_cast<const CppFile *>(this->getCppItem());
 }
 	
-void BuilderFile::doWriteMetaData(BuilderFileWriter * writer)
+void BuilderFile::doWriteMetaData(BuilderFileWriter * /*writer*/)
 {
 }
 
@@ -31,7 +31,10 @@ void BuilderFile::prepare()
 {
 	this->sortItems();
 	this->createFileWriters();
-	this->builderFileWriterList[0]->prepare();
+	for(BuilderFileWriterListType::iterator it = this->builderFileWriterList.begin(); it != this->builderFileWriterList.end(); ++it) {
+		(*it)->prepare();
+	}
+	this->builderFileWriterList[0]->prepareMaster();
 }
 
 void BuilderFile::createFileWriters()
@@ -39,12 +42,22 @@ void BuilderFile::createFileWriters()
 	BuilderFileWriter * currentFile = new BuilderFileWriter(0, this->getConfig());
 	this->builderFileWriterList.push_back(currentFile);
 
+	int itemCountInWriter = 0;
 	for(ItemListType::iterator it = this->getItemList()->begin(); it != this->getItemList()->end(); ++it) {
 		currentFile->getItemList()->push_back(*it);
-		if(this->getConfig()->getMaxItemCountPerFile() > 0 && currentFile->getItemList()->size() >= this->getConfig()->getMaxItemCountPerFile()) {
-			currentFile = new BuilderFileWriter(this->builderFileWriterList.size(), this->getConfig());
-			this->builderFileWriterList[this->builderFileWriterList.size() - 1]->setNextFile(currentFile);
-			this->builderFileWriterList.push_back(currentFile);
+		if(this->getConfig()->getMaxItemCountPerFile() > 0) {
+			const CppItem * item = (*it)->getCppItem();
+			if(item->isFile() || item->isNamespace() || item->isClass()) {
+			}
+			else {
+				++itemCountInWriter;
+			}
+			if(itemCountInWriter >= this->getConfig()->getMaxItemCountPerFile()) {
+				currentFile = new BuilderFileWriter(this->builderFileWriterList.size(), this->getConfig());
+				this->builderFileWriterList[this->builderFileWriterList.size() - 1]->setNextFile(currentFile);
+				this->builderFileWriterList.push_back(currentFile);
+				itemCountInWriter = 0;
+			}
 		}
 	}
 }

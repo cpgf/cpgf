@@ -24,7 +24,7 @@ bool BuilderDestructor::canBind() const
 	return false;
 }
 
-void BuilderDestructor::doWriteMetaData(BuilderFileWriter * writer)
+void BuilderDestructor::doWriteMetaData(BuilderFileWriter * /*writer*/)
 {
 }
 

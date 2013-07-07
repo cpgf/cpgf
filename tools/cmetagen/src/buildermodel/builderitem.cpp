@@ -56,8 +56,6 @@ std::string BuilderItem::doGetPolicyText() const
 
 void BuilderItem::writeMetaData(BuilderFileWriter * writer)
 {
-	writer->requireItemConainerFunction(this->getCppItem());
-
 	this->doWriteMetaData(writer);
 }
 

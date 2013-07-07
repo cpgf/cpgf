@@ -10,6 +10,7 @@
 #include "buildermethod.h"
 #include "buildernamespace.h"
 #include "builderoperator.h"
+#include "builderutil.h"
 
 #include "model/cppfile.h"
 #include "model/cppcontext.h"
@@ -127,13 +128,5 @@ void BuilderContext::doFlatten(BuilderFile * file, BuilderContainer * builderCon
 
 bool BuilderContext::shouldSkipItem(const CppItem * cppItem)
 {
-	ItemVisibility visibility = cppItem->getVisibility();
-	if((visibility == ivPublic) != this->config->doesAllowPublic()
-		|| (visibility == ivProtected) != this->config->doesAllowProtected()
-		|| (visibility == ivPrivate) != this->config->doesAllowPrivate()
-		) {
-		return true;
-	}
-
-	return false;
+	return ! isVisibilityAllowed(cppItem->getVisibility(), this->config);
 }

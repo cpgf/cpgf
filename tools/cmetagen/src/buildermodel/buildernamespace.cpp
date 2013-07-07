@@ -19,7 +19,7 @@ const CppNamespace * BuilderNamespace::getCppNamespace() const
 	return static_cast<const CppNamespace *>(this->getCppItem());
 }
 
-void BuilderNamespace::doWriteMetaData(BuilderFileWriter * writer)
+void BuilderNamespace::doWriteMetaData(BuilderFileWriter * /*writer*/)
 {
 }
 

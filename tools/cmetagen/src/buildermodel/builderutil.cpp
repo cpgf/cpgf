@@ -17,3 +17,16 @@ std::string getReflectionScope(const CppItem * item)
 		return getReflectionClassName(item->getConfig()) + "::";
 	}
 }
+
+bool isVisibilityAllowed(ItemVisibility visibility, const Config * config)
+{
+	if((visibility == ivPublic) != config->doesAllowPublic()
+		|| (visibility == ivProtected) != config->doesAllowProtected()
+		|| (visibility == ivPrivate) != config->doesAllowPrivate()
+		) {
+		return false;
+	}
+
+	return true;
+}
+

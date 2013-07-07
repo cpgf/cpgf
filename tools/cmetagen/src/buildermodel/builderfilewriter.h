@@ -26,6 +26,7 @@ public:
 	
 private:
 	typedef std::set<std::string> StringSetType;
+	typedef std::vector<const CppContainer *> ContainerListType;
 
 public:
 	BuilderFileWriter(int fileIndex, const Config * config);
@@ -41,13 +42,10 @@ public:
 	void setNextFile(BuilderFileWriter * nextFile) { this->nextFile = nextFile; }
 
 	void prepare();
+	void prepareMaster();
 	void writeFile();
 	
 public: // auxiliary functions used by BuilderItem's
-	std::string getReflectionFunctionName(const CppContainer * cppContainer);
-	std::string getCreationFunctionName(const CppContainer * cppContainer);
-	void requireItemConainerFunction(const CppItem * cppItem);
-
 	CodeBlock * getFunctionContainerCodeBlock(const CppItem * cppItem, FileType fileType);
 	CodeBlock * getFunctionHeaderCodeBlock(const CppItem * cppItem, FileType fileType);
 	CodeBlock * getFunctionBodyCodeBlock(const CppItem * cppItem, FileType fileType);
@@ -55,16 +53,26 @@ public: // auxiliary functions used by BuilderItem's
 	CodeBlock * getReflectionCodeBlock(const CppItem * cppItem);
 	
 	CodeBlock * getWrapperCodeBlock(const CppItem * cppItem, FileType fileType);
+	CodeBlock * getDeclarationCodeBlock(FileType fileType);
 	
 	std::string getReflectionAction(const std::string & name);
 	
 private:
-	CodeBlock * getCodeBlock(FileType fileType);
+	std::string getReflectionFunctionName(const CppContainer * cppContainer);
+	std::string getCreationFunctionName(const CppContainer * cppContainer);
+	std::string getCreationFunctionPrototype(const CppContainer * cppContainer);
+	std::string getMasterCreationFunctionName(const CppContainer * cppContainer);
 
-private:
+	CodeBlock * getCodeBlock(FileType fileType);
+	std::string getContainertName(const CppContainer * cppContainer);
+	void doPrepareItemConainer(const CppItem * cppItem);
+
 	void doWriteHeader();
 	void doWriteSource();
 	void setupFileCodeBlockStructure();
+
+	void doWriteReflectionFunction(const CppContainer * cppContainer);
+	void doWriteCreationFunction(const CppContainer * cppContainer);
 
 private:
 	int fileIndex;
@@ -75,6 +83,7 @@ private:
 	BuilderFileWriter * nextFile;
 
 	StringSetType generatedFunctionItemNames;
+	ContainerListType containerList;
 };
 
 
