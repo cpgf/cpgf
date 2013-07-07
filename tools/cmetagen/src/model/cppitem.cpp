@@ -94,6 +94,11 @@ bool CppItem::isGlobal() const
 	return ! this->getParent()->isClass();
 }
 
+bool CppItem::isNestedClass() const
+{
+	return this->isClass() && this->getParent()->isClass();
+}
+
 void CppItem::dump(std::ostream & os, int level) const
 {
 	this->dumpIndent(os, level);

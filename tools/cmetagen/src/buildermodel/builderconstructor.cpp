@@ -31,6 +31,6 @@ void BuilderConstructor::doWriteMetaData(BuilderFileWriter * writer)
 		cppConstructor->getTextOfParamList(itoWithType)
 	);
 
-	codeBlock->addLine(s);
+	codeBlock->appendLine(s);
 }
 

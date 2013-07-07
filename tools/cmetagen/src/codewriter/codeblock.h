@@ -22,6 +22,9 @@ public:
 	
 	virtual void write(CodeWriter * codeWriter) = 0;
 
+	virtual bool isLine() const { return false; }
+	bool isBlock() const { return ! this->isLine(); }
+
 	void incIndent();
 	void decIndent();
 	
@@ -51,6 +54,10 @@ protected:
 	explicit CodeLine(const std::string & code);
 	
 public:
+	const std::string & getCode() const { return this->code; }
+
+	virtual bool isLine() const { return true; }
+
 	virtual void write(CodeWriter * codeWriter);
 
 	void append(const std::string & code);
@@ -83,10 +90,10 @@ protected:
 public:
 	virtual void write(CodeWriter * codeWriter);
 
-	CodeLine * addLine();
-	CodeLine * addLine(const std::string & code);
-	CodeLine * addBlankLine();
-	CodeBlock * addBlock(const cpgf::GFlags<CodeBlockStyle> & flags = 0);
+	CodeLine * appendLine(const std::string & code);
+	CodeLine * appendUniqueLine(const std::string & code);
+	CodeLine * appendBlankLine();
+	CodeBlock * appendBlock(const cpgf::GFlags<CodeBlockStyle> & flags = 0);
 	CodeBlock * getNamedBlock(const std::string & name, const cpgf::GFlags<CodeBlockStyle> & flags = 0);
 	void ensureNamedBlocks(const std::string & name1, const std::string & name2);
 	

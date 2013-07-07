@@ -78,6 +78,7 @@ public:
 	bool isOperator() const { return this->getCategory() == icOperator; }
 	
 	bool isGlobal() const;
+	bool isNestedClass() const;
 
 	virtual bool isContainer() const { return false; }
 	virtual bool isNamed() const { return false; }

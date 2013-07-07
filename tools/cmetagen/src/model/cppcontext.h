@@ -5,7 +5,9 @@
 
 #include "cpgf/gscopedptr.h"
 
+#include <string>
 #include <vector>
+#include <map>
 
 class CppFile;
 class Config;
@@ -14,6 +16,7 @@ class CppContext
 {
 private:
 	typedef std::vector<CppItem *> ItemListType;
+	typedef std::map<std::string, CppNamedItem *> ItemNameMapType;
 
 public:
 	explicit CppContext(const Config * config);
@@ -21,6 +24,8 @@ public:
 	
 	CppFile * getCppFile() const { return this->cppFile.get(); }
 	const Config * getConfig() const { return this->config; }
+	
+	const CppNamedItem * findNamedItem(const std::string & qualifiedName) const;
 	
 private:
 	void beginFile(const char * fileName, clang::Decl * decl);
@@ -38,6 +43,7 @@ private:
 private:
 	cpgf::GScopedPointer<CppFile> cppFile;
 	ItemListType itemList;
+	ItemNameMapType itemNameMap;
 	const Config * config;
 	
 private:

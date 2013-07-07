@@ -13,7 +13,7 @@ void testCppWriter()
 
 	cppWriter.setNamespace("ns");
 	cppWriter.include("def.h");
-	cppWriter.getCodeBlock()->addLine("void a();");
+	cppWriter.getCodeBlock()->appendLine("void a();");
 
 	cppWriter.write(&codeWriter);
 	cout << codeWriter.getText();

@@ -52,15 +52,15 @@ void BuilderEnum::doWriteMetaData(BuilderFileWriter * writer)
 		enumName
 	);
 
-	codeBlock->addLine(s);
+	codeBlock->appendLine(s);
 
 	string scope = getReflectionScope(cppEnum);
-	CodeBlock * valueBlock = codeBlock->addBlock(cbsIndent);
+	CodeBlock * valueBlock = codeBlock->appendBlock(cbsIndent);
 	const CppEnum::ValueListType * valueList = cppEnum->getValueList();
 	for(CppEnum::ValueListType::const_iterator it = valueList->begin(); it != valueList->end(); ++it) {
 		s = Poco::format("._element(\"%s\", %s%s)", it->getName(), scope, it->getName());
-		valueBlock->addLine(s);
+		valueBlock->appendLine(s);
 	}
-	codeBlock->addLine(";");
+	codeBlock->appendLine(";");
 }
 

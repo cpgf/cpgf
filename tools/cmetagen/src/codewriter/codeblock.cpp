@@ -98,12 +98,7 @@ void CodeBlock::write(CodeWriter * codeWriter)
 	}
 }
 
-CodeLine * CodeBlock::addLine()
-{
-	return this->addLine("");
-}
-
-CodeLine * CodeBlock::addLine(const std::string & code)
+CodeLine * CodeBlock::appendLine(const std::string & code)
 {
 	CodeLine * line = new CodeLine(code);
 	this->codeList.push_back(line);
@@ -111,12 +106,23 @@ CodeLine * CodeBlock::addLine(const std::string & code)
 	return line;
 }
 
-CodeLine * CodeBlock::addBlankLine()
+CodeLine * CodeBlock::appendUniqueLine(const std::string & code)
 {
-	return this->addLine("");
+	for(CodeListType::iterator it = this->codeList.begin(); it != this->codeList.end(); ++it) {
+		if((*it)->isLine() && static_cast<CodeLine *>(*it)->getCode() == code) {
+			return static_cast<CodeLine *>(*it);
+		}
+	}
+
+	return this->appendLine(code);
 }
 
-CodeBlock * CodeBlock::addBlock(const cpgf::GFlags<CodeBlockStyle> & flags)
+CodeLine * CodeBlock::appendBlankLine()
+{
+	return this->appendLine("");
+}
+
+CodeBlock * CodeBlock::appendBlock(const cpgf::GFlags<CodeBlockStyle> & flags)
 {
 	CodeBlock * block = new CodeBlock();
 	this->codeList.push_back(block);

@@ -58,10 +58,10 @@ void BuilderMethod::doWriterReflection(BuilderFileWriter * writer)
 			string(hasDefaultValue ? "" : ";")
 		);
 	}
-	codeBlock->addLine(s);
+	codeBlock->appendLine(s);
 
 	if(hasDefaultValue) {
-		CodeBlock * defaultValueBlock = codeBlock->addBlock(cbsIndent);
+		CodeBlock * defaultValueBlock = codeBlock->appendBlock(cbsIndent);
 		while(arity != 0) {
 			--arity;
 			if(! cppMethod->paramHasDefaultValue(arity)) {
@@ -82,10 +82,10 @@ void BuilderMethod::doWriterReflection(BuilderFileWriter * writer)
 			else {
 				s = Poco::format("._default(%s)", defaultValue);
 			}
-			defaultValueBlock->addLine(s);
+			defaultValueBlock->appendLine(s);
 		}
 		
-		codeBlock->addLine(";");
+		codeBlock->appendLine(";");
 	}
 }
 

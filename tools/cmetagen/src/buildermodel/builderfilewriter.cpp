@@ -17,6 +17,7 @@ using namespace std;
 const string CodeBlockName_WrapperArea("wrapper");
 const string CodeBlockName_DeclarationArea("declaration");
 const string CodeBlockName_ReflectionArea("reflection");
+const string CodeBlockName_ImplementionArea("implementation");
 const string CodeBlockName_FunctionHeader("header");
 const string CodeBlockName_FunctionBody("body");
 
@@ -44,16 +45,6 @@ void BuilderFileWriter::prepare()
 
 void BuilderFileWriter::prepareMaster()
 {
-	struct ContainerName
-	{
-		ContainerName(const string & creationFunctionName, const string & creationPrototype)
-			: creationFunctionName(creationFunctionName), creationPrototype(creationPrototype)
-		{}
-
-		string creationFunctionName;
-		string creationPrototype;
-	};
-
 	typedef vector<ContainerName> ContainerNameListType;
 	typedef map<const CppContainer *, ContainerNameListType> ContainerMapType;
 
@@ -61,45 +52,42 @@ void BuilderFileWriter::prepareMaster()
 
 	BuilderFileWriter * currentWriter = this;
 	while(currentWriter != NULL) {
-		for(ContainerListType::iterator it = currentWriter->containerList.begin();
-			it != currentWriter->containerList.end();
+		for(ContainerNameMapType::iterator it = currentWriter->containerNameMap.begin();
+			it != currentWriter->containerNameMap.end();
 			++it) {
-			containerMap[*it].push_back(ContainerName(
-				currentWriter->getCreationFunctionName(*it),
-				currentWriter->getCreationFunctionPrototype(*it)
-				));
+			containerMap[it->first].push_back(it->second);
 		}
 		currentWriter = currentWriter->nextFile;
 	}
 
 	for(ContainerMapType::iterator it = containerMap.begin(); it != containerMap.end(); ++it) {
-		CodeBlock * codeBlock = this->getDeclarationCodeBlock(ftSource);
+		CodeBlock * headerCodeBlock = this->getDeclarationCodeBlock(ftHeader);
+		CodeBlock * sourceCodeBlock = this->getImplementationCodeBlock(ftSource);
 
 		const ContainerNameListType & nameList = it->second;
 		for(ContainerNameListType::const_iterator n = nameList.begin(); n != nameList.end(); ++n) {
-			codeBlock->addLine(n->creationPrototype + ";");
+			sourceCodeBlock->appendLine(n->creationPrototype + ";");
 		}
 
-		string creationName = this->getMasterCreationFunctionName(it->first);
-		string prototype = Poco::format("cpgf::GDefineMetaInfo %s()", creationName);
+		string prototype = this->getCreationFunctionPrototype(it->first);
 
-		this->getDeclarationCodeBlock(ftHeader)->addLine(prototype + ";");
+		headerCodeBlock->appendLine(prototype + ";");
 
-		codeBlock->addLine(prototype);
+		sourceCodeBlock->appendLine(prototype);
 
-		CodeBlock * bodyBlock = codeBlock->addBlock(cbsBracketAndIndent);
+		CodeBlock * bodyBlock = sourceCodeBlock->appendBlock(cbsBracketAndIndent);
 		string s;
-		bodyBlock->addLine("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();");
-		bodyBlock->addLine("cpgf::GDefineMetaInfo meta = _d.getMetaInfo();");
-		bodyBlock->addBlankLine();
+		bodyBlock->appendLine("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();");
+		bodyBlock->appendLine("cpgf::GDefineMetaInfo meta = _d.getMetaInfo();");
+		bodyBlock->appendBlankLine();
 
 		for(ContainerNameListType::const_iterator n = nameList.begin(); n != nameList.end(); ++n) {
 			s = Poco::format("%s(meta);", n->creationFunctionName);
-			bodyBlock->addLine(s);
+			bodyBlock->appendLine(s);
 		}
 
-		bodyBlock->addBlankLine();
-		bodyBlock->addLine("return meta;");
+		bodyBlock->appendBlankLine();
+		bodyBlock->appendLine("return meta;");
 	}
 }
 
@@ -134,7 +122,8 @@ void BuilderFileWriter::setupFileCodeBlockStructure()
 	const string * areaNames[] = {
 		&CodeBlockName_WrapperArea,
 		&CodeBlockName_DeclarationArea,
-		&CodeBlockName_ReflectionArea
+		&CodeBlockName_ReflectionArea,
+		&CodeBlockName_ImplementionArea
 	};
 	for(int i = 0; i < sizeof(areaNames) / sizeof(areaNames[0]); ++i) {
 		this->getCodeBlock(ftHeader)->getNamedBlock(*areaNames[i]);
@@ -172,20 +161,26 @@ std::string BuilderFileWriter::getReflectionFunctionName(const CppContainer * cp
 	return normalizeSymbolName(this->config->getReflectionFunctionPrefix() + "_" + this->getContainertName(cppContainer) + getFileIndexName(this->fileIndex));
 }
 
+std::string BuilderFileWriter::getSplittedCreationFunctionName(const CppContainer * cppContainer)
+{
+	return normalizeSymbolName("splitted_" + this->config->getCreationFunctionPrefix() + "_" + this->getContainertName(cppContainer) + getFileIndexName(this->fileIndex));
+}
+
+std::string BuilderFileWriter::getSplittedCreationFunctionPrototype(const CppContainer * cppContainer)
+{
+	string creationName = this->getSplittedCreationFunctionName(cppContainer);
+	return Poco::format("void %s(cpgf::GDefineMetaInfo metaInfo)", creationName);
+}
+
 std::string BuilderFileWriter::getCreationFunctionName(const CppContainer * cppContainer)
 {
-	return normalizeSymbolName("internal_" + this->config->getCreationFunctionPrefix() + "_" + this->getContainertName(cppContainer) + getFileIndexName(this->fileIndex));
+	return normalizeSymbolName(this->config->getCreationFunctionPrefix() + "_" + this->getContainertName(cppContainer));
 }
 
 std::string BuilderFileWriter::getCreationFunctionPrototype(const CppContainer * cppContainer)
 {
 	string creationName = this->getCreationFunctionName(cppContainer);
-	return Poco::format("void %s(cpgf::GDefineMetaInfo metaInfo)", creationName);
-}
-
-std::string BuilderFileWriter::getMasterCreationFunctionName(const CppContainer * cppContainer)
-{
-	return normalizeSymbolName(this->config->getCreationFunctionPrefix() + "_" + this->getContainertName(cppContainer));
+	return Poco::format("cpgf::GDefineMetaInfo %s()", creationName);
 }
 
 void BuilderFileWriter::doPrepareItemConainer(const CppItem * cppItem)
@@ -204,7 +199,11 @@ void BuilderFileWriter::doPrepareItemConainer(const CppItem * cppItem)
 		return;
 	}
 	this->generatedFunctionItemNames.insert(reflectionName);
-	this->containerList.push_back(cppContainer);
+	this->containerNameMap.insert(make_pair(cppContainer, ContainerName(
+		this->getSplittedCreationFunctionName(cppContainer),
+		this->getSplittedCreationFunctionPrototype(cppContainer)
+		)
+	));
 
 	this->doWriteReflectionFunction(cppContainer);
 	this->doWriteCreationFunction(cppContainer);
@@ -222,14 +221,14 @@ void BuilderFileWriter::doWriteReflectionFunction(const CppContainer * cppContai
 		s.append(cppClass->getTextOfChainedTemplateParamList(itoWithType | itoWithName | itoWithDefaultValue));
 	}
 	s.append(" >");
-	codeBlock->addLine(s);
+	codeBlock->appendLine(s);
 
 	s = Poco::format("void %s(%s & _d)", this->getReflectionFunctionName(cppContainer), D);
-	codeBlock->addLine(s);
+	codeBlock->appendLine(s);
 	
 	CodeBlock * bodyBlock = this->getFunctionBodyCodeBlock(cppContainer, ftHeader);
-	bodyBlock->addLine("using namespace cpgf;");
-	bodyBlock->addBlankLine();
+	bodyBlock->appendLine("using namespace cpgf;");
+	bodyBlock->appendBlankLine();
 	
 	// force the block order for each kind of items
 	for(ItemCategory ic = icFirst; ic < icCount; ic = ItemCategory(int(ic) + 1)) {
@@ -248,13 +247,13 @@ void BuilderFileWriter::doWriteCreationFunction(const CppContainer * cppContaine
 		return;
 	}
 
-	string prototype = this->getCreationFunctionPrototype(cppContainer);
-	this->getDeclarationCodeBlock(ftHeader)->addLine(prototype + ";");
+	string prototype = this->getSplittedCreationFunctionPrototype(cppContainer);
+//	this->getDeclarationCodeBlock(ftHeader)->appendLine(prototype + ";");
 
-	CodeBlock * codeBlock = this->getDeclarationCodeBlock(ftSource);
-	codeBlock->addLine(prototype);
+	CodeBlock * codeBlock = this->getImplementationCodeBlock(ftSource);
+	codeBlock->appendLine(prototype);
 
-	CodeBlock * bodyBlock = codeBlock->addBlock(cbsBracketAndIndent);
+	CodeBlock * bodyBlock = codeBlock->appendBlock(cbsBracketAndIndent);
 	string s;
 	string metaType;
 	if(cppClass != NULL) {
@@ -264,9 +263,9 @@ void BuilderFileWriter::doWriteCreationFunction(const CppContainer * cppContaine
 		metaType = "GDefineMetaGlobal";
 	}
 	s = Poco::format("%s meta = %s::fromMetaClass(metaInfo.getMetaClass());", metaType, metaType);
-	bodyBlock->addLine(s);
+	bodyBlock->appendLine(s);
 	s = Poco::format("%s(meta);", this->getReflectionFunctionName(cppContainer));
-	bodyBlock->addLine(s);
+	bodyBlock->appendLine(s);
 }
 
 CodeBlock * BuilderFileWriter::getFunctionContainerCodeBlock(const CppItem * cppItem, FileType fileType)
@@ -312,6 +311,11 @@ CodeBlock * BuilderFileWriter::getWrapperCodeBlock(const CppItem * cppItem, File
 CodeBlock * BuilderFileWriter::getDeclarationCodeBlock(FileType fileType)
 {
 	return this->getCodeBlock(fileType)->getNamedBlock(CodeBlockName_DeclarationArea, cbsTailEmptyLine);
+}
+
+CodeBlock * BuilderFileWriter::getImplementationCodeBlock(FileType fileType)
+{
+	return this->getCodeBlock(fileType)->getNamedBlock(CodeBlockName_ImplementionArea, cbsTailEmptyLine);
 }
 
 CodeBlock * BuilderFileWriter::getCodeBlock(FileType fileType)

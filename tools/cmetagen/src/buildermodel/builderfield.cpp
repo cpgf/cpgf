@@ -63,7 +63,7 @@ void BuilderField::doWriteReflection(BuilderFileWriter * writer)
 		cppField->getName()
 	);
 
-	codeBlock->addLine(s);
+	codeBlock->appendLine(s);
 }
 
 void BuilderField::doWriteBitFieldWrapper(BuilderFileWriter * writer)
@@ -78,23 +78,23 @@ void BuilderField::doWriteBitFieldWrapper(BuilderFileWriter * writer)
 	string s;
 
 	// getter
-	CodeBlock * getterBlock = writer->getWrapperCodeBlock(cppField, ftHeader)->addBlock();
-	getterBlock->addLine("template <typename T>");
+	CodeBlock * getterBlock = writer->getWrapperCodeBlock(cppField, ftHeader)->appendBlock();
+	getterBlock->appendLine("template <typename T>");
 	s = bitFieldWrapperGetter + "(" + self + ")";
 	s = "inline " + fieldType.getQualifiedName(s);
-	getterBlock->addLine(s);
-	CodeBlock * getterBody = getterBlock->addBlock(cbsBracketAndIndent);
+	getterBlock->appendLine(s);
+	CodeBlock * getterBody = getterBlock->appendBlock(cbsBracketAndIndent);
 	s = "return self->" + cppField->getName()+ ";";
-	getterBody->addLine(s);
+	getterBody->appendLine(s);
 
 	// setter
-	CodeBlock * setterBlock = writer->getWrapperCodeBlock(cppField, ftHeader)->addBlock();
-	getterBlock->addLine("template <typename T>");
+	CodeBlock * setterBlock = writer->getWrapperCodeBlock(cppField, ftHeader)->appendBlock();
+	getterBlock->appendLine("template <typename T>");
 	s = "inline void " + bitFieldWrapperGetter + "(" + self + ", " + fieldType.getQualifiedName("value") + ")";
-	setterBlock->addLine(s);
-	CodeBlock * setterBody = setterBlock->addBlock(cbsBracketAndIndent);
+	setterBlock->appendLine(s);
+	CodeBlock * setterBody = setterBlock->appendBlock(cbsBracketAndIndent);
 	s = "self->" + cppField->getName()+ " = value;";
-	setterBody->addLine(s);
+	setterBody->appendLine(s);
 
 	// reflection
 	string templateParam = "<" + getReflectionClassName(this->getConfig()) + ">";
@@ -105,6 +105,6 @@ void BuilderField::doWriteBitFieldWrapper(BuilderFileWriter * writer)
 		bitFieldWrapperGetter + templateParam,
 		bitFieldWrapperSetter + templateParam
 	);
-	codeBlock->addLine(s);
+	codeBlock->appendLine(s);
 }
 

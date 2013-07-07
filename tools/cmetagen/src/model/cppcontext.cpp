@@ -33,4 +33,21 @@ void CppContext::itemCreated(CppItem * item)
 {
 	this->itemList.push_back(item);
 	item->setCppContext(this);
+	
+	if(item->isNamed()) {
+		CppNamedItem * namedItem = static_cast<CppNamedItem *>(item);
+		this->itemNameMap.insert(make_pair(namedItem->getQualifiedName(), namedItem));
+	}
 }
+
+const CppNamedItem * CppContext::findNamedItem(const std::string & qualifiedName) const
+{
+	ItemNameMapType::const_iterator it = this->itemNameMap.find(qualifiedName);
+	if(it == this->itemNameMap.end()) {
+		return NULL;
+	}
+	else {
+		return it->second;
+	}
+}
+

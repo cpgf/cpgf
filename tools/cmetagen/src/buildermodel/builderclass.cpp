@@ -29,6 +29,15 @@ const CppClass * BuilderClass::getCppClass() const
 
 void BuilderClass::doWriteMetaData(BuilderFileWriter * writer)
 {
+	this->doWriteBaseClasses(writer);
+	
+	if(this->getCppClass()->isNestedClass()) {
+		this->doWriteAsNestedClass(writer);
+	}
+}
+
+void BuilderClass::doWriteBaseClasses(BuilderFileWriter * writer)
+{
 	const CppClass * cppClass = this->getCppClass();
 	CodeBlock * codeBlock = writer->getFunctionBodyCodeBlock(cppClass, ftHeader);
 	
@@ -40,8 +49,25 @@ void BuilderClass::doWriteMetaData(BuilderFileWriter * writer)
 				writer->getReflectionAction("_base"),
 				(*it)->getQualifiedName()
 			);
-			codeBlock->addLine(s);
+			codeBlock->appendLine(s);
 		}
 	}
 }
 
+void BuilderClass::doWriteAsNestedClass(BuilderFileWriter * writer)
+{
+	const CppClass * cppClass = this->getCppClass();
+	CodeBlock * codeBlock = writer->getReflectionCodeBlock(cppClass);
+
+	if(cppClass->isAnonymous() || cppClass->isTemplate()) {
+		return;
+	}
+
+	writer->getDeclarationCodeBlock(ftHeader)->appendUniqueLine(writer->getCreationFunctionPrototype(cppClass) + ";");
+
+	string s = Poco::format("%s(%s())",
+		writer->getReflectionAction("_class"),
+		writer->getCreationFunctionName(cppClass)
+	);
+	codeBlock->appendLine(s);
+}

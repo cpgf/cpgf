@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <map>
 
 
 class CppWriter;
@@ -25,8 +26,19 @@ public:
 	typedef std::vector<BuilderItem *> ItemListType;
 	
 private:
+	struct ContainerName {
+		ContainerName(const std::string & creationFunctionName,
+			const std::string & creationPrototype)
+			: creationFunctionName(creationFunctionName),
+				creationPrototype(creationPrototype)
+		{}
+
+		std::string creationFunctionName;
+		std::string creationPrototype;
+	};
+
 	typedef std::set<std::string> StringSetType;
-	typedef std::vector<const CppContainer *> ContainerListType;
+	typedef std::map<const CppContainer *, ContainerName> ContainerNameMapType;
 
 public:
 	BuilderFileWriter(int fileIndex, const Config * config);
@@ -54,14 +66,17 @@ public: // auxiliary functions used by BuilderItem's
 	
 	CodeBlock * getWrapperCodeBlock(const CppItem * cppItem, FileType fileType);
 	CodeBlock * getDeclarationCodeBlock(FileType fileType);
+	CodeBlock * getImplementationCodeBlock(FileType fileType);
 	
 	std::string getReflectionAction(const std::string & name);
 	
-private:
-	std::string getReflectionFunctionName(const CppContainer * cppContainer);
 	std::string getCreationFunctionName(const CppContainer * cppContainer);
 	std::string getCreationFunctionPrototype(const CppContainer * cppContainer);
-	std::string getMasterCreationFunctionName(const CppContainer * cppContainer);
+
+private:
+	std::string getReflectionFunctionName(const CppContainer * cppContainer);
+	std::string getSplittedCreationFunctionName(const CppContainer * cppContainer);
+	std::string getSplittedCreationFunctionPrototype(const CppContainer * cppContainer);
 
 	CodeBlock * getCodeBlock(FileType fileType);
 	std::string getContainertName(const CppContainer * cppContainer);
@@ -83,7 +98,7 @@ private:
 	BuilderFileWriter * nextFile;
 
 	StringSetType generatedFunctionItemNames;
-	ContainerListType containerList;
+	ContainerNameMapType containerNameMap;
 };
 
 

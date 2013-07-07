@@ -123,7 +123,7 @@ void BuilderOperator::doWriteReflection(BuilderFileWriter * writer)
 	text.append(this->getPolicyText());
 	text.append(");");
 
-	codeBlock->addLine(text);
+	codeBlock->appendLine(text);
 }
 
 class OperatorNameMap
@@ -254,7 +254,7 @@ namespace {
 void writeOperator(const WriterParam * param)
 {
 	CodeBlock * codeBlock = param->writer->getWrapperCodeBlock(param->cppOperator, ftHeader);
-	codeBlock->addLine(param->templateLine);
+	codeBlock->appendLine(param->templateLine);
 	string s;
 	s = param->operatorWrapperName + "(";
 	s.append(param->self);
@@ -264,9 +264,9 @@ void writeOperator(const WriterParam * param)
 	}
 	s.append(")");
 	s = param->cppOperator->getResultType().getQualifiedName(s);
-	codeBlock->addLine(s);
+	codeBlock->appendLine(s);
 
-	CodeBlock * bodyBlock = codeBlock->addBlock(cbsBracketAndIndent);
+	CodeBlock * bodyBlock = codeBlock->appendBlock(cbsBracketAndIndent);
 	string paramValuesText = param->cppOperator->getTextOfParamList(itoWithName);
 	s = "";
 
@@ -295,15 +295,15 @@ void writeOperator(const WriterParam * param)
 	}
 
 	s.append(";");
-	bodyBlock->addLine(s);
+	bodyBlock->appendLine(s);
 }
 
 void writeArraySetter(const WriterParam * param)
 {
 	if(param->shouldWrapArraySetter) {
 		string s;
-		CodeBlock * setterBlock = param->writer->getWrapperCodeBlock(param->cppOperator, ftHeader)->addBlock();
-		setterBlock->addLine(param->templateLine);
+		CodeBlock * setterBlock = param->writer->getWrapperCodeBlock(param->cppOperator, ftHeader)->appendBlock();
+		setterBlock->appendLine(param->templateLine);
 
 		s = Poco::format("void %s(%s", param->arraySetterName, param->self);
 		if(param->cppOperator->getArity() > 0) {
@@ -311,11 +311,11 @@ void writeArraySetter(const WriterParam * param)
 			s.append(param->cppOperator->getTextOfParamList(itoWithType | itoWithName | itoWithDefaultValue));
 		}
 		s.append(Poco::format(", const %s & OpsEt_vALue)", param->cppOperator->getResultType().getNonReferenceType().getQualifiedName()));
-		setterBlock->addLine(s);
+		setterBlock->appendLine(s);
 
-		CodeBlock * setterBodyBlock = setterBlock->addBlock(cbsBracketAndIndent);
+		CodeBlock * setterBodyBlock = setterBlock->appendBlock(cbsBracketAndIndent);
 		s = Poco::format("(*%s)[%s] = OpsEt_vALue;", param->selfName, param->paramValuesText);
-		setterBodyBlock->addLine(s);
+		setterBodyBlock->appendLine(s);
 	}
 }
 
@@ -330,7 +330,7 @@ void writeOperatorReflection(const WriterParam * param)
 		getReflectionClassName(param->cppOperator->getConfig())
 	);
 
-	codeBlock->addLine(s);
+	codeBlock->appendLine(s);
 }
 
 void writeArraySetterReflection(const WriterParam * param)
@@ -345,7 +345,7 @@ void writeArraySetterReflection(const WriterParam * param)
 			getReflectionClassName(param->cppOperator->getConfig())
 		);
 
-		codeBlock->addLine(s);
+		codeBlock->appendLine(s);
 	}
 }
 

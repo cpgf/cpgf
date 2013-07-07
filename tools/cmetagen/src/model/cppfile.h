@@ -16,6 +16,8 @@ public:
 	~CppFile();
 
 	void prepare() const;
+	
+	const Poco::Path & getFullFileName() const { return this->fullFileName; }
 
 protected:	
 	virtual ItemCategory getCategory() const { return icFile; }

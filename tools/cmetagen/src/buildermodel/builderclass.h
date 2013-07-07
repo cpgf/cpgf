@@ -19,6 +19,10 @@ public:
 	
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);
+	
+private:	
+	void doWriteBaseClasses(BuilderFileWriter * writer);
+	void doWriteAsNestedClass(BuilderFileWriter * writer);
 };
 
 #endif
