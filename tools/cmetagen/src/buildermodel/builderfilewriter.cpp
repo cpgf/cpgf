@@ -22,10 +22,10 @@ const string CodeBlockName_FunctionHeader("header");
 const string CodeBlockName_FunctionBody("body");
 
 
-BuilderFileWriter::BuilderFileWriter(int fileIndex, const Config * config)
+BuilderFileWriter::BuilderFileWriter(int fileIndex, const Config * config, CppWriter * headerWriter)
 	:	fileIndex(fileIndex),
 		config(config),
-		headerWriter(new CppWriter()),
+		headerWriter(headerWriter),
 		sourceWriter(new CppWriter()),
 		nextFile(NULL)
 {
@@ -62,27 +62,47 @@ void BuilderFileWriter::prepareMaster()
 
 	for(ContainerMapType::iterator it = containerMap.begin(); it != containerMap.end(); ++it) {
 		CodeBlock * headerCodeBlock = this->getDeclarationCodeBlock(ftHeader);
-		CodeBlock * sourceCodeBlock = this->getImplementationCodeBlock(ftSource);
+		CodeBlock * sourceCodeBlock;
+		string s;
+
+		const CppClass * cppClass = NULL;
+		if(it->first->isClass()) {
+			cppClass = static_cast<const CppClass *>(it->first);
+		}
+		if(cppClass != NULL && cppClass->isTemplate()) {
+			sourceCodeBlock = this->getImplementationCodeBlock(ftHeader);
+		}
+		else {
+			sourceCodeBlock = this->getImplementationCodeBlock(ftSource);
+		}
 
 		const ContainerNameListType & nameList = it->second;
-		for(ContainerNameListType::const_iterator n = nameList.begin(); n != nameList.end(); ++n) {
-			sourceCodeBlock->appendLine(n->creationPrototype + ";");
-		}
+		//for(ContainerNameListType::const_iterator n = nameList.begin(); n != nameList.end(); ++n) {
+		//	sourceCodeBlock->appendLine(n->creationPrototype + ";");
+		//}
 
 		string prototype = this->getCreationFunctionPrototype(it->first);
 
+		if(cppClass != NULL && cppClass->isTemplate()) {
+			s = Poco::format("template<%s >", cppClass->getTextOfChainedTemplateParamList(itoWithType | itoWithName));
+			headerCodeBlock->appendLine(s);
+			sourceCodeBlock->appendLine(s);
+		}
 		headerCodeBlock->appendLine(prototype + ";");
-
 		sourceCodeBlock->appendLine(prototype);
 
 		CodeBlock * bodyBlock = sourceCodeBlock->appendBlock(cbsBracketAndIndent);
-		string s;
 		bodyBlock->appendLine("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();");
 		bodyBlock->appendLine("cpgf::GDefineMetaInfo meta = _d.getMetaInfo();");
 		bodyBlock->appendBlankLine();
 
 		for(ContainerNameListType::const_iterator n = nameList.begin(); n != nameList.end(); ++n) {
-			s = Poco::format("%s(meta);", n->creationFunctionName);
+			if(cppClass != NULL && cppClass->isTemplate()) {
+				s = Poco::format("%s<%s >(meta);", n->creationFunctionName, cppClass->getTextOfChainedTemplateParamList(itoWithName));
+			}
+			else {
+				s = Poco::format("%s(meta);", n->creationFunctionName);
+			}
 			bodyBlock->appendLine(s);
 		}
 
@@ -93,20 +113,19 @@ void BuilderFileWriter::prepareMaster()
 
 void BuilderFileWriter::writeFile()
 {
-	for(ItemListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
-		(*it)->writeMetaData(this);
-	}
-
 	this->doWriteHeader();
 	this->doWriteSource();
 }
 
+void BuilderFileWriter::generateCode()
+{
+	for(ItemListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
+		(*it)->writeMetaData(this);
+	}
+}
+
 void BuilderFileWriter::doWriteHeader()
 {
-	CodeWriter codeWriter;
-	this->getHeaderWriter()->write(&codeWriter);
-	printf("===========Header %d\n", this->fileIndex);
-	printf("%s\n\n", codeWriter.getText().c_str());
 }
 
 void BuilderFileWriter::doWriteSource()
@@ -127,7 +146,7 @@ void BuilderFileWriter::setupFileCodeBlockStructure()
 	};
 	for(int i = 0; i < sizeof(areaNames) / sizeof(areaNames[0]); ++i) {
 		this->getCodeBlock(ftHeader)->getNamedBlock(*areaNames[i]);
-		this->getCodeBlock(ftHeader)->getNamedBlock(*areaNames[i]);
+		this->getCodeBlock(ftSource)->getNamedBlock(*areaNames[i]);
 	}
 }
 
@@ -206,7 +225,7 @@ void BuilderFileWriter::doPrepareItemConainer(const CppItem * cppItem)
 	));
 
 	this->doWriteReflectionFunction(cppContainer);
-	this->doWriteCreationFunction(cppContainer);
+	this->doWriteSplittedCreationFunction(cppContainer);
 }
 
 void BuilderFileWriter::doWriteReflectionFunction(const CppContainer * cppContainer)
@@ -236,28 +255,41 @@ void BuilderFileWriter::doWriteReflectionFunction(const CppContainer * cppContai
 	}
 }
 
-void BuilderFileWriter::doWriteCreationFunction(const CppContainer * cppContainer)
+void BuilderFileWriter::doWriteSplittedCreationFunction(const CppContainer * cppContainer)
 {
 	const CppClass * cppClass = NULL;
 	if(cppContainer->isClass()) {
 		cppClass = static_cast<const CppClass *>(cppContainer);
 	}
 
-	if(cppClass != NULL && cppClass->isTemplate()) {
-		return;
-	}
-
 	string prototype = this->getSplittedCreationFunctionPrototype(cppContainer);
 //	this->getDeclarationCodeBlock(ftHeader)->appendLine(prototype + ";");
 
-	CodeBlock * codeBlock = this->getImplementationCodeBlock(ftSource);
+	string s;
+	CodeBlock * codeBlock;
+
+	if(cppClass != NULL && cppClass->isTemplate()) {
+		codeBlock = this->getImplementationCodeBlock(ftHeader);
+	}
+	else {
+		codeBlock = this->getImplementationCodeBlock(ftSource);
+	}
+
+	if(cppClass != NULL && cppClass->isTemplate()) {
+		s = Poco::format("template <%s >", cppClass->getTextOfChainedTemplateParamList(itoWithType | itoWithName));
+		codeBlock->appendLine(s);
+	}
 	codeBlock->appendLine(prototype);
 
 	CodeBlock * bodyBlock = codeBlock->appendBlock(cbsBracketAndIndent);
-	string s;
 	string metaType;
 	if(cppClass != NULL) {
-		metaType = Poco::format("cpgf::GDefineMetaClass<%s >", cppClass->getOutputName());
+		if(cppClass->isTemplate()) {
+			metaType = Poco::format("cpgf::GDefineMetaClass<%s<%s > >", cppClass->getOutputName(), cppClass->getTextOfChainedTemplateParamList(itoWithName));
+		}
+		else {
+			metaType = Poco::format("cpgf::GDefineMetaClass<%s >", cppClass->getOutputName());
+		}
 	}
 	else {
 		metaType = "GDefineMetaGlobal";
@@ -280,6 +312,7 @@ CodeBlock * BuilderFileWriter::getFunctionContainerCodeBlock(const CppItem * cpp
 	else {
 		blockName = cppItem->getNamedParent()->getQualifiedName();
 	}
+	Poco::format(blockName, "%s%d", blockName, this->fileIndex);
 	return codeBlock->getNamedBlock(blockName);
 }
 

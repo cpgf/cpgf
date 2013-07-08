@@ -1,5 +1,5 @@
-#ifndef __GFUNCTIONEXTRACTOR_H
-#define __GFUNCTIONEXTRACTOR_H
+#ifndef __GSELECTFUNCTIONBYARITY_H
+#define __GSELECTFUNCTIONBYARITY_H
 
 
 #include "cpgf/gcompiler.h"
@@ -9,7 +9,7 @@
 
 #define MEMBER_FUNCTIONEXTRACT_HELPER_CV(N, CC, CV) \
 	template <typename RT, typename OT GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, typename P) > \
-	RT (CC OT::* GPP_CONCAT(extractFunction, N)(RT (CC OT::* func ) (GPP_REPEAT_PARAMS(N, P)) CV) )(GPP_REPEAT_PARAMS(N, P)) CV { \
+	RT (CC OT::* GPP_CONCAT(selectFunctionByArity, N)(RT (CC OT::* func ) (GPP_REPEAT_PARAMS(N, P)) CV) )(GPP_REPEAT_PARAMS(N, P)) CV { \
 		return func; }
 
 #define MEMBER_FUNCTIONEXTRACT_HELPER(N, CC) \
@@ -23,7 +23,7 @@
 
 #define GLOBAL_FUNCTIONEXTRACT_HELPER(N, CC) \
 	template <typename RT GPP_COMMA_IF(N) GPP_REPEAT(N, GPP_COMMA_PARAM, typename P) > \
-	RT (CC * GPP_CONCAT(extractFunction, N)(RT (CC * func ) (GPP_REPEAT_PARAMS(N, P))) )(GPP_REPEAT_PARAMS(N, P)) { \
+	RT (CC * GPP_CONCAT(selectFunctionByArity, N)(RT (CC * func ) (GPP_REPEAT_PARAMS(N, P))) )(GPP_REPEAT_PARAMS(N, P)) { \
 		return func; }
 
 #define GLOBAL_FUNCTIONEXTRACT(CC) \

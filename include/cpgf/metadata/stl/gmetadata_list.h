@@ -29,7 +29,7 @@ void doBuildMetaData_list(const GMetaDataConfigFlags & config, MetaDefine define
 		.CPGF_MD_TEMPLATE _method("max_size", (typename T::size_type (T::*)() const) &T::max_size)
 		.CPGF_MD_TEMPLATE _method("pop_back", (void (T::*)()) &T::pop_back)
 		.CPGF_MD_TEMPLATE _method("push_back", (void (T::*)(const typename T::value_type &)) &T::push_back, policy)
-		.CPGF_MD_TEMPLATE _method("resize", extractFunction2(&T::resize), policy)
+		.CPGF_MD_TEMPLATE _method("resize", selectFunctionByArity2(&T::resize), policy)
 		.CPGF_MD_TEMPLATE _method("resize", (void (T::*)(typename T::size_type)) &T::resize, policy)
 		.CPGF_MD_TEMPLATE _method("remove", &T::remove, policy)
 		.CPGF_MD_TEMPLATE _method("unique", (void (T::*)()) &T::unique)

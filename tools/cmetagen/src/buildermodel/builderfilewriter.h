@@ -41,10 +41,10 @@ private:
 	typedef std::map<const CppContainer *, ContainerName> ContainerNameMapType;
 
 public:
-	BuilderFileWriter(int fileIndex, const Config * config);
+	BuilderFileWriter(int fileIndex, const Config * config, CppWriter * headerWriter);
 	~BuilderFileWriter();
 	
-	CppWriter * getHeaderWriter() const { return this->headerWriter.get(); }
+	CppWriter * getHeaderWriter() const { return this->headerWriter; }
 	CppWriter * getSourceWriter() const { return this->sourceWriter.get(); }
 
 	int getFileIndex() const { return this->fileIndex; }
@@ -56,6 +56,7 @@ public:
 	void prepare();
 	void prepareMaster();
 	void writeFile();
+	void generateCode();
 	
 public: // auxiliary functions used by BuilderItem's
 	CodeBlock * getFunctionContainerCodeBlock(const CppItem * cppItem, FileType fileType);
@@ -87,12 +88,12 @@ private:
 	void setupFileCodeBlockStructure();
 
 	void doWriteReflectionFunction(const CppContainer * cppContainer);
-	void doWriteCreationFunction(const CppContainer * cppContainer);
+	void doWriteSplittedCreationFunction(const CppContainer * cppContainer);
 
 private:
 	int fileIndex;
 	const Config * config;
-	cpgf::GScopedPointer<CppWriter> headerWriter;
+	CppWriter * headerWriter;
 	cpgf::GScopedPointer<CppWriter> sourceWriter;
 	ItemListType itemList;
 	BuilderFileWriter * nextFile;

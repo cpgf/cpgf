@@ -33,7 +33,7 @@ void doBuildMetaData_deque(const GMetaDataConfigFlags & config, MetaDefine defin
 		.CPGF_MD_TEMPLATE _method("pop_front", (void (T::*)()) &T::pop_front)
 		.CPGF_MD_TEMPLATE _method("push_back", (void (T::*)(const typename T::value_type &)) &T::push_back, policy)
 		.CPGF_MD_TEMPLATE _method("push_front", (void (T::*)(const typename T::value_type &)) &T::push_front, policy)
-		.CPGF_MD_TEMPLATE _method("resize", extractFunction2(&T::resize), policy)
+		.CPGF_MD_TEMPLATE _method("resize", selectFunctionByArity2(&T::resize), policy)
 		.CPGF_MD_TEMPLATE _method("resize", (void (T::*)(typename T::size_type)) &T::resize, policy)
 
 		.CPGF_MD_TEMPLATE _operator<typename T::reference (GMetaSelf, typename T::size_type)>(mopHolder[0], policy)

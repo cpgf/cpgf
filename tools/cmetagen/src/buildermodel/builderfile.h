@@ -3,11 +3,14 @@
 
 #include "buildercontainer.h"
 
+#include "cpgf/gscopedptr.h"
+
 #include <vector>
 
 
 class CppFile;
 class Config;
+class CppWriter;
 class BuilderContainer;
 class BuilderFileWriter;
 
@@ -34,6 +37,7 @@ private:
 	void createFileWriters();
 	
 private:
+	cpgf::GScopedPointer<CppWriter> headerWriter;
 	BuilderFileWriterListType builderFileWriterList;
 };
 
