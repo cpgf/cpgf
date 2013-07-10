@@ -12,6 +12,8 @@
 
 using namespace clang;
 
+namespace metagen {
+
 
 CppConstructor::CppConstructor(const clang::Decl * decl)
 	: super(decl)
@@ -32,3 +34,5 @@ bool CppConstructor::isImplicitTypeConverter() const
 	return constructorDecl->isConvertingConstructor(false);
 }
 
+
+} // namespace metagen

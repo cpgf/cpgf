@@ -4,6 +4,8 @@
 #include "cppitem.h"
 #include "cppinvokable.h"
 
+namespace metagen {
+
 
 class CppMethod : public CppInvokable
 {
@@ -16,6 +18,9 @@ public:
 protected:
 	virtual ItemCategory getCategory() const { return icMethod; }
 };
+
+
+} // namespace metagen
 
 
 #endif

@@ -6,6 +6,8 @@
 
 #include "cpgf/gassert.h"
 
+namespace metagen {
+
 
 CppContext::CppContext(const Config * config)
 	: config(config)
@@ -51,3 +53,5 @@ const CppNamedItem * CppContext::findNamedItem(const std::string & qualifiedName
 	}
 }
 
+
+} // namespace metagen

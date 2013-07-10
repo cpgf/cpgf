@@ -9,6 +9,9 @@
 #include <vector>
 #include <map>
 
+namespace metagen {
+
+
 class CppFile;
 class Config;
 
@@ -49,6 +52,9 @@ private:
 private:
 	friend class ClangParserImplement;
 };
+
+
+} // namespace metagen
 
 
 #endif

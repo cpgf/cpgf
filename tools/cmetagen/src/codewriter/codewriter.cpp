@@ -1,5 +1,7 @@
 #include "codewriter.h"
 
+namespace metagen {
+
 
 CodeWriter::CodeWriter()
 	: indent(0)
@@ -83,3 +85,5 @@ const std::string & CodeWriter::getText() const
 	return this->text;
 }
 
+
+} // namespace metagen

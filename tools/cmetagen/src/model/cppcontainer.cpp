@@ -10,6 +10,8 @@
 
 #include "cpgf/gassert.h"
 
+namespace metagen {
+
 
 CppContainer::CppContainer(const clang::Decl * decl)
 	: super(decl)
@@ -94,3 +96,5 @@ void CppContainer::dump(std::ostream & os, int level) const
 	dumpList(this->operatorList, os, newLevel);
 }
 
+
+} // namespace metagen

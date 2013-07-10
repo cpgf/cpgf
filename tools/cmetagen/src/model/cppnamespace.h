@@ -3,6 +3,8 @@
 
 #include "cppcontainer.h"
 
+namespace metagen {
+
 
 class CppNamespace : public CppContainer
 {
@@ -19,6 +21,9 @@ protected:
 	virtual ItemCategory getCategory() const { return icNamespace; }
 
 };
+
+
+} // namespace metagen
 
 
 #endif

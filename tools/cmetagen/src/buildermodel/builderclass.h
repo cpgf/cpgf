@@ -4,6 +4,9 @@
 #include "buildercontainer.h"
 
 
+namespace metagen {
+
+
 class CppClass;
 
 class BuilderClass : public BuilderContainer
@@ -24,5 +27,9 @@ private:
 	void doWriteBaseClasses(BuilderFileWriter * writer);
 	void doWriteAsNestedClass(BuilderFileWriter * writer);
 };
+
+
+} // namespace metagen
+
 
 #endif

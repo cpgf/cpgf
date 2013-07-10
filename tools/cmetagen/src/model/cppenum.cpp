@@ -12,6 +12,9 @@
 
 using namespace clang;
 
+namespace metagen {
+
+
 const CppEnum::ValueListType * CppEnum::getValueList() const
 {
 	return &this->valueList;
@@ -28,3 +31,5 @@ void CppEnum::addValue(const std::string & name, const std::string & qualifiedNa
 	this->valueList.push_back(CppEnumValue(name, qualifiedName));
 }
 
+
+} // namespace metagen

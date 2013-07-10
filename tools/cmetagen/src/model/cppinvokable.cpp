@@ -24,6 +24,8 @@ using namespace llvm::sys;
 using namespace clang;
 using namespace std;
 
+namespace metagen {
+
 
 const FunctionDecl * getFunctionDecl(const Decl * decl)
 {
@@ -209,3 +211,5 @@ CppType CppInvokable::getResultType() const
 	return CppType(qualType);
 }
 
+
+} // namespace metagen

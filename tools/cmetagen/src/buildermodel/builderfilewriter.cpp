@@ -14,6 +14,9 @@
 
 using namespace std;
 
+namespace metagen {
+
+
 const string CodeBlockName_WrapperArea("wrapper");
 const string CodeBlockName_DeclarationArea("declaration");
 const string CodeBlockName_ReflectionArea("reflection");
@@ -361,3 +364,5 @@ std::string BuilderFileWriter::getReflectionAction(const std::string & name)
 	return "_d.CPGF_MD_TEMPLATE " + name;
 }
 
+
+} // namespace metagen

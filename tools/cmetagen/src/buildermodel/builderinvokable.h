@@ -1,8 +1,9 @@
 #ifndef __BUILDERINVOKABLE_H
 #define __BUILDERINVOKABLE_H
 
-
 #include "builderitem.h"
+
+namespace metagen {
 
 
 class BuilderInvokable : public BuilderItem
@@ -17,6 +18,8 @@ public:
 	virtual bool canBind() const;
 };
 
+
+} // namespace metagen
 
 
 #endif

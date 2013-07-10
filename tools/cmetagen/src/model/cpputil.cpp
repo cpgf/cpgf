@@ -21,6 +21,8 @@ using namespace llvm;
 using namespace clang;
 using namespace std;
 
+namespace metagen {
+
 
 string removeRecordWords(const string & text)
 {
@@ -193,3 +195,5 @@ std::string declToText(const clang::Decl * decl)
 	//}
 }
 
+
+} // namespace metagen

@@ -3,6 +3,8 @@
 #include "codewriter/cppwriter.h"
 #include "model/cppnamespace.h"
 
+namespace metagen {
+
 
 BuilderNamespace::BuilderNamespace(const CppItem * cppItem)
 	: super(cppItem)
@@ -23,3 +25,5 @@ void BuilderNamespace::doWriteMetaData(BuilderFileWriter * /*writer*/)
 {
 }
 
+
+} // namespace metagen

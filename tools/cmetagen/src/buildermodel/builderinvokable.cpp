@@ -1,6 +1,8 @@
 #include "builderinvokable.h"
 #include "model/cppinvokable.h"
 
+namespace metagen {
+
 
 BuilderInvokable::BuilderInvokable(const CppItem * cppItem)
 	: super(cppItem)
@@ -22,3 +24,5 @@ bool BuilderInvokable::canBind() const
 	return super::canBind();
 }
 
+
+} // namespace metagen

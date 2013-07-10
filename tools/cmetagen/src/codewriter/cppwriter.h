@@ -29,8 +29,10 @@ Tail #include list, if any
 Header guard end, it this is a header file
 ********************************/
 
-class CodeWriter;
+namespace metagen {
 
+
+class CodeWriter;
 
 class CppWriter
 {
@@ -60,6 +62,8 @@ private:
 	CodeBlock codeBlock;
 };
 
+
+} // namespace metagen
 
 
 #endif

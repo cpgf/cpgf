@@ -10,6 +10,8 @@
 
 using namespace std;
 
+namespace metagen {
+
 
 BuilderEnum::BuilderEnum(const CppItem * cppItem)
 	: super(cppItem)
@@ -64,3 +66,5 @@ void BuilderEnum::doWriteMetaData(BuilderFileWriter * writer)
 	codeBlock->appendLine(";");
 }
 
+
+} // namespace metagen

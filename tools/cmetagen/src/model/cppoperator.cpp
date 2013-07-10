@@ -15,6 +15,8 @@
 
 using namespace clang;
 
+namespace metagen {
+
 
 CppOperator::CppOperator(const clang::Decl * decl)
 	: super(decl)
@@ -53,3 +55,5 @@ bool CppOperator::isTypeConverter() const
 	return this->getDecl()->getKind() == Decl::CXXConversion;
 }
 
+
+} // namespace metagen

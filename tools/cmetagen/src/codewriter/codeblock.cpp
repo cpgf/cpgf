@@ -2,8 +2,10 @@
 #include "codewriter.h"
 #include "util.h"
 
-
 using namespace std;
+
+namespace metagen {
+
 
 CodeItem::CodeItem()
 	: indent(0)
@@ -159,3 +161,5 @@ void CodeBlock::setFlags(const cpgf::GFlags<CodeBlockStyle> & flags)
 	this->flags = flags;
 }
 
+
+} // namespace metagen

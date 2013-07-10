@@ -7,6 +7,8 @@
 
 #include <vector>
 
+namespace metagen {
+
 
 class CppFile;
 class Config;
@@ -40,5 +42,9 @@ private:
 	cpgf::GScopedPointer<CppWriter> headerWriter;
 	BuilderFileWriterListType builderFileWriterList;
 };
+
+
+} // namespace metagen
+
 
 #endif

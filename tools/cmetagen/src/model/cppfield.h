@@ -4,6 +4,9 @@
 #include "Cppitem.h"
 #include "cpptype.h"
 
+namespace metagen {
+
+
 class CppField : public CppNamedItem
 {
 private:
@@ -22,6 +25,9 @@ protected:
 	virtual ItemCategory getCategory() const { return icField; }
 	
 };
+
+
+} // namespace metagen
 
 
 #endif

@@ -6,6 +6,8 @@
 #include "buildermodel/buildercontext.h"
 #include "config.h"
 
+namespace metagen {
+
 
 Application::Application(int argc, char * argv[])
 {
@@ -28,3 +30,5 @@ void Application::run()
 
 }
 
+
+} // namespace metagen

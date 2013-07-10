@@ -5,6 +5,8 @@
 
 #include "Poco/Format.h"
 
+namespace metagen {
+
 
 BuilderConstructor::BuilderConstructor(const CppItem * cppItem)
 	: super(cppItem)
@@ -34,3 +36,5 @@ void BuilderConstructor::doWriteMetaData(BuilderFileWriter * writer)
 	codeBlock->appendLine(s);
 }
 
+
+} // namespace metagen

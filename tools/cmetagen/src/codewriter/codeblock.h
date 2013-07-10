@@ -7,6 +7,8 @@
 #include <vector>
 #include <map>
 
+namespace metagen {
+
 
 class CodeWriter;
 
@@ -107,6 +109,8 @@ private:
 	friend class CppWriter;
 };
 
+
+} // namespace metagen
 
 
 #endif

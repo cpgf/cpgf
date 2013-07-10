@@ -9,6 +9,8 @@
 using namespace std;
 using namespace cpgf;
 
+namespace metagen {
+
 
 std::string normalizePath(const std::string & path)
 {
@@ -51,3 +53,5 @@ std::string removeQualifications(const std::string & name)
 	return result;
 }
 
+
+} // namespace metagen

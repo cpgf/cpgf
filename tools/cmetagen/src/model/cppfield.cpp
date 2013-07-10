@@ -12,6 +12,9 @@
 
 using namespace clang;
 
+namespace metagen {
+
+
 CppField::CppField(const clang::Decl * decl)
 	: super(decl)
 {
@@ -49,3 +52,5 @@ bool CppField::isAnonymousStructOrUnion() const
 	return (fieldDecl != NULL) && fieldDecl->isAnonymousStructOrUnion();
 }
 
+
+} // namespace metagen

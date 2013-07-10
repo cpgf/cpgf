@@ -3,6 +3,8 @@
 
 #include <string>
 
+namespace metagen {
+
 
 class Config
 {
@@ -36,6 +38,9 @@ private:
 	bool allowProtected;
 	bool allowPrivate;
 };
+
+
+} // namespace metagen
 
 
 #endif

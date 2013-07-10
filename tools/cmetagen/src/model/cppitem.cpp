@@ -20,6 +20,9 @@
 
 using namespace clang;
 
+namespace metagen {
+
+
 const char * const ItemNames[icCount] = {
 	"File", "Namespace", "Class", "Enum",
 	"Constructor", "Destructor",
@@ -156,3 +159,5 @@ const std::string & CppNamedItem::getOutputName() const
 	return this->getQualifiedNameWithoutNamespace();
 }
 
+
+} // namespace metagen

@@ -3,6 +3,8 @@
 #include "codewriter/cppwriter.h"
 #include "model/cppdestructor.h"
 
+namespace metagen {
+
 
 BuilderDestructor::BuilderDestructor(const CppItem * cppItem)
 	: super(cppItem)
@@ -28,3 +30,5 @@ void BuilderDestructor::doWriteMetaData(BuilderFileWriter * /*writer*/)
 {
 }
 
+
+} // namespace metagen

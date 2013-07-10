@@ -3,6 +3,8 @@
 
 #include "util.h"
 
+namespace metagen {
+
 
 CppFile::CppFile(const char * fullFileName, const clang::Decl * decl)
 	: super(decl), fullFileName(fullFileName)
@@ -19,3 +21,5 @@ void CppFile::prepare() const
 {
 }
 
+
+} // namespace metagen

@@ -6,6 +6,9 @@
 #include <vector>
 
 
+namespace metagen {
+
+
 class CppContainer;
 
 class BuilderContainer : public BuilderItem
@@ -32,5 +35,9 @@ public:
 private:
 	ItemListType itemList;
 };
+
+
+} // namespace metagen
+
 
 #endif

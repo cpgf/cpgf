@@ -5,6 +5,8 @@
 
 #include <string>
 
+namespace metagen {
+
 
 template <typename T>
 void clearPointerContainer(T & container)
@@ -22,6 +24,9 @@ std::string removeAllAfterEqualSign(const std::string & s);
 
 std::string normalizeSymbolName(const std::string & name);
 std::string removeQualifications(const std::string & name);
+
+
+} // namespace metagen
 
 
 #endif

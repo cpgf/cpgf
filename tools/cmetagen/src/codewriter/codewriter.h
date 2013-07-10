@@ -3,6 +3,8 @@
 
 #include <string>
 
+namespace metagen {
+
 
 class CodeWriter
 {
@@ -28,6 +30,9 @@ private:
 	int indent;
 	std::string text;
 };
+
+
+} // namespace metagen
 
 
 #endif

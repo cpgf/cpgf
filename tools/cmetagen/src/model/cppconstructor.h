@@ -4,6 +4,8 @@
 #include "cppitem.h"
 #include "cppinvokable.h"
 
+namespace metagen {
+
 
 class CppConstructor : public CppInvokable
 {
@@ -19,6 +21,9 @@ public:
 protected:
 	virtual ItemCategory getCategory() const { return icConstructor; }
 };
+
+
+} // namespace metagen
 
 
 #endif

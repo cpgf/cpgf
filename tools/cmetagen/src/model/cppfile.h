@@ -5,6 +5,8 @@
 
 #include "Poco/Path.h"
 
+namespace metagen {
+
 
 class CppFile : public CppContainer
 {
@@ -25,6 +27,9 @@ protected:
 private:
 	Poco::Path fullFileName;
 };
+
+
+} // namespace metagen
 
 
 #endif

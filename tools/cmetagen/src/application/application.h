@@ -1,6 +1,8 @@
 #ifndef __APPLICATION_H
 #define __APPLICATION_H
 
+namespace metagen {
+
 
 class Application
 {
@@ -10,6 +12,9 @@ public:
 	
 	void run();
 };
+
+
+} // namespace metagen
 
 
 #endif

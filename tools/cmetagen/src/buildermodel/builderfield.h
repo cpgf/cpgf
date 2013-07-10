@@ -3,6 +3,8 @@
 
 #include "builderitem.h"
 
+namespace metagen {
+
 
 class CppField;
 
@@ -26,5 +28,9 @@ private:
 	void doWriteReflection(BuilderFileWriter * writer);
 	void doWriteBitFieldWrapper(BuilderFileWriter * writer);
 };
+
+
+} // namespace metagen
+
 
 #endif

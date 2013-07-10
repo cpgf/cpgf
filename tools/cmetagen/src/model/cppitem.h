@@ -8,6 +8,8 @@
 
 namespace clang { class Decl; class ASTContext; }
 
+namespace metagen {
+
 
 enum ItemVisibility
 {
@@ -137,6 +139,9 @@ private:
 	mutable std::string qualifiedName;
 	mutable std::string qualifiedNameWithoutNamespace;
 };
+
+
+} // namespace metagen
 
 
 #endif

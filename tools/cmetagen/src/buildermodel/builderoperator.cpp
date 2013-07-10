@@ -14,6 +14,8 @@
 
 using namespace std;
 
+namespace metagen {
+
 
 BuilderOperator::BuilderOperator(const CppItem * cppItem)
 	: super(cppItem)
@@ -425,3 +427,5 @@ bool BuilderOperator::shouldGenerateWrapper() const
 	}
 }
 
+
+} // namespace metagen

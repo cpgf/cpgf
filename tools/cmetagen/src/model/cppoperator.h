@@ -4,6 +4,8 @@
 #include "cppitem.h"
 #include "cppinvokable.h"
 
+namespace metagen {
+
 
 class CppOperator : public CppInvokable
 {
@@ -24,6 +26,9 @@ protected:
 private:
 	mutable std::string operatorName;
 };
+
+
+} // namespace metagen
 
 
 #endif

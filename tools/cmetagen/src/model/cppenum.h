@@ -5,6 +5,9 @@
 
 #include <vector>
 
+namespace metagen {
+
+
 class CppEnumValue
 {
 public:
@@ -43,6 +46,8 @@ private:
 	friend class ClangParserImplement;
 };
 
+
+} // namespace metagen
 
 
 #endif

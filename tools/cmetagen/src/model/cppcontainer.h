@@ -8,6 +8,9 @@
 #include <map>
 
 
+namespace metagen {
+
+
 class CppNamespace;
 class CppClass;
 class CppField;
@@ -75,6 +78,8 @@ private:
 	friend class ClangParserImplement;
 };
 
+
+} // namespace metagen
 
 
 #endif

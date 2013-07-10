@@ -48,6 +48,9 @@ using namespace llvm;
 using namespace llvm::sys;
 using namespace clang;
 
+namespace metagen {
+
+
 class EmptyASTConsumer : public ASTConsumer
 {
 public:
@@ -696,3 +699,5 @@ void ClangParser::parse(const char * fileName)
 	this->implement->parse(fileName);
 }
 
+
+} // namespace metagen

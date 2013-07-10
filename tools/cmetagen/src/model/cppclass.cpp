@@ -19,6 +19,9 @@
 using namespace clang;
 using namespace std;
 
+namespace metagen {
+
+
 BaseClass::BaseClass(const clang::CXXBaseSpecifier * baseSpecifier)
 	: baseSpecifier(baseSpecifier)
 {
@@ -174,3 +177,6 @@ std::string CppClass::getTextOfChainedTemplateParamList(const ItemTextOptionFlag
 	}
 	return text;
 }
+
+
+} // namespace metagen

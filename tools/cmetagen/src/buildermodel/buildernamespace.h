@@ -3,6 +3,8 @@
 
 #include "buildercontainer.h"
 
+namespace metagen {
+
 
 class CppNamespace;
 
@@ -20,5 +22,9 @@ public:
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);
 };
+
+
+} // namespace metagen
+
 
 #endif

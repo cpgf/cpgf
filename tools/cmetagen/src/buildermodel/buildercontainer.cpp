@@ -4,6 +4,8 @@
 
 #include <algorithm>
 
+namespace metagen {
+
 
 BuilderContainer::BuilderContainer(const CppItem * cppItem)
 	: super(cppItem)
@@ -41,3 +43,6 @@ void BuilderContainer::sortItems()
 {
 	std::sort(this->itemList.begin(), this->itemList.end(), &compareItem);
 }
+
+
+} // namespace metagen

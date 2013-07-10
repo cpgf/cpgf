@@ -3,6 +3,8 @@
 
 #include "builderinvokable.h"
 
+namespace metagen {
+
 
 class CppOperator;
 
@@ -26,5 +28,9 @@ private:
 	void doWriteWrapper(BuilderFileWriter * writer);
 	bool shouldGenerateWrapper() const;
 };
+
+
+} // namespace metagen
+
 
 #endif

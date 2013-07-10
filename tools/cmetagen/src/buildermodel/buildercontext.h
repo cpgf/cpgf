@@ -7,6 +7,9 @@
 
 #include <vector>
 
+namespace metagen {
+
+
 class CppContext;
 class CppContanier;
 class CppFile;
@@ -39,6 +42,9 @@ private:
 	const Config * config;
 	ItemListType itemList;
 };
+
+
+} // namespace metagen
 
 
 #endif

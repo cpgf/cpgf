@@ -8,6 +8,8 @@
 
 using namespace std;
 
+namespace metagen {
+
 
 BuilderMethod::BuilderMethod(const CppItem * cppItem)
 	: super(cppItem)
@@ -89,3 +91,5 @@ void BuilderMethod::doWriterReflection(BuilderFileWriter * writer)
 	}
 }
 
+
+} // namespace metagen

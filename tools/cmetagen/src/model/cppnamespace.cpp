@@ -21,6 +21,8 @@
 
 using namespace clang;
 
+namespace metagen {
+
 
 bool CppNamespace::isAnonymous() const
 {
@@ -28,3 +30,5 @@ bool CppNamespace::isAnonymous() const
 	return namespaceDecl->isAnonymousNamespace();
 }
 
+
+} // namespace metagen

@@ -5,6 +5,8 @@
 
 #include "cpgf/gflags.h"
 
+namespace metagen {
+
 
 class BuilderFileWriter;
 class BuilderContainer;
@@ -57,6 +59,8 @@ private:
 	friend class BuilderContainer;
 };
 
+
+} // namespace metagen
 
 
 #endif

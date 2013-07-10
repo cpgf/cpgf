@@ -3,6 +3,9 @@
 
 #include "cpgf/gscopedptr.h"
 
+namespace metagen {
+
+
 class ClangParserImplement;
 class CppContext;
 
@@ -17,6 +20,9 @@ public:
 private:
 	cpgf::GScopedPointer<ClangParserImplement> implement;
 };
+
+
+} // namespace metagen
 
 
 #endif

@@ -7,6 +7,9 @@
 
 namespace clang { class CXXBaseSpecifier; }
 
+namespace metagen {
+
+
 class CppConstructor;
 class CppDestructor;
 
@@ -62,6 +65,9 @@ private:
 private:
 	friend class ClangParserImplement;
 };
+
+
+} // namespace metagen
 
 
 #endif

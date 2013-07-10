@@ -2,6 +2,8 @@
 #include "model/cppitem.h"
 #include "config.h"
 
+namespace metagen {
+
 
 std::string getReflectionClassName(const Config * config)
 {
@@ -30,3 +32,5 @@ bool isVisibilityAllowed(ItemVisibility visibility, const Config * config)
 	return true;
 }
 
+
+} // namespace metagen

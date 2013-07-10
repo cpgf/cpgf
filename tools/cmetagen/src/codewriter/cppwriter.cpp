@@ -19,6 +19,8 @@
 
 using namespace std;
 
+namespace metagen {
+
 
 CppWriter::CppWriter()
 	: codeBlock()
@@ -113,3 +115,5 @@ CodeBlock * CppWriter::getCodeBlock()
 	return &this->codeBlock;
 }
 
+
+} // namespace metagen

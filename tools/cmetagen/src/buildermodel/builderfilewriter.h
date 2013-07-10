@@ -8,6 +8,8 @@
 #include <set>
 #include <map>
 
+namespace metagen {
+
 
 class CppWriter;
 class CppItem;
@@ -101,6 +103,10 @@ private:
 	StringSetType generatedFunctionItemNames;
 	ContainerNameMapType containerNameMap;
 };
+
+
+
+} // namespace metagen
 
 
 #endif

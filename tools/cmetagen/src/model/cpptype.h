@@ -13,6 +13,9 @@
 
 #include <string>
 
+namespace metagen {
+
+
 class CppType
 {
 public:
@@ -50,6 +53,9 @@ public:
 private:
 	clang::QualType qualType;
 };
+
+
+} // namespace metagen
 
 
 #endif

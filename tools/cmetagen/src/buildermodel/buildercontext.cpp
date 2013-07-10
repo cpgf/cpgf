@@ -20,6 +20,9 @@
 #include "cpgf/gassert.h"
 
 
+namespace metagen {
+
+
 BuilderItem * createBuilderItem(const CppItem * cppItem)
 {
 	switch(cppItem->getCategory()) {
@@ -130,3 +133,7 @@ bool BuilderContext::shouldSkipItem(const CppItem * cppItem)
 {
 	return ! isVisibilityAllowed(cppItem->getVisibility(), this->config);
 }
+
+
+} // namespace metagen
+

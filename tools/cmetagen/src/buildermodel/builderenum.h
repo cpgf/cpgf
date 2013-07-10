@@ -4,6 +4,9 @@
 #include "builderitem.h"
 
 
+namespace metagen {
+
+
 class CppEnum;
 
 class BuilderEnum : public BuilderItem
@@ -20,5 +23,9 @@ public:
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);
 };
+
+
+} // namespace metagen
+
 
 #endif

@@ -1,5 +1,7 @@
 #include "config.h"
 
+namespace metagen {
+
 
 Config::Config()
 	:	maxItemCountPerFile(0),
@@ -65,3 +67,6 @@ bool Config::doesAllowPrivate() const
 {
 	return this->allowPrivate;
 }
+
+
+} // namespace metagen

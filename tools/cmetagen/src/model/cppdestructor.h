@@ -3,6 +3,8 @@
 
 #include "cppitem.h"
 
+namespace metagen {
+
 
 class CppDestructor : public CppItem
 {
@@ -15,6 +17,9 @@ public:
 protected:
 	virtual ItemCategory getCategory() const { return icDestructor; }
 };
+
+
+} // namespace metagen
 
 
 #endif

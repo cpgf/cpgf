@@ -3,6 +3,8 @@
 
 #include "builderitem.h"
 
+namespace metagen {
+
 
 class CppDestructor;
 
@@ -22,5 +24,9 @@ public:
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);
 };
+
+
+} // namespace metagen
+
 
 #endif

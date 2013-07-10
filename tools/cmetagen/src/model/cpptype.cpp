@@ -18,6 +18,8 @@
 using namespace llvm;
 using namespace clang;
 
+namespace metagen {
+
 
 std::string qualTypeToText(const clang::QualType & qualType, const std::string &name)
 {
@@ -200,3 +202,6 @@ CppType CppType::getNonReferenceType() const
 	clang::QualType type = this->qualType.getNonReferenceType();
 	return CppType(type);
 }
+
+
+} // namespace metagen

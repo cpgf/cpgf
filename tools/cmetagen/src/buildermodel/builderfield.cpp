@@ -12,6 +12,8 @@
 
 using namespace std;
 
+namespace metagen {
+
 
 BuilderField::BuilderField(const CppItem * cppItem)
 	: super(cppItem)
@@ -108,3 +110,5 @@ void BuilderField::doWriteBitFieldWrapper(BuilderFileWriter * writer)
 	codeBlock->appendLine(s);
 }
 
+
+} // namespace metagen

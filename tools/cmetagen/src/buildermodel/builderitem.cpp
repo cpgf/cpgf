@@ -9,6 +9,8 @@
 
 using namespace std;
 
+namespace metagen {
+
 
 BuilderItem::BuilderItem(const CppItem * cppItem)
 	: cppItem(cppItem), config(config)
@@ -59,3 +61,5 @@ void BuilderItem::writeMetaData(BuilderFileWriter * writer)
 	this->doWriteMetaData(writer);
 }
 
+
+} // namespace metagen

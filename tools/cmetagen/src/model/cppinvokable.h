@@ -6,6 +6,8 @@
 
 #include <string>
 
+namespace metagen {
+
 
 class CppInvokable : public CppNamedItem
 {
@@ -35,6 +37,9 @@ public:
 	CppType getFunctionType() const;
 	CppType getResultType() const;
 };
+
+
+} // namespace metagen
 
 
 #endif

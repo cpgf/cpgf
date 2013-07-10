@@ -6,6 +6,8 @@
 #include "config.h"
 #include "util.h"
 
+namespace metagen {
+
 
 BuilderFile::BuilderFile(const CppItem * cppItem)
 	: super(cppItem), headerWriter(new CppWriter)
@@ -78,3 +80,5 @@ void BuilderFile::outputFiles()
 	}
 }
 
+
+} // namespace metagen

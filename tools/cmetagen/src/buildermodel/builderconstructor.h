@@ -3,6 +3,9 @@
 
 #include "builderinvokable.h"
 
+namespace metagen {
+
+
 class CppConstructor;
 
 class BuilderConstructor : public BuilderInvokable
@@ -19,5 +22,9 @@ public:
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);
 };
+
+
+} // namespace metagen
+
 
 #endif

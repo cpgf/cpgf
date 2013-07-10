@@ -12,6 +12,9 @@
 using namespace std;
 
 
+namespace metagen {
+
+
 BuilderClass::BuilderClass(const CppItem * cppItem)
 	: super(cppItem)
 {
@@ -71,3 +74,6 @@ void BuilderClass::doWriteAsNestedClass(BuilderFileWriter * writer)
 	);
 	codeBlock->appendLine(s);
 }
+
+
+} // namespace metagen

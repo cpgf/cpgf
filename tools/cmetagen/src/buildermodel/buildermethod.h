@@ -3,6 +3,8 @@
 
 #include "builderinvokable.h"
 
+namespace metagen {
+
 
 class CppMethod;
 
@@ -23,5 +25,9 @@ protected:
 private:
 	void doWriterReflection(BuilderFileWriter * writer);
 };
+
+
+} // namespace metagen
+
 
 #endif

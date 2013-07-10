@@ -15,6 +15,8 @@
 
 #include <string>
 
+namespace metagen {
+
 
 clang::QualType stripType(const clang::QualType & qualType);
 
@@ -30,6 +32,9 @@ std::string getTemplateArgumentName(const clang::TemplateArgument & argument);
 
 std::string exprToText(const clang::Expr * expr);
 std::string declToText(const clang::Decl * decl);
+
+
+} // namespace metagen
 
 
 #endif
