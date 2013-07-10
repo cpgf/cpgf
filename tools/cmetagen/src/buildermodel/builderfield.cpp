@@ -80,7 +80,7 @@ void BuilderField::doWriteBitFieldWrapper(BuilderFileWriter * writer)
 	string s;
 
 	// getter
-	CodeBlock * getterBlock = writer->getWrapperCodeBlock(cppField, ftHeader)->appendBlock();
+	CodeBlock * getterBlock = writer->createBitFieldWrapperCodeBlock(cppField)->appendBlock();
 	getterBlock->appendLine("template <typename T>");
 	s = bitFieldWrapperGetter + "(" + self + ")";
 	s = "inline " + fieldType.getQualifiedName(s);
@@ -90,7 +90,7 @@ void BuilderField::doWriteBitFieldWrapper(BuilderFileWriter * writer)
 	getterBody->appendLine(s);
 
 	// setter
-	CodeBlock * setterBlock = writer->getWrapperCodeBlock(cppField, ftHeader)->appendBlock();
+	CodeBlock * setterBlock = writer->createBitFieldWrapperCodeBlock(cppField)->appendBlock();
 	getterBlock->appendLine("template <typename T>");
 	s = "inline void " + bitFieldWrapperGetter + "(" + self + ", " + fieldType.getQualifiedName("value") + ")";
 	setterBlock->appendLine(s);

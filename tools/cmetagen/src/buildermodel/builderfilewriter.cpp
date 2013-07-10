@@ -1,5 +1,6 @@
 #include "builderfilewriter.h"
 #include "builderitem.h"
+#include "buildersection.h"
 #include "model/cppcontainer.h"
 #include "model/cppclass.h"
 #include "codewriter/cppwriter.h"
@@ -30,7 +31,8 @@ BuilderFileWriter::BuilderFileWriter(int fileIndex, const Config * config, CppWr
 		config(config),
 		headerWriter(headerWriter),
 		sourceWriter(new CppWriter()),
-		nextFile(NULL)
+		nextFile(NULL),
+		sectionList(NULL)
 {
 	this->setupFileCodeBlockStructure();
 }
@@ -120,11 +122,13 @@ void BuilderFileWriter::writeFile()
 	this->doWriteSource();
 }
 
-void BuilderFileWriter::generateCode()
+void BuilderFileWriter::generateCode(BuilderSectionList * sectionList)
 {
+	this->sectionList = sectionList;
 	for(ItemListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
 		(*it)->writeMetaData(this);
 	}
+	this->sectionList = NULL;
 }
 
 void BuilderFileWriter::doWriteHeader()
@@ -362,6 +366,16 @@ CodeBlock * BuilderFileWriter::getCodeBlock(FileType fileType)
 std::string BuilderFileWriter::getReflectionAction(const std::string & name)
 {
 	return "_d.CPGF_MD_TEMPLATE " + name;
+}
+
+CodeBlock * BuilderFileWriter::createOperatorWrapperCodeBlock(const CppItem * cppItem)
+{
+	return this->sectionList->addSection(bstOperatorWrapperFunction, cppItem)->getCodeBlock();
+}
+
+CodeBlock * BuilderFileWriter::createBitFieldWrapperCodeBlock(const CppItem * cppItem)
+{
+	return this->sectionList->addSection(bstBitFieldWrapperFunction, cppItem)->getCodeBlock();
 }
 
 

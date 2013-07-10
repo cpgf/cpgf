@@ -16,12 +16,13 @@ class CppItem;
 class CppContainer;
 class CodeBlock;
 class BuilderItem;
+class BuilderSectionList;
 class Config;
 
 enum FileType {
 	ftHeader, ftSource
 };
-	
+
 class BuilderFileWriter
 {
 public:
@@ -58,8 +59,12 @@ public:
 	void prepare();
 	void prepareMaster();
 	void writeFile();
-	void generateCode();
-	
+	void generateCode(BuilderSectionList * sectionList);
+
+public:
+	CodeBlock * createOperatorWrapperCodeBlock(const CppItem * cppItem);
+	CodeBlock * createBitFieldWrapperCodeBlock(const CppItem * cppItem);
+
 public: // auxiliary functions used by BuilderItem's
 	CodeBlock * getFunctionContainerCodeBlock(const CppItem * cppItem, FileType fileType);
 	CodeBlock * getFunctionHeaderCodeBlock(const CppItem * cppItem, FileType fileType);
@@ -102,6 +107,7 @@ private:
 
 	StringSetType generatedFunctionItemNames;
 	ContainerNameMapType containerNameMap;
+	BuilderSectionList * sectionList;
 };
 
 

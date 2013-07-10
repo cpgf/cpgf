@@ -255,7 +255,7 @@ namespace {
 
 void writeOperator(const WriterParam * param)
 {
-	CodeBlock * codeBlock = param->writer->getWrapperCodeBlock(param->cppOperator, ftHeader);
+	CodeBlock * codeBlock = param->writer->createOperatorWrapperCodeBlock(param->cppOperator);
 	codeBlock->appendLine(param->templateLine);
 	string s;
 	s = param->operatorWrapperName + "(";
@@ -304,7 +304,7 @@ void writeArraySetter(const WriterParam * param)
 {
 	if(param->shouldWrapArraySetter) {
 		string s;
-		CodeBlock * setterBlock = param->writer->getWrapperCodeBlock(param->cppOperator, ftHeader)->appendBlock();
+		CodeBlock * setterBlock = param->writer->createOperatorWrapperCodeBlock(param->cppOperator)->appendBlock();
 		setterBlock->appendLine(param->templateLine);
 
 		s = Poco::format("void %s(%s", param->arraySetterName, param->self);

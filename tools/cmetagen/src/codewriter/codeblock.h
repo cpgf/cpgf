@@ -85,7 +85,7 @@ private:
 	typedef std::vector<CodeItem * > CodeListType;
 	typedef std::map<std::string, CodeBlock * > NamedBlockMapType;
 	
-protected:
+public:
 	CodeBlock();
 	virtual ~CodeBlock();
 	
@@ -105,8 +105,6 @@ private:
 	cpgf::GFlags<CodeBlockStyle> flags;
 	CodeListType codeList;
 	NamedBlockMapType namedBlocks;
-	
-	friend class CppWriter;
 };
 
 

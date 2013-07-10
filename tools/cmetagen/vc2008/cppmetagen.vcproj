@@ -338,6 +338,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\buildermodel\buildersection.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\buildermodel\builderutil.cpp"
 					>
 				</File>

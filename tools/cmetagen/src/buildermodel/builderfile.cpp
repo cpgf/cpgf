@@ -1,5 +1,6 @@
 #include "builderfile.h"
 #include "builderfilewriter.h"
+#include "buildersection.h"
 #include "codewriter/codewriter.h"
 #include "codewriter/cppwriter.h"
 #include "model/cppfile.h"
@@ -66,9 +67,19 @@ void BuilderFile::createFileWriters()
 
 void BuilderFile::outputFiles()
 {
+	BuilderSectionList sectionList;
+
 	for(BuilderFileWriterListType::iterator it = this->builderFileWriterList.begin(); it != this->builderFileWriterList.end(); ++it) {
-		(*it)->generateCode();
+		(*it)->generateCode(&sectionList);
 	}
+
+	printf("Section list begin \n");
+	for(BuilderSectionList::iterator it = sectionList.begin(); it != sectionList.end(); ++it) {
+		CodeWriter codeWriter;
+		(*it)->getCodeBlock()->write(&codeWriter);
+		printf("%s\n\n", codeWriter.getText().c_str());
+	}
+	printf("Section list end \n");
 
 	CodeWriter codeWriter;
 	this->headerWriter->write(&codeWriter);
