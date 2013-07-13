@@ -10,8 +10,11 @@
 #include "model/cppoperator.h"
 #include "model/cppcontext.h"
 #include "model/cppfile.h"
+#include "model/cpputil.h"
 
 #include "util.h"
+
+#include "cpgf/gassert.h"
 
 #include "Poco/RegularExpression.h"
 
@@ -462,11 +465,19 @@ void ClangParserImplement::parseFunction(FunctionDecl * functionDecl)
 
 void ClangParserImplement::parseNamespace(NamespaceDecl * namespaceDecl)
 {
-	if(namespaceDecl == NULL || ! namespaceDecl->isFirstDeclaration()) {
+	if(namespaceDecl == NULL) {
 		return;
 	}
 
-	CppNamespace * ns = this->addItem<CppNamespace>(namespaceDecl);
+	CppNamespace * ns;
+	CppNamedItem * cppNamedItem = const_cast<CppNamedItem *>(this->context->findNamedItem(icNamespace, getNamedDeclQualifiedName(namespaceDecl)));
+	if(cppNamedItem != NULL) {
+		GASSERT(cppNamedItem->isNamespace());
+		ns = static_cast<CppNamespace *>(cppNamedItem);
+	}
+	else {
+		ns = this->addItem<CppNamespace>(namespaceDecl);
+	}
 	
 	CppContainerGuard nsGuard(&this->cppContainerStack, ns);
 
@@ -479,7 +490,15 @@ void ClangParserImplement::parseEnum(EnumDecl * enumDecl)
 		return;
 	}
 
-	CppEnum * e = this->addItem<CppEnum>(enumDecl);
+	CppEnum * e;
+	CppNamedItem * cppNamedItem = const_cast<CppNamedItem *>(this->context->findNamedItem(icEnum, getNamedDeclQualifiedName(enumDecl)));
+	if(cppNamedItem != NULL) {
+		GASSERT(cppNamedItem->isEnum());
+		e = static_cast<CppEnum *>(cppNamedItem);
+	}
+	else {
+		e = this->addItem<CppEnum>(enumDecl);
+	}
 	for(EnumDecl::enumerator_iterator it = enumDecl->enumerator_begin(); it != enumDecl->enumerator_end(); ++it) {
 		e->addValue(it->getNameAsString(), it->getQualifiedNameAsString());
 	}

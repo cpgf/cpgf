@@ -34,7 +34,7 @@ void BuilderMethod::doWriteMetaData(BuilderFileWriter * writer)
 void BuilderMethod::doWriterReflection(BuilderFileWriter * writer)
 {
 	const CppMethod * cppMethod = this->getCppMethod();
-	CodeBlock * codeBlock = writer->getReflectionCodeBlock(cppMethod);
+	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppMethod);
 
 	size_t arity = cppMethod->getArity();
 	bool hasDefaultValue = (arity > 0 && cppMethod->paramHasDefaultValue(arity - 1));

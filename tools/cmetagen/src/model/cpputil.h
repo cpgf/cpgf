@@ -26,6 +26,7 @@ void getNamedDeclNames(const clang::NamedDecl * namedDecl,
 	std::string & qualifiedNameWithoutNamespace);
 
 std::string	 getNamedDeclOutputName(const clang::NamedDecl * namedDecl);
+std::string	 getNamedDeclQualifiedName(const clang::NamedDecl * namedDecl);
 
 std::string getTemplateSpecializationName(const clang::TemplateSpecializationType * type);
 std::string getTemplateArgumentName(const clang::TemplateArgument & argument);

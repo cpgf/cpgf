@@ -42,7 +42,7 @@ void BuilderClass::doWriteMetaData(BuilderFileWriter * writer)
 void BuilderClass::doWriteBaseClasses(BuilderFileWriter * writer)
 {
 	const CppClass * cppClass = this->getCppClass();
-	CodeBlock * codeBlock = writer->getFunctionBodyCodeBlock(cppClass, ftHeader);
+	CodeBlock * codeBlock = writer->getContainerReflectionCodeBlock(cppClass);
 	
 	for(CppClass::BaseClassListType::const_iterator it = cppClass->getBaseClassList()->begin();
 		it != cppClass->getBaseClassList()->end();
@@ -60,11 +60,11 @@ void BuilderClass::doWriteBaseClasses(BuilderFileWriter * writer)
 void BuilderClass::doWriteAsNestedClass(BuilderFileWriter * writer)
 {
 	const CppClass * cppClass = this->getCppClass();
-	CodeBlock * codeBlock = writer->getReflectionCodeBlock(cppClass);
-
 	if(cppClass->isAnonymous() || cppClass->isTemplate()) {
 		return;
 	}
+
+	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppClass);
 
 	writer->getDeclarationCodeBlock(ftHeader)->appendUniqueLine(writer->getCreationFunctionPrototype(cppClass) + ";");
 

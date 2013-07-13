@@ -102,6 +102,13 @@ std::string	 getNamedDeclOutputName(const NamedDecl * namedDecl)
 	return qualifiedNameWithoutNamespace;
 }
 
+std::string	 getNamedDeclQualifiedName(const clang::NamedDecl * namedDecl)
+{
+	std::string name, qualifiedName, qualifiedNameWithoutNamespace;
+	getNamedDeclNames(namedDecl, name, qualifiedName, qualifiedNameWithoutNamespace);
+	return qualifiedName;
+}
+
 std::string getTemplateSpecializationName(const TemplateSpecializationType * type)
 {
 	string qualifiedName;

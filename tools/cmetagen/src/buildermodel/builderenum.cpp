@@ -31,7 +31,7 @@ const CppEnum * BuilderEnum::getCppEnum() const
 void BuilderEnum::doWriteMetaData(BuilderFileWriter * writer)
 {
 	const CppEnum * cppEnum = this->getCppEnum();
-	CodeBlock * codeBlock = writer->getReflectionCodeBlock(cppEnum);
+	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppEnum);
 
 	string enumTypeName;
 	string enumName;

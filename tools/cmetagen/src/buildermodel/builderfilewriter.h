@@ -16,6 +16,7 @@ class CppItem;
 class CppContainer;
 class CodeBlock;
 class BuilderItem;
+class BuilderSection;
 class BuilderSectionList;
 class Config;
 
@@ -42,6 +43,8 @@ private:
 
 	typedef std::set<std::string> StringSetType;
 	typedef std::map<const CppContainer *, ContainerName> ContainerNameMapType;
+	
+	typedef std::map<const CppContainer *, BuilderSection *> ContainerSectionMapType;
 
 public:
 	BuilderFileWriter(int fileIndex, const Config * config, CppWriter * headerWriter);
@@ -57,22 +60,17 @@ public:
 	void setNextFile(BuilderFileWriter * nextFile) { this->nextFile = nextFile; }
 
 	void prepare();
-	void prepareMaster();
+//	void prepareMaster();
 	void writeFile();
 	void generateCode(BuilderSectionList * sectionList);
 
 public:
 	CodeBlock * createOperatorWrapperCodeBlock(const CppItem * cppItem);
 	CodeBlock * createBitFieldWrapperCodeBlock(const CppItem * cppItem);
+	CodeBlock * getParentReflectionCodeBlock(const CppItem * cppItem);
+	CodeBlock * getContainerReflectionCodeBlock(const CppContainer * cppContainer);
 
 public: // auxiliary functions used by BuilderItem's
-	CodeBlock * getFunctionContainerCodeBlock(const CppItem * cppItem, FileType fileType);
-	CodeBlock * getFunctionHeaderCodeBlock(const CppItem * cppItem, FileType fileType);
-	CodeBlock * getFunctionBodyCodeBlock(const CppItem * cppItem, FileType fileType);
-	
-	CodeBlock * getReflectionCodeBlock(const CppItem * cppItem);
-	
-	CodeBlock * getWrapperCodeBlock(const CppItem * cppItem, FileType fileType);
 	CodeBlock * getDeclarationCodeBlock(FileType fileType);
 	CodeBlock * getImplementationCodeBlock(FileType fileType);
 	
@@ -80,11 +78,18 @@ public: // auxiliary functions used by BuilderItem's
 	
 	std::string getCreationFunctionName(const CppContainer * cppContainer);
 	std::string getCreationFunctionPrototype(const CppContainer * cppContainer);
+	
+private: // new
+	BuilderSection * getContainerSection(const CppContainer * cppContainer);
+	CodeBlock * getReflectionBodyBlock(CodeBlock * codeBlock);
+	void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer);
+	void createPartialCreationFunction(const CppContainer * cppContainer);
+	void initializePartialCreationFunction(CodeBlock * codeBlock, const CppContainer * cppContainer);
 
 private:
 	std::string getReflectionFunctionName(const CppContainer * cppContainer);
-	std::string getSplittedCreationFunctionName(const CppContainer * cppContainer);
-	std::string getSplittedCreationFunctionPrototype(const CppContainer * cppContainer);
+	std::string getPartialCreationFunctionName(const CppContainer * cppContainer);
+	std::string getPartialCreationFunctionPrototype(const CppContainer * cppContainer);
 
 	CodeBlock * getCodeBlock(FileType fileType);
 	std::string getContainertName(const CppContainer * cppContainer);
@@ -95,7 +100,6 @@ private:
 	void setupFileCodeBlockStructure();
 
 	void doWriteReflectionFunction(const CppContainer * cppContainer);
-	void doWriteSplittedCreationFunction(const CppContainer * cppContainer);
 
 private:
 	int fileIndex;
@@ -107,7 +111,10 @@ private:
 
 	StringSetType generatedFunctionItemNames;
 	ContainerNameMapType containerNameMap;
+	
+private: // new
 	BuilderSectionList * sectionList;
+	ContainerSectionMapType containerSectionMap;
 };
 
 

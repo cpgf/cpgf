@@ -37,7 +37,7 @@ void BuilderFile::prepare()
 	for(BuilderFileWriterListType::iterator it = this->builderFileWriterList.begin(); it != this->builderFileWriterList.end(); ++it) {
 		(*it)->prepare();
 	}
-	this->builderFileWriterList[0]->prepareMaster();
+//	this->builderFileWriterList[0]->prepareMaster();
 }
 
 void BuilderFile::createFileWriters()

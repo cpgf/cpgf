@@ -56,7 +56,7 @@ void BuilderField::doWriteMetaData(BuilderFileWriter * writer)
 void BuilderField::doWriteReflection(BuilderFileWriter * writer)
 {
 	const CppField * cppField = this->getCppField();
-	CodeBlock * codeBlock = writer->getReflectionCodeBlock(cppField);
+	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppField);
 
 	std::string s = Poco::format("%s(\"%s\", &%s%s);",
 		writer->getReflectionAction("_field"),
@@ -91,8 +91,8 @@ void BuilderField::doWriteBitFieldWrapper(BuilderFileWriter * writer)
 
 	// setter
 	CodeBlock * setterBlock = writer->createBitFieldWrapperCodeBlock(cppField)->appendBlock();
-	getterBlock->appendLine("template <typename T>");
-	s = "inline void " + bitFieldWrapperGetter + "(" + self + ", " + fieldType.getQualifiedName("value") + ")";
+	setterBlock->appendLine("template <typename T>");
+	s = "inline void " + bitFieldWrapperSetter + "(" + self + ", " + fieldType.getQualifiedName("value") + ")";
 	setterBlock->appendLine(s);
 	CodeBlock * setterBody = setterBlock->appendBlock(cbsBracketAndIndent);
 	s = "self->" + cppField->getName()+ " = value;";
@@ -100,7 +100,7 @@ void BuilderField::doWriteBitFieldWrapper(BuilderFileWriter * writer)
 
 	// reflection
 	string templateParam = "<" + getReflectionClassName(this->getConfig()) + ">";
-	CodeBlock * codeBlock = writer->getReflectionCodeBlock(cppField);
+	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppField);
 	s = Poco::format("%s(\"%s\", &%s, &%s, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());",
 		writer->getReflectionAction("_property"),
 		cppField->getName(),

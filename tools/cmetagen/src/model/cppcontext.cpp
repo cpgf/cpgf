@@ -38,14 +38,14 @@ void CppContext::itemCreated(CppItem * item)
 	
 	if(item->isNamed()) {
 		CppNamedItem * namedItem = static_cast<CppNamedItem *>(item);
-		this->itemNameMap.insert(make_pair(namedItem->getQualifiedName(), namedItem));
+		this->itemNameMap[item->getCategory()].insert(make_pair(namedItem->getQualifiedName(), namedItem));
 	}
 }
 
-const CppNamedItem * CppContext::findNamedItem(const std::string & qualifiedName) const
+const CppNamedItem * CppContext::findNamedItem(ItemCategory category, const std::string & qualifiedName) const
 {
-	ItemNameMapType::const_iterator it = this->itemNameMap.find(qualifiedName);
-	if(it == this->itemNameMap.end()) {
+	ItemNameMapType::const_iterator it = this->itemNameMap[category].find(qualifiedName);
+	if(it == this->itemNameMap[category].end()) {
 		return NULL;
 	}
 	else {

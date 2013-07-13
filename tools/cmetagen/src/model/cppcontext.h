@@ -28,7 +28,7 @@ public:
 	CppFile * getCppFile() const { return this->cppFile.get(); }
 	const Config * getConfig() const { return this->config; }
 	
-	const CppNamedItem * findNamedItem(const std::string & qualifiedName) const;
+	const CppNamedItem * findNamedItem(ItemCategory category, const std::string & qualifiedName) const;
 	
 private:
 	void beginFile(const char * fileName, clang::Decl * decl);
@@ -46,7 +46,7 @@ private:
 private:
 	cpgf::GScopedPointer<CppFile> cppFile;
 	ItemListType itemList;
-	ItemNameMapType itemNameMap;
+	ItemNameMapType itemNameMap[icCount];
 	const Config * config;
 	
 private:

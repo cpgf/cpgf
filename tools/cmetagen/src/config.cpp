@@ -15,7 +15,7 @@ Config::Config()
 		allowProtected(false),
 		allowPrivate(false)
 {
-maxItemCountPerFile = 5;
+//maxItemCountPerFile = 5;
 }
 
 size_t Config::getMaxItemCountPerFile() const

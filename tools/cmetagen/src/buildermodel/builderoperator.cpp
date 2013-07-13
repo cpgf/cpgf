@@ -58,7 +58,7 @@ size_t BuilderOperator::calculateReflectionParamCount() const
 void BuilderOperator::doWriteReflection(BuilderFileWriter * writer)
 {
 	const CppOperator * cppOperator = this->getCppOperator();
-	CodeBlock * codeBlock = writer->getReflectionCodeBlock(cppOperator);
+	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppOperator);
 
 	string text(writer->getReflectionAction("_operator"));
 
@@ -323,7 +323,7 @@ void writeArraySetter(const WriterParam * param)
 
 void writeOperatorReflection(const WriterParam * param)
 {
-	CodeBlock * codeBlock = param->writer->getReflectionCodeBlock(param->cppOperator);
+	CodeBlock * codeBlock = param->writer->getParentReflectionCodeBlock(param->cppOperator);
 
 	std::string s = Poco::format("%s(\"%s\", &%s<%s >);",
 		param->writer->getReflectionAction("_method"),
@@ -338,7 +338,7 @@ void writeOperatorReflection(const WriterParam * param)
 void writeArraySetterReflection(const WriterParam * param)
 {
 	if(param->shouldWrapArraySetter) {
-		CodeBlock * codeBlock = param->writer->getReflectionCodeBlock(param->cppOperator);
+		CodeBlock * codeBlock = param->writer->getParentReflectionCodeBlock(param->cppOperator);
 
 		std::string s = Poco::format("%s(\"%s\", &%s<%s >);",
 			param->writer->getReflectionAction("_method"),

@@ -26,7 +26,7 @@ const CppConstructor * BuilderConstructor::getCppConstructor() const
 void BuilderConstructor::doWriteMetaData(BuilderFileWriter * writer)
 {
 	const CppConstructor * cppConstructor = this->getCppConstructor();
-	CodeBlock * codeBlock = writer->getReflectionCodeBlock(cppConstructor);
+	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppConstructor);
 
 	std::string s = Poco::format("%s<void * (%s)>());",
 		writer->getReflectionAction("_constructor"),
