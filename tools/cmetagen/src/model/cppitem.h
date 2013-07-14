@@ -13,7 +13,9 @@ namespace metagen {
 
 enum ItemVisibility
 {
-	ivPublic, ivProtected, ivPrivate
+	ivFirst = 0,
+	ivPublic = ivFirst, ivProtected, ivPrivate,
+	ivCount
 };
 
 enum ItemCategory
@@ -27,8 +29,8 @@ enum ItemCategory
 
 enum ItemTextOption
 {
-	itoWithType = 1 << 0,
-	itoWithName = 1 << 1,
+	itoWithArgType = 1 << 0,
+	itoWithArgName = 1 << 1,
 	itoWithDefaultValue = 1 << 2
 };
 

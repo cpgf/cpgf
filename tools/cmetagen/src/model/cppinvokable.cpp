@@ -179,13 +179,13 @@ std::string CppInvokable::getTextOfParamList(const ItemTextOptionFlags & options
 		if(! text.empty()) {
 			text.append(",");
 		}
-		if(options.has(itoWithType)) {
+		if(options.has(itoWithArgType)) {
 			if(! text.empty()) {
 				text.append(" ");
 			}
 			text.append(CppType((*it)->getType()).getQualifiedName());
 		}
-		if(options.has(itoWithName)) {
+		if(options.has(itoWithArgName)) {
 			if(! text.empty()) {
 				text.append(" ");
 			}

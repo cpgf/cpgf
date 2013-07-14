@@ -1,7 +1,9 @@
 #include "buildermethod.h"
 #include "builderfilewriter.h"
+#include "builderclass.h"
 #include "codewriter/cppwriter.h"
 #include "model/cppmethod.h"
+#include "model/cppcontainer.h"
 #include "builderutil.h"
 
 #include "Poco/Format.h"
@@ -29,6 +31,10 @@ const CppMethod * BuilderMethod::getCppMethod() const
 void BuilderMethod::doWriteMetaData(BuilderFileWriter * writer)
 {
 	this->doWriterReflection(writer);
+
+	if(this->getCppItem()->getParent()->isClass() && static_cast<BuilderClass *>(this->getParent())->shouldWrapClass()) {
+		this->doWriterClassWrapper(writer);
+	}
 }
 
 void BuilderMethod::doWriterReflection(BuilderFileWriter * writer)
@@ -89,6 +95,12 @@ void BuilderMethod::doWriterReflection(BuilderFileWriter * writer)
 		
 		codeBlock->appendLine(";");
 	}
+}
+
+void BuilderMethod::doWriterClassWrapper(BuilderFileWriter * writer)
+{
+	const CppMethod * cppMethod = this->getCppMethod();
+	CodeBlock * codeBlock = writer->getWrapperClassCodeBlock(cppMethod);
 }
 
 

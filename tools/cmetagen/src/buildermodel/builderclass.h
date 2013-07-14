@@ -20,6 +20,8 @@ public:
 	
 	const CppClass * getCppClass() const;
 	
+	bool shouldWrapClass() const { return true; }
+	
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);
 	

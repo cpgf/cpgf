@@ -90,7 +90,7 @@ void BuilderOperator::doWriteReflection(BuilderFileWriter * writer)
 			if(cppOperator->getArity() > 0 && hasSelf) {
 				proto.append(", ");
 			}
-			proto.append(cppOperator->getTextOfParamList(itoWithType));
+			proto.append(cppOperator->getTextOfParamList(itoWithArgType));
 		}
 		text.append(cppOperator->getResultType().getQualifiedName(proto));
 		text.append(")>(");
@@ -262,14 +262,14 @@ void writeOperator(const WriterParam * param)
 	s.append(param->self);
 	if(param->cppOperator->getArity() > 0 && ! param->isIncOrDec) {
 		s.append(", ");
-		s.append(param->cppOperator->getTextOfParamList(itoWithType | itoWithName | itoWithDefaultValue));
+		s.append(param->cppOperator->getTextOfParamList(itoWithArgType | itoWithArgName | itoWithDefaultValue));
 	}
 	s.append(")");
 	s = param->cppOperator->getResultType().getQualifiedName(s);
 	codeBlock->appendLine(s);
 
 	CodeBlock * bodyBlock = codeBlock->appendBlock(cbsBracketAndIndent);
-	string paramValuesText = param->cppOperator->getTextOfParamList(itoWithName);
+	string paramValuesText = param->cppOperator->getTextOfParamList(itoWithArgName);
 	s = "";
 
 	if(param->cppOperator->hasResult()) {
@@ -310,7 +310,7 @@ void writeArraySetter(const WriterParam * param)
 		s = Poco::format("void %s(%s", param->arraySetterName, param->self);
 		if(param->cppOperator->getArity() > 0) {
 			s.append(", ");
-			s.append(param->cppOperator->getTextOfParamList(itoWithType | itoWithName | itoWithDefaultValue));
+			s.append(param->cppOperator->getTextOfParamList(itoWithArgType | itoWithArgName | itoWithDefaultValue));
 		}
 		s.append(Poco::format(", const %s & OpsEt_vALue)", param->cppOperator->getResultType().getNonReferenceType().getQualifiedName()));
 		setterBlock->appendLine(s);
@@ -378,7 +378,7 @@ void BuilderOperator::doWriteWrapper(BuilderFileWriter * writer)
 		const CppClass * cppClass = static_cast<const CppClass *>(cppOperator->getParent());
 		if(cppClass->isChainedTemplate()) {
 			param.templateLine.append(", ");
-			param.templateLine.append(cppClass->getTextOfChainedTemplateParamList(itoWithType | itoWithName | itoWithDefaultValue));
+			param.templateLine.append(cppClass->getTextOfChainedTemplateParamList(itoWithArgType | itoWithArgName | itoWithDefaultValue));
 		}
 	}
 	param.templateLine.append(">");
@@ -388,7 +388,7 @@ void BuilderOperator::doWriteWrapper(BuilderFileWriter * writer)
 	}
 	param.self.append(param.selfParamName + " * " + param.selfName);
 
-	param.paramValuesText = cppOperator->getTextOfParamList(itoWithName);
+	param.paramValuesText = cppOperator->getTextOfParamList(itoWithArgName);
 	param.realParamCount = this->calculateReflectionParamCount();
 
 	if(cppOperator->isArray()

@@ -16,6 +16,7 @@ enum BuilderSectionType {
 	bstBitFieldWrapperFunction = 1,
 	bstReflectionFunction = 2,
 	bstPartialCreationFunction = 3,
+	bstClassWrapper = 4,
 };
 
 class BuilderSection

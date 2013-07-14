@@ -9,6 +9,8 @@
 #include "config.h"
 #include "util.h"
 
+#include "cpgf/gassert.h"
+
 #include "Poco/Format.h"
 
 #include <string>
@@ -18,12 +20,25 @@ using namespace std;
 namespace metagen {
 
 
-const string CodeBlockName_DeclarationArea("declaration");
 const string CodeBlockName_ReflectionArea("reflection");
-const string CodeBlockName_ImplementionArea("implementation");
-const string CodeBlockName_FunctionHeader("header");
-const string CodeBlockName_FunctionBody("body");
+const string CodeBlockName_FunctionHeader("fheader");
+const string CodeBlockName_FunctionBody("fbody");
+const string CodeBlockName_ClassBody("cbody");
+const string CodeBlockName_Customize("customize");
 
+string getTextOfVisibility(ItemVisibility visibility)
+{
+	switch(visibility) {
+		case ivPrivate:
+			return "private";
+
+		case ivProtected:
+			return "protected";
+
+		default:
+			return "public";
+	}
+}
 
 BuilderFileWriter::BuilderFileWriter(int fileIndex, const Config * config, CppWriter * headerWriter)
 	:	fileIndex(fileIndex),
@@ -33,7 +48,6 @@ BuilderFileWriter::BuilderFileWriter(int fileIndex, const Config * config, CppWr
 		nextFile(NULL),
 		sectionList(NULL)
 {
-	this->setupFileCodeBlockStructure();
 }
 
 BuilderFileWriter::~BuilderFileWriter()
@@ -89,7 +103,7 @@ void BuilderFileWriter::prepareMaster()
 		string prototype = this->getCreationFunctionPrototype(it->first);
 
 		if(cppClass != NULL && cppClass->isTemplate()) {
-			s = Poco::format("template<%s >", cppClass->getTextOfChainedTemplateParamList(itoWithType | itoWithName));
+			s = Poco::format("template<%s >", cppClass->getTextOfChainedTemplateParamList(itoWithArgType | itoWithArgName));
 			headerCodeBlock->appendLine(s);
 			sourceCodeBlock->appendLine(s);
 		}
@@ -103,7 +117,7 @@ void BuilderFileWriter::prepareMaster()
 
 		for(ContainerNameListType::const_iterator n = nameList.begin(); n != nameList.end(); ++n) {
 			if(cppClass != NULL && cppClass->isTemplate()) {
-				s = Poco::format("%s<%s >(meta);", n->creationFunctionName, cppClass->getTextOfChainedTemplateParamList(itoWithName));
+				s = Poco::format("%s<%s >(meta);", n->creationFunctionName, cppClass->getTextOfChainedTemplateParamList(itoWithArgName));
 			}
 			else {
 				s = Poco::format("%s(meta);", n->creationFunctionName);
@@ -144,19 +158,6 @@ void BuilderFileWriter::doWriteSource()
 	printf("%s\n\n", codeWriter.getText().c_str());
 }
 
-void BuilderFileWriter::setupFileCodeBlockStructure()
-{
-	const string * areaNames[] = {
-		&CodeBlockName_DeclarationArea,
-		&CodeBlockName_ReflectionArea,
-		&CodeBlockName_ImplementionArea
-	};
-	for(int i = 0; i < sizeof(areaNames) / sizeof(areaNames[0]); ++i) {
-		this->getCodeBlock(ftHeader)->getNamedBlock(*areaNames[i]);
-		this->getCodeBlock(ftSource)->getNamedBlock(*areaNames[i]);
-	}
-}
-
 string getFileIndexName(int fileIndex)
 {
 	string result;
@@ -184,12 +185,12 @@ string BuilderFileWriter::getContainertName(const CppContainer * cppContainer)
 
 std::string BuilderFileWriter::getReflectionFunctionName(const CppContainer * cppContainer)
 {
-	return normalizeSymbolName(this->config->getReflectionFunctionPrefix() + "_" + this->getContainertName(cppContainer) + getFileIndexName(this->fileIndex));
+	return normalizeSymbolName(this->getConfig()->getReflectionFunctionPrefix() + "_" + this->getContainertName(cppContainer) + getFileIndexName(this->fileIndex));
 }
 
 std::string BuilderFileWriter::getPartialCreationFunctionName(const CppContainer * cppContainer)
 {
-	return normalizeSymbolName("partial_" + this->config->getCreationFunctionPrefix() + "_" + this->getContainertName(cppContainer) + getFileIndexName(this->fileIndex));
+	return normalizeSymbolName("partial_" + this->getConfig()->getCreationFunctionPrefix() + "_" + this->getContainertName(cppContainer) + getFileIndexName(this->fileIndex));
 }
 
 std::string BuilderFileWriter::getPartialCreationFunctionPrototype(const CppContainer * cppContainer)
@@ -200,7 +201,7 @@ std::string BuilderFileWriter::getPartialCreationFunctionPrototype(const CppCont
 
 std::string BuilderFileWriter::getCreationFunctionName(const CppContainer * cppContainer)
 {
-	return normalizeSymbolName(this->config->getCreationFunctionPrefix() + "_" + this->getContainertName(cppContainer));
+	return normalizeSymbolName(this->getConfig()->getCreationFunctionPrefix() + "_" + this->getContainertName(cppContainer));
 }
 
 std::string BuilderFileWriter::getCreationFunctionPrototype(const CppContainer * cppContainer)
@@ -234,16 +235,6 @@ void BuilderFileWriter::doPrepareItemConainer(const CppItem * cppItem)
 //	this->doWriteSplittedCreationFunction(cppContainer);
 }
 
-CodeBlock * BuilderFileWriter::getDeclarationCodeBlock(FileType fileType)
-{
-	return this->getCodeBlock(fileType)->getNamedBlock(CodeBlockName_DeclarationArea, cbsTailEmptyLine);
-}
-
-CodeBlock * BuilderFileWriter::getImplementationCodeBlock(FileType fileType)
-{
-	return this->getCodeBlock(fileType)->getNamedBlock(CodeBlockName_ImplementionArea, cbsTailEmptyLine);
-}
-
 CodeBlock * BuilderFileWriter::getCodeBlock(FileType fileType)
 {
 	return (fileType == ftHeader ? this->getHeaderWriter() : this->getSourceWriter())->getCodeBlock();
@@ -273,19 +264,19 @@ BuilderSection * BuilderFileWriter::getContainerSection(const CppContainer * cpp
 
 CodeBlock * BuilderFileWriter::getReflectionBodyBlock(CodeBlock * codeBlock)
 {
-	return codeBlock->getNamedBlock(CodeBlockName_FunctionBody, cbsBracketAndIndent)->getNamedBlock("freeUse");
+	return codeBlock->getNamedBlock(CodeBlockName_FunctionBody, cbsBracketAndIndent)->getNamedBlock(CodeBlockName_Customize);
 }
 
 void BuilderFileWriter::initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer)
 {
-	const std::string & D = this->config->getMetaDefineParamName();
+	const std::string & D = this->getConfig()->getMetaDefineParamName();
 	CodeBlock * headerBlock = codeBlock->getNamedBlock(CodeBlockName_FunctionHeader);
 	const CppClass * cppClass = cppContainer->isClass() ? static_cast<const CppClass *>(cppContainer) : NULL;
 
 	string s = "template <typename " + D;
 	if(cppClass != NULL && cppClass->isChainedTemplate()) {
 		s.append(", ");
-		s.append(cppClass->getTextOfChainedTemplateParamList(itoWithType | itoWithName | itoWithDefaultValue));
+		s.append(cppClass->getTextOfChainedTemplateParamList(itoWithArgType | itoWithArgName | itoWithDefaultValue));
 	}
 	s.append(" >");
 	headerBlock->appendLine(s);
@@ -322,7 +313,7 @@ void BuilderFileWriter::initializePartialCreationFunction(CodeBlock * codeBlock,
 	string s;
 
 	if(cppClass != NULL && cppClass->isTemplate()) {
-		s = Poco::format("template <%s >", cppClass->getTextOfChainedTemplateParamList(itoWithType | itoWithName));
+		s = Poco::format("template <%s >", cppClass->getTextOfChainedTemplateParamList(itoWithArgType | itoWithArgName));
 		codeBlock->appendLine(s);
 	}
 	codeBlock->appendLine(prototype);
@@ -331,7 +322,7 @@ void BuilderFileWriter::initializePartialCreationFunction(CodeBlock * codeBlock,
 	string metaType;
 	if(cppClass != NULL) {
 		if(cppClass->isTemplate()) {
-			metaType = Poco::format("cpgf::GDefineMetaClass<%s<%s > >", cppClass->getOutputName(), cppClass->getTextOfChainedTemplateParamList(itoWithName));
+			metaType = Poco::format("cpgf::GDefineMetaClass<%s<%s > >", cppClass->getOutputName(), cppClass->getTextOfChainedTemplateParamList(itoWithArgName));
 		}
 		else {
 			metaType = Poco::format("cpgf::GDefineMetaClass<%s >", cppClass->getOutputName());
@@ -367,5 +358,65 @@ CodeBlock * BuilderFileWriter::getContainerReflectionCodeBlock(const CppContaine
 	BuilderSection * section = this->getContainerSection(cppContainer);
 	return this->getReflectionBodyBlock(section->getCodeBlock())->getNamedBlock(ItemNames[cppContainer->getCategory()], cbsTailEmptyLine);
 }
+
+CodeBlock * BuilderFileWriter::getWrapperClassCodeBlock(const CppItem * cppItem)
+{
+	BuilderSection * section = this->getWrapperClassSection(cppItem->getParent());
+	return section->getCodeBlock()->getNamedBlock(CodeBlockName_ClassBody, cbsBracket)
+		->getNamedBlock(getTextOfVisibility(cppItem->getVisibility()))
+		->getNamedBlock(CodeBlockName_Customize, cbsIndent | cbsTailEmptyLine)
+	;
+}
+
+BuilderSection * BuilderFileWriter::getWrapperClassSection(const CppContainer * cppContainer)
+{
+	BuilderSection * section;
+	ContainerSectionMapType::iterator it = this->wrapperClassSectionMap.find(cppContainer);
+	if(it == this->wrapperClassSectionMap.end()) {
+		section = this->sectionList->addSection(bstReflectionFunction, cppContainer);
+		this->wrapperClassSectionMap.insert(make_pair(cppContainer, section));
+
+		this->initializeWrapperClassOutline(section->getCodeBlock(), cppContainer);
+	}
+	else {
+		section = it->second;
+	}
+	return section;
+}
+
+void BuilderFileWriter::initializeWrapperClassOutline(CodeBlock * codeBlock, const CppContainer * cppContainer)
+{
+	if(! cppContainer->isClass()) {
+		GASSERT(false);
+		return;
+	}
+
+	const CppClass * cppClass = static_cast<const CppClass *>(cppContainer);
+	string s;
+	
+	if(cppClass->isTemplate()) {
+		s = Poco::format("template <%s >", cppClass->getTextOfChainedTemplateParamList(itoWithArgType | itoWithArgName));
+		codeBlock->appendLine(s);
+	}
+
+	s = Poco::format("class %s%s : public %s, public cpgf::GScriptWrapper",
+		cppClass->getName(), this->getConfig()->getClassWrapperPostfix(),
+		cppClass->getOutputName()
+	);
+	codeBlock->appendLine(s);
+
+	CodeBlock * bodyBlock = codeBlock->getNamedBlock(CodeBlockName_ClassBody, cbsBracket);
+	bodyBlock->appendLine("private:");
+	CodeBlock * superBlock = bodyBlock->appendBlock(cbsIndent | cbsTailEmptyLine);
+	s = Poco::format("typedef %s super;", cppClass->getOutputName());
+	superBlock->appendLine(s);
+	for(int i = ivFirst; i < ivCount; ++i) {
+		s = getTextOfVisibility(ItemVisibility(i));
+		CodeBlock * block = bodyBlock->getNamedBlock(s, cbsTailEmptyLine);
+		block->appendLine(s + ":");
+		block->getNamedBlock(CodeBlockName_Customize, cbsIndent | cbsTailEmptyLine);
+	}
+}
+
 
 } // namespace metagen

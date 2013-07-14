@@ -123,7 +123,7 @@ std::string CppClass::getTextOfTemplateParamList(const ItemTextOptionFlags & opt
 		string defaultValue;
 		if(kind == Decl::TemplateTypeParm) {
 			const TemplateTypeParmDecl * paramDecl = dyn_cast<TemplateTypeParmDecl>(namedDecl);
-			if(options.has(itoWithType)) {
+			if(options.has(itoWithArgType)) {
 				text.append(paramDecl->wasDeclaredWithTypename() ? "typename " : "class ");
 			}
 			text.append(paramDecl->getNameAsString());
@@ -133,7 +133,7 @@ std::string CppClass::getTextOfTemplateParamList(const ItemTextOptionFlags & opt
 		}
 		else if(kind == Decl::NonTypeTemplateParm) {
 			const NonTypeTemplateParmDecl * paramDecl = dyn_cast<NonTypeTemplateParmDecl>(namedDecl);
-			if(options.has(itoWithType)) {
+			if(options.has(itoWithArgType)) {
 				text.append(CppType(paramDecl->getType()).getQualifiedName(paramDecl->getNameAsString()));
 			}
 			else {
@@ -145,7 +145,7 @@ std::string CppClass::getTextOfTemplateParamList(const ItemTextOptionFlags & opt
 		}
 		else if(kind == Decl::TemplateTemplateParm) {
 			const TemplateTemplateParmDecl * paramDecl = dyn_cast<TemplateTemplateParmDecl>(namedDecl);
-			if(options.has(itoWithType)) {
+			if(options.has(itoWithArgType)) {
 				text.append(declToText(paramDecl));
 			}
 			else {

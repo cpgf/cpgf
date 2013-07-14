@@ -66,8 +66,6 @@ void BuilderClass::doWriteAsNestedClass(BuilderFileWriter * writer)
 
 	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppClass);
 
-	writer->getDeclarationCodeBlock(ftHeader)->appendUniqueLine(writer->getCreationFunctionPrototype(cppClass) + ";");
-
 	string s = Poco::format("%s(%s())",
 		writer->getReflectionAction("_class"),
 		writer->getCreationFunctionName(cppClass)

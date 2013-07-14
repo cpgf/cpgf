@@ -24,6 +24,7 @@ protected:
 	
 private:
 	void doWriterReflection(BuilderFileWriter * writer);
+	void doWriterClassWrapper(BuilderFileWriter * writer);
 };
 
 

@@ -9,6 +9,7 @@ Config::Config()
 		creationFunctionPrefix("createMetaClass_"),
 		mainRegisterFunctionPrefix("registerMain_"),
 		metaDefineParamName("D_d"),
+		classWrapperPostfix("Wrapper"),
 		wrapOperator(true),
 		wrapBitFields(true),
 		allowPublic(true),
@@ -41,6 +42,11 @@ const std::string & Config::getMainRegisterFunctionPrefix() const
 const std::string & Config::getMetaDefineParamName() const
 {
 	return this->metaDefineParamName;
+}
+
+const std::string & Config::getClassWrapperPostfix() const
+{
+	return this->classWrapperPostfix;
 }
 
 bool Config::shouldWrapOperator() const

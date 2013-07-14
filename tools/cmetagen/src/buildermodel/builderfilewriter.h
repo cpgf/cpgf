@@ -69,22 +69,22 @@ public:
 	CodeBlock * createBitFieldWrapperCodeBlock(const CppItem * cppItem);
 	CodeBlock * getParentReflectionCodeBlock(const CppItem * cppItem);
 	CodeBlock * getContainerReflectionCodeBlock(const CppContainer * cppContainer);
+	CodeBlock * getWrapperClassCodeBlock(const CppItem * cppItem);
 
 public: // auxiliary functions used by BuilderItem's
-	CodeBlock * getDeclarationCodeBlock(FileType fileType);
-	CodeBlock * getImplementationCodeBlock(FileType fileType);
-	
 	std::string getReflectionAction(const std::string & name);
 	
 	std::string getCreationFunctionName(const CppContainer * cppContainer);
 	std::string getCreationFunctionPrototype(const CppContainer * cppContainer);
 	
-private: // new
+private:
 	BuilderSection * getContainerSection(const CppContainer * cppContainer);
 	CodeBlock * getReflectionBodyBlock(CodeBlock * codeBlock);
 	void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer);
 	void createPartialCreationFunction(const CppContainer * cppContainer);
 	void initializePartialCreationFunction(CodeBlock * codeBlock, const CppContainer * cppContainer);
+	BuilderSection * getWrapperClassSection(const CppContainer * cppContainer);
+	void initializeWrapperClassOutline(CodeBlock * codeBlock, const CppContainer * cppContainer);
 
 private:
 	std::string getReflectionFunctionName(const CppContainer * cppContainer);
@@ -97,7 +97,6 @@ private:
 
 	void doWriteHeader();
 	void doWriteSource();
-	void setupFileCodeBlockStructure();
 
 	void doWriteReflectionFunction(const CppContainer * cppContainer);
 
@@ -115,6 +114,7 @@ private:
 private: // new
 	BuilderSectionList * sectionList;
 	ContainerSectionMapType containerSectionMap;
+	ContainerSectionMapType wrapperClassSectionMap;
 };
 
 

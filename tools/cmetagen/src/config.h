@@ -16,6 +16,7 @@ public:
 	const std::string & getCreationFunctionPrefix() const;
 	const std::string & getMainRegisterFunctionPrefix() const;
 	const std::string & getMetaDefineParamName() const;
+	const std::string & getClassWrapperPostfix() const;
 
 	bool shouldWrapOperator() const;
 	bool shouldWrapBitFields() const;
@@ -30,6 +31,7 @@ private:
 	std::string creationFunctionPrefix;
 	std::string mainRegisterFunctionPrefix;
 	std::string metaDefineParamName;
+	std::string classWrapperPostfix;
 
 	bool wrapOperator;
 	bool wrapBitFields;
