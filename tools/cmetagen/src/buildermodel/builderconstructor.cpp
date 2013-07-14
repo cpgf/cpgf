@@ -33,6 +33,7 @@ void BuilderConstructor::doWriteMetaData(BuilderFileWriter * writer)
 
 	if(this->getCppItem()->getParent()->isClass() && static_cast<BuilderClass *>(this->getParent())->shouldWrapClass()) {
 		this->doWriterClassWrapper(writer);
+		this->doWriterClassWrapperReflection(writer);
 	}
 }
 
@@ -40,6 +41,12 @@ void BuilderConstructor::doWriterReflection(BuilderFileWriter * writer)
 {
 	const CppConstructor * cppConstructor = this->getCppConstructor();
 	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppConstructor);
+	this->doWriterReflectionCode(writer, codeBlock);
+}
+
+void BuilderConstructor::doWriterReflectionCode(BuilderFileWriter * writer, CodeBlock * codeBlock)
+{
+	const CppConstructor * cppConstructor = this->getCppConstructor();
 
 	std::string s = Poco::format("%s<void * (%s)>());",
 		writer->getReflectionAction("_constructor"),
@@ -52,14 +59,10 @@ void BuilderConstructor::doWriterReflection(BuilderFileWriter * writer)
 void BuilderConstructor::doWriterClassWrapper(BuilderFileWriter * writer)
 {
 	const CppConstructor * cppConstructor = this->getCppConstructor();
-	CodeBlock * codeBlock = writer->getWrapperClassCodeBlock(cppConstructor);
-	string s;
-	s = Poco::format("%s(%s)",
-		cppConstructor->getParent()->getName(),
-		cppConstructor->getTextOfParamList(itoWithArgType | itoWithArgName | itoWithDefaultValue)
-	);
-	codeBlock->appendLine(s);
+	CodeBlock * codeBlock = writer->getClassWrapperCodeBlock(cppConstructor);
+	codeBlock->appendLine(cppConstructor->getText(itoWithName | itoWithArgType | itoWithArgName | itoWithDefaultValue));
 
+	string s;
 	codeBlock->incIndent();
 	s = Poco::format(": super(%s) {}",
 		cppConstructor->getTextOfParamList(itoWithArgName)
@@ -68,6 +71,13 @@ void BuilderConstructor::doWriterClassWrapper(BuilderFileWriter * writer)
 	codeBlock->decIndent();
 
 	codeBlock->appendBlankLine();
+}
+
+void BuilderConstructor::doWriterClassWrapperReflection(BuilderFileWriter * writer)
+{
+	const CppConstructor * cppConstructor = this->getCppConstructor();
+	CodeBlock * codeBlock = writer->getClassWrapperParentReflectionCodeBlock(cppConstructor);
+	this->doWriterReflectionCode(writer, codeBlock);
 }
 
 

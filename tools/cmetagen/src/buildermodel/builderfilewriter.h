@@ -69,7 +69,9 @@ public:
 	CodeBlock * createBitFieldWrapperCodeBlock(const CppItem * cppItem);
 	CodeBlock * getParentReflectionCodeBlock(const CppItem * cppItem);
 	CodeBlock * getContainerReflectionCodeBlock(const CppContainer * cppContainer);
-	CodeBlock * getWrapperClassCodeBlock(const CppItem * cppItem);
+	
+	CodeBlock * getClassWrapperCodeBlock(const CppItem * cppItem);
+	CodeBlock * getClassWrapperParentReflectionCodeBlock(const CppItem * cppItem);
 
 public: // auxiliary functions used by BuilderItem's
 	std::string getReflectionAction(const std::string & name);
@@ -81,18 +83,17 @@ private:
 	BuilderSection * getContainerSection(const CppContainer * cppContainer);
 	CodeBlock * getReflectionBodyBlock(CodeBlock * codeBlock);
 	void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer);
+	void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer, const std::string & functionName);
 	void createPartialCreationFunction(const CppContainer * cppContainer);
 	void initializePartialCreationFunction(CodeBlock * codeBlock, const CppContainer * cppContainer);
-	BuilderSection * getWrapperClassSection(const CppContainer * cppContainer);
-	void initializeWrapperClassOutline(CodeBlock * codeBlock, const CppContainer * cppContainer);
 
-private:
-	std::string getReflectionFunctionName(const CppContainer * cppContainer);
-	std::string getPartialCreationFunctionName(const CppContainer * cppContainer);
-	std::string getPartialCreationFunctionPrototype(const CppContainer * cppContainer);
+	BuilderSection * getClassWrapperSection(const CppContainer * cppContainer);
+	BuilderSection * getClassWrapperReflectionSection(const CppContainer * cppContainer);
+	void initializeClassWrapperOutline(CodeBlock * codeBlock, const CppContainer * cppContainer);
+	void initializeClassWrapperReflectionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer);
+	void createPartialClassWrapperCreationFunction(const CppContainer * cppContainer);
 
 	CodeBlock * getCodeBlock(FileType fileType);
-	std::string getContainertName(const CppContainer * cppContainer);
 	void doPrepareItemConainer(const CppItem * cppItem);
 
 	void doWriteHeader();
@@ -114,7 +115,10 @@ private:
 private: // new
 	BuilderSectionList * sectionList;
 	ContainerSectionMapType containerSectionMap;
+	// section map for wrapper class declaration
 	ContainerSectionMapType wrapperClassSectionMap;
+	// section map for wrapper class reflection function
+	ContainerSectionMapType wrapperClassReflectionSectionMap;
 };
 
 

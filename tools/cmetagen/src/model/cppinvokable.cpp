@@ -179,21 +179,68 @@ std::string CppInvokable::getTextOfParamList(const ItemTextOptionFlags & options
 		if(! text.empty()) {
 			text.append(",");
 		}
+
+		string name = (*it)->getNameAsString();
+		if(name.empty()) {
+			name = Poco::format("pAr9_Am%d", index);
+		}
 		if(options.has(itoWithArgType)) {
 			if(! text.empty()) {
 				text.append(" ");
 			}
-			text.append(CppType((*it)->getType()).getQualifiedName());
+			text.append(CppType((*it)->getType()).getQualifiedName(
+				options.has(itoWithArgName) ? name : ""
+				));
 		}
-		if(options.has(itoWithArgName)) {
+		else if(options.has(itoWithArgName)) {
 			if(! text.empty()) {
 				text.append(" ");
 			}
-			string name = (*it)->getNameAsString();
-			if(name.empty()) {
-				name = Poco::format("pAr9_Am%d", index);
-			}
 			text.append(name);
+		}
+		if(options.has(itoWithDefaultValue) && paramHasDefaultValue(index)) {
+			if(options.hasAny(itoWithArgType | itoWithArgName)) {
+				text.append(" = ");
+			}
+			text.append(this->getTextOfParamDeafultValue(index));
+		}
+	}
+
+	return text;
+}
+
+std::string CppInvokable::getText(const ItemTextOptionFlags & options) const
+{
+	string name = this->isConstructor() ? this->getParent()->getName() : this->getName();
+	return this->getTextWithReplacedName(options, name);
+}
+
+std::string CppInvokable::getTextWithReplacedName(const ItemTextOptionFlags & options, const std::string & replacedName) const
+{
+	string text;
+
+	if(options.hasAny(itoIncludeArg)) {
+		text = Poco::format("(%s)", this->getTextOfParamList(options));
+	}
+
+	if(options.has(itoWithName)) {
+		string name = replacedName;
+		if(options.has(itoWithParentName)) {
+			if(! this->isStatic()) {
+				name = this->getParent()->getOutputName() + "::" + name;
+			}
+			if(options.has(itoAsPointer)) {
+				name = Poco::format("(%s*)", name);
+			}
+		}
+		text = name + text;
+	}
+	if(options.has(itoWithResult) && ! this->isConstructor()) {
+		text = this->getResultType().getQualifiedName(text);
+	}
+	if(options.has(itoWithQualifiers)) {
+		if(this->isConst()) {
+			text = text + " const";
 		}
 	}
 

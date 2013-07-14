@@ -13,10 +13,13 @@ class CppItem;
 
 enum BuilderSectionType {
 	bstOperatorWrapperFunction = 0,
-	bstBitFieldWrapperFunction = 1,
-	bstReflectionFunction = 2,
-	bstPartialCreationFunction = 3,
-	bstClassWrapper = 4,
+	bstBitFieldWrapperFunction,
+	bstReflectionFunction,
+	bstPartialCreationFunction,
+
+	bstClassWrapper,
+	bstClassWrapperReflectionFunction,
+	bstClassWrapperPartialCreationFunction,
 };
 
 class BuilderSection

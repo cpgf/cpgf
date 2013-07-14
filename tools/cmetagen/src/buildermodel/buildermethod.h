@@ -24,7 +24,13 @@ protected:
 	
 private:
 	void doWriterReflection(BuilderFileWriter * writer);
+	void doWriterReflectionCode(BuilderFileWriter * writer, CodeBlock * codeBlock, const std::string & methodName);
+	void doWriterDefaultParameterReflection(CodeBlock * codeBlock);
+
 	void doWriterClassWrapper(BuilderFileWriter * writer);
+	void doWriterClassWrapperMethodBody(CodeBlock * codeBlock);
+	void doWriterClassWrapperCallSuperMethod(CodeBlock * codeBlock);
+	void doWriterClassWrapperReflection(BuilderFileWriter * writer);
 };
 
 

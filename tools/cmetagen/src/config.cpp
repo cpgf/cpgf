@@ -10,13 +10,14 @@ Config::Config()
 		mainRegisterFunctionPrefix("registerMain_"),
 		metaDefineParamName("D_d"),
 		classWrapperPostfix("Wrapper"),
+		classWrapperSuperPrefix("super_"),
 		wrapOperator(true),
 		wrapBitFields(true),
 		allowPublic(true),
 		allowProtected(false),
 		allowPrivate(false)
 {
-//maxItemCountPerFile = 5;
+maxItemCountPerFile = 5;
 }
 
 size_t Config::getMaxItemCountPerFile() const
@@ -47,6 +48,11 @@ const std::string & Config::getMetaDefineParamName() const
 const std::string & Config::getClassWrapperPostfix() const
 {
 	return this->classWrapperPostfix;
+}
+
+const std::string & Config::getClassWrapperSuperPrefix() const
+{
+	return this->classWrapperSuperPrefix;
 }
 
 bool Config::shouldWrapOperator() const

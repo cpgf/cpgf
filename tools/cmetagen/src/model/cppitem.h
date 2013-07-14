@@ -31,7 +31,14 @@ enum ItemTextOption
 {
 	itoWithArgType = 1 << 0,
 	itoWithArgName = 1 << 1,
-	itoWithDefaultValue = 1 << 2
+	itoWithDefaultValue = 1 << 2,
+	itoIncludeArg = itoWithArgType | itoWithArgName | itoWithDefaultValue,
+	
+	itoWithResult = 1 << 3,
+	itoWithName = 1 << 4,
+	itoWithQualifiers = 1 << 5,
+	itoAsPointer = 1 << 6,
+	itoWithParentName = 1 << 7
 };
 
 typedef cpgf::GFlags<ItemTextOption> ItemTextOptionFlags;
