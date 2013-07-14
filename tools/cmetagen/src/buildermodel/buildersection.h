@@ -20,6 +20,8 @@ enum BuilderSectionType {
 	bstClassWrapper,
 	bstClassWrapperReflectionFunction,
 	bstClassWrapperPartialCreationFunction,
+	
+	bstCount
 };
 
 class BuilderSection
@@ -28,10 +30,19 @@ public:
 	explicit BuilderSection(BuilderSectionType type, const CppItem * cppItem);
 	
 	CodeBlock * getCodeBlock() const;
+	BuilderSectionType getType() const;
+
+	void addPayload(size_t payload);	
+	size_t getTotalPayload() const;
+
+	void setIndex(size_t index);	
+	size_t getIndex() const;
 
 private:
 	BuilderSectionType type;
 	const CppItem * cppItem;
+	size_t totalPayload;
+	size_t index;
 	cpgf::GScopedPointer<CodeBlock> codeBlock;
 };
 

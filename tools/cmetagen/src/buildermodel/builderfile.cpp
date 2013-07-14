@@ -42,26 +42,26 @@ void BuilderFile::prepare()
 
 void BuilderFile::createFileWriters()
 {
-	BuilderFileWriter * currentFile = new BuilderFileWriter(0, this->getConfig(), this->headerWriter.get());
+	BuilderFileWriter * currentFile = new BuilderFileWriter(this->getConfig(), this->headerWriter.get());
 	this->builderFileWriterList.push_back(currentFile);
 
 	int itemCountInWriter = 0;
 	for(ItemListType::iterator it = this->getItemList()->begin(); it != this->getItemList()->end(); ++it) {
 		currentFile->getItemList()->push_back(*it);
-		if(this->getConfig()->getMaxItemCountPerFile() > 0) {
-			const CppItem * item = (*it)->getCppItem();
-			if(item->isFile() || item->isNamespace() || item->isClass()) {
-			}
-			else {
-				++itemCountInWriter;
-			}
-			if(itemCountInWriter >= this->getConfig()->getMaxItemCountPerFile()) {
-				currentFile = new BuilderFileWriter(this->builderFileWriterList.size(), this->getConfig(), this->headerWriter.get());
-				this->builderFileWriterList[this->builderFileWriterList.size() - 1]->setNextFile(currentFile);
-				this->builderFileWriterList.push_back(currentFile);
-				itemCountInWriter = 0;
-			}
-		}
+		//if(this->getConfig()->getMaxItemCountPerFile() > 0) {
+		//	const CppItem * item = (*it)->getCppItem();
+		//	if(item->isFile() || item->isNamespace() || item->isClass()) {
+		//	}
+		//	else {
+		//		++itemCountInWriter;
+		//	}
+		//	if(itemCountInWriter >= this->getConfig()->getMaxItemCountPerFile()) {
+		//		currentFile = new BuilderFileWriter(this->builderFileWriterList.size(), this->getConfig(), this->headerWriter.get());
+		//		this->builderFileWriterList[this->builderFileWriterList.size() - 1]->setNextFile(currentFile);
+		//		this->builderFileWriterList.push_back(currentFile);
+		//		itemCountInWriter = 0;
+		//	}
+		//}
 	}
 }
 

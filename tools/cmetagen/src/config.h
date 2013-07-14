@@ -11,6 +11,7 @@ class Config
 public:
 	Config();
 
+	bool shouldSplitFile() const;
 	size_t getMaxItemCountPerFile() const;
 	const std::string & getReflectionFunctionPrefix() const;
 	const std::string & getCreationFunctionPrefix() const;

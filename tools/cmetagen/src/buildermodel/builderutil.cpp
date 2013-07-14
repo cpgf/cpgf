@@ -1,6 +1,8 @@
 #include "builderutil.h"
 #include "model/cppitem.h"
 #include "model/cppcontainer.h"
+#include "model/cppinvokable.h"
+#include "model/cppenum.h"
 #include "util.h"
 #include "config.h"
 
@@ -38,6 +40,26 @@ bool isVisibilityAllowed(ItemVisibility visibility, const Config * config)
 	return true;
 }
 
+size_t getCppItemPayload(const CppItem * item)
+{
+	if(item->isFile() || item->isNamespace()) {
+		return 0;
+	}
+	int payload = 1;
+	if(item->isInvokable()) {
+		const CppInvokable * invokable = static_cast<const CppInvokable *>(item);
+		for(size_t i = 0; i < invokable->getArity(); ++i) {
+			if(invokable->paramHasDefaultValue(i)) {
+				++payload;
+			}
+		}
+	}
+	else if(item->isEnum()) {
+		payload += static_cast<const CppEnum *>(item)->getValueList()->size();
+	}
+	return payload;
+}
+
 string getContainertName(const CppContainer * cppContainer)
 {
 	string result;
@@ -52,12 +74,12 @@ string getContainertName(const CppContainer * cppContainer)
 	return result;
 }
 
-string getIndexName(int fileIndex)
+string getSectionIndexName(int sectionIndex)
 {
 	string result;
 
-	if(fileIndex > 0) {
-		Poco::format(result, "_%d", fileIndex);
+	if(sectionIndex > 0) {
+		Poco::format(result, "_%d", sectionIndex);
 	}
 
 	return result;
@@ -65,7 +87,7 @@ string getIndexName(int fileIndex)
 
 std::string getPartialCreationFunctionName(const Config * config, const CppContainer * cppContainer, int index)
 {
-	return normalizeSymbolName("partial_" + config->getCreationFunctionPrefix() + "_" + getContainertName(cppContainer) + getIndexName(index));
+	return normalizeSymbolName("partial_" + config->getCreationFunctionPrefix() + "_" + getContainertName(cppContainer) + getSectionIndexName(index));
 }
 
 std::string getPartialCreationFunctionPrototype(const Config * config, const CppContainer * cppContainer, int index)
@@ -74,9 +96,14 @@ std::string getPartialCreationFunctionPrototype(const Config * config, const Cpp
 	return Poco::format("void %s(cpgf::GDefineMetaInfo metaInfo)", creationName);
 }
 
-std::string getReflectionFunctionName(const Config * config, const CppContainer * cppContainer, int index)
+std::string getReflectionFunctionName(const Config * config, const CppContainer * cppContainer,
+									  int index, const std::string & postfix)
 {
-	return normalizeSymbolName(config->getReflectionFunctionPrefix() + "_" + getContainertName(cppContainer) + getIndexName(index));
+	return normalizeSymbolName(config->getReflectionFunctionPrefix()
+		+ "_"
+		+ getContainertName(cppContainer)
+		+ postfix
+		+ getSectionIndexName(index));
 }
 
 

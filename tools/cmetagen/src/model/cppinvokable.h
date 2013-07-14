@@ -17,6 +17,7 @@ private:
 public:
 	explicit CppInvokable(const clang::Decl * decl);
 	
+	virtual bool isInvokable() const { return true; }
 	bool isStatic() const;
 	bool isConst() const;
 	bool isVirtual() const;

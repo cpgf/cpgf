@@ -41,9 +41,8 @@ string getTextOfVisibility(ItemVisibility visibility)
 	}
 }
 
-BuilderFileWriter::BuilderFileWriter(int fileIndex, const Config * config, CppWriter * headerWriter)
-	:	fileIndex(fileIndex),
-		config(config),
+BuilderFileWriter::BuilderFileWriter(const Config * config, CppWriter * headerWriter)
+	:	config(config),
 		headerWriter(headerWriter),
 		sourceWriter(new CppWriter()),
 		nextFile(NULL),
@@ -57,9 +56,6 @@ BuilderFileWriter::~BuilderFileWriter()
 
 void BuilderFileWriter::prepare()
 {
-	for(ItemListType::iterator it = this->itemList.begin(); it != this->itemList.end(); ++it) {
-		this->doPrepareItemConainer((*it)->getCppItem());
-	}
 }
 
 /*
@@ -155,7 +151,7 @@ void BuilderFileWriter::doWriteSource()
 {
 	CodeWriter codeWriter;
 	this->getSourceWriter()->write(&codeWriter);
-	printf("===========Source %d\n", this->fileIndex);
+	printf("===========Source");
 	printf("%s\n\n", codeWriter.getText().c_str());
 }
 
@@ -170,31 +166,6 @@ std::string BuilderFileWriter::getCreationFunctionPrototype(const CppContainer *
 	return Poco::format("cpgf::GDefineMetaInfo %s()", creationName);
 }
 
-void BuilderFileWriter::doPrepareItemConainer(const CppItem * cppItem)
-{
-	const CppContainer * cppContainer;
-
-	if(cppItem->isContainer()) {
-		cppContainer = static_cast<const CppContainer *>(cppItem);
-	}
-	else {
-		cppContainer = cppItem->getNamedParent();
-	}
-
-	string reflectionName = getReflectionFunctionName(this->getConfig(), cppContainer, this->fileIndex);
-	if(this->generatedFunctionItemNames.find(reflectionName) != this->generatedFunctionItemNames.end()) {
-		return;
-	}
-	this->generatedFunctionItemNames.insert(reflectionName);
-	this->containerNameMap.insert(make_pair(cppContainer, ContainerName(
-		getPartialCreationFunctionName(this->getConfig(), cppContainer, this->fileIndex),
-		getPartialCreationFunctionPrototype(this->getConfig(), cppContainer, this->fileIndex)
-		)
-	));
-
-//	this->doWriteSplittedCreationFunction(cppContainer);
-}
-
 CodeBlock * BuilderFileWriter::getCodeBlock(FileType fileType)
 {
 	return (fileType == ftHeader ? this->getHeaderWriter() : this->getSourceWriter())->getCodeBlock();
@@ -205,20 +176,49 @@ std::string BuilderFileWriter::getReflectionAction(const std::string & name)
 	return "_d.CPGF_MD_TEMPLATE " + name;
 }
 
-BuilderSection * BuilderFileWriter::getContainerSection(const CppContainer * cppContainer)
+BuilderSection * getSection(const Config * config, BuilderSectionList * sectionList,
+	std::multimap<const CppContainer *, BuilderSection *> * sectionMap,
+	const CppContainer * cppContainer, const CppItem * payloadItem, bool * isNewSection)
 {
-	BuilderSection * section;
-	ContainerSectionMapType::iterator it = this->containerSectionMap.find(cppContainer);
-	if(it == this->containerSectionMap.end()) {
-		section = this->sectionList->addSection(bstReflectionFunction, cppContainer);
-		this->containerSectionMap.insert(make_pair(cppContainer, section));
+	*isNewSection = false;
+	size_t payload = getCppItemPayload(payloadItem);
+	BuilderSection * section = NULL;
+	std::multimap<const CppContainer *, BuilderSection *>::iterator it = sectionMap->find(cppContainer);
+	int existingSectionCount = 0;
+	if(it != sectionMap->end()) {
+		while(it != sectionMap->end() && it->first == cppContainer) {
+			++existingSectionCount;
+			if(config->shouldSplitFile()
+				&& it->second->getTotalPayload() + payload > config->getMaxItemCountPerFile()) {
+				++it;
+				continue;
+			}
+			section = it->second;
+			break;
+		}
+	}
+	if(section == NULL) {
+		*isNewSection = true;
+		section = sectionList->addSection(bstReflectionFunction, cppContainer);
+		section->setIndex(existingSectionCount);
+		sectionMap->insert(make_pair(cppContainer, section));
+	}
+	
+	section->addPayload(payload);
 
-		this->initializeReflectionFunctionOutline(section->getCodeBlock(), cppContainer);
-		this->createPartialCreationFunction(cppContainer);
+	return section;
+}
+
+BuilderSection * BuilderFileWriter::getReflectionContainerSection(const CppContainer * cppContainer, const CppItem * payloadItem)
+{
+	bool isNewSection;
+	BuilderSection * section = getSection(this->getConfig(), this->sectionList,
+		&this->reflectionSectionMap, cppContainer, payloadItem, &isNewSection);
+	if(isNewSection) {
+		this->initializeReflectionFunctionOutline(section->getCodeBlock(), cppContainer, section->getIndex());
+		this->createPartialCreationFunction(cppContainer, section->getIndex());
 	}
-	else {
-		section = it->second;
-	}
+	
 	return section;
 }
 
@@ -227,10 +227,11 @@ CodeBlock * BuilderFileWriter::getReflectionBodyBlock(CodeBlock * codeBlock)
 	return codeBlock->getNamedBlock(CodeBlockName_FunctionBody, cbsBracketAndIndent)->getNamedBlock(CodeBlockName_Customize);
 }
 
-void BuilderFileWriter::initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer)
+void BuilderFileWriter::initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer,
+															int sectionIndex)
 {
 	this->initializeReflectionFunctionOutline(codeBlock, cppContainer,
-		getReflectionFunctionName(this->getConfig(), cppContainer, this->fileIndex));
+		getReflectionFunctionName(this->getConfig(), cppContainer, sectionIndex));
 }
 
 void BuilderFileWriter::initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer,
@@ -261,20 +262,21 @@ void BuilderFileWriter::initializeReflectionFunctionOutline(CodeBlock * codeBloc
 	}
 }
 
-void BuilderFileWriter::createPartialCreationFunction(const CppContainer * cppContainer)
+void BuilderFileWriter::createPartialCreationFunction(const CppContainer * cppContainer, int sectionIndex)
 {
 	BuilderSection * section = this->sectionList->addSection(bstPartialCreationFunction, cppContainer);
-	this->initializePartialCreationFunction(section->getCodeBlock(), cppContainer);
+	this->initializePartialCreationFunction(section->getCodeBlock(), cppContainer, sectionIndex);
 }
 
-void BuilderFileWriter::initializePartialCreationFunction(CodeBlock * codeBlock, const CppContainer * cppContainer)
+void BuilderFileWriter::initializePartialCreationFunction(CodeBlock * codeBlock,
+														  const CppContainer * cppContainer, int sectionIndex)
 {
 	const CppClass * cppClass = NULL;
 	if(cppContainer->isClass()) {
 		cppClass = static_cast<const CppClass *>(cppContainer);
 	}
 
-	string prototype = getPartialCreationFunctionPrototype(this->getConfig(), cppContainer, this->fileIndex);
+	string prototype = getPartialCreationFunctionPrototype(this->getConfig(), cppContainer, sectionIndex);
 
 	string s;
 
@@ -300,7 +302,7 @@ void BuilderFileWriter::initializePartialCreationFunction(CodeBlock * codeBlock,
 	s = Poco::format("%s meta = %s::fromMetaClass(metaInfo.getMetaClass());", metaType, metaType);
 	bodyBlock->appendLine(s);
 	s = Poco::format("%s(meta);",
-		getReflectionFunctionName(this->getConfig(), cppContainer, this->fileIndex));
+		getReflectionFunctionName(this->getConfig(), cppContainer, sectionIndex));
 	bodyBlock->appendLine(s);
 }
 
@@ -316,13 +318,13 @@ CodeBlock * BuilderFileWriter::createBitFieldWrapperCodeBlock(const CppItem * cp
 
 CodeBlock * BuilderFileWriter::getParentReflectionCodeBlock(const CppItem * cppItem)
 {
-	BuilderSection * section = this->getContainerSection(cppItem->getParent());
+	BuilderSection * section = this->getReflectionContainerSection(cppItem->getParent(), cppItem);
 	return this->getReflectionBodyBlock(section->getCodeBlock())->getNamedBlock(ItemNames[cppItem->getCategory()], cbsTailEmptyLine);
 }
 
 CodeBlock * BuilderFileWriter::getContainerReflectionCodeBlock(const CppContainer * cppContainer)
 {
-	BuilderSection * section = this->getContainerSection(cppContainer);
+	BuilderSection * section = this->getReflectionContainerSection(cppContainer, cppContainer);
 	return this->getReflectionBodyBlock(section->getCodeBlock())->getNamedBlock(ItemNames[cppContainer->getCategory()], cbsTailEmptyLine);
 }
 
@@ -344,7 +346,7 @@ BuilderSection * BuilderFileWriter::getClassWrapperSection(const CppContainer * 
 		this->wrapperClassSectionMap.insert(make_pair(cppContainer, section));
 
 		this->initializeClassWrapperOutline(section->getCodeBlock(), cppContainer);
-		this->createPartialClassWrapperCreationFunction(cppContainer);
+		this->createPartialClassWrapperCreationFunction(cppContainer, section->getIndex());
 	}
 	else {
 		section = it->second;
@@ -352,19 +354,16 @@ BuilderSection * BuilderFileWriter::getClassWrapperSection(const CppContainer * 
 	return section;
 }
 
-BuilderSection * BuilderFileWriter::getClassWrapperReflectionSection(const CppContainer * cppContainer)
+BuilderSection * BuilderFileWriter::getClassWrapperReflectionSection(const CppContainer * cppContainer,
+																	 const CppItem * payloadItem)
 {
-	BuilderSection * section;
-	ContainerSectionMapType::iterator it = this->wrapperClassReflectionSectionMap.find(cppContainer);
-	if(it == this->wrapperClassReflectionSectionMap.end()) {
-		section = this->sectionList->addSection(bstClassWrapperReflectionFunction, cppContainer);
-		this->wrapperClassReflectionSectionMap.insert(make_pair(cppContainer, section));
-
-		this->initializeClassWrapperReflectionOutline(section->getCodeBlock(), cppContainer);
+	bool isNewSection;
+	BuilderSection * section = getSection(this->getConfig(), this->sectionList,
+		&this->wrapperClassReflectionSectionMap, cppContainer, payloadItem, &isNewSection);
+	if(isNewSection) {
+		this->initializeClassWrapperReflectionOutline(section->getCodeBlock(), cppContainer, section->getIndex());
 	}
-	else {
-		section = it->second;
-	}
+	
 	return section;
 }
 
@@ -402,24 +401,24 @@ void BuilderFileWriter::initializeClassWrapperOutline(CodeBlock * codeBlock, con
 	}
 }
 
-void BuilderFileWriter::initializeClassWrapperReflectionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer)
+void BuilderFileWriter::initializeClassWrapperReflectionOutline(CodeBlock * codeBlock,
+																const CppContainer * cppContainer, int sectionIndex)
 {
 	this->initializeReflectionFunctionOutline(codeBlock, cppContainer,
-		getReflectionFunctionName(this->getConfig(), cppContainer, this->fileIndex)
-			+ this->getConfig()->getClassWrapperPostfix()
+		getReflectionFunctionName(this->getConfig(), cppContainer, sectionIndex, this->getConfig()->getClassWrapperPostfix())
 		);
 }
 
 CodeBlock * BuilderFileWriter::getClassWrapperParentReflectionCodeBlock(const CppItem * cppItem)
 {
-	BuilderSection * section = this->getClassWrapperReflectionSection(cppItem->getParent());
+	BuilderSection * section = this->getClassWrapperReflectionSection(cppItem->getParent(), cppItem);
 	return this->getReflectionBodyBlock(section->getCodeBlock())->getNamedBlock(ItemNames[cppItem->getCategory()], cbsTailEmptyLine);
 }
 
-void BuilderFileWriter::createPartialClassWrapperCreationFunction(const CppContainer * cppContainer)
+void BuilderFileWriter::createPartialClassWrapperCreationFunction(const CppContainer * cppContainer, int sectionIndex)
 {
 	BuilderSection * section = this->sectionList->addSection(bstClassWrapperPartialCreationFunction, cppContainer);
-	this->initializePartialCreationFunction(section->getCodeBlock(), cppContainer);
+	this->initializePartialCreationFunction(section->getCodeBlock(), cppContainer, sectionIndex);
 }
 
 

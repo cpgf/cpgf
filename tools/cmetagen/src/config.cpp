@@ -20,6 +20,11 @@ Config::Config()
 maxItemCountPerFile = 5;
 }
 
+bool Config::shouldSplitFile() const
+{
+	return this->getMaxItemCountPerFile() > 0;
+}
+
 size_t Config::getMaxItemCountPerFile() const
 {
 	return this->maxItemCountPerFile;

@@ -87,6 +87,7 @@ public:
 	bool isField() const { return this->getCategory() == icField; }
 	bool isMethod() const { return this->getCategory() == icMethod; }
 	bool isOperator() const { return this->getCategory() == icOperator; }
+	virtual bool isInvokable() const { return false; }
 	
 	bool isGlobal() const;
 	bool isNestedClass() const;

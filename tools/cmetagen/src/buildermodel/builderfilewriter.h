@@ -45,15 +45,15 @@ private:
 	typedef std::map<const CppContainer *, ContainerName> ContainerNameMapType;
 	
 	typedef std::map<const CppContainer *, BuilderSection *> ContainerSectionMapType;
+	typedef std::multimap<const CppContainer *, BuilderSection *> ReflectionSectionMultimapType;
 
 public:
-	BuilderFileWriter(int fileIndex, const Config * config, CppWriter * headerWriter);
+	BuilderFileWriter(const Config * config, CppWriter * headerWriter);
 	~BuilderFileWriter();
 	
 	CppWriter * getHeaderWriter() const { return this->headerWriter; }
 	CppWriter * getSourceWriter() const { return this->sourceWriter.get(); }
 
-	int getFileIndex() const { return this->fileIndex; }
 	const Config * getConfig() const { return this->config; }
 
 	ItemListType * getItemList() { return &this->itemList; }
@@ -80,21 +80,21 @@ public: // auxiliary functions used by BuilderItem's
 	std::string getCreationFunctionPrototype(const CppContainer * cppContainer);
 	
 private:
-	BuilderSection * getContainerSection(const CppContainer * cppContainer);
+	BuilderSection * getReflectionContainerSection(const CppContainer * cppContainer, const CppItem * payloadItem);
 	CodeBlock * getReflectionBodyBlock(CodeBlock * codeBlock);
-	void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer);
-	void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer, const std::string & functionName);
-	void createPartialCreationFunction(const CppContainer * cppContainer);
-	void initializePartialCreationFunction(CodeBlock * codeBlock, const CppContainer * cppContainer);
+	void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer, int sectionIndex);
+	void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer,
+		const std::string & functionName);
+	void createPartialCreationFunction(const CppContainer * cppContainer, int sectionIndex);
+	void initializePartialCreationFunction(CodeBlock * codeBlock, const CppContainer * cppContainer, int sectionIndex);
 
 	BuilderSection * getClassWrapperSection(const CppContainer * cppContainer);
-	BuilderSection * getClassWrapperReflectionSection(const CppContainer * cppContainer);
+	BuilderSection * getClassWrapperReflectionSection(const CppContainer * cppContainer, const CppItem * payloadItem);
 	void initializeClassWrapperOutline(CodeBlock * codeBlock, const CppContainer * cppContainer);
-	void initializeClassWrapperReflectionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer);
-	void createPartialClassWrapperCreationFunction(const CppContainer * cppContainer);
+	void initializeClassWrapperReflectionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer, int sectionIndex);
+	void createPartialClassWrapperCreationFunction(const CppContainer * cppContainer, int sectionIndex);
 
 	CodeBlock * getCodeBlock(FileType fileType);
-	void doPrepareItemConainer(const CppItem * cppItem);
 
 	void doWriteHeader();
 	void doWriteSource();
@@ -102,7 +102,6 @@ private:
 	void doWriteReflectionFunction(const CppContainer * cppContainer);
 
 private:
-	int fileIndex;
 	const Config * config;
 	CppWriter * headerWriter;
 	cpgf::GScopedPointer<CppWriter> sourceWriter;
@@ -114,11 +113,11 @@ private:
 	
 private: // new
 	BuilderSectionList * sectionList;
-	ContainerSectionMapType containerSectionMap;
+	ReflectionSectionMultimapType reflectionSectionMap;
 	// section map for wrapper class declaration
 	ContainerSectionMapType wrapperClassSectionMap;
 	// section map for wrapper class reflection function
-	ContainerSectionMapType wrapperClassReflectionSectionMap;
+	ReflectionSectionMultimapType wrapperClassReflectionSectionMap;
 };
 
 
