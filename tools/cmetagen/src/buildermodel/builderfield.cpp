@@ -32,7 +32,7 @@ const CppField * BuilderField::getCppField() const
 		
 bool BuilderField::canBind() const
 {
-	if(this->getCppField()->isBitField() && ! this->getConfig()->shouldWrapBitFields()) {
+	if(this->getCppField()->isBitField() && ! this->getProject()->shouldWrapBitFields()) {
 		return false;
 	}
 	
@@ -99,7 +99,7 @@ void BuilderField::doWriteBitFieldWrapper(BuilderFileWriter * writer)
 	setterBody->appendLine(s);
 
 	// reflection
-	string templateParam = "<" + getReflectionClassName(this->getConfig()) + ">";
+	string templateParam = "<" + getReflectionClassName(this->getProject()) + ">";
 	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppField);
 	s = Poco::format("%s(\"%s\", &%s, &%s, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());",
 		writer->getReflectionAction("_property"),

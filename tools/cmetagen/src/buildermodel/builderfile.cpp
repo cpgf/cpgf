@@ -31,14 +31,14 @@ void BuilderFile::doWriteMetaData(BuilderFileWriter * /*writer*/)
 
 void BuilderFile::outputFiles()
 {
-	BuilderSectionList sectionList;
-	BuilderFileWriter currentFile(this->getConfig());
-	for(ItemListType::iterator it = this->getItemList()->begin(); it != this->getItemList()->end(); ++it) {
-		currentFile.getItemList()->push_back(*it);
-	}
-	currentFile.generateCode(&sectionList);
+	//BuilderSectionList sectionList;
+	//BuilderFileWriter currentFile(this->getProject());
+	//for(ItemListType::iterator it = this->getItemList()->begin(); it != this->getItemList()->end(); ++it) {
+	//	currentFile.getItemList()->push_back(*it);
+	//}
+	//currentFile.generateCode(&sectionList);
 
-	sectionList.dump();
+	//sectionList.dump();
 }
 
 

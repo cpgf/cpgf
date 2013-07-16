@@ -18,6 +18,7 @@ class CodeBlock;
 class BuilderItem;
 class BuilderSection;
 class BuilderSectionList;
+class BuilderContext;
 class Project;
 
 enum FileType {
@@ -30,33 +31,16 @@ public:
 	typedef std::vector<BuilderItem *> ItemListType;
 	
 private:
-	struct ContainerName {
-		ContainerName(const std::string & creationFunctionName,
-			const std::string & creationPrototype)
-			: creationFunctionName(creationFunctionName),
-				creationPrototype(creationPrototype)
-		{}
-
-		std::string creationFunctionName;
-		std::string creationPrototype;
-	};
-
-	typedef std::set<std::string> StringSetType;
-	typedef std::map<const CppContainer *, ContainerName> ContainerNameMapType;
-	
 	typedef std::map<const CppContainer *, BuilderSection *> ContainerSectionMapType;
 	typedef std::multimap<const CppContainer *, BuilderSection *> ReflectionSectionMultimapType;
 
 public:
-	explicit BuilderFileWriter(const Project * project);
+	explicit BuilderFileWriter(BuilderContext * builderContext);
 	~BuilderFileWriter();
 	
-	const Project * getConfig() const { return this->project; }
+	const Project * getProject() const;
 
-	ItemListType * getItemList() { return &this->itemList; }
-	void setNextFile(BuilderFileWriter * nextFile) { this->nextFile = nextFile; }
-
-	void generateCode(BuilderSectionList * sectionList);
+	void generateCode();
 
 public:
 	CodeBlock * createOperatorWrapperCodeBlock(const CppItem * cppItem);
@@ -90,18 +74,11 @@ private:
 
 	void doWriteReflectionFunction(const CppContainer * cppContainer);
 
+	ItemListType * getItemList();
 	BuilderSectionList * getSectionList();
 
 private:
-	const Project * project;
-	ItemListType itemList;
-	BuilderFileWriter * nextFile;
-
-	StringSetType generatedFunctionItemNames;
-	ContainerNameMapType containerNameMap;
-	
-private: // new
-	BuilderSectionList * sectionList;
+	BuilderContext * builderContext;
 	ReflectionSectionMultimapType reflectionSectionMap;
 	// section map for wrapper class declaration
 	ContainerSectionMapType wrapperClassSectionMap;

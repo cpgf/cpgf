@@ -47,7 +47,7 @@ void BuilderClass::doWriteBaseClasses(BuilderFileWriter * writer)
 	for(CppClass::BaseClassListType::const_iterator it = cppClass->getBaseClassList()->begin();
 		it != cppClass->getBaseClassList()->end();
 		++it) {
-		if(isVisibilityAllowed((*it)->getVisibility(), this->getConfig())) {
+		if(isVisibilityAllowed((*it)->getVisibility(), this->getProject())) {
 			string s = Poco::format("%s<%s >());",
 				writer->getReflectionAction("_base"),
 				(*it)->getQualifiedName()

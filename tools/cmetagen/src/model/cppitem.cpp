@@ -87,9 +87,9 @@ const clang::ASTContext * CppItem::getASTContext() const
 	return &this->declaration->getASTContext();
 }
 
-const Project * CppItem::getConfig() const
+const Project * CppItem::getProject() const
 {
-	return this->getCppContext()->getConfig();
+	return this->getCppContext()->getProject();
 }
 
 bool CppItem::isGlobal() const

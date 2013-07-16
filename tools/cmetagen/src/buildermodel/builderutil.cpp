@@ -24,7 +24,7 @@ std::string getReflectionScope(const CppItem * item)
 		return "";
 	}
 	else {
-		return getReflectionClassName(item->getConfig()) + "::";
+		return getReflectionClassName(item->getProject()) + "::";
 	}
 }
 

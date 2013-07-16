@@ -15,11 +15,12 @@ class CppContanier;
 class CppFile;
 class BuilderFile;
 class BuilderContainer;
+class BuilderSectionList;
 class Project;
 
 class BuilderContext
 {
-private:
+public:
 	typedef std::vector<BuilderItem *> ItemListType;
 
 public:
@@ -27,6 +28,10 @@ public:
 	~BuilderContext();
 
 	void process(const CppContext * cppContext);
+	
+	const Project * getProject() const { return this->project; }
+	ItemListType * getItemList() { return &this->itemList; }
+	BuilderSectionList * getSectionList() { return this->sectionList.get(); }
 
 protected:
 	void doProcessFile(const CppFile * cppFile);
@@ -41,6 +46,7 @@ protected:
 private:
 	const Project * project;
 	ItemListType itemList;
+	cpgf::GScopedPointer<BuilderSectionList> sectionList;
 };
 
 

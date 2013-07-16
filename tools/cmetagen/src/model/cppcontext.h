@@ -26,7 +26,7 @@ public:
 	~CppContext();
 	
 	CppFile * getCppFile() const { return this->cppFile.get(); }
-	const Project * getConfig() const { return this->project; }
+	const Project * getProject() const { return this->project; }
 	
 	const CppNamedItem * findNamedItem(ItemCategory category, const std::string & qualifiedName) const;
 	

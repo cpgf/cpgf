@@ -128,7 +128,7 @@ void BuilderMethod::doWriterClassWrapper(BuilderFileWriter * writer)
 	codeBlock->appendLine(s);
 	this->doWriterClassWrapperMethodBody(codeBlock->appendBlock(cbsBracketAndIndent));
 
-	s = cppMethod->getTextWithReplacedName(options, writer->getConfig()->getClassWrapperSuperPrefix() + cppMethod->getName());
+	s = cppMethod->getTextWithReplacedName(options, writer->getProject()->getClassWrapperSuperPrefix() + cppMethod->getName());
 	codeBlock->appendLine(s);
 	this->doWriterClassWrapperCallSuperMethod(codeBlock->appendBlock(cbsBracketAndIndent));
 }
@@ -180,7 +180,7 @@ void BuilderMethod::doWriterClassWrapperReflection(BuilderFileWriter * writer)
 {
 	const CppMethod * cppMethod = this->getCppMethod();
 	CodeBlock * codeBlock = writer->getClassWrapperParentReflectionCodeBlock(cppMethod);
-	this->doWriterReflectionCode(writer, codeBlock, writer->getConfig()->getClassWrapperSuperPrefix() + cppMethod->getName());
+	this->doWriterReflectionCode(writer, codeBlock, writer->getProject()->getClassWrapperSuperPrefix() + cppMethod->getName());
 }
 
 

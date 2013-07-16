@@ -5,12 +5,14 @@
 #include "builderdestructor.h"
 #include "builderenum.h"
 #include "builderfield.h"
-#include "builderfile.h "
+#include "builderfile.h"
 #include "builderitem.h"
 #include "buildermethod.h"
 #include "buildernamespace.h"
 #include "builderoperator.h"
 #include "builderutil.h"
+#include "buildersection.h"
+#include "builderfilewriter.h"
 
 #include "model/cppfile.h"
 #include "model/cppcontext.h"
@@ -63,7 +65,7 @@ BuilderItem * createBuilderItem(const CppItem * cppItem)
 
 
 BuilderContext::BuilderContext(const Project * project)
-	: project(project)
+	: project(project), sectionList(new BuilderSectionList())
 {
 }
 
@@ -92,6 +94,11 @@ void BuilderContext::doProcessFile(const CppFile * cppFile)
 
 	this->flatten(file);
 	file->outputFiles();
+
+	BuilderFileWriter currentFile(this);
+	currentFile.generateCode();
+
+	this->getSectionList()->dump();
 }
 
 void BuilderContext::flatten(BuilderFile * file)

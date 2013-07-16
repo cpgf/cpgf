@@ -329,7 +329,7 @@ void writeOperatorReflection(const WriterParam * param)
 		param->writer->getReflectionAction("_method"),
 		OperatorNameMap::getNameMap()->get(param->cppOperator),
 		param->operatorWrapperName,
-		getReflectionClassName(param->cppOperator->getConfig())
+		getReflectionClassName(param->cppOperator->getProject())
 	);
 
 	codeBlock->appendLine(s);
@@ -344,7 +344,7 @@ void writeArraySetterReflection(const WriterParam * param)
 			param->writer->getReflectionAction("_method"),
 			OperatorNameMap::getNameMap()->get(param->cppOperator, 2),
 			param->arraySetterName,
-			getReflectionClassName(param->cppOperator->getConfig())
+			getReflectionClassName(param->cppOperator->getProject())
 		);
 
 		codeBlock->appendLine(s);
@@ -413,7 +413,7 @@ void BuilderOperator::doWriteWrapper(BuilderFileWriter * writer)
 bool BuilderOperator::shouldGenerateWrapper() const
 {
 	const CppOperator * cppOperator = this->getCppOperator();
-	if(! this->getConfig()->shouldWrapOperator()) {
+	if(! this->getProject()->shouldWrapOperator()) {
 		return false;
 	}
 	else if(cppOperator->isTypeConverter()) {

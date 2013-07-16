@@ -34,7 +34,7 @@ public:
 	void writeMetaData(BuilderFileWriter * writer);
 	
 	void setConfig(const Project * project) { this->project = project; }
-	const Project * getConfig() const { return this->project; }
+	const Project * getProject() const { return this->project; }
 	
 	BuilderContainer * getParent() const { return this->parent; }
 	

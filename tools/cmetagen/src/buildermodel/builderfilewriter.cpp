@@ -1,6 +1,7 @@
 #include "builderfilewriter.h"
 #include "builderitem.h"
 #include "buildersection.h"
+#include "buildercontext.h"
 #include "builderutil.h"
 #include "model/cppcontainer.h"
 #include "model/cppclass.h"
@@ -41,10 +42,8 @@ string getTextOfVisibility(ItemVisibility visibility)
 	}
 }
 
-BuilderFileWriter::BuilderFileWriter(const Project * project)
-	:	project(project),
-		nextFile(NULL),
-		sectionList(NULL)
+BuilderFileWriter::BuilderFileWriter(BuilderContext * builderContext)
+	:	builderContext(builderContext)
 {
 }
 
@@ -122,18 +121,21 @@ void BuilderFileWriter::prepareMaster()
 }
 */
 
-void BuilderFileWriter::generateCode(BuilderSectionList * sectionList)
+const Project * BuilderFileWriter::getProject() const
 {
-	this->sectionList = sectionList;
+	return this->builderContext->getProject();
+}
+
+void BuilderFileWriter::generateCode()
+{
 	for(ItemListType::iterator it = this->getItemList()->begin(); it != this->getItemList()->end(); ++it) {
 		(*it)->writeMetaData(this);
 	}
-	this->sectionList = NULL;
 }
 
 std::string BuilderFileWriter::getCreationFunctionName(const CppContainer * cppContainer)
 {
-	return normalizeSymbolName(this->getConfig()->getCreationFunctionPrefix() + "_" + getContainertName(cppContainer));
+	return normalizeSymbolName(this->getProject()->getCreationFunctionPrefix() + "_" + getContainertName(cppContainer));
 }
 
 std::string BuilderFileWriter::getCreationFunctionPrototype(const CppContainer * cppContainer)
@@ -183,7 +185,7 @@ BuilderSection * getSection(const Project * project, BuilderSectionList * sectio
 BuilderSection * BuilderFileWriter::getReflectionContainerSection(const CppContainer * cppContainer, const CppItem * payloadItem)
 {
 	bool isNewSection;
-	BuilderSection * section = getSection(this->getConfig(), this->getSectionList(),
+	BuilderSection * section = getSection(this->getProject(), this->getSectionList(),
 		&this->reflectionSectionMap, cppContainer, payloadItem, &isNewSection);
 	if(isNewSection) {
 		this->initializeReflectionFunctionOutline(section->getCodeBlock(), cppContainer, section->getIndex());
@@ -202,13 +204,13 @@ void BuilderFileWriter::initializeReflectionFunctionOutline(CodeBlock * codeBloc
 															int sectionIndex)
 {
 	this->initializeReflectionFunctionOutline(codeBlock, cppContainer,
-		getReflectionFunctionName(this->getConfig(), cppContainer, sectionIndex));
+		getReflectionFunctionName(this->getProject(), cppContainer, sectionIndex));
 }
 
 void BuilderFileWriter::initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer,
 															const std::string & functionName)
 {
-	const std::string & D = this->getConfig()->getMetaDefineParamName();
+	const std::string & D = this->getProject()->getMetaDefineParamName();
 	CodeBlock * headerBlock = codeBlock->getNamedBlock(CodeBlockName_FunctionHeader);
 	const CppClass * cppClass = cppContainer->isClass() ? static_cast<const CppClass *>(cppContainer) : NULL;
 
@@ -247,7 +249,7 @@ void BuilderFileWriter::initializePartialCreationFunction(CodeBlock * codeBlock,
 		cppClass = static_cast<const CppClass *>(cppContainer);
 	}
 
-	string prototype = getPartialCreationFunctionPrototype(this->getConfig(), cppContainer, sectionIndex);
+	string prototype = getPartialCreationFunctionPrototype(this->getProject(), cppContainer, sectionIndex);
 
 	string s;
 
@@ -273,7 +275,7 @@ void BuilderFileWriter::initializePartialCreationFunction(CodeBlock * codeBlock,
 	s = Poco::format("%s meta = %s::fromMetaClass(metaInfo.getMetaClass());", metaType, metaType);
 	bodyBlock->appendLine(s);
 	s = Poco::format("%s(meta);",
-		getReflectionFunctionName(this->getConfig(), cppContainer, sectionIndex));
+		getReflectionFunctionName(this->getProject(), cppContainer, sectionIndex));
 	bodyBlock->appendLine(s);
 }
 
@@ -329,7 +331,7 @@ BuilderSection * BuilderFileWriter::getClassWrapperReflectionSection(const CppCo
 																	 const CppItem * payloadItem)
 {
 	bool isNewSection;
-	BuilderSection * section = getSection(this->getConfig(), this->getSectionList(),
+	BuilderSection * section = getSection(this->getProject(), this->getSectionList(),
 		&this->wrapperClassReflectionSectionMap, cppContainer, payloadItem, &isNewSection);
 	if(isNewSection) {
 		this->initializeClassWrapperReflectionOutline(section->getCodeBlock(), cppContainer, section->getIndex());
@@ -354,7 +356,7 @@ void BuilderFileWriter::initializeClassWrapperOutline(CodeBlock * codeBlock, con
 	}
 
 	s = Poco::format("class %s%s : public %s, public cpgf::GScriptWrapper",
-		cppClass->getName(), this->getConfig()->getClassWrapperPostfix(),
+		cppClass->getName(), this->getProject()->getClassWrapperPostfix(),
 		cppClass->getQualifiedName()
 	);
 	codeBlock->appendLine(s);
@@ -376,7 +378,7 @@ void BuilderFileWriter::initializeClassWrapperReflectionOutline(CodeBlock * code
 																const CppContainer * cppContainer, int sectionIndex)
 {
 	this->initializeReflectionFunctionOutline(codeBlock, cppContainer,
-		getReflectionFunctionName(this->getConfig(), cppContainer, sectionIndex, this->getConfig()->getClassWrapperPostfix())
+		getReflectionFunctionName(this->getProject(), cppContainer, sectionIndex, this->getProject()->getClassWrapperPostfix())
 		);
 }
 
@@ -392,9 +394,14 @@ void BuilderFileWriter::createPartialClassWrapperCreationFunction(const CppConta
 	this->initializePartialCreationFunction(section->getCodeBlock(), cppContainer, sectionIndex);
 }
 
+BuilderFileWriter::ItemListType * BuilderFileWriter::getItemList()
+{
+	return this->builderContext->getItemList();
+}
+
 BuilderSectionList * BuilderFileWriter::getSectionList()
 {
-	return this->sectionList;
+	return this->builderContext->getSectionList();
 }
 
 

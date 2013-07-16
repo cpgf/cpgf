@@ -76,7 +76,7 @@ public:
 	
 	ItemVisibility getVisibility() const;
 
-	const Project * getConfig() const;
+	const Project * getProject() const;
 
 	bool isFile() const { return this->getCategory() == icFile; }
 	bool isNamespace() const { return this->getCategory() == icNamespace; }
