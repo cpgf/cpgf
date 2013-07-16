@@ -13,7 +13,7 @@ namespace metagen {
 
 
 BuilderItem::BuilderItem(const CppItem * cppItem)
-	: cppItem(cppItem), config(config)
+	: cppItem(cppItem), project(project)
 {
 }
 

@@ -11,7 +11,7 @@ namespace metagen {
 
 
 class CppFile;
-class Config;
+class Project;
 class CppWriter;
 class BuilderContainer;
 class BuilderFileWriter;
@@ -20,7 +20,6 @@ class BuilderFile : public BuilderContainer
 {
 private:
 	typedef BuilderContainer super;
-	typedef std::vector<BuilderFileWriter *> BuilderFileWriterListType;
 	
 public:
 	explicit BuilderFile(const CppItem * cppItem);
@@ -28,19 +27,11 @@ public:
 	
 	const CppFile * getCppFile() const;
 	
-	void prepare();
-	
 	void outputFiles();
 	
 protected:
 	virtual void doWriteMetaData(BuilderFileWriter * writer);
 
-private:
-	void createFileWriters();
-	
-private:
-	cpgf::GScopedPointer<CppWriter> headerWriter;
-	BuilderFileWriterListType builderFileWriterList;
 };
 
 

@@ -5,7 +5,7 @@
 #include "model/cppmethod.h"
 #include "model/cppcontainer.h"
 #include "builderutil.h"
-#include "config.h"
+#include "project.h"
 
 #include "Poco/Format.h"
 

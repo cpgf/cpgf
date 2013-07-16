@@ -1,9 +1,9 @@
-#include "config.h"
+#include "project.h"
 
 namespace metagen {
 
 
-Config::Config()
+Project::Project()
 	:	maxItemCountPerFile(0),
 		reflectionFunctionPrefix("buildMetaClass_"),
 		creationFunctionPrefix("createMetaClass_"),
@@ -20,67 +20,67 @@ Config::Config()
 maxItemCountPerFile = 5;
 }
 
-bool Config::shouldSplitFile() const
+bool Project::shouldSplitFile() const
 {
 	return this->getMaxItemCountPerFile() > 0;
 }
 
-size_t Config::getMaxItemCountPerFile() const
+size_t Project::getMaxItemCountPerFile() const
 {
 	return this->maxItemCountPerFile;
 }
 
-const std::string & Config::getReflectionFunctionPrefix() const
+const std::string & Project::getReflectionFunctionPrefix() const
 {
 	return this->reflectionFunctionPrefix;
 }
 
-const std::string & Config::getCreationFunctionPrefix() const
+const std::string & Project::getCreationFunctionPrefix() const
 {
 	return this->creationFunctionPrefix;
 }
 
-const std::string & Config::getMainRegisterFunctionPrefix() const
+const std::string & Project::getMainRegisterFunctionPrefix() const
 {
 	return this->mainRegisterFunctionPrefix;
 }
 
-const std::string & Config::getMetaDefineParamName() const
+const std::string & Project::getMetaDefineParamName() const
 {
 	return this->metaDefineParamName;
 }
 
-const std::string & Config::getClassWrapperPostfix() const
+const std::string & Project::getClassWrapperPostfix() const
 {
 	return this->classWrapperPostfix;
 }
 
-const std::string & Config::getClassWrapperSuperPrefix() const
+const std::string & Project::getClassWrapperSuperPrefix() const
 {
 	return this->classWrapperSuperPrefix;
 }
 
-bool Config::shouldWrapOperator() const
+bool Project::shouldWrapOperator() const
 {
 	return this->wrapOperator;
 }
 
-bool Config::shouldWrapBitFields() const
+bool Project::shouldWrapBitFields() const
 {
 	return this->wrapBitFields;
 }
 
-bool Config::doesAllowPublic() const
+bool Project::doesAllowPublic() const
 {
 	return this->allowPublic;
 }
 
-bool Config::doesAllowProtected() const
+bool Project::doesAllowProtected() const
 {
 	return this->allowProtected;
 }
 
-bool Config::doesAllowPrivate() const
+bool Project::doesAllowPrivate() const
 {
 	return this->allowPrivate;
 }

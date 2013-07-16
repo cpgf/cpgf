@@ -9,8 +9,8 @@
 namespace metagen {
 
 
-CppContext::CppContext(const Config * config)
-	: config(config)
+CppContext::CppContext(const Project * project)
+	: project(project)
 {
 }
 

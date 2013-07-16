@@ -11,7 +11,7 @@ namespace metagen {
 class BuilderFileWriter;
 class BuilderContainer;
 class CodeBlock;
-class Config;
+class Project;
 
 class BuilderItem
 {
@@ -27,14 +27,14 @@ public:
 	const CppItem * getCppItem() const;
 	
 	void setSkipBind(bool skip);
-	bool shouldSkipBind() const; // used by config script
+	bool shouldSkipBind() const; // used by project script
 	
 	virtual bool canBind() const; // determine if the item is supported by current library
 
 	void writeMetaData(BuilderFileWriter * writer);
 	
-	void setConfig(const Config * config) { this->config = config; }
-	const Config * getConfig() const { return this->config; }
+	void setConfig(const Project * project) { this->project = project; }
+	const Project * getConfig() const { return this->project; }
 	
 	BuilderContainer * getParent() const { return this->parent; }
 	
@@ -51,7 +51,7 @@ private:
 	
 private:
 	const CppItem * cppItem;
-	const Config * config;
+	const Project * project;
 	cpgf::GFlags<BuilderFlags> flags;
 	BuilderContainer * parent;
 	

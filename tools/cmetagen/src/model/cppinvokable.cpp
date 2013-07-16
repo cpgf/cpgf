@@ -162,7 +162,7 @@ std::string CppInvokable::getTextOfPointeredType() const
 		s = "*";
 	}
 	else {
-		s = this->getParent()->getOutputName() + "::*";
+		s = this->getParent()->getQualifiedName() + "::*";
 	}
 
 	return CppType(qualType).getQualifiedName(s);
@@ -227,7 +227,7 @@ std::string CppInvokable::getTextWithReplacedName(const ItemTextOptionFlags & op
 		string name = replacedName;
 		if(options.has(itoWithParentName)) {
 			if(! this->isStatic()) {
-				name = this->getParent()->getOutputName() + "::" + name;
+				name = this->getParent()->getQualifiedName() + "::" + name;
 			}
 			if(options.has(itoAsPointer)) {
 				name = Poco::format("(%s*)", name);

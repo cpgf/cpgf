@@ -87,7 +87,7 @@ const clang::ASTContext * CppItem::getASTContext() const
 	return &this->declaration->getASTContext();
 }
 
-const Config * CppItem::getConfig() const
+const Project * CppItem::getConfig() const
 {
 	return this->getCppContext()->getConfig();
 }
@@ -152,11 +152,6 @@ const std::string & CppNamedItem::getQualifiedNameWithoutNamespace() const
 {
 	this->checkLoadNames();
 	return this->qualifiedNameWithoutNamespace;
-}
-
-const std::string & CppNamedItem::getOutputName() const
-{
-	return this->getQualifiedNameWithoutNamespace();
 }
 
 

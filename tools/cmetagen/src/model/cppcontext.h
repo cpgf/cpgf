@@ -13,7 +13,7 @@ namespace metagen {
 
 
 class CppFile;
-class Config;
+class Project;
 
 class CppContext
 {
@@ -22,11 +22,11 @@ private:
 	typedef std::map<std::string, CppNamedItem *> ItemNameMapType;
 
 public:
-	explicit CppContext(const Config * config);
+	explicit CppContext(const Project * project);
 	~CppContext();
 	
 	CppFile * getCppFile() const { return this->cppFile.get(); }
-	const Config * getConfig() const { return this->config; }
+	const Project * getConfig() const { return this->project; }
 	
 	const CppNamedItem * findNamedItem(ItemCategory category, const std::string & qualifiedName) const;
 	
@@ -47,7 +47,7 @@ private:
 	cpgf::GScopedPointer<CppFile> cppFile;
 	ItemListType itemList;
 	ItemNameMapType itemNameMap[icCount];
-	const Config * config;
+	const Project * project;
 	
 private:
 	friend class ClangParserImplement;

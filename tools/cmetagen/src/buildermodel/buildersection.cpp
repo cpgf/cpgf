@@ -1,5 +1,6 @@
 #include "buildersection.h"
 #include "codewriter/codeblock.h"
+#include "codewriter/codewriter.h"
 #include "util.h"
 
 namespace metagen {
@@ -55,6 +56,17 @@ BuilderSection * BuilderSectionList::addSection(BuilderSectionType type, const C
 	BuilderSection * section = new BuilderSection(type, cppItem);
 	this->sectionList.push_back(section);
 	return section;
+}
+
+void BuilderSectionList::dump()
+{
+	printf("Section list begin \n");
+	for(BuilderSectionList::iterator it = this->begin(); it != this->end(); ++it) {
+		CodeWriter codeWriter;
+		(*it)->getCodeBlock()->write(&codeWriter);
+		printf("%s\n\n", codeWriter.getText().c_str());
+	}
+	printf("Section list end \n");
 }
 
 

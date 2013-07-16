@@ -14,7 +14,7 @@
 
 #include "model/cppfile.h"
 #include "model/cppcontext.h"
-#include "config.h"
+#include "project.h"
 #include "util.h"
 
 #include "cpgf/gassert.h"
@@ -62,8 +62,8 @@ BuilderItem * createBuilderItem(const CppItem * cppItem)
 }
 
 
-BuilderContext::BuilderContext(const Config * config)
-	: config(config)
+BuilderContext::BuilderContext(const Project * project)
+	: project(project)
 {
 }
 
@@ -75,7 +75,7 @@ BuilderContext::~BuilderContext()
 BuilderItem * BuilderContext::createItem(const CppItem * cppItem)
 {
 	BuilderItem * builderItem = createBuilderItem(cppItem);
-	builderItem->setConfig(this->config);
+	builderItem->setConfig(this->project);
 	return builderItem;
 }
 
@@ -88,10 +88,9 @@ void BuilderContext::doProcessFile(const CppFile * cppFile)
 {
 	BuilderFile * file = static_cast<BuilderFile *>(this->createItem(cppFile));
 	this->itemList.push_back(file);
-	file->setConfig(this->config);
+	file->setConfig(this->project);
 
 	this->flatten(file);
-	file->prepare();
 	file->outputFiles();
 }
 
@@ -131,7 +130,7 @@ void BuilderContext::doFlatten(BuilderFile * file, BuilderContainer * builderCon
 
 bool BuilderContext::shouldSkipItem(const CppItem * cppItem)
 {
-	return ! isVisibilityAllowed(cppItem->getVisibility(), this->config);
+	return ! isVisibilityAllowed(cppItem->getVisibility(), this->project);
 }
 
 

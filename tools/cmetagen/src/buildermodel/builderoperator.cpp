@@ -5,7 +5,7 @@
 #include "model/cppoperator.h"
 #include "model/cppcontainer.h"
 #include "model/cppclass.h"
-#include "config.h"
+#include "project.h"
 #include "util.h"
 
 #include "Poco/Format.h"

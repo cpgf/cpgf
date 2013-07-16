@@ -4,7 +4,7 @@
 #include "model/cppcontext.h"
 #include "model/cppnamespace.h"
 #include "buildermodel/buildercontext.h"
-#include "config.h"
+#include "project.h"
 
 namespace metagen {
 
@@ -19,13 +19,13 @@ Application::~Application()
 
 void Application::run()
 {
-	Config config;
-	CppContext context(&config);
+	Project project;
+	CppContext context(&project);
 	ClangParser parser(&context);
 	
 	parser.parse("z.h");
 
-	BuilderContext builderContext(&config);
+	BuilderContext builderContext(&project);
 	builderContext.process(&context);
 
 }

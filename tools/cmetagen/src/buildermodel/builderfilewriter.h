@@ -18,7 +18,7 @@ class CodeBlock;
 class BuilderItem;
 class BuilderSection;
 class BuilderSectionList;
-class Config;
+class Project;
 
 enum FileType {
 	ftHeader, ftSource
@@ -48,20 +48,14 @@ private:
 	typedef std::multimap<const CppContainer *, BuilderSection *> ReflectionSectionMultimapType;
 
 public:
-	BuilderFileWriter(const Config * config, CppWriter * headerWriter);
+	explicit BuilderFileWriter(const Project * project);
 	~BuilderFileWriter();
 	
-	CppWriter * getHeaderWriter() const { return this->headerWriter; }
-	CppWriter * getSourceWriter() const { return this->sourceWriter.get(); }
-
-	const Config * getConfig() const { return this->config; }
+	const Project * getConfig() const { return this->project; }
 
 	ItemListType * getItemList() { return &this->itemList; }
 	void setNextFile(BuilderFileWriter * nextFile) { this->nextFile = nextFile; }
 
-	void prepare();
-//	void prepareMaster();
-	void writeFile();
 	void generateCode(BuilderSectionList * sectionList);
 
 public:
@@ -94,17 +88,12 @@ private:
 	void initializeClassWrapperReflectionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer, int sectionIndex);
 	void createPartialClassWrapperCreationFunction(const CppContainer * cppContainer, int sectionIndex);
 
-	CodeBlock * getCodeBlock(FileType fileType);
-
-	void doWriteHeader();
-	void doWriteSource();
-
 	void doWriteReflectionFunction(const CppContainer * cppContainer);
 
+	BuilderSectionList * getSectionList();
+
 private:
-	const Config * config;
-	CppWriter * headerWriter;
-	cpgf::GScopedPointer<CppWriter> sourceWriter;
+	const Project * project;
 	ItemListType itemList;
 	BuilderFileWriter * nextFile;
 

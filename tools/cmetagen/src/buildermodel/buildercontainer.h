@@ -30,8 +30,6 @@ public:
 	
 	const CppContainer * getCppContainer() const;
 
-	void sortItems();
-	
 private:
 	ItemListType itemList;
 };

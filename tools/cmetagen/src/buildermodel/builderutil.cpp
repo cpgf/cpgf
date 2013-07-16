@@ -4,7 +4,7 @@
 #include "model/cppinvokable.h"
 #include "model/cppenum.h"
 #include "util.h"
-#include "config.h"
+#include "project.h"
 
 #include "Poco/Format.h"
 
@@ -13,9 +13,9 @@ using namespace std;
 
 namespace metagen {
 
-std::string getReflectionClassName(const Config * config)
+std::string getReflectionClassName(const Project * project)
 {
-	return config->getMetaDefineParamName() + "::ClassType";
+	return project->getMetaDefineParamName() + "::ClassType";
 }
 
 std::string getReflectionScope(const CppItem * item)
@@ -28,11 +28,11 @@ std::string getReflectionScope(const CppItem * item)
 	}
 }
 
-bool isVisibilityAllowed(ItemVisibility visibility, const Config * config)
+bool isVisibilityAllowed(ItemVisibility visibility, const Project * project)
 {
-	if((visibility == ivPublic) != config->doesAllowPublic()
-		|| (visibility == ivProtected) != config->doesAllowProtected()
-		|| (visibility == ivPrivate) != config->doesAllowPrivate()
+	if((visibility == ivPublic) != project->doesAllowPublic()
+		|| (visibility == ivProtected) != project->doesAllowProtected()
+		|| (visibility == ivPrivate) != project->doesAllowPrivate()
 		) {
 		return false;
 	}
@@ -85,21 +85,21 @@ string getSectionIndexName(int sectionIndex)
 	return result;
 }
 
-std::string getPartialCreationFunctionName(const Config * config, const CppContainer * cppContainer, int index)
+std::string getPartialCreationFunctionName(const Project * project, const CppContainer * cppContainer, int index)
 {
-	return normalizeSymbolName("partial_" + config->getCreationFunctionPrefix() + "_" + getContainertName(cppContainer) + getSectionIndexName(index));
+	return normalizeSymbolName("partial_" + project->getCreationFunctionPrefix() + "_" + getContainertName(cppContainer) + getSectionIndexName(index));
 }
 
-std::string getPartialCreationFunctionPrototype(const Config * config, const CppContainer * cppContainer, int index)
+std::string getPartialCreationFunctionPrototype(const Project * project, const CppContainer * cppContainer, int index)
 {
-	string creationName = getPartialCreationFunctionName(config, cppContainer, index);
+	string creationName = getPartialCreationFunctionName(project, cppContainer, index);
 	return Poco::format("void %s(cpgf::GDefineMetaInfo metaInfo)", creationName);
 }
 
-std::string getReflectionFunctionName(const Config * config, const CppContainer * cppContainer,
+std::string getReflectionFunctionName(const Project * project, const CppContainer * cppContainer,
 									  int index, const std::string & postfix)
 {
-	return normalizeSymbolName(config->getReflectionFunctionPrefix()
+	return normalizeSymbolName(project->getReflectionFunctionPrefix()
 		+ "_"
 		+ getContainertName(cppContainer)
 		+ postfix

@@ -48,7 +48,7 @@ extern const char * const ItemNames[icCount];
 
 class CppContainer;
 class CppContext;
-class Config;
+class Project;
 
 class CppItem
 {
@@ -76,7 +76,7 @@ public:
 	
 	ItemVisibility getVisibility() const;
 
-	const Config * getConfig() const;
+	const Project * getConfig() const;
 
 	bool isFile() const { return this->getCategory() == icFile; }
 	bool isNamespace() const { return this->getCategory() == icNamespace; }
@@ -134,8 +134,6 @@ public:
 	const std::string & getQualifiedName() const;
 	const std::string & getQualifiedNameWithoutNamespace() const;
 
-	const std::string & getOutputName() const;
-	
 	virtual bool isNamed() const { return true; }
 
 protected:

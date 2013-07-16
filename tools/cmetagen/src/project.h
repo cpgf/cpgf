@@ -1,15 +1,15 @@
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __PROJECT_H
+#define __PROJECT_H
 
 #include <string>
 
 namespace metagen {
 
 
-class Config
+class Project
 {
 public:
-	Config();
+	Project();
 
 	bool shouldSplitFile() const;
 	size_t getMaxItemCountPerFile() const;

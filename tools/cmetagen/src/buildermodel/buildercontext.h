@@ -15,7 +15,7 @@ class CppContanier;
 class CppFile;
 class BuilderFile;
 class BuilderContainer;
-class Config;
+class Project;
 
 class BuilderContext
 {
@@ -23,7 +23,7 @@ private:
 	typedef std::vector<BuilderItem *> ItemListType;
 
 public:
-	explicit BuilderContext(const Config * config);
+	explicit BuilderContext(const Project * project);
 	~BuilderContext();
 
 	void process(const CppContext * cppContext);
@@ -39,7 +39,7 @@ protected:
 	BuilderItem * createItem(const CppItem * cppItem);
 
 private:
-	const Config * config;
+	const Project * project;
 	ItemListType itemList;
 };
 
