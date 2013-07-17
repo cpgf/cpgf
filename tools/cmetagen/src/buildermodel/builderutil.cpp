@@ -1,4 +1,5 @@
 #include "builderutil.h"
+#include "buildercontext.h"
 #include "model/cppitem.h"
 #include "model/cppcontainer.h"
 #include "model/cppinvokable.h"
@@ -60,7 +61,7 @@ size_t getCppItemPayload(const CppItem * item)
 	return payload;
 }
 
-string getContainertName(const CppContainer * cppContainer)
+string getContainertName(const BuilderContext * builderContext, const CppContainer * cppContainer)
 {
 	string result;
 
@@ -68,7 +69,7 @@ string getContainertName(const CppContainer * cppContainer)
 		result = normalizeSymbolName(cppContainer->getQualifiedName());
 	}
 	else {
-		result = "Global";
+		result = builderContext->getSourceBaseFileName() + "_Global";
 	}
 
 	return result;
@@ -85,27 +86,43 @@ string getSectionIndexName(int sectionIndex)
 	return result;
 }
 
-std::string getPartialCreationFunctionName(const Project * project, const CppContainer * cppContainer, int index)
+std::string getPartialCreationFunctionName(const BuilderContext * builderContext, const CppContainer * cppContainer, int index)
 {
-	return normalizeSymbolName("partial_" + project->getCreationFunctionPrefix() + "_" + getContainertName(cppContainer) + getSectionIndexName(index));
+	return normalizeSymbolName("partial_" + builderContext->getProject()->getCreationFunctionPrefix() + "_" + getContainertName(builderContext, cppContainer) + getSectionIndexName(index));
 }
 
-std::string getPartialCreationFunctionPrototype(const Project * project, const CppContainer * cppContainer, int index)
+std::string getPartialCreationFunctionPrototype(const BuilderContext * builderContext, const CppContainer * cppContainer, int index)
 {
-	string creationName = getPartialCreationFunctionName(project, cppContainer, index);
+	string creationName = getPartialCreationFunctionName(builderContext, cppContainer, index);
 	return Poco::format("void %s(cpgf::GDefineMetaInfo metaInfo)", creationName);
 }
 
-std::string getReflectionFunctionName(const Project * project, const CppContainer * cppContainer,
-									  int index, const std::string & postfix)
+std::string getReflectionFunctionName(const BuilderContext * builderContext, const CppContainer * cppContainer,
+									  int index)
 {
-	return normalizeSymbolName(project->getReflectionFunctionPrefix()
-		+ "_"
-		+ getContainertName(cppContainer)
-		+ postfix
-		+ getSectionIndexName(index));
+	return normalizeSymbolName(Poco::format("%s_%s%s",
+		builderContext->getProject()->getReflectionFunctionPrefix(),
+		getContainertName(builderContext, cppContainer),
+		getSectionIndexName(index)
+		)
+	);
 }
 
+std::string getClassWrapperReflectionFunctionName(const BuilderContext * builderContext,
+					const CppContainer * cppContainer, int index)
+{
+	return normalizeSymbolName(Poco::format("%s_%s%s",
+		builderContext->getProject()->getReflectionFunctionPrefix(),
+		getClassWrapperClassName(builderContext, cppContainer),
+		getSectionIndexName(index)
+		)
+	);
+}
+
+std::string getClassWrapperClassName(const BuilderContext * builderContext, const CppContainer * cppContainer)
+{
+	return cppContainer->getName() + builderContext->getProject()->getClassWrapperPostfix();
+}
 
 
 } // namespace metagen

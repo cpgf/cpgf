@@ -1,5 +1,5 @@
-#ifndef __BUILDERFILEWRITER_H
-#define __BUILDERFILEWRITER_H
+#ifndef __BUILDERWRITER_H
+#define __BUILDERWRITER_H
 
 #include "cpgf/gscopedptr.h"
 
@@ -25,24 +25,20 @@ enum FileType {
 	ftHeader, ftSource
 };
 
-class BuilderFileWriter
+class BuilderWriter
 {
-public:
-	typedef std::vector<BuilderItem *> ItemListType;
-	
 private:
 	typedef std::map<const CppContainer *, BuilderSection *> ContainerSectionMapType;
 	typedef std::multimap<const CppContainer *, BuilderSection *> ReflectionSectionMultimapType;
 
 public:
-	explicit BuilderFileWriter(BuilderContext * builderContext);
-	~BuilderFileWriter();
+	explicit BuilderWriter(BuilderContext * builderContext);
+	~BuilderWriter();
 	
 	const Project * getProject() const;
+	BuilderContext * getBuilderContext();
 
-	void generateCode();
-
-public:
+public: // auxiliary functions used by BuilderItem's
 	CodeBlock * createOperatorWrapperCodeBlock(const CppItem * cppItem);
 	CodeBlock * createBitFieldWrapperCodeBlock(const CppItem * cppItem);
 	CodeBlock * getParentReflectionCodeBlock(const CppItem * cppItem);
@@ -51,7 +47,6 @@ public:
 	CodeBlock * getClassWrapperCodeBlock(const CppItem * cppItem);
 	CodeBlock * getClassWrapperParentReflectionCodeBlock(const CppItem * cppItem);
 
-public: // auxiliary functions used by BuilderItem's
 	std::string getReflectionAction(const std::string & name);
 	
 	std::string getCreationFunctionName(const CppContainer * cppContainer);
@@ -74,7 +69,6 @@ private:
 
 	void doWriteReflectionFunction(const CppContainer * cppContainer);
 
-	ItemListType * getItemList();
 	BuilderSectionList * getSectionList();
 
 private:
@@ -85,7 +79,6 @@ private:
 	// section map for wrapper class reflection function
 	ReflectionSectionMultimapType wrapperClassReflectionSectionMap;
 };
-
 
 
 } // namespace metagen

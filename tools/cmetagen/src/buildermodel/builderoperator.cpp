@@ -1,5 +1,5 @@
 #include "builderoperator.h"
-#include "builderfilewriter.h"
+#include "builderwriter.h"
 #include "builderutil.h"
 #include "codewriter/cppwriter.h"
 #include "model/cppoperator.h"
@@ -32,7 +32,7 @@ const CppOperator * BuilderOperator::getCppOperator() const
 	return static_cast<const CppOperator *>(this->getCppItem());
 }
 
-void BuilderOperator::doWriteMetaData(BuilderFileWriter * writer)
+void BuilderOperator::doWriteMetaData(BuilderWriter * writer)
 {
 	this->doWriteReflection(writer);
 	if(this->shouldGenerateWrapper()) {
@@ -55,7 +55,7 @@ size_t BuilderOperator::calculateReflectionParamCount() const
 	return paramCount;
 }
 
-void BuilderOperator::doWriteReflection(BuilderFileWriter * writer)
+void BuilderOperator::doWriteReflection(BuilderWriter * writer)
 {
 	const CppOperator * cppOperator = this->getCppOperator();
 	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppOperator);
@@ -236,7 +236,7 @@ private:
 
 struct WriterParam
 {
-	BuilderFileWriter * writer;
+	BuilderWriter * writer;
 	const CppOperator * cppOperator;
 	string op;
 	string operatorWrapperName;
@@ -353,7 +353,7 @@ void writeArraySetterReflection(const WriterParam * param)
 
 }
 
-void BuilderOperator::doWriteWrapper(BuilderFileWriter * writer)
+void BuilderOperator::doWriteWrapper(BuilderWriter * writer)
 {
 	WriterParam param;
 	param.writer = writer;

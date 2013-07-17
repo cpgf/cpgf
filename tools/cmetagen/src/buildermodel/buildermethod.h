@@ -20,17 +20,17 @@ public:
 	const CppMethod * getCppMethod() const;
 	
 protected:
-	virtual void doWriteMetaData(BuilderFileWriter * writer);
+	virtual void doWriteMetaData(BuilderWriter * writer);
 	
 private:
-	void doWriterReflection(BuilderFileWriter * writer);
-	void doWriterReflectionCode(BuilderFileWriter * writer, CodeBlock * codeBlock, const std::string & methodName);
+	void doWriterReflection(BuilderWriter * writer);
+	void doWriterReflectionCode(BuilderWriter * writer, CodeBlock * codeBlock, const std::string & methodName);
 	void doWriterDefaultParameterReflection(CodeBlock * codeBlock);
 
-	void doWriterClassWrapper(BuilderFileWriter * writer);
+	void doWriterClassWrapper(BuilderWriter * writer);
 	void doWriterClassWrapperMethodBody(CodeBlock * codeBlock);
 	void doWriterClassWrapperCallSuperMethod(CodeBlock * codeBlock);
-	void doWriterClassWrapperReflection(BuilderFileWriter * writer);
+	void doWriterClassWrapperReflection(BuilderWriter * writer);
 };
 
 

@@ -14,7 +14,7 @@ class CppFile;
 class Project;
 class CppWriter;
 class BuilderContainer;
-class BuilderFileWriter;
+class BuilderWriter;
 
 class BuilderFile : public BuilderContainer
 {
@@ -27,10 +27,8 @@ public:
 	
 	const CppFile * getCppFile() const;
 	
-	void outputFiles();
-	
 protected:
-	virtual void doWriteMetaData(BuilderFileWriter * writer);
+	virtual void doWriteMetaData(BuilderWriter * writer);
 
 };
 

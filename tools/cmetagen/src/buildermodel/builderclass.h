@@ -23,11 +23,11 @@ public:
 	bool shouldWrapClass() const { return true; }
 	
 protected:
-	virtual void doWriteMetaData(BuilderFileWriter * writer);
+	virtual void doWriteMetaData(BuilderWriter * writer);
 	
 private:	
-	void doWriteBaseClasses(BuilderFileWriter * writer);
-	void doWriteAsNestedClass(BuilderFileWriter * writer);
+	void doWriteBaseClasses(BuilderWriter * writer);
+	void doWriteAsNestedClass(BuilderWriter * writer);
 };
 
 

@@ -22,11 +22,11 @@ public:
 	virtual bool canBind() const;
 	
 protected:
-	virtual void doWriteMetaData(BuilderFileWriter * writer);
+	virtual void doWriteMetaData(BuilderWriter * writer);
 	
 private:
-	void doWriteReflection(BuilderFileWriter * writer);
-	void doWriteBitFieldWrapper(BuilderFileWriter * writer);
+	void doWriteReflection(BuilderWriter * writer);
+	void doWriteBitFieldWrapper(BuilderWriter * writer);
 };
 
 

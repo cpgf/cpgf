@@ -1,5 +1,5 @@
 #include "builderfield.h"
-#include "builderfilewriter.h"
+#include "builderwriter.h"
 #include "model/cppfield.h"
 #include "model/cpptype.h"
 #include "model/cppcontainer.h"
@@ -43,7 +43,7 @@ bool BuilderField::canBind() const
 	return super::canBind();
 }
 
-void BuilderField::doWriteMetaData(BuilderFileWriter * writer)
+void BuilderField::doWriteMetaData(BuilderWriter * writer)
 {
 	if(this->getCppField()->isBitField()) {
 		this->doWriteBitFieldWrapper(writer);
@@ -53,7 +53,7 @@ void BuilderField::doWriteMetaData(BuilderFileWriter * writer)
 	}
 }
 
-void BuilderField::doWriteReflection(BuilderFileWriter * writer)
+void BuilderField::doWriteReflection(BuilderWriter * writer)
 {
 	const CppField * cppField = this->getCppField();
 	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppField);
@@ -68,7 +68,7 @@ void BuilderField::doWriteReflection(BuilderFileWriter * writer)
 	codeBlock->appendLine(s);
 }
 
-void BuilderField::doWriteBitFieldWrapper(BuilderFileWriter * writer)
+void BuilderField::doWriteBitFieldWrapper(BuilderWriter * writer)
 {
 	const CppField * cppField = this->getCppField();
 	string bitFieldWrapperPrefix = "b1tF1EldWrapPer_" + normalizeSymbolName(cppField->getQualifiedName());

@@ -1,5 +1,5 @@
 #include "buildernamespace.h"
-#include "builderfilewriter.h"
+#include "builderwriter.h"
 #include "codewriter/cppwriter.h"
 #include "model/cppnamespace.h"
 
@@ -21,7 +21,7 @@ const CppNamespace * BuilderNamespace::getCppNamespace() const
 	return static_cast<const CppNamespace *>(this->getCppItem());
 }
 
-void BuilderNamespace::doWriteMetaData(BuilderFileWriter * /*writer*/)
+void BuilderNamespace::doWriteMetaData(BuilderWriter * /*writer*/)
 {
 }
 

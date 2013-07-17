@@ -41,6 +41,11 @@ size_t BuilderSection::getIndex() const
 	return this->index;
 }
 
+const CppItem * BuilderSection::getCppItem() const
+{
+	return this->cppItem;
+}
+
 
 BuilderSectionList::BuilderSectionList()
 {
@@ -64,7 +69,7 @@ void BuilderSectionList::dump()
 	for(BuilderSectionList::iterator it = this->begin(); it != this->end(); ++it) {
 		CodeWriter codeWriter;
 		(*it)->getCodeBlock()->write(&codeWriter);
-		printf("%s\n\n", codeWriter.getText().c_str());
+		printf("%p  \n%s\n\n", (*it)->getCppItem(), codeWriter.getText().c_str());
 	}
 	printf("Section list end \n");
 }

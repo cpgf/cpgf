@@ -8,7 +8,7 @@
 namespace metagen {
 
 
-class BuilderFileWriter;
+class BuilderWriter;
 class BuilderContainer;
 class CodeBlock;
 class Project;
@@ -31,9 +31,9 @@ public:
 	
 	virtual bool canBind() const; // determine if the item is supported by current library
 
-	void writeMetaData(BuilderFileWriter * writer);
+	void writeMetaData(BuilderWriter * writer);
 	
-	void setConfig(const Project * project) { this->project = project; }
+	void setProject(const Project * project) { this->project = project; }
 	const Project * getProject() const { return this->project; }
 	
 	BuilderContainer * getParent() const { return this->parent; }
@@ -42,7 +42,7 @@ protected:
 	std::string getPolicyText() const;
 	virtual std::string doGetPolicyText() const;
 	
-	virtual void doWriteMetaData(BuilderFileWriter * writer) = 0;
+	virtual void doWriteMetaData(BuilderWriter * writer) = 0;
 	
 	void checkBuilderItemCategory(ItemCategory category);
 	

@@ -1,5 +1,5 @@
 #include "builderclass.h"
-#include "builderfilewriter.h"
+#include "builderwriter.h"
 #include "builderutil.h"
 #include "model/cppclass.h"
 #include "codewriter/cppwriter.h"
@@ -30,7 +30,7 @@ const CppClass * BuilderClass::getCppClass() const
 	return static_cast<const CppClass *>(this->getCppItem());
 }
 
-void BuilderClass::doWriteMetaData(BuilderFileWriter * writer)
+void BuilderClass::doWriteMetaData(BuilderWriter * writer)
 {
 	this->doWriteBaseClasses(writer);
 	
@@ -39,7 +39,7 @@ void BuilderClass::doWriteMetaData(BuilderFileWriter * writer)
 	}
 }
 
-void BuilderClass::doWriteBaseClasses(BuilderFileWriter * writer)
+void BuilderClass::doWriteBaseClasses(BuilderWriter * writer)
 {
 	const CppClass * cppClass = this->getCppClass();
 	CodeBlock * codeBlock = writer->getContainerReflectionCodeBlock(cppClass);
@@ -57,7 +57,7 @@ void BuilderClass::doWriteBaseClasses(BuilderFileWriter * writer)
 	}
 }
 
-void BuilderClass::doWriteAsNestedClass(BuilderFileWriter * writer)
+void BuilderClass::doWriteAsNestedClass(BuilderWriter * writer)
 {
 	const CppClass * cppClass = this->getCppClass();
 	if(cppClass->isAnonymous() || cppClass->isTemplate()) {

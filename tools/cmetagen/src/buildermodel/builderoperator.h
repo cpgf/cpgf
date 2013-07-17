@@ -20,12 +20,12 @@ public:
 	const CppOperator * getCppOperator() const;
 	
 protected:
-	virtual void doWriteMetaData(BuilderFileWriter * writer);
+	virtual void doWriteMetaData(BuilderWriter * writer);
 	
 private:
 	size_t calculateReflectionParamCount() const;
-	void doWriteReflection(BuilderFileWriter * writer);
-	void doWriteWrapper(BuilderFileWriter * writer);
+	void doWriteReflection(BuilderWriter * writer);
+	void doWriteWrapper(BuilderWriter * writer);
 	bool shouldGenerateWrapper() const;
 };
 

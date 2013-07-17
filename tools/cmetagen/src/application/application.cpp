@@ -25,7 +25,7 @@ void Application::run()
 	
 	parser.parse("z.h");
 
-	BuilderContext builderContext(&project);
+	BuilderContext builderContext(&project, "d:\\test.h");
 	builderContext.process(&context);
 
 }

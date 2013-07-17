@@ -20,7 +20,7 @@ public:
 	const CppNamespace * getCppNamespace() const;
 		
 protected:
-	virtual void doWriteMetaData(BuilderFileWriter * writer);
+	virtual void doWriteMetaData(BuilderWriter * writer);
 };
 
 

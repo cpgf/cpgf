@@ -1,6 +1,7 @@
 #include "builderconstructor.h"
-#include "builderfilewriter.h"
+#include "builderwriter.h"
 #include "builderclass.h"
+#include "builderutil.h"
 #include "codewriter/cppwriter.h"
 #include "model/cppconstructor.h"
 #include "model/cppcontainer.h"
@@ -27,7 +28,7 @@ const CppConstructor * BuilderConstructor::getCppConstructor() const
 	return static_cast<const CppConstructor *>(this->getCppItem());
 }
 
-void BuilderConstructor::doWriteMetaData(BuilderFileWriter * writer)
+void BuilderConstructor::doWriteMetaData(BuilderWriter * writer)
 {
 	this->doWriterReflection(writer);
 
@@ -37,14 +38,14 @@ void BuilderConstructor::doWriteMetaData(BuilderFileWriter * writer)
 	}
 }
 
-void BuilderConstructor::doWriterReflection(BuilderFileWriter * writer)
+void BuilderConstructor::doWriterReflection(BuilderWriter * writer)
 {
 	const CppConstructor * cppConstructor = this->getCppConstructor();
 	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppConstructor);
 	this->doWriterReflectionCode(writer, codeBlock);
 }
 
-void BuilderConstructor::doWriterReflectionCode(BuilderFileWriter * writer, CodeBlock * codeBlock)
+void BuilderConstructor::doWriterReflectionCode(BuilderWriter * writer, CodeBlock * codeBlock)
 {
 	const CppConstructor * cppConstructor = this->getCppConstructor();
 
@@ -56,11 +57,14 @@ void BuilderConstructor::doWriterReflectionCode(BuilderFileWriter * writer, Code
 	codeBlock->appendLine(s);
 }
 
-void BuilderConstructor::doWriterClassWrapper(BuilderFileWriter * writer)
+void BuilderConstructor::doWriterClassWrapper(BuilderWriter * writer)
 {
 	const CppConstructor * cppConstructor = this->getCppConstructor();
 	CodeBlock * codeBlock = writer->getClassWrapperCodeBlock(cppConstructor);
-	codeBlock->appendLine(cppConstructor->getText(itoWithName | itoWithArgType | itoWithArgName | itoWithDefaultValue));
+	codeBlock->appendLine(cppConstructor->getTextWithReplacedName(
+		itoWithName | itoWithArgType | itoWithArgName | itoWithDefaultValue,
+		getClassWrapperClassName(writer->getBuilderContext(), cppConstructor->getParent())
+	));
 
 	string s;
 	codeBlock->incIndent();
@@ -73,7 +77,7 @@ void BuilderConstructor::doWriterClassWrapper(BuilderFileWriter * writer)
 	codeBlock->appendBlankLine();
 }
 
-void BuilderConstructor::doWriterClassWrapperReflection(BuilderFileWriter * writer)
+void BuilderConstructor::doWriterClassWrapperReflection(BuilderWriter * writer)
 {
 	const CppConstructor * cppConstructor = this->getCppConstructor();
 	CodeBlock * codeBlock = writer->getClassWrapperParentReflectionCodeBlock(cppConstructor);

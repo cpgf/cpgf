@@ -21,7 +21,7 @@ public:
 	const CppEnum * getCppEnum() const;
 	
 protected:
-	virtual void doWriteMetaData(BuilderFileWriter * writer);
+	virtual void doWriteMetaData(BuilderWriter * writer);
 };
 
 

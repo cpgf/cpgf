@@ -1,5 +1,5 @@
 #include "buildermethod.h"
-#include "builderfilewriter.h"
+#include "builderwriter.h"
 #include "builderclass.h"
 #include "codewriter/cppwriter.h"
 #include "model/cppmethod.h"
@@ -29,7 +29,7 @@ const CppMethod * BuilderMethod::getCppMethod() const
 	return static_cast<const CppMethod *>(this->getCppItem());
 }
 
-void BuilderMethod::doWriteMetaData(BuilderFileWriter * writer)
+void BuilderMethod::doWriteMetaData(BuilderWriter * writer)
 {
 	this->doWriterReflection(writer);
 
@@ -42,14 +42,14 @@ void BuilderMethod::doWriteMetaData(BuilderFileWriter * writer)
 	}
 }
 
-void BuilderMethod::doWriterReflection(BuilderFileWriter * writer)
+void BuilderMethod::doWriterReflection(BuilderWriter * writer)
 {
 	const CppMethod * cppMethod = this->getCppMethod();
 	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppMethod);
 	this->doWriterReflectionCode(writer, codeBlock, cppMethod->getName());
 }
 
-void BuilderMethod::doWriterReflectionCode(BuilderFileWriter * writer, CodeBlock * codeBlock,
+void BuilderMethod::doWriterReflectionCode(BuilderWriter * writer, CodeBlock * codeBlock,
 										   const std::string & methodName)
 {
 	const CppMethod * cppMethod = this->getCppMethod();
@@ -115,7 +115,7 @@ void BuilderMethod::doWriterDefaultParameterReflection(CodeBlock * codeBlock)
 	}
 }
 
-void BuilderMethod::doWriterClassWrapper(BuilderFileWriter * writer)
+void BuilderMethod::doWriterClassWrapper(BuilderWriter * writer)
 {
 	const CppMethod * cppMethod = this->getCppMethod();
 	CodeBlock * codeBlock = writer->getClassWrapperCodeBlock(cppMethod);
@@ -176,7 +176,7 @@ void BuilderMethod::doWriterClassWrapperCallSuperMethod(CodeBlock * codeBlock)
 	}
 }
 
-void BuilderMethod::doWriterClassWrapperReflection(BuilderFileWriter * writer)
+void BuilderMethod::doWriterClassWrapperReflection(BuilderWriter * writer)
 {
 	const CppMethod * cppMethod = this->getCppMethod();
 	CodeBlock * codeBlock = writer->getClassWrapperParentReflectionCodeBlock(cppMethod);

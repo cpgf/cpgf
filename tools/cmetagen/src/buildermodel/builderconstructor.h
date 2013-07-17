@@ -20,13 +20,13 @@ public:
 	const CppConstructor * getCppConstructor() const;
 	
 protected:
-	virtual void doWriteMetaData(BuilderFileWriter * writer);
+	virtual void doWriteMetaData(BuilderWriter * writer);
 
 private:
-	void doWriterReflection(BuilderFileWriter * writer);
-	void doWriterReflectionCode(BuilderFileWriter * writer, CodeBlock * codeBlock);
-	void doWriterClassWrapper(BuilderFileWriter * writer);
-	void doWriterClassWrapperReflection(BuilderFileWriter * writer);
+	void doWriterReflection(BuilderWriter * writer);
+	void doWriterReflectionCode(BuilderWriter * writer, CodeBlock * codeBlock);
+	void doWriterClassWrapper(BuilderWriter * writer);
+	void doWriterClassWrapperReflection(BuilderWriter * writer);
 };
 
 

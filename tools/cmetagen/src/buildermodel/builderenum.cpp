@@ -1,5 +1,5 @@
 #include "builderenum.h"
-#include "builderfilewriter.h"
+#include "builderwriter.h"
 #include "builderutil.h"
 #include "codewriter/cppwriter.h"
 #include "model/cppenum.h"
@@ -28,7 +28,7 @@ const CppEnum * BuilderEnum::getCppEnum() const
 	return static_cast<const CppEnum *>(this->getCppItem());
 }
 
-void BuilderEnum::doWriteMetaData(BuilderFileWriter * writer)
+void BuilderEnum::doWriteMetaData(BuilderWriter * writer)
 {
 	const CppEnum * cppEnum = this->getCppEnum();
 	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppEnum);

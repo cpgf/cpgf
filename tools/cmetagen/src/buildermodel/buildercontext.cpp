@@ -12,7 +12,7 @@
 #include "builderoperator.h"
 #include "builderutil.h"
 #include "buildersection.h"
-#include "builderfilewriter.h"
+#include "builderwriter.h"
 
 #include "model/cppfile.h"
 #include "model/cppcontext.h"
@@ -64,9 +64,12 @@ BuilderItem * createBuilderItem(const CppItem * cppItem)
 }
 
 
-BuilderContext::BuilderContext(const Project * project)
-	: project(project), sectionList(new BuilderSectionList())
+BuilderContext::BuilderContext(const Project * project, const std::string & sourceFileName)
+	:	project(project),
+		sourceFileName(normalizePath(sourceFileName)),
+		sectionList(new BuilderSectionList())
 {
+	this->sourceBaseFileName = this->sourceFileName.getBaseName();
 }
 
 BuilderContext::~BuilderContext()
@@ -77,7 +80,7 @@ BuilderContext::~BuilderContext()
 BuilderItem * BuilderContext::createItem(const CppItem * cppItem)
 {
 	BuilderItem * builderItem = createBuilderItem(cppItem);
-	builderItem->setConfig(this->project);
+	builderItem->setProject(this->project);
 	return builderItem;
 }
 
@@ -90,15 +93,21 @@ void BuilderContext::doProcessFile(const CppFile * cppFile)
 {
 	BuilderFile * file = static_cast<BuilderFile *>(this->createItem(cppFile));
 	this->itemList.push_back(file);
-	file->setConfig(this->project);
+	file->setProject(this->project);
 
 	this->flatten(file);
-	file->outputFiles();
 
-	BuilderFileWriter currentFile(this);
-	currentFile.generateCode();
+	this->generateCodeSections();
 
 	this->getSectionList()->dump();
+}
+
+void BuilderContext::generateCodeSections()
+{
+	BuilderWriter builderWriter(this);
+	for(ItemListType::iterator it = this->getItemList()->begin(); it != this->getItemList()->end(); ++it) {
+		(*it)->writeMetaData(&builderWriter);
+	}
 }
 
 void BuilderContext::flatten(BuilderFile * file)
@@ -125,7 +134,6 @@ void BuilderContext::doFlatten(BuilderFile * file, BuilderContainer * builderCon
 			continue;
 		}
 
-		file->getItemList()->push_back(item.get());
 		BuilderItem * itemPointer = item.get();
 		this->itemList.push_back(item.take());
 		builderContainer->addItem(itemPointer);

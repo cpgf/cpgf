@@ -22,7 +22,7 @@ public:
 	virtual bool canBind() const;
 
 protected:
-	virtual void doWriteMetaData(BuilderFileWriter * writer);
+	virtual void doWriteMetaData(BuilderWriter * writer);
 };
 
 

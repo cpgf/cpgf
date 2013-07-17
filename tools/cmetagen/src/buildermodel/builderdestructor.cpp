@@ -1,5 +1,5 @@
 #include "builderdestructor.h"
-#include "builderfilewriter.h"
+#include "builderwriter.h"
 #include "codewriter/cppwriter.h"
 #include "model/cppdestructor.h"
 
@@ -26,7 +26,7 @@ bool BuilderDestructor::canBind() const
 	return false;
 }
 
-void BuilderDestructor::doWriteMetaData(BuilderFileWriter * /*writer*/)
+void BuilderDestructor::doWriteMetaData(BuilderWriter * /*writer*/)
 {
 }
 

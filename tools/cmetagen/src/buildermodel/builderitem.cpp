@@ -1,5 +1,5 @@
 #include "builderitem.h"
-#include "builderfilewriter.h"
+#include "builderwriter.h"
 #include "model/cppcontainer.h"
 #include "codewriter/codeblock.h"
 
@@ -56,7 +56,7 @@ std::string BuilderItem::doGetPolicyText() const
 	return "";
 }
 
-void BuilderItem::writeMetaData(BuilderFileWriter * writer)
+void BuilderItem::writeMetaData(BuilderWriter * writer)
 {
 	this->doWriteMetaData(writer);
 }

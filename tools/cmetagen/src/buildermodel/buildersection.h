@@ -38,6 +38,8 @@ public:
 	void setIndex(size_t index);	
 	size_t getIndex() const;
 
+	const CppItem * getCppItem() const;
+
 private:
 	BuilderSectionType type;
 	const CppItem * cppItem;

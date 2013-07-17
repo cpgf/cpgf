@@ -1,5 +1,5 @@
 #include "builderfile.h"
-#include "builderfilewriter.h"
+#include "builderwriter.h"
 #include "buildersection.h"
 #include "codewriter/codewriter.h"
 #include "codewriter/cppwriter.h"
@@ -25,20 +25,8 @@ const CppFile * BuilderFile::getCppFile() const
 	return static_cast<const CppFile *>(this->getCppItem());
 }
 	
-void BuilderFile::doWriteMetaData(BuilderFileWriter * /*writer*/)
+void BuilderFile::doWriteMetaData(BuilderWriter * /*writer*/)
 {
-}
-
-void BuilderFile::outputFiles()
-{
-	//BuilderSectionList sectionList;
-	//BuilderFileWriter currentFile(this->getProject());
-	//for(ItemListType::iterator it = this->getItemList()->begin(); it != this->getItemList()->end(); ++it) {
-	//	currentFile.getItemList()->push_back(*it);
-	//}
-	//currentFile.generateCode(&sectionList);
-
-	//sectionList.dump();
 }
 
 
