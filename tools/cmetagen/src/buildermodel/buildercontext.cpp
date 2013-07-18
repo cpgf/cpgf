@@ -21,6 +21,14 @@
 
 #include "cpgf/gassert.h"
 
+// test
+#include "codewriter/codewriter.h"
+#include "codewriter/codeblock.h"
+
+#include <algorithm>
+
+using namespace std;
+
 
 namespace metagen {
 
@@ -98,6 +106,7 @@ void BuilderContext::doProcessFile(const CppFile * cppFile)
 	this->flatten(file);
 
 	this->generateCodeSections();
+	this->generateCreationFunctionSections();
 
 	this->getSectionList()->dump();
 }
@@ -107,6 +116,82 @@ void BuilderContext::generateCodeSections()
 	BuilderWriter builderWriter(this);
 	for(ItemListType::iterator it = this->getItemList()->begin(); it != this->getItemList()->end(); ++it) {
 		(*it)->writeMetaData(&builderWriter);
+	}
+}
+
+bool partialCreationSectionComparer(BuilderSection * a, BuilderSection * b)
+{
+	return a->getTotalPayload() > b->getTotalPayload();
+}
+
+void BuilderContext::generateCreationFunctionSections()
+{
+	TempBuilderSectionListType partialCreationSections;
+	
+	this->doCollectPartialCreationFunctions(&partialCreationSections);
+
+	std::sort(partialCreationSections.begin(), partialCreationSections.end(), &partialCreationSectionComparer);
+
+	this->doGenerateCreationFunctions(&partialCreationSections);
+}
+
+void BuilderContext::doCollectPartialCreationFunctions(TempBuilderSectionListType * partialCreationSections)
+{
+	for(BuilderSectionList::iterator it = this->getSectionList()->begin();
+		it != this->getSectionList()->end();
+		++it) {
+		if((*it)->isPartialCreationFunction()) {
+			partialCreationSections->push_back(*it);
+		}
+	}
+}
+
+void BuilderContext::doGenerateCreationFunctions(TempBuilderSectionListType * partialCreationSections)
+{
+	while(! partialCreationSections->empty()) {
+		TempBuilderSectionListType sectionsInOneFile;
+		this->doExtractPartialCreationFunctions(partialCreationSections, &sectionsInOneFile);
+		printf("TTTTTTTTTTTT \n");
+		for(TempBuilderSectionListType::iterator it = sectionsInOneFile.begin();
+			it != sectionsInOneFile.end();
+			++it) {
+		CodeWriter codeWriter;
+		(*it)->getCodeBlock()->write(&codeWriter);
+		printf("%s\n\n", codeWriter.getText().c_str());
+		}
+	}
+}
+
+void BuilderContext::doExtractPartialCreationFunctions(TempBuilderSectionListType * partialCreationSections,
+	TempBuilderSectionListType * outputSections)
+{
+	if(partialCreationSections->empty()) {
+		return;
+	}
+	
+	const size_t maxItemCountPerFile = this->getProject()->getMaxItemCountPerFile();
+	size_t totalPayload = partialCreationSections->front()->getTotalPayload();
+
+	outputSections->push_back(partialCreationSections->front());
+	partialCreationSections->pop_front();
+
+	bool found = true;
+	while(found) {
+		found = false;
+		for(TempBuilderSectionListType::iterator it = partialCreationSections->begin();
+			it != partialCreationSections->end();
+			) {
+			if(maxItemCountPerFile == 0
+				||  totalPayload + (*it)->getTotalPayload() <= maxItemCountPerFile) {
+				found = true;
+				totalPayload += (*it)->getTotalPayload();
+				outputSections->push_back(*it);
+				it = partialCreationSections->erase(it);
+			}
+			else {
+				++it;
+			}
+		}
 	}
 }
 

@@ -61,11 +61,11 @@ size_t getCppItemPayload(const CppItem * item)
 	return payload;
 }
 
-string getContainertName(const BuilderContext * builderContext, const CppContainer * cppContainer)
+string getContainerQualifiedName(const BuilderContext * builderContext, const CppContainer * cppContainer)
 {
 	string result;
 
-	if(cppContainer->isClass()) {
+	if(cppContainer->isClass() || cppContainer->isNamespace()) {
 		result = normalizeSymbolName(cppContainer->getQualifiedName());
 	}
 	else {
@@ -73,6 +73,40 @@ string getContainertName(const BuilderContext * builderContext, const CppContain
 	}
 
 	return result;
+}
+
+std::string getClassWrapperClassQualifiedName(const BuilderContext * builderContext, const CppContainer * cppContainer)
+{
+	return cppContainer->getQualifiedName() + builderContext->getProject()->getClassWrapperPostfix();
+}
+
+std::string getClassWrapperClassName(const BuilderContext * builderContext, const CppContainer * cppContainer)
+{
+	return cppContainer->getName() + builderContext->getProject()->getClassWrapperPostfix();
+}
+
+std::string getContainerOrClassWrapperClassName(CodeNameType nameType, const BuilderContext * builderContext, const CppContainer * cppContainer)
+{
+	switch(nameType) {
+		case cntNormal:
+			return cppContainer->getName();
+
+		case cntClassWrapper:
+			return getClassWrapperClassName(builderContext, cppContainer);
+	}
+	return "";
+}
+
+string getContainerOrClassWrapperQualifiedName(CodeNameType nameType, const BuilderContext * builderContext, const CppContainer * cppContainer)
+{
+	switch(nameType) {
+		case cntNormal:
+			return getContainerQualifiedName(builderContext, cppContainer);
+
+		case cntClassWrapper:
+			return getClassWrapperClassQualifiedName(builderContext, cppContainer);
+	}
+	return "";
 }
 
 string getSectionIndexName(int sectionIndex)
@@ -86,44 +120,34 @@ string getSectionIndexName(int sectionIndex)
 	return result;
 }
 
-std::string getPartialCreationFunctionName(const BuilderContext * builderContext, const CppContainer * cppContainer, int index)
+std::string getPartialCreationFunctionName(CodeNameType nameType, const BuilderContext * builderContext,
+		const CppContainer * cppContainer, int index)
 {
-	return normalizeSymbolName("partial_" + builderContext->getProject()->getCreationFunctionPrefix() + "_" + getContainertName(builderContext, cppContainer) + getSectionIndexName(index));
+	return normalizeSymbolName(Poco::format("partial_%s_%s%s",
+		builderContext->getProject()->getCreationFunctionPrefix(),
+		getContainerOrClassWrapperQualifiedName(nameType, builderContext, cppContainer),
+		getSectionIndexName(index)
+		)
+	);
 }
 
-std::string getPartialCreationFunctionPrototype(const BuilderContext * builderContext, const CppContainer * cppContainer, int index)
+std::string getPartialCreationFunctionPrototype(CodeNameType nameType, const BuilderContext * builderContext,
+		const CppContainer * cppContainer, int index)
 {
-	string creationName = getPartialCreationFunctionName(builderContext, cppContainer, index);
+	string creationName = getPartialCreationFunctionName(nameType, builderContext, cppContainer, index);
 	return Poco::format("void %s(cpgf::GDefineMetaInfo metaInfo)", creationName);
 }
 
-std::string getReflectionFunctionName(const BuilderContext * builderContext, const CppContainer * cppContainer,
+std::string getReflectionFunctionName(CodeNameType nameType, const BuilderContext * builderContext, const CppContainer * cppContainer,
 									  int index)
 {
 	return normalizeSymbolName(Poco::format("%s_%s%s",
 		builderContext->getProject()->getReflectionFunctionPrefix(),
-		getContainertName(builderContext, cppContainer),
+		getContainerOrClassWrapperQualifiedName(nameType, builderContext, cppContainer),
 		getSectionIndexName(index)
 		)
 	);
 }
-
-std::string getClassWrapperReflectionFunctionName(const BuilderContext * builderContext,
-					const CppContainer * cppContainer, int index)
-{
-	return normalizeSymbolName(Poco::format("%s_%s%s",
-		builderContext->getProject()->getReflectionFunctionPrefix(),
-		getClassWrapperClassName(builderContext, cppContainer),
-		getSectionIndexName(index)
-		)
-	);
-}
-
-std::string getClassWrapperClassName(const BuilderContext * builderContext, const CppContainer * cppContainer)
-{
-	return cppContainer->getName() + builderContext->getProject()->getClassWrapperPostfix();
-}
-
 
 } // namespace metagen
 

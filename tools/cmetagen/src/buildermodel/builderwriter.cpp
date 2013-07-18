@@ -133,7 +133,7 @@ BuilderContext * BuilderWriter::getBuilderContext()
 
 std::string BuilderWriter::getCreationFunctionName(const CppContainer * cppContainer)
 {
-	return normalizeSymbolName(this->getProject()->getCreationFunctionPrefix() + "_" + getContainertName(this->builderContext, cppContainer));
+	return normalizeSymbolName(this->getProject()->getCreationFunctionPrefix() + "_" + getContainerQualifiedName(this->builderContext, cppContainer));
 }
 
 std::string BuilderWriter::getCreationFunctionPrototype(const CppContainer * cppContainer)
@@ -202,7 +202,7 @@ void BuilderWriter::initializeReflectionFunctionOutline(CodeBlock * codeBlock, c
 															int sectionIndex)
 {
 	this->initializeReflectionFunctionOutline(codeBlock, cppContainer,
-		getReflectionFunctionName(this->getBuilderContext(), cppContainer, sectionIndex));
+		getReflectionFunctionName(cntNormal, this->getBuilderContext(), cppContainer, sectionIndex));
 }
 
 void BuilderWriter::initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer,
@@ -236,10 +236,10 @@ void BuilderWriter::initializeReflectionFunctionOutline(CodeBlock * codeBlock, c
 void BuilderWriter::createPartialCreationFunction(const CppContainer * cppContainer, int sectionIndex)
 {
 	BuilderSection * section = this->getSectionList()->addSection(bstPartialCreationFunction, cppContainer);
-	this->initializePartialCreationFunction(section->getCodeBlock(), cppContainer, sectionIndex);
+	this->initializePartialCreationFunction(cntNormal, section->getCodeBlock(), cppContainer, sectionIndex);
 }
 
-void BuilderWriter::initializePartialCreationFunction(CodeBlock * codeBlock,
+void BuilderWriter::initializePartialCreationFunction(CodeNameType nameType, CodeBlock * codeBlock,
 		const CppContainer * cppContainer, int sectionIndex)
 {
 	const CppClass * cppClass = NULL;
@@ -247,7 +247,7 @@ void BuilderWriter::initializePartialCreationFunction(CodeBlock * codeBlock,
 		cppClass = static_cast<const CppClass *>(cppContainer);
 	}
 
-	string prototype = getPartialCreationFunctionPrototype(this->getBuilderContext(), cppContainer, sectionIndex);
+	string prototype = getPartialCreationFunctionPrototype(nameType, this->getBuilderContext(), cppContainer, sectionIndex);
 
 	string s;
 
@@ -260,11 +260,13 @@ void BuilderWriter::initializePartialCreationFunction(CodeBlock * codeBlock,
 	CodeBlock * bodyBlock = codeBlock->appendBlock(cbsBracketAndIndent);
 	string metaType;
 	if(cppClass != NULL) {
+		string className = getContainerOrClassWrapperQualifiedName(nameType, this->builderContext, cppClass);
 		if(cppClass->isTemplate()) {
-			metaType = Poco::format("cpgf::GDefineMetaClass<%s<%s > >", cppClass->getQualifiedName(), cppClass->getTextOfChainedTemplateParamList(itoWithArgName));
+			metaType = Poco::format("cpgf::GDefineMetaClass<%s<%s > >", className,
+				cppClass->getTextOfChainedTemplateParamList(itoWithArgName));
 		}
 		else {
-			metaType = Poco::format("cpgf::GDefineMetaClass<%s >", cppClass->getQualifiedName());
+			metaType = Poco::format("cpgf::GDefineMetaClass<%s >", className);
 		}
 	}
 	else {
@@ -273,7 +275,7 @@ void BuilderWriter::initializePartialCreationFunction(CodeBlock * codeBlock,
 	s = Poco::format("%s meta = %s::fromMetaClass(metaInfo.getMetaClass());", metaType, metaType);
 	bodyBlock->appendLine(s);
 	s = Poco::format("%s(meta);",
-		getReflectionFunctionName(this->getBuilderContext(), cppContainer, sectionIndex));
+		getReflectionFunctionName(nameType, this->getBuilderContext(), cppContainer, sectionIndex));
 	bodyBlock->appendLine(s);
 }
 
@@ -376,7 +378,7 @@ void BuilderWriter::initializeClassWrapperReflectionOutline(CodeBlock * codeBloc
 		const CppContainer * cppContainer, int sectionIndex)
 {
 	this->initializeReflectionFunctionOutline(codeBlock, cppContainer,
-		getClassWrapperReflectionFunctionName(this->getBuilderContext(), cppContainer, sectionIndex)
+		getReflectionFunctionName(cntClassWrapper, this->getBuilderContext(), cppContainer, sectionIndex)
 		);
 }
 
@@ -389,7 +391,7 @@ CodeBlock * BuilderWriter::getClassWrapperParentReflectionCodeBlock(const CppIte
 void BuilderWriter::createPartialClassWrapperCreationFunction(const CppContainer * cppContainer, int sectionIndex)
 {
 	BuilderSection * section = this->getSectionList()->addSection(bstClassWrapperPartialCreationFunction, cppContainer);
-	this->initializePartialCreationFunction(section->getCodeBlock(), cppContainer, sectionIndex);
+	this->initializePartialCreationFunction(cntClassWrapper, section->getCodeBlock(), cppContainer, sectionIndex);
 }
 
 BuilderSectionList * BuilderWriter::getSectionList()

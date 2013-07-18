@@ -2,6 +2,7 @@
 #define __BUILDERWRITER_H
 
 #include "cpgf/gscopedptr.h"
+#include "builderutil.h"
 
 #include <string>
 #include <vector>
@@ -59,7 +60,7 @@ private:
 	void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer,
 		const std::string & functionName);
 	void createPartialCreationFunction(const CppContainer * cppContainer, int sectionIndex);
-	void initializePartialCreationFunction(CodeBlock * codeBlock, const CppContainer * cppContainer, int sectionIndex);
+	void initializePartialCreationFunction(CodeNameType nameType, CodeBlock * codeBlock, const CppContainer * cppContainer, int sectionIndex);
 
 	BuilderSection * getClassWrapperSection(const CppContainer * cppContainer);
 	BuilderSection * getClassWrapperReflectionSection(const CppContainer * cppContainer, const CppItem * payloadItem);

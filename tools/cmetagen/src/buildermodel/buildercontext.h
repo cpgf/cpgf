@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 
 namespace metagen {
 
@@ -18,13 +19,15 @@ class CppContanier;
 class CppFile;
 class BuilderFile;
 class BuilderContainer;
+class BuilderSection;
 class BuilderSectionList;
 class Project;
 
 class BuilderContext
 {
-public:
+private:
 	typedef std::vector<BuilderItem *> ItemListType;
+	typedef std::deque<BuilderSection *> TempBuilderSectionListType;
 
 public:
 	BuilderContext(const Project * project, const std::string & sourceFileName);
@@ -40,6 +43,12 @@ public:
 private:
 	void doProcessFile(const CppFile * cppFile);
 	void generateCodeSections();
+
+	void generateCreationFunctionSections();
+	void doCollectPartialCreationFunctions(TempBuilderSectionListType * partialCreationSections);
+	void doGenerateCreationFunctions(TempBuilderSectionListType * partialCreationSections);
+	void doExtractPartialCreationFunctions(TempBuilderSectionListType * partialCreationSections,
+		TempBuilderSectionListType * outputSections);
 
 	void flatten(BuilderFile * file);
 	void doFlatten(BuilderFile * file, BuilderContainer * builderContainer);

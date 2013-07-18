@@ -41,6 +41,17 @@ size_t BuilderSection::getIndex() const
 	return this->index;
 }
 
+bool BuilderSection::isClassWrapper() const
+{
+	return this->getType() >= bstClassWrapperBegin && this->getType() <= bstClassWrapperEnd;
+}
+
+bool BuilderSection::isPartialCreationFunction() const
+{
+	return this->getType() == bstPartialCreationFunction
+		|| this->getType() == bstClassWrapperPartialCreationFunction;
+}
+
 const CppItem * BuilderSection::getCppItem() const
 {
 	return this->cppItem;
@@ -69,7 +80,7 @@ void BuilderSectionList::dump()
 	for(BuilderSectionList::iterator it = this->begin(); it != this->end(); ++it) {
 		CodeWriter codeWriter;
 		(*it)->getCodeBlock()->write(&codeWriter);
-		printf("%p  \n%s\n\n", (*it)->getCppItem(), codeWriter.getText().c_str());
+		printf("%s\n\n", codeWriter.getText().c_str());
 	}
 	printf("Section list end \n");
 }

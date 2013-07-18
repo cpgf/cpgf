@@ -17,11 +17,13 @@ enum BuilderSectionType {
 	bstReflectionFunction,
 	bstPartialCreationFunction,
 
-	bstClassWrapper,
+	bstClassWrapperBegin,
+	bstClassWrapper = bstClassWrapperBegin,
 	bstClassWrapperReflectionFunction,
 	bstClassWrapperPartialCreationFunction,
-	
-	bstCount
+	bstClassWrapperEnd = bstClassWrapperPartialCreationFunction,
+
+	bstCreationFunction
 };
 
 class BuilderSection
@@ -37,6 +39,9 @@ public:
 
 	void setIndex(size_t index);	
 	size_t getIndex() const;
+
+	bool isClassWrapper() const;
+	bool isPartialCreationFunction() const;
 
 	const CppItem * getCppItem() const;
 
