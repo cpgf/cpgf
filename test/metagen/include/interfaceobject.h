@@ -7,6 +7,9 @@
 class MyInterfaceObject : public cpgf::IObject
 {
 	G_INTERFACE_IMPL_OBJECT
+	
+public:
+	virtual ~MyInterfaceObject() {}
 };
 
 class MyInterfaceHolder

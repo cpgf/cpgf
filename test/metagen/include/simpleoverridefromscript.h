@@ -6,6 +6,8 @@
 class SimpleOverrideBase
 {
 public:
+	virtual ~SimpleOverrideBase() {}
+
 	int baseOnly();
 	virtual int getValue();
 };

@@ -5,6 +5,7 @@ class ChainedObjectA
 {
 public:
 	ChainedObjectA() : a(1) {}
+	virtual ~ChainedObjectA() {}
 
 	int getA() const { return this->doGetA(); }
 	
@@ -18,6 +19,7 @@ class ChainedObjectB
 {
 public:
 	ChainedObjectB() {}
+	virtual ~ChainedObjectB() {}
 	
 	ChainedObjectA & getA() { return this->a; }
 	const ChainedObjectA & getConstA() const { return this->a; }
@@ -31,6 +33,7 @@ class ChainedObjectC
 {
 public:
 	ChainedObjectC() {}
+	virtual ~ChainedObjectC() {}
 	
 	ChainedObjectB & getB() { return this->b; }
 	const ChainedObjectB & getConstB() const { return this->b; }
