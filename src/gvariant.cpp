@@ -19,6 +19,7 @@ class GVariantTypedVar : public IVariantTypedVar
 {
 public:
 	GVariantTypedVar(const GVariant & value, const GMetaType & type);
+	virtual ~GVariantTypedVar();
 	
 	G_INTERFACE_IMPL_OBJECT
 
@@ -35,6 +36,10 @@ GVariantTypedVar::GVariantTypedVar(const GVariant & value, const GMetaType & typ
 	: value(value), type(type)
 {
 	fixupMetaType(&this->type);
+}
+
+GVariantTypedVar::~GVariantTypedVar()
+{
 }
 	
 void G_API_CC GVariantTypedVar::getValue(GVariantData * outValue)

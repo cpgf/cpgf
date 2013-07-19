@@ -27,7 +27,7 @@ class GMetaArchiveWriter : public IMetaArchiveWriter, public IMetaSerializerWrit
 
 public:
 	GMetaArchiveWriter(IMetaService * service, IMetaStorageWriter * writer);
-	~GMetaArchiveWriter();
+	virtual ~GMetaArchiveWriter();
 
 	virtual IMetaService * G_API_CC getMetaService();
 	virtual IMetaStorageWriter * G_API_CC getStorageWriter();

@@ -25,6 +25,9 @@ private:
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
 	
+public:
+	virtual ~GMetaTraitsCreateSharedPointerTraitsGeneral() {}
+	
 protected:	
 	virtual void * G_API_CC getPointer(void * sharedPointer) {
 		return static_cast<SP *>(sharedPointer)->get();

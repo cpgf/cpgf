@@ -579,6 +579,9 @@ class GScriptDataStorage : public IScriptDataStorage
 private:
 	explicit GScriptDataStorage(const GObjectGlueDataPointer & object);
 
+public:	
+	virtual ~GScriptDataStorage();
+
 protected:
 	virtual IScriptFunction * G_API_CC getScriptFunction(const char * name);
 

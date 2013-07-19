@@ -20,7 +20,7 @@ namespace cpgf {
 
 struct IScriptLibraryLoader;
 
-class GScriptFunction : public GNoncopyable
+class GScriptFunction
 {
 public:
 	GScriptFunction();
@@ -28,10 +28,12 @@ public:
 	
 	virtual GVariant invoke(const GVariant * params, size_t paramCount) = 0;
 	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount) = 0;
+	
+	GMAKE_NONCOPYABLE(GScriptFunction);
 };
 
 
-class GScriptObject : public GNoncopyable
+class GScriptObject
 {
 protected:
 	explicit GScriptObject(const GScriptConfig & config);

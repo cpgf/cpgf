@@ -40,6 +40,9 @@ class GMetaScriptWrapper : public IMetaScriptWrapper
 public:
 	explicit GMetaScriptWrapper(CasterType caster) : caster(caster) {
 	}
+	
+	virtual ~GMetaScriptWrapper() {
+	}
 
 	virtual void G_API_CC setScriptDataStorage(void * instance, IScriptDataStorage * scriptDataStorage) {
 		static_cast<GScriptWrapper *>(this->caster(instance))->setScriptDataStorage(scriptDataStorage);

@@ -391,6 +391,10 @@ GScriptDataStorage::GScriptDataStorage(const GObjectGlueDataPointer & object)
 {
 }
 
+GScriptDataStorage::~GScriptDataStorage()
+{
+}
+
 IScriptFunction * G_API_CC GScriptDataStorage::getScriptFunction(const char * name)
 {
 	if(this->object.expired()) {

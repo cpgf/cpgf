@@ -41,6 +41,8 @@ private:
 	typedef std::vector<HandlerType> HandlerListType;
 
 public:
+	virtual ~GScriptLibraryLoader() {}
+
 	void loaded(const std::string & libraryName);
 	void addHandler(IScriptLibraryLoaderHandler * handler);
 
@@ -67,6 +69,7 @@ private:
 
 public:
 	explicit GScriptLibraryNamedLoaderHandler(GScriptObject * scriptObject);
+	virtual ~GScriptLibraryNamedLoaderHandler() {}
 	
 	void addHandler(const char * libraryName, const GScriptLibraryLoaderCallback & callback);
 	

@@ -23,7 +23,7 @@ class GMetaArchiveReader : public IMetaArchiveReader, public IMetaSerializerRead
 
 public:
 	GMetaArchiveReader(IMetaService * service, IMetaStorageReader * reader);
-	~GMetaArchiveReader();
+	virtual ~GMetaArchiveReader();
 
 	virtual IMetaService * G_API_CC getMetaService();
 	virtual IMetaStorageReader * G_API_CC getStorageReader();

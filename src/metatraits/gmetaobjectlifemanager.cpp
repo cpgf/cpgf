@@ -10,6 +10,9 @@ class GMetaObjectLifeManagerDefault : public IMetaObjectLifeManager
 {
 	G_INTERFACE_IMPL_OBJECT
 
+public:
+	virtual ~GMetaObjectLifeManagerDefault() {}
+
 protected:
 	virtual void G_API_CC retainObject(void *) {
 	}

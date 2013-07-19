@@ -13,6 +13,8 @@ namespace {
 class GMetaConverterStdString : public GMetaConverterDefault
 {
 public:
+	virtual ~GMetaConverterStdString() {}
+
 	virtual uint32_t G_API_CC capabilityForCString() {
 		return metaConverterCanReadWrite;
 	}

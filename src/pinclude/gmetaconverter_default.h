@@ -13,6 +13,8 @@ class GMetaConverterDefault : public IMetaConverter
 	G_INTERFACE_IMPL_EXTENDOBJECT
 	
 public:
+	virtual ~GMetaConverterDefault() {}
+
 	virtual uint32_t G_API_CC capabilityForCString() {
 		return metaConverterCanNothing;
 	}

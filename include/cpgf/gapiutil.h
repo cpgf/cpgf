@@ -36,6 +36,7 @@ class GImplObject
 {
 public:
 	GImplObject();
+	virtual ~GImplObject();
 
 	uint32_t queryInterface(void *, void *);
 	uint32_t addReference();

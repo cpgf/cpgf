@@ -14,6 +14,8 @@ class GMetaSerializerString : public IMetaSerializer
 	G_INTERFACE_IMPL_EXTENDOBJECT
 	
 public:
+	virtual ~GMetaSerializerString() {}
+
 	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * /*archiveWriter*/, const void * /*instance*/, IMetaClass * /*metaClass*/) {
 		return "meta_ser_std_string";
 	}

@@ -31,6 +31,8 @@ public:
 	{
 	}
 	
+	virtual ~GMetaSerializerArray() {}
+	
 	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, const void * instance, IMetaClass * metaClass) {
 		if(this->classType == "") {
 			const char * typeName = this->elementSerializer->getClassTypeName(archiveWriter, instance, metaClass);

@@ -274,7 +274,9 @@ private:
 	typedef stack<XmlNodeType *> ObjectNodeStack;
 
 public:
-	GXmlStorageWriter(xml_document<> * xml, XmlNodeType * dataNode, XmlNodeType * classTypeNode, serialization_internal::FuncStreamWriteFundamental streamWriteFundamental);
+	GXmlStorageWriter(xml_document<> * xml, XmlNodeType * dataNode, XmlNodeType * classTypeNode,
+		serialization_internal::FuncStreamWriteFundamental streamWriteFundamental);
+	virtual ~GXmlStorageWriter();
 
 protected:
 	G_INTERFACE_IMPL_OBJECT
@@ -325,8 +327,9 @@ private:
 	typedef stack<GXmlReaderNodeNameTracker> ObjectNodeStack;
 
 public:
-	GXmlStorageReader(XmlNodeType * dataNode, XmlNodeType * classTypeNode, serialization_internal::FuncStreamReadFundamental streamReadFundamental);
-	~GXmlStorageReader();
+	GXmlStorageReader(XmlNodeType * dataNode, XmlNodeType * classTypeNode,
+		serialization_internal::FuncStreamReadFundamental streamReadFundamental);
+	virtual ~GXmlStorageReader();
 
 protected:
 	G_INTERFACE_IMPL_OBJECT
@@ -388,10 +391,16 @@ IMetaStorageReader * doCreateXmlMetaReader(const GMetaXmlStorage & xmlStorage, F
 }
 
 
-GXmlStorageWriter::GXmlStorageWriter(xml_document<> * xml, XmlNodeType * dataNode, XmlNodeType * classTypeNode, serialization_internal::FuncStreamWriteFundamental streamWriteFundamental)
-	: xml(xml), dataNode(dataNode), classTypeNode(classTypeNode), streamWriteFundamental(streamWriteFundamental), variantTypeMap(defaultVariantTypeMap)
+GXmlStorageWriter::GXmlStorageWriter(xml_document<> * xml, XmlNodeType * dataNode, XmlNodeType * classTypeNode,
+	serialization_internal::FuncStreamWriteFundamental streamWriteFundamental)
+	: xml(xml), dataNode(dataNode), classTypeNode(classTypeNode), streamWriteFundamental(streamWriteFundamental),
+		variantTypeMap(defaultVariantTypeMap)
 {
 	this->nodeStack.push(this->dataNode);
+}
+
+GXmlStorageWriter::~GXmlStorageWriter()
+{
 }
 
 void G_API_CC GXmlStorageWriter::writeFundamental(const char * name, const GVariantData * value)

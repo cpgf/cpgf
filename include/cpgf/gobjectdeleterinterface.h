@@ -18,7 +18,7 @@ public:
 	{
 	}
 	
-	~GObjectDeleterInterface() {
+	virtual ~GObjectDeleterInterface() {
 		this->deleter(this->instance);
 	}
 	

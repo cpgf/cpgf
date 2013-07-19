@@ -5,6 +5,8 @@ TBD version 1.5.6
 	Fixed a compile error in CMake file when some third party libraries are not available.
 	Fixed a compile error when compiling in VC in Win64 mode.
 	Fixed a compile error when /Zc:wchar_t- is set in VC.
+	Fixed a gcc 4.7.2 warning when deleting object which lacks of virtual destructor.
+	Fixed a compiler error in rapidxml in gcc 4.7.2.
 	Back compatibility changes:
 		GScriptObject::gainScriptFunction was renamed to getScriptFunction, and the return value was changed to GScriptValue.
 

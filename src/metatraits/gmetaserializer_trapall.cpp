@@ -17,6 +17,8 @@ public:
 		: metaType(metaType), serializer(serializer)
 	{
 	}
+	
+	virtual ~GMetaSerializerTrapAll() {}
 
 	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, const void * instance, IMetaClass * metaClass) {
 		if(this->serializer) {

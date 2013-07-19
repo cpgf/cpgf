@@ -31,6 +31,7 @@ class ImplScriptConfig : public IScriptConfig
 public:
 	ImplScriptConfig();
 	explicit ImplScriptConfig(GScriptConfig config);
+	virtual ~ImplScriptConfig();
 
 protected:
 	G_INTERFACE_IMPL_OBJECT

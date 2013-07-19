@@ -12,6 +12,10 @@ GImplObject::GImplObject()
 {
 }
 
+GImplObject::~GImplObject()
+{
+}
+
 uint32_t GImplObject::queryInterface(void *, void *)
 {
 	return 0;

@@ -14,6 +14,7 @@ class GMetaObjectLifeManagerIObject : public IMetaObjectLifeManager
 
 public:
 	explicit GMetaObjectLifeManagerIObject(const GTypeConverterCallback & caster) : caster(caster) {}
+	virtual ~GMetaObjectLifeManagerIObject() {}
 
 protected:
 	virtual void G_API_CC retainObject(void * object) {

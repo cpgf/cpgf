@@ -19,6 +19,9 @@ private:
 	typedef GVariantShadowObject<T> ThisType;
 
 	G_INTERFACE_IMPL_OBJECT
+	
+public:
+	virtual ~GVariantShadowObject() {}
 
 protected:
 	virtual void * G_API_CC getObject() {

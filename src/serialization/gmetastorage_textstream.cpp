@@ -100,6 +100,7 @@ private:
 
 public:
 	GTextStreamMetaWriter(std::ostream & outputStream, serialization_internal::FuncStreamWriteFundamental streamWriteFundamental);
+	virtual ~GTextStreamMetaWriter();
 
 protected:
 	G_INTERFACE_IMPL_OBJECT
@@ -156,6 +157,7 @@ private:
 
 public:
 	GTextStreamMetaReader(std::istream & inputStream, serialization_internal::FuncStreamReadFundamental streamReadFundamental);
+	virtual ~GTextStreamMetaReader();
 
 protected:
 	G_INTERFACE_IMPL_OBJECT
@@ -207,6 +209,10 @@ IMetaStorageReader * doCreateTextStreamMetaReader(std::istream & inputStream, Fu
 
 GTextStreamMetaWriter::GTextStreamMetaWriter(std::ostream & outputStream, serialization_internal::FuncStreamWriteFundamental streamWriteFundamental)
 	: outputStream(outputStream), streamWriteFundamental(streamWriteFundamental), variantTypeMap(defaultVariantTypeMap), delimiter(dtNone)
+{
+}
+
+GTextStreamMetaWriter::~GTextStreamMetaWriter()
 {
 }
 
@@ -358,6 +364,10 @@ void GTextStreamMetaWriter::doWriteString(const char * s)
 
 GTextStreamMetaReader::GTextStreamMetaReader(std::istream & inputStream, serialization_internal::FuncStreamReadFundamental streamReadFundamental)
 	: inputStream(inputStream), streamReadFundamental(streamReadFundamental), variantTypeMap(defaultVariantTypeMap)
+{
+}
+
+GTextStreamMetaReader::~GTextStreamMetaReader()
 {
 }
 

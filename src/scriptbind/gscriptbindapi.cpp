@@ -13,6 +13,10 @@ ImplScriptConfig::ImplScriptConfig(GScriptConfig config) : config(config)
 {
 }
 
+ImplScriptConfig::~ImplScriptConfig()
+{
+}
+
 void G_API_CC ImplScriptConfig::setAccessStaticMethodViaInstance(gapi_bool set)
 {
 	this->config.setAccessStaticMethodViaInstance(set != 0);

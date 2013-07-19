@@ -270,7 +270,7 @@ private:
 
 public:
 	GJsonStorageWriter(JsonNodeType * dataNode, JsonNodeType * classTypeNode);
-	~GJsonStorageWriter();
+	virtual ~GJsonStorageWriter();
 
 protected:
 	G_INTERFACE_IMPL_OBJECT
@@ -312,7 +312,7 @@ private:
 
 public:
 	GJsonStorageReader(JsonNodeType * dataNode, JsonNodeType * classTypeNode);
-	~GJsonStorageReader();
+	virtual ~GJsonStorageReader();
 
 protected:
 	G_INTERFACE_IMPL_OBJECT

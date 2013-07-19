@@ -445,6 +445,7 @@ public:
 	USE_POOL(ImplMetaAnnotationValue)
 
 	ImplMetaAnnotationValue(const GAnnotationValue * value, bool);
+	virtual ~ImplMetaAnnotationValue();
 
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
@@ -576,7 +577,7 @@ public:
 	USE_POOL(ImplMetaModule)
 
 	ImplMetaModule(GMetaModule * module, GMetaClass * metaClass);
-	~ImplMetaModule();
+	virtual ~ImplMetaModule();
 
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
@@ -604,7 +605,7 @@ public:
 	USE_POOL(ImplMetaService)
 
 	ImplMetaService();
-	~ImplMetaService();
+	virtual ~ImplMetaService();
 
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
@@ -1390,6 +1391,10 @@ int32_t G_API_CC ImplMetaEnum::findKey(const char * key)
 
 ImplMetaAnnotationValue::ImplMetaAnnotationValue(const GAnnotationValue * value, bool)
 	: value(value)
+{
+}
+
+ImplMetaAnnotationValue::~ImplMetaAnnotationValue()
 {
 }
 
