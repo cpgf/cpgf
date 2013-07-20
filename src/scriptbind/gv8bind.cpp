@@ -266,7 +266,10 @@ GScriptValue v8UserDataToScriptValue(const GContextPointer & context, Local<Cont
 	if(value->IsFunction() || value->IsObject()) {
 		Local<Object> obj = value->ToObject();
 		if(isValidObject(obj)) {
-			GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(obj->GetPointerFromInternalField(0));
+			GGlueDataWrapper * dataWrapper = NULL;
+			if(obj->InternalFieldCount() > 0) {
+				dataWrapper = static_cast<GGlueDataWrapper *>(obj->GetPointerFromInternalField(0));
+			}
 			if(dataWrapper == NULL) { // value maybe an IMetaClass
 				Handle<Value> data = obj->GetHiddenValue(String::New(userDataKey));
 				if(! data.IsEmpty() && data->IsExternal()) {
