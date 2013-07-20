@@ -2,6 +2,7 @@
 
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptbindapi.h"
+#include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/goutmain.h"
 
@@ -18,7 +19,7 @@ void bindClass(T * script, cpgf::IMetaService * service, const char * metaName, 
 	
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(metaName));
 	
-	script->bindClass(bindName, metaClass.get());
+	scriptSetValue(script, bindName, GScriptValue::fromClass(metaClass.get()));
 }
 
 
@@ -31,7 +32,7 @@ void bindMethod(T * script, cpgf::IMetaService * service, const char * metaName,
 	GScopedInterface<IMetaClass> metaClass(module->getGlobalMetaClass());
 	GScopedInterface<IMetaMethod> method(metaClass->getMethod(metaName));
 	
-	script->bindMethod(bindName, NULL, method.get());
+	scriptSetValue(script, bindName, GScriptValue::fromMethod(NULL, method.get()));
 }
 
 

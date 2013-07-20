@@ -7,7 +7,6 @@
 #include "cpgf/gtypetraits.h"
 #include "cpgf/gassert.h"
 #include "cpgf/gexception.h"
-#include "cpgf/gerrorcode.h"
 #include "cpgf/ggetobjectaddress.h"
 
 
@@ -24,6 +23,8 @@
 
 namespace cpgf {
 
+
+extern int Error_Meta_ReadDenied;
 
 template <typename RawGetter, typename Policy = GMetaPolicyDefault, typename Enabled = void>
 class GInstanceGetter

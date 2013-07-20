@@ -521,7 +521,7 @@ GScriptValue spiderToScriptValue(const GSpiderContextPointer & context, JsValue 
 	if(value.isString()) {
 		JSString * jsString = value.toString();
 		GScopedArray<char> s(jsStringToString(context->getJsContext(), jsString));
-		return GScriptValue::fromString(s.get());
+		return GScriptValue::fromAndCopyString(s.get());
 	}
 
 	if(value.isObject()) {

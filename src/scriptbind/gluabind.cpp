@@ -576,10 +576,10 @@ GScriptValue luaToScriptValue(const GContextPointer & context, int index, GGlueD
 			return GScriptValue::fromFundamental(lua_tonumber(L, index));
 
 		case LUA_TBOOLEAN:
-			return GScriptValue::fromFundamental(bool(lua_toboolean(L, index)));
+			return GScriptValue::fromFundamental(bool(lua_toboolean(L, index) != 0));
 
 		case LUA_TSTRING:
-			return GScriptValue::fromString(lua_tostring(L, index));
+			return GScriptValue::fromAndCopyString(lua_tostring(L, index));
 
 		case LUA_TUSERDATA:
 			return luaUserDataToScriptValue(context, index, outputGlueData);

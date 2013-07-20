@@ -55,6 +55,7 @@ int Error_ScriptBinding_CantBindRaw			= Error_ScriptBinding_Begin + 15;
 int Error_ScriptBinding_NoContext				= Error_ScriptBinding_Begin + 16;
 int Error_ScriptBinding_CantFindMatchedOperator		= Error_ScriptBinding_Begin + 17;
 int Error_ScriptBinding_NotSupportedFeature		= Error_ScriptBinding_Begin + 18;
+int Error_ScriptBinding_CantSetScriptValue		= Error_ScriptBinding_Begin + 19;
 int Error_ScriptBinding_End			= 300;
 
 int Error_Serialization_Begin = 301;
@@ -138,7 +139,8 @@ namespace {
 		{ Error_ScriptBinding_AccessMemberWithWrongObject,		"Access class member with wrong object." },
 		{ Error_ScriptBinding_CantBindRaw, 						"Failed to bind raw data." },
 		{ Error_ScriptBinding_NoContext,						"Script context doesn't exist." },
-		{ Error_ScriptBinding_CantFindMatchedOperator,			"Can't find matched opereator to invoke" },
+		{ Error_ScriptBinding_CantFindMatchedOperator,			"Can't find matched opereator to invoke." },
+		{ Error_ScriptBinding_CantSetScriptValue,				"Can't set the script value to script engine." },
 
 		{ Error_Serialization_TypeMismatch,			"Type mismatch when reading serialized object." },
 		{ Error_Serialization_CannotFindObjectType,	"Can't find object type." },

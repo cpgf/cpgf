@@ -36,6 +36,7 @@ GScriptValue GScriptObject::getValue(const char * name)
 	return this->doGetValue(name);
 }
 
+extern int Error_ScriptBinding_CantSetScriptValue;
 void GScriptObject::setValue(const char * name, const GScriptValue & value)
 {
 	switch(value.getType()) {
@@ -58,10 +59,10 @@ void GScriptObject::setValue(const char * name, const GScriptValue & value)
 		}
 
 		case GScriptValue::typeObject: {
-			GScopedInterface<IMetaClass> metaClassGuard;
 			IMetaClass * metaClass;
 			bool transferOwnership;
 			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
+			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
 			this->doBindObject(name, instance, metaClass, transferOwnership);
 			break;
 		}
@@ -73,8 +74,8 @@ void GScriptObject::setValue(const char * name, const GScriptValue & value)
 			break;
 		}
 
-		case GScriptValue::typeOverridedMethods: {
-			GScopedInterface<IMetaList> methodList(value.toOverridedMethods());
+		case GScriptValue::typeOverloadedMethods: {
+			GScopedInterface<IMetaList> methodList(value.toOverloadedMethods());
 			this->doBindMethodList(name, methodList.get());
 			break;
 		}
@@ -96,20 +97,13 @@ void GScriptObject::setValue(const char * name, const GScriptValue & value)
 			break;
 		}
 
+		// We can't set any script object back to script engine,
+		// otherwise, cross module portability will be broken.
+		//case GScriptValue::typeScriptObject:
+		//case case GScriptValue::typeScriptMethod:
 		default:
+			raiseCoreException(Error_ScriptBinding_CantSetScriptValue);
 			break;
-
-		//case GScriptValue::typeScriptObject: {
-		//	GScopedInterface<IScriptObject> scriptObject(value.toScriptObject());
-		//	this->doBindScriptObject(name, scriptObject.get());
-		//	break;
-		//}
-
-		//case GScriptValue::typeScriptMethod: {
-		//	GScopedInterface<IScriptFunction> scriptMethod(value.toScriptMethod());
-		//	this->doBindScriptFunction(name, scriptMethod.get());
-		//	break;
-		//}
 
 	}
 }
@@ -201,7 +195,7 @@ IMetaMethod * GScriptObject::getMethod(const char * methodName, void ** outInsta
 
 IMetaList * GScriptObject::getMethodList(const char * methodName)
 {
-	return this->getValue(methodName).toOverridedMethods();
+	return this->getValue(methodName).toOverloadedMethods();
 }
 
 GScriptValue::Type GScriptObject::getType(const char * name, IMetaTypedItem ** outMetaTypeItem)

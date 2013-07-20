@@ -1304,7 +1304,7 @@ GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 						static_cast<IMetaMethod *>(metaItem.get()));
 				}
 				else {
-					return GScriptValue::fromOverridedMethods(methodGlueData->getMethodList());
+					return GScriptValue::fromOverloadedMethods(methodGlueData->getMethodList());
 				}
 			}
 

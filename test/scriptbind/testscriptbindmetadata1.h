@@ -30,6 +30,7 @@ struct RawData
 struct TestData
 {
 	TestData() : x(0), name("") {}
+	~TestData() {}
 
 	int x;
 	std::string name;

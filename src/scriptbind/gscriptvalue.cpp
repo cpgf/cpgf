@@ -92,14 +92,17 @@ GScriptValue GScriptValue::fromFundamental(const GVariant & fundamental)
 
 GScriptValue GScriptValue::fromString(const char * s)
 {
-	return GScriptValue(typeString, createTypedVariant(createStringVariant(s), createMetaType<char *>()));
+	return GScriptValue(typeString, s);
+}
+
+GScriptValue GScriptValue::fromAndCopyString(const char * s)
+{
+	return GScriptValue(typeString, createStringVariant(s));
 }
 
 GScriptValue GScriptValue::fromClass(IMetaClass * metaClass)
 {
-	GMetaType metaType(metaGetTypedItemMetaType(metaClass));
-	metaType.addPointer();
-	return GScriptValue(typeClass, createTypedVariant(metaClass, metaType));
+	return GScriptValue(typeClass, metaClass);
 }
 
 GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership)
@@ -114,9 +117,9 @@ GScriptValue GScriptValue::fromMethod(void * instance, IMetaMethod * method)
 	return GScriptValue(typeMethod, instance, method);
 }
 
-GScriptValue GScriptValue::fromOverridedMethods(IMetaList * methods)
+GScriptValue GScriptValue::fromOverloadedMethods(IMetaList * methods)
 {
-	return GScriptValue(typeOverridedMethods, methods);
+	return GScriptValue(typeOverloadedMethods, methods);
 }
 
 GScriptValue GScriptValue::fromEnum(IMetaEnum * metaEnum)
@@ -235,9 +238,9 @@ IMetaMethod * GScriptValue::toMethod(void ** outInstance) const
 	}
 }
 
-IMetaList * GScriptValue::toOverridedMethods() const
+IMetaList * GScriptValue::toOverloadedMethods() const
 {
-	if(this->isOverridedMethods()) {
+	if(this->isOverloadedMethods()) {
 		IMetaList * metaList = fromVariant<IMetaList *>(this->value);
 		metaList->addReference();
 		return metaList;

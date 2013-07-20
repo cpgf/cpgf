@@ -40,7 +40,7 @@ class GScriptValue : GFINAL_BASE(GScriptValue)
 {
 private:
 	enum ValueFlags {
-		vfTransferOwnership
+		vfTransferOwnership = 1 << 0
 	};
 
 public:
@@ -48,7 +48,7 @@ public:
 		typeNull = 0,
 		typeFundamental = 1, typeString = 2,
 		typeClass = 3, typeObject = 4,
-		typeMethod = 5, typeOverridedMethods = 6,
+		typeMethod = 5, typeOverloadedMethods = 6,
 		typeEnum = 7,
 		typeRaw = 8,
 		typeAccessible = 9,
@@ -76,11 +76,12 @@ public:
 
 	static GScriptValue fromNull();
 	static GScriptValue fromFundamental(const GVariant & fundamental);
-	static GScriptValue fromString(const char * s);
+	static GScriptValue fromString(const char * s); // reference to s and s should not be freed
+	static GScriptValue fromAndCopyString(const char * s); // duplicate s and s can be freed
 	static GScriptValue fromClass(IMetaClass * metaClass);
 	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership); // instance can be a void * or a shadow object
 	static GScriptValue fromMethod(void * instance, IMetaMethod * method);
-	static GScriptValue fromOverridedMethods(IMetaList * methods);
+	static GScriptValue fromOverloadedMethods(IMetaList * methods);
 	static GScriptValue fromEnum(IMetaEnum * metaEnum);
 	static GScriptValue fromRaw(const GVariant & raw);
 	static GScriptValue fromAccessible(void * instance, IMetaAccessible * accessible);
@@ -94,7 +95,7 @@ public:
 	GVariant toObject(IMetaClass ** outMetaClass, bool * outTransferOwnership) const;
 	void * toObjectAddress(IMetaClass ** outMetaClass, bool * outTransferOwnership) const;
 	IMetaMethod * toMethod(void ** outInstance) const;
-	IMetaList * toOverridedMethods() const;
+	IMetaList * toOverloadedMethods() const;
 	IMetaEnum * toEnum() const;
 	GVariant toRaw() const;
 	IMetaAccessible * toAccessible(void ** outInstance) const;
@@ -107,7 +108,7 @@ public:
 	bool isClass() const { return this->type == typeClass; }
 	bool isObject() const { return this->type == typeObject; }
 	bool isMethod() const { return this->type == typeMethod; }
-	bool isOverridedMethods() const { return this->type == typeOverridedMethods; }
+	bool isOverloadedMethods() const { return this->type == typeOverloadedMethods; }
 	bool isEnum() const { return this->type == typeEnum; }
 	bool isRaw() const { return this->type == typeRaw; }
 	bool isAccessible() const { return this->type == typeAccessible; }

@@ -78,6 +78,4 @@ void metagenTest_MetagenMethodOverloadByFundamental_overload_Boolean_Int_Real(Te
 #include "do_testcase.h"
 
 
-
-
 }

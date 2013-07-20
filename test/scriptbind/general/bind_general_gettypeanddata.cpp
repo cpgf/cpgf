@@ -90,7 +90,7 @@ void doTestGetType(T * binding, TestScriptContext * context)
 
 	RITEM;
 	value = scriptGetValue(binding, "testAdd");
-	GCHECK(value.getType() == GScriptValue::typeOverridedMethods);
+	GCHECK(value.getType() == GScriptValue::typeOverloadedMethods);
 	tempItem = getTypedItemFromScriptValue(value);
 	CHKITEM;
 	GCHECK(! item);
@@ -144,9 +144,9 @@ void doTestGetMethodList(T * binding, TestScriptContext * context)
 
 	GScopedInterface<IMetaList> methodList;
 
-	GCHECK(scriptGetValue(binding, "notExist").toOverridedMethods() == NULL);
+	GCHECK(scriptGetValue(binding, "notExist").toOverloadedMethods() == NULL);
 	
-	methodList.reset(scriptGetValue(binding, "testAdd").toOverridedMethods());
+	methodList.reset(scriptGetValue(binding, "testAdd").toOverloadedMethods());
 	GCHECK(methodList);
 	GCHECK(methodList->getCount() == 3);
 }

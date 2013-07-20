@@ -7,7 +7,6 @@
 #include "cpgf/gtypetraits.h"
 #include "cpgf/gassert.h"
 #include "cpgf/gexception.h"
-#include "cpgf/gerrorcode.h"
 
 
 #if defined(_MSC_VER)
@@ -23,6 +22,8 @@
 
 namespace cpgf {
 
+
+extern int Error_Meta_WriteDenied;
 
 template <typename RawSetter, typename Policy = GMetaPolicyDefault, typename Enabled = void>
 class GInstanceSetter

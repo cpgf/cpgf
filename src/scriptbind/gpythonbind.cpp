@@ -766,7 +766,7 @@ GScriptValue pythonToScriptValue(const GContextPointer & context, PyObject * val
 
 	}
 	else if(PyString_Check(value)) {
-		return GScriptValue::fromString(PyString_AsString(value));
+		return GScriptValue::fromAndCopyString(PyString_AsString(value));
 	}
 	else {
 		GPythonObject * object = tryCastFromPython(value);

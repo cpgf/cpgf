@@ -5,10 +5,13 @@
 #include "cpgf/gmetatype.h"
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gexception.h"
-#include "cpgf/gerrorcode.h"
 
 
 namespace cpgf {
+
+
+extern int Error_Meta_ReadDenied;
+extern int Error_Meta_WriteDenied;
 
 namespace meta_internal {
 

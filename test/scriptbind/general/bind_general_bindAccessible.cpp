@@ -17,7 +17,7 @@ void doTestBindAccessible(T * binding, TestScriptContext * context)
 	GScopedInterface<IMetaField> field;
 	
 	field.reset(metaClass->getField("data"));
-	binding->bindAccessible("baData", &bound, field.get());
+	scriptSetValue(binding, "baData", GScriptValue::fromAccessible(&bound, field.get()));
 
 	if(context->isPython()) {
 		QDO(baData.__get__(0).x = 38);

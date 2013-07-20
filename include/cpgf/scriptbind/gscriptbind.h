@@ -70,16 +70,43 @@ public:
 	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) = 0;
 
 
-	void bindClass(const char * name, IMetaClass * metaClass);
-	void bindEnum(const char * name, IMetaEnum * metaEnum);
+	G_DEPRECATED(
+		void bindClass(const char * name, IMetaClass * metaClass),
+		"bindClass is deprecated. Use setValue(name, GScriptValue::fromClass(metaClass)) instead."
+	);
+	G_DEPRECATED(
+		void bindEnum(const char * name, IMetaEnum * metaEnum),
+		"bindEnum is deprecated. Use setValue(name, GScriptValue::fromEnum(metaEnum)) instead."
+	);
 
-	void bindFundamental(const char * name, const GVariant & value);
-	void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
-	void bindString(const char * stringName, const char * s);
-	void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership);
-	void bindRaw(const char * name, const GVariant & value);
-	void bindMethod(const char * name, void * instance, IMetaMethod * method);
-	void bindMethodList(const char * name, IMetaList * methodList);
+	G_DEPRECATED(
+		void bindFundamental(const char * name, const GVariant & value),
+		"bindFundamental is deprecated. Use setValue(name, GScriptValue::fromFundamental(value)) instead."
+	);
+	G_DEPRECATED(
+		void bindAccessible(const char * name, void * instance, IMetaAccessible * accessible),
+		"bindAccessible is deprecated. Use setValue(name, GScriptValue::fromAccessible(instance, accessible)) instead."
+	);
+	G_DEPRECATED(
+		void bindString(const char * stringName, const char * s),
+		"bindString is deprecated. Use setValue(name, GScriptValue::fromString(s)) instead."
+	);
+	G_DEPRECATED(
+		void bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership),
+		"bindObject is deprecated. Use setValue(name, GScriptValue::fromObject(instance, type, transferOwnership)) instead."
+	);
+	G_DEPRECATED(
+		void bindRaw(const char * name, const GVariant & value),
+		"bindRaw is deprecated. Use setValue(name, GScriptValue::fromRaw(value)) instead."
+	);
+	G_DEPRECATED(
+		void bindMethod(const char * name, void * instance, IMetaMethod * method),
+		"bindMethod is deprecated. Use setValue(name, GScriptValue::fromMethod(instance, method)) instead."
+	);
+	G_DEPRECATED(
+		void bindMethodList(const char * name, IMetaList * methodList),
+		"bindMethodList is deprecated. Use setValue(name, GScriptValue::fromOverloadedMethods(methodList)) instead."
+	);
 
 	G_DEPRECATED(
 		IMetaClass * getClass(const char * className),
@@ -112,7 +139,7 @@ public:
 	);
 	G_DEPRECATED(
 		IMetaList * getMethodList(const char * methodName),
-		"getMethodList is deprecated. Use getValue().toOverridedMethods() instead."
+		"getMethodList is deprecated. Use getValue().toOverloadedMethods() instead."
 	);
 
 	G_DEPRECATED(

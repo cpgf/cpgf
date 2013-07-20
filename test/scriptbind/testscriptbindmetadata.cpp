@@ -51,7 +51,7 @@ void bindClass(T * script, cpgf::IMetaService * service, const char * metaName, 
 	
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(metaName));
 	
-	script->bindClass(bindName, metaClass.get());
+	scriptSetValue(script, bindName, GScriptValue::fromClass(metaClass.get()));
 }
 
 
@@ -64,7 +64,7 @@ void bindMethod(T * script, cpgf::IMetaService * service, const char * metaName,
 	GScopedInterface<IMetaClass> metaClass(module->getGlobalMetaClass());
 	GScopedInterface<IMetaMethod> method(metaClass->getMethod(metaName));
 	
-	script->bindMethod(bindName, NULL, method.get());
+	scriptSetValue(script, bindName, GScriptValue::fromMethod(NULL, method.get()));
 }
 
 
@@ -77,7 +77,7 @@ void bindEnum(T * script, cpgf::IMetaService * service, const char * metaName, c
 	GScopedInterface<IMetaClass> metaClass(module->getGlobalMetaClass());
 	GScopedInterface<IMetaEnum> metaEnum(metaClass->getEnum(metaName));
 	
-	script->bindEnum(bindName, metaEnum.get());
+	scriptSetValue(script, bindName, GScriptValue::fromEnum(metaEnum.get()));
 }
 
 
@@ -90,7 +90,7 @@ void bindProperty(T * script, cpgf::IMetaService * service, void * instance, con
 	GScopedInterface<IMetaClass> metaClass(module->getGlobalMetaClass());
 	GScopedInterface<IMetaProperty> metaAccessible(metaClass->getProperty(metaName));
 	
-	script->bindAccessible(bindName, instance, metaAccessible.get());
+	scriptSetValue(script, bindName, GScriptValue::fromAccessible(instance, metaAccessible.get()));
 }
 
 
@@ -121,11 +121,11 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 
 	bindClass(script, service, REG_NAME_BasicA, "BasicA");
 	
-	script->bindString("testString", testString);
+	scriptSetValue(script, "testString", GScriptValue::fromString(testString));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName(REG_NAME_TestObject));
 	TestObject * obj = new TestObject(testObjValue);
-	script->bindObject("testObj", obj, metaClass.get(), true);
+	scriptSetValue(script, "testObj", GScriptValue::fromObject(obj, metaClass.get(), true));
 
 	GScopedInterface<IMetaModule> module(service->getModuleAt(0));
 	GScopedInterface<IMetaClass> global(module->getGlobalMetaClass());
@@ -138,14 +138,14 @@ void bindBasicInfo(T * script, cpgf::IMetaService * service)
 	metaList->add(method.get(), NULL);
 	method.reset(global->getMethod("testAddN"));
 	metaList->add(method.get(), NULL);
-	script->bindMethodList("testAdd", metaList.get());
+	scriptSetValue(script, "testAdd", GScriptValue::fromOverloadedMethods(metaList.get()));
 
 	GScopedInterface<IMetaList> metaList2(createMetaList());
 	method.reset(global->getMethod("testAddCallback2"));
 	metaList2->add(method.get(), NULL);
 	method.reset(global->getMethod("testAddCallback"));
 	metaList2->add(method.get(), NULL);
-	script->bindMethodList("testAddCallback", metaList2.get());
+	scriptSetValue(script, "testAddCallback", GScriptValue::fromOverloadedMethods(metaList2.get()));
 
 	bindMethod(script, service, "scriptAssert", "scriptAssert");
 	bindMethod(script, service, "scriptNot", "scriptNot");
@@ -166,11 +166,11 @@ void bindBasicData(cpgf::GScriptObject * script, cpgf::IMetaService * service)
 {
 	bindBasicInfo(script, service);
 
-	script->bindFundamental("Magic1", Magic1);
-	script->bindFundamental("Magic2", Magic2);
-	script->bindFundamental("Magic3", Magic3);
+	scriptSetValue(script, "Magic1", GScriptValue::fromFundamental(Magic1));
+	scriptSetValue(script, "Magic2", GScriptValue::fromFundamental(Magic2));
+	scriptSetValue(script, "Magic3", GScriptValue::fromFundamental(Magic3));
 
-	script->bindFundamental("testInt", testInt);
+	scriptSetValue(script, "testInt", GScriptValue::fromFundamental(testInt));
 }
 
 
@@ -183,16 +183,16 @@ void bindBasicData(cpgf::IScriptObject * script, cpgf::IMetaService * service)
 	GVariant v;
 
 	v = Magic1;
-	script->bindFundamental("Magic1", &v.refData());
+	scriptSetValue(script, "Magic1", GScriptValue::fromFundamental(v));
 	
 	v = Magic2;
-	script->bindFundamental("Magic2", &v.refData());
+	scriptSetValue(script, "Magic2", GScriptValue::fromFundamental(v));
 	
 	v = Magic3;
-	script->bindFundamental("Magic3", &v.refData());
+	scriptSetValue(script, "Magic3", GScriptValue::fromFundamental(v));
 
 	v = testInt;
-	script->bindFundamental("testInt", &v.refData());
+	scriptSetValue(script, "testInt", GScriptValue::fromFundamental(v));
 }
 
 

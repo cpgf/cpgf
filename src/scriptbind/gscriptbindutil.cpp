@@ -162,7 +162,8 @@ void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, 
 
 		switch(item->getType()) {
 			case mmitMethod:
-				scriptObject->bindMethod(normalizeReflectName(name).c_str(), instance, gdynamic_cast<IMetaMethod *>(metaObject.get()));
+				scriptSetValue(scriptObject, normalizeReflectName(name).c_str(),
+					GScriptValue::fromMethod(instance, gdynamic_cast<IMetaMethod *>(metaObject.get())));
 				break;
 
 			case mmitMethodList: {
@@ -172,24 +173,28 @@ void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, 
 					GScopedInterface<IMetaItem> metaItem(metaList->getAt(i));
 					newMetaList->add(metaItem.get(), instance);
 				}
-				scriptObject->bindMethodList(normalizeReflectName(name).c_str(), newMetaList.get());
+				scriptSetValue(scriptObject, normalizeReflectName(name).c_str(),
+					GScriptValue::fromOverloadedMethods(newMetaList.get()));
 			}
 				break;
 
 			case mmitProperty:
 			case mmitField:
-				scriptObject->bindAccessible(normalizeReflectName(name).c_str(), instance, gdynamic_cast<IMetaAccessible *>(metaObject.get()));
+				scriptSetValue(scriptObject, normalizeReflectName(name).c_str(),
+					GScriptValue::fromAccessible(instance, gdynamic_cast<IMetaAccessible *>(metaObject.get())));
 				break;
 
 			case mmitEnum:
-				scriptObject->bindEnum(normalizeReflectName(name).c_str(), gdynamic_cast<IMetaEnum *>(metaObject.get()));
+				scriptSetValue(scriptObject, normalizeReflectName(name).c_str(),
+					GScriptValue::fromEnum(gdynamic_cast<IMetaEnum *>(metaObject.get())));
 				break;
 
 			case mmitEnumValue:
 				break;
 
 			case mmitClass:
-				scriptObject->bindClass(normalizeReflectName(name).c_str(), gdynamic_cast<IMetaClass *>(metaObject.get()));
+				scriptSetValue(scriptObject, normalizeReflectName(name).c_str(),
+					GScriptValue::fromClass(gdynamic_cast<IMetaClass *>(metaObject.get())));
 				break;
 
 			default:

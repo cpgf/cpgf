@@ -1,4 +1,5 @@
 #include "cpgf/gapiutil.h"
+#include "cpgf/scriptbind/gscriptbindutil.h"
 #include "../pinclude/gscriptbindapiimpl.h"
 
 
@@ -177,7 +178,8 @@ void G_API_CC ImplScriptObject::bindClass(const char * name, IMetaClass * metaCl
 {
 	ENTER_BINDING_API()
 
-	this->scriptObject->bindClass(name, metaClass);
+	scriptSetValue(this->scriptObject, name,
+		GScriptValue::fromClass(metaClass));
 
 	LEAVE_BINDING_API()
 }
@@ -186,7 +188,8 @@ void G_API_CC ImplScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum
 {
 	ENTER_BINDING_API()
 
-	this->scriptObject->bindEnum(name, metaEnum);
+	scriptSetValue(this->scriptObject, name,
+		GScriptValue::fromEnum(metaEnum));
 
 	LEAVE_BINDING_API()
 }
@@ -195,7 +198,8 @@ void G_API_CC ImplScriptObject::bindFundamental(const char * name, const GVarian
 {
 	ENTER_BINDING_API()
 
-	this->scriptObject->bindFundamental(name, GVariant(*value));
+	scriptSetValue(this->scriptObject, name,
+		GScriptValue::fromFundamental(GVariant(*value)));
 
 	LEAVE_BINDING_API()
 }
@@ -204,7 +208,8 @@ void G_API_CC ImplScriptObject::bindAccessible(const char * name, void * instanc
 {
 	ENTER_BINDING_API()
 
-	this->scriptObject->bindAccessible(name, instance, accessible);
+	scriptSetValue(this->scriptObject, name,
+		GScriptValue::fromAccessible(instance, accessible));
 
 	LEAVE_BINDING_API()
 }
@@ -213,7 +218,8 @@ void G_API_CC ImplScriptObject::bindString(const char * stringName, const char *
 {
 	ENTER_BINDING_API()
 
-	this->scriptObject->bindString(stringName, s);
+	scriptSetValue(this->scriptObject, stringName,
+		GScriptValue::fromString(s));
 
 	LEAVE_BINDING_API()
 }
@@ -222,7 +228,8 @@ void G_API_CC ImplScriptObject::bindObject(const char * objectName, void * insta
 {
 	ENTER_BINDING_API()
 
-	this->scriptObject->bindObject(objectName, instance, type, !! transferOwnership);
+	scriptSetValue(this->scriptObject, objectName,
+		GScriptValue::fromObject(instance, type, !! transferOwnership));
 
 	LEAVE_BINDING_API()
 }
@@ -231,7 +238,8 @@ void G_API_CC ImplScriptObject::bindRaw(const char * name, const GVariantData * 
 {
 	ENTER_BINDING_API()
 
-	this->scriptObject->bindRaw(name, GVariant(*value));
+	scriptSetValue(this->scriptObject, name,
+		GScriptValue::fromRaw(GVariant(*value)));
 
 	LEAVE_BINDING_API()
 }
@@ -240,7 +248,8 @@ void G_API_CC ImplScriptObject::bindMethod(const char * name, void * instance, I
 {
 	ENTER_BINDING_API()
 
-	this->scriptObject->bindMethod(name, instance, method);
+	scriptSetValue(this->scriptObject, name,
+		GScriptValue::fromMethod(instance, method));
 
 	LEAVE_BINDING_API()
 }
@@ -249,7 +258,8 @@ void G_API_CC ImplScriptObject::bindMethodList(const char * name, IMetaList * me
 {
 	ENTER_BINDING_API()
 
-	this->scriptObject->bindMethodList(name, methodList);
+	scriptSetValue(this->scriptObject, name,
+		GScriptValue::fromOverloadedMethods(methodList));
 
 	LEAVE_BINDING_API()
 }
@@ -326,7 +336,7 @@ IMetaList * G_API_CC ImplScriptObject::getMethodList(const char * methodName)
 {
 	ENTER_BINDING_API()
 
-	return this->scriptObject->getValue(methodName).toOverridedMethods();
+	return this->scriptObject->getValue(methodName).toOverloadedMethods();
 
 	LEAVE_BINDING_API(return NULL)
 }
