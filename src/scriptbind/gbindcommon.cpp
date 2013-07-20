@@ -768,6 +768,10 @@ GScriptObjectBase::GScriptObjectBase(const GScriptObjectBase & other)
 {
 }
 
+GScriptObjectBase::~GScriptObjectBase()
+{
+}
+
 IMetaClass * GScriptObjectBase::cloneMetaClass(IMetaClass * metaClass)
 {
 	IMetaClass * newMetaClass = gdynamic_cast<IMetaClass *>(metaClass->clone());

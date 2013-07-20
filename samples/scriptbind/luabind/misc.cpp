@@ -239,7 +239,7 @@ void doTest()
 
 	GScopedPointer<GScriptObject> binding(createLuaScriptObject(service.get(), L, GScriptConfig()));
 
-	GScopedPointer<IScriptObject> scope(binding->createScriptObject("myscope").toScriptObject());
+	GScopedInterface<IScriptObject> scope(binding->createScriptObject("myscope").toScriptObject());
 
 	GScopedInterface<IMetaMethod> method;
 

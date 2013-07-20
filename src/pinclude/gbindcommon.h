@@ -819,6 +819,7 @@ private:
 public:
 	GScriptObjectBase(const GContextPointer & context, const GScriptConfig & config);
 	GScriptObjectBase(const GScriptObjectBase & other);
+	virtual ~GScriptObjectBase();
 
 	IMetaClass * cloneMetaClass(IMetaClass * metaClass);
 
