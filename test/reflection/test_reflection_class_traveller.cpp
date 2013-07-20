@@ -23,6 +23,8 @@ bool itemEuqal(IMetaItem * a, IMetaItem * b)
 class XA
 {
 	int a;
+public:
+	virtual ~XA() {}
 	virtual void x() {}
 };
 

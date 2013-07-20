@@ -16,6 +16,7 @@ public:
 
 public:
 	CLASS() : fieldMethodInt(0) {} // class CLASS
+	virtual ~CLASS() {}
 
 	int methodGetInt() const {
 		return fieldMethodInt;

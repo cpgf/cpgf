@@ -10,6 +10,8 @@ class ClassA {
 public:
 	int fieldA;
 	int fieldP;
+	
+	virtual ~ClassA() {}
 
 	virtual int getID() { return 1; }
 

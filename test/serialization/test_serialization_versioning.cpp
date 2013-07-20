@@ -50,6 +50,8 @@ class MetaSerializerA : public IMetaSerializer
 	G_INTERFACE_IMPL_EXTENDOBJECT
 	
 public:
+	virtual ~MetaSerializerA() {}
+
 	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * /*archiveWriter*/, const void * /*instance*/, IMetaClass * metaClass) {
 		return metaClass->getQualifiedName();
 	}

@@ -263,7 +263,7 @@ public:
 		*this = other;
 	}
 
-	~CallbackObject() {
+	virtual ~CallbackObject() {
 	}
 
 	CallbackObject & operator = (const CallbackObject & other) {

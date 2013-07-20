@@ -2,6 +2,7 @@
 #define __GCONTAINER_H
 
 #include <ctime>
+#include <cstring>
 #include <cstddef>
 #include <algorithm>
 #include <functional>

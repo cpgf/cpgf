@@ -22,7 +22,7 @@ public:
 		++objectCount;
 	}
 
-	~CLASS() {
+	virtual ~CLASS() {
 		--objectCount;
 	}
 

@@ -23,6 +23,7 @@ public:
 
 class ClassAbstract {
 public:
+	virtual ~ClassAbstract() {}
 	virtual void myAbstract() = 0;
 
 };

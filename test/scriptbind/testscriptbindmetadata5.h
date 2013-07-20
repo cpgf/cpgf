@@ -24,6 +24,8 @@ class ScriptOverrideBase
 public:
 	ScriptOverrideBase() : n(1) {
 	}
+	
+	virtual ~ScriptOverrideBase() {}
 
 	explicit ScriptOverrideBase(int n) : n(n) {
 	}
