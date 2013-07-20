@@ -36,6 +36,9 @@ namespace bind_internal {
 
 const int ValueMatchRank_Unknown = 0; // such as 2 or more dimensions pointer
 const int ValueMatchRank_Convert = 50000;
+const int ValueMatchRank_ConvertBwtweenFamily = 51000;
+const int ValueMatchRank_ConvertWithinFamily = 52000;
+const int ValueMatchRank_ConvertWithinFamilySameSigned = 53000;
 const int ValueMatchRank_Implicit_Begin = 70000;
 const int ValueMatchRank_Implicit_WideStringToString = ValueMatchRank_Implicit_Begin + 0;
 const int ValueMatchRank_Implicit_StringToWideString = ValueMatchRank_Implicit_Begin + 1;
@@ -967,6 +970,33 @@ void rankCallableImplicitConvert(ConvertRank * outputRank, IMetaService * servic
 	}
 }
 
+int rankFundamental(GVariantType protoType, GVariantType paramType)
+{
+	if(protoType == paramType) {
+		return ValueMatchRank_Equal;
+	}
+
+	if(vtIsBoolean(protoType) || vtIsBoolean(paramType)) {
+		return ValueMatchRank_Convert;
+	}
+
+	if(vtIsInteger(protoType) && vtIsInteger(paramType)) {
+		if(vtIsSignedInteger(protoType) && vtIsSignedInteger(paramType)) {
+			return ValueMatchRank_ConvertWithinFamilySameSigned;
+		}
+		if(vtIsUnsignedInteger(protoType) && vtIsUnsignedInteger(paramType)) {
+			return ValueMatchRank_ConvertWithinFamilySameSigned;
+		}
+		return ValueMatchRank_ConvertWithinFamily;
+	}
+
+	if(vtIsReal(protoType) && vtIsReal(paramType)) {
+		return ValueMatchRank_ConvertWithinFamilySameSigned;
+	}
+
+	return ValueMatchRank_ConvertBwtweenFamily;
+}
+
 void rankCallableParam(ConvertRank * outputRank, IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, size_t paramIndex)
 {
 	outputRank->reset();
@@ -980,7 +1010,8 @@ void rankCallableParam(ConvertRank * outputRank, IMetaService * service, IMetaCa
 	}
 	
 	if(proto.isFundamental() && type == GScriptValue::typeFundamental) {
-		outputRank->weight = ValueMatchRank_Equal;
+		outputRank->weight = rankFundamental(proto.getVariantType(),
+			callbackParam->params[paramIndex].value.toFundamental().getType());
 		return;
 	}
 

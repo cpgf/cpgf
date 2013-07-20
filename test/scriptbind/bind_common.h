@@ -109,6 +109,10 @@ public:
 		return false;
 	}
 	
+	bool isJavascript() const {
+		return this->isV8() || this->isSpiderMonkey();
+	}
+	
 protected:
 	virtual bool doLib(const char * code) const = 0;
 	virtual bool doApi(const char * code) const = 0;

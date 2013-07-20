@@ -576,7 +576,7 @@ GScriptValue luaToScriptValue(const GContextPointer & context, int index, GGlueD
 			return GScriptValue::fromFundamental(lua_tonumber(L, index));
 
 		case LUA_TBOOLEAN:
-			return GScriptValue::fromFundamental(lua_toboolean(L, index));
+			return GScriptValue::fromFundamental(bool(lua_toboolean(L, index)));
 
 		case LUA_TSTRING:
 			return GScriptValue::fromString(lua_tostring(L, index));

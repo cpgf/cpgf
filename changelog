@@ -1,6 +1,8 @@
 TBD version 1.5.6
-	Added Mozilla SpiderMonkey JavaScript binding.
-	Remove GGlueDataMethodType from script binding, no method and method list are not distinguished.
+	Added Mozilla SpiderMonkey JavaScript binding. Only tested on Windows with VC.
+	Added GScriptValue to represent values in script binding.
+	Enhanced fundamental type handling in script binding. Now the overloaded function with bool, integer, real (float, double) can be selected correctly.
+	Remove GGlueDataMethodType from script binding, no method and method list are now distinguished.
 	Removed file gfunctionextractor.h and function extractFunction, use gselectfunctionbyarity.h and selectFunctionByArity instead.
 	Fixed a compile error in CMake file when some third party libraries are not available.
 	Fixed a compile error when compiling in VC in Win64 mode.

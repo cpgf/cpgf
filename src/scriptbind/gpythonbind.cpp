@@ -749,7 +749,7 @@ GScriptValue pythonToScriptValue(const GContextPointer & context, PyObject * val
 
 	if(PyNumber_Check(value)) {
 		if(PyBool_Check(value)) {
-			return GScriptValue::fromFundamental(PyInt_AsLong(value) != 0);
+			return GScriptValue::fromFundamental(bool(PyInt_AsLong(value) != 0));
 		}
 
 		if(PyInt_Check(value)) {

@@ -499,7 +499,7 @@ GScriptValue spiderToScriptValue(const GSpiderContextPointer & context, JsValue 
 	}
 
 	if(value.isBoolean()) {
-		return GScriptValue::fromFundamental(value.toBoolean());
+		return GScriptValue::fromFundamental(bool(value.toBoolean()));
 	}
 
 	if(value.isInt32()) {
@@ -512,6 +512,10 @@ GScriptValue spiderToScriptValue(const GSpiderContextPointer & context, JsValue 
 
 	if(value.isNumber()) {
 		return GScriptValue::fromFundamental(value.toNumber());
+	}
+
+	if(value.isDouble()) {
+		return GScriptValue::fromFundamental(value.toDouble());
 	}
 
 	if(value.isString()) {
