@@ -122,15 +122,20 @@ public class ClassWrapperWriter {
 		codeWriter.incIndent();
 
 		for(Constructor ctor : this.cppClass.getConstructorList()) {
-			codeWriter.writeLine("");
-			this.doWriteConstructor(codeWriter, ctor);
+		    if (ctor.isPublic()) {
+			    codeWriter.writeLine("");
+			    this.doWriteConstructor(codeWriter, ctor);
+            }
 		}
 
 		for(int i = 0; i < this.overrideMethodList.size(); ++i) {
-			codeWriter.writeLine("");
 			CppMethod cppMethod = this.overrideMethodList.get(i);
-			this.doWriteOverrideMethod(codeWriter, cppMethod, i);
+			if (!cppMethod.isPrivate()) {
+			    codeWriter.writeLine("");
+			    this.doWriteOverrideMethod(codeWriter, cppMethod, i);
+			}
 		}
+
 		codeWriter.decIndent();
 		codeWriter.writeLine("};");
 	}
