@@ -1,6 +1,7 @@
 #include "../samplescriptbindutil.h"
 
 #include "cpgf/scriptbind/gscriptbindapi.h"
+#include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gscopedptr.h"
@@ -31,10 +32,10 @@ int main(int argc, char * argv[])
 	;
 
 	GScopedInterface<IMetaClass> metaClass(scriptHelper.borrowService()->findClassByName("sfml"));
-	scriptHelper.borrowScriptObject()->bindClass("sfml", metaClass.get());
+	scriptSetValue(scriptHelper.borrowScriptObject(), "sfml", GScriptValue::fromClass(metaClass.get()));
 	
 	metaClass.reset(scriptHelper.borrowService()->findClassByName("test"));
-	scriptHelper.borrowScriptObject()->bindClass("test", metaClass.get());
+	scriptSetValue(scriptHelper.borrowScriptObject(), "test", GScriptValue::fromClass(metaClass.get()));
 
 	scriptHelper.execute();
 	

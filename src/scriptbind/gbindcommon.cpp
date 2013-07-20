@@ -758,6 +758,16 @@ InvokeCallableParam::~InvokeCallableParam()
 }
 
 
+GScriptObjectBase::GScriptObjectBase(const GContextPointer & context, const GScriptConfig & config)
+	: super(config), context(context)
+{
+}
+
+GScriptObjectBase::GScriptObjectBase(const GScriptObjectBase & other)
+	: super(other), context(other.context)
+{
+}
+
 IMetaClass * GScriptObjectBase::cloneMetaClass(IMetaClass * metaClass)
 {
 	IMetaClass * newMetaClass = gdynamic_cast<IMetaClass *>(metaClass->clone());
@@ -766,6 +776,12 @@ IMetaClass * GScriptObjectBase::cloneMetaClass(IMetaClass * metaClass)
 	this->context->newClassData(newMetaClass);
 
 	return newMetaClass;
+}
+
+IMetaService * GScriptObjectBase::getMetaService() {
+	IMetaService * service = this->context->getService();
+	service->addReference();
+	return service;
 }
 
 

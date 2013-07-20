@@ -2,14 +2,16 @@ TBD version 1.5.6
 	Added Mozilla SpiderMonkey JavaScript binding. Only tested on Windows with VC.
 	Added GScriptValue to represent values in script binding.
 	Enhanced fundamental type handling in script binding. Now the overloaded function with bool, integer, real (float, double) can be selected correctly.
-	Removed file gfunctionextractor.h and function extractFunction, use gselectfunctionbyarity.h and selectFunctionByArity instead.
 	Fixed a compile error in CMake file when some third party libraries are not available.
 	Fixed a compile error when compiling in VC in Win64 mode.
 	Fixed a compile error when /Zc:wchar_t- is set in VC.
 	Fixed a gcc 4.7.2 warning when deleting object which lacks of virtual destructor.
 	Fixed a compiler error in rapidxml in gcc 4.7.2.
-	Back compatibility changes:
+	Backward incompatible changes:
 		GScriptObject::gainScriptFunction was renamed to getScriptFunction, and the return value was changed to GScriptValue.
+		GScriptObject::createScriptObject result type was changed to GScriptValue, which stores an interface IScriptObject.
+		In GScriptObject, the function bindXXX (such as bindClass) and getXXX (such as getClass) are now deprecated. They will be removed in the future. Use GScriptObject::getValue and GScriptObject::setValue instead.
+		Removed file gfunctionextractor.h and function extractFunction, use gselectfunctionbyarity.h and selectFunctionByArity instead.
 
 2013-05-05 version 1.5.5
 	Added tweening and timeline library.

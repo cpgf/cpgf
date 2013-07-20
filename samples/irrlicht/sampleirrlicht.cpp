@@ -14,7 +14,7 @@ int main(int argc, char * argv[])
 	
 	GScopedInterface<IMetaClass> metaClass(scriptHelper.borrowService()->findClassByName("irrlicht"));
 	
-	scriptHelper.borrowScriptObject()->bindClass("irr", metaClass.get());
+	scriptSetValue(scriptHelper.borrowScriptObject(), "irr", GScriptValue::fromClass(metaClass.get()));
 
 	scriptHelper.execute();
 

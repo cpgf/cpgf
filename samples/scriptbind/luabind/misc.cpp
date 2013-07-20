@@ -239,24 +239,24 @@ void doTest()
 
 	GScopedPointer<GScriptObject> binding(createLuaScriptObject(service.get(), L, GScriptConfig()));
 
-	GScopedPointer<GScriptObject> scope(static_cast<GScriptObject *>(binding->createScriptObject("myscope")));
+	GScopedPointer<IScriptObject> scope(binding->createScriptObject("myscope").toScriptObject());
 
 	GScopedInterface<IMetaMethod> method;
 
 	method.reset(globalClass->getMethod("addNumber")); testCheckAssert(method);
 
-	scope->bindMethod("addNumber", NULL, method.get());
+	scriptSetValue(scope.get(), "addNumber", GScriptValue::fromMethod(NULL, method.get()));
 
 	GScopedInterface<IMetaClass> metaClass(service->findClassByName("method::TestObject"));
 	testCheckAssert(metaClass);
 	
-	binding->bindClass("TestObject", metaClass.get());
+	scriptSetValue(binding.get(), "TestObject", GScriptValue::fromClass(metaClass.get()));
 	
 	GScopedInterface<IMetaEnum> metaEnum(globalClass->getEnum("GlobalEnum"));
-	binding->bindEnum(metaEnum->getName(), metaEnum.get());
+	scriptSetValue(binding.get(), metaEnum->getName(), GScriptValue::fromEnum(metaEnum.get()));
 
-	binding->bindString("ONE", "This is one");
-	scope->bindString("TWO", "Second one");
+	scriptSetValue(binding.get(), "ONE", GScriptValue::fromString("This is one"));
+	scriptSetValue(scope.get(), "TWO", GScriptValue::fromString("Second one"));
 
 	const char * code =
 //		"for k,v in pairs(getmetatable(TestObject)) do print(k,v) end \n"
@@ -298,17 +298,17 @@ void doTest()
 
 	GVariant result = invokeScriptFunction(binding.get(), "luaAdd", 8, 2);
 	cout << "Result: " << fromVariant<int>(result) << endl;
-	cout << binding->getString("lss") << endl;
+	cout << scriptGetValue(binding.get(), "lss").toString() << endl;
 	{
-	cout << static_cast<TestObject *>(binding->getObject("newObj"))->width << endl;
-	IMetaTypedItem * item = NULL;
-	binding->getType("newObj", &item);
-	GScopedInterface<IMetaClass> type(static_cast<IMetaClass *>(item));
+		cout << static_cast<TestObject *>(scriptGetValue(binding.get(), "newObj").toObjectAddress(NULL, NULL))->width << endl;
+	IMetaClass * item = NULL;
+	scriptGetValue(binding.get(), "newObj").toObject(&item, NULL);
+	GScopedInterface<IMetaClass> type(item);
 	cout << type->getName() << endl;
 	}
 
 	binding->assignValue("lss", "newlss");
-	binding->nullifyValue("newlss");
+	binding->setValue("newlss", GScriptValue::fromNull());
 	luaL_loadstring(L, "print(newlss)"); lua_call(L, 0, LUA_MULTRET);
 	
 	lua_close(L);

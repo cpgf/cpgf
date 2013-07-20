@@ -817,23 +817,12 @@ private:
 	typedef GScriptObject super;
 
 public:
-	GScriptObjectBase(const GContextPointer & context, const GScriptConfig & config)
-		: super(config), context(context)
-	{
-	}
-
-	GScriptObjectBase(const GScriptObjectBase & other)
-		: super(other), context(other.context)
-	{
-	}
+	GScriptObjectBase(const GContextPointer & context, const GScriptConfig & config);
+	GScriptObjectBase(const GScriptObjectBase & other);
 
 	IMetaClass * cloneMetaClass(IMetaClass * metaClass);
 
-	IMetaService * getMetaService() {
-		IMetaService * service = this->context->getService();
-		service->addReference();
-		return service;
-	}
+	IMetaService * getMetaService();
 
 protected:
 	const GContextPointer & getContext() const {
