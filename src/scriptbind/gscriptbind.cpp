@@ -286,7 +286,8 @@ GScriptValue GScriptObject::createScriptObject(const char * name)
 		return GScriptValue();
 	}
 	else {
-		return GScriptValue::fromScriptObject(new ImplScriptObject(object, true));
+		GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(object, true));
+		return GScriptValue::fromScriptObject(scriptObject.get());
 	}
 }
 
