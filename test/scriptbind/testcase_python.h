@@ -6,7 +6,7 @@
 #define TEST_BIND testscript::bindBasicData
 #endif
 
-#if ENABLE_LUA
+#if ENABLE_PYTHON
 
 
 GTEST(MK(CASE, _Python_Lib))
