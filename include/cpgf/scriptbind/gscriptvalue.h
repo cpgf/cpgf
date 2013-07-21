@@ -67,7 +67,6 @@ public:
 	GScriptValue(const GScriptValue & other);
 	GScriptValue & operator = (const GScriptValue & other);
 
-	GScriptValueData getData() const;
 	GScriptValueData takeData();
 
 	Type getType() const { return this->type; }

@@ -33,6 +33,8 @@ GScriptValue::GScriptValue(const GScriptValueData & data)
 {
 	this->type = (GScriptValue::Type)(data.type);
 	this->value = GVariant(data.value);
+	// must release it since GVariant(data.value) retains the data
+	releaseVariantData(&this->value.refData());
 	this->metaItem.reset(data.metaItem);
 	if(data.metaItem != NULL) {
 		data.metaItem->releaseReference();
@@ -55,19 +57,6 @@ GScriptValue & GScriptValue::operator = (const GScriptValue & other)
 	}
 	
 	return *this;
-}
-
-GScriptValueData GScriptValue::getData() const
-{
-	GScriptValueData data;
-	data.type = this->type;
-	data.value = this->value.refData();
-	data.metaItem = this->metaItem.get();
-	if(data.metaItem != NULL) {
-		data.metaItem->addReference();
-	}
-	data.flags = this->flags;
-	return data;
 }
 
 GScriptValueData GScriptValue::takeData()

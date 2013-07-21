@@ -104,7 +104,7 @@ void scriptSetValue(GScriptObject * scriptObject, const char * name, const GScri
 
 void scriptSetValue(IScriptObject * scriptObject, const char * name, const GScriptValue & value)
 {
-	GScriptValueData data(value.getData());
+	GScriptValueData data(GScriptValue(value).takeData());
 	scriptObject->setValue(name, &data);
 }
 
