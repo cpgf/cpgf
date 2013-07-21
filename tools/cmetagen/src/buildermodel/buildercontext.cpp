@@ -21,6 +21,8 @@
 
 #include "cpgf/gassert.h"
 
+#include "Poco/Format.h"
+
 // test
 #include "codewriter/codewriter.h"
 #include "codewriter/codeblock.h"
@@ -107,7 +109,9 @@ void BuilderContext::doProcessFile(const CppFile * cppFile)
 
 	this->generateCodeSections();
 	this->generateCreationFunctionSections();
+	this->generateFilePartitions();
 
+	this->getSectionList()->sort();
 	this->getSectionList()->dump();
 }
 
@@ -119,12 +123,74 @@ void BuilderContext::generateCodeSections()
 	}
 }
 
+void BuilderContext::generateCreationFunctionSections()
+{
+	TempBuilderSectionListType partialCreationSections;
+	
+	this->doCollectPartialCreationFunctions(&partialCreationSections);
+
+	set<const CppItem *> generatedItemSet;
+	for(TempBuilderSectionListType::iterator it = partialCreationSections.begin();
+		it != partialCreationSections.end();
+		++it) {
+		const CppItem * cppItem = (*it)->getCppItem();
+		if(generatedItemSet.find(cppItem) == generatedItemSet.end()) {
+			generatedItemSet.insert(cppItem);
+			this->doGenerateCreateFunctionSection(*it,
+				it, partialCreationSections.end());
+		}
+	}
+}
+
+void BuilderContext::doGenerateCreateFunctionSection(BuilderSection * sampleSection,
+		TempBuilderSectionListType::iterator begin,
+		TempBuilderSectionListType::iterator end)
+{
+	const CppContainer * sampleContainer = static_cast<const CppContainer *>(sampleSection->getCppItem());
+
+	CodeNameType nameType = getNameTypeFromBuilderSection(sampleSection);
+	BuilderSection * declarationSection = this->sectionList->addSection(bstCreationFunctionDeclaration, sampleContainer);
+	declarationSection->getCodeBlock()->appendLine(
+		Poco::format("%s;", getCreationFunctionPrototype(nameType, this, sampleContainer))
+	);
+
+	BuilderSection * definitionSection = this->sectionList->addSection(bstCreationFunctionDefinition, sampleContainer);
+	CodeBlock * forwardDeclarationBlock = definitionSection->getCodeBlock()->appendBlock();
+	CodeBlock * creationBlock = definitionSection->getCodeBlock()->appendBlock();
+	CodeBlock * headerBlock = creationBlock->getNamedBlock(CodeBlockName_FunctionHeader);
+	CodeBlock * bodyBlock = creationBlock->getNamedBlock(CodeBlockName_FunctionBody, cbsBracketAndIndent);
+
+	headerBlock->appendLine(getCreationFunctionPrototype(nameType, this, sampleContainer));
+
+	bodyBlock->appendLine("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();");
+	bodyBlock->appendLine("cpgf::GDefineMetaInfo meta = _d.getMetaInfo();");
+	bodyBlock->appendBlankLine();
+
+	for(TempBuilderSectionListType::iterator it = begin; it != end; ++it) {
+		BuilderSection * currentSection = *it;
+		const CppContainer * currentContainer = static_cast<const CppContainer *>(currentSection->getCppItem());
+		if(currentContainer == sampleContainer && currentSection->getType() == sampleSection->getType()) {
+			forwardDeclarationBlock->appendLine(
+				Poco::format("%s;", getPartialCreationFunctionPrototype(nameType, this,
+					currentContainer, currentSection->getIndex()))
+			);
+			bodyBlock->appendLine(
+				Poco::format("%s(meta);", getPartialCreationFunctionName(nameType, this,
+					currentContainer, currentSection->getIndex()))
+			);
+		}
+	}
+
+	bodyBlock->appendBlankLine();
+	bodyBlock->appendLine("return meta;");
+}
+
 bool partialCreationSectionComparer(BuilderSection * a, BuilderSection * b)
 {
 	return a->getTotalPayload() > b->getTotalPayload();
 }
 
-void BuilderContext::generateCreationFunctionSections()
+void BuilderContext::generateFilePartitions()
 {
 	TempBuilderSectionListType partialCreationSections;
 	
@@ -132,7 +198,7 @@ void BuilderContext::generateCreationFunctionSections()
 
 	std::sort(partialCreationSections.begin(), partialCreationSections.end(), &partialCreationSectionComparer);
 
-	this->doGenerateCreationFunctions(&partialCreationSections);
+	this->doGenerateFilePartitions(&partialCreationSections);
 }
 
 void BuilderContext::doCollectPartialCreationFunctions(TempBuilderSectionListType * partialCreationSections)
@@ -142,11 +208,12 @@ void BuilderContext::doCollectPartialCreationFunctions(TempBuilderSectionListTyp
 		++it) {
 		if((*it)->isPartialCreationFunction()) {
 			partialCreationSections->push_back(*it);
+			GASSERT((*it)->getCppItem()->isContainer());
 		}
 	}
 }
 
-void BuilderContext::doGenerateCreationFunctions(TempBuilderSectionListType * partialCreationSections)
+void BuilderContext::doGenerateFilePartitions(TempBuilderSectionListType * partialCreationSections)
 {
 	while(! partialCreationSections->empty()) {
 		TempBuilderSectionListType sectionsInOneFile;

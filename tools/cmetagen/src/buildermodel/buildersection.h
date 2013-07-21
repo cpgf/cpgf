@@ -23,7 +23,8 @@ enum BuilderSectionType {
 	bstClassWrapperPartialCreationFunction,
 	bstClassWrapperEnd = bstClassWrapperPartialCreationFunction,
 
-	bstCreationFunction
+	bstCreationFunctionDeclaration, // in header
+	bstCreationFunctionDefinition // in source
 };
 
 class BuilderSection
@@ -65,6 +66,8 @@ public:
 	~BuilderSectionList();
 
 	BuilderSection * addSection(BuilderSectionType type, const CppItem * cppItem);
+
+	void sort();
 
 	void dump();
 

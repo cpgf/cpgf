@@ -45,8 +45,12 @@ private:
 	void generateCodeSections();
 
 	void generateCreationFunctionSections();
+	void doGenerateCreateFunctionSection(BuilderSection * sampleSection,
+		TempBuilderSectionListType::iterator begin, TempBuilderSectionListType::iterator end);
+
+	void generateFilePartitions();
 	void doCollectPartialCreationFunctions(TempBuilderSectionListType * partialCreationSections);
-	void doGenerateCreationFunctions(TempBuilderSectionListType * partialCreationSections);
+	void doGenerateFilePartitions(TempBuilderSectionListType * partialCreationSections);
 	void doExtractPartialCreationFunctions(TempBuilderSectionListType * partialCreationSections,
 		TempBuilderSectionListType * outputSections);
 

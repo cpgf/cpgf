@@ -8,12 +8,23 @@
 namespace metagen {
 
 class CppContainer;
+class CodeBlock;
 class Project;
 class BuilderContext;
+class BuilderSection;
+class BuilderTemplateInstantiation;
 
 enum CodeNameType {
 	cntNormal, cntClassWrapper
 };
+
+const std::string CodeBlockName_ReflectionArea("reflection");
+const std::string CodeBlockName_FunctionHeader("fheader");
+const std::string CodeBlockName_FunctionBody("fbody");
+const std::string CodeBlockName_ClassBody("cbody");
+const std::string CodeBlockName_Customize("customize");
+
+std::string getTextOfVisibility(ItemVisibility visibility);
 
 std::string getReflectionClassName(const Project * project);
 std::string getReflectionScope(const CppItem * item);
@@ -33,8 +44,30 @@ std::string getPartialCreationFunctionName(CodeNameType nameType, const BuilderC
 		const CppContainer * cppContainer, int index);
 std::string getPartialCreationFunctionPrototype(CodeNameType nameType, const BuilderContext * builderContext,
 		const CppContainer * cppContainer, int index);
+
+std::string getCreationFunctionName(CodeNameType nameType, const BuilderContext * builderContext,
+		const CppContainer * cppContainer);
+std::string getCreationFunctionPrototype(CodeNameType nameType, const BuilderContext * builderContext,
+		const CppContainer * cppContainer);
+
 std::string getReflectionFunctionName(CodeNameType nameType, const BuilderContext * builderContext,
 		const CppContainer * cppContainer, int index);
+
+CodeNameType getNameTypeFromBuilderSection(BuilderSection * section);
+
+void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const BuilderContext * builderContext,
+		const CppContainer * cppContainer, int sectionIndex);
+void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const BuilderContext * builderContext,
+		const CppContainer * cppContainer, const std::string & functionName);
+
+void initializePartialCreationFunction(CodeNameType nameType, const BuilderContext * builderContext,
+		CodeBlock * codeBlock, const CppContainer * cppContainer, int sectionIndex,
+		BuilderTemplateInstantiation * templateInstantiation);
+
+void initializeClassWrapperOutline(CodeBlock * codeBlock, const BuilderContext * builderContext,
+		const CppContainer * cppContainer);
+void initializeClassWrapperReflectionOutline(CodeBlock * codeBlock, const BuilderContext * builderContext,
+		const CppContainer * cppContainer, int sectionIndex);
 
 
 } // namespace metagen

@@ -50,22 +50,13 @@ public: // auxiliary functions used by BuilderItem's
 
 	std::string getReflectionAction(const std::string & name);
 	
-	std::string getCreationFunctionName(const CppContainer * cppContainer);
-	std::string getCreationFunctionPrototype(const CppContainer * cppContainer);
-	
 private:
 	BuilderSection * getReflectionContainerSection(const CppContainer * cppContainer, const CppItem * payloadItem);
 	CodeBlock * getReflectionBodyBlock(CodeBlock * codeBlock);
-	void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer, int sectionIndex);
-	void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer,
-		const std::string & functionName);
 	void createPartialCreationFunction(const CppContainer * cppContainer, int sectionIndex);
-	void initializePartialCreationFunction(CodeNameType nameType, CodeBlock * codeBlock, const CppContainer * cppContainer, int sectionIndex);
 
 	BuilderSection * getClassWrapperSection(const CppContainer * cppContainer);
 	BuilderSection * getClassWrapperReflectionSection(const CppContainer * cppContainer, const CppItem * payloadItem);
-	void initializeClassWrapperOutline(CodeBlock * codeBlock, const CppContainer * cppContainer);
-	void initializeClassWrapperReflectionOutline(CodeBlock * codeBlock, const CppContainer * cppContainer, int sectionIndex);
 	void createPartialClassWrapperCreationFunction(const CppContainer * cppContainer, int sectionIndex);
 
 	void doWriteReflectionFunction(const CppContainer * cppContainer);

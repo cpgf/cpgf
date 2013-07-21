@@ -3,6 +3,9 @@
 #include "codewriter/codewriter.h"
 #include "util.h"
 
+#include <algorithm>
+
+
 namespace metagen {
 
 
@@ -74,13 +77,23 @@ BuilderSection * BuilderSectionList::addSection(BuilderSectionType type, const C
 	return section;
 }
 
+bool sortSectionComparer(BuilderSection * a, BuilderSection * b)
+{
+	return a->getType() < b->getType();
+}
+
+void BuilderSectionList::sort()
+{
+	std::sort(this->sectionList.begin(), this->sectionList.end(), &sortSectionComparer);
+}
+
 void BuilderSectionList::dump()
 {
 	printf("Section list begin \n");
 	for(BuilderSectionList::iterator it = this->begin(); it != this->end(); ++it) {
 		CodeWriter codeWriter;
 		(*it)->getCodeBlock()->write(&codeWriter);
-		printf("%s\n\n", codeWriter.getText().c_str());
+		printf("%s", codeWriter.getText().c_str());
 	}
 	printf("Section list end \n");
 }
