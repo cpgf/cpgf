@@ -48,7 +48,8 @@ std::string BuilderWriter::getReflectionAction(const std::string & name)
 
 BuilderSection * getSection(const Project * project, BuilderSectionList * sectionList,
 	std::multimap<const CppContainer *, BuilderSection *> * sectionMap,
-	const CppContainer * cppContainer, const CppItem * payloadItem, bool * isNewSection)
+	const CppContainer * cppContainer, const CppItem * payloadItem,
+	BuilderSectionType sectionType, bool * isNewSection)
 {
 	*isNewSection = false;
 	size_t payload = getCppItemPayload(payloadItem);
@@ -69,7 +70,7 @@ BuilderSection * getSection(const Project * project, BuilderSectionList * sectio
 	}
 	if(section == NULL) {
 		*isNewSection = true;
-		section = sectionList->addSection(bstReflectionFunction, cppContainer);
+		section = sectionList->addSection(sectionType, cppContainer);
 		section->setIndex(existingSectionCount);
 		sectionMap->insert(make_pair(cppContainer, section));
 	}
@@ -83,10 +84,9 @@ BuilderSection * BuilderWriter::getReflectionContainerSection(const CppContainer
 {
 	bool isNewSection;
 	BuilderSection * section = getSection(this->getProject(), this->getSectionList(),
-		&this->reflectionSectionMap, cppContainer, payloadItem, &isNewSection);
+		&this->reflectionSectionMap, cppContainer, payloadItem, bstReflectionFunction, &isNewSection);
 	if(isNewSection) {
-		initializeReflectionFunctionOutline(section->getCodeBlock(), this->getBuilderContext(),
-			cppContainer, section->getIndex());
+		initializeReflectionFunctionOutline(this->getBuilderContext(), section);
 		this->createPartialCreationFunction(cppContainer, section->getIndex());
 	}
 	
@@ -102,8 +102,7 @@ void BuilderWriter::createPartialCreationFunction(const CppContainer * cppContai
 {
 	BuilderSection * section = this->getSectionList()->addSection(bstPartialCreationFunction, cppContainer);
 	section->setIndex(sectionIndex);
-	initializePartialCreationFunction(cntNormal, this->getBuilderContext(), section->getCodeBlock(),
-		cppContainer, sectionIndex, NULL);
+	initializePartialCreationFunction(this->getBuilderContext(), section, NULL);
 }
 
 CodeBlock * BuilderWriter::createOperatorWrapperCodeBlock(const CppItem * cppItem)
@@ -116,9 +115,12 @@ CodeBlock * BuilderWriter::createBitFieldWrapperCodeBlock(const CppItem * cppIte
 	return this->getSectionList()->addSection(bstBitFieldWrapperFunction, cppItem)->getCodeBlock();
 }
 
-CodeBlock * BuilderWriter::getParentReflectionCodeBlock(const CppItem * cppItem)
+CodeBlock * BuilderWriter::getParentReflectionCodeBlock(const CppItem * cppItem, BuilderSection ** outSection)
 {
 	BuilderSection * section = this->getReflectionContainerSection(cppItem->getParent(), cppItem);
+	if(outSection != NULL) {
+		*outSection = section;
+	}
 	return this->getReflectionBodyBlock(section->getCodeBlock())->getNamedBlock(ItemNames[cppItem->getCategory()], cbsTailEmptyLine);
 }
 
@@ -145,8 +147,7 @@ BuilderSection * BuilderWriter::getClassWrapperSection(const CppContainer * cppC
 		section = this->getSectionList()->addSection(bstClassWrapper, cppContainer);
 		this->wrapperClassSectionMap.insert(make_pair(cppContainer, section));
 
-		initializeClassWrapperOutline(section->getCodeBlock(), this->getBuilderContext(), cppContainer);
-		this->createPartialClassWrapperCreationFunction(cppContainer, section->getIndex());
+		initializeClassWrapperOutline(this->getBuilderContext(), section);
 	}
 	else {
 		section = it->second;
@@ -159,10 +160,10 @@ BuilderSection * BuilderWriter::getClassWrapperReflectionSection(const CppContai
 {
 	bool isNewSection;
 	BuilderSection * section = getSection(this->getProject(), this->getSectionList(),
-		&this->wrapperClassReflectionSectionMap, cppContainer, payloadItem, &isNewSection);
+		&this->wrapperClassReflectionSectionMap, cppContainer, payloadItem, bstClassWrapperReflectionFunction, &isNewSection);
 	if(isNewSection) {
-		initializeClassWrapperReflectionOutline(section->getCodeBlock(), this->getBuilderContext(),
-			cppContainer, section->getIndex());
+		initializeReflectionFunctionOutline(this->getBuilderContext(), section);
+		this->createPartialClassWrapperCreationFunction(cppContainer, section->getIndex());
 	}
 
 	return section;
@@ -177,8 +178,8 @@ CodeBlock * BuilderWriter::getClassWrapperParentReflectionCodeBlock(const CppIte
 void BuilderWriter::createPartialClassWrapperCreationFunction(const CppContainer * cppContainer, int sectionIndex)
 {
 	BuilderSection * section = this->getSectionList()->addSection(bstClassWrapperPartialCreationFunction, cppContainer);
-	initializePartialCreationFunction(cntClassWrapper, this->getBuilderContext(), section->getCodeBlock(),
-		cppContainer, sectionIndex, NULL);
+	section->setIndex(sectionIndex);
+	initializePartialCreationFunction(this->getBuilderContext(), section, NULL);
 }
 
 BuilderSectionList * BuilderWriter::getSectionList()

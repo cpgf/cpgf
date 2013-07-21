@@ -129,15 +129,17 @@ void BuilderContext::generateCreationFunctionSections()
 	
 	this->doCollectPartialCreationFunctions(&partialCreationSections);
 
-	set<const CppItem *> generatedItemSet;
+	typedef pair<const CppItem *, BuilderSectionType> PairType;
+	set<PairType> generatedItemSet;
 	for(TempBuilderSectionListType::iterator it = partialCreationSections.begin();
 		it != partialCreationSections.end();
 		++it) {
-		const CppItem * cppItem = (*it)->getCppItem();
-		if(generatedItemSet.find(cppItem) == generatedItemSet.end()) {
-			generatedItemSet.insert(cppItem);
-			this->doGenerateCreateFunctionSection(*it,
-				it, partialCreationSections.end());
+		BuilderSection * section = *it;
+		const CppItem * cppItem = section->getCppItem();
+		PairType p = make_pair(cppItem, section->getType());
+		if(generatedItemSet.find(p) == generatedItemSet.end()) {
+			generatedItemSet.insert(p);
+			this->doGenerateCreateFunctionSection(section, it, partialCreationSections.end());
 		}
 	}
 }
@@ -148,10 +150,9 @@ void BuilderContext::doGenerateCreateFunctionSection(BuilderSection * sampleSect
 {
 	const CppContainer * sampleContainer = static_cast<const CppContainer *>(sampleSection->getCppItem());
 
-	CodeNameType nameType = getNameTypeFromBuilderSection(sampleSection);
 	BuilderSection * declarationSection = this->sectionList->addSection(bstCreationFunctionDeclaration, sampleContainer);
 	declarationSection->getCodeBlock()->appendLine(
-		Poco::format("%s;", getCreationFunctionPrototype(nameType, this, sampleContainer))
+		Poco::format("%s;", getCreationFunctionPrototype(this, sampleSection))
 	);
 
 	BuilderSection * definitionSection = this->sectionList->addSection(bstCreationFunctionDefinition, sampleContainer);
@@ -160,7 +161,7 @@ void BuilderContext::doGenerateCreateFunctionSection(BuilderSection * sampleSect
 	CodeBlock * headerBlock = creationBlock->getNamedBlock(CodeBlockName_FunctionHeader);
 	CodeBlock * bodyBlock = creationBlock->getNamedBlock(CodeBlockName_FunctionBody, cbsBracketAndIndent);
 
-	headerBlock->appendLine(getCreationFunctionPrototype(nameType, this, sampleContainer));
+	headerBlock->appendLine(getCreationFunctionPrototype(this, sampleSection));
 
 	bodyBlock->appendLine("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();");
 	bodyBlock->appendLine("cpgf::GDefineMetaInfo meta = _d.getMetaInfo();");
@@ -171,12 +172,10 @@ void BuilderContext::doGenerateCreateFunctionSection(BuilderSection * sampleSect
 		const CppContainer * currentContainer = static_cast<const CppContainer *>(currentSection->getCppItem());
 		if(currentContainer == sampleContainer && currentSection->getType() == sampleSection->getType()) {
 			forwardDeclarationBlock->appendLine(
-				Poco::format("%s;", getPartialCreationFunctionPrototype(nameType, this,
-					currentContainer, currentSection->getIndex()))
+				Poco::format("%s;", getPartialCreationFunctionPrototype(this, currentSection))
 			);
 			bodyBlock->appendLine(
-				Poco::format("%s(meta);", getPartialCreationFunctionName(nameType, this,
-					currentContainer, currentSection->getIndex()))
+				Poco::format("%s(meta);", getPartialCreationFunctionName(this, currentSection))
 			);
 		}
 	}

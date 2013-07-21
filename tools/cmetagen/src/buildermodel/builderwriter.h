@@ -42,7 +42,7 @@ public:
 public: // auxiliary functions used by BuilderItem's
 	CodeBlock * createOperatorWrapperCodeBlock(const CppItem * cppItem);
 	CodeBlock * createBitFieldWrapperCodeBlock(const CppItem * cppItem);
-	CodeBlock * getParentReflectionCodeBlock(const CppItem * cppItem);
+	CodeBlock * getParentReflectionCodeBlock(const CppItem * cppItem, BuilderSection ** outSection = NULL);
 	CodeBlock * getContainerReflectionCodeBlock(const CppContainer * cppContainer);
 	
 	CodeBlock * getClassWrapperCodeBlock(const CppItem * cppItem);

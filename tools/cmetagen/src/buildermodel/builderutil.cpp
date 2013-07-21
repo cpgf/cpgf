@@ -116,9 +116,13 @@ std::string getContainerOrClassWrapperClassName(CodeNameType nameType, const Bui
 	return "";
 }
 
-string getContainerOrClassWrapperQualifiedName(CodeNameType nameType, const BuilderContext * builderContext, const CppContainer * cppContainer)
+string getContainerOrClassWrapperQualifiedName(const BuilderContext * builderContext, BuilderSection * section)
 {
-	switch(nameType) {
+	GASSERT(section->getCppItem()->isContainer());
+
+	const CppContainer * cppContainer = static_cast<const CppContainer *>(section->getCppItem());
+
+	switch(getNameTypeFromBuilderSection(section)) {
 		case cntNormal:
 			return getContainerQualifiedName(builderContext, cppContainer);
 
@@ -139,45 +143,48 @@ string getSectionIndexName(int sectionIndex)
 	return result;
 }
 
-std::string getPartialCreationFunctionName(CodeNameType nameType, const BuilderContext * builderContext,
-		const CppContainer * cppContainer, int index)
+std::string getPartialCreationFunctionName(const BuilderContext * builderContext, BuilderSection * section)
 {
+	GASSERT(section->getCppItem()->isContainer());
+
+	int sectionIndex = section->getIndex();
+
 	return normalizeSymbolName(Poco::format("partial_%s_%s%s",
 		builderContext->getProject()->getCreationFunctionPrefix(),
-		getContainerOrClassWrapperQualifiedName(nameType, builderContext, cppContainer),
-		getSectionIndexName(index)
+		getContainerOrClassWrapperQualifiedName(builderContext, section),
+		getSectionIndexName(sectionIndex)
 		)
 	);
 }
 
-std::string getPartialCreationFunctionPrototype(CodeNameType nameType, const BuilderContext * builderContext,
-		const CppContainer * cppContainer, int index)
+std::string getPartialCreationFunctionPrototype(const BuilderContext * builderContext, BuilderSection * section)
 {
-	string creationName = getPartialCreationFunctionName(nameType, builderContext, cppContainer, index);
+	string creationName = getPartialCreationFunctionName(builderContext, section);
 	return Poco::format("void %s(cpgf::GDefineMetaInfo metaInfo)", creationName);
 }
 
-std::string getCreationFunctionName(CodeNameType nameType, const BuilderContext * builderContext,
-		const CppContainer * cppContainer)
+std::string getCreationFunctionName(const BuilderContext * builderContext, BuilderSection * section)
 {
 	return normalizeSymbolName(builderContext->getProject()->getCreationFunctionPrefix()
-		+ "_" + getContainerOrClassWrapperQualifiedName(nameType, builderContext, cppContainer));
+		+ "_" + getContainerOrClassWrapperQualifiedName(builderContext, section));
 }
 
-std::string getCreationFunctionPrototype(CodeNameType nameType, const BuilderContext * builderContext,
-		const CppContainer * cppContainer)
+std::string getCreationFunctionPrototype(const BuilderContext * builderContext, BuilderSection * section)
 {
-	string creationName = getCreationFunctionName(nameType, builderContext, cppContainer);
+	string creationName = getCreationFunctionName(builderContext, section);
 	return Poco::format("cpgf::GDefineMetaInfo %s()", creationName);
 }
 
-std::string getReflectionFunctionName(CodeNameType nameType, const BuilderContext * builderContext, const CppContainer * cppContainer,
-									  int index)
+std::string getReflectionFunctionName(const BuilderContext * builderContext, BuilderSection * section)
 {
+	GASSERT(section->getCppItem()->isContainer());
+
+	int sectionIndex = section->getIndex();
+
 	return normalizeSymbolName(Poco::format("%s_%s%s",
 		builderContext->getProject()->getReflectionFunctionPrefix(),
-		getContainerOrClassWrapperQualifiedName(nameType, builderContext, cppContainer),
-		getSectionIndexName(index)
+		getContainerOrClassWrapperQualifiedName(builderContext, section),
+		getSectionIndexName(sectionIndex)
 		)
 	);
 }
@@ -192,16 +199,14 @@ CodeNameType getNameTypeFromBuilderSection(BuilderSection * section)
 	}
 }
 
-void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const BuilderContext * builderContext,
-		const CppContainer * cppContainer, int sectionIndex)
+void initializeReflectionFunctionOutline(const BuilderContext * builderContext, BuilderSection * section)
 {
-	initializeReflectionFunctionOutline(codeBlock, builderContext, cppContainer,
-		getReflectionFunctionName(cntNormal, builderContext, cppContainer, sectionIndex));
-}
+	GASSERT(section->getCppItem()->isContainer());
 
-void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const BuilderContext * builderContext,
-		const CppContainer * cppContainer, const std::string & functionName)
-{
+	const CppContainer * cppContainer = static_cast<const CppContainer *>(section->getCppItem());
+	CodeBlock * codeBlock = section->getCodeBlock();
+	string functionName = getReflectionFunctionName(builderContext, section);
+
 	const std::string & D = builderContext->getProject()->getMetaDefineParamName();
 	CodeBlock * headerBlock = codeBlock->getNamedBlock(CodeBlockName_FunctionHeader);
 	const CppClass * cppClass = cppContainer->isClass() ? static_cast<const CppClass *>(cppContainer) : NULL;
@@ -227,16 +232,20 @@ void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const BuilderCon
 	}
 }
 
-void initializePartialCreationFunction(CodeNameType nameType, const BuilderContext * builderContext,
-		CodeBlock * codeBlock, const CppContainer * cppContainer, int sectionIndex,
+void initializePartialCreationFunction(const BuilderContext * builderContext, BuilderSection * section,
 		BuilderTemplateInstantiation * templateInstantiation)
 {
+	GASSERT(section->getCppItem()->isContainer());
+
+	const CppContainer * cppContainer = static_cast<const CppContainer *>(section->getCppItem());
+	CodeBlock * codeBlock = section->getCodeBlock();
+
 	const CppClass * cppClass = NULL;
 	if(cppContainer->isClass()) {
 		cppClass = static_cast<const CppClass *>(cppContainer);
 	}
 
-	string prototype = getPartialCreationFunctionPrototype(nameType, builderContext, cppContainer, sectionIndex);
+	string prototype = getPartialCreationFunctionPrototype(builderContext, section);
 
 	string s;
 
@@ -253,7 +262,7 @@ void initializePartialCreationFunction(CodeNameType nameType, const BuilderConte
 	CodeBlock * bodyBlock = codeBlock->appendBlock(cbsBracketAndIndent);
 	string metaType;
 	if(cppClass != NULL) {
-		string className = getContainerOrClassWrapperQualifiedName(nameType, builderContext, cppClass);
+		string className = getContainerOrClassWrapperQualifiedName(builderContext, section);
 		if(cppClass->isTemplate()) {
 			metaType = Poco::format("cpgf::GDefineMetaClass<%s<%s > >", className,
 				cppClass->getTextOfChainedTemplateParamList(itoWithArgName));
@@ -268,17 +277,16 @@ void initializePartialCreationFunction(CodeNameType nameType, const BuilderConte
 	s = Poco::format("%s meta = %s::fromMetaClass(metaInfo.getMetaClass());", metaType, metaType);
 	bodyBlock->appendLine(s);
 	s = Poco::format("%s(meta);",
-		getReflectionFunctionName(nameType, builderContext, cppContainer, sectionIndex));
+		getReflectionFunctionName(builderContext, section));
 	bodyBlock->appendLine(s);
 }
 
-void initializeClassWrapperOutline(CodeBlock * codeBlock, const BuilderContext * builderContext,
-		const CppContainer * cppContainer)
+void initializeClassWrapperOutline(const BuilderContext * builderContext, BuilderSection * section)
 {
-	if(! cppContainer->isClass()) {
-		GASSERT(false);
-		return;
-	}
+	GASSERT(section->getCppItem()->isClass());
+
+	const CppContainer * cppContainer = static_cast<const CppContainer *>(section->getCppItem());
+	CodeBlock * codeBlock = section->getCodeBlock();
 
 	const CppClass * cppClass = static_cast<const CppClass *>(cppContainer);
 	string s;
@@ -305,14 +313,6 @@ void initializeClassWrapperOutline(CodeBlock * codeBlock, const BuilderContext *
 		block->appendLine(s + ":");
 		block->getNamedBlock(CodeBlockName_Customize, cbsIndent | cbsTailEmptyLine);
 	}
-}
-
-void initializeClassWrapperReflectionOutline(CodeBlock * codeBlock, const BuilderContext * builderContext,
-		const CppContainer * cppContainer, int sectionIndex)
-{
-	initializeReflectionFunctionOutline(codeBlock, builderContext, cppContainer,
-		getReflectionFunctionName(cntClassWrapper, builderContext, cppContainer, sectionIndex)
-	);
 }
 
 

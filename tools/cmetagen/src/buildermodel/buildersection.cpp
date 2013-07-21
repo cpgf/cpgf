@@ -79,7 +79,16 @@ BuilderSection * BuilderSectionList::addSection(BuilderSectionType type, const C
 
 bool sortSectionComparer(BuilderSection * a, BuilderSection * b)
 {
-	return a->getType() < b->getType();
+	if(a->getType() < b->getType()) {
+		return true;
+	}
+	if(a->getType() > b->getType()) {
+		return false;
+	}
+	if(a->getCppItem() != b->getCppItem()) {
+		return a->getCppItem() < b->getCppItem();
+	}
+	return a->getIndex() < b->getIndex();
 }
 
 void BuilderSectionList::sort()

@@ -64,11 +64,12 @@ void BuilderClass::doWriteAsNestedClass(BuilderWriter * writer)
 		return;
 	}
 
-	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppClass);
+	BuilderSection * section;
+	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppClass, &section);
 
 	string s = Poco::format("%s(%s())",
 		writer->getReflectionAction("_class"),
-		getCreationFunctionName(cntNormal, writer->getBuilderContext(), cppClass)
+		getCreationFunctionName(writer->getBuilderContext(), section)
 	);
 	codeBlock->appendLine(s);
 }

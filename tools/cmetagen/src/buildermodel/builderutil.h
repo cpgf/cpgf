@@ -38,36 +38,24 @@ std::string getContainerQualifiedName(const BuilderContext * builderContext, con
 std::string getClassWrapperClassQualifiedName(const BuilderContext * builderContext, const CppContainer * cppContainer);
 std::string getClassWrapperClassName(const BuilderContext * builderContext, const CppContainer * cppContainer);
 std::string getContainerOrClassWrapperClassName(CodeNameType nameType, const BuilderContext * builderContext, const CppContainer * cppContainer);
-std::string getContainerOrClassWrapperQualifiedName(CodeNameType nameType, const BuilderContext * builderContext, const CppContainer * cppContainer);
+std::string getContainerOrClassWrapperQualifiedName(const BuilderContext * builderContext, BuilderSection * section);
 
-std::string getPartialCreationFunctionName(CodeNameType nameType, const BuilderContext * builderContext,
-		const CppContainer * cppContainer, int index);
-std::string getPartialCreationFunctionPrototype(CodeNameType nameType, const BuilderContext * builderContext,
-		const CppContainer * cppContainer, int index);
+std::string getPartialCreationFunctionName(const BuilderContext * builderContext, BuilderSection * section);
+std::string getPartialCreationFunctionPrototype(const BuilderContext * builderContext, BuilderSection * section);
 
-std::string getCreationFunctionName(CodeNameType nameType, const BuilderContext * builderContext,
-		const CppContainer * cppContainer);
-std::string getCreationFunctionPrototype(CodeNameType nameType, const BuilderContext * builderContext,
-		const CppContainer * cppContainer);
+std::string getCreationFunctionName(const BuilderContext * builderContext, BuilderSection * section);
+std::string getCreationFunctionPrototype(const BuilderContext * builderContext, BuilderSection * section);
 
-std::string getReflectionFunctionName(CodeNameType nameType, const BuilderContext * builderContext,
-		const CppContainer * cppContainer, int index);
+std::string getReflectionFunctionName(const BuilderContext * builderContext, BuilderSection * section);
 
 CodeNameType getNameTypeFromBuilderSection(BuilderSection * section);
 
-void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const BuilderContext * builderContext,
-		const CppContainer * cppContainer, int sectionIndex);
-void initializeReflectionFunctionOutline(CodeBlock * codeBlock, const BuilderContext * builderContext,
-		const CppContainer * cppContainer, const std::string & functionName);
+void initializeReflectionFunctionOutline(const BuilderContext * builderContext, BuilderSection * section);
 
-void initializePartialCreationFunction(CodeNameType nameType, const BuilderContext * builderContext,
-		CodeBlock * codeBlock, const CppContainer * cppContainer, int sectionIndex,
+void initializePartialCreationFunction(const BuilderContext * builderContext, BuilderSection * section,
 		BuilderTemplateInstantiation * templateInstantiation);
 
-void initializeClassWrapperOutline(CodeBlock * codeBlock, const BuilderContext * builderContext,
-		const CppContainer * cppContainer);
-void initializeClassWrapperReflectionOutline(CodeBlock * codeBlock, const BuilderContext * builderContext,
-		const CppContainer * cppContainer, int sectionIndex);
+void initializeClassWrapperOutline(const BuilderContext * builderContext, BuilderSection * section);
 
 
 } // namespace metagen
