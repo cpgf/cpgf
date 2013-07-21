@@ -11,6 +11,9 @@ public:
 	~Application();
 	
 	void run();
+
+private:
+	void doRun();
 };
 
 

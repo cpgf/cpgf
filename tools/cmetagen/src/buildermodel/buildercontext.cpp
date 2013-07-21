@@ -15,6 +15,7 @@
 #include "builderwriter.h"
 
 #include "model/cppfile.h"
+#include "model/cppclass.h"
 #include "model/cppcontext.h"
 #include "project.h"
 #include "util.h"
@@ -205,9 +206,16 @@ void BuilderContext::doCollectPartialCreationFunctions(TempBuilderSectionListTyp
 	for(BuilderSectionList::iterator it = this->getSectionList()->begin();
 		it != this->getSectionList()->end();
 		++it) {
-		if((*it)->isPartialCreationFunction()) {
-			partialCreationSections->push_back(*it);
-			GASSERT((*it)->getCppItem()->isContainer());
+		BuilderSection * section = *it;
+		if(section->isPartialCreationFunction()) {
+			const CppItem * cppItem = section->getCppItem();
+			if(cppItem->isClass()
+				&& static_cast<const CppClass *>(cppItem)->isTemplate()
+				&& section->getTemplateInstantiation() == NULL) {
+				continue;
+			}
+			partialCreationSections->push_back(section);
+			GASSERT(section->getCppItem()->isContainer());
 		}
 	}
 }

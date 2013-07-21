@@ -1,4 +1,5 @@
 #include "project.h"
+#include "buildermodel/buildertemplateinstantiation.h"
 
 namespace metagen {
 
@@ -15,9 +16,15 @@ Project::Project()
 		wrapBitFields(true),
 		allowPublic(true),
 		allowProtected(false),
-		allowPrivate(false)
+		allowPrivate(false),
+		templateInstantiationRepository(new BuilderTemplateInstantiationRepository)
 {
 maxItemCountPerFile = 5;
+this->templateInstantiationRepository->add("ns1::TemplateA<int, 18>", "TemplateA_int", "TemplateA_wrapper_int");
+}
+
+Project::~Project()
+{
 }
 
 bool Project::shouldSplitFile() const
@@ -83,6 +90,11 @@ bool Project::doesAllowProtected() const
 bool Project::doesAllowPrivate() const
 {
 	return this->allowPrivate;
+}
+
+const BuilderTemplateInstantiationRepository * Project::getTemplateInstantiationRepository() const
+{
+	return this->templateInstantiationRepository.get();
 }
 
 

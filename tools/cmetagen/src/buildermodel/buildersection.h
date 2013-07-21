@@ -10,6 +10,7 @@ namespace metagen {
 
 class CodeBlock;
 class CppItem;
+class BuilderTemplateInstantiation;
 
 enum BuilderSectionType {
 	bstOperatorWrapperFunction = 0,
@@ -46,12 +47,20 @@ public:
 
 	const CppItem * getCppItem() const;
 
+	const BuilderTemplateInstantiation * getTemplateInstantiation() const;
+	void setTemplateInstantiation(const BuilderTemplateInstantiation * templateInstantiation);
+	
+	BuilderSection * getRelateSection() const;
+	void setRelateSection(BuilderSection * relateSection);
+	
 private:
 	BuilderSectionType type;
 	const CppItem * cppItem;
 	size_t totalPayload;
 	size_t index;
 	cpgf::GScopedPointer<CodeBlock> codeBlock;
+	const BuilderTemplateInstantiation * templateInstantiation;
+	BuilderSection * relateSection;
 };
 
 class BuilderSectionList

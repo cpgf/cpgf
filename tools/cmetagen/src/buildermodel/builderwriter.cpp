@@ -3,6 +3,7 @@
 #include "buildersection.h"
 #include "buildercontext.h"
 #include "builderutil.h"
+#include "buildertemplateinstantiation.h"
 #include "model/cppcontainer.h"
 #include "model/cppclass.h"
 #include "codewriter/cppwriter.h"
@@ -87,7 +88,7 @@ BuilderSection * BuilderWriter::getReflectionContainerSection(const CppContainer
 		&this->reflectionSectionMap, cppContainer, payloadItem, bstReflectionFunction, &isNewSection);
 	if(isNewSection) {
 		initializeReflectionFunctionOutline(this->getBuilderContext(), section);
-		this->createPartialCreationFunction(cppContainer, section->getIndex());
+		this->createPartialCreationFunction(cppContainer, section);
 	}
 	
 	return section;
@@ -98,11 +99,29 @@ CodeBlock * BuilderWriter::getReflectionBodyBlock(CodeBlock * codeBlock)
 	return codeBlock->getNamedBlock(CodeBlockName_FunctionBody, cbsBracketAndIndent)->getNamedBlock(CodeBlockName_Customize);
 }
 
-void BuilderWriter::createPartialCreationFunction(const CppContainer * cppContainer, int sectionIndex)
+void BuilderWriter::createPartialCreationFunction(const CppContainer * cppContainer, BuilderSection * reflectionSection)
 {
-	BuilderSection * section = this->getSectionList()->addSection(bstPartialCreationFunction, cppContainer);
-	section->setIndex(sectionIndex);
-	initializePartialCreationFunction(this->getBuilderContext(), section, NULL);
+	this->doCreatePartialCreationFunction(cppContainer, reflectionSection, NULL);
+
+	TemplateInstantiationListType templateInstantiationList;
+	this->getProject()->getTemplateInstantiationRepository()->loadInstantiations(cppContainer, &templateInstantiationList);
+	for(TemplateInstantiationListType::iterator it = templateInstantiationList.begin();
+		it != templateInstantiationList.end();
+		++it) {
+		this->doCreatePartialCreationFunction(cppContainer, reflectionSection, *it);
+	}
+}
+
+void BuilderWriter::doCreatePartialCreationFunction(const CppContainer * cppContainer, BuilderSection * reflectionSection,
+	BuilderTemplateInstantiation * templateInstantiation)
+{
+	BuilderSection * section = this->getSectionList()->addSection(
+		reflectionSection->isClassWrapper() ? bstClassWrapperPartialCreationFunction : bstPartialCreationFunction,
+		cppContainer);
+	section->setIndex(reflectionSection->getIndex());
+	section->setRelateSection(reflectionSection);
+	section->setTemplateInstantiation(templateInstantiation);
+	initializePartialCreationFunction(this->getBuilderContext(), section);
 }
 
 CodeBlock * BuilderWriter::createOperatorWrapperCodeBlock(const CppItem * cppItem)
@@ -163,7 +182,7 @@ BuilderSection * BuilderWriter::getClassWrapperReflectionSection(const CppContai
 		&this->wrapperClassReflectionSectionMap, cppContainer, payloadItem, bstClassWrapperReflectionFunction, &isNewSection);
 	if(isNewSection) {
 		initializeReflectionFunctionOutline(this->getBuilderContext(), section);
-		this->createPartialClassWrapperCreationFunction(cppContainer, section->getIndex());
+		this->createPartialCreationFunction(cppContainer, section);
 	}
 
 	return section;
@@ -173,13 +192,6 @@ CodeBlock * BuilderWriter::getClassWrapperParentReflectionCodeBlock(const CppIte
 {
 	BuilderSection * section = this->getClassWrapperReflectionSection(cppItem->getParent(), cppItem);
 	return this->getReflectionBodyBlock(section->getCodeBlock())->getNamedBlock(ItemNames[cppItem->getCategory()], cbsTailEmptyLine);
-}
-
-void BuilderWriter::createPartialClassWrapperCreationFunction(const CppContainer * cppContainer, int sectionIndex)
-{
-	BuilderSection * section = this->getSectionList()->addSection(bstClassWrapperPartialCreationFunction, cppContainer);
-	section->setIndex(sectionIndex);
-	initializePartialCreationFunction(this->getBuilderContext(), section, NULL);
 }
 
 BuilderSectionList * BuilderWriter::getSectionList()

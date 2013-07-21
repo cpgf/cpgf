@@ -20,6 +20,7 @@ class BuilderItem;
 class BuilderSection;
 class BuilderSectionList;
 class BuilderContext;
+class BuilderTemplateInstantiation;
 class Project;
 
 enum FileType {
@@ -49,15 +50,16 @@ public: // auxiliary functions used by BuilderItem's
 	CodeBlock * getClassWrapperParentReflectionCodeBlock(const CppItem * cppItem);
 
 	std::string getReflectionAction(const std::string & name);
-	
+
 private:
 	BuilderSection * getReflectionContainerSection(const CppContainer * cppContainer, const CppItem * payloadItem);
 	CodeBlock * getReflectionBodyBlock(CodeBlock * codeBlock);
-	void createPartialCreationFunction(const CppContainer * cppContainer, int sectionIndex);
+	void createPartialCreationFunction(const CppContainer * cppContainer, BuilderSection * reflectionSection);
+	void doCreatePartialCreationFunction(const CppContainer * cppContainer, BuilderSection * reflectionSection,
+		BuilderTemplateInstantiation * templateInstantiation);
 
 	BuilderSection * getClassWrapperSection(const CppContainer * cppContainer);
 	BuilderSection * getClassWrapperReflectionSection(const CppContainer * cppContainer, const CppItem * payloadItem);
-	void createPartialClassWrapperCreationFunction(const CppContainer * cppContainer, int sectionIndex);
 
 	void doWriteReflectionFunction(const CppContainer * cppContainer);
 

@@ -10,7 +10,7 @@ namespace metagen {
 
 
 BuilderSection::BuilderSection(BuilderSectionType type, const CppItem * cppItem)
-	: type(type), cppItem(cppItem), totalPayload(0), index(0), codeBlock(new CodeBlock)
+	: type(type), cppItem(cppItem), totalPayload(0), index(0), codeBlock(new CodeBlock), relateSection(NULL)
 {
 }
 
@@ -31,6 +31,12 @@ void BuilderSection::addPayload(size_t payload)
 
 size_t BuilderSection::getTotalPayload() const
 {
+	if(this->totalPayload == 0) {
+		if(this->relateSection != NULL) {
+			return this->relateSection->getTotalPayload();
+		}
+	}
+	
 	return this->totalPayload;
 }
 
@@ -58,6 +64,26 @@ bool BuilderSection::isPartialCreationFunction() const
 const CppItem * BuilderSection::getCppItem() const
 {
 	return this->cppItem;
+}
+
+const BuilderTemplateInstantiation * BuilderSection::getTemplateInstantiation() const
+{
+	return this->templateInstantiation;
+}
+
+void BuilderSection::setTemplateInstantiation(const BuilderTemplateInstantiation * templateInstantiation)
+{
+	this->templateInstantiation = templateInstantiation;
+}
+
+BuilderSection * BuilderSection::getRelateSection() const
+{
+	return this->relateSection;
+}
+
+void BuilderSection::setRelateSection(BuilderSection * relateSection)
+{
+	this->relateSection = relateSection;
 }
 
 

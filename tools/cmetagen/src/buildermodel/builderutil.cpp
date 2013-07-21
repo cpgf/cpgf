@@ -1,6 +1,7 @@
 #include "builderutil.h"
 #include "buildercontext.h"
 #include "buildersection.h"
+#include "buildertemplateinstantiation.h"
 #include "model/cppitem.h"
 #include "model/cppcontainer.h"
 #include "model/cppclass.h"
@@ -80,56 +81,38 @@ size_t getCppItemPayload(const CppItem * item)
 	return payload;
 }
 
-string getContainerQualifiedName(const BuilderContext * builderContext, const CppContainer * cppContainer)
-{
-	string result;
-
-	if(cppContainer->isClass() || cppContainer->isNamespace()) {
-		result = normalizeSymbolName(cppContainer->getQualifiedName());
-	}
-	else {
-		result = builderContext->getSourceBaseFileName() + "_Global";
-	}
-
-	return result;
-}
-
-std::string getClassWrapperClassQualifiedName(const BuilderContext * builderContext, const CppContainer * cppContainer)
-{
-	return cppContainer->getQualifiedName() + builderContext->getProject()->getClassWrapperPostfix();
-}
-
 std::string getClassWrapperClassName(const BuilderContext * builderContext, const CppContainer * cppContainer)
 {
 	return cppContainer->getName() + builderContext->getProject()->getClassWrapperPostfix();
 }
 
-std::string getContainerOrClassWrapperClassName(CodeNameType nameType, const BuilderContext * builderContext, const CppContainer * cppContainer)
+std::string getClassWrapperClassQulifiedName(const BuilderContext * builderContext, const CppContainer * cppContainer)
 {
-	switch(nameType) {
-		case cntNormal:
-			return cppContainer->getName();
-
-		case cntClassWrapper:
-			return getClassWrapperClassName(builderContext, cppContainer);
-	}
-	return "";
+	return cppContainer->getQualifiedName() + builderContext->getProject()->getClassWrapperPostfix();
 }
 
-string getContainerOrClassWrapperQualifiedName(const BuilderContext * builderContext, BuilderSection * section)
+string getContainerNormalizedSymboName(const BuilderContext * builderContext, BuilderSection * section)
 {
 	GASSERT(section->getCppItem()->isContainer());
 
 	const CppContainer * cppContainer = static_cast<const CppContainer *>(section->getCppItem());
+	string result;
 
 	switch(getNameTypeFromBuilderSection(section)) {
 		case cntNormal:
-			return getContainerQualifiedName(builderContext, cppContainer);
+			if(cppContainer->isClass() || cppContainer->isNamespace()) {
+				result = cppContainer->getQualifiedName();
+			}
+			else {
+				result = builderContext->getSourceBaseFileName() + "_Global";
+			}
+			break;
 
 		case cntClassWrapper:
-			return getClassWrapperClassQualifiedName(builderContext, cppContainer);
+			result = cppContainer->getQualifiedName() + builderContext->getProject()->getClassWrapperPostfix();
+			break;
 	}
-	return "";
+	return normalizeSymbolName(result);
 }
 
 string getSectionIndexName(int sectionIndex)
@@ -151,7 +134,7 @@ std::string getPartialCreationFunctionName(const BuilderContext * builderContext
 
 	return normalizeSymbolName(Poco::format("partial_%s_%s%s",
 		builderContext->getProject()->getCreationFunctionPrefix(),
-		getContainerOrClassWrapperQualifiedName(builderContext, section),
+		getContainerNormalizedSymboName(builderContext, section),
 		getSectionIndexName(sectionIndex)
 		)
 	);
@@ -166,7 +149,7 @@ std::string getPartialCreationFunctionPrototype(const BuilderContext * builderCo
 std::string getCreationFunctionName(const BuilderContext * builderContext, BuilderSection * section)
 {
 	return normalizeSymbolName(builderContext->getProject()->getCreationFunctionPrefix()
-		+ "_" + getContainerOrClassWrapperQualifiedName(builderContext, section));
+		+ "_" + getContainerNormalizedSymboName(builderContext, section));
 }
 
 std::string getCreationFunctionPrototype(const BuilderContext * builderContext, BuilderSection * section)
@@ -183,7 +166,7 @@ std::string getReflectionFunctionName(const BuilderContext * builderContext, Bui
 
 	return normalizeSymbolName(Poco::format("%s_%s%s",
 		builderContext->getProject()->getReflectionFunctionPrefix(),
-		getContainerOrClassWrapperQualifiedName(builderContext, section),
+		getContainerNormalizedSymboName(builderContext, section),
 		getSectionIndexName(sectionIndex)
 		)
 	);
@@ -232,8 +215,7 @@ void initializeReflectionFunctionOutline(const BuilderContext * builderContext, 
 	}
 }
 
-void initializePartialCreationFunction(const BuilderContext * builderContext, BuilderSection * section,
-		BuilderTemplateInstantiation * templateInstantiation)
+void initializePartialCreationFunction(const BuilderContext * builderContext, BuilderSection * section)
 {
 	GASSERT(section->getCppItem()->isContainer());
 
@@ -249,35 +231,53 @@ void initializePartialCreationFunction(const BuilderContext * builderContext, Bu
 
 	string s;
 
+	const BuilderTemplateInstantiation * templateInstantiation = section->getTemplateInstantiation();
+
 	if(cppClass != NULL && cppClass->isTemplate()) {
 		if(templateInstantiation == NULL) {
 			return;
 		}
 
-		s = Poco::format("template <%s >", cppClass->getTextOfChainedTemplateParamList(itoWithArgType | itoWithArgName));
 		codeBlock->appendLine(s);
 	}
 	codeBlock->appendLine(prototype);
 
 	CodeBlock * bodyBlock = codeBlock->appendBlock(cbsBracketAndIndent);
+
+	const string metaTypeTypeDef("MetaType");
+
+	string reflectionTemplateParams;
+
 	string metaType;
 	if(cppClass != NULL) {
-		string className = getContainerOrClassWrapperQualifiedName(builderContext, section);
-		if(cppClass->isTemplate()) {
-			metaType = Poco::format("cpgf::GDefineMetaClass<%s<%s > >", className,
-				cppClass->getTextOfChainedTemplateParamList(itoWithArgName));
+		string className = getContainerNormalizedSymboName(builderContext, section);
+		if(section->isClassWrapper()) {
+			className = getClassWrapperClassQulifiedName(builderContext, cppClass);
 		}
 		else {
-			metaType = Poco::format("cpgf::GDefineMetaClass<%s >", className);
+			className = cppClass->getQualifiedName();
 		}
+		string selfType;
+		if(cppClass->isTemplate()) {
+			selfType = Poco::format("%s<%s >", className, templateInstantiation->getTemplateParams());
+			reflectionTemplateParams = Poco::format("<%s, %s >", metaTypeTypeDef, templateInstantiation->getTemplateParams());
+		}
+		else {
+			selfType = className;
+		}
+		metaType = Poco::format("cpgf::GDefineMetaClass<%s >", selfType);
 	}
 	else {
 		metaType = "GDefineMetaGlobal";
 	}
-	s = Poco::format("%s meta = %s::fromMetaClass(metaInfo.getMetaClass());", metaType, metaType);
+
+	s = Poco::format("typedef %s %s;", metaType, metaTypeTypeDef);
 	bodyBlock->appendLine(s);
-	s = Poco::format("%s(meta);",
-		getReflectionFunctionName(builderContext, section));
+
+	s = Poco::format("%s meta = %s::fromMetaClass(metaInfo.getMetaClass());", metaTypeTypeDef, metaTypeTypeDef);
+	bodyBlock->appendLine(s);
+	s = Poco::format("%s%s(meta);",
+		getReflectionFunctionName(builderContext, section), reflectionTemplateParams);
 	bodyBlock->appendLine(s);
 }
 

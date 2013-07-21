@@ -5,6 +5,9 @@
 #include "model/cppnamespace.h"
 #include "buildermodel/buildercontext.h"
 #include "project.h"
+#include "exception.h"
+
+#include <iostream>
 
 namespace metagen {
 
@@ -18,6 +21,16 @@ Application::~Application()
 }
 
 void Application::run()
+{
+	try {
+		this->doRun();
+	}
+	catch(const Exception & e) {
+		std::cerr << e.what() << std::endl;
+	}
+}
+
+void Application::doRun()
 {
 	Project project;
 	CppContext context(&project);

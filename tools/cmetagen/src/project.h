@@ -1,15 +1,19 @@
 #ifndef __PROJECT_H
 #define __PROJECT_H
 
+#include "cpgf/gscopedptr.h"
+
 #include <string>
 
 namespace metagen {
 
+class BuilderTemplateInstantiationRepository;
 
 class Project
 {
 public:
 	Project();
+	~Project();
 
 	bool shouldSplitFile() const;
 	size_t getMaxItemCountPerFile() const;
@@ -26,6 +30,8 @@ public:
 	bool doesAllowPublic() const;
 	bool doesAllowProtected() const;
 	bool doesAllowPrivate() const;
+	
+	const BuilderTemplateInstantiationRepository * getTemplateInstantiationRepository() const;
 
 private:
 	size_t maxItemCountPerFile;
@@ -42,6 +48,8 @@ private:
 	bool allowPublic;
 	bool allowProtected;
 	bool allowPrivate;
+	
+	cpgf::GScopedPointer<BuilderTemplateInstantiationRepository> templateInstantiationRepository;
 };
 
 
