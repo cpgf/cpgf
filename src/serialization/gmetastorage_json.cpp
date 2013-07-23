@@ -565,10 +565,10 @@ void G_API_CC GJsonStorageReader::readFundamental(const char * name, GVariantDat
 	}
 	else {
 		if(node->isInt()) {
-			v = node->asInt();
+			v = node->asLargestInt();
 		}
 		else {
-			v = node->asUInt();
+			v = node->asLargestUInt();
 		}
 	}
 	*outValue = v.takeData();

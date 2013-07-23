@@ -12,29 +12,6 @@ using namespace cpgf;
 namespace metagen {
 
 
-std::string normalizePath(const std::string & path)
-{
-	std::string result(path);
-	std::replace(result.begin(), result.end(), '\\', '/');
-	return result;
-}
-
-std::string removeLastToken(const std::string & s)
-{
-	static Poco::RegularExpression re("\\s*\\w+\\s*$");
-	string result(s);
-	re.subst(result, "");
-	return result;
-}
-
-std::string removeAllAfterEqualSign(const std::string & s)
-{
-	static Poco::RegularExpression re("\\s*=.*$");
-	string result(s);
-	re.subst(result, "");
-	return result;
-}
-
 std::string normalizeSymbolName(const std::string & name)
 {
 	string result = name;
@@ -45,13 +22,97 @@ std::string normalizeSymbolName(const std::string & name)
 	return result;
 }
 
-std::string removeQualifications(const std::string & name)
+std::string normalizePath(const std::string & path)
 {
-	static Poco::RegularExpression re("^.*\\b(\\w+)\\s*$");
-	string result(name);
-	re.subst(result, "$1");
+	std::string result(path);
+	std::replace(result.begin(), result.end(), '\\', '/');
 	return result;
 }
+
+Poco::Path makeRelativePath(const Poco::Path & base, const Poco::Path & path)
+{
+	if(base.getNode() != path.getNode()) {
+		return path;
+	}
+	if(base.getDevice() != path.getDevice()) {
+		return path;
+	}
+
+	int baseDepth = base.depth();
+	int pathDepth = path.depth();
+	if(baseDepth == 0 || pathDepth == 0) {
+		return path;
+	}
+	
+	int i = 0;
+	while(base[i] == path[i]) {
+		++i;
+		if(i == baseDepth || i == pathDepth) {
+			break;
+		}
+	}
+	
+	if(i == baseDepth && i == pathDepth) {
+		return Poco::Path("");
+	}
+
+	Poco::Path result;
+	for(int k = i; k < baseDepth; ++k) {
+		result.pushDirectory("..");
+	}
+	for(int k = i; k < pathDepth; ++k) {
+		result.pushDirectory(path[k]);
+	}
+
+	return result;
+}
+
+bool readStringFromFile(const std::string & fileName, std::string * outContent)
+{
+	FILE * file = fopen(fileName.c_str(), "rb");
+	if(file == NULL) {
+		return false;
+	}
+	fseek(file, 0, SEEK_END);
+	size_t length = ftell(file);
+	fseek(file, 0, SEEK_SET);
+	outContent->resize(length);
+	fread(&(*outContent)[0], length, 1, file);
+	fclose(file);
+	return true;
+}
+
+bool writeStringToFile(const std::string & fileName, const std::string & content)
+{
+	FILE * file = fopen(fileName.c_str(), "wb");
+	if(file == NULL) {
+		return false;
+	}
+	fwrite(&content[0], content.size(), 1, file);
+	fclose(file);
+	return true;
+}
+
+bool shouldTargetFileBeUpdated(const std::string & sourceFileName, const std::string & targetFileName)
+{
+	Poco::File targetFile(targetFileName);
+
+	if(! targetFile.exists()) {
+		return true;
+	}
+
+	Poco::File sourceFile(sourceFileName);
+	
+	return sourceFile.getLastModified() >= targetFile.getLastModified();
+}
+
+bool isFileContentSameToString(const std::string & fileName, const std::string & s)
+{
+	string content;
+	readStringFromFile(fileName, &content);
+	return s == content;
+}
+
 
 
 } // namespace metagen
