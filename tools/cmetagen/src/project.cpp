@@ -6,17 +6,26 @@ namespace metagen {
 
 Project::Project()
 	:	maxItemCountPerFile(0),
+		
+		headerFileExtension(".h"),
+		sourceFileExtension(".cpp"),
+		headerOutputPath("output/"),
+		sourceOutputPath("output/"),
+		
 		reflectionFunctionPrefix("buildMetaClass_"),
 		creationFunctionPrefix("createMetaClass_"),
 		mainRegisterFunctionPrefix("registerMain_"),
 		metaDefineParamName("D_d"),
 		classWrapperPostfix("Wrapper"),
 		classWrapperSuperPrefix("super_"),
+
 		wrapOperator(true),
 		wrapBitFields(true),
+
 		allowPublic(true),
 		allowProtected(false),
 		allowPrivate(false),
+
 		templateInstantiationRepository(new BuilderTemplateInstantiationRepository)
 {
 maxItemCountPerFile = 5;
@@ -35,6 +44,26 @@ bool Project::shouldSplitFile() const
 size_t Project::getMaxItemCountPerFile() const
 {
 	return this->maxItemCountPerFile;
+}
+
+const std::string & Project::getHeaderFileExtension()
+{
+	return this->headerFileExtension;
+}
+
+const std::string & Project::getSourceFileExtension()
+{
+	return this->sourceFileExtension;
+}
+
+const std::string & Project::getHeaderOutputPath()
+{
+	return this->headerOutputPath;
+}
+
+const std::string & Project::getSourceOutputPath()
+{
+	return this->sourceOutputPath;
 }
 
 const std::string & Project::getReflectionFunctionPrefix() const

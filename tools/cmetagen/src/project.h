@@ -17,6 +17,12 @@ public:
 
 	bool shouldSplitFile() const;
 	size_t getMaxItemCountPerFile() const;
+
+	const std::string & getHeaderFileExtension();
+	const std::string & getSourceFileExtension();
+	const std::string & getHeaderOutputPath();
+	const std::string & getSourceOutputPath();
+	
 	const std::string & getReflectionFunctionPrefix() const;
 	const std::string & getCreationFunctionPrefix() const;
 	const std::string & getMainRegisterFunctionPrefix() const;
@@ -35,6 +41,12 @@ public:
 
 private:
 	size_t maxItemCountPerFile;
+	
+	std::string headerFileExtension;
+	std::string sourceFileExtension;
+	std::string headerOutputPath;
+	std::string sourceOutputPath;
+
 	std::string reflectionFunctionPrefix;
 	std::string creationFunctionPrefix;
 	std::string mainRegisterFunctionPrefix;

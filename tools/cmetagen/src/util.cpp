@@ -3,6 +3,9 @@
 
 #include "Poco/String.h"
 #include "Poco/RegularExpression.h"
+#include "Poco/Path.h"
+#include "Poco/File.h"
+
 
 #include <algorithm>
 
@@ -29,19 +32,22 @@ std::string normalizePath(const std::string & path)
 	return result;
 }
 
-Poco::Path makeRelativePath(const Poco::Path & base, const Poco::Path & path)
+std::string makeRelativePath(const std::string & sbase, const std::string & spath)
 {
+	Poco::Path base(sbase);
+	Poco::Path path(spath);
+
 	if(base.getNode() != path.getNode()) {
-		return path;
+		return spath;
 	}
 	if(base.getDevice() != path.getDevice()) {
-		return path;
+		return spath;
 	}
 
 	int baseDepth = base.depth();
 	int pathDepth = path.depth();
 	if(baseDepth == 0 || pathDepth == 0) {
-		return path;
+		return spath;
 	}
 	
 	int i = 0;
@@ -53,7 +59,7 @@ Poco::Path makeRelativePath(const Poco::Path & base, const Poco::Path & path)
 	}
 	
 	if(i == baseDepth && i == pathDepth) {
-		return Poco::Path("");
+		return "";
 	}
 
 	Poco::Path result;
@@ -64,7 +70,7 @@ Poco::Path makeRelativePath(const Poco::Path & base, const Poco::Path & path)
 		result.pushDirectory(path[k]);
 	}
 
-	return result;
+	return result.toString();
 }
 
 bool readStringFromFile(const std::string & fileName, std::string * outContent)

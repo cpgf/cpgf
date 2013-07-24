@@ -3,6 +3,7 @@ TBD version 1.5.6
 	Added GScriptValue to represent values in script binding.
 	Enhanced fundamental type handling in script binding. Now the overloaded function with bool, integer, real (float, double) can be selected correctly.
 	Upgraded thirdparty library jsoncpp to 0.6.0 rc2 from 0.5.0. The new version supports int64. The library is used in the serialization library.
+	Fixed a memory leak in script runner.
 	Fixed a compile error in CMake file when some third party libraries are not available.
 	Fixed a compile error when compiling in VC in Win64 mode.
 	Fixed a compile error when /Zc:wchar_t- is set in VC.
