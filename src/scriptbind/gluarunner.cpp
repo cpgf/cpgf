@@ -38,7 +38,8 @@ GLuaScriptRunnerImplement::GLuaScriptRunnerImplement(IMetaService * service)
 {
 	luaL_openlibs(this->luaState);
 
-	GScopedInterface<IScriptObject> scriptObject(createLuaScriptInterface(this->getService(), this->luaState, GScriptConfig()));
+	GScopedInterface<IMetaService> metaService(this->getService());
+	GScopedInterface<IScriptObject> scriptObject(createLuaScriptInterface(metaService.get(), this->luaState, GScriptConfig()));
 	this->setScripeObject(scriptObject.get());
 }
 

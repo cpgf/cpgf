@@ -42,7 +42,8 @@ GV8ScriptRunnerImplement::GV8ScriptRunnerImplement(IMetaService * service)
 	this->contextScope = new Context::Scope(this->context);
 	Local<Object> global = context->Global();
 
-	GScopedInterface<IScriptObject> scriptObject(createV8ScriptInterface(this->getService(), global, GScriptConfig()));
+	GScopedInterface<IMetaService> metaService(this->getService());
+	GScopedInterface<IScriptObject> scriptObject(createV8ScriptInterface(metaService.get(), global, GScriptConfig()));
 	this->setScripeObject(scriptObject.get());
 }
 

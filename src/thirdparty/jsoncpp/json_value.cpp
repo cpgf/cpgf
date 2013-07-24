@@ -20,6 +20,12 @@
 #endif
 #include <cstddef>    // size_t
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4127) // conditional expression is constant
+#pragma warning(disable:4100)
+#endif
+
 #define JSON_ASSERT_UNREACHABLE assert( false )
 #define JSON_ASSERT( condition ) assert( condition );  // @todo <= change this into an exception throw
 #define JSON_FAIL_MESSAGE( message ) throw std::runtime_error( message );

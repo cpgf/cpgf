@@ -39,7 +39,8 @@ GPythonScriptRunnerImplement::GPythonScriptRunnerImplement(IMetaService * servic
 {
 	this->object = PyImport_ImportModule("__main__");
 	
-	GScopedInterface<IScriptObject> scriptObject(createPythonScriptInterface(this->getService(), this->object, GScriptConfig()));
+	GScopedInterface<IMetaService> metaService(this->getService());
+	GScopedInterface<IScriptObject> scriptObject(createPythonScriptInterface(metaService.get(), this->object, GScriptConfig()));
 	this->setScripeObject(scriptObject.get());
 }
 

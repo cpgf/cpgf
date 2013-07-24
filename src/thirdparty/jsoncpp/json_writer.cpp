@@ -15,8 +15,9 @@
 #include <sstream>
 #include <iomanip>
 
-#if _MSC_VER >= 1400 // VC++ 8.0
+#ifdef _MSC_VER
 #pragma warning( disable : 4996 )   // disable warning about strdup being deprecated.
+#pragma warning(disable:4127) // conditional expression is constant
 #endif
 
 namespace Json {
