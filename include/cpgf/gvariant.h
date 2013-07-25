@@ -190,6 +190,7 @@ void checkFailCast(bool success);
 
 
 #include "cpgf/private/gvariant_p.h"
+#include "cpgf/private/gvariant_cancast_p.h"
 
 
 template <typename T>
