@@ -149,9 +149,9 @@ CodeBlock * BuilderWriter::getContainerReflectionCodeBlock(const CppContainer * 
 	return this->getReflectionBodyBlock(section->getCodeBlock())->getNamedBlock(ItemNames[cppContainer->getCategory()], cbsTailEmptyLine);
 }
 
-CodeBlock * BuilderWriter::getClassWrapperCodeBlock(const CppItem * cppItem)
+CodeBlock * BuilderWriter::getClassWrapperCodeBlock(const CppItem * cppItem, const CppContainer * container)
 {
-	BuilderSection * section = this->getClassWrapperSection(cppItem->getParent());
+	BuilderSection * section = this->getClassWrapperSection(container);
 	return section->getCodeBlock()->getNamedBlock(CodeBlockName_ClassBody, cbsBracket)
 		->getNamedBlock(getTextOfVisibility(cppItem->getVisibility()))
 		->getNamedBlock(CodeBlockName_Customize, cbsIndent | cbsTailEmptyLine)

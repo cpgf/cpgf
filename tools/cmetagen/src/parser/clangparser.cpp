@@ -563,7 +563,7 @@ void ClangParserImplement::parseBaseClass(CppClass * cls, CXXBaseSpecifier * bas
 		qualifiedName = this->getTemplateSpecializationName(t);
 	}
 
-	BaseClass * baseClass = new BaseClass(baseSpecifier);
+	BaseClass * baseClass = new BaseClass(baseSpecifier, this->context);
 	cls->getBaseClassList()->push_back(baseClass);
 }
 

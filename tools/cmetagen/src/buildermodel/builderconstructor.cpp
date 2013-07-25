@@ -60,7 +60,7 @@ void BuilderConstructor::doWriterReflectionCode(BuilderWriter * writer, CodeBloc
 void BuilderConstructor::doWriterClassWrapper(BuilderWriter * writer)
 {
 	const CppConstructor * cppConstructor = this->getCppConstructor();
-	CodeBlock * codeBlock = writer->getClassWrapperCodeBlock(cppConstructor);
+	CodeBlock * codeBlock = writer->getClassWrapperCodeBlock(cppConstructor, cppConstructor->getParent());
 	codeBlock->appendLine(cppConstructor->getTextWithReplacedName(
 		itoWithName | itoWithArgType | itoWithArgName | itoWithDefaultValue,
 		getClassWrapperClassName(writer->getBuilderContext(), cppConstructor->getParent())

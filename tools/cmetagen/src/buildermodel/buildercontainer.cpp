@@ -23,7 +23,7 @@ const CppContainer * BuilderContainer::getCppContainer() const
 
 void BuilderContainer::addItem(BuilderItem * item)
 {
-//	this->itemList.push_back(item);
+	this->itemList.push_back(item);
 	item->setParent(this);
 }
 

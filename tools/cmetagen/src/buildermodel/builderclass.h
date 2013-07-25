@@ -28,6 +28,7 @@ protected:
 private:	
 	void doWriteBaseClasses(BuilderWriter * writer);
 	void doWriteAsNestedClass(BuilderWriter * writer);
+	void doWriteInheritedOverridableMethods(BuilderWriter * writer);
 };
 
 

@@ -9,21 +9,25 @@ namespace clang { class CXXBaseSpecifier; }
 
 namespace metagen {
 
-
 class CppConstructor;
 class CppDestructor;
+class CppContext;
+class CppClass;
 
 class BaseClass
 {
 public:
-	explicit BaseClass(const clang::CXXBaseSpecifier * baseSpecifier);
+	explicit BaseClass(const clang::CXXBaseSpecifier * baseSpecifier, const CppContext * cppContext);
 	
 	ItemVisibility getVisibility() const;
 	
 	std::string getQualifiedName() const;
 
+	const CppClass * getCppClass() const;
+
 private:
 	const clang::CXXBaseSpecifier * baseSpecifier;
+	const CppContext * cppContext;
 };
 
 class CppClass : public CppContainer

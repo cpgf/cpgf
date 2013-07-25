@@ -46,7 +46,7 @@ public: // auxiliary functions used by BuilderItem's
 	CodeBlock * getParentReflectionCodeBlock(const CppItem * cppItem, BuilderSection ** outSection = NULL);
 	CodeBlock * getContainerReflectionCodeBlock(const CppContainer * cppContainer);
 	
-	CodeBlock * getClassWrapperCodeBlock(const CppItem * cppItem);
+	CodeBlock * getClassWrapperCodeBlock(const CppItem * cppItem, const CppContainer * container);
 	CodeBlock * getClassWrapperParentReflectionCodeBlock(const CppItem * cppItem);
 
 	std::string getReflectionAction(const std::string & name);

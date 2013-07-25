@@ -1,7 +1,9 @@
 #include "builderclass.h"
+#include "buildermethod.h"
 #include "builderwriter.h"
 #include "builderutil.h"
 #include "model/cppclass.h"
+#include "model/cppmethod.h"
 #include "codewriter/cppwriter.h"
 #include "util.h"
 
@@ -36,6 +38,10 @@ void BuilderClass::doWriteMetaData(BuilderWriter * writer)
 	
 	if(this->getCppClass()->isNestedClass()) {
 		this->doWriteAsNestedClass(writer);
+	}
+	
+	if(this->shouldWrapClass()) {
+		this->doWriteInheritedOverridableMethods(writer);
 	}
 }
 
@@ -72,6 +78,25 @@ void BuilderClass::doWriteAsNestedClass(BuilderWriter * writer)
 		getCreationFunctionName(writer->getBuilderContext(), section)
 	);
 	codeBlock->appendLine(s);
+}
+
+void BuilderClass::doWriteInheritedOverridableMethods(BuilderWriter * writer)
+{
+	const CppClass * cppClass = this->getCppClass();
+
+	for(CppClass::BaseClassListType::const_iterator it = cppClass->getBaseClassList()->begin();
+		it != cppClass->getBaseClassList()->end();
+		++it) {
+		const CppClass * baseClass = (*it)->getCppClass();
+
+		for(CppClass::MethodListType::const_iterator methodIt = baseClass->getMethodList()->begin();
+			methodIt != baseClass->getMethodList()->end();
+			++methodIt) {
+			const CppMethod * method = *methodIt;
+			if(method->isVirtual()) {
+			}
+		}
+	}
 }
 
 

@@ -1,6 +1,7 @@
 #include "cppclass.h"
 #include "cppconstructor.h"
 #include "cppdestructor.h"
+#include "cppcontext.h"
 #include "cpputil.h"
 
 #include "util.h"
@@ -22,8 +23,8 @@ using namespace std;
 namespace metagen {
 
 
-BaseClass::BaseClass(const clang::CXXBaseSpecifier * baseSpecifier)
-	: baseSpecifier(baseSpecifier)
+BaseClass::BaseClass(const clang::CXXBaseSpecifier * baseSpecifier, const CppContext * cppContext)
+	: baseSpecifier(baseSpecifier), cppContext(cppContext)
 {
 }
 
@@ -36,6 +37,11 @@ ItemVisibility BaseClass::getVisibility() const
 std::string BaseClass::getQualifiedName() const
 {
 	return CppType(this->baseSpecifier->getType()).getQualifiedName();
+}
+
+const CppClass * BaseClass::getCppClass() const
+{
+	return static_cast<const CppClass *>(this->cppContext->findNamedItem(icClass, this->getQualifiedName()));
 }
 
 const CXXRecordDecl * getRecordDecl(const Decl * decl)

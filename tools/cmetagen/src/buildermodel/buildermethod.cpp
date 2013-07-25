@@ -14,6 +14,16 @@ using namespace std;
 namespace metagen {
 
 
+void doWriterReflection(const CppMethod * cppMethod, BuilderWriter * writer);
+void doWriterDefaultParameterReflection(const CppMethod * cppMethod, CodeBlock * codeBlock);
+void doWriterReflectionCode(const CppMethod * cppMethod, BuilderWriter * writer, CodeBlock * codeBlock,
+										   const std::string & methodName);
+void doWriterClassWrapper(const CppMethod * cppMethod, BuilderWriter * writer);
+void doWriterClassWrapperCallSuperMethod(const CppMethod * cppMethod, CodeBlock * codeBlock);
+void doWriterClassWrapperMethodBody(const CppMethod * cppMethod, CodeBlock * codeBlock);
+void doWriterClassWrapperReflection(const CppMethod * cppMethod, BuilderWriter * writer);
+
+
 BuilderMethod::BuilderMethod(const CppItem * cppItem)
 	: super(cppItem)
 {
@@ -31,29 +41,72 @@ const CppMethod * BuilderMethod::getCppMethod() const
 
 void BuilderMethod::doWriteMetaData(BuilderWriter * writer)
 {
-	this->doWriterReflection(writer);
-
 	const CppMethod * cppMethod = this->getCppMethod();
+
+	doWriterReflection(cppMethod, writer);
+
 	if(cppMethod->isVirtual()
 		&& this->getCppItem()->getParent()->isClass()
 		&& static_cast<BuilderClass *>(this->getParent())->shouldWrapClass()) {
-		this->doWriterClassWrapper(writer);
-		this->doWriterClassWrapperReflection(writer);
+		doWriterClassWrapper(cppMethod, writer);
+		doWriterClassWrapperReflection(cppMethod, writer);
 	}
 }
 
-void BuilderMethod::doWriterReflection(BuilderWriter * writer)
+void doWriterReflection(const CppMethod * cppMethod, BuilderWriter * writer)
 {
-	const CppMethod * cppMethod = this->getCppMethod();
 	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppMethod);
-	this->doWriterReflectionCode(writer, codeBlock, cppMethod->getName());
+	doWriterReflectionCode(cppMethod, writer, codeBlock, cppMethod->getName());
 }
 
-void BuilderMethod::doWriterReflectionCode(BuilderWriter * writer, CodeBlock * codeBlock,
+void doWriterClassWrapper(const CppMethod * cppMethod, BuilderWriter * writer)
+{
+	CodeBlock * codeBlock = writer->getClassWrapperCodeBlock(cppMethod, cppMethod->getParent());
+
+	const ItemTextOption options = ItemTextOption(itoWithName | itoWithResult | itoWithQualifiers
+		| itoWithArgType | itoWithArgName | itoWithDefaultValue);
+	string s;
+
+	s = cppMethod->getText(options);
+	codeBlock->appendLine(s);
+	doWriterClassWrapperMethodBody(cppMethod, codeBlock->appendBlock(cbsBracketAndIndent));
+
+	s = cppMethod->getTextWithReplacedName(options, writer->getProject()->getClassWrapperSuperPrefix() + cppMethod->getName());
+	codeBlock->appendLine(s);
+	doWriterClassWrapperCallSuperMethod(cppMethod, codeBlock->appendBlock(cbsBracketAndIndent));
+}
+
+void doWriterDefaultParameterReflection(const CppMethod * cppMethod, CodeBlock * codeBlock)
+{
+	size_t arity = cppMethod->getArity();
+	while(arity != 0) {
+		--arity;
+		if(! cppMethod->paramHasDefaultValue(arity)) {
+			break;
+		}
+
+		string defaultValue = cppMethod->getTextOfParamDeafultValue(arity);
+		bool shouldSafeCopy = false;
+		CppType type = cppMethod->getParamType(arity).getNonReferenceType();
+		if(! type.isPointer()) {
+			if(! type.isFundamental()) {
+				shouldSafeCopy = true;
+			}
+		}
+		string s;
+		if(shouldSafeCopy) {
+			s = Poco::format("._default(copyVariantFromCopyable(%s))", defaultValue);
+		}
+		else {
+			s = Poco::format("._default(%s)", defaultValue);
+		}
+		codeBlock->appendLine(s);
+	}
+}
+
+void doWriterReflectionCode(const CppMethod * cppMethod, BuilderWriter * writer, CodeBlock * codeBlock,
 										   const std::string & methodName)
 {
-	const CppMethod * cppMethod = this->getCppMethod();
-
 	size_t arity = cppMethod->getArity();
 	bool hasDefaultValue = (arity > 0 && cppMethod->paramHasDefaultValue(arity - 1));
 
@@ -81,61 +134,27 @@ void BuilderMethod::doWriterReflectionCode(BuilderWriter * writer, CodeBlock * c
 	codeBlock->appendLine(s);
 
 	if(hasDefaultValue) {
-		this->doWriterDefaultParameterReflection(codeBlock->appendBlock(cbsIndent));
+		doWriterDefaultParameterReflection(cppMethod, codeBlock->appendBlock(cbsIndent));
 		codeBlock->appendLine(";");
 	}
 }
 
-void BuilderMethod::doWriterDefaultParameterReflection(CodeBlock * codeBlock)
+void doWriterClassWrapperCallSuperMethod(const CppMethod * cppMethod, CodeBlock * codeBlock)
 {
-	const CppMethod * cppMethod = this->getCppMethod();
-	size_t arity = cppMethod->getArity();
-	while(arity != 0) {
-		--arity;
-		if(! cppMethod->paramHasDefaultValue(arity)) {
-			break;
-		}
-
-		string defaultValue = cppMethod->getTextOfParamDeafultValue(arity);
-		bool shouldSafeCopy = false;
-		CppType type = cppMethod->getParamType(arity).getNonReferenceType();
-		if(! type.isPointer()) {
-			if(! type.isFundamental()) {
-				shouldSafeCopy = true;
-			}
-		}
-		string s;
-		if(shouldSafeCopy) {
-			s = Poco::format("._default(copyVariantFromCopyable(%s))", defaultValue);
-		}
-		else {
-			s = Poco::format("._default(%s)", defaultValue);
+	if(cppMethod->isPureVirtual()) {
+		codeBlock->appendLine("throw \"Abstract method\";");
+	}
+	else {
+		string s = Poco::format("super::%s(%s);", cppMethod->getName(), cppMethod->getTextOfParamList(itoWithArgName));
+		if(cppMethod->hasResult()) {
+			s = "return " + s;
 		}
 		codeBlock->appendLine(s);
 	}
 }
 
-void BuilderMethod::doWriterClassWrapper(BuilderWriter * writer)
+void doWriterClassWrapperMethodBody(const CppMethod * cppMethod, CodeBlock * codeBlock)
 {
-	const CppMethod * cppMethod = this->getCppMethod();
-	CodeBlock * codeBlock = writer->getClassWrapperCodeBlock(cppMethod);
-
-	const ItemTextOption options = ItemTextOption(itoWithName | itoWithResult | itoWithQualifiers
-		| itoWithArgType | itoWithArgName | itoWithDefaultValue);
-	string s;
-
-	s = cppMethod->getText(options);
-	codeBlock->appendLine(s);
-	this->doWriterClassWrapperMethodBody(codeBlock->appendBlock(cbsBracketAndIndent));
-
-	s = cppMethod->getTextWithReplacedName(options, writer->getProject()->getClassWrapperSuperPrefix() + cppMethod->getName());
-	codeBlock->appendLine(s);
-	this->doWriterClassWrapperCallSuperMethod(codeBlock->appendBlock(cbsBracketAndIndent));
-}
-
-void BuilderMethod::doWriterClassWrapperMethodBody(CodeBlock * codeBlock)
-{
-	const CppMethod * cppMethod = this->getCppMethod();
 	string s;
 
 	s = Poco::format("cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction(\"%s\"));",
@@ -158,30 +177,16 @@ void BuilderMethod::doWriterClassWrapperMethodBody(CodeBlock * codeBlock)
 		bodyBlock->appendLine("return;");
 	}
 
-	this->doWriterClassWrapperCallSuperMethod(codeBlock);
+	doWriterClassWrapperCallSuperMethod(cppMethod, codeBlock);
 }
 
-void BuilderMethod::doWriterClassWrapperCallSuperMethod(CodeBlock * codeBlock)
+void doWriterClassWrapperReflection(const CppMethod * cppMethod, BuilderWriter * writer)
 {
-	const CppMethod * cppMethod = this->getCppMethod();
-	if(cppMethod->isPureVirtual()) {
-		codeBlock->appendLine("throw \"Abstract method\";");
-	}
-	else {
-		string s = Poco::format("super::%s(%s);", cppMethod->getName(), cppMethod->getTextOfParamList(itoWithArgName));
-		if(cppMethod->hasResult()) {
-			s = "return " + s;
-		}
-		codeBlock->appendLine(s);
-	}
-}
-
-void BuilderMethod::doWriterClassWrapperReflection(BuilderWriter * writer)
-{
-	const CppMethod * cppMethod = this->getCppMethod();
 	CodeBlock * codeBlock = writer->getClassWrapperParentReflectionCodeBlock(cppMethod);
-	this->doWriterReflectionCode(writer, codeBlock, writer->getProject()->getClassWrapperSuperPrefix() + cppMethod->getName());
+	doWriterReflectionCode(cppMethod, writer, codeBlock,
+		writer->getProject()->getClassWrapperSuperPrefix() + cppMethod->getName());
 }
+
 
 
 } // namespace metagen
