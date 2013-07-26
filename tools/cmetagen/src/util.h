@@ -19,7 +19,9 @@ void clearPointerContainer(T & container)
 std::string normalizeSymbolName(const std::string & name);
 
 // Replace all '\' with '/'
+std::string normalizeFile(const std::string & file);
 std::string normalizePath(const std::string & path);
+
 std::string makeRelativePath(const std::string & base, const std::string & path);
 bool readStringFromFile(const std::string & fileName, std::string * outContent);
 bool writeStringToFile(const std::string & fileName, const std::string & content);

@@ -3,7 +3,7 @@
 
 #include "cpgf/gscopedptr.h"
 
-#include <vector>
+#include <deque>
 
 
 namespace metagen {
@@ -44,6 +44,8 @@ public:
 
 	bool isClassWrapper() const;
 	bool isPartialCreationFunction() const;
+	bool isCreationFunctionDefinition() const;
+	bool shouldBeInSourceFile() const;
 
 	const CppItem * getCppItem() const;
 
@@ -63,10 +65,11 @@ private:
 	BuilderSection * relateSection;
 };
 
+typedef std::deque<BuilderSection *> BuilderSectionListType;
+
 class BuilderSectionList
 {
 public:
-	typedef std::vector<BuilderSection *> BuilderSectionListType;
 	typedef BuilderSectionListType::iterator iterator;
 	typedef BuilderSectionListType::const_iterator const_iterator;
 
@@ -76,8 +79,6 @@ public:
 
 	BuilderSection * addSection(BuilderSectionType type, const CppItem * cppItem);
 
-	void sort();
-
 	void dump();
 
 public:
@@ -85,10 +86,13 @@ public:
 	const_iterator begin() const { return this->sectionList.begin(); }
 	iterator end() { return this->sectionList.end(); }
 	const_iterator end() const { return this->sectionList.end(); }
+	bool isEmpty() const { return this->sectionList.empty(); }
 
 private:
 	BuilderSectionListType sectionList;
 };
+
+void sortSectionList(BuilderSectionListType & sectionList);
 
 
 } // namespace metagen

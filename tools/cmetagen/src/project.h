@@ -18,10 +18,13 @@ public:
 	bool shouldSplitFile() const;
 	size_t getMaxItemCountPerFile() const;
 
-	const std::string & getHeaderFileExtension();
-	const std::string & getSourceFileExtension();
-	const std::string & getHeaderOutputPath();
-	const std::string & getSourceOutputPath();
+	const std::string & getHeaderFileExtension() const;
+	const std::string & getSourceFileExtension() const;
+	const std::string & getHeaderOutputPath() const;
+	const std::string & getSourceOutputPath() const;
+	const std::string & getTargetFilePrefix() const;
+	
+	bool shouldIncludeExtensionInFileName() const;
 	
 	const std::string & getReflectionFunctionPrefix() const;
 	const std::string & getCreationFunctionPrefix() const;
@@ -39,6 +42,12 @@ public:
 	
 	const BuilderTemplateInstantiationRepository * getTemplateInstantiationRepository() const;
 
+public:	
+	std::string getAbsoluteFileName(const std::string & fileName) const;
+	const std::string & getProjectRootPath() const;
+
+	void loadProject(const std::string & projectFileName);
+
 private:
 	size_t maxItemCountPerFile;
 	
@@ -46,6 +55,9 @@ private:
 	std::string sourceFileExtension;
 	std::string headerOutputPath;
 	std::string sourceOutputPath;
+	std::string targetFilePrefix;
+	
+	bool includeExtensionInFileName;
 
 	std::string reflectionFunctionPrefix;
 	std::string creationFunctionPrefix;
@@ -62,6 +74,8 @@ private:
 	bool allowPrivate;
 	
 	cpgf::GScopedPointer<BuilderTemplateInstantiationRepository> templateInstantiationRepository;
+	std::string projectFileName;
+	std::string projectRootPath;
 };
 
 

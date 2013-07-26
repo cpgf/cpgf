@@ -1,6 +1,5 @@
 #include "application.h"
 
-#include "parser/clangparser.h"
 #include "model/cppcontext.h"
 #include "model/cppnamespace.h"
 #include "buildermodel/buildercontext.h"
@@ -32,13 +31,15 @@ void Application::run()
 
 void Application::doRun()
 {
-	Project project;
-	CppContext context(&project);
-	ClangParser parser(&context);
-	
-	parser.parse("z.h");
+	const char * sourceFileName = "z.h";
 
-	BuilderContext builderContext(&project, "d:\\test.h");
+	Project project;
+	project.loadProject("zzz.js");
+	
+	CppContext context(&project);
+	context.process(project.getAbsoluteFileName(sourceFileName));
+
+	BuilderContext builderContext(&project, project.getAbsoluteFileName(sourceFileName));
 	builderContext.process(&context);
 
 }

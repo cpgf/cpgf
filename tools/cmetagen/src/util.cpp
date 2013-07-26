@@ -25,10 +25,19 @@ std::string normalizeSymbolName(const std::string & name)
 	return result;
 }
 
+std::string normalizeFile(const std::string & file)
+{
+	std::string result(file);
+	std::replace(result.begin(), result.end(), '\\', '/');
+	return result;
+}
+
 std::string normalizePath(const std::string & path)
 {
-	std::string result(path);
-	std::replace(result.begin(), result.end(), '\\', '/');
+	string result(normalizeFile(path));
+	if(! result.empty() && result[result.size() - 1] != '/') {
+		result.append("/");
+	}
 	return result;
 }
 

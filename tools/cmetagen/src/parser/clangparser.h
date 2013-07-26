@@ -12,10 +12,10 @@ class CppContext;
 class ClangParser
 {
 public:
-	explicit ClangParser(CppContext * context);
+	ClangParser();
 	~ClangParser();
 
-	void parse(const char * fileName);
+	void parse(CppContext * context, const char * fileName);
 
 private:
 	cpgf::GScopedPointer<ClangParserImplement> implement;

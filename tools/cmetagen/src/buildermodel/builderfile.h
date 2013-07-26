@@ -12,7 +12,6 @@ namespace metagen {
 
 class CppFile;
 class Project;
-class CppWriter;
 class BuilderContainer;
 class BuilderWriter;
 

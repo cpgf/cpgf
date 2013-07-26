@@ -1,6 +1,7 @@
 #ifndef __CPPCONTEXT_H
 #define __CPPCONTEXT_H
 
+#include "parser/clangparser.h"
 #include "cppitem.h"
 
 #include "cpgf/gscopedptr.h"
@@ -25,6 +26,8 @@ public:
 	explicit CppContext(const Project * project);
 	~CppContext();
 	
+	void process(const std::string & sourceFileName);
+	
 	CppFile * getCppFile() const { return this->cppFile.get(); }
 	const Project * getProject() const { return this->project; }
 	
@@ -48,6 +51,7 @@ private:
 	ItemListType itemList;
 	ItemNameMapType itemNameMap[icCount];
 	const Project * project;
+	ClangParser parser;
 	
 private:
 	friend class ClangParserImplement;

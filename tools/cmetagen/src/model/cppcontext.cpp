@@ -19,6 +19,11 @@ CppContext::~CppContext()
 	clearPointerContainer(this->itemList);
 }
 
+void CppContext::process(const std::string & sourceFileName)
+{
+	this->parser.parse(this, sourceFileName.c_str());
+}
+
 void CppContext::beginFile(const char * fileName, clang::Decl * decl)
 {
 	GASSERT(! this->cppFile);

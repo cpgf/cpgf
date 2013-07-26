@@ -13,6 +13,7 @@
 #include "builderutil.h"
 #include "buildersection.h"
 #include "builderwriter.h"
+#include "builderfilewriter.h"
 
 #include "model/cppfile.h"
 #include "model/cppclass.h"
@@ -77,15 +78,16 @@ BuilderItem * createBuilderItem(const CppItem * cppItem)
 
 BuilderContext::BuilderContext(const Project * project, const std::string & sourceFileName)
 	:	project(project),
-		sourceFileName(normalizePath(sourceFileName)),
+		sourceFileName(normalizeFile(sourceFileName)),
 		sectionList(new BuilderSectionList())
 {
-	this->sourceBaseFileName = this->sourceFileName.getBaseName();
+	this->sourceBaseFileName = Poco::Path(this->sourceFileName).getBaseName();
 }
 
 BuilderContext::~BuilderContext()
 {
 	clearPointerContainer(this->itemList);
+	clearPointerContainer(this->fileWriterList);
 }
 
 BuilderItem * BuilderContext::createItem(const CppItem * cppItem)
@@ -109,11 +111,21 @@ void BuilderContext::doProcessFile(const CppFile * cppFile)
 	this->flatten(file);
 
 	this->generateCodeSections();
+	if(this->getSectionList()->isEmpty()) {
+		return;
+	}
 	this->generateCreationFunctionSections();
-	this->generateFilePartitions();
+	
+	this->createHeaderFileWriter();
+	this->createSourceFileWriters();
 
-	this->getSectionList()->sort();
-	this->getSectionList()->dump();
+//	this->getSectionList()->dump();
+
+	for(BuilderFileWriterListType::iterator it = this->fileWriterList.begin();
+		it != this->fileWriterList.end();
+		++it) {
+		(*it)->output();
+	}
 }
 
 void BuilderContext::generateCodeSections()
@@ -126,13 +138,13 @@ void BuilderContext::generateCodeSections()
 
 void BuilderContext::generateCreationFunctionSections()
 {
-	TempBuilderSectionListType partialCreationSections;
+	BuilderSectionListType partialCreationSections;
 	
 	this->doCollectPartialCreationFunctions(&partialCreationSections);
 
 	typedef pair<const CppItem *, BuilderSectionType> PairType;
 	set<PairType> generatedItemSet;
-	for(TempBuilderSectionListType::iterator it = partialCreationSections.begin();
+	for(BuilderSectionListType::iterator it = partialCreationSections.begin();
 		it != partialCreationSections.end();
 		++it) {
 		BuilderSection * section = *it;
@@ -146,8 +158,8 @@ void BuilderContext::generateCreationFunctionSections()
 }
 
 void BuilderContext::doGenerateCreateFunctionSection(BuilderSection * sampleSection,
-		TempBuilderSectionListType::iterator begin,
-		TempBuilderSectionListType::iterator end)
+		BuilderSectionListType::iterator begin,
+		BuilderSectionListType::iterator end)
 {
 	const CppContainer * sampleContainer = static_cast<const CppContainer *>(sampleSection->getCppItem());
 
@@ -168,7 +180,7 @@ void BuilderContext::doGenerateCreateFunctionSection(BuilderSection * sampleSect
 	bodyBlock->appendLine("cpgf::GDefineMetaInfo meta = _d.getMetaInfo();");
 	bodyBlock->appendBlankLine();
 
-	for(TempBuilderSectionListType::iterator it = begin; it != end; ++it) {
+	for(BuilderSectionListType::iterator it = begin; it != end; ++it) {
 		BuilderSection * currentSection = *it;
 		const CppContainer * currentContainer = static_cast<const CppContainer *>(currentSection->getCppItem());
 		if(currentContainer == sampleContainer && currentSection->getType() == sampleSection->getType()) {
@@ -190,18 +202,33 @@ bool partialCreationSectionComparer(BuilderSection * a, BuilderSection * b)
 	return a->getTotalPayload() > b->getTotalPayload();
 }
 
-void BuilderContext::generateFilePartitions()
+void BuilderContext::createHeaderFileWriter()
 {
-	TempBuilderSectionListType partialCreationSections;
+	BuilderFileWriter * fileWriter = BuilderFileWriter::createHeaderFile(this->sourceFileName, this);
+	this->fileWriterList.push_back(fileWriter);
+
+	for(BuilderSectionList::iterator it = this->getSectionList()->begin();
+		it != this->getSectionList()->end();
+		++it) {
+		BuilderSection * section = *it;
+		if(! section->shouldBeInSourceFile()) {
+			fileWriter->addSection(section);
+		}
+	}
+}
+
+void BuilderContext::createSourceFileWriters()
+{
+	BuilderSectionListType partialCreationSections;
 	
 	this->doCollectPartialCreationFunctions(&partialCreationSections);
 
 	std::sort(partialCreationSections.begin(), partialCreationSections.end(), &partialCreationSectionComparer);
 
-	this->doGenerateFilePartitions(&partialCreationSections);
+	this->doCreateSourceFileWriters(&partialCreationSections);
 }
 
-void BuilderContext::doCollectPartialCreationFunctions(TempBuilderSectionListType * partialCreationSections)
+void BuilderContext::doCollectPartialCreationFunctions(BuilderSectionListType * partialCreationSections)
 {
 	for(BuilderSectionList::iterator it = this->getSectionList()->begin();
 		it != this->getSectionList()->end();
@@ -220,24 +247,34 @@ void BuilderContext::doCollectPartialCreationFunctions(TempBuilderSectionListTyp
 	}
 }
 
-void BuilderContext::doGenerateFilePartitions(TempBuilderSectionListType * partialCreationSections)
+void BuilderContext::doCreateSourceFileWriters(BuilderSectionListType * partialCreationSections)
 {
+	int fileIndex = 0;
 	while(! partialCreationSections->empty()) {
-		TempBuilderSectionListType sectionsInOneFile;
+		BuilderSectionListType sectionsInOneFile;
 		this->doExtractPartialCreationFunctions(partialCreationSections, &sectionsInOneFile);
-		printf("TTTTTTTTTTTT \n");
-		for(TempBuilderSectionListType::iterator it = sectionsInOneFile.begin();
+		BuilderFileWriter * fileWriter = BuilderFileWriter::createSourceFile(this->sourceFileName, this, fileIndex);
+		this->fileWriterList.push_back(fileWriter);
+		if(fileIndex == 0) {
+			for(BuilderSectionList::iterator it = this->sectionList->begin();
+				it != this->sectionList->end();
+				++it) {
+				if((*it)->isCreationFunctionDefinition()) {
+					fileWriter->addSection(*it);
+				}
+			}
+		}
+		++fileIndex;
+		for(BuilderSectionListType::iterator it = sectionsInOneFile.begin();
 			it != sectionsInOneFile.end();
 			++it) {
-		CodeWriter codeWriter;
-		(*it)->getCodeBlock()->write(&codeWriter);
-		printf("%s\n\n", codeWriter.getText().c_str());
+			fileWriter->addSection(*it);
 		}
 	}
 }
 
-void BuilderContext::doExtractPartialCreationFunctions(TempBuilderSectionListType * partialCreationSections,
-	TempBuilderSectionListType * outputSections)
+void BuilderContext::doExtractPartialCreationFunctions(BuilderSectionListType * partialCreationSections,
+	BuilderSectionListType * outputSections)
 {
 	if(partialCreationSections->empty()) {
 		return;
@@ -252,7 +289,7 @@ void BuilderContext::doExtractPartialCreationFunctions(TempBuilderSectionListTyp
 	bool found = true;
 	while(found) {
 		found = false;
-		for(TempBuilderSectionListType::iterator it = partialCreationSections->begin();
+		for(BuilderSectionListType::iterator it = partialCreationSections->begin();
 			it != partialCreationSections->end();
 			) {
 			if(maxItemCountPerFile == 0

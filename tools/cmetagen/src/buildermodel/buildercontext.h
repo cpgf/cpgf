@@ -2,10 +2,9 @@
 #define __BUILDERCONTEXT_H
 
 #include "builderitem.h"
+#include "buildersection.h"
 
 #include "cpgf/gscopedptr.h"
-
-#include "Poco/Path.h"
 
 #include <string>
 #include <vector>
@@ -21,13 +20,16 @@ class BuilderFile;
 class BuilderContainer;
 class BuilderSection;
 class BuilderSectionList;
+class BuilderFileWriter;
 class Project;
 
 class BuilderContext
 {
 private:
+	typedef std::vector<BuilderFileWriter *> BuilderFileWriterListType;
+
+public:
 	typedef std::vector<BuilderItem *> ItemListType;
-	typedef std::deque<BuilderSection *> TempBuilderSectionListType;
 
 public:
 	BuilderContext(const Project * project, const std::string & sourceFileName);
@@ -46,13 +48,14 @@ private:
 
 	void generateCreationFunctionSections();
 	void doGenerateCreateFunctionSection(BuilderSection * sampleSection,
-		TempBuilderSectionListType::iterator begin, TempBuilderSectionListType::iterator end);
+		BuilderSectionListType::iterator begin, BuilderSectionListType::iterator end);
 
-	void generateFilePartitions();
-	void doCollectPartialCreationFunctions(TempBuilderSectionListType * partialCreationSections);
-	void doGenerateFilePartitions(TempBuilderSectionListType * partialCreationSections);
-	void doExtractPartialCreationFunctions(TempBuilderSectionListType * partialCreationSections,
-		TempBuilderSectionListType * outputSections);
+	void createHeaderFileWriter();
+	void createSourceFileWriters();
+	void doCollectPartialCreationFunctions(BuilderSectionListType * partialCreationSections);
+	void doCreateSourceFileWriters(BuilderSectionListType * partialCreationSections);
+	void doExtractPartialCreationFunctions(BuilderSectionListType * partialCreationSections,
+		BuilderSectionListType * outputSections);
 
 	void flatten(BuilderFile * file);
 	void doFlatten(BuilderFile * file, BuilderContainer * builderContainer);
@@ -63,10 +66,11 @@ private:
 
 private:
 	const Project * project;
-	Poco::Path sourceFileName;
+	std::string sourceFileName;
 	std::string sourceBaseFileName;
 	ItemListType itemList;
 	cpgf::GScopedPointer<BuilderSectionList> sectionList;
+	BuilderFileWriterListType fileWriterList;
 };
 
 

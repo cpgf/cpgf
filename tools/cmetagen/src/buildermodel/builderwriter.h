@@ -12,7 +12,6 @@
 namespace metagen {
 
 
-class CppWriter;
 class CppItem;
 class CppContainer;
 class CodeBlock;
@@ -23,9 +22,6 @@ class BuilderContext;
 class BuilderTemplateInstantiation;
 class Project;
 
-enum FileType {
-	ftHeader, ftSource
-};
 
 class BuilderWriter
 {

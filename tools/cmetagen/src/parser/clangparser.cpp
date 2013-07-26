@@ -704,8 +704,7 @@ string ClangParserImplement::locationToSource(const SourceLocation & begin, cons
 //}
 
 
-ClangParser::ClangParser(CppContext * context)
-	:implement(new ClangParserImplement(context))
+ClangParser::ClangParser()
 {
 }
 
@@ -713,8 +712,9 @@ ClangParser::~ClangParser()
 {
 }
 
-void ClangParser::parse(const char * fileName)
+void ClangParser::parse(CppContext * context, const char * fileName)
 {
+	this->implement.reset(new ClangParserImplement(context));
 	this->implement->parse(fileName);
 }
 

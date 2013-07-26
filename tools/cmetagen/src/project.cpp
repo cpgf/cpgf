@@ -1,8 +1,13 @@
 #include "project.h"
 #include "buildermodel/buildertemplateinstantiation.h"
+#include "exception.h"
+#include "util.h"
+
+#include "Poco/Path.h"
+#include "Poco/File.h"
+#include "Poco/Format.h"
 
 namespace metagen {
-
 
 Project::Project()
 	:	maxItemCountPerFile(0),
@@ -11,6 +16,9 @@ Project::Project()
 		sourceFileExtension(".cpp"),
 		headerOutputPath("output/"),
 		sourceOutputPath("output/"),
+		targetFilePrefix("meta_"),
+		
+		includeExtensionInFileName(false),
 		
 		reflectionFunctionPrefix("buildMetaClass_"),
 		creationFunctionPrefix("createMetaClass_"),
@@ -46,24 +54,34 @@ size_t Project::getMaxItemCountPerFile() const
 	return this->maxItemCountPerFile;
 }
 
-const std::string & Project::getHeaderFileExtension()
+const std::string & Project::getHeaderFileExtension() const
 {
 	return this->headerFileExtension;
 }
 
-const std::string & Project::getSourceFileExtension()
+const std::string & Project::getSourceFileExtension() const
 {
 	return this->sourceFileExtension;
 }
 
-const std::string & Project::getHeaderOutputPath()
+const std::string & Project::getHeaderOutputPath() const
 {
 	return this->headerOutputPath;
 }
 
-const std::string & Project::getSourceOutputPath()
+const std::string & Project::getSourceOutputPath() const
 {
 	return this->sourceOutputPath;
+}
+
+const std::string & Project::getTargetFilePrefix() const
+{
+	return this->targetFilePrefix;
+}
+
+bool Project::shouldIncludeExtensionInFileName() const
+{
+	return this->includeExtensionInFileName;
 }
 
 const std::string & Project::getReflectionFunctionPrefix() const
@@ -124,6 +142,34 @@ bool Project::doesAllowPrivate() const
 const BuilderTemplateInstantiationRepository * Project::getTemplateInstantiationRepository() const
 {
 	return this->templateInstantiationRepository.get();
+}
+
+std::string Project::getAbsoluteFileName(const std::string & fileName) const
+{
+	return normalizeFile(Poco::Path(fileName).makeAbsolute(this->getProjectRootPath()).toString());
+}
+
+const std::string & Project::getProjectRootPath() const
+{
+	return this->projectRootPath;
+}
+
+void Project::loadProject(const std::string & projectFileName)
+{
+	Poco::Path projectPath(projectFileName);
+	projectPath.makeAbsolute();
+
+	if(projectPath.isDirectory()) {
+		fatalError(Poco::format("Project %s is directory. File needed.", projectFileName));
+	}
+
+	Poco::File projectFile(projectPath);
+	if(! projectFile.exists()) {
+		fatalError(Poco::format("Project %s doesn't exist.", projectFileName));
+	}
+
+	this->projectFileName = normalizeFile(projectPath.toString());
+	this->projectRootPath = normalizePath(projectPath.parent().toString());
 }
 
 
