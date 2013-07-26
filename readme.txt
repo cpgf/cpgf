@@ -6,18 +6,18 @@ It's written in standard C++ and doesn't require any preprocess or tools.
 
 
 Version:
-	1.5.5
+	1.5.6
 
 		
 Libraries:
-	cpgf reflection -- a library to add	reflection feature to C++.
+	cpgf reflection -- a library to add reflection feature to C++.
 	
 	cpgf serialization -- a library to save C++ data and objects to	persistent storage
 		and then load back.
 		It's based on the reflection library.
 
 	cpgf script binding -- a script binding engine to bind Lua (5.2 and 5.1),
-		Google V8 Javascript, and Python (2.7.3) to C++.
+		Google V8 JavaScript, Python (2.7.3), and Mozilla SpiderMonkey JavaScript to C++.
 		It's based on the reflection library.
 	
 	cpgf callback -- a callback library to implement signal/slot or callback in C++.
@@ -99,6 +99,9 @@ Build the library:
 	To build with Python binding, you must change the variable HAS_PYTHON and PYTHON_DIR
 	in build.config.txt to point to the source code of Python.
 	
+	To build with Mozilla SpiderMonkey binding, you must change the variable HAS_SPIDERMONKEY and SPIDERMONKEY_DIR
+	in build.config.txt to point to the source code of Mozilla SpiderMonkey.
+	
 	To build the unit test and sample code, feed a second parameter
 	
 	make PLATFORM TARGET=TheTarget
@@ -130,6 +133,7 @@ Required third party library -- None for the major libraries.
 	For Lua binding, Lua library is required.
 	For Google V8 binding, V8 library is required.
 	For Python binding, Python library is required.
+	For Mozilla SpiderMonkey, Mozilla SpiderMonkey is required.
 	If you want to run the unit test, UnitTest++ is required.
 		But usually you don't need to do that.
 	

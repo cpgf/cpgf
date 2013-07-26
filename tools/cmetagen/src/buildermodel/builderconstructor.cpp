@@ -80,7 +80,7 @@ void BuilderConstructor::doWriterClassWrapper(BuilderWriter * writer)
 void BuilderConstructor::doWriterClassWrapperReflection(BuilderWriter * writer)
 {
 	const CppConstructor * cppConstructor = this->getCppConstructor();
-	CodeBlock * codeBlock = writer->getClassWrapperParentReflectionCodeBlock(cppConstructor);
+	CodeBlock * codeBlock = writer->getClassWrapperParentReflectionCodeBlock(cppConstructor, cppConstructor->getParent());
 	this->doWriterReflectionCode(writer, codeBlock);
 }
 

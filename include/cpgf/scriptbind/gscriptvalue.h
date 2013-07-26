@@ -67,8 +67,6 @@ public:
 	GScriptValue & operator = (const GScriptValue & other);
 
 	Type getType() const { return this->type; }
-	const GVariant & getValue() const { return this->value; }
-	GVariant & getValue() { return this->value; }
 
 	static GScriptValue fromNull();
 	static GScriptValue fromFundamental(const GVariant & fundamental);
@@ -110,7 +108,10 @@ public:
 	bool isAccessible() const { return this->type == typeAccessible; }
 	bool isScriptObject() const { return this->type == typeScriptObject; }
 	bool isScriptFunction() const { return this->type == typeScriptFunction; }
-	
+
+	// for internal use
+	const GVariant & getValue() const { return this->value; }
+	GVariant & getValue() { return this->value; }
 	GScriptValueData takeData();
 
 private:

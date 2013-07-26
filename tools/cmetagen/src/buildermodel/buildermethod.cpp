@@ -18,10 +18,9 @@ void writeMethodReflection(const CppMethod * cppMethod, BuilderWriter * writer);
 void writeMethodDefaultParameterReflection(const CppMethod * cppMethod, CodeBlock * codeBlock);
 void writeMethodReflectionCode(const CppMethod * cppMethod, BuilderWriter * writer, CodeBlock * codeBlock,
 										   const std::string & methodName);
-void writeMethodClassWrapper(const CppMethod * cppMethod, BuilderWriter * writer, const CppContainer * container);
 void writeMethodClassWrapperCallSuperMethod(const CppMethod * cppMethod, CodeBlock * codeBlock);
 void writeMethodClassWrapperMethodBody(const CppMethod * cppMethod, CodeBlock * codeBlock);
-void writeMethodClassWrapperReflection(const CppMethod * cppMethod, BuilderWriter * writer);
+void writeMethodClassWrapperReflection(const CppMethod * cppMethod, BuilderWriter * writer, const CppContainer * container);
 
 
 BuilderMethod::BuilderMethod(const CppItem * cppItem)
@@ -74,7 +73,7 @@ void writeMethodClassWrapper(const CppMethod * cppMethod, BuilderWriter * writer
 	codeBlock->appendLine(s);
 	writeMethodClassWrapperCallSuperMethod(cppMethod, codeBlock->appendBlock(cbsBracketAndIndent));
 
-	writeMethodClassWrapperReflection(cppMethod, writer);
+	writeMethodClassWrapperReflection(cppMethod, writer, container);
 }
 
 void writeMethodDefaultParameterReflection(const CppMethod * cppMethod, CodeBlock * codeBlock)
@@ -181,13 +180,12 @@ void writeMethodClassWrapperMethodBody(const CppMethod * cppMethod, CodeBlock * 
 	writeMethodClassWrapperCallSuperMethod(cppMethod, codeBlock);
 }
 
-void writeMethodClassWrapperReflection(const CppMethod * cppMethod, BuilderWriter * writer)
+void writeMethodClassWrapperReflection(const CppMethod * cppMethod, BuilderWriter * writer, const CppContainer * container)
 {
-	CodeBlock * codeBlock = writer->getClassWrapperParentReflectionCodeBlock(cppMethod);
+	CodeBlock * codeBlock = writer->getClassWrapperParentReflectionCodeBlock(cppMethod, container);
 	writeMethodReflectionCode(cppMethod, writer, codeBlock,
 		writer->getProject()->getClassWrapperSuperPrefix() + cppMethod->getName());
 }
-
 
 
 } // namespace metagen

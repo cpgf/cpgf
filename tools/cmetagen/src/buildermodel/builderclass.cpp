@@ -94,6 +94,7 @@ void BuilderClass::doWriteInheritedOverridableMethods(BuilderWriter * writer)
 			++methodIt) {
 			const CppMethod * method = *methodIt;
 			if(method->isVirtual()) {
+				writeMethodClassWrapper(method, writer, cppClass);
 			}
 		}
 	}

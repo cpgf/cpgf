@@ -188,9 +188,9 @@ BuilderSection * BuilderWriter::getClassWrapperReflectionSection(const CppContai
 	return section;
 }
 
-CodeBlock * BuilderWriter::getClassWrapperParentReflectionCodeBlock(const CppItem * cppItem)
+CodeBlock * BuilderWriter::getClassWrapperParentReflectionCodeBlock(const CppItem * cppItem, const CppContainer * container)
 {
-	BuilderSection * section = this->getClassWrapperReflectionSection(cppItem->getParent(), cppItem);
+	BuilderSection * section = this->getClassWrapperReflectionSection(container, cppItem);
 	return this->getReflectionBodyBlock(section->getCodeBlock())->getNamedBlock(ItemNames[cppItem->getCategory()], cbsTailEmptyLine);
 }
 

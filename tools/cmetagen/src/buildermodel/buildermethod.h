@@ -23,6 +23,8 @@ protected:
 	virtual void doWriteMetaData(BuilderWriter * writer);
 };
 
+void writeMethodClassWrapper(const CppMethod * cppMethod, BuilderWriter * writer, const CppContainer * container);
+
 
 } // namespace metagen
 

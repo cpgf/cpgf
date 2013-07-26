@@ -1,1 +1,1 @@
-perl syncfolder.pl release/cpgf ../../../codeplex/cpgf_codeplex/trunk
+perl syncfolder.pl release/cpgf ../../../codeplex/trunk
