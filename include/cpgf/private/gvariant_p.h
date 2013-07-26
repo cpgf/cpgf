@@ -90,6 +90,8 @@ DEF_CAST_VARIANT_SELECTOR(const volatile, const volatile)
 
 template <typename From, typename To, typename Enabled = void>
 struct VariantCaster {
+	G_STATIC_CONSTANT(bool, CanCast = false);
+	
 	static To cast(const From & /*v*/) {
 		failedCast();
 		return *(typename RemoveReference<To>::Result *)0xffffff;
@@ -105,6 +107,8 @@ struct VariantCaster <From, To, typename GEnableIfResult<
 	>
 	>::Result>
 {
+	G_STATIC_CONSTANT(bool, CanCast = true);
+
 	static To cast(const From & v) {
 		return CastVariantSelector<From, To>::cast(v);
 	}
@@ -113,6 +117,8 @@ struct VariantCaster <From, To, typename GEnableIfResult<
 template <typename From, typename To, typename Enabled = void>
 struct CastVariantHelper
 {
+	G_STATIC_CONSTANT(bool, CanCast = (VariantCaster<From, To>::CanCast));
+	
 	static To cast(const From & v) {
 		return VariantCaster<From, To>::cast(v);
 	}
@@ -121,6 +127,8 @@ struct CastVariantHelper
 template <typename From, typename To>
 struct CastVariantHelper <From *, To *>
 {
+	G_STATIC_CONSTANT(bool, CanCast = true);
+	
 	static To * cast(From * v) {
 		return (To *)(v);
 	}
@@ -135,6 +143,8 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 	>
 	>::Result>
 {
+	G_STATIC_CONSTANT(bool, CanCast = true);
+	
 	static To cast(const From & v) {
 		return (To)(*(typename RemoveReference<To>::Result *)(v));
 	}
@@ -150,6 +160,8 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 	>::Result
 	>
 {
+	G_STATIC_CONSTANT(bool, CanCast = false);
+	
 	static To cast(const From & /*v*/) {
 		raiseCoreException(Error_Variant_CantReferenceToTemp);
 		return *(typename RemoveReference<To>::Result *)0xffffff;
@@ -159,6 +171,8 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 template <typename From, typename To>
 struct CastVariantHelper <From, To *, typename GEnableIfResult<IsInteger<From> >::Result>
 {
+	G_STATIC_CONSTANT(bool, CanCast = true);
+	
 	static To * cast(const From & v) {
 		if(v == 0) {
 			return 0;
@@ -170,6 +184,8 @@ struct CastVariantHelper <From, To *, typename GEnableIfResult<IsInteger<From> >
 template <typename From, typename To>
 struct EnforceCastToPointer
 {
+	G_STATIC_CONSTANT(bool, CanCast = false);
+	
 	static typename AddReference<To>::Result cast(const From & /*v*/) {
 		raiseCoreException(Error_Variant_FailCast);
 		return *(typename RemoveReference<To>::Result *)0xffffff;
