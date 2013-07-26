@@ -403,6 +403,9 @@ GXmlStorageWriter::~GXmlStorageWriter()
 {
 }
 
+// This function is defined in gvariant.cpp, for internal use.
+GVariant createVariantFromData(const GVariantData & data);
+
 void G_API_CC GXmlStorageWriter::writeFundamental(const char * name, const GVariantData * value)
 {
 	GVariant v(createVariantFromData(*value));

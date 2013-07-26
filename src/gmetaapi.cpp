@@ -651,6 +651,9 @@ void loadMetaList(IMetaList * metaList, GMetaList * rawMetaList)
 	}
 }
 
+// This function is defined in gvariant.cpp, for internal use.
+GVariant createVariantFromData(const GVariantData & data);
+
 
 ImplMetaItem::ImplMetaItem(const GMetaItem * item, bool freeItem)
 	: item(item), freeItem(freeItem)

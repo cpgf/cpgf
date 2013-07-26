@@ -6,6 +6,9 @@
 namespace cpgf {
 
 
+// This function is defined in gvariant.cpp, for internal use.
+GVariant createVariantFromData(const GVariantData & data);
+
 ImplScriptConfig::ImplScriptConfig()
 {
 }

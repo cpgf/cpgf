@@ -386,6 +386,9 @@ void GMetaArchiveReader::doReadMember(void * instance, IMetaAccessible * accessi
 	}
 }
 
+// This function is defined in gvariant.cpp, for internal use.
+GVariant createVariantFromData(const GVariantData & data);
+
 void GMetaArchiveReader::doReadValue(const char * name, void * address, const GMetaType & metaType, IMetaSerializer * serializer)
 {
 	size_t pointers = metaType.getPointerDimension();

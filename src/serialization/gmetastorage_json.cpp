@@ -366,6 +366,9 @@ GJsonStorageWriter::~GJsonStorageWriter()
 	}
 }
 
+// This function is defined in gvariant.cpp, for internal use.
+GVariant createVariantFromData(const GVariantData & data);
+
 void G_API_CC GJsonStorageWriter::writeFundamental(const char * name, const GVariantData * value)
 {
 	GVariant v(createVariantFromData(*value));

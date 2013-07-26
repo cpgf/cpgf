@@ -34,6 +34,9 @@ GScriptValue::GScriptValue()
 {
 }
 
+// This function is defined in gvariant.cpp, for internal use.
+GVariant createVariantFromData(const GVariantData & data);
+
 GScriptValue::GScriptValue(const GScriptValueData & data)
 {
 	this->type = (GScriptValue::Type)(data.type);
