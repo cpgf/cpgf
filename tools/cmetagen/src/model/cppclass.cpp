@@ -91,6 +91,57 @@ bool CppClass::isAnonymous() const
 	return cxxRecordDecl->isAnonymousStructOrUnion();
 }
 
+CppClassTraits CppClass::getClassTraits() const
+{
+	CppClassTraits classTraits;
+
+	for(ConstructorListType::const_iterator it = this->constructorList.begin();
+		it != this->constructorList.end();
+		++it) {
+		const CppConstructor * ctor = *it;
+		if(! isVisibilityAllowed(ctor->getVisibility(), this->getCppContext()->getProject())) {
+			if(ctor->isCopyConstructor()) {
+				classTraits.setCopyConstructorHidden(true);
+			}
+			else if(ctor->isImplicitTypeConverter()) {
+				classTraits.setHasTypeConvertConstructor(true);
+			}
+		}
+	}
+
+	if(this->isDefaultConstructorHidden()) {
+		classTraits.setDefaultConstructorHidden(true);
+	}
+
+	if(this->getDestructor() != NULL
+		&& ! isVisibilityAllowed(this->getDestructor()->getVisibility(), this->getCppContext()->getProject())) {
+		classTraits.setDestructorHidden(true);
+	}
+
+	return classTraits;
+}
+
+bool CppClass::isDefaultConstructorHidden() const
+{
+	for(ConstructorListType::const_iterator it = this->constructorList.begin();
+		it != this->constructorList.end();
+		++it) {
+		const CppConstructor * ctor = *it;
+		if(ctor->isDefaultConstructor()) {
+			if(isVisibilityAllowed(ctor->getVisibility(), this->getCppContext()->getProject())) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+	}
+
+	// We didn't find default constructor, so if the constructorList is not empty,
+	// there is non-default constructor which hides the implicit default constructor.
+	return ! this->constructorList.empty();
+}
+
 void CppClass::doAddItem(CppItem * item)
 {
 	switch(item->getCategory()) {

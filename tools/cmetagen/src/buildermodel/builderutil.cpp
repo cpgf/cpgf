@@ -49,18 +49,6 @@ std::string getReflectionScope(const CppItem * item)
 	}
 }
 
-bool isVisibilityAllowed(ItemVisibility visibility, const Project * project)
-{
-	if((visibility == ivPublic) != project->doesAllowPublic()
-		|| (visibility == ivProtected) != project->doesAllowProtected()
-		|| (visibility == ivPrivate) != project->doesAllowPrivate()
-		) {
-		return false;
-	}
-
-	return true;
-}
-
 size_t getCppItemPayload(const CppItem * item)
 {
 	if(item->isFile() || item->isNamespace()) {

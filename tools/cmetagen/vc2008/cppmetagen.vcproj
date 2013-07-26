@@ -202,6 +202,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\model\cppclasstraits.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\model\cppconstructor.cpp"
 					>
 				</File>

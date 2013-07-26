@@ -15,6 +15,7 @@ private:
 public:
 	explicit CppConstructor(const clang::Decl * decl);
 
+	bool isDefaultConstructor() const;
 	bool isCopyConstructor() const;
 	bool isImplicitTypeConverter() const;
 

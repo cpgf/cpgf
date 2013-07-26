@@ -10,7 +10,6 @@ namespace clang { class Decl; class ASTContext; }
 
 namespace metagen {
 
-
 enum ItemVisibility
 {
 	ivFirst = 0,
@@ -147,6 +146,8 @@ private:
 	mutable std::string qualifiedName;
 	mutable std::string qualifiedNameWithoutNamespace;
 };
+
+bool isVisibilityAllowed(ItemVisibility visibility, const Project * project);
 
 
 } // namespace metagen

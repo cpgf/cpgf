@@ -2,6 +2,7 @@
 #define __CPPCLASS_H
 
 #include "cppcontainer.h"
+#include "cppclasstraits.h"
 
 #include <string>
 
@@ -46,20 +47,24 @@ public:
 	bool isTemplate() const;
 	bool isChainedTemplate() const;
 	bool isAnonymous() const;
+
+	CppClassTraits getClassTraits() const;
 	
 	std::string getTextOfTemplateParamList(const ItemTextOptionFlags & options) const;
 	std::string getTextOfChainedTemplateParamList(const ItemTextOptionFlags & options) const;
 	
 	const BaseClassListType * getBaseClassList() const { return &this->baseClassList; }
 	const ConstructorListType * getConstructorList() const { return &this->constructorList; }
-	const CppDestructor * getDestructor() { return this->destructor; }
+	const CppDestructor * getDestructor() const { return this->destructor; }
 
-protected:
+private:
 	BaseClassListType * getBaseClassList() { return &this->baseClassList; }
 	ConstructorListType * getConstructorList() { return &this->constructorList; }
 	
 	virtual ItemCategory getCategory() const { return icClass; }
 	virtual void doAddItem(CppItem * item);
+
+	bool isDefaultConstructorHidden() const;
 
 private:
 	BaseClassListType baseClassList;

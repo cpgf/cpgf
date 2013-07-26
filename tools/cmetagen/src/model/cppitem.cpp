@@ -4,8 +4,8 @@
 #include "cppnamespace.h"
 #include "cppcontext.h"
 #include "cpputil.h"
-
 #include "util.h"
+#include "project.h"
 
 #if defined(_MSC_VER)
 #pragma warning(push, 0)
@@ -43,6 +43,18 @@ ItemVisibility accessToVisibility(AccessSpecifier access)
 	}
 
 	return ivPublic;
+}
+
+bool isVisibilityAllowed(ItemVisibility visibility, const Project * project)
+{
+	if((visibility == ivPublic) != project->doesAllowPublic()
+		|| (visibility == ivProtected) != project->doesAllowProtected()
+		|| (visibility == ivPrivate) != project->doesAllowPrivate()
+		) {
+		return false;
+	}
+
+	return true;
 }
 
 

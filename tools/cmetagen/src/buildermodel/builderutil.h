@@ -27,7 +27,6 @@ std::string getTextOfVisibility(ItemVisibility visibility);
 
 std::string getReflectionClassName(const Project * project);
 std::string getReflectionScope(const CppItem * item);
-bool isVisibilityAllowed(ItemVisibility visibility, const Project * project);
 
 // A payload is how many meta data the item contribute
 size_t getCppItemPayload(const CppItem * item);
