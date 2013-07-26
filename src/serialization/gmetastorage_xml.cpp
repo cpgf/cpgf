@@ -25,6 +25,8 @@ using namespace rapidxml;
 
 namespace cpgf {
 
+// This function is defined in gvariant.cpp, for internal use.
+GVariant createVariantFromData(const GVariantData & data);
 
 namespace {
 
@@ -402,9 +404,6 @@ GXmlStorageWriter::GXmlStorageWriter(xml_document<> * xml, XmlNodeType * dataNod
 GXmlStorageWriter::~GXmlStorageWriter()
 {
 }
-
-// This function is defined in gvariant.cpp, for internal use.
-GVariant createVariantFromData(const GVariantData & data);
 
 void G_API_CC GXmlStorageWriter::writeFundamental(const char * name, const GVariantData * value)
 {

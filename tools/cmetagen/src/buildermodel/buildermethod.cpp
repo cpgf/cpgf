@@ -14,14 +14,14 @@ using namespace std;
 namespace metagen {
 
 
-void doWriterReflection(const CppMethod * cppMethod, BuilderWriter * writer);
-void doWriterDefaultParameterReflection(const CppMethod * cppMethod, CodeBlock * codeBlock);
-void doWriterReflectionCode(const CppMethod * cppMethod, BuilderWriter * writer, CodeBlock * codeBlock,
+void writeMethodReflection(const CppMethod * cppMethod, BuilderWriter * writer);
+void writeMethodDefaultParameterReflection(const CppMethod * cppMethod, CodeBlock * codeBlock);
+void writeMethodReflectionCode(const CppMethod * cppMethod, BuilderWriter * writer, CodeBlock * codeBlock,
 										   const std::string & methodName);
-void doWriterClassWrapper(const CppMethod * cppMethod, BuilderWriter * writer);
-void doWriterClassWrapperCallSuperMethod(const CppMethod * cppMethod, CodeBlock * codeBlock);
-void doWriterClassWrapperMethodBody(const CppMethod * cppMethod, CodeBlock * codeBlock);
-void doWriterClassWrapperReflection(const CppMethod * cppMethod, BuilderWriter * writer);
+void writeMethodClassWrapper(const CppMethod * cppMethod, BuilderWriter * writer, const CppContainer * container);
+void writeMethodClassWrapperCallSuperMethod(const CppMethod * cppMethod, CodeBlock * codeBlock);
+void writeMethodClassWrapperMethodBody(const CppMethod * cppMethod, CodeBlock * codeBlock);
+void writeMethodClassWrapperReflection(const CppMethod * cppMethod, BuilderWriter * writer);
 
 
 BuilderMethod::BuilderMethod(const CppItem * cppItem)
@@ -43,25 +43,24 @@ void BuilderMethod::doWriteMetaData(BuilderWriter * writer)
 {
 	const CppMethod * cppMethod = this->getCppMethod();
 
-	doWriterReflection(cppMethod, writer);
+	writeMethodReflection(cppMethod, writer);
 
 	if(cppMethod->isVirtual()
 		&& this->getCppItem()->getParent()->isClass()
 		&& static_cast<BuilderClass *>(this->getParent())->shouldWrapClass()) {
-		doWriterClassWrapper(cppMethod, writer);
-		doWriterClassWrapperReflection(cppMethod, writer);
+		writeMethodClassWrapper(cppMethod, writer, cppMethod->getParent());
 	}
 }
 
-void doWriterReflection(const CppMethod * cppMethod, BuilderWriter * writer)
+void writeMethodReflection(const CppMethod * cppMethod, BuilderWriter * writer)
 {
 	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppMethod);
-	doWriterReflectionCode(cppMethod, writer, codeBlock, cppMethod->getName());
+	writeMethodReflectionCode(cppMethod, writer, codeBlock, cppMethod->getName());
 }
 
-void doWriterClassWrapper(const CppMethod * cppMethod, BuilderWriter * writer)
+void writeMethodClassWrapper(const CppMethod * cppMethod, BuilderWriter * writer, const CppContainer * container)
 {
-	CodeBlock * codeBlock = writer->getClassWrapperCodeBlock(cppMethod, cppMethod->getParent());
+	CodeBlock * codeBlock = writer->getClassWrapperCodeBlock(cppMethod, container);
 
 	const ItemTextOption options = ItemTextOption(itoWithName | itoWithResult | itoWithQualifiers
 		| itoWithArgType | itoWithArgName | itoWithDefaultValue);
@@ -69,14 +68,16 @@ void doWriterClassWrapper(const CppMethod * cppMethod, BuilderWriter * writer)
 
 	s = cppMethod->getText(options);
 	codeBlock->appendLine(s);
-	doWriterClassWrapperMethodBody(cppMethod, codeBlock->appendBlock(cbsBracketAndIndent));
+	writeMethodClassWrapperMethodBody(cppMethod, codeBlock->appendBlock(cbsBracketAndIndent));
 
 	s = cppMethod->getTextWithReplacedName(options, writer->getProject()->getClassWrapperSuperPrefix() + cppMethod->getName());
 	codeBlock->appendLine(s);
-	doWriterClassWrapperCallSuperMethod(cppMethod, codeBlock->appendBlock(cbsBracketAndIndent));
+	writeMethodClassWrapperCallSuperMethod(cppMethod, codeBlock->appendBlock(cbsBracketAndIndent));
+
+	writeMethodClassWrapperReflection(cppMethod, writer);
 }
 
-void doWriterDefaultParameterReflection(const CppMethod * cppMethod, CodeBlock * codeBlock)
+void writeMethodDefaultParameterReflection(const CppMethod * cppMethod, CodeBlock * codeBlock)
 {
 	size_t arity = cppMethod->getArity();
 	while(arity != 0) {
@@ -104,7 +105,7 @@ void doWriterDefaultParameterReflection(const CppMethod * cppMethod, CodeBlock *
 	}
 }
 
-void doWriterReflectionCode(const CppMethod * cppMethod, BuilderWriter * writer, CodeBlock * codeBlock,
+void writeMethodReflectionCode(const CppMethod * cppMethod, BuilderWriter * writer, CodeBlock * codeBlock,
 										   const std::string & methodName)
 {
 	size_t arity = cppMethod->getArity();
@@ -134,12 +135,12 @@ void doWriterReflectionCode(const CppMethod * cppMethod, BuilderWriter * writer,
 	codeBlock->appendLine(s);
 
 	if(hasDefaultValue) {
-		doWriterDefaultParameterReflection(cppMethod, codeBlock->appendBlock(cbsIndent));
+		writeMethodDefaultParameterReflection(cppMethod, codeBlock->appendBlock(cbsIndent));
 		codeBlock->appendLine(";");
 	}
 }
 
-void doWriterClassWrapperCallSuperMethod(const CppMethod * cppMethod, CodeBlock * codeBlock)
+void writeMethodClassWrapperCallSuperMethod(const CppMethod * cppMethod, CodeBlock * codeBlock)
 {
 	if(cppMethod->isPureVirtual()) {
 		codeBlock->appendLine("throw \"Abstract method\";");
@@ -153,7 +154,7 @@ void doWriterClassWrapperCallSuperMethod(const CppMethod * cppMethod, CodeBlock 
 	}
 }
 
-void doWriterClassWrapperMethodBody(const CppMethod * cppMethod, CodeBlock * codeBlock)
+void writeMethodClassWrapperMethodBody(const CppMethod * cppMethod, CodeBlock * codeBlock)
 {
 	string s;
 
@@ -177,13 +178,13 @@ void doWriterClassWrapperMethodBody(const CppMethod * cppMethod, CodeBlock * cod
 		bodyBlock->appendLine("return;");
 	}
 
-	doWriterClassWrapperCallSuperMethod(cppMethod, codeBlock);
+	writeMethodClassWrapperCallSuperMethod(cppMethod, codeBlock);
 }
 
-void doWriterClassWrapperReflection(const CppMethod * cppMethod, BuilderWriter * writer)
+void writeMethodClassWrapperReflection(const CppMethod * cppMethod, BuilderWriter * writer)
 {
 	CodeBlock * codeBlock = writer->getClassWrapperParentReflectionCodeBlock(cppMethod);
-	doWriterReflectionCode(cppMethod, writer, codeBlock,
+	writeMethodReflectionCode(cppMethod, writer, codeBlock,
 		writer->getProject()->getClassWrapperSuperPrefix() + cppMethod->getName());
 }
 

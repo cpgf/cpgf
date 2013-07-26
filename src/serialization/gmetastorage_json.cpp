@@ -23,6 +23,8 @@ using namespace Json;
 
 namespace cpgf {
 
+// This function is defined in gvariant.cpp, for internal use.
+GVariant createVariantFromData(const GVariantData & data);
 
 namespace {
 
@@ -365,9 +367,6 @@ GJsonStorageWriter::~GJsonStorageWriter()
 		this->doPopNode();
 	}
 }
-
-// This function is defined in gvariant.cpp, for internal use.
-GVariant createVariantFromData(const GVariantData & data);
 
 void G_API_CC GJsonStorageWriter::writeFundamental(const char * name, const GVariantData * value)
 {

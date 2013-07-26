@@ -9,6 +9,8 @@
 
 namespace cpgf {
 
+// This function is defined in gvariant.cpp, for internal use.
+GVariant createVariantFromData(const GVariantData & data);
 
 class GMetaArchiveTypeSession
 {
@@ -231,9 +233,6 @@ void GTextStreamMetaWriter::setTypeInSession(int type)
 		this->writeType(type);
 	}
 }
-
-// This function is defined in gvariant.cpp, for internal use.
-GVariant createVariantFromData(const GVariantData & data);
 
 void G_API_CC GTextStreamMetaWriter::writeFundamental(const char * /*name*/, const GVariantData * value)
 {
