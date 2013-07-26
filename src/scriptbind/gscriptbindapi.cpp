@@ -155,9 +155,12 @@ void G_API_CC ImplScriptObject::getValue(GScriptValueData * outResult, const cha
 	*outResult = value.takeData();
 }
 
+// This function is defined in gscriptvalue.cpp internally.
+GScriptValue createScriptValueFromData(const GScriptValueData & data);
+
 void G_API_CC ImplScriptObject::setValue(const char * name, const GScriptValueData * value)
 {
-	GScriptValue scriptValue(*value);
+	GScriptValue scriptValue(createScriptValueFromData(*value));
 	this->scriptObject->setValue(name, scriptValue);
 }
 

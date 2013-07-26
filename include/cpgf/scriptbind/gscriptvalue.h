@@ -33,7 +33,6 @@ struct GScriptValueData
 };
 #pragma pack(pop)
 
-
 GMAKE_FINAL(GScriptValue)
 
 class GScriptValue : GFINAL_BASE(GScriptValue)
@@ -60,14 +59,12 @@ private:
 	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, bool transferOwnership);
 	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem);
 	GScriptValue(Type type, const GVariant & value);
+	explicit GScriptValue(const GScriptValueData & data);
 	
 public:
 	GScriptValue();
-	explicit GScriptValue(const GScriptValueData & data);
 	GScriptValue(const GScriptValue & other);
 	GScriptValue & operator = (const GScriptValue & other);
-
-	GScriptValueData takeData();
 
 	Type getType() const { return this->type; }
 	const GVariant & getValue() const { return this->value; }
@@ -114,11 +111,16 @@ public:
 	bool isScriptObject() const { return this->type == typeScriptObject; }
 	bool isScriptFunction() const { return this->type == typeScriptFunction; }
 	
+	GScriptValueData takeData();
+
 private:
 	Type type;
 	GVariant value;
 	GSharedInterface<IMetaItem> metaItem;
 	GFlags<ValueFlags> flags;
+	
+private:
+	friend GScriptValue createScriptValueFromData(const GScriptValueData & data);
 };
 
 IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value);

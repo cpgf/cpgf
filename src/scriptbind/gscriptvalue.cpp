@@ -8,6 +8,11 @@
 namespace cpgf {
 
 
+GScriptValue createScriptValueFromData(const GScriptValueData & data)
+{
+	return GScriptValue(data);
+}
+
 GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, bool transferOwnership)
 	: type(type), value(value), metaItem(metaItem), flags()
 {

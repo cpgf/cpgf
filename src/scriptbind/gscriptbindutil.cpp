@@ -90,11 +90,14 @@ GScriptValue scriptGetValue(GScriptObject * scriptObject, const char * name)
 	return scriptObject->getValue(name);
 }
 
+// This function is defined in gscriptvalue.cpp internally.
+GScriptValue createScriptValueFromData(const GScriptValueData & data);
+
 GScriptValue scriptGetValue(IScriptObject * scriptObject, const char * name)
 {
 	GScriptValueData data;
 	scriptObject->getValue(&data, name);
-	return GScriptValue(data);
+	return createScriptValueFromData(data);
 }
 
 void scriptSetValue(GScriptObject * scriptObject, const char * name, const GScriptValue & value)
@@ -117,7 +120,7 @@ GScriptValue scriptGetScriptFunction(IScriptObject * scriptObject, const char * 
 {
 	GScriptValueData data;
 	scriptObject->getScriptFunction(&data, name);
-	return GScriptValue(data);
+	return createScriptValueFromData(data);
 }
 
 GScriptValue scriptCreateScriptObject(GScriptObject * scriptObject, const char * name)
@@ -129,7 +132,7 @@ GScriptValue scriptCreateScriptObject(IScriptObject * scriptObject, const char *
 {
 	GScriptValueData data;
 	scriptObject->createScriptObject(&data, name);
-	return GScriptValue(data);
+	return createScriptValueFromData(data);
 }
 
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject)
