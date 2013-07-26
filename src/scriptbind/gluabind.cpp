@@ -1086,9 +1086,8 @@ int Enum_index(lua_State * L)
 		raiseCoreException(Error_ScriptBinding_CantFindEnumKey, name);
 	}
 	else {
-		GVariantData data;
-		userData->getMetaEnum()->getValue(&data, index);
-		lua_pushinteger(L, fromVariant<lua_Integer>(GVariant(data)));
+		GVariant value(metaGetEnumValue(userData->getMetaEnum(), index));
+		lua_pushinteger(L, fromVariant<lua_Integer>(value));
 	}
 	
 	return true;

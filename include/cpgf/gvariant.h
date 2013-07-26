@@ -28,7 +28,6 @@ struct VarantCastKeepConstRef {};
 struct VarantCastCopyConstRef {};
 
 class GVariant;
-class GMetaVariant;
 
 class GMetaType;
 struct GMetaTypeData;
@@ -117,9 +116,11 @@ GMAKE_FINAL(GVariant)
 
 class GVariant : GFINAL_BASE(GVariant)
 {
+private:
+	GVariant(const GVariantData & data);
+
 public:
 	GVariant();
-	GVariant(const GVariantData & data);
 
 	template <typename T>
 	GVariant(const T & value) {
@@ -175,7 +176,7 @@ private:
 	GVariantData data;
 
 private:
-	GVariant(const GMetaVariant &); //disable
+	friend GVariant createVariantFromData(const GVariantData & data);
 };
 
 inline void swap(GVariant & a, GVariant & b)

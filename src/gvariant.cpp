@@ -165,6 +165,11 @@ void adjustVariantType(GVariant * var)
 } // namespace variant_internal
 
 
+GVariant createVariantFromData(const GVariantData & data)
+{
+	return GVariant(data);
+}
+
 GVariant::GVariant()
 {
 	vtInit(data.typeData);
@@ -396,7 +401,7 @@ GVariant getVariantRealValue(const GVariant & value)
 	if(vtIsTypedVar(value.getType())) {
 		GVariantData data;
 		value.refData().valueTypedVar->getValue(&data);
-		return GVariant(data);
+		return createVariantFromData(data);
 	}
 	else {
 		return value;

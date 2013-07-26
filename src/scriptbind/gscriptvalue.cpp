@@ -37,7 +37,7 @@ GScriptValue::GScriptValue()
 GScriptValue::GScriptValue(const GScriptValueData & data)
 {
 	this->type = (GScriptValue::Type)(data.type);
-	this->value = GVariant(data.value);
+	this->value = createVariantFromData(data.value);
 	// must release it since GVariant(data.value) retains the data
 	releaseVariantData(&this->value.refData());
 	this->metaItem.reset(data.metaItem);

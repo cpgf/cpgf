@@ -234,7 +234,7 @@ void GTextStreamMetaWriter::setTypeInSession(int type)
 
 void G_API_CC GTextStreamMetaWriter::writeFundamental(const char * /*name*/, const GVariantData * value)
 {
-	GVariant v(*value);
+	GVariant v(createVariantFromData(*value));
 
 	int type = getMappedTypeFromMap(this->variantTypeMap, v.getType());
 	

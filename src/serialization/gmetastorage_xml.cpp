@@ -405,7 +405,7 @@ GXmlStorageWriter::~GXmlStorageWriter()
 
 void G_API_CC GXmlStorageWriter::writeFundamental(const char * name, const GVariantData * value)
 {
-	GVariant v(*value);
+	GVariant v(createVariantFromData(*value));
 
 	this->clearTextStream();
 	this->streamWriteFundamental(this->textStream, v);

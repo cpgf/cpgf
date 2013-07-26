@@ -368,7 +368,7 @@ GJsonStorageWriter::~GJsonStorageWriter()
 
 void G_API_CC GJsonStorageWriter::writeFundamental(const char * name, const GVariantData * value)
 {
-	GVariant v(*value);
+	GVariant v(createVariantFromData(*value));
 
 	GVariantType vt = v.getType();
 

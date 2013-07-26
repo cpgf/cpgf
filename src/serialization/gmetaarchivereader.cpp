@@ -430,7 +430,7 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 			if(metaType.isFundamental()) {
 				vtSetType(data.typeData, metaType.getVariantType());
 				this->reader->readFundamental(name, &data);
-				writeFundamental(address, metaType, GVariant(data));
+				writeFundamental(address, metaType, createVariantFromData(data));
 			}
 			else {
 				serializeError(Error_Serialization_TypeMismatch);
