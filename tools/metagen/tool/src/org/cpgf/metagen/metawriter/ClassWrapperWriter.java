@@ -140,6 +140,12 @@ public class ClassWrapperWriter {
 
 	public void writeSuperMethodBind(CppWriter codeWriter) {
 		for(CppMethod cppMethod : this.overrideMethods.values()) {
+			if (cppMethod.isProtected()) {
+                String name = cppMethod.getPrimaryName();
+                WriterUtil.reflectMethod(codeWriter, "_d", "D::ClassType::", cppMethod, name, name, true);
+			}
+		}
+		for(CppMethod cppMethod : this.overrideMethods.values()) {
 			if (!cppMethod.isPrivate()) {
 				String name = WriterUtil.getMethodSuperName(cppMethod);
 				WriterUtil.reflectMethod(codeWriter, "_d", "D::ClassType::", cppMethod, name, name, true);
