@@ -48,8 +48,9 @@ void CppWriter::write(CodeWriter * codeWriter, const CppWriterCallback & callbac
 	if(! this->headerGuard.empty()) {
 		string guard;
 		Poco::Path path(this->headerGuard);
-		guard = "__" + path.getBaseName() + "_" + path.getExtension();
+		guard = "METADATA_" + path.getBaseName() + "_" + path.getExtension();
 		Poco::toUpperInPlace(guard);
+		guard = normalizeSymbolName(guard);
 		codeWriter->writeLine("#ifndef " + guard);
 		codeWriter->writeLine("#define " + guard);
 		codeWriter->ensureBlankLine();
@@ -65,7 +66,7 @@ void CppWriter::write(CodeWriter * codeWriter, const CppWriterCallback & callbac
 	}
 
 	if(! this->fileNamespace.empty()) {
-		codeWriter->writeLine("namespace " + this->fileNamespace + "{");
+		codeWriter->writeLine("namespace " + this->fileNamespace + " {");
 		codeWriter->ensureBlankLine();
 	}
 
@@ -104,7 +105,7 @@ void CppWriter::include(const std::string & fileName)
 	this->includeList.insert(fileName);
 }
 
-void CppWriter::tailIncldue(const std::string & fileName)
+void CppWriter::tailInclude(const std::string & fileName)
 {
 	this->tailIncludeList.insert(fileName);
 }

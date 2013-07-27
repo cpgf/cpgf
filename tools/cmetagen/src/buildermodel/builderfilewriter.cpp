@@ -5,6 +5,7 @@
 #include "codewriter/codeblock.h"
 #include "project.h"
 #include "util.h"
+#include "constants.h"
 
 #include "Poco/Format.h"
 #include "Poco/Path.h"
@@ -60,7 +61,12 @@ std::string BuilderFileWriter::getOutputFileName() const
 		extension = "." + extension;
 	}
 
-	string fileName = Poco::format("%s%s%s", Poco::Path(this->sourceFileName).getBaseName(), postfix, extension);
+	string fileName = Poco::format("%s%s%s%s",
+		this->getProject()->getTargetFilePrefix(),
+		Poco::Path(this->sourceFileName).getBaseName(),
+		postfix,
+		extension
+	);
 	string outputPath;
 	if(this->isSourceFile()) {
 		extension = this->getProject()->getSourceOutputPath();
@@ -83,6 +89,25 @@ void BuilderFileWriter::callbackCppWriter(CodeWriter * codeWriter) const
 	}
 }
 
+void BuilderFileWriter::initializeCppWriter(CppWriter * cppWriter) const
+{
+	cppWriter->setNamespace(this->getProject()->getCppNamespace());
+	if(this->isSourceFile()) {
+	}
+	else {
+		cppWriter->setHeaderGuard(this->getOutputFileName());
+
+		cppWriter->include(includeMetaDefine);
+		cppWriter->include(includeMetaPolicy);
+		cppWriter->include(includeMetaDataHeader);
+		cppWriter->tailInclude(includeMetaDataFooter);
+
+		cppWriter->include(includeScriptBindUtil);
+		cppWriter->include(includeScriptWrapper);
+		cppWriter->include(includeScopedInterface);
+	}
+}
+
 void BuilderFileWriter::output()
 {
 	string outputFileName = getOutputFileName();
@@ -91,6 +116,7 @@ void BuilderFileWriter::output()
 	CppWriter cppWriter;
 	CodeWriter codeWriter;
 
+	this->initializeCppWriter(&cppWriter);
 	cppWriter.write(&codeWriter, makeCallback(this, &BuilderFileWriter::callbackCppWriter));
 
 	string fileContent;

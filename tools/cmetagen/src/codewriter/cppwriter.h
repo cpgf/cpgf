@@ -29,7 +29,7 @@ public:
 	void setNamespace(const std::string & ns);
 	void useNamespace(const std::string & ns);
 	void include(const std::string & fileName);
-	void tailIncldue(const std::string & fileName);
+	void tailInclude(const std::string & fileName);
 	
 private:
 	std::string headerGuard;

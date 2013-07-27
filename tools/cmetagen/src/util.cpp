@@ -15,11 +15,13 @@ using namespace cpgf;
 namespace metagen {
 
 
-std::string normalizeSymbolName(const std::string & name)
+std::string normalizeSymbolName(const std::string & symbol)
 {
-	string result = name;
+	static Poco::RegularExpression regexp("\\W+");
+	string result = symbol;
 	
-	Poco::replaceInPlace(result, "::", "_");
+	regexp.subst(result, "_", Poco::RegularExpression::RE_GLOBAL);
+	
 	Poco::replaceInPlace(result, "__", "_");
 	
 	return result;

@@ -16,6 +16,8 @@ public:
 	~Project();
 
 	size_t getMaxItemCountPerFile() const;
+	
+	const std::string & getCppNamespace() const;
 
 	const std::string & getHeaderFileExtension() const;
 	const std::string & getSourceFileExtension() const;
@@ -49,6 +51,8 @@ public:
 
 private:
 	size_t maxItemCountPerFile;
+
+	std::string cppNamespace;
 	
 	std::string headerFileExtension;
 	std::string sourceFileExtension;

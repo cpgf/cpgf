@@ -12,6 +12,8 @@ namespace metagen {
 Project::Project()
 	:	maxItemCountPerFile(0),
 		
+		cppNamespace("metadata"),
+		
 		headerFileExtension(".h"),
 		sourceFileExtension(".cpp"),
 		headerOutputPath("output/"),
@@ -47,6 +49,11 @@ Project::~Project()
 size_t Project::getMaxItemCountPerFile() const
 {
 	return this->maxItemCountPerFile;
+}
+
+const std::string & Project::getCppNamespace() const
+{
+	return this->cppNamespace;
 }
 
 const std::string & Project::getHeaderFileExtension() const

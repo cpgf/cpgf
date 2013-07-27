@@ -11,6 +11,7 @@ namespace metagen {
 class BuilderContext;
 class Project;
 class CodeWriter;
+class CppWriter;
 
 class BuilderFileWriter
 {
@@ -30,6 +31,7 @@ private:
 	std::string getOutputFileName() const;
 	const Project * getProject() const;
 	void callbackCppWriter(CodeWriter * codeWriter) const;
+	void initializeCppWriter(CppWriter * cppWriter) const;
 	
 private:
 	BuilderSectionListType sectionList;

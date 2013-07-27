@@ -16,7 +16,7 @@ void clearPointerContainer(T & container)
 	}
 }
 
-std::string normalizeSymbolName(const std::string & name);
+std::string normalizeSymbolName(const std::string & symbol);
 
 // Replace all '\' with '/'
 std::string normalizeFile(const std::string & file);
