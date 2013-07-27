@@ -47,7 +47,7 @@ public class ClassWrapperWriter {
 		}
 		for(CppMethod cppMethod : item.getMethodList()) {
 			String prototype = getMethodPrototypeKey(cppMethod);
-			if(cppMethod.isVirtual() || (result.containsKey(prototype) && !cppMethod.isStatic())) {
+			if(cppMethod.isProtected() || cppMethod.isVirtual() || (result.containsKey(prototype) && !cppMethod.isStatic())) {
 				result.put(prototype, cppMethod);
 			}
 		}
@@ -78,7 +78,7 @@ public class ClassWrapperWriter {
 		codeWriter.decIndent();
 	}
 
-	private void doWriteOverrideMethod(CppWriter codeWriter, CppMethod cppMethod) {
+	private void doWriteOverrideVirtualMethod(CppWriter codeWriter, CppMethod cppMethod) {
 		String prototype = Util.getInvokablePrototype(cppMethod, cppMethod.getLiteralName());
 		if(cppMethod.isConst()) {
 			prototype = prototype + " const";
@@ -109,7 +109,7 @@ public class ClassWrapperWriter {
 				}
 			}
 			else {
-				invoke = this.cppClass.getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
+				invoke = cppMethod.getOwner().getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
 				if(cppMethod.hasResult()) {
 					invoke = "return " + invoke;
 				}
@@ -129,7 +129,7 @@ public class ClassWrapperWriter {
 				}
 			}
 			else {
-				invoke = this.cppClass.getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
+				invoke = cppMethod.getOwner().getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
 				if(cppMethod.hasResult()) {
 					invoke = "return " + invoke;
 				}
@@ -138,15 +138,31 @@ public class ClassWrapperWriter {
 		codeWriter.endBlock("");
 	}
 
+	private void doWriteOverrideMethod(CppWriter codeWriter, CppMethod cppMethod) {
+		String prototype = Util.getInvokablePrototype(cppMethod, cppMethod.getLiteralName());
+		if(cppMethod.isConst()) {
+			prototype = prototype + " const";
+		}
+		String paramText = Util.getParameterText(cppMethod.getParameterList(), false, true);
+		codeWriter.writeLine(prototype);
+		codeWriter.beginBlock();
+		String invoke = cppMethod.getOwner().getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
+		if(cppMethod.hasResult()) {
+			invoke = "return " + invoke;
+		}
+		codeWriter.writeLine(invoke);
+		codeWriter.endBlock("");
+	}
+
 	public void writeSuperMethodBind(CppWriter codeWriter) {
 		for(CppMethod cppMethod : this.overrideMethods.values()) {
 			if (cppMethod.isProtected()) {
-                String name = cppMethod.getPrimaryName();
-                WriterUtil.reflectMethod(codeWriter, "_d", "D::ClassType::", cppMethod, name, name, true);
+				String name = cppMethod.getPrimaryName();
+				WriterUtil.reflectMethod(codeWriter, "_d", "D::ClassType::", cppMethod, name, name, true);
 			}
 		}
 		for(CppMethod cppMethod : this.overrideMethods.values()) {
-			if (!cppMethod.isPrivate()) {
+			if (!cppMethod.isPrivate() && cppMethod.isVirtual()) {
 				String name = WriterUtil.getMethodSuperName(cppMethod);
 				WriterUtil.reflectMethod(codeWriter, "_d", "D::ClassType::", cppMethod, name, name, true);
 			}
@@ -168,8 +184,13 @@ public class ClassWrapperWriter {
 
 		for(CppMethod cppMethod : this.overrideMethods.values()) {
 			if (!cppMethod.isPrivate()) {
-			    codeWriter.writeLine("");
-			    this.doWriteOverrideMethod(codeWriter, cppMethod);
+				if (cppMethod.isVirtual()) {
+					codeWriter.writeLine("");
+					this.doWriteOverrideVirtualMethod(codeWriter, cppMethod); 
+				} else {
+					codeWriter.writeLine("");
+					this.doWriteOverrideMethod(codeWriter, cppMethod); 
+				}
 			}
 		}
 
