@@ -72,6 +72,7 @@ public class TemplateInstanceSourceFileWriter extends CodeFileWriter {
 		
 		String funcName = this.createFunctionName();
 
+   		codeWriter.writeLine("#ifdef DLL_PUBLIC\nDLL_PUBLIC\n#endif");
 		codeWriter.writeLine("GDefineMetaInfo " + funcName + "()");
 
 		codeWriter.beginBlock();
