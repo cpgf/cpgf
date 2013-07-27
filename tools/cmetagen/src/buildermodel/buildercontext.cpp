@@ -18,7 +18,10 @@
 #include "model/cppfile.h"
 #include "model/cppclass.h"
 #include "model/cppcontext.h"
+#include "model/cpppolicy.h"
+
 #include "project.h"
+#include "constants.h"
 #include "util.h"
 
 #include "cpgf/gassert.h"
@@ -176,7 +179,35 @@ void BuilderContext::doGenerateCreateFunctionSection(BuilderSection * sampleSect
 
 	headerBlock->appendLine(getCreationFunctionPrototype(this, sampleSection));
 
-	bodyBlock->appendLine("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();");
+	bodyBlock->appendLine(getMetaTypeTypedef(this, sampleSection, NULL));
+	bodyBlock->appendBlankLine();
+
+	if(sampleContainer->isClass()) {
+		CppPolicy cppPolicy;
+		static_cast<const CppClass *>(sampleContainer)->getPolicy(&cppPolicy);
+
+		if(cppPolicy.hasRule()) {
+			bodyBlock->appendLine(Poco::format("%s _d = %s::Policy<%s >::declare(\"%s\");",
+				metaTypeTypeDefName,
+				metaTypeTypeDefName,
+				cppPolicy.getTextOfMakePolicy(false),
+				sampleContainer->getName()
+				)
+			);
+		}
+		else {
+			bodyBlock->appendLine(Poco::format("%s _d = %s::declare(\"%s\");",
+				metaTypeTypeDefName,
+				metaTypeTypeDefName,
+				sampleContainer->getName()
+				)
+			);
+		}
+	}
+	else {
+		bodyBlock->appendLine("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();");
+	}
+
 	bodyBlock->appendLine("cpgf::GDefineMetaInfo meta = _d.getMetaInfo();");
 	bodyBlock->appendBlankLine();
 

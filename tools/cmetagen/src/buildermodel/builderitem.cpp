@@ -46,16 +46,6 @@ void BuilderItem::checkBuilderItemCategory(ItemCategory category)
 	GASSERT(this->cppItem->getCategory() == category);
 }
 
-std::string BuilderItem::getPolicyText() const
-{
-	return this->doGetPolicyText();
-}
-
-std::string BuilderItem::doGetPolicyText() const
-{
-	return "";
-}
-
 void BuilderItem::writeMetaData(BuilderWriter * writer)
 {
 	this->doWriteMetaData(writer);

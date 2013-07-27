@@ -36,17 +36,12 @@ Project::Project()
 
 		templateInstantiationRepository(new BuilderTemplateInstantiationRepository)
 {
-maxItemCountPerFile = 5;
+//maxItemCountPerFile = 5;
 this->templateInstantiationRepository->add("ns1::TemplateA<int, 18>", "TemplateA_int", "TemplateA_wrapper_int");
 }
 
 Project::~Project()
 {
-}
-
-bool Project::shouldSplitFile() const
-{
-	return this->getMaxItemCountPerFile() > 0;
 }
 
 size_t Project::getMaxItemCountPerFile() const

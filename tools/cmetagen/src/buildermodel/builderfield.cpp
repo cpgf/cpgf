@@ -4,6 +4,7 @@
 #include "model/cpptype.h"
 #include "model/cppcontainer.h"
 #include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 #include "project.h"
 #include "util.h"
 #include "builderutil.h"

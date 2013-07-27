@@ -176,9 +176,8 @@ void ClangParserImplement::setupClang()
 {
 	this->compilerInvocation.reset(new CompilerInvocation);
 
-	// we add a customized macro here to distinguish a clreflect parsing process from a compling using clang
-	//PreprocessorOptions & preprocessorOptions = this->compilerInvocation->getPreprocessorOpts();
-//	preprocessorOptions.addMacroDef("__clcpp_parse__");
+	PreprocessorOptions & preprocessorOptions = this->compilerInvocation->getPreprocessorOpts();
+	preprocessorOptions.addMacroDef("CPGF_METAGEN_PARSER");
 
 	// Add define/undefine macros to the pre-processor
 	//for (int i = 0; ; i++)
@@ -201,7 +200,8 @@ void ClangParserImplement::setupClang()
 	this->compilerInvocation->setLangDefaults(langOptions, IK_CXX, LangStandard::lang_cxx03);
 	langOptions.CPlusPlus = 1;
 	langOptions.Bool = 1;
-	langOptions.RTTI = 0;
+	langOptions.RTTI = 1;
+	langOptions.CXXExceptions = 1;
 
 	// VC compatible
 	langOptions.MicrosoftExt = 1;
@@ -210,7 +210,8 @@ void ClangParserImplement::setupClang()
 	langOptions.DelayedTemplateParsing = 1;
 
 	// Gather C++ header searches from the command-line
-	//HeaderSearchOptions & headerSearchOptions = this->compilerInvocation->getHeaderSearchOpts();
+	HeaderSearchOptions & headerSearchOptions = this->compilerInvocation->getHeaderSearchOpts();
+headerSearchOptions.AddPath("C:/Program Files/Microsoft Visual Studio 9.0/VC/include", frontend::Angled, false, false);
 	//for (int i = 0; ; i++)
 	//{
 	//	std::string include = args.GetProperty("-i", i);
@@ -226,9 +227,10 @@ void ClangParserImplement::setupClang()
 	//	headerSearchOptions.AddPath(include.c_str(), frontend::System, false, false);
 	//}
 
-	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
+//	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
+IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
 	char * argv = "";
-	this->compilerInstance.createDiagnostics(0, false);
+	this->compilerInstance.createDiagnostics(client, false);
 	this->compilerInstance.getDiagnostics().setSuppressSystemWarnings(true);
 
 	// Setup target options - ensure record layout calculations use the MSVC C++ ABI
@@ -279,10 +281,10 @@ void ClangParserImplement::compileAST(const char * fileName)
 	this->currentFileID = this->compilerInstance.getSourceManager().createMainFileID(file);
 
 	// Parse the AST
-	EmptyASTConsumer ast_consumer;
+	EmptyASTConsumer astConsumer;
 	DiagnosticConsumer * client = this->compilerInstance.getDiagnostics().getClient();
 	client->BeginSourceFile(this->compilerInstance.getLangOpts(), &this->compilerInstance.getPreprocessor());
-	ParseAST(this->compilerInstance.getPreprocessor(), &ast_consumer, this->compilerInstance.getASTContext());
+	ParseAST(this->compilerInstance.getPreprocessor(), &astConsumer, this->compilerInstance.getASTContext());
 	client->EndSourceFile();
 }
 
@@ -319,7 +321,7 @@ void ClangParserImplement::parseDecl(Decl * decl)
 	}
 
 	Decl::Kind kind = decl->getKind();
-cout << ">>> " << decl->getDeclKindName() << "     " << (dyn_cast<NamedDecl>(decl) ? dyn_cast<NamedDecl>(decl)->getNameAsString() : "") << endl;
+//cout << ">>> " << decl->getDeclKindName() << "     " << (dyn_cast<NamedDecl>(decl) ? dyn_cast<NamedDecl>(decl)->getNameAsString() : "") << endl;
 
 	switch (kind) {
 		case Decl::LinkageSpec:
@@ -470,10 +472,10 @@ void ClangParserImplement::parseNamespace(NamespaceDecl * namespaceDecl)
 	}
 
 	CppNamespace * ns;
-	CppNamedItem * cppNamedItem = const_cast<CppNamedItem *>(this->context->findNamedItem(icNamespace, getNamedDeclQualifiedName(namespaceDecl)));
-	if(cppNamedItem != NULL) {
-		GASSERT(cppNamedItem->isNamespace());
-		ns = static_cast<CppNamespace *>(cppNamedItem);
+	CppItem * cppItem = this->context->findItemByDecl(namespaceDecl);
+	if(cppItem != NULL) {
+		GASSERT(cppItem->isNamespace());
+		ns = static_cast<CppNamespace *>(cppItem);
 	}
 	else {
 		ns = this->addItem<CppNamespace>(namespaceDecl);
@@ -491,10 +493,10 @@ void ClangParserImplement::parseEnum(EnumDecl * enumDecl)
 	}
 
 	CppEnum * e;
-	CppNamedItem * cppNamedItem = const_cast<CppNamedItem *>(this->context->findNamedItem(icEnum, getNamedDeclQualifiedName(enumDecl)));
-	if(cppNamedItem != NULL) {
-		GASSERT(cppNamedItem->isEnum());
-		e = static_cast<CppEnum *>(cppNamedItem);
+	CppItem * cppItem = this->context->findItemByDecl(enumDecl);
+	if(cppItem != NULL) {
+		GASSERT(cppItem->isEnum());
+		e = static_cast<CppEnum *>(cppItem);
 	}
 	else {
 		e = this->addItem<CppEnum>(enumDecl);

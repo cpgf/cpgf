@@ -3,6 +3,8 @@
 
 #include "parser/clangparser.h"
 #include "cppitem.h"
+#include "cpptype.h"
+#include "cppclasstraits.h"
 
 #include "cpgf/gscopedptr.h"
 
@@ -14,13 +16,14 @@ namespace metagen {
 
 
 class CppFile;
+class CppClass;
 class Project;
 
 class CppContext
 {
 private:
 	typedef std::vector<CppItem *> ItemListType;
-	typedef std::map<std::string, CppNamedItem *> ItemNameMapType;
+	typedef std::map<const clang::Decl *, CppItem *> ItemDeclMapType;
 
 public:
 	explicit CppContext(const Project * project);
@@ -31,7 +34,10 @@ public:
 	CppFile * getCppFile() const { return this->cppFile.get(); }
 	const Project * getProject() const { return this->project; }
 	
-	const CppNamedItem * findNamedItem(ItemCategory category, const std::string & qualifiedName) const;
+	CppItem * findItemByDecl(const clang::Decl * decl) const;
+	CppClass * findClassByType(const CppType & cppType) const;
+
+	CppClassTraits getClassTraits(const CppClass * cppClass) const;
 	
 private:
 	void beginFile(const char * fileName, clang::Decl * decl);
@@ -49,7 +55,7 @@ private:
 private:
 	cpgf::GScopedPointer<CppFile> cppFile;
 	ItemListType itemList;
-	ItemNameMapType itemNameMap[icCount];
+	ItemDeclMapType itemDeclMap;
 	const Project * project;
 	ClangParser parser;
 	

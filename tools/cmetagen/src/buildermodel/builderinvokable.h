@@ -5,6 +5,7 @@
 
 namespace metagen {
 
+class CppInvokable;
 
 class BuilderInvokable : public BuilderItem
 {
@@ -16,8 +17,11 @@ public:
 	virtual ~BuilderInvokable();
 	
 	virtual bool canBind() const;
+
+protected:
 };
 
+std::string getInvokablePolicyText(const CppInvokable * cppInvokable, bool prefixWithComma);
 
 } // namespace metagen
 

@@ -1,7 +1,12 @@
 #include "cppinvokable.h"
 #include "cppcontainer.h"
-#include "cpgf/gassert.h"
+#include "cppclass.h"
+#include "cppclasstraits.h"
+#include "cppcontext.h"
+#include "cpppolicy.h"
 #include "cpputil.h"
+
+#include "cpgf/gassert.h"
 
 #if defined(_MSC_VER)
 #pragma warning(push, 0)
@@ -115,7 +120,12 @@ bool CppInvokable::isOverloaded() const
 
 bool CppInvokable::hasResult() const
 {
-	return ! this->getResultType().isVoid();
+	if(this->isConstructor()) {
+		return false;
+	}
+	else {
+		return ! this->getResultType().isVoid();
+	}
 }
 
 size_t CppInvokable::getArity() const
@@ -258,5 +268,35 @@ CppType CppInvokable::getResultType() const
 	return CppType(qualType);
 }
 
+void CppInvokable::getPolicy(CppPolicy * outPolicy) const
+{
+	if(this->hasResult()) {
+		this->doGetPolicy(outPolicy, this->getResultType(), -1);
+	}
+
+	for(size_t i = 0; i < this->getArity(); ++i) {
+		this->doGetPolicy(outPolicy, this->getParamType(i), (int)i);
+	}
+}
+
+void CppInvokable::doGetPolicy(CppPolicy * outPolicy, const CppType & type, int index) const
+{
+	const CppClass * cppClass = this->getCppContext()->findClassByType(type.getBaseType());
+	if(cppClass != NULL) {
+		CppClassTraits classTraits = this->getCppContext()->getClassTraits(cppClass);
+		if(type.isReferenceToConst()) {
+			if(classTraits.isHasTypeConvertConstructor()) {
+				outPolicy->addRule(makeIndexedRule(ruleCopyConstReference, index));
+			}
+		}
+		else if(type.isPointer()) {
+		}
+		else {
+			if(classTraits.isCopyConstructorHidden()) {
+				outPolicy->addRule(makeIndexedRule(ruleParamNoncopyable, index));
+			}
+		}
+	}
+}
 
 } // namespace metagen

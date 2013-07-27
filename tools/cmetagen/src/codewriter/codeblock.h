@@ -36,16 +36,6 @@ private:
 	int indent;
 };
 
-class CodeIndent
-{
-public:
-	explicit CodeIndent(CodeItem * codeItem) : codeItem(codeItem) { codeItem->incIndent(); }
-	~CodeIndent() { codeItem->decIndent(); }
-	
-private:
-	CodeItem * codeItem;
-};
-
 
 class CodeLine : public CodeItem
 {

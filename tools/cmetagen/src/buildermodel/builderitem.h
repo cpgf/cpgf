@@ -39,9 +39,6 @@ public:
 	BuilderContainer * getParent() const { return this->parent; }
 	
 protected:
-	std::string getPolicyText() const;
-	virtual std::string doGetPolicyText() const;
-	
 	virtual void doWriteMetaData(BuilderWriter * writer) = 0;
 	
 	void checkBuilderItemCategory(ItemCategory category);

@@ -1,13 +1,17 @@
 #include "builderfilewriter.h"
 #include "buildercontext.h"
-#include "codewriter/codeblock.h"
 #include "codewriter/codewriter.h"
+#include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 #include "project.h"
+#include "util.h"
 
 #include "Poco/Format.h"
 #include "Poco/Path.h"
+#include "Poco/File.h"
 
 using namespace std;
+using namespace cpgf;
 
 namespace metagen {
 
@@ -57,7 +61,14 @@ std::string BuilderFileWriter::getOutputFileName() const
 	}
 
 	string fileName = Poco::format("%s%s%s", Poco::Path(this->sourceFileName).getBaseName(), postfix, extension);
-	return this->getProject()->getAbsoluteFileName(fileName);
+	string outputPath;
+	if(this->isSourceFile()) {
+		extension = this->getProject()->getSourceOutputPath();
+	}
+	else {
+		extension = this->getProject()->getHeaderOutputPath();
+	}
+	return this->getProject()->getAbsoluteFileName(normalizePath(extension) + fileName);
 }
 
 const Project * BuilderFileWriter::getProject() const
@@ -65,15 +76,31 @@ const Project * BuilderFileWriter::getProject() const
 	return this->builderContext->getProject();
 }
 
+void BuilderFileWriter::callbackCppWriter(CodeWriter * codeWriter) const
+{
+	for(BuilderSectionListType::const_iterator it = this->sectionList.begin(); it != this->sectionList.end(); ++it) {
+		(*it)->getCodeBlock()->write(codeWriter);
+	}
+}
+
 void BuilderFileWriter::output()
 {
-	printf("\nFile %s\n", getOutputFileName().c_str());
+	string outputFileName = getOutputFileName();
+	Poco::File(Poco::Path(outputFileName).parent()).createDirectories();
 
-	for(BuilderSectionListType::iterator it = this->sectionList.begin(); it != this->sectionList.end(); ++it) {
-		CodeWriter codeWriter;
-		(*it)->getCodeBlock()->write(&codeWriter);
-		printf("%s", codeWriter.getText().c_str());
+	CppWriter cppWriter;
+	CodeWriter codeWriter;
+
+	cppWriter.write(&codeWriter, makeCallback(this, &BuilderFileWriter::callbackCppWriter));
+
+	string fileContent;
+	if(readStringFromFile(outputFileName, &fileContent)) {
+		if(codeWriter.getText() == fileContent) {
+			return;
+		}
 	}
+
+	writeStringToFile(outputFileName, codeWriter.getText());
 }
 
 

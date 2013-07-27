@@ -43,10 +43,11 @@ std::string getReflectionFunctionName(const BuilderContext * builderContext, Bui
 
 CodeNameType getNameTypeFromBuilderSection(BuilderSection * section);
 
+std::string getMetaTypeTypedef(const BuilderContext * builderContext,
+	 BuilderSection * section, std::string * outReflectionTemplateParams);
+
 void initializeReflectionFunctionOutline(const BuilderContext * builderContext, BuilderSection * section);
-
 void initializePartialCreationFunction(const BuilderContext * builderContext, BuilderSection * section);
-
 void initializeClassWrapperOutline(const BuilderContext * builderContext, BuilderSection * section);
 
 

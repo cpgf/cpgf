@@ -5,6 +5,7 @@
 #include "model/cppclass.h"
 #include "model/cppmethod.h"
 #include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 #include "util.h"
 
 #include "Poco/Format.h"

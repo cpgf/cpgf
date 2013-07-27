@@ -13,8 +13,9 @@
 
 #include <string>
 
-namespace metagen {
+namespace clang { class CXXRecordDecl; }
 
+namespace metagen {
 
 class CppType
 {
@@ -49,6 +50,9 @@ public:
 	bool isFundamental() const;
 
 	CppType getNonReferenceType() const;
+	CppType getBaseType() const; // strip all pointers, reference, or arrays
+	
+	const clang::CXXRecordDecl * getCXXRecordDecl() const;
 	
 private:
 	clang::QualType qualType;

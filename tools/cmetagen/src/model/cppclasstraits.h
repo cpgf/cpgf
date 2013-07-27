@@ -5,6 +5,8 @@
 
 namespace metagen {
 
+class CppPolicy;
+
 class CppClassTraits
 {
 private:
@@ -27,7 +29,7 @@ public:
 	
 	bool isHasTypeConvertConstructor() const;
 	void setHasTypeConvertConstructor(bool value);
-	
+
 private:
 	cpgf::GFlags<TraitsFlag> flags;
 };

@@ -250,6 +250,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\model\cpppolicy.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\model\cpptype.cpp"
 					>
 				</File>

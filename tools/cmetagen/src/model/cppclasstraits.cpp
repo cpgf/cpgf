@@ -1,4 +1,5 @@
 #include "cppclasstraits.h"
+#include "cpppolicy.h"
 
 namespace metagen {
 

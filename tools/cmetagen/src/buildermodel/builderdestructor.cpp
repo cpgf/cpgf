@@ -1,6 +1,7 @@
 #include "builderdestructor.h"
 #include "builderwriter.h"
 #include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 #include "model/cppdestructor.h"
 
 namespace metagen {

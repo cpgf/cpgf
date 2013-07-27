@@ -10,7 +10,13 @@ namespace metagen {
 
 
 BuilderSection::BuilderSection(BuilderSectionType type, const CppItem * cppItem)
-	: type(type), cppItem(cppItem), totalPayload(0), index(0), codeBlock(new CodeBlock), relateSection(NULL)
+	: type(type),
+		cppItem(cppItem),
+		totalPayload(0),
+		index(0),
+		codeBlock(new CodeBlock),
+		templateInstantiation(NULL),
+		relateSection(NULL)
 {
 }
 

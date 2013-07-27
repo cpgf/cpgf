@@ -2,9 +2,11 @@
 #include "cppconstructor.h"
 #include "cppdestructor.h"
 #include "cppcontext.h"
+#include "cpppolicy.h"
 #include "cpputil.h"
-
 #include "util.h"
+
+#include "cpgf/gassert.h"
 
 #if defined(_MSC_VER)
 #pragma warning(push, 0)
@@ -22,6 +24,18 @@ using namespace std;
 
 namespace metagen {
 
+const CXXRecordDecl * getRecordDecl(const Decl * decl)
+{
+	const CXXRecordDecl * recordDecl;
+	const ClassTemplateDecl * templateDecl = dyn_cast<ClassTemplateDecl>(decl);
+	if(templateDecl != NULL) {
+		recordDecl = templateDecl->getTemplatedDecl();
+	}
+	else {
+		recordDecl = dyn_cast<CXXRecordDecl>(decl);
+	}
+	return recordDecl;
+}
 
 BaseClass::BaseClass(const clang::CXXBaseSpecifier * baseSpecifier, const CppContext * cppContext)
 	: baseSpecifier(baseSpecifier), cppContext(cppContext)
@@ -41,20 +55,9 @@ std::string BaseClass::getQualifiedName() const
 
 const CppClass * BaseClass::getCppClass() const
 {
-	return static_cast<const CppClass *>(this->cppContext->findNamedItem(icClass, this->getQualifiedName()));
-}
-
-const CXXRecordDecl * getRecordDecl(const Decl * decl)
-{
-	const CXXRecordDecl * recordDecl;
-	const ClassTemplateDecl * templateDecl = dyn_cast<ClassTemplateDecl>(decl);
-	if(templateDecl != NULL) {
-		recordDecl = templateDecl->getTemplatedDecl();
-	}
-	else {
-		recordDecl = dyn_cast<CXXRecordDecl>(decl);
-	}
-	return recordDecl;
+	const CppItem * cppItem = this->cppContext->findClassByType(CppType(this->baseSpecifier->getType()));
+	GASSERT(cppItem != NULL && cppItem->isClass());
+	return static_cast<const CppClass *>(cppItem);
 }
 
 CppClass::CppClass(const clang::Decl * decl)
@@ -99,12 +102,12 @@ CppClassTraits CppClass::getClassTraits() const
 		it != this->constructorList.end();
 		++it) {
 		const CppConstructor * ctor = *it;
+		if(ctor->isImplicitTypeConverter()) {
+			classTraits.setHasTypeConvertConstructor(true);
+		}
 		if(! isVisibilityAllowed(ctor->getVisibility(), this->getCppContext()->getProject())) {
 			if(ctor->isCopyConstructor()) {
 				classTraits.setCopyConstructorHidden(true);
-			}
-			else if(ctor->isImplicitTypeConverter()) {
-				classTraits.setHasTypeConvertConstructor(true);
 			}
 		}
 	}
@@ -129,10 +132,10 @@ bool CppClass::isDefaultConstructorHidden() const
 		const CppConstructor * ctor = *it;
 		if(ctor->isDefaultConstructor()) {
 			if(isVisibilityAllowed(ctor->getVisibility(), this->getCppContext()->getProject())) {
-				return true;
+				return false;
 			}
 			else {
-				return false;
+				return true;
 			}
 		}
 	}
@@ -235,5 +238,19 @@ std::string CppClass::getTextOfChainedTemplateParamList(const ItemTextOptionFlag
 	return text;
 }
 
+void CppClass::getPolicy(CppPolicy * outPolicy) const
+{
+	CppClassTraits classTraits = this->getCppContext()->getClassTraits(this);
+	
+	if(classTraits.isCopyConstructorHidden()) {
+		outPolicy->addRule(ruleCopyConstructorAbsent);
+	}
+	if(classTraits.isDefaultConstructorHidden()) {
+		outPolicy->addRule(ruleDefaultConstructorAbsent);
+	}
+	if(classTraits.isDestructorHidden()) {
+		outPolicy->addRule(ruleDestructorAbsent);
+	}
+}
 
 } // namespace metagen

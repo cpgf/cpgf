@@ -8,6 +8,7 @@
 #include "model/cppinvokable.h"
 #include "model/cppenum.h"
 #include "codewriter/codeblock.h"
+#include "constants.h"
 #include "util.h"
 #include "project.h"
 
@@ -203,6 +204,53 @@ void initializeReflectionFunctionOutline(const BuilderContext * builderContext, 
 	}
 }
 
+string getMetaTypeTypedef(const BuilderContext * builderContext,
+	BuilderSection * section,
+	string * outReflectionTemplateParams)
+{
+	const CppContainer * cppContainer = static_cast<const CppContainer *>(section->getCppItem());
+	const CppClass * cppClass = NULL;
+	if(cppContainer->isClass()) {
+		cppClass = static_cast<const CppClass *>(cppContainer);
+	}
+
+	const BuilderTemplateInstantiation * templateInstantiation = section->getTemplateInstantiation();
+
+	if(cppClass != NULL && cppClass->isTemplate()) {
+		if(templateInstantiation == NULL) {
+			return "";
+		}
+	}
+
+	string metaType;
+	if(cppClass != NULL) {
+		string className = getContainerNormalizedSymboName(builderContext, section);
+		if(section->isClassWrapper()) {
+			className = getClassWrapperClassQulifiedName(builderContext, cppClass);
+		}
+		else {
+			className = cppClass->getQualifiedName();
+		}
+		string selfType;
+		if(cppClass->isTemplate()) {
+			selfType = Poco::format("%s<%s >", className, templateInstantiation->getTemplateParams());
+			if(outReflectionTemplateParams != NULL) {
+				*outReflectionTemplateParams = Poco::format("<%s, %s >",
+					metaTypeTypeDefName, templateInstantiation->getTemplateParams());
+			}
+		}
+		else {
+			selfType = className;
+		}
+		metaType = Poco::format("cpgf::GDefineMetaClass<%s >", selfType);
+	}
+	else {
+		metaType = "GDefineMetaGlobal";
+	}
+
+	return Poco::format("typedef %s %s;", metaType, metaTypeTypeDefName);
+}
+
 void initializePartialCreationFunction(const BuilderContext * builderContext, BuilderSection * section)
 {
 	GASSERT(section->getCppItem()->isContainer());
@@ -232,37 +280,12 @@ void initializePartialCreationFunction(const BuilderContext * builderContext, Bu
 
 	CodeBlock * bodyBlock = codeBlock->appendBlock(cbsBracketAndIndent);
 
-	const string metaTypeTypeDef("MetaType");
-
 	string reflectionTemplateParams;
 
-	string metaType;
-	if(cppClass != NULL) {
-		string className = getContainerNormalizedSymboName(builderContext, section);
-		if(section->isClassWrapper()) {
-			className = getClassWrapperClassQulifiedName(builderContext, cppClass);
-		}
-		else {
-			className = cppClass->getQualifiedName();
-		}
-		string selfType;
-		if(cppClass->isTemplate()) {
-			selfType = Poco::format("%s<%s >", className, templateInstantiation->getTemplateParams());
-			reflectionTemplateParams = Poco::format("<%s, %s >", metaTypeTypeDef, templateInstantiation->getTemplateParams());
-		}
-		else {
-			selfType = className;
-		}
-		metaType = Poco::format("cpgf::GDefineMetaClass<%s >", selfType);
-	}
-	else {
-		metaType = "GDefineMetaGlobal";
-	}
-
-	s = Poco::format("typedef %s %s;", metaType, metaTypeTypeDef);
+	s = getMetaTypeTypedef(builderContext, section, &reflectionTemplateParams);
 	bodyBlock->appendLine(s);
 
-	s = Poco::format("%s meta = %s::fromMetaClass(metaInfo.getMetaClass());", metaTypeTypeDef, metaTypeTypeDef);
+	s = Poco::format("%s meta = %s::fromMetaClass(metaInfo.getMetaClass());", metaTypeTypeDefName, metaTypeTypeDefName);
 	bodyBlock->appendLine(s);
 	s = Poco::format("%s%s(meta);",
 		getReflectionFunctionName(builderContext, section), reflectionTemplateParams);

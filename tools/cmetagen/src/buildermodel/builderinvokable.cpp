@@ -1,8 +1,10 @@
 #include "builderinvokable.h"
 #include "model/cppinvokable.h"
+#include "model/cpppolicy.h"
+
+using namespace std;
 
 namespace metagen {
-
 
 BuilderInvokable::BuilderInvokable(const CppItem * cppItem)
 	: super(cppItem)
@@ -22,6 +24,15 @@ bool BuilderInvokable::canBind() const
 	}
 
 	return super::canBind();
+}
+
+std::string getInvokablePolicyText(const CppInvokable * cppInvokable, bool prefixWithComma)
+{
+	CppPolicy cppPolicy;
+
+	cppInvokable->getPolicy(&cppPolicy);
+
+	return cppPolicy.getTextOfMakePolicy(prefixWithComma) + "()";
 }
 
 

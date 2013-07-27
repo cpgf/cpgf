@@ -2,6 +2,7 @@
 #include "builderwriter.h"
 #include "builderutil.h"
 #include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 #include "model/cppenum.h"
 
 #include "Poco/Format.h"

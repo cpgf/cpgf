@@ -23,7 +23,6 @@ namespace metagen {
 
 
 CppWriter::CppWriter()
-	: codeBlock()
 {
 }
 
@@ -41,7 +40,7 @@ void writeIncludeList(const std::set<std::string> & includeList, CodeWriter * co
 	}
 }
 
-void CppWriter::write(CodeWriter * codeWriter)
+void CppWriter::write(CodeWriter * codeWriter, const CppWriterCallback & callback)
 {
 	codeWriter->writeLine("// Auto generated file, don't modify.");
 	codeWriter->ensureBlankLine();
@@ -70,7 +69,7 @@ void CppWriter::write(CodeWriter * codeWriter)
 		codeWriter->ensureBlankLine();
 	}
 
-	this->codeBlock.write(codeWriter);
+	callback(codeWriter);
 
 	if(! this->fileNamespace.empty()) {
 		codeWriter->ensureBlankLine();
@@ -108,11 +107,6 @@ void CppWriter::include(const std::string & fileName)
 void CppWriter::tailIncldue(const std::string & fileName)
 {
 	this->tailIncludeList.insert(fileName);
-}
-
-CodeBlock * CppWriter::getCodeBlock()
-{
-	return &this->codeBlock;
 }
 
 

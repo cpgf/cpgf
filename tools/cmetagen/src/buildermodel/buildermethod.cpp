@@ -2,6 +2,7 @@
 #include "builderwriter.h"
 #include "builderclass.h"
 #include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 #include "model/cppmethod.h"
 #include "model/cppcontainer.h"
 #include "builderutil.h"
@@ -17,7 +18,7 @@ namespace metagen {
 void writeMethodReflection(const CppMethod * cppMethod, BuilderWriter * writer);
 void writeMethodDefaultParameterReflection(const CppMethod * cppMethod, CodeBlock * codeBlock);
 void writeMethodReflectionCode(const CppMethod * cppMethod, BuilderWriter * writer, CodeBlock * codeBlock,
-										   const std::string & methodName);
+										   const string & methodName);
 void writeMethodClassWrapperCallSuperMethod(const CppMethod * cppMethod, CodeBlock * codeBlock);
 void writeMethodClassWrapperMethodBody(const CppMethod * cppMethod, CodeBlock * codeBlock);
 void writeMethodClassWrapperReflection(const CppMethod * cppMethod, BuilderWriter * writer, const CppContainer * container);
@@ -105,31 +106,34 @@ void writeMethodDefaultParameterReflection(const CppMethod * cppMethod, CodeBloc
 }
 
 void writeMethodReflectionCode(const CppMethod * cppMethod, BuilderWriter * writer, CodeBlock * codeBlock,
-										   const std::string & methodName)
+										   const string & methodName)
 {
 	size_t arity = cppMethod->getArity();
 	bool hasDefaultValue = (arity > 0 && cppMethod->paramHasDefaultValue(arity - 1));
 
-	std::string s;
+	string s;
 
 	if(cppMethod->isOverloaded()) {
-		s = Poco::format("%s(\"%s\", (%s)(&%s%s))",
+		s = Poco::format("%s(\"%s\", (%s)(&%s%s)%s)",
 			writer->getReflectionAction("_method"),
 			methodName,
 			cppMethod->getTextOfPointeredType(),
 			getReflectionScope(cppMethod),
 			methodName,
-			string(hasDefaultValue ? "" : ";")
+			getInvokablePolicyText(cppMethod, true)
 		);
 	}
 	else {
-		s = Poco::format("%s(\"%s\", &%s%s)",
+		s = Poco::format("%s(\"%s\", &%s%s)%s",
 			writer->getReflectionAction("_method"),
 			methodName,
 			getReflectionScope(cppMethod),
 			methodName,
-			string(hasDefaultValue ? "" : ";")
+			getInvokablePolicyText(cppMethod, true)
 		);
+	}
+	if(! hasDefaultValue) {
+		s.append(";");
 	}
 	codeBlock->appendLine(s);
 

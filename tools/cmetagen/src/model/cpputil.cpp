@@ -34,13 +34,13 @@ string removeRecordWords(const string & text)
 
 QualType stripType(const QualType & qualType)
 {
-	QualType qType = qualType;
+	QualType qType = qualType->getCanonicalTypeInternal();
 	SplitQualType splitQualType = qType.split();
 	const Type * t = splitQualType.Ty;
 
 	for(;;) {
 		if(t->isArrayType()) {
-			qType = dyn_cast<ArrayType>(t->getCanonicalTypeInternal())->getElementType();
+			qType = dyn_cast<ArrayType>(t)->getElementType();
 		}
 		else if(t->isPointerType()) {
 			qType = dyn_cast<PointerType>(t)->getPointeeType();

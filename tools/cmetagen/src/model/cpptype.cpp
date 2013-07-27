@@ -203,5 +203,15 @@ CppType CppType::getNonReferenceType() const
 	return CppType(type);
 }
 
+CppType CppType::getBaseType() const
+{
+	return CppType(stripType(this->qualType));
+}
+
+const CXXRecordDecl * CppType::getCXXRecordDecl() const
+{
+	return this->qualType->getAsCXXRecordDecl();
+}
+
 
 } // namespace metagen

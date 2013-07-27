@@ -6,7 +6,7 @@
 
 #include <string>
 
-namespace clang { class CXXBaseSpecifier; }
+namespace clang { class CXXBaseSpecifier; class CXXRecordDecl; }
 
 namespace metagen {
 
@@ -44,19 +44,19 @@ public:
 	explicit CppClass(const clang::Decl * decl);
 	~CppClass();
 	
-	bool isTemplate() const;
-	bool isChainedTemplate() const;
-	bool isAnonymous() const;
-
-	CppClassTraits getClassTraits() const;
-	
-	std::string getTextOfTemplateParamList(const ItemTextOptionFlags & options) const;
-	std::string getTextOfChainedTemplateParamList(const ItemTextOptionFlags & options) const;
-	
 	const BaseClassListType * getBaseClassList() const { return &this->baseClassList; }
 	const ConstructorListType * getConstructorList() const { return &this->constructorList; }
 	const CppDestructor * getDestructor() const { return this->destructor; }
 
+	bool isTemplate() const;
+	bool isChainedTemplate() const;
+	bool isAnonymous() const;
+
+	std::string getTextOfTemplateParamList(const ItemTextOptionFlags & options) const;
+	std::string getTextOfChainedTemplateParamList(const ItemTextOptionFlags & options) const;
+	
+	void getPolicy(CppPolicy * outPolicy) const;
+	
 private:
 	BaseClassListType * getBaseClassList() { return &this->baseClassList; }
 	ConstructorListType * getConstructorList() { return &this->constructorList; }
@@ -66,6 +66,8 @@ private:
 
 	bool isDefaultConstructorHidden() const;
 
+	CppClassTraits getClassTraits() const;
+	
 private:
 	BaseClassListType baseClassList;
 	ConstructorListType constructorList;
@@ -73,6 +75,7 @@ private:
 	
 private:
 	friend class ClangParserImplement;
+	friend class CppContext;
 };
 
 

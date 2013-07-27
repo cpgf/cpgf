@@ -8,6 +8,7 @@
 
 namespace metagen {
 
+class CppPolicy;
 
 class CppInvokable : public CppNamedItem
 {
@@ -39,6 +40,11 @@ public:
 
 	CppType getFunctionType() const;
 	CppType getResultType() const;
+
+	void getPolicy(CppPolicy * outPolicy) const;
+
+private:
+	void doGetPolicy(CppPolicy * outPolicy, const CppType & type, int index) const;
 };
 
 
