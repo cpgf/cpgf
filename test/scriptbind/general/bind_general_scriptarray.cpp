@@ -9,6 +9,7 @@
 
 using namespace std;
 
+#if 1
 namespace {
 
 void doCreateScriptArray(TestScriptContext * context, const string & name, const string & elements)
@@ -19,6 +20,9 @@ void doCreateScriptArray(TestScriptContext * context, const string & name, const
 		code = VAR + name + " = {" + elements + "}";
 	}
 	else if(context->isPython()) {
+		code = VAR + name + " = [" + elements + "]";
+	}
+	else if(context->isJavascript()) {
 		code = VAR + name + " = [" + elements + "]";
 	}
 	DO(code);
@@ -161,3 +165,4 @@ void testArrayCreateScriptArray(TestScriptContext * context)
 
 
 }
+#endif
