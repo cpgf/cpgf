@@ -9,7 +9,6 @@
 
 using namespace std;
 
-#if 1
 namespace {
 
 void doCreateScriptArray(TestScriptContext * context, const string & name, const string & elements)
@@ -165,4 +164,4 @@ void testArrayCreateScriptArray(TestScriptContext * context)
 
 
 }
-#endif
+
