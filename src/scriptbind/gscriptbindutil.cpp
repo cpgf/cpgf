@@ -158,14 +158,14 @@ GScriptValue scriptCreateScriptArray(IScriptObject * scriptObject, const char * 
 GScriptValue scriptGetScriptArrayValue(IScriptArray * scriptArray, size_t index)
 {
 	GScriptValueData data;
-	scriptArray->getValue(&data, index);
+	scriptArray->getValue(&data, (uint32_t)index);
 	return createScriptValueFromData(data);
 }
 
 void scriptSetScriptArrayValue(IScriptArray * scriptArray, size_t index, const GScriptValue & value)
 {
 	GScriptValueData data(GScriptValue(value).takeData());
-	scriptArray->setValue(index, &data);
+	scriptArray->setValue((uint32_t)index, &data);
 }
 
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject)

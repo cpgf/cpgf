@@ -151,18 +151,6 @@ protected:
 	virtual GScriptValue doGetValue(const char * name);
 	virtual void doSetValue(const char * name, const GScriptValue & value);
 
-	virtual void doBindClass(const char * name, IMetaClass * metaClass) {}
-	virtual void doBindEnum(const char * name, IMetaEnum * metaEnum) {}
-
-	virtual void doBindNull(const char * name) {}
-	virtual void doBindFundamental(const char * name, const GVariant & value) {}
-	virtual void doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible) {}
-	virtual void doBindString(const char * stringName, const char * s) {}
-	virtual void doBindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership) {}
-	virtual void doBindRaw(const char * name, const GVariant & value) {}
-	virtual void doBindMethod(const char * name, void * instance, IMetaMethod * method) {}
-	virtual void doBindMethodList(const char * name, IMetaList * methodList) {}
-
 	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 
 private:
@@ -460,7 +448,6 @@ struct GV8Methods
 	}
 
 	static ResultType doMethodsToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem,
-		const char * methodName, GMetaClassTraveller * /*traveller*/,
 		IMetaClass * metaClass, IMetaClass * derived, const GObjectGlueDataPointer & objectData)
 	{
 		GFunctionTemplateUserData * userData = gdynamic_cast<GFunctionTemplateUserData *>(mapItem->getUserData());
@@ -1149,7 +1136,7 @@ GScriptValue GV8ScriptArray::getValue(size_t index)
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->arrayObject));
 
-	Local<Value> value = localObject->Get(index);
+	Local<Value> value = localObject->Get((uint32_t)index);
 	return v8ToScriptValue(this->getContext(), this->arrayObject->CreationContext(), value, NULL);
 }
 
@@ -1163,7 +1150,7 @@ void GV8ScriptArray::setValue(size_t index, const GScriptValue & value)
 	}
 	else {
 		Handle<Value> valueObject = helperBindValue(this->getContext(), value);
-		localObject->Set(index, valueObject);
+		localObject->Set((uint32_t)index, valueObject);
 	}
 }
 

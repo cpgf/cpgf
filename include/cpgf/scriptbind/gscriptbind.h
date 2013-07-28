@@ -83,9 +83,9 @@ public:
 
 	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) = 0;
 
-	virtual bool maybeIsScriptArray(const char * name) { return false; }
-	virtual GScriptValue getAsScriptArray(const char * name) { return GScriptValue(); }
-	virtual GScriptValue createScriptArray(const char * name) { return GScriptValue(); }
+	virtual bool maybeIsScriptArray(const char * name) = 0;
+	virtual GScriptValue getAsScriptArray(const char * name) = 0;
+	virtual GScriptValue createScriptArray(const char * name) = 0;
 
 
 	G_DEPRECATED(
@@ -176,19 +176,7 @@ public:
 
 protected:
 	virtual GScriptValue doGetValue(const char * name) = 0;
-	virtual void doSetValue(const char * name, const GScriptValue & value);
-
-	virtual void doBindClass(const char * name, IMetaClass * metaClass) = 0;
-	virtual void doBindEnum(const char * name, IMetaEnum * metaEnum) = 0;
-
-	virtual void doBindNull(const char * name) = 0;
-	virtual void doBindFundamental(const char * name, const GVariant & value) = 0;
-	virtual void doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible) = 0;
-	virtual void doBindString(const char * stringName, const char * s) = 0;
-	virtual void doBindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership) = 0;
-	virtual void doBindRaw(const char * name, const GVariant & value) = 0;
-	virtual void doBindMethod(const char * name, void * instance, IMetaMethod * method) = 0;
-	virtual void doBindMethodList(const char * name, IMetaList * methodList) = 0;
+	virtual void doSetValue(const char * name, const GScriptValue & value) = 0;
 
 	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader) = 0;
 

@@ -147,18 +147,6 @@ protected:
 	virtual GScriptValue doGetValue(const char * name);
 	virtual void doSetValue(const char * name, const GScriptValue & value);
 
-	virtual void doBindClass(const char * name, IMetaClass * metaClass) {}
-	virtual void doBindEnum(const char * name, IMetaEnum * metaEnum) {}
-
-	virtual void doBindNull(const char * name) {}
-	virtual void doBindFundamental(const char * name, const GVariant & value) {}
-	virtual void doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible) {}
-	virtual void doBindString(const char * stringName, const char * s) {}
-	virtual void doBindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership) {}
-	virtual void doBindRaw(const char * name, const GVariant & value) {}
-	virtual void doBindMethod(const char * name, void * instance, IMetaMethod * method) {}
-	virtual void doBindMethodList(const char * name, IMetaList * methodList) {}
-
 	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 
 private:
@@ -896,7 +884,6 @@ struct GPythonMethods
 	}
 
 	static ResultType doMethodsToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem,
-		const char * methodName, GMetaClassTraveller * /*traveller*/,
 		IMetaClass * metaClass, IMetaClass * derived, const GObjectGlueDataPointer & objectData)
 	{
 		GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getUserData());

@@ -63,112 +63,49 @@ void GScriptObject::setValue(const char * name, const GScriptValue & value)
 	}
 }
 
-void GScriptObject::doSetValue(const char * name, const GScriptValue & value)
-{
-	switch(value.getType()) {
-		case GScriptValue::typeNull:
-			this->doBindNull(name);
-			break;
-
-		case GScriptValue::typeFundamental:
-			this->doBindFundamental(name, value.toFundamental());
-			break;
-
-		case GScriptValue::typeString:
-			this->doBindString(name, value.toString().c_str());
-			break;
-
-		case GScriptValue::typeClass: {
-			GScopedInterface<IMetaClass> metaClass(value.toClass());
-			this->doBindClass(name, metaClass.get());
-			break;
-		}
-
-		case GScriptValue::typeObject: {
-			IMetaClass * metaClass;
-			bool transferOwnership;
-			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
-			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
-			this->doBindObject(name, instance, metaClass, transferOwnership);
-			break;
-		}
-
-		case GScriptValue::typeMethod: {
-			void * instance;
-			GScopedInterface<IMetaMethod> method(value.toMethod(&instance));
-			this->doBindMethod(name, instance, method.get());
-			break;
-		}
-
-		case GScriptValue::typeOverloadedMethods: {
-			GScopedInterface<IMetaList> methodList(value.toOverloadedMethods());
-			this->doBindMethodList(name, methodList.get());
-			break;
-		}
-
-		case GScriptValue::typeEnum: {
-			GScopedInterface<IMetaEnum> metaEnum(value.toEnum());
-			this->doBindEnum(name, metaEnum.get());
-			break;
-		}
-
-		case GScriptValue::typeRaw:
-			this->doBindRaw(name, value.toRaw());
-			break;
-
-		case GScriptValue::typeAccessible: {
-			void * instance;
-			GScopedInterface<IMetaAccessible> accessible(value.toAccessible(&instance));
-			this->doBindAccessible(name, instance, accessible.get());
-			break;
-		}
-
-	}
-}
-
 void GScriptObject::bindClass(const char * name, IMetaClass * metaClass)
 {
-	this->doBindClass(name, metaClass);
+	this->setValue(name, GScriptValue::fromClass(metaClass));
 }
 
 void GScriptObject::bindEnum(const char * name, IMetaEnum * metaEnum)
 {
-	this->doBindEnum(name, metaEnum);
+	this->setValue(name, GScriptValue::fromEnum(metaEnum));
 }
 
 void GScriptObject::bindFundamental(const char * name, const GVariant & value)
 {
-	this->doBindFundamental(name, value);
+	this->setValue(name, GScriptValue::fromFundamental(value));
 }
 
 void GScriptObject::bindAccessible(const char * name, void * instance, IMetaAccessible * accessible)
 {
-	this->doBindAccessible(name, instance, accessible);
+	this->setValue(name, GScriptValue::fromAccessible(instance, accessible));
 }
 
 void GScriptObject::bindString(const char * stringName, const char * s)
 {
-	this->doBindString(stringName, s);
+	this->setValue(stringName, GScriptValue::fromString(s));
 }
 
 void GScriptObject::bindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership)
 {
-	this->doBindObject(objectName, instance, type, transferOwnership);
+	this->setValue(objectName, GScriptValue::fromObject(instance, type, transferOwnership));
 }
 
 void GScriptObject::bindRaw(const char * name, const GVariant & value)
 {
-	this->doBindRaw(name, value);
+	this->setValue(name, GScriptValue::fromRaw(value));
 }
 
 void GScriptObject::bindMethod(const char * name, void * instance, IMetaMethod * method)
 {
-	this->doBindMethod(name, instance, method);
+	this->setValue(name, GScriptValue::fromMethod(instance, method));
 }
 
 void GScriptObject::bindMethodList(const char * name, IMetaList * methodList)
 {
-	this->doBindMethodList(name, methodList);
+	this->setValue(name, GScriptValue::fromOverloadedMethods(methodList));
 }
 
 void GScriptObject::bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)

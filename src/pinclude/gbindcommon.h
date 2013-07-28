@@ -1238,7 +1238,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 
 			case mmitMethod:
 			case mmitMethodList: {
-				return Methods::doMethodsToScript(classData, mapItem, name, &traveller, metaClass.get(), derived.get(), objectData);
+				return Methods::doMethodsToScript(classData, mapItem, metaClass.get(), derived.get(), objectData);
 			}
 
 			case mmitEnum:
