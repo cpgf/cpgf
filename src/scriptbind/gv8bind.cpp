@@ -86,6 +86,40 @@ private:
 	Persistent<ObjectTemplate> objectTemplate;
 };
 
+class GV8ScriptFunction : public GScriptFunctionBase
+{
+private:
+	typedef GScriptFunctionBase super;
+
+public:
+	GV8ScriptFunction(const GContextPointer & context, Local<Object> receiver, Local<Value> func);
+	virtual ~GV8ScriptFunction();
+
+	virtual GVariant invoke(const GVariant * params, size_t paramCount);
+	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount);
+
+private:
+	Persistent<Object> receiver;
+	Persistent<Function> func;
+};
+
+class GV8ScriptArray : public GScriptArrayBase
+{
+private:
+	typedef GScriptArrayBase super;
+
+public:
+	GV8ScriptArray(const GContextPointer & context, Handle<Array> arr);
+	virtual ~GV8ScriptArray();
+
+	virtual size_t getLength();
+	virtual GScriptValue getValue(size_t index);
+	virtual void setValue(size_t index, const GScriptValue & value);
+
+private:
+	Persistent<Array> arrayObject;
+};
+
 class GV8ScriptObject : public GScriptObjectBase
 {
 private:
@@ -104,6 +138,10 @@ public:
 
 	virtual void assignValue(const char * fromName, const char * toName);
 
+	virtual bool maybeIsScriptArray(const char * name);
+	virtual GScriptValue getAsScriptArray(const char * name);
+	virtual GScriptValue createScriptArray(const char * name);
+
 public:
 	Local<Object> getObject() const {
 		return Local<Object>::New(this->object);
@@ -111,23 +149,23 @@ public:
 
 protected:
 	virtual GScriptValue doGetValue(const char * name);
+	virtual void doSetValue(const char * name, const GScriptValue & value);
 
-	virtual void doBindClass(const char * name, IMetaClass * metaClass);
-	virtual void doBindEnum(const char * name, IMetaEnum * metaEnum);
+	virtual void doBindClass(const char * name, IMetaClass * metaClass) {}
+	virtual void doBindEnum(const char * name, IMetaEnum * metaEnum) {}
 
-	virtual void doBindNull(const char * name);
-	virtual void doBindFundamental(const char * name, const GVariant & value);
-	virtual void doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
-	virtual void doBindString(const char * stringName, const char * s);
-	virtual void doBindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership);
-	virtual void doBindRaw(const char * name, const GVariant & value);
-	virtual void doBindMethod(const char * name, void * instance, IMetaMethod * method);
-	virtual void doBindMethodList(const char * name, IMetaList * methodList);
+	virtual void doBindNull(const char * name) {}
+	virtual void doBindFundamental(const char * name, const GVariant & value) {}
+	virtual void doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible) {}
+	virtual void doBindString(const char * stringName, const char * s) {}
+	virtual void doBindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership) {}
+	virtual void doBindRaw(const char * name, const GVariant & value) {}
+	virtual void doBindMethod(const char * name, void * instance, IMetaMethod * method) {}
+	virtual void doBindMethodList(const char * name, IMetaList * methodList) {}
 
 	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 
 private:
-	void helperBindMethodList(const char * name, IMetaList * methodList);
 	GMethodGlueDataPointer doGetMethodData(const char * methodName);
 
 private:
@@ -135,23 +173,6 @@ private:
 
 private:
 	Persistent<Object> object;
-};
-
-class GV8ScriptFunction : public GScriptFunctionBase
-{
-private:
-	typedef GScriptFunctionBase super;
-
-public:
-	GV8ScriptFunction(const GContextPointer & context, Local<Object> receiver, Local<Value> func);
-	virtual ~GV8ScriptFunction();
-
-	virtual GVariant invoke(const GVariant * params, size_t paramCount);
-	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount);
-
-private:
-	Persistent<Object> receiver;
-	Persistent<Function> func;
 };
 
 class GFunctionTemplateUserData : public GUserData
@@ -201,8 +222,9 @@ private:
 Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData);
 Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData);
 Persistent<Object> helperBindEnum(const GContextPointer & context, Handle<ObjectTemplate> objectTemplate, IMetaEnum * metaEnum);
-Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData, bool isGlobal, IMetaList * methodList,
-	const char * name, Handle<FunctionTemplate> classTemplate);
+Handle<Value> helperBindMethodList(const GContextPointer & context, const char * name, IMetaList * methodList);
+Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData, bool isGlobal,
+	IMetaList * methodList, Handle<FunctionTemplate> classTemplate);
 Handle<ObjectTemplate> createEnumTemplate(const GContextPointer & context);
 
 void loadCallableParam(const Arguments & args, const GContextPointer & context, InvokeCallableParam * callableParam);
@@ -286,12 +308,16 @@ GScriptValue v8UserDataToScriptValue(const GContextPointer & context, Local<Cont
 		}
 		else {
 			if(value->IsFunction()) {
-				GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GV8ScriptFunction(context, v8Context->Global(), Local<Value>::New(value)), true));
+				GScopedInterface<IScriptFunction> func(
+					new ImplScriptFunction(new GV8ScriptFunction(context, v8Context->Global(), Local<Value>::New(value)), true)
+				);
 
 				return GScriptValue::fromScriptFunction(func.get());
 			}
 			else {
-				GScopedInterface<IScriptObject> scriptObject(new ImplScriptObject(new GV8ScriptObject(context->getService(), obj, context->getConfig()), true));
+				GScopedInterface<IScriptObject> scriptObject(
+					new ImplScriptObject(new GV8ScriptObject(context->getService(), obj, context->getConfig()), true)
+				);
 
 				return GScriptValue::fromScriptObject(scriptObject.get());
 			}
@@ -444,7 +470,7 @@ struct GV8Methods
 			
 			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstance(objectData)));
 			Handle<FunctionTemplate> functionTemplate = createMethodTemplate(context, classData,
-				! objectData, metaList.get(), methodName,
+				! objectData, metaList.get(),
 				createClassTemplate(context, context->getClassData(boundClass.get())));
 			userData = new GFunctionTemplateUserData(functionTemplate);
 			mapItem->setUserData(userData);
@@ -579,8 +605,9 @@ Handle<Value> callbackMethodList(const Arguments & args)
 	LEAVE_V8(return Handle<Value>())
 }
 
-Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData, bool isGlobal, IMetaList * methodList,
-	const char * name, Handle<FunctionTemplate> classTemplate)
+Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context,
+	const GClassGlueDataPointer & classData, bool isGlobal, IMetaList * methodList,
+	Handle<FunctionTemplate> classTemplate)
 {
 	GMethodGlueDataPointer glueData = context->newMethodGlueData(classData, methodList);
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(glueData, getV8DataWrapperPool());
@@ -595,7 +622,7 @@ Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, c
 	else {
 		functionTemplate = FunctionTemplate::New(callbackMethodList, data, Signature::New(classTemplate));
 	}
-	functionTemplate->SetClassName(String::New(name));
+	functionTemplate->SetClassName(String::New(getMethodNameFromMethodList(methodList).c_str()));
 
 	Local<Function> func = functionTemplate->GetFunction();
 	setObjectSignature(&func);
@@ -674,6 +701,97 @@ Persistent<Object> helperBindEnum(const GContextPointer & context, Handle<Object
 	setObjectSignature(&obj);
 
 	return obj;
+}
+
+Handle<Value> helperBindMethodList(const GContextPointer & context, IMetaList * methodList)
+{
+	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(context, GClassGlueDataPointer(), true,
+		methodList, Handle<FunctionTemplate>());
+
+	Local<Function> func = Local<Function>::New(functionTemplate->GetFunction());
+	setObjectSignature(&func);
+
+	return func;
+}
+
+Handle<Value> helperBindClass(const GContextPointer & context, IMetaClass * metaClass)
+{
+	Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, context->getClassData(metaClass));
+	return functionTemplate->GetFunction();
+}
+
+Handle<Value> helperBindValue(const GContextPointer & context, const GScriptValue & value)
+{
+	Handle<Value> result;
+	switch(value.getType()) {
+		case GScriptValue::typeNull:
+			result = Null();
+			break;
+
+		case GScriptValue::typeFundamental:
+			result = variantToV8(context, value.toFundamental(), GBindValueFlags(bvfAllowRaw), NULL);
+			break;
+
+		case GScriptValue::typeString:
+			result = String::New(value.toString().c_str());
+			break;
+
+		case GScriptValue::typeClass: {
+			GScopedInterface<IMetaClass> metaClass(value.toClass());
+			result = helperBindClass(context, metaClass.get());
+			break;
+		}
+
+		case GScriptValue::typeObject: {
+			IMetaClass * metaClass;
+			bool transferOwnership;
+			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
+			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
+			
+			GBindValueFlags flags;
+			flags.setByBool(bvfAllowGC, transferOwnership);
+			result = objectToV8(context, context->getClassData(metaClass), instance, flags, opcvNone, NULL);
+			break;
+		}
+
+		case GScriptValue::typeMethod: {
+			void * instance;
+			GScopedInterface<IMetaMethod> method(value.toMethod(&instance));
+
+			if(method->isStatic()) {
+				instance = NULL;
+			}
+
+			GScopedInterface<IMetaList> methodList(createMetaList());
+			methodList->add(method.get(), instance);
+
+			result = helperBindMethodList(context, methodList.get());
+			break;
+		}
+
+		case GScriptValue::typeOverloadedMethods: {
+			GScopedInterface<IMetaList> methodList(value.toOverloadedMethods());
+			result = helperBindMethodList(context, methodList.get());
+			break;
+		}
+
+		case GScriptValue::typeEnum: {
+			GScopedInterface<IMetaEnum> metaEnum(value.toEnum());
+			Handle<ObjectTemplate> objectTemplate = createEnumTemplate(context);
+			result = helperBindEnum(context, objectTemplate, metaEnum.get());
+			break;
+		}
+
+		case GScriptValue::typeRaw:
+			result = rawToV8(context, value.toRaw(), NULL);
+			break;
+
+		case GScriptValue::typeAccessible:
+			GASSERT(false);
+			break;
+	}
+	
+	return result;
 }
 
 Handle<Value> getNamedMember(const GGlueDataPointer & glueData, const char * name)
@@ -927,12 +1045,6 @@ Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, co
 	return functionTemplate;
 }
 
-void helperBindClass(const GContextPointer & context, Local<Object> container, const char * name, IMetaClass * metaClass)
-{
-	Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, context->getClassData(metaClass));
-	container->Set(String::New(name), functionTemplate->GetFunction());
-}
-
 bool valueIsCallable(Local<Value> value)
 {
 	return value->IsFunction() || (value->IsObject() && Local<Object>::Cast(value)->IsCallable());
@@ -1016,6 +1128,46 @@ GVariant GV8ScriptFunction::invokeIndirectly(GVariant const * const * params, si
 }
 
 
+GV8ScriptArray::GV8ScriptArray(const GContextPointer & context, Handle<Array> arr)
+	: super(context), arrayObject(Persistent<Array>::New(arr))
+{
+}
+
+GV8ScriptArray::~GV8ScriptArray()
+{
+	this->arrayObject.Dispose();
+	this->arrayObject.Clear();
+}
+
+size_t GV8ScriptArray::getLength()
+{
+	return this->arrayObject->Length();
+}
+
+GScriptValue GV8ScriptArray::getValue(size_t index)
+{
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(this->arrayObject));
+
+	Local<Value> value = localObject->Get(index);
+	return v8ToScriptValue(this->getContext(), this->arrayObject->CreationContext(), value, NULL);
+}
+
+void GV8ScriptArray::setValue(size_t index, const GScriptValue & value)
+{
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(this->arrayObject));
+
+	if(value.isAccessible()) {
+		raiseCoreException(Error_ScriptBinding_NotSupportedFeature, "Set Accessible Into Array", "Google V8");
+	}
+	else {
+		Handle<Value> valueObject = helperBindValue(this->getContext(), value);
+		localObject->Set(index, valueObject);
+	}
+}
+
+
 GV8ScriptObject::GV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config)
 	: super(GContextPointer(new GV8BindingContext(service, config)), config), object(Persistent<Object>::New(object))
 {
@@ -1039,24 +1191,20 @@ GScriptValue GV8ScriptObject::doGetValue(const char * name)
 	return v8ToScriptValue(this->getContext(), this->object->CreationContext(), value, NULL);
 }
 
-void GV8ScriptObject::doBindClass(const char * name, IMetaClass * metaClass)
+void GV8ScriptObject::doSetValue(const char * name, const GScriptValue & value)
 {
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->object));
 
-	helperBindClass(this->getContext(), localObject, name, metaClass);
-}
-
-void GV8ScriptObject::doBindEnum(const char * name, IMetaEnum * metaEnum)
-{
-	HandleScope handleScope;
-	Local<Object> localObject(Local<Object>::New(this->object));
-
-	Handle<ObjectTemplate> objectTemplate = createEnumTemplate(this->getContext());
-
-	Persistent<Object> obj = helperBindEnum(this->getContext(), objectTemplate, metaEnum);
-
-	localObject->Set(String::New(name), obj);
+	if(value.isAccessible()) {
+		void * instance;
+		GScopedInterface<IMetaAccessible> accessible(value.toAccessible(&instance));
+		helperBindAccessible(this->getContext(), localObject, name, instance, accessible.get());
+	}
+	else {
+		Handle<Value> valueObject = helperBindValue(this->getContext(), value);
+		localObject->Set(String::New(name), valueObject);
+	}
 }
 
 GScriptObject * GV8ScriptObject::doCreateScriptObject(const char * name)
@@ -1097,7 +1245,9 @@ GScriptValue GV8ScriptObject::getScriptFunction(const char * name)
 	Local<Value> value = localObject->Get(String::New(name));
 
 	if(valueIsCallable(value)) {
-		GScopedInterface<IScriptFunction> scriptFunction(new ImplScriptFunction(new GV8ScriptFunction(this->getContext(), localObject, value), true));
+		GScopedInterface<IScriptFunction> scriptFunction(
+			new ImplScriptFunction(new GV8ScriptFunction(this->getContext(), localObject, value), true)
+		);
 		return GScriptValue::fromScriptFunction(scriptFunction.get());
 	}
 	else {
@@ -1128,76 +1278,6 @@ GVariant GV8ScriptObject::invokeIndirectly(const char * name, GVariant const * c
 	return invokeV8FunctionIndirectly(this->getContext(), this->getObject(), func, params, paramCount, name);
 }
 
-void GV8ScriptObject::doBindNull(const char * name)
-{
-	HandleScope handleScope;
-	Local<Object> localObject(Local<Object>::New(this->object));
-
-	localObject->Set(String::New(name), Null());
-}
-
-void GV8ScriptObject::doBindFundamental(const char * name, const GVariant & value)
-{
-	GASSERT_MSG(vtIsFundamental(vtGetType(value.refData().typeData)), "Only fundamental value can be bound via bindFundamental");
-
-	HandleScope handleScope;
-	Local<Object> localObject(Local<Object>::New(this->object));
-
-	localObject->Set(String::New(name), variantToV8(this->getContext(), value, GBindValueFlags(bvfAllowRaw), NULL));
-}
-
-void GV8ScriptObject::doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible)
-{
-	HandleScope handleScope;
-	Local<Object> localObject(Local<Object>::New(this->object));
-
-	helperBindAccessible(this->getContext(), localObject, name, instance, accessible);
-}
-
-void GV8ScriptObject::doBindString(const char * stringName, const char * s)
-{
-	HandleScope handleScope;
-	Local<Object> localObject(Local<Object>::New(this->object));
-
-	localObject->Set(String::New(stringName), String::New(s));
-}
-
-void GV8ScriptObject::doBindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership)
-{
-	HandleScope handleScope;
-	Local<Object> localObject(Local<Object>::New(this->object));
-
-	GBindValueFlags flags;
-	flags.setByBool(bvfAllowGC, transferOwnership);
-	Handle<Value> obj = objectToV8(this->getContext(), this->getContext()->getClassData(type), instance, flags, opcvNone, NULL);
-	localObject->Set(String::New(objectName), obj);
-}
-
-void GV8ScriptObject::doBindRaw(const char * name, const GVariant & value)
-{
-	HandleScope handleScope;
-	Local<Object> localObject(Local<Object>::New(this->object));
-
-	localObject->Set(String::New(name), rawToV8(this->getContext(), value, NULL));
-}
-
-void GV8ScriptObject::doBindMethod(const char * name, void * instance, IMetaMethod * method)
-{
-	if(method->isStatic()) {
-		instance = NULL;
-	}
-
-	GScopedInterface<IMetaList> methodList(createMetaList());
-	methodList->add(method, instance);
-
-	this->helperBindMethodList(name, methodList.get());
-}
-
-void GV8ScriptObject::doBindMethodList(const char * name, IMetaList * methodList)
-{
-	this->helperBindMethodList(name, methodList);
-}
-
 void GV8ScriptObject::assignValue(const char * fromName, const char * toName)
 {
 	HandleScope handleScope;
@@ -1207,23 +1287,57 @@ void GV8ScriptObject::assignValue(const char * fromName, const char * toName)
 	localObject->Set(String::New(toName), value);
 }
 
-void GV8ScriptObject::doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
-{
-	this->getContext()->bindScriptCoreService(this, name, libraryLoader);
-}
-
-void GV8ScriptObject::helperBindMethodList(const char * name, IMetaList * methodList)
+bool GV8ScriptObject::maybeIsScriptArray(const char * name)
 {
 	HandleScope handleScope;
 	Local<Object> localObject(Local<Object>::New(this->object));
 
-	Handle<FunctionTemplate> functionTemplate = createMethodTemplate(this->getContext(), GClassGlueDataPointer(), true, methodList, name,
-		Handle<FunctionTemplate>());
+	Local<Value> value = localObject->Get(String::New(name));
+	return value->IsArray();
+}
 
-	Local<Function> func = Local<Function>::New(functionTemplate->GetFunction());
-	setObjectSignature(&func);
+GScriptValue GV8ScriptObject::getAsScriptArray(const char * name)
+{
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(this->object));
 
-	localObject->Set(String::New(name), func);
+	Local<Value> value = localObject->Get(String::New(name));
+	if(value->IsArray()) {
+		GScopedInterface<IScriptArray> scriptArray(
+			new ImplScriptArray(new GV8ScriptArray(this->getContext(), Handle<Array>::Cast(value)), true)
+		);
+		return GScriptValue::fromScriptArray(scriptArray.get());
+	}
+	else {
+		return GScriptValue();
+	}
+}
+
+GScriptValue GV8ScriptObject::createScriptArray(const char * name)
+{
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(this->object));
+
+	Local<Value> value = localObject->Get(String::New(name));
+	if(value->IsArray()) { // already exists
+		GScopedInterface<IScriptArray> scriptArray(
+			new ImplScriptArray(new GV8ScriptArray(this->getContext(), Handle<Array>::Cast(value)), true)
+		);
+		return GScriptValue::fromScriptArray(scriptArray.get());
+	}
+	else {
+		Local<Array> arrayObject = Array::New();
+		localObject->Set(String::New(name), arrayObject);
+		GScopedInterface<IScriptArray> scriptArray(
+			new ImplScriptArray(new GV8ScriptArray(this->getContext(), arrayObject), true)
+		);
+		return GScriptValue::fromScriptArray(scriptArray.get());
+	}
+}
+
+void GV8ScriptObject::doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
+{
+	this->getContext()->bindScriptCoreService(this, name, libraryLoader);
 }
 
 GMethodGlueDataPointer GV8ScriptObject::doGetMethodData(const char * methodName)

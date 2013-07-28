@@ -390,13 +390,7 @@ void GObjectGlueData::initialize()
 
 std::string GMethodGlueData::getName() const
 {
-	if(methodList->getCount() > 0) {
-		GScopedInterface<IMetaItem> item(methodList->getAt(0));
-		return item->getName();
-	}
-	else {
-		return "";
-	}
+	return getMethodNameFromMethodList(this->methodList.get());
 }
 
 GScriptDataStorage::GScriptDataStorage(const GObjectGlueDataPointer & object)
@@ -1670,6 +1664,17 @@ IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance)
 	}
 
 	return NULL;
+}
+
+std::string getMethodNameFromMethodList(IMetaList * methodList)
+{
+	if(methodList->getCount() > 0) {
+		GScopedInterface<IMetaItem> item(methodList->getAt(0));
+		return item->getName();
+	}
+	else {
+		return "";
+	}
 }
 
 

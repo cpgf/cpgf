@@ -1271,6 +1271,7 @@ PyObject * helperBindAccessible(const GContextPointer & context, void * instance
 PyObject * helperBindValue(const GContextPointer & context, const GScriptValue & value)
 {
 	PyObject * result = NULL;
+
 	switch(value.getType()) {
 		case GScriptValue::typeNull:
 			result = Py_None;

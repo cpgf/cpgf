@@ -912,6 +912,8 @@ IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & va
 
 IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance);
 
+std::string getMethodNameFromMethodList(IMetaList * methodList);
+
 template <typename Getter, typename Predict>
 int findAppropriateCallable(IMetaService * service,
 	const GObjectGlueDataPointer & objectData,
