@@ -20,33 +20,6 @@ namespace cpgf {
 
 struct IScriptLibraryLoader;
 
-class GScriptFunction
-{
-public:
-	GScriptFunction();
-	virtual ~GScriptFunction();
-	
-	virtual GVariant invoke(const GVariant * params, size_t paramCount) = 0;
-	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount) = 0;
-	
-	GMAKE_NONCOPYABLE(GScriptFunction);
-};
-
-
-class GScriptArray
-{
-public:
-	GScriptArray();
-	virtual ~GScriptArray();
-	
-	virtual size_t getLength() = 0;
-	virtual GScriptValue getValue(size_t index) = 0;
-	virtual void setValue(size_t index, const GScriptValue & value) = 0;
-	
-	GMAKE_NONCOPYABLE(GScriptArray);
-};
-
-
 class GScriptObject
 {
 protected:

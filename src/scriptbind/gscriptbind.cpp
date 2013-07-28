@@ -8,24 +8,6 @@
 namespace cpgf {
 
 
-GScriptFunction::GScriptFunction()
-{
-}
-
-GScriptFunction::~GScriptFunction()
-{
-}
-
-
-GScriptArray::GScriptArray()
-{
-}
-
-GScriptArray::~GScriptArray()
-{
-}
-
-
 GScriptObject::GScriptObject(const GScriptConfig & config)
 	: config(config), owner(NULL)
 {

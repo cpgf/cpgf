@@ -282,52 +282,6 @@ lua_State * getLuaState(const GContextPointer & context)
 }
 
 
-/*
-void dumpLuaValue(lua_State * L, int index)
-{
-	int type = lua_type(L, index);
-
-	cout << "XXX ";
-	switch(type) {
-		case LUA_TNIL:
-			cout << "nil";
-			break;
-
-		case LUA_TNUMBER:
-			cout << "Number " << lua_tonumber(L, index);
-			break;
-
-		case LUA_TBOOLEAN:
-			cout << "Boolean " << lua_toboolean(L, index);
-			break;
-
-		case LUA_TSTRING:
-			cout << "String " << lua_tostring(L, index);
-			break;
-
-		case LUA_TUSERDATA:
-			cout << "Userdata " << lua_touserdata(L, index);
-			break;
-
-		case LUA_TFUNCTION:
-			cout << "Function";
-			break;
-
-		case LUA_TLIGHTUSERDATA:
-			break;
-
-		case LUA_TTABLE:
-			cout << "Table" << lua_topointer(L, index);
-			break;
-			
-		case LUA_TTHREAD:
-			break;
-	}
-
-	cout << endl;
-}
-*/
-
 int GlobalAccessor_index(lua_State * L)
 {
 	ENTER_LUA()

@@ -129,7 +129,7 @@ public:
 	}
 
 private:
-	GScopedArray<char> className;
+	string className;
 	JSClass jsClass;
 	GScopedJsObject classObject;
 	GScopedPointer<AccessibleMapType> accessibleMap;
@@ -937,7 +937,7 @@ JSObject * createClassBinding(const GSpiderContextPointer & context, JSObject * 
 	JsClassUserData * classUserData = static_cast<JsClassUserData *>(mapClass->getUserData());
 	if(classUserData == NULL) {
 		GGlueDataWrapper * dataWrapper = newGlueDataWrapper(classData, context->getGlueDataWrapperPool());
-		classUserData = new JsClassUserData(""); //name);
+		classUserData = new JsClassUserData("");
 		mapClass->setUserData(classUserData);
 
 		IMetaClass * metaClass = classData->getMetaClass();
@@ -1160,13 +1160,11 @@ bool isValidObject(JSContext * jsContext, JSObject * jsObject)
 //*********************************************
 
 JsClassUserData::JsClassUserData(const char * className)
-	: super(), className(new char[strlen(className) + 1]), classObject()
+	: super(), className(className), classObject()
 {
-	strcpy(this->className.get(), className);
-
 	this->jsClass = jsClassTemplate;
 
-	this->jsClass.name = this->className.get();
+	this->jsClass.name = this->className.c_str();
 }
 
 
