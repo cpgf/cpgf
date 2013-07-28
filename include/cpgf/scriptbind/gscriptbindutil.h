@@ -11,7 +11,6 @@ namespace cpgf {
 #define DECLARE_CALL_HELPER(N, unused) \
 	GVariant invokeScriptFunction(GScriptObject * scriptObject, const char * functionName GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)); \
 	GVariant invokeScriptFunction(IScriptObject * scriptObject, const char * functionName GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)); \
-	GVariant invokeScriptFunction(GScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)); \
 	GVariant invokeScriptFunction(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p));
 
 GPP_REPEAT_2(REF_MAX_ARITY, DECLARE_CALL_HELPER, GPP_EMPTY())
@@ -23,11 +22,20 @@ GScriptValue scriptGetValue(IScriptObject * scriptObject, const char * name);
 void scriptSetValue(GScriptObject * scriptObject, const char * name, const GScriptValue & value);
 void scriptSetValue(IScriptObject * scriptObject, const char * name, const GScriptValue & value);
 
+GScriptValue scriptCreateScriptObject(GScriptObject * scriptObject, const char * name);
+GScriptValue scriptCreateScriptObject(IScriptObject * scriptObject, const char * name);
+
 GScriptValue scriptGetScriptFunction(GScriptObject * scriptObject, const char * name);
 GScriptValue scriptGetScriptFunction(IScriptObject * scriptObject, const char * name);
 
-GScriptValue scriptCreateScriptObject(GScriptObject * scriptObject, const char * name);
-GScriptValue scriptCreateScriptObject(IScriptObject * scriptObject, const char * name);
+GScriptValue scriptGetAsScriptArray(GScriptObject * scriptObject, const char * name);
+GScriptValue scriptGetAsScriptArray(IScriptObject * scriptObject, const char * name);
+
+GScriptValue scriptCreateScriptArray(GScriptObject * scriptObject, const char * name);
+GScriptValue scriptCreateScriptArray(IScriptObject * scriptObject, const char * name);
+
+GScriptValue scriptGetScriptArrayValue(IScriptArray * scriptArray, size_t index);
+void scriptSetScriptArrayValue(IScriptArray * scriptArray, size_t index, const GScriptValue & value);
 
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject);
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject);

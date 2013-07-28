@@ -582,7 +582,7 @@ Handle<Value> callbackMethodList(const Arguments & args)
 Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData, bool isGlobal, IMetaList * methodList,
 	const char * name, Handle<FunctionTemplate> classTemplate)
 {
-	GMethodGlueDataPointer glueData = context->newMethodGlueData(classData, methodList, name);
+	GMethodGlueDataPointer glueData = context->newMethodGlueData(classData, methodList);
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(glueData, getV8DataWrapperPool());
 
 	Persistent<External> data = Persistent<External>::New(External::New(dataWrapper));

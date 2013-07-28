@@ -144,6 +144,11 @@ GScriptValue GScriptValue::fromScriptFunction(IScriptFunction * scriptFunction)
 	return GScriptValue(typeScriptFunction, scriptFunction);
 }
 
+GScriptValue GScriptValue::fromScriptArray(IScriptArray * scriptArray)
+{
+	return GScriptValue(typeScriptArray, scriptArray);
+}
+
 void * GScriptValue::toNull() const
 {
 	return NULL;
@@ -306,6 +311,18 @@ IScriptFunction * GScriptValue::toScriptFunction() const
 		IScriptFunction * scriptFunction = fromVariant<IScriptFunction *>(this->value);
 		scriptFunction->addReference();
 		return scriptFunction;
+	}
+	else {
+		return NULL;
+	}
+}
+
+IScriptArray * GScriptValue::toScriptArray() const
+{
+	if(this->isScriptArray()) {
+		IScriptArray * scriptArray = fromVariant<IScriptArray *>(this->value);
+		scriptArray->addReference();
+		return scriptArray;
 	}
 	else {
 		return NULL;

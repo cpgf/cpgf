@@ -34,6 +34,15 @@ public:
 };
 
 
+struct IScriptArray : public IExtendObject
+{
+public:
+	virtual uint32_t G_API_CC getLength() = 0;
+	virtual void G_API_CC getValue(GScriptValueData * outResult, uint32_t index) = 0;
+	virtual void G_API_CC setValue(uint32_t index, const GScriptValueData * value) = 0;
+};
+
+
 struct IScriptObject : public IExtendObject
 {
 	virtual IScriptConfig * G_API_CC getConfig() = 0;
@@ -54,6 +63,10 @@ struct IScriptObject : public IExtendObject
 
 	virtual void G_API_CC bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader) = 0;
 	virtual void G_API_CC holdObject(IObject * object) = 0;
+	
+	virtual gapi_bool G_API_CC maybeIsScriptArray(const char * name) = 0;
+	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, const char * name) = 0;
+	virtual void G_API_CC createScriptArray(GScriptValueData * outResult, const char * name) = 0;
 	
 	G_DEPRECATED(
 		virtual void G_API_CC bindClass(const char * name, IMetaClass * metaClass),

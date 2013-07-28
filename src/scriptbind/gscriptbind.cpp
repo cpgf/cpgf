@@ -17,6 +17,15 @@ GScriptFunction::~GScriptFunction()
 }
 
 
+GScriptArray::GScriptArray()
+{
+}
+
+GScriptArray::~GScriptArray()
+{
+}
+
+
 GScriptObject::GScriptObject(const GScriptConfig & config)
 	: config(config), owner(NULL)
 {
@@ -38,6 +47,23 @@ GScriptValue GScriptObject::getValue(const char * name)
 
 extern int Error_ScriptBinding_CantSetScriptValue;
 void GScriptObject::setValue(const char * name, const GScriptValue & value)
+{
+	switch(value.getType()) {
+		// We can't set any script object back to script engine,
+		// otherwise, cross module portability will be broken.
+		case GScriptValue::typeScriptObject:
+		case GScriptValue::typeScriptFunction:
+		case GScriptValue::typeScriptArray:
+			raiseCoreException(Error_ScriptBinding_CantSetScriptValue);
+			break;
+
+		default:
+			this->doSetValue(name, value);
+			break;
+	}
+}
+
+void GScriptObject::doSetValue(const char * name, const GScriptValue & value)
 {
 	switch(value.getType()) {
 		case GScriptValue::typeNull:
@@ -96,14 +122,6 @@ void GScriptObject::setValue(const char * name, const GScriptValue & value)
 			this->doBindAccessible(name, instance, accessible.get());
 			break;
 		}
-
-		// We can't set any script object back to script engine,
-		// otherwise, cross module portability will be broken.
-		//case GScriptValue::typeScriptObject:
-		//case case GScriptValue::typeScriptMethod:
-		default:
-			raiseCoreException(Error_ScriptBinding_CantSetScriptValue);
-			break;
 
 	}
 }

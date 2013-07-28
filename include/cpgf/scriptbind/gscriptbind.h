@@ -33,6 +33,20 @@ public:
 };
 
 
+class GScriptArray
+{
+public:
+	GScriptArray();
+	virtual ~GScriptArray();
+	
+	virtual size_t getLength() = 0;
+	virtual GScriptValue getValue(size_t index) = 0;
+	virtual void setValue(size_t index, const GScriptValue & value) = 0;
+	
+	GMAKE_NONCOPYABLE(GScriptArray);
+};
+
+
 class GScriptObject
 {
 protected:
@@ -68,6 +82,10 @@ public:
 	virtual void holdObject(IObject * object);
 
 	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) = 0;
+
+	virtual bool maybeIsScriptArray(const char * name) { return false; }
+	virtual GScriptValue getAsScriptArray(const char * name) { return GScriptValue(); }
+	virtual GScriptValue createScriptArray(const char * name) { return GScriptValue(); }
 
 
 	G_DEPRECATED(
@@ -158,6 +176,7 @@ public:
 
 protected:
 	virtual GScriptValue doGetValue(const char * name) = 0;
+	virtual void doSetValue(const char * name, const GScriptValue & value);
 
 	virtual void doBindClass(const char * name, IMetaClass * metaClass) = 0;
 	virtual void doBindEnum(const char * name, IMetaEnum * metaEnum) = 0;

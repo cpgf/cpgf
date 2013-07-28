@@ -883,7 +883,7 @@ struct GPythonMethods
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 
 			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstance(objectData)));
-			data = new GMapItemMethodData(context->newMethodGlueData(context->getClassData(boundClass.get()), metaList.get(), methodName));
+			data = new GMapItemMethodData(context->newMethodGlueData(context->getClassData(boundClass.get()), metaList.get()));
 
 			mapItem->setUserData(data);
 		}
@@ -1226,7 +1226,7 @@ bool isValidObject(PyObject * obj)
 
 void helperBindMethodList(const GContextPointer & context, PyObject * owner, const char * name, IMetaList * methodList)
 {
-	GMethodGlueDataPointer data = context->newMethodGlueData(GClassGlueDataPointer(), methodList, name);
+	GMethodGlueDataPointer data = context->newMethodGlueData(GClassGlueDataPointer(), methodList);
 	GObjectAndMethodGlueDataPointer methodData = context->newObjectAndMethodGlueData(GObjectGlueDataPointer(), data);
 	PyObject * methodObject = createPythonObject(methodData);
 

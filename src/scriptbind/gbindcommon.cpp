@@ -388,6 +388,16 @@ void GObjectGlueData::initialize()
 	}
 }
 
+std::string GMethodGlueData::getName() const
+{
+	if(methodList->getCount() > 0) {
+		GScopedInterface<IMetaItem> item(methodList->getAt(0));
+		return item->getName();
+	}
+	else {
+		return "";
+	}
+}
 
 GScriptDataStorage::GScriptDataStorage(const GObjectGlueDataPointer & object)
 	: object(object)
@@ -696,9 +706,9 @@ GObjectGlueDataPointer GBindingContext::newOrReuseObjectGlueData(const GClassGlu
 }
 
 GMethodGlueDataPointer GBindingContext::newMethodGlueData(const GClassGlueDataPointer & classData,
-	IMetaList * methodList, const char * name)
+	IMetaList * methodList)
 {
-	GMethodGlueDataPointer data(new GMethodGlueData(this->shareFromThis(), classData, methodList, name));
+	GMethodGlueDataPointer data(new GMethodGlueData(this->shareFromThis(), classData, methodList));
 	return data;
 }
 

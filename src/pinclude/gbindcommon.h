@@ -381,8 +381,8 @@ private:
 	typedef GGlueData super;
 
 private:
-	GMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, IMetaList * methodList, const char * name)
-		: super(gdtMethod, context), classGlueData(classGlueData), methodList(methodList), name(name) {
+	GMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, IMetaList * methodList)
+		: super(gdtMethod, context), classGlueData(classGlueData), methodList(methodList) {
 	}
 
 public:
@@ -394,14 +394,11 @@ public:
 		return this->methodList.get();
 	}
 
-	const std::string & getName() const {
-		return this->name;
-	}
+	std::string getName() const;
 
 private:
 	GWeakClassGlueDataPointer classGlueData;
 	GSharedInterface<IMetaList> methodList;
-	std::string name;
 
 private:
 	friend class GBindingContext;
@@ -692,7 +689,7 @@ public:
 		const GBindValueFlags & flags, ObjectPointerCV cv);
 	
 	GMethodGlueDataPointer newMethodGlueData(const GClassGlueDataPointer & classData,
-		IMetaList * methodList, const char * name);
+		IMetaList * methodList);
 	
 	GEnumGlueDataPointer newEnumGlueData(IMetaEnum * metaEnum);
 
@@ -842,6 +839,27 @@ private:
 
 public:
 	explicit GScriptFunctionBase(const GContextPointer & context)
+		: context(context)
+	{
+	}
+
+protected:
+	GContextPointer getContext() {
+		return this->context.get();
+	}
+
+private:
+	GWeakContextPointer context;
+};
+
+
+class GScriptArrayBase : public GScriptArray
+{
+private:
+	typedef GScriptArray super;
+
+public:
+	explicit GScriptArrayBase(const GContextPointer & context)
 		: context(context)
 	{
 	}

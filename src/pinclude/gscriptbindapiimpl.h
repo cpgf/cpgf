@@ -72,6 +72,25 @@ private:
 };
 
 
+class ImplScriptArray : public IScriptArray
+{
+public:
+	ImplScriptArray(GScriptArray * scriptArray, bool freeArray);
+	virtual ~ImplScriptArray();
+	
+protected:
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
+
+	virtual uint32_t G_API_CC getLength();
+	virtual void G_API_CC getValue(GScriptValueData * outResult, uint32_t index);
+	virtual void G_API_CC setValue(uint32_t index, const GScriptValueData * value);
+private:
+	GScriptArray * scriptArray;
+	bool freeArray;
+};
+
+
 class ImplScriptObject : public IScriptObject
 {
 public:
@@ -125,6 +144,10 @@ protected:
 
 	virtual void G_API_CC bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 	virtual void G_API_CC holdObject(IObject * object);
+
+	virtual gapi_bool G_API_CC maybeIsScriptArray(const char * name);
+	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, const char * name);
+	virtual void G_API_CC createScriptArray(GScriptValueData * outResult, const char * name);
 
 private:
 	GScriptObject * scriptObject;

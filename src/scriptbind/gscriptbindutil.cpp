@@ -35,10 +35,6 @@ namespace cpgf {
 		metaCheckError(scriptObject); \
 		return result; \
 	} \
-	GVariant invokeScriptFunction(GScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
-		DEF_LOAD_PARAM(N) \
-		return scriptFunction->invokeIndirectly(params, N); \
-	} \
 	GVariant invokeScriptFunction(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
 		DEF_LOAD_PARAM_API(N) \
 		GVariant result; \
@@ -111,6 +107,18 @@ void scriptSetValue(IScriptObject * scriptObject, const char * name, const GScri
 	scriptObject->setValue(name, &data);
 }
 
+GScriptValue scriptCreateScriptObject(GScriptObject * scriptObject, const char * name)
+{
+	return scriptObject->createScriptObject(name);
+}
+
+GScriptValue scriptCreateScriptObject(IScriptObject * scriptObject, const char * name)
+{
+	GScriptValueData data;
+	scriptObject->createScriptObject(&data, name);
+	return createScriptValueFromData(data);
+}
+
 GScriptValue scriptGetScriptFunction(GScriptObject * scriptObject, const char * name)
 {
 	return scriptObject->getScriptFunction(name);
@@ -123,16 +131,41 @@ GScriptValue scriptGetScriptFunction(IScriptObject * scriptObject, const char * 
 	return createScriptValueFromData(data);
 }
 
-GScriptValue scriptCreateScriptObject(GScriptObject * scriptObject, const char * name)
+GScriptValue scriptGetAsScriptArray(GScriptObject * scriptObject, const char * name)
 {
-	return scriptObject->createScriptObject(name);
+	return scriptObject->getAsScriptArray(name);
 }
 
-GScriptValue scriptCreateScriptObject(IScriptObject * scriptObject, const char * name)
+GScriptValue scriptGetAsScriptArray(IScriptObject * scriptObject, const char * name)
 {
 	GScriptValueData data;
-	scriptObject->createScriptObject(&data, name);
+	scriptObject->getAsScriptArray(&data, name);
 	return createScriptValueFromData(data);
+}
+
+GScriptValue scriptCreateScriptArray(GScriptObject * scriptObject, const char * name)
+{
+	return scriptObject->createScriptArray(name);
+}
+
+GScriptValue scriptCreateScriptArray(IScriptObject * scriptObject, const char * name)
+{
+	GScriptValueData data;
+	scriptObject->createScriptArray(&data, name);
+	return createScriptValueFromData(data);
+}
+
+GScriptValue scriptGetScriptArrayValue(IScriptArray * scriptArray, size_t index)
+{
+	GScriptValueData data;
+	scriptArray->getValue(&data, index);
+	return createScriptValueFromData(data);
+}
+
+void scriptSetScriptArrayValue(IScriptArray * scriptArray, size_t index, const GScriptValue & value)
+{
+	GScriptValueData data(GScriptValue(value).takeData());
+	scriptArray->setValue(index, &data);
 }
 
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject)
