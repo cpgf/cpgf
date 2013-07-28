@@ -18,6 +18,9 @@ void doCreateScriptArray(TestScriptContext * context, const string & name, const
 	if(context->isLua()) {
 		code = VAR + name + " = {" + elements + "}";
 	}
+	else if(context->isPython()) {
+		code = VAR + name + " = [" + elements + "]";
+	}
 	DO(code);
 }
 

@@ -99,6 +99,23 @@ private:
 	PyObject * func;
 };
 
+class GPythonScriptArray : public GScriptArrayBase
+{
+private:
+	typedef GScriptArrayBase super;
+
+public:
+	GPythonScriptArray(const GContextPointer & context, PyObject * listObject);
+	virtual ~GPythonScriptArray();
+
+	virtual size_t getLength();
+	virtual GScriptValue getValue(size_t index);
+	virtual void setValue(size_t index, const GScriptValue & value);
+
+private:
+	PyObject * listObject;
+};
+
 class GPythonScriptObject : public GScriptObjectBase
 {
 private:
@@ -117,6 +134,10 @@ public:
 
 	virtual void assignValue(const char * fromName, const char * toName);
 
+	virtual bool maybeIsScriptArray(const char * name);
+	virtual GScriptValue getAsScriptArray(const char * name);
+	virtual GScriptValue createScriptArray(const char * name);
+
 public:
 	PyObject * getObject() const {
 		return this->object;
@@ -124,18 +145,19 @@ public:
 
 protected:
 	virtual GScriptValue doGetValue(const char * name);
+	virtual void doSetValue(const char * name, const GScriptValue & value);
 
-	virtual void doBindClass(const char * name, IMetaClass * metaClass);
-	virtual void doBindEnum(const char * name, IMetaEnum * metaEnum);
+	virtual void doBindClass(const char * name, IMetaClass * metaClass) {}
+	virtual void doBindEnum(const char * name, IMetaEnum * metaEnum) {}
 
-	virtual void doBindNull(const char * name);
-	virtual void doBindFundamental(const char * name, const GVariant & value);
-	virtual void doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible);
-	virtual void doBindString(const char * stringName, const char * s);
-	virtual void doBindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership);
-	virtual void doBindRaw(const char * name, const GVariant & value);
-	virtual void doBindMethod(const char * name, void * instance, IMetaMethod * method);
-	virtual void doBindMethodList(const char * name, IMetaList * methodList);
+	virtual void doBindNull(const char * name) {}
+	virtual void doBindFundamental(const char * name, const GVariant & value) {}
+	virtual void doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible) {}
+	virtual void doBindString(const char * stringName, const char * s) {}
+	virtual void doBindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership) {}
+	virtual void doBindRaw(const char * name, const GVariant & value) {}
+	virtual void doBindMethod(const char * name, void * instance, IMetaMethod * method) {}
+	virtual void doBindMethodList(const char * name, IMetaList * methodList) {}
 
 	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 
@@ -1224,34 +1246,103 @@ bool isValidObject(PyObject * obj)
 	return false;
 }
 
-void helperBindMethodList(const GContextPointer & context, PyObject * owner, const char * name, IMetaList * methodList)
+PyObject * helperBindMethodList(const GContextPointer & context, IMetaList * methodList)
 {
 	GMethodGlueDataPointer data = context->newMethodGlueData(GClassGlueDataPointer(), methodList);
 	GObjectAndMethodGlueDataPointer methodData = context->newObjectAndMethodGlueData(GObjectGlueDataPointer(), data);
-	PyObject * methodObject = createPythonObject(methodData);
-
-	setObjectAttr(owner, name, methodObject);
+	return createPythonObject(methodData);
 }
 
-void helperBindClass(const GContextPointer & context, PyObject * owner, const char * name, IMetaClass * metaClass)
+PyObject * helperBindClass(const GContextPointer & context, IMetaClass * metaClass)
 {
-	PyObject * classObject = createClassObject(context, metaClass);
-
-	setObjectAttr(owner, name, classObject);
+	return createClassObject(context, metaClass);
 }
 
-void helperBindEnum(const GContextPointer & context, PyObject * owner, const char * name, IMetaEnum * metaEnum)
+PyObject * helperBindEnum(const GContextPointer & context, IMetaEnum * metaEnum)
 {
-	PyObject * enumObject = createPythonObject(context->newEnumGlueData(metaEnum));
-
-	setObjectAttr(owner, name, enumObject);
+	return createPythonObject(context->newEnumGlueData(metaEnum));
 }
 
-void helperBindAccessible(const GContextPointer & context, PyObject * owner, const char * name, void * instance, IMetaAccessible * accessible)
+PyObject * helperBindAccessible(const GContextPointer & context, void * instance, IMetaAccessible * accessible)
 {
-	PyObject * accessibleObject = createPythonObject(context->newAccessibleGlueData(instance, accessible));
+	return createPythonObject(context->newAccessibleGlueData(instance, accessible));
+}
 
-	setObjectAttr(owner, name, accessibleObject);
+PyObject * helperBindValue(const GContextPointer & context, const GScriptValue & value)
+{
+	PyObject * result = NULL;
+	switch(value.getType()) {
+		case GScriptValue::typeNull:
+			result = Py_None;
+			break;
+
+		case GScriptValue::typeFundamental:
+			result = variantToPython(context, value.toFundamental(), GBindValueFlags(bvfAllowRaw), NULL);
+			break;
+
+		case GScriptValue::typeString:
+			result = PyString_FromString(value.toString().c_str());
+			break;
+
+		case GScriptValue::typeClass: {
+			GScopedInterface<IMetaClass> metaClass(value.toClass());
+			result = helperBindClass(context, metaClass.get());
+			break;
+		}
+
+		case GScriptValue::typeObject: {
+			IMetaClass * metaClass;
+			bool transferOwnership;
+			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
+			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
+			
+			GBindValueFlags flags;
+			flags.setByBool(bvfAllowGC, transferOwnership);
+			result = objectToPython(context, context->getClassData(metaClass), instance, flags, opcvNone, NULL);
+			break;
+		}
+
+		case GScriptValue::typeMethod: {
+			void * instance;
+			GScopedInterface<IMetaMethod> method(value.toMethod(&instance));
+
+			if(method->isStatic()) {
+				instance = NULL;
+			}
+
+			GScopedInterface<IMetaList> methodList(createMetaList());
+			methodList->add(method.get(), instance);
+
+			result = helperBindMethodList(context, methodList.get());
+			break;
+		}
+
+		case GScriptValue::typeOverloadedMethods: {
+			GScopedInterface<IMetaList> methodList(value.toOverloadedMethods());
+			result = helperBindMethodList(context, methodList.get());
+			break;
+		}
+
+		case GScriptValue::typeEnum: {
+			GScopedInterface<IMetaEnum> metaEnum(value.toEnum());
+			result = helperBindEnum(context, metaEnum.get());
+			break;
+		}
+
+		case GScriptValue::typeRaw:
+			result = rawToPython(context, value.toRaw(), NULL);
+			break;
+
+		case GScriptValue::typeAccessible: {
+			void * instance;
+			GScopedInterface<IMetaAccessible> accessible(value.toAccessible(&instance));
+			result = helperBindAccessible(context, instance, accessible.get());
+			break;
+		}
+
+	}
+	
+	return result;
 }
 
 template <GMetaOpType op, bool allowRightSelf>
@@ -1350,6 +1441,56 @@ GVariant GPythonScriptFunction::invokeIndirectly(GVariant const * const * params
 }
 
 
+GPythonScriptArray::GPythonScriptArray(const GContextPointer & context, PyObject * listObject)
+	: super(context), listObject(listObject)
+{
+	Py_XINCREF(this->listObject);
+}
+
+GPythonScriptArray::~GPythonScriptArray()
+{
+	if(isLibraryLive()) {
+		Py_XDECREF(this->listObject);
+	}
+}
+
+size_t GPythonScriptArray::getLength()
+{
+	return PyList_Size(this->listObject);
+}
+
+GScriptValue GPythonScriptArray::getValue(size_t index)
+{
+	size_t length = this->getLength();
+	if(index >= length) {
+		return GScriptValue();
+	}
+
+	PyObject * obj = PyList_GetItem(this->listObject, index); // borrowed reference!
+	
+	if(obj != NULL) {
+		return pythonToScriptValue(this->getContext(), obj, NULL);
+	}
+	else {
+		return GScriptValue();
+	}
+}
+
+void GPythonScriptArray::setValue(size_t index, const GScriptValue & value)
+{
+	size_t length = this->getLength();
+	while(index >= length) {
+		Py_XINCREF(Py_None);
+		PyList_Append(this->listObject, Py_None);
+		++length;
+	}
+	PyObject * valueObject = helperBindValue(this->getContext(), value);
+	GASSERT(valueObject != NULL);
+
+	PyList_SetItem(this->listObject, index, valueObject);
+}
+
+
 GPythonScriptObject::GPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config)
 	: super(GContextPointer(new GBindingContext(service, config)), config), object(object)
 {
@@ -1376,14 +1517,12 @@ GScriptValue GPythonScriptObject::doGetValue(const char * name)
 	}
 }
 
-void GPythonScriptObject::doBindClass(const char * name, IMetaClass * metaClass)
+void GPythonScriptObject::doSetValue(const char * name, const GScriptValue & value)
 {
-	helperBindClass(this->getContext(), this->object, name, metaClass);
-}
+	PyObject * valueObject = helperBindValue(this->getContext(), value);
+	GASSERT(valueObject != NULL);
 
-void GPythonScriptObject::doBindEnum(const char * name, IMetaEnum * metaEnum)
-{
-	helperBindEnum(this->getContext(), this->object, name, metaEnum);
+	setObjectAttr(this->object, name, valueObject);
 }
 
 GScriptObject * GPythonScriptObject::doCreateScriptObject(const char * name)
@@ -1442,63 +1581,60 @@ GVariant GPythonScriptObject::invokeIndirectly(const char * name, GVariant const
 	return invokePythonFunctionIndirectly(this->getContext(), NULL, func.get(), params, paramCount, name);
 }
 
-void GPythonScriptObject::doBindNull(const char * name)
-{
-	setObjectAttr(this->object, name, Py_None);
-}
-
-void GPythonScriptObject::doBindFundamental(const char * name, const GVariant & value)
-{
-	GASSERT_MSG(vtIsFundamental(vtGetType(value.refData().typeData)), "Only fundamental value can be bound via bindFundamental");
-
-	setObjectAttr(this->object, name, variantToPython(this->getContext(), value, GBindValueFlags(bvfAllowRaw), NULL));
-}
-
-void GPythonScriptObject::doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible)
-{
-	helperBindAccessible(this->getContext(), this->object, name, instance, accessible);
-}
-
-void GPythonScriptObject::doBindString(const char * stringName, const char * s)
-{
-	setObjectAttr(this->object, stringName, PyString_FromString(s));
-}
-
-void GPythonScriptObject::doBindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership)
-{
-	GBindValueFlags flags;
-	flags.setByBool(bvfAllowGC, transferOwnership);
-	setObjectAttr(this->object, objectName, objectToPython(this->getContext(), this->getContext()->getClassData(type), instance, flags, opcvNone, NULL));
-}
-
-void GPythonScriptObject::doBindRaw(const char * name, const GVariant & value)
-{
-	setObjectAttr(this->object, name, rawToPython(this->getContext(), value, NULL));
-}
-
-void GPythonScriptObject::doBindMethod(const char * name, void * instance, IMetaMethod * method)
-{
-	if(method->isStatic()) {
-		instance = NULL;
-	}
-
-	GScopedInterface<IMetaList> methodList(createMetaList());
-	methodList->add(method, instance);
-
-	helperBindMethodList(this->getContext(), this->object, name, methodList.get());
-}
-
-void GPythonScriptObject::doBindMethodList(const char * name, IMetaList * methodList)
-{
-	helperBindMethodList(this->getContext(), this->object, name, methodList);
-}
-
 void GPythonScriptObject::assignValue(const char * fromName, const char * toName)
 {
 	GPythonScopedPointer obj(getObjectAttr(this->object, fromName));
 	if(obj) {
 		setObjectAttr(this->object, toName, obj.get());
 	}
+}
+
+bool GPythonScriptObject::maybeIsScriptArray(const char * name)
+{
+	GPythonScopedPointer obj(getObjectAttr(this->object, name));
+	if(obj) {
+		return !! PyList_Check(obj.get());
+	}
+	else {
+		return false;
+	}
+}
+
+GScriptValue GPythonScriptObject::getAsScriptArray(const char * name)
+{
+	GPythonScopedPointer obj(getObjectAttr(this->object, name));
+	if(obj && !! PyList_Check(obj.get())) {
+		GScopedInterface<IScriptArray> scriptArray(
+			new ImplScriptArray(new GPythonScriptArray(this->getContext(), obj.get()), true)
+		);
+		return GScriptValue::fromScriptArray(scriptArray.get());
+	}
+	else {
+		return GScriptValue();
+	}
+}
+
+GScriptValue GPythonScriptObject::createScriptArray(const char * name)
+{
+	PyObject * attr = getObjectAttr(this->object, name);
+	if(attr != NULL) {
+		if(this->getValue(name).getType() == GScriptValue::typeScriptArray) {
+			GScopedInterface<IScriptArray> scriptArray(
+				new ImplScriptArray(new GPythonScriptArray(this->getContext(), attr), true)
+			);
+			return GScriptValue::fromScriptArray(scriptArray.get());
+		}
+	}
+	else {
+		PyObject * obj = PyList_New(0);
+		setObjectAttr(this->object, name, obj);
+		GScopedInterface<IScriptArray> scriptArray(
+			new ImplScriptArray(new GPythonScriptArray(this->getContext(), obj), true)
+		);
+		return GScriptValue::fromScriptArray(scriptArray.get());
+	}
+
+	return GScriptValue();
 }
 
 void GPythonScriptObject::doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)

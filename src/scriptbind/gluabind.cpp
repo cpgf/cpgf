@@ -77,7 +77,7 @@ private:
 public:
 	GLuaScriptArray(GLuaScriptObject * scriptObject, int objectIndex);
 	virtual ~GLuaScriptArray();
-	
+
 	virtual size_t getLength();
 	virtual GScriptValue getValue(size_t index);
 	virtual void setValue(size_t index, const GScriptValue & value);
@@ -1616,8 +1616,13 @@ GScriptValue GLuaScriptObject::getAsScriptArray(const char * name)
 
 	scopeGuard.get(name);
 
-	GScopedInterface<IScriptArray> scriptArray(new ImplScriptArray(new GLuaScriptArray(this, -1), true));
-	return GScriptValue::fromScriptArray(scriptArray.get());
+	if(lua_type(this->getLuaState(), -1) == LUA_TTABLE) {
+		GScopedInterface<IScriptArray> scriptArray(new ImplScriptArray(new GLuaScriptArray(this, -1), true));
+		return GScriptValue::fromScriptArray(scriptArray.get());
+	}
+	else {
+		return GScriptValue();
+	}
 }
 
 GScriptValue GLuaScriptObject::createScriptArray(const char * name)
