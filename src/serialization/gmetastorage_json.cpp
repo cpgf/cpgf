@@ -235,7 +235,7 @@ const char * GJsonNodeNameTracker::makeName(const char * name, bool addNameCount
 
 	if(count > 0) {
 		stringstream stream;
-		stream << name << count;
+		stream << name << (unsigned int)count;
 		this->nameBuffer = stream.str();
 		result = this->nameBuffer.c_str();
 	}

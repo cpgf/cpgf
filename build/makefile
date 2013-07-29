@@ -27,9 +27,11 @@ none: needcmake
 	$(ECHO) "  nmake        Generate Microsoft VC makefile and then use nmake to build."
 	$(ECHO) "  mingw        Generate MinGW makefile and then use mingw32-make to build."
 	$(ECHO) "  linux        Generate Linux/Unix makefile and then use GCC make to build."
-	$(ECHO) "  vc05         Generate project files for Microsoft VC 2005. No auto build. You need to open the project in VC IDE then build."
-	$(ECHO) "  vc08         Generate project files for Microsoft VC 2008. No auto build. You need to open the project in VC IDE then build."
+	$(ECHO) "  vc13         Generate project files for Microsoft VC 2013. No auto build. You need to open the project in VC IDE then build."
+	$(ECHO) "  vc12         Generate project files for Microsoft VC 2012. No auto build. You need to open the project in VC IDE then build."
 	$(ECHO) "  vc10         Generate project files for Microsoft VC 2010. No auto build. You need to open the project in VC IDE then build."
+	$(ECHO) "  vc08         Generate project files for Microsoft VC 2008. No auto build. You need to open the project in VC IDE then build."
+	$(ECHO) "  vc05         Generate project files for Microsoft VC 2005. No auto build. You need to open the project in VC IDE then build."
 	$(ECHO) "  cb_mingw     Generate project files for Code::Blocks using MinGW g++ compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
 	$(ECHO) "  cb_nmake     Generate project files for Code::Blocks using VC compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
 	$(ECHO) "  cb_linux     Generate project files for Code::Blocks using Linux/Unix GCC compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
@@ -93,6 +95,16 @@ vc10: needcmake
 	$(CH_DIR) $(PROJECT_PREFIX)_vc10 $(CMAKE) -G"Visual Studio 10"
 	$(ECHO) Please open the solution $(PROJECT).sln in $(PROJECT_PREFIX)_vc10 in VC IDE.
 
+vc12: needcmake
+	$(MK_DIR) $(PROJECT_PREFIX)_vc12
+	$(CH_DIR) $(PROJECT_PREFIX)_vc12 $(CMAKE) -G"Visual Studio 11"
+	$(ECHO) Please open the solution $(PROJECT).sln in $(PROJECT_PREFIX)_vc12 in VC IDE.
+
+vc13: needcmake
+	$(MK_DIR) $(PROJECT_PREFIX)_vc13
+	$(CH_DIR) $(PROJECT_PREFIX)_vc13 $(CMAKE) -G"Visual Studio 12"
+	$(ECHO) Please open the solution $(PROJECT).sln in $(PROJECT_PREFIX)_vc13 in VC IDE.
+
 cb_mingw: needcmake
 	$(MK_DIR) $(PROJECT_PREFIX)_cb_mingw
 	$(CH_DIR) $(PROJECT_PREFIX)_cb_mingw $(CMAKE) -G"CodeBlocks - MinGW Makefiles"
@@ -120,6 +132,8 @@ clean: needcmake cleanbuild
 	@cmake -E remove_directory $(PROJECT_PREFIX)_vc05
 	@cmake -E remove_directory $(PROJECT_PREFIX)_vc08
 	@cmake -E remove_directory $(PROJECT_PREFIX)_vc10
+	@cmake -E remove_directory $(PROJECT_PREFIX)_vc12
+	@cmake -E remove_directory $(PROJECT_PREFIX)_vc13
 	@cmake -E remove_directory $(PROJECT_PREFIX)_cb_mingw
 	@cmake -E remove_directory $(PROJECT_PREFIX)_cb_nmake
 	@cmake -E remove_directory $(PROJECT_PREFIX)_cb_linux

@@ -1,5 +1,7 @@
 TBD version 1.5.7
 	Added script array support in script binding engine. Now C++ code can access arrays defined in script.
+	Added VC 2012 and VC 2013 entries in build makefile for easy use.
+	Added source group in CMake build file to filter files better in VC IDE.
 
 2013-07-26 version 1.5.6
 	Added Mozilla SpiderMonkey JavaScript binding. Only tested on Windows with VC.

@@ -1,70 +1,6 @@
 set(TARGET_LIB lib)
 set(OUTNAME_LIB cpgf)
 
-set(SRC_META
-	${SRC_PATH}/gapiutil.cpp
-	${SRC_PATH}/glifecycle.cpp
-	${SRC_PATH}/gmemorypool.cpp
-	${SRC_PATH}/gexception.cpp
-	${SRC_PATH}/gmetaannotation.cpp
-	${SRC_PATH}/gmetaapi.cpp
-	${SRC_PATH}/gmetaapiutil.cpp
-	${SRC_PATH}/gmetaclass.cpp
-	${SRC_PATH}/gmetaclasstraveller.cpp
-	${SRC_PATH}/gmetacommon.cpp
-	${SRC_PATH}/gmetaenum.cpp
-	${SRC_PATH}/gmetaextendtype.cpp
-	${SRC_PATH}/gmetafield.cpp
-	${SRC_PATH}/gmetafundamental.cpp
-	${SRC_PATH}/gmetamethod.cpp
-	${SRC_PATH}/gmetaoperator.cpp
-	${SRC_PATH}/gmetaproperty.cpp
-	${SRC_PATH}/gmetamodule.cpp
-	${SRC_PATH}/gmetatype.cpp
-	${SRC_PATH}/gvariant.cpp
-
-	${SRC_PATH}/scriptbind/gbindcommon.cpp
-	${SRC_PATH}/scriptbind/gscriptvalue.cpp
-	${SRC_PATH}/scriptbind/gscriptbind.cpp
-	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
-	${SRC_PATH}/scriptbind/gscriptbindutil.cpp
-	${SRC_PATH}/scriptbind/gscriptrunner.cpp
-	${SRC_PATH}/scriptbind/gscriptwrapper.cpp
-	${SRC_PATH}/scriptbind/gscriptservice.cpp
-	${SRC_PATH}/scriptbind/gscriptlibraryapi.cpp
-	${SRC_PATH}/scriptbind/gscriptbuiltinlibrary.cpp
-
-	${SRC_PATH}/metautility/gmetabytearray.cpp
-	${SRC_PATH}/metautility/gmetaobjectarray.cpp
-	${SRC_PATH}/metautility/gmetadebug.cpp
-	${SRC_PATH}/metautility/gmetacore.cpp
-	
-	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
-	${SRC_PATH}/metatraits/gmetaconverter_widestring.cpp
-	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
-	${SRC_PATH}/metatraits/gmetaserializer_string.cpp
-	${SRC_PATH}/metatraits/gmetaserializer_trapall.cpp
-	${SRC_PATH}/metatraits/gmetaobjectlifemanager.cpp
-	${SRC_PATH}/metatraits/gmetaobjectlifemanager_iobject.cpp
-	
-	${SRC_PATH}/serialization/gmetaarchivecommon.cpp
-	${SRC_PATH}/serialization/gmetaarchivereader.cpp
-	${SRC_PATH}/serialization/gmetaarchivetypemap.cpp
-	${SRC_PATH}/serialization/gmetaarchivewriter.cpp
-	${SRC_PATH}/serialization/gmetastorage_json.cpp
-	${SRC_PATH}/serialization/gmetastorage_textstream.cpp
-	${SRC_PATH}/serialization/gmetastorage_xml.cpp
-	
-	${SRC_PATH}/tween/gtween.cpp
-	${SRC_PATH}/tween/gtweenlist.cpp
-	${SRC_PATH}/tween/gtweencommon.cpp
-	${SRC_PATH}/tween/gtimeline.cpp
-	
-	${SRC_PATH}/thirdparty/jsoncpp/json_reader.cpp
-	${SRC_PATH}/thirdparty/jsoncpp/json_value.cpp
-	${SRC_PATH}/thirdparty/jsoncpp/json_writer.cpp
-)
-
 set(SRC_LUA_BIND )
 set(SRC_V8_BIND )
 set(SRC_GLUT )
@@ -97,14 +33,105 @@ if(${HAS_SPIDERMONKEY})
 	)
 endif(${HAS_SPIDERMONKEY})
 
-set(SRC_LIB
-	${SRC_META}
-	
+set(SRC_ROOT
+	${SRC_PATH}/gapiutil.cpp
+	${SRC_PATH}/glifecycle.cpp
+	${SRC_PATH}/gmemorypool.cpp
+	${SRC_PATH}/gexception.cpp
+	${SRC_PATH}/gmetaannotation.cpp
+	${SRC_PATH}/gmetaapi.cpp
+	${SRC_PATH}/gmetaapiutil.cpp
+	${SRC_PATH}/gmetaclass.cpp
+	${SRC_PATH}/gmetaclasstraveller.cpp
+	${SRC_PATH}/gmetacommon.cpp
+	${SRC_PATH}/gmetaenum.cpp
+	${SRC_PATH}/gmetaextendtype.cpp
+	${SRC_PATH}/gmetafield.cpp
+	${SRC_PATH}/gmetafundamental.cpp
+	${SRC_PATH}/gmetamethod.cpp
+	${SRC_PATH}/gmetaoperator.cpp
+	${SRC_PATH}/gmetaproperty.cpp
+	${SRC_PATH}/gmetamodule.cpp
+	${SRC_PATH}/gmetatype.cpp
+	${SRC_PATH}/gvariant.cpp
+)
+
+set(SRC_SCRIPTBIND
+	${SRC_PATH}/scriptbind/gbindcommon.cpp
+	${SRC_PATH}/scriptbind/gscriptvalue.cpp
+	${SRC_PATH}/scriptbind/gscriptbind.cpp
+	${SRC_PATH}/scriptbind/gscriptbindapi.cpp
+	${SRC_PATH}/scriptbind/gscriptbindutil.cpp
+	${SRC_PATH}/scriptbind/gscriptrunner.cpp
+	${SRC_PATH}/scriptbind/gscriptwrapper.cpp
+	${SRC_PATH}/scriptbind/gscriptservice.cpp
+	${SRC_PATH}/scriptbind/gscriptlibraryapi.cpp
+	${SRC_PATH}/scriptbind/gscriptbuiltinlibrary.cpp
+
 	${SRC_LUA_BIND}
 	${SRC_V8_BIND}
 	${SRC_PYTHON_BIND}
 	${SRC_SPIDERMONKEY_BIND}
 )
+
+set(SRC_METAUTILITY
+	${SRC_PATH}/metautility/gmetabytearray.cpp
+	${SRC_PATH}/metautility/gmetaobjectarray.cpp
+	${SRC_PATH}/metautility/gmetadebug.cpp
+	${SRC_PATH}/metautility/gmetacore.cpp
+)
+
+set(SRC_METATRAITS
+	${SRC_PATH}/metatraits/gmetaconverter_string.cpp
+	${SRC_PATH}/metatraits/gmetaconverter_widestring.cpp
+	${SRC_PATH}/metatraits/gmetaserializer_array.cpp
+	${SRC_PATH}/metatraits/gmetaserializer_string.cpp
+	${SRC_PATH}/metatraits/gmetaserializer_trapall.cpp
+	${SRC_PATH}/metatraits/gmetaobjectlifemanager.cpp
+	${SRC_PATH}/metatraits/gmetaobjectlifemanager_iobject.cpp
+)
+
+set(SRC_SERIALIZATION
+	${SRC_PATH}/serialization/gmetaarchivecommon.cpp
+	${SRC_PATH}/serialization/gmetaarchivereader.cpp
+	${SRC_PATH}/serialization/gmetaarchivetypemap.cpp
+	${SRC_PATH}/serialization/gmetaarchivewriter.cpp
+	${SRC_PATH}/serialization/gmetastorage_json.cpp
+	${SRC_PATH}/serialization/gmetastorage_textstream.cpp
+	${SRC_PATH}/serialization/gmetastorage_xml.cpp
+)
+
+set(SRC_TWEEN
+	${SRC_PATH}/tween/gtween.cpp
+	${SRC_PATH}/tween/gtweenlist.cpp
+	${SRC_PATH}/tween/gtweencommon.cpp
+	${SRC_PATH}/tween/gtimeline.cpp
+)
+
+SET(SRC_THIRDPARTY_JSONCPP
+	${SRC_PATH}/thirdparty/jsoncpp/json_reader.cpp
+	${SRC_PATH}/thirdparty/jsoncpp/json_value.cpp
+	${SRC_PATH}/thirdparty/jsoncpp/json_writer.cpp
+)
+
+set(SRC_LIB
+	${SRC_ROOT}
+	${SRC_SCRIPTBIND}
+	${SRC_METAUTILITY}
+	${SRC_METATRAITS}
+	${SRC_SERIALIZATION}
+	${SRC_TWEEN}
+	
+	${SRC_THIRDPARTY_JSONCPP}
+)
+
+SOURCE_GROUP(src FILES ${SRC_ROOT})
+SOURCE_GROUP(src\\scriptbind FILES ${SRC_SCRIPTBIND})
+SOURCE_GROUP(src\\metautility FILES ${SRC_METAUTILITY})
+SOURCE_GROUP(src\\metatraits FILES ${SRC_METATRAITS})
+SOURCE_GROUP(src\\serialization FILES ${SRC_SERIALIZATION})
+SOURCE_GROUP(src\\tween FILES ${SRC_TWEEN})
+SOURCE_GROUP(src\\thirdparty\\jsoncpp FILES ${SRC_THIRDPARTY_JSONCPP})
 
 
 include_directories(../include)
