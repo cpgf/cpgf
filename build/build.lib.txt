@@ -108,7 +108,7 @@ set(SRC_TWEEN
 	${SRC_PATH}/tween/gtimeline.cpp
 )
 
-SET(SRC_THIRDPARTY_JSONCPP
+set(SRC_THIRDPARTY_JSONCPP
 	${SRC_PATH}/thirdparty/jsoncpp/json_reader.cpp
 	${SRC_PATH}/thirdparty/jsoncpp/json_value.cpp
 	${SRC_PATH}/thirdparty/jsoncpp/json_writer.cpp
