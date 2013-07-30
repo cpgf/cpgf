@@ -1,5 +1,71 @@
 set(BUILD_DEBUG	1) #release=false
 
+### Clang config
+
+set(CLANG_DIR
+	/temp/llvm
+)
+
+set(CLANG_INC
+	${CLANG_DIR}/build/tools/clang/include
+	${CLANG_DIR}/build/include
+	${CLANG_DIR}/tools/clang/include
+	${CLANG_DIR}/include
+)
+
+set(CLANG_LIB_DIR
+	${CLANG_DIR}/build/lib/Debug
+)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(CLANG_LIB
+	)
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(MSVC)
+	set(CLANG_LIB
+		${CLANG_LIB_DIR}/clangParse.lib
+		${CLANG_LIB_DIR}/clangFrontend.lib
+		${CLANG_LIB_DIR}/clangSema.lib
+		${CLANG_LIB_DIR}/clangAnalysis.lib
+		${CLANG_LIB_DIR}/clangLex.lib
+		${CLANG_LIB_DIR}/clangBasic.lib
+		${CLANG_LIB_DIR}/clangSerialization.lib
+		${CLANG_LIB_DIR}/clangDriver.lib
+		${CLANG_LIB_DIR}/clangAST.lib
+		${CLANG_LIB_DIR}/clangEdit.lib
+		${CLANG_LIB_DIR}/LLVMSupport.lib
+		${CLANG_LIB_DIR}/LLVMCore.lib
+		${CLANG_LIB_DIR}/LLVMMC.lib
+		${CLANG_LIB_DIR}/LLVMBitReader.lib
+		${CLANG_LIB_DIR}/LLVMMCParser.lib
+	)
+endif(MSVC)
+
+
+### Poco config
+
+set(POCO_DIR
+	/temp/poco-1.4.6p1
+)
+
+set(POCO_INC
+	${POCO_DIR}/Foundation/include
+)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(POCO_LIB
+	)
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(MSVC)
+	set(POCO_LIB
+		debug ${POCO_DIR}/lib/PocoFoundationd.lib
+		optimized ${POCO_DIR}/lib/PocoFoundation.lib
+	)
+endif(MSVC)
+
+
 ### V8 config
 
 set(V8_DIR

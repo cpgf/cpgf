@@ -1,7 +1,13 @@
 set(TARGET_NAME metagen)
 
-include_directories(${CPGF_HOME}/include)
-include_directories(${V8_INC})
+include_directories(
+	${ROOT_PATH}/src
+
+	${CPGF_HOME}/include
+	${CLANG_INC}
+	${POCO_INC}
+	${V8_INC}
+)
 
 set(LIB_COMPILE_FLAGS " ")
 if(CMAKE_COMPILER_IS_GNUCC)
@@ -17,8 +23,6 @@ add_executable(
 	${SRC_MASTER}
 )
 
-add_definitions(${SPIDERMONKEY_DEFINE})
-
 set_target_properties(
 	${TARGET_NAME}
 	PROPERTIES
@@ -26,3 +30,7 @@ set_target_properties(
 	ARCHIVE_OUTPUT_DIRECTORY ${BIN_PATH}
 	COMPILE_FLAGS ${LIB_COMPILE_FLAGS}
 )
+
+target_link_libraries(${TARGET_NAME} ${CLANG_LIB})
+target_link_libraries(${TARGET_NAME} ${POCO_LIB})
+#target_link_libraries(${TARGET_NAME} ${V8_LIB})
