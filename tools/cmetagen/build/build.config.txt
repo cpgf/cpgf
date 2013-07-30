@@ -1,0 +1,18 @@
+set(BUILD_DEBUG	1) #release=false
+
+### V8 config
+
+set(V8_DIR
+	c:/source/v8
+)
+
+set(V8_INC ${V8_DIR}/include)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(V8_LIB ${V8_DIR}/libv8.a)
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(MSVC)
+	set(V8_LIB ${V8_DIR}/v8.lib)
+endif(MSVC)
+

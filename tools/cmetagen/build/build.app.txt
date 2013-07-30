@@ -1,0 +1,28 @@
+set(TARGET_NAME metagen)
+
+include_directories(${CPGF_HOME}/include)
+include_directories(${V8_INC})
+
+set(LIB_COMPILE_FLAGS " ")
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(LIB_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(MSVC)
+	set(LIB_COMPILE_FLAGS "-W4 -Wp64")
+endif(MSVC)
+
+add_executable(
+	${TARGET_NAME}
+	${SRC_MASTER}
+)
+
+add_definitions(${SPIDERMONKEY_DEFINE})
+
+set_target_properties(
+	${TARGET_NAME}
+	PROPERTIES
+	OUTPUT_NAME metagen
+	ARCHIVE_OUTPUT_DIRECTORY ${BIN_PATH}
+	COMPILE_FLAGS ${LIB_COMPILE_FLAGS}
+)
