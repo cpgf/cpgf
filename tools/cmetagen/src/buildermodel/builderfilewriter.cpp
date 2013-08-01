@@ -41,42 +41,6 @@ bool BuilderFileWriter::isSourceFile() const
 	return this->fileIndex >= 0;
 }
 
-std::string BuilderFileWriter::getOutputFileName() const
-{
-	string postfix = "";
-	if(this->fileIndex > 0) {
-		postfix = Poco::format("_%d", this->fileIndex);
-	}
-	if(this->getProject()->shouldIncludeExtensionInFileName()) {
-		postfix = Poco::format("%s%s", Poco::Path(this->sourceFileName).getExtension(), postfix);
-	}
-	string extension;
-	if(this->isSourceFile()) {
-		extension = this->getProject()->getSourceFileExtension();
-	}
-	else {
-		extension = this->getProject()->getHeaderFileExtension();
-	}
-	if(! extension.empty() && extension[0] != '.') {
-		extension = "." + extension;
-	}
-
-	string fileName = Poco::format("%s%s%s%s",
-		this->getProject()->getTargetFilePrefix(),
-		Poco::Path(this->sourceFileName).getBaseName(),
-		postfix,
-		extension
-	);
-	string outputPath;
-	if(this->isSourceFile()) {
-		extension = this->getProject()->getSourceOutputPath();
-	}
-	else {
-		extension = this->getProject()->getHeaderOutputPath();
-	}
-	return this->getProject()->getAbsoluteFileName(normalizePath(extension) + fileName);
-}
-
 const Project * BuilderFileWriter::getProject() const
 {
 	return this->builderContext->getProject();
@@ -95,7 +59,7 @@ void BuilderFileWriter::initializeCppWriter(CppWriter * cppWriter) const
 	if(this->isSourceFile()) {
 	}
 	else {
-		cppWriter->setHeaderGuard(this->getOutputFileName());
+		cppWriter->setHeaderGuard(this->getProject()->getOutputHeaderFileName(this->sourceFileName));
 
 		cppWriter->include(includeMetaDefine);
 		cppWriter->include(includeMetaPolicy);
@@ -110,7 +74,9 @@ void BuilderFileWriter::initializeCppWriter(CppWriter * cppWriter) const
 
 void BuilderFileWriter::output()
 {
-	string outputFileName = getOutputFileName();
+	string outputFileName = this->isSourceFile() ?
+		this->getProject()->getOutputSourceFileName(this->sourceFileName, this->fileIndex)
+		: this->getProject()->getOutputHeaderFileName(this->sourceFileName);
 	Poco::File(Poco::Path(outputFileName).parent()).createDirectories();
 
 	CppWriter cppWriter;

@@ -6,8 +6,10 @@
 #include "Poco/Path.h"
 #include "Poco/File.h"
 
-
 #include <algorithm>
+
+#include "stdio.h"
+
 
 using namespace std;
 using namespace cpgf;

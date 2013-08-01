@@ -1,6 +1,10 @@
 #ifndef __APPLICATION_H
 #define __APPLICATION_H
 
+#include "project.h"
+
+#include <string>
+
 namespace metagen {
 
 
@@ -14,6 +18,12 @@ public:
 
 private:
 	void doRun();
+	void processFiles();
+	void processOnePath(const std::string & path);
+	void processOneFile(const std::string & file);
+
+private:	
+	Project project;
 };
 
 

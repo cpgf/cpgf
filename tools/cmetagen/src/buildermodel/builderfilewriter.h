@@ -28,7 +28,6 @@ public:
 	
 private:
 	bool isSourceFile() const;
-	std::string getOutputFileName() const;
 	const Project * getProject() const;
 	void callbackCppWriter(CodeWriter * codeWriter) const;
 	void initializeCppWriter(CppWriter * cppWriter) const;

@@ -7,6 +7,9 @@
 #include "Poco/File.h"
 #include "Poco/Format.h"
 
+using namespace std;
+
+
 namespace metagen {
 
 Project::Project()
@@ -36,14 +39,22 @@ Project::Project()
 		allowProtected(false),
 		allowPrivate(false),
 
+		force(false),
+
 		templateInstantiationRepository(new BuilderTemplateInstantiationRepository)
 {
 //maxItemCountPerFile = 5;
 this->templateInstantiationRepository->add("ns1::TemplateA<int, 18>", "TemplateA_int", "TemplateA_wrapper_int");
+this->files.push_back("*.h");
 }
 
 Project::~Project()
 {
+}
+
+const StringArrayType & Project::getFiles() const
+{
+	return this->files;
 }
 
 size_t Project::getMaxItemCountPerFile() const
@@ -141,6 +152,11 @@ bool Project::doesAllowPrivate() const
 	return this->allowPrivate;
 }
 
+bool Project::doesForce() const
+{
+	return this->force;
+}
+
 const BuilderTemplateInstantiationRepository * Project::getTemplateInstantiationRepository() const
 {
 	return this->templateInstantiationRepository.get();
@@ -172,6 +188,53 @@ void Project::loadProject(const std::string & projectFileName)
 
 	this->projectFileName = normalizeFile(projectPath.toString());
 	this->projectRootPath = normalizePath(projectPath.parent().toString());
+}
+
+std::string Project::getOutputHeaderFileName(const std::string & sourceFileName) const
+{
+	return this->doGetOutputFileName(sourceFileName, -1, false);
+}
+
+std::string Project::getOutputSourceFileName(const std::string & sourceFileName, int fileIndex) const
+{
+	return this->doGetOutputFileName(sourceFileName, fileIndex, true);
+}
+
+std::string Project::doGetOutputFileName(const std::string & sourceFileName,
+	int fileIndex, bool isSourceFile) const
+{
+	string postfix = "";
+	if(fileIndex > 0) {
+		postfix = Poco::format("_%d", fileIndex);
+	}
+	if(this->shouldIncludeExtensionInFileName()) {
+		postfix = Poco::format("%s%s", Poco::Path(sourceFileName).getExtension(), postfix);
+	}
+	string extension;
+	if(isSourceFile) {
+		extension = this->getSourceFileExtension();
+	}
+	else {
+		extension = this->getHeaderFileExtension();
+	}
+	if(! extension.empty() && extension[0] != '.') {
+		extension = "." + extension;
+	}
+
+	string fileName = Poco::format("%s%s%s%s",
+		this->getTargetFilePrefix(),
+		Poco::Path(sourceFileName).getBaseName(),
+		postfix,
+		extension
+	);
+	string outputPath;
+	if(isSourceFile) {
+		extension = this->getSourceOutputPath();
+	}
+	else {
+		extension = this->getHeaderOutputPath();
+	}
+	return this->getAbsoluteFileName(normalizePath(extension) + fileName);
 }
 
 

@@ -4,10 +4,13 @@
 #include "cpgf/gscopedptr.h"
 
 #include <string>
+#include <vector>
 
 namespace metagen {
 
 class BuilderTemplateInstantiationRepository;
+
+typedef std::vector<std::string> StringArrayType;
 
 class Project
 {
@@ -16,7 +19,8 @@ public:
 	~Project();
 
 	size_t getMaxItemCountPerFile() const;
-	
+
+	const StringArrayType & getFiles() const;
 	const std::string & getCppNamespace() const;
 
 	const std::string & getHeaderFileExtension() const;
@@ -40,6 +44,8 @@ public:
 	bool doesAllowPublic() const;
 	bool doesAllowProtected() const;
 	bool doesAllowPrivate() const;
+
+	bool doesForce() const;
 	
 	const BuilderTemplateInstantiationRepository * getTemplateInstantiationRepository() const;
 
@@ -49,9 +55,17 @@ public:
 
 	void loadProject(const std::string & projectFileName);
 
+	std::string getOutputHeaderFileName(const std::string & sourceFileName) const;
+	std::string getOutputSourceFileName(const std::string & sourceFileName, int fileIndex) const;
+
+private:
+	std::string doGetOutputFileName(const std::string & sourceFileName,
+		int fileIndex, bool isSourceFile) const;
+
 private:
 	size_t maxItemCountPerFile;
 
+	StringArrayType files;
 	std::string cppNamespace;
 	
 	std::string headerFileExtension;
@@ -75,6 +89,8 @@ private:
 	bool allowPublic;
 	bool allowProtected;
 	bool allowPrivate;
+
+	bool force;
 	
 	cpgf::GScopedPointer<BuilderTemplateInstantiationRepository> templateInstantiationRepository;
 	std::string projectFileName;
