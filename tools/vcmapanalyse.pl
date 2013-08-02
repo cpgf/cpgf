@@ -10,14 +10,9 @@ my $state = $STATE_SECTION;
 my $sectionMap = {};
 my $symbolList = [];
 
-my $firstFound = 1;
-my $previousSection = -1;
-my $previousAddr = 0;
+my $previousData = undef;
 
-if(scalar(@ARGV) != 1) {
-	die "Usage:\n";
-}
-
+my $maxSize = 0;
 &doMain($ARGV[0]);
 
 #Data::Dump::dump($symbolList);
@@ -33,8 +28,15 @@ sub doMain
 sub collectData
 {
 	my ($fileName) = @_;
-	open FH, '<' . $fileName or die "Can't open file $fileName to read. \n";
-	while(my $line = <FH>) {
+	my $fh;
+	if(defined $fileName) {
+		open $fh, '<' . $fileName or die "Can't open file $fileName to read. \n";
+		print STDERR "Processing $fileName.\n";
+	}
+	else {
+		$fh = *STDIN;
+	}
+	while(my $line = <$fh>) {
 		if($state == $STATE_SECTION) {
 			&searchSection($line);
 		}
@@ -42,7 +44,9 @@ sub collectData
 			&searchSize($line);
 		}
 	}
-	close FH;
+	if(defined $fileName) {
+		close $fh;
+	}
 }
 
 sub statsData
@@ -64,10 +68,10 @@ sub statsData
 
 	my @sortedList;
 
-	print "[1].Sort by size\n";
+	print "[1].Sort by merged size\n";
 	&doStatsOutput($symbolMap, 'size');
 
-	print "\n[2].Sort by count\n";
+	print "\n[2].Sort by merged count\n";
 	&doStatsOutput($symbolMap, 'count');
 	
 	print "\n[3].Sort by individual size\n";
@@ -78,6 +82,7 @@ sub statsData
 		next unless $k->{size};
 		printf "%8d\t%s\t\t%s\n", $k->{size}, $k->{name}, $k->{line};
 	}
+
 return;	
 	print "\n[4].Sort by individual names\n";
 	@sortedList = sort {
@@ -93,13 +98,16 @@ sub doStatsOutput
 {
 	my ($symbolMap, $keyName) = @_;
 
+	my $total = 0;
 	my @keys = sort {
 		return ($symbolMap->{$b}->{$keyName} <=> $symbolMap->{$a}->{$keyName});
 	} keys(%{$symbolMap});
 
 	foreach my $k(@keys) {
 		printf "%8d\t%s\n", $symbolMap->{$k}->{$keyName}, $k;
+		$total += $symbolMap->{$k}->{$keyName};
 	}
+	print "Total: $total\n";
 }
 
 sub searchSection
@@ -126,35 +134,55 @@ sub searchSize
 
 	chomp $line;
 
-	if($line =~ /^\s*(\d{4}):(\w{8})\s+.*?\b([\w\:]+)\</) {
-		my ($section, $addr, $symbol) = (hex($1), hex($2), $3);
-
-		if($firstFound) {
-			$firstFound = 0;
+	if($line =~ /^\s*(\d{4}):(\w{8})\s+/) {
+		my ($section, $addr) = (hex($1), hex($2));
+		my $symbol = undef;
+		if($line =~ /^\s*(\d{4}):(\w{8})\s+.*?\b([\w\:]+)\</) {
+			$symbol = $3;
 		}
-		else {
+
+		$line =~ s/^\s*(\d{4}):(\w{8})\s+//;
+		my $symbolData = {
+			name => $symbol,
+			size => 0,
+			line => $line,
+			section => $section,
+			addr => $addr
+		};
+
+		push @{$symbolList}, $symbolData if defined($symbol);
+		
+		if(defined $previousData) {
 			my $size = 0;
-			if($section != $previousSection) {
-				$previousSection = $section;
+			if($section != $previousData->{section}) {
+				$size = &getSizeFromSection($section, $previousData->{addr});
 			}
 			else {
-				$size = $addr - $previousAddr;
+				$size = $addr - $previousData->{addr};
+#if($size > $maxSize) {
+#$maxSize = $size;
+#printf "!!! %d -- %x %x   %s\n", $size, $addr, $previousData->{addr}, $previousData->{line};
+#}
 			}
-			$previousAddr = $addr;
-
-			$line =~ s/^\s*(\d{4}):(\w{8})\s+//;
-			my $symbolData = {
-				name => $symbol,
-				size => $size,
-				line => $line
-			};
-
-			push @{$symbolList}, $symbolData;
+			$previousData->{size} = $size;
 		}
+
+		$previousData = $symbolData;
 	}
 }
 
 sub getSizeFromSection
 {
 	my ($section, $addr) = @_;
+
+	foreach my $k(keys %{$sectionMap}) {
+		foreach my $i(@{$sectionMap->{$k}}) {
+			if($i->{addr} <= $addr && $i->{addr} + $i->{len} > $addr) {
+				my $size = $i->{addr} + $i->{len} - $addr;
+				return $size;
+			}
+		}
+	}
+
+	return 0;
 }
