@@ -64,6 +64,7 @@ enum CodeBlockStyle {
 	cbsBracket = 1 << 0,
 	cbsIndent = 1 << 1,
 	cbsTailEmptyLine = 1 << 2,
+	cbsBracketWithSemicolon = 1 << 3,
 	cbsBracketAndIndent = cbsBracket | cbsIndent
 };
 

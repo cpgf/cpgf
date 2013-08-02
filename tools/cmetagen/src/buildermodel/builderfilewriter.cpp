@@ -21,12 +21,14 @@ BuilderFileWriter::BuilderFileWriter(const std::string & sourceFileName, const B
 {
 }
 	
-BuilderFileWriter * BuilderFileWriter::createHeaderFile(const std::string & sourceFileName, const BuilderContext * builderContext)
+BuilderFileWriter * BuilderFileWriter::createHeaderFile(const std::string & sourceFileName,
+	const BuilderContext * builderContext)
 {
 	return new BuilderFileWriter(sourceFileName, builderContext, -1);
 }
 
-BuilderFileWriter * BuilderFileWriter::createSourceFile(const std::string & sourceFileName, const BuilderContext * builderContext, int fileIndex)
+BuilderFileWriter * BuilderFileWriter::createSourceFile(const std::string & sourceFileName,
+	const BuilderContext * builderContext, int fileIndex)
 {
 	return new BuilderFileWriter(sourceFileName, builderContext, fileIndex);
 }
@@ -57,6 +59,10 @@ void BuilderFileWriter::initializeCppWriter(CppWriter * cppWriter) const
 {
 	cppWriter->setNamespace(this->getProject()->getCppNamespace());
 	if(this->isSourceFile()) {
+		string header = normalizeFile(
+			Poco::Path(this->getProject()->getOutputHeaderFileName(this->sourceFileName)).getFileName()
+		);
+		cppWriter->include(normalizePath(this->getProject()->getHeaderIncludePrefix()) + header);
 	}
 	else {
 		cppWriter->setHeaderGuard(this->getProject()->getOutputHeaderFileName(this->sourceFileName));

@@ -50,7 +50,7 @@ void BuilderConstructor::doWriterReflectionCode(BuilderWriter * writer, CodeBloc
 {
 	const CppConstructor * cppConstructor = this->getCppConstructor();
 
-	std::string s = Poco::format("%s<void * (%s)>(%s));",
+	std::string s = Poco::format("%s<void * (%s)>(%s);",
 		writer->getReflectionAction("_constructor"),
 		cppConstructor->getTextOfParamList(itoWithArgType),
 		getInvokablePolicyText(cppConstructor, false)

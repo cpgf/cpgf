@@ -137,7 +137,7 @@ size_t CppInvokable::getArity() const
 CppType CppInvokable::getParamType(size_t index) const
 {
 	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
-	const ParmVarDecl * paramDecl = functionDecl->getParamDecl(index);
+	const ParmVarDecl * paramDecl = functionDecl->getParamDecl((unsigned int)index);
 
 	return CppType(paramDecl->getType());
 }
@@ -145,7 +145,7 @@ CppType CppInvokable::getParamType(size_t index) const
 bool CppInvokable::paramHasDefaultValue(size_t index) const
 {
 	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
-	const ParmVarDecl * paramDecl = functionDecl->getParamDecl(index);
+	const ParmVarDecl * paramDecl = functionDecl->getParamDecl((unsigned int)index);
 
 	return paramDecl->hasDefaultArg();
 }
@@ -153,7 +153,7 @@ bool CppInvokable::paramHasDefaultValue(size_t index) const
 std::string CppInvokable::getTextOfParamDeafultValue(size_t index) const
 {
 	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
-	const ParmVarDecl * paramDecl = functionDecl->getParamDecl(index);
+	const ParmVarDecl * paramDecl = functionDecl->getParamDecl((unsigned int)index);
 
 	if(paramDecl->hasDefaultArg()) {
 		return exprToText(paramDecl->getDefaultArg());

@@ -23,6 +23,7 @@ public:
 	const StringArrayType & getFiles() const;
 	const std::string & getCppNamespace() const;
 
+	const std::string & getHeaderIncludePrefix() const;
 	const std::string & getHeaderFileExtension() const;
 	const std::string & getSourceFileExtension() const;
 	const std::string & getHeaderOutputPath() const;
@@ -68,6 +69,7 @@ private:
 	StringArrayType files;
 	std::string cppNamespace;
 	
+	std::string headerIncludePrefix;
 	std::string headerFileExtension;
 	std::string sourceFileExtension;
 	std::string headerOutputPath;

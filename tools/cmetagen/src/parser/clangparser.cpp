@@ -128,8 +128,6 @@ private:
 	void parseField(FieldDecl * fieldDecl);
 	void parseBaseClass(CppClass * cls, CXXBaseSpecifier * baseSpecifier);
 
-//	void parseTemplateParams(TemplateDecl * templateDecl, CppTemplateItem * templateItem);
-
 	string locationToSource(const SourceLocation & begin, const SourceLocation & end);
 	string getTemplateArgumentName(const TemplateArgument & argument);
 	string getQualTypeName(const QualType & qualType);
@@ -424,8 +422,6 @@ void ClangParserImplement::parseTemplateClass(ClassTemplateDecl * classTemplateD
 	for(CXXRecordDecl::base_class_iterator it = classDecl->bases_begin(); it != classDecl->bases_end(); ++it) {
 		this->parseBaseClass(cls, &*it);
 	}
-
-//	this->parseTemplateParams(classTemplateDecl, cls);
 }
 
 bool isOperator(const string & name)
@@ -656,54 +652,6 @@ string ClangParserImplement::locationToSource(const SourceLocation & begin, cons
     SourceLocation e(Lexer::getLocForEndOfToken(end, 0, *sourceManager, langOptions));
     return std::string(sourceManager->getCharacterData(begin), sourceManager->getCharacterData(e) - sourceManager->getCharacterData(begin));
 }
-
-//void ClangParserImplement::parseTemplateParams(TemplateDecl * templateDecl, CppTemplateItem * templateItem)
-//{
-//	TemplateParameterList * templateParamList = templateDecl->getTemplateParameters();
-//	for(TemplateParameterList::iterator it = templateParamList->begin(); it != templateParamList->end(); ++it) {
-//		NamedDecl * namedDecl = *it;
-//		Decl::Kind kind = namedDecl->getKind();
-//
-//		CppType * type = NULL;
-//		string defaultValue;
-//		if(kind == Decl::TemplateTypeParm) {
-//			TemplateTypeParmDecl * paramDecl = dyn_cast<TemplateTypeParmDecl>(namedDecl);
-//			type = this->addType(paramDecl->wasDeclaredWithTypename() ? "typename" : "class");
-//			if(paramDecl->hasDefaultArgument()) {
-//				defaultValue = doRemoveRecordWords(paramDecl->getDefaultArgument().getAsString());
-//			}
-//		}
-//		else if(kind == Decl::NonTypeTemplateParm) {
-//			NonTypeTemplateParmDecl * paramDecl = dyn_cast<NonTypeTemplateParmDecl>(namedDecl);
-//			type = this->addType(paramDecl->getType());
-//			if(paramDecl->hasDefaultArgument()) {
-//				defaultValue = this->locationToSource(paramDecl->getDefaultArgument()->getLocStart(), paramDecl->getDefaultArgument()->getLocEnd());
-//			}
-//		}
-//		else if(kind == Decl::TemplateTemplateParm) {
-//			TemplateTemplateParmDecl * paramDecl = dyn_cast<TemplateTemplateParmDecl>(namedDecl);
-//			string t = locationToSource(paramDecl->getLocStart(), paramDecl->getLocEnd());
-//			t = removeAllAfterEqualSign(t);
-//			t = removeLastToken(t);
-//			type = this->addType(t);
-//			if(paramDecl->hasDefaultArgument()) {
-//				defaultValue = this->getTemplateArgumentName(paramDecl->getDefaultArgument().getArgument());
-//				if(defaultValue.empty()) {
-//					defaultValue = this->locationToSource(paramDecl->getDefaultArgument().getSourceRange().getBegin(), paramDecl->getDefaultArgument().getSourceRange().getEnd());
-//				}
-//			}
-//		}
-//		if(type != NULL) {
-//			CppParam * param = templateItem->addTemplateParam();
-//			string name = namedDecl->getNameAsString();
-//			param->setName(name);
-//			param->setType(type);
-//			if(! defaultValue.empty()) {
-//				param->setDefaultValue(defaultValue);
-//			}
-//		}
-//	}
-//}
 
 
 ClangParser::ClangParser()

@@ -161,14 +161,14 @@ void writeMethodClassWrapperMethodBody(const CppMethod * cppMethod, CodeBlock * 
 {
 	string s;
 
-	s = Poco::format("cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction(\"%s\"));",
+	s = Poco::format("cpgf::GScopedInterface<cpgf::IScriptFunction> _Fu0Nc(this->getScriptFunction(\"%s\"));",
 		cppMethod->getName()
 		);
 	codeBlock->appendLine(s);
 
-	codeBlock->appendLine("if(func)");
+	codeBlock->appendLine("if(_Fu0Nc)");
 	CodeBlock * bodyBlock = codeBlock->appendBlock(cbsBracketAndIndent);
-	s = "cpgf::invokeScriptFunction(func.get(), this";
+	s = "cpgf::invokeScriptFunction(_Fu0Nc.get(), this";
 	if(cppMethod->getArity() > 0) {
 		s = Poco::format("%s, %s", s, cppMethod->getTextOfParamList(itoWithArgName));
 	}

@@ -1,6 +1,5 @@
 use strict;
 use warnings;
-use Data::Dump;
 
 my $STATE_SECTION = 1;
 my $STATE_SIZE = 2;
@@ -14,8 +13,6 @@ my $previousData = undef;
 
 my $maxSize = 0;
 &doMain($ARGV[0]);
-
-#Data::Dump::dump($symbolList);
 
 sub doMain
 {
@@ -81,6 +78,10 @@ sub statsData
 	foreach my $k(@sortedList) {
 		next unless $k->{size};
 		printf "%8d\t%s\t\t%s\n", $k->{size}, $k->{name}, $k->{line};
+		if($k->{size} < 500) {
+			print "Items size smaller than 500 are omitted. \n";
+			last;
+		}
 	}
 
 return;	

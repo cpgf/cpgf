@@ -17,6 +17,8 @@ Project::Project()
 		
 		cppNamespace("metadata"),
 		
+		headerIncludePrefix(""),
+		
 		headerFileExtension(".h"),
 		sourceFileExtension(".cpp"),
 		headerOutputPath("output/"),
@@ -45,7 +47,10 @@ Project::Project()
 {
 //maxItemCountPerFile = 5;
 this->templateInstantiationRepository->add("ns1::TemplateA<int, 18>", "TemplateA_int", "TemplateA_wrapper_int");
-this->files.push_back("*.h");
+this->files.push_back("z.h");
+this->headerOutputPath = "";
+this->sourceOutputPath = headerOutputPath;
+this->force = true;
 }
 
 Project::~Project()
@@ -67,6 +72,10 @@ const std::string & Project::getCppNamespace() const
 	return this->cppNamespace;
 }
 
+const std::string & Project::getHeaderIncludePrefix() const
+{
+	return this->headerIncludePrefix;
+}
 const std::string & Project::getHeaderFileExtension() const
 {
 	return this->headerFileExtension;
@@ -229,12 +238,12 @@ std::string Project::doGetOutputFileName(const std::string & sourceFileName,
 	);
 	string outputPath;
 	if(isSourceFile) {
-		extension = this->getSourceOutputPath();
+		outputPath = this->getSourceOutputPath();
 	}
 	else {
-		extension = this->getHeaderOutputPath();
+		outputPath = this->getHeaderOutputPath();
 	}
-	return this->getAbsoluteFileName(normalizePath(extension) + fileName);
+	return this->getAbsoluteFileName(normalizePath(outputPath) + fileName);
 }
 
 

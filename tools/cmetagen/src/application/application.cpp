@@ -40,7 +40,7 @@ void Application::run()
 
 void Application::doRun()
 {
-	this->project.loadProject("bin/zzz.js");
+	this->project.loadProject("zzz.js");
 
 	this->processFiles();
 }

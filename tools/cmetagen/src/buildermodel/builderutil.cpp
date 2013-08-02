@@ -55,7 +55,7 @@ size_t getCppItemPayload(const CppItem * item)
 	if(item->isFile() || item->isNamespace()) {
 		return 0;
 	}
-	int payload = 1;
+	size_t payload = 1;
 	if(item->isInvokable()) {
 		const CppInvokable * invokable = static_cast<const CppInvokable *>(item);
 		for(size_t i = 0; i < invokable->getArity(); ++i) {
@@ -104,7 +104,7 @@ string getContainerNormalizedSymboName(const BuilderContext * builderContext, Bu
 	return normalizeSymbolName(result);
 }
 
-string getSectionIndexName(int sectionIndex)
+string getSectionIndexName(size_t sectionIndex)
 {
 	string result;
 
@@ -119,7 +119,7 @@ std::string getPartialCreationFunctionName(const BuilderContext * builderContext
 {
 	GASSERT(section->getCppItem()->isContainer());
 
-	int sectionIndex = section->getIndex();
+	size_t sectionIndex = section->getIndex();
 
 	return normalizeSymbolName(Poco::format("partial_%s_%s%s",
 		builderContext->getProject()->getCreationFunctionPrefix(),
@@ -151,7 +151,7 @@ std::string getReflectionFunctionName(const BuilderContext * builderContext, Bui
 {
 	GASSERT(section->getCppItem()->isContainer());
 
-	int sectionIndex = section->getIndex();
+	size_t sectionIndex = section->getIndex();
 
 	return normalizeSymbolName(Poco::format("%s_%s%s",
 		builderContext->getProject()->getReflectionFunctionPrefix(),
@@ -313,7 +313,7 @@ void initializeClassWrapperOutline(const BuilderContext * builderContext, Builde
 	);
 	codeBlock->appendLine(s);
 
-	CodeBlock * bodyBlock = codeBlock->getNamedBlock(CodeBlockName_ClassBody, cbsBracket);
+	CodeBlock * bodyBlock = codeBlock->getNamedBlock(CodeBlockName_ClassBody, cbsBracketWithSemicolon);
 	bodyBlock->appendLine("private:");
 	CodeBlock * superBlock = bodyBlock->appendBlock(cbsIndent | cbsTailEmptyLine);
 	s = Poco::format("typedef %s super;", cppClass->getQualifiedName());

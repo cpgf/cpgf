@@ -32,7 +32,11 @@ std::string getInvokablePolicyText(const CppInvokable * cppInvokable, bool prefi
 
 	cppInvokable->getPolicy(&cppPolicy);
 
-	return cppPolicy.getTextOfMakePolicy(prefixWithComma) + "()";
+	string s = cppPolicy.getTextOfMakePolicy(prefixWithComma);
+	if(! s.empty()) {
+		s.append("()");
+	}
+	return s;
 }
 
 
