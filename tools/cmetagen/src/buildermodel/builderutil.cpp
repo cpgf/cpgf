@@ -300,16 +300,18 @@ void initializeClassWrapperOutline(const BuilderContext * builderContext, Builde
 	CodeBlock * codeBlock = section->getCodeBlock();
 
 	const CppClass * cppClass = static_cast<const CppClass *>(cppContainer);
+	string className = cppClass->getQualifiedName();
 	string s;
 	
 	if(cppClass->isTemplate()) {
 		s = Poco::format("template <%s >", cppClass->getTextOfChainedTemplateParamList(itoWithArgType | itoWithArgName));
 		codeBlock->appendLine(s);
+		className.append(cppClass->getTextOfChainedTemplateParamList(itoWithArgName));
 	}
 
 	s = Poco::format("class %s : public %s, public cpgf::GScriptWrapper",
 		getClassWrapperClassName(builderContext, cppClass),
-		cppClass->getQualifiedName()
+		className
 	);
 	codeBlock->appendLine(s);
 

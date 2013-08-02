@@ -63,6 +63,7 @@ void BuilderFileWriter::initializeCppWriter(CppWriter * cppWriter) const
 			Poco::Path(this->getProject()->getOutputHeaderFileName(this->sourceFileName)).getFileName()
 		);
 		cppWriter->include(normalizePath(this->getProject()->getHeaderIncludePrefix()) + header);
+		cppWriter->useNamespace("cpgf");
 	}
 	else {
 		cppWriter->setHeaderGuard(this->getProject()->getOutputHeaderFileName(this->sourceFileName));

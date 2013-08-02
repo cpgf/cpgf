@@ -23,7 +23,7 @@ class CppContext
 {
 private:
 	typedef std::vector<CppItem *> ItemListType;
-	typedef std::map<const clang::Decl *, CppItem *> ItemDeclMapType;
+	typedef std::map<std::string, CppItem *> ItemNameMapType;
 
 public:
 	explicit CppContext(const Project * project);
@@ -55,7 +55,7 @@ private:
 private:
 	cpgf::GScopedPointer<CppFile> cppFile;
 	ItemListType itemList;
-	ItemDeclMapType itemDeclMap;
+	ItemNameMapType itemNameMap;
 	const Project * project;
 	ClangParser parser;
 	

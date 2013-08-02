@@ -172,12 +172,12 @@ void writeMethodClassWrapperMethodBody(const CppMethod * cppMethod, CodeBlock * 
 	if(cppMethod->getArity() > 0) {
 		s = Poco::format("%s, %s", s, cppMethod->getTextOfParamList(itoWithArgName));
 	}
-	s.append(");");
+	s.append(")");
 	if(cppMethod->hasResult()) {
-		bodyBlock->appendLine("return " + s);
+		bodyBlock->appendLine(Poco::format("return cpgf::fromVariant<%s>(%s);", cppMethod->getResultType().getQualifiedName(), s));
 	}
 	else {
-		bodyBlock->appendLine(s);
+		bodyBlock->appendLine(s + ";");
 		bodyBlock->appendLine("return;");
 	}
 

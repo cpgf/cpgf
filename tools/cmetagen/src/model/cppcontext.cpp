@@ -2,6 +2,7 @@
 #include "cppclass.h"
 #include "cppnamespace.h"
 #include "cppfile.h"
+#include "cpputil.h"
 #include "util.h"
 
 #include "cpgf/gassert.h"
@@ -56,18 +57,23 @@ void CppContext::itemCreated(CppItem * item)
 	this->itemList.push_back(item);
 	item->setCppContext(this);
 	
-	GASSERT(this->itemDeclMap.find(item->getDecl()) == this->itemDeclMap.end());
-	this->itemDeclMap.insert(make_pair(item->getDecl(), item));
+	if(item->isNamed()) {
+		this->itemNameMap.insert(make_pair(static_cast<CppNamedItem *>(item)->getQualifiedName(), item));
+	}
 }
 
 CppItem * CppContext::findItemByDecl(const clang::Decl * decl) const
 {
-	if(decl == NULL) {
+	if(decl == NULL || dyn_cast<NamedDecl>(decl) == NULL) {
 		return NULL;
 	}
 
-	ItemDeclMapType::const_iterator it = this->itemDeclMap.find(decl);
-	if(it == this->itemDeclMap.end()) {
+	string name = getNamedDeclQualifiedName(dyn_cast<NamedDecl>(decl));
+	if(name.empty()) {
+		name = decl->getDeclKindName();
+	}
+	ItemNameMapType::const_iterator it = this->itemNameMap.find(name);
+	if(it == this->itemNameMap.end()) {
 		return NULL;
 	}
 	else {
