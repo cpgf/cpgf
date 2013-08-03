@@ -93,7 +93,7 @@ public:
 private:
 	void setupClang();
 	void compileAST(const char * fileName);
-	void translate();
+	void translate(CompilerInstance * compilerInstance);
 
 	CppContainer * getCurrentCppContainer();
 
@@ -104,7 +104,7 @@ private:
 		this->getCurrentCppContainer()->addItem(item);
 
 		SourceManager & sm = this->compilerInstance->getSourceManager();
-		item->setInMainFile(this->currentFileID == sm.getFileID(decl->getSourceRange().getBegin()));
+		item->setInMainFile(this->compilerInstance->getSourceManager().getMainFileID() == sm.getFileID(decl->getSourceRange().getBegin()));
 
 		return item;
 	}
@@ -130,11 +130,6 @@ private:
 	void parseField(FieldDecl * fieldDecl);
 	void parseBaseClass(CppClass * cls, CXXBaseSpecifier * baseSpecifier);
 
-	string locationToSource(const SourceLocation & begin, const SourceLocation & end);
-	string getTemplateArgumentName(const TemplateArgument & argument);
-	string getQualTypeName(const QualType & qualType);
-	string getTemplateSpecializationName(const TemplateSpecializationType * type);
-
 private:
 	CppContext * context;
 	CppContainerStackType cppContainerStack;
@@ -143,27 +138,8 @@ private:
 	DiagnosticOptions diagnosticOptions;
 	GScopedPointer<CompilerInvocation> compilerInvocation;
 	GScopedPointer<CompilerInstance> compilerInstance;
-	FileID currentFileID;
 };
 
-
-string getDeclName(NamedDecl * namedDecl)
-{
-	return namedDecl->getNameAsString();
-}
-
-string getDeclQualifiedName(NamedDecl * namedDecl)
-{
-	return namedDecl->getQualifiedNameAsString();
-}
-
-string doRemoveRecordWords(const string & text)
-{
-	static Poco::RegularExpression re("(struct|class|union)\\b\\s*");
-	string result(text);
-	re.subst(result, "");
-	return result;
-}
 
 ClangParserImplement::ClangParserImplement(CppContext * context)
 	: context(context), outputStream(1, false)
@@ -258,7 +234,7 @@ void ClangParserImplement::parse(const char * fileName)
 	this->context->beginFile(fileName, this->compilerInstance->getASTContext().getTranslationUnitDecl());
 	this->cppContainerStack.push(this->context->getCppFile());
 	
-	this->translate();
+	this->translate(this->compilerInstance.get());
 
 	this->cppContainerStack.pop();
 	this->context->endFile(fileName);
@@ -279,7 +255,7 @@ void ClangParserImplement::compileAST(const char * fileName)
 
 	// Get the file  from the file system
 	const FileEntry * file = this->compilerInstance->getFileManager().getFile(fileName);
-	this->currentFileID = this->compilerInstance->getSourceManager().createMainFileID(file);
+	this->compilerInstance->getSourceManager().createMainFileID(file);
 
 	// Parse the AST
 	EmptyASTConsumer astConsumer;
@@ -289,14 +265,14 @@ void ClangParserImplement::compileAST(const char * fileName)
 	client->EndSourceFile();
 }
 
-void ClangParserImplement::translate()
+void ClangParserImplement::translate(CompilerInstance * compilerInstance)
 {
-	TranslationUnitDecl * translateUnitDecl = this->compilerInstance->getASTContext().getTranslationUnitDecl();
+	TranslationUnitDecl * translateUnitDecl = compilerInstance->getASTContext().getTranslationUnitDecl();
 
 	this->parseDeclContext(translateUnitDecl);
 
 	if (this->compilerInstance->hasPreprocessor()) {
-		Preprocessor & preprocessor = this->compilerInstance->getPreprocessor();
+		Preprocessor & preprocessor = compilerInstance->getPreprocessor();
 		for(Preprocessor::macro_iterator it = preprocessor.macro_begin(); it != preprocessor.macro_end(); ++it) {
 //			cout << "Macro    " << string(it->first->getName()) << endl;
 		}
@@ -553,107 +529,8 @@ void ClangParserImplement::parseField(FieldDecl * fieldDecl)
 
 void ClangParserImplement::parseBaseClass(CppClass * cls, CXXBaseSpecifier * baseSpecifier)
 {
-	QualType qualType = baseSpecifier->getType();
-	const Type * type = qualType.getTypePtr();
-	string qualifiedName;
-	if(type->getAsCXXRecordDecl() != NULL) {
-		qualifiedName = type->getAsCXXRecordDecl()->getQualifiedNameAsString();
-	}
-	else if(dyn_cast<TemplateSpecializationType>(type) != NULL){
-		const TemplateSpecializationType * t = dyn_cast<TemplateSpecializationType>(type);
-		qualifiedName = this->getTemplateSpecializationName(t);
-	}
-
 	BaseClass * baseClass = new BaseClass(baseSpecifier, this->context);
 	cls->getBaseClassList()->push_back(baseClass);
-}
-
-string ClangParserImplement::getTemplateArgumentName(const TemplateArgument & argument)
-{
-	string qualifiedName;
-
-	switch(argument.getKind()) {
-		case TemplateArgument::Null:
-			qualifiedName = "NULL";
-			break;
-
-		case TemplateArgument::Type:
-			qualifiedName = this->getQualTypeName(argument.getAsType());
-			break;
-
-		case TemplateArgument::Declaration:
-			qualifiedName = dyn_cast<NamedDecl>(argument.getAsDecl())->getQualifiedNameAsString();
-			break;
-
-		case TemplateArgument::Integral:
-		case TemplateArgument::Expression:
-			qualifiedName = locationToSource(argument.getAsExpr()->getLocStart(), argument.getAsExpr()->getLocEnd());
-			break;
-
-		case TemplateArgument::Template:
-			qualifiedName = argument.getAsTemplate().getAsTemplateDecl()->getQualifiedNameAsString();
-			break;
-
-		case TemplateArgument::TemplateExpansion:
-			break;
-
-		case TemplateArgument::Pack:
-			break;
-
-	}
-
-	return qualifiedName;
-}
-
-string ClangParserImplement::getQualTypeName(const QualType & qualType)
-{
-	string qualifiedName;
-
-//qualifiedName = type->getTypeClassName();
-
-	if(qualType->getAsCXXRecordDecl() != NULL) {
-		qualifiedName = qualType->getAsCXXRecordDecl()->getQualifiedNameAsString();
-	}
-	else if(qualType->getAs<TemplateSpecializationType>() != NULL){
-		const TemplateSpecializationType * t = qualType->getAs<TemplateSpecializationType>();
-		qualifiedName = this->getTemplateSpecializationName(t);
-	}
-	else if(qualType->getAs<TemplateTypeParmType>() != NULL){
-//		const TemplateTypeParmType * t = qualType->getAs<TemplateTypeParmType>();
-		qualifiedName = qualType.getAsString();
-	}
-	else {
-		qualifiedName = qualType.getAsString();
-	}
-
-	qualifiedName = doRemoveRecordWords(qualifiedName);
-
-	return qualifiedName;
-}
-
-string ClangParserImplement::getTemplateSpecializationName(const TemplateSpecializationType * type)
-{
-	string qualifiedName;
-
-	qualifiedName = type->getTemplateName().getAsTemplateDecl()->getQualifiedNameAsString();
-	qualifiedName += "<";
-	for(unsigned int i = 0; i < type->getNumArgs(); ++i) {
-		if(i > 0) {
-			qualifiedName += ", ";
-		}
-		qualifiedName += this->getTemplateArgumentName(type->getArg(i));
-	}
-	qualifiedName += " >";
-
-	return qualifiedName;
-}
-
-string ClangParserImplement::locationToSource(const SourceLocation & begin, const SourceLocation & end)
-{
-	SourceManager * sourceManager = &this->compilerInstance->getSourceManager();
-	const LangOptions & langOptions = this->compilerInstance->getLangOpts();
-    SourceLocation e(Lexer::getLocForEndOfToken(end, 0, *sourceManager, langOptions));
-    return std::string(sourceManager->getCharacterData(begin), sourceManager->getCharacterData(e) - sourceManager->getCharacterData(begin));
 }
 
 
