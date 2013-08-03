@@ -697,13 +697,14 @@ Handle<Value> objectConstructor(const Arguments & args)
 	}
 
     HandleScope scope;
-	Persistent<Object> self = Persistent<Object>::New(args.Holder());
 
 	if(args.Length() == 1 && args[0]->IsExternal() && External::Unwrap(args[0]) == &signatureKey) {
 		// Here means this constructor is called when wrapping an existing object, so we don't create new object.
 		// See function objectToV8
+	    return scope.Close(args.Holder());
 	}
 	else {
+	    Persistent<Object> self = Persistent<Object>::New(args.Holder());
 		Local<External> data = Local<External>::Cast(args.Data());
 		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(data->Value());
 		GClassGlueDataPointer classData = dataWrapper->getAs<GClassGlueData>();
@@ -725,9 +726,9 @@ Handle<Value> objectConstructor(const Arguments & args)
 		else {
 			raiseCoreException(Error_ScriptBinding_FailConstructObject);
 		}
+	    return scope.Close(self);
 	}
 
-	return scope.Close(self);
 
 	LEAVE_V8(return Handle<Value>());
 }
