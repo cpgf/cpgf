@@ -243,7 +243,10 @@ bool isValidObject(Handle<Value> object)
 	if(object->IsObject() || object->IsFunction()) {
 		Handle<Value> value = Handle<Object>::Cast(object)->GetHiddenValue(String::New(signatureKey));
 
-		return !value.IsEmpty() && value->IsInt32() && value->Int32Value() == signatureValue;
+		if (value.IsEmpty()) {
+			return isValidObject(object.As<Object>()->GetPrototype());
+		}
+		return value->IsInt32() && value->Int32Value() == signatureValue;
 	}
 	else {
 		return false;
@@ -261,15 +264,28 @@ bool isGlobalObject(Handle<Value> object)
 	}
 }
 
+static inline GGlueDataWrapper * retrieveNativeObjectPtr(v8::Handle<v8::Value> value)
+{
+    while (value->IsObject()) {
+        v8::Local<v8::Object> obj = value->ToObject();
+        if (0 < obj->InternalFieldCount()) {
+            GGlueDataWrapper * native = static_cast<GGlueDataWrapper *>(obj->GetPointerFromInternalField(0));
+            if (native) {
+                return native;
+            }
+        }
+        value = obj->GetPrototype();
+    }
+    return NULL;
+}
+
 GScriptValue v8UserDataToScriptValue(const GContextPointer & context, Local<Context> v8Context, Handle<Value> value, GGlueDataPointer * outputGlueData)
 {
 	if(value->IsFunction() || value->IsObject()) {
 		Local<Object> obj = value->ToObject();
 		if(isValidObject(obj)) {
 			GGlueDataWrapper * dataWrapper = NULL;
-			if(obj->InternalFieldCount() > 0) {
-				dataWrapper = static_cast<GGlueDataWrapper *>(obj->GetPointerFromInternalField(0));
-			}
+			dataWrapper = retrieveNativeObjectPtr(value);
 			if(dataWrapper == NULL) { // value maybe an IMetaClass
 				Handle<Value> data = obj->GetHiddenValue(String::New(userDataKey));
 				if(! data.IsEmpty() && data->IsExternal()) {
@@ -559,7 +575,7 @@ Handle<Value> callbackMethodList(const Arguments & args)
 	GGlueDataWrapper * dataWrapper = NULL;
 
 	if(!isGlobal) {
-		dataWrapper = static_cast<GGlueDataWrapper *>(args.Holder()->GetPointerFromInternalField(0));
+		dataWrapper = retrieveNativeObjectPtr(args.Holder());
 	}
 	GObjectGlueDataPointer objectData;
 	if(dataWrapper != NULL) {
@@ -609,7 +625,7 @@ Handle<Value> namedEnumGetter(Local<String> prop, const AccessorInfo & info)
 {
 	ENTER_V8()
 
-	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(info.Holder()->GetPointerFromInternalField(0));
+	GGlueDataWrapper * dataWrapper = retrieveNativeObjectPtr(info.Holder());
 	IMetaEnum * metaEnum = dataWrapper->getAs<GEnumGlueData>()->getMetaEnum();
 	String::AsciiValue name(prop);
 	int32_t index = metaEnum->findKey(*name);
@@ -638,7 +654,7 @@ Handle<Array> namedEnumEnumerator(const AccessorInfo & info)
 {
 	ENTER_V8()
 
-	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(info.Holder()->GetPointerFromInternalField(0));
+	GGlueDataWrapper * dataWrapper = retrieveNativeObjectPtr(info.Holder());
 	IMetaEnum * metaEnum = dataWrapper->getAs<GEnumGlueData>()->getMetaEnum();
 	uint32_t keyCount = metaEnum->getCount();
 
@@ -777,7 +793,7 @@ Handle<Value> namedMemberGetter(Local<String> prop, const AccessorInfo & info)
 	String::Utf8Value utf8_prop(prop);
 	const char * name = *utf8_prop;
 
-	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(info.Holder()->GetPointerFromInternalField(0));
+	GGlueDataWrapper * dataWrapper = retrieveNativeObjectPtr(info.Holder());
 
 	return getNamedMember(dataWrapper->getData(), name);
 
@@ -795,7 +811,7 @@ Handle<Value> namedMemberSetter(Local<String> prop, Local<Value> value, const Ac
 		raiseCoreException(Error_ScriptBinding_AccessMemberWithWrongObject);
 	}
 
-	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(info.Holder()->GetPointerFromInternalField(0));
+	GGlueDataWrapper * dataWrapper = retrieveNativeObjectPtr(info.Holder());
 
 	if(getGlueDataCV(dataWrapper->getData()) == opcvConst) {
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
@@ -823,7 +839,7 @@ Handle<Array> namedMemberEnumerator(const AccessorInfo & info)
 		raiseCoreException(Error_ScriptBinding_AccessMemberWithWrongObject);
 	}
 
-	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(info.Holder()->GetPointerFromInternalField(0));
+	GGlueDataWrapper * dataWrapper = retrieveNativeObjectPtr(info.Holder());
 	GGlueDataPointer glueData = dataWrapper->getData();
 
 	GMetaClassTraveller traveller(getGlueDataMetaClass(glueData), getGlueDataInstance(glueData));
