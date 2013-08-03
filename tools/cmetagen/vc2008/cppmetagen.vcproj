@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="clangParse.lib clangFrontend.lib clangSema.lib clangAnalysis.lib clangLex.lib clangBasic.lib clangSerialization.lib clangDriver.lib clangAST.lib clangEdit.lib LLVMSupport.lib LLVMCore.lib LLVMMC.lib LLVMBitReader.lib LLVMMCParser.lib c:\source\poco\lib\PocoFoundationd.lib"
+				AdditionalDependencies="clangParse.lib clangFrontend.lib clangSema.lib clangAnalysis.lib clangLex.lib clangBasic.lib clangSerialization.lib clangDriver.lib clangAST.lib clangEdit.lib LLVMSupport.lib LLVMCore.lib LLVMMC.lib LLVMBitReader.lib LLVMMCParser.lib c:\source\poco\lib\PocoFoundationd.lib C:\projects\cpgf\trunk\lib\Debug\cpgf.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="c:\source\llvm\build\lib\Debug\"
 				GenerateDebugInformation="true"
@@ -175,6 +175,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\src\logger.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\logger.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\main.cpp"
 				>
 			</File>
@@ -283,6 +291,10 @@
 				>
 				<File
 					RelativePath="..\src\application\application.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Debug\meta_z.cpp"
 					>
 				</File>
 			</Filter>

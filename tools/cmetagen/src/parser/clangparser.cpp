@@ -16,6 +16,7 @@
 
 #include "cpgf/gassert.h"
 #include "cpgf/gscopedptr.h"
+#include "cpgf/gcallback.h"
 
 #include "Poco/RegularExpression.h"
 
@@ -40,6 +41,11 @@
 #include "clang/Frontend/LangStandard.h"
 #include "clang/AST/DeclTemplate.h"
 
+// tooling
+//#include "clang/Frontend/FrontendActions.h"
+//#include "clang/Tooling/CommonOptionsParser.h"
+//#include "clang/Tooling/Tooling.h"
+
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
@@ -52,9 +58,9 @@ using namespace cpgf;
 using namespace llvm;
 using namespace llvm::sys;
 using namespace clang;
+//using namespace clang::tooling;
 
 namespace metagen {
-
 
 class EmptyASTConsumer : public ASTConsumer
 {
@@ -63,91 +69,48 @@ public:
 	virtual bool HandleTopLevelDecl(DeclGroupRef) { return true; }
 };
 
-typedef stack<CppContainer *> CppContainerStackType;
+typedef GCallback<void (CompilerInstance * compilerInstance)> ParserCallbackType;
 
-class CppContainerGuard
+class ParserBase
 {
 public:
-	explicit CppContainerGuard(CppContainerStackType * cppContainerStack, CppContainer * cppContext)
-		: cppContainerStack(cppContainerStack)
-	{
-		this->cppContainerStack->push(cppContext);
-	}
-
-	~CppContainerGuard() {
-		this->cppContainerStack->pop();
-	}
-
-private:
-	CppContainerStackType * cppContainerStack;
+	virtual void parse(const char * fileName, const ParserCallbackType & callback) = 0;
 };
 
-class ClangParserImplement
+class ParserLibClang : public ParserBase
 {
-public:
-	explicit ClangParserImplement(CppContext * context);
-	~ClangParserImplement();
+private:
+	typedef ParserBase super;
 
-	void parse(const char * fileName);
+public:
+	ParserLibClang();
+
+	virtual void parse(const char * fileName, const ParserCallbackType & callback);
 
 private:
 	void setupClang();
 	void compileAST(const char * fileName);
-	void translate(CompilerInstance * compilerInstance);
-
-	CppContainer * getCurrentCppContainer();
-
-	template <typename T>
-	T * addItem(clang::Decl * decl)
-	{
-		T * item = this->context->createItem<T>(decl);
-		this->getCurrentCppContainer()->addItem(item);
-
-		SourceManager & sm = this->compilerInstance->getSourceManager();
-		item->setInMainFile(this->compilerInstance->getSourceManager().getMainFileID() == sm.getFileID(decl->getSourceRange().getBegin()));
-
-		return item;
-	}
 
 private:
-	void parseDeclContext(DeclContext * declContext);
-
-	// top level parser
-	void parseDecl(Decl * decl);
-	void parseVar(VarDecl * varDecl);
-	void parseClass(CXXRecordDecl * classDecl);
-	void parseTemplateClass(ClassTemplateDecl * classTemplateDecl);
-	void parseTemplateFunction(FunctionTemplateDecl * functionTemplateDecl);
-	void parseFunction(FunctionDecl * functionDecl); // either member and non-member function
-	void parseNamespace(NamespaceDecl * namespaceDecl);
-	void parseEnum(EnumDecl * enumDecl);
-	void parseConstructor(CXXConstructorDecl * constructorDecl);
-	void parseDestructor(CXXDestructorDecl * destructorDecl);
-	void parseOperator(FunctionDecl * functionDecl);
-	void parseTemplateOperator(FunctionTemplateDecl * functionTemplateDecl);
-
-	// non-top level parser
-	void parseField(FieldDecl * fieldDecl);
-	void parseBaseClass(CppClass * cls, CXXBaseSpecifier * baseSpecifier);
-
-private:
-	CppContext * context;
-	CppContainerStackType cppContainerStack;
-
 	raw_fd_ostream outputStream;
 	DiagnosticOptions diagnosticOptions;
 	GScopedPointer<CompilerInvocation> compilerInvocation;
 	GScopedPointer<CompilerInstance> compilerInstance;
 };
 
-
-ClangParserImplement::ClangParserImplement(CppContext * context)
-	: context(context), outputStream(1, false)
+ParserLibClang::ParserLibClang()
+	: super(), outputStream(1, false)
 {
 	this->setupClang();
 }
 
-void ClangParserImplement::setupClang()
+void ParserLibClang::parse(const char * fileName, const ParserCallbackType & callback)
+{
+	this->compileAST(fileName);
+	callback(this->compilerInstance.get());
+}
+
+void ParserLibClang::setupClang()
 {
 	this->compilerInstance.reset(new CompilerInstance);
 	this->compilerInvocation.reset(new CompilerInvocation);
@@ -223,24 +186,7 @@ IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
 	this->compilerInstance->setInvocation(this->compilerInvocation.take());
 }
 
-ClangParserImplement::~ClangParserImplement()
-{
-}
-
-void ClangParserImplement::parse(const char * fileName)
-{
-	this->compileAST(fileName);
-
-	this->context->beginFile(fileName, this->compilerInstance->getASTContext().getTranslationUnitDecl());
-	this->cppContainerStack.push(this->context->getCppFile());
-	
-	this->translate(this->compilerInstance.get());
-
-	this->cppContainerStack.pop();
-	this->context->endFile(fileName);
-}
-
-void ClangParserImplement::compileAST(const char * fileName)
+void ParserLibClang::compileAST(const char * fileName)
 {
 	// Recreate preprocessor and AST context
 	this->compilerInstance->createPreprocessor();
@@ -265,8 +211,165 @@ void ClangParserImplement::compileAST(const char * fileName)
 	client->EndSourceFile();
 }
 
+/*
+class ParserLibTooling : public ParserBase
+{
+private:
+	typedef ParserBase super;
+
+	class MyFrontendAction : public ASTFrontendAction
+	{
+	public:
+		MyFrontendAction(const ParserCallbackType & callback) : callback(callback) {}
+
+	protected:
+		virtual ASTConsumer *CreateASTConsumer(CompilerInstance &CI, StringRef InFile) {
+			return new ASTConsumer;
+		}
+
+		virtual void ExecuteAction() {
+			this->callback(&this->getCompilerInstance());
+		}
+
+	private:
+		ParserCallbackType callback;
+	};
+	class MyFrontendActionFactory : public FrontendActionFactory {
+	public:
+		MyFrontendActionFactory(const ParserCallbackType & callback) : callback(callback) {}
+
+		virtual clang::FrontendAction *create() { return new MyFrontendAction(this->callback); }
+
+	private:
+		ParserCallbackType callback;
+	};
+
+public:
+	ParserLibTooling();
+
+	virtual void parse(const char * fileName, const ParserCallbackType & callback);
+
+private:
+	GScopedPointer<CommonOptionsParser> optionsParser;
+	GScopedPointer<ClangTool> tool;
+};
+
+ParserLibTooling::ParserLibTooling()
+{
+	const char * argv[] = { "xxx", "C:/projects/cpgf/trunk/tools/cmetagen/build/bin/Debug/z.h", "--" };
+	int argc = sizeof(argv) / sizeof(argv[0]);
+	this->optionsParser.reset(new CommonOptionsParser(argc, argv));
+}
+
+void ParserLibTooling::parse(const char * fileName, const ParserCallbackType & callback)
+{
+	ArrayRef<std::string> files(fileName);
+	this->tool.reset(new ClangTool(this->optionsParser->getCompilations(), files));
+	this->tool->run(new MyFrontendActionFactory(callback));
+}
+*/
+
+typedef stack<CppContainer *> CppContainerStackType;
+
+class CppContainerGuard
+{
+public:
+	explicit CppContainerGuard(CppContainerStackType * cppContainerStack, CppContainer * cppContext)
+		: cppContainerStack(cppContainerStack)
+	{
+		this->cppContainerStack->push(cppContext);
+	}
+
+	~CppContainerGuard() {
+		this->cppContainerStack->pop();
+	}
+
+private:
+	CppContainerStackType * cppContainerStack;
+};
+
+class ClangParserImplement
+{
+public:
+	explicit ClangParserImplement(CppContext * context);
+	~ClangParserImplement();
+
+	void parse(const char * fileName);
+
+private:
+	void translate(CompilerInstance * compilerInstance);
+
+	CppContainer * getCurrentCppContainer();
+
+	template <typename T>
+	T * addItem(clang::Decl * decl)
+	{
+		T * item = this->context->createItem<T>(decl);
+		this->getCurrentCppContainer()->addItem(item);
+
+		SourceManager & sm = this->compilerInstance->getSourceManager();
+		item->setInMainFile(this->compilerInstance->getSourceManager().getMainFileID() == sm.getFileID(decl->getSourceRange().getBegin()));
+
+		return item;
+	}
+
+private:
+	void parseDeclContext(DeclContext * declContext);
+
+	// top level parser
+	void parseDecl(Decl * decl);
+	void parseVar(VarDecl * varDecl);
+	void parseClass(CXXRecordDecl * classDecl);
+	void parseTemplateClass(ClassTemplateDecl * classTemplateDecl);
+	void parseTemplateFunction(FunctionTemplateDecl * functionTemplateDecl);
+	void parseFunction(FunctionDecl * functionDecl); // either member and non-member function
+	void parseNamespace(NamespaceDecl * namespaceDecl);
+	void parseEnum(EnumDecl * enumDecl);
+	void parseConstructor(CXXConstructorDecl * constructorDecl);
+	void parseDestructor(CXXDestructorDecl * destructorDecl);
+	void parseOperator(FunctionDecl * functionDecl);
+	void parseTemplateOperator(FunctionTemplateDecl * functionTemplateDecl);
+
+	// non-top level parser
+	void parseField(FieldDecl * fieldDecl);
+	void parseBaseClass(CppClass * cls, CXXBaseSpecifier * baseSpecifier);
+
+private:
+	CppContext * context;
+	CppContainerStackType cppContainerStack;
+	string fileName;
+
+	GScopedPointer<ParserBase> parser;
+
+	CompilerInstance * compilerInstance;
+};
+
+
+ClangParserImplement::ClangParserImplement(CppContext * context)
+	: context(context), compilerInstance(NULL)
+{
+}
+
+ClangParserImplement::~ClangParserImplement()
+{
+}
+
+void ClangParserImplement::parse(const char * fileName)
+{
+	this->fileName = fileName;
+
+	this->parser.reset(new ParserLibClang);
+//	this->parser.reset(new ParserLibTooling);
+	this->parser->parse(fileName, makeCallback(this, &ClangParserImplement::translate));
+}
+
 void ClangParserImplement::translate(CompilerInstance * compilerInstance)
 {
+	this->compilerInstance = compilerInstance;
+
+	this->context->beginFile(this->fileName.c_str(), compilerInstance->getASTContext().getTranslationUnitDecl());
+	this->cppContainerStack.push(this->context->getCppFile());
+
 	TranslationUnitDecl * translateUnitDecl = compilerInstance->getASTContext().getTranslationUnitDecl();
 
 	this->parseDeclContext(translateUnitDecl);
@@ -277,6 +380,9 @@ void ClangParserImplement::translate(CompilerInstance * compilerInstance)
 //			cout << "Macro    " << string(it->first->getName()) << endl;
 		}
 	}
+
+	this->cppContainerStack.pop();
+	this->context->endFile(this->fileName.c_str());
 }
 
 CppContainer * ClangParserImplement::getCurrentCppContainer()
