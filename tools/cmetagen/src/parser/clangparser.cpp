@@ -15,6 +15,7 @@
 #include "util.h"
 
 #include "cpgf/gassert.h"
+#include "cpgf/gscopedptr.h"
 
 #include "Poco/RegularExpression.h"
 
@@ -46,6 +47,7 @@
 #include <iostream>
 
 using namespace std;
+using namespace cpgf;
 
 using namespace llvm;
 using namespace llvm::sys;
@@ -101,7 +103,7 @@ private:
 		T * item = this->context->createItem<T>(decl);
 		this->getCurrentCppContainer()->addItem(item);
 
-		SourceManager & sm = this->compilerInstance.getSourceManager();
+		SourceManager & sm = this->compilerInstance->getSourceManager();
 		item->setInMainFile(this->currentFileID == sm.getFileID(decl->getSourceRange().getBegin()));
 
 		return item;
@@ -139,9 +141,8 @@ private:
 
 	raw_fd_ostream outputStream;
 	DiagnosticOptions diagnosticOptions;
-	OwningPtr<CompilerInvocation> compilerInvocation;
-	CompilerInstance compilerInstance;
-	OwningPtr<TargetInfo> targetInfo;
+	GScopedPointer<CompilerInvocation> compilerInvocation;
+	GScopedPointer<CompilerInstance> compilerInstance;
 	FileID currentFileID;
 };
 
@@ -172,6 +173,7 @@ ClangParserImplement::ClangParserImplement(CppContext * context)
 
 void ClangParserImplement::setupClang()
 {
+	this->compilerInstance.reset(new CompilerInstance);
 	this->compilerInvocation.reset(new CompilerInvocation);
 
 	PreprocessorOptions & preprocessorOptions = this->compilerInvocation->getPreprocessorOpts();
@@ -227,21 +229,22 @@ headerSearchOptions.AddPath("C:/Program Files/Microsoft Visual Studio 9.0/VC/inc
 
 //	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
 IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
-	char * argv = "";
-	this->compilerInstance.createDiagnostics(client, false);
-	this->compilerInstance.getDiagnostics().setSuppressSystemWarnings(true);
+	this->compilerInstance->createDiagnostics(client, false);
+	
+	DiagnosticsEngine & diagnostics = this->compilerInstance->getDiagnostics();
+	diagnostics.setSuppressSystemWarnings(true);
 
 	// Setup target options - ensure record layout calculations use the MSVC C++ ABI
 	TargetOptions & target_options = this->compilerInvocation->getTargetOpts();
 	target_options.Triple = getDefaultTargetTriple();
 	target_options.CXXABI = "microsoft";
-	this->targetInfo.reset(TargetInfo::CreateTargetInfo(this->compilerInstance.getDiagnostics(), &target_options));
-	this->compilerInstance.setTarget(this->targetInfo.take());
+	GScopedPointer<TargetInfo> targetInfo(TargetInfo::CreateTargetInfo(diagnostics, &target_options));
+	this->compilerInstance->setTarget(targetInfo.take());
 
 	// Set the invokation on the instance
-	this->compilerInstance.createFileManager();
-	this->compilerInstance.createSourceManager(this->compilerInstance.getFileManager());
-	this->compilerInstance.setInvocation(this->compilerInvocation.take());
+	this->compilerInstance->createFileManager();
+	this->compilerInstance->createSourceManager(this->compilerInstance->getFileManager());
+	this->compilerInstance->setInvocation(this->compilerInvocation.take());
 }
 
 ClangParserImplement::~ClangParserImplement()
@@ -252,7 +255,7 @@ void ClangParserImplement::parse(const char * fileName)
 {
 	this->compileAST(fileName);
 
-	this->context->beginFile(fileName, this->compilerInstance.getASTContext().getTranslationUnitDecl());
+	this->context->beginFile(fileName, this->compilerInstance->getASTContext().getTranslationUnitDecl());
 	this->cppContainerStack.push(this->context->getCppFile());
 	
 	this->translate();
@@ -264,36 +267,36 @@ void ClangParserImplement::parse(const char * fileName)
 void ClangParserImplement::compileAST(const char * fileName)
 {
 	// Recreate preprocessor and AST context
-	this->compilerInstance.createPreprocessor();
-	this->compilerInstance.createASTContext();
+	this->compilerInstance->createPreprocessor();
+	this->compilerInstance->createASTContext();
 
 	// Initialize builtins
-	if(this->compilerInstance.hasPreprocessor()) {
-		Preprocessor & preprocessor = this->compilerInstance.getPreprocessor();
+	if(this->compilerInstance->hasPreprocessor()) {
+		Preprocessor & preprocessor = this->compilerInstance->getPreprocessor();
 		preprocessor.getBuiltinInfo().InitializeBuiltins(preprocessor.getIdentifierTable(),
 			preprocessor.getLangOpts());
 	}
 
 	// Get the file  from the file system
-	const FileEntry * file = this->compilerInstance.getFileManager().getFile(fileName);
-	this->currentFileID = this->compilerInstance.getSourceManager().createMainFileID(file);
+	const FileEntry * file = this->compilerInstance->getFileManager().getFile(fileName);
+	this->currentFileID = this->compilerInstance->getSourceManager().createMainFileID(file);
 
 	// Parse the AST
 	EmptyASTConsumer astConsumer;
-	DiagnosticConsumer * client = this->compilerInstance.getDiagnostics().getClient();
-	client->BeginSourceFile(this->compilerInstance.getLangOpts(), &this->compilerInstance.getPreprocessor());
-	ParseAST(this->compilerInstance.getPreprocessor(), &astConsumer, this->compilerInstance.getASTContext());
+	DiagnosticConsumer * client = this->compilerInstance->getDiagnostics().getClient();
+	client->BeginSourceFile(this->compilerInstance->getLangOpts(), &this->compilerInstance->getPreprocessor());
+	ParseAST(this->compilerInstance->getPreprocessor(), &astConsumer, this->compilerInstance->getASTContext());
 	client->EndSourceFile();
 }
 
 void ClangParserImplement::translate()
 {
-	TranslationUnitDecl * translateUnitDecl = this->compilerInstance.getASTContext().getTranslationUnitDecl();
+	TranslationUnitDecl * translateUnitDecl = this->compilerInstance->getASTContext().getTranslationUnitDecl();
 
 	this->parseDeclContext(translateUnitDecl);
 
-	if (this->compilerInstance.hasPreprocessor()) {
-		Preprocessor & preprocessor = this->compilerInstance.getPreprocessor();
+	if (this->compilerInstance->hasPreprocessor()) {
+		Preprocessor & preprocessor = this->compilerInstance->getPreprocessor();
 		for(Preprocessor::macro_iterator it = preprocessor.macro_begin(); it != preprocessor.macro_end(); ++it) {
 //			cout << "Macro    " << string(it->first->getName()) << endl;
 		}
@@ -647,8 +650,8 @@ string ClangParserImplement::getTemplateSpecializationName(const TemplateSpecial
 
 string ClangParserImplement::locationToSource(const SourceLocation & begin, const SourceLocation & end)
 {
-	SourceManager * sourceManager = &this->compilerInstance.getSourceManager();
-	const LangOptions & langOptions = this->compilerInstance.getLangOpts();
+	SourceManager * sourceManager = &this->compilerInstance->getSourceManager();
+	const LangOptions & langOptions = this->compilerInstance->getLangOpts();
     SourceLocation e(Lexer::getLocForEndOfToken(end, 0, *sourceManager, langOptions));
     return std::string(sourceManager->getCharacterData(begin), sourceManager->getCharacterData(e) - sourceManager->getCharacterData(begin));
 }

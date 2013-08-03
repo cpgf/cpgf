@@ -111,7 +111,7 @@ bool CppItem::isGlobal() const
 
 bool CppItem::isNestedClass() const
 {
-	return this->isClass() && this->getParent()->isClass();
+	return this->isClass() && this->getParent() != NULL && this->getParent()->isClass();
 }
 
 void CppItem::dump(std::ostream & os, int level) const

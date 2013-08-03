@@ -79,10 +79,12 @@ BuilderItem * createBuilderItem(const CppItem * cppItem)
 }
 
 
-BuilderContext::BuilderContext(const Project * project, const std::string & sourceFileName)
+BuilderContext::BuilderContext(const Project * project, const std::string & sourceFileName,
+	const CallbackOnGenerateCreationFunctionType & callbackOnGenerateCreationFunction)
 	:	project(project),
 		sourceFileName(normalizeFile(sourceFileName)),
-		sectionList(new BuilderSectionList())
+		sectionList(new BuilderSectionList()),
+		callbackOnGenerateCreationFunction(callbackOnGenerateCreationFunction)
 {
 	this->sourceBaseFileName = Poco::Path(this->sourceFileName).getBaseName();
 }
@@ -156,6 +158,7 @@ void BuilderContext::generateCreationFunctionSections()
 		if(generatedItemSet.find(p) == generatedItemSet.end()) {
 			generatedItemSet.insert(p);
 			this->doGenerateCreateFunctionSection(section, it, partialCreationSections.end());
+			callbackOnGenerateCreationFunction(this, section);
 		}
 	}
 }
@@ -183,15 +186,24 @@ void BuilderContext::doGenerateCreateFunctionSection(BuilderSection * sampleSect
 	bodyBlock->appendBlankLine();
 
 	if(sampleContainer->isClass()) {
+		const CppClass * cppClass = static_cast<const CppClass *>(sampleContainer);
+		string className;
+		if(sampleSection->isClassWrapper()) {
+			className = getClassWrapperClassName(this, cppClass);
+		}
+		else {
+			className = cppClass->getName();
+		}
+		
 		CppPolicy cppPolicy;
-		static_cast<const CppClass *>(sampleContainer)->getPolicy(&cppPolicy);
+		cppClass->getPolicy(&cppPolicy);
 
 		if(cppPolicy.hasRule()) {
 			bodyBlock->appendLine(Poco::format("%s _d = %s::Policy<%s >::declare(\"%s\");",
 				metaTypeTypeDefName,
 				metaTypeTypeDefName,
 				cppPolicy.getTextOfMakePolicy(false),
-				sampleContainer->getName()
+				className
 				)
 			);
 		}
@@ -199,7 +211,7 @@ void BuilderContext::doGenerateCreateFunctionSection(BuilderSection * sampleSect
 			bodyBlock->appendLine(Poco::format("%s _d = %s::declare(\"%s\");",
 				metaTypeTypeDefName,
 				metaTypeTypeDefName,
-				sampleContainer->getName()
+				className
 				)
 			);
 		}

@@ -7,6 +7,7 @@
 #include "codewriter/cppwriter.h"
 #include "codewriter/codeblock.h"
 #include "util.h"
+#include "project.h"
 
 #include "Poco/Format.h"
 
@@ -71,12 +72,12 @@ void BuilderClass::doWriteAsNestedClass(BuilderWriter * writer)
 		return;
 	}
 
-	BuilderSection * section;
-	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppClass, &section);
+	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppClass, NULL);
 
-	string s = Poco::format("%s(%s())",
+	string s = Poco::format("%s(%s());",
 		writer->getReflectionAction("_class"),
-		getCreationFunctionName(writer->getBuilderContext(), section)
+		normalizeSymbolName(this->getProject()->getCreationFunctionPrefix()
+			+ getCppClassNormalizedSymboName(writer->getBuilderContext(), cppClass))
 	);
 	codeBlock->appendLine(s);
 }

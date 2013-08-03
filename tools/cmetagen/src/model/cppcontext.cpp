@@ -58,8 +58,20 @@ void CppContext::itemCreated(CppItem * item)
 	item->setCppContext(this);
 	
 	if(item->isNamed()) {
-		this->itemNameMap.insert(make_pair(static_cast<CppNamedItem *>(item)->getQualifiedName(), item));
+		this->itemNameMap.insert(make_pair(this->getDeclKeyName(item->getDecl()), item));
 	}
+}
+
+std::string CppContext::getDeclKeyName(const clang::Decl * decl) const
+{
+	string result;
+	if(isa<NamedDecl>(decl)) {
+		result = getNamedDeclQualifiedName(dyn_cast<NamedDecl>(decl));
+	}
+	if(result.empty()) {
+		result = decl->getDeclKindName();
+	}
+	return result;
 }
 
 CppItem * CppContext::findItemByDecl(const clang::Decl * decl) const
@@ -68,11 +80,7 @@ CppItem * CppContext::findItemByDecl(const clang::Decl * decl) const
 		return NULL;
 	}
 
-	string name = getNamedDeclQualifiedName(dyn_cast<NamedDecl>(decl));
-	if(name.empty()) {
-		name = decl->getDeclKindName();
-	}
-	ItemNameMapType::const_iterator it = this->itemNameMap.find(name);
+	ItemNameMapType::const_iterator it = this->itemNameMap.find(this->getDeclKeyName(decl));
 	if(it == this->itemNameMap.end()) {
 		return NULL;
 	}

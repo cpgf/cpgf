@@ -13,7 +13,8 @@ using namespace std;
 namespace metagen {
 
 Project::Project()
-	:	maxItemCountPerFile(0),
+	:	projectID(""),
+		maxItemCountPerFile(0),
 		
 		cppNamespace("metadata"),
 		
@@ -29,11 +30,15 @@ Project::Project()
 		
 		reflectionFunctionPrefix("buildMetaClass_"),
 		creationFunctionPrefix("createMetaClass_"),
-		mainRegisterFunctionPrefix("registerMain_"),
 		metaDefineParamName("D_d"),
 		classWrapperPostfix("Wrapper"),
 		classWrapperSuperPrefix("super_"),
 
+		mainRegisterFunctionName("registerMain_"),
+		mainRegisterFileName("registerMain_"),
+		autoRegisterToGlobal(true),
+		metaNamespace("meta"),
+		
 		wrapOperator(true),
 		wrapBitFields(true),
 
@@ -46,6 +51,7 @@ Project::Project()
 		templateInstantiationRepository(new BuilderTemplateInstantiationRepository)
 {
 //maxItemCountPerFile = 5;
+this->projectID = "tmg";
 this->templateInstantiationRepository->add("ns1::TemplateA<int, 18>", "TemplateA_int", "TemplateA_wrapper_int");
 this->files.push_back("z.h");
 this->headerOutputPath = "";
@@ -57,6 +63,10 @@ Project::~Project()
 {
 }
 
+std::string Project::getProjectID() const
+{
+	return this->projectID;
+}
 const StringArrayType & Project::getFiles() const
 {
 	return this->files;
@@ -116,14 +126,9 @@ const std::string & Project::getCreationFunctionPrefix() const
 	return this->creationFunctionPrefix;
 }
 
-const std::string & Project::getMainRegisterFunctionPrefix() const
+const std::string & Project::getMainRegisterFunctionName() const
 {
-	return this->mainRegisterFunctionPrefix;
-}
-
-const std::string & Project::getMetaDefineParamName() const
-{
-	return this->metaDefineParamName;
+	return this->mainRegisterFunctionName;
 }
 
 const std::string & Project::getClassWrapperPostfix() const
@@ -136,6 +141,25 @@ const std::string & Project::getClassWrapperSuperPrefix() const
 	return this->classWrapperSuperPrefix;
 }
 
+const std::string & Project::getMainRegisterFileName() const
+{
+	return this->mainRegisterFileName;
+}
+
+const std::string & Project::getMetaDefineParamName() const
+{
+	return this->metaDefineParamName;
+}
+
+bool Project::shouldAutoRegisterToGlobal() const
+{
+	return this->autoRegisterToGlobal;
+}
+
+const std::string & Project::getMetaNamespace() const
+{
+	return this->metaNamespace;
+}
 bool Project::shouldWrapOperator() const
 {
 	return this->wrapOperator;

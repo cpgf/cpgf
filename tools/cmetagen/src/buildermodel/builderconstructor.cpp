@@ -6,6 +6,7 @@
 #include "codewriter/codeblock.h"
 #include "model/cppconstructor.h"
 #include "model/cppcontainer.h"
+#include "model/cppclass.h"
 
 #include "Poco/Format.h"
 
@@ -42,6 +43,9 @@ void BuilderConstructor::doWriteMetaData(BuilderWriter * writer)
 void BuilderConstructor::doWriterReflection(BuilderWriter * writer)
 {
 	const CppConstructor * cppConstructor = this->getCppConstructor();
+	if(static_cast<const CppClass *>(cppConstructor->getParent())->isAbstract()) {
+		return;
+	}
 	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppConstructor);
 	this->doWriterReflectionCode(writer, codeBlock);
 }

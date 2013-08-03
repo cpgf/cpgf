@@ -18,6 +18,8 @@ public:
 	Project();
 	~Project();
 
+	std::string getProjectID() const;
+
 	size_t getMaxItemCountPerFile() const;
 
 	const StringArrayType & getFiles() const;
@@ -34,11 +36,15 @@ public:
 	
 	const std::string & getReflectionFunctionPrefix() const;
 	const std::string & getCreationFunctionPrefix() const;
-	const std::string & getMainRegisterFunctionPrefix() const;
 	const std::string & getMetaDefineParamName() const;
 	const std::string & getClassWrapperPostfix() const;
 	const std::string & getClassWrapperSuperPrefix() const;
 
+	const std::string & getMainRegisterFunctionName() const;
+	const std::string & getMainRegisterFileName() const;
+	bool shouldAutoRegisterToGlobal() const;
+	const std::string & getMetaNamespace() const;
+	
 	bool shouldWrapOperator() const;
 	bool shouldWrapBitFields() const;
 
@@ -64,6 +70,8 @@ private:
 		int fileIndex, bool isSourceFile) const;
 
 private:
+	std::string projectID;
+
 	size_t maxItemCountPerFile;
 
 	StringArrayType files;
@@ -80,11 +88,15 @@ private:
 
 	std::string reflectionFunctionPrefix;
 	std::string creationFunctionPrefix;
-	std::string mainRegisterFunctionPrefix;
 	std::string metaDefineParamName;
 	std::string classWrapperPostfix;
 	std::string classWrapperSuperPrefix;
 
+	std::string mainRegisterFunctionName;
+	std::string mainRegisterFileName;
+	bool autoRegisterToGlobal;
+	std::string metaNamespace;
+	
 	bool wrapOperator;
 	bool wrapBitFields;
 

@@ -150,6 +150,32 @@ bool CppInvokable::paramHasDefaultValue(size_t index) const
 	return paramDecl->hasDefaultArg();
 }
 
+std::string CppInvokable::getParamName(size_t index) const
+{
+	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
+	const ParmVarDecl * paramDecl = functionDecl->getParamDecl((unsigned int)index);
+	return paramDecl->getNameAsString();
+}
+
+std::string CppInvokable::getTextOfUnusedParamsPlaceholder() const
+{
+	string result;
+
+	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
+	for(FunctionDecl::param_const_iterator it = functionDecl->param_begin(); it != functionDecl->param_end(); ++it) {
+		if(! result.empty()) {
+			result.append(", ");
+		}
+		result.append("(void)" + (*it)->getNameAsString());
+	}
+
+	if(! result.empty()) {
+		result.append(";");
+	}
+
+	return result;
+}
+
 std::string CppInvokable::getTextOfParamDeafultValue(size_t index) const
 {
 	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
@@ -172,7 +198,7 @@ std::string CppInvokable::getTextOfPointeredType() const
 		s = "*";
 	}
 	else {
-		s = this->getParent()->getQualifiedName() + "::*";
+		s = getCppContainerInstantiationName(this->getParent()) + "::*";
 	}
 
 	return CppType(qualType).getQualifiedName(s);

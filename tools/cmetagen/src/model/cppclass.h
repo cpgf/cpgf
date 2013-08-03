@@ -51,6 +51,7 @@ public:
 	bool isTemplate() const;
 	bool isChainedTemplate() const;
 	bool isAnonymous() const;
+	bool isAbstract() const;
 
 	std::string getTextOfTemplateParamList(const ItemTextOptionFlags & options) const;
 	std::string getTextOfChainedTemplateParamList(const ItemTextOptionFlags & options) const;

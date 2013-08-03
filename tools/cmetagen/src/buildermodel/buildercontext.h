@@ -5,6 +5,7 @@
 #include "buildersection.h"
 
 #include "cpgf/gscopedptr.h"
+#include "cpgf/gcallback.h"
 
 #include <string>
 #include <vector>
@@ -12,16 +13,18 @@
 
 namespace metagen {
 
-
 class CppContext;
 class CppContanier;
 class CppFile;
+class BuilderContext;
 class BuilderFile;
 class BuilderContainer;
 class BuilderSection;
 class BuilderSectionList;
 class BuilderFileWriter;
 class Project;
+
+typedef cpgf::GCallback<void (const BuilderContext *, BuilderSection *)> CallbackOnGenerateCreationFunctionType;
 
 class BuilderContext
 {
@@ -32,7 +35,8 @@ public:
 	typedef std::vector<BuilderItem *> ItemListType;
 
 public:
-	BuilderContext(const Project * project, const std::string & sourceFileName);
+	BuilderContext(const Project * project, const std::string & sourceFileName,
+		const CallbackOnGenerateCreationFunctionType & callbackOnGenerateCreationFunction);
 	~BuilderContext();
 
 	void process(const CppContext * cppContext);
@@ -71,6 +75,7 @@ private:
 	ItemListType itemList;
 	cpgf::GScopedPointer<BuilderSectionList> sectionList;
 	BuilderFileWriterListType fileWriterList;
+	CallbackOnGenerateCreationFunctionType callbackOnGenerateCreationFunction;
 };
 
 

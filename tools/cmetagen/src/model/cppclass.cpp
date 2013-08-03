@@ -94,6 +94,12 @@ bool CppClass::isAnonymous() const
 	return cxxRecordDecl->isAnonymousStructOrUnion();
 }
 
+bool CppClass::isAbstract() const
+{
+	const CXXRecordDecl * cxxRecordDecl = getRecordDecl(this->getDecl());
+	return cxxRecordDecl->isAbstract();
+}
+
 CppClassTraits CppClass::getClassTraits() const
 {
 	CppClassTraits classTraits;

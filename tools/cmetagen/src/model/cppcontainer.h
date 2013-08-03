@@ -78,6 +78,8 @@ private:
 	friend class ClangParserImplement;
 };
 
+std::string getCppContainerInstantiationName(const CppContainer * cppContainer);
+
 
 } // namespace metagen
 

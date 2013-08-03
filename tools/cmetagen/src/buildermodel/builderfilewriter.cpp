@@ -58,16 +58,19 @@ void BuilderFileWriter::callbackCppWriter(CodeWriter * codeWriter) const
 void BuilderFileWriter::initializeCppWriter(CppWriter * cppWriter) const
 {
 	cppWriter->setNamespace(this->getProject()->getCppNamespace());
+
 	if(this->isSourceFile()) {
-		string header = normalizeFile(
-			Poco::Path(this->getProject()->getOutputHeaderFileName(this->sourceFileName)).getFileName()
-		);
-		cppWriter->include(normalizePath(this->getProject()->getHeaderIncludePrefix()) + header);
+		string header = Poco::Path(this->getProject()->getOutputHeaderFileName(this->sourceFileName)).getFileName();
+		cppWriter->include(normalizeFile(this->getProject()->getHeaderIncludePrefix() + header));
 		cppWriter->useNamespace("cpgf");
 	}
 	else {
 		cppWriter->setHeaderGuard(this->getProject()->getOutputHeaderFileName(this->sourceFileName));
 
+		string header = normalizeFile(
+			Poco::Path(this->sourceFileName).getFileName()
+		);
+		cppWriter->include(normalizeFile(header));
 		cppWriter->include(includeMetaDefine);
 		cppWriter->include(includeMetaPolicy);
 		cppWriter->include(includeMetaDataHeader);
@@ -92,12 +95,12 @@ void BuilderFileWriter::output()
 	this->initializeCppWriter(&cppWriter);
 	cppWriter.write(&codeWriter, makeCallback(this, &BuilderFileWriter::callbackCppWriter));
 
-	string fileContent;
-	if(readStringFromFile(outputFileName, &fileContent)) {
-		if(codeWriter.getText() == fileContent) {
-			return;
-		}
-	}
+	//string fileContent;
+	//if(readStringFromFile(outputFileName, &fileContent)) {
+	//	if(codeWriter.getText() == fileContent) {
+	//		return;
+	//	}
+	//}
 
 	writeStringToFile(outputFileName, codeWriter.getText());
 }

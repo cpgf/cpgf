@@ -43,7 +43,11 @@ std::string getReflectionClassName(const Project * project)
 std::string getReflectionScope(const CppItem * item)
 {
 	if(item->isGlobal()) {
-		return "";
+		string scope = item->getParent()->getQualifiedName();
+		if(! scope.empty()) {
+			scope.append("::");
+		}
+		return scope;
 	}
 	else {
 		return getReflectionClassName(item->getProject()) + "::";
@@ -75,9 +79,9 @@ std::string getClassWrapperClassName(const BuilderContext * builderContext, cons
 	return cppContainer->getName() + builderContext->getProject()->getClassWrapperPostfix();
 }
 
-std::string getClassWrapperClassQulifiedName(const BuilderContext * builderContext, const CppContainer * cppContainer)
+string getCppClassNormalizedSymboName(const BuilderContext * builderContext, const CppClass * cppClass)
 {
-	return cppContainer->getQualifiedName() + builderContext->getProject()->getClassWrapperPostfix();
+	return cppClass->getQualifiedName();
 }
 
 string getContainerNormalizedSymboName(const BuilderContext * builderContext, BuilderSection * section)
@@ -138,13 +142,18 @@ std::string getPartialCreationFunctionPrototype(const BuilderContext * builderCo
 std::string getCreationFunctionName(const BuilderContext * builderContext, BuilderSection * section)
 {
 	return normalizeSymbolName(builderContext->getProject()->getCreationFunctionPrefix()
-		+ "_" + getContainerNormalizedSymboName(builderContext, section));
+		+ getContainerNormalizedSymboName(builderContext, section));
 }
 
 std::string getCreationFunctionPrototype(const BuilderContext * builderContext, BuilderSection * section)
 {
-	string creationName = getCreationFunctionName(builderContext, section);
-	return Poco::format("cpgf::GDefineMetaInfo %s()", creationName);
+	string functionName = getCreationFunctionName(builderContext, section);
+	return getCreationFunctionPrototype(functionName);
+}
+
+std::string getCreationFunctionPrototype(const std::string & functionName)
+{
+	return Poco::format("cpgf::GDefineMetaInfo %s()", functionName);
 }
 
 std::string getReflectionFunctionName(const BuilderContext * builderContext, BuilderSection * section)
@@ -197,6 +206,8 @@ void initializeReflectionFunctionOutline(const BuilderContext * builderContext, 
 	CodeBlock * bodyBlock = codeBlock->getNamedBlock(CodeBlockName_FunctionBody);
 	bodyBlock->appendLine("using namespace cpgf;");
 	bodyBlock->appendBlankLine();
+	bodyBlock->appendLine("(void)_d;");
+	bodyBlock->appendBlankLine();
 	
 	// force the block order for each kind of items
 	for(ItemCategory ic = icFirst; ic < icCount; ic = ItemCategory(int(ic) + 1)) {
@@ -226,7 +237,8 @@ string getMetaTypeTypedef(const BuilderContext * builderContext,
 	if(cppClass != NULL) {
 		string className = getContainerNormalizedSymboName(builderContext, section);
 		if(section->isClassWrapper()) {
-			className = getClassWrapperClassQulifiedName(builderContext, cppClass);
+			// Don't get qualified name since the wrapper is not in the same namespace as the class it wrapped for.
+			className = getClassWrapperClassName(builderContext, cppClass);
 		}
 		else {
 			className = cppClass->getQualifiedName();
@@ -245,7 +257,7 @@ string getMetaTypeTypedef(const BuilderContext * builderContext,
 		metaType = Poco::format("cpgf::GDefineMetaClass<%s >", selfType);
 	}
 	else {
-		metaType = "GDefineMetaGlobal";
+		metaType = "GDefineMetaNamespace";
 	}
 
 	return Poco::format("typedef %s %s;", metaType, metaTypeTypeDefName);
@@ -306,7 +318,7 @@ void initializeClassWrapperOutline(const BuilderContext * builderContext, Builde
 	if(cppClass->isTemplate()) {
 		s = Poco::format("template <%s >", cppClass->getTextOfChainedTemplateParamList(itoWithArgType | itoWithArgName));
 		codeBlock->appendLine(s);
-		className.append(cppClass->getTextOfChainedTemplateParamList(itoWithArgName));
+		className.append(Poco::format("<%s >", cppClass->getTextOfChainedTemplateParamList(itoWithArgName)));
 	}
 
 	s = Poco::format("class %s : public %s, public cpgf::GScriptWrapper",
@@ -318,7 +330,7 @@ void initializeClassWrapperOutline(const BuilderContext * builderContext, Builde
 	CodeBlock * bodyBlock = codeBlock->getNamedBlock(CodeBlockName_ClassBody, cbsBracketWithSemicolon);
 	bodyBlock->appendLine("private:");
 	CodeBlock * superBlock = bodyBlock->appendBlock(cbsIndent | cbsTailEmptyLine);
-	s = Poco::format("typedef %s super;", cppClass->getQualifiedName());
+	s = Poco::format("typedef %s super;", getCppContainerInstantiationName(cppClass));
 	superBlock->appendLine(s);
 	for(int i = ivFirst; i < ivCount; ++i) {
 		s = getTextOfVisibility(ItemVisibility(i));

@@ -3,7 +3,7 @@ set(BUILD_DEBUG	1) #release=false
 ### Clang config
 
 set(CLANG_DIR
-	/temp/llvm
+	/source/llvm
 )
 
 set(CLANG_INC
@@ -46,7 +46,7 @@ endif(MSVC)
 ### Poco config
 
 set(POCO_DIR
-	/temp/poco-1.4.6p1
+	/source/poco
 )
 
 set(POCO_INC

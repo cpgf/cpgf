@@ -70,7 +70,12 @@ void CppWriter::write(CodeWriter * codeWriter, const CppWriterCallback & callbac
 		codeWriter->ensureBlankLine();
 	}
 
-	callback(codeWriter);
+	if(callback) {
+		callback(codeWriter);
+	}
+	else {
+		this->codeBlock.write(codeWriter);
+	}
 
 	if(! this->fileNamespace.empty()) {
 		codeWriter->ensureBlankLine();

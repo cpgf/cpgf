@@ -146,6 +146,7 @@ void writeMethodReflectionCode(const CppMethod * cppMethod, BuilderWriter * writ
 void writeMethodClassWrapperCallSuperMethod(const CppMethod * cppMethod, CodeBlock * codeBlock)
 {
 	if(cppMethod->isPureVirtual()) {
+		codeBlock->appendLine(cppMethod->getTextOfUnusedParamsPlaceholder());
 		codeBlock->appendLine("throw \"Abstract method\";");
 	}
 	else {

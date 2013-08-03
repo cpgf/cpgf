@@ -1,6 +1,7 @@
 #ifndef __CPPWRITER_H
 #define __CPPWRITER_H
 
+#include "codeblock.h"
 #include "cpgf/gcallback.h"
 
 #include <string>
@@ -23,13 +24,15 @@ public:
 	explicit CppWriter();
 	~CppWriter();
 	
-	void write(CodeWriter * codeWriter, const CppWriterCallback & callback);
+	void write(CodeWriter * codeWriter, const CppWriterCallback & callback = CppWriterCallback());
 	
 	void setHeaderGuard(const std::string & headerGuard);
 	void setNamespace(const std::string & ns);
 	void useNamespace(const std::string & ns);
 	void include(const std::string & fileName);
 	void tailInclude(const std::string & fileName);
+
+	CodeBlock * getCodeBlock() { return &this->codeBlock; };
 	
 private:
 	std::string headerGuard;
@@ -37,6 +40,7 @@ private:
 	StringSetType includeList;
 	StringSetType usedNamespaceList;
 	StringSetType tailIncludeList;
+	CodeBlock codeBlock;
 };
 
 

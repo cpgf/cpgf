@@ -40,6 +40,7 @@ public:
 	CppClassTraits getClassTraits(const CppClass * cppClass) const;
 	
 private:
+	std::string getDeclKeyName(const clang::Decl * decl) const;
 	void beginFile(const char * fileName, clang::Decl * decl);
 	void endFile(const char * fileName);
 	
