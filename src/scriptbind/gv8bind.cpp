@@ -801,11 +801,12 @@ Handle<Value> objectConstructor(const Arguments & args)
 		return ThrowException(String::New("Cannot call constructor as function"));
 	}
 
-	Persistent<Object> self = Persistent<Object>::New(args.Holder());
+	HandleScope scope;
 
 	if(args.Length() == 1 && args[0]->IsExternal() && External::Unwrap(args[0]) == &signatureKey) {
 		// Here means this constructor is called when wrapping an existing object, so we don't create new object.
 		// See function objectToV8
+		return scope.Close(args.Holder());
 	}
 	else {
 		Local<External> data = Local<External>::Cast(args.Data());
@@ -819,19 +820,21 @@ Handle<Value> objectConstructor(const Arguments & args)
 		void * instance = doInvokeConstructor(context, context->getService(), classData->getMetaClass(), &callableParam);
 
 		if(instance != NULL) {
+			Persistent<Object> self = Persistent<Object>::New(args.Holder());
 			GObjectGlueDataPointer objectData = context->newObjectGlueData(classData, instance, GBindValueFlags(bvfAllowGC), opcvNone);
 			GGlueDataWrapper * objectWrapper = newGlueDataWrapper(objectData, getV8DataWrapperPool());
 			self.MakeWeak(objectWrapper, weakHandleCallback);
 
 			self->SetPointerInInternalField(0, objectWrapper);
 			setObjectSignature(&self);
+			return scope.Close(self);
 		}
 		else {
 			raiseCoreException(Error_ScriptBinding_FailConstructObject);
 		}
 	}
 
-	return self;
+	return scope.Close(args.Holder());
 
 	LEAVE_V8(return Handle<Value>());
 }
