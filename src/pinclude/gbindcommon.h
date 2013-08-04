@@ -1359,7 +1359,7 @@ public:
 	T * findScriptObject(void * object, const GClassGlueDataPointer & classData,
 		ObjectPointerCV cv) {
 		CacheEntry entry(object, classData->getMetaClass()->getQualifiedName(), cv);
-		ObjectMapType::iterator it = this->objectMap.find(entry);
+		typename ObjectMapType::iterator it = this->objectMap.find(entry);
 		if(it == this->objectMap.end()) {
 			return NULL;
 		}
@@ -1392,7 +1392,7 @@ private:
 	void doFreeScriptObject(CacheEntry entry) {
 		for(ObjectPointerCV cv = ObjectPointerCV(0); cv < opcvCount; cv = ObjectPointerCV(cv + 1)) {
 			entry.cv = cv;
-			ObjectMapType::const_iterator it = this->objectMap.find(entry);
+			typename ObjectMapType::const_iterator it = this->objectMap.find(entry);
 			if(it != this->objectMap.end()) {
 				this->objectMap.erase(it);
 			}
