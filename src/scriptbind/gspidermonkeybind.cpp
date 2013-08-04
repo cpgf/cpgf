@@ -85,7 +85,7 @@ private:
 	JSObject  * jsObject;
 };
 
-class GSharedJsObject : public GNoncopyable
+class GSharedJsObject
 {
 public:
 	GSharedJsObject() : jsContext(NULL), jsObject(NULL) {

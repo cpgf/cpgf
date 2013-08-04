@@ -83,6 +83,30 @@ private:
 	PyObject * dict;
 };
 
+GScriptObjectCache<GPythonObject *> * getPythonScriptObjectCache()
+{
+	static GScriptObjectCache<GPythonObject *> cache;
+	return &cache;
+}
+
+class GPythonBindingContext : public GBindingContext, public GShareFromBase
+{
+private:
+	typedef GBindingContext super;
+
+public:
+	GPythonBindingContext(IMetaService * service, const GScriptConfig & config)
+		: super(service, config)
+	{
+	}
+
+	~GPythonBindingContext() {
+		getPythonScriptObjectCache()->clear();
+	}
+};
+
+typedef GSharedPointer<GPythonBindingContext> GPythonContextPointer;
+
 class GPythonScriptFunction : public GScriptFunctionBase
 {
 private:
@@ -138,6 +162,10 @@ public:
 	virtual GScriptValue getAsScriptArray(const char * name);
 	virtual GScriptValue createScriptArray(const char * name);
 
+	GPythonContextPointer getPythonContext() const {
+		return sharedStaticCast<GPythonBindingContext>(this->getContext());
+	}
+	
 public:
 	PyObject * getObject() const {
 		return this->object;
@@ -671,6 +699,7 @@ GPythonObject * createEmptyPythonObject()
 
 void deletePythonObject(GPythonObject * object)
 {
+	getPythonScriptObjectCache()->freeScriptObject(object);
 	getPythonDataWrapperPool()->dataWrapperDestroyed(object);
 	delete object;
 
@@ -805,15 +834,24 @@ GScriptValue pythonToScriptValue(const GContextPointer & context, PyObject * val
 PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataPointer & classData,
 						  const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
 {
-	if(objectAddressFromVariant(instance) == NULL) {
+	void * instanceAddress = objectAddressFromVariant(instance);
+	
+	if(instanceAddress == NULL) {
 		return pyAddRef(Py_None);
+	}
+
+	GPythonObject ** cachedPythonObject = getPythonScriptObjectCache()->findScriptObject(instanceAddress, classData, cv);
+	if(cachedPythonObject != NULL) {
+		return pyAddRef(*cachedPythonObject);
 	}
 
 	GObjectGlueDataPointer objectData(context->newOrReuseObjectGlueData(classData, instance, flags, cv));
 	if(outputGlueData != NULL) {
 		*outputGlueData = objectData;
 	}
-	return createPythonObject(objectData);
+	GPythonObject * object = createPythonObject(objectData);
+	getPythonScriptObjectCache()->addScriptObject(instanceAddress, classData, cv, object);
+	return object;
 }
 
 PyObject * rawToPython(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
@@ -1480,7 +1518,7 @@ void GPythonScriptArray::setValue(size_t index, const GScriptValue & value)
 
 
 GPythonScriptObject::GPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config)
-	: super(GContextPointer(new GBindingContext(service, config)), config), object(object)
+	: super(GContextPointer(new GPythonBindingContext(service, config)), config), object(object)
 {
 }
 

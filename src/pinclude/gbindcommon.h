@@ -1375,28 +1375,24 @@ public:
 		this->objectMap.insert(make_pair(entry, scriptObject));
 	}
 
-	void freeScriptObject(const GGlueDataWrapper * glueDataWrapper) {
-		GGlueDataPointer glueData = glueDataWrapper->getData();
-		void * instance = getGlueDataInstance(glueData);
-		IMetaClass * metaClass = getGlueDataMetaClass(glueData);
-		if(instance != NULL && metaClass != NULL) {
-			this->doFreeScriptObject(CacheEntry(instance, metaClass->getQualifiedName(), opcvNone));
+	void freeScriptObject(GGlueDataWrapper * dataWrapper) {
+		void * instance = getGlueDataInstance(dataWrapper->getData());
+		if(instance == NULL) {
+			return;
+		}
+		for(typename ObjectMapType::iterator it = this->objectMap.begin();
+			it != this->objectMap.end(); ) {
+			if(it->first.instance == instance) {
+				it = this->objectMap.erase(it);
+			}
+			else {
+				++it;
+			}
 		}
 	}
 
 	void clear() {
 		this->objectMap.clear();
-	}
-
-private:
-	void doFreeScriptObject(CacheEntry entry) {
-		for(ObjectPointerCV cv = ObjectPointerCV(0); cv < opcvCount; cv = ObjectPointerCV(cv + 1)) {
-			entry.cv = cv;
-			typename ObjectMapType::iterator it = this->objectMap.find(entry);
-			if(it != this->objectMap.end()) {
-				this->objectMap.erase(it);
-			}
-		}
 	}
 
 private:
