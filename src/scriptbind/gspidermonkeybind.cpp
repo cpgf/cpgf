@@ -85,6 +85,62 @@ private:
 	JSObject  * jsObject;
 };
 
+class GSharedJsObject : public GNoncopyable
+{
+public:
+	GSharedJsObject() : jsContext(NULL), jsObject(NULL) {
+	}
+
+	GSharedJsObject(JSContext * jsContext, JSObject  * jsObject) : jsContext(jsContext), jsObject(jsObject) {
+		this->retain();
+	}
+
+	GSharedJsObject(const GSharedJsObject & other) : jsContext(other.jsContext), jsObject(other.jsObject) {
+		this->retain();
+	}
+
+	GSharedJsObject & operator = (GSharedJsObject other) {
+		this->swap(other);
+		return *this;
+	}
+
+	~GSharedJsObject() {
+		this->release();
+	}
+
+	JSObject  * getJsObject() const {
+		return this->jsObject;
+	}
+
+	void swap(GSharedJsObject & other) {
+		std::swap(this->jsContext, other.jsContext);
+		std::swap(this->jsObject, other.jsObject);
+	}
+
+private:
+	void retain() {
+		if(this->jsObject != NULL) {
+			JS_AddObjectRoot(this->jsContext, &this->jsObject);
+		}
+	}
+
+	void release() {
+		if(this->jsObject != NULL) {
+			JS_RemoveObjectRoot(this->jsContext, &this->jsObject);
+		}
+	}
+	
+private:
+	JSContext * jsContext;
+	JSObject  * jsObject;
+};
+
+GScriptObjectCache<GSharedJsObject> * getSpiderScriptObjectCache()
+{
+	static GScriptObjectCache<GSharedJsObject> cache;
+	return &cache;
+}
+
 class JsClassUserData : public GUserData
 {
 private:
@@ -144,6 +200,10 @@ public:
 	GSpiderBindingContext(IMetaService * service, const GScriptConfig & config, JSContext * jsContext, JSObject  * jsObject)
 		: super(service, config), jsContext(jsContext), jsObject(jsObject)
 	{
+	}
+
+	~GSpiderBindingContext() {
+		getSpiderScriptObjectCache()->clear();
 	}
 
 	JSContext * getJsContext() const {
@@ -627,8 +687,15 @@ JSFunction * createJsFunction(const GSpiderContextPointer & context, const GClas
 JsValue objectToSpider(const GSpiderContextPointer & context, const GClassGlueDataPointer & classData,
 				 const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
 {
-	if(objectAddressFromVariant(instance) == NULL) {
+	void * instanceAddress = objectAddressFromVariant(instance);
+	
+	if(instanceAddress == NULL) {
 		return JSVAL_NULL;
+	}
+
+	GSharedJsObject * sharedJsObject = getSpiderScriptObjectCache()->findScriptObject(instanceAddress, classData, cv);
+	if(sharedJsObject != NULL) {
+		return ObjectValue(*sharedJsObject->getJsObject());
 	}
 
 	GObjectGlueDataPointer objectData = context->newObjectGlueData(classData, instance, flags, cv);
@@ -644,6 +711,9 @@ JsValue objectToSpider(const GSpiderContextPointer & context, const GClassGlueDa
 
 	JSObject * object = JS_NewObject(context->getJsContext(), classUserData->getJsClass(), NULL, NULL);
 	setObjectPrivateData(object, objectWrapper);
+
+	getSpiderScriptObjectCache()->addScriptObject(instanceAddress, classData, cv,
+		GSharedJsObject(context->getJsContext(), object));
 
 	return ObjectValue(*object);
 }
@@ -893,6 +963,9 @@ JSBool objectConstructor(JSContext * jsContext, unsigned int argc, jsval * value
 		if(instance != NULL) {
 			JsValue object = objectToSpider(context, classData, instance, GBindValueFlags(bvfAllowGC), opcvNone, NULL);
 			JS_SET_RVAL(jsContext, valuePointer, object);
+			
+			getSpiderScriptObjectCache()->addScriptObject(instance, classData, opcvNone,
+				GSharedJsObject(context->getJsContext(), &object.toObject()));
 		}
 		else {
 			raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1061,6 +1134,7 @@ void objectFinalizer(JSFreeOp * /*jsop*/, JSObject * object)
 {
 	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectPrivateData(object));
 	if(dataWrapper != NULL) {
+		getSpiderScriptObjectCache()->freeScriptObject(dataWrapper);
 		freeGlueDataWrapper(dataWrapper, sharedStaticCast<GSpiderBindingContext>(dataWrapper->getData()->getContext())->getGlueDataWrapperPool());
 	}
 }

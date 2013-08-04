@@ -843,6 +843,9 @@ Handle<Value> objectConstructor(const Arguments & args)
 
 			self->SetPointerInInternalField(0, objectWrapper);
 			setObjectSignature(&self);
+			
+			getV8ScriptObjectCache()->addScriptObject(instance, classData, opcvNone, self);
+
 			return scope.Close(self);
 		}
 		else {
