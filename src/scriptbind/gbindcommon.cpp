@@ -1523,6 +1523,7 @@ bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char
 	for(;;) {
 		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
 		if(!metaClass) {
+			raiseCoreException(Error_ScriptBinding_CantSetDynamicPropertyOnCppObject);
 			return false;
 		}
 		
