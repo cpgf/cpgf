@@ -12,6 +12,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <vector>
+#include <set>
 
 #include <string.h>
 
@@ -222,7 +223,8 @@ int UserData_index(lua_State * L);
 int UserData_newindex(lua_State * L);
 int UserData_operator(lua_State * L);
 
-void helperBindAllOperators(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass);
+void helperBindAllOperators(const GContextPointer & context, const GObjectGlueDataPointer & objectData,
+	IMetaClass * metaClass, bool bindingToObject);
 void helperBindClass(const GContextPointer & context, IMetaClass * metaClass);
 void helperBindEnum(const GContextPointer & context, IMetaEnum * metaEnum);
 void helperBindMethodList(const GContextPointer & context, const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData);
@@ -510,8 +512,10 @@ void objectToLua(const GContextPointer & context, const GClassGlueDataPointer & 
 
 		lua_pushvalue(L, -1); // duplicate the meta table
 		lua_setfield(L, LUA_REGISTRYINDEX, metaTableName);
+	
+		helperBindAllOperators(context, objectData, metaClass, false);
 	}
-	helperBindAllOperators(context, objectData, metaClass);
+	helperBindAllOperators(context, objectData, metaClass, true);
 	
 	lua_setmetatable(L, -2);
 }
@@ -939,15 +943,24 @@ void helperBindOperator(const GContextPointer & context, const GObjectGlueDataPo
 	}
 }
 
-void helperBindAllOperators(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass)
+void helperBindAllOperators(const GContextPointer & context, const GObjectGlueDataPointer & objectData,
+	IMetaClass * metaClass, bool bindingToObject)
 {
-	std::vector<uint32_t> boundOperators;
+	std::set<uint32_t> boundOperators;
 
 	int count = metaClass->getOperatorCount();
 	for(int i = 0; i < count; ++i) {
 		GScopedInterface<IMetaOperator> item(metaClass->getOperatorAt(i));
 		uint32_t op = item->getOperator();
-		if(std::find(boundOperators.begin(), boundOperators.end(), op) == boundOperators.end()) {
+		if((op == mopFunctor && !bindingToObject)
+			|| (op != mopFunctor && bindingToObject)) {
+			// If it's binding to class, we bind all operators exception functor,
+			// because functor can be only bound to object.
+			// If it's binding to object, we only bind functor, to optimize performance.
+			continue;
+		}
+		if(boundOperators.find(op) == boundOperators.end()) {
+			boundOperators.insert(op);
 			helperBindOperator(context, objectData, metaClass, static_cast<GMetaOpType>(op));
 		}
 	}
