@@ -59,10 +59,10 @@ public:
 
 	IMetaService * getService() const;
 	GContextPointer getContext() const;
-	virtual GGlueDataPointer getData();
+	virtual GGlueDataPointer getData() const;
 
 	template <typename T>
-	GSharedPointer<T> getDataAs() {
+	GSharedPointer<T> getDataAs() const {
 		return sharedStaticCast<T>(this->getData());
 	}
 
@@ -702,7 +702,7 @@ GContextPointer GPythonObject::getContext() const
 	return this->glueData->getContext();
 }
 
-GGlueDataPointer GPythonObject::getData()
+GGlueDataPointer GPythonObject::getData() const
 {
 	return this->glueData;
 }

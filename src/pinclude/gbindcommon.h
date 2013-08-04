@@ -68,7 +68,9 @@ enum ObjectPointerCV {
 	opcvNone,
 	opcvConst,
 	opcvVolatile,
-	opcvConstVolatile
+	opcvConstVolatile,
+	
+	opcvCount
 };
 
 enum GGlueDataType {
@@ -642,10 +644,10 @@ public:
 	virtual ~GGlueDataWrapper() {
 	}
 
-	virtual GGlueDataPointer getData() = 0;
+	virtual GGlueDataPointer getData() const = 0;
 
 	template <typename T>
-	GSharedPointer<T> getAs() {
+	GSharedPointer<T> getAs() const {
 		return sharedStaticCast<T>(this->getData());
 	}
 };
@@ -662,7 +664,7 @@ public:
 	virtual ~GGlueDataWrapperImplement() {
 	}
 
-	virtual GGlueDataPointer getData() {
+	virtual GGlueDataPointer getData() const {
 		return sharedStaticCast<GGlueData>(this->dataPointer);
 	}
 
@@ -1313,6 +1315,93 @@ private:
 };
 
 
+template <typename T>
+class GScriptObjectCache
+{
+private:
+	struct CacheEntry {
+		CacheEntry() : instance(NULL), className(NULL), cv(opcvNone) {
+		}
+
+		CacheEntry(void * instance, const char * className, ObjectPointerCV cv)
+			: instance(instance), className(className), cv(cv) {
+		}
+
+		bool operator < (const CacheEntry & other) const {
+			if(instance < other.instance) {
+				return true;
+			}
+			if(instance == other.instance) {
+				if(cv < other.cv) {
+					return true;
+				}
+				if(cv > other.cv) {
+					return false;
+				}
+
+				if(className == other.className) {
+					return false;
+				}
+				else {
+					return strcmp(className, other.className) < 0;
+				}
+			}
+			return false;
+		}
+
+		void * instance;
+		const char * className;
+		ObjectPointerCV cv;
+	};
+	typedef std::map<CacheEntry, T> ObjectMapType;
+
+public:
+	T * findScriptObject(void * object, const GClassGlueDataPointer & classData,
+		ObjectPointerCV cv) {
+		CacheEntry entry(object, classData->getMetaClass()->getQualifiedName(), cv);
+		ObjectMapType::iterator it = this->objectMap.find(entry);
+		if(it == this->objectMap.end()) {
+			return NULL;
+		}
+		else {
+			return &it->second;
+		}
+	}
+
+	void addScriptObject(void * object, const GClassGlueDataPointer & classData,
+		ObjectPointerCV cv, const T & scriptObject) {
+//		GASSERT(this->findScriptObject(object, classData, cv) == NULL);
+		CacheEntry entry(object, classData->getMetaClass()->getQualifiedName(), cv);
+		this->objectMap.insert(make_pair(entry, scriptObject));
+	}
+
+	void freeScriptObject(const GGlueDataWrapper * glueDataWrapper) {
+		GGlueDataPointer glueData = glueDataWrapper->getData();
+		void * instance = getGlueDataInstance(glueData);
+		IMetaClass * metaClass = getGlueDataMetaClass(glueData);
+		if(instance != NULL && metaClass != NULL) {
+			this->doFreeScriptObject(CacheEntry(instance, metaClass->getQualifiedName(), opcvNone));
+		}
+	}
+
+	void clear() {
+		this->objectMap.clear();
+	}
+
+private:
+	void doFreeScriptObject(CacheEntry entry) {
+		for(ObjectPointerCV cv = ObjectPointerCV(0); cv < opcvCount; cv = ObjectPointerCV(cv + 1)) {
+			entry.cv = cv;
+			ObjectMapType::const_iterator it = this->objectMap.find(entry);
+			if(it != this->objectMap.end()) {
+				this->objectMap.erase(it);
+			}
+		}
+	}
+
+private:
+	ObjectMapType objectMap;
+};
 
 
 } // namespace bind_internal

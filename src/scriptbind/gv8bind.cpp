@@ -50,6 +50,11 @@ GGlueDataWrapperPool * getV8DataWrapperPool()
 	return v8DataWrapperPool;
 }
 
+GScriptObjectCache<Persistent<Object> > * getV8ScriptObjectCache()
+{
+	static GScriptObjectCache<Persistent<Object> > cache;
+	return &cache;
+}
 
 //*********************************************
 // Declarations
@@ -71,6 +76,7 @@ public:
 			this->objectTemplate.Dispose();
 			this->objectTemplate.Clear();
 		}
+		getV8ScriptObjectCache()->clear();
 	}
 
 	Handle<Object > getRawObject() {
@@ -232,6 +238,7 @@ void weakHandleCallback(Persistent<Value> object, void * parameter)
 {
 	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(parameter);
 
+	getV8ScriptObjectCache()->freeScriptObject(dataWrapper);
 	freeGlueDataWrapper(dataWrapper, getV8DataWrapperPool());
 
 	object.Dispose();
@@ -356,8 +363,15 @@ GScriptValue v8ToScriptValue(const GContextPointer & context, Local<Context> v8C
 Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPointer & classData,
 						 const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
 {
-	if(objectAddressFromVariant(instance) == NULL) {
+	void * instanceAddress = objectAddressFromVariant(instance);
+	
+	if(instanceAddress == NULL) {
 		return Handle<Value>();
+	}
+
+	Persistent<Object> * cachedObject = getV8ScriptObjectCache()->findScriptObject(instanceAddress, classData, cv);
+	if(cachedObject != NULL) {
+		return *cachedObject;
 	}
 
 	Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, classData);
@@ -374,6 +388,8 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 
 	self->SetPointerInInternalField(0, dataWrapper);
 	setObjectSignature(&self);
+
+	getV8ScriptObjectCache()->addScriptObject(instanceAddress, classData, cv, self);
 
 	return self;
 }
