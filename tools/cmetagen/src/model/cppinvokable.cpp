@@ -134,6 +134,15 @@ size_t CppInvokable::getArity() const
 	return functionDecl->param_size();
 }
 
+size_t CppInvokable::getNonDefaultParamCount() const
+{
+	size_t paramCount = this->getArity();
+	while(paramCount > 0 && this->paramHasDefaultValue(paramCount - 1)) {
+		--paramCount;
+	}
+	return paramCount;
+}
+
 CppType CppInvokable::getParamType(size_t index) const
 {
 	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());

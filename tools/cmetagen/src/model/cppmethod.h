@@ -15,6 +15,8 @@ private:
 public:
 	explicit CppMethod(const clang::Decl * decl);
 	
+	bool isArityUnique() const;
+	
 protected:
 	virtual ItemCategory getCategory() const { return icMethod; }
 };

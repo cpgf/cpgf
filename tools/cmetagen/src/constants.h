@@ -13,6 +13,7 @@ const std::string includeScriptBindUtil("cpgf/scriptbind/gscriptbindutil.h");
 const std::string includeScriptWrapper("cpgf/scriptbind/gscriptwrapper.h");
 const std::string includeScopedInterface("cpgf/gscopedinterface.h");
 const std::string includeOutmain("cpgf/goutmain.h");
+const std::string includeSelectFunctionByArity("cpgf/gselectFunctionByArity.h");
 
 const std::string metaTypeTypeDefName("MetaType");
 

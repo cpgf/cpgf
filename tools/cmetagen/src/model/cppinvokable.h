@@ -29,6 +29,7 @@ public:
 	bool hasResult() const;
 
 	size_t getArity() const;
+	size_t getNonDefaultParamCount() const;
 	CppType getParamType(size_t index) const;
 	bool paramHasDefaultValue(size_t index) const;
 	std::string getTextOfParamDeafultValue(size_t index) const;

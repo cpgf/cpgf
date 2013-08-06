@@ -105,27 +105,28 @@ void writeMethodReflectionCode(const CppMethod * cppMethod, BuilderWriter * writ
 	size_t arity = cppMethod->getArity();
 	bool hasDefaultValue = (arity > 0 && cppMethod->paramHasDefaultValue(arity - 1));
 
-	string s;
+	string s, t;
 
+	s = Poco::format("%s(\"%s\"",
+		writer->getReflectionAction("_method"),
+		methodName);
+	t = Poco::format("&%s%s)%s",
+		getReflectionScope(cppMethod),
+		methodName,
+		getInvokablePolicyText(cppMethod, true)
+	);
 	if(cppMethod->isOverloaded()) {
-		s = Poco::format("%s(\"%s\", (%s)(&%s%s)%s)",
-			writer->getReflectionAction("_method"),
-			methodName,
-			cppMethod->getTextOfPointeredType(true),
-			getReflectionScope(cppMethod),
-			methodName,
-			getInvokablePolicyText(cppMethod, true)
-		);
+		if(cppMethod->isArityUnique()) {
+			s = Poco::format("%s, cpgf::selectFunctionByArity%d(%s)", s, (int)(cppMethod->getArity()), t);
+		}
+		else {
+			s = Poco::format("%s, (%s)(%s)", s, cppMethod->getTextOfPointeredType(true), t);
+		}
 	}
 	else {
-		s = Poco::format("%s(\"%s\", &%s%s)%s",
-			writer->getReflectionAction("_method"),
-			methodName,
-			getReflectionScope(cppMethod),
-			methodName,
-			getInvokablePolicyText(cppMethod, true)
-		);
+		s = Poco::format("%s, %s", s, t);
 	}
+
 	if(! hasDefaultValue) {
 		s.append(";");
 	}

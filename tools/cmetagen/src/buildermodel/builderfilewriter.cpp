@@ -79,6 +79,7 @@ void BuilderFileWriter::initializeCppWriter(CppWriter * cppWriter) const
 		cppWriter->include(includeScriptBindUtil);
 		cppWriter->include(includeScriptWrapper);
 		cppWriter->include(includeScopedInterface);
+		cppWriter->include(includeSelectFunctionByArity);
 	}
 }
 
