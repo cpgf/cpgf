@@ -35,7 +35,7 @@ public:
 
 	std::string getParamName(size_t index) const;
 	std::string getTextOfUnusedParamsPlaceholder() const;
-	std::string getTextOfPointeredType() const;
+	std::string getTextOfPointeredType(bool includeClassName) const;
 	std::string getTextOfParamList(const ItemTextOptionFlags & options) const;
 	std::string getText(const ItemTextOptionFlags & options) const;
 	std::string getTextWithReplacedName(const ItemTextOptionFlags & options, const std::string & replacedName) const;

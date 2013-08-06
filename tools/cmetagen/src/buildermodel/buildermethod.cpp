@@ -44,12 +44,6 @@ void BuilderMethod::doWriteMetaData(BuilderWriter * writer)
 	const CppMethod * cppMethod = this->getCppMethod();
 
 	writeMethodReflection(cppMethod, writer);
-
-	if(cppMethod->isVirtual()
-		&& this->getCppItem()->getParent()->isClass()
-		&& static_cast<BuilderClass *>(this->getParent())->shouldWrapClass()) {
-		writeMethodClassWrapper(cppMethod, writer, cppMethod->getParent());
-	}
 }
 
 void writeMethodReflection(const CppMethod * cppMethod, BuilderWriter * writer)
@@ -117,7 +111,7 @@ void writeMethodReflectionCode(const CppMethod * cppMethod, BuilderWriter * writ
 		s = Poco::format("%s(\"%s\", (%s)(&%s%s)%s)",
 			writer->getReflectionAction("_method"),
 			methodName,
-			cppMethod->getTextOfPointeredType(),
+			cppMethod->getTextOfPointeredType(true),
 			getReflectionScope(cppMethod),
 			methodName,
 			getInvokablePolicyText(cppMethod, true)

@@ -189,12 +189,12 @@ std::string CppInvokable::getTextOfParamDeafultValue(size_t index) const
 	}
 }
 
-std::string CppInvokable::getTextOfPointeredType() const
+std::string CppInvokable::getTextOfPointeredType(bool includeClassName) const
 {
 	QualType qualType = getFunctionDecl(this->getDecl())->getType();
 	std::string s;
 
-	if(this->isStatic()) {
+	if(this->isStatic() || !includeClassName) {
 		s = "*";
 	}
 	else {
