@@ -41,11 +41,6 @@
 #include "clang/Frontend/LangStandard.h"
 #include "clang/AST/DeclTemplate.h"
 
-// tooling
-//#include "clang/Frontend/FrontendActions.h"
-//#include "clang/Tooling/CommonOptionsParser.h"
-//#include "clang/Tooling/Tooling.h"
-
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
@@ -58,7 +53,6 @@ using namespace cpgf;
 using namespace llvm;
 using namespace llvm::sys;
 using namespace clang;
-//using namespace clang::tooling;
 
 namespace metagen {
 
@@ -118,23 +112,6 @@ void ParserLibClang::setupClang()
 	PreprocessorOptions & preprocessorOptions = this->compilerInvocation->getPreprocessorOpts();
 	preprocessorOptions.addMacroDef("CPGF_METAGEN_PARSER");
 
-	// Add define/undefine macros to the pre-processor
-	//for (int i = 0; ; i++)
-	//{
-	//	std::string macro = args.GetProperty("-D", i);
-	//	if (macro == "")
-	//		break;
-	//	preprocessorOptions.addMacroDef(macro.c_str());
-	//}
-	//for (int i = 0; ; i++)
-	//{
-	//	std::string macro = args.GetProperty("-U", i);
-	//	if (macro == "")
-	//		break;
-	//	preprocessorOptions.addMacroUndef(macro.c_str());
-	//}
-
-	// Setup the language parsing options for C++
 	LangOptions & langOptions = *this->compilerInvocation->getLangOpts();
 	this->compilerInvocation->setLangDefaults(langOptions, IK_CXX, LangStandard::lang_cxx03);
 	langOptions.CPlusPlus = 1;
@@ -148,23 +125,8 @@ void ParserLibClang::setupClang()
 	langOptions.MSBitfields = 1;
 	langOptions.DelayedTemplateParsing = 1;
 
-	// Gather C++ header searches from the command-line
 	HeaderSearchOptions & headerSearchOptions = this->compilerInvocation->getHeaderSearchOpts();
 headerSearchOptions.AddPath("C:/Program Files/Microsoft Visual Studio 9.0/VC/include", frontend::Angled, false, false);
-	//for (int i = 0; ; i++)
-	//{
-	//	std::string include = args.GetProperty("-i", i);
-	//	if (include == "")
-	//		break;
-	//	headerSearchOptions.AddPath(include.c_str(), frontend::Angled, false, false);
-	//}
-	//for (int i = 0; ; i++)
-	//{
-	//	std::string include = args.GetProperty("-isystem", i);
-	//	if (include == "")
-	//		break;
-	//	headerSearchOptions.AddPath(include.c_str(), frontend::System, false, false);
-	//}
 
 //	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
 IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
@@ -173,14 +135,12 @@ IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
 	DiagnosticsEngine & diagnostics = this->compilerInstance->getDiagnostics();
 	diagnostics.setSuppressSystemWarnings(true);
 
-	// Setup target options - ensure record layout calculations use the MSVC C++ ABI
 	TargetOptions & target_options = this->compilerInvocation->getTargetOpts();
 	target_options.Triple = getDefaultTargetTriple();
 	target_options.CXXABI = "microsoft";
 	GScopedPointer<TargetInfo> targetInfo(TargetInfo::CreateTargetInfo(diagnostics, &target_options));
 	this->compilerInstance->setTarget(targetInfo.take());
 
-	// Set the invokation on the instance
 	this->compilerInstance->createFileManager();
 	this->compilerInstance->createSourceManager(this->compilerInstance->getFileManager());
 	this->compilerInstance->setInvocation(this->compilerInvocation.take());
@@ -188,86 +148,24 @@ IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
 
 void ParserLibClang::compileAST(const char * fileName)
 {
-	// Recreate preprocessor and AST context
 	this->compilerInstance->createPreprocessor();
 	this->compilerInstance->createASTContext();
 
-	// Initialize builtins
 	if(this->compilerInstance->hasPreprocessor()) {
 		Preprocessor & preprocessor = this->compilerInstance->getPreprocessor();
 		preprocessor.getBuiltinInfo().InitializeBuiltins(preprocessor.getIdentifierTable(),
 			preprocessor.getLangOpts());
 	}
 
-	// Get the file  from the file system
 	const FileEntry * file = this->compilerInstance->getFileManager().getFile(fileName);
 	this->compilerInstance->getSourceManager().createMainFileID(file);
 
-	// Parse the AST
 	EmptyASTConsumer astConsumer;
 	DiagnosticConsumer * client = this->compilerInstance->getDiagnostics().getClient();
 	client->BeginSourceFile(this->compilerInstance->getLangOpts(), &this->compilerInstance->getPreprocessor());
 	ParseAST(this->compilerInstance->getPreprocessor(), &astConsumer, this->compilerInstance->getASTContext());
 	client->EndSourceFile();
 }
-
-/*
-class ParserLibTooling : public ParserBase
-{
-private:
-	typedef ParserBase super;
-
-	class MyFrontendAction : public ASTFrontendAction
-	{
-	public:
-		MyFrontendAction(const ParserCallbackType & callback) : callback(callback) {}
-
-	protected:
-		virtual ASTConsumer *CreateASTConsumer(CompilerInstance &CI, StringRef InFile) {
-			return new ASTConsumer;
-		}
-
-		virtual void ExecuteAction() {
-			this->callback(&this->getCompilerInstance());
-		}
-
-	private:
-		ParserCallbackType callback;
-	};
-	class MyFrontendActionFactory : public FrontendActionFactory {
-	public:
-		MyFrontendActionFactory(const ParserCallbackType & callback) : callback(callback) {}
-
-		virtual clang::FrontendAction *create() { return new MyFrontendAction(this->callback); }
-
-	private:
-		ParserCallbackType callback;
-	};
-
-public:
-	ParserLibTooling();
-
-	virtual void parse(const char * fileName, const ParserCallbackType & callback);
-
-private:
-	GScopedPointer<CommonOptionsParser> optionsParser;
-	GScopedPointer<ClangTool> tool;
-};
-
-ParserLibTooling::ParserLibTooling()
-{
-	const char * argv[] = { "xxx", "C:/projects/cpgf/trunk/tools/cmetagen/build/bin/Debug/z.h", "--" };
-	int argc = sizeof(argv) / sizeof(argv[0]);
-	this->optionsParser.reset(new CommonOptionsParser(argc, argv));
-}
-
-void ParserLibTooling::parse(const char * fileName, const ParserCallbackType & callback)
-{
-	ArrayRef<std::string> files(fileName);
-	this->tool.reset(new ClangTool(this->optionsParser->getCompilations(), files));
-	this->tool->run(new MyFrontendActionFactory(callback));
-}
-*/
 
 typedef stack<CppContainer *> CppContainerStackType;
 
@@ -359,7 +257,6 @@ void ClangParserImplement::parse(const char * fileName)
 	this->fileName = fileName;
 
 	this->parser.reset(new ParserLibClang);
-//	this->parser.reset(new ParserLibTooling);
 	this->parser->parse(fileName, makeCallback(this, &ClangParserImplement::translate));
 }
 

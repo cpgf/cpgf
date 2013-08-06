@@ -64,7 +64,6 @@ private:
 	bool determined;
 };
 
-typedef IndeterminateValue<bool> TristateBool;
 
 
 } // namespace metagen

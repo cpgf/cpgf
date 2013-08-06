@@ -2,11 +2,15 @@
 #define __BUILDERITEM_H
 
 #include "model/cppitem.h"
+#include "indeterminatevalue.h"
 
 #include "cpgf/gflags.h"
 
 namespace metagen {
 
+
+typedef IndeterminateValue<bool> TristateBool;
+typedef IndeterminateValue<std::string> TristateString;
 
 class BuilderWriter;
 class BuilderContainer;
@@ -15,19 +19,11 @@ class Project;
 
 class BuilderItem
 {
-private:
-	enum BuilderFlags {
-		bfSkipBind = 1 << 0,
-	};
-
 public:
 	explicit BuilderItem(const CppItem * cppItem);
 	virtual ~BuilderItem();
 
 	const CppItem * getCppItem() const;
-	
-	void setSkipBind(bool skip);
-	bool shouldSkipBind() const; // used by project script
 	
 	virtual bool canBind() const; // determine if the item is supported by current library
 
@@ -37,6 +33,13 @@ public:
 	const Project * getProject() const { return this->project; }
 	
 	BuilderContainer * getParent() const { return this->parent; }
+
+public:
+	// functions used by either project script or builders.	
+	void setSkipBind(bool skip);
+	bool shouldSkipBind() const;
+	void setWrapClass(bool wrap);
+	bool shouldWrapClass() const;
 	
 protected:
 	virtual void doWriteMetaData(BuilderWriter * writer) = 0;
@@ -49,8 +52,11 @@ private:
 private:
 	const CppItem * cppItem;
 	const Project * project;
-	cpgf::GFlags<BuilderFlags> flags;
 	BuilderContainer * parent;
+
+private:
+	TristateBool skipBind;
+	TristateBool wrapClass;
 	
 private:
 	friend class BuilderContainer;
