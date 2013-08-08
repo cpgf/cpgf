@@ -119,19 +119,6 @@ BuilderSection * BuilderSectionList::addSection(BuilderSectionType type, const C
 	return section;
 }
 
-void BuilderSectionList::dump()
-{
-	sortSectionList(this->sectionList);
-
-	printf("Section list begin \n");
-	for(BuilderSectionList::iterator it = this->begin(); it != this->end(); ++it) {
-		CodeWriter codeWriter;
-		(*it)->getCodeBlock()->write(&codeWriter);
-		printf("%s", codeWriter.getText().c_str());
-	}
-	printf("Section list end \n");
-}
-
 bool sortSectionComparer(BuilderSection * a, BuilderSection * b)
 {
 	if(a->getType() < b->getType()) {
@@ -146,9 +133,9 @@ bool sortSectionComparer(BuilderSection * a, BuilderSection * b)
 	return a->getIndex() < b->getIndex();
 }
 
-void sortSectionList(BuilderSectionListType & sectionList)
+void sortSectionList(BuilderSectionListType * sectionList)
 {
-	std::sort(sectionList.begin(), sectionList.end(), &sortSectionComparer);
+	std::sort(sectionList->begin(), sectionList->end(), &sortSectionComparer);
 }
 
 

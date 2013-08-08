@@ -124,8 +124,6 @@ void BuilderContext::doProcessFile(const CppFile * cppFile)
 	this->createHeaderFileWriter();
 	this->createSourceFileWriters();
 
-//	this->getSectionList()->dump();
-
 	for(BuilderFileWriterListType::iterator it = this->fileWriterList.begin();
 		it != this->fileWriterList.end();
 		++it) {

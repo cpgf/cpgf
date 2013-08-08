@@ -79,8 +79,6 @@ public:
 
 	BuilderSection * addSection(BuilderSectionType type, const CppItem * cppItem);
 
-	void dump();
-
 public:
 	iterator begin() { return this->sectionList.begin(); }
 	const_iterator begin() const { return this->sectionList.begin(); }
@@ -92,7 +90,7 @@ private:
 	BuilderSectionListType sectionList;
 };
 
-void sortSectionList(BuilderSectionListType & sectionList);
+void sortSectionList(BuilderSectionListType * sectionList);
 
 
 } // namespace metagen

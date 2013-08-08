@@ -85,6 +85,8 @@ void BuilderFileWriter::initializeCppWriter(CppWriter * cppWriter) const
 
 void BuilderFileWriter::output()
 {
+	sortSectionList(&this->sectionList);
+
 	string outputFileName = this->isSourceFile() ?
 		this->getProject()->getOutputSourceFileName(this->sourceFileName, this->fileIndex)
 		: this->getProject()->getOutputHeaderFileName(this->sourceFileName);
