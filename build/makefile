@@ -1,5 +1,5 @@
 CACHE_DIR = temp_cache
-CMAKE = cmake .. -DCMAKE_BUILD_TYPE=Release
+CMAKE = cmake ..
 
 MK_DIR = @cmake -E make_directory
 CH_DIR = @cmake -E chdir
@@ -121,7 +121,7 @@ cb_linux: needcmake
 	$(ECHO) Please open the project file $(PROJECT).cbp in $(PROJECT_PREFIX)_cb_linux in Code::Blocks.
 
 xcode: needcmake
-	cmake -DCMAKE_BUILD_TYPE=Release -G"Xcode"
+	cmake -G"Xcode"
 	$(ECHO) Please open the solution $(PROJECT).xcodeproj in Xcode IDE.
 
 cleanbuild: needcmake

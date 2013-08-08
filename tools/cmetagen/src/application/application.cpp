@@ -49,8 +49,9 @@ void Application::doRun()
 	this->project.loadProject("zzz.js");
 
 	this->processFiles();
-	this->generateMainRegisterHeaderFile();
-	this->generateMainRegisterSourceFile();
+	generateMainRegisterFiles(this->creationFunctionNameList, &this->project);
+//	this->generateMainRegisterHeaderFile();
+//	this->generateMainRegisterSourceFile();
 }
 
 void Application::processFiles()
@@ -112,101 +113,6 @@ void Application::onGenerateCreationFunction(const BuilderContext * builderConte
 		logger.warn(Poco::format("Creation function %s is duplicated.", name));
 	}
 	this->creationFunctionNameList.insert(name);
-}
-
-void Application::generateMainRegisterHeaderFile() const
-{
-	const string headerFileName(
-		normalizeFile(
-			this->project.getHeaderOutputPath()
-			+ this->project.getMainRegisterFileName()
-			+ this->project.getHeaderFileExtension()
-		)
-	);
-
-	CppWriter cppWriter;
-
-	cppWriter.setHeaderGuard(headerFileName);
-	cppWriter.setNamespace(this->project.getCppNamespace());
-	cppWriter.include(includeMetaDefine);
-
-	CodeBlock * fileBlock = cppWriter.getCodeBlock();
-
-	for(CreationFunctionNameListType::const_iterator it = this->creationFunctionNameList.begin();
-		it != this->creationFunctionNameList.end();
-		++it) {
-		fileBlock->appendLine(getCreationFunctionPrototype(*it) + ";");
-	}
-
-	fileBlock->appendLine("template <typename Meta>");
-	fileBlock->appendLine(
-		Poco::format("void %s(Meta _d)", this->project.getMainRegisterFunctionName())
-	);
-
-	fileBlock->appendBlankLine();
-
-	CodeBlock * bodyBlock = fileBlock->appendBlock(cbsBracketAndIndent);
-
-	for(CreationFunctionNameListType::const_iterator it = this->creationFunctionNameList.begin();
-		it != this->creationFunctionNameList.end();
-		++it) {
-		bodyBlock->appendLine(
-			Poco::format("_d._class(%s());", *it)
-		);
-	}
-
-	CodeWriter codeWriter;
-	cppWriter.write(&codeWriter);
-
-	writeStringToFile(headerFileName, codeWriter.getText());
-}
-
-void Application::generateMainRegisterSourceFile() const
-{
-	if(! this->project.shouldAutoRegisterToGlobal()) {
-		return;
-	}
-
-	const string headerIncludeFileName(
-		normalizeFile(
-			this->project.getMainRegisterFileName()
-			+ this->project.getHeaderFileExtension()
-		)
-	);
-	const string sourceFileName(
-		normalizeFile(
-			this->project.getHeaderOutputPath()
-			+ this->project.getMainRegisterFileName()
-			+ this->project.getSourceFileExtension()
-		)
-	);
-
-	CppWriter cppWriter;
-
-	cppWriter.setNamespace(this->project.getCppNamespace());
-	cppWriter.include(headerIncludeFileName);
-	cppWriter.include(includeOutmain);
-
-	CodeBlock * fileBlock = cppWriter.getCodeBlock();
-	fileBlock->appendLine("namespace");
-
-	CodeBlock * innerBlock = fileBlock->appendBlock(cbsBracket);
-	innerBlock->appendBlankLine();
-	innerBlock->appendLine("G_AUTO_RUN_BEFORE_MAIN()");
-	
-	CodeBlock * bodyBlock = innerBlock->appendBlock(cbsBracketAndIndent);
-	bodyBlock->appendLine(
-		Poco::format("cpgf::GDefineMetaNamespace _d = cpgf::GDefineMetaNamespace::define(\"%s\");",
-			this->project.getMetaNamespace())
-	);
-	bodyBlock->appendLine(
-		Poco::format("%s(_d);", this->project.getMainRegisterFunctionName())
-	);
-
-	CodeWriter codeWriter;
-	cppWriter.write(&codeWriter);
-
-	writeStringToFile(sourceFileName, codeWriter.getText());
 }
 
 

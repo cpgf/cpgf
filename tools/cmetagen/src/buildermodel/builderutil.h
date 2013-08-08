@@ -4,6 +4,7 @@
 #include "model/cppitem.h"
 
 #include <string>
+#include <set>
 
 namespace metagen {
 
@@ -52,6 +53,8 @@ std::string getMetaTypeTypedef(const BuilderContext * builderContext,
 void initializeReflectionFunctionOutline(const BuilderContext * builderContext, BuilderSection * section);
 void initializePartialCreationFunction(const BuilderContext * builderContext, BuilderSection * section);
 void initializeClassWrapperOutline(const BuilderContext * builderContext, BuilderSection * section);
+
+void generateMainRegisterFiles(const std::set<std::string> & creationFunctionNameList, const Project * project);
 
 
 } // namespace metagen

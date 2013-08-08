@@ -7,6 +7,8 @@
 #include "model/cppclass.h"
 #include "model/cppinvokable.h"
 #include "model/cppenum.h"
+#include "codewriter/cppwriter.h"
+#include "codewriter/codewriter.h"
 #include "codewriter/codeblock.h"
 #include "constants.h"
 #include "util.h"
@@ -340,6 +342,107 @@ void initializeClassWrapperOutline(const BuilderContext * builderContext, Builde
 	}
 }
 
+
+void generateMainRegisterHeaderFile(const std::set<std::string> & creationFunctionNameList, const Project * project)
+{
+	const string headerFileName(
+		normalizeFile(
+			project->getHeaderOutputPath()
+			+ project->getMainRegisterFileName()
+			+ project->getHeaderFileExtension()
+		)
+	);
+
+	CppWriter cppWriter;
+
+	cppWriter.setHeaderGuard(headerFileName);
+	cppWriter.setNamespace(project->getCppNamespace());
+	cppWriter.include(includeMetaDefine);
+
+	CodeBlock * fileBlock = cppWriter.getCodeBlock();
+
+	for(std::set<std::string>::const_iterator it = creationFunctionNameList.begin();
+		it != creationFunctionNameList.end();
+		++it) {
+		fileBlock->appendLine(getCreationFunctionPrototype(*it) + ";");
+	}
+
+	fileBlock->appendLine("template <typename Meta>");
+	fileBlock->appendLine(
+		Poco::format("void %s(Meta _d)", project->getMainRegisterFunctionName())
+	);
+
+	fileBlock->appendBlankLine();
+
+	CodeBlock * bodyBlock = fileBlock->appendBlock(cbsBracketAndIndent);
+
+	for(std::set<std::string>::const_iterator it = creationFunctionNameList.begin();
+		it != creationFunctionNameList.end();
+		++it) {
+		bodyBlock->appendLine(
+			Poco::format("_d._class(%s());", *it)
+		);
+	}
+
+	CodeWriter codeWriter;
+	cppWriter.write(&codeWriter);
+
+	writeStringToFile(headerFileName, codeWriter.getText());
+}
+
+void generateMainRegisterSourceFile(const std::set<std::string> & creationFunctionNameList, const Project * project)
+{
+	if(! project->shouldAutoRegisterToGlobal()) {
+		return;
+	}
+
+	const string headerIncludeFileName(
+		normalizeFile(
+			project->getMainRegisterFileName()
+			+ project->getHeaderFileExtension()
+		)
+	);
+	const string sourceFileName(
+		normalizeFile(
+			project->getHeaderOutputPath()
+			+ project->getMainRegisterFileName()
+			+ project->getSourceFileExtension()
+		)
+	);
+
+	CppWriter cppWriter;
+
+	cppWriter.setNamespace(project->getCppNamespace());
+	cppWriter.include(headerIncludeFileName);
+	cppWriter.include(includeOutmain);
+
+	CodeBlock * fileBlock = cppWriter.getCodeBlock();
+	fileBlock->appendLine("namespace");
+
+	CodeBlock * innerBlock = fileBlock->appendBlock(cbsBracket);
+	innerBlock->appendBlankLine();
+	innerBlock->appendLine("G_AUTO_RUN_BEFORE_MAIN()");
+	
+	CodeBlock * bodyBlock = innerBlock->appendBlock(cbsBracketAndIndent);
+	bodyBlock->appendLine(
+		Poco::format("cpgf::GDefineMetaNamespace _d = cpgf::GDefineMetaNamespace::define(\"%s\");",
+			project->getMetaNamespace())
+	);
+	bodyBlock->appendLine(
+		Poco::format("%s(_d);", project->getMainRegisterFunctionName())
+	);
+
+	CodeWriter codeWriter;
+	cppWriter.write(&codeWriter);
+
+	writeStringToFile(sourceFileName, codeWriter.getText());
+}
+
+void generateMainRegisterFiles(const std::set<std::string> & creationFunctionNameList, const Project * project)
+{
+	generateMainRegisterHeaderFile(creationFunctionNameList, project);
+	generateMainRegisterSourceFile(creationFunctionNameList, project);
+}
 
 
 } // namespace metagen
