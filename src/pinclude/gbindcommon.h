@@ -1372,7 +1372,7 @@ public:
 		ObjectPointerCV cv, const T & scriptObject) {
 //		GASSERT(this->findScriptObject(object, classData, cv) == NULL);
 		CacheEntry entry(object, classData->getMetaClass()->getQualifiedName(), cv);
-		this->objectMap.insert(make_pair(entry, scriptObject));
+		this->objectMap.insert(std::make_pair(entry, scriptObject));
 	}
 
 	void freeScriptObject(GGlueDataWrapper * dataWrapper) {

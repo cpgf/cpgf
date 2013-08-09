@@ -15,8 +15,6 @@
 
 namespace cpgf {
 
-size_t abstractParameterIndexBase = 0x1000000;
-
 namespace meta_internal {
 
 GMetaDefaultParamList::~GMetaDefaultParamList()
@@ -163,6 +161,18 @@ void checkInvokingArity(size_t invokingParamCount, size_t prototypeParamCount, b
 	}
 	else {
 		raiseCoreException(Error_Meta_WrongArity, prototypeParamCount, invokingParamCount);
+	}
+}
+
+void adjustParamIndex(size_t & index, bool isExplicitThis)
+{
+	if(index >= abstractParameterIndexBase) {
+		index -= abstractParameterIndexBase;
+	}
+	else {
+		if(isExplicitThis) {
+			++index;
+		}
 	}
 }
 

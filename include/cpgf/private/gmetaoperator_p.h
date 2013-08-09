@@ -697,7 +697,7 @@ private:
 	}
 
 	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
-		meta_internal::adjustParamIndex<Policy>(index);
+		meta_internal::adjustParamIndex(index, PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result);
 		
 #define REF_GETPARAM_EXTENDTYPE_HELPER(N, unused) \
 	case N: return createMetaExtendType<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>(flags);

@@ -31,7 +31,7 @@ class GMetaAnnotation;
 class GMetaConverter;
 struct IMemoryAllocator;
 
-extern size_t abstractParameterIndexBase;
+const size_t abstractParameterIndexBase = 0x1000000;
 
 struct GMetaVariadicParam
 {

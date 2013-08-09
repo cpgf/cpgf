@@ -209,6 +209,8 @@ public:
 
 	template <typename T>
 	void deleteObject(T * p) const {
+		// We can't call CBInplaceMeasure::deleteObject since T here maybe a base class
+		// and p points to a derived object.
 		if(p) {
 			p->deleteFunctor();
 

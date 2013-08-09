@@ -21,8 +21,6 @@
 
 namespace cpgf {
 
-extern size_t abstractParameterIndexBase;
-
 namespace meta_internal {
 
 template <typename Policy, int N>
@@ -209,19 +207,7 @@ struct IsVariadicFunction <FunctionTraits, typename GEnableIfResult<CheckVariadi
 };
 
 void checkInvokingArity(size_t invokingParamCount, size_t prototypeParamCount, bool isVariadic);
-
-template <typename Policy>
-void adjustParamIndex(size_t & index)
-{
-	if(index >= abstractParameterIndexBase) {
-		index -= abstractParameterIndexBase;
-	}
-	else {
-		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
-			++index;
-		}
-	}
-}
+void adjustParamIndex(size_t & index, bool isExplicitThis);
 
 
 } // namespace meta_internal
