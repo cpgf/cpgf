@@ -16,7 +16,7 @@ public:
 	explicit BuilderInvokable(const CppItem * cppItem);
 	virtual ~BuilderInvokable();
 	
-	virtual bool canBind() const;
+	virtual bool doCanBind() const;
 
 protected:
 };

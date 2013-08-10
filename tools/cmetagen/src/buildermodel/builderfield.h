@@ -19,7 +19,7 @@ public:
 
 	const CppField * getCppField() const;
 		
-	virtual bool canBind() const;
+	virtual bool doCanBind() const;
 	
 protected:
 	virtual void doWriteMetaData(BuilderWriter * writer);

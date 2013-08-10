@@ -22,7 +22,7 @@ const CppDestructor * BuilderDestructor::getCppDestructor() const
 	return static_cast<const CppDestructor *>(this->getCppItem());
 }
 
-bool BuilderDestructor::canBind() const
+bool BuilderDestructor::doCanBind() const
 {
 	return false;
 }

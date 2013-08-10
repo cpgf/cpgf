@@ -64,8 +64,6 @@ private:
 	void flatten(BuilderFile * file);
 	void doFlatten(BuilderFile * file, BuilderContainer * builderContainer);
 
-	bool shouldSkipItem(const CppItem * cppItem);
-
 	BuilderItem * createItem(const CppItem * cppItem);
 
 private:

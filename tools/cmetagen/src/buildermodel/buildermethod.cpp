@@ -39,6 +39,19 @@ const CppMethod * BuilderMethod::getCppMethod() const
 	return static_cast<const CppMethod *>(this->getCppItem());
 }
 
+bool BuilderMethod::canBind() const
+{
+	if(this->doCanBind()) {
+		if(isVisibilityAllowed(this->getCppItem()->getVisibility(), this->getProject())) {
+			return true;
+		}
+		if(this->shouldWrapClass() && this->getCppItem()->getVisibility() == ivProtected) {
+			return true;
+		}
+	}
+	
+	return false;
+}
 void BuilderMethod::doWriteMetaData(BuilderWriter * writer)
 {
 	const CppMethod * cppMethod = this->getCppMethod();

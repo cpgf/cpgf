@@ -1,5 +1,6 @@
 TBD version 1.5.7
 	Added script array support in script binding engine. Now C++ code can access arrays defined in script.
+	Script binding, now script can inherit from C++ class. Available in Lua, V8, and SpiderMonkey.
 	Added VC 2012 and VC 2013 entries in build makefile for easy use.
 	Added source group in CMake build file to filter files better in VC IDE.
 	Optimization in script binding. Now the script objects are reused when possible when passing C++ objects to the script engine. Slightly lower memory and higher performance.

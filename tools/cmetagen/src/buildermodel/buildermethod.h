@@ -19,6 +19,8 @@ public:
 	
 	const CppMethod * getCppMethod() const;
 	
+	virtual bool canBind() const;
+
 protected:
 	virtual void doWriteMetaData(BuilderWriter * writer);
 };

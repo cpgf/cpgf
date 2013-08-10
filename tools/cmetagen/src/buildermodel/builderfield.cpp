@@ -31,7 +31,7 @@ const CppField * BuilderField::getCppField() const
 	return static_cast<const CppField *>(this->getCppItem());
 }
 		
-bool BuilderField::canBind() const
+bool BuilderField::doCanBind() const
 {
 	if(this->getCppField()->isBitField() && ! this->getProject()->shouldWrapBitFields()) {
 		return false;
@@ -41,7 +41,7 @@ bool BuilderField::canBind() const
 		return false;
 	}
 	
-	return super::canBind();
+	return super::doCanBind();
 }
 
 void BuilderField::doWriteMetaData(BuilderWriter * writer)

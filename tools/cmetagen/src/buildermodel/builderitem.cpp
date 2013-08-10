@@ -34,6 +34,14 @@ void BuilderItem::checkBuilderItemCategory(ItemCategory category)
 
 void BuilderItem::writeMetaData(BuilderWriter * writer)
 {
+	if(this->shouldSkipBind()) {
+		return;
+	}
+	
+	if(! this->canBind()) {
+		return;
+	}
+	
 	this->doWriteMetaData(writer);
 }
 
@@ -49,6 +57,12 @@ bool BuilderItem::shouldSkipBind() const
 
 bool BuilderItem::canBind() const
 {
+	return isVisibilityAllowed(this->getCppItem()->getVisibility(), this->getProject())
+		&& this->doCanBind();
+}
+
+bool BuilderItem::doCanBind() const
+{
 	return true;
 }
 
@@ -59,6 +73,7 @@ void BuilderItem::setWrapClass(bool wrap)
 
 bool BuilderItem::shouldWrapClass() const
 {
+return true;
 	if(this->getParent() != NULL
 		&& this->getParent()->getCppItem()->isClass()
 		&& ! this->getParent()->shouldSkipBind()) {

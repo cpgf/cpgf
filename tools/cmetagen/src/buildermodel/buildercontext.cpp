@@ -359,17 +359,8 @@ void BuilderContext::doFlatten(BuilderFile * file, BuilderContainer * builderCon
 		if(! (*it)->isInMainFile()) {
 			continue;
 		}
-		if(this->shouldSkipItem(*it)) {
-			continue;
-		}
 
 		cpgf::GScopedPointer<BuilderItem> item(this->createItem(*it));
-		if(! item->canBind()) {
-			continue;
-		}
-		if(item->shouldSkipBind()) {
-			continue;
-		}
 
 		BuilderItem * itemPointer = item.get();
 		this->itemList.push_back(item.take());
@@ -378,11 +369,6 @@ void BuilderContext::doFlatten(BuilderFile * file, BuilderContainer * builderCon
 			this->doFlatten(file, static_cast<BuilderContainer *>(itemPointer));
 		}
 	}
-}
-
-bool BuilderContext::shouldSkipItem(const CppItem * cppItem)
-{
-	return ! isVisibilityAllowed(cppItem->getVisibility(), this->project);
 }
 
 

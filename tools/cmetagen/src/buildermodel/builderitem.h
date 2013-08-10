@@ -43,6 +43,7 @@ public:
 	
 protected:
 	virtual void doWriteMetaData(BuilderWriter * writer) = 0;
+	virtual bool doCanBind() const;
 	
 	void checkBuilderItemCategory(ItemCategory category);
 	
