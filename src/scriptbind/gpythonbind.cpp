@@ -268,6 +268,11 @@ PyTypeObject functionType = {
 };
 
 
+int classTypeIsGC(PyTypeObject *python_type)
+{
+  return 0; // python_type->tp_flags & Py_TPFLAGS_HEAPTYPE;
+}
+
 PyTypeObject classType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     const_cast<char *>("cpgf.Python.class"),
@@ -299,16 +304,16 @@ PyTypeObject classType = {
     0,                                  /* tp_methods */
     0, 					              /* tp_members */
     NULL, 				                /* tp_getset */
-    0,                                  /* tp_base */
+    0,                       /* tp_base */
     0,                                  /* tp_dict */
     NULL, 				                 /* tp_descr_get */
     0,                                  /* tp_descr_set */
     0, 							      /* tp_dictoffset */
     0,                               /* tp_init */
-    0,                                      /* tp_alloc */
-    0,                                      /* tp_new */
+    0,                    /* tp_alloc */
+    0,                     /* tp_new */
     0,                                      /* tp_free */
-    0,                                      /* tp_is_gc */
+    (inquiry)&classTypeIsGC,                         /* tp_is_gc */
     0,                                      /* tp_bases */
     0,                                      /* tp_mro */
     0,                                      /* tp_cache */
@@ -740,6 +745,9 @@ void GPythonObject::initType(PyTypeObject * type)
 {
     if(Py_TYPE(type) == 0) {
         Py_TYPE(type) = &PyType_Type;
+		if(type == &classType) {
+			type->tp_base = &PyBaseObject_Type; //&PyType_Type;
+		}
         PyType_Ready(type);
     }
 

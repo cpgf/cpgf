@@ -81,9 +81,13 @@ endmacro()
 
 if(${HAS_UNITTEST})
 	set(GLOB_TEST_LUA )
+	set(GLOB_METATEST_LUA )
 	if(HAS_LUA)
 		globAndAppendFiles(GLOB_TEST_LUA
 			${TEST_PATH}/scriptbind/luabind/*.cpp
+		)
+		globAndAppendFiles(GLOB_METATEST_LUA
+			${TEST_PATH}/metagen/tests/luatests/*.cpp
 		)
 	endif(HAS_LUA)
 
@@ -143,6 +147,7 @@ if(${HAS_UNITTEST})
 	partUnitTest("test_scriptbind"
 		${TEST_PATH}/scriptbind/*.cpp
 		${TEST_PATH}/scriptbind/general/*.cpp
+
 		${GLOB_TEST_LUA}
 		${GLOB_TEST_V8}
 		${GLOB_TEST_PYTHON}
@@ -165,6 +170,7 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/metagen/src/*.cpp
 		${TEST_PATH}/metagen/metadata/src/*.cpp
 
+		${GLOB_METATEST_LUA}
 		${GLOB_METATEST_V8}
 		${GLOB_METATEST_SPIDERMONKEY}
 		${GLOB_METATEST_PYTHON}
