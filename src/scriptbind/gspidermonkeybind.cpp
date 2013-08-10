@@ -351,9 +351,6 @@ ObjectPrivateDataMap functionPrivateDataMap;
 void * getClassPrivateData(JSContext * jsContext, JSObject * object);
 void setClassPrivateData(JSContext * jsContext, JSObject * object, void * data)
 {
-	if(getClassPrivateData(jsContext, object) != NULL) {
-		getClassPrivateData(jsContext, object);
-	}
 	JSObject * ctor = JS_GetConstructor(jsContext, object);
 	JSObject * proto = ctor;
 	if(proto != NULL) {
@@ -396,6 +393,54 @@ void setFunctionPrivateData(JSObject * object, void * data)
 void * getFunctionPrivateData(JSObject * object)
 {
 	return getPrivateData(&functionPrivateDataMap, object);
+}
+
+GGlueDataWrapper * getNativeObjectOrClass(JSContext * jsContext, JSObject * object)
+{
+	while(object != NULL) {
+		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectOrClassPrivateData(jsContext, object));
+		if(dataWrapper != NULL) {
+			return dataWrapper;
+		}
+		JSObject * temp = object;
+		if(JS_GetPrototype(jsContext, temp, &object) != JS_TRUE) {
+			break;
+		}
+	}
+
+	return NULL;
+}
+
+GGlueDataWrapper * getNativeObject(JSContext * jsContext, JSObject * object)
+{
+	while(object != NULL) {
+		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectPrivateData(object));
+		if(dataWrapper != NULL) {
+			return dataWrapper;
+		}
+		JSObject * temp = object;
+		if(JS_GetPrototype(jsContext, temp, &object) != JS_TRUE) {
+			break;
+		}
+	}
+
+	return NULL;
+}
+
+GGlueDataWrapper * getNativeClass(JSContext * jsContext, JSObject * object)
+{
+	while(object != NULL) {
+		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getClassPrivateData(jsContext, object));
+		if(dataWrapper != NULL) {
+			return dataWrapper;
+		}
+		JSObject * temp = object;
+		if(JS_GetPrototype(jsContext, temp, &object) != JS_TRUE) {
+			break;
+		}
+	}
+
+	return NULL;
 }
 
 struct GSpiderMethods
@@ -531,7 +576,7 @@ GScriptValue spiderUserDataToScriptValue(const GSpiderContextPointer & context, 
 {
 	if(value.isObject()) {
 		JSObject * object = &value.toObject();
-		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectOrClassPrivateData(context->getJsContext(), object));
+		GGlueDataWrapper * dataWrapper = getNativeObjectOrClass(context->getJsContext(), object);
 		if(dataWrapper == NULL) {
 			dataWrapper = static_cast<GGlueDataWrapper *>(getFunctionPrivateData(object));
 		}
@@ -637,7 +682,7 @@ JSBool callbackMethodList(JSContext * jsContext, unsigned int argc, jsval * valu
 		GMethodGlueDataPointer methodData(methodDataWrapper->getAs<GMethodGlueData>());
 		
 		GObjectGlueDataPointer objectData;
-		GGlueDataWrapper * objectDataWrapper = static_cast<GGlueDataWrapper *>(getObjectOrClassPrivateData(jsContext, selfObject));
+		GGlueDataWrapper * objectDataWrapper = getNativeObjectOrClass(jsContext, selfObject);
 		if(objectDataWrapper != NULL && objectDataWrapper->getData()->getType() == gdtObject) {
 			objectData = objectDataWrapper->getAs<GObjectGlueData>();
 		}
@@ -727,7 +772,7 @@ JSBool propertyGetter(JSContext *jsContext, JSHandleObject obj, JSHandleId id, J
 		return failedResult();
 	}
 	if(idValue.isString()) {
-		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectOrClassPrivateData(jsContext, obj));
+		GGlueDataWrapper * dataWrapper = getNativeObjectOrClass(jsContext, obj);
 
 		if(dataWrapper == NULL) {
 			return JS_PropertyStub(jsContext, obj, id, vp);
@@ -786,7 +831,7 @@ JSBool propertySetter(JSContext * jsContext, JSHandleObject obj, JSHandleId id, 
 		return failedResult();
 	}
 	if(idValue.isString()) {
-		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectOrClassPrivateData(jsContext, obj));
+		GGlueDataWrapper * dataWrapper = getNativeObjectOrClass(jsContext, obj);
 		if(dataWrapper == NULL) {
 			return JS_StrictPropertyStub(jsContext, obj, id, strict, vp);
 		}
@@ -847,7 +892,7 @@ JSBool enumGetter(JSContext *jsContext, JSHandleObject obj, JSHandleId id, JSMut
 		return failedResult();
 	}
 	if(idValue.isString()) {
-		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectOrClassPrivateData(jsContext, obj));
+		GGlueDataWrapper * dataWrapper = getNativeObjectOrClass(jsContext, obj);
 		if(dataWrapper->getData()->getType() == gdtEnum) {
 			JSString * jsString = idValue.toString();
 			GScopedArray<char> name(jsStringToString(jsContext, jsString));
@@ -919,7 +964,7 @@ JsValue helperBindEnum(const GSpiderContextPointer & context, IMetaEnum * metaEn
 void helperBindAccessible(const GSpiderContextPointer & context, JSObject * owner,
 	const char * name, void * instance, IMetaAccessible * accessible)
 {
-	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectOrClassPrivateData(context->getJsContext(), owner));
+	GGlueDataWrapper * dataWrapper = getNativeObjectOrClass(context->getJsContext(), owner);
 	JsClassUserData * userData = NULL;
 	if(dataWrapper != NULL) {
 		if(dataWrapper->getData()->getType() == gdtClass) {
@@ -948,7 +993,7 @@ JSBool objectConstructor(JSContext * jsContext, unsigned int argc, jsval * value
 	JsValue callee = JS_CALLEE(jsContext, valuePointer);
 	if(callee.isObject()) {
 		JSObject * sObject = &callee.toObject();
-		GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getClassPrivateData(jsContext, sObject));
+		GGlueDataWrapper * dataWrapper = getNativeClass(jsContext, sObject);
 		if(dataWrapper == NULL) {
 		}
 
@@ -1133,6 +1178,7 @@ JsValue helperBindValue(const GSpiderContextPointer & context, JSObject * jsObje
 void objectFinalizer(JSFreeOp * /*jsop*/, JSObject * object)
 {
 	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(getObjectPrivateData(object));
+//	GGlueDataWrapper * dataWrapper = getNativeObject(object);
 	if(dataWrapper != NULL) {
 		getSpiderScriptObjectCache()->freeScriptObject(dataWrapper);
 		freeGlueDataWrapper(dataWrapper, sharedStaticCast<GSpiderBindingContext>(dataWrapper->getData()->getContext())->getGlueDataWrapperPool());
@@ -1223,7 +1269,7 @@ JSObject * getOrCreateGlobalJsObject(JSContext * jsContext, JSObject * jsObject)
 
 bool isValidObject(JSContext * jsContext, JSObject * jsObject)
 {
-	return (getObjectOrClassPrivateData(jsContext, jsObject) != NULL
+	return (getNativeObjectOrClass(jsContext, jsObject) != NULL
 		|| getFunctionPrivateData(jsObject) != NULL)
 		&& JS_GetClass(jsObject) != static_cast<JsClassUserData *>(globalClassData->getClassMap()->getUserData())->getJsClass();
 	;

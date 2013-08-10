@@ -288,7 +288,7 @@ PyTypeObject classType = {
 	&callbackGetAttribute,             /* tp_getattro */
     &callbackSetAttribute,            /* tp_setattro */
     0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT,					/* tp_flags */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,	/* tp_flags */
     0,                                  /* tp_doc */
     0, 					          /* tp_traverse */
     0,                                  /* tp_clear */
@@ -304,7 +304,7 @@ PyTypeObject classType = {
     NULL, 				                 /* tp_descr_get */
     0,                                  /* tp_descr_set */
     0, 							      /* tp_dictoffset */
-    0,                                      /* tp_init */
+    0,                               /* tp_init */
     0,                                      /* tp_alloc */
     0,                                      /* tp_new */
     0,                                      /* tp_free */
