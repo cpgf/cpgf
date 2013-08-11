@@ -168,6 +168,18 @@ void scriptSetScriptArrayValue(IScriptArray * scriptArray, size_t index, const G
 	scriptArray->setValue((uint32_t)index, &data);
 }
 
+GScriptValue scriptGetAsScriptArray(IScriptArray * scriptArray, size_t index)
+{
+	GScriptValueData data;
+	scriptArray->getAsScriptArray(&data, (uint32_t)index);
+	return createScriptValueFromData(data);
+}
+GScriptValue scriptCreateScriptArray(IScriptArray * scriptArray, size_t index)
+{
+	GScriptValueData data;
+	scriptArray->createScriptArray(&data, (uint32_t)index);
+	return createScriptValueFromData(data);
+}
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject)
 {
 	return new ImplScriptObject(scriptObject, freeObject);

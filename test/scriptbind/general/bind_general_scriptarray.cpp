@@ -11,19 +11,26 @@ using namespace std;
 
 namespace {
 
-void doCreateScriptArray(TestScriptContext * context, const string & name, const string & elements)
+string getCodeScriptArray(TestScriptContext * context, const string & elements)
 {
 	string code;
 
 	if(context->isLua()) {
-		code = VAR + name + " = {" + elements + "}";
+		code = "{" + elements + "}";
 	}
 	else if(context->isPython()) {
-		code = VAR + name + " = [" + elements + "]";
+		code = "[" + elements + "]";
 	}
 	else if(context->isJavascript()) {
-		code = VAR + name + " = [" + elements + "]";
+		code = "[" + elements + "]";
 	}
+
+	return code;
+}
+
+void doCreateScriptArray(TestScriptContext * context, const string & name, const string & elements)
+{
+	string code = VAR + name + " = " + getCodeScriptArray(context, elements);
 	DO(code);
 }
 
@@ -160,6 +167,54 @@ void testArrayCreateScriptArray(TestScriptContext * context)
 }
 
 #define CASE testArrayCreateScriptArray
+#include "../bind_testcase.h"
+
+
+template <typename T>
+void doTestArray2DScriptArray(T * binding, TestScriptContext * context)
+{
+	string code;
+	code.append(getCodeScriptArray(context, "1, 2, 3"));
+	code.append(", " + getCodeScriptArray(context, "4, 5, 6"));
+	code.append(", 7");
+	doCreateScriptArray(context, "a", code);
+
+	GCHECK(binding->maybeIsScriptArray("a"));
+
+	GScriptValue scriptArrayValue(scriptGetAsScriptArray(binding, "a"));
+	GScopedInterface<IScriptArray> scriptArray(scriptArrayValue.toScriptArray());
+
+	GCHECK(scriptArray->maybeIsScriptArray(0));
+	GCHECK(scriptArray->maybeIsScriptArray(1));
+	GCHECK(! scriptArray->maybeIsScriptArray(2));
+
+	GScopedInterface<IScriptArray> nestedScriptArray;
+
+	nestedScriptArray.reset(scriptGetAsScriptArray(scriptArray.get(), 0).toScriptArray());
+	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 0).toFundamental()) == 1);
+	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 1).toFundamental()) == 2);
+	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 2).toFundamental()) == 3);
+
+	nestedScriptArray.reset(scriptGetAsScriptArray(scriptArray.get(), 1).toScriptArray());
+	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 0).toFundamental()) == 4);
+	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 1).toFundamental()) == 5);
+	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(nestedScriptArray.get(), 2).toFundamental()) == 6);
+
+	GCHECK(fromVariant<int>(scriptGetScriptArrayValue(scriptArray.get(), 2).toFundamental()) == 7);
+}
+
+void testArray2DScriptArray(TestScriptContext * context)
+{
+	if(context->getBindingLib()) {
+		doTestArray2DScriptArray(context->getBindingLib(), context);
+	}
+	
+	if(context->getBindingApi()) {
+		doTestArray2DScriptArray(context->getBindingApi(), context);
+	}
+}
+
+#define CASE testArray2DScriptArray
 #include "../bind_testcase.h"
 
 

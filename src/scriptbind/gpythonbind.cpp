@@ -136,6 +136,10 @@ public:
 	virtual GScriptValue getValue(size_t index);
 	virtual void setValue(size_t index, const GScriptValue & value);
 
+	virtual bool maybeIsScriptArray(size_t index);
+	virtual GScriptValue getAsScriptArray(size_t index);
+	virtual GScriptValue createScriptArray(size_t index);
+
 private:
 	PyObject * listObject;
 };
@@ -268,7 +272,7 @@ PyTypeObject functionType = {
 };
 
 
-int classTypeIsGC(PyTypeObject *python_type)
+int classTypeIsGC(PyTypeObject * /*python_type*/)
 {
   return 0; // python_type->tp_flags & Py_TPFLAGS_HEAPTYPE;
 }
@@ -1512,19 +1516,68 @@ GScriptValue GPythonScriptArray::getValue(size_t index)
 
 void GPythonScriptArray::setValue(size_t index, const GScriptValue & value)
 {
-	size_t length = this->getLength();
-	while(index >= length) {
-		Py_XINCREF(Py_None);
-		PyList_Append(this->listObject, Py_None);
-		++length;
+	if(value.isAccessible()) {
+		raiseCoreException(Error_ScriptBinding_NotSupportedFeature, "Set Accessible Into Array", "Python");
 	}
-	PyObject * valueObject = helperBindValue(this->getContext(), value);
-	GASSERT(valueObject != NULL);
+	else {
+		size_t length = this->getLength();
+		while(index >= length) {
+			Py_XINCREF(Py_None);
+			PyList_Append(this->listObject, Py_None);
+			++length;
+		}
+		PyObject * valueObject = helperBindValue(this->getContext(), value);
+		GASSERT(valueObject != NULL);
 
-	PyList_SetItem(this->listObject, index, valueObject);
+		PyList_SetItem(this->listObject, index, valueObject);
+	}
 }
 
+bool GPythonScriptArray::maybeIsScriptArray(size_t index)
+{
+	PyObject * obj = PyList_GetItem(this->listObject, index); // borrowed reference!
+	if(obj != NULL) {
+		return !! PyList_Check(obj);
+	}
+	else {
+		return false;
+	}
+}
+GScriptValue GPythonScriptArray::getAsScriptArray(size_t index)
+{
+	PyObject * obj = PyList_GetItem(this->listObject, index); // borrowed reference!
+	if(obj != NULL && !! PyList_Check(obj)) {
+		GScopedInterface<IScriptArray> scriptArray(
+			new ImplScriptArray(new GPythonScriptArray(this->getContext(), obj), true)
+		);
+		return GScriptValue::fromScriptArray(scriptArray.get());
+	}
+	else {
+		return GScriptValue();
+	}
+}
+GScriptValue GPythonScriptArray::createScriptArray(size_t index)
+{
+	PyObject * obj = PyList_GetItem(this->listObject, index); // borrowed reference!
+	if(obj != NULL) {
+		if(!! PyList_Check(obj)) {
+			GScopedInterface<IScriptArray> scriptArray(
+				new ImplScriptArray(new GPythonScriptArray(this->getContext(), obj), true)
+			);
+			return GScriptValue::fromScriptArray(scriptArray.get());
+		}
+	}
+	else {
+		PyObject * obj = PyList_New(0);
+		PyList_SetItem(this->listObject, index, obj);
+		GScopedInterface<IScriptArray> scriptArray(
+			new ImplScriptArray(new GPythonScriptArray(this->getContext(), obj), true)
+		);
+		return GScriptValue::fromScriptArray(scriptArray.get());
+	}
 
+	return GScriptValue();
+}
 GPythonScriptObject::GPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config)
 	: super(GContextPointer(new GPythonBindingContext(service, config)), config), object(object)
 {

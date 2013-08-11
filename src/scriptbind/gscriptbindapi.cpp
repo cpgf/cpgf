@@ -142,6 +142,22 @@ void G_API_CC ImplScriptArray::setValue(uint32_t index, const GScriptValueData *
 	this->scriptArray->setValue(index, scriptValue);
 }
 
+gapi_bool G_API_CC ImplScriptArray::maybeIsScriptArray(uint32_t index)
+{
+	return this->scriptArray->maybeIsScriptArray(index);
+}
+void G_API_CC ImplScriptArray::getAsScriptArray(GScriptValueData * outResult, uint32_t index)
+{
+	GScriptValue value(this->scriptArray->getAsScriptArray(index));
+	*outResult = value.takeData();
+}
+
+void G_API_CC ImplScriptArray::createScriptArray(GScriptValueData * outResult, uint32_t index)
+{
+	GScriptValue value(this->scriptArray->createScriptArray(index));
+	*outResult = value.takeData();
+}
+
 
 ImplScriptObject::ImplScriptObject(GScriptObject * scriptObject, bool freeObject)
 	: scriptObject(scriptObject), freeObject(freeObject)

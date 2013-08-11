@@ -47,6 +47,10 @@ public:
 	virtual size_t getLength() = 0;
 	virtual GScriptValue getValue(size_t index) = 0;
 	virtual void setValue(size_t index, const GScriptValue & value) = 0;
+
+	virtual bool maybeIsScriptArray(size_t index) = 0;
+	virtual GScriptValue getAsScriptArray(size_t index) = 0;
+	virtual GScriptValue createScriptArray(size_t index) = 0;
 	
 	GMAKE_NONCOPYABLE(GScriptArray);
 };

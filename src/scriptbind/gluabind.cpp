@@ -82,6 +82,10 @@ public:
 	virtual size_t getLength();
 	virtual GScriptValue getValue(size_t index);
 	virtual void setValue(size_t index, const GScriptValue & value);
+
+	virtual bool maybeIsScriptArray(size_t index);
+	virtual GScriptValue getAsScriptArray(size_t index);
+	virtual GScriptValue createScriptArray(size_t index);
 	
 private:
 	int ref;
@@ -1380,20 +1384,51 @@ GScriptValue GLuaScriptArray::getValue(size_t index)
 
 void GLuaScriptArray::setValue(size_t index, const GScriptValue & value)
 {
-	char name[1024] = { 0 };
 	if(value.isAccessible()) {
-		sprintf(name, "%p_%d", this, (int)(index + 1));
+		raiseCoreException(Error_ScriptBinding_NotSupportedFeature, "Set Accessible Into Array", "Lua");
 	}
-
-	lua_State * L = getLuaState(this->getContext());
-	getRefObject(L, this->ref);
-	bool shouldSet = helperBindValue(this->getContext(), name, value,
-		makeCallback(this->scriptObject, &GLuaScriptObject::getGlobalAccessor));
-	if(shouldSet) {
-		lua_rawseti(L, -2, (int)(index + 1));
+	else {
+		lua_State * L = getLuaState(this->getContext());
+		getRefObject(L, this->ref);
+		bool shouldSet = helperBindValue(this->getContext(), "", value,
+			makeCallback(this->scriptObject, &GLuaScriptObject::getGlobalAccessor));
+		if(shouldSet) {
+			lua_rawseti(L, -2, (int)(index + 1));
+		}
 	}
 }
 
+bool GLuaScriptArray::maybeIsScriptArray(size_t index)
+{
+	lua_State * L = getLuaState(this->getContext());
+	getRefObject(L, this->ref);
+	lua_rawgeti(L, -1, (int)(index + 1));
+	return lua_type(L, -1) == LUA_TTABLE;
+}
+GScriptValue GLuaScriptArray::getAsScriptArray(size_t index)
+{
+	lua_State * L = getLuaState(this->getContext());
+	getRefObject(L, this->ref);
+	lua_rawgeti(L, -1, (int)(index + 1));
+
+	if(lua_type(L, -1) == LUA_TTABLE) {
+		GScopedInterface<IScriptArray> scriptArray(new ImplScriptArray(new GLuaScriptArray(this->scriptObject, -1), true));
+		return GScriptValue::fromScriptArray(scriptArray.get());
+	}
+	else {
+		return GScriptValue();
+	}
+}
+GScriptValue GLuaScriptArray::createScriptArray(size_t index)
+{
+	lua_State * L = getLuaState(this->getContext());
+
+	lua_newtable(L);
+	lua_rawseti(L, -2, (int)(index + 1));
+
+	GScopedInterface<IScriptArray> scriptArray(new ImplScriptArray(new GLuaScriptArray(this->scriptObject, -1), true));
+	return GScriptValue::fromScriptArray(scriptArray.get());
+}	
 
 GLuaScriptObject::GLuaScriptObject(IMetaService * service, lua_State * L, const GScriptConfig & config)
 	: super(GContextPointer(new GLuaBindingContext(service, config, L)), config), luaState(L), ref(LUA_NOREF)

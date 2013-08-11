@@ -40,6 +40,10 @@ public:
 	virtual uint32_t G_API_CC getLength() = 0;
 	virtual void G_API_CC getValue(GScriptValueData * outResult, uint32_t index) = 0;
 	virtual void G_API_CC setValue(uint32_t index, const GScriptValueData * value) = 0;
+
+	virtual gapi_bool G_API_CC maybeIsScriptArray(uint32_t index) = 0;
+	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, uint32_t index) = 0;
+	virtual void G_API_CC createScriptArray(GScriptValueData * outResult, uint32_t index) = 0;
 };
 
 

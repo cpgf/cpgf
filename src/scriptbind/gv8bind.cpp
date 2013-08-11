@@ -122,6 +122,10 @@ public:
 	virtual GScriptValue getValue(size_t index);
 	virtual void setValue(size_t index, const GScriptValue & value);
 
+	virtual bool maybeIsScriptArray(size_t index);
+	virtual GScriptValue getAsScriptArray(size_t index);
+	virtual GScriptValue createScriptArray(size_t index);
+
 private:
 	Persistent<Array> arrayObject;
 };
@@ -1175,6 +1179,67 @@ void GV8ScriptArray::setValue(size_t index, const GScriptValue & value)
 	}
 }
 
+template <typename T>
+bool v8MaybeIsScriptArray(T key, Handle<Object> object)
+{
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(object));
+
+	Local<Value> value = localObject->Get(key);
+	return value->IsArray();
+}
+template <typename T>
+GScriptValue v8GetAsScriptArray(const GContextPointer & context, T key, Handle<Object> object)
+{
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(object));
+
+	Local<Value> value = localObject->Get(key);
+	if(value->IsArray()) {
+		GScopedInterface<IScriptArray> scriptArray(
+			new ImplScriptArray(new GV8ScriptArray(context, Handle<Array>::Cast(value)), true)
+		);
+		return GScriptValue::fromScriptArray(scriptArray.get());
+	}
+	else {
+		return GScriptValue();
+	}
+}
+template <typename T>
+GScriptValue v8CreateScriptArray(const GContextPointer & context, T key, Handle<Object> object)
+{
+	HandleScope handleScope;
+	Local<Object> localObject(Local<Object>::New(object));
+
+	Local<Value> value = localObject->Get(key);
+	if(value->IsArray()) { // already exists
+		GScopedInterface<IScriptArray> scriptArray(
+			new ImplScriptArray(new GV8ScriptArray(context, Handle<Array>::Cast(value)), true)
+		);
+		return GScriptValue::fromScriptArray(scriptArray.get());
+	}
+	else {
+		Local<Array> arrayObject = Array::New();
+		localObject->Set(key, arrayObject);
+		GScopedInterface<IScriptArray> scriptArray(
+			new ImplScriptArray(new GV8ScriptArray(context, arrayObject), true)
+		);
+		return GScriptValue::fromScriptArray(scriptArray.get());
+	}
+}
+
+bool GV8ScriptArray::maybeIsScriptArray(size_t index)
+{
+	return v8MaybeIsScriptArray((uint32_t)index, this->arrayObject);
+}
+GScriptValue GV8ScriptArray::getAsScriptArray(size_t index)
+{
+	return v8GetAsScriptArray(this->getContext(), (uint32_t)index, this->arrayObject);
+}
+GScriptValue GV8ScriptArray::createScriptArray(size_t index)
+{
+	return v8CreateScriptArray(this->getContext(), (uint32_t)index, this->arrayObject);
+}
 
 GV8ScriptObject::GV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config)
 	: super(GContextPointer(new GV8BindingContext(service, config)), config), object(Persistent<Object>::New(object))
@@ -1297,50 +1362,17 @@ void GV8ScriptObject::assignValue(const char * fromName, const char * toName)
 
 bool GV8ScriptObject::maybeIsScriptArray(const char * name)
 {
-	HandleScope handleScope;
-	Local<Object> localObject(Local<Object>::New(this->object));
-
-	Local<Value> value = localObject->Get(String::New(name));
-	return value->IsArray();
+	return v8MaybeIsScriptArray(String::New(name), this->object);
 }
 
 GScriptValue GV8ScriptObject::getAsScriptArray(const char * name)
 {
-	HandleScope handleScope;
-	Local<Object> localObject(Local<Object>::New(this->object));
-
-	Local<Value> value = localObject->Get(String::New(name));
-	if(value->IsArray()) {
-		GScopedInterface<IScriptArray> scriptArray(
-			new ImplScriptArray(new GV8ScriptArray(this->getContext(), Handle<Array>::Cast(value)), true)
-		);
-		return GScriptValue::fromScriptArray(scriptArray.get());
-	}
-	else {
-		return GScriptValue();
-	}
+	return v8GetAsScriptArray(this->getContext(), String::New(name), this->object);
 }
 
 GScriptValue GV8ScriptObject::createScriptArray(const char * name)
 {
-	HandleScope handleScope;
-	Local<Object> localObject(Local<Object>::New(this->object));
-
-	Local<Value> value = localObject->Get(String::New(name));
-	if(value->IsArray()) { // already exists
-		GScopedInterface<IScriptArray> scriptArray(
-			new ImplScriptArray(new GV8ScriptArray(this->getContext(), Handle<Array>::Cast(value)), true)
-		);
-		return GScriptValue::fromScriptArray(scriptArray.get());
-	}
-	else {
-		Local<Array> arrayObject = Array::New();
-		localObject->Set(String::New(name), arrayObject);
-		GScopedInterface<IScriptArray> scriptArray(
-			new ImplScriptArray(new GV8ScriptArray(this->getContext(), arrayObject), true)
-		);
-		return GScriptValue::fromScriptArray(scriptArray.get());
-	}
+	return v8CreateScriptArray(this->getContext(), String::New(name), this->object);
 }
 
 void GV8ScriptObject::doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)

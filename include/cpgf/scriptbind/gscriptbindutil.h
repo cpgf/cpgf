@@ -36,6 +36,8 @@ GScriptValue scriptCreateScriptArray(IScriptObject * scriptObject, const char * 
 
 GScriptValue scriptGetScriptArrayValue(IScriptArray * scriptArray, size_t index);
 void scriptSetScriptArrayValue(IScriptArray * scriptArray, size_t index, const GScriptValue & value);
+GScriptValue scriptGetAsScriptArray(IScriptArray * scriptArray, size_t index);
+GScriptValue scriptCreateScriptArray(IScriptArray * scriptArray, size_t index);
 
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject);
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject);

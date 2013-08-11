@@ -257,6 +257,10 @@ public:
 	virtual GScriptValue getValue(size_t index);
 	virtual void setValue(size_t index, const GScriptValue & value);
 
+	virtual bool maybeIsScriptArray(size_t index);
+	virtual GScriptValue getAsScriptArray(size_t index);
+	virtual GScriptValue createScriptArray(size_t index);
+
 private:
 	GScopedJsObject arrayObject;
 };
@@ -1387,6 +1391,50 @@ void GSpiderScriptArray::setValue(size_t index, const GScriptValue & value)
 	}
 }
 
+
+bool GSpiderScriptArray::maybeIsScriptArray(size_t index)
+{
+	JsValue value;
+	GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getContext());
+	if(JS_GetElement(spiderContext->getJsContext(), this->arrayObject.getJsObject(), (uint32_t)index, &value) == JS_TRUE) {
+		if(value.isObject()) {
+			return JS_IsArrayObject(spiderContext->getJsContext(), &value.toObject()) == JS_TRUE;
+		}
+	}
+	return false;
+}
+
+GScriptValue GSpiderScriptArray::getAsScriptArray(size_t index)
+{
+	JsValue value;
+	GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getContext());
+	if(JS_GetElement(spiderContext->getJsContext(), this->arrayObject.getJsObject(), (uint32_t)index, &value) == JS_TRUE) {
+		if(value.isObject()
+			&& JS_IsArrayObject(spiderContext->getJsContext(), &value.toObject()) == JS_TRUE) {
+			GScopedInterface<IScriptArray> scriptArray(
+				new ImplScriptArray(new GSpiderScriptArray(spiderContext, &value.toObject()), true)
+			);
+			return GScriptValue::fromScriptArray(scriptArray.get());
+		}
+	}
+	return GScriptValue();
+}
+
+GScriptValue GSpiderScriptArray::createScriptArray(size_t index)
+{
+	GScriptValue value = this->getAsScriptArray(index);
+	if(value.isNull()) {
+		GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getContext());
+		JSObject * arrayObject = JS_NewArrayObject(spiderContext->getJsContext(), 0, NULL);
+		JsValue jsValue = ObjectValue(*arrayObject);
+		JS_SetElement(spiderContext->getJsContext(), this->arrayObject.getJsObject(), (uint32_t)index, &jsValue);
+		GScopedInterface<IScriptArray> scriptArray(
+			new ImplScriptArray(new GSpiderScriptArray(spiderContext, arrayObject), true)
+		);
+		return GScriptValue::fromScriptArray(scriptArray.get());
+	}
+	return value;
+}
 
 GSpiderMonkeyScriptObject::GSpiderMonkeyScriptObject(IMetaService * service, const GScriptConfig & config, JSContext * jsContext, JSObject  * jsObject)
 	: super(GContextPointer(new GSpiderBindingContext(service, config, jsContext, getOrCreateGlobalJsObject(jsContext, jsObject))), config), jsContext(jsContext)
