@@ -107,14 +107,22 @@ bool GMetaType::baseIsClass() const
 	return this->hasFlag(meta_internal::mtFlagBaseIsClass);
 }
 
-bool GMetaType::isFundamental() const
-{
-	return vtIsFundamental(this->getVariantType());
-}
-
 bool GMetaType::baseIsArray() const
 {
 	return this->hasFlag(meta_internal::mtFlagBaseIsArray);
+}
+
+bool GMetaType::baseIsStdString() const
+{
+	return this->hasFlag(meta_internal::mtFlagBaseIsStdString);
+}
+bool GMetaType::baseIsStdWideString() const
+{
+	return this->hasFlag(meta_internal::mtFlagBaseIsStdWideString);
+}
+bool GMetaType::isFundamental() const
+{
+	return vtIsFundamental(this->getVariantType());
 }
 
 bool GMetaType::isFunction() const

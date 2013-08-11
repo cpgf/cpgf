@@ -2,9 +2,15 @@
 #define __PROJECT_H
 
 #include "cpgf/gscopedptr.h"
+#include "cpgf/gclassutil.h"
 
 #include <string>
 #include <vector>
+
+namespace metadata {
+template <typename D_d >
+void buildMetaClass_metagen_Project(D_d & _d);
+}
 
 namespace metagen {
 
@@ -12,18 +18,25 @@ class BuilderTemplateInstantiationRepository;
 
 typedef std::vector<std::string> StringArrayType;
 
+class ProjectImplement;
+
 class Project
 {
 public:
 	Project();
 	~Project();
 
+#ifdef CPGF_METAGEN_PARSER
+private:
+#else
+public:
+#endif
 	std::string getProjectID() const;
-
-	size_t getMaxItemCountPerFile() const;
 
 	const StringArrayType & getFiles() const;
 	const std::string & getCppNamespace() const;
+
+	size_t getMaxItemCountPerFile() const;
 
 	const std::string & getHeaderIncludePrefix() const;
 	const std::string & getHeaderFileExtension() const;
@@ -56,7 +69,11 @@ public:
 	
 	const BuilderTemplateInstantiationRepository * getTemplateInstantiationRepository() const;
 
-public:	
+#ifdef CPGF_METAGEN_PARSER
+private:
+#else
+public:
+#endif
 	std::string getAbsoluteFileName(const std::string & fileName) const;
 	const std::string & getProjectRootPath() const;
 
@@ -69,14 +86,18 @@ private:
 	std::string doGetOutputFileName(const std::string & sourceFileName,
 		int fileIndex, bool isSourceFile) const;
 
+#ifdef CPGF_METAGEN_PARSER
+public:
+#else
 private:
+#endif
 	std::string projectID;
-
-	size_t maxItemCountPerFile;
 
 	StringArrayType files;
 	std::string cppNamespace;
 	
+	size_t maxItemCountPerFile;
+
 	std::string headerIncludePrefix;
 	std::string headerFileExtension;
 	std::string sourceFileExtension;
@@ -96,7 +117,7 @@ private:
 	std::string mainRegisterFileName;
 	bool autoRegisterToGlobal;
 	std::string metaNamespace;
-	
+
 	bool wrapOperator;
 	bool wrapBitFields;
 
@@ -105,10 +126,21 @@ private:
 	bool allowPrivate;
 
 	bool force;
-	
+
+private:
 	cpgf::GScopedPointer<BuilderTemplateInstantiationRepository> templateInstantiationRepository;
 	std::string projectFileName;
 	std::string projectRootPath;
+
+	cpgf::GScopedPointer<ProjectImplement> implement;
+
+private:
+	friend class ProjectImplement;
+
+	template <typename D_d >
+	friend void metadata::buildMetaClass_metagen_Project(D_d & _d);
+
+	GMAKE_NONCOPYABLE(Project);
 };
 
 

@@ -1,7 +1,6 @@
 use strict;
 use warnings;
 use File::Basename;
-use Data::Dump;
 use Getopt::Long;
 
 my %sourceFileExtensions = (
@@ -29,8 +28,6 @@ sub doMain
 	$context = &generateMaster($context);
 
 	&outputResult($context);
-
-#	Data::Dump::dump(@folderData);
 }
 
 sub myLog

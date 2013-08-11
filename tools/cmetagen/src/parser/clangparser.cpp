@@ -13,6 +13,7 @@
 #include "model/cpputil.h"
 
 #include "util.h"
+#include "constants.h"
 
 #include "cpgf/gassert.h"
 #include "cpgf/gscopedptr.h"
@@ -110,7 +111,7 @@ void ParserLibClang::setupClang()
 	this->compilerInvocation.reset(new CompilerInvocation);
 
 	PreprocessorOptions & preprocessorOptions = this->compilerInvocation->getPreprocessorOpts();
-	preprocessorOptions.addMacroDef("CPGF_METAGEN_PARSER");
+	preprocessorOptions.addMacroDef(ParserPredefinedMacro);
 
 	LangOptions & langOptions = *this->compilerInvocation->getLangOpts();
 	this->compilerInvocation->setLangDefaults(langOptions, IK_CXX, LangStandard::lang_cxx03);
@@ -127,9 +128,10 @@ void ParserLibClang::setupClang()
 
 	HeaderSearchOptions & headerSearchOptions = this->compilerInvocation->getHeaderSearchOpts();
 headerSearchOptions.AddPath("C:/Program Files/Microsoft Visual Studio 9.0/VC/include", frontend::Angled, false, false);
+headerSearchOptions.AddPath("C:/projects/cpgf/trunk/include", frontend::Angled, false, false);
 
-//	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
-IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
+	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
+//IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
 	this->compilerInstance->createDiagnostics(client, false);
 	
 	DiagnosticsEngine & diagnostics = this->compilerInstance->getDiagnostics();

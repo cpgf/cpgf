@@ -108,6 +108,9 @@ public:
 	bool baseIsClass() const;
 	bool baseIsArray() const;
 	
+	bool baseIsStdString() const;
+	bool baseIsStdWideString() const;
+	
 	bool isFundamental() const;
 	
 	bool isFunction() const;

@@ -81,7 +81,7 @@ std::string getClassWrapperClassName(const BuilderContext * builderContext, cons
 	return cppContainer->getName() + builderContext->getProject()->getClassWrapperPostfix();
 }
 
-string getCppClassNormalizedSymboName(const BuilderContext * builderContext, const CppClass * cppClass)
+string getCppClassNormalizedSymboName(const CppClass * cppClass)
 {
 	return cppClass->getQualifiedName();
 }
@@ -390,7 +390,7 @@ void generateMainRegisterHeaderFile(const std::set<std::string> & creationFuncti
 	writeStringToFile(headerFileName, codeWriter.getText());
 }
 
-void generateMainRegisterSourceFile(const std::set<std::string> & creationFunctionNameList, const Project * project)
+void generateMainRegisterSourceFile(const Project * project)
 {
 	if(! project->shouldAutoRegisterToGlobal()) {
 		return;
@@ -441,7 +441,7 @@ void generateMainRegisterSourceFile(const std::set<std::string> & creationFuncti
 void generateMainRegisterFiles(const std::set<std::string> & creationFunctionNameList, const Project * project)
 {
 	generateMainRegisterHeaderFile(creationFunctionNameList, project);
-	generateMainRegisterSourceFile(creationFunctionNameList, project);
+	generateMainRegisterSourceFile(project);
 }
 
 

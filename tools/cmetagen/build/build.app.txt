@@ -34,4 +34,4 @@ set_target_properties(
 target_link_libraries(${TARGET_NAME} ${CPGF_LIB})
 target_link_libraries(${TARGET_NAME} ${CLANG_LIB})
 target_link_libraries(${TARGET_NAME} ${POCO_LIB})
-#target_link_libraries(${TARGET_NAME} ${V8_LIB})
+target_link_libraries(${TARGET_NAME} ${V8_LIB})

@@ -51,6 +51,7 @@ set(POCO_DIR
 
 set(POCO_INC
 	${POCO_DIR}/Foundation/include
+	${POCO_DIR}/Util/include
 )
 
 if(CMAKE_COMPILER_IS_GNUCC)
@@ -62,6 +63,8 @@ if(MSVC)
 	set(POCO_LIB
 		debug ${POCO_DIR}/lib/PocoFoundationd.lib
 		optimized ${POCO_DIR}/lib/PocoFoundation.lib
+		debug ${POCO_DIR}/lib/PocoUtild.lib
+		optimized ${POCO_DIR}/lib/PocoUtil.lib
 	)
 endif(MSVC)
 

@@ -17,13 +17,13 @@ private:
 	typedef std::set<std::string> CreationFunctionNameListType;
 
 public:
-	Application(int argc, char * argv[]);
+	Application();
 	~Application();
 	
-	void run();
+	int run(int argc, char * argv[]);
 
 private:
-	void doRun();
+	void doRun(int argc, char * argv[]);
 	void processFiles();
 	void processOnePath(const std::string & path);
 	void processOneFile(const std::string & file);

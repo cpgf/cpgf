@@ -11,10 +11,12 @@
 #include "logger.h"
 #include "util.h"
 #include "constants.h"
+#include "commandlineparser.h"
 
 #include "Poco/Glob.h"
 #include "Poco/File.h"
 #include "Poco/Format.h"
+#include "Poco/Exception.h"
 
 #include <set>
 
@@ -26,7 +28,7 @@ using namespace cpgf;
 namespace metagen {
 
 
-Application::Application(int argc, char * argv[])
+Application::Application()
 {
 }
 
@@ -34,24 +36,32 @@ Application::~Application()
 {
 }
 
-void Application::run()
+int Application::run(int argc, char * argv[])
 {
+	int exitCode = 1;
 	try {
-		this->doRun();
+		this->doRun(argc, argv);
+		exitCode = 0;
+	}
+	catch(const AbortException &) {
 	}
 	catch(const Exception & e) {
-		logger.error(string("\n\n") + e.what());
+		getLogger().error(string("\n") + e.what());
 	}
+	catch(const Poco::Exception & e) {
+		getLogger().error(string("\n") + e.displayText());
+	}
+	cout << endl;
+	return exitCode;
 }
 
-void Application::doRun()
+void Application::doRun(int argc, char * argv[])
 {
-	this->project.loadProject("zzz.js");
+	CommandLineParser commandLineParser(&this->project);
+	commandLineParser.parse(argc, argv);
 
 	this->processFiles();
 	generateMainRegisterFiles(this->creationFunctionNameList, &this->project);
-//	this->generateMainRegisterHeaderFile();
-//	this->generateMainRegisterSourceFile();
 }
 
 void Application::processFiles()
@@ -83,7 +93,7 @@ void Application::processOneFile(const std::string & file)
 {
 	if(this->project.doesForce()
 		|| shouldTargetFileBeUpdated(file, this->project.getOutputHeaderFileName(file))) {
-		logger.info(Poco::format("Generate for file %s...", file));
+		getLogger().info(Poco::format("Generate for file %s...", file));
 
 		CppContext context(&this->project);
 		string absoluteFileName = this->project.getAbsoluteFileName(file);
@@ -93,10 +103,10 @@ void Application::processOneFile(const std::string & file)
 			makeCallback(this, &Application::onGenerateCreationFunction));
 		builderContext.process(&context);
 
-		logger.info("done.\n");
+		getLogger().info("done.\n");
 	}
 	else {
-		logger.info(Poco::format("File %s is up to date, skipped.\n", file));
+		getLogger().info(Poco::format("File %s is up to date, skipped.\n", file));
 	}
 }
 
@@ -110,7 +120,7 @@ void Application::onGenerateCreationFunction(const BuilderContext * builderConte
 
 	string name = getCreationFunctionName(builderContext, section);
 	if(this->creationFunctionNameList.find(name) != this->creationFunctionNameList.end()) {
-		logger.warn(Poco::format("Creation function %s is duplicated.", name));
+		getLogger().warn(Poco::format("Creation function %s is duplicated.", name));
 	}
 	this->creationFunctionNameList.insert(name);
 }

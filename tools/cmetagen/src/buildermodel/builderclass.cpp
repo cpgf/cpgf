@@ -78,7 +78,7 @@ void BuilderClass::doWriteAsNestedClass(BuilderWriter * writer)
 	string s = Poco::format("%s(%s());",
 		writer->getReflectionAction("_class"),
 		normalizeSymbolName(this->getProject()->getCreationFunctionPrefix()
-			+ getCppClassNormalizedSymboName(writer->getBuilderContext(), cppClass))
+			+ getCppClassNormalizedSymboName(cppClass))
 	);
 	codeBlock->appendLine(s);
 }

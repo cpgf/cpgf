@@ -16,15 +16,15 @@ private:
 	};
 
 public:
-	void info(const std::string & message);
-	void warn(const std::string & message);
-	void error(const std::string & message);
+	void info(const std::string & message) const;
+	void warn(const std::string & message) const;
+	void error(const std::string & message) const;
 
 private:
-	void doLog(LogLevel leve, const std::string & message);
+	void doLog(LogLevel leve, const std::string & message) const;
 };
 
-extern Logger logger;
+const Logger & getLogger();
 
 
 } // namespace metagen

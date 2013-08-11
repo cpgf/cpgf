@@ -10,6 +10,7 @@ SOURCE_GROUP(src\\ FILES ${SRC_ROOT})
 
 SET(SRC_APPLICATION
 	${SRC_PATH}/application/application.cpp
+	${SRC_PATH}/application/commandlineparser.cpp
 )
 SOURCE_GROUP(src\\application FILES ${SRC_APPLICATION})
 
@@ -42,6 +43,12 @@ SET(SRC_CODEWRITER
 )
 SOURCE_GROUP(src\\codewriter FILES ${SRC_CODEWRITER})
 
+SET(SRC_METADATA
+	${SRC_PATH}/metadata/meta_project.cpp
+	${SRC_PATH}/metadata/registerMain_.cpp
+)
+SOURCE_GROUP(src\\metadata FILES ${SRC_METADATA})
+
 SET(SRC_MODEL
 	${SRC_PATH}/model/cppclass.cpp
 	${SRC_PATH}/model/cppclasstraits.cpp
@@ -72,6 +79,7 @@ set(SRC_MASTER
 	${SRC_APPLICATION}
 	${SRC_BUILDERMODEL}
 	${SRC_CODEWRITER}
+	${SRC_METADATA}
 	${SRC_MODEL}
 	${SRC_PARSER}
 )

@@ -38,7 +38,7 @@ std::string getClassWrapperClassName(const BuilderContext * builderContext, cons
 std::string getPartialCreationFunctionName(const BuilderContext * builderContext, BuilderSection * section);
 std::string getPartialCreationFunctionPrototype(const BuilderContext * builderContext, BuilderSection * section);
 
-std::string getCppClassNormalizedSymboName(const BuilderContext * builderContext, const CppClass * cppClass);
+std::string getCppClassNormalizedSymboName(const CppClass * cppClass);
 std::string getCreationFunctionName(const BuilderContext * builderContext, BuilderSection * section);
 std::string getCreationFunctionPrototype(const BuilderContext * builderContext, BuilderSection * section);
 std::string getCreationFunctionPrototype(const std::string & functionName);

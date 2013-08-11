@@ -3,20 +3,133 @@
 #include "exception.h"
 #include "util.h"
 
+#include "cpgf/scriptbind/gscriptbindutil.h"
+#include "cpgf/gscopedinterface.h"
+
+#include "cpgf/scriptbind/gv8runner.h"
+
 #include "Poco/Path.h"
 #include "Poco/File.h"
 #include "Poco/Format.h"
 
 using namespace std;
-
+using namespace cpgf;
 
 namespace metagen {
 
+class ProjectImplement
+{
+public:
+	ProjectImplement();
+
+	void loadScriptFile(const string & fileName);
+	void loadProject(Project * project);
+
+private:
+	void initialize();
+
+private:
+	GScopedPointer<GScriptRunner> runner;
+	GScopedInterface<IMetaService> service;
+	GScopedInterface<IScriptObject> scriptObject;
+	GScopedInterface<IMetaClass> rootClass;
+};
+
+ProjectImplement::ProjectImplement()
+{
+	this->initialize();
+}
+
+void ProjectImplement::initialize()
+{
+	this->service.reset(createDefaultMetaService());
+	this->runner.reset(createV8ScriptRunner(this->service.get()));
+	this->scriptObject.reset(runner->getScripeObject());
+
+	this->scriptObject->bindCoreService("cpgf", NULL);
+
+	this->rootClass.reset(this->service->findClassByName("metadata"));
+	scriptSetValue(this->scriptObject.get(), "metadata", GScriptValue::fromClass(rootClass.get()));
+}
+
+void ProjectImplement::loadScriptFile(const string & fileName)
+{
+	try {
+		bool success = this->runner->executeFile(fileName.c_str());
+		if(! success) {
+			fatalError("Error in script file.");
+		}
+	}
+	catch(const std::runtime_error & e) {
+		fatalError(string("Error in script file. Message: ") + e.what());
+	}
+}
+
+void ProjectImplement::loadProject(Project * project)
+{
+	GScriptValue configValue(scriptGetValue(this->scriptObject.get(), "config"));
+	if(configValue.isNull()) {
+		fatalError("\"config\" is required in project script.");
+	}
+	if(! configValue.isScriptObject()) {
+		fatalError("\"config\" must be script object.");
+	}
+
+	GScopedInterface<IScriptObject> configObject(configValue.toScriptObject());
+
+	GScopedInterface<IMetaClass> projectClass(this->rootClass->getClass("Project"));
+	uint32_t fieldCount = projectClass->getFieldCount();
+	for(uint32_t i = 0; i < fieldCount; ++i) {
+		GScopedInterface<IMetaField> field(projectClass->getFieldAt(i));
+		string fieldName(field->getName());
+		GScriptValue value(scriptGetValue(configObject.get(), fieldName.c_str()));
+		if(value.isNull()) {
+			continue;
+		}
+
+		if(fieldName == "files") {
+			if(! configObject->maybeIsScriptArray(fieldName.c_str())) {
+				fatalError(Poco::format("Config \"%s\" must be array.", fieldName));
+			}
+			GScopedInterface<IScriptArray> files(scriptGetAsScriptArray(configObject.get(), fieldName.c_str()).toScriptArray());
+			uint32_t count = files->getLength();
+			for(uint32_t k = 0; k < count; ++k) {
+				GScriptValue element(scriptGetScriptArrayValue(files.get(), k));
+				if(! element.isString()) {
+					fatalError(Poco::format("Elements in config \"%s\" must be string.", fieldName));
+				}
+				project->files.push_back(element.toString());
+			}
+			continue;
+		}
+
+		GMetaType metaType(metaGetItemType(field.get()));
+		if(! metaType.isPointer()) {
+			if(metaType.baseIsStdString()) {
+				if(! value.isString()) {
+					fatalError(Poco::format("Config \"%s\" must be string.", fieldName));
+				}
+				metaSetValue(field.get(), project, value.toString());
+				continue;
+			}
+			if(vtIsInteger(metaType.getVariantType())) {
+				if(! value.isFundamental()) {
+					fatalError(Poco::format("Config \"%s\" must be primary type.", fieldName));
+				}
+				metaSetValue(field.get(), project, value.toFundamental());
+				continue;
+			}
+		}
+		fatalError(Poco::format("Internal error. Unhandled property \"%s\".", fieldName));
+	}
+}
+
+
 Project::Project()
 	:	projectID(""),
-		maxItemCountPerFile(0),
-		
 		cppNamespace("metadata"),
+		
+		maxItemCountPerFile(0),
 		
 		headerIncludePrefix(""),
 		
@@ -37,7 +150,7 @@ Project::Project()
 		mainRegisterFunctionName("registerMain_"),
 		mainRegisterFileName("registerMain_"),
 		autoRegisterToGlobal(true),
-		metaNamespace("meta"),
+		metaNamespace("metadata"),
 		
 		wrapOperator(true),
 		wrapBitFields(true),
@@ -48,15 +161,14 @@ Project::Project()
 
 		force(false),
 
-		templateInstantiationRepository(new BuilderTemplateInstantiationRepository)
+		templateInstantiationRepository(new BuilderTemplateInstantiationRepository),
+
+		implement(new ProjectImplement)
 {
 //maxItemCountPerFile = 5;
-this->projectID = "tmg";
 this->templateInstantiationRepository->add("ns1::TemplateA<int, 18>", "TemplateA_int", "TemplateA_wrapper_int");
-this->files.push_back("z.h");
 this->headerOutputPath = "";
 this->sourceOutputPath = headerOutputPath;
-this->force = true;
 }
 
 Project::~Project()
@@ -72,14 +184,14 @@ const StringArrayType & Project::getFiles() const
 	return this->files;
 }
 
-size_t Project::getMaxItemCountPerFile() const
-{
-	return this->maxItemCountPerFile;
-}
-
 const std::string & Project::getCppNamespace() const
 {
 	return this->cppNamespace;
+}
+
+size_t Project::getMaxItemCountPerFile() const
+{
+	return this->maxItemCountPerFile;
 }
 
 const std::string & Project::getHeaderIncludePrefix() const
@@ -221,6 +333,9 @@ void Project::loadProject(const std::string & projectFileName)
 
 	this->projectFileName = normalizeFile(projectPath.toString());
 	this->projectRootPath = normalizePath(projectPath.parent().toString());
+
+	this->implement->loadScriptFile(projectFileName);
+	this->implement->loadProject(this);
 }
 
 std::string Project::getOutputHeaderFileName(const std::string & sourceFileName) const

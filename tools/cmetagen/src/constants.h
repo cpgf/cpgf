@@ -5,6 +5,8 @@
 
 namespace metagen {
 
+const std::string ParserPredefinedMacro = "CPGF_METAGEN_PARSER";
+
 const std::string includeMetaDefine("cpgf/gmetadefine.h");
 const std::string includeMetaDataHeader("cpgf/metadata/private/gmetadata_header.h");
 const std::string includeMetaDataFooter("cpgf/metadata/private/gmetadata_footer.h");

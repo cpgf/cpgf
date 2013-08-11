@@ -9,8 +9,6 @@ using namespace metagen;
 
 int main(int argc, char * argv[])
 {
-	Application application(argc, argv);
-	application.run();
-
-	return 0;
+	Application application;
+	return application.run(argc, argv);
 }
