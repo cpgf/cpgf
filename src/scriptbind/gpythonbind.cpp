@@ -50,26 +50,27 @@ GGlueDataWrapperPool * getPythonDataWrapperPool()
 	return pythonDataWrapperPool;
 }
 
-class GPythonObject : public PyObject, public GGlueDataWrapper
+class GPythonNative : public GGlueDataWrapper
+{
+public:
+	GPythonNative() {}
+	explicit GPythonNative(const GGlueDataPointer & glueData);
+	virtual ~GPythonNative();
+	
+	virtual GGlueDataPointer getData() const;
+
+private:
+	GGlueDataPointer glueData;
+};
+
+class GPythonObject : public PyObject, public GPythonNative
 {
 public:
 	GPythonObject() {}
 	explicit GPythonObject(const GGlueDataPointer & glueData);
 	virtual ~GPythonObject();
 
-	IMetaService * getService() const;
-	GContextPointer getContext() const;
-	virtual GGlueDataPointer getData() const;
-
-	template <typename T>
-	GSharedPointer<T> getDataAs() const {
-		return sharedStaticCast<T>(this->getData());
-	}
-
 	void initType(PyTypeObject * type);
-
-private:
-	GGlueDataPointer glueData;
 };
 
 class GPythonAnyObject : public GPythonObject
@@ -196,6 +197,10 @@ GPythonObject * castFromPython(PyObject * object) {
 	return gdynamic_cast<GPythonObject *>(static_cast<GPythonObject *>(object));
 }
 
+GPythonNative * nativeFromPython(PyObject * object) {
+	return static_cast<GPythonNative *>(static_cast<GPythonObject *>(object));
+}
+
 void commonDealloc(PyObject* p)
 {
     deletePythonObject(castFromPython(p));
@@ -211,7 +216,7 @@ int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * valu
 PyObject * callbackAnyObjectGetAttribute(PyObject * object, PyObject * attrName);
 int callbackAnyObjectSetAttribute(PyObject * object, PyObject * attrName, PyObject * value);
 
-PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName);
+PyObject * doGetAttributeObject(PyObject * cppObject, PyObject * attrName);
 
 PyObject * callbackGetEnumValue(PyObject * object, PyObject * attrName);
 int callbackSetEnumValue(PyObject * object, PyObject * attrName, PyObject * value);
@@ -643,10 +648,10 @@ PyTypeObject * const typeObjects[] = {
 const int typeObjectCount = sizeof(typeObjects) / sizeof(typeObjects[0]);
 
 
-GPythonObject * tryCastFromPython(PyObject * object) {
+GPythonNative * tryCastFromPython(PyObject * object) {
 	for(int i = 0; i <typeObjectCount; ++i) {
 		if(object->ob_type == typeObjects[i]) {
-			return castFromPython(object);
+			return nativeFromPython(object);
 		}
 	}
 
@@ -716,8 +721,23 @@ void deletePythonObject(GPythonObject * object)
 //	PyObject_Del(object);
 }
 
-GPythonObject::GPythonObject(const GGlueDataPointer & glueData)
+GPythonNative::GPythonNative(const GGlueDataPointer & glueData)
 	: glueData(glueData)
+{
+}
+
+GPythonNative::~GPythonNative()
+{
+}
+
+GGlueDataPointer GPythonNative::getData() const
+{
+	return this->glueData;
+}
+
+
+GPythonObject::GPythonObject(const GGlueDataPointer & glueData)
+	: GPythonNative(glueData)
 {
 	PyTypeObject * typeObject = getTypeObject(glueData);
 
@@ -728,21 +748,6 @@ GPythonObject::GPythonObject(const GGlueDataPointer & glueData)
 
 GPythonObject::~GPythonObject()
 {
-}
-
-IMetaService * GPythonObject::getService() const
-{
-	return this->getContext()->getService();
-}
-
-GContextPointer GPythonObject::getContext() const
-{
-	return this->glueData->getContext();
-}
-
-GGlueDataPointer GPythonObject::getData() const
-{
-	return this->glueData;
 }
 
 void GPythonObject::initType(PyTypeObject * type)
@@ -820,7 +825,7 @@ GScriptValue pythonToScriptValue(const GContextPointer & context, PyObject * val
 		return GScriptValue::fromAndCopyString(PyString_AsString(value));
 	}
 	else {
-		GPythonObject * object = tryCastFromPython(value);
+		GPythonNative * object = tryCastFromPython(value);
 		if(object != NULL) {
 			GGlueDataPointer glueData = object->getData();
 			if(outputGlueData != NULL) {
@@ -1024,9 +1029,9 @@ PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObje
 {
 	ENTER_PYTHON()
 
-	GPythonObject * methodObject = castFromPython(callableObject);
+	GPythonNative * methodObject = nativeFromPython(callableObject);
 
-	GObjectAndMethodGlueDataPointer userData = methodObject->getDataAs<GObjectAndMethodGlueData>();
+	GObjectAndMethodGlueDataPointer userData = methodObject->getAs<GObjectAndMethodGlueData>();
 
 	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
 	loadCallableParam(userData->getContext(), args, &callableParam);
@@ -1043,14 +1048,14 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 {
 	ENTER_PYTHON()
 
-	GPythonObject * cppClass = castFromPython(callableObject);
-	GClassGlueDataPointer classUserData = cppClass->getDataAs<GClassGlueData>();
+	GPythonNative * cppClass = nativeFromPython(callableObject);
+	GClassGlueDataPointer classUserData = cppClass->getAs<GClassGlueData>();
 	GContextPointer context = classUserData->getContext();
 	
 	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
 	loadCallableParam(context, args, &callableParam);
 
-	void * instance = doInvokeConstructor(context, cppClass->getService(), classUserData->getMetaClass(), &callableParam);
+	void * instance = doInvokeConstructor(context, context->getService(), classUserData->getMetaClass(), &callableParam);
 
 	if(instance != NULL) {
 		return createPythonObject(context->newObjectGlueData(classUserData, instance, GBindValueFlags(bvfAllowGC), opcvNone));
@@ -1068,9 +1073,7 @@ PyObject * callbackGetAttribute(PyObject * object, PyObject * attrName)
 {
 	ENTER_PYTHON()
 
-	GPythonObject * cppObject = castFromPython(object);
-
-	PyObject * attrObject = doGetAttributeObject(cppObject, attrName);
+	PyObject * attrObject = doGetAttributeObject(object, attrName);
 	if(attrObject != NULL) {
 		return attrObject;
 	}
@@ -1084,8 +1087,8 @@ int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * valu
 {
 	ENTER_PYTHON()
 
-	GPythonObject * cppObject = castFromPython(object);
-	GGlueDataPointer instanceGlueData = cppObject->getDataAs<GGlueData>();
+	GPythonNative * cppObject = nativeFromPython(object);
+	GGlueDataPointer instanceGlueData = cppObject->getAs<GGlueData>();
 	const char * name = PyString_AsString(attrName);
 
 	GVariant v;
@@ -1101,7 +1104,7 @@ int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * valu
 	LEAVE_PYTHON(return -1)
 }
 
-PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
+PyObject * doGetAttributeObject(PyObject * cppObject, PyObject * attrName)
 {
 // If we enable blow code, some common method names such as "get" will be intercepted by Python.
 //	if(PyObject_HasAttr(cppObject->ob_type->tp_dict, attrName)) {
@@ -1109,16 +1112,16 @@ PyObject * doGetAttributeObject(GPythonObject * cppObject, PyObject * attrName)
 //	}
 
 	const char * name = PyString_AsString(attrName);
-	return namedMemberToScript<GPythonMethods>(cppObject->getData(), name);
+	return namedMemberToScript<GPythonMethods>(nativeFromPython(cppObject)->getData(), name);
 }
 
 PyObject * callbackGetEnumValue(PyObject * object, PyObject * attrName)
 {
 	ENTER_PYTHON()
 
-	GPythonObject * cppObject = castFromPython(object);
+	GPythonNative * cppObject = nativeFromPython(object);
 	
-	GEnumGlueDataPointer userData = cppObject->getDataAs<GEnumGlueData>();
+	GEnumGlueDataPointer userData = cppObject->getAs<GEnumGlueData>();
 
 	const char * name = PyString_AsString(attrName);
 
@@ -1149,9 +1152,9 @@ PyObject * callbackAccessibleDescriptorGet(PyObject * self, PyObject * /*obj*/, 
 {
 	ENTER_PYTHON()
 
-	GPythonObject * cppObject = castFromPython(self);
+	GPythonNative * cppObject = nativeFromPython(self);
 	
-	GAccessibleGlueDataPointer userData = cppObject->getDataAs<GAccessibleGlueData>();
+	GAccessibleGlueDataPointer userData = cppObject->getAs<GAccessibleGlueData>();
 
 	return accessibleToScript<GPythonMethods>(userData->getContext(), userData->getAccessible(), userData->getInstanceAddress(), false);
 
@@ -1162,9 +1165,9 @@ int callbackAccessibleDescriptorSet(PyObject * self, PyObject * /*obj*/, PyObjec
 {
 	ENTER_PYTHON()
 
-	GPythonObject * cppObject = castFromPython(self);
+	GPythonNative * cppObject = nativeFromPython(self);
 	
-	GAccessibleGlueDataPointer userData = cppObject->getDataAs<GAccessibleGlueData>();
+	GAccessibleGlueDataPointer userData = cppObject->getAs<GAccessibleGlueData>();
 
 	GVariant v = pythonToScriptValue(userData->getContext(), value, NULL).getValue();
 	metaSetValue(userData->getAccessible(), userData->getInstanceAddress(), v);
@@ -1409,7 +1412,7 @@ PyObject * binaryOperator(PyObject * a, PyObject * b)
 		otherIndex = 0;
 	}
 	
-	GObjectGlueDataPointer objectData = castFromPython(self)->getDataAs<GObjectGlueData>();
+	GObjectGlueDataPointer objectData = nativeFromPython(self)->getAs<GObjectGlueData>();
 	const GContextPointer & context = objectData->getContext();
 
 	InvokeCallableParam callableParam(2);
@@ -1432,7 +1435,7 @@ PyObject * unaryOperator(PyObject * a)
 	
 	PyObject * self = a;
 	
-	GObjectGlueDataPointer objectData = castFromPython(self)->getDataAs<GObjectGlueData>();
+	GObjectGlueDataPointer objectData = nativeFromPython(self)->getAs<GObjectGlueData>();
 	const GContextPointer & context = objectData->getContext();
 
 	InvokeCallableParam callableParam(1);
