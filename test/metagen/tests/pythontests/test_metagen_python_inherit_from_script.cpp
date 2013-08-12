@@ -2,12 +2,14 @@
 
 namespace {
 
-/*
+
 void testInheritFromScript_SimpleObject(TestScriptContext * context)
 {
 	QDO(AAA = mtest.SimpleObject);
-	QNEWOBJ(b, AAA());
-	DO("class DerivedSimpleObject(AAA): pass");
+	QDO(print mtest);
+	QDO(print type(mtest));
+//	QNEWOBJ(b, AAA());
+//	DO("class DerivedSimpleObject(AAA): pass");
 return;
 	QNEWOBJ(a, DerivedSimpleObject());
 
@@ -23,7 +25,7 @@ return;
 
 #define CASE testInheritFromScript_SimpleObject
 #include "../do_testcase_python.h"
-*/
+
 
 
 }

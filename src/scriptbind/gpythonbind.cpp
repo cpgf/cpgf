@@ -50,6 +50,8 @@ GGlueDataWrapperPool * getPythonDataWrapperPool()
 	return pythonDataWrapperPool;
 }
 
+class GPythonObject;
+
 class GPythonNative : public GGlueDataWrapper
 {
 public:
@@ -58,6 +60,7 @@ public:
 	virtual ~GPythonNative();
 	
 	virtual GGlueDataPointer getData() const;
+	virtual PyObject * toPythonObject() = 0;
 
 private:
 	GGlueDataPointer glueData;
@@ -69,6 +72,8 @@ public:
 	GPythonObject() {}
 	explicit GPythonObject(const GGlueDataPointer & glueData);
 	virtual ~GPythonObject();
+
+	virtual PyObject * toPythonObject();
 
 	void initType(PyTypeObject * type);
 };
@@ -84,9 +89,22 @@ private:
 	PyObject * dict;
 };
 
-GScriptObjectCache<GPythonObject *> * getPythonScriptObjectCache()
+class GPythonClass : public PyTypeObject, public GPythonNative
 {
-	static GScriptObjectCache<GPythonObject *> cache;
+public:
+	GPythonClass() {}
+	explicit GPythonClass(const GGlueDataPointer & glueData);
+	virtual ~GPythonClass();
+
+	virtual PyObject * toPythonObject();
+
+private:
+	void initType();
+};
+
+GScriptObjectCache<GPythonNative *> * getPythonScriptObjectCache()
+{
+	static GScriptObjectCache<GPythonNative *> cache;
 	return &cache;
 }
 
@@ -191,11 +209,8 @@ private:
 
 
 GPythonObject * createPythonObject(const GGlueDataPointer & glueData);
-void deletePythonObject(GPythonObject * object);
-
-GPythonObject * castFromPython(PyObject * object) {
-	return gdynamic_cast<GPythonObject *>(static_cast<GPythonObject *>(object));
-}
+void deletePythonObject(GPythonNative * object);
+PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaClass);
 
 GPythonNative * nativeFromPython(PyObject * object) {
 	return static_cast<GPythonNative *>(static_cast<GPythonObject *>(object));
@@ -203,7 +218,7 @@ GPythonNative * nativeFromPython(PyObject * object) {
 
 void commonDealloc(PyObject* p)
 {
-    deletePythonObject(castFromPython(p));
+    deletePythonObject(nativeFromPython(p));
 }
 
 PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObject * keyWords);
@@ -283,7 +298,7 @@ int classTypeIsGC(PyTypeObject * /*python_type*/)
 }
 
 PyTypeObject classType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
+    PyVarObject_HEAD_INIT(&PyType_Type, 0)
     const_cast<char *>("cpgf.Python.class"),
     sizeof(GPythonObject),
     0,
@@ -320,7 +335,7 @@ PyTypeObject classType = {
     0, 							      /* tp_dictoffset */
     0,                               /* tp_init */
     0,                    /* tp_alloc */
-    0,                     /* tp_new */
+    &PyType_GenericNew,                     /* tp_new */
     0,                                      /* tp_free */
     (inquiry)&classTypeIsGC,                         /* tp_is_gc */
     0,                                      /* tp_bases */
@@ -711,7 +726,7 @@ GPythonObject * createEmptyPythonObject()
 	return object;
 }
 
-void deletePythonObject(GPythonObject * object)
+void deletePythonObject(GPythonNative * object)
 {
 	getPythonScriptObjectCache()->freeScriptObject(object);
 	getPythonDataWrapperPool()->dataWrapperDestroyed(object);
@@ -763,6 +778,11 @@ void GPythonObject::initType(PyTypeObject * type)
 	PyObject_INIT(this, type);
 }
 
+PyObject * GPythonObject::toPythonObject()
+{
+	return this;
+}
+
 
 GPythonAnyObject::GPythonAnyObject()
 	: dict(PyDict_New())
@@ -778,6 +798,37 @@ GPythonAnyObject::~GPythonAnyObject()
 PyObject * GPythonAnyObject::getDict()
 {
 	return this->dict;
+}
+
+
+GPythonClass::GPythonClass(const GGlueDataPointer & glueData)
+	: GPythonNative(glueData)
+{
+	this->initType();
+}
+
+GPythonClass::~GPythonClass()
+{
+}
+
+PyObject * GPythonClass::toPythonObject()
+{
+	return (PyObject *)static_cast<PyTypeObject *>(this);
+}
+
+void GPythonClass::initType()
+{
+	PyTypeObject * typeObject = static_cast<PyTypeObject *>(this);
+	*typeObject = classType;
+
+	//if(Py_TYPE(typeObject) == 0) {
+	//	Py_TYPE(typeObject) = &PyType_Type;
+	//	typeObject->tp_base = &PyType_Type;
+	//	PyType_Ready(typeObject);
+	//}
+	PyType_Ready(typeObject);
+
+	PyObject_INIT(typeObject, &PyType_Type);
 }
 
 
@@ -857,9 +908,9 @@ PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataP
 		return pyAddRef(Py_None);
 	}
 
-	GPythonObject ** cachedPythonObject = getPythonScriptObjectCache()->findScriptObject(instanceAddress, classData, cv);
+	GPythonNative ** cachedPythonObject = getPythonScriptObjectCache()->findScriptObject(instanceAddress, classData, cv);
 	if(cachedPythonObject != NULL) {
-		return pyAddRef(*cachedPythonObject);
+		return pyAddRef((*cachedPythonObject)->toPythonObject());
 	}
 
 	GObjectGlueDataPointer objectData(context->newOrReuseObjectGlueData(classData, instance, flags, cv));
@@ -889,6 +940,10 @@ PyObject * rawToPython(const GContextPointer & context, const GVariant & value, 
 PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaClass)
 {
 	return createPythonObject(context->newClassData(metaClass));
+
+	//GPythonClass * object = new GPythonClass(context->newClassData(metaClass));
+	//getPythonDataWrapperPool()->dataWrapperCreated(object);
+	//return object->toPythonObject();
 }
 
 struct GPythonMethods
