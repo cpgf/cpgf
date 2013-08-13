@@ -6,8 +6,8 @@ namespace {
 void testInheritFromScript_SimpleObject(TestScriptContext * context)
 {
 	QDO(AAA = mtest.SimpleObject);
-	QDO(print mtest);
-	QDO(print type(mtest));
+	QDO(print AAA);
+	QDO(print type(AAA));
 //	QNEWOBJ(b, AAA());
 //	DO("class DerivedSimpleObject(AAA): pass");
 return;

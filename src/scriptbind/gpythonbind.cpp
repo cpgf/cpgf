@@ -89,6 +89,21 @@ private:
 	PyObject * dict;
 };
 
+class GPythonStaticObject : public GPythonObject
+{
+public:
+	GPythonStaticObject(const GGlueDataPointer & glueData, const string & fieldName);
+	virtual ~GPythonStaticObject();
+
+	const string & getFieldName() const;
+
+private:
+	void initType();
+
+private:
+	string fieldName;
+};
+
 class GPythonClass : public PyTypeObject, public GPythonNative
 {
 public:
@@ -213,7 +228,12 @@ void deletePythonObject(GPythonNative * object);
 PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaClass);
 
 GPythonNative * nativeFromPython(PyObject * object) {
-	return static_cast<GPythonNative *>(static_cast<GPythonObject *>(object));
+	if(PyType_Check(object)) {
+		return static_cast<GPythonNative *>(static_cast<GPythonClass *>((PyTypeObject *)object));
+	}
+	else {
+		return static_cast<GPythonNative *>(static_cast<GPythonObject *>(object));
+	}
 }
 
 void commonDealloc(PyObject* p)
@@ -231,13 +251,14 @@ int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * valu
 PyObject * callbackAnyObjectGetAttribute(PyObject * object, PyObject * attrName);
 int callbackAnyObjectSetAttribute(PyObject * object, PyObject * attrName, PyObject * value);
 
-PyObject * doGetAttributeObject(PyObject * cppObject, PyObject * attrName);
-
 PyObject * callbackGetEnumValue(PyObject * object, PyObject * attrName);
 int callbackSetEnumValue(PyObject * object, PyObject * attrName, PyObject * value);
 
 PyObject * callbackAccessibleDescriptorGet(PyObject * self, PyObject * obj, PyObject * type);
 int callbackAccessibleDescriptorSet(PyObject * self, PyObject * obj, PyObject * value);
+
+PyObject * callbackStaticObjectDescriptorGet(PyObject * self, PyObject * obj, PyObject * type);
+int callbackStaticObjectDescriptorSet(PyObject * self, PyObject * obj, PyObject * value);
 
 PyObject * variantToPython(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData);
 
@@ -296,6 +317,56 @@ int classTypeIsGC(PyTypeObject * /*python_type*/)
 {
   return 0; // python_type->tp_flags & Py_TPFLAGS_HEAPTYPE;
 }
+
+PyTypeObject metaClassType = {
+    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+    const_cast<char *>("cpgf.Python.metaclass"),
+    sizeof(GPythonObject),
+    0,
+    (destructor)&commonDealloc,               /* tp_dealloc */
+    0,                                  /* tp_print */
+    0,                                  /* tp_getattr */
+    0,                                  /* tp_setattr */
+    0,                                  /* tp_compare */
+    0, 				                   /* tp_repr */
+    0,                                  /* tp_as_number */
+    0,                                  /* tp_as_sequence */
+    0,                                  /* tp_as_mapping */
+    0,                                  /* tp_hash */
+    &callbackConstructObject,                              /* tp_call */
+    0,                                  /* tp_str */
+	&callbackGetAttribute,             /* tp_getattro */
+    &callbackSetAttribute,            /* tp_setattro */
+    0,                                  /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,	/* tp_flags */
+    0,                                  /* tp_doc */
+    0, 					          /* tp_traverse */
+    0,                                  /* tp_clear */
+    0,                                  /* tp_richcompare */
+    0, 									 /* tp_weaklistoffset */
+    0,                                  /* tp_iter */
+    0,                                  /* tp_iternext */
+    0,                                  /* tp_methods */
+    0, 					              /* tp_members */
+    NULL, 				                /* tp_getset */
+    0,                       /* tp_base */
+    0,                                  /* tp_dict */
+    NULL, 				                 /* tp_descr_get */
+    0,                                  /* tp_descr_set */
+    0, 							      /* tp_dictoffset */
+    0,                               /* tp_init */
+    0,                    /* tp_alloc */
+    &PyType_GenericNew,                     /* tp_new */
+    0,                                      /* tp_free */
+    (inquiry)&classTypeIsGC,                         /* tp_is_gc */
+    0,                                      /* tp_bases */
+    0,                                      /* tp_mro */
+    0,                                      /* tp_cache */
+    0,                                      /* tp_subclasses */
+    0,                                      /* tp_weaklist */
+    0,                                      /* tp_del */
+    0                                       /* tp_version_tag */
+};
 
 PyTypeObject classType = {
     PyVarObject_HEAD_INIT(&PyType_Type, 0)
@@ -437,6 +508,57 @@ PyTypeObject objectType = {
     NULL, 			                 /* tp_descr_get */
     0,                                  /* tp_descr_set */
     0, 							      /* tp_dictoffset */
+    0,                                      /* tp_init */
+    0,                                      /* tp_alloc */
+    0,                                      /* tp_new */
+    0,                                      /* tp_free */
+    0,                                      /* tp_is_gc */
+    0,                                      /* tp_bases */
+    0,                                      /* tp_mro */
+    0,                                      /* tp_cache */
+    0,                                      /* tp_subclasses */
+    0,                                      /* tp_weaklist */
+    0,                                      /* tp_del */
+    0                                       /* tp_version_tag */
+};
+
+
+PyTypeObject staticObjectType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    const_cast<char *>("cpgf.Python.static"),
+	sizeof(GPythonStaticObject),
+    0,
+    (destructor)&commonDealloc,               /* tp_dealloc */
+    0,                                  /* tp_print */
+    0,                                  /* tp_getattr */
+    0,                                  /* tp_setattr */
+    0,                                  /* tp_compare */
+    0, 				                   /* tp_repr */
+    0,                                  /* tp_as_number */
+    0,                                  /* tp_as_sequence */
+    0,                                  /* tp_as_mapping */
+    0,                                  /* tp_hash */
+    0,                              /* tp_call */
+    0,                                  /* tp_str */
+	NULL,           			  /* tp_getattro */
+    NULL,            			/* tp_setattro */
+    0,                                  /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_CLASS, 	/* tp_flags */
+    0,                                  /* tp_doc */
+    0, 						          /* tp_traverse */
+    0,                                  /* tp_clear */
+    0,                                  /* tp_richcompare */
+    0, 									 /* tp_weaklistoffset */
+    0,                                  /* tp_iter */
+    0,                                  /* tp_iternext */
+    NULL,                                  /* tp_methods */
+    0, 						              /* tp_members */
+    NULL, 				                /* tp_getset */
+    0,                                  /* tp_base */
+    0,                                  /* tp_dict */
+	&callbackStaticObjectDescriptorGet,           /* tp_descr_get */
+	&callbackStaticObjectDescriptorSet,                                  /* tp_descr_set */
+    0, 								      /* tp_dictoffset */
     0,                                      /* tp_init */
     0,                                      /* tp_alloc */
     0,                                      /* tp_new */
@@ -801,6 +923,26 @@ PyObject * GPythonAnyObject::getDict()
 }
 
 
+GPythonStaticObject::GPythonStaticObject(const GGlueDataPointer & glueData, const string & fieldName)
+	: GPythonObject(glueData), fieldName(fieldName)
+{
+	this->initType();
+}
+
+GPythonStaticObject::~GPythonStaticObject()
+{
+}
+
+const string & GPythonStaticObject::getFieldName() const
+{
+	return this->fieldName;
+}
+
+void GPythonStaticObject::initType()
+{
+}
+
+
 GPythonClass::GPythonClass(const GGlueDataPointer & glueData)
 	: GPythonNative(glueData)
 {
@@ -816,10 +958,47 @@ PyObject * GPythonClass::toPythonObject()
 	return (PyObject *)static_cast<PyTypeObject *>(this);
 }
 
+void bindClassItems(PyObject * dict, const GClassGlueDataPointer & classGlueData)
+{
+	IMetaClass * metaClass = classGlueData->getMetaClass();
+	GScopedInterface<IMetaItem> item;
+	uint32_t count = metaClass->getMetaCount();
+	for(uint32_t i = 0; i < count; ++i) {
+		item.reset(metaClass->getMetaAt(i));
+		if(item->isStatic()) {
+			PyObject * staticObject;
+			if(metaIsClass(item->getCategory())) {
+				staticObject = createClassObject(classGlueData->getContext(), static_cast<IMetaClass *>(item.get()));
+			}
+			else {
+				staticObject = new GPythonStaticObject(classGlueData, item->getName());
+			}
+			PyDict_SetItemString(dict, item->getName(), staticObject);
+
+			if(metaIsEnum(item->getCategory())) {
+				IMetaEnum * metaEnum = gdynamic_cast<IMetaEnum *>(item.get());
+				uint32_t keyCount = metaEnum->getCount();
+				for(uint32_t k = 0; k < keyCount; ++k) {
+					const char * name = metaEnum->getKey(k);
+					PyObject * staticObject = new GPythonStaticObject(classGlueData, name);
+					PyDict_SetItemString(dict, name, staticObject);
+				}
+			}
+		}
+		else {
+			// to allow override method with script function
+			if(metaIsMethod(item->getCategory())) {
+				PyObject * staticObject = new GPythonStaticObject(classGlueData, item->getName());
+				PyDict_SetItemString(dict, item->getName(), staticObject);
+			}
+		}
+	}
+}
+
 void GPythonClass::initType()
 {
 	PyTypeObject * typeObject = static_cast<PyTypeObject *>(this);
-	*typeObject = classType;
+	*typeObject = metaClassType;
 
 	//if(Py_TYPE(typeObject) == 0) {
 	//	Py_TYPE(typeObject) = &PyType_Type;
@@ -827,6 +1006,11 @@ void GPythonClass::initType()
 	//	PyType_Ready(typeObject);
 	//}
 	PyType_Ready(typeObject);
+
+	if(typeObject->tp_dict == NULL) {
+		typeObject->tp_dict = PyDict_New();
+	}
+	bindClassItems(typeObject->tp_dict, this->getAs<GClassGlueData>());
 
 	PyObject_INIT(typeObject, &PyType_Type);
 }
@@ -1128,7 +1312,18 @@ PyObject * callbackGetAttribute(PyObject * object, PyObject * attrName)
 {
 	ENTER_PYTHON()
 
-	PyObject * attrObject = doGetAttributeObject(object, attrName);
+	PyObject * attrObject;
+
+// If we enable blow code, some common method names such as "get" will be intercepted by Python.
+//	if(PyObject_HasAttr(cppObject->ob_type->tp_dict, attrName)) {
+//		attrObject = PyObject_GetAttr(cppObject->ob_type->tp_dict, attrName);
+//	}
+//	else
+
+	GPythonNative * nativeObject = nativeFromPython(object);
+	const char * name = PyString_AsString(attrName);
+
+	attrObject = namedMemberToScript<GPythonMethods>(nativeObject->getData(), name);
 	if(attrObject != NULL) {
 		return attrObject;
 	}
@@ -1142,32 +1337,20 @@ int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * valu
 {
 	ENTER_PYTHON()
 
-	GPythonNative * cppObject = nativeFromPython(object);
-	GGlueDataPointer instanceGlueData = cppObject->getAs<GGlueData>();
+	GPythonNative * nativeObject = nativeFromPython(object);
 	const char * name = PyString_AsString(attrName);
 
 	GVariant v;
 	GGlueDataPointer valueGlueData;
 
-	v = pythonToScriptValue(instanceGlueData->getContext(), value, &valueGlueData).getValue();
-	if(setValueOnNamedMember(instanceGlueData, name, v, valueGlueData)) {
+	v = pythonToScriptValue(nativeObject->getData()->getContext(), value, &valueGlueData).getValue();
+	if(setValueOnNamedMember(nativeObject->getData(), name, v, valueGlueData)) {
 		return 0;
 	}
 
 	return -1;
 
 	LEAVE_PYTHON(return -1)
-}
-
-PyObject * doGetAttributeObject(PyObject * cppObject, PyObject * attrName)
-{
-// If we enable blow code, some common method names such as "get" will be intercepted by Python.
-//	if(PyObject_HasAttr(cppObject->ob_type->tp_dict, attrName)) {
-//		return PyObject_GetAttr(cppObject->ob_type->tp_dict, attrName);
-//	}
-
-	const char * name = PyString_AsString(attrName);
-	return namedMemberToScript<GPythonMethods>(nativeFromPython(cppObject)->getData(), name);
 }
 
 PyObject * callbackGetEnumValue(PyObject * object, PyObject * attrName)
@@ -1230,6 +1413,45 @@ int callbackAccessibleDescriptorSet(PyObject * self, PyObject * /*obj*/, PyObjec
 	return 0;
 
 	LEAVE_PYTHON(return 0)
+}
+
+PyObject * callbackStaticObjectDescriptorGet(PyObject * self, PyObject * /*obj*/, PyObject * /*type*/)
+{
+	ENTER_PYTHON()
+
+	GPythonStaticObject * nativeObject = dynamic_cast<GPythonStaticObject *>(nativeFromPython(self));
+
+	PyObject * attrObject = NULL;
+	if(nativeObject != NULL) {
+		attrObject = namedMemberToScript<GPythonMethods>(nativeObject->getData(), nativeObject->getFieldName().c_str());
+	}
+	
+	if(attrObject != NULL) {
+		return attrObject;
+	}
+
+	return pyAddRef(Py_None);
+
+	LEAVE_PYTHON(return NULL)
+}
+
+int callbackStaticObjectDescriptorSet(PyObject * self, PyObject * /*obj*/, PyObject * value)
+{
+	ENTER_PYTHON()
+
+	GPythonStaticObject * nativeObject = dynamic_cast<GPythonStaticObject *>(nativeFromPython(self));
+
+	GVariant v;
+	GGlueDataPointer valueGlueData;
+
+	v = pythonToScriptValue(nativeObject->getData()->getContext(), value, &valueGlueData).getValue();
+	if(setValueOnNamedMember(nativeObject->getData(), nativeObject->getFieldName().c_str(), v, valueGlueData)) {
+		return 0;
+	}
+
+	return -1;
+
+	LEAVE_PYTHON(return -1)
 }
 
 PyObject * callbackAnyObjectGetAttribute(PyObject * object, PyObject * attrName)
