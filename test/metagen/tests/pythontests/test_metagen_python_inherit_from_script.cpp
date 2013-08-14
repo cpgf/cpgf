@@ -8,7 +8,8 @@ void testInheritFromScript_SimpleObject(TestScriptContext * context)
 	QDO(AAA = mtest.SimpleObject);
 	QDO(print AAA);
 	QDO(print type(AAA));
-//	QNEWOBJ(b, AAA());
+	QNEWOBJ(b, AAA());
+	QDO(b.getData().n = 5);
 //	DO("class DerivedSimpleObject(AAA): pass");
 return;
 	QNEWOBJ(a, DerivedSimpleObject());

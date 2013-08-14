@@ -244,6 +244,7 @@ void commonDealloc(PyObject* p)
 PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObject * keyWords);
 
 PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, PyObject * keyWords);
+PyObject * callbackConstructObject2(PyTypeObject * callableObject, PyObject * args, PyObject * keyWords);
 
 PyObject * callbackGetAttribute(PyObject * object, PyObject * attrName);
 int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * value);
@@ -333,7 +334,7 @@ PyTypeObject metaClassType = {
     0,                                  /* tp_as_sequence */
     0,                                  /* tp_as_mapping */
     0,                                  /* tp_hash */
-    &callbackConstructObject,                              /* tp_call */
+    0,                              /* tp_call */
     0,                                  /* tp_str */
 	&callbackGetAttribute,             /* tp_getattro */
     &callbackSetAttribute,            /* tp_setattro */
@@ -356,7 +357,7 @@ PyTypeObject metaClassType = {
     0, 							      /* tp_dictoffset */
     0,                               /* tp_init */
     0,                    /* tp_alloc */
-    &PyType_GenericNew,                     /* tp_new */
+    &callbackConstructObject2,                     /* tp_new */
     0,                                      /* tp_free */
     (inquiry)&classTypeIsGC,                         /* tp_is_gc */
     0,                                      /* tp_bases */
@@ -399,7 +400,7 @@ PyTypeObject classType = {
     0,                                  /* tp_methods */
     0, 					              /* tp_members */
     NULL, 				                /* tp_getset */
-    0,                       /* tp_base */
+    &PyBaseObject_Type,                       /* tp_base */
     0,                                  /* tp_dict */
     NULL, 				                 /* tp_descr_get */
     0,                                  /* tp_descr_set */
@@ -889,7 +890,7 @@ GPythonObject::~GPythonObject()
 
 void GPythonObject::initType(PyTypeObject * type)
 {
-    if(Py_TYPE(type) == 0) {
+    if(type->tp_dict == 0) {
         Py_TYPE(type) = &PyType_Type;
 		if(type == &classType) {
 			type->tp_base = &PyBaseObject_Type; //&PyType_Type;
@@ -1000,12 +1001,11 @@ void GPythonClass::initType()
 	PyTypeObject * typeObject = static_cast<PyTypeObject *>(this);
 	*typeObject = metaClassType;
 
-	//if(Py_TYPE(typeObject) == 0) {
-	//	Py_TYPE(typeObject) = &PyType_Type;
-	//	typeObject->tp_base = &PyType_Type;
-	//	PyType_Ready(typeObject);
-	//}
-	PyType_Ready(typeObject);
+	if(typeObject->tp_dict == 0) {
+//		Py_TYPE(typeObject) = &PyType_Type;
+//		typeObject->tp_base = &PyType_Type;
+		PyType_Ready(typeObject);
+	}
 
 	if(typeObject->tp_dict == NULL) {
 		typeObject->tp_dict = PyDict_New();
@@ -1125,9 +1125,9 @@ PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaC
 {
 	return createPythonObject(context->newClassData(metaClass));
 
-	//GPythonClass * object = new GPythonClass(context->newClassData(metaClass));
-	//getPythonDataWrapperPool()->dataWrapperCreated(object);
-	//return object->toPythonObject();
+//	GPythonClass * object = new GPythonClass(context->newClassData(metaClass));
+//	getPythonDataWrapperPool()->dataWrapperCreated(object);
+//	return object->toPythonObject();
 }
 
 struct GPythonMethods
@@ -1288,6 +1288,31 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	ENTER_PYTHON()
 
 	GPythonNative * cppClass = nativeFromPython(callableObject);
+	GClassGlueDataPointer classUserData = cppClass->getAs<GClassGlueData>();
+	GContextPointer context = classUserData->getContext();
+	
+	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
+	loadCallableParam(context, args, &callableParam);
+
+	void * instance = doInvokeConstructor(context, context->getService(), classUserData->getMetaClass(), &callableParam);
+
+	if(instance != NULL) {
+		return createPythonObject(context->newObjectGlueData(classUserData, instance, GBindValueFlags(bvfAllowGC), opcvNone));
+	}
+	else {
+		raiseCoreException(Error_ScriptBinding_FailConstructObject);
+	}
+
+	return NULL;
+
+	LEAVE_PYTHON(return NULL)
+}
+
+PyObject * callbackConstructObject2(PyTypeObject * callableObject, PyObject * args, PyObject * /*keyWords*/)
+{
+	ENTER_PYTHON()
+
+	GPythonNative * cppClass = nativeFromPython((PyObject *)callableObject);
 	GClassGlueDataPointer classUserData = cppClass->getAs<GClassGlueData>();
 	GContextPointer context = classUserData->getContext();
 	
