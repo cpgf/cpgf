@@ -19,6 +19,9 @@ const std::string includeSelectFunctionByArity("cpgf/gselectFunctionByArity.h");
 
 const std::string metaTypeTypeDefName("MetaType");
 
+const std::string scriptFieldFiles("files");
+const std::string scriptFieldTemplateInstantiations("templateInstantiations");
+
 } // namespace metagen
 
 

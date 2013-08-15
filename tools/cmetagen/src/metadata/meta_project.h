@@ -25,9 +25,9 @@ void buildMetaClass_metagen_Project(D_d & _d)
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
 
     _d.CPGF_MD_TEMPLATE _field("projectID", &D_d::ClassType::projectID);
-    _d.CPGF_MD_TEMPLATE _field("maxItemCountPerFile", &D_d::ClassType::maxItemCountPerFile);
     _d.CPGF_MD_TEMPLATE _field("files", &D_d::ClassType::files);
     _d.CPGF_MD_TEMPLATE _field("cppNamespace", &D_d::ClassType::cppNamespace);
+    _d.CPGF_MD_TEMPLATE _field("maxItemCountPerFile", &D_d::ClassType::maxItemCountPerFile);
     _d.CPGF_MD_TEMPLATE _field("headerIncludePrefix", &D_d::ClassType::headerIncludePrefix);
     _d.CPGF_MD_TEMPLATE _field("headerFileExtension", &D_d::ClassType::headerFileExtension);
     _d.CPGF_MD_TEMPLATE _field("sourceFileExtension", &D_d::ClassType::sourceFileExtension);
@@ -50,6 +50,7 @@ void buildMetaClass_metagen_Project(D_d & _d)
     _d.CPGF_MD_TEMPLATE _field("allowProtected", &D_d::ClassType::allowProtected);
     _d.CPGF_MD_TEMPLATE _field("allowPrivate", &D_d::ClassType::allowPrivate);
     _d.CPGF_MD_TEMPLATE _field("force", &D_d::ClassType::force);
+    _d.CPGF_MD_TEMPLATE _field("templateInstantiations", &D_d::ClassType::templateInstantiations);
 
 }
 

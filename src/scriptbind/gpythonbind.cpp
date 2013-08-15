@@ -224,6 +224,7 @@ private:
 
 
 GPythonObject * createPythonObject(const GGlueDataPointer & glueData);
+GPythonObject * createPythonObject(void * address, const GGlueDataPointer & glueData);
 void deletePythonObject(GPythonNative * object);
 PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaClass);
 
@@ -255,6 +256,12 @@ GPythonNative * nativeFromPython(PyObject * object) {
 void commonDealloc(PyObject* p)
 {
     deletePythonObject(nativeFromPython(p));
+}
+
+void commonDealloc2(PyObject* p)
+{
+	static_cast<GPythonClass *>((PyTypeObject *)(p))->~GPythonClass();
+	PyObject_Del(p);
 }
 
 PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObject * keyWords);
@@ -330,15 +337,10 @@ PyTypeObject functionType = {
 };
 
 
-int classTypeIsGC(PyTypeObject * /*python_type*/)
-{
-  return 0; // python_type->tp_flags & Py_TPFLAGS_HEAPTYPE;
-}
-
 PyTypeObject metaClassType = {
     PyVarObject_HEAD_INIT(&PyType_Type, 0)
     const_cast<char *>(metaClassTypeName),
-    sizeof(GPythonObject),
+	sizeof(GPythonClass),
     0,
     (destructor)&commonDealloc,               /* tp_dealloc */
     0,                                  /* tp_print */
@@ -375,7 +377,7 @@ PyTypeObject metaClassType = {
     0,                    /* tp_alloc */
     &callbackConstructObject2,                     /* tp_new */
     0,                                      /* tp_free */
-    (inquiry)&classTypeIsGC,                         /* tp_is_gc */
+    0,                         /* tp_is_gc */
     0,                                      /* tp_bases */
     0,                                      /* tp_mro */
     0,                                      /* tp_cache */
@@ -425,7 +427,7 @@ PyTypeObject classType = {
     0,                    /* tp_alloc */
     &PyType_GenericNew,                     /* tp_new */
     0,                                      /* tp_free */
-    (inquiry)&classTypeIsGC,                         /* tp_is_gc */
+    0,                         /* tp_is_gc */
     0,                                      /* tp_bases */
     0,                                      /* tp_mro */
     0,                                      /* tp_cache */
@@ -862,6 +864,13 @@ GPythonObject * createPythonObject(const GGlueDataPointer & glueData)
 //	return obj;
 }
 
+GPythonObject * createPythonObject(void * address, const GGlueDataPointer & glueData)
+{
+	GPythonObject * object = new (address) GPythonObject(glueData);
+	getPythonDataWrapperPool()->dataWrapperCreated(object);
+	return object;
+}
+
 GPythonObject * createEmptyPythonObject()
 {
 	GPythonObject * object = new GPythonAnyObject();
@@ -874,9 +883,6 @@ void deletePythonObject(GPythonNative * object)
 	getPythonScriptObjectCache()->freeScriptObject(object);
 	getPythonDataWrapperPool()->dataWrapperDestroyed(object);
 	delete object;
-
-//	object->~GPythonObject();
-//	PyObject_Del(object);
 }
 
 GPythonNative::GPythonNative(const GGlueDataPointer & glueData)
@@ -1349,6 +1355,7 @@ PyObject * callbackConstructObject2(PyTypeObject * callableObject, PyObject * ar
 	void * instance = doInvokeConstructor(context, context->getService(), classUserData->getMetaClass(), &callableParam);
 
 	if(instance != NULL) {
+//		void * address = callableObject->tp_alloc(callableObject, 0);
 		return createPythonObject(context->newObjectGlueData(classUserData, instance, GBindValueFlags(bvfAllowGC), opcvNone));
 	}
 	else {

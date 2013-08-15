@@ -127,6 +127,9 @@ private:
 
 	bool force;
 
+	// dumb field to be used by script parser
+	int templateInstantiations;
+
 private:
 	cpgf::GScopedPointer<BuilderTemplateInstantiationRepository> templateInstantiationRepository;
 	std::string projectFileName;
