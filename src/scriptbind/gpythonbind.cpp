@@ -941,6 +941,13 @@ const string & GPythonStaticObject::getFieldName() const
 
 void GPythonStaticObject::initType()
 {
+	PyTypeObject * type = &staticObjectType;
+    if(type->tp_dict == 0) {
+        Py_TYPE(type) = &PyType_Type;
+        PyType_Ready(type);
+    }
+
+	PyObject_INIT(this, type);
 }
 
 
