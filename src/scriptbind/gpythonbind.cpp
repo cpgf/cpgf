@@ -227,8 +227,24 @@ GPythonObject * createPythonObject(const GGlueDataPointer & glueData);
 void deletePythonObject(GPythonNative * object);
 PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaClass);
 
-GPythonNative * nativeFromPython(PyObject * object) {
+const char * metaClassTypeName = "_cpgf.Python.metaclass";
+
+bool pythonObjectIsNativeClass(PyObject * object) {
 	if(PyType_Check(object)) {
+		PyTypeObject * type = (PyTypeObject *)object;
+		return type->tp_name[0] == metaClassTypeName[0]
+			&& type->tp_name[1] == metaClassTypeName[1]
+			&& type->tp_name[2] == metaClassTypeName[2]
+			&& strcmp(type->tp_name, metaClassTypeName) == 0
+		;
+	}
+	else {
+		return false;
+	}
+}
+
+GPythonNative * nativeFromPython(PyObject * object) {
+	if(pythonObjectIsNativeClass(object)) {
 		return static_cast<GPythonNative *>(static_cast<GPythonClass *>((PyTypeObject *)object));
 	}
 	else {
@@ -321,7 +337,7 @@ int classTypeIsGC(PyTypeObject * /*python_type*/)
 
 PyTypeObject metaClassType = {
     PyVarObject_HEAD_INIT(&PyType_Type, 0)
-    const_cast<char *>("cpgf.Python.metaclass"),
+    const_cast<char *>(metaClassTypeName),
     sizeof(GPythonObject),
     0,
     (destructor)&commonDealloc,               /* tp_dealloc */
@@ -791,6 +807,10 @@ GPythonNative * tryCastFromPython(PyObject * object) {
 		if(object->ob_type == typeObjects[i]) {
 			return nativeFromPython(object);
 		}
+	}
+	if(pythonObjectIsNativeClass(object)) {
+//		return nativeFromPython(object);
+		return static_cast<GPythonNative *>(static_cast<GPythonClass *>((PyTypeObject *)object));
 	}
 
 	return NULL;
