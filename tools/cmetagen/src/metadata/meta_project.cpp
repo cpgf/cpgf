@@ -1,3 +1,4 @@
+/*@@cpgf@@*/
 // Auto generated file, don't modify.
 
 #include "meta_project.h"

@@ -15,17 +15,17 @@ const Logger & getLogger()
 
 void Logger::info(const std::string & message) const
 {
-	this->doLog(levelInfo, message);
+	this->doLog(levelInfo, "Info: " + message);
 }
 
 void Logger::warn(const std::string & message) const
 {
-	this->doLog(levelWarn, message);
+	this->doLog(levelWarn, "Warning: " + message);
 }
 
 void Logger::error(const std::string & message) const
 {
-	cerr << message;
+	cerr << "Error: " << message;
 }
 
 void Logger::doLog(LogLevel leve, const std::string & message) const

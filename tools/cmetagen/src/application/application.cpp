@@ -15,6 +15,7 @@
 
 #include "Poco/Glob.h"
 #include "Poco/File.h"
+#include "Poco/Path.h"
 #include "Poco/Format.h"
 #include "Poco/Exception.h"
 
@@ -72,7 +73,7 @@ void Application::processFiles()
 	for(StringArrayType::const_iterator it = this->project.getFiles().begin();
 		it != this->project.getFiles().end();
 		++it) {
-		this->processOnePath(*it);
+		this->processOnePath(Poco::Path(*it).makeAbsolute(Poco::Path(this->project.getSourceRootPath())).toString());
 	}
 }
 
@@ -82,6 +83,9 @@ void Application::processOnePath(const std::string & path)
 	string absolutePath = this->project.getAbsoluteFileName(path);
 
 	Poco::Glob::glob(absolutePath, fileSet, Poco::Glob::GLOB_DOT_SPECIAL);
+	if(fileSet.empty()) {
+		getLogger().warn(Poco::format("Can't find any files in %s.\n", absolutePath));
+	}
 	for(set<string>::iterator it = fileSet.begin(); it != fileSet.end(); ++it) {
 		if(Poco::File(*it).isDirectory()) {
 			continue;

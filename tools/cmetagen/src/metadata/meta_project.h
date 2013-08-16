@@ -1,4 +1,10 @@
+/*@@cpgf@@*/
 // Auto generated file, don't modify.
+
+/*@cpgf@creations@@
+createMetaClass_metagen_Project
+createMetaClass_metagen_ProjectWrapper
+@@cpgf@creations@*/
 
 #ifndef METADATA_META_PROJECT_H
 #define METADATA_META_PROJECT_H
@@ -25,6 +31,7 @@ void buildMetaClass_metagen_Project(D_d & _d)
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
 
     _d.CPGF_MD_TEMPLATE _field("projectID", &D_d::ClassType::projectID);
+    _d.CPGF_MD_TEMPLATE _field("sourceRootPath", &D_d::ClassType::sourceRootPath);
     _d.CPGF_MD_TEMPLATE _field("files", &D_d::ClassType::files);
     _d.CPGF_MD_TEMPLATE _field("cppNamespace", &D_d::ClassType::cppNamespace);
     _d.CPGF_MD_TEMPLATE _field("maxItemCountPerFile", &D_d::ClassType::maxItemCountPerFile);

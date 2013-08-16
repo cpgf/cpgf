@@ -32,6 +32,7 @@ private:
 public:
 #endif
 	std::string getProjectID() const;
+	std::string getSourceRootPath() const;
 
 	const StringArrayType & getFiles() const;
 	const std::string & getCppNamespace() const;
@@ -92,6 +93,7 @@ public:
 private:
 #endif
 	std::string projectID;
+	std::string sourceRootPath;
 
 	StringArrayType files;
 	std::string cppNamespace;
@@ -139,6 +141,7 @@ private:
 
 private:
 	friend class ProjectImplement;
+	friend class ProjectScriptParserVisitor;
 
 	template <typename D_d >
 	friend void metadata::buildMetaClass_metagen_Project(D_d & _d);

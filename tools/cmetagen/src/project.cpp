@@ -23,6 +23,119 @@ void projectParseFatalError(const string & message)
 	fatalError(message);
 }
 
+class ProjectScriptVisitor
+{
+public:
+	explicit ProjectScriptVisitor(Project * project)
+		: project(project), scriptObject(NULL) {
+	}
+
+	virtual ~ProjectScriptVisitor() {}
+
+	virtual void visitFiles(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
+	virtual void visitTemplateInstantiations(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
+	virtual void visitString(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
+	virtual void visitInteger(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
+
+	Project * getProject() const { return this->project; }
+	IScriptObject * getScriptObject() const { return this->scriptObject; }
+	void setScriptObject(IScriptObject * scriptObject) { this->scriptObject = scriptObject; }
+
+private:
+	Project * project;
+	IScriptObject * scriptObject;
+};
+
+class ProjectScriptParserVisitor : public ProjectScriptVisitor
+{
+public:
+	explicit ProjectScriptParserVisitor(Project * project)
+		: ProjectScriptVisitor(project) {
+	}
+
+	virtual void visitFiles(IMetaField * /*field*/, const std::string & fieldName, const GScriptValue & /*fieldValue*/) {
+		if(! this->getScriptObject()->maybeIsScriptArray(fieldName.c_str())) {
+			projectParseFatalError(Poco::format("Config \"%s\" must be array.", fieldName));
+		}
+		
+		GScopedInterface<IScriptArray> files(scriptGetAsScriptArray(this->getScriptObject(), fieldName.c_str()).toScriptArray());
+		uint32_t count = files->getLength();
+		for(uint32_t i = 0; i < count; ++i) {
+			GScriptValue element(scriptGetScriptArrayValue(files.get(), i));
+			if(! element.isString()) {
+				projectParseFatalError(Poco::format("Elements in config \"%s\" must be string.", fieldName));
+			}
+			string filePattern = element.toString();
+			if(Poco::Path(filePattern).isAbsolute()) {
+				projectParseFatalError(Poco::format("File %s in config must NOT be absolute path.", filePattern));
+			}
+			this->getProject()->files.push_back(filePattern);
+		}
+	}
+
+	virtual void visitTemplateInstantiations(IMetaField * /*field*/, const std::string & fieldName, const GScriptValue & /*fieldValue*/) {
+		if(! this->getScriptObject()->maybeIsScriptArray(fieldName.c_str())) {
+			projectParseFatalError(Poco::format("Config \"%s\" must be array.", fieldName));
+		}
+		
+		GScopedInterface<IScriptArray> templateInstantiations(scriptGetAsScriptArray(this->getScriptObject(), fieldName.c_str()).toScriptArray());
+		uint32_t count = templateInstantiations->getLength();
+		for(uint32_t i = 0; i < count; ++i) {
+			if(templateInstantiations->maybeIsScriptArray(i)) {
+				GScopedInterface<IScriptArray> instantiation(scriptGetAsScriptArray(templateInstantiations.get(), i).toScriptArray());
+				uint32_t nameCount = instantiation->getLength();
+				if(nameCount < 2) {
+					projectParseFatalError("Template instantiation must have at least two strings.");
+				}
+				if(nameCount > 3) {
+					projectParseFatalError("Template instantiation must have at most three strings.");
+				}
+				string templateExpression;
+				string reflectionName;
+				string classWrapperReflectionName;
+				for(uint32_t k = 0; k < nameCount; ++k) {
+					GScriptValue element(scriptGetScriptArrayValue(instantiation.get(), k));
+					if(! element.isString()) {
+						projectParseFatalError("Elements in template instantiation must be string.");
+					}
+
+					switch(k) {
+					case 0:
+						templateExpression = element.toString();
+						break;
+
+					case 1:
+						reflectionName = element.toString();
+						break;
+
+					case 2:
+						classWrapperReflectionName = element.toString();
+						break;
+					}
+				}
+				this->getProject()->templateInstantiationRepository->add(templateExpression, reflectionName, classWrapperReflectionName);
+			}
+			else {
+				projectParseFatalError(Poco::format("Config elements in \"%s\" must be array.", fieldName));
+			}
+		}
+	}
+
+	virtual void visitString(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) {
+		if(! fieldValue.isString()) {
+			projectParseFatalError(Poco::format("Config \"%s\" must be string.", fieldName));
+		}
+		metaSetValue(field, this->getProject(), fieldValue.toString());
+	}
+
+	virtual void visitInteger(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) {
+		if(! fieldValue.isFundamental()) {
+			projectParseFatalError(Poco::format("Config \"%s\" must be primary type.", fieldName));
+		}
+		metaSetValue(field, this->getProject(), fieldValue.toFundamental());
+	}
+};
+
 class ProjectImplement
 {
 public:
@@ -34,10 +147,8 @@ public:
 private:
 	void initialize();
 
-	void doLoadForFieldFiles(Project * project,
-		IScriptObject * configObject, IMetaField * field, const std::string & fieldName);
-	void doLoadForFieldTemplateInstantiations(Project * project,
-		IScriptObject * configObject, IMetaField * field, const std::string & fieldName);
+	void visitProject(ProjectScriptVisitor * visitor);
+	void doVisitProject(ProjectScriptVisitor * visitor);
 
 private:
 	GScopedPointer<GScriptRunner> runner;
@@ -76,7 +187,7 @@ void ProjectImplement::loadScriptFile(const string & fileName)
 	}
 }
 
-void ProjectImplement::loadProject(Project * project)
+void ProjectImplement::visitProject(ProjectScriptVisitor * visitor)
 {
 	GScriptValue configValue(scriptGetValue(this->scriptObject.get(), "config"));
 	if(configValue.isNull()) {
@@ -86,42 +197,41 @@ void ProjectImplement::loadProject(Project * project)
 		projectParseFatalError("\"config\" must be script object.");
 	}
 
-	GScopedInterface<IScriptObject> configObject(configValue.toScriptObject());
+	GScopedInterface<IScriptObject> scriptObject(configValue.toScriptObject());
+	visitor->setScriptObject(scriptObject.get());
+	this->doVisitProject(visitor);
+}
 
+void ProjectImplement::doVisitProject(ProjectScriptVisitor * visitor)
+{
 	GScopedInterface<IMetaClass> projectClass(this->rootClass->getClass("Project"));
 	uint32_t fieldCount = projectClass->getFieldCount();
 	for(uint32_t i = 0; i < fieldCount; ++i) {
 		GScopedInterface<IMetaField> field(projectClass->getFieldAt(i));
 		string fieldName(field->getName());
-		GScriptValue value(scriptGetValue(configObject.get(), fieldName.c_str()));
+		GScriptValue value(scriptGetValue(visitor->getScriptObject(), fieldName.c_str()));
 		if(value.isNull()) {
 			continue;
 		}
 
 		if(fieldName == scriptFieldFiles) {
-			this->doLoadForFieldFiles(project, configObject.get(), field.get(), fieldName);
+			visitor->visitFiles(field.get(), fieldName, value);
 			continue;
 		}
 
 		if(fieldName == scriptFieldTemplateInstantiations) {
-			this->doLoadForFieldTemplateInstantiations(project, configObject.get(), field.get(), fieldName);
+			visitor->visitTemplateInstantiations(field.get(), fieldName, value);
 			continue;
 		}
 
 		GMetaType metaType(metaGetItemType(field.get()));
 		if(! metaType.isPointer()) {
 			if(metaType.baseIsStdString()) {
-				if(! value.isString()) {
-					projectParseFatalError(Poco::format("Config \"%s\" must be string.", fieldName));
-				}
-				metaSetValue(field.get(), project, value.toString());
+				visitor->visitString(field.get(), fieldName, value);
 				continue;
 			}
 			if(vtIsInteger(metaType.getVariantType())) {
-				if(! value.isFundamental()) {
-					projectParseFatalError(Poco::format("Config \"%s\" must be primary type.", fieldName));
-				}
-				metaSetValue(field.get(), project, value.toFundamental());
+				visitor->visitInteger(field.get(), fieldName, value);
 				continue;
 			}
 		}
@@ -129,77 +239,17 @@ void ProjectImplement::loadProject(Project * project)
 	}
 }
 
-void ProjectImplement::doLoadForFieldFiles(Project * project,
-	IScriptObject * configObject, IMetaField * /*field*/, const std::string & fieldName)
+void ProjectImplement::loadProject(Project * project)
 {
-	if(! configObject->maybeIsScriptArray(fieldName.c_str())) {
-		projectParseFatalError(Poco::format("Config \"%s\" must be array.", fieldName));
-	}
-	
-	GScopedInterface<IScriptArray> files(scriptGetAsScriptArray(configObject, fieldName.c_str()).toScriptArray());
-	uint32_t count = files->getLength();
-	for(uint32_t i = 0; i < count; ++i) {
-		GScriptValue element(scriptGetScriptArrayValue(files.get(), i));
-		if(! element.isString()) {
-			projectParseFatalError(Poco::format("Elements in config \"%s\" must be string.", fieldName));
-		}
-		project->files.push_back(element.toString());
-	}
-}
-
-void ProjectImplement::doLoadForFieldTemplateInstantiations(Project * project,
-	IScriptObject * configObject, IMetaField * /*field*/, const std::string & fieldName)
-{
-	if(! configObject->maybeIsScriptArray(fieldName.c_str())) {
-		projectParseFatalError(Poco::format("Config \"%s\" must be array.", fieldName));
-	}
-	
-	GScopedInterface<IScriptArray> templateInstantiations(scriptGetAsScriptArray(configObject, fieldName.c_str()).toScriptArray());
-	uint32_t count = templateInstantiations->getLength();
-	for(uint32_t i = 0; i < count; ++i) {
-		if(templateInstantiations->maybeIsScriptArray(i)) {
-			GScopedInterface<IScriptArray> instantiation(scriptGetAsScriptArray(templateInstantiations.get(), i).toScriptArray());
-			uint32_t nameCount = instantiation->getLength();
-			if(nameCount < 2) {
-				projectParseFatalError("Template instantiation must have at least two strings.");
-			}
-			if(nameCount > 3) {
-				projectParseFatalError("Template instantiation must have at most three strings.");
-			}
-			string templateExpression;
-			string reflectionName;
-			string classWrapperReflectionName;
-			for(uint32_t k = 0; k < nameCount; ++k) {
-				GScriptValue element(scriptGetScriptArrayValue(instantiation.get(), k));
-				if(! element.isString()) {
-					projectParseFatalError("Elements in template instantiation must be string.");
-				}
-
-				switch(k) {
-				case 0:
-					templateExpression = element.toString();
-					break;
-
-				case 1:
-					reflectionName = element.toString();
-					break;
-
-				case 2:
-					classWrapperReflectionName = element.toString();
-					break;
-				}
-			}
-			project->templateInstantiationRepository->add(templateExpression, reflectionName, classWrapperReflectionName);
-		}
-		else {
-			projectParseFatalError(Poco::format("Config elements in \"%s\" must be array.", fieldName));
-		}
-	}
+	ProjectScriptParserVisitor visitor(project);
+	this->visitProject(&visitor);
 }
 
 
 Project::Project()
 	:	projectID(""),
+		sourceRootPath(""),
+
 		cppNamespace("metadata"),
 		
 		maxItemCountPerFile(0),
@@ -251,6 +301,12 @@ std::string Project::getProjectID() const
 {
 	return this->projectID;
 }
+
+std::string Project::getSourceRootPath() const
+{
+	return this->sourceRootPath;
+}
+
 const StringArrayType & Project::getFiles() const
 {
 	return this->files;
@@ -408,6 +464,8 @@ void Project::loadProject(const std::string & projectFileName)
 
 	this->implement->loadScriptFile(projectPath.toString());
 	this->implement->loadProject(this);
+
+	this->sourceRootPath = this->getAbsoluteFileName(this->sourceRootPath);
 }
 
 std::string Project::getOutputHeaderFileName(const std::string & sourceFileName) const
