@@ -24,7 +24,7 @@ class BuilderSectionList;
 class BuilderFileWriter;
 class Project;
 
-typedef cpgf::GCallback<void (const BuilderContext *, BuilderSection *)> CallbackOnGenerateCreationFunctionType;
+typedef cpgf::GCallback<void (const std::string &)> CallbackOnGenerateCreationFunctionType;
 
 class BuilderContext
 {
@@ -74,6 +74,7 @@ private:
 	cpgf::GScopedPointer<BuilderSectionList> sectionList;
 	BuilderFileWriterListType fileWriterList;
 	CallbackOnGenerateCreationFunctionType callbackOnGenerateCreationFunction;
+	std::string creationFunctionNameCode;
 };
 
 

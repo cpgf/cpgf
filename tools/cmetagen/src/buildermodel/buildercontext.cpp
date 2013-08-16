@@ -156,7 +156,14 @@ void BuilderContext::generateCreationFunctionSections()
 		if(generatedItemSet.find(p) == generatedItemSet.end()) {
 			generatedItemSet.insert(p);
 			this->doGenerateCreateFunctionSection(section, it, partialCreationSections.end());
-			callbackOnGenerateCreationFunction(this, section);
+			if(shouldGenerateCreationFunction(section->getCppItem())) {
+				if(! this->creationFunctionNameCode.empty()) {
+					this->creationFunctionNameCode.append("\n");
+				}
+				string creationFunctionName = getCreationFunctionName(this, section);
+				this->creationFunctionNameCode.append(creationFunctionName);
+				callbackOnGenerateCreationFunction(creationFunctionName);
+			}
 		}
 	}
 }
@@ -256,6 +263,7 @@ void BuilderContext::createHeaderFileWriter()
 			fileWriter->addSection(section);
 		}
 	}
+	fileWriter->setCreationFunctionNameCode(this->creationFunctionNameCode);
 }
 
 void BuilderContext::createSourceFileWriters()

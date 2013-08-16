@@ -2,6 +2,7 @@
 #define __BUILDERFILEWRITER_H
 
 #include "buildersection.h"
+#include "codewriter/cppwriter.h"
 
 #include <string>
 #include <vector>
@@ -23,13 +24,14 @@ public:
 	static BuilderFileWriter * createSourceFile(const std::string & sourceFileName, const BuilderContext * builderContext, int fileIndex);
 	
 public:
+	void setCreationFunctionNameCode(const std::string & code);
 	void addSection(BuilderSection * builderSection);
 	void output();
 	
 private:
 	bool isSourceFile() const;
 	const Project * getProject() const;
-	void callbackCppWriter(CodeWriter * codeWriter) const;
+	void callbackCppWriter(CodeWriter * codeWriter, CppWriterStage stage) const;
 	void initializeCppWriter(CppWriter * cppWriter) const;
 	
 private:
@@ -37,6 +39,7 @@ private:
 	std::string sourceFileName;
 	const BuilderContext * builderContext;
 	int fileIndex;
+	std::string creationFunctionNameCode;
 };
 
 

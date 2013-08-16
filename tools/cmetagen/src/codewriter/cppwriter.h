@@ -13,7 +13,13 @@ namespace metagen {
 
 class CodeWriter;
 
-typedef cpgf::GCallback<void (CodeWriter * codeWriter)> CppWriterCallback;
+enum CppWriterStage
+{
+	cwsBeginning,
+	cwsMainCodeBlock
+};
+
+typedef cpgf::GCallback<void (CodeWriter * codeWriter, CppWriterStage stage)> CppWriterCallback;
 
 class CppWriter
 {

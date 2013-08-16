@@ -1,6 +1,7 @@
 #include "cppwriter.h"
 #include "codewriter.h"
 #include "util.h"
+#include "constants.h"
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -42,7 +43,11 @@ void writeIncludeList(const std::set<std::string> & includeList, CodeWriter * co
 
 void CppWriter::write(CodeWriter * codeWriter, const CppWriterCallback & callback)
 {
+	codeWriter->writeLine(GeneratedFileMark);
 	codeWriter->writeLine("// Auto generated file, don't modify.");
+	if(callback) {
+		callback(codeWriter, cwsBeginning);
+	}
 	codeWriter->ensureBlankLine();
 
 	if(! this->headerGuard.empty()) {
@@ -71,7 +76,7 @@ void CppWriter::write(CodeWriter * codeWriter, const CppWriterCallback & callbac
 	}
 
 	if(callback) {
-		callback(codeWriter);
+		callback(codeWriter, cwsMainCodeBlock);
 	}
 	else {
 		this->codeBlock.write(codeWriter);

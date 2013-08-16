@@ -444,6 +444,17 @@ void generateMainRegisterFiles(const std::set<std::string> & creationFunctionNam
 	generateMainRegisterSourceFile(project);
 }
 
+bool shouldGenerateCreationFunction(const CppItem * cppItem)
+{
+	// nested class, don't register to global
+	if(cppItem->getParent() != NULL
+		&& cppItem->getParent()->isClass()) {
+		return false;
+	}
+	
+	return true;
+}
+
 
 } // namespace metagen
 

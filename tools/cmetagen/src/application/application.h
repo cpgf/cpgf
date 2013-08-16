@@ -26,12 +26,10 @@ private:
 	void doRun(int argc, char * argv[]);
 	void processFiles();
 	void processOnePath(const std::string & path);
-	void processOneFile(const std::string & file);
+	void processOneFile(const std::string & fileName);
 
-	void onGenerateCreationFunction(const BuilderContext * builderContext, BuilderSection * section);
-
-	void generateMainRegisterHeaderFile() const;
-	void generateMainRegisterSourceFile() const;
+	void loadCreationFunctionsFromFile(const std::string & fileName);
+	void onGenerateCreationFunction(const std::string & creationFunctionName);
 
 private:	
 	Project project;

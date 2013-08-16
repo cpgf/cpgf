@@ -1,7 +1,6 @@
 #include "builderfilewriter.h"
 #include "buildercontext.h"
 #include "codewriter/codewriter.h"
-#include "codewriter/cppwriter.h"
 #include "codewriter/codeblock.h"
 #include "project.h"
 #include "util.h"
@@ -33,6 +32,11 @@ BuilderFileWriter * BuilderFileWriter::createSourceFile(const std::string & sour
 	return new BuilderFileWriter(sourceFileName, builderContext, fileIndex);
 }
 
+void BuilderFileWriter::setCreationFunctionNameCode(const std::string & code)
+{
+	this->creationFunctionNameCode = code;
+}
+
 void BuilderFileWriter::addSection(BuilderSection * builderSection)
 {
 	this->sectionList.push_back(builderSection);
@@ -48,10 +52,26 @@ const Project * BuilderFileWriter::getProject() const
 	return this->builderContext->getProject();
 }
 
-void BuilderFileWriter::callbackCppWriter(CodeWriter * codeWriter) const
+void BuilderFileWriter::callbackCppWriter(CodeWriter * codeWriter, CppWriterStage stage) const
 {
-	for(BuilderSectionListType::const_iterator it = this->sectionList.begin(); it != this->sectionList.end(); ++it) {
-		(*it)->getCodeBlock()->write(codeWriter);
+	switch(stage) {
+		case cwsBeginning:
+			if(! this->isSourceFile() && ! this->creationFunctionNameCode.empty()) {
+				codeWriter->ensureBlankLine();
+				codeWriter->writeLine(GeneratedCreationFunctionBeginMark);
+				codeWriter->writeLine(this->creationFunctionNameCode);
+				codeWriter->writeLine(GeneratedCreationFunctionEndMark);
+			}
+			break;
+
+		case cwsMainCodeBlock:
+			for(BuilderSectionListType::const_iterator it = this->sectionList.begin(); it != this->sectionList.end(); ++it) {
+				(*it)->getCodeBlock()->write(codeWriter);
+			}
+			break;
+			
+		default:
+			break;
 	}
 }
 

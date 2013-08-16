@@ -54,6 +54,8 @@ void initializeReflectionFunctionOutline(const BuilderContext * builderContext, 
 void initializePartialCreationFunction(const BuilderContext * builderContext, BuilderSection * section);
 void initializeClassWrapperOutline(const BuilderContext * builderContext, BuilderSection * section);
 
+bool shouldGenerateCreationFunction(const CppItem * cppItem);
+
 void generateMainRegisterFiles(const std::set<std::string> & creationFunctionNameList, const Project * project);
 
 
