@@ -26,7 +26,7 @@ using namespace std;
 namespace metagen {
 
 CppContext::CppContext(const Project * project)
-	: project(project)
+	: project(project), parser(project)
 {
 }
 

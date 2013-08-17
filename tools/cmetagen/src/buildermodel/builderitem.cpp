@@ -73,7 +73,6 @@ void BuilderItem::setWrapClass(bool wrap)
 
 bool BuilderItem::shouldWrapClass() const
 {
-return true;
 	if(this->getParent() != NULL
 		&& this->getParent()->getCppItem()->isClass()
 		&& ! this->getParent()->shouldSkipBind()) {

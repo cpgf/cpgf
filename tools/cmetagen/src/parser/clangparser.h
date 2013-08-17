@@ -8,17 +8,19 @@ namespace metagen {
 
 class ClangParserImplement;
 class CppContext;
+class Project;
 
 class ClangParser
 {
 public:
-	ClangParser();
+	explicit ClangParser(const Project * project);
 	~ClangParser();
 
 	void parse(CppContext * context, const char * fileName);
 
 private:
 	cpgf::GScopedPointer<ClangParserImplement> implement;
+	const Project * project;
 };
 
 

@@ -41,6 +41,7 @@ public:
 	std::string getSourceRootPath() const;
 
 	const StringArrayType & getFiles() const;
+	const StringArrayType & getIncludeDirectories() const;
 	const std::string & getCppNamespace() const;
 
 	size_t getMaxItemCountPerFile() const;
@@ -104,6 +105,7 @@ private:
 	std::string sourceRootPath;
 
 	StringArrayType files;
+	StringArrayType includeDirectories;
 	std::string cppNamespace;
 	
 	size_t maxItemCountPerFile;

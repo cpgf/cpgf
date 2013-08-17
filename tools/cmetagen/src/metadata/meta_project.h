@@ -59,6 +59,7 @@ void buildMetaClass_metagen_Project(D_d & _d)
     _d.CPGF_MD_TEMPLATE _field("force", &D_d::ClassType::force);
     _d.CPGF_MD_TEMPLATE _field("mainCallback", &D_d::ClassType::mainCallback);
     _d.CPGF_MD_TEMPLATE _field("templateInstantiations", &D_d::ClassType::templateInstantiations);
+    _d.CPGF_MD_TEMPLATE _field("includeDirectories", &D_d::ClassType::includeDirectories);
 
 }
 

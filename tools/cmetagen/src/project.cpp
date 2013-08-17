@@ -46,7 +46,7 @@ public:
 
 	virtual ~ProjectScriptVisitor() {}
 
-	virtual void visitFiles(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
+	virtual void visitStringArray(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue, StringArrayType * stringArray) = 0;
 	virtual void visitTemplateInstantiations(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
 	virtual void visitMainCallback(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
 	virtual void visitString(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
@@ -68,10 +68,12 @@ public:
 		: ProjectScriptVisitor(project) {
 	}
 
-	virtual void visitFiles(IMetaField * /*field*/, const std::string & fieldName, const GScriptValue & /*fieldValue*/) {
+	virtual void visitStringArray(IMetaField * /*field*/, const std::string & fieldName, const GScriptValue & /*fieldValue*/, StringArrayType * stringArray) {
 		if(! this->getScriptObject()->maybeIsScriptArray(fieldName.c_str())) {
 			projectParseFatalError(Poco::format("Config \"%s\" must be array.", fieldName));
 		}
+
+		bool isFieldFiles = (fieldName == scriptFieldFiles);
 		
 		GScopedInterface<IScriptArray> files(scriptGetAsScriptArray(this->getScriptObject(), fieldName.c_str()).toScriptArray());
 		uint32_t count = files->getLength();
@@ -80,11 +82,11 @@ public:
 			if(! element.isString()) {
 				projectParseFatalError(Poco::format("Elements in config \"%s\" must be string.", fieldName));
 			}
-			string filePattern = element.toString();
-			if(Poco::Path(filePattern).isAbsolute()) {
-				projectParseFatalError(Poco::format("File %s in config must NOT be absolute path.", filePattern));
+			string text = element.toString();
+			if(isFieldFiles && Poco::Path(text).isAbsolute()) {
+				projectParseFatalError(Poco::format("File %s in config must NOT be absolute path.", text));
 			}
-			this->getProject()->files.push_back(filePattern);
+			stringArray->push_back(text);
 		}
 	}
 
@@ -136,7 +138,7 @@ public:
 		}
 	}
 
-	virtual void visitMainCallback(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) {
+	virtual void visitMainCallback(IMetaField * /*field*/, const std::string & fieldName, const GScriptValue & fieldValue) {
 		if(! fieldValue.isScriptFunction()) {
 			projectParseFatalError(Poco::format("Config \"%s\" must be script function.", fieldName));
 		}
@@ -243,7 +245,12 @@ void ProjectImplement::doVisitProject(ProjectScriptVisitor * visitor)
 		}
 
 		if(fieldName == scriptFieldFiles) {
-			visitor->visitFiles(field.get(), fieldName, value);
+			visitor->visitStringArray(field.get(), fieldName, value, &visitor->getProject()->files);
+			continue;
+		}
+
+		if(fieldName == scriptFieldIncludeDirectories) {
+			visitor->visitStringArray(field.get(), fieldName, value, &visitor->getProject()->includeDirectories);
 			continue;
 		}
 
@@ -343,6 +350,11 @@ std::string Project::getSourceRootPath() const
 const StringArrayType & Project::getFiles() const
 {
 	return this->files;
+}
+
+const StringArrayType & Project::getIncludeDirectories() const
+{
+	return this->includeDirectories;
 }
 
 const std::string & Project::getCppNamespace() const

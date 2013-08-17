@@ -12,6 +12,7 @@
 #include "model/cppfile.h"
 #include "model/cpputil.h"
 
+#include "project.h"
 #include "util.h"
 #include "constants.h"
 
@@ -78,7 +79,7 @@ private:
 	typedef ParserBase super;
 
 public:
-	ParserLibClang();
+	explicit ParserLibClang(const Project * project);
 
 	virtual void parse(const char * fileName, const ParserCallbackType & callback);
 
@@ -91,10 +92,11 @@ private:
 	DiagnosticOptions diagnosticOptions;
 	GScopedPointer<CompilerInvocation> compilerInvocation;
 	GScopedPointer<CompilerInstance> compilerInstance;
+	const Project * project;
 };
 
-ParserLibClang::ParserLibClang()
-	: super(), outputStream(1, false)
+ParserLibClang::ParserLibClang(const Project * project)
+	: super(), outputStream(1, false), project(project)
 {
 	this->setupClang();
 }
@@ -127,11 +129,16 @@ void ParserLibClang::setupClang()
 	langOptions.DelayedTemplateParsing = 1;
 
 	HeaderSearchOptions & headerSearchOptions = this->compilerInvocation->getHeaderSearchOpts();
-headerSearchOptions.AddPath("C:/Program Files/Microsoft Visual Studio 9.0/VC/include", frontend::Angled, false, false);
-headerSearchOptions.AddPath("C:/projects/cpgf/trunk/include", frontend::Angled, false, false);
+//headerSearchOptions.AddPath("C:/Program Files/Microsoft Visual Studio 9.0/VC/include", frontend::Angled, false, false);
+//headerSearchOptions.AddPath("C:/projects/cpgf/trunk/include", frontend::Angled, false, false);
+	for(StringArrayType::const_iterator it = this->project->getIncludeDirectories().begin();
+		it != this->project->getIncludeDirectories().end();
+		++it) {
+			headerSearchOptions.AddPath(it->c_str(), frontend::Angled, false, false);
+	}
 
-//	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
-IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
+	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
+//IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
 	this->compilerInstance->createDiagnostics(client, false);
 	
 	DiagnosticsEngine & diagnostics = this->compilerInstance->getDiagnostics();
@@ -191,7 +198,7 @@ private:
 class ClangParserImplement
 {
 public:
-	explicit ClangParserImplement(CppContext * context);
+	ClangParserImplement(CppContext * context, const Project * project);
 	~ClangParserImplement();
 
 	void parse(const char * fileName);
@@ -242,11 +249,13 @@ private:
 	GScopedPointer<ParserBase> parser;
 
 	CompilerInstance * compilerInstance;
+
+	const Project * project;
 };
 
 
-ClangParserImplement::ClangParserImplement(CppContext * context)
-	: context(context), compilerInstance(NULL)
+ClangParserImplement::ClangParserImplement(CppContext * context, const Project * project)
+	: context(context), compilerInstance(NULL), project(project)
 {
 }
 
@@ -258,7 +267,7 @@ void ClangParserImplement::parse(const char * fileName)
 {
 	this->fileName = fileName;
 
-	this->parser.reset(new ParserLibClang);
+	this->parser.reset(new ParserLibClang(this->project));
 	this->parser->parse(fileName, makeCallback(this, &ClangParserImplement::translate));
 }
 
@@ -539,7 +548,8 @@ void ClangParserImplement::parseBaseClass(CppClass * cls, CXXBaseSpecifier * bas
 }
 
 
-ClangParser::ClangParser()
+ClangParser::ClangParser(const Project * project)
+	: project(project)
 {
 }
 
@@ -549,7 +559,7 @@ ClangParser::~ClangParser()
 
 void ClangParser::parse(CppContext * context, const char * fileName)
 {
-	this->implement.reset(new ClangParserImplement(context));
+	this->implement.reset(new ClangParserImplement(context, project));
 	this->implement->parse(fileName);
 }
 
