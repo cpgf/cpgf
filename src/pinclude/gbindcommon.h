@@ -878,11 +878,14 @@ public:
 
 protected:
 	GContextPointer getContext() {
-		return this->context.get();
+		return this->context;
 	}
 
 private:
-	GWeakContextPointer context;
+	// Here we must use strong shared pointer,
+	// otherwise the context may be freed by the script object
+	// while the script function is still live.
+	GContextPointer context;
 };
 
 
@@ -899,11 +902,14 @@ public:
 
 protected:
 	GContextPointer getContext() {
-		return this->context.get();
+		return this->context;
 	}
 
 private:
-	GWeakContextPointer context;
+	// Here we must use strong shared pointer,
+	// otherwise the context may be freed by the script object
+	// while the script array is still live.
+	GContextPointer context;
 };
 
 

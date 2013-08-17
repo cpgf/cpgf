@@ -114,6 +114,7 @@ void BuilderContext::doProcessFile(const CppFile * cppFile)
 	file->setProject(this->project);
 
 	this->flatten(file);
+	this->doPreocessByScript();
 
 	this->generateCodeSections();
 	if(this->getSectionList()->isEmpty()) {
@@ -128,6 +129,13 @@ void BuilderContext::doProcessFile(const CppFile * cppFile)
 		it != this->fileWriterList.end();
 		++it) {
 		(*it)->output();
+	}
+}
+
+void BuilderContext::doPreocessByScript()
+{
+	for(ItemListType::iterator it = this->getItemList()->begin(); it != this->getItemList()->end(); ++it) {
+		this->getProject()->processBuilderItemByScript(*it);
 	}
 }
 

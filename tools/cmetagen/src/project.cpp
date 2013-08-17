@@ -1,11 +1,25 @@
 #include "project.h"
 #include "buildermodel/buildertemplateinstantiation.h"
+#include "buildermodel/builderitem.h"
 #include "exception.h"
 #include "util.h"
 #include "constants.h"
 
+#include "model/cppnamespace.h"
+#include "model/cppclass.h"
+#include "model/cppfield.h"
+#include "model/cppmethod.h"
+#include "model/cppconstructor.h"
+#include "model/cppdestructor.h"
+#include "model/cppenum.h"
+#include "model/cppoperator.h"
+#include "model/cppcontext.h"
+#include "model/cppfile.h"
+#include "model/cpputil.h"
+
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/gscopedinterface.h"
+#include "cpgf/scriptbind/gscriptbindutil.h"
 
 #include "cpgf/scriptbind/gv8runner.h"
 
@@ -149,6 +163,7 @@ class ProjectImplement
 {
 public:
 	ProjectImplement();
+	~ProjectImplement();
 
 	void loadScriptFile(const string & fileName);
 	void loadProject(Project * project);
@@ -169,6 +184,10 @@ private:
 ProjectImplement::ProjectImplement()
 {
 	this->initialize();
+}
+
+ProjectImplement::~ProjectImplement()
+{
 }
 
 void ProjectImplement::initialize()
@@ -490,6 +509,34 @@ std::string Project::getOutputHeaderFileName(const std::string & sourceFileName)
 std::string Project::getOutputSourceFileName(const std::string & sourceFileName, int fileIndex) const
 {
 	return this->doGetOutputFileName(sourceFileName, fileIndex, true);
+}
+
+void Project::processBuilderItemByScript(BuilderItem * builderItem) const
+{
+	if(! this->mainCallback) {
+		return;
+	}
+
+	const CppItem * cppItem = builderItem->getCppItem();
+
+#define INVOKE(category, type) \
+		case category: \
+			invokeScriptFunction(this->mainCallback.get(), static_cast<const type *>(cppItem), builderItem); \
+		break;
+
+	switch(cppItem->getCategory()) {
+		INVOKE(icFile, CppFile);
+		INVOKE(icNamespace, CppNamespace);
+		INVOKE(icClass, CppClass);
+		INVOKE(icEnum, CppEnum);
+		INVOKE(icConstructor, CppConstructor);
+		INVOKE(icDestructor, CppDestructor);
+		INVOKE(icField, CppField);
+		INVOKE(icMethod, CppMethod);
+		INVOKE(icOperator, CppOperator);
+	}
+
+#undef INVOKE
 }
 
 std::string Project::doGetOutputFileName(const std::string & sourceFileName,

@@ -20,6 +20,7 @@ struct IScriptFunction;
 namespace metagen {
 
 class BuilderTemplateInstantiationRepository;
+class BuilderItem;
 
 typedef std::vector<std::string> StringArrayType;
 
@@ -87,6 +88,8 @@ public:
 
 	std::string getOutputHeaderFileName(const std::string & sourceFileName) const;
 	std::string getOutputSourceFileName(const std::string & sourceFileName, int fileIndex) const;
+
+	void processBuilderItemByScript(BuilderItem * builderItem) const;
 
 private:
 	std::string doGetOutputFileName(const std::string & sourceFileName,

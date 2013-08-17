@@ -48,6 +48,7 @@ public:
 
 private:
 	void doProcessFile(const CppFile * cppFile);
+	void doPreocessByScript();
 	void generateCodeSections();
 
 	void generateCreationFunctionSections();

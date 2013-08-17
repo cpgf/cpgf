@@ -130,8 +130,8 @@ void ParserLibClang::setupClang()
 headerSearchOptions.AddPath("C:/Program Files/Microsoft Visual Studio 9.0/VC/include", frontend::Angled, false, false);
 headerSearchOptions.AddPath("C:/projects/cpgf/trunk/include", frontend::Angled, false, false);
 
-	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
-//IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
+//	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
+IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
 	this->compilerInstance->createDiagnostics(client, false);
 	
 	DiagnosticsEngine & diagnostics = this->compilerInstance->getDiagnostics();
