@@ -2,6 +2,7 @@
 #define __PROJECT_H
 
 #include "cpgf/gscopedptr.h"
+#include "cpgf/gsharedinterface.h"
 #include "cpgf/gclassutil.h"
 
 #include <string>
@@ -10,6 +11,10 @@
 namespace metadata {
 template <typename D_d >
 void buildMetaClass_metagen_Project(D_d & _d);
+}
+
+namespace cpgf {
+struct IScriptFunction;
 }
 
 namespace metagen {
@@ -128,6 +133,8 @@ private:
 	bool allowPrivate;
 
 	bool force;
+
+	cpgf::GSharedInterface<cpgf::IScriptFunction> mainCallback;
 
 	// dumb field to be used by script parser
 	int templateInstantiations;

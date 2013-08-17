@@ -57,6 +57,7 @@ void buildMetaClass_metagen_Project(D_d & _d)
     _d.CPGF_MD_TEMPLATE _field("allowProtected", &D_d::ClassType::allowProtected);
     _d.CPGF_MD_TEMPLATE _field("allowPrivate", &D_d::ClassType::allowPrivate);
     _d.CPGF_MD_TEMPLATE _field("force", &D_d::ClassType::force);
+    _d.CPGF_MD_TEMPLATE _field("mainCallback", &D_d::ClassType::mainCallback);
     _d.CPGF_MD_TEMPLATE _field("templateInstantiations", &D_d::ClassType::templateInstantiations);
 
 }

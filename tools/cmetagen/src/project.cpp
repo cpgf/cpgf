@@ -34,6 +34,7 @@ public:
 
 	virtual void visitFiles(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
 	virtual void visitTemplateInstantiations(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
+	virtual void visitMainCallback(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
 	virtual void visitString(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
 	virtual void visitInteger(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
 
@@ -119,6 +120,14 @@ public:
 				projectParseFatalError(Poco::format("Config elements in \"%s\" must be array.", fieldName));
 			}
 		}
+	}
+
+	virtual void visitMainCallback(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) {
+		if(! fieldValue.isScriptFunction()) {
+			projectParseFatalError(Poco::format("Config \"%s\" must be script function.", fieldName));
+		}
+		GScopedInterface<IScriptFunction> scriptFunction(fieldValue.toScriptFunction());
+		this->getProject()->mainCallback.reset(scriptFunction.get());
 	}
 
 	virtual void visitString(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) {
@@ -221,6 +230,11 @@ void ProjectImplement::doVisitProject(ProjectScriptVisitor * visitor)
 
 		if(fieldName == scriptFieldTemplateInstantiations) {
 			visitor->visitTemplateInstantiations(field.get(), fieldName, value);
+			continue;
+		}
+
+		if(fieldName == scriptFieldMainCallback) {
+			visitor->visitMainCallback(field.get(), fieldName, value);
 			continue;
 		}
 

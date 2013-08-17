@@ -336,6 +336,10 @@ PyTypeObject functionType = {
     0                                       /* tp_version_tag */
 };
 
+int type_is_gc(PyTypeObject * /*python_type*/)
+{
+  return 0; //python_type->tp_flags & Py_TPFLAGS_HEAPTYPE;
+}
 
 PyTypeObject metaClassType = {
     PyVarObject_HEAD_INIT(&PyType_Type, 0)
@@ -354,8 +358,8 @@ PyTypeObject metaClassType = {
     0,                                  /* tp_hash */
     0,                              /* tp_call */
     0,                                  /* tp_str */
-	&callbackGetAttribute,             /* tp_getattro */
-    &callbackSetAttribute,            /* tp_setattro */
+	0,             /* tp_getattro */
+    0,            /* tp_setattro */
     0,                                  /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,	/* tp_flags */
     0,                                  /* tp_doc */
@@ -377,7 +381,7 @@ PyTypeObject metaClassType = {
     0,                    /* tp_alloc */
     &callbackConstructObject2,                     /* tp_new */
     0,                                      /* tp_free */
-    0,                         /* tp_is_gc */
+    (inquiry)type_is_gc,                         /* tp_is_gc */
     0,                                      /* tp_bases */
     0,                                      /* tp_mro */
     0,                                      /* tp_cache */
@@ -1348,6 +1352,12 @@ PyObject * callbackConstructObject2(PyTypeObject * callableObject, PyObject * ar
 	GPythonNative * cppClass = nativeFromPython((PyObject *)callableObject);
 	GClassGlueDataPointer classUserData = cppClass->getAs<GClassGlueData>();
 	GContextPointer context = classUserData->getContext();
+
+	//PyObject * args = PyTuple_New(3);
+	//PyTuple_SetItem(args, 0, PyString_FromString(classUserData->getMetaClass()->getName()));
+	//PyTuple_SetItem(args, 1, PyTuple_New(0));
+	//PyTuple_SetItem(args, 1, PyDict_New());
+	//PyObject * ooo = PyObject_Call((PyObject *)callableObject, args, NULL);
 	
 	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
 	loadCallableParam(context, args, &callableParam);
