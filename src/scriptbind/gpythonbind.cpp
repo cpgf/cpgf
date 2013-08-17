@@ -119,8 +119,12 @@ private:
 
 GScriptObjectCache<GPythonNative *> * getPythonScriptObjectCache()
 {
-	static GScriptObjectCache<GPythonNative *> cache;
-	return &cache;
+	static GScriptObjectCache<GPythonNative *> * cache = NULL;
+	if(cache == NULL && isLibraryLive()) {
+		cache = new GScriptObjectCache<GPythonNative *>;
+		addOrderedStaticUninitializer(suo_ScriptObjectCache, makeUninitializerDeleter(&cache));
+	}
+	return cache;
 }
 
 class GPythonBindingContext : public GBindingContext, public GShareFromBase
@@ -135,7 +139,7 @@ public:
 	}
 
 	~GPythonBindingContext() {
-		getPythonScriptObjectCache()->clear();
+		checkedClearScriptObjectCache(getPythonScriptObjectCache());
 	}
 };
 
@@ -1409,10 +1413,9 @@ int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * valu
 	GPythonNative * nativeObject = nativeFromPython(object);
 	const char * name = PyString_AsString(attrName);
 
-	GVariant v;
 	GGlueDataPointer valueGlueData;
 
-	v = pythonToScriptValue(nativeObject->getData()->getContext(), value, &valueGlueData).getValue();
+	GScriptValue v = pythonToScriptValue(nativeObject->getData()->getContext(), value, &valueGlueData);
 	if(setValueOnNamedMember(nativeObject->getData(), name, v, valueGlueData)) {
 		return 0;
 	}
@@ -1510,10 +1513,9 @@ int callbackStaticObjectDescriptorSet(PyObject * self, PyObject * /*obj*/, PyObj
 
 	GPythonStaticObject * nativeObject = dynamic_cast<GPythonStaticObject *>(nativeFromPython(self));
 
-	GVariant v;
 	GGlueDataPointer valueGlueData;
 
-	v = pythonToScriptValue(nativeObject->getData()->getContext(), value, &valueGlueData).getValue();
+	GScriptValue v = pythonToScriptValue(nativeObject->getData()->getContext(), value, &valueGlueData);
 	if(setValueOnNamedMember(nativeObject->getData(), nativeObject->getFieldName().c_str(), v, valueGlueData)) {
 		return 0;
 	}

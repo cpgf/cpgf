@@ -7,6 +7,8 @@ TBD version 1.5.7
 	Optimization in script binding. Now the script objects are reused when possible when passing C++ objects to the script engine. Slightly lower memory and higher performance.
 	Fixed a bug in script binding that dynamic property could be set on C++ object. Now an exception will be thrown.
 	Fixed a memory leak in V8 script binding when constructing V8 object from C++.
+	Fixed a bug that the script instance cache may cause crash when the library is shutting down, due to unordered uninitialization.
+	Fixed a bug that script function can't live after its owner script object is freed. Now script function can have its own lifetime.
 	Build config, removed "-D_SECURE_SCL=0 -D_HAS_ITERATOR_DEBUGGING=0" in VC building to avoid linking error with third party libraries.
 	Build config, building with nmake will generate cpgf.lib in folder lib/Debug/ or lib/Release/, instead of lib/
 

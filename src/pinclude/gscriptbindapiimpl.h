@@ -65,6 +65,8 @@ protected:
 
 	virtual void G_API_CC invoke(GVariantData * outResult, const GVariantData * params, uint32_t paramCount);
 	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, GVariantData const * const * params, uint32_t paramCount);
+	// Internal use only!!!
+	virtual void G_API_CC weaken();
 
 private:
 	GScriptFunction * scriptFunction;

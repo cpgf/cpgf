@@ -112,6 +112,11 @@ void G_API_CC ImplScriptFunction::invokeIndirectly(GVariantData * outResult, GVa
 	LEAVE_BINDING_API()
 }
 
+// Internal use only!!!
+void G_API_CC ImplScriptFunction::weaken()
+{
+	this->scriptFunction->weaken();
+}
 
 ImplScriptArray::ImplScriptArray(GScriptArray * scriptArray, bool freeArray)
 	: scriptArray(scriptArray), freeArray(freeArray)

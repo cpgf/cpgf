@@ -31,6 +31,8 @@ struct IScriptFunction : public IExtendObject
 public:
 	virtual void G_API_CC invoke(GVariantData * outResult, const GVariantData * params, uint32_t paramCount) = 0;
 	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, GVariantData const * const * params, uint32_t paramCount) = 0;
+	// Internal use only!!!
+	virtual void G_API_CC weaken() = 0;
 };
 
 

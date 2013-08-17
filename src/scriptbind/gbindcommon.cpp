@@ -426,11 +426,14 @@ void GScriptDataHolder::requireDataMap()
 	}
 }
 
-void GScriptDataHolder::setScriptValue(const char * name, const GVariant & value)
+void GScriptDataHolder::setScriptValue(const char * name, const GScriptValue & value)
 {
+	GASSERT(value.isScriptFunction());
+
 	this->requireDataMap();
 
-	this->dataMap->insert(MapValueType(name, value));
+	this->dataMap->insert(MapValueType(name, value.getValue()));
+	gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(value.getValue()))->weaken();
 }
 
 IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
@@ -1459,7 +1462,7 @@ IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived)
 	}
 }
 
-void setValueToScriptDataHolder(const GGlueDataPointer & glueData, const char * name, const GVariant & value)
+void setValueToScriptDataHolder(const GGlueDataPointer & glueData, const char * name, const GScriptValue & value)
 {
 	GScriptDataHolder * dataHolder = NULL;
 	
@@ -1493,7 +1496,8 @@ void doSetValueOnAccessible(const GContextPointer & context, IMetaAccessible * a
 	metaSetValue(accessible, getGlueDataInstance(instanceGlueData), value);
 }
 
-bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char * name, const GVariant & value, const GGlueDataPointer & valueGlueData)
+bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char * name,
+	const GScriptValue & value, const GGlueDataPointer & valueGlueData)
 {
 	if(getGlueDataCV(instanceGlueData) == opcvConst) {
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
@@ -1542,7 +1546,7 @@ bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char
 			case mmitProperty: {
 				GScopedInterface<IMetaAccessible> data(gdynamic_cast<IMetaAccessible *>(mapItem->getItem()));
 				if(allowAccessData(config, isInstance, data.get())) {
-					doSetValueOnAccessible(context, data.get(), instanceGlueData, value, valueGlueData);
+					doSetValueOnAccessible(context, data.get(), instanceGlueData, value.getValue(), valueGlueData);
 					return true;
 				}
 			}

@@ -33,6 +33,9 @@ public:
 	
 	virtual GVariant invoke(const GVariant * params, size_t paramCount) = 0;
 	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount) = 0;
+
+	// internal use
+	virtual void weaken() = 0;
 	
 	GMAKE_NONCOPYABLE(GScriptFunction);
 };
@@ -631,7 +634,7 @@ private:
 	typedef std::pair<std::string, GVariant> MapValueType;
 
 public:
-	void setScriptValue(const char * name, const GVariant & value);
+	void setScriptValue(const char * name, const GScriptValue & value);
 	IScriptFunction * getScriptFunction(const char * name);
 
 private:
@@ -872,20 +875,30 @@ private:
 
 public:
 	explicit GScriptFunctionBase(const GContextPointer & context)
-		: context(context)
+		: context(context), weakContext(context)
 	{
+	}
+
+	virtual void weaken() {
+		this->context.reset();
 	}
 
 protected:
 	GContextPointer getContext() {
-		return this->context;
+		return this->weakContext.get();
 	}
 
 private:
 	// Here we must use strong shared pointer,
 	// otherwise the context may be freed by the script object
 	// while the script function is still live.
+	// But there is cyclic shared pointer chain
+	// IScriptFunction->GBindingContext->GClassPool->GClassGlueData->GScriptDataHolder->IScriptFunction
+	// Now the cyclic chain is broken by calling weaken when setting IScriptFunction to GScriptDataHolder
+	// The solution is super ugly, but I can't find better solution for now.
+
 	GContextPointer context;
+	GWeakContextPointer weakContext;
 };
 
 
@@ -938,7 +951,8 @@ void loadMethodList(const GContextPointer & context, IMetaList * methodList, con
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 
-bool setValueOnNamedMember(const GGlueDataPointer & glueData, const char * name, const GVariant & value, const GGlueDataPointer & valueGlueData);
+bool setValueOnNamedMember(const GGlueDataPointer & glueData, const char * name,
+	const GScriptValue & value, const GGlueDataPointer & valueGlueData);
 
 ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData);
 void * getGlueDataInstance(const GGlueDataPointer & glueData);
@@ -1408,6 +1422,13 @@ public:
 private:
 	ObjectMapType objectMap;
 };
+
+template <typename T>
+void checkedClearScriptObjectCache(GScriptObjectCache<T> * cache) {
+	if(cache != NULL) {
+		cache->clear();
+	}
+}
 
 
 } // namespace bind_internal

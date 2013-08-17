@@ -4,6 +4,7 @@
 
 #include "../pinclude/gbindcommon.h"
 #include "../pinclude/gscriptbindapiimpl.h"
+#include "../pinclude/gstaticuninitializerorders.h"
 
 #include <string>
 
@@ -137,8 +138,12 @@ private:
 
 GScriptObjectCache<GSharedJsObject> * getSpiderScriptObjectCache()
 {
-	static GScriptObjectCache<GSharedJsObject> cache;
-	return &cache;
+	static GScriptObjectCache<GSharedJsObject> * cache = NULL;
+	if(cache == NULL && isLibraryLive()) {
+		cache = new GScriptObjectCache<GSharedJsObject >;
+		addOrderedStaticUninitializer(suo_ScriptObjectCache, makeUninitializerDeleter(&cache));
+	}
+	return cache;
 }
 
 class JsClassUserData : public GUserData
@@ -203,7 +208,7 @@ public:
 	}
 
 	~GSpiderBindingContext() {
-		getSpiderScriptObjectCache()->clear();
+		checkedClearScriptObjectCache(getSpiderScriptObjectCache());
 	}
 
 	JSContext * getJsContext() const {
@@ -858,7 +863,8 @@ JSBool propertySetter(JSContext * jsContext, JSHandleObject obj, JSHandleId id, 
 		if(userData->hasAccessible()) {
 			GAccessibleGlueDataPointer accessibleGlueData = userData->getAccessibleGlueData(name.get());
 			if(accessibleGlueData) {
-				GScriptValue v = spiderToScriptValue(sharedStaticCast<GSpiderBindingContext>(accessibleGlueData->getContext()), vp, NULL);
+				GScriptValue v = spiderToScriptValue(sharedStaticCast<GSpiderBindingContext>(accessibleGlueData->getContext()),
+					vp, NULL);
 				metaSetValue(accessibleGlueData->getAccessible(), accessibleGlueData->getInstanceAddress(), v.getValue());
 
 				return JS_TRUE;
@@ -872,11 +878,10 @@ JSBool propertySetter(JSContext * jsContext, JSHandleObject obj, JSHandleId id, 
 			raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 		}
 		else {
-			GScriptValue v;
 			GGlueDataPointer valueGlueData;
 
-			v = spiderToScriptValue(sharedStaticCast<GSpiderBindingContext>(dataWrapper->getData()->getContext()), vp, &valueGlueData);
-			if(setValueOnNamedMember(dataWrapper->getData(), name.get(), v.getValue(), valueGlueData)) {
+			GScriptValue v = spiderToScriptValue(sharedStaticCast<GSpiderBindingContext>(dataWrapper->getData()->getContext()), vp, &valueGlueData);
+			if(setValueOnNamedMember(dataWrapper->getData(), name.get(), v, valueGlueData)) {
 				return JS_TRUE;
 			}
 		}

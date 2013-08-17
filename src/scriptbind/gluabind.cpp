@@ -899,10 +899,9 @@ int UserData_newindex(lua_State * L)
 	
 	const char * name = lua_tostring(L, -2);
 
-	GVariant value;
 	GGlueDataPointer valueGlueData;
 
-	value = luaToScriptValue(instanceGlueData->getContext(), -1, &valueGlueData).getValue();
+	GScriptValue value = luaToScriptValue(instanceGlueData->getContext(), -1, &valueGlueData);
 	if(setValueOnNamedMember(instanceGlueData, name, value, valueGlueData)) {
 		return 1;
 	}

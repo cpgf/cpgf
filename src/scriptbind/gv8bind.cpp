@@ -52,8 +52,12 @@ GGlueDataWrapperPool * getV8DataWrapperPool()
 
 GScriptObjectCache<Persistent<Object> > * getV8ScriptObjectCache()
 {
-	static GScriptObjectCache<Persistent<Object> > cache;
-	return &cache;
+	static GScriptObjectCache<Persistent<Object> > * cache = NULL;
+	if(cache == NULL && isLibraryLive()) {
+		cache = new GScriptObjectCache<Persistent<Object> >;
+		addOrderedStaticUninitializer(suo_ScriptObjectCache, makeUninitializerDeleter(&cache));
+	}
+	return cache;
 }
 
 //*********************************************
@@ -76,7 +80,7 @@ public:
 			this->objectTemplate.Dispose();
 			this->objectTemplate.Clear();
 		}
-		getV8ScriptObjectCache()->clear();
+		checkedClearScriptObjectCache(getV8ScriptObjectCache());
 	}
 
 	Handle<Object > getRawObject() {
@@ -886,10 +890,9 @@ void staticMemberSetter(Local<String> prop, Local<Value> value, const AccessorIn
 
 	GContextPointer context = dataWrapper->getData()->getContext();
 
-	GVariant v;
 	GGlueDataPointer valueGlueData;
 
-	v = v8ToScriptValue(context, info.Holder()->CreationContext(), value, &valueGlueData).getValue();
+	GScriptValue v = v8ToScriptValue(context, info.Holder()->CreationContext(), value, &valueGlueData);
 
 	setValueOnNamedMember(dataWrapper->getData(), name, v, valueGlueData);
 
@@ -931,10 +934,9 @@ Handle<Value> namedMemberSetter(Local<String> prop, Local<Value> value, const Ac
 		raiseCoreException(Error_ScriptBinding_CantWriteToConstObject);
 	}
 	else {
-		GVariant v;
 		GGlueDataPointer valueGlueData;
 
-		v = v8ToScriptValue(dataWrapper->getData()->getContext(), info.Holder()->CreationContext(), value, &valueGlueData).getValue();
+		GScriptValue v = v8ToScriptValue(dataWrapper->getData()->getContext(), info.Holder()->CreationContext(), value, &valueGlueData);
 		if(setValueOnNamedMember(dataWrapper->getData(), name, v, valueGlueData)) {
 			return value;
 		}

@@ -5,6 +5,7 @@
 
 namespace cpgf {
 
+const GStaticUninitializationOrderType suo_ScriptObjectCache = 0x400000;
 const GStaticUninitializationOrderType suo_ScriptDataWrapperPool = 0x500000;
 const GStaticUninitializationOrderType suo_GlobalMetaClass = 0x600000;
 const GStaticUninitializationOrderType suo_MetaModuleForGlobalMetaclass = 0x600001;
