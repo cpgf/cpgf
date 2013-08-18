@@ -383,7 +383,7 @@ PyTypeObject metaClassType = {
     0, 							      /* tp_dictoffset */
     0,                               /* tp_init */
     0,                    /* tp_alloc */
-    &callbackConstructObject2,                     /* tp_new */
+    0, // &callbackConstructObject2,                     /* tp_new */
     0,                                      /* tp_free */
     (inquiry)type_is_gc,                         /* tp_is_gc */
     0,                                      /* tp_bases */
@@ -1042,9 +1042,11 @@ void GPythonClass::initType()
 	PyTypeObject * typeObject = static_cast<PyTypeObject *>(this);
 	*typeObject = metaClassType;
 
+//	typeObject->tp_name = this->getAs<GClassGlueData>()->getMetaClass()->getQualifiedName();
+
 	if(typeObject->tp_dict == 0) {
-//		Py_TYPE(typeObject) = &PyType_Type;
-//		typeObject->tp_base = &PyType_Type;
+		Py_TYPE(typeObject) = &PyType_Type;
+		typeObject->tp_base = &PyType_Type;
 		PyType_Ready(typeObject);
 	}
 
@@ -1169,6 +1171,29 @@ PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaC
 //	GPythonClass * object = new GPythonClass(context->newClassData(metaClass));
 //	getPythonDataWrapperPool()->dataWrapperCreated(object);
 //	return object->toPythonObject();
+
+/*
+	if(metaClassType.tp_dict == 0) {
+		Py_TYPE(&metaClassType) = &PyType_Type;
+		metaClassType.tp_base = &PyType_Type;
+		PyType_Ready(&metaClassType);
+	}
+
+	PyObject * args = PyTuple_New(3);
+	PyTuple_SetItem(args, 0, PyString_FromString(metaClass->getName()));
+	PyTuple_SetItem(args, 1, PyTuple_New(0));
+	PyTuple_SetItem(args, 1, PyDict_New());
+
+	PyObject * ooo = PyObject_Call((PyObject *)&metaClassType, args, NULL);
+	PyTypeObject * typeObject = (PyTypeObject *)ooo;
+	if(typeObject->tp_dict == NULL) {
+		typeObject->tp_dict = PyDict_New();
+	}
+	bindClassItems(typeObject->tp_dict, context->newClassData(metaClass));
+
+	PyObject_INIT(typeObject, &PyType_Type);
+	return ooo;
+*/
 }
 
 struct GPythonMethods
@@ -1357,12 +1382,6 @@ PyObject * callbackConstructObject2(PyTypeObject * callableObject, PyObject * ar
 	GClassGlueDataPointer classUserData = cppClass->getAs<GClassGlueData>();
 	GContextPointer context = classUserData->getContext();
 
-	//PyObject * args = PyTuple_New(3);
-	//PyTuple_SetItem(args, 0, PyString_FromString(classUserData->getMetaClass()->getName()));
-	//PyTuple_SetItem(args, 1, PyTuple_New(0));
-	//PyTuple_SetItem(args, 1, PyDict_New());
-	//PyObject * ooo = PyObject_Call((PyObject *)callableObject, args, NULL);
-	
 	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
 	loadCallableParam(context, args, &callableParam);
 
