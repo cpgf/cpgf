@@ -345,9 +345,6 @@ Project::Project()
 
 		implement(new ProjectImplement)
 {
-//maxItemCountPerFile = 5;
-this->headerOutputPath = "";
-this->sourceOutputPath = headerOutputPath;
 }
 
 Project::~Project()

@@ -1929,6 +1929,7 @@ GScriptValue GPythonScriptArray::createScriptArray(size_t index)
 
 	return GScriptValue();
 }
+
 GPythonScriptObject::GPythonScriptObject(IMetaService * service, PyObject * object, const GScriptConfig & config)
 	: super(GContextPointer(new GPythonBindingContext(service, config)), config), object(object)
 {

@@ -1339,50 +1339,51 @@ private:
 };
 
 
+struct GScriptObjectCacheEntry {
+	GScriptObjectCacheEntry() : instance(NULL), className(NULL), cv(opcvNone) {
+	}
+
+	GScriptObjectCacheEntry(void * instance, const char * className, ObjectPointerCV cv)
+		: instance(instance), className(className), cv(cv) {
+	}
+
+	bool operator < (const GScriptObjectCacheEntry & other) const {
+		if(instance < other.instance) {
+			return true;
+		}
+		if(instance == other.instance) {
+			if(cv < other.cv) {
+				return true;
+			}
+			if(cv > other.cv) {
+				return false;
+			}
+
+			if(className == other.className) {
+				return false;
+			}
+			else {
+				return strcmp(className, other.className) < 0;
+			}
+		}
+		return false;
+	}
+
+	void * instance;
+	const char * className;
+	ObjectPointerCV cv;
+};
+
 template <typename T>
 class GScriptObjectCache
 {
 private:
-	struct CacheEntry {
-		CacheEntry() : instance(NULL), className(NULL), cv(opcvNone) {
-		}
-
-		CacheEntry(void * instance, const char * className, ObjectPointerCV cv)
-			: instance(instance), className(className), cv(cv) {
-		}
-
-		bool operator < (const CacheEntry & other) const {
-			if(instance < other.instance) {
-				return true;
-			}
-			if(instance == other.instance) {
-				if(cv < other.cv) {
-					return true;
-				}
-				if(cv > other.cv) {
-					return false;
-				}
-
-				if(className == other.className) {
-					return false;
-				}
-				else {
-					return strcmp(className, other.className) < 0;
-				}
-			}
-			return false;
-		}
-
-		void * instance;
-		const char * className;
-		ObjectPointerCV cv;
-	};
-	typedef std::map<CacheEntry, T> ObjectMapType;
+	typedef std::map<GScriptObjectCacheEntry, T> ObjectMapType;
 
 public:
 	T * findScriptObject(void * object, const GClassGlueDataPointer & classData,
 		ObjectPointerCV cv) {
-		CacheEntry entry(object, classData->getMetaClass()->getQualifiedName(), cv);
+		GScriptObjectCacheEntry entry(object, classData->getMetaClass()->getQualifiedName(), cv);
 		typename ObjectMapType::iterator it = this->objectMap.find(entry);
 		if(it == this->objectMap.end()) {
 			return NULL;
@@ -1395,7 +1396,7 @@ public:
 	void addScriptObject(void * object, const GClassGlueDataPointer & classData,
 		ObjectPointerCV cv, const T & scriptObject) {
 //		GASSERT(this->findScriptObject(object, classData, cv) == NULL);
-		CacheEntry entry(object, classData->getMetaClass()->getQualifiedName(), cv);
+		GScriptObjectCacheEntry entry(object, classData->getMetaClass()->getQualifiedName(), cv);
 		this->objectMap.insert(std::make_pair(entry, scriptObject));
 	}
 
