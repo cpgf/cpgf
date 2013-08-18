@@ -27,17 +27,6 @@ metagen::BuilderMethod &oPeRat0rWrapPer_metagen_BuilderMethod_opAssign_0(TsE1f *
 }
 
 template <typename D_d >
-void buildMetaClass_metagen_buildermethod(D_d & _d)
-{
-    using namespace cpgf;
-    
-    (void)_d;
-    
-    _d.CPGF_MD_TEMPLATE _method("writeMethodClassWrapper", &metagen::writeMethodClassWrapper);
-
-}
-
-template <typename D_d >
 void buildMetaClass_metagen_BuilderMethod(D_d & _d)
 {
     using namespace cpgf;
@@ -56,8 +45,19 @@ void buildMetaClass_metagen_BuilderMethod(D_d & _d)
 
 }
 
-cpgf::GDefineMetaInfo createMetaClass_metagen_buildermethod();
+template <typename D_d >
+void buildMetaClass_metagen_buildermethod(D_d & _d)
+{
+    using namespace cpgf;
+    
+    (void)_d;
+    
+    _d.CPGF_MD_TEMPLATE _method("writeMethodClassWrapper", &metagen::writeMethodClassWrapper);
+
+}
+
 cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderMethod();
+cpgf::GDefineMetaInfo createMetaClass_metagen_buildermethod();
 
 } // namespace metadata
 #include "cpgf/metadata/private/gmetadata_footer.h"

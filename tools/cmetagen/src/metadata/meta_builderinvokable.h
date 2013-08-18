@@ -27,17 +27,6 @@ metagen::BuilderInvokable &oPeRat0rWrapPer_metagen_BuilderInvokable_opAssign_0(T
 }
 
 template <typename D_d >
-void buildMetaClass_metagen_builderinvokable(D_d & _d)
-{
-    using namespace cpgf;
-    
-    (void)_d;
-    
-    _d.CPGF_MD_TEMPLATE _method("getInvokablePolicyText", &metagen::getInvokablePolicyText);
-
-}
-
-template <typename D_d >
 void buildMetaClass_metagen_BuilderInvokable(D_d & _d)
 {
     using namespace cpgf;
@@ -53,8 +42,19 @@ void buildMetaClass_metagen_BuilderInvokable(D_d & _d)
 
 }
 
-cpgf::GDefineMetaInfo createMetaClass_metagen_builderinvokable();
+template <typename D_d >
+void buildMetaClass_metagen_builderinvokable(D_d & _d)
+{
+    using namespace cpgf;
+    
+    (void)_d;
+    
+    _d.CPGF_MD_TEMPLATE _method("getInvokablePolicyText", &metagen::getInvokablePolicyText);
+
+}
+
 cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderInvokable();
+cpgf::GDefineMetaInfo createMetaClass_metagen_builderinvokable();
 
 } // namespace metadata
 #include "cpgf/metadata/private/gmetadata_footer.h"

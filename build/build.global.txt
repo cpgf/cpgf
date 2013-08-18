@@ -29,11 +29,7 @@ if(MSVC)
 #	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /INCREMENTAL:NO")
 
 	if(CMAKE_GENERATOR STREQUAL "NMake Makefiles")
-		if(${BUILD_DEBUG})
-			set(LIB_PATH ${ROOT_PATH}/lib/Debug)
-		else(${BUILD_DEBUG})
-			set(LIB_PATH ${ROOT_PATH}/lib/Release)
-		endif(${BUILD_DEBUG})
+		set(LIB_PATH ${ROOT_PATH}/lib/${CMAKE_CFG_INTDIR})
 	endif(CMAKE_GENERATOR STREQUAL "NMake Makefiles")
 endif(MSVC)
 	
