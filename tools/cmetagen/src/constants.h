@@ -28,6 +28,7 @@ const std::string scriptFieldIncludeDirectories("includeDirectories");
 const std::string scriptFieldTemplateInstantiations("templateInstantiations");
 const std::string scriptFieldFileCallback("fileCallback");
 const std::string scriptFieldMainCallback("mainCallback");
+const std::string scriptFieldHeaderReplaceCallback("headerReplaceCallback");
 
 } // namespace metagen
 

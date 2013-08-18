@@ -2,7 +2,7 @@
 // Auto generated file, don't modify.
 
 #include "cpgf/goutmain.h"
-#include "registerMain_.h"
+#include "registerMain_metagen.h"
 
 namespace metadata {
 

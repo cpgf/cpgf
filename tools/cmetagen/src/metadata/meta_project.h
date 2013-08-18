@@ -60,6 +60,7 @@ void buildMetaClass_metagen_Project(D_d & _d)
     _d.CPGF_MD_TEMPLATE _field("stopOnCompileError", &D_d::ClassType::stopOnCompileError);
     _d.CPGF_MD_TEMPLATE _field("fileCallback", &D_d::ClassType::fileCallback);
     _d.CPGF_MD_TEMPLATE _field("mainCallback", &D_d::ClassType::mainCallback);
+    _d.CPGF_MD_TEMPLATE _field("headerReplaceCallback", &D_d::ClassType::headerReplaceCallback);
     _d.CPGF_MD_TEMPLATE _field("templateInstantiations", &D_d::ClassType::templateInstantiations);
 
 }

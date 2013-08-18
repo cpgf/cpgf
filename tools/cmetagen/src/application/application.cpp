@@ -120,8 +120,7 @@ void Application::processOneFile(const std::string & fileName)
 		string absoluteFileName = this->project.getAbsoluteFileName(fileName);
 		context.process(absoluteFileName);
 
-		BuilderContext builderContext(&this->project, absoluteFileName,
-			makeCallback(this, &Application::onGenerateCreationFunction));
+		BuilderContext builderContext(&this->project, absoluteFileName);
 		builderContext.process(&context);
 
 		getLogger().info("done.\n");

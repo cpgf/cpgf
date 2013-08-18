@@ -8,7 +8,7 @@ createMetaClass_metagen_BuilderItem
 #ifndef METADATA_META_BUILDERITEM_H
 #define METADATA_META_BUILDERITEM_H
 
-#include "builderitem.h"
+#include "buildermodel/builderitem.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gscopedinterface.h"

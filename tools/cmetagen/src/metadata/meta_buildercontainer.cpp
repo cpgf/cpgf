@@ -1,7 +1,7 @@
 /*@@cpgf@@*/
 // Auto generated file, don't modify.
 
-#include "meta_buildercontainer.h"
+#include "metadata/meta_buildercontainer.h"
 
 using namespace cpgf;
 

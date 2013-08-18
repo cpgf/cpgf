@@ -8,7 +8,7 @@ createMetaClass_metagen_BuilderEnum
 #ifndef METADATA_META_BUILDERENUM_H
 #define METADATA_META_BUILDERENUM_H
 
-#include "builderenum.h"
+#include "buildermodel/builderenum.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gscopedinterface.h"

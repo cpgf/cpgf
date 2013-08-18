@@ -1,14 +1,13 @@
 /*@@cpgf@@*/
 // Auto generated file, don't modify.
 
-#ifndef METADATA_REGISTERMAIN_H
-#define METADATA_REGISTERMAIN_H
+#ifndef METADATA_REGISTERMAIN_METAGEN_H
+#define METADATA_REGISTERMAIN_METAGEN_H
 
 #include "cpgf/gmetadefine.h"
 
 namespace metadata {
 
-cpgf::GDefineMetaInfo createMetaClass_metagen();
 cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderClass();
 cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderConstructor();
 cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderContainer();
@@ -24,11 +23,11 @@ cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderNamespace();
 cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderOperator();
 cpgf::GDefineMetaInfo createMetaClass_metagen_Project();
 cpgf::GDefineMetaInfo createMetaClass_metagen_builderinvokable();
+cpgf::GDefineMetaInfo createMetaClass_metagen_buildermethod();
 template <typename Meta>
 void registerMain_(Meta _d)
 
 {
-    _d._class(createMetaClass_metagen());
     _d._class(createMetaClass_metagen_BuilderClass());
     _d._class(createMetaClass_metagen_BuilderConstructor());
     _d._class(createMetaClass_metagen_BuilderContainer());
@@ -44,6 +43,7 @@ void registerMain_(Meta _d)
     _d._class(createMetaClass_metagen_BuilderOperator());
     _d._class(createMetaClass_metagen_Project());
     _d._class(createMetaClass_metagen_builderinvokable());
+    _d._class(createMetaClass_metagen_buildermethod());
 }
 
 } // namespace metadata

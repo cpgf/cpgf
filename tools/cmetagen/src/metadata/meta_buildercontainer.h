@@ -8,7 +8,7 @@ createMetaClass_metagen_BuilderContainer
 #ifndef METADATA_META_BUILDERCONTAINER_H
 #define METADATA_META_BUILDERCONTAINER_H
 
-#include "buildercontainer.h"
+#include "buildermodel/buildercontainer.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gscopedinterface.h"

@@ -1,17 +1,17 @@
 /*@@cpgf@@*/
 // Auto generated file, don't modify.
 
-#include "meta_buildermethod.h"
+#include "metadata/meta_buildermethod.h"
 
 using namespace cpgf;
 
 namespace metadata {
 
-void partial_createMetaClass_metagen(cpgf::GDefineMetaInfo metaInfo)
+void partial_createMetaClass_metagen_buildermethod(cpgf::GDefineMetaInfo metaInfo)
 {
     typedef GDefineMetaNamespace MetaType;
     MetaType meta = MetaType::fromMetaClass(metaInfo.getMetaClass());
-    buildMetaClass_metagen(meta);
+    buildMetaClass_metagen_buildermethod(meta);
 }
 
 void partial_createMetaClass_metagen_BuilderMethod(cpgf::GDefineMetaInfo metaInfo)
@@ -21,15 +21,15 @@ void partial_createMetaClass_metagen_BuilderMethod(cpgf::GDefineMetaInfo metaInf
     buildMetaClass_metagen_BuilderMethod(meta);
 }
 
-void partial_createMetaClass_metagen(cpgf::GDefineMetaInfo metaInfo);
-cpgf::GDefineMetaInfo createMetaClass_metagen()
+void partial_createMetaClass_metagen_buildermethod(cpgf::GDefineMetaInfo metaInfo);
+cpgf::GDefineMetaInfo createMetaClass_metagen_buildermethod()
 {
     typedef GDefineMetaNamespace MetaType;
     
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     cpgf::GDefineMetaInfo meta = _d.getMetaInfo();
     
-    partial_createMetaClass_metagen(meta);
+    partial_createMetaClass_metagen_buildermethod(meta);
     
     return meta;
 }

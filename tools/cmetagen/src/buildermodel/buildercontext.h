@@ -25,8 +25,6 @@ class BuilderSectionList;
 class BuilderFileWriter;
 class Project;
 
-typedef cpgf::GCallback<void (const std::string &)> CallbackOnGenerateCreationFunctionType;
-
 class BuilderContext
 {
 private:
@@ -36,8 +34,7 @@ public:
 	typedef std::vector<BuilderItem *> ItemListType;
 
 public:
-	BuilderContext(const Project * project, const std::string & sourceFileName,
-		const CallbackOnGenerateCreationFunctionType & callbackOnGenerateCreationFunction);
+	BuilderContext(const Project * project, const std::string & sourceFileName);
 	~BuilderContext();
 
 	void process(const CppContext * cppContext);
@@ -75,7 +72,6 @@ private:
 	ItemListType itemList;
 	cpgf::GScopedPointer<BuilderSectionList> sectionList;
 	BuilderFileWriterListType fileWriterList;
-	CallbackOnGenerateCreationFunctionType callbackOnGenerateCreationFunction;
 	std::string creationFunctionNameCode;
 
 	GMAKE_NONCOPYABLE(BuilderContext)

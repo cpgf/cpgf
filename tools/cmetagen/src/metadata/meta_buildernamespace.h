@@ -8,7 +8,7 @@ createMetaClass_metagen_BuilderNamespace
 #ifndef METADATA_META_BUILDERNAMESPACE_H
 #define METADATA_META_BUILDERNAMESPACE_H
 
-#include "buildernamespace.h"
+#include "buildermodel/buildernamespace.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gscopedinterface.h"

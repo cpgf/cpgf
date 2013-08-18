@@ -58,7 +58,7 @@ SET(SRC_METADATA
 	${SRC_PATH}/metadata/meta_buildernamespace.cpp
 	${SRC_PATH}/metadata/meta_builderoperator.cpp
 	${SRC_PATH}/metadata/meta_project.cpp
-	${SRC_PATH}/metadata/registerMain_.cpp
+	${SRC_PATH}/metadata/registerMain_metagen.cpp
 )
 SOURCE_GROUP(src\\metadata FILES ${SRC_METADATA})
 

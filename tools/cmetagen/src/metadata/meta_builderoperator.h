@@ -8,7 +8,7 @@ createMetaClass_metagen_BuilderOperator
 #ifndef METADATA_META_BUILDEROPERATOR_H
 #define METADATA_META_BUILDEROPERATOR_H
 
-#include "builderoperator.h"
+#include "buildermodel/builderoperator.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gscopedinterface.h"

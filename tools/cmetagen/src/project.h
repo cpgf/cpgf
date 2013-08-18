@@ -94,6 +94,7 @@ public:
 
 	bool processFileByScript(const std::string & fileName) const;
 	void processBuilderItemByScript(BuilderItem * builderItem) const;
+	std::string replaceHeaderByScript(const std::string & fileName) const;
 
 private:
 	std::string doGetOutputFileName(const std::string & sourceFileName,
@@ -150,6 +151,9 @@ private:
 	// prototype: void (const T * cppItem, BuilderItem * data);
 	// T can any class derived from CppItem, such as CppClass, CppEnum
 	cpgf::GSharedInterface<cpgf::IScriptFunction> mainCallback;
+
+	// prototype: string (string originalHeaderFullFileName);
+	cpgf::GSharedInterface<cpgf::IScriptFunction> headerReplaceCallback;
 
 	// dumb field to be used by script parser
 	int templateInstantiations;

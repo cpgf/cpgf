@@ -274,6 +274,11 @@ void ProjectImplement::doVisitProject(ProjectScriptVisitor * visitor)
 			continue;
 		}
 
+		if(fieldName == scriptFieldHeaderReplaceCallback) {
+			visitor->visitScriptCallback(field.get(), fieldName, value, &visitor->getProject()->headerReplaceCallback);
+			continue;
+		}
+
 		GMetaType metaType(metaGetItemType(field.get()));
 		if(! metaType.isPointer()) {
 			if(metaType.baseIsStdString()) {
@@ -321,7 +326,7 @@ Project::Project()
 		classWrapperSuperPrefix("super_"),
 
 		mainRegisterFunctionName("registerMain_"),
-		mainRegisterFileName("registerMain_"),
+		mainRegisterFileName("registerMain"),
 		autoRegisterToGlobal(true),
 		metaNamespace("metadata"),
 		
@@ -576,6 +581,16 @@ void Project::processBuilderItemByScript(BuilderItem * builderItem) const
 	}
 
 #undef INVOKE
+}
+
+std::string Project::replaceHeaderByScript(const std::string & fileName) const
+{
+	if(! this->headerReplaceCallback) {
+		return fileName;
+	}
+
+	GVariant result = invokeScriptFunction(this->headerReplaceCallback.get(), fileName.c_str());
+	return fromVariant<char *>(result);
 }
 
 std::string Project::doGetOutputFileName(const std::string & sourceFileName,

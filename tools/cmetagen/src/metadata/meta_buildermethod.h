@@ -3,13 +3,13 @@
 
 /*@cpgf@creations@@
 createMetaClass_metagen_BuilderMethod
-createMetaClass_metagen
+createMetaClass_metagen_buildermethod
 @@cpgf@creations@*/
 
 #ifndef METADATA_META_BUILDERMETHOD_H
 #define METADATA_META_BUILDERMETHOD_H
 
-#include "buildermethod.h"
+#include "buildermodel/buildermethod.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gscopedinterface.h"
@@ -27,7 +27,7 @@ metagen::BuilderMethod &oPeRat0rWrapPer_metagen_BuilderMethod_opAssign_0(TsE1f *
 }
 
 template <typename D_d >
-void buildMetaClass_metagen(D_d & _d)
+void buildMetaClass_metagen_buildermethod(D_d & _d)
 {
     using namespace cpgf;
     
@@ -56,7 +56,7 @@ void buildMetaClass_metagen_BuilderMethod(D_d & _d)
 
 }
 
-cpgf::GDefineMetaInfo createMetaClass_metagen();
+cpgf::GDefineMetaInfo createMetaClass_metagen_buildermethod();
 cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderMethod();
 
 } // namespace metadata

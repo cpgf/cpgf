@@ -9,7 +9,7 @@ createMetaClass_metagen_builderinvokable
 #ifndef METADATA_META_BUILDERINVOKABLE_H
 #define METADATA_META_BUILDERINVOKABLE_H
 
-#include "builderinvokable.h"
+#include "buildermodel/builderinvokable.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gscopedinterface.h"

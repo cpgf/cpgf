@@ -87,9 +87,7 @@ void BuilderFileWriter::initializeCppWriter(CppWriter * cppWriter) const
 	else {
 		cppWriter->setHeaderGuard(this->getProject()->getOutputHeaderFileName(this->sourceFileName));
 
-		string header = normalizeFile(
-			Poco::Path(this->sourceFileName).getFileName()
-		);
+		string header = this->getProject()->replaceHeaderByScript(this->sourceFileName);
 		cppWriter->include(normalizeFile(header));
 		cppWriter->include(includeMetaDefine);
 		cppWriter->include(includeMetaPolicy);

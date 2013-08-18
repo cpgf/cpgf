@@ -1,7 +1,7 @@
 /*@@cpgf@@*/
 // Auto generated file, don't modify.
 
-#include "meta_builderinvokable.h"
+#include "metadata/meta_builderinvokable.h"
 
 using namespace cpgf;
 

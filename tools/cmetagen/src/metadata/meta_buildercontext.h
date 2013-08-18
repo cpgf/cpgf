@@ -8,7 +8,7 @@ createMetaClass_metagen_BuilderContext
 #ifndef METADATA_META_BUILDERCONTEXT_H
 #define METADATA_META_BUILDERCONTEXT_H
 
-#include "buildercontext.h"
+#include "buildermodel/buildercontext.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gscopedinterface.h"
@@ -27,7 +27,7 @@ void buildMetaClass_metagen_BuilderContext(D_d & _d)
     (void)_d;
     
 
-    _d.CPGF_MD_TEMPLATE _constructor<void * (const metagen::Project *, const std::basic_string<char, std::char_traits<char>, std::allocator<char> > &, const cpgf::GCallback<void (const std::basic_string<char, std::char_traits<char>, std::allocator<char> > &)> &)>(cpgf::MakePolicy<GMetaRuleCopyConstReference<1>, GMetaRuleCopyConstReference<2> >());
+    _d.CPGF_MD_TEMPLATE _constructor<void * (const metagen::Project *, const std::basic_string<char, std::char_traits<char>, std::allocator<char> > &)>(cpgf::MakePolicy<GMetaRuleCopyConstReference<1>, GMetaRuleCopyConstReference<2> >());
 
     _d.CPGF_MD_TEMPLATE _method("process", &D_d::ClassType::process);
     _d.CPGF_MD_TEMPLATE _method("getProject", &D_d::ClassType::getProject);

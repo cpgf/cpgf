@@ -1,7 +1,7 @@
 /*@@cpgf@@*/
 // Auto generated file, don't modify.
 
-#include "meta_project.h"
+#include "metadata/meta_project.h"
 
 using namespace cpgf;
 

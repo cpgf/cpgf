@@ -79,12 +79,10 @@ BuilderItem * createBuilderItem(const CppItem * cppItem)
 }
 
 
-BuilderContext::BuilderContext(const Project * project, const std::string & sourceFileName,
-	const CallbackOnGenerateCreationFunctionType & callbackOnGenerateCreationFunction)
+BuilderContext::BuilderContext(const Project * project, const std::string & sourceFileName)
 	:	project(project),
 		sourceFileName(normalizeFile(sourceFileName)),
-		sectionList(new BuilderSectionList()),
-		callbackOnGenerateCreationFunction(callbackOnGenerateCreationFunction)
+		sectionList(new BuilderSectionList())
 {
 	this->sourceBaseFileName = Poco::Path(this->sourceFileName).getBaseName();
 }
@@ -170,7 +168,6 @@ void BuilderContext::generateCreationFunctionSections()
 				}
 				string creationFunctionName = getCreationFunctionName(this, section);
 				this->creationFunctionNameCode.append(creationFunctionName);
-				callbackOnGenerateCreationFunction(creationFunctionName);
 			}
 		}
 	}
