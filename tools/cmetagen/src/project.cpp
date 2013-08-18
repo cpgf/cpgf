@@ -46,9 +46,11 @@ public:
 
 	virtual ~ProjectScriptVisitor() {}
 
-	virtual void visitStringArray(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue, StringArrayType * stringArray) = 0;
+	virtual void visitStringArray(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue,
+		StringArrayType * stringArray) = 0;
 	virtual void visitTemplateInstantiations(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
-	virtual void visitMainCallback(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
+	virtual void visitScriptCallback(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue,
+		cpgf::GSharedInterface<cpgf::IScriptFunction> * callback) = 0;
 	virtual void visitString(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
 	virtual void visitInteger(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
 
@@ -68,7 +70,8 @@ public:
 		: ProjectScriptVisitor(project) {
 	}
 
-	virtual void visitStringArray(IMetaField * /*field*/, const std::string & fieldName, const GScriptValue & /*fieldValue*/, StringArrayType * stringArray) {
+	virtual void visitStringArray(IMetaField * /*field*/, const std::string & fieldName, const GScriptValue & /*fieldValue*/,
+		StringArrayType * stringArray) {
 		if(! this->getScriptObject()->maybeIsScriptArray(fieldName.c_str())) {
 			projectParseFatalError(Poco::format("Config \"%s\" must be array.", fieldName));
 		}
@@ -138,12 +141,13 @@ public:
 		}
 	}
 
-	virtual void visitMainCallback(IMetaField * /*field*/, const std::string & fieldName, const GScriptValue & fieldValue) {
+	virtual void visitScriptCallback(IMetaField * /*field*/, const std::string & fieldName, const GScriptValue & fieldValue,
+		cpgf::GSharedInterface<cpgf::IScriptFunction> * callback) {
 		if(! fieldValue.isScriptFunction()) {
 			projectParseFatalError(Poco::format("Config \"%s\" must be script function.", fieldName));
 		}
 		GScopedInterface<IScriptFunction> scriptFunction(fieldValue.toScriptFunction());
-		this->getProject()->mainCallback.reset(scriptFunction.get());
+		callback->reset(scriptFunction.get());
 	}
 
 	virtual void visitString(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) {
@@ -235,6 +239,7 @@ void ProjectImplement::visitProject(ProjectScriptVisitor * visitor)
 void ProjectImplement::doVisitProject(ProjectScriptVisitor * visitor)
 {
 	GScopedInterface<IMetaClass> projectClass(this->rootClass->getClass("Project"));
+
 	uint32_t fieldCount = projectClass->getFieldCount();
 	for(uint32_t i = 0; i < fieldCount; ++i) {
 		GScopedInterface<IMetaField> field(projectClass->getFieldAt(i));
@@ -259,8 +264,13 @@ void ProjectImplement::doVisitProject(ProjectScriptVisitor * visitor)
 			continue;
 		}
 
+		if(fieldName == scriptFieldFileCallback) {
+			visitor->visitScriptCallback(field.get(), fieldName, value, &visitor->getProject()->fileCallback);
+			continue;
+		}
+
 		if(fieldName == scriptFieldMainCallback) {
-			visitor->visitMainCallback(field.get(), fieldName, value);
+			visitor->visitScriptCallback(field.get(), fieldName, value, &visitor->getProject()->mainCallback);
 			continue;
 		}
 
@@ -323,6 +333,8 @@ Project::Project()
 		allowPrivate(false),
 
 		force(false),
+
+		stopOnCompileError(true),
 
 		templateInstantiationRepository(new BuilderTemplateInstantiationRepository),
 
@@ -475,6 +487,11 @@ bool Project::doesForce() const
 	return this->force;
 }
 
+bool Project::shouldStopOnCompileError() const
+{
+	return this->stopOnCompileError;
+}
+
 const BuilderTemplateInstantiationRepository * Project::getTemplateInstantiationRepository() const
 {
 	return this->templateInstantiationRepository.get();
@@ -521,6 +538,16 @@ std::string Project::getOutputHeaderFileName(const std::string & sourceFileName)
 std::string Project::getOutputSourceFileName(const std::string & sourceFileName, int fileIndex) const
 {
 	return this->doGetOutputFileName(sourceFileName, fileIndex, true);
+}
+
+bool Project::processFileByScript(const std::string & fileName) const
+{
+	if(! this->fileCallback) {
+		return true;
+	}
+
+	GVariant result = invokeScriptFunction(this->fileCallback.get(), fileName.c_str());
+	return fromVariant<bool>(result);
 }
 
 void Project::processBuilderItemByScript(BuilderItem * builderItem) const

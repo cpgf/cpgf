@@ -13,9 +13,15 @@ set(CLANG_INC
 	${CLANG_DIR}/include
 )
 
-set(CLANG_LIB_DIR
-	${CLANG_DIR}/build/lib/Debug
-)
+if(BUILD_DEBUG)
+	set(CLANG_LIB_DIR
+		${CLANG_DIR}/build/lib/Debug
+	)
+else(BUILD_DEBUG)
+	set(CLANG_LIB_DIR
+		${CLANG_DIR}/build/lib/Release
+	)
+endif(BUILD_DEBUG)
 
 if(CMAKE_COMPILER_IS_GNUCC)
 	set(CLANG_LIB
@@ -23,6 +29,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)
+#	add_definitions(-D_SECURE_SCL=0 -D_HAS_ITERATOR_DEBUGGING=0)
 	set(CLANG_LIB
 		${CLANG_LIB_DIR}/clangParse.lib
 		${CLANG_LIB_DIR}/clangFrontend.lib
@@ -41,6 +48,10 @@ if(MSVC)
 		${CLANG_LIB_DIR}/LLVMMCParser.lib
 	)
 endif(MSVC)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+	add_definitions(-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -DHAVE_UINT64_T)
+endif(CMAKE_COMPILER_IS_GNUCC)
 
 
 ### Poco config

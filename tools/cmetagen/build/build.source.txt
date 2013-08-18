@@ -44,6 +44,19 @@ SET(SRC_CODEWRITER
 SOURCE_GROUP(src\\codewriter FILES ${SRC_CODEWRITER})
 
 SET(SRC_METADATA
+	${SRC_PATH}/metadata/meta_builderclass.cpp
+	${SRC_PATH}/metadata/meta_builderconstructor.cpp
+	${SRC_PATH}/metadata/meta_buildercontainer.cpp
+	${SRC_PATH}/metadata/meta_buildercontext.cpp
+	${SRC_PATH}/metadata/meta_builderdestructor.cpp
+	${SRC_PATH}/metadata/meta_builderenum.cpp
+	${SRC_PATH}/metadata/meta_builderfield.cpp
+	${SRC_PATH}/metadata/meta_builderfile.cpp
+	${SRC_PATH}/metadata/meta_builderinvokable.cpp
+	${SRC_PATH}/metadata/meta_builderitem.cpp
+	${SRC_PATH}/metadata/meta_buildermethod.cpp
+	${SRC_PATH}/metadata/meta_buildernamespace.cpp
+	${SRC_PATH}/metadata/meta_builderoperator.cpp
 	${SRC_PATH}/metadata/meta_project.cpp
 	${SRC_PATH}/metadata/registerMain_.cpp
 )

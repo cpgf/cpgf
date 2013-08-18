@@ -6,6 +6,7 @@
 
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gcallback.h"
+#include "cpgf/gclassutil.h"
 
 #include <string>
 #include <vector>
@@ -76,6 +77,8 @@ private:
 	BuilderFileWriterListType fileWriterList;
 	CallbackOnGenerateCreationFunctionType callbackOnGenerateCreationFunction;
 	std::string creationFunctionNameCode;
+
+	GMAKE_NONCOPYABLE(BuilderContext)
 };
 
 

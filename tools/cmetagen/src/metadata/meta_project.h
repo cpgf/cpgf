@@ -3,7 +3,6 @@
 
 /*@cpgf@creations@@
 createMetaClass_metagen_Project
-createMetaClass_metagen_ProjectWrapper
 @@cpgf@creations@*/
 
 #ifndef METADATA_META_PROJECT_H
@@ -33,6 +32,7 @@ void buildMetaClass_metagen_Project(D_d & _d)
     _d.CPGF_MD_TEMPLATE _field("projectID", &D_d::ClassType::projectID);
     _d.CPGF_MD_TEMPLATE _field("sourceRootPath", &D_d::ClassType::sourceRootPath);
     _d.CPGF_MD_TEMPLATE _field("files", &D_d::ClassType::files);
+    _d.CPGF_MD_TEMPLATE _field("includeDirectories", &D_d::ClassType::includeDirectories);
     _d.CPGF_MD_TEMPLATE _field("cppNamespace", &D_d::ClassType::cppNamespace);
     _d.CPGF_MD_TEMPLATE _field("maxItemCountPerFile", &D_d::ClassType::maxItemCountPerFile);
     _d.CPGF_MD_TEMPLATE _field("headerIncludePrefix", &D_d::ClassType::headerIncludePrefix);
@@ -57,41 +57,14 @@ void buildMetaClass_metagen_Project(D_d & _d)
     _d.CPGF_MD_TEMPLATE _field("allowProtected", &D_d::ClassType::allowProtected);
     _d.CPGF_MD_TEMPLATE _field("allowPrivate", &D_d::ClassType::allowPrivate);
     _d.CPGF_MD_TEMPLATE _field("force", &D_d::ClassType::force);
+    _d.CPGF_MD_TEMPLATE _field("stopOnCompileError", &D_d::ClassType::stopOnCompileError);
+    _d.CPGF_MD_TEMPLATE _field("fileCallback", &D_d::ClassType::fileCallback);
     _d.CPGF_MD_TEMPLATE _field("mainCallback", &D_d::ClassType::mainCallback);
     _d.CPGF_MD_TEMPLATE _field("templateInstantiations", &D_d::ClassType::templateInstantiations);
-    _d.CPGF_MD_TEMPLATE _field("includeDirectories", &D_d::ClassType::includeDirectories);
-
-}
-
-class ProjectWrapper : public metagen::Project, public cpgf::GScriptWrapper
-{
-private:
-    typedef metagen::Project super;
-
-public:
-    ProjectWrapper()
-        : super() {}
-    
-
-protected:
-
-private:
-
-};
-
-template <typename D_d >
-void buildMetaClass_metagen_ProjectWrapper(D_d & _d)
-{
-    using namespace cpgf;
-    
-    (void)_d;
-    
-    _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
 
 }
 
 cpgf::GDefineMetaInfo createMetaClass_metagen_Project();
-cpgf::GDefineMetaInfo createMetaClass_metagen_ProjectWrapper();
 
 } // namespace metadata
 #include "cpgf/metadata/private/gmetadata_footer.h"

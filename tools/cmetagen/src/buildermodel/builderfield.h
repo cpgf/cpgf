@@ -19,9 +19,9 @@ public:
 
 	const CppField * getCppField() const;
 		
+protected:
 	virtual bool doCanBind() const;
 	
-protected:
 	virtual void doWriteMetaData(BuilderWriter * writer);
 	
 private:

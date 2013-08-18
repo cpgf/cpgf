@@ -97,9 +97,13 @@ string getContainerNormalizedSymboName(const BuilderContext * builderContext, Bu
 		case cntNormal:
 			if(cppContainer->isClass() || cppContainer->isNamespace()) {
 				result = cppContainer->getQualifiedName();
+				if(cppContainer->isNamespace()) {
+					result = result + "_" + builderContext->getSourceBaseFileName();
+				}
 			}
 			else {
 				result = builderContext->getSourceBaseFileName() + "_Global";
+				result = result + "_" + builderContext->getSourceBaseFileName();
 			}
 			break;
 
@@ -347,7 +351,7 @@ void generateMainRegisterHeaderFile(const std::set<std::string> & creationFuncti
 {
 	const string headerFileName(
 		normalizeFile(
-			project->getHeaderOutputPath()
+			normalizePath(project->getHeaderOutputPath())
 			+ project->getMainRegisterFileName()
 			+ project->getHeaderFileExtension()
 		)
@@ -404,7 +408,7 @@ void generateMainRegisterSourceFile(const Project * project)
 	);
 	const string sourceFileName(
 		normalizeFile(
-			project->getHeaderOutputPath()
+			normalizePath(project->getHeaderOutputPath())
 			+ project->getMainRegisterFileName()
 			+ project->getSourceFileExtension()
 		)

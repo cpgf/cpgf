@@ -15,6 +15,7 @@
 #include "project.h"
 #include "util.h"
 #include "constants.h"
+#include "exception.h"
 
 #include "cpgf/gassert.h"
 #include "cpgf/gscopedptr.h"
@@ -174,6 +175,10 @@ void ParserLibClang::compileAST(const char * fileName)
 	client->BeginSourceFile(this->compilerInstance->getLangOpts(), &this->compilerInstance->getPreprocessor());
 	ParseAST(this->compilerInstance->getPreprocessor(), &astConsumer, this->compilerInstance->getASTContext());
 	client->EndSourceFile();
+
+	if(client->getNumErrors() > 0 && this->project->shouldStopOnCompileError()) {
+		fatalError("Compile errors occured");
+	}
 }
 
 typedef stack<CppContainer *> CppContainerStackType;

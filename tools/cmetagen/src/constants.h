@@ -26,6 +26,7 @@ const std::string metaTypeTypeDefName("MetaType");
 const std::string scriptFieldFiles("files");
 const std::string scriptFieldIncludeDirectories("includeDirectories");
 const std::string scriptFieldTemplateInstantiations("templateInstantiations");
+const std::string scriptFieldFileCallback("fileCallback");
 const std::string scriptFieldMainCallback("mainCallback");
 
 } // namespace metagen

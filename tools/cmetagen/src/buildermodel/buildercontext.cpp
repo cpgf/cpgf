@@ -372,17 +372,15 @@ void BuilderContext::doFlatten(BuilderFile * file, BuilderContainer * builderCon
 {
 	for(CppContainer::ItemListType::const_iterator it = builderContainer->getCppContainer()->getItemList()->begin();
 		it != builderContainer->getCppContainer()->getItemList()->end(); ++it) {
-		if(! (*it)->isInMainFile()) {
-			continue;
-		}
+		if((*it)->isInMainFile() || (*it)->isNamespace()) {
+			cpgf::GScopedPointer<BuilderItem> item(this->createItem(*it));
 
-		cpgf::GScopedPointer<BuilderItem> item(this->createItem(*it));
-
-		BuilderItem * itemPointer = item.get();
-		this->itemList.push_back(item.take());
-		builderContainer->addItem(itemPointer);
-		if((*it)->isContainer()) {
-			this->doFlatten(file, static_cast<BuilderContainer *>(itemPointer));
+			BuilderItem * itemPointer = item.get();
+			this->itemList.push_back(item.take());
+			builderContainer->addItem(itemPointer);
+			if((*it)->isContainer()) {
+				this->doFlatten(file, static_cast<BuilderContainer *>(itemPointer));
+			}
 		}
 	}
 }

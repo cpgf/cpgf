@@ -74,6 +74,8 @@ public:
 	bool doesAllowPrivate() const;
 
 	bool doesForce() const;
+
+	bool shouldStopOnCompileError() const;
 	
 	const BuilderTemplateInstantiationRepository * getTemplateInstantiationRepository() const;
 
@@ -90,6 +92,7 @@ public:
 	std::string getOutputHeaderFileName(const std::string & sourceFileName) const;
 	std::string getOutputSourceFileName(const std::string & sourceFileName, int fileIndex) const;
 
+	bool processFileByScript(const std::string & fileName) const;
 	void processBuilderItemByScript(BuilderItem * builderItem) const;
 
 private:
@@ -139,6 +142,13 @@ private:
 
 	bool force;
 
+	bool stopOnCompileError;
+
+	// prototype: bool (filename); return false to skip the file
+	cpgf::GSharedInterface<cpgf::IScriptFunction> fileCallback;
+
+	// prototype: void (const T * cppItem, BuilderItem * data);
+	// T can any class derived from CppItem, such as CppClass, CppEnum
 	cpgf::GSharedInterface<cpgf::IScriptFunction> mainCallback;
 
 	// dumb field to be used by script parser
