@@ -116,13 +116,6 @@ void BuilderFileWriter::output()
 	this->initializeCppWriter(&cppWriter);
 	cppWriter.write(&codeWriter, makeCallback(this, &BuilderFileWriter::callbackCppWriter));
 
-	//string fileContent;
-	//if(readStringFromFile(outputFileName, &fileContent)) {
-	//	if(codeWriter.getText() == fileContent) {
-	//		return;
-	//	}
-	//}
-
 	writeStringToFile(outputFileName, codeWriter.getText());
 }
 

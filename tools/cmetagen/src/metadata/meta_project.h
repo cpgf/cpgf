@@ -3,6 +3,7 @@
 
 /*@cpgf@creations@@
 createMetaClass_metagen_Project
+createMetaClass_metagen_ProjectVisitor
 @@cpgf@creations@*/
 
 #ifndef METADATA_META_PROJECT_H
@@ -18,6 +19,34 @@ createMetaClass_metagen_Project
 #include "project.h"
 
 namespace metadata {
+
+template <typename TsE1f>
+metagen::ProjectVisitor &oPeRat0rWrapPer_metagen_ProjectVisitor_opAssign_0(TsE1f * sE1F, const metagen::ProjectVisitor &pAr9_Am0)
+{
+    return (*sE1F) = pAr9_Am0;
+}
+
+template <typename D_d >
+void buildMetaClass_metagen_ProjectVisitor(D_d & _d)
+{
+    using namespace cpgf;
+    
+    (void)_d;
+    
+
+    _d.CPGF_MD_TEMPLATE _method("visitStringArray", &D_d::ClassType::visitStringArray), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
+    _d.CPGF_MD_TEMPLATE _method("visitTemplateInstantiations", &D_d::ClassType::visitTemplateInstantiations), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
+    _d.CPGF_MD_TEMPLATE _method("visitScriptCallback", &D_d::ClassType::visitScriptCallback), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
+    _d.CPGF_MD_TEMPLATE _method("visitString", &D_d::ClassType::visitString), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
+    _d.CPGF_MD_TEMPLATE _method("visitInteger", &D_d::ClassType::visitInteger), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
+    _d.CPGF_MD_TEMPLATE _method("getProject", &D_d::ClassType::getProject);
+    _d.CPGF_MD_TEMPLATE _method("getScriptObject", &D_d::ClassType::getScriptObject);
+    _d.CPGF_MD_TEMPLATE _method("setScriptObject", &D_d::ClassType::setScriptObject);
+
+    _d.CPGF_MD_TEMPLATE _operator<metagen::ProjectVisitor &(*)(cpgf::GMetaSelf, const metagen::ProjectVisitor &)>(mopHolder = mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_ProjectVisitor_opAssign_0<D_d::ClassType >);
+
+}
 
 template <typename D_d >
 void buildMetaClass_metagen_Project(D_d & _d)
@@ -65,6 +94,7 @@ void buildMetaClass_metagen_Project(D_d & _d)
 
 }
 
+cpgf::GDefineMetaInfo createMetaClass_metagen_ProjectVisitor();
 cpgf::GDefineMetaInfo createMetaClass_metagen_Project();
 
 } // namespace metadata

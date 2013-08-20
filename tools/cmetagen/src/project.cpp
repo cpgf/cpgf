@@ -162,6 +162,8 @@ public:
 	void loadScriptFile(const string & fileName);
 	void loadProject(Project * project);
 
+	IMetaClass * getProjectClass() const;
+
 private:
 	void initialize(const string & fileName);
 
@@ -175,6 +177,7 @@ private:
 };
 
 ProjectImplement::ProjectImplement()
+	: service(createDefaultMetaService()), rootClass(this->service->findClassByName("metadata"))
 {
 }
 
@@ -188,18 +191,19 @@ GScriptRunner * createScriptRunner(IMetaService * metaService, const string & fi
 	Poco::toLowerInPlace(extension);
 
 #if ENABLE_LUA
-	if(extension == ".lua") {
+	if(extension == "lua") {
 		return createLuaScriptRunner(metaService);
 	}
 #endif
 
 #if ENABLE_PYTHON
-	if(extension == ".py") {
+	if(extension == "py") {
 		return createPythonScriptRunner(metaService);
 	}
 #endif
 
-	if(extension == ".js") {
+//	if(extension == "js")
+	{
 #if ENABLE_V8
 		return createV8ScriptRunner(metaService);
 #endif
@@ -212,16 +216,14 @@ GScriptRunner * createScriptRunner(IMetaService * metaService, const string & fi
 
 void ProjectImplement::initialize(const string & fileName)
 {
-	this->service.reset(createDefaultMetaService());
-
-	this->rootClass.reset(this->service->findClassByName("metadata"));
-	scriptSetValue(this->scriptObject.get(), "metadata", GScriptValue::fromClass(rootClass.get()));
-
 	if(! HAS_SCRIPT_ENGINE) {
 		return;
 	}
+
 	this->runner.reset(createScriptRunner(this->service.get(), fileName));
 	this->scriptObject.reset(runner->getScripeObject());
+
+	scriptSetValue(this->scriptObject.get(), "metadata", GScriptValue::fromClass(rootClass.get()));
 
 	this->scriptObject->bindCoreService("cpgf", NULL);
 }
@@ -252,8 +254,13 @@ void ProjectImplement::visitProject(ProjectVisitor * visitor)
 
 	GScopedInterface<IScriptObject> scriptObject(configValue.toScriptObject());
 	visitor->setScriptObject(scriptObject.get());
-	GScopedInterface<IMetaClass> projectClass(this->rootClass->getClass("Project"));
+	GScopedInterface<IMetaClass> projectClass(this->getProjectClass());
 	metagen::visitProject(projectClass.get(), visitor);
+}
+
+IMetaClass * ProjectImplement::getProjectClass() const
+{
+	return this->rootClass->getClass("Project");
 }
 
 void visitProject(IMetaClass * projectClass, ProjectVisitor * visitor)
@@ -265,9 +272,9 @@ void visitProject(IMetaClass * projectClass, ProjectVisitor * visitor)
 		string fieldName(field->getName());
 		if(visitor->getScriptObject() != NULL) {
 			value = scriptGetValue(visitor->getScriptObject(), fieldName.c_str());
-		}
-		if(value.isNull()) {
-			continue;
+			if(value.isNull()) {
+				continue;
+			}
 		}
 
 		if(fieldName == scriptFieldFiles) {
@@ -618,6 +625,17 @@ std::string Project::replaceHeaderByScript(const std::string & fileName) const
 
 	GVariant result = invokeScriptFunction(this->headerReplaceCallback.get(), fileName.c_str());
 	return fromVariant<char *>(result);
+}
+
+IMetaClass * Project::getProjectClass() const
+{
+	return this->implement->getProjectClass();
+}
+
+void Project::visitProject(ProjectVisitor * visitor)
+{
+	GScopedInterface<IMetaClass> projectClass(this->implement->getProjectClass());
+	metagen::visitProject(projectClass.get(), visitor);
 }
 
 std::string Project::doGetOutputFileName(const std::string & sourceFileName,

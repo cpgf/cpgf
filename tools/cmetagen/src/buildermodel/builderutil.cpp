@@ -391,6 +391,13 @@ void generateMainRegisterHeaderFile(const std::set<std::string> & creationFuncti
 	CodeWriter codeWriter;
 	cppWriter.write(&codeWriter);
 
+	string fileContent;
+	if(readStringFromFile(headerFileName, &fileContent)) {
+		if(codeWriter.getText() == fileContent) {
+			return;
+		}
+	}
+
 	writeStringToFile(headerFileName, codeWriter.getText());
 }
 
@@ -438,6 +445,13 @@ void generateMainRegisterSourceFile(const Project * project)
 
 	CodeWriter codeWriter;
 	cppWriter.write(&codeWriter);
+
+	string fileContent;
+	if(readStringFromFile(sourceFileName, &fileContent)) {
+		if(codeWriter.getText() == fileContent) {
+			return;
+		}
+	}
 
 	writeStringToFile(sourceFileName, codeWriter.getText());
 }

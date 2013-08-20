@@ -22,6 +22,7 @@ cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderMethod();
 cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderNamespace();
 cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderOperator();
 cpgf::GDefineMetaInfo createMetaClass_metagen_Project();
+cpgf::GDefineMetaInfo createMetaClass_metagen_ProjectVisitor();
 cpgf::GDefineMetaInfo createMetaClass_metagen_builderinvokable();
 cpgf::GDefineMetaInfo createMetaClass_metagen_buildermethod();
 template <typename Meta>
@@ -42,6 +43,7 @@ void registerMain_(Meta _d)
     _d._class(createMetaClass_metagen_BuilderNamespace());
     _d._class(createMetaClass_metagen_BuilderOperator());
     _d._class(createMetaClass_metagen_Project());
+    _d._class(createMetaClass_metagen_ProjectVisitor());
     _d._class(createMetaClass_metagen_builderinvokable());
     _d._class(createMetaClass_metagen_buildermethod());
 }

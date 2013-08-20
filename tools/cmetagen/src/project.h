@@ -101,6 +101,9 @@ public:
 	void processBuilderItemByScript(BuilderItem * builderItem) const;
 	std::string replaceHeaderByScript(const std::string & fileName) const;
 
+	cpgf::IMetaClass * getProjectClass() const;
+	void visitProject(ProjectVisitor * visitor);
+
 private:
 	std::string doGetOutputFileName(const std::string & sourceFileName,
 		int fileIndex, bool isSourceFile) const;
@@ -173,6 +176,7 @@ private:
 private:
 	friend class ProjectImplement;
 	friend class ProjectParserVisitor;
+	friend class CommandLineParser;
 	friend void visitProject(cpgf::IMetaClass * projectClass, ProjectVisitor * visitor);
 
 	template <typename D_d >

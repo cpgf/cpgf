@@ -25,7 +25,7 @@ void Logger::warn(const std::string & message) const
 
 void Logger::error(const std::string & message) const
 {
-	cerr << "Error: " << message;
+	cerr << message;
 }
 
 void Logger::doLog(LogLevel leve, const std::string & message) const
