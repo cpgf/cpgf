@@ -15,6 +15,10 @@ void buildMetaClass_metagen_Project(D_d & _d);
 
 namespace cpgf {
 struct IScriptFunction;
+struct IScriptObject;
+struct IMetaField;
+struct IMetaClass;
+class GScriptValue;
 }
 
 namespace metagen {
@@ -25,6 +29,7 @@ class BuilderItem;
 typedef std::vector<std::string> StringArrayType;
 
 class ProjectImplement;
+class ProjectVisitor;
 
 class Project
 {
@@ -167,13 +172,43 @@ private:
 
 private:
 	friend class ProjectImplement;
-	friend class ProjectScriptParserVisitor;
+	friend class ProjectParserVisitor;
+	friend void visitProject(cpgf::IMetaClass * projectClass, ProjectVisitor * visitor);
 
 	template <typename D_d >
 	friend void metadata::buildMetaClass_metagen_Project(D_d & _d);
 
 	GMAKE_NONCOPYABLE(Project);
 };
+
+
+class ProjectVisitor
+{
+public:
+	explicit ProjectVisitor(Project * project)
+		: project(project), scriptObject(NULL) {
+	}
+
+	virtual ~ProjectVisitor() {}
+
+	virtual void visitStringArray(cpgf::IMetaField * field, const std::string & fieldName, const cpgf::GScriptValue & fieldValue,
+		StringArrayType * stringArray) = 0;
+	virtual void visitTemplateInstantiations(cpgf::IMetaField * field, const std::string & fieldName, const cpgf::GScriptValue & fieldValue) = 0;
+	virtual void visitScriptCallback(cpgf::IMetaField * field, const std::string & fieldName, const cpgf::GScriptValue & fieldValue,
+		cpgf::GSharedInterface<cpgf::IScriptFunction> * callback) = 0;
+	virtual void visitString(cpgf::IMetaField * field, const std::string & fieldName, const cpgf::GScriptValue & fieldValue) = 0;
+	virtual void visitInteger(cpgf::IMetaField * field, const std::string & fieldName, const cpgf::GScriptValue & fieldValue) = 0;
+
+	Project * getProject() const { return this->project; }
+	cpgf::IScriptObject * getScriptObject() const { return this->scriptObject; }
+	void setScriptObject(cpgf::IScriptObject * scriptObject) { this->scriptObject = scriptObject; }
+
+private:
+	Project * project;
+	cpgf::IScriptObject * scriptObject;
+};
+
+void visitProject(cpgf::IMetaClass * projectClass, ProjectVisitor * visitor);
 
 
 } // namespace metagen

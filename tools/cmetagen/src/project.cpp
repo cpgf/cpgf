@@ -51,37 +51,11 @@ void projectParseFatalError(const string & message)
 	fatalError(message);
 }
 
-class ProjectScriptVisitor
+class ProjectParserVisitor : public ProjectVisitor
 {
 public:
-	explicit ProjectScriptVisitor(Project * project)
-		: project(project), scriptObject(NULL) {
-	}
-
-	virtual ~ProjectScriptVisitor() {}
-
-	virtual void visitStringArray(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue,
-		StringArrayType * stringArray) = 0;
-	virtual void visitTemplateInstantiations(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
-	virtual void visitScriptCallback(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue,
-		cpgf::GSharedInterface<cpgf::IScriptFunction> * callback) = 0;
-	virtual void visitString(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
-	virtual void visitInteger(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) = 0;
-
-	Project * getProject() const { return this->project; }
-	IScriptObject * getScriptObject() const { return this->scriptObject; }
-	void setScriptObject(IScriptObject * scriptObject) { this->scriptObject = scriptObject; }
-
-private:
-	Project * project;
-	IScriptObject * scriptObject;
-};
-
-class ProjectScriptParserVisitor : public ProjectScriptVisitor
-{
-public:
-	explicit ProjectScriptParserVisitor(Project * project)
-		: ProjectScriptVisitor(project) {
+	explicit ProjectParserVisitor(Project * project)
+		: ProjectVisitor(project) {
 	}
 
 	virtual void visitStringArray(IMetaField * /*field*/, const std::string & fieldName, const GScriptValue & /*fieldValue*/,
@@ -189,11 +163,9 @@ public:
 	void loadProject(Project * project);
 
 private:
-	bool hasScriptEngine() const;
 	void initialize(const string & fileName);
 
-	void visitProject(ProjectScriptVisitor * visitor);
-	void doVisitProject(ProjectScriptVisitor * visitor);
+	void visitProject(ProjectVisitor * visitor);
 
 private:
 	GScopedPointer<GScriptRunner> runner;
@@ -238,11 +210,6 @@ GScriptRunner * createScriptRunner(IMetaService * metaService, const string & fi
 	return NULL;
 }
 
-bool ProjectImplement::hasScriptEngine() const
-{
-	return this->runner;
-}
-
 void ProjectImplement::initialize(const string & fileName)
 {
 	this->service.reset(createDefaultMetaService());
@@ -273,7 +240,7 @@ void ProjectImplement::loadScriptFile(const string & fileName)
 	}
 }
 
-void ProjectImplement::visitProject(ProjectScriptVisitor * visitor)
+void ProjectImplement::visitProject(ProjectVisitor * visitor)
 {
 	GScriptValue configValue(scriptGetValue(this->scriptObject.get(), "config"));
 	if(configValue.isNull()) {
@@ -285,18 +252,20 @@ void ProjectImplement::visitProject(ProjectScriptVisitor * visitor)
 
 	GScopedInterface<IScriptObject> scriptObject(configValue.toScriptObject());
 	visitor->setScriptObject(scriptObject.get());
-	this->doVisitProject(visitor);
+	GScopedInterface<IMetaClass> projectClass(this->rootClass->getClass("Project"));
+	metagen::visitProject(projectClass.get(), visitor);
 }
 
-void ProjectImplement::doVisitProject(ProjectScriptVisitor * visitor)
+void visitProject(IMetaClass * projectClass, ProjectVisitor * visitor)
 {
-	GScopedInterface<IMetaClass> projectClass(this->rootClass->getClass("Project"));
-
+	GScriptValue value;
 	uint32_t fieldCount = projectClass->getFieldCount();
 	for(uint32_t i = 0; i < fieldCount; ++i) {
 		GScopedInterface<IMetaField> field(projectClass->getFieldAt(i));
 		string fieldName(field->getName());
-		GScriptValue value(scriptGetValue(visitor->getScriptObject(), fieldName.c_str()));
+		if(visitor->getScriptObject() != NULL) {
+			value = scriptGetValue(visitor->getScriptObject(), fieldName.c_str());
+		}
 		if(value.isNull()) {
 			continue;
 		}
@@ -351,7 +320,7 @@ void ProjectImplement::loadProject(Project * project)
 	if(! HAS_SCRIPT_ENGINE) {
 		return;
 	}
-	ProjectScriptParserVisitor visitor(project);
+	ProjectParserVisitor visitor(project);
 	this->visitProject(&visitor);
 }
 
