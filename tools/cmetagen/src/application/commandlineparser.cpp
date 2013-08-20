@@ -1,3 +1,4 @@
+#include "config.h"
 #include "commandlineparser.h"
 #include "project.h"
 #include "exception.h"
@@ -70,7 +71,7 @@ void CommandLineParser::setupOptions(OptionSet * optionSet)
 {
 	optionSet->addOption(
 		Option("project", "", "The project file")
-			.required(true)
+			.required(false)
 			.argument("project script file")
 			.callback(OptionCallback<CommandLineParser>(this, &CommandLineParser::onOptionProject))
 	);

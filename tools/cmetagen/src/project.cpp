@@ -1,3 +1,4 @@
+#include "config.h"
 #include "project.h"
 #include "buildermodel/buildertemplateinstantiation.h"
 #include "buildermodel/builderitem.h"
@@ -21,11 +22,24 @@
 #include "cpgf/gscopedinterface.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
 
-#include "cpgf/scriptbind/gv8runner.h"
+#include "cpgf/scriptbind/gscriptrunner.h"
+#if ENABLE_LUA
+	#include "cpgf/scriptbind/gluarunner.h"
+#endif
+#if ENABLE_V8
+	#include "cpgf/scriptbind/gv8runner.h"
+#endif
+#if ENABLE_PYTHON
+	#include "cpgf/scriptbind/gpythonrunner.h"
+#endif
+#if ENABLE_SPIDERMONKEY
+	#include "cpgf/scriptbind/gspidermonkeyrunner.h"
+#endif
 
 #include "Poco/Path.h"
 #include "Poco/File.h"
 #include "Poco/Format.h"
+#include "Poco/String.h"
 
 using namespace std;
 using namespace cpgf;
@@ -175,7 +189,8 @@ public:
 	void loadProject(Project * project);
 
 private:
-	void initialize();
+	bool hasScriptEngine() const;
+	void initialize(const string & fileName);
 
 	void visitProject(ProjectScriptVisitor * visitor);
 	void doVisitProject(ProjectScriptVisitor * visitor);
@@ -189,27 +204,64 @@ private:
 
 ProjectImplement::ProjectImplement()
 {
-	this->initialize();
 }
 
 ProjectImplement::~ProjectImplement()
 {
 }
 
-void ProjectImplement::initialize()
+GScriptRunner * createScriptRunner(IMetaService * metaService, const string & fileName)
+{
+	string extension = Poco::Path(fileName).getExtension();
+	Poco::toLowerInPlace(extension);
+
+#if ENABLE_LUA
+	if(extension == ".lua") {
+		return createLuaScriptRunner(metaService);
+	}
+#endif
+
+#if ENABLE_PYTHON
+	if(extension == ".py") {
+		return createPythonScriptRunner(metaService);
+	}
+#endif
+
+	if(extension == ".js") {
+#if ENABLE_V8
+		return createV8ScriptRunner(metaService);
+#endif
+#if ENABLE_SPIDERMONKEY
+		return createSpiderMonkeyScriptRunner(metaService);
+#endif
+	}
+	return NULL;
+}
+
+bool ProjectImplement::hasScriptEngine() const
+{
+	return this->runner;
+}
+
+void ProjectImplement::initialize(const string & fileName)
 {
 	this->service.reset(createDefaultMetaService());
-	this->runner.reset(createV8ScriptRunner(this->service.get()));
-	this->scriptObject.reset(runner->getScripeObject());
-
-	this->scriptObject->bindCoreService("cpgf", NULL);
 
 	this->rootClass.reset(this->service->findClassByName("metadata"));
 	scriptSetValue(this->scriptObject.get(), "metadata", GScriptValue::fromClass(rootClass.get()));
+
+	if(! HAS_SCRIPT_ENGINE) {
+		return;
+	}
+	this->runner.reset(createScriptRunner(this->service.get(), fileName));
+	this->scriptObject.reset(runner->getScripeObject());
+
+	this->scriptObject->bindCoreService("cpgf", NULL);
 }
 
 void ProjectImplement::loadScriptFile(const string & fileName)
 {
+	this->initialize(fileName);
 	try {
 		bool success = this->runner->executeFile(fileName.c_str());
 		if(! success) {
@@ -296,6 +348,9 @@ void ProjectImplement::doVisitProject(ProjectScriptVisitor * visitor)
 
 void ProjectImplement::loadProject(Project * project)
 {
+	if(! HAS_SCRIPT_ENGINE) {
+		return;
+	}
 	ProjectScriptParserVisitor visitor(project);
 	this->visitProject(&visitor);
 }
@@ -513,6 +568,12 @@ void Project::loadProject(const std::string & projectFileName)
 {
 	Poco::Path projectPath(projectFileName);
 	projectPath.makeAbsolute();
+
+	if(! HAS_SCRIPT_ENGINE) {
+		if(! projectFileName.empty()) {
+			projectParseFatalError("The tool was not compiled with any script engine. --project can't be set.");
+		}
+	}
 
 	if(projectPath.isDirectory()) {
 		projectParseFatalError(Poco::format("Project %s is directory. File needed.", projectFileName));
