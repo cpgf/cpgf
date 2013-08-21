@@ -47,7 +47,7 @@ void CommandLineParser::ProjectOption::verify(const std::string & name, const st
 		}
 	}
 	else if(vtIsInteger(this->vt)) {
-		if(std::find_if(value.begin(), value.end(), std::not1(std::ptr_fun(&isdigit))) != value.end()) {
+		if(std::find_if(value.begin(), value.end(), std::not1(std::ptr_fun((int (*)(int))&isdigit))) != value.end()) {
 			fatalError(Poco::format("The value of command option %s must be integer", name));
 		}
 	}

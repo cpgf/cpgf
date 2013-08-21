@@ -39,7 +39,7 @@ string getTextOfVisibility(ItemVisibility visibility)
 
 std::string getReflectionClassName(const Project * project)
 {
-	return project->getMetaDefineParamName() + "::ClassType";
+	return "typename " + project->getMetaDefineParamName() + "::ClassType";
 }
 
 std::string getReflectionScope(const CppItem * item)
