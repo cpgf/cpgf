@@ -86,7 +86,8 @@ public:
 			if(isFieldFiles && Poco::Path(text).isAbsolute()) {
 				projectParseFatalError(Poco::format("File %s in config must NOT be absolute path.", text));
 			}
-			stringArray->push_back(text);
+//			stringArray->push_back(text);
+			appendFileNames(stringArray, text);
 		}
 	}
 
@@ -584,6 +585,7 @@ void Project::loadProject(const std::string & projectFileName, const ProjectVisi
 		if(! projectFileName.empty()) {
 			projectParseFatalError("The tool was not compiled with any script engine. --project can't be set.");
 		}
+		return;
 	}
 
 	if(projectPath.isDirectory()) {

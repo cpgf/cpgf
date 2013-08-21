@@ -3,6 +3,7 @@
 #include "project.h"
 #include "exception.h"
 #include "constants.h"
+#include "util.h"
 
 #include "cpgf/scriptbind/gscriptvalue.h"
 #include "cpgf/gmetaapiutil.h"
@@ -80,10 +81,10 @@ void CommandLineParser::ProjectOption::setToField(Project * project, IMetaField 
 	else {
 		const string name = field->getName();
 		if(name == scriptFieldFiles) {
-			project->files.insert(project->files.end(), this->values.begin(), this->values.end());
+			appendFileNames(&project->files, this->values);
 		}
 		else if(name == scriptFieldIncludeDirectories) {
-			project->files.insert(project->includeDirectories.end(), this->values.begin(), this->values.end());
+			appendFileNames(&project->includeDirectories, this->values);
 		}
 	}
 }

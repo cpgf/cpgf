@@ -3,6 +3,7 @@
 #include "constants.h"
 
 #include "Poco/String.h"
+#include "Poco/StringTokenizer.h"
 #include "Poco/RegularExpression.h"
 #include "Poco/Path.h"
 #include "Poco/File.h"
@@ -163,6 +164,33 @@ void globFiles(const std::string & path, const std::string & pattern, const cpgf
 			callback(*it);
 		}
 	}
+}
+
+void splitFileNames(const std::string & fileNames, std::vector<std::string> * splittedNames)
+{
+	Poco::StringTokenizer tokenizer(fileNames, ";");
+	std::copy(tokenizer.begin(), tokenizer.end(), std::back_inserter(*splittedNames));
+}
+
+void splitFileNames(const std::vector<std::string> & fileNames, std::vector<std::string> * splittedNames)
+{
+	for(std::vector<std::string>::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it) {
+		splitFileNames(*it, splittedNames);
+	}
+}
+
+void appendFileNames(std::vector<std::string> * toFileNames, const std::string & fileNames)
+{
+	std::vector<std::string> splittedNames;
+	splitFileNames(fileNames, &splittedNames);
+	toFileNames->insert(toFileNames->end(), splittedNames.begin(), splittedNames.end());
+}
+
+void appendFileNames(std::vector<std::string> * toFileNames, const std::vector<std::string> & fileNames)
+{
+	std::vector<std::string> splittedNames;
+	splitFileNames(fileNames, &splittedNames);
+	toFileNames->insert(toFileNames->end(), splittedNames.begin(), splittedNames.end());
 }
 
 

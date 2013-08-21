@@ -111,13 +111,21 @@ void ParserLibClang::parse(const char * fileName, const ParserCallbackType & cal
 void ParserLibClang::setupClang()
 {
 	this->compilerInstance.reset(new CompilerInstance);
+	
+	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
+//IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
+	this->compilerInstance->createDiagnostics(client, false);
+	
 	this->compilerInvocation.reset(new CompilerInvocation);
+
+//	char * cmd[] = { "-include", "D:/temp/temp/test/tools/cmetagen/build/a.h", 0  };	
+//	CompilerInvocation::CreateFromArgs(*(this->compilerInvocation.get()), cmd, cmd + 2, this->compilerInstance->getDiagnostics());
 
 	PreprocessorOptions & preprocessorOptions = this->compilerInvocation->getPreprocessorOpts();
 	preprocessorOptions.addMacroDef(ParserPredefinedMacro);
 
 	LangOptions & langOptions = *this->compilerInvocation->getLangOpts();
-	this->compilerInvocation->setLangDefaults(langOptions, IK_CXX, LangStandard::lang_cxx03);
+	this->compilerInvocation->setLangDefaults(langOptions, IK_CXX, LangStandard::lang_cxx11);
 	langOptions.CPlusPlus = 1;
 	langOptions.Bool = 1;
 	langOptions.RTTI = 1;
@@ -138,10 +146,6 @@ void ParserLibClang::setupClang()
 			headerSearchOptions.AddPath(it->c_str(), frontend::Angled, false, false);
 	}
 
-	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
-//IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
-	this->compilerInstance->createDiagnostics(client, false);
-	
 	DiagnosticsEngine & diagnostics = this->compilerInstance->getDiagnostics();
 	diagnostics.setSuppressSystemWarnings(true);
 
