@@ -40,6 +40,7 @@ void buildMetaClass_metagen_Project(D_d & _d)
     _d.CPGF_MD_TEMPLATE _field("sourceRootPath", &typename D_d::ClassType::sourceRootPath);
     _d.CPGF_MD_TEMPLATE _field("files", &typename D_d::ClassType::files);
     _d.CPGF_MD_TEMPLATE _field("includeDirectories", &typename D_d::ClassType::includeDirectories);
+    _d.CPGF_MD_TEMPLATE _field("clangOptions", &typename D_d::ClassType::clangOptions);
     _d.CPGF_MD_TEMPLATE _field("cppNamespace", &typename D_d::ClassType::cppNamespace);
     _d.CPGF_MD_TEMPLATE _field("maxItemCountPerFile", &typename D_d::ClassType::maxItemCountPerFile);
     _d.CPGF_MD_TEMPLATE _field("headerIncludePrefix", &typename D_d::ClassType::headerIncludePrefix);

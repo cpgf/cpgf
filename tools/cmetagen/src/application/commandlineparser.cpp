@@ -86,6 +86,9 @@ void CommandLineParser::ProjectOption::setToField(Project * project, IMetaField 
 		else if(name == scriptFieldIncludeDirectories) {
 			appendFileNames(&project->includeDirectories, this->values);
 		}
+		else if(this->vt == vtString) {
+			metaSetValue(field, project, this->values[0].c_str());
+		}
 	}
 }
 

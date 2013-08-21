@@ -373,6 +373,8 @@ Project::Project()
 	:	projectID(""),
 		sourceRootPath(""),
 
+		clangOptions(),
+
 		cppNamespace("metadata"),
 		
 		maxItemCountPerFile(0),
@@ -437,6 +439,11 @@ const StringArrayType & Project::getFiles() const
 const StringArrayType & Project::getIncludeDirectories() const
 {
 	return this->includeDirectories;
+}
+
+const std::string & Project::getClangOptions() const
+{
+	return this->clangOptions;
 }
 
 const std::string & Project::getCppNamespace() const

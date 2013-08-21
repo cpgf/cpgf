@@ -16,6 +16,7 @@
 #include "util.h"
 #include "constants.h"
 #include "exception.h"
+#include "splitcommandline.h"
 
 #include "cpgf/gassert.h"
 #include "cpgf/gscopedptr.h"
@@ -118,8 +119,19 @@ void ParserLibClang::setupClang()
 	
 	this->compilerInvocation.reset(new CompilerInvocation);
 
-//	char * cmd[] = { "-include", "D:/temp/temp/test/tools/cmetagen/build/a.h", 0  };	
-//	CompilerInvocation::CreateFromArgs(*(this->compilerInvocation.get()), cmd, cmd + 2, this->compilerInstance->getDiagnostics());
+	if(! this->project->getClangOptions().empty()) {
+		vector<string> commands;
+		splitCommandLine(&commands, this->project->getClangOptions().c_str());
+		if(! commands.empty()) {
+			vector<const char *> commandPointers;
+			for(vector<string>::iterator it = commands.begin(); it != commands.end(); ++it) {
+				commandPointers.push_back(it->c_str());
+			}
+			CompilerInvocation::CreateFromArgs(*(this->compilerInvocation.get()),
+				&commandPointers[0], &commandPointers[0] + commandPointers.size(),
+				this->compilerInstance->getDiagnostics());
+		}
+	}
 
 	PreprocessorOptions & preprocessorOptions = this->compilerInvocation->getPreprocessorOpts();
 	preprocessorOptions.addMacroDef(ParserPredefinedMacro);

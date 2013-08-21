@@ -60,8 +60,7 @@ private:
 	void doExtractPartialCreationFunctions(BuilderSectionListType * partialCreationSections,
 		BuilderSectionListType * outputSections);
 
-	void flatten(BuilderFile * file);
-	void doFlatten(BuilderFile * file, BuilderContainer * builderContainer);
+	void flatten(BuilderContainer * builderContainer);
 
 	BuilderItem * createItem(const CppItem * cppItem);
 

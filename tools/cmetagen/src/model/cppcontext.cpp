@@ -44,12 +44,11 @@ void CppContext::beginFile(const char * fileName, clang::Decl * decl)
 {
 	GASSERT(! this->cppFile);
 
-	this->cppFile.reset(new CppFile(fileName, decl));
+	this->cppFile.reset(new CppFile(decl));
 }
 
 void CppContext::endFile(const char * /*fileName*/)
 {
-	this->cppFile->prepare();
 }
 
 void CppContext::itemCreated(CppItem * item)

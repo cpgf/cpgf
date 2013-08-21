@@ -27,6 +27,7 @@
 #include "cpgf/gassert.h"
 
 #include "Poco/Format.h"
+#include "Poco/Path.h"
 
 // test
 #include "codewriter/codewriter.h"
@@ -360,12 +361,7 @@ void BuilderContext::doExtractPartialCreationFunctions(BuilderSectionListType * 
 	}
 }
 
-void BuilderContext::flatten(BuilderFile * file)
-{
-	this->doFlatten(file, file);
-}
-
-void BuilderContext::doFlatten(BuilderFile * file, BuilderContainer * builderContainer)
+void BuilderContext::flatten(BuilderContainer * builderContainer)
 {
 	for(CppContainer::ItemListType::const_iterator it = builderContainer->getCppContainer()->getItemList()->begin();
 		it != builderContainer->getCppContainer()->getItemList()->end(); ++it) {
@@ -376,7 +372,7 @@ void BuilderContext::doFlatten(BuilderFile * file, BuilderContainer * builderCon
 			this->itemList.push_back(item.take());
 			builderContainer->addItem(itemPointer);
 			if((*it)->isContainer()) {
-				this->doFlatten(file, static_cast<BuilderContainer *>(itemPointer));
+				this->flatten(static_cast<BuilderContainer *>(itemPointer));
 			}
 		}
 	}

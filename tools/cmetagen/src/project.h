@@ -50,6 +50,8 @@ public:
 
 	const StringArrayType & getFiles() const;
 	const StringArrayType & getIncludeDirectories() const;
+	const std::string & getClangOptions() const;
+
 	const std::string & getCppNamespace() const;
 
 	size_t getMaxItemCountPerFile() const;
@@ -121,6 +123,8 @@ private:
 
 	StringArrayType files;
 	StringArrayType includeDirectories;
+	std::string clangOptions;
+
 	std::string cppNamespace;
 	
 	size_t maxItemCountPerFile;
