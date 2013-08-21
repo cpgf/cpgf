@@ -36,10 +36,10 @@ void buildMetaClass_metagen_BuilderEnum(D_d & _d)
 
     _d.CPGF_MD_TEMPLATE _constructor<void * (const metagen::CppItem *)>();
 
-    _d.CPGF_MD_TEMPLATE _method("getCppEnum", &D_d::ClassType::getCppEnum);
+    _d.CPGF_MD_TEMPLATE _method("getCppEnum", &typename D_d::ClassType::getCppEnum);
 
     _d.CPGF_MD_TEMPLATE _operator<metagen::BuilderEnum &(*)(cpgf::GMetaSelf, const metagen::BuilderEnum &)>(mopHolder = mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderEnum_opAssign_0<D_d::ClassType >);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderEnum_opAssign_0<typename D_d::ClassType >);
 
 }
 

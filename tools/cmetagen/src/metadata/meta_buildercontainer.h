@@ -34,11 +34,11 @@ void buildMetaClass_metagen_BuilderContainer(D_d & _d)
     
     _d.CPGF_MD_TEMPLATE _base<metagen::BuilderItem >();
 
-    _d.CPGF_MD_TEMPLATE _method("addItem", &D_d::ClassType::addItem);
-    _d.CPGF_MD_TEMPLATE _method("getCppContainer", &D_d::ClassType::getCppContainer);
+    _d.CPGF_MD_TEMPLATE _method("addItem", &typename D_d::ClassType::addItem);
+    _d.CPGF_MD_TEMPLATE _method("getCppContainer", &typename D_d::ClassType::getCppContainer);
 
     _d.CPGF_MD_TEMPLATE _operator<metagen::BuilderContainer &(*)(cpgf::GMetaSelf, const metagen::BuilderContainer &)>(mopHolder = mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderContainer_opAssign_0<D_d::ClassType >);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderContainer_opAssign_0<typename D_d::ClassType >);
 
 }
 

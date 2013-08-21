@@ -7,13 +7,6 @@ using namespace cpgf;
 
 namespace metadata {
 
-void partial_createMetaClass_metagen_BuilderInvokable(cpgf::GDefineMetaInfo metaInfo)
-{
-    typedef cpgf::GDefineMetaClass<metagen::BuilderInvokable > MetaType;
-    MetaType meta = MetaType::fromMetaClass(metaInfo.getMetaClass());
-    buildMetaClass_metagen_BuilderInvokable(meta);
-}
-
 void partial_createMetaClass_metagen_builderinvokable(cpgf::GDefineMetaInfo metaInfo)
 {
     typedef GDefineMetaNamespace MetaType;
@@ -21,17 +14,11 @@ void partial_createMetaClass_metagen_builderinvokable(cpgf::GDefineMetaInfo meta
     buildMetaClass_metagen_builderinvokable(meta);
 }
 
-void partial_createMetaClass_metagen_BuilderInvokable(cpgf::GDefineMetaInfo metaInfo);
-cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderInvokable()
+void partial_createMetaClass_metagen_BuilderInvokable(cpgf::GDefineMetaInfo metaInfo)
 {
     typedef cpgf::GDefineMetaClass<metagen::BuilderInvokable > MetaType;
-    
-    MetaType _d = MetaType::Policy<cpgf::MakePolicy<GMetaRuleDefaultConstructorAbsent > >::declare("BuilderInvokable");
-    cpgf::GDefineMetaInfo meta = _d.getMetaInfo();
-    
-    partial_createMetaClass_metagen_BuilderInvokable(meta);
-    
-    return meta;
+    MetaType meta = MetaType::fromMetaClass(metaInfo.getMetaClass());
+    buildMetaClass_metagen_BuilderInvokable(meta);
 }
 
 void partial_createMetaClass_metagen_builderinvokable(cpgf::GDefineMetaInfo metaInfo);
@@ -43,6 +30,19 @@ cpgf::GDefineMetaInfo createMetaClass_metagen_builderinvokable()
     cpgf::GDefineMetaInfo meta = _d.getMetaInfo();
     
     partial_createMetaClass_metagen_builderinvokable(meta);
+    
+    return meta;
+}
+
+void partial_createMetaClass_metagen_BuilderInvokable(cpgf::GDefineMetaInfo metaInfo);
+cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderInvokable()
+{
+    typedef cpgf::GDefineMetaClass<metagen::BuilderInvokable > MetaType;
+    
+    MetaType _d = MetaType::Policy<cpgf::MakePolicy<GMetaRuleDefaultConstructorAbsent > >::declare("BuilderInvokable");
+    cpgf::GDefineMetaInfo meta = _d.getMetaInfo();
+    
+    partial_createMetaClass_metagen_BuilderInvokable(meta);
     
     return meta;
 }

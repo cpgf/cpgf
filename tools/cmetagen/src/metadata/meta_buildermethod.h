@@ -37,11 +37,11 @@ void buildMetaClass_metagen_BuilderMethod(D_d & _d)
 
     _d.CPGF_MD_TEMPLATE _constructor<void * (const metagen::CppItem *)>();
 
-    _d.CPGF_MD_TEMPLATE _method("getCppMethod", &D_d::ClassType::getCppMethod);
-    _d.CPGF_MD_TEMPLATE _method("canBind", &D_d::ClassType::canBind);
+    _d.CPGF_MD_TEMPLATE _method("getCppMethod", &typename D_d::ClassType::getCppMethod);
+    _d.CPGF_MD_TEMPLATE _method("canBind", &typename D_d::ClassType::canBind);
 
     _d.CPGF_MD_TEMPLATE _operator<metagen::BuilderMethod &(*)(cpgf::GMetaSelf, const metagen::BuilderMethod &)>(mopHolder = mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderMethod_opAssign_0<D_d::ClassType >);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderMethod_opAssign_0<typename D_d::ClassType >);
 
 }
 

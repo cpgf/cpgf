@@ -36,10 +36,10 @@ void buildMetaClass_metagen_BuilderFile(D_d & _d)
 
     _d.CPGF_MD_TEMPLATE _constructor<void * (const metagen::CppItem *)>();
 
-    _d.CPGF_MD_TEMPLATE _method("getCppFile", &D_d::ClassType::getCppFile);
+    _d.CPGF_MD_TEMPLATE _method("getCppFile", &typename D_d::ClassType::getCppFile);
 
     _d.CPGF_MD_TEMPLATE _operator<metagen::BuilderFile &(*)(cpgf::GMetaSelf, const metagen::BuilderFile &)>(mopHolder = mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderFile_opAssign_0<D_d::ClassType >);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderFile_opAssign_0<typename D_d::ClassType >);
 
 }
 

@@ -29,11 +29,11 @@ void buildMetaClass_metagen_BuilderContext(D_d & _d)
 
     _d.CPGF_MD_TEMPLATE _constructor<void * (const metagen::Project *, const std::basic_string<char, std::char_traits<char>, std::allocator<char> > &)>(cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >());
 
-    _d.CPGF_MD_TEMPLATE _method("process", &D_d::ClassType::process);
-    _d.CPGF_MD_TEMPLATE _method("getProject", &D_d::ClassType::getProject);
-    _d.CPGF_MD_TEMPLATE _method("getSourceBaseFileName", &D_d::ClassType::getSourceBaseFileName), cpgf::MakePolicy<GMetaRuleCopyConstReference<-1> >();
-    _d.CPGF_MD_TEMPLATE _method("getItemList", &D_d::ClassType::getItemList);
-    _d.CPGF_MD_TEMPLATE _method("getSectionList", &D_d::ClassType::getSectionList);
+    _d.CPGF_MD_TEMPLATE _method("process", &typename D_d::ClassType::process);
+    _d.CPGF_MD_TEMPLATE _method("getProject", &typename D_d::ClassType::getProject);
+    _d.CPGF_MD_TEMPLATE _method("getSourceBaseFileName", &typename D_d::ClassType::getSourceBaseFileName), cpgf::MakePolicy<GMetaRuleCopyConstReference<-1> >();
+    _d.CPGF_MD_TEMPLATE _method("getItemList", &typename D_d::ClassType::getItemList);
+    _d.CPGF_MD_TEMPLATE _method("getSectionList", &typename D_d::ClassType::getSectionList);
 
 }
 

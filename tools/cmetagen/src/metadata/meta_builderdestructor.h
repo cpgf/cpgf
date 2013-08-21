@@ -36,11 +36,11 @@ void buildMetaClass_metagen_BuilderDestructor(D_d & _d)
 
     _d.CPGF_MD_TEMPLATE _constructor<void * (const metagen::CppItem *)>();
 
-    _d.CPGF_MD_TEMPLATE _method("getCppDestructor", &D_d::ClassType::getCppDestructor);
-    _d.CPGF_MD_TEMPLATE _method("doCanBind", &D_d::ClassType::doCanBind);
+    _d.CPGF_MD_TEMPLATE _method("getCppDestructor", &typename D_d::ClassType::getCppDestructor);
+    _d.CPGF_MD_TEMPLATE _method("doCanBind", &typename D_d::ClassType::doCanBind);
 
     _d.CPGF_MD_TEMPLATE _operator<metagen::BuilderDestructor &(*)(cpgf::GMetaSelf, const metagen::BuilderDestructor &)>(mopHolder = mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderDestructor_opAssign_0<D_d::ClassType >);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderDestructor_opAssign_0<typename D_d::ClassType >);
 
 }
 

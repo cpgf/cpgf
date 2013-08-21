@@ -242,9 +242,10 @@ GScriptRunner * createScriptRunner(IMetaService * metaService, const string & fi
 	{
 #if ENABLE_V8
 		return createV8ScriptRunner(metaService);
-#endif
+#else
 #if ENABLE_SPIDERMONKEY
 		return createSpiderMonkeyScriptRunner(metaService);
+#endif
 #endif
 	}
 	return NULL;

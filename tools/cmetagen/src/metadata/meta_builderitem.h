@@ -33,19 +33,19 @@ void buildMetaClass_metagen_BuilderItem(D_d & _d)
     (void)_d;
     
 
-    _d.CPGF_MD_TEMPLATE _method("getCppItem", &D_d::ClassType::getCppItem);
-    _d.CPGF_MD_TEMPLATE _method("canBind", &D_d::ClassType::canBind);
-    _d.CPGF_MD_TEMPLATE _method("writeMetaData", &D_d::ClassType::writeMetaData);
-    _d.CPGF_MD_TEMPLATE _method("setProject", &D_d::ClassType::setProject);
-    _d.CPGF_MD_TEMPLATE _method("getProject", &D_d::ClassType::getProject);
-    _d.CPGF_MD_TEMPLATE _method("getParent", &D_d::ClassType::getParent);
-    _d.CPGF_MD_TEMPLATE _method("setSkipBind", &D_d::ClassType::setSkipBind);
-    _d.CPGF_MD_TEMPLATE _method("shouldSkipBind", &D_d::ClassType::shouldSkipBind);
-    _d.CPGF_MD_TEMPLATE _method("setWrapClass", &D_d::ClassType::setWrapClass);
-    _d.CPGF_MD_TEMPLATE _method("shouldWrapClass", &D_d::ClassType::shouldWrapClass);
+    _d.CPGF_MD_TEMPLATE _method("getCppItem", &typename D_d::ClassType::getCppItem);
+    _d.CPGF_MD_TEMPLATE _method("canBind", &typename D_d::ClassType::canBind);
+    _d.CPGF_MD_TEMPLATE _method("writeMetaData", &typename D_d::ClassType::writeMetaData);
+    _d.CPGF_MD_TEMPLATE _method("setProject", &typename D_d::ClassType::setProject);
+    _d.CPGF_MD_TEMPLATE _method("getProject", &typename D_d::ClassType::getProject);
+    _d.CPGF_MD_TEMPLATE _method("getParent", &typename D_d::ClassType::getParent);
+    _d.CPGF_MD_TEMPLATE _method("setSkipBind", &typename D_d::ClassType::setSkipBind);
+    _d.CPGF_MD_TEMPLATE _method("shouldSkipBind", &typename D_d::ClassType::shouldSkipBind);
+    _d.CPGF_MD_TEMPLATE _method("setWrapClass", &typename D_d::ClassType::setWrapClass);
+    _d.CPGF_MD_TEMPLATE _method("shouldWrapClass", &typename D_d::ClassType::shouldWrapClass);
 
     _d.CPGF_MD_TEMPLATE _operator<metagen::BuilderItem &(*)(cpgf::GMetaSelf, const metagen::BuilderItem &)>(mopHolder = mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderItem_opAssign_0<D_d::ClassType >);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderItem_opAssign_0<typename D_d::ClassType >);
 
 }
 
