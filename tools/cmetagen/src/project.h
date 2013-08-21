@@ -4,6 +4,7 @@
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gsharedinterface.h"
 #include "cpgf/gclassutil.h"
+#include "cpgf/gcallback.h"
 
 #include <string>
 #include <vector>
@@ -23,10 +24,12 @@ class GScriptValue;
 
 namespace metagen {
 
-class BuilderTemplateInstantiationRepository;
-class BuilderItem;
+typedef cpgf::GCallback<bool (const std::string &)> ProjectVisitorFilter;
 
 typedef std::vector<std::string> StringArrayType;
+
+class BuilderTemplateInstantiationRepository;
+class BuilderItem;
 
 class ProjectImplement;
 class ProjectVisitor;
@@ -92,7 +95,7 @@ public:
 	std::string getAbsoluteFileName(const std::string & fileName) const;
 	const std::string & getProjectRootPath() const;
 
-	void loadProject(const std::string & projectFileName);
+	void loadProject(const std::string & projectFileName, const ProjectVisitorFilter & filter);
 
 	std::string getOutputHeaderFileName(const std::string & sourceFileName) const;
 	std::string getOutputSourceFileName(const std::string & sourceFileName, int fileIndex) const;
@@ -213,6 +216,7 @@ private:
 };
 
 void visitProject(cpgf::IMetaClass * projectClass, ProjectVisitor * visitor);
+
 
 
 } // namespace metagen

@@ -41,6 +41,11 @@
 #include "Poco/Format.h"
 #include "Poco/String.h"
 
+#if defined(_MSC_VER)
+#pragma warning(disable: 4127)
+#endif
+
+
 using namespace std;
 using namespace cpgf;
 
@@ -54,12 +59,16 @@ void projectParseFatalError(const string & message)
 class ProjectParserVisitor : public ProjectVisitor
 {
 public:
-	explicit ProjectParserVisitor(Project * project)
-		: ProjectVisitor(project) {
+	ProjectParserVisitor(Project * project, const ProjectVisitorFilter & filter)
+		: ProjectVisitor(project), filter(filter) {
 	}
 
 	virtual void visitStringArray(IMetaField * /*field*/, const std::string & fieldName, const GScriptValue & /*fieldValue*/,
 		StringArrayType * stringArray) {
+		if(! this->canVisit(fieldName)) {
+			return;
+		}
+
 		if(! this->getScriptObject()->maybeIsScriptArray(fieldName.c_str())) {
 			projectParseFatalError(Poco::format("Config \"%s\" must be array.", fieldName));
 		}
@@ -82,6 +91,10 @@ public:
 	}
 
 	virtual void visitTemplateInstantiations(IMetaField * /*field*/, const std::string & fieldName, const GScriptValue & /*fieldValue*/) {
+		if(! this->canVisit(fieldName)) {
+			return;
+		}
+		
 		if(! this->getScriptObject()->maybeIsScriptArray(fieldName.c_str())) {
 			projectParseFatalError(Poco::format("Config \"%s\" must be array.", fieldName));
 		}
@@ -131,6 +144,10 @@ public:
 
 	virtual void visitScriptCallback(IMetaField * /*field*/, const std::string & fieldName, const GScriptValue & fieldValue,
 		cpgf::GSharedInterface<cpgf::IScriptFunction> * callback) {
+		if(! this->canVisit(fieldName)) {
+			return;
+		}
+		
 		if(! fieldValue.isScriptFunction()) {
 			projectParseFatalError(Poco::format("Config \"%s\" must be script function.", fieldName));
 		}
@@ -139,6 +156,10 @@ public:
 	}
 
 	virtual void visitString(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) {
+		if(! this->canVisit(fieldName)) {
+			return;
+		}
+		
 		if(! fieldValue.isString()) {
 			projectParseFatalError(Poco::format("Config \"%s\" must be string.", fieldName));
 		}
@@ -146,11 +167,23 @@ public:
 	}
 
 	virtual void visitInteger(IMetaField * field, const std::string & fieldName, const GScriptValue & fieldValue) {
+		if(! this->canVisit(fieldName)) {
+			return;
+		}
+		
 		if(! fieldValue.isFundamental()) {
 			projectParseFatalError(Poco::format("Config \"%s\" must be primary type.", fieldName));
 		}
 		metaSetValue(field, this->getProject(), fieldValue.toFundamental());
 	}
+
+private:
+	bool canVisit(const std::string & fieldName) {
+		return this->filter(fieldName);
+	}
+
+private:
+	ProjectVisitorFilter filter;
 };
 
 class ProjectImplement
@@ -160,7 +193,7 @@ public:
 	~ProjectImplement();
 
 	void loadScriptFile(const string & fileName);
-	void loadProject(Project * project);
+	void loadProject(Project * project, const ProjectVisitorFilter & filter);
 
 	IMetaClass * getProjectClass() const;
 
@@ -187,6 +220,8 @@ ProjectImplement::~ProjectImplement()
 
 GScriptRunner * createScriptRunner(IMetaService * metaService, const string & fileName)
 {
+	(void)metaService;
+
 	string extension = Poco::Path(fileName).getExtension();
 	Poco::toLowerInPlace(extension);
 
@@ -322,12 +357,12 @@ void visitProject(IMetaClass * projectClass, ProjectVisitor * visitor)
 	}
 }
 
-void ProjectImplement::loadProject(Project * project)
+void ProjectImplement::loadProject(Project * project, const ProjectVisitorFilter & filter)
 {
 	if(! HAS_SCRIPT_ENGINE) {
 		return;
 	}
-	ProjectParserVisitor visitor(project);
+	ProjectParserVisitor visitor(project, filter);
 	this->visitProject(&visitor);
 }
 
@@ -540,7 +575,7 @@ const std::string & Project::getProjectRootPath() const
 	return this->projectRootPath;
 }
 
-void Project::loadProject(const std::string & projectFileName)
+void Project::loadProject(const std::string & projectFileName, const ProjectVisitorFilter & filter)
 {
 	Poco::Path projectPath(projectFileName);
 	projectPath.makeAbsolute();
@@ -564,7 +599,7 @@ void Project::loadProject(const std::string & projectFileName)
 	this->projectRootPath = normalizePath(projectPath.parent().toString());
 
 	this->implement->loadScriptFile(projectPath.toString());
-	this->implement->loadProject(this);
+	this->implement->loadProject(this, filter);
 
 	this->sourceRootPath = this->getAbsoluteFileName(this->sourceRootPath);
 }

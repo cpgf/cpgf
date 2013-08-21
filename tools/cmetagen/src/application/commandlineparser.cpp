@@ -27,6 +27,8 @@
 #pragma warning(pop)
 #endif
 
+#include <functional>
+
 using namespace Poco::Util;
 using namespace std;
 using namespace cpgf;
@@ -132,9 +134,19 @@ void CommandLineParser::parse(int argc, char * argv[])
 	this->initializeProject();
 }
 
+bool CommandLineParser::projectVisitorFilter(const std::string & fieldName)
+{
+	ProjectOptionMapType::iterator it = this->projectOptionMap.find(fieldName);
+	if(it != this->projectOptionMap.end()) {
+		return it->second.values.empty();
+	}
+
+	return true;
+}
+
 void CommandLineParser::initializeProject()
 {
-	this->project->loadProject(this->projectFileName);
+	this->project->loadProject(this->projectFileName, makeCallback(this, &CommandLineParser::projectVisitorFilter));
 }
 
 class ProjectOptionVisitor : public ProjectVisitor
@@ -216,7 +228,6 @@ void CommandLineParser::setupOptions(OptionSet * optionSet)
 
 void CommandLineParser::processProjectOptions()
 {
-printf("Warning: from CommandLineParser::processProjectOptions(), now command line options are overrided by project file. Shoudl fix.");
 	GScopedInterface<IMetaClass> projectClass(this->project->getProjectClass());
 	GScopedInterface<IMetaField> field;
 

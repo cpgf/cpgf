@@ -36,6 +36,7 @@ public:
 	void parse(int argc, char * argv[]);
 
 private:
+	bool projectVisitorFilter(const std::string & fieldName);
 	void initializeProject();
 	void setupOptions(Poco::Util::OptionSet * optionSet);
 	void processProjectOptions();
