@@ -4,6 +4,7 @@ SET(SRC_ROOT
 	${SRC_PATH}/logger.cpp
 	${SRC_PATH}/main.cpp
 	${SRC_PATH}/project.cpp
+	${SRC_PATH}/splitcommandline.cpp
 	${SRC_PATH}/util.cpp
 )
 SOURCE_GROUP(src\\ FILES ${SRC_ROOT})

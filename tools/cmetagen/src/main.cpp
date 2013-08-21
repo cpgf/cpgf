@@ -3,12 +3,8 @@
 #include "codewriter/cppwriter.h"
 #include "codewriter/codewriter.h"
 
-#include <iostream>
-using namespace std;
-using namespace metagen;
-
 int main(int argc, char * argv[])
 {
-	Application application;
+	metagen::Application application;
 	return application.run(argc, argv);
 }
