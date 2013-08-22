@@ -10,7 +10,7 @@ set(HAS_V8 1) #release=false
 set(HAS_PYTHON 1) #release=false
 
 # set 1 to enable Mozilla SpiderMonkey binding, 0 to disable
-set(HAS_SPIDERMONKEY 0) #release=false
+set(HAS_SPIDERMONKEY 1) #release=false
 
 # set 1 to enable C++ 0X in GCC, then rvalue reference is enabled
 # 0 to disable rvalue reference
@@ -113,7 +113,10 @@ if(${HAS_PYTHON})
 	endif(CMAKE_COMPILER_IS_GNUCC)
 
 	if(MSVC)
-		set(PYTHON_LIB ${PYTHON_DIR}/libs/python27_d.lib)
+		set(PYTHON_LIB
+			debug ${PYTHON_DIR}/libs/python27_d.lib
+			optimized ${PYTHON_DIR}/libs/python27.lib
+		)
 	endif(MSVC)
 endif(${HAS_PYTHON})
 
@@ -145,14 +148,14 @@ endif(${HAS_SPIDERMONKEY})
 
 if(CMAKE_COMPILER_IS_GNUCC)
 	set(GLUT_DIR
-		e:/SourceCode/cpp/freeglut/mingw
+		c:/source/freeglut/mingw
 	)
 	set(GLUT_LIB ${GLUT_DIR}/lib/libfreeglut.a opengl32 glu32)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)
 	set(GLUT_DIR
-		e:/SourceCode/cpp/freeglut/vc
+		c:/source/freeglut/vc
 	)
 	set(GLUT_LIB ${GLUT_DIR}/lib/freeglut.lib)
 endif(MSVC)
@@ -164,7 +167,7 @@ set(GLUT_INC ${GLUT_DIR}/include)
 ### Box2D config
 
 set(BOX2D_DIR
-	e:/SourceCode/cpp/Box2D/Box2D
+	c:/source/Box2D/Box2D
 )
 if(CMAKE_COMPILER_IS_GNUCC)
 	set(BOX2D_LIB ${BOX2D_DIR}/lib/libBox2D.a)
@@ -182,7 +185,7 @@ set(BOX2D_INC ${BOX2D_DIR}/)
 ### SFML config
 
 set(SFML_DIR
-	e:/SourceCode/cpp/SFML-1.6
+	c:/source/SFML-1.6
 )
 if(CMAKE_COMPILER_IS_GNUCC)
 	set(SFML_LIB_DIR ${SFML_DIR}/lib/gcc)
@@ -212,7 +215,7 @@ set(SFML_INC ${SFML_DIR}/include)
 ### irrlicht config
 
 set(IRRLICHT_DIR
-	E:/SourceCode/CPP/irrlicht-1.8
+	c:/source/irrlicht-1.8
 )
 if(CMAKE_COMPILER_IS_GNUCC)
 endif(CMAKE_COMPILER_IS_GNUCC)
@@ -228,7 +231,7 @@ set(IRRLICHT_INC ${IRRLICHT_DIR}/include)
 ### Boost config
 
 set(BOOST_DIR
-	e:/SourceCode/cpp/boost
+	c:/source/boost
 )
 
 set(BOOST_INC ${BOOST_DIR})
