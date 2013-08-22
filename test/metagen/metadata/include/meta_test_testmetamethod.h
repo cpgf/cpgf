@@ -21,8 +21,10 @@ void buildMetaClass_TestMethodMethodClass(const cpgf::GMetaDataConfigFlags & con
     (void)config; (void)_d; (void)_d;
     using namespace cpgf;
     
+    _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
     _d.CPGF_MD_TEMPLATE _method("func_null_38_abc", &D::ClassType::func_null_38_abc);
     _d.CPGF_MD_TEMPLATE _method("func_return_What", &D::ClassType::func_return_What);
+    _d.CPGF_MD_TEMPLATE _method("func_return_ReferenceToString", &D::ClassType::func_return_ReferenceToString, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<-1> >());
     _d.CPGF_MD_TEMPLATE _method("func_return_data", &D::ClassType::func_return_data);
     _d.CPGF_MD_TEMPLATE _method("sfunc_dEf_neg99", &D::ClassType::sfunc_dEf_neg99, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
 }

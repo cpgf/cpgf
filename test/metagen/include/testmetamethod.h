@@ -24,6 +24,8 @@ private:
 class TestMethodMethodClass
 {
 public:
+	TestMethodMethodClass() : refString("referenceToString") {}
+	
 	bool func_null_38_abc(void * a, int b, const char * c) {
 		return a == NULL && b == 38 && strcmp(c, "abc") == 0;
 	}
@@ -36,9 +38,16 @@ public:
 		return "What";
 	}
 
+	const std::string & func_return_ReferenceToString() const {
+		return this->refString;
+	}
+
 	cpgf::GSharedPointer<TestMethodMethodData> func_return_data() const {
 		return cpgf::GSharedPointer<TestMethodMethodData>(new TestMethodMethodData());
 	}
+	
+private:
+	std::string refString;
 };
 
 

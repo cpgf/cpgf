@@ -18,6 +18,7 @@ void testMetaMethod(TestScriptContext * context)
 	QASSERT(mtest.TestMethodMethodClass.sfunc_dEf_neg99("dEf", -99));
 	QASSERT(obj.sfunc_dEf_neg99("dEf", -99));
 	QASSERT(obj.func_return_What() == "What");
+	QASSERT(obj.func_return_ReferenceToString() == "referenceToString");
 	QASSERT(obj.func_return_data().check());
 }
 

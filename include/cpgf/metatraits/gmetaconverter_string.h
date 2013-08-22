@@ -29,6 +29,20 @@ inline IMetaConverter * createConverterFromMetaTraits(const GMetaTraitsParam &, 
 }
 
 
+template <>
+struct GMetaTraitsCreateConverter <const std::string, void>
+{
+	static IMetaConverter * createConverter(const GMetaTraitsParam &) {
+		return metatraits_internal::doCreateConverterForStdString();
+	}
+};
+
+inline IMetaConverter * createConverterFromMetaTraits(const GMetaTraitsParam &, const std::string *)
+{
+	return metatraits_internal::doCreateConverterForStdString();
+}
+
+
 } // namespace cpgf
 
 

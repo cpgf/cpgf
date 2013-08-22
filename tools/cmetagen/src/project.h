@@ -31,6 +31,8 @@ typedef std::vector<std::string> StringArrayType;
 class BuilderTemplateInstantiationRepository;
 class BuilderItem;
 
+class CppSourceFile;
+
 class ProjectImplement;
 class ProjectVisitor;
 
@@ -102,7 +104,7 @@ public:
 	std::string getOutputHeaderFileName(const std::string & sourceFileName) const;
 	std::string getOutputSourceFileName(const std::string & sourceFileName, int fileIndex) const;
 
-	bool processFileByScript(const std::string & fileName) const;
+	void processFileByScript(CppSourceFile * sourceFile) const;
 	void processBuilderItemByScript(BuilderItem * builderItem) const;
 	std::string replaceHeaderByScript(const std::string & fileName) const;
 

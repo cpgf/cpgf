@@ -102,7 +102,12 @@ void Application::processOnePath(const std::string & path)
 
 void Application::processOneFile(const std::string & fileName)
 {
-	if(! this->project.processFileByScript(fileName)) {
+	string absoluteFileName = this->project.getAbsoluteFileName(fileName);
+	CppSourceFile sourceFile(absoluteFileName);
+
+	this->project.processFileByScript(&sourceFile);
+
+	if(sourceFile.shouldSkipBind()) {
 		getLogger().info(Poco::format("File %s is skipped by script.\n", fileName));
 		return;
 	}
@@ -118,8 +123,6 @@ void Application::processOneFile(const std::string & fileName)
 		getLogger().info(Poco::format("Generate for fileName %s...", fileName));
 
 		CppContext context(&this->project);
-		string absoluteFileName = this->project.getAbsoluteFileName(fileName);
-		CppSourceFile sourceFile(absoluteFileName);
 		context.process(sourceFile);
 
 		BuilderContext builderContext(&this->project, sourceFile);

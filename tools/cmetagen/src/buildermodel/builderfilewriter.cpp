@@ -92,6 +92,8 @@ void BuilderFileWriter::initializeCppWriter(CppWriter * cppWriter) const
 		cppWriter->include(includeMetaDefine);
 		cppWriter->include(includeMetaPolicy);
 		cppWriter->include(includeMetaDataHeader);
+		cppWriter->include("cpgf/metatraits/gmetaconverter_string.h");
+
 		cppWriter->tailInclude(includeMetaDataFooter);
 
 		cppWriter->include(includeScriptBindUtil);

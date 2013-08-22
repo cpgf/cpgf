@@ -29,6 +29,7 @@ const CppItem * BuilderItem::getCppItem() const
 
 void BuilderItem::checkBuilderItemCategory(ItemCategory category)
 {
+	(void)category;
 	GASSERT(this->cppItem->getCategory() == category);
 }
 

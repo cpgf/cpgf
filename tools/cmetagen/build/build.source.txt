@@ -58,6 +58,20 @@ SET(SRC_METADATA
 	${SRC_PATH}/metadata/meta_buildermethod.cpp
 	${SRC_PATH}/metadata/meta_buildernamespace.cpp
 	${SRC_PATH}/metadata/meta_builderoperator.cpp
+	${SRC_PATH}/metadata/meta_cppclass.cpp
+	${SRC_PATH}/metadata/meta_cppconstructor.cpp
+	${SRC_PATH}/metadata/meta_cppcontainer.cpp
+	${SRC_PATH}/metadata/meta_cppdestructor.cpp
+	${SRC_PATH}/metadata/meta_cppenum.cpp
+	${SRC_PATH}/metadata/meta_cppfield.cpp
+	${SRC_PATH}/metadata/meta_cppfile.cpp
+	${SRC_PATH}/metadata/meta_cppinvokable.cpp
+	${SRC_PATH}/metadata/meta_cppitem.cpp
+	${SRC_PATH}/metadata/meta_cppmethod.cpp
+	${SRC_PATH}/metadata/meta_cppnamespace.cpp
+	${SRC_PATH}/metadata/meta_cppoperator.cpp
+	${SRC_PATH}/metadata/meta_cppsourcefile.cpp
+	${SRC_PATH}/metadata/meta_cpptype.cpp
 	${SRC_PATH}/metadata/meta_project.cpp
 	${SRC_PATH}/metadata/registerMain_metagen.cpp
 )

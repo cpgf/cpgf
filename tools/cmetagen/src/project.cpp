@@ -17,6 +17,7 @@
 #include "model/cppcontext.h"
 #include "model/cppfile.h"
 #include "model/cpputil.h"
+#include "model/cppsourcefile.h"
 
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/gscopedinterface.h"
@@ -409,7 +410,7 @@ Project::Project()
 
 		force(false),
 
-		stopOnCompileError(true),
+		stopOnCompileError(false),
 
 		templateInstantiationRepository(new BuilderTemplateInstantiationRepository),
 
@@ -624,14 +625,11 @@ std::string Project::getOutputSourceFileName(const std::string & sourceFileName,
 	return this->doGetOutputFileName(sourceFileName, fileIndex, true);
 }
 
-bool Project::processFileByScript(const std::string & fileName) const
+void Project::processFileByScript(CppSourceFile * sourceFile) const
 {
-	if(! this->fileCallback) {
-		return true;
+	if(this->fileCallback) {
+		invokeScriptFunction(this->fileCallback.get(), sourceFile, sourceFile->getBaseFileName().c_str());
 	}
-
-	GVariant result = invokeScriptFunction(this->fileCallback.get(), fileName.c_str());
-	return fromVariant<bool>(result);
 }
 
 void Project::processBuilderItemByScript(BuilderItem * builderItem) const
