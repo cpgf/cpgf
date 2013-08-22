@@ -330,7 +330,7 @@ void writeOperatorReflection(const WriterParam * param)
 		param->writer->getReflectionAction("_method"),
 		OperatorNameMap::getNameMap()->get(param->cppOperator),
 		param->operatorWrapperName,
-		getReflectionClassName(param->cppOperator->getProject())
+		getReflectionClassName(param->cppOperator->getProject(), true)
 	);
 
 	codeBlock->appendLine(s);
@@ -345,7 +345,7 @@ void writeArraySetterReflection(const WriterParam * param)
 			param->writer->getReflectionAction("_method"),
 			OperatorNameMap::getNameMap()->get(param->cppOperator, 2),
 			param->arraySetterName,
-			getReflectionClassName(param->cppOperator->getProject())
+			getReflectionClassName(param->cppOperator->getProject(), true)
 		);
 
 		codeBlock->appendLine(s);

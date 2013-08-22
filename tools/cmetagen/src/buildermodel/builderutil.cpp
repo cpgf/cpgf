@@ -37,12 +37,18 @@ string getTextOfVisibility(ItemVisibility visibility)
 	}
 }
 
-std::string getReflectionClassName(const Project * project)
+std::string getReflectionClassName(const Project * project, bool asType)
 {
-	return "typename " + project->getMetaDefineParamName() + "::ClassType";
+	std::string s = project->getMetaDefineParamName() + "::ClassType";
+	if(asType) {
+		return "typename " + s;
+	}
+	else {
+		return s;
+	}
 }
 
-std::string getReflectionScope(const CppItem * item)
+std::string getReflectionScope(const CppItem * item, bool asType)
 {
 	if(item->isGlobal()) {
 		string scope = item->getParent()->getQualifiedName();
@@ -52,7 +58,7 @@ std::string getReflectionScope(const CppItem * item)
 		return scope;
 	}
 	else {
-		return getReflectionClassName(item->getProject()) + "::";
+		return getReflectionClassName(item->getProject(), asType) + "::";
 	}
 }
 
@@ -98,7 +104,9 @@ string getContainerNormalizedSymboName(const BuilderContext * builderContext, Bu
 			if(cppContainer->isClass() || cppContainer->isNamespace()) {
 				result = cppContainer->getQualifiedName();
 				if(cppContainer->isNamespace()) {
-					result = result + "_" + builderContext->getSourceBaseFileName();
+					// Add _namespace to avoid conflicting with class. A conflicition may occur when
+					// in file A.h there is namespace Foo and a class Foo::A
+					result = result + "_namespace_" + builderContext->getSourceBaseFileName();
 				}
 			}
 			else {

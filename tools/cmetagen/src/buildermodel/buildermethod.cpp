@@ -124,7 +124,7 @@ void writeMethodReflectionCode(const CppMethod * cppMethod, BuilderWriter * writ
 		writer->getReflectionAction("_method"),
 		methodName);
 	t = Poco::format("&%s%s)%s",
-		getReflectionScope(cppMethod),
+		getReflectionScope(cppMethod, false),
 		methodName,
 		getInvokablePolicyText(cppMethod, true)
 	);

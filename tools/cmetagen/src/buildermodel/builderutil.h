@@ -27,8 +27,8 @@ const std::string CodeBlockName_Customize("customize");
 
 std::string getTextOfVisibility(ItemVisibility visibility);
 
-std::string getReflectionClassName(const Project * project);
-std::string getReflectionScope(const CppItem * item);
+std::string getReflectionClassName(const Project * project, bool asType);
+std::string getReflectionScope(const CppItem * item, bool asType);
 
 // A payload is how many meta data the item contribute
 size_t getCppItemPayload(const CppItem * item);
