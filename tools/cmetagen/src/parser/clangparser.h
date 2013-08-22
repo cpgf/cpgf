@@ -17,7 +17,7 @@ public:
 	explicit ClangParser(const Project * project);
 	~ClangParser();
 
-	void parse(CppContext * context, const char * fileName);
+	void parse(CppContext * context, const CppSourceFile & sourceFile);
 
 private:
 	cpgf::GScopedPointer<ClangParserImplement> implement;

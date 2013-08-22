@@ -2,6 +2,7 @@
 
 #include "model/cppcontext.h"
 #include "model/cppnamespace.h"
+#include "model/cppsourcefile.h"
 #include "buildermodel/buildercontext.h"
 #include "buildermodel/builderutil.h"
 #include "codewriter/cppwriter.h"
@@ -118,9 +119,10 @@ void Application::processOneFile(const std::string & fileName)
 
 		CppContext context(&this->project);
 		string absoluteFileName = this->project.getAbsoluteFileName(fileName);
-		context.process(absoluteFileName);
+		CppSourceFile sourceFile(absoluteFileName);
+		context.process(sourceFile);
 
-		BuilderContext builderContext(&this->project, absoluteFileName);
+		BuilderContext builderContext(&this->project, sourceFile);
 		builderContext.process(&context);
 
 		getLogger().info("done.\n");

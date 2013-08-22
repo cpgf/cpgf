@@ -17,6 +17,7 @@ namespace metagen {
 
 class CppFile;
 class CppClass;
+class CppSourceFile;
 class Project;
 
 class CppContext
@@ -29,7 +30,7 @@ public:
 	explicit CppContext(const Project * project);
 	~CppContext();
 	
-	void process(const std::string & sourceFileName);
+	void process(const CppSourceFile & sourceFile);
 	
 	CppFile * getCppFile() const { return this->cppFile.get(); }
 	const Project * getProject() const { return this->project; }

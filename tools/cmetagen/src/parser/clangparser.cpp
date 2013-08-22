@@ -11,6 +11,7 @@
 #include "model/cppcontext.h"
 #include "model/cppfile.h"
 #include "model/cpputil.h"
+#include "model/cppsourcefile.h"
 
 #include "project.h"
 #include "util.h"
@@ -72,7 +73,7 @@ typedef GCallback<void (CompilerInstance * compilerInstance)> ParserCallbackType
 class ParserBase
 {
 public:
-	virtual void parse(const char * fileName, const ParserCallbackType & callback) = 0;
+	virtual void parse(const CppSourceFile & sourceFile, const ParserCallbackType & callback) = 0;
 };
 
 class ParserLibClang : public ParserBase
@@ -83,11 +84,11 @@ private:
 public:
 	explicit ParserLibClang(const Project * project);
 
-	virtual void parse(const char * fileName, const ParserCallbackType & callback);
+	virtual void parse(const CppSourceFile & sourceFile, const ParserCallbackType & callback);
 
 private:
 	void setupClang();
-	void compileAST(const char * fileName);
+	void compileAST(const CppSourceFile & sourceFile);
 
 private:
 	raw_fd_ostream outputStream;
@@ -103,9 +104,9 @@ ParserLibClang::ParserLibClang(const Project * project)
 	this->setupClang();
 }
 
-void ParserLibClang::parse(const char * fileName, const ParserCallbackType & callback)
+void ParserLibClang::parse(const CppSourceFile & sourceFile, const ParserCallbackType & callback)
 {
-	this->compileAST(fileName);
+	this->compileAST(sourceFile);
 	callback(this->compilerInstance.get());
 }
 
@@ -170,7 +171,7 @@ void ParserLibClang::setupClang()
 	this->compilerInstance->setInvocation(this->compilerInvocation.take());
 }
 
-void ParserLibClang::compileAST(const char * fileName)
+void ParserLibClang::compileAST(const CppSourceFile & sourceFile)
 {
 	this->compilerInstance->createPreprocessor();
 	this->compilerInstance->createASTContext();
@@ -181,7 +182,7 @@ void ParserLibClang::compileAST(const char * fileName)
 			preprocessor.getLangOpts());
 	}
 
-	const FileEntry * file = this->compilerInstance->getFileManager().getFile(fileName);
+	const FileEntry * file = this->compilerInstance->getFileManager().getFile(sourceFile.getFileName().c_str());
 	this->compilerInstance->getSourceManager().createMainFileID(file);
 
 	EmptyASTConsumer astConsumer;
@@ -220,7 +221,7 @@ public:
 	ClangParserImplement(CppContext * context, const Project * project);
 	~ClangParserImplement();
 
-	void parse(const char * fileName);
+	void parse(const CppSourceFile & sourceFile);
 
 private:
 	void translate(CompilerInstance * compilerInstance);
@@ -263,7 +264,6 @@ private:
 private:
 	CppContext * context;
 	CppContainerStackType cppContainerStack;
-	string fileName;
 
 	GScopedPointer<ParserBase> parser;
 
@@ -282,12 +282,10 @@ ClangParserImplement::~ClangParserImplement()
 {
 }
 
-void ClangParserImplement::parse(const char * fileName)
+void ClangParserImplement::parse(const CppSourceFile & sourceFile)
 {
-	this->fileName = fileName;
-
 	this->parser.reset(new ParserLibClang(this->project));
-	this->parser->parse(fileName, makeCallback(this, &ClangParserImplement::translate));
+	this->parser->parse(sourceFile, makeCallback(this, &ClangParserImplement::translate));
 }
 
 void ClangParserImplement::translate(CompilerInstance * compilerInstance)
@@ -576,10 +574,10 @@ ClangParser::~ClangParser()
 {
 }
 
-void ClangParser::parse(CppContext * context, const char * fileName)
+void ClangParser::parse(CppContext * context, const CppSourceFile & sourceFile)
 {
 	this->implement.reset(new ClangParserImplement(context, project));
-	this->implement->parse(fileName);
+	this->implement->parse(sourceFile);
 }
 
 

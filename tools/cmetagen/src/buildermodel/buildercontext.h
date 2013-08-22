@@ -17,6 +17,7 @@ namespace metagen {
 class CppContext;
 class CppContanier;
 class CppFile;
+class CppSourceFile;
 class BuilderContext;
 class BuilderFile;
 class BuilderContainer;
@@ -34,15 +35,18 @@ public:
 	typedef std::vector<BuilderItem *> ItemListType;
 
 public:
-	BuilderContext(const Project * project, const std::string & sourceFileName);
+	BuilderContext(const Project * project, const CppSourceFile & sourceFile);
 	~BuilderContext();
 
 	void process(const CppContext * cppContext);
 	
-	const Project * getProject() const { return this->project; }
-	const std::string & getSourceBaseFileName() const { return this->sourceBaseFileName; }
-	ItemListType * getItemList() { return &this->itemList; }
-	BuilderSectionList * getSectionList() { return this->sectionList.get(); }
+	const Project * getProject() const;
+	
+	const std::string & getSourceFileName() const;
+	const std::string & getSourceBaseFileName() const;
+
+	ItemListType * getItemList();
+	BuilderSectionList * getSectionList();
 
 private:
 	void doProcessFile(const CppFile * cppFile);
@@ -66,8 +70,7 @@ private:
 
 private:
 	const Project * project;
-	std::string sourceFileName;
-	std::string sourceBaseFileName;
+	const CppSourceFile & sourceFile;
 	ItemListType itemList;
 	cpgf::GScopedPointer<BuilderSectionList> sectionList;
 	BuilderFileWriterListType fileWriterList;

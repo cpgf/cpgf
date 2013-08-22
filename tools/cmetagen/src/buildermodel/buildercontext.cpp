@@ -19,6 +19,7 @@
 #include "model/cppclass.h"
 #include "model/cppcontext.h"
 #include "model/cpppolicy.h"
+#include "model/cppsourcefile.h"
 
 #include "project.h"
 #include "constants.h"
@@ -80,12 +81,11 @@ BuilderItem * createBuilderItem(const CppItem * cppItem)
 }
 
 
-BuilderContext::BuilderContext(const Project * project, const std::string & sourceFileName)
+BuilderContext::BuilderContext(const Project * project, const CppSourceFile & sourceFile)
 	:	project(project),
-		sourceFileName(normalizeFile(sourceFileName)),
+		sourceFile(sourceFile),
 		sectionList(new BuilderSectionList())
 {
-	this->sourceBaseFileName = Poco::Path(this->sourceFileName).getBaseName();
 }
 
 BuilderContext::~BuilderContext()
@@ -104,6 +104,31 @@ BuilderItem * BuilderContext::createItem(const CppItem * cppItem)
 void BuilderContext::process(const CppContext * cppContext)
 {
 	this->doProcessFile(cppContext->getCppFile());
+}
+
+const Project * BuilderContext::getProject() const
+{
+	return this->project;
+}
+
+const std::string & BuilderContext::getSourceFileName() const
+{
+	return this->sourceFile.getFileName();
+}
+
+const std::string & BuilderContext::getSourceBaseFileName() const
+{
+	return this->sourceFile.getBaseFileName();
+}
+
+BuilderContext::ItemListType * BuilderContext::getItemList()
+{
+	return &this->itemList;
+}
+
+BuilderSectionList * BuilderContext::getSectionList()
+{
+	return this->sectionList.get();
 }
 
 void BuilderContext::doProcessFile(const CppFile * cppFile)
@@ -258,7 +283,7 @@ bool partialCreationSectionComparer(BuilderSection * a, BuilderSection * b)
 
 void BuilderContext::createHeaderFileWriter()
 {
-	BuilderFileWriter * fileWriter = BuilderFileWriter::createHeaderFile(this->sourceFileName, this);
+	BuilderFileWriter * fileWriter = BuilderFileWriter::createHeaderFile(this->getSourceFileName(), this);
 	this->fileWriterList.push_back(fileWriter);
 
 	for(BuilderSectionList::iterator it = this->getSectionList()->begin();
@@ -308,7 +333,7 @@ void BuilderContext::doCreateSourceFileWriters(BuilderSectionListType * partialC
 	while(! partialCreationSections->empty()) {
 		BuilderSectionListType sectionsInOneFile;
 		this->doExtractPartialCreationFunctions(partialCreationSections, &sectionsInOneFile);
-		BuilderFileWriter * fileWriter = BuilderFileWriter::createSourceFile(this->sourceFileName, this, fileIndex);
+		BuilderFileWriter * fileWriter = BuilderFileWriter::createSourceFile(this->getSourceFileName(), this, fileIndex);
 		this->fileWriterList.push_back(fileWriter);
 		if(fileIndex == 0) {
 			for(BuilderSectionList::iterator it = this->sectionList->begin();

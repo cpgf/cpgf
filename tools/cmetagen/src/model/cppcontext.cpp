@@ -35,9 +35,9 @@ CppContext::~CppContext()
 	clearPointerContainer(this->itemList);
 }
 
-void CppContext::process(const std::string & sourceFileName)
+void CppContext::process(const CppSourceFile & sourceFile)
 {
-	this->parser.parse(this, sourceFileName.c_str());
+	this->parser.parse(this, sourceFile);
 }
 
 void CppContext::beginFile(clang::Decl * decl)

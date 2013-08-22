@@ -7,7 +7,9 @@ namespace metagen {
 
 
 CppSourceFile::CppSourceFile(const std::string & fileName)
-	: fileName(fileName), skipBind(false)
+	: fileName(fileName),
+		baseName(Poco::Path(fileName).getBaseName()),
+		skipBind(false)
 {
 }
 
@@ -30,9 +32,9 @@ const std::string & CppSourceFile::getFileName() const
 	return this->fileName;
 }
 
-std::string CppSourceFile::getBaseFileName() const
+const std::string & CppSourceFile::getBaseFileName() const
 {
-	return Poco::Path(this->fileName).getBaseName();
+	return this->baseName;
 }
 
 

@@ -16,10 +16,11 @@ public:
 	bool shouldSkipBind() const;
 
 	const std::string & getFileName() const;
-	std::string getBaseFileName() const;
+	const std::string & getBaseFileName() const;
 
 private:
 	std::string fileName;
+	std::string baseName;
 	bool skipBind;
 };
 
