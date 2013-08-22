@@ -150,8 +150,6 @@ void ParserLibClang::setupClang()
 	langOptions.DelayedTemplateParsing = 1;
 
 	HeaderSearchOptions & headerSearchOptions = this->compilerInvocation->getHeaderSearchOpts();
-//headerSearchOptions.AddPath("C:/Program Files/Microsoft Visual Studio 9.0/VC/include", frontend::Angled, false, false);
-//headerSearchOptions.AddPath("C:/projects/cpgf/trunk/include", frontend::Angled, false, false);
 	for(StringArrayType::const_iterator it = this->project->getIncludeDirectories().begin();
 		it != this->project->getIncludeDirectories().end();
 		++it) {
@@ -296,7 +294,7 @@ void ClangParserImplement::translate(CompilerInstance * compilerInstance)
 {
 	this->compilerInstance = compilerInstance;
 
-	this->context->beginFile(this->fileName.c_str(), compilerInstance->getASTContext().getTranslationUnitDecl());
+	this->context->beginFile(compilerInstance->getASTContext().getTranslationUnitDecl());
 	this->cppContainerStack.push(this->context->getCppFile());
 
 	TranslationUnitDecl * translateUnitDecl = compilerInstance->getASTContext().getTranslationUnitDecl();
@@ -311,7 +309,7 @@ void ClangParserImplement::translate(CompilerInstance * compilerInstance)
 	}
 
 	this->cppContainerStack.pop();
-	this->context->endFile(this->fileName.c_str());
+	this->context->endFile();
 }
 
 CppContainer * ClangParserImplement::getCurrentCppContainer()

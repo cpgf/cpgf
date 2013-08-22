@@ -8,6 +8,7 @@ namespace metagen {
 
 class ClangParserImplement;
 class CppContext;
+class CppSourceFile;
 class Project;
 
 class ClangParser

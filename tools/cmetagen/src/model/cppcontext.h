@@ -41,8 +41,8 @@ public:
 	
 private:
 	std::string getDeclKeyName(const clang::Decl * decl) const;
-	void beginFile(const char * fileName, clang::Decl * decl);
-	void endFile(const char * fileName);
+	void beginFile(clang::Decl * decl);
+	void endFile();
 	
 	template <typename T>
 	T * createItem(clang::Decl * decl) {

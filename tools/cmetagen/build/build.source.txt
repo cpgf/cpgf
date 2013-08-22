@@ -78,6 +78,7 @@ SET(SRC_MODEL
 	${SRC_PATH}/model/cppnamespace.cpp
 	${SRC_PATH}/model/cppoperator.cpp
 	${SRC_PATH}/model/cpppolicy.cpp
+	${SRC_PATH}/model/cppsourcefile.cpp
 	${SRC_PATH}/model/cpptype.cpp
 	${SRC_PATH}/model/cpputil.cpp
 )
