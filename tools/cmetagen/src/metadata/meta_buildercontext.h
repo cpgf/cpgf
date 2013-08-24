@@ -14,6 +14,7 @@ createMetaClass_metagen_BuilderContext
 #include "cpgf/gscopedinterface.h"
 #include "cpgf/gselectFunctionByArity.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
+#include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
 
@@ -29,11 +30,12 @@ void buildMetaClass_metagen_BuilderContext(D_d & _d)
 
     _d.CPGF_MD_TEMPLATE _constructor<void * (const metagen::Project *, const metagen::CppSourceFile &)>();
 
-    _d.CPGF_MD_TEMPLATE _method("process", &typename D_d::ClassType::process);
-    _d.CPGF_MD_TEMPLATE _method("getProject", &typename D_d::ClassType::getProject);
-    _d.CPGF_MD_TEMPLATE _method("getSourceBaseFileName", &typename D_d::ClassType::getSourceBaseFileName), cpgf::MakePolicy<GMetaRuleCopyConstReference<-1> >();
-    _d.CPGF_MD_TEMPLATE _method("getItemList", &typename D_d::ClassType::getItemList);
-    _d.CPGF_MD_TEMPLATE _method("getSectionList", &typename D_d::ClassType::getSectionList);
+    _d.CPGF_MD_TEMPLATE _method("process", &D_d::ClassType::process);
+    _d.CPGF_MD_TEMPLATE _method("getProject", &D_d::ClassType::getProject);
+    _d.CPGF_MD_TEMPLATE _method("getSourceFileName", &D_d::ClassType::getSourceFileName);
+    _d.CPGF_MD_TEMPLATE _method("getSourceBaseFileName", &D_d::ClassType::getSourceBaseFileName);
+    _d.CPGF_MD_TEMPLATE _method("getItemList", &D_d::ClassType::getItemList);
+    _d.CPGF_MD_TEMPLATE _method("getSectionList", &D_d::ClassType::getSectionList);
 
 }
 

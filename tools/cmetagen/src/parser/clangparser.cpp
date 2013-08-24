@@ -182,7 +182,7 @@ void ParserLibClang::compileAST(const CppSourceFile & sourceFile)
 			preprocessor.getLangOpts());
 	}
 
-	const FileEntry * file = this->compilerInstance->getFileManager().getFile(sourceFile.getFileName().c_str());
+	const FileEntry * file = this->compilerInstance->getFileManager().getFile(sourceFile.getFileName());
 	this->compilerInstance->getSourceManager().createMainFileID(file);
 
 	EmptyASTConsumer astConsumer;

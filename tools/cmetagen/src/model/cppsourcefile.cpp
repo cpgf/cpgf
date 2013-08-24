@@ -27,14 +27,14 @@ bool CppSourceFile::shouldSkipBind() const
 	return this->skipBind;
 }
 
-const std::string & CppSourceFile::getFileName() const
+const char * CppSourceFile::getFileName() const
 {
-	return this->fileName;
+	return this->fileName.c_str();
 }
 
-const std::string & CppSourceFile::getBaseFileName() const
+const char * CppSourceFile::getBaseFileName() const
 {
-	return this->baseName;
+	return this->baseName.c_str();
 }
 
 

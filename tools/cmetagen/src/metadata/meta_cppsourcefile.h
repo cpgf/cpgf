@@ -32,8 +32,8 @@ void buildMetaClass_metagen_CppSourceFile(D_d & _d)
 
     _d.CPGF_MD_TEMPLATE _method("setSkipBind", &D_d::ClassType::setSkipBind);
     _d.CPGF_MD_TEMPLATE _method("shouldSkipBind", &D_d::ClassType::shouldSkipBind);
-    _d.CPGF_MD_TEMPLATE _method("getFileName", &D_d::ClassType::getFileName), cpgf::MakePolicy<GMetaRuleCopyConstReference<-1> >();
-    _d.CPGF_MD_TEMPLATE _method("getBaseFileName", &D_d::ClassType::getBaseFileName), cpgf::MakePolicy<GMetaRuleCopyConstReference<-1> >();
+    _d.CPGF_MD_TEMPLATE _method("getFileName", &D_d::ClassType::getFileName);
+    _d.CPGF_MD_TEMPLATE _method("getBaseFileName", &D_d::ClassType::getBaseFileName);
 
 }
 

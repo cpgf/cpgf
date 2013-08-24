@@ -111,12 +111,12 @@ const Project * BuilderContext::getProject() const
 	return this->project;
 }
 
-const std::string & BuilderContext::getSourceFileName() const
+std::string BuilderContext::getSourceFileName() const
 {
 	return this->sourceFile.getFileName();
 }
 
-const std::string & BuilderContext::getSourceBaseFileName() const
+std::string BuilderContext::getSourceBaseFileName() const
 {
 	return this->sourceFile.getBaseFileName();
 }

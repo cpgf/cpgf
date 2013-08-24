@@ -42,8 +42,8 @@ public:
 	
 	const Project * getProject() const;
 	
-	const std::string & getSourceFileName() const;
-	const std::string & getSourceBaseFileName() const;
+	std::string getSourceFileName() const;
+	std::string getSourceBaseFileName() const;
 
 	ItemListType * getItemList();
 	BuilderSectionList * getSectionList();

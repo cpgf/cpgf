@@ -15,8 +15,36 @@ public:
 	void setSkipBind(bool skip);
 	bool shouldSkipBind() const;
 
-	const std::string & getFileName() const;
-	const std::string & getBaseFileName() const;
+	/*	Ideally the below functions should return const std::string & rather than const char *.
+		However, these functions will be reflected to be used in the script.
+		std::string is handled by meta traits, but seems the meta tratis doesn't work correctly
+		in VC 2008. Not sure if it's a bug in VC 2008.
+		For example, below code (it has memory leak, only for test purpose)
+			#include "cpgf/metatraits/gmetaconverter_string.h"
+			#include "cpgf/gmetaextendtype.h"
+			#include <string>
+			#include <iostream>
+			using namespace cpgf;
+			using namespace std;
+
+			void test()
+			{
+				GMetaTraitsParam param;
+				string * s = 0;
+				IMetaConverter * a = createConverterFromMetaTraits(param, s);
+				IMetaConverter * b = createMetaExtendType<string>(GExtendTypeCreateFlag_Converter).getConverter();
+
+				cout << "a: " << a << " b: " << b << endl;
+			}
+		If the code is in a simple file, both a and b point to some valid interfaces.
+		However, if the code is in a meta data file with some complicated cpgf headers included,
+		a points to a valid interface, but b is NULL, because the traits for std::string doesn't effect.
+		Very annoying.
+	*/
+//	const std::string & getFileName() const;
+//	const std::string & getBaseFileName() const;
+	const char * getFileName() const;
+	const char * getBaseFileName() const;
 
 private:
 	std::string fileName;

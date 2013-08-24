@@ -37,10 +37,19 @@
 	#include "cpgf/scriptbind/gspidermonkeyrunner.h"
 #endif
 
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4244)
+#endif
+
 #include "Poco/Path.h"
 #include "Poco/File.h"
 #include "Poco/Format.h"
 #include "Poco/String.h"
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 #if defined(_MSC_VER)
 #pragma warning(disable: 4127)
@@ -212,8 +221,9 @@ private:
 };
 
 ProjectImplement::ProjectImplement()
-	: service(createDefaultMetaService()), rootClass(this->service->findClassByName("metadata"))
+	: service(createDefaultMetaService())
 {
+	this->rootClass.reset(this->service->findClassByName("metadata"));
 }
 
 ProjectImplement::~ProjectImplement()
@@ -249,7 +259,9 @@ GScriptRunner * createScriptRunner(IMetaService * metaService, const string & fi
 #endif
 #endif
 	}
+#if !HAS_SCRIPT_ENGINE
 	return NULL;
+#endif
 }
 
 void ProjectImplement::initialize(const string & fileName)
@@ -628,7 +640,7 @@ std::string Project::getOutputSourceFileName(const std::string & sourceFileName,
 void Project::processFileByScript(CppSourceFile * sourceFile) const
 {
 	if(this->fileCallback) {
-		invokeScriptFunction(this->fileCallback.get(), sourceFile, sourceFile->getBaseFileName().c_str());
+		invokeScriptFunction(this->fileCallback.get(), sourceFile);
 	}
 }
 
