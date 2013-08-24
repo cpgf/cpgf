@@ -5,6 +5,7 @@ TBD version 1.5.7
 	Added VC 2012 and VC 2013 entries in build makefile for easy use.
 	Added source group in CMake build file to filter files better in VC IDE.
 	Optimization in script binding. Now the script objects are reused when possible when passing C++ objects to the script engine. Slightly lower memory and higher performance.
+	Added stack trace message in V8 runner. Now the error line number and stack frames can be printed to the console.
 	Fixed a bug in script binding that dynamic property could be set on C++ object. Now an exception will be thrown.
 	Fixed a memory leak in V8 script binding when constructing V8 object from C++.
 	Fixed a bug that the script instance cache may cause crash when the library is shutting down, due to unordered uninitialization.

@@ -24,6 +24,8 @@
 #include "cpgf/gcallback.h"
 
 #include "Poco/RegularExpression.h"
+#include "Poco/StringTokenizer.h"
+#include "Poco/String.h"
 
 #include <stack>
 #include <string>
@@ -118,8 +120,27 @@ void ParserLibClang::setupClang(const CppSourceFile & sourceFile)
 	for(vector<string>::const_iterator it = sourceFile.getIncludeList().begin();
 		it != sourceFile.getIncludeList().end();
 		++it) {
-		commands.push_back("-include");
-		commands.push_back(*it);
+		string includeLine = *it;
+		if(includeLine.at(0) == '@') {
+			const string includeDirector("#include");
+			includeLine = includeLine.c_str() + 1;
+			Poco::StringTokenizer tokenizer(includeLine, "\n", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
+			for(Poco::StringTokenizer::Iterator it = tokenizer.begin(); it != tokenizer.end(); ++it) {
+				includeLine = *it;
+				size_t pos = includeLine.find(includeDirector);
+				if(pos != string::npos) {
+					commands.push_back("-include");
+					includeLine = includeLine.substr(pos + includeDirector.length());
+					includeLine.erase(std::remove(includeLine.begin(), includeLine.end(), '"'), includeLine.end());
+					Poco::trimInPlace(includeLine);
+					commands.push_back(includeLine);
+				}
+			}
+		}
+		else {
+			commands.push_back("-include");
+			commands.push_back(includeLine);
+		}
 	}
 	if(! commands.empty()) {
 		vector<const char *> commandPointers;

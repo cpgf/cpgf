@@ -72,11 +72,95 @@ var skippedItem = [
 	"cpputil"
 ];
 
+function suppressClangWarnings()
+{
+	var s = "@";
+	s += "#if defined(_MSC_VER)\n";
+	s += "#pragma warning(push, 0)\n";
+	s += "#endif\n";
+
+	for(var i = 0; i < arguments.length; i++)
+	{
+		s += "#include \"" + arguments[i] + "\"\n";
+	}
+  		
+	s += "#if defined(_MSC_VER)\n";
+	s += "#pragma warning(pop)\n";
+	s += "#endif\n";
+	
+	return s;
+}
+
 var includeFiles = {
-	"builderclass" : [
-		"model/cppclass.h"
+	"cppcontext" : [
+		"model/cppsourcefile.h",
+		"project.h",
+	],
+	"cppitem" : [
+		"project.h",
+		suppressClangWarnings("clang/AST/Decl.h", "clang/Basic/Specifiers.h")
+	],
+	"cppclass" : [
+		"model/cppcontainer.h",
+		"model/cpppolicy.h",
+		suppressClangWarnings("clang/AST/DeclTemplate.h", "clang/AST/DeclCXX.h")
+	],
+	"cppinvokable" : [
+		"model/cpppolicy.h",
+	],
+	"cppmethod" : [
+		"model/cppcontainer.h",
+	],
+	"cppfield" : [
+		"model/cppcontainer.h",
+	],
+	"cppnamespace" : [
+		"model/cppcontainer.h",
+	],
+	"cpptype" : [
+		suppressClangWarnings("clang/AST/DeclTemplate.h"),
+	],
+	"buildercontext" : [
+		"model/cppsourcefile.h",
+		"project.h",
+	],
+	"builderfile" : [
+		"project.h",
+	],
+	"builderitem" : [
+		"project.h",
+		"codewriter/codeblock.h",
+	],
+	"buildermethod" : [
+		"model/cppcontainer.h",
 	],
 };
+
+var metaIncludeFiles = {
+	"cppitem" : [
+		"model/cppcontainer.h",
+	],
+	"cppclass" : [
+		"model/cppconstructor.h",
+		"model/cppdestructor.h",
+		"model/cppcontext.h",
+	],
+	"cppcontainer" : [
+		"model/cppnamespace.h",
+		"model/cppclass.h",
+		"model/cppfield.h",
+		"model/cppmethod.h",
+		"model/cppenum.h",
+		"model/cppoperator.h",
+		"model/cppcontext.h",
+	],
+	"builderitem" : [
+		"buildermodel/buildercontainer.h",
+	],
+};
+
+var builderForwardIncludePattern = /^builder(\w+)/;
+var cppForwardIncludePattern = /^cpp(\w+)/;
 
 function onFileCallback(sourceFile)
 {
@@ -90,10 +174,31 @@ function onFileCallback(sourceFile)
 		}
 	}
 
+	if(baseName.match(builderForwardIncludePattern)) {
+		// for file builderXXX.h, we include model/cppXXX.h	
+		var s = baseName.replace(builderForwardIncludePattern, "model/cpp$1.h");
+		sourceFile.addInclude(s);
+
+		// Also include builderwriter since every one depends on it.	
+		sourceFile.addInclude("buildermodel/builderwriter.h");
+	}
+	
+	if(baseName.match(cppForwardIncludePattern)) {
+		// Also include Decl since every one depends on it.	
+		sourceFile.addInclude(suppressClangWarnings("clang/AST/Decl.h"));
+	}
+
 	if(includeFiles[baseName] != null) {
 		len = includeFiles[baseName].length;
 		for(var i = 0; i < len; ++i) {
 			sourceFile.addInclude(includeFiles[baseName][i]);
+		}
+	}
+
+	if(metaIncludeFiles[baseName] != null) {
+		len = metaIncludeFiles[baseName].length;
+		for(var i = 0; i < len; ++i) {
+			sourceFile.addMetaInclude(metaIncludeFiles[baseName][i]);
 		}
 	}
 }

@@ -10,9 +10,24 @@ createMetaClass_metagen_CppNamedItem
 #ifndef METADATA_META_CPPITEM_H
 #define METADATA_META_CPPITEM_H
 
+#if defined(_MSC_VER)
+#pragma warning(push, 0)
+#endif
 #include "clang/AST/Decl.h"
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+
 #include "project.h"
+#if defined(_MSC_VER)
+#pragma warning(push, 0)
+#endif
+#include "clang/AST/Decl.h"
 #include "clang/Basic/Specifiers.h"
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+
 #include "model/cppcontainer.h"
 #include "model/cppitem.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
@@ -37,25 +52,6 @@ template <typename TsE1f>
 metagen::CppNamedItem &oPeRat0rWrapPer_metagen_CppNamedItem_opAssign_0(TsE1f * sE1F, const metagen::CppNamedItem &pAr9_Am0)
 {
     return (*sE1F) = pAr9_Am0;
-}
-
-template <typename D_d >
-void buildMetaClass_metagen_CppNamedItem(D_d & _d)
-{
-    using namespace cpgf;
-    
-    (void)_d;
-    
-    _d.CPGF_MD_TEMPLATE _base<metagen::CppItem >();
-
-    _d.CPGF_MD_TEMPLATE _method("getName", &D_d::ClassType::getName), cpgf::MakePolicy<GMetaRuleCopyConstReference<-1> >();
-    _d.CPGF_MD_TEMPLATE _method("getQualifiedName", &D_d::ClassType::getQualifiedName), cpgf::MakePolicy<GMetaRuleCopyConstReference<-1> >();
-    _d.CPGF_MD_TEMPLATE _method("getQualifiedNameWithoutNamespace", &D_d::ClassType::getQualifiedNameWithoutNamespace), cpgf::MakePolicy<GMetaRuleCopyConstReference<-1> >();
-    _d.CPGF_MD_TEMPLATE _method("isNamed", &D_d::ClassType::isNamed);
-
-    _d.CPGF_MD_TEMPLATE _operator<metagen::CppNamedItem &(*)(cpgf::GMetaSelf, const metagen::CppNamedItem &)>(mopHolder = mopHolder, cpgf::MakePolicy<GMetaRuleCopyConstReference<0> >());
-    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_CppNamedItem_opAssign_0<typename D_d::ClassType >);
-
 }
 
 template <typename D_d >
@@ -141,9 +137,28 @@ void buildMetaClass_metagen_CppItem(D_d & _d)
 
 }
 
-cpgf::GDefineMetaInfo createMetaClass_metagen_CppNamedItem();
+template <typename D_d >
+void buildMetaClass_metagen_CppNamedItem(D_d & _d)
+{
+    using namespace cpgf;
+    
+    (void)_d;
+    
+    _d.CPGF_MD_TEMPLATE _base<metagen::CppItem >();
+
+    _d.CPGF_MD_TEMPLATE _method("getName", &D_d::ClassType::getName), cpgf::MakePolicy<GMetaRuleCopyConstReference<-1> >();
+    _d.CPGF_MD_TEMPLATE _method("getQualifiedName", &D_d::ClassType::getQualifiedName), cpgf::MakePolicy<GMetaRuleCopyConstReference<-1> >();
+    _d.CPGF_MD_TEMPLATE _method("getQualifiedNameWithoutNamespace", &D_d::ClassType::getQualifiedNameWithoutNamespace), cpgf::MakePolicy<GMetaRuleCopyConstReference<-1> >();
+    _d.CPGF_MD_TEMPLATE _method("isNamed", &D_d::ClassType::isNamed);
+
+    _d.CPGF_MD_TEMPLATE _operator<metagen::CppNamedItem &(*)(cpgf::GMetaSelf, const metagen::CppNamedItem &)>(mopHolder = mopHolder, cpgf::MakePolicy<GMetaRuleCopyConstReference<0> >());
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_CppNamedItem_opAssign_0<typename D_d::ClassType >);
+
+}
+
 cpgf::GDefineMetaInfo createMetaClass_metagen_namespace_cppitem();
 cpgf::GDefineMetaInfo createMetaClass_metagen_CppItem();
+cpgf::GDefineMetaInfo createMetaClass_metagen_CppNamedItem();
 
 } // namespace metadata
 #include "cpgf/metadata/private/gmetadata_footer.h"

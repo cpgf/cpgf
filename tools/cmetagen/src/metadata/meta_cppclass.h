@@ -9,11 +9,25 @@ createMetaClass_metagen_CppClass
 #ifndef METADATA_META_CPPCLASS_H
 #define METADATA_META_CPPCLASS_H
 
+#if defined(_MSC_VER)
+#pragma warning(push, 0)
+#endif
 #include "clang/AST/Decl.h"
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+
 #include "model/cppcontainer.h"
 #include "model/cpppolicy.h"
+#if defined(_MSC_VER)
+#pragma warning(push, 0)
+#endif
 #include "clang/AST/DeclTemplate.h"
 #include "clang/AST/DeclCXX.h"
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+
 #include "model/cppconstructor.h"
 #include "model/cppdestructor.h"
 #include "model/cppcontext.h"

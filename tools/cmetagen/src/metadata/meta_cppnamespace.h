@@ -8,7 +8,14 @@ createMetaClass_metagen_CppNamespace
 #ifndef METADATA_META_CPPNAMESPACE_H
 #define METADATA_META_CPPNAMESPACE_H
 
+#if defined(_MSC_VER)
+#pragma warning(push, 0)
+#endif
 #include "clang/AST/Decl.h"
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+
 #include "model/cppcontainer.h"
 #include "model/cppnamespace.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
