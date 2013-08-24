@@ -29,22 +29,6 @@ metagen::CppClass &oPeRat0rWrapPer_metagen_CppClass_opAssign_0(TsE1f * sE1F, con
 }
 
 template <typename D_d >
-void buildMetaClass_metagen_BaseClass(D_d & _d)
-{
-    using namespace cpgf;
-    
-    (void)_d;
-    
-
-    _d.CPGF_MD_TEMPLATE _constructor<void * (const clang::CXXBaseSpecifier *, const metagen::CppContext *)>();
-
-    _d.CPGF_MD_TEMPLATE _method("getVisibility", &D_d::ClassType::getVisibility);
-    _d.CPGF_MD_TEMPLATE _method("getQualifiedName", &D_d::ClassType::getQualifiedName);
-    _d.CPGF_MD_TEMPLATE _method("getCppClass", &D_d::ClassType::getCppClass);
-
-}
-
-template <typename D_d >
 void buildMetaClass_metagen_CppClass(D_d & _d)
 {
     using namespace cpgf;
@@ -72,8 +56,24 @@ void buildMetaClass_metagen_CppClass(D_d & _d)
 
 }
 
-cpgf::GDefineMetaInfo createMetaClass_metagen_BaseClass();
+template <typename D_d >
+void buildMetaClass_metagen_BaseClass(D_d & _d)
+{
+    using namespace cpgf;
+    
+    (void)_d;
+    
+
+    _d.CPGF_MD_TEMPLATE _constructor<void * (const clang::CXXBaseSpecifier *, const metagen::CppContext *)>();
+
+    _d.CPGF_MD_TEMPLATE _method("getVisibility", &D_d::ClassType::getVisibility);
+    _d.CPGF_MD_TEMPLATE _method("getQualifiedName", &D_d::ClassType::getQualifiedName);
+    _d.CPGF_MD_TEMPLATE _method("getCppClass", &D_d::ClassType::getCppClass);
+
+}
+
 cpgf::GDefineMetaInfo createMetaClass_metagen_CppClass();
+cpgf::GDefineMetaInfo createMetaClass_metagen_BaseClass();
 
 } // namespace metadata
 #include "cpgf/metadata/private/gmetadata_footer.h"

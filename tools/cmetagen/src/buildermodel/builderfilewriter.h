@@ -21,11 +21,14 @@ class BuilderFileWriter
 	GMAKE_NONCOPYABLE(BuilderFileWriter)
 
 private:
-	BuilderFileWriter(const CppSourceFile & sourceFile, const BuilderContext * builderContext, int fileIndex);
+	BuilderFileWriter(const CppSourceFile & sourceFile,
+		const BuilderContext * builderContext, int fileIndex);
 	
 public:
-	static BuilderFileWriter * createHeaderFile(const CppSourceFile & sourceFile, const BuilderContext * builderContext);
-	static BuilderFileWriter * createSourceFile(const CppSourceFile & sourceFile, const BuilderContext * builderContext, int fileIndex);
+	static BuilderFileWriter * createHeaderFile(const CppSourceFile & sourceFile,
+		const BuilderContext * builderContext);
+	static BuilderFileWriter * createSourceFile(const CppSourceFile & sourceFile,
+		const BuilderContext * builderContext, int fileIndex);
 	
 public:
 	void setCreationFunctionNameCode(const std::string & code);
@@ -43,6 +46,7 @@ private:
 	const CppSourceFile & sourceFile;
 	const BuilderContext * builderContext;
 	int fileIndex;
+	bool overwriteEvenIfNoChange;
 	std::string creationFunctionNameCode;
 };
 

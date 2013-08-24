@@ -16,7 +16,8 @@ using namespace cpgf;
 
 namespace metagen {
 
-BuilderFileWriter::BuilderFileWriter(const CppSourceFile & sourceFile, const BuilderContext * builderContext, int fileIndex)
+BuilderFileWriter::BuilderFileWriter(const CppSourceFile & sourceFile,
+	const BuilderContext * builderContext, int fileIndex)
 	: sourceFile(sourceFile), builderContext(builderContext), fileIndex(fileIndex)
 {
 }
@@ -119,6 +120,15 @@ void BuilderFileWriter::output()
 
 	this->initializeCppWriter(&cppWriter);
 	cppWriter.write(&codeWriter, makeCallback(this, &BuilderFileWriter::callbackCppWriter));
+
+	if(! this->builderContext->shouldOverwriteEvenIfNoChange()) {
+		string fileContent;
+		if(readStringFromFile(outputFileName, &fileContent)) {
+			if(codeWriter.getText() == fileContent) {
+				return;
+			}
+		}
+	}
 
 	writeStringToFile(outputFileName, codeWriter.getText());
 }

@@ -13,6 +13,11 @@ const Logger & getLogger()
 	return logger;
 }
 
+void Logger::print(const std::string & message) const
+{
+	this->doLog(levelInfo, message);
+}
+
 void Logger::info(const std::string & message) const
 {
 	this->doLog(levelInfo, "Info: " + message);
@@ -28,7 +33,7 @@ void Logger::error(const std::string & message) const
 	cerr << message;
 }
 
-void Logger::doLog(LogLevel leve, const std::string & message) const
+void Logger::doLog(LogLevel /*level*/, const std::string & message) const
 {
 	cout << message;
 }

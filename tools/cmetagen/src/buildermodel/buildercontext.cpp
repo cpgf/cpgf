@@ -82,9 +82,10 @@ BuilderItem * createBuilderItem(const CppItem * cppItem)
 }
 
 
-BuilderContext::BuilderContext(const Project * project, const CppSourceFile & sourceFile)
+BuilderContext::BuilderContext(const Project * project, const CppSourceFile & sourceFile, bool overwriteEvenIfNoChange)
 	:	project(project),
 		sourceFile(sourceFile),
+		overwriteEvenIfNoChange(overwriteEvenIfNoChange),
 		sectionList(new BuilderSectionList())
 {
 }
@@ -110,6 +111,11 @@ void BuilderContext::process(const CppContext * cppContext)
 const Project * BuilderContext::getProject() const
 {
 	return this->project;
+}
+
+bool BuilderContext::shouldOverwriteEvenIfNoChange() const
+{
+	return this->overwriteEvenIfNoChange;
 }
 
 std::string BuilderContext::getSourceFileName() const

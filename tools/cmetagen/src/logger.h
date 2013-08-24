@@ -16,12 +16,13 @@ private:
 	};
 
 public:
+	void print(const std::string & message) const;
 	void info(const std::string & message) const;
 	void warn(const std::string & message) const;
 	void error(const std::string & message) const;
 
 private:
-	void doLog(LogLevel leve, const std::string & message) const;
+	void doLog(LogLevel level, const std::string & message) const;
 };
 
 const Logger & getLogger();

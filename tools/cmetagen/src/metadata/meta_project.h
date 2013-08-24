@@ -29,6 +29,28 @@ metagen::ProjectVisitor &oPeRat0rWrapPer_metagen_ProjectVisitor_opAssign_0(TsE1f
 }
 
 template <typename D_d >
+void buildMetaClass_metagen_ProjectVisitor(D_d & _d)
+{
+    using namespace cpgf;
+    
+    (void)_d;
+    
+
+    _d.CPGF_MD_TEMPLATE _method("visitStringArray", &D_d::ClassType::visitStringArray), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
+    _d.CPGF_MD_TEMPLATE _method("visitTemplateInstantiations", &D_d::ClassType::visitTemplateInstantiations), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
+    _d.CPGF_MD_TEMPLATE _method("visitScriptCallback", &D_d::ClassType::visitScriptCallback), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
+    _d.CPGF_MD_TEMPLATE _method("visitString", &D_d::ClassType::visitString), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
+    _d.CPGF_MD_TEMPLATE _method("visitInteger", &D_d::ClassType::visitInteger), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
+    _d.CPGF_MD_TEMPLATE _method("getProject", &D_d::ClassType::getProject);
+    _d.CPGF_MD_TEMPLATE _method("getScriptObject", &D_d::ClassType::getScriptObject);
+    _d.CPGF_MD_TEMPLATE _method("setScriptObject", &D_d::ClassType::setScriptObject);
+
+    _d.CPGF_MD_TEMPLATE _operator<metagen::ProjectVisitor &(*)(cpgf::GMetaSelf, const metagen::ProjectVisitor &)>(mopHolder = mopHolder);
+    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_ProjectVisitor_opAssign_0<typename D_d::ClassType >);
+
+}
+
+template <typename D_d >
 void buildMetaClass_metagen_Project(D_d & _d)
 {
     using namespace cpgf;
@@ -74,30 +96,8 @@ void buildMetaClass_metagen_Project(D_d & _d)
 
 }
 
-template <typename D_d >
-void buildMetaClass_metagen_ProjectVisitor(D_d & _d)
-{
-    using namespace cpgf;
-    
-    (void)_d;
-    
-
-    _d.CPGF_MD_TEMPLATE _method("visitStringArray", &D_d::ClassType::visitStringArray), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
-    _d.CPGF_MD_TEMPLATE _method("visitTemplateInstantiations", &D_d::ClassType::visitTemplateInstantiations), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
-    _d.CPGF_MD_TEMPLATE _method("visitScriptCallback", &D_d::ClassType::visitScriptCallback), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
-    _d.CPGF_MD_TEMPLATE _method("visitString", &D_d::ClassType::visitString), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
-    _d.CPGF_MD_TEMPLATE _method("visitInteger", &D_d::ClassType::visitInteger), cpgf::MakePolicy<GMetaRuleCopyConstReference<1> >();
-    _d.CPGF_MD_TEMPLATE _method("getProject", &D_d::ClassType::getProject);
-    _d.CPGF_MD_TEMPLATE _method("getScriptObject", &D_d::ClassType::getScriptObject);
-    _d.CPGF_MD_TEMPLATE _method("setScriptObject", &D_d::ClassType::setScriptObject);
-
-    _d.CPGF_MD_TEMPLATE _operator<metagen::ProjectVisitor &(*)(cpgf::GMetaSelf, const metagen::ProjectVisitor &)>(mopHolder = mopHolder);
-    _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_ProjectVisitor_opAssign_0<typename D_d::ClassType >);
-
-}
-
-cpgf::GDefineMetaInfo createMetaClass_metagen_Project();
 cpgf::GDefineMetaInfo createMetaClass_metagen_ProjectVisitor();
+cpgf::GDefineMetaInfo createMetaClass_metagen_Project();
 
 } // namespace metadata
 #include "cpgf/metadata/private/gmetadata_footer.h"

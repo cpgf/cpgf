@@ -118,17 +118,17 @@ void Application::processOneFile(const std::string & fileName)
 	}
 
 	string outputHeaderFileName = this->project.getOutputHeaderFileName(fileName);
-	if(this->project.doesForce()
-		|| shouldTargetFileBeUpdated(fileName, outputHeaderFileName)) {
+	bool shouldUpdate = shouldTargetFileBeUpdated(fileName, outputHeaderFileName);
+	if(shouldUpdate || this->project.doesForce()) {
 		getLogger().info(Poco::format("Generate for fileName %s...", fileName));
 
 		CppContext context(&this->project);
 		context.process(sourceFile);
 
-		BuilderContext builderContext(&this->project, sourceFile);
+		BuilderContext builderContext(&this->project, sourceFile, shouldUpdate);
 		builderContext.process(&context);
 
-		getLogger().info("done.\n");
+		getLogger().print("done.\n");
 	}
 	else {
 		getLogger().info(Poco::format("File %s is up to date, skipped.\n", fileName));

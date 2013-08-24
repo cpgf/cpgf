@@ -35,12 +35,14 @@ public:
 	typedef std::vector<BuilderItem *> ItemListType;
 
 public:
-	BuilderContext(const Project * project, const CppSourceFile & sourceFile);
+	BuilderContext(const Project * project, const CppSourceFile & sourceFile, bool overwriteEvenIfNoChange);
 	~BuilderContext();
 
 	void process(const CppContext * cppContext);
 	
 	const Project * getProject() const;
+
+	bool shouldOverwriteEvenIfNoChange() const;
 	
 	std::string getSourceFileName() const;
 	std::string getSourceBaseFileName() const;
@@ -71,6 +73,7 @@ private:
 private:
 	const Project * project;
 	const CppSourceFile & sourceFile;
+	bool overwriteEvenIfNoChange;
 	ItemListType itemList;
 	cpgf::GScopedPointer<BuilderSectionList> sectionList;
 	BuilderFileWriterListType fileWriterList;

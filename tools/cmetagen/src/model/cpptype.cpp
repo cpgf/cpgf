@@ -28,6 +28,7 @@ std::string qualTypeToText(const clang::QualType & qualType, const std::string &
 	llvm::raw_string_ostream stream(text);
 	LangOptions langOptions;
 	langOptions.CPlusPlus = 1;
+	langOptions.Bool = 1;
 	PrintingPolicy policy(langOptions);
 	policy.SuppressSpecifiers = 0;
 	QualType::print(qualType.split(), stream, policy, name);

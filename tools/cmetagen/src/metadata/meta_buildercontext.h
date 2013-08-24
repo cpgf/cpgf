@@ -29,10 +29,11 @@ void buildMetaClass_metagen_BuilderContext(D_d & _d)
     (void)_d;
     
 
-    _d.CPGF_MD_TEMPLATE _constructor<void * (const metagen::Project *, const metagen::CppSourceFile &)>();
+    _d.CPGF_MD_TEMPLATE _constructor<void * (const metagen::Project *, const metagen::CppSourceFile &, bool)>();
 
     _d.CPGF_MD_TEMPLATE _method("process", &D_d::ClassType::process);
     _d.CPGF_MD_TEMPLATE _method("getProject", &D_d::ClassType::getProject);
+    _d.CPGF_MD_TEMPLATE _method("shouldOverwriteEvenIfNoChange", &D_d::ClassType::shouldOverwriteEvenIfNoChange);
     _d.CPGF_MD_TEMPLATE _method("getSourceFileName", &D_d::ClassType::getSourceFileName);
     _d.CPGF_MD_TEMPLATE _method("getSourceBaseFileName", &D_d::ClassType::getSourceBaseFileName);
     _d.CPGF_MD_TEMPLATE _method("getItemList", &D_d::ClassType::getItemList);

@@ -135,11 +135,11 @@ void ParserLibClang::setupClang(const CppSourceFile & sourceFile)
 	preprocessorOptions.addMacroDef(ParserPredefinedMacro);
 
 	//LangOptions & langOptions = *this->compilerInvocation->getLangOpts();
+	// langOptions.Bool = 1;
 	// Use -std=XXX in option clangOptions
 	//this->compilerInvocation->setLangDefaults(langOptions, IK_CXX, LangStandard::lang_cxx11);
 	// Use -x c++ in option clangOptions
 	//langOptions.CPlusPlus = 1;
-	//langOptions.Bool = 1;
 	// Use -fcxx-exceptions in clangOptions
 	//langOptions.CXXExceptions = 1;
 
