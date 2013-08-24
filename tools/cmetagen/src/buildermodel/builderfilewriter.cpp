@@ -88,6 +88,12 @@ void BuilderFileWriter::initializeCppWriter(CppWriter * cppWriter) const
 	else {
 		cppWriter->setHeaderGuard(this->getProject()->getOutputHeaderFileName(this->sourceFile.getFileName()));
 
+		for(vector<string>::const_iterator it = this->sourceFile.getIncludeList().begin();
+			it != this->sourceFile.getIncludeList().end();
+			++it) {
+			cppWriter->include(*it);
+		}
+
 		string header = this->getProject()->replaceHeaderByScript(this->sourceFile.getFileName());
 		cppWriter->include(normalizeFile(header));
 

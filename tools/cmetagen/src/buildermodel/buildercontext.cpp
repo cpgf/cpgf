@@ -24,6 +24,7 @@
 #include "project.h"
 #include "constants.h"
 #include "util.h"
+#include "logger.h"
 
 #include "cpgf/gassert.h"
 
@@ -142,6 +143,8 @@ void BuilderContext::doProcessFile(const CppFile * cppFile)
 
 	this->generateCodeSections();
 	if(this->getSectionList()->isEmpty()) {
+		getLogger().warn(Poco::format("There is no data to be reflected in file %s, maybe the file contains syntax errors?\n",
+			string(this->sourceFile.getFileName())));
 		return;
 	}
 	this->generateCreationFunctionSections();

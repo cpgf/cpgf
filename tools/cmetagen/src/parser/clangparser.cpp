@@ -87,7 +87,7 @@ public:
 	virtual void parse(const CppSourceFile & sourceFile, const ParserCallbackType & callback);
 
 private:
-	void setupClang();
+	void setupClang(const CppSourceFile & sourceFile);
 	void compileAST(const CppSourceFile & sourceFile);
 
 private:
@@ -101,16 +101,16 @@ private:
 ParserLibClang::ParserLibClang(const Project * project)
 	: super(), outputStream(1, false), project(project)
 {
-	this->setupClang();
 }
 
 void ParserLibClang::parse(const CppSourceFile & sourceFile, const ParserCallbackType & callback)
 {
+	this->setupClang(sourceFile);
 	this->compileAST(sourceFile);
 	callback(this->compilerInstance.get());
 }
 
-void ParserLibClang::setupClang()
+void ParserLibClang::setupClang(const CppSourceFile & sourceFile)
 {
 	this->compilerInstance.reset(new CompilerInstance);
 	
@@ -120,18 +120,24 @@ void ParserLibClang::setupClang()
 	
 	this->compilerInvocation.reset(new CompilerInvocation);
 
+	vector<string> commands;
 	if(! this->project->getClangOptions().empty()) {
-		vector<string> commands;
 		splitCommandLine(&commands, this->project->getClangOptions().c_str());
-		if(! commands.empty()) {
-			vector<const char *> commandPointers;
-			for(vector<string>::iterator it = commands.begin(); it != commands.end(); ++it) {
-				commandPointers.push_back(it->c_str());
-			}
-			CompilerInvocation::CreateFromArgs(*(this->compilerInvocation.get()),
-				&commandPointers[0], &commandPointers[0] + commandPointers.size(),
-				this->compilerInstance->getDiagnostics());
+	}
+	for(vector<string>::const_iterator it = sourceFile.getIncludeList().begin();
+		it != sourceFile.getIncludeList().end();
+		++it) {
+		commands.push_back("-include");
+		commands.push_back(*it);
+	}
+	if(! commands.empty()) {
+		vector<const char *> commandPointers;
+		for(vector<string>::iterator it = commands.begin(); it != commands.end(); ++it) {
+			commandPointers.push_back(it->c_str());
 		}
+		CompilerInvocation::CreateFromArgs(*(this->compilerInvocation.get()),
+			&commandPointers[0], &commandPointers[0] + commandPointers.size(),
+			this->compilerInstance->getDiagnostics());
 	}
 
 	PreprocessorOptions & preprocessorOptions = this->compilerInvocation->getPreprocessorOpts();

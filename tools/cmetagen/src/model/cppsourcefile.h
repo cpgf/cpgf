@@ -2,7 +2,7 @@
 #define __CPPSOURCEFILE_H
 
 #include <string>
-
+#include <vector>
 
 namespace metagen {
 
@@ -11,9 +11,6 @@ class CppSourceFile
 public:
 	explicit CppSourceFile(const std::string & fileName);
 	~CppSourceFile();
-
-	void setSkipBind(bool skip);
-	bool shouldSkipBind() const;
 
 	/*	Ideally the below functions should return const std::string & rather than const char *.
 		However, these functions will be reflected to be used in the script.
@@ -46,10 +43,17 @@ public:
 	const char * getFileName() const;
 	const char * getBaseFileName() const;
 
+	void setSkipBind(bool skip);
+	bool shouldSkipBind() const;
+
+	void addInclude(const char * include);
+	const std::vector<std::string> & getIncludeList() const;
+
 private:
 	std::string fileName;
 	std::string baseName;
 	bool skipBind;
+	std::vector<std::string> includeList;
 };
 
 

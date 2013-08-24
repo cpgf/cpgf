@@ -17,6 +17,16 @@ CppSourceFile::~CppSourceFile()
 {
 }
 
+const char * CppSourceFile::getFileName() const
+{
+	return this->fileName.c_str();
+}
+
+const char * CppSourceFile::getBaseFileName() const
+{
+	return this->baseName.c_str();
+}
+
 void CppSourceFile::setSkipBind(bool skip)
 {
 	this->skipBind = skip;
@@ -27,14 +37,14 @@ bool CppSourceFile::shouldSkipBind() const
 	return this->skipBind;
 }
 
-const char * CppSourceFile::getFileName() const
+void CppSourceFile::addInclude(const char * include)
 {
-	return this->fileName.c_str();
+	this->includeList.push_back(std::string(include));
 }
 
-const char * CppSourceFile::getBaseFileName() const
+const std::vector<std::string> & CppSourceFile::getIncludeList() const
 {
-	return this->baseName.c_str();
+	return this->includeList;
 }
 
 

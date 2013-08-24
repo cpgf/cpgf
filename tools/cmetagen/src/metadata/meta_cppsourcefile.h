@@ -8,15 +8,16 @@ createMetaClass_metagen_CppSourceFile
 #ifndef METADATA_META_CPPSOURCEFILE_H
 #define METADATA_META_CPPSOURCEFILE_H
 
+#include "model/cppsourcefile.h"
+#include "cpgf/metatraits/gmetaconverter_string.h"
+#include "cpgf/metatraits/gmetaconverter_widestring.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/gscopedinterface.h"
-#include "cpgf/gselectFunctionByArity.h"
-#include "cpgf/metadata/private/gmetadata_header.h"
-#include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
-#include "model/cppsourcefile.h"
+#include "cpgf/gscopedinterface.h"
+#include "cpgf/gselectfunctionbyarity.h"
+#include "cpgf/metadata/private/gmetadata_header.h"
 
 namespace metadata {
 
@@ -30,10 +31,12 @@ void buildMetaClass_metagen_CppSourceFile(D_d & _d)
 
     _d.CPGF_MD_TEMPLATE _constructor<void * (const std::basic_string<char, std::char_traits<char>, std::allocator<char> > &)>(cpgf::MakePolicy<GMetaRuleCopyConstReference<0> >());
 
-    _d.CPGF_MD_TEMPLATE _method("setSkipBind", &D_d::ClassType::setSkipBind);
-    _d.CPGF_MD_TEMPLATE _method("shouldSkipBind", &D_d::ClassType::shouldSkipBind);
     _d.CPGF_MD_TEMPLATE _method("getFileName", &D_d::ClassType::getFileName);
     _d.CPGF_MD_TEMPLATE _method("getBaseFileName", &D_d::ClassType::getBaseFileName);
+    _d.CPGF_MD_TEMPLATE _method("setSkipBind", &D_d::ClassType::setSkipBind);
+    _d.CPGF_MD_TEMPLATE _method("shouldSkipBind", &D_d::ClassType::shouldSkipBind);
+    _d.CPGF_MD_TEMPLATE _method("addInclude", &D_d::ClassType::addInclude);
+    _d.CPGF_MD_TEMPLATE _method("getIncludeList", &D_d::ClassType::getIncludeList), cpgf::MakePolicy<GMetaRuleCopyConstReference<-1> >();
 
 }
 
