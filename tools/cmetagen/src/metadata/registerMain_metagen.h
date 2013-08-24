@@ -40,8 +40,8 @@ cpgf::GDefineMetaInfo createMetaClass_metagen_CppSourceFile();
 cpgf::GDefineMetaInfo createMetaClass_metagen_CppType();
 cpgf::GDefineMetaInfo createMetaClass_metagen_Project();
 cpgf::GDefineMetaInfo createMetaClass_metagen_ProjectVisitor();
-cpgf::GDefineMetaInfo createMetaClass_metagen_builderinvokable();
-cpgf::GDefineMetaInfo createMetaClass_metagen_buildermethod();
+cpgf::GDefineMetaInfo createMetaClass_metagen_namespace_builderinvokable();
+cpgf::GDefineMetaInfo createMetaClass_metagen_namespace_buildermethod();
 cpgf::GDefineMetaInfo createMetaClass_metagen_namespace_cppcontainer();
 cpgf::GDefineMetaInfo createMetaClass_metagen_namespace_cppitem();
 template <typename Meta>
@@ -80,8 +80,8 @@ void registerMain_(Meta _d)
     _d._class(createMetaClass_metagen_CppType());
     _d._class(createMetaClass_metagen_Project());
     _d._class(createMetaClass_metagen_ProjectVisitor());
-    _d._class(createMetaClass_metagen_builderinvokable());
-    _d._class(createMetaClass_metagen_buildermethod());
+    _d._class(createMetaClass_metagen_namespace_builderinvokable());
+    _d._class(createMetaClass_metagen_namespace_buildermethod());
     _d._class(createMetaClass_metagen_namespace_cppcontainer());
     _d._class(createMetaClass_metagen_namespace_cppitem());
 }

@@ -14,11 +14,11 @@ void partial_createMetaClass_metagen_BuilderMethod(cpgf::GDefineMetaInfo metaInf
     buildMetaClass_metagen_BuilderMethod(meta);
 }
 
-void partial_createMetaClass_metagen_buildermethod(cpgf::GDefineMetaInfo metaInfo)
+void partial_createMetaClass_metagen_namespace_buildermethod(cpgf::GDefineMetaInfo metaInfo)
 {
     typedef GDefineMetaNamespace MetaType;
     MetaType meta = MetaType::fromMetaClass(metaInfo.getMetaClass());
-    buildMetaClass_metagen_buildermethod(meta);
+    buildMetaClass_metagen_namespace_buildermethod(meta);
 }
 
 void partial_createMetaClass_metagen_BuilderMethod(cpgf::GDefineMetaInfo metaInfo);
@@ -34,15 +34,15 @@ cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderMethod()
     return meta;
 }
 
-void partial_createMetaClass_metagen_buildermethod(cpgf::GDefineMetaInfo metaInfo);
-cpgf::GDefineMetaInfo createMetaClass_metagen_buildermethod()
+void partial_createMetaClass_metagen_namespace_buildermethod(cpgf::GDefineMetaInfo metaInfo);
+cpgf::GDefineMetaInfo createMetaClass_metagen_namespace_buildermethod()
 {
     typedef GDefineMetaNamespace MetaType;
     
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     cpgf::GDefineMetaInfo meta = _d.getMetaInfo();
     
-    partial_createMetaClass_metagen_buildermethod(meta);
+    partial_createMetaClass_metagen_namespace_buildermethod(meta);
     
     return meta;
 }

@@ -2,6 +2,11 @@ cpgf.import("cpgf", "builtin.debug");
 
 var myProjectID = "metagen";
 
+function cppInclude(inc)
+{
+	return " -I \"" + inc + "\"";
+}
+
 var config = {
 	projectID : myProjectID,
 	sourceRootPath : "../../src/",
@@ -12,26 +17,28 @@ var config = {
 
 	// clangOptions specifies the command line options to pass to clang compiler.
 	// To get all usable options, run "clang -cc1 --help" to see the options from the help message.
+	// The options can be put in a single line, with space as delimeter.
+	// Here the options are put to several lines to explain how to use them.
 	clangOptions : "-x c++" // Compile as C++ language
 			+ " -std=c++11" // Which standard to use?
 			+ " -fcxx-exceptions" // Enable exceptions
 			+ " -fms-compatibility -fms-extensions -fdelayed-template-parsing" // Microsoft VC compatible settings
+
+			// include directories, normally it looks this
+			+ " -I \"C:/Program Files/Microsoft Visual Studio 9.0/VC/include\""
+			// To avoid the escape of \", we use the auxiliary function cppInclude
+			+ cppInclude("C:/source/llvm/build/tools/clang/include")
+			+ cppInclude("C:/source/llvm/build/include")
+			+ cppInclude("C:/source/llvm/tools/clang/include")
+			+ cppInclude("C:/source/llvm/include")
+			+ cppInclude("../../../../include")
+			+ cppInclude("../../src")
 	,
 	
 	files : [
 		"project.h",
 		"buildermodel/*.h",
 		"model/*.h"
-	],
-	
-	includeDirectories : [
-		"C:/Program Files/Microsoft Visual Studio 9.0/VC/include",
-		"C:/source/llvm/build/tools/clang/include",
-		"C:/source/llvm/build/include",
-		"C:/source/llvm/tools/clang/include",
-		"C:/source/llvm/include",
-		"../../../../include",
-		"../../src",
 	],
 	
 	headerOutputPath : "../../src/metadata",

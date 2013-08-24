@@ -9,13 +9,15 @@ createMetaClass_metagen_BuilderDestructor
 #define METADATA_META_BUILDERDESTRUCTOR_H
 
 #include "buildermodel/builderdestructor.h"
+#include "cpgf/metatraits/gmetaconverter_string.h"
+#include "cpgf/metatraits/gmetaconverter_widestring.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/gscopedinterface.h"
-#include "cpgf/gselectFunctionByArity.h"
-#include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
+#include "cpgf/gscopedinterface.h"
+#include "cpgf/gselectfunctionbyarity.h"
+#include "cpgf/metadata/private/gmetadata_header.h"
 
 namespace metadata {
 
@@ -36,8 +38,8 @@ void buildMetaClass_metagen_BuilderDestructor(D_d & _d)
 
     _d.CPGF_MD_TEMPLATE _constructor<void * (const metagen::CppItem *)>();
 
-    _d.CPGF_MD_TEMPLATE _method("getCppDestructor", &typename D_d::ClassType::getCppDestructor);
-    _d.CPGF_MD_TEMPLATE _method("doCanBind", &typename D_d::ClassType::doCanBind);
+    _d.CPGF_MD_TEMPLATE _method("getCppDestructor", &D_d::ClassType::getCppDestructor);
+    _d.CPGF_MD_TEMPLATE _method("doCanBind", &D_d::ClassType::doCanBind);
 
     _d.CPGF_MD_TEMPLATE _operator<metagen::BuilderDestructor &(*)(cpgf::GMetaSelf, const metagen::BuilderDestructor &)>(mopHolder = mopHolder);
     _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderDestructor_opAssign_0<typename D_d::ClassType >);

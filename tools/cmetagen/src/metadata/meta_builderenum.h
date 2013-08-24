@@ -9,13 +9,15 @@ createMetaClass_metagen_BuilderEnum
 #define METADATA_META_BUILDERENUM_H
 
 #include "buildermodel/builderenum.h"
+#include "cpgf/metatraits/gmetaconverter_string.h"
+#include "cpgf/metatraits/gmetaconverter_widestring.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/gscopedinterface.h"
-#include "cpgf/gselectFunctionByArity.h"
-#include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
+#include "cpgf/gscopedinterface.h"
+#include "cpgf/gselectfunctionbyarity.h"
+#include "cpgf/metadata/private/gmetadata_header.h"
 
 namespace metadata {
 
@@ -36,7 +38,7 @@ void buildMetaClass_metagen_BuilderEnum(D_d & _d)
 
     _d.CPGF_MD_TEMPLATE _constructor<void * (const metagen::CppItem *)>();
 
-    _d.CPGF_MD_TEMPLATE _method("getCppEnum", &typename D_d::ClassType::getCppEnum);
+    _d.CPGF_MD_TEMPLATE _method("getCppEnum", &D_d::ClassType::getCppEnum);
 
     _d.CPGF_MD_TEMPLATE _operator<metagen::BuilderEnum &(*)(cpgf::GMetaSelf, const metagen::BuilderEnum &)>(mopHolder = mopHolder);
     _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderEnum_opAssign_0<typename D_d::ClassType >);

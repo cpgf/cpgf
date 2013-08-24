@@ -332,11 +332,6 @@ void visitProject(IMetaClass * projectClass, ProjectVisitor * visitor)
 			continue;
 		}
 
-		if(fieldName == scriptFieldIncludeDirectories) {
-			visitor->visitStringArray(field.get(), fieldName, value, &visitor->getProject()->includeDirectories);
-			continue;
-		}
-
 		if(fieldName == scriptFieldTemplateInstantiations) {
 			visitor->visitTemplateInstantiations(field.get(), fieldName, value);
 			continue;
@@ -447,11 +442,6 @@ std::string Project::getSourceRootPath() const
 const StringArrayType & Project::getFiles() const
 {
 	return this->files;
-}
-
-const StringArrayType & Project::getIncludeDirectories() const
-{
-	return this->includeDirectories;
 }
 
 const std::string & Project::getClangOptions() const

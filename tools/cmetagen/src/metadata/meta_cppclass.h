@@ -9,15 +9,16 @@ createMetaClass_metagen_CppClass
 #ifndef METADATA_META_CPPCLASS_H
 #define METADATA_META_CPPCLASS_H
 
+#include "model/cppclass.h"
+#include "cpgf/metatraits/gmetaconverter_string.h"
+#include "cpgf/metatraits/gmetaconverter_widestring.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/gscopedinterface.h"
-#include "cpgf/gselectFunctionByArity.h"
-#include "cpgf/metadata/private/gmetadata_header.h"
-#include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
-#include "model/cppclass.h"
+#include "cpgf/gscopedinterface.h"
+#include "cpgf/gselectfunctionbyarity.h"
+#include "cpgf/metadata/private/gmetadata_header.h"
 
 namespace metadata {
 

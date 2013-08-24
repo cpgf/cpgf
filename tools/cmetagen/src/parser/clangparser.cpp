@@ -70,21 +70,12 @@ public:
 
 typedef GCallback<void (CompilerInstance * compilerInstance)> ParserCallbackType;
 
-class ParserBase
+class ParserLibClang
 {
-public:
-	virtual void parse(const CppSourceFile & sourceFile, const ParserCallbackType & callback) = 0;
-};
-
-class ParserLibClang : public ParserBase
-{
-private:
-	typedef ParserBase super;
-
 public:
 	explicit ParserLibClang(const Project * project);
 
-	virtual void parse(const CppSourceFile & sourceFile, const ParserCallbackType & callback);
+	void parse(const CppSourceFile & sourceFile, const ParserCallbackType & callback);
 
 private:
 	void setupClang(const CppSourceFile & sourceFile);
@@ -99,7 +90,7 @@ private:
 };
 
 ParserLibClang::ParserLibClang(const Project * project)
-	: super(), outputStream(1, false), project(project)
+	: outputStream(1, false), project(project)
 {
 }
 
@@ -158,12 +149,7 @@ void ParserLibClang::setupClang(const CppSourceFile & sourceFile)
 	// use -fdelayed-template-parsing in clangOptions
 	// langOptions.DelayedTemplateParsing = 1;
 
-	HeaderSearchOptions & headerSearchOptions = this->compilerInvocation->getHeaderSearchOpts();
-	for(StringArrayType::const_iterator it = this->project->getIncludeDirectories().begin();
-		it != this->project->getIncludeDirectories().end();
-		++it) {
-			headerSearchOptions.AddPath(it->c_str(), frontend::Angled, false, false);
-	}
+//	HeaderSearchOptions & headerSearchOptions = this->compilerInvocation->getHeaderSearchOpts();
 
 	DiagnosticsEngine & diagnostics = this->compilerInstance->getDiagnostics();
 	diagnostics.setSuppressSystemWarnings(true);
@@ -271,7 +257,7 @@ private:
 	CppContext * context;
 	CppContainerStackType cppContainerStack;
 
-	GScopedPointer<ParserBase> parser;
+	GScopedPointer<ParserLibClang> parser;
 
 	CompilerInstance * compilerInstance;
 

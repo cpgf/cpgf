@@ -51,7 +51,6 @@ public:
 	std::string getSourceRootPath() const;
 
 	const StringArrayType & getFiles() const;
-	const StringArrayType & getIncludeDirectories() const;
 	const std::string & getClangOptions() const;
 
 	const std::string & getCppNamespace() const;
@@ -124,7 +123,6 @@ private:
 	std::string sourceRootPath;
 
 	StringArrayType files;
-	StringArrayType includeDirectories;
 	std::string clangOptions;
 
 	std::string cppNamespace;

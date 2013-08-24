@@ -8,15 +8,16 @@ createMetaClass_metagen_CppConstructor
 #ifndef METADATA_META_CPPCONSTRUCTOR_H
 #define METADATA_META_CPPCONSTRUCTOR_H
 
+#include "model/cppconstructor.h"
+#include "cpgf/metatraits/gmetaconverter_string.h"
+#include "cpgf/metatraits/gmetaconverter_widestring.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/gscopedinterface.h"
-#include "cpgf/gselectFunctionByArity.h"
-#include "cpgf/metadata/private/gmetadata_header.h"
-#include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
-#include "model/cppconstructor.h"
+#include "cpgf/gscopedinterface.h"
+#include "cpgf/gselectfunctionbyarity.h"
+#include "cpgf/metadata/private/gmetadata_header.h"
 
 namespace metadata {
 

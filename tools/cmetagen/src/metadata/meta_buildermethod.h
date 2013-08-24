@@ -3,20 +3,22 @@
 
 /*@cpgf@creations@@
 createMetaClass_metagen_BuilderMethod
-createMetaClass_metagen_buildermethod
+createMetaClass_metagen_namespace_buildermethod
 @@cpgf@creations@*/
 
 #ifndef METADATA_META_BUILDERMETHOD_H
 #define METADATA_META_BUILDERMETHOD_H
 
 #include "buildermodel/buildermethod.h"
+#include "cpgf/metatraits/gmetaconverter_string.h"
+#include "cpgf/metatraits/gmetaconverter_widestring.h"
 #include "cpgf/gmetadefine.h"
 #include "cpgf/gmetapolicy.h"
-#include "cpgf/gscopedinterface.h"
-#include "cpgf/gselectFunctionByArity.h"
-#include "cpgf/metadata/private/gmetadata_header.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
+#include "cpgf/gscopedinterface.h"
+#include "cpgf/gselectfunctionbyarity.h"
+#include "cpgf/metadata/private/gmetadata_header.h"
 
 namespace metadata {
 
@@ -37,8 +39,8 @@ void buildMetaClass_metagen_BuilderMethod(D_d & _d)
 
     _d.CPGF_MD_TEMPLATE _constructor<void * (const metagen::CppItem *)>();
 
-    _d.CPGF_MD_TEMPLATE _method("getCppMethod", &typename D_d::ClassType::getCppMethod);
-    _d.CPGF_MD_TEMPLATE _method("canBind", &typename D_d::ClassType::canBind);
+    _d.CPGF_MD_TEMPLATE _method("getCppMethod", &D_d::ClassType::getCppMethod);
+    _d.CPGF_MD_TEMPLATE _method("canBind", &D_d::ClassType::canBind);
 
     _d.CPGF_MD_TEMPLATE _operator<metagen::BuilderMethod &(*)(cpgf::GMetaSelf, const metagen::BuilderMethod &)>(mopHolder = mopHolder);
     _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderMethod_opAssign_0<typename D_d::ClassType >);
@@ -46,7 +48,7 @@ void buildMetaClass_metagen_BuilderMethod(D_d & _d)
 }
 
 template <typename D_d >
-void buildMetaClass_metagen_buildermethod(D_d & _d)
+void buildMetaClass_metagen_namespace_buildermethod(D_d & _d)
 {
     using namespace cpgf;
     
@@ -57,7 +59,7 @@ void buildMetaClass_metagen_buildermethod(D_d & _d)
 }
 
 cpgf::GDefineMetaInfo createMetaClass_metagen_BuilderMethod();
-cpgf::GDefineMetaInfo createMetaClass_metagen_buildermethod();
+cpgf::GDefineMetaInfo createMetaClass_metagen_namespace_buildermethod();
 
 } // namespace metadata
 #include "cpgf/metadata/private/gmetadata_footer.h"
