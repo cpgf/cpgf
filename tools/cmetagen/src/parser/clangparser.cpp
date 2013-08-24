@@ -143,18 +143,20 @@ void ParserLibClang::setupClang(const CppSourceFile & sourceFile)
 	PreprocessorOptions & preprocessorOptions = this->compilerInvocation->getPreprocessorOpts();
 	preprocessorOptions.addMacroDef(ParserPredefinedMacro);
 
-	LangOptions & langOptions = *this->compilerInvocation->getLangOpts();
-	this->compilerInvocation->setLangDefaults(langOptions, IK_CXX, LangStandard::lang_cxx11);
-	langOptions.CPlusPlus = 1;
-	langOptions.Bool = 1;
-	langOptions.RTTI = 1;
-	langOptions.CXXExceptions = 1;
+	//LangOptions & langOptions = *this->compilerInvocation->getLangOpts();
+	// Use -std=XXX in option clangOptions
+	//this->compilerInvocation->setLangDefaults(langOptions, IK_CXX, LangStandard::lang_cxx11);
+	// Use -x c++ in option clangOptions
+	//langOptions.CPlusPlus = 1;
+	//langOptions.Bool = 1;
+	// Use -fcxx-exceptions in clangOptions
+	//langOptions.CXXExceptions = 1;
 
-	// VC compatible
-	langOptions.MicrosoftExt = 1;
-	langOptions.MicrosoftMode = 1;
-	langOptions.MSBitfields = 1;
-	langOptions.DelayedTemplateParsing = 1;
+	// use -fms-compatibility and -fms-extensions in clangOptions
+	//langOptions.MicrosoftExt = 1;
+	//langOptions.MicrosoftMode = 1;
+	// use -fdelayed-template-parsing in clangOptions
+	// langOptions.DelayedTemplateParsing = 1;
 
 	HeaderSearchOptions & headerSearchOptions = this->compilerInvocation->getHeaderSearchOpts();
 	for(StringArrayType::const_iterator it = this->project->getIncludeDirectories().begin();
@@ -167,8 +169,6 @@ void ParserLibClang::setupClang(const CppSourceFile & sourceFile)
 	diagnostics.setSuppressSystemWarnings(true);
 
 	TargetOptions & target_options = this->compilerInvocation->getTargetOpts();
-	target_options.Triple = getDefaultTargetTriple();
-	target_options.CXXABI = "microsoft";
 	GScopedPointer<TargetInfo> targetInfo(TargetInfo::CreateTargetInfo(diagnostics, &target_options));
 	this->compilerInstance->setTarget(targetInfo.take());
 

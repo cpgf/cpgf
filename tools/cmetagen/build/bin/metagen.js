@@ -9,6 +9,14 @@ var config = {
 	maxItemCountPerFile : 0,
 	
 	headerIncludePrefix : "metadata/",
+
+	// clangOptions specifies the command line options to pass to clang compiler.
+	// To get all usable options, run "clang -cc1 --help" to see the options from the help message.
+	clangOptions : "-x c++" // Compile as C++ language
+			+ " -std=c++11" // Which standard to use?
+			+ " -fcxx-exceptions" // Enable exceptions
+			+ " -fms-compatibility -fms-extensions -fdelayed-template-parsing" // Microsoft VC compatible settings
+	,
 	
 	files : [
 		"project.h",
