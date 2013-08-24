@@ -8,6 +8,8 @@ createMetaClass_metagen_CppMethod
 #ifndef METADATA_META_CPPMETHOD_H
 #define METADATA_META_CPPMETHOD_H
 
+#include "clang/AST/Decl.h"
+#include "model/cppcontainer.h"
 #include "model/cppmethod.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

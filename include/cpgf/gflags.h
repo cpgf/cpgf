@@ -61,10 +61,6 @@ public:
 		return static_cast<unsigned int>(this->value);
 	}
 	
-	operator bool () const {
-		return this->value != T(0);
-	}
-	
 	bool operator ! () const {
 		return this->value == T(0);
 	}

@@ -47,5 +47,15 @@ const std::vector<std::string> & CppSourceFile::getIncludeList() const
 	return this->includeList;
 }
 
+void CppSourceFile::addMetaInclude(const char * include)
+{
+	this->metaIncludeList.push_back(std::string(include));
+}
+
+const std::vector<std::string> & CppSourceFile::getMetaIncludeList() const
+{
+	return this->metaIncludeList;
+}
+
 
 } // namespace metagen

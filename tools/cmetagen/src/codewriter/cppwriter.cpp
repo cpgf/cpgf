@@ -35,9 +35,15 @@ void writeIncludeList(const std::vector<std::string> & includeList, CodeWriter *
 {
 	std::set<std::string> writtenList;
 	for(std::vector<std::string>::const_iterator it = includeList.begin(); it != includeList.end(); ++it) {
-		if(writtenList.find(*it) == writtenList.end()) {
-			writtenList.insert(*it);
-			codeWriter->writeLine("#include \"" + *it + "\"");
+		const string & include = *it;
+		if(writtenList.find(include) == writtenList.end()) {
+			writtenList.insert(include);
+			if(include.at(0) == '@') {
+				codeWriter->writeLine(include.c_str() + 1);
+			}
+			else {
+				codeWriter->writeLine("#include \"" + include + "\"");
+			}
 		}
 	}
 	if(! includeList.empty()) {

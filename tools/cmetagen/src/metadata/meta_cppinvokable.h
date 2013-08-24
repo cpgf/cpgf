@@ -8,6 +8,8 @@ createMetaClass_metagen_CppInvokable
 #ifndef METADATA_META_CPPINVOKABLE_H
 #define METADATA_META_CPPINVOKABLE_H
 
+#include "clang/AST/Decl.h"
+#include "model/cpppolicy.h"
 #include "model/cppinvokable.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

@@ -9,6 +9,8 @@ createMetaClass_metagen_namespace_builderinvokable
 #ifndef METADATA_META_BUILDERINVOKABLE_H
 #define METADATA_META_BUILDERINVOKABLE_H
 
+#include "model/cppinvokable.h"
+#include "buildermodel/builderwriter.h"
 #include "buildermodel/builderinvokable.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

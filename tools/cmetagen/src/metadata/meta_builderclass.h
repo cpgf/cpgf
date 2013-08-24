@@ -9,6 +9,7 @@ createMetaClass_metagen_BuilderClass
 #define METADATA_META_BUILDERCLASS_H
 
 #include "model/cppclass.h"
+#include "buildermodel/builderwriter.h"
 #include "buildermodel/builderclass.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

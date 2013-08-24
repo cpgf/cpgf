@@ -8,6 +8,8 @@ createMetaClass_metagen_BuilderNamespace
 #ifndef METADATA_META_BUILDERNAMESPACE_H
 #define METADATA_META_BUILDERNAMESPACE_H
 
+#include "model/cppnamespace.h"
+#include "buildermodel/builderwriter.h"
 #include "buildermodel/buildernamespace.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

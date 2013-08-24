@@ -8,6 +8,8 @@ createMetaClass_metagen_BuilderOperator
 #ifndef METADATA_META_BUILDEROPERATOR_H
 #define METADATA_META_BUILDEROPERATOR_H
 
+#include "model/cppoperator.h"
+#include "buildermodel/builderwriter.h"
 #include "buildermodel/builderoperator.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

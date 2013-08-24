@@ -8,6 +8,8 @@ createMetaClass_metagen_BuilderField
 #ifndef METADATA_META_BUILDERFIELD_H
 #define METADATA_META_BUILDERFIELD_H
 
+#include "model/cppfield.h"
+#include "buildermodel/builderwriter.h"
 #include "buildermodel/builderfield.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

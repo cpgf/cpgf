@@ -6,18 +6,25 @@ set(CLANG_DIR
 	/source/llvm
 )
 
+set(CLANG_BUILD ${CLANG_DIR}/build)
+
+#Modify on your settings. I used MingW
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(CLANG_BUILD ${CLANG_DIR}/build-mingw)
+endif(CMAKE_COMPILER_IS_GNUCC)
+
 set(CLANG_INC
-	${CLANG_DIR}/build/tools/clang/include
-	${CLANG_DIR}/build/include
+	${CLANG_BUILD}/tools/clang/include
+	${CLANG_BUILD}/include
 	${CLANG_DIR}/tools/clang/include
 	${CLANG_DIR}/include
 )
 
 set(CLANG_DEBUG_LIB_DIR
-	${CLANG_DIR}/build/lib/Debug
+	${CLANG_BUILD}/lib/Debug
 )
 set(CLANG_RELEASE_LIB_DIR
-	${CLANG_DIR}/build/lib/Release
+	${CLANG_BUILD}/lib/Release
 )
 
 if(CMAKE_COMPILER_IS_GNUCC)

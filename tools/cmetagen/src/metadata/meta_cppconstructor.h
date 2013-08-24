@@ -8,6 +8,7 @@ createMetaClass_metagen_CppConstructor
 #ifndef METADATA_META_CPPCONSTRUCTOR_H
 #define METADATA_META_CPPCONSTRUCTOR_H
 
+#include "clang/AST/Decl.h"
 #include "model/cppconstructor.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

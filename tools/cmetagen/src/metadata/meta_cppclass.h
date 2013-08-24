@@ -9,6 +9,14 @@ createMetaClass_metagen_CppClass
 #ifndef METADATA_META_CPPCLASS_H
 #define METADATA_META_CPPCLASS_H
 
+#include "clang/AST/Decl.h"
+#include "model/cppcontainer.h"
+#include "model/cpppolicy.h"
+#include "clang/AST/DeclTemplate.h"
+#include "clang/AST/DeclCXX.h"
+#include "model/cppconstructor.h"
+#include "model/cppdestructor.h"
+#include "model/cppcontext.h"
 #include "model/cppclass.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"
@@ -26,6 +34,22 @@ template <typename TsE1f>
 metagen::CppClass &oPeRat0rWrapPer_metagen_CppClass_opAssign_0(TsE1f * sE1F, const metagen::CppClass &pAr9_Am0)
 {
     return (*sE1F) = pAr9_Am0;
+}
+
+template <typename D_d >
+void buildMetaClass_metagen_BaseClass(D_d & _d)
+{
+    using namespace cpgf;
+    
+    (void)_d;
+    
+
+    _d.CPGF_MD_TEMPLATE _constructor<void * (const clang::CXXBaseSpecifier *, const metagen::CppContext *)>();
+
+    _d.CPGF_MD_TEMPLATE _method("getVisibility", &D_d::ClassType::getVisibility);
+    _d.CPGF_MD_TEMPLATE _method("getQualifiedName", &D_d::ClassType::getQualifiedName);
+    _d.CPGF_MD_TEMPLATE _method("getCppClass", &D_d::ClassType::getCppClass);
+
 }
 
 template <typename D_d >
@@ -56,24 +80,8 @@ void buildMetaClass_metagen_CppClass(D_d & _d)
 
 }
 
-template <typename D_d >
-void buildMetaClass_metagen_BaseClass(D_d & _d)
-{
-    using namespace cpgf;
-    
-    (void)_d;
-    
-
-    _d.CPGF_MD_TEMPLATE _constructor<void * (const clang::CXXBaseSpecifier *, const metagen::CppContext *)>();
-
-    _d.CPGF_MD_TEMPLATE _method("getVisibility", &D_d::ClassType::getVisibility);
-    _d.CPGF_MD_TEMPLATE _method("getQualifiedName", &D_d::ClassType::getQualifiedName);
-    _d.CPGF_MD_TEMPLATE _method("getCppClass", &D_d::ClassType::getCppClass);
-
-}
-
-cpgf::GDefineMetaInfo createMetaClass_metagen_CppClass();
 cpgf::GDefineMetaInfo createMetaClass_metagen_BaseClass();
+cpgf::GDefineMetaInfo createMetaClass_metagen_CppClass();
 
 } // namespace metadata
 #include "cpgf/metadata/private/gmetadata_footer.h"

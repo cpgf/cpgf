@@ -49,11 +49,15 @@ public:
 	void addInclude(const char * include);
 	const std::vector<std::string> & getIncludeList() const;
 
+	void addMetaInclude(const char * include);
+	const std::vector<std::string> & getMetaIncludeList() const;
+
 private:
 	std::string fileName;
 	std::string baseName;
 	bool skipBind;
 	std::vector<std::string> includeList;
+	std::vector<std::string> metaIncludeList;
 };
 
 

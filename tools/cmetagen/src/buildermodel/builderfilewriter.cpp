@@ -95,6 +95,12 @@ void BuilderFileWriter::initializeCppWriter(CppWriter * cppWriter) const
 			cppWriter->include(*it);
 		}
 
+		for(vector<string>::const_iterator it = this->sourceFile.getMetaIncludeList().begin();
+			it != this->sourceFile.getMetaIncludeList().end();
+			++it) {
+			cppWriter->include(*it);
+		}
+
 		string header = this->getProject()->replaceHeaderByScript(this->sourceFile.getFileName());
 		cppWriter->include(normalizeFile(header));
 

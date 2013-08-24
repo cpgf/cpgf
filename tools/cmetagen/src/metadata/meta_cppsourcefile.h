@@ -8,6 +8,7 @@ createMetaClass_metagen_CppSourceFile
 #ifndef METADATA_META_CPPSOURCEFILE_H
 #define METADATA_META_CPPSOURCEFILE_H
 
+#include "clang/AST/Decl.h"
 #include "model/cppsourcefile.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"
@@ -37,6 +38,8 @@ void buildMetaClass_metagen_CppSourceFile(D_d & _d)
     _d.CPGF_MD_TEMPLATE _method("shouldSkipBind", &D_d::ClassType::shouldSkipBind);
     _d.CPGF_MD_TEMPLATE _method("addInclude", &D_d::ClassType::addInclude);
     _d.CPGF_MD_TEMPLATE _method("getIncludeList", &D_d::ClassType::getIncludeList), cpgf::MakePolicy<GMetaRuleCopyConstReference<-1> >();
+    _d.CPGF_MD_TEMPLATE _method("addMetaInclude", &D_d::ClassType::addMetaInclude);
+    _d.CPGF_MD_TEMPLATE _method("getMetaIncludeList", &D_d::ClassType::getMetaIncludeList), cpgf::MakePolicy<GMetaRuleCopyConstReference<-1> >();
 
 }
 

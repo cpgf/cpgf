@@ -8,6 +8,8 @@ createMetaClass_metagen_CppType
 #ifndef METADATA_META_CPPTYPE_H
 #define METADATA_META_CPPTYPE_H
 
+#include "clang/AST/Decl.h"
+#include "clang/AST/DeclTemplate.h"
 #include "model/cpptype.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

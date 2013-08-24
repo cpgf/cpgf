@@ -149,7 +149,8 @@ void BuilderContext::doProcessFile(const CppFile * cppFile)
 
 	this->generateCodeSections();
 	if(this->getSectionList()->isEmpty()) {
-		getLogger().warn(Poco::format("There is no data to be reflected in file %s, maybe the file contains syntax errors?\n",
+		getLogger().warn(Poco::format("\nThere is no data to be reflected in file %s\n"
+			"maybe the file contains syntax errors or the file includes itself?\n",
 			string(this->sourceFile.getFileName())));
 		return;
 	}

@@ -8,6 +8,7 @@ createMetaClass_metagen_CppFile
 #ifndef METADATA_META_CPPFILE_H
 #define METADATA_META_CPPFILE_H
 
+#include "clang/AST/Decl.h"
 #include "model/cppfile.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

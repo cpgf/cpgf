@@ -9,6 +9,14 @@ createMetaClass_metagen_namespace_cppcontainer
 #ifndef METADATA_META_CPPCONTAINER_H
 #define METADATA_META_CPPCONTAINER_H
 
+#include "clang/AST/Decl.h"
+#include "model/cppnamespace.h"
+#include "model/cppclass.h"
+#include "model/cppfield.h"
+#include "model/cppmethod.h"
+#include "model/cppenum.h"
+#include "model/cppoperator.h"
+#include "model/cppcontext.h"
 #include "model/cppcontainer.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

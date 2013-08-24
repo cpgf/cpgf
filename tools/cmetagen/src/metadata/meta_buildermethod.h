@@ -9,6 +9,9 @@ createMetaClass_metagen_namespace_buildermethod
 #ifndef METADATA_META_BUILDERMETHOD_H
 #define METADATA_META_BUILDERMETHOD_H
 
+#include "model/cppmethod.h"
+#include "buildermodel/builderwriter.h"
+#include "model/cppcontainer.h"
 #include "buildermodel/buildermethod.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

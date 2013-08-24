@@ -69,7 +69,7 @@ void Application::doRun(int argc, char * argv[])
 	globFiles(this->project.getHeaderOutputPath(), "*" + this->project.getHeaderFileExtension(),
 		makeCallback(this, &Application::loadCreationFunctionsFromFile));
 	generateMainRegisterFiles(this->creationFunctionNameList, &this->project);
-	getLogger().info("done.\n");
+	getLogger().print("done.\n");
 }
 
 void Application::processFiles()

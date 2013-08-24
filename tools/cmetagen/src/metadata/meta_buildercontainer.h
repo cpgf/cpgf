@@ -8,6 +8,8 @@ createMetaClass_metagen_BuilderContainer
 #ifndef METADATA_META_BUILDERCONTAINER_H
 #define METADATA_META_BUILDERCONTAINER_H
 
+#include "model/cppcontainer.h"
+#include "buildermodel/builderwriter.h"
 #include "buildermodel/buildercontainer.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

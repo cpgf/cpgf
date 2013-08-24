@@ -8,6 +8,7 @@ createMetaClass_metagen_CppDestructor
 #ifndef METADATA_META_CPPDESTRUCTOR_H
 #define METADATA_META_CPPDESTRUCTOR_H
 
+#include "clang/AST/Decl.h"
 #include "model/cppdestructor.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

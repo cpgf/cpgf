@@ -11,7 +11,7 @@ const std::string GeneratedFileMark = "/*@@cpgf@@*/";
 const std::string GeneratedCreationFunctionBeginMark = "/*@cpgf@creations@@";
 const std::string GeneratedCreationFunctionEndMark = "@@cpgf@creations@*/";
 
-const char * metaHeaderIncludeList[];
+extern const char * metaHeaderIncludeList[];
 const std::string includeMetaDataFooter("cpgf/metadata/private/gmetadata_footer.h");
 const std::string includeMetaDefine("cpgf/gmetadefine.h");
 const std::string includeOutmain("cpgf/goutmain.h");

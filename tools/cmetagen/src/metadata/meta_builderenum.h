@@ -8,6 +8,8 @@ createMetaClass_metagen_BuilderEnum
 #ifndef METADATA_META_BUILDERENUM_H
 #define METADATA_META_BUILDERENUM_H
 
+#include "model/cppenum.h"
+#include "buildermodel/builderwriter.h"
 #include "buildermodel/builderenum.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

@@ -8,6 +8,7 @@ createMetaClass_metagen_CppOperator
 #ifndef METADATA_META_CPPOPERATOR_H
 #define METADATA_META_CPPOPERATOR_H
 
+#include "clang/AST/Decl.h"
 #include "model/cppoperator.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

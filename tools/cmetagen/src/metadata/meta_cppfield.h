@@ -8,6 +8,8 @@ createMetaClass_metagen_CppField
 #ifndef METADATA_META_CPPFIELD_H
 #define METADATA_META_CPPFIELD_H
 
+#include "clang/AST/Decl.h"
+#include "model/cppcontainer.h"
 #include "model/cppfield.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

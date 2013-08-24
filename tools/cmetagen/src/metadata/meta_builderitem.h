@@ -8,6 +8,11 @@ createMetaClass_metagen_BuilderItem
 #ifndef METADATA_META_BUILDERITEM_H
 #define METADATA_META_BUILDERITEM_H
 
+#include "model/cppitem.h"
+#include "buildermodel/builderwriter.h"
+#include "project.h"
+#include "codewriter/codeblock.h"
+#include "buildermodel/buildercontainer.h"
 #include "buildermodel/builderitem.h"
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"
