@@ -1,8 +1,8 @@
 /*@@cpgf@@*/
 // Auto generated file, don't modify.
 
-#include "cpgf/goutmain.h"
 #include "registerMain_metagen.h"
+#include "cpgf/goutmain.h"
 
 namespace metadata {
 

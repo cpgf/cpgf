@@ -31,10 +31,14 @@ CppWriter::~CppWriter()
 {
 }
 
-void writeIncludeList(const std::set<std::string> & includeList, CodeWriter * codeWriter)
+void writeIncludeList(const std::vector<std::string> & includeList, CodeWriter * codeWriter)
 {
-	for(std::set<std::string>::const_iterator it = includeList.begin(); it != includeList.end(); ++it) {
-		codeWriter->writeLine("#include \"" + *it + "\"");
+	std::set<std::string> writtenList;
+	for(std::vector<std::string>::const_iterator it = includeList.begin(); it != includeList.end(); ++it) {
+		if(writtenList.find(*it) == writtenList.end()) {
+			writtenList.insert(*it);
+			codeWriter->writeLine("#include \"" + *it + "\"");
+		}
 	}
 	if(! includeList.empty()) {
 		codeWriter->ensureBlankLine();
@@ -63,7 +67,9 @@ void CppWriter::write(CodeWriter * codeWriter, const CppWriterCallback & callbac
 
 	writeIncludeList(this->includeList, codeWriter);
 
-	for(StringSetType::iterator it = this->usedNamespaceList.begin(); it != this->usedNamespaceList.end(); ++it) {
+	for(std::set<std::string>::iterator it = this->usedNamespaceList.begin();
+		it != this->usedNamespaceList.end();
+		++it) {
 		codeWriter->writeLine("using namespace " + *it + ";");
 	}
 	if(! this->usedNamespaceList.empty()) {
@@ -112,12 +118,12 @@ void CppWriter::useNamespace(const std::string & ns)
 
 void CppWriter::include(const std::string & fileName)
 {
-	this->includeList.insert(fileName);
+	this->includeList.push_back(fileName);
 }
 
 void CppWriter::tailInclude(const std::string & fileName)
 {
-	this->tailIncludeList.insert(fileName);
+	this->tailIncludeList.push_back(fileName);
 }
 
 

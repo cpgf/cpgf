@@ -283,7 +283,7 @@ bool partialCreationSectionComparer(BuilderSection * a, BuilderSection * b)
 
 void BuilderContext::createHeaderFileWriter()
 {
-	BuilderFileWriter * fileWriter = BuilderFileWriter::createHeaderFile(this->getSourceFileName(), this);
+	BuilderFileWriter * fileWriter = BuilderFileWriter::createHeaderFile(this->sourceFile, this);
 	this->fileWriterList.push_back(fileWriter);
 
 	for(BuilderSectionList::iterator it = this->getSectionList()->begin();
@@ -333,7 +333,7 @@ void BuilderContext::doCreateSourceFileWriters(BuilderSectionListType * partialC
 	while(! partialCreationSections->empty()) {
 		BuilderSectionListType sectionsInOneFile;
 		this->doExtractPartialCreationFunctions(partialCreationSections, &sectionsInOneFile);
-		BuilderFileWriter * fileWriter = BuilderFileWriter::createSourceFile(this->getSourceFileName(), this, fileIndex);
+		BuilderFileWriter * fileWriter = BuilderFileWriter::createSourceFile(this->sourceFile, this, fileIndex);
 		this->fileWriterList.push_back(fileWriter);
 		if(fileIndex == 0) {
 			for(BuilderSectionList::iterator it = this->sectionList->begin();

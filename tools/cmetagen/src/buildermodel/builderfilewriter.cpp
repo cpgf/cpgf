@@ -1,5 +1,6 @@
 #include "builderfilewriter.h"
 #include "buildercontext.h"
+#include "model/cppsourcefile.h"
 #include "codewriter/codewriter.h"
 #include "codewriter/codeblock.h"
 #include "project.h"
@@ -15,21 +16,21 @@ using namespace cpgf;
 
 namespace metagen {
 
-BuilderFileWriter::BuilderFileWriter(const std::string & sourceFileName, const BuilderContext * builderContext, int fileIndex)
-	: sourceFileName(sourceFileName), builderContext(builderContext), fileIndex(fileIndex)
+BuilderFileWriter::BuilderFileWriter(const CppSourceFile & sourceFile, const BuilderContext * builderContext, int fileIndex)
+	: sourceFile(sourceFile), builderContext(builderContext), fileIndex(fileIndex)
 {
 }
 	
-BuilderFileWriter * BuilderFileWriter::createHeaderFile(const std::string & sourceFileName,
+BuilderFileWriter * BuilderFileWriter::createHeaderFile(const CppSourceFile & sourceFile,
 	const BuilderContext * builderContext)
 {
-	return new BuilderFileWriter(sourceFileName, builderContext, -1);
+	return new BuilderFileWriter(sourceFile, builderContext, -1);
 }
 
-BuilderFileWriter * BuilderFileWriter::createSourceFile(const std::string & sourceFileName,
+BuilderFileWriter * BuilderFileWriter::createSourceFile(const CppSourceFile & sourceFile,
 	const BuilderContext * builderContext, int fileIndex)
 {
-	return new BuilderFileWriter(sourceFileName, builderContext, fileIndex);
+	return new BuilderFileWriter(sourceFile, builderContext, fileIndex);
 }
 
 void BuilderFileWriter::setCreationFunctionNameCode(const std::string & code)
@@ -80,26 +81,21 @@ void BuilderFileWriter::initializeCppWriter(CppWriter * cppWriter) const
 	cppWriter->setNamespace(this->getProject()->getCppNamespace());
 
 	if(this->isSourceFile()) {
-		string header = Poco::Path(this->getProject()->getOutputHeaderFileName(this->sourceFileName)).getFileName();
+		string header = Poco::Path(this->getProject()->getOutputHeaderFileName(this->sourceFile.getFileName())).getFileName();
 		cppWriter->include(normalizeFile(this->getProject()->getHeaderIncludePrefix() + header));
 		cppWriter->useNamespace("cpgf");
 	}
 	else {
-		cppWriter->setHeaderGuard(this->getProject()->getOutputHeaderFileName(this->sourceFileName));
+		cppWriter->setHeaderGuard(this->getProject()->getOutputHeaderFileName(this->sourceFile.getFileName()));
 
-		string header = this->getProject()->replaceHeaderByScript(this->sourceFileName);
+		string header = this->getProject()->replaceHeaderByScript(this->sourceFile.getFileName());
 		cppWriter->include(normalizeFile(header));
-		cppWriter->include(includeMetaDefine);
-		cppWriter->include(includeMetaPolicy);
-		cppWriter->include(includeMetaDataHeader);
-		cppWriter->include("cpgf/metatraits/gmetaconverter_string.h");
+
+		for(int i = 0; metaHeaderIncludeList[i] != NULL; ++i) {
+			cppWriter->include(metaHeaderIncludeList[i]);
+		}
 
 		cppWriter->tailInclude(includeMetaDataFooter);
-
-		cppWriter->include(includeScriptBindUtil);
-		cppWriter->include(includeScriptWrapper);
-		cppWriter->include(includeScopedInterface);
-		cppWriter->include(includeSelectFunctionByArity);
 	}
 }
 
@@ -108,8 +104,8 @@ void BuilderFileWriter::output()
 	sortSectionList(&this->sectionList);
 
 	string outputFileName = this->isSourceFile() ?
-		this->getProject()->getOutputSourceFileName(this->sourceFileName, this->fileIndex)
-		: this->getProject()->getOutputHeaderFileName(this->sourceFileName);
+		this->getProject()->getOutputSourceFileName(this->sourceFile.getFileName(), this->fileIndex)
+		: this->getProject()->getOutputHeaderFileName(this->sourceFile.getFileName());
 	Poco::File(Poco::Path(outputFileName).parent()).createDirectories();
 
 	CppWriter cppWriter;

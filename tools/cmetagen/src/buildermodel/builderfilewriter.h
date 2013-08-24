@@ -3,6 +3,7 @@
 
 #include "buildersection.h"
 #include "codewriter/cppwriter.h"
+#include "cpgf/gclassutil.h"
 
 #include <string>
 #include <vector>
@@ -13,15 +14,18 @@ class BuilderContext;
 class Project;
 class CodeWriter;
 class CppWriter;
+class CppSourceFile;
 
 class BuilderFileWriter
 {
+	GMAKE_NONCOPYABLE(BuilderFileWriter)
+
 private:
-	BuilderFileWriter(const std::string & sourceFileName, const BuilderContext * builderContext, int fileIndex);
+	BuilderFileWriter(const CppSourceFile & sourceFile, const BuilderContext * builderContext, int fileIndex);
 	
 public:
-	static BuilderFileWriter * createHeaderFile(const std::string & sourceFileName, const BuilderContext * builderContext);
-	static BuilderFileWriter * createSourceFile(const std::string & sourceFileName, const BuilderContext * builderContext, int fileIndex);
+	static BuilderFileWriter * createHeaderFile(const CppSourceFile & sourceFile, const BuilderContext * builderContext);
+	static BuilderFileWriter * createSourceFile(const CppSourceFile & sourceFile, const BuilderContext * builderContext, int fileIndex);
 	
 public:
 	void setCreationFunctionNameCode(const std::string & code);
@@ -36,7 +40,7 @@ private:
 	
 private:
 	BuilderSectionListType sectionList;
-	std::string sourceFileName;
+	const CppSourceFile & sourceFile;
 	const BuilderContext * builderContext;
 	int fileIndex;
 	std::string creationFunctionNameCode;

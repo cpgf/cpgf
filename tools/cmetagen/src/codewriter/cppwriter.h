@@ -23,9 +23,6 @@ typedef cpgf::GCallback<void (CodeWriter * codeWriter, CppWriterStage stage)> Cp
 
 class CppWriter
 {
-private:
-	typedef std::set<std::string> StringSetType;
-	
 public:
 	explicit CppWriter();
 	~CppWriter();
@@ -43,9 +40,9 @@ public:
 private:
 	std::string headerGuard;
 	std::string fileNamespace;
-	StringSetType includeList;
-	StringSetType usedNamespaceList;
-	StringSetType tailIncludeList;
+	std::set<std::string> usedNamespaceList;
+	std::vector<std::string> includeList;
+	std::vector<std::string> tailIncludeList;
 	CodeBlock codeBlock;
 };
 

@@ -9,13 +9,14 @@ createMetaClass_metagen_BuilderClass
 #define METADATA_META_BUILDERCLASS_H
 
 #include "buildermodel/builderclass.h"
-#include "cpgf/gmetadefine.h"
-#include "cpgf/gmetapolicy.h"
-#include "cpgf/gscopedinterface.h"
-#include "cpgf/gselectFunctionByArity.h"
+#include "cpgf/metatraits/gmetaconverter_string.h"
+#include "cpgf/metatraits/gmetaconverter_widestring.hcpgf/gmetadefine.h"
 #include "cpgf/metadata/private/gmetadata_header.h"
+#include "cpgf/gmetapolicy.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
+#include "cpgf/gscopedinterface.h"
+#include "cpgf/gselectFunctionByArity.h"
 
 namespace metadata {
 
@@ -36,7 +37,7 @@ void buildMetaClass_metagen_BuilderClass(D_d & _d)
 
     _d.CPGF_MD_TEMPLATE _constructor<void * (const metagen::CppItem *)>();
 
-    _d.CPGF_MD_TEMPLATE _method("getCppClass", &typename D_d::ClassType::getCppClass);
+    _d.CPGF_MD_TEMPLATE _method("getCppClass", &D_d::ClassType::getCppClass);
 
     _d.CPGF_MD_TEMPLATE _operator<metagen::BuilderClass &(*)(cpgf::GMetaSelf, const metagen::BuilderClass &)>(mopHolder = mopHolder);
     _d.CPGF_MD_TEMPLATE _method("_opAssign", &oPeRat0rWrapPer_metagen_BuilderClass_opAssign_0<typename D_d::ClassType >);

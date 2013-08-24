@@ -1,6 +1,7 @@
 #Auto generated, don't modify.
 
 SET(SRC_ROOT
+	${SRC_PATH}/constants.cpp
 	${SRC_PATH}/logger.cpp
 	${SRC_PATH}/main.cpp
 	${SRC_PATH}/project.cpp

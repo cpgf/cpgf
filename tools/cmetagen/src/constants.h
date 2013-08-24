@@ -11,15 +11,10 @@ const std::string GeneratedFileMark = "/*@@cpgf@@*/";
 const std::string GeneratedCreationFunctionBeginMark = "/*@cpgf@creations@@";
 const std::string GeneratedCreationFunctionEndMark = "@@cpgf@creations@*/";
 
-const std::string includeMetaDefine("cpgf/gmetadefine.h");
-const std::string includeMetaDataHeader("cpgf/metadata/private/gmetadata_header.h");
+const char * metaHeaderIncludeList[];
 const std::string includeMetaDataFooter("cpgf/metadata/private/gmetadata_footer.h");
-const std::string includeMetaPolicy("cpgf/gmetapolicy.h");
-const std::string includeScriptBindUtil("cpgf/scriptbind/gscriptbindutil.h");
-const std::string includeScriptWrapper("cpgf/scriptbind/gscriptwrapper.h");
-const std::string includeScopedInterface("cpgf/gscopedinterface.h");
+const std::string includeMetaDefine("cpgf/gmetadefine.h");
 const std::string includeOutmain("cpgf/goutmain.h");
-const std::string includeSelectFunctionByArity("cpgf/gselectFunctionByArity.h");
 
 const std::string metaTypeTypeDefName("MetaType");
 
