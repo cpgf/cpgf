@@ -19,6 +19,17 @@
 #include "model/cpputil.h"
 #include "model/cppsourcefile.h"
 
+#include "buildermodel/buildernamespace.h"
+#include "buildermodel/builderclass.h"
+#include "buildermodel/builderfield.h"
+#include "buildermodel/buildermethod.h"
+#include "buildermodel/builderconstructor.h"
+#include "buildermodel/builderdestructor.h"
+#include "buildermodel/builderenum.h"
+#include "buildermodel/builderoperator.h"
+#include "buildermodel/buildercontext.h"
+#include "buildermodel/builderfile.h"
+
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/gscopedinterface.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
@@ -644,19 +655,19 @@ void Project::processBuilderItemByScript(BuilderItem * builderItem) const
 
 #define INVOKE(category, type) \
 		case category: \
-			invokeScriptFunction(this->mainCallback.get(), static_cast<const type *>(cppItem), builderItem); \
+		invokeScriptFunction(this->mainCallback.get(), static_cast<const Cpp ## type *>(cppItem), static_cast<Builder ## type *>(builderItem)); \
 		break;
 
 	switch(cppItem->getCategory()) {
-		INVOKE(icFile, CppFile);
-		INVOKE(icNamespace, CppNamespace);
-		INVOKE(icClass, CppClass);
-		INVOKE(icEnum, CppEnum);
-		INVOKE(icConstructor, CppConstructor);
-		INVOKE(icDestructor, CppDestructor);
-		INVOKE(icField, CppField);
-		INVOKE(icMethod, CppMethod);
-		INVOKE(icOperator, CppOperator);
+		INVOKE(icFile, File);
+		INVOKE(icNamespace, Namespace);
+		INVOKE(icClass, Class);
+		INVOKE(icEnum, Enum);
+		INVOKE(icConstructor, Constructor);
+		INVOKE(icDestructor, Destructor);
+		INVOKE(icField, Field);
+		INVOKE(icMethod, Method);
+		INVOKE(icOperator, Operator);
 	}
 
 #undef INVOKE
