@@ -14,6 +14,8 @@
 #include "constants.h"
 #include "commandlineparser.h"
 
+#include "cpgf/gexception.h"
+
 #include "Poco/Glob.h"
 #include "Poco/File.h"
 #include "Poco/Path.h"
@@ -53,6 +55,9 @@ int Application::run(int argc, char * argv[])
 	}
 	catch(const Poco::Exception & e) {
 		getLogger().error(string("\n") + e.displayText());
+	}
+	catch(const cpgf::GException & e) {
+		getLogger().error(string("\n") + e.getMessage());
 	}
 	cout << endl;
 	return exitCode;

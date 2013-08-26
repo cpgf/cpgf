@@ -2,6 +2,7 @@
 #define __INTERFACEOBJECT_H
 
 #include "cpgf/gapiutil.h"
+#include "cpgf/gsharedinterface.h"
 
 
 class MyInterfaceObject : public cpgf::IObject
