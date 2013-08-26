@@ -102,12 +102,13 @@ std::string getCppContainerInstantiationName(const CppContainer * cppContainer)
 {
 	if(cppContainer->isClass()) {
 		const CppClass * cppClass = static_cast<const CppClass *>(cppContainer);
-		if(cppClass->isTemplate()) {
-			return Poco::format("%s<%s >",
-				cppClass->getQualifiedName(),
-				cppClass->getTextOfChainedTemplateParamList(itoWithArgName)
-			);
-		}
+		return cppClass->getTextOfQualifedInstantiationName();
+		//if(cppClass->isTemplate()) {
+		//	return Poco::format("%s<%s >",
+		//		cppClass->getQualifiedName(),
+		//		cppClass->getTextOfChainedTemplateParamList(itoWithArgName)
+		//	);
+		//}
 	}
 	return cppContainer->getQualifiedName();
 }

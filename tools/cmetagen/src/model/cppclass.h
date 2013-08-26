@@ -55,6 +55,7 @@ public:
 
 	std::string getTextOfTemplateParamList(const ItemTextOptionFlags & options) const;
 	std::string getTextOfChainedTemplateParamList(const ItemTextOptionFlags & options) const;
+	std::string getTextOfQualifedInstantiationName() const;
 	
 	void getPolicy(CppPolicy * outPolicy) const;
 	

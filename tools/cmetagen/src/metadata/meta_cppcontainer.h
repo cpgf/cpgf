@@ -44,6 +44,17 @@ metagen::CppContainer &oPeRat0rWrapPer_metagen_CppContainer_opAssign_0(TsE1f * s
 }
 
 template <typename D_d >
+void buildMetaClass_metagen_namespace_cppcontainer(D_d & _d)
+{
+    using namespace cpgf;
+    
+    (void)_d;
+    
+    _d.CPGF_MD_TEMPLATE _method("getCppContainerInstantiationName", &metagen::getCppContainerInstantiationName);
+
+}
+
+template <typename D_d >
 void buildMetaClass_metagen_CppContainer(D_d & _d)
 {
     using namespace cpgf;
@@ -68,19 +79,8 @@ void buildMetaClass_metagen_CppContainer(D_d & _d)
 
 }
 
-template <typename D_d >
-void buildMetaClass_metagen_namespace_cppcontainer(D_d & _d)
-{
-    using namespace cpgf;
-    
-    (void)_d;
-    
-    _d.CPGF_MD_TEMPLATE _method("getCppContainerInstantiationName", &metagen::getCppContainerInstantiationName);
-
-}
-
-cpgf::GDefineMetaInfo createMetaClass_metagen_CppContainer();
 cpgf::GDefineMetaInfo createMetaClass_metagen_namespace_cppcontainer();
+cpgf::GDefineMetaInfo createMetaClass_metagen_CppContainer();
 
 } // namespace metadata
 #include "cpgf/metadata/private/gmetadata_footer.h"

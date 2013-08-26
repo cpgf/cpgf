@@ -213,6 +213,18 @@ std::string CppInvokable::getTextOfPointeredType(bool includeClassName) const
 	return CppType(qualType).getQualifiedName(s);
 }
 
+bool CppInvokable::hasTemplateDependentParam() const
+{
+	size_t paramCount = this->getArity();
+	for(size_t i = 0; i < paramCount; ++i) {
+		if(this->getParamType(i).isTemplateDependent()) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 std::string CppInvokable::getTextOfParamList(const ItemTextOptionFlags & options) const
 {
 	std::string text;

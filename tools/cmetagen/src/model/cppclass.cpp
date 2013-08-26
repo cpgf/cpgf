@@ -8,6 +8,8 @@
 
 #include "cpgf/gassert.h"
 
+#include "Poco/Format.h"
+
 #if defined(_MSC_VER)
 #pragma warning(push, 0)
 #endif
@@ -240,6 +242,27 @@ std::string CppClass::getTextOfChainedTemplateParamList(const ItemTextOptionFlag
 			text.append(", ");
 		}
 		text.append(this->getTextOfTemplateParamList(options));
+	}
+	return text;
+}
+
+std::string CppClass::getTextOfQualifedInstantiationName() const
+{
+	string text;
+	if(this->getParent()->isClass()) {
+		text = static_cast<const CppClass *>(this->getParent())->getTextOfQualifedInstantiationName();
+	}
+	else {
+		text = this->getParent()->getQualifiedName();
+	}
+	if(! text.empty()) {
+		text.append("::");
+	}
+	if(this->isTemplate()) {
+		text.append(Poco::format("%s<%s >", this->getName(), this->getTextOfTemplateParamList(itoWithArgName)));
+	}
+	else {
+		text.append(this->getName());
 	}
 	return text;
 }

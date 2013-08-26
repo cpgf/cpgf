@@ -49,6 +49,8 @@ public:
 	bool isVoid() const;
 	bool isFundamental() const;
 
+	bool isTemplateDependent() const;
+
 	CppType getNonReferenceType() const;
 	CppType getBaseType() const; // strip all pointers, reference, or arrays
 	

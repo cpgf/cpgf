@@ -28,6 +28,8 @@ public:
 	bool isOverloaded() const;
 	bool hasResult() const;
 
+	bool hasTemplateDependentParam() const;
+
 	size_t getArity() const;
 	size_t getNonDefaultParamCount() const;
 	CppType getParamType(size_t index) const;

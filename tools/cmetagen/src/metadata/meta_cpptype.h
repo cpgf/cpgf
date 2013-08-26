@@ -74,6 +74,7 @@ void buildMetaClass_metagen_CppType(D_d & _d)
     _d.CPGF_MD_TEMPLATE _method("isFunctionPointer", &D_d::ClassType::isFunctionPointer);
     _d.CPGF_MD_TEMPLATE _method("isVoid", &D_d::ClassType::isVoid);
     _d.CPGF_MD_TEMPLATE _method("isFundamental", &D_d::ClassType::isFundamental);
+    _d.CPGF_MD_TEMPLATE _method("isTemplateDependent", &D_d::ClassType::isTemplateDependent);
     _d.CPGF_MD_TEMPLATE _method("getNonReferenceType", &D_d::ClassType::getNonReferenceType);
     _d.CPGF_MD_TEMPLATE _method("getBaseType", &D_d::ClassType::getBaseType);
     _d.CPGF_MD_TEMPLATE _method("getCXXRecordDecl", &D_d::ClassType::getCXXRecordDecl);

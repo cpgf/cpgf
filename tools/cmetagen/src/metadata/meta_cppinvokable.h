@@ -54,6 +54,7 @@ void buildMetaClass_metagen_CppInvokable(D_d & _d)
     _d.CPGF_MD_TEMPLATE _method("isTemplate", &D_d::ClassType::isTemplate);
     _d.CPGF_MD_TEMPLATE _method("isOverloaded", &D_d::ClassType::isOverloaded);
     _d.CPGF_MD_TEMPLATE _method("hasResult", &D_d::ClassType::hasResult);
+    _d.CPGF_MD_TEMPLATE _method("hasTemplateDependentParam", &D_d::ClassType::hasTemplateDependentParam);
     _d.CPGF_MD_TEMPLATE _method("getArity", &D_d::ClassType::getArity);
     _d.CPGF_MD_TEMPLATE _method("getNonDefaultParamCount", &D_d::ClassType::getNonDefaultParamCount);
     _d.CPGF_MD_TEMPLATE _method("getParamType", &D_d::ClassType::getParamType);

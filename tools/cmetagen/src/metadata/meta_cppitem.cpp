@@ -14,18 +14,18 @@ void partial_createMetaClass_metagen_namespace_cppitem(cpgf::GDefineMetaInfo met
     buildMetaClass_metagen_namespace_cppitem(meta);
 }
 
-void partial_createMetaClass_metagen_CppItem(cpgf::GDefineMetaInfo metaInfo)
-{
-    typedef cpgf::GDefineMetaClass<metagen::CppItem > MetaType;
-    MetaType meta = MetaType::fromMetaClass(metaInfo.getMetaClass());
-    buildMetaClass_metagen_CppItem(meta);
-}
-
 void partial_createMetaClass_metagen_CppNamedItem(cpgf::GDefineMetaInfo metaInfo)
 {
     typedef cpgf::GDefineMetaClass<metagen::CppNamedItem > MetaType;
     MetaType meta = MetaType::fromMetaClass(metaInfo.getMetaClass());
     buildMetaClass_metagen_CppNamedItem(meta);
+}
+
+void partial_createMetaClass_metagen_CppItem(cpgf::GDefineMetaInfo metaInfo)
+{
+    typedef cpgf::GDefineMetaClass<metagen::CppItem > MetaType;
+    MetaType meta = MetaType::fromMetaClass(metaInfo.getMetaClass());
+    buildMetaClass_metagen_CppItem(meta);
 }
 
 void partial_createMetaClass_metagen_namespace_cppitem(cpgf::GDefineMetaInfo metaInfo);
@@ -41,19 +41,6 @@ cpgf::GDefineMetaInfo createMetaClass_metagen_namespace_cppitem()
     return meta;
 }
 
-void partial_createMetaClass_metagen_CppItem(cpgf::GDefineMetaInfo metaInfo);
-cpgf::GDefineMetaInfo createMetaClass_metagen_CppItem()
-{
-    typedef cpgf::GDefineMetaClass<metagen::CppItem > MetaType;
-    
-    MetaType _d = MetaType::Policy<cpgf::MakePolicy<GMetaRuleDefaultConstructorAbsent > >::declare("CppItem");
-    cpgf::GDefineMetaInfo meta = _d.getMetaInfo();
-    
-    partial_createMetaClass_metagen_CppItem(meta);
-    
-    return meta;
-}
-
 void partial_createMetaClass_metagen_CppNamedItem(cpgf::GDefineMetaInfo metaInfo);
 cpgf::GDefineMetaInfo createMetaClass_metagen_CppNamedItem()
 {
@@ -63,6 +50,19 @@ cpgf::GDefineMetaInfo createMetaClass_metagen_CppNamedItem()
     cpgf::GDefineMetaInfo meta = _d.getMetaInfo();
     
     partial_createMetaClass_metagen_CppNamedItem(meta);
+    
+    return meta;
+}
+
+void partial_createMetaClass_metagen_CppItem(cpgf::GDefineMetaInfo metaInfo);
+cpgf::GDefineMetaInfo createMetaClass_metagen_CppItem()
+{
+    typedef cpgf::GDefineMetaClass<metagen::CppItem > MetaType;
+    
+    MetaType _d = MetaType::Policy<cpgf::MakePolicy<GMetaRuleDefaultConstructorAbsent > >::declare("CppItem");
+    cpgf::GDefineMetaInfo meta = _d.getMetaInfo();
+    
+    partial_createMetaClass_metagen_CppItem(meta);
     
     return meta;
 }

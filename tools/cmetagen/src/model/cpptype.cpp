@@ -198,6 +198,11 @@ bool CppType::isFundamental() const
 	return this->qualType->isFundamentalType();
 }
 
+bool CppType::isTemplateDependent() const
+{
+	return this->qualType->isDependentType();
+}
+
 CppType CppType::getNonReferenceType() const
 {
 	clang::QualType type = this->qualType.getNonReferenceType();

@@ -87,6 +87,7 @@ void buildMetaClass_metagen_CppClass(D_d & _d)
     _d.CPGF_MD_TEMPLATE _method("isAbstract", &D_d::ClassType::isAbstract);
     _d.CPGF_MD_TEMPLATE _method("getTextOfTemplateParamList", &D_d::ClassType::getTextOfTemplateParamList), cpgf::MakePolicy<GMetaRuleCopyConstReference<0> >();
     _d.CPGF_MD_TEMPLATE _method("getTextOfChainedTemplateParamList", &D_d::ClassType::getTextOfChainedTemplateParamList), cpgf::MakePolicy<GMetaRuleCopyConstReference<0> >();
+    _d.CPGF_MD_TEMPLATE _method("getTextOfQualifedInstantiationName", &D_d::ClassType::getTextOfQualifedInstantiationName);
     _d.CPGF_MD_TEMPLATE _method("getPolicy", &D_d::ClassType::getPolicy);
 
     _d.CPGF_MD_TEMPLATE _operator<metagen::CppClass &(*)(cpgf::GMetaSelf, const metagen::CppClass &)>(mopHolder = mopHolder, cpgf::MakePolicy<GMetaRuleCopyConstReference<0> >());
