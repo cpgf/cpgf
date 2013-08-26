@@ -327,7 +327,7 @@ void BuilderContext::doCollectPartialCreationFunctions(BuilderSectionListType * 
 		if(section->isPartialCreationFunction()) {
 			const CppItem * cppItem = section->getCppItem();
 			if(cppItem->isClass()
-				&& static_cast<const CppClass *>(cppItem)->isTemplate()
+				&& static_cast<const CppClass *>(cppItem)->isChainedTemplate()
 				&& section->getTemplateInstantiation() == NULL) {
 				continue;
 			}

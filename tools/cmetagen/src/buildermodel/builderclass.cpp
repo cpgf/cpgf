@@ -69,7 +69,7 @@ void BuilderClass::doWriteBaseClasses(BuilderWriter * writer)
 void BuilderClass::doWriteAsNestedClass(BuilderWriter * writer)
 {
 	const CppClass * cppClass = this->getCppClass();
-	if(cppClass->isAnonymous() || cppClass->isTemplate()) {
+	if(cppClass->isAnonymous() || cppClass->isChainedTemplate()) {
 		return;
 	}
 
