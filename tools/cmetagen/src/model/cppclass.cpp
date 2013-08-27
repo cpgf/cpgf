@@ -39,8 +39,9 @@ const CXXRecordDecl * getRecordDecl(const Decl * decl)
 	return recordDecl;
 }
 
-BaseClass::BaseClass(const clang::CXXBaseSpecifier * baseSpecifier, const CppContext * cppContext)
-	: baseSpecifier(baseSpecifier), cppContext(cppContext)
+BaseClass::BaseClass(const clang::CXXBaseSpecifier * baseSpecifier, const CppContext * cppContext,
+	const CppClass * masterCppClass)
+	: baseSpecifier(baseSpecifier), cppContext(cppContext), masterCppClass(masterCppClass)
 {
 }
 
@@ -52,7 +53,16 @@ ItemVisibility BaseClass::getVisibility() const
 
 std::string BaseClass::getQualifiedName() const
 {
-	return CppType(this->baseSpecifier->getType()).getQualifiedName();
+	CppType cppType(this->baseSpecifier->getType());
+	if(cppType.isTemplateDependent()) {
+		return getSourceText(this->masterCppClass->getASTContext(),
+			this->baseSpecifier->getTypeSourceInfo()->getTypeLoc().getBeginLoc(),
+			this->baseSpecifier->getTypeSourceInfo()->getTypeLoc().getEndLoc()
+		);
+	}
+	else {
+		return cppType.getQualifiedName();
+	}
 }
 
 const CppClass * BaseClass::getCppClass() const

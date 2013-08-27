@@ -573,7 +573,7 @@ void ClangParserImplement::parseField(FieldDecl * fieldDecl)
 
 void ClangParserImplement::parseBaseClass(CppClass * cls, CXXBaseSpecifier * baseSpecifier)
 {
-	BaseClass * baseClass = new BaseClass(baseSpecifier, this->context);
+	BaseClass * baseClass = new BaseClass(baseSpecifier, this->context, cls);
 	cls->getBaseClassList()->push_back(baseClass);
 }
 

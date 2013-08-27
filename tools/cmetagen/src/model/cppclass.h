@@ -18,7 +18,8 @@ class CppClass;
 class BaseClass
 {
 public:
-	explicit BaseClass(const clang::CXXBaseSpecifier * baseSpecifier, const CppContext * cppContext);
+	BaseClass(const clang::CXXBaseSpecifier * baseSpecifier, const CppContext * cppContext,
+		const CppClass * masterCppClass);
 	
 	ItemVisibility getVisibility() const;
 	
@@ -29,6 +30,7 @@ public:
 private:
 	const clang::CXXBaseSpecifier * baseSpecifier;
 	const CppContext * cppContext;
+	const CppClass * masterCppClass;
 };
 
 class CppClass : public CppContainer
@@ -78,6 +80,7 @@ private:
 private:
 	friend class ClangParserImplement;
 	friend class CppContext;
+	friend class BaseClass;
 };
 
 

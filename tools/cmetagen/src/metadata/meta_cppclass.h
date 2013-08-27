@@ -58,7 +58,7 @@ void buildMetaClass_metagen_BaseClass(D_d & _d)
     (void)_d;
     
 
-    _d.CPGF_MD_TEMPLATE _constructor<void * (const clang::CXXBaseSpecifier *, const metagen::CppContext *)>();
+    _d.CPGF_MD_TEMPLATE _constructor<void * (const clang::CXXBaseSpecifier *, const metagen::CppContext *, const metagen::CppClass *)>();
 
     _d.CPGF_MD_TEMPLATE _method("getVisibility", &D_d::ClassType::getVisibility);
     _d.CPGF_MD_TEMPLATE _method("getQualifiedName", &D_d::ClassType::getQualifiedName);
