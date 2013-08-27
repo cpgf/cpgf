@@ -31,6 +31,7 @@ std::string qualTypeToText(const clang::QualType & qualType, const std::string &
 	langOptions.Bool = 1;
 	PrintingPolicy policy(langOptions);
 	policy.SuppressSpecifiers = 0;
+//	policy.SuppressScope = 0;
 	QualType::print(qualType.split(), stream, policy, name);
 
 	return stream.str();

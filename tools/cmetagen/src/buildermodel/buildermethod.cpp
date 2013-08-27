@@ -139,7 +139,7 @@ void writeMethodReflectionCode(const CppMethod * cppMethod, BuilderWriter * writ
 					Poco::format("Function %s is overloaded and has template dependent argument, meta data can't be generated.\n",
 					cppMethod->getTextOfPointeredType(true))
 				);
-				return;
+//				return;
 			}
 			s = Poco::format("%s, (%s)(%s)", s, cppMethod->getTextOfPointeredType(true), t);
 		}

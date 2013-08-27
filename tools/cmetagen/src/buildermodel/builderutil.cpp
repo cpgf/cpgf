@@ -423,7 +423,7 @@ void generateMainRegisterSourceFile(const Project * project)
 	);
 	const string sourceFileName(
 		normalizeFile(
-			normalizePath(project->getHeaderOutputPath())
+			normalizePath(project->getSourceOutputPath())
 			+ project->getMainRegisterFileName()
 			+ project->getSourceFileExtension()
 		)
