@@ -10,6 +10,8 @@
 #include "llvm/Support/raw_ostream.h"
 #include "clang/AST/DeclTemplate.h"
 #include "clang/AST/PrettyPrinter.h"
+#include "clang/AST/ASTContext.h"
+#include "clang/Lex/Lexer.h"
 
 #if defined(_MSC_VER)
 #pragma warning(pop)
@@ -109,7 +111,7 @@ std::string	 getNamedDeclQualifiedName(const clang::NamedDecl * namedDecl)
 	return qualifiedName;
 }
 
-std::string getTemplateSpecializationName(const TemplateSpecializationType * type)
+std::string getTemplateSpecializationName(const clang::ASTContext * astContext, const TemplateSpecializationType * type)
 {
 	string qualifiedName;
 
@@ -119,14 +121,14 @@ std::string getTemplateSpecializationName(const TemplateSpecializationType * typ
 		if(i > 0) {
 			qualifiedName += ", ";
 		}
-		qualifiedName += getTemplateArgumentName(type->getArg(i));
+		qualifiedName += getTemplateArgumentName(astContext, type->getArg(i));
 	}
 	qualifiedName += " >";
 
 	return qualifiedName;
 }
 
-string getTemplateArgumentName(const TemplateArgument & argument)
+string getTemplateArgumentName(const clang::ASTContext * astContext, const TemplateArgument & argument)
 {
 	string qualifiedName;
 
@@ -145,7 +147,7 @@ string getTemplateArgumentName(const TemplateArgument & argument)
 
 		case TemplateArgument::Integral:
 		case TemplateArgument::Expression:
-			qualifiedName = exprToText(argument.getAsExpr());
+			qualifiedName = exprToText(astContext, argument.getAsExpr());
 			break;
 
 		case TemplateArgument::Template:
@@ -163,12 +165,11 @@ string getTemplateArgumentName(const TemplateArgument & argument)
 	return qualifiedName;
 }
 
-std::string exprToText(const clang::Expr * expr)
+std::string exprToText(const clang::ASTContext * astContext, const clang::Expr * expr)
 {
 	std::string text;
 	raw_string_ostream stream(text);
-	LangOptions langOptions;
-	langOptions.CPlusPlus = 1;
+	const LangOptions & langOptions = astContext->getLangOpts();
 	PrintingPolicy policy(langOptions);
 	policy.SuppressSpecifiers = 0;
 	expr->printPretty(stream, NULL, policy);
@@ -182,12 +183,11 @@ std::string namedDeclToText(const NamedDecl * namedDecl)
 	return qualifiedNameWithoutNamespace;
 }
 
-std::string declToText(const clang::Decl * decl)
+std::string declToText(const clang::ASTContext * astContext, const clang::Decl * decl)
 {
 	std::string text;
 	raw_string_ostream stream(text);
-	LangOptions langOptions;
-	langOptions.CPlusPlus = 1;
+	const LangOptions & langOptions = astContext->getLangOpts();
 	PrintingPolicy policy(langOptions);
 	policy.SuppressSpecifiers =0;
 	decl->print(stream, policy, NULL, false);
@@ -200,6 +200,16 @@ std::string declToText(const clang::Decl * decl)
 	//else {
 	//	return "";
 	//}
+}
+
+std::string getSourceText(const clang::ASTContext * astContext,
+	const clang::SourceLocation & start,
+	const clang::SourceLocation & end)
+{
+	const clang::SourceManager & sourceManager = astContext->getSourceManager();
+	clang::SourceLocation e(clang::Lexer::getLocForEndOfToken(end, 0, sourceManager, astContext->getLangOpts()));
+	return std::string(sourceManager.getCharacterData(start),
+		sourceManager.getCharacterData(e) - sourceManager.getCharacterData(start));
 }
 
 

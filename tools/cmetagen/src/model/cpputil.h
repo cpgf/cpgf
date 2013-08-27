@@ -28,12 +28,14 @@ void getNamedDeclNames(const clang::NamedDecl * namedDecl,
 std::string	 getNamedDeclOutputName(const clang::NamedDecl * namedDecl);
 std::string	 getNamedDeclQualifiedName(const clang::NamedDecl * namedDecl);
 
-std::string getTemplateSpecializationName(const clang::TemplateSpecializationType * type);
-std::string getTemplateArgumentName(const clang::TemplateArgument & argument);
+std::string getTemplateSpecializationName(const clang::ASTContext * astContext, const clang::TemplateSpecializationType * type);
+std::string getTemplateArgumentName(const clang::ASTContext * astContext, const clang::TemplateArgument & argument);
 
-std::string exprToText(const clang::Expr * expr);
-std::string declToText(const clang::Decl * decl);
+std::string exprToText(const clang::ASTContext * astContext, const clang::Expr * expr);
+std::string declToText(const clang::ASTContext * astContext, const clang::Decl * decl);
 
+std::string getSourceText(const clang::ASTContext * astContext,
+	const clang::SourceLocation & start, const clang::SourceLocation & end);
 
 } // namespace metagen
 

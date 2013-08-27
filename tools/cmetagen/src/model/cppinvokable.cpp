@@ -191,7 +191,7 @@ std::string CppInvokable::getTextOfParamDeafultValue(size_t index) const
 	const ParmVarDecl * paramDecl = functionDecl->getParamDecl((unsigned int)index);
 
 	if(paramDecl->hasDefaultArg()) {
-		return exprToText(paramDecl->getDefaultArg());
+		return exprToText(this->getASTContext(), paramDecl->getDefaultArg());
 	}
 	else {
 		return "";

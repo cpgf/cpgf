@@ -208,19 +208,19 @@ std::string CppClass::getTextOfTemplateParamList(const ItemTextOptionFlags & opt
 				text.append(paramDecl->getNameAsString());
 			}
 			if(paramDecl->hasDefaultArgument()) {
-				defaultValue = exprToText(paramDecl->getDefaultArgument());
+				defaultValue = exprToText(this->getASTContext(), paramDecl->getDefaultArgument());
 			}
 		}
 		else if(kind == Decl::TemplateTemplateParm) {
 			const TemplateTemplateParmDecl * paramDecl = dyn_cast<TemplateTemplateParmDecl>(namedDecl);
 			if(options.has(itoWithArgType)) {
-				text.append(declToText(paramDecl));
+				text.append(declToText(this->getASTContext(), paramDecl));
 			}
 			else {
 				text.append(paramDecl->getNameAsString());
 			}
 			if(paramDecl->hasDefaultArgument()) {
-				defaultValue = getTemplateArgumentName(paramDecl->getDefaultArgument().getArgument());
+				defaultValue = getTemplateArgumentName(this->getASTContext(), paramDecl->getDefaultArgument().getArgument());
 			}
 		}
 		if(! defaultValue.empty() && options.has(itoWithDefaultValue)) {
