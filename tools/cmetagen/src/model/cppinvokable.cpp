@@ -210,7 +210,9 @@ std::string CppInvokable::getTextOfPointeredType(bool includeClassName) const
 		s = getCppContainerInstantiationName(this->getParent()) + "::*";
 	}
 
-	return CppType(qualType).getQualifiedName(s);
+	string text = CppType(qualType).getQualifiedName(s);
+	text = fixIllFormedTemplates(dynamic_cast<const CppClass *>(this->getParent()), text);
+	return text;
 }
 
 bool CppInvokable::hasTemplateDependentParam() const

@@ -17,6 +17,7 @@
 
 namespace metagen {
 
+class CppClass;
 
 clang::QualType stripType(const clang::QualType & qualType);
 
@@ -36,6 +37,10 @@ std::string declToText(const clang::ASTContext * astContext, const clang::Decl *
 
 std::string getSourceText(const clang::ASTContext * astContext,
 	const clang::SourceLocation & start, const clang::SourceLocation & end);
+
+
+std::string fixIllFormedTemplates(const CppClass * ownerClass, const std::string & text);
+
 
 } // namespace metagen
 

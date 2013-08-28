@@ -1,7 +1,11 @@
 #include "cpputil.h"
 #include "cpptype.h"
+#include "cppclass.h"
+
+#include "cpgf/gassert.h"
 
 #include "Poco/RegularExpression.h"
+#include "Poco/NumberParser.h"
 
 #if defined(_MSC_VER)
 #pragma warning(push, 0)
@@ -210,6 +214,85 @@ std::string getSourceText(const clang::ASTContext * astContext,
 	clang::SourceLocation e(clang::Lexer::getLocForEndOfToken(end, 0, sourceManager, astContext->getLangOpts()));
 	return std::string(sourceManager.getCharacterData(start),
 		sourceManager.getCharacterData(e) - sourceManager.getCharacterData(start));
+}
+
+const CppClass * findOutterTemplateByDepth(const CppClass * cppClass, int depth)
+{
+	const CppClass * currentClass = cppClass;
+	while(currentClass != NULL) {
+		if(currentClass->getTemplateDepth() == depth) {
+			return currentClass;
+		}
+		currentClass = dynamic_cast<const CppClass *>(currentClass->getParent());
+	}
+	return NULL;
+}
+
+/*
+namespace NS {
+
+template <typename T, typename X>
+struct A
+{
+	template <typename U>
+	struct Y {
+	};
+
+	struct YY {
+		template <typename U>
+		struct B {
+			void bb(Y<T> *, U *, X);
+			void bb(int, int, int);
+		};
+	};
+};
+
+}
+Will generate first "bb" as,
+    _d.CPGF_MD_TEMPLATE _method("bb", (void (NS::A<T, X >::YY::B<U >::*)(Y<type-parameter-0-0> *, type-parameter-1-0 *, type-parameter-0-1))(&D_d::ClassType::bb));
+type-parameter-DD-II is the place holder for type name such as T, X.
+DD is the depth, which the most outter template is 0, the inner one is increased by 1
+II is the type index, from left to right
+*/
+std::string doFixIllFormedTemplatePlaceHolder(const CppClass * ownerClass, const std::string & text)
+{
+	static Poco::RegularExpression re("\\btype-parameter-(\\d+)-(\\d+)\\b");
+	string result = text;
+	int position = 0;
+	for(;;) {
+		Poco::RegularExpression::MatchVec matches;
+		int matchCount = re.match(result, position, matches, 0);
+		if(matchCount == 3) {
+			position = matches[0].offset + matches[0].length;
+			
+			int depth = Poco::NumberParser::parse(result.substr(matches[1].offset, matches[1].length));
+			int index = Poco::NumberParser::parse(result.substr(matches[2].offset, matches[2].length));
+
+			const CppClass * templateClass = findOutterTemplateByDepth(ownerClass, depth);
+			GASSERT(templateClass != NULL);
+
+			if(index < templateClass->getTemplateParamCount()) {
+				string name = templateClass->getTemplateParamName(index);
+				result = result.substr(0, matches[0].offset) + name + result.substr(matches[0].offset + matches[0].length);
+				position = matches[0].offset + name.length();
+			}
+		}
+		else {
+			break;
+		}
+	}
+	return result;
+}
+
+std::string fixIllFormedTemplates(const CppClass * ownerClass, const std::string & text)
+{
+	if(ownerClass == NULL || ! ownerClass->isChainedTemplate()) {
+		return text;
+	}
+
+	string result = doFixIllFormedTemplatePlaceHolder(ownerClass, text);
+
+	return result;
 }
 
 

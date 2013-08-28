@@ -55,6 +55,10 @@ public:
 	bool isAnonymous() const;
 	bool isAbstract() const;
 
+	int getTemplateDepth() const;
+	int getTemplateParamCount() const;
+	std::string getTemplateParamName(int paramIndex) const;
+
 	std::string getTextOfTemplateParamList(const ItemTextOptionFlags & options) const;
 	std::string getTextOfChainedTemplateParamList(const ItemTextOptionFlags & options) const;
 	std::string getTextOfQualifedInstantiationName() const;

@@ -181,6 +181,47 @@ void CppClass::doAddItem(CppItem * item)
 }
 
 
+int CppClass::getTemplateDepth() const
+{
+	if(! this->isTemplate()) {
+		return -1;
+	}
+
+	const TemplateDecl * templateDecl = dyn_cast<TemplateDecl>(this->getDecl());
+	const TemplateParameterList * templateParamList = templateDecl->getTemplateParameters();
+	return (int)(templateParamList->getDepth());
+}
+
+int CppClass::getTemplateParamCount() const
+{
+	const TemplateDecl * templateDecl = dyn_cast<TemplateDecl>(this->getDecl());
+	const TemplateParameterList * templateParamList = templateDecl->getTemplateParameters();
+	return (int)(templateParamList->size());
+}
+
+std::string CppClass::getTemplateParamName(int paramIndex) const
+{
+	const TemplateDecl * templateDecl = dyn_cast<TemplateDecl>(this->getDecl());
+	const TemplateParameterList * templateParamList = templateDecl->getTemplateParameters();
+	
+	const NamedDecl * namedDecl = templateParamList->getParam(paramIndex);
+	Decl::Kind kind = namedDecl->getKind();
+
+	if(kind == Decl::TemplateTypeParm) {
+		const TemplateTypeParmDecl * paramDecl = dyn_cast<TemplateTypeParmDecl>(namedDecl);
+		return paramDecl->getNameAsString();
+	}
+	else if(kind == Decl::NonTypeTemplateParm) {
+		const NonTypeTemplateParmDecl * paramDecl = dyn_cast<NonTypeTemplateParmDecl>(namedDecl);
+		return paramDecl->getNameAsString();
+	}
+	else if(kind == Decl::TemplateTemplateParm) {
+		const TemplateTemplateParmDecl * paramDecl = dyn_cast<TemplateTemplateParmDecl>(namedDecl);
+			return paramDecl->getNameAsString();
+	}
+	return "";
+}
+
 std::string CppClass::getTextOfTemplateParamList(const ItemTextOptionFlags & options) const
 {
 	if(! this->isTemplate()) {
