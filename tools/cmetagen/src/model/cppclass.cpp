@@ -54,6 +54,8 @@ ItemVisibility BaseClass::getVisibility() const
 std::string BaseClass::getQualifiedName() const
 {
 	CppType cppType(this->baseSpecifier->getType());
+	return fixIllFormedTemplates(this->masterCppClass, cppType.getQualifiedName());
+/*
 	if(cppType.isTemplateDependent()) {
 		return getSourceText(this->masterCppClass->getASTContext(),
 			this->baseSpecifier->getTypeSourceInfo()->getTypeLoc().getBeginLoc(),
@@ -63,6 +65,7 @@ std::string BaseClass::getQualifiedName() const
 	else {
 		return cppType.getQualifiedName();
 	}
+*/
 }
 
 const CppClass * BaseClass::getCppClass() const
