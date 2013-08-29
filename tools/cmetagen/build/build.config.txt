@@ -3,7 +3,7 @@ set(BUILD_DEBUG	1) #release=false
 ### Clang config
 
 set(CLANG_DIR
-	/source/llvm
+	/Users/wangqi/source/llvm
 )
 
 set(CLANG_BUILD ${CLANG_DIR}/build)
@@ -21,19 +21,47 @@ set(CLANG_INC
 )
 
 set(CLANG_DEBUG_LIB_DIR
-	${CLANG_BUILD}/lib/Debug
+	${CLANG_BUILD}/Release+Asserts/lib
 )
 set(CLANG_RELEASE_LIB_DIR
 	${CLANG_BUILD}/lib/Release
 )
 
-if(CMAKE_COMPILER_IS_GNUCC)
-	set(CLANG_LIB
-	)
-endif(CMAKE_COMPILER_IS_GNUCC)
+set(CLANG_LIB
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangParse.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangFrontend.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangSema.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangAnalysis.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangLex.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangBasic.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangSerialization.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangDriver.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangAST.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangEdit.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libLLVMSupport.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libLLVMCore.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libLLVMMC.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libLLVMBitReader.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libLLVMMCParser.a
+	
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangParse.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangFrontend.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangSema.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangAnalysis.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangLex.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangBasic.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangSerialization.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangDriver.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangAST.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangEdit.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libLLVMSupport.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libLLVMCore.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libLLVMMC.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libLLVMBitReader.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libLLVMMCParser.a
+)
 
 if(MSVC)
-#	add_definitions(-D_SECURE_SCL=0 -D_HAS_ITERATOR_DEBUGGING=0)
 	set(CLANG_LIB
 		debug ${CLANG_DEBUG_LIB_DIR}/clangParse.lib
 		debug ${CLANG_DEBUG_LIB_DIR}/clangFrontend.lib
@@ -72,12 +100,15 @@ endif(MSVC)
 if(CMAKE_COMPILER_IS_GNUCC)
 	add_definitions(-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -DHAVE_UINT64_T)
 endif(CMAKE_COMPILER_IS_GNUCC)
+if(UNIX)
+	add_definitions(-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -DHAVE_UINT64_T)
+endif(UNIX)
 
 
 ### Poco config
 
 set(POCO_DIR
-	/source/poco
+	/Users/wangqi/source/poco
 )
 
 set(POCO_INC
@@ -85,17 +116,29 @@ set(POCO_INC
 	${POCO_DIR}/Util/include
 )
 
+set(POCO_LIB_DIR ${POCO_DIR}/lib)
+
 if(CMAKE_COMPILER_IS_GNUCC)
 	set(POCO_LIB
 	)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
+if(APPLE)
+	set(POCO_LIB_DIR ${POCO_DIR}/lib/Darwin/x86_64)
+	set(POCO_LIB
+		debug ${POCO_LIB_DIR}/libPocoFoundationd.dylib
+		optimized ${POCO_LIB_DIR}/libPocoFoundation.dylib
+		debug ${POCO_LIB_DIR}/libPocoUtild.dylib
+		optimized ${POCO_LIB_DIR}/libPocoUtil.dylib
+	)
+endif(APPLE)
+
 if(MSVC)
 	set(POCO_LIB
-		debug ${POCO_DIR}/lib/PocoFoundationd.lib
-		optimized ${POCO_DIR}/lib/PocoFoundation.lib
-		debug ${POCO_DIR}/lib/PocoUtild.lib
-		optimized ${POCO_DIR}/lib/PocoUtil.lib
+		debug ${POCO_LIB_DIR}/PocoFoundationd.lib
+		optimized ${POCO_LIB_DIR}/PocoFoundation.lib
+		debug ${POCO_LIB_DIR}/PocoUtild.lib
+		optimized ${POCO_LIB_DIR}/PocoUtil.lib
 	)
 endif(MSVC)
 

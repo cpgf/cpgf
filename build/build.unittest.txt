@@ -1,3 +1,4 @@
+set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
 if(CMAKE_COMPILER_IS_GNUCC)
 	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
 	if(TEST_GCOV)
