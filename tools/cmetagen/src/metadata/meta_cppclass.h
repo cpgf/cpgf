@@ -85,6 +85,9 @@ void buildMetaClass_metagen_CppClass(D_d & _d)
     _d.CPGF_MD_TEMPLATE _method("isChainedTemplate", &D_d::ClassType::isChainedTemplate);
     _d.CPGF_MD_TEMPLATE _method("isAnonymous", &D_d::ClassType::isAnonymous);
     _d.CPGF_MD_TEMPLATE _method("isAbstract", &D_d::ClassType::isAbstract);
+    _d.CPGF_MD_TEMPLATE _method("getTemplateDepth", &D_d::ClassType::getTemplateDepth);
+    _d.CPGF_MD_TEMPLATE _method("getTemplateParamCount", &D_d::ClassType::getTemplateParamCount);
+    _d.CPGF_MD_TEMPLATE _method("getTemplateParamName", &D_d::ClassType::getTemplateParamName);
     _d.CPGF_MD_TEMPLATE _method("getTextOfTemplateParamList", &D_d::ClassType::getTextOfTemplateParamList), cpgf::MakePolicy<GMetaRuleCopyConstReference<0> >();
     _d.CPGF_MD_TEMPLATE _method("getTextOfChainedTemplateParamList", &D_d::ClassType::getTextOfChainedTemplateParamList), cpgf::MakePolicy<GMetaRuleCopyConstReference<0> >();
     _d.CPGF_MD_TEMPLATE _method("getTextOfQualifedInstantiationName", &D_d::ClassType::getTextOfQualifedInstantiationName);

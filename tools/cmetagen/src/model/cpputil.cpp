@@ -258,7 +258,7 @@ std::string doFixIllFormedTemplatePlaceHolder(const CppClass * ownerClass, const
 {
 	static Poco::RegularExpression re("\\btype-parameter-(\\d+)-(\\d+)\\b");
 	string result = text;
-	int position = 0;
+	size_t position = 0;
 	for(;;) {
 		Poco::RegularExpression::MatchVec matches;
 		int matchCount = re.match(result, position, matches, 0);
