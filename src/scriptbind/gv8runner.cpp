@@ -59,16 +59,19 @@ bool GV8ScriptRunnerImplement::executeJsString(const char * source)
 {
 	using namespace v8;
 
+    context->Enter();
 	v8::HandleScope handle_scope;
 	v8::TryCatch try_catch;
 	v8::Handle<v8::Script> script = v8::Script::Compile(String::New(source), String::New("cpgf"));
 	if(script.IsEmpty()) {
 		v8::String::AsciiValue error(try_catch.Exception());
+	    context->Exit();
 		this->error(*error);
 		return false;
 	}
 	else {
 		v8::Handle<v8::Value> result = script->Run();
+	    context->Exit();
 		if(result.IsEmpty()) {
 			v8::String::AsciiValue error(try_catch.Exception());
 			this->error(*error);
