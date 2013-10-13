@@ -22,6 +22,7 @@ private:
 
 public:
 	GV8ScriptRunnerImplement(IMetaService * service);
+	GV8ScriptRunnerImplement(IMetaService * service, Handle<Context> ctx);
 	~GV8ScriptRunnerImplement();
 
 	virtual void executeString(const char * code);
@@ -29,6 +30,7 @@ public:
 private:
 	bool executeJsString(const char * source);
 	void error(const char * message) const;
+	void init();
 
 private:
 	HandleScope handleScope;
@@ -40,12 +42,23 @@ private:
 GV8ScriptRunnerImplement::GV8ScriptRunnerImplement(IMetaService * service)
 	: super(service), handleScope(), context(Context::New())
 {
-	this->contextScope = new Context::Scope(this->context);
+    init();
+}
+
+GV8ScriptRunnerImplement::GV8ScriptRunnerImplement(IMetaService * service, Handle<Context> ctx)
+	: super(service), handleScope(), context(ctx)
+{
+    init();
+}
+
+void GV8ScriptRunnerImplement::init()
+{
+	contextScope = new Context::Scope(context);
 	Local<Object> global = context->Global();
 
-	GScopedInterface<IMetaService> metaService(this->getService());
+	GScopedInterface<IMetaService> metaService(getService());
 	GScopedInterface<IScriptObject> scriptObject(createV8ScriptInterface(metaService.get(), global, GScriptConfig()));
-	this->setScripeObject(scriptObject.get());
+	setScripeObject(scriptObject.get());
 }
 
 GV8ScriptRunnerImplement::~GV8ScriptRunnerImplement()
@@ -95,6 +108,10 @@ GScriptRunner * createV8ScriptRunner(IMetaService * service)
 	return GScriptRunnerImplement::createScriptRunner(new GV8ScriptRunnerImplement(service));
 }
 
+GScriptRunner * createV8ScriptRunner(IMetaService * service, Handle<Context> ctx)
+{
+	return GScriptRunnerImplement::createScriptRunner(new GV8ScriptRunnerImplement(service, ctx));
+}
 
 
 } // namespace cpgf

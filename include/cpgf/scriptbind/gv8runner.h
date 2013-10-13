@@ -2,7 +2,7 @@
 #define CPGF_GV8RUNNER_H
 
 #include "cpgf/scriptbind/gscriptrunner.h"
-
+#include <v8.h>
 
 namespace cpgf {
 
@@ -11,6 +11,7 @@ struct IMetaService;
 
 GScriptRunner * createV8ScriptRunner(IMetaService * service);
 
+GScriptRunner * createV8ScriptRunner(IMetaService * service, v8::Handle<v8::Context> ctx);
 
 
 } // namespace cpgf
