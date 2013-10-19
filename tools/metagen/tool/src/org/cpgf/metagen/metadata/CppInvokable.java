@@ -8,11 +8,13 @@ import org.cpgf.metagen.cppparser.ParserUtil;
 
 public class CppInvokable extends ParameteredItem {
 	private CppType resultType;
+	private boolean transferResultOwnership;
 
 	public CppInvokable(EnumCategory category, String name, CppType resultType) {
 		super(category, name);
 		
 		this.resultType = resultType;
+		this.transferResultOwnership = false;
 	}
 
 	public CppType getResultType() {
@@ -23,6 +25,14 @@ public class CppInvokable extends ParameteredItem {
 		this.resultType = resultType;
 	}
 	
+	public boolean getTransferResultOwnership() {
+		return transferResultOwnership;
+	}
+
+	public void setTransferResultOwnership(boolean transferResultOwnership) {
+		this.transferResultOwnership = transferResultOwnership;
+	}
+	
 	public boolean hasResult() {
 		return ! this.resultType.isVoid();
 	}
@@ -30,6 +40,9 @@ public class CppInvokable extends ParameteredItem {
 	@Override
 	public void getPolicyRules(List<String> rules) {
 		if(this.resultType != null) {
+		    if (getTransferResultOwnership()) {
+                rules.add(ParserUtil.composePolicyRuleForParameter("GMetaRuleTransferOwnership", -1));
+            }
 			getPolicyRuleForParameter(rules, this.resultType, -1);
 		}
 		
