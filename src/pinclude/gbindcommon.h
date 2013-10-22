@@ -1408,7 +1408,7 @@ public:
 		for(typename ObjectMapType::iterator it = this->objectMap.begin();
 			it != this->objectMap.end(); ) {
 			if(it->first.instance == instance) {
-				it = this->objectMap.erase(it);
+				this->objectMap.erase(it++);
 			}
 			else {
 				++it;

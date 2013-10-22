@@ -1406,7 +1406,7 @@ PyObject * callbackGetAttribute(PyObject * object, PyObject * attrName)
 
 	PyObject * attrObject;
 
-// If we enable blow code, some common method names such as "get" will be intercepted by Python.
+// If we enable below code, some common method names such as "get" will be intercepted by Python.
 //	if(PyObject_HasAttr(cppObject->ob_type->tp_dict, attrName)) {
 //		attrObject = PyObject_GetAttr(cppObject->ob_type->tp_dict, attrName);
 //	}
