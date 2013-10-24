@@ -984,7 +984,7 @@ void rankCallableImplicitConvert(ConvertRank * outputRank, IMetaService * servic
 	rankImplicitConvertForString(outputRank, getVariantRealValue(callbackParam->params[paramIndex].value.getValue()), targetType);
 	
 	if(outputRank->weight == ValueMatchRank_Unknown) {
-		rankImplicitConvertForSharedPointer(outputRank, callbackParam->params[paramIndex].glueData,
+		rankImplicitConvertForSharedPointer(outputRank, callbackParam->params[paramIndex].paramGlueData,
 			metaGetParamExtendType(callable, GExtendTypeCreateFlag_SharedPointerTraits, static_cast<uint32_t>(paramIndex)));
 	}
 
@@ -1192,8 +1192,14 @@ void doInvokeCallable(const GContextPointer & context, void * instance, IMetaCal
 
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
 		if(isParamImplicitConvert(callableParam->paramRanks[i])) {
-			implicitConvertCallableParam(context, callableParam->paramRanks[i],
-				&callableParam->params[i].value.getValue(), &holders[i], metaGetParamType(callable, i), callableParam->params[i].glueData);
+			implicitConvertCallableParam(
+				context,
+				callableParam->paramRanks[i],
+				&callableParam->params[i].value.getValue(),
+				&holders[i],
+				metaGetParamType(callable, i),
+				callableParam->params[i].paramGlueData
+			);
 		}
 	}
 
@@ -1205,8 +1211,10 @@ void doInvokeCallable(const GContextPointer & context, void * instance, IMetaCal
 	metaCheckError(callable);
 
 	for(uint32_t i = 0; i < callableParam->paramCount; ++i) {
-		if(callable->isParamTransferOwnership(i) && callableParam->params[i].glueData && callableParam->params[i].glueData->getType() == gdtObject) {
-			static_cast<GObjectGlueData *>(callableParam->params[i].glueData.get())->setAllowGC(false);
+		if(callable->isParamTransferOwnership(i)
+			&& callableParam->params[i].paramGlueData
+			&& callableParam->params[i].paramGlueData->getType() == gdtObject) {
+			static_cast<GObjectGlueData *>(callableParam->params[i].paramGlueData.get())->setAllowGC(false);
 		}
 	}
 }

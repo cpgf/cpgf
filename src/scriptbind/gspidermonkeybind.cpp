@@ -671,7 +671,7 @@ void loadCallableParam(jsval * valuePointer, const GSpiderContextPointer & conte
 {
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
 		JsValue value = JS_ARGV(context->getJsContext(), valuePointer)[i];
-		callableParam->params[i].value = spiderToScriptValue(context, value , &callableParam->params[i].glueData);
+		callableParam->params[i].value = spiderToScriptValue(context, value , &callableParam->params[i].paramGlueData);
 	}
 }
 JSBool failedResult()

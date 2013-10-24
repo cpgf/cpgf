@@ -759,7 +759,7 @@ bool variantToLua(const GContextPointer & context, const GVariant & data, const 
 void loadCallableParam(const GContextPointer & context, InvokeCallableParam * callableParam, int startIndex)
 {
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
-		callableParam->params[i].value = luaToScriptValue(context, static_cast<int>(i) + startIndex, &callableParam->params[i].glueData);
+		callableParam->params[i].value = luaToScriptValue(context, static_cast<int>(i) + startIndex, &callableParam->params[i].paramGlueData);
 	}
 }
 

@@ -1325,7 +1325,7 @@ void loadCallableParam(const GContextPointer & context, PyObject * args, InvokeC
 
 	for(int i = 0; i < paramCount; ++i) {
 		PyObject * c = PyTuple_GetItem(args, i);
-		callableParam->params[i].value = pythonToScriptValue(context, c, &callableParam->params[i].glueData);
+		callableParam->params[i].value = pythonToScriptValue(context, c, &callableParam->params[i].paramGlueData);
 	}
 }
 

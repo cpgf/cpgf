@@ -812,7 +812,7 @@ Handle<Value> getNamedMember(const GGlueDataPointer & glueData, const char * nam
 void loadCallableParam(const Arguments & args, const GContextPointer & context, InvokeCallableParam * callableParam)
 {
 	for(int i = 0; i < args.Length(); ++i) {
-		callableParam->params[i].value = v8ToScriptValue(context, args.Holder()->CreationContext(), args[i], &callableParam->params[i].glueData);
+		callableParam->params[i].value = v8ToScriptValue(context, args.Holder()->CreationContext(), args[i], &callableParam->params[i].paramGlueData);
 	}
 }
 

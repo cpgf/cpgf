@@ -775,7 +775,7 @@ class CallableParamData
 {
 public:
 	GScriptValue value;
-	GGlueDataPointer glueData;
+	GGlueDataPointer paramGlueData;
 };
 
 class InvokeCallableParam
