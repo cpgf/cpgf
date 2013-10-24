@@ -649,6 +649,16 @@ void GBindingContext::bindScriptCoreService(GScriptObject * scriptObject, const 
 	this->scriptCoreService.reset(doBindScriptCoreService(scriptObject, bindName, libraryLoader));
 }
 
+void GBindingContext::setScriptUserConverter(IScriptUserConverter * converter)
+{
+	this->scriptUserConverter.reset(converter);
+}
+
+IScriptUserConverter * GBindingContext::getScriptUserConverter() const
+{
+	return this->scriptUserConverter.get();
+}
+
 GClassPool * GBindingContext::getClassPool()
 {
 	return this->classPool.get();
@@ -793,6 +803,11 @@ IMetaService * GScriptObjectBase::getMetaService() {
 	IMetaService * service = this->context->getService();
 	service->addReference();
 	return service;
+}
+
+void GScriptObjectBase::doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
+{
+	this->getContext()->bindScriptCoreService(this, name, libraryLoader);
 }
 
 

@@ -217,8 +217,6 @@ protected:
 	virtual GScriptValue doGetValue(const char * name);
 	virtual void doSetValue(const char * name, const GScriptValue & value);
 
-	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
-
 private:
 	GPythonScriptObject(const GPythonScriptObject & other, PyObject * object);
 
@@ -2093,11 +2091,6 @@ GScriptValue GPythonScriptObject::createScriptArray(const char * name)
 	}
 
 	return GScriptValue();
-}
-
-void GPythonScriptObject::doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
-{
-	this->getContext()->bindScriptCoreService(this, name, libraryLoader);
 }
 
 

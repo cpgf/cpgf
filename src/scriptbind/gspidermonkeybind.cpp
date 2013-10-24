@@ -301,8 +301,6 @@ protected:
 	virtual GScriptValue doGetValue(const char * name);
 	virtual void doSetValue(const char * name, const GScriptValue & value);
 
-	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
-
 private:	
 	GMethodGlueDataPointer doGetMethodData(const char * methodName);
 	
@@ -1599,11 +1597,6 @@ GScriptValue GSpiderMonkeyScriptObject::createScriptArray(const char * name)
 		return GScriptValue::fromScriptArray(scriptArray.get());
 	}
 	return value;
-}
-
-void GSpiderMonkeyScriptObject::doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
-{
-	this->getContext()->bindScriptCoreService(this, name, libraryLoader);
 }
 
 GMethodGlueDataPointer GSpiderMonkeyScriptObject::doGetMethodData(const char * methodName)

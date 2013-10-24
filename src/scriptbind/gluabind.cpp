@@ -127,8 +127,6 @@ protected:
 	virtual GScriptValue doGetValue(const char * name);
 	virtual void doSetValue(const char * name, const GScriptValue & value);
 
-	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
-
 private:
 	void getTable() const;
 	GMethodGlueDataPointer doGetMethodUserData();
@@ -1623,11 +1621,6 @@ GScriptValue GLuaScriptObject::createScriptArray(const char * name)
 
 	GScopedInterface<IScriptArray> scriptArray(new ImplScriptArray(new GLuaScriptArray(this, -1), true));
 	return GScriptValue::fromScriptArray(scriptArray.get());
-}
-
-void GLuaScriptObject::doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
-{
-	this->getContext()->bindScriptCoreService(this, name, libraryLoader);
 }
 
 

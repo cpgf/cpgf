@@ -4,6 +4,7 @@
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptvalue.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
+#include "cpgf/scriptbind/gscriptuserconverter.h"
 #include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gglobal.h"
@@ -15,6 +16,7 @@
 
 #include <map>
 #include <set>
+#include <vector>
 #include <algorithm>
 
 
@@ -714,6 +716,9 @@ public:
 
 	void bindScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader);
 
+	void setScriptUserConverter(IScriptUserConverter * converter);
+	IScriptUserConverter * getScriptUserConverter() const;
+
 public:
 	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
@@ -747,6 +752,7 @@ private:
 	GScopedPointer<GClassPool> classPool;
 	
 	GScopedPointer<GScriptCoreService> scriptCoreService;
+	GSharedInterface<IScriptUserConverter> scriptUserConverter;
 
 private:
 	template <typename T>
@@ -862,6 +868,8 @@ protected:
 	const GContextPointer & getContext() const {
 		return this->context;
 	}
+
+	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 
 private:
 	GContextPointer context;

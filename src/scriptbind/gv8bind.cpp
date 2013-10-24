@@ -165,8 +165,6 @@ protected:
 	virtual GScriptValue doGetValue(const char * name);
 	virtual void doSetValue(const char * name, const GScriptValue & value);
 
-	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
-
 private:
 	GMethodGlueDataPointer doGetMethodData(const char * methodName);
 
@@ -1375,11 +1373,6 @@ GScriptValue GV8ScriptObject::getAsScriptArray(const char * name)
 GScriptValue GV8ScriptObject::createScriptArray(const char * name)
 {
 	return v8CreateScriptArray(this->getContext(), String::New(name), this->object);
-}
-
-void GV8ScriptObject::doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
-{
-	this->getContext()->bindScriptCoreService(this, name, libraryLoader);
 }
 
 GMethodGlueDataPointer GV8ScriptObject::doGetMethodData(const char * methodName)
