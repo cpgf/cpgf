@@ -330,7 +330,7 @@ int GLuaGlobalAccessor::doIndex()
 	string sname(name);
 	MapType::iterator it = this->itemMap.find(sname);
 	if(it != this->itemMap.end()) {
-		doIndexMemberData(this->scriptObject->getContext(), it->second.accessible.get(), it->second.instance, false);
+		doIndexMemberData(this->scriptObject->getBindingContext(), it->second.accessible.get(), it->second.instance, false);
 		return 1;
 	}
 
@@ -346,7 +346,7 @@ int GLuaGlobalAccessor::doNewIndex()
 	string sname(name);
 	MapType::iterator it = this->itemMap.find(sname);
 	if(it != this->itemMap.end()) {
-		GVariant value = luaToScriptValue(this->scriptObject->getContext(), -1, NULL).getValue();
+		GVariant value = luaToScriptValue(this->scriptObject->getBindingContext(), -1, NULL).getValue();
 		GVariantData varData = value.refData();
 		it->second.accessible->set(it->second.instance, &varData);
 		metaCheckError(it->second.accessible.get());
@@ -677,7 +677,7 @@ struct GLuaMethods
 		IMetaClass * metaClass, IMetaClass * derived, const GObjectGlueDataPointer & objectData)
 	{
 		GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getUserData());
-		GContextPointer context = classData->getContext();
+		GContextPointer context = classData->getBindingContext();
 		if(data == NULL) {
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 
@@ -693,7 +693,7 @@ struct GLuaMethods
 	static ResultType doEnumToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem, const char * /*enumName*/)
 	{
 		GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-		helperBindEnum(classData->getContext(), metaEnum.get());
+		helperBindEnum(classData->getBindingContext(), metaEnum.get());
 		return true;
 	}
 
@@ -773,11 +773,11 @@ int callbackInvokeMethodList(lua_State * L)
 	GObjectAndMethodGlueDataPointer userData = static_cast<GGlueDataWrapper *>(lua_touserdata(L, lua_upvalueindex(1)))->getAs<GObjectAndMethodGlueData>();
 
 	InvokeCallableParam callableParam(lua_gettop(L));
-	loadCallableParam(userData->getContext(), &callableParam, 1);
+	loadCallableParam(userData->getBindingContext(), &callableParam, 1);
 	
-	InvokeCallableResult result = doInvokeMethodList(userData->getContext(), userData->getObjectData(), userData->getMethodData(), &callableParam);
+	InvokeCallableResult result = doInvokeMethodList(userData->getBindingContext(), userData->getObjectData(), userData->getMethodData(), &callableParam);
 	
-	methodResultToLua(userData->getContext(), result.callable.get(), &result);
+	methodResultToLua(userData->getBindingContext(), result.callable.get(), &result);
 	return result.resultCount;
 
 	LEAVE_LUA(L, return 0)
@@ -785,11 +785,11 @@ int callbackInvokeMethodList(lua_State * L)
 
 int invokeConstructor(const GClassGlueDataPointer & classUserData)
 {
-	lua_State * L = getLuaState(classUserData->getContext());
+	lua_State * L = getLuaState(classUserData->getBindingContext());
 
 	int paramCount = lua_gettop(L) - 1;
 
-	const GContextPointer & context	(classUserData->getContext());
+	const GContextPointer & context	(classUserData->getBindingContext());
 
 	InvokeCallableParam callableParam(paramCount);
 	loadCallableParam(context, &callableParam, 2);
@@ -867,7 +867,7 @@ bool doIndexMemberData(const GContextPointer & context, IMetaAccessible * data, 
 
 bool indexMemberData(const GObjectGlueDataPointer & userData, IMetaAccessible * data, void * instance)
 {
-	return doIndexMemberData(userData->getContext(), data, instance, userData->getCV() == opcvConst);
+	return doIndexMemberData(userData->getBindingContext(), data, instance, userData->getCV() == opcvConst);
 }
 
 int UserData_index(lua_State * L)
@@ -899,7 +899,7 @@ int UserData_newindex(lua_State * L)
 
 	GGlueDataPointer valueGlueData;
 
-	GScriptValue value = luaToScriptValue(instanceGlueData->getContext(), -1, &valueGlueData);
+	GScriptValue value = luaToScriptValue(instanceGlueData->getBindingContext(), -1, &valueGlueData);
 	if(setValueOnNamedMember(instanceGlueData, name, value, valueGlueData)) {
 		return 1;
 	}
@@ -915,7 +915,7 @@ int UserData_operator(lua_State * L)
 	
 	GOperatorGlueDataPointer glueData = static_cast<GGlueDataWrapper *>(lua_touserdata(L, lua_upvalueindex(1)))->getAs<GOperatorGlueData>();
 
-	return invokeOperator(glueData->getContext(), glueData->getObjectData(), glueData->getMetaClass(), glueData->getOp());
+	return invokeOperator(glueData->getBindingContext(), glueData->getObjectData(), glueData->getMetaClass(), glueData->getOp());
 	
 	LEAVE_LUA(L, return 0)
 }
@@ -1319,7 +1319,7 @@ GLuaScriptFunction::GLuaScriptFunction(const GContextPointer & context, int obje
 
 GLuaScriptFunction::~GLuaScriptFunction()
 {
-	unrefLua(getLuaState(this->getContext()), this->ref);
+	unrefLua(getLuaState(this->getBindingContext()), this->ref);
 }
 	
 GVariant GLuaScriptFunction::invoke(const GVariant * params, size_t paramCount)
@@ -1337,29 +1337,29 @@ GVariant GLuaScriptFunction::invoke(const GVariant * params, size_t paramCount)
 
 GVariant GLuaScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
 {
-	lua_State * L = getLuaState(this->getContext());
+	lua_State * L = getLuaState(this->getBindingContext());
 
 	getRefObject(L, this->ref);
 
-	return invokeLuaFunctionIndirectly(this->getContext(), params, paramCount, "");
+	return invokeLuaFunctionIndirectly(this->getBindingContext(), params, paramCount, "");
 }
 
 
 GLuaScriptArray::GLuaScriptArray(GLuaScriptObject * scriptObject, int objectIndex)
-	: super(scriptObject->getContext()),
+	: super(scriptObject->getBindingContext()),
 		scriptObject(scriptObject),
-		ref(refLua(getLuaState(scriptObject->getContext()), objectIndex))
+		ref(refLua(getLuaState(scriptObject->getBindingContext()), objectIndex))
 {
 }
 
 GLuaScriptArray::~GLuaScriptArray()
 {
-	unrefLua(getLuaState(this->getContext()), this->ref);
+	unrefLua(getLuaState(this->getBindingContext()), this->ref);
 }
 
 size_t GLuaScriptArray::getLength()
 {
-	lua_State * L = getLuaState(this->getContext());
+	lua_State * L = getLuaState(this->getBindingContext());
 
 	getRefObject(L, this->ref);
 
@@ -1372,11 +1372,11 @@ size_t GLuaScriptArray::getLength()
 
 GScriptValue GLuaScriptArray::getValue(size_t index)
 {
-	lua_State * L = getLuaState(this->getContext());
+	lua_State * L = getLuaState(this->getBindingContext());
 	getRefObject(L, this->ref);
 	lua_rawgeti(L, -1, (int)(index + 1));
 	
-	return luaToScriptValue(this->getContext(), -1, NULL);
+	return luaToScriptValue(this->getBindingContext(), -1, NULL);
 }
 
 void GLuaScriptArray::setValue(size_t index, const GScriptValue & value)
@@ -1385,9 +1385,9 @@ void GLuaScriptArray::setValue(size_t index, const GScriptValue & value)
 		raiseCoreException(Error_ScriptBinding_NotSupportedFeature, "Set Accessible Into Array", "Lua");
 	}
 	else {
-		lua_State * L = getLuaState(this->getContext());
+		lua_State * L = getLuaState(this->getBindingContext());
 		getRefObject(L, this->ref);
-		bool shouldSet = helperBindValue(this->getContext(), "", value,
+		bool shouldSet = helperBindValue(this->getBindingContext(), "", value,
 			makeCallback(this->scriptObject, &GLuaScriptObject::getGlobalAccessor));
 		if(shouldSet) {
 			lua_rawseti(L, -2, (int)(index + 1));
@@ -1397,14 +1397,14 @@ void GLuaScriptArray::setValue(size_t index, const GScriptValue & value)
 
 bool GLuaScriptArray::maybeIsScriptArray(size_t index)
 {
-	lua_State * L = getLuaState(this->getContext());
+	lua_State * L = getLuaState(this->getBindingContext());
 	getRefObject(L, this->ref);
 	lua_rawgeti(L, -1, (int)(index + 1));
 	return lua_type(L, -1) == LUA_TTABLE;
 }
 GScriptValue GLuaScriptArray::getAsScriptArray(size_t index)
 {
-	lua_State * L = getLuaState(this->getContext());
+	lua_State * L = getLuaState(this->getBindingContext());
 	getRefObject(L, this->ref);
 	lua_rawgeti(L, -1, (int)(index + 1));
 
@@ -1418,7 +1418,7 @@ GScriptValue GLuaScriptArray::getAsScriptArray(size_t index)
 }
 GScriptValue GLuaScriptArray::createScriptArray(size_t index)
 {
-	lua_State * L = getLuaState(this->getContext());
+	lua_State * L = getLuaState(this->getBindingContext());
 
 	lua_newtable(L);
 	lua_rawseti(L, -2, (int)(index + 1));
@@ -1476,14 +1476,14 @@ GScriptValue GLuaScriptObject::doGetValue(const char * name)
 	
 	scopeGuard.get(name);
 
-	return luaToScriptValue(this->getContext(), -1, NULL);
+	return luaToScriptValue(this->getBindingContext(), -1, NULL);
 }
 
 void GLuaScriptObject::doSetValue(const char * name, const GScriptValue & value)
 {
 	GLuaScopeGuard scopeGuard(this);
 
-	bool shouldSet = helperBindValue(this->getContext(), name, value,
+	bool shouldSet = helperBindValue(this->getBindingContext(), name, value,
 		makeCallback(this, &GLuaScriptObject::getGlobalAccessor));
 
 	if(shouldSet) {	
@@ -1554,7 +1554,7 @@ GScriptValue GLuaScriptObject::getScriptFunction(const char * name)
 
 	scopeGuard.get(name);
 
-	GScopedInterface<IScriptFunction> scriptFunction(new ImplScriptFunction(new GLuaScriptFunction(this->getContext(), -1), true));
+	GScopedInterface<IScriptFunction> scriptFunction(new ImplScriptFunction(new GLuaScriptFunction(this->getBindingContext(), -1), true));
 	return GScriptValue::fromScriptFunction(scriptFunction.get());
 }
 
@@ -1577,7 +1577,7 @@ GVariant GLuaScriptObject::invokeIndirectly(const char * name, GVariant const * 
 
 	scopeGuard.get(name);
 
-	return invokeLuaFunctionIndirectly(this->getContext(), params, paramCount, name);
+	return invokeLuaFunctionIndirectly(this->getBindingContext(), params, paramCount, name);
 }
 
 void GLuaScriptObject::assignValue(const char * fromName, const char * toName)

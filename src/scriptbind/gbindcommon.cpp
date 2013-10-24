@@ -306,7 +306,7 @@ GClassGlueData::GClassGlueData(const GContextPointer & context, IMetaClass * met
 GClassGlueData::~GClassGlueData()
 {
 	if(this->isValid()) {
-		this->getContext()->getClassPool()->classDestroyed(this->getMetaClass());
+		this->getBindingContext()->getClassPool()->classDestroyed(this->getMetaClass());
 	}
 }
 
@@ -327,7 +327,7 @@ GObjectInstance::~GObjectInstance()
 		}
 	}
 	if(! this->context.expired()) {
-		this->getContext()->getClassPool()->objectDestroyed(this);
+		this->getBindingContext()->getClassPool()->objectDestroyed(this);
 	}
 }
 
@@ -807,7 +807,7 @@ IMetaService * GScriptObjectBase::getMetaService() {
 
 void GScriptObjectBase::doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
 {
-	this->getContext()->bindScriptCoreService(this, name, libraryLoader);
+	this->getBindingContext()->bindScriptCoreService(this, name, libraryLoader);
 }
 
 
@@ -1540,8 +1540,8 @@ bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char
 		classData = sharedStaticCast<GClassGlueData>(instanceGlueData);
 	}
 
-	const GScriptConfig & config = classData->getContext()->getConfig();
-	GContextPointer context = classData->getContext();
+	const GScriptConfig & config = classData->getBindingContext()->getConfig();
+	GContextPointer context = classData->getBindingContext();
 
 	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstance(instanceGlueData));
 

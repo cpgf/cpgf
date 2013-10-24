@@ -294,7 +294,7 @@ public:
 	virtual GScriptValue createScriptArray(const char * name);
 
 	GSpiderContextPointer getSpiderContext() const {
-		return sharedStaticCast<GSpiderBindingContext>(this->getContext());
+		return sharedStaticCast<GSpiderBindingContext>(this->getBindingContext());
 	}
 	
 protected:
@@ -503,7 +503,7 @@ struct GSpiderMethods
 		IMetaClass * metaClass, IMetaClass * derived, const GObjectGlueDataPointer & objectData)
 	{
 		GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getUserData());
-		GSpiderContextPointer context = sharedStaticCast<GSpiderBindingContext>(classData->getContext());
+		GSpiderContextPointer context = sharedStaticCast<GSpiderBindingContext>(classData->getBindingContext());
 		if(data == NULL) {
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 			
@@ -520,7 +520,7 @@ struct GSpiderMethods
 	static ResultType doEnumToScript(const GClassGlueDataPointer & classData, GMetaMapItem * mapItem, const char * /*enumName*/)
 	{
 		GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-		JSObject * enumObject = createEnumBinding(sharedStaticCast<GSpiderBindingContext>(classData->getContext()), metaEnum.get());
+		JSObject * enumObject = createEnumBinding(sharedStaticCast<GSpiderBindingContext>(classData->getBindingContext()), metaEnum.get());
 		return ObjectValue(*enumObject );
 	}
 
@@ -695,12 +695,12 @@ JSBool callbackMethodList(JSContext * jsContext, unsigned int argc, jsval * valu
 		}
 		
 		InvokeCallableParam callableParam(argc);
-		loadCallableParam(valuePointer, sharedStaticCast<GSpiderBindingContext>(methodData->getContext()), &callableParam);
+		loadCallableParam(valuePointer, sharedStaticCast<GSpiderBindingContext>(methodData->getBindingContext()), &callableParam);
 
-		InvokeCallableResult result = doInvokeMethodList(methodData->getContext(), objectData, methodData, &callableParam);
+		InvokeCallableResult result = doInvokeMethodList(methodData->getBindingContext(), objectData, methodData, &callableParam);
 		JsValue resultValue;
 		if(result.resultCount > 0) {
-			resultValue = methodResultToScript<GSpiderMethods>(methodData->getContext(), result.callable.get(), &result);
+			resultValue = methodResultToScript<GSpiderMethods>(methodData->getBindingContext(), result.callable.get(), &result);
 		}
 		else {
 			resultValue = JSVAL_VOID;
@@ -803,12 +803,12 @@ JSBool propertyGetter(JSContext *jsContext, JSHandleObject obj, JSHandleId id, J
 		if(userData->hasAccessible()) {
 			GAccessibleGlueDataPointer accessibleGlueData = userData->getAccessibleGlueData(name.get());
 			if(accessibleGlueData) {
-				vp.set(accessibleToScript<GSpiderMethods>(accessibleGlueData->getContext(), accessibleGlueData->getAccessible(), accessibleGlueData->getInstanceAddress(), false));
+				vp.set(accessibleToScript<GSpiderMethods>(accessibleGlueData->getBindingContext(), accessibleGlueData->getAccessible(), accessibleGlueData->getInstanceAddress(), false));
 	
 				return JS_TRUE;
 			}
 		}
-		if(! dataWrapper->getData()->getContext()) {
+		if(! dataWrapper->getData()->getBindingContext()) {
 			return JS_PropertyStub(jsContext, obj, id, vp);
 		}
 	
@@ -861,14 +861,14 @@ JSBool propertySetter(JSContext * jsContext, JSHandleObject obj, JSHandleId id, 
 		if(userData->hasAccessible()) {
 			GAccessibleGlueDataPointer accessibleGlueData = userData->getAccessibleGlueData(name.get());
 			if(accessibleGlueData) {
-				GScriptValue v = spiderToScriptValue(sharedStaticCast<GSpiderBindingContext>(accessibleGlueData->getContext()),
+				GScriptValue v = spiderToScriptValue(sharedStaticCast<GSpiderBindingContext>(accessibleGlueData->getBindingContext()),
 					vp, NULL);
 				metaSetValue(accessibleGlueData->getAccessible(), accessibleGlueData->getInstanceAddress(), v.getValue());
 
 				return JS_TRUE;
 			}
 		}
-		if(! dataWrapper->getData()->getContext()) {
+		if(! dataWrapper->getData()->getBindingContext()) {
 			return JS_StrictPropertyStub(jsContext, obj, id, strict, vp);
 		}
 	
@@ -878,7 +878,7 @@ JSBool propertySetter(JSContext * jsContext, JSHandleObject obj, JSHandleId id, 
 		else {
 			GGlueDataPointer valueGlueData;
 
-			GScriptValue v = spiderToScriptValue(sharedStaticCast<GSpiderBindingContext>(dataWrapper->getData()->getContext()), vp, &valueGlueData);
+			GScriptValue v = spiderToScriptValue(sharedStaticCast<GSpiderBindingContext>(dataWrapper->getData()->getBindingContext()), vp, &valueGlueData);
 			if(setValueOnNamedMember(dataWrapper->getData(), name.get(), v, valueGlueData)) {
 				return JS_TRUE;
 			}
@@ -907,7 +907,7 @@ JSBool enumGetter(JSContext *jsContext, JSHandleObject obj, JSHandleId id, JSMut
 			IMetaEnum * metaEnum = dataWrapper->getAs<GEnumGlueData>()->getMetaEnum();
 			int32_t index = metaEnum->findKey(name.get());
 			if(index >= 0) {
-				vp.set(variantToSpider(dataWrapper->getData()->getContext(), metaGetEnumValue(metaEnum, index), GBindValueFlags(), NULL));
+				vp.set(variantToSpider(dataWrapper->getData()->getBindingContext(), metaGetEnumValue(metaEnum, index), GBindValueFlags(), NULL));
 			}
 			else {
 				raiseCoreException(Error_ScriptBinding_CantFindEnumKey, *name);
@@ -1005,7 +1005,7 @@ JSBool objectConstructor(JSContext * jsContext, unsigned int argc, jsval * value
 		}
 
 		GClassGlueDataPointer classData = dataWrapper->getAs<GClassGlueData>();
-		GSpiderContextPointer context = sharedStaticCast<GSpiderBindingContext>(classData->getContext());
+		GSpiderContextPointer context = sharedStaticCast<GSpiderBindingContext>(classData->getBindingContext());
 		
 		InvokeCallableParam callableParam(argc);
 		loadCallableParam(valuePointer, context, &callableParam);
@@ -1188,7 +1188,7 @@ void objectFinalizer(JSFreeOp * /*jsop*/, JSObject * object)
 //	GGlueDataWrapper * dataWrapper = getNativeObject(object);
 	if(dataWrapper != NULL) {
 		getSpiderScriptObjectCache()->freeScriptObject(dataWrapper);
-		freeGlueDataWrapper(dataWrapper, sharedStaticCast<GSpiderBindingContext>(dataWrapper->getData()->getContext())->getGlueDataWrapperPool());
+		freeGlueDataWrapper(dataWrapper, sharedStaticCast<GSpiderBindingContext>(dataWrapper->getData()->getBindingContext())->getGlueDataWrapperPool());
 	}
 }
 
@@ -1343,7 +1343,7 @@ GVariant invokeSpiderFunctionIndirectly(const GSpiderContextPointer & context, G
 
 GVariant GSpiderScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
 {
-	return invokeSpiderFunctionIndirectly(sharedStaticCast<GSpiderBindingContext>(this->getContext()), params, paramCount, this->function.getJsObject(), this->self.getJsObject());
+	return invokeSpiderFunctionIndirectly(sharedStaticCast<GSpiderBindingContext>(this->getBindingContext()), params, paramCount, this->function.getJsObject(), this->self.getJsObject());
 }
 
 	
@@ -1358,7 +1358,7 @@ GSpiderScriptArray::~GSpiderScriptArray()
 
 size_t GSpiderScriptArray::getLength()
 {
-	GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getContext());
+	GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getBindingContext());
 	uint32_t length;
 	if(JS_GetArrayLength(spiderContext->getJsContext(), this->arrayObject.getJsObject(), &length) == JS_TRUE) {
 		return length;
@@ -1371,7 +1371,7 @@ size_t GSpiderScriptArray::getLength()
 GScriptValue GSpiderScriptArray::getValue(size_t index)
 {
 	JsValue value;
-	GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getContext());
+	GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getBindingContext());
 	if(JS_GetElement(spiderContext->getJsContext(), this->arrayObject.getJsObject(), (uint32_t)index, &value) == JS_TRUE) {
 		return spiderToScriptValue(spiderContext, value, NULL);
 	}
@@ -1386,7 +1386,7 @@ void GSpiderScriptArray::setValue(size_t index, const GScriptValue & value)
 		raiseCoreException(Error_ScriptBinding_NotSupportedFeature, "Set Accessible Into Array", "Mozilla SpiderMonkey");
 	}
 	else {
-		GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getContext());
+		GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getBindingContext());
 		unsigned int flags = 0;
 		JsValue jsValue = helperBindValue(spiderContext, this->arrayObject.getJsObject(),
 			value, &flags);
@@ -1398,7 +1398,7 @@ void GSpiderScriptArray::setValue(size_t index, const GScriptValue & value)
 bool GSpiderScriptArray::maybeIsScriptArray(size_t index)
 {
 	JsValue value;
-	GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getContext());
+	GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getBindingContext());
 	if(JS_GetElement(spiderContext->getJsContext(), this->arrayObject.getJsObject(), (uint32_t)index, &value) == JS_TRUE) {
 		if(value.isObject()) {
 			return JS_IsArrayObject(spiderContext->getJsContext(), &value.toObject()) == JS_TRUE;
@@ -1410,7 +1410,7 @@ bool GSpiderScriptArray::maybeIsScriptArray(size_t index)
 GScriptValue GSpiderScriptArray::getAsScriptArray(size_t index)
 {
 	JsValue value;
-	GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getContext());
+	GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getBindingContext());
 	if(JS_GetElement(spiderContext->getJsContext(), this->arrayObject.getJsObject(), (uint32_t)index, &value) == JS_TRUE) {
 		if(value.isObject()
 			&& JS_IsArrayObject(spiderContext->getJsContext(), &value.toObject()) == JS_TRUE) {
@@ -1427,7 +1427,7 @@ GScriptValue GSpiderScriptArray::createScriptArray(size_t index)
 {
 	GScriptValue value = this->getAsScriptArray(index);
 	if(value.isNull()) {
-		GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getContext());
+		GSpiderContextPointer spiderContext = sharedStaticCast<GSpiderBindingContext>(this->getBindingContext());
 		JSObject * arrayObject = JS_NewArrayObject(spiderContext->getJsContext(), 0, NULL);
 		JsValue jsValue = ObjectValue(*arrayObject);
 		JS_SetElement(spiderContext->getJsContext(), this->arrayObject.getJsObject(), (uint32_t)index, &jsValue);
@@ -1442,7 +1442,7 @@ GScriptValue GSpiderScriptArray::createScriptArray(size_t index)
 GSpiderMonkeyScriptObject::GSpiderMonkeyScriptObject(IMetaService * service, const GScriptConfig & config, JSContext * jsContext, JSObject  * jsObject)
 	: super(GContextPointer(new GSpiderBindingContext(service, config, jsContext, getOrCreateGlobalJsObject(jsContext, jsObject))), config), jsContext(jsContext)
 {
-	this->jsObject.reset(jsContext, sharedStaticCast<GSpiderBindingContext>(this->getContext())->getJsGlobalObject());
+	this->jsObject.reset(jsContext, sharedStaticCast<GSpiderBindingContext>(this->getBindingContext())->getJsGlobalObject());
 }
 
 GSpiderMonkeyScriptObject::GSpiderMonkeyScriptObject(const GSpiderMonkeyScriptObject & other, JSContext *jsContext, JSObject  * jsObject)

@@ -220,7 +220,7 @@ public:
 		return this->type;
 	}
 
-	GContextPointer getContext() const {
+	GContextPointer getBindingContext() const {
 		return GContextPointer(this->context);
 	}
 
@@ -309,7 +309,7 @@ public:
 		return this->classData;
 	}
 
-	GContextPointer getContext() const {
+	GContextPointer getBindingContext() const {
 		return GContextPointer(this->context);
 	}
 
@@ -865,7 +865,7 @@ public:
 	IMetaService * getMetaService();
 
 protected:
-	const GContextPointer & getContext() const {
+	const GContextPointer & getBindingContext() const {
 		return this->context;
 	}
 
@@ -892,7 +892,7 @@ public:
 	}
 
 protected:
-	GContextPointer getContext() {
+	GContextPointer getBindingContext() {
 		return this->weakContext.get();
 	}
 
@@ -922,7 +922,7 @@ public:
 	}
 
 protected:
-	GContextPointer getContext() {
+	GContextPointer getBindingContext() {
 		return this->context;
 	}
 
@@ -1261,8 +1261,8 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 		return Methods::defaultValue();
 	}
 
-	const GScriptConfig & config = classData->getContext()->getConfig();
-	GContextPointer context = classData->getContext();
+	const GScriptConfig & config = classData->getBindingContext()->getConfig();
+	GContextPointer context = classData->getBindingContext();
 
 	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstance(glueData));
 
