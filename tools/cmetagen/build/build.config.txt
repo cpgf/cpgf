@@ -3,7 +3,7 @@ set(BUILD_DEBUG	1) #release=false
 ### Clang config
 
 set(CLANG_DIR
-	/Users/wangqi/source/llvm
+	c:/source/llvm
 )
 
 set(CLANG_BUILD ${CLANG_DIR}/build)
@@ -108,7 +108,7 @@ endif(UNIX)
 ### Poco config
 
 set(POCO_DIR
-	/Users/wangqi/source/poco
+	c:/source/poco
 )
 
 set(POCO_INC

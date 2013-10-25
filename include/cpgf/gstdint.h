@@ -35,12 +35,12 @@
 
 #else
 
-#ifndef CPGFMSC_VER // [
+#ifndef _MSC_VER // [
 #error "Use this header only with Microsoft Visual C++ compilers!"
 #endif // _MSC_VER ]
 
-#ifndef CPGFMSC_STDINT_H_ // [
-#define CPGFMSC_STDINT_H_
+#ifndef _MSC_STDINT_H_ // [
+#define _MSC_STDINT_H_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -61,7 +61,7 @@ extern "C" {
 #endif
 
 // Define _W64 macros to mark types changing their size, like intptr_t.
-#ifndef CPGFW64
+#ifndef _W64
 #  if !defined(__midl) && (defined(_X86_) || defined(_M_IX86)) && _MSC_VER >= 1300
 #     define _W64 __w64
 #  else

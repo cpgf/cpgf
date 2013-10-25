@@ -604,7 +604,7 @@ Handle<Value> callbackMethodList(const Arguments & args)
 	GGlueDataWrapper * methodDataWrapper = static_cast<GGlueDataWrapper *>(data->Value());
 	GMethodGlueDataPointer methodData(methodDataWrapper->getAs<GMethodGlueData>());
 
-	GContextPointer bindingContext(userData->getBindingContext());
+	GContextPointer bindingContext(methodData->getBindingContext());
 	InvokeCallableParam callableParam(args.Length(), bindingContext->borrowScriptContext());
 	loadCallableParam(args, bindingContext, &callableParam);
 
@@ -836,7 +836,7 @@ Handle<Value> objectConstructor(const Arguments & args)
 		GClassGlueDataPointer classData = dataWrapper->getAs<GClassGlueData>();
 		GContextPointer context = classData->getBindingContext();
 
-		InvokeCallableParam callableParam(args.Length());
+		InvokeCallableParam callableParam(args.Length(), context->borrowScriptContext());
 		loadCallableParam(args, context, &callableParam);
 
 		void * instance = doInvokeConstructor(context, context->getService(), classData->getMetaClass(), &callableParam);

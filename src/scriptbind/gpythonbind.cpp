@@ -1781,11 +1781,11 @@ PyObject * binaryOperator(PyObject * a, PyObject * b)
 	GObjectGlueDataPointer objectData = nativeFromPython(self)->getAs<GObjectGlueData>();
 	const GContextPointer & context = objectData->getBindingContext();
 
-	InvokeCallableParam callableParam(2, context->->borrowScriptContext());
+	InvokeCallableParam callableParam(2, context->borrowScriptContext());
 
-	callableParam.params[selfIndex].value = pythonToScriptValue(context, self, &callableParam.params[selfIndex].glueData);
+	callableParam.params[selfIndex].value = pythonToScriptValue(context, self, &callableParam.params[selfIndex].paramGlueData);
 	
-	callableParam.params[otherIndex].value = pythonToScriptValue(context, other, &callableParam.params[otherIndex].glueData);
+	callableParam.params[otherIndex].value = pythonToScriptValue(context, other, &callableParam.params[otherIndex].paramGlueData);
 	
 	InvokeCallableResult result = doInvokeOperator(context, objectData, objectData->getClassData()->getMetaClass(), op, &callableParam);
 	
@@ -1804,9 +1804,9 @@ PyObject * unaryOperator(PyObject * a)
 	GObjectGlueDataPointer objectData = nativeFromPython(self)->getAs<GObjectGlueData>();
 	const GContextPointer & context = objectData->getBindingContext();
 
-	InvokeCallableParam callableParam(1, context->->borrowScriptContext());
+	InvokeCallableParam callableParam(1, context->borrowScriptContext());
 
-	callableParam.params[0].value = pythonToScriptValue(context, self, &callableParam.params[0].glueData);
+	callableParam.params[0].value = pythonToScriptValue(context, self, &callableParam.params[0].paramGlueData);
 	
 	InvokeCallableResult result = doInvokeOperator(context, objectData, objectData->getClassData()->getMetaClass(), op, &callableParam);
 	

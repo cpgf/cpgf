@@ -694,7 +694,7 @@ JSBool callbackMethodList(JSContext * jsContext, unsigned int argc, jsval * valu
 			objectData = objectDataWrapper->getAs<GObjectGlueData>();
 		}
 		
-		GContextPointer bindingContext(userData->getBindingContext());
+		GContextPointer bindingContext(methodData->getBindingContext());
 		InvokeCallableParam callableParam(argc, bindingContext->borrowScriptContext());
 		loadCallableParam(valuePointer, sharedStaticCast<GSpiderBindingContext>(bindingContext), &callableParam);
 
