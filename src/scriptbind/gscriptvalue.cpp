@@ -77,6 +77,19 @@ GScriptValueData GScriptValue::takeData()
 	return data;
 }
 
+GScriptValueData GScriptValue::getData() const
+{
+	GScriptValueData data;
+	data.type = this->type;
+	data.value = this->value.refData();
+	data.metaItem = this->metaItem.get();
+	if(data.metaItem != NULL) {
+		data.metaItem->addReference();
+	}
+	data.flags = this->flags;
+	return data;
+}
+
 GScriptValue GScriptValue::fromNull()
 {
 	return GScriptValue(typeNull, (void *)0);

@@ -772,12 +772,13 @@ int callbackInvokeMethodList(lua_State * L)
 
 	GObjectAndMethodGlueDataPointer userData = static_cast<GGlueDataWrapper *>(lua_touserdata(L, lua_upvalueindex(1)))->getAs<GObjectAndMethodGlueData>();
 
-	InvokeCallableParam callableParam(lua_gettop(L));
-	loadCallableParam(userData->getBindingContext(), &callableParam, 1);
+	GContextPointer bindingContext(userData->getBindingContext());
+	InvokeCallableParam callableParam(lua_gettop(L), bindingContext->borrowScriptContext());
+	loadCallableParam(bindingContext, &callableParam, 1);
 	
-	InvokeCallableResult result = doInvokeMethodList(userData->getBindingContext(), userData->getObjectData(), userData->getMethodData(), &callableParam);
+	InvokeCallableResult result = doInvokeMethodList(bindingContext, userData->getObjectData(), userData->getMethodData(), &callableParam);
 	
-	methodResultToLua(userData->getBindingContext(), result.callable.get(), &result);
+	methodResultToLua(bindingContext, result.callable.get(), &result);
 	return result.resultCount;
 
 	LEAVE_LUA(L, return 0)
@@ -789,9 +790,9 @@ int invokeConstructor(const GClassGlueDataPointer & classUserData)
 
 	int paramCount = lua_gettop(L) - 1;
 
-	const GContextPointer & context	(classUserData->getBindingContext());
+	const GContextPointer & context(classUserData->getBindingContext());
 
-	InvokeCallableParam callableParam(paramCount);
+	InvokeCallableParam callableParam(paramCount, context->borrowScriptContext());
 	loadCallableParam(context, &callableParam, 2);
 	
 	void * instance = doInvokeConstructor(context, context->getService(), classUserData->getMetaClass(), &callableParam);
@@ -822,7 +823,7 @@ int invokeOperator(const GContextPointer & context, const GObjectGlueDataPointer
 		paramCount = 1; // Lua pass two parameters to __unm...
 	}
 
-	InvokeCallableParam callableParam(paramCount);
+	InvokeCallableParam callableParam(paramCount, context->borrowScriptContext());
 	loadCallableParam(context, &callableParam, startIndex);
 	
 	InvokeCallableResult result = doInvokeOperator(context, objectData, metaClass, op, &callableParam);

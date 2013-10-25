@@ -1336,12 +1336,13 @@ PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObje
 
 	GObjectAndMethodGlueDataPointer userData = methodObject->getAs<GObjectAndMethodGlueData>();
 
-	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
-	loadCallableParam(userData->getBindingContext(), args, &callableParam);
+	GContextPointer bindingContext(userData->getBindingContext());
+	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)), bindingContext->borrowScriptContext());
+	loadCallableParam(bindingContext, args, &callableParam);
 
-	InvokeCallableResult result = doInvokeMethodList(userData->getBindingContext(), userData->getObjectData(), userData->getMethodData(), &callableParam);
+	InvokeCallableResult result = doInvokeMethodList(bindingContext, userData->getObjectData(), userData->getMethodData(), &callableParam);
 
-	return methodResultToPython(userData->getBindingContext(), result.callable.get(), &result);
+	return methodResultToPython(bindingContext, result.callable.get(), &result);
 
 	LEAVE_PYTHON(return NULL)
 }
@@ -1355,7 +1356,7 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	GClassGlueDataPointer classUserData = cppClass->getAs<GClassGlueData>();
 	GContextPointer context = classUserData->getBindingContext();
 	
-	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
+	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)), context->borrowScriptContext());
 	loadCallableParam(context, args, &callableParam);
 
 	void * instance = doInvokeConstructor(context, context->getService(), classUserData->getMetaClass(), &callableParam);
@@ -1380,7 +1381,7 @@ PyObject * callbackConstructObject2(PyTypeObject * callableObject, PyObject * ar
 	GClassGlueDataPointer classUserData = cppClass->getAs<GClassGlueData>();
 	GContextPointer context = classUserData->getBindingContext();
 
-	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)));
+	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)), context->borrowScriptContext());
 	loadCallableParam(context, args, &callableParam);
 
 	void * instance = doInvokeConstructor(context, context->getService(), classUserData->getMetaClass(), &callableParam);
@@ -1780,7 +1781,7 @@ PyObject * binaryOperator(PyObject * a, PyObject * b)
 	GObjectGlueDataPointer objectData = nativeFromPython(self)->getAs<GObjectGlueData>();
 	const GContextPointer & context = objectData->getBindingContext();
 
-	InvokeCallableParam callableParam(2);
+	InvokeCallableParam callableParam(2, context->->borrowScriptContext());
 
 	callableParam.params[selfIndex].value = pythonToScriptValue(context, self, &callableParam.params[selfIndex].glueData);
 	
@@ -1803,7 +1804,7 @@ PyObject * unaryOperator(PyObject * a)
 	GObjectGlueDataPointer objectData = nativeFromPython(self)->getAs<GObjectGlueData>();
 	const GContextPointer & context = objectData->getBindingContext();
 
-	InvokeCallableParam callableParam(1);
+	InvokeCallableParam callableParam(1, context->->borrowScriptContext());
 
 	callableParam.params[0].value = pythonToScriptValue(context, self, &callableParam.params[0].glueData);
 	

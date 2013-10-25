@@ -19,8 +19,7 @@ struct GScriptUserConverterParamData
 	IMetaCallable * callable;
 	uint32_t paramIndex;
 
-	GScriptValueData sourceValue;
-	GMetaTypeData sourceType;
+	GScriptValueData * sourceValue;
 };
 #pragma pack(pop)
 

@@ -794,6 +794,7 @@ public:
 	int weight;
 	GSharedInterface<IMetaClass> sourceClass;
 	GSharedInterface<IMetaClass> targetClass;
+	GSharedInterface<IScriptUserConverter> userConverter;
 };
 
 class CallableParamData
@@ -806,13 +807,14 @@ public:
 class InvokeCallableParam
 {
 public:
-	explicit InvokeCallableParam(size_t paramCount);
+	InvokeCallableParam(size_t paramCount, IScriptContext * scriptContext);
 	~InvokeCallableParam();
 
 public:
 	CallableParamData params[REF_MAX_ARITY];
 	size_t paramCount;
 	ConvertRank paramRanks[REF_MAX_ARITY];
+	GSharedInterface<IScriptContext> scriptContext;
 };
 
 class InvokeCallableResult

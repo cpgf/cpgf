@@ -604,11 +604,12 @@ Handle<Value> callbackMethodList(const Arguments & args)
 	GGlueDataWrapper * methodDataWrapper = static_cast<GGlueDataWrapper *>(data->Value());
 	GMethodGlueDataPointer methodData(methodDataWrapper->getAs<GMethodGlueData>());
 
-	InvokeCallableParam callableParam(args.Length());
-	loadCallableParam(args, methodData->getBindingContext(), &callableParam);
+	GContextPointer bindingContext(userData->getBindingContext());
+	InvokeCallableParam callableParam(args.Length(), bindingContext->borrowScriptContext());
+	loadCallableParam(args, bindingContext, &callableParam);
 
-	InvokeCallableResult result = doInvokeMethodList(methodData->getBindingContext(), objectData, methodData, &callableParam);
-	return methodResultToScript<GV8Methods>(methodData->getBindingContext(), result.callable.get(), &result);
+	InvokeCallableResult result = doInvokeMethodList(bindingContext, objectData, methodData, &callableParam);
+	return methodResultToScript<GV8Methods>(bindingContext, result.callable.get(), &result);
 
 	LEAVE_V8(return Handle<Value>())
 }

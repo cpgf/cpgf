@@ -45,6 +45,7 @@ const int ValueMatchRank_Implicit_StringToWideString = ValueMatchRank_Implicit_B
 const int ValueMatchRank_Implicit_SharedPointerToRaw = ValueMatchRank_Implicit_Begin + 2;
 const int ValueMatchRank_Implicit_CastToBase = ValueMatchRank_Implicit_Begin + 3;
 const int ValueMatchRank_Implicit_CastToDerived = ValueMatchRank_Implicit_Begin + 4;
+const int ValueMatchRank_Implicit_UserConvert = ValueMatchRank_Implicit_Begin + 5;
 const int ValueMatchRank_Implicit_End = 80000;
 const int ValueMatchRank_Equal = 100000;
 
@@ -808,10 +809,11 @@ void ConvertRank::reset()
 	this->weight = ValueMatchRank_Unknown;
 	this->sourceClass.reset();
 	this->targetClass.reset();
+	this->userConverter.reset();
 }
 
-InvokeCallableParam::InvokeCallableParam(size_t paramCount)
-	: paramCount(paramCount)
+InvokeCallableParam::InvokeCallableParam(size_t paramCount, IScriptContext * scriptContext)
+	: paramCount(paramCount), scriptContext(scriptContext)
 {
 	if(this->paramCount > REF_MAX_ARITY) {
 		raiseCoreException(Error_ScriptBinding_CallMethodWithTooManyParameters);
@@ -1050,21 +1052,52 @@ void rankImplicitConvertForMetaClass(ConvertRank * outputRank, IMetaItem * sourc
 	}
 }
 
-void rankCallableImplicitConvert(ConvertRank * outputRank, IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, size_t paramIndex, const GMetaType & targetType)
+void rankImplicitConvertForUserConvert(ConvertRank * outputRank, IMetaCallable * callable,
+	const InvokeCallableParam * callableParam, size_t paramIndex)
 {
-	rankImplicitConvertForString(outputRank, getVariantRealValue(callbackParam->params[paramIndex].value.getValue()), targetType);
+	uint32_t converterCount = callableParam->scriptContext->getScriptUserConverterCount();
+	if(converterCount == 0) {
+		return;
+	}
+
+	GScriptUserConverterParamData converterData;
+	converterData.callable = callable;
+	converterData.paramIndex = (uint32_t)paramIndex;
+	GScriptValueData scriptValueData = callableParam->params[paramIndex].value.getData();
+	GScriptValueDataScopedGuard scriptValueDataGuard(scriptValueData);
+	converterData.sourceValue = &scriptValueData;
+
+	for(uint32_t i = 0; i < converterCount; ++i) {
+		GSharedInterface<IScriptUserConverter> converter(callableParam->scriptContext->getScriptUserConverterAt(i));
+		if(converter->canConvert(&converterData)) {
+			outputRank->weight = ValueMatchRank_Implicit_UserConvert;
+			outputRank->userConverter.reset(converter.get());
+
+			break;
+		}
+	}
+}
+
+void rankCallableImplicitConvert(ConvertRank * outputRank, IMetaService * service,
+	IMetaCallable * callable, const InvokeCallableParam * callableParam, size_t paramIndex, const GMetaType & targetType)
+{
+	rankImplicitConvertForString(outputRank, getVariantRealValue(callableParam->params[paramIndex].value.getValue()), targetType);
 	
 	if(outputRank->weight == ValueMatchRank_Unknown) {
-		rankImplicitConvertForSharedPointer(outputRank, callbackParam->params[paramIndex].paramGlueData,
+		rankImplicitConvertForSharedPointer(outputRank, callableParam->params[paramIndex].paramGlueData,
 			metaGetParamExtendType(callable, GExtendTypeCreateFlag_SharedPointerTraits, static_cast<uint32_t>(paramIndex)));
 	}
 
 	if(outputRank->weight == ValueMatchRank_Unknown) {
-		GScopedInterface<IMetaTypedItem> typedItem(getTypedItemFromScriptValue(callbackParam->params[paramIndex].value));
+		GScopedInterface<IMetaTypedItem> typedItem(getTypedItemFromScriptValue(callableParam->params[paramIndex].value));
 		if(typedItem) {
 			GScopedInterface<IMetaTypedItem> protoType(service->findTypedItemByName(targetType.getBaseName()));
 			rankImplicitConvertForMetaClass(outputRank, typedItem.get(), protoType.get());
 		}
+	}
+
+	if(outputRank->weight == ValueMatchRank_Unknown) {
+		rankImplicitConvertForUserConvert(outputRank, callable, callableParam, paramIndex);
 	}
 }
 
@@ -1095,12 +1128,12 @@ int rankFundamental(GVariantType protoType, GVariantType paramType)
 	return ValueMatchRank_ConvertBwtweenFamily;
 }
 
-void rankCallableParam(ConvertRank * outputRank, IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callbackParam, size_t paramIndex)
+void rankCallableParam(ConvertRank * outputRank, IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callableParam, size_t paramIndex)
 {
 	outputRank->reset();
 
 	GMetaType proto = metaGetParamType(callable, paramIndex);
-	GScriptValue::Type type = callbackParam->params[paramIndex].value.getType();
+	GScriptValue::Type type = callableParam->params[paramIndex].value.getType();
 	
 	if(type == GScriptValue::typeNull) {
 		outputRank->weight = ValueMatchRank_Equal;
@@ -1109,7 +1142,7 @@ void rankCallableParam(ConvertRank * outputRank, IMetaService * service, IMetaCa
 	
 	if(proto.isFundamental() && type == GScriptValue::typeFundamental) {
 		outputRank->weight = rankFundamental(proto.getVariantType(),
-			callbackParam->params[paramIndex].value.toFundamental().getType());
+			callableParam->params[paramIndex].value.toFundamental().getType());
 		return;
 	}
 
@@ -1123,20 +1156,20 @@ void rankCallableParam(ConvertRank * outputRank, IMetaService * service, IMetaCa
 		return;
 	}
 
-	rankCallableImplicitConvert(outputRank, service, callable, callbackParam, paramIndex, proto);
+	rankCallableImplicitConvert(outputRank, service, callable, callableParam, paramIndex, proto);
 }
 
-int rankCallable(IMetaService * service, const GObjectGlueDataPointer & objectData, IMetaCallable * callable, const InvokeCallableParam * callbackParam, ConvertRank * paramRanks)
+int rankCallable(IMetaService * service, const GObjectGlueDataPointer & objectData, IMetaCallable * callable, const InvokeCallableParam * callableParam, ConvertRank * paramRanks)
 {
 	if(!! callable->isVariadic()) {
 		return 0;
 	}
 
-	if(callable->getParamCount() < callbackParam->paramCount) {
+	if(callable->getParamCount() < callableParam->paramCount) {
 		return -1;
 	}
 
-	if(callable->getParamCount() - callable->getDefaultParamCount() > callbackParam->paramCount) {
+	if(callable->getParamCount() - callable->getDefaultParamCount() > callableParam->paramCount) {
 		return -1;
 	}
 
@@ -1151,12 +1184,12 @@ int rankCallable(IMetaService * service, const GObjectGlueDataPointer & objectDa
 		rank += ValueMatchRank_Convert;
 	}
 
-	for(size_t i = 0; i < callbackParam->paramCount; ++i) {
-		rankCallableParam(&paramRanks[i], service, callable, callbackParam, i);
+	for(size_t i = 0; i < callableParam->paramCount; ++i) {
+		rankCallableParam(&paramRanks[i], service, callable, callableParam, i);
 		rank += paramRanks[i].weight;
 
 		if(! isParamImplicitConvert(paramRanks[i])) {
-			bool ok = !! callable->checkParam(&callbackParam->params[i].value.getValue().refData(), static_cast<uint32_t>(i));
+			bool ok = !! callable->checkParam(&callableParam->params[i].value.getValue().refData(), static_cast<uint32_t>(i));
 			metaCheckError(callable);
 			if(! ok) {
 				return -1;
@@ -1246,11 +1279,40 @@ bool implicitConvertForMetaClassCast(const ConvertRank & rank, GVariant * v)
 	return false;
 }
 
-void implicitConvertCallableParam(const GContextPointer & context, const ConvertRank & rank, GVariant * v, GVariant * holder, const GMetaType & targetType, const GGlueDataPointer & valueGlueData)
+bool implicitConvertForUserConvert(const ConvertRank & rank, GVariant * v,
+	IMetaCallable * callable, InvokeCallableParam * callableParam, size_t paramIndex)
 {
+	if(rank.weight != ValueMatchRank_Implicit_UserConvert) {
+		return false;
+	}
+
+	// below block is copied from function rankImplicitConvertForUserConvert
+	// we can't extract it to a functio because we need GScriptValueDataScopedGuard
+	GScriptUserConverterParamData converterData;
+	converterData.callable = callable;
+	converterData.paramIndex = (uint32_t)paramIndex;
+	GScriptValueData scriptValueData = callableParam->params[paramIndex].value.getData();
+	GScriptValueDataScopedGuard scriptValueDataGuard(scriptValueData);
+	converterData.sourceValue = &scriptValueData;
+
+	rank.userConverter->convert(&v->refData(), &converterData);
+
+	return true;
+}
+
+void implicitConvertCallableParam(const GContextPointer & context, GVariant * holder,
+	IMetaCallable * callable, InvokeCallableParam * callableParam, size_t paramIndex)
+{
+	const ConvertRank & rank = callableParam->paramRanks[paramIndex];
+	GMetaType targetType(metaGetParamType(callable, paramIndex));
+	const GGlueDataPointer & valueGlueData = callableParam->params[paramIndex].paramGlueData;
+	GVariant * v = &callableParam->params[paramIndex].value.getValue();
+
 	if(! implicitConvertForString(rank, v, holder)) {
 		if(! implicitConvertForSharedPointer(context, rank, v, targetType, valueGlueData)) {
-			implicitConvertForMetaClassCast(rank, v);
+			if(! implicitConvertForMetaClassCast(rank, v)) {
+				implicitConvertForUserConvert(rank, v, callable, callableParam, paramIndex);
+			}
 		}
 	}
 }
@@ -1265,11 +1327,10 @@ void doInvokeCallable(const GContextPointer & context, void * instance, IMetaCal
 		if(isParamImplicitConvert(callableParam->paramRanks[i])) {
 			implicitConvertCallableParam(
 				context,
-				callableParam->paramRanks[i],
-				&callableParam->params[i].value.getValue(),
 				&holders[i],
-				metaGetParamType(callable, i),
-				callableParam->params[i].paramGlueData
+				callable,
+				callableParam,
+				i
 			);
 		}
 	}

@@ -119,6 +119,8 @@ public:
 	const GVariant & getValue() const { return this->value; }
 	GVariant & getValue() { return this->value; }
 	GScriptValueData takeData();
+	// The result must be passed to another GScriptValue or GScriptValueDataScopedGuard to avoid memory leak
+	GScriptValueData getData() const;
 
 private:
 	Type type;
@@ -128,6 +130,21 @@ private:
 	
 private:
 	friend GScriptValue createScriptValueFromData(const GScriptValueData & data);
+	friend class GScriptValueDataScopedGuard;
+};
+
+class GScriptValueDataScopedGuard : public GNoncopyable
+{
+public:
+	explicit GScriptValueDataScopedGuard(const GScriptValueData & data) : data(data) {
+	}
+
+	~GScriptValueDataScopedGuard() {
+		GScriptValue(this->data);
+	}
+
+private:
+	GScriptValueData data;
 };
 
 IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value);

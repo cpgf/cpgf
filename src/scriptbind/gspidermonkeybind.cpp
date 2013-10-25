@@ -694,13 +694,14 @@ JSBool callbackMethodList(JSContext * jsContext, unsigned int argc, jsval * valu
 			objectData = objectDataWrapper->getAs<GObjectGlueData>();
 		}
 		
-		InvokeCallableParam callableParam(argc);
-		loadCallableParam(valuePointer, sharedStaticCast<GSpiderBindingContext>(methodData->getBindingContext()), &callableParam);
+		GContextPointer bindingContext(userData->getBindingContext());
+		InvokeCallableParam callableParam(argc, bindingContext->borrowScriptContext());
+		loadCallableParam(valuePointer, sharedStaticCast<GSpiderBindingContext>(bindingContext), &callableParam);
 
-		InvokeCallableResult result = doInvokeMethodList(methodData->getBindingContext(), objectData, methodData, &callableParam);
+		InvokeCallableResult result = doInvokeMethodList(bindingContext, objectData, methodData, &callableParam);
 		JsValue resultValue;
 		if(result.resultCount > 0) {
-			resultValue = methodResultToScript<GSpiderMethods>(methodData->getBindingContext(), result.callable.get(), &result);
+			resultValue = methodResultToScript<GSpiderMethods>(bindingContext, result.callable.get(), &result);
 		}
 		else {
 			resultValue = JSVAL_VOID;
@@ -1007,7 +1008,7 @@ JSBool objectConstructor(JSContext * jsContext, unsigned int argc, jsval * value
 		GClassGlueDataPointer classData = dataWrapper->getAs<GClassGlueData>();
 		GSpiderContextPointer context = sharedStaticCast<GSpiderBindingContext>(classData->getBindingContext());
 		
-		InvokeCallableParam callableParam(argc);
+		InvokeCallableParam callableParam(argc, context->borrowScriptContext());
 		loadCallableParam(valuePointer, context, &callableParam);
 
 		void * instance = doInvokeConstructor(context, context->getService(), classData->getMetaClass(), &callableParam);
