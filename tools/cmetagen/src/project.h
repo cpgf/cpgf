@@ -1,5 +1,5 @@
-#ifndef __PROJECT_H
-#define __PROJECT_H
+#ifndef CPGF_PROJECT_H
+#define CPGF_PROJECT_H
 
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gsharedinterface.h"

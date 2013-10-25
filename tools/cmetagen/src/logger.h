@@ -1,5 +1,5 @@
-#ifndef __LOGGER_H
-#define __LOGGER_H
+#ifndef CPGF_LOGGER_H
+#define CPGF_LOGGER_H
 
 #include <string>
 

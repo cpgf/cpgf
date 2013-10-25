@@ -1,5 +1,5 @@
-#ifndef __CODEBLOCK_H
-#define __CODEBLOCK_H
+#ifndef CPGF_CODEBLOCK_H
+#define CPGF_CODEBLOCK_H
 
 #include "cpgf/gflags.h"
 

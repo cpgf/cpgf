@@ -1,5 +1,5 @@
-#ifndef __GMETAOPERATOR_P_H
-#define __GMETAOPERATOR_P_H
+#ifndef CPGF_GMETAOPERATOR_P_H
+#define CPGF_GMETAOPERATOR_P_H
 
 #if defined(_MSC_VER)
 #pragma warning(push)

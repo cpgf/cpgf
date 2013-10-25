@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTBINDUTIL_H
-#define __GSCRIPTBINDUTIL_H
+#ifndef CPGF_GSCRIPTBINDUTIL_H
+#define CPGF_GSCRIPTBINDUTIL_H
 
 
 #include "cpgf/scriptbind/gscriptbind.h"

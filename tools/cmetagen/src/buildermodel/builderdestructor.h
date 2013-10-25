@@ -1,5 +1,5 @@
-#ifndef __BUILDERDESTRUCTOR_H
-#define __BUILDERDESTRUCTOR_H
+#ifndef CPGF_BUILDERDESTRUCTOR_H
+#define CPGF_BUILDERDESTRUCTOR_H
 
 #include "builderitem.h"
 

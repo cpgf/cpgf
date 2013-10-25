@@ -1,5 +1,5 @@
-#ifndef __CLANGPARSER_H
-#define __CLANGPARSER_H
+#ifndef CPGF_CLANGPARSER_H
+#define CPGF_CLANGPARSER_H
 
 #include "cpgf/gscopedptr.h"
 

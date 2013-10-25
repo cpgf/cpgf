@@ -1,5 +1,5 @@
-#ifndef __BUILDERFIELD_H
-#define __BUILDERFIELD_H
+#ifndef CPGF_BUILDERFIELD_H
+#define CPGF_BUILDERFIELD_H
 
 #include "builderitem.h"
 

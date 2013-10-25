@@ -1,5 +1,5 @@
-#ifndef __CPPUTIL_H
-#define __CPPUTIL_H
+#ifndef CPGF_CPPUTIL_H
+#define CPGF_CPPUTIL_H
 
 #if defined(_MSC_VER)
 #pragma warning(push, 0)

@@ -1,5 +1,5 @@
-#ifndef __BUILDERITEM_H
-#define __BUILDERITEM_H
+#ifndef CPGF_BUILDERITEM_H
+#define CPGF_BUILDERITEM_H
 
 #include "model/cppitem.h"
 #include "indeterminatevalue.h"

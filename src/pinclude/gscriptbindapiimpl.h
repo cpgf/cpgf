@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTBINDAPIIMPL_H
-#define __GSCRIPTBINDAPIIMPL_H
+#ifndef CPGF_GSCRIPTBINDAPIIMPL_H
+#define CPGF_GSCRIPTBINDAPIIMPL_H
 
 
 #include "cpgf/gmetaapi.h"

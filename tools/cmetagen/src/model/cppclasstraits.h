@@ -1,5 +1,5 @@
-#ifndef __CPPCLASSTRAITS_H
-#define __CPPCLASSTRAITS_H
+#ifndef CPGF_CPPCLASSTRAITS_H
+#define CPGF_CPPCLASSTRAITS_H
 
 #include "cpgf/gflags.h"
 

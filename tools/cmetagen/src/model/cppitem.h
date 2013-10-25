@@ -1,5 +1,5 @@
-#ifndef __CPPITEM_H
-#define __CPPITEM_H
+#ifndef CPGF_CPPITEM_H
+#define CPGF_CPPITEM_H
 
 #include "cpgf/gflags.h"
 

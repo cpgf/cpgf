@@ -1,5 +1,5 @@
-#ifndef __GMETAOBJECTARRAY_H
-#define __GMETAOBJECTARRAY_H
+#ifndef CPGF_GMETAOBJECTARRAY_H
+#define CPGF_GMETAOBJECTARRAY_H
 
 #include "cpgf/gmetaapi.h"
 

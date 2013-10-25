@@ -1,5 +1,5 @@
-#ifndef __TEST_COMMON_H
-#define __TEST_COMMON_H
+#ifndef CPGF_TEST_COMMON_H
+#define CPGF_TEST_COMMON_H
 
 
 #include "cpgf/metatraits/gmetaconverter_string.h"

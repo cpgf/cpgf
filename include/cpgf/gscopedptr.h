@@ -1,5 +1,5 @@
-#ifndef __GSCOPEDPTR_H
-#define __GSCOPEDPTR_H
+#ifndef CPGF_GSCOPEDPTR_H
+#define CPGF_GSCOPEDPTR_H
 
 
 #include <stddef.h>

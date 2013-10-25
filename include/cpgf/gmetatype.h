@@ -1,5 +1,5 @@
-#ifndef __GMETATYPE_H
-#define __GMETATYPE_H
+#ifndef CPGF_GMETATYPE_H
+#define CPGF_GMETATYPE_H
 
 #include "cpgf/gvartypedata.h"
 #include "cpgf/gstdint.h"

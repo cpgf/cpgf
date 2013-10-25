@@ -1,5 +1,5 @@
-#ifndef __BUILDEROPERATOR_H
-#define __BUILDEROPERATOR_H
+#ifndef CPGF_BUILDEROPERATOR_H
+#define CPGF_BUILDEROPERATOR_H
 
 #include "builderinvokable.h"
 

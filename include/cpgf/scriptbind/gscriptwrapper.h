@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTWRAPPER_H
-#define __GSCRIPTWRAPPER_H
+#ifndef CPGF_GSCRIPTWRAPPER_H
+#define CPGF_GSCRIPTWRAPPER_H
 
 
 #include "cpgf/metatraits/gmetascriptwrapper.h"

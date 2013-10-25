@@ -1,5 +1,5 @@
-#ifndef __SPRITE_H
-#define __SPRITE_H
+#ifndef CPGF_SPRITE_H
+#define CPGF_SPRITE_H
 
 #include "wx/dc.h"
 

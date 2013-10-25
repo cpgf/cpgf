@@ -1,5 +1,5 @@
-#ifndef __GLOBAL_H
-#define __GLOBAL_H
+#ifndef CPGF_GLOBAL_H
+#define CPGF_GLOBAL_H
 
 #include <string>
 

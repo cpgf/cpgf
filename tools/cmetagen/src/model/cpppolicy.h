@@ -1,5 +1,5 @@
-#ifndef __CPPPOLICY_H
-#define __CPPPOLICY_H
+#ifndef CPGF_CPPPOLICY_H
+#define CPGF_CPPPOLICY_H
 
 #include <string>
 #include <set>

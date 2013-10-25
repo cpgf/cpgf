@@ -1,5 +1,5 @@
-#ifndef __SAMPLESCRIPTBINDUTIL_H
-#define __SAMPLESCRIPTBINDUTIL_H
+#ifndef CPGF_SAMPLESCRIPTBINDUTIL_H
+#define CPGF_SAMPLESCRIPTBINDUTIL_H
 
 #include "cpgf/scriptbind/gscriptrunner.h"
 

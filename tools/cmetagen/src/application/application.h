@@ -1,5 +1,5 @@
-#ifndef __APPLICATION_H
-#define __APPLICATION_H
+#ifndef CPGF_APPLICATION_H
+#define CPGF_APPLICATION_H
 
 #include "project.h"
 

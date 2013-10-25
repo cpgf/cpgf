@@ -1,5 +1,5 @@
-#ifndef __GMETAINVOKE_P_H
-#define __GMETAINVOKE_P_H
+#ifndef CPGF_GMETAINVOKE_P_H
+#define CPGF_GMETAINVOKE_P_H
 
 #include "cpgf/gpp.h"
 #include "cpgf/gassert.h"

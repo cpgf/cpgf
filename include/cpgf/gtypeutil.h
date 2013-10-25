@@ -1,5 +1,5 @@
-#ifndef __GTYPEUTIL_H
-#define __GTYPEUTIL_H
+#ifndef CPGF_GTYPEUTIL_H
+#define CPGF_GTYPEUTIL_H
 
 #include "cpgf/gcallback.h"
 

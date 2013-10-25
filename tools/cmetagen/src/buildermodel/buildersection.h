@@ -1,5 +1,5 @@
-#ifndef __BUILDERSECTION_H
-#define __BUILDERSECTION_H
+#ifndef CPGF_BUILDERSECTION_H
+#define CPGF_BUILDERSECTION_H
 
 #include "cpgf/gscopedptr.h"
 

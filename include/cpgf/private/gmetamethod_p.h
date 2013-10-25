@@ -1,5 +1,5 @@
-#ifndef __GMETAMETHOD_P_H
-#define __GMETAMETHOD_P_H
+#ifndef CPGF_GMETAMETHOD_P_H
+#define CPGF_GMETAMETHOD_P_H
 
 #include "cpgf/private/gmetainvoke_p.h"
 #include "cpgf/private/gmetadefaultparam_p.h"

@@ -1,5 +1,5 @@
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef CPGF_CONFIG_H
+#define CPGF_CONFIG_H
 
 
 #ifndef ENABLE_LUA

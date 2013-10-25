@@ -1,5 +1,5 @@
-#ifndef __GLUARUNNER_H
-#define __GLUARUNNER_H
+#ifndef CPGF_GLUARUNNER_H
+#define CPGF_GLUARUNNER_H
 
 #include "cpgf/scriptbind/gscriptrunner.h"
 

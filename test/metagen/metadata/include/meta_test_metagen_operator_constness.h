@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_METAGEN_OPERATOR_CONSTNESS_H
-#define __META_TEST_METAGEN_OPERATOR_CONSTNESS_H
+#ifndef CPGF_META_TEST_METAGEN_OPERATOR_CONSTNESS_H
+#define CPGF_META_TEST_METAGEN_OPERATOR_CONSTNESS_H
 
 
 #include "cpgf/gmetadefine.h"

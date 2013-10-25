@@ -1,5 +1,5 @@
-#ifndef __GMETATYPE_P_H
-#define __GMETATYPE_P_H
+#ifndef CPGF_GMETATYPE_P_H
+#define CPGF_GMETATYPE_P_H
 
 #if defined(_MSC_VER)
 #pragma warning(push)

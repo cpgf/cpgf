@@ -1,5 +1,5 @@
-#ifndef __BUILDERWRITER_H
-#define __BUILDERWRITER_H
+#ifndef CPGF_BUILDERWRITER_H
+#define CPGF_BUILDERWRITER_H
 
 #include "cpgf/gscopedptr.h"
 #include "builderutil.h"

@@ -1,5 +1,5 @@
-#ifndef __CPPCLASS_H
-#define __CPPCLASS_H
+#ifndef CPGF_CPPCLASS_H
+#define CPGF_CPPCLASS_H
 
 #include "cppcontainer.h"
 #include "cppclasstraits.h"

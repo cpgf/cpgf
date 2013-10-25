@@ -1,5 +1,5 @@
-#ifndef __BUILDERINVOKABLE_H
-#define __BUILDERINVOKABLE_H
+#ifndef CPGF_BUILDERINVOKABLE_H
+#define CPGF_BUILDERINVOKABLE_H
 
 #include "builderitem.h"
 

@@ -1,5 +1,5 @@
-#ifndef __GMETASTORAGE_TEXTSTREAM_H
-#define __GMETASTORAGE_TEXTSTREAM_H
+#ifndef CPGF_GMETASTORAGE_TEXTSTREAM_H
+#define CPGF_GMETASTORAGE_TEXTSTREAM_H
 
 
 #include "cpgf/serialization/gmetastreamfundamental.h"

@@ -1,5 +1,5 @@
-#ifndef __CPPCONTAINER_H
-#define __CPPCONTAINER_H
+#ifndef CPGF_CPPCONTAINER_H
+#define CPGF_CPPCONTAINER_H
 
 #include "cppitem.h"
 

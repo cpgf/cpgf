@@ -1,5 +1,5 @@
-#ifndef __CPPFILE_H
-#define __CPPFILE_H
+#ifndef CPGF_CPPFILE_H
+#define CPGF_CPPFILE_H
 
 #include "cppcontainer.h"
 

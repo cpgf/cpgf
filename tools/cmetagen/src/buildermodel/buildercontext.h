@@ -1,5 +1,5 @@
-#ifndef __BUILDERCONTEXT_H
-#define __BUILDERCONTEXT_H
+#ifndef CPGF_BUILDERCONTEXT_H
+#define CPGF_BUILDERCONTEXT_H
 
 #include "builderitem.h"
 #include "buildersection.h"

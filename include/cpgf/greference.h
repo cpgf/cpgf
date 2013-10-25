@@ -1,5 +1,5 @@
-#ifndef __GREFERENCE_h
-#define __GREFERENCE_h
+#ifndef CPGF_GREFERENCE_h
+#define CPGF_GREFERENCE_h
 
 #include "cpgf/ggetobjectaddress.h"
 

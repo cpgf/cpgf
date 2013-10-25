@@ -1,5 +1,5 @@
-#ifndef __CPPWRITER_H
-#define __CPPWRITER_H
+#ifndef CPGF_CPPWRITER_H
+#define CPGF_CPPWRITER_H
 
 #include "codeblock.h"
 #include "cpgf/gcallback.h"

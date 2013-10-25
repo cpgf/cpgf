@@ -1,5 +1,5 @@
-#ifndef __GSPIDERMONKEYRUNNER_H
-#define __GSPIDERMONKEYRUNNER_H
+#ifndef CPGF_GSPIDERMONKEYRUNNER_H
+#define CPGF_GSPIDERMONKEYRUNNER_H
 
 #include "cpgf/scriptbind/gscriptrunner.h"
 

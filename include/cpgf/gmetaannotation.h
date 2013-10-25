@@ -1,5 +1,5 @@
-#ifndef __GMETAANNOTATION_H
-#define __GMETAANNOTATION_H
+#ifndef CPGF_GMETAANNOTATION_H
+#define CPGF_GMETAANNOTATION_H
 
 #include "cpgf/private/gmetaannotation_p.h"
 

@@ -1,5 +1,5 @@
-#ifndef __CPPINVOKABLE_H
-#define __CPPINVOKABLE_H
+#ifndef CPGF_CPPINVOKABLE_H
+#define CPGF_CPPINVOKABLE_H
 
 #include "cppitem.h"
 #include "cpptype.h"

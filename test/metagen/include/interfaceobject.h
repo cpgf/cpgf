@@ -1,5 +1,5 @@
-#ifndef __INTERFACEOBJECT_H
-#define __INTERFACEOBJECT_H
+#ifndef CPGF_INTERFACEOBJECT_H
+#define CPGF_INTERFACEOBJECT_H
 
 #include "cpgf/gapiutil.h"
 #include "cpgf/gsharedinterface.h"

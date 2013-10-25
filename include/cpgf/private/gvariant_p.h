@@ -1,5 +1,5 @@
-#ifndef __GVARIANT_P_H
-#define __GVARIANT_P_H
+#ifndef CPGF_GVARIANT_P_H
+#define CPGF_GVARIANT_P_H
 
 namespace variant_internal {
 

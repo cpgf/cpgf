@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTVALUE_H
-#define __GSCRIPTVALUE_H
+#ifndef CPGF_GSCRIPTVALUE_H
+#define CPGF_GSCRIPTVALUE_H
 
 #include "cpgf/gvariant.h"
 #include "cpgf/gclassutil.h"

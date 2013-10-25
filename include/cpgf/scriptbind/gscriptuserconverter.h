@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTUSERCONVERTER_H
-#define __GSCRIPTUSERCONVERTER_H
+#ifndef CPGF_GSCRIPTUSERCONVERTER_H
+#define CPGF_GSCRIPTUSERCONVERTER_H
 
 #include "cpgf/scriptbind/gscriptvalue.h"
 #include "cpgf/gmetatype.h"

@@ -1,5 +1,5 @@
-#ifndef __BUILDERCLASS_H
-#define __BUILDERCLASS_H
+#ifndef CPGF_BUILDERCLASS_H
+#define CPGF_BUILDERCLASS_H
 
 #include "buildercontainer.h"
 

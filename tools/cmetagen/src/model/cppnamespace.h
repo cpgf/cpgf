@@ -1,5 +1,5 @@
-#ifndef __CPPNAMESPACE_H
-#define __CPPNAMESPACE_H
+#ifndef CPGF_CPPNAMESPACE_H
+#define CPGF_CPPNAMESPACE_H
 
 #include "cppcontainer.h"
 

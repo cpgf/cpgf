@@ -1,5 +1,5 @@
-#ifndef __UTIL_H
-#define __UTIL_H
+#ifndef CPGF_UTIL_H
+#define CPGF_UTIL_H
 
 #include "cpgf/gflags.h"
 #include "cpgf/gcallback.h"

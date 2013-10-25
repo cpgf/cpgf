@@ -1,5 +1,5 @@
-#ifndef __GBINDCOMMON_H
-#define __GBINDCOMMON_H
+#ifndef CPGF_GBINDCOMMON_H
+#define CPGF_GBINDCOMMON_H
 
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptvalue.h"

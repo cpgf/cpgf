@@ -1,5 +1,5 @@
-#ifndef __GLUABIND_H
-#define __GLUABIND_H
+#ifndef CPGF_GLUABIND_H
+#define CPGF_GLUABIND_H
 
 #include "cpgf/scriptbind/gscriptbind.h"
 

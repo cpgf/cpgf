@@ -1,5 +1,5 @@
-#ifndef __TESTMETAMETHOD_H
-#define __TESTMETAMETHOD_H
+#ifndef CPGF_TESTMETAMETHOD_H
+#define CPGF_TESTMETAMETHOD_H
 
 #include "cpgf/gcompiler.h"
 #include "cpgf/gsharedptr.h"

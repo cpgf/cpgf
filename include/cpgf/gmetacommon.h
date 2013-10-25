@@ -1,5 +1,5 @@
-#ifndef __GMETACOMMON_H
-#define __GMETACOMMON_H
+#ifndef CPGF_GMETACOMMON_H
+#define CPGF_GMETACOMMON_H
 
 #include "cpgf/gcompiler.h"
 #include "cpgf/gconfig.h"

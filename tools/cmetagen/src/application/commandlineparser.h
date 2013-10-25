@@ -1,5 +1,5 @@
-#ifndef __COMMANDLINEPARSER_H
-#define __COMMANDLINEPARSER_H
+#ifndef CPGF_COMMANDLINEPARSER_H
+#define CPGF_COMMANDLINEPARSER_H
 
 #include "cpgf/gvariant.h"
 

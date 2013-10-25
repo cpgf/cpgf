@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTBIND_H
-#define __GSCRIPTBIND_H
+#ifndef CPGF_GSCRIPTBIND_H
+#define CPGF_GSCRIPTBIND_H
 
 
 #include "cpgf/scriptbind/gscriptbindapi.h"

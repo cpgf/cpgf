@@ -1,5 +1,5 @@
-#ifndef __CPPCONSTRUCTOR_H
-#define __CPPCONSTRUCTOR_H
+#ifndef CPGF_CPPCONSTRUCTOR_H
+#define CPGF_CPPCONSTRUCTOR_H
 
 #include "cppitem.h"
 #include "cppinvokable.h"

@@ -1,5 +1,5 @@
-#ifndef __CPPSOURCEFILE_H
-#define __CPPSOURCEFILE_H
+#ifndef CPGF_CPPSOURCEFILE_H
+#define CPGF_CPPSOURCEFILE_H
 
 #include <string>
 #include <vector>

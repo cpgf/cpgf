@@ -1,5 +1,5 @@
-#ifndef __GGETTER_H
-#define __GGETTER_H
+#ifndef CPGF_GGETTER_H
+#define CPGF_GGETTER_H
 
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gcallback.h"

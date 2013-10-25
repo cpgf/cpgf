@@ -1,5 +1,5 @@
-#ifndef __BUILDERUTIL_H
-#define __BUILDERUTIL_H
+#ifndef CPGF_BUILDERUTIL_H
+#define CPGF_BUILDERUTIL_H
 
 #include "model/cppitem.h"
 

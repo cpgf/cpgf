@@ -1,5 +1,5 @@
-#ifndef __TESTSCRIPTBIND_H
-#define __TESTSCRIPTBIND_H
+#ifndef CPGF_TESTSCRIPTBIND_H
+#define CPGF_TESTSCRIPTBIND_H
 
 #include "../unittestbase.h"
 

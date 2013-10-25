@@ -1,5 +1,5 @@
-#ifndef __CPPTYPE_H
-#define __CPPTYPE_H
+#ifndef CPGF_CPPTYPE_H
+#define CPGF_CPPTYPE_H
 
 #if defined(_MSC_VER)
 #pragma warning(push, 0)

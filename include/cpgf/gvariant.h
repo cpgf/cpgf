@@ -1,5 +1,5 @@
-#ifndef __GVARIANT_H
-#define __GVARIANT_H
+#ifndef CPGF_GVARIANT_H
+#define CPGF_GVARIANT_H
 
 #include "cpgf/gvartypedata.h"
 #include "cpgf/gmetatype.h"

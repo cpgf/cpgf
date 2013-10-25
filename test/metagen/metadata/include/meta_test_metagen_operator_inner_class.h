@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_METAGEN_OPERATOR_INNER_CLASS_H
-#define __META_TEST_METAGEN_OPERATOR_INNER_CLASS_H
+#ifndef CPGF_META_TEST_METAGEN_OPERATOR_INNER_CLASS_H
+#define CPGF_META_TEST_METAGEN_OPERATOR_INNER_CLASS_H
 
 
 #include "cpgf/gmetadefine.h"

@@ -1,5 +1,5 @@
-#ifndef __GGETOBJECTADDRESS_H
-#define __GGETOBJECTADDRESS_H
+#ifndef CPGF_GGETOBJECTADDRESS_H
+#define CPGF_GGETOBJECTADDRESS_H
 
 // suppress all warnings
 #ifdef __GNUC__

@@ -1,5 +1,5 @@
-#ifndef __GMETAEXTENDTYPE_H
-#define __GMETAEXTENDTYPE_H
+#ifndef CPGF_GMETAEXTENDTYPE_H
+#define CPGF_GMETAEXTENDTYPE_H
 
 #include "cpgf/gstdint.h"
 #include "cpgf/gclassutil.h"

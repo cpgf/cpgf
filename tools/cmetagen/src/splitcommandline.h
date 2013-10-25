@@ -1,5 +1,5 @@
-#ifndef __SPLITCOMMANDLINE_H
-#define __SPLITCOMMANDLINE_H
+#ifndef CPGF_SPLITCOMMANDLINE_H
+#define CPGF_SPLITCOMMANDLINE_H
 
 #include <vector>
 #include <string>

@@ -1,5 +1,5 @@
-#ifndef __GERRORCODE_H
-#define __GERRORCODE_H
+#ifndef CPGF_GERRORCODE_H
+#define CPGF_GERRORCODE_H
 
 
 namespace cpgf {

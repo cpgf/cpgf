@@ -1,5 +1,5 @@
-#ifndef __TESTSCRIPTBINDMETADATA_H
-#define __TESTSCRIPTBINDMETADATA_H
+#ifndef CPGF_TESTSCRIPTBINDMETADATA_H
+#define CPGF_TESTSCRIPTBINDMETADATA_H
 
 
 #include "cpgf/metatraits/gmetaconverter_string.h"

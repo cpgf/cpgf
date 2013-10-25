@@ -1,5 +1,5 @@
-#ifndef __GSPIDERMONKEYBIND_H
-#define __GSPIDERMONKEYBIND_H
+#ifndef CPGF_GSPIDERMONKEYBIND_H
+#define CPGF_GSPIDERMONKEYBIND_H
 
 #include "cpgf/scriptbind/gscriptbind.h"
 

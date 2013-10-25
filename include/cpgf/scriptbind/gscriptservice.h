@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTSERVICE_H
-#define __GSCRIPTSERVICE_H
+#ifndef CPGF_GSCRIPTSERVICE_H
+#define CPGF_GSCRIPTSERVICE_H
 
 #include "cpgf/gapi.h"
 #include "cpgf/gsharedinterface.h"

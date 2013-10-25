@@ -1,5 +1,5 @@
-#ifndef __TESTOBJECTARRAY_H
-#define __TESTOBJECTARRAY_H
+#ifndef CPGF_TESTOBJECTARRAY_H
+#define CPGF_TESTOBJECTARRAY_H
 
 #include "cpgf/gsharedptr.h"
 

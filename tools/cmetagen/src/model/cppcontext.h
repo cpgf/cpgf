@@ -1,5 +1,5 @@
-#ifndef __CPPCONTEXT_H
-#define __CPPCONTEXT_H
+#ifndef CPGF_CPPCONTEXT_H
+#define CPGF_CPPCONTEXT_H
 
 #include "parser/clangparser.h"
 #include "cppitem.h"

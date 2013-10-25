@@ -1,5 +1,5 @@
-#ifndef __GFLAGS_H
-#define __GFLAGS_H
+#ifndef CPGF_GFLAGS_H
+#define CPGF_GFLAGS_H
 
 #include "cpgf/genableif.h"
 #include "cpgf/gtypetraits.h"

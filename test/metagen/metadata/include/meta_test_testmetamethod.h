@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_TESTMETAMETHOD_H
-#define __META_TEST_TESTMETAMETHOD_H
+#ifndef CPGF_META_TEST_TESTMETAMETHOD_H
+#define CPGF_META_TEST_TESTMETAMETHOD_H
 
 
 #include "cpgf/gmetadefine.h"

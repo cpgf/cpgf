@@ -1,5 +1,5 @@
-#ifndef __GMETACLASS_H
-#define __GMETACLASS_H
+#ifndef CPGF_GMETACLASS_H
+#define CPGF_GMETACLASS_H
 
 #include "cpgf/private/gmetaclass_p.h"
 

@@ -1,5 +1,5 @@
-#ifndef __CODEWRITER_H
-#define __CODEWRITER_H
+#ifndef CPGF_CODEWRITER_H
+#define CPGF_CODEWRITER_H
 
 #include <string>
 

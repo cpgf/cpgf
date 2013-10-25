@@ -1,5 +1,5 @@
-#ifndef __CONSTANTS_H
-#define __CONSTANTS_H
+#ifndef CPGF_CONSTANTS_H
+#define CPGF_CONSTANTS_H
 
 #include <string>
 

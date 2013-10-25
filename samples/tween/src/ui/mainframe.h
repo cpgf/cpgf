@@ -1,5 +1,5 @@
-#ifndef __MAINFRAME_H
-#define __MAINFRAME_H
+#ifndef CPGF_MAINFRAME_H
+#define CPGF_MAINFRAME_H
 
 #include "../uiresource/mainui.h"
 

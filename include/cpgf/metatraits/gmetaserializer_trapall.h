@@ -1,5 +1,5 @@
-#ifndef __GMETASERIALIZER_TRAPALL_H
-#define __GMETASERIALIZER_TRAPALL_H
+#ifndef CPGF_GMETASERIALIZER_TRAPALL_H
+#define CPGF_GMETASERIALIZER_TRAPALL_H
 
 #include "cpgf/gmetatype.h"
 #include "cpgf/gmetaextendtype.h"

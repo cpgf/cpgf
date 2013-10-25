@@ -1,5 +1,5 @@
-#ifndef __BUILDERFILEWRITER_H
-#define __BUILDERFILEWRITER_H
+#ifndef CPGF_BUILDERFILEWRITER_H
+#define CPGF_BUILDERFILEWRITER_H
 
 #include "buildersection.h"
 #include "codewriter/cppwriter.h"
