@@ -107,6 +107,8 @@ protected:
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
 
+	virtual IScriptContext * G_API_CC getContext();
+
 	virtual IScriptConfig * G_API_CC getConfig();
 	virtual IScriptObject * G_API_CC getOwner();
 	virtual gapi_bool G_API_CC isGlobal();

@@ -9,6 +9,7 @@ namespace cpgf {
 
 struct IScriptLibraryLoader;
 struct GScriptValueData;
+struct IScriptContext;
 
 struct IScriptConfig : public IObject
 {
@@ -51,6 +52,8 @@ public:
 
 struct IScriptObject : public IExtendObject
 {
+	virtual IScriptContext * G_API_CC getContext() = 0;
+
 	virtual IScriptConfig * G_API_CC getConfig() = 0;
 	virtual IScriptObject * G_API_CC getOwner() = 0;
 	virtual gapi_bool G_API_CC isGlobal() = 0;

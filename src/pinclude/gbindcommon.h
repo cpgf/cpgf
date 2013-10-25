@@ -699,6 +699,26 @@ private:
 	SetType wrapperSet;
 };
 
+class GScriptContext : public IScriptContext
+{
+private:
+	typedef GSharedInterface<IScriptUserConverter> ScriptUserConverterType;
+	typedef std::vector<ScriptUserConverterType> ScriptUserConverterListType;
+
+	G_INTERFACE_IMPL_OBJECT
+
+protected:
+	virtual void G_API_CC addScriptUserConverter(IScriptUserConverter * converter);
+	virtual void G_API_CC removeScriptUserConverter(IScriptUserConverter * converter);
+	virtual uint32_t G_API_CC getScriptUserConverterCount();
+	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index);
+
+private:
+	ScriptUserConverterListType::iterator findConverter(IScriptUserConverter * converter);
+
+private:
+	GScopedPointer<ScriptUserConverterListType> scriptUserConverterList;
+};
 
 class GBindingContext : public GShareFromThis<GBindingContext>
 {
@@ -716,8 +736,7 @@ public:
 
 	void bindScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader);
 
-	void setScriptUserConverter(IScriptUserConverter * converter);
-	IScriptUserConverter * getScriptUserConverter() const;
+	IScriptContext * borrowScriptContext() const;
 
 public:
 	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
@@ -752,7 +771,7 @@ private:
 	GScopedPointer<GClassPool> classPool;
 	
 	GScopedPointer<GScriptCoreService> scriptCoreService;
-	GSharedInterface<IScriptUserConverter> scriptUserConverter;
+	GScopedInterface<IScriptContext> scriptContext;
 
 private:
 	template <typename T>
@@ -863,6 +882,8 @@ public:
 	IMetaClass * cloneMetaClass(IMetaClass * metaClass);
 
 	IMetaService * getMetaService();
+	
+	virtual IScriptContext * getContext() const;
 
 protected:
 	const GContextPointer & getBindingContext() const {

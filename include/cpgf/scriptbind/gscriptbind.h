@@ -19,6 +19,15 @@
 namespace cpgf {
 
 struct IScriptLibraryLoader;
+struct IScriptUserConverter;
+
+struct IScriptContext : public IObject
+{
+	virtual void G_API_CC addScriptUserConverter(IScriptUserConverter * converter) = 0;
+	virtual void G_API_CC removeScriptUserConverter(IScriptUserConverter * converter) = 0;
+	virtual uint32_t G_API_CC getScriptUserConverterCount() = 0;
+	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index) = 0;
+};
 
 class GScriptObject
 {
@@ -59,6 +68,8 @@ public:
 	virtual bool maybeIsScriptArray(const char * name) = 0;
 	virtual GScriptValue getAsScriptArray(const char * name) = 0;
 	virtual GScriptValue createScriptArray(const char * name) = 0;
+
+	virtual IScriptContext * getContext() const = 0;
 
 
 	G_DEPRECATED(

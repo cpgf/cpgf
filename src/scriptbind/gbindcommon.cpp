@@ -630,8 +630,61 @@ void GGlueDataWrapperPool::dataWrapperDestroyed(GGlueDataWrapper * dataWrapper)
 }
 
 
+void G_API_CC GScriptContext::addScriptUserConverter(IScriptUserConverter * converter)
+{
+	if(! this->scriptUserConverterList) {
+		this->scriptUserConverterList.reset(new ScriptUserConverterListType);
+	}
+	if(this->findConverter(converter) == this->scriptUserConverterList->end()) {
+		this->scriptUserConverterList->push_back(ScriptUserConverterType(converter));
+	}
+}
+
+void G_API_CC GScriptContext::removeScriptUserConverter(IScriptUserConverter * converter)
+{
+	if(! this->scriptUserConverterList) {
+		return;
+	}
+
+	ScriptUserConverterListType::iterator it = this->findConverter(converter);
+	if(it != this->scriptUserConverterList->end()) {
+		this->scriptUserConverterList->erase(it);
+	}
+}
+
+uint32_t G_API_CC GScriptContext::getScriptUserConverterCount()
+{
+	if(! this->scriptUserConverterList) {
+		return 0;
+	}
+
+	return (uint32_t)(this->scriptUserConverterList->size());
+}
+
+IScriptUserConverter * G_API_CC GScriptContext::getScriptUserConverterAt(uint32_t index)
+{
+	if(index >= getScriptUserConverterCount()) {
+		return NULL;
+	}
+
+	return this->scriptUserConverterList->at(index).get();
+}
+
+GScriptContext::ScriptUserConverterListType::iterator GScriptContext::findConverter(IScriptUserConverter * converter)
+{
+	for(ScriptUserConverterListType::iterator it = this->scriptUserConverterList->begin();
+		it != this->scriptUserConverterList->end();
+		++it) {
+		if(it->get() == converter) {
+			return it;
+		}
+	}
+
+	return scriptUserConverterList->end();
+}
+
 GBindingContext::GBindingContext(IMetaService * service, const GScriptConfig & config)
-	: service(service), config(config)
+	: service(service), config(config), scriptContext(new GScriptContext)
 {
 	this->classPool.reset(new GClassPool(this));
 }
@@ -649,14 +702,9 @@ void GBindingContext::bindScriptCoreService(GScriptObject * scriptObject, const 
 	this->scriptCoreService.reset(doBindScriptCoreService(scriptObject, bindName, libraryLoader));
 }
 
-void GBindingContext::setScriptUserConverter(IScriptUserConverter * converter)
+IScriptContext * GBindingContext::borrowScriptContext() const
 {
-	this->scriptUserConverter.reset(converter);
-}
-
-IScriptUserConverter * GBindingContext::getScriptUserConverter() const
-{
-	return this->scriptUserConverter.get();
+	return this->scriptContext.get();
 }
 
 GClassPool * GBindingContext::getClassPool()
@@ -799,10 +847,18 @@ IMetaClass * GScriptObjectBase::cloneMetaClass(IMetaClass * metaClass)
 	return newMetaClass;
 }
 
-IMetaService * GScriptObjectBase::getMetaService() {
+IMetaService * GScriptObjectBase::getMetaService()
+{
 	IMetaService * service = this->context->getService();
 	service->addReference();
 	return service;
+}
+
+IScriptContext * GScriptObjectBase::getContext() const
+{
+	IScriptContext * scriptContext = this->context->borrowScriptContext();
+	scriptContext->addReference();
+	return scriptContext;
 }
 
 void GScriptObjectBase::doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)

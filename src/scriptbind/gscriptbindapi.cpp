@@ -176,6 +176,15 @@ ImplScriptObject::~ImplScriptObject()
 	}
 }
 
+IScriptContext * G_API_CC ImplScriptObject::getContext()
+{
+	ENTER_BINDING_API()
+
+	return this->scriptObject->getContext();
+
+	LEAVE_BINDING_API(return NULL)
+}
+
 IScriptConfig * G_API_CC ImplScriptObject::getConfig()
 {
 	return new ImplScriptConfig(this->scriptObject->getConfig());
