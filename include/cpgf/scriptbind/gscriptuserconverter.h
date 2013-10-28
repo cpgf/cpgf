@@ -2,6 +2,7 @@
 #define CPGF_GSCRIPTUSERCONVERTER_H
 
 #include "cpgf/scriptbind/gscriptvalue.h"
+#include "cpgf/gmetaapi.h"
 #include "cpgf/gmetatype.h"
 #include "cpgf/ginterface.h"
 #include "cpgf/gvariant.h"
@@ -9,8 +10,6 @@
 
 
 namespace cpgf {
-
-struct IMetaCallable;
 
 #pragma pack(push, 1)
 #pragma pack(1)

@@ -342,6 +342,18 @@ IScriptArray * GScriptValue::toScriptArray() const
 	}
 }
 
+
+GScriptValueDataScopedGuard::GScriptValueDataScopedGuard(const GScriptValueData & data)
+	: data(data)
+{
+}
+
+GScriptValueDataScopedGuard::~GScriptValueDataScopedGuard()
+{
+	GScriptValue(this->data);
+}
+
+
 IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value)
 {
 	if(value.isObject()) {
@@ -359,6 +371,7 @@ IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value)
 		return NULL;
 	}
 }
+
 
 
 } // namespace cpgf

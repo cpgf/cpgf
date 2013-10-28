@@ -17,6 +17,7 @@ GDefineMetaInfo createMetaClass_ChainedObjectB();
 GDefineMetaInfo createMetaClass_ChainedObjectC();
 GDefineMetaInfo createMetaClass_Global_global();
 GDefineMetaInfo createMetaClass_Global_metagen_multiple_inheritance_cast();
+GDefineMetaInfo createMetaClass_Global_metagen_userconverter();
 GDefineMetaInfo createMetaClass_Global_simpleobject();
 GDefineMetaInfo createMetaClass_Global_testobjectarray();
 GDefineMetaInfo createMetaClass_MetagenMethodOverload();
@@ -53,6 +54,7 @@ GDefineMetaInfo createMetaClass_TemplateClassA_TemplateInstance_TemplateClassA_i
 GDefineMetaInfo createMetaClass_TemplateClassB_TemplateInstance_TemplateClassB_TemplateBase();
 GDefineMetaInfo createMetaClass_TestMethodMethodClass();
 GDefineMetaInfo createMetaClass_TestMethodMethodData();
+GDefineMetaInfo createMetaClass_TestUserConverterData();
 
 
 template <typename Meta>
@@ -63,6 +65,7 @@ void registerMain_metatest(Meta _d)
     _d._class(createMetaClass_ChainedObjectC());
     _d._class(createMetaClass_Global_global());
     _d._class(createMetaClass_Global_metagen_multiple_inheritance_cast());
+    _d._class(createMetaClass_Global_metagen_userconverter());
     _d._class(createMetaClass_Global_simpleobject());
     _d._class(createMetaClass_Global_testobjectarray());
     _d._class(createMetaClass_MetagenMethodOverload());
@@ -99,6 +102,7 @@ void registerMain_metatest(Meta _d)
     _d._class(createMetaClass_TemplateClassB_TemplateInstance_TemplateClassB_TemplateBase());
     _d._class(createMetaClass_TestMethodMethodClass());
     _d._class(createMetaClass_TestMethodMethodData());
+    _d._class(createMetaClass_TestUserConverterData());
 }
 
 } // namespace meta_test

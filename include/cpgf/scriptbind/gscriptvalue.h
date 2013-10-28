@@ -136,12 +136,8 @@ private:
 class GScriptValueDataScopedGuard : public GNoncopyable
 {
 public:
-	explicit GScriptValueDataScopedGuard(const GScriptValueData & data) : data(data) {
-	}
-
-	~GScriptValueDataScopedGuard() {
-		GScriptValue(this->data);
-	}
+	explicit GScriptValueDataScopedGuard(const GScriptValueData & data);
+	~GScriptValueDataScopedGuard();
 
 private:
 	GScriptValueData data;
