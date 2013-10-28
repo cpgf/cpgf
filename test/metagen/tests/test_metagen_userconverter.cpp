@@ -70,6 +70,9 @@ void testScriptUserConverter(TestScriptContext * context)
 	// For normal usage, we should only add the converter only once.
 	scriptContext->addScriptUserConverter(converter.get());
 
+	// Add the converter twice, but only one copy should be kept.
+	scriptContext->addScriptUserConverter(converter.get());
+
 	QDO(a = mtest.testUserConverterGetDoubleValue(5));
 	QASSERT(a == 10);
 
@@ -77,6 +80,9 @@ void testScriptUserConverter(TestScriptContext * context)
 	
 	// Verify that the converter was removed successfully
 	QERR(mtest.testUserConverterGetDoubleValue(5));
+
+	// Remove a non-exist converter, no exception should occur
+	scriptContext->removeScriptUserConverter(converter.get());
 }
 
 #define CASE testScriptUserConverter
