@@ -9,11 +9,11 @@
 class MyScriptUserConverter : public cpgf::GScriptUserConverterBase
 {
 protected:
-	virtual cpgf::gapi_bool G_API_CC canConvert(const cpgf::GScriptUserConverterParamData * paramData);
-	virtual void G_API_CC convert(cpgf::GVariantData * outputValue, const cpgf::GScriptUserConverterParamData * paramData);
+	virtual uint32_t G_API_CC canConvert(const cpgf::GScriptUserConverterParamData * paramData);
+	virtual void G_API_CC convert(cpgf::GVariantData * outputValue, const cpgf::GScriptUserConverterParamData * paramData, uint32_t tag);
 };
 
-cpgf::gapi_bool G_API_CC MyScriptUserConverter::canConvert(const cpgf::GScriptUserConverterParamData * paramData)
+uint32_t G_API_CC MyScriptUserConverter::canConvert(const cpgf::GScriptUserConverterParamData * paramData)
 {
 	using namespace cpgf;
 
@@ -23,21 +23,26 @@ cpgf::gapi_bool G_API_CC MyScriptUserConverter::canConvert(const cpgf::GScriptUs
 	GVariantType vt = value.getType();
 	if((vtIsInteger(vt) || vtIsReal(vt)) && paramData->callable->getParamCount() == 1) {
 		GMetaType paramType(metaGetParamType(paramData->callable, 0));
-		if(paramType.getBaseName() != NULL) {
+		if(! paramType.isPointer() && paramType.getBaseName() != NULL) {
 			if(checkParamName == paramType.getBaseName()) {
-				return true;
+				return 1;
 			}
 		}
 	}
-	return false;
+	return 0;
 }
 
-void G_API_CC MyScriptUserConverter::convert(cpgf::GVariantData * outputValue, const cpgf::GScriptUserConverterParamData * paramData)
+void G_API_CC MyScriptUserConverter::convert(cpgf::GVariantData * outputValue,
+	const cpgf::GScriptUserConverterParamData * paramData, uint32_t tag)
 {
-	GVariant value = createVariantFromData(paramData->sourceValue->value);
-	TestUserConverterData data(fromVariant<int>(value));
-	GVariant output = createVariant<true>(data, true);
-	*outputValue = output.takeData();
+	switch(tag) {
+	case 1: // converter number to TestUserConverterData
+		GVariant value = createVariantFromData(paramData->sourceValue->value);
+		TestUserConverterData data(fromVariant<int>(value));
+		GVariant output = createVariant<true>(data, true);
+		*outputValue = output.takeData();
+		break;
+	}
 }
 
 
@@ -58,12 +63,20 @@ void testScriptUserConverter(TestScriptContext * context)
 		scriptContext.reset(context->getBindingApi()->getContext());
 	}
 
+	// Verify that the function doesn't work before adding converter
+	QERR(mtest.testUserConverterGetDoubleValue(5));
+
+	// We add/remove the converter to script context in the test.
+	// For normal usage, we should only add the converter only once.
 	scriptContext->addScriptUserConverter(converter.get());
 
 	QDO(a = mtest.testUserConverterGetDoubleValue(5));
 	QASSERT(a == 10);
 
 	scriptContext->removeScriptUserConverter(converter.get());
+	
+	// Verify that the converter was removed successfully
+	QERR(mtest.testUserConverterGetDoubleValue(5));
 }
 
 #define CASE testScriptUserConverter

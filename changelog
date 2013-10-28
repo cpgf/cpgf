@@ -1,6 +1,8 @@
 TBD version 1.5.7
 	Added script array support in script binding engine. Now C++ code can access arrays defined in script.
 	Script binding, now script can inherit from C++ class. Available in Lua, V8, and SpiderMonkey.
+	Added script context in script binding.
+	Added customized value converter in script binding.
 	In GMetaType, added function baseIsStdString and baseIsStdWideString to determine if a meta type is std::string or std::wstring.
 	Added VC 2012 and VC 2013 entries in build makefile for easy use.
 	Added source group in CMake build file to filter files better in VC IDE.

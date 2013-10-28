@@ -795,6 +795,7 @@ public:
 	GSharedInterface<IMetaClass> sourceClass;
 	GSharedInterface<IMetaClass> targetClass;
 	GSharedInterface<IScriptUserConverter> userConverter;
+	uint32_t userConverterTag;
 };
 
 class CallableParamData

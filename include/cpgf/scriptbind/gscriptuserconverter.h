@@ -25,8 +25,8 @@ struct GScriptUserConverterParamData
 
 struct IScriptUserConverter : public IObject
 {
-	virtual gapi_bool G_API_CC canConvert(const GScriptUserConverterParamData * paramData) = 0;
-	virtual void G_API_CC convert(GVariantData * outputValue, const GScriptUserConverterParamData * paramData) = 0;
+	virtual uint32_t G_API_CC canConvert(const GScriptUserConverterParamData * paramData) = 0;
+	virtual void G_API_CC convert(GVariantData * outputValue, const GScriptUserConverterParamData * paramData, uint32_t tag) = 0;
 };
 
 

@@ -810,6 +810,7 @@ void ConvertRank::reset()
 	this->sourceClass.reset();
 	this->targetClass.reset();
 	this->userConverter.reset();
+	this->userConverterTag = 0;
 }
 
 InvokeCallableParam::InvokeCallableParam(size_t paramCount, IScriptContext * scriptContext)
@@ -1069,9 +1070,11 @@ void rankImplicitConvertForUserConvert(ConvertRank * outputRank, IMetaCallable *
 
 	for(uint32_t i = 0; i < converterCount; ++i) {
 		GSharedInterface<IScriptUserConverter> converter(callableParam->scriptContext->getScriptUserConverterAt(i));
-		if(converter->canConvert(&converterData)) {
+		uint32_t tag = converter->canConvert(&converterData);
+		if(tag != 0) {
 			outputRank->weight = ValueMatchRank_Implicit_UserConvert;
 			outputRank->userConverter.reset(converter.get());
+			outputRank->userConverterTag = tag;
 
 			break;
 		}
@@ -1295,7 +1298,7 @@ bool implicitConvertForUserConvert(const ConvertRank & rank, GVariant * v,
 	GScriptValueDataScopedGuard scriptValueDataGuard(scriptValueData);
 	converterData.sourceValue = &scriptValueData;
 
-	rank.userConverter->convert(&v->refData(), &converterData);
+	rank.userConverter->convert(&v->refData(), &converterData, rank.userConverterTag);
 
 	return true;
 }
