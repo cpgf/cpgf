@@ -12,7 +12,7 @@ using namespace std;
 
 namespace cpgf {
 
-static v8::Isolate *cpgf_isolate = NULL;
+v8::Isolate *cpgf_isolate = NULL;
 
 namespace {
 
