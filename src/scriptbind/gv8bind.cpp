@@ -1159,7 +1159,7 @@ GVariant GV8ScriptFunction::invokeIndirectly(GVariant const * const * params, si
 {
 	HandleScope handleScope(cpgf_isolate);
 
-	Local<Object> receiver = Local<Object>::New(this->receiver);
+	Local<Object> receiver = Local<Object>::New(cpgf_isolate, this->receiver);
 	return invokeV8FunctionIndirectly(this->getBindingContext(), receiver, Local<Value>::New(this->func), params, paramCount, "");
 }
 
@@ -1183,7 +1183,7 @@ size_t GV8ScriptArray::getLength()
 GScriptValue GV8ScriptArray::getValue(size_t index)
 {
 	HandleScope handleScope(cpgf_isolate);
-	Local<Object> localObject(Local<Object>::New(this->arrayObject));
+	Local<Object> localObject(Local<Object>::New(cpgf_isolate, this->arrayObject));
 
 	Local<Value> value = localObject->Get((uint32_t)index);
 	return v8ToScriptValue(this->getBindingContext(), this->arrayObject->CreationContext(), value, NULL);
@@ -1192,7 +1192,7 @@ GScriptValue GV8ScriptArray::getValue(size_t index)
 void GV8ScriptArray::setValue(size_t index, const GScriptValue & value)
 {
 	HandleScope handleScope(cpgf_isolate);
-	Local<Object> localObject(Local<Object>::New(this->arrayObject));
+	Local<Object> localObject(Local<Object>::New(cpgf_isolate, this->arrayObject));
 
 	if(value.isAccessible()) {
 		raiseCoreException(Error_ScriptBinding_NotSupportedFeature, "Set Accessible Into Array", "Google V8");
@@ -1282,7 +1282,7 @@ GV8ScriptObject::~GV8ScriptObject()
 GScriptValue GV8ScriptObject::doGetValue(const char * name)
 {
 	HandleScope handleScope(cpgf_isolate);
-	Local<Object> localObject(Local<Object>::New(this->object));
+	Local<Object> localObject(Local<Object>::New(cpgf_isolate, this->object));
 
 	Local<Value> value = localObject->Get(String::New(name));
 	return v8ToScriptValue(this->getBindingContext(), this->object->CreationContext(), value, NULL);
@@ -1291,7 +1291,7 @@ GScriptValue GV8ScriptObject::doGetValue(const char * name)
 void GV8ScriptObject::doSetValue(const char * name, const GScriptValue & value)
 {
 	HandleScope handleScope(cpgf_isolate);
-	Local<Object> localObject(Local<Object>::New(this->object));
+	Local<Object> localObject(Local<Object>::New(cpgf_isolate, this->object));
 
 	if(value.isAccessible()) {
 		void * instance;
@@ -1307,7 +1307,7 @@ void GV8ScriptObject::doSetValue(const char * name, const GScriptValue & value)
 GScriptObject * GV8ScriptObject::doCreateScriptObject(const char * name)
 {
 	HandleScope handleScope(cpgf_isolate);
-	Local<Object> localObject(Local<Object>::New(this->object));
+	Local<Object> localObject(Local<Object>::New(cpgf_isolate, this->object));
 
 	Local<Value> value = localObject->Get(String::New(name));
 	if(isValidObject(value)) {
@@ -1337,7 +1337,7 @@ GScriptObject * GV8ScriptObject::doCreateScriptObject(const char * name)
 GScriptValue GV8ScriptObject::getScriptFunction(const char * name)
 {
 	HandleScope handleScope(cpgf_isolate);
-	Local<Object> localObject(Local<Object>::New(this->object));
+	Local<Object> localObject(Local<Object>::New(cpgf_isolate, this->object));
 
 	Local<Value> value = localObject->Get(String::New(name));
 
@@ -1368,7 +1368,7 @@ GVariant GV8ScriptObject::invoke(const char * name, const GVariant * params, siz
 GVariant GV8ScriptObject::invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount)
 {
 	HandleScope handleScope(cpgf_isolate);
-	Local<Object> localObject(Local<Object>::New(this->object));
+	Local<Object> localObject(Local<Object>::New(cpgf_isolate, this->object));
 
 	Local<Value> func = localObject->Get(String::New(name));
 
@@ -1378,7 +1378,7 @@ GVariant GV8ScriptObject::invokeIndirectly(const char * name, GVariant const * c
 void GV8ScriptObject::assignValue(const char * fromName, const char * toName)
 {
 	HandleScope handleScope(cpgf_isolate);
-	Local<Object> localObject(Local<Object>::New(this->object));
+	Local<Object> localObject(Local<Object>::New(cpgf_isolate, this->object));
 
 	Local<Value> value = localObject->Get(String::New(fromName));
 	localObject->Set(String::New(toName), value);
@@ -1402,7 +1402,7 @@ GScriptValue GV8ScriptObject::createScriptArray(const char * name)
 GMethodGlueDataPointer GV8ScriptObject::doGetMethodData(const char * methodName)
 {
 	HandleScope handleScope(cpgf_isolate);
-	Local<Object> localObject(Local<Object>::New(this->object));
+	Local<Object> localObject(Local<Object>::New(cpgf_isolate, this->object));
 
 	Local<Value> value = localObject->Get(String::New(methodName));
 	if(isValidObject(value)) {
