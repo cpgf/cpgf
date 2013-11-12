@@ -193,7 +193,7 @@ class GFunctionTemplateUserData : public GUserData
 {
 public:
 	explicit GFunctionTemplateUserData(Handle<FunctionTemplate> functionTemplate)
-		: functionTemplate(Persistent<FunctionTemplate>(cpgf_isolate, functionTemplate))
+		: functionTemplate(cpgf_isolate, functionTemplate)
 	{
 	}
 
@@ -215,7 +215,7 @@ class GObjectTemplateUserData : public GUserData
 {
 public:
 	explicit GObjectTemplateUserData(Handle<ObjectTemplate> objectTemplate)
-		: objectTemplate(Persistent<ObjectTemplate>(cpgf_isolate, objectTemplate))
+		: objectTemplate(cpgf_isolate, objectTemplate)
 	{
 	}
 
@@ -596,7 +596,7 @@ void helperBindAccessible(const GContextPointer & context, Local<Object> contain
 {
 	GAccessibleGlueDataPointer accessibleData(context->newAccessibleGlueData(instance, accessible));
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(accessibleData, getV8DataWrapperPool());
-	Persistent<External> data = Persistent<External>(cpgf_isolate, External::New(dataWrapper));
+	Persistent<External> data(cpgf_isolate, External::New(dataWrapper));
 	data.MakeWeak(dataWrapper, weakHandleCallback);
 
 	container->SetAccessor(String::New(name), &accessibleGet, &accessibleSet, Local<External>::New(cpgf_isolate, data));
@@ -639,7 +639,7 @@ Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context,
 	GMethodGlueDataPointer glueData = context->newMethodGlueData(classData, methodList);
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(glueData, getV8DataWrapperPool());
 
-	Persistent<External> data = Persistent<External>(cpgf_isolate, External::New(dataWrapper));
+	Persistent<External> data(cpgf_isolate, External::New(dataWrapper));
 	data.MakeWeak(dataWrapper, weakHandleCallback);
 
 	Local<External> localData = Local<External>::New(cpgf_isolate, data);
@@ -868,7 +868,7 @@ void objectConstructor(const v8::FunctionCallbackInfo<Value> & args)
 			Local<Object> localSelf = args.Holder();
 			localSelf->SetAlignedPointerInInternalField(0, objectWrapper);
 
-			Persistent<Object> self = Persistent<Object>(cpgf_isolate, localSelf);
+			Persistent<Object> self(cpgf_isolate, localSelf);
 			setObjectSignature(&self);
 			self.MakeWeak(objectWrapper, weakHandleCallback);
 			getV8ScriptObjectCache()->addScriptObject(instance, classData, opcvNone, self);
@@ -1044,7 +1044,7 @@ Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, co
 
 	IMetaClass * metaClass = classData->getMetaClass();
 
-	Persistent<External> data = Persistent<External>::New(External::New(dataWrapper));
+	Persistent<External> data(cpgf_isolate, External::New(dataWrapper));
 	data.MakeWeak(dataWrapper, weakHandleCallback);
 
 	Handle<FunctionTemplate> functionTemplate = FunctionTemplate::New(objectConstructor, data);
@@ -1128,8 +1128,8 @@ GVariant invokeV8FunctionIndirectly(const GContextPointer & context, Local<Objec
 
 GV8ScriptFunction::GV8ScriptFunction(const GContextPointer & context, Local<Object> receiver, Local<Value> func)
 	: super(context),
-		receiver(Persistent<Object>::New(Local<Object>::Cast(receiver))),
-		func(Persistent<Function>::New(Local<Function>::Cast(func)))
+		receiver(cpgf_isolate, Local<Object>::Cast(receiver)),
+		func(cpgf_isolate, Local<Function>::Cast(func))
 {
 	GASSERT(! receiver->IsNull());
 }
@@ -1266,12 +1266,12 @@ GScriptValue GV8ScriptArray::createScriptArray(size_t index)
 }
 
 GV8ScriptObject::GV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config)
-	: super(GContextPointer(new GV8BindingContext(service, config)), config), object(Persistent<Object>::New(object))
+	: super(GContextPointer(new GV8BindingContext(service, config)), config), object(cpgf_isolate, object)
 {
 }
 
 GV8ScriptObject::GV8ScriptObject(const GV8ScriptObject & other, Local<Object> object)
-	: super(other), object(Persistent<Object>::New(object))
+	: super(other), object(cpgf_isolate, object)
 {
 }
 
