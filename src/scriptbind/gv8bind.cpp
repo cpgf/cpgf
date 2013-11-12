@@ -235,7 +235,7 @@ private:
 
 Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData);
 Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData);
-Persistent<Object> helperBindEnum(const GContextPointer & context, Handle<ObjectTemplate> objectTemplate, IMetaEnum * metaEnum);
+Local<Object> helperBindEnum(const GContextPointer & context, Handle<ObjectTemplate> objectTemplate, IMetaEnum * metaEnum);
 Handle<Value> helperBindMethodList(const GContextPointer & context, const char * name, IMetaList * methodList);
 Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData, bool isGlobal,
 	IMetaList * methodList, Handle<FunctionTemplate> classTemplate);
@@ -564,23 +564,23 @@ Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data
 	return complexVariantToScript<GV8Methods>(context, value, type, flags, outputGlueData);
 }
 
-Handle<Value> accessibleGet(Local<String> /*prop*/, const AccessorInfo & info)
+void accessibleGet(Local<String> /*prop*/, const PropertyCallbackInfo<Value>& info)
 {
 	ENTER_V8()
 
 	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(Local<External>::Cast(info.Data())->Value());
 	GAccessibleGlueDataPointer accessibleGlueData(dataWrapper->getAs<GAccessibleGlueData>());
 
-	return accessibleToScript<GV8Methods>(accessibleGlueData->getBindingContext(), accessibleGlueData->getAccessible(), accessibleGlueData->getInstanceAddress(), false);
+	info.GetReturnValue().Set(accessibleToScript<GV8Methods>(accessibleGlueData->getBindingContext(), accessibleGlueData->getAccessible(), accessibleGlueData->getInstanceAddress(), false));
 
-	LEAVE_V8(return Handle<Value>())
+	LEAVE_V8()
 }
 
-void accessibleSet(Local<String> /*prop*/, Local<Value> value, const AccessorInfo & info)
+void accessibleSet(Local<String> /*prop*/, Local<Value> value, const PropertyCallbackInfo<void>& info)
 {
 	ENTER_V8()
 
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 
 	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(Local<External>::Cast(info.Data())->Value());
 	GAccessibleGlueDataPointer accessibleGlueData(dataWrapper->getAs<GAccessibleGlueData>());
@@ -596,13 +596,13 @@ void helperBindAccessible(const GContextPointer & context, Local<Object> contain
 {
 	GAccessibleGlueDataPointer accessibleData(context->newAccessibleGlueData(instance, accessible));
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(accessibleData, getV8DataWrapperPool());
-	Persistent<External> data = Persistent<External>::New(External::New(dataWrapper));
+	Persistent<External> data = Persistent<External>(cpgf_isolate, External::New(dataWrapper));
 	data.MakeWeak(dataWrapper, weakHandleCallback);
 
-	container->SetAccessor(String::New(name), &accessibleGet, &accessibleSet, data);
+	container->SetAccessor(String::New(name), &accessibleGet, &accessibleSet, Local<External>::New(cpgf_isolate, data));
 }
 
-Handle<Value> callbackMethodList(const FunctionCallbackInfo<Value>& info)
+void callbackMethodList(const v8::FunctionCallbackInfo<Value>& args)
 {
 	ENTER_V8()
 
@@ -623,12 +623,13 @@ Handle<Value> callbackMethodList(const FunctionCallbackInfo<Value>& info)
 
 	GContextPointer bindingContext(methodData->getBindingContext());
 	InvokeCallableParam callableParam(args.Length(), bindingContext->borrowScriptContext());
-	loadCallableParam(info, bindingContext, &callableParam);
+	loadCallableParam(args, bindingContext, &callableParam);
 
 	InvokeCallableResult result = doInvokeMethodList(bindingContext, objectData, methodData, &callableParam);
-	return methodResultToScript<GV8Methods>(bindingContext, result.callable.get(), &result);
 
-	LEAVE_V8(return Handle<Value>())
+	args.GetReturnValue().Set(methodResultToScript<GV8Methods>(bindingContext, result.callable.get(), &result));
+
+	LEAVE_V8()
 }
 
 Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context,
@@ -638,27 +639,28 @@ Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context,
 	GMethodGlueDataPointer glueData = context->newMethodGlueData(classData, methodList);
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(glueData, getV8DataWrapperPool());
 
-	Persistent<External> data = Persistent<External>::New(External::New(dataWrapper));
+	Persistent<External> data = Persistent<External>(cpgf_isolate, External::New(dataWrapper));
 	data.MakeWeak(dataWrapper, weakHandleCallback);
 
+	Local<External> localData = Local<External>::New(cpgf_isolate, data);
 	Handle<FunctionTemplate> functionTemplate;
 	if(! classData || classData->getMetaClass() == NULL || isGlobal) {
-		functionTemplate = FunctionTemplate::New(callbackMethodList, data);
+		functionTemplate = FunctionTemplate::New(callbackMethodList, localData);
 	}
 	else {
-		functionTemplate = FunctionTemplate::New(callbackMethodList, data, Signature::New(classTemplate));
+		functionTemplate = FunctionTemplate::New(callbackMethodList, localData, Signature::New(classTemplate));
 	}
 	functionTemplate->SetClassName(String::New(getMethodNameFromMethodList(methodList).c_str()));
 
 	Local<Function> func = functionTemplate->GetFunction();
 	setObjectSignature(&func);
 
-	func->SetHiddenValue(String::New(userDataKey), data);
+	func->SetHiddenValue(String::New(userDataKey), localData);
 
 	return functionTemplate;
 }
 
-Handle<Value> namedEnumGetter(Local<String> prop, const AccessorInfo & info)
+void namedEnumGetter(Local<String> prop, const PropertyCallbackInfo<Value>& info)
 {
 	ENTER_V8()
 
@@ -667,27 +669,24 @@ Handle<Value> namedEnumGetter(Local<String> prop, const AccessorInfo & info)
 	String::AsciiValue name(prop);
 	int32_t index = metaEnum->findKey(*name);
 	if(index >= 0) {
-		return variantToV8(dataWrapper->getData()->getBindingContext(), metaGetEnumValue(metaEnum, index), GBindValueFlags(), NULL);
+		info.GetReturnValue().Set( variantToV8(dataWrapper->getData()->getBindingContext(), metaGetEnumValue(metaEnum, index), GBindValueFlags(), NULL) );
 	}
 
 	raiseCoreException(Error_ScriptBinding_CantFindEnumKey, *name);
-	return Handle<Value>();
 
-	LEAVE_V8(return Handle<Value>())
+	LEAVE_V8()
 }
 
-Handle<Value> namedEnumSetter(Local<String> /*prop*/, Local<Value> /*value*/, const AccessorInfo & /*info*/)
+void namedEnumSetter(Local<String> /*prop*/, Local<Value> /*value*/, const PropertyCallbackInfo<Value>& /*info*/)
 {
 	ENTER_V8()
 
 	raiseCoreException(Error_ScriptBinding_CantAssignToEnumMethodClass);
 
-	return Handle<Value>();
-
-	LEAVE_V8(return Handle<Value>())
+	LEAVE_V8()
 }
 
-Handle<Array> namedEnumEnumerator(const AccessorInfo & info)
+void namedEnumEnumerator(const PropertyCallbackInfo<Array> & info)
 {
 	ENTER_V8()
 
@@ -695,16 +694,16 @@ Handle<Array> namedEnumEnumerator(const AccessorInfo & info)
 	IMetaEnum * metaEnum = dataWrapper->getAs<GEnumGlueData>()->getMetaEnum();
 	uint32_t keyCount = metaEnum->getCount();
 
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 
 	Local<Array> metaNames = Array::New(keyCount);
 	for(uint32_t i = 0; i < keyCount; ++i) {
 		metaNames->Set(Number::New(i), String::New(metaEnum->getKey(i)));
 	}
 
-	return handleScope.Close(metaNames);
+	info.GetReturnValue().Set( handleScope.Close(metaNames) );
 
-	LEAVE_V8(return Handle<Array>())
+	LEAVE_V8()
 
 }
 
@@ -717,16 +716,18 @@ Handle<ObjectTemplate> createEnumTemplate(const GContextPointer & /*context*/)
 	return objectTemplate;
 }
 
-Persistent<Object> helperBindEnum(const GContextPointer & context, Handle<ObjectTemplate> objectTemplate, IMetaEnum * metaEnum)
+Local<Object> helperBindEnum(const GContextPointer & context, Handle<ObjectTemplate> objectTemplate, IMetaEnum * metaEnum)
 {
-	Persistent<Object> obj = Persistent<Object>::New(objectTemplate->NewInstance());
+	Handle<Object> instance =  objectTemplate->NewInstance();
 	GEnumGlueDataPointer enumGlueData(context->newEnumGlueData(metaEnum));
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(enumGlueData, getV8DataWrapperPool());
-	obj->SetAlignedPointerInInternalField(0, dataWrapper);
+	instance->SetAlignedPointerInInternalField(0, dataWrapper);
+
+	Persistent<Object> obj(cpgf_isolate, instance);
 	obj.MakeWeak(dataWrapper, weakHandleCallback);
 	setObjectSignature(&obj);
 
-	return obj;
+	return Local<Object>::New(cpgf_isolate, obj);
 }
 
 Handle<Value> helperBindMethodList(const GContextPointer & context, IMetaList * methodList)
@@ -825,27 +826,29 @@ Handle<Value> getNamedMember(const GGlueDataPointer & glueData, const char * nam
 	return namedMemberToScript<GV8Methods>(glueData, name);
 }
 
-void loadCallableParam(const FunctionCallbackInfo<Value>& info, const GContextPointer & context, InvokeCallableParam * callableParam)
+void loadCallableParam(const v8::FunctionCallbackInfo<Value>& info, const GContextPointer & context, InvokeCallableParam * callableParam)
 {
 	for(int i = 0; i < info.Length(); ++i) {
-		callableParam->params[i].value = v8ToScriptValue(context, args.Holder()->CreationContext(), args[i], &callableParam->params[i].paramGlueData);
+		callableParam->params[i].value = v8ToScriptValue(context, info.Holder()->CreationContext(), info[i], &callableParam->params[i].paramGlueData);
 	}
 }
 
-Handle<Value> objectConstructor(const Arguments & args)
+void objectConstructor(const v8::FunctionCallbackInfo<Value> & args)
 {
 	ENTER_V8()
 
 	if(! args.IsConstructCall()) {
-		return ThrowException(String::New("Cannot call constructor as function"));
+		args.GetReturnValue().Set(ThrowException(String::New("Cannot call constructor as function")));
+		return;
 	}
 
-	HandleScope scope;
+	HandleScope scope(cpgf_isolate);
 
-	if(args.Length() == 1 && args[0]->IsExternal() && External::Unwrap(args[0]) == &signatureKey) {
+	if(args.Length() == 1 && args[0]->IsExternal() && External::Cast(*args[0])->Value() == &signatureKey) {
 		// Here means this constructor is called when wrapping an existing object, so we don't create new object.
 		// See function objectToV8
-		return scope.Close(args.Holder());
+		args.GetReturnValue().Set(scope.Close(args.Holder()));
+		return;
 	}
 	else {
 		Local<External> data = Local<External>::Cast(args.Data());
@@ -859,26 +862,25 @@ Handle<Value> objectConstructor(const Arguments & args)
 		void * instance = doInvokeConstructor(context, context->getService(), classData->getMetaClass(), &callableParam);
 
 		if(instance != NULL) {
-			Persistent<Object> self = Persistent<Object>::New(args.Holder());
 			GObjectGlueDataPointer objectData = context->newObjectGlueData(classData, instance, GBindValueFlags(bvfAllowGC), opcvNone);
 			GGlueDataWrapper * objectWrapper = newGlueDataWrapper(objectData, getV8DataWrapperPool());
-			self.MakeWeak(objectWrapper, weakHandleCallback);
 
-			self->SetAlignedPointerInInternalField(0, objectWrapper);
+			Local<Object> localSelf = args.Holder();
+			localSelf->SetAlignedPointerInInternalField(0, objectWrapper);
+
+			Persistent<Object> self = Persistent<Object>(cpgf_isolate, localSelf);
 			setObjectSignature(&self);
-
+			self.MakeWeak(objectWrapper, weakHandleCallback);
 			getV8ScriptObjectCache()->addScriptObject(instance, classData, opcvNone, self);
 
-			return scope.Close(self);
+			args.GetReturnValue().Set( scope.Close(Local<Object>::New(cpgf_isolate, self)) );
 		}
 		else {
 			raiseCoreException(Error_ScriptBinding_FailConstructObject);
 		}
 	}
 
-	return scope.Close(args.Holder());
-
-	LEAVE_V8(return Handle<Value>());
+	LEAVE_V8();
 }
 
 Handle<Value> staticMemberGetter(Local<String> prop, const AccessorInfo & info)
@@ -992,7 +994,7 @@ Handle<Array> namedMemberEnumerator(const AccessorInfo & info)
 		}
 	}
 
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 
 	Local<Array> metaNames = Array::New(nameMap.getCount());
 	int i = 0;
@@ -1155,7 +1157,7 @@ GVariant GV8ScriptFunction::invoke(const GVariant * params, size_t paramCount)
 
 GVariant GV8ScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
 {
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 
 	Local<Object> receiver = Local<Object>::New(this->receiver);
 	return invokeV8FunctionIndirectly(this->getBindingContext(), receiver, Local<Value>::New(this->func), params, paramCount, "");
@@ -1180,7 +1182,7 @@ size_t GV8ScriptArray::getLength()
 
 GScriptValue GV8ScriptArray::getValue(size_t index)
 {
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 	Local<Object> localObject(Local<Object>::New(this->arrayObject));
 
 	Local<Value> value = localObject->Get((uint32_t)index);
@@ -1189,7 +1191,7 @@ GScriptValue GV8ScriptArray::getValue(size_t index)
 
 void GV8ScriptArray::setValue(size_t index, const GScriptValue & value)
 {
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 	Local<Object> localObject(Local<Object>::New(this->arrayObject));
 
 	if(value.isAccessible()) {
@@ -1204,7 +1206,7 @@ void GV8ScriptArray::setValue(size_t index, const GScriptValue & value)
 template <typename T>
 bool v8MaybeIsScriptArray(T key, Handle<Object> object)
 {
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 	Local<Object> localObject(Local<Object>::New(object));
 
 	Local<Value> value = localObject->Get(key);
@@ -1213,7 +1215,7 @@ bool v8MaybeIsScriptArray(T key, Handle<Object> object)
 template <typename T>
 GScriptValue v8GetAsScriptArray(const GContextPointer & context, T key, Handle<Object> object)
 {
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 	Local<Object> localObject(Local<Object>::New(object));
 
 	Local<Value> value = localObject->Get(key);
@@ -1230,7 +1232,7 @@ GScriptValue v8GetAsScriptArray(const GContextPointer & context, T key, Handle<O
 template <typename T>
 GScriptValue v8CreateScriptArray(const GContextPointer & context, T key, Handle<Object> object)
 {
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 	Local<Object> localObject(Local<Object>::New(object));
 
 	Local<Value> value = localObject->Get(key);
@@ -1279,7 +1281,7 @@ GV8ScriptObject::~GV8ScriptObject()
 
 GScriptValue GV8ScriptObject::doGetValue(const char * name)
 {
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 	Local<Object> localObject(Local<Object>::New(this->object));
 
 	Local<Value> value = localObject->Get(String::New(name));
@@ -1288,7 +1290,7 @@ GScriptValue GV8ScriptObject::doGetValue(const char * name)
 
 void GV8ScriptObject::doSetValue(const char * name, const GScriptValue & value)
 {
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 	Local<Object> localObject(Local<Object>::New(this->object));
 
 	if(value.isAccessible()) {
@@ -1304,7 +1306,7 @@ void GV8ScriptObject::doSetValue(const char * name, const GScriptValue & value)
 
 GScriptObject * GV8ScriptObject::doCreateScriptObject(const char * name)
 {
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 	Local<Object> localObject(Local<Object>::New(this->object));
 
 	Local<Value> value = localObject->Get(String::New(name));
@@ -1334,7 +1336,7 @@ GScriptObject * GV8ScriptObject::doCreateScriptObject(const char * name)
 
 GScriptValue GV8ScriptObject::getScriptFunction(const char * name)
 {
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 	Local<Object> localObject(Local<Object>::New(this->object));
 
 	Local<Value> value = localObject->Get(String::New(name));
@@ -1365,7 +1367,7 @@ GVariant GV8ScriptObject::invoke(const char * name, const GVariant * params, siz
 
 GVariant GV8ScriptObject::invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount)
 {
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 	Local<Object> localObject(Local<Object>::New(this->object));
 
 	Local<Value> func = localObject->Get(String::New(name));
@@ -1375,7 +1377,7 @@ GVariant GV8ScriptObject::invokeIndirectly(const char * name, GVariant const * c
 
 void GV8ScriptObject::assignValue(const char * fromName, const char * toName)
 {
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 	Local<Object> localObject(Local<Object>::New(this->object));
 
 	Local<Value> value = localObject->Get(String::New(fromName));
@@ -1399,7 +1401,7 @@ GScriptValue GV8ScriptObject::createScriptArray(const char * name)
 
 GMethodGlueDataPointer GV8ScriptObject::doGetMethodData(const char * methodName)
 {
-	HandleScope handleScope;
+	HandleScope handleScope(cpgf_isolate);
 	Local<Object> localObject(Local<Object>::New(this->object));
 
 	Local<Value> value = localObject->Get(String::New(methodName));
