@@ -129,7 +129,7 @@ public:
 		GVarTypeData typeData;
 		vtInit(typeData);
 		deduceVariantType<T>(typeData);
-		variant_internal::InitVariant<true, typename variant_internal::DeducePassType<T>::PassType>(*this, typeData, value);
+		variant_internal::InitVariant<true, typename variant_internal::DeducePassType<T>::PassType>(*this, typeData, const_cast<T &>(value));
 	}
 
 	template <typename T>
