@@ -129,7 +129,7 @@ public:
 		GVarTypeData typeData;
 		vtInit(typeData);
 		deduceVariantType<T>(typeData);
-		variant_internal::InitVariant<true, typename variant_internal::DeducePassType<T>::PassType>(*this, typeData, const_cast<T &>(value));
+		variant_internal::InitVariant<true, typename variant_internal::DeducePassType<T>::PassType>(*this, typeData, value);
 	}
 
 	template <typename T>
@@ -284,6 +284,8 @@ void initializeVarWideString(GVariantData * data, const wchar_t * s);
 GVariant createWideStringVariant(const wchar_t * s);
 bool variantDataIsWideString(const GVariantData & v);
 bool variantIsWideString(const GVariant & v);
+
+GVariant createVariantFromData(const GVariantData & data);
 
 GVariant createTypedVariant(const GVariant & value, const GMetaType & type);
 template <typename T>

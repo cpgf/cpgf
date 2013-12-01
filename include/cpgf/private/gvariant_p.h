@@ -151,20 +151,6 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 };
 
 template <typename From, typename To>
-struct CastVariantHelper <From, To, typename GEnableIfResult<IsArray<From> >::Result>
-{
-	typedef typename ArrayToPointer<typename RemoveConstVolatile<From>::Result>::Result P;
-	typedef CastVariantHelper<P, To> F;
-	G_STATIC_CONSTANT(bool, CanCast = F::CanCast);
-	
-	static To cast(const From & v) {
-		// reinterpret_cast doesn't work for const int [][] -> int **,
-		// so we have to be a little "brutal" here to use C style cast.
-		return F::cast((P)(v));
-	}
-};
-
-template <typename From, typename To>
 struct CastVariantHelper <From, To, typename GEnableIfResult<
 	GAndResult<
 		IsReference<To>,

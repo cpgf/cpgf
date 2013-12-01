@@ -1,7 +1,6 @@
 #include "../include/metagen_userconverter.h"
 #include "cpgf/scriptbind/gscriptuserconverter.h"
 #include "cpgf/gmetaapiutil.h"
-#include "cpgf/gvariant.h"
 
 #include "testmetagen.h"
 
@@ -20,7 +19,7 @@ uint32_t G_API_CC MyScriptUserConverter::canConvert(const cpgf::GScriptUserConve
 
 	const std::string checkParamName = "TestUserConverterData";
 
-	GVariant value = cpgf::createVariantFromData(paramData->sourceValue->value);
+	GVariant value = createVariantFromData(paramData->sourceValue->value);
 	GVariantType vt = value.getType();
 	if((vtIsInteger(vt) || vtIsReal(vt)) && paramData->callable->getParamCount() == 1) {
 		GMetaType paramType(metaGetParamType(paramData->callable, 0));
@@ -38,7 +37,7 @@ void G_API_CC MyScriptUserConverter::convert(cpgf::GVariantData * outputValue,
 {
 	switch(tag) {
 	case 1: // converter number to TestUserConverterData
-		GVariant value = cpgf::createVariantFromData(paramData->sourceValue->value);
+		GVariant value = createVariantFromData(paramData->sourceValue->value);
 		TestUserConverterData data(fromVariant<int>(value));
 		GVariant output = createVariant<true>(data, true);
 		*outputValue = output.takeData();
