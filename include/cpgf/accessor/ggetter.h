@@ -136,7 +136,7 @@ public:
 
 public:
 	typedef typename MemberDataTrait<RawGetter>::FieldType ValueType;
-	typedef typename GIfElse<Readable, ValueType, typename const RemoveReference<ValueType>::Result &>::Result PassType;
+	typedef typename GIfElse<Readable, ValueType, const typename RemoveReference<ValueType>::Result &>::Result PassType;
 
 public:
 	GInstanceGetter(RawGetterPassType getter) : getter(getter) {
