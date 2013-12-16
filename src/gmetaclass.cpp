@@ -614,6 +614,11 @@ GMetaClass * GMetaClass::addClass(const GMetaClass * cls)
 {
 	this->addItem(mcatClass, const_cast<GMetaClass *>(cls));
 
+    if (cls->module == this->module) {
+        // will re-register with different name
+        cls->setModule(NULL);
+        cls->resetQualifiedName();
+    }
 	cls->setModule(this->module);
 	
 	return const_cast<GMetaClass *>(cls);
