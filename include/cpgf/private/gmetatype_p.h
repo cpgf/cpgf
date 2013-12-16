@@ -25,11 +25,13 @@ template <typename T>
 struct StripBaseType
 {
 	typedef
-		typename RemoveConstVolatile<
-			typename RemoveAllPointers<
-				typename RemoveReference<
-					typename RemoveConstVolatile<T>::Result
-				>::Result
+        typename RemoveAllPointers<
+		    typename RemoveConstVolatile<
+			    typename RemoveAllPointers<
+				    typename RemoveReference<
+					    typename RemoveConstVolatile<T>::Result
+				    >::Result
+			    >::Result
 			>::Result
 		>::Result
 	Result;
