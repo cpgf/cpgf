@@ -1,11 +1,13 @@
 package org.cpgf.metagen.metawriter;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.cpgf.metagen.Util;
 import org.cpgf.metagen.codewriter.CppWriter;
 import org.cpgf.metagen.metadata.MetaInfo;
 import org.cpgf.metagen.metadata.Operator;
+import org.cpgf.metagen.metadata.CppClass;
 import org.cpgf.metagen.metadata.Parameter;
 
 public class OperatorWriter {
@@ -13,8 +15,9 @@ public class OperatorWriter {
 	private Operator item;
 	private int realParamCount;
 	private boolean isIncOrDec;
+	private boolean isNestedTemplateType;
 	
-	private List<Parameter> templateDependentParameterList;
+	private List<List<Parameter> > templateDependentParameterLists;
 	
 	public OperatorWriter(MetaInfo metaInfo, Operator item) {
 		this.metaInfo = metaInfo;
@@ -50,8 +53,25 @@ public class OperatorWriter {
 //				}
 //			}
 //		}
-		if(this.item.getOwner().isTemplate()) {
-			this.templateDependentParameterList = this.item.getOwner().getTemplateParameterList();
+		this.templateDependentParameterLists = new ArrayList<List<Parameter> >();
+		CppClass owner = this.item.getOwner();
+		while (owner != null) {
+			if(owner.isTemplate()) {
+				this.templateDependentParameterLists.add(owner.getTemplateParameterList());
+				this.isNestedTemplateType = true;
+			} else {
+					this.templateDependentParameterLists.add(null);
+			}
+			owner = owner.getOwner();
+		}
+
+		owner = this.item.getOwner().getOwner();
+		this.isNestedTemplateType = false;
+		while (owner != null) {
+			if(owner.isTemplate()) {
+				this.isNestedTemplateType = true;
+			}
+			owner = owner.getOwner();
 		}
 	}
 	
@@ -135,12 +155,10 @@ public class OperatorWriter {
 		if(this.item.isConst()) {
 			codeWriter.write("const ");
 		}
-		codeWriter.write( this.item.getOwner().getQualifiedName());
-		if(this.templateDependentParameterList != null) {
-			codeWriter.write("<");
-			codeWriter.write(Util.getParameterText(this.templateDependentParameterList, false, true));
-			codeWriter.write(">");
+		if (this.isNestedTemplateType) {
+			codeWriter.write("typename ");
 		}
+		codeWriter.write( this.item.getOwner().getFullQualifiedName());
 		codeWriter.write(" *");
 		if(includeName) {
 			codeWriter.write(" self");
@@ -154,10 +172,12 @@ public class OperatorWriter {
 	public void writeNamedWrapperFunctionCode(CppWriter codeWriter) {
 		String op = this.item.getOperator();
 
-		if(this.templateDependentParameterList != null) {
-			codeWriter.write("template <");
-			codeWriter.write(Util.getParameterText(this.templateDependentParameterList, true, true));
-			codeWriter.writeLine(">");
+		for (List<Parameter> parameters : this.templateDependentParameterLists) {
+			if(parameters != null) {
+				codeWriter.write("template <");
+				codeWriter.write(Util.getParameterText(parameters, true, true));
+				codeWriter.writeLine(">");
+			}
 		}
 		codeWriter.write("inline " + this.item.getResultType().getLiteralType() + " ");
 		codeWriter.write(WriterUtil.getOperatorWraperName(this.metaInfo, this.item) + "(");
@@ -205,10 +225,12 @@ public class OperatorWriter {
 		codeWriter.endBlock();
 		
 		if(this.shouldGenerateArraySetter()) {
-			if(this.templateDependentParameterList != null) {
-				codeWriter.write("template <");
-				codeWriter.write(Util.getParameterText(this.templateDependentParameterList, true, true));
-				codeWriter.writeLine(">");
+			for (List<Parameter> parameters : this.templateDependentParameterLists) {
+				if(parameters != null) {
+					codeWriter.write("template <");
+					codeWriter.write(Util.getParameterText(parameters, true, true));
+					codeWriter.writeLine(">");
+				}
 			}
 			codeWriter.write("inline void ");
 			codeWriter.write(WriterUtil.getOperatorWraperNamePrefix(this.metaInfo, this.item) + this.metaInfo.getOperatorNameMap().get(this.item, 2) + "(");
@@ -229,7 +251,7 @@ public class OperatorWriter {
 	
 	private String getArraySetterValueType() {
 		String typename = "";
-		if(this.item.getOwner().isTemplate()) {
+		if(this.item.getOwner().isTemplate() || this.isNestedTemplateType) {
 			typename = "typename ";
 		}
 		return "const " + typename + "cpgf::RemoveReference<" + this.item.getResultType().getLiteralType() + " >::Result &";
@@ -237,11 +259,13 @@ public class OperatorWriter {
 
 	public void writeNamedWrapperReflectionCode(CppWriter codeWriter, String define) {
 		String methodName = WriterUtil.getOperatorWraperName(this.metaInfo, this.item);
-		if(this.templateDependentParameterList != null) {
-			methodName = methodName + "<"
-				+ Util.getParameterText(this.templateDependentParameterList, false, true)
-				+ ">"
-			;
+		for (List<Parameter> parameters : this.templateDependentParameterLists) {
+			if(parameters != null) {
+				methodName = methodName + "<"
+					+ Util.getParameterText(parameters, false, true)
+					+ ">"
+				;
+			}
 		}
 		String reflectionName = this.metaInfo.getOperatorNameMap().get(this.item);
 
@@ -277,13 +301,14 @@ public class OperatorWriter {
 	private void doWriteNamedWrapperReflectionCodeForArraySetter(CppWriter codeWriter, String define) {
 		String reflectionName = this.metaInfo.getOperatorNameMap().get(this.item, 2);
 		String methodName = WriterUtil.getOperatorWraperNamePrefix(this.metaInfo, this.item) + reflectionName;
-		if(this.templateDependentParameterList != null) {
-			methodName = methodName + "<"
-				+ Util.getParameterText(this.templateDependentParameterList, false, true)
-				+ ">"
-			;
+		for (List<Parameter> parameters : this.templateDependentParameterLists) {
+			if(parameters != null) {
+				methodName = methodName + "<"
+					+ Util.getParameterText(parameters, false, true)
+					+ ">"
+				;
+			}
 		}
-
 		String action = WriterUtil.getReflectionAction(define, "_method");
 
 		codeWriter.write(action);

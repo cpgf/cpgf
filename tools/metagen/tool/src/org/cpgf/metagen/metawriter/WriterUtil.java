@@ -212,12 +212,6 @@ public class WriterUtil {
 			&& !metaInfo.getCallbackClassMap().getData(op).isSkipBind()
 			&& !op.isTemplate()
 			&& !op.getOwner().isGlobal()
-			&& (
-					op.getOwner().getOwner() == null
-					|| op.getOwner().getOwner().isGlobal()
-					|| (!op.getOwner().isTemplate() && !op.getOwner().getOwner().isTemplate())
-					&& op.getOwner().isPublic()
-				)
 			&& !op.getOperator().equals("->")
 			&& !op.isTypeConverter()
 		;
