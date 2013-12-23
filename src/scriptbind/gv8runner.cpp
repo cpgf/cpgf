@@ -12,7 +12,20 @@ using namespace std;
 
 namespace cpgf {
 
-v8::Isolate *cpgf_isolate = NULL;
+static v8::Isolate *cpgf_isolate = NULL;
+
+v8::Isolate *getV8Isolate()
+{
+	if (!cpgf_isolate) {
+		cpgf_isolate = v8::Isolate::GetCurrent();
+	}
+	return cpgf_isolate;
+}
+
+void setV8Isolate(v8::Isolate *isolate)
+{
+	cpgf_isolate = isolate;
+}
 
 namespace {
 
@@ -41,21 +54,21 @@ private:
 
 
 GV8ScriptRunnerImplement::GV8ScriptRunnerImplement(IMetaService * service)
-	: super(service), handleScope(cpgf_isolate), context(cpgf_isolate, Context::New(cpgf_isolate))
+	: super(service), handleScope(getV8Isolate()), context(getV8Isolate(), Context::New(getV8Isolate()))
 {
 	init();
 }
 
 GV8ScriptRunnerImplement::GV8ScriptRunnerImplement(IMetaService * service, Handle<Context> ctx)
-	: super(service), handleScope(cpgf_isolate), context(cpgf_isolate, ctx)
+	: super(service), handleScope(getV8Isolate()), context(getV8Isolate(), ctx)
 {
 	init();
 }
 
 void GV8ScriptRunnerImplement::init()
 {
-	contextScope = new Context::Scope(cpgf_isolate, context);
-	Local<Context> ctx = Local<Context>::New(cpgf_isolate, context);
+	contextScope = new Context::Scope(getV8Isolate(), context);
+	Local<Context> ctx = Local<Context>::New(getV8Isolate(), context);
 	Local<Object> global = ctx->Global();
 
 	GScopedInterface<IMetaService> metaService(getService());
@@ -75,9 +88,9 @@ bool GV8ScriptRunnerImplement::executeJsString(const char * source)
 {
 	using namespace v8;
 
-	Local<Context> ctx = Local<Context>::New(cpgf_isolate, context);
+	Local<Context> ctx = Local<Context>::New(getV8Isolate(), context);
 	ctx->Enter();
-	v8::HandleScope handle_scope(cpgf_isolate);
+	v8::HandleScope handle_scope(getV8Isolate());
 	v8::TryCatch v8TryCatch;
 	v8::Handle<v8::Script> script = v8::Script::Compile(String::New(source), String::New("cpgf"));
 	if(! script.IsEmpty()) {

@@ -23,8 +23,6 @@ IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Ob
 
 void clearV8DataPool();
 
-extern v8::Isolate *cpgf_isolate;
-
 } // namespace cpgf
 
 
