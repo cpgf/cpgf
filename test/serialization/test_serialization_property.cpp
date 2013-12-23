@@ -155,7 +155,7 @@ void doTestProperty(IMetaStorageWriter * writer, IMetaStorageReader * reader, co
 	GScopedInterface<IMetaModule> moduleInterface(createMetaModule(&module, define.getMetaClass()));
 	GScopedInterface<IMetaService> service(createMetaService(moduleInterface.get()));
 
-	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestPropertyClass"));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName("global.TestPropertyClass"));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 

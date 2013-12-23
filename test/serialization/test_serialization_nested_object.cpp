@@ -116,7 +116,7 @@ void doTestNestedObject(IMetaStorageWriter * writer, IMetaStorageReader * reader
 	GScopedInterface<IMetaModule> moduleInterface(createMetaModule(&module, define.getMetaClass()));
 	GScopedInterface<IMetaService> service(createMetaService(moduleInterface.get()));
 
-	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassC"));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName("global.TestSerializeClassC"));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 
