@@ -129,6 +129,7 @@ public:
 	virtual ~GMetaTypedItem();
 
 	const GMetaType & getMetaType() const;
+	const std::string & getQualifiedName() const;
 	virtual size_t getTypeSize() const = 0;
 
 	virtual void * createInstance() const = 0;

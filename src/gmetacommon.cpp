@@ -300,6 +300,17 @@ const GMetaType & GMetaTypedItem::getMetaType() const
 	return this->getItemType();
 }
 
+const std::string & GMetaTypedItem::getQualifiedName() const
+{
+	if(this->implement->qualifiedName.empty()) {
+		this->implement->qualifiedName = makeQualifiedName(".");
+		GMetaTypeData & typeData = this->implement->itemType.refData();
+		typeData.baseName = this->implement->qualifiedName.c_str();
+	}
+
+	return this->implement->qualifiedName;
+}
+
 
 GMetaAccessible::GMetaAccessible(const char * name, const GMetaType & itemType, GMetaCategory category)
 	: super(name, itemType, category)
