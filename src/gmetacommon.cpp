@@ -256,9 +256,9 @@ const std::string & GMetaItem::getQualifiedName() const
 	return this->implement->qualifiedName;
 }
 
-const std::string & GMetaItem::resetQualifiedName() const
+void GMetaItem::resetQualifiedName() const
 {
-    this->implement->qualifiedName = "";
+	this->implement->qualifiedName = "";
 }
 
 std::string GMetaItem::makeQualifiedName(const char * delimiter) const

@@ -88,7 +88,7 @@ public:
 
 	const std::string & getName() const;
 	const std::string & getQualifiedName() const;
-	const std::string & resetQualifiedName() const;
+	void resetQualifiedName() const;
 	std::string makeQualifiedName(const char * delimiter) const;
 
 	bool equals(const GMetaItem * other) const;
