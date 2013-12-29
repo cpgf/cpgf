@@ -669,9 +669,9 @@ void namedEnumGetter(Local<String> prop, const PropertyCallbackInfo<Value>& info
 	int32_t index = metaEnum->findKey(*name);
 	if(index >= 0) {
 		info.GetReturnValue().Set( variantToV8(dataWrapper->getData()->getBindingContext(), metaGetEnumValue(metaEnum, index), GBindValueFlags(), NULL) );
+	} else {
+		info.GetReturnValue().SetUndefined();
 	}
-
-	raiseCoreException(Error_ScriptBinding_CantFindEnumKey, *name);
 
 	LEAVE_V8()
 }
