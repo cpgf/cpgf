@@ -1048,6 +1048,7 @@ Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, co
 	Local<External> localData = Local<External>::New(getV8Isolate(), data);
 	Handle<FunctionTemplate> functionTemplate = FunctionTemplate::New(objectConstructor, localData);
 	functionTemplate->SetClassName(String::New(metaClass->getName()));
+	functionTemplate->SetHiddenPrototype(true);
 
 	if(mapClass->getUserData() == NULL) {
 		mapClass->setUserData(new GFunctionTemplateUserData(functionTemplate));
