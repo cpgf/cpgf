@@ -1,6 +1,6 @@
-set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
+set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0")
 if(CMAKE_COMPILER_IS_GNUCC)
-	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
+	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0")
 	if(TEST_GCOV)
 		set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0 -fprofile-arcs -ftest-coverage")
 	endif(TEST_GCOV)
@@ -75,7 +75,7 @@ macro(partUnitTest target)
 		${target}
 		PROPERTIES
 		OUTPUT_NAME ${target}
-		COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
+		COMPILE_FLAGS ${UNITTEST_COMPILE_FLAGS}
 	)
 	target_link_libraries(${target} ${TARGET_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB} ${SPIDERMONKEY_LIB} )
 endmacro()
