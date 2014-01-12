@@ -23,16 +23,14 @@ using namespace v8;
 
 
 #define ENTER_V8() \
-	char local_msg[256]; bool local_error = false; { \
 	try {
 
 #define LEAVE_V8(...) \
 	} \
 	catch(const v8RuntimeException & e) { ThrowException(e.getV8Error()); } \
-	catch(const GException & e) { strncpy(local_msg, e.getMessage(), 256); local_error = true; } \
-	catch(const exception & e) { strncpy(local_msg, e.what(), 256); local_error = true; } \
-	catch(...) { strcpy(local_msg, "Unknown exception occurred."); local_error = true; } \
-	} if(local_error) { local_msg[255] = 0; error(local_msg); } \
+	catch(const GException & e) { error(e.getMessage()); } \
+	catch(const exception & e) { error(e.what()); } \
+	catch(...) { error("Unknown exception occurred."); } \
 	__VA_ARGS__;
 
 
