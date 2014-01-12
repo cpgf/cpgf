@@ -30,6 +30,7 @@ using namespace v8;
 	catch(const v8RuntimeException & e) { ThrowException(e.getV8Error()); } \
 	catch(const GException & e) { error(e.getMessage()); } \
 	catch(const exception & e) { error(e.what()); } \
+	catch(const char * & e) { error(e); } \
 	catch(...) { error("Unknown exception occurred."); } \
 	__VA_ARGS__;
 
