@@ -511,7 +511,7 @@ private:
 
 
 template <int arity, typename FT>
-class GCallbackFunctionTraits;
+struct GCallbackFunctionTraits;
 
 GPP_REPEAT_2(CB_MAX_ARITY, CB_DEF_AGENT_N, GPP_EMPTY)
 
