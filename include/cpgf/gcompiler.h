@@ -94,5 +94,8 @@
 	#endif
 #endif
 
+#ifdef __clang__
+    #define G_SUPPORT_NORETURN_ATTRIBUTE
+#endif
 
 #endif
