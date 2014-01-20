@@ -1,15 +1,9 @@
 #ifndef CPGF_GVARIANT_P_H
 #define CPGF_GVARIANT_P_H
 
-#ifndef __has_builtin         // Optional of course.
-    #define __has_builtin(x) 0  // Compatibility with non-clang compilers.
-#endif
+#include <cpgf/gcompiler.h>
 
-#if __has_builtin(__builtin_trap)
-    #define abort_trap __builtin_trap
-#else
-    #define abort_trap abort
-#endif
+
 namespace variant_internal {
 
 unsigned int getVariantTypeSize(GVariantType type);
@@ -523,8 +517,11 @@ template <typename T>
 T castFromString(char * /*s*/, typename GDisableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
 {
 	raiseCoreException(Error_Variant_FailCast);
-    abort_trap();
-	return *(typename RemoveReference<T>::Result *)(0);
+#if __has_builtin(__builtin_trap)
+    __builtin_trap();
+#else
+    return *(typename RemoveReference<T>::Result *)(0);
+#endif
 }
 
 template <typename T>
@@ -543,8 +540,11 @@ template <typename T>
 T castFromWideString(wchar_t * /*s*/, typename GDisableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result * = 0)
 {
 	raiseCoreException(Error_Variant_FailCast);
-    abort_trap();
-	return *(typename RemoveReference<T>::Result *)(0);
+#if __has_builtin(__builtin_trap)
+    __builtin_trap();
+#else
+    return *(typename RemoveReference<T>::Result *)(0);
+#endif
 }
 
 template <typename T>
