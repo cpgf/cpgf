@@ -98,4 +98,17 @@
     #define G_SUPPORT_NORETURN_ATTRIBUTE
 #endif
 
+
+
+#ifndef __has_builtin         // Optional of course.
+    #define __has_builtin(x) 0  // Compatibility with non-clang compilers.
+#endif
+
+#if __has_builtin(__builtin_trap)
+    #define abort_trap __builtin_trap
+#else
+    #define abort_trap abort
+#endif
+
+
 #endif
