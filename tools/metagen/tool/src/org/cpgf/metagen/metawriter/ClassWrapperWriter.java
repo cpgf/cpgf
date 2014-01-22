@@ -156,9 +156,9 @@ public class ClassWrapperWriter {
 
 	private void doWriteRegisterMethod(CppWriter codeWriter) {
 		codeWriter.writeLine("template <typename D>");
-		codeWriter.writeLine("static void cpgf__register(const cpgf::GMetaDataConfigFlags & config, D _d)");
+		codeWriter.writeLine("static void cpgf__register(D _d)");
 		codeWriter.beginBlock();
-		codeWriter.writeLine("(void)config; (void)_d; (void)_d;");
+		codeWriter.writeLine("(void)_d;");
 		codeWriter.writeLine("using namespace cpgf;");
 
 		for(CppMethod cppMethod : this.overrideMethods.values()) {
@@ -178,7 +178,7 @@ public class ClassWrapperWriter {
 	}
 
 	public void writeSuperMethodBind(CppWriter codeWriter) {
-		codeWriter.writeLine(getWrapperName()+"::cpgf__register(config, _d);");
+		codeWriter.writeLine(getWrapperName()+"::cpgf__register(_d);");
 	}
 
 	public void writeClassWrapper(CppWriter codeWriter) {
@@ -226,9 +226,8 @@ public class ClassWrapperWriter {
 
 		String typeName = "GDefineMetaClass<" + this.getWrapperName() + ", " + this.cppClass.getLiteralName() + ">";
 
-		codeWriter.writeLine(typeName +  " _nd = " + typeName + policy + "::declare(\"" + this.getWrapperName() + "\");");
+		codeWriter.writeLine(typeName +  " _nd = " + typeName + policy + "::lazyDeclare(\"" + this.getWrapperName() + "\", &"+callFunc+");");
 
-		codeWriter.writeLine(callFunc + "(0, _nd);");
 		codeWriter.writeLine("_d._class(_nd);");
 	}
 
