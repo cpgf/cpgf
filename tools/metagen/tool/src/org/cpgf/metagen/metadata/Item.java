@@ -169,6 +169,10 @@ public class Item {
 	public boolean isClass() {
 		return this.getCategory() == EnumCategory.Class;
 	}
+
+	public boolean isTypedef() {
+		return this.getCategory() == EnumCategory.Typedef;
+	}
 	
 	public boolean isConstant() {
 		return this.getCategory() == EnumCategory.Constant;
