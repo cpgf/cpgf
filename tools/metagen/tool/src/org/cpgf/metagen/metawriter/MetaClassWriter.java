@@ -330,7 +330,7 @@ public class MetaClassWriter {
 		this.cppClass.getAllItems(subitems);
 		for(Item itm : subitems) {
 			if (itm.getPrimaryName().equals(subject)) {
-				return "typename "+this.classType+"::"+subject;
+				return "typename " + itm.getQualifiedName();
 			}
 		}
 		return null;
@@ -368,7 +368,7 @@ public class MetaClassWriter {
 		String action = WriterUtil.getReflectionAction(this.define, "_class");
 
 		for (Typedef typedef : this.cppClass.getTypedefList()) {
-			CppClass cls = metaInfo.findClassByName(typedef.getType().         getQualifiedBaseType());
+			CppClass cls = metaInfo.findClassByName(typedef.getType().getQualifiedBaseType());
 			if (cls != null) {
 				if (cls.isTemplate()) {
 					writeTemplateInstantiation(typedef, cls);
