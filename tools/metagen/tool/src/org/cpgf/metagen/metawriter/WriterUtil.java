@@ -230,7 +230,7 @@ public class WriterUtil {
 		codeWriter.write("(" + Util.quoteText(reflectName) + ", ");
 		if(usePrototype) {
 			String typePrefix = scopePrefix;
-			if(method.isStatic()) {
+			if(method.isStatic() && !method.isProtected()) {
 				typePrefix = "";
 			}
 			codeWriter.write("(" + method.getResultType().getLiteralType() + " (" + typePrefix + "*) (");
