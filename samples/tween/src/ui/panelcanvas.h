@@ -1,5 +1,5 @@
-#ifndef __PANELCANVAS_H
-#define __PANELCANVAS_H
+#ifndef CPGF_PANELCANVAS_H
+#define CPGF_PANELCANVAS_H
 
 #if defined(_MSC_VER)
 #pragma warning(push)

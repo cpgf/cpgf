@@ -1,5 +1,5 @@
-#ifndef __GMETAOPERATOR_P_H
-#define __GMETAOPERATOR_P_H
+#ifndef CPGF_GMETAOPERATOR_P_H
+#define CPGF_GMETAOPERATOR_P_H
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -697,7 +697,7 @@ private:
 	}
 
 	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
-		meta_internal::adjustParamIndex<Policy>(index);
+		meta_internal::adjustParamIndex(index, PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result);
 		
 #define REF_GETPARAM_EXTENDTYPE_HELPER(N, unused) \
 	case N: return createMetaExtendType<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>(flags);

@@ -1,5 +1,5 @@
-#ifndef __GCLASSUTIL_H
-#define __GCLASSUTIL_H
+#ifndef CPGF_GCLASSUTIL_H
+#define CPGF_GCLASSUTIL_H
 
 
 #define GMAKE_NONCOPYABLE(cls) private: \

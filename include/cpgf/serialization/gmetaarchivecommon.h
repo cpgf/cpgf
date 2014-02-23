@@ -1,5 +1,5 @@
-#ifndef __GMETAARCHIVECOMMON_H
-#define __GMETAARCHIVECOMMON_H
+#ifndef CPGF_GMETAARCHIVECOMMON_H
+#define CPGF_GMETAARCHIVECOMMON_H
 
 #include "cpgf/gflags.h"
 #include "cpgf/gmetaapi.h"

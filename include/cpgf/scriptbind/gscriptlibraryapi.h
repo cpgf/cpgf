@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTLIBRARYAPI_H
-#define __GSCRIPTLIBRARYAPI_H
+#ifndef CPGF_GSCRIPTLIBRARYAPI_H
+#define CPGF_GSCRIPTLIBRARYAPI_H
 
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gcallback.h"

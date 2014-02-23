@@ -1,5 +1,5 @@
-#ifndef __GCOMPILER_H
-#define __GCOMPILER_H
+#ifndef CPGF_GCOMPILER_H
+#define CPGF_GCOMPILER_H
 
 #include "cpgf/gconfig.h"
 

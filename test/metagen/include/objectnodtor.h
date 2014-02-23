@@ -1,5 +1,5 @@
-#ifndef __OBJECTNODTOR_H
-#define __OBJECTNODTOR_H
+#ifndef CPGF_OBJECTNODTOR_H
+#define CPGF_OBJECTNODTOR_H
 
 
 class ObjectNoDestructor

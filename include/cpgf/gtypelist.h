@@ -1,5 +1,5 @@
-#ifndef __GTYPELIST_H
-#define __GTYPELIST_H
+#ifndef CPGF_GTYPELIST_H
+#define CPGF_GTYPELIST_H
 
 // code in this file is highly inspired from Loki library
 

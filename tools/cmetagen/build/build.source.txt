@@ -1,0 +1,115 @@
+#Auto generated, don't modify.
+
+SET(SRC_ROOT
+	${SRC_PATH}/constants.cpp
+	${SRC_PATH}/logger.cpp
+	${SRC_PATH}/main.cpp
+	${SRC_PATH}/project.cpp
+	${SRC_PATH}/splitcommandline.cpp
+	${SRC_PATH}/util.cpp
+)
+SOURCE_GROUP(src\\ FILES ${SRC_ROOT})
+
+SET(SRC_APPLICATION
+	${SRC_PATH}/application/application.cpp
+	${SRC_PATH}/application/commandlineparser.cpp
+)
+SOURCE_GROUP(src\\application FILES ${SRC_APPLICATION})
+
+SET(SRC_BUILDERMODEL
+	${SRC_PATH}/buildermodel/builderclass.cpp
+	${SRC_PATH}/buildermodel/builderconstructor.cpp
+	${SRC_PATH}/buildermodel/buildercontainer.cpp
+	${SRC_PATH}/buildermodel/buildercontext.cpp
+	${SRC_PATH}/buildermodel/builderdestructor.cpp
+	${SRC_PATH}/buildermodel/builderenum.cpp
+	${SRC_PATH}/buildermodel/builderfield.cpp
+	${SRC_PATH}/buildermodel/builderfile.cpp
+	${SRC_PATH}/buildermodel/builderfilewriter.cpp
+	${SRC_PATH}/buildermodel/builderinvokable.cpp
+	${SRC_PATH}/buildermodel/builderitem.cpp
+	${SRC_PATH}/buildermodel/buildermethod.cpp
+	${SRC_PATH}/buildermodel/buildernamespace.cpp
+	${SRC_PATH}/buildermodel/builderoperator.cpp
+	${SRC_PATH}/buildermodel/buildersection.cpp
+	${SRC_PATH}/buildermodel/buildertemplateinstantiation.cpp
+	${SRC_PATH}/buildermodel/builderutil.cpp
+	${SRC_PATH}/buildermodel/builderwriter.cpp
+)
+SOURCE_GROUP(src\\buildermodel FILES ${SRC_BUILDERMODEL})
+
+SET(SRC_CODEWRITER
+	${SRC_PATH}/codewriter/codeblock.cpp
+	${SRC_PATH}/codewriter/codewriter.cpp
+	${SRC_PATH}/codewriter/cppwriter.cpp
+)
+SOURCE_GROUP(src\\codewriter FILES ${SRC_CODEWRITER})
+
+SET(SRC_METADATA
+	${SRC_PATH}/metadata/meta_builderclass.cpp
+	${SRC_PATH}/metadata/meta_builderconstructor.cpp
+	${SRC_PATH}/metadata/meta_buildercontainer.cpp
+	${SRC_PATH}/metadata/meta_buildercontext.cpp
+	${SRC_PATH}/metadata/meta_builderdestructor.cpp
+	${SRC_PATH}/metadata/meta_builderenum.cpp
+	${SRC_PATH}/metadata/meta_builderfield.cpp
+	${SRC_PATH}/metadata/meta_builderfile.cpp
+	${SRC_PATH}/metadata/meta_builderinvokable.cpp
+	${SRC_PATH}/metadata/meta_builderitem.cpp
+	${SRC_PATH}/metadata/meta_buildermethod.cpp
+	${SRC_PATH}/metadata/meta_buildernamespace.cpp
+	${SRC_PATH}/metadata/meta_builderoperator.cpp
+	${SRC_PATH}/metadata/meta_cppclass.cpp
+	${SRC_PATH}/metadata/meta_cppconstructor.cpp
+	${SRC_PATH}/metadata/meta_cppcontainer.cpp
+	${SRC_PATH}/metadata/meta_cppdestructor.cpp
+	${SRC_PATH}/metadata/meta_cppenum.cpp
+	${SRC_PATH}/metadata/meta_cppfield.cpp
+	${SRC_PATH}/metadata/meta_cppfile.cpp
+	${SRC_PATH}/metadata/meta_cppinvokable.cpp
+	${SRC_PATH}/metadata/meta_cppitem.cpp
+	${SRC_PATH}/metadata/meta_cppmethod.cpp
+	${SRC_PATH}/metadata/meta_cppnamespace.cpp
+	${SRC_PATH}/metadata/meta_cppoperator.cpp
+	${SRC_PATH}/metadata/meta_cppsourcefile.cpp
+	${SRC_PATH}/metadata/meta_cpptype.cpp
+	${SRC_PATH}/metadata/meta_project.cpp
+	${SRC_PATH}/metadata/registerMain_metagen.cpp
+)
+SOURCE_GROUP(src\\metadata FILES ${SRC_METADATA})
+
+SET(SRC_MODEL
+	${SRC_PATH}/model/cppclass.cpp
+	${SRC_PATH}/model/cppclasstraits.cpp
+	${SRC_PATH}/model/cppconstructor.cpp
+	${SRC_PATH}/model/cppcontainer.cpp
+	${SRC_PATH}/model/cppcontext.cpp
+	${SRC_PATH}/model/cppenum.cpp
+	${SRC_PATH}/model/cppfield.cpp
+	${SRC_PATH}/model/cppfile.cpp
+	${SRC_PATH}/model/cppinvokable.cpp
+	${SRC_PATH}/model/cppitem.cpp
+	${SRC_PATH}/model/cppmethod.cpp
+	${SRC_PATH}/model/cppnamespace.cpp
+	${SRC_PATH}/model/cppoperator.cpp
+	${SRC_PATH}/model/cpppolicy.cpp
+	${SRC_PATH}/model/cppsourcefile.cpp
+	${SRC_PATH}/model/cpptype.cpp
+	${SRC_PATH}/model/cpputil.cpp
+)
+SOURCE_GROUP(src\\model FILES ${SRC_MODEL})
+
+SET(SRC_PARSER
+	${SRC_PATH}/parser/clangparser.cpp
+)
+SOURCE_GROUP(src\\parser FILES ${SRC_PARSER})
+
+set(SRC_MASTER
+	${SRC_ROOT}
+	${SRC_APPLICATION}
+	${SRC_BUILDERMODEL}
+	${SRC_CODEWRITER}
+	${SRC_METADATA}
+	${SRC_MODEL}
+	${SRC_PARSER}
+)

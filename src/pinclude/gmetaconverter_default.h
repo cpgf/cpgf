@@ -1,5 +1,5 @@
-#ifndef __GMETACONVERTER_DEFAULT_H
-#define __GMETACONVERTER_DEFAULT_H
+#ifndef CPGF_GMETACONVERTER_DEFAULT_H
+#define CPGF_GMETACONVERTER_DEFAULT_H
 
 
 #include "cpgf/metatraits/gmetaconverter.h"

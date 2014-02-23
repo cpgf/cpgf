@@ -1,5 +1,5 @@
-#ifndef __GACCESSOR_H
-#define __GACCESSOR_H
+#ifndef CPGF_GACCESSOR_H
+#define CPGF_GACCESSOR_H
 
 #include "cpgf/accessor/ggetter.h"
 #include "cpgf/accessor/gsetter.h"

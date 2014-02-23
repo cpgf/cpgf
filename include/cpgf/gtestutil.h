@@ -1,5 +1,5 @@
-#ifndef __GTESTUTIL_H
-#define __GTESTUTIL_H
+#ifndef CPGF_GTESTUTIL_H
+#define CPGF_GTESTUTIL_H
 
 
 #include "cpgf/gcontainer.h"

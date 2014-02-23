@@ -1,5 +1,5 @@
-#ifndef __GMETAFIELD_H
-#define __GMETAFIELD_H
+#ifndef CPGF_GMETAFIELD_H
+#define CPGF_GMETAFIELD_H
 
 #include "cpgf/private/gmetafield_p.h"
 

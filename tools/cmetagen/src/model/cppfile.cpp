@@ -6,18 +6,12 @@
 namespace metagen {
 
 
-CppFile::CppFile(const char * fullFileName, const clang::Decl * decl)
-	: super(decl), fullFileName(fullFileName)
+CppFile::CppFile(const clang::Decl * decl)
+	: super(decl)
 {
-	this->fullFileName = this->fullFileName.absolute();
-//	this->setQualifiedName(normalizePath(this->fullFileName.toString(Poco::Path::PATH_GUESS)));
 }
 
 CppFile::~CppFile()
-{
-}
-
-void CppFile::prepare() const
 {
 }
 

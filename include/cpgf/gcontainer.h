@@ -1,5 +1,5 @@
-#ifndef __GCONTAINER_H
-#define __GCONTAINER_H
+#ifndef CPGF_GCONTAINER_H
+#define CPGF_GCONTAINER_H
 
 #include <ctime>
 #include <cstring>

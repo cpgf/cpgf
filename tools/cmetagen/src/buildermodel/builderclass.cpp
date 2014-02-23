@@ -5,7 +5,9 @@
 #include "model/cppclass.h"
 #include "model/cppmethod.h"
 #include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 #include "util.h"
+#include "project.h"
 
 #include "Poco/Format.h"
 
@@ -32,6 +34,7 @@ const CppClass * BuilderClass::getCppClass() const
 	return static_cast<const CppClass *>(this->getCppItem());
 }
 
+void writedOverridableMethods(BuilderWriter * writer, const CppClass * cppClass, const Project * project);
 void BuilderClass::doWriteMetaData(BuilderWriter * writer)
 {
 	this->doWriteBaseClasses(writer);
@@ -41,7 +44,7 @@ void BuilderClass::doWriteMetaData(BuilderWriter * writer)
 	}
 	
 	if(this->shouldWrapClass()) {
-		this->doWriteInheritedOverridableMethods(writer);
+		writedOverridableMethods(writer, this->getCppClass(), this->getProject());
 	}
 }
 
@@ -54,7 +57,7 @@ void BuilderClass::doWriteBaseClasses(BuilderWriter * writer)
 		it != cppClass->getBaseClassList()->end();
 		++it) {
 		if(isVisibilityAllowed((*it)->getVisibility(), this->getProject())) {
-			string s = Poco::format("%s<%s >());",
+			string s = Poco::format("%s<%s >();",
 				writer->getReflectionAction("_base"),
 				(*it)->getQualifiedName()
 			);
@@ -66,37 +69,48 @@ void BuilderClass::doWriteBaseClasses(BuilderWriter * writer)
 void BuilderClass::doWriteAsNestedClass(BuilderWriter * writer)
 {
 	const CppClass * cppClass = this->getCppClass();
-	if(cppClass->isAnonymous() || cppClass->isTemplate()) {
+	if(cppClass->isAnonymous() || cppClass->isChainedTemplate()) {
 		return;
 	}
 
-	BuilderSection * section;
-	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppClass, &section);
+	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppClass, NULL);
 
-	string s = Poco::format("%s(%s())",
+	string s = Poco::format("%s(%s());",
 		writer->getReflectionAction("_class"),
-		getCreationFunctionName(writer->getBuilderContext(), section)
+		normalizeSymbolName(this->getProject()->getCreationFunctionPrefix()
+			+ getCppClassNormalizedSymboName(cppClass))
 	);
 	codeBlock->appendLine(s);
 }
 
-void BuilderClass::doWriteInheritedOverridableMethods(BuilderWriter * writer)
+void collectOverridableMethods(map<string, const CppMethod *> * methodMap, const CppClass * cppClass, const Project * project)
 {
-	const CppClass * cppClass = this->getCppClass();
+	for(CppClass::MethodListType::const_iterator methodIt = cppClass->getMethodList()->begin();
+		methodIt != cppClass->getMethodList()->end();
+		++methodIt) {
+		const CppMethod * method = *methodIt;
+		if(method->isVirtual() && isVisibilityAllowed(method->getVisibility(), project)) {
+			methodMap->insert(make_pair(method->getName() + method->getTextOfPointeredType(false), method));
+		}
+	}
 
 	for(CppClass::BaseClassListType::const_iterator it = cppClass->getBaseClassList()->begin();
 		it != cppClass->getBaseClassList()->end();
 		++it) {
 		const CppClass * baseClass = (*it)->getCppClass();
 
-		for(CppClass::MethodListType::const_iterator methodIt = baseClass->getMethodList()->begin();
-			methodIt != baseClass->getMethodList()->end();
-			++methodIt) {
-			const CppMethod * method = *methodIt;
-			if(method->isVirtual()) {
-				writeMethodClassWrapper(method, writer, cppClass);
-			}
+		if(isVisibilityAllowed(baseClass->getVisibility(), project)) {
+			collectOverridableMethods(methodMap, baseClass, project);
 		}
+	}
+}
+
+void writedOverridableMethods(BuilderWriter * writer, const CppClass * cppClass, const Project * project)
+{
+	map<string, const CppMethod *> methodMap;
+	collectOverridableMethods(&methodMap, cppClass, project);
+	for(map<string, const CppMethod *>::iterator it = methodMap.begin(); it != methodMap.end(); ++it) {
+		writeMethodClassWrapper(it->second, writer, cppClass);
 	}
 }
 

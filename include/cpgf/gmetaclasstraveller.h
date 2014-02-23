@@ -1,5 +1,5 @@
-#ifndef __GMETACLASSTRAVELLER_H
-#define __GMETACLASSTRAVELLER_H
+#ifndef CPGF_GMETACLASSTRAVELLER_H
+#define CPGF_GMETACLASSTRAVELLER_H
 
 
 #include "cpgf/gclassutil.h"

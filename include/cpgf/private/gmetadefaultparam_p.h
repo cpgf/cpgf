@@ -1,5 +1,5 @@
-#ifndef __GMETADEFAULTPARAM_P_H
-#define __GMETADEFAULTPARAM_P_H
+#ifndef CPGF_GMETADEFAULTPARAM_P_H
+#define CPGF_GMETADEFAULTPARAM_P_H
 
 #include "cpgf/gscopedptr.h"
 

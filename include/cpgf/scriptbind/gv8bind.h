@@ -1,5 +1,5 @@
-#ifndef __GV8BIND_H
-#define __GV8BIND_H
+#ifndef CPGF_GV8BIND_H
+#define CPGF_GV8BIND_H
 
 
 #include "cpgf/scriptbind/gscriptbind.h"

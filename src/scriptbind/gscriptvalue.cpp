@@ -77,6 +77,19 @@ GScriptValueData GScriptValue::takeData()
 	return data;
 }
 
+GScriptValueData GScriptValue::getData() const
+{
+	GScriptValueData data;
+	data.type = this->type;
+	data.value = this->value.refData();
+	data.metaItem = this->metaItem.get();
+	if(data.metaItem != NULL) {
+		data.metaItem->addReference();
+	}
+	data.flags = this->flags;
+	return data;
+}
+
 GScriptValue GScriptValue::fromNull()
 {
 	return GScriptValue(typeNull, (void *)0);
@@ -142,6 +155,11 @@ GScriptValue GScriptValue::fromScriptObject(IScriptObject * scriptObject)
 GScriptValue GScriptValue::fromScriptFunction(IScriptFunction * scriptFunction)
 {
 	return GScriptValue(typeScriptFunction, scriptFunction);
+}
+
+GScriptValue GScriptValue::fromScriptArray(IScriptArray * scriptArray)
+{
+	return GScriptValue(typeScriptArray, scriptArray);
 }
 
 void * GScriptValue::toNull() const
@@ -312,6 +330,30 @@ IScriptFunction * GScriptValue::toScriptFunction() const
 	}
 }
 
+IScriptArray * GScriptValue::toScriptArray() const
+{
+	if(this->isScriptArray()) {
+		IScriptArray * scriptArray = fromVariant<IScriptArray *>(this->value);
+		scriptArray->addReference();
+		return scriptArray;
+	}
+	else {
+		return NULL;
+	}
+}
+
+
+GScriptValueDataScopedGuard::GScriptValueDataScopedGuard(const GScriptValueData & data)
+	: data(data)
+{
+}
+
+GScriptValueDataScopedGuard::~GScriptValueDataScopedGuard()
+{
+	GScriptValue(this->data);
+}
+
+
 IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value)
 {
 	if(value.isObject()) {
@@ -329,6 +371,7 @@ IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value)
 		return NULL;
 	}
 }
+
 
 
 } // namespace cpgf

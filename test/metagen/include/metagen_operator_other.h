@@ -1,5 +1,5 @@
-#ifndef __METAGEN_OPERATOR_OTHER_H
-#define __METAGEN_OPERATOR_OTHER_H
+#ifndef CPGF_METAGEN_OPERATOR_OTHER_H
+#define CPGF_METAGEN_OPERATOR_OTHER_H
 
 #include "cpgf/gmetacommon.h"
 

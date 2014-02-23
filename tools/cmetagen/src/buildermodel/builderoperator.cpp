@@ -2,6 +2,7 @@
 #include "builderwriter.h"
 #include "builderutil.h"
 #include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 #include "model/cppoperator.h"
 #include "model/cppcontainer.h"
 #include "model/cppclass.h"
@@ -122,7 +123,7 @@ void BuilderOperator::doWriteReflection(BuilderWriter * writer)
 		opText = "(" + opText + ")"; // one more pair of brackets to avoid compile error
 	}
 	text.append(opText);
-	text.append(this->getPolicyText());
+	text.append(getInvokablePolicyText(cppOperator, true));
 	text.append(");");
 
 	codeBlock->appendLine(text);
@@ -329,7 +330,7 @@ void writeOperatorReflection(const WriterParam * param)
 		param->writer->getReflectionAction("_method"),
 		OperatorNameMap::getNameMap()->get(param->cppOperator),
 		param->operatorWrapperName,
-		getReflectionClassName(param->cppOperator->getProject())
+		getReflectionClassName(param->cppOperator->getProject(), true)
 	);
 
 	codeBlock->appendLine(s);
@@ -344,7 +345,7 @@ void writeArraySetterReflection(const WriterParam * param)
 			param->writer->getReflectionAction("_method"),
 			OperatorNameMap::getNameMap()->get(param->cppOperator, 2),
 			param->arraySetterName,
-			getReflectionClassName(param->cppOperator->getProject())
+			getReflectionClassName(param->cppOperator->getProject(), true)
 		);
 
 		codeBlock->appendLine(s);

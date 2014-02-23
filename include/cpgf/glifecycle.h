@@ -1,5 +1,5 @@
-#ifndef __GLIFECYCLE_H
-#define __GLIFECYCLE_H
+#ifndef CPGF_GLIFECYCLE_H
+#define CPGF_GLIFECYCLE_H
 
 #include "cpgf/gcallback.h"
 

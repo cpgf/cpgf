@@ -1,5 +1,5 @@
-#ifndef __PANELTWEENTEST_H
-#define __PANELTWEENTEST_H
+#ifndef CPGF_PANELTWEENTEST_H
+#define CPGF_PANELTWEENTEST_H
 
 #if defined(_MSC_VER)
 #pragma warning(push)

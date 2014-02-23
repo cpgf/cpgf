@@ -1,6 +1,7 @@
 #include "builderdestructor.h"
 #include "builderwriter.h"
 #include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 #include "model/cppdestructor.h"
 
 namespace metagen {
@@ -21,7 +22,7 @@ const CppDestructor * BuilderDestructor::getCppDestructor() const
 	return static_cast<const CppDestructor *>(this->getCppItem());
 }
 
-bool BuilderDestructor::canBind() const
+bool BuilderDestructor::doCanBind() const
 {
 	return false;
 }

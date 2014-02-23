@@ -1,5 +1,5 @@
-#ifndef __TESTCASEUTIL_H
-#define __TESTCASEUTIL_H
+#ifndef CPGF_TESTCASEUTIL_H
+#define CPGF_TESTCASEUTIL_H
 
 #include "cpgf/tween/gtweencommon.h"
 

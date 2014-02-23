@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTVALUE_H
-#define __GSCRIPTVALUE_H
+#ifndef CPGF_GSCRIPTVALUE_H
+#define CPGF_GSCRIPTVALUE_H
 
 #include "cpgf/gvariant.h"
 #include "cpgf/gclassutil.h"
@@ -21,6 +21,7 @@ struct IMetaAccessible;
 struct IMetaTypedItem;
 struct IScriptObject;
 struct IScriptFunction;
+struct IScriptArray;
 
 #pragma pack(push, 1)
 #pragma pack(1)
@@ -52,7 +53,9 @@ public:
 		typeRaw = 8,
 		typeAccessible = 9,
 
-		typeScriptObject = 10, typeScriptFunction = 11,
+		typeScriptObject = 10,
+		typeScriptFunction = 11,
+		typeScriptArray = 12
 	};
 	
 private:
@@ -81,6 +84,7 @@ public:
 	static GScriptValue fromAccessible(void * instance, IMetaAccessible * accessible);
 	static GScriptValue fromScriptObject(IScriptObject * scriptObject);
 	static GScriptValue fromScriptFunction(IScriptFunction * scriptFunction);
+	static GScriptValue fromScriptArray(IScriptArray * scriptArray);
 
 	void * toNull() const;
 	GVariant toFundamental() const;
@@ -95,6 +99,7 @@ public:
 	IMetaAccessible * toAccessible(void ** outInstance) const;
 	IScriptObject * toScriptObject() const;
 	IScriptFunction * toScriptFunction() const;
+	IScriptArray * toScriptArray() const;
 	
 	bool isNull() const { return this->type == typeNull; }
 	bool isFundamental() const { return this->type == typeFundamental; }
@@ -108,11 +113,14 @@ public:
 	bool isAccessible() const { return this->type == typeAccessible; }
 	bool isScriptObject() const { return this->type == typeScriptObject; }
 	bool isScriptFunction() const { return this->type == typeScriptFunction; }
+	bool isScriptArray() const { return this->type == typeScriptArray; }
 
 	// for internal use
 	const GVariant & getValue() const { return this->value; }
 	GVariant & getValue() { return this->value; }
 	GScriptValueData takeData();
+	// The result must be passed to another GScriptValue or GScriptValueDataScopedGuard to avoid memory leak
+	GScriptValueData getData() const;
 
 private:
 	Type type;
@@ -122,6 +130,17 @@ private:
 	
 private:
 	friend GScriptValue createScriptValueFromData(const GScriptValueData & data);
+	friend class GScriptValueDataScopedGuard;
+};
+
+class GScriptValueDataScopedGuard : public GNoncopyable
+{
+public:
+	explicit GScriptValueDataScopedGuard(const GScriptValueData & data);
+	~GScriptValueDataScopedGuard();
+
+private:
+	GScriptValueData data;
 };
 
 IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value);

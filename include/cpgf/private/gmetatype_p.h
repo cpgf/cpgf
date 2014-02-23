@@ -1,6 +1,5 @@
-#ifndef __GMETATYPE_P_H
-#define __GMETATYPE_P_H
-
+#ifndef CPGF_GMETATYPE_P_H
+#define CPGF_GMETATYPE_P_H
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -66,6 +65,8 @@ const unsigned int mtFlagIsVolatileFunction = 1 << 13;
 const unsigned int mtFlagIsConstVolatileFunction = 1 << 14;
 const unsigned int mtFlagBaseIsClass = 1 << 15;
 const unsigned int mtFlagBaseIsArray = 1 << 16;
+const unsigned int mtFlagBaseIsStdString = 1 << 17;
+const unsigned int mtFlagBaseIsStdWideString = 1 << 18;
 
 template <typename T>
 struct GMetaTypeDeduce
@@ -99,6 +100,9 @@ public:
 
 			| (IsClass<BaseType>::Result ? mtFlagBaseIsClass : 0)
 			| (IsArray<BaseType>::Result ? mtFlagBaseIsArray : 0)
+			
+			| (IsSameType<BaseType, std::string>::Result ? mtFlagBaseIsStdString : 0)
+			| (IsSameType<BaseType, std::wstring>::Result ? mtFlagBaseIsStdWideString : 0)
 	};
 
 	static GTypeInfo getBaseType() {

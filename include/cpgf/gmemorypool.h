@@ -1,5 +1,5 @@
-#ifndef __GMEMORYPOOL_H
-#define __GMEMORYPOOL_H
+#ifndef CPGF_GMEMORYPOOL_H
+#define CPGF_GMEMORYPOOL_H
 
 #include "cpgf/gassert.h"
 #include "cpgf/gscopedptr.h"

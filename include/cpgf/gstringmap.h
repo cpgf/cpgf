@@ -1,5 +1,5 @@
-#ifndef __GSTRINGMAP_H
-#define __GSTRINGMAP_H
+#ifndef CPGF_GSTRINGMAP_H
+#define CPGF_GSTRINGMAP_H
 
 #include "cpgf/gassert.h"
 

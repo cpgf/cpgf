@@ -1,5 +1,5 @@
-#ifndef __GMETATRAITSPARAM_H
-#define __GMETATRAITSPARAM_H
+#ifndef CPGF_GMETATRAITSPARAM_H
+#define CPGF_GMETATRAITSPARAM_H
 
 
 namespace cpgf {

@@ -1,5 +1,5 @@
-#ifndef __GIFELSE_H
-#define __GIFELSE_H
+#ifndef CPGF_GIFELSE_H
+#define CPGF_GIFELSE_H
 
 namespace cpgf {
 

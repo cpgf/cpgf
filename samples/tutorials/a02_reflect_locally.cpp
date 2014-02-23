@@ -44,9 +44,9 @@ void reflectPoint(Define define)
 
 void run_a02()
 {
-	GDefineMetaClass<Single> defineForPoint = GDefineMetaClass<Single>::declare("Single");
+	GDefineMetaClass<Single> defineForSingle = GDefineMetaClass<Single>::declare("Single");
 
-	reflectPoint(defineForPoint);
+	reflectPoint(defineForSingle);
 
 	// Now we come to the key point in this tutorial.
 	// We will create a virtual namespace and add meta data there.
@@ -68,7 +68,7 @@ void run_a02()
 	defineForNamespace._method("greeting", &greeting);
 
 	// Insert meta class for Single.
-	defineForNamespace._class(defineForPoint);
+	defineForNamespace._class(defineForSingle);
 
 	// Now we have build all meta data and insert to the virtual namespace.
 

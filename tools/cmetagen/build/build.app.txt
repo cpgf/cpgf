@@ -1,0 +1,39 @@
+set(TARGET_NAME metagen)
+
+include_directories(
+	${ROOT_PATH}/src
+
+	${CPGF_HOME}/include
+	${CLANG_INC}
+	${POCO_INC}
+	${V8_INC}
+)
+
+set(LIB_COMPILE_FLAGS " ")
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(LIB_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(MSVC)
+	set(LIB_COMPILE_FLAGS "-W4 -Wp64")
+endif(MSVC)
+
+add_executable(
+	${TARGET_NAME}
+	${SRC_MASTER}
+)
+
+set_target_properties(
+	${TARGET_NAME}
+	PROPERTIES
+	OUTPUT_NAME metagen
+	ARCHIVE_OUTPUT_DIRECTORY ${BIN_PATH}
+	COMPILE_FLAGS ${LIB_COMPILE_FLAGS}
+)
+
+target_link_libraries(${TARGET_NAME} ${CPGF_LIB})
+target_link_libraries(${TARGET_NAME} ${CLANG_LIB})
+target_link_libraries(${TARGET_NAME} ${POCO_LIB})
+target_link_libraries(${TARGET_NAME} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB} ${SPIDERMONKEY_LIB})
+
+add_definitions(-DENABLE_LUA=${HAS_LUA} -DENABLE_V8=${HAS_V8} -DENABLE_PYTHON=${HAS_PYTHON} -DENABLE_SPIDERMONKEY=${HAS_SPIDERMONKEY} -DENABLE_BOOST=${HAS_BOOST})

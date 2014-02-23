@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_TESTOBJECTARRAY_H
-#define __META_TEST_TESTOBJECTARRAY_H
+#ifndef CPGF_META_TEST_TESTOBJECTARRAY_H
+#define CPGF_META_TEST_TESTOBJECTARRAY_H
 
 
 #include "cpgf/gmetadefine.h"

@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_METAGEN_NONCONSTRUCTABLE_H
-#define __META_TEST_METAGEN_NONCONSTRUCTABLE_H
+#ifndef CPGF_META_TEST_METAGEN_NONCONSTRUCTABLE_H
+#define CPGF_META_TEST_METAGEN_NONCONSTRUCTABLE_H
 
 
 #include "cpgf/gmetadefine.h"

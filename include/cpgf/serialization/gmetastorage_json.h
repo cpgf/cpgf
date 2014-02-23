@@ -1,5 +1,5 @@
-#ifndef __GMETASTORAGE_JSON_H
-#define __GMETASTORAGE_JSON_H
+#ifndef CPGF_GMETASTORAGE_JSON_H
+#define CPGF_GMETASTORAGE_JSON_H
 
 #include "cpgf/gscopedptr.h"
 

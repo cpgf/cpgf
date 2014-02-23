@@ -10,6 +10,8 @@
 
 #include "cpgf/gassert.h"
 
+#include "Poco/Format.h"
+
 namespace metagen {
 
 
@@ -94,6 +96,21 @@ void CppContainer::dump(std::ostream & os, int level) const
 	dumpList(this->methodList, os, newLevel);
 	dumpList(this->enumList, os, newLevel);
 	dumpList(this->operatorList, os, newLevel);
+}
+
+std::string getCppContainerInstantiationName(const CppContainer * cppContainer)
+{
+	if(cppContainer->isClass()) {
+		const CppClass * cppClass = static_cast<const CppClass *>(cppContainer);
+		return cppClass->getTextOfQualifedInstantiationName();
+		//if(cppClass->isTemplate()) {
+		//	return Poco::format("%s<%s >",
+		//		cppClass->getQualifiedName(),
+		//		cppClass->getTextOfChainedTemplateParamList(itoWithArgName)
+		//	);
+		//}
+	}
+	return cppContainer->getQualifiedName();
 }
 
 

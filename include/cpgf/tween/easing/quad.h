@@ -1,5 +1,5 @@
-#ifndef __TWEEN_EASING_QUAD_H
-#define __TWEEN_EASING_QUAD_H
+#ifndef CPGF_TWEEN_EASING_QUAD_H
+#define CPGF_TWEEN_EASING_QUAD_H
 
 #include "cpgf/tween/gtweencommon.h"
 

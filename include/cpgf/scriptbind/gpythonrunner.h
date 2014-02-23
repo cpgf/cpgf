@@ -1,5 +1,5 @@
-#ifndef __GPYTHONRUNNER_H
-#define __GPYTHONRUNNER_H
+#ifndef CPGF_GPYTHONRUNNER_H
+#define CPGF_GPYTHONRUNNER_H
 
 namespace cpgf {
 

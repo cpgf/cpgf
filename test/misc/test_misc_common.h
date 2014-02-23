@@ -1,5 +1,5 @@
-#ifndef __TEST_MISC_COMMON_H
-#define __TEST_MISC_COMMON_H
+#ifndef CPGF_TEST_MISC_COMMON_H
+#define CPGF_TEST_MISC_COMMON_H
 
 
 #include "../unittestbase.h"

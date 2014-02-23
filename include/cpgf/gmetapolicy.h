@@ -1,5 +1,5 @@
-#ifndef __GMETAPOLICY_H
-#define __GMETAPOLICY_H
+#ifndef CPGF_GMETAPOLICY_H
+#define CPGF_GMETAPOLICY_H
 
 #include "cpgf/gpp.h"
 #include "cpgf/gpolicy.h"

@@ -1,5 +1,5 @@
-#ifndef __GSCOPEDINTERFACE_H
-#define __GSCOPEDINTERFACE_H
+#ifndef CPGF_GSCOPEDINTERFACE_H
+#define CPGF_GSCOPEDINTERFACE_H
 
 #include "cpgf/gscopedptr.h"
 

@@ -1,5 +1,5 @@
-#ifndef __BUILDERDESTRUCTOR_H
-#define __BUILDERDESTRUCTOR_H
+#ifndef CPGF_BUILDERDESTRUCTOR_H
+#define CPGF_BUILDERDESTRUCTOR_H
 
 #include "builderitem.h"
 
@@ -19,7 +19,7 @@ public:
 
 	const CppDestructor * getCppDestructor() const;
 	
-	virtual bool canBind() const;
+	virtual bool doCanBind() const;
 
 protected:
 	virtual void doWriteMetaData(BuilderWriter * writer);

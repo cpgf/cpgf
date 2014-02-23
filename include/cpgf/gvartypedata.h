@@ -1,5 +1,5 @@
-#ifndef __GVARTYPEDATA_H
-#define __GVARTYPEDATA_H
+#ifndef CPGF_GVARTYPEDATA_H
+#define CPGF_GVARTYPEDATA_H
 
 #include "cpgf/gcompiler.h"
 #include "cpgf/gstdint.h"

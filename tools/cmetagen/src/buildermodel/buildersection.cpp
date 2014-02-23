@@ -10,7 +10,13 @@ namespace metagen {
 
 
 BuilderSection::BuilderSection(BuilderSectionType type, const CppItem * cppItem)
-	: type(type), cppItem(cppItem), totalPayload(0), index(0), codeBlock(new CodeBlock), relateSection(NULL)
+	: type(type),
+		cppItem(cppItem),
+		totalPayload(0),
+		index(0),
+		codeBlock(new CodeBlock),
+		templateInstantiation(NULL),
+		relateSection(NULL)
 {
 }
 
@@ -59,6 +65,16 @@ bool BuilderSection::isPartialCreationFunction() const
 {
 	return this->getType() == bstPartialCreationFunction
 		|| this->getType() == bstClassWrapperPartialCreationFunction;
+}
+
+bool BuilderSection::isCreationFunctionDefinition() const
+{
+	return this->getType() == bstCreationFunctionDefinition;
+}
+
+bool BuilderSection::shouldBeInSourceFile() const
+{
+	return this->isPartialCreationFunction() || this->isCreationFunctionDefinition();
 }
 
 const CppItem * BuilderSection::getCppItem() const
@@ -117,20 +133,9 @@ bool sortSectionComparer(BuilderSection * a, BuilderSection * b)
 	return a->getIndex() < b->getIndex();
 }
 
-void BuilderSectionList::sort()
+void sortSectionList(BuilderSectionListType * sectionList)
 {
-	std::sort(this->sectionList.begin(), this->sectionList.end(), &sortSectionComparer);
-}
-
-void BuilderSectionList::dump()
-{
-	printf("Section list begin \n");
-	for(BuilderSectionList::iterator it = this->begin(); it != this->end(); ++it) {
-		CodeWriter codeWriter;
-		(*it)->getCodeBlock()->write(&codeWriter);
-		printf("%s", codeWriter.getText().c_str());
-	}
-	printf("Section list end \n");
+	std::sort(sectionList->begin(), sectionList->end(), &sortSectionComparer);
 }
 
 

@@ -1,5 +1,5 @@
-#ifndef __TUTORIAL_CALLBACK_H
-#define __TUTORIAL_CALLBACK_H
+#ifndef CPGF_TUTORIAL_CALLBACK_H
+#define CPGF_TUTORIAL_CALLBACK_H
 
 /**
 How to read the tutorial
