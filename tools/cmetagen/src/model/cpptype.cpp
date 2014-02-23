@@ -28,8 +28,10 @@ std::string qualTypeToText(const clang::QualType & qualType, const std::string &
 	llvm::raw_string_ostream stream(text);
 	LangOptions langOptions;
 	langOptions.CPlusPlus = 1;
+	langOptions.Bool = 1;
 	PrintingPolicy policy(langOptions);
 	policy.SuppressSpecifiers = 0;
+//	policy.SuppressScope = 0;
 	QualType::print(qualType.split(), stream, policy, name);
 
 	return stream.str();
@@ -197,10 +199,25 @@ bool CppType::isFundamental() const
 	return this->qualType->isFundamentalType();
 }
 
+bool CppType::isTemplateDependent() const
+{
+	return this->qualType->isDependentType();
+}
+
 CppType CppType::getNonReferenceType() const
 {
 	clang::QualType type = this->qualType.getNonReferenceType();
 	return CppType(type);
+}
+
+CppType CppType::getBaseType() const
+{
+	return CppType(stripType(this->qualType));
+}
+
+const CXXRecordDecl * CppType::getCXXRecordDecl() const
+{
+	return this->qualType->getAsCXXRecordDecl();
 }
 
 

@@ -85,19 +85,17 @@ G_AUTO_RUN_BEFORE_MAIN()
 		._constructor<void * (int)>()
 	;
 
-	GDefineMetaClass<CLASS>
-		::define(NAME_CLASS)
+	GDefineMetaClass<CLASS> meta = GDefineMetaClass<CLASS>::define(NAME_CLASS);
+	meta._class(dangle);
 
-		._class(dangle)
-
-		._constructor<void * (const string &)>(GMetaPolicyCopyAllConstReference())
-		._constructor<void * (int, const string &)>(GMetaPolicyCopyAllConstReference())
-		._constructor<void * (const CLASS_DATA &)>()
-		._constructor<void * (const CLASS_DATA *)>()
-		._constructor<void * (const GMetaVariadicParam *)>()
-		._constructor(&constructWithMethod, GMetaPolicyCopyAllConstReference())
+	meta._constructor<void * (const string &)>(GMetaPolicyCopyAllConstReference());
+	meta._constructor<void * (int, const string &)>(GMetaPolicyCopyAllConstReference());
+	meta._constructor<void * (const CLASS_DATA &)>();
+	meta._constructor<void * (const CLASS_DATA *)>();
+	meta._constructor<void * (const GMetaVariadicParam *)>();
+	meta._constructor(&constructWithMethod, GMetaPolicyCopyAllConstReference());
 #if G_SUPPORT_RVALUE_REFERENCE
-		._constructor<void * (CLASS &&)>()
+	meta._constructor<void * (CLASS &&)>();
 #endif
 	;
 }

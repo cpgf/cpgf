@@ -1,5 +1,5 @@
-#ifndef __GAPI_H
-#define __GAPI_H
+#ifndef CPGF_GAPI_H
+#define CPGF_GAPI_H
 
 
 #include "cpgf/ginterface.h"

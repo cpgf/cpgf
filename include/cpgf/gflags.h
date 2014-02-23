@@ -1,5 +1,5 @@
-#ifndef __GFLAGS_H
-#define __GFLAGS_H
+#ifndef CPGF_GFLAGS_H
+#define CPGF_GFLAGS_H
 
 #include "cpgf/genableif.h"
 #include "cpgf/gtypetraits.h"
@@ -59,10 +59,6 @@ public:
 
 	operator unsigned int () const {
 		return static_cast<unsigned int>(this->value);
-	}
-	
-	operator bool () const {
-		return this->value != T(0);
 	}
 	
 	bool operator ! () const {

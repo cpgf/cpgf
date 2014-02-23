@@ -1,5 +1,5 @@
-#ifndef __GMETAOPERATOR_H
-#define __GMETAOPERATOR_H
+#ifndef CPGF_GMETAOPERATOR_H
+#define CPGF_GMETAOPERATOR_H
 
 
 #include "cpgf/private/gmetainvoke_p.h"

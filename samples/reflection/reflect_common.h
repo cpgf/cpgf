@@ -1,5 +1,5 @@
-#ifndef __REFLECT_COMMON_H
-#define __REFLECT_COMMON_H
+#ifndef CPGF_REFLECT_COMMON_H
+#define CPGF_REFLECT_COMMON_H
 
 #include "cpgf/gtestutil.h"
 

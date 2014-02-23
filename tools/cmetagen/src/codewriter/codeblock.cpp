@@ -73,7 +73,7 @@ void CodeBlock::write(CodeWriter * codeWriter)
 {
 	codeWriter->incIndent(this->getIndent());
 	
-	if(this->flags.has(cbsBracket)) {
+	if(this->flags.hasAny(cbsBracket | cbsBracketWithSemicolon)) {
 		codeWriter->writeLine("{");
 	}
 	
@@ -92,10 +92,13 @@ void CodeBlock::write(CodeWriter * codeWriter)
 	if(this->flags.has(cbsBracket)) {
 		codeWriter->writeLine("}");
 	}
+	else if(this->flags.has(cbsBracketWithSemicolon)) {
+		codeWriter->writeLine("};");
+	}
 	
 	codeWriter->decIndent(this->getIndent());
 
-	if(this->flags.has(cbsBracket) || this->flags.has(cbsTailEmptyLine)) {
+	if(this->flags.hasAny(cbsBracket | cbsBracketWithSemicolon) || this->flags.has(cbsTailEmptyLine)) {
 		codeWriter->ensureBlankLine();
 	}
 }

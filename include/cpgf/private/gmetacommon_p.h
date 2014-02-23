@@ -1,5 +1,5 @@
-#ifndef __GMETACOMMON_P_H
-#define __GMETACOMMON_P_H
+#ifndef CPGF_GMETACOMMON_P_H
+#define CPGF_GMETACOMMON_P_H
 
 #include <string.h>
 

@@ -1,5 +1,5 @@
-#ifndef __GVARTYPEDATA_P_H
-#define __GVARTYPEDATA_P_H
+#ifndef CPGF_GVARTYPEDATA_P_H
+#define CPGF_GVARTYPEDATA_P_H
 
 #include "cpgf/gtypetraits.h"
 #include "cpgf/genableif.h"

@@ -1,5 +1,5 @@
-#ifndef __GGLOBAL_H
-#define __GGLOBAL_H
+#ifndef CPGF_GGLOBAL_H
+#define CPGF_GGLOBAL_H
 
 #include "cpgf/gassert.h"
 

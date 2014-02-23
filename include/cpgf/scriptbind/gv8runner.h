@@ -1,5 +1,5 @@
-#ifndef __GV8RUNNER_H
-#define __GV8RUNNER_H
+#ifndef CPGF_GV8RUNNER_H
+#define CPGF_GV8RUNNER_H
 
 #include "cpgf/scriptbind/gscriptrunner.h"
 

@@ -1,5 +1,5 @@
-#ifndef __PANELEASE_H
-#define __PANELEASE_H
+#ifndef CPGF_PANELEASE_H
+#define CPGF_PANELEASE_H
 
 #if defined(_MSC_VER)
 #pragma warning(push)

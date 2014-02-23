@@ -1,5 +1,5 @@
-#ifndef __GTWEEN_P_H
-#define __GTWEEN_P_H
+#ifndef CPGF_GTWEEN_P_H
+#define CPGF_GTWEEN_P_H
 
 
 namespace cpgf {

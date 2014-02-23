@@ -1,5 +1,5 @@
-#ifndef __OPERATOR_COMMON_H
-#define __OPERATOR_COMMON_H
+#ifndef CPGF_OPERATOR_COMMON_H
+#define CPGF_OPERATOR_COMMON_H
 
 #include "cpgf/gmetadefine.h"
 #include "cpgf/goutmain.h"

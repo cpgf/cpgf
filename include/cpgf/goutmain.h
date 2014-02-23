@@ -1,5 +1,5 @@
-#ifndef __GOUTMAIN_H
-#define __GOUTMAIN_H
+#ifndef CPGF_GOUTMAIN_H
+#define CPGF_GOUTMAIN_H
 
 #include "cpgf/gpp.h"
 

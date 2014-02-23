@@ -1,5 +1,5 @@
-#ifndef __GCONFIG_H
-#define __GCONFIG_H
+#ifndef CPGF_GCONFIG_H
+#define CPGF_GCONFIG_H
 
 
 #define G_MAX_ARITY 30

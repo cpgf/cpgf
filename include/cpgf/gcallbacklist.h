@@ -1,5 +1,5 @@
-#ifndef __GCALLBACKLIST_H
-#define __GCALLBACKLIST_H
+#ifndef CPGF_GCALLBACKLIST_H
+#define CPGF_GCALLBACKLIST_H
 
 #include "cpgf/gcallback.h"
 #include "cpgf/gfunctiontraits.h"

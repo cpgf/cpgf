@@ -1,5 +1,5 @@
-#ifndef __GAPIUTIL_H
-#define __GAPIUTIL_H
+#ifndef CPGF_GAPIUTIL_H
+#define CPGF_GAPIUTIL_H
 
 
 #include "cpgf/gapi.h"

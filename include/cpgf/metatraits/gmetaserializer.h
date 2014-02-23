@@ -1,5 +1,5 @@
-#ifndef __GMETASERIALIZER_H
-#define __GMETASERIALIZER_H
+#ifndef CPGF_GMETASERIALIZER_H
+#define CPGF_GMETASERIALIZER_H
 
 
 #include "cpgf/gapiutil.h"

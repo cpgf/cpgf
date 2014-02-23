@@ -1,5 +1,5 @@
-#ifndef __GDEPRECATED_H
-#define __GDEPRECATED_H
+#ifndef CPGF_GDEPRECATED_H
+#define CPGF_GDEPRECATED_H
 
 #include "cpgf/gcompiler.h"
 

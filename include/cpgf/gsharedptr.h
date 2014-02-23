@@ -1,5 +1,5 @@
-#ifndef __GSHAREDPTR_H
-#define __GSHAREDPTR_H
+#ifndef CPGF_GSHAREDPTR_H
+#define CPGF_GSHAREDPTR_H
 
 #include "cpgf/gassert.h"
 #include "cpgf/genableif.h"

@@ -1,5 +1,5 @@
-#ifndef __GINTERFACE_H
-#define __GINTERFACE_H
+#ifndef CPGF_GINTERFACE_H
+#define CPGF_GINTERFACE_H
 
 #include "cpgf/gcompiler.h"
 #include "cpgf/gstdint.h"

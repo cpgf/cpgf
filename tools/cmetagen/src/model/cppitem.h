@@ -1,5 +1,5 @@
-#ifndef __CPPITEM_H
-#define __CPPITEM_H
+#ifndef CPGF_CPPITEM_H
+#define CPGF_CPPITEM_H
 
 #include "cpgf/gflags.h"
 
@@ -9,7 +9,6 @@
 namespace clang { class Decl; class ASTContext; }
 
 namespace metagen {
-
 
 enum ItemVisibility
 {
@@ -147,6 +146,8 @@ private:
 	mutable std::string qualifiedName;
 	mutable std::string qualifiedNameWithoutNamespace;
 };
+
+bool isVisibilityAllowed(ItemVisibility visibility, const Project * project);
 
 
 } // namespace metagen

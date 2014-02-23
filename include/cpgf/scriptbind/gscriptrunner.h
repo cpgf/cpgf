@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTRUNNER_H
-#define __GSCRIPTRUNNER_H
+#ifndef CPGF_GSCRIPTRUNNER_H
+#define CPGF_GSCRIPTRUNNER_H
 
 
 #include "cpgf/gscopedptr.h"

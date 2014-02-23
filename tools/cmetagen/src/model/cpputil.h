@@ -1,5 +1,5 @@
-#ifndef __CPPUTIL_H
-#define __CPPUTIL_H
+#ifndef CPGF_CPPUTIL_H
+#define CPGF_CPPUTIL_H
 
 #if defined(_MSC_VER)
 #pragma warning(push, 0)
@@ -17,6 +17,7 @@
 
 namespace metagen {
 
+class CppClass;
 
 clang::QualType stripType(const clang::QualType & qualType);
 
@@ -28,11 +29,17 @@ void getNamedDeclNames(const clang::NamedDecl * namedDecl,
 std::string	 getNamedDeclOutputName(const clang::NamedDecl * namedDecl);
 std::string	 getNamedDeclQualifiedName(const clang::NamedDecl * namedDecl);
 
-std::string getTemplateSpecializationName(const clang::TemplateSpecializationType * type);
-std::string getTemplateArgumentName(const clang::TemplateArgument & argument);
+std::string getTemplateSpecializationName(const clang::ASTContext * astContext, const clang::TemplateSpecializationType * type);
+std::string getTemplateArgumentName(const clang::ASTContext * astContext, const clang::TemplateArgument & argument);
 
-std::string exprToText(const clang::Expr * expr);
-std::string declToText(const clang::Decl * decl);
+std::string exprToText(const clang::ASTContext * astContext, const clang::Expr * expr);
+std::string declToText(const clang::ASTContext * astContext, const clang::Decl * decl);
+
+std::string getSourceText(const clang::ASTContext * astContext,
+	const clang::SourceLocation & start, const clang::SourceLocation & end);
+
+
+std::string fixIllFormedTemplates(const CppClass * ownerClass, const std::string & text);
 
 
 } // namespace metagen

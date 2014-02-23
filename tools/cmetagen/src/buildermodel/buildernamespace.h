@@ -1,5 +1,5 @@
-#ifndef __BUILDERNAMESPACE_H
-#define __BUILDERNAMESPACE_H
+#ifndef CPGF_BUILDERNAMESPACE_H
+#define CPGF_BUILDERNAMESPACE_H
 
 #include "buildercontainer.h"
 

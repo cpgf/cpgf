@@ -1,5 +1,5 @@
-#ifndef __TESTMETAGEN_H
-#define __TESTMETAGEN_H
+#ifndef CPGF_TESTMETAGEN_H
+#define CPGF_TESTMETAGEN_H
 
 #include "../../testmetatraits.h"
 

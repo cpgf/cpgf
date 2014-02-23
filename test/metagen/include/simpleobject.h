@@ -1,5 +1,5 @@
-#ifndef __SIMPLEOBJECT_H
-#define __SIMPLEOBJECT_H
+#ifndef CPGF_SIMPLEOBJECT_H
+#define CPGF_SIMPLEOBJECT_H
 
 #include "cpgf/gsharedptr.h"
 

@@ -1,5 +1,5 @@
-#ifndef __CPPENUM_H
-#define __CPPENUM_H
+#ifndef CPGF_CPPENUM_H
+#define CPGF_CPPENUM_H
 
 #include "cppitem.h"
 

@@ -1,5 +1,5 @@
-#ifndef __GEXCEPTION_H
-#define __GEXCEPTION_H
+#ifndef CPGF_GEXCEPTION_H
+#define CPGF_GEXCEPTION_H
 
 #include <stdexcept>
 #include <string>

@@ -1,5 +1,5 @@
-#ifndef __TESTMETATRAITS_H
-#define __TESTMETATRAITS_H
+#ifndef CPGF_TESTMETATRAITS_H
+#define CPGF_TESTMETATRAITS_H
 
 #include "cpgf/metatraits/gmetaconverter_string.h"
 #include "cpgf/metatraits/gmetaconverter_widestring.h"

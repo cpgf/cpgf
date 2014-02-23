@@ -20,6 +20,13 @@ CppConstructor::CppConstructor(const clang::Decl * decl)
 {
 }
 
+bool CppConstructor::isDefaultConstructor() const
+{
+	const CXXConstructorDecl * constructorDecl = dyn_cast<CXXConstructorDecl>(this->getDecl());
+
+	return constructorDecl->isDefaultConstructor();
+}
+
 bool CppConstructor::isCopyConstructor() const
 {
 	const CXXConstructorDecl * constructorDecl = dyn_cast<CXXConstructorDecl>(this->getDecl());

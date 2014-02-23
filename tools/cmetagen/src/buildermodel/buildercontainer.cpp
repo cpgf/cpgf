@@ -1,6 +1,7 @@
 #include "buildercontainer.h"
 #include "model/cppcontainer.h"
 #include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 
 #include <algorithm>
 

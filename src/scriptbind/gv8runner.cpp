@@ -5,9 +5,10 @@
 #include "cpgf/gmetaapi.h"
 
 #include <stdexcept>
-
+#include <string>
 
 using namespace v8;
+using namespace std;
 
 namespace cpgf {
 
@@ -60,24 +61,17 @@ bool GV8ScriptRunnerImplement::executeJsString(const char * source)
 	using namespace v8;
 
 	v8::HandleScope handle_scope;
-	v8::TryCatch try_catch;
+	v8::TryCatch v8TryCatch;
 	v8::Handle<v8::Script> script = v8::Script::Compile(String::New(source), String::New("cpgf"));
-	if(script.IsEmpty()) {
-		v8::String::AsciiValue error(try_catch.Exception());
-		this->error(*error);
-		return false;
-	}
-	else {
+	if(! script.IsEmpty()) {
 		v8::Handle<v8::Value> result = script->Run();
-		if(result.IsEmpty()) {
-			v8::String::AsciiValue error(try_catch.Exception());
-			this->error(*error);
-			return false;
-		}
-		else {
+		if(! result.IsEmpty()) {
 			return true;
 		}
 	}
+	v8::String::AsciiValue stackTrace(v8TryCatch.StackTrace());
+	this->error(*stackTrace);
+	return false;
 }
 
 void GV8ScriptRunnerImplement::executeString(const char * code)

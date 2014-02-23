@@ -18,6 +18,7 @@ public:
 	int fieldReadonlyInt;
 	string fieldWriteonlyString;
 	CLASS_DATA fieldNoncopyableData;
+	int fieldArray[3];
 }; // class CLASS
 
 
@@ -34,6 +35,7 @@ G_AUTO_RUN_BEFORE_MAIN()
 		._field("fieldReadonlyInt", &CLASS::fieldReadonlyInt, GMetaPolicyReadOnly())
 		._field("fieldWriteonlyString", &CLASS::fieldWriteonlyString, GMetaPolicyWriteOnly())
 		._field("fieldNoncopyableData", &CLASS::fieldNoncopyableData, GMetaPolicyNoncopyable())
+		._field("fieldArray", &CLASS::fieldArray)
 	;
 }
 
@@ -493,6 +495,7 @@ GTEST(Lib_Get)
 	const int valueReadonlyInt = 1999;
 	const string valueWriteonlyString = "Antoerh string";
 	const CLASS_DATA valueNoncopyableData = CLASS_DATA("Noncopyable data string", 68);
+	const int valueArray[3] = { 3, 5, 6 };
 
 	pobj->fieldInt = valueInt;
 	pobj->fieldString = valueString;
@@ -500,6 +503,9 @@ GTEST(Lib_Get)
 	pobj->fieldReadonlyInt = valueReadonlyInt;
 	pobj->fieldWriteonlyString = valueWriteonlyString;
 	pobj->fieldNoncopyableData = valueNoncopyableData;
+	for(int i = 0; i < 3; ++i) {
+		pobj->fieldArray[i] = valueArray[i];
+	}
 	
 	FIELD(fieldInt);
 	GEQUAL(fromVariant<int>(field->get(pobj)), valueInt);
@@ -518,6 +524,10 @@ GTEST(Lib_Get)
 	
 	FIELD(fieldNoncopyableData);
 	EXCEPT_META(field->get(pobj))
+
+	FIELD(fieldArray);
+	// not support yet
+//	GEQUAL(fromVariant<int *>(field->get(pobj))[0], valueArray[0]);
 }
 
 

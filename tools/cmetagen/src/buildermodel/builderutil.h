@@ -1,13 +1,15 @@
-#ifndef __BUILDERUTIL_H
-#define __BUILDERUTIL_H
+#ifndef CPGF_BUILDERUTIL_H
+#define CPGF_BUILDERUTIL_H
 
 #include "model/cppitem.h"
 
 #include <string>
+#include <set>
 
 namespace metagen {
 
 class CppContainer;
+class CppClass;
 class CodeBlock;
 class Project;
 class BuilderContext;
@@ -25,9 +27,8 @@ const std::string CodeBlockName_Customize("customize");
 
 std::string getTextOfVisibility(ItemVisibility visibility);
 
-std::string getReflectionClassName(const Project * project);
-std::string getReflectionScope(const CppItem * item);
-bool isVisibilityAllowed(ItemVisibility visibility, const Project * project);
+std::string getReflectionClassName(const Project * project, bool asType);
+std::string getReflectionScope(const CppItem * item, bool asType);
 
 // A payload is how many meta data the item contribute
 size_t getCppItemPayload(const CppItem * item);
@@ -37,18 +38,25 @@ std::string getClassWrapperClassName(const BuilderContext * builderContext, cons
 std::string getPartialCreationFunctionName(const BuilderContext * builderContext, BuilderSection * section);
 std::string getPartialCreationFunctionPrototype(const BuilderContext * builderContext, BuilderSection * section);
 
+std::string getCppClassNormalizedSymboName(const CppClass * cppClass);
 std::string getCreationFunctionName(const BuilderContext * builderContext, BuilderSection * section);
 std::string getCreationFunctionPrototype(const BuilderContext * builderContext, BuilderSection * section);
+std::string getCreationFunctionPrototype(const std::string & functionName);
 
 std::string getReflectionFunctionName(const BuilderContext * builderContext, BuilderSection * section);
 
 CodeNameType getNameTypeFromBuilderSection(BuilderSection * section);
 
+std::string getMetaTypeTypedef(const BuilderContext * builderContext,
+	 BuilderSection * section, std::string * outReflectionTemplateParams);
+
 void initializeReflectionFunctionOutline(const BuilderContext * builderContext, BuilderSection * section);
-
 void initializePartialCreationFunction(const BuilderContext * builderContext, BuilderSection * section);
-
 void initializeClassWrapperOutline(const BuilderContext * builderContext, BuilderSection * section);
+
+bool shouldGenerateCreationFunction(const CppItem * cppItem);
+
+void generateMainRegisterFiles(const std::set<std::string> & creationFunctionNameList, const Project * project);
 
 
 } // namespace metagen

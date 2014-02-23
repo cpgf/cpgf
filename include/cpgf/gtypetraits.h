@@ -1,5 +1,5 @@
-#ifndef __GTYPETRAITS_H
-#define __GTYPETRAITS_H
+#ifndef CPGF_GTYPETRAITS_H
+#define CPGF_GTYPETRAITS_H
 
 #include "cpgf/gcompiler.h"
 #include "cpgf/genableif.h"

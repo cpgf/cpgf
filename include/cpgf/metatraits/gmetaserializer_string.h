@@ -1,5 +1,5 @@
-#ifndef __GMETASERIALIZER_STRING_H
-#define __GMETASERIALIZER_STRING_H
+#ifndef CPGF_GMETASERIALIZER_STRING_H
+#define CPGF_GMETASERIALIZER_STRING_H
 
 #include "cpgf/metatraits/gmetaserializer.h"
 

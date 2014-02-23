@@ -1,5 +1,5 @@
-#ifndef __GMETAPROPERTY_H
-#define __GMETAPROPERTY_H
+#ifndef CPGF_GMETAPROPERTY_H
+#define CPGF_GMETAPROPERTY_H
 
 #include "cpgf/private/gmetaproperty_p.h"
 

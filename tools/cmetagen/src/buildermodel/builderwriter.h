@@ -1,5 +1,5 @@
-#ifndef __BUILDERWRITER_H
-#define __BUILDERWRITER_H
+#ifndef CPGF_BUILDERWRITER_H
+#define CPGF_BUILDERWRITER_H
 
 #include "cpgf/gscopedptr.h"
 #include "builderutil.h"
@@ -12,7 +12,6 @@
 namespace metagen {
 
 
-class CppWriter;
 class CppItem;
 class CppContainer;
 class CodeBlock;
@@ -23,9 +22,6 @@ class BuilderContext;
 class BuilderTemplateInstantiation;
 class Project;
 
-enum FileType {
-	ftHeader, ftSource
-};
 
 class BuilderWriter
 {

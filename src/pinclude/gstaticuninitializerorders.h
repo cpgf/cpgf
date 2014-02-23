@@ -1,10 +1,11 @@
-#ifndef __GSTATICUNINITIALIZERORDERS_H
-#define __GSTATICUNINITIALIZERORDERS_H
+#ifndef CPGF_GSTATICUNINITIALIZERORDERS_H
+#define CPGF_GSTATICUNINITIALIZERORDERS_H
 
 #include "cpgf/glifecycle.h"
 
 namespace cpgf {
 
+const GStaticUninitializationOrderType suo_ScriptObjectCache = 0x400000;
 const GStaticUninitializationOrderType suo_ScriptDataWrapperPool = 0x500000;
 const GStaticUninitializationOrderType suo_GlobalMetaClass = 0x600000;
 const GStaticUninitializationOrderType suo_MetaModuleForGlobalMetaclass = 0x600001;

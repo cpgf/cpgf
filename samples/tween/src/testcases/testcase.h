@@ -1,5 +1,5 @@
-#ifndef __TESTCASE_H
-#define __TESTCASE_H
+#ifndef CPGF_TESTCASE_H
+#define CPGF_TESTCASE_H
 
 #include "cpgf/gsharedptr.h"
 #include "cpgf/tween/gtweencommon.h"

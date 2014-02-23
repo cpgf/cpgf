@@ -1,5 +1,5 @@
-#ifndef __GPYTHONBIND_H
-#define __GPYTHONBIND_H
+#ifndef CPGF_GPYTHONBIND_H
+#define CPGF_GPYTHONBIND_H
 
 
 #include "cpgf/scriptbind/gscriptbind.h"

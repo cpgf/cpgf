@@ -1,5 +1,5 @@
-#ifndef __GVARIANT_H
-#define __GVARIANT_H
+#ifndef CPGF_GVARIANT_H
+#define CPGF_GVARIANT_H
 
 #include "cpgf/gvartypedata.h"
 #include "cpgf/gmetatype.h"
@@ -284,6 +284,8 @@ void initializeVarWideString(GVariantData * data, const wchar_t * s);
 GVariant createWideStringVariant(const wchar_t * s);
 bool variantDataIsWideString(const GVariantData & v);
 bool variantIsWideString(const GVariant & v);
+
+GVariant createVariantFromData(const GVariantData & data);
 
 GVariant createTypedVariant(const GVariant & value, const GMetaType & type);
 template <typename T>
