@@ -1,5 +1,5 @@
-#ifndef __GMETAAPIUTIL_H
-#define __GMETAAPIUTIL_H
+#ifndef CPGF_GMETAAPIUTIL_H
+#define CPGF_GMETAAPIUTIL_H
 
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gmetacommon.h"

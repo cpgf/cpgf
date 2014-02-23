@@ -1,5 +1,5 @@
-#ifndef __GMETAARCHIVECOMMONIMPL_H
-#define __GMETAARCHIVECOMMONIMPL_H
+#ifndef CPGF_GMETAARCHIVECOMMONIMPL_H
+#define CPGF_GMETAARCHIVECOMMONIMPL_H
 
 
 #include "cpgf/serialization/gmetaarchivecommon.h"

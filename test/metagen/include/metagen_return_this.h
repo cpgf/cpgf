@@ -1,5 +1,5 @@
-#ifndef __METAGEN_RETURN_THIS_H
-#define __METAGEN_RETURN_THIS_H
+#ifndef CPGF_METAGEN_RETURN_THIS_H
+#define CPGF_METAGEN_RETURN_THIS_H
 
 
 class MetagenReturnThis

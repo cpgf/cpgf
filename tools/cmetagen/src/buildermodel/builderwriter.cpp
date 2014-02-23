@@ -58,10 +58,11 @@ BuilderSection * getSection(const Project * project, BuilderSectionList * sectio
 	std::multimap<const CppContainer *, BuilderSection *>::iterator it = sectionMap->find(cppContainer);
 	int existingSectionCount = 0;
 	if(it != sectionMap->end()) {
+		const size_t maxItemCountPerFile = project->getMaxItemCountPerFile();
 		while(it != sectionMap->end() && it->first == cppContainer) {
 			++existingSectionCount;
-			if(project->shouldSplitFile()
-				&& it->second->getTotalPayload() + payload > project->getMaxItemCountPerFile()) {
+			if(maxItemCountPerFile > 0
+				&& it->second->getTotalPayload() + payload > maxItemCountPerFile) {
 				++it;
 				continue;
 			}
@@ -152,7 +153,7 @@ CodeBlock * BuilderWriter::getContainerReflectionCodeBlock(const CppContainer * 
 CodeBlock * BuilderWriter::getClassWrapperCodeBlock(const CppItem * cppItem, const CppContainer * container)
 {
 	BuilderSection * section = this->getClassWrapperSection(container);
-	return section->getCodeBlock()->getNamedBlock(CodeBlockName_ClassBody, cbsBracket)
+	return section->getCodeBlock()->getNamedBlock(CodeBlockName_ClassBody, cbsBracketWithSemicolon)
 		->getNamedBlock(getTextOfVisibility(cppItem->getVisibility()))
 		->getNamedBlock(CodeBlockName_Customize, cbsIndent | cbsTailEmptyLine)
 	;

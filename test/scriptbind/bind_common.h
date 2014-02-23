@@ -1,5 +1,5 @@
-#ifndef __BIND_COMMON_H
-#define __BIND_COMMON_H
+#ifndef CPGF_BIND_COMMON_H
+#define CPGF_BIND_COMMON_H
 
 #ifndef ENABLE_LUA
 #define ENABLE_LUA 1

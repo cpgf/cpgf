@@ -1,5 +1,5 @@
-#ifndef __UNITTESTBASE_H
-#define __UNITTESTBASE_H
+#ifndef CPGF_UNITTESTBASE_H
+#define CPGF_UNITTESTBASE_H
 
 
 #include "UnitTest++.h"

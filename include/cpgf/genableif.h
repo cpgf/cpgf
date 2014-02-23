@@ -1,5 +1,5 @@
-#ifndef __GENABLEIF_H
-#define __GENABLEIF_H
+#ifndef CPGF_GENABLEIF_H
+#define CPGF_GENABLEIF_H
 
 #include "cpgf/gcompiler.h"
 

@@ -1,5 +1,5 @@
-#ifndef __GMETACORE_H
-#define __GMETACORE_H
+#ifndef CPGF_GMETACORE_H
+#define CPGF_GMETACORE_H
 
 #include "cpgf/gvariant.h"
 

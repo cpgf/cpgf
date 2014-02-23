@@ -129,5 +129,15 @@ GTEST(TestVariant_CastFromFloat)
 }
 
 
+GTEST(TestVariant_CastFromArray)
+{
+	GVariant value;
+	int a[] = { 1, 2, 3 };
+
+	value = a;
+	int * casted = fromVariant<int *>(value);
+}
+
+
 
 } }

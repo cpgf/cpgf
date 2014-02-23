@@ -1,9 +1,10 @@
-#ifndef __GBINDCOMMON_H
-#define __GBINDCOMMON_H
+#ifndef CPGF_GBINDCOMMON_H
+#define CPGF_GBINDCOMMON_H
 
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptvalue.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
+#include "cpgf/scriptbind/gscriptuserconverter.h"
 #include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gglobal.h"
@@ -15,6 +16,7 @@
 
 #include <map>
 #include <set>
+#include <vector>
 #include <algorithm>
 
 
@@ -24,6 +26,40 @@ extern int Error_ScriptBinding_FailVariantToScript;
 
 class GMetaClassTraveller;
 class GScriptCoreService;
+
+class GScriptFunction
+{
+public:
+	GScriptFunction() {}
+	virtual ~GScriptFunction() {}
+	
+	virtual GVariant invoke(const GVariant * params, size_t paramCount) = 0;
+	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount) = 0;
+
+	// internal use
+	virtual void weaken() = 0;
+	
+	GMAKE_NONCOPYABLE(GScriptFunction);
+};
+
+
+class GScriptArray
+{
+public:
+	GScriptArray() {}
+	virtual ~GScriptArray() {}
+	
+	virtual size_t getLength() = 0;
+	virtual GScriptValue getValue(size_t index) = 0;
+	virtual void setValue(size_t index, const GScriptValue & value) = 0;
+
+	virtual bool maybeIsScriptArray(size_t index) = 0;
+	virtual GScriptValue getAsScriptArray(size_t index) = 0;
+	virtual GScriptValue createScriptArray(size_t index) = 0;
+	
+	GMAKE_NONCOPYABLE(GScriptArray);
+};
+
 
 namespace bind_internal {
 
@@ -41,7 +77,9 @@ enum ObjectPointerCV {
 	opcvNone,
 	opcvConst,
 	opcvVolatile,
-	opcvConstVolatile
+	opcvConstVolatile,
+	
+	opcvCount
 };
 
 enum GGlueDataType {
@@ -182,7 +220,7 @@ public:
 		return this->type;
 	}
 
-	GContextPointer getContext() const {
+	GContextPointer getBindingContext() const {
 		return GContextPointer(this->context);
 	}
 
@@ -271,7 +309,7 @@ public:
 		return this->classData;
 	}
 
-	GContextPointer getContext() const {
+	GContextPointer getBindingContext() const {
 		return GContextPointer(this->context);
 	}
 
@@ -381,8 +419,8 @@ private:
 	typedef GGlueData super;
 
 private:
-	GMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, IMetaList * methodList, const char * name)
-		: super(gdtMethod, context), classGlueData(classGlueData), methodList(methodList), name(name) {
+	GMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, IMetaList * methodList)
+		: super(gdtMethod, context), classGlueData(classGlueData), methodList(methodList) {
 	}
 
 public:
@@ -394,14 +432,11 @@ public:
 		return this->methodList.get();
 	}
 
-	const std::string & getName() const {
-		return this->name;
-	}
+	std::string getName() const;
 
 private:
 	GWeakClassGlueDataPointer classGlueData;
 	GSharedInterface<IMetaList> methodList;
-	std::string name;
 
 private:
 	friend class GBindingContext;
@@ -601,7 +636,7 @@ private:
 	typedef std::pair<std::string, GVariant> MapValueType;
 
 public:
-	void setScriptValue(const char * name, const GVariant & value);
+	void setScriptValue(const char * name, const GScriptValue & value);
 	IScriptFunction * getScriptFunction(const char * name);
 
 private:
@@ -618,10 +653,10 @@ public:
 	virtual ~GGlueDataWrapper() {
 	}
 
-	virtual GGlueDataPointer getData() = 0;
+	virtual GGlueDataPointer getData() const = 0;
 
 	template <typename T>
-	GSharedPointer<T> getAs() {
+	GSharedPointer<T> getAs() const {
 		return sharedStaticCast<T>(this->getData());
 	}
 };
@@ -638,7 +673,7 @@ public:
 	virtual ~GGlueDataWrapperImplement() {
 	}
 
-	virtual GGlueDataPointer getData() {
+	virtual GGlueDataPointer getData() const {
 		return sharedStaticCast<GGlueData>(this->dataPointer);
 	}
 
@@ -664,6 +699,26 @@ private:
 	SetType wrapperSet;
 };
 
+class GScriptContext : public IScriptContext
+{
+private:
+	typedef GSharedInterface<IScriptUserConverter> ScriptUserConverterType;
+	typedef std::vector<ScriptUserConverterType> ScriptUserConverterListType;
+
+	G_INTERFACE_IMPL_OBJECT
+
+protected:
+	virtual void G_API_CC addScriptUserConverter(IScriptUserConverter * converter);
+	virtual void G_API_CC removeScriptUserConverter(IScriptUserConverter * converter);
+	virtual uint32_t G_API_CC getScriptUserConverterCount();
+	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index);
+
+private:
+	ScriptUserConverterListType::iterator findConverter(IScriptUserConverter * converter);
+
+private:
+	GScopedPointer<ScriptUserConverterListType> scriptUserConverterList;
+};
 
 class GBindingContext : public GShareFromThis<GBindingContext>
 {
@@ -681,6 +736,8 @@ public:
 
 	void bindScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader);
 
+	IScriptContext * borrowScriptContext() const;
+
 public:
 	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
@@ -692,7 +749,7 @@ public:
 		const GBindValueFlags & flags, ObjectPointerCV cv);
 	
 	GMethodGlueDataPointer newMethodGlueData(const GClassGlueDataPointer & classData,
-		IMetaList * methodList, const char * name);
+		IMetaList * methodList);
 	
 	GEnumGlueDataPointer newEnumGlueData(IMetaEnum * metaEnum);
 
@@ -714,6 +771,7 @@ private:
 	GScopedPointer<GClassPool> classPool;
 	
 	GScopedPointer<GScriptCoreService> scriptCoreService;
+	GScopedInterface<IScriptContext> scriptContext;
 
 private:
 	template <typename T>
@@ -736,25 +794,28 @@ public:
 	int weight;
 	GSharedInterface<IMetaClass> sourceClass;
 	GSharedInterface<IMetaClass> targetClass;
+	GSharedInterface<IScriptUserConverter> userConverter;
+	uint32_t userConverterTag;
 };
 
 class CallableParamData
 {
 public:
 	GScriptValue value;
-	GGlueDataPointer glueData;
+	GGlueDataPointer paramGlueData;
 };
 
 class InvokeCallableParam
 {
 public:
-	explicit InvokeCallableParam(size_t paramCount);
+	InvokeCallableParam(size_t paramCount, IScriptContext * scriptContext);
 	~InvokeCallableParam();
 
 public:
 	CallableParamData params[REF_MAX_ARITY];
 	size_t paramCount;
 	ConvertRank paramRanks[REF_MAX_ARITY];
+	GSharedInterface<IScriptContext> scriptContext;
 };
 
 class InvokeCallableResult
@@ -824,11 +885,15 @@ public:
 	IMetaClass * cloneMetaClass(IMetaClass * metaClass);
 
 	IMetaService * getMetaService();
+	
+	virtual IScriptContext * getContext() const;
 
 protected:
-	const GContextPointer & getContext() const {
+	const GContextPointer & getBindingContext() const {
 		return this->context;
 	}
+
+	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 
 private:
 	GContextPointer context;
@@ -842,17 +907,54 @@ private:
 
 public:
 	explicit GScriptFunctionBase(const GContextPointer & context)
+		: context(context), weakContext(context)
+	{
+	}
+
+	virtual void weaken() {
+		this->context.reset();
+	}
+
+protected:
+	GContextPointer getBindingContext() {
+		return this->weakContext.get();
+	}
+
+private:
+	// Here we must use strong shared pointer,
+	// otherwise the context may be freed by the script object
+	// while the script function is still live.
+	// But there is cyclic shared pointer chain
+	// IScriptFunction->GBindingContext->GClassPool->GClassGlueData->GScriptDataHolder->IScriptFunction
+	// Now the cyclic chain is broken by calling weaken when setting IScriptFunction to GScriptDataHolder
+	// The solution is super ugly, but I can't find better solution for now.
+
+	GContextPointer context;
+	GWeakContextPointer weakContext;
+};
+
+
+class GScriptArrayBase : public GScriptArray
+{
+private:
+	typedef GScriptArray super;
+
+public:
+	explicit GScriptArrayBase(const GContextPointer & context)
 		: context(context)
 	{
 	}
 
 protected:
-	GContextPointer getContext() {
-		return this->context.get();
+	GContextPointer getBindingContext() {
+		return this->context;
 	}
 
 private:
-	GWeakContextPointer context;
+	// Here we must use strong shared pointer,
+	// otherwise the context may be freed by the script object
+	// while the script array is still live.
+	GContextPointer context;
 };
 
 
@@ -881,7 +983,8 @@ void loadMethodList(const GContextPointer & context, IMetaList * methodList, con
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 
-bool setValueOnNamedMember(const GGlueDataPointer & glueData, const char * name, const GVariant & value, const GGlueDataPointer & valueGlueData);
+bool setValueOnNamedMember(const GGlueDataPointer & glueData, const char * name,
+	const GScriptValue & value, const GGlueDataPointer & valueGlueData);
 
 ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData);
 void * getGlueDataInstance(const GGlueDataPointer & glueData);
@@ -893,6 +996,8 @@ InvokeCallableResult doInvokeOperator(const GContextPointer & context, const GOb
 IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & value);
 
 IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance);
+
+std::string getMethodNameFromMethodList(IMetaList * methodList);
 
 template <typename Getter, typename Predict>
 int findAppropriateCallable(IMetaService * service,
@@ -1180,8 +1285,8 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 		return Methods::defaultValue();
 	}
 
-	const GScriptConfig & config = classData->getContext()->getConfig();
-	GContextPointer context = classData->getContext();
+	const GScriptConfig & config = classData->getBindingContext()->getConfig();
+	GContextPointer context = classData->getBindingContext();
 
 	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstance(glueData));
 
@@ -1218,7 +1323,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 
 			case mmitMethod:
 			case mmitMethodList: {
-				return Methods::doMethodsToScript(classData, mapItem, name, &traveller, metaClass.get(), derived.get(), objectData);
+				return Methods::doMethodsToScript(classData, mapItem, metaClass.get(), derived.get(), objectData);
 			}
 
 			case mmitEnum:
@@ -1266,6 +1371,97 @@ private:
 };
 
 
+struct GScriptObjectCacheEntry {
+	GScriptObjectCacheEntry() : instance(NULL), className(NULL), cv(opcvNone) {
+	}
+
+	GScriptObjectCacheEntry(void * instance, const char * className, ObjectPointerCV cv)
+		: instance(instance), className(className), cv(cv) {
+	}
+
+	bool operator < (const GScriptObjectCacheEntry & other) const {
+		if(instance < other.instance) {
+			return true;
+		}
+		if(instance == other.instance) {
+			if(cv < other.cv) {
+				return true;
+			}
+			if(cv > other.cv) {
+				return false;
+			}
+
+			if(className == other.className) {
+				return false;
+			}
+			else {
+				return strcmp(className, other.className) < 0;
+			}
+		}
+		return false;
+	}
+
+	void * instance;
+	const char * className;
+	ObjectPointerCV cv;
+};
+
+template <typename T>
+class GScriptObjectCache
+{
+private:
+	typedef std::map<GScriptObjectCacheEntry, T> ObjectMapType;
+
+public:
+	T * findScriptObject(void * object, const GClassGlueDataPointer & classData,
+		ObjectPointerCV cv) {
+		GScriptObjectCacheEntry entry(object, classData->getMetaClass()->getQualifiedName(), cv);
+		typename ObjectMapType::iterator it = this->objectMap.find(entry);
+		if(it == this->objectMap.end()) {
+			return NULL;
+		}
+		else {
+			return &it->second;
+		}
+	}
+
+	void addScriptObject(void * object, const GClassGlueDataPointer & classData,
+		ObjectPointerCV cv, const T & scriptObject) {
+//		GASSERT(this->findScriptObject(object, classData, cv) == NULL);
+		GScriptObjectCacheEntry entry(object, classData->getMetaClass()->getQualifiedName(), cv);
+		this->objectMap.insert(std::make_pair(entry, scriptObject));
+	}
+
+	void freeScriptObject(GGlueDataWrapper * dataWrapper) {
+		void * instance = getGlueDataInstance(dataWrapper->getData());
+		if(instance == NULL) {
+			return;
+		}
+		for(typename ObjectMapType::iterator it = this->objectMap.begin();
+			it != this->objectMap.end(); ) {
+			if(it->first.instance == instance) {
+				this->objectMap.erase(it++);
+			}
+			else {
+				++it;
+			}
+		}
+	}
+
+	void clear() {
+		this->objectMap.clear();
+	}
+
+private:
+	ObjectMapType objectMap;
+};
+
+template <typename T>
+void checkedClearScriptObjectCache(GScriptObjectCache<T> * cache) {
+	if(cache != NULL) {
+		cache->clear();
+	}
+}
 
 
 } // namespace bind_internal

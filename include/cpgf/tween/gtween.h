@@ -1,5 +1,5 @@
-#ifndef __GTWEEN_H
-#define __GTWEEN_H
+#ifndef CPGF_GTWEEN_H
+#define CPGF_GTWEEN_H
 
 #include "cpgf/tween/gtweencommon.h"
 #include "cpgf/private/gtween_p.h"

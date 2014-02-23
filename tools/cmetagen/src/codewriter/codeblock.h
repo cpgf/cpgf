@@ -1,5 +1,5 @@
-#ifndef __CODEBLOCK_H
-#define __CODEBLOCK_H
+#ifndef CPGF_CODEBLOCK_H
+#define CPGF_CODEBLOCK_H
 
 #include "cpgf/gflags.h"
 
@@ -36,16 +36,6 @@ private:
 	int indent;
 };
 
-class CodeIndent
-{
-public:
-	explicit CodeIndent(CodeItem * codeItem) : codeItem(codeItem) { codeItem->incIndent(); }
-	~CodeIndent() { codeItem->decIndent(); }
-	
-private:
-	CodeItem * codeItem;
-};
-
 
 class CodeLine : public CodeItem
 {
@@ -74,6 +64,7 @@ enum CodeBlockStyle {
 	cbsBracket = 1 << 0,
 	cbsIndent = 1 << 1,
 	cbsTailEmptyLine = 1 << 2,
+	cbsBracketWithSemicolon = 1 << 3,
 	cbsBracketAndIndent = cbsBracket | cbsIndent
 };
 

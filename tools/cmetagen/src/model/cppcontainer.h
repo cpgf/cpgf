@@ -1,5 +1,5 @@
-#ifndef __CPPCONTAINER_H
-#define __CPPCONTAINER_H
+#ifndef CPGF_CPPCONTAINER_H
+#define CPGF_CPPCONTAINER_H
 
 #include "cppitem.h"
 
@@ -77,6 +77,8 @@ private:
 private:
 	friend class ClangParserImplement;
 };
+
+std::string getCppContainerInstantiationName(const CppContainer * cppContainer);
 
 
 } // namespace metagen

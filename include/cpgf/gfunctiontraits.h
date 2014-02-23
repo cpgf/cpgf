@@ -1,5 +1,5 @@
-#ifndef __GFUNCTIONTRAITS_H
-#define __GFUNCTIONTRAITS_H
+#ifndef CPGF_GFUNCTIONTRAITS_H
+#define CPGF_GFUNCTIONTRAITS_H
 
 
 #include "cpgf/gcompiler.h"

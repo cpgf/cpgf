@@ -1,5 +1,5 @@
-#ifndef __GCALLBACK_H
-#define __GCALLBACK_H
+#ifndef CPGF_GCALLBACK_H
+#define CPGF_GCALLBACK_H
 
 #include "cpgf/private/gcallback_p.h"
 

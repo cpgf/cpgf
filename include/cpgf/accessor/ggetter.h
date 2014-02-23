@@ -1,5 +1,5 @@
-#ifndef __GGETTER_H
-#define __GGETTER_H
+#ifndef CPGF_GGETTER_H
+#define CPGF_GGETTER_H
 
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gcallback.h"
@@ -136,7 +136,7 @@ public:
 
 public:
 	typedef typename MemberDataTrait<RawGetter>::FieldType ValueType;
-	typedef ValueType PassType;
+	typedef typename GIfElse<Readable, ValueType, const typename RemoveReference<ValueType>::Result &>::Result PassType;
 
 public:
 	GInstanceGetter(RawGetterPassType getter) : getter(getter) {

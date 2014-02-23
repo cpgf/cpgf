@@ -3,6 +3,7 @@
 #include "buildersection.h"
 #include "codewriter/codewriter.h"
 #include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 #include "model/cppfile.h"
 #include "project.h"
 #include "util.h"

@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTCONFIG_H
-#define __GSCRIPTCONFIG_H
+#ifndef CPGF_GSCRIPTCONFIG_H
+#define CPGF_GSCRIPTCONFIG_H
 
 #include "cpgf/gclassutil.h"
 #include "cpgf/gflags.h"

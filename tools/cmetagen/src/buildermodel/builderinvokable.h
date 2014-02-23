@@ -1,10 +1,11 @@
-#ifndef __BUILDERINVOKABLE_H
-#define __BUILDERINVOKABLE_H
+#ifndef CPGF_BUILDERINVOKABLE_H
+#define CPGF_BUILDERINVOKABLE_H
 
 #include "builderitem.h"
 
 namespace metagen {
 
+class CppInvokable;
 
 class BuilderInvokable : public BuilderItem
 {
@@ -15,9 +16,12 @@ public:
 	explicit BuilderInvokable(const CppItem * cppItem);
 	virtual ~BuilderInvokable();
 	
-	virtual bool canBind() const;
+	virtual bool doCanBind() const;
+
+protected:
 };
 
+std::string getInvokablePolicyText(const CppInvokable * cppInvokable, bool prefixWithComma);
 
 } // namespace metagen
 

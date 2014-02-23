@@ -1,5 +1,5 @@
-#ifndef __GTWEENLIST_H
-#define __GTWEENLIST_H
+#ifndef CPGF_GTWEENLIST_H
+#define CPGF_GTWEENLIST_H
 
 #include "cpgf/tween/gtween.h"
 #include "cpgf/gmemorypool.h"

@@ -2,10 +2,12 @@
 #include "builderwriter.h"
 #include "builderclass.h"
 #include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 #include "model/cppmethod.h"
 #include "model/cppcontainer.h"
 #include "builderutil.h"
 #include "project.h"
+#include "logger.h"
 
 #include "Poco/Format.h"
 
@@ -17,7 +19,7 @@ namespace metagen {
 void writeMethodReflection(const CppMethod * cppMethod, BuilderWriter * writer);
 void writeMethodDefaultParameterReflection(const CppMethod * cppMethod, CodeBlock * codeBlock);
 void writeMethodReflectionCode(const CppMethod * cppMethod, BuilderWriter * writer, CodeBlock * codeBlock,
-										   const std::string & methodName);
+										   const string & methodName);
 void writeMethodClassWrapperCallSuperMethod(const CppMethod * cppMethod, CodeBlock * codeBlock);
 void writeMethodClassWrapperMethodBody(const CppMethod * cppMethod, CodeBlock * codeBlock);
 void writeMethodClassWrapperReflection(const CppMethod * cppMethod, BuilderWriter * writer, const CppContainer * container);
@@ -38,17 +40,24 @@ const CppMethod * BuilderMethod::getCppMethod() const
 	return static_cast<const CppMethod *>(this->getCppItem());
 }
 
+bool BuilderMethod::canBind() const
+{
+	if(this->doCanBind()) {
+		if(isVisibilityAllowed(this->getCppItem()->getVisibility(), this->getProject())) {
+			return true;
+		}
+		if(this->shouldWrapClass() && this->getCppItem()->getVisibility() == ivProtected) {
+			return true;
+		}
+	}
+	
+	return false;
+}
 void BuilderMethod::doWriteMetaData(BuilderWriter * writer)
 {
 	const CppMethod * cppMethod = this->getCppMethod();
 
 	writeMethodReflection(cppMethod, writer);
-
-	if(cppMethod->isVirtual()
-		&& this->getCppItem()->getParent()->isClass()
-		&& static_cast<BuilderClass *>(this->getParent())->shouldWrapClass()) {
-		writeMethodClassWrapper(cppMethod, writer, cppMethod->getParent());
-	}
 }
 
 void writeMethodReflection(const CppMethod * cppMethod, BuilderWriter * writer)
@@ -105,31 +114,42 @@ void writeMethodDefaultParameterReflection(const CppMethod * cppMethod, CodeBloc
 }
 
 void writeMethodReflectionCode(const CppMethod * cppMethod, BuilderWriter * writer, CodeBlock * codeBlock,
-										   const std::string & methodName)
+										   const string & methodName)
 {
 	size_t arity = cppMethod->getArity();
 	bool hasDefaultValue = (arity > 0 && cppMethod->paramHasDefaultValue(arity - 1));
 
-	std::string s;
+	string s, t;
 
+	s = Poco::format("%s(\"%s\"",
+		writer->getReflectionAction("_method"),
+		methodName);
+	t = Poco::format("&%s%s)%s",
+		getReflectionScope(cppMethod, false),
+		methodName,
+		getInvokablePolicyText(cppMethod, true)
+	);
 	if(cppMethod->isOverloaded()) {
-		s = Poco::format("%s(\"%s\", (%s)(&%s%s))",
-			writer->getReflectionAction("_method"),
-			methodName,
-			cppMethod->getTextOfPointeredType(),
-			getReflectionScope(cppMethod),
-			methodName,
-			string(hasDefaultValue ? "" : ";")
-		);
+		if(cppMethod->isArityUnique()) {
+			s = Poco::format("%s, cpgf::selectFunctionByArity%d(%s)", s, (int)(cppMethod->getArity()), t);
+		}
+		else {
+			if(cppMethod->hasTemplateDependentParam()) {
+				getLogger().warn(
+					Poco::format("Function %s is overloaded and has template dependent argument, meta data can't be generated.\n",
+					cppMethod->getTextOfPointeredType(true))
+				);
+//				return;
+			}
+			s = Poco::format("%s, (%s)(%s)", s, cppMethod->getTextOfPointeredType(true), t);
+		}
 	}
 	else {
-		s = Poco::format("%s(\"%s\", &%s%s)",
-			writer->getReflectionAction("_method"),
-			methodName,
-			getReflectionScope(cppMethod),
-			methodName,
-			string(hasDefaultValue ? "" : ";")
-		);
+		s = Poco::format("%s, %s", s, t);
+	}
+
+	if(! hasDefaultValue) {
+		s.append(";");
 	}
 	codeBlock->appendLine(s);
 
@@ -142,6 +162,7 @@ void writeMethodReflectionCode(const CppMethod * cppMethod, BuilderWriter * writ
 void writeMethodClassWrapperCallSuperMethod(const CppMethod * cppMethod, CodeBlock * codeBlock)
 {
 	if(cppMethod->isPureVirtual()) {
+		codeBlock->appendLine(cppMethod->getTextOfUnusedParamsPlaceholder());
 		codeBlock->appendLine("throw \"Abstract method\";");
 	}
 	else {
@@ -157,23 +178,23 @@ void writeMethodClassWrapperMethodBody(const CppMethod * cppMethod, CodeBlock * 
 {
 	string s;
 
-	s = Poco::format("cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction(\"%s\"));",
+	s = Poco::format("cpgf::GScopedInterface<cpgf::IScriptFunction> _Fu0Nc(this->getScriptFunction(\"%s\"));",
 		cppMethod->getName()
 		);
 	codeBlock->appendLine(s);
 
-	codeBlock->appendLine("if(func)");
+	codeBlock->appendLine("if(_Fu0Nc)");
 	CodeBlock * bodyBlock = codeBlock->appendBlock(cbsBracketAndIndent);
-	s = "cpgf::invokeScriptFunction(func.get(), this";
+	s = "cpgf::invokeScriptFunction(_Fu0Nc.get(), this";
 	if(cppMethod->getArity() > 0) {
 		s = Poco::format("%s, %s", s, cppMethod->getTextOfParamList(itoWithArgName));
 	}
-	s.append(");");
+	s.append(")");
 	if(cppMethod->hasResult()) {
-		bodyBlock->appendLine("return " + s);
+		bodyBlock->appendLine(Poco::format("return cpgf::fromVariant<%s>(%s);", cppMethod->getResultType().getQualifiedName(), s));
 	}
 	else {
-		bodyBlock->appendLine(s);
+		bodyBlock->appendLine(s + ";");
 		bodyBlock->appendLine("return;");
 	}
 

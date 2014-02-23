@@ -1,5 +1,5 @@
-#ifndef __GASSERT_H
-#define __GASSERT_H
+#ifndef CPGF_GASSERT_H
+#define CPGF_GASSERT_H
 
 #include "cpgf/gpp.h"
 

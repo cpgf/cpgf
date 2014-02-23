@@ -1,5 +1,5 @@
-#ifndef __TEST_ACCESSOR_COMMON_H
-#define __TEST_ACCESSOR_COMMON_H
+#ifndef CPGF_TEST_ACCESSOR_COMMON_H
+#define CPGF_TEST_ACCESSOR_COMMON_H
 
 #include "../unittestbase.h"
 

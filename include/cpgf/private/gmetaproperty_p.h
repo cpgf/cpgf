@@ -1,5 +1,5 @@
-#ifndef __GMETAPROPERTY_P_H
-#define __GMETAPROPERTY_P_H
+#ifndef CPGF_GMETAPROPERTY_P_H
+#define CPGF_GMETAPROPERTY_P_H
 
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gmetatype.h"
@@ -36,13 +36,26 @@ public:
 	}
 
 	GVariant get(const void * instance) const {
+		return this->doGet<void>(instance);
+	}
+
+	void * getPropertyAddress(const void * instance) const {
+		return super::getAddress(instance);
+	}
+
+private:	
+	template <typename T>
+	GVariant doGet(typename GEnableIf<super::Readable, T>::Result const * instance) const {
 		GVarTypeData data = GVarTypeData();
 		deduceVariantType<typename super::ValueType>(data, true);
 		return GVariant(data, super::get(instance));
 	}
 
-	void * getPropertyAddress(const void * instance) const {
-		return super::getAddress(instance);
+	template <typename T>
+	GVariant doGet(typename GDisableIf<super::Readable, T>::Result const * /*instance*/) const {
+		raiseCoreException(Error_Meta_ReadDenied);
+		
+		return GVariant();
 	}
 };
 
@@ -58,7 +71,7 @@ public:
 	}
 
 	void set(void * instance, const GVariant & value) const {
-		super::set(instance, fromVariant<typename RemoveReference<typename super::ValueType>::Result>(value));
+		super::set(instance, fromVariant<typename super::PassType>(value));
 	}
 
 	void * getPropertyAddress(void * instance) const {

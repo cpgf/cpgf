@@ -1,5 +1,5 @@
-#ifndef __GTIMELINE_H
-#define __GTIMELINE_H
+#ifndef CPGF_GTIMELINE_H
+#define CPGF_GTIMELINE_H
 
 #include "cpgf/tween/gtweenlist.h"
 

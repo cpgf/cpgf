@@ -1,5 +1,5 @@
-#ifndef __GTWEENCOMMON_H
-#define __GTWEENCOMMON_H
+#ifndef CPGF_GTWEENCOMMON_H
+#define CPGF_GTWEENCOMMON_H
 
 #include "cpgf/gcallback.h"
 #include "cpgf/gclassutil.h"

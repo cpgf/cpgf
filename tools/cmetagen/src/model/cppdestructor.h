@@ -1,5 +1,5 @@
-#ifndef __CPPDESTRUCTOR_H
-#define __CPPDESTRUCTOR_H
+#ifndef CPGF_CPPDESTRUCTOR_H
+#define CPGF_CPPDESTRUCTOR_H
 
 #include "cppitem.h"
 

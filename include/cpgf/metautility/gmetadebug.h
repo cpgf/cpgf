@@ -1,5 +1,5 @@
-#ifndef __GMETADEBUG_H
-#define __GMETADEBUG_H
+#ifndef CPGF_GMETADEBUG_H
+#define CPGF_GMETADEBUG_H
 
 
 namespace cpgf {

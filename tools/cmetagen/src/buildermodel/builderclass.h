@@ -1,5 +1,5 @@
-#ifndef __BUILDERCLASS_H
-#define __BUILDERCLASS_H
+#ifndef CPGF_BUILDERCLASS_H
+#define CPGF_BUILDERCLASS_H
 
 #include "buildercontainer.h"
 
@@ -20,15 +20,12 @@ public:
 	
 	const CppClass * getCppClass() const;
 	
-	bool shouldWrapClass() const { return true; }
-	
 protected:
 	virtual void doWriteMetaData(BuilderWriter * writer);
 	
 private:	
 	void doWriteBaseClasses(BuilderWriter * writer);
 	void doWriteAsNestedClass(BuilderWriter * writer);
-	void doWriteInheritedOverridableMethods(BuilderWriter * writer);
 };
 
 

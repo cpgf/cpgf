@@ -1,5 +1,5 @@
-#ifndef __GMETAARCHIVETYPEMAP_H
-#define __GMETAARCHIVETYPEMAP_H
+#ifndef CPGF_GMETAARCHIVETYPEMAP_H
+#define CPGF_GMETAARCHIVETYPEMAP_H
 
 
 #include "cpgf/gtypetraits.h"

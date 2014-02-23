@@ -1,5 +1,5 @@
-#ifndef __GMETAARCHIVEWRITER_H
-#define __GMETAARCHIVEWRITER_H
+#ifndef CPGF_GMETAARCHIVEWRITER_H
+#define CPGF_GMETAARCHIVEWRITER_H
 
 #include "cpgf/serialization/gmetaarchivecommon.h"
 

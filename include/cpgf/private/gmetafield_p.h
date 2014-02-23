@@ -1,5 +1,5 @@
-#ifndef __GMETAFIELD_P_H
-#define __GMETAFIELD_P_H
+#ifndef CPGF_GMETAFIELD_P_H
+#define CPGF_GMETAFIELD_P_H
 
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gmetatype.h"

@@ -1,5 +1,5 @@
-#ifndef __GMETAMETHOD_P_H
-#define __GMETAMETHOD_P_H
+#ifndef CPGF_GMETAMETHOD_P_H
+#define CPGF_GMETAMETHOD_P_H
 
 #include "cpgf/private/gmetainvoke_p.h"
 #include "cpgf/private/gmetadefaultparam_p.h"
@@ -120,7 +120,7 @@ private:
 	}
 
 	static GMetaType virtualGetParamType(size_t index) {
-		meta_internal::adjustParamIndex<Policy>(index);
+		meta_internal::adjustParamIndex(index, PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result);
 
 		switch(index) {
 			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_TYPE_HELPER, GPP_EMPTY)
@@ -140,7 +140,7 @@ private:
 	}
 	
 	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
-		meta_internal::adjustParamIndex<Policy>(index);
+		meta_internal::adjustParamIndex(index, PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result);
 		switch(index) {
 			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_EXTENDTYPE_HELPER, GPP_EMPTY)
 

@@ -4,6 +4,7 @@
 #include "model/cpptype.h"
 #include "model/cppcontainer.h"
 #include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 #include "project.h"
 #include "util.h"
 #include "builderutil.h"
@@ -30,7 +31,7 @@ const CppField * BuilderField::getCppField() const
 	return static_cast<const CppField *>(this->getCppItem());
 }
 		
-bool BuilderField::canBind() const
+bool BuilderField::doCanBind() const
 {
 	if(this->getCppField()->isBitField() && ! this->getProject()->shouldWrapBitFields()) {
 		return false;
@@ -40,7 +41,7 @@ bool BuilderField::canBind() const
 		return false;
 	}
 	
-	return super::canBind();
+	return super::doCanBind();
 }
 
 void BuilderField::doWriteMetaData(BuilderWriter * writer)
@@ -61,7 +62,7 @@ void BuilderField::doWriteReflection(BuilderWriter * writer)
 	std::string s = Poco::format("%s(\"%s\", &%s%s);",
 		writer->getReflectionAction("_field"),
 		cppField->getName(),
-		getReflectionScope(cppField),
+		getReflectionScope(cppField, false),
 		cppField->getName()
 	);
 
@@ -99,7 +100,7 @@ void BuilderField::doWriteBitFieldWrapper(BuilderWriter * writer)
 	setterBody->appendLine(s);
 
 	// reflection
-	string templateParam = "<" + getReflectionClassName(this->getProject()) + ">";
+	string templateParam = "<" + getReflectionClassName(this->getProject(), true) + ">";
 	CodeBlock * codeBlock = writer->getParentReflectionCodeBlock(cppField);
 	s = Poco::format("%s(\"%s\", &%s, &%s, cpgf::MakePolicy<cpgf::GMetaRuleGetterExplicitThis, cpgf::GMetaRuleSetterExplicitThis>());",
 		writer->getReflectionAction("_property"),

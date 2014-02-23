@@ -1,5 +1,5 @@
-#ifndef __INDETERMINATEVALUE_H
-#define __INDETERMINATEVALUE_H
+#ifndef CPGF_INDETERMINATEVALUE_H
+#define CPGF_INDETERMINATEVALUE_H
 
 namespace metagen {
 
@@ -64,7 +64,6 @@ private:
 	bool determined;
 };
 
-typedef IndeterminateValue<bool> TristateBool;
 
 
 } // namespace metagen

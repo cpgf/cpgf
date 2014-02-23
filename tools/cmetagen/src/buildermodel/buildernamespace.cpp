@@ -1,6 +1,7 @@
 #include "buildernamespace.h"
 #include "builderwriter.h"
 #include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 #include "model/cppnamespace.h"
 
 namespace metagen {

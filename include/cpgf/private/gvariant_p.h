@@ -1,5 +1,5 @@
-#ifndef __GVARIANT_P_H
-#define __GVARIANT_P_H
+#ifndef CPGF_GVARIANT_P_H
+#define CPGF_GVARIANT_P_H
 
 namespace variant_internal {
 
@@ -542,10 +542,18 @@ T castFromObject(const volatile void * const & obj, typename GEnableIfResult<IsP
 	return (T)(obj);
 }
 
+template <typename T> struct TurnLReferenceToR { typedef T Result; };
+#if G_SUPPORT_RVALUE_REFERENCE
+// If we don't turn left reference into right reference, the test case in test_variant_cast.cpp
+// CAN_FROM_CAST(CLASS &&, CLASS &, obj);
+// will report compiler warning -- return reference to local variable.
+template <typename T> struct TurnLReferenceToR <T &&> { typedef T & Result; };
+#endif
+
 template <typename T>
-T castFromObject(const volatile void * obj, typename GDisableIfResult<IsPointer<typename RemoveReference<T>::Result> >::Result * = 0)
+typename TurnLReferenceToR<T>::Result castFromObject(const volatile void * obj, typename GDisableIfResult<IsPointer<typename RemoveReference<T>::Result> >::Result * = 0)
 {
-	return (T)(*(typename RemoveReference<T>::Result *)obj);
+	return (typename TurnLReferenceToR<T>::Result)(*(typename RemoveReference<T>::Result *)obj);
 }
 
 template <typename T, typename Policy, typename Enabled = void>

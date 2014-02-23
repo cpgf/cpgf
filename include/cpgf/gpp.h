@@ -1,5 +1,5 @@
-#ifndef __GPP_H
-#define __GPP_H
+#ifndef CPGF_GPP_H
+#define CPGF_GPP_H
 
 // preprocessor library
 

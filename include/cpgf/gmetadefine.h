@@ -1,5 +1,5 @@
-#ifndef __GMETADEFINE_H
-#define __GMETADEFINE_H
+#ifndef CPGF_GMETADEFINE_H
+#define CPGF_GMETADEFINE_H
 
 #include "cpgf/gmetaannotation.h"
 #include "cpgf/gmetaclass.h"

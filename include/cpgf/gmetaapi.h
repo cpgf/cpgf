@@ -1,5 +1,5 @@
-#ifndef __GMETAAPI_H
-#define __GMETAAPI_H
+#ifndef CPGF_GMETAAPI_H
+#define CPGF_GMETAAPI_H
 
 #include "cpgf/gapi.h"
 #include "cpgf/gvariant.h"

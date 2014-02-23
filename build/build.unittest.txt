@@ -1,3 +1,4 @@
+set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
 if(CMAKE_COMPILER_IS_GNUCC)
 	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
 	if(TEST_GCOV)
@@ -81,25 +82,48 @@ endmacro()
 
 if(${HAS_UNITTEST})
 	set(GLOB_TEST_LUA )
+	set(GLOB_METATEST_LUA )
 	if(HAS_LUA)
 		globAndAppendFiles(GLOB_TEST_LUA
 			${TEST_PATH}/scriptbind/luabind/*.cpp
 		)
+		globAndAppendFiles(GLOB_METATEST_LUA
+			${TEST_PATH}/metagen/tests/luatests/*.cpp
+		)
 	endif(HAS_LUA)
 
 	set(GLOB_TEST_V8 )
+	set(GLOB_METATEST_V8 )
 	if(HAS_V8)
 		globAndAppendFiles(GLOB_TEST_V8
 			${TEST_PATH}/scriptbind/v8bind/*.cpp
 		)
+		globAndAppendFiles(GLOB_METATEST_V8
+			${TEST_PATH}/metagen/tests/v8tests/*.cpp
+		)
 	endif(HAS_V8)
 
 	set(GLOB_TEST_PYTHON )
+	set(GLOB_METATEST_PYTHON )
 	if(HAS_PYTHON)
 		globAndAppendFiles(GLOB_TEST_PYTHON
 			${TEST_PATH}/scriptbind/pythonbind/*.cpp
 		)
+		globAndAppendFiles(GLOB_METATEST_PYTHON
+			${TEST_PATH}/metagen/tests/pythontests/*.cpp
+		)
 	endif(HAS_PYTHON)
+
+	set(GLOB_TEST_SPIDERMONKEY )
+	set(GLOB_METATEST_SPIDERMONKEY )
+	if(HAS_SPIDERMONKEY)
+		globAndAppendFiles(GLOB_TEST_SPIDERMONKEY
+			${TEST_PATH}/scriptbind/spidermonkeybind/*.cpp
+		)
+		globAndAppendFiles(GLOB_METATEST_SPIDERMONKEY
+			${TEST_PATH}/metagen/tests/spidermonkeytests/*.cpp
+		)
+	endif(HAS_SPIDERMONKEY)
 
 	partUnitTest("test_misc"
 		${TEST_PATH}/misc/*.cpp
@@ -124,9 +148,11 @@ if(${HAS_UNITTEST})
 	partUnitTest("test_scriptbind"
 		${TEST_PATH}/scriptbind/*.cpp
 		${TEST_PATH}/scriptbind/general/*.cpp
+
 		${GLOB_TEST_LUA}
 		${GLOB_TEST_V8}
 		${GLOB_TEST_PYTHON}
+		${GLOB_TEST_SPIDERMONKEY}
 	)
 
 	partUnitTest("test_metadata_stl"
@@ -144,6 +170,11 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/metagen/tests/*.cpp
 		${TEST_PATH}/metagen/src/*.cpp
 		${TEST_PATH}/metagen/metadata/src/*.cpp
+
+		${GLOB_METATEST_LUA}
+		${GLOB_METATEST_V8}
+		${GLOB_METATEST_SPIDERMONKEY}
+		${GLOB_METATEST_PYTHON}
 	)
 
 	if(HAS_LUA LESS 1)

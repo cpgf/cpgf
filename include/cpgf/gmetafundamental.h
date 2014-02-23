@@ -1,5 +1,5 @@
-#ifndef __GMETAFUNDAMENTAL_H
-#define __GMETAFUNDAMENTAL_H
+#ifndef CPGF_GMETAFUNDAMENTAL_H
+#define CPGF_GMETAFUNDAMENTAL_H
 
 #include "cpgf/private/gmetafundamental_p.h"
 #include "cpgf/gmetatype.h"

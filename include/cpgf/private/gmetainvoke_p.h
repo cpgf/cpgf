@@ -1,5 +1,5 @@
-#ifndef __GMETAINVOKE_P_H
-#define __GMETAINVOKE_P_H
+#ifndef CPGF_GMETAINVOKE_P_H
+#define CPGF_GMETAINVOKE_P_H
 
 #include "cpgf/gpp.h"
 #include "cpgf/gassert.h"
@@ -20,8 +20,6 @@
 
 
 namespace cpgf {
-
-extern size_t abstractParameterIndexBase;
 
 namespace meta_internal {
 
@@ -209,19 +207,7 @@ struct IsVariadicFunction <FunctionTraits, typename GEnableIfResult<CheckVariadi
 };
 
 void checkInvokingArity(size_t invokingParamCount, size_t prototypeParamCount, bool isVariadic);
-
-template <typename Policy>
-void adjustParamIndex(size_t & index)
-{
-	if(index >= abstractParameterIndexBase) {
-		index -= abstractParameterIndexBase;
-	}
-	else {
-		if(PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result) {
-			++index;
-		}
-	}
-}
+void adjustParamIndex(size_t & index, bool isExplicitThis);
 
 
 } // namespace meta_internal

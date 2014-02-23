@@ -1,5 +1,5 @@
-#ifndef __BUILDERMETHOD_H
-#define __BUILDERMETHOD_H
+#ifndef CPGF_BUILDERMETHOD_H
+#define CPGF_BUILDERMETHOD_H
 
 #include "builderinvokable.h"
 
@@ -19,6 +19,8 @@ public:
 	
 	const CppMethod * getCppMethod() const;
 	
+	virtual bool canBind() const;
+
 protected:
 	virtual void doWriteMetaData(BuilderWriter * writer);
 };

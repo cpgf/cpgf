@@ -6,6 +6,9 @@
 namespace cpgf {
 
 
+// This function is defined in gscriptvalue.cpp internally.
+GScriptValue createScriptValueFromData(const GScriptValueData & data);
+
 // This function is defined in gvariant.cpp, for internal use.
 GVariant createVariantFromData(const GVariantData & data);
 
@@ -62,7 +65,6 @@ gapi_bool G_API_CC ImplScriptConfig::allowAccessClassViaInstance()
 }
 
 
-
 ImplScriptFunction::ImplScriptFunction(GScriptFunction * scriptFunction, bool freeFunction)
 	: scriptFunction(scriptFunction), freeFunction(freeFunction)
 {
@@ -110,6 +112,57 @@ void G_API_CC ImplScriptFunction::invokeIndirectly(GVariantData * outResult, GVa
 	LEAVE_BINDING_API()
 }
 
+// Internal use only!!!
+void G_API_CC ImplScriptFunction::weaken()
+{
+	this->scriptFunction->weaken();
+}
+
+ImplScriptArray::ImplScriptArray(GScriptArray * scriptArray, bool freeArray)
+	: scriptArray(scriptArray), freeArray(freeArray)
+{
+}
+
+ImplScriptArray::~ImplScriptArray()
+{
+	if(this->freeArray) {
+		delete this->scriptArray;
+	}
+}
+
+uint32_t G_API_CC ImplScriptArray::getLength()
+{
+	return (uint32_t)(this->scriptArray->getLength());
+}
+
+void G_API_CC ImplScriptArray::getValue(GScriptValueData * outResult, uint32_t index)
+{
+	GScriptValue value(this->scriptArray->getValue(index));
+	*outResult = value.takeData();
+}
+
+void G_API_CC ImplScriptArray::setValue(uint32_t index, const GScriptValueData * value)
+{
+	GScriptValue scriptValue(createScriptValueFromData(*value));
+	this->scriptArray->setValue(index, scriptValue);
+}
+
+gapi_bool G_API_CC ImplScriptArray::maybeIsScriptArray(uint32_t index)
+{
+	return this->scriptArray->maybeIsScriptArray(index);
+}
+void G_API_CC ImplScriptArray::getAsScriptArray(GScriptValueData * outResult, uint32_t index)
+{
+	GScriptValue value(this->scriptArray->getAsScriptArray(index));
+	*outResult = value.takeData();
+}
+
+void G_API_CC ImplScriptArray::createScriptArray(GScriptValueData * outResult, uint32_t index)
+{
+	GScriptValue value(this->scriptArray->createScriptArray(index));
+	*outResult = value.takeData();
+}
+
 
 ImplScriptObject::ImplScriptObject(GScriptObject * scriptObject, bool freeObject)
 	: scriptObject(scriptObject), freeObject(freeObject)
@@ -121,6 +174,15 @@ ImplScriptObject::~ImplScriptObject()
 	if(this->freeObject) {
 		delete this->scriptObject;
 	}
+}
+
+IScriptContext * G_API_CC ImplScriptObject::getContext()
+{
+	ENTER_BINDING_API()
+
+	return this->scriptObject->getContext();
+
+	LEAVE_BINDING_API(return NULL)
 }
 
 IScriptConfig * G_API_CC ImplScriptObject::getConfig()
@@ -157,9 +219,6 @@ void G_API_CC ImplScriptObject::getValue(GScriptValueData * outResult, const cha
 	GScriptValue value(this->scriptObject->getValue(name));
 	*outResult = value.takeData();
 }
-
-// This function is defined in gscriptvalue.cpp internally.
-GScriptValue createScriptValueFromData(const GScriptValueData & data);
 
 void G_API_CC ImplScriptObject::setValue(const char * name, const GScriptValueData * value)
 {
@@ -441,6 +500,29 @@ void G_API_CC ImplScriptObject::holdObject(IObject * object)
 	ENTER_BINDING_API()
 
 	this->scriptObject->holdObject(object);
+
+	LEAVE_BINDING_API()
+}
+
+gapi_bool G_API_CC G_API_CC ImplScriptObject::maybeIsScriptArray(const char * name)
+{
+	return !! this->scriptObject->maybeIsScriptArray(name);
+}
+
+void G_API_CC G_API_CC ImplScriptObject::getAsScriptArray(GScriptValueData * outResult, const char * name)
+{
+	ENTER_BINDING_API()
+
+	*outResult = this->scriptObject->getAsScriptArray(name).takeData();
+
+	LEAVE_BINDING_API()
+}
+
+void G_API_CC G_API_CC ImplScriptObject::createScriptArray(GScriptValueData * outResult, const char * name)
+{
+	ENTER_BINDING_API()
+
+	*outResult = this->scriptObject->createScriptArray(name).takeData();
 
 	LEAVE_BINDING_API()
 }
