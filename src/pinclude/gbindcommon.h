@@ -702,6 +702,8 @@ private:
 
 class GScriptContext : public IScriptContext
 {
+public:
+    virtual ~GScriptContext() {}
 private:
 	typedef GSharedInterface<IScriptUserConverter> ScriptUserConverterType;
 	typedef std::vector<ScriptUserConverterType> ScriptUserConverterListType;
