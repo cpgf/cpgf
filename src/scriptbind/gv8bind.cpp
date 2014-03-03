@@ -27,6 +27,7 @@ using namespace v8;
 
 #define LEAVE_V8(...) \
 	} \
+	catch(const v8RuntimeException & e) { ThrowException(e.getV8Error()); } \
 	catch(const GException & e) { strncpy(local_msg, e.getMessage(), 256); local_error = true; } \
 	catch(const exception & e) { strncpy(local_msg, e.what(), 256); local_error = true; } \
 	catch(...) { strcpy(local_msg, "Unknown exception occurred."); local_error = true; } \
