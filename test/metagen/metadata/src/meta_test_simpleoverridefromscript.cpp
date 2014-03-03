@@ -11,6 +11,9 @@ using namespace cpgf;
 namespace meta_test { 
 
 
+#ifdef DLL_PUBLIC
+DLL_PUBLIC
+#endif
 GDefineMetaInfo createMetaClass_SimpleOverride()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
@@ -28,6 +31,9 @@ GDefineMetaInfo createMetaClass_SimpleOverride()
 }
 
 
+#ifdef DLL_PUBLIC
+DLL_PUBLIC
+#endif
 GDefineMetaInfo createMetaClass_SimpleOverrideBase()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();

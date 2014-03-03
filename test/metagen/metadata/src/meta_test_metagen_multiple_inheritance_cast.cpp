@@ -11,6 +11,9 @@ using namespace cpgf;
 namespace meta_test { 
 
 
+#ifdef DLL_PUBLIC
+DLL_PUBLIC
+#endif
 GDefineMetaInfo createMetaClass_Global_metagen_multiple_inheritance_cast()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
@@ -19,6 +22,9 @@ GDefineMetaInfo createMetaClass_Global_metagen_multiple_inheritance_cast()
 }
 
 
+#ifdef DLL_PUBLIC
+DLL_PUBLIC
+#endif
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastA()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
@@ -31,6 +37,9 @@ GDefineMetaInfo createMetaClass_MultipleInheritanceCastA()
 }
 
 
+#ifdef DLL_PUBLIC
+DLL_PUBLIC
+#endif
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastB()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
@@ -43,6 +52,9 @@ GDefineMetaInfo createMetaClass_MultipleInheritanceCastB()
 }
 
 
+#ifdef DLL_PUBLIC
+DLL_PUBLIC
+#endif
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastC()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
@@ -55,6 +67,9 @@ GDefineMetaInfo createMetaClass_MultipleInheritanceCastC()
 }
 
 
+#ifdef DLL_PUBLIC
+DLL_PUBLIC
+#endif
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastD()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
@@ -67,6 +82,9 @@ GDefineMetaInfo createMetaClass_MultipleInheritanceCastD()
 }
 
 
+#ifdef DLL_PUBLIC
+DLL_PUBLIC
+#endif
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastFieldData()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
@@ -79,6 +97,9 @@ GDefineMetaInfo createMetaClass_MultipleInheritanceCastFieldData()
 }
 
 
+#ifdef DLL_PUBLIC
+DLL_PUBLIC
+#endif
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastR()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();

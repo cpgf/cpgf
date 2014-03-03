@@ -11,6 +11,9 @@ using namespace cpgf;
 namespace meta_test { 
 
 
+#ifdef DLL_PUBLIC
+DLL_PUBLIC
+#endif
 GDefineMetaInfo createMetaClass_TestMethodMethodClass()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
@@ -23,6 +26,9 @@ GDefineMetaInfo createMetaClass_TestMethodMethodClass()
 }
 
 
+#ifdef DLL_PUBLIC
+DLL_PUBLIC
+#endif
 GDefineMetaInfo createMetaClass_TestMethodMethodData()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();

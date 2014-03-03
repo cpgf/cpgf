@@ -11,6 +11,9 @@ using namespace cpgf;
 namespace meta_test { 
 
 
+#ifdef DLL_PUBLIC
+DLL_PUBLIC
+#endif
 GDefineMetaInfo createMetaClass_Global_metagen_userconverter()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
@@ -19,6 +22,9 @@ GDefineMetaInfo createMetaClass_Global_metagen_userconverter()
 }
 
 
+#ifdef DLL_PUBLIC
+DLL_PUBLIC
+#endif
 GDefineMetaInfo createMetaClass_TestUserConverterData()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
