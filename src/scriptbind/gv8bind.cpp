@@ -9,6 +9,7 @@
 #include "../pinclude/gstaticuninitializerorders.h"
 
 #include <stdexcept>
+#include <memory>
 
 
 using namespace std;
@@ -51,11 +52,11 @@ GGlueDataWrapperPool * getV8DataWrapperPool()
 	return v8DataWrapperPool;
 }
 
-GScriptObjectCache<Persistent<Object> > * getV8ScriptObjectCache()
+GScriptObjectCache<shared_ptr<Persistent<Object> > > * getV8ScriptObjectCache()
 {
-	static GScriptObjectCache<Persistent<Object> > * cache = NULL;
+	static GScriptObjectCache<shared_ptr<Persistent<Object> > > * cache = NULL;
 	if(cache == NULL && isLibraryLive()) {
-		cache = new GScriptObjectCache<Persistent<Object> >;
+		cache = new GScriptObjectCache<shared_ptr<Persistent<Object> > >;
 		addOrderedStaticUninitializer(suo_ScriptObjectCache, makeUninitializerDeleter(&cache));
 	}
 	return cache;
@@ -98,7 +99,7 @@ public:
 		if(this->objectTemplate.IsEmpty()) {
 			Local<ObjectTemplate> local = ObjectTemplate::New();
 			local->SetInternalFieldCount(1);
-			this->objectTemplate  = Persistent<ObjectTemplate>(getV8Isolate(), local);
+			this->objectTemplate.Reset(getV8Isolate(), local);
 		}
 
 		return Local<ObjectTemplate>::New(getV8Isolate(), this->objectTemplate)->NewInstance();
@@ -391,9 +392,9 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 		return Handle<Value>();
 	}
 
-	Persistent<Object> * cachedObject = getV8ScriptObjectCache()->findScriptObject(instanceAddress, classData, cv);
+	shared_ptr<Persistent<Object> > * cachedObject = getV8ScriptObjectCache()->findScriptObject(instanceAddress, classData, cv);
 	if(cachedObject != NULL) {
-		return Local<Object>::New(getV8Isolate(), *cachedObject);
+		return Local<Object>::New(getV8Isolate(), *(cachedObject->get()));
 	}
 
 	Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, classData);
@@ -406,8 +407,8 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 	object->SetAlignedPointerInInternalField(0, dataWrapper);
 	setObjectSignature(&object);
 
-	Persistent<Object> self(getV8Isolate(), object);
-	self.MakeWeak(dataWrapper, weakHandleCallback);
+	shared_ptr<Persistent<Object> > self(new Persistent<Object>(getV8Isolate(), object));
+	self->MakeWeak(dataWrapper, weakHandleCallback);
 
 	if(outputGlueData != NULL) {
 		*outputGlueData = objectData;
@@ -415,7 +416,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 
 	getV8ScriptObjectCache()->addScriptObject(instanceAddress, classData, cv, self);
 
-	return Local<Object>::New(getV8Isolate(), self);
+	return Local<Object>::New(getV8Isolate(), *(self.get()));
 }
 
 Handle<Value> rawToV8(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
@@ -867,11 +868,11 @@ void objectConstructor(const v8::FunctionCallbackInfo<Value> & args)
 			localSelf->SetAlignedPointerInInternalField(0, objectWrapper);
 			setObjectSignature(&localSelf);
 
-			Persistent<Object> self(getV8Isolate(), localSelf);
-			self.MakeWeak(objectWrapper, weakHandleCallback);
+			shared_ptr<Persistent<Object> > self(new Persistent<Object>(getV8Isolate(), localSelf));
+			self->MakeWeak(objectWrapper, weakHandleCallback);
 			getV8ScriptObjectCache()->addScriptObject(instance, classData, opcvNone, self);
 
-			args.GetReturnValue().Set( scope.Close(Local<Object>::New(getV8Isolate(), self)) );
+			args.GetReturnValue().Set( scope.Close(Local<Object>::New(getV8Isolate(), *(self.get()))) );
 		}
 		else {
 			raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1164,7 +1165,7 @@ GVariant GV8ScriptFunction::invokeIndirectly(GVariant const * const * params, si
 
 
 GV8ScriptArray::GV8ScriptArray(const GContextPointer & context, Handle<Array> arr)
-	: super(context), arrayObject(Persistent<Array>::New(arr))
+	: super(context), arrayObject(getV8Isolate(), arr)
 {
 }
 
@@ -1176,22 +1177,24 @@ GV8ScriptArray::~GV8ScriptArray()
 
 size_t GV8ScriptArray::getLength()
 {
-	return this->arrayObject->Length();
+	HandleScope handleScope(getV8Isolate());
+	Local<Array> localObject(Local<Array>::New(getV8Isolate(), this->arrayObject));
+	return localObject->Length();
 }
 
 GScriptValue GV8ScriptArray::getValue(size_t index)
 {
 	HandleScope handleScope(getV8Isolate());
-	Local<Object> localObject(Local<Object>::New(getV8Isolate(), this->arrayObject));
+	Local<Array> localObject(Local<Array>::New(getV8Isolate(), this->arrayObject));
 
 	Local<Value> value = localObject->Get((uint32_t)index);
-	return v8ToScriptValue(this->getBindingContext(), this->arrayObject->CreationContext(), value, NULL);
+	return v8ToScriptValue(this->getBindingContext(), localObject->CreationContext(), value, NULL);
 }
 
 void GV8ScriptArray::setValue(size_t index, const GScriptValue & value)
 {
 	HandleScope handleScope(getV8Isolate());
-	Local<Object> localObject(Local<Object>::New(getV8Isolate(), this->arrayObject));
+	Local<Array> localObject(Local<Array>::New(getV8Isolate(), this->arrayObject));
 
 	if(value.isAccessible()) {
 		raiseCoreException(Error_ScriptBinding_NotSupportedFeature, "Set Accessible Into Array", "Google V8");
@@ -1206,7 +1209,7 @@ template <typename T>
 bool v8MaybeIsScriptArray(T key, Handle<Object> object)
 {
 	HandleScope handleScope(getV8Isolate());
-	Local<Object> localObject(Local<Object>::New(object));
+	Local<Object> localObject(Local<Object>::New(getV8Isolate(), object));
 
 	Local<Value> value = localObject->Get(key);
 	return value->IsArray();
@@ -1215,7 +1218,7 @@ template <typename T>
 GScriptValue v8GetAsScriptArray(const GContextPointer & context, T key, Handle<Object> object)
 {
 	HandleScope handleScope(getV8Isolate());
-	Local<Object> localObject(Local<Object>::New(object));
+	Local<Object> localObject(Local<Object>::New(getV8Isolate(), object));
 
 	Local<Value> value = localObject->Get(key);
 	if(value->IsArray()) {
@@ -1232,7 +1235,7 @@ template <typename T>
 GScriptValue v8CreateScriptArray(const GContextPointer & context, T key, Handle<Object> object)
 {
 	HandleScope handleScope(getV8Isolate());
-	Local<Object> localObject(Local<Object>::New(object));
+	Local<Object> localObject(Local<Object>::New(getV8Isolate(), object));
 
 	Local<Value> value = localObject->Get(key);
 	if(value->IsArray()) { // already exists
@@ -1253,15 +1256,21 @@ GScriptValue v8CreateScriptArray(const GContextPointer & context, T key, Handle<
 
 bool GV8ScriptArray::maybeIsScriptArray(size_t index)
 {
-	return v8MaybeIsScriptArray((uint32_t)index, this->arrayObject);
+	HandleScope handleScope(getV8Isolate());
+	Local<Array> localObject(Local<Array>::New(getV8Isolate(), this->arrayObject));
+	return v8MaybeIsScriptArray((uint32_t)index, localObject);
 }
 GScriptValue GV8ScriptArray::getAsScriptArray(size_t index)
 {
-	return v8GetAsScriptArray(this->getBindingContext(), (uint32_t)index, this->arrayObject);
+	HandleScope handleScope(getV8Isolate());
+	Local<Array> localObject(Local<Array>::New(getV8Isolate(), this->arrayObject));
+	return v8GetAsScriptArray(this->getBindingContext(), (uint32_t)index, localObject);
 }
 GScriptValue GV8ScriptArray::createScriptArray(size_t index)
 {
-	return v8CreateScriptArray(this->getBindingContext(), (uint32_t)index, this->arrayObject);
+	HandleScope handleScope(getV8Isolate());
+	Local<Array> localObject(Local<Array>::New(getV8Isolate(), this->arrayObject));
+	return v8CreateScriptArray(this->getBindingContext(), (uint32_t)index, localObject);
 }
 
 GV8ScriptObject::GV8ScriptObject(IMetaService * service, Local<Object> object, const GScriptConfig & config)
@@ -1385,17 +1394,23 @@ void GV8ScriptObject::assignValue(const char * fromName, const char * toName)
 
 bool GV8ScriptObject::maybeIsScriptArray(const char * name)
 {
-	return v8MaybeIsScriptArray(String::New(name), this->object);
+	HandleScope handleScope(getV8Isolate());
+	Local<Object> localObject(Local<Object>::New(getV8Isolate(), this->object));
+	return v8MaybeIsScriptArray(String::New(name), localObject);
 }
 
 GScriptValue GV8ScriptObject::getAsScriptArray(const char * name)
 {
-	return v8GetAsScriptArray(this->getBindingContext(), String::New(name), this->object);
+	HandleScope handleScope(getV8Isolate());
+	Local<Object> localObject(Local<Object>::New(getV8Isolate(), this->object));
+	return v8GetAsScriptArray(this->getBindingContext(), String::New(name), localObject);
 }
 
 GScriptValue GV8ScriptObject::createScriptArray(const char * name)
 {
-	return v8CreateScriptArray(this->getBindingContext(), String::New(name), this->object);
+	HandleScope handleScope(getV8Isolate());
+	Local<Object> localObject(Local<Object>::New(getV8Isolate(), this->object));
+	return v8CreateScriptArray(this->getBindingContext(), String::New(name), localObject);
 }
 
 GMethodGlueDataPointer GV8ScriptObject::doGetMethodData(const char * methodName)
