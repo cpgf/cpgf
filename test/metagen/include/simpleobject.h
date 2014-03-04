@@ -9,7 +9,7 @@
 #endif
 
 #if ENABLE_BOOST
-#include "cpgf/metatraits/gmetasharedptrtraits_BOOST_shared_ptr.h"
+#include "cpgf/metatraits/gmetasharedptrtraits_boost_shared_ptr.h"
 #endif
 
 #include <string>
