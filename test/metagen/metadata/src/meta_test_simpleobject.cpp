@@ -11,8 +11,8 @@ using namespace cpgf;
 namespace meta_test { 
 
 
-#ifdef DLL_PUBLIC
-DLL_PUBLIC
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
 #endif
 GDefineMetaInfo createMetaClass_Global_simpleobject()
 {
@@ -22,8 +22,8 @@ GDefineMetaInfo createMetaClass_Global_simpleobject()
 }
 
 
-#ifdef DLL_PUBLIC
-DLL_PUBLIC
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
 #endif
 GDefineMetaInfo createMetaClass_SimpleAtom()
 {
@@ -37,8 +37,8 @@ GDefineMetaInfo createMetaClass_SimpleAtom()
 }
 
 
-#ifdef DLL_PUBLIC
-DLL_PUBLIC
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
 #endif
 GDefineMetaInfo createMetaClass_SimpleData()
 {
@@ -52,8 +52,8 @@ GDefineMetaInfo createMetaClass_SimpleData()
 }
 
 
-#ifdef DLL_PUBLIC
-DLL_PUBLIC
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
 #endif
 GDefineMetaInfo createMetaClass_SimpleObject()
 {

@@ -11,8 +11,8 @@ using namespace cpgf;
 namespace meta_test { 
 
 
-#ifdef DLL_PUBLIC
-DLL_PUBLIC
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
 #endif
 GDefineMetaInfo createMetaClass_Global_metagen_multiple_inheritance_cast()
 {
@@ -22,8 +22,8 @@ GDefineMetaInfo createMetaClass_Global_metagen_multiple_inheritance_cast()
 }
 
 
-#ifdef DLL_PUBLIC
-DLL_PUBLIC
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
 #endif
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastA()
 {
@@ -37,8 +37,8 @@ GDefineMetaInfo createMetaClass_MultipleInheritanceCastA()
 }
 
 
-#ifdef DLL_PUBLIC
-DLL_PUBLIC
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
 #endif
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastB()
 {
@@ -52,8 +52,8 @@ GDefineMetaInfo createMetaClass_MultipleInheritanceCastB()
 }
 
 
-#ifdef DLL_PUBLIC
-DLL_PUBLIC
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
 #endif
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastC()
 {
@@ -67,8 +67,8 @@ GDefineMetaInfo createMetaClass_MultipleInheritanceCastC()
 }
 
 
-#ifdef DLL_PUBLIC
-DLL_PUBLIC
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
 #endif
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastD()
 {
@@ -82,8 +82,8 @@ GDefineMetaInfo createMetaClass_MultipleInheritanceCastD()
 }
 
 
-#ifdef DLL_PUBLIC
-DLL_PUBLIC
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
 #endif
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastFieldData()
 {
@@ -97,8 +97,8 @@ GDefineMetaInfo createMetaClass_MultipleInheritanceCastFieldData()
 }
 
 
-#ifdef DLL_PUBLIC
-DLL_PUBLIC
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
 #endif
 GDefineMetaInfo createMetaClass_MultipleInheritanceCastR()
 {

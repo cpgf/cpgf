@@ -11,8 +11,8 @@ using namespace cpgf;
 namespace meta_test { 
 
 
-#ifdef DLL_PUBLIC
-DLL_PUBLIC
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
 #endif
 GDefineMetaInfo createMetaClass_MyInterfaceHolder()
 {
@@ -26,8 +26,8 @@ GDefineMetaInfo createMetaClass_MyInterfaceHolder()
 }
 
 
-#ifdef DLL_PUBLIC
-DLL_PUBLIC
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
 #endif
 GDefineMetaInfo createMetaClass_MyInterfaceObject()
 {

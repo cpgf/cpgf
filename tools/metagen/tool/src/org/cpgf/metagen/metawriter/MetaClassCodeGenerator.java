@@ -340,7 +340,7 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 			codeWriter.write(this.callbackData.getSourceCode() + "\n\n");
 		}
 
-		codeWriter.writeLine("#ifdef DLL_PUBLIC\nDLL_PUBLIC\n#endif");
+		codeWriter.writeLine("#ifdef CPGF_METAGEN_LINKAGE_SPEC\nCPGF_METAGEN_LINKAGE_SPEC\n#endif");
 		codeWriter.writeLine("GDefineMetaInfo " + funcName + "()");
 
 		codeWriter.beginBlock();
