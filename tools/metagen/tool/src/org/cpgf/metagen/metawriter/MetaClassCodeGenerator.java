@@ -213,7 +213,7 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 		List<CppField> fieldList = cls.getFieldList();
 		CppWriter codeWriter = new CppWriter();
 		for(CppField field : fieldList) {
-			if(! WriterUtil.shouldGenerateBitfieldWrapper(this.config, field)) {
+			if(! WriterUtil.shouldGenerateBitfieldWrapper(this.metaInfo, field)) {
 				continue;
 			}
 			
@@ -340,6 +340,7 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 			codeWriter.write(this.callbackData.getSourceCode() + "\n\n");
 		}
 
+		codeWriter.writeLine("#ifdef CPGF_METAGEN_LINKAGE_SPEC\nCPGF_METAGEN_LINKAGE_SPEC\n#endif");
 		codeWriter.writeLine("GDefineMetaInfo " + funcName + "()");
 
 		codeWriter.beginBlock();

@@ -194,8 +194,8 @@ public class WriterUtil {
 		return getBitfieldWrapperName(field) + "_setter";
 	}
 
-	public static boolean shouldGenerateBitfieldWrapper(Config config, CppField field) {
-		return config.wrapBitField && field.isBitField() && Util.allowMetaData(config, field) && !field.getOwner().isTemplate();
+	public static boolean shouldGenerateBitfieldWrapper(MetaInfo metaInfo, CppField field) {
+		return metaInfo.getConfig().wrapBitField && field.isBitField() && Util.allowMetaData(metaInfo.getConfig(), field) && !field.getOwner().isTemplate() && !metaInfo.getCallbackClassMap().getData(field).isSkipBind();
 	}
 
 	public static String getOperatorWraperNamePrefix(MetaInfo metaInfo, Operator op) {
@@ -261,7 +261,7 @@ public class WriterUtil {
 			className = className.toLowerCase();
 		}
 		else {
-			className = cppClassName;
+			className = Util.normalizeSymbol(cppClassName);
 		}
 		className = Util.upcaseFirst(className);
 			

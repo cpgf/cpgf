@@ -38,20 +38,6 @@ public:
     SimpleOverrideWrapper(int n)
         : SimpleOverride(n) {}
     
-    int getValue()
-    {
-        cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getValue"));
-        if(func)
-        {
-            return cpgf::fromVariant<int >(cpgf::invokeScriptFunction(func.get(), this));
-        }
-        return SimpleOverride::getValue();
-    }
-    int super_getValue()
-    {
-        return SimpleOverride::getValue();
-    }
-    
     int getAnother()
     {
         cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getAnother"));
@@ -64,6 +50,20 @@ public:
     int super_getAnother()
     {
         return SimpleOverride::getAnother();
+    }
+    
+    int getValue()
+    {
+        cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getValue"));
+        if(func)
+        {
+            return cpgf::fromVariant<int >(cpgf::invokeScriptFunction(func.get(), this));
+        }
+        return SimpleOverride::getValue();
+    }
+    int super_getValue()
+    {
+        return SimpleOverride::getValue();
     }
     
     std::string getName()
@@ -89,8 +89,8 @@ void buildMetaClass_SimpleOverrideWrapper(const cpgf::GMetaDataConfigFlags & con
     using namespace cpgf;
     
     
-    _d.CPGF_MD_TEMPLATE _method("super_getValue", (int (D::ClassType::*) ())&D::ClassType::super_getValue);
     _d.CPGF_MD_TEMPLATE _method("super_getAnother", (int (D::ClassType::*) ())&D::ClassType::super_getAnother);
+    _d.CPGF_MD_TEMPLATE _method("super_getValue", (int (D::ClassType::*) ())&D::ClassType::super_getValue);
     _d.CPGF_MD_TEMPLATE _method("super_getName", (std::string (D::ClassType::*) ())&D::ClassType::super_getName);
     
     buildMetaClass_SimpleOverride<D>(config, _d);

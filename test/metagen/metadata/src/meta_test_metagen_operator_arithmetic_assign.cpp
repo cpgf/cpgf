@@ -11,6 +11,9 @@ using namespace cpgf;
 namespace meta_test { 
 
 
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
+#endif
 GDefineMetaInfo createMetaClass_MetagenOperatorArithmeticAssign()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
