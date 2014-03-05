@@ -266,7 +266,10 @@ bool isValidObject(Handle<Value> object)
 	if(object->IsObject() || object->IsFunction()) {
 		Handle<Value> value = Handle<Object>::Cast(object)->GetHiddenValue(String::New(signatureKey));
 
-		return !value.IsEmpty() && value->IsInt32() && value->Int32Value() == signatureValue;
+		if (value.IsEmpty()) {
+			return isValidObject(object.As<Object>()->GetPrototype());
+		}
+		return value->IsInt32() && value->Int32Value() == signatureValue;
 	}
 	else {
 		return false;
@@ -294,9 +297,7 @@ GScriptValue v8UserDataToScriptValue(const GContextPointer & context, Local<Cont
 		Local<Object> obj = value->ToObject();
 		if(isValidObject(obj)) {
 			GGlueDataWrapper * dataWrapper = NULL;
-			if(obj->InternalFieldCount() > 0) {
-				dataWrapper = getNativeObject(obj);
-			}
+			dataWrapper = getNativeObject(obj);
 			if(dataWrapper == NULL) { // value maybe an IMetaClass
 				Handle<Value> data = obj->GetHiddenValue(String::New(userDataKey));
 				if(! data.IsEmpty() && data->IsExternal()) {
