@@ -3,7 +3,7 @@
 namespace {
 
 template <typename T>
-void doTestExceptions(T * binding, TestScriptContext * context)
+void doTestJsToCppExceptions(T * binding, TestScriptContext * context)
 {
 	QDO(function funcError() { throw new Error("test error") } )
 	try {
@@ -15,22 +15,38 @@ void doTestExceptions(T * binding, TestScriptContext * context)
 	GCHECK(false);
 }
 
-void testExceptions(TestScriptContext * context)
+void testJsToCppExceptions(TestScriptContext * context)
 {
 	GScriptObject * bindingLib = context->getBindingLib();
 	IScriptObject * bindingApi = context->getBindingApi();
 
 	if(bindingLib) {
-		doTestExceptions(bindingLib, context);
+		doTestJsToCppExceptions(bindingLib, context);
 	}
 
 	if(bindingApi) {
-		doTestExceptions(bindingApi, context);
+		doTestJsToCppExceptions(bindingApi, context);
 	}
 }
 
-#define CASE testExceptions
+#define CASE testJsToCppExceptions
 #include "../testcase_v8.h"
 
+void testCppPassthroughExceptions(TestScriptContext * context)
+{
+	QDO(function funcError() { throw new Error("test error") } )
+	QDO(
+		try {
+			testAddCallback(funcError)
+		} catch (e) {
+			if (e.message != "test error") {
+				throw e
+			}
+		}
+	)
+}
+
+#define CASE testCppPassthroughExceptions
+#include "../testcase_v8.h"
 
 }
