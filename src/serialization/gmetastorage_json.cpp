@@ -385,10 +385,10 @@ void G_API_CC GJsonStorageWriter::writeFundamental(const char * name, const GVar
 		}
 		else {
 			if(vtIsUnsignedInteger(vt)) {
-				newNode= fromVariant<unsigned int>(v);
+				newNode= fromVariant<unsigned long long>(v);
 			}
 			else {
-				newNode = fromVariant<int>(v);
+				newNode = fromVariant<long long>(v);
 			}
 		}
 	}
