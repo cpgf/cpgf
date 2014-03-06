@@ -17,7 +17,7 @@ CPGF_METAGEN_LINKAGE_SPEC
 GDefineMetaInfo createMetaClass_Global_testobjectarray()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_testobjectarray(0, _d);
+    buildMetaClass_Global_testobjectarray(_d);
     return _d.getMetaInfo();
 }
 
@@ -29,8 +29,7 @@ GDefineMetaInfo createMetaClass_OAData()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<OAData> _nd = GDefineMetaClass<OAData>::declare("OAData");
-        buildMetaClass_OAData(0, _nd);
+        GDefineMetaClass<OAData> _nd = GDefineMetaClass<OAData>::lazyDeclare("OAData", &buildMetaClass_OAData);
         _d._class(_nd);
     }
     return _d.getMetaInfo();
@@ -44,8 +43,7 @@ GDefineMetaInfo createMetaClass_OAObject()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<OAObject> _nd = GDefineMetaClass<OAObject>::declare("OAObject");
-        buildMetaClass_OAObject(0, _nd);
+        GDefineMetaClass<OAObject> _nd = GDefineMetaClass<OAObject>::lazyDeclare("OAObject", &buildMetaClass_OAObject);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

@@ -18,8 +18,7 @@ GDefineMetaInfo createMetaClass_MyInterfaceHolder()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<MyInterfaceHolder> _nd = GDefineMetaClass<MyInterfaceHolder>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("MyInterfaceHolder");
-        buildMetaClass_MyInterfaceHolder(0, _nd);
+        GDefineMetaClass<MyInterfaceHolder> _nd = GDefineMetaClass<MyInterfaceHolder>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::lazyDeclare("MyInterfaceHolder", &buildMetaClass_MyInterfaceHolder);
         _d._class(_nd);
     }
     return _d.getMetaInfo();
@@ -33,8 +32,7 @@ GDefineMetaInfo createMetaClass_MyInterfaceObject()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<MyInterfaceObject, IObject> _nd = GDefineMetaClass<MyInterfaceObject, IObject>::declare("MyInterfaceObject");
-        buildMetaClass_MyInterfaceObject(0, _nd);
+        GDefineMetaClass<MyInterfaceObject, IObject> _nd = GDefineMetaClass<MyInterfaceObject, IObject>::lazyDeclare("MyInterfaceObject", &buildMetaClass_MyInterfaceObject);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

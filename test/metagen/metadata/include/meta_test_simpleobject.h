@@ -17,9 +17,9 @@ namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_Global_simpleobject(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_Global_simpleobject(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("getSimpleObjectClass", (cpgf::IMetaClass * (*) (cpgf::IMetaClass *))&getSimpleObjectClass);
@@ -36,9 +36,9 @@ void buildMetaClass_Global_simpleobject(const cpgf::GMetaDataConfigFlags & confi
 
 
 template <typename D>
-void buildMetaClass_SimpleAtom(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_SimpleAtom(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _field("value", &D::ClassType::value);
@@ -46,9 +46,9 @@ void buildMetaClass_SimpleAtom(const cpgf::GMetaDataConfigFlags & config, D _d)
 
 
 template <typename D>
-void buildMetaClass_SimpleData(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_SimpleData(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (int, const std::string &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >())
@@ -72,9 +72,9 @@ inline const SimpleData & opErAToRWrapper_SimpleObject__opFunction(const SimpleO
 
 
 template <typename D>
-void buildMetaClass_SimpleObject(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_SimpleObject(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _field("data", &D::ClassType::data);

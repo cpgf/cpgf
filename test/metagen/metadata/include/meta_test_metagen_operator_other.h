@@ -48,9 +48,9 @@ inline int opErAToRWrapper_MetagenOperatorOther__opFunction(const MetagenOperato
 
 
 template <typename D>
-void buildMetaClass_MetagenOperatorOther(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MetagenOperatorOther(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();

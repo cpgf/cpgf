@@ -18,8 +18,7 @@ GDefineMetaInfo createMetaClass_MetagenMethodOverload()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<MetagenMethodOverload> _nd = GDefineMetaClass<MetagenMethodOverload>::declare("MetagenMethodOverload");
-        buildMetaClass_MetagenMethodOverload(0, _nd);
+        GDefineMetaClass<MetagenMethodOverload> _nd = GDefineMetaClass<MetagenMethodOverload>::lazyDeclare("MetagenMethodOverload", &buildMetaClass_MetagenMethodOverload);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

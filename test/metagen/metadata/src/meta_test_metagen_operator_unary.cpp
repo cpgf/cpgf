@@ -18,8 +18,7 @@ GDefineMetaInfo createMetaClass_MetagenOperatorUnary()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<MetagenOperatorUnary> _nd = GDefineMetaClass<MetagenOperatorUnary>::declare("MetagenOperatorUnary");
-        buildMetaClass_MetagenOperatorUnary(0, _nd);
+        GDefineMetaClass<MetagenOperatorUnary> _nd = GDefineMetaClass<MetagenOperatorUnary>::lazyDeclare("MetagenOperatorUnary", &buildMetaClass_MetagenOperatorUnary);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

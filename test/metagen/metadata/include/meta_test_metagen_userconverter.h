@@ -16,9 +16,9 @@ namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_Global_metagen_userconverter(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_Global_metagen_userconverter(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("testUserConverterGetDoubleValue", (int (*) (const TestUserConverterData &))&testUserConverterGetDoubleValue, cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<0> >());
@@ -26,9 +26,9 @@ void buildMetaClass_Global_metagen_userconverter(const cpgf::GMetaDataConfigFlag
 
 
 template <typename D>
-void buildMetaClass_TestUserConverterData(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_TestUserConverterData(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
