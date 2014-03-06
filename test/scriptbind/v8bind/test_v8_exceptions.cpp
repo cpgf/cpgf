@@ -12,7 +12,7 @@ void doTestJsToCppExceptions(T * binding, TestScriptContext * context)
 		GCHECK(0 == std::string(e.what()).compare("Error: test error"));
 		return;
 	}
-	GCHECK(false);
+	GFAIL("exception was not thrown");
 }
 
 void testJsToCppExceptions(TestScriptContext * context)
@@ -37,7 +37,8 @@ void testCppPassthroughExceptions(TestScriptContext * context)
 	QDO(function funcError() { throw new Error("test error") } )
 	QDO(
 		try {
-			testAddCallback(funcError)
+			testAddCallback(funcError);
+			throw new Error("exception was not thrown");
 		} catch (e) {
 			if (e.message != "test error") {
 				throw e
