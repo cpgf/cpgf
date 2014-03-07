@@ -54,7 +54,7 @@ GScopedPointer<GOrderedStaticUninitializerManager> orderedStaticUninitializerMan
 
 void shutDownLibrary()
 {
-    orderedStaticUninitializerManager.reset();
+	orderedStaticUninitializerManager.reset();
 	libraryIsActive = false;
 }
 

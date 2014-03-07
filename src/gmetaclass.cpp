@@ -614,13 +614,13 @@ GMetaClass * GMetaClass::addClass(const GMetaClass * cls)
 {
 	this->addItem(mcatClass, const_cast<GMetaClass *>(cls));
 
-    if (cls->module == this->module) {
-        // will re-register with different name
-        cls->setModule(NULL);
-        cls->resetQualifiedName();
-    }
+	if (cls->module == this->module) {
+		// will re-register with different name
+		cls->setModule(NULL);
+		cls->resetQualifiedName();
+	}
 	cls->setModule(this->module);
-	
+
 	return const_cast<GMetaClass *>(cls);
 }
 
@@ -694,7 +694,7 @@ void GMetaClass::setModule(GMetaModule * module) const
 			this->module->registerMetaClass(this);
 		}
 	}
-	
+
 	size_t count;
 	size_t i;
 
@@ -845,7 +845,7 @@ void * GMetaClass::castToBase(const void * self, size_t baseIndex) const
 void * GMetaClass::castFromDerived(const void * derived, size_t derivedIndex) const
 {
 	const GMetaClass * derivedClass = this->getDerivedClass(derivedIndex);
-	
+
 	if(derivedClass == NULL) {
 		return const_cast<void *>(derived);
 	}
@@ -864,7 +864,7 @@ void * GMetaClass::castFromDerived(const void * derived, size_t derivedIndex) co
 void * GMetaClass::castToDerived(const void * self, size_t derivedIndex) const
 {
 	const GMetaClass * derivedClass = this->getDerivedClass(derivedIndex);
-	
+
 	if(derivedClass == NULL) {
 		return const_cast<void *>(self);
 	}
@@ -945,7 +945,7 @@ const GMetaItem * GMetaClass::doGetItemAt(GMetaCategory listIndex, size_t index)
 const GMetaItem * GMetaClass::getItemByName(GMetaCategory listIndex, const char * name, bool findSuper, void ** outInstance) const
 {
 	this->ensureRegistered();
-	
+
 	return this->doGetItemByName(listIndex, name, findSuper, outInstance);
 }
 
