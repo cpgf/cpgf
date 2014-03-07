@@ -136,6 +136,9 @@ GTEST(TestVariant_CastFromArray)
 
 	value = a;
 	int * casted = fromVariant<int *>(value);
+	GCHECK(casted[0] == 1);
+	GCHECK(casted[1] == 2);
+	GCHECK(casted[2] == 3);
 }
 
 
