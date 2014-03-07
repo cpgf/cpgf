@@ -66,13 +66,13 @@ GScriptObjectCache<Persistent<Object> > * getV8ScriptObjectCache()
 //*********************************************
 
 
-class v8RuntimeException : public std::runtime_error 
+class v8RuntimeException : public std::runtime_error
 {
 private:
-    Local<Value> error;
+	Local<Value> error;
 public:
-    v8RuntimeException(Local<Value> error) : std::runtime_error(*String::AsciiValue(error)), error(error) {}
-    Local<Value> getV8Error() const {return error;}
+	v8RuntimeException(Local<Value> error) : std::runtime_error(*String::AsciiValue(error)), error(error) {}
+	Local<Value> getV8Error() const {return error;}
 };
 
 class GV8BindingContext : public GBindingContext, public GShareFromBase
@@ -386,7 +386,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 						 const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
 {
 	void * instanceAddress = objectAddressFromVariant(instance);
-	
+
 	if(instanceAddress == NULL) {
 		return Handle<Value>();
 	}
@@ -441,7 +441,7 @@ Handle<Value> rawToV8(const GContextPointer & context, const GVariant & value, G
 struct GV8Methods
 {
 	typedef Handle<Value> ResultType;
-	
+
 	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData,
 		const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
 	{
@@ -452,7 +452,7 @@ struct GV8Methods
 	{
 		return variantToV8(context, value, flags, outputGlueData);
 	}
-	
+
 	static ResultType doRawToScript(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
 	{
 		return rawToV8(context, value, outputGlueData);
@@ -492,7 +492,7 @@ struct GV8Methods
 		if(userData == NULL) {
 			GContextPointer context = classData->getBindingContext();
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
-			
+
 			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstance(objectData)));
 			Handle<FunctionTemplate> functionTemplate = createMethodTemplate(context, classData,
 				! objectData, metaList.get(),
@@ -647,7 +647,7 @@ Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context,
 
 	Local<Function> func = functionTemplate->GetFunction();
 	setObjectSignature(&func);
-	
+
 	func->SetHiddenValue(String::New(userDataKey), data);
 
 	return functionTemplate;
@@ -768,7 +768,7 @@ Handle<Value> helperBindValue(const GContextPointer & context, const GScriptValu
 			bool transferOwnership;
 			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
 			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
-			
+
 			GBindValueFlags flags;
 			flags.setByBool(bvfAllowGC, transferOwnership);
 			result = objectToV8(context, context->getClassData(metaClass), instance, flags, opcvNone, NULL);
@@ -811,7 +811,7 @@ Handle<Value> helperBindValue(const GContextPointer & context, const GScriptValu
 			GASSERT(false);
 			break;
 	}
-	
+
 	return result;
 }
 
@@ -861,7 +861,7 @@ Handle<Value> objectConstructor(const Arguments & args)
 
 			self->SetPointerInInternalField(0, objectWrapper);
 			setObjectSignature(&self);
-			
+
 			getV8ScriptObjectCache()->addScriptObject(instance, classData, opcvNone, self);
 
 			return scope.Close(self);
@@ -1102,7 +1102,7 @@ GVariant invokeV8FunctionIndirectly(const GContextPointer & context, Local<Objec
 			result = Local<Object>::Cast(func)->CallAsFunction(object, static_cast<int>(paramCount), v8Params);
 		}
 		if (result.IsEmpty()) {
-		    throw v8RuntimeException(trycatch.Exception());
+			throw v8RuntimeException(trycatch.Exception());
 		}
 
 		return v8ToScriptValue(context, object->CreationContext(), result, NULL).getValue();
@@ -1437,7 +1437,7 @@ IScriptObject * createV8ScriptInterface(IMetaService * service, Local<Object> ob
 
 void clearV8DataPool()
 {
-    getV8DataWrapperPool()->clear();
+	getV8DataWrapperPool()->clear();
 }
 
 G_GUARD_LIBRARY_LIFE

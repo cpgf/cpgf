@@ -42,13 +42,13 @@ private:
 GV8ScriptRunnerImplement::GV8ScriptRunnerImplement(IMetaService * service)
 	: super(service), handleScope(), context(Context::New())
 {
-    init();
+	init();
 }
 
 GV8ScriptRunnerImplement::GV8ScriptRunnerImplement(IMetaService * service, Handle<Context> ctx)
 	: super(service), handleScope(), context(ctx)
 {
-    init();
+	init();
 }
 
 void GV8ScriptRunnerImplement::init()
