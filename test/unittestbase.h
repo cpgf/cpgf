@@ -19,6 +19,8 @@
 
 #define GTEST TEST
 
+#define GFAIL(...) CHECK(false)
+
 #define GCHECK(...) CHECK(bool(__VA_ARGS__))
 
 #define GEQUAL(a, b) GCHECK(a == b)
