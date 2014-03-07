@@ -33,6 +33,8 @@ struct IScriptUserConverter : public IObject
 class GScriptUserConverterBase : public IScriptUserConverter
 {
 	G_INTERFACE_IMPL_OBJECT
+public:
+    virtual ~GScriptUserConverterBase() {}
 };
 
 
