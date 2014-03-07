@@ -16,9 +16,9 @@ namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_TestMethodMethodClass(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_TestMethodMethodClass(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
@@ -31,9 +31,9 @@ void buildMetaClass_TestMethodMethodClass(const cpgf::GMetaDataConfigFlags & con
 
 
 template <typename D>
-void buildMetaClass_TestMethodMethodData(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_TestMethodMethodData(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();

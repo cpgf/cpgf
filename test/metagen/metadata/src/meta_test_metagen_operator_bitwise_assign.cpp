@@ -18,8 +18,7 @@ GDefineMetaInfo createMetaClass_MetagenOperatorBitwiseAssign()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<MetagenOperatorBitwiseAssign> _nd = GDefineMetaClass<MetagenOperatorBitwiseAssign>::declare("MetagenOperatorBitwiseAssign");
-        buildMetaClass_MetagenOperatorBitwiseAssign(0, _nd);
+        GDefineMetaClass<MetagenOperatorBitwiseAssign> _nd = GDefineMetaClass<MetagenOperatorBitwiseAssign>::lazyDeclare("MetagenOperatorBitwiseAssign", &buildMetaClass_MetagenOperatorBitwiseAssign);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

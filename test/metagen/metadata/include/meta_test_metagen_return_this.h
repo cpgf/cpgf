@@ -16,9 +16,9 @@ namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_MetagenReturnThis(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MetagenReturnThis(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();

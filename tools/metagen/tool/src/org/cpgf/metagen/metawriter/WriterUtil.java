@@ -102,7 +102,7 @@ public class WriterUtil {
 		if(cppClass.isGlobal()) {
 			codeWriter.writeLine("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();");
 			
-			codeWriter.writeLine(callFunc + "(0, _d);");
+			codeWriter.writeLine(callFunc + "(_d);");
 		}
 		else {
 			String policy = "";
@@ -119,9 +119,8 @@ public class WriterUtil {
 					typeName = typeName + Util.generateBaseClassList(cppClass, templateInstance);
 					typeName = typeName + " >";
 
-					codeWriter.writeLine(typeName +  " _nd = " + typeName + policy + "::declare(\"" + normalizeClassName(templateInstance.getMapName()) + "\");");
+					codeWriter.writeLine(typeName +  " _nd = " + typeName + policy + "::lazyDeclare(\"" + normalizeClassName(templateInstance.getMapName()) + "\", &"+callFunc+"<" + typeName + ", " + templateInstance.getTemplateType() + " >);");
 					
-					codeWriter.writeLine(callFunc + "<" + typeName + ", " + templateInstance.getTemplateType() + " >(0, _nd);");
 					codeWriter.writeLine("_d._class(_nd);");
 
 					codeWriter.endBlock();
@@ -133,9 +132,8 @@ public class WriterUtil {
 				String typeName = "GDefineMetaClass<" + cppClass.getLiteralName();
 				typeName = typeName + Util.generateBaseClassList(cppClass);
 				typeName = typeName + ">";
-				codeWriter.writeLine(typeName +  " _nd = " + typeName + policy + "::declare(\"" + cppClass.getPrimaryName() + "\");");
+				codeWriter.writeLine(typeName +  " _nd = " + typeName + policy + "::lazyDeclare(\"" + cppClass.getPrimaryName() + "\", &"+callFunc+");");
 				
-				codeWriter.writeLine(callFunc + "(0, _nd);");
 				codeWriter.writeLine("_d._class(_nd);");
 
 				codeWriter.endBlock();
@@ -212,12 +210,6 @@ public class WriterUtil {
 			&& !metaInfo.getCallbackClassMap().getData(op).isSkipBind()
 			&& !op.isTemplate()
 			&& !op.getOwner().isGlobal()
-			&& (
-					op.getOwner().getOwner() == null
-					|| op.getOwner().getOwner().isGlobal()
-					|| (!op.getOwner().isTemplate() && !op.getOwner().getOwner().isTemplate())
-					&& op.getOwner().isPublic()
-				)
 			&& !op.getOperator().equals("->")
 			&& !op.isTypeConverter()
 		;
@@ -238,7 +230,7 @@ public class WriterUtil {
 		codeWriter.write("(" + Util.quoteText(reflectName) + ", ");
 		if(usePrototype) {
 			String typePrefix = scopePrefix;
-			if(method.isStatic()) {
+			if(method.isStatic() && !method.isProtected()) {
 				typePrefix = "";
 			}
 			codeWriter.write("(" + method.getResultType().getLiteralType() + " (" + typePrefix + "*) (");

@@ -19,9 +19,9 @@ namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_SimpleOverride(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_SimpleOverride(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * (int)>();
@@ -79,28 +79,35 @@ public:
     {
         return SimpleOverride::getName();
     }
+    template <typename D>
+    static void cpgf__register(D _d)
+    {
+        (void)_d;
+        using namespace cpgf;
+        _d.CPGF_MD_TEMPLATE _method("super_getAnother", (int (D::ClassType::*) ())&D::ClassType::super_getAnother);
+        _d.CPGF_MD_TEMPLATE _method("super_getValue", (int (D::ClassType::*) ())&D::ClassType::super_getValue);
+        _d.CPGF_MD_TEMPLATE _method("super_getName", (std::string (D::ClassType::*) ())&D::ClassType::super_getName);
+    }
 };
 
 
 template <typename D>
-void buildMetaClass_SimpleOverrideWrapper(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_SimpleOverrideWrapper(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     
-    _d.CPGF_MD_TEMPLATE _method("super_getAnother", (int (D::ClassType::*) ())&D::ClassType::super_getAnother);
-    _d.CPGF_MD_TEMPLATE _method("super_getValue", (int (D::ClassType::*) ())&D::ClassType::super_getValue);
-    _d.CPGF_MD_TEMPLATE _method("super_getName", (std::string (D::ClassType::*) ())&D::ClassType::super_getName);
+    SimpleOverrideWrapper::cpgf__register(_d);
     
-    buildMetaClass_SimpleOverride<D>(config, _d);
+    buildMetaClass_SimpleOverride<D>(_d);
 }
 
 
 template <typename D>
-void buildMetaClass_SimpleOverrideBase(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_SimpleOverrideBase(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("baseOnly", &D::ClassType::baseOnly);

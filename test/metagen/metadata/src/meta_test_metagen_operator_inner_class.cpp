@@ -18,8 +18,7 @@ GDefineMetaInfo createMetaClass_MetagenOperatorInnerClass()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<MetagenOperatorInnerClass> _nd = GDefineMetaClass<MetagenOperatorInnerClass>::declare("MetagenOperatorInnerClass");
-        buildMetaClass_MetagenOperatorInnerClass(0, _nd);
+        GDefineMetaClass<MetagenOperatorInnerClass> _nd = GDefineMetaClass<MetagenOperatorInnerClass>::lazyDeclare("MetagenOperatorInnerClass", &buildMetaClass_MetagenOperatorInnerClass);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

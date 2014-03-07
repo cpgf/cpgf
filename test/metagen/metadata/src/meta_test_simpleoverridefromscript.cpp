@@ -18,13 +18,11 @@ GDefineMetaInfo createMetaClass_SimpleOverride()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<SimpleOverride, SimpleOverrideBase> _nd = GDefineMetaClass<SimpleOverride, SimpleOverrideBase>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("SimpleOverride");
-        buildMetaClass_SimpleOverride(0, _nd);
+        GDefineMetaClass<SimpleOverride, SimpleOverrideBase> _nd = GDefineMetaClass<SimpleOverride, SimpleOverrideBase>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::lazyDeclare("SimpleOverride", &buildMetaClass_SimpleOverride);
         _d._class(_nd);
     }
     {
-        GDefineMetaClass<SimpleOverrideWrapper, SimpleOverride> _nd = GDefineMetaClass<SimpleOverrideWrapper, SimpleOverride>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("SimpleOverrideWrapper");
-        buildMetaClass_SimpleOverrideWrapper(0, _nd);
+        GDefineMetaClass<SimpleOverrideWrapper, SimpleOverride> _nd = GDefineMetaClass<SimpleOverrideWrapper, SimpleOverride>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::lazyDeclare("SimpleOverrideWrapper", &buildMetaClass_SimpleOverrideWrapper);
         _d._class(_nd);
     }
     return _d.getMetaInfo();
@@ -38,8 +36,7 @@ GDefineMetaInfo createMetaClass_SimpleOverrideBase()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<SimpleOverrideBase> _nd = GDefineMetaClass<SimpleOverrideBase>::declare("SimpleOverrideBase");
-        buildMetaClass_SimpleOverrideBase(0, _nd);
+        GDefineMetaClass<SimpleOverrideBase> _nd = GDefineMetaClass<SimpleOverrideBase>::lazyDeclare("SimpleOverrideBase", &buildMetaClass_SimpleOverrideBase);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

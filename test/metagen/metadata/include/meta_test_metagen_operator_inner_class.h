@@ -63,9 +63,9 @@ inline MetagenOperatorInnerClass::MetagenOperatorInner opErAToRWrapper_MetagenOp
 
 
 template <typename D>
-void buildMetaClass_MetagenOperatorInnerClass(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MetagenOperatorInnerClass(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     {

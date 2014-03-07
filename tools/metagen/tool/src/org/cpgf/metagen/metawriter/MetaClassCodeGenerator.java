@@ -57,9 +57,9 @@ public class MetaClassCodeGenerator {
 			}
 		}
 		codeWriter.writeLine(">");
-		codeWriter.writeLine("void " + name + "(const cpgf::GMetaDataConfigFlags & config, D _d)");
+		codeWriter.writeLine("void " + name + "(D _d)");
 		codeWriter.beginBlock();
-		codeWriter.writeLine("(void)config; (void)_d; (void)_d;");
+		codeWriter.writeLine("(void)_d;");
 		codeWriter.useNamespace("cpgf");
 		codeWriter.writeLine("");
 	}
@@ -316,7 +316,7 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 				codeWriter.write(", " + param.getName());
 			}
 		}
-		codeWriter.writeLine(">(config, _d);");
+		codeWriter.writeLine(">(_d);");
 
 		this.endMetaFunction(codeWriter);
 	}

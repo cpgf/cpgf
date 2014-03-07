@@ -18,8 +18,7 @@ GDefineMetaInfo createMetaClass_MetagenOperatorArithmetic()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<MetagenOperatorArithmetic> _nd = GDefineMetaClass<MetagenOperatorArithmetic>::declare("MetagenOperatorArithmetic");
-        buildMetaClass_MetagenOperatorArithmetic(0, _nd);
+        GDefineMetaClass<MetagenOperatorArithmetic> _nd = GDefineMetaClass<MetagenOperatorArithmetic>::lazyDeclare("MetagenOperatorArithmetic", &buildMetaClass_MetagenOperatorArithmetic);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

@@ -18,8 +18,7 @@ GDefineMetaInfo createMetaClass_TestMethodMethodClass()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<TestMethodMethodClass> _nd = GDefineMetaClass<TestMethodMethodClass>::declare("TestMethodMethodClass");
-        buildMetaClass_TestMethodMethodClass(0, _nd);
+        GDefineMetaClass<TestMethodMethodClass> _nd = GDefineMetaClass<TestMethodMethodClass>::lazyDeclare("TestMethodMethodClass", &buildMetaClass_TestMethodMethodClass);
         _d._class(_nd);
     }
     return _d.getMetaInfo();
@@ -33,8 +32,7 @@ GDefineMetaInfo createMetaClass_TestMethodMethodData()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<TestMethodMethodData> _nd = GDefineMetaClass<TestMethodMethodData>::declare("TestMethodMethodData");
-        buildMetaClass_TestMethodMethodData(0, _nd);
+        GDefineMetaClass<TestMethodMethodData> _nd = GDefineMetaClass<TestMethodMethodData>::lazyDeclare("TestMethodMethodData", &buildMetaClass_TestMethodMethodData);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

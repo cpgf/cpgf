@@ -17,7 +17,7 @@ CPGF_METAGEN_LINKAGE_SPEC
 GDefineMetaInfo createMetaClass_Global_metagen_userconverter()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
-    buildMetaClass_Global_metagen_userconverter(0, _d);
+    buildMetaClass_Global_metagen_userconverter(_d);
     return _d.getMetaInfo();
 }
 
@@ -29,8 +29,7 @@ GDefineMetaInfo createMetaClass_TestUserConverterData()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<TestUserConverterData> _nd = GDefineMetaClass<TestUserConverterData>::declare("TestUserConverterData");
-        buildMetaClass_TestUserConverterData(0, _nd);
+        GDefineMetaClass<TestUserConverterData> _nd = GDefineMetaClass<TestUserConverterData>::lazyDeclare("TestUserConverterData", &buildMetaClass_TestUserConverterData);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

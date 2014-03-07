@@ -18,8 +18,7 @@ GDefineMetaInfo createMetaClass_ObjectNoDestructor()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<ObjectNoDestructor> _nd = GDefineMetaClass<ObjectNoDestructor>::Policy<MakePolicy<GMetaRuleDestructorAbsent> >::declare("ObjectNoDestructor");
-        buildMetaClass_ObjectNoDestructor(0, _nd);
+        GDefineMetaClass<ObjectNoDestructor> _nd = GDefineMetaClass<ObjectNoDestructor>::Policy<MakePolicy<GMetaRuleDestructorAbsent> >::lazyDeclare("ObjectNoDestructor", &buildMetaClass_ObjectNoDestructor);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

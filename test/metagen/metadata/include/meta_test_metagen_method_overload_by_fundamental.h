@@ -16,9 +16,9 @@ namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_MetagenMethodOverloadByFundamental(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MetagenMethodOverloadByFundamental(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("overload_Boolean_Int", (std::string (D::ClassType::*) (bool))&D::ClassType::overload_Boolean_Int);
