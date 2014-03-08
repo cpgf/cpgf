@@ -124,6 +124,9 @@ FT_DEF_GLOBAL(FT_MAX_ARITY, GPP_EMPTY())
 #ifdef G_SUPPORT_FASTCALL	
 	FT_DEF_GLOBAL(FT_MAX_ARITY, __fastcall)
 #endif
+#ifdef G_SUPPORT_NORETURN_ATTRIBUTE
+    FT_DEF_GLOBAL(FT_MAX_ARITY, __attribute__((noreturn)))
+#endif
 
 FT_DEF_MEMBER(FT_MAX_ARITY, GPP_EMPTY())
 
@@ -132,6 +135,9 @@ FT_DEF_MEMBER(FT_MAX_ARITY, GPP_EMPTY())
 #endif
 #ifdef G_SUPPORT_FASTCALL	
 	FT_DEF_MEMBER(FT_MAX_ARITY, __fastcall)
+#endif
+#ifdef G_SUPPORT_NORETURN_ATTRIBUTE
+    FT_DEF_MEMBER(FT_MAX_ARITY, __attribute__((noreturn)))
 #endif
 
 } // namespace _internal
