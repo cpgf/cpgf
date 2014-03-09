@@ -32,4 +32,4 @@ if(MSVC)
 		set(LIB_PATH ${ROOT_PATH}/lib/${CMAKE_CFG_INTDIR})
 	endif(CMAKE_GENERATOR STREQUAL "NMake Makefiles")
 endif(MSVC)
-	
+
