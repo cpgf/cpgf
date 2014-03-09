@@ -59,21 +59,31 @@ set(UNIT_TEST_DIR
 ### Lua config
 
 if(${HAS_LUA})
-	set(LUA_DIR
-		c:/source/lua
-	)
+	find_package(Lua51)
 
-	set(LUA_INC ${LUA_DIR}/src/ ${LUA_DIR}/etc/)
+	if(LUA_INCLUDE_DIR)
+		message(STATUS "Found Lua")
+		set(LUA_INC ${LUA_INCLUDE_DIR})
+		set(LUA_LIB ${LUA_LIBRARIES})
+	else(LUA_INCLUDE_DIR)
 
-	set(LUA_LIB ${LUA_DIR}/src/liblua.a)
+		message(STATUS "Using configured Lua settings")
+		set(LUA_DIR
+			c:/source/lua
+		)
 
-	if(MSVC)
-		set(LUA_LIB ${LUA_DIR}/src/lua51.lib)
-	endif(MSVC)
+		set(LUA_INC ${LUA_DIR}/src/ ${LUA_DIR}/etc/)
 
-	if(UNIX)
-		set(LUA_LIB ${LUA_LIB} "dl")
-	endif(UNIX)
+		set(LUA_LIB ${LUA_DIR}/src/liblua.a)
+
+		if(MSVC)
+			set(LUA_LIB ${LUA_DIR}/src/lua51.lib)
+		endif(MSVC)
+
+		if(UNIX)
+			set(LUA_LIB ${LUA_LIB} "dl")
+		endif(UNIX)
+	endif(LUA_INCLUDE_DIR)
 endif(${HAS_LUA})
 
 
@@ -86,13 +96,12 @@ if(${HAS_V8})
 
 	set(V8_INC ${V8_DIR}/include)
 
-	if(CMAKE_COMPILER_IS_GNUCC)
-		set(V8_LIB ${V8_DIR}/libv8.a)
-	endif(CMAKE_COMPILER_IS_GNUCC)
-
 	if(MSVC)
 		set(V8_LIB ${V8_DIR}/v8.lib)
+	else(MSVC)
+		set(V8_LIB ${V8_DIR}/libv8.so)
 	endif(MSVC)
+
 endif(${HAS_V8})
 
 
@@ -100,22 +109,27 @@ endif(${HAS_V8})
 ### Python config
 
 if(${HAS_PYTHON})
-	set(PYTHON_DIR
-		c:/source/Python
-	)
+	FIND_PACKAGE(PythonLibs)
 
-	set(PYTHON_INC ${PYTHON_DIR}/include)
-
-	if(CMAKE_COMPILER_IS_GNUCC)
-		set(PYTHON_LIB ${PYTHON_DIR}/libs/libpython27.a)
-	endif(CMAKE_COMPILER_IS_GNUCC)
-
-	if(MSVC)
-		set(PYTHON_LIB
-			debug ${PYTHON_DIR}/libs/python27_d.lib
-			optimized ${PYTHON_DIR}/libs/python27.lib
+	if(PYTHON_INCLUDE_DIR)
+		set(PYTHON_INC ${PYTHON_INCLUDE_DIR})
+		set(PYTHON_LIB ${PYTHON_LIBRARY})
+	else(PYTHON_INCLUDE_DIR)
+		set(PYTHON_DIR
+			c:/source/Python
 		)
-	endif(MSVC)
+
+		set(PYTHON_INC ${PYTHON_DIR}/include)
+
+		if(MSVC)
+			set(PYTHON_LIB
+				debug ${PYTHON_DIR}/libs/python27_d.lib
+				optimized ${PYTHON_DIR}/libs/python27.lib
+			)
+	    else(MSVC)
+			set(PYTHON_LIB ${PYTHON_DIR}/libs/libpython27.a)
+		endif(MSVC)
+	endif(PYTHON_INCLUDE_DIR)
 endif(${HAS_PYTHON})
 
 
@@ -127,16 +141,14 @@ if(${HAS_SPIDERMONKEY})
 		c:/source/xulrunner-sdk
 	)
 
-	set(SPIDERMONKEY_INC ${SPIDERMONKEY_DIR}/include)
-
-	if(CMAKE_COMPILER_IS_GNUCC)
-	#	set(SPIDERMONKEY_LIB ${SPIDERMONKEY_DIR}/lib/lib.a)
-		set(SPIDERMONKEY_DEFINE )
-	endif(CMAKE_COMPILER_IS_GNUCC)
+	set(SPIDERMONKEY_INC ${SPIDERMONKEY_DIR}/include/)
 
 	if(MSVC)
 		set(SPIDERMONKEY_LIB ${SPIDERMONKEY_DIR}/lib/mozjs.lib)
 		set(SPIDERMONKEY_DEFINE -DXP_WIN)
+	else(MSVC)
+		set(SPIDERMONKEY_LIB ${SPIDERMONKEY_DIR}/lib/lib.a)
+		set(SPIDERMONKEY_DEFINE )
 	endif(MSVC)
 endif(${HAS_SPIDERMONKEY})
 
@@ -144,18 +156,16 @@ endif(${HAS_SPIDERMONKEY})
 
 ### glut config
 
-if(CMAKE_COMPILER_IS_GNUCC)
-	set(GLUT_DIR
-		c:/source/freeglut/mingw
-	)
-	set(GLUT_LIB ${GLUT_DIR}/lib/libfreeglut.a opengl32 glu32)
-endif(CMAKE_COMPILER_IS_GNUCC)
-
 if(MSVC)
 	set(GLUT_DIR
 		c:/source/freeglut/vc
 	)
 	set(GLUT_LIB ${GLUT_DIR}/lib/freeglut.lib)
+else(MSVC)
+	set(GLUT_DIR
+		c:/source/freeglut/mingw
+	)
+	set(GLUT_LIB ${GLUT_DIR}/lib/libfreeglut.a opengl32 glu32)
 endif(MSVC)
 
 set(GLUT_INC ${GLUT_DIR}/include)
@@ -167,12 +177,11 @@ set(GLUT_INC ${GLUT_DIR}/include)
 set(BOX2D_DIR
 	c:/source/Box2D/Box2D
 )
-if(CMAKE_COMPILER_IS_GNUCC)
-	set(BOX2D_LIB ${BOX2D_DIR}/lib/libBox2D.a)
-endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)
 	set(BOX2D_LIB ${BOX2D_DIR}/lib/Box2D.lib)
+else(MSVC)
+	set(BOX2D_LIB ${BOX2D_DIR}/lib/libBox2D.a)
 endif(MSVC)
 
 set(BOX2D_INC ${BOX2D_DIR}/)
@@ -185,16 +194,6 @@ set(BOX2D_INC ${BOX2D_DIR}/)
 set(SFML_DIR
 	c:/source/SFML-1.6
 )
-if(CMAKE_COMPILER_IS_GNUCC)
-	set(SFML_LIB_DIR ${SFML_DIR}/lib/gcc)
-	set(SFML_LIB
-		${SFML_LIB_DIR}/libsfml-audio-d.a
-		${SFML_LIB_DIR}/libsfml-graphics-d.a
-		${SFML_LIB_DIR}/libsfml-network-d.a
-		${SFML_LIB_DIR}/libsfml-system-d.a
-		${SFML_LIB_DIR}/libsfml-window-d.a
-	)
-endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)
 	set(SFML_LIB_DIR ${SFML_DIR}/lib/vc2008)
@@ -204,6 +203,15 @@ if(MSVC)
 		${SFML_LIB_DIR}/sfml-network-d.lib
 		${SFML_LIB_DIR}/sfml-system-d.lib
 		${SFML_LIB_DIR}/sfml-window-d.lib
+	)
+else(MSVC)
+	set(SFML_LIB_DIR ${SFML_DIR}/lib/gcc)
+	set(SFML_LIB
+		${SFML_LIB_DIR}/libsfml-audio-d.a
+		${SFML_LIB_DIR}/libsfml-graphics-d.a
+		${SFML_LIB_DIR}/libsfml-network-d.a
+		${SFML_LIB_DIR}/libsfml-system-d.a
+		${SFML_LIB_DIR}/libsfml-window-d.a
 	)
 endif(MSVC)
 
@@ -215,12 +223,11 @@ set(SFML_INC ${SFML_DIR}/include)
 set(IRRLICHT_DIR
 	c:/source/irrlicht-1.8
 )
-if(CMAKE_COMPILER_IS_GNUCC)
-endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(MSVC)
 	set(IRRLICHT_LIB_DIR ${IRRLICHT_DIR}/lib/Win32-visualstudio)
 	set(IRRLICHT_LIB ${IRRLICHT_LIB_DIR}/Irrlicht.lib)
+else(MSVC)
 endif(MSVC)
 
 set(IRRLICHT_INC ${IRRLICHT_DIR}/include)
