@@ -188,25 +188,25 @@ public class ClassWrapperWriter {
 		codeWriter.incIndent();
 
 		for(Constructor ctor : this.cppClass.getConstructorList()) {
-		    if (ctor.isPublic()) {
-			    codeWriter.writeLine("");
-			    this.doWriteConstructor(codeWriter, ctor);
-            }
+			if (ctor.isPublic()) {
+				codeWriter.writeLine("");
+				this.doWriteConstructor(codeWriter, ctor);
+			}
 		}
 
 		for(CppMethod cppMethod : this.overrideMethods.values()) {
 			if (!cppMethod.isPrivate()) {
 				if (cppMethod.isVirtual()) {
 					codeWriter.writeLine("");
-					this.doWriteOverrideVirtualMethod(codeWriter, cppMethod); 
+					this.doWriteOverrideVirtualMethod(codeWriter, cppMethod);
 				} else {
 					codeWriter.writeLine("");
-					this.doWriteOverrideMethod(codeWriter, cppMethod); 
+					this.doWriteOverrideMethod(codeWriter, cppMethod);
 				}
 			}
 		}
 
-	    doWriteRegisterMethod(codeWriter);
+		doWriteRegisterMethod(codeWriter);
 
 		codeWriter.decIndent();
 		codeWriter.writeLine("};");

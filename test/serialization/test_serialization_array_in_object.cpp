@@ -27,7 +27,7 @@ void doTestArrayInObject(IMetaStorageWriter * writer, IMetaStorageReader * reade
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 
-	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeArray"));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName("global.TestSerializeArray"));
 
 	TestSerializeArray instance;
 	instance.init();

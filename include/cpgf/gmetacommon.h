@@ -88,8 +88,9 @@ public:
 
 	const std::string & getName() const;
 	const std::string & getQualifiedName() const;
+	void resetQualifiedName() const;
 	std::string makeQualifiedName(const char * delimiter) const;
-	
+
 	bool equals(const GMetaItem * other) const;
 
 	const GMetaAnnotation * getAnnotation(const char * name) const;
@@ -128,6 +129,7 @@ public:
 	virtual ~GMetaTypedItem();
 
 	const GMetaType & getMetaType() const;
+	const std::string & getQualifiedName() const;
 	virtual size_t getTypeSize() const = 0;
 
 	virtual void * createInstance() const = 0;
@@ -153,7 +155,7 @@ public:
 
 	virtual GVariant get(const void * instance) const = 0;
 	virtual void set(void * instance, const GVariant & v) const = 0;
-	
+
 	virtual void * getAddress(const void * instance) const = 0;
 
 	virtual size_t getSize() const = 0;

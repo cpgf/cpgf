@@ -89,7 +89,7 @@ template <typename AR>
 void doTestOddFields(IMetaStorageWriter * writer, IMetaStorageReader * reader, const AR & ar)
 {
 	const char * const serializeObjectName = "versioning";
-	const char * const className = "TestSerializeClassA";
+	const char * const className = "global.TestSerializeClassA";
 
 	
 	GDefineMetaNamespace define0 = GDefineMetaNamespace::declare("global");

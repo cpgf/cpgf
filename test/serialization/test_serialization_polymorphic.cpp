@@ -122,7 +122,7 @@ void doTestPolymorphic(IMetaStorageWriter * writer, IMetaStorageReader * reader,
 	GScopedInterface<IMetaModule> moduleInterface(createMetaModule(&module, define.getMetaClass()));
 	GScopedInterface<IMetaService> service(createMetaService(moduleInterface.get()));
 
-	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassR"));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName("global.TestSerializeClassR"));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 

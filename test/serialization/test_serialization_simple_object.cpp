@@ -26,7 +26,7 @@ void doTestSimpleObject(IMetaStorageWriter * writer, IMetaStorageReader * reader
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 
-	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClass"));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName("global.TestSerializeClass"));
 
 	TestSerializeClass instance;
 	instance.set(38);
