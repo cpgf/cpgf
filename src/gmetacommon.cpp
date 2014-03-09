@@ -256,6 +256,11 @@ const std::string & GMetaItem::getQualifiedName() const
 	return this->implement->qualifiedName;
 }
 
+void GMetaItem::resetQualifiedName() const
+{
+	this->implement->qualifiedName = "";
+}
+
 std::string GMetaItem::makeQualifiedName(const char * delimiter) const
 {
 	std::string result;
@@ -293,6 +298,17 @@ const GMetaType & GMetaTypedItem::getMetaType() const
 	}
 
 	return this->getItemType();
+}
+
+const std::string & GMetaTypedItem::getQualifiedName() const
+{
+	if(this->implement->qualifiedName.empty()) {
+		this->implement->qualifiedName = makeQualifiedName(".");
+		GMetaTypeData & typeData = this->implement->itemType.refData();
+		typeData.baseName = this->implement->qualifiedName.c_str();
+	}
+
+	return this->implement->qualifiedName;
 }
 
 

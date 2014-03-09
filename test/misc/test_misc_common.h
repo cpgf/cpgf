@@ -4,8 +4,9 @@
 
 #include "../unittestbase.h"
 
-
 #include <string>
+
+#include "../testmetatraits.h"
 
 
 
