@@ -205,7 +205,7 @@ GVariant GScriptValue::toObject(IMetaClass ** outMetaClass, bool * outTransferOw
 		*outMetaClass = NULL;
 	}
 	if(outTransferOwnership != NULL) {
-		*outTransferOwnership = NULL;
+		*outTransferOwnership = false;
 	}
 
 	if(this->isObject()) {
