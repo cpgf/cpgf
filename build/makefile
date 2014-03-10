@@ -1,5 +1,5 @@
 CACHE_DIR = temp_cache
-CMAKE = cmake ..
+CMAKE = cmake .. $(CMAKE_FLAGS)
 
 MK_DIR = @cmake -E make_directory
 CH_DIR = @cmake -E chdir
@@ -16,7 +16,7 @@ SUPPORT_MAKES = auto nmake mingw linux vc05 vc08 vc10 cb_mingw cb_nmake cb_linux
 
 none: needcmake
 	$(ECHO) "Usage:"
-	$(ECHO) "  make MakeType [TARGET=TargetToMake]"
+	$(ECHO) "  make MakeType [TARGET=TargetToMake] [CMAKE_FLAGS='flags passed to cmake']"
 	$(ECHO) "or"
 	$(ECHO) "  nmake MakeType"
 	$(ECHO) "if MS VC is used"

@@ -1,5 +1,5 @@
 set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0")
-if(CMAKE_COMPILER_IS_GNUCC)
+if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0")
 	if(TEST_GCOV)
 		set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0 -fprofile-arcs -ftest-coverage")
@@ -8,14 +8,12 @@ if(CMAKE_COMPILER_IS_GNUCC)
 	if(SUPPORT_GCC_0X)
 		if(MINGW)
 			set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=gnu++0x")
+		else(MINGW)
+			set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=c++11")
 		endif(MINGW)
-
-		if(NOT MINGW)
-			set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=c++0x")
-		endif(NOT MINGW)
 	endif(SUPPORT_GCC_0X)
 
-endif(CMAKE_COMPILER_IS_GNUCC)
+endif(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
 if(MSVC)
 	set(UNITTEST_COMPILE_FLAGS "-W4 -Wp64")
@@ -57,7 +55,7 @@ macro(partUnitTest target)
 	endif(WIN32)
 
 	set(fileList ${TEST_PATH}/testmain.cpp)
-	
+
 	globAndAppendFiles(fileList
 		${UNIT_TEST_DIR}/src/*.cpp
 		${UNIT_TEST_DIR}/src/${UNITTEST_FRAMEWORK_SUBDIR}/*.cpp
@@ -217,13 +215,13 @@ if(${HAS_UNITTEST})
 
 	set(SRC_TEST_SRC
 		${TEST_PATH}/testmain.cpp
-		
+
 		${GLOB_TEST_SRC}
 
 		${GLOB_TEST_LUA}
 		${GLOB_TEST_V8}
 		${GLOB_TEST_PYTHON}
-		
+
 		${SRC_UNITTEST_FRAMEWORK}
 	)
 
@@ -240,7 +238,7 @@ if(${HAS_UNITTEST})
 		EXCLUDE_FROM_ALL
 			${SRC_TEST_SRC}
 	)
-	
+
 	target_link_libraries(${TARGET_UNITTEST} ${TARGET_LIB})
 
 	if(CMAKE_COMPILER_IS_GNUCC)
@@ -258,7 +256,7 @@ if(${HAS_UNITTEST})
 	if(HAS_PYTHON)
 		target_link_libraries(${TARGET_UNITTEST} ${PYTHON_LIB})
 	endif(HAS_PYTHON)
-	
+
 	set_target_properties(
 		${TARGET_UNITTEST}
 		PROPERTIES
