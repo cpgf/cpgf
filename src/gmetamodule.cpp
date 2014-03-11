@@ -12,11 +12,11 @@ namespace cpgf {
 namespace {
 
 #if SUPPORT_CPP_11
-#define GTYPEHASH_TYPE size_t
+	#define GTYPEHASH_TYPE size_t
 #else
-#define GTYPEHASH_TYPE std::string
+	#define GTYPEHASH_TYPE std::string
 #endif
-    
+
 inline GTYPEHASH_TYPE getTypeInfoHash(const GTypeInfo &type) {
 	if (type.isEmpty()) {
 		throw std::runtime_error("missing type information");
