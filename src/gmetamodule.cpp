@@ -3,24 +3,36 @@
 #include "cpgf/gmetaenum.h"
 #include "cpgf/gmetafundamental.h"
 #include "cpgf/gstringmap.h"
+#include "cpgf/gcompiler.h"
 
-#include <unordered_map>
+#include <map>
 
 namespace cpgf {
 
 namespace {
 
-inline size_t getTypeInfoHash(const GTypeInfo &type) {
+#if SUPPORT_CPP_11
+#define GTYPEHASH_TYPE size_t
+#else
+#define GTYPEHASH_TYPE std::string
+#endif
+    
+inline GTYPEHASH_TYPE getTypeInfoHash(const GTypeInfo &type) {
 	if (type.isEmpty()) {
 		throw std::runtime_error("missing type information");
 	}
+#if SUPPORT_CPP_11
 	return type.getStdTypeInfo().hash_code();
+#else
+	return type.getStdTypeInfo().name();
+#endif
 }
 
 }
 
 class GMetaTypedItemList
 {
+	typedef std::map<GTYPEHASH_TYPE, const GMetaTypedItem *> ItemsByTypeHashMap;
 public:
 	typedef GStringMap<const GMetaTypedItem *, GStringMapReuseKey> MapType;
 
@@ -54,7 +66,7 @@ public:
 	}
 
 	const GMetaTypedItem * findByType(const GTypeInfo & type) const {
-		auto it = itemsByTypeHash.find(getTypeInfoHash(type));
+		ItemsByTypeHashMap::const_iterator it = itemsByTypeHash.find(getTypeInfoHash(type));
 		if (it == itemsByTypeHash.end()) {
 			return NULL;
 		}
@@ -76,7 +88,7 @@ public:
 
 private:
 	MapType itemMap;
-	std::unordered_map<size_t, const GMetaTypedItem *> itemsByTypeHash;
+	ItemsByTypeHashMap itemsByTypeHash;
 	bool freeItems;
 };
 
