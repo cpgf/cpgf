@@ -866,11 +866,6 @@ bool doIndexMemberData(const GContextPointer & context, IMetaAccessible * data, 
 	return accessibleToScript<GLuaMethods>(context, data, instance, instanceIsConst);
 }
 
-bool indexMemberData(const GObjectGlueDataPointer & userData, IMetaAccessible * data, void * instance)
-{
-	return doIndexMemberData(userData->getBindingContext(), data, instance, userData->getCV() == opcvConst);
-}
-
 int UserData_index(lua_State * L)
 {
 	ENTER_LUA()
