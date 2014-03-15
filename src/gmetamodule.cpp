@@ -3,12 +3,36 @@
 #include "cpgf/gmetaenum.h"
 #include "cpgf/gmetafundamental.h"
 #include "cpgf/gstringmap.h"
+#include "cpgf/gcompiler.h"
 
+#include <map>
 
 namespace cpgf {
 
+namespace {
+
+#if SUPPORT_CPP_11
+	#define GTYPEHASH_TYPE size_t
+#else
+	#define GTYPEHASH_TYPE std::string
+#endif
+
+inline GTYPEHASH_TYPE getTypeInfoHash(const GTypeInfo &type) {
+	if (type.isEmpty()) {
+		throw std::runtime_error("missing type information");
+	}
+#if SUPPORT_CPP_11
+	return type.getStdTypeInfo().hash_code();
+#else
+	return type.getStdTypeInfo().name();
+#endif
+}
+
+}
+
 class GMetaTypedItemList
 {
+	typedef std::map<GTYPEHASH_TYPE, const GMetaTypedItem *> ItemsByTypeHashMap;
 public:
 	typedef GStringMap<const GMetaTypedItem *, GStringMapReuseKey> MapType;
 
@@ -32,21 +56,21 @@ public:
 //		MapType::const_iterator it = this->itemMap.find(name);
 //		if(it == this->itemMap.end()) {
 			this->itemMap.set(name, item);
+			itemsByTypeHash[getTypeInfoHash(item->getMetaType().getBaseType())] = item;
 //		}
 	}
 
 	void remove(const GMetaTypedItem * item) {
 		this->itemMap.remove(item->getQualifiedName().c_str());
+		itemsByTypeHash.erase(getTypeInfoHash(item->getMetaType().getBaseType()));
 	}
 
 	const GMetaTypedItem * findByType(const GTypeInfo & type) const {
-		for(MapType::const_iterator it = this->itemMap.begin(); it != this->itemMap.end(); ++it) {
-			if(it->second->getMetaType().getBaseType() == type) {
-				return it->second;
-			}
+		ItemsByTypeHashMap::const_iterator it = itemsByTypeHash.find(getTypeInfoHash(type));
+		if (it == itemsByTypeHash.end()) {
+			return NULL;
 		}
-
-		return NULL;
+		return it->second;
 	}
 
 	const GMetaTypedItem * findByName(const char * name) const {
@@ -64,6 +88,7 @@ public:
 
 private:
 	MapType itemMap;
+	ItemsByTypeHashMap itemsByTypeHash;
 	bool freeItems;
 };
 
