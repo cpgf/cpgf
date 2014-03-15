@@ -52,11 +52,13 @@ GGlueDataWrapperPool * getV8DataWrapperPool()
 	return v8DataWrapperPool;
 }
 
-GScriptObjectCache<shared_ptr<Persistent<Object> > > * getV8ScriptObjectCache()
+typedef GSharedPointer<Persistent<Object> > V8ScriptObjectCacheEntry;
+
+GScriptObjectCache<V8ScriptObjectCacheEntry> * getV8ScriptObjectCache()
 {
-	static GScriptObjectCache<shared_ptr<Persistent<Object> > > * cache = NULL;
+	static GScriptObjectCache<V8ScriptObjectCacheEntry> * cache = NULL;
 	if(cache == NULL && isLibraryLive()) {
-		cache = new GScriptObjectCache<shared_ptr<Persistent<Object> > >;
+		cache = new GScriptObjectCache<V8ScriptObjectCacheEntry>;
 		addOrderedStaticUninitializer(suo_ScriptObjectCache, makeUninitializerDeleter(&cache));
 	}
 	return cache;
@@ -392,7 +394,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 		return Handle<Value>();
 	}
 
-	shared_ptr<Persistent<Object> > * cachedObject = getV8ScriptObjectCache()->findScriptObject(instanceAddress, classData, cv);
+	V8ScriptObjectCacheEntry * cachedObject = getV8ScriptObjectCache()->findScriptObject(instanceAddress, classData, cv);
 	if(cachedObject != NULL) {
 		return Local<Object>::New(getV8Isolate(), *(cachedObject->get()));
 	}
@@ -407,7 +409,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 	object->SetAlignedPointerInInternalField(0, dataWrapper);
 	setObjectSignature(&object);
 
-	shared_ptr<Persistent<Object> > self(new Persistent<Object>(getV8Isolate(), object));
+	V8ScriptObjectCacheEntry self(new Persistent<Object>(getV8Isolate(), object));
 	self->MakeWeak(dataWrapper, weakHandleCallback);
 
 	if(outputGlueData != NULL) {
@@ -868,7 +870,7 @@ void objectConstructor(const v8::FunctionCallbackInfo<Value> & args)
 			localSelf->SetAlignedPointerInInternalField(0, objectWrapper);
 			setObjectSignature(&localSelf);
 
-			shared_ptr<Persistent<Object> > self(new Persistent<Object>(getV8Isolate(), localSelf));
+			V8ScriptObjectCacheEntry self(new Persistent<Object>(getV8Isolate(), localSelf));
 			self->MakeWeak(objectWrapper, weakHandleCallback);
 			getV8ScriptObjectCache()->addScriptObject(instance, classData, opcvNone, self);
 
