@@ -1343,8 +1343,8 @@ GVariant GLuaScriptFunction::invokeIndirectly(GVariant const * const * params, s
 
 GLuaScriptArray::GLuaScriptArray(GLuaScriptObject * scriptObject, int objectIndex)
 	: super(scriptObject->getBindingContext()),
-		scriptObject(scriptObject),
-		ref(refLua(getLuaState(scriptObject->getBindingContext()), objectIndex))
+		ref(refLua(getLuaState(scriptObject->getBindingContext()), objectIndex)),
+		scriptObject(scriptObject)
 {
 }
 
