@@ -237,7 +237,6 @@ private:
 Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData);
 Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData);
 Local<Object> helperBindEnum(const GContextPointer & context, Handle<ObjectTemplate> objectTemplate, IMetaEnum * metaEnum);
-Handle<Value> helperBindMethodList(const GContextPointer & context, const char * name, IMetaList * methodList);
 Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData, bool isGlobal,
 	IMetaList * methodList, Handle<FunctionTemplate> classTemplate);
 Handle<ObjectTemplate> createEnumTemplate(const GContextPointer & context);
