@@ -6,6 +6,7 @@
 
 #if ENABLE_V8
 #include "cpgf/scriptbind/gv8bind.h"
+#include "cpgf/scriptbind/gv8runner.h"
 #endif
 
 #if ENABLE_PYTHON
@@ -199,7 +200,7 @@ bool executeString(const char * source, bool printError, bool printResult = fals
 {
 	using namespace v8;
 
-	v8::HandleScope handle_scope;
+	v8::HandleScope handle_scope(getV8Isolate());
 	v8::TryCatch try_catch;
 	v8::Handle<v8::Script> script = v8::Script::Compile(String::New(source), String::New("sample"));
 	if(script.IsEmpty()) {
@@ -235,10 +236,11 @@ private:
 
 public:
 	TestScriptContextV8(TestScriptApi api)
-		: super(new TestScriptCoderV8), handleScope(), context(Context::New())//, contextScope(context)
+		: super(new TestScriptCoderV8), handleScope(getV8Isolate()), context(getV8Isolate(), Context::New(getV8Isolate()))//, contextScope(context)
 	{
-		this->contextScope = new Context::Scope(this->context);
-		Local<Object> global = context->Global();
+		this->contextScope = new Context::Scope(getV8Isolate(), this->context);
+	    Local<Context> ctx = Local<Context>::New(getV8Isolate(), context);
+		Local<Object> global = ctx->Global();
 
 		if(api == tsaLib) {
 			this->setBinding(cpgf::createV8ScriptObject(this->getService(), global, GScriptConfig()));
