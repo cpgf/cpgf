@@ -866,11 +866,6 @@ bool doIndexMemberData(const GContextPointer & context, IMetaAccessible * data, 
 	return accessibleToScript<GLuaMethods>(context, data, instance, instanceIsConst);
 }
 
-bool indexMemberData(const GObjectGlueDataPointer & userData, IMetaAccessible * data, void * instance)
-{
-	return doIndexMemberData(userData->getBindingContext(), data, instance, userData->getCV() == opcvConst);
-}
-
 int UserData_index(lua_State * L)
 {
 	ENTER_LUA()
@@ -1348,8 +1343,8 @@ GVariant GLuaScriptFunction::invokeIndirectly(GVariant const * const * params, s
 
 GLuaScriptArray::GLuaScriptArray(GLuaScriptObject * scriptObject, int objectIndex)
 	: super(scriptObject->getBindingContext()),
-		scriptObject(scriptObject),
-		ref(refLua(getLuaState(scriptObject->getBindingContext()), objectIndex))
+		ref(refLua(getLuaState(scriptObject->getBindingContext()), objectIndex)),
+		scriptObject(scriptObject)
 {
 }
 

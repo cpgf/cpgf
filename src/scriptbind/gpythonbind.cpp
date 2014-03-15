@@ -226,7 +226,6 @@ private:
 
 
 GPythonObject * createPythonObject(const GGlueDataPointer & glueData);
-GPythonObject * createPythonObject(void * address, const GGlueDataPointer & glueData);
 void deletePythonObject(GPythonNative * object);
 PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaClass);
 
@@ -260,16 +259,9 @@ void commonDealloc(PyObject* p)
     deletePythonObject(nativeFromPython(p));
 }
 
-void commonDealloc2(PyObject* p)
-{
-	static_cast<GPythonClass *>((PyTypeObject *)(p))->~GPythonClass();
-	PyObject_Del(p);
-}
-
 PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObject * keyWords);
 
 PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, PyObject * keyWords);
-PyObject * callbackConstructObject2(PyTypeObject * callableObject, PyObject * args, PyObject * keyWords);
 
 PyObject * callbackGetAttribute(PyObject * object, PyObject * attrName);
 int callbackSetAttribute(PyObject * object, PyObject * attrName, PyObject * value);
@@ -870,13 +862,6 @@ GPythonObject * createPythonObject(const GGlueDataPointer & glueData)
 //	return obj;
 }
 
-GPythonObject * createPythonObject(void * address, const GGlueDataPointer & glueData)
-{
-	GPythonObject * object = new (address) GPythonObject(glueData);
-	getPythonDataWrapperPool()->dataWrapperCreated(object);
-	return object;
-}
-
 GPythonObject * createEmptyPythonObject()
 {
 	GPythonObject * object = new GPythonAnyObject();
@@ -1373,32 +1358,6 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	LEAVE_PYTHON(return NULL)
 }
 
-PyObject * callbackConstructObject2(PyTypeObject * callableObject, PyObject * args, PyObject * /*keyWords*/)
-{
-	ENTER_PYTHON()
-
-	GPythonNative * cppClass = nativeFromPython((PyObject *)callableObject);
-	GClassGlueDataPointer classUserData = cppClass->getAs<GClassGlueData>();
-	GContextPointer context = classUserData->getBindingContext();
-
-	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)), context->borrowScriptContext());
-	loadCallableParam(context, args, &callableParam);
-
-	void * instance = doInvokeConstructor(context, context->getService(), classUserData->getMetaClass(), &callableParam);
-
-	if(instance != NULL) {
-//		void * address = callableObject->tp_alloc(callableObject, 0);
-		return createPythonObject(context->newObjectGlueData(classUserData, instance, GBindValueFlags(bvfAllowGC), opcvNone));
-	}
-	else {
-		raiseCoreException(Error_ScriptBinding_FailConstructObject);
-	}
-
-	return NULL;
-
-	LEAVE_PYTHON(return NULL)
-}
-
 PyObject * callbackGetAttribute(PyObject * object, PyObject * attrName)
 {
 	ENTER_PYTHON()
@@ -1637,19 +1596,6 @@ const char * const signatureValue = "cpgf_pYtHon_oBjeCt_vAlue";
 void setObjectSignature(PyObject * obj)
 {
 	setObjectAttr(obj, signatureName, PyString_FromString(signatureValue));
-}
-
-bool isValidObject(PyObject * obj)
-{
-	GPythonScopedPointer signature(getObjectAttr(obj, signatureName));
-
-	if(signature) {
-		const char * name = PyString_AsString(signature.get());
-		if(name != NULL) {
-			return (strcmp(signatureValue, name) == 0);
-		}
-	}
-	return false;
 }
 
 PyObject * helperBindMethodList(const GContextPointer & context, IMetaList * methodList)
