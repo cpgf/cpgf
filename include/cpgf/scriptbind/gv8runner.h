@@ -14,7 +14,7 @@ struct IMetaService;
 
 GScriptRunner * createV8ScriptRunner(IMetaService * service);
 
-GScriptRunner * createV8ScriptRunner(IMetaService * service, v8::Handle<v8::Context> ctx);
+GScriptRunner * createV8ScriptRunner(IMetaService * service, v8::Handle<v8::Context> context);
 
 
 } // namespace cpgf
