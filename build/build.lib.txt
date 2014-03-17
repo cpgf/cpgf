@@ -134,7 +134,7 @@ SOURCE_GROUP(src\\tween FILES ${SRC_TWEEN})
 SOURCE_GROUP(src\\thirdparty\\jsoncpp FILES ${SRC_THIRDPARTY_JSONCPP})
 
 
-include_directories(../include)
+include_directories(${INCLUDE_PATH})
 if(${HAS_LUA})
 	include_directories(${LUA_INC})
 endif(${HAS_LUA})
