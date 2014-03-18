@@ -23,6 +23,8 @@ set(HAS_UNITTEST 1) #release=false
 # set 1 to enable Boost library, 0 to disable. This is only used in unit test.
 set(HAS_BOOST 0) #release=false
 
+set(LIB_SHARED 0)
+
 set(TEST_GCOV 0)
 if(UNIX)
 	# disable gcov on Linux, otherwise, valgrind will become super slow.

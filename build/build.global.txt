@@ -11,6 +11,7 @@ set(OUTNAME_UNITTEST test)
 
 set(ROOT_PATH ${PROJECT_SOURCE_DIR}/..)
 set(BIN_PATH ${PROJECT_SOURCE_DIR}/bin)
+set(INCLUDE_PATH ${ROOT_PATH}/include)
 set(LIB_PATH ${ROOT_PATH}/lib)
 
 set(SRC_PATH ${ROOT_PATH}/src)
