@@ -40,7 +40,7 @@ class GMetaScriptWrapper : public IMetaScriptWrapper
 public:
 	explicit GMetaScriptWrapper(CasterType caster) : caster(caster) {
 	}
-	
+
 	virtual ~GMetaScriptWrapper() {
 	}
 
