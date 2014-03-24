@@ -24,10 +24,7 @@ IScriptFunction * GScriptWrapper::getScriptFunction(const char * name) const
 
 void GScriptWrapper::setScriptDataStorage(IScriptDataStorage * scriptDataStorage)
 {
-	// Only set if it doesn't exist. Thus we keep the storage universal.
-	if(! this->scriptDataStorage) {
-		this->scriptDataStorage.reset(scriptDataStorage);
-	}
+	this->scriptDataStorage.reset(scriptDataStorage);
 }
 
 
