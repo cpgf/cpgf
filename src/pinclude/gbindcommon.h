@@ -902,7 +902,7 @@ protected:
 
 private:
 	GContextPointer context;
-	std::vector<GObjectGlueDataPointer> importedObjects;
+	std::vector<GObjectGlueDataPointer> externalObjects;
 };
 
 

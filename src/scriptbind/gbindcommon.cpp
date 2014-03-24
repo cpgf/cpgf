@@ -889,7 +889,7 @@ void GScriptObjectBase::doBindCoreService(const char * name, IScriptLibraryLoade
 
 void GScriptObjectBase::bindExternalObjectToClass(void * address, IMetaClass * metaClass) {
 	GClassGlueDataPointer classData = context->getClassData(metaClass);
-	this->importedObjects.push_back(
+	this->externalObjects.push_back(
 		context->newObjectGlueData(
 			classData,
 			pointerToObjectVariant(address),
