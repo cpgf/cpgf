@@ -891,7 +891,7 @@ public:
 
 	virtual IScriptContext * getContext() const;
 
-	virtual void importExternalObject(void * address, IMetaClass * metaClass);
+	virtual void bindExternalObjectToClass(void * address, IMetaClass * metaClass);
 
 protected:
 	const GContextPointer & getBindingContext() const {

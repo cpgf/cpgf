@@ -152,7 +152,7 @@ protected:
 
 	virtual void G_API_CC bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 	virtual void G_API_CC holdObject(IObject * object);
-	virtual void G_API_CC importExternalObject(void * address, IMetaClass * metaClass);
+	virtual void G_API_CC bindExternalObjectToClass(void * address, IMetaClass * metaClass);
 
 	virtual gapi_bool G_API_CC maybeIsScriptArray(const char * name);
 	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, const char * name);

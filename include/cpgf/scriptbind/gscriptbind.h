@@ -63,7 +63,7 @@ public:
 
 	virtual void holdObject(IObject * object);
 
-	virtual void importExternalObject(void * address, IMetaClass * metaClass) = 0;
+	virtual void bindExternalObjectToClass(void * address, IMetaClass * metaClass) = 0;
 
 	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) = 0;
 
