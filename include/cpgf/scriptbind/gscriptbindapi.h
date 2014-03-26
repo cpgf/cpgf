@@ -62,9 +62,9 @@ struct IScriptObject : public IExtendObject
 	virtual void G_API_CC setValue(const char * name, const GScriptValueData * value) = 0;
 
 	virtual void G_API_CC createScriptObject(GScriptValueData * outResult, const char * name) = 0;
-	
+
 	virtual void G_API_CC getScriptFunction(GScriptValueData * outResult, const char * name) = 0;
-	
+
 	virtual void G_API_CC invoke(GVariantData * outResult, const char * name, const GVariantData * params, uint32_t paramCount) = 0;
 	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount) = 0;
 
@@ -72,11 +72,12 @@ struct IScriptObject : public IExtendObject
 
 	virtual void G_API_CC bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader) = 0;
 	virtual void G_API_CC holdObject(IObject * object) = 0;
-	
+	virtual void G_API_CC bindExternalObjectToClass(void * address, IMetaClass * metaClass) = 0;
+
 	virtual gapi_bool G_API_CC maybeIsScriptArray(const char * name) = 0;
 	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, const char * name) = 0;
 	virtual void G_API_CC createScriptArray(GScriptValueData * outResult, const char * name) = 0;
-	
+
 	G_DEPRECATED(
 		virtual void G_API_CC bindClass(const char * name, IMetaClass * metaClass),
 		"bindClass is deprecated. Use scriptSetValue(scriptObject, name, GScriptValue::fromClass(metaClass)) instead."
@@ -114,7 +115,7 @@ struct IScriptObject : public IExtendObject
 		virtual void G_API_CC bindMethodList(const char * name, IMetaList * methodList),
 		"bindMethodList is deprecated. Use scriptSetValue(scriptObject, name, GScriptValue::fromOverloadedMethods(methodList)) instead."
 	) = 0;
-	
+
 	G_DEPRECATED(
 		virtual IMetaClass * G_API_CC getClass(const char * className),
 		"getClass is deprecated. Use scriptGetValue().toClass() instead."
@@ -123,7 +124,7 @@ struct IScriptObject : public IExtendObject
 		virtual IMetaEnum * G_API_CC getEnum(const char * enumName),
 		"getEnum is deprecated. Use scriptGetValue().toEnum() instead."
 	) = 0;
-	
+
 	G_DEPRECATED(
 		virtual void G_API_CC getFundamental(GVariantData * outResult, const char * name),
 		"getFundamental is deprecated. Use scriptGetValue().toFundamental() instead."
@@ -162,7 +163,7 @@ struct IScriptObject : public IExtendObject
 		virtual void G_API_CC nullifyValue(const char * name),
 		"nullifyValue is deprecated. Use scriptSetValue(name, GScriptValue::fromNull()) instead."
 	) = 0;
-	
+
 };
 
 

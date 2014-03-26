@@ -37,7 +37,7 @@ void testOverrideCppFunctionFromScriptClass(TestScriptContext * context)
 	if(bindingLib) {
 		doTestOverrideCppFunctionFromScriptClass(bindingLib, context);
 	}
-	
+
 	if(bindingApi) {
 		doTestOverrideCppFunctionFromScriptClass(bindingApi, context);
 	}
@@ -46,6 +46,47 @@ void testOverrideCppFunctionFromScriptClass(TestScriptContext * context)
 #define CASE testOverrideCppFunctionFromScriptClass
 #include "../bind_testcase.h"
 
+
+template <typename T>
+void doTestOverrideCppFunctionOnNativePtrFromScriptClass(T * binding, TestScriptContext * context)
+{
+	if(context->isLua()) {
+		QDO(function funcOverride(me) return me.n + 15 end)
+	}
+	if(context->isV8() || context->isSpiderMonkey()) {
+		QDO(function funcOverride(me) { return me.n + 15; })
+	}
+	if(context->isPython()) {
+		QDO(def funcOverride(me): return me.n + 15)
+	}
+
+	QDO(ScriptOverride.getValue = funcOverride)
+
+	IMetaClass * scriptClass = scriptGetValue(binding, "ScriptOverride").toClass();
+
+	ScriptOverride obj(68);
+
+	binding->bindExternalObjectToClass(&obj, scriptClass);
+
+	GEQUAL(83, obj.getValue());
+}
+
+void testOverrideCppFunctionOnNativePtrFromScriptClass(TestScriptContext * context)
+{
+	GScriptObject * bindingLib = context->getBindingLib();
+	IScriptObject * bindingApi = context->getBindingApi();
+
+	if(bindingLib) {
+		doTestOverrideCppFunctionOnNativePtrFromScriptClass(bindingLib, context);
+	}
+
+	if(bindingApi) {
+		doTestOverrideCppFunctionOnNativePtrFromScriptClass(bindingApi, context);
+	}
+}
+
+#define CASE testOverrideCppFunctionOnNativePtrFromScriptClass
+#include "../bind_testcase.h"
 
 
 template <typename T>
@@ -90,7 +131,7 @@ void testOverrideCppFunctionFromScriptObject(TestScriptContext * context)
 	if(bindingLib) {
 		doTestOverrideCppFunctionFromScriptObject(bindingLib, context);
 	}
-	
+
 	if(bindingApi) {
 		doTestOverrideCppFunctionFromScriptObject(bindingApi, context);
 	}

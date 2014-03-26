@@ -51,7 +51,7 @@ public:
 	virtual GScriptValue createScriptObject(const char * name);
 
 	virtual GScriptValue getScriptFunction(const char * name) = 0;
-	
+
 	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount) = 0;
 	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount) = 0;
 
@@ -60,8 +60,10 @@ public:
 	void bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 
 	virtual IMetaService * getMetaService() = 0;
-	
+
 	virtual void holdObject(IObject * object);
+
+	virtual void bindExternalObjectToClass(void * address, IMetaClass * metaClass) = 0;
 
 	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) = 0;
 
@@ -118,7 +120,7 @@ public:
 		IMetaEnum * getEnum(const char * enumName),
 		"getEnum is deprecated. Use getValue().toEnum() instead."
 	);
-	
+
 	G_DEPRECATED(
 		GVariant getFundamental(const char * name),
 		"getFundamental is deprecated. Use getValue().toFundamental() instead."

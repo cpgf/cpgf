@@ -364,7 +364,7 @@ char * G_API_CC ImplScriptObject::getString(const char * stringName, IMemoryAllo
 
 	void * cs = allocator->allocate(static_cast<uint32_t>(s.length() + 1));
 	memmove(cs, s.c_str(), s.length() + 1);
-	
+
 	return static_cast<char *>(cs);
 
 	LEAVE_BINDING_API(return NULL)
@@ -500,6 +500,15 @@ void G_API_CC ImplScriptObject::holdObject(IObject * object)
 	ENTER_BINDING_API()
 
 	this->scriptObject->holdObject(object);
+
+	LEAVE_BINDING_API()
+}
+
+void G_API_CC ImplScriptObject::bindExternalObjectToClass(void * address, IMetaClass * metaClass)
+{
+	ENTER_BINDING_API()
+
+	this->scriptObject->bindExternalObjectToClass(address, metaClass);
 
 	LEAVE_BINDING_API()
 }
