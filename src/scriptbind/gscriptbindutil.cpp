@@ -11,6 +11,9 @@ using namespace cpgf::bind_internal;
 
 namespace cpgf {
 
+// This function is defined in gscriptvalue.cpp internally.
+GScriptValue createScriptValueFromData(const GScriptValueData & data);
+
 
 #define DEF_LOAD_PARAM_HELPER(N, unused) params[N] = &GPP_CONCAT(p, N);
 #define DEF_LOAD_PARAM(N) \
@@ -23,25 +26,25 @@ namespace cpgf {
 	GPP_REPEAT_3(N, DEF_LOAD_PARAM_HELPER_API, GPP_EMPTY())
 
 #define DEF_CALL_HELPER(N, unused) \
-	GVariant invokeScriptFunction(GScriptObject * scriptObject, const char * functionName GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
+	GScriptValue invokeScriptFunction(GScriptObject * scriptObject, const char * functionName GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
 		DEF_LOAD_PARAM(N) \
 		return scriptObject->invokeIndirectly(functionName, params, N); \
 	} \
-	GVariant invokeScriptFunction(IScriptObject * scriptObject, const char * functionName GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
+	GScriptValue invokeScriptFunction(IScriptObject * scriptObject, const char * functionName GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
 		DEF_LOAD_PARAM_API(N) \
-		GVariant result; \
+	    GScriptValueData data; \
 		GSharedInterface<IScriptObject> holder(scriptObject); /* Hold the object so metaCheckError won't crash if scriptObject is freed in invoke */ \
-		scriptObject->invoke(&result.refData(), functionName, params, N); \
+		scriptObject->invoke(&data, functionName, params, N); \
 		metaCheckError(scriptObject); \
-		return result; \
+	    return createScriptValueFromData(data); \
 	} \
-	GVariant invokeScriptFunction(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
+	GScriptValue invokeScriptFunction(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
 		DEF_LOAD_PARAM_API(N) \
-		GVariant result; \
+	    GScriptValueData data; \
 		GSharedInterface<IScriptFunction> holder(scriptFunction); /* Hold the function so metaCheckError won't crash if scriptFunction is freed in invoke */ \
-		scriptFunction->invoke(&result.refData(), params, N); \
+		scriptFunction->invoke(&data, params, N); \
 		metaCheckError(scriptFunction); \
-		return result; \
+	    return createScriptValueFromData(data); \
 	}
 
 GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
@@ -85,9 +88,6 @@ GScriptValue scriptGetValue(GScriptObject * scriptObject, const char * name)
 {
 	return scriptObject->getValue(name);
 }
-
-// This function is defined in gscriptvalue.cpp internally.
-GScriptValue createScriptValueFromData(const GScriptValueData & data);
 
 GScriptValue scriptGetValue(IScriptObject * scriptObject, const char * name)
 {

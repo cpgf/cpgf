@@ -154,8 +154,8 @@ public:
 	GPythonScriptFunction(const GContextPointer & context, PyObject * func);
 	virtual ~GPythonScriptFunction();
 
-	virtual GVariant invoke(const GVariant * params, size_t paramCount);
-	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount);
+	virtual GScriptValue invoke(const GVariant * params, size_t paramCount);
+	virtual GScriptValue invokeIndirectly(GVariant const * const * params, size_t paramCount);
 
 private:
 	PyObject * func;
@@ -195,8 +195,8 @@ public:
 
 	virtual GScriptValue getScriptFunction(const char * name);
 
-	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount);
-	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
+	virtual GScriptValue invoke(const char * name, const GVariant * params, size_t paramCount);
+	virtual GScriptValue invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
 
 	virtual void assignValue(const char * fromName, const char * toName);
 
@@ -1523,7 +1523,7 @@ int callbackAnyObjectSetAttribute(PyObject * object, PyObject * attrName, PyObje
 	LEAVE_PYTHON(return -1)
 }
 
-GVariant invokePythonFunctionIndirectly(const GContextPointer & context, PyObject * object, PyObject * func, GVariant const * const * params, size_t paramCount, const char * name)
+GScriptValue invokePythonFunctionIndirectly(const GContextPointer & context, PyObject * object, PyObject * func, GVariant const * const * params, size_t paramCount, const char * name)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1554,13 +1554,13 @@ GVariant invokePythonFunctionIndirectly(const GContextPointer & context, PyObjec
 
 		result.reset(PyObject_Call(func, args.get(), NULL));
 
-		return pythonToScriptValue(context, result.get(), NULL).getValue();
+		return pythonToScriptValue(context, result.get(), NULL);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
 	}
 
-	return GVariant();
+	return GScriptValue::fromNull();
 }
 
 
@@ -1775,7 +1775,7 @@ GPythonScriptFunction::~GPythonScriptFunction()
 	}
 }
 
-GVariant GPythonScriptFunction::invoke(const GVariant * params, size_t paramCount)
+GScriptValue GPythonScriptFunction::invoke(const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1788,7 +1788,7 @@ GVariant GPythonScriptFunction::invoke(const GVariant * params, size_t paramCoun
 	return this->invokeIndirectly(variantPointers, paramCount);
 }
 
-GVariant GPythonScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
+GScriptValue GPythonScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
 {
 	return invokePythonFunctionIndirectly(this->getBindingContext(), NULL, this->func, params, paramCount, "");
 }
@@ -1965,7 +1965,7 @@ GScriptValue GPythonScriptObject::getScriptFunction(const char * name)
 	return GScriptValue();
 }
 
-GVariant GPythonScriptObject::invoke(const char * name, const GVariant * params, size_t paramCount)
+GScriptValue GPythonScriptObject::invoke(const char * name, const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1978,7 +1978,7 @@ GVariant GPythonScriptObject::invoke(const char * name, const GVariant * params,
 	return this->invokeIndirectly(name, variantPointers, paramCount);
 }
 
-GVariant GPythonScriptObject::invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount)
+GScriptValue GPythonScriptObject::invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount)
 {
 	GPythonScopedPointer func(getObjectAttr(this->object, name));
 	return invokePythonFunctionIndirectly(this->getBindingContext(), NULL, func.get(), params, paramCount, name);
