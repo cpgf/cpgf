@@ -55,6 +55,9 @@ GScriptValue::GScriptValue(const GScriptValueData & data)
 	}
 	this->flags = data.flags;
 	this->bindApi.reset(data.bindApi);
+	if(data.bindApi != NULL) {
+		data.bindApi->releaseReference();
+	}
 }
 
 GScriptValue::GScriptValue(const GScriptValue & other)

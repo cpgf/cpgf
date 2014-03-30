@@ -1499,8 +1499,9 @@ GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 			case gdtObject: {
 				GObjectGlueDataPointer objectData = sharedStaticCast<GObjectGlueData>(glueData);
 				if (objectData->isAllowGC()) {
-					GScriptValueBindApi *bindApi = new GScriptValueBindApi(objectData);
-					return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), true, bindApi);
+					GSharedInterface<IScriptValueBindApi> bindApi(new GScriptValueBindApi(objectData));
+					bindApi->releaseReference(); // now the bindApi has ref count = 1
+					return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), true, bindApi.get());
 				} else {
 					return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), false);
 				}
