@@ -45,7 +45,9 @@ public:
         cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("createHelperData"));
         if(func)
         {
-            return cpgf::fromVariant<SimpleOverrideHelperData * >(cpgf::invokeScriptFunction(func.get(), this).getValue());
+	  cpgf::GScriptValue ret = cpgf::invokeScriptFunction(func.get(), this);
+	  ret.discardOwnership();
+            return cpgf::fromVariant<SimpleOverrideHelperData * >(ret.getValue());
         }
         return SimpleOverride::createHelperData();
     }

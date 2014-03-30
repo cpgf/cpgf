@@ -6,6 +6,7 @@
 #include "cpgf/gstdint.h"
 #include "cpgf/gsharedinterface.h"
 #include "cpgf/gflags.h"
+#include "cpgf/gcallback.h"
 
 #include <string>
 
@@ -23,6 +24,8 @@ struct IScriptObject;
 struct IScriptFunction;
 struct IScriptArray;
 
+typedef GCallback<void ()> DiscardOwnershipCommand;
+
 #pragma pack(push, 1)
 #pragma pack(1)
 struct GScriptValueData
@@ -31,6 +34,7 @@ struct GScriptValueData
 	GVariantData value;
 	IMetaItem * metaItem;
 	uint32_t flags;
+	DiscardOwnershipCommand discardOwnershipCommand;
 };
 #pragma pack(pop)
 
@@ -57,13 +61,14 @@ public:
 		typeScriptFunction = 11,
 		typeScriptArray = 12
 	};
-	
+
 private:
+	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, bool transferOwnership, const DiscardOwnershipCommand & command);
 	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, bool transferOwnership);
 	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem);
 	GScriptValue(Type type, const GVariant & value);
 	explicit GScriptValue(const GScriptValueData & data);
-	
+
 public:
 	GScriptValue();
 	GScriptValue(const GScriptValue & other);
@@ -77,6 +82,7 @@ public:
 	static GScriptValue fromAndCopyString(const char * s); // duplicate s and s can be freed
 	static GScriptValue fromClass(IMetaClass * metaClass);
 	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership); // instance can be a void * or a shadow object
+	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership, const DiscardOwnershipCommand & command); // instance can be a void * or a shadow object
 	static GScriptValue fromMethod(void * instance, IMetaMethod * method);
 	static GScriptValue fromOverloadedMethods(IMetaList * methods);
 	static GScriptValue fromEnum(IMetaEnum * metaEnum);
@@ -100,7 +106,7 @@ public:
 	IScriptObject * toScriptObject() const;
 	IScriptFunction * toScriptFunction() const;
 	IScriptArray * toScriptArray() const;
-	
+
 	bool isNull() const { return this->type == typeNull; }
 	bool isFundamental() const { return this->type == typeFundamental; }
 	bool isString() const { return this->type == typeString; }
@@ -122,12 +128,18 @@ public:
 	// The result must be passed to another GScriptValue or GScriptValueDataScopedGuard to avoid memory leak
 	GScriptValueData getData() const;
 
+	void discardOwnership() {
+	  if (discardOwnershipCommand) {
+		discardOwnershipCommand();
+	  }
+	}
 private:
 	Type type;
 	GVariant value;
 	GSharedInterface<IMetaItem> metaItem;
 	GFlags<ValueFlags> flags;
-	
+	DiscardOwnershipCommand discardOwnershipCommand;
+
 private:
 	friend GScriptValue createScriptValueFromData(const GScriptValueData & data);
 	friend class GScriptValueDataScopedGuard;

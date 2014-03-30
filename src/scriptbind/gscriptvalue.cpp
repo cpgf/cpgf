@@ -13,6 +13,12 @@ GScriptValue createScriptValueFromData(const GScriptValueData & data)
 	return GScriptValue(data);
 }
 
+GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, bool transferOwnership, const DiscardOwnershipCommand & command)
+	: type(type), value(value), metaItem(metaItem), flags(), discardOwnershipCommand(command)
+{
+	this->flags.setByBool(vfTransferOwnership, transferOwnership);
+}
+
 GScriptValue::GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, bool transferOwnership)
 	: type(type), value(value), metaItem(metaItem), flags()
 {
@@ -48,10 +54,11 @@ GScriptValue::GScriptValue(const GScriptValueData & data)
 		data.metaItem->releaseReference();
 	}
 	this->flags = data.flags;
+	this->discardOwnershipCommand = data.discardOwnershipCommand;
 }
 
 GScriptValue::GScriptValue(const GScriptValue & other)
-	: type(other.type), value(other.value), metaItem(other.metaItem), flags(other.flags)
+	: type(other.type), value(other.value), metaItem(other.metaItem), flags(other.flags), discardOwnershipCommand(other.discardOwnershipCommand)
 {
 }
 
@@ -62,8 +69,9 @@ GScriptValue & GScriptValue::operator = (const GScriptValue & other)
 		this->value = other.value;
 		this->metaItem = other.metaItem;
 		this->flags = other.flags;
+		this->discardOwnershipCommand = other.discardOwnershipCommand;
 	}
-	
+
 	return *this;
 }
 
@@ -74,6 +82,7 @@ GScriptValueData GScriptValue::takeData()
 	data.value = this->value.takeData();
 	data.metaItem = this->metaItem.take();
 	data.flags = this->flags;
+	data.discardOwnershipCommand = this->discardOwnershipCommand;
 	return data;
 }
 
@@ -87,6 +96,7 @@ GScriptValueData GScriptValue::getData() const
 		data.metaItem->addReference();
 	}
 	data.flags = this->flags;
+	data.discardOwnershipCommand = this->discardOwnershipCommand;
 	return data;
 }
 
@@ -120,6 +130,13 @@ GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * me
 	GMetaType metaType(metaGetTypedItemMetaType(metaClass));
 	metaType.addPointer();
 	return GScriptValue(typeObject, createTypedVariant(instance, metaType), metaClass, transferOwnership);
+}
+
+GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership, const DiscardOwnershipCommand & command)
+{
+	GMetaType metaType(metaGetTypedItemMetaType(metaClass));
+	metaType.addPointer();
+	return GScriptValue(typeObject, createTypedVariant(instance, metaType), metaClass, transferOwnership, command);
 }
 
 GScriptValue GScriptValue::fromMethod(void * instance, IMetaMethod * method)

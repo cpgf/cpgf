@@ -1471,6 +1471,19 @@ char * wideStringToString(const wchar_t * ws)
 	return s.take();
 }
 
+struct DiscardGlueDataPointerOwnershipCommand
+{
+  DiscardGlueDataPointerOwnershipCommand(GObjectGlueDataPointer glueData) : glueData(glueData) {
+  }
+
+  void operator()() {
+	glueData->setAllowGC(false);
+  }
+
+private:
+  GObjectGlueDataPointer glueData;
+};
+
 GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 {
 	if(glueData) {
@@ -1482,7 +1495,11 @@ GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 
 			case gdtObject: {
 				GObjectGlueDataPointer objectData = sharedStaticCast<GObjectGlueData>(glueData);
-				return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), objectData->isAllowGC());
+				if (objectData->isAllowGC()) {
+				  return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), true, DiscardGlueDataPointerOwnershipCommand(objectData));
+				} else {
+				  return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), false);
+				}
 			}
 
 			case gdtRaw: {
