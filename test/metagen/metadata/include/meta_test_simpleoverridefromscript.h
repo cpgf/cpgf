@@ -28,7 +28,9 @@ void buildMetaClass_SimpleOverride(D _d)
     _d.CPGF_MD_TEMPLATE _field("n", &D::ClassType::n);
     _d.CPGF_MD_TEMPLATE _method("getValue", &D::ClassType::getValue);
     _d.CPGF_MD_TEMPLATE _method("getAnother", &D::ClassType::getAnother);
+    _d.CPGF_MD_TEMPLATE _method("createHelperData", &D::ClassType::createHelperData);
     _d.CPGF_MD_TEMPLATE _method("getName", &D::ClassType::getName);
+    _d.CPGF_MD_TEMPLATE _method("consumeHelperData", &D::ClassType::consumeHelperData);
 }
 
 
@@ -37,6 +39,20 @@ public:
     
     SimpleOverrideWrapper(int n)
         : SimpleOverride(n) {}
+    
+    SimpleOverrideHelperData * createHelperData()
+    {
+        cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("createHelperData"));
+        if(func)
+        {
+            return cpgf::fromVariant<SimpleOverrideHelperData * >(cpgf::invokeScriptFunction(func.get(), this).getValue());
+        }
+        return SimpleOverride::createHelperData();
+    }
+    SimpleOverrideHelperData * super_createHelperData()
+    {
+        return SimpleOverride::createHelperData();
+    }
     
     int getAnother()
     {
@@ -84,6 +100,7 @@ public:
     {
         (void)_d;
         using namespace cpgf;
+        _d.CPGF_MD_TEMPLATE _method("super_createHelperData", (SimpleOverrideHelperData * (D::ClassType::*) ())&D::ClassType::super_createHelperData);
         _d.CPGF_MD_TEMPLATE _method("super_getAnother", (int (D::ClassType::*) ())&D::ClassType::super_getAnother);
         _d.CPGF_MD_TEMPLATE _method("super_getValue", (int (D::ClassType::*) ())&D::ClassType::super_getValue);
         _d.CPGF_MD_TEMPLATE _method("super_getName", (std::string (D::ClassType::*) ())&D::ClassType::super_getName);
@@ -112,6 +129,15 @@ void buildMetaClass_SimpleOverrideBase(D _d)
     
     _d.CPGF_MD_TEMPLATE _method("baseOnly", &D::ClassType::baseOnly);
     _d.CPGF_MD_TEMPLATE _method("getValue", &D::ClassType::getValue);
+}
+
+
+template <typename D>
+void buildMetaClass_SimpleOverrideHelperData(D _d)
+{
+    (void)_d;
+    using namespace cpgf;
+    
 }
 
 
