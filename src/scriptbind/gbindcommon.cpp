@@ -71,7 +71,7 @@ private:
 class GClassPool
 {
 private:
-	typedef map<void *, GWeakObjectInstancePointer> InstanceMapType;
+	typedef map<const volatile void *, GWeakObjectInstancePointer> InstanceMapType;
 
 	typedef vector<GClassGlueDataPointer> ClassMapListType;
 	typedef GStringMap<ClassMapListType, GStringMapReuseKey> ClassMapType;
@@ -85,7 +85,7 @@ public:
 
 	GObjectInstancePointer findObjectData(const GVariant & instancecv);
 
-	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
+	GClassGlueDataPointer getOrNewClassData(const GVariant & instance, IMetaClass * metaClass);
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
 	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
 
@@ -465,7 +465,7 @@ void GClassPool::objectCreated(const GObjectInstancePointer & objectData)
 	// Only store the object data that owns the object (allow gc or it's a shadow object)
 	// If don't check for this, things goes messy if we get the first element address in object array, where two kinds of objects share the same address
 	if(objectData->isAllowGC() || objectData->getInstance().getType() == vtShadow) {
-		void * instance = objectData->getInstanceAddress();
+		const volatile void * instance = objectData->getInstance().refData().ptrObject;
 		if(this->instanceMap.find(instance) == instanceMap.end()) {
 			this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
 		}
@@ -475,14 +475,14 @@ void GClassPool::objectCreated(const GObjectInstancePointer & objectData)
 void GClassPool::objectDestroyed(const GObjectInstance * objectData)
 {
 	if(isLibraryLive()) {
-		void * instance = objectData->getInstanceAddress();
+		const volatile void * instance = objectData->getInstance().refData().ptrObject;
 		this->instanceMap.erase(instance);
 	}
 }
 
 GObjectInstancePointer GClassPool::findObjectData(const GVariant & instance)
 {
-	InstanceMapType::iterator it = this->instanceMap.find(objectAddressFromVariant(instance));
+	InstanceMapType::iterator it = this->instanceMap.find(instance.refData().ptrObject);
 	if(it != instanceMap.end() && it->second) {
 		GObjectInstancePointer data(it->second.get());
 		return data;
@@ -548,9 +548,9 @@ size_t GClassPool::getFreeSlot(ClassMapListType * classDataList, size_t startSlo
 	return slot;
 }
 
-GClassGlueDataPointer GClassPool::getOrNewClassData(void * instance, IMetaClass * metaClass)
+GClassGlueDataPointer GClassPool::getOrNewClassData(const GVariant & instance, IMetaClass * metaClass)
 {
-	InstanceMapType::iterator instanceIterator = this->instanceMap.find(instance);
+	InstanceMapType::iterator instanceIterator = this->instanceMap.find(instance.refData().ptrObject);
 	if(instanceIterator != this->instanceMap.end()) {
 		if(instanceIterator->second.expired()) {
 			this->instanceMap.erase(instanceIterator);
@@ -737,7 +737,7 @@ GClassGlueDataPointer GBindingContext::createClassGlueData(IMetaClass * metaClas
 	return data;
 }
 
-GClassGlueDataPointer GBindingContext::getOrNewClassData(void * instance, IMetaClass * metaClass)
+GClassGlueDataPointer GBindingContext::getOrNewClassData(const GVariant & instance, IMetaClass * metaClass)
 {
 	return this->classPool->getOrNewClassData(instance, metaClass);
 }

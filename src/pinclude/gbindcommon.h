@@ -742,7 +742,7 @@ public:
 	IScriptContext * borrowScriptContext() const;
 
 public:
-	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
+	GClassGlueDataPointer getOrNewClassData(const GVariant & instance, IMetaClass * metaClass);
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
 	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
 
@@ -1043,7 +1043,7 @@ typename Methods::ResultType complexVariantToScript(const GContextPointer & cont
 		if(typedItem) {
 			GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
-			return Methods::doObjectToScript(context, context->getOrNewClassData(objectAddressFromVariant(value), gdynamic_cast<IMetaClass *>(typedItem.get())),
+			return Methods::doObjectToScript(context, context->getOrNewClassData(value, gdynamic_cast<IMetaClass *>(typedItem.get())),
 				value, flags, metaTypeToCV(type), outputGlueData);
 		}
 		else {
