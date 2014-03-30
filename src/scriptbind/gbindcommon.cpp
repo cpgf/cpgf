@@ -1471,17 +1471,20 @@ char * wideStringToString(const wchar_t * ws)
 	return s.take();
 }
 
-struct DiscardGlueDataPointerOwnershipCommand
+struct GScriptValueBindApi : public IScriptValueBindApi
 {
-  DiscardGlueDataPointerOwnershipCommand(GObjectGlueDataPointer glueData) : glueData(glueData) {
-  }
+	G_INTERFACE_IMPL_OBJECT
+public:
+	GScriptValueBindApi(GObjectGlueDataPointer glueData) : glueData(glueData) {}
 
-  void operator()() {
-	glueData->setAllowGC(false);
-  }
+	virtual ~GScriptValueBindApi() {}
+
+	virtual void discardOwnership() {
+		glueData->setAllowGC(false);
+	}
 
 private:
-  GObjectGlueDataPointer glueData;
+	GObjectGlueDataPointer glueData;
 };
 
 GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
@@ -1496,9 +1499,10 @@ GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 			case gdtObject: {
 				GObjectGlueDataPointer objectData = sharedStaticCast<GObjectGlueData>(glueData);
 				if (objectData->isAllowGC()) {
-				  return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), true, DiscardGlueDataPointerOwnershipCommand(objectData));
+					GScriptValueBindApi *bindApi = new GScriptValueBindApi(objectData);
+					return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), true, bindApi);
 				} else {
-				  return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), false);
+					return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), false);
 				}
 			}
 
