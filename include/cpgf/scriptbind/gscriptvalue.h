@@ -27,6 +27,7 @@ struct IScriptArray;
 struct IScriptValueBindApi : public IObject
 {
 	virtual void G_API_CC discardOwnership() = 0;
+	virtual bool G_API_CC isOwnershipTransferred() = 0;
 };
 
 #pragma pack(push, 1)
@@ -36,7 +37,6 @@ struct GScriptValueData
 	uint32_t type;
 	GVariantData value;
 	IMetaItem * metaItem;
-	uint32_t flags;
 	IScriptValueBindApi * bindApi;
 };
 #pragma pack(pop)
@@ -45,11 +45,6 @@ GMAKE_FINAL(GScriptValue)
 
 class GScriptValue : GFINAL_BASE(GScriptValue)
 {
-private:
-	enum ValueFlags {
-		vfTransferOwnership = 1 << 0
-	};
-
 public:
 	enum Type {
 		typeNull = 0,
@@ -66,8 +61,7 @@ public:
 	};
 
 private:
-	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, bool transferOwnership, IScriptValueBindApi * bindApi);
-	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, bool transferOwnership);
+	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, IScriptValueBindApi * bindApi);
 	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem);
 	GScriptValue(Type type, const GVariant & value);
 	explicit GScriptValue(const GScriptValueData & data);
@@ -85,7 +79,7 @@ public:
 	static GScriptValue fromAndCopyString(const char * s); // duplicate s and s can be freed
 	static GScriptValue fromClass(IMetaClass * metaClass);
 	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership); // instance can be a void * or a shadow object
-	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership, IScriptValueBindApi * bindApi); // instance can be a void * or a shadow object
+	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, IScriptValueBindApi * bindApi); // instance can be a void * or a shadow object
 	static GScriptValue fromMethod(void * instance, IMetaMethod * method);
 	static GScriptValue fromOverloadedMethods(IMetaList * methods);
 	static GScriptValue fromEnum(IMetaEnum * metaEnum);
@@ -132,15 +126,14 @@ public:
 	GScriptValueData getData() const;
 
 	void discardOwnership() {
-	  if (bindApi) {
-		bindApi->discardOwnership();
-	  }
+		if (bindApi) {
+			bindApi->discardOwnership();
+		}
 	}
 private:
 	Type type;
 	GVariant value;
 	GSharedInterface<IMetaItem> metaItem;
-	GFlags<ValueFlags> flags;
 	GSharedInterface<IScriptValueBindApi> bindApi;
 
 private:

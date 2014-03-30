@@ -1483,6 +1483,11 @@ public:
 		glueData->setAllowGC(false);
 	}
 
+	virtual bool isOwnershipTransferred() {
+		return glueData->isAllowGC();
+	}
+
+
 private:
 	GObjectGlueDataPointer glueData;
 };
@@ -1498,13 +1503,9 @@ GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 
 			case gdtObject: {
 				GObjectGlueDataPointer objectData = sharedStaticCast<GObjectGlueData>(glueData);
-				if (objectData->isAllowGC()) {
-					GSharedInterface<IScriptValueBindApi> bindApi(new GScriptValueBindApi(objectData));
-					bindApi->releaseReference(); // now the bindApi has ref count = 1
-					return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), true, bindApi.get());
-				} else {
-					return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), false);
-				}
+				GSharedInterface<IScriptValueBindApi> bindApi(new GScriptValueBindApi(objectData));
+				bindApi->releaseReference(); // now the bindApi has ref count = 1
+				return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), bindApi.get());
 			}
 
 			case gdtRaw: {
