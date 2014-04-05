@@ -703,6 +703,7 @@ private:
 class GScriptContext : public IScriptContext
 {
 public:
+	GScriptContext(GBindingContext *bindingContext) : bindingContext(bindingContext) {}
 	virtual ~GScriptContext() {}
 private:
 	typedef GSharedInterface<IScriptUserConverter> ScriptUserConverterType;
@@ -715,12 +716,14 @@ protected:
 	virtual void G_API_CC removeScriptUserConverter(IScriptUserConverter * converter);
 	virtual uint32_t G_API_CC getScriptUserConverterCount();
 	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index);
+	virtual void setObjectGC(const GVariant & instance, bool allowGC);
 
 private:
 	ScriptUserConverterListType::iterator findConverter(IScriptUserConverter * converter);
 
 private:
 	GScopedPointer<ScriptUserConverterListType> scriptUserConverterList;
+	GBindingContext * bindingContext;
 };
 
 class GBindingContext : public GShareFromThis<GBindingContext>
@@ -745,6 +748,8 @@ public:
 	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
 	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
+
+	GObjectInstancePointer findObjectInstance(const GVariant & instance);
 
 	GObjectGlueDataPointer newObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
 		const GBindValueFlags & flags, ObjectPointerCV cv);

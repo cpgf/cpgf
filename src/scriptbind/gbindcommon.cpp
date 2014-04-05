@@ -702,8 +702,17 @@ GScriptContext::ScriptUserConverterListType::iterator GScriptContext::findConver
 	return scriptUserConverterList->end();
 }
 
+void GScriptContext::setObjectGC(const GVariant & instance, bool allowGC)
+{
+	GObjectInstancePointer object = bindingContext->findObjectInstance(instance);
+	if (object) {
+		object->setAllowGC(allowGC);
+	}
+}
+
+
 GBindingContext::GBindingContext(IMetaService * service, const GScriptConfig & config)
-	: service(service), config(config), scriptContext(new GScriptContext)
+	: service(service), config(config), scriptContext(new GScriptContext(this))
 {
 	this->classPool.reset(new GClassPool(this));
 }
@@ -750,6 +759,11 @@ GClassGlueDataPointer GBindingContext::getClassData(IMetaClass * metaClass)
 GClassGlueDataPointer GBindingContext::newClassData(IMetaClass * metaClass)
 {
 	return this->classPool->newClassData(metaClass);
+}
+
+GObjectInstancePointer GBindingContext::findObjectInstance(const GVariant & instance)
+{
+	return this->classPool->findObjectData(instance);
 }
 
 GObjectGlueDataPointer GBindingContext::newObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
