@@ -372,6 +372,15 @@ IScriptArray * GScriptValue::toScriptArray() const
 	}
 }
 
+void GScriptValue::discardOwnership()
+{
+	if (bindApi) {
+		bindApi->discardOwnership();
+	}
+
+}
+
+
 
 GScriptValueDataScopedGuard::GScriptValueDataScopedGuard(const GScriptValueData & data)
 	: data(data)

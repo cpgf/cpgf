@@ -125,11 +125,7 @@ public:
 	// The result must be passed to another GScriptValue or GScriptValueDataScopedGuard to avoid memory leak
 	GScriptValueData getData() const;
 
-	void discardOwnership() {
-		if (bindApi) {
-			bindApi->discardOwnership();
-		}
-	}
+	void discardOwnership();
 private:
 	Type type;
 	GVariant value;
