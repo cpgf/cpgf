@@ -95,7 +95,7 @@ public class ClassWrapperWriter {
 				}
 				invoke = invoke + ")";
 				if(cppMethod.hasResult()) {
-					invoke = "return cpgf::fromVariant<" + cppMethod.getResultType().getLiteralType() + " >(" + invoke + ")";
+					invoke = "return cpgf::fromVariant<" + cppMethod.getResultType().getLiteralType() + " >(" + invoke + ".getValue())";
 				}
 				invoke = invoke + ";";
 				codeWriter.writeLine(invoke);
