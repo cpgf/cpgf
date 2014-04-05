@@ -72,7 +72,6 @@ struct IScriptObject : public IExtendObject
 
 	virtual void G_API_CC bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader) = 0;
 	virtual void G_API_CC holdObject(IObject * object) = 0;
-	virtual void G_API_CC bindExternalObjectToClass(void * address, IMetaClass * metaClass) = 0;
 
 	virtual gapi_bool G_API_CC maybeIsScriptArray(const char * name) = 0;
 	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, const char * name) = 0;

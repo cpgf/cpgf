@@ -717,6 +717,7 @@ protected:
 	virtual uint32_t G_API_CC getScriptUserConverterCount();
 	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index);
 	virtual void setObjectGC(const GVariant & instance, bool allowGC);
+	virtual void bindExternalObjectToClass(void * address, IMetaClass * metaClass);
 
 private:
 	ScriptUserConverterListType::iterator findConverter(IScriptUserConverter * converter);
@@ -724,6 +725,7 @@ private:
 private:
 	GScopedPointer<ScriptUserConverterListType> scriptUserConverterList;
 	GBindingContext * bindingContext;
+	std::vector<GObjectGlueDataPointer> externalObjects;
 };
 
 class GBindingContext : public GShareFromThis<GBindingContext>
@@ -896,8 +898,6 @@ public:
 
 	virtual IScriptContext * getContext() const;
 
-	virtual void bindExternalObjectToClass(void * address, IMetaClass * metaClass);
-
 protected:
 	const GContextPointer & getBindingContext() const {
 		return this->context;
@@ -907,7 +907,6 @@ protected:
 
 private:
 	GContextPointer context;
-	std::vector<GObjectGlueDataPointer> externalObjects;
 };
 
 

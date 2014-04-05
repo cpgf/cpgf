@@ -504,15 +504,6 @@ void G_API_CC ImplScriptObject::holdObject(IObject * object)
 	LEAVE_BINDING_API()
 }
 
-void G_API_CC ImplScriptObject::bindExternalObjectToClass(void * address, IMetaClass * metaClass)
-{
-	ENTER_BINDING_API()
-
-	this->scriptObject->bindExternalObjectToClass(address, metaClass);
-
-	LEAVE_BINDING_API()
-}
-
 gapi_bool G_API_CC G_API_CC ImplScriptObject::maybeIsScriptArray(const char * name)
 {
 	return !! this->scriptObject->maybeIsScriptArray(name);

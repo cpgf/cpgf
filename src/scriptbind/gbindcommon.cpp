@@ -710,6 +710,17 @@ void GScriptContext::setObjectGC(const GVariant & instance, bool allowGC)
 	}
 }
 
+void GScriptContext::bindExternalObjectToClass(void * address, IMetaClass * metaClass) {
+	GClassGlueDataPointer classData = bindingContext->getClassData(metaClass);
+	this->externalObjects.push_back(
+		bindingContext->newObjectGlueData(
+			classData,
+			pointerToObjectVariant(address),
+			GBindValueFlags(),
+			opcvNone
+		)
+	);
+}
 
 GBindingContext::GBindingContext(IMetaService * service, const GScriptConfig & config)
 	: service(service), config(config), scriptContext(new GScriptContext(this))
@@ -899,18 +910,6 @@ IScriptContext * GScriptObjectBase::getContext() const
 void GScriptObjectBase::doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
 {
 	this->getBindingContext()->bindScriptCoreService(this, name, libraryLoader);
-}
-
-void GScriptObjectBase::bindExternalObjectToClass(void * address, IMetaClass * metaClass) {
-	GClassGlueDataPointer classData = context->getClassData(metaClass);
-	this->externalObjects.push_back(
-		context->newObjectGlueData(
-			classData,
-			pointerToObjectVariant(address),
-			GBindValueFlags(),
-			opcvNone
-		)
-	);
 }
 
 

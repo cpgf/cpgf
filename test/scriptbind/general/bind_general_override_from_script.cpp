@@ -66,7 +66,7 @@ void doTestOverrideCppFunctionOnNativePtrFromScriptClass(T * binding, TestScript
 
 	ScriptOverride obj(68);
 
-	binding->bindExternalObjectToClass(&obj, scriptClass);
+	binding->getContext()->bindExternalObjectToClass(&obj, scriptClass);
 
 	GEQUAL(83, obj.getValue());
 }
