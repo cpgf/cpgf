@@ -3,7 +3,7 @@
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gglobal.h"
-
+#include "cpgf/gscopedinterface.h"
 
 namespace cpgf {
 
@@ -147,8 +147,7 @@ private:
 
 GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership)
 {
-	GSharedInterface<IScriptValueBindApi> bindApi(new GScriptValueBindPromiseApi(transferOwnership));
-	bindApi->releaseReference(); // now the bindApi has ref count = 1
+	GScopedInterface<IScriptValueBindApi> bindApi(new GScriptValueBindPromiseApi(transferOwnership));
 	return GScriptValue::fromObject(instance, metaClass, bindApi.get());
 }
 
