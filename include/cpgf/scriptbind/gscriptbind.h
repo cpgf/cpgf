@@ -27,7 +27,7 @@ struct IScriptContext : public IObject
 	virtual void G_API_CC removeScriptUserConverter(IScriptUserConverter * converter) = 0;
 	virtual uint32_t G_API_CC getScriptUserConverterCount() = 0;
 	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index) = 0;
-	virtual void setObjectGC(const GVariant & instance, bool allowGC) = 0;
+	virtual void setAllowGC(const GVariant & instance, bool allowGC) = 0;
 	virtual void bindExternalObjectToClass(void * address, IMetaClass * metaClass) = 0;
 };
 

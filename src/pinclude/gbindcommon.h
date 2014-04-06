@@ -716,7 +716,7 @@ protected:
 	virtual void G_API_CC removeScriptUserConverter(IScriptUserConverter * converter);
 	virtual uint32_t G_API_CC getScriptUserConverterCount();
 	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index);
-	virtual void setObjectGC(const GVariant & instance, bool allowGC);
+	virtual void setAllowGC(const GVariant & instance, bool allowGC);
 	virtual void bindExternalObjectToClass(void * address, IMetaClass * metaClass);
 
 private:
