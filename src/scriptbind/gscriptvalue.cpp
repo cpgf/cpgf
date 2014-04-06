@@ -124,13 +124,13 @@ GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * me
 	return GScriptValue(typeObject, createTypedVariant(instance, metaType), metaClass, bindApi);
 }
 
-struct GScriptValueBindPromiseApi : public IScriptValueBindApi
+struct GScriptValueDefaultBindApi : public IScriptValueBindApi
 {
 	G_INTERFACE_IMPL_OBJECT
 public:
-	GScriptValueBindPromiseApi(bool transferOwnership) : transferOwnership(transferOwnership) {}
+	GScriptValueDefaultBindApi(bool transferOwnership) : transferOwnership(transferOwnership) {}
 
-	virtual ~GScriptValueBindPromiseApi() {}
+	virtual ~GScriptValueDefaultBindApi() {}
 
 	virtual void discardOwnership() {
 		transferOwnership = false;
@@ -147,7 +147,7 @@ private:
 
 GScriptValue GScriptValue::fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership)
 {
-	GScopedInterface<IScriptValueBindApi> bindApi(new GScriptValueBindPromiseApi(transferOwnership));
+	GScopedInterface<IScriptValueBindApi> bindApi(new GScriptValueDefaultBindApi(transferOwnership));
 	return GScriptValue::fromObject(instance, metaClass, bindApi.get());
 }
 
