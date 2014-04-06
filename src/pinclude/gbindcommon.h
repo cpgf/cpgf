@@ -993,7 +993,8 @@ bool setValueOnNamedMember(const GGlueDataPointer & glueData, const char * name,
 	const GScriptValue & value, const GGlueDataPointer & valueGlueData);
 
 ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData);
-void * getGlueDataInstance(const GGlueDataPointer & glueData);
+GVariant getGlueDataInstance(const GGlueDataPointer & glueData);
+void * getGlueDataInstanceAddress(const GGlueDataPointer & glueData);
 IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData);
 IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer & glueData);
 
@@ -1004,6 +1005,7 @@ IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & va
 IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance);
 
 std::string getMethodNameFromMethodList(IMetaList * methodList);
+const volatile void * getInstanceHash(const GVariant & instance);
 
 template <typename Getter, typename Predict>
 int findAppropriateCallable(IMetaService * service,
@@ -1294,7 +1296,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 	const GScriptConfig & config = classData->getBindingContext()->getConfig();
 	GContextPointer context = classData->getBindingContext();
 
-	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstance(glueData));
+	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstanceAddress(glueData));
 
 	void * instance = NULL;
 	IMetaClass * outDerived;
@@ -1378,18 +1380,18 @@ private:
 
 
 struct GScriptObjectCacheEntry {
-	GScriptObjectCacheEntry() : instance(NULL), className(NULL), cv(opcvNone) {
+	GScriptObjectCacheEntry() : key(NULL), className(NULL), cv(opcvNone) {
 	}
 
-	GScriptObjectCacheEntry(void * instance, const char * className, ObjectPointerCV cv)
-		: instance(instance), className(className), cv(cv) {
+	GScriptObjectCacheEntry(const volatile void * key, const char * className, ObjectPointerCV cv)
+		: key(key), className(className), cv(cv) {
 	}
 
 	bool operator < (const GScriptObjectCacheEntry & other) const {
-		if(instance < other.instance) {
+		if(key < other.key) {
 			return true;
 		}
-		if(instance == other.instance) {
+		if(key == other.key) {
 			if(cv < other.cv) {
 				return true;
 			}
@@ -1407,7 +1409,7 @@ struct GScriptObjectCacheEntry {
 		return false;
 	}
 
-	void * instance;
+	const volatile void * key;
 	const char * className;
 	ObjectPointerCV cv;
 };
@@ -1419,9 +1421,10 @@ private:
 	typedef std::map<GScriptObjectCacheEntry, T> ObjectMapType;
 
 public:
-	T * findScriptObject(void * object, const GClassGlueDataPointer & classData,
+	T * findScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
 		ObjectPointerCV cv) {
-		GScriptObjectCacheEntry entry(object, classData->getMetaClass()->getQualifiedName(), cv);
+		const volatile void * key = getInstanceHash(instance);
+		GScriptObjectCacheEntry entry(key, classData->getMetaClass()->getQualifiedName(), cv);
 		typename ObjectMapType::iterator it = this->objectMap.find(entry);
 		if(it == this->objectMap.end()) {
 			return NULL;
@@ -1431,21 +1434,22 @@ public:
 		}
 	}
 
-	void addScriptObject(void * object, const GClassGlueDataPointer & classData,
+	void addScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
 		ObjectPointerCV cv, const T & scriptObject) {
-//		GASSERT(this->findScriptObject(object, classData, cv) == NULL);
-		GScriptObjectCacheEntry entry(object, classData->getMetaClass()->getQualifiedName(), cv);
+		const volatile void * key = getInstanceHash(instance);
+		GScriptObjectCacheEntry entry(key, classData->getMetaClass()->getQualifiedName(), cv);
 		this->objectMap.insert(std::make_pair(entry, scriptObject));
 	}
 
 	void freeScriptObject(GGlueDataWrapper * dataWrapper) {
-		void * instance = getGlueDataInstance(dataWrapper->getData());
-		if(instance == NULL) {
+		GVariant instance = getGlueDataInstance(dataWrapper->getData());
+		if(instance.isEmpty()) {
 			return;
 		}
+		const volatile void * key = getInstanceHash(instance);
 		for(typename ObjectMapType::iterator it = this->objectMap.begin();
 			it != this->objectMap.end(); ) {
-			if(it->first.instance == instance) {
+			if(it->first.key == key) {
 				this->objectMap.erase(it++);
 			}
 			else {

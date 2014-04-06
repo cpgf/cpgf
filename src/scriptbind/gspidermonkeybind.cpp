@@ -507,7 +507,7 @@ struct GSpiderMethods
 		if(data == NULL) {
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 			
-			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstance(objectData)));
+			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstanceAddress(objectData)));
 			GMethodGlueDataPointer glueData = context->newMethodGlueData(context->getClassData(boundClass.get()), metaList.get());
 			data = new GMapItemMethodData(glueData);
 			mapItem->setUserData(data);
@@ -746,7 +746,7 @@ JsValue objectToSpider(const GSpiderContextPointer & context, const GClassGlueDa
 		return JSVAL_NULL;
 	}
 
-	GSharedJsObject * sharedJsObject = getSpiderScriptObjectCache()->findScriptObject(instanceAddress, classData, cv);
+	GSharedJsObject * sharedJsObject = getSpiderScriptObjectCache()->findScriptObject(instance, classData, cv);
 	if(sharedJsObject != NULL) {
 		return ObjectValue(*sharedJsObject->getJsObject());
 	}
@@ -765,7 +765,7 @@ JsValue objectToSpider(const GSpiderContextPointer & context, const GClassGlueDa
 	JSObject * object = JS_NewObject(context->getJsContext(), classUserData->getJsClass(), NULL, NULL);
 	setObjectPrivateData(object, objectWrapper);
 
-	getSpiderScriptObjectCache()->addScriptObject(instanceAddress, classData, cv,
+	getSpiderScriptObjectCache()->addScriptObject(instance, classData, cv,
 		GSharedJsObject(context->getJsContext(), object));
 
 	return ObjectValue(*object);
@@ -1014,11 +1014,12 @@ JSBool objectConstructor(JSContext * jsContext, unsigned int argc, jsval * value
 		void * instance = doInvokeConstructor(context, context->getService(), classData->getMetaClass(), &callableParam);
 
 		if(instance != NULL) {
-			JsValue object = objectToSpider(context, classData, instance, GBindValueFlags(bvfAllowGC), opcvNone, NULL);
+			GGlueDataPointer objectData;
+			JsValue object = objectToSpider(context, classData, instance, GBindValueFlags(bvfAllowGC), opcvNone, &objectData);
 			JS_SET_RVAL(jsContext, valuePointer, object);
-			
-			getSpiderScriptObjectCache()->addScriptObject(instance, classData, opcvNone,
-				GSharedJsObject(context->getJsContext(), &object.toObject()));
+
+			getSpiderScriptObjectCache()->addScriptObject(sharedStaticCast<GObjectGlueData>(objectData)->getInstance(),
+				classData, opcvNone, GSharedJsObject(context->getJsContext(), &object.toObject()));
 		}
 		else {
 			raiseCoreException(Error_ScriptBinding_FailConstructObject);

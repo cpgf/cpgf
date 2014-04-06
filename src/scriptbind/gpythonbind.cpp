@@ -1118,7 +1118,7 @@ PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataP
 		return pyAddRef(Py_None);
 	}
 
-	GPythonNative ** cachedPythonObject = getPythonScriptObjectCache()->findScriptObject(instanceAddress, classData, cv);
+	GPythonNative ** cachedPythonObject = getPythonScriptObjectCache()->findScriptObject(instance, classData, cv);
 	if(cachedPythonObject != NULL) {
 		return pyAddRef((*cachedPythonObject)->toPythonObject());
 	}
@@ -1128,7 +1128,7 @@ PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataP
 		*outputGlueData = objectData;
 	}
 	GPythonObject * object = createPythonObject(objectData);
-	getPythonScriptObjectCache()->addScriptObject(instanceAddress, classData, cv, object);
+	getPythonScriptObjectCache()->addScriptObject(instance, classData, cv, object);
 	return object;
 }
 
@@ -1234,7 +1234,7 @@ struct GPythonMethods
 		if(data == NULL) {
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 
-			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstance(objectData)));
+			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstanceAddress(objectData)));
 			data = new GMapItemMethodData(context->newMethodGlueData(context->getClassData(boundClass.get()), metaList.get()));
 
 			mapItem->setUserData(data);

@@ -465,7 +465,7 @@ void GClassPool::objectCreated(const GObjectInstancePointer & objectData)
 	// Only store the object data that owns the object (allow gc or it's a shadow object)
 	// If don't check for this, things goes messy if we get the first element address in object array, where two kinds of objects share the same address
 	if(objectData->isAllowGC() || objectData->getInstance().getType() == vtShadow) {
-		const volatile void * instance = objectData->getInstance().refData().ptrObject;
+		const volatile void * instance = getInstanceHash(objectData->getInstance());
 		if(this->instanceMap.find(instance) == instanceMap.end()) {
 			this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
 		}
@@ -475,14 +475,14 @@ void GClassPool::objectCreated(const GObjectInstancePointer & objectData)
 void GClassPool::objectDestroyed(const GObjectInstance * objectData)
 {
 	if(isLibraryLive()) {
-		const volatile void * instance = objectData->getInstance().refData().ptrObject;
+		const volatile void * instance = getInstanceHash(objectData->getInstance());
 		this->instanceMap.erase(instance);
 	}
 }
 
 GObjectInstancePointer GClassPool::findObjectData(const GVariant & instance)
 {
-	InstanceMapType::iterator it = this->instanceMap.find(instance.refData().ptrObject);
+	InstanceMapType::iterator it = this->instanceMap.find(getInstanceHash(instance));
 	if(it != instanceMap.end() && it->second) {
 		GObjectInstancePointer data(it->second.get());
 		return data;
@@ -550,7 +550,7 @@ size_t GClassPool::getFreeSlot(ClassMapListType * classDataList, size_t startSlo
 
 GClassGlueDataPointer GClassPool::getOrNewClassData(const GVariant & instance, IMetaClass * metaClass)
 {
-	InstanceMapType::iterator instanceIterator = this->instanceMap.find(instance.refData().ptrObject);
+	InstanceMapType::iterator instanceIterator = this->instanceMap.find(getInstanceHash(instance));
 	if(instanceIterator != this->instanceMap.end()) {
 		if(instanceIterator->second.expired()) {
 			this->instanceMap.erase(instanceIterator);
@@ -983,7 +983,7 @@ ObjectPointerCV getCallableConstness(IMetaCallable * callable)
 
 bool allowInvokeCallable(const GScriptConfig & config, const GGlueDataPointer & glueData, IMetaCallable * callable)
 {
-	if(getGlueDataInstance(glueData) != NULL) {
+	if(getGlueDataInstanceAddress(glueData) != NULL) {
 		if(! config.allowAccessStaticMethodViaInstance()) {
 			if(callable->isStatic()) {
 				return false;
@@ -1667,7 +1667,7 @@ void doSetValueOnAccessible(const GContextPointer & context, IMetaAccessible * a
 		doConvertForMetaClassCast(context, &value, targetType, valueGlueData);
 	}
 
-	metaSetValue(accessible, getGlueDataInstance(instanceGlueData), value);
+	metaSetValue(accessible, getGlueDataInstanceAddress(instanceGlueData), value);
 }
 
 bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char * name,
@@ -1694,7 +1694,7 @@ bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char
 	const GScriptConfig & config = classData->getBindingContext()->getConfig();
 	GContextPointer context = classData->getBindingContext();
 
-	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstance(instanceGlueData));
+	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstanceAddress(instanceGlueData));
 
 	void * instance = NULL;
 
@@ -1754,7 +1754,18 @@ ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData)
 	return opcvNone;
 }
 
-void * getGlueDataInstance(const GGlueDataPointer & glueData)
+GVariant getGlueDataInstance(const GGlueDataPointer & glueData)
+{
+	if(glueData) {
+		if(glueData->getType() == gdtObject) {
+			return sharedStaticCast<GObjectGlueData>(glueData)->getInstance();
+		}
+	}
+
+	return GVariant();
+}
+
+void * getGlueDataInstanceAddress(const GGlueDataPointer & glueData)
 {
 	if(glueData) {
 		if(glueData->getType() == gdtObject) {
@@ -1854,6 +1865,11 @@ std::string getMethodNameFromMethodList(IMetaList * methodList)
 	else {
 		return "";
 	}
+}
+
+const volatile void * getInstanceHash(const GVariant & instance)
+{
+	return instance.refData().ptrObject;
 }
 
 
