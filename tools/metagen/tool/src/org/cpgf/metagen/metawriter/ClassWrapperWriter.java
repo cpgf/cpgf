@@ -86,35 +86,41 @@ public class ClassWrapperWriter {
 		String paramText = Util.getParameterText(cppMethod.getParameterList(), false, true);
 		codeWriter.writeLine(prototype);
 		codeWriter.beginBlock();
-			codeWriter.writeLine("cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction(\"" + cppMethod.getLiteralName() + "\"));");
-			codeWriter.writeLine("if(func)");
-			codeWriter.beginBlock();
-				String invoke = "cpgf::invokeScriptFunction(func.get(), this";
-				if(cppMethod.hasParameter()) {
-					invoke = invoke + ", " + paramText;
-				}
-				invoke = invoke + ")";
-				if(cppMethod.hasResult()) {
-					invoke = "return cpgf::fromVariant<" + cppMethod.getResultType().getLiteralType() + " >(" + invoke + ")";
-				}
-				invoke = invoke + ";";
-				codeWriter.writeLine(invoke);
-				if(! cppMethod.hasResult()) {
-					codeWriter.writeLine("return;");
-				}
-			codeWriter.endBlock();
+		codeWriter.writeLine("cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction(\"" + cppMethod.getLiteralName() + "\"));");
+		codeWriter.writeLine("if(func)");
+		codeWriter.beginBlock();
+		String invoke = "cpgf::invokeScriptFunction(func.get(), this";
+		if(cppMethod.hasParameter()) {
+			invoke = invoke + ", " + paramText;
+		}
+		invoke = invoke + ")";
+		if(cppMethod.hasResult()) {
+			if (cppMethod.getDiscardResultOwnership()) {
+				codeWriter.writeLine("cpgf::GScriptValue ret = " + invoke + ";");
+				codeWriter.writeLine("ret.discardOwnership();");
+				invoke = "return cpgf::fromVariant<" + cppMethod.getResultType().getLiteralType() + " >(ret.getValue())";
+			} else {
+				invoke = "return cpgf::fromVariant<" + cppMethod.getResultType().getLiteralType() + " >(" + invoke + ".getValue())";
+			}
+		}
+		invoke = invoke + ";";
+		codeWriter.writeLine(invoke);
+		if(! cppMethod.hasResult()) {
+			codeWriter.writeLine("return;");
+		}
+		codeWriter.endBlock();
+		if(cppMethod.isPureVirtual()) {
 			if(cppMethod.isPureVirtual()) {
-				if(cppMethod.isPureVirtual()) {
-					codeWriter.writeLine("throw std::runtime_error(\"Abstract method\");");
-				}
+				codeWriter.writeLine("throw std::runtime_error(\"Abstract method\");");
 			}
-			else {
-				invoke = cppMethod.getOwner().getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
-				if(cppMethod.hasResult()) {
-					invoke = "return " + invoke;
-				}
-				codeWriter.writeLine(invoke);
+		}
+		else {
+			invoke = cppMethod.getOwner().getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
+			if(cppMethod.hasResult()) {
+				invoke = "return " + invoke;
 			}
+			codeWriter.writeLine(invoke);
+		}
 		codeWriter.endBlock("");
 
 		prototype = Util.getInvokablePrototype(cppMethod, WriterUtil.getMethodSuperName(cppMethod));
@@ -123,18 +129,18 @@ public class ClassWrapperWriter {
 		}
 		codeWriter.writeLine(prototype);
 		codeWriter.beginBlock();
+		if(cppMethod.isPureVirtual()) {
 			if(cppMethod.isPureVirtual()) {
-				if(cppMethod.isPureVirtual()) {
-					codeWriter.writeLine("throw std::runtime_error(\"Abstract method\");");
-				}
+				codeWriter.writeLine("throw std::runtime_error(\"Abstract method\");");
 			}
-			else {
-				invoke = cppMethod.getOwner().getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
-				if(cppMethod.hasResult()) {
-					invoke = "return " + invoke;
-				}
-				codeWriter.writeLine(invoke);
+		}
+		else {
+			invoke = cppMethod.getOwner().getLiteralName() + "::" + cppMethod.getLiteralName() + "(" + paramText + ");";
+			if(cppMethod.hasResult()) {
+				invoke = "return " + invoke;
 			}
+			codeWriter.writeLine(invoke);
+		}
 		codeWriter.endBlock("");
 	}
 

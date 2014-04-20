@@ -3,11 +3,11 @@ var config = {
 
 	headerOutput : "metadata/include",
 	sourceOutput : "metadata/src",
-	
+
 	metaItemCallback : processCallback,
-	
+
 	cppNamespace : "meta_test",
-	
+
 	metaClassFunctionPrefix : "buildMetaClass_",
 	metaClassCreatePrefix : "createMetaClass_",
 
@@ -17,7 +17,7 @@ var config = {
 	mainSourceFile : "register_meta_test",
 
 	autoRegisterToGlobal : true,
-	
+
 	metaNamespace : "metatest",
 	sourceHeaderCode : "" +
 		"#include \"../../../testmetatraits.h\"\n"
@@ -44,6 +44,10 @@ function processCallback(item, data)
 		if(name == "GetMaxMotorForce") {
 			data.skipBind = true;
 		}
+	}
+
+	if (("" + item.getQualifiedName()) === "SimpleOverride::createHelperData") {
+		item.setDiscardResultOwnership(true);
 	}
 
 	if(item.isClass()) {

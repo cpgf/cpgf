@@ -77,7 +77,7 @@ ImplScriptFunction::~ImplScriptFunction()
 	}
 }
 
-void G_API_CC ImplScriptFunction::invoke(GVariantData * outResult, const GVariantData * params, uint32_t paramCount)
+void G_API_CC ImplScriptFunction::invoke(GScriptValueData * outResult, const GVariantData * params, uint32_t paramCount)
 {
 	ENTER_BINDING_API()
 
@@ -92,7 +92,7 @@ void G_API_CC ImplScriptFunction::invoke(GVariantData * outResult, const GVarian
 	LEAVE_BINDING_API()
 }
 
-void G_API_CC ImplScriptFunction::invokeIndirectly(GVariantData * outResult, GVariantData const * const * params, uint32_t paramCount)
+void G_API_CC ImplScriptFunction::invokeIndirectly(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount)
 {
 	ENTER_BINDING_API()
 
@@ -104,7 +104,7 @@ void G_API_CC ImplScriptFunction::invokeIndirectly(GVariantData * outResult, GVa
 		paramIndirect[i] = &paramVariants[i];
 	}
 
-	GVariant result = this->scriptFunction->invokeIndirectly(paramIndirect, paramCount);
+	GScriptValue result = this->scriptFunction->invokeIndirectly(paramIndirect, paramCount);
 	if(outResult) {
 		*outResult = result.takeData();
 	}
@@ -424,7 +424,7 @@ void G_API_CC ImplScriptObject::getScriptFunction(GScriptValueData * outResult, 
 	LEAVE_BINDING_API()
 }
 
-void G_API_CC ImplScriptObject::invoke(GVariantData * outResult, const char * name, const GVariantData * params, uint32_t paramCount)
+void G_API_CC ImplScriptObject::invoke(GScriptValueData * outResult, const char * name, const GVariantData * params, uint32_t paramCount)
 {
 	ENTER_BINDING_API()
 
@@ -439,7 +439,7 @@ void G_API_CC ImplScriptObject::invoke(GVariantData * outResult, const char * na
 	LEAVE_BINDING_API()
 }
 
-void G_API_CC ImplScriptObject::invokeIndirectly(GVariantData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount)
+void G_API_CC ImplScriptObject::invokeIndirectly(GScriptValueData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount)
 {
 	ENTER_BINDING_API()
 
@@ -451,7 +451,7 @@ void G_API_CC ImplScriptObject::invokeIndirectly(GVariantData * outResult, const
 		paramIndirect[i] = &paramVariants[i];
 	}
 
-	GVariant result = this->scriptObject->invokeIndirectly(name, paramIndirect, paramCount);
+	GScriptValue result = this->scriptObject->invokeIndirectly(name, paramIndirect, paramCount);
 	if(outResult) {
 		*outResult = result.takeData();
 	}
@@ -500,15 +500,6 @@ void G_API_CC ImplScriptObject::holdObject(IObject * object)
 	ENTER_BINDING_API()
 
 	this->scriptObject->holdObject(object);
-
-	LEAVE_BINDING_API()
-}
-
-void G_API_CC ImplScriptObject::bindExternalObjectToClass(void * address, IMetaClass * metaClass)
-{
-	ENTER_BINDING_API()
-
-	this->scriptObject->bindExternalObjectToClass(address, metaClass);
 
 	LEAVE_BINDING_API()
 }

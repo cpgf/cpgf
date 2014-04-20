@@ -10,6 +10,7 @@
 namespace cpgf {
 
 class GScriptObject;
+class GVariant;
 struct IMetaClass;
 struct IScriptLibraryLoader;
 struct GMetaVariadicParam;
@@ -18,11 +19,12 @@ class GScriptCoreService
 {
 public:
 	~GScriptCoreService();
-	
+
 private:
 	GScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader);
 
 	bool loadLibrary(const char * namespaces, const GMetaVariadicParam * libraryNames);
+	void setAllowGC(const GVariant & instance, bool allowGC);
 
 private:
 	GScriptObject * scriptObject;

@@ -11,7 +11,7 @@ int ScriptOverride::getValue()
 {
 	GScopedInterface<IScriptFunction> func(this->getScriptFunction("getValue"));
 	if(func) {
-		return fromVariant<int>(invokeScriptFunction(func.get(), this));
+		return fromVariant<int>(invokeScriptFunction(func.get(), this).getValue());
 	}
 	else {
 		return super::getValue();

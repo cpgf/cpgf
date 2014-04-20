@@ -43,6 +43,20 @@ GDefineMetaInfo createMetaClass_SimpleOverrideBase()
 }
 
 
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
+#endif
+GDefineMetaInfo createMetaClass_SimpleOverrideHelperData()
+{
+    GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
+    {
+        GDefineMetaClass<SimpleOverrideHelperData> _nd = GDefineMetaClass<SimpleOverrideHelperData>::lazyDeclare("SimpleOverrideHelperData", &buildMetaClass_SimpleOverrideHelperData);
+        _d._class(_nd);
+    }
+    return _d.getMetaInfo();
+}
+
+
 } // namespace meta_test
 
 

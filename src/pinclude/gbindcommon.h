@@ -33,8 +33,8 @@ public:
 	GScriptFunction() {}
 	virtual ~GScriptFunction() {}
 
-	virtual GVariant invoke(const GVariant * params, size_t paramCount) = 0;
-	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount) = 0;
+	virtual GScriptValue invoke(const GVariant * params, size_t paramCount) = 0;
+	virtual GScriptValue invokeIndirectly(GVariant const * const * params, size_t paramCount) = 0;
 
 	// internal use
 	virtual void weaken() = 0;
@@ -703,6 +703,7 @@ private:
 class GScriptContext : public IScriptContext
 {
 public:
+	GScriptContext(GBindingContext *bindingContext) : bindingContext(bindingContext) {}
 	virtual ~GScriptContext() {}
 private:
 	typedef GSharedInterface<IScriptUserConverter> ScriptUserConverterType;
@@ -715,12 +716,16 @@ protected:
 	virtual void G_API_CC removeScriptUserConverter(IScriptUserConverter * converter);
 	virtual uint32_t G_API_CC getScriptUserConverterCount();
 	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index);
+	virtual void G_API_CC setAllowGC(const GVariant & instance, bool allowGC);
+	virtual void G_API_CC bindExternalObjectToClass(void * address, IMetaClass * metaClass);
 
 private:
 	ScriptUserConverterListType::iterator findConverter(IScriptUserConverter * converter);
 
 private:
 	GScopedPointer<ScriptUserConverterListType> scriptUserConverterList;
+	GBindingContext * bindingContext;
+	std::vector<GObjectGlueDataPointer> externalObjects;
 };
 
 class GBindingContext : public GShareFromThis<GBindingContext>
@@ -745,6 +750,8 @@ public:
 	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
 	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
+
+	GObjectInstancePointer findObjectInstance(const GVariant & instance);
 
 	GObjectGlueDataPointer newObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
 		const GBindValueFlags & flags, ObjectPointerCV cv);
@@ -891,8 +898,6 @@ public:
 
 	virtual IScriptContext * getContext() const;
 
-	virtual void bindExternalObjectToClass(void * address, IMetaClass * metaClass);
-
 protected:
 	const GContextPointer & getBindingContext() const {
 		return this->context;
@@ -902,7 +907,6 @@ protected:
 
 private:
 	GContextPointer context;
-	std::vector<GObjectGlueDataPointer> externalObjects;
 };
 
 

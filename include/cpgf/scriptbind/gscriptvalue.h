@@ -6,6 +6,7 @@
 #include "cpgf/gstdint.h"
 #include "cpgf/gsharedinterface.h"
 #include "cpgf/gflags.h"
+#include "cpgf/gcallback.h"
 
 #include <string>
 
@@ -23,6 +24,12 @@ struct IScriptObject;
 struct IScriptFunction;
 struct IScriptArray;
 
+struct IScriptValueBindApi : public IObject
+{
+	virtual void G_API_CC discardOwnership() = 0;
+	virtual bool G_API_CC isOwnershipTransferred() = 0;
+};
+
 #pragma pack(push, 1)
 #pragma pack(1)
 struct GScriptValueData
@@ -30,7 +37,7 @@ struct GScriptValueData
 	uint32_t type;
 	GVariantData value;
 	IMetaItem * metaItem;
-	uint32_t flags;
+	IScriptValueBindApi * bindApi;
 };
 #pragma pack(pop)
 
@@ -38,11 +45,6 @@ GMAKE_FINAL(GScriptValue)
 
 class GScriptValue : GFINAL_BASE(GScriptValue)
 {
-private:
-	enum ValueFlags {
-		vfTransferOwnership = 1 << 0
-	};
-
 public:
 	enum Type {
 		typeNull = 0,
@@ -57,13 +59,13 @@ public:
 		typeScriptFunction = 11,
 		typeScriptArray = 12
 	};
-	
+
 private:
-	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, bool transferOwnership);
+	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem, IScriptValueBindApi * bindApi);
 	GScriptValue(Type type, const GVariant & value, IMetaItem * metaItem);
 	GScriptValue(Type type, const GVariant & value);
 	explicit GScriptValue(const GScriptValueData & data);
-	
+
 public:
 	GScriptValue();
 	GScriptValue(const GScriptValue & other);
@@ -77,6 +79,7 @@ public:
 	static GScriptValue fromAndCopyString(const char * s); // duplicate s and s can be freed
 	static GScriptValue fromClass(IMetaClass * metaClass);
 	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, bool transferOwnership); // instance can be a void * or a shadow object
+	static GScriptValue fromObject(const GVariant & instance, IMetaClass * metaClass, IScriptValueBindApi * bindApi); // instance can be a void * or a shadow object
 	static GScriptValue fromMethod(void * instance, IMetaMethod * method);
 	static GScriptValue fromOverloadedMethods(IMetaList * methods);
 	static GScriptValue fromEnum(IMetaEnum * metaEnum);
@@ -100,7 +103,7 @@ public:
 	IScriptObject * toScriptObject() const;
 	IScriptFunction * toScriptFunction() const;
 	IScriptArray * toScriptArray() const;
-	
+
 	bool isNull() const { return this->type == typeNull; }
 	bool isFundamental() const { return this->type == typeFundamental; }
 	bool isString() const { return this->type == typeString; }
@@ -122,12 +125,13 @@ public:
 	// The result must be passed to another GScriptValue or GScriptValueDataScopedGuard to avoid memory leak
 	GScriptValueData getData() const;
 
+	void discardOwnership();
 private:
 	Type type;
 	GVariant value;
 	GSharedInterface<IMetaItem> metaItem;
-	GFlags<ValueFlags> flags;
-	
+	GSharedInterface<IScriptValueBindApi> bindApi;
+
 private:
 	friend GScriptValue createScriptValueFromData(const GScriptValueData & data);
 	friend class GScriptValueDataScopedGuard;

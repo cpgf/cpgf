@@ -63,8 +63,8 @@ protected:
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
 
-	virtual void G_API_CC invoke(GVariantData * outResult, const GVariantData * params, uint32_t paramCount);
-	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, GVariantData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC invoke(GScriptValueData * outResult, const GVariantData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount);
 	// Internal use only!!!
 	virtual void G_API_CC weaken();
 
@@ -143,8 +143,8 @@ protected:
 
 	virtual void G_API_CC getScriptFunction(GScriptValueData * outResult, const char * name);
 
-	virtual void G_API_CC invoke(GVariantData * outResult, const char * name, const GVariantData * params, uint32_t paramCount);
-	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC invoke(GScriptValueData * outResult, const char * name, const GVariantData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount);
 
 	virtual void G_API_CC assignValue(const char * fromName, const char * toName);
 	virtual gapi_bool G_API_CC valueIsNull(const char * name);
@@ -152,7 +152,6 @@ protected:
 
 	virtual void G_API_CC bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 	virtual void G_API_CC holdObject(IObject * object);
-	virtual void G_API_CC bindExternalObjectToClass(void * address, IMetaClass * metaClass);
 
 	virtual gapi_bool G_API_CC maybeIsScriptArray(const char * name);
 	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, const char * name);
