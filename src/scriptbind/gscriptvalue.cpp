@@ -132,11 +132,11 @@ public:
 
 	virtual ~GScriptValueDefaultBindApi() {}
 
-	virtual void discardOwnership() {
+	virtual void G_API_CC discardOwnership() {
 		transferOwnership = false;
 	}
 
-	virtual bool isOwnershipTransferred() {
+	virtual bool G_API_CC isOwnershipTransferred() {
 		return transferOwnership;
 	}
 

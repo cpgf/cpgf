@@ -716,8 +716,8 @@ protected:
 	virtual void G_API_CC removeScriptUserConverter(IScriptUserConverter * converter);
 	virtual uint32_t G_API_CC getScriptUserConverterCount();
 	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index);
-	virtual void setAllowGC(const GVariant & instance, bool allowGC);
-	virtual void bindExternalObjectToClass(void * address, IMetaClass * metaClass);
+	virtual void G_API_CC setAllowGC(const GVariant & instance, bool allowGC);
+	virtual void G_API_CC bindExternalObjectToClass(void * address, IMetaClass * metaClass);
 
 private:
 	ScriptUserConverterListType::iterator findConverter(IScriptUserConverter * converter);

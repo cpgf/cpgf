@@ -1492,11 +1492,11 @@ public:
 
 	virtual ~GScriptValueBindApi() {}
 
-	virtual void discardOwnership() {
+	virtual void G_API_CC discardOwnership() {
 		glueData->setAllowGC(false);
 	}
 
-	virtual bool isOwnershipTransferred() {
+	virtual bool G_API_CC isOwnershipTransferred() {
 		return glueData->isAllowGC();
 	}
 
