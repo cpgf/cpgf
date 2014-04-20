@@ -13,6 +13,10 @@
 #pragma warning(disable: 4127 4100 4800 4512 4480 4267)
 #endif
 
+#ifndef UINT32_MAX
+#    define UINT32_MAX  ((uint32_t)-1)
+#endif
+
 #include "jsapi.h"
 
 #if defined(_MSC_VER)
