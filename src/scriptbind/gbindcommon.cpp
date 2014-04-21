@@ -321,7 +321,7 @@ GObjectInstance::GObjectInstance(const GContextPointer & context, const GVariant
 GObjectInstance::~GObjectInstance()
 {
 	// We don't call getInstanceAddress if it's a shared pointer, since we don't own the pointer, so the pointer may already be freed.
-	if(! this->isSharedPointer) {
+	if(! (this->isSharedPointer || vtIsByReference(this->instance.getType()))) {
 		this->objectLifeManager->releaseObject(this->getInstanceAddress());
 		if(this->isAllowGC()) {
 			this->objectLifeManager->freeObject(this->getInstanceAddress(), this->classData->getMetaClass());
