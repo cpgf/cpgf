@@ -712,6 +712,8 @@ void GScriptContext::setAllowGC(const GVariant & instance, bool allowGC)
 	GObjectInstancePointer object = bindingContext->findObjectInstance(instance);
 	if (object) {
 		object->setAllowGC(allowGC);
+	} else {
+		raiseCoreException(Error_ScriptBinding_CantFindObject);
 	}
 }
 

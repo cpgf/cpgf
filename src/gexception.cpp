@@ -57,6 +57,7 @@ int Error_ScriptBinding_CantFindMatchedOperator		= Error_ScriptBinding_Begin + 1
 int Error_ScriptBinding_NotSupportedFeature		= Error_ScriptBinding_Begin + 18;
 int Error_ScriptBinding_CantSetScriptValue		= Error_ScriptBinding_Begin + 19;
 int Error_ScriptBinding_CantSetDynamicPropertyOnCppObject	= Error_ScriptBinding_Begin + 20;
+int Error_ScriptBinding_CantFindObject = Error_ScriptBinding_Begin + 21;
 int Error_ScriptBinding_End			= 300;
 
 int Error_Serialization_Begin = 301;
@@ -143,20 +144,21 @@ namespace {
 		{ Error_ScriptBinding_CantFindMatchedOperator,			"Can't find matched opereator to invoke." },
 		{ Error_ScriptBinding_CantSetScriptValue,				"Can't set the script value to script engine." },
 		{ Error_ScriptBinding_CantSetDynamicPropertyOnCppObject,	"Can't set dynamic property on C++ object." },
+		{ Error_ScriptBinding_CantFindObject,	"Failed to find the requested object." },
 
 		{ Error_Serialization_TypeMismatch,			"Type mismatch when reading serialized object." },
 		{ Error_Serialization_CannotFindObjectType,	"Can't find object type." },
 		{ Error_Serialization_MissingMetaClass,		"Meta class type is missing." },
 		{ Error_Serialization_UnknownType,			"Unknow meta type." },
 		{ Error_Serialization_InvalidStorage,			"Serializing storage is corrupted." },
-		
+
 		{ Error_Tween_TweenableNotOwnedByTimeline,		"Tweenable is not owned by the timeline it is adding to." },
 
 
 		{ -1, NULL },
 
 		{ Error_Meta_WrongArity, "Wrong argument count. Expect: %d, but get: %d." },
-		
+
 		{ Error_ScriptBinding_CantFindMatchedMethod,			"Can't invoke meta method %s" },
 		{ Error_ScriptBinding_CantFindEnumKey,					"Can't find enumerator key -- %s." },
 		{ Error_ScriptBinding_ScriptMethodParamMismatch,		"Can't pass parameter at index %d in function %s" },
@@ -167,7 +169,7 @@ namespace {
 
 	const char * notFoundErrorMessage = "Can't find error message.";
 }
-	
+
 void raiseCoreException(int errorCode, ...)
 {
 	const char * message = NULL;

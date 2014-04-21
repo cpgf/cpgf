@@ -49,6 +49,7 @@ extern int Error_ScriptBinding_CantFindMatchedOperator;
 extern int Error_ScriptBinding_NotSupportedFeature;
 extern int Error_ScriptBinding_CantSetScriptValue;
 extern int Error_ScriptBinding_CantSetDynamicPropertyOnCppObject;
+extern int Error_ScriptBinding_CantFindObject;
 extern int Error_ScriptBinding_End;
 
 extern int Error_Serialization_Begin;
