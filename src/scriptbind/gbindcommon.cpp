@@ -1909,12 +1909,6 @@ std::string getMethodNameFromMethodList(IMetaList * methodList)
 	}
 }
 
-inline void * getInstanceHash(const GVariant & instance)
-{
-	return referenceAddressFromVariant(instance);
-}
-
-
 } // namespace bind_internal
 
 
