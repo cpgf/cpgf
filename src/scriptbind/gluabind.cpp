@@ -63,8 +63,8 @@ public:
 	GLuaScriptFunction(const GContextPointer & context, int objectIndex);
 	virtual ~GLuaScriptFunction();
 	
-	virtual GVariant invoke(const GVariant * params, size_t paramCount);
-	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount);
+	virtual GScriptValue invoke(const GVariant * params, size_t paramCount);
+	virtual GScriptValue invokeIndirectly(GVariant const * const * params, size_t paramCount);
 
 private:
 	int ref;
@@ -109,8 +109,8 @@ public:
 	
 	virtual GScriptValue getScriptFunction(const char * name);
 	
-	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount);
-	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
+	virtual GScriptValue invoke(const char * name, const GVariant * params, size_t paramCount);
+	virtual GScriptValue invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
 
 	virtual void assignValue(const char * fromName, const char * toName);
 
@@ -1261,7 +1261,7 @@ void GLuaScopeGuard::rawGet(const char * name)
 
 
 // function is on stack top
-GVariant invokeLuaFunctionIndirectly(const GContextPointer & context, GVariant const * const * params, size_t paramCount, const char * name)
+GScriptValue invokeLuaFunctionIndirectly(const GContextPointer & context, GVariant const * const * params, size_t paramCount, const char * name)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1295,7 +1295,7 @@ GVariant invokeLuaFunctionIndirectly(const GContextPointer & context, GVariant c
 			}
 			else {
 				if(resultCount > 0) {
-					return luaToScriptValue(context, -1, NULL).getValue();
+					return luaToScriptValue(context, -1, NULL);
 				}
 			}
 		}
@@ -1304,7 +1304,7 @@ GVariant invokeLuaFunctionIndirectly(const GContextPointer & context, GVariant c
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
 	}
 	
-	return GVariant();
+	return GScriptValue::fromNull();
 }
 
 
@@ -1318,7 +1318,7 @@ GLuaScriptFunction::~GLuaScriptFunction()
 	unrefLua(getLuaState(this->getBindingContext()), this->ref);
 }
 	
-GVariant GLuaScriptFunction::invoke(const GVariant * params, size_t paramCount)
+GScriptValue GLuaScriptFunction::invoke(const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1331,7 +1331,7 @@ GVariant GLuaScriptFunction::invoke(const GVariant * params, size_t paramCount)
 	return this->invokeIndirectly(variantPointers, paramCount);
 }
 
-GVariant GLuaScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
+GScriptValue GLuaScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
 {
 	lua_State * L = getLuaState(this->getBindingContext());
 
@@ -1554,7 +1554,7 @@ GScriptValue GLuaScriptObject::getScriptFunction(const char * name)
 	return GScriptValue::fromScriptFunction(scriptFunction.get());
 }
 
-GVariant GLuaScriptObject::invoke(const char * name, const GVariant * params, size_t paramCount)
+GScriptValue GLuaScriptObject::invoke(const char * name, const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1567,7 +1567,7 @@ GVariant GLuaScriptObject::invoke(const char * name, const GVariant * params, si
 	return this->invokeIndirectly(name, variantPointers, paramCount);
 }
 
-GVariant GLuaScriptObject::invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount)
+GScriptValue GLuaScriptObject::invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount)
 {
 	GLuaScopeGuard scopeGuard(this);
 

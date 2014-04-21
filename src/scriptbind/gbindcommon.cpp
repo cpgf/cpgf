@@ -702,8 +702,28 @@ GScriptContext::ScriptUserConverterListType::iterator GScriptContext::findConver
 	return scriptUserConverterList->end();
 }
 
+void GScriptContext::setAllowGC(const GVariant & instance, bool allowGC)
+{
+	GObjectInstancePointer object = bindingContext->findObjectInstance(instance);
+	if (object) {
+		object->setAllowGC(allowGC);
+	}
+}
+
+void GScriptContext::bindExternalObjectToClass(void * address, IMetaClass * metaClass) {
+	GClassGlueDataPointer classData = bindingContext->getClassData(metaClass);
+	this->externalObjects.push_back(
+		bindingContext->newObjectGlueData(
+			classData,
+			pointerToObjectVariant(address),
+			GBindValueFlags(),
+			opcvNone
+		)
+	);
+}
+
 GBindingContext::GBindingContext(IMetaService * service, const GScriptConfig & config)
-	: service(service), config(config), scriptContext(new GScriptContext)
+	: service(service), config(config), scriptContext(new GScriptContext(this))
 {
 	this->classPool.reset(new GClassPool(this));
 }
@@ -750,6 +770,11 @@ GClassGlueDataPointer GBindingContext::getClassData(IMetaClass * metaClass)
 GClassGlueDataPointer GBindingContext::newClassData(IMetaClass * metaClass)
 {
 	return this->classPool->newClassData(metaClass);
+}
+
+GObjectInstancePointer GBindingContext::findObjectInstance(const GVariant & instance)
+{
+	return this->classPool->findObjectData(instance);
 }
 
 GObjectGlueDataPointer GBindingContext::newObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
@@ -885,18 +910,6 @@ IScriptContext * GScriptObjectBase::getContext() const
 void GScriptObjectBase::doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader)
 {
 	this->getBindingContext()->bindScriptCoreService(this, name, libraryLoader);
-}
-
-void GScriptObjectBase::bindExternalObjectToClass(void * address, IMetaClass * metaClass) {
-	GClassGlueDataPointer classData = context->getClassData(metaClass);
-	this->externalObjects.push_back(
-		context->newObjectGlueData(
-			classData,
-			pointerToObjectVariant(address),
-			GBindValueFlags(),
-			opcvNone
-		)
-	);
 }
 
 
@@ -1471,6 +1484,27 @@ char * wideStringToString(const wchar_t * ws)
 	return s.take();
 }
 
+struct GScriptValueBindApi : public IScriptValueBindApi
+{
+	G_INTERFACE_IMPL_OBJECT
+public:
+	GScriptValueBindApi(GObjectGlueDataPointer glueData) : glueData(glueData) {}
+
+	virtual ~GScriptValueBindApi() {}
+
+	virtual void G_API_CC discardOwnership() {
+		glueData->setAllowGC(false);
+	}
+
+	virtual bool G_API_CC isOwnershipTransferred() {
+		return glueData->isAllowGC();
+	}
+
+
+private:
+	GObjectGlueDataPointer glueData;
+};
+
 GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 {
 	if(glueData) {
@@ -1482,7 +1516,8 @@ GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData)
 
 			case gdtObject: {
 				GObjectGlueDataPointer objectData = sharedStaticCast<GObjectGlueData>(glueData);
-				return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), objectData->isAllowGC());
+				GScopedInterface<IScriptValueBindApi> bindApi(new GScriptValueBindApi(objectData));
+				return GScriptValue::fromObject(objectData->getInstance(), objectData->getClassData()->getMetaClass(), bindApi.get());
 			}
 
 			case gdtRaw: {

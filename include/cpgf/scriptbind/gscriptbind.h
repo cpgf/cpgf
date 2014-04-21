@@ -27,6 +27,8 @@ struct IScriptContext : public IObject
 	virtual void G_API_CC removeScriptUserConverter(IScriptUserConverter * converter) = 0;
 	virtual uint32_t G_API_CC getScriptUserConverterCount() = 0;
 	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index) = 0;
+	virtual void G_API_CC setAllowGC(const GVariant & instance, bool allowGC) = 0;
+	virtual void G_API_CC bindExternalObjectToClass(void * address, IMetaClass * metaClass) = 0;
 };
 
 class GScriptObject
@@ -52,8 +54,8 @@ public:
 
 	virtual GScriptValue getScriptFunction(const char * name) = 0;
 
-	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount) = 0;
-	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount) = 0;
+	virtual GScriptValue invoke(const char * name, const GVariant * params, size_t paramCount) = 0;
+	virtual GScriptValue invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount) = 0;
 
 	virtual void assignValue(const char * fromName, const char * toName) = 0;
 
@@ -62,8 +64,6 @@ public:
 	virtual IMetaService * getMetaService() = 0;
 
 	virtual void holdObject(IObject * object);
-
-	virtual void bindExternalObjectToClass(void * address, IMetaClass * metaClass) = 0;
 
 	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) = 0;
 

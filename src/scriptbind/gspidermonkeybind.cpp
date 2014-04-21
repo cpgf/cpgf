@@ -13,6 +13,10 @@
 #pragma warning(disable: 4127 4100 4800 4512 4480 4267)
 #endif
 
+#ifndef UINT32_MAX
+#    define UINT32_MAX  ((uint32_t)-1)
+#endif
+
 #include "jsapi.h"
 
 #if defined(_MSC_VER)
@@ -240,8 +244,8 @@ public:
 	GSpiderScriptFunction(const GSpiderContextPointer & context, JSObject * self, JSObject * function);
 	virtual ~GSpiderScriptFunction();
 
-	virtual GVariant invoke(const GVariant * params, size_t paramCount);
-	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount);
+	virtual GScriptValue invoke(const GVariant * params, size_t paramCount);
+	virtual GScriptValue invokeIndirectly(GVariant const * const * params, size_t paramCount);
 
 private:
 	JSContext * jsContext;
@@ -284,8 +288,8 @@ public:
 
 	virtual GScriptValue getScriptFunction(const char * name);
 
-	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount);
-	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
+	virtual GScriptValue invoke(const char * name, const GVariant * params, size_t paramCount);
+	virtual GScriptValue invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
 
 	virtual void assignValue(const char * fromName, const char * toName);
 
@@ -1306,7 +1310,7 @@ GSpiderScriptFunction::~GSpiderScriptFunction()
 {
 }
 
-GVariant GSpiderScriptFunction::invoke(const GVariant * params, size_t paramCount)
+GScriptValue GSpiderScriptFunction::invoke(const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1319,7 +1323,7 @@ GVariant GSpiderScriptFunction::invoke(const GVariant * params, size_t paramCoun
 	return this->invokeIndirectly(variantPointers, paramCount);
 }
 
-GVariant invokeSpiderFunctionIndirectly(const GSpiderContextPointer & context, GVariant const * const * params, size_t paramCount, JSObject * function, JSObject * self)
+GScriptValue invokeSpiderFunctionIndirectly(const GSpiderContextPointer & context, GVariant const * const * params, size_t paramCount, JSObject * function, JSObject * self)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1336,14 +1340,14 @@ GVariant invokeSpiderFunctionIndirectly(const GSpiderContextPointer & context, G
 	JsValue value = ObjectValue(*function);
 	JSBool success = JS_CallFunctionValue(jsContext, self, value, (unsigned int)paramCount, parameters, &result);
 	if(success) {
-		return spiderToScriptValue(context, result, NULL).getValue();
+		return spiderToScriptValue(context, result, NULL);
 	}
 	else {
-		return GVariant();
+		return GScriptValue::fromNull();
 	}
 }
 
-GVariant GSpiderScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
+GScriptValue GSpiderScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
 {
 	return invokeSpiderFunctionIndirectly(sharedStaticCast<GSpiderBindingContext>(this->getBindingContext()), params, paramCount, this->function.getJsObject(), this->self.getJsObject());
 }
@@ -1526,7 +1530,7 @@ GScriptValue GSpiderMonkeyScriptObject::getScriptFunction(const char * name)
 	return GScriptValue();
 }
 
-GVariant GSpiderMonkeyScriptObject::invoke(const char * name, const GVariant * params, size_t paramCount)
+GScriptValue GSpiderMonkeyScriptObject::invoke(const char * name, const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1539,7 +1543,7 @@ GVariant GSpiderMonkeyScriptObject::invoke(const char * name, const GVariant * p
 	return this->invokeIndirectly(name, variantPointers, paramCount);
 }
 
-GVariant GSpiderMonkeyScriptObject::invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount)
+GScriptValue GSpiderMonkeyScriptObject::invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount)
 {
 	JsValue value;
 	if(JS_GetProperty(this->jsContext, this->jsObject.getJsObject(), name, &value)) {
@@ -1551,7 +1555,7 @@ GVariant GSpiderMonkeyScriptObject::invokeIndirectly(const char * name, GVariant
 		}
 	}
 
-	return GVariant();
+	return GScriptValue::fromNull();
 }
 
 void GSpiderMonkeyScriptObject::assignValue(const char * fromName, const char * toName)

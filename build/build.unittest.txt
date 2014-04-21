@@ -256,6 +256,9 @@ if(${HAS_UNITTEST})
 	if(HAS_PYTHON)
 		target_link_libraries(${TARGET_UNITTEST} ${PYTHON_LIB})
 	endif(HAS_PYTHON)
+	if(HAS_SPIDERMONKEY)
+		target_link_libraries(${TARGET_UNITTEST} ${SPIDERMONKEY_LIB})
+	endif(HAS_SPIDERMONKEY)
 
 	set_target_properties(
 		${TARGET_UNITTEST}

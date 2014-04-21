@@ -120,8 +120,8 @@ public:
 	GV8ScriptFunction(const GContextPointer & context, Local<Object> receiver, Local<Value> func);
 	virtual ~GV8ScriptFunction();
 
-	virtual GVariant invoke(const GVariant * params, size_t paramCount);
-	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount);
+	virtual GScriptValue invoke(const GVariant * params, size_t paramCount);
+	virtual GScriptValue invokeIndirectly(GVariant const * const * params, size_t paramCount);
 
 private:
 	Persistent<Object> receiver;
@@ -162,8 +162,8 @@ public:
 
 	virtual GScriptValue getScriptFunction(const char * name);
 
-	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount);
-	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
+	virtual GScriptValue invoke(const char * name, const GVariant * params, size_t paramCount);
+	virtual GScriptValue invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount);
 
 	virtual void assignValue(const char * fromName, const char * toName);
 
@@ -1083,7 +1083,7 @@ bool valueIsCallable(Local<Value> value)
 	return value->IsFunction() || (value->IsObject() && Local<Object>::Cast(value)->IsCallable());
 }
 
-GVariant invokeV8FunctionIndirectly(const GContextPointer & context, Local<Object> object, Local<Value> func, GVariant const * const * params, size_t paramCount, const char * name)
+GScriptValue invokeV8FunctionIndirectly(const GContextPointer & context, Local<Object> object, Local<Value> func, GVariant const * const * params, size_t paramCount, const char * name)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 	GASSERT(! object->IsNull());
@@ -1113,13 +1113,13 @@ GVariant invokeV8FunctionIndirectly(const GContextPointer & context, Local<Objec
 			throw v8RuntimeException(trycatch.Exception());
 		}
 
-		return v8ToScriptValue(context, object->CreationContext(), result, NULL).getValue();
+		return v8ToScriptValue(context, object->CreationContext(), result, NULL);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
 	}
 
-	return GVariant();
+	return GScriptValue::fromNull();
 }
 
 
@@ -1143,7 +1143,7 @@ GV8ScriptFunction::~GV8ScriptFunction()
 	this->func.Clear();
 }
 
-GVariant GV8ScriptFunction::invoke(const GVariant * params, size_t paramCount)
+GScriptValue GV8ScriptFunction::invoke(const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1156,7 +1156,7 @@ GVariant GV8ScriptFunction::invoke(const GVariant * params, size_t paramCount)
 	return this->invokeIndirectly(variantPointers, paramCount);
 }
 
-GVariant GV8ScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
+GScriptValue GV8ScriptFunction::invokeIndirectly(GVariant const * const * params, size_t paramCount)
 {
 	HandleScope handleScope(getV8Isolate());
 
@@ -1361,7 +1361,7 @@ GScriptValue GV8ScriptObject::getScriptFunction(const char * name)
 	}
 }
 
-GVariant GV8ScriptObject::invoke(const char * name, const GVariant * params, size_t paramCount)
+GScriptValue GV8ScriptObject::invoke(const char * name, const GVariant * params, size_t paramCount)
 {
 	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -1374,7 +1374,7 @@ GVariant GV8ScriptObject::invoke(const char * name, const GVariant * params, siz
 	return this->invokeIndirectly(name, variantPointers, paramCount);
 }
 
-GVariant GV8ScriptObject::invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount)
+GScriptValue GV8ScriptObject::invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount)
 {
 	HandleScope handleScope(getV8Isolate());
 	Local<Object> localObject(Local<Object>::New(getV8Isolate(), this->object));

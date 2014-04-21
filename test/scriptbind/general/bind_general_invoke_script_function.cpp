@@ -35,23 +35,23 @@ void doTestInvokeScriptFunction(T * binding, TestScriptContext * context)
 	data.x = 5;
 	data.name = "abc";
 	
-	result = invokeScriptFunction(binding, "funcAdd", 8, 2);
+	result = invokeScriptFunction(binding, "funcAdd", 8, 2).getValue();
 	GEQUAL(fromVariant<int>(result), 10);
 		
-	result = invokeScriptFunction(binding, "funcLen", "abc", 2);
+	result = invokeScriptFunction(binding, "funcLen", "abc", 2).getValue();
 	GEQUAL(fromVariant<int>(result), 5);
 
-	result = invokeScriptFunction(binding, "funcTestData", &data);
+	result = invokeScriptFunction(binding, "funcTestData", &data).getValue();
 	GEQUAL(fromVariant<int>(result), 8);
 
 	result = 0;
 	GDIFF(fromVariant<int>(result), 8);
 
-	result = invokeScriptFunction(binding, "funcTestData", &data);
+	result = invokeScriptFunction(binding, "funcTestData", &data).getValue();
 	GEQUAL(fromVariant<int>(result), 8);
 
 	TestData * pdata;
-	result = invokeScriptFunction(binding, "funcNewTestData");
+	result = invokeScriptFunction(binding, "funcNewTestData").getValue();
 	pdata = fromVariant<TestData *>(result);
 	GEQUAL(pdata->x, 3);
 	GEQUAL(pdata->name, "def");
@@ -82,16 +82,16 @@ void doTestInvokeCppFunction(T * binding, TestScriptContext * context)
 
 	GVariant result;
 	
-	result = invokeScriptFunction(binding, "testAdd", 25);
+	result = invokeScriptFunction(binding, "testAdd", 25).getValue();
 	GEQUAL(fromVariant<int>(result), 38 + 25);
 		
-	result = invokeScriptFunction(binding, "testAdd", 7, 8);
+	result = invokeScriptFunction(binding, "testAdd", 7, 8).getValue();
 	GEQUAL(fromVariant<int>(result), 2 + 7 + 8);
 
-	result = invokeScriptFunction(binding, "testAdd", 9, 7, 8);
+	result = invokeScriptFunction(binding, "testAdd", 9, 7, 8).getValue();
 	GEQUAL(fromVariant<int>(result), 3 + 9 + 7 + 8);
 
-	result = invokeScriptFunction(binding, "testAdd", 9, 7, 8, 38, 68);
+	result = invokeScriptFunction(binding, "testAdd", 9, 7, 8, 38, 68).getValue();
 	GEQUAL(fromVariant<int>(result), 3 + 9 + 7 + 8 + 38 + 68);
 }
 

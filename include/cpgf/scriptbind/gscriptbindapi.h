@@ -30,8 +30,8 @@ struct IScriptConfig : public IObject
 struct IScriptFunction : public IExtendObject
 {
 public:
-	virtual void G_API_CC invoke(GVariantData * outResult, const GVariantData * params, uint32_t paramCount) = 0;
-	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, GVariantData const * const * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invoke(GScriptValueData * outResult, const GVariantData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount) = 0;
 	// Internal use only!!!
 	virtual void G_API_CC weaken() = 0;
 };
@@ -65,14 +65,13 @@ struct IScriptObject : public IExtendObject
 
 	virtual void G_API_CC getScriptFunction(GScriptValueData * outResult, const char * name) = 0;
 
-	virtual void G_API_CC invoke(GVariantData * outResult, const char * name, const GVariantData * params, uint32_t paramCount) = 0;
-	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invoke(GScriptValueData * outResult, const char * name, const GVariantData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount) = 0;
 
 	virtual void G_API_CC assignValue(const char * fromName, const char * toName) = 0;
 
 	virtual void G_API_CC bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader) = 0;
 	virtual void G_API_CC holdObject(IObject * object) = 0;
-	virtual void G_API_CC bindExternalObjectToClass(void * address, IMetaClass * metaClass) = 0;
 
 	virtual gapi_bool G_API_CC maybeIsScriptArray(const char * name) = 0;
 	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, const char * name) = 0;
