@@ -487,6 +487,11 @@ GObjectInstancePointer GClassPool::findObjectData(const GVariant & instance)
 		GObjectInstancePointer data(it->second.get());
 		return data;
 	}
+	it = this->instanceMap.find(objectAddressFromVariant(instance));
+	if(it != instanceMap.end() && it->second) {
+		GObjectInstancePointer data(it->second.get());
+		return data;
+	}
 	return GObjectInstancePointer();
 }
 
