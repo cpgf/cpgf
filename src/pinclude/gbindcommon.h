@@ -1009,7 +1009,7 @@ IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & va
 IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance);
 
 std::string getMethodNameFromMethodList(IMetaList * methodList);
-const volatile void * getInstanceHash(const GVariant & instance);
+inline void * getInstanceHash(const GVariant & instance);
 
 template <typename Getter, typename Predict>
 int findAppropriateCallable(IMetaService * service,
@@ -1387,7 +1387,7 @@ struct GScriptObjectCacheEntry {
 	GScriptObjectCacheEntry() : key(NULL), className(NULL), cv(opcvNone) {
 	}
 
-	GScriptObjectCacheEntry(const volatile void * key, const char * className, ObjectPointerCV cv)
+	GScriptObjectCacheEntry(void * key, const char * className, ObjectPointerCV cv)
 		: key(key), className(className), cv(cv) {
 	}
 
@@ -1413,7 +1413,7 @@ struct GScriptObjectCacheEntry {
 		return false;
 	}
 
-	const volatile void * key;
+	void * key;
 	const char * className;
 	ObjectPointerCV cv;
 };
@@ -1427,7 +1427,7 @@ private:
 public:
 	T * findScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
 		ObjectPointerCV cv) {
-		const volatile void * key = getInstanceHash(instance);
+		void * key = getInstanceHash(instance);
 		GScriptObjectCacheEntry entry(key, classData->getMetaClass()->getQualifiedName(), cv);
 		typename ObjectMapType::iterator it = this->objectMap.find(entry);
 		if(it == this->objectMap.end()) {
@@ -1440,7 +1440,7 @@ public:
 
 	void addScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
 		ObjectPointerCV cv, const T & scriptObject) {
-		const volatile void * key = getInstanceHash(instance);
+		void * key = getInstanceHash(instance);
 		GScriptObjectCacheEntry entry(key, classData->getMetaClass()->getQualifiedName(), cv);
 		this->objectMap.insert(std::make_pair(entry, scriptObject));
 	}
@@ -1450,7 +1450,7 @@ public:
 		if(instance.isEmpty()) {
 			return;
 		}
-		const volatile void * key = getInstanceHash(instance);
+		void * key = getInstanceHash(instance);
 		for(typename ObjectMapType::iterator it = this->objectMap.begin();
 			it != this->objectMap.end(); ) {
 			if(it->first.key == key) {

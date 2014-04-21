@@ -71,7 +71,7 @@ private:
 class GClassPool
 {
 private:
-	typedef map<const volatile void *, GWeakObjectInstancePointer> InstanceMapType;
+	typedef map<void *, GWeakObjectInstancePointer> InstanceMapType;
 
 	typedef vector<GClassGlueDataPointer> ClassMapListType;
 	typedef GStringMap<ClassMapListType, GStringMapReuseKey> ClassMapType;
@@ -465,7 +465,7 @@ void GClassPool::objectCreated(const GObjectInstancePointer & objectData)
 	// Only store the object data that owns the object (allow gc or it's a shadow object)
 	// If don't check for this, things goes messy if we get the first element address in object array, where two kinds of objects share the same address
 	if(objectData->isAllowGC() || objectData->getInstance().getType() == vtShadow) {
-		const volatile void * instance = getInstanceHash(objectData->getInstance());
+		void * instance = getInstanceHash(objectData->getInstance());
 		if(this->instanceMap.find(instance) == instanceMap.end()) {
 			this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
 		}
@@ -475,7 +475,7 @@ void GClassPool::objectCreated(const GObjectInstancePointer & objectData)
 void GClassPool::objectDestroyed(const GObjectInstance * objectData)
 {
 	if(isLibraryLive()) {
-		const volatile void * instance = getInstanceHash(objectData->getInstance());
+		void * instance = getInstanceHash(objectData->getInstance());
 		this->instanceMap.erase(instance);
 	}
 }
@@ -1902,9 +1902,9 @@ std::string getMethodNameFromMethodList(IMetaList * methodList)
 	}
 }
 
-const volatile void * getInstanceHash(const GVariant & instance)
+inline void * getInstanceHash(const GVariant & instance)
 {
-	return instance.refData().ptrObject;
+	return referenceAddressFromVariant(instance);
 }
 
 
