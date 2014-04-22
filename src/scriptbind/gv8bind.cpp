@@ -393,7 +393,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 		return Handle<Value>();
 	}
 
-	V8ScriptObjectCacheEntry * cachedObject = getV8ScriptObjectCache()->findScriptObject(instanceAddress, classData, cv);
+	V8ScriptObjectCacheEntry * cachedObject = getV8ScriptObjectCache()->findScriptObject(instance, classData, cv);
 	if(cachedObject != NULL) {
 		return Local<Object>::New(getV8Isolate(), *(cachedObject->get()));
 	}
@@ -415,7 +415,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 		*outputGlueData = objectData;
 	}
 
-	getV8ScriptObjectCache()->addScriptObject(instanceAddress, classData, cv, self);
+	getV8ScriptObjectCache()->addScriptObject(instance, classData, cv, self);
 
 	return Local<Object>::New(getV8Isolate(), *(self.get()));
 }
@@ -498,7 +498,7 @@ struct GV8Methods
 			GContextPointer context = classData->getBindingContext();
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 
-			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstance(objectData)));
+			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstanceAddress(objectData)));
 			Handle<FunctionTemplate> functionTemplate = createMethodTemplate(context, classData,
 				! objectData, metaList.get(),
 				createClassTemplate(context, context->getClassData(boundClass.get())));
@@ -871,7 +871,7 @@ void objectConstructor(const v8::FunctionCallbackInfo<Value> & args)
 
 			V8ScriptObjectCacheEntry self(new Persistent<Object>(getV8Isolate(), localSelf));
 			self->MakeWeak(objectWrapper, weakHandleCallback);
-			getV8ScriptObjectCache()->addScriptObject(instance, classData, opcvNone, self);
+			getV8ScriptObjectCache()->addScriptObject(objectData->getInstance(), classData, opcvNone, self);
 
 			args.GetReturnValue().Set( scope.Close(Local<Object>::New(getV8Isolate(), *(self.get()))) );
 		}
@@ -974,7 +974,7 @@ void namedMemberEnumerator(const v8::PropertyCallbackInfo<Array> & info)
 	GGlueDataWrapper * dataWrapper = getNativeObject(info.Holder());
 	GGlueDataPointer glueData = dataWrapper->getData();
 
-	GMetaClassTraveller traveller(getGlueDataMetaClass(glueData), getGlueDataInstance(glueData));
+	GMetaClassTraveller traveller(getGlueDataMetaClass(glueData), getGlueDataInstanceAddress(glueData));
 	GStringMap<bool, GStringMapReuseKey> nameMap;
 	GScopedInterface<IMetaItem> metaItem;
 

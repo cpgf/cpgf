@@ -85,7 +85,7 @@ public:
 
 	GObjectInstancePointer findObjectData(const GVariant & instancecv);
 
-	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
+	GClassGlueDataPointer getOrNewClassData(const GVariant & instance, IMetaClass * metaClass);
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
 	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
 
@@ -321,7 +321,7 @@ GObjectInstance::GObjectInstance(const GContextPointer & context, const GVariant
 GObjectInstance::~GObjectInstance()
 {
 	// We don't call getInstanceAddress if it's a shared pointer, since we don't own the pointer, so the pointer may already be freed.
-	if(! this->isSharedPointer) {
+	if(! (this->isSharedPointer || vtIsByReference(this->instance.getType()))) {
 		this->objectLifeManager->releaseObject(this->getInstanceAddress());
 		if(this->isAllowGC()) {
 			this->objectLifeManager->freeObject(this->getInstanceAddress(), this->classData->getMetaClass());
@@ -465,7 +465,7 @@ void GClassPool::objectCreated(const GObjectInstancePointer & objectData)
 	// Only store the object data that owns the object (allow gc or it's a shadow object)
 	// If don't check for this, things goes messy if we get the first element address in object array, where two kinds of objects share the same address
 	if(objectData->isAllowGC() || objectData->getInstance().getType() == vtShadow) {
-		void * instance = objectData->getInstanceAddress();
+		void * instance = getInstanceHash(objectData->getInstance());
 		if(this->instanceMap.find(instance) == instanceMap.end()) {
 			this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
 		}
@@ -475,14 +475,19 @@ void GClassPool::objectCreated(const GObjectInstancePointer & objectData)
 void GClassPool::objectDestroyed(const GObjectInstance * objectData)
 {
 	if(isLibraryLive()) {
-		void * instance = objectData->getInstanceAddress();
+		void * instance = getInstanceHash(objectData->getInstance());
 		this->instanceMap.erase(instance);
 	}
 }
 
 GObjectInstancePointer GClassPool::findObjectData(const GVariant & instance)
 {
-	InstanceMapType::iterator it = this->instanceMap.find(objectAddressFromVariant(instance));
+	InstanceMapType::iterator it = this->instanceMap.find(getInstanceHash(instance));
+	if(it != instanceMap.end() && it->second) {
+		GObjectInstancePointer data(it->second.get());
+		return data;
+	}
+	it = this->instanceMap.find(objectAddressFromVariant(instance));
 	if(it != instanceMap.end() && it->second) {
 		GObjectInstancePointer data(it->second.get());
 		return data;
@@ -548,9 +553,9 @@ size_t GClassPool::getFreeSlot(ClassMapListType * classDataList, size_t startSlo
 	return slot;
 }
 
-GClassGlueDataPointer GClassPool::getOrNewClassData(void * instance, IMetaClass * metaClass)
+GClassGlueDataPointer GClassPool::getOrNewClassData(const GVariant & instance, IMetaClass * metaClass)
 {
-	InstanceMapType::iterator instanceIterator = this->instanceMap.find(instance);
+	InstanceMapType::iterator instanceIterator = this->instanceMap.find(getInstanceHash(instance));
 	if(instanceIterator != this->instanceMap.end()) {
 		if(instanceIterator->second.expired()) {
 			this->instanceMap.erase(instanceIterator);
@@ -707,6 +712,8 @@ void GScriptContext::setAllowGC(const GVariant & instance, bool allowGC)
 	GObjectInstancePointer object = bindingContext->findObjectInstance(instance);
 	if (object) {
 		object->setAllowGC(allowGC);
+	} else {
+		raiseCoreException(Error_ScriptBinding_CantFindObject);
 	}
 }
 
@@ -757,7 +764,7 @@ GClassGlueDataPointer GBindingContext::createClassGlueData(IMetaClass * metaClas
 	return data;
 }
 
-GClassGlueDataPointer GBindingContext::getOrNewClassData(void * instance, IMetaClass * metaClass)
+GClassGlueDataPointer GBindingContext::getOrNewClassData(const GVariant & instance, IMetaClass * metaClass)
 {
 	return this->classPool->getOrNewClassData(instance, metaClass);
 }
@@ -996,7 +1003,7 @@ ObjectPointerCV getCallableConstness(IMetaCallable * callable)
 
 bool allowInvokeCallable(const GScriptConfig & config, const GGlueDataPointer & glueData, IMetaCallable * callable)
 {
-	if(getGlueDataInstance(glueData) != NULL) {
+	if(getGlueDataInstanceAddress(glueData) != NULL) {
 		if(! config.allowAccessStaticMethodViaInstance()) {
 			if(callable->isStatic()) {
 				return false;
@@ -1702,7 +1709,7 @@ void doSetValueOnAccessible(const GContextPointer & context, IMetaAccessible * a
 		doConvertForMetaClassCast(context, &value, targetType, valueGlueData);
 	}
 
-	metaSetValue(accessible, getGlueDataInstance(instanceGlueData), value);
+	metaSetValue(accessible, getGlueDataInstanceAddress(instanceGlueData), value);
 }
 
 bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char * name,
@@ -1729,7 +1736,7 @@ bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char
 	const GScriptConfig & config = classData->getBindingContext()->getConfig();
 	GContextPointer context = classData->getBindingContext();
 
-	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstance(instanceGlueData));
+	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstanceAddress(instanceGlueData));
 
 	void * instance = NULL;
 
@@ -1789,7 +1796,18 @@ ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData)
 	return opcvNone;
 }
 
-void * getGlueDataInstance(const GGlueDataPointer & glueData)
+GVariant getGlueDataInstance(const GGlueDataPointer & glueData)
+{
+	if(glueData) {
+		if(glueData->getType() == gdtObject) {
+			return sharedStaticCast<GObjectGlueData>(glueData)->getInstance();
+		}
+	}
+
+	return GVariant();
+}
+
+void * getGlueDataInstanceAddress(const GGlueDataPointer & glueData)
 {
 	if(glueData) {
 		if(glueData->getType() == gdtObject) {
@@ -1890,7 +1908,6 @@ std::string getMethodNameFromMethodList(IMetaList * methodList)
 		return "";
 	}
 }
-
 
 } // namespace bind_internal
 

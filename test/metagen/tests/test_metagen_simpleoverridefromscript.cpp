@@ -131,7 +131,7 @@ template <typename T>
 void doTestSimpleOverrideFromScript_discardOwnership(T * /* binding */, TestScriptContext * context)
 {
 	if(context->isLua()) {
-		QDO(function createHelperData(me) return mtest.SimpleOverrideHelperData.new() end)
+		QDO(function createHelperData(me) return mtest.SimpleOverrideHelperData() end)
 	}
 	if(context->isV8() || context->isSpiderMonkey()) {
 		QDO(function createHelperData(me) { return new mtest.SimpleOverrideHelperData() })

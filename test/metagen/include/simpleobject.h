@@ -3,8 +3,13 @@
 
 #include "cpgf/gsharedptr.h"
 
-#if defined(_MSC_VER)
-#else
+#if ! defined(_MSC_VER)
+	#if defined(SUPPORT_CPP_11) && SUPPORT_CPP_11
+		#define TEST_CPP11_SHARED_PTR
+	#endif
+#endif
+
+#ifdef TEST_CPP11_SHARED_PTR
 #include "cpgf/metatraits/gmetasharedptrtraits_cpp11_shared_ptr.h"
 #endif
 
@@ -37,14 +42,14 @@ class SimpleObject
 public:
 	SimpleData & getData();
 	SimpleData * getDataPtr();
-	
+
 	void setData(const SimpleData & data);
 	void setDataPtr(const SimpleData * data);
-	
+
 	bool checkData(int n) const;
 	bool checkData(const std::string & s) const;
 	bool checkAtom(long value) const;
-	
+
 	SimpleData & operator() ();
 	const SimpleData & operator() () const;
 
@@ -58,15 +63,15 @@ struct IMetaClass;
 }
 
 cpgf::IMetaClass * getSimpleObjectClass(cpgf::IMetaClass * metaClass);
-bool metaClassIsSimpleObject(cpgf::IMetaClass * metaClass); 
+bool metaClassIsSimpleObject(cpgf::IMetaClass * metaClass);
 
 cpgf::GSharedPointer<SimpleObject> createSharedSimpleObject();
 SimpleObject * getSharedSimpleObject(cpgf::GSharedPointer<SimpleObject> sp);
 
-#if defined(_MSC_VER)
-typedef cpgf::GSharedPointer<SimpleObject> CPP11_SP;
-#else
+#ifdef TEST_CPP11_SHARED_PTR
 typedef std::shared_ptr<SimpleObject> CPP11_SP;
+#else
+typedef cpgf::GSharedPointer<SimpleObject> CPP11_SP;
 #endif
 CPP11_SP createCpp11SharedSimpleObject();
 SimpleObject * getCpp11SharedSimpleObject(CPP11_SP sp);
