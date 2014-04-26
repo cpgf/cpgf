@@ -112,6 +112,41 @@ void G_API_CC ImplScriptFunction::invokeIndirectly(GScriptValueData * outResult,
 	LEAVE_BINDING_API()
 }
 
+void G_API_CC ImplScriptFunction::invokeOnObject(GScriptValueData * outResult, const GVariantData * params, uint32_t paramCount)
+{
+	ENTER_BINDING_API()
+
+	const GVariantData * paramIndirect[REF_MAX_ARITY];
+
+	for(uint32_t i = 0; i < paramCount; ++i) {
+		paramIndirect[i] = &params[i];
+	}
+
+	this->invokeIndirectlyOnObject(outResult, paramIndirect, paramCount);
+
+	LEAVE_BINDING_API()
+}
+
+void G_API_CC ImplScriptFunction::invokeIndirectlyOnObject(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount)
+{
+	ENTER_BINDING_API()
+
+	GVariant paramVariants[REF_MAX_ARITY];
+	const GVariant * paramIndirect[REF_MAX_ARITY];
+
+	for(uint32_t i = 0; i < paramCount; ++i) {
+		paramVariants[i] = createVariantFromData(*params[i]);
+		paramIndirect[i] = &paramVariants[i];
+	}
+
+	GScriptValue result = this->scriptFunction->invokeIndirectlyOnObject(paramIndirect, paramCount);
+	if(outResult) {
+		*outResult = result.takeData();
+	}
+
+	LEAVE_BINDING_API()
+}
+
 // Internal use only!!!
 void G_API_CC ImplScriptFunction::weaken()
 {

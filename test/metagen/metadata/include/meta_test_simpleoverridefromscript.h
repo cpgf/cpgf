@@ -45,7 +45,7 @@ public:
         cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("createHelperData"));
         if(func)
         {
-            cpgf::GScriptValue ret = cpgf::invokeScriptFunction(func.get(), this);
+            cpgf::GScriptValue ret = cpgf::invokeScriptFunctionOnObject(func.get(), this);
             ret.discardOwnership();
             return cpgf::fromVariant<SimpleOverrideHelperData * >(ret.getValue());
         }
@@ -61,7 +61,7 @@ public:
         cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getAnother"));
         if(func)
         {
-            return cpgf::fromVariant<int >(cpgf::invokeScriptFunction(func.get(), this).getValue());
+            return cpgf::fromVariant<int >(cpgf::invokeScriptFunctionOnObject(func.get(), this).getValue());
         }
         return SimpleOverride::getAnother();
     }
@@ -75,7 +75,7 @@ public:
         cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getValue"));
         if(func)
         {
-            return cpgf::fromVariant<int >(cpgf::invokeScriptFunction(func.get(), this).getValue());
+            return cpgf::fromVariant<int >(cpgf::invokeScriptFunctionOnObject(func.get(), this).getValue());
         }
         return SimpleOverride::getValue();
     }
@@ -89,7 +89,7 @@ public:
         cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getName"));
         if(func)
         {
-            return cpgf::fromVariant<std::string >(cpgf::invokeScriptFunction(func.get(), this).getValue());
+            return cpgf::fromVariant<std::string >(cpgf::invokeScriptFunctionOnObject(func.get(), this).getValue());
         }
         return SimpleOverride::getName();
     }

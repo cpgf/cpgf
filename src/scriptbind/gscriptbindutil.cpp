@@ -32,26 +32,34 @@ GScriptValue createScriptValueFromData(const GScriptValueData & data);
 	} \
 	GScriptValue invokeScriptFunction(IScriptObject * scriptObject, const char * functionName GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
 		DEF_LOAD_PARAM_API(N) \
-	    GScriptValueData data; \
+		GScriptValueData data; \
 		GSharedInterface<IScriptObject> holder(scriptObject); /* Hold the object so metaCheckError won't crash if scriptObject is freed in invoke */ \
 		scriptObject->invoke(&data, functionName, params, N); \
 		metaCheckError(scriptObject); \
-	    return createScriptValueFromData(data); \
+		return createScriptValueFromData(data); \
 	} \
 	GScriptValue invokeScriptFunction(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
 		DEF_LOAD_PARAM_API(N) \
-	    GScriptValueData data; \
+		GScriptValueData data; \
 		GSharedInterface<IScriptFunction> holder(scriptFunction); /* Hold the function so metaCheckError won't crash if scriptFunction is freed in invoke */ \
 		scriptFunction->invoke(&data, params, N); \
 		metaCheckError(scriptFunction); \
-	    return createScriptValueFromData(data); \
+		return createScriptValueFromData(data); \
+	} \
+	GScriptValue invokeScriptFunctionOnObject(IScriptFunction * scriptFunction GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)) { \
+		DEF_LOAD_PARAM_API(N) \
+		GScriptValueData data; \
+		GSharedInterface<IScriptFunction> holder(scriptFunction); /* Hold the function so metaCheckError won't crash if scriptFunction is freed in invoke */ \
+		scriptFunction->invokeOnObject(&data, params, N); \
+		metaCheckError(scriptFunction); \
+		return createScriptValueFromData(data); \
 	}
 
 GPP_REPEAT_2(REF_MAX_ARITY, DEF_CALL_HELPER, GPP_EMPTY())
 
 
 inline bool isCSymbol(unsigned char c) {
-    return isalpha(c) || c == '_' || isdigit(c);
+	return isalpha(c) || c == '_' || isdigit(c);
 }
 
 std::string normalizeReflectName(const char * name)
@@ -193,15 +201,15 @@ IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject)
 void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName)
 {
 	GScopedInterface<IObject> metaObject;
-	
+
 	GMetaMapClass mapClass(metaClass);
-	
+
 	GScopedInterface<IScriptObject> namespaceHolder;
 	if(namespaceName != NULL && *namespaceName) {
 		namespaceHolder.reset(scriptCreateScriptObject(scriptObject, namespaceName).toScriptObject());
 		scriptObject = namespaceHolder.get();
 	}
-	
+
 	const GMetaMapClass::MapType * mapData = mapClass.getMap();
 	for(GMetaMapClass::MapType::const_iterator it = mapData->begin(); it != mapData->end(); ++it) {
 		const char * name = it->first;
@@ -249,7 +257,7 @@ void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, 
 				break;
 		}
 	}
-	
+
 }
 
 void injectObjectToScript(GScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName)

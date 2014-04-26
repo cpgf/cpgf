@@ -16,7 +16,11 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScr
 		QDO(function overrideGetValue(me) return me.super_getValue() + 15 end)
 		QDO(function overrideGetName(me) return "abc" end)
 	}
-	if(context->isV8() || context->isSpiderMonkey()) {
+	if(context->isV8()) {
+		QDO(function overrideGetValue() { return this.super_getValue() + 15; })
+		QDO(function overrideGetName() { return "abc"; })
+	}
+	if(context->isSpiderMonkey()) {
 		QDO(function overrideGetValue(me) { return me.super_getValue() + 15; })
 		QDO(function overrideGetName(me) { return "abc"; })
 	}
@@ -78,7 +82,12 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptObject(T * binding, TestSc
 		QDO(function overrideGetValue(me) return me.super_getValue() + 5 end)
 		QDO(function overrideGetName(me) return "abc" end)
 	}
-	if(context->isV8() || context->isSpiderMonkey()) {
+	if(context->isV8()) {
+		QDO(function overrideGetValue() { return 2 + 5; })
+		QDO(function overrideGetName() { return "abc"; })
+		QDO(function overrideGetAnother() { return 2; })
+	}
+	if(context->isSpiderMonkey()) {
 		QDO(function overrideGetValue(me) { return 2 + 5; })
 		QDO(function overrideGetName(me) { return "abc"; })
 		QDO(function overrideGetAnother(me) { return 2; })

@@ -89,7 +89,7 @@ public class ClassWrapperWriter {
 		codeWriter.writeLine("cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction(\"" + cppMethod.getLiteralName() + "\"));");
 		codeWriter.writeLine("if(func)");
 		codeWriter.beginBlock();
-		String invoke = "cpgf::invokeScriptFunction(func.get(), this";
+		String invoke = "cpgf::invokeScriptFunctionOnObject(func.get(), this";
 		if(cppMethod.hasParameter()) {
 			invoke = invoke + ", " + paramText;
 		}
