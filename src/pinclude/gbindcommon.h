@@ -35,6 +35,7 @@ public:
 
 	virtual GScriptValue invoke(const GVariant * params, size_t paramCount) = 0;
 	virtual GScriptValue invokeIndirectly(GVariant const * const * params, size_t paramCount) = 0;
+	virtual GScriptValue invokeIndirectlyOnObject(GVariant const * const * params, size_t paramCount) { return invokeIndirectly(params, paramCount); };
 
 	// internal use
 	virtual void weaken() = 0;

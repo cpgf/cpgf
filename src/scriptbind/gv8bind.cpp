@@ -122,6 +122,7 @@ public:
 
 	virtual GScriptValue invoke(const GVariant * params, size_t paramCount);
 	virtual GScriptValue invokeIndirectly(GVariant const * const * params, size_t paramCount);
+	virtual GScriptValue invokeIndirectlyOnObject(GVariant const * const * params, size_t paramCount);
 
 private:
 	Persistent<Object> receiver;
@@ -1164,6 +1165,17 @@ GScriptValue GV8ScriptFunction::invokeIndirectly(GVariant const * const * params
 	return invokeV8FunctionIndirectly(this->getBindingContext(), receiver, Local<Function>::New(getV8Isolate(), this->func), params, paramCount, "");
 }
 
+GScriptValue GV8ScriptFunction::invokeIndirectlyOnObject(GVariant const * const * params, size_t paramCount)
+{
+	GASSERT_MSG(paramCount >= 1, "Object needs to be specified as the first param.");
+	HandleScope handleScope(getV8Isolate());
+
+	Handle<Value> receiverValue = variantToV8(this->getBindingContext(), *params[0], GBindValueFlags(bvfAllowRaw), NULL);
+	GASSERT_MSG(!receiverValue.IsEmpty() && receiverValue->IsObject(), "Object needs to be specified as the first param.");
+	Local<Object> receiver = receiverValue.As<Object>();
+
+	return invokeV8FunctionIndirectly(this->getBindingContext(), receiver, Local<Function>::New(getV8Isolate(), this->func), &(params[1]), paramCount-1, "");
+}
 
 GV8ScriptArray::GV8ScriptArray(const GContextPointer & context, Handle<Array> arr)
 	: super(context), arrayObject(getV8Isolate(), arr)
