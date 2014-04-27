@@ -388,7 +388,9 @@ GScriptValueDataScopedGuard::GScriptValueDataScopedGuard(const GScriptValueData 
 
 GScriptValueDataScopedGuard::~GScriptValueDataScopedGuard()
 {
-	GScriptValue(this->data);
+	if(data.metaItem != NULL) {
+		data.metaItem->releaseReference();
+	}
 }
 
 
