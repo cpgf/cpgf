@@ -205,6 +205,11 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/scriptbind/general/*.cpp
 		${TEST_PATH}/scriptbind/metadata/*.cpp
 		${TEST_PATH}/scriptbind/metadata/stl/*.cpp
+		${GLOB_TEST_LUA}
+		${GLOB_TEST_V8}
+		${GLOB_TEST_PYTHON}
+		${GLOB_TEST_SPIDERMONKEY}
+
 		${TEST_PATH}/serialization/*.cpp
 		${TEST_PATH}/tween/*.cpp
 
@@ -212,6 +217,11 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/metagen/tests/*.cpp
 		${TEST_PATH}/metagen/src/*.cpp
 		${TEST_PATH}/metagen/metadata/src/*.cpp
+		
+		${GLOB_METATEST_LUA}
+		${GLOB_METATEST_V8}
+		${GLOB_METATEST_SPIDERMONKEY}
+		${GLOB_METATEST_PYTHON}
 	)
 
 	set(SRC_TEST_SRC
