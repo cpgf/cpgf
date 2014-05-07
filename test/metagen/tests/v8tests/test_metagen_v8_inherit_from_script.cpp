@@ -1,11 +1,12 @@
 #include "../testmetagen.h"
+#include "../../include/simpleoverridableincrementer.h"
 
 namespace {
 
 
 void testInheritFromScript_SimpleObject(TestScriptContext * context)
 {
-	DO("function DerivedSimpleObject() {}");
+	DO("function DerivedSimpleObject() { }");
 	QDO(DerivedSimpleObject.prototype = new mtest.SimpleObject());
 	QNEWOBJ(a, DerivedSimpleObject());
 
@@ -23,29 +24,54 @@ void testInheritFromScript_SimpleObject(TestScriptContext * context)
 #include "../do_testcase_v8.h"
 
 
-// This test is to hide C++ method from script, it's not overriding. That's to say
-// calling the method from C++ will call the C++ method, not the script method.
-// To use overriding, we have to use class wrapper.
-void testInheritFromScript_SimpleObject_HideCppMethod(TestScriptContext * context)
+void testInheritFromScript_SimpleObject_HiddingCppMethodIsNotPossible(TestScriptContext * context)
 {
 	DO("function DerivedSimpleObject() {}");
 	QDO(DerivedSimpleObject.prototype = new mtest.SimpleObject());
 	QNEWOBJ(a, DerivedSimpleObject());
 
-	// Hide all C++ methods checkData
-	QDO(a.checkData = function(d) { return d == "overrided"; });
+	QDO(a.checkData = function(d) { return d == "overriden"; });
 
 	QDO(a.getData().n = 78);
 	QDO(a.getData().s = "def");
 	QDO(a.getData().atom.value = 98);
-	QNOT(a.checkData(78));
-	QNOT(a.checkData("def"));
-	QASSERT(a.checkData("overrided"));
+	QASSERT(a.checkData(78));
+	QASSERT(a.checkData("def"));
+	QNOT(a.checkData("overriden"));
 }
 
-#define CASE testInheritFromScript_SimpleObject_HideCppMethod
+#define CASE testInheritFromScript_SimpleObject_HiddingCppMethodIsNotPossible
 #include "../do_testcase_v8.h"
 
+void testInheritFromScript_SimpleOverridableIncrementer(TestScriptContext * context)
+{
+	QDO(cpgf._import("cpgf", "builtin.core"));
+	QDO(DerivedClass = cpgf.cloneClass(mtest.SimpleOverridableIncrementerWrapper);)
+	QDO(
+		DerivedClass.increment = function() {
+			if(!this.counter){
+				this.counter=0;
+			};
+			this.counter++;
+			return this.counter;
+		}
+	);
+	QNEWOBJ(a, DerivedClass());
+
+	SimpleOverridableIncrementer * obj = NULL;
+	IScriptObject * bindingApi = context->getBindingApi();
+	if (bindingApi) {
+		obj = static_cast<SimpleOverridableIncrementer *>(scriptGetValue(bindingApi, "a").toObjectAddress(NULL, NULL));
+	} else {
+		GScriptObject * bindingLib = context->getBindingLib();
+		obj = static_cast<SimpleOverridableIncrementer *>(scriptGetValue(bindingLib, "a").toObjectAddress(NULL, NULL));		
+	}
+	GEQUAL(1, obj->increment());
+	GEQUAL(2, obj->increment());
+}
+
+#define CASE testInheritFromScript_SimpleOverridableIncrementer
+#include "../do_testcase_v8.h"
 
 
 }

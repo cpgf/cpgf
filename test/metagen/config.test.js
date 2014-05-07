@@ -54,6 +54,9 @@ function processCallback(item, data)
 		if(name == "SimpleOverride") {
 			data.getWrapperConfig().setWrapClass(true);
 		}
+		if(name == "SimpleOverridableIncrementer") {
+			data.getWrapperConfig().setWrapClass(true);
+		}
 	}
 }
 
