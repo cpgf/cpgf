@@ -47,6 +47,7 @@ GDefineMetaInfo createMetaClass_ObjectNoDestructor();
 GDefineMetaInfo createMetaClass_SimpleAtom();
 GDefineMetaInfo createMetaClass_SimpleData();
 GDefineMetaInfo createMetaClass_SimpleObject();
+GDefineMetaInfo createMetaClass_SimpleOverridableIncrementer();
 GDefineMetaInfo createMetaClass_SimpleOverride();
 GDefineMetaInfo createMetaClass_SimpleOverrideBase();
 GDefineMetaInfo createMetaClass_SimpleOverrideHelperData();
@@ -96,6 +97,7 @@ void registerMain_metatest(Meta _d)
     _d._class(createMetaClass_SimpleAtom());
     _d._class(createMetaClass_SimpleData());
     _d._class(createMetaClass_SimpleObject());
+    _d._class(createMetaClass_SimpleOverridableIncrementer());
     _d._class(createMetaClass_SimpleOverride());
     _d._class(createMetaClass_SimpleOverrideBase());
     _d._class(createMetaClass_SimpleOverrideHelperData());

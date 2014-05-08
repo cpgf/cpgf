@@ -265,16 +265,5 @@ void testSimpleObject_Data_AssignBoostSharedPtrToField(TestScriptContext * conte
 #include "do_testcase.h"
 
 
-void testSimpleObject_NotAllowSetDynamicPropertyOnCppObject(TestScriptContext * context)
-{
-	QNEWOBJ(obj, mtest.SimpleObject());
-	QERR(obj.someDynamicProperty = 1);
-}
-
-
-#define CASE testSimpleObject_NotAllowSetDynamicPropertyOnCppObject
-#include "do_testcase.h"
-
-
 }
 

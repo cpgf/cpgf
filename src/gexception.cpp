@@ -56,7 +56,6 @@ int Error_ScriptBinding_NoContext				= Error_ScriptBinding_Begin + 16;
 int Error_ScriptBinding_CantFindMatchedOperator		= Error_ScriptBinding_Begin + 17;
 int Error_ScriptBinding_NotSupportedFeature		= Error_ScriptBinding_Begin + 18;
 int Error_ScriptBinding_CantSetScriptValue		= Error_ScriptBinding_Begin + 19;
-int Error_ScriptBinding_CantSetDynamicPropertyOnCppObject	= Error_ScriptBinding_Begin + 20;
 int Error_ScriptBinding_CantFindObject = Error_ScriptBinding_Begin + 21;
 int Error_ScriptBinding_End			= 300;
 
@@ -143,7 +142,6 @@ namespace {
 		{ Error_ScriptBinding_NoContext,						"Script context doesn't exist." },
 		{ Error_ScriptBinding_CantFindMatchedOperator,			"Can't find matched opereator to invoke." },
 		{ Error_ScriptBinding_CantSetScriptValue,				"Can't set the script value to script engine." },
-		{ Error_ScriptBinding_CantSetDynamicPropertyOnCppObject,	"Can't set dynamic property on C++ object." },
 		{ Error_ScriptBinding_CantFindObject,	"Failed to find the requested object." },
 
 		{ Error_Serialization_TypeMismatch,			"Type mismatch when reading serialized object." },
