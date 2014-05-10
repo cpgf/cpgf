@@ -305,28 +305,33 @@ GGlueDataWrapper * getNativeObject(Handle<Value> value)
 	return NULL;
 }
 
+GScriptValue v8ObjectToScriptValue(v8::Local<v8::Object> obj, GGlueDataPointer * outputGlueData)
+{
+	GGlueDataWrapper * dataWrapper = NULL;
+	dataWrapper = getNativeObject(obj);
+	if(dataWrapper == NULL) { // value maybe an IMetaClass
+		Handle<Value> data = obj->GetHiddenValue(String::New(userDataKey));
+		if(! data.IsEmpty() && data->IsExternal()) {
+			dataWrapper = static_cast<GGlueDataWrapper *>(Handle<External>::Cast(data)->Value());
+		}
+	}
+	if(dataWrapper != NULL) {
+		GGlueDataPointer glueData = dataWrapper->getData();
+		if(outputGlueData != NULL) {
+			*outputGlueData = glueData;
+		}
+		return glueDataToScriptValue(glueData);
+	}
+	return GScriptValue::fromNull();
+}
+
 GScriptValue v8UserDataToScriptValue(const GContextPointer & context, Local<Context> v8Context, Handle<Value> value, GGlueDataPointer * outputGlueData)
 {
 	if(value->IsFunction() || value->IsObject()) {
 		Local<Object> obj = value->ToObject();
 		if(isValidObject(obj)) {
-			GGlueDataWrapper * dataWrapper = NULL;
-			dataWrapper = getNativeObject(obj);
-			if(dataWrapper == NULL) { // value maybe an IMetaClass
-				Handle<Value> data = obj->GetHiddenValue(String::New(userDataKey));
-				if(! data.IsEmpty() && data->IsExternal()) {
-					dataWrapper = static_cast<GGlueDataWrapper *>(Handle<External>::Cast(data)->Value());
-				}
-			}
-			if(dataWrapper != NULL) {
-				GGlueDataPointer glueData = dataWrapper->getData();
-				if(outputGlueData != NULL) {
-					*outputGlueData = glueData;
-				}
-				return glueDataToScriptValue(glueData);
-			}
-		}
-		else {
+			return v8ObjectToScriptValue(obj, outputGlueData);
+		} else {
 			if(value->IsFunction()) {
 				GScopedInterface<IScriptFunction> func(
 					new ImplScriptFunction(new GV8ScriptFunction(context, v8Context->Global(), Local<Value>::New(getV8Isolate(), value)), true)
@@ -1473,6 +1478,15 @@ void clearV8DataPool()
 {
 	getV8DataWrapperPool()->clear();
 }
+
+GScriptValue convertV8ObjectToScriptValue(v8::Local<v8::Object> obj)
+{
+	if(isValidObject(obj)) {
+		return v8ObjectToScriptValue(obj, NULL);
+	}
+	return GScriptValue();
+}
+
 
 G_GUARD_LIBRARY_LIFE
 
