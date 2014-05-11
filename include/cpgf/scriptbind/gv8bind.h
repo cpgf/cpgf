@@ -23,6 +23,8 @@ IScriptObject * createV8ScriptInterface(IMetaService * service, v8::Local<v8::Ob
 
 void clearV8DataPool();
 
+GScriptValue convertV8ObjectToScriptValue(v8::Local<v8::Object> object);
+
 } // namespace cpgf
 
 
