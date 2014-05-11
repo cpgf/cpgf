@@ -67,8 +67,8 @@ GV8ScriptRunnerImplement::GV8ScriptRunnerImplement(IMetaService * service, Handl
 
 void GV8ScriptRunnerImplement::init()
 {
-	contextScope = new Context::Scope(getV8Isolate(), context);
 	Local<Context> localContext = Local<Context>::New(getV8Isolate(), context);
+	contextScope = new Context::Scope(localContext);
 	Local<Object> global = localContext->Global();
 
 	GScopedInterface<IMetaService> metaService(getService());
@@ -80,8 +80,7 @@ GV8ScriptRunnerImplement::~GV8ScriptRunnerImplement()
 {
 	delete this->contextScope;
 
-	this->context.Dispose();
-	this->context.Clear();
+	this->context.Reset();
 }
 
 bool GV8ScriptRunnerImplement::executeJsString(const char * source)
@@ -92,7 +91,10 @@ bool GV8ScriptRunnerImplement::executeJsString(const char * source)
 	localContext->Enter();
 	v8::HandleScope handle_scope(getV8Isolate());
 	v8::TryCatch v8TryCatch;
-	v8::Handle<v8::Script> script = v8::Script::Compile(String::New(source), String::New("cpgf"));
+	v8::Handle<v8::Script> script = v8::Script::Compile(
+		String::NewFromOneByte(getV8Isolate(), (const unsigned char *) source),
+		String::NewFromOneByte(getV8Isolate(), (const unsigned char *) "cpgf")
+	);
 	if(! script.IsEmpty()) {
 		v8::Handle<v8::Value> result = script->Run();
 		localContext->Exit();
@@ -100,8 +102,9 @@ bool GV8ScriptRunnerImplement::executeJsString(const char * source)
 			return true;
 		}
 	}
-	v8::String::AsciiValue stackTrace(v8TryCatch.StackTrace());
-	this->error(*stackTrace);
+	Local<Message> msg(v8TryCatch.Message());
+	String::Utf8Value utfMsg(msg->Get());
+	this->error(*utfMsg);
 	return false;
 }
 
