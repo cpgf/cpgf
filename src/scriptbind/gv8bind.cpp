@@ -253,12 +253,44 @@ void error(const unsigned char * message)
 }
 
 template <class T, class P>
+static void weakHandleCallback(const WeakCallbackData<T, P>& data);
+
+template <class P>
+class PersistentObjectWrapper {
+private:
+	GSharedPointer<Persistent<P>> persistent;
+	GGlueDataWrapper * dataWrapper;
+public:
+	PersistentObjectWrapper(v8::Isolate *isolate, v8::Handle<P> v8Data, GGlueDataWrapper *dataWrapper)
+		: persistent(new Persistent<P>(isolate, v8Data)), dataWrapper(dataWrapper)
+	{
+		persistent->SetWeak(this, weakHandleCallback);
+	}
+
+	~PersistentObjectWrapper() {
+		getV8ScriptObjectCache()->freeScriptObject(dataWrapper);
+		freeGlueDataWrapper(dataWrapper, getV8DataWrapperPool());
+		persistent->Reset();
+	}
+
+	GSharedPointer<Persistent<P> > getPersistent() {
+		return persistent;
+	}
+
+	Persistent<P> & getPersistentRef() {
+		return *(persistent.get());
+	}
+
+	v8::Local<P> createLocal() {
+		return Local<P>::New(getV8Isolate(), *(persistent.get()));
+	}
+};
+
+template <class T, class P>
 static void weakHandleCallback(const WeakCallbackData<T, P>& data)
 {
-	GGlueDataWrapper * dataWrapper = data.GetParameter();
-
-	getV8ScriptObjectCache()->freeScriptObject(dataWrapper);
-	freeGlueDataWrapper(dataWrapper, getV8DataWrapperPool());
+	P * persistentWrapper = data.GetParameter();
+	delete persistentWrapper;
 }
 
 const unsigned char * signatureKey = (const unsigned char *)"i_sig_cpgf";
@@ -410,16 +442,15 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 	object->SetAlignedPointerInInternalField(0, dataWrapper);
 	setObjectSignature(&object);
 
-	V8ScriptObjectCacheEntry self(new Persistent<Object>(getV8Isolate(), object));
-	self->SetWeak(dataWrapper, weakHandleCallback);
+	PersistentObjectWrapper<Object> *self = new PersistentObjectWrapper<Object>(getV8Isolate(), object, dataWrapper);
 
 	if(outputGlueData != NULL) {
 		*outputGlueData = objectData;
 	}
 
-	getV8ScriptObjectCache()->addScriptObject(instance, classData, cv, self);
+	getV8ScriptObjectCache()->addScriptObject(instance, classData, cv, self->getPersistent());
 
-	return Local<Object>::New(getV8Isolate(), *(self.get()));
+	return self->createLocal();
 }
 
 Handle<Value> rawToV8(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
@@ -436,10 +467,9 @@ Handle<Value> rawToV8(const GContextPointer & context, const GVariant & value, G
 		object->SetAlignedPointerInInternalField(0, dataWrapper);
 		setObjectSignature(&object);
 
-		Persistent<Object> self(getV8Isolate(), object);
-		self.SetWeak(dataWrapper, weakHandleCallback);
+		PersistentObjectWrapper<Object> *self = new PersistentObjectWrapper<Object>(getV8Isolate(), object, dataWrapper);
 
-		return Local<Object>::New(getV8Isolate(), self);
+		return self->createLocal();
 	}
 
 	return Handle<Value>();
@@ -598,10 +628,8 @@ void helperBindAccessible(const GContextPointer & context, Local<Object> contain
 {
 	GAccessibleGlueDataPointer accessibleData(context->newAccessibleGlueData(instance, accessible));
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(accessibleData, getV8DataWrapperPool());
-	Persistent<External> data(getV8Isolate(), External::New(getV8Isolate(), dataWrapper));
-	data.SetWeak(dataWrapper, weakHandleCallback);
-
-	container->SetAccessor(String::NewFromOneByte(getV8Isolate(), (const unsigned char*)name), &accessibleGet, &accessibleSet, Local<External>::New(getV8Isolate(), data));
+	PersistentObjectWrapper<External> *data = new PersistentObjectWrapper<External>(getV8Isolate(), External::New(getV8Isolate(), dataWrapper), dataWrapper);
+	container->SetAccessor(String::NewFromOneByte(getV8Isolate(), (const unsigned char*)name), &accessibleGet, &accessibleSet, data->createLocal());
 }
 
 void callbackMethodList(const v8::FunctionCallbackInfo<Value>& args)
@@ -641,10 +669,9 @@ Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context,
 	GMethodGlueDataPointer glueData = context->newMethodGlueData(classData, methodList);
 	GGlueDataWrapper * dataWrapper = newGlueDataWrapper(glueData, getV8DataWrapperPool());
 
-	Persistent<External> data(getV8Isolate(), External::New(getV8Isolate(), dataWrapper));
-	data.SetWeak(dataWrapper, weakHandleCallback);
+	PersistentObjectWrapper<External> *data = new PersistentObjectWrapper<External>(getV8Isolate(), External::New(getV8Isolate(), dataWrapper), dataWrapper);
 
-	Local<External> localData = Local<External>::New(getV8Isolate(), data);
+	Local<External> localData = data->createLocal();
 	Handle<FunctionTemplate> functionTemplate;
 	if(! classData || classData->getMetaClass() == NULL || isGlobal) {
 		functionTemplate = FunctionTemplate::New(getV8Isolate(), callbackMethodList, localData);
@@ -726,10 +753,9 @@ Local<Object> helperBindEnum(const GContextPointer & context, Handle<ObjectTempl
 	instance->SetAlignedPointerInInternalField(0, dataWrapper);
 	setObjectSignature(&instance);
 
-	Persistent<Object> obj(getV8Isolate(), instance);
-	obj.SetWeak(dataWrapper, weakHandleCallback);
+	PersistentObjectWrapper<Object> *obj = new PersistentObjectWrapper<Object>(getV8Isolate(), instance, dataWrapper);
 
-	return Local<Object>::New(getV8Isolate(), obj);
+	return obj->createLocal();
 }
 
 Handle<Value> helperBindMethodList(const GContextPointer & context, IMetaList * methodList)
@@ -871,11 +897,10 @@ void objectConstructor(const v8::FunctionCallbackInfo<Value> & args)
 			localSelf->SetAlignedPointerInInternalField(0, objectWrapper);
 			setObjectSignature(&localSelf);
 
-			V8ScriptObjectCacheEntry self(new Persistent<Object>(getV8Isolate(), localSelf));
-			self->SetWeak(objectWrapper, weakHandleCallback);
-			getV8ScriptObjectCache()->addScriptObject(objectData->getInstance(), classData, opcvNone, self);
+			PersistentObjectWrapper<Object> *self = new PersistentObjectWrapper<Object>(getV8Isolate(), localSelf, dataWrapper);
+			getV8ScriptObjectCache()->addScriptObject(objectData->getInstance(), classData, opcvNone, self->getPersistent());
 
-			args.GetReturnValue().Set( Local<Object>::New(getV8Isolate(), *(self.get())) );
+			args.GetReturnValue().Set( self->createLocal() );
 		}
 		else {
 			raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1045,10 +1070,9 @@ Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, co
 
 	IMetaClass * metaClass = classData->getMetaClass();
 
-	Persistent<External> data(getV8Isolate(), External::New(getV8Isolate(), dataWrapper));
-	data.SetWeak(dataWrapper, weakHandleCallback);
+	PersistentObjectWrapper<External> *data = new PersistentObjectWrapper<External>(getV8Isolate(), External::New(getV8Isolate(), dataWrapper), dataWrapper);
 
-	Local<External> localData = Local<External>::New(getV8Isolate(), data);
+	Local<External> localData = data->createLocal();
 	Handle<FunctionTemplate> functionTemplate = FunctionTemplate::New(getV8Isolate(), objectConstructor, localData);
 	functionTemplate->SetClassName(String::NewFromOneByte(getV8Isolate(), (const unsigned char*)metaClass->getName()));
 	functionTemplate->SetHiddenPrototype(true);
@@ -1073,7 +1097,7 @@ Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, co
 
 	Local<Function> classFunction = functionTemplate->GetFunction();
 	setObjectSignature(&classFunction);
-	bindClassItems(classFunction, metaClass, data);
+	bindClassItems(classFunction, metaClass, data->getPersistentRef());
 
 	classFunction->SetHiddenValue(String::NewFromOneByte(getV8Isolate(), (const unsigned char*)userDataKey), localData);
 
