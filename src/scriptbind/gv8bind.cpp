@@ -897,7 +897,7 @@ void objectConstructor(const v8::FunctionCallbackInfo<Value> & args)
 			localSelf->SetAlignedPointerInInternalField(0, objectWrapper);
 			setObjectSignature(&localSelf);
 
-			PersistentObjectWrapper<Object> *self = new PersistentObjectWrapper<Object>(getV8Isolate(), localSelf, dataWrapper);
+			PersistentObjectWrapper<Object> *self = new PersistentObjectWrapper<Object>(getV8Isolate(), localSelf, objectWrapper);
 			getV8ScriptObjectCache()->addScriptObject(objectData->getInstance(), classData, opcvNone, self->getPersistent());
 
 			args.GetReturnValue().Set( self->createLocal() );
