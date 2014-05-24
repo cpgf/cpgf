@@ -72,10 +72,15 @@ GScriptObjectCache<V8ScriptObjectCacheEntry> * getV8ScriptObjectCache()
 class v8RuntimeException : public std::runtime_error
 {
 private:
-	Local<Value> error;
+	GSharedPointer<Persistent<Value> > persistentError;
 public:
-	v8RuntimeException(Local<Value> error) : std::runtime_error(*String::Utf8Value(error)), error(error) {}
-	Local<Value> getV8Error() const {return error;}
+	v8RuntimeException(Local<Value> error)
+		:
+		std::runtime_error(*String::Utf8Value(error)),
+		persistentError(new Persistent<Value>(getV8Isolate(), error))
+	{
+	}
+	Local<Value> getV8Error() const {return Local<Value>::New(getV8Isolate(), *persistentError.get());}
 };
 
 class GV8BindingContext : public GBindingContext, public GShareFromBase
@@ -258,7 +263,7 @@ static void weakHandleCallback(const WeakCallbackData<T, P>& data);
 template <class P>
 class PersistentObjectWrapper {
 private:
-	GSharedPointer<Persistent<P>> persistent;
+	GSharedPointer<Persistent<P> > persistent;
 	GGlueDataWrapper * dataWrapper;
 public:
 	PersistentObjectWrapper(v8::Isolate *isolate, v8::Handle<P> v8Data, GGlueDataWrapper *dataWrapper)
