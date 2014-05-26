@@ -69,20 +69,6 @@ GScriptObjectCache<V8ScriptObjectCacheEntry> * getV8ScriptObjectCache()
 //*********************************************
 
 
-class v8RuntimeException : public std::runtime_error
-{
-private:
-	GSharedPointer<Persistent<Value> > persistentError;
-public:
-	v8RuntimeException(Local<Value> error)
-		:
-		std::runtime_error(*String::Utf8Value(error)),
-		persistentError(new Persistent<Value>(getV8Isolate(), error))
-	{
-	}
-	Local<Value> getV8Error() const {return Local<Value>::New(getV8Isolate(), *persistentError.get());}
-};
-
 class GV8BindingContext : public GBindingContext, public GShareFromBase
 {
 private:
@@ -1141,7 +1127,7 @@ GScriptValue invokeV8FunctionIndirectly(const GContextPointer & context, Local<O
 			result = Local<Object>::Cast(func)->CallAsFunction(object, static_cast<int>(paramCount), v8Params);
 		}
 		if (result.IsEmpty()) {
-			throw v8RuntimeException(trycatch.Exception());
+			throw v8RuntimeException(trycatch.Exception(), trycatch.Message());
 		}
 
 		return v8ToScriptValue(context, object->CreationContext(), result, NULL);
