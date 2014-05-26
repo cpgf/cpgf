@@ -10,6 +10,7 @@ public class CppInvokable extends ParameteredItem {
 	private CppType resultType;
 	private boolean transferResultOwnership;
 	private boolean discardResultOwnership;
+	private boolean useFullPrototype;
 
 	public CppInvokable(EnumCategory category, String name, CppType resultType) {
 		super(category, name);
@@ -41,6 +42,14 @@ public class CppInvokable extends ParameteredItem {
 
 	public void setDiscardResultOwnership(boolean discardResultOwnership) {
 		this.discardResultOwnership = discardResultOwnership;
+	}
+
+	public boolean getUseFullPrototype() {
+		return useFullPrototype;
+	}
+
+	public void setUseFullPrototype(boolean useFullPrototype) {
+		this.useFullPrototype = useFullPrototype;
 	}
 
 	public boolean hasResult() {
