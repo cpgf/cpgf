@@ -221,7 +221,7 @@ public class MetaClassWriter {
 		for(CppMethod item : this.cppClass.getMethodList()) {
 			String name = item.getPrimaryName();
 			Integer overloadCount = methodOverload.get(name);
-			boolean overload = (overloadCount != null && overloadCount.intValue() > 1);
+			boolean usePrototype = (overloadCount != null && overloadCount.intValue() > 1);
 
 			this.doCallback(item);
 
@@ -229,9 +229,9 @@ public class MetaClassWriter {
 				continue;
 			}
 
-			overload = overload || this.cppClass.isGlobal();
+			usePrototype = usePrototype || this.cppClass.isGlobal() || item.getUseFullPrototype();
 
-			WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, name, name, overload);
+			WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, name, name, usePrototype);
 		}
 	}
 
