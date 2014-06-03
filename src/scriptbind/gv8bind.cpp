@@ -52,22 +52,15 @@ GGlueDataWrapperPool * getV8DataWrapperPool()
 	return v8DataWrapperPool;
 }
 
-typedef GSharedPointer<Persistent<Object> > V8ScriptObjectCacheEntry;
-
-GScriptObjectCache<V8ScriptObjectCacheEntry> * getV8ScriptObjectCache()
-{
-	static GScriptObjectCache<V8ScriptObjectCacheEntry> * cache = NULL;
-	if(cache == NULL && isLibraryLive()) {
-		cache = new GScriptObjectCache<V8ScriptObjectCacheEntry>;
-		addOrderedStaticUninitializer(suo_ScriptObjectCache, makeUninitializerDeleter(&cache));
-	}
-	return cache;
-}
-
 //*********************************************
 // Declarations
 //*********************************************
 
+class V8ScriptObjectCacheData : public GScriptObjectCacheData {
+public:
+	GSharedPointer<Persistent<Object> > v8Object;
+	V8ScriptObjectCacheData(GSharedPointer<Persistent<Object> > v8Object) : v8Object(v8Object) {}
+};
 
 class GV8BindingContext : public GBindingContext, public GShareFromBase
 {
@@ -84,7 +77,6 @@ public:
 		if(! this->objectTemplate.IsEmpty()) {
 			this->objectTemplate.Reset();
 		}
-		checkedClearScriptObjectCache(getV8ScriptObjectCache());
 	}
 
 	Handle<Object > getRawObject() {
@@ -259,7 +251,9 @@ public:
 	}
 
 	~PersistentObjectWrapper() {
-		getV8ScriptObjectCache()->freeScriptObject(dataWrapper);
+		if (dataWrapper->getData()->isValid()) {
+			dataWrapper->getData()->getBindingContext()->getScriptObjectCache()->freeScriptObject(dataWrapper);
+		}
 		freeGlueDataWrapper(dataWrapper, getV8DataWrapperPool());
 		persistent->Reset();
 	}
@@ -418,9 +412,9 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 		return Handle<Value>();
 	}
 
-	V8ScriptObjectCacheEntry * cachedObject = getV8ScriptObjectCache()->findScriptObject(instance, classData, cv);
+	V8ScriptObjectCacheData * cachedObject = context->getScriptObjectCache()->findScriptObject<V8ScriptObjectCacheData>(instance, classData, cv);
 	if(cachedObject != NULL) {
-		return Local<Object>::New(getV8Isolate(), *(cachedObject->get()));
+		return Local<Object>::New(getV8Isolate(), *(cachedObject->v8Object.get()));
 	}
 
 	Handle<FunctionTemplate> functionTemplate = createClassTemplate(context, classData);
@@ -439,7 +433,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 		*outputGlueData = objectData;
 	}
 
-	getV8ScriptObjectCache()->addScriptObject(instance, classData, cv, self->getPersistent());
+	context->getScriptObjectCache()->addScriptObject(instance, classData, cv, new V8ScriptObjectCacheData(self->getPersistent()));
 
 	return self->createLocal();
 }
@@ -889,7 +883,7 @@ void objectConstructor(const v8::FunctionCallbackInfo<Value> & args)
 			setObjectSignature(&localSelf);
 
 			PersistentObjectWrapper<Object> *self = new PersistentObjectWrapper<Object>(getV8Isolate(), localSelf, objectWrapper);
-			getV8ScriptObjectCache()->addScriptObject(objectData->getInstance(), classData, opcvNone, self->getPersistent());
+			objectData->getBindingContext()->getScriptObjectCache()->addScriptObject(objectData->getInstance(), classData, opcvNone, new V8ScriptObjectCacheData(self->getPersistent()));
 
 			args.GetReturnValue().Set( self->createLocal() );
 		}

@@ -58,7 +58,7 @@ public:
 	GPythonNative() {}
 	explicit GPythonNative(const GGlueDataPointer & glueData);
 	virtual ~GPythonNative();
-	
+
 	virtual GGlueDataPointer getData() const;
 	virtual PyObject * toPythonObject() = 0;
 
@@ -117,15 +117,11 @@ private:
 	void initType();
 };
 
-GScriptObjectCache<GPythonNative *> * getPythonScriptObjectCache()
-{
-	static GScriptObjectCache<GPythonNative *> * cache = NULL;
-	if(cache == NULL && isLibraryLive()) {
-		cache = new GScriptObjectCache<GPythonNative *>;
-		addOrderedStaticUninitializer(suo_ScriptObjectCache, makeUninitializerDeleter(&cache));
-	}
-	return cache;
-}
+class PythonScriptObjectCacheData : public GScriptObjectCacheData {
+public:
+	GPythonNative * pythonObject;
+	PythonScriptObjectCacheData(GPythonNative *pythonObject) : pythonObject(pythonObject) {}
+};
 
 class GPythonBindingContext : public GBindingContext, public GShareFromBase
 {
@@ -136,10 +132,6 @@ public:
 	GPythonBindingContext(IMetaService * service, const GScriptConfig & config)
 		: super(service, config)
 	{
-	}
-
-	~GPythonBindingContext() {
-		checkedClearScriptObjectCache(getPythonScriptObjectCache());
 	}
 };
 
@@ -207,7 +199,7 @@ public:
 	GPythonContextPointer getPythonContext() const {
 		return sharedStaticCast<GPythonBindingContext>(this->getBindingContext());
 	}
-	
+
 public:
 	PyObject * getObject() const {
 		return this->object;
@@ -256,7 +248,7 @@ GPythonNative * nativeFromPython(PyObject * object) {
 
 void commonDealloc(PyObject* p)
 {
-    deletePythonObject(nativeFromPython(p));
+	deletePythonObject(nativeFromPython(p));
 }
 
 PyObject * callbackCallMethod(PyObject * callableObject, PyObject * args, PyObject * keyWords);
@@ -281,53 +273,53 @@ int callbackStaticObjectDescriptorSet(PyObject * self, PyObject * obj, PyObject 
 PyObject * variantToPython(const GContextPointer & context, const GVariant & data, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData);
 
 PyTypeObject functionType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    const_cast<char *>("cpgf.Python.function"),
-    sizeof(GPythonObject),
-    0,
-    (destructor)&commonDealloc,               /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_compare */
-    0,				                   /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    &callbackCallMethod,                              /* tp_call */
-    0,                                  /* tp_str */
-    0, 						            /* tp_getattro */
-    0, 						            /* tp_setattro */
-    0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT, 					/* tp_flags */
-    0,                                  /* tp_doc */
-    0, 						          /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0, 									 /* tp_weaklistoffset */
-    0,                                  /* tp_iter */
-    0,                                  /* tp_iternext */
-    0,                                  /* tp_methods */
-    0, 					              /* tp_members */
-    NULL, 				                /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    NULL, 				                 /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0, 								      /* tp_dictoffset */
-    0,                                      /* tp_init */
-    0,                                      /* tp_alloc */
-    0,                                      /* tp_new */
-    0,                                      /* tp_free */
-    0,                                      /* tp_is_gc */
-    0,                                      /* tp_bases */
-    0,                                      /* tp_mro */
-    0,                                      /* tp_cache */
-    0,                                      /* tp_subclasses */
-    0,                                      /* tp_weaklist */
-    0,                                      /* tp_del */
-    0                                       /* tp_version_tag */
+	PyVarObject_HEAD_INIT(NULL, 0)
+	const_cast<char *>("cpgf.Python.function"),
+	sizeof(GPythonObject),
+	0,
+	(destructor)&commonDealloc,			   /* tp_dealloc */
+	0,								  /* tp_print */
+	0,								  /* tp_getattr */
+	0,								  /* tp_setattr */
+	0,								  /* tp_compare */
+	0,					   /* tp_repr */
+	0,								  /* tp_as_number */
+	0,								  /* tp_as_sequence */
+	0,								  /* tp_as_mapping */
+	0,								  /* tp_hash */
+	&callbackCallMethod,							  /* tp_call */
+	0,								  /* tp_str */
+	0, 				/* tp_getattro */
+	0, 				/* tp_setattro */
+	0,								  /* tp_as_buffer */
+	Py_TPFLAGS_DEFAULT, 					/* tp_flags */
+	0,								  /* tp_doc */
+	0, 			  /* tp_traverse */
+	0,								  /* tp_clear */
+	0,								  /* tp_richcompare */
+	0, 									 /* tp_weaklistoffset */
+	0,								  /* tp_iter */
+	0,								  /* tp_iternext */
+	0,								  /* tp_methods */
+	0, 				  /* tp_members */
+	NULL, 					/* tp_getset */
+	0,								  /* tp_base */
+	0,								  /* tp_dict */
+	NULL, 					 /* tp_descr_get */
+	0,								  /* tp_descr_set */
+	0, 		  /* tp_dictoffset */
+	0,									  /* tp_init */
+	0,									  /* tp_alloc */
+	0,									  /* tp_new */
+	0,									  /* tp_free */
+	0,									  /* tp_is_gc */
+	0,									  /* tp_bases */
+	0,									  /* tp_mro */
+	0,									  /* tp_cache */
+	0,									  /* tp_subclasses */
+	0,									  /* tp_weaklist */
+	0,									  /* tp_del */
+	0									   /* tp_version_tag */
 };
 
 int type_is_gc(PyTypeObject * /*python_type*/)
@@ -336,103 +328,103 @@ int type_is_gc(PyTypeObject * /*python_type*/)
 }
 
 PyTypeObject metaClassType = {
-    PyVarObject_HEAD_INIT(&PyType_Type, 0)
-    const_cast<char *>(metaClassTypeName),
+	PyVarObject_HEAD_INIT(&PyType_Type, 0)
+	const_cast<char *>(metaClassTypeName),
 	sizeof(GPythonClass),
-    0,
-    (destructor)&commonDealloc,               /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_compare */
-    0, 				                   /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                              /* tp_call */
-    0,                                  /* tp_str */
-	0,             /* tp_getattro */
-    0,            /* tp_setattro */
-    0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,	/* tp_flags */
-    0,                                  /* tp_doc */
-    0, 					          /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0, 									 /* tp_weaklistoffset */
-    0,                                  /* tp_iter */
-    0,                                  /* tp_iternext */
-    0,                                  /* tp_methods */
-    0, 					              /* tp_members */
-    NULL, 				                /* tp_getset */
-    0,                       /* tp_base */
-    0,                                  /* tp_dict */
-    NULL, 				                 /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0, 							      /* tp_dictoffset */
-    0,                               /* tp_init */
-    0,                    /* tp_alloc */
-    0, // &callbackConstructObject2,                     /* tp_new */
-    0,                                      /* tp_free */
-    (inquiry)type_is_gc,                         /* tp_is_gc */
-    0,                                      /* tp_bases */
-    0,                                      /* tp_mro */
-    0,                                      /* tp_cache */
-    0,                                      /* tp_subclasses */
-    0,                                      /* tp_weaklist */
-    0,                                      /* tp_del */
-    0                                       /* tp_version_tag */
+	0,
+	(destructor)&commonDealloc,			   /* tp_dealloc */
+	0,								  /* tp_print */
+	0,								  /* tp_getattr */
+	0,								  /* tp_setattr */
+	0,								  /* tp_compare */
+	0, 					   /* tp_repr */
+	0,								  /* tp_as_number */
+	0,								  /* tp_as_sequence */
+	0,								  /* tp_as_mapping */
+	0,								  /* tp_hash */
+	0,							  /* tp_call */
+	0,								  /* tp_str */
+	0,			 /* tp_getattro */
+	0,			/* tp_setattro */
+	0,								  /* tp_as_buffer */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,	/* tp_flags */
+	0,								  /* tp_doc */
+	0, 			  /* tp_traverse */
+	0,								  /* tp_clear */
+	0,								  /* tp_richcompare */
+	0, 									 /* tp_weaklistoffset */
+	0,								  /* tp_iter */
+	0,								  /* tp_iternext */
+	0,								  /* tp_methods */
+	0, 				  /* tp_members */
+	NULL, 					/* tp_getset */
+	0,					   /* tp_base */
+	0,								  /* tp_dict */
+	NULL, 					 /* tp_descr_get */
+	0,								  /* tp_descr_set */
+	0, 		  /* tp_dictoffset */
+	0,							   /* tp_init */
+	0,					/* tp_alloc */
+	0, // &callbackConstructObject2,					 /* tp_new */
+	0,									  /* tp_free */
+	(inquiry)type_is_gc,						 /* tp_is_gc */
+	0,									  /* tp_bases */
+	0,									  /* tp_mro */
+	0,									  /* tp_cache */
+	0,									  /* tp_subclasses */
+	0,									  /* tp_weaklist */
+	0,									  /* tp_del */
+	0									   /* tp_version_tag */
 };
 
 PyTypeObject classType = {
-    PyVarObject_HEAD_INIT(&PyType_Type, 0)
-    const_cast<char *>("cpgf.Python.class"),
-    sizeof(GPythonObject),
-    0,
-    (destructor)&commonDealloc,               /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_compare */
-    0, 				                   /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    &callbackConstructObject,                              /* tp_call */
-    0,                                  /* tp_str */
-	&callbackGetAttribute,             /* tp_getattro */
-    &callbackSetAttribute,            /* tp_setattro */
-    0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,	/* tp_flags */
-    0,                                  /* tp_doc */
-    0, 					          /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0, 									 /* tp_weaklistoffset */
-    0,                                  /* tp_iter */
-    0,                                  /* tp_iternext */
-    0,                                  /* tp_methods */
-    0, 					              /* tp_members */
-    NULL, 				                /* tp_getset */
-    &PyBaseObject_Type,                       /* tp_base */
-    0,                                  /* tp_dict */
-    NULL, 				                 /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0, 							      /* tp_dictoffset */
-    0,                               /* tp_init */
-    0,                    /* tp_alloc */
-    &PyType_GenericNew,                     /* tp_new */
-    0,                                      /* tp_free */
-    0,                         /* tp_is_gc */
-    0,                                      /* tp_bases */
-    0,                                      /* tp_mro */
-    0,                                      /* tp_cache */
-    0,                                      /* tp_subclasses */
-    0,                                      /* tp_weaklist */
-    0,                                      /* tp_del */
-    0                                       /* tp_version_tag */
+	PyVarObject_HEAD_INIT(&PyType_Type, 0)
+	const_cast<char *>("cpgf.Python.class"),
+	sizeof(GPythonObject),
+	0,
+	(destructor)&commonDealloc,			   /* tp_dealloc */
+	0,								  /* tp_print */
+	0,								  /* tp_getattr */
+	0,								  /* tp_setattr */
+	0,								  /* tp_compare */
+	0, 					   /* tp_repr */
+	0,								  /* tp_as_number */
+	0,								  /* tp_as_sequence */
+	0,								  /* tp_as_mapping */
+	0,								  /* tp_hash */
+	&callbackConstructObject,							  /* tp_call */
+	0,								  /* tp_str */
+	&callbackGetAttribute,			 /* tp_getattro */
+	&callbackSetAttribute,			/* tp_setattro */
+	0,								  /* tp_as_buffer */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,	/* tp_flags */
+	0,								  /* tp_doc */
+	0, 			  /* tp_traverse */
+	0,								  /* tp_clear */
+	0,								  /* tp_richcompare */
+	0, 									 /* tp_weaklistoffset */
+	0,								  /* tp_iter */
+	0,								  /* tp_iternext */
+	0,								  /* tp_methods */
+	0, 				  /* tp_members */
+	NULL, 					/* tp_getset */
+	&PyBaseObject_Type,					   /* tp_base */
+	0,								  /* tp_dict */
+	NULL, 					 /* tp_descr_get */
+	0,								  /* tp_descr_set */
+	0, 		  /* tp_dictoffset */
+	0,							   /* tp_init */
+	0,					/* tp_alloc */
+	&PyType_GenericNew,					 /* tp_new */
+	0,									  /* tp_free */
+	0,						 /* tp_is_gc */
+	0,									  /* tp_bases */
+	0,									  /* tp_mro */
+	0,									  /* tp_cache */
+	0,									  /* tp_subclasses */
+	0,									  /* tp_weaklist */
+	0,									  /* tp_del */
+	0									   /* tp_version_tag */
 };
 
 template <GMetaOpType op, bool allowRightSelf>
@@ -465,7 +457,7 @@ PyNumberMethods numberMethods = {
 	0, /* nb_float */
 	0, /* nb_oct */
 	0, /* nb_hex */
-    /* Added in release 2.0 */
+	/* Added in release 2.0 */
 	&binaryOperator<mopAddAssign, false>, /* nb_inplace_add */
 	&binaryOperator<mopSubAssign, false>, /* nb_inplace_subtract */
 	&binaryOperator<mopMulAssign, false>, /* nb_inplace_multiply */
@@ -478,320 +470,320 @@ PyNumberMethods numberMethods = {
 	&binaryOperator<mopBitXorAssign, false>, /* nb_inplace_xor */
 	&binaryOperator<mopBitOrAssign, false>, /* nb_inplace_or */
 
-    /* Added in release 2.2 */
-    /* The following require the Py_TPFLAGS_HAVE_CLASS flag */
+	/* Added in release 2.2 */
+	/* The following require the Py_TPFLAGS_HAVE_CLASS flag */
 	0, /* nb_floor_divide */
 	0, /* nb_true_divide */
 	0, /* nb_inplace_floor_divide */
 	0, /* nb_inplace_true_divide */
 
-    /* Added in release 2.5 */
+	/* Added in release 2.5 */
 	0, /* nb_index */
 };
 
 PyTypeObject objectType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    const_cast<char *>("cpgf.Python.object"),
-    sizeof(GPythonObject),
-    0,
-    (destructor)&commonDealloc,               /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_compare */
-    0, 				                   /* tp_repr */
-    &numberMethods,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                              /* tp_call */
-    0,                                  /* tp_str */
-	&callbackGetAttribute,             /* tp_getattro */
-    &callbackSetAttribute,            /* tp_setattro */
-    0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_CHECKTYPES,	/* tp_flags */
-    0,                                  /* tp_doc */
-    0, 						          /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0, 									 /* tp_weaklistoffset */
-    0,                                  /* tp_iter */
-    0,                                  /* tp_iternext */
-    0,                                  /* tp_methods */
-    0, 					              /* tp_members */
-    NULL, 			                /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    NULL, 			                 /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0, 							      /* tp_dictoffset */
-    0,                                      /* tp_init */
-    0,                                      /* tp_alloc */
-    0,                                      /* tp_new */
-    0,                                      /* tp_free */
-    0,                                      /* tp_is_gc */
-    0,                                      /* tp_bases */
-    0,                                      /* tp_mro */
-    0,                                      /* tp_cache */
-    0,                                      /* tp_subclasses */
-    0,                                      /* tp_weaklist */
-    0,                                      /* tp_del */
-    0                                       /* tp_version_tag */
+	PyVarObject_HEAD_INIT(NULL, 0)
+	const_cast<char *>("cpgf.Python.object"),
+	sizeof(GPythonObject),
+	0,
+	(destructor)&commonDealloc,			   /* tp_dealloc */
+	0,								  /* tp_print */
+	0,								  /* tp_getattr */
+	0,								  /* tp_setattr */
+	0,								  /* tp_compare */
+	0, 					   /* tp_repr */
+	&numberMethods,								  /* tp_as_number */
+	0,								  /* tp_as_sequence */
+	0,								  /* tp_as_mapping */
+	0,								  /* tp_hash */
+	0,							  /* tp_call */
+	0,								  /* tp_str */
+	&callbackGetAttribute,			 /* tp_getattro */
+	&callbackSetAttribute,			/* tp_setattro */
+	0,								  /* tp_as_buffer */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_CHECKTYPES,	/* tp_flags */
+	0,								  /* tp_doc */
+	0, 			  /* tp_traverse */
+	0,								  /* tp_clear */
+	0,								  /* tp_richcompare */
+	0, 									 /* tp_weaklistoffset */
+	0,								  /* tp_iter */
+	0,								  /* tp_iternext */
+	0,								  /* tp_methods */
+	0, 				  /* tp_members */
+	NULL, 					/* tp_getset */
+	0,								  /* tp_base */
+	0,								  /* tp_dict */
+	NULL, 					 /* tp_descr_get */
+	0,								  /* tp_descr_set */
+	0, 		  /* tp_dictoffset */
+	0,									  /* tp_init */
+	0,									  /* tp_alloc */
+	0,									  /* tp_new */
+	0,									  /* tp_free */
+	0,									  /* tp_is_gc */
+	0,									  /* tp_bases */
+	0,									  /* tp_mro */
+	0,									  /* tp_cache */
+	0,									  /* tp_subclasses */
+	0,									  /* tp_weaklist */
+	0,									  /* tp_del */
+	0									   /* tp_version_tag */
 };
 
 
 PyTypeObject staticObjectType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    const_cast<char *>("cpgf.Python.static"),
+	PyVarObject_HEAD_INIT(NULL, 0)
+	const_cast<char *>("cpgf.Python.static"),
 	sizeof(GPythonStaticObject),
-    0,
-    (destructor)&commonDealloc,               /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_compare */
-    0, 				                   /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                              /* tp_call */
-    0,                                  /* tp_str */
-	NULL,           			  /* tp_getattro */
-    NULL,            			/* tp_setattro */
-    0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_CLASS, 	/* tp_flags */
-    0,                                  /* tp_doc */
-    0, 						          /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0, 									 /* tp_weaklistoffset */
-    0,                                  /* tp_iter */
-    0,                                  /* tp_iternext */
-    NULL,                                  /* tp_methods */
-    0, 						              /* tp_members */
-    NULL, 				                /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-	&callbackStaticObjectDescriptorGet,           /* tp_descr_get */
-	&callbackStaticObjectDescriptorSet,                                  /* tp_descr_set */
-    0, 								      /* tp_dictoffset */
-    0,                                      /* tp_init */
-    0,                                      /* tp_alloc */
-    0,                                      /* tp_new */
-    0,                                      /* tp_free */
-    0,                                      /* tp_is_gc */
-    0,                                      /* tp_bases */
-    0,                                      /* tp_mro */
-    0,                                      /* tp_cache */
-    0,                                      /* tp_subclasses */
-    0,                                      /* tp_weaklist */
-    0,                                      /* tp_del */
-    0                                       /* tp_version_tag */
+	0,
+	(destructor)&commonDealloc,			   /* tp_dealloc */
+	0,								  /* tp_print */
+	0,								  /* tp_getattr */
+	0,								  /* tp_setattr */
+	0,								  /* tp_compare */
+	0, 					   /* tp_repr */
+	0,								  /* tp_as_number */
+	0,								  /* tp_as_sequence */
+	0,								  /* tp_as_mapping */
+	0,								  /* tp_hash */
+	0,							  /* tp_call */
+	0,								  /* tp_str */
+	NULL,		   			  /* tp_getattro */
+	NULL,						/* tp_setattro */
+	0,								  /* tp_as_buffer */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_CLASS, 	/* tp_flags */
+	0,								  /* tp_doc */
+	0, 			  /* tp_traverse */
+	0,								  /* tp_clear */
+	0,								  /* tp_richcompare */
+	0, 									 /* tp_weaklistoffset */
+	0,								  /* tp_iter */
+	0,								  /* tp_iternext */
+	NULL,								  /* tp_methods */
+	0, 				  /* tp_members */
+	NULL, 					/* tp_getset */
+	0,								  /* tp_base */
+	0,								  /* tp_dict */
+	&callbackStaticObjectDescriptorGet,		   /* tp_descr_get */
+	&callbackStaticObjectDescriptorSet,								  /* tp_descr_set */
+	0, 		  /* tp_dictoffset */
+	0,									  /* tp_init */
+	0,									  /* tp_alloc */
+	0,									  /* tp_new */
+	0,									  /* tp_free */
+	0,									  /* tp_is_gc */
+	0,									  /* tp_bases */
+	0,									  /* tp_mro */
+	0,									  /* tp_cache */
+	0,									  /* tp_subclasses */
+	0,									  /* tp_weaklist */
+	0,									  /* tp_del */
+	0									   /* tp_version_tag */
 };
 
 
 PyTypeObject enumType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    const_cast<char *>("cpgf.Python.enum"),
-    sizeof(GPythonObject),
-    0,
-    (destructor)&commonDealloc,               /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_compare */
-    0, 				                   /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                              /* tp_call */
-    0,                                  /* tp_str */
-	&callbackGetEnumValue,             /* tp_getattro */
-    &callbackSetEnumValue,            /* tp_setattro */
-    0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT, 			/* tp_flags */
-    0,                                  /* tp_doc */
-    0, 				          			/* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0, 								 /* tp_weaklistoffset */
-    0,                                  /* tp_iter */
-    0,                                  /* tp_iternext */
-    0,                                  /* tp_methods */
-    0, 					              /* tp_members */
-    NULL, 				                /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    NULL, 				                 /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0, 							      /* tp_dictoffset */
-    0,                                      /* tp_init */
-    0,                                      /* tp_alloc */
-    0,                                      /* tp_new */
-    0,                                      /* tp_free */
-    0,                                      /* tp_is_gc */
-    0,                                      /* tp_bases */
-    0,                                      /* tp_mro */
-    0,                                      /* tp_cache */
-    0,                                      /* tp_subclasses */
-    0,                                      /* tp_weaklist */
-    0,                                      /* tp_del */
-    0                                       /* tp_version_tag */
+	PyVarObject_HEAD_INIT(NULL, 0)
+	const_cast<char *>("cpgf.Python.enum"),
+	sizeof(GPythonObject),
+	0,
+	(destructor)&commonDealloc,			   /* tp_dealloc */
+	0,								  /* tp_print */
+	0,								  /* tp_getattr */
+	0,								  /* tp_setattr */
+	0,								  /* tp_compare */
+	0, 					   /* tp_repr */
+	0,								  /* tp_as_number */
+	0,								  /* tp_as_sequence */
+	0,								  /* tp_as_mapping */
+	0,								  /* tp_hash */
+	0,							  /* tp_call */
+	0,								  /* tp_str */
+	&callbackGetEnumValue,			 /* tp_getattro */
+	&callbackSetEnumValue,			/* tp_setattro */
+	0,								  /* tp_as_buffer */
+	Py_TPFLAGS_DEFAULT, 			/* tp_flags */
+	0,								  /* tp_doc */
+	0, 			  			/* tp_traverse */
+	0,								  /* tp_clear */
+	0,								  /* tp_richcompare */
+	0, 								 /* tp_weaklistoffset */
+	0,								  /* tp_iter */
+	0,								  /* tp_iternext */
+	0,								  /* tp_methods */
+	0, 				  /* tp_members */
+	NULL, 					/* tp_getset */
+	0,								  /* tp_base */
+	0,								  /* tp_dict */
+	NULL, 					 /* tp_descr_get */
+	0,								  /* tp_descr_set */
+	0, 		  /* tp_dictoffset */
+	0,									  /* tp_init */
+	0,									  /* tp_alloc */
+	0,									  /* tp_new */
+	0,									  /* tp_free */
+	0,									  /* tp_is_gc */
+	0,									  /* tp_bases */
+	0,									  /* tp_mro */
+	0,									  /* tp_cache */
+	0,									  /* tp_subclasses */
+	0,									  /* tp_weaklist */
+	0,									  /* tp_del */
+	0									   /* tp_version_tag */
 };
 
 
 PyTypeObject accessibleType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    const_cast<char *>("cpgf.Python.accessible"),
-    sizeof(GPythonObject),
-    0,
-    (destructor)&commonDealloc,               /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_compare */
-    0, 				                   /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                              /* tp_call */
-    0,                                  /* tp_str */
-	NULL,           			  /* tp_getattro */
-    NULL,            			/* tp_setattro */
-    0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_CLASS, 	/* tp_flags */
-    0,                                  /* tp_doc */
-    0, 						          /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0, 									 /* tp_weaklistoffset */
-    0,                                  /* tp_iter */
-    0,                                  /* tp_iternext */
-    NULL,                                  /* tp_methods */
-    0, 						              /* tp_members */
-    NULL, 				                /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    &callbackAccessibleDescriptorGet,           /* tp_descr_get */
-    &callbackAccessibleDescriptorSet,                                  /* tp_descr_set */
-    0, 								      /* tp_dictoffset */
-    0,                                      /* tp_init */
-    0,                                      /* tp_alloc */
-    0,                                      /* tp_new */
-    0,                                      /* tp_free */
-    0,                                      /* tp_is_gc */
-    0,                                      /* tp_bases */
-    0,                                      /* tp_mro */
-    0,                                      /* tp_cache */
-    0,                                      /* tp_subclasses */
-    0,                                      /* tp_weaklist */
-    0,                                      /* tp_del */
-    0                                       /* tp_version_tag */
+	PyVarObject_HEAD_INIT(NULL, 0)
+	const_cast<char *>("cpgf.Python.accessible"),
+	sizeof(GPythonObject),
+	0,
+	(destructor)&commonDealloc,			   /* tp_dealloc */
+	0,								  /* tp_print */
+	0,								  /* tp_getattr */
+	0,								  /* tp_setattr */
+	0,								  /* tp_compare */
+	0, 					   /* tp_repr */
+	0,								  /* tp_as_number */
+	0,								  /* tp_as_sequence */
+	0,								  /* tp_as_mapping */
+	0,								  /* tp_hash */
+	0,							  /* tp_call */
+	0,								  /* tp_str */
+	NULL,		   			  /* tp_getattro */
+	NULL,						/* tp_setattro */
+	0,								  /* tp_as_buffer */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_CLASS, 	/* tp_flags */
+	0,								  /* tp_doc */
+	0, 			  /* tp_traverse */
+	0,								  /* tp_clear */
+	0,								  /* tp_richcompare */
+	0, 									 /* tp_weaklistoffset */
+	0,								  /* tp_iter */
+	0,								  /* tp_iternext */
+	NULL,								  /* tp_methods */
+	0, 				  /* tp_members */
+	NULL, 					/* tp_getset */
+	0,								  /* tp_base */
+	0,								  /* tp_dict */
+	&callbackAccessibleDescriptorGet,		   /* tp_descr_get */
+	&callbackAccessibleDescriptorSet,								  /* tp_descr_set */
+	0, 		  /* tp_dictoffset */
+	0,									  /* tp_init */
+	0,									  /* tp_alloc */
+	0,									  /* tp_new */
+	0,									  /* tp_free */
+	0,									  /* tp_is_gc */
+	0,									  /* tp_bases */
+	0,									  /* tp_mro */
+	0,									  /* tp_cache */
+	0,									  /* tp_subclasses */
+	0,									  /* tp_weaklist */
+	0,									  /* tp_del */
+	0									   /* tp_version_tag */
 };
 
 
 PyTypeObject rawType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    const_cast<char *>("cpgf.Python.raw"),
-    sizeof(GPythonObject),
-    0,
-    (destructor)&commonDealloc,               /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_compare */
-    0, 				                   /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                              /* tp_call */
-    0,                                  /* tp_str */
-	NULL,           				  /* tp_getattro */
-    NULL,         				   /* tp_setattro */
-    0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT, 				/* tp_flags */
-    0,                                  /* tp_doc */
-    0, 						          /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0, 									 /* tp_weaklistoffset */
-    0,                                  /* tp_iter */
-    0,                                  /* tp_iternext */
-    NULL,                                  /* tp_methods */
-    0, 					              /* tp_members */
-    NULL, 				                /* tp_getset */
-    0,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    NULL,           						/* tp_descr_get */
-    NULL,                                  /* tp_descr_set */
-    0, 								      /* tp_dictoffset */
-    0,                                      /* tp_init */
-    0,                                      /* tp_alloc */
-    0,                                      /* tp_new */
-    0,                                      /* tp_free */
-    0,                                      /* tp_is_gc */
-    0,                                      /* tp_bases */
-    0,                                      /* tp_mro */
-    0,                                      /* tp_cache */
-    0,                                      /* tp_subclasses */
-    0,                                      /* tp_weaklist */
-    0,                                      /* tp_del */
-    0                                       /* tp_version_tag */
+	PyVarObject_HEAD_INIT(NULL, 0)
+	const_cast<char *>("cpgf.Python.raw"),
+	sizeof(GPythonObject),
+	0,
+	(destructor)&commonDealloc,			   /* tp_dealloc */
+	0,								  /* tp_print */
+	0,								  /* tp_getattr */
+	0,								  /* tp_setattr */
+	0,								  /* tp_compare */
+	0, 					   /* tp_repr */
+	0,								  /* tp_as_number */
+	0,								  /* tp_as_sequence */
+	0,								  /* tp_as_mapping */
+	0,								  /* tp_hash */
+	0,							  /* tp_call */
+	0,								  /* tp_str */
+	NULL,		   				  /* tp_getattro */
+	NULL,		 				   /* tp_setattro */
+	0,								  /* tp_as_buffer */
+	Py_TPFLAGS_DEFAULT, 				/* tp_flags */
+	0,								  /* tp_doc */
+	0, 			  /* tp_traverse */
+	0,								  /* tp_clear */
+	0,								  /* tp_richcompare */
+	0, 									 /* tp_weaklistoffset */
+	0,								  /* tp_iter */
+	0,								  /* tp_iternext */
+	NULL,								  /* tp_methods */
+	0, 				  /* tp_members */
+	NULL, 					/* tp_getset */
+	0,								  /* tp_base */
+	0,								  /* tp_dict */
+	NULL,		   						/* tp_descr_get */
+	NULL,								  /* tp_descr_set */
+	0, 		  /* tp_dictoffset */
+	0,									  /* tp_init */
+	0,									  /* tp_alloc */
+	0,									  /* tp_new */
+	0,									  /* tp_free */
+	0,									  /* tp_is_gc */
+	0,									  /* tp_bases */
+	0,									  /* tp_mro */
+	0,									  /* tp_cache */
+	0,									  /* tp_subclasses */
+	0,									  /* tp_weaklist */
+	0,									  /* tp_del */
+	0									   /* tp_version_tag */
 };
 
 
 PyTypeObject emptyObjectType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    const_cast<char *>("cpgf.Python.emptyObject"),
-    sizeof(GPythonAnyObject),
-    0,
-    (destructor)&commonDealloc,               /* tp_dealloc */
-    0,                                  /* tp_print */
-    0,                                  /* tp_getattr */
-    0,                                  /* tp_setattr */
-    0,                                  /* tp_compare */
-    0, 				                   /* tp_repr */
-    0,                                  /* tp_as_number */
-    0,                                  /* tp_as_sequence */
-    0,                                  /* tp_as_mapping */
-    0,                                  /* tp_hash */
-    0,                              /* tp_call */
-    0,                                  /* tp_str */
-	&callbackAnyObjectGetAttribute,             /* tp_getattro */
-    &callbackAnyObjectSetAttribute,            /* tp_setattro */
-    0,                                  /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT, 				/* tp_flags */
-    0,                                  /* tp_doc */
-    0, 						          /* tp_traverse */
-    0,                                  /* tp_clear */
-    0,                                  /* tp_richcompare */
-    0, 									 /* tp_weaklistoffset */
-    0,                                  /* tp_iter */
-    0,                                  /* tp_iternext */
-    0,                                  /* tp_methods */
-    0, 					              /* tp_members */
-    NULL, 			                /* tp_getset */
-	NULL,                                  /* tp_base */
-    0,                                  /* tp_dict */
-    NULL, 			                 /* tp_descr_get */
-    0,                                  /* tp_descr_set */
-    0, 							      /* tp_dictoffset */
-    0,                                      /* tp_init */
-    0,                                      /* tp_alloc */
-    0,                                      /* tp_new */
-    0,                                      /* tp_free */
-    0,                                      /* tp_is_gc */
-    0,                                      /* tp_bases */
-    0,                                      /* tp_mro */
-    0,                                      /* tp_cache */
-    0,                                      /* tp_subclasses */
-    0,                                      /* tp_weaklist */
-    0,                                      /* tp_del */
-    0                                       /* tp_version_tag */
+	PyVarObject_HEAD_INIT(NULL, 0)
+	const_cast<char *>("cpgf.Python.emptyObject"),
+	sizeof(GPythonAnyObject),
+	0,
+	(destructor)&commonDealloc,			   /* tp_dealloc */
+	0,								  /* tp_print */
+	0,								  /* tp_getattr */
+	0,								  /* tp_setattr */
+	0,								  /* tp_compare */
+	0, 					   /* tp_repr */
+	0,								  /* tp_as_number */
+	0,								  /* tp_as_sequence */
+	0,								  /* tp_as_mapping */
+	0,								  /* tp_hash */
+	0,							  /* tp_call */
+	0,								  /* tp_str */
+	&callbackAnyObjectGetAttribute,			 /* tp_getattro */
+	&callbackAnyObjectSetAttribute,			/* tp_setattro */
+	0,								  /* tp_as_buffer */
+	Py_TPFLAGS_DEFAULT, 				/* tp_flags */
+	0,								  /* tp_doc */
+	0, 			  /* tp_traverse */
+	0,								  /* tp_clear */
+	0,								  /* tp_richcompare */
+	0, 									 /* tp_weaklistoffset */
+	0,								  /* tp_iter */
+	0,								  /* tp_iternext */
+	0,								  /* tp_methods */
+	0, 				  /* tp_members */
+	NULL, 					/* tp_getset */
+	NULL,								  /* tp_base */
+	0,								  /* tp_dict */
+	NULL, 					 /* tp_descr_get */
+	0,								  /* tp_descr_set */
+	0, 		  /* tp_dictoffset */
+	0,									  /* tp_init */
+	0,									  /* tp_alloc */
+	0,									  /* tp_new */
+	0,									  /* tp_free */
+	0,									  /* tp_is_gc */
+	0,									  /* tp_bases */
+	0,									  /* tp_mro */
+	0,									  /* tp_cache */
+	0,									  /* tp_subclasses */
+	0,									  /* tp_weaklist */
+	0,									  /* tp_del */
+	0									   /* tp_version_tag */
 };
 
 
@@ -871,7 +863,9 @@ GPythonObject * createEmptyPythonObject()
 
 void deletePythonObject(GPythonNative * object)
 {
-	getPythonScriptObjectCache()->freeScriptObject(object);
+	if (object->getData()->isValid()) {
+		object->getData()->getBindingContext()->getScriptObjectCache()->freeScriptObject(object);
+	}
 	getPythonDataWrapperPool()->dataWrapperDestroyed(object);
 	delete object;
 }
@@ -907,13 +901,13 @@ GPythonObject::~GPythonObject()
 
 void GPythonObject::initType(PyTypeObject * type)
 {
-    if(type->tp_dict == 0) {
-        Py_TYPE(type) = &PyType_Type;
+	if(type->tp_dict == 0) {
+		Py_TYPE(type) = &PyType_Type;
 		if(type == &classType) {
 			type->tp_base = &PyBaseObject_Type; //&PyType_Type;
 		}
-        PyType_Ready(type);
-    }
+		PyType_Ready(type);
+	}
 
 	PyObject_INIT(this, type);
 }
@@ -959,10 +953,10 @@ const string & GPythonStaticObject::getFieldName() const
 void GPythonStaticObject::initType()
 {
 	PyTypeObject * type = &staticObjectType;
-    if(type->tp_dict == 0) {
-        Py_TYPE(type) = &PyType_Type;
-        PyType_Ready(type);
-    }
+	if(type->tp_dict == 0) {
+		Py_TYPE(type) = &PyType_Type;
+		PyType_Ready(type);
+	}
 
 	PyObject_INIT(this, type);
 }
@@ -1097,7 +1091,7 @@ GScriptValue pythonToScriptValue(const GContextPointer & context, PyObject * val
 
 		if(PyCallable_Check(value)) {
 			GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GPythonScriptFunction(context, value), true));
-			
+
 			return GScriptValue::fromScriptFunction(func.get());
 		}
 
@@ -1113,14 +1107,14 @@ PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataP
 						  const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
 {
 	void * instanceAddress = objectAddressFromVariant(instance);
-	
+
 	if(instanceAddress == NULL) {
 		return pyAddRef(Py_None);
 	}
 
-	GPythonNative ** cachedPythonObject = getPythonScriptObjectCache()->findScriptObject(instance, classData, cv);
-	if(cachedPythonObject != NULL) {
-		return pyAddRef((*cachedPythonObject)->toPythonObject());
+	PythonScriptObjectCacheData * cachedPythonObject = context->getScriptObjectCache()->findScriptObject<PythonScriptObjectCacheData>(instance, classData, cv);
+	if(cachedPythonObject) {
+		return pyAddRef(cachedPythonObject->pythonObject->toPythonObject());
 	}
 
 	GObjectGlueDataPointer objectData(context->newOrReuseObjectGlueData(classData, instance, flags, cv));
@@ -1128,7 +1122,7 @@ PyObject * objectToPython(const GContextPointer & context, const GClassGlueDataP
 		*outputGlueData = objectData;
 	}
 	GPythonObject * object = createPythonObject(objectData);
-	getPythonScriptObjectCache()->addScriptObject(instance, classData, cv, object);
+	context->getScriptObjectCache()->addScriptObject(instance, classData, cv, new PythonScriptObjectCacheData(object));
 	return object;
 }
 
@@ -1182,7 +1176,7 @@ PyObject * createClassObject(const GContextPointer & context, IMetaClass * metaC
 struct GPythonMethods
 {
 	typedef PyObject * ResultType;
-	
+
 	static ResultType doObjectToScript(const GContextPointer & context, const GClassGlueDataPointer & classData,
 		const GVariant & instance, const GBindValueFlags & flags, ObjectPointerCV cv, GGlueDataPointer * outputGlueData)
 	{
@@ -1193,7 +1187,7 @@ struct GPythonMethods
 	{
 		return variantToPython(context, value, flags, outputGlueData);
 	}
-	
+
 	static ResultType doRawToScript(const GContextPointer & context, const GVariant & value, GGlueDataPointer * outputGlueData)
 	{
 		return rawToPython(context, value, outputGlueData);
@@ -1257,7 +1251,7 @@ PyObject * variantToPython(const GContextPointer & context, const GVariant & dat
 	GMetaType type = getVariantRealMetaType(data);
 
 	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
-	
+
 	if(vtIsEmpty(vt)) {
 		return pyAddRef(Py_None);
 	}
@@ -1340,7 +1334,7 @@ PyObject * callbackConstructObject(PyObject * callableObject, PyObject * args, P
 	GPythonNative * cppClass = nativeFromPython(callableObject);
 	GClassGlueDataPointer classUserData = cppClass->getAs<GClassGlueData>();
 	GContextPointer context = classUserData->getBindingContext();
-	
+
 	InvokeCallableParam callableParam(static_cast<int>(PyTuple_Size(args)), context->borrowScriptContext());
 	loadCallableParam(context, args, &callableParam);
 
@@ -1407,7 +1401,7 @@ PyObject * callbackGetEnumValue(PyObject * object, PyObject * attrName)
 	ENTER_PYTHON()
 
 	GPythonNative * cppObject = nativeFromPython(object);
-	
+
 	GEnumGlueDataPointer userData = cppObject->getAs<GEnumGlueData>();
 
 	const char * name = PyString_AsString(attrName);
@@ -1440,7 +1434,7 @@ PyObject * callbackAccessibleDescriptorGet(PyObject * self, PyObject * /*obj*/, 
 	ENTER_PYTHON()
 
 	GPythonNative * cppObject = nativeFromPython(self);
-	
+
 	GAccessibleGlueDataPointer userData = cppObject->getAs<GAccessibleGlueData>();
 
 	return accessibleToScript<GPythonMethods>(userData->getBindingContext(), userData->getAccessible(), userData->getInstanceAddress(), false);
@@ -1453,7 +1447,7 @@ int callbackAccessibleDescriptorSet(PyObject * self, PyObject * /*obj*/, PyObjec
 	ENTER_PYTHON()
 
 	GPythonNative * cppObject = nativeFromPython(self);
-	
+
 	GAccessibleGlueDataPointer userData = cppObject->getAs<GAccessibleGlueData>();
 
 	GVariant v = pythonToScriptValue(userData->getBindingContext(), value, NULL).getValue();
@@ -1474,7 +1468,7 @@ PyObject * callbackStaticObjectDescriptorGet(PyObject * self, PyObject * /*obj*/
 	if(nativeObject != NULL) {
 		attrObject = namedMemberToScript<GPythonMethods>(nativeObject->getData(), nativeObject->getFieldName().c_str());
 	}
-	
+
 	if(attrObject != NULL) {
 		return attrObject;
 	}
@@ -1648,7 +1642,7 @@ PyObject * helperBindValue(const GContextPointer & context, const GScriptValue &
 			bool transferOwnership;
 			void * instance = objectAddressFromVariant(value.toObject(&metaClass, &transferOwnership));
 			GScopedInterface<IMetaClass> metaClassGuard(metaClass);
-			
+
 			GBindValueFlags flags;
 			flags.setByBool(bvfAllowGC, transferOwnership);
 			result = objectToPython(context, context->getClassData(metaClass), instance, flags, opcvNone, NULL);
@@ -1694,7 +1688,7 @@ PyObject * helperBindValue(const GContextPointer & context, const GScriptValue &
 		}
 
 	}
-	
+
 	return result;
 }
 
@@ -1702,7 +1696,7 @@ template <GMetaOpType op, bool allowRightSelf>
 PyObject * binaryOperator(PyObject * a, PyObject * b)
 {
 	ENTER_PYTHON()
-	
+
 	PyObject * self = NULL;
 	PyObject * other = NULL;
 	int selfIndex = 0;
@@ -1723,18 +1717,18 @@ PyObject * binaryOperator(PyObject * a, PyObject * b)
 		selfIndex = 1;
 		otherIndex = 0;
 	}
-	
+
 	GObjectGlueDataPointer objectData = nativeFromPython(self)->getAs<GObjectGlueData>();
 	const GContextPointer & context = objectData->getBindingContext();
 
 	InvokeCallableParam callableParam(2, context->borrowScriptContext());
 
 	callableParam.params[selfIndex].value = pythonToScriptValue(context, self, &callableParam.params[selfIndex].paramGlueData);
-	
+
 	callableParam.params[otherIndex].value = pythonToScriptValue(context, other, &callableParam.params[otherIndex].paramGlueData);
-	
+
 	InvokeCallableResult result = doInvokeOperator(context, objectData, objectData->getClassData()->getMetaClass(), op, &callableParam);
-	
+
 	return methodResultToPython(context, result.callable.get(), &result);
 
 	LEAVE_PYTHON(return NULL)
@@ -1744,18 +1738,18 @@ template <GMetaOpType op>
 PyObject * unaryOperator(PyObject * a)
 {
 	ENTER_PYTHON()
-	
+
 	PyObject * self = a;
-	
+
 	GObjectGlueDataPointer objectData = nativeFromPython(self)->getAs<GObjectGlueData>();
 	const GContextPointer & context = objectData->getBindingContext();
 
 	InvokeCallableParam callableParam(1, context->borrowScriptContext());
 
 	callableParam.params[0].value = pythonToScriptValue(context, self, &callableParam.params[0].paramGlueData);
-	
+
 	InvokeCallableResult result = doInvokeOperator(context, objectData, objectData->getClassData()->getMetaClass(), op, &callableParam);
-	
+
 	return methodResultToPython(context, result.callable.get(), &result);
 
 	LEAVE_PYTHON(return NULL)
@@ -1820,7 +1814,7 @@ GScriptValue GPythonScriptArray::getValue(size_t index)
 	}
 
 	PyObject * obj = PyList_GetItem(this->listObject, index); // borrowed reference!
-	
+
 	if(obj != NULL) {
 		return pythonToScriptValue(this->getBindingContext(), obj, NULL);
 	}
@@ -1911,7 +1905,7 @@ GPythonScriptObject::~GPythonScriptObject()
 GScriptValue GPythonScriptObject::doGetValue(const char * name)
 {
 	GPythonScopedPointer obj(getObjectAttr(this->object, name));
-	
+
 	if(obj) {
 		return pythonToScriptValue(this->getBindingContext(), obj.get(), NULL);
 	}

@@ -729,6 +729,9 @@ private:
 	std::vector<GObjectGlueDataPointer> externalObjects;
 };
 
+
+class GScriptObjectCache;
+
 class GBindingContext : public GShareFromThis<GBindingContext>
 {
 public:
@@ -772,6 +775,8 @@ public:
 
 	GOperatorGlueDataPointer newOperatorGlueData(const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op);
 
+	GScriptObjectCache * getScriptObjectCache();
+
 private:
 	GClassPool * getClassPool();
 	GClassGlueDataPointer createClassGlueData(IMetaClass * metaClass);
@@ -784,6 +789,7 @@ private:
 	GScopedPointer<GScriptCoreService> scriptCoreService;
 	GScopedInterface<IScriptContext> scriptContext;
 
+	GScopedPointer<GScriptObjectCache> scriptObjectCache;
 private:
 	template <typename T>
 	friend class GGlueDataWrapperImplement;
@@ -1010,11 +1016,102 @@ IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & va
 IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance);
 
 std::string getMethodNameFromMethodList(IMetaList * methodList);
+
 inline void * getInstanceHash(const GVariant & instance)
 {
 	return referenceAddressFromVariant(instance);
 }
 
+
+struct GScriptObjectCacheKey {
+	GScriptObjectCacheKey() : key(NULL), className(NULL), cv(opcvNone) {
+	}
+
+	GScriptObjectCacheKey(void * key, const char * className, ObjectPointerCV cv)
+		: key(key), className(className), cv(cv) {
+	}
+
+	bool operator < (const GScriptObjectCacheKey & other) const {
+		if(key < other.key) {
+			return true;
+		}
+		if(key == other.key) {
+			if(cv < other.cv) {
+				return true;
+			}
+			if(cv > other.cv) {
+				return false;
+			}
+
+			if(className == other.className) {
+				return false;
+			}
+			else {
+				return strcmp(className, other.className) < 0;
+			}
+		}
+		return false;
+	}
+
+	void * key;
+	const char * className;
+	ObjectPointerCV cv;
+};
+
+class GScriptObjectCacheData {
+public:
+	virtual ~GScriptObjectCacheData() {}
+};
+
+class GScriptObjectCache
+{
+private:
+	typedef std::map<GScriptObjectCacheKey, GSharedPointer<GScriptObjectCacheData> > ObjectMapType;
+
+public:
+	template <class T>
+	T * findScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
+		ObjectPointerCV cv) {
+		void * key = getInstanceHash(instance);
+		GScriptObjectCacheKey entry(key, classData->getMetaClass()->getQualifiedName(), cv);
+		typename ObjectMapType::iterator it = this->objectMap.find(entry);
+		if(it != this->objectMap.end()) {
+			return dynamic_cast<T *>(it->second.get());
+		}
+		return NULL;
+	}
+
+	void addScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
+		ObjectPointerCV cv, GScriptObjectCacheData * scriptObject) {
+		void * key = getInstanceHash(instance);
+		GScriptObjectCacheKey entry(key, classData->getMetaClass()->getQualifiedName(), cv);
+		this->objectMap.insert(std::make_pair(entry, GSharedPointer<GScriptObjectCacheData>(scriptObject)));
+	}
+
+	void freeScriptObject(GGlueDataWrapper * dataWrapper) {
+		GVariant instance = getGlueDataInstance(dataWrapper->getData());
+		if(instance.isEmpty()) {
+			return;
+		}
+		void * key = getInstanceHash(instance);
+		for(typename ObjectMapType::iterator it = this->objectMap.begin();
+			it != this->objectMap.end(); ) {
+			if(it->first.key == key) {
+				this->objectMap.erase(it++);
+			}
+			else {
+				++it;
+			}
+		}
+	}
+
+	void clear() {
+		this->objectMap.clear();
+	}
+
+private:
+	ObjectMapType objectMap;
+};
 
 template <typename Getter, typename Predict>
 int findAppropriateCallable(IMetaService * service,
@@ -1386,101 +1483,6 @@ public:
 private:
 	GMethodGlueDataPointer methodData;
 };
-
-
-struct GScriptObjectCacheEntry {
-	GScriptObjectCacheEntry() : key(NULL), className(NULL), cv(opcvNone) {
-	}
-
-	GScriptObjectCacheEntry(void * key, const char * className, ObjectPointerCV cv)
-		: key(key), className(className), cv(cv) {
-	}
-
-	bool operator < (const GScriptObjectCacheEntry & other) const {
-		if(key < other.key) {
-			return true;
-		}
-		if(key == other.key) {
-			if(cv < other.cv) {
-				return true;
-			}
-			if(cv > other.cv) {
-				return false;
-			}
-
-			if(className == other.className) {
-				return false;
-			}
-			else {
-				return strcmp(className, other.className) < 0;
-			}
-		}
-		return false;
-	}
-
-	void * key;
-	const char * className;
-	ObjectPointerCV cv;
-};
-
-template <typename T>
-class GScriptObjectCache
-{
-private:
-	typedef std::map<GScriptObjectCacheEntry, T> ObjectMapType;
-
-public:
-	T * findScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
-		ObjectPointerCV cv) {
-		void * key = getInstanceHash(instance);
-		GScriptObjectCacheEntry entry(key, classData->getMetaClass()->getQualifiedName(), cv);
-		typename ObjectMapType::iterator it = this->objectMap.find(entry);
-		if(it == this->objectMap.end()) {
-			return NULL;
-		}
-		else {
-			return &it->second;
-		}
-	}
-
-	void addScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
-		ObjectPointerCV cv, const T & scriptObject) {
-		void * key = getInstanceHash(instance);
-		GScriptObjectCacheEntry entry(key, classData->getMetaClass()->getQualifiedName(), cv);
-		this->objectMap.insert(std::make_pair(entry, scriptObject));
-	}
-
-	void freeScriptObject(GGlueDataWrapper * dataWrapper) {
-		GVariant instance = getGlueDataInstance(dataWrapper->getData());
-		if(instance.isEmpty()) {
-			return;
-		}
-		void * key = getInstanceHash(instance);
-		for(typename ObjectMapType::iterator it = this->objectMap.begin();
-			it != this->objectMap.end(); ) {
-			if(it->first.key == key) {
-				this->objectMap.erase(it++);
-			}
-			else {
-				++it;
-			}
-		}
-	}
-
-	void clear() {
-		this->objectMap.clear();
-	}
-
-private:
-	ObjectMapType objectMap;
-};
-
-template <typename T>
-void checkedClearScriptObjectCache(GScriptObjectCache<T> * cache) {
-	if(cache != NULL) {
-		cache->clear();
-	}
-}
 
 
 } // namespace bind_internal

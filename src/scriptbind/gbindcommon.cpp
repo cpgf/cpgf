@@ -849,6 +849,14 @@ GOperatorGlueDataPointer GBindingContext::newOperatorGlueData(const GObjectGlueD
 }
 
 
+GScriptObjectCache * GBindingContext::getScriptObjectCache() {
+	if (!scriptObjectCache) {
+		scriptObjectCache.reset(new GScriptObjectCache());
+	}
+	return scriptObjectCache.get();
+}
+
+
 ConvertRank::ConvertRank()
 {
 	this->reset();
