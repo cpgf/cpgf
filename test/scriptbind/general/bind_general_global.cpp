@@ -77,7 +77,11 @@ template <typename T>
 void doTestSetAllowGcOnAnObject(T * binding, TestScriptContext * context)
 {
 	QVARNEWOBJ(obj, TestObject());
-	QDO(cpgf.setAllowGC(obj, false));
+	if (context->isPython()) {
+		QDO(cpgf.setAllowGC(obj, False));
+	} else {
+		QDO(cpgf.setAllowGC(obj, false));
+	}
 	delete fromVariant<TestObject*>(scriptGetValue(binding, "obj").getValue());
 }
 

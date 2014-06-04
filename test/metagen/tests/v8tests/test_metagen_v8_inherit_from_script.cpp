@@ -11,6 +11,8 @@ void testInheritFromScript_SimpleObject(TestScriptContext * context)
 	QNEWOBJ(a, DerivedSimpleObject());
 
 	QDO(a.someRandomDynamicProperty = 5); // dynamic property is allowed in derived object
+	QDO(obj = {'a':'b'}); // dynamic property is allowed in derived object
+	QDO(a.someRandomDynamicObjectProperty = obj); // dynamic property is allowed in derived object
 
 	QDO(a.getData().n = 78);
 	QDO(a.getData().s = "def");
@@ -18,6 +20,9 @@ void testInheritFromScript_SimpleObject(TestScriptContext * context)
 	QASSERT(a.checkData(78));
 	QASSERT(a.checkData("def"));
 	QASSERT(a.checkAtom(98));
+
+	QASSERT(a.someRandomDynamicProperty === 5);
+	QASSERT(a.someRandomDynamicObjectProperty === obj);
 }
 
 #define CASE testInheritFromScript_SimpleObject
@@ -49,14 +54,16 @@ void testInheritFromScript_SimpleOverridableIncrementer(TestScriptContext * cont
 	QDO(DerivedClass = cpgf.cloneClass(mtest.SimpleOverridableIncrementerWrapper);)
 	QDO(
 		DerivedClass.increment = function() {
-			if(!this.counter){
-				this.counter=0;
+			if(!this.counter) {
+				this.counter=this.init_data.counter;
 			};
 			this.counter++;
 			return this.counter;
 		}
 	);
+
 	QNEWOBJ(a, DerivedClass());
+	QDO(a.init_data = {counter:0};);
 
 	SimpleOverridableIncrementer * obj = NULL;
 	IScriptObject * bindingApi = context->getBindingApi();
@@ -64,7 +71,7 @@ void testInheritFromScript_SimpleOverridableIncrementer(TestScriptContext * cont
 		obj = static_cast<SimpleOverridableIncrementer *>(scriptGetValue(bindingApi, "a").toObjectAddress(NULL, NULL));
 	} else {
 		GScriptObject * bindingLib = context->getBindingLib();
-		obj = static_cast<SimpleOverridableIncrementer *>(scriptGetValue(bindingLib, "a").toObjectAddress(NULL, NULL));		
+		obj = static_cast<SimpleOverridableIncrementer *>(scriptGetValue(bindingLib, "a").toObjectAddress(NULL, NULL));
 	}
 	GEQUAL(1, obj->increment());
 	GEQUAL(2, obj->increment());
