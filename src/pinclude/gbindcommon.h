@@ -1071,10 +1071,14 @@ private:
 public:
 	template <class T>
 	T * findScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
-		ObjectPointerCV cv) {
-		void * key = getInstanceHash(instance);
-		GScriptObjectCacheKey entry(key, classData->getMetaClass()->getQualifiedName(), cv);
-		typename ObjectMapType::iterator it = this->objectMap.find(entry);
+		ObjectPointerCV cv)
+	{
+		GScriptObjectCacheKey key(
+			getInstanceHash(instance),
+			classData->getMetaClass()->getQualifiedName(),
+			cv
+		);
+		typename ObjectMapType::iterator it = this->objectMap.find(key);
 		if(it != this->objectMap.end()) {
 			return dynamic_cast<T *>(it->second.get());
 		}
@@ -1082,27 +1086,29 @@ public:
 	}
 
 	void addScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
-		ObjectPointerCV cv, GScriptObjectCacheData * scriptObject) {
-		void * key = getInstanceHash(instance);
-		GScriptObjectCacheKey entry(key, classData->getMetaClass()->getQualifiedName(), cv);
-		this->objectMap.insert(std::make_pair(entry, GSharedPointer<GScriptObjectCacheData>(scriptObject)));
+		ObjectPointerCV cv, GScriptObjectCacheData * scriptObject)
+	{
+		GScriptObjectCacheKey key(
+			getInstanceHash(instance),
+			classData->getMetaClass()->getQualifiedName(),
+			cv
+		);
+		this->objectMap.insert(std::make_pair(key, GSharedPointer<GScriptObjectCacheData>(scriptObject)));
 	}
 
-	void freeScriptObject(GGlueDataWrapper * dataWrapper) {
+	void freeScriptObject(GGlueDataWrapper * dataWrapper)
+	{
 		GVariant instance = getGlueDataInstance(dataWrapper->getData());
 		if(instance.isEmpty()) {
 			return;
 		}
-		void * key = getInstanceHash(instance);
-		for(typename ObjectMapType::iterator it = this->objectMap.begin();
-			it != this->objectMap.end(); ) {
-			if(it->first.key == key) {
-				this->objectMap.erase(it++);
-			}
-			else {
-				++it;
-			}
-		}
+		GScriptObjectCacheKey entry(
+			getInstanceHash(instance),
+			getGlueDataMetaClass(dataWrapper->getData())->getQualifiedName(),
+			getGlueDataCV(dataWrapper->getData())
+		);
+
+		this->objectMap.erase(entry);
 	}
 
 	void clear() {
