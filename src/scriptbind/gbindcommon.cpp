@@ -462,13 +462,9 @@ GClassPool::GClassPool(GBindingContext * context)
 
 void GClassPool::objectCreated(const GObjectInstancePointer & objectData)
 {
-	// Only store the object data that owns the object (allow gc or it's a shadow object)
-	// If don't check for this, things goes messy if we get the first element address in object array, where two kinds of objects share the same address
-	if(objectData->isAllowGC() || objectData->getInstance().getType() == vtShadow) {
-		void * instance = getInstanceHash(objectData->getInstance());
-		if(this->instanceMap.find(instance) == instanceMap.end()) {
-			this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
-		}
+	void * instance = getInstanceHash(objectData->getInstance());
+	if(this->instanceMap.find(instance) == instanceMap.end()) {
+		this->instanceMap[instance] = GWeakObjectInstancePointer(objectData);
 	}
 }
 
