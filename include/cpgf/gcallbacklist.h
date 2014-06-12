@@ -541,7 +541,7 @@ protected:
 GPP_REPEAT_2(CB_MAX_ARITY, CB_DEF_LIST_N, GPP_EMPTY)
 
 template <int arity, typename FT, template<typename> class ConnectionT, template<typename T, typename = std::allocator<T> > class ListType>
-class GCallbackListFunctionTraits;
+struct GCallbackListFunctionTraits;
 
 GPP_REPEAT_2(CB_MAX_ARITY, CB_DEF_FUNC_TRAITS, GPP_EMPTY)
 

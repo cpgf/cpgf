@@ -309,7 +309,7 @@ namespace _internal {
 		GWiseIteratorRetainer() {
 		}
 
-		GWiseIteratorRetainer(const GWiseIteratorRetainer &other) {
+		GWiseIteratorRetainer(const GWiseIteratorRetainer &/*other*/) {
 		}
 
 		~GWiseIteratorRetainer() {
