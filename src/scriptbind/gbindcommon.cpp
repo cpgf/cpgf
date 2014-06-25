@@ -1750,7 +1750,7 @@ bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char
 			return false;
 		}
 
-		GMetaMapClass * mapClass = classData->getClassMap();
+		GMetaMapClass * mapClass = context->getClassData(metaClass.get())->getClassMap();
 		if(! mapClass) {
 			continue;
 		}
