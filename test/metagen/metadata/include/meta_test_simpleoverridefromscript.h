@@ -56,20 +56,6 @@ public:
         return SimpleOverride::createHelperData();
     }
     
-    int getAnother()
-    {
-        cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getAnother"));
-        if(func)
-        {
-            return cpgf::fromVariant<int >(cpgf::invokeScriptFunctionOnObject(func.get(), this).getValue());
-        }
-        return SimpleOverride::getAnother();
-    }
-    int super_getAnother()
-    {
-        return SimpleOverride::getAnother();
-    }
-    
     int getValue()
     {
         cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getValue"));
@@ -97,15 +83,29 @@ public:
     {
         return SimpleOverride::getName();
     }
+    
+    int getAnother()
+    {
+        cpgf::GScopedInterface<cpgf::IScriptFunction> func(this->getScriptFunction("getAnother"));
+        if(func)
+        {
+            return cpgf::fromVariant<int >(cpgf::invokeScriptFunctionOnObject(func.get(), this).getValue());
+        }
+        return SimpleOverride::getAnother();
+    }
+    int super_getAnother()
+    {
+        return SimpleOverride::getAnother();
+    }
     template <typename D>
     static void cpgf__register(D _d)
     {
         (void)_d;
         using namespace cpgf;
         _d.CPGF_MD_TEMPLATE _method("super_createHelperData", (SimpleOverrideHelperData * (D::ClassType::*) ())&D::ClassType::super_createHelperData);
-        _d.CPGF_MD_TEMPLATE _method("super_getAnother", (int (D::ClassType::*) ())&D::ClassType::super_getAnother);
         _d.CPGF_MD_TEMPLATE _method("super_getValue", (int (D::ClassType::*) ())&D::ClassType::super_getValue);
         _d.CPGF_MD_TEMPLATE _method("super_getName", (std::string (D::ClassType::*) ())&D::ClassType::super_getName);
+        _d.CPGF_MD_TEMPLATE _method("super_getAnother", (int (D::ClassType::*) ())&D::ClassType::super_getAnother);
     }
 };
 
