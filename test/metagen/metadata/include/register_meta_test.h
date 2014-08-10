@@ -16,6 +16,7 @@ GDefineMetaInfo createMetaClass_ChainedObjectA();
 GDefineMetaInfo createMetaClass_ChainedObjectB();
 GDefineMetaInfo createMetaClass_ChainedObjectC();
 GDefineMetaInfo createMetaClass_Global_global();
+GDefineMetaInfo createMetaClass_Global_metagen_method_overload_by_fundamental();
 GDefineMetaInfo createMetaClass_Global_metagen_multiple_inheritance_cast();
 GDefineMetaInfo createMetaClass_Global_metagen_userconverter();
 GDefineMetaInfo createMetaClass_Global_simpleobject();
@@ -66,6 +67,7 @@ void registerMain_metatest(Meta _d)
     _d._class(createMetaClass_ChainedObjectB());
     _d._class(createMetaClass_ChainedObjectC());
     _d._class(createMetaClass_Global_global());
+    _d._class(createMetaClass_Global_metagen_method_overload_by_fundamental());
     _d._class(createMetaClass_Global_metagen_multiple_inheritance_cast());
     _d._class(createMetaClass_Global_metagen_userconverter());
     _d._class(createMetaClass_Global_simpleobject());

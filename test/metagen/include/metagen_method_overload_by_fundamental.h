@@ -38,4 +38,14 @@ public:
 
 };
 
+inline std::string global_overload_Boolean_Int(bool value)
+{
+	return value ? "true" : "false";
+}
+
+inline std::string global_overload_Boolean_Int(int)
+{
+	return "int";
+}
+
 #endif
