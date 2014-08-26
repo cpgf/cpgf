@@ -433,7 +433,9 @@ void GScriptDataHolder::setScriptValue(const char * name, const GScriptValue & v
 
 	this->requireDataMap();
 
-	this->dataMap->insert(MapValueType(name, value.getValue()));
+  // Insert and overwrite the previous function if it exists.
+  (*this->dataMap)[name] = value.getValue();
+
 	gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(value.getValue()))->weaken();
 }
 

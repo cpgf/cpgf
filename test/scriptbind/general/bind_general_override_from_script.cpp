@@ -12,12 +12,15 @@ void doTestOverrideCppFunctionFromScriptClass(T * binding, TestScriptContext * c
 {
 	if(context->isLua()) {
 		QDO(function funcOverride(me) return me.n + 15 end)
+		QDO(function funcOverrideSecond(me) return me.n + 16 end)
 	}
 	if(context->isV8() || context->isSpiderMonkey()) {
 		QDO(function funcOverride(me) { return me.n + 15; })
+		QDO(function funcOverrideSecond(me) { return me.n + 16; })
 	}
 	if(context->isPython()) {
 		QDO(def funcOverride(me): return me.n + 15)
+		QDO(def funcOverrideSecond(me): return me.n + 16)
 	}
 
 	QNEWOBJ(a, ScriptOverride(3))
@@ -27,6 +30,9 @@ void doTestOverrideCppFunctionFromScriptClass(T * binding, TestScriptContext * c
 
 	ScriptOverride * objA = static_cast<ScriptOverride *>(scriptGetValue(binding, "a").toObjectAddress(NULL, NULL));
 	GEQUAL(18, objA->getValue());
+
+  QDO(ScriptOverride.getValue = funcOverrideSecond)
+  QASSERT(a.getValue() == 19);
 }
 
 void testOverrideCppFunctionFromScriptClass(TestScriptContext * context)
