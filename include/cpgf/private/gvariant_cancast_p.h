@@ -260,10 +260,11 @@ struct CanCastFromVariant
 				return variant_internal::CastVariantHelper<const volatile void *, typename RemoveReference<ResultType>::Result *>::CanCast;
 
 			case vtString:
-				return IsConvertible<char *, ResultType>::Result || IsConvertible<const char *, ResultType>::Result;
+				// const char * can't convert to (non-const) std::string &, so we need to check explicitly.
+				return IsConvertible<char *, ResultType>::Result || IsConvertible<const char *, ResultType>::Result || IsSameType<std::string &, ResultType>::Result;
 
 			case vtWideString:
-				return IsConvertible<wchar_t *, ResultType>::Result || IsConvertible<const wchar_t *, ResultType>::Result;
+				return IsConvertible<wchar_t *, ResultType>::Result || IsConvertible<const wchar_t *, ResultType>::Result || IsSameType<std::wstring &, ResultType>::Result;
 
 			case vtInterface:
 				return variant_internal::EnforceCastToPointer<IObject *, typename RemoveReference<ResultType>::Result>::CanCast;
