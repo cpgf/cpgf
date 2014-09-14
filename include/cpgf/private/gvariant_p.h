@@ -508,13 +508,19 @@ struct CheckIsConvertibleToCharPointer
 };
 
 template <typename T>
-T castFromString(char * s, typename GEnableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
+T castFromString(std::string * s, typename GEnableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
 {
-	return T(s);
+	return T(s->c_str());
+}
+
+template <>
+inline const std::string& castFromString(std::string * s, void *)
+{
+	return *s;
 }
 
 template <typename T>
-T castFromString(char * /*s*/, typename GDisableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
+T castFromString(std::string * s /*s*/, typename GDisableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
 {
 	raiseCoreException(Error_Variant_FailCast);
 #if __has_builtin(__builtin_trap)
@@ -783,7 +789,7 @@ struct CastFromVariant
 				return castFromObject<T>(v.refData().shadowObject->getObject());
 
 			case vtString:
-				return castFromString<ResultType>(const_cast<char *>(static_cast<std::string *>(v.refData().shadowObject->getObject())->c_str()));
+				return castFromString<ResultType>(static_cast<std::string *>(v.refData().shadowObject->getObject()));
 
 			case vtWideString:
 				return castFromWideString<ResultType>(const_cast<wchar_t *>(static_cast<std::wstring *>(v.refData().shadowObject->getObject())->c_str()));
