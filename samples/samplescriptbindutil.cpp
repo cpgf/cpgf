@@ -1,5 +1,3 @@
-#define ENABLE_V8 1
-
 #include "samplescriptbindutil.h"
 #include "cpgf/scriptbind/gscriptbindutil.h"
 #include "cpgf/gscopedinterface.h"
