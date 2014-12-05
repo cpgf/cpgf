@@ -521,7 +521,7 @@ struct CastFromString <T, typename GEnableIfResult<CheckIsConvertibleToCharPoint
 };
 
 template <typename T>
-struct CastFromString <T, typename typename GDisableIfResult<CheckIsConvertibleToCharPointer<T> >::Result>
+struct CastFromString <T, typename GDisableIfResult<CheckIsConvertibleToCharPointer<T> >::Result>
 {
 	static T cast(std::string * /*s*/) {
 		raiseCoreException(Error_Variant_FailCast);
@@ -570,7 +570,7 @@ struct CastFromWideString <T, typename GEnableIfResult<CheckIsConvertibleToWideC
 };
 
 template <typename T>
-struct CastFromWideString <T, typename typename GDisableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result>
+struct CastFromWideString <T, typename GDisableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result>
 {
 	static T cast(std::wstring * /*s*/) {
 		raiseCoreException(Error_Variant_FailCast);
