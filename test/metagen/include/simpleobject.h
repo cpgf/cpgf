@@ -87,5 +87,7 @@ SimpleObject * getBoostSharedSimpleObject(BOOST_SP sp);
 int getSimpleObjectPointerN(SimpleObject * object);
 int getSimpleObjectN(const SimpleObject & object);
 
+void setViaConstRefPtrApi(SimpleObject * const &input);
+SimpleObject* &returnFromConstRefPtrApi();
 
 #endif

@@ -264,6 +264,19 @@ void testSimpleObject_Data_AssignBoostSharedPtrToField(TestScriptContext * conte
 #define CASE testSimpleObject_Data_AssignBoostSharedPtrToField
 #include "do_testcase.h"
 
+void testSimpleObject_isReturnedTheSameFromConstRefPtr(TestScriptContext * context)
+{
+	QNEWOBJ(obj, mtest.SimpleObject());
+	QDO(obj.data.n = 38);
+	QDO(mtest.setViaConstRefPtrApi(obj));
+	QASSERT(obj == mtest.returnFromConstRefPtrApi());
+	QASSERT(obj.checkData(38));
+}
+
+
+#define CASE testSimpleObject_isReturnedTheSameFromConstRefPtr
+#include "do_testcase.h"
+
 
 }
 

@@ -13,7 +13,7 @@
 using namespace cpgf;
 
 
-namespace meta_test { 
+namespace meta_test {
 
 
 template <typename D>
@@ -21,7 +21,7 @@ void buildMetaClass_Global_simpleobject(D _d)
 {
     (void)_d;
     using namespace cpgf;
-    
+
     _d.CPGF_MD_TEMPLATE _method("getSimpleObjectClass", (cpgf::IMetaClass * (*) (cpgf::IMetaClass *))&getSimpleObjectClass);
     _d.CPGF_MD_TEMPLATE _method("metaClassIsSimpleObject", (bool (*) (cpgf::IMetaClass *))&metaClassIsSimpleObject);
     _d.CPGF_MD_TEMPLATE _method("createSharedSimpleObject", (cpgf::GSharedPointer< SimpleObject > (*) ())&createSharedSimpleObject);
@@ -32,6 +32,8 @@ void buildMetaClass_Global_simpleobject(D _d)
     _d.CPGF_MD_TEMPLATE _method("getBoostSharedSimpleObject", (SimpleObject * (*) (BOOST_SP))&getBoostSharedSimpleObject);
     _d.CPGF_MD_TEMPLATE _method("getSimpleObjectPointerN", (int (*) (SimpleObject *))&getSimpleObjectPointerN);
     _d.CPGF_MD_TEMPLATE _method("getSimpleObjectN", (int (*) (const SimpleObject &))&getSimpleObjectN);
+    _d.CPGF_MD_TEMPLATE _method("setViaConstRefPtrApi", &setViaConstRefPtrApi);
+    _d.CPGF_MD_TEMPLATE _method("returnFromConstRefPtrApi", &returnFromConstRefPtrApi);
 }
 
 
@@ -40,7 +42,7 @@ void buildMetaClass_SimpleAtom(D _d)
 {
     (void)_d;
     using namespace cpgf;
-    
+
     _d.CPGF_MD_TEMPLATE _field("value", &D::ClassType::value);
 }
 
@@ -50,7 +52,7 @@ void buildMetaClass_SimpleData(D _d)
 {
     (void)_d;
     using namespace cpgf;
-    
+
     _d.CPGF_MD_TEMPLATE _constructor<void * (int, const std::string &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >())
         ._default(copyVariantFromCopyable(""))
         ._default(copyVariantFromCopyable(0))
@@ -76,7 +78,7 @@ void buildMetaClass_SimpleObject(D _d)
 {
     (void)_d;
     using namespace cpgf;
-    
+
     _d.CPGF_MD_TEMPLATE _field("data", &D::ClassType::data);
     _d.CPGF_MD_TEMPLATE _field("pobj", &D::ClassType::pobj);
     _d.CPGF_MD_TEMPLATE _method("getData", &D::ClassType::getData);
