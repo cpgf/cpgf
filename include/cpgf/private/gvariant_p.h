@@ -41,8 +41,18 @@ private:
 
 
 template <typename T>
+struct IsPointerHelper {
+	G_STATIC_CONSTANT(bool, Result = IsPointer<
+		typename RemoveConstVolatile<
+			typename RemoveReference<T>::Result
+			>::Result
+	>::Result
+	);
+};
+
+template <typename T>
 bool isNotPointer() {
-	return ! IsPointer<typename RemoveReference<T>::Result>::Result;
+	return !IsPointerHelper<T>::Result;
 }
 
 template <typename T>
@@ -128,12 +138,13 @@ struct CastVariantHelper
 };
 
 template <typename From, typename To>
-struct CastVariantHelper <From *, To *>
+struct CastVariantHelper <From *, To, typename GEnableIfResult<IsPointerHelper<To> >::Result>
 {
 	G_STATIC_CONSTANT(bool, CanCast = true);
+	typedef typename RemoveReference<To>::Result ResultType;
 
-	static To * cast(From * v) {
-		return (To *)(v);
+	static ResultType cast(From * v) {
+		return (ResultType)(v);
 	}
 };
 
@@ -141,7 +152,7 @@ template <typename From, typename To>
 struct CastVariantHelper <From, To, typename GEnableIfResult<
 	GAndResult<
 		IsPointer<From>,
-		GNotResult<IsPointer<To> >,
+		GNotResult<IsPointerHelper<To> >,
 		IsVoid<typename RemovePointer<From>::Result>
 	>
 	>::Result>
@@ -475,12 +486,7 @@ struct CastResult {
 
 template <typename T, typename Policy>
 struct CastResult <T &, Policy> {
-	typedef T & Result;
-};
-
-template <typename T, typename Policy>
-struct CastResult <const T &, Policy> {
-	typedef T Result;
+	typedef typename GIfElse<IsPointerHelper<T>::Result, T, T &>::Result Result;
 };
 
 #if G_SUPPORT_RVALUE_REFERENCE
@@ -497,7 +503,7 @@ struct CastResult <const T &, VarantCastCopyConstRef> {
 
 template <typename T>
 struct CastResult <const T &, VarantCastKeepConstRef> {
-	typedef typename GIfElse<IsFundamental<T>::Result, T, const T &>::Result Result;
+	typedef typename GIfElse<IsFundamental<T>::Result, T, typename GIfElse<IsPointerHelper<T>::Result, const T, const T &>::Result>::Result Result;
 };
 
 
@@ -600,7 +606,7 @@ struct CastFromWideString <std::wstring &, void>
 };
 
 template <typename T>
-T castFromObject(const volatile void * const & obj, typename GEnableIfResult<IsPointer<typename RemoveReference<T>::Result> >::Result * = 0)
+T castFromObject(const volatile void * const & obj, typename GEnableIfResult<IsPointerHelper<T> >::Result * = 0)
 {
 	return (T)(obj);
 }
@@ -614,7 +620,7 @@ template <typename T> struct TurnLReferenceToR <T &&> { typedef T & Result; };
 #endif
 
 template <typename T>
-typename TurnLReferenceToR<T>::Result castFromObject(const volatile void * obj, typename GDisableIfResult<IsPointer<typename RemoveReference<T>::Result> >::Result * = 0)
+typename TurnLReferenceToR<T>::Result castFromObject(const volatile void * obj, typename GDisableIfResult<IsPointerHelper<T> >::Result * = 0)
 {
 	return (typename TurnLReferenceToR<T>::Result)(*(typename RemoveReference<T>::Result *)obj);
 }
@@ -693,7 +699,7 @@ struct CastFromReference
 };
 
 template <typename T, typename Policy>
-struct CastFromReference <T, Policy, typename GEnableIf<GOrResult<IsReference<T>, IsPointer<T> >::Result>::Result>
+struct CastFromReference <T, Policy, typename GEnableIf<GOrResult<IsReference<T>, IsPointerHelper<T> >::Result>::Result>
 {
 	typedef typename variant_internal::ArrayToPointer<typename CastResult<T, Policy>::Result>::Result ResultType;
 	typedef typename variant_internal::ArrayToPointer<typename RemoveReference<T>::Result>::Result RefValueType;
