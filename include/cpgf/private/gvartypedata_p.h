@@ -48,7 +48,7 @@ struct DeduceVariantType_Helper {
 };
 
 template <typename T>
-struct DeduceVariantType_Helper <T, typename GEnableIfResult<IsPointer<T> >::Result> {
+struct DeduceVariantType_Helper <T, typename GEnableIfResult<IsPointer<typename RemoveReference<T>::Result> >::Result> {
 private:
 	static const int temp = DeduceBasicVariantType<typename ExtractRawType<T>::Result>::Result;
 public:
@@ -63,7 +63,11 @@ public:
 };
 
 template <typename T>
-struct DeduceVariantType_Helper <T, typename GEnableIfResult<IsReference<T> >::Result> {
+struct DeduceVariantType_Helper <T, typename GEnableIfResult<
+		GAndResult<
+			IsReference<T>,
+			GNotResult<IsPointer<typename RemoveReference<T>::Result > >
+		> >::Result> {
 private:
 	static const int temp = DeduceBasicVariantType<typename RemoveConstVolatile<typename RemoveReference<T>::Result>::Result>::Result;
 public:
