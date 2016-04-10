@@ -46,7 +46,7 @@ private:
 				s = np / pi2() * asin(1.0f / na);
 			}
 			t -= 1.0f;
-			return -na * pow(2, 10 * t) * sin((t * param->total - s) * pi2() / np);
+			return (GTweenNumber)(-na * pow(2, 10 * t) * sin((t * param->total - s) * pi2() / np));
 		}
 		
 		GTweenNumber amplitude;
@@ -77,7 +77,7 @@ private:
 			else {
 				s = np / pi2() * asin(1.0f / na);
 			}
-			return na * pow(2, -10 * t) * sin((t * param->total - s) * pi2() / np) + 1.0f;
+			return (GTweenNumber)(na * pow(2, -10 * t) * sin((t * param->total - s) * pi2() / np) + 1.0f);
 		}
 		
 		GTweenNumber amplitude;
@@ -110,11 +110,11 @@ private:
 			}
 			if(t < 1) {
 				t -= 1.0f;
-				return -0.5f * na * pow(2, 10 * t) * sin((t * param->total - s) * pi2() / np);
+				return (GTweenNumber)(-0.5f * na * pow(2, 10 * t) * sin((t * param->total - s) * pi2() / np));
 			}
 			else {
 				t -= 1.0f;
-				return na * pow(2, -10 * t) * sin((t * param->total - s) * pi2() / np) * 0.5f + 1.0f;
+				return (GTweenNumber)(na * pow(2, -10 * t) * sin((t * param->total - s) * pi2() / np) * 0.5f + 1.0f);
 			}
 		}
 		

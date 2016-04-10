@@ -71,7 +71,7 @@ void GTween::performTime(GTweenNumber elapsed, GTweenNumber /*frameDuration*/, b
 	GTweenNumber t = elapsed;
 
 	if(this->repeatCount == 0) {
-		if(t > this->durationTime) {
+		if(t >= this->durationTime) {
 			shouldFinish = true;
 			t = this->durationTime;
 		}
