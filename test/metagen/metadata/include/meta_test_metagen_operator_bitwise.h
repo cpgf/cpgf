@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_METAGEN_OPERATOR_BITWISE_H
-#define __META_TEST_METAGEN_OPERATOR_BITWISE_H
+#ifndef CPGF_META_TEST_METAGEN_OPERATOR_BITWISE_H
+#define CPGF_META_TEST_METAGEN_OPERATOR_BITWISE_H
 
 
 #include "cpgf/gmetadefine.h"
@@ -66,9 +66,9 @@ inline MetagenOperatorBitwise opErAToRWrapper_MetagenOperatorBitwise__opBitNot(M
 
 
 template <typename D>
-void buildMetaClass_MetagenOperatorBitwise(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MetagenOperatorBitwise(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();

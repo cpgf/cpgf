@@ -1,5 +1,5 @@
-#ifndef __GCOMPILER_H
-#define __GCOMPILER_H
+#ifndef CPGF_GCOMPILER_H
+#define CPGF_GCOMPILER_H
 
 #include "cpgf/gconfig.h"
 
@@ -12,6 +12,9 @@
 	#define G_DEBUG 0
 #endif
 
+#ifndef SUPPORT_CPP_11
+    #define SUPPORT_CPP_11 0
+#endif
 
 #if defined(_WIN64) || defined(WIN64) || defined(__WIN64_) || defined(_WIN64_WCE)
 	#define G_OS_WIN64
@@ -92,6 +95,22 @@
 	#ifndef G_SUPPORT_RVALUE_REFERENCE
 		#define G_SUPPORT_RVALUE_REFERENCE 0
 	#endif
+#endif
+
+#ifdef __clang__
+    #define G_SUPPORT_NORETURN_ATTRIBUTE
+#endif
+
+
+
+#ifndef __has_builtin
+    #define __has_builtin(x) 0  // Compatibility with non-clang compilers.
+#endif
+
+#if __has_builtin(__builtin_trap)
+    #define abort_trap __builtin_trap
+#else
+    #define abort_trap abort
 #endif
 
 

@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_METAGEN_OPERATOR_CONSTNESS_H
-#define __META_TEST_METAGEN_OPERATOR_CONSTNESS_H
+#ifndef CPGF_META_TEST_METAGEN_OPERATOR_CONSTNESS_H
+#define CPGF_META_TEST_METAGEN_OPERATOR_CONSTNESS_H
 
 
 #include "cpgf/gmetadefine.h"
@@ -24,9 +24,9 @@ inline MetagenOperatorConstness opErAToRWrapper_MetagenOperatorConstness__opSub(
 
 
 template <typename D>
-void buildMetaClass_MetagenOperatorConstness(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MetagenOperatorConstness(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();

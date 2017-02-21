@@ -1,5 +1,5 @@
-#ifndef __TIMER_H
-#define __TIMER_H
+#ifndef CPGF_TIMER_H
+#define CPGF_TIMER_H
 
 #include "cpgf/gcallback.h"
 

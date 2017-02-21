@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __REGISTER_META_TEST_H
-#define __REGISTER_META_TEST_H
+#ifndef CPGF_REGISTER_META_TEST_H
+#define CPGF_REGISTER_META_TEST_H
 
 
 #include "cpgf/gmetadefine.h"
@@ -16,7 +16,9 @@ GDefineMetaInfo createMetaClass_ChainedObjectA();
 GDefineMetaInfo createMetaClass_ChainedObjectB();
 GDefineMetaInfo createMetaClass_ChainedObjectC();
 GDefineMetaInfo createMetaClass_Global_global();
+GDefineMetaInfo createMetaClass_Global_metagen_method_overload_by_fundamental();
 GDefineMetaInfo createMetaClass_Global_metagen_multiple_inheritance_cast();
+GDefineMetaInfo createMetaClass_Global_metagen_userconverter();
 GDefineMetaInfo createMetaClass_Global_simpleobject();
 GDefineMetaInfo createMetaClass_Global_testobjectarray();
 GDefineMetaInfo createMetaClass_MetagenMethodOverload();
@@ -46,13 +48,16 @@ GDefineMetaInfo createMetaClass_ObjectNoDestructor();
 GDefineMetaInfo createMetaClass_SimpleAtom();
 GDefineMetaInfo createMetaClass_SimpleData();
 GDefineMetaInfo createMetaClass_SimpleObject();
+GDefineMetaInfo createMetaClass_SimpleOverridableIncrementer();
 GDefineMetaInfo createMetaClass_SimpleOverride();
 GDefineMetaInfo createMetaClass_SimpleOverrideBase();
+GDefineMetaInfo createMetaClass_SimpleOverrideHelperData();
 GDefineMetaInfo createMetaClass_TemplateBase();
 GDefineMetaInfo createMetaClass_TemplateClassA_TemplateInstance_TemplateClassA_int_char_5();
 GDefineMetaInfo createMetaClass_TemplateClassB_TemplateInstance_TemplateClassB_TemplateBase();
 GDefineMetaInfo createMetaClass_TestMethodMethodClass();
 GDefineMetaInfo createMetaClass_TestMethodMethodData();
+GDefineMetaInfo createMetaClass_TestUserConverterData();
 
 
 template <typename Meta>
@@ -62,7 +67,9 @@ void registerMain_metatest(Meta _d)
     _d._class(createMetaClass_ChainedObjectB());
     _d._class(createMetaClass_ChainedObjectC());
     _d._class(createMetaClass_Global_global());
+    _d._class(createMetaClass_Global_metagen_method_overload_by_fundamental());
     _d._class(createMetaClass_Global_metagen_multiple_inheritance_cast());
+    _d._class(createMetaClass_Global_metagen_userconverter());
     _d._class(createMetaClass_Global_simpleobject());
     _d._class(createMetaClass_Global_testobjectarray());
     _d._class(createMetaClass_MetagenMethodOverload());
@@ -92,13 +99,16 @@ void registerMain_metatest(Meta _d)
     _d._class(createMetaClass_SimpleAtom());
     _d._class(createMetaClass_SimpleData());
     _d._class(createMetaClass_SimpleObject());
+    _d._class(createMetaClass_SimpleOverridableIncrementer());
     _d._class(createMetaClass_SimpleOverride());
     _d._class(createMetaClass_SimpleOverrideBase());
+    _d._class(createMetaClass_SimpleOverrideHelperData());
     _d._class(createMetaClass_TemplateBase());
     _d._class(createMetaClass_TemplateClassA_TemplateInstance_TemplateClassA_int_char_5());
     _d._class(createMetaClass_TemplateClassB_TemplateInstance_TemplateClassB_TemplateBase());
     _d._class(createMetaClass_TestMethodMethodClass());
     _d._class(createMetaClass_TestMethodMethodData());
+    _d._class(createMetaClass_TestUserConverterData());
 }
 
 } // namespace meta_test

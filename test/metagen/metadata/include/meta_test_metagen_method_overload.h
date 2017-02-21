@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_METAGEN_METHOD_OVERLOAD_H
-#define __META_TEST_METAGEN_METHOD_OVERLOAD_H
+#ifndef CPGF_META_TEST_METAGEN_METHOD_OVERLOAD_H
+#define CPGF_META_TEST_METAGEN_METHOD_OVERLOAD_H
 
 
 #include "cpgf/gmetadefine.h"
@@ -16,9 +16,9 @@ namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_MetagenMethodOverload(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MetagenMethodOverload(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();

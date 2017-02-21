@@ -1,5 +1,5 @@
-#ifndef __GMETASERIALIZER_ARRAY_H
-#define __GMETASERIALIZER_ARRAY_H
+#ifndef CPGF_GMETASERIALIZER_ARRAY_H
+#define CPGF_GMETASERIALIZER_ARRAY_H
 
 #include "cpgf/metatraits/gmetaserializer.h"
 #include "cpgf/metatraits/gmetaserializer_trapall.h"

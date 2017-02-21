@@ -1,0 +1,146 @@
+set(BUILD_DEBUG	1) #release=false
+
+### Clang config
+
+set(CLANG_DIR
+	c:/source/llvm
+)
+
+set(CLANG_BUILD ${CLANG_DIR}/build)
+
+#Modify on your settings. I used MingW
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(CLANG_BUILD ${CLANG_DIR}/build-mingw)
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+set(CLANG_INC
+	${CLANG_BUILD}/tools/clang/include
+	${CLANG_BUILD}/include
+	${CLANG_DIR}/tools/clang/include
+	${CLANG_DIR}/include
+)
+
+set(CLANG_DEBUG_LIB_DIR
+	${CLANG_BUILD}/Release+Asserts/lib
+)
+set(CLANG_RELEASE_LIB_DIR
+	${CLANG_BUILD}/lib/Release
+)
+
+set(CLANG_LIB
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangParse.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangFrontend.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangSema.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangAnalysis.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangLex.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangBasic.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangSerialization.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangDriver.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangAST.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libclangEdit.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libLLVMSupport.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libLLVMCore.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libLLVMMC.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libLLVMBitReader.a
+		debug ${CLANG_DEBUG_LIB_DIR}/libLLVMMCParser.a
+	
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangParse.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangFrontend.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangSema.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangAnalysis.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangLex.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangBasic.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangSerialization.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangDriver.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangAST.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libclangEdit.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libLLVMSupport.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libLLVMCore.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libLLVMMC.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libLLVMBitReader.a
+		optimized ${CLANG_RELEASE_LIB_DIR}/libLLVMMCParser.a
+)
+
+if(MSVC)
+	set(CLANG_LIB
+		debug ${CLANG_DEBUG_LIB_DIR}/clangParse.lib
+		debug ${CLANG_DEBUG_LIB_DIR}/clangFrontend.lib
+		debug ${CLANG_DEBUG_LIB_DIR}/clangSema.lib
+		debug ${CLANG_DEBUG_LIB_DIR}/clangAnalysis.lib
+		debug ${CLANG_DEBUG_LIB_DIR}/clangLex.lib
+		debug ${CLANG_DEBUG_LIB_DIR}/clangBasic.lib
+		debug ${CLANG_DEBUG_LIB_DIR}/clangSerialization.lib
+		debug ${CLANG_DEBUG_LIB_DIR}/clangDriver.lib
+		debug ${CLANG_DEBUG_LIB_DIR}/clangAST.lib
+		debug ${CLANG_DEBUG_LIB_DIR}/clangEdit.lib
+		debug ${CLANG_DEBUG_LIB_DIR}/LLVMSupport.lib
+		debug ${CLANG_DEBUG_LIB_DIR}/LLVMCore.lib
+		debug ${CLANG_DEBUG_LIB_DIR}/LLVMMC.lib
+		debug ${CLANG_DEBUG_LIB_DIR}/LLVMBitReader.lib
+		debug ${CLANG_DEBUG_LIB_DIR}/LLVMMCParser.lib
+	
+		optimized ${CLANG_RELEASE_LIB_DIR}/clangParse.lib
+		optimized ${CLANG_RELEASE_LIB_DIR}/clangFrontend.lib
+		optimized ${CLANG_RELEASE_LIB_DIR}/clangSema.lib
+		optimized ${CLANG_RELEASE_LIB_DIR}/clangAnalysis.lib
+		optimized ${CLANG_RELEASE_LIB_DIR}/clangLex.lib
+		optimized ${CLANG_RELEASE_LIB_DIR}/clangBasic.lib
+		optimized ${CLANG_RELEASE_LIB_DIR}/clangSerialization.lib
+		optimized ${CLANG_RELEASE_LIB_DIR}/clangDriver.lib
+		optimized ${CLANG_RELEASE_LIB_DIR}/clangAST.lib
+		optimized ${CLANG_RELEASE_LIB_DIR}/clangEdit.lib
+		optimized ${CLANG_RELEASE_LIB_DIR}/LLVMSupport.lib
+		optimized ${CLANG_RELEASE_LIB_DIR}/LLVMCore.lib
+		optimized ${CLANG_RELEASE_LIB_DIR}/LLVMMC.lib
+		optimized ${CLANG_RELEASE_LIB_DIR}/LLVMBitReader.lib
+		optimized ${CLANG_RELEASE_LIB_DIR}/LLVMMCParser.lib
+	)
+endif(MSVC)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+	add_definitions(-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -DHAVE_UINT64_T)
+endif(CMAKE_COMPILER_IS_GNUCC)
+if(UNIX)
+	add_definitions(-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -DHAVE_UINT64_T)
+endif(UNIX)
+
+
+### Poco config
+
+set(POCO_DIR
+	c:/source/poco
+)
+
+set(POCO_INC
+	${POCO_DIR}/Foundation/include
+	${POCO_DIR}/Util/include
+)
+
+set(POCO_LIB_DIR ${POCO_DIR}/lib)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(POCO_LIB
+	)
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(APPLE)
+	set(POCO_LIB_DIR ${POCO_DIR}/lib/Darwin/x86_64)
+	set(POCO_LIB
+		debug ${POCO_LIB_DIR}/libPocoFoundationd.dylib
+		optimized ${POCO_LIB_DIR}/libPocoFoundation.dylib
+		debug ${POCO_LIB_DIR}/libPocoUtild.dylib
+		optimized ${POCO_LIB_DIR}/libPocoUtil.dylib
+	)
+endif(APPLE)
+
+if(MSVC)
+	set(POCO_LIB
+		debug ${POCO_LIB_DIR}/PocoFoundationd.lib
+		optimized ${POCO_LIB_DIR}/PocoFoundation.lib
+		debug ${POCO_LIB_DIR}/PocoUtild.lib
+		optimized ${POCO_LIB_DIR}/PocoUtil.lib
+	)
+endif(MSVC)
+
+include(${PROJECT_SOURCE_DIR}/../../../build/build.config.txt)
+

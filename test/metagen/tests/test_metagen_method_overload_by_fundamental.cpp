@@ -78,4 +78,27 @@ void metagenTest_MetagenMethodOverloadByFundamental_overload_Boolean_Int_Real(Te
 #include "do_testcase.h"
 
 
+void metagenTest_MetagenMethodOverloadByFundamental_global_overload_Boolean_Int(TestScriptContext * context)
+{
+	if (context->isPython()) {
+		QDO(t = True);
+		QDO(f = False);
+	}
+	else {
+		QDO(t = true);
+		QDO(f = false);
+	}
+	QASSERT(mtest.global_overload_Boolean_Int(t) == "true");
+	QASSERT(mtest.global_overload_Boolean_Int(f) == "false");
+	QASSERT(mtest.global_overload_Boolean_Int(1) == "int");
+	QASSERT(mtest.global_overload_Boolean_Int(123456) == "int");
+	QASSERT(mtest.global_overload_Boolean_Int(0.5) == "int");
+	QASSERT(mtest.global_overload_Boolean_Int(3.1415926) == "int");
+}
+
+#define CASE metagenTest_MetagenMethodOverloadByFundamental_global_overload_Boolean_Int
+#include "do_testcase.h"
+
+
+
 }

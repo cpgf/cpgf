@@ -187,6 +187,10 @@ public class CppClass extends ParameteredItem {
 			this.getOperatorList().add((Operator)item);
 			break;
 			
+		case Typedef:
+			this.getTypedefList().add((Typedef)item);
+			break;
+
 		default:
 			assert false;
 		}

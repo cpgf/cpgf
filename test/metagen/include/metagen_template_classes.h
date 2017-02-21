@@ -1,5 +1,5 @@
-#ifndef __METAGEN_TEMPLATE_CLASSES_H
-#define __METAGEN_TEMPLATE_CLASSES_H
+#ifndef CPGF_METAGEN_TEMPLATE_CLASSES_H
+#define CPGF_METAGEN_TEMPLATE_CLASSES_H
 
 
 template <typename T, typename U, int N>

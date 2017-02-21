@@ -1,5 +1,5 @@
-#ifndef __GMETASTORAGE_XML_H
-#define __GMETASTORAGE_XML_H
+#ifndef CPGF_GMETASTORAGE_XML_H
+#define CPGF_GMETASTORAGE_XML_H
 
 #include "cpgf/serialization/gmetastreamfundamental.h"
 #include "cpgf/gscopedptr.h"

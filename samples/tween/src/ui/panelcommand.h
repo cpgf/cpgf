@@ -1,5 +1,5 @@
-#ifndef __PANELCOMMAND_H
-#define __PANELCOMMAND_H
+#ifndef CPGF_PANELCOMMAND_H
+#define CPGF_PANELCOMMAND_H
 
 #include "../uiresource/mainui.h"
 

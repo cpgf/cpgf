@@ -87,6 +87,7 @@ public class Config {
 	// If this property is false, only header files will be generated
 	// so you need to call the reflect function manually.
 	public boolean autoRegisterToGlobal = true;
+	public boolean generateRegisterHeader = true;
 	
 	// A string of namespace for meta data.
 	// All meta data will be put into the namespace (pseudo class).

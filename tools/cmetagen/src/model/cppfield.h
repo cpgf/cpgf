@@ -1,5 +1,5 @@
-#ifndef __CPPFIELD_H
-#define __CPPFIELD_H
+#ifndef CPGF_CPPFIELD_H
+#define CPGF_CPPFIELD_H
 
 #include "Cppitem.h"
 #include "cpptype.h"

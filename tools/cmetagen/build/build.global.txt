@@ -1,0 +1,21 @@
+set(CMAKE_BUILD_TYPE Release)
+
+if(${BUILD_DEBUG})
+	set(CMAKE_BUILD_TYPE Debug)
+	message(STATUS "Build as debug.")
+endif(${BUILD_DEBUG})
+
+set(ROOT_PATH ${PROJECT_SOURCE_DIR}/..)
+set(BIN_PATH ${PROJECT_SOURCE_DIR}/bin)
+set(CPGF_HOME ${ROOT_PATH}/../..)
+
+set(SRC_PATH ${ROOT_PATH}/src)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN_PATH})
+
+set(CPGF_LIB ${CPGF_HOME}/lib/libcpgf.a)
+
+if(MSVC)
+	set(CPGF_LIB ${CPGF_HOME}/lib/${CMAKE_CFG_INTDIR}/cpgf.lib)
+endif(MSVC)
+	

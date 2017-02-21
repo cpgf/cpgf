@@ -1,0 +1,9 @@
+/build/bin/
+/build/temp_cache_mingw
+/build/project_vc13
+/build/project_vc12
+/lib/
+/test/metagen/xml/
+/tools/metagen/tool/bin/
+/tools/metagen/js.jar
+/tools/metagen/metagen.jar

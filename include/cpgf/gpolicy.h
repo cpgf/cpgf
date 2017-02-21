@@ -1,5 +1,5 @@
-#ifndef __GPOLICY_H
-#define __GPOLICY_H
+#ifndef CPGF_GPOLICY_H
+#define CPGF_GPOLICY_H
 
 #include "cpgf/gcompiler.h"
 #include "cpgf/gtypelist.h"

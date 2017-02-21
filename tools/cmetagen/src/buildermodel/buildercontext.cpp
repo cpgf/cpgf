@@ -13,16 +13,23 @@
 #include "builderutil.h"
 #include "buildersection.h"
 #include "builderwriter.h"
+#include "builderfilewriter.h"
 
 #include "model/cppfile.h"
 #include "model/cppclass.h"
 #include "model/cppcontext.h"
+#include "model/cpppolicy.h"
+#include "model/cppsourcefile.h"
+
 #include "project.h"
+#include "constants.h"
 #include "util.h"
+#include "logger.h"
 
 #include "cpgf/gassert.h"
 
 #include "Poco/Format.h"
+#include "Poco/Path.h"
 
 // test
 #include "codewriter/codewriter.h"
@@ -75,17 +82,18 @@ BuilderItem * createBuilderItem(const CppItem * cppItem)
 }
 
 
-BuilderContext::BuilderContext(const Project * project, const std::string & sourceFileName)
+BuilderContext::BuilderContext(const Project * project, const CppSourceFile & sourceFile, bool overwriteEvenIfNoChange)
 	:	project(project),
-		sourceFileName(normalizePath(sourceFileName)),
+		sourceFile(sourceFile),
+		overwriteEvenIfNoChange(overwriteEvenIfNoChange),
 		sectionList(new BuilderSectionList())
 {
-	this->sourceBaseFileName = this->sourceFileName.getBaseName();
 }
 
 BuilderContext::~BuilderContext()
 {
 	clearPointerContainer(this->itemList);
+	clearPointerContainer(this->fileWriterList);
 }
 
 BuilderItem * BuilderContext::createItem(const CppItem * cppItem)
@@ -100,6 +108,36 @@ void BuilderContext::process(const CppContext * cppContext)
 	this->doProcessFile(cppContext->getCppFile());
 }
 
+const Project * BuilderContext::getProject() const
+{
+	return this->project;
+}
+
+bool BuilderContext::shouldOverwriteEvenIfNoChange() const
+{
+	return this->overwriteEvenIfNoChange;
+}
+
+std::string BuilderContext::getSourceFileName() const
+{
+	return this->sourceFile.getFileName();
+}
+
+std::string BuilderContext::getSourceBaseFileName() const
+{
+	return this->sourceFile.getBaseFileName();
+}
+
+BuilderContext::ItemListType * BuilderContext::getItemList()
+{
+	return &this->itemList;
+}
+
+BuilderSectionList * BuilderContext::getSectionList()
+{
+	return this->sectionList.get();
+}
+
 void BuilderContext::doProcessFile(const CppFile * cppFile)
 {
 	BuilderFile * file = static_cast<BuilderFile *>(this->createItem(cppFile));
@@ -107,13 +145,32 @@ void BuilderContext::doProcessFile(const CppFile * cppFile)
 	file->setProject(this->project);
 
 	this->flatten(file);
+	this->doPreocessByScript();
 
 	this->generateCodeSections();
+	if(this->getSectionList()->isEmpty()) {
+		getLogger().warn(Poco::format("\nThere is no data to be reflected in file %s\n"
+			"maybe the file contains syntax errors or the file includes itself?\n",
+			string(this->sourceFile.getFileName())));
+		return;
+	}
 	this->generateCreationFunctionSections();
-	this->generateFilePartitions();
+	
+	this->createHeaderFileWriter();
+	this->createSourceFileWriters();
 
-	this->getSectionList()->sort();
-	this->getSectionList()->dump();
+	for(BuilderFileWriterListType::iterator it = this->fileWriterList.begin();
+		it != this->fileWriterList.end();
+		++it) {
+		(*it)->output();
+	}
+}
+
+void BuilderContext::doPreocessByScript()
+{
+	for(ItemListType::iterator it = this->getItemList()->begin(); it != this->getItemList()->end(); ++it) {
+		this->getProject()->processBuilderItemByScript(*it);
+	}
 }
 
 void BuilderContext::generateCodeSections()
@@ -126,13 +183,13 @@ void BuilderContext::generateCodeSections()
 
 void BuilderContext::generateCreationFunctionSections()
 {
-	TempBuilderSectionListType partialCreationSections;
+	BuilderSectionListType partialCreationSections;
 	
 	this->doCollectPartialCreationFunctions(&partialCreationSections);
 
 	typedef pair<const CppItem *, BuilderSectionType> PairType;
 	set<PairType> generatedItemSet;
-	for(TempBuilderSectionListType::iterator it = partialCreationSections.begin();
+	for(BuilderSectionListType::iterator it = partialCreationSections.begin();
 		it != partialCreationSections.end();
 		++it) {
 		BuilderSection * section = *it;
@@ -141,13 +198,20 @@ void BuilderContext::generateCreationFunctionSections()
 		if(generatedItemSet.find(p) == generatedItemSet.end()) {
 			generatedItemSet.insert(p);
 			this->doGenerateCreateFunctionSection(section, it, partialCreationSections.end());
+			if(shouldGenerateCreationFunction(section->getCppItem())) {
+				if(! this->creationFunctionNameCode.empty()) {
+					this->creationFunctionNameCode.append("\n");
+				}
+				string creationFunctionName = getCreationFunctionName(this, section);
+				this->creationFunctionNameCode.append(creationFunctionName);
+			}
 		}
 	}
 }
 
 void BuilderContext::doGenerateCreateFunctionSection(BuilderSection * sampleSection,
-		TempBuilderSectionListType::iterator begin,
-		TempBuilderSectionListType::iterator end)
+		BuilderSectionListType::iterator begin,
+		BuilderSectionListType::iterator end)
 {
 	const CppContainer * sampleContainer = static_cast<const CppContainer *>(sampleSection->getCppItem());
 
@@ -164,11 +228,48 @@ void BuilderContext::doGenerateCreateFunctionSection(BuilderSection * sampleSect
 
 	headerBlock->appendLine(getCreationFunctionPrototype(this, sampleSection));
 
-	bodyBlock->appendLine("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();");
+	bodyBlock->appendLine(getMetaTypeTypedef(this, sampleSection, NULL));
+	bodyBlock->appendBlankLine();
+
+	if(sampleContainer->isClass()) {
+		const CppClass * cppClass = static_cast<const CppClass *>(sampleContainer);
+		string className;
+		if(sampleSection->isClassWrapper()) {
+			className = getClassWrapperClassName(this, cppClass);
+		}
+		else {
+			className = cppClass->getName();
+		}
+		
+		CppPolicy cppPolicy;
+		cppClass->getPolicy(&cppPolicy);
+
+		if(cppPolicy.hasRule()) {
+			bodyBlock->appendLine(Poco::format("%s _d = %s::Policy<%s >::declare(\"%s\");",
+				metaTypeTypeDefName,
+				metaTypeTypeDefName,
+				cppPolicy.getTextOfMakePolicy(false),
+				className
+				)
+			);
+		}
+		else {
+			bodyBlock->appendLine(Poco::format("%s _d = %s::declare(\"%s\");",
+				metaTypeTypeDefName,
+				metaTypeTypeDefName,
+				className
+				)
+			);
+		}
+	}
+	else {
+		bodyBlock->appendLine("GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();");
+	}
+
 	bodyBlock->appendLine("cpgf::GDefineMetaInfo meta = _d.getMetaInfo();");
 	bodyBlock->appendBlankLine();
 
-	for(TempBuilderSectionListType::iterator it = begin; it != end; ++it) {
+	for(BuilderSectionListType::iterator it = begin; it != end; ++it) {
 		BuilderSection * currentSection = *it;
 		const CppContainer * currentContainer = static_cast<const CppContainer *>(currentSection->getCppItem());
 		if(currentContainer == sampleContainer && currentSection->getType() == sampleSection->getType()) {
@@ -190,18 +291,34 @@ bool partialCreationSectionComparer(BuilderSection * a, BuilderSection * b)
 	return a->getTotalPayload() > b->getTotalPayload();
 }
 
-void BuilderContext::generateFilePartitions()
+void BuilderContext::createHeaderFileWriter()
 {
-	TempBuilderSectionListType partialCreationSections;
+	BuilderFileWriter * fileWriter = BuilderFileWriter::createHeaderFile(this->sourceFile, this);
+	this->fileWriterList.push_back(fileWriter);
+
+	for(BuilderSectionList::iterator it = this->getSectionList()->begin();
+		it != this->getSectionList()->end();
+		++it) {
+		BuilderSection * section = *it;
+		if(! section->shouldBeInSourceFile()) {
+			fileWriter->addSection(section);
+		}
+	}
+	fileWriter->setCreationFunctionNameCode(this->creationFunctionNameCode);
+}
+
+void BuilderContext::createSourceFileWriters()
+{
+	BuilderSectionListType partialCreationSections;
 	
 	this->doCollectPartialCreationFunctions(&partialCreationSections);
 
 	std::sort(partialCreationSections.begin(), partialCreationSections.end(), &partialCreationSectionComparer);
 
-	this->doGenerateFilePartitions(&partialCreationSections);
+	this->doCreateSourceFileWriters(&partialCreationSections);
 }
 
-void BuilderContext::doCollectPartialCreationFunctions(TempBuilderSectionListType * partialCreationSections)
+void BuilderContext::doCollectPartialCreationFunctions(BuilderSectionListType * partialCreationSections)
 {
 	for(BuilderSectionList::iterator it = this->getSectionList()->begin();
 		it != this->getSectionList()->end();
@@ -210,7 +327,7 @@ void BuilderContext::doCollectPartialCreationFunctions(TempBuilderSectionListTyp
 		if(section->isPartialCreationFunction()) {
 			const CppItem * cppItem = section->getCppItem();
 			if(cppItem->isClass()
-				&& static_cast<const CppClass *>(cppItem)->isTemplate()
+				&& static_cast<const CppClass *>(cppItem)->isChainedTemplate()
 				&& section->getTemplateInstantiation() == NULL) {
 				continue;
 			}
@@ -220,24 +337,34 @@ void BuilderContext::doCollectPartialCreationFunctions(TempBuilderSectionListTyp
 	}
 }
 
-void BuilderContext::doGenerateFilePartitions(TempBuilderSectionListType * partialCreationSections)
+void BuilderContext::doCreateSourceFileWriters(BuilderSectionListType * partialCreationSections)
 {
+	int fileIndex = 0;
 	while(! partialCreationSections->empty()) {
-		TempBuilderSectionListType sectionsInOneFile;
+		BuilderSectionListType sectionsInOneFile;
 		this->doExtractPartialCreationFunctions(partialCreationSections, &sectionsInOneFile);
-		printf("TTTTTTTTTTTT \n");
-		for(TempBuilderSectionListType::iterator it = sectionsInOneFile.begin();
+		BuilderFileWriter * fileWriter = BuilderFileWriter::createSourceFile(this->sourceFile, this, fileIndex);
+		this->fileWriterList.push_back(fileWriter);
+		if(fileIndex == 0) {
+			for(BuilderSectionList::iterator it = this->sectionList->begin();
+				it != this->sectionList->end();
+				++it) {
+				if((*it)->isCreationFunctionDefinition()) {
+					fileWriter->addSection(*it);
+				}
+			}
+		}
+		++fileIndex;
+		for(BuilderSectionListType::iterator it = sectionsInOneFile.begin();
 			it != sectionsInOneFile.end();
 			++it) {
-		CodeWriter codeWriter;
-		(*it)->getCodeBlock()->write(&codeWriter);
-		printf("%s\n\n", codeWriter.getText().c_str());
+			fileWriter->addSection(*it);
 		}
 	}
 }
 
-void BuilderContext::doExtractPartialCreationFunctions(TempBuilderSectionListType * partialCreationSections,
-	TempBuilderSectionListType * outputSections)
+void BuilderContext::doExtractPartialCreationFunctions(BuilderSectionListType * partialCreationSections,
+	BuilderSectionListType * outputSections)
 {
 	if(partialCreationSections->empty()) {
 		return;
@@ -252,7 +379,7 @@ void BuilderContext::doExtractPartialCreationFunctions(TempBuilderSectionListTyp
 	bool found = true;
 	while(found) {
 		found = false;
-		for(TempBuilderSectionListType::iterator it = partialCreationSections->begin();
+		for(BuilderSectionListType::iterator it = partialCreationSections->begin();
 			it != partialCreationSections->end();
 			) {
 			if(maxItemCountPerFile == 0
@@ -269,42 +396,21 @@ void BuilderContext::doExtractPartialCreationFunctions(TempBuilderSectionListTyp
 	}
 }
 
-void BuilderContext::flatten(BuilderFile * file)
-{
-	this->doFlatten(file, file);
-}
-
-void BuilderContext::doFlatten(BuilderFile * file, BuilderContainer * builderContainer)
+void BuilderContext::flatten(BuilderContainer * builderContainer)
 {
 	for(CppContainer::ItemListType::const_iterator it = builderContainer->getCppContainer()->getItemList()->begin();
 		it != builderContainer->getCppContainer()->getItemList()->end(); ++it) {
-		if(! (*it)->isInMainFile()) {
-			continue;
-		}
-		if(this->shouldSkipItem(*it)) {
-			continue;
-		}
+		if((*it)->isInMainFile() || (*it)->isNamespace()) {
+			cpgf::GScopedPointer<BuilderItem> item(this->createItem(*it));
 
-		cpgf::GScopedPointer<BuilderItem> item(this->createItem(*it));
-		if(! item->canBind()) {
-			continue;
-		}
-		if(item->shouldSkipBind()) {
-			continue;
-		}
-
-		BuilderItem * itemPointer = item.get();
-		this->itemList.push_back(item.take());
-		builderContainer->addItem(itemPointer);
-		if((*it)->isContainer()) {
-			this->doFlatten(file, static_cast<BuilderContainer *>(itemPointer));
+			BuilderItem * itemPointer = item.get();
+			this->itemList.push_back(item.take());
+			builderContainer->addItem(itemPointer);
+			if((*it)->isContainer()) {
+				this->flatten(static_cast<BuilderContainer *>(itemPointer));
+			}
 		}
 	}
-}
-
-bool BuilderContext::shouldSkipItem(const CppItem * cppItem)
-{
-	return ! isVisibilityAllowed(cppItem->getVisibility(), this->project);
 }
 
 

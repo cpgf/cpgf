@@ -11,12 +11,21 @@
 #include "model/cppcontext.h"
 #include "model/cppfile.h"
 #include "model/cpputil.h"
+#include "model/cppsourcefile.h"
 
+#include "project.h"
 #include "util.h"
+#include "constants.h"
+#include "exception.h"
+#include "splitcommandline.h"
 
 #include "cpgf/gassert.h"
+#include "cpgf/gscopedptr.h"
+#include "cpgf/gcallback.h"
 
 #include "Poco/RegularExpression.h"
+#include "Poco/StringTokenizer.h"
+#include "Poco/String.h"
 
 #include <stack>
 #include <string>
@@ -46,6 +55,7 @@
 #include <iostream>
 
 using namespace std;
+using namespace cpgf;
 
 using namespace llvm;
 using namespace llvm::sys;
@@ -53,13 +63,151 @@ using namespace clang;
 
 namespace metagen {
 
-
 class EmptyASTConsumer : public ASTConsumer
 {
 public:
 	virtual ~EmptyASTConsumer() {}
 	virtual bool HandleTopLevelDecl(DeclGroupRef) { return true; }
 };
+
+typedef GCallback<void (CompilerInstance * compilerInstance)> ParserCallbackType;
+
+class ParserLibClang
+{
+public:
+	explicit ParserLibClang(const Project * project);
+
+	void parse(const CppSourceFile & sourceFile, const ParserCallbackType & callback);
+
+private:
+	void setupClang(const CppSourceFile & sourceFile);
+	void compileAST(const CppSourceFile & sourceFile);
+
+private:
+	raw_fd_ostream outputStream;
+	DiagnosticOptions diagnosticOptions;
+	GScopedPointer<CompilerInvocation> compilerInvocation;
+	GScopedPointer<CompilerInstance> compilerInstance;
+	const Project * project;
+};
+
+ParserLibClang::ParserLibClang(const Project * project)
+	: outputStream(1, false), project(project)
+{
+}
+
+void ParserLibClang::parse(const CppSourceFile & sourceFile, const ParserCallbackType & callback)
+{
+	this->setupClang(sourceFile);
+	this->compileAST(sourceFile);
+	callback(this->compilerInstance.get());
+}
+
+void ParserLibClang::setupClang(const CppSourceFile & sourceFile)
+{
+	this->compilerInstance.reset(new CompilerInstance);
+	
+	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
+//IgnoringDiagConsumer * client = new IgnoringDiagConsumer();
+	this->compilerInstance->createDiagnostics(client, false);
+	
+	this->compilerInvocation.reset(new CompilerInvocation);
+
+	vector<string> commands;
+	if(! this->project->getClangOptions().empty()) {
+		splitCommandLine(&commands, this->project->getClangOptions().c_str());
+	}
+	for(vector<string>::const_iterator it = sourceFile.getIncludeList().begin();
+		it != sourceFile.getIncludeList().end();
+		++it) {
+		string includeLine = *it;
+		if(includeLine.at(0) == '@') {
+			const string includeDirector("#include");
+			includeLine = includeLine.c_str() + 1;
+			Poco::StringTokenizer tokenizer(includeLine, "\n", Poco::StringTokenizer::TOK_IGNORE_EMPTY | Poco::StringTokenizer::TOK_TRIM);
+			for(Poco::StringTokenizer::Iterator it = tokenizer.begin(); it != tokenizer.end(); ++it) {
+				includeLine = *it;
+				size_t pos = includeLine.find(includeDirector);
+				if(pos != string::npos) {
+					commands.push_back("-include");
+					includeLine = includeLine.substr(pos + includeDirector.length());
+					includeLine.erase(std::remove(includeLine.begin(), includeLine.end(), '"'), includeLine.end());
+					Poco::trimInPlace(includeLine);
+					commands.push_back(includeLine);
+				}
+			}
+		}
+		else {
+			commands.push_back("-include");
+			commands.push_back(includeLine);
+		}
+	}
+	if(! commands.empty()) {
+		vector<const char *> commandPointers;
+		for(vector<string>::iterator it = commands.begin(); it != commands.end(); ++it) {
+			commandPointers.push_back(it->c_str());
+		}
+		CompilerInvocation::CreateFromArgs(*(this->compilerInvocation.get()),
+			&commandPointers[0], &commandPointers[0] + commandPointers.size(),
+			this->compilerInstance->getDiagnostics());
+	}
+
+	PreprocessorOptions & preprocessorOptions = this->compilerInvocation->getPreprocessorOpts();
+	preprocessorOptions.addMacroDef(ParserPredefinedMacro);
+
+	LangOptions & langOptions = *this->compilerInvocation->getLangOpts();
+	langOptions.Bool = 1;
+	// Use -std=XXX in option clangOptions
+	//this->compilerInvocation->setLangDefaults(langOptions, IK_CXX, LangStandard::lang_cxx11);
+	// Use -x c++ in option clangOptions
+	//langOptions.CPlusPlus = 1;
+	// Use -fcxx-exceptions in clangOptions
+	//langOptions.CXXExceptions = 1;
+
+	// use -fms-compatibility and -fms-extensions in clangOptions
+	//langOptions.MicrosoftExt = 1;
+	//langOptions.MicrosoftMode = 1;
+	// use -fdelayed-template-parsing in clangOptions
+	// langOptions.DelayedTemplateParsing = 1;
+
+//	HeaderSearchOptions & headerSearchOptions = this->compilerInvocation->getHeaderSearchOpts();
+
+	DiagnosticsEngine & diagnostics = this->compilerInstance->getDiagnostics();
+	diagnostics.setSuppressSystemWarnings(true);
+
+	TargetOptions & target_options = this->compilerInvocation->getTargetOpts();
+	GScopedPointer<TargetInfo> targetInfo(TargetInfo::CreateTargetInfo(diagnostics, &target_options));
+	this->compilerInstance->setTarget(targetInfo.take());
+
+	this->compilerInstance->createFileManager();
+	this->compilerInstance->createSourceManager(this->compilerInstance->getFileManager());
+	this->compilerInstance->setInvocation(this->compilerInvocation.take());
+}
+
+void ParserLibClang::compileAST(const CppSourceFile & sourceFile)
+{
+	this->compilerInstance->createPreprocessor();
+	this->compilerInstance->createASTContext();
+
+	if(this->compilerInstance->hasPreprocessor()) {
+		Preprocessor & preprocessor = this->compilerInstance->getPreprocessor();
+		preprocessor.getBuiltinInfo().InitializeBuiltins(preprocessor.getIdentifierTable(),
+			preprocessor.getLangOpts());
+	}
+
+	const FileEntry * file = this->compilerInstance->getFileManager().getFile(sourceFile.getFileName());
+	this->compilerInstance->getSourceManager().createMainFileID(file);
+
+	EmptyASTConsumer astConsumer;
+	DiagnosticConsumer * client = this->compilerInstance->getDiagnostics().getClient();
+	client->BeginSourceFile(this->compilerInstance->getLangOpts(), &this->compilerInstance->getPreprocessor());
+	ParseAST(this->compilerInstance->getPreprocessor(), &astConsumer, this->compilerInstance->getASTContext());
+	client->EndSourceFile();
+
+	if(client->getNumErrors() > 0 && this->project->shouldStopOnCompileError()) {
+		fatalError("Compile errors occured");
+	}
+}
 
 typedef stack<CppContainer *> CppContainerStackType;
 
@@ -83,15 +231,13 @@ private:
 class ClangParserImplement
 {
 public:
-	explicit ClangParserImplement(CppContext * context);
+	ClangParserImplement(CppContext * context, const Project * project);
 	~ClangParserImplement();
 
-	void parse(const char * fileName);
+	void parse(const CppSourceFile & sourceFile);
 
 private:
-	void setupClang();
-	void compileAST(const char * fileName);
-	void translate();
+	void translate(CompilerInstance * compilerInstance);
 
 	CppContainer * getCurrentCppContainer();
 
@@ -101,8 +247,8 @@ private:
 		T * item = this->context->createItem<T>(decl);
 		this->getCurrentCppContainer()->addItem(item);
 
-		SourceManager & sm = this->compilerInstance.getSourceManager();
-		item->setInMainFile(this->currentFileID == sm.getFileID(decl->getSourceRange().getBegin()));
+		SourceManager & sm = this->compilerInstance->getSourceManager();
+		item->setInMainFile(this->compilerInstance->getSourceManager().getMainFileID() == sm.getFileID(decl->getSourceRange().getBegin()));
 
 		return item;
 	}
@@ -128,176 +274,53 @@ private:
 	void parseField(FieldDecl * fieldDecl);
 	void parseBaseClass(CppClass * cls, CXXBaseSpecifier * baseSpecifier);
 
-//	void parseTemplateParams(TemplateDecl * templateDecl, CppTemplateItem * templateItem);
-
-	string locationToSource(const SourceLocation & begin, const SourceLocation & end);
-	string getTemplateArgumentName(const TemplateArgument & argument);
-	string getQualTypeName(const QualType & qualType);
-	string getTemplateSpecializationName(const TemplateSpecializationType * type);
-
 private:
 	CppContext * context;
 	CppContainerStackType cppContainerStack;
 
-	raw_fd_ostream outputStream;
-	DiagnosticOptions diagnosticOptions;
-	OwningPtr<CompilerInvocation> compilerInvocation;
-	CompilerInstance compilerInstance;
-	OwningPtr<TargetInfo> targetInfo;
-	FileID currentFileID;
+	GScopedPointer<ParserLibClang> parser;
+
+	CompilerInstance * compilerInstance;
+
+	const Project * project;
 };
 
 
-string getDeclName(NamedDecl * namedDecl)
+ClangParserImplement::ClangParserImplement(CppContext * context, const Project * project)
+	: context(context), compilerInstance(NULL), project(project)
 {
-	return namedDecl->getNameAsString();
-}
-
-string getDeclQualifiedName(NamedDecl * namedDecl)
-{
-	return namedDecl->getQualifiedNameAsString();
-}
-
-string doRemoveRecordWords(const string & text)
-{
-	static Poco::RegularExpression re("(struct|class|union)\\b\\s*");
-	string result(text);
-	re.subst(result, "");
-	return result;
-}
-
-ClangParserImplement::ClangParserImplement(CppContext * context)
-	: context(context), outputStream(1, false)
-{
-	this->setupClang();
-}
-
-void ClangParserImplement::setupClang()
-{
-	this->compilerInvocation.reset(new CompilerInvocation);
-
-	// we add a customized macro here to distinguish a clreflect parsing process from a compling using clang
-	//PreprocessorOptions & preprocessorOptions = this->compilerInvocation->getPreprocessorOpts();
-//	preprocessorOptions.addMacroDef("__clcpp_parse__");
-
-	// Add define/undefine macros to the pre-processor
-	//for (int i = 0; ; i++)
-	//{
-	//	std::string macro = args.GetProperty("-D", i);
-	//	if (macro == "")
-	//		break;
-	//	preprocessorOptions.addMacroDef(macro.c_str());
-	//}
-	//for (int i = 0; ; i++)
-	//{
-	//	std::string macro = args.GetProperty("-U", i);
-	//	if (macro == "")
-	//		break;
-	//	preprocessorOptions.addMacroUndef(macro.c_str());
-	//}
-
-	// Setup the language parsing options for C++
-	LangOptions & langOptions = *this->compilerInvocation->getLangOpts();
-	this->compilerInvocation->setLangDefaults(langOptions, IK_CXX, LangStandard::lang_cxx03);
-	langOptions.CPlusPlus = 1;
-	langOptions.Bool = 1;
-	langOptions.RTTI = 0;
-
-	// VC compatible
-	langOptions.MicrosoftExt = 1;
-	langOptions.MicrosoftMode = 1;
-	langOptions.MSBitfields = 1;
-	langOptions.DelayedTemplateParsing = 1;
-
-	// Gather C++ header searches from the command-line
-	//HeaderSearchOptions & headerSearchOptions = this->compilerInvocation->getHeaderSearchOpts();
-	//for (int i = 0; ; i++)
-	//{
-	//	std::string include = args.GetProperty("-i", i);
-	//	if (include == "")
-	//		break;
-	//	headerSearchOptions.AddPath(include.c_str(), frontend::Angled, false, false);
-	//}
-	//for (int i = 0; ; i++)
-	//{
-	//	std::string include = args.GetProperty("-isystem", i);
-	//	if (include == "")
-	//		break;
-	//	headerSearchOptions.AddPath(include.c_str(), frontend::System, false, false);
-	//}
-
-	TextDiagnosticPrinter * client = new TextDiagnosticPrinter(this->outputStream, &this->diagnosticOptions);
-	char * argv = "";
-	this->compilerInstance.createDiagnostics(0, false);
-	this->compilerInstance.getDiagnostics().setSuppressSystemWarnings(true);
-
-	// Setup target options - ensure record layout calculations use the MSVC C++ ABI
-	TargetOptions & target_options = this->compilerInvocation->getTargetOpts();
-	target_options.Triple = getDefaultTargetTriple();
-	target_options.CXXABI = "microsoft";
-	this->targetInfo.reset(TargetInfo::CreateTargetInfo(this->compilerInstance.getDiagnostics(), &target_options));
-	this->compilerInstance.setTarget(this->targetInfo.take());
-
-	// Set the invokation on the instance
-	this->compilerInstance.createFileManager();
-	this->compilerInstance.createSourceManager(this->compilerInstance.getFileManager());
-	this->compilerInstance.setInvocation(this->compilerInvocation.take());
 }
 
 ClangParserImplement::~ClangParserImplement()
 {
 }
 
-void ClangParserImplement::parse(const char * fileName)
+void ClangParserImplement::parse(const CppSourceFile & sourceFile)
 {
-	this->compileAST(fileName);
+	this->parser.reset(new ParserLibClang(this->project));
+	this->parser->parse(sourceFile, makeCallback(this, &ClangParserImplement::translate));
+}
 
-	this->context->beginFile(fileName, this->compilerInstance.getASTContext().getTranslationUnitDecl());
+void ClangParserImplement::translate(CompilerInstance * compilerInstance)
+{
+	this->compilerInstance = compilerInstance;
+
+	this->context->beginFile(compilerInstance->getASTContext().getTranslationUnitDecl());
 	this->cppContainerStack.push(this->context->getCppFile());
-	
-	this->translate();
 
-	this->cppContainerStack.pop();
-	this->context->endFile(fileName);
-}
-
-void ClangParserImplement::compileAST(const char * fileName)
-{
-	// Recreate preprocessor and AST context
-	this->compilerInstance.createPreprocessor();
-	this->compilerInstance.createASTContext();
-
-	// Initialize builtins
-	if(this->compilerInstance.hasPreprocessor()) {
-		Preprocessor & preprocessor = this->compilerInstance.getPreprocessor();
-		preprocessor.getBuiltinInfo().InitializeBuiltins(preprocessor.getIdentifierTable(),
-			preprocessor.getLangOpts());
-	}
-
-	// Get the file  from the file system
-	const FileEntry * file = this->compilerInstance.getFileManager().getFile(fileName);
-	this->currentFileID = this->compilerInstance.getSourceManager().createMainFileID(file);
-
-	// Parse the AST
-	EmptyASTConsumer ast_consumer;
-	DiagnosticConsumer * client = this->compilerInstance.getDiagnostics().getClient();
-	client->BeginSourceFile(this->compilerInstance.getLangOpts(), &this->compilerInstance.getPreprocessor());
-	ParseAST(this->compilerInstance.getPreprocessor(), &ast_consumer, this->compilerInstance.getASTContext());
-	client->EndSourceFile();
-}
-
-void ClangParserImplement::translate()
-{
-	TranslationUnitDecl * translateUnitDecl = this->compilerInstance.getASTContext().getTranslationUnitDecl();
+	TranslationUnitDecl * translateUnitDecl = compilerInstance->getASTContext().getTranslationUnitDecl();
 
 	this->parseDeclContext(translateUnitDecl);
 
-	if (this->compilerInstance.hasPreprocessor()) {
-		Preprocessor & preprocessor = this->compilerInstance.getPreprocessor();
+	if (this->compilerInstance->hasPreprocessor()) {
+		Preprocessor & preprocessor = compilerInstance->getPreprocessor();
 		for(Preprocessor::macro_iterator it = preprocessor.macro_begin(); it != preprocessor.macro_end(); ++it) {
 //			cout << "Macro    " << string(it->first->getName()) << endl;
 		}
 	}
+
+	this->cppContainerStack.pop();
+	this->context->endFile();
 }
 
 CppContainer * ClangParserImplement::getCurrentCppContainer()
@@ -319,7 +342,7 @@ void ClangParserImplement::parseDecl(Decl * decl)
 	}
 
 	Decl::Kind kind = decl->getKind();
-cout << ">>> " << decl->getDeclKindName() << "     " << (dyn_cast<NamedDecl>(decl) ? dyn_cast<NamedDecl>(decl)->getNameAsString() : "") << endl;
+//cout << ">>> " << decl->getDeclKindName() << "     " << (dyn_cast<NamedDecl>(decl) ? dyn_cast<NamedDecl>(decl)->getNameAsString() : "") << endl;
 
 	switch (kind) {
 		case Decl::LinkageSpec:
@@ -422,8 +445,6 @@ void ClangParserImplement::parseTemplateClass(ClassTemplateDecl * classTemplateD
 	for(CXXRecordDecl::base_class_iterator it = classDecl->bases_begin(); it != classDecl->bases_end(); ++it) {
 		this->parseBaseClass(cls, &*it);
 	}
-
-//	this->parseTemplateParams(classTemplateDecl, cls);
 }
 
 bool isOperator(const string & name)
@@ -470,10 +491,10 @@ void ClangParserImplement::parseNamespace(NamespaceDecl * namespaceDecl)
 	}
 
 	CppNamespace * ns;
-	CppNamedItem * cppNamedItem = const_cast<CppNamedItem *>(this->context->findNamedItem(icNamespace, getNamedDeclQualifiedName(namespaceDecl)));
-	if(cppNamedItem != NULL) {
-		GASSERT(cppNamedItem->isNamespace());
-		ns = static_cast<CppNamespace *>(cppNamedItem);
+	CppItem * cppItem = this->context->findItemByDecl(namespaceDecl);
+	if(cppItem != NULL) {
+		GASSERT(cppItem->isNamespace());
+		ns = static_cast<CppNamespace *>(cppItem);
 	}
 	else {
 		ns = this->addItem<CppNamespace>(namespaceDecl);
@@ -491,10 +512,10 @@ void ClangParserImplement::parseEnum(EnumDecl * enumDecl)
 	}
 
 	CppEnum * e;
-	CppNamedItem * cppNamedItem = const_cast<CppNamedItem *>(this->context->findNamedItem(icEnum, getNamedDeclQualifiedName(enumDecl)));
-	if(cppNamedItem != NULL) {
-		GASSERT(cppNamedItem->isEnum());
-		e = static_cast<CppEnum *>(cppNamedItem);
+	CppItem * cppItem = this->context->findItemByDecl(enumDecl);
+	if(cppItem != NULL) {
+		GASSERT(cppItem->isEnum());
+		e = static_cast<CppEnum *>(cppItem);
 	}
 	else {
 		e = this->addItem<CppEnum>(enumDecl);
@@ -552,160 +573,13 @@ void ClangParserImplement::parseField(FieldDecl * fieldDecl)
 
 void ClangParserImplement::parseBaseClass(CppClass * cls, CXXBaseSpecifier * baseSpecifier)
 {
-	QualType qualType = baseSpecifier->getType();
-	const Type * type = qualType.getTypePtr();
-	string qualifiedName;
-	if(type->getAsCXXRecordDecl() != NULL) {
-		qualifiedName = type->getAsCXXRecordDecl()->getQualifiedNameAsString();
-	}
-	else if(dyn_cast<TemplateSpecializationType>(type) != NULL){
-		const TemplateSpecializationType * t = dyn_cast<TemplateSpecializationType>(type);
-		qualifiedName = this->getTemplateSpecializationName(t);
-	}
-
-	BaseClass * baseClass = new BaseClass(baseSpecifier, this->context);
+	BaseClass * baseClass = new BaseClass(baseSpecifier, this->context, cls);
 	cls->getBaseClassList()->push_back(baseClass);
 }
 
-string ClangParserImplement::getTemplateArgumentName(const TemplateArgument & argument)
-{
-	string qualifiedName;
 
-	switch(argument.getKind()) {
-		case TemplateArgument::Null:
-			qualifiedName = "NULL";
-			break;
-
-		case TemplateArgument::Type:
-			qualifiedName = this->getQualTypeName(argument.getAsType());
-			break;
-
-		case TemplateArgument::Declaration:
-			qualifiedName = dyn_cast<NamedDecl>(argument.getAsDecl())->getQualifiedNameAsString();
-			break;
-
-		case TemplateArgument::Integral:
-		case TemplateArgument::Expression:
-			qualifiedName = locationToSource(argument.getAsExpr()->getLocStart(), argument.getAsExpr()->getLocEnd());
-			break;
-
-		case TemplateArgument::Template:
-			qualifiedName = argument.getAsTemplate().getAsTemplateDecl()->getQualifiedNameAsString();
-			break;
-
-		case TemplateArgument::TemplateExpansion:
-			break;
-
-		case TemplateArgument::Pack:
-			break;
-
-	}
-
-	return qualifiedName;
-}
-
-string ClangParserImplement::getQualTypeName(const QualType & qualType)
-{
-	string qualifiedName;
-
-//qualifiedName = type->getTypeClassName();
-
-	if(qualType->getAsCXXRecordDecl() != NULL) {
-		qualifiedName = qualType->getAsCXXRecordDecl()->getQualifiedNameAsString();
-	}
-	else if(qualType->getAs<TemplateSpecializationType>() != NULL){
-		const TemplateSpecializationType * t = qualType->getAs<TemplateSpecializationType>();
-		qualifiedName = this->getTemplateSpecializationName(t);
-	}
-	else if(qualType->getAs<TemplateTypeParmType>() != NULL){
-//		const TemplateTypeParmType * t = qualType->getAs<TemplateTypeParmType>();
-		qualifiedName = qualType.getAsString();
-	}
-	else {
-		qualifiedName = qualType.getAsString();
-	}
-
-	qualifiedName = doRemoveRecordWords(qualifiedName);
-
-	return qualifiedName;
-}
-
-string ClangParserImplement::getTemplateSpecializationName(const TemplateSpecializationType * type)
-{
-	string qualifiedName;
-
-	qualifiedName = type->getTemplateName().getAsTemplateDecl()->getQualifiedNameAsString();
-	qualifiedName += "<";
-	for(unsigned int i = 0; i < type->getNumArgs(); ++i) {
-		if(i > 0) {
-			qualifiedName += ", ";
-		}
-		qualifiedName += this->getTemplateArgumentName(type->getArg(i));
-	}
-	qualifiedName += " >";
-
-	return qualifiedName;
-}
-
-string ClangParserImplement::locationToSource(const SourceLocation & begin, const SourceLocation & end)
-{
-	SourceManager * sourceManager = &this->compilerInstance.getSourceManager();
-	const LangOptions & langOptions = this->compilerInstance.getLangOpts();
-    SourceLocation e(Lexer::getLocForEndOfToken(end, 0, *sourceManager, langOptions));
-    return std::string(sourceManager->getCharacterData(begin), sourceManager->getCharacterData(e) - sourceManager->getCharacterData(begin));
-}
-
-//void ClangParserImplement::parseTemplateParams(TemplateDecl * templateDecl, CppTemplateItem * templateItem)
-//{
-//	TemplateParameterList * templateParamList = templateDecl->getTemplateParameters();
-//	for(TemplateParameterList::iterator it = templateParamList->begin(); it != templateParamList->end(); ++it) {
-//		NamedDecl * namedDecl = *it;
-//		Decl::Kind kind = namedDecl->getKind();
-//
-//		CppType * type = NULL;
-//		string defaultValue;
-//		if(kind == Decl::TemplateTypeParm) {
-//			TemplateTypeParmDecl * paramDecl = dyn_cast<TemplateTypeParmDecl>(namedDecl);
-//			type = this->addType(paramDecl->wasDeclaredWithTypename() ? "typename" : "class");
-//			if(paramDecl->hasDefaultArgument()) {
-//				defaultValue = doRemoveRecordWords(paramDecl->getDefaultArgument().getAsString());
-//			}
-//		}
-//		else if(kind == Decl::NonTypeTemplateParm) {
-//			NonTypeTemplateParmDecl * paramDecl = dyn_cast<NonTypeTemplateParmDecl>(namedDecl);
-//			type = this->addType(paramDecl->getType());
-//			if(paramDecl->hasDefaultArgument()) {
-//				defaultValue = this->locationToSource(paramDecl->getDefaultArgument()->getLocStart(), paramDecl->getDefaultArgument()->getLocEnd());
-//			}
-//		}
-//		else if(kind == Decl::TemplateTemplateParm) {
-//			TemplateTemplateParmDecl * paramDecl = dyn_cast<TemplateTemplateParmDecl>(namedDecl);
-//			string t = locationToSource(paramDecl->getLocStart(), paramDecl->getLocEnd());
-//			t = removeAllAfterEqualSign(t);
-//			t = removeLastToken(t);
-//			type = this->addType(t);
-//			if(paramDecl->hasDefaultArgument()) {
-//				defaultValue = this->getTemplateArgumentName(paramDecl->getDefaultArgument().getArgument());
-//				if(defaultValue.empty()) {
-//					defaultValue = this->locationToSource(paramDecl->getDefaultArgument().getSourceRange().getBegin(), paramDecl->getDefaultArgument().getSourceRange().getEnd());
-//				}
-//			}
-//		}
-//		if(type != NULL) {
-//			CppParam * param = templateItem->addTemplateParam();
-//			string name = namedDecl->getNameAsString();
-//			param->setName(name);
-//			param->setType(type);
-//			if(! defaultValue.empty()) {
-//				param->setDefaultValue(defaultValue);
-//			}
-//		}
-//	}
-//}
-
-
-ClangParser::ClangParser(CppContext * context)
-	:implement(new ClangParserImplement(context))
+ClangParser::ClangParser(const Project * project)
+	: project(project)
 {
 }
 
@@ -713,9 +587,10 @@ ClangParser::~ClangParser()
 {
 }
 
-void ClangParser::parse(const char * fileName)
+void ClangParser::parse(CppContext * context, const CppSourceFile & sourceFile)
 {
-	this->implement->parse(fileName);
+	this->implement.reset(new ClangParserImplement(context, project));
+	this->implement->parse(sourceFile);
 }
 
 

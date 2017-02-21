@@ -1,5 +1,5 @@
-#ifndef __CPPTYPE_H
-#define __CPPTYPE_H
+#ifndef CPGF_CPPTYPE_H
+#define CPGF_CPPTYPE_H
 
 #if defined(_MSC_VER)
 #pragma warning(push, 0)
@@ -13,8 +13,9 @@
 
 #include <string>
 
-namespace metagen {
+namespace clang { class CXXRecordDecl; }
 
+namespace metagen {
 
 class CppType
 {
@@ -48,7 +49,12 @@ public:
 	bool isVoid() const;
 	bool isFundamental() const;
 
+	bool isTemplateDependent() const;
+
 	CppType getNonReferenceType() const;
+	CppType getBaseType() const; // strip all pointers, reference, or arrays
+	
+	const clang::CXXRecordDecl * getCXXRecordDecl() const;
 	
 private:
 	clang::QualType qualType;

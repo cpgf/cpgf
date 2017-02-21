@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_TESTOBJECTARRAY_H
-#define __META_TEST_TESTOBJECTARRAY_H
+#ifndef CPGF_META_TEST_TESTOBJECTARRAY_H
+#define CPGF_META_TEST_TESTOBJECTARRAY_H
 
 
 #include "cpgf/gmetadefine.h"
@@ -16,9 +16,9 @@ namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_Global_testobjectarray(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_Global_testobjectarray(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("getOAObjectN", (int (*) (OAObject *))&getOAObjectN);
@@ -28,9 +28,9 @@ void buildMetaClass_Global_testobjectarray(const cpgf::GMetaDataConfigFlags & co
 
 
 template <typename D>
-void buildMetaClass_OAData(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_OAData(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
@@ -41,9 +41,9 @@ void buildMetaClass_OAData(const cpgf::GMetaDataConfigFlags & config, D _d)
 
 
 template <typename D>
-void buildMetaClass_OAObject(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_OAObject(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();

@@ -114,3 +114,16 @@ int getSimpleObjectN(const SimpleObject & object)
 {
 	return object.data.n;
 }
+
+SimpleObject* storedCopy = NULL;
+
+void setViaConstRefPtrApi(SimpleObject * const &input)
+{
+    storedCopy = input;
+}
+
+SimpleObject* &returnFromConstRefPtrApi()
+{
+    return storedCopy;
+}
+

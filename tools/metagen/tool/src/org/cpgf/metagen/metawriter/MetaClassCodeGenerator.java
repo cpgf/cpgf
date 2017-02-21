@@ -57,9 +57,9 @@ public class MetaClassCodeGenerator {
 			}
 		}
 		codeWriter.writeLine(">");
-		codeWriter.writeLine("void " + name + "(const cpgf::GMetaDataConfigFlags & config, D _d)");
+		codeWriter.writeLine("void " + name + "(D _d)");
 		codeWriter.beginBlock();
-		codeWriter.writeLine("(void)config; (void)_d; (void)_d;");
+		codeWriter.writeLine("(void)_d;");
 		codeWriter.useNamespace("cpgf");
 		codeWriter.writeLine("");
 	}
@@ -213,7 +213,7 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 		List<CppField> fieldList = cls.getFieldList();
 		CppWriter codeWriter = new CppWriter();
 		for(CppField field : fieldList) {
-			if(! WriterUtil.shouldGenerateBitfieldWrapper(this.config, field)) {
+			if(! WriterUtil.shouldGenerateBitfieldWrapper(this.metaInfo, field)) {
 				continue;
 			}
 			
@@ -316,7 +316,7 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 				codeWriter.write(", " + param.getName());
 			}
 		}
-		codeWriter.writeLine(">(config, _d);");
+		codeWriter.writeLine(">(_d);");
 
 		this.endMetaFunction(codeWriter);
 	}
@@ -340,6 +340,7 @@ result = result + "static IScriptFunction * xxx = NULL;\n"; //temp
 			codeWriter.write(this.callbackData.getSourceCode() + "\n\n");
 		}
 
+		codeWriter.writeLine("#ifdef CPGF_METAGEN_LINKAGE_SPEC\nCPGF_METAGEN_LINKAGE_SPEC\n#endif");
 		codeWriter.writeLine("GDefineMetaInfo " + funcName + "()");
 
 		codeWriter.beginBlock();

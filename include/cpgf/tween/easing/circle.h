@@ -1,5 +1,5 @@
-#ifndef __TWEEN_EASING_CIRCLE_H
-#define __TWEEN_EASING_CIRCLE_H
+#ifndef CPGF_TWEEN_EASING_CIRCLE_H
+#define CPGF_TWEEN_EASING_CIRCLE_H
 
 #include "cpgf/tween/gtweencommon.h"
 

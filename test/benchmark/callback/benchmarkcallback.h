@@ -1,5 +1,5 @@
-#ifndef __BENCHMARKCALLBACK_H
-#define __BENCHMARKCALLBACK_H
+#ifndef CPGF_BENCHMARKCALLBACK_H
+#define CPGF_BENCHMARKCALLBACK_H
 
 #include <time.h>
 

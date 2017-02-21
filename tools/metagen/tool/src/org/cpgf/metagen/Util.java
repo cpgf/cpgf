@@ -37,7 +37,7 @@ public class Util {
 		}
 		return uniqueIDMap.get(scope).getNext();
 	}
-	
+
 	public static void trace(String message) {
 		System.out.println(message);
 	}
@@ -49,7 +49,7 @@ public class Util {
 	public static String quoteText(String text) {
 		return "\"" + text + "\"";
 	}
-	
+
 	public static String concatQualifiedName(String qualify, String name)
 	{
 		if(qualify == null || qualify.length() == 0) {
@@ -81,7 +81,7 @@ public class Util {
 	public static int getIntAttribute(Node node, String attributeName) {
 		return getIntAttribute(node, attributeName, 0);
 	}
-	
+
 	public static Node getNode(Node node, String nodeName) {
 		List<Node> childList = getChildNodesByName(node, nodeName);
 		if(childList.size() > 0) {
@@ -99,7 +99,7 @@ public class Util {
 
 		String result = "";
 		NodeList childList = node.getChildNodes();
-		
+
 		for(int i = 0; i < childList.getLength(); ++i) {
 			Node child = childList.item(i);
 			if(child.getNodeName().equals("#text")) {
@@ -115,9 +115,9 @@ public class Util {
 
 	public static List<Node> getChildNodesByName(Node node, String name) {
 		List<Node> result = new ArrayList<Node>();
-		
+
 		NodeList childList = node.getChildNodes();
-		
+
 		for(int i = 0; i < childList.getLength(); ++i) {
 			Node child = childList.item(i);
 			if(child.getNodeName().equals(name)) {
@@ -127,11 +127,11 @@ public class Util {
 
 		return result;
 	}
-	
+
 	public static boolean isValueYes(String value) {
 		return ! value.toLowerCase().equals("no");
 	}
-	
+
 	public static <T extends Item> Item findItemByName(List<T> itemList, String name) {
 		for(int i = 0; i < itemList.size(); ++i) {
 			String itemName = itemList.get(i).getLiteralName();
@@ -139,34 +139,34 @@ public class Util {
 				return itemList.get(i);
 			}
 		}
-		
+
 		return null;
 	}
 
 	public static String readTextFromFile(String fileName) throws Exception {
-	    BufferedReader bufferReader = new BufferedReader(new FileReader(fileName));
-	    try {
-	        StringBuilder stringBuilder = new StringBuilder();
-	        boolean needNewLine = false;
+		BufferedReader bufferReader = new BufferedReader(new FileReader(fileName));
+		try {
+			StringBuilder stringBuilder = new StringBuilder();
+			boolean needNewLine = false;
 
-	        while(true) {
-		        String line = bufferReader.readLine();
-		        if(line == null) {
-		        	break;
-		        }
-	            if(needNewLine) {
-	            	stringBuilder.append("\n");
-	            }
-	            needNewLine = true;
-	            stringBuilder.append(line);
-	        }
+			while(true) {
+				String line = bufferReader.readLine();
+				if(line == null) {
+					break;
+				}
+				if(needNewLine) {
+					stringBuilder.append("\n");
+				}
+				needNewLine = true;
+				stringBuilder.append(line);
+			}
 
-	        return stringBuilder.toString();
-	    } finally {
-	        bufferReader.close();
-	    }
+			return stringBuilder.toString();
+		} finally {
+			bufferReader.close();
+		}
 	}
-	
+
 	public static boolean writeTextToFile(String fileName, String content) throws Exception {
 		File file = new File(fileName);
 
@@ -178,18 +178,18 @@ public class Util {
 			}
 		}
 
-	    BufferedWriter bufferWriter = new BufferedWriter(new FileWriter(file));
-	    try {
-	    	bufferWriter.write(content);
-	    } finally {
-	    	bufferWriter.close();
-	    }
+		BufferedWriter bufferWriter = new BufferedWriter(new FileWriter(file));
+		try {
+			bufferWriter.write(content);
+		} finally {
+			bufferWriter.close();
+		}
 
 		trace("Written " + fileName);
 		RunStats.countWrittenFile(true);
 		return true;
 	}
-	
+
 	public static void deleteFile(String fileName) {
 		if((new File(fileName)).delete()) {
 			trace("Deleted " + fileName);
@@ -200,7 +200,7 @@ public class Util {
 	public static String joinStringList(String delimiter, List<String> stringList) {
 		String result = "";
 		boolean isFirst = true;
-		
+
 		for(String s : stringList) {
 			if(! isFirst) {
 				result = result + delimiter;
@@ -209,16 +209,17 @@ public class Util {
 
 			result = result + s;
 		}
-		
+
 		return result;
 	}
 
 	public static String normalizeSymbol(String s) {
 		s = s.replaceAll("::", "_");
+		s = s.replaceAll("-", "_");
 		s = s.replaceAll("\\.", "_");
 		return s;
 	}
-	
+
 	public static String getBaseFileName(String fileName) {
 		fileName = fileName.replaceAll("\\\\", "/");
 		int index = fileName.lastIndexOf('/');
@@ -229,10 +230,10 @@ public class Util {
 		if(index >= 0) {
 			fileName = fileName.substring(0, index);
 		}
-		
+
 		return fileName;
 	}
-	
+
 	public static List<CppClass> sortClassList(List<CppClass> classList) {
 		List<CppClass> newList = new ArrayList<CppClass>();
 		newList.addAll(classList);
@@ -278,7 +279,7 @@ public class Util {
 		for(DeferClass deferClass : cppClass.getBaseClassList()) {
 			if(deferClass.getVisibility() == EnumVisibility.Public) {
 				String baseName = deferClass.getName();
-				
+
 				if(templateInstance != null && cppClass.isTemplate()) {
 					// check if the class is inherited from a template parameter
 					int index = -1;
@@ -295,11 +296,11 @@ public class Util {
 						}
 					}
 				}
-				
+
 				typeName = typeName + ", " + baseName;
 			}
 		}
-		
+
 		return typeName;
 	}
 
@@ -336,7 +337,7 @@ public class Util {
 
 		list.add(item);
 	}
-	
+
 	public static String selectString(String a, String b) {
 		return a != null ? a : b;
 	}
@@ -348,7 +349,7 @@ public class Util {
 		if(name.indexOf('@') >= 0) {
 			return "";
 		}
-		
+
 		Pattern pattern = Pattern.compile("^.*\\b(\\w+)$");
 		Matcher matcher = pattern.matcher(name);
 		if(matcher.matches()) {
@@ -361,7 +362,7 @@ public class Util {
 
 	public static String getParameterText(List<Parameter> parameterList, boolean withType, boolean withName, boolean withDefaultValue) {
 		String result = "";
-		
+		int counter = 0;
 		for(Parameter param : parameterList) {
 			if(result.length() > 0) {
 				result = result + ", ";
@@ -373,48 +374,57 @@ public class Util {
 				if(withType) {
 					result = result + " ";
 				}
-				result = result + param.getName();
+				String name = param.getName();
+				if ("" == name) {
+					name = "__arg"+(counter++);
+				}
+				result = result + name;
+			} else if (withName) {
+				if(withType) {
+					result = result + " ";
+				}
+				result = result + "__arg"+(counter++);
 			}
 			if(withDefaultValue && param.hasDefaultValue()) {
 				result = result + " = " + param.getDefaultValue();
 			}
 		}
-		
+
 		return result;
 	}
 
 	public static String getParameterText(List<Parameter> parameterList, boolean withType, boolean withName) {
 		return getParameterText(parameterList, withType, withName, false);
-		
+
 	}
-	
+
 	public static String getInvokablePrototype(CppInvokable invokable, String name, boolean withDefaultValue) {
 		if(name == null) {
 			name = invokable.getPrimaryName();
 		}
-		
+
 		String result = "";
-		
+
 		if(invokable.getResultType() != null) {
 			result = invokable.getResultType().getLiteralType();
 		}
 		else {
 			result = "void";
 		}
-		
+
 		result = result + " " + name + "(" + getParameterText(invokable.getParameterList(), true, true, withDefaultValue) + ")";
-		
+
 		return result;
 	}
-	
+
 	public static String getInvokablePrototype(CppInvokable invokable, String name) {
 		return getInvokablePrototype(invokable, name, true);
 	}
-	
+
 	private static class RegExpFlags {
 		public boolean replaceAll;
 	};
-	
+
 	public static Pattern parseRegExp(String s, RegExpFlags outFlags)
 	{
 		String re;
@@ -442,24 +452,24 @@ public class Util {
 		else {
 			re = s;
 		}
-		
+
 		return Pattern.compile(re, flags);
 	}
-	
+
 	public static String replaceStringWithArray(String s, String[] replacers) throws MetaException {
 		if(replacers != null) {
 			if(replacers.length %2 != 0) {
 				error("Replacer must be in even count. In format of [ RegExp, replacer, RegExp, replacer, ... ]");
 			}
-			
+
 			for(int i = 0; i < replacers.length; i += 2) {
 				s = replaceStringWithRegExp(s, replacers[i], replacers[i + 1]);
 			}
 		}
-		
+
 		return s;
 	}
-	
+
 	public static String replaceStringWithRegExp(String s, String re, String replacer) {
 		RegExpFlags flags = new RegExpFlags();
 		Pattern pattern = parseRegExp(re, flags);
@@ -478,7 +488,28 @@ public class Util {
 				|| config.allowPrivate && item.getVisibility() == EnumVisibility.Private
 		;
 	}
-	
+
+	public static String makeTargetFileName(Config config, String sourceFileName)
+	{
+		return config.sourceFilePrefix + getBaseFileName(sourceFileName);
+	}
+
+	public static String makeTargetFileName(Config config, String sourceFileName, CppClass cppClass)
+	{
+		if(cppClass == null) {
+			return makeTargetFileName(config, sourceFileName);
+		}
+
+		String suffix = "_";
+		if(cppClass.isGlobal()) {
+			suffix = suffix + "global";
+		}
+		else {
+			suffix = suffix + cppClass.getPrimaryName();
+		}
+		return config.sourceFilePrefix + getBaseFileName(sourceFileName) + suffix;
+	}
+
 }
 
 class UniqueID {
@@ -487,7 +518,7 @@ class UniqueID {
 	public UniqueID() {
 		this.currentValue = -1;
 	}
-	
+
 	public int getNext() {
 		++this.currentValue;
 		return this.currentValue;

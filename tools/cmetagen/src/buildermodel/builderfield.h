@@ -1,5 +1,5 @@
-#ifndef __BUILDERFIELD_H
-#define __BUILDERFIELD_H
+#ifndef CPGF_BUILDERFIELD_H
+#define CPGF_BUILDERFIELD_H
 
 #include "builderitem.h"
 
@@ -19,9 +19,9 @@ public:
 
 	const CppField * getCppField() const;
 		
-	virtual bool canBind() const;
-	
 protected:
+	virtual bool doCanBind() const;
+	
 	virtual void doWriteMetaData(BuilderWriter * writer);
 	
 private:

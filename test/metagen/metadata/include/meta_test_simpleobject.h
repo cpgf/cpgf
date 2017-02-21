@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_SIMPLEOBJECT_H
-#define __META_TEST_SIMPLEOBJECT_H
+#ifndef CPGF_META_TEST_SIMPLEOBJECT_H
+#define CPGF_META_TEST_SIMPLEOBJECT_H
 
 
 #include "cpgf/gmetadefine.h"
@@ -13,15 +13,15 @@
 using namespace cpgf;
 
 
-namespace meta_test { 
+namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_Global_simpleobject(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_Global_simpleobject(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
-    
+
     _d.CPGF_MD_TEMPLATE _method("getSimpleObjectClass", (cpgf::IMetaClass * (*) (cpgf::IMetaClass *))&getSimpleObjectClass);
     _d.CPGF_MD_TEMPLATE _method("metaClassIsSimpleObject", (bool (*) (cpgf::IMetaClass *))&metaClassIsSimpleObject);
     _d.CPGF_MD_TEMPLATE _method("createSharedSimpleObject", (cpgf::GSharedPointer< SimpleObject > (*) ())&createSharedSimpleObject);
@@ -32,25 +32,27 @@ void buildMetaClass_Global_simpleobject(const cpgf::GMetaDataConfigFlags & confi
     _d.CPGF_MD_TEMPLATE _method("getBoostSharedSimpleObject", (SimpleObject * (*) (BOOST_SP))&getBoostSharedSimpleObject);
     _d.CPGF_MD_TEMPLATE _method("getSimpleObjectPointerN", (int (*) (SimpleObject *))&getSimpleObjectPointerN);
     _d.CPGF_MD_TEMPLATE _method("getSimpleObjectN", (int (*) (const SimpleObject &))&getSimpleObjectN);
+    _d.CPGF_MD_TEMPLATE _method("setViaConstRefPtrApi", &setViaConstRefPtrApi);
+    _d.CPGF_MD_TEMPLATE _method("returnFromConstRefPtrApi", &returnFromConstRefPtrApi);
 }
 
 
 template <typename D>
-void buildMetaClass_SimpleAtom(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_SimpleAtom(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
-    
+
     _d.CPGF_MD_TEMPLATE _field("value", &D::ClassType::value);
 }
 
 
 template <typename D>
-void buildMetaClass_SimpleData(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_SimpleData(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
-    
+
     _d.CPGF_MD_TEMPLATE _constructor<void * (int, const std::string &)>(cpgf::MakePolicy<cpgf::GMetaRuleCopyConstReference<1> >())
         ._default(copyVariantFromCopyable(""))
         ._default(copyVariantFromCopyable(0))
@@ -72,11 +74,11 @@ inline const SimpleData & opErAToRWrapper_SimpleObject__opFunction(const SimpleO
 
 
 template <typename D>
-void buildMetaClass_SimpleObject(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_SimpleObject(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
-    
+
     _d.CPGF_MD_TEMPLATE _field("data", &D::ClassType::data);
     _d.CPGF_MD_TEMPLATE _field("pobj", &D::ClassType::pobj);
     _d.CPGF_MD_TEMPLATE _method("getData", &D::ClassType::getData);

@@ -1,5 +1,5 @@
-#ifndef __GMETACONVERTER_WIDESTRING_H
-#define __GMETACONVERTER_WIDESTRING_H
+#ifndef CPGF_GMETACONVERTER_WIDESTRING_H
+#define CPGF_GMETACONVERTER_WIDESTRING_H
 
 #include "cpgf/metatraits/gmetaconverter.h"
 
@@ -24,6 +24,20 @@ struct GMetaTraitsCreateConverter <std::wstring, void>
 };
 
 inline IMetaConverter * createConverterFromMetaTraits(const GMetaTraitsParam &, std::wstring *)
+{
+	return metatraits_internal::doCreateConverterForStdWideString();
+}
+
+
+template <>
+struct GMetaTraitsCreateConverter <const std::wstring, void>
+{
+	static IMetaConverter * createConverter(const GMetaTraitsParam &) {
+		return metatraits_internal::doCreateConverterForStdWideString();
+	}
+};
+
+inline IMetaConverter * createConverterFromMetaTraits(const GMetaTraitsParam &, const std::wstring *)
 {
 	return metatraits_internal::doCreateConverterForStdWideString();
 }

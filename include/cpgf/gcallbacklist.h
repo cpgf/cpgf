@@ -1,5 +1,5 @@
-#ifndef __GCALLBACKLIST_H
-#define __GCALLBACKLIST_H
+#ifndef CPGF_GCALLBACKLIST_H
+#define CPGF_GCALLBACKLIST_H
 
 #include "cpgf/gcallback.h"
 #include "cpgf/gfunctiontraits.h"
@@ -541,7 +541,7 @@ protected:
 GPP_REPEAT_2(CB_MAX_ARITY, CB_DEF_LIST_N, GPP_EMPTY)
 
 template <int arity, typename FT, template<typename> class ConnectionT, template<typename T, typename = std::allocator<T> > class ListType>
-class GCallbackListFunctionTraits;
+struct GCallbackListFunctionTraits;
 
 GPP_REPEAT_2(CB_MAX_ARITY, CB_DEF_FUNC_TRAITS, GPP_EMPTY)
 

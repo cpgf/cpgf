@@ -1,5 +1,7 @@
 package org.cpgf.metagen.metadata;
 
+import java.util.List;
+
 public class CppField extends Item {
 	private CppType type;
 	private int bitField;
@@ -25,5 +27,14 @@ public class CppField extends Item {
 	public void setBitField(int bitFields) {
 		this.bitField = bitFields;
 	}
-	
+
+    @Override
+    public void getPolicyRules(List<String> rules) {
+        CppType type = getType();
+        ClassTraits traits = type.getClassTraits();
+        if (traits.isCopyConstructorHidden()) {
+            rules.add("GMetaRuleForbidWrite");
+            rules.add("GMetaRuleForbidRead");
+        }
+    }
 }

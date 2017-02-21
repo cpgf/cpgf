@@ -5,8 +5,8 @@
 // PLEASE DO "NOT" EDIT THIS FILE!
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef __mainui__
-#define __mainui__
+#ifndef CPGF_mainui__
+#define CPGF_mainui__
 
 #include <wx/string.h>
 #include <wx/frame.h>

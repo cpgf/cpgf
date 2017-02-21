@@ -183,7 +183,7 @@ public class DoxygenXmlParser {
 		}
 		else if(kind.equals("union")) {
 			// we can't handle union for now because union will cause compile error in type traits
-///			this.doParseClass(node, location);
+			this.doParseClass(node, location);
 		}
 		else if(kind.equals("struct")) {
 			this.doParseClass(node, location);
@@ -405,7 +405,7 @@ public class DoxygenXmlParser {
 		
 		Node bitFieldNode = Util.getNode(node, "bitfield");
 		if(bitFieldNode != null) {
-			field.setBitField(Integer.parseInt(Util.getNodeText(bitFieldNode)));
+			field.setBitField(Integer.parseInt(Util.getNodeText(bitFieldNode).trim()));
 		}
 
 		this.getCurrentClass().getFieldList().add(field);

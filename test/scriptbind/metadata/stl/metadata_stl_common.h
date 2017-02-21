@@ -1,5 +1,5 @@
-#ifndef __METADATA_STL_COMMON_H
-#define __METADATA_STL_COMMON_H
+#ifndef CPGF_METADATA_STL_COMMON_H
+#define CPGF_METADATA_STL_COMMON_H
 
 
 #include "../../../testmetatraits.h"

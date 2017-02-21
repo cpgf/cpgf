@@ -727,11 +727,12 @@ void ImplMetaItem::doGetItemExtendType(GMetaExtendTypeData * outExtendType, uint
 
 uint32_t ImplMetaItem::doGetCategory()
 {
-	ENTER_META_API()
+// Don't try/catch to avoid "unreachable code" warning. It's safe.
+//	ENTER_META_API()
 
 	return this->item->getCategory();
 
-	LEAVE_META_API(return 0)
+//	LEAVE_META_API(return 0)
 }
 
 IMetaAnnotation * ImplMetaItem::doGetAnnotation(const char * name)
@@ -772,11 +773,12 @@ gapi_bool ImplMetaItem::doEquals(IMetaItem * other)
 
 gapi_bool ImplMetaItem::doIsStatic()
 {
-	ENTER_META_API()
+// Don't try/catch to avoid "unreachable code" warning. It's safe.
+//	ENTER_META_API()
 
 	return this->doGetItem()->isStatic();
 
-	LEAVE_META_API(return false)
+//	LEAVE_META_API(return false)
 }
 
 

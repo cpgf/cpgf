@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_METAGEN_TEMPLATE_CLASSES_H
-#define __META_TEST_METAGEN_TEMPLATE_CLASSES_H
+#ifndef CPGF_META_TEST_METAGEN_TEMPLATE_CLASSES_H
+#define CPGF_META_TEST_METAGEN_TEMPLATE_CLASSES_H
 
 
 #include "cpgf/gmetadefine.h"
@@ -18,18 +18,18 @@ namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_TemplateBase(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_TemplateBase(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
 }
 
 
 template <typename D, typename T, typename U, int N>
-void buildMetaClass_TemplateClassA(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_TemplateClassA(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("a", &D::ClassType::a);
@@ -43,9 +43,9 @@ void buildMetaClass_TemplateClassA(const cpgf::GMetaDataConfigFlags & config, D 
 
 
 template <typename D, typename T>
-void buildMetaClass_TemplateClassB(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_TemplateClassB(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("b", (void (D::ClassType::*) (typename TemplateClassB<T >::Shared*))&D::ClassType::b);

@@ -1,5 +1,5 @@
-#ifndef __TOOLPANEL_H
-#define __TOOLPANEL_H
+#ifndef CPGF_TOOLPANEL_H
+#define CPGF_TOOLPANEL_H
 
 #include "../uiresource/mainui.h"
 

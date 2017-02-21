@@ -1,5 +1,5 @@
-#ifndef __GSHAREDINTERFACE_H
-#define __GSHAREDINTERFACE_H
+#ifndef CPGF_GSHAREDINTERFACE_H
+#define CPGF_GSHAREDINTERFACE_H
 
 #include <cstddef>
 #include <algorithm>

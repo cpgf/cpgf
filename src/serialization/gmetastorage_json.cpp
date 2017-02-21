@@ -235,7 +235,7 @@ const char * GJsonNodeNameTracker::makeName(const char * name, bool addNameCount
 
 	if(count > 0) {
 		stringstream stream;
-		stream << name << count;
+		stream << name << (unsigned int)count;
 		this->nameBuffer = stream.str();
 		result = this->nameBuffer.c_str();
 	}
@@ -385,10 +385,10 @@ void G_API_CC GJsonStorageWriter::writeFundamental(const char * name, const GVar
 		}
 		else {
 			if(vtIsUnsignedInteger(vt)) {
-				newNode= fromVariant<unsigned int>(v);
+				newNode= fromVariant<unsigned long long>(v);
 			}
 			else {
-				newNode = fromVariant<int>(v);
+				newNode = fromVariant<long long>(v);
 			}
 		}
 	}

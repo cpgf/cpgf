@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTBIND_H
-#define __GSCRIPTBIND_H
+#ifndef CPGF_GSCRIPTBIND_H
+#define CPGF_GSCRIPTBIND_H
 
 
 #include "cpgf/scriptbind/gscriptbindapi.h"
@@ -19,19 +19,17 @@
 namespace cpgf {
 
 struct IScriptLibraryLoader;
+struct IScriptUserConverter;
 
-class GScriptFunction
+struct IScriptContext : public IObject
 {
-public:
-	GScriptFunction();
-	virtual ~GScriptFunction();
-	
-	virtual GVariant invoke(const GVariant * params, size_t paramCount) = 0;
-	virtual GVariant invokeIndirectly(GVariant const * const * params, size_t paramCount) = 0;
-	
-	GMAKE_NONCOPYABLE(GScriptFunction);
+	virtual void G_API_CC addScriptUserConverter(IScriptUserConverter * converter) = 0;
+	virtual void G_API_CC removeScriptUserConverter(IScriptUserConverter * converter) = 0;
+	virtual uint32_t G_API_CC getScriptUserConverterCount() = 0;
+	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index) = 0;
+	virtual void G_API_CC setAllowGC(const GVariant & instance, bool allowGC) = 0;
+	virtual void G_API_CC bindExternalObjectToClass(void * address, IMetaClass * metaClass) = 0;
 };
-
 
 class GScriptObject
 {
@@ -55,19 +53,25 @@ public:
 	virtual GScriptValue createScriptObject(const char * name);
 
 	virtual GScriptValue getScriptFunction(const char * name) = 0;
-	
-	virtual GVariant invoke(const char * name, const GVariant * params, size_t paramCount) = 0;
-	virtual GVariant invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount) = 0;
+
+	virtual GScriptValue invoke(const char * name, const GVariant * params, size_t paramCount) = 0;
+	virtual GScriptValue invokeIndirectly(const char * name, GVariant const * const * params, size_t paramCount) = 0;
 
 	virtual void assignValue(const char * fromName, const char * toName) = 0;
 
 	void bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 
 	virtual IMetaService * getMetaService() = 0;
-	
+
 	virtual void holdObject(IObject * object);
 
 	virtual IMetaClass * cloneMetaClass(IMetaClass * metaClass) = 0;
+
+	virtual bool maybeIsScriptArray(const char * name) = 0;
+	virtual GScriptValue getAsScriptArray(const char * name) = 0;
+	virtual GScriptValue createScriptArray(const char * name) = 0;
+
+	virtual IScriptContext * getContext() const = 0;
 
 
 	G_DEPRECATED(
@@ -116,7 +120,7 @@ public:
 		IMetaEnum * getEnum(const char * enumName),
 		"getEnum is deprecated. Use getValue().toEnum() instead."
 	);
-	
+
 	G_DEPRECATED(
 		GVariant getFundamental(const char * name),
 		"getFundamental is deprecated. Use getValue().toFundamental() instead."
@@ -158,18 +162,7 @@ public:
 
 protected:
 	virtual GScriptValue doGetValue(const char * name) = 0;
-
-	virtual void doBindClass(const char * name, IMetaClass * metaClass) = 0;
-	virtual void doBindEnum(const char * name, IMetaEnum * metaEnum) = 0;
-
-	virtual void doBindNull(const char * name) = 0;
-	virtual void doBindFundamental(const char * name, const GVariant & value) = 0;
-	virtual void doBindAccessible(const char * name, void * instance, IMetaAccessible * accessible) = 0;
-	virtual void doBindString(const char * stringName, const char * s) = 0;
-	virtual void doBindObject(const char * objectName, void * instance, IMetaClass * type, bool transferOwnership) = 0;
-	virtual void doBindRaw(const char * name, const GVariant & value) = 0;
-	virtual void doBindMethod(const char * name, void * instance, IMetaMethod * method) = 0;
-	virtual void doBindMethodList(const char * name, IMetaList * methodList) = 0;
+	virtual void doSetValue(const char * name, const GScriptValue & value) = 0;
 
 	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader) = 0;
 

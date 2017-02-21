@@ -1,5 +1,5 @@
-#ifndef __CPPMETHOD_H
-#define __CPPMETHOD_H
+#ifndef CPGF_CPPMETHOD_H
+#define CPGF_CPPMETHOD_H
 
 #include "cppitem.h"
 #include "cppinvokable.h"
@@ -14,6 +14,8 @@ private:
 	
 public:
 	explicit CppMethod(const clang::Decl * decl);
+	
+	bool isArityUnique() const;
 	
 protected:
 	virtual ItemCategory getCategory() const { return icMethod; }

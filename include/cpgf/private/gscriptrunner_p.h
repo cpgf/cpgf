@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTRUNNER_P_H
-#define __GSCRIPTRUNNER_P_H
+#ifndef CPGF_GSCRIPTRUNNER_P_H
+#define CPGF_GSCRIPTRUNNER_P_H
 
 
 #include "cpgf/gapiutil.h"

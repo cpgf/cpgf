@@ -8,11 +8,16 @@ import org.cpgf.metagen.cppparser.ParserUtil;
 
 public class CppInvokable extends ParameteredItem {
 	private CppType resultType;
+	private boolean transferResultOwnership;
+	private boolean discardResultOwnership;
+	private boolean useFullPrototype;
 
 	public CppInvokable(EnumCategory category, String name, CppType resultType) {
 		super(category, name);
-		
+
 		this.resultType = resultType;
+		this.transferResultOwnership = false;
+		this.discardResultOwnership = false;
 	}
 
 	public CppType getResultType() {
@@ -22,7 +27,31 @@ public class CppInvokable extends ParameteredItem {
 	public void setResultType(CppType resultType) {
 		this.resultType = resultType;
 	}
-	
+
+	public boolean getTransferResultOwnership() {
+		return transferResultOwnership;
+	}
+
+	public void setTransferResultOwnership(boolean transferResultOwnership) {
+		this.transferResultOwnership = transferResultOwnership;
+	}
+
+	public boolean getDiscardResultOwnership() {
+		return discardResultOwnership;
+	}
+
+	public void setDiscardResultOwnership(boolean discardResultOwnership) {
+		this.discardResultOwnership = discardResultOwnership;
+	}
+
+	public boolean getUseFullPrototype() {
+		return useFullPrototype;
+	}
+
+	public void setUseFullPrototype(boolean useFullPrototype) {
+		this.useFullPrototype = useFullPrototype;
+	}
+
 	public boolean hasResult() {
 		return ! this.resultType.isVoid();
 	}
@@ -30,16 +59,19 @@ public class CppInvokable extends ParameteredItem {
 	@Override
 	public void getPolicyRules(List<String> rules) {
 		if(this.resultType != null) {
+		if (getTransferResultOwnership()) {
+				rules.add(ParserUtil.composePolicyRuleForParameter("GMetaRuleTransferOwnership", -1));
+			}
 			getPolicyRuleForParameter(rules, this.resultType, -1);
 		}
-		
+
 		int indexOffset = this.getParameterPolicyRuleStartIndex();
-		
+
 		for(int i = 0; i < this.getParameterList().size(); ++i) {
 			getPolicyRuleForParameter(rules, this.getParameterList().get(i).getType(), i + indexOffset);
 		}
 	}
-	
+
 	protected int getParameterPolicyRuleStartIndex() {
 		return 0;
 	}
@@ -52,18 +84,18 @@ public class CppInvokable extends ParameteredItem {
 				if(traits.isHasTypeConvertConstructor() && !traits.isCopyConstructorHidden()) {
 					Util.addToList(rules, ParserUtil.composePolicyRuleForParameter("GMetaRuleCopyConstReference", parameterIndex));
 				}
-				
+
 				return;
 			}
-			
+
 			if(type.isPointer()) {
 				return;
 			}
-			
+
 			if(traits.isCopyConstructorHidden()) {
 				Util.addToList(rules, ParserUtil.composePolicyRuleForParameter("GMetaRuleParamNoncopyable", parameterIndex));
 			}
-			
+
 		}
 	}
 
@@ -76,6 +108,6 @@ public class CppInvokable extends ParameteredItem {
 			this.resultType.setLiteralType(this.resultType.getLiteralType().replaceAll(pattern, substitute));
 		}
 	}
-	
+
 
 }

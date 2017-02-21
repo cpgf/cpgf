@@ -6,6 +6,7 @@
 
 #if ENABLE_V8
 #include "cpgf/scriptbind/gv8bind.h"
+#include "cpgf/scriptbind/gv8runner.h"
 #endif
 
 #if ENABLE_PYTHON
@@ -199,12 +200,15 @@ bool executeString(const char * source, bool printError, bool printResult = fals
 {
 	using namespace v8;
 
-	v8::HandleScope handle_scope;
+	v8::HandleScope handle_scope(getV8Isolate());
 	v8::TryCatch try_catch;
-	v8::Handle<v8::Script> script = v8::Script::Compile(String::New(source), String::New("sample"));
+	v8::Handle<v8::Script> script = v8::Script::Compile(
+		String::NewFromOneByte(getV8Isolate(), ( const unsigned char* ) source),
+		String::NewFromOneByte(getV8Isolate(), ( const unsigned char* ) "sample")
+	);
 	if(script.IsEmpty()) {
 		if(printError) {
-			v8::String::AsciiValue error(try_catch.Exception());
+			v8::String::Utf8Value error(try_catch.Exception());
 			printf("%s\n", *error);
 		}
 		return false;
@@ -213,14 +217,14 @@ bool executeString(const char * source, bool printError, bool printResult = fals
 		v8::Handle<v8::Value> result = script->Run();
 		if(result.IsEmpty()) {
 			if(printError) {
-				v8::String::AsciiValue error(try_catch.Exception());
+				v8::String::Utf8Value error(try_catch.Exception());
 				printf("%s\n", *error);
 			}
 			return false;
 		}
 		else {
 			if(printResult && !result->IsUndefined()) {
-				v8::String::AsciiValue str(result);
+				v8::String::Utf8Value str(result);
 				printf("%s\n", *str);
 			}
 			return true;
@@ -235,10 +239,12 @@ private:
 
 public:
 	TestScriptContextV8(TestScriptApi api)
-		: super(new TestScriptCoderV8), handleScope(), context(Context::New())//, contextScope(context)
+		: super(new TestScriptCoderV8), handleScope(getV8Isolate()), context(getV8Isolate(), Context::New(getV8Isolate()))//, contextScope(context)
 	{
-		this->contextScope = new Context::Scope(this->context);
-		Local<Object> global = context->Global();
+		Local<Context> localContext = Local<Context>::New(getV8Isolate(), context);
+		this->contextScope = new Context::Scope(localContext);
+		Local<Context> ctx = Local<Context>::New(getV8Isolate(), context);
+		Local<Object> global = ctx->Global();
 
 		if(api == tsaLib) {
 			this->setBinding(cpgf::createV8ScriptObject(this->getService(), global, GScriptConfig()));
@@ -252,8 +258,7 @@ public:
 	~TestScriptContextV8() {
 		delete this->contextScope;
 
-		this->context.Dispose();
-		this->context.Clear();
+		this->context.Reset();
 	}
 
 	virtual bool isV8() const {
@@ -333,11 +338,11 @@ protected:
 	virtual bool doApi(const char * code) const {
 		return this->doCode(code);
 	}
-	
+
 private:
 	bool doCode(const char * code) const {
 		return PyRun_SimpleString(code) == 0;
-		
+
 		//GPythonScopedPointer codeObject(Py_CompileString(code, "", Py_single_input));
 		//if(! codeObject) {
 		//	return false;
@@ -403,7 +408,7 @@ public:
 	virtual std::string getNew() {
 		return " new ";
 	}
-	
+
 	virtual std::string getVarPrefix() {
 		return "var ";
 	}
@@ -489,7 +494,7 @@ public:
 
 		if(api == tsaLib) {
 			this->setBinding(cpgf::createSpiderMonkeyScriptObject(this->getService(), spiderMonkeyEnv->jsContext, spiderMonkeyEnv->jsGlobal, GScriptConfig()));
-			
+
 			this->nullObjects();
 		}
 

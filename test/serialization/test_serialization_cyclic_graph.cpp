@@ -125,7 +125,7 @@ void doTestCyclicGraph(IMetaStorageWriter * writer, IMetaStorageReader * reader,
 	GScopedInterface<IMetaModule> moduleInterface(createMetaModule(&module, define.getMetaClass()));
 	GScopedInterface<IMetaService> service(createMetaService(moduleInterface.get()));
 
-	GScopedInterface<IMetaClass> metaClass(service->findClassByName("TestSerializeClassA"));
+	GScopedInterface<IMetaClass> metaClass(service->findClassByName("global.TestSerializeClassA"));
 
 	GScopedInterface<IMetaArchiveWriter> archiveWriter(createMetaArchiveWriter(service.get(), writer));
 

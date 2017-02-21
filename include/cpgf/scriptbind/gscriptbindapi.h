@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTBINDAPI_H
-#define __GSCRIPTBINDAPI_H
+#ifndef CPGF_GSCRIPTBINDAPI_H
+#define CPGF_GSCRIPTBINDAPI_H
 
 #include "cpgf/gmetaapi.h"
 #include "cpgf/gdeprecated.h"
@@ -9,6 +9,7 @@ namespace cpgf {
 
 struct IScriptLibraryLoader;
 struct GScriptValueData;
+struct IScriptContext;
 
 struct IScriptConfig : public IObject
 {
@@ -29,13 +30,33 @@ struct IScriptConfig : public IObject
 struct IScriptFunction : public IExtendObject
 {
 public:
-	virtual void G_API_CC invoke(GVariantData * outResult, const GVariantData * params, uint32_t paramCount) = 0;
-	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, GVariantData const * const * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invoke(GScriptValueData * outResult, const GVariantData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeOnObject(GScriptValueData * outResult, const GVariantData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeIndirectlyOnObject(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount) = 0;
+
+	// Internal use only!!!
+	virtual void G_API_CC weaken() = 0;
+};
+
+
+struct IScriptArray : public IExtendObject
+{
+public:
+	virtual uint32_t G_API_CC getLength() = 0;
+	virtual void G_API_CC getValue(GScriptValueData * outResult, uint32_t index) = 0;
+	virtual void G_API_CC setValue(uint32_t index, const GScriptValueData * value) = 0;
+
+	virtual gapi_bool G_API_CC maybeIsScriptArray(uint32_t index) = 0;
+	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, uint32_t index) = 0;
+	virtual void G_API_CC createScriptArray(GScriptValueData * outResult, uint32_t index) = 0;
 };
 
 
 struct IScriptObject : public IExtendObject
 {
+	virtual IScriptContext * G_API_CC getContext() = 0;
+
 	virtual IScriptConfig * G_API_CC getConfig() = 0;
 	virtual IScriptObject * G_API_CC getOwner() = 0;
 	virtual gapi_bool G_API_CC isGlobal() = 0;
@@ -44,17 +65,21 @@ struct IScriptObject : public IExtendObject
 	virtual void G_API_CC setValue(const char * name, const GScriptValueData * value) = 0;
 
 	virtual void G_API_CC createScriptObject(GScriptValueData * outResult, const char * name) = 0;
-	
+
 	virtual void G_API_CC getScriptFunction(GScriptValueData * outResult, const char * name) = 0;
-	
-	virtual void G_API_CC invoke(GVariantData * outResult, const char * name, const GVariantData * params, uint32_t paramCount) = 0;
-	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount) = 0;
+
+	virtual void G_API_CC invoke(GScriptValueData * outResult, const char * name, const GVariantData * params, uint32_t paramCount) = 0;
+	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount) = 0;
 
 	virtual void G_API_CC assignValue(const char * fromName, const char * toName) = 0;
 
 	virtual void G_API_CC bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader) = 0;
 	virtual void G_API_CC holdObject(IObject * object) = 0;
-	
+
+	virtual gapi_bool G_API_CC maybeIsScriptArray(const char * name) = 0;
+	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, const char * name) = 0;
+	virtual void G_API_CC createScriptArray(GScriptValueData * outResult, const char * name) = 0;
+
 	G_DEPRECATED(
 		virtual void G_API_CC bindClass(const char * name, IMetaClass * metaClass),
 		"bindClass is deprecated. Use scriptSetValue(scriptObject, name, GScriptValue::fromClass(metaClass)) instead."
@@ -92,7 +117,7 @@ struct IScriptObject : public IExtendObject
 		virtual void G_API_CC bindMethodList(const char * name, IMetaList * methodList),
 		"bindMethodList is deprecated. Use scriptSetValue(scriptObject, name, GScriptValue::fromOverloadedMethods(methodList)) instead."
 	) = 0;
-	
+
 	G_DEPRECATED(
 		virtual IMetaClass * G_API_CC getClass(const char * className),
 		"getClass is deprecated. Use scriptGetValue().toClass() instead."
@@ -101,7 +126,7 @@ struct IScriptObject : public IExtendObject
 		virtual IMetaEnum * G_API_CC getEnum(const char * enumName),
 		"getEnum is deprecated. Use scriptGetValue().toEnum() instead."
 	) = 0;
-	
+
 	G_DEPRECATED(
 		virtual void G_API_CC getFundamental(GVariantData * outResult, const char * name),
 		"getFundamental is deprecated. Use scriptGetValue().toFundamental() instead."
@@ -140,7 +165,7 @@ struct IScriptObject : public IExtendObject
 		virtual void G_API_CC nullifyValue(const char * name),
 		"nullifyValue is deprecated. Use scriptSetValue(name, GScriptValue::fromNull()) instead."
 	) = 0;
-	
+
 };
 
 

@@ -1,5 +1,5 @@
-#ifndef __GFIXEDTYPE_H
-#define __GFIXEDTYPE_H
+#ifndef CPGF_GFIXEDTYPE_H
+#define CPGF_GFIXEDTYPE_H
 
 
 #include "cpgf/gifelse.h"

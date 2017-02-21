@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_METAGEN_MULTIPLE_INHERITANCE_CAST_H
-#define __META_TEST_METAGEN_MULTIPLE_INHERITANCE_CAST_H
+#ifndef CPGF_META_TEST_METAGEN_MULTIPLE_INHERITANCE_CAST_H
+#define CPGF_META_TEST_METAGEN_MULTIPLE_INHERITANCE_CAST_H
 
 
 #include "cpgf/gmetadefine.h"
@@ -16,9 +16,9 @@ namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_Global_metagen_multiple_inheritance_cast(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_Global_metagen_multiple_inheritance_cast(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("getMultipleInheritanceCastD", (MultipleInheritanceCastD * (*) ())&getMultipleInheritanceCastD);
@@ -31,9 +31,9 @@ void buildMetaClass_Global_metagen_multiple_inheritance_cast(const cpgf::GMetaDa
 
 
 template <typename D>
-void buildMetaClass_MultipleInheritanceCastA(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MultipleInheritanceCastA(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _field("a", &D::ClassType::a);
@@ -46,9 +46,9 @@ void buildMetaClass_MultipleInheritanceCastA(const cpgf::GMetaDataConfigFlags & 
 
 
 template <typename D>
-void buildMetaClass_MultipleInheritanceCastB(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MultipleInheritanceCastB(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _field("c", &D::ClassType::c);
@@ -62,9 +62,9 @@ void buildMetaClass_MultipleInheritanceCastB(const cpgf::GMetaDataConfigFlags & 
 
 
 template <typename D>
-void buildMetaClass_MultipleInheritanceCastC(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MultipleInheritanceCastC(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _field("d", &D::ClassType::d);
@@ -77,9 +77,9 @@ void buildMetaClass_MultipleInheritanceCastC(const cpgf::GMetaDataConfigFlags & 
 
 
 template <typename D>
-void buildMetaClass_MultipleInheritanceCastD(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MultipleInheritanceCastD(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _field("e", &D::ClassType::e);
@@ -93,9 +93,9 @@ void buildMetaClass_MultipleInheritanceCastD(const cpgf::GMetaDataConfigFlags & 
 
 
 template <typename D>
-void buildMetaClass_MultipleInheritanceCastFieldData(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MultipleInheritanceCastFieldData(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
@@ -107,9 +107,9 @@ void buildMetaClass_MultipleInheritanceCastFieldData(const cpgf::GMetaDataConfig
 
 
 template <typename D>
-void buildMetaClass_MultipleInheritanceCastR(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MultipleInheritanceCastR(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _field("r", &D::ClassType::r);

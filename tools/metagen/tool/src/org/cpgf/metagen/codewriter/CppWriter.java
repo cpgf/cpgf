@@ -4,7 +4,7 @@ public class CppWriter extends CodeWriter {
 	public void beginIncludeGuard(String name) {
 		name = name.replaceAll("\\.", "_");
 		name = name.toUpperCase();
-		name = "__" + name;
+		name = "CPGF_" + name;
 
 		this.write("#ifndef " + name + "\n");
 		this.write("#define " + name + "\n");

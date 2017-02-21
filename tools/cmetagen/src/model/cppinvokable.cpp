@@ -1,7 +1,12 @@
 #include "cppinvokable.h"
 #include "cppcontainer.h"
-#include "cpgf/gassert.h"
+#include "cppclass.h"
+#include "cppclasstraits.h"
+#include "cppcontext.h"
+#include "cpppolicy.h"
 #include "cpputil.h"
+
+#include "cpgf/gassert.h"
 
 #if defined(_MSC_VER)
 #pragma warning(push, 0)
@@ -115,7 +120,12 @@ bool CppInvokable::isOverloaded() const
 
 bool CppInvokable::hasResult() const
 {
-	return ! this->getResultType().isVoid();
+	if(this->isConstructor()) {
+		return false;
+	}
+	else {
+		return ! this->getResultType().isVoid();
+	}
 }
 
 size_t CppInvokable::getArity() const
@@ -124,10 +134,19 @@ size_t CppInvokable::getArity() const
 	return functionDecl->param_size();
 }
 
+size_t CppInvokable::getNonDefaultParamCount() const
+{
+	size_t paramCount = this->getArity();
+	while(paramCount > 0 && this->paramHasDefaultValue(paramCount - 1)) {
+		--paramCount;
+	}
+	return paramCount;
+}
+
 CppType CppInvokable::getParamType(size_t index) const
 {
 	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
-	const ParmVarDecl * paramDecl = functionDecl->getParamDecl(index);
+	const ParmVarDecl * paramDecl = functionDecl->getParamDecl((unsigned int)index);
 
 	return CppType(paramDecl->getType());
 }
@@ -135,37 +154,77 @@ CppType CppInvokable::getParamType(size_t index) const
 bool CppInvokable::paramHasDefaultValue(size_t index) const
 {
 	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
-	const ParmVarDecl * paramDecl = functionDecl->getParamDecl(index);
+	const ParmVarDecl * paramDecl = functionDecl->getParamDecl((unsigned int)index);
 
 	return paramDecl->hasDefaultArg();
+}
+
+std::string CppInvokable::getParamName(size_t index) const
+{
+	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
+	const ParmVarDecl * paramDecl = functionDecl->getParamDecl((unsigned int)index);
+	return paramDecl->getNameAsString();
+}
+
+std::string CppInvokable::getTextOfUnusedParamsPlaceholder() const
+{
+	string result;
+
+	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
+	for(FunctionDecl::param_const_iterator it = functionDecl->param_begin(); it != functionDecl->param_end(); ++it) {
+		if(! result.empty()) {
+			result.append(", ");
+		}
+		result.append("(void)" + (*it)->getNameAsString());
+	}
+
+	if(! result.empty()) {
+		result.append(";");
+	}
+
+	return result;
 }
 
 std::string CppInvokable::getTextOfParamDeafultValue(size_t index) const
 {
 	const FunctionDecl * functionDecl = getFunctionDecl(this->getDecl());
-	const ParmVarDecl * paramDecl = functionDecl->getParamDecl(index);
+	const ParmVarDecl * paramDecl = functionDecl->getParamDecl((unsigned int)index);
 
 	if(paramDecl->hasDefaultArg()) {
-		return exprToText(paramDecl->getDefaultArg());
+		return exprToText(this->getASTContext(), paramDecl->getDefaultArg());
 	}
 	else {
 		return "";
 	}
 }
 
-std::string CppInvokable::getTextOfPointeredType() const
+std::string CppInvokable::getTextOfPointeredType(bool includeClassName) const
 {
 	QualType qualType = getFunctionDecl(this->getDecl())->getType();
 	std::string s;
 
-	if(this->isStatic()) {
+	if(this->isStatic() || !includeClassName) {
 		s = "*";
 	}
 	else {
-		s = this->getParent()->getQualifiedName() + "::*";
+		s = getCppContainerInstantiationName(this->getParent()) + "::*";
 	}
 
-	return CppType(qualType).getQualifiedName(s);
+	string text = CppType(qualType).getQualifiedName(s);
+	text = fixIllFormedTemplates(dynamic_cast<const CppClass *>(this->getParent()), text);
+	return text;
+}
+
+bool CppInvokable::hasTemplateDependentParam() const
+{
+	size_t paramCount = this->getArity();
+	for(size_t i = 0; i < paramCount; ++i) {
+		if(this->getParamType(i).isTemplateDependent()) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 std::string CppInvokable::getTextOfParamList(const ItemTextOptionFlags & options) const
@@ -258,5 +317,35 @@ CppType CppInvokable::getResultType() const
 	return CppType(qualType);
 }
 
+void CppInvokable::getPolicy(CppPolicy * outPolicy) const
+{
+	if(this->hasResult()) {
+		this->doGetPolicy(outPolicy, this->getResultType(), -1);
+	}
+
+	for(size_t i = 0; i < this->getArity(); ++i) {
+		this->doGetPolicy(outPolicy, this->getParamType(i), (int)i);
+	}
+}
+
+void CppInvokable::doGetPolicy(CppPolicy * outPolicy, const CppType & type, int index) const
+{
+	const CppClass * cppClass = this->getCppContext()->findClassByType(type.getBaseType());
+	if(cppClass != NULL) {
+		CppClassTraits classTraits = this->getCppContext()->getClassTraits(cppClass);
+		if(type.isReferenceToConst()) {
+			if(classTraits.isHasTypeConvertConstructor()) {
+				outPolicy->addRule(makeIndexedRule(ruleCopyConstReference, index));
+			}
+		}
+		else if(type.isPointer()) {
+		}
+		else {
+			if(classTraits.isCopyConstructorHidden()) {
+				outPolicy->addRule(makeIndexedRule(ruleParamNoncopyable, index));
+			}
+		}
+	}
+}
 
 } // namespace metagen

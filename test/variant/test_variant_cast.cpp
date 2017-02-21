@@ -4,7 +4,7 @@
 #include "cpgf/gexception.h"
 #include "cpgf/gmetaapi.h"
 
-#include <iostream>
+#include <string>
 
 #define CAN_FROM(to, value) GCHECK(canFromVariant<to>(value)); fromVariant<to>(value)
 #define CAN_FROM_CAST(to, from, value) GCHECK(canFromVariant<to>(static_cast<from>(value))); fromVariant<to>(static_cast<from>(value))
@@ -77,7 +77,7 @@ GTEST(TestVariant_Cast)
 
 	GVarTypeData typeData = GVarTypeData();
 	deduceVariantType<CLASS * & >(typeData, true);
-	GEQUAL(typeData.vt, (vtPointer | byReference));
+	GEQUAL(typeData.vt, (vtObject | byPointer));
 
 #if G_SUPPORT_RVALUE_REFERENCE
 	CAN_FROM_CAST(CLASS &, CLASS &&, n);
@@ -126,6 +126,60 @@ GTEST(TestVariant_CastFromFloat)
 	CAN_FROM(void *, value);
 	CAN_FROM(const void *, value);
 	CAN_FROM(const void * const, value);
+}
+
+
+GTEST(TestVariant_CastFromArray)
+{
+	GVariant value;
+	int a[] = { 1, 2, 3 };
+
+	value = a;
+	int * casted = fromVariant<int *>(value);
+	GCHECK(casted[0] == 1);
+	GCHECK(casted[1] == 2);
+	GCHECK(casted[2] == 3);
+}
+
+// https://github.com/cpgf/cpgf/issues/42
+GTEST(TestVariant_CastVtStringToConstStdStringReference)
+{
+	GVariant value = createStringVariant("abc");
+	const std::string & stringReference = fromVariant<const std::string &>(value);
+	const std::string * stringPointer = &stringReference;
+
+	GCHECK(stringReference == "abc");
+	GCHECK(*stringPointer == "abc");
+}
+
+GTEST(TestVariant_CastVtStringToStdStringReference)
+{
+	GVariant value = createStringVariant("abc");
+	std::string & stringReference = fromVariant<std::string &>(value);
+	std::string * stringPointer = &stringReference;
+
+	GCHECK(stringReference == "abc");
+	GCHECK(*stringPointer == "abc");
+}
+
+GTEST(TestVariant_CastVtStringToConstStdWideStringReference)
+{
+	GVariant value = createWideStringVariant(L"abc");
+	const std::wstring & stringReference = fromVariant<const std::wstring &>(value);
+	const std::wstring * stringPointer = &stringReference;
+
+	GCHECK(stringReference == L"abc");
+	GCHECK(*stringPointer == L"abc");
+}
+
+GTEST(TestVariant_CastVtStringToStdWideStringReference)
+{
+	GVariant value = createWideStringVariant(L"abc");
+	std::wstring & stringReference = fromVariant<std::wstring &>(value);
+	std::wstring * stringPointer = &stringReference;
+
+	GCHECK(stringReference == L"abc");
+	GCHECK(*stringPointer == L"abc");
 }
 
 

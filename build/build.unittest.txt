@@ -1,5 +1,6 @@
-if(CMAKE_COMPILER_IS_GNUCC)
-	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
+set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0")
+if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0")
 	if(TEST_GCOV)
 		set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0 -fprofile-arcs -ftest-coverage")
 	endif(TEST_GCOV)
@@ -7,14 +8,12 @@ if(CMAKE_COMPILER_IS_GNUCC)
 	if(SUPPORT_GCC_0X)
 		if(MINGW)
 			set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=gnu++0x")
+		else(MINGW)
+			set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=c++11")
 		endif(MINGW)
-
-		if(NOT MINGW)
-			set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=c++0x")
-		endif(NOT MINGW)
 	endif(SUPPORT_GCC_0X)
 
-endif(CMAKE_COMPILER_IS_GNUCC)
+endif(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
 if(MSVC)
 	set(UNITTEST_COMPILE_FLAGS "-W4 -Wp64")
@@ -56,7 +55,7 @@ macro(partUnitTest target)
 	endif(WIN32)
 
 	set(fileList ${TEST_PATH}/testmain.cpp)
-	
+
 	globAndAppendFiles(fileList
 		${UNIT_TEST_DIR}/src/*.cpp
 		${UNIT_TEST_DIR}/src/${UNITTEST_FRAMEWORK_SUBDIR}/*.cpp
@@ -74,32 +73,56 @@ macro(partUnitTest target)
 		${target}
 		PROPERTIES
 		OUTPUT_NAME ${target}
-		COMPILE_FLAGS ${SAMPLE_COMPILE_FLAGS}
+		COMPILE_FLAGS ${UNITTEST_COMPILE_FLAGS}
+		COMPILE_DEFINITIONS "ENABLE_LUA=${HAS_LUA};ENABLE_V8=${HAS_V8};ENABLE_PYTHON=${HAS_PYTHON};ENABLE_SPIDERMONKEY=${HAS_SPIDERMONKEY};ENABLE_BOOST=${HAS_BOOST};SUPPORT_CPP_11=${SUPPORT_GCC_0X}"
 	)
 	target_link_libraries(${target} ${TARGET_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB} ${SPIDERMONKEY_LIB} )
 endmacro()
 
 if(${HAS_UNITTEST})
 	set(GLOB_TEST_LUA )
+	set(GLOB_METATEST_LUA )
 	if(HAS_LUA)
 		globAndAppendFiles(GLOB_TEST_LUA
 			${TEST_PATH}/scriptbind/luabind/*.cpp
 		)
+		globAndAppendFiles(GLOB_METATEST_LUA
+			${TEST_PATH}/metagen/tests/luatests/*.cpp
+		)
 	endif(HAS_LUA)
 
 	set(GLOB_TEST_V8 )
+	set(GLOB_METATEST_V8 )
 	if(HAS_V8)
 		globAndAppendFiles(GLOB_TEST_V8
 			${TEST_PATH}/scriptbind/v8bind/*.cpp
 		)
+		globAndAppendFiles(GLOB_METATEST_V8
+			${TEST_PATH}/metagen/tests/v8tests/*.cpp
+		)
 	endif(HAS_V8)
 
 	set(GLOB_TEST_PYTHON )
+	set(GLOB_METATEST_PYTHON )
 	if(HAS_PYTHON)
 		globAndAppendFiles(GLOB_TEST_PYTHON
 			${TEST_PATH}/scriptbind/pythonbind/*.cpp
 		)
+		globAndAppendFiles(GLOB_METATEST_PYTHON
+			${TEST_PATH}/metagen/tests/pythontests/*.cpp
+		)
 	endif(HAS_PYTHON)
+
+	set(GLOB_TEST_SPIDERMONKEY )
+	set(GLOB_METATEST_SPIDERMONKEY )
+	if(HAS_SPIDERMONKEY)
+		globAndAppendFiles(GLOB_TEST_SPIDERMONKEY
+			${TEST_PATH}/scriptbind/spidermonkeybind/*.cpp
+		)
+		globAndAppendFiles(GLOB_METATEST_SPIDERMONKEY
+			${TEST_PATH}/metagen/tests/spidermonkeytests/*.cpp
+		)
+	endif(HAS_SPIDERMONKEY)
 
 	partUnitTest("test_misc"
 		${TEST_PATH}/misc/*.cpp
@@ -124,9 +147,11 @@ if(${HAS_UNITTEST})
 	partUnitTest("test_scriptbind"
 		${TEST_PATH}/scriptbind/*.cpp
 		${TEST_PATH}/scriptbind/general/*.cpp
+
 		${GLOB_TEST_LUA}
 		${GLOB_TEST_V8}
 		${GLOB_TEST_PYTHON}
+		${GLOB_TEST_SPIDERMONKEY}
 	)
 
 	partUnitTest("test_metadata_stl"
@@ -144,6 +169,11 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/metagen/tests/*.cpp
 		${TEST_PATH}/metagen/src/*.cpp
 		${TEST_PATH}/metagen/metadata/src/*.cpp
+
+		${GLOB_METATEST_LUA}
+		${GLOB_METATEST_V8}
+		${GLOB_METATEST_SPIDERMONKEY}
+		${GLOB_METATEST_PYTHON}
 	)
 
 	if(HAS_LUA LESS 1)
@@ -175,6 +205,11 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/scriptbind/general/*.cpp
 		${TEST_PATH}/scriptbind/metadata/*.cpp
 		${TEST_PATH}/scriptbind/metadata/stl/*.cpp
+		${GLOB_TEST_LUA}
+		${GLOB_TEST_V8}
+		${GLOB_TEST_PYTHON}
+		${GLOB_TEST_SPIDERMONKEY}
+
 		${TEST_PATH}/serialization/*.cpp
 		${TEST_PATH}/tween/*.cpp
 
@@ -182,20 +217,23 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/metagen/tests/*.cpp
 		${TEST_PATH}/metagen/src/*.cpp
 		${TEST_PATH}/metagen/metadata/src/*.cpp
+		
+		${GLOB_METATEST_LUA}
+		${GLOB_METATEST_V8}
+		${GLOB_METATEST_SPIDERMONKEY}
+		${GLOB_METATEST_PYTHON}
 	)
 
 	set(SRC_TEST_SRC
 		${TEST_PATH}/testmain.cpp
-		
+
 		${GLOB_TEST_SRC}
 
 		${GLOB_TEST_LUA}
 		${GLOB_TEST_V8}
 		${GLOB_TEST_PYTHON}
-		
-		${SRC_UNITTEST_FRAMEWORK}
 
-		${SRC_LIB}
+		${SRC_UNITTEST_FRAMEWORK}
 	)
 
 	include_directories(${UNIT_TEST_DIR}/src)
@@ -204,15 +242,14 @@ if(${HAS_UNITTEST})
 		include_directories(${BOOST_INC})
 	endif(${HAS_BOOST})
 
-	add_definitions(-DENABLE_LUA=${HAS_LUA} -DENABLE_V8=${HAS_V8} -DENABLE_PYTHON=${HAS_PYTHON} -DENABLE_SPIDERMONKEY=${HAS_SPIDERMONKEY} -DENABLE_BOOST=${HAS_BOOST})
 
 	add_executable(
 		${TARGET_UNITTEST}
 		EXCLUDE_FROM_ALL
 			${SRC_TEST_SRC}
 	)
-	
-#	target_link_libraries(${TARGET_UNITTEST} ${TARGET_LIB})
+
+	target_link_libraries(${TARGET_UNITTEST} ${TARGET_LIB})
 
 	if(CMAKE_COMPILER_IS_GNUCC)
 		if(TEST_GCOV)
@@ -229,12 +266,16 @@ if(${HAS_UNITTEST})
 	if(HAS_PYTHON)
 		target_link_libraries(${TARGET_UNITTEST} ${PYTHON_LIB})
 	endif(HAS_PYTHON)
-	
+	if(HAS_SPIDERMONKEY)
+		target_link_libraries(${TARGET_UNITTEST} ${SPIDERMONKEY_LIB})
+	endif(HAS_SPIDERMONKEY)
+
 	set_target_properties(
 		${TARGET_UNITTEST}
 		PROPERTIES
 		OUTPUT_NAME ${OUTNAME_UNITTEST}
 		COMPILE_FLAGS ${UNITTEST_COMPILE_FLAGS}
+		COMPILE_DEFINITIONS "ENABLE_LUA=${HAS_LUA};ENABLE_V8=${HAS_V8};ENABLE_PYTHON=${HAS_PYTHON};ENABLE_SPIDERMONKEY=${HAS_SPIDERMONKEY};ENABLE_BOOST=${HAS_BOOST};SUPPORT_CPP_11=${SUPPORT_GCC_0X}"
 	)
 
 endif(${HAS_UNITTEST})

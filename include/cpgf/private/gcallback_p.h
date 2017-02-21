@@ -1,5 +1,5 @@
-#ifndef __GCALLBACK_P_H
-#define __GCALLBACK_P_H
+#ifndef CPGF_GCALLBACK_P_H
+#define CPGF_GCALLBACK_P_H
 
 #include "cpgf/gcompiler.h"
 #include "cpgf/gpp.h"
@@ -209,6 +209,8 @@ public:
 
 	template <typename T>
 	void deleteObject(T * p) const {
+		// We can't call CBInplaceMeasure::deleteObject since T here maybe a base class
+		// and p points to a derived object.
 		if(p) {
 			p->deleteFunctor();
 
@@ -509,7 +511,7 @@ private:
 
 
 template <int arity, typename FT>
-class GCallbackFunctionTraits;
+struct GCallbackFunctionTraits;
 
 GPP_REPEAT_2(CB_MAX_ARITY, CB_DEF_AGENT_N, GPP_EMPTY)
 

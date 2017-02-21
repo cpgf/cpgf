@@ -11,12 +11,14 @@ using namespace cpgf;
 namespace meta_test { 
 
 
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
+#endif
 GDefineMetaInfo createMetaClass_MetagenNonconstructable()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<MetagenNonconstructable> _nd = GDefineMetaClass<MetagenNonconstructable>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::declare("MetagenNonconstructable");
-        buildMetaClass_MetagenNonconstructable(0, _nd);
+        GDefineMetaClass<MetagenNonconstructable> _nd = GDefineMetaClass<MetagenNonconstructable>::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent> >::lazyDeclare("MetagenNonconstructable", &buildMetaClass_MetagenNonconstructable);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

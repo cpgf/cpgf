@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_CHAINEDOBJECTACCESS_H
-#define __META_TEST_CHAINEDOBJECTACCESS_H
+#ifndef CPGF_META_TEST_CHAINEDOBJECTACCESS_H
+#define CPGF_META_TEST_CHAINEDOBJECTACCESS_H
 
 
 #include "cpgf/gmetadefine.h"
@@ -16,9 +16,9 @@ namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_ChainedObjectA(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_ChainedObjectA(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
@@ -27,9 +27,9 @@ void buildMetaClass_ChainedObjectA(const cpgf::GMetaDataConfigFlags & config, D 
 
 
 template <typename D>
-void buildMetaClass_ChainedObjectB(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_ChainedObjectB(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
@@ -39,9 +39,9 @@ void buildMetaClass_ChainedObjectB(const cpgf::GMetaDataConfigFlags & config, D 
 
 
 template <typename D>
-void buildMetaClass_ChainedObjectC(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_ChainedObjectC(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();

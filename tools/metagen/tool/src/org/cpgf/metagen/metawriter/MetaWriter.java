@@ -118,22 +118,11 @@ public class MetaWriter {
 
 	private String makeTargetFileName(String sourceFileName)
 	{
-		return this.config.sourceFilePrefix + Util.getBaseFileName(sourceFileName);
+		return Util.makeTargetFileName(this.config, sourceFileName);
 	}
 
 	private String makeTargetFileName(String sourceFileName, CppClass cppClass)
 	{
-		if(cppClass == null) {
-			return makeTargetFileName(sourceFileName);
-		}
-		
-		String suffix = "_";
-		if(cppClass.isGlobal()) {
-			suffix = suffix + "global";
-		}
-		else {
-			suffix = suffix + cppClass.getPrimaryName();
-		}
-		return this.config.sourceFilePrefix + Util.getBaseFileName(sourceFileName) + suffix;
+        return Util.makeTargetFileName(this.config, sourceFileName, cppClass);
 	}
 }

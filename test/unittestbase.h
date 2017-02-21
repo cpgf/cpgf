@@ -1,5 +1,5 @@
-#ifndef __UNITTESTBASE_H
-#define __UNITTESTBASE_H
+#ifndef CPGF_UNITTESTBASE_H
+#define CPGF_UNITTESTBASE_H
 
 
 #include "UnitTest++.h"
@@ -18,6 +18,8 @@
 
 
 #define GTEST TEST
+
+#define GFAIL(...) CHECK(false)
 
 #define GCHECK(...) CHECK(bool(__VA_ARGS__))
 

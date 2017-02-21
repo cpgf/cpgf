@@ -1,9 +1,10 @@
-#ifndef __GBINDCOMMON_H
-#define __GBINDCOMMON_H
+#ifndef CPGF_GBINDCOMMON_H
+#define CPGF_GBINDCOMMON_H
 
 #include "cpgf/scriptbind/gscriptbind.h"
 #include "cpgf/scriptbind/gscriptvalue.h"
 #include "cpgf/scriptbind/gscriptwrapper.h"
+#include "cpgf/scriptbind/gscriptuserconverter.h"
 #include "cpgf/gmetaclasstraveller.h"
 #include "cpgf/gmetaclass.h"
 #include "cpgf/gglobal.h"
@@ -15,6 +16,7 @@
 
 #include <map>
 #include <set>
+#include <vector>
 #include <algorithm>
 
 
@@ -24,6 +26,41 @@ extern int Error_ScriptBinding_FailVariantToScript;
 
 class GMetaClassTraveller;
 class GScriptCoreService;
+
+class GScriptFunction
+{
+public:
+	GScriptFunction() {}
+	virtual ~GScriptFunction() {}
+
+	virtual GScriptValue invoke(const GVariant * params, size_t paramCount) = 0;
+	virtual GScriptValue invokeIndirectly(GVariant const * const * params, size_t paramCount) = 0;
+	virtual GScriptValue invokeIndirectlyOnObject(GVariant const * const * params, size_t paramCount) { return invokeIndirectly(params, paramCount); };
+
+	// internal use
+	virtual void weaken() = 0;
+
+	GMAKE_NONCOPYABLE(GScriptFunction);
+};
+
+
+class GScriptArray
+{
+public:
+	GScriptArray() {}
+	virtual ~GScriptArray() {}
+
+	virtual size_t getLength() = 0;
+	virtual GScriptValue getValue(size_t index) = 0;
+	virtual void setValue(size_t index, const GScriptValue & value) = 0;
+
+	virtual bool maybeIsScriptArray(size_t index) = 0;
+	virtual GScriptValue getAsScriptArray(size_t index) = 0;
+	virtual GScriptValue createScriptArray(size_t index) = 0;
+
+	GMAKE_NONCOPYABLE(GScriptArray);
+};
+
 
 namespace bind_internal {
 
@@ -41,7 +78,9 @@ enum ObjectPointerCV {
 	opcvNone,
 	opcvConst,
 	opcvVolatile,
-	opcvConstVolatile
+	opcvConstVolatile,
+
+	opcvCount
 };
 
 enum GGlueDataType {
@@ -182,7 +221,7 @@ public:
 		return this->type;
 	}
 
-	GContextPointer getContext() const {
+	GContextPointer getBindingContext() const {
 		return GContextPointer(this->context);
 	}
 
@@ -217,7 +256,7 @@ public:
 	GMetaMapClass * getClassMap() const {
 		return &this->mapClass;
 	}
-	
+
 	GScriptDataHolder * getDataHolder() const;
 	GScriptDataHolder * requireDataHolder() const;
 
@@ -248,7 +287,7 @@ public:
 	~GObjectInstance();
 
 	void setDataStorage(IScriptDataStorage * dataStorage);
-		
+
 	void * getInstanceAddress() const;
 
 	bool isAllowGC() const {
@@ -262,22 +301,22 @@ public:
 	const GVariant & getInstance() const {
 		return this->instance;
 	}
-	
+
 	IMetaClass * getMetaClass() const {
 		return this->classData->getMetaClass();
 	}
-	
+
 	GClassGlueDataPointer getClassData() const {
 		return this->classData;
 	}
 
-	GContextPointer getContext() const {
+	GContextPointer getBindingContext() const {
 		return GContextPointer(this->context);
 	}
 
 	GScriptDataHolder * getDataHolder() const;
 	GScriptDataHolder * requireDataHolder() const;
-	
+
 private:
 	GWeakContextPointer context;
 	GVariant instance;
@@ -287,7 +326,7 @@ private:
 	bool isSharedPointer;
 	GScopedInterface<IScriptDataStorage> dataStorage;
 	mutable GScopedPointer<GScriptDataHolder> dataHolder;
-	
+
 private:
 	friend class GObjectGlueData;
 };
@@ -307,7 +346,7 @@ private:
 	GObjectGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, const GObjectInstancePointer & objectInstance,
 		const GBindValueFlags & flags, ObjectPointerCV cv);
 
-public:		
+public:
 	~GObjectGlueData();
 
 	GClassGlueDataPointer getClassData() const {
@@ -351,15 +390,15 @@ public:
 	GScriptDataHolder * getDataHolder() const {
 		return this->objectInstance->getDataHolder();
 	}
-	
+
 	GScriptDataHolder * requireDataHolder() const {
 		return this->objectInstance->requireDataHolder();
 	}
-	
+
 	GObjectInstancePointer getObjectInstance() const {
 		return this->objectInstance;
 	}
-	
+
 private:
 	void initialize();
 
@@ -381,8 +420,8 @@ private:
 	typedef GGlueData super;
 
 private:
-	GMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, IMetaList * methodList, const char * name)
-		: super(gdtMethod, context), classGlueData(classGlueData), methodList(methodList), name(name) {
+	GMethodGlueData(const GContextPointer & context, const GClassGlueDataPointer & classGlueData, IMetaList * methodList)
+		: super(gdtMethod, context), classGlueData(classGlueData), methodList(methodList) {
 	}
 
 public:
@@ -394,14 +433,11 @@ public:
 		return this->methodList.get();
 	}
 
-	const std::string & getName() const {
-		return this->name;
-	}
+	std::string getName() const;
 
 private:
 	GWeakClassGlueDataPointer classGlueData;
 	GSharedInterface<IMetaList> methodList;
-	std::string name;
 
 private:
 	friend class GBindingContext;
@@ -579,7 +615,7 @@ class GScriptDataStorage : public IScriptDataStorage
 private:
 	explicit GScriptDataStorage(const GObjectGlueDataPointer & object);
 
-public:	
+public:
 	virtual ~GScriptDataStorage();
 
 protected:
@@ -601,7 +637,7 @@ private:
 	typedef std::pair<std::string, GVariant> MapValueType;
 
 public:
-	void setScriptValue(const char * name, const GVariant & value);
+	void setScriptValue(const char * name, const GScriptValue & value);
 	IScriptFunction * getScriptFunction(const char * name);
 
 private:
@@ -618,10 +654,10 @@ public:
 	virtual ~GGlueDataWrapper() {
 	}
 
-	virtual GGlueDataPointer getData() = 0;
+	virtual GGlueDataPointer getData() const = 0;
 
 	template <typename T>
-	GSharedPointer<T> getAs() {
+	GSharedPointer<T> getAs() const {
 		return sharedStaticCast<T>(this->getData());
 	}
 };
@@ -638,7 +674,7 @@ public:
 	virtual ~GGlueDataWrapperImplement() {
 	}
 
-	virtual GGlueDataPointer getData() {
+	virtual GGlueDataPointer getData() const {
 		return sharedStaticCast<GGlueData>(this->dataPointer);
 	}
 
@@ -655,15 +691,46 @@ private:
 public:
 	GGlueDataWrapperPool();
 	~GGlueDataWrapperPool();
-	
+
 	void dataWrapperCreated(GGlueDataWrapper * dataWrapper);
 	void dataWrapperDestroyed(GGlueDataWrapper * dataWrapper);
 
+	void clear();
 private:
 	bool active;
 	SetType wrapperSet;
 };
 
+class GScriptContext : public IScriptContext
+{
+public:
+	GScriptContext(GBindingContext *bindingContext) : bindingContext(bindingContext) {}
+	virtual ~GScriptContext() {}
+private:
+	typedef GSharedInterface<IScriptUserConverter> ScriptUserConverterType;
+	typedef std::vector<ScriptUserConverterType> ScriptUserConverterListType;
+
+	G_INTERFACE_IMPL_OBJECT
+
+protected:
+	virtual void G_API_CC addScriptUserConverter(IScriptUserConverter * converter);
+	virtual void G_API_CC removeScriptUserConverter(IScriptUserConverter * converter);
+	virtual uint32_t G_API_CC getScriptUserConverterCount();
+	virtual IScriptUserConverter * G_API_CC getScriptUserConverterAt(uint32_t index);
+	virtual void G_API_CC setAllowGC(const GVariant & instance, bool allowGC);
+	virtual void G_API_CC bindExternalObjectToClass(void * address, IMetaClass * metaClass);
+
+private:
+	ScriptUserConverterListType::iterator findConverter(IScriptUserConverter * converter);
+
+private:
+	GScopedPointer<ScriptUserConverterListType> scriptUserConverterList;
+	GBindingContext * bindingContext;
+	std::vector<GObjectGlueDataPointer> externalObjects;
+};
+
+
+class GScriptObjectCache;
 
 class GBindingContext : public GShareFromThis<GBindingContext>
 {
@@ -681,28 +748,34 @@ public:
 
 	void bindScriptCoreService(GScriptObject * scriptObject, const char * bindName, IScriptLibraryLoader * libraryLoader);
 
+	IScriptContext * borrowScriptContext() const;
+
 public:
-	GClassGlueDataPointer getOrNewClassData(void * instance, IMetaClass * metaClass);
+	GClassGlueDataPointer getOrNewClassData(const GVariant & instance, IMetaClass * metaClass);
 	GClassGlueDataPointer getClassData(IMetaClass * metaClass);
 	GClassGlueDataPointer newClassData(IMetaClass * metaClass);
+
+	GObjectInstancePointer findObjectInstance(const GVariant & instance);
 
 	GObjectGlueDataPointer newObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
 		const GBindValueFlags & flags, ObjectPointerCV cv);
 	GObjectGlueDataPointer newOrReuseObjectGlueData(const GClassGlueDataPointer & classData, const GVariant & instance,
 		const GBindValueFlags & flags, ObjectPointerCV cv);
-	
+
 	GMethodGlueDataPointer newMethodGlueData(const GClassGlueDataPointer & classData,
-		IMetaList * methodList, const char * name);
-	
+		IMetaList * methodList);
+
 	GEnumGlueDataPointer newEnumGlueData(IMetaEnum * metaEnum);
 
 	GAccessibleGlueDataPointer newAccessibleGlueData(void * instance, IMetaAccessible * accessible);
 
 	GRawGlueDataPointer newRawGlueData(const GVariant & data);
-	
+
 	GObjectAndMethodGlueDataPointer newObjectAndMethodGlueData(const GObjectGlueDataPointer & objectData, const GMethodGlueDataPointer & methodData);
 
 	GOperatorGlueDataPointer newOperatorGlueData(const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op);
+
+	GScriptObjectCache * getScriptObjectCache();
 
 private:
 	GClassPool * getClassPool();
@@ -712,9 +785,11 @@ private:
 	GSharedInterface<IMetaService> service;
 	GScriptConfig config;
 	GScopedPointer<GClassPool> classPool;
-	
-	GScopedPointer<GScriptCoreService> scriptCoreService;
 
+	GScopedPointer<GScriptCoreService> scriptCoreService;
+	GScopedInterface<IScriptContext> scriptContext;
+
+	GScopedPointer<GScriptObjectCache> scriptObjectCache;
 private:
 	template <typename T>
 	friend class GGlueDataWrapperImplement;
@@ -729,32 +804,35 @@ class ConvertRank
 {
 public:
 	ConvertRank();
-	
+
 	void reset();
 
 public:
 	int weight;
 	GSharedInterface<IMetaClass> sourceClass;
 	GSharedInterface<IMetaClass> targetClass;
+	GSharedInterface<IScriptUserConverter> userConverter;
+	uint32_t userConverterTag;
 };
 
 class CallableParamData
 {
 public:
 	GScriptValue value;
-	GGlueDataPointer glueData;
+	GGlueDataPointer paramGlueData;
 };
 
 class InvokeCallableParam
 {
 public:
-	explicit InvokeCallableParam(size_t paramCount);
+	InvokeCallableParam(size_t paramCount, IScriptContext * scriptContext);
 	~InvokeCallableParam();
 
 public:
 	CallableParamData params[REF_MAX_ARITY];
 	size_t paramCount;
 	ConvertRank paramRanks[REF_MAX_ARITY];
+	GSharedInterface<IScriptContext> scriptContext;
 };
 
 class InvokeCallableResult
@@ -825,10 +903,14 @@ public:
 
 	IMetaService * getMetaService();
 
+	virtual IScriptContext * getContext() const;
+
 protected:
-	const GContextPointer & getContext() const {
+	const GContextPointer & getBindingContext() const {
 		return this->context;
 	}
+
+	virtual void doBindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 
 private:
 	GContextPointer context;
@@ -842,17 +924,54 @@ private:
 
 public:
 	explicit GScriptFunctionBase(const GContextPointer & context)
+		: context(context), weakContext(context)
+	{
+	}
+
+	virtual void weaken() {
+		this->context.reset();
+	}
+
+protected:
+	GContextPointer getBindingContext() {
+		return this->weakContext.get();
+	}
+
+private:
+	// Here we must use strong shared pointer,
+	// otherwise the context may be freed by the script object
+	// while the script function is still live.
+	// But there is cyclic shared pointer chain
+	// IScriptFunction->GBindingContext->GClassPool->GClassGlueData->GScriptDataHolder->IScriptFunction
+	// Now the cyclic chain is broken by calling weaken when setting IScriptFunction to GScriptDataHolder
+	// The solution is super ugly, but I can't find better solution for now.
+
+	GContextPointer context;
+	GWeakContextPointer weakContext;
+};
+
+
+class GScriptArrayBase : public GScriptArray
+{
+private:
+	typedef GScriptArray super;
+
+public:
+	explicit GScriptArrayBase(const GContextPointer & context)
 		: context(context)
 	{
 	}
 
 protected:
-	GContextPointer getContext() {
-		return this->context.get();
+	GContextPointer getBindingContext() {
+		return this->context;
 	}
 
 private:
-	GWeakContextPointer context;
+	// Here we must use strong shared pointer,
+	// otherwise the context may be freed by the script object
+	// while the script array is still live.
+	GContextPointer context;
 };
 
 
@@ -881,10 +1000,12 @@ void loadMethodList(const GContextPointer & context, IMetaList * methodList, con
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 
-bool setValueOnNamedMember(const GGlueDataPointer & glueData, const char * name, const GVariant & value, const GGlueDataPointer & valueGlueData);
+bool setValueOnNamedMember(const GGlueDataPointer & glueData, const char * name,
+	const GScriptValue & value, const GGlueDataPointer & valueGlueData);
 
 ObjectPointerCV getGlueDataCV(const GGlueDataPointer & glueData);
-void * getGlueDataInstance(const GGlueDataPointer & glueData);
+GVariant getGlueDataInstance(const GGlueDataPointer & glueData);
+void * getGlueDataInstanceAddress(const GGlueDataPointer & glueData);
 IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData);
 IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer & glueData);
 
@@ -893,6 +1014,110 @@ InvokeCallableResult doInvokeOperator(const GContextPointer & context, const GOb
 IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & value);
 
 IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance);
+
+std::string getMethodNameFromMethodList(IMetaList * methodList);
+
+inline void * getInstanceHash(const GVariant & instance)
+{
+	return referenceAddressFromVariant(instance);
+}
+
+
+struct GScriptObjectCacheKey {
+	GScriptObjectCacheKey() : key(NULL), className(NULL), cv(opcvNone) {
+	}
+
+	GScriptObjectCacheKey(void * key, const char * className, ObjectPointerCV cv)
+		: key(key), className(className), cv(cv) {
+	}
+
+	bool operator < (const GScriptObjectCacheKey & other) const {
+		if(key < other.key) {
+			return true;
+		}
+		if(key == other.key) {
+			if(cv < other.cv) {
+				return true;
+			}
+			if(cv > other.cv) {
+				return false;
+			}
+
+			if(className == other.className) {
+				return false;
+			}
+			else {
+				return strcmp(className, other.className) < 0;
+			}
+		}
+		return false;
+	}
+
+	void * key;
+	const char * className;
+	ObjectPointerCV cv;
+};
+
+class GScriptObjectCacheData {
+public:
+	virtual ~GScriptObjectCacheData() {}
+};
+
+class GScriptObjectCache
+{
+private:
+	typedef std::map<GScriptObjectCacheKey, GSharedPointer<GScriptObjectCacheData> > ObjectMapType;
+
+public:
+	template <class T>
+	T * findScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
+		ObjectPointerCV cv)
+	{
+		GScriptObjectCacheKey key(
+			getInstanceHash(instance),
+			classData->getMetaClass()->getQualifiedName(),
+			cv
+		);
+		typename ObjectMapType::iterator it = this->objectMap.find(key);
+		if(it != this->objectMap.end()) {
+			return dynamic_cast<T *>(it->second.get());
+		}
+		return NULL;
+	}
+
+	void addScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
+		ObjectPointerCV cv, GScriptObjectCacheData * scriptObject)
+	{
+		GScriptObjectCacheKey key(
+			getInstanceHash(instance),
+			classData->getMetaClass()->getQualifiedName(),
+			cv
+		);
+		this->objectMap.insert(std::make_pair(key, GSharedPointer<GScriptObjectCacheData>(scriptObject)));
+	}
+
+	void freeScriptObject(GGlueDataWrapper * dataWrapper)
+	{
+		GVariant instance = getGlueDataInstance(dataWrapper->getData());
+		if(instance.isEmpty()) {
+			return;
+		}
+		GScriptObjectCacheKey entry(
+			getInstanceHash(instance),
+			getGlueDataMetaClass(dataWrapper->getData())->getQualifiedName(),
+			getGlueDataCV(dataWrapper->getData())
+		);
+
+		this->objectMap.erase(entry);
+	}
+
+	void clear() {
+		this->objectMap.clear();
+	}
+
+private:
+	ObjectMapType objectMap;
+};
 
 template <typename Getter, typename Predict>
 int findAppropriateCallable(IMetaService * service,
@@ -932,7 +1157,7 @@ typename Methods::ResultType complexVariantToScript(const GContextPointer & cont
 		if(typedItem) {
 			GASSERT_MSG(!! metaIsClass(typedItem->getCategory()), "Unknown type");
 
-			return Methods::doObjectToScript(context, context->getOrNewClassData(objectAddressFromVariant(value), gdynamic_cast<IMetaClass *>(typedItem.get())),
+			return Methods::doObjectToScript(context, context->getOrNewClassData(value, gdynamic_cast<IMetaClass *>(typedItem.get())),
 				value, flags, metaTypeToCV(type), outputGlueData);
 		}
 		else {
@@ -966,7 +1191,7 @@ typename Methods::ResultType converterToScript(const GContextPointer & context, 
 {
 	if(isMetaConverterCanRead(converter->capabilityForCString())) {
 		gapi_bool needFree;
-		
+
 		GScopedInterface<IMemoryAllocator> allocator(context->getService()->getAllocator());
 		const char * s = converter->readCString(objectAddressFromVariant(value), &needFree, allocator.get());
 
@@ -983,7 +1208,7 @@ typename Methods::ResultType converterToScript(const GContextPointer & context, 
 
 	if(isMetaConverterCanRead(converter->capabilityForCWideString())) {
 		gapi_bool needFree;
-		
+
 		GScopedInterface<IMemoryAllocator> allocator(context->getService()->getAllocator());
 		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
 
@@ -1062,11 +1287,11 @@ typename Methods::ResultType extendVariantToScript(const GContextPointer & conte
 	if(! Methods::isSuccessResult(result)) {
 		result = Methods::doRawToScript(context, value, NULL);
 	}
-	
+
 	if(! Methods::isSuccessResult(result)) {
 		raiseCoreException(Error_ScriptBinding_FailVariantToScript);
 	}
-	
+
 	return result;
 }
 
@@ -1135,7 +1360,7 @@ typename Methods::ResultType methodResultToScript(const GContextPointer & contex
 				metaGetResultExtendType(callable, GExtendTypeCreateFlag_Converter | GExtendTypeCreateFlag_SharedPointerTraits),
 				value, flags);
 		}
-		
+
 		return result;
 	}
 
@@ -1156,7 +1381,7 @@ typename Methods::ResultType accessibleToScript(const GContextPointer & context,
 			metaGetItemExtendType(accessible, GExtendTypeCreateFlag_Converter | GExtendTypeCreateFlag_SharedPointerTraits),
 			value, GBindValueFlags());
 	}
-		
+
 	return result;
 }
 
@@ -1180,10 +1405,10 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 		return Methods::defaultValue();
 	}
 
-	const GScriptConfig & config = classData->getContext()->getConfig();
-	GContextPointer context = classData->getContext();
+	const GScriptConfig & config = classData->getBindingContext()->getConfig();
+	GContextPointer context = classData->getBindingContext();
 
-	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstance(glueData));
+	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstanceAddress(glueData));
 
 	void * instance = NULL;
 	IMetaClass * outDerived;
@@ -1218,7 +1443,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 
 			case mmitMethod:
 			case mmitMethodList: {
-				return Methods::doMethodsToScript(classData, mapItem, name, &traveller, metaClass.get(), derived.get(), objectData);
+				return Methods::doMethodsToScript(classData, mapItem, metaClass.get(), derived.get(), objectData);
 			}
 
 			case mmitEnum:
@@ -1264,8 +1489,6 @@ public:
 private:
 	GMethodGlueDataPointer methodData;
 };
-
-
 
 
 } // namespace bind_internal

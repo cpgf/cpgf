@@ -1,5 +1,5 @@
-#ifndef __GMETAMODULE_H
-#define __GMETAMODULE_H
+#ifndef CPGF_GMETAMODULE_H
+#define CPGF_GMETAMODULE_H
 
 #include "cpgf/gscopedptr.h"
 

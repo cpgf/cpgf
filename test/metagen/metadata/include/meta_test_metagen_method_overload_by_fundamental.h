@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_METAGEN_METHOD_OVERLOAD_BY_FUNDAMENTAL_H
-#define __META_TEST_METAGEN_METHOD_OVERLOAD_BY_FUNDAMENTAL_H
+#ifndef CPGF_META_TEST_METAGEN_METHOD_OVERLOAD_BY_FUNDAMENTAL_H
+#define CPGF_META_TEST_METAGEN_METHOD_OVERLOAD_BY_FUNDAMENTAL_H
 
 
 #include "cpgf/gmetadefine.h"
@@ -16,9 +16,20 @@ namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_MetagenMethodOverloadByFundamental(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_Global_metagen_method_overload_by_fundamental(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
+    using namespace cpgf;
+    
+    _d.CPGF_MD_TEMPLATE _method("global_overload_Boolean_Int", (std::string (*) (bool))&global_overload_Boolean_Int);
+    _d.CPGF_MD_TEMPLATE _method("global_overload_Boolean_Int", (std::string (*) (int))&global_overload_Boolean_Int);
+}
+
+
+template <typename D>
+void buildMetaClass_MetagenMethodOverloadByFundamental(D _d)
+{
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _method("overload_Boolean_Int", (std::string (D::ClassType::*) (bool))&D::ClassType::overload_Boolean_Int);

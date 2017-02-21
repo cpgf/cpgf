@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_GLOBAL_H
-#define __META_TEST_GLOBAL_H
+#ifndef CPGF_META_TEST_GLOBAL_H
+#define CPGF_META_TEST_GLOBAL_H
 
 
 #include "cpgf/gmetadefine.h"
@@ -16,9 +16,9 @@ namespace meta_test {
 
 
 template <typename D>
-void buildMetaClass_Global_global(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_Global_global(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _field("globalInt", &globalInt);

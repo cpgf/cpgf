@@ -1,5 +1,5 @@
-#ifndef __EASEINFO_H
-#define __EASEINFO_H
+#ifndef CPGF_EASEINFO_H
+#define CPGF_EASEINFO_H
 
 #include "cpgf/tween/easing/quint.h"
 

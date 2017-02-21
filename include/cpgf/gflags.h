@@ -1,5 +1,5 @@
-#ifndef __GFLAGS_H
-#define __GFLAGS_H
+#ifndef CPGF_GFLAGS_H
+#define CPGF_GFLAGS_H
 
 #include "cpgf/genableif.h"
 #include "cpgf/gtypetraits.h"
@@ -34,14 +34,14 @@ private:
 	typedef typename gflags_internal::GFlagsValueType<sizeof(T)>::ValueType ValueType;
 
 public:
-	GFlags() : value(T()) {
+	GFlags() : value((ValueType)T()) {
 	}
 	
-	GFlags(T flags) : value(flags) {
+	GFlags(T flags) : value((ValueType)flags) {
 	}
 
 	template <typename U>
-	GFlags(U flags, typename GEnableIf<IsInteger<U>::Result && !IsSameType<U, T>::Result >::Result * = 0) : value(flags) {
+	GFlags(U flags, typename GEnableIf<IsInteger<U>::Result && !IsSameType<U, T>::Result >::Result * = 0) : value((ValueType)flags) {
 	}
 
 	GFlags(const GFlags & other) : value(other.value) {
@@ -54,31 +54,27 @@ public:
 	}
 	
 	operator T () const {
-		return this->value;
+		return (T)this->value;
 	}
 
 	operator unsigned int () const {
 		return static_cast<unsigned int>(this->value);
 	}
 	
-	operator bool () const {
-		return this->value != T(0);
-	}
-	
 	bool operator ! () const {
-		return this->value == T(0);
+		return this->value == (ValueType)T(0);
 	}
 	
 	void set(T flags) {
-		this->value |= flags;
+		this->value |= (ValueType)flags;
 	}
 	
 	void clear(T flags) {
-		this->value &= ~flags;
+		this->value &= ~(ValueType)flags;
 	}
 	
 	void toggle(T flags) {
-		this->value ^= flags;
+		this->value ^= (ValueType)flags;
 	}
 	
 	void setByBool(T flags, bool value) {
@@ -91,19 +87,19 @@ public:
 	}
 	
 	bool has(T flags) const {
-		return (this->value & flags) == static_cast<ValueType>(flags);
+		return (this->value & (ValueType)flags) == static_cast<ValueType>(flags);
 	}
 	
 	bool has(ValueType flags) const {
-		return (this->value & flags) == static_cast<ValueType>(flags);
+		return (this->value & (ValueType)flags) == static_cast<ValueType>(flags);
 	}
 	
 	bool hasAny(T flags) const {
-		return (this->value & flags) != 0;
+		return (this->value & (ValueType)flags) != 0;
 	}
 	
 	bool hasAny(ValueType flags) const {
-		return (this->value & flags) != 0;
+		return (this->value & (ValueType)flags) != 0;
 	}
 	
 private:

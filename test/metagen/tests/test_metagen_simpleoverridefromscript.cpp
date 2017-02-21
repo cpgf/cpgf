@@ -16,7 +16,11 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptClass(T * binding, TestScr
 		QDO(function overrideGetValue(me) return me.super_getValue() + 15 end)
 		QDO(function overrideGetName(me) return "abc" end)
 	}
-	if(context->isV8() || context->isSpiderMonkey()) {
+	if(context->isV8()) {
+		QDO(function overrideGetValue() { return this.super_getValue() + 15; })
+		QDO(function overrideGetName() { return "abc"; })
+	}
+	if(context->isSpiderMonkey()) {
 		QDO(function overrideGetValue(me) { return me.super_getValue() + 15; })
 		QDO(function overrideGetName(me) { return "abc"; })
 	}
@@ -78,7 +82,12 @@ void doTestSimpleOverrideFromScript_OverrideFromScriptObject(T * binding, TestSc
 		QDO(function overrideGetValue(me) return me.super_getValue() + 5 end)
 		QDO(function overrideGetName(me) return "abc" end)
 	}
-	if(context->isV8() || context->isSpiderMonkey()) {
+	if(context->isV8()) {
+		QDO(function overrideGetValue() { return 2 + 5; })
+		QDO(function overrideGetName() { return "abc"; })
+		QDO(function overrideGetAnother() { return 2; })
+	}
+	if(context->isSpiderMonkey()) {
 		QDO(function overrideGetValue(me) { return 2 + 5; })
 		QDO(function overrideGetName(me) { return "abc"; })
 		QDO(function overrideGetAnother(me) { return 2; })
@@ -126,5 +135,46 @@ void testSimpleOverrideFromScript_OverrideFromScriptObject(TestScriptContext * c
 #include "do_testcase.h"
 
 
+
+template <typename T>
+void doTestSimpleOverrideFromScript_discardOwnership(T * /* binding */, TestScriptContext * context)
+{
+	if(context->isLua()) {
+		QDO(function createHelperData(me) return mtest.SimpleOverrideHelperData() end)
+	}
+	if(context->isV8() || context->isSpiderMonkey()) {
+		QDO(function createHelperData(me) { return new mtest.SimpleOverrideHelperData() })
+	}
+	if(context->isPython()) {
+		QDO(def createHelperData(me): return mtest.SimpleOverrideHelperData() )
+	}
+
+	QDO(cpgf._import("cpgf", "builtin.core"));
+	QDO(DerivedClass = cpgf.cloneClass(mtest.SimpleOverrideWrapper))
+	QDO(DerivedClass.createHelperData = createHelperData)
+	
+	QVARNEWOBJ(a, DerivedClass(0))
+	QDO(a.consumeHelperData())
+
+	// there is no explicit assertion as it has to be done at a layer above this test, e.g. valgrind
+	// checking the double-free
+}
+
+void testSimpleOverrideFromScript_discardOwnership(TestScriptContext * context)
+{
+	GScriptObject * bindingLib = context->getBindingLib();
+	IScriptObject * bindingApi = context->getBindingApi();
+
+	if(bindingLib) {
+		doTestSimpleOverrideFromScript_discardOwnership(bindingLib, context);
+	}
+	
+	if(bindingApi) {
+		doTestSimpleOverrideFromScript_discardOwnership(bindingApi, context);
+	}
+}
+
+#define CASE testSimpleOverrideFromScript_discardOwnership
+#include "do_testcase.h"
 
 }

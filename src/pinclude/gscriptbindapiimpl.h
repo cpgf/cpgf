@@ -1,5 +1,5 @@
-#ifndef __GSCRIPTBINDAPIIMPL_H
-#define __GSCRIPTBINDAPIIMPL_H
+#ifndef CPGF_GSCRIPTBINDAPIIMPL_H
+#define CPGF_GSCRIPTBINDAPIIMPL_H
 
 
 #include "cpgf/gmetaapi.h"
@@ -63,12 +63,39 @@ protected:
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
 
-	virtual void G_API_CC invoke(GVariantData * outResult, const GVariantData * params, uint32_t paramCount);
-	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, GVariantData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC invoke(GScriptValueData * outResult, const GVariantData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC invokeOnObject(GScriptValueData * outResult, const GVariantData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeIndirectlyOnObject(GScriptValueData * outResult, GVariantData const * const * params, uint32_t paramCount);
+	// Internal use only!!!
+	virtual void G_API_CC weaken();
 
 private:
 	GScriptFunction * scriptFunction;
 	bool freeFunction;
+};
+
+
+class ImplScriptArray : public IScriptArray
+{
+public:
+	ImplScriptArray(GScriptArray * scriptArray, bool freeArray);
+	virtual ~ImplScriptArray();
+
+protected:
+	G_INTERFACE_IMPL_OBJECT
+	G_INTERFACE_IMPL_EXTENDOBJECT
+
+	virtual uint32_t G_API_CC getLength();
+	virtual void G_API_CC getValue(GScriptValueData * outResult, uint32_t index);
+	virtual void G_API_CC setValue(uint32_t index, const GScriptValueData * value);
+
+	virtual gapi_bool G_API_CC maybeIsScriptArray(uint32_t index);
+	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, uint32_t index);
+	virtual void G_API_CC createScriptArray(GScriptValueData * outResult, uint32_t index);
+private:
+	GScriptArray * scriptArray;
+	bool freeArray;
 };
 
 
@@ -77,10 +104,12 @@ class ImplScriptObject : public IScriptObject
 public:
 	ImplScriptObject(GScriptObject * scriptObject, bool freeObject);
 	virtual ~ImplScriptObject();
-	
+
 protected:
 	G_INTERFACE_IMPL_OBJECT
 	G_INTERFACE_IMPL_EXTENDOBJECT
+
+	virtual IScriptContext * G_API_CC getContext();
 
 	virtual IScriptConfig * G_API_CC getConfig();
 	virtual IScriptObject * G_API_CC getOwner();
@@ -116,8 +145,8 @@ protected:
 
 	virtual void G_API_CC getScriptFunction(GScriptValueData * outResult, const char * name);
 
-	virtual void G_API_CC invoke(GVariantData * outResult, const char * name, const GVariantData * params, uint32_t paramCount);
-	virtual void G_API_CC invokeIndirectly(GVariantData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount);
+	virtual void G_API_CC invoke(GScriptValueData * outResult, const char * name, const GVariantData * params, uint32_t paramCount);
+	virtual void G_API_CC invokeIndirectly(GScriptValueData * outResult, const char * name, GVariantData const * const * params, uint32_t paramCount);
 
 	virtual void G_API_CC assignValue(const char * fromName, const char * toName);
 	virtual gapi_bool G_API_CC valueIsNull(const char * name);
@@ -125,6 +154,10 @@ protected:
 
 	virtual void G_API_CC bindCoreService(const char * name, IScriptLibraryLoader * libraryLoader);
 	virtual void G_API_CC holdObject(IObject * object);
+
+	virtual gapi_bool G_API_CC maybeIsScriptArray(const char * name);
+	virtual void G_API_CC getAsScriptArray(GScriptValueData * outResult, const char * name);
+	virtual void G_API_CC createScriptArray(GScriptValueData * outResult, const char * name);
 
 private:
 	GScriptObject * scriptObject;

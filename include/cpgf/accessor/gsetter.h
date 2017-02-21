@@ -1,5 +1,5 @@
-#ifndef __GSETTER_H
-#define __GSETTER_H
+#ifndef CPGF_GSETTER_H
+#define CPGF_GSETTER_H
 
 #include "cpgf/gmetapolicy.h"
 #include "cpgf/gcallback.h"

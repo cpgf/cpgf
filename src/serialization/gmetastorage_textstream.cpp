@@ -142,7 +142,7 @@ class GTextStreamMetaReader : public IMetaStorageReader
 private:
 	class StreamMarker {
 	public:
-		StreamMarker(GTextStreamMetaReader * reader) : reader(reader), mark(reader->inputStream.tellg()) {
+		StreamMarker(GTextStreamMetaReader * reader) : reader(reader), mark((long)(reader->inputStream.tellg())) {
 		}
 
 		~StreamMarker() {

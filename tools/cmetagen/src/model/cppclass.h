@@ -1,11 +1,12 @@
-#ifndef __CPPCLASS_H
-#define __CPPCLASS_H
+#ifndef CPGF_CPPCLASS_H
+#define CPGF_CPPCLASS_H
 
 #include "cppcontainer.h"
+#include "cppclasstraits.h"
 
 #include <string>
 
-namespace clang { class CXXBaseSpecifier; }
+namespace clang { class CXXBaseSpecifier; class CXXRecordDecl; }
 
 namespace metagen {
 
@@ -17,7 +18,8 @@ class CppClass;
 class BaseClass
 {
 public:
-	explicit BaseClass(const clang::CXXBaseSpecifier * baseSpecifier, const CppContext * cppContext);
+	BaseClass(const clang::CXXBaseSpecifier * baseSpecifier, const CppContext * cppContext,
+		const CppClass * masterCppClass);
 	
 	ItemVisibility getVisibility() const;
 	
@@ -28,6 +30,7 @@ public:
 private:
 	const clang::CXXBaseSpecifier * baseSpecifier;
 	const CppContext * cppContext;
+	const CppClass * masterCppClass;
 };
 
 class CppClass : public CppContainer
@@ -43,24 +46,36 @@ public:
 	explicit CppClass(const clang::Decl * decl);
 	~CppClass();
 	
+	const BaseClassListType * getBaseClassList() const { return &this->baseClassList; }
+	const ConstructorListType * getConstructorList() const { return &this->constructorList; }
+	const CppDestructor * getDestructor() const { return this->destructor; }
+
 	bool isTemplate() const;
 	bool isChainedTemplate() const;
 	bool isAnonymous() const;
-	
+	bool isAbstract() const;
+
+	int getTemplateDepth() const;
+	int getTemplateParamCount() const;
+	std::string getTemplateParamName(int paramIndex) const;
+
 	std::string getTextOfTemplateParamList(const ItemTextOptionFlags & options) const;
 	std::string getTextOfChainedTemplateParamList(const ItemTextOptionFlags & options) const;
+	std::string getTextOfQualifedInstantiationName() const;
 	
-	const BaseClassListType * getBaseClassList() const { return &this->baseClassList; }
-	const ConstructorListType * getConstructorList() const { return &this->constructorList; }
-	const CppDestructor * getDestructor() { return this->destructor; }
-
-protected:
+	void getPolicy(CppPolicy * outPolicy) const;
+	
+private:
 	BaseClassListType * getBaseClassList() { return &this->baseClassList; }
 	ConstructorListType * getConstructorList() { return &this->constructorList; }
 	
 	virtual ItemCategory getCategory() const { return icClass; }
 	virtual void doAddItem(CppItem * item);
 
+	bool isDefaultConstructorHidden() const;
+
+	CppClassTraits getClassTraits() const;
+	
 private:
 	BaseClassListType baseClassList;
 	ConstructorListType constructorList;
@@ -68,6 +83,8 @@ private:
 	
 private:
 	friend class ClangParserImplement;
+	friend class CppContext;
+	friend class BaseClass;
 };
 
 

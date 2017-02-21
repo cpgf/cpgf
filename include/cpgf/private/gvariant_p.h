@@ -1,5 +1,8 @@
-#ifndef __GVARIANT_P_H
-#define __GVARIANT_P_H
+#ifndef CPGF_GVARIANT_P_H
+#define CPGF_GVARIANT_P_H
+
+#include <cpgf/gcompiler.h>
+
 
 namespace variant_internal {
 
@@ -19,7 +22,7 @@ private:
 	typedef GVariantShadowObject<T> ThisType;
 
 	G_INTERFACE_IMPL_OBJECT
-	
+
 public:
 	virtual ~GVariantShadowObject() {}
 
@@ -38,8 +41,18 @@ private:
 
 
 template <typename T>
+struct IsPointerHelper {
+	G_STATIC_CONSTANT(bool, Result = IsPointer<
+		typename RemoveConstVolatile<
+			typename RemoveReference<T>::Result
+			>::Result
+	>::Result
+	);
+};
+
+template <typename T>
 bool isNotPointer() {
-	return ! IsPointer<typename RemoveReference<T>::Result>::Result;
+	return !IsPointerHelper<T>::Result;
 }
 
 template <typename T>
@@ -91,7 +104,7 @@ DEF_CAST_VARIANT_SELECTOR(const volatile, const volatile)
 template <typename From, typename To, typename Enabled = void>
 struct VariantCaster {
 	G_STATIC_CONSTANT(bool, CanCast = false);
-	
+
 	static To cast(const From & /*v*/) {
 		failedCast();
 		return *(typename RemoveReference<To>::Result *)0xffffff;
@@ -102,7 +115,7 @@ template <typename From, typename To>
 struct VariantCaster <From, To, typename GEnableIfResult<
 	GOrResult<
 		IsConvertible<From, To>,
-		GAndResult<IsEnum<From>, IsConvertible<To, int> >, // for enum
+		GAndResult<IsEnum<From>, IsConvertible<int, To> >, // for enum
 		GAndResult<IsEnum<To>, IsConvertible<From, int> > // for enum
 	>
 	>::Result>
@@ -118,19 +131,20 @@ template <typename From, typename To, typename Enabled = void>
 struct CastVariantHelper
 {
 	G_STATIC_CONSTANT(bool, CanCast = (VariantCaster<From, To>::CanCast));
-	
+
 	static To cast(const From & v) {
 		return VariantCaster<From, To>::cast(v);
 	}
 };
 
 template <typename From, typename To>
-struct CastVariantHelper <From *, To *>
+struct CastVariantHelper <From *, To, typename GEnableIfResult<IsPointerHelper<To> >::Result>
 {
 	G_STATIC_CONSTANT(bool, CanCast = true);
-	
-	static To * cast(From * v) {
-		return (To *)(v);
+	typedef typename RemoveReference<To>::Result ResultType;
+
+	static ResultType cast(From * v) {
+		return (ResultType)(v);
 	}
 };
 
@@ -138,13 +152,13 @@ template <typename From, typename To>
 struct CastVariantHelper <From, To, typename GEnableIfResult<
 	GAndResult<
 		IsPointer<From>,
-		GNotResult<IsPointer<To> >,
+		GNotResult<IsPointerHelper<To> >,
 		IsVoid<typename RemovePointer<From>::Result>
 	>
 	>::Result>
 {
 	G_STATIC_CONSTANT(bool, CanCast = true);
-	
+
 	static To cast(const From & v) {
 		return (To)(*(typename RemoveReference<To>::Result *)(v));
 	}
@@ -161,7 +175,7 @@ struct CastVariantHelper <From, To, typename GEnableIfResult<
 	>
 {
 	G_STATIC_CONSTANT(bool, CanCast = false);
-	
+
 	static To cast(const From & /*v*/) {
 		raiseCoreException(Error_Variant_CantReferenceToTemp);
 		return *(typename RemoveReference<To>::Result *)0xffffff;
@@ -172,7 +186,7 @@ template <typename From, typename To>
 struct CastVariantHelper <From, To *, typename GEnableIfResult<IsInteger<From> >::Result>
 {
 	G_STATIC_CONSTANT(bool, CanCast = true);
-	
+
 	static To * cast(const From & v) {
 		if(v == 0) {
 			return 0;
@@ -185,7 +199,7 @@ template <typename From, typename To>
 struct EnforceCastToPointer
 {
 	G_STATIC_CONSTANT(bool, CanCast = false);
-	
+
 	static typename AddReference<To>::Result cast(const From & /*v*/) {
 		raiseCoreException(Error_Variant_FailCast);
 		return *(typename RemoveReference<To>::Result *)0xffffff;
@@ -472,12 +486,7 @@ struct CastResult {
 
 template <typename T, typename Policy>
 struct CastResult <T &, Policy> {
-	typedef T & Result;
-};
-
-template <typename T, typename Policy>
-struct CastResult <const T &, Policy> {
-	typedef T Result;
+	typedef typename GIfElse<IsPointerHelper<T>::Result, T, T &>::Result Result;
 };
 
 #if G_SUPPORT_RVALUE_REFERENCE
@@ -494,7 +503,7 @@ struct CastResult <const T &, VarantCastCopyConstRef> {
 
 template <typename T>
 struct CastResult <const T &, VarantCastKeepConstRef> {
-	typedef typename GIfElse<IsFundamental<T>::Result, T, const T &>::Result Result;
+	typedef typename GIfElse<IsFundamental<T>::Result, T, typename GIfElse<IsPointerHelper<T>::Result, const T, const T &>::Result>::Result Result;
 };
 
 
@@ -504,18 +513,48 @@ struct CheckIsConvertibleToCharPointer
 	G_STATIC_CONSTANT(bool, Result = (IsConvertible<char *, T>::Result || IsConvertible<const char *, T>::Result));
 };
 
-template <typename T>
-T castFromString(char * s, typename GEnableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
+template <typename T, typename Enabled = void>
+struct CastFromString
 {
-	return T(s);
-}
+};
 
 template <typename T>
-T castFromString(char * /*s*/, typename GDisableIfResult<CheckIsConvertibleToCharPointer<T> >::Result * = 0)
+struct CastFromString <T, typename GEnableIfResult<CheckIsConvertibleToCharPointer<T> >::Result>
 {
-	raiseCoreException(Error_Variant_FailCast);
-	return *(typename RemoveReference<T>::Result *)(0);
-}
+	static T cast(std::string * s) {
+		return T(s->c_str());
+	}
+};
+
+template <typename T>
+struct CastFromString <T, typename GDisableIfResult<CheckIsConvertibleToCharPointer<T> >::Result>
+{
+	static T cast(std::string * /*s*/) {
+		raiseCoreException(Error_Variant_FailCast);
+
+#if __has_builtin(__builtin_trap)
+		__builtin_trap();
+#else
+		return (T)*(typename RemoveReference<T>::Result *)(0);
+#endif
+	}
+};
+
+template <>
+struct CastFromString <const std::string &, void>
+{
+	static const std::string & cast(std::string * s) {
+		return *s;
+	}
+};
+
+template <>
+struct CastFromString <std::string &, void>
+{
+	static std::string & cast(std::string * s) {
+		return *s;
+	}
+};
 
 template <typename T>
 struct CheckIsConvertibleToWideCharPointer
@@ -523,29 +562,67 @@ struct CheckIsConvertibleToWideCharPointer
 	G_STATIC_CONSTANT(bool, Result = (IsConvertible<wchar_t *, T>::Result || IsConvertible<const wchar_t *, T>::Result));
 };
 
-template <typename T>
-T castFromWideString(wchar_t * s, typename GEnableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result * = 0)
+template <typename T, typename Enabled = void>
+struct CastFromWideString
 {
-	return T(s);
-}
+};
 
 template <typename T>
-T castFromWideString(wchar_t * /*s*/, typename GDisableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result * = 0)
+struct CastFromWideString <T, typename GEnableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result>
 {
-	raiseCoreException(Error_Variant_FailCast);
-	return *(typename RemoveReference<T>::Result *)(0);
-}
+	static T cast(std::wstring * s) {
+		return T(s->c_str());
+	}
+};
 
 template <typename T>
-T castFromObject(const volatile void * const & obj, typename GEnableIfResult<IsPointer<typename RemoveReference<T>::Result> >::Result * = 0)
+struct CastFromWideString <T, typename GDisableIfResult<CheckIsConvertibleToWideCharPointer<T> >::Result>
+{
+	static T cast(std::wstring * /*s*/) {
+		raiseCoreException(Error_Variant_FailCast);
+
+#if __has_builtin(__builtin_trap)
+		__builtin_trap();
+#else
+		return (T)*(typename RemoveReference<T>::Result *)(0);
+#endif
+	}
+};
+
+template <>
+struct CastFromWideString <const std::wstring &, void>
+{
+	static const std::wstring & cast(std::wstring * s) {
+		return *s;
+	}
+};
+
+template <>
+struct CastFromWideString <std::wstring &, void>
+{
+	static std::wstring & cast(std::wstring * s) {
+		return *s;
+	}
+};
+
+template <typename T>
+T castFromObject(const volatile void * const & obj, typename GEnableIfResult<IsPointerHelper<T> >::Result * = 0)
 {
 	return (T)(obj);
 }
 
+template <typename T> struct TurnLReferenceToR { typedef T Result; };
+#if G_SUPPORT_RVALUE_REFERENCE
+// If we don't turn left reference into right reference, the test case in test_variant_cast.cpp
+// CAN_FROM_CAST(CLASS &&, CLASS &, obj);
+// will report compiler warning -- return reference to local variable.
+template <typename T> struct TurnLReferenceToR <T &&> { typedef T & Result; };
+#endif
+
 template <typename T>
-T castFromObject(const volatile void * obj, typename GDisableIfResult<IsPointer<typename RemoveReference<T>::Result> >::Result * = 0)
+typename TurnLReferenceToR<T>::Result castFromObject(const volatile void * obj, typename GDisableIfResult<IsPointerHelper<T> >::Result * = 0)
 {
-	return (T)(*(typename RemoveReference<T>::Result *)obj);
+	return (typename TurnLReferenceToR<T>::Result)(*(typename RemoveReference<T>::Result *)obj);
 }
 
 template <typename T, typename Policy, typename Enabled = void>
@@ -553,7 +630,7 @@ struct CastFromReference
 {
 	typedef typename variant_internal::ArrayToPointer<typename CastResult<T, Policy>::Result>::Result ResultType;
 	typedef typename variant_internal::ArrayToPointer<typename RemoveReference<T>::Result>::Result RefValueType;
-	
+
 	static ResultType cast(const GVariant & v) {
 		int vt = static_cast<int>(vtGetType(v.refData().typeData));
 		switch(vt) {
@@ -618,15 +695,15 @@ struct CastFromReference
 		failedCast();
 		return *(typename RemoveReference<T>::Result *)0xffffff;
 	}
-	
+
 };
 
 template <typename T, typename Policy>
-struct CastFromReference <T, Policy, typename GEnableIf<GOrResult<IsReference<T>, IsPointer<T> >::Result>::Result>
+struct CastFromReference <T, Policy, typename GEnableIf<GOrResult<IsReference<T>, IsPointerHelper<T> >::Result>::Result>
 {
 	typedef typename variant_internal::ArrayToPointer<typename CastResult<T, Policy>::Result>::Result ResultType;
 	typedef typename variant_internal::ArrayToPointer<typename RemoveReference<T>::Result>::Result RefValueType;
-	
+
 	static ResultType cast(const GVariant & v) {
 		int vt = static_cast<int>(vtGetType(v.refData().typeData));
 		switch(vt) {
@@ -762,16 +839,17 @@ struct CastFromVariant
 
 			case vtShadow:
 				return castFromObject<T>(v.refData().shadowObject->getObject());
-			
+
 			case vtString:
-				return castFromString<ResultType>(const_cast<char *>(static_cast<std::string *>(v.refData().shadowObject->getObject())->c_str()));
+				// Changed the type from ResultType to T, to work correctly with const std::string &,  -- Exposing std::string to scripts #42 
+				return CastFromString<T>::cast(static_cast<std::string *>(v.refData().shadowObject->getObject()));
 
 			case vtWideString:
-				return castFromWideString<ResultType>(const_cast<wchar_t *>(static_cast<std::wstring *>(v.refData().shadowObject->getObject())->c_str()));
+				return CastFromWideString<T>::cast(static_cast<std::wstring *>(v.refData().shadowObject->getObject()));
 
 			case vtInterface:
 				return variant_internal::EnforceCastToPointer<IObject *, ResultType>::cast(v.refData().valueInterface);
-			
+
 			case vtTypedVar:
 				return CastFromVariant<T, Policy>::cast(getVariantRealValue(v));
 

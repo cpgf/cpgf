@@ -2,6 +2,7 @@
 #include "builderwriter.h"
 #include "builderutil.h"
 #include "codewriter/cppwriter.h"
+#include "codewriter/codeblock.h"
 #include "model/cppenum.h"
 
 #include "Poco/Format.h"
@@ -42,10 +43,7 @@ void BuilderEnum::doWriteMetaData(BuilderWriter * writer)
 	}
 	else {
 		enumName = cppEnum->getName();
-		enumTypeName = getReflectionScope(cppEnum) + enumName;
-		if(! cppEnum->isGlobal()) {
-			enumTypeName = "typename " + enumTypeName;
-		}
+		enumTypeName = getReflectionScope(cppEnum, true) + enumName;
 	}
 
 	std::string s = Poco::format("%s<%s>(\"%s\")",
@@ -56,7 +54,7 @@ void BuilderEnum::doWriteMetaData(BuilderWriter * writer)
 
 	codeBlock->appendLine(s);
 
-	string scope = getReflectionScope(cppEnum);
+	string scope = getReflectionScope(cppEnum, false);
 	CodeBlock * valueBlock = codeBlock->appendBlock(cbsIndent);
 	const CppEnum::ValueListType * valueList = cppEnum->getValueList();
 	for(CppEnum::ValueListType::const_iterator it = valueList->begin(); it != valueList->end(); ++it) {

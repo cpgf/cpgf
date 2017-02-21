@@ -1,5 +1,5 @@
-#ifndef __GMETAENUM_H
-#define __GMETAENUM_H
+#ifndef CPGF_GMETAENUM_H
+#define CPGF_GMETAENUM_H
 
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gmetatype.h"

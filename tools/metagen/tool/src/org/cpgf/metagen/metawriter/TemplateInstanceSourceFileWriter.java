@@ -32,7 +32,7 @@ public class TemplateInstanceSourceFileWriter extends CodeFileWriter {
 
 	@Override
 	public boolean shouldSkip() {
-		return ! this.getConfig().autoRegisterToGlobal;
+		return ! this.getConfig().generateRegisterHeader;
 	}
 	
 	@Override
@@ -72,6 +72,7 @@ public class TemplateInstanceSourceFileWriter extends CodeFileWriter {
 		
 		String funcName = this.createFunctionName();
 
+   		codeWriter.writeLine("#ifdef CPGF_METAGEN_LINKAGE_SPEC\nCPGF_METAGEN_LINKAGE_SPEC\n#endif");
 		codeWriter.writeLine("GDefineMetaInfo " + funcName + "()");
 
 		codeWriter.beginBlock();

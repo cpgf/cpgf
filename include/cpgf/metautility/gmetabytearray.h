@@ -1,5 +1,5 @@
-#ifndef __GMETABYTEARRAY_H
-#define __GMETABYTEARRAY_H
+#ifndef CPGF_GMETABYTEARRAY_H
+#define CPGF_GMETABYTEARRAY_H
 
 #include "cpgf/gstdint.h"
 #include "cpgf/gscopedptr.h"

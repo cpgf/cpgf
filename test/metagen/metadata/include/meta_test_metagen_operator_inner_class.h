@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_METAGEN_OPERATOR_INNER_CLASS_H
-#define __META_TEST_METAGEN_OPERATOR_INNER_CLASS_H
+#ifndef CPGF_META_TEST_METAGEN_OPERATOR_INNER_CLASS_H
+#define CPGF_META_TEST_METAGEN_OPERATOR_INNER_CLASS_H
 
 
 #include "cpgf/gmetadefine.h"
@@ -63,9 +63,9 @@ inline MetagenOperatorInnerClass::MetagenOperatorInner opErAToRWrapper_MetagenOp
 
 
 template <typename D>
-void buildMetaClass_MetagenOperatorInnerClass(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MetagenOperatorInnerClass(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     {

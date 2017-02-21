@@ -11,12 +11,14 @@ using namespace cpgf;
 namespace meta_test { 
 
 
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
+#endif
 GDefineMetaInfo createMetaClass_MetagenOperatorArithmeticAssign()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<MetagenOperatorArithmeticAssign> _nd = GDefineMetaClass<MetagenOperatorArithmeticAssign>::declare("MetagenOperatorArithmeticAssign");
-        buildMetaClass_MetagenOperatorArithmeticAssign(0, _nd);
+        GDefineMetaClass<MetagenOperatorArithmeticAssign> _nd = GDefineMetaClass<MetagenOperatorArithmeticAssign>::lazyDeclare("MetagenOperatorArithmeticAssign", &buildMetaClass_MetagenOperatorArithmeticAssign);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

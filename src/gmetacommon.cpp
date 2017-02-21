@@ -15,8 +15,6 @@
 
 namespace cpgf {
 
-size_t abstractParameterIndexBase = 0x1000000;
-
 namespace meta_internal {
 
 GMetaDefaultParamList::~GMetaDefaultParamList()
@@ -166,6 +164,18 @@ void checkInvokingArity(size_t invokingParamCount, size_t prototypeParamCount, b
 	}
 }
 
+void adjustParamIndex(size_t & index, bool isExplicitThis)
+{
+	if(index >= abstractParameterIndexBase) {
+		index -= abstractParameterIndexBase;
+	}
+	else {
+		if(isExplicitThis) {
+			++index;
+		}
+	}
+}
+
 
 } // namespace meta_internal
 
@@ -246,6 +256,11 @@ const std::string & GMetaItem::getQualifiedName() const
 	return this->implement->qualifiedName;
 }
 
+void GMetaItem::resetQualifiedName() const
+{
+	this->implement->qualifiedName = "";
+}
+
 std::string GMetaItem::makeQualifiedName(const char * delimiter) const
 {
 	std::string result;
@@ -283,6 +298,17 @@ const GMetaType & GMetaTypedItem::getMetaType() const
 	}
 
 	return this->getItemType();
+}
+
+const std::string & GMetaTypedItem::getQualifiedName() const
+{
+	if(this->implement->qualifiedName.empty()) {
+		this->implement->qualifiedName = makeQualifiedName(".");
+		GMetaTypeData & typeData = this->implement->itemType.refData();
+		typeData.baseName = this->implement->qualifiedName.c_str();
+	}
+
+	return this->implement->qualifiedName;
 }
 
 

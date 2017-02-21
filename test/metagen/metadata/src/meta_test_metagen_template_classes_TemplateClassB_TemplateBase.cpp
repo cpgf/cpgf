@@ -11,12 +11,14 @@ using namespace cpgf;
 namespace meta_test { 
 
 
+#ifdef CPGF_METAGEN_LINKAGE_SPEC
+CPGF_METAGEN_LINKAGE_SPEC
+#endif
 GDefineMetaInfo createMetaClass_TemplateClassB_TemplateInstance_TemplateClassB_TemplateBase()
 {
     GDefineMetaGlobalDangle _d = GDefineMetaGlobalDangle::dangle();
     {
-        GDefineMetaClass<TemplateClassB<TemplateBase>, TemplateBase > _nd = GDefineMetaClass<TemplateClassB<TemplateBase>, TemplateBase >::declare("TemplateClassB_TemplateBase");
-        buildMetaClass_TemplateClassB<GDefineMetaClass<TemplateClassB<TemplateBase>, TemplateBase >, TemplateBase >(0, _nd);
+        GDefineMetaClass<TemplateClassB<TemplateBase>, TemplateBase > _nd = GDefineMetaClass<TemplateClassB<TemplateBase>, TemplateBase >::lazyDeclare("TemplateClassB_TemplateBase", &buildMetaClass_TemplateClassB<GDefineMetaClass<TemplateClassB<TemplateBase>, TemplateBase >, TemplateBase >);
         _d._class(_nd);
     }
     return _d.getMetaInfo();

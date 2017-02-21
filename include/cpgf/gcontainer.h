@@ -1,5 +1,5 @@
-#ifndef __GCONTAINER_H
-#define __GCONTAINER_H
+#ifndef CPGF_GCONTAINER_H
+#define CPGF_GCONTAINER_H
 
 #include <ctime>
 #include <cstring>
@@ -11,7 +11,7 @@
 
 #include <math.h>
 #include <assert.h>
-
+#include <stdlib.h>
 
 namespace cpgf {
 
@@ -309,7 +309,7 @@ namespace _internal {
 		GWiseIteratorRetainer() {
 		}
 
-		GWiseIteratorRetainer(const GWiseIteratorRetainer &other) {
+		GWiseIteratorRetainer(const GWiseIteratorRetainer &/*other*/) {
 		}
 
 		~GWiseIteratorRetainer() {

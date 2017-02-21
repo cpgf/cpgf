@@ -21,26 +21,24 @@ set(SAMPLE_BIND_PATH ${SAMPLE_ROOT}/scriptbind)
 
 
 set(SAMPLE_COMPILE_FLAGS " ")
-if(CMAKE_COMPILER_IS_GNUCC)
+if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	set(SAMPLE_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3")
 
 	if(SUPPORT_GCC_0X)
 		if(MINGW)
 			set(SAMPLE_COMPILE_FLAGS "${SAMPLE_COMPILE_FLAGS} -std=gnu++0x")
+		else(MINGW)
+			set(SAMPLE_COMPILE_FLAGS "${SAMPLE_COMPILE_FLAGS} -std=c++11")
 		endif(MINGW)
-
-		if(NOT MINGW)
-			set(SAMPLE_COMPILE_FLAGS "${SAMPLE_COMPILE_FLAGS} -std=c++0x")
-		endif(NOT MINGW)
 	endif(SUPPORT_GCC_0X)
 
-endif(CMAKE_COMPILER_IS_GNUCC)
+endif(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
 
 file(GLOB GLOB_SAMPLEREFLECTION ${SAMPLE_ROOT}/reflection/*.cpp)
 set(SRC_SAMPLEREFLECTION
 	${SAMPLE_ROOT}/samplemain.cpp
-	
+
 	${GLOB_SAMPLEREFLECTION}
 )
 
@@ -109,9 +107,9 @@ if(${HAS_LUA})
 	file(GLOB GLOB_SAMPLELUA ${SAMPLE_BIND_PATH}/luabind/*.cpp)
 	set(SRC_SAMPLELUA
 		${SAMPLE_ROOT}/samplemain.cpp
-	
+
 		${SAMPLE_BIND_PATH}/testscriptbindmetadata.cpp
-	
+
 		${GLOB_SAMPLELUA}
 	)
 
@@ -137,9 +135,9 @@ if(${HAS_GLUT})
 	file(GLOB GLOB_SAMPLEOPENGL ${SAMPLE_ROOT}/opengl/*.cpp)
 	set(SRC_SAMPLEOPENGL
 		${GLOB_SAMPLEOPENGL}
-		
+
 		${SAMPLE_ROOT}/samplescriptbindutil.cpp
-		
+
 		${SRC_PATH}/metadata/opengl/gmetadata_openglut.cpp
 	)
 
@@ -159,7 +157,7 @@ if(${HAS_GLUT})
 	)
 
 	add_definitions(-DFREEGLUT_EXPORTS)
-	
+
 	target_link_libraries(${TARGET_SAMPLEOPENGL} ${TARGET_LIB} ${GLUT_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB} ${SPIDERMONKEY_LIB} )
 endif(${HAS_GLUT})
 
@@ -171,15 +169,15 @@ if(${HAS_BOX2D})
 	set(SRC_SAMPLEBOX2D
 		${GLOB_SAMPLEBOX2D}
 		${GLOB_METABOX2D}
-		
+
 		${SAMPLE_ROOT}/samplescriptbindutil.cpp
-		
+
 		${SAMPLE_ROOT}/opengl/registergl.cpp
 		${SAMPLE_ROOT}/opengl/registerglu.cpp
 		${SAMPLE_ROOT}/opengl/registerglut.cpp
 		${SAMPLE_ROOT}/opengl/registerglut2.cpp
 		${SAMPLE_ROOT}/opengl/registerglut3.cpp
-		
+
 		${SRC_PATH}/metadata/opengl/gmetadata_openglut.cpp
 	)
 
@@ -200,7 +198,7 @@ if(${HAS_BOX2D})
 	)
 
 	add_definitions(-DFREEGLUT_EXPORTS)
-	
+
 	target_link_libraries(${TARGET_SAMPLEBOX2D} ${TARGET_LIB} ${GLUT_LIB} ${BOX2D_LIB} ${LUA_LIB} ${V8_LIB} ${PYTHON_LIB} ${SPIDERMONKEY_LIB} )
 endif(${HAS_BOX2D})
 
@@ -212,7 +210,7 @@ if(${HAS_SFML})
 	set(SRC_SAMPLESFML
 		${GLOB_SAMPLESFML}
 		${GLOB_METASFML}
-		
+
 		${SAMPLE_ROOT}/samplescriptbindutil.cpp
 	)
 
@@ -242,7 +240,7 @@ if(${HAS_IRRLICHT})
 	set(SRC_SAMPLEIRRLICHT
 		${GLOB_SAMPLEIRRLICHT}
 		${GLOB_METAIRRLICHT}
-		
+
 		${SAMPLE_ROOT}/samplescriptbindutil.cpp
 	)
 

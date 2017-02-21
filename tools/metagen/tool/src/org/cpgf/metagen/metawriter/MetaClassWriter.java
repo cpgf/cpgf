@@ -1,6 +1,9 @@
 package org.cpgf.metagen.metawriter;
 
 import java.util.HashMap;
+import java.util.regex.*;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.cpgf.metagen.Config;
 import org.cpgf.metagen.Util;
@@ -8,6 +11,8 @@ import org.cpgf.metagen.codewriter.CppWriter;
 import org.cpgf.metagen.metadata.Constant;
 import org.cpgf.metagen.metadata.Constructor;
 import org.cpgf.metagen.metadata.CppClass;
+import org.cpgf.metagen.metadata.CppType;
+import org.cpgf.metagen.metadata.Typedef;
 import org.cpgf.metagen.metadata.CppEnum;
 import org.cpgf.metagen.metadata.CppField;
 import org.cpgf.metagen.metadata.CppMethod;
@@ -26,12 +31,12 @@ public class MetaClassWriter {
 	private CppWriter codeWriter;
 	private Config config;
 	private MetaInfo metaInfo;
-	
+
 	private String define;
 	private String classType;
 
 	private OutputCallbackData callbackData;
-	
+
 	public MetaClassWriter(Config config, MetaInfo metaInfo, CppWriter codeWriter, CppClass cppClass) {
 		this.initialize(config, metaInfo, codeWriter, cppClass, "_d", "D::ClassType");
 	}
@@ -48,7 +53,7 @@ public class MetaClassWriter {
 		this.define = define;
 		this.classType = classType;
 	}
-	
+
 	private String getUniqueText()
 	{
 		if(this.cppClass.isGlobal()) {
@@ -58,11 +63,11 @@ public class MetaClassWriter {
 			return "" + Util.getUniqueID(this.cppClass.getLocation() + this.cppClass.getFullQualifiedName());
 		}
 	}
-	
+
 	private String getScopePrefix() {
 		return this.getScopePrefix(null);
 	}
-	
+
 	private String getScopePrefix(String prefix) {
 		if(prefix == null) {
 			prefix = "";
@@ -90,10 +95,10 @@ public class MetaClassWriter {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	private boolean shouldSkipItem(Item item)
 	{
 		return this.skipItem() || ! Util.allowMetaData(this.config, item);
@@ -103,28 +108,28 @@ public class MetaClassWriter {
 	{
 		return this.skipItem() || ! Util.allowMetaData(this.config, item) || item.isTemplate();
 	}
-	
+
 	public void write() {
 		if(this.allowedMetaData(EnumCategory.Constructor)) {
 			this.writeConstructors();
 		}
-		
+
 		if(this.allowedMetaData(EnumCategory.Field)) {
 			this.writeFields();
 		}
-		
+
 		if(this.allowedMetaData(EnumCategory.Method)) {
 			this.writeMethods();
 		}
-		
+
 		if(this.allowedMetaData(EnumCategory.Enum)) {
 			this.writeEnumerators();
 		}
-		
+
 		if(this.allowedMetaData(EnumCategory.Constant)) {
 			this.writeConstants();
 		}
-		
+
 		if(this.allowedMetaData(EnumCategory.Operator)) {
 			this.writeOperators();
 		}
@@ -133,7 +138,7 @@ public class MetaClassWriter {
 			this.writeClasses();
 		}
 	}
-	
+
 	private void writeConstructors() {
 		if(this.cppClass.isGlobal()) {
 			return;
@@ -141,7 +146,7 @@ public class MetaClassWriter {
 		if(this.cppClass.isAbstract()) {
 			return;
 		}
-		
+
 		this.writeConstructorsBind();
 	}
 
@@ -154,11 +159,11 @@ public class MetaClassWriter {
 			if(this.shouldSkipItem(item)) {
 				continue;
 			}
-			
+
 			this.codeWriter.write(action + "<void * (");
 			WriterUtil.writeParamList(this.codeWriter, item.getParameterList(), false);
 			this.codeWriter.write(")>(" + WriterUtil.getPolicyText(item, false) + ")");
-			
+
 			WriterUtil.writeDefaultParams(this.codeWriter, item.getParameterList());
 		}
 	}
@@ -169,9 +174,9 @@ public class MetaClassWriter {
 
 		for(CppField item : this.cppClass.getFieldList()) {
 			String name = item.getPrimaryName();
-			
+
 			this.doCallback(item);
-			
+
 			if(this.shouldSkipItem(item)) {
 				continue;
 			}
@@ -179,10 +184,10 @@ public class MetaClassWriter {
 			if(name.indexOf('@') >= 0 || name.equals("")) { // anonymous union
 				continue;
 			}
-			
+
 			if(item.isBitField()) {
 				CppField field = (CppField)(item);
-				if(WriterUtil.shouldGenerateBitfieldWrapper(this.config, field)) {
+				if(WriterUtil.shouldGenerateBitfieldWrapper(this.metaInfo, field)) {
 					this.codeWriter.writeLine(WriterUtil.getReflectionAction(this.define, "_property") + "(" + Util.quoteText(name)
 							+ ", &" + WriterUtil.getBitfieldWrapperGetterName(field)
 							+ ", &" + WriterUtil.getBitfieldWrapperSetterName(field)
@@ -216,17 +221,17 @@ public class MetaClassWriter {
 		for(CppMethod item : this.cppClass.getMethodList()) {
 			String name = item.getPrimaryName();
 			Integer overloadCount = methodOverload.get(name);
-			boolean overload = (overloadCount != null && overloadCount.intValue() > 1);
+			boolean usePrototype = (overloadCount != null && overloadCount.intValue() > 1);
 
 			this.doCallback(item);
-			
+
 			if(this.shouldSkipItem(item)) {
 				continue;
 			}
-			
-			overload = overload || this.cppClass.isGlobal();
-			
-			WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, name, name, overload);
+
+			usePrototype = usePrototype || this.cppClass.isGlobal() || item.getUseFullPrototype();
+
+			WriterUtil.reflectMethod(this.codeWriter, this.define, scopePrefix, item, name, name, usePrototype);
 		}
 	}
 
@@ -237,7 +242,7 @@ public class MetaClassWriter {
 
 		for(CppEnum item : this.cppClass.getEnumList()) {
 			String name = item.getPrimaryName();
-			
+
 			this.doCallback(item);
 
 			if(this.shouldSkipItem(item)) {
@@ -264,45 +269,97 @@ public class MetaClassWriter {
 	private void writeConstants() {
 		String action = WriterUtil.getReflectionAction(this.define, "_enum");
 
-		if(this.cppClass.getConstantList().size() == 0) {
-			return;
-		}
-
-		this.codeWriter.writeLine(action + "<long long>(" + Util.quoteText("GlobalDefine_" + this.config.projectID + "_" + this.getUniqueText()) + ")");
-		this.codeWriter.incIndent();
+		boolean haveItems = false;
 
 		for(Constant item : this.cppClass.getConstantList()) {
 			this.doCallback(item);
-			
+
 			if(this.shouldSkipItem(item)) {
 				continue;
 			}
-			
+
+			if (!haveItems) {
+				this.codeWriter.writeLine(action + "<long long>(" + Util.quoteText("GlobalDefine_" + this.config.projectID + "_" + this.getUniqueText()) + ")");
+				this.codeWriter.incIndent();
+				haveItems = true;
+			}
+
 			String value = item.getValue();
 			if(value == null || value.equals("")) {
 				continue;
 			}
-			
+
 			this.codeWriter.writeLine("._element(" + Util.quoteText(item.getPrimaryName()) + ", " + item.getPrimaryName() + ")");
 		}
-		
-		this.codeWriter.decIndent();
-		this.codeWriter.writeLine(";");
+		if (haveItems) {
+			this.codeWriter.decIndent();
+			this.codeWriter.writeLine(";");
+		}
 	}
 
 	private void writeOperators() {
 		for(Operator item : this.cppClass.getOperatorList()) {
 			this.doCallback(item);
-			
+
 			if(this.shouldSkipItem(item)) {
 				continue;
 			}
-			
+
 			OperatorWriter opWriter = new OperatorWriter(this.metaInfo, item);
 			opWriter.writeReflectionCode(this.codeWriter, this.define);
-			
+
 			if(WriterUtil.shouldGenerateOperatorWrapper(this.metaInfo, item)) {
 				opWriter.writeNamedWrapperReflectionCode(this.codeWriter, define);
+			}
+		}
+	}
+
+	private String extractTemplateInstanceSubject(CppType type)
+	{
+		Pattern p = Pattern.compile(type.getQualifiedBaseType()+"<\\s*(.*?)\\s*>$");
+		Matcher m = p.matcher(type.getLiteralType());
+		if (m.find()) {
+		   return m.group(1);
+		}
+		return null;
+	}
+
+	private String resolveTemplateArgument(String subject)
+	{
+		List<Item> subitems = new ArrayList<Item>();
+		this.cppClass.getAllItems(subitems);
+		for(Item itm : subitems) {
+			if (itm.getPrimaryName().equals(subject)) {
+				return "typename " + itm.getQualifiedName();
+			}
+		}
+		return null;
+	}
+
+	private void writeTemplateInstantiation(Typedef typedef, CppClass cls)
+	{
+		String subject = extractTemplateInstanceSubject(typedef.getType());
+		if (subject == null) {
+			return;
+		}
+		String resolvedTemplateArgument = resolveTemplateArgument(subject);
+		if (resolvedTemplateArgument != null) {
+			this.doCallback(typedef);
+			if(!this.shouldSkipItem(typedef)) {
+				String define = "_t"+this.define;
+				String resolvingArg = typedef.getType().getQualifiedBaseType()+"<"+resolvedTemplateArgument+" >";
+				this.codeWriter.beginBlock();
+				this.codeWriter.writeLine(
+						"GDefineMetaClass<"+resolvingArg+" > "+define
+						+" = GDefineMetaClass<"+resolvingArg+" >::lazyDeclare(\""
+							+typedef.getLiteralName()+"\", "
+							+"&buildMetaClass_"+typedef.getType().getQualifiedBaseType()+"<"
+								+"GDefineMetaClass<"+resolvingArg+" >, "
+								+resolvedTemplateArgument
+							+" >"
+						+");");
+				this.codeWriter.writeLine("_d._class("+define+");");
+				this.codeWriter.endBlock();
 			}
 		}
 	}
@@ -310,16 +367,25 @@ public class MetaClassWriter {
 	private void writeClasses() {
 		String action = WriterUtil.getReflectionAction(this.define, "_class");
 
+		for (Typedef typedef : this.cppClass.getTypedefList()) {
+			CppClass cls = metaInfo.findClassByName(typedef.getType().getQualifiedBaseType());
+			if (cls != null) {
+				if (cls.isTemplate()) {
+					writeTemplateInstantiation(typedef, cls);
+				}
+			}
+		}
 		for(DeferClass deferClass : this.cppClass.getClassList()) {
 			CppClass item = deferClass.getCppClass();
 			this.doCallback(item);
-			
+
 			if(this.shouldSkipItem(item)) {
 				continue;
 			}
-			
+
 			this.codeWriter.beginBlock();
-			
+
+			// same for typedef'ed template instantiations!
 			WriterUtil.defineMetaClass(this.config, this.codeWriter, item, "_nd", "declare");
 			MetaClassWriter classWriter = new MetaClassWriter(
 				this.config,
@@ -331,7 +397,7 @@ public class MetaClassWriter {
 			);
 			classWriter.write();
 			this.codeWriter.writeLine(action + "(_nd);");
-			
+
 			this.codeWriter.endBlock();
 		}
 	}

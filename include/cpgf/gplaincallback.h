@@ -1,5 +1,5 @@
-#ifndef __GPLAINCALLBACK_H
-#define __GPLAINCALLBACK_H
+#ifndef CPGF_GPLAINCALLBACK_H
+#define CPGF_GPLAINCALLBACK_H
 
 #include "cpgf/gcallback.h"
 

@@ -1,7 +1,7 @@
 // Auto generated file, don't modify.
 
-#ifndef __META_TEST_METAGEN_OPERATOR_ARITHMETIC_H
-#define __META_TEST_METAGEN_OPERATOR_ARITHMETIC_H
+#ifndef CPGF_META_TEST_METAGEN_OPERATOR_ARITHMETIC_H
+#define CPGF_META_TEST_METAGEN_OPERATOR_ARITHMETIC_H
 
 
 #include "cpgf/gmetadefine.h"
@@ -63,9 +63,9 @@ inline MetagenOperatorArithmetic opErAToRWrapper_MetagenOperatorArithmetic__opMo
 
 
 template <typename D>
-void buildMetaClass_MetagenOperatorArithmetic(const cpgf::GMetaDataConfigFlags & config, D _d)
+void buildMetaClass_MetagenOperatorArithmetic(D _d)
 {
-    (void)config; (void)_d; (void)_d;
+    (void)_d;
     using namespace cpgf;
     
     _d.CPGF_MD_TEMPLATE _constructor<void * ()>();
