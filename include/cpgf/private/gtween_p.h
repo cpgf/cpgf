@@ -1,6 +1,7 @@
 #ifndef CPGF_GTWEEN_P_H
 #define CPGF_GTWEEN_P_H
 
+#include "cpgf/gflags.h"
 
 namespace cpgf {
 
@@ -24,6 +25,12 @@ public:
 
 protected:
 	GTweenItemVirtual * virtualFunctions;
+};
+
+enum GTweenTargetItemFlag
+{
+	ttifRelative = 1 << 0,
+	ttifHasFrom = 1 << 1
 };
 
 template <typename AccessorType>
@@ -52,8 +59,8 @@ private:
 	}
 
 public:
-	GTweenTargetItem(const AccessorType & accessor, const ValueType & from, const ValueType & to, bool relative)
-		: super(), accessor(accessor), from(from), to(to), change(to), relative(relative)
+	GTweenTargetItem(const AccessorType & accessor, const ValueType & from, const ValueType & to, const cpgf::GFlags<GTweenTargetItemFlag> & flags)
+		: super(), accessor(accessor), from(from), to(to), change(to), flags(flags)
 	{
 		static GTweenItemVirtual thisFunctions = {
 			&virtualDeleteSelf,
@@ -73,10 +80,13 @@ protected:
 
 	void doInit() {
 		if(this->accessor.canRead()) {
-			this->from = this->accessor();
-			if(! this->relative) {
-				this->change = this->to - this->from;
+			if(! this->flags.has(ttifHasFrom)) {
+				this->from = this->accessor();
 			}
+		}
+
+		if(! this->flags.has(ttifRelative)) {
+			this->change = this->to - this->from;
 		}
 	}
 
@@ -89,7 +99,7 @@ private:
 	ValueType from;
 	ValueType to;
 	ValueType change;
-	bool relative;
+	cpgf::GFlags<GTweenTargetItemFlag> flags;
 };
 
 
