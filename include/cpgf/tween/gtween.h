@@ -26,28 +26,28 @@ public:
 	template <typename AccessorType>
 	GTween & target(const AccessorType & accessor, const typename AccessorType::ValueType & targetValue)
 	{
-		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, accessor(), targetValue, false));
+		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, accessor(), targetValue, 0));
 		return *this;
 	}
 
 	template <typename AccessorType>
 	GTween & target(const AccessorType & accessor, const typename AccessorType::ValueType & from, const typename AccessorType::ValueType & targetValue)
 	{
-		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, from, targetValue, false));
+		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, from, targetValue, tween_internal::ttifHasFrom));
 		return *this;
 	}
 
 	template <typename AccessorType>
 	GTween & relative(const AccessorType & accessor, const typename AccessorType::ValueType & relativeValue)
 	{
-		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, accessor(), relativeValue, true));
+		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, accessor(), relativeValue, tween_internal::ttifRelative));
 		return *this;
 	}
 
 	template <typename AccessorType>
 	GTween & relative(const AccessorType & accessor, const typename AccessorType::ValueType & from, const typename AccessorType::ValueType & relativeValue)
 	{
-		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, from, relativeValue, true));
+		this->itemList.push_back(new tween_internal::GTweenTargetItem<AccessorType>(accessor, from, relativeValue, tween_internal::ttifRelative | tween_internal::ttifHasFrom));
 		return *this;
 	}
 
