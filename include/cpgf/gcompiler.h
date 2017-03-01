@@ -12,10 +12,6 @@
 	#define G_DEBUG 0
 #endif
 
-#ifndef SUPPORT_CPP_11
-    #define SUPPORT_CPP_11 0
-#endif
-
 #if defined(_WIN64) || defined(WIN64) || defined(__WIN64_) || defined(_WIN64_WCE)
 	#define G_OS_WIN64
 #elif defined(_WIN32) || defined(WIN32) || defined(__WIN32__) || defined(_WIN32_WCE)
