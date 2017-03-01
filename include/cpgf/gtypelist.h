@@ -4,17 +4,10 @@
 // code in this file is highly inspired from Loki library
 
 #include "cpgf/gcompiler.h"
-#include "cpgf/gpp.h"
-
-
-#define TL_MAX_PARAM GPP_MAX_LIMIT
-
 
 namespace cpgf {
 
-struct GNullType {
-};
-
+struct GNullType {};
 
 template <typename H, typename T>
 struct GTypeList {
@@ -22,32 +15,20 @@ struct GTypeList {
 	typedef T Tail;
 };
 
+template <typename... Types>
+struct TypeList_Make;
 
-#define TL_TYPENAME_PARAM_NULL(N, T)			GPP_COMMA_IF(N) typename T ## N = GNullType
-#define TL_DO_TYPE(N) T ## N GPP_COMMA()
-#define TL_NOTDO_TYPE(N)
-#define TL_TAIL_TYPE(N, T)			GPP_IF(N, TL_DO_TYPE, TL_NOTDO_TYPE)(N)
-#define TL_LESS_PARAM GPP_DEC(TL_MAX_PARAM)
-
-template <GPP_REPEAT(TL_MAX_PARAM, TL_TYPENAME_PARAM_NULL, T) >
-struct TypeList_Make {
-private:
-	typedef typename TypeList_Make<GPP_REPEAT(TL_LESS_PARAM, TL_TAIL_TYPE, T) GPP_CONCAT(T, TL_LESS_PARAM) >::Result TailResult;
-
-public:
-	typedef GTypeList<T0, TailResult> Result;
+template <typename H, typename... Types>
+struct TypeList_Make <H, Types...>
+{
+	typedef GTypeList<H, typename TypeList_Make<Types...>::Result > Result;
 };
 
-template<>
-struct TypeList_Make < > {
+template <>
+struct TypeList_Make <>
+{
 	typedef GNullType Result;
 };
-
-#undef TL_TYPENAME_PARAM_NULL
-#undef TL_DO_TYPE
-#undef TL_NOTDO_TYPE
-#undef TL_TAIL_TYPE
-#undef TL_LESS_PARAM
 
 
 // get
@@ -158,10 +139,6 @@ struct TypeList_Append <GTypeList<Head, Tail>, T>
 
 
 } // namespace cpgf
-
-
-
-#undef TL_MAX_PARAM
 
 
 
