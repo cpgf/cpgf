@@ -331,19 +331,15 @@ struct GMetaMethodCallbackMaker <OT, GCallback<FT>,
 };
 
 
-#define REF_PARAM_TYPEVALUE(N, P)		GPP_COMMA_IF(N) P ## N p ## N
-
-#define REF_CONSTRUCTOR_INVOKE(N, unused) \
-    template<typename OT, typename ArgsList> struct GMetaConstructorInvoker <N, OT, ArgsList> { \
-        void * operator ()(GPP_REPEAT(N, REF_PARAM_TYPEVALUE, typename ArgsList::Arg)) const { \
-            return new OT(GPP_REPEAT_PARAMS(N, p)); \
-        } \
-    };
-
 template <int arity, typename OT, typename ArgsListType>
-struct GMetaConstructorInvoker;
-
-GPP_REPEAT_2(REF_MAX_ARITY, REF_CONSTRUCTOR_INVOKE, GPP_EMPTY)
+struct GMetaConstructorInvoker
+{
+	template <typename... Parameters>
+	void * operator()(Parameters && ... parameters)
+	{
+		return new OT(std::forward<Parameters>(parameters)...);
+	}
+};
 
 
 } // namespace meta_internal
@@ -352,10 +348,8 @@ GPP_REPEAT_2(REF_MAX_ARITY, REF_CONSTRUCTOR_INVOKE, GPP_EMPTY)
 } // namespace cpgf
 
 
-#undef REF_CONSTRUCTOR_INVOKE
 #undef REF_GETPARAM_TYPE_HELPER
 #undef REF_GETPARAM_EXTENDTYPE_HELPER
-#undef REF_PARAM_TYPEVALUE
 
 
 
