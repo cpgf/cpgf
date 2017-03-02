@@ -1,5 +1,5 @@
-#ifndef GCALLBACK_H
-#define GCALLBACK_H
+#ifndef CPGF_GCALLBACK_H
+#define CPGF_GCALLBACK_H
 
 #include "cpgf/gfunctiontraits.h"
 

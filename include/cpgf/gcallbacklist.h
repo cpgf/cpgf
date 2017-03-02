@@ -1,7 +1,7 @@
-#ifndef GCALLBACKLIST_H
-#define GCALLBACKLIST_H
+#ifndef CPGF_GCALLBACKLIST_H
+#define CPGF_GCALLBACKLIST_H
 
-#include "gcallback.h"
+#include "cpgf/gcallback.h"
 
 #include <deque>
 

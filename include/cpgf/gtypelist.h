@@ -36,6 +36,11 @@ struct TypeList_Make <>
 template <typename TypeList, unsigned int index>
 struct TypeList_Get;
 
+template <unsigned int index>
+struct TypeList_Get <GNullType, index> {
+	typedef GNullType Result;
+};
+
 template <typename H, typename T>
 struct TypeList_Get <GTypeList<H, T>, 0 > {
     typedef H Result;
