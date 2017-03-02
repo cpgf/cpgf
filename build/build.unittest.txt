@@ -1,6 +1,6 @@
 set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0")
 if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0")
+	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -Os")
 	if(TEST_GCOV)
 		set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0 -fprofile-arcs -ftest-coverage")
 	endif(TEST_GCOV)
