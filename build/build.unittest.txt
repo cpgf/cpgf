@@ -122,6 +122,10 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/misc/*.cpp
 	)
 
+	partUnitTest("test_callback"
+		${TEST_PATH}/callback/*.cpp
+	)
+
 	partUnitTest("test_variant"
 		${TEST_PATH}/variant/*.cpp
 	)
@@ -192,6 +196,7 @@ if(${HAS_UNITTEST})
 
 	globAndAppendFiles(GLOB_TEST_SRC
 		${TEST_PATH}/accessor/*.cpp
+		${TEST_PATH}/callback/*.cpp
 		${TEST_PATH}/misc/*.cpp
 		${TEST_PATH}/variant/*.cpp
 		${TEST_PATH}/reflection/*.cpp

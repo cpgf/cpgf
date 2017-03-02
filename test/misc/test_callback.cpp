@@ -502,12 +502,14 @@ public:
 		(GCallback<int ()>(makeReference(volatileObj)))();
 		(GCallback<int ()>(makeReference(constVolatileObj)))();
 
+#if 0
 		GCallback<int ()> cb1(obj);
 		cb1 = makeReference(cb1);
 		cb1 = GCallback<int ()>(makeReference(cb1));
 		cb1 = GCallback<int ()>(makeReference(makeReference(cb1)));
 		cb1 = GCallback<int ()>(makeReference(makeConstReference(makeReference(cb1))));
 		cb1();
+#endif
 
 		(GCallback<void (int)>(obj))(5);
 		(GCallback<void (int)>(constObj))(5);
