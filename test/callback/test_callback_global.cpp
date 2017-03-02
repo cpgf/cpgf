@@ -110,9 +110,21 @@ GTEST(Callback_Global_Many_Parameters)
 	GCHECK(result == 1830);
 }
 
-
-GTEST(Callback_Global_Default_Parameters)
+std::string func_rvalue_reference(std::string && s)
 {
+	return std::move(s);
+}
+
+GTEST(Callback_Global_rvalue_reference)
+{
+	auto cb = makeCallback(&func_rvalue_reference);
+	std::string s("abc");
+	
+	GCHECK(s == "abc");
+	
+	std::string ts = cb(std::move(s));
+	GCHECK(s == "");
+	GCHECK(ts == "abc");
 }
 
 

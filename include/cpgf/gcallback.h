@@ -308,7 +308,6 @@ class GCallback <RT (Parameters...)>
 private:
 	typedef callback_internal::GCallbackBase <RT, Parameters...> BaseType;
 	typedef GCallback <RT (Parameters...)> ThisType;
-	typedef RT ReturnType;
 
 public:
 	typedef RT FunctionType(Parameters...);
@@ -367,7 +366,6 @@ public:
 		return *this;
 	}
 
-//	template <typename... Arguments>
 	RT invoke(Parameters... args) const
 	{
 		if(this->base != nullptr) {
@@ -378,7 +376,6 @@ public:
 		}
 	}
 	
-//	template <typename... Arguments>
 	RT operator() (Parameters... args) const
 	{
 		if(this->base != nullptr) {
