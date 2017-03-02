@@ -6,6 +6,7 @@
 #include "cpgf/gmetacommon.h"
 #include "cpgf/gmetatype.h"
 #include "cpgf/gmetapolicy.h"
+#include "cpgf/gtypeutil.h"
 #include "cpgf/gpp.h"
 #include "cpgf/gcallback.h"
 #include "cpgf/gexception.h"
@@ -22,13 +23,6 @@ namespace cpgf {
 extern int Error_Meta_ParamOutOfIndex;
 
 namespace meta_internal {
-
-
-#define REF_GETPARAM_TYPE_HELPER(N, unused) \
-	case N: return createMetaType<typename TypeList_GetWithDefault<typename CallbackT::TraitsType::ArgTypeList, N>::Result>();
-
-#define REF_GETPARAM_EXTENDTYPE_HELPER(N, unused) \
-	case N: return createMetaExtendType<typename TypeList_GetWithDefault<typename CallbackT::TraitsType::ArgTypeList, N>::Result>(flags);
 
 std::string arityToName(int arity);
 
@@ -119,16 +113,22 @@ private:
 		return ! IsSameType<typename TraitsType::ResultType, void>::Result;
 	}
 
+	template <unsigned int N>
+	struct GetParamTypeSelector
+	{
+		template <typename TypeList>
+		GMetaType operator()(const TypeList & /*typeList*/)
+		{
+			return createMetaType<typename TypeList_GetWithDefault<TypeList, N>::Result>();
+		}
+	};
+
 	static GMetaType virtualGetParamType(size_t index) {
 		meta_internal::adjustParamIndex(index, PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result);
-
-		switch(index) {
-			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_TYPE_HELPER, GPP_EMPTY)
-
-			default:
-				raiseCoreException(Error_Meta_ParamOutOfIndex);
-				return GMetaType();
-		}
+		return GTypeSelector<CallbackT::TraitsType::Arity>::template select<GMetaType, GetParamTypeSelector>(
+			index,
+			typename CallbackT::TraitsType::ArgTypeList()
+		);
 	}
 
 	static GMetaType virtualGetResultType() {
@@ -139,15 +139,28 @@ private:
 		return createMetaExtendType<typename CallbackT::TraitsType::ResultType>(flags);
 	}
 	
+	template <typename TypeList>
+	struct GetParamExtendTypeSelectorParam
+	{
+		uint32_t flags;
+	};
+	
+	template <unsigned int N>
+	struct GetParamExtendTypeSelector
+	{
+		template <typename TypeList>
+		GMetaExtendType operator()(const GetParamExtendTypeSelectorParam<TypeList> & param)
+		{
+			return createMetaExtendType<typename TypeList_GetWithDefault<TypeList, N>::Result>(param.flags);
+		}
+	};
+
 	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
 		meta_internal::adjustParamIndex(index, PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result);
-		switch(index) {
-			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_EXTENDTYPE_HELPER, GPP_EMPTY)
-
-			default:
-				raiseCoreException(Error_Meta_ParamOutOfIndex);
-				return GMetaExtendType();
-		}
+		return GTypeSelector<CallbackT::TraitsType::Arity>::template select<GMetaExtendType, GetParamExtendTypeSelector>(
+			index,
+			GetParamExtendTypeSelectorParam<typename CallbackT::TraitsType::ArgTypeList>{ flags }
+		);
 	}
 	
 	static bool virtualIsVariadic() {
@@ -172,6 +185,22 @@ private:
 		>::invoke(instance, static_cast<const GMetaMethodData *>(self)->callback, params, paramCount);
 	}
 
+	template <typename TypeList>
+	struct CheckParamSelectorParam
+	{
+		const GVariant & param;
+	};
+	
+	template <unsigned int N>
+	struct CheckParamSelector
+	{
+		template <typename TypeList>
+		bool operator()(const CheckParamSelectorParam<TypeList> & param)
+		{
+			return canFromVariant<typename TypeList_GetWithDefault<TypeList, N>::Result>(param.param);
+		}
+	};
+
 	static bool virtualCheckParam(const GVariant & param, size_t paramIndex) {
 		if(virtualIsVariadic() && paramIndex >= virtualGetParamCount()) {
 			return true;
@@ -186,18 +215,10 @@ private:
 			++paramIndex;
 		}
 
-#define REF_CHECKPARAM_HELPER(N, unused) \
-	case N: return canFromVariant<typename TypeList_GetWithDefault<typename CallbackT::TraitsType::ArgTypeList, N>::Result>(param);
-
-		switch(paramIndex) {
-			GPP_REPEAT(REF_MAX_ARITY, REF_CHECKPARAM_HELPER, GPP_EMPTY)
-
-			default:
-				raiseCoreException(Error_Meta_ParamOutOfIndex);
-				return false;
-		}
-
-#undef REF_CHECKPARAM_HELPER
+		return GTypeSelector<CallbackT::TraitsType::Arity>::template select<bool, CheckParamSelector>(
+			paramIndex,
+			CheckParamSelectorParam<typename CallbackT::TraitsType::ArgTypeList>{ param }
+		);
 
 	}
 
@@ -346,11 +367,6 @@ struct GMetaConstructorInvoker
 
 
 } // namespace cpgf
-
-
-#undef REF_GETPARAM_TYPE_HELPER
-#undef REF_GETPARAM_EXTENDTYPE_HELPER
-
 
 
 #if defined(_MSC_VER)
