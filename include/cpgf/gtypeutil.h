@@ -142,6 +142,52 @@ struct GTypeSelector <0>
 };
 
 
+/*
+Enumerate through 0..Count - 1
+
+Usage:
+template <unsigned int N>
+struct Func
+{
+	template <typename Tuple>
+	void operator()(const Tuple & tuple)
+	{
+		cout << std::get<N>(tuple) << endl;
+	}
+};
+
+void test()
+{
+	auto args = std::make_tuple(1, "a", 2, "b");
+	GTypeForEach<4>::forEach<Func>(args);
+	// Output
+	// 1
+	// a
+	// 2
+	// b
+};
+*/
+template <unsigned int Count, unsigned int Index = 0>
+struct GTypeForEach
+{
+	template<template <unsigned int> class Func, typename... FuncParameters>
+	static void forEach(FuncParameters && ... funcParameters)
+	{
+		Func<Index>()(funcParameters...);
+		GTypeForEach<Count, Index + 1>::template forEach<Func>(std::forward<FuncParameters>(funcParameters)...);
+	}
+};
+
+template <unsigned int Count>
+struct GTypeForEach <Count, Count>
+{
+	template<template <unsigned int> class Func, typename... FuncParameters>
+	static void forEach(FuncParameters && ... /*funcParameters*/)
+	{
+	}
+};
+
+
 } // namespace cpgf
 
 

@@ -216,12 +216,7 @@ public:
 		: super(doGetVirtuals()), func(func)
 	{
 	}
-/*
-	GCallbackBaseFunc(Func && func)
-		: super(doGetVirtuals()), func(std::move(func))
-	{
-	}
-*/
+
 private:
 	Func func;
 };
@@ -475,36 +470,17 @@ makeCallback(OT * instance, const FT & func) {
 	return GCallback<typename cpgf::GFunctionTraits<FT>::FunctionType>(instance, func);
 }
 
-namespace callback_internal {
-
-template <typename OT>
-struct GlobalCallbackSelector
-{
-	template <typename FT>
-	static typename FunctionCallbackType<FT>::Result
-	makeCallback(const FT & func) {
-		return GCallback<typename cpgf::GFunctionTraits<FT>::FunctionType>((OT *)NULL, func);
-	}
-};
-
-template <>
-struct GlobalCallbackSelector <cpgf::GFunctionTraitNullType>
-{
-	template <typename FT>
-	static typename FunctionCallbackType<FT>::Result
-	makeCallback(const FT & func) {
-		return GCallback<typename cpgf::GFunctionTraits<FT>::FunctionType>(func);
-	}
-};
-
-} // namespace callback_internal
-
 template <typename FT>
-typename FunctionCallbackType<FT>::Result
+typename std::enable_if<cpgf::GFunctionTraits<FT>::IsMember, typename FunctionCallbackType<FT>::Result>::type
 makeCallback(FT func) {
-	return callback_internal::GlobalCallbackSelector<typename cpgf::GFunctionTraits<FT>::ObjectType>::makeCallback(func);
+	return GCallback<typename cpgf::GFunctionTraits<FT>::FunctionType>((typename cpgf::GFunctionTraits<FT>::ObjectType *)NULL, func);
 }
 
+template <typename FT>
+typename std::enable_if<! cpgf::GFunctionTraits<FT>::IsMember, typename FunctionCallbackType<FT>::Result>::type
+makeCallback(FT func) {
+	return GCallback<typename cpgf::GFunctionTraits<FT>::FunctionType>(func);
+}
 
 
 } //namespace cpgf

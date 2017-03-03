@@ -12,9 +12,26 @@ class GCallbackList
 {
 private:
 	typedef GCallback<Signature> CallbackType;
-	typedef std::deque<CallbackType> CallbackList;
+	typedef std::deque<CallbackType> CallbackListType;
 	
 public:
+	GCallbackList() : callbackList() {
+	}
+	
+	GCallbackList(const GCallbackList & other) : callbackList(other.callbackList) {
+	}
+	
+	GCallbackList(GCallbackList && other) : callbackList(std::move(other.callbackList)) {
+	}
+	
+	GCallbackList & operator = (GCallbackList other) {
+		this->swap(other);
+	}
+	
+	GCallbackList & operator = (GCallbackList && other) {
+		this->swap(std::move(other));
+	}
+	
 	int getCount() const {
 		return (int)this->callbackList.size();
 	}
@@ -45,28 +62,7 @@ public:
 			this->callbackList[i].clear();
 		}
 	}
-	
-	template <typename... Parameters>
-	void dispatch(Parameters && ... args) const
-	{
-		const int count = this->getCount();
-		if(count > 0) {
-			int index = 0;
-			auto it = this->callbackList.begin();
-			while(index < count) {
-				if(it->empty()) {
-					it = this->callbackList.erase(it);
-				}
-				else {
-					it->invoke(std::forward<Parameters>(args)...);
-					++it;
-				}
-				++index;
-			}
-		}
-	}
 
-	// duplicate code from emit to avoid forwarding arguments.
 	template <typename... Parameters>
 	void operator() (Parameters && ... args) const
 	{
@@ -86,9 +82,26 @@ public:
 			}
 		}
 	}
+	
+	template <typename... Parameters>
+	void dispatch(Parameters && ... args) const
+	{
+		(*this)(std::forward<Parameters>(args)...);
+	}
+	
+	void swap(GCallbackList & other) noexcept
+	{
+		using namespace std;
+		swap(this->callbackList, other.callbackList);
+	}
+	
+	friend void swap(GCallbackList & a, GCallbackList & b)
+	{
+		a.swap(b);
+	}
 
 private:
-	mutable CallbackList callbackList;
+	mutable CallbackListType callbackList;
 };
 
 
