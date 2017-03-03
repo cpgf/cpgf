@@ -6,7 +6,6 @@
 #pragma warning(disable:4127) // warning C4127: conditional expression is constant
 #endif
 
-
 namespace meta_internal {
 
 template <GMetaOpType op>
@@ -668,16 +667,22 @@ private:
 		return false;
 	}
 
+	template <unsigned int N>
+	struct GetParamTypeSelector
+	{
+		template <typename TypeList>
+		GMetaType operator()(const TypeList & /*typeList*/)
+		{
+			return createMetaType<typename TypeList_GetWithDefault<TypeList, N>::Result>();
+		}
+	};
+
 	static GMetaType virtualGetParamType(size_t index) {
 		if((int)index < static_cast<int>(FT::Arity)) {
-			switch(index) {
-#define REF_GETPARAM_HELPER(N, unused) \
-	case N: return createMetaType<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>();
-
-			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_HELPER, GPP_EMPTY)
-
-#undef REF_GETPARAM_HELPER
-			}
+			return GTypeSelector<FT::Arity>::template select<GMetaType, GetParamTypeSelector>(
+				index,
+				typename FT::ArgTypeList()
+			);
 		}
 
 		operatorIndexOutOfBound(index, FT::Arity);
@@ -696,20 +701,28 @@ private:
 		return createMetaExtendType<typename FT::ResultType>(flags);
 	}
 
+	template <typename TypeList>
+	struct GetParamExtendTypeSelectorParam
+	{
+		uint32_t flags;
+	};
+	
+	template <unsigned int N>
+	struct GetParamExtendTypeSelector
+	{
+		template <typename TypeList>
+		GMetaExtendType operator()(const GetParamExtendTypeSelectorParam<TypeList> & param)
+		{
+			return createMetaExtendType<typename TypeList_GetWithDefault<TypeList, N>::Result>(param.flags);
+		}
+	};
+
 	static GMetaExtendType virtualGetParamExtendType(uint32_t flags, size_t index) {
 		meta_internal::adjustParamIndex(index, PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result);
-		
-#define REF_GETPARAM_EXTENDTYPE_HELPER(N, unused) \
-	case N: return createMetaExtendType<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>(flags);
-
-		switch(index) {
-			GPP_REPEAT(REF_MAX_ARITY, REF_GETPARAM_EXTENDTYPE_HELPER, GPP_EMPTY)
-
-			default:
-				raiseCoreException(Error_Meta_ParamOutOfIndex);
-				return GMetaExtendType();
-		}
-#undef REF_GETPARAM_EXTENDTYPE_HELPER
+		return GTypeSelector<FT::Arity>::template select<GMetaExtendType, GetParamExtendTypeSelector>(
+			index,
+			GetParamExtendTypeSelectorParam<typename FT::ArgTypeList>{ flags }
+		);
 	}
 	
 
@@ -721,8 +734,21 @@ private:
 		return PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result;
 	}
 
-#define REF_CHECKPARAM_HELPER(N, unused) \
-	case N: return canFromVariant<typename TypeList_GetWithDefault<typename FT::ArgTypeList, N>::Result>(param);
+	template <typename TypeList>
+	struct CheckParamSelectorParam
+	{
+		const GVariant & param;
+	};
+	
+	template <unsigned int N>
+	struct CheckParamSelector
+	{
+		template <typename TypeList>
+		bool operator()(const CheckParamSelectorParam<TypeList> & param)
+		{
+			return canFromVariant<typename TypeList_GetWithDefault<TypeList, N>::Result>(param.param);
+		}
+	};
 
 	static bool virtualCheckParam(const GVariant & param, size_t paramIndex) {
 		if(virtualIsVariadic() && paramIndex >= virtualGetParamCount()) {
@@ -734,15 +760,11 @@ private:
 			}
 		}
 
-		switch(paramIndex) {
-			GPP_REPEAT(REF_MAX_ARITY, REF_CHECKPARAM_HELPER, GPP_EMPTY)
-
-			default:
-				raiseCoreException(Error_Meta_ParamOutOfIndex);
-				return false;
-		}
+		return GTypeSelector<FT::Arity>::template select<bool, CheckParamSelector>(
+			paramIndex,
+			CheckParamSelectorParam<typename FT::ArgTypeList>{ param }
+		);
 	}
-#undef REF_CHECKPARAM_HELPER
 
 	static GMetaType virtualCreateOperatorMetaType() {
 		return createMetaType<typename GFunctionTraits<Signature>::FullType>();
