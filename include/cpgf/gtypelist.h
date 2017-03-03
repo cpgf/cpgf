@@ -86,6 +86,12 @@ struct TypeList_Append <GTypeList<Types...>, T>
 	typedef GTypeList<Types..., T> Result;
 };
 
+template <typename... TypesA, typename... TypesB>
+struct TypeList_Append <GTypeList<TypesA...>, GTypeList<TypesB...> >
+{
+	typedef GTypeList<TypesA..., TypesB...> Result;
+};
+
 
 } // namespace cpgf
 
