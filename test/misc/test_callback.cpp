@@ -5,6 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include <typeinfo>
+#include <functional>
 
 #include "cpgf/gcompiler.h"
 #include "cpgf/gcallback.h"

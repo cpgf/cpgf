@@ -50,7 +50,7 @@ set(HAS_IRRLICHT 1) #release=false
 ### Unit test config
 
 set(UNIT_TEST_DIR
-	E:/source/unittestpp
+	E:/source/unittest++
 )
 
 
@@ -75,7 +75,7 @@ if(${HAS_LUA})
 		set(LUA_LIB ${LUA_DIR}/src/liblua.a)
 
 		if(MSVC)
-			set(LUA_LIB ${LUA_DIR}/src/lua51.lib)
+			set(LUA_LIB ${LUA_DIR}/src/lua.lib)
 		endif(MSVC)
 
 		if(UNIX)

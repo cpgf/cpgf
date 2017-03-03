@@ -37,14 +37,6 @@ void doBuildMetaData_list(const GMetaDataConfigFlags & config, MetaDefine define
 		.CPGF_MD_TEMPLATE _method("sort", (void (T::*)()) &T::sort)
 		.CPGF_MD_TEMPLATE _method("reverse", (void (T::*)()) &T::reverse)
 
-#if CPGF_MD_STL_QUIRK_CONST_ITERATOR()		
-		.CPGF_MD_TEMPLATE _method("insert", (typename T::iterator (T::*)(typename T::const_iterator, const typename T::value_type &)) &T::insert, policy)
-		.CPGF_MD_TEMPLATE _method("insert", (void (T::*)(typename T::const_iterator, typename T::size_type, const typename T::value_type &)) &T::insert, policy)
-		
-		.CPGF_MD_TEMPLATE _method("splice", (void (T::*)(typename T::const_iterator, T &)) &T::splice)
-		.CPGF_MD_TEMPLATE _method("splice", (void (T::*)(typename T::const_iterator, T &, typename T::const_iterator)) &T::splice)
-		.CPGF_MD_TEMPLATE _method("splice", (void (T::*)(typename T::const_iterator, T &, typename T::const_iterator, typename T::const_iterator)) &T::splice)
-#else
 		.CPGF_MD_TEMPLATE _method("insert", (typename T::iterator (T::*)(typename T::const_iterator, const typename T::value_type &)) &T::insert, policy)
 		.CPGF_MD_TEMPLATE _method("insert", (typename T::iterator (T::*)(typename T::const_iterator, typename T::value_type &&)) &T::insert, policy)
 		.CPGF_MD_TEMPLATE _method("insert", (typename T::iterator (T::*)(typename T::const_iterator, typename T::size_type, const typename T::value_type &)) &T::insert, policy)
@@ -55,7 +47,6 @@ void doBuildMetaData_list(const GMetaDataConfigFlags & config, MetaDefine define
 		.CPGF_MD_TEMPLATE _method("splice", (void (T::*)(typename T::const_iterator, T &&, typename T::const_iterator)) &T::splice)
 		.CPGF_MD_TEMPLATE _method("splice", (void (T::*)(typename T::const_iterator, T &, typename T::const_iterator, typename T::const_iterator)) &T::splice)
 		.CPGF_MD_TEMPLATE _method("splice", (void (T::*)(typename T::const_iterator, T &&, typename T::const_iterator, typename T::const_iterator)) &T::splice)
-#endif
 	;
 }
 
