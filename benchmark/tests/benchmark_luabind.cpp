@@ -33,6 +33,7 @@ void doBenchmarkLuaBind()
 	// 1000000
 	// Before optimizing: 6900 ms
 	// After refactored doInvokeMethodList: 6200 ms
+	// After changed sourceClass and userConverter in ConvertRank, 5750 ms.
 	{
 		std::string code = R"(
 			a = TestObject()

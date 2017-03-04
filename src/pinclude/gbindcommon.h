@@ -809,9 +809,12 @@ public:
 
 public:
 	int weight;
-	GSharedInterface<IMetaClass> sourceClass;
+	IMetaClass * sourceClass;
+	// We have to use GSharedInterface to hold targetClass
+	// because the targetClass may be created dynamically from the global repository.
+	// sourceClass doesn't have this problem, it's always hold by the caller.
 	GSharedInterface<IMetaClass> targetClass;
-	GSharedInterface<IScriptUserConverter> userConverter;
+	IScriptUserConverter * userConverter;
 	uint32_t userConverterTag;
 };
 
@@ -1137,13 +1140,6 @@ int findAppropriateCallable(IMetaService * service,
 			if(weight > maxRank) {
 				maxRank = weight;
 				maxRankIndex = static_cast<int>(i);
-
-				if(callableCount == 1) {
-					// Mostly callableCount is 1 and there is no overloaded method
-					// So we break without copying paramRanks, to improve performance.
-					break;
-				}
-
 				std::copy(paramRanks, paramRanks + callableParam->paramCount, callableParam->paramRanks);
 			}
 		}

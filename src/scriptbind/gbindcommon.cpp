@@ -845,9 +845,9 @@ ConvertRank::ConvertRank()
 void ConvertRank::reset()
 {
 	this->weight = ValueMatchRank_Unknown;
-	this->sourceClass.reset();
+	this->sourceClass = nullptr;
 	this->targetClass.reset();
-	this->userConverter.reset();
+	this->userConverter = nullptr;
 	this->userConverterTag = 0;
 }
 
@@ -1086,7 +1086,7 @@ void rankImplicitConvertForMetaClass(ConvertRank * outputRank, IMetaItem * sourc
 		}
 
 		if(outputRank->weight != ValueMatchRank_Unknown) {
-			outputRank->sourceClass.reset(sourceClass);
+			outputRank->sourceClass = sourceClass;
 			outputRank->targetClass.reset(targetClass);
 		}
 	}
@@ -1112,7 +1112,7 @@ void rankImplicitConvertForUserConvert(ConvertRank * outputRank, IMetaCallable *
 		uint32_t tag = converter->canConvert(&converterData);
 		if(tag != 0) {
 			outputRank->weight = ValueMatchRank_Implicit_UserConvert;
-			outputRank->userConverter.reset(converter.get());
+			outputRank->userConverter = converter.get();
 			outputRank->userConverterTag = tag;
 
 			break;
@@ -1309,13 +1309,13 @@ bool implicitConvertForMetaClassCast(const ConvertRank & rank, GVariant * v)
 {
 	switch(rank.weight) {
 		case ValueMatchRank_Implicit_CastToBase: {
-			*v = metaCastToBase(objectAddressFromVariant(*v), rank.sourceClass.get(), rank.targetClass.get());
+			*v = metaCastToBase(objectAddressFromVariant(*v), rank.sourceClass, rank.targetClass.get());
 
 			return true;
 		}
 
 		case ValueMatchRank_Implicit_CastToDerived: {
-			*v = metaCastToDerived(objectAddressFromVariant(*v), rank.sourceClass.get(), rank.targetClass.get());
+			*v = metaCastToDerived(objectAddressFromVariant(*v), rank.sourceClass, rank.targetClass.get());
 
 			return true;
 		}
