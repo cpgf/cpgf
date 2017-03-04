@@ -35,6 +35,7 @@ void doBenchmarkLuaBind()
 	// After refactored doInvokeMethodList: 6200 ms
 	// After changed sourceClass and userConverter in ConvertRank, 5750 ms.
 	// After changed the object array to char buffer in InvokeCallableParam, 4750 ms.
+	// After changed holders from GVariant holders[REF_MAX_ARITY] to GVariant holder in doInvokeCallable, 4150 ms
 	{
 		std::string code = R"(
 			a = TestObject()

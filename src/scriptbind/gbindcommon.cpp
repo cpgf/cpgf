@@ -1379,13 +1379,13 @@ void doInvokeCallable(const GContextPointer & context, void * instance, IMetaCal
 {
 	result->resultCount = callable->hasResult() ? 1 : 0;
 
-	GVariant holders[REF_MAX_ARITY];
+	GVariant holder;
 
 	for(size_t i = 0; i < callableParam->paramCount; ++i) {
 		if(isParamImplicitConvert(callableParam->paramRanks[i])) {
 			implicitConvertCallableParam(
 				context,
-				&holders[i],
+				&holder,
 				callable,
 				callableParam,
 				i
