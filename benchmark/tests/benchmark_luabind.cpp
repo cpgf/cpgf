@@ -37,6 +37,7 @@ void doBenchmarkLuaBind()
 	// After changed the object array to char buffer in InvokeCallableParam, 4750 ms.
 	// After changed holders from GVariant holders[REF_MAX_ARITY] to GVariant holder in doInvokeCallable, 4150 ms
 	// After used VariantParameterBuffer in gmetaapi.cpp, 4050 ms
+	// After changed map to unordered_map in class GMetaMapClass, 3900 ms
 	{
 		std::string code = R"(
 			a = TestObject()

@@ -15,6 +15,7 @@
 #include "cpgf/gsharedinterface.h"
 
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <vector>
 #include <algorithm>
@@ -163,7 +164,7 @@ inline void swap(GMetaMapItem & a, GMetaMapItem & b)
 class GMetaMapClass : public GNoncopyable
 {
 public:
-	typedef std::map<const char *, GMetaMapItem, meta_internal::CStringCompare> MapType;
+	typedef std::unordered_map<const char *, GMetaMapItem, meta_internal::CStringHash, meta_internal::CStringEqual> MapType;
 
 public:
 	GMetaMapClass(IMetaClass * metaClass);

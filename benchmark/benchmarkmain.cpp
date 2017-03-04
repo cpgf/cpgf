@@ -4,7 +4,7 @@ void doBenchmarkLuaBind();
 
 int main()
 {
-	printf("Press any key..."); getchar();
+//	printf("Press any key..."); getchar();
 
 	doBenchmarkLuaBind();
 
