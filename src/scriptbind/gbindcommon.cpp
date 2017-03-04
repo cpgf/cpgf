@@ -852,8 +852,17 @@ void ConvertRank::reset()
 }
 
 InvokeCallableParam::InvokeCallableParam(size_t paramCount, IScriptContext * scriptContext)
-	: paramCount(paramCount), scriptContext(scriptContext)
+	:
+		params((CallableParamData *)paramsBuffer),
+		paramCount(paramCount),
+		paramRanks((ConvertRank *)paramRanksBuffer),
+		scriptContext(scriptContext)
 {
+	// Use "raw" buffer to hold the object array CallableParamData and ConvertRank.
+	// If we use CallableParamData[REF_MAX_ARITY] and ConvertRank[REF_MAX_ARITY], the performance is bad due to the constructors.
+	memset(this->paramsBuffer, 0, sizeof(CallableParamData) * paramCount);
+	memset(this->paramRanksBuffer, 0, sizeof(ConvertRank) * paramCount);
+
 	if(this->paramCount > REF_MAX_ARITY) {
 		raiseCoreException(Error_ScriptBinding_CallMethodWithTooManyParameters);
 	}
@@ -861,6 +870,10 @@ InvokeCallableParam::InvokeCallableParam(size_t paramCount, IScriptContext * scr
 
 InvokeCallableParam::~InvokeCallableParam()
 {
+	for(size_t i = 0; i < this->paramCount; ++i) {
+		this->params[i].~CallableParamData();
+		this->paramRanks[i].~ConvertRank();
+	}
 }
 
 

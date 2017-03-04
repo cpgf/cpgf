@@ -832,9 +832,11 @@ public:
 	~InvokeCallableParam();
 
 public:
-	CallableParamData params[REF_MAX_ARITY];
+	CallableParamData * params;
+	char paramsBuffer[sizeof(CallableParamData) * REF_MAX_ARITY];
 	size_t paramCount;
-	ConvertRank paramRanks[REF_MAX_ARITY];
+	ConvertRank * paramRanks;
+	char paramRanksBuffer[sizeof(ConvertRank) * REF_MAX_ARITY];
 	GSharedInterface<IScriptContext> scriptContext;
 };
 
