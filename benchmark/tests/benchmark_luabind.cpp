@@ -37,7 +37,9 @@ void doBenchmarkLuaBind()
 		end
 	)";
 
-	// 1000000, 7 seconds
+	// 1000000
+	// Before optimizing: 6900 ms
+	// After refactored doInvokeMethodList: 6200 ms
 	{
 		BenchmarkTimer timer;
 		context.doString(code.c_str());

@@ -1241,6 +1241,9 @@ int rankCallable(IMetaService * service, const GObjectGlueDataPointer & objectDa
 		rank += ValueMatchRank_Equal;
 	}
 	else {
+		if(cv != opcvNone) {
+			return -1;
+		}
 		rank += ValueMatchRank_Convert;
 	}
 
@@ -1440,27 +1443,33 @@ InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
 										const GObjectGlueDataPointer & objectData,
 										const GMethodGlueDataPointer & methodData, InvokeCallableParam * callableParam)
 {
-	GScopedInterface<IMetaList> methodList;
-	if((! methodData->getClassData() || ! methodData->getClassData()->getMetaClass()) && methodData->getMethodList()->getCount() > 0) {
-		methodList.reset(methodData->getMethodList());
-		methodList->addReference(); // addReference because methodData->getMethodList doesn't do it.
-	}
-	else {
-		// Reloading the method list because the "this" pointer may change and cause the method list invalid.
-		// We should find better way to handle this.
-		methodList.reset(createMetaList());
-		loadMethodList(context, methodList.get(), objectData ? objectData->getClassData() : methodData->getClassData(),
-			objectData, methodData->getName().c_str());
-	}
+	IMetaList * methodList = methodData->getMethodList();
 
-	int maxRankIndex = findAppropriateCallable(context->getService(), objectData,
-		makeCallback(methodList.get(), &IMetaList::getAt), methodList->getCount(),
+	const int maxRankIndex = findAppropriateCallable(context->getService(), objectData,
+		makeCallback(methodList, &IMetaList::getAt), methodList->getCount(),
 		callableParam, FindCallablePredict());
 
 	if(maxRankIndex >= 0) {
 		InvokeCallableResult result;
 		GScopedInterface<IMetaCallable> callable(gdynamic_cast<IMetaCallable *>(methodList->getAt(maxRankIndex)));
-		doInvokeCallable(context, methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex)), callable.get(), callableParam, &result);
+		void * instance = nullptr;
+		if(objectData) {
+			instance = objectData->getInstanceAddress();
+			if(instance != nullptr) {
+				auto classData = objectData->getClassData();
+				if(classData) {
+					GScopedInterface<IMetaClass> callableClass(gdynamic_cast<IMetaClass *>(callable->getOwnerItem()));
+					if(classData->getMetaClass() != callableClass.get()) {
+						instance = metaCastAny(instance, classData->getMetaClass(), callableClass.get());
+					}
+				}
+			}
+		}
+		else {
+			// This happens if an object method is bound to script as a global function.
+			instance = methodList->getInstanceAt(static_cast<uint32_t>(maxRankIndex));
+		}
+		doInvokeCallable(context, instance, callable.get(), callableParam, &result);
 		result.callable.reset(callable.get());
 		return result;
 	}

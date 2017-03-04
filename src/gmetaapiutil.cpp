@@ -328,6 +328,32 @@ void * metaCastToDerived(void * instance, IMetaClass * currentClass, IMetaClass 
 	return doMetaCastToDerived(instance, currentClass, targetDerivedClass);
 }
 
+void * doMetaCastAny(void * instance, IMetaClass * fromClass, IMetaClass * toClass)
+{
+	if(fromClass->equals(toClass)) {
+		return instance;
+	}
+
+	void * casted;
+
+	casted = metaCastToBase(instance, fromClass, toClass);
+	if(casted == nullptr) {
+		casted = metaCastToDerived(instance, fromClass, toClass);
+	}
+
+	// TODO: support multi-inheritance that fromClass and toClass are not on the same inheritance line.
+
+	return casted;
+}
+
+void * metaCastAny(void * instance, IMetaClass * fromClass, IMetaClass * toClass)
+{
+	if(instance == NULL) {
+		return instance;
+	}
+
+	return doMetaCastAny(instance, fromClass, toClass);
+}
 
 
 } // namespace cpgf
