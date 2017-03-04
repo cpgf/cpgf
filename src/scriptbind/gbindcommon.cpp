@@ -50,24 +50,6 @@ const int ValueMatchRank_Implicit_End = 80000;
 const int ValueMatchRank_Equal = 100000;
 
 
-struct FindCallablePredict {
-	bool operator () (IMetaCallable *) {
-		return true;
-	}
-};
-
-struct OperatorCallablePredict {
-	explicit OperatorCallablePredict(GMetaOpType op) : op(op) {}
-
-	bool operator () (IMetaCallable * t) {
-		return gdynamic_cast<IMetaOperator *>(t)->getOperator() == this->op;
-	}
-
-private:
-	GMetaOpType op;
-};
-
-
 class GClassPool
 {
 private:
@@ -1423,9 +1405,14 @@ void * doInvokeConstructor(const GContextPointer & context, IMetaService * servi
 		instance = metaClass->createInstance();
 	}
 	else {
-		int maxRankIndex = findAppropriateCallable(service, GObjectGlueDataPointer(),
-			makeCallback(metaClass, &IMetaClass::getConstructorAt), metaClass->getConstructorCount(),
-			callableParam, FindCallablePredict());
+		const int maxRankIndex = findAppropriateCallable(
+			service,
+			GObjectGlueDataPointer(),
+			[=](const uint32_t index) { return metaClass->getConstructorAt(index); },
+			metaClass->getConstructorCount(),
+			callableParam,
+			[](IMetaCallable *) { return true; }
+		);
 
 		if(maxRankIndex >= 0) {
 			InvokeCallableResult result;
@@ -1445,9 +1432,14 @@ InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
 {
 	IMetaList * methodList = methodData->getMethodList();
 
-	const int maxRankIndex = findAppropriateCallable(context->getService(), objectData,
-		makeCallback(methodList, &IMetaList::getAt), methodList->getCount(),
-		callableParam, FindCallablePredict());
+	const int maxRankIndex = findAppropriateCallable(
+		context->getService(),
+		objectData,
+		[=](const uint32_t index) { return methodList->getAt(index); },
+		methodList->getCount(),
+		callableParam,
+		[](IMetaCallable *) { return true; }
+	);
 
 	if(maxRankIndex >= 0) {
 		InvokeCallableResult result;
@@ -1858,9 +1850,14 @@ IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer
 
 InvokeCallableResult doInvokeOperator(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam)
 {
-	int maxRankIndex = findAppropriateCallable(context->getService(), objectData,
-		makeCallback(metaClass, &IMetaClass::getOperatorAt), metaClass->getOperatorCount(),
-		callableParam, OperatorCallablePredict(op));
+	const int maxRankIndex = findAppropriateCallable(
+		context->getService(),
+		objectData,
+		[=](const uint32_t index) { return metaClass->getOperatorAt(index); },
+		metaClass->getOperatorCount(),
+		callableParam,
+		[=](IMetaCallable * t) { return gdynamic_cast<IMetaOperator *>(t)->getOperator() == op; }
+	);
 
 	if(maxRankIndex >= 0) {
 		InvokeCallableResult result;

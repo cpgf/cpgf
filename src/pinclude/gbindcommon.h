@@ -1137,6 +1137,13 @@ int findAppropriateCallable(IMetaService * service,
 			if(weight > maxRank) {
 				maxRank = weight;
 				maxRankIndex = static_cast<int>(i);
+
+				if(callableCount == 1) {
+					// Mostly callableCount is 1 and there is no overloaded method
+					// So we break without copying paramRanks, to improve performance.
+					break;
+				}
+
 				std::copy(paramRanks, paramRanks + callableParam->paramCount, callableParam->paramRanks);
 			}
 		}
