@@ -53,6 +53,7 @@ IMetaClass * findAppropriateDerivedClass(const void * instance, IMetaClass * met
 
 void * metaCastToBase(void * instance, IMetaClass * currentClass, IMetaClass * targetBaseClass);
 void * metaCastToDerived(void * instance, IMetaClass * currentClass, IMetaClass * targetDerivedClass);
+void * metaCastAny(void * instance, IMetaClass * fromClass, IMetaClass * toClass);
 
 
 } // namespace cpgf

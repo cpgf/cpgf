@@ -809,9 +809,12 @@ public:
 
 public:
 	int weight;
-	GSharedInterface<IMetaClass> sourceClass;
+	IMetaClass * sourceClass;
+	// We have to use GSharedInterface to hold targetClass
+	// because the targetClass may be created dynamically from the global repository.
+	// sourceClass doesn't have this problem, it's always hold by the caller.
 	GSharedInterface<IMetaClass> targetClass;
-	GSharedInterface<IScriptUserConverter> userConverter;
+	IScriptUserConverter * userConverter;
 	uint32_t userConverterTag;
 };
 
@@ -829,9 +832,11 @@ public:
 	~InvokeCallableParam();
 
 public:
-	CallableParamData params[REF_MAX_ARITY];
+	CallableParamData * params;
+	char paramsBuffer[sizeof(CallableParamData) * REF_MAX_ARITY];
 	size_t paramCount;
-	ConvertRank paramRanks[REF_MAX_ARITY];
+	ConvertRank * paramRanks;
+	char paramRanksBuffer[sizeof(ConvertRank) * REF_MAX_ARITY];
 	GSharedInterface<IScriptContext> scriptContext;
 };
 

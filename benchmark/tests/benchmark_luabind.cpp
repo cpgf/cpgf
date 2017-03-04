@@ -30,16 +30,36 @@ void doBenchmarkLuaBind()
 	GScopedInterface<IMetaClass> metaClass(context.getService()->findClassByName("TestObject"));
 	context.getBinding()->setValue("TestObject", GScriptValue::fromClass(metaClass.get()));
 
-	std::string code = R"(
-		a = TestObject()
-		for i = 1, 1000000 do
-			a.addX(5)
-		end
-	)";
-
-	// 1000000, 7 seconds
+	// 1000000
+	// Before optimizing: 6900 ms
+	// After refactored doInvokeMethodList: 6200 ms
+	// After changed sourceClass and userConverter in ConvertRank, 5750 ms.
+	// After changed the object array to char buffer in InvokeCallableParam, 4750 ms.
 	{
-		BenchmarkTimer timer;
+		std::string code = R"(
+			a = TestObject()
+			for i = 1, 1000000 do
+				a.addX(5)
+			end
+		)";
+
+		BenchmarkTimer timer("Script binding");
+		context.doString(code.c_str());
+	}
+return;
+
+	{
+		std::string code = R"(
+			x = 0
+			function myAddX(a)
+				x = x + a
+			end
+			for i = 1, 1000000 do
+				myAddX(5)
+			end
+		)";
+
+		BenchmarkTimer timer("Pure LUA");
 		context.doString(code.c_str());
 	}
 }

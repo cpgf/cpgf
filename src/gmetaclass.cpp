@@ -715,6 +715,8 @@ GMetaModule * GMetaClass::getModule() const
 
 bool GMetaClass::isGlobal() const
 {
+	// Even a meta class doesn't has any parent class, we require an empty superList.
+	// Only global class has no superList.
 	return !this->superList;
 }
 
