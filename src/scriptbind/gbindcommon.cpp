@@ -1443,7 +1443,7 @@ InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
 	GScopedInterface<IMetaList> methodList;
 	if((! methodData->getClassData() || ! methodData->getClassData()->getMetaClass()) && methodData->getMethodList()->getCount() > 0) {
 		methodList.reset(methodData->getMethodList());
-		methodList->addReference();
+		methodList->addReference(); // addReference because methodData->getMethodList doesn't do it.
 	}
 	else {
 		// Reloading the method list because the "this" pointer may change and cause the method list invalid.
@@ -1596,30 +1596,22 @@ void doLoadMethodList(const GContextPointer & context, GMetaClassTraveller * tra
 	void * instance,
 	const GClassGlueDataPointer & classData, const GGlueDataPointer & glueData, const char * methodName, bool allowAny)
 {
-	while(mapItem != NULL) {
-		if(mapItem->getType() == mmitMethod) {
-			GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
-			if(allowAny || allowInvokeCallable(context->getConfig(), glueData, method.get())) {
-				methodList->add(method.get(), instance);
-			}
+	if(mapItem->getType() == mmitMethod) {
+		GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
+		if(allowAny || allowInvokeCallable(context->getConfig(), glueData, method.get())) {
+			methodList->add(method.get(), instance);
 		}
-		else {
-			if(mapItem->getType() == mmitMethodList) {
-				GScopedInterface<IMetaList> newMethodList(gdynamic_cast<IMetaList *>(mapItem->getItem()));
-				for(uint32_t i = 0; i < newMethodList->getCount(); ++i) {
-					GScopedInterface<IMetaItem> item(newMethodList->getAt(i));
-					if(allowAny || allowInvokeCallable(context->getConfig(), glueData, gdynamic_cast<IMetaMethod *>(item.get()))) {
-						methodList->add(item.get(), instance);
-					}
+	}
+	else {
+		if(mapItem->getType() == mmitMethodList) {
+			GScopedInterface<IMetaList> newMethodList(gdynamic_cast<IMetaList *>(mapItem->getItem()));
+			for(uint32_t i = 0; i < newMethodList->getCount(); ++i) {
+				GScopedInterface<IMetaItem> item(newMethodList->getAt(i));
+				if(allowAny || allowInvokeCallable(context->getConfig(), glueData, gdynamic_cast<IMetaMethod *>(item.get()))) {
+					methodList->add(item.get(), instance);
 				}
 			}
 		}
-
-		GScopedInterface<IMetaClass> metaClass(traveller->next(&instance));
-		if(!metaClass) {
-			break;
-		}
-		mapItem = classData->getClassMap()->findItem(methodName);
 	}
 }
 
