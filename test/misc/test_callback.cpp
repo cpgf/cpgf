@@ -5,11 +5,12 @@
 #include <iostream>
 #include <algorithm>
 #include <typeinfo>
+#include <functional>
 
 #include "cpgf/gcompiler.h"
 #include "cpgf/gcallback.h"
 #include "cpgf/gcallbacklist.h"
-
+#include "cpgf/greference.h"
 
 #if defined(_MSC_VER)
 	#define NON_INLINE __declspec(noinline)
@@ -256,7 +257,9 @@ private:
 class CallbackObject
 {
 public:
-	CallbackObject() : nnn(16), trackable(GCallbackTrackable()) {
+	CallbackObject() : nnn(16)
+//		, trackable(GCallbackTrackable())
+	{
 	}
 
 	CallbackObject(const CallbackObject & other) {
@@ -268,7 +271,7 @@ public:
 
 	CallbackObject & operator = (const CallbackObject & other) {
 		this->nnn = other.nnn;
-		this->trackable = other.trackable;
+//		this->trackable = other.trackable;
 
 		return *this;
 	}
@@ -297,7 +300,7 @@ public:
 	}
 
 	int nnn;
-	GCallbackTrackable trackable;
+//	GCallbackTrackable trackable;
 };
 
 
@@ -340,7 +343,8 @@ public:
 		b = typeid(GCallback<void (int)>) == typeid(GCallback<void (*)(int)>);
 		GCHECK(!b);
 
-		typedef GCallbackList<void (int), GCallbackExtendedConnection> CallbackListType;
+//		typedef GCallbackList<void (int), GCallbackExtendedConnection> CallbackListType;
+		typedef GCallbackList<void (int)> CallbackListType;
 
 		CallbackObject * cbObject;
 		CallbackListType * cbList;
@@ -348,15 +352,12 @@ public:
 		cbObject = new CallbackObject;
 		cbList = new CallbackListType;
 
-		CallbackListType::ConnectionType * connection;
+//		CallbackListType::ConnectionType * connection;
 
 		GCallback<void (int, int)> cb(cbObject, &CallbackObject::callback3);
 		cb.invoke(6, 8);
 
-		GCallback2<void, int, int>::type ncb;
-		ncb = cb;
-
-		GEQUAL(cb, (GCallback<void (CallbackObject::*)(int, int)>(cbObject, &CallbackObject::callback3)));
+//		GEQUAL(cb, (GCallback<void (CallbackObject::*)(int, int)>(cbObject, &CallbackObject::callback3)));
 
 		GCallback<void (int, int)>(cbObject, &CallbackObject::callback3).invoke(66, 88);
 
@@ -370,21 +371,21 @@ public:
 		GCallback<void (int)>(std::bind1st(std::ptr_fun(&callbackBindFirst), 1))(2);
 #endif
 
-		CallbackObject * tempObject = new CallbackObject;
-		connection = cbList->add(makeCallback1(tempObject, &CallbackObject::callback2));
-		cbList->track(&tempObject->trackable, connection);
-		GCHECK(cbList->find(makeCallback1(tempObject, &CallbackObject::callback2)) != NULL);
-		delete tempObject;
+//		CallbackObject * tempObject = new CallbackObject;
+//		connection = cbList->add(makeCallback1(tempObject, &CallbackObject::callback2));
+//		cbList->track(&tempObject->trackable, connection);
+//		GCHECK(cbList->find(makeCallback1(tempObject, &CallbackObject::callback2)) != NULL);
+//		delete tempObject;
 
-		cbList->add(cbObject, &CallbackObject::callback1);
-		GCHECK(cbList->find(cbObject, &CallbackObject::callback1) != NULL);
+//		cbList->add(cbObject, &CallbackObject::callback1);
+//		GCHECK(cbList->find(cbObject, &CallbackObject::callback1) != NULL);
 
-		cbList->add(&CallbackObject::callbackStatic);
-		GCHECK(cbList->find(&CallbackObject::callbackStatic) != NULL);
+//		cbList->add(&CallbackObject::callbackStatic);
+//		GCHECK(cbList->find(&CallbackObject::callbackStatic) != NULL);
 
-		connection = cbList->add(CallbackObject());
-		connection->autoRemoveAfterFirstCall();
-		cbList->add(CallbackObject());
+//		connection = cbList->add(CallbackObject());
+//		connection->autoRemoveAfterFirstCall();
+//		cbList->add(CallbackObject());
 
 		cbList->dispatch(1999);
 
@@ -392,7 +393,7 @@ public:
 
 		cbList->clear();
 
-		cbList->add(makeCallback1(cbObject, &CallbackObject::callback2));
+//		cbList->add(makeCallback1(cbObject, &CallbackObject::callback2));
 
 		cbList->dispatch(1997);
 
@@ -502,12 +503,14 @@ public:
 		(GCallback<int ()>(makeReference(volatileObj)))();
 		(GCallback<int ()>(makeReference(constVolatileObj)))();
 
+#if 0
 		GCallback<int ()> cb1(obj);
 		cb1 = makeReference(cb1);
 		cb1 = GCallback<int ()>(makeReference(cb1));
 		cb1 = GCallback<int ()>(makeReference(makeReference(cb1)));
 		cb1 = GCallback<int ()>(makeReference(makeConstReference(makeReference(cb1))));
 		cb1();
+#endif
 
 		(GCallback<void (int)>(obj))(5);
 		(GCallback<void (int)>(constObj))(5);
@@ -645,7 +648,7 @@ public:
 	private:
 		CBListType * cbList;
 	};
-
+/*
     GTEST(testCallbackList)
     {
 		CBListType * cbList = new CBListType;
@@ -682,7 +685,9 @@ public:
 
 		copiedList(CallbackTestList::paramValue);
 	}
+*/
 
+/* disable trackable since our new GCallbackList abandoned it.
 	class CallbackTestTrackable
 	{
 	public:
@@ -726,6 +731,7 @@ public:
 
 		delete permanent;
 	}
+*/
 
 	class CallbackTestRecursive
 	{

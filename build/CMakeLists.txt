@@ -10,4 +10,5 @@ include(build.lib.txt)
 
 include(build.samples.txt)
 include(build.unittest.txt)
+include(build.benchmark.txt)
 

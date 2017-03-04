@@ -3,24 +3,17 @@
 
 #include "cpgf/gcompiler.h"
 #include "cpgf/gtypelist.h"
-
+#include "cpgf/gtypeutil.h"
 
 #define POLICY_MAX_RULES GPP_MAX_LIMIT
 
 namespace cpgf {
 
-#define POLICTY_TYPENAME_PARAM_NULL(N, T) GPP_COMMA_IF(N) typename T ## N = GNullType
-
-template <GPP_REPEAT(POLICY_MAX_RULES, POLICTY_TYPENAME_PARAM_NULL, T) >
+template <typename... RuleTypes>
 struct MakePolicy
 {
-	typedef typename TypeList_Make<
-		GPP_REPEAT_PARAMS(POLICY_MAX_RULES, T)
-	>::Result
-	Rules;
+	typedef typename TypeList_Make<RuleTypes...>::Result Rules;
 };
-
-#undef POLICTY_TYPENAME_PARAM_NULL
 
 template <typename PolicyA, typename PolicyB>
 struct MergePolicy
@@ -43,28 +36,36 @@ struct PolicyNotHasRule
 	G_STATIC_CONSTANT(bool, Result = ((TypeList_IndexOf<typename Policy::Rules, Rule>::Result) < 0));
 };
 
+namespace policy_internal {
+
+template <unsigned int N>
+struct PolicyHasIndexedRuleTypeSelector
+{
+	template <typename Policy, template <int> class IndexedPolicyItem>
+	bool operator()(const Policy &, const IndexedPolicyItem<0> &)
+	{
+		return PolicyHasRule<Policy, IndexedPolicyItem<N> >::Result;
+	}
+};
+
+} //namespace policy_internal
+
 template <typename Policy, template <int> class IndexedPolicyItem>
 bool policyHasIndexedRule(int index)
 {
-	switch(index) {
-		case -1:
-			return PolicyHasRule<Policy, IndexedPolicyItem<-1> >::Result;
-
-#define POLICY_CHECKINDEX_HELPER(N, unused) case N: return PolicyHasRule<Policy, IndexedPolicyItem<N> >::Result;
-			
-		GPP_REPEAT(POLICY_MAX_RULES, POLICY_CHECKINDEX_HELPER, GPP_EMPTY)
-
-#undef POLICY_CHECKINDEX_HELPER
-
-		default:
-			return false;
+	if(index  == -1) {
+		return PolicyHasRule<Policy, IndexedPolicyItem<-1> >::Result;
 	}
+
+	return GTypeSelector<POLICY_MAX_RULES>::template select<bool, policy_internal::PolicyHasIndexedRuleTypeSelector>(
+		index,
+		Policy(),
+		IndexedPolicyItem<0>()
+	);
 }
 
 
-
 } // namespace cpgf
-
 
 
 #undef POLICY_MAX_RULES

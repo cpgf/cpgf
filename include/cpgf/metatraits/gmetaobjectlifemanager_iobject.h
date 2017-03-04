@@ -4,7 +4,7 @@
 #include "cpgf/metatraits/gmetaobjectlifemanager.h"
 #include "cpgf/gtypeutil.h"
 #include "cpgf/genableif.h"
-
+#include "cpgf/gtypetraits.h"
 
 namespace cpgf {
 

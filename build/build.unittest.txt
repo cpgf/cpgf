@@ -1,22 +1,16 @@
 set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0")
 if(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0")
+	set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -Os")
 	if(TEST_GCOV)
 		set(UNITTEST_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0 -fprofile-arcs -ftest-coverage")
 	endif(TEST_GCOV)
 
-	if(SUPPORT_GCC_0X)
-		if(MINGW)
-			set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=gnu++0x")
-		else(MINGW)
-			set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=c++11")
-		endif(MINGW)
-	endif(SUPPORT_GCC_0X)
+	set(UNITTEST_COMPILE_FLAGS "${UNITTEST_COMPILE_FLAGS} -std=c++11")
 
 endif(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
 if(MSVC)
-	set(UNITTEST_COMPILE_FLAGS "-W4 -Wp64")
+	set(UNITTEST_COMPILE_FLAGS "-W3")
 endif(MSVC)
 
 
@@ -128,6 +122,10 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/misc/*.cpp
 	)
 
+	partUnitTest("test_callback"
+		${TEST_PATH}/callback/*.cpp
+	)
+
 	partUnitTest("test_variant"
 		${TEST_PATH}/variant/*.cpp
 	)
@@ -198,6 +196,7 @@ if(${HAS_UNITTEST})
 
 	globAndAppendFiles(GLOB_TEST_SRC
 		${TEST_PATH}/accessor/*.cpp
+		${TEST_PATH}/callback/*.cpp
 		${TEST_PATH}/misc/*.cpp
 		${TEST_PATH}/variant/*.cpp
 		${TEST_PATH}/reflection/*.cpp
