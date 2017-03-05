@@ -1002,32 +1002,6 @@ ObjectPointerCV getCallableConstness(IMetaCallable * callable)
 	return opcvNone;
 }
 
-bool allowInvokeCallable(const GScriptConfig & config, const GGlueDataPointer & glueData, IMetaCallable * callable)
-{
-	if(getGlueDataInstanceAddress(glueData) != NULL) {
-		if(! config.allowAccessStaticMethodViaInstance()) {
-			if(callable->isStatic()) {
-				return false;
-			}
-		}
-	}
-	else {
-		if(! callable->isStatic()) {
-			return false;
-		}
-	}
-
-	ObjectPointerCV cv = getGlueDataCV(glueData);
-	if(cv != opcvNone) {
-		ObjectPointerCV methodCV = getCallableConstness(callable);
-		if(cv != methodCV) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
 bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessible * accessible)
 {
 	if(isInstance) {
@@ -1616,73 +1590,6 @@ GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible
 	}
 
 	return value;
-}
-
-void doLoadMethodList(const GContextPointer & context,
-	IMetaList * methodList, GMetaMapItem * mapItem,
-	void * instance,
-	const GGlueDataPointer & glueData, bool allowAny)
-{
-	if(mapItem->getType() == mmitMethod) {
-		GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
-		if(allowAny || allowInvokeCallable(context->getConfig(), glueData, method.get())) {
-			methodList->add(method.get(), instance);
-		}
-	}
-	else {
-		if(mapItem->getType() == mmitMethodList) {
-			GScopedInterface<IMetaList> newMethodList(gdynamic_cast<IMetaList *>(mapItem->getItem()));
-			for(uint32_t i = 0; i < newMethodList->getCount(); ++i) {
-				GScopedInterface<IMetaItem> item(newMethodList->getAt(i));
-				if(allowAny || allowInvokeCallable(context->getConfig(), glueData, gdynamic_cast<IMetaMethod *>(item.get()))) {
-					methodList->add(item.get(), instance);
-				}
-			}
-		}
-	}
-}
-
-void loadMethodList(const GContextPointer & context, IMetaList * methodList, const GClassGlueDataPointer & classData,
-			const GObjectGlueDataPointer & objectData, const char * methodName)
-{
-	GMetaClassTraveller traveller(classData->getMetaClass(), objectData? objectData->getInstanceAddress() : NULL);
-	void * instance = NULL;
-
-	for(;;) {
-		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
-		if(!metaClass) {
-			break;
-		}
-
-		GMetaMapClass * mapClass = context->getClassData(metaClass.get())->getClassMap();
-		if(! mapClass) {
-			continue;
-		}
-		GMetaMapItem * mapItem = mapClass->findItem(methodName);
-		if(mapItem == NULL) {
-			continue;
-		}
-
-		switch(mapItem->getType()) {
-			case mmitField:
-			case mmitProperty:
-			   return;
-
-			case mmitMethod:
-			case mmitMethodList: {
-				doLoadMethodList(context, methodList, mapItem, instance, objectData, false);
-				return;
-			}
-
-			case mmitEnum:
-			case mmitEnumValue:
-			case mmitClass:
-				return;
-
-			default:
-				break;
-		}
-	}
 }
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived)

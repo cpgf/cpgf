@@ -1009,9 +1009,6 @@ GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData);
 
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);
 
-void loadMethodList(const GContextPointer & context, IMetaList * methodList, const GClassGlueDataPointer & classData,
-			const GObjectGlueDataPointer & objectData, const char * methodName);
-
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 
 bool setValueOnNamedMember(const GGlueDataPointer & glueData, const char * name,
