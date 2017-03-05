@@ -1,16 +1,15 @@
 #include "test_misc_common.h"
 
+#include "cpgf/gcompiler.h"
+#include "cpgf/gcallback.h"
+#include "cpgf/gcallbacklist.h"
+
 #include <list>
 #include <string>
 #include <iostream>
 #include <algorithm>
 #include <typeinfo>
 #include <functional>
-
-#include "cpgf/gcompiler.h"
-#include "cpgf/gcallback.h"
-#include "cpgf/gcallbacklist.h"
-#include "cpgf/greference.h"
 
 #if defined(_MSC_VER)
 	#define NON_INLINE __declspec(noinline)
@@ -498,17 +497,17 @@ public:
 		GEQUAL((GCallback<int ()>(constVolatileObj))(), cvVolatile);
 
 
-		(GCallback<int ()>(makeReference(obj)))();
-		(GCallback<int ()>(makeReference(constObj)))();
-		(GCallback<int ()>(makeReference(volatileObj)))();
-		(GCallback<int ()>(makeReference(constVolatileObj)))();
+		(GCallback<int ()>(std::ref(obj)))();
+		(GCallback<int ()>(std::ref(constObj)))();
+		(GCallback<int ()>(std::ref(volatileObj)))();
+		(GCallback<int ()>(std::ref(constVolatileObj)))();
 
 #if 0
 		GCallback<int ()> cb1(obj);
-		cb1 = makeReference(cb1);
-		cb1 = GCallback<int ()>(makeReference(cb1));
-		cb1 = GCallback<int ()>(makeReference(makeReference(cb1)));
-		cb1 = GCallback<int ()>(makeReference(makeConstReference(makeReference(cb1))));
+		cb1 = std::ref(cb1);
+		cb1 = GCallback<int ()>(std::ref(cb1));
+		cb1 = GCallback<int ()>(std::ref(std::ref(cb1)));
+		cb1 = GCallback<int ()>(std::ref(std::cref(std::ref(cb1))));
 		cb1();
 #endif
 
@@ -518,10 +517,10 @@ public:
 		(GCallback<void (int)>(constVolatileObj))(5);
 
 
-		(GCallback<void (int)>(makeReference(obj)))(5);
-		(GCallback<void (int)>(makeReference(constObj)))(5);
-		(GCallback<void (int)>(makeReference(volatileObj)))(5);
-		(GCallback<void (int)>(makeReference(constVolatileObj)))(5);
+		(GCallback<void (int)>(std::ref(obj)))(5);
+		(GCallback<void (int)>(std::ref(constObj)))(5);
+		(GCallback<void (int)>(std::ref(volatileObj)))(5);
+		(GCallback<void (int)>(std::ref(constVolatileObj)))(5);
 
 
 
@@ -549,7 +548,7 @@ public:
 
 		CallbackNoncopyableObject noncopyable;
 //		(GCallback<void ()>(noncopyable))(); // won't compile
-		(GCallback<void ()>(makeReference(noncopyable)))();
+		(GCallback<void ()>(std::ref(noncopyable)))();
 
 
 		makeCallback(&testGlobalFunction)();
@@ -586,16 +585,16 @@ public:
 		GCHECK(cb1 == cb2 && cb2 == cb1);
 		cb2 = cobj2;
 		GCHECK(cb1 == cb2 && cb2 == cb1);
-		cb1 = GCallback<void ()>(makeReference(makeReference(cobj1)));
-		cb2 = GCallback<void ()>(makeReference(makeConstReference(makeReference(cobj2))));
+		cb1 = GCallback<void ()>(std::ref(std::ref(cobj1)));
+		cb2 = GCallback<void ()>(std::ref(std::cref(std::ref(cobj2))));
 		GCHECK(cb1 == cb2 && cb2 == cb1);
 
 #ifndef G_COMPILER_CPPBUILDER // C++ Builder can't compile it
-		cb2 = GCallback<void ()>(makeConstReference(makeReference(makeConstReference(cobj2))));
+		cb2 = GCallback<void ()>(std::cref(std::ref(std::cref(cobj2))));
 		GCHECK(cb1 == cb2 && cb2 == cb1);
 #endif
 
-//		cb1 = GCallback<void ()>(makeReference(makeConstReference(makeReference(makeConstReference(cb2)))));
+//		cb1 = GCallback<void ()>(std::ref(std::cref(std::ref(std::cref(cb2)))));
 //		GCHECK(cb1 == cb2 && cb2 == cb1);
 
 		CallbackNotComparableObject nobj1;
@@ -603,11 +602,11 @@ public:
 		cb1 = GCallback<void ()>(nobj1);
 		cb2 = GCallback<void ()>(nobj2);
 		GCHECK(cb1 != cb2 && cb2 != cb1);
-		cb1 = GCallback<void ()>(makeReference(nobj1));
-		cb2 = GCallback<void ()>(makeReference(nobj2));
+		cb1 = GCallback<void ()>(std::ref(nobj1));
+		cb2 = GCallback<void ()>(std::ref(nobj2));
 		GCHECK(cb1 != cb2 && cb2 != cb1);
-		cb1 = GCallback<void ()>(makeReference(nobj1));
-		cb2 = GCallback<void ()>(makeReference(nobj1));
+		cb1 = GCallback<void ()>(std::ref(nobj1));
+		cb2 = GCallback<void ()>(std::ref(nobj1));
 		GCHECK(cb1 == cb2 && cb2 == cb1);
 	}
 

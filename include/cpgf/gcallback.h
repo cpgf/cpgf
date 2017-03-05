@@ -4,6 +4,7 @@
 #include "cpgf/gfunctiontraits.h"
 
 #include <type_traits>
+#include <functional>
 #include <memory>
 
 namespace cpgf {
@@ -89,17 +90,30 @@ struct EqualOperatorExists
 };
 
 template <typename T, typename U>
-bool checkEqual(const T & a, const U & b, typename std::enable_if<EqualOperatorExists<T, U>::value>::type * = 0)
+bool doCheckEqual(const T & a, const U & b, typename std::enable_if<EqualOperatorExists<T, U>::value>::type * = 0)
 {
 	// Use * & to deal with makeReference in cpgf or reference_wrapper.
 	return *&a == *&b;
 }
 
 template <typename T, typename U>
-bool checkEqual(const T & a, const U & b, typename std::enable_if<! EqualOperatorExists<T, U>::value>::type * = 0)
+bool doCheckEqual(const T & a, const U & b, typename std::enable_if<! EqualOperatorExists<T, U>::value>::type * = 0)
 {
 	return (void *)&a == (void *)&b;
 }
+
+template <typename T, typename U>
+bool callbackCheckEqual(const T & a, const U & b)
+{
+	return doCheckEqual(a, b);
+}
+
+template <typename T, typename U>
+bool callbackCheckEqual(const std::reference_wrapper<T> & a, const std::reference_wrapper<U> & b)
+{
+	return doCheckEqual(a.get(), b.get());
+}
+
 
 template <typename Expect, typename Actural>
 struct GCheckReturnType
@@ -195,7 +209,9 @@ private:
 	
 	static bool isSame(BaseType * self, void * other)
 	{
-		return callback_internal::checkEqual(static_cast<ThisType *>(self)->func, static_cast<ThisType *>(other)->func);
+		using namespace callback_internal;
+
+		return callbackCheckEqual(static_cast<ThisType *>(self)->func, static_cast<ThisType *>(other)->func);
 	}
 	
 	static typename super::CallbackVirtuals * doGetVirtuals() {
@@ -260,8 +276,10 @@ private:
 	
 	static bool isSame(BaseType * self, void * other)
 	{
-		return callback_internal::checkEqual(static_cast<ThisType *>(self)->instance, static_cast<ThisType *>(other)->instance)
-			&& callback_internal::checkEqual(static_cast<ThisType *>(self)->func, static_cast<ThisType *>(other)->func);
+		using namespace callback_internal;
+
+		return callbackCheckEqual(static_cast<ThisType *>(self)->instance, static_cast<ThisType *>(other)->instance)
+			&& callbackCheckEqual(static_cast<ThisType *>(self)->func, static_cast<ThisType *>(other)->func);
 	}
 	
 	static typename super::CallbackVirtuals * doGetVirtuals() {
