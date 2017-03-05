@@ -985,7 +985,13 @@ private:
 
 ObjectPointerCV metaTypeToCV(const GMetaType & type);
 
-int rankCallable(IMetaService * service, const GObjectGlueDataPointer & objectData, IMetaCallable * callable, const InvokeCallableParam * callbackParam, ConvertRank * paramRanks);
+int rankCallable(
+	IMetaService * service,
+	const GObjectGlueDataPointer & objectData,
+	IMetaCallable * callable,
+	const InvokeCallableParam * callbackParam,
+	ConvertRank * paramRanks
+);
 
 bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessible * accessible);
 
@@ -1128,10 +1134,12 @@ private:
 };
 
 template <typename Getter, typename Predict>
-int findAppropriateCallable(IMetaService * service,
+int findAppropriateCallable(
+	IMetaService * service,
 	const GObjectGlueDataPointer & objectData,
 	const Getter & getter, size_t callableCount,
-	InvokeCallableParam * callableParam, Predict predict)
+	InvokeCallableParam * callableParam, Predict predict
+)
 {
 	int maxRank = -1;
 	int maxRankIndex = -1;
@@ -1141,7 +1149,7 @@ int findAppropriateCallable(IMetaService * service,
 	for(size_t i = 0; i < callableCount; ++i) {
 		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(getter(static_cast<uint32_t>(i))));
 		if(predict(meta.get())) {
-			int weight = rankCallable(service, objectData, meta.get(), callableParam, paramRanks);
+			const int weight = rankCallable(service, objectData, meta.get(), callableParam, paramRanks);
 			if(weight > maxRank) {
 				maxRank = weight;
 				maxRankIndex = static_cast<int>(i);

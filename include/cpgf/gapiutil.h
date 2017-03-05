@@ -10,7 +10,6 @@
 
 #define G_INTERFACE_IMPL_OBJECT_DERIVED \
 protected: \
-	virtual uint32_t G_API_CC unused_queryInterface(void *, void *) { return 0; } \
 	virtual uint32_t G_API_CC addReference() { return this->ginterface_implObject.addReference(); } \
 	virtual uint32_t G_API_CC releaseReference() { return this->ginterface_implObject.releaseReference(this); }
 
@@ -35,11 +34,15 @@ namespace cpgf {
 class GImplObject
 {
 public:
-	GImplObject();
-	virtual ~GImplObject();
+	GImplObject() : referenceCount(1) {
+	}
 
-	uint32_t queryInterface(void *, void *);
-	uint32_t addReference();
+	virtual ~GImplObject() {
+	}
+
+	uint32_t addReference() {
+		return ++this->referenceCount;
+	}
 	
 	template <typename T>
 	uint32_t releaseReference(T * p)

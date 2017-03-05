@@ -1183,7 +1183,13 @@ int rankFundamental(GVariantType protoType, GVariantType paramType)
 	return ValueMatchRank_ConvertBwtweenFamily;
 }
 
-void rankCallableParam(ConvertRank * outputRank, IMetaService * service, IMetaCallable * callable, const InvokeCallableParam * callableParam, size_t paramIndex)
+void rankCallableParam(
+	ConvertRank * outputRank,
+	IMetaService * service,
+	IMetaCallable * callable,
+	const InvokeCallableParam * callableParam,
+	size_t paramIndex
+)
 {
 	outputRank->reset();
 
@@ -1214,17 +1220,24 @@ void rankCallableParam(ConvertRank * outputRank, IMetaService * service, IMetaCa
 	rankCallableImplicitConvert(outputRank, service, callable, callableParam, paramIndex, proto);
 }
 
-int rankCallable(IMetaService * service, const GObjectGlueDataPointer & objectData, IMetaCallable * callable, const InvokeCallableParam * callableParam, ConvertRank * paramRanks)
+int rankCallable(
+	IMetaService * service,
+	const GObjectGlueDataPointer & objectData,
+	IMetaCallable * callable,
+	const InvokeCallableParam * callableParam,
+	ConvertRank * paramRanks
+)
 {
 	if(!! callable->isVariadic()) {
 		return 0;
 	}
 
-	if(callable->getParamCount() < callableParam->paramCount) {
+	auto callableParamCount = callable->getParamCount();
+	if(callableParamCount < callableParam->paramCount) {
 		return -1;
 	}
 
-	if(callable->getParamCount() - callable->getDefaultParamCount() > callableParam->paramCount) {
+	if(callableParamCount > callableParam->paramCount + callable->getDefaultParamCount()) {
 		return -1;
 	}
 
