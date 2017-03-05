@@ -38,6 +38,7 @@ void doBenchmarkLuaBind()
 	// After changed holders from GVariant holders[REF_MAX_ARITY] to GVariant holder in doInvokeCallable, 4150 ms
 	// After used VariantParameterBuffer in gmetaapi.cpp, 4050 ms
 	// After changed map to unordered_map in class GMetaMapClass, 3900 ms
+	// After changed compile options to  -O2 -Oy -GL, link options to -LTCG, in VC, 3200 ms
 	{
 		std::string code = R"(
 			a = TestObject()
@@ -49,8 +50,8 @@ void doBenchmarkLuaBind()
 		BenchmarkTimer timer("Script binding");
 		context.doString(code.c_str());
 	}
-return;
 
+	// 80 ms
 	{
 		std::string code = R"(
 			x = 0

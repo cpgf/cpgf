@@ -27,6 +27,15 @@ if(UNIX)
 	set(TEST_GCOV 0)
 endif(UNIX)
 
+set(MSVC_OPTIMIZED_COMPILE_FLAGS "-W3 -O2 -Oy")
+set(MSVC_DEBUG_COMPILE_FLAGS "-W3 -O0")
+set(MSVC_OPTIMIZED_LINK_FLAGS " ")
+set(MSVC_DEBUG_LINK_FLAGS " ")
+
+set(GCC_OPTIMIZED_COMPILE_FLAGS "-Wall -Wextra -Wundef -O3 -std=c++11")
+set(GCC_DEBUG_COMPILE_FLAGS "-Wall -Wextra -Wundef -O0 -std=c++11")
+set(GCC_OPTIMIZED_LINK_FLAGS " ")
+set(GCC_DEBUG_LINK_FLAGS " ")
 
 # whether we have GLUT library
 set(HAS_GLUT 1) #release=false
