@@ -13,6 +13,7 @@
 #include "cpgf/gflags.h"
 #include "cpgf/gscopedinterface.h"
 #include "cpgf/gsharedinterface.h"
+#include "cpgf/gstringutil.h"
 
 #include <map>
 #include <unordered_map>
@@ -164,7 +165,7 @@ inline void swap(GMetaMapItem & a, GMetaMapItem & b)
 class GMetaMapClass : public GNoncopyable
 {
 public:
-	typedef std::unordered_map<const char *, GMetaMapItem, meta_internal::CStringHash, meta_internal::CStringEqual> MapType;
+	typedef std::unordered_map<const char *, GMetaMapItem, GCStringHash, GCStringEqual> MapType;
 
 public:
 	GMetaMapClass(IMetaClass * metaClass);
@@ -194,7 +195,8 @@ private:
 class GMetaMap
 {
 private:
-	typedef std::map<const char *, GMetaMapClass *, meta_internal::CStringCompare> MapType;
+	// Change this to unorder_map may hit performance.
+	typedef std::map<const char *, GMetaMapClass *, GCStringCompare> MapType;
 
 public:
 	GMetaMap();

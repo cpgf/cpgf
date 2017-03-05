@@ -53,6 +53,7 @@ set(SRC_ROOT
 	${SRC_PATH}/gmetaproperty.cpp
 	${SRC_PATH}/gmetamodule.cpp
 	${SRC_PATH}/gmetatype.cpp
+	${SRC_PATH}/gstringutil.cpp
 	${SRC_PATH}/gvariant.cpp
 )
 
