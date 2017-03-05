@@ -66,20 +66,19 @@ public:
 	template <typename... Parameters>
 	void operator() (Parameters && ... args) const
 	{
-		const int count = this->getCount();
+		int count = this->getCount();
 		if(count > 0) {
 			int index = 0;
-			auto it = this->callbackList.begin();
 			while(index < count) {
-				if(it->empty()) {
-					it = this->callbackList.erase(it);
+				auto & callback = this->callbackList[index];
+				if(callback.empty()) {
+					--count;
+					this->callbackList.erase(this->callbackList.begin() + index);
 				}
 				else {
-					// Use temporary iterator because in invoke the iterator may be destroyed and then ++ will crash.
-					auto tempIt = it++;
-					tempIt->invoke(std::forward<Parameters>(args)...);
+					++index;
+					callback.invoke(std::forward<Parameters>(args)...);
 				}
-				++index;
 			}
 		}
 	}
