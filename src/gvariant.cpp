@@ -1,7 +1,7 @@
 #include "cpgf/gvariant.h"
 #include "cpgf/gmetatype.h"
 #include "cpgf/gerrorcode.h"
-
+#include "cpgf/gmemorypool.h"
 
 namespace cpgf {
 
@@ -18,6 +18,9 @@ public:
 class GVariantTypedVar : public IVariantTypedVar
 {
 public:
+	void * operator new (const std::size_t size);
+	void operator delete(void * p);
+
 	GVariantTypedVar(const GVariant & value, const GMetaType & type);
 	virtual ~GVariantTypedVar();
 	
@@ -31,6 +34,16 @@ private:
 	GVariant value;
 	GMetaType type;
 };
+
+void * GVariantTypedVar::operator new (const std::size_t size)
+{
+	return GMemoryPool::getInstance()->allocate(size);
+}
+
+void GVariantTypedVar::operator delete(void * p)
+{
+	GMemoryPool::getInstance()->free(p);
+}
 
 GVariantTypedVar::GVariantTypedVar(const GVariant & value, const GMetaType & type)
 	: value(value), type(type)

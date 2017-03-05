@@ -91,10 +91,10 @@ protected: \
 
 #define USE_POOL(cls) \
 	void * operator new(size_t /*size*/) { \
-		return GMemoryPoolManager::getGlobal()->getMemoryPool(sizeof(cls))->allocate(); \
+		return GMemoryPool::getInstance()->allocate(sizeof(cls)); \
 	} \
 	void operator delete(void * p) { \
-		GMemoryPoolManager::getGlobal()->getMemoryPool(sizeof(cls))->free(p); \
+		GMemoryPool::getInstance()->free(p); \
 	}
 
 
