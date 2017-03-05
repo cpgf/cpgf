@@ -1,12 +1,11 @@
 #ifndef CPGF_GTESTUTIL_H
 #define CPGF_GTESTUTIL_H
 
-
-#include "cpgf/gcontainer.h"
 #include "cpgf/gpp.h"
 
 #include <string>
 #include <vector>
+#include <map>
 #include <stdexcept>
 
 #include <stdlib.h>
@@ -19,7 +18,7 @@ namespace cpgf {
 template <typename KeyType>
 class GTestKeyCount {
 private:
-	typedef GWiseMap<KeyType, int> MapType;
+	typedef std::map<KeyType, int> MapType;
 	typedef typename MapType::iterator IteratorType;
 
 public:
