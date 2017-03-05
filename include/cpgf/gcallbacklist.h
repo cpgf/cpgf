@@ -75,8 +75,9 @@ public:
 					it = this->callbackList.erase(it);
 				}
 				else {
-					it->invoke(std::forward<Parameters>(args)...);
-					++it;
+					// Use temporary iterator because in invoke the iterator may be destroyed and then ++ will crash.
+					auto tempIt = it++;
+					tempIt->invoke(std::forward<Parameters>(args)...);
 				}
 				++index;
 			}
