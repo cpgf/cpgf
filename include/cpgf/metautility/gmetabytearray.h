@@ -1,10 +1,10 @@
 #ifndef CPGF_GMETABYTEARRAY_H
 #define CPGF_GMETABYTEARRAY_H
 
-#include "cpgf/gstdint.h"
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gapi.h"
 
+#include <cstdint>
 #include <stddef.h>
 
 namespace cpgf {

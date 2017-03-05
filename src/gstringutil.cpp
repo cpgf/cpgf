@@ -1,6 +1,6 @@
 #include "cpgf/gstringutil.h"
 
-#include <string>
+#include <cstring>
 
 namespace cpgf {
 

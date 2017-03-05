@@ -2,8 +2,8 @@
 #define CPGF_GINTERFACE_H
 
 #include "cpgf/gcompiler.h"
-#include "cpgf/gstdint.h"
 
+#include <cstdint>
 
 namespace cpgf {
 

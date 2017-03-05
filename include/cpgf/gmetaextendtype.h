@@ -1,7 +1,6 @@
 #ifndef CPGF_GMETAEXTENDTYPE_H
 #define CPGF_GMETAEXTENDTYPE_H
 
-#include "cpgf/gstdint.h"
 #include "cpgf/gclassutil.h"
 #include "cpgf/gifelse.h"
 #include "cpgf/gtypetraits.h"
@@ -14,8 +13,8 @@
 #include "cpgf/metatraits/gmetasharedptrtraits.h"
 #include "cpgf/metatraits/gmetaobjectlifemanager.h"
 
+#include <cstdint>
 #include <string.h>
-
 
 namespace cpgf {
 

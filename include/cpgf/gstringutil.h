@@ -1,6 +1,8 @@
 #ifndef CPGF_GSTRINGUTIL_H
 #define CPGF_GSTRINGUTIL_H
 
+#include <cstddef>
+
 namespace cpgf {
 
 struct GCStringCompare

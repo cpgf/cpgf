@@ -2,15 +2,14 @@
 #define CPGF_GMETATYPE_H
 
 #include "cpgf/gvartypedata.h"
-#include "cpgf/gstdint.h"
 #include "cpgf/gassert.h"
 #include "cpgf/gclassutil.h"
 
 
 #include <typeinfo>
 
+#include <cstdint>
 #include <string.h>
-
 
 namespace cpgf {
 

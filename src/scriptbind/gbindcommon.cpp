@@ -1605,10 +1605,10 @@ GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible
 	return value;
 }
 
-void doLoadMethodList(const GContextPointer & context, GMetaClassTraveller * traveller,
+void doLoadMethodList(const GContextPointer & context,
 	IMetaList * methodList, GMetaMapItem * mapItem,
 	void * instance,
-	const GClassGlueDataPointer & classData, const GGlueDataPointer & glueData, const char * methodName, bool allowAny)
+	const GGlueDataPointer & glueData, bool allowAny)
 {
 	if(mapItem->getType() == mmitMethod) {
 		GScopedInterface<IMetaMethod> method(gdynamic_cast<IMetaMethod *>(mapItem->getItem()));
@@ -1657,7 +1657,7 @@ void loadMethodList(const GContextPointer & context, IMetaList * methodList, con
 
 			case mmitMethod:
 			case mmitMethodList: {
-				doLoadMethodList(context, &traveller, methodList, mapItem, instance, classData, objectData, methodName, false);
+				doLoadMethodList(context, methodList, mapItem, instance, objectData, false);
 				return;
 			}
 
