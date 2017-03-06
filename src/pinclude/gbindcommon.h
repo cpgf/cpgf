@@ -1130,27 +1130,49 @@ private:
 	ObjectMapType objectMap;
 };
 
+struct ConvertRankBuffer
+{
+	explicit ConvertRankBuffer(const size_t paramCount)
+		: paramCount(paramCount), paramRanks((ConvertRank *)paramRanksBuffer)
+	{
+		memset(this->paramRanksBuffer, 0, sizeof(ConvertRank) * paramCount);
+	};
+	
+	~ConvertRankBuffer()
+	{
+	for(size_t i = 0; i < this->paramCount; ++i) {
+		this->paramRanks[i].~ConvertRank();
+	}
+	}
+
+	size_t paramCount;
+	ConvertRank * paramRanks;
+	char paramRanksBuffer[sizeof(ConvertRank) * REF_MAX_ARITY];
+};
+
 template <typename Getter, typename Predict>
 int findAppropriateCallable(
 	IMetaService * service,
 	const GObjectGlueDataPointer & objectData,
-	const Getter & getter, size_t callableCount,
-	InvokeCallableParam * callableParam, Predict predict
+	const Getter & getter,
+	const size_t callableCount,
+	InvokeCallableParam * callableParam,
+	const Predict & predict
 )
 {
 	int maxRank = -1;
 	int maxRankIndex = -1;
 
-	ConvertRank paramRanks[REF_MAX_ARITY];
+	ConvertRankBuffer paramRanksBuffer(callableParam->paramCount);
 
 	for(size_t i = 0; i < callableCount; ++i) {
 		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(getter(static_cast<uint32_t>(i))));
 		if(predict(meta.get())) {
-			const int weight = rankCallable(service, objectData, meta.get(), callableParam, paramRanks);
+			const int weight = rankCallable(service, objectData, meta.get(), callableParam, paramRanksBuffer.paramRanks);
 			if(weight > maxRank) {
 				maxRank = weight;
 				maxRankIndex = static_cast<int>(i);
-				std::copy(paramRanks, paramRanks + callableParam->paramCount, callableParam->paramRanks);
+				std::copy(paramRanksBuffer.paramRanks, paramRanksBuffer.paramRanks + callableParam->paramCount, callableParam->paramRanks);
 			}
 		}
 	}

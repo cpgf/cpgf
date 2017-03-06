@@ -63,7 +63,19 @@ void doBenchmarkLuaBind()
 			end
 		)";
 
-		BenchmarkTimer timer("Pure LUA");
+		BenchmarkTimer timer("Pure Lua");
+		context.doString(code.c_str());
+	}
+
+	//  ms
+	{
+		std::string code = R"(
+			for i = 1, 1000000 do
+				math.abs(5)
+			end
+		)";
+
+		BenchmarkTimer timer("Lua abs");
 		context.doString(code.c_str());
 	}
 }
