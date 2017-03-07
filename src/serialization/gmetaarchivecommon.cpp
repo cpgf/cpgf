@@ -1,14 +1,13 @@
 #include "../pinclude/gmetaarchivecommonimpl.h"
 
-#include "cpgf/gstdint.h"
 #include "cpgf/gmetaapiutil.h"
 #include "cpgf/gfixedtype.h"
 #include "cpgf/gscopedinterface.h"
 #include "cpgf/gerrorcode.h"
 
+#include <cstdint>
 
 namespace cpgf {
-
 
 bool GBaseClassMap::hasMetaClass(void * instance, IMetaClass * metaClass) const
 {

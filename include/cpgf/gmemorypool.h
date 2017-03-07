@@ -5,153 +5,196 @@
 #include "cpgf/gscopedptr.h"
 #include "cpgf/gclassutil.h"
 
+#include <memory>
 #include <map>
-
+#include <deque>
 
 namespace cpgf {
 
-namespace memorypool_internal {
-
-
-class GMemoryPoolRange
+enum class GMemoryPoolPurgeStrategy
 {
-public:
-	explicit GMemoryPoolRange(void * start);
-	GMemoryPoolRange(void * start, void * end);
-
-	GMemoryPoolRange(const GMemoryPoolRange & other);
-	GMemoryPoolRange & operator = (const GMemoryPoolRange & other);
-
-	bool operator < (const GMemoryPoolRange & other) const;
-
-private:
-	void * start;
-	void * end;
+	never,
+	onSceneFreed, // after previous scene is freed and next scene is not created yet
+	onSceneSwitched, // after previous scene is freed and next scene has been created
+	onFree
 };
 
-template <typename T>
-struct GMemoryPoolInitializer
-{
-	static void init(void * p) {
-		new (p) T();
-	}
-
-	static void deinit(void * p) {
-		static_cast<T *>(p)->~T();
-	}
-};
-
-template <>
-struct GMemoryPoolInitializer <void>
-{
-	static void init(void * /*p*/) {
-	}
-
-	static void deinit(void * /*p*/) {
-	}
-};
-
-class GMemoryPoolChunk;
-
-class GMemoryPoolImplement
+class GMemorySizedPool
 {
 private:
-	typedef std::map<GMemoryPoolRange, GMemoryPoolChunk *> MapType;
+	struct IdleIndex {
+		int chunkIndex;
+		int blockIndex;
+	};
+	
+	struct Chunk {
+		std::unique_ptr<char> rawMemory;
+		void * start;
+	};
 
+	struct ChunkRange {
+		ChunkRange(void * start) : start(start), end(nullptr) {
+		}
+
+		ChunkRange(void * start, void * end) : start(start), end(end) {
+		}
+
+		bool operator < (const ChunkRange & other) const {
+			if(this->end == NULL) {
+				return this->start < other.start;
+			}
+			else {
+				if(other.end == NULL) {
+					return other.start >= this->end;
+				}
+				else {
+					return this->start < other.start;
+				}
+			}
+		}
+
+		void * start;
+		void * end;
+	};
+	
 public:
-	GMemoryPoolImplement(unsigned int blockSize, unsigned int blockCount);
-	~GMemoryPoolImplement();
-
+	GMemorySizedPool(
+			const std::size_t blockSize,
+			const std::size_t alignment = 64,
+			const std::size_t blockCountPerChunk = 256,
+			const GMemoryPoolPurgeStrategy purgeStrategy = GMemoryPoolPurgeStrategy::onSceneSwitched
+		);
+	
 	void * allocate();
+	void * allocate(const std::size_t size);
 	void free(void * p);
-
-	void setInit(void (*funcInit)(void * p));
-	void setDeinit(void (*funcDeinit)(void * p));
-
-private:
-	void freeAll();
-	void freeAllMap(MapType * m);
+	
+	void purge();
 
 private:
-	const unsigned int blockSize;
-	const unsigned int blockCount;
-	MapType fullMap;
-	MapType freeMap;
+	void doPurgeChunk(const int index);
 
-	void (*funcInit)(void * p);
-	void (*funcDeinit)(void * p);
-
-	GMAKE_NONCOPYABLE(GMemoryPoolImplement)
+private:
+	std::size_t blockSize;
+	std::size_t blockTotalSize;
+	std::size_t alignment;
+	std::size_t blockCountPerChunk;
+	std::size_t chunkSize;
+	GMemoryPoolPurgeStrategy purgeStrategy;
+	
+	std::deque<Chunk> chunkList;
+	std::deque<IdleIndex> idleList;
+	std::map<ChunkRange, int> chunkMap;
 };
-
-
-} // namespace memorypool_internal
-
-const unsigned int MemoryPoolDefaultBlockCount = 256;
 
 class GMemoryPool
 {
 public:
-	explicit GMemoryPool(unsigned int blockSize, unsigned int blockCount = MemoryPoolDefaultBlockCount)
-		: implement(blockSize, blockCount) {
-	}
+	static GMemoryPool * getInstance();
+	
+public:
+	explicit GMemoryPool(
+			const std::size_t alignment = 64,
+			const std::size_t blockCountPerChunk = 256,
+			const GMemoryPoolPurgeStrategy purgeStrategy = GMemoryPoolPurgeStrategy::onSceneSwitched
+		);
+	~GMemoryPool();
+	
+	void * allocate(const std::size_t size);
+	void free(void * p);
+	
+	void purge();
 
-	void * allocate() {
-		return this->implement.allocate();
-	}
-
-	void free(void * p) {
-		this->implement.free(p);
-	}
+	GMemoryPoolPurgeStrategy getPurgeStrategy() const { return this->purgeStrategy; }
 
 private:
-	memorypool_internal::GMemoryPoolImplement implement;
-
-	GMAKE_NONCOPYABLE(GMemoryPool)
+	std::size_t alignment;
+	std::size_t blockCountPerChunk;
+	GMemoryPoolPurgeStrategy purgeStrategy;
+	std::map<std::size_t, std::unique_ptr<GMemorySizedPool> > poolMap;
 };
-
 
 template <typename T>
 class GObjectPool
 {
 public:
-	explicit GObjectPool(unsigned int objectSize = sizeof(T), unsigned int blockCount = MemoryPoolDefaultBlockCount)
-		: implement(objectSize, blockCount) {
-		this->implement.setInit(memorypool_internal::GMemoryPoolInitializer<T>::init);
-		this->implement.setDeinit(memorypool_internal::GMemoryPoolInitializer<T>::deinit);
+	GObjectPool() {
 	}
 
 	T * allocate() {
-		return static_cast<T *>(this->implement.allocate());
+		void * p = GMemoryPool::getInstance()->allocate(sizeof(T));
+		return new (p) T ();
 	}
 
 	void free(T * p) {
-		this->implement.free(p);
+		p->~T();
+		GMemoryPool::getInstance()->free(p);
 	}
-
-private:
-	memorypool_internal::GMemoryPoolImplement implement;
-
-	GMAKE_NONCOPYABLE(GObjectPool)
 };
 
 
-class GMemoryPoolManagerImplement;
-
-class GMemoryPoolManager
+template <typename T, typename... Params>
+T * allocateObjectOnMemoryPool(Params && ... params)
 {
-public:
-	GMemoryPoolManager();
-	~GMemoryPoolManager();
+	void * p = GMemoryPool::getInstance()->allocate(sizeof(T));
+	return new (p) T (std::forward<Params>(params)...);
+}
 
-	GMemoryPool * getMemoryPool(unsigned int blockSize, unsigned int blockCount = MemoryPoolDefaultBlockCount);
+template <typename T>
+void freeObjectOnMemoryPool(T * obj)
+{
+	obj->~T();
+	GMemoryPool::getInstance()->free(obj);
+}
 
-public:
-	static GMemoryPoolManager * getGlobal();
+template <class T>
+struct GMemoryPoolAllocator
+{
+	typedef T value_type;
+	typedef T * pointer;
 
-private:
-	GScopedPointer<GMemoryPoolManagerImplement> implement;
+	GMemoryPoolAllocator()
+		: heapPool(GMemoryPool::getInstance())
+	{}
+
+	template <class U>
+	GMemoryPoolAllocator(const GMemoryPoolAllocator<U> & other)
+		: heapPool(other.heapPool)
+	{
+	}
+	
+	T * allocate(std::size_t n)
+	{
+		return (T *)(this->heapPool->allocate(n));
+	}
+	
+	void deallocate(T * p, std::size_t /*n*/)
+	{
+		this->heapPool->free(p);
+	}
+	
+	GMemoryPool * heapPool;
 };
+
+template <class T, class U>
+bool operator == (const GMemoryPoolAllocator<T> & a, const GMemoryPoolAllocator<U> & b)
+{
+	return a.heapPool == b.heapPool;
+}
+
+template <class T, class U>
+bool operator != (const GMemoryPoolAllocator<T> & a, const GMemoryPoolAllocator<U> & b)
+{
+	return ! operator == (a, b);
+}
+
+template <typename T, typename... Params>
+std::shared_ptr<T>  createPooledSharedPtr(Params && ... params)
+{
+	return std::allocate_shared<T>(GMemoryPoolAllocator<T>(), std::forward<Params>(params)...);
+}
+
+
 
 
 } // namespace cpgf

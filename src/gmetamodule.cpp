@@ -11,28 +11,18 @@ namespace cpgf {
 
 namespace {
 
-#if SUPPORT_CPP_11
-	#define GTYPEHASH_TYPE size_t
-#else
-	#define GTYPEHASH_TYPE std::string
-#endif
-
-inline GTYPEHASH_TYPE getTypeInfoHash(const GTypeInfo &type) {
+inline std::size_t getTypeInfoHash(const GTypeInfo &type) {
 	if (type.isEmpty()) {
 		throw std::runtime_error("missing type information");
 	}
-#if SUPPORT_CPP_11
 	return type.getStdTypeInfo().hash_code();
-#else
-	return type.getStdTypeInfo().name();
-#endif
 }
 
 }
 
 class GMetaTypedItemList
 {
-	typedef std::map<GTYPEHASH_TYPE, const GMetaTypedItem *> ItemsByTypeHashMap;
+	typedef std::map<std::size_t, const GMetaTypedItem *> ItemsByTypeHashMap;
 public:
 	typedef GStringMap<const GMetaTypedItem *, GStringMapReuseKey> MapType;
 

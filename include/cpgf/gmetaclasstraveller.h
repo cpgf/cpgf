@@ -24,7 +24,10 @@ private:
 		~Node();
 
 		Node(const Node & other);
-		Node & operator = (const Node & other);
+		Node & operator = (Node other);
+		Node & operator = (Node && other);
+
+		void swap(Node & other);
 
 	public:
 		GSharedInterface<IMetaClass> metaClass;

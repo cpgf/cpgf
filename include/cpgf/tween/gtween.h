@@ -3,9 +3,9 @@
 
 #include "cpgf/tween/gtweencommon.h"
 #include "cpgf/private/gtween_p.h"
-#include "cpgf/gcontainer.h"
 
 #include <algorithm>
+#include <vector>
 
 namespace cpgf {
 
@@ -14,7 +14,7 @@ class GTween : public GTweenable
 {
 private:
 	typedef GTweenable super;
-	typedef GWiseList<tween_internal::GTweenItem *> ListType;
+	typedef std::vector<tween_internal::GTweenItem *> ListType;
 
 public:
 	GTween();

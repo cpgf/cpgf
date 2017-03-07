@@ -3,13 +3,12 @@
 
 #include "cpgf/gvariant.h"
 #include "cpgf/gclassutil.h"
-#include "cpgf/gstdint.h"
 #include "cpgf/gsharedinterface.h"
 #include "cpgf/gflags.h"
 #include "cpgf/gcallback.h"
 
 #include <string>
-
+#include <cstdint>
 
 namespace cpgf {
 

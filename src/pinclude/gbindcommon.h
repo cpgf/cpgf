@@ -13,8 +13,10 @@
 #include "cpgf/gflags.h"
 #include "cpgf/gscopedinterface.h"
 #include "cpgf/gsharedinterface.h"
+#include "cpgf/gstringutil.h"
 
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <vector>
 #include <algorithm>
@@ -163,7 +165,7 @@ inline void swap(GMetaMapItem & a, GMetaMapItem & b)
 class GMetaMapClass : public GNoncopyable
 {
 public:
-	typedef std::map<const char *, GMetaMapItem, meta_internal::CStringCompare> MapType;
+	typedef std::unordered_map<const char *, GMetaMapItem, GCStringHash, GCStringEqual> MapType;
 
 public:
 	GMetaMapClass(IMetaClass * metaClass);
@@ -193,7 +195,8 @@ private:
 class GMetaMap
 {
 private:
-	typedef std::map<const char *, GMetaMapClass *, meta_internal::CStringCompare> MapType;
+	// Change this to unorder_map may hit performance.
+	typedef std::map<const char *, GMetaMapClass *, GCStringCompare> MapType;
 
 public:
 	GMetaMap();
@@ -803,15 +806,24 @@ private:
 class ConvertRank
 {
 public:
-	ConvertRank();
-
-	void reset();
+	void resetRank() {
+		this->weight = 0; //ValueMatchRank_Unknown;
+/* it's safe to not reset the pointers because they are used according to weight.
+		this->sourceClass = nullptr;
+		this->targetClass.reset();
+		this->userConverter = nullptr;
+		this->userConverterTag = 0;
+*/
+	}
 
 public:
 	int weight;
-	GSharedInterface<IMetaClass> sourceClass;
+	IMetaClass * sourceClass;
+	// We have to use GSharedInterface to hold targetClass
+	// because the targetClass may be created dynamically from the global repository.
+	// sourceClass doesn't have this problem, it's always hold by the caller.
 	GSharedInterface<IMetaClass> targetClass;
-	GSharedInterface<IScriptUserConverter> userConverter;
+	IScriptUserConverter * userConverter;
 	uint32_t userConverterTag;
 };
 
@@ -829,9 +841,13 @@ public:
 	~InvokeCallableParam();
 
 public:
-	CallableParamData params[REF_MAX_ARITY];
+	CallableParamData * params;
+	char paramsBuffer[sizeof(CallableParamData) * REF_MAX_ARITY];
 	size_t paramCount;
-	ConvertRank paramRanks[REF_MAX_ARITY];
+	ConvertRank * paramRanks;
+	char paramRanksBuffer[sizeof(ConvertRank) * REF_MAX_ARITY];
+	ConvertRank * backParamRanks;
+	char paramRanksBackBuffer[sizeof(ConvertRank) * REF_MAX_ARITY];
 	GSharedInterface<IScriptContext> scriptContext;
 };
 
@@ -977,7 +993,13 @@ private:
 
 ObjectPointerCV metaTypeToCV(const GMetaType & type);
 
-int rankCallable(IMetaService * service, const GObjectGlueDataPointer & objectData, IMetaCallable * callable, const InvokeCallableParam * callbackParam, ConvertRank * paramRanks);
+int rankCallable(
+	IMetaService * service,
+	const GObjectGlueDataPointer & objectData,
+	IMetaCallable * callable,
+	const InvokeCallableParam * callbackParam,
+	ConvertRank * paramRanks
+);
 
 bool allowAccessData(const GScriptConfig & config, bool isInstance, IMetaAccessible * accessible);
 
@@ -994,9 +1016,6 @@ char * wideStringToString(const wchar_t * ws);
 GScriptValue glueDataToScriptValue(const GGlueDataPointer & glueData);
 
 GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible, GMetaType * outType, bool instanceIsConst);
-
-void loadMethodList(const GContextPointer & context, IMetaList * methodList, const GClassGlueDataPointer & classData,
-			const GObjectGlueDataPointer & objectData, const char * methodName);
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived);
 
@@ -1119,25 +1138,52 @@ private:
 	ObjectMapType objectMap;
 };
 
+struct ConvertRankBuffer
+{
+	explicit ConvertRankBuffer(const size_t paramCount)
+		: paramCount(paramCount), paramRanks((ConvertRank *)paramRanksBuffer)
+	{
+		memset(this->paramRanksBuffer, 0, sizeof(ConvertRank) * paramCount);
+	};
+	
+	~ConvertRankBuffer()
+	{
+	for(size_t i = 0; i < this->paramCount; ++i) {
+		this->paramRanks[i].~ConvertRank();
+	}
+	}
+
+	size_t paramCount;
+	ConvertRank * paramRanks;
+	char paramRanksBuffer[sizeof(ConvertRank) * REF_MAX_ARITY];
+};
+
 template <typename Getter, typename Predict>
-int findAppropriateCallable(IMetaService * service,
+int findAppropriateCallable(
+	IMetaService * service,
 	const GObjectGlueDataPointer & objectData,
-	const Getter & getter, size_t callableCount,
-	InvokeCallableParam * callableParam, Predict predict)
+	const Getter & getter,
+	const size_t callableCount,
+	InvokeCallableParam * callableParam,
+	const Predict & predict
+)
 {
 	int maxRank = -1;
 	int maxRankIndex = -1;
 
-	ConvertRank paramRanks[REF_MAX_ARITY];
-
 	for(size_t i = 0; i < callableCount; ++i) {
 		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(getter(static_cast<uint32_t>(i))));
 		if(predict(meta.get())) {
-			int weight = rankCallable(service, objectData, meta.get(), callableParam, paramRanks);
+			const int weight = rankCallable(service, objectData, meta.get(), callableParam, callableParam->backParamRanks);
 			if(weight > maxRank) {
 				maxRank = weight;
 				maxRankIndex = static_cast<int>(i);
-				std::copy(paramRanks, paramRanks + callableParam->paramCount, callableParam->paramRanks);
+				std::swap(callableParam->paramRanks, callableParam->backParamRanks);
+			}
+			if(callableCount > 1) {
+				for(size_t i = 0; i < callableParam->paramCount; ++i) {
+					callableParam->backParamRanks[i].resetRank();
+				}
 			}
 		}
 	}

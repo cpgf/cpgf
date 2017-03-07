@@ -5,8 +5,8 @@
 #include "cpgf/gvariant.h"
 #include "cpgf/gmetatype.h"
 #include "cpgf/gmetaextendtype.h"
-#include "cpgf/gstdint.h"
 
+#include <cstdint>
 
 namespace cpgf {
 

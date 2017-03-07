@@ -91,10 +91,10 @@ protected: \
 
 #define USE_POOL(cls) \
 	void * operator new(size_t /*size*/) { \
-		return GMemoryPoolManager::getGlobal()->getMemoryPool(sizeof(cls))->allocate(); \
+		return GMemoryPool::getInstance()->allocate(sizeof(cls)); \
 	} \
 	void operator delete(void * p) { \
-		GMemoryPoolManager::getGlobal()->getMemoryPool(sizeof(cls))->free(p); \
+		GMemoryPool::getInstance()->free(p); \
 	}
 
 
@@ -1132,23 +1132,51 @@ void G_API_CC ImplMetaMethod::executeIndirectly(GVariantData * outResult, void *
 	this->invokeIndirectly(outResult, instance, params, paramCount);
 }
 
+struct VariantParameterBuffer
+{
+	VariantParameterBuffer(GVariantData const * const * params, uint32_t paramCount) noexcept
+		: paramCount(paramCount), variants((GVariant *)variantsBuffer)
+	{
+		GASSERT(paramCount <= REF_MAX_ARITY);
+
+		for(uint32_t i = 0; i < this->paramCount; ++i) {
+			new (&this->variants[i]) GVariant(createVariantFromData(*params[i]));
+		}
+	}
+
+	VariantParameterBuffer(const GVariantData * params, uint32_t paramCount) noexcept
+		: paramCount(paramCount), variants((GVariant *)variantsBuffer)
+	{
+		GASSERT(paramCount <= REF_MAX_ARITY);
+
+		for(uint32_t i = 0; i < this->paramCount; ++i) {
+			new (&this->variants[i]) GVariant(createVariantFromData(params[i]));
+		}
+	}
+
+	~VariantParameterBuffer()
+	{
+		for(uint32_t i = 0; i < this->paramCount; ++i) {
+			this->variants[i].~GVariant();
+		}
+	}
+
+	uint32_t paramCount;
+	GVariant * variants;
+	char variantsBuffer[sizeof(GVariant) * REF_MAX_ARITY];
+};
+
 void G_API_CC ImplMetaMethod::invoke(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount)
 {
-	GASSERT(paramCount <= REF_MAX_ARITY);
-
 	ENTER_META_API()
 
-	GVariant variants[REF_MAX_ARITY];
-
-	for(uint32_t i = 0; i < paramCount; ++i) {
-		variants[i] = createVariantFromData(params[i]);
-	}
+	VariantParameterBuffer variantsBuffer(params, paramCount);
 
 	if(outResult == NULL) {
-		this->getMethod()->execute(instance, variants, paramCount);
+		this->getMethod()->execute(instance, variantsBuffer.variants, paramCount);
 	}
 	else {
-		*outResult = this->getMethod()->execute(instance, variants, paramCount).takeData();
+		*outResult = this->getMethod()->execute(instance, variantsBuffer.variants, paramCount).takeData();
 	}
 
 	LEAVE_META_API()
@@ -1156,21 +1184,15 @@ void G_API_CC ImplMetaMethod::invoke(GVariantData * outResult, void * instance, 
 
 void G_API_CC ImplMetaMethod::invokeIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount)
 {
-	GASSERT(paramCount <= REF_MAX_ARITY);
-
 	ENTER_META_API()
 
-	GVariant variants[REF_MAX_ARITY];
-
-	for(uint32_t i = 0; i < paramCount; ++i) {
-		variants[i] = createVariantFromData(*params[i]);
-	}
+	VariantParameterBuffer variantsBuffer(params, paramCount);
 
 	if(outResult == NULL) {
-		this->getMethod()->execute(instance, variants, paramCount).takeData();
+		this->getMethod()->execute(instance, variantsBuffer.variants, paramCount).takeData();
 	}
 	else {
-		*outResult = this->getMethod()->execute(instance, variants, paramCount).takeData();
+		*outResult = this->getMethod()->execute(instance, variantsBuffer.variants, paramCount).takeData();
 	}
 
 	LEAVE_META_API()
@@ -1201,34 +1223,22 @@ void G_API_CC ImplMetaConstructor::executeIndirectly(GVariantData * outResult, v
 
 void * G_API_CC ImplMetaConstructor::invoke(const GVariantData * params, uint32_t paramCount)
 {
-	GASSERT(paramCount <= REF_MAX_ARITY);
-
 	ENTER_META_API()
 
-	GVariant variants[REF_MAX_ARITY];
+	VariantParameterBuffer variantsBuffer(params, paramCount);
 
-	for(uint32_t i = 0; i < paramCount; ++i) {
-		variants[i] = createVariantFromData(params[i]);
-	}
-
-	return objectAddressFromVariant(this->getConstructor()->execute(NULL, variants, paramCount));
+	return objectAddressFromVariant(this->getConstructor()->execute(NULL, variantsBuffer.variants, paramCount));
 
 	LEAVE_META_API(return NULL)
 }
 
 void * G_API_CC ImplMetaConstructor::invokeIndirectly(GVariantData const * const * params, uint32_t paramCount)
 {
-	GASSERT(paramCount <= REF_MAX_ARITY);
-
 	ENTER_META_API()
 
-	GVariant variants[REF_MAX_ARITY];
+	VariantParameterBuffer variantsBuffer(params, paramCount);
 
-	for(uint32_t i = 0; i < paramCount; ++i) {
-		variants[i] = createVariantFromData(*params[i]);
-	}
-
-	return objectAddressFromVariant(this->getConstructor()->execute(NULL, variants, paramCount));
+	return objectAddressFromVariant(this->getConstructor()->execute(NULL, variantsBuffer.variants, paramCount));
 
 	LEAVE_META_API(return NULL)
 }
@@ -1289,21 +1299,15 @@ void G_API_CC ImplMetaOperator::invokeBinary(GVariantData * outResult, const GVa
 
 void G_API_CC ImplMetaOperator::invokeFunctor(GVariantData * outResult, void * instance, const GVariantData * params, uint32_t paramCount)
 {
-	GASSERT(paramCount <= REF_MAX_ARITY);
-
 	ENTER_META_API()
 
-	GVariant variants[REF_MAX_ARITY];
-
-	for(uint32_t i = 0; i < paramCount; ++i) {
-		variants[i] = createVariantFromData(params[i]);
-	}
+	VariantParameterBuffer variantsBuffer(params, paramCount);
 
 	if(outResult == NULL) {
-		this->getOperatorItem()->execute(instance, variants, paramCount);
+		this->getOperatorItem()->execute(instance, variantsBuffer.variants, paramCount);
 	}
 	else {
-		*outResult = this->getOperatorItem()->execute(instance, variants, paramCount).takeData();
+		*outResult = this->getOperatorItem()->execute(instance, variantsBuffer.variants, paramCount).takeData();
 	}
 
 	LEAVE_META_API()
@@ -1311,21 +1315,15 @@ void G_API_CC ImplMetaOperator::invokeFunctor(GVariantData * outResult, void * i
 
 void G_API_CC ImplMetaOperator::invokeFunctorIndirectly(GVariantData * outResult, void * instance, GVariantData const * const * params, uint32_t paramCount)
 {
-	GASSERT(paramCount <= REF_MAX_ARITY);
-
 	ENTER_META_API()
 
-	GVariant variants[REF_MAX_ARITY];
-
-	for(uint32_t i = 0; i < paramCount; ++i) {
-		variants[i] = createVariantFromData(*params[i]);
-	}
+	VariantParameterBuffer variantsBuffer(params, paramCount);
 
 	if(outResult == NULL) {
-		this->getOperatorItem()->execute(instance, variants, paramCount);
+		this->getOperatorItem()->execute(instance, variantsBuffer.variants, paramCount);
 	}
 	else {
-		*outResult = this->getOperatorItem()->execute(instance, variants, paramCount).takeData();
+		*outResult = this->getOperatorItem()->execute(instance, variantsBuffer.variants, paramCount).takeData();
 	}
 
 	LEAVE_META_API()

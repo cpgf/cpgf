@@ -2,13 +2,13 @@
 #define CPGF_GVARTYPEDATA_H
 
 #include "cpgf/gcompiler.h"
-#include "cpgf/gstdint.h"
 #include "cpgf/gassert.h"
 #include "cpgf/gtypetraits.h"
 #include "cpgf/gtypelist.h"
 #include "cpgf/genableif.h"
 #include "cpgf/ginterface.h"
 
+#include <cstdint>
 
 #if defined(_MSC_VER)
 #pragma warning(push)

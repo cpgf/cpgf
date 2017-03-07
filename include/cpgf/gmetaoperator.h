@@ -1,7 +1,7 @@
 #ifndef CPGF_GMETAOPERATOR_H
 #define CPGF_GMETAOPERATOR_H
 
-
+#include "cpgf/gtypeutil.h"
 #include "cpgf/private/gmetainvoke_p.h"
 #include "cpgf/private/gmetadefaultparam_p.h"
 #include "cpgf/gmetacommon.h"

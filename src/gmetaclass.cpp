@@ -5,8 +5,9 @@
 #include "cpgf/gmetamethod.h"
 #include "cpgf/gmetaoperator.h"
 #include "cpgf/gmetaproperty.h"
-#include "pinclude/gstaticuninitializerorders.h"
+#include "cpgf/gstringutil.h"
 
+#include "pinclude/gstaticuninitializerorders.h"
 
 #include <string>
 #include <vector>
@@ -182,7 +183,7 @@ class GMetaItemListImplement
 {
 public:
 	typedef std::vector<GMetaItem *> ListType;
-	typedef std::multimap<const char *, GMetaItem *, meta_internal::CStringCompare> MapType;
+	typedef std::multimap<const char *, GMetaItem *, GCStringCompare> MapType;
 
 public:
 	void clear() {
@@ -715,6 +716,8 @@ GMetaModule * GMetaClass::getModule() const
 
 bool GMetaClass::isGlobal() const
 {
+	// Even a meta class doesn't has any parent class, we require an empty superList.
+	// Only global class has no superList.
 	return !this->superList;
 }
 

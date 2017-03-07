@@ -17,6 +17,7 @@ namespace cpgf {
 
 namespace meta_internal {
 
+
 GMetaDefaultParamList::~GMetaDefaultParamList()
 {
 }
