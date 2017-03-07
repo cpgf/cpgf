@@ -806,7 +806,15 @@ private:
 class ConvertRank
 {
 public:
-	void resetRank();
+	void resetRank() {
+		this->weight = 0; //ValueMatchRank_Unknown;
+/* it's safe to not reset the pointers because they are used according to weight.
+		this->sourceClass = nullptr;
+		this->targetClass.reset();
+		this->userConverter = nullptr;
+		this->userConverterTag = 0;
+*/
+	}
 
 public:
 	int weight;
@@ -838,6 +846,8 @@ public:
 	size_t paramCount;
 	ConvertRank * paramRanks;
 	char paramRanksBuffer[sizeof(ConvertRank) * REF_MAX_ARITY];
+	ConvertRank * backParamRanks;
+	char paramRanksBackBuffer[sizeof(ConvertRank) * REF_MAX_ARITY];
 	GSharedInterface<IScriptContext> scriptContext;
 };
 
@@ -1161,20 +1171,18 @@ int findAppropriateCallable(
 	int maxRank = -1;
 	int maxRankIndex = -1;
 
-	ConvertRankBuffer paramRanksBuffer(callableParam->paramCount);
-
 	for(size_t i = 0; i < callableCount; ++i) {
 		GScopedInterface<IMetaCallable> meta(gdynamic_cast<IMetaCallable *>(getter(static_cast<uint32_t>(i))));
 		if(predict(meta.get())) {
-			const int weight = rankCallable(service, objectData, meta.get(), callableParam, paramRanksBuffer.paramRanks);
+			const int weight = rankCallable(service, objectData, meta.get(), callableParam, callableParam->backParamRanks);
 			if(weight > maxRank) {
 				maxRank = weight;
 				maxRankIndex = static_cast<int>(i);
-				std::copy(paramRanksBuffer.paramRanks, paramRanksBuffer.paramRanks + callableParam->paramCount, callableParam->paramRanks);
+				std::swap(callableParam->paramRanks, callableParam->backParamRanks);
 			}
 			if(callableCount > 1) {
 				for(size_t i = 0; i < callableParam->paramCount; ++i) {
-					paramRanksBuffer.paramRanks[i].resetRank();
+					callableParam->backParamRanks[i].resetRank();
 				}
 			}
 		}

@@ -837,26 +837,19 @@ GScriptObjectCache * GBindingContext::getScriptObjectCache() {
 }
 
 
-void ConvertRank::resetRank()
-{
-	this->weight = ValueMatchRank_Unknown;
-	this->sourceClass = nullptr;
-	this->targetClass.reset();
-	this->userConverter = nullptr;
-	this->userConverterTag = 0;
-}
-
 InvokeCallableParam::InvokeCallableParam(size_t paramCount, IScriptContext * scriptContext)
 	:
 		params((CallableParamData *)paramsBuffer),
 		paramCount(paramCount),
 		paramRanks((ConvertRank *)paramRanksBuffer),
+		backParamRanks((ConvertRank *)paramRanksBackBuffer),
 		scriptContext(scriptContext)
 {
 	// Use "raw" buffer to hold the object array CallableParamData and ConvertRank.
 	// If we use CallableParamData[REF_MAX_ARITY] and ConvertRank[REF_MAX_ARITY], the performance is bad due to the constructors.
 	memset(this->paramsBuffer, 0, sizeof(CallableParamData) * paramCount);
 	memset(this->paramRanksBuffer, 0, sizeof(ConvertRank) * paramCount);
+	memset(this->paramRanksBackBuffer, 0, sizeof(ConvertRank) * paramCount);
 
 	if(this->paramCount > REF_MAX_ARITY) {
 		raiseCoreException(Error_ScriptBinding_CallMethodWithTooManyParameters);
@@ -868,6 +861,7 @@ InvokeCallableParam::~InvokeCallableParam()
 	for(size_t i = 0; i < this->paramCount; ++i) {
 		this->params[i].~CallableParamData();
 		this->paramRanks[i].~ConvertRank();
+		this->backParamRanks[i].~ConvertRank();
 	}
 }
 
