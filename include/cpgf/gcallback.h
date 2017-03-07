@@ -338,12 +338,30 @@ public:
 	}
 
 	template <typename FT>
-	GCallback(const FT & func)
+	GCallback(
+		const FT & func,
+		typename std::enable_if<! GFunctionTraits<FT>::IsMember>::type * = 0
+	)
 		:
 			base(
 				callback_internal::allocateBase<
 					callback_internal::GCallbackBaseFunc<FT, RT, Parameters...>
 				>((void *)this->buffer, func)
+			)
+	{
+	}
+
+	template <typename FT>
+	GCallback(
+		const FT & func,
+		typename std::enable_if<GFunctionTraits<FT>::IsMember>::type * = 0
+	)
+		:
+			base(
+				callback_internal::allocateBase<
+						callback_internal::GCallbackBaseMember<typename GFunctionTraits<FT>::ObjectType *, typename GFunctionTraits<FT>::ObjectType, FT, RT,Parameters...>
+					>
+				>((void *)this->buffer, (typename GFunctionTraits<FT>::ObjectType *)nullptr, func)
 			)
 	{
 	}
@@ -474,6 +492,12 @@ private:
 
 public:
 	using super::super;
+
+	template <typename FT>
+	GCallback(const FT & func)
+		: super(func)
+	{
+	}
 };
 
 template <typename FT>
