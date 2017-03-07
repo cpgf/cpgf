@@ -837,12 +837,7 @@ GScriptObjectCache * GBindingContext::getScriptObjectCache() {
 }
 
 
-ConvertRank::ConvertRank()
-{
-	this->reset();
-}
-
-void ConvertRank::reset()
+void ConvertRank::resetRank()
 {
 	this->weight = ValueMatchRank_Unknown;
 	this->sourceClass = nullptr;
@@ -1165,8 +1160,6 @@ void rankCallableParam(
 	size_t paramIndex
 )
 {
-	outputRank->reset();
-
 	GMetaType proto = metaGetParamType(callable, paramIndex);
 	GScriptValue::Type type = callableParam->params[paramIndex].value.getType();
 
@@ -1252,7 +1245,7 @@ bool doConvertForMetaClassCast(const GContextPointer & context, GVariant * v, co
 	if(sourceClass != NULL) {
 		GScopedInterface<IMetaClass> targetClass(context->getService()->findClassByName(targetType.getBaseName()));
 		if(targetClass) {
-			ConvertRank rank;
+			ConvertRank rank = ConvertRank();
 
 			rankImplicitConvertForMetaClass(&rank, sourceClass, targetClass.get());
 			return implicitConvertForMetaClassCast(rank, v);
@@ -1630,7 +1623,7 @@ void setValueToScriptDataHolder(const GGlueDataPointer & glueData, const char * 
 
 void doSetValueOnAccessible(const GContextPointer & context, IMetaAccessible * accessible, const GGlueDataPointer & instanceGlueData, GVariant value, const GGlueDataPointer & valueGlueData)
 {
-	ConvertRank rank;
+	ConvertRank rank = ConvertRank();
 
 	GMetaType targetType(metaGetItemType(accessible));
 	rankImplicitConvertForSharedPointer(&rank, valueGlueData, metaGetItemExtendType(accessible, GExtendTypeCreateFlag_SharedPointerTraits));

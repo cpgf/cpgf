@@ -806,9 +806,7 @@ private:
 class ConvertRank
 {
 public:
-	ConvertRank();
-
-	void reset();
+	void resetRank();
 
 public:
 	int weight;
@@ -1173,6 +1171,11 @@ int findAppropriateCallable(
 				maxRank = weight;
 				maxRankIndex = static_cast<int>(i);
 				std::copy(paramRanksBuffer.paramRanks, paramRanksBuffer.paramRanks + callableParam->paramCount, callableParam->paramRanks);
+			}
+			if(callableCount > 1) {
+				for(size_t i = 0; i < callableParam->paramCount; ++i) {
+					paramRanksBuffer.paramRanks[i].resetRank();
+				}
 			}
 		}
 	}
