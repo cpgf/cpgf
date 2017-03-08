@@ -629,6 +629,9 @@ template <typename T>
 struct MemberDataTrait
 {
 	G_STATIC_CONSTANT(bool, Result = false);
+	typedef void ObjectType;
+	typedef void FieldType;
+	typedef void DataType;
 };
 
 template <typename OT, typename FT>

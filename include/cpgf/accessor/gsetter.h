@@ -1,247 +1,209 @@
 #ifndef CPGF_GSETTER_H
 #define CPGF_GSETTER_H
 
-#include "cpgf/gmetapolicy.h"
-#include "cpgf/gcallback.h"
-#include "cpgf/gifelse.h"
+#include "cpgf/gfunctiontraits.h"
 #include "cpgf/gtypetraits.h"
-#include "cpgf/gassert.h"
+#include "cpgf/gcallback.h"
+#include "cpgf/gmetapolicy.h"
 #include "cpgf/gexception.h"
+#include "cpgf/gerrorcode.h"
 
-
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable:4127) // conditional expression is constant
-#endif
-
-#ifdef G_COMPILER_CPPBUILDER
-#pragma warn -8008 //Condition is always true
-#pragma warn -8066 //Unreachable code
-#endif
-
+#include <type_traits>
 
 namespace cpgf {
 
+namespace setter_internal {
 
-extern int Error_Meta_WriteDenied;
-
-template <typename RawSetter, typename Policy = GMetaPolicyDefault, typename Enabled = void>
-class GInstanceSetter
+template <typename T, typename Policy, typename EnableIf = void>
+class GInstanceSetterImplement
 {
 public:
+	typedef int DataType;
 	typedef int ValueType;
-	typedef const ValueType & PassType;
-
-	G_STATIC_CONSTANT(bool, HasSetter = false);
-	G_STATIC_CONSTANT(bool, Writable = false);
-
-public:
-	GInstanceSetter(const RawSetter & /*setter*/) {
-	}
-
-	void set(void * /*instance*/, PassType /*value*/) const {
-		raiseCoreException(Error_Meta_WriteDenied);
-	}
-
-	void * getAddress(void * /*instance*/) const {
-		raiseCoreException(Error_Meta_WriteDenied);
-		return NULL;
-	}
-};
-
-
-template <typename RawSetter, typename Policy>
-class GInstanceSetter <RawSetter, Policy, typename GEnableIfResult<
-	GAndResult<
-		GNotResult<IsFunction<RawSetter> >,
-		GNotResult<MemberDataTrait<RawSetter> >,
-		GNotResult<IsFundamental<RawSetter> >
-	>
-	>::Result
->
-{
-	GASSERT_STATIC(IsPointer<RawSetter>::Result);
-
-protected:
-	typedef const RawSetter & RawSetterPassType;	
-
-public:
-	G_STATIC_CONSTANT(bool, HasSetter = true);
-	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result));
-
-public:
-	typedef typename RemovePointer<RawSetter>::Result ValueType;
-	typedef const ValueType & PassType;
-
-public:
-	GInstanceSetter(RawSetterPassType setter) : setter(setter) {
-	}
-
-	GInstanceSetter(const GInstanceSetter & other) : setter(other.setter) {
-	}
-
-	GInstanceSetter & operator = (const GInstanceSetter & other) {
-		if(this != &other) {
-			this->setter = other.setter;
-		}
-	}
-
-	void set(void * instance, PassType value) const {
-		this->doSet<void>(instance, value);
-	}
-
-	void * getAddress(const void * /*instance*/) const {
-		return this->setter;
-	}
-
-private:	
-	template <typename T>
-	void doSet(typename GEnableIf<Writable, T>::Result * /*instance*/, PassType value) const {
-		*(this->setter) = value;
-	}
-
-	template <typename T>
-	void doSet(typename GDisableIf<Writable, T>::Result * /*instance*/, PassType /*value*/) const {
-		raiseCoreException(Error_Meta_WriteDenied);
-	}
-
-private:
-	RawSetter setter;
-};
-
-template <typename RawSetter, typename Policy>
-class GInstanceSetter <RawSetter, Policy, typename GEnableIfResult<
-	GAndResult<
-		GNotResult<IsFunction<RawSetter> >,
-		MemberDataTrait<RawSetter>
-	>
-	>::Result
->
-{
-protected:
-	typedef const RawSetter & RawSetterPassType;	
-
-public:
-	G_STATIC_CONSTANT(bool, HasSetter = true);
-	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result));
-
-public:
-	typedef typename MemberDataTrait<RawSetter>::FieldType ValueType;
-	typedef const ValueType & PassType;
-
-public:
-	GInstanceSetter(RawSetterPassType setter) : setter(setter) {
-	}
-
-	GInstanceSetter(const GInstanceSetter & other) : setter(other.setter) {
-	}
-
-	GInstanceSetter & operator = (const GInstanceSetter & other) {
-		if(this != &other) {
-			this->setter = other.setter;
-		}
-	}
-
-	void set(void * instance, PassType value) const {
-		this->doSet<void>(instance, value);
-	}
-
-	void * getAddress(const void * instance) const {
-		return &(static_cast<typename MemberDataTrait<RawSetter>::ObjectType *>(const_cast<void *>(instance))->*(this->setter));
-	}
-
-private:	
-	template <typename T>
-	void doSet(typename GEnableIf<Writable, T>::Result * instance, PassType value) const {
-		static_cast<typename MemberDataTrait<RawSetter>::ObjectType *>(instance)->*(this->setter) = value;
-	}
-
-	template <typename T>
-	void doSet(typename GDisableIf<Writable, T>::Result * /*instance*/, PassType /*value*/) const {
-		raiseCoreException(Error_Meta_WriteDenied);
-	}
-
-private:
-	RawSetter setter;
-};
-
-template <typename RawSetter, typename Policy>
-class GInstanceSetter <RawSetter, Policy, typename GEnableIfResult<IsFunction<RawSetter> >::Result>
-{
-protected:
-	typedef RawSetter RawSetterPassType;	
-
-public:
-	G_STATIC_CONSTANT(bool, HasSetter = true);
-	G_STATIC_CONSTANT(bool, Writable = (PolicyNotHasRule<Policy, GMetaRuleForbidWrite>::Result));
-	G_STATIC_CONSTANT(bool, ExplicitThis = (PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result || PolicyHasRule<Policy, GMetaRuleSetterExplicitThis>::Result));
-	G_STATIC_CONSTANT(bool, NotExplicitThis = !ExplicitThis);
-
-private:
-	template <typename F, bool>
-	struct SelectValueType { typedef typename GFunctionTraits<F>::ArgList::Arg1 Result; };
-	template <typename F>
-	struct SelectValueType <F, false> { typedef typename GFunctionTraits<F>::ArgList::Arg0 Result; };
-
-public:
-	typedef typename SelectValueType<RawSetter, ExplicitThis>::Result ValueType;
 	typedef ValueType PassType;
+	
+	static constexpr bool HasSetter = false;
 
 public:
-	GInstanceSetter(RawSetterPassType setter) : callback(makeCallback(setter)) {
-	}
-
-	GInstanceSetter(const GInstanceSetter & other) : callback(other.callback) {
-	}
-
-	GInstanceSetter & operator = (const GInstanceSetter & other) {
-		if(this != &other) {
-			this->callback = other.callback;
-		}
-	}
-
-	void set(void * instance, PassType value) const {
-		this->doSet<void>(instance, value);
-	}
-
-	void * getAddress(const void * /*instance*/) const {
-		return NULL;
-	}
-
-private:	
-	template <typename T>
-	void doSet(typename GEnableIf<Writable && NotExplicitThis, T>::Result * instance, PassType value) const {
-		this->callback.setObject(instance);
-		this->callback(value);
-	}
-
-	template <typename T>
-	void doSet(typename GEnableIf<Writable && ExplicitThis, T>::Result * instance, PassType value) const {
-		this->callback.setObject(instance);
-		this->callback((typename GFunctionTraits<RawSetter>::ArgList::Arg0)(instance), value);
-	}
-
-	template <typename T>
-	void doSet(typename GDisableIf<Writable, T>::Result * /*instance*/, PassType /*value*/) const {
+	static PassType set(DataType & /*data*/, const void * /*instance*/) {
 		raiseCoreException(Error_Meta_WriteDenied);
+
+		return ValueType();
 	}
 
-private:
-	typename FunctionCallbackType<RawSetter>::Result callback;
+	static void * getAddress(DataType & /*data*/, const void * /*instance*/) {
+		raiseCoreException(Error_Meta_WriteDenied);
+
+		return nullptr;
+	}
 };
 
-
-template <typename RawSetter, typename Policy = GMetaPolicyDefault>
-class GSetter : public GInstanceSetter<RawSetter, Policy>
+// setter via data address
+template <typename T, typename Policy>
+class GInstanceSetterImplement <T, Policy, typename std::enable_if<
+		(std::is_pointer<T>::value || std::is_member_pointer<T>::value)
+		&& ! GFunctionTraits<T>::IsFunction
+	>::type>
 {
 private:
-	typedef GInstanceSetter<RawSetter, Policy> super;
+	typedef MemberDataTrait<T> MemberTrait;
+	static constexpr bool IsMember = MemberTrait::Result;
 
 public:
-	GSetter(void * instance, typename super::RawSetterPassType setter) : super(setter), instance(instance) {
+	typedef T DataType;
+
+	typedef typename std::conditional<
+		IsMember,
+		typename MemberTrait::FieldType,
+		typename std::remove_pointer<T>::type
+	>::type ValueType;
+
+	typedef const ValueType & PassType;
+	
+	static constexpr bool HasSetter = true;
+
+public:
+	static void set(DataType & data, const void * instance, const PassType & value){
+		return doSet<DataType &>(data, instance, value);
 	}
 	
-	GSetter(const GSetter & other) : super(other), instance(other.instance) {
+	static void * getAddress(DataType & data, const void * instance) {
+		return doGetAddress<DataType &>(data, instance);
+	}
+
+private:
+	template <typename U>
+	static void doSet(typename std::enable_if<IsMember, U>::type data, const void * instance, const PassType & value) {
+		(typename MemberTrait::ObjectType *)(instance)->*data = value;
+	}
+
+	template <typename U>
+	static void doSet(typename std::enable_if<! IsMember, U>::type data, const void * /*instance*/, const PassType & value) {
+		*data = value;
+	}
+
+	template <typename U>
+	static void * doGetAddress(typename std::enable_if<IsMember, U>::type data, const void * instance) {
+		return (void *)&(static_cast<const typename MemberTrait::ObjectType *>(instance)->*data);
+	}
+
+	template <typename U>
+	static void * doGetAddress(typename std::enable_if<! IsMember, U>::type data, const void * /*instance*/) {
+		return (void *)&*data;
+	}
+};
+
+// setter via functor/function
+template <typename T, typename Policy>
+class GInstanceSetterImplement <T, Policy, typename std::enable_if<
+		(GFunctionTraits<T>::IsFunction)
+		|| (! std::is_pointer<T>::value && ! std::is_member_pointer<T>::value && ! std::is_fundamental<T>::value)
+	>::type>
+{
+private:
+	typedef decltype(makeCallback(std::declval<T>())) CallbackType;
+
+	static constexpr bool ExplicitThis = (
+		PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result
+		|| PolicyHasRule<Policy, GMetaRuleGetterExplicitThis>::Result
+	);
+
+public:
+	typedef CallbackType DataType;
+
+	typedef typename std::conditional<
+		ExplicitThis,
+		typename TypeList_Get<typename CallbackType::TraitsType::ArgTypeList, 1>::Result,
+		typename TypeList_Get<typename CallbackType::TraitsType::ArgTypeList, 0>::Result
+	>::type ValueType;
+	typedef ValueType PassType;
+	
+	static constexpr bool HasSetter = true;
+
+public:
+	static void set(DataType & data, const void * instance, const PassType & value) {
+		doSet<DataType &>(data, instance, value);
+	}
+	
+	static void * getAddress(DataType & /*data*/, const void * /*instance*/) {
+		return nullptr;
+	}
+
+private:
+	template <typename U>
+	static void doSet(typename std::enable_if<ExplicitThis, U>::type data, const void * instance, const PassType & value) {
+		data.setObject((void *)instance);
+		data((typename TypeList_Get<typename CallbackType::TraitsType::ArgTypeList, 0>::Result)(instance), value);
+	}
+
+	template <typename U>
+	static void doSet(typename std::enable_if<! ExplicitThis, U>::type data, const void * instance, const PassType & value) {
+		data.setObject((void *)instance);
+		data(value);
+	}
+
+};
+
+
+} //namespace setter_internal
+
+template <typename T, typename Policy = GMetaPolicyDefault>
+class GInstanceSetter
+{
+private:
+	typedef setter_internal::GInstanceSetterImplement<T, Policy> ImplmentType;
+
+public:
+	typedef typename ImplmentType::ValueType ValueType;
+	typedef typename ImplmentType::PassType PassType;
+	
+	static constexpr bool HasSetter = ImplmentType::HasSetter;
+	static constexpr bool Writable = HasSetter && ! PolicyHasRule<Policy, GMetaRuleForbidWrite>::Result;
+	
+
+public:
+	GInstanceSetter() : setter() {
+	}
+
+	explicit GInstanceSetter(const T & setter) : setter(setter) {
+	}
+	
+	GInstanceSetter(const GInstanceSetter & other) : setter(other.setter) {
+	}
+	
+	GInstanceSetter & operator = (const GInstanceSetter & other) {
+		this->setter = other.setter;
+		return *this;
+	}
+	
+	void set(const void * instance, const PassType & value) const {
+		ImplmentType::set(this->setter, instance, value);
+	}
+	
+	void * getAddress(const void * instance) const {
+		return ImplmentType::getAddress(this->setter, instance);
+	}
+
+private:
+	mutable typename ImplmentType::DataType setter;
+};
+
+
+template <typename T, typename Policy = GMetaPolicyDefault>
+class GSetter : public GInstanceSetter<T, Policy>
+{
+private:
+	typedef GInstanceSetter<T, Policy> super;
+
+public:
+	GSetter(const void * instance, const T & setter)
+		: super(setter), instance(instance)
+	{
+	}
+	
+	GSetter(const GSetter & other)
+		: super(other), instance(other.instance)
+	{
 	}
 	
 	GSetter & operator = (const GSetter & other) {
@@ -251,15 +213,15 @@ public:
 		return *this;
 	}
 
-	void set(typename super::PassType value) const {
+	void set(const typename super::PassType & value) const {
 		super::set(this->instance, value);
 	}
 	
-	void operator() (typename super::PassType value) const {
+	void operator() (const typename super::PassType & value) const {
 		this->set(value);
 	}
 	
-	GSetter & operator = (typename super::PassType value) {
+	GSetter & operator = (const typename super::PassType & value) {
 		this->set(value);
 		
 		return *this;
@@ -269,18 +231,17 @@ public:
 		return super::getAddress(this->instance);
 	}
 	
-	void * getInstance() const {
+	const void * getInstance() const {
 		return this->instance;
 	}
 
-	void setInstance(void * newInstance) {
+	void setInstance(const void * newInstance) {
 		this->instance = newInstance;
 	}
 	
 private:
-	void * instance;
+	const void * instance;
 };
-
 
 template <typename RawSetter, typename Policy>
 GInstanceSetter<RawSetter, Policy> createInstanceSetter(const RawSetter & setter, Policy /*policy*/)
@@ -307,19 +268,7 @@ GSetter<RawSetter, GMetaPolicyDefault> createSetter(void * instance, const RawSe
 }
 
 
-
-} // namespace cpgf
-
-
-#ifdef G_COMPILER_CPPBUILDER
-#pragma warn .8008 //Condition is always true
-#pragma warn .8066 //Unreachable code
-#endif
-
-
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
+} //namespace cpgf
 
 
 #endif

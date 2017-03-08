@@ -156,6 +156,7 @@ GTEST(InstanceGetter_Member_Variable_const_object)
 	GEQUAL(38, getter);
 }
 
+/*
 GTEST(Getter_Constant_Getter)
 {
 	GConstantGetter<int> getter = createConstantGetter(1);
@@ -168,6 +169,7 @@ GTEST(Getter_Constant_Getter)
 	getter = createConstantGetter(x);
 	GEQUAL(38, getter.get());
 }
+*/
 
 
 } // unnamed namespace
