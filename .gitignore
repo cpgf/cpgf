@@ -1,5 +1,5 @@
 /build/bin/
-/build/temp_cache_mingw
+/build/temp_*
 /build/project_vc*
 /lib/
 /test/metagen/xml/
