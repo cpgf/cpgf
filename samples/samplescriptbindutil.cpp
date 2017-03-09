@@ -189,7 +189,13 @@ ScriptHelperImplement::ScriptHelperImplement(int argc, char * argv[])
 
 	this->service.reset(createDefaultMetaService());
 	this->runner.reset(createScriptRunnerFromScriptLanguage(this->scriptLanguage, this->service.get()));
-	this->scriptObject.reset(runner->getScripeObject());
+	
+	if(! this->runner) {
+		cout << "Can't create script engine, maybe not included?" << endl;
+		exit(1);
+	}
+	
+	this->scriptObject.reset(this->runner->getScripeObject());
 
 	this->scriptObject->bindCoreService("cpgf", NULL);
 }
