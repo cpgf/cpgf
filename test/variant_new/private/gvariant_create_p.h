@@ -2,7 +2,7 @@
 template <typename T>
 struct GVariantDeducer_Type
 {
-	static constexpr int fundamentalIndex = TypeList_IndexOf<FundamentalTypeList, T>::Result;
+	static constexpr int fundamentalIndex = cpgf::TypeList_IndexOf<FundamentalTypeList, T>::Result;
 	static constexpr int Type =
 		(fundamentalIndex >= 0 ? fundamentalIndex + FundamentalTypeStartType
 			: (std::is_void<T>::value ? (int)GVariantType::vtVoid : (int)GVariantType::vtObject)

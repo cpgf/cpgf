@@ -227,60 +227,70 @@ inline uint16_t vtGetBaseType(const uint16_t vt)
 	return (vt & (int)GVariantType::vtMask);
 }
 
+struct VarantCastKeepConstRef {};
+struct VarantCastCopyConstRef {};
+
 #include "private/gvariant_from_p.h"
 
-template <typename T>
-T fromVariant(const GVariant & value)
+template <typename T, typename Policy = VarantCastKeepConstRef>
+typename VariantCastResult<T, Policy>::Result fromVariant(const GVariant & value)
 {
 	auto vt = value.refData().typeData.vt;
 	if(vtIsPointer(vt)) {
 		if(vtIsLvalueReference(vt)) {
-			return CastVariant_Pointer_LvalueReference<T>::cast(value);
+			return CastVariant_Pointer_LvalueReference<T, Policy>::cast(value);
 		}
 		else if(vtIsRvalueReference(vt)) {
-			return CastVariant_Pointer_RvalueReference<T>::cast(value);
+			return CastVariant_Pointer_RvalueReference<T, Policy>::cast(value);
 		}
 		else {
-			return CastVariant_Pointer<T>::cast(value);
+			return CastVariant_Pointer<T, Policy>::cast(value);
 		}
 	}
 	else if(vtIsLvalueReference(vt)) {
-		return CastVariant_LvalueReference<T>::cast(value);
+		return CastVariant_LvalueReference<T, Policy>::cast(value);
 	}
 	else if(vtIsRvalueReference(vt)) {
-		return CastVariant_RvalueReference<T>::cast(value);
+		return CastVariant_RvalueReference<T, Policy>::cast(value);
 	}
 	else {
-		return CastVariant_Value<T>::cast(value);
+		return CastVariant_Value<T, Policy>::cast(value);
 	}
 }
 
 
-template <typename T>
+template <typename T, typename Policy = VarantCastKeepConstRef>
 bool canFromVariant(const GVariant & value)
 {
 	auto vt = value.refData().typeData.vt;
 	if(vtIsPointer(vt)) {
 		if(vtIsLvalueReference(vt)) {
-			return CastVariant_Pointer_LvalueReference<T>::canCast(value);
+			return CastVariant_Pointer_LvalueReference<T, Policy>::canCast(value);
 		}
 		else if(vtIsRvalueReference(vt)) {
-			return CastVariant_Pointer_RvalueReference<T>::canCast(value);
+			return CastVariant_Pointer_RvalueReference<T, Policy>::canCast(value);
 		}
 		else {
-			return CastVariant_Pointer<T>::canCast(value);
+			return CastVariant_Pointer<T, Policy>::canCast(value);
 		}
 	}
 	else if(vtIsLvalueReference(vt)) {
-		return CastVariant_LvalueReference<T>::canCast(value);
+		return CastVariant_LvalueReference<T, Policy>::canCast(value);
 	}
 	else if(vtIsRvalueReference(vt)) {
-		return CastVariant_RvalueReference<T>::canCast(value);
+		return CastVariant_RvalueReference<T, Policy>::canCast(value);
 	}
 	else {
-		return CastVariant_Value<T>::canCast(value);
+		return CastVariant_Value<T, Policy>::canCast(value);
 	}
 }
+
+template <bool Copyable, typename T>
+GVariant createVariant(const T & value, bool copyObject = false)
+{
+	return GVariant(value);
+}
+
 
 
 } //namespace cpgf
