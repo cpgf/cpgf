@@ -45,6 +45,7 @@ void doBenchmarkLuaBind()
 	// After used VariantParameterBuffer in gmetaapi.cpp, 4050 ms
 	// After changed map to unordered_map in class GMetaMapClass, 3900 ms
 	// After changed compile options to  -O2 -Oy -GL, link options to -LTCG, in VC, 3200 ms
+	// 2850 ms
 	{
 		std::string code = R"(
 			a = TestObject()

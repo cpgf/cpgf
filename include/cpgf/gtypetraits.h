@@ -93,13 +93,11 @@ struct IsReference <T &>
 	G_STATIC_CONSTANT(bool, Result = true);
 };
 
-#if G_SUPPORT_RVALUE_REFERENCE
 template <typename T>
 struct IsReference <T &&>
 {
 	G_STATIC_CONSTANT(bool, Result = true);
 };
-#endif
 
 
 template <typename T>
@@ -114,13 +112,11 @@ struct RemoveReference <T &>
 	typedef T Result;
 };
 
-#if G_SUPPORT_RVALUE_REFERENCE
 template <typename T>
 struct RemoveReference <T &&>
 {
 	typedef T Result;
 };
-#endif
 
 
 template <typename T>
@@ -155,13 +151,11 @@ struct IsRValueReference
 	G_STATIC_CONSTANT(bool, Result = false);
 };
 
-#if G_SUPPORT_RVALUE_REFERENCE
 template <typename T>
 struct IsRValueReference <T &&>
 {
 	G_STATIC_CONSTANT(bool, Result = true);
 };
-#endif
 
 
 template <typename T>
@@ -170,13 +164,11 @@ struct RemoveRValueReference
 	typedef T Result;
 };
 
-#if G_SUPPORT_RVALUE_REFERENCE
 template <typename T>
 struct RemoveRValueReference <T &&>
 {
 	typedef T Result;
 };
-#endif
 
 
 template <typename T>
@@ -335,9 +327,7 @@ template <typename T> struct ExtractRawType <T volatile> { typedef typename Extr
 template <typename T> struct ExtractRawType <T const volatile> { typedef typename ExtractRawType<T>::Result Result; };
 template <typename T> struct ExtractRawType <T *> { typedef typename ExtractRawType<T>::Result Result; };
 template <typename T> struct ExtractRawType <T &> { typedef typename ExtractRawType<T>::Result Result; };
-#if G_SUPPORT_RVALUE_REFERENCE
 template <typename T> struct ExtractRawType <T &&> { typedef typename ExtractRawType<T>::Result Result; };
-#endif
 
 
 
@@ -629,6 +619,9 @@ template <typename T>
 struct MemberDataTrait
 {
 	G_STATIC_CONSTANT(bool, Result = false);
+	typedef void ObjectType;
+	typedef void FieldType;
+	typedef void DataType;
 };
 
 template <typename OT, typename FT>
@@ -692,13 +685,11 @@ struct GArgumentTraits <T &>
 	typedef T & Result;
 };
 
-#if G_SUPPORT_RVALUE_REFERENCE
 template <typename T>
 struct GArgumentTraits <T &&>
 {
 	typedef T && Result;
 };
-#endif
 
 #ifndef G_COMPILER_CPPBUILDER
 template <typename T, unsigned int N>

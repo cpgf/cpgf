@@ -42,7 +42,7 @@ struct GFunctionTraitsBase
 {
 	typedef AT FullType;
 	typedef RT FunctionType (Parameters...);
-	typedef FunctionType * FunctionPointer;
+	typedef typename std::conditional<std::is_pointer<FullType>::value, FullType, FullType *>:: type FunctionPointer;
 	typedef typename cpgf::TypeList_Make<Parameters...>::Result ArgTypeList;
 	typedef GFunctionTraitsArgList<Parameters...> ArgList;
 
@@ -68,6 +68,15 @@ struct GFunctionTraitsBase
 template <typename Signature>
 struct GFunctionTraits
 {
+	typedef void FullType;
+	typedef void FunctionType;
+	typedef void FunctionPointer;
+	typedef void ArgTypeList;
+	typedef void ArgList;
+
+	typedef void ObjectType;
+	typedef void ResultType;
+
 	static constexpr bool IsFunction = false;
 
 	static constexpr int Arity = -1;

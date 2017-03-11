@@ -489,12 +489,10 @@ struct CastResult <T &, Policy> {
 	typedef typename GIfElse<IsPointerHelper<T>::Result, T, T &>::Result Result;
 };
 
-#if G_SUPPORT_RVALUE_REFERENCE
 template <typename T, typename Policy>
 struct CastResult <T &&, Policy> {
 	typedef T Result;
 };
-#endif
 
 template <typename T>
 struct CastResult <const T &, VarantCastCopyConstRef> {
@@ -612,12 +610,10 @@ T castFromObject(const volatile void * const & obj, typename GEnableIfResult<IsP
 }
 
 template <typename T> struct TurnLReferenceToR { typedef T Result; };
-#if G_SUPPORT_RVALUE_REFERENCE
 // If we don't turn left reference into right reference, the test case in test_variant_cast.cpp
 // CAN_FROM_CAST(CLASS &&, CLASS &, obj);
 // will report compiler warning -- return reference to local variable.
 template <typename T> struct TurnLReferenceToR <T &&> { typedef T & Result; };
-#endif
 
 template <typename T>
 typename TurnLReferenceToR<T>::Result castFromObject(const volatile void * obj, typename GDisableIfResult<IsPointerHelper<T> >::Result * = 0)

@@ -1,258 +1,204 @@
 #ifndef CPGF_GGETTER_H
 #define CPGF_GGETTER_H
 
-#include "cpgf/gmetapolicy.h"
-#include "cpgf/gcallback.h"
-#include "cpgf/gifelse.h"
+#include "cpgf/gfunctiontraits.h"
 #include "cpgf/gtypetraits.h"
-#include "cpgf/gassert.h"
+#include "cpgf/gcallback.h"
+#include "cpgf/gmetapolicy.h"
 #include "cpgf/gexception.h"
-#include "cpgf/ggetobjectaddress.h"
+#include "cpgf/gerrorcode.h"
 
-
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable:4127) // conditional expression is constant
-#endif
-
-#ifdef G_COMPILER_CPPBUILDER
-#pragma warn -8008 //Condition is always true
-#pragma warn -8066 //Unreachable code
-#endif
-
+#include <type_traits>
 
 namespace cpgf {
 
+namespace getter_internal {
 
-extern int Error_Meta_ReadDenied;
-
-template <typename RawGetter, typename Policy = GMetaPolicyDefault, typename Enabled = void>
-class GInstanceGetter
+template <typename T, typename Policy, typename EnableIf = void>
+class GInstanceGetterImplement
 {
 public:
+	typedef int DataType;
 	typedef int ValueType;
 	typedef ValueType PassType;
 	
-	G_STATIC_CONSTANT(bool, HasGetter = false);
-	G_STATIC_CONSTANT(bool, Readable = false);
+	static constexpr bool HasGetter = false;
 
 public:
-	GInstanceGetter(const RawGetter & /*getter*/) {
-	}
-
-	PassType get(const void * /*instance*/) const {
+	static PassType get(DataType & /*data*/, const void * /*instance*/) {
 		raiseCoreException(Error_Meta_ReadDenied);
 
 		return ValueType();
 	}
 
-	void * getAddress(const void * /*instance*/) const {
+	static void * getAddress(DataType & /*data*/, const void * /*instance*/) {
 		raiseCoreException(Error_Meta_ReadDenied);
 
-		return NULL;
+		return nullptr;
 	}
 };
 
-
-template <typename RawGetter, typename Policy>
-class GInstanceGetter <RawGetter, Policy, typename GEnableIfResult<
-	GAndResult<
-		GNotResult<IsFunction<RawGetter> >,
-		GNotResult<MemberDataTrait<RawGetter> >,
-		GNotResult<IsFundamental<RawGetter> >
-	>
-	>::Result
->
+// getter via data address
+template <typename T, typename Policy>
+class GInstanceGetterImplement <T, Policy, typename std::enable_if<
+		(std::is_pointer<T>::value || std::is_member_pointer<T>::value)
+		&& ! GFunctionTraits<T>::IsFunction
+	>::type>
 {
-	GASSERT_STATIC(IsPointer<RawGetter>::Result);
-	
-protected:
-	typedef const RawGetter & RawGetterPassType;	
+private:
+	typedef MemberDataTrait<T> MemberTrait;
+	static constexpr bool IsMember = MemberTrait::Result;
 
 public:
-	G_STATIC_CONSTANT(bool, HasGetter = true);
-	G_STATIC_CONSTANT(bool, Readable = (PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result));
+	typedef T DataType;
 
-public:
-	typedef typename RemovePointer<RawGetter>::Result ValueType;
+	typedef typename std::conditional<
+		IsMember,
+		typename MemberTrait::FieldType,
+		typename std::remove_pointer<T>::type
+	>::type ValueType;
+
 	typedef ValueType & PassType;
+	
+	static constexpr bool HasGetter = true;
 
 public:
-	GInstanceGetter(RawGetterPassType getter) : getter(getter) {
-	}
-
-	GInstanceGetter(const GInstanceGetter & other) : getter(other.getter) {
-	}
-
-	GInstanceGetter & operator = (const GInstanceGetter & other) {
-		if(this != &other) {
-			this->getter = other.getter;
-		}
-		
-		return *this;
-	}
-
-	PassType get(const void * instance) const {
-		return this->doGet<void>(instance);
+	static PassType get(DataType & data, const void * instance){
+		return doGet<DataType &>(data, instance);
 	}
 	
-	void * getAddress(const void * /*instance*/) const {
-		return *(void **)(getObjectAddress(this->getter));
+	static void * getAddress(DataType & data, const void * instance) {
+		return doGetAddress<DataType &>(data, instance);
 	}
-
-private:	
-	template <typename T>
-	PassType doGet(typename GEnableIf<Readable, T>::Result const * /*instance*/) const {
-		return *(this->getter);
-	}
-	
-	template <typename T>
-	PassType doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
-		raiseCoreException(Error_Meta_ReadDenied);
-		
-		return *(typename RemoveReference<ValueType>::Result *)(0);
-	}
-	
 
 private:
-	RawGetter getter;
+	template <typename U>
+	static PassType doGet(typename std::enable_if<IsMember, U>::type data, const void * instance) {
+		return (typename MemberTrait::ObjectType *)(instance)->*data;
+	}
+
+	template <typename U>
+	static PassType doGet(typename std::enable_if<! IsMember, U>::type data, const void * /*instance*/) {
+		return *data;
+	}
+
+	template <typename U>
+	static void * doGetAddress(typename std::enable_if<IsMember, U>::type data, const void * instance) {
+		return (void *)&(static_cast<const typename MemberTrait::ObjectType *>(instance)->*data);
+	}
+
+	template <typename U>
+	static void * doGetAddress(typename std::enable_if<! IsMember, U>::type data, const void * /*instance*/) {
+		return (void *)&*data;
+	}
 };
 
-template <typename RawGetter, typename Policy>
-class GInstanceGetter <RawGetter, Policy, typename GEnableIfResult<
-	GAndResult<
-		GNotResult<IsFunction<RawGetter> >,
-		MemberDataTrait<RawGetter>
-	>
-	>::Result
->
+// getter via functor/function
+template <typename T, typename Policy>
+class GInstanceGetterImplement <T, Policy, typename std::enable_if<
+		(GFunctionTraits<T>::IsFunction)
+		|| (! std::is_pointer<T>::value && ! std::is_member_pointer<T>::value && ! std::is_fundamental<T>::value)
+	>::type>
 {
-protected:
-	typedef const RawGetter & RawGetterPassType;	
+private:
+	typedef decltype(makeCallback(std::declval<T>())) CallbackType;
+
+	static constexpr bool ExplicitThis = (
+		PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result
+		|| PolicyHasRule<Policy, GMetaRuleGetterExplicitThis>::Result
+	);
 
 public:
-	G_STATIC_CONSTANT(bool, HasGetter = true);
-	G_STATIC_CONSTANT(bool, Readable = (PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result));
+	typedef CallbackType DataType;
+
+	typedef typename CallbackType::TraitsType::ResultType ValueType;
+	typedef ValueType PassType;
+	
+	static constexpr bool HasGetter = true;
 
 public:
-	typedef typename MemberDataTrait<RawGetter>::FieldType ValueType;
-	typedef typename GIfElse<Readable, ValueType, const typename RemoveReference<ValueType>::Result &>::Result PassType;
-
-public:
-	GInstanceGetter(RawGetterPassType getter) : getter(getter) {
+	static PassType get(DataType & data, const void * instance) {
+		return doGet<DataType &>(data, instance);
+	}
+	
+	static void * getAddress(DataType & /*data*/, const void * /*instance*/) {
+		return nullptr;
 	}
 
+private:
+	template <typename U>
+	static PassType doGet(typename std::enable_if<ExplicitThis, U>::type data, const void * instance) {
+		data.setObject((void *)instance);
+		return data((typename TypeList_Get<typename CallbackType::TraitsType::ArgTypeList, 0>::Result)(instance));
+	}
+
+	template <typename U>
+	static PassType doGet(typename std::enable_if<! ExplicitThis, U>::type data, const void * instance) {
+		data.setObject((void *)instance);
+		return data();
+	}
+
+};
+
+
+} //namespace getter_internal
+
+template <typename T, typename Policy = GMetaPolicyDefault>
+class GInstanceGetter
+{
+private:
+	typedef getter_internal::GInstanceGetterImplement<T, Policy> ImplmentType;
+
+public:
+	typedef typename ImplmentType::ValueType ValueType;
+	typedef typename ImplmentType::PassType PassType;
+	
+	static constexpr bool HasGetter = ImplmentType::HasGetter;
+	static constexpr bool Readable = HasGetter && ! PolicyHasRule<Policy, GMetaRuleForbidRead>::Result;
+	
+public:
+	GInstanceGetter() : getter() {
+	}
+
+	explicit GInstanceGetter(const T & getter) : getter(getter) {
+	}
+	
 	GInstanceGetter(const GInstanceGetter & other) : getter(other.getter) {
 	}
-
+	
 	GInstanceGetter & operator = (const GInstanceGetter & other) {
-		if(this != &other) {
-			this->getter = other.getter;
-		}
-		
+		this->getter = other.getter;
 		return *this;
 	}
-
+	
 	PassType get(const void * instance) const {
-		return this->doGet<void>(instance);
+		return ImplmentType::get(this->getter, instance);
 	}
 	
 	void * getAddress(const void * instance) const {
-		return &(static_cast<typename MemberDataTrait<RawGetter>::ObjectType *>(const_cast<void *>(instance))->*(this->getter));
+		return ImplmentType::getAddress(this->getter, instance);
 	}
 
-private:	
-	template <typename T>
-	PassType doGet(typename GEnableIf<Readable, T>::Result const * instance) const {
-		return static_cast<typename MemberDataTrait<RawGetter>::ObjectType const *>(instance)->*(this->getter);
-	}
-
-	template <typename T>
-	PassType doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
-		raiseCoreException(Error_Meta_ReadDenied);
-		
-		return *(typename RemoveReference<ValueType>::Result *)(0);
-	}
-	
 private:
-	RawGetter getter;
-};
-
-template <typename RawGetter, typename Policy>
-class GInstanceGetter <RawGetter, Policy, typename GEnableIfResult<IsFunction<RawGetter> >::Result>
-{
-protected:
-	typedef RawGetter RawGetterPassType;	
-
-public:
-	G_STATIC_CONSTANT(bool, HasGetter = true);
-	G_STATIC_CONSTANT(bool, Readable = (PolicyNotHasRule<Policy, GMetaRuleForbidRead>::Result));
-	G_STATIC_CONSTANT(bool, ExplicitThis = (PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result || PolicyHasRule<Policy, GMetaRuleGetterExplicitThis>::Result));
-	G_STATIC_CONSTANT(bool, NotExplicitThis = !ExplicitThis);
-
-public:
-	typedef typename GFunctionTraits<RawGetter>::ResultType ValueType;
-	typedef ValueType PassType;
-
-public:
-	GInstanceGetter(RawGetterPassType getter) : callback(makeCallback(getter)) {
-	}
-
-	GInstanceGetter(const GInstanceGetter & other) : callback(other.callback) {
-	}
-
-	GInstanceGetter & operator = (const GInstanceGetter & other) {
-		if(this != &other) {
-			this->callback = other.callback;
-		}
-		
-		return *this;
-	}
-
-	PassType get(const void * instance) const {
-		return this->doGet<void>(instance);
-	}
-	
-	void * getAddress(const void * /*instance*/) const {
-		return NULL;
-	}
-
-private:	
-	template <typename T>
-	PassType doGet(typename GEnableIf<Readable && NotExplicitThis, T>::Result const * instance) const {
-		this->callback.setObject(const_cast<void *>(instance));
-		return this->callback();
-	}
-
-	template <typename T>
-	PassType doGet(typename GEnableIf<Readable && ExplicitThis, T>::Result const * instance) const {
-		this->callback.setObject(const_cast<void *>(instance));
-		return this->callback((typename GFunctionTraits<RawGetter>::ArgList::Arg0)(instance));
-	}
-
-	template <typename T>
-	PassType doGet(typename GDisableIf<Readable, T>::Result const * /*instance*/) const {
-		raiseCoreException(Error_Meta_ReadDenied);
-		
-		return *(typename RemoveReference<ValueType>::Result *)(0);
-	}
-	
-private:
-	typename FunctionCallbackType<RawGetter>::Result callback;
+	mutable typename ImplmentType::DataType getter;
 };
 
 
-template <typename RawGetter, typename Policy = GMetaPolicyDefault>
-class GGetter : public GInstanceGetter<RawGetter, Policy>
+template <typename T, typename Policy = GMetaPolicyDefault>
+class GGetter : public GInstanceGetter<T, Policy>
 {
 private:
-	typedef GInstanceGetter<RawGetter, Policy> super;
+	typedef GInstanceGetter<T, Policy> super;
 
 public:
-	GGetter(const void * instance, typename super::RawGetterPassType getter) : super(getter), instance(instance) {
+	GGetter(const void * instance, const T & getter)
+		: super(getter), instance(instance)
+	{
 	}
 	
-	GGetter(const GGetter & other) : super(other), instance(other.instance) {
+	GGetter(const GGetter & other)
+		: super(other), instance(other.instance)
+	{
 	}
 	
 	GGetter & operator = (const GGetter & other) {
@@ -290,54 +236,6 @@ private:
 	const void * instance;
 };
 
-
-template <typename ValueType>
-class GConstantGetter
-{
-private:
-	typedef const ValueType & PassType;
-
-public:
-	GConstantGetter(ValueType value) : value(value) {
-	}
-	
-	GConstantGetter(const GConstantGetter & other) : value(other.value) {
-	}
-	
-	GConstantGetter & operator = (const GConstantGetter & other) {
-		this->value = other.value;
-		
-		return *this;
-	}
-
-	PassType get() const {
-		return this->value;
-	}
-	
-	PassType operator() () const {
-		return this->get();
-	}
-	
-	operator PassType () const {
-		return this->get();
-	}
-	
-	void * getAddress() const {
-		return NULL;
-	}
-	
-	const void * getInstance() const {
-		return NULL;
-	}
-
-	void setInstance(const void * /*newInstance*/) {
-	}
-	
-private:
-	ValueType value;
-};
-
-
 template <typename RawGetter, typename Policy>
 GInstanceGetter<RawGetter, Policy> createInstanceGetter(const RawGetter & getter, Policy /*policy*/)
 {
@@ -362,25 +260,8 @@ GGetter<RawGetter, GMetaPolicyDefault> createGetter(const void * instance, const
 	return GGetter<RawGetter, GMetaPolicyDefault>(instance, getter);
 }
 
-template <typename ValueType>
-GConstantGetter<ValueType> createConstantGetter(const ValueType & value)
-{
-	return GConstantGetter<ValueType>(value);
-}
 
-
-} // namespace cpgf
-
-
-#ifdef G_COMPILER_CPPBUILDER
-#pragma warn .8008 //Condition is always true
-#pragma warn .8066 //Unreachable code
-#endif
-
-
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
+} //namespace cpgf
 
 
 #endif

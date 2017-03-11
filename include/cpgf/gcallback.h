@@ -316,11 +316,11 @@ class GCallback
 };
 
 template <typename RT, typename... Parameters>
-class GCallback <RT (Parameters...)>
+class GCallback <RT (*)(Parameters...)>
 {
 private:
 	typedef callback_internal::GCallbackBase <RT, Parameters...> BaseType;
-	typedef GCallback <RT (Parameters...)> ThisType;
+	typedef GCallback <RT (*)(Parameters...)> ThisType;
 
 public:
 	typedef RT FunctionType(Parameters...);
@@ -338,12 +338,31 @@ public:
 	}
 
 	template <typename FT>
-	GCallback(const FT & func)
+	GCallback(
+		const FT & func,
+		typename std::enable_if<! GFunctionTraits<FT>::IsMember>::type * = 0
+	)
 		:
 			base(
 				callback_internal::allocateBase<
-					callback_internal::GCallbackBaseFunc<FT, RT, Parameters...>
+					callback_internal::GCallbackBaseFunc<
+						typename std::conditional<GFunctionTraits<FT>::IsFunction, typename GFunctionTraits<FT>::FunctionPointer, FT>::type,
+						RT, Parameters...>
 				>((void *)this->buffer, func)
+			)
+	{
+	}
+
+	template <typename FT>
+	GCallback(
+		const FT & func,
+		typename std::enable_if<GFunctionTraits<FT>::IsMember>::type * = 0
+	)
+		:
+			base(
+				callback_internal::allocateBase<
+					callback_internal::GCallbackBaseMember<typename GFunctionTraits<FT>::ObjectType *, typename GFunctionTraits<FT>::ObjectType, FT, RT,Parameters...>
+				>((void *)this->buffer, (typename GFunctionTraits<FT>::ObjectType *)nullptr, func)
 			)
 	{
 	}
@@ -467,19 +486,33 @@ private:
 };
 
 template <typename RT, typename ...Parameters>
-class GCallback <RT (*)(Parameters...)> : public GCallback <RT (Parameters...)>
+class GCallback <RT (Parameters...)> : public GCallback <RT (*)(Parameters...)>
 {
 private:
-	typedef GCallback <RT (Parameters...)> super;
+	typedef GCallback <RT (*)(Parameters...)> super;
 
 public:
 	using super::super;
+
+	GCallback() : super() {}
+
+	template <typename FT>
+	GCallback(const FT & func)
+		: super(func)
+	{
+	}
 };
 
 template <typename FT>
 struct FunctionCallbackType
 {
 	typedef GCallback<typename cpgf::GFunctionTraits<FT>::FunctionType> Result;
+};
+
+template <typename Signature>
+struct FunctionCallbackType <GCallback<Signature> >
+{
+	typedef GCallback<Signature> Result;
 };
 
 template <typename OT, typename FT>
@@ -489,13 +522,7 @@ makeCallback(OT * instance, const FT & func) {
 }
 
 template <typename FT>
-typename std::enable_if<cpgf::GFunctionTraits<FT>::IsMember, typename FunctionCallbackType<FT>::Result>::type
-makeCallback(FT func) {
-	return GCallback<typename cpgf::GFunctionTraits<FT>::FunctionType>((typename cpgf::GFunctionTraits<FT>::ObjectType *)NULL, func);
-}
-
-template <typename FT>
-typename std::enable_if<! cpgf::GFunctionTraits<FT>::IsMember, typename FunctionCallbackType<FT>::Result>::type
+typename FunctionCallbackType<FT>::Result
 makeCallback(FT func) {
 	return GCallback<typename cpgf::GFunctionTraits<FT>::FunctionType>(func);
 }
