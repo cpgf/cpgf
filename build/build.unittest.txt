@@ -122,6 +122,10 @@ if(${HAS_UNITTEST})
 		${TEST_PATH}/variant/*.cpp
 	)
 
+	partUnitTest("test_variant_new"
+		${TEST_PATH}/variant_new/*.cpp
+	)
+
 	partUnitTest("test_accessor"
 		${TEST_PATH}/accessor/*.cpp
 	)
