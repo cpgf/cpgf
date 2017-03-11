@@ -13,6 +13,8 @@
 #endif
 
 
+namespace variant_internal {
+
 template <typename T>
 T helperReturnEmptyValue(typename std::enable_if<std::is_lvalue_reference<T>::value || std::is_rvalue_reference<T>::value>::type * = 0)
 {
@@ -492,6 +494,9 @@ struct CastVariant_Pointer_RvalueReference
 
 };
 
+
+} //namespace variant_internal
+
 #ifdef G_COMPILER_VC
 #pragma warning(pop)
 #endif
@@ -499,3 +504,4 @@ struct CastVariant_Pointer_RvalueReference
 #ifdef G_COMPILER_GCC
 #pragma GCC diagnostic pop
 #endif
+

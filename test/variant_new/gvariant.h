@@ -4,7 +4,9 @@
 #include "cpgf/gtypelist.h"
 #include "cpgf/gerrorcode.h"
 #include "cpgf/gexception.h"
+#include "cpgf/ginterface.h"
 #include "cpgf/gcompiler.h"
+#include "cpgf/gapiutil.h"
 
 #include <type_traits>
 #include <cstdint>
@@ -89,36 +91,7 @@ struct VariantTypeInfo
 	int size;
 };
 
-// TODO: need to move to .cpp file
-VariantTypeInfo variantTypeInfo[] = {
-	{ 0 }, // vtEmpty
-	{ 0 }, // vtVoid
-
-	{ sizeof(bool) }, // vtBool
-	{ sizeof(char) },
-	{ sizeof(wchar_t) },
-	{ sizeof(signed char) },
-	{ sizeof(unsigned char) },
-	{ sizeof(signed short) },
-	{ sizeof(unsigned short) },
-	{ sizeof(signed int) },
-	{ sizeof(unsigned int) },
-	{ sizeof(signed long) },
-	{ sizeof(unsigned long) },
-	{ sizeof(signed long long) },
-	{ sizeof(unsigned long long) },
-	{ sizeof(float) },
-	{ sizeof(double) },
-	{ sizeof(long double) },
-
-	{ sizeof(void *) },
-	{ sizeof(void *) },
-	{ sizeof(void *) },
-	{ sizeof(void *) },
-	{ sizeof(void *) },
-	{ sizeof(void *) },
-	{ sizeof(void *) },
-};
+extern VariantTypeInfo variantTypeInfo[];
 
 #pragma pack(push, 1)
 #pragma pack(1)
@@ -132,8 +105,6 @@ struct GVarTypeData
 
 typedef std::int64_t GVariantInteger;
 typedef long double GVariantReal;
-
-struct IObject;
 
 #pragma pack(push, 1)
 #pragma pack(1)
@@ -155,7 +126,7 @@ struct GVariantData
 	
 		void * pointer;
 		
-		IObject * valueInterface;
+		cpgf::IObject * valueInterface;
 
 	};
 };
@@ -172,7 +143,7 @@ public:
 	static GVariant create(const T & value)
 	{
 		GVariant v;
-		deduceVariantType<T>(&v.data, value);
+		variant_internal::deduceVariantType<T>(&v.data, value);
 		return v;
 	}
 	
@@ -182,7 +153,7 @@ public:
 	template <typename T>
 	GVariant(const T & value) : data()
 	{
-		deduceVariantType(&this->data, value);
+		variant_internal::deduceVariantType(&this->data, value);
 	}
 	
 	const GVariantData & refData() const {
@@ -222,9 +193,44 @@ inline bool vtIsReference(const uint16_t vt)
 	return (vt & (int)GVariantType::maskByReference) != 0;
 }
 
-inline uint16_t vtGetBaseType(const uint16_t vt)
+inline GVariantType vtGetBaseType(const uint16_t vt)
 {
-	return (vt & (int)GVariantType::vtMask);
+	return (GVariantType)(vt & (uint16_t)GVariantType::vtMask);
+}
+
+inline GVariantType vtGetBaseType(const GVariantType vt)
+{
+	return vtGetBaseType((uint16_t)vt);
+}
+
+inline GVariantType vtGetBaseType(const GVarTypeData & data)
+{
+	return vtGetBaseType(data.vt);
+}
+
+inline int vtGetPointers(const GVarTypeData & data)
+{
+	return data.sizeAndPointers & 0x0f;
+}
+
+inline void vtSetPointers(GVarTypeData & data, unsigned int pointers)
+{
+	data.sizeAndPointers = static_cast<uint8_t>((data.sizeAndPointers & 0xf0) + pointers);
+}
+
+inline int vtGetSize(const GVarTypeData & data)
+{
+	return (data.sizeAndPointers >> 4) & 0x0f;
+}
+
+inline void vtSetSize(GVarTypeData & data, unsigned int size)
+{
+	data.sizeAndPointers = static_cast<uint8_t>(((size & 0x0f) << 4) | (data.sizeAndPointers & 0x0f));
+}
+
+inline void vtSetSizeAndPointers(GVarTypeData & data, unsigned int size, unsigned int pointer)
+{
+	data.sizeAndPointers = static_cast<uint8_t>(((size & 0x0f) << 4) | (pointer & 0x0f));
 }
 
 struct VarantCastKeepConstRef {};
@@ -233,8 +239,10 @@ struct VarantCastCopyConstRef {};
 #include "private/gvariant_from_p.h"
 
 template <typename T, typename Policy = VarantCastKeepConstRef>
-typename VariantCastResult<T, Policy>::Result fromVariant(const GVariant & value)
+typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(const GVariant & value)
 {
+	using namespace variant_internal;
+
 	auto vt = value.refData().typeData.vt;
 	if(vtIsPointer(vt)) {
 		if(vtIsLvalueReference(vt)) {
@@ -262,6 +270,8 @@ typename VariantCastResult<T, Policy>::Result fromVariant(const GVariant & value
 template <typename T, typename Policy = VarantCastKeepConstRef>
 bool canFromVariant(const GVariant & value)
 {
+	using namespace variant_internal;
+
 	auto vt = value.refData().typeData.vt;
 	if(vtIsPointer(vt)) {
 		if(vtIsLvalueReference(vt)) {
@@ -291,6 +301,8 @@ GVariant createVariant(const T & value, bool copyObject = false)
 	return GVariant(value);
 }
 
+GVariant createStringVariant(const char * s);
+GVariant createWideStringVariant(const wchar_t * s);
 
 
 } //namespace cpgf

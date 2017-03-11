@@ -45,12 +45,14 @@ struct XXX {
 	XXX & operator = (const XXX &);
 };
 
+struct A {}; struct B : public A {};
 
 GTEST(TestVariant_ConstReference)
 {
-const char * s = "abc";
-GVariant v = s;
-cout << fromVariant<const string &, VarantCastCopyConstRef>(v) << endl;
+cout << std::is_convertible<B, A>::value << endl;
+cout << std::is_convertible<B *, A *>::value << endl;
+cout << std::is_convertible<B *, const A *>::value << endl;
+cout << std::is_convertible<volatile B * const, const volatile A *>::value << endl;
 
 	const ClassB & a = fromVariant<const ClassB &, VarantCastCopyConstRef>(createVariant<false>(ClassB()));
 	GDIFF(&a, ClassB::lastB);
@@ -59,34 +61,33 @@ cout << fromVariant<const string &, VarantCastCopyConstRef>(v) << endl;
 	GEQUAL(&b, ClassB::lastB);
 }
 
-/*
+
 GTEST(TestVariant_ObjectPointer)
 {
-	GEQUAL(vtGetBaseType(GVariant((CLASS *)0).refData().typeData), vtObject);
+	GEQUAL(vtGetBaseType(GVariant((CLASS *)0).refData().typeData), GVariantType::vtObject);
 	GEQUAL(vtGetPointers(GVariant((CLASS *)0).refData().typeData), 1);
 
-	GEQUAL(vtGetBaseType(GVariant((CLASS const *)0).refData().typeData), vtObject);
+	GEQUAL(vtGetBaseType(GVariant((CLASS const *)0).refData().typeData), GVariantType::vtObject);
 	GEQUAL(vtGetPointers(GVariant((CLASS const *)0).refData().typeData), 1);
 
-	GEQUAL(vtGetBaseType(GVariant((CLASS volatile *)0).refData().typeData), vtObject);
+	GEQUAL(vtGetBaseType(GVariant((CLASS volatile *)0).refData().typeData), GVariantType::vtObject);
 	GEQUAL(vtGetPointers(GVariant((CLASS volatile *)0).refData().typeData), 1);
 
-	GEQUAL(vtGetBaseType(GVariant((CLASS const volatile *)0).refData().typeData), vtObject);
+	GEQUAL(vtGetBaseType(GVariant((CLASS const volatile *)0).refData().typeData), GVariantType::vtObject);
 	GEQUAL(vtGetPointers(GVariant((CLASS const volatile *)0).refData().typeData), 1);
 
-	GEQUAL(vtGetBaseType(GVariant((CLASS **)0).refData().typeData), vtObject);
+	GEQUAL(vtGetBaseType(GVariant((CLASS **)0).refData().typeData), GVariantType::vtObject);
 	GEQUAL(vtGetPointers(GVariant((CLASS **)0).refData().typeData), 2);
 
-	GEQUAL(vtGetBaseType(GVariant((IMetaClass *)0).refData().typeData), vtInterface);
-	GEQUAL(vtGetPointers(GVariant((IMetaClass *)0).refData().typeData), 1);
+	GEQUAL(vtGetBaseType(GVariant((cpgf::IMetaClass *)0).refData().typeData), GVariantType::vtInterface);
+	GEQUAL(vtGetPointers(GVariant((cpgf::IMetaClass *)0).refData().typeData), 1);
 
-	GEQUAL(vtGetBaseType(GVariant((const IMetaClass *)0).refData().typeData), vtInterface);
-	GEQUAL(vtGetPointers(GVariant((const IMetaClass *)0).refData().typeData), 1);
+	GEQUAL(vtGetBaseType(GVariant((const cpgf::IMetaClass *)0).refData().typeData), GVariantType::vtInterface);
+	GEQUAL(vtGetPointers(GVariant((const cpgf::IMetaClass *)0).refData().typeData), 1);
 
-	GEQUAL(vtGetBaseType(GVariant((const volatile IMetaClass *)0).refData().typeData), vtInterface);
-	GEQUAL(vtGetPointers(GVariant((const volatile IMetaClass *)0).refData().typeData), 1);
+	GEQUAL(vtGetBaseType(GVariant((const volatile cpgf::IMetaClass * const)0).refData().typeData), GVariantType::vtInterface);
+	GEQUAL(vtGetPointers(GVariant((const volatile cpgf::IMetaClass * const)0).refData().typeData), 1);
+
 }
-*/
-
 
 } }

@@ -1,3 +1,4 @@
+namespace variant_internal {
 
 template <typename T>
 struct GVariantDeducer_Type
@@ -204,7 +205,11 @@ struct GVariantDeducer <T, false, false, true>
 
 
 template <typename T>
-void deduceVariantType(GVariantData * data, const T & value)
+void deduceVariantType(
+	GVariantData * data,
+	const T & value,
+	typename std::enable_if<! std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
+)
 {
 	typedef typename std::remove_cv<T>::type U;
 	GVariantDeducer<
@@ -213,5 +218,25 @@ void deduceVariantType(GVariantData * data, const T & value)
 		std::is_lvalue_reference<U>::value,
 		std::is_rvalue_reference<U>::value
 	>::deduce(data, value);
+
+	const uint16_t size = 0;
+	constexpr uint16_t pointers = cpgf::PointerDimension<T>::Result;
+	data->typeData.sizeAndPointers = (size << 4) | pointers;
 }
 
+template <typename T>
+void deduceVariantType(
+	GVariantData * data,
+	const T & value,
+	typename std::enable_if<std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
+)
+{
+	data->typeData.vt = (uint16_t)GVariantType::vtInterface;
+	data->pointer = (void *)value;
+	constexpr uint16_t size = sizeof(cpgf::IObject *);
+	constexpr uint16_t pointers = cpgf::PointerDimension<T>::Result;
+	data->typeData.sizeAndPointers = (size << 4) | pointers;
+}
+
+
+} //namespace variant_internal
