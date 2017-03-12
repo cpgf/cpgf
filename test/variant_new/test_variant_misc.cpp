@@ -41,11 +41,6 @@ ClassB * ClassB::lastB = NULL;
 
 GTEST(TestVariant_ConstReference)
 {
-GVariant v = createStringVariant("abc");
-string s = fromVariant<string>(v);
-char * sa = fromVariant<char *>(v);
-const char * sb = fromVariant<const char *>(v);
-
 	const ClassB & a = fromVariant<const ClassB &, VarantCastCopyConstRef>(createVariant<false>(ClassB()));
 	GDIFF(&a, ClassB::lastB);
 
