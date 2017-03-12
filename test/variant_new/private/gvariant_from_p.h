@@ -1,5 +1,5 @@
 // This file implements the function "fromVariant" and "canFromVariant"
-
+/*
 #ifdef G_COMPILER_GCC
 #pragma GCC diagnostic push
 // ignore warning: returning reference to temporary
@@ -11,7 +11,7 @@
 #pragma warning(push)
 #pragma warning(disable:4172) // warning C4172: returning address of local variable or temporar
 #endif
-
+*/
 
 namespace variant_internal {
 
@@ -32,12 +32,14 @@ T helperReturnEmptyValue(typename std::enable_if<! std::is_lvalue_reference<T>::
 template <typename T, typename FromTypeList, typename V>
 T helperFromVariant(const V & from, typename std::enable_if<TypeListConvertible<FromTypeList, T>::convertible>::type * = 0)
 {
-	return (T)(typename TypeListConvertible<FromTypeList, T>::type)(from);
+	typedef typename std::remove_reference<typename TypeListConvertible<FromTypeList, T>::type>::type U;
+	return (T)*(U *)(&from);
 }
 
 template <typename T, typename FromTypeList, typename V>
 T helperFromVariant(const V & /*from*/, typename std::enable_if<! TypeListConvertible<FromTypeList, T>::convertible>::type * = 0)
 {
+	failedCast();
 	return helperReturnEmptyValue<T>();
 }
 
@@ -55,7 +57,7 @@ template <typename T>
 T helperFromObject(void * object, typename std::enable_if<std::is_pointer<typename FromObjectType<T>::type>::value>::type * = 0)
 {
 	typedef typename FromObjectType<T>::type U;
-	return (T)(U)(object);
+	return (T)*(U *)(&object);
 }
 
 template <typename T>
@@ -63,6 +65,19 @@ T helperFromObject(void * object, typename std::enable_if<! std::is_pointer<type
 {
 	typedef typename FromObjectType<T>::type U;
 	return (T)*(U *)(object);
+}
+
+template <typename T>
+T helperFromNullPointer(typename std::enable_if<std::is_pointer<T>::value>::type * = 0)
+{
+	return (T)0;
+}
+
+template <typename T>
+T helperFromNullPointer(typename std::enable_if<! std::is_pointer<T>::value>::type * = 0)
+{
+	failedCast();
+	return helperReturnEmptyValue<T>();
 }
 
 template <typename T, typename Policy>
@@ -85,9 +100,20 @@ struct CastVariant_Value
 {
 	typedef typename VariantCastResult<T, Policy>::Result ResultType;
 
+	typedef cpgf::GTypeList<const char *, char *, const volatile char *, volatile char *> StringCharTypeList;
+	typedef cpgf::GTypeList<const std::string &, std::string, std::string &, const volatile std::string &, volatile std::string &> StringStringTypeList;
+
 	static ResultType cast(const GVariant & value)
 	{
 		const GVariantData & data = value.refData();
+
+		// 0 can always be converted to pointer, similar as we do in C++.
+		if(std::is_pointer<ResultType>::value) {
+			if(data.valueInt == 0 && vtIsFundamental(data.typeData.vt)) {
+				return helperFromNullPointer<ResultType>();
+			}
+		}
+
 		switch((GVariantType)vtGetBaseType(data.typeData.vt)) {
 
 		case GVariantType::vtBool: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<bool> >(data.valueInt); 
@@ -107,18 +133,41 @@ struct CastVariant_Value
 		case GVariantType::vtDouble: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<double> >(data.valueDouble); 
 		case GVariantType::vtLongDouble: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<long double> >(data.valueLongDouble); 
 
-		case GVariantType::vtObject: return helperFromObject<ResultType>(data.pointer);
+		case GVariantType::vtObject:
+			return helperFromObject<ResultType>(data.pointer);
+
+		case GVariantType::vtString:
+			if(TypeListConvertible<StringStringTypeList, ResultType>::convertible) {
+				return (ResultType)helperFromVariant<ResultType, StringCharTypeList>(
+					(std::stringbuf &)*static_cast<std::string *>(((IVariantShadowObject *)data.valueInterface)->getObject())
+					); 
+			}
+			else if(TypeListConvertible<StringCharTypeList, ResultType>::convertible) {
+				return (ResultType)helperFromVariant<ResultType, StringCharTypeList>(
+					static_cast<std::string *>(((IVariantShadowObject *)data.valueInterface)->getObject())->c_str()
+				); 
+			}
+			break;
 
 		default:
 			break;
 		}
-		
+
+		failedCast();
 		return helperReturnEmptyValue<T>();
 	}
 	
 	static bool canCast(const GVariant & value)
 	{
 		const GVariantData & data = value.refData();
+
+		// 0 can always be converted to pointer, similar as we do in C++.
+		if(std::is_pointer<ResultType>::value) {
+			if(data.valueInt == 0 && vtIsFundamental(data.typeData.vt)) {
+				return true;
+			}
+		}
+
 		switch((GVariantType)vtGetBaseType(data.typeData.vt)) {
 
 		case GVariantType::vtBool: return TypeListConvertible<cpgf::GTypeList<bool>, ResultType>::convertible; 
@@ -138,7 +187,11 @@ struct CastVariant_Value
 		case GVariantType::vtDouble: return TypeListConvertible<cpgf::GTypeList<double>, ResultType>::convertible; 
 		case GVariantType::vtLongDouble: return TypeListConvertible<cpgf::GTypeList<long double>, ResultType>::convertible; 
 
-		case GVariantType::vtObject: return true;
+		case GVariantType::vtObject:
+			return true;
+
+		case GVariantType::vtString:
+			return TypeListConvertible<cpgf::TypeList_Concat<StringCharTypeList, StringStringTypeList>::Result, ResultType>::convertible;
 
 		default:
 			break;
@@ -177,11 +230,13 @@ struct CastVariant_Pointer
 		case GVariantType::vtLongDouble: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList<const long double *, long double *, const volatile long double *, volatile long double *> >(data.pointer); 
 
 		case GVariantType::vtObject: return helperFromObject<ResultType>(data.pointer);
+		case GVariantType::vtVoid: return helperFromObject<ResultType>(data.pointer);
 
 		default:
 			break;
 		}
 		
+		failedCast();
 		return helperReturnEmptyValue<T>();
 	}
 	
@@ -208,6 +263,7 @@ struct CastVariant_Pointer
 		case GVariantType::vtLongDouble: return TypeListConvertible<cpgf::GTypeList<const long double *, long double *, const volatile long double *, volatile long double *>, ResultType>::convertible; 
 
 		case GVariantType::vtObject: return true;
+		case GVariantType::vtVoid: return true;
 
 		default:
 			break;
@@ -246,11 +302,13 @@ struct CastVariant_LvalueReference
 		case GVariantType::vtLongDouble: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList<const long double &, long double &, const volatile long double &, volatile long double &> >((long double &) * (long double *)data.pointer); 
 
 		case GVariantType::vtObject: return helperFromObject<ResultType>(data.pointer);
+		case GVariantType::vtVoid: return helperFromObject<ResultType>(data.pointer);
 
 		default:
 			break;
 		}
 		
+		failedCast();
 		return helperReturnEmptyValue<ResultType>();
 	}
 	
@@ -277,6 +335,7 @@ struct CastVariant_LvalueReference
 		case GVariantType::vtLongDouble: return TypeListConvertible<cpgf::GTypeList<const long double &, long double &, const volatile long double &, volatile long double &>, ResultType>::convertible; 
 
 		case GVariantType::vtObject: return true;
+		case GVariantType::vtVoid: return true;
 
 		default:
 			break;
@@ -315,11 +374,13 @@ struct CastVariant_Pointer_LvalueReference
 		case GVariantType::vtLongDouble: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList< const long double * &, long double * &, const volatile long double * &, volatile long double * &, const long double * const &, long double * const &, const volatile long double * const &, volatile long double * const &, const long double * volatile &, long double * volatile &, const volatile long double * volatile &, volatile long double * volatile &, const long double * const volatile &, long double * const volatile &, const volatile long double * const volatile &, volatile long double * const volatile & > >((long double * &) * (long double **)data.pointer); 
 
 		case GVariantType::vtObject: return helperFromObject<ResultType>(data.pointer);
+		case GVariantType::vtVoid: return helperFromObject<ResultType>(data.pointer);
 
 		default:
 			break;
 		}
 		
+		failedCast();
 		return helperReturnEmptyValue<ResultType>();
 	}
 	
@@ -346,6 +407,7 @@ struct CastVariant_Pointer_LvalueReference
 		case GVariantType::vtLongDouble: return TypeListConvertible< cpgf::GTypeList< const long double * &, long double * &, const volatile long double * &, volatile long double * &, const long double * const &, long double * const &, const volatile long double * const &, volatile long double * const &, const long double * volatile &, long double * volatile &, const volatile long double * volatile &, volatile long double * volatile &, const long double * const volatile &, long double * const volatile &, const volatile long double * const volatile &, volatile long double * const volatile & > , ResultType>::convertible; 
 
 		case GVariantType::vtObject: return true;
+		case GVariantType::vtVoid: return true;
 
 		default:
 			break;
@@ -384,11 +446,13 @@ struct CastVariant_RvalueReference
 		case GVariantType::vtLongDouble: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList<const long double &&, long double &&, const volatile long double &&, volatile long double &&> >((long double &&) * (long double *)data.pointer); 
 
 		case GVariantType::vtObject: return helperFromObject<ResultType>(data.pointer);
+		case GVariantType::vtVoid: return helperFromObject<ResultType>(data.pointer);
 
 		default:
 			break;
 		}
 		
+		failedCast();
 		return helperReturnEmptyValue<ResultType>();
 	}
 	
@@ -415,6 +479,7 @@ struct CastVariant_RvalueReference
 		case GVariantType::vtLongDouble: return TypeListConvertible<cpgf::GTypeList<const long double &&, long double &&, const volatile long double &&, volatile long double &&>, ResultType>::convertible; 
 
 		case GVariantType::vtObject: return true;
+		case GVariantType::vtVoid: return true;
 
 		default:
 			break;
@@ -453,11 +518,13 @@ struct CastVariant_Pointer_RvalueReference
 		case GVariantType::vtLongDouble: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList< const long double * &&, long double * &&, const volatile long double * &&, volatile long double * &&, const long double * const &&, long double * const &&, const volatile long double * const &&, volatile long double * const &&, const long double * volatile &&, long double * volatile &&, const volatile long double * volatile &&, volatile long double * volatile &&, const long double * const volatile &&, long double * const volatile &&, const volatile long double * const volatile &&, volatile long double * const volatile && > >((long double * &&) * (long double **)data.pointer); 
 
 		case GVariantType::vtObject: return helperFromObject<ResultType>(data.pointer);
+		case GVariantType::vtVoid: return helperFromObject<ResultType>(data.pointer);
 
 		default:
 			break;
 		}
 		
+		failedCast();
 		return helperReturnEmptyValue<ResultType>();
 	}
 	
@@ -484,6 +551,7 @@ struct CastVariant_Pointer_RvalueReference
 		case GVariantType::vtLongDouble: return TypeListConvertible< cpgf::GTypeList< const long double * &&, long double * &&, const volatile long double * &&, volatile long double * &&, const long double * const &&, long double * const &&, const volatile long double * const &&, volatile long double * const &&, const long double * volatile &&, long double * volatile &&, const volatile long double * volatile &&, volatile long double * volatile &&, const long double * const volatile &&, long double * const volatile &&, const volatile long double * const volatile &&, volatile long double * const volatile && > , ResultType>::convertible; 
 
 		case GVariantType::vtObject: return true;
+		case GVariantType::vtVoid: return true;
 
 		default:
 			break;
@@ -497,6 +565,7 @@ struct CastVariant_Pointer_RvalueReference
 
 } //namespace variant_internal
 
+/*
 #ifdef G_COMPILER_VC
 #pragma warning(pop)
 #endif
@@ -504,4 +573,4 @@ struct CastVariant_Pointer_RvalueReference
 #ifdef G_COMPILER_GCC
 #pragma GCC diagnostic pop
 #endif
-
+*/

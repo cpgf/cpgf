@@ -39,20 +39,12 @@ public:
 };
 ClassB * ClassB::lastB = NULL;
 
-struct XXX {
-//private:
-	XXX(const XXX &);
-	XXX & operator = (const XXX &);
-};
-
-struct A {}; struct B : public A {};
-
 GTEST(TestVariant_ConstReference)
 {
-cout << std::is_convertible<B, A>::value << endl;
-cout << std::is_convertible<B *, A *>::value << endl;
-cout << std::is_convertible<B *, const A *>::value << endl;
-cout << std::is_convertible<volatile B * const, const volatile A *>::value << endl;
+GVariant v = createStringVariant("abc");
+string s = fromVariant<string>(v);
+char * sa = fromVariant<char *>(v);
+const char * sb = fromVariant<const char *>(v);
 
 	const ClassB & a = fromVariant<const ClassB &, VarantCastCopyConstRef>(createVariant<false>(ClassB()));
 	GDIFF(&a, ClassB::lastB);

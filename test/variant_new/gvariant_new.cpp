@@ -2,6 +2,28 @@
 
 namespace xcpgf {
 
+namespace variant_internal {
+
+void retainVariantData(GVariantData & data)
+{
+	if(data.typeData.vt >= (uint16_t)GVariantType::vtInterfaceBegin
+		&& data.typeData.vt <= (uint16_t)GVariantType::vtInterfaceEnd
+		&& data.valueInterface != nullptr) {
+		data.valueInterface->addReference();
+	}
+}
+
+void releaseVariantData(GVariantData & data)
+{
+	if(data.typeData.vt >= (uint16_t)GVariantType::vtInterfaceBegin
+		&& data.typeData.vt <= (uint16_t)GVariantType::vtInterfaceEnd
+		&& data.valueInterface != nullptr) {
+		data.valueInterface->releaseReference();
+	}
+}
+
+} //namespace variant_internal
+
 VariantTypeInfo variantTypeInfo[] = {
 	{ 0 }, // vtEmpty
 	{ 0 }, // vtVoid
@@ -31,20 +53,6 @@ VariantTypeInfo variantTypeInfo[] = {
 	{ sizeof(void *) },
 	{ sizeof(void *) },
 };
-
-void retainVariantData(GVariantData * data)
-{
-	if(data->typeData.vt >= (uint16_t)GVariantType::vtInterfaceBegin && data->typeData.vt <= (uint16_t)GVariantType::vtInterfaceEnd) {
-		data->valueInterface->addReference();
-	}
-}
-
-void releaseVariantData(GVariantData * data)
-{
-	if(data->typeData.vt >= (uint16_t)GVariantType::vtInterfaceBegin && data->typeData.vt <= (uint16_t)GVariantType::vtInterfaceEnd) {
-		data->valueInterface->releaseReference();
-	}
-}
 
 GVariant createStringVariant(const char * s)
 {

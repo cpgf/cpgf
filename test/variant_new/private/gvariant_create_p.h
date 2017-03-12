@@ -211,7 +211,7 @@ void deduceVariantType(
 	typename std::enable_if<! std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
 )
 {
-	typedef typename std::remove_cv<T>::type U;
+	typedef typename std::remove_cv<typename std::decay<T>::type>::type U;
 	GVariantDeducer<
 		U,
 		std::is_pointer<U>::value,

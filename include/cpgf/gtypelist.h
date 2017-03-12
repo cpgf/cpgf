@@ -18,6 +18,18 @@ struct TypeList_Make
 	typedef GTypeList<Types...> Result;
 };
 
+template <typename... Types>
+struct TypeList_Concat
+{
+	typedef GTypeList<Types...> Result;
+};
+
+template <typename... TypesA, typename... TypesB>
+struct TypeList_Concat <GTypeList<TypesA...>, GTypeList<TypesB...> >
+{
+	typedef GTypeList<TypesA..., TypesB...> Result;
+};
+
 template <typename TypeList, unsigned int index>
 struct TypeList_Get;
 

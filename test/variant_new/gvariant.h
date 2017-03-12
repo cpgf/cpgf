@@ -14,18 +14,6 @@
 
 namespace xcpgf {
 
-inline void failedCast()
-{
-	cpgf::raiseCoreException(cpgf::Error_Variant_FailCast);
-}
-
-inline void checkFailCast(bool success)
-{
-	if(!success) {
-		failedCast();
-	}
-}
-
 enum class GVariantType : uint16_t {
 	vtEmpty = 0,
 	vtVoid = 1,
@@ -155,7 +143,50 @@ public:
 	{
 		variant_internal::deduceVariantType(&this->data, value);
 	}
+
+	GVariant(const GVariant & other) : data(other.data)
+	{
+		variant_internal::retainVariantData(this->data);
+	}
+
+	GVariant(GVariant && other) : data()
+	{
+		this->swap(other);
+	}
+
+	explicit GVariant(const GVariantData & otherData) : data(otherData)
+	{
+		variant_internal::retainVariantData(this->data);
+	}
+
+	explicit GVariant(GVariantData && otherData) : data(otherData)
+	{
+		otherData.typeData.vt = (uint16_t)GVariantType::vtEmpty;
+	}
+
+	GVariant & operator = (const GVariant & other)
+	{
+		this->data = other.data;
+		variant_internal::retainVariantData(this->data);
+
+		return *this;
+	}
+
+	GVariant & operator = (GVariant && other)
+	{
+		this->swap(other);
+
+		return *this;
+	}
+
+	~GVariant() {
+		variant_internal::releaseVariantData(this->data);
+	}
 	
+	GVariantType getType() const {
+		return (GVariantType)this->data.typeData.vt;
+	}
+
 	const GVariantData & refData() const {
 		return this->data;
 	}
@@ -164,9 +195,38 @@ public:
 		return this->data;
 	}
 
+	GVariantData takeData()
+	{
+		GVariantData result = this->data;
+		this->data.typeData.vt = (uint16_t)GVariantType::vtEmpty;
+		return result;
+	}
+
+	void reset()
+	{
+		variant_internal::releaseVariantData(this->data);
+		this->data.typeData.vt = (uint16_t)GVariantType::vtEmpty;
+	}
+
+	void swap(GVariant & other) {
+		using std::swap;
+
+		swap(this->data, other.data);
+	}
+
 private:
 	GVariantData data;
 };
+
+inline void swap(GVariant & a, GVariant & b)
+{
+	a.swap(b);
+}
+
+inline bool vtIsFundamental(const uint16_t vt)
+{
+	return vt >= (uint16_t)GVariantType::vtFundamentalBegin && vt <= (uint16_t)GVariantType::vtFundamentalEnd;
+}
 
 inline bool vtIsPointerOrReference(const uint16_t vt)
 {
@@ -309,3 +369,4 @@ GVariant createWideStringVariant(const wchar_t * s);
 
 
 #endif
+

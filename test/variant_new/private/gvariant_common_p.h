@@ -1,5 +1,17 @@
 namespace variant_internal {
 
+inline void failedCast()
+{
+	cpgf::raiseCoreException(cpgf::Error_Variant_FailCast);
+}
+
+inline void checkFailCast(bool success)
+{
+	if(!success) {
+		failedCast();
+	}
+}
+
 template <typename FromTypeList, typename To>
 struct TypeListConvertible;
 
@@ -52,6 +64,9 @@ public:
 private:
 	T obj;
 };
+
+void retainVariantData(GVariantData & data);
+void releaseVariantData(GVariantData & data);
 
 
 } //namespace variant_internal
