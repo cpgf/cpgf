@@ -218,19 +218,7 @@ typename variant_internal::CastFromVariant<T, Policy>::ResultType fromVariant(co
 	return variant_internal::CastFromVariant<typename RemoveConstVolatile<T>::Result, Policy>::cast(v);
 }
 
-template <typename T>
-GVariant pointerToRefVariant(T * p)
-{
-	GVariant v(p);
-
-	if(vtIsByPointer(v.getType())) {
-		vtSetType(v.refData().typeData, (vtGetType(v.refData().typeData) & ~byPointer) | byReference);
-	}
-
-	return v;
-}
-
-GVariant pointerToRefVariant(const GVariant & p);
+GVariant variantPointerToLvalueReference(const GVariant & p);
 
 template <bool Copyable, typename T>
 typename GDisableIf<IsReference<T>::Result, GVariant>::Result createVariant(const T & value, bool copyObject = false)
@@ -254,12 +242,6 @@ typename GEnableIf<IsReference<T>::Result, GVariant>::Result createVariant(T val
 }
 
 template <typename T>
-GVariant createVariantFromCopyable(const T & value)
-{
-	return createVariant<true>(value, false);
-}
-
-template <typename T>
 GVariant copyVariantFromCopyable(const T & value)
 {
 	return createVariant<true>(value, true);
@@ -268,7 +250,6 @@ GVariant copyVariantFromCopyable(const T & value)
 GVariant pointerToObjectVariant(void * p);
 GVariant objectToVariant(void * object);
 void * objectAddressFromVariant(const GVariant & v);
-void * referenceAddressFromVariant(const GVariant & v);
 
 void initializeVarData(GVariantData * data);
 GVariantData copyVarData(GVariantData * data);

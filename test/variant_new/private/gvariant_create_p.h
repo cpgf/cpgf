@@ -45,6 +45,7 @@ struct GVariantDeducer_Value_Helper <T, typeMask, false>
 	{
 		data->typeData.vt = TypeDeducer::Type;
 		TypeDeducer::assign(data, value);
+		vtSetSize(data->typeData, (TypeDeducer::fundamentalIndex >= 0 ? variantTypeInfo[TypeDeducer::fundamentalIndex].size : 0));
 	}
 };
 
@@ -58,6 +59,7 @@ struct GVariantDeducer_Value_Helper <T, typeMask, true>
 	{
 		data->typeData.vt = TypeDeducer::Type | typeMask;
 		data->pointer = (void *)(value);
+		vtSetSize(data->typeData, sizeof(void *));
 	}
 };
 
@@ -219,9 +221,8 @@ void deduceVariantType(
 		std::is_rvalue_reference<U>::value
 	>::deduce(data, value);
 
-	const uint16_t size = 0;
 	constexpr uint16_t pointers = cpgf::PointerDimension<T>::Result;
-	data->typeData.sizeAndPointers = (size << 4) | pointers;
+	vtSetPointers(data->typeData, pointers);
 }
 
 template <typename T>
@@ -232,10 +233,13 @@ void deduceVariantType(
 )
 {
 	data->typeData.vt = (uint16_t)GVariantType::vtInterface;
-	data->pointer = (void *)value;
+	data->valueInterface = (cpgf::IObject *)value;
+	if(data->valueInterface != nullptr) {
+		data->valueInterface->addReference();
+	}
 	constexpr uint16_t size = sizeof(cpgf::IObject *);
 	constexpr uint16_t pointers = cpgf::PointerDimension<T>::Result;
-	data->typeData.sizeAndPointers = (size << 4) | pointers;
+	vtSetSizeAndPointers(data->typeData, size, pointers);
 }
 
 

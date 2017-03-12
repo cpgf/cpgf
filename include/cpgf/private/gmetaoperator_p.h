@@ -54,7 +54,7 @@ struct ConvertReference <T, true>
 inline GVariant convertSelf(const GVariant & param)
 {
 	if(vtIsByPointer(param.getType())) {
-		return pointerToRefVariant(param);
+		return variantPointerToLvalueReference(param);
 	}
 	else {
 		return param;

@@ -159,6 +159,12 @@ struct CastVariant_Value
 		case GVariantType::vtObject:
 			return helperFromObject<ResultType>(data.pointer);
 
+		case GVariantType::vtShadow:
+			return helperFromObject<ResultType>(((IVariantShadowObject *)data.valueInterface)->getObject());
+
+		case GVariantType::vtInterface:
+			return helperFromObject<ResultType>((cpgf::IObject *)data.valueInterface);
+
 		case GVariantType::vtString:
 			if(TypeListConvertible<StringStringTypeList, ResultType>::convertible) {
 				return (ResultType)helperFromVariant<ResultType, StringStringTypeList>(
@@ -225,6 +231,12 @@ struct CastVariant_Value
 
 		case GVariantType::vtObject:
 			return true;
+
+		case GVariantType::vtShadow:
+			return true;
+
+		case GVariantType::vtInterface:
+			return TypeListConvertible<cpgf::GTypeList<cpgf::IObject *>, ResultType>::convertible; 
 
 		case GVariantType::vtString:
 			return TypeListConvertible<cpgf::TypeList_Concat<StringCharTypeList, StringStringTypeList>::Result, ResultType>::convertible;

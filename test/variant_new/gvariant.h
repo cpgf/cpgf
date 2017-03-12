@@ -7,6 +7,7 @@
 #include "cpgf/ginterface.h"
 #include "cpgf/gcompiler.h"
 #include "cpgf/gapiutil.h"
+#include "cpgf/gmetatype.h"
 
 #include <type_traits>
 #include <cstdint>
@@ -253,6 +254,10 @@ inline bool vtIsReference(const uint16_t vt)
 	return (vt & (int)GVariantType::maskByReference) != 0;
 }
 
+inline bool vtIsTypedVar(const uint16_t vt) {
+	return vt == (uint16_t)GVariantType::vtTypedVar;
+}
+
 inline GVariantType vtGetBaseType(const uint16_t vt)
 {
 	return (GVariantType)(vt & (uint16_t)GVariantType::vtMask);
@@ -293,10 +298,37 @@ inline void vtSetSizeAndPointers(GVarTypeData & data, unsigned int size, unsigne
 	data.sizeAndPointers = static_cast<uint8_t>(((size & 0x0f) << 4) | (pointer & 0x0f));
 }
 
+inline bool variantIsString(const GVariant & v)
+{
+	const GVariantData & data = v.refData();
+	return data.typeData.vt == (uint16_t)GVariantType::vtString
+		|| ((vtGetPointers(data.typeData) == 1 && vtGetBaseType(data.typeData) == GVariantType::vtChar));
+}
+
+inline bool variantIsWideString(const GVariant & v)
+{
+	const GVariantData & data = v.refData();
+	return data.typeData.vt == (uint16_t)GVariantType::vtWideString
+		|| ((vtGetPointers(data.typeData) == 1 && vtGetBaseType(data.typeData) == GVariantType::vtWchar));
+}
+
 struct VarantCastKeepConstRef {};
 struct VarantCastCopyConstRef {};
 
 #include "private/gvariant_from_p.h"
+
+GVariant createStringVariant(const char * s);
+GVariant createWideStringVariant(const wchar_t * s);
+GVariant createTypedVariant(const GVariant & value, const cpgf::GMetaType & type);
+
+GVariant getVariantRealValue(const GVariant & value);
+cpgf::GMetaType getVariantRealMetaType(const GVariant & value);
+
+GVariant pointerToObjectVariant(void * p);
+GVariant objectToVariant(void * object);
+
+// Convert a pointer to reference.
+GVariant variantPointerToLvalueReference(const GVariant & p);
 
 template <typename T, typename Policy = VarantCastKeepConstRef>
 typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(const GVariant & value)
@@ -304,7 +336,11 @@ typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(cons
 	using namespace variant_internal;
 
 	auto vt = value.refData().typeData.vt;
-	if(vtIsPointer(vt)) {
+
+	if(vtIsTypedVar(vt)) {
+		return fromVariant<T>(getVariantRealValue(value));
+	}
+	else if(vtIsPointer(vt)) {
 		if(vtIsLvalueReference(vt)) {
 			return CastVariant_Pointer_LvalueReference<T, Policy>::cast(value);
 		}
@@ -333,7 +369,11 @@ bool canFromVariant(const GVariant & value)
 	using namespace variant_internal;
 
 	auto vt = value.refData().typeData.vt;
-	if(vtIsPointer(vt)) {
+	
+	if(vtIsTypedVar(vt)) {
+		return canFromVariant<T, Policy>(getVariantRealValue(value));
+	}
+	else if(vtIsPointer(vt)) {
 		if(vtIsLvalueReference(vt)) {
 			return CastVariant_Pointer_LvalueReference<T, Policy>::canCast(value);
 		}
@@ -355,14 +395,44 @@ bool canFromVariant(const GVariant & value)
 	}
 }
 
-template <bool Copyable, typename T>
-GVariant createVariant(const T & value, bool copyObject = false)
+template <typename T>
+GVariant createVariant(const T & value, bool copyObject = false,
+	typename std::enable_if<(std::is_copy_constructible<T>::value && (std::is_class<T>::value || std::is_union<T>::value))>::type * = 0
+	)
+{
+	if(copyObject) {
+		GVariant v;
+		GVariantData & data = v.refData();
+
+		data.typeData.vt = (uint16_t)GVariantType::vtShadow;
+		vtSetSizeAndPointers(data.typeData, sizeof(void *), 0);
+		data.valueInterface = new variant_internal::GVariantShadowObject<T>(value);
+
+		return v;
+	}
+	else {
+		return GVariant(value);
+	}
+}
+
+template <typename T>
+GVariant createVariant(const T & value, bool /*copyObject*/ = false,
+	typename std::enable_if<! (std::is_copy_constructible<T>::value && (std::is_class<T>::value || std::is_union<T>::value))>::type * = 0
+)
 {
 	return GVariant(value);
 }
 
-GVariant createStringVariant(const char * s);
-GVariant createWideStringVariant(const wchar_t * s);
+template <typename T>
+GVariant copyVariantFromCopyable(const T & value)
+{
+	return createVariant(value, true);
+}
+
+inline void * objectAddressFromVariant(const GVariant & v)
+{
+	return fromVariant<void *>(v);
+}
 
 
 } //namespace cpgf

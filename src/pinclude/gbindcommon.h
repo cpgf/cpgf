@@ -1038,7 +1038,7 @@ std::string getMethodNameFromMethodList(IMetaList * methodList);
 
 inline void * getInstanceHash(const GVariant & instance)
 {
-	return referenceAddressFromVariant(instance);
+	return objectAddressFromVariant(instance);
 }
 
 

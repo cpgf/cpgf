@@ -247,7 +247,7 @@ void checkFailCast(bool success)
 	}
 }
 
-GVariant pointerToRefVariant(const GVariant & p)
+GVariant variantPointerToLvalueReference(const GVariant & p)
 {
 	GVariant v(p);
 
@@ -283,16 +283,6 @@ GVariant objectToVariant(void * object)
 void * objectAddressFromVariant(const GVariant & v)
 {
 	return fromVariant<void *>(v);
-}
-
-void * referenceAddressFromVariant(const GVariant & v)
-{
-	if(vtIsByReference(v.getType())) {
-		return const_cast<void *>(v.refData().ptrObject);
-	}
-	else {
-		return objectAddressFromVariant(v);
-	}
 }
 
 void initializeVarData(GVariantData * data)
