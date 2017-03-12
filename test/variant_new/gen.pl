@@ -192,13 +192,15 @@ sub doLvalueReference
 {
 	my ($item) = @_;
 
-	my $typeList = &makeTypeList($item->{type}, '&');
+	my $typeListPointer = &makeTypeList($item->{type}, '*');
+	my $typeListReference = &makeTypeList($item->{type}, '&');
 
 	print &doFormat(<<EOM
 		case GVariantType::$item->{vt}:
-			return (ResultType)helperFromVariant<
+			return (ResultType)helperFromPointerOrReference<
 				ResultType,
-				$typeList
+				$typeListPointer,
+				$typeListReference
 			>(($item->{type} &) * ($item->{type} *)data.pointer);
 
 EOM
@@ -209,11 +211,14 @@ sub doCanLvalueReference
 {
 	my ($item) = @_;
 
-	my $typeList = &makeTypeList($item->{type}, '&');
+	my $typeListPointer = &makeTypeList($item->{type}, '*');
+	my $typeListReference = &makeTypeList($item->{type}, '&');
 
 	print &doFormat(<<EOM
 		case GVariantType::$item->{vt}:
-			return TypeListConvertible<$typeList, ResultType>::convertible;
+			return TypeListConvertible<$typeListPointer, ResultType>::convertible
+				|| TypeListConvertible<$typeListReference, ResultType>::convertible
+			;
 
 EOM
 );
