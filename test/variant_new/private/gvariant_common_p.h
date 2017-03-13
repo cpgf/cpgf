@@ -35,6 +35,31 @@ struct TypeListConvertible <cpgf::GTypeList<>, To>
 	static constexpr bool convertible = false;
 };
 
+
+template <typename FromTypeList, typename To>
+struct TypeListSame;
+
+template <typename H, typename... Types, typename To>
+struct TypeListSame <cpgf::GTypeList<H, Types...>, To>
+{
+	static constexpr bool mySame = std::is_same<H, To>::value;
+
+	typedef typename std::conditional<
+		mySame,
+		H,
+		typename TypeListSame<cpgf::GTypeList<Types...>, To>::type
+	>::type type;
+	static constexpr bool same = mySame || TypeListSame<cpgf::GTypeList<Types...>, To>::same;
+};
+
+template <typename To>
+struct TypeListSame <cpgf::GTypeList<>, To>
+{
+	typedef void type;
+	static constexpr bool same = false;
+};
+
+
 struct IVariantShadowObject : public cpgf::IObject
 {
 public:

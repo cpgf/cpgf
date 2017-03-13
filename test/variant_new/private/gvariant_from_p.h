@@ -58,7 +58,7 @@ T helperFromPointerOrReference(const V & from, typename std::enable_if<! TypeLis
 }
 
 template <typename T, typename PointerTypeList, typename ReferenceTypeList, typename V>
-T helperFromPointerOrReference(const V & from, typename std::enable_if<! TypeListConvertible<PointerTypeList, T>::convertible && ! TypeListConvertible<ReferenceTypeList, T>::convertible>::type * = 0)
+T helperFromPointerOrReference(const V & /*from*/, typename std::enable_if<! TypeListConvertible<PointerTypeList, T>::convertible && ! TypeListConvertible<ReferenceTypeList, T>::convertible>::type * = 0)
 {
 	failedCast();
 	return helperReturnEmptyValue<T>();
