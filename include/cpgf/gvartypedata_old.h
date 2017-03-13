@@ -53,6 +53,7 @@ enum GVariantType {
 	byReference = 0x2000,
 	
 	maskByReference = byReference,
+	byLvalueReference = byReference,
 };
 
 inline GVariantType operator + (GVariantType vt, int n)

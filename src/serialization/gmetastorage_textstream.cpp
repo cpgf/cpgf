@@ -456,7 +456,7 @@ void G_API_CC GTextStreamMetaReader::readFundamental(const char * /*name*/, GVar
 	PermanentType type = this->getTypeInSession(true);
 
 	GVariantType vt = getVariantTypeFromMap(this->variantTypeMap, type);
-	if(vt == vtEmpty) {
+	if(vt == GVariantType::vtEmpty) {
 		serializeError(Error_Serialization_TypeMismatch);
 	}
 

@@ -611,7 +611,7 @@ void G_API_CC GXmlStorageReader::readFundamental(const char * name, GVariantData
 	PermanentType type = this->readType(node);
 	
 	GVariantType vt = getVariantTypeFromMap(this->variantTypeMap, type);
-	if(vt == vtEmpty) {
+	if(vt == GVariantType::vtEmpty) {
 		serializeError(Error_Serialization_TypeMismatch);
 	}
 

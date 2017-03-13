@@ -305,7 +305,7 @@ GVariant doReadInteger(const void * address, size_t size)
 GVariant readFundamental(const void * address, const GMetaType & metaType)
 {
 	size_t size = metaType.getVariantSize();
-	if(vtIsReal(metaType.getVariantType())) {
+	if(vtIsReal((uint16_t)metaType.getVariantType())) {
 		switch(size) {
 			case 4:
 				return *(GFixedTypeFloat32::Signed *)(address);
@@ -314,7 +314,7 @@ GVariant readFundamental(const void * address, const GMetaType & metaType)
 				return *(GFixedTypeFloat64::Signed *)(address);
 
 			default:
-				if(metaType.getVariantType() == vtLongDouble) { // long double has vary size on GCC...
+				if(metaType.getVariantType() == GVariantType::vtLongDouble) { // long double has vary size on GCC...
 					return *(GFixedTypeFloat80::Signed *)(address);
 					break;
 				}
@@ -324,43 +324,43 @@ GVariant readFundamental(const void * address, const GMetaType & metaType)
 	}
 	else {
 		switch(metaType.getVariantType()) {
-			case vtBool:
+			case GVariantType::vtBool:
 				return doReadInteger<bool>(address, size);
 
-			case vtChar:
+			case GVariantType::vtChar:
 				return doReadInteger<char>(address, size);
 
-			case vtWchar:
+			case GVariantType::vtWchar:
 				return doReadInteger<wchar_t>(address, size);
 
-			case vtSignedChar:
+			case GVariantType::vtSignedChar:
 				return doReadInteger<signed char>(address, size);
 
-			case vtUnsignedChar:
+			case GVariantType::vtUnsignedChar:
 				return doReadInteger<unsigned char>(address, size);
 
-			case vtSignedShort:
+			case GVariantType::vtSignedShort:
 				return doReadInteger<signed short>(address, size);
 
-			case vtUnsignedShort:
+			case GVariantType::vtUnsignedShort:
 				return doReadInteger<unsigned short>(address, size);
 
-			case vtSignedInt:
+			case GVariantType::vtSignedInt:
 				return doReadInteger<signed int>(address, size);
 
-			case vtUnsignedInt:
+			case GVariantType::vtUnsignedInt:
 				return doReadInteger<unsigned int>(address, size);
 
-			case vtSignedLong:
+			case GVariantType::vtSignedLong:
 				return doReadInteger<signed long>(address, size);
 
-			case vtUnsignedLong:
+			case GVariantType::vtUnsignedLong:
 				return doReadInteger<unsigned long>(address, size);
 
-			case vtSignedLongLong:
+			case GVariantType::vtSignedLongLong:
 				return doReadInteger<signed long long>(address, size);
 
-			case vtUnsignedLongLong:
+			case GVariantType::vtUnsignedLongLong:
 				return doReadInteger<unsigned long long>(address, size);
 
 			default:
@@ -401,7 +401,7 @@ void doWriteInteger(void * address, size_t size, const GVariant & v)
 void writeFundamental(void * address, const GMetaType & metaType, const GVariant & v)
 {
 	size_t size = metaType.getVariantSize();;
-	if(vtIsReal(metaType.getVariantType())) {
+	if(vtIsReal((uint16_t)metaType.getVariantType())) {
 		switch(size) {
 			case 4:
 				*(GFixedTypeFloat32::Signed *)(address) = fromVariant<GFixedTypeFloat32::Signed>(v);
@@ -412,7 +412,7 @@ void writeFundamental(void * address, const GMetaType & metaType, const GVariant
 				break;
 
 			default:
-				if(metaType.getVariantType() == vtLongDouble) { // long double has vary size on GCC...
+				if(metaType.getVariantType() == GVariantType::vtLongDouble) { // long double has vary size on GCC...
 					*(GFixedTypeFloat80::Signed *)(address) = fromVariant<GFixedTypeFloat80::Signed>(v);
 					break;
 				}
@@ -422,55 +422,55 @@ void writeFundamental(void * address, const GMetaType & metaType, const GVariant
 	}
 	else {
 		switch(metaType.getVariantType()) {
-			case vtBool:
+			case GVariantType::vtBool:
 				doWriteInteger<bool>(address, size, v);
 				break;
 
-			case vtChar:
+			case GVariantType::vtChar:
 				doWriteInteger<char>(address, size, v);
 				break;
 
-			case vtWchar:
+			case GVariantType::vtWchar:
 				doWriteInteger<wchar_t>(address, size, v);
 				break;
 
-			case vtSignedChar:
+			case GVariantType::vtSignedChar:
 				doWriteInteger<signed char>(address, size, v);
 				break;
 
-			case vtUnsignedChar:
+			case GVariantType::vtUnsignedChar:
 				doWriteInteger<unsigned char>(address, size, v);
 				break;
 
-			case vtSignedShort:
+			case GVariantType::vtSignedShort:
 				doWriteInteger<signed short>(address, size, v);
 				break;
 
-			case vtUnsignedShort:
+			case GVariantType::vtUnsignedShort:
 				doWriteInteger<unsigned short>(address, size, v);
 				break;
 
-			case vtSignedInt:
+			case GVariantType::vtSignedInt:
 				doWriteInteger<signed int>(address, size, v);
 				break;
 
-			case vtUnsignedInt:
+			case GVariantType::vtUnsignedInt:
 				doWriteInteger<unsigned int>(address, size, v);
 				break;
 
-			case vtSignedLong:
+			case GVariantType::vtSignedLong:
 				doWriteInteger<signed long>(address, size, v);
 				break;
 
-			case vtUnsignedLong:
+			case GVariantType::vtUnsignedLong:
 				doWriteInteger<unsigned long>(address, size, v);
 				break;
 
-			case vtSignedLongLong:
+			case GVariantType::vtSignedLongLong:
 				doWriteInteger<signed long long>(address, size, v);
 				break;
 
-			case vtUnsignedLongLong:
+			case GVariantType::vtUnsignedLongLong:
 				doWriteInteger<unsigned long long>(address, size, v);
 				break;
 

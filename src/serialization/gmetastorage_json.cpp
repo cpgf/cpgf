@@ -376,15 +376,15 @@ void G_API_CC GJsonStorageWriter::writeFundamental(const char * name, const GVar
 
 	JsonNodeType & newNode = this->addNode(name);
 
-	if(vtIsReal(vt)) {
+	if(vtIsReal((uint16_t)vt)) {
 		newNode = fromVariant<double>(v);
 	}
 	else {
-		if(vt == vtSignedLongLong || vt == vtUnsignedLongLong) {
+		if(vt == GVariantType::vtSignedLongLong || vt == GVariantType::vtUnsignedLongLong) {
 			newNode = fromVariant<double>(v);
 		}
 		else {
-			if(vtIsUnsignedInteger(vt)) {
+			if(vtIsUnsignedInteger((uint16_t)vt)) {
 				newNode= fromVariant<unsigned long long>(v);
 			}
 			else {

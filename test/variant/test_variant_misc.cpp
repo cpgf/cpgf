@@ -47,28 +47,28 @@ GTEST(TestVariant_ConstReference)
 
 GTEST(TestVariant_ObjectPointer)
 {
-	GEQUAL(vtGetBaseType(GVariant((CLASS *)0).refData().typeData), vtObject);
+	GEQUAL(vtGetBaseType(GVariant((CLASS *)0).refData().typeData), GVariantType::vtObject);
 	GEQUAL(vtGetPointers(GVariant((CLASS *)0).refData().typeData), 1);
 
-	GEQUAL(vtGetBaseType(GVariant((CLASS const *)0).refData().typeData), vtObject);
+	GEQUAL(vtGetBaseType(GVariant((CLASS const *)0).refData().typeData), GVariantType::vtObject);
 	GEQUAL(vtGetPointers(GVariant((CLASS const *)0).refData().typeData), 1);
 
-	GEQUAL(vtGetBaseType(GVariant((CLASS volatile *)0).refData().typeData), vtObject);
+	GEQUAL(vtGetBaseType(GVariant((CLASS volatile *)0).refData().typeData), GVariantType::vtObject);
 	GEQUAL(vtGetPointers(GVariant((CLASS volatile *)0).refData().typeData), 1);
 
-	GEQUAL(vtGetBaseType(GVariant((CLASS const volatile *)0).refData().typeData), vtObject);
+	GEQUAL(vtGetBaseType(GVariant((CLASS const volatile *)0).refData().typeData), GVariantType::vtObject);
 	GEQUAL(vtGetPointers(GVariant((CLASS const volatile *)0).refData().typeData), 1);
 
-	GEQUAL(vtGetBaseType(GVariant((CLASS **)0).refData().typeData), vtObject);
+	GEQUAL(vtGetBaseType(GVariant((CLASS **)0).refData().typeData), GVariantType::vtObject);
 	GEQUAL(vtGetPointers(GVariant((CLASS **)0).refData().typeData), 2);
 
-	GEQUAL(vtGetBaseType(GVariant((IMetaClass *)0).refData().typeData), vtInterface);
+	GEQUAL(vtGetBaseType(GVariant((IMetaClass *)0).refData().typeData), GVariantType::vtInterface);
 	GEQUAL(vtGetPointers(GVariant((IMetaClass *)0).refData().typeData), 1);
 
-	GEQUAL(vtGetBaseType(GVariant((const IMetaClass *)0).refData().typeData), vtInterface);
+	GEQUAL(vtGetBaseType(GVariant((const IMetaClass *)0).refData().typeData), GVariantType::vtInterface);
 	GEQUAL(vtGetPointers(GVariant((const IMetaClass *)0).refData().typeData), 1);
 
-	GEQUAL(vtGetBaseType(GVariant((const volatile IMetaClass *)0).refData().typeData), vtInterface);
+	GEQUAL(vtGetBaseType(GVariant((const volatile IMetaClass *)0).refData().typeData), GVariantType::vtInterface);
 	GEQUAL(vtGetPointers(GVariant((const volatile IMetaClass *)0).refData().typeData), 1);
 }
 

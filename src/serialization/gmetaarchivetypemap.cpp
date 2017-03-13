@@ -5,46 +5,46 @@ namespace cpgf {
 
 
 int defaultVariantTypeMap[] = {
-	vtBool, ptBool,
-	vtChar, ptChar,
-	vtWchar, ptWchar,
-	vtSignedChar, ptSignedChar,
-	vtUnsignedChar, ptUnsignedChar,
-	vtSignedShort, ptSignedShort,
-	vtUnsignedShort, ptUnsignedShort,
-	vtSignedInt, ptSignedInt,
-	vtUnsignedInt, ptUnsignedInt,
-	vtSignedLong, ptSignedLong,
-	vtUnsignedLong, ptUnsignedLong,
-	vtSignedLongLong, ptSignedLongLong,
-	vtUnsignedLongLong, ptUnsignedLongLong,
-	vtFloat, ptFloat,
-	vtDouble, ptDouble,
-	vtLongDouble, ptLongDouble,
-	vtObject, ptObject,
-	vtString, ptString,
-	vtWideString, ptWideString,
+	(int)GVariantType::vtBool, ptBool,
+	(int)GVariantType::vtChar, ptChar,
+	(int)GVariantType::vtWchar, ptWchar,
+	(int)GVariantType::vtSignedChar, ptSignedChar,
+	(int)GVariantType::vtUnsignedChar, ptUnsignedChar,
+	(int)GVariantType::vtSignedShort, ptSignedShort,
+	(int)GVariantType::vtUnsignedShort, ptUnsignedShort,
+	(int)GVariantType::vtSignedInt, ptSignedInt,
+	(int)GVariantType::vtUnsignedInt, ptUnsignedInt,
+	(int)GVariantType::vtSignedLong, ptSignedLong,
+	(int)GVariantType::vtUnsignedLong, ptUnsignedLong,
+	(int)GVariantType::vtSignedLongLong, ptSignedLongLong,
+	(int)GVariantType::vtUnsignedLongLong, ptUnsignedLongLong,
+	(int)GVariantType::vtFloat, ptFloat,
+	(int)GVariantType::vtDouble, ptDouble,
+	(int)GVariantType::vtLongDouble, ptLongDouble,
+	(int)GVariantType::vtObject, ptObject,
+	(int)GVariantType::vtString, ptString,
+	(int)GVariantType::vtWideString, ptWideString,
 
-	vtEmpty,
+	(int)GVariantType::vtEmpty,
 };
 
 
 GVariantType getVariantTypeFromMap(int * variantTypeMap, int mappedType)
 {
-	while(*variantTypeMap != vtEmpty) {
+	while(*variantTypeMap != (int)GVariantType::vtEmpty) {
 		if(*(variantTypeMap + 1) == mappedType) {
 			return static_cast<GVariantType>(*variantTypeMap);
 		}
 		variantTypeMap += 2;
 	}
 
-	return vtEmpty;
+	return GVariantType::vtEmpty;
 }
 
 int getMappedTypeFromMap(int * variantTypeMap, GVariantType vt)
 {
-	while(*variantTypeMap != vtEmpty) {
-		if(*variantTypeMap == vt) {
+	while(*variantTypeMap != (int)GVariantType::vtEmpty) {
+		if(*variantTypeMap == (int)vt) {
 			return *(variantTypeMap + 1);
 		}
 		variantTypeMap += 2;

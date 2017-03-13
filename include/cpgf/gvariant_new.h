@@ -102,6 +102,10 @@ inline bool vtIsEmpty(const uint16_t vt) {
 	return vt == (uint16_t)GVariantType::vtEmpty;
 }
 
+inline bool vtIsEmpty(const GVariantType vt) {
+	return vt == GVariantType::vtEmpty;
+}
+
 inline void vtInit(GVarTypeData & data) {
 	data.vt = (uint16_t)GVariantType::vtEmpty;
 	data.sizeAndPointers = 0;
@@ -164,12 +168,24 @@ inline bool vtIsInterface(const uint16_t vt) {
 	return vt == (uint16_t)GVariantType::vtInterface;
 }
 
+inline bool vtIsInterface(const GVariantType vt) {
+	return vt == GVariantType::vtInterface;
+}
+
 inline bool vtIsBoolean(const uint16_t vt) {
 	return vt == (uint16_t)GVariantType::vtBool;
 }
 
+inline bool vtIsBoolean(const GVariantType vt) {
+	return vt == GVariantType::vtBool;
+}
+
 inline bool vtIsInteger(const uint16_t vt) {
 	return vt >= (uint16_t)GVariantType::vtIntegerBegin && vt <= (uint16_t)GVariantType::vtIntegerEnd;
+}
+
+inline bool vtIsInteger(const GVariantType vt) {
+	return vt >= GVariantType::vtIntegerBegin && vt <= GVariantType::vtIntegerEnd;
 }
 
 inline bool vtIsSignedInteger(const uint16_t vt) {
@@ -178,6 +194,15 @@ inline bool vtIsSignedInteger(const uint16_t vt) {
 		|| vt == (uint16_t)GVariantType::vtSignedInt
 		|| vt == (uint16_t)GVariantType::vtSignedLong
 		|| vt == (uint16_t)GVariantType::vtSignedLongLong
+	;
+}
+
+inline bool vtIsSignedInteger(const GVariantType vt) {
+	return vt == GVariantType::vtSignedChar
+		|| vt == GVariantType::vtSignedShort
+		|| vt == GVariantType::vtSignedInt
+		|| vt == GVariantType::vtSignedLong
+		|| vt == GVariantType::vtSignedLongLong
 	;
 }
 
@@ -190,8 +215,21 @@ inline bool vtIsUnsignedInteger(const uint16_t vt) {
 	;
 }
 
+inline bool vtIsUnsignedInteger(const GVariantType vt) {
+	return vt == GVariantType::vtUnsignedChar
+		|| vt == GVariantType::vtUnsignedShort
+		|| vt == GVariantType::vtUnsignedInt
+		|| vt == GVariantType::vtUnsignedLong
+		|| vt == GVariantType::vtUnsignedLongLong
+	;
+}
+
 inline bool vtIsReal(const uint16_t vt) {
 	return vt >= (uint16_t)GVariantType::vtFloat && vt <= (uint16_t)GVariantType::vtLongDouble;
+}
+
+inline bool vtIsReal(const GVariantType vt) {
+	return vt >= GVariantType::vtFloat && vt <= GVariantType::vtLongDouble;
 }
 
 
@@ -465,7 +503,7 @@ void deduceVariantType(GVarTypeData & data, bool /*copyObject*/)
 }
 
 template <>
-void deduceVariantType<void>(GVarTypeData & data, bool /*copyObject*/)
+inline void deduceVariantType<void>(GVarTypeData & data, bool /*copyObject*/)
 {
 	data.vt = (uint16_t)GVariantType::vtVoid;
 }

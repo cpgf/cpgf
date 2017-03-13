@@ -706,7 +706,7 @@ bool variantToLua(const GContextPointer & context, const GVariant & data, const 
 	GVariant value = getVariantRealValue(data);
 	GMetaType type = getVariantRealMetaType(data);
 
-	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
+	GVariantType vt = static_cast<GVariantType>((uint16_t)value.getType() & ~(uint16_t)GVariantType::maskByReference);
 	
 	if(vtIsEmpty(vt)) {
 		lua_pushnil(L);
