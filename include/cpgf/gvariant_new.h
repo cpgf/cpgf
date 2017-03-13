@@ -7,60 +7,13 @@
 #include "cpgf/ginterface.h"
 #include "cpgf/gcompiler.h"
 #include "cpgf/gapiutil.h"
-#include "cpgf/gmetatype.h"
+#include "cpgf/gtypetraits.h"
 
 #include <type_traits>
 #include <cstdint>
 #include <memory>
 
 namespace cpgf {
-
-enum class GVariantType : uint16_t {
-	vtEmpty = 0,
-	vtVoid = 1,
-
-	vtFundamentalBegin = 2,
-
-	vtIntegerBegin = vtFundamentalBegin, // 2
-	vtBool = vtIntegerBegin,
-	vtChar = vtIntegerBegin + 1, vtWchar = vtIntegerBegin + 2,
-	vtSignedChar = vtIntegerBegin + 3, vtUnsignedChar = vtIntegerBegin + 4,
-	vtSignedShort = vtIntegerBegin + 5, vtUnsignedShort = vtIntegerBegin + 6,
-	vtSignedInt = vtIntegerBegin + 7, vtUnsignedInt = vtIntegerBegin + 8,
-	vtSignedLong = vtIntegerBegin + 9, vtUnsignedLong = vtIntegerBegin + 10,
-	vtSignedLongLong = vtIntegerBegin + 11, vtUnsignedLongLong = vtIntegerBegin + 12,
-	vtIntegerEnd = vtUnsignedLongLong,
-
-	vtRealBegin = vtIntegerEnd + 1, // 15
-	vtFloat = vtRealBegin, vtDouble = vtRealBegin + 2, vtLongDouble = vtRealBegin + 3,
-	vtRealEnd = vtLongDouble,
-
-	vtFundamentalEnd = vtLongDouble,
-
-	vtObject = 31, // is equivalent to unkown type
-	
-	// special types
-	vtInterfaceBegin = 32,
-	vtShadow = vtInterfaceBegin,
-	vtString = vtInterfaceBegin + 1,
-	vtWideString = vtInterfaceBegin + 2,
-	vtInterface = vtInterfaceBegin + 3, // IObject *
-	vtTypedVar = vtInterfaceBegin + 4,
-	vtInterfaceEnd = vtTypedVar,
-
-	vtUserBegin = 0xff,
-	vtUserEnd = 0x0fff,
-
-	vtMask = 0x0fff,
-
-	// when there are both pointer and reference, it's always reference to pointer since we can't have pointer to reference
-	byPointer = 0x1000,
-	byLvalueReference = 0x2000,
-	byRvalueReference = 0x4000,
-	
-	maskByPointerAndReference = byPointer | byLvalueReference | byRvalueReference,
-	maskByReference = byLvalueReference | byRvalueReference,
-};
 
 typedef cpgf::GTypeList<
 	bool,
@@ -81,16 +34,6 @@ struct VariantTypeInfo
 };
 
 extern VariantTypeInfo variantTypeInfo[];
-
-#pragma pack(push, 1)
-#pragma pack(1)
-struct GVarTypeData
-{
-	uint16_t vt;
-	uint8_t sizeAndPointers;
-	uint8_t padding;
-};
-#pragma pack(pop)
 
 typedef std::int64_t GVariantInteger;
 typedef long double GVariantReal;
@@ -206,7 +149,7 @@ public:
 	static GVariant create(const T & value)
 	{
 		GVariant v;
-		variant_internal::deduceVariantType<T>(&v.data, value);
+		variant_internal::deduceVariantValueType<T>(&v.data, value);
 		return v;
 	}
 	
@@ -216,7 +159,7 @@ public:
 	template <typename T>
 	GVariant(const T & value) : data()
 	{
-		variant_internal::deduceVariantType(&this->data, value);
+		variant_internal::deduceVariantValueType(&this->data, value);
 	}
 
 	GVariant(const GVariant & other) : data(other.data)
@@ -319,10 +262,10 @@ struct VarantCastCopyConstRef {};
 
 GVariant createStringVariant(const char * s);
 GVariant createWideStringVariant(const wchar_t * s);
-GVariant createTypedVariant(const GVariant & value, const cpgf::GMetaType & type);
+class GMetaType;
+GVariant createTypedVariant(const GVariant & value, const GMetaType & type);
 
 GVariant getVariantRealValue(const GVariant & value);
-cpgf::GMetaType getVariantRealMetaType(const GVariant & value);
 
 GVariant pointerToObjectVariant(void * p);
 GVariant objectToVariant(void * object);
@@ -434,7 +377,7 @@ GVariant createVariant(const T & value, bool /*copyObject*/ = false,
 	return GVariant(value);
 }
 
-// TODO: backward compatible
+// TODO: the parameter Copyable is for backward compatibility
 template <bool Copyable, typename T>
 GVariant createVariant(const T & value, bool copyObject = false)
 {
@@ -451,6 +394,20 @@ inline void * objectAddressFromVariant(const GVariant & v)
 {
 	return fromVariant<void *>(v);
 }
+
+// TODO: deduceVariantType is for back compatibility
+template <typename T>
+void deduceVariantType(GVarTypeData & data, bool copyObject)
+{
+	data = createVariant(typename std::remove_reference<T>::type (), copyObject).refData();
+}
+
+template <typename T>
+void deduceVariantType(GVarTypeData & data)
+{
+	deduceVariantType<T>(data, false);
+}
+
 
 
 } //namespace cpgf

@@ -1,5 +1,4 @@
-// temporary
-#define USE_NEW_VARIANT 0
+#include "cpgf/gvartypedata.h"
 
 #if USE_NEW_VARIANT
 #include "gvariant_new.h"

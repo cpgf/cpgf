@@ -183,6 +183,7 @@ private:
 	std::vector<GSharedInterface<IObject> > objectHolder;
 };
 
+GMetaType getVariantRealMetaType(const GVariant & value);
 
 
 } // namespace cpgf

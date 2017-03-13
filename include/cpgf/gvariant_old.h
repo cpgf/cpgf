@@ -2,7 +2,6 @@
 #define CPGF_GVARIANT_H
 
 #include "cpgf/gvartypedata_old.h"
-#include "cpgf/gmetatype.h"
 #include "cpgf/gapiutil.h"
 #include "cpgf/gclassutil.h"
 #include "cpgf/gifelse.h"
@@ -270,7 +269,6 @@ GVariant createVariantFromData(const GVariantData & data);
 
 GVariant createTypedVariant(const GVariant & value, const GMetaType & type);
 GVariant getVariantRealValue(const GVariant & value);
-GMetaType getVariantRealMetaType(const GVariant & value);
 
 
 } // namespace cpgf

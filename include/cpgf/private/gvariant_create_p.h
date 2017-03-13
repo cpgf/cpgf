@@ -207,7 +207,7 @@ struct GVariantDeducer <T, false, false, true>
 
 
 template <typename T>
-void deduceVariantType(
+void deduceVariantValueType(
 	GVariantData * data,
 	const T & value,
 	typename std::enable_if<! std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
@@ -226,7 +226,7 @@ void deduceVariantType(
 }
 
 template <typename T>
-void deduceVariantType(
+void deduceVariantValueType(
 	GVariantData * data,
 	const T & value,
 	typename std::enable_if<std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
