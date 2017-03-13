@@ -41,10 +41,16 @@ struct GVariantDeducer_Value_Helper <T, typeMask, false>
 	typedef GVariantDeducer_Type<T> TypeDeducer;
 
 	template <typename V>
-	static void deduce(GVariantData * data, const V & value)
+	static void deduceAndSet(GVariantData * data, const V & value)
 	{
 		data->typeData.vt = TypeDeducer::Type;
+		vtSetSize(data->typeData, (TypeDeducer::fundamentalIndex >= 0 ? variantTypeInfo[TypeDeducer::fundamentalIndex].size : 0));
 		TypeDeducer::assign(data, value);
+	}
+
+	static void deduce(GVariantData * data)
+	{
+		data->typeData.vt = TypeDeducer::Type;
 		vtSetSize(data->typeData, (TypeDeducer::fundamentalIndex >= 0 ? variantTypeInfo[TypeDeducer::fundamentalIndex].size : 0));
 	}
 };
@@ -55,10 +61,16 @@ struct GVariantDeducer_Value_Helper <T, typeMask, true>
 	typedef GVariantDeducer_Type<T> TypeDeducer;
 
 	template <typename V>
-	static void deduce(GVariantData * data, const V & value)
+	static void deduceAndSet(GVariantData * data, const V & value)
 	{
 		data->typeData.vt = TypeDeducer::Type | typeMask;
+		vtSetSize(data->typeData, sizeof(void *));
 		data->pointer = (void *)(value);
+	}
+
+	static void deduce(GVariantData * data)
+	{
+		data->typeData.vt = TypeDeducer::Type | typeMask;
 		vtSetSize(data->typeData, sizeof(void *));
 	}
 };
@@ -74,9 +86,14 @@ struct GVariantDeducer_Value
 	static constexpr bool isPointerOrReference = (isPointer || isLvalueReference || isRvalueReference);
 
 	template <typename V>
-	static void deduce(GVariantData * data, const V & value)
+	static void deduceAndSet(GVariantData * data, const V & value)
 	{
-		GVariantDeducer_Value_Helper<T, typeMask, isPointerOrReference>::deduce(data, value);
+		GVariantDeducer_Value_Helper<T, typeMask, isPointerOrReference>::deduceAndSet(data, value);
+	}
+
+	static void deduce(GVariantData * data)
+	{
+		GVariantDeducer_Value_Helper<T, typeMask, isPointerOrReference>::deduce(data);
 	}
 };
 
@@ -84,9 +101,14 @@ template <typename T>
 struct GVariantDeducer_Pointer
 {
 	template <typename V>
-	static void deduce(GVariantData * data, const V & value)
+	static void deduceAndSet(GVariantData * data, const V & value)
 	{
-		GVariantDeducer_Value<T, true, false, false>::deduce(data, value);
+		GVariantDeducer_Value<T, true, false, false>::deduceAndSet(data, value);
+	}
+
+	static void deduce(GVariantData * data)
+	{
+		GVariantDeducer_Value<T, true, false, false>::deduce(data);
 	}
 };
 
@@ -97,14 +119,24 @@ template <typename T>
 struct GVariantDeducer_LvalueReference <T, false>
 {
 	template <typename V>
-	static void deduce(GVariantData * data, const V & value)
+	static void deduceAndSet(GVariantData * data, const V & value)
 	{
 		GVariantDeducer_Value<
 			T,
 			false,
 			true,
 			false
-		>::deduce(data, std::addressof(value));
+		>::deduceAndSet(data, std::addressof(value));
+	}
+
+	static void deduce(GVariantData * data)
+	{
+		GVariantDeducer_Value<
+			T,
+			false,
+			true,
+			false
+		>::deduce(data);
 	}
 };
 
@@ -112,14 +144,24 @@ template <typename T>
 struct GVariantDeducer_LvalueReference <T, true>
 {
 	template <typename V>
-	static void deduce(GVariantData * data, const V & value)
+	static void deduceAndSet(GVariantData * data, const V & value)
 	{
 		GVariantDeducer_Value<
 			typename std::remove_cv<typename std::remove_pointer<T>::type >::type,
 			true,
 			true,
 			false
-		>::deduce(data, std::addressof(value));
+		>::deduceAndSet(data, std::addressof(value));
+	}
+
+	static void deduce(GVariantData * data)
+	{
+		GVariantDeducer_Value<
+			typename std::remove_cv<typename std::remove_pointer<T>::type >::type,
+			true,
+			true,
+			false
+		>::deduce(data);
 	}
 };
 
@@ -130,14 +172,24 @@ template <typename T>
 struct GVariantDeducer_RvalueReference <T, false>
 {
 	template <typename V>
-	static void deduce(GVariantData * data, const V & value)
+	static void deduceAndSet(GVariantData * data, const V & value)
 	{
 		GVariantDeducer_Value<
 			T,
 			false,
 			false,
 			true
-		>::deduce(data, std::addressof(value));
+		>::deduceAndSet(data, std::addressof(value));
+	}
+
+	static void deduce(GVariantData * data)
+	{
+		GVariantDeducer_Value<
+			T,
+			false,
+			false,
+			true
+		>::deduce(data);
 	}
 };
 
@@ -145,14 +197,24 @@ template <typename T>
 struct GVariantDeducer_RvalueReference <T, true>
 {
 	template <typename V>
-	static void deduce(GVariantData * data, const V & value)
+	static void deduceAndSet(GVariantData * data, const V & value)
 	{
 		GVariantDeducer_Value<
 			typename std::remove_cv<typename std::remove_pointer<T>::type >::type,
 			true,
 			false,
 			true
-		>::deduce(data, std::addressof(value));
+		>::deduceAndSet(data, std::addressof(value));
+	}
+
+	static void deduce(GVariantData * data)
+	{
+		GVariantDeducer_Value<
+			typename std::remove_cv<typename std::remove_pointer<T>::type >::type,
+			true,
+			false,
+			true
+		>::deduce(data);
 	}
 };
 
@@ -163,9 +225,14 @@ template <typename T>
 struct GVariantDeducer <T, false, false, false>
 {
 	template <typename V>
-	static void deduce(GVariantData * data, const V & value)
+	static void deduceAndSet(GVariantData * data, const V & value)
 	{
-		GVariantDeducer_Value<T, false, false, false>::deduce(data, value);
+		GVariantDeducer_Value<T, false, false, false>::deduceAndSet(data, value);
+	}
+
+	static void deduce(GVariantData * data)
+	{
+		GVariantDeducer_Value<T, false, false, false>::deduce(data);
 	}
 };
 
@@ -175,9 +242,14 @@ struct GVariantDeducer <T, true, false, false>
 	typedef typename std::remove_cv<typename std::remove_pointer<T>::type >::type U;
 
 	template <typename V>
-	static void deduce(GVariantData * data, const V & value)
+	static void deduceAndSet(GVariantData * data, const V & value)
 	{
-		GVariantDeducer_Pointer<U>::deduce(data, value);
+		GVariantDeducer_Pointer<U>::deduceAndSet(data, value);
+	}
+
+	static void deduce(GVariantData * data)
+	{
+		GVariantDeducer_Pointer<U>::deduce(data);
 	}
 };
 
@@ -187,9 +259,14 @@ struct GVariantDeducer <T, false, true, false>
 	typedef typename std::remove_cv<typename std::remove_reference<T>::type >::type U;
 
 	template <typename V>
-	static void deduce(GVariantData * data, const V & value)
+	static void deduceAndSet(GVariantData * data, const V & value)
 	{
-		GVariantDeducer_LvalueReference<U, std::is_pointer<U>::value>::deduce(data, value);
+		GVariantDeducer_LvalueReference<U, std::is_pointer<U>::value>::deduceAndSet(data, value);
+	}
+
+	static void deduce(GVariantData * data)
+	{
+		GVariantDeducer_LvalueReference<U, std::is_pointer<U>::value>::deduce(data);
 	}
 };
 
@@ -199,15 +276,20 @@ struct GVariantDeducer <T, false, false, true>
 	typedef typename std::remove_cv<typename std::remove_reference<T>::type >::type U;
 
 	template <typename V>
-	static void deduce(GVariantData * data, const V & value)
+	static void deduceAndSet(GVariantData * data, const V & value)
 	{
-		GVariantDeducer_RvalueReference<U, std::is_pointer<U>::value>::deduce(data, value);
+		GVariantDeducer_RvalueReference<U, std::is_pointer<U>::value>::deduceAndSet(data, value);
+	}
+
+	static void deduce(GVariantData * data)
+	{
+		GVariantDeducer_RvalueReference<U, std::is_pointer<U>::value>::deduce(data);
 	}
 };
 
 
 template <typename T>
-void deduceVariantValueType(
+void variantDeduceAndSet(
 	GVariantData * data,
 	const T & value,
 	typename std::enable_if<! std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
@@ -219,24 +301,56 @@ void deduceVariantValueType(
 		std::is_pointer<U>::value,
 		std::is_lvalue_reference<U>::value,
 		std::is_rvalue_reference<U>::value
-	>::deduce(data, value);
+	>::deduceAndSet(data, value);
 
 	constexpr uint16_t pointers = cpgf::PointerDimension<T>::Result;
 	vtSetPointers(data->typeData, pointers);
 }
 
 template <typename T>
-void deduceVariantValueType(
+void variantDeduceAndSet(
 	GVariantData * data,
 	const T & value,
 	typename std::enable_if<std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
 )
 {
 	data->typeData.vt = (uint16_t)GVariantType::vtInterface;
+	constexpr uint16_t size = sizeof(cpgf::IObject *);
+	constexpr uint16_t pointers = cpgf::PointerDimension<T>::Result;
+	vtSetSizeAndPointers(data->typeData, size, pointers);
+
 	data->valueInterface = (cpgf::IObject *)value;
 	if(data->valueInterface != nullptr) {
 		data->valueInterface->addReference();
 	}
+}
+
+
+template <typename T>
+void variantDeduceType(
+	GVariantData * data,
+	typename std::enable_if<! std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
+)
+{
+	typedef typename std::remove_cv<typename std::decay<T>::type>::type U;
+	GVariantDeducer<
+		U,
+		std::is_pointer<U>::value,
+		std::is_lvalue_reference<U>::value,
+		std::is_rvalue_reference<U>::value
+	>::deduce(data);
+
+	constexpr uint16_t pointers = cpgf::PointerDimension<T>::Result;
+	vtSetPointers(data->typeData, pointers);
+}
+
+template <typename T>
+void variantDeduceType(
+	GVariantData * data,
+	typename std::enable_if<std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
+)
+{
+	data->typeData.vt = (uint16_t)GVariantType::vtInterface;
 	constexpr uint16_t size = sizeof(cpgf::IObject *);
 	constexpr uint16_t pointers = cpgf::PointerDimension<T>::Result;
 	vtSetSizeAndPointers(data->typeData, size, pointers);

@@ -205,7 +205,7 @@ public:
 	static GVariant create(const T & value)
 	{
 		GVariant v;
-		variant_internal::deduceVariantValueType<T>(&v.data, value);
+		variant_internal::variantDeduceAndSet<T>(&v.data, value);
 		return v;
 	}
 	
@@ -215,7 +215,7 @@ public:
 	template <typename T>
 	GVariant(const T & value) : data()
 	{
-		variant_internal::deduceVariantValueType(&this->data, value);
+		variant_internal::variantDeduceAndSet(&this->data, value);
 	}
 
 	GVariant(const GVariant & other) : data(other.data)
@@ -457,9 +457,11 @@ inline void * objectAddressFromVariant(const GVariant & v)
 
 // TODO: deduceVariantType is for back compatibility
 template <typename T>
-void deduceVariantType(GVarTypeData & data, bool copyObject)
+void deduceVariantType(GVarTypeData & data, bool /*copyObject*/)
 {
-	data = createVariant(typename std::remove_reference<T>::type (), copyObject).refData();
+	GVariantData variantData;
+	variant_internal::variantDeduceType<T>(&variantData);
+	data = variantData.typeData;
 }
 
 template <>

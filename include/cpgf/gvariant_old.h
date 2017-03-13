@@ -131,11 +131,6 @@ public:
 		variant_internal::InitVariant<true, typename variant_internal::DeducePassType<T>::PassType>(*this, typeData, value);
 	}
 
-	template <typename T>
-	GVariant(const GVarTypeData & typeData, const T & value) {
-		variant_internal::InitVariant<true, T>(*this, typeData, value);
-	}
-
 	GVariant(const GVariant & other);
 	~GVariant();
 	GVariant & operator = (GVariant other);
@@ -225,7 +220,7 @@ typename GDisableIf<IsReference<T>::Result, GVariant>::Result createVariant(cons
 	GVarTypeData typeData;
 	deduceVariantType<T>(typeData, copyObject);
 	GVariant v;
-	variant_internal::InitVariant<Copyable, typename variant_internal::DeducePassType<T>::PassType>(v, typeData, value);
+	variant_internal::InitVariant<Copyable, typename variant_internal::DeducePassType<typename variant_internal::ArrayToPointer<T>::Result>::PassType>(v, typeData, (const typename variant_internal::ArrayToPointer<T>::Result &)value);
 	return v;
 }
 
@@ -236,7 +231,7 @@ typename GEnableIf<IsReference<T>::Result, GVariant>::Result createVariant(const
 	GVarTypeData typeData;
 	deduceVariantType<T>(typeData, false);
 	GVariant v;
-	variant_internal::InitVariant<false, typename variant_internal::DeducePassType<T>::PassType>(v, typeData, value);
+	variant_internal::InitVariant<false, typename variant_internal::DeducePassType<typename variant_internal::ArrayToPointer<T>::Result>::PassType>(v, typeData, (const typename variant_internal::ArrayToPointer<T>::Result &)value);
 	return v;
 }
 
