@@ -219,8 +219,8 @@ typename variant_internal::CastFromVariant<T, Policy>::ResultType fromVariant(co
 
 GVariant variantPointerToLvalueReference(const GVariant & p);
 
-template <bool Copyable, typename T>
-typename GDisableIf<IsReference<T>::Result, GVariant>::Result createVariant(const T & value, bool copyObject = false)
+template <bool Copyable, typename T, typename V>
+typename GDisableIf<IsReference<T>::Result, GVariant>::Result createVariant(const V & value, bool copyObject = false)
 {
 	GVarTypeData typeData;
 	deduceVariantType<T>(typeData, copyObject);
@@ -229,8 +229,8 @@ typename GDisableIf<IsReference<T>::Result, GVariant>::Result createVariant(cons
 	return v;
 }
 
-template <bool Copyable, typename T>
-typename GEnableIf<IsReference<T>::Result, GVariant>::Result createVariant(T value, bool /*copyObject*/ = false)
+template <bool Copyable, typename T, typename V>
+typename GEnableIf<IsReference<T>::Result, GVariant>::Result createVariant(const V & value, bool /*copyObject*/ = false)
 {
 	// Ignore Copyable and copyObject since we don't copy a reference.
 	GVarTypeData typeData;
@@ -243,7 +243,7 @@ typename GEnableIf<IsReference<T>::Result, GVariant>::Result createVariant(T val
 template <typename T>
 GVariant copyVariantFromCopyable(const T & value)
 {
-	return createVariant<true>(value, true);
+	return createVariant<true, T>(value, true);
 }
 
 GVariant pointerToObjectVariant(void * p);
