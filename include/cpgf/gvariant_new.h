@@ -514,6 +514,10 @@ void deduceVariantType(GVarTypeData & data)
 	deduceVariantType<T>(data, false);
 }
 
+inline GVariant createVariantFromData(const GVariantData & data)
+{
+	return GVariant(data);
+}
 
 
 } //namespace cpgf

@@ -1,5 +1,5 @@
 // This file implements the function "fromVariant" and "canFromVariant"
-/*
+
 #ifdef G_COMPILER_GCC
 #pragma GCC diagnostic push
 // ignore warning: returning reference to temporary
@@ -11,7 +11,7 @@
 #pragma warning(push)
 #pragma warning(disable:4172) // warning C4172: returning address of local variable or temporar
 #endif
-*/
+
 
 namespace variant_internal {
 
@@ -19,8 +19,9 @@ template <typename T>
 T helperReturnEmptyValue(typename std::enable_if<std::is_lvalue_reference<T>::value || std::is_rvalue_reference<T>::value>::type * = 0)
 {
 	typedef typename std::remove_reference<T>::type NoRef;
-	static NoRef x = NoRef();
-	return (T)x;
+	//static NoRef x = NoRef();
+	//return (T)x;
+	return (T)*(NoRef *)0;
 }
 
 template <typename T>
@@ -616,7 +617,7 @@ struct CastVariant_Pointer_RvalueReference
 
 } //namespace variant_internal
 
-/*
+
 #ifdef G_COMPILER_VC
 #pragma warning(pop)
 #endif
@@ -624,4 +625,4 @@ struct CastVariant_Pointer_RvalueReference
 #ifdef G_COMPILER_GCC
 #pragma GCC diagnostic pop
 #endif
-*/
+
