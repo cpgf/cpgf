@@ -84,7 +84,7 @@ bool GMetaType::operator != (const GMetaType & other) const
 
 bool GMetaType::isEmpty() const
 {
-	return vtIsEmpty(vtGetType(this->data.typeData));
+	return vtIsEmpty((uint16_t)vtGetType(this->data.typeData));
 }
 
 bool GMetaType::hasFlag(unsigned int flag) const
@@ -122,7 +122,7 @@ bool GMetaType::baseIsStdWideString() const
 }
 bool GMetaType::isFundamental() const
 {
-	return vtIsFundamental(this->getVariantType());
+	return vtIsFundamental((uint16_t)this->getVariantType());
 }
 
 bool GMetaType::isFunction() const
@@ -208,15 +208,15 @@ bool GMetaType::isReference() const
 
 bool GMetaType::isString() const
 {
-	return (this->getVariantType() == vtString)
-		|| (vtGetBaseType(this->getVariantType()) == vtChar && this->getPointerDimension() == 1)
+	return (this->getVariantType() == GVariantType::vtString)
+		|| (vtGetBaseType(this->getVariantType()) == GVariantType::vtChar && this->getPointerDimension() == 1)
 	;
 }
 
 bool GMetaType::isWideString() const
 {
-	return (this->getVariantType() == vtWideString)
-		|| (vtGetBaseType(this->getVariantType()) == vtWchar && this->getPointerDimension() == 1)
+	return (this->getVariantType() == GVariantType::vtWideString)
+		|| (vtGetBaseType(this->getVariantType()) == GVariantType::vtWchar && this->getPointerDimension() == 1)
 	;
 }
 
@@ -248,7 +248,7 @@ GMetaTypeData & GMetaType::refData()
 void GMetaType::addPointer()
 {
 	vtSetPointers(this->data.typeData, vtGetPointers(this->data.typeData) + 1);
-	vtSetType(this->data.typeData, vtGetType(this->data.typeData) | byPointer);
+	vtSetType(this->data.typeData, (uint16_t)vtGetType(this->data.typeData) | (uint16_t)GVariantType::byPointer);
 	this->data.flags |= meta_internal::mtFlagIsPointer;
 }
 
@@ -278,7 +278,7 @@ void GMetaType::addConst()
 void GMetaType::removeReference()
 {
 	this->data.flags &= ~meta_internal::mtFlagIsReference;
-	vtSetType(this->data.typeData, vtGetType(this->data.typeData) & ~byReference);
+	vtSetType(this->data.typeData, (uint16_t)vtGetType(this->data.typeData) & ~(uint16_t)GVariantType::maskByReference);
 }
 
 GMetaType createMetaTypeWithName(const GMetaType & type, const char * name)

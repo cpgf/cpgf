@@ -1196,7 +1196,7 @@ template <typename Methods>
 typename Methods::ResultType complexVariantToScript(const GContextPointer & context,
 			const GVariant & value, const GMetaType & type, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData)
 {
-	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
+	GVariantType vt = static_cast<GVariantType>((uint16_t)value.getType() & ~(uint16_t)GVariantType::maskByReference);
 
 	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
 		GScopedInterface<IMetaTypedItem> typedItem(context->getService()->findTypedItemByName(type.getBaseName()));
@@ -1207,7 +1207,7 @@ typename Methods::ResultType complexVariantToScript(const GContextPointer & cont
 				value, flags, metaTypeToCV(type), outputGlueData);
 		}
 		else {
-			if(vtIsInterface(vt)) {
+			if(vtIsInterface((uint16_t)vt)) {
 				IObject * obj = fromVariant<IObject *>(value);
 				if(dynamic_cast<IMetaClass *>(obj)) { // !!! GUID
 					IMetaClass * metaClass = dynamic_cast<IMetaClass *>(obj);
@@ -1377,7 +1377,7 @@ typename Methods::ResultType methodResultToScript(const GContextPointer & contex
 		GVariant value = resultValue->resultData;
 		GMetaType type;
 
-		if(vtIsTypedVar(resultValue->resultData.getType())) {
+		if(vtIsTypedVar((uint16_t)resultValue->resultData.getType())) {
 			value = getVariantRealValue(resultValue->resultData);
 			type = getVariantRealMetaType(resultValue->resultData);
 		}

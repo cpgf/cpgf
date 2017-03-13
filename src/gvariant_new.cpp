@@ -1,5 +1,6 @@
 #include "cpgf/gvariant.h"
 #include "cpgf/gmemorypool.h"
+#include "cpgf/gmetatype.h"
 
 namespace cpgf {
 

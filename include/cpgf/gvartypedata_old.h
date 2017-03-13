@@ -51,6 +51,8 @@ enum GVariantType {
 
 	byPointer = 0x1000,
 	byReference = 0x2000,
+	
+	maskByReference = byReference,
 };
 
 inline GVariantType operator + (GVariantType vt, int n)
@@ -113,16 +115,33 @@ inline bool vtIsInterface(GVariantType vt) {
 	return vt == vtInterface;
 }
 
+inline bool vtIsInterface(const uint16_t vt) {
+	return vt == (uint16_t)GVariantType::vtInterface;
+}
+
 inline bool vtIsTypedVar(GVariantType vt) {
 	return vt == vtTypedVar;
+}
+
+inline bool vtIsTypedVar(const uint16_t vt) {
+	return vt == (uint16_t)GVariantType::vtTypedVar;
 }
 
 inline bool vtIsEmpty(GVariantType vt) {
 	return vt == vtEmpty;
 }
 
+inline bool vtIsEmpty(const uint16_t vt) {
+	return vt == (uint16_t)GVariantType::vtEmpty;
+}
+
 inline bool vtIsFundamental(GVariantType vt) {
 	return vt >= vtFundamentalBegin && vt <= vtFundamentalEnd;
+}
+
+inline bool vtIsFundamental(const uint16_t vt)
+{
+	return vt >= (uint16_t)GVariantType::vtFundamentalBegin && vt <= (uint16_t)GVariantType::vtFundamentalEnd;
 }
 
 inline bool vtIsBoolean(GVariantType vt) {
@@ -151,6 +170,36 @@ inline bool vtIsUnsignedInteger(GVariantType vt) {
 	;
 }
 
+inline bool vtIsBoolean(const uint16_t vt) {
+	return vt == (uint16_t)GVariantType::vtBool;
+}
+
+inline bool vtIsInteger(const uint16_t vt) {
+	return vt >= (uint16_t)GVariantType::vtIntegerBegin && vt <= (uint16_t)GVariantType::vtIntegerEnd;
+}
+
+inline bool vtIsSignedInteger(const uint16_t vt) {
+	return vt == (uint16_t)GVariantType::vtSignedChar
+		|| vt == (uint16_t)GVariantType::vtSignedShort
+		|| vt == (uint16_t)GVariantType::vtSignedInt
+		|| vt == (uint16_t)GVariantType::vtSignedLong
+		|| vt == (uint16_t)GVariantType::vtSignedLongLong
+	;
+}
+
+inline bool vtIsUnsignedInteger(const uint16_t vt) {
+	return vt == (uint16_t)GVariantType::vtUnsignedChar
+		|| vt == (uint16_t)GVariantType::vtUnsignedShort
+		|| vt == (uint16_t)GVariantType::vtUnsignedInt
+		|| vt == (uint16_t)GVariantType::vtUnsignedLong
+		|| vt == (uint16_t)GVariantType::vtUnsignedLongLong
+	;
+}
+
+inline bool vtIsReal(const uint16_t vt) {
+	return vt >= (uint16_t)GVariantType::vtFloat && vt <= (uint16_t)GVariantType::vtLongDouble;
+}
+
 inline bool vtIsReal(GVariantType vt) {
 	return vt >= vtFloat && vt <= vtLongDouble;
 }
@@ -165,6 +214,10 @@ inline bool vtIsByPointer(const uint16_t vt) {
 
 inline bool vtIsByReference(GVariantType vt) {
 	return (vt & byReference) != 0;
+}
+
+inline bool vtIsByReference(const uint16_t vt) {
+	return (vt & (uint16_t)GVariantType::byReference) != 0;
 }
 
 inline bool vtIsVoidPointer(GVariantType vt) {

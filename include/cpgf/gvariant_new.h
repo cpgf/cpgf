@@ -89,13 +89,23 @@ inline bool vtIsRvalueReference(const uint16_t vt)
 	return (vt & (int)GVariantType::byRvalueReference) != 0;
 }
 
-inline bool vtIsReference(const uint16_t vt)
+inline bool vtIsByReference(const uint16_t vt)
 {
 	return (vt & (int)GVariantType::maskByReference) != 0;
 }
 
 inline bool vtIsTypedVar(const uint16_t vt) {
 	return vt == (uint16_t)GVariantType::vtTypedVar;
+}
+
+inline bool vtIsEmpty(const uint16_t vt) {
+	return vt == (uint16_t)GVariantType::vtEmpty;
+}
+
+inline void vtInit(GVarTypeData & data) {
+	data.vt = (uint16_t)GVariantType::vtEmpty;
+	data.sizeAndPointers = 0;
+	data.padding = 0;
 }
 
 inline GVariantType vtGetType(const GVarTypeData & data) {
@@ -148,6 +158,40 @@ inline void vtSetSize(GVarTypeData & data, unsigned int size)
 inline void vtSetSizeAndPointers(GVarTypeData & data, unsigned int size, unsigned int pointer)
 {
 	data.sizeAndPointers = static_cast<uint8_t>(((size & 0x0f) << 4) | (pointer & 0x0f));
+}
+
+inline bool vtIsInterface(const uint16_t vt) {
+	return vt == (uint16_t)GVariantType::vtInterface;
+}
+
+inline bool vtIsBoolean(const uint16_t vt) {
+	return vt == (uint16_t)GVariantType::vtBool;
+}
+
+inline bool vtIsInteger(const uint16_t vt) {
+	return vt >= (uint16_t)GVariantType::vtIntegerBegin && vt <= (uint16_t)GVariantType::vtIntegerEnd;
+}
+
+inline bool vtIsSignedInteger(const uint16_t vt) {
+	return vt == (uint16_t)GVariantType::vtSignedChar
+		|| vt == (uint16_t)GVariantType::vtSignedShort
+		|| vt == (uint16_t)GVariantType::vtSignedInt
+		|| vt == (uint16_t)GVariantType::vtSignedLong
+		|| vt == (uint16_t)GVariantType::vtSignedLongLong
+	;
+}
+
+inline bool vtIsUnsignedInteger(const uint16_t vt) {
+	return vt == (uint16_t)GVariantType::vtUnsignedChar
+		|| vt == (uint16_t)GVariantType::vtUnsignedShort
+		|| vt == (uint16_t)GVariantType::vtUnsignedInt
+		|| vt == (uint16_t)GVariantType::vtUnsignedLong
+		|| vt == (uint16_t)GVariantType::vtUnsignedLongLong
+	;
+}
+
+inline bool vtIsReal(const uint16_t vt) {
+	return vt >= (uint16_t)GVariantType::vtFloat && vt <= (uint16_t)GVariantType::vtLongDouble;
 }
 
 
@@ -215,6 +259,10 @@ public:
 	
 	GVariantType getType() const {
 		return (GVariantType)this->data.typeData.vt;
+	}
+
+	bool isEmpty() const {
+		return this->getType() == GVariantType::vtEmpty;
 	}
 
 	const GVariantData & refData() const {
