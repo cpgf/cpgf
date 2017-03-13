@@ -74,7 +74,7 @@ inline bool vtIsPointerOrReference(const uint16_t vt)
 	return (vt & (int)GVariantType::maskByPointerAndReference) != 0;
 }
 
-inline bool vtIsPointer(const uint16_t vt)
+inline bool vtIsByPointer(const uint16_t vt)
 {
 	return (vt & (int)GVariantType::byPointer) != 0;
 }
@@ -96,6 +96,18 @@ inline bool vtIsReference(const uint16_t vt)
 
 inline bool vtIsTypedVar(const uint16_t vt) {
 	return vt == (uint16_t)GVariantType::vtTypedVar;
+}
+
+inline GVariantType vtGetType(const GVarTypeData & data) {
+	return static_cast<GVariantType>(data.vt);
+}
+
+inline void vtSetType(GVarTypeData & data, GVariantType vt) {
+	data.vt = static_cast<uint16_t>(vt);
+}
+
+inline void vtSetType(GVarTypeData & data, int vt) {
+	data.vt = static_cast<uint16_t>(vt);
 }
 
 inline GVariantType vtGetBaseType(const uint16_t vt)
@@ -286,7 +298,7 @@ typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(cons
 	if(vtIsTypedVar(vt)) {
 		return fromVariant<T>(getVariantRealValue(value));
 	}
-	else if(vtIsPointer(vt)) {
+	else if(vtIsByPointer(vt)) {
 		if(vtIsLvalueReference(vt)) {
 			return CastVariant_Pointer_LvalueReference<T, Policy>::cast(value);
 		}
@@ -327,7 +339,7 @@ bool canFromVariant(const GVariant & value)
 	if(vtIsTypedVar(vt)) {
 		return canFromVariant<T, Policy>(getVariantRealValue(value));
 	}
-	else if(vtIsPointer(vt)) {
+	else if(vtIsByPointer(vt)) {
 		if(vtIsLvalueReference(vt)) {
 			return CastVariant_Pointer_LvalueReference<T, Policy>::canCast(value);
 		}
@@ -378,8 +390,8 @@ GVariant createVariant(const T & value, bool /*copyObject*/ = false,
 }
 
 // TODO: the parameter Copyable is for backward compatibility
-template <bool Copyable, typename T>
-GVariant createVariant(const T & value, bool copyObject = false)
+template <bool Copyable, typename T, typename V>
+GVariant createVariant(const V & value, bool copyObject = false)
 {
 	return createVariant(value, copyObject);
 }
@@ -400,6 +412,12 @@ template <typename T>
 void deduceVariantType(GVarTypeData & data, bool copyObject)
 {
 	data = createVariant(typename std::remove_reference<T>::type (), copyObject).refData();
+}
+
+template <>
+void deduceVariantType<void>(GVarTypeData & data, bool /*copyObject*/)
+{
+	data.vt = (uint16_t)GVariantType::vtVoid;
 }
 
 template <typename T>

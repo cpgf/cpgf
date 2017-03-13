@@ -53,7 +53,7 @@ struct ConvertReference <T, true>
 
 inline GVariant convertSelf(const GVariant & param)
 {
-	if(vtIsByPointer(param.getType())) {
+	if(vtIsByPointer((uint16_t)param.getType())) {
 		return variantPointerToLvalueReference(param);
 	}
 	else {

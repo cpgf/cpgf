@@ -285,11 +285,6 @@ void * objectAddressFromVariant(const GVariant & v)
 	return fromVariant<void *>(v);
 }
 
-void initializeVarData(GVariantData * data)
-{
-	vtInit(data->typeData);
-}
-
 GVariantData copyVarData(GVariantData * data)
 {
 	retainVariantData(data);

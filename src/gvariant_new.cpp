@@ -201,7 +201,7 @@ GVariant variantPointerToLvalueReference(const GVariant & p)
 {
 	GVariant v(p);
 
-	if(vtIsPointer((uint16_t)v.getType())) {
+	if(vtIsByPointer((uint16_t)v.getType())) {
 		v.refData().typeData.vt = ((v.refData().typeData.vt & ~(uint16_t)GVariantType::byPointer) | (uint16_t)GVariantType::byLvalueReference);
 	}
 

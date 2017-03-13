@@ -1026,8 +1026,6 @@ void ImplMetaAccessible::doGet(GVariantData * outResult, const void * instance)
 {
 	ENTER_META_API()
 	
-	initializeVarData(outResult);
-
 	*outResult = this->getAccessible()->get(instance).takeData();
 
 	LEAVE_META_API()
@@ -1340,8 +1338,6 @@ void G_API_CC ImplMetaFundamental::getValue(GVariantData * outResult, const void
 {
 	ENTER_META_API()
 
-	initializeVarData(outResult);
-
 	*outResult = this->getFundamental()->getValue(instance).takeData();
 
 	LEAVE_META_API()
@@ -1374,8 +1370,6 @@ const char * G_API_CC ImplMetaEnum::getKey(uint32_t index)
 void G_API_CC ImplMetaEnum::getValue(GVariantData * outResult, uint32_t index)
 {
 	ENTER_META_API()
-
-	initializeVarData(outResult);
 
 	*outResult = this->getEnum()->getValue(index).takeData();
 

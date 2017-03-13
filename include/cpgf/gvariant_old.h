@@ -250,7 +250,6 @@ GVariant pointerToObjectVariant(void * p);
 GVariant objectToVariant(void * object);
 void * objectAddressFromVariant(const GVariant & v);
 
-void initializeVarData(GVariantData * data);
 GVariantData copyVarData(GVariantData * data);
 void retainVariantData(GVariantData * data);
 void releaseVariantData(GVariantData * data);

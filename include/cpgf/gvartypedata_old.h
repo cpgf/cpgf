@@ -159,6 +159,10 @@ inline bool vtIsByPointer(GVariantType vt) {
 	return (vt & byPointer) != 0;
 }
 
+inline bool vtIsByPointer(const uint16_t vt) {
+	return (vt & byPointer) != 0;
+}
+
 inline bool vtIsByReference(GVariantType vt) {
 	return (vt & byReference) != 0;
 }
