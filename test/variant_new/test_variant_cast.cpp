@@ -1,6 +1,6 @@
 #include "test_variant_common.h"
 
-#include "gvariant.h"
+#include "cpgf/gvariant.h"
 #include "cpgf/gexception.h"
 #include "cpgf/gmetaapi.h"
 
@@ -16,7 +16,7 @@
 #define CLASS TestClass_Variant
 
 using namespace std;
-using namespace xcpgf;
+using namespace cpgf;
 
 namespace Test_Variant_Cast { namespace {
 
