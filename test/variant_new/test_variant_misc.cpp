@@ -41,10 +41,10 @@ ClassB * ClassB::lastB = NULL;
 
 GTEST(TestVariant_ConstReference)
 {
-	const ClassB & a = fromVariant<const ClassB &, VarantCastCopyConstRef>(createVariant(ClassB()));
+	const ClassB & a = fromVariant<const ClassB &, VarantCastCopyConstRef>(createVariant<ClassB>(ClassB()));
 	GDIFF(&a, ClassB::lastB);
 
-	const ClassB & b = fromVariant<const ClassB &, VarantCastKeepConstRef>(createVariant(ClassB()));
+	const ClassB & b = fromVariant<const ClassB &, VarantCastKeepConstRef>(createVariant<ClassB>(ClassB()));
 	GEQUAL(&b, ClassB::lastB);
 }
 

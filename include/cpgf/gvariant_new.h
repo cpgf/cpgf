@@ -484,7 +484,7 @@ GVariant createVariant(const V & value, bool copyObject = false)
 template <typename T>
 GVariant copyVariantFromCopyable(const T & value)
 {
-	return createVariant(value, true);
+	return createVariant<T>(value, true);
 }
 
 inline void * objectAddressFromVariant(const GVariant & v)
