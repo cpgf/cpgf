@@ -18,7 +18,11 @@ struct GVariantEnumSelector <T, false>
 template <typename T>
 struct GVariantCreatingType
 {
-	typedef typename ArrayToPointer<typename std::remove_cv<T>::type>::Result A;
+	typedef typename std::decay<
+		typename ArrayToPointer<
+			typename std::remove_cv<T>::type
+		>::Result
+	>::type A;
 	
 	typedef typename GVariantEnumSelector<A, std::is_enum<A>::value>::Result Result;
 };
