@@ -37,7 +37,6 @@ struct VariantTypeInfo
 extern VariantTypeInfo variantTypeInfo[];
 
 typedef std::int64_t GVariantInteger;
-typedef long double GVariantReal;
 
 #pragma pack(push, 1)
 #pragma pack(1)
@@ -55,7 +54,6 @@ struct GVariantData
 		float valueFloat;
 		double valueDouble;
 		long double valueLongDouble;
-		GVariantReal valueReal;
 	
 		void * pointer;
 		
@@ -240,8 +238,8 @@ inline bool vtIsReal(const GVariantType vt) {
 class GVariant
 {
 public:
-	template <typename T>
-	static GVariant create(const T & value)
+	template <typename T, typename V>
+	static GVariant create(const V & value)
 	{
 		GVariant v;
 		variant_internal::variantDeduceAndSet<T>(&v.data, value);
@@ -254,7 +252,7 @@ public:
 	template <typename T>
 	GVariant(const T & value) : data()
 	{
-		variant_internal::variantDeduceAndSet(&this->data, value);
+		variant_internal::variantDeduceAndSet<T>(&this->data, value);
 	}
 
 	GVariant(const GVariant & other) : data(other.data)
@@ -448,8 +446,8 @@ bool canFromVariant(const GVariant & value)
 	}
 }
 
-template <typename T>
-GVariant createVariant(const T & value, bool copyObject = false,
+template <typename T, typename V>
+GVariant createVariant(const V & value, bool copyObject = false,
 	typename std::enable_if<(std::is_copy_constructible<T>::value && (std::is_class<T>::value || std::is_union<T>::value))>::type * = 0
 	)
 {
@@ -468,8 +466,8 @@ GVariant createVariant(const T & value, bool copyObject = false,
 	}
 }
 
-template <typename T>
-GVariant createVariant(const T & value, bool /*copyObject*/ = false,
+template <typename T, typename V>
+GVariant createVariant(const V & value, bool /*copyObject*/ = false,
 	typename std::enable_if<! (std::is_copy_constructible<T>::value && (std::is_class<T>::value || std::is_union<T>::value))>::type * = 0
 )
 {
@@ -480,7 +478,7 @@ GVariant createVariant(const T & value, bool /*copyObject*/ = false,
 template <bool Copyable, typename T, typename V>
 GVariant createVariant(const V & value, bool copyObject = false)
 {
-	return createVariant(value, copyObject);
+	return createVariant<T>(value, copyObject);
 }
 
 template <typename T>

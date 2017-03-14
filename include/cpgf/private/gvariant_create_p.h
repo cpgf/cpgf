@@ -46,12 +46,33 @@ struct GVariantDeducer_Type
 	{
 		data->valueInt = (GVariantInteger)value;
 	}
+	
+	template <typename V>
+	static void doAssignReal(GVariantData * data, const V & value,
+		typename std::enable_if<std::is_same<V, float>::value>::type * = 0)
+	{
+		data->valueFloat = (float)value;
+	}
+
+	template <typename V>
+	static void doAssignReal(GVariantData * data, const V & value,
+		typename std::enable_if<std::is_same<V, double>::value>::type * = 0)
+	{
+		data->valueDouble = (double)value;
+	}
+
+	template <typename V>
+	static void doAssignReal(GVariantData * data, const V & value,
+		typename std::enable_if<std::is_same<V, long double>::value>::type * = 0)
+	{
+		data->valueLongDouble = (long double)value;
+	}
 
 	template <typename V>
 	static void assign(GVariantData * data, const V & value,
 		typename std::enable_if<std::is_floating_point<V>::value>::type * = 0)
 	{
-		data->valueReal = (GVariantReal)value;
+		doAssignReal(data, value);
 	}
 };
 
@@ -311,10 +332,10 @@ struct GVariantDeducer <T, false, false, true>
 };
 
 
-template <typename T>
+template <typename T, typename V>
 void variantDeduceAndSet(
 	GVariantData * data,
-	const T & value,
+	const V & value,
 	typename std::enable_if<! std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
 )
 {
@@ -324,16 +345,16 @@ void variantDeduceAndSet(
 		std::is_pointer<U>::value,
 		std::is_lvalue_reference<U>::value,
 		std::is_rvalue_reference<U>::value
-	>::template deduceAndSet<U>(data, value);
+	>::template deduceAndSet(data, (const U &)value);
 
 	constexpr uint16_t pointers = cpgf::PointerDimension<U>::Result;
 	vtSetPointers(data->typeData, pointers);
 }
 
-template <typename T>
+template <typename T, typename V>
 void variantDeduceAndSet(
 	GVariantData * data,
-	const T & value,
+	const V & value,
 	typename std::enable_if<std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
 )
 {
