@@ -85,9 +85,6 @@ void releaseVariantData(GVariantData & data)
 } //namespace variant_internal
 
 VariantTypeInfo variantTypeInfo[] = {
-	{ 0 }, // vtEmpty
-	{ 0 }, // vtVoid
-
 	{ sizeof(bool) }, // vtBool
 	{ sizeof(char) },
 	{ sizeof(wchar_t) },

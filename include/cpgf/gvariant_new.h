@@ -27,8 +27,6 @@ typedef cpgf::GTypeList<
 	float, double, long double
 > FundamentalTypeList;
 
-constexpr int FundamentalTypeStartType = (int)GVariantType::vtFundamentalBegin;
-
 struct VariantTypeInfo
 {
 	int size;
@@ -145,7 +143,7 @@ inline int vtGetPointers(const GVarTypeData & data)
 
 inline void vtSetPointers(GVarTypeData & data, unsigned int pointers)
 {
-	data.sizeAndPointers = static_cast<uint8_t>((data.sizeAndPointers & 0xf0) + pointers);
+	data.sizeAndPointers = static_cast<uint8_t>((data.sizeAndPointers & 0xf0) | (pointers & 0x0f));
 }
 
 inline int vtGetSize(const GVarTypeData & data)

@@ -1,5 +1,7 @@
 namespace variant_internal {
 
+constexpr int FundamentalTypeStartType = (int)GVariantType::vtFundamentalBegin;
+
 template <typename T, bool IsEnum>
 struct GVariantEnumSelector;
 
@@ -32,7 +34,7 @@ struct GVariantDeducer_Type
 {
 	static constexpr int fundamentalIndex = cpgf::TypeList_IndexOf<FundamentalTypeList, T>::Result;
 	static constexpr int Type =
-		(fundamentalIndex >= 0 ? fundamentalIndex + FundamentalTypeStartType
+		(fundamentalIndex >= 0 ? (fundamentalIndex + FundamentalTypeStartType)
 			: (std::is_void<T>::value ? (int)GVariantType::vtVoid : (int)GVariantType::vtObject)
 		)
 	;
