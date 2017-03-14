@@ -182,7 +182,12 @@ struct CastVariant_Value
 			return helperFromObject<ResultType>(data.pointer);
 
 		case GVariantType::vtShadow:
-			return helperFromObject<ResultType>(((IVariantShadowObject *)data.valueInterface)->getObject());
+			if(data.valueInterface != nullptr) {
+				return helperFromObject<ResultType>(((IVariantShadowObject *)data.valueInterface)->getObject());
+			}
+			else {
+				return helperReturnEmptyValue<T>();
+			}
 
 		case GVariantType::vtInterface:
 			return helperFromObject<ResultType>((cpgf::IObject *)data.valueInterface);
@@ -305,6 +310,17 @@ struct CastVariant_Pointer
 		case GVariantType::vtObject: return helperFromObject<ResultType>(data.pointer);
 		case GVariantType::vtVoid: return helperFromObject<ResultType>(data.pointer);
 
+		case GVariantType::vtShadow:
+			if(data.valueInterface != nullptr) {
+				return helperFromObject<ResultType>(((IVariantShadowObject *)data.valueInterface)->getObject());
+			}
+			else {
+				return helperReturnEmptyValue<T>();
+			}
+
+		case GVariantType::vtInterface:
+			return helperFromObject<ResultType>((cpgf::IObject *)data.valueInterface);
+
 		default:
 			break;
 		}
@@ -337,6 +353,12 @@ struct CastVariant_Pointer
 
 		case GVariantType::vtObject: return true;
 		case GVariantType::vtVoid: return true;
+
+		case GVariantType::vtShadow:
+			return true;
+
+		case GVariantType::vtInterface:
+			return TypeListConvertible<cpgf::GTypeList<cpgf::IObject *>, ResultType>::convertible; 
 
 		default:
 			break;
@@ -449,6 +471,17 @@ struct CastVariant_Pointer_LvalueReference
 		case GVariantType::vtObject: return helperFromObject<ResultType>(data.pointer);
 		case GVariantType::vtVoid: return helperFromObject<ResultType>(data.pointer);
 
+		case GVariantType::vtShadow:
+			if(data.valueInterface != nullptr) {
+				return helperFromObject<ResultType>(((IVariantShadowObject *)data.valueInterface)->getObject());
+			}
+			else {
+				return helperReturnEmptyValue<T>();
+			}
+
+		case GVariantType::vtInterface:
+			return helperFromObject<ResultType>((cpgf::IObject *)data.valueInterface);
+
 		default:
 			break;
 		}
@@ -481,6 +514,12 @@ struct CastVariant_Pointer_LvalueReference
 
 		case GVariantType::vtObject: return true;
 		case GVariantType::vtVoid: return true;
+
+		case GVariantType::vtShadow:
+			return true;
+
+		case GVariantType::vtInterface:
+			return TypeListConvertible<cpgf::GTypeList<cpgf::IObject *>, ResultType>::convertible; 
 
 		default:
 			break;
@@ -593,6 +632,17 @@ struct CastVariant_Pointer_RvalueReference
 		case GVariantType::vtObject: return helperFromObject<ResultType>(data.pointer);
 		case GVariantType::vtVoid: return helperFromObject<ResultType>(data.pointer);
 
+		case GVariantType::vtShadow:
+			if(data.valueInterface != nullptr) {
+				return helperFromObject<ResultType>(((IVariantShadowObject *)data.valueInterface)->getObject());
+			}
+			else {
+				return helperReturnEmptyValue<T>();
+			}
+
+		case GVariantType::vtInterface:
+			return helperFromObject<ResultType>((cpgf::IObject *)data.valueInterface);
+
 		default:
 			break;
 		}
@@ -625,6 +675,12 @@ struct CastVariant_Pointer_RvalueReference
 
 		case GVariantType::vtObject: return true;
 		case GVariantType::vtVoid: return true;
+
+		case GVariantType::vtShadow:
+			return true;
+
+		case GVariantType::vtInterface:
+			return TypeListConvertible<cpgf::GTypeList<cpgf::IObject *>, ResultType>::convertible; 
 
 		default:
 			break;
