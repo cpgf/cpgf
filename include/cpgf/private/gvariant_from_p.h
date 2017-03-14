@@ -103,18 +103,39 @@ T helperFromNullPointer(typename std::enable_if<! std::is_pointer<T>::value>::ty
 }
 
 template <typename T, typename Policy>
-struct VariantCastResult;
-
-template <typename T>
-struct VariantCastResult <T, VarantCastKeepConstRef>
+struct VariantCastResult
 {
 	typedef T Result;
 };
 
-template <typename T>
-struct VariantCastResult <T, VarantCastCopyConstRef>
+template <typename T, typename Policy>
+struct VariantCastResult <T &, Policy>
 {
-	typedef typename std::remove_reference<T>::type Result;
+	typedef typename std::conditional<
+		std::is_pointer<T>::value,
+		T,
+		T &
+	>::type Result;
+};
+
+template <typename T>
+struct VariantCastResult <const T &, VarantCastKeepConstRef>
+{
+	typedef typename std::conditional<
+		std::is_fundamental<T>::value,
+		T,
+		typename std::conditional<
+			std::is_pointer<T>::value,
+			const T,
+			const T &
+		>::type
+	>::type Result;
+};
+
+template <typename T>
+struct VariantCastResult <const T &, VarantCastCopyConstRef>
+{
+	typedef T Result;
 };
 
 template <typename T, typename Policy>
