@@ -29,7 +29,8 @@ none: needcmake
 	$(ECHO) "  mingw_debug  Generate MinGW makefile and then use mingw32-make to build (debug version)."
 	$(ECHO) "  linux        Generate Linux/Unix makefile and then use GCC make to build."
 	$(ECHO) "  vc15         Generate project files for Microsoft VC 2015. No auto build. You need to open the project in VC IDE then build."
-	$(ECHO) "  cb_mingw     Generate project files for Code::Blocks using MinGW g++ compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
+	$(ECHO) "  cb_mingw     Generate project files for Code::Blocks using MinGW g++ compiler, release version. No auto build. You need to open the project in Code::Blocks IDE then build."
+	$(ECHO) "  cb_mingw_debug     Generate project files for Code::Blocks using MinGW g++ compiler, debug version. No auto build. You need to open the project in Code::Blocks IDE then build."
 	$(ECHO) "  cb_nmake     Generate project files for Code::Blocks using VC compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
 	$(ECHO) "  cb_linux     Generate project files for Code::Blocks using Linux/Unix GCC compiler. No auto build. You need to open the project in Code::Blocks IDE then build."
 	$(ECHO) "  xcode        Generate project files for Apple Xcode. No auto build. You need to open the project in Xcode IDE then build."
@@ -91,6 +92,11 @@ cb_mingw: needcmake
 	$(MK_DIR) $(PROJECT_PREFIX)_cb_mingw
 	$(CH_DIR) $(PROJECT_PREFIX)_cb_mingw $(CMAKE) -G"CodeBlocks - MinGW Makefiles"
 	$(ECHO) Please open the project file $(PROJECT).cbp in $(PROJECT_PREFIX)_cb_mingw in Code::Blocks.
+
+cb_mingw_debug: needcmake
+	$(MK_DIR) $(PROJECT_PREFIX)_cb_mingw_debug
+	$(CH_DIR) $(PROJECT_PREFIX)_cb_mingw_debug $(CMAKE) -DCMAKE_BUILD_TYPE=Debug -G"CodeBlocks - MinGW Makefiles"
+	$(ECHO) Please open the project file $(PROJECT).cbp in $(PROJECT_PREFIX)_cb_mingw_debug in Code::Blocks.
 
 cb_nmake: needcmake
 	$(MK_DIR) $(PROJECT_PREFIX)_cb_nmake

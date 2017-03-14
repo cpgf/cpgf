@@ -1,5 +1,5 @@
 // temporary
-#define USE_NEW_VARIANT 0
+#define USE_NEW_VARIANT 1
 
 #if USE_NEW_VARIANT
 #include "gvartypedata_new.h"

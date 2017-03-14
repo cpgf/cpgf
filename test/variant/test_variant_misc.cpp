@@ -4,6 +4,8 @@
 #include "cpgf/gexception.h"
 #include "cpgf/gmetaapi.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace cpgf;
 
@@ -72,6 +74,21 @@ GTEST(TestVariant_ObjectPointer)
 	GEQUAL(vtGetPointers(GVariant((const volatile IMetaClass *)0).refData().typeData), 1);
 }
 
+enum TestEnum
+{
+	testEnumA = 1,
+	testEnumB = 2
+};
 
+GTEST(TestVariant_Enum)
+{
+	string sss = "abc";
+	GVariant a = createVariant<true, string &>(sss);
+	string & ref = fromVariant<string &>(a);
+	cout << &sss << "  " << &ref << "  " << a.refData().typeData.vt << endl;
+	
+	GVariant v(testEnumA);
+	GEQUAL(fromVariant<int>(v), testEnumA);
+}
 
 } }

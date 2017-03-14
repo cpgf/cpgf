@@ -36,7 +36,7 @@ enum class GVariantType : uint16_t {
 	vtIntegerEnd = vtUnsignedLongLong,
 
 	vtRealBegin = vtIntegerEnd + 1, // 15
-	vtFloat = vtRealBegin, vtDouble = vtRealBegin + 2, vtLongDouble = vtRealBegin + 3,
+	vtFloat = vtRealBegin, vtDouble = vtRealBegin + 1, vtLongDouble = vtRealBegin + 2,
 	vtRealEnd = vtLongDouble,
 
 	vtFundamentalEnd = vtLongDouble,

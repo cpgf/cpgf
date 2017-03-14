@@ -1,5 +1,28 @@
 namespace variant_internal {
 
+template <typename T, bool IsEnum>
+struct GVariantEnumSelector;
+
+template <typename T>
+struct GVariantEnumSelector <T, true>
+{
+	typedef typename std::underlying_type<T>::type Result;
+};
+
+template <typename T>
+struct GVariantEnumSelector <T, false>
+{
+	typedef T Result;
+};
+
+template <typename T>
+struct GVariantCreatingType
+{
+	typedef typename ArrayToPointer<typename std::remove_cv<T>::type>::Result A;
+	
+	typedef typename GVariantEnumSelector<A, std::is_enum<A>::value>::Result Result;
+};
+
 template <typename T>
 struct GVariantDeducer_Type
 {
@@ -295,15 +318,15 @@ void variantDeduceAndSet(
 	typename std::enable_if<! std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
 )
 {
-	typedef typename std::remove_cv<typename std::decay<T>::type>::type U;
+	typedef typename GVariantCreatingType<T>::Result U;
 	GVariantDeducer<
 		U,
 		std::is_pointer<U>::value,
 		std::is_lvalue_reference<U>::value,
 		std::is_rvalue_reference<U>::value
-	>::deduceAndSet(data, value);
+	>::template deduceAndSet<U>(data, value);
 
-	constexpr uint16_t pointers = cpgf::PointerDimension<T>::Result;
+	constexpr uint16_t pointers = cpgf::PointerDimension<U>::Result;
 	vtSetPointers(data->typeData, pointers);
 }
 
@@ -332,7 +355,7 @@ void variantDeduceType(
 	typename std::enable_if<! std::is_convertible<T, const volatile cpgf::IObject *>::value>::type * = 0
 )
 {
-	typedef typename std::remove_cv<typename std::decay<T>::type>::type U;
+	typedef typename GVariantCreatingType<T>::Result U;
 	GVariantDeducer<
 		U,
 		std::is_pointer<U>::value,
@@ -340,7 +363,7 @@ void variantDeduceType(
 		std::is_rvalue_reference<U>::value
 	>::deduce(data);
 
-	constexpr uint16_t pointers = cpgf::PointerDimension<T>::Result;
+	constexpr uint16_t pointers = cpgf::PointerDimension<U>::Result;
 	vtSetPointers(data->typeData, pointers);
 }
 

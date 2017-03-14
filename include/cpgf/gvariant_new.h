@@ -8,6 +8,7 @@
 #include "cpgf/gcompiler.h"
 #include "cpgf/gapiutil.h"
 #include "cpgf/gtypetraits.h"
+#include "cpgf/gpp.h"
 
 #include <type_traits>
 #include <cstdint>
@@ -463,7 +464,7 @@ GVariant createVariant(const T & value, bool copyObject = false,
 		return v;
 	}
 	else {
-		return GVariant(value);
+		return GVariant::create<T>(value);
 	}
 }
 
@@ -472,7 +473,7 @@ GVariant createVariant(const T & value, bool /*copyObject*/ = false,
 	typename std::enable_if<! (std::is_copy_constructible<T>::value && (std::is_class<T>::value || std::is_union<T>::value))>::type * = 0
 )
 {
-	return GVariant(value);
+	return GVariant::create<T>(value);
 }
 
 // TODO: the parameter Copyable is for backward compatibility

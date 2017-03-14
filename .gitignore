@@ -1,6 +1,6 @@
 /build/bin/
 /build/temp_*
-/build/project_vc*
+/build/project_*
 /lib/
 /test/metagen/xml/
 /tools/metagen/tool/bin/

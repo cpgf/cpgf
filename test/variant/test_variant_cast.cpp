@@ -5,6 +5,7 @@
 #include "cpgf/gmetaapi.h"
 
 #include <string>
+#include <iostream>
 
 #define CAN_FROM(to, value) GCHECK(canFromVariant<to>(value)); fromVariant<to>(value)
 #define CAN_FROM_CAST(to, from, value) GCHECK(canFromVariant<to>(static_cast<from>(value))); fromVariant<to>(static_cast<from>(value))
@@ -77,7 +78,7 @@ GTEST(TestVariant_Cast)
 
 	GVarTypeData typeData = GVarTypeData();
 	deduceVariantType<CLASS * & >(typeData, true);
-	GEQUAL(typeData.vt, ((int)GVariantType::vtObject | (int)GVariantType::byPointer));
+	GEQUAL(typeData.vt, ((int)GVariantType::vtObject | (int)GVariantType::byPointer | (int)GVariantType::byLvalueReference));
 
 	CAN_FROM_CAST(CLASS &, CLASS &&, n);
 	CAN_FROM_CAST(CLASS &&, CLASS &, obj);
