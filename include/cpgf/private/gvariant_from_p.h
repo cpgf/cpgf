@@ -263,7 +263,8 @@ struct CastVariant_Value
 			return true;
 
 		case GVariantType::vtInterface:
-			return TypeListConvertible<cpgf::GTypeList<cpgf::IObject *>, ResultType>::convertible; 
+			// If ResultType can be casted to IObject * implicitly, then IObject * can be casted to ResultType explicitly.
+			return std::is_convertible<ResultType, cpgf::IObject *>::value;
 
 		case GVariantType::vtString:
 			return TypeListConvertible<cpgf::TypeList_Concat<StringCharTypeList, StringStringTypeList>::Result, ResultType>::convertible;
@@ -358,7 +359,8 @@ struct CastVariant_Pointer
 			return true;
 
 		case GVariantType::vtInterface:
-			return TypeListConvertible<cpgf::GTypeList<cpgf::IObject *>, ResultType>::convertible; 
+			// If ResultType can be casted to IObject * implicitly, then IObject * can be casted to ResultType explicitly.
+			return std::is_convertible<ResultType, cpgf::IObject *>::value;
 
 		default:
 			break;
@@ -519,7 +521,8 @@ struct CastVariant_Pointer_LvalueReference
 			return true;
 
 		case GVariantType::vtInterface:
-			return TypeListConvertible<cpgf::GTypeList<cpgf::IObject *>, ResultType>::convertible; 
+			// If ResultType can be casted to IObject * implicitly, then IObject * can be casted to ResultType explicitly.
+			return std::is_convertible<ResultType, cpgf::IObject *>::value;
 
 		default:
 			break;
@@ -680,7 +683,8 @@ struct CastVariant_Pointer_RvalueReference
 			return true;
 
 		case GVariantType::vtInterface:
-			return TypeListConvertible<cpgf::GTypeList<cpgf::IObject *>, ResultType>::convertible; 
+			// If ResultType can be casted to IObject * implicitly, then IObject * can be casted to ResultType explicitly.
+			return std::is_convertible<ResultType, cpgf::IObject *>::value;
 
 		default:
 			break;
