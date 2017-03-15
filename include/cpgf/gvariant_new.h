@@ -273,15 +273,7 @@ public:
 		otherData.typeData.vt = (uint16_t)GVariantType::vtEmpty;
 	}
 
-	GVariant & operator = (const GVariant & other)
-	{
-		GVariant temp(other);
-		this->swap(temp);
-
-		return *this;
-	}
-
-	GVariant & operator = (GVariant && other)
+	GVariant & operator = (GVariant other)
 	{
 		this->swap(other);
 
