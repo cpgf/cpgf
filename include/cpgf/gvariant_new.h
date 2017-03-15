@@ -275,8 +275,8 @@ public:
 
 	GVariant & operator = (const GVariant & other)
 	{
-		this->data = other.data;
-		variant_internal::retainVariantData(this->data);
+		GVariant temp(other);
+		this->swap(temp);
 
 		return *this;
 	}

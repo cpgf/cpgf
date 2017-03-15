@@ -82,8 +82,27 @@ GTEST(TestVariant_Interface_MustBeAddedReferenceByCopyVariant)
 	GEQUAL(0, objectCount);
 }
 
+GTEST(TestVariant_Interface_MoveAndRvalueReference)
+{
+	GEQUAL(0, objectCount);
+	{
+		CLASS * object = new CLASS;
+		GScopedInterface<IObject> intf(object);
 
+		GEQUAL(1, objectCount);
+		GEQUAL(1, object->getReferenceCount());
 
+		{
+			GVariant v1(intf.get());
+			GEQUAL(2, object->getReferenceCount());
+
+			GVariant v2(std::move(v1));
+			GEQUAL(2, object->getReferenceCount());
+		}
+		GEQUAL(1, object->getReferenceCount());
+	}
+	GEQUAL(0, objectCount);
+}
 
 
 } }
