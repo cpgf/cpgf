@@ -20,13 +20,29 @@ struct GVariantEnumSelector <T, false>
 template <typename T>
 struct GVariantCreatingType
 {
+	typedef typename std::remove_cv<T>::type A;
+	
+	// std::decay removes referene, let's backup it somewhere.
+	static constexpr bool lvalueRef = std::is_lvalue_reference<A>::value;
+	static constexpr bool rvalueRef = std::is_rvalue_reference<A>::value;
+	
 	typedef typename std::decay<
 		typename ArrayToPointer<
-			typename std::remove_cv<T>::type
+			A
 		>::Result
-	>::type A;
+	>::type B;
+
+	typedef typename std::conditional<
+		lvalueRef,
+		B &,
+		typename std::conditional<
+			rvalueRef,
+			B &&,
+			B
+		>::type
+	>::type U;
 	
-	typedef typename GVariantEnumSelector<A, std::is_enum<A>::value>::Result Result;
+	typedef typename GVariantEnumSelector<U, std::is_enum<U>::value>::Result Result;
 };
 
 template <typename T>

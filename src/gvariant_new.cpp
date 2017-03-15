@@ -66,8 +66,9 @@ void G_API_CC GVariantTypedVar::getType(cpgf::GMetaTypeData * outType)
 
 void retainVariantData(GVariantData & data)
 {
-	if(data.typeData.vt >= (uint16_t)GVariantType::vtInterfaceBegin
-		&& data.typeData.vt <= (uint16_t)GVariantType::vtInterfaceEnd
+	const GVariantType baseType = vtGetBaseType((GVariantType)data.typeData.vt);
+	if(baseType >= GVariantType::vtInterfaceBegin
+		&& baseType <= GVariantType::vtInterfaceEnd
 		&& data.valueInterface != nullptr) {
 		data.valueInterface->addReference();
 	}
@@ -75,8 +76,9 @@ void retainVariantData(GVariantData & data)
 
 void releaseVariantData(GVariantData & data)
 {
-	if(data.typeData.vt >= (uint16_t)GVariantType::vtInterfaceBegin
-		&& data.typeData.vt <= (uint16_t)GVariantType::vtInterfaceEnd
+	const GVariantType baseType = vtGetBaseType((GVariantType)data.typeData.vt);
+	if(baseType >= GVariantType::vtInterfaceBegin
+		&& baseType <= GVariantType::vtInterfaceEnd
 		&& data.valueInterface != nullptr) {
 		data.valueInterface->releaseReference();
 	}
