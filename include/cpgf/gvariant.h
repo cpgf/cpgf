@@ -260,6 +260,17 @@ inline bool vtIsReal(const GVariantType vt) {
 
 class GVariant
 {
+private:
+	explicit GVariant(const GVariantData & otherData) : data(otherData)
+	{
+		variant_internal::retainVariantData(this->data);
+	}
+
+	explicit GVariant(GVariantData && otherData) : data(otherData)
+	{
+		otherData.typeData.vt = (uint16_t)GVariantType::vtEmpty;
+	}
+
 public:
 	template <typename T, typename V>
 	static GVariant create(const V & value)
@@ -291,16 +302,6 @@ public:
 	GVariant(GVariant && other) : data()
 	{
 		this->swap(other);
-	}
-
-	explicit GVariant(const GVariantData & otherData) : data(otherData)
-	{
-		variant_internal::retainVariantData(this->data);
-	}
-
-	explicit GVariant(GVariantData && otherData) : data(otherData)
-	{
-		otherData.typeData.vt = (uint16_t)GVariantType::vtEmpty;
 	}
 
 	GVariant & operator = (GVariant other)
@@ -351,6 +352,9 @@ public:
 
 private:
 	GVariantData data;
+	
+private:
+	friend GVariant createVariantFromData(const GVariantData & data);
 };
 
 inline void swap(GVariant & a, GVariant & b)
@@ -377,15 +381,24 @@ struct VarantCastCopyConstRef {};
 
 #include "private/gvariant_from_p.h"
 
+// The result is vtString
 GVariant createStringVariant(const char * s);
+
+// The result is vtWideString
 GVariant createWideStringVariant(const wchar_t * s);
+
 class GMetaType;
+
+// The result is vtTypedVar
 GVariant createTypedVariant(const GVariant & value, const GMetaType & type);
 
 GVariant getVariantRealValue(const GVariant & value);
 
-GVariant pointerToObjectVariant(void * p);
-GVariant objectToVariant(void * object);
+// The result is a pointer to object (vtObject | vtPointer).
+GVariant createObjectVariantFromPointer(void * p);
+
+// The result is an object (vtObject).
+GVariant createObjectVariant(void * object);
 
 // Convert a pointer to reference.
 GVariant variantPointerToLvalueReference(const GVariant & p);
@@ -511,7 +524,6 @@ inline void * objectAddressFromVariant(const GVariant & v)
 	return fromVariant<void *>(v);
 }
 
-// TODO: deduceVariantType is for back compatibility
 template <typename T>
 void deduceVariantType(GVarTypeData & data, bool /*copyObject*/)
 {

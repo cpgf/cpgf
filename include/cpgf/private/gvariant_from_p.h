@@ -108,12 +108,6 @@ struct VariantCastResult
 	typedef T Result;
 };
 
-template <typename T, typename Policy>
-struct VariantCastResult <T &, Policy>
-{
-	typedef T & Result;
-};
-
 template <typename T>
 struct VariantCastResult <const T &, VarantCastKeepConstRef>
 {

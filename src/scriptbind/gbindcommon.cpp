@@ -702,7 +702,7 @@ void GScriptContext::bindExternalObjectToClass(void * address, IMetaClass * meta
 	this->externalObjects.push_back(
 		bindingContext->newObjectGlueData(
 			classData,
-			pointerToObjectVariant(address),
+			createObjectVariantFromPointer(address),
 			GBindValueFlags(),
 			opcvNone
 		)
@@ -1565,7 +1565,7 @@ GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible
 
 	void * address = accessible->getAddress(instance);
 	if(address != nullptr && !outType->isPointer() && outType->baseIsClass()) {
-		value = objectToVariant(address);
+		value = createObjectVariant(address);
 
 		if(instanceIsConst) {
 			outType->addConst();

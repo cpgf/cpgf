@@ -175,7 +175,7 @@ cpgf::GMetaType getVariantRealMetaType(const GVariant & value)
 	}
 }
 
-GVariant pointerToObjectVariant(void * p)
+GVariant createObjectVariantFromPointer(void * p)
 {
 	GVariant result;
 	GVariantData & data = result.refData();
@@ -187,7 +187,7 @@ GVariant pointerToObjectVariant(void * p)
 	return result;
 }
 
-GVariant objectToVariant(void * object)
+GVariant createObjectVariant(void * object)
 {
 	GVariant result;
 	GVariantData & data = result.refData();

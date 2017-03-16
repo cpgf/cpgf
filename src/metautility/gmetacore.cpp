@@ -47,7 +47,7 @@ GVariant GMetaCore::cast(const GVariant & instance, IMetaClass * targetMetaClass
 
 				if(ptr != nullptr) {
 					targetType.addPointer();
-					return createTypedVariant(pointerToObjectVariant(ptr), targetType);
+					return createTypedVariant(createObjectVariantFromPointer(ptr), targetType);
 				}
 			}
 		}
