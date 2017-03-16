@@ -46,7 +46,7 @@ public:
 private:	
 	template <typename T>
 	GVariant doGet(typename GEnableIf<super::Readable, T>::Result const * instance) const {
-		return createVariant<true, typename super::ValueType>(super::get(instance), true);
+		return createVariant<typename super::ValueType>(super::get(instance), true);
 	}
 
 	template <typename T>

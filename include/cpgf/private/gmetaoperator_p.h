@@ -154,7 +154,7 @@ struct MetaOperatorExecuter;
 #define DEF_BINARY_FULL(OP, EXP) \
 	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy, typename GEnableIfResult<CheckHasResult<FT> >::Result> : public MetaBinaryOperatorExecuter<FT>	{ \
 		template <typename P0, typename P1> static GVariant invoke(P0 p0, P1 p1) { \
-			return createVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result, typename FT::ResultType>((const typename std::remove_reference<typename FT::ResultType>::type &)(EXP), ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
+			return createVariant<typename FT::ResultType>((const typename std::remove_reference<typename FT::ResultType>::type &)(EXP), ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
 	} }; \
 	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy, typename GDisableIfResult<CheckHasResult<FT> >::Result> : public MetaBinaryOperatorExecuter<FT> { \
 		template <typename P0, typename P1> static GVariant invoke(P0 p0, P1 p1) { \
@@ -213,7 +213,7 @@ DEF_BINARY(mopPointerMember, ->*)
 #define DEF_UNARY(OP, EXP) \
 	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy> : public MetaUnaryOperatorExecuter<FT> { \
 		template <typename P0> static GVariant invoke(P0 p) { \
-			return createVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result, typename FT::ResultType>((const typename std::remove_reference<typename FT::ResultType>::type &)(EXP), ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
+			return createVariant<typename FT::ResultType>((const typename std::remove_reference<typename FT::ResultType>::type &)(EXP), ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
 	} }; \
 	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy, typename GDisableIfResult<CheckHasResult<FT> >::Result> : public MetaUnaryOperatorExecuter<FT> { \
 		template <typename P0> static GVariant invoke(P0 p) { \

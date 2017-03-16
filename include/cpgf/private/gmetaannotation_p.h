@@ -48,7 +48,7 @@ template <typename T, typename Enabled = void>
 struct InitAnnoVariant
 {
 	static void init(GVariant & var, const T & value) {
-		var = createVariant<true, T>(value, true);
+		var = createVariant<T>(value, true);
 	}
 };
 

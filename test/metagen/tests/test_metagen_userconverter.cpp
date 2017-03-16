@@ -39,7 +39,7 @@ void G_API_CC MyScriptUserConverter::convert(cpgf::GVariantData * outputValue,
 	case 1: // converter number to TestUserConverterData
 		GVariant value = createVariantFromData(paramData->sourceValue->value);
 		TestUserConverterData data(fromVariant<int>(value));
-		GVariant output = createVariant<true, TestUserConverterData>(data, true);
+		GVariant output = createVariant<TestUserConverterData>(data, true);
 		*outputValue = output.takeData();
 		break;
 	}

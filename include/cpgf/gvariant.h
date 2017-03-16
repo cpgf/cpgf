@@ -500,13 +500,6 @@ GVariant createVariant(const GVariant & value, bool /*copyObject*/ = false)
 	return value;
 }
 
-// TODO: the parameter Copyable is for backward compatibility
-template <bool Copyable, typename T, typename V>
-GVariant createVariant(const V & value, bool copyObject = false)
-{
-	return createVariant<T>(value, copyObject);
-}
-
 template <typename T>
 GVariant copyVariantFromCopyable(const T & value)
 {

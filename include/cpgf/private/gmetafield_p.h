@@ -106,7 +106,7 @@ public:
 private:	
 	template <typename T>
 	GVariant  doGet(typename GEnableIf<Readable, T>::Result const * /*instance*/) const {
-		return createVariant<true, FT>(*(this->field), true);
+		return createVariant<FT>(*(this->field), true);
 	}
 
 	template <typename T>
@@ -182,7 +182,7 @@ public:
 private:
 	template <typename T>
 	GVariant  doGet(typename GEnableIf<Readable, T>::Result const * instance) const {
-		return createVariant<true, FT>(static_cast<const OT *>(instance)->*(this->field), true);
+		return createVariant<FT>(static_cast<const OT *>(instance)->*(this->field), true);
 	}
 
 	template <typename T>
