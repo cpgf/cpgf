@@ -84,7 +84,7 @@ bool GMetaType::operator != (const GMetaType & other) const
 
 bool GMetaType::isEmpty() const
 {
-	return vtIsEmpty((uint16_t)vtGetType(this->data.typeData));
+	return vtIsEmpty(vtGetType(this->data.typeData));
 }
 
 bool GMetaType::hasFlag(unsigned int flag) const
@@ -116,13 +116,15 @@ bool GMetaType::baseIsStdString() const
 {
 	return this->hasFlag(meta_internal::mtFlagBaseIsStdString);
 }
+
 bool GMetaType::baseIsStdWideString() const
 {
 	return this->hasFlag(meta_internal::mtFlagBaseIsStdWideString);
 }
+
 bool GMetaType::isFundamental() const
 {
-	return vtIsFundamental((uint16_t)this->getVariantType());
+	return vtIsFundamental(this->getVariantType());
 }
 
 bool GMetaType::isFunction() const
@@ -248,7 +250,7 @@ GMetaTypeData & GMetaType::refData()
 void GMetaType::addPointer()
 {
 	vtSetPointers(this->data.typeData, vtGetPointers(this->data.typeData) + 1);
-	vtSetType(this->data.typeData, (uint16_t)vtGetType(this->data.typeData) | (uint16_t)GVariantType::byPointer);
+	vtSetType(this->data.typeData, vtGetType(this->data.typeData) | GVariantType::byPointer);
 	this->data.flags |= meta_internal::mtFlagIsPointer;
 }
 
@@ -278,7 +280,7 @@ void GMetaType::addConst()
 void GMetaType::removeReference()
 {
 	this->data.flags &= ~meta_internal::mtFlagIsReference;
-	vtSetType(this->data.typeData, (uint16_t)vtGetType(this->data.typeData) & ~(uint16_t)GVariantType::maskByReference);
+	vtSetType(this->data.typeData, vtGetType(this->data.typeData) & ~GVariantType::maskByReference);
 }
 
 GMetaType createMetaTypeWithName(const GMetaType & type, const char * name)

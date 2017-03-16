@@ -305,7 +305,7 @@ GVariant doReadInteger(const void * address, size_t size)
 GVariant readFundamental(const void * address, const GMetaType & metaType)
 {
 	size_t size = metaType.getVariantSize();
-	if(vtIsReal((uint16_t)metaType.getVariantType())) {
+	if(vtIsReal(metaType.getVariantType())) {
 		switch(size) {
 			case 4:
 				return *(GFixedTypeFloat32::Signed *)(address);
@@ -401,7 +401,7 @@ void doWriteInteger(void * address, size_t size, const GVariant & v)
 void writeFundamental(void * address, const GMetaType & metaType, const GVariant & v)
 {
 	size_t size = metaType.getVariantSize();;
-	if(vtIsReal((uint16_t)metaType.getVariantType())) {
+	if(vtIsReal(metaType.getVariantType())) {
 		switch(size) {
 			case 4:
 				*(GFixedTypeFloat32::Signed *)(address) = fromVariant<GFixedTypeFloat32::Signed>(v);

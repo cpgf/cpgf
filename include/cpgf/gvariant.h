@@ -81,6 +81,21 @@ enum class GVariantType : uint16_t {
 	maskByReference = byLvalueReference | byRvalueReference,
 };
 
+inline GVariantType operator | (const GVariantType a, const GVariantType b)
+{
+	return (GVariantType)(static_cast<std::underlying_type<GVariantType>::type>(a) | static_cast<std::underlying_type<GVariantType>::type>(b));
+}
+
+inline GVariantType operator & (const GVariantType a, const GVariantType b)
+{
+	return (GVariantType)(static_cast<std::underlying_type<GVariantType>::type>(a) & static_cast<std::underlying_type<GVariantType>::type>(b));
+}
+
+inline GVariantType operator ~ (const GVariantType a)
+{
+	return (GVariantType)(~static_cast<std::underlying_type<GVariantType>::type>(a));
+}
+
 #pragma pack(push, 1)
 #pragma pack(1)
 struct GVarTypeData
@@ -118,42 +133,38 @@ struct GVariantData
 };
 #pragma pack(pop)
 
-inline bool vtIsFundamental(const uint16_t vt)
+inline bool vtIsFundamental(const GVariantType vt)
 {
-	return vt >= (uint16_t)GVariantType::vtFundamentalBegin && vt <= (uint16_t)GVariantType::vtFundamentalEnd;
+	return vt >= GVariantType::vtFundamentalBegin && vt <= GVariantType::vtFundamentalEnd;
 }
 
-inline bool vtIsPointerOrReference(const uint16_t vt)
+inline bool vtIsPointerOrReference(const GVariantType vt)
 {
-	return (vt & (int)GVariantType::maskByPointerAndReference) != 0;
+	return ((uint16_t)vt & (uint16_t)GVariantType::maskByPointerAndReference) != 0;
 }
 
-inline bool vtIsByPointer(const uint16_t vt)
+inline bool vtIsByPointer(const GVariantType vt)
 {
-	return (vt & (int)GVariantType::byPointer) != 0;
+	return ((uint16_t)vt & (uint16_t)GVariantType::byPointer) != 0;
 }
 
-inline bool vtIsLvalueReference(const uint16_t vt)
+inline bool vtIsLvalueReference(const GVariantType vt)
 {
-	return (vt & (int)GVariantType::byLvalueReference) != 0;
+	return ((uint16_t)vt & (uint16_t)GVariantType::byLvalueReference) != 0;
 }
 
-inline bool vtIsRvalueReference(const uint16_t vt)
+inline bool vtIsRvalueReference(const GVariantType vt)
 {
-	return (vt & (int)GVariantType::byRvalueReference) != 0;
+	return ((uint16_t)vt & (uint16_t)GVariantType::byRvalueReference) != 0;
 }
 
-inline bool vtIsByReference(const uint16_t vt)
+inline bool vtIsByReference(const GVariantType vt)
 {
-	return (vt & (int)GVariantType::maskByReference) != 0;
+	return ((uint16_t)vt & (uint16_t)GVariantType::maskByReference) != 0;
 }
 
-inline bool vtIsTypedVar(const uint16_t vt) {
-	return vt == (uint16_t)GVariantType::vtTypedVar;
-}
-
-inline bool vtIsEmpty(const uint16_t vt) {
-	return vt == (uint16_t)GVariantType::vtEmpty;
+inline bool vtIsTypedVar(const GVariantType vt) {
+	return vt == GVariantType::vtTypedVar;
 }
 
 inline bool vtIsEmpty(const GVariantType vt) {
@@ -174,23 +185,14 @@ inline void vtSetType(GVarTypeData & data, GVariantType vt) {
 	data.vt = static_cast<uint16_t>(vt);
 }
 
-inline void vtSetType(GVarTypeData & data, int vt) {
-	data.vt = static_cast<uint16_t>(vt);
-}
-
-inline GVariantType vtGetBaseType(const uint16_t vt)
-{
-	return (GVariantType)(vt & (uint16_t)GVariantType::vtMask);
-}
-
 inline GVariantType vtGetBaseType(const GVariantType vt)
 {
-	return vtGetBaseType((uint16_t)vt);
+	return (GVariantType)((uint16_t)vt & (uint16_t)GVariantType::vtMask);
 }
 
 inline GVariantType vtGetBaseType(const GVarTypeData & data)
 {
-	return vtGetBaseType(data.vt);
+	return vtGetBaseType((GVariantType)data.vt);
 }
 
 inline int vtGetPointers(const GVarTypeData & data)
@@ -218,37 +220,16 @@ inline void vtSetSizeAndPointers(GVarTypeData & data, unsigned int size, unsigne
 	data.sizeAndPointers = static_cast<uint8_t>(((size & 0x0f) << 4) | (pointer & 0x0f));
 }
 
-inline bool vtIsInterface(const uint16_t vt) {
-	return vt == (uint16_t)GVariantType::vtInterface;
-}
-
 inline bool vtIsInterface(const GVariantType vt) {
 	return vt == GVariantType::vtInterface;
-}
-
-inline bool vtIsBoolean(const uint16_t vt) {
-	return vt == (uint16_t)GVariantType::vtBool;
 }
 
 inline bool vtIsBoolean(const GVariantType vt) {
 	return vt == GVariantType::vtBool;
 }
 
-inline bool vtIsInteger(const uint16_t vt) {
-	return vt >= (uint16_t)GVariantType::vtIntegerBegin && vt <= (uint16_t)GVariantType::vtIntegerEnd;
-}
-
 inline bool vtIsInteger(const GVariantType vt) {
 	return vt >= GVariantType::vtIntegerBegin && vt <= GVariantType::vtIntegerEnd;
-}
-
-inline bool vtIsSignedInteger(const uint16_t vt) {
-	return vt == (uint16_t)GVariantType::vtSignedChar
-		|| vt == (uint16_t)GVariantType::vtSignedShort
-		|| vt == (uint16_t)GVariantType::vtSignedInt
-		|| vt == (uint16_t)GVariantType::vtSignedLong
-		|| vt == (uint16_t)GVariantType::vtSignedLongLong
-	;
 }
 
 inline bool vtIsSignedInteger(const GVariantType vt) {
@@ -260,15 +241,6 @@ inline bool vtIsSignedInteger(const GVariantType vt) {
 	;
 }
 
-inline bool vtIsUnsignedInteger(const uint16_t vt) {
-	return vt == (uint16_t)GVariantType::vtUnsignedChar
-		|| vt == (uint16_t)GVariantType::vtUnsignedShort
-		|| vt == (uint16_t)GVariantType::vtUnsignedInt
-		|| vt == (uint16_t)GVariantType::vtUnsignedLong
-		|| vt == (uint16_t)GVariantType::vtUnsignedLongLong
-	;
-}
-
 inline bool vtIsUnsignedInteger(const GVariantType vt) {
 	return vt == GVariantType::vtUnsignedChar
 		|| vt == GVariantType::vtUnsignedShort
@@ -276,10 +248,6 @@ inline bool vtIsUnsignedInteger(const GVariantType vt) {
 		|| vt == GVariantType::vtUnsignedLong
 		|| vt == GVariantType::vtUnsignedLongLong
 	;
-}
-
-inline bool vtIsReal(const uint16_t vt) {
-	return vt >= (uint16_t)GVariantType::vtFloat && vt <= (uint16_t)GVariantType::vtLongDouble;
 }
 
 inline bool vtIsReal(const GVariantType vt) {
@@ -430,7 +398,7 @@ typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(cons
 {
 	using namespace variant_internal;
 
-	auto vt = value.refData().typeData.vt;
+	auto vt = vtGetType(value.refData().typeData);
 
 	if(vtIsTypedVar(vt)) {
 		return fromVariant<T>(getVariantRealValue(value));
@@ -471,8 +439,8 @@ bool canFromVariant(const GVariant & value)
 {
 	using namespace variant_internal;
 
-	auto vt = value.refData().typeData.vt;
-	
+	auto vt = vtGetType(value.refData().typeData);
+
 	if(vtIsTypedVar(vt)) {
 		return canFromVariant<T, Policy>(getVariantRealValue(value));
 	}

@@ -154,12 +154,12 @@ struct CastVariant_Value
 
 		// 0 can always be converted to pointer, similar as we do in C++.
 		if(std::is_pointer<ResultType>::value) {
-			if(data.valueInt == 0 && vtIsFundamental(data.typeData.vt)) {
+			if(data.valueInt == 0 && vtIsFundamental(vtGetType(data.typeData))) {
 				return helperFromNullPointer<ResultType>();
 			}
 		}
 
-		switch((GVariantType)vtGetBaseType(data.typeData.vt)) {
+		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<bool> >(data.valueInt); 
 		case GVariantType::vtChar: return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<char> >(data.valueInt); 
@@ -232,12 +232,12 @@ struct CastVariant_Value
 
 		// 0 can always be converted to pointer, similar as we do in C++.
 		if(std::is_pointer<ResultType>::value) {
-			if(data.valueInt == 0 && vtIsFundamental(data.typeData.vt)) {
+			if(data.valueInt == 0 && vtIsFundamental(vtGetType(data.typeData))) {
 				return true;
 			}
 		}
 
-		switch((GVariantType)vtGetBaseType(data.typeData.vt)) {
+		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return TypeListConvertible<cpgf::GTypeList<bool>, ResultType>::convertible; 
 		case GVariantType::vtChar: return TypeListConvertible<cpgf::GTypeList<char>, ResultType>::convertible; 
@@ -289,7 +289,7 @@ struct CastVariant_Pointer
 	static ResultType cast(const GVariant & value)
 	{
 		const GVariantData & data = value.refData();
-		switch((GVariantType)vtGetBaseType(data.typeData.vt)) {
+		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList<const bool *, bool *, const volatile bool *, volatile bool *> >(data.pointer); 
 		case GVariantType::vtChar: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList<const char *, char *, const volatile char *, volatile char *> >(data.pointer); 
@@ -333,7 +333,7 @@ struct CastVariant_Pointer
 	static bool canCast(const GVariant & value)
 	{
 		const GVariantData & data = value.refData();
-		switch((GVariantType)vtGetBaseType(data.typeData.vt)) {
+		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return TypeListConvertible<cpgf::GTypeList<const bool *, bool *, const volatile bool *, volatile bool *>, ResultType>::convertible; 
 		case GVariantType::vtChar: return TypeListConvertible<cpgf::GTypeList<const char *, char *, const volatile char *, volatile char *>, ResultType>::convertible; 
@@ -379,7 +379,7 @@ struct CastVariant_LvalueReference
 	static ResultType cast(const GVariant & value)
 	{
 		const GVariantData & data = value.refData();
-		switch((GVariantType)vtGetBaseType(data.typeData.vt)) {
+		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return (ResultType)helperFromPointerOrReference< ResultType, cpgf::GTypeList<const bool *, bool *, const volatile bool *, volatile bool *>, cpgf::GTypeList<const bool &, bool &, const volatile bool &, volatile bool &> >((bool &) * (bool *)data.pointer); 
 		case GVariantType::vtChar: return (ResultType)helperFromPointerOrReference< ResultType, cpgf::GTypeList<const char *, char *, const volatile char *, volatile char *>, cpgf::GTypeList<const char &, char &, const volatile char &, volatile char &> >((char &) * (char *)data.pointer); 
@@ -412,7 +412,7 @@ struct CastVariant_LvalueReference
 	static bool canCast(const GVariant & value)
 	{
 		const GVariantData & data = value.refData();
-		switch((GVariantType)vtGetBaseType(data.typeData.vt)) {
+		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return TypeListConvertible<cpgf::GTypeList<const bool *, bool *, const volatile bool *, volatile bool *>, ResultType>::convertible || TypeListConvertible<cpgf::GTypeList<const bool &, bool &, const volatile bool &, volatile bool &>, ResultType>::convertible ; 
 		case GVariantType::vtChar: return TypeListConvertible<cpgf::GTypeList<const char *, char *, const volatile char *, volatile char *>, ResultType>::convertible || TypeListConvertible<cpgf::GTypeList<const char &, char &, const volatile char &, volatile char &>, ResultType>::convertible ; 
@@ -451,7 +451,7 @@ struct CastVariant_Pointer_LvalueReference
 	static ResultType cast(const GVariant & value)
 	{
 		const GVariantData & data = value.refData();
-		switch((GVariantType)vtGetBaseType(data.typeData.vt)) {
+		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList< const bool * &, bool * &, const volatile bool * &, volatile bool * &, const bool * const &, bool * const &, const volatile bool * const &, volatile bool * const &, const bool * volatile &, bool * volatile &, const volatile bool * volatile &, volatile bool * volatile &, const bool * const volatile &, bool * const volatile &, const volatile bool * const volatile &, volatile bool * const volatile & > >((bool * &) * (bool **)data.pointer); 
 		case GVariantType::vtChar: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList< const char * &, char * &, const volatile char * &, volatile char * &, const char * const &, char * const &, const volatile char * const &, volatile char * const &, const char * volatile &, char * volatile &, const volatile char * volatile &, volatile char * volatile &, const char * const volatile &, char * const volatile &, const volatile char * const volatile &, volatile char * const volatile & > >((char * &) * (char **)data.pointer); 
@@ -495,7 +495,7 @@ struct CastVariant_Pointer_LvalueReference
 	static bool canCast(const GVariant & value)
 	{
 		const GVariantData & data = value.refData();
-		switch((GVariantType)vtGetBaseType(data.typeData.vt)) {
+		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return TypeListConvertible< cpgf::GTypeList< const bool * &, bool * &, const volatile bool * &, volatile bool * &, const bool * const &, bool * const &, const volatile bool * const &, volatile bool * const &, const bool * volatile &, bool * volatile &, const volatile bool * volatile &, volatile bool * volatile &, const bool * const volatile &, bool * const volatile &, const volatile bool * const volatile &, volatile bool * const volatile & > , ResultType>::convertible; 
 		case GVariantType::vtChar: return TypeListConvertible< cpgf::GTypeList< const char * &, char * &, const volatile char * &, volatile char * &, const char * const &, char * const &, const volatile char * const &, volatile char * const &, const char * volatile &, char * volatile &, const volatile char * volatile &, volatile char * volatile &, const char * const volatile &, char * const volatile &, const volatile char * const volatile &, volatile char * const volatile & > , ResultType>::convertible; 
@@ -541,7 +541,7 @@ struct CastVariant_RvalueReference
 	static ResultType cast(const GVariant & value)
 	{
 		const GVariantData & data = value.refData();
-		switch((GVariantType)vtGetBaseType(data.typeData.vt)) {
+		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return (ResultType)helperFromPointerOrReference< ResultType, cpgf::GTypeList<const bool *, bool *, const volatile bool *, volatile bool *>, cpgf::GTypeList<const bool &&, bool &&, const volatile bool &&, volatile bool &&> >((bool &&) * (bool *)data.pointer); 
 		case GVariantType::vtChar: return (ResultType)helperFromPointerOrReference< ResultType, cpgf::GTypeList<const char *, char *, const volatile char *, volatile char *>, cpgf::GTypeList<const char &&, char &&, const volatile char &&, volatile char &&> >((char &&) * (char *)data.pointer); 
@@ -574,7 +574,7 @@ struct CastVariant_RvalueReference
 	static bool canCast(const GVariant & value)
 	{
 		const GVariantData & data = value.refData();
-		switch((GVariantType)vtGetBaseType(data.typeData.vt)) {
+		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return TypeListConvertible<cpgf::GTypeList<const bool *, bool *, const volatile bool *, volatile bool *>, ResultType>::convertible || TypeListConvertible<cpgf::GTypeList<const bool &&, bool &&, const volatile bool &&, volatile bool &&>, ResultType>::convertible ; 
 		case GVariantType::vtChar: return TypeListConvertible<cpgf::GTypeList<const char *, char *, const volatile char *, volatile char *>, ResultType>::convertible || TypeListConvertible<cpgf::GTypeList<const char &&, char &&, const volatile char &&, volatile char &&>, ResultType>::convertible ; 
@@ -613,7 +613,7 @@ struct CastVariant_Pointer_RvalueReference
 	static ResultType cast(const GVariant & value)
 	{
 		const GVariantData & data = value.refData();
-		switch((GVariantType)vtGetBaseType(data.typeData.vt)) {
+		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList< const bool * &&, bool * &&, const volatile bool * &&, volatile bool * &&, const bool * const &&, bool * const &&, const volatile bool * const &&, volatile bool * const &&, const bool * volatile &&, bool * volatile &&, const volatile bool * volatile &&, volatile bool * volatile &&, const bool * const volatile &&, bool * const volatile &&, const volatile bool * const volatile &&, volatile bool * const volatile && > >((bool * &&) * (bool **)data.pointer); 
 		case GVariantType::vtChar: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList< const char * &&, char * &&, const volatile char * &&, volatile char * &&, const char * const &&, char * const &&, const volatile char * const &&, volatile char * const &&, const char * volatile &&, char * volatile &&, const volatile char * volatile &&, volatile char * volatile &&, const char * const volatile &&, char * const volatile &&, const volatile char * const volatile &&, volatile char * const volatile && > >((char * &&) * (char **)data.pointer); 
@@ -657,7 +657,7 @@ struct CastVariant_Pointer_RvalueReference
 	static bool canCast(const GVariant & value)
 	{
 		const GVariantData & data = value.refData();
-		switch((GVariantType)vtGetBaseType(data.typeData.vt)) {
+		switch(vtGetBaseType(data.typeData)) {
 
 		case GVariantType::vtBool: return TypeListConvertible< cpgf::GTypeList< const bool * &&, bool * &&, const volatile bool * &&, volatile bool * &&, const bool * const &&, bool * const &&, const volatile bool * const &&, volatile bool * const &&, const bool * volatile &&, bool * volatile &&, const volatile bool * volatile &&, volatile bool * volatile &&, const bool * const volatile &&, bool * const volatile &&, const volatile bool * const volatile &&, volatile bool * const volatile && > , ResultType>::convertible; 
 		case GVariantType::vtChar: return TypeListConvertible< cpgf::GTypeList< const char * &&, char * &&, const volatile char * &&, volatile char * &&, const char * const &&, char * const &&, const volatile char * const &&, volatile char * const &&, const char * volatile &&, char * volatile &&, const volatile char * volatile &&, volatile char * volatile &&, const char * const volatile &&, char * const volatile &&, const volatile char * const volatile &&, volatile char * const volatile && > , ResultType>::convertible; 

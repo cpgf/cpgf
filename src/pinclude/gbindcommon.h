@@ -1207,7 +1207,7 @@ typename Methods::ResultType complexVariantToScript(const GContextPointer & cont
 				value, flags, metaTypeToCV(type), outputGlueData);
 		}
 		else {
-			if(vtIsInterface((uint16_t)vt)) {
+			if(vtIsInterface(vt)) {
 				IObject * obj = fromVariant<IObject *>(value);
 				if(dynamic_cast<IMetaClass *>(obj)) { // !!! GUID
 					IMetaClass * metaClass = dynamic_cast<IMetaClass *>(obj);
@@ -1377,7 +1377,7 @@ typename Methods::ResultType methodResultToScript(const GContextPointer & contex
 		GVariant value = resultValue->resultData;
 		GMetaType type;
 
-		if(vtIsTypedVar((uint16_t)resultValue->resultData.getType())) {
+		if(vtIsTypedVar(resultValue->resultData.getType())) {
 			value = getVariantRealValue(resultValue->resultData);
 			type = getVariantRealMetaType(resultValue->resultData);
 		}

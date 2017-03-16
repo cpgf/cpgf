@@ -151,7 +151,7 @@ GVariant createTypedVariant(const GVariant & value, const cpgf::GMetaType & type
 
 GVariant getVariantRealValue(const GVariant & value)
 {
-	if(vtIsTypedVar((uint16_t)value.getType())) {
+	if(vtIsTypedVar(value.getType())) {
 		GVariantData data;
 		static_cast<variant_internal::IVariantTypedVar *>(value.refData().valueInterface)->getValue(&data);
 		// IVariantTypedVar::getValue doesn't add reference on interface,
@@ -165,7 +165,7 @@ GVariant getVariantRealValue(const GVariant & value)
 
 cpgf::GMetaType getVariantRealMetaType(const GVariant & value)
 {
-	if(vtIsTypedVar((uint16_t)value.getType())) {
+	if(vtIsTypedVar(value.getType())) {
 		cpgf::GMetaType type;
 		static_cast<variant_internal::IVariantTypedVar *>(value.refData().valueInterface)->getType(&type.refData());
 		return type;
@@ -203,8 +203,8 @@ GVariant variantPointerToLvalueReference(const GVariant & p)
 {
 	GVariant v(p);
 
-	if(vtIsByPointer((uint16_t)v.getType())) {
-		v.refData().typeData.vt = ((v.refData().typeData.vt & ~(uint16_t)GVariantType::byPointer) | (uint16_t)GVariantType::byLvalueReference);
+	if(vtIsByPointer(v.getType())) {
+		vtSetType(v.refData().typeData, (v.getType() & ~GVariantType::byPointer) | GVariantType::byLvalueReference);
 	}
 
 	return v;

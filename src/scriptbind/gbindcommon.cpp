@@ -303,7 +303,7 @@ GObjectInstance::GObjectInstance(const GContextPointer & context, const GVariant
 GObjectInstance::~GObjectInstance()
 {
 	// We don't call getInstanceAddress if it's a shared pointer, since we don't own the pointer, so the pointer may already be freed.
-	if(! (this->isSharedPointer || vtIsByReference((uint16_t)this->instance.getType()))) {
+	if(! (this->isSharedPointer || vtIsByReference(this->instance.getType()))) {
 		this->objectLifeManager->releaseObject(this->getInstanceAddress());
 		if(this->isAllowGC()) {
 			this->objectLifeManager->freeObject(this->getInstanceAddress(), this->classData->getMetaClass());
@@ -426,7 +426,7 @@ IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
 	if(this->dataMap) {
 		MapType::iterator it = this->dataMap->find(name);
 		if(it != this->dataMap->end()) {
-			if(vtIsInterface((uint16_t)it->second.getType())) {
+			if(vtIsInterface(it->second.getType())) {
 				IScriptFunction * func = gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
 				if(func != NULL) {
 					func->addReference();
@@ -1125,21 +1125,21 @@ int rankFundamental(GVariantType protoType, GVariantType paramType)
 		return ValueMatchRank_Equal;
 	}
 
-	if(vtIsBoolean((uint16_t)protoType) || vtIsBoolean((uint16_t)paramType)) {
+	if(vtIsBoolean(protoType) || vtIsBoolean(paramType)) {
 		return ValueMatchRank_Convert;
 	}
 
-	if(vtIsInteger((uint16_t)protoType) && vtIsInteger((uint16_t)paramType)) {
-		if(vtIsSignedInteger((uint16_t)protoType) && vtIsSignedInteger((uint16_t)paramType)) {
+	if(vtIsInteger(protoType) && vtIsInteger(paramType)) {
+		if(vtIsSignedInteger(protoType) && vtIsSignedInteger(paramType)) {
 			return ValueMatchRank_ConvertWithinFamilySameSigned;
 		}
-		if(vtIsUnsignedInteger((uint16_t)protoType) && vtIsUnsignedInteger((uint16_t)paramType)) {
+		if(vtIsUnsignedInteger(protoType) && vtIsUnsignedInteger(paramType)) {
 			return ValueMatchRank_ConvertWithinFamilySameSigned;
 		}
 		return ValueMatchRank_ConvertWithinFamily;
 	}
 
-	if(vtIsReal((uint16_t)protoType) && vtIsReal((uint16_t)paramType)) {
+	if(vtIsReal(protoType) && vtIsReal(paramType)) {
 		return ValueMatchRank_ConvertWithinFamilySameSigned;
 	}
 
@@ -1168,7 +1168,7 @@ void rankCallableParam(
 		return;
 	}
 
-	if(type == GScriptValue::typeScriptFunction && vtIsInterface((uint16_t)proto.getVariantType())) {
+	if(type == GScriptValue::typeScriptFunction && vtIsInterface(proto.getVariantType())) {
 		outputRank->weight = ValueMatchRank_Convert;
 		return;
 	}
@@ -1461,7 +1461,7 @@ InvokeCallableResult doInvokeMethodList(const GContextPointer & context,
 bool shouldRemoveReference(const GMetaType & type)
 {
 	return type.isReference()
-		&& (type.isPointer() || vtIsFundamental((uint16_t)vtGetBaseType(type.getVariantType())))
+		&& (type.isPointer() || vtIsFundamental(vtGetBaseType(type.getVariantType())))
 		;
 }
 
@@ -1795,7 +1795,7 @@ InvokeCallableResult doInvokeOperator(const GContextPointer & context, const GOb
 
 IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & value)
 {
-	if(vtIsInterface((uint16_t)value.getType())) {
+	if(vtIsInterface(value.getType())) {
 		return metatraits_internal::doCreateObjectLifeManagerForIObject(GTypeConverter<IObject *, IObject *>());
 	}
 	else {
