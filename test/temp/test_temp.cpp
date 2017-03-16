@@ -100,10 +100,13 @@ void TestScriptBindMetaData3()
 
 GTEST(TestTemp)
 {
-GVariant a(10);
-GVariant b(fromVariant<GVariant>(a));
-//cout << b.refData().typeData.vt << "  " << b.refData().valueInt << endl;
-//return;
+TestOperator obj;
+obj.value = 38;
+TestOperator * pobj = &obj;
+TestOperator * & robj = pobj;
+GVariant a = createVariant<TestOperator * &>(robj);
+cout << a.refData().typeData.vt << "  " << fromVariant<TestOperator *>(a)->value << "  " << fromVariant<TestOperator *>(a) << " " << pobj << "  " << &pobj << endl;
+return;
 
 	TestLuaContext context;
 	GScopedInterface<IMetaClass> metaClass(context.getService()->findClassByName("testscript::TestOperator"));

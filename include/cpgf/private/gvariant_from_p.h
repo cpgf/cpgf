@@ -470,19 +470,19 @@ struct CastVariant_Pointer_LvalueReference
 		case GVariantType::vtDouble: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList< const double * &, double * &, const volatile double * &, volatile double * &, const double * const &, double * const &, const volatile double * const &, volatile double * const &, const double * volatile &, double * volatile &, const volatile double * volatile &, volatile double * volatile &, const double * const volatile &, double * const volatile &, const volatile double * const volatile &, volatile double * const volatile & > >((double * &) * (double **)data.pointer); 
 		case GVariantType::vtLongDouble: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList< const long double * &, long double * &, const volatile long double * &, volatile long double * &, const long double * const &, long double * const &, const volatile long double * const &, volatile long double * const &, const long double * volatile &, long double * volatile &, const volatile long double * volatile &, volatile long double * volatile &, const long double * const volatile &, long double * const volatile &, const volatile long double * const volatile &, volatile long double * const volatile & > >((long double * &) * (long double **)data.pointer); 
 
-		case GVariantType::vtObject: return helperFromObject<ResultType>(data.pointer);
-		case GVariantType::vtVoid: return helperFromObject<ResultType>(data.pointer);
+		case GVariantType::vtObject: return helperFromObject<ResultType>(*(void **)data.pointer);
+		case GVariantType::vtVoid: return helperFromObject<ResultType>(*(void **)data.pointer);
 
 		case GVariantType::vtShadow:
 			if(data.valueInterface != nullptr) {
-				return helperFromObject<ResultType>(((IVariantShadowObject *)data.valueInterface)->getObject());
+				return helperFromObject<ResultType>((*(IVariantShadowObject **)data.valueInterface)->getObject());
 			}
 			else {
 				return helperReturnEmptyValue<T>();
 			}
 
 		case GVariantType::vtInterface:
-			return helperFromObject<ResultType>((cpgf::IObject *)data.valueInterface);
+			return helperFromObject<ResultType>(*(cpgf::IObject **)data.valueInterface);
 
 		default:
 			break;
@@ -632,19 +632,19 @@ struct CastVariant_Pointer_RvalueReference
 		case GVariantType::vtDouble: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList< const double * &&, double * &&, const volatile double * &&, volatile double * &&, const double * const &&, double * const &&, const volatile double * const &&, volatile double * const &&, const double * volatile &&, double * volatile &&, const volatile double * volatile &&, volatile double * volatile &&, const double * const volatile &&, double * const volatile &&, const volatile double * const volatile &&, volatile double * const volatile && > >((double * &&) * (double **)data.pointer); 
 		case GVariantType::vtLongDouble: return (ResultType)helperFromVariant< ResultType, cpgf::GTypeList< const long double * &&, long double * &&, const volatile long double * &&, volatile long double * &&, const long double * const &&, long double * const &&, const volatile long double * const &&, volatile long double * const &&, const long double * volatile &&, long double * volatile &&, const volatile long double * volatile &&, volatile long double * volatile &&, const long double * const volatile &&, long double * const volatile &&, const volatile long double * const volatile &&, volatile long double * const volatile && > >((long double * &&) * (long double **)data.pointer); 
 
-		case GVariantType::vtObject: return helperFromObject<ResultType>(data.pointer);
-		case GVariantType::vtVoid: return helperFromObject<ResultType>(data.pointer);
+		case GVariantType::vtObject: return helperFromObject<ResultType>(*(void **)data.pointer);
+		case GVariantType::vtVoid: return helperFromObject<ResultType>(*(void **)data.pointer);
 
 		case GVariantType::vtShadow:
 			if(data.valueInterface != nullptr) {
-				return helperFromObject<ResultType>(((IVariantShadowObject *)data.valueInterface)->getObject());
+				return helperFromObject<ResultType>((*(IVariantShadowObject **)data.valueInterface)->getObject());
 			}
 			else {
 				return helperReturnEmptyValue<T>();
 			}
 
 		case GVariantType::vtInterface:
-			return helperFromObject<ResultType>((cpgf::IObject *)data.valueInterface);
+			return helperFromObject<ResultType>(*(cpgf::IObject **)data.valueInterface);
 
 		default:
 			break;
