@@ -144,7 +144,7 @@ GVariant createTypedVariant(const GVariant & value, const cpgf::GMetaType & type
 
 	data.typeData.vt = (uint16_t)GVariantType::vtTypedVar;
 	vtSetSizeAndPointers(data.typeData, sizeof(void *), 0);
-	data.valueInterface = new variant_internal::GVariantTypedVar(value, type);
+	data.valueInterface = new variant_internal::GVariantTypedVar(getVariantRealValue(value), type);
 
 	return v;
 }
@@ -152,9 +152,11 @@ GVariant createTypedVariant(const GVariant & value, const cpgf::GMetaType & type
 GVariant getVariantRealValue(const GVariant & value)
 {
 	if(vtIsTypedVar((uint16_t)value.getType())) {
-		GVariant v;
-		static_cast<variant_internal::IVariantTypedVar *>(value.refData().valueInterface)->getValue(&v.refData());
-		return v;
+		GVariantData data;
+		static_cast<variant_internal::IVariantTypedVar *>(value.refData().valueInterface)->getValue(&data);
+		// IVariantTypedVar::getValue doesn't add reference on interface,
+		// so we must call createVariantFromData to do so.
+		return createVariantFromData(data);
 	}
 	else {
 		return value;
