@@ -5,9 +5,12 @@
 #include "cpgf/gmetadefine.h"
 #include "cpgf/goutmain.h"
 
+#include <iostream>
+
 namespace Test_Temp { namespace {
 
 using namespace cpgf;
+using namespace std;
 
 class TestOperator
 {
@@ -53,6 +56,8 @@ public:
 
 		return total;
 	}
+	
+	GVariant getVar() const { return 38; }
 
 public:
 	int value;
@@ -67,6 +72,8 @@ void TestScriptBindMetaData3()
 		._constructor<void * (int)>()
 		
 		._field("value", &TestOperator::value)
+		
+		._method("getVar", &TestOperator::getVar)
 		
 		._operator<TestOperator (const GMetaSelf)>(-mopHolder)
 		._operator<TestOperator (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference())
@@ -93,13 +100,18 @@ void TestScriptBindMetaData3()
 
 GTEST(TestTemp)
 {
+GVariant a(10);
+GVariant b(fromVariant<GVariant>(a));
+//cout << b.refData().typeData.vt << "  " << b.refData().valueInt << endl;
+//return;
+
 	TestLuaContext context;
 	GScopedInterface<IMetaClass> metaClass(context.getService()->findClassByName("testscript::TestOperator"));
 	context.getBinding()->setValue("TestOperator", GScriptValue::fromClass(metaClass.get()));
 
 	context.doString("a = TestOperator(99)");
-	context.doString("b = a + 5");
-//	context.doString("scriptAssert(b.value == 99 + 5)");
+	context.doString("b = a.getVar()");
+	context.doString("print(b)");
 }
 
 

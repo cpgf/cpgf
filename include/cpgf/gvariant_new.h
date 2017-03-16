@@ -243,6 +243,11 @@ public:
 		variant_internal::variantDeduceAndSet<T>(&v.data, value);
 		return v;
 	}
+
+	static GVariant create(const GVariant & value)
+	{
+		return value;
+	}
 	
 	GVariant() : data() {
 	}
@@ -462,6 +467,12 @@ GVariant createVariant(const V & value, bool /*copyObject*/ = false,
 )
 {
 	return GVariant::create<T>(value);
+}
+
+template <typename T>
+GVariant createVariant(const GVariant & value, bool /*copyObject*/ = false)
+{
+	return value;
 }
 
 // TODO: the parameter Copyable is for backward compatibility
