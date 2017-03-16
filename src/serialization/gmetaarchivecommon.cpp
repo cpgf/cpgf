@@ -23,7 +23,7 @@ void GBaseClassMap::addMetaClass(void * instance, IMetaClass * metaClass)
 
 GMetaArchiveConfig GMetaArchiveConfigMap::getConfig(IMetaClass * metaClass) const
 {
-	if(metaClass == NULL) {
+	if(metaClass == nullptr) {
 		return GMetaArchiveConfig();
 	}
 
@@ -121,7 +121,7 @@ GMetaArchiveConfig getItemMetaArchiveConfig(IMetaItem * item)
 {
 	GMetaArchiveConfig config;
 
-	if(item != NULL) {
+	if(item != nullptr) {
 		GScopedInterface<IMetaAnnotation> annotation(item->getAnnotation(SerializationAnnotation));
 
 		if(annotation) {
@@ -175,7 +175,7 @@ GMetaArchiveConfig getItemMetaArchiveConfig(IMetaItem * item)
 
 bool canSerializeItem(const GMetaArchiveConfig & config, IMetaItem * item)
 {
-	if(item == NULL) {
+	if(item == nullptr) {
 		return false;
 	}
 
@@ -206,7 +206,7 @@ bool canSerializeObject(const GMetaArchiveConfig & config, IMetaClass * metaClas
 
 bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * accessible, IMetaService * service)
 {
-	if(accessible == NULL) {
+	if(accessible == nullptr) {
 		return false;
 	}
 
@@ -222,7 +222,7 @@ bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * acce
 		return false;
 	}
 
-	if(metaType.getBaseName() != NULL) {
+	if(metaType.getBaseName() != nullptr) {
 		GScopedInterface<IMetaClass> metaClass(service->findClassByName(metaType.getBaseName()));
 		if(! canSerializeObject(config, metaClass.get())) {
 			return false;
@@ -234,7 +234,7 @@ bool canSerializeField(const GMetaArchiveConfig & config, IMetaAccessible * acce
 
 bool canSerializeBaseClass(const GMetaArchiveConfig & config, IMetaClass * baseClass, IMetaClass * /*metaClass*/)
 {
-	if(baseClass == NULL) {
+	if(baseClass == nullptr) {
 		return false;
 	}
 

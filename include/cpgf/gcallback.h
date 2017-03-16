@@ -440,7 +440,7 @@ public:
 	}
 
 	bool empty() const {
-		return this->base == NULL;
+		return this->base == nullptr;
 	}
 
 	operator bool() const {

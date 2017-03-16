@@ -44,7 +44,7 @@ template <typename T, typename Enabled = void>
 struct GMetaTraitsCreateConverter
 {
 	static IMetaConverter * createConverter(const GMetaTraitsParam &) {
-		return NULL;
+		return nullptr;
 	}
 };
 

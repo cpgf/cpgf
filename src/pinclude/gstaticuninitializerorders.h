@@ -18,9 +18,9 @@ public:
 	explicit GUninitializerDeleter(T ** p) : p(p) {}
 
 	void operator() () {
-		if(*p != NULL) {
+		if(*p != nullptr) {
 			delete *p;
-			*p = NULL;
+			*p = nullptr;
 		}
 	}
 

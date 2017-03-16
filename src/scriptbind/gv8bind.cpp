@@ -43,8 +43,8 @@ namespace {
 
 GGlueDataWrapperPool * getV8DataWrapperPool()
 {
-	static GGlueDataWrapperPool * v8DataWrapperPool = NULL;
-	if(v8DataWrapperPool == NULL && isLibraryLive()) {
+	static GGlueDataWrapperPool * v8DataWrapperPool = nullptr;
+	if(v8DataWrapperPool == nullptr && isLibraryLive()) {
 		v8DataWrapperPool = new GGlueDataWrapperPool();
 		addOrderedStaticUninitializer(suo_ScriptDataWrapperPool, makeUninitializerDeleter(&v8DataWrapperPool));
 	}
@@ -315,22 +315,22 @@ GGlueDataWrapper * getNativeObject(Handle<Value> value)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 GScriptValue v8ObjectToScriptValue(v8::Local<v8::Object> obj, GGlueDataPointer * outputGlueData)
 {
-	GGlueDataWrapper * dataWrapper = NULL;
+	GGlueDataWrapper * dataWrapper = nullptr;
 	dataWrapper = getNativeObject(obj);
-	if(dataWrapper == NULL) { // value maybe an IMetaClass
+	if(dataWrapper == nullptr) { // value maybe an IMetaClass
 		Handle<Value> data = obj->GetHiddenValue(String::NewFromOneByte(getV8Isolate(),userDataKey));
 		if(! data.IsEmpty() && data->IsExternal()) {
 			dataWrapper = static_cast<GGlueDataWrapper *>(Handle<External>::Cast(data)->Value());
 		}
 	}
-	if(dataWrapper != NULL) {
+	if(dataWrapper != nullptr) {
 		GGlueDataPointer glueData = dataWrapper->getData();
-		if(outputGlueData != NULL) {
+		if(outputGlueData != nullptr) {
 			*outputGlueData = glueData;
 		}
 		return glueDataToScriptValue(glueData);
@@ -408,12 +408,12 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 {
 	void * instanceAddress = objectAddressFromVariant(instance);
 
-	if(instanceAddress == NULL) {
+	if(instanceAddress == nullptr) {
 		return Handle<Value>();
 	}
 
 	V8ScriptObjectCacheData * cachedObject = context->getScriptObjectCache()->findScriptObject<V8ScriptObjectCacheData>(instance, classData, cv);
-	if(cachedObject != NULL) {
+	if(cachedObject != nullptr) {
 		return Local<Object>::New(getV8Isolate(), *(cachedObject->v8Object.get()));
 	}
 
@@ -429,7 +429,7 @@ Handle<Value> objectToV8(const GContextPointer & context, const GClassGlueDataPo
 
 	PersistentObjectWrapper<Object> *self = new PersistentObjectWrapper<Object>(getV8Isolate(), object, dataWrapper);
 
-	if(outputGlueData != NULL) {
+	if(outputGlueData != nullptr) {
 		*outputGlueData = objectData;
 	}
 
@@ -445,7 +445,7 @@ Handle<Value> rawToV8(const GContextPointer & context, const GVariant & value, G
 		GRawGlueDataPointer rawData(context->newRawGlueData(value));
 		GGlueDataWrapper * dataWrapper = newGlueDataWrapper(rawData, getV8DataWrapperPool());
 
-		if(outputGlueData != NULL) {
+		if(outputGlueData != nullptr) {
 			*outputGlueData = rawData;
 		}
 
@@ -511,7 +511,7 @@ struct GV8Methods
 		IMetaClass * metaClass, IMetaClass * derived, const GObjectGlueDataPointer & objectData)
 	{
 		GFunctionTemplateUserData * userData = gdynamic_cast<GFunctionTemplateUserData *>(mapItem->getUserData());
-		if(userData == NULL) {
+		if(userData == nullptr) {
 			GContextPointer context = classData->getBindingContext();
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 
@@ -531,7 +531,7 @@ struct GV8Methods
 		GContextPointer context = classData->getBindingContext();
 		GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
 		GObjectTemplateUserData * userData = gdynamic_cast<GObjectTemplateUserData *>(mapItem->getUserData());
-		if(userData == NULL) {
+		if(userData == nullptr) {
 			Handle<ObjectTemplate> objectTemplate = createEnumTemplate(context);
 			userData = new GObjectTemplateUserData(objectTemplate);
 			mapItem->setUserData(userData);
@@ -564,7 +564,7 @@ Handle<Value> variantToV8(const GContextPointer & context, const GVariant & data
 		return Number::New(getV8Isolate(), fromVariant<double>(value));
 	}
 
-	if(!vtIsInterface(vt) && canFromVariant<void *>(value) && objectAddressFromVariant(value) == NULL) {
+	if(!vtIsInterface(vt) && canFromVariant<void *>(value) && objectAddressFromVariant(value) == nullptr) {
 		return Null(getV8Isolate());
 	}
 
@@ -602,7 +602,7 @@ void accessibleSet(Local<String> /*prop*/, Local<Value> value, const PropertyCal
 	GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(Local<External>::Cast(info.Data())->Value());
 	GAccessibleGlueDataPointer accessibleGlueData(dataWrapper->getAs<GAccessibleGlueData>());
 
-	GVariant v = v8ToScriptValue(accessibleGlueData->getBindingContext(), info.Holder()->CreationContext(), value, NULL).getValue();
+	GVariant v = v8ToScriptValue(accessibleGlueData->getBindingContext(), info.Holder()->CreationContext(), value, nullptr).getValue();
 	metaSetValue(accessibleGlueData->getAccessible(), accessibleGlueData->getInstanceAddress(), v);
 
 	LEAVE_V8()
@@ -623,12 +623,12 @@ void callbackMethodList(const v8::FunctionCallbackInfo<Value>& args)
 
 	GGlueDataWrapper * dataWrapper = getNativeObject(args.Holder());
 
-	if(dataWrapper != NULL && !isValidObject(args.Holder())) {
+	if(dataWrapper != nullptr && !isValidObject(args.Holder())) {
 		raiseCoreException(Error_ScriptBinding_AccessMemberWithWrongObject);
 	}
 
 	GObjectGlueDataPointer objectData;
-	if(dataWrapper != NULL) {
+	if(dataWrapper != nullptr) {
 		objectData = dataWrapper->getAs<GObjectGlueData>();
 	}
 
@@ -658,7 +658,7 @@ Handle<FunctionTemplate> createMethodTemplate(const GContextPointer & context,
 
 	Local<External> localData = data->createLocal();
 	Handle<FunctionTemplate> functionTemplate;
-	if(! classData || classData->getMetaClass() == NULL || isGlobal) {
+	if(! classData || classData->getMetaClass() == nullptr || isGlobal) {
 		functionTemplate = FunctionTemplate::New(getV8Isolate(), callbackMethodList, localData);
 	}
 	else {
@@ -683,7 +683,7 @@ void namedEnumGetter(Local<String> prop, const PropertyCallbackInfo<Value>& info
 	String::Utf8Value name(prop);
 	int32_t index = metaEnum->findKey(*name);
 	if(index >= 0) {
-		info.GetReturnValue().Set( variantToV8(dataWrapper->getData()->getBindingContext(), metaGetEnumValue(metaEnum, index), GBindValueFlags(), NULL) );
+		info.GetReturnValue().Set( variantToV8(dataWrapper->getData()->getBindingContext(), metaGetEnumValue(metaEnum, index), GBindValueFlags(), nullptr) );
 	} else {
 		info.GetReturnValue().SetUndefined();
 	}
@@ -725,7 +725,7 @@ Handle<ObjectTemplate> createEnumTemplate(const GContextPointer & /*context*/)
 {
 	Handle<ObjectTemplate> objectTemplate = ObjectTemplate::New();
 	objectTemplate->SetInternalFieldCount(1);
-	objectTemplate->SetNamedPropertyHandler(&namedEnumGetter, &namedEnumSetter, NULL, NULL, &namedEnumEnumerator);
+	objectTemplate->SetNamedPropertyHandler(&namedEnumGetter, &namedEnumSetter, nullptr, nullptr, &namedEnumEnumerator);
 
 	return objectTemplate;
 }
@@ -769,7 +769,7 @@ Handle<Value> helperBindValue(const GContextPointer & context, const GScriptValu
 			break;
 
 		case GScriptValue::typeFundamental:
-			result = variantToV8(context, value.toFundamental(), GBindValueFlags(bvfAllowRaw), NULL);
+			result = variantToV8(context, value.toFundamental(), GBindValueFlags(bvfAllowRaw), nullptr);
 			break;
 
 		case GScriptValue::typeString:
@@ -790,7 +790,7 @@ Handle<Value> helperBindValue(const GContextPointer & context, const GScriptValu
 
 			GBindValueFlags flags;
 			flags.setByBool(bvfAllowGC, transferOwnership);
-			result = objectToV8(context, context->getClassData(metaClass), instance, flags, opcvNone, NULL);
+			result = objectToV8(context, context->getClassData(metaClass), instance, flags, opcvNone, nullptr);
 			break;
 		}
 
@@ -799,7 +799,7 @@ Handle<Value> helperBindValue(const GContextPointer & context, const GScriptValu
 			GScopedInterface<IMetaMethod> method(value.toMethod(&instance));
 
 			if(method->isStatic()) {
-				instance = NULL;
+				instance = nullptr;
 			}
 
 			GScopedInterface<IMetaList> methodList(createMetaList());
@@ -823,7 +823,7 @@ Handle<Value> helperBindValue(const GContextPointer & context, const GScriptValu
 		}
 
 		case GScriptValue::typeRaw:
-			result = rawToV8(context, value.toRaw(), NULL);
+			result = rawToV8(context, value.toRaw(), nullptr);
 			break;
 
 		case GScriptValue::typeAccessible:
@@ -874,7 +874,7 @@ void objectConstructor(const v8::FunctionCallbackInfo<Value> & args)
 
 		void * instance = doInvokeConstructor(context, context->getService(), classData->getMetaClass(), &callableParam);
 
-		if(instance != NULL) {
+		if(instance != nullptr) {
 			GObjectGlueDataPointer objectData = context->newObjectGlueData(classData, instance, GBindValueFlags(bvfAllowGC), opcvNone);
 			GGlueDataWrapper * objectWrapper = newGlueDataWrapper(objectData, getV8DataWrapperPool());
 
@@ -991,7 +991,7 @@ void namedMemberEnumerator(const v8::PropertyCallbackInfo<Array> & info)
 	GScopedInterface<IMetaItem> metaItem;
 
 	for(;;) {
-		GScopedInterface<IMetaClass> metaClass(traveller.next(NULL, NULL));
+		GScopedInterface<IMetaClass> metaClass(traveller.next(nullptr, nullptr));
 
 		if(!metaClass) {
 			break;
@@ -1047,7 +1047,7 @@ void bindClassItems(Local<Object> object, IMetaClass * metaClass, Persistent<Ext
 Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, const GClassGlueDataPointer & classData)
 {
 	GMetaMapClass * mapClass = classData->getClassMap();
-	if(mapClass->getUserData() != NULL) { // && mapClass->getMetaClass() == classData->getMetaClass()) {
+	if(mapClass->getUserData() != nullptr) { // && mapClass->getMetaClass() == classData->getMetaClass()) {
 		return gdynamic_cast<GFunctionTemplateUserData *>(mapClass->getUserData())->getFunctionTemplate();
 	}
 
@@ -1062,14 +1062,14 @@ Handle<FunctionTemplate> createClassTemplate(const GContextPointer & context, co
 	functionTemplate->SetClassName(String::NewFromOneByte(getV8Isolate(), (const unsigned char*)metaClass->getName()));
 	functionTemplate->SetHiddenPrototype(true);
 
-	if(mapClass->getUserData() == NULL) {
+	if(mapClass->getUserData() == nullptr) {
 		mapClass->setUserData(new GFunctionTemplateUserData(functionTemplate));
 	}
 
 	Local<ObjectTemplate> instanceTemplate = functionTemplate->InstanceTemplate();
 	instanceTemplate->SetInternalFieldCount(1);
 
-	instanceTemplate->SetNamedPropertyHandler(&namedMemberGetter, &namedMemberSetter, NULL, NULL, &namedMemberEnumerator);
+	instanceTemplate->SetNamedPropertyHandler(&namedMemberGetter, &namedMemberSetter, nullptr, nullptr, &namedMemberEnumerator);
 
 	if(metaClass->getBaseCount() > 0) {
 		GScopedInterface<IMetaClass> baseClass(metaClass->getBaseClass(0));
@@ -1106,7 +1106,7 @@ GScriptValue invokeV8FunctionIndirectly(const GContextPointer & context, Local<O
 	if(valueIsCallable(func)) {
 		Handle<Value> v8Params[REF_MAX_ARITY];
 		for(size_t i = 0; i < paramCount; ++i) {
-			v8Params[i] = variantToV8(context, *params[i], GBindValueFlags(bvfAllowRaw), NULL);
+			v8Params[i] = variantToV8(context, *params[i], GBindValueFlags(bvfAllowRaw), nullptr);
 			if(v8Params[i].IsEmpty()) {
 				raiseCoreException(Error_ScriptBinding_ScriptMethodParamMismatch, i, name);
 			}
@@ -1124,7 +1124,7 @@ GScriptValue invokeV8FunctionIndirectly(const GContextPointer & context, Local<O
 			throw v8RuntimeException(trycatch.Exception(), trycatch.Message());
 		}
 
-		return v8ToScriptValue(context, object->CreationContext(), result, NULL);
+		return v8ToScriptValue(context, object->CreationContext(), result, nullptr);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_CantCallNonfunction);
@@ -1178,7 +1178,7 @@ GScriptValue GV8ScriptFunction::invokeIndirectlyOnObject(GVariant const * const 
 	GASSERT_MSG(paramCount >= 1, "Object needs to be specified as the first param.");
 	HandleScope handleScope(getV8Isolate());
 
-	Handle<Value> receiverValue = variantToV8(this->getBindingContext(), *params[0], GBindValueFlags(bvfAllowRaw), NULL);
+	Handle<Value> receiverValue = variantToV8(this->getBindingContext(), *params[0], GBindValueFlags(bvfAllowRaw), nullptr);
 	GASSERT_MSG(!receiverValue.IsEmpty() && receiverValue->IsObject(), "Object needs to be specified as the first param.");
 	Local<Object> receiver = receiverValue.As<Object>();
 
@@ -1208,7 +1208,7 @@ GScriptValue GV8ScriptArray::getValue(size_t index)
 	Local<Array> localObject(Local<Array>::New(getV8Isolate(), this->arrayObject));
 
 	Local<Value> value = localObject->Get((uint32_t)index);
-	return v8ToScriptValue(this->getBindingContext(), localObject->CreationContext(), value, NULL);
+	return v8ToScriptValue(this->getBindingContext(), localObject->CreationContext(), value, nullptr);
 }
 
 void GV8ScriptArray::setValue(size_t index, const GScriptValue & value)
@@ -1313,7 +1313,7 @@ GScriptValue GV8ScriptObject::doGetValue(const char * name)
 	Local<Object> localObject(Local<Object>::New(getV8Isolate(), this->object));
 
 	Local<Value> value = localObject->Get(String::NewFromOneByte(getV8Isolate(), (const unsigned char*)name));
-	return v8ToScriptValue(this->getBindingContext(), localObject->CreationContext(), value, NULL);
+	return v8ToScriptValue(this->getBindingContext(), localObject->CreationContext(), value, nullptr);
 }
 
 void GV8ScriptObject::doSetValue(const char * name, const GScriptValue & value)
@@ -1339,7 +1339,7 @@ GScriptObject * GV8ScriptObject::doCreateScriptObject(const char * name)
 
 	Local<Value> value = localObject->Get(String::NewFromOneByte(getV8Isolate(), (const unsigned char*)name));
 	if(isValidObject(value)) {
-		return NULL;
+		return nullptr;
 	}
 
 	if((value->IsObject() || value->IsFunction())) { // already exists
@@ -1484,7 +1484,7 @@ void clearV8DataPool()
 GScriptValue convertV8ObjectToScriptValue(v8::Local<v8::Object> obj)
 {
 	if(isValidObject(obj)) {
-		return v8ObjectToScriptValue(obj, NULL);
+		return v8ObjectToScriptValue(obj, nullptr);
 	}
 	return GScriptValue();
 }

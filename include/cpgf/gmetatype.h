@@ -32,7 +32,7 @@ GMAKE_FINAL(GTypeInfo)
 class GTypeInfo : GFINAL_BASE(GTypeInfo)
 {
 public:
-	GTypeInfo() : typeInfo(NULL) {
+	GTypeInfo() : typeInfo(nullptr) {
 	}
 
 	explicit GTypeInfo(const std::type_info & typeInfo) : typeInfo(&typeInfo) {
@@ -60,7 +60,7 @@ public:
 	}
 
 	bool isEmpty() const {
-		return this->typeInfo == NULL;
+		return this->typeInfo == nullptr;
 	}
 
 	const std::type_info & getStdTypeInfo() const {

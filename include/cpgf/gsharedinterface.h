@@ -15,17 +15,17 @@ private:
     typedef GSharedInterface<T> ThisType;
 
 public:
-	GSharedInterface(): rawPointer(NULL) {
+	GSharedInterface(): rawPointer(nullptr) {
 	}
 
 	explicit GSharedInterface(T * p) : rawPointer(p) {
-		if(this->rawPointer != NULL) {
+		if(this->rawPointer != nullptr) {
 			this->rawPointer->addReference();
 		}
 	}
 
 	GSharedInterface(const GSharedInterface & other) : rawPointer(other.rawPointer) {
-		if(this->rawPointer != NULL) {
+		if(this->rawPointer != nullptr) {
 			this->rawPointer->addReference();
 		}
 	}
@@ -37,12 +37,12 @@ public:
 	}
 	
 	~GSharedInterface() {
-		if(this->rawPointer != NULL) {
+		if(this->rawPointer != nullptr) {
 			this->rawPointer->releaseReference();
 		}
 	}
 
-	inline void reset(T * p = NULL) {
+	inline void reset(T * p = nullptr) {
 		ThisType(p).swap(*this);
 	}
 
@@ -55,7 +55,7 @@ public:
 	}
 
 	inline bool operator ! () const {
-		return this->rawPointer == NULL;
+		return this->rawPointer == nullptr;
 	}
 
 	inline T * get() const {
@@ -65,17 +65,17 @@ public:
 	inline T * take() {
 		T * p = this->rawPointer;
 		
-		this->rawPointer = NULL;
+		this->rawPointer = nullptr;
 		
 		return p;
 	}
 
 	inline operator bool() {
-		return this->rawPointer != NULL;
+		return this->rawPointer != nullptr;
 	}
 
 	inline operator bool() const {
-		return this->rawPointer != NULL;
+		return this->rawPointer != nullptr;
 	}
 
 	inline void swap(GSharedInterface & b) {

@@ -19,7 +19,7 @@ void GMetaDebug::debugBreak(const GMetaVariadicParam * params)
 #else
 #endif
 
-	if(params != NULL) {
+	if(params != nullptr) {
 		// Nothing to do. Inspect params in the debugger if you need.
 		GVariant value;
 		for(size_t i = 0; i < params->paramCount; i++) {

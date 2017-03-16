@@ -205,7 +205,7 @@ void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, 
 	GMetaMapClass mapClass(metaClass);
 
 	GScopedInterface<IScriptObject> namespaceHolder;
-	if(namespaceName != NULL && *namespaceName) {
+	if(namespaceName != nullptr && *namespaceName) {
 		namespaceHolder.reset(scriptCreateScriptObject(scriptObject, namespaceName).toScriptObject());
 		scriptObject = namespaceHolder.get();
 	}
@@ -280,7 +280,7 @@ void injectObjectToScript(GScriptObject * scriptObject, GMetaClass * metaClass, 
 
 IScriptObject * createScriptObject(IScriptObject * owner, const char * namespaces)
 {
-	if(namespaces == NULL || *namespaces == 0) {
+	if(namespaces == nullptr || *namespaces == 0) {
 		owner->addReference();
 		return owner;
 	}

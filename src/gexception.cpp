@@ -153,7 +153,7 @@ namespace {
 		{ Error_Tween_TweenableNotOwnedByTimeline,		"Tweenable is not owned by the timeline it is adding to." },
 
 
-		{ -1, NULL },
+		{ -1, nullptr },
 
 		{ Error_Meta_WrongArity, "Wrong argument count. Expect: %d, but get: %d." },
 
@@ -170,7 +170,7 @@ namespace {
 
 void raiseCoreException(int errorCode, ...)
 {
-	const char * message = NULL;
+	const char * message = nullptr;
 	bool hasArgs = false;
 
 	for(size_t i = 0; i < sizeof(errorInfoList) / sizeof(errorInfoList[0]); ++i) {
@@ -185,7 +185,7 @@ void raiseCoreException(int errorCode, ...)
 		}
 	}
 
-	if(message == NULL) {
+	if(message == nullptr) {
 		message = notFoundErrorMessage;
 		hasArgs = false;
 	}

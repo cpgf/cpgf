@@ -68,12 +68,12 @@ GScriptValue scriptCreateScriptArray(IScriptArray * scriptArray, size_t index);
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject);
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject);
 
-void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
-void injectObjectToScript(GScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
-void injectObjectToScript(IScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
-void injectObjectToScript(GScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
+void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName = nullptr);
+void injectObjectToScript(GScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName = nullptr);
+void injectObjectToScript(IScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = nullptr);
+void injectObjectToScript(GScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = nullptr);
 
-// We can't do this for GScriptObject because if namespaces is NULL, we can't return owner of GScriptObject (we can't share the ownership)
+// We can't do this for GScriptObject because if namespaces is nullptr, we can't return owner of GScriptObject (we can't share the ownership)
 IScriptObject * createScriptObject(IScriptObject * owner, const char * namespaces);
 
 

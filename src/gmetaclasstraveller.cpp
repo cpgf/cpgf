@@ -46,7 +46,7 @@ void GMetaClassTraveller::Node::swap(Node & other)
 
 GMetaClassTraveller::GMetaClassTraveller(IMetaClass * metaClass, void * instance)
 {
-	GASSERT(metaClass != NULL);
+	GASSERT(metaClass != nullptr);
 
 	metaClass->addReference();
 
@@ -62,12 +62,12 @@ GMetaClassTraveller::~GMetaClassTraveller()
 	
 IMetaClass * GMetaClassTraveller::next(void ** outInstance, IMetaClass ** outDerived)
 {
-	if(outDerived != NULL) {
-		*outDerived = NULL;
+	if(outDerived != nullptr) {
+		*outDerived = nullptr;
 	}
 	
 	if(this->traversal.empty()) {
-		return NULL;
+		return nullptr;
 	}
 	
 	Node node = this->traversal.front();
@@ -80,11 +80,11 @@ IMetaClass * GMetaClassTraveller::next(void ** outInstance, IMetaClass ** outDer
 		}
 	}
 	
-	if(outInstance != NULL) {
+	if(outInstance != nullptr) {
 		*outInstance = node.instance;
 	}
 
-	if(outDerived != NULL) {
+	if(outDerived != nullptr) {
 		*outDerived = node.derived.get();
 		if(node.derived) {
 			node.derived->addReference();
@@ -96,7 +96,7 @@ IMetaClass * GMetaClassTraveller::next(void ** outInstance, IMetaClass ** outDer
 
 IMetaClass * GMetaClassTraveller::next(void ** outInstance)
 {
-	return this->next(outInstance, NULL);
+	return this->next(outInstance, nullptr);
 }
 
 

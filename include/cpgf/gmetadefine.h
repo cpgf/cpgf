@@ -60,7 +60,7 @@ struct GLazyDefineClassHelper
 };
 
 template <typename DefineClass>
-void (*GLazyDefineClassHelper<DefineClass>::registerAddress)(DefineClass define) = NULL;
+void (*GLazyDefineClassHelper<DefineClass>::registerAddress)(DefineClass define) = nullptr;
 
 typedef GSharedPointer<GMetaClass> GSharedMetaClass;
 
@@ -363,13 +363,13 @@ private:
 public:
 	static ThisType define(const char * className) {
 		ThisType c;
-		c.init(className, NULL, true, GMetaPolicyDefault());
+		c.init(className, nullptr, true, GMetaPolicyDefault());
 		return c;
 	}
 
 	static ThisType declare(const char * className) {
 		ThisType c;
-		c.init(className, NULL, false, GMetaPolicyDefault());
+		c.init(className, nullptr, false, GMetaPolicyDefault());
 		return c;
 	}
 	
@@ -378,7 +378,7 @@ public:
 	}
 
 	static ThisType lazy(const char * className, void (*reg)(ThisType define)) {
-		GASSERT(reg != NULL);
+		GASSERT(reg != nullptr);
 
 		ThisType c;
 		meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
@@ -387,7 +387,7 @@ public:
 	}
 
 	static ThisType lazyDeclare(const char * className, void (*reg)(ThisType define)) {
-		GASSERT(reg != NULL);
+		GASSERT(reg != nullptr);
 
 		ThisType c;
 		meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
@@ -399,18 +399,18 @@ public:
 	struct Policy {
 		static ThisType define(const char * className) {
 			ThisType c;
-			c.init(className, NULL, true, P());
+			c.init(className, nullptr, true, P());
 			return c;
 		}
 
 		static ThisType declare(const char * className) {
 			ThisType c;
-			c.init(className, NULL, false, P());
+			c.init(className, nullptr, false, P());
 			return c;
 		}
 
 		static ThisType lazy(const char * className, void (*reg)(ThisType define)) {
-			GASSERT(reg != NULL);
+			GASSERT(reg != nullptr);
 
 			ThisType c;
 			meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
@@ -419,7 +419,7 @@ public:
 		}
 
 		static ThisType lazyDeclare(const char * className, void (*reg)(ThisType define)) {
-			GASSERT(reg != NULL);
+			GASSERT(reg != nullptr);
 
 			ThisType c;
 			meta_internal::GLazyDefineClassHelper<ThisType>::registerAddress = reg;
@@ -430,7 +430,7 @@ public:
 	
 
 protected:
-	GDefineMetaClass() : super(meta_internal::GSharedMetaClass(), NULL) {
+	GDefineMetaClass() : super(meta_internal::GSharedMetaClass(), nullptr) {
 	}
 
 	explicit GDefineMetaClass(GMetaClass * metaClass) : super(meta_internal::GSharedMetaClass(metaClass), metaClass) {
@@ -501,13 +501,13 @@ protected:
 
 	template <typename P>
 	void init(const char * className, void (*reg)(GMetaClass *), bool addToGlobal, const P & policy) {
-		GMetaClass * classToAdd = NULL;
+		GMetaClass * classToAdd = nullptr;
 
 		if(addToGlobal) {
 			classToAdd = const_cast<GMetaClass *>(getGlobalMetaClass()->doGetClass(className));
 		}
 
-		if(classToAdd == NULL) {
+		if(classToAdd == nullptr) {
 			classToAdd = new GMetaClass(
 				(ClassType *)0, meta_internal::doMakeSuperList<BaseListType, ClassType>(),
 				className, reg, policy
@@ -591,7 +591,7 @@ public:
 	}
 
 protected:
-	GDefineMetaDangle() : super(meta_internal::GSharedMetaClass(), NULL) {
+	GDefineMetaDangle() : super(meta_internal::GSharedMetaClass(), nullptr) {
 	}
 
 	explicit GDefineMetaDangle(GMetaClass * metaClass) : super(meta_internal::GSharedMetaClass(metaClass, false), metaClass) {
@@ -607,7 +607,7 @@ protected:
 	void init() {
 		this->dangling = true;
 		
-		GMetaClass * metaClass = new GMetaClass((ClassType *)0, new meta_internal::GMetaSuperList, "", NULL, GMetaPolicyDefault());
+		GMetaClass * metaClass = new GMetaClass((ClassType *)0, new meta_internal::GMetaSuperList, "", nullptr, GMetaPolicyDefault());
 
 		this->metaClass.reset(metaClass);
 		this->currentItem = metaClass;

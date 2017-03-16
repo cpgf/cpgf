@@ -48,11 +48,11 @@ GScriptValue::GScriptValue(const GScriptValueData & data)
 	this->value.refData() = data.value;
 	
 	this->metaItem.reset(data.metaItem);
-	if(data.metaItem != NULL) {
+	if(data.metaItem != nullptr) {
 		data.metaItem->releaseReference();
 	}
 	this->bindApi.reset(data.bindApi);
-	if(data.bindApi != NULL) {
+	if(data.bindApi != nullptr) {
 		data.bindApi->releaseReference();
 	}
 }
@@ -90,7 +90,7 @@ GScriptValueData GScriptValue::getData() const
 	data.type = this->type;
 	data.value = this->value.refData();
 	data.metaItem = this->metaItem.get();
-	if(data.metaItem != NULL) {
+	if(data.metaItem != nullptr) {
 		data.metaItem->addReference();
 	}
 	data.bindApi = this->bindApi.get();
@@ -198,7 +198,7 @@ GScriptValue GScriptValue::fromScriptArray(IScriptArray * scriptArray)
 
 void * GScriptValue::toNull() const
 {
-	return NULL;
+	return nullptr;
 }
 
 GVariant GScriptValue::toFundamental() const
@@ -229,25 +229,25 @@ IMetaClass * GScriptValue::toClass() const
 		return metaClass;
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
 GVariant GScriptValue::toObject(IMetaClass ** outMetaClass, bool * outTransferOwnership) const
 {
-	if(outMetaClass != NULL) {
-		*outMetaClass = NULL;
+	if(outMetaClass != nullptr) {
+		*outMetaClass = nullptr;
 	}
-	if(outTransferOwnership != NULL) {
+	if(outTransferOwnership != nullptr) {
 		*outTransferOwnership = false;
 	}
 
 	if(this->isObject()) {
-		if(outMetaClass != NULL) {
+		if(outMetaClass != nullptr) {
 			*outMetaClass = gdynamic_cast<IMetaClass *>(this->metaItem.get());
 			this->metaItem->addReference();
 		}
-		if(outTransferOwnership != NULL) {
+		if(outTransferOwnership != nullptr) {
 			*outTransferOwnership = bindApi ? bindApi->isOwnershipTransferred() : false;
 		}
 		return this->value;
@@ -264,26 +264,26 @@ void * GScriptValue::toObjectAddress(IMetaClass ** outMetaClass, bool * outTrans
 		return fromVariant<void *>(instance);
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
 IMetaMethod * GScriptValue::toMethod(void ** outInstance) const
 {
-	if(outInstance != NULL) {
-		*outInstance = NULL;
+	if(outInstance != nullptr) {
+		*outInstance = nullptr;
 	}
 
 	if(this->isMethod()) {
 		IMetaMethod * metaMethod = gdynamic_cast<IMetaMethod *>(this->metaItem.get());
 		metaMethod->addReference();
-		if(outInstance != NULL) {
+		if(outInstance != nullptr) {
 			*outInstance = fromVariant<void *>(this->value);
 		}
 		return metaMethod;
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -295,7 +295,7 @@ IMetaList * GScriptValue::toOverloadedMethods() const
 		return metaList;
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -307,7 +307,7 @@ IMetaEnum * GScriptValue::toEnum() const
 		return metaEnum;
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -323,20 +323,20 @@ GVariant GScriptValue::toRaw() const
 
 IMetaAccessible * GScriptValue::toAccessible(void ** outInstance) const
 {
-	if(outInstance != NULL) {
-		*outInstance = NULL;
+	if(outInstance != nullptr) {
+		*outInstance = nullptr;
 	}
 
 	if(this->isAccessible()) {
 		IMetaAccessible * accessible = gdynamic_cast<IMetaAccessible *>(this->metaItem.get());
 		accessible->addReference();
-		if(outInstance != NULL) {
+		if(outInstance != nullptr) {
 			*outInstance = fromVariant<void *>(this->value);
 		}
 		return accessible;
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -348,7 +348,7 @@ IScriptObject * GScriptValue::toScriptObject() const
 		return scriptObject;
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -360,7 +360,7 @@ IScriptFunction * GScriptValue::toScriptFunction() const
 		return scriptFunction;
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -372,7 +372,7 @@ IScriptArray * GScriptValue::toScriptArray() const
 		return scriptArray;
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -393,7 +393,7 @@ GScriptValueDataScopedGuard::GScriptValueDataScopedGuard(const GScriptValueData 
 
 GScriptValueDataScopedGuard::~GScriptValueDataScopedGuard()
 {
-	if(data.metaItem != NULL) {
+	if(data.metaItem != nullptr) {
 		data.metaItem->releaseReference();
 	}
 }
@@ -403,7 +403,7 @@ IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value)
 {
 	if(value.isObject()) {
 		IMetaClass * metaClass;
-		value.toObject(&metaClass, NULL);
+		value.toObject(&metaClass, nullptr);
 		return metaClass;
 	}
 	else if(value.isClass()) {
@@ -413,7 +413,7 @@ IMetaTypedItem * getTypedItemFromScriptValue(const GScriptValue & value)
 		return value.toEnum();
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 

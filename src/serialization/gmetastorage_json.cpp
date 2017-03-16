@@ -33,7 +33,7 @@ typedef Json::Value JsonNodeType;
 
 void checkNode(JsonNodeType * node, const char * /*nodeName*/)
 {
-	if(node == NULL) {
+	if(node == nullptr) {
 		serializeError(Error_Serialization_InvalidStorage);
 	}
 }
@@ -63,7 +63,7 @@ private:
 
 
 GMetaJsonStorageImplement::GMetaJsonStorageImplement()
-	: dataNode(NULL), classTypeNode(NULL)
+	: dataNode(nullptr), classTypeNode(nullptr)
 {
 }
 
@@ -166,19 +166,19 @@ private:
 
 
 GJsonNodeNameTracker::GJsonNodeNameTracker(JsonNodeType * node)
-	: node(node), nodeIsArray(false), arrayIndex(0), countMap(NULL)
+	: node(node), nodeIsArray(false), arrayIndex(0), countMap(nullptr)
 {
 }
 
 GJsonNodeNameTracker::GJsonNodeNameTracker(JsonNodeType * node, bool nodeIsArray)
-	: node(node), nodeIsArray(nodeIsArray), arrayIndex(0), countMap(NULL)
+	: node(node), nodeIsArray(nodeIsArray), arrayIndex(0), countMap(nullptr)
 {
 }
 
 void GJsonNodeNameTracker::free()
 {
 	delete this->countMap;
-	this->countMap = NULL;
+	this->countMap = nullptr;
 }
 
 GJsonNodeNameTracker::GJsonNodeNameTracker(const GJsonNodeNameTracker & other)
@@ -208,7 +208,7 @@ bool GJsonNodeNameTracker::isArray() const
 
 size_t GJsonNodeNameTracker::getNameCount(const char * name) const
 {
-	if(this->countMap != NULL) {
+	if(this->countMap != nullptr) {
 		MapType::const_iterator it = this->countMap->find(name);
 		if(it != this->countMap->end()) {
 			return it->second;
@@ -220,7 +220,7 @@ size_t GJsonNodeNameTracker::getNameCount(const char * name) const
 
 void GJsonNodeNameTracker::addName(const char * name)
 {
-	if(this->countMap == NULL) {
+	if(this->countMap == nullptr) {
 		this->countMap = new MapType;
 	}
 
@@ -514,7 +514,7 @@ uint32_t G_API_CC GJsonStorageReader::getArchiveType(const char * name)
 {
 	JsonNodeType * node = this->getNode(name, false);
 	
-	if(node == NULL) {
+	if(node == nullptr) {
 		return matMissed;
 	}
 
@@ -603,7 +603,7 @@ char * G_API_CC GJsonStorageReader::readString(const char * name, IMemoryAllocat
 void * G_API_CC GJsonStorageReader::readNullPointer(const char * name)
 {
 	this->getNode(name);
-	return NULL;
+	return nullptr;
 }
 
 uint32_t G_API_CC GJsonStorageReader::beginReadObject(const char * name, uint32_t * outVersion)
@@ -636,7 +636,7 @@ uint32_t G_API_CC GJsonStorageReader::readReferenceID(const char * name)
 
 IMetaClass * G_API_CC GJsonStorageReader::readMetaClassAndTypeID(IMetaService * /*service*/, uint32_t * /*outClassTypeID*/)
 {
-	return NULL;
+	return nullptr;
 }
 
 IMetaClass * G_API_CC GJsonStorageReader::readMetaClass(IMetaService * service, uint32_t classTypeID)
@@ -652,7 +652,7 @@ IMetaClass * G_API_CC GJsonStorageReader::readMetaClass(IMetaService * service, 
 		return service->findClassByName(s.c_str());
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -713,7 +713,7 @@ JsonNodeType * GJsonStorageReader::getNode(const char * name, bool moveToNext)
 	if(this->nodeStack.top().isArray()) {
 		size_t index = this->nodeStack.top().getArrayIndex();
 		if(index >= currentNode->size()) {
-			return NULL;
+			return nullptr;
 		}
 		if(moveToNext) {
 			this->nodeStack.top().addArrayIndex();
@@ -729,7 +729,7 @@ JsonNodeType * GJsonStorageReader::getNode(const char * name, bool moveToNext)
 			return &(*currentNode)[n];
 		}
 		else {
-			return NULL;
+			return nullptr;
 		}
 	}
 }

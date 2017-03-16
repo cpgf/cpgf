@@ -38,7 +38,7 @@ private:
     typedef GScopedPointer<T, Deleter, ResetPredict> ThisType;
 
 public:
-	GScopedPointer(): rawPointer(NULL) {
+	GScopedPointer(): rawPointer(nullptr) {
 	}
 
 	explicit GScopedPointer(T * p) : rawPointer(p) {
@@ -46,11 +46,11 @@ public:
 
 	~GScopedPointer() {
 		T * p = this->rawPointer;
-		this->rawPointer = NULL;
+		this->rawPointer = nullptr;
 		Deleter::Delete(p);
 	}
 
-	inline void reset(T * p = NULL) {
+	inline void reset(T * p = nullptr) {
 		if(ResetPredict::CanReset(this->rawPointer, p)) {
 			ThisType(p).swap(*this);
 		}
@@ -65,7 +65,7 @@ public:
 	}
 
 	inline bool operator ! () const {
-		return this->rawPointer == NULL;
+		return this->rawPointer == nullptr;
 	}
 
 	inline T * get() const {
@@ -75,17 +75,17 @@ public:
 	inline T * take() {
 		T * p = this->rawPointer;
 		
-		this->rawPointer = NULL;
+		this->rawPointer = nullptr;
 		
 		return p;
 	}
 
 	inline operator bool() {
-		return this->rawPointer != NULL;
+		return this->rawPointer != nullptr;
 	}
 
 	inline operator bool() const {
-		return this->rawPointer != NULL;
+		return this->rawPointer != nullptr;
 	}
 
 	inline void swap(GScopedPointer & b) {
@@ -116,7 +116,7 @@ template <typename T, typename Deleter = GScopedPointerDeleter_DeleteArray<T> >
 class GScopedArray : public GScopedPointer<T, Deleter>
 {
 public:
-    explicit GScopedArray(T * p = NULL)
+    explicit GScopedArray(T * p = nullptr)
         : GScopedPointer<T, Deleter>(p) {
     }
 

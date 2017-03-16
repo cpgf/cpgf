@@ -145,7 +145,7 @@ const GAnnotationValue * GAnnotationItem::getValue() const
 
 
 GMetaAnnotation::GMetaAnnotation(const char * name)
-	: super(name, GMetaType(), mcatAnnotation), implement(new meta_internal::GMetaAnnotationImplement), metaItem(NULL) {
+	: super(name, GMetaType(), mcatAnnotation), implement(new meta_internal::GMetaAnnotationImplement), metaItem(nullptr) {
 }
 
 GMetaAnnotation::~GMetaAnnotation() {
@@ -177,7 +177,7 @@ const GAnnotationValue * GMetaAnnotation::getValue(const char * name) const
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 size_t GMetaAnnotation::getCount() const

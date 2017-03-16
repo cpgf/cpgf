@@ -106,7 +106,7 @@ void serializeWriteData(IMetaArchiveWriter * archiveWriter, const char * name, c
 template <typename T>
 void serializeWriteData(IMetaArchiveWriter * archiveWriter, const char * name, const T & data) 
 {
-	serializeWriteData(archiveWriter, name, data, NULL);
+	serializeWriteData(archiveWriter, name, data, nullptr);
 }
 
 

@@ -59,7 +59,7 @@ bool GMetaField::canSet() const
 GVariant GMetaField::get(const void * instance) const
 {
 	if(this->isStatic()) {
-		instance = NULL;
+		instance = nullptr;
 	}
 
 	return this->baseData->get(instance);
@@ -68,7 +68,7 @@ GVariant GMetaField::get(const void * instance) const
 void GMetaField::set(void * instance, const GVariant & v) const
 {
 	if(this->isStatic()) {
-		instance = NULL;
+		instance = nullptr;
 	}
 
 	this->baseData->set(instance, v);

@@ -90,7 +90,7 @@ private:
 
 
 GMetaMapItem::GMetaMapItem()
-	: item(NULL), type(mmitNone), enumIndex(0)
+	: item(nullptr), type(mmitNone), enumIndex(0)
 {
 }
 
@@ -142,7 +142,7 @@ GMetaMapItemType GMetaMapItem::getType() const
 IObject * GMetaMapItem::getItem() const
 {
 	if(! this->item) {
-		return NULL;
+		return nullptr;
 	}
 
 	this->item->addReference();
@@ -160,7 +160,7 @@ GMetaMapItem * GMetaMapClass::findItem(const char * name)
 {
 	MapType::iterator it = this->itemMap.find(name);
 	if(it == this->itemMap.end()) {
-		return NULL;
+		return nullptr;
 	}
 	else {
 		return &this->itemMap[name];
@@ -171,7 +171,7 @@ void GMetaMapClass::buildMap(IMetaClass * metaClass)
 {
 	using namespace std;
 
-	if(metaClass == NULL) {
+	if(metaClass == nullptr) {
 		return;
 	}
 
@@ -225,15 +225,15 @@ void GMetaMapClass::buildMap(IMetaClass * metaClass)
 			if(item.getType() == mmitMethod) {
 				GScopedInterface<IMetaList> metaList(createMetaList());
 				GScopedInterface<IMetaItem> metaItem(gdynamic_cast<IMetaItem *>(item.getItem()));
-				metaList->add(metaItem.get(), NULL);
-				metaList->add(method.get(), NULL);
+				metaList->add(metaItem.get(), nullptr);
+				metaList->add(method.get(), nullptr);
 				this->itemMap[name] = GMetaMapItem(metaList.get());
 			}
 			else {
 				GASSERT(item.getType() == mmitMethodList);
 
 				GScopedInterface<IMetaList> metaList(gdynamic_cast<IMetaList *>(item.getItem()));
-				metaList->add(method.get(), NULL);
+				metaList->add(method.get(), nullptr);
 			}
 		}
 	}
@@ -388,15 +388,15 @@ GScriptDataStorage::~GScriptDataStorage()
 IScriptFunction * G_API_CC GScriptDataStorage::getScriptFunction(const char * name)
 {
 	if(this->object.expired()) {
-		return NULL;
+		return nullptr;
 	}
 
 	GObjectGlueDataPointer obj(this->object);
-	IScriptFunction * func = NULL;
-	if(obj->getDataHolder() != NULL) {
+	IScriptFunction * func = nullptr;
+	if(obj->getDataHolder() != nullptr) {
 		func = obj->getDataHolder()->getScriptFunction(name);
 	}
-	if(func == NULL && obj->getClassData()->getDataHolder() != NULL) {
+	if(func == nullptr && obj->getClassData()->getDataHolder() != nullptr) {
 		func = obj->getClassData()->getDataHolder()->getScriptFunction(name);
 	}
 	return func;
@@ -428,14 +428,14 @@ IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
 		if(it != this->dataMap->end()) {
 			if(vtIsInterface(it->second.getType())) {
 				IScriptFunction * func = gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
-				if(func != NULL) {
+				if(func != nullptr) {
 					func->addReference();
 				}
 				return func;
 			}
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -479,7 +479,7 @@ void GClassPool::classDestroyed(IMetaClass * metaClass)
 {
 	if(isLibraryLive()) {
 		ClassMapListType * classDataList = this->getList(metaClass);
-		if(classDataList != NULL) {
+		if(classDataList != nullptr) {
 			for(ClassMapListType::iterator it = classDataList->begin(); it != classDataList->end(); ++it) {
 				if((*it)->getMetaClass() == metaClass) {
 					(*it).reset();
@@ -508,7 +508,7 @@ GClassGlueDataPointer * GClassPool::findClassDataByPointer(ClassMapListType * cl
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 GClassGlueDataPointer GClassPool::createClassDataAtSlot(ClassMapListType * classDataList, IMetaClass * metaClass, size_t slot)
@@ -555,7 +555,7 @@ GClassGlueDataPointer GClassPool::getClassData(IMetaClass * metaClass)
 	ClassMapListType * classDataList = this->getList(metaClass);
 
 	GClassGlueDataPointer * dataPointer = this->findClassDataByPointer(classDataList, metaClass);
-	if(dataPointer != NULL) {
+	if(dataPointer != nullptr) {
 		return *dataPointer;
 	}
 
@@ -592,15 +592,15 @@ void GGlueDataWrapperPool::clear()
 	for(TempListType::iterator it = tempList.begin(); it != tempList.end(); ++it) {
 		if((*it)->getData() && (*it)->getData()->getType() == gdtObject) {
 			freeGlueDataWrapper(*it);
-			*it = NULL;
+			*it = nullptr;
 		}
 	}
 
 	for(TempListType::iterator it = tempList.begin(); it != tempList.end(); ++it) {
-		if(*it != NULL) {
+		if(*it != nullptr) {
 			if((*it)->getData() && (*it)->getData()->getType() != gdtClass) {
 				freeGlueDataWrapper(*it);
-				*it = NULL;
+				*it = nullptr;
 			}
 		}
 	}
@@ -611,7 +611,7 @@ void GGlueDataWrapperPool::clear()
 	   That will cause memory access error.
 	*/
 	for(TempListType::iterator it = tempList.begin(); it != tempList.end(); ++it) {
-		if(*it != NULL) {
+		if(*it != nullptr) {
 			freeGlueDataWrapper(*it);
 		}
 	}
@@ -668,7 +668,7 @@ uint32_t G_API_CC GScriptContext::getScriptUserConverterCount()
 IScriptUserConverter * G_API_CC GScriptContext::getScriptUserConverterAt(uint32_t index)
 {
 	if(index >= getScriptUserConverterCount()) {
-		return NULL;
+		return nullptr;
 	}
 
 	return this->scriptUserConverterList->at(index).get();
@@ -1028,7 +1028,7 @@ void rankImplicitConvertForString(ConvertRank * outputRank, const GVariant & sou
 void rankImplicitConvertForSharedPointer(ConvertRank * outputRank, const GGlueDataPointer & valueGlueData, const GMetaExtendType & targetExtendType)
 {
 	IMetaSharedPointerTraits * paramSharedPointerTraits = getGlueDataSharedPointerTraits(valueGlueData);
-	if(paramSharedPointerTraits != NULL) {
+	if(paramSharedPointerTraits != nullptr) {
 		GScopedInterface<IMetaSharedPointerTraits> sharedPointerTraits(targetExtendType.getSharedPointerTraits());
 		if(! sharedPointerTraits) {
 			outputRank->weight = ValueMatchRank_Implicit_SharedPointerToRaw;
@@ -1039,7 +1039,7 @@ void rankImplicitConvertForSharedPointer(ConvertRank * outputRank, const GGlueDa
 void rankImplicitConvertForMetaClass(ConvertRank * outputRank, IMetaItem * sourceType, IMetaItem * targetType)
 {
 
-	if(sourceType == NULL || targetType == NULL) {
+	if(sourceType == nullptr || targetType == nullptr) {
 		return;
 	}
 
@@ -1236,7 +1236,7 @@ bool implicitConvertForMetaClassCast(const ConvertRank & rank, GVariant * v);
 bool doConvertForMetaClassCast(const GContextPointer & context, GVariant * v, const GMetaType & targetType, const GGlueDataPointer & valueGlueData)
 {
 	IMetaClass * sourceClass = getGlueDataMetaClass(valueGlueData);
-	if(sourceClass != NULL) {
+	if(sourceClass != nullptr) {
 		GScopedInterface<IMetaClass> targetClass(context->getService()->findClassByName(targetType.getBaseName()));
 		if(targetClass) {
 			ConvertRank rank = ConvertRank();
@@ -1386,7 +1386,7 @@ void doInvokeCallable(const GContextPointer & context, void * instance, IMetaCal
 
 void * doInvokeConstructor(const GContextPointer & context, IMetaService * service, IMetaClass * metaClass, InvokeCallableParam * callableParam)
 {
-	void * instance = NULL;
+	void * instance = nullptr;
 
 	if(callableParam->paramCount == 0 && metaClass->canCreateInstance()) {
 		instance = metaClass->createInstance();
@@ -1405,7 +1405,7 @@ void * doInvokeConstructor(const GContextPointer & context, IMetaService * servi
 			InvokeCallableResult result;
 
 			GScopedInterface<IMetaConstructor> constructor(metaClass->getConstructorAt(static_cast<uint32_t>(maxRankIndex)));
-			doInvokeCallable(context, NULL, constructor.get(), callableParam, &result);
+			doInvokeCallable(context, nullptr, constructor.get(), callableParam, &result);
 			instance = objectAddressFromVariant(GVariant(result.resultData));
 		}
 	}
@@ -1564,7 +1564,7 @@ GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible
 	metaCheckError(accessible);
 
 	void * address = accessible->getAddress(instance);
-	if(address != NULL && !outType->isPointer() && outType->baseIsClass()) {
+	if(address != nullptr && !outType->isPointer() && outType->baseIsClass()) {
 		value = objectToVariant(address);
 
 		if(instanceIsConst) {
@@ -1581,7 +1581,7 @@ GVariant getAccessibleValueAndType(void * instance, IMetaAccessible * accessible
 
 IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived)
 {
-	if(derived == NULL) {
+	if(derived == nullptr) {
 		currentClass->addReference();
 		return currentClass;
 	}
@@ -1599,7 +1599,7 @@ IMetaClass * selectBoundClass(IMetaClass * currentClass, IMetaClass * derived)
 
 void setValueToScriptDataHolder(const GGlueDataPointer & glueData, const char * name, const GScriptValue & value)
 {
-	GScriptDataHolder * dataHolder = NULL;
+	GScriptDataHolder * dataHolder = nullptr;
 
 	if(glueData->getType() == gdtObject) {
 		dataHolder = sharedStaticCast<GObjectGlueData>(glueData)->requireDataHolder();
@@ -1610,7 +1610,7 @@ void setValueToScriptDataHolder(const GGlueDataPointer & glueData, const char * 
 		}
 	}
 
-	if(dataHolder != NULL) {
+	if(dataHolder != nullptr) {
 		dataHolder->setScriptValue(name, value);
 	}
 }
@@ -1657,7 +1657,7 @@ bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char
 
 	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstanceAddress(instanceGlueData));
 
-	void * instance = NULL;
+	void * instance = nullptr;
 
 	for(;;) {
 		GScopedInterface<IMetaClass> metaClass(traveller.next(&instance));
@@ -1671,7 +1671,7 @@ bool setValueOnNamedMember(const GGlueDataPointer & instanceGlueData, const char
 		}
 
 		GMetaMapItem * mapItem = mapClass->findItem(name);
-		if(mapItem == NULL) {
+		if(mapItem == nullptr) {
 			continue;
 		}
 
@@ -1733,7 +1733,7 @@ void * getGlueDataInstanceAddress(const GGlueDataPointer & glueData)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData)
@@ -1749,7 +1749,7 @@ IMetaClass * getGlueDataMetaClass(const GGlueDataPointer & glueData)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer & glueData)
@@ -1765,7 +1765,7 @@ IMetaSharedPointerTraits * getGlueDataSharedPointerTraits(const GGlueDataPointer
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 InvokeCallableResult doInvokeOperator(const GContextPointer & context, const GObjectGlueDataPointer & objectData, IMetaClass * metaClass, GMetaOpType op, InvokeCallableParam * callableParam)
@@ -1799,7 +1799,7 @@ IMetaObjectLifeManager * createObjectLifeManagerForInterface(const GVariant & va
 		return metatraits_internal::doCreateObjectLifeManagerForIObject(GTypeConverter<IObject *, IObject *>());
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -1818,7 +1818,7 @@ IMetaList * getMethodListFromMapItem(GMetaMapItem * mapItem, void * instance)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 std::string getMethodNameFromMethodList(IMetaList * methodList)

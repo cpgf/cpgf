@@ -81,7 +81,7 @@ bool GMetaOperatorDataBase::isResultTransferOwnership() const
 
 GVariant GMetaOperatorDataBase::invoke(const GVariant & p0) const
 {
-	if(this->virtualFunctions->invoke == NULL) {
+	if(this->virtualFunctions->invoke == nullptr) {
 		raiseCoreException(Error_Meta_NotUnaryOperator);
 		return GVariant();
 	}
@@ -92,7 +92,7 @@ GVariant GMetaOperatorDataBase::invoke(const GVariant & p0) const
 
 GVariant GMetaOperatorDataBase::invoke(const GVariant & p0, const GVariant & p1) const
 {
-	if(this->virtualFunctions->invoke2 == NULL) {
+	if(this->virtualFunctions->invoke2 == nullptr) {
 		raiseCoreException(Error_Meta_NotBinaryOperator);
 		return GVariant();
 	}
@@ -103,7 +103,7 @@ GVariant GMetaOperatorDataBase::invoke(const GVariant & p0, const GVariant & p1)
 
 GVariant GMetaOperatorDataBase::invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const
 {
-	if(this->virtualFunctions->invokeFunctor == NULL) {
+	if(this->virtualFunctions->invokeFunctor == nullptr) {
 		raiseCoreException(Error_Meta_NotFunctorOperator);
 		return GVariant();
 	}
@@ -114,7 +114,7 @@ GVariant GMetaOperatorDataBase::invokeFunctor(void * instance, GVariant const * 
 
 GVariant GMetaOperatorDataBase::execute(void * instance, const GVariant * params, size_t paramCount) const
 {
-	if(this->virtualFunctions->execute == NULL) {
+	if(this->virtualFunctions->execute == nullptr) {
 		raiseCoreException(Error_Meta_NotFunctorOperator);
 		return GVariant();
 	}

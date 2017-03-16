@@ -460,9 +460,9 @@ public:
 		static GMetaOperatorDataVirtual thisFunctions = {
 			&virtualBaseMetaDeleter<ThisType>,
 			
-			NULL,
+			nullptr,
 			&virtualInvoke2,
-			NULL,
+			nullptr,
 			&virtualExecute,
 
 			&virtualGetOperator,
@@ -609,8 +609,8 @@ public:
 			&virtualBaseMetaDeleter<ThisType>,
 			
 			&virtualInvoke,
-			NULL,
-			NULL,
+			nullptr,
+			nullptr,
 			&virtualExecute,
 
 			&virtualGetOperator,
@@ -763,7 +763,7 @@ private:
 	}
 
 	static GVariant virtualInvoke(const GVariant & p0) {
-		return virtualInvokeFunctor(objectAddressFromVariant(p0), NULL, 0);
+		return virtualInvokeFunctor(objectAddressFromVariant(p0), nullptr, 0);
 	}
 
 	static GVariant virtualInvoke2(const GVariant & p0, const GVariant & p1) {

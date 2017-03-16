@@ -137,7 +137,7 @@ public:
 	template <typename ClassType, typename BaseType>
 	void addBaseClass() {
 		GMetaClass * baseClass = const_cast<GMetaClass *>(this->superList->add<ClassType, BaseType>()->getBaseClass());
-		if(baseClass != NULL) {
+		if(baseClass != nullptr) {
 			baseClass->addDerivedClass(this);
 		}
 	}

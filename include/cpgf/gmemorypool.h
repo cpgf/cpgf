@@ -40,11 +40,11 @@ private:
 		}
 
 		bool operator < (const ChunkRange & other) const {
-			if(this->end == NULL) {
+			if(this->end == nullptr) {
 				return this->start < other.start;
 			}
 			else {
-				if(other.end == NULL) {
+				if(other.end == nullptr) {
 					return other.start >= this->end;
 				}
 				else {

@@ -138,7 +138,7 @@ size_t GMetaSuperList::getCount() const
 const GMetaClass * GMetaSuperList::getSuper(size_t index) const
 {
 	if(index >= this->getCount()) {
-		return NULL;
+		return nullptr;
 	}
 	else {
 		return this->implement->superList[index].getBaseClass();
@@ -148,7 +148,7 @@ const GMetaClass * GMetaSuperList::getSuper(size_t index) const
 const GMetaClassCasterBase * GMetaSuperList::getCaster(size_t index) const
 {
 	if(index >= this->getCount()) {
-		return NULL;
+		return nullptr;
 	}
 	else {
 		return this->implement->superList[index].getCaster();
@@ -271,7 +271,7 @@ void GMetaInternalItemList::addItem(GMetaItem * item)
 		|| metaIsConstructor(item->getCategory())
 		|| metaIsMethod(item->getCategory())
 		|| metaIsOperator(item->getCategory())
-		|| this->getItemByName(item->getName().c_str()) == NULL
+		|| this->getItemByName(item->getName().c_str()) == nullptr
 	);
 
 	this->implement->itemList.push_back(item);
@@ -286,7 +286,7 @@ size_t GMetaInternalItemList::getCount() const
 GMetaItem * GMetaInternalItemList::getItemAt(size_t index) const
 {
 	if(index >= this->getCount()) {
-		return NULL;
+		return nullptr;
 	}
 	else {
 		return this->implement->itemList[index];
@@ -298,7 +298,7 @@ GMetaItem * GMetaInternalItemList::getItemByName(const char * name) const
 	meta_internal::GMetaItemListImplement::MapType::const_iterator it = this->implement->itemMap.find(name);
 
 	if(it == this->implement->itemMap.end()) {
-		return NULL;
+		return nullptr;
 	}
 	else {
 		return it->second;
@@ -349,7 +349,7 @@ public:
 
 GMetaClass::~GMetaClass()
 {
-	this->setModule(NULL);
+	this->setModule(nullptr);
 
 	delete this->implement;
 }
@@ -358,7 +358,7 @@ void GMetaClass::initialize()
 {
 	this->addModifier(metaModifierStatic);
 
-	this->module = NULL;
+	this->module = nullptr;
 
 	this->implement = new GMetaClassImplement;
 	this->implement->metaList.setClearOnFree(false);
@@ -426,7 +426,7 @@ const GMetaConstructor * GMetaClass::getConstructorByParamCount(size_t paramCoun
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 size_t GMetaClass::getConstructorCount() const
@@ -466,7 +466,7 @@ const GMetaField * GMetaClass::getFieldInHierarchy(const char * name, void ** ou
 
 const GMetaField * GMetaClass::getField(const char * name) const
 {
-	return static_cast<const GMetaField *>(this->getItemByName(mcatField, name, false, NULL));
+	return static_cast<const GMetaField *>(this->getItemByName(mcatField, name, false, nullptr));
 }
 
 size_t GMetaClass::getFieldCount() const
@@ -491,7 +491,7 @@ const GMetaProperty * GMetaClass::getPropertyInHierarchy(const char * name, void
 
 const GMetaProperty * GMetaClass::getProperty(const char * name) const
 {
-	return static_cast<const GMetaProperty *>(this->getItemByName(mcatProperty, name, false, NULL));
+	return static_cast<const GMetaProperty *>(this->getItemByName(mcatProperty, name, false, nullptr));
 }
 
 size_t GMetaClass::getPropertyCount() const
@@ -516,7 +516,7 @@ const GMetaMethod * GMetaClass::getMethodInHierarchy(const char * name, void ** 
 
 const GMetaMethod * GMetaClass::getMethod(const char * name) const
 {
-	return static_cast<const GMetaMethod *>(this->getItemByName(mcatMethod, name, false, NULL));
+	return static_cast<const GMetaMethod *>(this->getItemByName(mcatMethod, name, false, nullptr));
 }
 
 size_t GMetaClass::getMethodCount() const
@@ -539,7 +539,7 @@ const GMetaOperator * GMetaClass::doGetOperator(GMetaOpType op, bool findSuper, 
 {
 	this->ensureRegistered();
 
-	const GMetaOperator * result = NULL;
+	const GMetaOperator * result = nullptr;
 
 	for(size_t i = 0; i < this->implement->operatorList.getCount(); ++i) {
 		if(this->implement->operatorList.getAt(i)->getOperator() == op) {
@@ -551,7 +551,7 @@ const GMetaOperator * GMetaClass::doGetOperator(GMetaOpType op, bool findSuper, 
 	if(!result && findSuper && this->superList) {
 		void ** self = outInstance;
 		for(unsigned int i = 0; i < this->getBaseCount(); ++i) {
-			if(self != NULL) {
+			if(self != nullptr) {
 				*outInstance = this->castToBase(*self, i);
 			}
 			result = this->getBaseClass(i)->doGetOperator(op, true, outInstance);
@@ -572,7 +572,7 @@ const GMetaOperator * GMetaClass::getOperatorInHierarchy(GMetaOpType op, void **
 
 const GMetaOperator * GMetaClass::getOperator(GMetaOpType op) const
 {
-	return this->doGetOperator(op, false, NULL);
+	return this->doGetOperator(op, false, nullptr);
 }
 
 size_t GMetaClass::getOperatorCount() const
@@ -598,7 +598,7 @@ const GMetaEnum * GMetaClass::getEnumInHierarchy(const char * name, void ** outI
 
 const GMetaEnum * GMetaClass::getEnum(const char * name) const
 {
-	return static_cast<const GMetaEnum *>(this->getItemByName(mcatEnum, name, false, NULL));
+	return static_cast<const GMetaEnum *>(this->getItemByName(mcatEnum, name, false, nullptr));
 }
 
 size_t GMetaClass::getEnumCount() const
@@ -617,7 +617,7 @@ GMetaClass * GMetaClass::addClass(const GMetaClass * cls)
 
 	if (cls->module == this->module) {
 		// will re-register with different name
-		cls->setModule(NULL);
+		cls->setModule(nullptr);
 		cls->resetQualifiedName();
 	}
 	cls->setModule(this->module);
@@ -629,13 +629,13 @@ void GMetaClass::extractTo(GMetaClass * master)
 {
 	for(int i = 0; i < static_cast<int>(mcatCount); ++i) {
 		GMetaCategory c = static_cast<GMetaCategory>(i);
-		if(this->implement->itemLists[c] != NULL) {
+		if(this->implement->itemLists[c] != nullptr) {
 			this->implement->itemLists[c]->extractTo(master->implement->itemLists[c]);
 		}
 	}
 	for(size_t i = 0; i < this->implement->metaList.getCount(); ++i) {
 		GMetaItem * item = this->implement->metaList.getItemAt(i);
-		if(item != NULL) {
+		if(item != nullptr) {
 			item->ownerItem = master;
 		}
 	}
@@ -649,12 +649,12 @@ const GMetaClass * GMetaClass::getClassInHierarchy(const char * name, void ** ou
 
 const GMetaClass * GMetaClass::getClass(const char * name) const
 {
-	return static_cast<const GMetaClass *>(this->getItemByName(mcatClass, name, false, NULL));
+	return static_cast<const GMetaClass *>(this->getItemByName(mcatClass, name, false, nullptr));
 }
 
 const GMetaClass * GMetaClass::doGetClass(const char * name) const
 {
-	return static_cast<const GMetaClass *>(this->doGetItemByName(mcatClass, name, false, NULL));
+	return static_cast<const GMetaClass *>(this->doGetItemByName(mcatClass, name, false, nullptr));
 }
 
 size_t GMetaClass::getClassCount() const
@@ -685,13 +685,13 @@ const GMetaItem * GMetaClass::getMetaAt(size_t index) const
 void GMetaClass::setModule(GMetaModule * module) const
 {
 	if(this->module != module) {
-		if(this->module != NULL) {
+		if(this->module != nullptr) {
 			this->module->unregisterMetaClass(this);
 		}
 
 		this->module = module;
 
-		if(this->module != NULL) {
+		if(this->module != nullptr) {
 			this->module->registerMetaClass(this);
 		}
 	}
@@ -707,7 +707,7 @@ void GMetaClass::setModule(GMetaModule * module) const
 
 GMetaModule * GMetaClass::getModule() const
 {
-	if(this->module == NULL) {
+	if(this->module == nullptr) {
 		this->setModule(doGetGlobalModule());
 	}
 
@@ -768,7 +768,7 @@ const GMetaClass * GMetaClass::getDerivedClass(size_t derivedIndex) const
 		return this->derivedList->at(derivedIndex);
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -792,7 +792,7 @@ bool GMetaClass::fixupHierarchy()
 		size_t baseCount = this->superList->getCount();
 		for(size_t i = 0; i < baseCount; ++i) {
 			GMetaClass * baseClass = const_cast<GMetaClass *>(this->superList->getSuper(i));
-			if(baseClass != NULL && ! this->superList->hasAddedDerived(i)) {
+			if(baseClass != nullptr && ! this->superList->hasAddedDerived(i)) {
 				baseClass->addDerivedClass(this);
 				this->superList->setAddedDerived(i, true);
 
@@ -809,7 +809,7 @@ bool GMetaClass::isInheritedFrom(const GMetaClass * ancient) const
 	for(unsigned int i = 0; i < this->getBaseCount(); ++i) {
 		const GMetaClass * superClass = this->getBaseClass(i);
 
-		if(superClass != NULL) {
+		if(superClass != nullptr) {
 			if(superClass->equals(ancient)) {
 				return true;
 			}
@@ -827,7 +827,7 @@ void * GMetaClass::castFromBase(const void * base, size_t baseIndex) const
 {
 	const GMetaClass * baseClass = this->getBaseClass(baseIndex);
 
-	if(baseClass == NULL) {
+	if(baseClass == nullptr) {
 		return const_cast<void *>(base);
 	}
 
@@ -838,7 +838,7 @@ void * GMetaClass::castToBase(const void * self, size_t baseIndex) const
 {
 	const GMetaClass * baseClass = this->getBaseClass(baseIndex);
 
-	if(baseClass == NULL) {
+	if(baseClass == nullptr) {
 		return const_cast<void *>(self);
 	}
 
@@ -849,14 +849,14 @@ void * GMetaClass::castFromDerived(const void * derived, size_t derivedIndex) co
 {
 	const GMetaClass * derivedClass = this->getDerivedClass(derivedIndex);
 
-	if(derivedClass == NULL) {
+	if(derivedClass == nullptr) {
 		return const_cast<void *>(derived);
 	}
 
 	size_t derivedBaseCount = derivedClass->getBaseCount();
 	for(size_t i = 0; i < derivedBaseCount; ++i) {
 		const GMetaClass * baseClass = derivedClass->getBaseClass(i);
-		if(baseClass != NULL && baseClass->equals(this)) {
+		if(baseClass != nullptr && baseClass->equals(this)) {
 			return derivedClass->castToBase(derived, i);
 		}
 	}
@@ -868,14 +868,14 @@ void * GMetaClass::castToDerived(const void * self, size_t derivedIndex) const
 {
 	const GMetaClass * derivedClass = this->getDerivedClass(derivedIndex);
 
-	if(derivedClass == NULL) {
+	if(derivedClass == nullptr) {
 		return const_cast<void *>(self);
 	}
 
 	size_t derivedBaseCount = derivedClass->getBaseCount();
 	for(size_t i = 0; i < derivedBaseCount; ++i) {
 		const GMetaClass * baseClass = derivedClass->getBaseClass(i);
-		if(baseClass != NULL && baseClass->equals(this)) {
+		if(baseClass != nullptr && baseClass->equals(this)) {
 			return derivedClass->castFromBase(self, i);
 		}
 	}
@@ -893,15 +893,15 @@ void GMetaClass::ensureRegistered() const
 		this->intialized = true;
 	}
 
-	if(this->module != NULL && ! this->module->hasInitializedMetaClasses()) {
+	if(this->module != nullptr && ! this->module->hasInitializedMetaClasses()) {
 		this->module->initializeMetaClasses();
 	}
 }
 
 void GMetaClass::setupItemLists()
 {
-	this->implement->itemLists[mcatAnnotation] = NULL;
-	this->implement->itemLists[mcatFundamental] = NULL;
+	this->implement->itemLists[mcatAnnotation] = nullptr;
+	this->implement->itemLists[mcatFundamental] = nullptr;
 
 	this->implement->itemLists[mcatField] = &this->implement->fieldList;
 	this->implement->itemLists[mcatProperty] = &this->implement->propertyList;
@@ -961,7 +961,7 @@ const GMetaItem * GMetaClass::doGetItemByName(GMetaCategory listIndex, const cha
 	if(!result && findSuper && this->superList) {
 		void ** self = outInstance;
 		for(size_t i = 0; i < this->getBaseCount(); ++i) {
-			if(self != NULL) {
+			if(self != nullptr) {
 				*outInstance = this->castToBase(*self, i);
 			}
 			result = this->getBaseClass(i)->getItemByName(listIndex, name, true, outInstance);
@@ -987,9 +987,9 @@ const GMetaClass * findMetaClass(const char * name)
 
 GMetaModule * doGetGlobalModule()
 {
-	static GMetaModule * globalModule = NULL;
+	static GMetaModule * globalModule = nullptr;
 
-	if(globalModule == NULL && isLibraryLive()) {
+	if(globalModule == nullptr && isLibraryLive()) {
 		globalModule = new GMetaModule();
 		addOrderedStaticUninitializer(suo_MetaModuleForGlobalMetaclass, makeUninitializerDeleter(&globalModule));
 	}
@@ -999,9 +999,9 @@ GMetaModule * doGetGlobalModule()
 
 GMetaClass * getGlobalMetaClass()
 {
-	static GMetaClass * global = NULL;
-	if(global == NULL && isLibraryLive()) {
-		global = new GMetaClass((void *)0, NULL, "", NULL, GMetaPolicyDefault());
+	static GMetaClass * global = nullptr;
+	if(global == nullptr && isLibraryLive()) {
+		global = new GMetaClass((void *)0, nullptr, "", nullptr, GMetaPolicyDefault());
 		addOrderedStaticUninitializer(suo_GlobalMetaClass, makeUninitializerDeleter(&global));
 	}
 
