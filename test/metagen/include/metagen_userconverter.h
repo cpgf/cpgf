@@ -7,7 +7,9 @@ class TestUserConverterData
 public:
 	TestUserConverterData() {}
 
-	TestUserConverterData(int n) : value(n) {
+	// Must make it explicit, otherwise, GVariant can convert int to TestUserConverterData automatically,
+	// then "QERR(mtest.testUserConverterGetDoubleValue(5))" won't pass.
+	explicit TestUserConverterData(int n) : value(n) {
 	}
 
 public:

@@ -82,9 +82,6 @@ enum TestEnum
 
 GTEST(TestVariant_Enum)
 {
-	GVariant a(1.99);
-	cout << a.refData().typeData.vt << "  " << a.refData().valueDouble << endl;
-	
 	GVariant v(testEnumA);
 	GEQUAL(fromVariant<int>(v), testEnumA);
 }
