@@ -111,11 +111,7 @@ struct VariantCastResult
 template <typename T, typename Policy>
 struct VariantCastResult <T &, Policy>
 {
-	typedef typename std::conditional<
-		std::is_pointer<T>::value,
-		T,
-		T &
-	>::type Result;
+	typedef T & Result;
 };
 
 template <typename T>

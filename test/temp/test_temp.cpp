@@ -58,6 +58,10 @@ public:
 	}
 	
 	GVariant getVar() const { return 38; }
+	
+	void testParam(int * & param) const {
+		param = nullptr;
+	}
 
 public:
 	int value;
@@ -74,6 +78,7 @@ void TestScriptBindMetaData3()
 		._field("value", &TestOperator::value)
 		
 		._method("getVar", &TestOperator::getVar)
+		._method("testParam", &TestOperator::testParam)
 		
 		._operator<TestOperator (const GMetaSelf)>(-mopHolder)
 		._operator<TestOperator (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference())
