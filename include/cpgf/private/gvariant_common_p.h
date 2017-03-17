@@ -1,5 +1,23 @@
 namespace variant_internal {
 
+typedef cpgf::GTypeList<
+	bool,
+	char, wchar_t,
+	signed char, unsigned char,
+	signed short, unsigned short,
+	signed int, unsigned int,
+	signed long, unsigned long,
+	signed long long, unsigned long long,
+	float, double, long double
+> FundamentalTypeList;
+
+struct VariantTypeInfo
+{
+	int size;
+};
+
+extern VariantTypeInfo variantTypeInfo[];
+
 inline void failedCast()
 {
 	cpgf::raiseCoreException(cpgf::Error_Variant_FailCast);
@@ -125,6 +143,32 @@ DEF_ARRAY_TO_PTR(const volatile)
 
 void retainVariantData(GVariantData & data);
 void releaseVariantData(GVariantData & data);
+
+template <typename T, typename Policy>
+struct VariantCastResult
+{
+	typedef T Result;
+};
+
+template <typename T>
+struct VariantCastResult <const T &, VarantCastKeepConstRef>
+{
+	typedef typename std::conditional<
+		std::is_fundamental<T>::value,
+		T,
+		typename std::conditional<
+			std::is_pointer<T>::value,
+			const T,
+			const T &
+		>::type
+	>::type Result;
+};
+
+template <typename T>
+struct VariantCastResult <const T &, VarantCastCopyConstRef>
+{
+	typedef T Result;
+};
 
 
 } //namespace variant_internal

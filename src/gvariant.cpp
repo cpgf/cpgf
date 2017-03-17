@@ -84,8 +84,6 @@ void releaseVariantData(GVariantData & data)
 	}
 }
 
-} //namespace variant_internal
-
 VariantTypeInfo variantTypeInfo[] = {
 	{ sizeof(bool) }, // vtBool
 	{ sizeof(char) },
@@ -112,6 +110,9 @@ VariantTypeInfo variantTypeInfo[] = {
 	{ sizeof(void *) },
 	{ sizeof(void *) },
 };
+
+} //namespace variant_internal
+
 
 GVariant createStringVariant(const char * s)
 {

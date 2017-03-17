@@ -16,23 +16,8 @@
 
 namespace cpgf {
 
-typedef cpgf::GTypeList<
-	bool,
-	char, wchar_t,
-	signed char, unsigned char,
-	signed short, unsigned short,
-	signed int, unsigned int,
-	signed long, unsigned long,
-	signed long long, unsigned long long,
-	float, double, long double
-> FundamentalTypeList;
-
-struct VariantTypeInfo
-{
-	int size;
-};
-
-extern VariantTypeInfo variantTypeInfo[];
+struct VarantCastKeepConstRef {};
+struct VarantCastCopyConstRef {};
 
 enum class GVariantType : uint16_t {
 	vtEmpty = 0,
@@ -260,17 +245,6 @@ inline bool vtIsReal(const GVariantType vt) {
 
 class GVariant
 {
-private:
-	explicit GVariant(const GVariantData & otherData) : data(otherData)
-	{
-		variant_internal::retainVariantData(this->data);
-	}
-
-	explicit GVariant(GVariantData && otherData) : data(otherData)
-	{
-		otherData.typeData.vt = (uint16_t)GVariantType::vtEmpty;
-	}
-
 public:
 	template <typename T, typename V>
 	static GVariant create(const V & value)
@@ -289,7 +263,9 @@ public:
 	}
 
 	template <typename T>
-	GVariant(const T & value) : data()
+	GVariant(const T & value,
+		typename std::enable_if<! std::is_same<T, GVariantData>::value>::type * = 0)
+		: data()
 	{
 		variant_internal::variantDeduceAndSet<T>(&this->data, value);
 	}
@@ -302,6 +278,16 @@ public:
 	GVariant(GVariant && other) : data()
 	{
 		this->swap(other);
+	}
+
+	explicit GVariant(const GVariantData & otherData) : data(otherData)
+	{
+		variant_internal::retainVariantData(this->data);
+	}
+
+	explicit GVariant(GVariantData && otherData) : data(otherData)
+	{
+		otherData.typeData.vt = (uint16_t)GVariantType::vtEmpty;
 	}
 
 	GVariant & operator = (GVariant other)
@@ -352,9 +338,6 @@ public:
 
 private:
 	GVariantData data;
-	
-private:
-	friend GVariant createVariantFromData(const GVariantData & data);
 };
 
 inline void swap(GVariant & a, GVariant & b)
@@ -375,9 +358,6 @@ inline bool variantIsWideString(const GVariant & v)
 	return data.typeData.vt == (uint16_t)GVariantType::vtWideString
 		|| ((vtGetPointers(data.typeData) == 1 && vtGetBaseType(data.typeData) == GVariantType::vtWchar));
 }
-
-struct VarantCastKeepConstRef {};
-struct VarantCastCopyConstRef {};
 
 #include "private/gvariant_from_p.h"
 
@@ -411,30 +391,31 @@ typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(cons
 {
 	using namespace variant_internal;
 
-	auto vt = vtGetType(value.refData().typeData);
+	const GVariantData & data = value.refData();
+	const GVariantType vt = vtGetType(data.typeData);
 
 	if(vtIsTypedVar(vt)) {
 		return fromVariant<T>(getVariantRealValue(value));
 	}
 	else if(vtIsByPointer(vt)) {
 		if(vtIsLvalueReference(vt)) {
-			return CastVariant_Pointer_LvalueReference<T, Policy>::cast(value);
+			return CastVariant_Pointer_LvalueReference<T, Policy>::cast(data);
 		}
 		else if(vtIsRvalueReference(vt)) {
-			return CastVariant_Pointer_RvalueReference<T, Policy>::cast(value);
+			return CastVariant_Pointer_RvalueReference<T, Policy>::cast(data);
 		}
 		else {
-			return CastVariant_Pointer<T, Policy>::cast(value);
+			return CastVariant_Pointer<T, Policy>::cast(data);
 		}
 	}
 	else if(vtIsLvalueReference(vt)) {
-		return CastVariant_LvalueReference<T, Policy>::cast(value);
+		return CastVariant_LvalueReference<T, Policy>::cast(data);
 	}
 	else if(vtIsRvalueReference(vt)) {
-		return CastVariant_RvalueReference<T, Policy>::cast(value);
+		return CastVariant_RvalueReference<T, Policy>::cast(data);
 	}
 	else {
-		return CastVariant_Value<T, Policy>::cast(value);
+		return CastVariant_Value<T, Policy>::cast(data);
 	}
 }
 
@@ -452,36 +433,39 @@ bool canFromVariant(const GVariant & value)
 {
 	using namespace variant_internal;
 
-	auto vt = vtGetType(value.refData().typeData);
+	const GVariantData & data = value.refData();
+	const GVariantType vt = vtGetType(data.typeData);
 
 	if(vtIsTypedVar(vt)) {
 		return canFromVariant<T, Policy>(getVariantRealValue(value));
 	}
 	else if(vtIsByPointer(vt)) {
 		if(vtIsLvalueReference(vt)) {
-			return CastVariant_Pointer_LvalueReference<T, Policy>::canCast(value);
+			return CastVariant_Pointer_LvalueReference<T, Policy>::canCast(data);
 		}
 		else if(vtIsRvalueReference(vt)) {
-			return CastVariant_Pointer_RvalueReference<T, Policy>::canCast(value);
+			return CastVariant_Pointer_RvalueReference<T, Policy>::canCast(data);
 		}
 		else {
-			return CastVariant_Pointer<T, Policy>::canCast(value);
+			return CastVariant_Pointer<T, Policy>::canCast(data);
 		}
 	}
 	else if(vtIsLvalueReference(vt)) {
-		return CastVariant_LvalueReference<T, Policy>::canCast(value);
+		return CastVariant_LvalueReference<T, Policy>::canCast(data);
 	}
 	else if(vtIsRvalueReference(vt)) {
-		return CastVariant_RvalueReference<T, Policy>::canCast(value);
+		return CastVariant_RvalueReference<T, Policy>::canCast(data);
 	}
 	else {
-		return CastVariant_Value<T, Policy>::canCast(value);
+		return CastVariant_Value<T, Policy>::canCast(data);
 	}
 }
 
 template <typename T, typename V>
 GVariant createVariant(const V & value, bool copyObject = false,
-	typename std::enable_if<(std::is_copy_constructible<T>::value && (std::is_class<T>::value || std::is_union<T>::value))>::type * = 0
+		typename std::enable_if<
+			(std::is_copy_constructible<T>::value && (std::is_class<T>::value || std::is_union<T>::value))
+		>::type * = 0
 	)
 {
 	if(copyObject) {
@@ -501,7 +485,9 @@ GVariant createVariant(const V & value, bool copyObject = false,
 
 template <typename T, typename V>
 GVariant createVariant(const V & value, bool /*copyObject*/ = false,
-	typename std::enable_if<! (std::is_copy_constructible<T>::value && (std::is_class<T>::value || std::is_union<T>::value))>::type * = 0
+		typename std::enable_if<
+			! (std::is_copy_constructible<T>::value && (std::is_class<T>::value || std::is_union<T>::value))
+		>::type * = 0
 )
 {
 	return GVariant::create<T>(value);
