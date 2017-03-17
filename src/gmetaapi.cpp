@@ -93,8 +93,8 @@ protected: \
 	void * operator new(size_t /*size*/) { \
 		return GMemoryPool::getInstance()->allocate(sizeof(cls)); \
 	} \
-	void operator delete(void * p) { \
-		GMemoryPool::getInstance()->free(p); \
+	void operator delete(void * p, size_t size) { \
+		GMemoryPool::getInstance()->free(p, size); \
 	}
 
 

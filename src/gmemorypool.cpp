@@ -263,7 +263,7 @@ void * GMemoryPool::allocate(const std::size_t size)
 	return pool->allocate(size);
 }
 
-void GMemoryPool::free(void * p)
+void GMemoryPool::free(void * p, size_t n)
 {
 //	G_LOG_IF(createdThreadId != std::this_thread::get_id(), G_LOG_FATAL("GMemoryPool free in wrong thread!!!"));
 //free(p); return;

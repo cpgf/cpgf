@@ -101,7 +101,7 @@ public:
 	~GMemoryPool();
 	
 	void * allocate(const std::size_t size);
-	void free(void * p);
+	void free(void * p, size_t size);
 	
 	void purge();
 
@@ -128,7 +128,7 @@ public:
 
 	void free(T * p) {
 		p->~T();
-		GMemoryPool::getInstance()->free(p);
+		GMemoryPool::getInstance()->free(p, sizeof(T));
 	}
 };
 
@@ -144,7 +144,7 @@ template <typename T>
 void freeObjectOnMemoryPool(T * obj)
 {
 	obj->~T();
-	GMemoryPool::getInstance()->free(obj);
+	GMemoryPool::getInstance()->free(obj, sizeof(T));
 }
 
 template <class T>
@@ -168,9 +168,9 @@ struct GMemoryPoolAllocator
 		return (T *)(this->heapPool->allocate(n));
 	}
 	
-	void deallocate(T * p, std::size_t /*n*/)
+	void deallocate(T * p, std::size_t n)
 	{
-		this->heapPool->free(p);
+		this->heapPool->free(p, n);
 	}
 	
 	GMemoryPool * heapPool;
