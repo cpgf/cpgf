@@ -36,7 +36,7 @@ public:
 	virtual const char * G_API_CC getClassTypeName(IMetaArchiveWriter * archiveWriter, const void * instance, IMetaClass * metaClass) {
 		if(this->classType == "") {
 			const char * typeName = this->elementSerializer->getClassTypeName(archiveWriter, instance, metaClass);
-			if(typeName != NULL) {
+			if(typeName != nullptr) {
 				char buffer[128];
 				sprintf(buffer, "[%u]", this->elementCount);
 				this->classType = string(typeName) + buffer;
@@ -44,7 +44,7 @@ public:
 		}
 		
 		if(this->classType.size() == 0) {
-			return NULL;
+			return nullptr;
 		}
 		else {
 			return this->classType.c_str();
@@ -72,7 +72,7 @@ public:
 	}
 	
 	virtual void * G_API_CC allocateObject(IMetaArchiveReader * /*archiveReader*/, IMetaClass * /*metaClass*/) {
-		return NULL;
+		return nullptr;
 	}
 	
 	virtual void G_API_CC freeObject(IMetaArchiveReader * /*archiveReader*/, IMetaClass * /*metaClass*/, void * /*instance*/) {
@@ -107,8 +107,8 @@ private:
 
 IMetaSerializer * createArraySerializer(IMetaSerializer * elementSerializer, const GMetaType & metaType, unsigned int elementSize, unsigned int elementCount)
 {
-	if(elementSerializer == NULL) {
-		return NULL;
+	if(elementSerializer == nullptr) {
+		return nullptr;
 	}
 	else {
 		return new GMetaSerializerArray(elementSerializer, metaType, elementSize, elementCount);

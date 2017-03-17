@@ -20,7 +20,7 @@ IMetaSerializer * metaTraitsCreateSerializerForArray(const GMetaTraitsParam & pa
 {
 	IMetaSerializer * serializer = createSerializerFromMetaTraits(param, &a);
 	
-	if(serializer == NULL) {
+	if(serializer == nullptr) {
 		serializer = createTrapAllSerializer<T>(param);
 	}
 

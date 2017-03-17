@@ -7,14 +7,14 @@ namespace cpgf {
 namespace {
 	void retainInterface(IObject * i)
 	{
-		if(i != NULL) {
+		if(i != nullptr) {
 			i->addReference();
 		}
 	}
 
 	void releaseInterface(IObject * i)
 	{
-		if(i != NULL) {
+		if(i != nullptr) {
 			i->releaseReference();
 		}
 	}
@@ -22,11 +22,11 @@ namespace {
 	void initExtendTypeData(GMetaExtendTypeData * data)
 	{
 		data->arraySize = 0;
-		data->converter = NULL;
-		data->serializer = NULL;
-		data->scriptWrapper = NULL;
-		data->sharedPointerTraits = NULL;
-		data->objectLifeManager = NULL;
+		data->converter = nullptr;
+		data->serializer = nullptr;
+		data->scriptWrapper = nullptr;
+		data->sharedPointerTraits = nullptr;
+		data->objectLifeManager = nullptr;
 	}
 } // unnamed namespace
 
@@ -93,56 +93,56 @@ uint32_t GMetaExtendType::getArraySize() const
 
 IMetaConverter * GMetaExtendType::getConverter() const
 {
-	if(this->data.converter != NULL) {
+	if(this->data.converter != nullptr) {
 		this->data.converter->addReference();
 		return this->data.converter;
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
 IMetaSerializer * GMetaExtendType::getSerializer() const
 {
-	if(this->data.serializer != NULL) {
+	if(this->data.serializer != nullptr) {
 		this->data.serializer->addReference();
 		return this->data.serializer;
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
 IMetaScriptWrapper * GMetaExtendType::getScriptWrapper() const
 {
-	if(this->data.scriptWrapper != NULL) {
+	if(this->data.scriptWrapper != nullptr) {
 		this->data.scriptWrapper->addReference();
 		return this->data.scriptWrapper;
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
 IMetaSharedPointerTraits * GMetaExtendType::getSharedPointerTraits() const
 {
-	if(this->data.sharedPointerTraits != NULL) {
+	if(this->data.sharedPointerTraits != nullptr) {
 		this->data.sharedPointerTraits->addReference();
 		return this->data.sharedPointerTraits;
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
 IMetaObjectLifeManager * GMetaExtendType::getObjectLifeManager() const
 {
-	if(this->data.objectLifeManager != NULL) {
+	if(this->data.objectLifeManager != nullptr) {
 		this->data.objectLifeManager->addReference();
 		return this->data.objectLifeManager;
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 

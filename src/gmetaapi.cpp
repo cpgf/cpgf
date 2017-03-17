@@ -637,7 +637,7 @@ T * doCreateItem(P * p)
 		return new T(p, false);
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -678,7 +678,7 @@ const char * ImplMetaItem::doGetName()
 
 	return this->item->getName().c_str();
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 const char * ImplMetaItem::doGetQualifiedName()
@@ -687,7 +687,7 @@ const char * ImplMetaItem::doGetQualifiedName()
 
 	return this->item->getQualifiedName().c_str();
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaItem * ImplMetaItem::doGetOwnerItem()
@@ -696,7 +696,7 @@ IMetaItem * ImplMetaItem::doGetOwnerItem()
 
 	return metaItemToInterface(this->item->getOwnerItem());
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 void ImplMetaItem::doGetItemType(GMetaTypeData * outType)
@@ -741,7 +741,7 @@ IMetaAnnotation * ImplMetaItem::doGetAnnotation(const char * name)
 
 	return doCreateItem<ImplMetaAnnotation>(this->doGetItem()->getAnnotation(name));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 uint32_t ImplMetaItem::doGetAnnotationCount()
@@ -759,7 +759,7 @@ IMetaAnnotation * ImplMetaItem::doGetAnnotationAt(uint32_t index)
 
 	return new ImplMetaAnnotation(this->doGetItem()->getAnnotationAt(index));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 gapi_bool ImplMetaItem::doEquals(IMetaItem * other)
@@ -818,7 +818,7 @@ void * ImplMetaTypedItem::doCreateInstance()
 
 	return this->getTypedItem()->createInstance();
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 void * ImplMetaTypedItem::doCreateInplace(void * placement)
@@ -827,7 +827,7 @@ void * ImplMetaTypedItem::doCreateInplace(void * placement)
 
 	return this->getTypedItem()->createInplace(placement);
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 void * ImplMetaTypedItem::doCloneInstance(const void * instance)
@@ -836,7 +836,7 @@ void * ImplMetaTypedItem::doCloneInstance(const void * instance)
 
 	return this->getTypedItem()->cloneInstance(instance);
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 void * ImplMetaTypedItem::doCloneInplace(const void * instance, void * placement)
@@ -845,7 +845,7 @@ void * ImplMetaTypedItem::doCloneInplace(const void * instance, void * placement
 
 	return this->getTypedItem()->cloneInplace(instance, placement);
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 void ImplMetaTypedItem::doDestroyInstance(void * instance)
@@ -1026,8 +1026,6 @@ void ImplMetaAccessible::doGet(GVariantData * outResult, const void * instance)
 {
 	ENTER_META_API()
 	
-	initializeVarData(outResult);
-
 	*outResult = this->getAccessible()->get(instance).takeData();
 
 	LEAVE_META_API()
@@ -1172,7 +1170,7 @@ void G_API_CC ImplMetaMethod::invoke(GVariantData * outResult, void * instance, 
 
 	VariantParameterBuffer variantsBuffer(params, paramCount);
 
-	if(outResult == NULL) {
+	if(outResult == nullptr) {
 		this->getMethod()->execute(instance, variantsBuffer.variants, paramCount);
 	}
 	else {
@@ -1188,7 +1186,7 @@ void G_API_CC ImplMetaMethod::invokeIndirectly(GVariantData * outResult, void * 
 
 	VariantParameterBuffer variantsBuffer(params, paramCount);
 
-	if(outResult == NULL) {
+	if(outResult == nullptr) {
 		this->getMethod()->execute(instance, variantsBuffer.variants, paramCount).takeData();
 	}
 	else {
@@ -1207,7 +1205,7 @@ ImplMetaConstructor::ImplMetaConstructor(const GMetaConstructor * constructor, b
 
 void G_API_CC ImplMetaConstructor::execute(GVariantData * outResult, void * /*instance*/, const GVariantData * params, uint32_t paramCount)
 {
-	if(outResult != NULL) {
+	if(outResult != nullptr) {
 		void * newObj = this->invoke(params, paramCount);
 		*outResult = GVariant(newObj).takeData();
 	}
@@ -1215,7 +1213,7 @@ void G_API_CC ImplMetaConstructor::execute(GVariantData * outResult, void * /*in
 
 void G_API_CC ImplMetaConstructor::executeIndirectly(GVariantData * outResult, void * /*instance*/, GVariantData const * const * params, uint32_t paramCount)
 {
-	if(outResult != NULL) {
+	if(outResult != nullptr) {
 		void * newObj = this->invokeIndirectly(params, paramCount);
 		*outResult = GVariant(newObj).takeData();
 	}
@@ -1227,9 +1225,9 @@ void * G_API_CC ImplMetaConstructor::invoke(const GVariantData * params, uint32_
 
 	VariantParameterBuffer variantsBuffer(params, paramCount);
 
-	return objectAddressFromVariant(this->getConstructor()->execute(NULL, variantsBuffer.variants, paramCount));
+	return objectAddressFromVariant(this->getConstructor()->execute(nullptr, variantsBuffer.variants, paramCount));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 void * G_API_CC ImplMetaConstructor::invokeIndirectly(GVariantData const * const * params, uint32_t paramCount)
@@ -1238,9 +1236,9 @@ void * G_API_CC ImplMetaConstructor::invokeIndirectly(GVariantData const * const
 
 	VariantParameterBuffer variantsBuffer(params, paramCount);
 
-	return objectAddressFromVariant(this->getConstructor()->execute(NULL, variantsBuffer.variants, paramCount));
+	return objectAddressFromVariant(this->getConstructor()->execute(nullptr, variantsBuffer.variants, paramCount));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 
@@ -1273,7 +1271,7 @@ void G_API_CC ImplMetaOperator::invokeUnary(GVariantData * outResult, const GVar
 {
 	ENTER_META_API()
 
-	if(outResult == NULL) {
+	if(outResult == nullptr) {
 		this->getOperatorItem()->invokeUnary(createVariantFromData(*p0));
 	}
 	else {
@@ -1287,7 +1285,7 @@ void G_API_CC ImplMetaOperator::invokeBinary(GVariantData * outResult, const GVa
 {
 	ENTER_META_API()
 
-	if(outResult == NULL) {
+	if(outResult == nullptr) {
 		this->getOperatorItem()->invokeBinary(createVariantFromData(*p0), createVariantFromData(*p1));
 	}
 	else {
@@ -1303,7 +1301,7 @@ void G_API_CC ImplMetaOperator::invokeFunctor(GVariantData * outResult, void * i
 
 	VariantParameterBuffer variantsBuffer(params, paramCount);
 
-	if(outResult == NULL) {
+	if(outResult == nullptr) {
 		this->getOperatorItem()->execute(instance, variantsBuffer.variants, paramCount);
 	}
 	else {
@@ -1319,7 +1317,7 @@ void G_API_CC ImplMetaOperator::invokeFunctorIndirectly(GVariantData * outResult
 
 	VariantParameterBuffer variantsBuffer(params, paramCount);
 
-	if(outResult == NULL) {
+	if(outResult == nullptr) {
 		this->getOperatorItem()->execute(instance, variantsBuffer.variants, paramCount);
 	}
 	else {
@@ -1339,8 +1337,6 @@ ImplMetaFundamental::ImplMetaFundamental(const GMetaFundamental * fundamental, b
 void G_API_CC ImplMetaFundamental::getValue(GVariantData * outResult, const void * instance)
 {
 	ENTER_META_API()
-
-	initializeVarData(outResult);
 
 	*outResult = this->getFundamental()->getValue(instance).takeData();
 
@@ -1368,14 +1364,12 @@ const char * G_API_CC ImplMetaEnum::getKey(uint32_t index)
 
 	return this->getEnum()->getKey(index);
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 void G_API_CC ImplMetaEnum::getValue(GVariantData * outResult, uint32_t index)
 {
 	ENTER_META_API()
-
-	initializeVarData(outResult);
 
 	*outResult = this->getEnum()->getValue(index).takeData();
 
@@ -1443,7 +1437,7 @@ const char * G_API_CC ImplMetaAnnotationValue::toString()
 
 	return this->value->toString();
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 const wchar_t * G_API_CC ImplMetaAnnotationValue::toWideString()
@@ -1452,7 +1446,7 @@ const wchar_t * G_API_CC ImplMetaAnnotationValue::toWideString()
 
 	return this->value->toWideString();
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 int32_t G_API_CC ImplMetaAnnotationValue::toInt32()
@@ -1485,7 +1479,7 @@ IMetaItem * G_API_CC ImplMetaAnnotation::getMetaItem()
 
 	return metaItemToInterface(this->getAnnotation()->getMetaItem());
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaAnnotationValue * G_API_CC ImplMetaAnnotation::getValue(const char * name)
@@ -1494,7 +1488,7 @@ IMetaAnnotationValue * G_API_CC ImplMetaAnnotation::getValue(const char * name)
 
 	return doCreateItem<ImplMetaAnnotationValue>(this->getAnnotation()->getValue(name));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 uint32_t G_API_CC ImplMetaAnnotation::getCount()
@@ -1512,7 +1506,7 @@ const char * G_API_CC ImplMetaAnnotation::getNameAt(uint32_t index)
 
 	return this->getAnnotation()->getNameAt(index);
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaAnnotationValue * G_API_CC ImplMetaAnnotation::getValueAt(uint32_t index)
@@ -1521,7 +1515,7 @@ IMetaAnnotationValue * G_API_CC ImplMetaAnnotation::getValueAt(uint32_t index)
 
 	return doCreateItem<ImplMetaAnnotationValue>(this->getAnnotation()->getValueAt(index));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 
@@ -1538,7 +1532,7 @@ IMetaConstructor * G_API_CC ImplMetaClass::getConstructorByParamCount(uint32_t p
 
 	return doCreateItem<ImplMetaConstructor>(this->getClass()->getConstructorByParamCount(paramCount));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 uint32_t G_API_CC ImplMetaClass::getConstructorCount()
@@ -1556,7 +1550,7 @@ IMetaConstructor * G_API_CC ImplMetaClass::getConstructorAt(uint32_t index)
 
 	return doCreateItem<ImplMetaConstructor>(this->getClass()->getConstructorAt(index));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaField * G_API_CC ImplMetaClass::getFieldInHierarchy(const char * name, void ** instance)
@@ -1565,7 +1559,7 @@ IMetaField * G_API_CC ImplMetaClass::getFieldInHierarchy(const char * name, void
 
 	return doCreateItem<ImplMetaField>(this->getClass()->getFieldInHierarchy(name, instance));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaField * G_API_CC ImplMetaClass::getField(const char * name)
@@ -1574,7 +1568,7 @@ IMetaField * G_API_CC ImplMetaClass::getField(const char * name)
 
 	return doCreateItem<ImplMetaField>(this->getClass()->getField(name));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 uint32_t G_API_CC ImplMetaClass::getFieldCount()
@@ -1592,7 +1586,7 @@ IMetaField * G_API_CC ImplMetaClass::getFieldAt(uint32_t index)
 
 	return doCreateItem<ImplMetaField>(this->getClass()->getFieldAt(index));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaProperty * G_API_CC ImplMetaClass::getPropertyInHierarchy(const char * name, void ** instance)
@@ -1601,7 +1595,7 @@ IMetaProperty * G_API_CC ImplMetaClass::getPropertyInHierarchy(const char * name
 
 	return doCreateItem<ImplMetaProperty>(this->getClass()->getPropertyInHierarchy(name, instance));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaProperty * G_API_CC ImplMetaClass::getProperty(const char * name)
@@ -1610,7 +1604,7 @@ IMetaProperty * G_API_CC ImplMetaClass::getProperty(const char * name)
 
 	return doCreateItem<ImplMetaProperty>(this->getClass()->getProperty(name));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 uint32_t G_API_CC ImplMetaClass::getPropertyCount()
@@ -1628,7 +1622,7 @@ IMetaProperty * G_API_CC ImplMetaClass::getPropertyAt(uint32_t index)
 
 	return doCreateItem<ImplMetaProperty>(this->getClass()->getPropertyAt(index));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaMethod * G_API_CC ImplMetaClass::getMethodInHierarchy(const char * name, void ** instance)
@@ -1637,7 +1631,7 @@ IMetaMethod * G_API_CC ImplMetaClass::getMethodInHierarchy(const char * name, vo
 
 	return doCreateItem<ImplMetaMethod>(this->getClass()->getMethodInHierarchy(name, instance));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaMethod * G_API_CC ImplMetaClass::getMethod(const char * name)
@@ -1646,7 +1640,7 @@ IMetaMethod * G_API_CC ImplMetaClass::getMethod(const char * name)
 
 	return doCreateItem<ImplMetaMethod>(this->getClass()->getMethod(name));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 uint32_t G_API_CC ImplMetaClass::getMethodCount()
@@ -1664,7 +1658,7 @@ IMetaMethod * G_API_CC ImplMetaClass::getMethodAt(uint32_t index)
 
 	return doCreateItem<ImplMetaMethod>(this->getClass()->getMethodAt(index));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaOperator * G_API_CC ImplMetaClass::getOperatorInHierarchy(uint32_t op, void ** instance)
@@ -1673,7 +1667,7 @@ IMetaOperator * G_API_CC ImplMetaClass::getOperatorInHierarchy(uint32_t op, void
 
 	return doCreateItem<ImplMetaOperator>(this->getClass()->getOperatorInHierarchy(static_cast<GMetaOpType>(op), instance));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaOperator * G_API_CC ImplMetaClass::getOperator(uint32_t op)
@@ -1682,7 +1676,7 @@ IMetaOperator * G_API_CC ImplMetaClass::getOperator(uint32_t op)
 
 	return doCreateItem<ImplMetaOperator>(this->getClass()->getOperator(static_cast<GMetaOpType>(op)));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 uint32_t G_API_CC ImplMetaClass::getOperatorCount()
@@ -1700,7 +1694,7 @@ IMetaOperator * G_API_CC ImplMetaClass::getOperatorAt(uint32_t index)
 
 	return doCreateItem<ImplMetaOperator>(this->getClass()->getOperatorAt(index));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaEnum * G_API_CC ImplMetaClass::getEnumInHierarchy(const char * name, void ** instance)
@@ -1709,7 +1703,7 @@ IMetaEnum * G_API_CC ImplMetaClass::getEnumInHierarchy(const char * name, void *
 
 	return doCreateItem<ImplMetaEnum>(this->getClass()->getEnumInHierarchy(name, instance));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaEnum * G_API_CC ImplMetaClass::getEnum(const char * name)
@@ -1718,7 +1712,7 @@ IMetaEnum * G_API_CC ImplMetaClass::getEnum(const char * name)
 
 	return doCreateItem<ImplMetaEnum>(this->getClass()->getEnum(name));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 uint32_t G_API_CC ImplMetaClass::getEnumCount()
@@ -1736,7 +1730,7 @@ IMetaEnum * G_API_CC ImplMetaClass::getEnumAt(uint32_t index)
 
 	return doCreateItem<ImplMetaEnum>(this->getClass()->getEnumAt(index));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaClass * G_API_CC ImplMetaClass::getClassInHierarchy(const char * name, void ** instance)
@@ -1745,7 +1739,7 @@ IMetaClass * G_API_CC ImplMetaClass::getClassInHierarchy(const char * name, void
 
 	return doCreateItem<ImplMetaClass>(this->getClass()->getClassInHierarchy(name, instance));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 
@@ -1755,7 +1749,7 @@ IMetaClass * G_API_CC ImplMetaClass::getClass(const char * name)
 
 	return doCreateItem<ImplMetaClass>(this->getClass()->getClass(name));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 uint32_t G_API_CC ImplMetaClass::getClassCount()
@@ -1773,7 +1767,7 @@ IMetaClass * G_API_CC ImplMetaClass::getClassAt(uint32_t index)
 
 	return doCreateItem<ImplMetaClass>(this->getClass()->getClassAt(index));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 uint32_t G_API_CC ImplMetaClass::getMetaCount()
@@ -1791,7 +1785,7 @@ IMetaItem * G_API_CC ImplMetaClass::getMetaAt(uint32_t index)
 
 	return metaItemToInterface(this->getClass()->getMetaAt(index));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 gapi_bool G_API_CC ImplMetaClass::isGlobal()
@@ -1845,7 +1839,7 @@ IMetaClass * G_API_CC ImplMetaClass::getBaseClass(uint32_t baseIndex)
 
 	return doCreateItem<ImplMetaClass>(this->getClass()->getBaseClass(baseIndex));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 uint32_t G_API_CC ImplMetaClass::getBaseCount()
@@ -1863,7 +1857,7 @@ IMetaClass * G_API_CC ImplMetaClass::getDerivedClass(uint32_t derivedIndex)
 
 	return doCreateItem<ImplMetaClass>(this->getClass()->getDerivedClass(derivedIndex));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 uint32_t G_API_CC ImplMetaClass::getDerivedCount()
@@ -1904,7 +1898,7 @@ void * G_API_CC ImplMetaClass::castFromBase(const void * base, uint32_t baseInde
 
 	return this->getClass()->castFromBase(base, baseIndex);
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 void * G_API_CC ImplMetaClass::castToBase(const void * self, uint32_t baseIndex)
@@ -1913,7 +1907,7 @@ void * G_API_CC ImplMetaClass::castToBase(const void * self, uint32_t baseIndex)
 
 	return this->getClass()->castToBase(self, baseIndex);
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 void * G_API_CC ImplMetaClass::castFromDerived(const void * derived, uint32_t derivedIndex)
@@ -1922,7 +1916,7 @@ void * G_API_CC ImplMetaClass::castFromDerived(const void * derived, uint32_t de
 
 	return this->getClass()->castFromDerived(derived, derivedIndex);
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 void * G_API_CC ImplMetaClass::castToDerived(const void * self, uint32_t derivedIndex)
@@ -1931,7 +1925,7 @@ void * G_API_CC ImplMetaClass::castToDerived(const void * self, uint32_t derived
 
 	return this->getClass()->castToDerived(self, derivedIndex);
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 
@@ -1939,7 +1933,7 @@ void * G_API_CC ImplMetaClass::castToDerived(const void * self, uint32_t derived
 ImplMetaModule::ImplMetaModule(GMetaModule * module, GMetaClass * metaClass)
 	: module(module), metaClass(metaClass)
 {
-	if(this->metaClass != NULL) {
+	if(this->metaClass != nullptr) {
 		this->metaClass->setModule(this->module);
 	}
 }
@@ -1954,7 +1948,7 @@ IMetaClass * G_API_CC ImplMetaModule::getGlobalMetaClass()
 
 	return new ImplMetaClass(this->metaClass, false);
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaTypedItem * G_API_CC ImplMetaModule::findTypedItemByName(const char * name)
@@ -1965,7 +1959,7 @@ IMetaTypedItem * G_API_CC ImplMetaModule::findTypedItemByName(const char * name)
 
 	return static_cast<IMetaTypedItem *>(metaItemToInterface(typedItem));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaClass * G_API_CC ImplMetaModule::findClassByName(const char * name)
@@ -1974,7 +1968,7 @@ IMetaClass * G_API_CC ImplMetaModule::findClassByName(const char * name)
 
 	return doCreateItem<ImplMetaClass>(this->metaClass->getModule()->findClassByName(name));
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 
@@ -2025,8 +2019,8 @@ IMetaTypedItem * G_API_CC ImplMetaService::findTypedItemByName(const char * name
 {
 	ENTER_META_API()
 
-	if(name == NULL) {
-		return NULL;
+	if(name == nullptr) {
+		return nullptr;
 	}
 
 	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
@@ -2036,17 +2030,17 @@ IMetaTypedItem * G_API_CC ImplMetaService::findTypedItemByName(const char * name
 		}
 	}
 
-	return NULL;
+	return nullptr;
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 IMetaClass * G_API_CC ImplMetaService::findClassByName(const char * name)
 {
 	ENTER_META_API()
 
-	if(name == NULL) {
-		return NULL;
+	if(name == nullptr) {
+		return nullptr;
 	}
 
 	for(ListType::iterator it = this->moduleList.begin(); it != this->moduleList.end(); ++it) {
@@ -2056,9 +2050,9 @@ IMetaClass * G_API_CC ImplMetaService::findClassByName(const char * name)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 
-	LEAVE_META_API(return NULL)
+	LEAVE_META_API(return nullptr)
 }
 
 
@@ -2088,8 +2082,8 @@ IMetaList * createMetaList()
 
 IMetaItem * metaItemToInterface(const GMetaItem * item, bool freeItem)
 {
-	if(item == NULL) {
-		return NULL;
+	if(item == nullptr) {
+		return nullptr;
 	}
 
 	switch(item->getCategory()) {
@@ -2125,7 +2119,7 @@ IMetaItem * metaItemToInterface(const GMetaItem * item, bool freeItem)
 
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 IMetaItem * metaItemToInterface(const GMetaItem * item)

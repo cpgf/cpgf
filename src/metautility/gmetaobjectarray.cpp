@@ -56,13 +56,13 @@ private:
 
 
 GMetaObjectArrayImplement::GMetaObjectArrayImplement(IMetaClass * metaClass)
-	: metaClass(metaClass), metaType(metaGetItemType(metaClass)), objectSize(metaClass->getTypeSize()), objectCount(0), capacity(0), buffer(NULL)
+	: metaClass(metaClass), metaType(metaGetItemType(metaClass)), objectSize(metaClass->getTypeSize()), objectCount(0), capacity(0), buffer(nullptr)
 {
 }
 
 GMetaObjectArrayImplement::~GMetaObjectArrayImplement()
 {
-	if(this->buffer != NULL) {
+	if(this->buffer != nullptr) {
 		this->doFreeObjects(this->buffer, 0, this->objectCount);
 
 		free(this->buffer);
@@ -71,7 +71,7 @@ GMetaObjectArrayImplement::~GMetaObjectArrayImplement()
 
 void GMetaObjectArrayImplement::setObject(uint32_t index, void * object)
 {
-	if(object == NULL) {
+	if(object == nullptr) {
 		return;
 	}
 
@@ -90,7 +90,7 @@ void * GMetaObjectArrayImplement::getObject(uint32_t index) const
 		return this->doGetObject(index);
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -153,7 +153,7 @@ void GMetaObjectArrayImplement::doSetCapacity(uint32_t newCapacity)
 	
 	void * newBuffer = malloc(newCapacity * this->objectSize);
 
-	if(this->buffer != NULL) {
+	if(this->buffer != nullptr) {
 		CFreeGuard freeGuard(this->buffer);
 		for(uint32_t i = 0; i < this->objectCount; ++i) {
 			this->metaClass->cloneInplace(this->doGetAddress(this->buffer, i), this->doGetAddress(newBuffer, i));
@@ -188,7 +188,7 @@ GMetaObjectArray::~GMetaObjectArray()
 GVariant GMetaObjectArray::getItem(uint32_t index) const
 {
 	void * object = this->implement->getObject(index);
-	if(object == NULL) {
+	if(object == nullptr) {
 		return object;
 	}
 	else {
@@ -201,7 +201,7 @@ void GMetaObjectArray::setItem(uint32_t index, const GVariant & value, const GMe
 	void * object = objectAddressFromVariant(value);
 	this->implement->setObject(index, object);
 
-	if(moreValues != NULL) {
+	if(moreValues != nullptr) {
 		for(uint32_t i = 0; i < moreValues->paramCount; ++i) {
 			++index;
 			object = objectAddressFromVariant(*(moreValues->params[i]));

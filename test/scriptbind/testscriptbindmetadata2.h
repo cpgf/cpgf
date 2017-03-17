@@ -205,6 +205,11 @@ public:
 		}
 	}
 	
+	// https://github.com/cpgf/cpgf/issues/65
+	void testParamReferenceToPointer(int * & param) const {
+		param = nullptr;
+	}
+
 public:
 	int	value;
 	RawData raw;

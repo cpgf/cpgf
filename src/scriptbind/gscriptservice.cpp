@@ -59,7 +59,7 @@ bool GScriptCoreService::loadLibrary(const char * namespaces, const GMetaVariadi
 		this->libraryLoader.reset(loader.get());
 	}
 
-	if(namespaces == NULL) {
+	if(namespaces == nullptr) {
 		namespaces = this->bindName.c_str();
 	}
 

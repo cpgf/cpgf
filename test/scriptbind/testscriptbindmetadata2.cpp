@@ -67,6 +67,8 @@ void TestScriptBindMetaData2()
 		
 		._method("scriptObjectCallback", &TestObject::scriptObjectCallback)
 		._method("getVariant", &TestObject::getVariant)
+		
+		._method("testParamReferenceToPointer", &TestObject::testParamReferenceToPointer)
 	;
 }
 

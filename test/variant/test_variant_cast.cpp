@@ -5,6 +5,7 @@
 #include "cpgf/gmetaapi.h"
 
 #include <string>
+#include <iostream>
 
 #define CAN_FROM(to, value) GCHECK(canFromVariant<to>(value)); fromVariant<to>(value)
 #define CAN_FROM_CAST(to, from, value) GCHECK(canFromVariant<to>(static_cast<from>(value))); fromVariant<to>(static_cast<from>(value))
@@ -77,7 +78,7 @@ GTEST(TestVariant_Cast)
 
 	GVarTypeData typeData = GVarTypeData();
 	deduceVariantType<CLASS * & >(typeData, true);
-	GEQUAL(typeData.vt, (vtObject | byPointer));
+	GEQUAL(typeData.vt, ((int)GVariantType::vtObject | (int)GVariantType::byPointer | (int)GVariantType::byLvalueReference));
 
 	CAN_FROM_CAST(CLASS &, CLASS &&, n);
 	CAN_FROM_CAST(CLASS &&, CLASS &, obj);
@@ -111,16 +112,16 @@ GTEST(TestVariant_CastFromFloat)
 
 	float a = 5.0f;
 	value = &a;
-	value.refData().typeData.vt = byReference | vtFloat;
+	value.refData().typeData.vt = (uint16_t)GVariantType::byLvalueReference | (uint16_t)GVariantType::vtFloat;
 
-	GCHECK(value.getType() == (byReference | vtFloat));
+	GCHECK((uint16_t)value.getType() == ((uint16_t)GVariantType::byLvalueReference | (uint16_t)GVariantType::vtFloat));
 
 	casted = (float)fromVariant<double>(value);
 	GCHECK(casted > 4.9f && casted < 5.1f);
 
 	int b = 3;
 	value = &b;
-	value.refData().typeData.vt = byReference | vtSignedInt;
+	value.refData().typeData.vt = (uint16_t)GVariantType::byLvalueReference | (uint16_t)GVariantType::vtSignedInt;
 	CAN_FROM(void *, value);
 	CAN_FROM(const void *, value);
 	CAN_FROM(const void * const, value);

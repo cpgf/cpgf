@@ -4,7 +4,7 @@
 
 #include "cpgf/gtypetraits.h"
 #include "cpgf/gifelse.h"
-#include "cpgf/gvartypedata.h"
+#include "cpgf/gvariant.h"
 
 
 namespace cpgf {

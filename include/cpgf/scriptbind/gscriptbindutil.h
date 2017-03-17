@@ -7,6 +7,31 @@
 
 namespace cpgf {
 
+template <typename T>
+GVariant createTypedVariant(const T & value)
+{
+	return createTypedVariant(GVariant(value), createMetaType<T>());
+}
+class GTypedVariant
+{
+public:
+	template <typename T>
+	GTypedVariant(const T & value) : value(createTypedVariant(value)) {}
+
+	operator const GVariant & () const { return this->value; }
+	operator GVariant & () { return this->value; }
+	operator const GVariant * () const { return &this->value; }
+	operator GVariant * () { return &this->value; }
+	const GVariant * operator & () const { return & this->value; }
+	GVariant * operator & () { return & this->value; }
+
+	const GVariant & getValue() const { return this->value; }
+	GVariant & getValue() { return this->value; }
+
+private:
+	GVariant value;
+};
+
 
 #define DECLARE_CALL_HELPER(N, unused) \
 	GScriptValue invokeScriptFunction(GScriptObject * scriptObject, const char * functionName GPP_COMMA_IF(N) GPP_REPEAT_PARAMS(N, const GTypedVariant & p)); \
@@ -43,12 +68,12 @@ GScriptValue scriptCreateScriptArray(IScriptArray * scriptArray, size_t index);
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject, bool freeObject);
 IScriptObject * scriptObjectToInterface(GScriptObject * scriptObject);
 
-void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
-void injectObjectToScript(GScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
-void injectObjectToScript(IScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
-void injectObjectToScript(GScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = NULL);
+void injectObjectToScript(IScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName = nullptr);
+void injectObjectToScript(GScriptObject * scriptObject, IMetaClass * metaClass, void * instance, const char * namespaceName = nullptr);
+void injectObjectToScript(IScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = nullptr);
+void injectObjectToScript(GScriptObject * scriptObject, GMetaClass * metaClass, void * instance, const char * namespaceName = nullptr);
 
-// We can't do this for GScriptObject because if namespaces is NULL, we can't return owner of GScriptObject (we can't share the ownership)
+// We can't do this for GScriptObject because if namespaces is nullptr, we can't return owner of GScriptObject (we can't share the ownership)
 IScriptObject * createScriptObject(IScriptObject * owner, const char * namespaces);
 
 

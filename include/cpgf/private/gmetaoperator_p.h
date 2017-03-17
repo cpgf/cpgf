@@ -54,7 +54,7 @@ struct ConvertReference <T, true>
 inline GVariant convertSelf(const GVariant & param)
 {
 	if(vtIsByPointer(param.getType())) {
-		return pointerToRefVariant(param);
+		return variantPointerToLvalueReference(param);
 	}
 	else {
 		return param;
@@ -154,11 +154,7 @@ struct MetaOperatorExecuter;
 #define DEF_BINARY_FULL(OP, EXP) \
 	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy, typename GEnableIfResult<CheckHasResult<FT> >::Result> : public MetaBinaryOperatorExecuter<FT>	{ \
 		template <typename P0, typename P1> static GVariant invoke(P0 p0, P1 p1) { \
-			GVarTypeData typeData = GVarTypeData(); \
-			deduceVariantType<typename FT::ResultType>(typeData, ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
-			GVariant v; \
-			variant_internal::InitVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result, typename FT::ResultType>(v, typeData, (EXP)); \
-			return v; \
+			return createVariant<typename FT::ResultType>((const typename std::remove_reference<typename FT::ResultType>::type &)(EXP), ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
 	} }; \
 	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy, typename GDisableIfResult<CheckHasResult<FT> >::Result> : public MetaBinaryOperatorExecuter<FT> { \
 		template <typename P0, typename P1> static GVariant invoke(P0 p0, P1 p1) { \
@@ -217,11 +213,7 @@ DEF_BINARY(mopPointerMember, ->*)
 #define DEF_UNARY(OP, EXP) \
 	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy> : public MetaUnaryOperatorExecuter<FT> { \
 		template <typename P0> static GVariant invoke(P0 p) { \
-			GVarTypeData typeData = GVarTypeData(); \
-			deduceVariantType<typename FT::ResultType>(typeData, ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
-			GVariant v; \
-			variant_internal::InitVariant<! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result, typename FT::ResultType>(v, typeData, (EXP)); \
-			return v; \
+			return createVariant<typename FT::ResultType>((const typename std::remove_reference<typename FT::ResultType>::type &)(EXP), ! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result); \
 	} }; \
 	template <typename FT, typename Policy> struct MetaOperatorExecuter <OP, FT, Policy, typename GDisableIfResult<CheckHasResult<FT> >::Result> : public MetaUnaryOperatorExecuter<FT> { \
 		template <typename P0> static GVariant invoke(P0 p) { \
@@ -468,9 +460,9 @@ public:
 		static GMetaOperatorDataVirtual thisFunctions = {
 			&virtualBaseMetaDeleter<ThisType>,
 			
-			NULL,
+			nullptr,
 			&virtualInvoke2,
-			NULL,
+			nullptr,
 			&virtualExecute,
 
 			&virtualGetOperator,
@@ -617,8 +609,8 @@ public:
 			&virtualBaseMetaDeleter<ThisType>,
 			
 			&virtualInvoke,
-			NULL,
-			NULL,
+			nullptr,
+			nullptr,
 			&virtualExecute,
 
 			&virtualGetOperator,
@@ -771,7 +763,7 @@ private:
 	}
 
 	static GVariant virtualInvoke(const GVariant & p0) {
-		return virtualInvokeFunctor(objectAddressFromVariant(p0), NULL, 0);
+		return virtualInvokeFunctor(objectAddressFromVariant(p0), nullptr, 0);
 	}
 
 	static GVariant virtualInvoke2(const GVariant & p0, const GVariant & p1) {

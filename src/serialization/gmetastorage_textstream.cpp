@@ -456,7 +456,7 @@ void G_API_CC GTextStreamMetaReader::readFundamental(const char * /*name*/, GVar
 	PermanentType type = this->getTypeInSession(true);
 
 	GVariantType vt = getVariantTypeFromMap(this->variantTypeMap, type);
-	if(vt == vtEmpty) {
+	if(vt == GVariantType::vtEmpty) {
 		serializeError(Error_Serialization_TypeMismatch);
 	}
 
@@ -481,7 +481,7 @@ void * G_API_CC GTextStreamMetaReader::readNullPointer(const char * /*name*/)
 	PermanentType type = this->readType();
 	serializeCheckType(type, ptNull);
 	
-	return NULL;
+	return nullptr;
 }
 
 uint32_t G_API_CC GTextStreamMetaReader::beginReadObject(const char * /*name*/, uint32_t * outVersion)
@@ -537,13 +537,13 @@ IMetaClass * G_API_CC GTextStreamMetaReader::readMetaClassAndTypeID(IMetaService
 	this->skipDelimiter();
 	*outClassTypeID = id;
 	
-	GScopedArray<char> classType(this->doReadString(NULL));
+	GScopedArray<char> classType(this->doReadString(nullptr));
 	return service->findClassByName(classType.get());
 }
 
 IMetaClass * G_API_CC GTextStreamMetaReader::readMetaClass(IMetaService * /*service*/, uint32_t /*classTypeID*/)
 {
-	return NULL;
+	return nullptr;
 }
 
 uint32_t G_API_CC GTextStreamMetaReader::beginReadArray(const char * /*name*/)
@@ -594,7 +594,7 @@ char * GTextStreamMetaReader::doReadString(IMemoryAllocator * allocator)
 	this->inputStream >> len;
 	this->skipDelimiter();
 	char * s;
-	if(allocator == NULL) {
+	if(allocator == nullptr) {
 		s = new char[len + 1];
 	}
 	else {

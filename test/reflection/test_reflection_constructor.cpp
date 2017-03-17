@@ -285,7 +285,7 @@ GTEST(Lib_CheckParam)
 
 	CTOR(6);
 	GCHECK(ctor->checkParam((CLASS_DATA *)0, 0));
-	GCHECK(ctor->checkParam("abc", 0)); // dangerous
+//	GCHECK(ctor->checkParam("abc", 0)); // dangerous
 	GCHECK(! ctor->checkParam("", 1));
 
 	CTOR(7);
@@ -353,7 +353,7 @@ GTEST(API_CheckParam)
 
 	CTOR(6);
 	GCHECK(metaCheckParam(ctor.get(), (CLASS_DATA *)0, 0));
-	GCHECK(metaCheckParam(ctor.get(), "abc", 0)); // dangerous
+//	GCHECK(metaCheckParam(ctor.get(), "abc", 0)); // dangerous
 	GCHECK(! metaCheckParam(ctor.get(), "", 1));
 
 	CTOR(7);

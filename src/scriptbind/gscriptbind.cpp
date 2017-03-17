@@ -9,12 +9,12 @@ namespace cpgf {
 
 
 GScriptObject::GScriptObject(const GScriptConfig & config)
-	: config(config), owner(NULL)
+	: config(config), owner(nullptr)
 {
 }
 
 GScriptObject::GScriptObject(const GScriptObject & other)
-	: config(other.config), owner(NULL)
+	: config(other.config), owner(nullptr)
 {
 }
 
@@ -117,7 +117,7 @@ std::string GScriptObject::getString(const char * stringName)
 
 void * GScriptObject::getObject(const char * objectName)
 {
-	return this->getValue(objectName).toObjectAddress(NULL, NULL);
+	return this->getValue(objectName).toObjectAddress(nullptr, nullptr);
 }
 
 GVariant GScriptObject::getRaw(const char * name)
@@ -138,7 +138,7 @@ IMetaList * GScriptObject::getMethodList(const char * methodName)
 GScriptValue::Type GScriptObject::getType(const char * name, IMetaTypedItem ** outMetaTypeItem)
 {
 	GScriptValue value(this->getValue(name));
-	if(outMetaTypeItem != NULL) {
+	if(outMetaTypeItem != nullptr) {
 		*outMetaTypeItem = getTypedItemFromScriptValue(value);
 	}
 	return value.getType();
@@ -171,7 +171,7 @@ void GScriptObject::setOwner(GScriptObject * newOwner)
 
 bool GScriptObject::isGlobal() const
 {
-	return this->owner == NULL;
+	return this->owner == nullptr;
 }
 
 const char * GScriptObject::getName() const
@@ -186,9 +186,9 @@ void GScriptObject::setName(const std::string & newName)
 
 GScriptValue GScriptObject::createScriptObject(const char * name)
 {
-	GScriptObject * object = NULL;
+	GScriptObject * object = nullptr;
 	const int delimiter = '.';
-	if(strchr(name, delimiter) == NULL) {
+	if(strchr(name, delimiter) == nullptr) {
 		object = this->doCreateScriptObject(name);
 	}
 	else {
@@ -200,18 +200,18 @@ GScriptValue GScriptObject::createScriptObject(const char * name)
 		GScopedPointer<GScriptObject> scriptObject;
 		for(;;) {
 			next = strchr(head, delimiter);
-			if(next != NULL) {
+			if(next != nullptr) {
 				*next = '\0';
 			}
 			GScriptObject * obj = scriptObject.get();
-			if(obj == NULL) {
+			if(obj == nullptr) {
 				obj = this;
 			}
 			scriptObject.reset(obj->doCreateScriptObject(head));
 			if(! scriptObject) {
 				break;
 			}
-			if(next == NULL) {
+			if(next == nullptr) {
 				break;
 			}
 			++next;
@@ -219,7 +219,7 @@ GScriptValue GScriptObject::createScriptObject(const char * name)
 		}
 		object = scriptObject.take();
 	}
-	if(object == NULL) {
+	if(object == nullptr) {
 		return GScriptValue();
 	}
 	else {

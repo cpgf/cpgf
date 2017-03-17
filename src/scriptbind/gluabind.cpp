@@ -259,7 +259,7 @@ int refLua(lua_State * L, int objectIndex)
 
 void unrefLua(lua_State * L, int ref)
 {
-	if(ref == LUA_NOREF || L == NULL) {
+	if(ref == LUA_NOREF || L == nullptr) {
 		return;
 	}
 
@@ -278,7 +278,7 @@ void getRefObject(lua_State * L, int ref)
 lua_State * getLuaState(const GContextPointer & context)
 {
 	if(! context) {
-		return NULL;
+		return nullptr;
 	}
 	else {
 		return gdynamic_cast<GLuaBindingContext *>(context.get())->getLuaState();
@@ -346,7 +346,7 @@ int GLuaGlobalAccessor::doNewIndex()
 	string sname(name);
 	MapType::iterator it = this->itemMap.find(sname);
 	if(it != this->itemMap.end()) {
-		GVariant value = luaToScriptValue(this->scriptObject->getBindingContext(), -1, NULL).getValue();
+		GVariant value = luaToScriptValue(this->scriptObject->getBindingContext(), -1, nullptr).getValue();
 		GVariantData varData = value.refData();
 		it->second.accessible->set(it->second.instance, &varData);
 		metaCheckError(it->second.accessible.get());
@@ -460,7 +460,7 @@ void error(lua_State * L, const char * message)
 
 	const char * fileName = ar.source;
 	char dummy = 0;
-	if(fileName == NULL || *fileName != '@') {
+	if(fileName == nullptr || *fileName != '@') {
 		fileName = &dummy;
 	}
 
@@ -476,7 +476,7 @@ void objectToLua(const GContextPointer & context, const GClassGlueDataPointer & 
 {
 	lua_State * L = getLuaState(context);
 
-	if(objectAddressFromVariant(instance) == NULL) {
+	if(objectAddressFromVariant(instance) == nullptr) {
 		lua_pushnil(L);
 
 		return;
@@ -486,7 +486,7 @@ void objectToLua(const GContextPointer & context, const GClassGlueDataPointer & 
 	GObjectGlueDataPointer objectData(context->newOrReuseObjectGlueData(classData, instance, flags, cv));
 	newGlueDataWrapper(userData, objectData);
 
-	if(outputGlueData != NULL) {
+	if(outputGlueData != nullptr) {
 		*outputGlueData = objectData;
 	}
 
@@ -529,7 +529,7 @@ GScriptValue luaUserDataToScriptValue(const GContextPointer & context, int index
 	if(isValidMetaTable(L, index)) {
 		void * userData = lua_touserdata(L, index);
 		GGlueDataPointer glueData = static_cast<GGlueDataWrapper *>(userData)->getData();
-		if(outputGlueData != NULL) {
+		if(outputGlueData != nullptr) {
 			*outputGlueData = glueData;
 		}
 		return glueDataToScriptValue(glueData);
@@ -569,7 +569,7 @@ GScriptValue luaToScriptValue(const GContextPointer & context, int index, GGlueD
 				void * rawUserData = lua_touserdata(L, -1);
 				GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(rawUserData);
 
-				if(dataWrapper != NULL) {
+				if(dataWrapper != nullptr) {
 					GScriptValue scriptValue = glueDataToScriptValue(dataWrapper->getData());
 					if(! scriptValue.isNull()) {
 						return scriptValue;
@@ -604,7 +604,7 @@ bool rawToLua(const GContextPointer & context, const GVariant & value, GGlueData
 		GRawGlueDataPointer rawData(context->newRawGlueData(value));
 		newGlueDataWrapper(userData, rawData);
 
-		if(outputGlueData != NULL) {
+		if(outputGlueData != nullptr) {
 			*outputGlueData = rawData;
 		}
 
@@ -678,7 +678,7 @@ struct GLuaMethods
 	{
 		GMapItemMethodData * data = gdynamic_cast<GMapItemMethodData *>(mapItem->getUserData());
 		GContextPointer context = classData->getBindingContext();
-		if(data == NULL) {
+		if(data == nullptr) {
 			GScopedInterface<IMetaClass> boundClass(selectBoundClass(metaClass, derived));
 
 			GScopedInterface<IMetaList> metaList(getMethodListFromMapItem(mapItem, getGlueDataInstanceAddress(objectData)));
@@ -706,7 +706,7 @@ bool variantToLua(const GContextPointer & context, const GVariant & data, const 
 	GVariant value = getVariantRealValue(data);
 	GMetaType type = getVariantRealMetaType(data);
 
-	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
+	GVariantType vt = static_cast<GVariantType>((uint16_t)value.getType() & ~(uint16_t)GVariantType::maskByReference);
 	
 	if(vtIsEmpty(vt)) {
 		lua_pushnil(L);
@@ -732,7 +732,7 @@ bool variantToLua(const GContextPointer & context, const GVariant & data, const 
 		return true;
 	}
 
-	if(!vtIsInterface(vt) && canFromVariant<void *>(value) && objectAddressFromVariant(value) == NULL) {
+	if(!vtIsInterface(vt) && canFromVariant<void *>(value) && objectAddressFromVariant(value) == nullptr) {
 		lua_pushnil(L);
 
 		return true;
@@ -797,8 +797,8 @@ int invokeConstructor(const GClassGlueDataPointer & classUserData)
 	
 	void * instance = doInvokeConstructor(context, context->getService(), classUserData->getMetaClass(), &callableParam);
 
-	if(instance != NULL) {
-		objectToLua(context, classUserData, instance, GBindValueFlags(bvfAllowGC), opcvNone, NULL);
+	if(instance != nullptr) {
+		objectToLua(context, classUserData, instance, GBindValueFlags(bvfAllowGC), opcvNone, nullptr);
 	}
 	else {
 		raiseCoreException(Error_ScriptBinding_FailConstructObject);
@@ -1016,7 +1016,7 @@ bool helperBindValue(const GContextPointer & context, const char * name,
 			break;
 
 		case GScriptValue::typeFundamental:
-			if(! variantToLua(context, value.toFundamental(), GBindValueFlags(bvfAllowRaw), NULL)) {
+			if(! variantToLua(context, value.toFundamental(), GBindValueFlags(bvfAllowRaw), nullptr)) {
 				raiseCoreException(Error_ScriptBinding_CantBindFundamental);
 			}
 			break;
@@ -1039,7 +1039,7 @@ bool helperBindValue(const GContextPointer & context, const char * name,
 			
 			GBindValueFlags flags;
 			flags.setByBool(bvfAllowGC, transferOwnership);
-			objectToLua(context, context->getClassData(metaClass), instance, flags, opcvNone, NULL);
+			objectToLua(context, context->getClassData(metaClass), instance, flags, opcvNone, nullptr);
 			break;
 		}
 
@@ -1048,7 +1048,7 @@ bool helperBindValue(const GContextPointer & context, const char * name,
 			GScopedInterface<IMetaMethod> method(value.toMethod(&instance));
 
 			if(method->isStatic()) {
-				instance = NULL;
+				instance = nullptr;
 			}
 
 			GScopedInterface<IMetaList> methodList(createMetaList());
@@ -1071,7 +1071,7 @@ bool helperBindValue(const GContextPointer & context, const char * name,
 		}
 
 		case GScriptValue::typeRaw:
-			if(! rawToLua(context, value.toRaw(), NULL)) {
+			if(! rawToLua(context, value.toRaw(), nullptr)) {
 				raiseCoreException(Error_ScriptBinding_CantBindRaw);
 			}
 			break;
@@ -1275,7 +1275,7 @@ GScriptValue invokeLuaFunctionIndirectly(const GContextPointer & context, GVaria
 
 	if(lua_isfunction(L, -1)) {
 		for(size_t i = 0; i < paramCount; ++i) {
-			if(!variantToLua(context, *params[i], GBindValueFlags(bvfAllowRaw), NULL)) {
+			if(!variantToLua(context, *params[i], GBindValueFlags(bvfAllowRaw), nullptr)) {
 				if(i > 0) {
 					lua_pop(L, static_cast<int>(i) - 1);
 				}
@@ -1295,7 +1295,7 @@ GScriptValue invokeLuaFunctionIndirectly(const GContextPointer & context, GVaria
 			}
 			else {
 				if(resultCount > 0) {
-					return luaToScriptValue(context, -1, NULL);
+					return luaToScriptValue(context, -1, nullptr);
 				}
 			}
 		}
@@ -1372,7 +1372,7 @@ GScriptValue GLuaScriptArray::getValue(size_t index)
 	getRefObject(L, this->ref);
 	lua_rawgeti(L, -1, (int)(index + 1));
 	
-	return luaToScriptValue(this->getBindingContext(), -1, NULL);
+	return luaToScriptValue(this->getBindingContext(), -1, nullptr);
 }
 
 void GLuaScriptArray::setValue(size_t index, const GScriptValue & value)
@@ -1472,7 +1472,7 @@ GScriptValue GLuaScriptObject::doGetValue(const char * name)
 	
 	scopeGuard.get(name);
 
-	return luaToScriptValue(this->getBindingContext(), -1, NULL);
+	return luaToScriptValue(this->getBindingContext(), -1, nullptr);
 }
 
 void GLuaScriptObject::doSetValue(const char * name, const GScriptValue & value)
@@ -1533,7 +1533,7 @@ GScriptObject * GLuaScriptObject::doCreateScriptObject(const char * name)
 	else {
 		if(this->getValue(name).getType() != GScriptValue::typeScriptObject) {
 			lua_pop(this->luaState, 1);
-			return NULL;
+			return nullptr;
 		}
 	}
 

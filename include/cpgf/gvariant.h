@@ -1,60 +1,112 @@
 #ifndef CPGF_GVARIANT_H
 #define CPGF_GVARIANT_H
 
-#include "cpgf/gvartypedata.h"
-#include "cpgf/gmetatype.h"
+#include "cpgf/gtypelist.h"
+#include "cpgf/gerrorcode.h"
+#include "cpgf/gexception.h"
+#include "cpgf/ginterface.h"
+#include "cpgf/gcompiler.h"
 #include "cpgf/gapiutil.h"
-#include "cpgf/gclassutil.h"
-#include "cpgf/gifelse.h"
-#include "cpgf/ggetobjectaddress.h"
+#include "cpgf/gtypetraits.h"
+#include "cpgf/gpp.h"
 
-#include <string>
-
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable:4127) // warning C4127: conditional expression is constant
-#pragma warning(disable:4244)
-#pragma warning(disable:4800) // warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
-#pragma warning(disable:4267) // weird warning when reflecting std::vector in VC, disable it.
-#endif
+#include <type_traits>
+#include <cstdint>
+#include <memory>
 
 namespace cpgf {
 
-extern int Error_Variant_CantReferenceToTemp;
-extern int Error_Variant_FailCast;
-extern int Error_Variant_FailCopyObject;
+typedef cpgf::GTypeList<
+	bool,
+	char, wchar_t,
+	signed char, unsigned char,
+	signed short, unsigned short,
+	signed int, unsigned int,
+	signed long, unsigned long,
+	signed long long, unsigned long long,
+	float, double, long double
+> FundamentalTypeList;
 
-struct VarantCastKeepConstRef {};
-struct VarantCastCopyConstRef {};
-
-class GVariant;
-
-class GMetaType;
-struct GMetaTypeData;
-
-template <typename T>
-bool canFromVariant(const GVariant & v);
-
-GVariant getVariantRealValue(const GVariant & value);
-
-namespace variant_internal {
-
-template <bool Copyable, typename T>
-void InitVariant(GVariant & v, const GVarTypeData & typeData, const typename RemoveReference<T>::Result & value);
-
-struct IVariantShadowObject;
-struct IVariantTypedVar;
-
-struct GVariantDataHolder
+struct VariantTypeInfo
 {
-	int a;
-	int b;
-	int c;
+	int size;
 };
 
+extern VariantTypeInfo variantTypeInfo[];
 
-} // namespace variant_internal
+enum class GVariantType : uint16_t {
+	vtEmpty = 0,
+	vtVoid = 1,
 
+	vtFundamentalBegin = 2,
+
+	vtIntegerBegin = vtFundamentalBegin, // 2
+	vtBool = vtIntegerBegin,
+	vtChar = vtIntegerBegin + 1, vtWchar = vtIntegerBegin + 2,
+	vtSignedChar = vtIntegerBegin + 3, vtUnsignedChar = vtIntegerBegin + 4,
+	vtSignedShort = vtIntegerBegin + 5, vtUnsignedShort = vtIntegerBegin + 6,
+	vtSignedInt = vtIntegerBegin + 7, vtUnsignedInt = vtIntegerBegin + 8,
+	vtSignedLong = vtIntegerBegin + 9, vtUnsignedLong = vtIntegerBegin + 10,
+	vtSignedLongLong = vtIntegerBegin + 11, vtUnsignedLongLong = vtIntegerBegin + 12,
+	vtIntegerEnd = vtUnsignedLongLong,
+
+	vtRealBegin = vtIntegerEnd + 1, // 15
+	vtFloat = vtRealBegin, vtDouble = vtRealBegin + 1, vtLongDouble = vtRealBegin + 2,
+	vtRealEnd = vtLongDouble,
+
+	vtFundamentalEnd = vtLongDouble,
+
+	vtObject = 31, // is equivalent to unkown type
+	
+	// special types
+	vtInterfaceBegin = 32,
+	vtShadow = vtInterfaceBegin,
+	vtString = vtInterfaceBegin + 1,
+	vtWideString = vtInterfaceBegin + 2,
+	vtInterface = vtInterfaceBegin + 3, // IObject *
+	vtTypedVar = vtInterfaceBegin + 4,
+	vtInterfaceEnd = vtTypedVar,
+
+	vtUserBegin = 0xff,
+	vtUserEnd = 0x0fff,
+
+	vtMask = 0x0fff,
+
+	// when there are both pointer and reference, it's always reference to pointer since we can't have pointer to reference
+	byPointer = 0x1000,
+	byLvalueReference = 0x2000,
+	byRvalueReference = 0x4000,
+	
+	maskByPointerAndReference = byPointer | byLvalueReference | byRvalueReference,
+	maskByReference = byLvalueReference | byRvalueReference,
+};
+
+inline GVariantType operator | (const GVariantType a, const GVariantType b)
+{
+	return (GVariantType)(static_cast<std::underlying_type<GVariantType>::type>(a) | static_cast<std::underlying_type<GVariantType>::type>(b));
+}
+
+inline GVariantType operator & (const GVariantType a, const GVariantType b)
+{
+	return (GVariantType)(static_cast<std::underlying_type<GVariantType>::type>(a) & static_cast<std::underlying_type<GVariantType>::type>(b));
+}
+
+inline GVariantType operator ~ (const GVariantType a)
+{
+	return (GVariantType)(~static_cast<std::underlying_type<GVariantType>::type>(a));
+}
+
+#pragma pack(push, 1)
+#pragma pack(1)
+struct GVarTypeData
+{
+	uint16_t vt;
+	uint8_t sizeAndPointers;
+	uint8_t padding;
+};
+#pragma pack(pop)
+
+typedef std::int64_t GVariantInteger;
 
 #pragma pack(push, 1)
 #pragma pack(1)
@@ -63,103 +115,212 @@ struct GVariantData
 	GVarTypeData typeData;
 
 	union {
-		variant_internal::GVariantDataHolder holder;
-
-		bool valueBool;
-		char valueChar;
-		wchar_t valueWchar;
-		signed char valueSignedChar;
-		unsigned char valueUnsignedChar;
-		signed short valueSignedShort;
-		unsigned short valueUnsignedShort;
-		signed int valueSignedInt;
-		unsigned int valueUnsignedInt;
-		signed long valueSignedLong;
-		unsigned long valueUnsignedLong;
-		signed long long valueSignedLongLong;
-		unsigned long long valueUnsignedLongLong;
+		std::int8_t valueInt8;
+		std::int16_t valueInt16;
+		std::int32_t valueInt32;
+		std::int64_t valueInt64;
+		GVariantInteger valueInt;
+	
 		float valueFloat;
 		double valueDouble;
 		long double valueLongDouble;
-		const volatile void * valuePointer;
-		const volatile void * valueObject;
-
-		const volatile bool * ptrBool;
-		const volatile char * ptrChar;
-		const volatile wchar_t * ptrWchar;
-		const volatile signed char * ptrSignedChar;
-		const volatile unsigned char * ptrUnsignedChar;
-		const volatile signed short * ptrSignedShort;
-		const volatile unsigned short * ptrUnsignedShort;;
-		const volatile signed int * ptrSignedInt;
-		const volatile unsigned int * ptrUnsignedInt;
-		const volatile signed long * ptrSignedLong;
-		const volatile unsigned long * ptrUnsignedLong;
-		const volatile signed long long * ptrSignedLongLong;
-		const volatile unsigned long long * ptrUnsignedLongLong;
-		const volatile float * ptrFloat;
-		const volatile double * ptrDouble;
-		const volatile long double * ptrLongDouble;
-		const volatile void * ptrPointer;
-		const volatile void * ptrObject;
+	
+		void * pointer;
 		
-		variant_internal::IVariantShadowObject * shadowObject;
-		variant_internal::IVariantTypedVar * valueTypedVar;
-		IObject * valueInterface;
+		cpgf::IObject * valueInterface;
 
 	};
 };
 #pragma pack(pop)
 
+inline bool vtIsFundamental(const GVariantType vt)
+{
+	return vt >= GVariantType::vtFundamentalBegin && vt <= GVariantType::vtFundamentalEnd;
+}
 
-GMAKE_FINAL(GVariant)
+inline bool vtIsPointerOrReference(const GVariantType vt)
+{
+	return ((uint16_t)vt & (uint16_t)GVariantType::maskByPointerAndReference) != 0;
+}
 
-class GVariant : GFINAL_BASE(GVariant)
+inline bool vtIsByPointer(const GVariantType vt)
+{
+	return ((uint16_t)vt & (uint16_t)GVariantType::byPointer) != 0;
+}
+
+inline bool vtIsLvalueReference(const GVariantType vt)
+{
+	return ((uint16_t)vt & (uint16_t)GVariantType::byLvalueReference) != 0;
+}
+
+inline bool vtIsRvalueReference(const GVariantType vt)
+{
+	return ((uint16_t)vt & (uint16_t)GVariantType::byRvalueReference) != 0;
+}
+
+inline bool vtIsByReference(const GVariantType vt)
+{
+	return ((uint16_t)vt & (uint16_t)GVariantType::maskByReference) != 0;
+}
+
+inline bool vtIsTypedVar(const GVariantType vt) {
+	return vt == GVariantType::vtTypedVar;
+}
+
+inline bool vtIsEmpty(const GVariantType vt) {
+	return vt == GVariantType::vtEmpty;
+}
+
+inline void vtInit(GVarTypeData & data) {
+	data.vt = (uint16_t)GVariantType::vtEmpty;
+	data.sizeAndPointers = 0;
+	data.padding = 0;
+}
+
+inline GVariantType vtGetType(const GVarTypeData & data) {
+	return static_cast<GVariantType>(data.vt);
+}
+
+inline void vtSetType(GVarTypeData & data, GVariantType vt) {
+	data.vt = static_cast<uint16_t>(vt);
+}
+
+inline GVariantType vtGetBaseType(const GVariantType vt)
+{
+	return (GVariantType)((uint16_t)vt & (uint16_t)GVariantType::vtMask);
+}
+
+inline GVariantType vtGetBaseType(const GVarTypeData & data)
+{
+	return vtGetBaseType((GVariantType)data.vt);
+}
+
+inline int vtGetPointers(const GVarTypeData & data)
+{
+	return data.sizeAndPointers & 0x0f;
+}
+
+inline void vtSetPointers(GVarTypeData & data, unsigned int pointers)
+{
+	data.sizeAndPointers = static_cast<uint8_t>((data.sizeAndPointers & 0xf0) | (pointers & 0x0f));
+}
+
+inline int vtGetSize(const GVarTypeData & data)
+{
+	return (data.sizeAndPointers >> 4) & 0x0f;
+}
+
+inline void vtSetSize(GVarTypeData & data, unsigned int size)
+{
+	data.sizeAndPointers = static_cast<uint8_t>(((size & 0x0f) << 4) | (data.sizeAndPointers & 0x0f));
+}
+
+inline void vtSetSizeAndPointers(GVarTypeData & data, unsigned int size, unsigned int pointer)
+{
+	data.sizeAndPointers = static_cast<uint8_t>(((size & 0x0f) << 4) | (pointer & 0x0f));
+}
+
+inline bool vtIsInterface(const GVariantType vt) {
+	return vt == GVariantType::vtInterface;
+}
+
+inline bool vtIsBoolean(const GVariantType vt) {
+	return vt == GVariantType::vtBool;
+}
+
+inline bool vtIsInteger(const GVariantType vt) {
+	return vt >= GVariantType::vtIntegerBegin && vt <= GVariantType::vtIntegerEnd;
+}
+
+inline bool vtIsSignedInteger(const GVariantType vt) {
+	return vt == GVariantType::vtSignedChar
+		|| vt == GVariantType::vtSignedShort
+		|| vt == GVariantType::vtSignedInt
+		|| vt == GVariantType::vtSignedLong
+		|| vt == GVariantType::vtSignedLongLong
+	;
+}
+
+inline bool vtIsUnsignedInteger(const GVariantType vt) {
+	return vt == GVariantType::vtUnsignedChar
+		|| vt == GVariantType::vtUnsignedShort
+		|| vt == GVariantType::vtUnsignedInt
+		|| vt == GVariantType::vtUnsignedLong
+		|| vt == GVariantType::vtUnsignedLongLong
+	;
+}
+
+inline bool vtIsReal(const GVariantType vt) {
+	return vt >= GVariantType::vtFloat && vt <= GVariantType::vtLongDouble;
+}
+
+
+#include "private/gvariant_common_p.h"
+#include "private/gvariant_create_p.h"
+
+class GVariant
 {
 private:
-	GVariant(const GVariantData & data);
+	explicit GVariant(const GVariantData & otherData) : data(otherData)
+	{
+		variant_internal::retainVariantData(this->data);
+	}
+
+	explicit GVariant(GVariantData && otherData) : data(otherData)
+	{
+		otherData.typeData.vt = (uint16_t)GVariantType::vtEmpty;
+	}
 
 public:
-	GVariant();
+	template <typename T, typename V>
+	static GVariant create(const V & value)
+	{
+		GVariant v;
+		variant_internal::variantDeduceAndSet<T>(&v.data, value);
+		return v;
+	}
 
-	template <typename T>
-	GVariant(const T & value) {
-		GASSERT_STATIC((! IsSameType<T, GVariantData>::Result));
-
-		GVarTypeData typeData;
-		vtInit(typeData);
-		deduceVariantType<T>(typeData);
-		variant_internal::InitVariant<true, typename variant_internal::DeducePassType<T>::PassType>(*this, typeData, value);
+	static GVariant create(const GVariant & value)
+	{
+		return value;
+	}
+	
+	GVariant() : data() {
 	}
 
 	template <typename T>
-	GVariant(const GVarTypeData & typeData, const T & value) {
-		variant_internal::InitVariant<true, T>(*this, typeData, value);
+	GVariant(const T & value) : data()
+	{
+		variant_internal::variantDeduceAndSet<T>(&this->data, value);
 	}
 
-	GVariant(const GVariant & other);
-	~GVariant();
-	GVariant & operator = (GVariant other);
-	void swap(GVariant & other);
-
-	const GVarTypeData & getTypeData() const {
-		return this->data.typeData;
+	GVariant(const GVariant & other) : data(other.data)
+	{
+		variant_internal::retainVariantData(this->data);
 	}
 
+	GVariant(GVariant && other) : data()
+	{
+		this->swap(other);
+	}
+
+	GVariant & operator = (GVariant other)
+	{
+		this->swap(other);
+
+		return *this;
+	}
+
+	~GVariant() {
+		variant_internal::releaseVariantData(this->data);
+	}
+	
 	GVariantType getType() const {
-		return vtGetType(this->data.typeData);
-	}
-
-	GVariantType getBaseType() const {
-		return vtGetBaseType(this->data.typeData);
-	}
-
-	int getPointers() const {
-		return vtGetPointers(this->data.typeData);
+		return (GVariantType)this->data.typeData.vt;
 	}
 
 	bool isEmpty() const {
-		return vtIsEmpty(this->getType());
+		return this->getType() == GVariantType::vtEmpty;
 	}
 
 	const GVariantData & refData() const {
@@ -170,11 +331,28 @@ public:
 		return this->data;
 	}
 
-	GVariantData takeData();
+	GVariantData takeData()
+	{
+		GVariantData result = this->data;
+		this->data.typeData.vt = (uint16_t)GVariantType::vtEmpty;
+		return result;
+	}
+
+	void reset()
+	{
+		variant_internal::releaseVariantData(this->data);
+		this->data.typeData.vt = (uint16_t)GVariantType::vtEmpty;
+	}
+
+	void swap(GVariant & other) {
+		using std::swap;
+
+		swap(this->data, other.data);
+	}
 
 private:
 	GVariantData data;
-
+	
 private:
 	friend GVariant createVariantFromData(const GVariantData & data);
 };
@@ -184,145 +362,195 @@ inline void swap(GVariant & a, GVariant & b)
 	a.swap(b);
 }
 
-extern void raiseCoreException(int errorCode, ...);
-
-void failedCast();
-void checkFailCast(bool success);
-
-
-#include "cpgf/private/gvariant_p.h"
-#include "cpgf/private/gvariant_cancast_p.h"
-
-
-template <typename T>
-bool canFromVariant(const GVariant & v)
+inline bool variantIsString(const GVariant & v)
 {
-	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, VarantCastKeepConstRef>::canCast(v);
+	const GVariantData & data = v.refData();
+	return data.typeData.vt == (uint16_t)GVariantType::vtString
+		|| ((vtGetPointers(data.typeData) == 1 && vtGetBaseType(data.typeData) == GVariantType::vtChar));
 }
 
-template <typename T, typename Policy>
-bool canFromVariant(const GVariant & v)
+inline bool variantIsWideString(const GVariant & v)
 {
-	return variant_internal::CanCastFromVariant<typename RemoveConstVolatile<T>::Result, Policy>::canCast(v);
+	const GVariantData & data = v.refData();
+	return data.typeData.vt == (uint16_t)GVariantType::vtWideString
+		|| ((vtGetPointers(data.typeData) == 1 && vtGetBaseType(data.typeData) == GVariantType::vtWchar));
 }
 
-template <typename T>
-typename variant_internal::CastFromVariant<T, VarantCastKeepConstRef>::ResultType fromVariant(const GVariant & v)
-{
-	return variant_internal::CastFromVariant<typename RemoveConstVolatile<T>::Result, VarantCastKeepConstRef>::cast(v);
-}
+struct VarantCastKeepConstRef {};
+struct VarantCastCopyConstRef {};
 
-template <typename T, typename Policy>
-typename variant_internal::CastFromVariant<T, Policy>::ResultType fromVariant(const GVariant & v)
-{
-	return variant_internal::CastFromVariant<typename RemoveConstVolatile<T>::Result, Policy>::cast(v);
-}
+#include "private/gvariant_from_p.h"
 
-template <typename T>
-GVariant pointerToRefVariant(T * p)
-{
-	GVariant v(p);
+// The result is vtString
+GVariant createStringVariant(const char * s);
 
-	if(vtIsByPointer(v.getType())) {
-		vtSetType(v.refData().typeData, (vtGetType(v.refData().typeData) & ~byPointer) | byReference);
+// The result is vtWideString
+GVariant createWideStringVariant(const wchar_t * s);
+
+class GMetaType;
+
+// The result is vtTypedVar
+GVariant createTypedVariant(const GVariant & value, const GMetaType & type);
+
+GVariant getVariantRealValue(const GVariant & value);
+
+// The result is a pointer to object (vtObject | vtPointer).
+GVariant createObjectVariantFromPointer(void * p);
+
+// The result is an object (vtObject).
+GVariant createObjectVariant(void * object);
+
+// Convert a pointer to reference.
+GVariant variantPointerToLvalueReference(const GVariant & p);
+
+template <typename T, typename Policy = VarantCastKeepConstRef>
+typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(const GVariant & value,
+		typename std::enable_if<! variant_internal::TypeListSame<
+			cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type * = 0
+	)
+{
+	using namespace variant_internal;
+
+	auto vt = vtGetType(value.refData().typeData);
+
+	if(vtIsTypedVar(vt)) {
+		return fromVariant<T>(getVariantRealValue(value));
 	}
-
-	return v;
+	else if(vtIsByPointer(vt)) {
+		if(vtIsLvalueReference(vt)) {
+			return CastVariant_Pointer_LvalueReference<T, Policy>::cast(value);
+		}
+		else if(vtIsRvalueReference(vt)) {
+			return CastVariant_Pointer_RvalueReference<T, Policy>::cast(value);
+		}
+		else {
+			return CastVariant_Pointer<T, Policy>::cast(value);
+		}
+	}
+	else if(vtIsLvalueReference(vt)) {
+		return CastVariant_LvalueReference<T, Policy>::cast(value);
+	}
+	else if(vtIsRvalueReference(vt)) {
+		return CastVariant_RvalueReference<T, Policy>::cast(value);
+	}
+	else {
+		return CastVariant_Value<T, Policy>::cast(value);
+	}
 }
 
-GVariant pointerToRefVariant(const GVariant & p);
-
-template <bool Copyable, typename T>
-typename GDisableIf<IsReference<T>::Result, GVariant>::Result createVariant(const T & value, bool copyObject = false)
+template <typename T, typename Policy = VarantCastKeepConstRef>
+typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(const GVariant & value,
+		typename std::enable_if<variant_internal::TypeListSame<
+			cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type * = 0
+	)
 {
-	GVarTypeData typeData;
-	deduceVariantType<T>(typeData, copyObject);
-	GVariant v;
-	variant_internal::InitVariant<Copyable, typename variant_internal::DeducePassType<T>::PassType>(v, typeData, value);
-	return v;
+	return (typename variant_internal::VariantCastResult<T, Policy>::Result)value;
 }
 
-template <bool Copyable, typename T>
-typename GEnableIf<IsReference<T>::Result, GVariant>::Result createVariant(T value, bool /*copyObject*/ = false)
+template <typename T, typename Policy = VarantCastKeepConstRef>
+bool canFromVariant(const GVariant & value)
 {
-	// Ignore Copyable and copyObject since we don't copy a reference.
-	GVarTypeData typeData;
-	deduceVariantType<T>(typeData, false);
-	GVariant v;
-	variant_internal::InitVariant<false, typename variant_internal::DeducePassType<T>::PassType>(v, typeData, value);
-	return v;
+	using namespace variant_internal;
+
+	auto vt = vtGetType(value.refData().typeData);
+
+	if(vtIsTypedVar(vt)) {
+		return canFromVariant<T, Policy>(getVariantRealValue(value));
+	}
+	else if(vtIsByPointer(vt)) {
+		if(vtIsLvalueReference(vt)) {
+			return CastVariant_Pointer_LvalueReference<T, Policy>::canCast(value);
+		}
+		else if(vtIsRvalueReference(vt)) {
+			return CastVariant_Pointer_RvalueReference<T, Policy>::canCast(value);
+		}
+		else {
+			return CastVariant_Pointer<T, Policy>::canCast(value);
+		}
+	}
+	else if(vtIsLvalueReference(vt)) {
+		return CastVariant_LvalueReference<T, Policy>::canCast(value);
+	}
+	else if(vtIsRvalueReference(vt)) {
+		return CastVariant_RvalueReference<T, Policy>::canCast(value);
+	}
+	else {
+		return CastVariant_Value<T, Policy>::canCast(value);
+	}
+}
+
+template <typename T, typename V>
+GVariant createVariant(const V & value, bool copyObject = false,
+	typename std::enable_if<(std::is_copy_constructible<T>::value && (std::is_class<T>::value || std::is_union<T>::value))>::type * = 0
+	)
+{
+	if(copyObject) {
+		GVariant v;
+		GVariantData & data = v.refData();
+
+		data.typeData.vt = (uint16_t)GVariantType::vtShadow;
+		vtSetSizeAndPointers(data.typeData, sizeof(void *), 0);
+		data.valueInterface = new variant_internal::GVariantShadowObject<T>(value);
+
+		return v;
+	}
+	else {
+		return GVariant::create<T>(value);
+	}
+}
+
+template <typename T, typename V>
+GVariant createVariant(const V & value, bool /*copyObject*/ = false,
+	typename std::enable_if<! (std::is_copy_constructible<T>::value && (std::is_class<T>::value || std::is_union<T>::value))>::type * = 0
+)
+{
+	return GVariant::create<T>(value);
 }
 
 template <typename T>
-GVariant createVariantFromCopyable(const T & value)
+GVariant createVariant(const GVariant & value, bool /*copyObject*/ = false)
 {
-	return createVariant<true>(value, false);
+	return value;
 }
 
 template <typename T>
 GVariant copyVariantFromCopyable(const T & value)
 {
-	return createVariant<true>(value, true);
+	return createVariant<T>(value, true);
 }
 
-GVariant pointerToObjectVariant(void * p);
-GVariant objectToVariant(void * object);
-void * objectAddressFromVariant(const GVariant & v);
-void * referenceAddressFromVariant(const GVariant & v);
+inline void * objectAddressFromVariant(const GVariant & v)
+{
+	return fromVariant<void *>(v);
+}
 
-void initializeVarData(GVariantData * data);
-GVariantData copyVarData(GVariantData * data);
-void retainVariantData(GVariantData * data);
-void releaseVariantData(GVariantData * data);
-
-void initializeVarString(GVariantData * data, const char * s);
-GVariant createStringVariant(const char * s);
-bool variantDataIsString(const GVariantData & v);
-bool variantIsString(const GVariant & v);
-
-void initializeVarWideString(GVariantData * data, const wchar_t * s);
-GVariant createWideStringVariant(const wchar_t * s);
-bool variantDataIsWideString(const GVariantData & v);
-bool variantIsWideString(const GVariant & v);
-
-GVariant createVariantFromData(const GVariantData & data);
-
-GVariant createTypedVariant(const GVariant & value, const GMetaType & type);
 template <typename T>
-GVariant createTypedVariant(const T & value)
+void deduceVariantType(GVarTypeData & data, bool /*copyObject*/)
 {
-	return createTypedVariant(GVariant(value), createMetaType<T>());
+	GVariantData variantData;
+	variant_internal::variantDeduceType<T>(&variantData);
+	data = variantData.typeData;
 }
-GVariant getVariantRealValue(const GVariant & value);
-GMetaType getVariantRealMetaType(const GVariant & value);
 
-class GTypedVariant
+template <>
+inline void deduceVariantType<void>(GVarTypeData & data, bool /*copyObject*/)
 {
-public:
-	template <typename T>
-	GTypedVariant(const T & value) : value(createTypedVariant(value)) {}
+	data.vt = (uint16_t)GVariantType::vtVoid;
+}
 
-	operator const GVariant & () const { return this->value; }
-	operator GVariant & () { return this->value; }
-	operator const GVariant * () const { return &this->value; }
-	operator GVariant * () { return &this->value; }
-	const GVariant * operator & () const { return & this->value; }
-	GVariant * operator & () { return & this->value; }
+template <typename T>
+void deduceVariantType(GVarTypeData & data)
+{
+	deduceVariantType<T>(data, false);
+}
 
-	const GVariant & getValue() const { return this->value; }
-	GVariant & getValue() { return this->value; }
-
-private:
-	GVariant value;
-};
+inline GVariant createVariantFromData(const GVariantData & data)
+{
+	return GVariant(data);
+}
 
 
-} // namespace cpgf
-
-
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
+} //namespace cpgf
 
 
 #endif

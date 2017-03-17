@@ -8,7 +8,7 @@ namespace cpgf {
 
 
 GScriptWrapper::GScriptWrapper()
-	: scriptDataStorage(NULL)
+	: scriptDataStorage(nullptr)
 {
 }
 
@@ -18,7 +18,7 @@ IScriptFunction * GScriptWrapper::getScriptFunction(const char * name) const
 		return const_cast<IScriptDataStorage *>(this->scriptDataStorage.get())->getScriptFunction(name);
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 

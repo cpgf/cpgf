@@ -29,8 +29,8 @@ endif(${HAS_UNITTEST})
 
 macro(globAndAppendFiles fileList)
 	set(globAndAppendFiles_patterns ${ARGN})
-	file(GLOB temp ${globAndAppendFiles_patterns})
-	list(APPEND ${fileList} ${temp})
+	file(GLOB tempFileList ${globAndAppendFiles_patterns})
+	list(APPEND ${fileList} ${tempFileList})
 endmacro()
 
 macro(partUnitTest target)
@@ -120,6 +120,10 @@ if(${HAS_UNITTEST})
 
 	partUnitTest("test_variant"
 		${TEST_PATH}/variant/*.cpp
+	)
+
+	partUnitTest("test_temp"
+		${TEST_PATH}/temp/*.cpp
 	)
 
 	partUnitTest("test_accessor"

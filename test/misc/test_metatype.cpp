@@ -1,6 +1,7 @@
 #include "test_misc_common.h"
 #include "cpgf/gmetatype.h"
 
+#include <iostream>
 
 using namespace std;
 using namespace cpgf;
@@ -22,6 +23,12 @@ GTEST(TestMetaType)
 
 	GCHECK(! createMetaType<int (TestType::*)()>().isConstFunction());
 	GCHECK(createMetaType<int (TestType::*)() const>().isConstFunction());
+}
+
+GTEST(TestMetaType_getVariantSize)
+{
+	GCHECK(createMetaType<int>().getVariantSize() == sizeof(int));
+	GCHECK(createMetaType<long double>().getVariantSize() == sizeof(long double));
 }
 
 

@@ -53,7 +53,7 @@ template <typename T, typename Enabled = void>
 struct GMetaTraitsCreateSharedPointerTraits
 {
 	static IMetaSharedPointerTraits * createSharedPointerTraits(const GMetaTraitsParam &) {
-		return NULL;
+		return nullptr;
 	}
 };
 

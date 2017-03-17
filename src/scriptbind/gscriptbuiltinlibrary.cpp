@@ -72,7 +72,7 @@ bool loadByteArray(GScriptObject * scriptObject, const char * namespaces, const 
 	
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(ns.takeMetaClass(), true)));
 	scriptObject->holdObject(metaClass.get());
-	injectObjectToScript(scriptObject, metaClass.get(), NULL, namespaces);
+	injectObjectToScript(scriptObject, metaClass.get(), nullptr, namespaces);
 	
 	return true;
 }
@@ -89,7 +89,7 @@ bool loadObjectArray(GScriptObject * scriptObject, const char * namespaces, cons
 	
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(ns.takeMetaClass(), true)));
 	scriptObject->holdObject(metaClass.get());
-	injectObjectToScript(scriptObject, metaClass.get(), NULL, namespaces);
+	injectObjectToScript(scriptObject, metaClass.get(), nullptr, namespaces);
 	
 	return true;
 }
@@ -101,7 +101,7 @@ bool loadDebug(GScriptObject * scriptObject, const char * namespaces, const char
 	
 	GScopedInterface<IMetaClass> metaClass(static_cast<IMetaClass *>(metaItemToInterface(debugDefine.takeMetaClass(), true)));
 	scriptObject->holdObject(metaClass.get());
-	injectObjectToScript(scriptObject, metaClass.get(), NULL, namespaces);
+	injectObjectToScript(scriptObject, metaClass.get(), nullptr, namespaces);
 	
 	return true;
 }

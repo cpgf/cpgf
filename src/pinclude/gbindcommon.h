@@ -869,7 +869,7 @@ template <typename T>
 GGlueDataWrapper * newGlueDataWrapper(const T & p, GGlueDataWrapperPool * pool)
 {
 	GGlueDataWrapper * wrapper = newGlueDataWrapper(p);
-	if(pool != NULL) {
+	if(pool != nullptr) {
 		pool->dataWrapperCreated(wrapper);
 	}
 	return wrapper;
@@ -899,7 +899,7 @@ inline void freeGlueDataWrapper(GGlueDataWrapper * p)
 
 inline void freeGlueDataWrapper(GGlueDataWrapper * p, GGlueDataWrapperPool * pool)
 {
-	if(pool != NULL) {
+	if(pool != nullptr) {
 		pool->dataWrapperDestroyed(p);
 	}
 	freeGlueDataWrapper(p);
@@ -1038,12 +1038,12 @@ std::string getMethodNameFromMethodList(IMetaList * methodList);
 
 inline void * getInstanceHash(const GVariant & instance)
 {
-	return referenceAddressFromVariant(instance);
+	return objectAddressFromVariant(instance);
 }
 
 
 struct GScriptObjectCacheKey {
-	GScriptObjectCacheKey() : key(NULL), className(NULL), cv(opcvNone) {
+	GScriptObjectCacheKey() : key(nullptr), className(nullptr), cv(opcvNone) {
 	}
 
 	GScriptObjectCacheKey(void * key, const char * className, ObjectPointerCV cv)
@@ -1101,7 +1101,7 @@ public:
 		if(it != this->objectMap.end()) {
 			return dynamic_cast<T *>(it->second.get());
 		}
-		return NULL;
+		return nullptr;
 	}
 
 	void addScriptObject(const GVariant & instance, const GClassGlueDataPointer & classData,
@@ -1196,7 +1196,7 @@ template <typename Methods>
 typename Methods::ResultType complexVariantToScript(const GContextPointer & context,
 			const GVariant & value, const GMetaType & type, const GBindValueFlags & flags, GGlueDataPointer * outputGlueData)
 {
-	GVariantType vt = static_cast<GVariantType>(value.getType() & ~byReference);
+	GVariantType vt = static_cast<GVariantType>((uint16_t)value.getType() & ~(uint16_t)GVariantType::maskByReference);
 
 	if(! type.isEmpty() && type.getPointerDimension() <= 1) {
 		GScopedInterface<IMetaTypedItem> typedItem(context->getService()->findTypedItemByName(type.getBaseName()));
@@ -1241,7 +1241,7 @@ typename Methods::ResultType converterToScript(const GContextPointer & context, 
 		GScopedInterface<IMemoryAllocator> allocator(context->getService()->getAllocator());
 		const char * s = converter->readCString(objectAddressFromVariant(value), &needFree, allocator.get());
 
-		if(s != NULL) {
+		if(s != nullptr) {
 			typename Methods::ResultType result = Methods::doStringToScript(context, s);
 
 			if(needFree) {
@@ -1258,7 +1258,7 @@ typename Methods::ResultType converterToScript(const GContextPointer & context, 
 		GScopedInterface<IMemoryAllocator> allocator(context->getService()->getAllocator());
 		const wchar_t * ws = converter->readCWideString(objectAddressFromVariant(value), &needFree, allocator.get());
 
-		if(ws != NULL) {
+		if(ws != nullptr) {
 			typename Methods::ResultType result = Methods::doWideStringToScript(context, ws);
 
 			if(needFree) {
@@ -1331,7 +1331,7 @@ typename Methods::ResultType extendVariantToScript(const GContextPointer & conte
 	}
 
 	if(! Methods::isSuccessResult(result)) {
-		result = Methods::doRawToScript(context, value, NULL);
+		result = Methods::doRawToScript(context, value, nullptr);
 	}
 
 	if(! Methods::isSuccessResult(result)) {
@@ -1350,7 +1350,7 @@ public:
 	}
 
 	~GReturnedFromMethodObjectGuard() {
-		if(this->objectLifeManager && this->instance != NULL) {
+		if(this->objectLifeManager && this->instance != nullptr) {
 			this->objectLifeManager->returnedFromMethod(this->instance);
 		}
 	}
@@ -1387,19 +1387,19 @@ typename Methods::ResultType methodResultToScript(const GContextPointer & contex
 			metaCheckError(callable);
 		}
 
-		void * instance = NULL;
+		void * instance = nullptr;
 		if(canFromVariant<void *>(value)) {
 			instance = objectAddressFromVariant(value);
 		}
 		GReturnedFromMethodObjectGuard objectGuard(instance);
 		objectGuard.reset(createObjectLifeManagerForInterface(value));
-		if(objectGuard.getObjectLifeManager() == NULL) {
+		if(objectGuard.getObjectLifeManager() == nullptr) {
 			objectGuard.reset(metaGetResultExtendType(callable, GExtendTypeCreateFlag_ObjectLifeManager).getObjectLifeManager());
 		}
 
 		GBindValueFlags flags;
 		flags.setByBool(bvfAllowGC, !! callable->isResultTransferOwnership());
-		result = Methods::doVariantToScript(context, createTypedVariant(value, type), flags, NULL);
+		result = Methods::doVariantToScript(context, createTypedVariant(value, type), flags, nullptr);
 
 		if(! Methods::isSuccessResult(result)) {
 			result = extendVariantToScript<Methods>(context,
@@ -1420,7 +1420,7 @@ typename Methods::ResultType accessibleToScript(const GContextPointer & context,
 	GMetaType type;
 	GVariant value = getAccessibleValueAndType(instance, accessible, &type, instanceIsConst);
 
-	typename Methods::ResultType result = Methods::doVariantToScript(context, createTypedVariant(value, type), GBindValueFlags(), NULL);
+	typename Methods::ResultType result = Methods::doVariantToScript(context, createTypedVariant(value, type), GBindValueFlags(), nullptr);
 
 	if(! Methods::isSuccessResult(result)) {
 		result = extendVariantToScript<Methods>(context,
@@ -1456,7 +1456,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 
 	GMetaClassTraveller traveller(classData->getMetaClass(), getGlueDataInstanceAddress(glueData));
 
-	void * instance = NULL;
+	void * instance = nullptr;
 	IMetaClass * outDerived;
 
 	for(;;) {
@@ -1473,7 +1473,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 		}
 
 		GMetaMapItem * mapItem = mapClass->findItem(name);
-		if(mapItem == NULL) {
+		if(mapItem == nullptr) {
 			continue;
 		}
 
@@ -1501,7 +1501,7 @@ typename Methods::ResultType namedMemberToScript(const GGlueDataPointer & glueDa
 			case mmitEnumValue:
 				if(! isInstance || config.allowAccessEnumValueViaInstance()) {
 					GScopedInterface<IMetaEnum> metaEnum(gdynamic_cast<IMetaEnum *>(mapItem->getItem()));
-					return Methods::doVariantToScript(context, metaGetEnumValue(metaEnum.get(), static_cast<uint32_t>(mapItem->getEnumIndex())), GBindValueFlags(bvfAllowRaw), NULL);
+					return Methods::doVariantToScript(context, metaGetEnumValue(metaEnum.get(), static_cast<uint32_t>(mapItem->getEnumIndex())), GBindValueFlags(bvfAllowRaw), nullptr);
 				}
 				break;
 

@@ -107,7 +107,7 @@ void * GMetaArchiveReaderPointerTracker::getPointer(uint32_t archiveID) const
 	MapType::const_iterator it = this->pointerMap.find(archiveID);
 
 	if(it == this->pointerMap.end()) {
-		return NULL;
+		return nullptr;
 	}
 	else {
 		return it->second;
@@ -132,7 +132,7 @@ IMetaClass * GMetaArchiveReaderClassTypeTracker::getMetaClass(uint32_t archiveID
 	MapType::const_iterator it = this->classTypeMap.find(archiveID);
 
 	if(it == this->classTypeMap.end()) {
-		return NULL;
+		return nullptr;
 	}
 	else {
 		IMetaClass * metaClass = it->second.get();
@@ -229,8 +229,8 @@ void * GMetaArchiveReader::doReadObject(GMetaArchiveReaderParam * param, GBaseCl
 
 void GMetaArchiveReader::doReadObjectHierarchy(GMetaArchiveReaderParam * param, GBaseClassMap * baseClassMap)
 {
-	// metaClass can be NULL if serializer is not NULL
-	if(param->metaClass != NULL) {
+	// metaClass can be nullptr if serializer is not nullptr
+	if(param->metaClass != nullptr) {
 		GScopedInterface<IMetaClass> baseClass;
 		uint32_t i;
 		uint32_t count;
@@ -271,8 +271,8 @@ void GMetaArchiveReader::doReadObjectHierarchy(GMetaArchiveReaderParam * param, 
 
 void GMetaArchiveReader::doReadObjectWithoutBase(GMetaArchiveReaderParam * param)
 {
-	if(param->serializer != NULL) {
-		if(param->instance == NULL) {
+	if(param->serializer != nullptr) {
+		if(param->instance == nullptr) {
 			param->instance = param->serializer->allocateObject(this, param->metaClass);
 		}
 		param->serializer->readObject(this, this, param);
@@ -343,10 +343,10 @@ void GMetaArchiveReader::doReadMember(void * instance, IMetaAccessible * accessi
 		void * ptr;
 
 		ptr = accessible->getAddress(instance);
-		if(ptr == NULL) { // this happens when accessible is a property with both getter and setter.
+		if(ptr == nullptr) { // this happens when accessible is a property with both getter and setter.
 			if(pointers > 0) {
 				void * buffer[sizeof(void *)];
-				buffer[0] = NULL;
+				buffer[0] = nullptr;
 				this->doReadValue(name, buffer, metaType, serializer.get());
 				metaSetValue(accessible, instance, GVariant(buffer[0]));
 				return;
@@ -377,7 +377,7 @@ void GMetaArchiveReader::doReadMember(void * instance, IMetaAccessible * accessi
 			}
 		}
 
-		GASSERT(ptr != NULL || serializer);
+		GASSERT(ptr != nullptr || serializer);
 
 		this->doReadValue(name, ptr, metaType, serializer.get());
 	}
@@ -415,7 +415,7 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 	}
 
 	if(metaType.baseIsArray()) {
-		this->readObjectHelper(name, address, metaType, NULL, serializer);
+		this->readObjectHelper(name, address, metaType, nullptr, serializer);
 		return;
 	}
 
@@ -425,7 +425,7 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 				serializeError(Error_Serialization_TypeMismatch);
 			}
 			this->reader->readNullPointer(name);
-			*(void **)address = NULL;
+			*(void **)address = nullptr;
 			break;
 		}
 
@@ -457,15 +457,15 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 			else {
 				void * ptr = *(void **)address;
 				if(metaClass) {
-					if(ptr == NULL) {
+					if(ptr == nullptr) {
 						uint32_t classTypeID = this->reader->getClassTypeID(name);
 						if(classTypeID != classIDNone) {
 							IMetaClass * storedMetaClass = this->getClassTypeTracker()->getMetaClass(classTypeID);
 							
-							if(storedMetaClass == NULL) {
+							if(storedMetaClass == nullptr) {
 								metaClass.reset(this->reader->readMetaClass(this->service.get(), classTypeID));
 								storedMetaClass = metaClass.get();
-								if(storedMetaClass == NULL) {
+								if(storedMetaClass == nullptr) {
 									serializeError(Error_Serialization_CannotFindObjectType);
 								}
 								if(metaClass && classTypeID != classIDNone) {
@@ -484,10 +484,10 @@ void GMetaArchiveReader::doReadValue(const char * name, void * address, const GM
 						ptr = castedPtr;
 						metaClass.reset(castedMetaClass.take());
 					}
-					this->readObjectHelper(name, ptr, metaType, metaClass.get(), NULL);
+					this->readObjectHelper(name, ptr, metaType, metaClass.get(), nullptr);
 				}
 				else {
-					ptr = this->readObjectHelper(name, ptr, metaType, NULL, serializer);
+					ptr = this->readObjectHelper(name, ptr, metaType, nullptr, serializer);
 				}
 				*(void **)address = ptr;
 			}
@@ -606,7 +606,7 @@ void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, 
 {
 	GMetaTypeData metaType = metaGetItemType(metaClass).refData();
 	GScopedInterface<IMetaSerializer> serializer;
-	if(metaClass != NULL) {
+	if(metaClass != nullptr) {
 		serializer.reset(metaGetItemExtendType(metaClass, GExtendTypeCreateFlag_Serializer).getSerializer());
 	}
 	archiveReader->readData(name, instance, &metaType, serializer.get());
@@ -614,7 +614,7 @@ void serializeReadObject(IMetaArchiveReader * archiveReader, const char * name, 
 
 void metaSerializerReadObjectMembers(IMetaArchiveReader * archiveReader, IMetaSerializerReader * serializerReader, GMetaArchiveReaderParam * param)
 {
-	if(param->instance == NULL) {
+	if(param->instance == nullptr) {
 		return;
 	}
 

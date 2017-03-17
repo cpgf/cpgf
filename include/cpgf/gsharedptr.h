@@ -92,7 +92,7 @@ struct DynamicCastTag {};
 template <typename T, typename U>
 void enableShareFromThis(const GSharedPointer<T> * sp, const U * self, typename GEnableIf<IsConvertible<U, GShareFromThis<U> >::Result >::Result * = 0)
 {
-	if(self != NULL) {
+	if(self != nullptr) {
 		self->enableShareFromThis(sp);
 	}
 }
@@ -100,7 +100,7 @@ void enableShareFromThis(const GSharedPointer<T> * sp, const U * self, typename 
 template <typename T, typename U>
 void enableShareFromThis(const GSharedPointer<T> * sp, const U * self, typename GEnableIf<IsConvertible<U, GShareFromBase >::Result >::Result * = 0)
 {
-	if(self != NULL) {
+	if(self != nullptr) {
 		self->enableShareFromThis(sp);
 	}
 }
@@ -124,7 +124,7 @@ private:
 	typedef GSharedPointer<T> ThisType;
 
 public:
-	GSharedPointer() : data(NULL), counter(NULL) {
+	GSharedPointer() : data(nullptr), counter(nullptr) {
 	}
 
 	explicit GSharedPointer(T * p) : data(p), counter(new sharedpointer_internal::GSharedCounter()) {
@@ -144,7 +144,7 @@ public:
 	explicit GSharedPointer(const GWeakPointer<T> & weakPointer);
 
 	~GSharedPointer() {
-		if(this->counter != NULL) {
+		if(this->counter != nullptr) {
 			if(this->counter->release()) {
 				delete this->data;
 			}
@@ -152,35 +152,35 @@ public:
 	}
 
 	GSharedPointer(const GSharedPointer & other) : data(other.data), counter(other.counter) {
-		if(this->counter != NULL) {
+		if(this->counter != nullptr) {
 			this->counter->retain();
 		}
 	}
 
 	template <typename U>
 	GSharedPointer(const GSharedPointer<U> & other) : data(other.data), counter(other.counter) {
-		if(this->counter != NULL) {
+		if(this->counter != nullptr) {
 			this->counter->retain();
 		}
 	}
 
 	template <typename U>
 	GSharedPointer(const GSharedPointer<U> & other, sharedpointer_internal::StaticCastTag) : data(static_cast<T *>(other.data)), counter(other.counter) {
-		if(this->counter != NULL) {
+		if(this->counter != nullptr) {
 			this->counter->retain();
 		}
 	}
 
 	template <typename U>
 	GSharedPointer(const GSharedPointer<U> & other, sharedpointer_internal::ConstCastTag) : data(const_cast<T *>(other.data)), counter(other.counter) {
-		if(this->counter != NULL) {
+		if(this->counter != nullptr) {
 			this->counter->retain();
 		}
 	}
 
 	template <typename U>
 	GSharedPointer(const GSharedPointer<U> & other, sharedpointer_internal::DynamicCastTag) : data(dynamic_cast<T *>(other.data)), counter(other.counter) {
-		if(this->data != NULL && this->counter != NULL) {
+		if(this->data != nullptr && this->counter != nullptr) {
 			this->counter->retain();
 		}
 	}
@@ -217,11 +217,11 @@ public:
 	}
 
 	inline operator bool() {
-		return this->data != NULL;
+		return this->data != nullptr;
 	}
 
 	inline operator bool() const {
-		return this->data != NULL;
+		return this->data != nullptr;
 	}
 
 	bool unique() const {
@@ -273,30 +273,30 @@ private:
 	typedef GSharedPointer<T> StrongType;
 
 public:
-	GWeakPointer() : data(NULL), counter(NULL) {
+	GWeakPointer() : data(nullptr), counter(nullptr) {
 	}
 
 	explicit GWeakPointer(const GSharedPointer<T> & p) : data(p.get()), counter(p.counter) {
-		if(this->counter != NULL) {
+		if(this->counter != nullptr) {
 			this->counter->weakRetain();
 		}
 	}
 
 	~GWeakPointer() {
-		if(this->counter != NULL) {
+		if(this->counter != nullptr) {
 			this->counter->weakRelease();
 		}
 	}
 
 	GWeakPointer(const GWeakPointer & other) : data(other.data), counter(other.counter) {
-		if(this->counter != NULL) {
+		if(this->counter != nullptr) {
 			this->counter->weakRetain();
 		}
 	}
 
 	template <typename U>
 	GWeakPointer(const GWeakPointer<U> & other) : data(other.data), counter(other.counter) {
-		if(this->counter != NULL) {
+		if(this->counter != nullptr) {
 			this->counter->weakRetain();
 		}
 	}
@@ -320,7 +320,7 @@ public:
 	}
 
 	StrongType get() const {
-		if(this->counter != NULL && this->counter->hasStrongReference()) {
+		if(this->counter != nullptr && this->counter->hasStrongReference()) {
 			return StrongType(*this);
 		}
 		else {
@@ -329,15 +329,15 @@ public:
 	}
 
 	inline operator bool() {
-		return this->counter != NULL && this->counter->hasStrongReference() && this->data != NULL;
+		return this->counter != nullptr && this->counter->hasStrongReference() && this->data != nullptr;
 	}
 
 	inline operator bool() const {
-		return this->counter != NULL && this->counter->hasStrongReference() && this->data != NULL;
+		return this->counter != nullptr && this->counter->hasStrongReference() && this->data != nullptr;
 	}
 
 	bool expired() const {
-		return this->counter == NULL || ! this->counter->hasStrongReference();
+		return this->counter == nullptr || ! this->counter->hasStrongReference();
 	}
 
 	void reset(StrongType p) {
@@ -394,7 +394,7 @@ template <typename T>
 GSharedPointer<T>::GSharedPointer(const GWeakPointer<T> & weakPointer)
 	: data(weakPointer.data), counter(weakPointer.counter)
 {
-	if(this->counter != NULL) {
+	if(this->counter != nullptr) {
 		this->counter->retain();
 	}
 }

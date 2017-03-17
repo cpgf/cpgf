@@ -21,7 +21,7 @@ template <typename T>
 struct GMetaTraitsCreateScriptWrapper
 {
 	static IMetaScriptWrapper * createScriptWrapper(const GMetaTraitsParam &) {
-		return NULL;
+		return nullptr;
 	}
 };
 

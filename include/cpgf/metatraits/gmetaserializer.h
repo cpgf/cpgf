@@ -36,7 +36,7 @@ template <typename T, typename Enabled = void>
 struct GMetaTraitsCreateSerializer
 {
 	static IMetaSerializer * createSerializer(const GMetaTraitsParam &) {
-		return NULL;
+		return nullptr;
 	}
 };
 

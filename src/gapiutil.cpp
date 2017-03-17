@@ -45,7 +45,7 @@ const char * GImplExtendObject::getErrorMessage()
 		return this->errorInfo->message.c_str();
 	}
 	else {
-		return NULL;
+		return nullptr;
 	}
 }
 

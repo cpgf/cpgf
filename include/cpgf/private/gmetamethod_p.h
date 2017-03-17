@@ -317,7 +317,7 @@ struct GMetaMethodCallbackMaker <OT, FT,
 
 	template <typename F>
 	static typename FunctionCallbackType<FT>::Result make(const F & func) {
-		return makeCallback(static_cast<OT *>(NULL), func);
+		return makeCallback(static_cast<OT *>(nullptr), func);
 	}
 };
 
