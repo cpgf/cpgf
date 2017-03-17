@@ -359,7 +359,11 @@ inline bool variantIsWideString(const GVariant & v)
 		|| ((vtGetPointers(data.typeData) == 1 && vtGetBaseType(data.typeData) == GVariantType::vtWchar));
 }
 
-#include "private/gvariant_from_p.h"
+template <typename T, typename Policy>
+typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(const GVariantData & data);
+
+template <typename T, typename Policy = VarantCastKeepConstRef>
+bool canFromVariantData(const GVariantData & data);
 
 // The result is vtString
 GVariant createStringVariant(const char * s);
@@ -383,21 +387,16 @@ GVariant createObjectVariant(void * object);
 // Convert a pointer to reference.
 GVariant variantPointerToLvalueReference(const GVariant & p);
 
-template <typename T, typename Policy = VarantCastKeepConstRef>
-typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(const GVariant & value,
-		typename std::enable_if<! variant_internal::TypeListSame<
-			cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type * = 0
-	)
+#include "private/gvariant_from_p.h"
+
+template <typename T, typename Policy>
+typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(const GVariantData & data)
 {
 	using namespace variant_internal;
 
-	const GVariantData & data = value.refData();
 	const GVariantType vt = vtGetType(data.typeData);
 
-	if(vtIsTypedVar(vt)) {
-		return fromVariant<T>(getVariantRealValue(value));
-	}
-	else if(vtIsByPointer(vt)) {
+	if(vtIsByPointer(vt)) {
 		if(vtIsLvalueReference(vt)) {
 			return CastVariant_Pointer_LvalueReference<T, Policy>::cast(data);
 		}
@@ -421,6 +420,15 @@ typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(cons
 
 template <typename T, typename Policy = VarantCastKeepConstRef>
 typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(const GVariant & value,
+		typename std::enable_if<! variant_internal::TypeListSame<
+			cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type * = 0
+	)
+{
+	return fromVariantData<T, Policy>(value.refData());
+}
+
+template <typename T, typename Policy = VarantCastKeepConstRef>
+typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(const GVariant & value,
 		typename std::enable_if<variant_internal::TypeListSame<
 			cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type * = 0
 	)
@@ -428,18 +436,14 @@ typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(cons
 	return (typename variant_internal::VariantCastResult<T, Policy>::Result)value;
 }
 
-template <typename T, typename Policy = VarantCastKeepConstRef>
-bool canFromVariant(const GVariant & value)
+template <typename T, typename Policy>
+bool canFromVariantData(const GVariantData & data)
 {
 	using namespace variant_internal;
 
-	const GVariantData & data = value.refData();
 	const GVariantType vt = vtGetType(data.typeData);
 
-	if(vtIsTypedVar(vt)) {
-		return canFromVariant<T, Policy>(getVariantRealValue(value));
-	}
-	else if(vtIsByPointer(vt)) {
+	if(vtIsByPointer(vt)) {
 		if(vtIsLvalueReference(vt)) {
 			return CastVariant_Pointer_LvalueReference<T, Policy>::canCast(data);
 		}
@@ -459,6 +463,12 @@ bool canFromVariant(const GVariant & value)
 	else {
 		return CastVariant_Value<T, Policy>::canCast(data);
 	}
+}
+
+template <typename T, typename Policy = VarantCastKeepConstRef>
+bool canFromVariant(const GVariant & value)
+{
+	return canFromVariantData<T, Policy>(value.refData());
 }
 
 template <typename T, typename V>

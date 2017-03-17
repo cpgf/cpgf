@@ -179,6 +179,9 @@ struct CastVariant_Value
 					); 
 			}
 			break;
+			
+		case GVariantType::vtTypedVar:
+			return fromVariantData<T, Policy>(getVariantRealValue(GVariant(data)).refData());
 
 		default:
 			break;
@@ -231,6 +234,9 @@ struct CastVariant_Value
 
 		case GVariantType::vtWideString:
 			return TypeListConvertible<cpgf::TypeList_Concat<WideStringCharTypeList, WideStringStringTypeList>::Result, ResultType>::convertible;
+
+		case GVariantType::vtTypedVar:
+			return canFromVariantData<T, Policy>(getVariantRealValue(GVariant(data)).refData());
 
 		default:
 			break;
