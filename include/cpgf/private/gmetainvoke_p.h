@@ -35,12 +35,26 @@ struct PolicyIsCopyable
 	G_STATIC_CONSTANT(bool, Result = (! PolicyHasRule<Policy, GMetaRuleParamNoncopyable<metaPolicyResultIndex> >::Result));
 };
 
+template <typename CT, typename RT, typename Policy, typename... Parameters>
+typename std::enable_if<! std::is_void<RT>::value, GVariant>::type
+doInvokeMetaCallable(const CT & callback, Parameters && ... parameters)
+{
+	return createVariant<RT>(callback(std::forward<Parameters>(parameters)...), PolicyIsCopyable<Policy>::Result);
+}
+
+template <typename CT, typename RT, typename Policy, typename... Parameters>
+typename std::enable_if<std::is_void<RT>::value, GVariant>::type
+doInvokeMetaCallable(const CT & callback, Parameters && ... parameters)
+{
+	callback(std::forward<Parameters>(parameters)...);
+	return GVariant();
+}
 
 template <typename CT, typename FT, unsigned int N, typename RT, typename Policy, bool IsVariadic, bool ExplicitThis>
 struct GMetaInvokeHelper;
 
 #define REF_CALL_HELPER_CAST(N, unused) \
-	GPP_COMMA_IF(N) fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result >(*params[N])
+	GPP_COMMA() fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result >(*params[N])
 
 #define REF_CALL_HELPER_CAST_EXPLICIT_THIS_HELPER(N) \
 	GPP_COMMA() fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result >(*params[N - 1])
@@ -52,30 +66,14 @@ struct GMetaInvokeHelper;
 	struct GMetaInvokeHelper<CT, FT, N, RT, Policy, false, false> { \
 		static GVariant invoke(void * /*instance*/, const CT & callback, GVariant const * const * params, size_t /*paramCount*/) { \
 			(void)params; /*unused when N == 0*/ \
-			return createVariant<RT>(callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)), PolicyIsCopyable<Policy>::Result); \
-		} \
-	}; \
-	template <typename CT, typename FT, typename Policy> \
-	struct GMetaInvokeHelper<CT, FT, N, void, Policy, false, false> { \
-		static GVariant invoke(void * /*instance*/, const CT & callback, GVariant const * const * params, size_t /*paramCount*/) { \
-			(void)params; /*unused when N == 0*/ \
-			callback(GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)); \
-			return GVariant(); \
+			return doInvokeMetaCallable<CT, RT, Policy>(callback GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)); \
 		} \
 	}; \
 	template <typename CT, typename FT, typename RT, typename Policy> \
 	struct GMetaInvokeHelper<CT, FT, N, RT, Policy, false, true> { \
 		static GVariant invoke(void * instance, const CT & callback, GVariant const * const * params, size_t /*paramCount*/) { \
 			(void)params; /*unused when N == 0*/ \
-			return createVariant<RT>(callback((typename CT::TraitsType::ArgList::Arg0)(instance) GPP_REPEAT(N, REF_CALL_HELPER_CAST_EXPLICIT_THIS, GPP_EMPTY)), PolicyIsCopyable<Policy>::Result); \
-		} \
-	}; \
-	template <typename CT, typename FT, typename Policy> \
-	struct GMetaInvokeHelper<CT, FT, N, void, Policy, false, true> { \
-		static GVariant invoke(void * instance, const CT & callback, GVariant const * const * params, size_t /*paramCount*/) { \
-			(void)params; /*unused when N == 0*/ \
-			callback((typename CT::TraitsType::ArgList::Arg0)(instance) GPP_REPEAT(N, REF_CALL_HELPER_CAST_EXPLICIT_THIS, GPP_EMPTY)); \
-			return GVariant(); \
+			return doInvokeMetaCallable<CT, RT, Policy>(callback, (typename CT::TraitsType::ArgList::Arg0)(instance) GPP_REPEAT(N, REF_CALL_HELPER_CAST_EXPLICIT_THIS, GPP_EMPTY)); \
 		} \
 	};
 
@@ -91,19 +89,10 @@ struct GMetaInvokeHelper;
 			GMetaVariadicParam variadicParams; \
 			variadicParams.params = &params[N -1]; \
 			variadicParams.paramCount = paramCount - (N - 1); \
-			return createVariant<RT>(callback(GPP_REPEAT(M, REF_CALL_HELPER_CAST_VARIADIC, GPP_EMPTY) &variadicParams), PolicyIsCopyable<Policy>::Result); \
-		} \
-	}; \
-	template <typename CT, typename FT, typename Policy> \
-	struct GMetaInvokeHelper <CT, FT, N, void, Policy, true, false> { \
-		static GVariant invoke(void * /*instance*/, const CT & callback, GVariant const * const * params, size_t paramCount) { \
-			GMetaVariadicParam variadicParams; \
-			variadicParams.params = &params[N -1]; \
-			variadicParams.paramCount = paramCount - (N - 1); \
-			callback(GPP_REPEAT(M, REF_CALL_HELPER_CAST_VARIADIC, GPP_EMPTY) &variadicParams); \
-			return GVariant(); \
+			return doInvokeMetaCallable<CT, RT, Policy>(callback, GPP_REPEAT(M, REF_CALL_HELPER_CAST_VARIADIC, GPP_EMPTY) &variadicParams); \
 		} \
 	};
+
 #define REF_CALL_VARIADIC_HELPER_EMPTY(N, M)
 #define REF_CALL_VARIADIC_HELPER(N, unused) GPP_IF(N, I_REF_CALL_VARIADIC_HELPER, REF_CALL_VARIADIC_HELPER_EMPTY)(N, GPP_DEC(N))
 
@@ -119,19 +108,10 @@ struct GMetaInvokeHelper;
 			GMetaVariadicParam variadicParams; \
 			variadicParams.params = &params[N - 2]; \
 			variadicParams.paramCount = paramCount - (M - 1); \
-			return createVariant<RT>(callback((typename CT::TraitsType::ArgList::Arg0)(instance), GPP_REPEAT(M, REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS, GPP_EMPTY) &variadicParams), PolicyIsCopyable<Policy>::Result); \
-		} \
-	}; \
-	template <typename CT, typename FT, typename Policy> \
-	struct GMetaInvokeHelper <CT, FT, N, void, Policy, true, true> { \
-		static GVariant invoke(void * instance, const CT & callback, GVariant const * const * params, size_t paramCount) { \
-			GMetaVariadicParam variadicParams; \
-			variadicParams.params = &params[N - 2]; \
-			variadicParams.paramCount = paramCount - (M - 1); \
-			callback((typename CT::TraitsType::ArgList::Arg0)(instance), GPP_REPEAT(M, REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS, GPP_EMPTY) &variadicParams); \
-			return GVariant(); \
+			return doInvokeMetaCallable<CT, RT, Policy>(callback, (typename CT::TraitsType::ArgList::Arg0)(instance), GPP_REPEAT(M, REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS, GPP_EMPTY) &variadicParams); \
 		} \
 	};
+
 #define REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER_EMPTY(N, unused)
 #define REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER(N, unused) GPP_IF(N, I_REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER, REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER_EMPTY)(N, GPP_DEC(N))
 
