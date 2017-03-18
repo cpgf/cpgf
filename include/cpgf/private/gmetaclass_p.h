@@ -116,8 +116,8 @@ private:
 	G_STATIC_CONSTANT(bool, IsAbstract = (IsAbstractClass<OT>::Result));
 	G_STATIC_CONSTANT(bool, NoDefaultConstructor = (PolicyHasRule<Policy, GMetaRuleDefaultConstructorAbsent>::Result));
 	G_STATIC_CONSTANT(bool, NoCopyConstructor = (PolicyHasRule<Policy, GMetaRuleCopyConstructorAbsent>::Result));
-	G_STATIC_CONSTANT(bool, CanDefaultConstruct = (!IsGlobal && !IsAbstract && !NoDefaultConstructor));
-	G_STATIC_CONSTANT(bool, CanCopyConstruct = (!IsGlobal && !IsAbstract && !NoCopyConstructor));
+	G_STATIC_CONSTANT(bool, CanDefaultConstruct = (!IsGlobal && !IsAbstract && !NoDefaultConstructor && std::is_default_constructible<OT>::value));
+	G_STATIC_CONSTANT(bool, CanCopyConstruct = (!IsGlobal && !IsAbstract && !NoCopyConstructor && std::is_copy_constructible<OT>::value));
 
 	typedef ObjectDeleter<OT, !PolicyHasRule<Policy, GMetaRuleDestructorAbsent>::Result> Deleter;
 

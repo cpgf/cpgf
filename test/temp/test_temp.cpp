@@ -63,6 +63,10 @@ public:
 		param = nullptr;
 	}
 
+	int testCallback(const GCallback<int (int a, int b)> & cb) {
+		return cb(3, 8);
+	}
+
 public:
 	int value;
 };
@@ -79,7 +83,8 @@ void TestScriptBindMetaData3()
 		
 		._method("getVar", &TestOperator::getVar)
 		._method("testParam", &TestOperator::testParam)
-		
+//		._method("testCallback", &TestOperator::testCallback)
+
 		._operator<TestOperator (const GMetaSelf)>(-mopHolder)
 		._operator<TestOperator (const std::string &, int)>(mopHolder(mopHolder), GMetaPolicyCopyAllConstReference())
 		._operator<int (const GMetaVariadicParam *)>(mopHolder(mopHolder))

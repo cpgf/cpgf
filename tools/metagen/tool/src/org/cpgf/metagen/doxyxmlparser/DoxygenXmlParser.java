@@ -289,6 +289,11 @@ public class DoxygenXmlParser {
 	}
 
 	private Item doParseMethod(Node node, String name) {
+		String argsString = Util.getNodeText(Util.getNode(node, "argsstring"));
+		if(argsString.endsWith("=delete")) { // deleted function
+			return null;
+		}
+		
 		if(! this.getCurrentClass().isGlobal()) {
 			if(name.indexOf('~') >= 0 && ! name.matches("operator\\s*~")) {
 				Destructor destructor = new Destructor();

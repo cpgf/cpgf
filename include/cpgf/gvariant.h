@@ -359,6 +359,11 @@ inline bool variantIsWideString(const GVariant & v)
 		|| ((vtGetPointers(data.typeData) == 1 && vtGetBaseType(data.typeData) == GVariantType::vtWchar));
 }
 
+inline GVariant createVariantFromData(const GVariantData & data)
+{
+	return GVariant(data);
+}
+
 template <typename T, typename Policy>
 typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(const GVariantData & data,
 	typename std::enable_if<! variant_internal::TypeListSame<
@@ -579,11 +584,6 @@ template <typename T>
 void deduceVariantType(GVarTypeData & data)
 {
 	deduceVariantType<T>(data, false);
-}
-
-inline GVariant createVariantFromData(const GVariantData & data)
-{
-	return GVariant(data);
 }
 
 
