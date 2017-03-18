@@ -45,7 +45,7 @@ GMemoryPoolChunk::GMemoryPoolChunk(
 {
 	unsigned char * p = data;
 	for(size_t i = 1; i <= this->blockCount; ++i) {
-		*(IndexType *)p = i;
+		*(IndexType *)p = (IndexType)i;
 		p += this->alignedBlockSize;
 	}
 }
@@ -73,7 +73,7 @@ void GMemoryPoolChunk::free(void * p)
 	assert(((unsigned char *)p - data) % this->alignedBlockSize == 0);
 	
 	*(IndexType *)p = this->availableIndex;
-	this->availableIndex = ((unsigned char *)p - this->data) / this->alignedBlockSize;
+	this->availableIndex = (IndexType)(((unsigned char *)p - this->data) / this->alignedBlockSize);
 	++this->availableCount;
 }
 

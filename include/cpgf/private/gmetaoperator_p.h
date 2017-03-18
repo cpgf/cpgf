@@ -250,7 +250,8 @@ struct GMetaOperatorDataVirtual
 	GVariant (*invoke2)(const GVariant & p0, const GVariant & p1);
 	GVariant (*invokeFunctor)(void * instance, GVariant const * const * params, size_t paramCount);
 	GVariant (*execute)(const void * self, void * instance, const GVariant * params, size_t paramCount);
-	
+	GVariant (*executeByData)(const void * self, void * instance, const GVariantData * * params, size_t paramCount);
+
 	GMetaOpType (*getOperator)();
 	size_t (*getParamCount)();
 	bool (*hasResult)();
@@ -302,6 +303,7 @@ public:
 	GVariant invokeFunctor(void * instance, GVariant const * const * params, size_t paramCount) const;
 
 	GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
+	GVariant executeByData(void * instance, const GVariantData * * params, size_t paramCount) const;
 
 	bool isParamTransferOwnership(size_t paramIndex) const;
 	bool isResultTransferOwnership() const;
@@ -442,6 +444,14 @@ private:
 		return virtualInvoke2(params[0], params[1]);
 	}
 
+	static GVariant virtualExecuteByData(const void * /*self*/, void * /*instance*/, const GVariantData * * params, size_t paramCount) {
+		if(paramCount != virtualGetParamCount()) {
+			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(), paramCount);
+		}
+
+		return virtualInvoke2(createVariantFromData(*params[0]), createVariantFromData(*params[1]));
+	}
+
 	static bool virtualIsParamTransferOwnership(size_t paramIndex) {
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
@@ -464,6 +474,7 @@ public:
 			&virtualInvoke2,
 			nullptr,
 			&virtualExecute,
+			&virtualExecuteByData,
 
 			&virtualGetOperator,
 			&virtualGetParamCount,
@@ -590,6 +601,14 @@ private:
 		return virtualInvoke(params[0]);
 	}
 
+	static GVariant virtualExecuteByData(const void * /*self*/, void * /*instance*/, const GVariantData * * params, size_t paramCount) {
+		if(paramCount != virtualGetParamCount()) {
+			raiseCoreException(Error_Meta_WrongArity, virtualGetParamCount(), paramCount);
+		}
+
+		return virtualInvoke(createVariantFromData(*params[0]));
+	}
+
 	static bool virtualIsParamTransferOwnership(size_t paramIndex) {
 		return policyHasIndexedRule<Policy, GMetaRuleTransferOwnership>(static_cast<int>(paramIndex));
 	}
@@ -612,6 +631,7 @@ public:
 			nullptr,
 			nullptr,
 			&virtualExecute,
+			&virtualExecuteByData,
 
 			&virtualGetOperator,
 			&virtualGetParamCount,
@@ -785,6 +805,19 @@ private:
 		>::invoke(instance, *static_cast<OT *>(instance), params, paramCount);
 	}
 
+	static GVariant virtualInvokeFunctorByData(void * instance, GVariantData const * const * params, size_t paramCount) {
+		checkInvokingArity(paramCount, virtualGetParamCount(), virtualIsVariadic());
+
+		return GMetaInvokeHelper<OT,
+			FT,
+			FT::Arity,
+			typename FT::ResultType,
+			Policy,
+			IsVariadicFunction<FT>::Result,
+			PolicyHasRule<Policy, GMetaRuleExplicitThis>::Result
+		>::invokeByData(instance, *static_cast<OT *>(instance), params, paramCount);
+	}
+
 	static GVariant virtualExecute(const void * self, void * instance, const GVariant * params, size_t paramCount) {
 		GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
 
@@ -801,6 +834,18 @@ private:
 		}
 
 		return virtualInvokeFunctor(instance, variantPointers, paramCount);
+	}
+
+	static GVariant virtualExecuteByData(const void * self, void * instance, const GVariantData * * params, size_t paramCount) {
+		GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+
+		checkInvokingArity(paramCount, virtualGetParamCount(), virtualIsVariadic());
+
+		if(static_cast<const ThisType *>(self)->hasDefaultParam()) {
+			static_cast<const ThisType *>(self)->getDefaultParamList()->loadDefaultParamsByData(params, paramCount, virtualGetParamCount());
+		}
+
+		return virtualInvokeFunctorByData(instance, params, paramCount);
 	}
 
 	static bool virtualIsParamTransferOwnership(size_t paramIndex) {
@@ -825,6 +870,7 @@ public:
 			&virtualInvoke2,
 			&virtualInvokeFunctor,
 			&virtualExecute,
+			&virtualExecuteByData,
 
 			&virtualGetOperator,
 			&virtualGetParamCount,

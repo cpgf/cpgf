@@ -123,6 +123,17 @@ GVariant GMetaOperatorDataBase::execute(void * instance, const GVariant * params
 	}
 }
 
+GVariant GMetaOperatorDataBase::executeByData(void * instance, const GVariantData * * params, size_t paramCount) const
+{
+	if(this->virtualFunctions->executeByData == nullptr) {
+		raiseCoreException(Error_Meta_NotFunctorOperator);
+		return GVariant();
+	}
+	else {
+		return this->virtualFunctions->executeByData(this, instance, params, paramCount);
+	}
+}
+
 GMetaDefaultParamList * GMetaOperatorDataBase::getDefaultParamList() const
 {
 	if(! this->defaultParamList) {
@@ -244,6 +255,11 @@ GVariant GMetaOperator::invokeBinary(const GVariant & p0, const GVariant & p1) c
 GVariant GMetaOperator::execute(void * instance, const GVariant * params, size_t paramCount) const
 {
 	return this->baseData->execute(instance, params, paramCount);
+}
+
+GVariant GMetaOperator::executeByData(void * instance, const GVariantData * * params, size_t paramCount) const
+{
+	return this->baseData->executeByData(instance, params, paramCount);
 }
 
 GMetaExtendType GMetaOperator::getItemExtendType(uint32_t flags) const

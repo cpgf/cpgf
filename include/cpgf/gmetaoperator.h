@@ -62,6 +62,7 @@ public:
 	virtual bool isResultTransferOwnership() const;
 	
 	virtual GVariant execute(void * instance, const GVariant * params, size_t paramCount) const;
+	virtual GVariant executeByData(void * instance, const GVariantData * * params, size_t paramCount) const;
 
 	virtual GMetaExtendType getItemExtendType(uint32_t flags) const;
 

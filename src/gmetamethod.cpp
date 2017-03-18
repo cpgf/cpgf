@@ -73,6 +73,11 @@ GVariant GMetaMethodDataBase::invoke(void * instance, GVariant const * const * p
 	return this->virtualFunctions->invoke(this, instance, params, paramCount);
 }
 
+GVariant GMetaMethodDataBase::invokeByData(void * instance, GVariantData const * const * params, size_t paramCount) const
+{
+	return this->virtualFunctions->invokeByData(this, instance, params, paramCount);
+}
+
 bool GMetaMethodDataBase::checkParam(const GVariant & param, size_t paramIndex) const
 {
 	return this->virtualFunctions->checkParam(param, paramIndex);
@@ -194,6 +199,21 @@ GVariant GMetaMethod::execute(void * instance, const GVariant * params, size_t p
 	return this->baseData->invoke(instance, variantPointers, paramCount);
 }
 
+GVariant GMetaMethod::executeByData(void * instance, const GVariantData * * params, size_t paramCount) const
+{
+	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+
+	if(this->isStatic()) {
+		instance = nullptr;
+	}
+
+	if(this->baseData->hasDefaultParam()) {
+		paramCount = this->baseData->getDefaultParamList()->loadDefaultParamsByData(params, paramCount, this->baseData->getParamCount());
+	}
+
+	return this->baseData->invokeByData(instance, params, paramCount);
+}
+
 bool GMetaMethod::checkParam(const GVariant & param, size_t paramIndex) const
 {
 	return this->baseData->checkParam(param, paramIndex);
@@ -291,6 +311,17 @@ GVariant GMetaConstructor::execute(void * /*instance*/, const GVariant * params,
 	}
 
 	return this->baseData->invoke(nullptr, variantPointers, paramCount);
+}
+
+GVariant GMetaConstructor::executeByData(void * instance, const GVariantData * * params, size_t paramCount) const
+{
+	GASSERT_MSG(paramCount <= REF_MAX_ARITY, "Too many parameters.");
+
+	if(this->baseData->hasDefaultParam()) {
+		paramCount = this->baseData->getDefaultParamList()->loadDefaultParamsByData(params, paramCount, this->baseData->getParamCount());
+	}
+
+	return this->baseData->invokeByData(nullptr, params, paramCount);
 }
 
 bool GMetaConstructor::checkParam(const GVariant & param, size_t paramIndex) const

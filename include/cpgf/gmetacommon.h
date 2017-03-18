@@ -184,6 +184,7 @@ public:
 	virtual bool isParamTransferOwnership(size_t paramIndex) const = 0;
 	virtual bool isResultTransferOwnership() const = 0;
 	virtual GVariant execute(void * obj, const GVariant * params, size_t paramCount) const = 0;
+	virtual GVariant executeByData(void * instance, const GVariantData * * params, size_t paramCount) const = 0;
 
 };
 

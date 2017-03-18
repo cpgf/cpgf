@@ -360,7 +360,15 @@ inline bool variantIsWideString(const GVariant & v)
 }
 
 template <typename T, typename Policy>
-typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(const GVariantData & data);
+typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(const GVariantData & data,
+	typename std::enable_if<! variant_internal::TypeListSame<
+	cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type * = 0
+);
+template <typename T, typename Policy>
+typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(const GVariantData & data,
+	typename std::enable_if<variant_internal::TypeListSame<
+	cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type * = 0
+);
 
 template <typename T, typename Policy = VarantCastKeepConstRef>
 bool canFromVariantData(const GVariantData & data);
@@ -390,7 +398,10 @@ GVariant variantPointerToLvalueReference(const GVariant & p);
 #include "private/gvariant_from_p.h"
 
 template <typename T, typename Policy>
-typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(const GVariantData & data)
+typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(const GVariantData & data,
+		typename std::enable_if<! variant_internal::TypeListSame<
+		cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type *
+	)
 {
 	using namespace variant_internal;
 
@@ -416,6 +427,15 @@ typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(
 	else {
 		return CastVariant_Value<T, Policy>::cast(data);
 	}
+}
+
+template <typename T, typename Policy>
+typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(const GVariantData & data,
+	typename std::enable_if<variant_internal::TypeListSame<
+	cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type *
+)
+{
+	return createVariantFromData(data);
 }
 
 template <typename T, typename Policy = VarantCastKeepConstRef>

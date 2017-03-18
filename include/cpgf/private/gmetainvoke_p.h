@@ -53,13 +53,14 @@ doInvokeMetaCallable(const CT & callback, Parameters && ... parameters)
 template <typename CT, typename FT, unsigned int N, typename RT, typename Policy, bool IsVariadic, bool ExplicitThis>
 struct GMetaInvokeHelper;
 
-#define REF_CALL_HELPER_CAST(N, unused) \
-	GPP_COMMA() fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result >(*params[N])
+#define REF_CALL_HELPER_CAST(N, unused) GPP_COMMA() fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result>(*params[N])
+#define REF_CALL_HELPER_CAST_BY_DATA(N, unused) GPP_COMMA() fromVariantData<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result>(*params[N])
 
-#define REF_CALL_HELPER_CAST_EXPLICIT_THIS_HELPER(N) \
-	GPP_COMMA() fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result >(*params[N - 1])
-#define REF_CALL_HELPER_CAST_EXPLICIT_THIS_EMPTY(N)
-#define REF_CALL_HELPER_CAST_EXPLICIT_THIS(N, unused) GPP_IF(N, REF_CALL_HELPER_CAST_EXPLICIT_THIS_HELPER, REF_CALL_HELPER_CAST_EXPLICIT_THIS_EMPTY)(N)
+#define REF_CALL_HELPER_CAST_EXPLICIT_THIS_HELPER(N) GPP_COMMA() fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result>(*params[N - 1])
+#define REF_CALL_HELPER_CAST_EXPLICIT_THIS(N, unused) GPP_IF(N, REF_CALL_HELPER_CAST_EXPLICIT_THIS_HELPER, GPP_EMPTY_N)(N)
+
+#define REF_CALL_HELPER_CAST_BY_DATA_EXPLICIT_THIS_HELPER(N) GPP_COMMA() fromVariantData<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result>(*params[N - 1])
+#define REF_CALL_HELPER_CAST_BY_DATA_EXPLICIT_THIS(N, unused) GPP_IF(N, REF_CALL_HELPER_CAST_BY_DATA_EXPLICIT_THIS_HELPER, GPP_EMPTY_N)(N)
 
 #define REF_CALL_HELPER(N, unused) \
 	template <typename CT, typename FT, typename RT, typename Policy> \
@@ -68,6 +69,10 @@ struct GMetaInvokeHelper;
 			(void)params; /*unused when N == 0*/ \
 			return doInvokeMetaCallable<CT, RT, Policy>(callback GPP_REPEAT(N, REF_CALL_HELPER_CAST, GPP_EMPTY)); \
 		} \
+		static GVariant invokeByData(void * /*instance*/, const CT & callback, GVariantData const * const * params, size_t /*paramCount*/) { \
+			(void)params; /*unused when N == 0*/ \
+			return doInvokeMetaCallable<CT, RT, Policy>(callback GPP_REPEAT(N, REF_CALL_HELPER_CAST_BY_DATA, GPP_EMPTY)); \
+		} \
 	}; \
 	template <typename CT, typename FT, typename RT, typename Policy> \
 	struct GMetaInvokeHelper<CT, FT, N, RT, Policy, false, true> { \
@@ -75,12 +80,15 @@ struct GMetaInvokeHelper;
 			(void)params; /*unused when N == 0*/ \
 			return doInvokeMetaCallable<CT, RT, Policy>(callback, (typename CT::TraitsType::ArgList::Arg0)(instance) GPP_REPEAT(N, REF_CALL_HELPER_CAST_EXPLICIT_THIS, GPP_EMPTY)); \
 		} \
+		static GVariant invokeByData(void * instance, const CT & callback, GVariantData const * const * params, size_t /*paramCount*/) { \
+			(void)params; /*unused when N == 0*/ \
+			return doInvokeMetaCallable<CT, RT, Policy>(callback, (typename CT::TraitsType::ArgList::Arg0)(instance) GPP_REPEAT(N, REF_CALL_HELPER_CAST_BY_DATA_EXPLICIT_THIS, GPP_EMPTY)); \
+		} \
 	};
 
-#define REF_CALL_HELPER_CAST_VARIADIC_HELPER(N) \
-	fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result >(*params[N]) GPP_COMMA()
-#define REF_CALL_HELPER_CAST_VARIADIC(N, unused) \
-	fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result >(*params[N]) GPP_COMMA()
+
+#define REF_CALL_HELPER_CAST_VARIADIC(N, unused) fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result>(*params[N]) GPP_COMMA()
+#define REF_CALL_HELPER_CAST_BY_DATA_VARIADIC(N, unused) fromVariantData<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result>(*params[N]) GPP_COMMA()
 
 #define I_REF_CALL_VARIADIC_HELPER(N, M) \
 	template <typename CT, typename FT, typename RT, typename Policy> \
@@ -91,15 +99,24 @@ struct GMetaInvokeHelper;
 			variadicParams.paramCount = paramCount - (N - 1); \
 			return doInvokeMetaCallable<CT, RT, Policy>(callback, GPP_REPEAT(M, REF_CALL_HELPER_CAST_VARIADIC, GPP_EMPTY) &variadicParams); \
 		} \
+		static GVariant invokeByData(void * /*instance*/, const CT & callback, GVariantData const * const * params, size_t paramCount) { \
+			GMetaVariadicParam variadicParams; \
+			GVariant buffer[REF_MAX_ARITY]; \
+			GVariant * pointerBuffer[REF_MAX_ARITY]; \
+			for(size_t i = N - 1; i < paramCount; ++i) { buffer[i - (N - 1)] = createVariantFromData(*params[i]); pointerBuffer[i - (N - 1)] = &buffer[i - (N - 1)]; } \
+			variadicParams.params = pointerBuffer; \
+			variadicParams.paramCount = paramCount - (N - 1); \
+			return doInvokeMetaCallable<CT, RT, Policy>(callback, GPP_REPEAT(M, REF_CALL_HELPER_CAST_BY_DATA_VARIADIC, GPP_EMPTY) &variadicParams); \
+		} \
 	};
+#define REF_CALL_VARIADIC_HELPER(N, unused) GPP_IF(N, I_REF_CALL_VARIADIC_HELPER, GPP_EMPTY_N)(N, GPP_DEC(N))
 
-#define REF_CALL_VARIADIC_HELPER_EMPTY(N, M)
-#define REF_CALL_VARIADIC_HELPER(N, unused) GPP_IF(N, I_REF_CALL_VARIADIC_HELPER, REF_CALL_VARIADIC_HELPER_EMPTY)(N, GPP_DEC(N))
 
-#define REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS_HELPER(N) \
-	fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result >(*params[N - 1]) GPP_COMMA()
-#define REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS_EMPTY(N)
-#define REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS(N, unused) GPP_IF(N, REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS_HELPER, REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS_EMPTY)(N)
+#define REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS_HELPER(N) fromVariant<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result>(*params[N - 1]) GPP_COMMA()
+#define REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS(N, unused) GPP_IF(N, REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS_HELPER, GPP_EMPTY_N)(N)
+
+#define REF_CALL_HELPER_CAST_BY_DATA_VARIADIC_EXPLICIT_THIS_HELPER(N) fromVariantData<typename FT::ArgList::Arg ## N, typename SelectFromVariantPolicy<Policy, N>::Result>(*params[N - 1]) GPP_COMMA()
+#define REF_CALL_HELPER_CAST_BY_DATA_VARIADIC_EXPLICIT_THIS(N, unused) GPP_IF(N, REF_CALL_HELPER_CAST_BY_DATA_VARIADIC_EXPLICIT_THIS_HELPER, GPP_EMPTY_N)(N)
 
 #define I_REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER(N, M) \
 	template <typename CT, typename FT, typename RT, typename Policy> \
@@ -110,10 +127,17 @@ struct GMetaInvokeHelper;
 			variadicParams.paramCount = paramCount - (M - 1); \
 			return doInvokeMetaCallable<CT, RT, Policy>(callback, (typename CT::TraitsType::ArgList::Arg0)(instance), GPP_REPEAT(M, REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS, GPP_EMPTY) &variadicParams); \
 		} \
+		static GVariant invokeByData(void * instance, const CT & callback, GVariantData const * const * params, size_t paramCount) { \
+			GMetaVariadicParam variadicParams; \
+			GVariant buffer[REF_MAX_ARITY]; \
+			GVariant * pointerBuffer[REF_MAX_ARITY]; \
+			for(size_t i = N - 2; i < paramCount; ++i) { buffer[i - (N - 2)] = createVariantFromData(*params[i]); pointerBuffer[i - (N - 2)] = &buffer[i - (N - 2)]; } \
+			variadicParams.params = pointerBuffer; \
+			variadicParams.paramCount = paramCount - (M - 1); \
+			return doInvokeMetaCallable<CT, RT, Policy>(callback, (typename CT::TraitsType::ArgList::Arg0)(instance), GPP_REPEAT(M, REF_CALL_HELPER_CAST_BY_DATA_VARIADIC_EXPLICIT_THIS, GPP_EMPTY) &variadicParams); \
+		} \
 	};
-
-#define REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER_EMPTY(N, unused)
-#define REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER(N, unused) GPP_IF(N, I_REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER, REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER_EMPTY)(N, GPP_DEC(N))
+#define REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER(N, unused) GPP_IF(N, I_REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER, GPP_EMPTY_N)(N, GPP_DEC(N))
 
 GPP_REPEAT_2(REF_MAX_ARITY, REF_CALL_HELPER, GPP_EMPTY)
 GPP_REPEAT_2(REF_MAX_ARITY, REF_CALL_VARIADIC_HELPER, GPP_EMPTY)
@@ -159,17 +183,12 @@ void adjustParamIndex(size_t & index, bool isExplicitThis);
 #undef REF_CALL_HELPER_CAST
 #undef REF_CALL_HELPER_CAST_EXPLICIT_THIS
 #undef REF_CALL_HELPER_CAST_EXPLICIT_THIS_HELPER
-#undef REF_CALL_HELPER_CAST_EXPLICIT_THIS_EMPTY
-#undef REF_CALL_HELPER_CAST_VARIADIC_HELPER
 #undef REF_CALL_HELPER_CAST_VARIADIC
 #undef I_REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER
-#undef REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER_EMPTY
 #undef REF_CALL_VARIADIC_EXPLICIT_THIS_HELPER
 #undef I_REF_CALL_VARIADIC_HELPER
 #undef REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS
-#undef REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS_EMPTY
 #undef REF_CALL_HELPER_CAST_VARIADIC_EXPLICIT_THIS_HELPER
-#undef REF_CALL_VARIADIC_HELPER_EMPTY
 
 #if defined(_MSC_VER)
 #pragma warning(pop)
