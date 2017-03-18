@@ -429,6 +429,18 @@ typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(
 	}
 }
 
+#ifdef G_COMPILER_GCC
+#pragma GCC diagnostic push
+// ignore warning: returning reference to temporary
+// those "problematical" code is not executed on those types so it's safe to ignore the warning.
+#pragma GCC diagnostic ignored "-Wreturn-local-addr"
+#endif
+
+#ifdef G_COMPILER_VC
+#pragma warning(push)
+#pragma warning(disable:4172) // warning C4172: returning address of local variable or temporar
+#endif
+
 template <typename T, typename Policy>
 typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(const GVariantData & data,
 	typename std::enable_if<variant_internal::TypeListSame<
@@ -437,6 +449,15 @@ typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(
 {
 	return createVariantFromData(data);
 }
+
+#ifdef G_COMPILER_VC
+#pragma warning(pop)
+#endif
+
+#ifdef G_COMPILER_GCC
+#pragma GCC diagnostic pop
+#endif
+
 
 template <typename T, typename Policy = VarantCastKeepConstRef>
 typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(const GVariant & value,

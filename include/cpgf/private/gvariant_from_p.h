@@ -10,6 +10,7 @@
 #ifdef G_COMPILER_VC
 #pragma warning(push)
 #pragma warning(disable:4172) // warning C4172: returning address of local variable or temporar
+#pragma warning(disable:4244) // warning C4244: 'argument': conversion from 'U' to 'int', possible loss of data
 #pragma warning(disable:4800) // warning C4800: 'U': forcing value to bool 'true' or 'false' (performance warning)
 #endif
 
