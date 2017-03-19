@@ -673,12 +673,6 @@ struct GArgumentTraits <T, typename GEnableIfResult<IsFundamental<T> >::Result>
 	typedef T Result;
 };
 
-//template <typename T>
-//struct GArgumentTraits <T *>
-//{
-//	typedef T * Result;
-//};
-
 template <typename T>
 struct GArgumentTraits <T &>
 {
@@ -698,6 +692,17 @@ struct GArgumentTraits <T [N]>
 	typedef const T * & Result;
 };
 #endif
+
+
+// http://stackoverflow.com/questions/5100015/c-metafunction-to-determine-whether-a-type-is-callable
+template<typename F, typename...Args>
+struct IsCallable
+{
+	template<typename U> static auto test(U * p) -> decltype((*p)(std::declval<Args>()...), void(), std::true_type());
+	template<typename U> static auto test(...) -> decltype(std::false_type());
+
+	static constexpr bool value = decltype(test<typename std::remove_reference<F>::type>(0))::value;
+};
 
 
 } // namespace cpgf
