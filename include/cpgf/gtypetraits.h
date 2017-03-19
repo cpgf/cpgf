@@ -701,7 +701,7 @@ struct IsCallable
 	template<typename U> static auto test(U * p) -> decltype((*p)(std::declval<Args>()...), void(), std::true_type());
 	template<typename U> static auto test(...) -> decltype(std::false_type());
 
-	static constexpr bool value = decltype(test<typename std::remove_reference<F>::type>(0))::value;
+	static constexpr bool Result = decltype(test<typename std::remove_reference<F>::type>(0))::value;
 };
 
 
