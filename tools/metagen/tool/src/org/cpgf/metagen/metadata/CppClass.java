@@ -321,7 +321,7 @@ public class CppClass extends ParameteredItem {
 	
 	private boolean checkHasTypeConverterConstructor() {
 		for(Constructor c : this.getConstructorList()) {
-			if(c.isPublic() && c.isTypeConverter()) {
+			if(c.isPublic() && c.isTypeConverter() && ! c.isExplicit()) {
 				return true;
 			}
 		}

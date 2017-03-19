@@ -318,6 +318,12 @@ public class DoxygenXmlParser {
 
 		if(matcher.matches()) { // operator
 			String op = matcher.group(1);
+			
+			// don't reflect new/delete
+			if(op.indexOf("new") >= 0 || op.indexOf("delete") >= 0) {
+				return null;
+			}
+
 			Operator operator = new Operator(
 					op, 
 					new CppType(this.metaInfo.getTypeSolver(), Util.getNodeText(Util.getNode(node, "type")))
