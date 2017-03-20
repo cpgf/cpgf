@@ -367,12 +367,32 @@ inline GVariant createVariantFromData(const GVariantData & data)
 template <typename T, typename Policy>
 typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(const GVariantData & data,
 	typename std::enable_if<! variant_internal::TypeListSame<
-	cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type * = 0
+		cpgf::GTypeList<
+			GVariant,
+			const GVariant,
+			const volatile GVariant,
+			volatile GVariant,
+			GVariant &,
+			const GVariant &,
+			const volatile GVariant &,
+			volatile GVariant &
+		>, T>::same>::type * = 0
 );
+
+// Policy is forced to be VarantCastCopyConstRef to avoid reference to local variable
 template <typename T, typename Policy>
-typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(const GVariantData & data,
+typename variant_internal::VariantCastResult<T, VarantCastCopyConstRef>::Result fromVariantData(const GVariantData & data,
 	typename std::enable_if<variant_internal::TypeListSame<
-	cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type * = 0
+		cpgf::GTypeList<
+			GVariant,
+			const GVariant,
+			const volatile GVariant,
+			volatile GVariant,
+			GVariant &,
+			const GVariant &,
+			const volatile GVariant &,
+			volatile GVariant &
+		>, T>::same>::type * = 0
 );
 
 template <typename T, typename Policy = VarantCastKeepConstRef>
@@ -405,7 +425,16 @@ GVariant variantPointerToLvalueReference(const GVariant & p);
 template <typename T, typename Policy>
 typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(const GVariantData & data,
 		typename std::enable_if<! variant_internal::TypeListSame<
-		cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type *
+			cpgf::GTypeList<
+				GVariant,
+				const GVariant,
+				const volatile GVariant,
+				volatile GVariant,
+				GVariant &,
+				const GVariant &,
+				const volatile GVariant &,
+				volatile GVariant &
+			>, T>::same>::type *
 	)
 {
 	using namespace variant_internal;
@@ -447,10 +476,19 @@ typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(
 #endif
 
 template <typename T, typename Policy>
-typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(const GVariantData & data,
-	typename std::enable_if<variant_internal::TypeListSame<
-	cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type *
-)
+typename variant_internal::VariantCastResult<T, VarantCastCopyConstRef>::Result fromVariantData(const GVariantData & data,
+		typename std::enable_if<variant_internal::TypeListSame<
+			cpgf::GTypeList<
+				GVariant,
+				const GVariant,
+				const volatile GVariant,
+				volatile GVariant,
+				GVariant &,
+				const GVariant &,
+				const volatile GVariant &,
+				volatile GVariant &
+			>, T>::same>::type *
+	)
 {
 	return createVariantFromData(data);
 }
@@ -467,7 +505,16 @@ typename variant_internal::VariantCastResult<T, Policy>::Result fromVariantData(
 template <typename T, typename Policy = VarantCastKeepConstRef>
 typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(const GVariant & value,
 		typename std::enable_if<! variant_internal::TypeListSame<
-			cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type * = 0
+			cpgf::GTypeList<
+				GVariant,
+				const GVariant,
+				const volatile GVariant,
+				volatile GVariant,
+				GVariant &,
+				const GVariant &,
+				const volatile GVariant &,
+				volatile GVariant &
+			>, T>::same>::type * = 0
 	)
 {
 	return fromVariantData<T, Policy>(value.refData());
@@ -476,7 +523,16 @@ typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(cons
 template <typename T, typename Policy = VarantCastKeepConstRef>
 typename variant_internal::VariantCastResult<T, Policy>::Result fromVariant(const GVariant & value,
 		typename std::enable_if<variant_internal::TypeListSame<
-			cpgf::GTypeList<const GVariant &, GVariant &, GVariant, const volatile GVariant &, volatile GVariant>, T>::same>::type * = 0
+			cpgf::GTypeList<
+				GVariant,
+				const GVariant,
+				const volatile GVariant,
+				volatile GVariant,
+				GVariant &,
+				const GVariant &,
+				const volatile GVariant &,
+				volatile GVariant &
+			>, T>::same>::type * = 0
 	)
 {
 	return (typename variant_internal::VariantCastResult<T, Policy>::Result)value;

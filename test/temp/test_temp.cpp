@@ -109,12 +109,16 @@ void TestScriptBindMetaData3()
 
 typedef int (*&FuncPtr)();
 
+void doIt(const GVariant & b)
+{
+	cout << b.refData().typeData.vt << "  " << fromVariant<int>(b) << endl;
+}
+
 GTEST(TestTemp)
 {
-	GCallback<int (int, int)> cb = [](int a, int b) { return a + b; };
-	GVariant a(cb);
-	auto x = fromVariant<GCallback<int (int, int)> >(a);
-	cout << x(3, 5) << endl;
+	GVariant a = createTypedVariant(GVariant(38), createMetaType<int>());
+	doIt(fromVariantData<const GVariant &, VarantCastCopyConstRef>(a.refData()));
+return;
 
 	TestLuaContext context;
 	GScopedInterface<IMetaClass> metaClass(context.getService()->findClassByName("testscript::TestOperator"));
