@@ -561,11 +561,8 @@ GScriptValue luaToScriptValue(const GContextPointer & context, int index, GGlueD
 			return luaUserDataToScriptValue(context, index, outputGlueData);
 
 		case LUA_TFUNCTION: {
-			lua_getupvalue(L, index, 1);
-			if(lua_isnil(L, -1)) {
-				lua_pop(L, 1);
-			}
-			else {
+			const bool ok = (lua_getupvalue(L, index, 1) != NULL);
+			if(ok && ! lua_isnil(L, -1)) {
 				void * rawUserData = lua_touserdata(L, -1);
 				GGlueDataWrapper * dataWrapper = static_cast<GGlueDataWrapper *>(rawUserData);
 
@@ -576,9 +573,16 @@ GScriptValue luaToScriptValue(const GContextPointer & context, int index, GGlueD
 					}
 				}
 			}
+
+			if(ok) {
+				// Remove the up value from stack
+				lua_pop(L, 1);
+			}
+
 			GScopedInterface<IScriptFunction> func(new ImplScriptFunction(new GLuaScriptFunction(context, index), true));
 			return GScriptValue::fromScriptFunction(func.get());
 		}
+		break;
 
 		case LUA_TLIGHTUSERDATA:
 			break;
