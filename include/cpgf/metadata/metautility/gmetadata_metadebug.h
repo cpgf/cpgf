@@ -18,10 +18,13 @@ template <typename T, typename MetaDefine>
 void doBuildMetaData_metaDebug(const GMetaDataConfigFlags & /*config*/, MetaDefine define)
 {
 	M(T, debugBreak)
+	
 	M(T, trace)
 	M(T, traceError)
 	M(T, traceLine)
 	M(T, traceErrorLine)
+	
+	M(T, inspect)
 }
 
 
