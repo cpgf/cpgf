@@ -414,11 +414,18 @@ void GScriptDataHolder::setScriptValue(const char * name, const GScriptValue & v
 	GASSERT(value.isScriptFunction());
 
 	this->requireDataMap();
+	
+	const GVariant variant = value.getValue();
 
-  // Insert and overwrite the previous function if it exists.
-  (*this->dataMap)[name] = value.getValue();
+	// Insert and overwrite the previous function if it exists.
+	(*this->dataMap)[name] = variant;
 
-	gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(value.getValue()))->weaken();
+	if(vtIsInteger(variant.getType())) {
+		IScriptFunction * func = dynamic_cast<IScriptFunction *>(fromVariant<IObject *>(variant));
+		if(func != nullptr) {
+			func->weaken();
+		}
+	}
 }
 
 IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
@@ -427,7 +434,7 @@ IScriptFunction * GScriptDataHolder::getScriptFunction(const char * name)
 		MapType::iterator it = this->dataMap->find(name);
 		if(it != this->dataMap->end()) {
 			if(vtIsInterface(it->second.getType())) {
-				IScriptFunction * func = gdynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
+				IScriptFunction * func = dynamic_cast<IScriptFunction *>(fromVariant<IObject *>(it->second));
 				if(func != nullptr) {
 					func->addReference();
 				}
