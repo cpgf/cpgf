@@ -614,7 +614,7 @@ GVariant createVariant(const GVariant & value, bool /*copyObject*/ = false)
 template <typename T>
 GVariant copyVariantFromCopyable(const T & value)
 {
-	return createVariant<T>(value, true);
+	return createVariant<typename std::remove_reference<T>::type>(value, true);
 }
 
 inline void * objectAddressFromVariant(const GVariant & v)
