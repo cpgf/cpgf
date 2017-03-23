@@ -139,7 +139,7 @@ sub doCommon
 
 	print &doFormat(<<EOM
 		case GVariantType::$item->{vt}:
-			return (ResultType)helperFromVariant<ResultType, cpgf::GTypeList<$item->{type}> >(data.$item->{value});
+			return (ResultType)helperFromVariant<typename HelperValueType<ResultType>::type, cpgf::GTypeList<$item->{type}> >(data.$item->{value});
 
 EOM
 );
@@ -151,7 +151,7 @@ sub doCanCommon
 
 	print &doFormat(<<EOM
 		case GVariantType::$item->{vt}:
-			return TypeListConvertible<cpgf::GTypeList<$item->{type}>, ResultType>::convertible;
+			return TypeListConvertible<cpgf::GTypeList<$item->{type}>, typename HelperValueType<ResultType>::type>::convertible;
 
 EOM
 );
