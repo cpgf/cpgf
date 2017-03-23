@@ -13,26 +13,6 @@ GVariant createTypedVariant(const T & value)
 {
 	return createTypedVariant(GVariant(value), createMetaType<T>());
 }
-class GTypedVariant
-{
-public:
-	template <typename T>
-	GTypedVariant(const T & value) : value(createTypedVariant(value)) {}
-
-	operator const GVariant & () const { return this->value; }
-	operator GVariant & () { return this->value; }
-	operator const GVariant * () const { return &this->value; }
-	operator GVariant * () { return &this->value; }
-	const GVariant * operator & () const { return & this->value; }
-	GVariant * operator & () { return & this->value; }
-
-	const GVariant & getValue() const { return this->value; }
-	GVariant & getValue() { return this->value; }
-
-private:
-	GVariant value;
-};
-
 
 template <typename Tuple>
 struct LoadVariantListParam
