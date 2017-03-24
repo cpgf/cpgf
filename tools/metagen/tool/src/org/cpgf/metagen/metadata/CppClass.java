@@ -252,7 +252,7 @@ public class CppClass extends ParameteredItem {
 	}
 	
 	@Override
-	public void getPolicyRules(List<String> rules) {
+	protected void doGetPolicyRules(List<String> rules) {
 		this.getTraits().getRules(rules);
 	}
 

@@ -57,9 +57,9 @@ public class CppInvokable extends ParameteredItem {
 	}
 
 	@Override
-	public void getPolicyRules(List<String> rules) {
+	protected void doGetPolicyRules(List<String> rules) {
 		if(this.resultType != null) {
-		if (getTransferResultOwnership()) {
+			if(getTransferResultOwnership()) {
 				rules.add(ParserUtil.composePolicyRuleForParameter("GMetaRuleTransferOwnership", -1));
 			}
 			getPolicyRuleForParameter(rules, this.resultType, -1);
