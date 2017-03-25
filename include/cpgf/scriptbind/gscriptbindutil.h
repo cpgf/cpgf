@@ -34,7 +34,7 @@ struct LoadVariantListFunc
 template <typename... Parameters>
 void loadVariantList(GVariant * variantList, const Parameters & ... parameters)
 {
-	const auto tuple = std::make_tuple(parameters...);
+	const auto tuple = std::forward_as_tuple(parameters...);
 	LoadVariantListParam<decltype(tuple)> param { variantList, tuple };
 	GTypeForEach<sizeof...(Parameters)>::template forEach<LoadVariantListFunc>(param);
 }
@@ -62,7 +62,7 @@ struct LoadVariantDataListFunc
 template <typename... Parameters>
 void loadVariantDataList(GVariant * variantList, GVariantData ** variantDataList, const Parameters & ... parameters)
 {
-	const auto tuple = std::make_tuple(parameters...);
+	const auto tuple = std::forward_as_tuple(parameters...);
 	LoadVariantDataListParam<decltype(tuple)> param { variantList, variantDataList, tuple };
 	GTypeForEach<sizeof...(Parameters)>::template forEach<LoadVariantDataListFunc>(param);
 }
