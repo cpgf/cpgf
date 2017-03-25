@@ -4,6 +4,7 @@
 #include "cpgf/gapiutil.h"
 #include "cpgf/gmetatype.h"
 
+#include <type_traits>
 
 namespace cpgf {
 
@@ -60,7 +61,7 @@ struct GMetaTraitsCreateSharedPointerTraits
 template <typename T>
 IMetaSharedPointerTraits * createSharedPointerTraitsFromMetaTraits(const GMetaTraitsParam & param, T *)
 {
-	return GMetaTraitsCreateSharedPointerTraits<T>::createSharedPointerTraits(param);
+	return GMetaTraitsCreateSharedPointerTraits<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::createSharedPointerTraits(param);
 }
 
 } // namespace cpgf

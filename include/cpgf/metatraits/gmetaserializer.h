@@ -1,9 +1,9 @@
 #ifndef CPGF_GMETASERIALIZER_H
 #define CPGF_GMETASERIALIZER_H
 
-
 #include "cpgf/gapiutil.h"
 
+#include <type_traits>
 
 namespace cpgf {
 
@@ -43,7 +43,7 @@ struct GMetaTraitsCreateSerializer
 template <typename T>
 IMetaSerializer * createSerializerFromMetaTraits(const GMetaTraitsParam & param, T *)
 {
-	return GMetaTraitsCreateSerializer<T>::createSerializer(param);
+	return GMetaTraitsCreateSerializer<typename std::remove_cv<typename std::remove_reference<T>::type>::type>::createSerializer(param);
 }
 
 } // namespace cpgf

@@ -88,6 +88,8 @@ const char * GException::getMessage() const
 
 void raiseException(int errorCode, const char *  message)
 {
+//	fprintf(stderr, "%s\n", message);
+
 	throw GException(errorCode, message);
 }
 
